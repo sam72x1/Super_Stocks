@@ -1,4 +1,4 @@
-name: Daily Pivot Screener
+Name: Daily Pivot Screener
 permissions:
   contents: write
 on:
@@ -20,8 +20,8 @@ jobs:
         run: pip install -r requirements.txt
       - name: Run screener
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: "8007197541:AAH4xQbV4ZKl2B4eQrb5jBSbOX1hZPeQgys"
+          TELEGRAM_CHAT_ID: "409555841"
           SCREENER_MODE: FULL
         run: python Super_stock.py
       - name: Upload report
