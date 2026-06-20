@@ -1,15 +1,10 @@
-# ==========================================================
-#  تحليل سهم واحد عند الطلب (تشغيل يدوي منفصل)
-#  ضع هذا الملف في:  .github/workflows/analyze.yml
-#  لا علاقة له بفرز القائمة الأسبوعي/اليومي — مسار مستقل تماماً.
-# ==========================================================
-name: تحليل سهم (يدوي)
+name: Manual Stock Analysis
 
 on:
   workflow_dispatch:
     inputs:
       ticker:
-        description: "رمز السهم المراد تحليله (مثل: VOR أو BBLG أو PRFX)"
+        description: Stock ticker to analyze (e.g. VOR)
         required: true
         type: string
 
@@ -35,4 +30,3 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           ANALYZE: ${{ github.event.inputs.ticker }}
         run: python analyze_one.py
-: 
