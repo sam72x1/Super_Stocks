@@ -1,0 +1,33 @@
+name: Daily Pivot Screener
+permissions:
+  contents: write
+on:
+  schedule:
+    - cron: "0 7 * * 2-6"
+  workflow_dispatch: {}
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run screener
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SCREENER_MODE: FULL
+        run: python Super_stock.py
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screener-report
+          path: screener_report_*.csv
+          if-no-files-found: ignore
