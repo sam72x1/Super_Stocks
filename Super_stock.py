@@ -1,1 +1,2807 @@
+# -*- coding: utf-8 -*-
+"""
+==========================================================
+بوت فرز أسهم الارتكاز (Pivot Low Screener) — النسخة 2.3
 
+==========================================================
+
+جديد v2.3 — التحليل متعدد الفريمات + أنماط الشموع الانعكاسية:
+  • شرطان إلزاميان جديدان يرفعان الدقة (ويستبعدان الأسهم التي
+    تبدو حلوة على اليومي فقط):
+    - M6: انعكاس مؤكَّد على ≥ 2 من 3 فريمات (شهري/أسبوعي/يومي).
+      (تُحسب الفريمات بإعادة تجميع اليومي — بلا أي تحميل إضافي.)
+    - M7: ظهور نمط شمعة انعكاسي واحد على الأقل (يومي أو أسبوعي).
+  • 8 أنماط انعكاس عند القاع تُكتشف رياضياً: مطرقة، مطرقة مقلوبة،
+    ابتلاع صاعد، اختراق صاعد، نجمة الصباح، ثلاثة جنود بيض،
+    دوجي عند الدعم، ماروبوزو أخضر.
+  • تأكيد فريم 4 ساعات للمرشحين النهائيين فقط (معلومة/نقاط — لأن
+    بيانات الإنتراداي محدودة، فهو غير إلزامي عمداً).
+  • نقاط إضافية: +10 لتوافق الفريمات الثلاثة، +5 لنمط شمعة قوي.
+  • زيادة التاريخ إلى ~2.2 سنة ليصبح الفريم الشهري سليماً.
+
+جديد v2.2 — إضافة الأخبار لكل مرشح:
+  • أخبار ياهو التلقائية (مجانية عبر yfinance): عناوين آخر 14 يوم
+    تظهر داخل بطاقة السهم مع رابط كل خبر وتاريخه ومصدره.
+  • روابط متابعة بضغطة واحدة: TipRanks + Yahoo + Finviz لكل سهم.
+    (TipRanks/thefly مدفوع ومحمي ضد السحب الآلي، فنعطي رابطه
+     المباشر بدل محاولة سحب غير موثوقة.)
+  • ملاحظة: أخطار التخفيف المهمة (طرح أسهم/وحدات مثل خبر EHGO)
+    يلتقطها مرصد SEC أصلاً كـ"🔴 نشرة طرح (تخفيف)" — أسرع وأوثق.
+
+جديد v2.1 — معايرة الفلاتر بعد مراجعة المنهجية (سبب "السهم الواحد"):
+  خُفّفت الفلاتر التي كانت مشددة زيادة عن كلام فيصل، دون المساس
+  بجوهر منهجيته. الإلزامي ما زال يفرض: فوق دولارين + هبوط عميق +
+  انفجار سابق ≥100% + تجميع + عدم ملاحقة + سيولة + تأكيد فني.
+  التغييرات (كلها في CONFIG، قابلة للرجوع برقم واحد):
+    • وضع الفرز الافتراضي صار FULL بدل TEST (أمان: لا يفرز العينة
+      الصغيرة بالغلط لو سقط متغير البيئة).
+    • الهبوط المقبول: 50%-97% (كان 60%-92%) — يشمل أسهم فيصل
+      شديدة الهبوط مثل "معيد الإجرام" (ELPW).
+    • نافذة الانفجار السابق: <=20 جلسة (كانت <=10) — أكبر فلتر كان
+      يخنق النتائج؛ يبقى شرط 100% كما حدده فيصل.
+    • مدى التجميع: <=40% (كان 30%) — يناسب تذبذب الأسهم الصغيرة.
+    • منع الملاحقة: <=35% خلال 5 جلسات (كان 25%).
+    • حد السيولة: >=200 ألف$ (كان 300 ألف) — مع بقاء تحذير السيولة.
+    • العائد/المخاطرة: >=1.0 (كان 1.5) — بوابة كانت من اجتهادي.
+    • حد النقاط: >=40 (كان 50) — VOR كان يعدّي بالكاد عند 50.
+  ملاحظة: البورصة بقيت ناسداك فقط (بطلب صريح). وأُضيف BCAB
+  لقائمة مراقبة التقسيم العكسي (يطابق ملفه: تقسيم حديث + شورت<20ألف).
+
+جديد v2.0 — نظام القائمة الأسبوعية الثابتة:
+  • الجمعة بعد الإغلاق: فرز السوق كامل → اختيار أفضل 10 أسهم
+    → تثبيتها في weekly_watchlist.json كقائمة الأسبوع.
+  • الاثنين→الخميس: لا فرز جديد — حساب نسبة جاهزية الدخول
+    (0-100%) لكل سهم حسب التحليل الفني اللحظي، وإرسال القائمة
+    مرتبة بالنسبة.
+  • سهم يضرب الستوب → يُشطب بسببه، ويُستبدل في تشغيل اليوم
+    التالي (القائمة دائماً ≤ 10).
+  • الجمعة: تقرير حصاد الأسبوع (الأداء + أسباب الشطب للتعلم)
+    ثم تجديد القائمة كاملة.
+  • أول تشغيل بدون قائمة = تأسيس فوري (لا تنتظر الجمعة).
+  • البورصة المعتمدة: ناسداك فقط.
+  • عرض المخاطرة بالدولار الفعلي بدل نسبة 1:X الغامضة.
+  • الشورت: Fintel محاولة أولى صامتة → FINRA أساسي → Yahoo
+    احتياطي، مع التفريق بين "تعذّر الجلب" والرقم الفعلي.
+
+يتضمن كل إصلاحات v1.1 (الـ14 مشكلة) كما هي:
+  فلتر العائد/المخاطرة، إعلانات SEC الرسمية بالـCIK، منطق RSI
+  المصحح، سقف الهبوط 97%، الجاهز أولاً، لا ثبات بصفر جلسات،
+  تحذير الانفجارات الضخمة، تباعد الأهداف، سقف 2x، مسح السيولة
+  الحقيقي، تحذير السيولة المنخفضة، تتبع الأداء والذاكرة الدائمة.
+
+ملاحظات تشغيل:
+  • لا حاجة لأي تعديل على ملف YML — البوت يعرف اليوم بنفسه.
+  • لإجبار تجديد القائمة في أي يوم: أضف متغير بيئة FORCE_RENEW=1
+    (اختياري، للطوارئ فقط).
+
+هذا البوت *فارز فقط* — لا ينفّذ صفقات. القرار النهائي لك.
+(معلومات ليست توصية)
+"""
+
+import os
+import re
+import sys
+import json
+import time
+import math
+import datetime as dt
+import traceback
+
+import numpy as np
+import pandas as pd
+import requests
+
+# yfinance قد لا تكون مثبتة في بيئة الاختبار — نتعامل مع غيابها بلطف
+try:
+    import yfinance as yf
+except Exception:
+    yf = None
+
+# ==========================================================
+# 1) الإعدادات — كل أرقام المعايرة هنا (عدّل بحرية)
+# ==========================================================
+CONFIG = {
+    # وضع التشغيل: TEST = عينة صغيرة سريعة | FULL = السوق كامل
+    # (يمكن تجاوزه بمتغير بيئة SCREENER_MODE)
+    # v2.1: الافتراضي FULL حتى لا يفرز العينة (28 سهم) بالغلط لو
+    #       سقط متغير البيئة. للاختبار السريع: مرّر SCREENER_MODE=TEST
+    "MODE": "FULL",
+
+    # عينة الاختبار: الأسهم الموثقة من تحليلات فيصل
+    "TEST_TICKERS": [
+        "NXTT", "ADIL", "BIRD", "ELAB", "CDIO", "LFS", "VEEE", "AUUD",
+        "EHGO", "FRGT", "PCLA", "EZRA", "CNMD", "RENX", "PRFX", "CLIK",
+        "SMX", "NCT", "ELPW", "EDHL", "FRSX", "VMAR", "WORX", "WCT",
+        "INHD", "ICU", "BNAI", "ENPH",
+    ],
+
+    # ---- الشروط الإلزامية (M) ----
+    "MIN_PRICE": 2.0,            # M1: فوق دولارين (قاعدة فيصل) — بلا سقف
+    "MIN_DROP_PCT": 50.0,        # M2: هبوط من قمة 52 أسبوع ≥ 50% (v2.1: كان 60)
+    "MAX_DROP_PCT": 97.0,        # M2+: فوقه = سهم محتضر/فخ تقسيم (v2.1: كان 92)
+    "PRIOR_SPIKE_PCT": 100.0,    # M3: انفجار سابق ≥ 100%...
+    "PRIOR_SPIKE_WINDOW": 20,    # ...خلال ≤ 20 جلسة (v2.1: كان 10 — أكبر فلتر خانق)
+    "BASE_WINDOW": 15,           # M4: نافذة التجميع (جلسات)
+    "BASE_RANGE_MAX_PCT": 40.0,  # M4: مدى التجميع ≤ 40% (v2.1: كان 30)
+    "RECENT_RISE_BLOCK_PCT": 35.0,  # M4: استبعاد من انفجر فعلاً (آخر 5 جلسات) (v2.1: كان 25)
+    "MIN_DOLLAR_VOL": 200_000,   # M5: متوسط سيولة دولارية 20 يوم (v2.1: كان 300K)
+
+    # ---- فلتر العائد/المخاطرة الإلزامي ----
+    "MIN_RR_T1": 1.0,            # أقل عائد/مخاطرة مقبول للهدف الأول (v2.1: كان 1.5)
+    "MIN_T1_GAIN_PCT": 8.0,      # الهدف الأول يبعد ≥ 8% عن السعر الحالي
+
+    # ---- إشارات النقاط (S) ----
+    "RSI_OVERSOLD": 27.0,        # فيصل: التشبع البيعي 23-27 (مستحيل ينفجر فوق هذا)
+    "RSI_RECENT_WINDOW": 5,      # نافذة قاع RSI
+    "RSI_MAX_NOW": 40.0,         # فيصل: "مستحيل يصعد إذا RSI بمناطق 40"
+    # ---- بوابات فيصل الإلزامية (v2.6: مطابقة الشروط الستة بصرامة) ----
+    "RSI_GATE_REQUIRED": True,   # M10: RSI لازم في التشبع (27) وتحت السقف (40)
+    "MACD_GATE_REQUIRED": True,  # M11: تقاطع MACD إيجابي إلزامي
+    "MA_GATE_REQUIRED": True,    # M12: السعر على المتوسط الأسي 30/50
+    "MA_GATE_MAX_ABOVE_PCT": 15.0,  # أقصى ارتفاع فوق المتوسط الأسي (مرتكز لا طائر)
+    "SHORT_GATE_REQUIRED": True, # M13: رفض الشورت العالي (ذكي: يعدّي لو مفقود)
+    "SHORT_GATE_MAX": 20_000,    # حد "الشورت العالي" (فيصل: تحت 20 ألف)
+    "FLOAT_GATE_REQUIRED": True,  # M14: رفض الفلوت الكبير (أقوى رابط في أسهم فيصل)
+    "FLOAT_GATE_MAX": 50_000_000, # حد الفلوت: كل أسهم فيصل تحته (HCAI 163ألف ←
+                                  # MWC 26.68م). الفلوت الصغير = ينفجر بسهولة.
+                                  # ذكي: يعدّي لو الفلوت مفقود (فائدة الشك).
+    "VOL_SPIKE_MULT": 5.0,       # شمعة الفوليوم الضخمة ≥ 5x متوسط 20
+    "VOL_DRY_RATIO": 0.6,        # جفاف: متوسط 5 < 60% من متوسط 20
+    "SCORE_MIN": 40,             # الحد الأدنى لدخول الترشيح (v2.1: كان 50)
+
+    # ---- القائمة الأسبوعية (v2.0) ----
+    "WATCHLIST_SIZE": 10,        # حجم القائمة الثابتة (حد أقصى)
+    # v2.6 (فيصل): فرز السوق كاملاً كل يوم بعد الإغلاق بدل الجمعة فقط
+    # (أسهم الشروط الصارمة نادرة جداً — نصطادها أي يوم تظهر)
+    "DAILY_FULL_SCAN": True,
+    "READY_PCT": 75,             # نسبة الجاهزية: 🟢 جاهز من هنا وفوق
+    "NEAR_PCT": 50,              # 🟡 يقترب من هنا وفوق، وتحتها 🔴 بعيد
+    "EXCLUDE_STOPPED_FROM_RENEWAL": True,  # لا تُعِد سهماً ضرب ستوبه هذا الأسبوع
+
+    # ---- قاعدة الثبات (التوقيت الذهبي: 3-5 جلسات بعد القاع) ----
+    "PIVOT_LOOKBACK": 25,        # نبحث عن القاع في آخر 25 جلسة
+    "STABILITY_MIN": 3,
+    "STABILITY_MAX": 8,          # 5 + سماحية بسيطة
+    "STABILITY_TOL_PCT": 2.0,    # القيعان بعد القاع ضمن 2% منه
+
+    # ---- مستويات مقترحة ----
+    "STOP_BELOW_LOW_PCT": (5.0, 7.0),    # الوقف 5-7% تحت القاع (فيصل: تحت
+                                         # منطقة سحب السيولة، لا 1-2% الضيقة)
+    "ENTRY_ABOVE_PIVOT_PCT": 8.0,        # الحد الأعلى للدخول = القاع +8%
+                                         # (لا تطارد السهم أعلى من هذا)
+    "SWEEP_SMALL_PCT": (8.0, 10.0),      # عمق المسح: أسهم صغيرة
+    "SWEEP_LARGE_PCT": (5.0, 7.0),       # عمق المسح: أسهم كبيرة (سعر ≥ 15)
+    "LARGE_PRICE_CUT": 15.0,
+    "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
+
+    # ---- الفجوات السعرية (شرط فيصل السادس: "مع فجوات عالية") ----
+    # v2.4 (نسخة B التجريبية): الفجوة بوابة إلزامية — فيصل: "أسهم الارتكاز
+    # عدوها السيولة بسبب الفجوات الكبيرة". اختبار A/B: لو حسّنت النتائج نعتمدها.
+    "GAP_REQUIRED": False,       # M8 (فجوة طازجة): نقاط فقط — المفهوم الصحيح
+                                 # لفيصل هو الفجوة-فوق (M9)، فنطفّي هذي كبوابة
+    "GAP_LOOKBACK": 20,          # نبحث عن الفجوات في آخر 20 جلسة
+    "GAP_LOOKBACK_W": 26,        # نافذة فجوات الفريم الأسبوعي (~6 شهور)
+    "GAP_LOOKBACK_M": 18,        # نافذة فجوات الفريم الشهري (~18 شهر)
+    "GAP_MIN_PCT": 3.0,          # فجوة صاعدة معتبرة = افتتاح اليوم > إغلاق أمس بـ ≥3%
+    "GAP_REQ_WINDOW": 20,        # البوابة: الفجوة المعتبرة لازم تكون خلال آخر N جلسة
+    "GAP_BIG_PCT": 8.0,          # فجوة "عالية" حسب وصف فيصل (نقاط أعلى)
+    "GAP_SCORE_NORMAL": 5,       # نقاط لوجود فجوة صاعدة معتبرة حديثة
+    "GAP_SCORE_BIG": 10,         # نقاط لفجوة عالية ≥8% (بدل الـ5، لا تُجمع)
+    "GAP_SCORE_MULTIFRAME": 5,   # نقاط إضافية لو الفجوات على أكثر من فريم
+    # ---- الفجوة غير المملوءة فوق السعر (مفهوم فيصل: منطقة-هدف) v2.5 ----
+    "GAP_ABOVE_REQUIRED": True,   # ★ بوابة: لازم فجوة غير مملوءة فوق السعر
+    "GAP_ABOVE_LOOKBACK_D": 120,  # نافذة بحث الفجوات-فوق على اليومي (~6 شهور)
+    "GAP_ABOVE_LOOKBACK_W": 52,   # على الأسبوعي (~سنة)
+    "GAP_ABOVE_LOOKBACK_M": 24,   # على الشهري (~سنتين)
+    "GAP_ABOVE_MAX_DIST_PCT": 60.0,  # تجاهل الفجوات الأبعد من 60% فوق (غير واقعية كهدف قريب)
+    "GAP_ABOVE_SCORE": 10,        # نقاط لوجود فجوة-هدف فوق السعر
+    "GAP_ABOVE_USE_AS_TARGET": True,  # استخدم الفجوة كهدف في T1/T2/T3
+
+    # ---- الأهداف ----
+    "TARGET_CAP_MULT": 2.0,      # سقف الأهداف: 2x السعر
+    "MIN_TARGET_GAP_PCT": 8.0,   # أقل مسافة بين هدف وآخر
+
+    # ---- تحذيرات الجودة ----
+    "SPIKE_VERIFY_PCT": 800.0,   # انفجار فوقه = تحذير "تحقق من تقسيم عكسي"
+    "LOW_LIQ_WARN": 1_000_000,   # تحذير سيولة منخفضة تحت هذا الرقم
+
+    # ---- إعلانات SEC ----
+    "SEC_FILING_DAYS": 30,       # عرض إعلانات آخر 30 يوم فقط
+    "SEC_MAX_SHOW": 4,           # أقصى عدد إعلانات في الرسالة لكل سهم
+
+    # ---- الأخبار (v2.2) ----
+    "NEWS_DAYS": 14,             # عرض عناوين أخبار آخر 14 يوم فقط
+    "NEWS_MAX_SHOW": 3,          # أقصى عدد عناوين في الرسالة لكل سهم
+
+    # ---- التحليل متعدد الفريمات + أنماط الشموع (v2.3) ----
+    "TF_MIN_REVERSALS": 2,       # إلزامي: انعكاس على ≥ 2 من 3 فريمات
+    "TF_BOTTOM_POS": 0.40,       # "عند القاع" = ضمن أدنى 40% من مدى الفريم
+    "TF_RSI_OVERSOLD": 45.0,     # تشبع الفريم (أعلى قليلاً لأن الفريمات أبطأ)
+    "TF_MONTHLY_LOOKBACK": 18,   # نافذة مدى الفريم الشهري
+    "TF_WEEKLY_LOOKBACK": 52,    # نافذة مدى الفريم الأسبوعي
+    "TF_DAILY_LOOKBACK": 60,     # نافذة مدى الفريم اليومي
+    "CANDLE_SCAN_DAILY": 5,      # البحث عن نمط في آخر N شمعة يومية
+    "CANDLE_SCAN_WEEKLY": 3,     # البحث عن نمط في آخر N شمعة أسبوعية
+    "DOJI_BODY_MAX": 0.10,       # الدوجي: الجسم ≤ 10% من المدى
+    "ENABLE_4H": True,           # تأكيد 4 ساعات للمرشحين النهائيين (نقاط/معلومة)
+
+    # ---- استراتيجية التقسيم العكسي ----
+    "SPLIT_LOOKBACK_DAYS": 120,
+    "SHORT_DAILY_MAX": 20_000,   # "تابعه لين يبقى الشورت تحت 20 ألف"
+    # قائمة يدوية إضافية (مثلاً من رسائل الغامدي): رموز تتابعها دائماً
+    "SPLIT_WATCHLIST": ["WCT", "WORX", "EHGO", "FRSX", "BCAB"],
+
+    # ---- تقنية ----
+    "HISTORY_DAYS": 800,         # ~2.2 سنة (يكفي لفريم شهري سليم ~27 شمعة)
+    "CHUNK_SIZE": 250,           # حجم دفعة التحميل
+    "CHUNK_SLEEP": 2.0,          # ثوانٍ بين الدفعات (احترام Yahoo)
+    "MIN_BARS": 120,             # أقل عدد شموع مقبول للتحليل
+    "REPORT_CSV": True,
+}
+
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+TELEGRAM_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+MODE = os.environ.get("SCREENER_MODE", CONFIG["MODE"]).strip().upper()
+
+UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
+# SEC تتطلب User-Agent فيه وسيلة تواصل — يمكن ضبطه بمتغير بيئة SEC_CONTACT
+SEC_UA = {"User-Agent": os.environ.get(
+    "SEC_CONTACT", "PivotScreener/2.0 (personal research; contact@example.com)")}
+# متصفح عادي لـ fintel (محاولة أولى صامتة — قد يحجب الطلبات الآلية)
+BROWSER_UA = {
+    "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                   "AppleWebKit/537.36 (KHTML, like Gecko) "
+                   "Chrome/124.0 Safari/537.36"),
+    "Accept-Language": "en-US,en;q=0.9",
+}
+
+
+def log(msg):
+    print(f"[{dt.datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)
+
+
+# ==========================================================
+# 2) المؤشرات الفنية (مكتوبة يدوياً = صفر اعتماد على مكتبات هشة)
+# ==========================================================
+def rsi(close: pd.Series, period: int = 14) -> pd.Series:
+    delta = close.diff()
+    gain = delta.clip(lower=0.0)
+    loss = (-delta).clip(lower=0.0)
+    avg_gain = gain.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+    avg_loss = loss.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+    rs = avg_gain / avg_loss.replace(0, np.nan)
+    out = 100.0 - (100.0 / (1.0 + rs))
+    return out.fillna(50.0)
+
+
+def ema(close: pd.Series, span: int) -> float:
+    """المتوسط المتحرك الأسي (EMA) — فيصل يستخدم "المتوسط الأسي" 30/50،
+    لا المتوسط البسيط. يعطي وزناً أكبر للشموع الأحدث."""
+    if close is None or len(close) < 1:
+        return 0.0
+    return float(close.ewm(span=span, adjust=False).mean().iloc[-1])
+
+
+def macd(close: pd.Series, fast=12, slow=26, signal=9):
+    ema_f = close.ewm(span=fast, adjust=False).mean()
+    ema_s = close.ewm(span=slow, adjust=False).mean()
+    line = ema_f - ema_s
+    sig = line.ewm(span=signal, adjust=False).mean()
+    return line, sig
+
+
+def kst(close: pd.Series):
+    """KST بإعدادات فيصل (10,15,20,30,10,10,10,15,9)"""
+    def roc(n):
+        return close.pct_change(n) * 100.0
+    k = (roc(10).rolling(10).mean() * 1
+         + roc(15).rolling(10).mean() * 2
+         + roc(20).rolling(10).mean() * 3
+         + roc(30).rolling(15).mean() * 4)
+    return k, k.rolling(9).mean()
+
+
+def mfi(high, low, close, volume, period: int = 14) -> pd.Series:
+    tp = (high + low + close) / 3.0
+    raw = tp * volume
+    pos = raw.where(tp > tp.shift(1), 0.0)
+    neg = raw.where(tp < tp.shift(1), 0.0)
+    pr = pos.rolling(period).sum()
+    nr = neg.rolling(period).sum().replace(0, np.nan)
+    out = 100.0 - 100.0 / (1.0 + pr / nr)
+    return out.fillna(50.0)
+
+
+def williams_r(high, low, close, period: int = 14) -> pd.Series:
+    hh = high.rolling(period).max()
+    ll = low.rolling(period).min()
+    rng = (hh - ll).replace(0, np.nan)
+    return (-100.0 * (hh - close) / rng).fillna(-50.0)
+
+
+# ==========================================================
+# 2ب) أنماط الشموع الانعكاسية + التحليل متعدد الفريمات (v2.3)
+# ==========================================================
+# الأنماط القوية (تعطي نقاطاً إضافية مقارنة بالمطرقة/الدوجي)
+STRONG_PATTERNS = {"ابتلاع صاعد", "نجمة الصباح", "ثلاثة جنود بيض",
+                   "ماروبوزو أخضر", "اختراق صاعد"}
+
+
+def resample_ohlc(df: pd.DataFrame, rule: str) -> pd.DataFrame:
+    """تجميع الشموع إلى فريم أكبر (أسبوعي/شهري/4س) — بلا تحميل إضافي.
+    يدعم اختلاف رموز pandas بين الإصدارات (W / ME-M / 4h-4H)."""
+    agg = {"Open": "first", "High": "max", "Low": "min",
+           "Close": "last", "Volume": "sum"}
+    candidates = [rule]
+    if rule == "ME":
+        candidates.append("M")
+    elif rule == "M":
+        candidates.append("ME")
+    elif rule and rule[-1] in "hH":          # 4h / 4H
+        candidates = [rule[:-1] + "h", rule[:-1] + "H"]
+    for r in candidates:
+        try:
+            out = df.resample(r).agg(agg)
+            return out.dropna(subset=["Close"])
+        except (ValueError, KeyError):
+            continue
+    raise ValueError(f"تعذّر إعادة التجميع بالقاعدة: {rule}")
+
+
+def _candle(o, h, l, c, i):
+    """خصائص الشمعة i: (الجسم، المدى، الظل العلوي، الظل السفلي، أخضر؟)"""
+    body = abs(c[i] - o[i])
+    rng = h[i] - l[i]
+    up = h[i] - max(o[i], c[i])
+    dn = min(o[i], c[i]) - l[i]
+    return body, rng, up, dn, (c[i] > o[i])
+
+
+def _patterns_at(o, h, l, c, i, support):
+    """أنماط الانعكاس الصاعد المكتشفة عند الشمعة i (قائمة أسماء عربية)."""
+    found = []
+    body, rng, up, dn, green = _candle(o, h, l, c, i)
+    if rng <= 0:
+        return found
+    small_up = up <= max(body * 0.5, 0.10 * rng)
+    small_dn = dn <= max(body * 0.5, 0.10 * rng)
+    # مطرقة: جسم صغير أعلى المدى + ظل سفلي طويل (≥2× الجسم)
+    if body <= 0.40 * rng and dn >= 2.0 * body and small_up:
+        found.append("مطرقة")
+    # مطرقة مقلوبة: جسم صغير أسفل المدى + ظل علوي طويل
+    if body <= 0.40 * rng and up >= 2.0 * body and small_dn:
+        found.append("مطرقة مقلوبة")
+    # دوجي عند الدعم: جسم ضئيل جداً + قاعها قرب الدعم الحديث
+    if body <= CONFIG["DOJI_BODY_MAX"] * rng and support > 0 \
+            and l[i] <= support * 1.03:
+        found.append("دوجي عند الدعم")
+    # ماروبوزو أخضر: جسم ≥90% من المدى، أخضر، شمعة حقيقية
+    if green and body >= 0.90 * rng and rng >= 0.02 * max(c[i], 1e-9):
+        found.append("ماروبوزو أخضر")
+    # أنماط شمعتين
+    if i >= 1:
+        pb = abs(c[i - 1] - o[i - 1])
+        prev_red = c[i - 1] < o[i - 1]
+        if prev_red and green and o[i] <= c[i - 1] and c[i] >= o[i - 1] \
+                and body > pb:
+            found.append("ابتلاع صاعد")
+        if prev_red and green and o[i] < c[i - 1] \
+                and c[i] > (o[i - 1] + c[i - 1]) / 2.0 and c[i] < o[i - 1]:
+            found.append("اختراق صاعد")
+    # أنماط ثلاث شمعات
+    if i >= 2:
+        b0 = abs(c[i - 2] - o[i - 2]); r0 = h[i - 2] - l[i - 2]
+        g0 = c[i - 2] > o[i - 2]
+        b1 = abs(c[i - 1] - o[i - 1]); g1 = c[i - 1] > o[i - 1]
+        # نجمة الصباح: أحمر كبير + جسم صغير + أخضر يغلق فوق منتصف الأول
+        if (not g0) and r0 > 0 and b0 >= 0.40 * r0 and b1 <= 0.50 * b0 \
+                and green and c[i] > (o[i - 2] + c[i - 2]) / 2.0 \
+                and max(o[i - 1], c[i - 1]) <= c[i - 2] * 1.01:
+            found.append("نجمة الصباح")
+        # ثلاثة جنود بيض: ثلاث خضر صاعدة، كل واحدة تفتح داخل جسم سابقتها
+        if g0 and g1 and green and c[i] > c[i - 1] > c[i - 2] \
+                and o[i - 2] <= o[i - 1] <= c[i - 2] \
+                and o[i - 1] <= o[i] <= c[i - 1] \
+                and body >= 0.50 * rng and up <= body:
+            found.append("ثلاثة جنود بيض")
+    return found
+
+
+def detect_candle_patterns(df: pd.DataFrame, scan_last: int) -> list:
+    """يبحث عن أنماط الانعكاس في آخر scan_last شمعة — يرجع قائمة فريدة."""
+    o = df["Open"].values.astype(float)
+    h = df["High"].values.astype(float)
+    l = df["Low"].values.astype(float)
+    c = df["Close"].values.astype(float)
+    n = len(c)
+    if n < 3:
+        return []
+    support = float(np.min(l[-min(30, n):]))   # أدنى قاع حديث = الدعم
+    found = []
+    for i in range(max(2, n - scan_last), n):
+        for p in _patterns_at(o, h, l, c, i, support):
+            if p not in found:
+                found.append(p)
+    return found
+
+
+def timeframe_reversal(tf_df: pd.DataFrame, lookback: int,
+                       min_bars: int) -> bool:
+    """هل يُظهر الفريم انعكاساً صاعداً عند القاع؟
+    شرط: السعر ضمن أدنى TF_BOTTOM_POS من مداه + ≥2 إشارات صعود
+    (RSI ينحني من تشبع / MACD إيجابي / آخر إغلاق صاعد)."""
+    if tf_df is None or len(tf_df) < min_bars:
+        return False
+    close = tf_df["Close"]
+    price = float(close.iloc[-1])
+    seg = close.tail(lookback)
+    lo, hi = float(seg.min()), float(seg.max())
+    if hi <= lo:
+        return False
+    if (price - lo) / (hi - lo) > CONFIG["TF_BOTTOM_POS"]:
+        return False                       # ليس عند القاع → ليس انعكاس قاع
+    rs = rsi(close)
+    rsi_up = (float(rs.iloc[-1]) > float(rs.iloc[-2])
+              and float(rs.tail(4).min()) <= CONFIG["TF_RSI_OVERSOLD"])
+    ml, msig = macd(close)
+    macd_up = float(ml.iloc[-1]) >= float(msig.iloc[-1])
+    last_up = float(close.iloc[-1]) > float(close.iloc[-3])  # صعود فعلي
+    return (int(rsi_up) + int(macd_up) + int(last_up)) >= 2
+
+
+def multi_timeframe(df: pd.DataFrame) -> dict:
+    """تحليل شهري/أسبوعي/يومي من البيانات اليومية (إعادة تجميع، بلا تحميل).
+    يرجع: عدد الفريمات المنعكسة + حالة كل فريم + أنماط الشموع + نص العرض."""
+    weekly = resample_ohlc(df, "W")
+    monthly = resample_ohlc(df, "ME")
+    d = timeframe_reversal(df, CONFIG["TF_DAILY_LOOKBACK"], 30)
+    w = timeframe_reversal(weekly, CONFIG["TF_WEEKLY_LOOKBACK"], 20)
+    m = timeframe_reversal(monthly, CONFIG["TF_MONTHLY_LOOKBACK"], 12)
+    pats = detect_candle_patterns(df, CONFIG["CANDLE_SCAN_DAILY"])
+    for p in detect_candle_patterns(weekly, CONFIG["CANDLE_SCAN_WEEKLY"]):
+        if p not in pats:
+            pats.append(p)
+
+    def mark(x):
+        return "✅" if x else "⏳"
+    disp = f"شهري {mark(m)} · أسبوعي {mark(w)} · يومي {mark(d)}"
+    return {"count": int(d) + int(w) + int(m), "daily": d, "weekly": w,
+            "monthly": m, "patterns": pats, "display": disp}
+
+
+def fetch_4h_signal(sym: str):
+    """تأكيد فريم 4 ساعات (للمرشحين النهائيين فقط — اختياري، معلومة/نقاط).
+    يحمّل بيانات الساعة ويجمّعها إلى 4 ساعات. يرجع (إشارة bool/None، وصف)."""
+    if yf is None or not CONFIG.get("ENABLE_4H", True):
+        return None, "غير مفعّل"
+    try:
+        h1 = yf.download(sym, period="60d", interval="1h",
+                         auto_adjust=True, progress=False)
+        if h1 is None or h1.empty:
+            return None, "غير متوفر"
+        if isinstance(h1.columns, pd.MultiIndex):
+            h1.columns = h1.columns.get_level_values(0)
+        h1 = h1.dropna(subset=["Close"])
+        h4 = resample_ohlc(h1, "4h")
+        if len(h4) < 20:
+            return None, "بيانات قليلة"
+        ok = timeframe_reversal(h4, 60, 20)
+        return ok, ("✅ مؤكِّد" if ok else "⏳ غير مؤكِّد بعد")
+    except Exception:
+        return None, "غير متوفر"
+
+
+# ==========================================================
+# 3) كون الأسهم (Universe) — ناسداك فقط (v2.0)
+# ==========================================================
+def get_universe() -> list:
+    """البورصة المعتمدة: ناسداك فقط (nasdaqlisted.txt)"""
+    urls = [
+        "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
+    ]
+    symbols = []
+    for url in urls:
+        try:
+            r = requests.get(url, headers=UA, timeout=40)
+            r.raise_for_status()
+            lines = r.text.splitlines()
+            header = lines[0].split("|")
+            idx = {name: i for i, name in enumerate(header)}
+            sym_col = "Symbol" if "Symbol" in idx else "ACT Symbol"
+            for ln in lines[1:]:
+                if ln.startswith("File Creation Time"):
+                    continue
+                parts = ln.split("|")
+                if len(parts) < len(header):
+                    continue
+                sym = parts[idx[sym_col]].strip()
+                name = parts[idx.get("Security Name", 1)].strip()
+                etf = parts[idx["ETF"]].strip() if "ETF" in idx else "N"
+                test = parts[idx["Test Issue"]].strip() if "Test Issue" in idx else "N"
+                if etf == "Y" or test == "Y":
+                    continue
+                if not sym.isalpha():           # يستبعد .W $ = إلخ
+                    continue
+                if len(sym) == 5 and sym[-1] in "WRU":  # وارنت/حقوق/وحدات
+                    continue
+                bad = ("WARRANT", "RIGHT", " UNIT", "UNITS")
+                if any(b in name.upper() for b in bad):
+                    continue
+                symbols.append(sym)
+        except Exception as e:
+            log(f"⚠️ فشل تحميل {url}: {e}")
+    symbols = sorted(set(symbols))
+    log(f"حجم كون ناسداك بعد الفلترة: {len(symbols)} سهم")
+    return symbols
+
+
+# ==========================================================
+# 4) تحميل البيانات التاريخية على دفعات
+# ==========================================================
+def download_history(tickers: list) -> dict:
+    if yf is None:
+        raise RuntimeError("yfinance غير مثبتة — ثبّتها أو استخدم GitHub Actions")
+    start = (dt.date.today() - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
+    out = {}
+    chunks = [tickers[i:i + CONFIG["CHUNK_SIZE"]]
+              for i in range(0, len(tickers), CONFIG["CHUNK_SIZE"])]
+    for n, chunk in enumerate(chunks, 1):
+        log(f"تحميل دفعة {n}/{len(chunks)} ({len(chunk)} سهم)...")
+        try:
+            data = yf.download(chunk, start=start, interval="1d",
+                               auto_adjust=True, group_by="ticker",
+                               threads=True, progress=False)
+        except Exception as e:
+            log(f"⚠️ فشل دفعة {n}: {e} — تخطّي")
+            time.sleep(CONFIG["CHUNK_SLEEP"])
+            continue
+        for sym in chunk:
+            try:
+                if len(chunk) == 1:
+                    df = data.copy()
+                    if isinstance(df.columns, pd.MultiIndex):
+                        df = df[sym]
+                else:
+                    if sym not in data.columns.get_level_values(0):
+                        continue
+                    df = data[sym].copy()
+                df = df.dropna(subset=["Close"])
+                if len(df) >= CONFIG["MIN_BARS"]:
+                    out[sym] = df[["Open", "High", "Low", "Close", "Volume"]]
+            except Exception:
+                continue
+        time.sleep(CONFIG["CHUNK_SLEEP"])
+    log(f"بيانات صالحة لـ {len(out)} سهم")
+    return out
+
+
+# ==========================================================
+# 5) أدوات تحليل النموذج
+# ==========================================================
+def spike_info(close: np.ndarray, exclude_last: int):
+    """أكبر مكسب خلال ≤ نافذة جلسات + عدد الانفجارات المنفصلة (معيد إجرام)"""
+    c = close[:-exclude_last] if exclude_last > 0 else close
+    n = len(c)
+    if n < 15:
+        return 0.0, 0
+    w_max = CONFIG["PRIOR_SPIKE_WINDOW"]
+    spike_end = np.zeros(n, dtype=bool)
+    best = 0.0
+    for w in range(1, w_max + 1):
+        if n <= w:
+            break
+        with np.errstate(divide="ignore", invalid="ignore"):
+            ratio = c[w:] / np.where(c[:-w] > 0, c[:-w], np.nan) - 1.0
+        ratio = np.nan_to_num(ratio, nan=0.0)
+        if ratio.size:
+            best = max(best, float(np.max(ratio)))
+            hits = np.where(ratio >= CONFIG["PRIOR_SPIKE_PCT"] / 100.0)[0] + w
+            spike_end[hits] = True
+    # عدّ العناقيد المنفصلة (فجوة ≥ 20 جلسة = انفجار مستقل)
+    idxs = np.where(spike_end)[0]
+    clusters = 0
+    last = -10_000
+    for i in idxs:
+        if i - last >= 20:
+            clusters += 1
+        last = i
+    return best * 100.0, clusters
+
+
+def pivot_stability(lows: np.ndarray, closes: np.ndarray):
+    """كشف Pivot Low + ثبات 3-5 جلسات (قاعدة التوقيت الذهبية)"""
+    look = min(CONFIG["PIVOT_LOOKBACK"], len(lows))
+    seg = lows[-look:]
+    k_rel = int(np.argmin(seg))
+    k = len(lows) - look + k_rel
+    pivot = float(lows[k])
+    bars_after = len(lows) - 1 - k
+    if pivot <= 0:
+        return None
+    tol = pivot * (1.0 - CONFIG["STABILITY_TOL_PCT"] / 100.0)
+    after = lows[k + 1:]
+    # صفر جلسات بعد القاع = لا يوجد ثبات أصلاً
+    if bars_after < 1:
+        held = False
+    else:
+        held = bool(np.min(after) >= tol) and bool(closes[-1] > pivot)
+    ready = held and CONFIG["STABILITY_MIN"] <= bars_after <= CONFIG["STABILITY_MAX"]
+    return {"pivot": pivot, "bars_after": int(bars_after),
+            "held": held, "ready": ready}
+
+
+def _swing_highs(h: np.ndarray, price: float, win: int):
+    """قمم سوينغ فوق السعر (قمة أعلى من المجاور ضمن نافذة win كل جهة)."""
+    out = []
+    n = len(h)
+    for i in range(win, n - win):
+        seg = h[i - win:i + win + 1]
+        if h[i] == seg.max() and h[i] > price:
+            out.append(float(h[i]))
+    return out
+
+
+def psychological_levels(price: float, top: float):
+    """المستويات النفسية الدائرية بين السعر والسقف (أرقام صحيحة وأنصاف:
+    1.0, 1.5, 2.0...). المضاربون يضعون أوامر عندها فتعمل كمقاومات."""
+    if price <= 0 or top <= price:
+        return []
+    # خطوة مناسبة لحجم السعر
+    if price < 5:
+        step = 0.5
+    elif price < 20:
+        step = 1.0
+    elif price < 100:
+        step = 5.0
+    else:
+        step = 10.0
+    lvls = []
+    x = (int(price / step) + 1) * step
+    while x <= top and len(lvls) < 12:
+        lvls.append(round(x, 2))
+        x += step
+    return lvls
+
+
+def resistance_levels(df: pd.DataFrame, price: float, max_levels: int = 8):
+    """كشف مستويات المقاومة الأفقية فوق السعر — كخطوط فيصل الأفقية
+    (SMX: 9.53/11.84/14/16.51/23 · LNAI: 2.80/3.25/3.49/3.83/4.35).
+
+    الأولوية للقمم الحقيقية من الشارت، والمستويات النفسية تملأ الفراغات
+    فقط (لا تزاحم القمم الفعلية):
+    1) قمم سوينغ يومية (نافذتان: قصيرة 3 + أطول 6 لقمم أبعد)
+    2) قمم سوينغ من الفريم الأسبوعي (فيصل يرسم من الأسبوعي أيضاً)
+    3) مستويات نفسية دائرية — تُضاف فقط في الفجوات الكبيرة بين القمم
+    ثم يجمّع المتقاربة (ضمن 3%) في مستوى واحد."""
+    h = df["High"].values.astype(float)
+    n = len(h)
+    if n < 11 or price <= 0:
+        return []
+    # ---- 1+2) القمم الحقيقية (يومي + أسبوعي) لها الأولوية ----
+    real = []
+    real += _swing_highs(h, price, 3)
+    real += _swing_highs(h, price, 6)
+    try:
+        wk = resample_ohlc(df, "W")
+        if wk is not None and len(wk) >= 7:
+            real += _swing_highs(wk["High"].values.astype(float), price, 2)
+    except Exception:
+        pass
+    real = sorted(set(round(s, 2) for s in real if s > price))
+    # تجميع القمم الحقيقية المتقاربة (ضمن 3%)
+    real_clusters = []
+    for s in real:
+        if real_clusters and s <= real_clusters[-1] * 1.03:
+            real_clusters[-1] = max(real_clusters[-1], s)
+        else:
+            real_clusters.append(s)
+    # ---- 3) المستويات النفسية تملأ الفراغات الكبيرة فقط ----
+    top = max(real_clusters) if real_clusters else price * 2.0
+    psych = psychological_levels(price, top)
+    # نضيف مستوى نفسي فقط إذا بعيد ≥4% عن كل قمة حقيقية (فجوة فعلية)
+    psych_fill = [pv for pv in psych
+                  if all(abs(pv / rc - 1.0) > 0.04 for rc in real_clusters)]
+    # القمم الحقيقية لها الأولوية المطلقة (تُحجز أولاً ولا تُطرد).
+    # النفسية تملأ المتبقي من الحد الأقصى فقط.
+    slots_for_psych = max(0, max_levels - len(real_clusters))
+    # النفسية القريبة أهم (الأهداف الأولى)، لكن نضمن بقاء أعلى قمة حقيقية
+    if slots_for_psych and psych_fill:
+        psych_fill = psych_fill[:slots_for_psych]   # الأقرب أولاً
+    else:
+        psych_fill = []
+    merged = sorted(set(real_clusters + psych_fill))
+    # تجميع نهائي للمتقاربة + ضمان فوق السعر
+    final = []
+    for s in merged:
+        if final and s <= final[-1] * 1.03:
+            final[-1] = max(final[-1], s)
+        else:
+            final.append(s)
+    levels = [round(c, 2) for c in final if c > price]
+    # ضمان: أعلى قمة حقيقية تبقى ضمن النتيجة (هدف التحرر الأبعد)
+    if real_clusters:
+        top_real = round(max(real_clusters), 2)
+        if top_real not in levels:
+            if len(levels) >= max_levels:
+                levels = levels[:max_levels - 1]
+            levels.append(top_real)
+            levels = sorted(set(levels))
+    # لو ما فيه قمم حقيقية إطلاقاً، رجّع النفسية كبديل
+    if not real_clusters and not levels:
+        tail = h[-120:] if n > 120 else h
+        levels = sorted({round(float(x), 2) for x in tail if x > price})[:max_levels]
+    return levels[:max_levels]
+
+
+def first_target(df: pd.DataFrame):
+    """الهدف 1: منشأ أكبر شمعة هابطة (≥15%) في الهبوط = منطقة المقاومة"""
+    o = df["Open"].values
+    c = df["Close"].values
+    n = len(c)
+    span = min(130, n - 1)
+    seg_o, seg_c = o[-span:], c[-span:]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        drop = (seg_o - seg_c) / np.where(seg_o > 0, seg_o, np.nan)
+    drop = np.nan_to_num(drop, nan=0.0)
+    i = int(np.argmax(drop))
+    if drop[i] >= CONFIG["RED_CANDLE_MIN_DROP"] / 100.0:
+        return float(seg_o[i])
+    # بديل: أعلى قمة قبل منطقة التجميع
+    hi = df["High"].values
+    if n > 70:
+        return float(np.max(hi[-70:-15]))
+    return float(np.max(hi))
+
+
+def _gaps_on_frame(df: pd.DataFrame, lookback: int):
+    """كشف الفجوات الصاعدة على فريم واحد (يومي/أسبوعي/شهري).
+    فجوة صاعدة = افتتاح الشمعة > إغلاق الشمعة السابقة بنسبة ≥ GAP_MIN_PCT.
+    الفجوة "تُغلق" لو نزل Low لأي شمعة لاحقة تحت إغلاق ما قبل الفجوة.
+    يرجع dict: count, max_gap, last_gap, last_gap_ago, unfilled."""
+    empty = {"count": 0, "max_gap": 0.0, "last_gap": 0.0,
+             "last_gap_ago": None, "unfilled": False}
+    if df is None or len(df) < 2:
+        return empty
+    o = df["Open"].values.astype(float)
+    c = df["Close"].values.astype(float)
+    lw = df["Low"].values.astype(float)
+    n = len(c)
+    min_gap = CONFIG["GAP_MIN_PCT"]
+    start = max(1, n - lookback)
+    gaps = []
+    for i in range(start, n):
+        pc = c[i - 1]
+        if pc <= 0:
+            continue
+        gp = (o[i] / pc - 1.0) * 100.0
+        if gp >= min_gap:
+            filled = bool(np.any(lw[i:] <= pc))   # أُغلقت لاحقاً؟
+            gaps.append((gp, i, filled))
+    if not gaps:
+        return empty
+    last = gaps[-1]
+    return {
+        "count": len(gaps),
+        "max_gap": round(max(g[0] for g in gaps), 1),
+        "last_gap": round(last[0], 1),
+        "last_gap_ago": int(n - 1 - last[1]),
+        "unfilled": (not last[2]),
+    }
+
+
+def gap_analysis(df: pd.DataFrame):
+    """كشف الفجوات السعرية الصاعدة على الفريمات الثلاثة (يومي/أسبوعي/شهري).
+    (شرط فيصل السادس + طلب فحص الفريمات). الفريم اليومي هو الأساس؛
+    الأسبوعي/الشهري معلومة إضافية (نادرة بطبيعتها). يعيد التجميع من
+    اليومي بلا أي تحميل إضافي — يستخدم resample_ohlc الموجودة.
+
+    يرجع: نتيجة اليومي مدموجة (للتوافق مع الكود القديم) + مفاتيح:
+      daily / weekly / monthly: نتيجة كل فريم،
+      frames_with_gaps: كم فريم فيه فجوة (0-3)."""
+    daily = _gaps_on_frame(df, CONFIG["GAP_LOOKBACK"])
+    # الأسبوعي والشهري بإعادة تجميع (نوافذ أقصر لأن الشموع أكبر)
+    weekly = {"count": 0, "max_gap": 0.0, "last_gap": 0.0,
+              "last_gap_ago": None, "unfilled": False}
+    monthly = dict(weekly)
+    try:
+        wdf = resample_ohlc(df, "W")
+        weekly = _gaps_on_frame(wdf, CONFIG["GAP_LOOKBACK_W"])
+    except Exception:
+        pass
+    try:
+        mdf = resample_ohlc(df, "ME")
+        monthly = _gaps_on_frame(mdf, CONFIG["GAP_LOOKBACK_M"])
+    except Exception:
+        pass
+    frames = int(daily["count"] > 0) + int(weekly["count"] > 0) \
+        + int(monthly["count"] > 0)
+    # المخرج الأساسي = اليومي (توافق مع الاستدعاءات القديمة) + إضافات
+    out = dict(daily)
+    out["daily"] = daily
+    out["weekly"] = weekly
+    out["monthly"] = monthly
+    out["frames_with_gaps"] = frames
+    return out
+
+
+def unfilled_gaps_above(df: pd.DataFrame, lookback: int):
+    """كشف الفجوات السعرية غير المملوءة *فوق* السعر الحالي (مفهوم فيصل
+    الحقيقي من صور MTVA/TRUG/ONCO: السهم طار من فوق ونزل بعنف تاركاً
+    فراغاً هابطاً، استقر تحته، فصار الفراغ مقاومة/هدف فوق السعر).
+
+    فجوة هابطة (down gap) = High لشمعة < Low للشمعة السابقة (فراغ كامل
+    بينهما لم يتداول فيه السهم). الفراغ = [High الحالية ... Low السابقة].
+    "غير مملوء وفوق السعر" = قاع الفراغ (High الحالية) أعلى من السعر
+    الحالي، ولم يُغلق (لم يصعد أي High لاحق إلى داخل الفراغ بعد تكوّنه).
+    يرجع: list مناطق [{bottom, top, size_pct, ago}] + ملخص (nearest)."""
+    out = {"zones": [], "count": 0, "nearest": None, "nearest_dist_pct": None}
+    if df is None or len(df) < 2:
+        return out
+    h = df["High"].values.astype(float)
+    lw = df["Low"].values.astype(float)
+    c = df["Close"].values.astype(float)
+    n = len(c)
+    price = float(c[-1])
+    if price <= 0:
+        return out
+    min_gap = CONFIG["GAP_MIN_PCT"]
+    start = max(1, n - lookback)
+    zones = []
+    for i in range(start, n):
+        prev_low = lw[i - 1]
+        cur_high = h[i]
+        if prev_low <= 0 or cur_high <= 0:
+            continue
+        # فجوة هابطة: قمة الشمعة الحالية تحت قاع السابقة (فراغ كامل)
+        if cur_high >= prev_low:
+            continue
+        gap_size = (prev_low / cur_high - 1.0) * 100.0
+        if gap_size < min_gap:
+            continue
+        bottom = cur_high      # قاع الفراغ (أقرب حافة للسعر)
+        top = prev_low         # قمة الفراغ
+        # لازم الفراغ فوق السعر الحالي (هدف/مقاومة)
+        if bottom <= price:
+            continue
+        # غير مملوء: لم يدخل أي High لاحق إلى الفراغ (لم يصعد فوق bottom)
+        filled = bool(np.any(h[i + 1:] >= bottom)) if i + 1 < n else False
+        if filled:
+            continue
+        zones.append({
+            "bottom": round(bottom, 3),
+            "top": round(top, 3),
+            "size_pct": round(gap_size, 1),
+            "ago": int(n - 1 - i),
+        })
+    if not zones:
+        return out
+    zones_sorted = sorted(zones, key=lambda z: z["bottom"])
+    nearest = zones_sorted[0]
+    out["zones"] = zones_sorted
+    out["count"] = len(zones_sorted)
+    out["nearest"] = nearest
+    out["nearest_dist_pct"] = round((nearest["bottom"] / price - 1.0) * 100.0, 1)
+    return out
+
+
+def all_unfilled_gaps_above(df: pd.DataFrame):
+    """يجمع الفجوات غير المملوءة فوق السعر من الفريمات الثلاثة (يومي/
+    أسبوعي/شهري) — لاستخدامها كأهداف ومقاومات (مفهوم فيصل)."""
+    daily = unfilled_gaps_above(df, CONFIG["GAP_ABOVE_LOOKBACK_D"])
+    weekly = {"zones": [], "count": 0, "nearest": None, "nearest_dist_pct": None}
+    monthly = dict(weekly)
+    try:
+        weekly = unfilled_gaps_above(resample_ohlc(df, "W"),
+                                     CONFIG["GAP_ABOVE_LOOKBACK_W"])
+    except Exception:
+        pass
+    try:
+        monthly = unfilled_gaps_above(resample_ohlc(df, "ME"),
+                                      CONFIG["GAP_ABOVE_LOOKBACK_M"])
+    except Exception:
+        pass
+    # كل المناطق مجمّعة ومرتبة من الأقرب فوق السعر
+    allz = (daily["zones"] + weekly["zones"] + monthly["zones"])
+    allz = sorted(allz, key=lambda z: z["bottom"])
+    nearest = allz[0] if allz else None
+    return {
+        "daily": daily, "weekly": weekly, "monthly": monthly,
+        "all_zones": allz, "count": len(allz), "nearest": nearest,
+    }
+
+
+def analyze_ticker(sym: str, df: pd.DataFrame):
+    """يرجع dict بالنتيجة إذا اجتاز الشروط الإلزامية، وإلا None"""
+    try:
+        close = df["Close"]
+        high, low, vol = df["High"], df["Low"], df["Volume"]
+        c = close.values
+        price = float(c[-1])
+
+        # ---- M1: السعر ----
+        if price < CONFIG["MIN_PRICE"]:
+            return None
+
+        # ---- M2: الهبوط من قمة 52 أسبوع ----
+        hi52 = float(high.tail(252).max())
+        if hi52 <= 0:
+            return None
+        drop_pct = (1.0 - price / hi52) * 100.0
+        if drop_pct < CONFIG["MIN_DROP_PCT"]:
+            return None
+        # هبوط كارثي = سهم محتضر أو فخ تقسيم عكسي — مرفوض
+        if drop_pct > CONFIG["MAX_DROP_PCT"]:
+            return None
+
+        # ---- M3: الانفجار السابق ≥ 100% ----
+        best_spike, n_spikes = spike_info(c, exclude_last=CONFIG["BASE_WINDOW"])
+        if best_spike < CONFIG["PRIOR_SPIKE_PCT"]:
+            return None
+
+        # ---- M4: تجميع حالي (مدى ضيق + ما انفجر بعد) ----
+        bw = CONFIG["BASE_WINDOW"]
+        base_hi = float(high.tail(bw).max())
+        base_lo = float(low.tail(bw).min())
+        if base_lo <= 0:
+            return None
+        base_range = (base_hi / base_lo - 1.0) * 100.0
+        if base_range > CONFIG["BASE_RANGE_MAX_PCT"]:
+            return None
+        if len(c) > 6:
+            gain5 = (c[-1] / c[-6] - 1.0) * 100.0
+            if gain5 > CONFIG["RECENT_RISE_BLOCK_PCT"]:
+                return None  # فاتنا القطار — انفجر فعلاً
+
+        # ---- M5: سيولة دولارية ----
+        dvol = float((close * vol).tail(20).mean())
+        if not math.isfinite(dvol) or dvol < CONFIG["MIN_DOLLAR_VOL"]:
+            return None
+
+        # ---- M6: توافق الفريمات (شهري/أسبوعي/يومي) — إلزامي ≥ 2 من 3 ----
+        # (يُحسب بإعادة تجميع اليومي — بلا أي تحميل إضافي)
+        mtf = multi_timeframe(df)
+        if mtf["count"] < CONFIG["TF_MIN_REVERSALS"]:
+            return None  # ضعيف على الإطار الأكبر → يُرفض
+
+        # ---- M7: نمط شمعة انعكاسي على اليومي أو الأسبوعي — إلزامي ----
+        patterns = mtf["patterns"]
+        if not patterns:
+            return None  # لا إشارة شمعة انعكاسية واضحة → يُرفض
+
+        # ---- M8: فجوة سعرية معتبرة حديثة — إلزامي (v2.4 نسخة B) ----
+        # فيصل: "أسهم الارتكاز عدوها السيولة بسبب الفجوات الكبيرة"
+        # (نحسب الفجوات مرة واحدة هنا ونعيد استخدامها في النقاط — بلا تكرار)
+        gaps = gap_analysis(df)
+        if CONFIG.get("GAP_REQUIRED", False):
+            recent_gap = (gaps["count"] > 0
+                          and gaps["last_gap_ago"] is not None
+                          and gaps["last_gap_ago"] <= CONFIG["GAP_REQ_WINDOW"])
+            if not recent_gap:
+                return None  # لا فجوة معتبرة حديثة → يُرفض (بوابة فيصل السادسة)
+
+        # ---- M9: فجوة غير مملوءة فوق السعر — إلزامي (v2.5، مفهوم فيصل) ----
+        # من صور MTVA/TRUG/ONCO: الفجوة منطقة-هدف فوق السعر الراكد.
+        # هذا يصطاد السهم الراكد تحت فجوته (بدل اشتراط فجوة طازجة).
+        gaps_above = all_unfilled_gaps_above(df)
+        # نحصر الفجوات ضمن مسافة واقعية فوق السعر
+        maxd = CONFIG["GAP_ABOVE_MAX_DIST_PCT"]
+        near_zones = [z for z in gaps_above["all_zones"]
+                      if (z["bottom"] / price - 1.0) * 100.0 <= maxd]
+        if CONFIG.get("GAP_ABOVE_REQUIRED", False):
+            if not near_zones:
+                return None  # لا فجوة-هدف فوق السعر → يُرفض (مفهوم فيصل)
+
+        # ---- M10: RSI في التشبع البيعي — إلزامي (فيصل: مستحيل ينفجر فوق 40) ----
+        # فيصل: "RSI لازم بين 23-27 ... مستحيل يصعد إذا RSI بمناطق 40"
+        rsi_s = rsi(close)
+        r_now = float(rsi_s.iloc[-1])
+        r_prev = float(rsi_s.iloc[-2])
+        r_min_recent = float(rsi_s.tail(CONFIG["RSI_RECENT_WINDOW"]).min())
+        if CONFIG.get("RSI_GATE_REQUIRED", False):
+            # لازم: قاع تشبع حديث ≤ العتبة (27) + RSI الحالي ≤ السقف (40)
+            rsi_ok = (r_min_recent <= CONFIG["RSI_OVERSOLD"]
+                      and r_now <= CONFIG["RSI_MAX_NOW"])
+            if not rsi_ok:
+                return None  # RSI خارج منطقة التشبع → يُرفض (شرط فيصل الثاني)
+
+        # ---- M11: تقاطع MACD إيجابي — إلزامي (فيصل: شرط ثالث) ----
+        m_line, m_sig = macd(close)
+        if CONFIG.get("MACD_GATE_REQUIRED", False):
+            # تقاطع صاعد حديث: الخط فوق الإشارة الآن أو خلال آخر جلسات
+            macd_ok = (float(m_line.iloc[-1]) >= float(m_sig.iloc[-1])
+                       or (m_line.iloc[-5:] > m_sig.iloc[-5:]).any())
+            if not macd_ok:
+                return None  # لا تقاطع MACD إيجابي → يُرفض (شرط فيصل الثالث)
+
+        # ---- M12: السعر على المتوسط الأسي 30/50 — إلزامي (فيصل: شرط أول) ----
+        # فيصل: "بعد التقسيم > متوسط الحركة" = السعر فوق EMA وقريب منه
+        # (مرتكز على متوسطه الأسي، لا طائر بعيد فوقه ولا منهار تحته بكثير)
+        ema30 = ema(close, 30)
+        ema50 = ema(close, 50)
+        if CONFIG.get("MA_GATE_REQUIRED", False):
+            band = CONFIG["MA_GATE_MAX_ABOVE_PCT"] / 100.0  # +15% فوق
+            # السعر ضمن النطاق فوق أحد المتوسطين الأسيين
+            ma_ok = any(
+                m > 0 and (price >= m * (1.0 - 0.02))  # ليس تحت المتوسط بكثير
+                and (price / m - 1.0) <= band            # وليس فوقه أبعد من الحد
+                for m in (ema30, ema50)
+            )
+            if not ma_ok:
+                return None  # بعيد عن المتوسط الأسي → يُرفض (شرط فيصل الأول)
+
+        # ---- M13: الشورت العالي — يُطبّق كمرحلة ثانية بعد الفرز ----
+        # (الشورت يُجلب فقط للأسهم الناجحة لأن جلبه بطيء — لا يمكن لكل
+        # السوق. لذا بوابة الشورت تُطبّق في screen_market بعد هذا الفرز،
+        # على القائمة القصيرة الناجحة. انظر apply_short_gate أدناه.)
+
+        # ======== اجتاز الإلزامي → حساب النقاط ========
+        score = 0
+        flags = []
+        warnings = []
+
+        # انفجار ضخم جداً قد يكون أثر تقسيم عكسي في البيانات
+        # (وقد يكون حقيقياً مثل SBET) — لا نخفيه، بل ننبّه للتحقق اليدوي
+        if best_spike >= CONFIG["SPIKE_VERIFY_PCT"]:
+            warnings.append(f"انفجار سابق ضخم ({best_spike:.0f}%) — "
+                            "تحقق يدوياً من تقسيم عكسي")
+        # تحذير سيولة منخفضة (يصعب الدخول/الخروج بأمان)
+        if dvol < CONFIG["LOW_LIQ_WARN"]:
+            warnings.append(f"سيولة منخفضة ({fmt_money(dvol)}/يوم)")
+
+        # RSI: قاع تشبع حديث (≤5 جلسات) + انحناء + لم يرتد فوق 50
+        rsi_s = rsi(close)
+        r_now, r_prev = float(rsi_s.iloc[-1]), float(rsi_s.iloc[-2])
+        r_min_recent = float(rsi_s.tail(CONFIG["RSI_RECENT_WINDOW"]).min())
+        if (r_min_recent <= CONFIG["RSI_OVERSOLD"] and r_now > r_prev
+                and r_now <= CONFIG["RSI_MAX_NOW"]):
+            score += 15
+            flags.append(f"RSI تشبع وانحناء (قاع {r_min_recent:.0f}→{r_now:.0f})")
+
+        m_line, m_sig = macd(close)
+        if (m_line.iloc[-5:] > m_sig.iloc[-5:]).any() and \
+           float(m_line.iloc[-1]) >= float(m_sig.iloc[-1]):
+            score += 10
+            flags.append("تقاطع MACD")
+
+        k_line, k_sig = kst(close)
+        try:
+            if float(k_line.iloc[-1]) > float(k_sig.iloc[-1]) and \
+               float(k_line.iloc[-1]) > float(k_line.iloc[-3]):
+                score += 10
+                flags.append("KST صاعد")
+        except Exception:
+            pass
+
+        # بصمة الفوليوم: جفاف + شمعة خضراء ضخمة منفردة
+        v = vol.values.astype(float)
+        v20 = float(vol.tail(20).mean())
+        v5 = float(vol.tail(5).mean())
+        big_green = False
+        if v20 > 0 and len(c) > 21:
+            for i in range(len(c) - 20, len(c)):
+                if v[i] >= CONFIG["VOL_SPIKE_MULT"] * v20 and c[i] > df["Open"].values[i]:
+                    big_green = True
+                    break
+        if big_green:
+            score += 10
+            flags.append("شمعة فوليوم ضخمة")
+        if v20 > 0 and v5 <= CONFIG["VOL_DRY_RATIO"] * v20:
+            score += 5
+            flags.append("جفاف بيع")
+
+        sma30 = ema(close, 30)
+        sma50 = ema(close, 50)
+        near_ma = any(ma > 0 and abs(price / ma - 1.0) <= 0.05
+                      for ma in (sma30, sma50))
+        if near_ma:
+            score += 10
+            flags.append("يرتكز على متوسط 30/50")
+
+        if n_spikes >= 2:
+            score += 15
+            flags.append(f"معيد إجرام ({n_spikes} انفجارات)")
+
+        ps = pivot_stability(low.values.astype(float), c)
+        ready = False
+        if ps and ps["held"]:
+            score += 15
+            ready = bool(ps["ready"])
+            flags.append(f"ثبات {ps['bars_after']} جلسات فوق القاع")
+
+        # مسح سيولة حقيقي: كسر قاع *سابق* ثم استعادة فوقه
+        # (القاع السابق = أدنى قاع في الجلسات 35→10 قبل الأخيرة)
+        mfi_s = mfi(high, low, close, vol)
+        sweep = False
+        lows_arr = low.values.astype(float)
+        if len(lows_arr) > 35:
+            prior_low = float(np.min(lows_arr[-35:-10]))
+            recent_min = float(np.min(lows_arr[-10:]))
+            if (prior_low > 0 and recent_min < prior_low * 0.995
+                    and price > prior_low
+                    and float(mfi_s.iloc[-1]) >= float(mfi_s.tail(10).min())):
+                sweep = True
+        if sweep:
+            score += 10
+            flags.append("مسح سيولة (كسر قاع سابق واستعادة)")
+
+        # نقاط إضافية: تماسك الفريمات الكامل (3/3) + نمط شمعة قوي
+        if mtf["count"] >= 3:
+            score += 10
+            flags.append("توافق 3 فريمات")
+        if any(p in STRONG_PATTERNS for p in patterns):
+            score += 5
+            flags.append("نمط شمعة قوي")
+
+        # الفجوات السعرية (شرط فيصل السادس) — نقاط (gaps محسوبة فوق في M8)
+        if gaps["count"] > 0:
+            if gaps["max_gap"] >= CONFIG["GAP_BIG_PCT"]:
+                score += CONFIG["GAP_SCORE_BIG"]
+                flags.append(f"فجوة عالية يومي {gaps['max_gap']:.0f}%")
+            else:
+                score += CONFIG["GAP_SCORE_NORMAL"]
+                flags.append(f"فجوة صاعدة يومي {gaps['max_gap']:.0f}%")
+            if gaps["unfilled"]:
+                flags.append("فجوة يومية مفتوحة (لم تُغلق)")
+            # نقاط إضافية لو الفجوات على أكثر من فريم (يومي+أسبوعي/شهري)
+            if gaps.get("frames_with_gaps", 1) >= 2:
+                score += CONFIG["GAP_SCORE_MULTIFRAME"]
+                wk = gaps.get("weekly", {}).get("count", 0)
+                mo = gaps.get("monthly", {}).get("count", 0)
+                extra_fr = []
+                if wk > 0:
+                    extra_fr.append("أسبوعي")
+                if mo > 0:
+                    extra_fr.append("شهري")
+                if extra_fr:
+                    flags.append("فجوات متعددة الفريمات (" +
+                                 "، ".join(extra_fr) + ")")
+
+        # فجوة-هدف غير مملوءة فوق السعر (مفهوم فيصل) — نقاط + هدف
+        if near_zones:
+            score += CONFIG["GAP_ABOVE_SCORE"]
+            nz = near_zones[0]
+            dist = round((nz["bottom"] / price - 1.0) * 100.0, 1)
+            flags.append(f"فجوة-هدف فوق السعر عند ${nz['bottom']:.2f} "
+                         f"(+{dist:.0f}%)")
+
+        if score < CONFIG["SCORE_MIN"]:
+            return None
+
+        # ======== المستويات المقترحة ========
+        pivot = ps["pivot"] if ps else float(low.tail(20).min())
+        # الوقف تحت القاع بنسبة فيصل (~7%، تحت منطقة "سحب السيولة")
+        # فيصل (SMX): القاع 6.11، سحب السيولة قد يصل 5.80 ثم يرتد.
+        # الوقف الفعلي تحت منطقة السحب — لا 1-2% الضيقة التي تُضرب بالتذبذب.
+        s_lo, s_hi = CONFIG["STOP_BELOW_LOW_PCT"]
+        stop_hi = pivot * (1 - s_lo / 100.0)    # أعلى الوقف (أقرب للقاع)
+        stop_lo = pivot * (1 - s_hi / 100.0)    # أدنى الوقف (تحت السحب)
+        big = price >= CONFIG["LARGE_PRICE_CUT"]
+        d_lo, d_hi = (CONFIG["SWEEP_LARGE_PCT"] if big
+                      else CONFIG["SWEEP_SMALL_PCT"])
+        sweep_lo = pivot * (1 - d_hi / 100.0)
+        sweep_hi = pivot * (1 - d_lo / 100.0)
+
+        # ---- نطاق الدخول (سعر الطلب من-إلى) — منطق فيصل ----
+        # فيصل (SMX): "الدخول الآمن: قاع + سحب سيولة = 5.80 | بلا سحب ثباته 7"
+        # أي: الدخول الأمثل قرب القاع/منطقة السحب (أرخص، مخاطرة أقل)،
+        # والحد الأعلى = السعر الحالي أو قليلاً فوق القاع (لا تطلب أعلى منه).
+        # entry_lo = أعلى منطقة السحب (دخول مثالي عند ارتداد السحب)
+        # entry_hi = الأقل بين (السعر الحالي) و(القاع +هامش صغير) — لا تطارد
+        entry_lo = round(sweep_hi, 2)                  # عند ارتداد السحب
+        entry_hi_cap = pivot * (1 + CONFIG["ENTRY_ABOVE_PIVOT_PCT"] / 100.0)
+        entry_hi = round(min(price, entry_hi_cap), 2)  # لا تطلب فوق هذا
+        if entry_hi < entry_lo:                        # السعر تحت منطقة السحب
+            entry_lo, entry_hi = round(min(price, sweep_lo), 2), round(price, 2)
+
+        # ---- الأهداف الثلاثة (من مستويات الشارت الحقيقية، لا عشوائية) ----
+        # مصادر الأهداف كلها من الشارت (كخطوط فيصل الأفقية):
+        #   1) مقاومات سوينغ أفقية فوق السعر (قمم ارتد منها)
+        #   2) قيعان الفجوات غير المملوءة فوق السعر
+        #   3) منشأ الشمعة الهابطة الكبيرة + قمة الموجة
+        resist = resistance_levels(df, price)        # مقاومات حقيقية
+        raw_t1 = first_target(df)
+        raw_t3 = float(high.tail(60).max())
+        cap = price * CONFIG["TARGET_CAP_MULT"]            # سقف واقعي
+        min_first = price * (1.0 + CONFIG["MIN_T1_GAIN_PCT"] / 100.0)
+        gap = 1.0 + CONFIG["MIN_TARGET_GAP_PCT"] / 100.0
+        # نجمع كل المرشحين من الشارت
+        target_cands = list(resist) + [raw_t1, raw_t3]
+        if CONFIG.get("GAP_ABOVE_USE_AS_TARGET", False):
+            for z in near_zones:
+                target_cands.append(z["bottom"])   # قاع الفجوة = مقاومة
+        cands = sorted(t for t in target_cands
+                       if min_first <= t <= cap)
+        targets = []
+        for t in cands:                         # دمج الأهداف الملتصقة
+            if not targets or t >= targets[-1] * gap:
+                targets.append(round(float(t), 2))
+        if not targets:                         # لا مقاومة فوق ضمن السقف
+            # نأخذ أقرب مقاومة حتى لو فوق السقف (هدف حقيقي أفضل من عشوائي)
+            above = sorted(t for t in (list(resist) + [raw_t3]) if t > price)
+            targets = [round(above[0], 2)] if above else [round(price * 1.25, 2)]
+        while len(targets) < 3:                 # إكمال بأقرب مقاومة أعلى
+            nxt = next((t for t in cands if t > targets[-1] * gap), None)
+            targets.append(round(nxt, 2) if nxt else round(targets[-1] * 1.25, 2))
+        t1, t2, t3 = targets[0], targets[1], targets[2]
+
+        # عائد/مخاطرة للهدفين الأول والثاني
+        risk = max(price - stop_lo, 1e-9)
+        rr = (t1 - price) / risk
+        rr2 = (t2 - price) / risk
+        if rr < CONFIG["MIN_RR_T1"]:
+            return None  # صفقة خاسرة رياضياً — مرفوضة نهائياً
+
+        # ملخص حالة بوابات فيصل (للرسالة المختصرة) — كلها ✅ لأن السهم
+        # اجتازها، لكن نعرضها للتأكيد البصري ولمعرفة قيمة كل شرط فعلياً
+        ema30_v = ema(close, 30)
+        macd_now_ok = (float(m_line.iloc[-1]) >= float(m_sig.iloc[-1])
+                       or (m_line.iloc[-5:] > m_sig.iloc[-5:]).any())
+        ma_dist = ((price / ema30_v - 1.0) * 100.0) if ema30_v > 0 else 0.0
+        gates_status = {
+            "السعر≥2": (True, f"${price:.2f}"),
+            "هبوط 50-97%": (True, f"{drop_pct:.0f}%"),
+            "انفجار≥100%": (True, f"{best_spike:.0f}%"),
+            "قاعدة ضيقة": (True, f"{base_range:.0f}%"),
+            "سيولة كافية": (True, fmt_money(dvol)),
+            "توافق فريمات": (mtf["count"] >= CONFIG["TF_MIN_REVERSALS"],
+                            f"{mtf['count']}/3"),
+            "شمعة انعكاس": (bool(patterns),
+                           "، ".join(patterns) if patterns else "لا"),
+            "RSI تشبع (≤27)": (r_min_recent <= CONFIG["RSI_OVERSOLD"],
+                              f"قاع {r_min_recent:.0f}"),
+            "RSI تحت 40": (r_now <= CONFIG["RSI_MAX_NOW"], f"{r_now:.0f}"),
+            "تقاطع MACD": (macd_now_ok, "إيجابي" if macd_now_ok else "لا"),
+            "على المتوسط الأسي": (
+                any(m > 0 and price >= m * 0.98
+                    and (price / m - 1.0) <= CONFIG["MA_GATE_MAX_ABOVE_PCT"] / 100.0
+                    for m in (ema30_v, ema(close, 50))),
+                f"{ma_dist:+.0f}% من EMA30"),
+            "فجوة-هدف فوق": (bool(near_zones),
+                            f"{len(near_zones)} منطقة" if near_zones else "لا"),
+        }
+
+        return {
+            "symbol": sym, "price": price, "score": int(min(score, 100)),
+            "drop_pct": drop_pct, "best_spike": best_spike,
+            "n_spikes": n_spikes, "base_range": base_range,
+            "rsi": r_now, "dollar_vol": dvol,
+            "pivot": pivot, "stop": (stop_lo, stop_hi),
+            "entry": (entry_lo, entry_hi),
+            "sweep": (sweep_lo, sweep_hi),
+            "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
+            "ready": ready, "flags": flags, "warnings": warnings,
+            "tf_count": mtf["count"], "tf_display": mtf["display"],
+            "patterns": patterns,
+            "gaps": gaps,
+            "gaps_above": gaps_above,
+            "gates_status": gates_status,
+        }
+    except Exception:
+        return None
+
+
+# ==========================================================
+# 6) الإثراء: شورت (Fintel→FINRA→Yahoo) / إعلانات SEC / تقسيمات
+# ==========================================================
+def finra_daily_short(symbols: set) -> dict:
+    """الشورت اليومي من ملفات FINRA المجانية (المصدر الأساسي الموثوق).
+    يقرأ حتى يومين متاحين لسد النواقص لكل رمز."""
+    out = {}
+    today = dt.date.today()
+    days_used = 0
+    for back in range(0, 10):
+        if days_used >= 2 or len(out) >= len(symbols):
+            break
+        d = today - dt.timedelta(days=back)
+        if d.weekday() >= 5:
+            continue
+        url = ("https://cdn.finra.org/equity/regsho/daily/"
+               f"CNMSshvol{d.strftime('%Y%m%d')}.txt")
+        try:
+            r = requests.get(url, headers=UA, timeout=40)
+            if r.status_code != 200 or "|" not in r.text[:200]:
+                continue
+            days_used += 1
+            for ln in r.text.splitlines()[1:]:
+                p = ln.split("|")
+                if len(p) >= 5 and p[1] in symbols and p[1] not in out:
+                    try:
+                        out[p[1]] = int(p[2])
+                    except ValueError:
+                        pass
+            log(f"شورت FINRA ليوم {d.isoformat()} "
+                f"(مغطّى: {len(out)}/{len(symbols)})")
+        except Exception:
+            continue
+    return out
+
+
+def fintel_short(symbols: list) -> dict:
+    """محاولة أولى صامتة من fintel.io (الأدق عند نجاحها).
+    Cloudflare غالباً يحجب الطلبات الآلية — عند الفشل نرجع {}
+    بصمت ويتولى FINRA ثم Yahoo المهمة."""
+    out = {}
+    for sym in symbols:
+        try:
+            r = requests.get(f"https://fintel.io/ss/us/{sym.lower()}",
+                             headers=BROWSER_UA, timeout=25)
+            if r.status_code != 200:
+                continue
+            html = r.text
+            d = {}
+            m = re.search(r"Short\s*Interest\s*%?\s*(?:of\s*)?Float"
+                          r"[^0-9%]{0,80}?([\d.]+)\s*%", html, re.I | re.S)
+            if m:
+                d["si_pct_float"] = float(m.group(1))
+            m2 = re.search(r"Short\s*Volume[^0-9]{0,80}?([\d,]{3,})",
+                           html, re.I | re.S)
+            if m2:
+                d["short_volume"] = int(m2.group(1).replace(",", ""))
+            if d:
+                out[sym] = d
+        except Exception:
+            pass
+        time.sleep(1.5)  # احترام الموقع
+    if out:
+        log(f"fintel: بيانات لـ {len(out)}/{len(symbols)} رمز")
+    else:
+        log("fintel: محجوب/لا بيانات — FINRA وYahoo يتوليان المهمة")
+    return out
+
+
+# ---- إعلانات SEC EDGAR الرسمية ----
+_SEC_CIK_CACHE = None
+
+
+def sec_cik_map() -> dict:
+    """خريطة رمز→CIK الرسمية من SEC (هوية مضمونة 100% للشركة الأمريكية)"""
+    global _SEC_CIK_CACHE
+    if _SEC_CIK_CACHE is not None:
+        return _SEC_CIK_CACHE
+    try:
+        r = requests.get("https://www.sec.gov/files/company_tickers.json",
+                         headers=SEC_UA, timeout=40)
+        r.raise_for_status()
+        data = r.json()
+        _SEC_CIK_CACHE = {v["ticker"].upper(): int(v["cik_str"])
+                          for v in data.values()}
+        log(f"خريطة SEC: {len(_SEC_CIK_CACHE)} رمز")
+    except Exception as e:
+        log(f"⚠️ خريطة SEC: {e}")
+        _SEC_CIK_CACHE = {}
+    return _SEC_CIK_CACHE
+
+
+# تصنيف بنود 8-K: (إيموجي، وصف عربي)
+SEC_8K_ITEMS = {
+    "1.01": ("🟢", "اتفاقية جوهرية"),
+    "1.02": ("🔴", "إنهاء اتفاقية"),
+    "1.03": ("🔴", "إفلاس/إعسار"),
+    "2.01": ("🟢", "إتمام استحواذ/بيع أصول"),
+    "2.02": ("🟡", "نتائج مالية"),
+    "2.03": ("🟡", "التزام مالي مباشر"),
+    "2.05": ("🔴", "تكاليف خروج/إعادة هيكلة"),
+    "2.06": ("🔴", "انخفاض قيمة أصول"),
+    "3.01": ("🔴", "إشعار شطب/مخالفة شروط الإدراج"),
+    "3.02": ("🔴", "بيع أسهم غير مسجلة (تخفيف)"),
+    "3.03": ("🟡", "تعديل حقوق حملة الأسهم"),
+    "4.01": ("🔴", "تغيير مدقق الحسابات"),
+    "4.02": ("🔴", "عدم الاعتماد على قوائم مالية سابقة"),
+    "5.01": ("🟡", "تغيير في السيطرة"),
+    "5.02": ("🟡", "تغييرات إدارية/مجلس الإدارة"),
+    "5.03": ("🟡", "تعديل النظام الأساسي (تقسيم عكسي محتمل)"),
+    "5.07": ("⚪", "نتائج تصويت المساهمين"),
+    "7.01": ("⚪", "إفصاح تنظيمي FD"),
+    "8.01": ("🟡", "أحداث أخرى مهمة"),
+    "9.01": ("⚪", "قوائم ومرفقات"),
+}
+
+# تصنيف نماذج أخرى مهمة (غير 8-K)
+SEC_FORM_CLASS = {
+    "424B5": ("🔴", "نشرة طرح أسهم (تخفيف)"),
+    "424B4": ("🔴", "نشرة طرح (تخفيف)"),
+    "424B3": ("🟡", "نشرة/تحديث طرح"),
+    "S-1": ("🔴", "تسجيل طرح جديد"),
+    "S-1/A": ("🔴", "تعديل تسجيل طرح"),
+    "S-3": ("🔴", "تسجيل طرح رفّي"),
+    "S-3/A": ("🔴", "تعديل تسجيل رفّي"),
+    "EFFECT": ("🔴", "تفعيل تسجيل طرح"),
+    "25": ("🔴", "شطب من الإدراج"),
+    "25-NSE": ("🔴", "بدء إجراءات شطب"),
+    "NT 10-K": ("🔴", "تأخر التقرير السنوي"),
+    "NT 10-Q": ("🔴", "تأخر التقرير الربعي"),
+}
+
+_RANK = {"🔴": 0, "🟢": 1, "🟡": 2, "⚪": 3}
+
+
+def classify_8k_items(items_str: str):
+    """يحوّل سلسلة بنود 8-K إلى أهم بند مصنّف (أحمر ثم أخضر ثم أصفر)"""
+    codes = [x.strip() for x in (items_str or "").split(",") if x.strip()]
+    parsed = []
+    for cd in codes:
+        emoji, label = SEC_8K_ITEMS.get(cd, ("⚪", f"بند {cd}"))
+        parsed.append((emoji, label, cd))
+    meaningful = [p for p in parsed if p[0] != "⚪"]
+    if not meaningful:
+        return None
+    meaningful.sort(key=lambda x: _RANK.get(x[0], 9))
+    emoji, label, cd = meaningful[0]
+    extra = f" (+{len(meaningful) - 1} بنود)" if len(meaningful) > 1 else ""
+    return f"{emoji} 8-K بند {cd}: {label}{extra}"
+
+
+def sec_recent_filings(sym: str):
+    """إعلانات SEC الرسمية لآخر N يوم، مصنّفة 🟢/🔴/🟡.
+    يرجع (قائمة سطور، حالة: ok / no_cik / error)"""
+    out = []
+    cik = sec_cik_map().get(sym.upper())
+    if not cik:
+        return out, "no_cik"
+    try:
+        url = f"https://data.sec.gov/submissions/CIK{cik:010d}.json"
+        r = requests.get(url, headers=SEC_UA, timeout=40)
+        r.raise_for_status()
+        recent = ((r.json().get("filings") or {}).get("recent")) or {}
+        forms = recent.get("form", []) or []
+        dates = recent.get("filingDate", []) or []
+        items_l = recent.get("items", []) or []
+        cutoff = (dt.date.today()
+                  - dt.timedelta(days=CONFIG["SEC_FILING_DAYS"])).isoformat()
+        for i in range(len(forms)):
+            fdate = dates[i] if i < len(dates) else ""
+            if fdate < cutoff:
+                break  # القائمة مرتبة من الأحدث للأقدم
+            form = (forms[i] or "").strip()
+            line = None
+            if form.startswith("8-K"):
+                cls = classify_8k_items(items_l[i] if i < len(items_l) else "")
+                if cls:
+                    line = f"{cls} — {fdate}"
+            else:
+                fc = SEC_FORM_CLASS.get(form)
+                if fc:
+                    line = f"{fc[0]} {form}: {fc[1]} — {fdate}"
+            if line:
+                out.append(line)
+            if len(out) >= CONFIG["SEC_MAX_SHOW"]:
+                break
+        return out, "ok"
+    except Exception as e:
+        log(f"⚠️ SEC {sym}: {e}")
+        return out, "error"
+
+
+def parse_yahoo_news(items, max_items: int, days: int) -> list:
+    """يحوّل قائمة أخبار yfinance إلى عناوين نظيفة (آخر N يوم).
+    يدعم البنيتين القديمة والجديدة لـ yfinance، ويرجع [] بلا أخطاء
+    لو تغيّرت البنية أو لا توجد أخبار (Yahoo مصدر مجاني عبر yfinance)."""
+    cutoff = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)
+    out = []
+    for it in (items or []):
+        try:
+            if not isinstance(it, dict):
+                continue
+            title = pub = link = None
+            when = None
+            # البنية الجديدة: كل الحقول داخل "content"
+            if isinstance(it.get("content"), dict):
+                c = it["content"]
+                title = c.get("title")
+                pub = (c.get("provider") or {}).get("displayName")
+                cu = c.get("canonicalUrl") or c.get("clickThroughUrl") or {}
+                link = cu.get("url") if isinstance(cu, dict) else None
+                raw = c.get("pubDate") or c.get("displayTime")
+                if raw:
+                    try:
+                        when = dt.datetime.fromisoformat(
+                            str(raw).replace("Z", "+00:00"))
+                    except Exception:
+                        when = None
+            # البنية القديمة: الحقول في الجذر مباشرة
+            else:
+                title = it.get("title")
+                pub = it.get("publisher")
+                link = it.get("link")
+                ts = it.get("providerPublishTime")
+                if ts:
+                    try:
+                        when = dt.datetime.fromtimestamp(
+                            int(ts), dt.timezone.utc)
+                    except Exception:
+                        when = None
+            if not title:
+                continue
+            if when is not None and when < cutoff:
+                continue
+            out.append({
+                "title": str(title).strip(),
+                "publisher": (pub or "").strip(),
+                "link": (link or "").strip(),
+                "date": when.date().isoformat() if when else "",
+            })
+            if len(out) >= max_items:
+                break
+        except Exception:
+            continue
+    return out
+
+
+def enrich(results: list) -> None:
+    """إثراء المرشحين: شورت (Fintel→FINRA→Yahoo) + SEC + تقسيمات + أخبار"""
+    syms = {r["symbol"] for r in results}
+    fintel = {}
+    try:
+        fintel = fintel_short(sorted(syms))
+    except Exception as e:
+        log(f"⚠️ fintel: {e}")
+    shorts = {}
+    try:
+        shorts = finra_daily_short(syms)
+    except Exception as e:
+        log(f"⚠️ FINRA: {e}")
+    sec_cik_map()  # تحميل الخريطة مرة واحدة
+    for r in results:
+        r["fintel"] = fintel.get(r["symbol"]) or {}
+        r["finra_short"] = shorts.get(r["symbol"])
+        r["short_pct"] = None
+        r["float"] = None
+        r["recent_split"] = None
+        r["news"] = []
+        r["tf4h"] = "غير متوفر"
+        # إعلانات SEC الرسمية (هوية مضمونة بالـCIK)
+        r["sec_filings"], r["sec_status"] = sec_recent_filings(r["symbol"])
+        time.sleep(0.15)  # احترام حد SEC (10 طلبات/ثانية)
+        if yf is None:
+            continue
+        try:
+            t = yf.Ticker(r["symbol"])
+            try:
+                info = t.info or {}
+                sp = info.get("shortPercentOfFloat")
+                r["short_pct"] = round(sp * 100, 1) if sp else None
+                fl = info.get("floatShares")
+                r["float"] = fl
+            except Exception:
+                pass
+            try:
+                cutoff = pd.Timestamp.today(tz="UTC") - pd.Timedelta(
+                    days=CONFIG["SPLIT_LOOKBACK_DAYS"])
+                sp = t.splits
+                if sp is not None and len(sp):
+                    idx = sp.index.tz_localize("UTC") if sp.index.tz is None \
+                        else sp.index.tz_convert("UTC")
+                    recent = sp[idx >= cutoff]
+                    rev = recent[recent < 1.0]
+                    if len(rev):
+                        r["recent_split"] = (str(rev.index[-1].date()),
+                                             float(rev.iloc[-1]))
+            except Exception:
+                pass
+            # أخبار ياهو (مجانية عبر yfinance) — عناوين آخر N يوم
+            try:
+                r["news"] = parse_yahoo_news(
+                    t.news, CONFIG["NEWS_MAX_SHOW"], CONFIG["NEWS_DAYS"])
+            except Exception:
+                r["news"] = []
+            # تأكيد فريم 4 ساعات (للمرشحين النهائيين فقط — اختياري)
+            try:
+                _ok4, _lbl4 = fetch_4h_signal(r["symbol"])
+                r["tf4h"] = _lbl4
+            except Exception:
+                r["tf4h"] = "غير متوفر"
+        except Exception:
+            continue
+        time.sleep(0.5)
+
+
+# ==========================================================
+# 7) استراتيجية التقسيم العكسي
+# ==========================================================
+def split_watch_report(history: dict) -> list:
+    """مراقبة قائمة التقسيمات اليدوية: قاع متوقع = شمعة التقسيم ÷ 2"""
+    rows = []
+    if yf is None:
+        return rows
+    watch = [s for s in CONFIG["SPLIT_WATCHLIST"] if s in history]
+    if not watch:
+        return rows
+    shorts = {}
+    try:
+        shorts = finra_daily_short(set(watch))
+    except Exception:
+        pass
+    for sym in watch:
+        try:
+            t = yf.Ticker(sym)
+            sp = t.splits
+            if sp is None or not len(sp):
+                continue
+            idx = sp.index.tz_localize("UTC") if sp.index.tz is None \
+                else sp.index.tz_convert("UTC")
+            cutoff = pd.Timestamp.today(tz="UTC") - pd.Timedelta(
+                days=CONFIG["SPLIT_LOOKBACK_DAYS"])
+            recent = sp[idx >= cutoff]
+            rev = recent[recent < 1.0]
+            if not len(rev):
+                continue
+            split_date = rev.index[-1].date()
+            df = history[sym]
+            day_open = None
+            try:
+                after = df[df.index.tz_localize(None) >= pd.Timestamp(split_date)] \
+                    if df.index.tz is not None else \
+                    df[df.index >= pd.Timestamp(split_date)]
+                if len(after):
+                    day_open = float(after["Open"].iloc[0])
+            except Exception:
+                pass
+            price = float(df["Close"].iloc[-1])
+            target = round(day_open / 2.0, 2) if day_open else None
+            srt = shorts.get(sym)
+            ok = (srt is not None and srt < CONFIG["SHORT_DAILY_MAX"])
+            rows.append({
+                "symbol": sym, "split_date": str(split_date),
+                "open": day_open, "half": target, "price": price,
+                "short": srt, "short_ok": ok,
+            })
+        except Exception:
+            continue
+    return rows
+
+
+# ==========================================================
+# 8) أدوات الرسائل المشتركة
+# ==========================================================
+def esc(s):
+    """تعقيم النصوص الخارجية حتى لا تكسر HTML تيليجرام"""
+    return (str(s).replace("&", "&amp;")
+            .replace("<", "&lt;").replace(">", "&gt;"))
+
+
+def fmt_money(x):
+    if x is None:
+        return "غير متوفر"
+    if x >= 1_000_000:
+        return f"{x/1_000_000:.1f}M"
+    if x >= 1_000:
+        return f"{x/1_000:.0f}K"
+    return str(int(x))
+
+
+def short_line(r) -> str:
+    """سطر الشورت (v2.0): بلا إيموجي، مع اسم المصدر،
+    والتفريق الصريح بين الرقم الفعلي وتعذّر الجلب."""
+    fd = r.get("fintel") or {}
+    vol_part = None
+    if fd.get("short_volume") is not None:
+        vol_part = f"{fmt_money(fd['short_volume'])} (Fintel)"
+    elif r.get("finra_short") is not None:
+        vol_part = f"{fmt_money(r['finra_short'])} (FINRA)"
+    pct_part = None
+    if fd.get("si_pct_float") is not None:
+        pct_part = f"{fd['si_pct_float']}% من الفلوت (Fintel)"
+    elif r.get("short_pct") is not None:
+        pct_part = f"{r['short_pct']}% من الفلوت (Yahoo)"
+    if vol_part and pct_part:
+        return f"شورت يومي: {vol_part} | فائدة الشورت: {pct_part}"
+    if vol_part:
+        return f"شورت يومي: {vol_part}"
+    if pct_part:
+        return f"فائدة الشورت: {pct_part}"
+    return "شورت: تعذّر الجلب من كل المصادر (ليس صفراً)"
+
+
+def risk_lines(price, stop_lo, t1, t2, rr):
+    """عرض المخاطرة بالدولار الفعلي (v2.0) بدل نسبة 1:X الغامضة"""
+    risk = price - stop_lo
+    g1 = t1 - price
+    g2 = t2 - price
+    if rr >= 3:
+        q = "ممتازة جداً"
+    elif rr >= 2:
+        q = "ممتازة"
+    else:
+        q = "جيدة"
+    return [
+        f"🛡️ تخاطر بـ${risk:.2f} للسهم ← ربح هدف1: ${g1:.2f} | "
+        f"هدف2: ${g2:.2f}",
+        f"⚖️ جودة الصفقة: {q} (الربح {rr:.1f}× المخاطرة)",
+    ]
+
+
+def news_links(sym: str) -> str:
+    """روابط أخبار قابلة للضغط لكل سهم (موثوقة 100% — لا سحب آلي).
+    ضغطة واحدة → تفتح صفحة أخبار السهم في الموقع. TipRanks مدفوع
+    ومحمي ضد السحب، فنعطيك رابطه المباشر بدل محاولة سحب فاشلة."""
+    s = sym.upper()
+    tr = f"https://www.tipranks.com/stocks/{s.lower()}/stock-news"
+    yh = f"https://finance.yahoo.com/quote/{s}/news"
+    fv = f"https://finviz.com/quote.ashx?t={s}"
+    return (f'🔗 تابع أخباره: <a href="{tr}">TipRanks</a> | '
+            f'<a href="{yh}">Yahoo</a> | <a href="{fv}">Finviz</a>')
+
+
+def news_block(r) -> list:
+    """قسم الأخبار في البطاقة: عناوين ياهو التلقائية + روابط المتابعة"""
+    lines = []
+    news = r.get("news") or []
+    if news:
+        lines.append(f"📰 <b>آخر الأخبار (Yahoo):</b>")
+        for it in news:
+            head = esc(it.get("title", ""))[:140]
+            src = esc(it.get("publisher", ""))
+            day = it.get("date", "")
+            meta = " — ".join(x for x in (src, day) if x)
+            link = it.get("link", "")
+            if link:
+                lines.append(f'  • <a href="{esc(link)}">{head}</a>'
+                             + (f" ({meta})" if meta else ""))
+            else:
+                lines.append(f"  • {head}" + (f" ({meta})" if meta else ""))
+    lines.append(news_links(r["symbol"]))
+    return lines
+
+
+def splits_block(splits) -> list:
+    """قسم مراقبة التقسيم العكسي (مشترك بين الرسائل)"""
+    if not splits:
+        return []
+    lines = ["", "✂️ <b>مراقبة أسهم التقسيم العكسي</b>"]
+    for s in splits:
+        half = f"${s['half']:.2f}" if s["half"] else "غير محسوب"
+        if s["short"] is None:
+            srt = "تعذّر الجلب"
+        elif s["short_ok"]:
+            srt = f"{fmt_money(s['short'])} ✅ تحت 20 ألف"
+        else:
+            srt = f"{fmt_money(s['short'])} ⏳ فوق 20 ألف"
+        lines.append(
+            f"• {s['symbol']} | قسم {s['split_date']} | "
+            f"القاع المتوقع (الافتتاح÷2): {half} | "
+            f"السعر: ${s['price']:.2f} | شورت: {srt}")
+    return lines
+
+
+FOOTER = ("⚠️ <i>فارز آلي حسب منهجية موثقة — ليست توصية. "
+          "القرار النهائي وإدارة المخاطر عليك. شرط فيصل: "
+          "ما لم تدخل قروبات.</i>")
+
+
+def build_message(results: list, splits: list,
+                  title="🎯 <b>فارز أسهم الارتكاز</b>", subnote=None) -> str:
+    """بطاقات الترشيح الكاملة (تُستخدم يوم تجديد القائمة)"""
+    today = dt.date.today().isoformat()
+    lines = [f"{title} — {today}",
+             f"العدد: {len(results)} (الجاهز أولاً)"]
+    if subnote:
+        lines.append(subnote)
+    lines.append("")
+    if not results:
+        lines.append("لا توجد أسهم تطابق الشروط اليوم. ✋")
+    for r in results:
+        ready = "✅ <b>جاهز للدخول (ثبات بعد القاع)</b>" if r["ready"] else \
+            "⏳ قيد التكوّن — انتظر الثبات"
+        lines += [
+            f"━━━━━━━━━━━━━━━",
+            f"📌 <b>{r['symbol']}</b> | ${r['price']:.2f} | "
+            f"نقاط: <b>{r['score']}/100</b>",
+            f"{ready}",
+            f"📉 هبوط من القمة: {r['drop_pct']:.0f}%  |  "
+            f"💥 أكبر انفجار سابق: {r['best_spike']:.0f}%",
+            f"🔁 انفجارات موثقة: {r['n_spikes']}  |  "
+            f"RSI: {r['rsi']:.0f}  |  سيولة/يوم: {fmt_money(r['dollar_vol'])}",
+            short_line(r),
+            f"🧲 الدعم الحرج (القاع/Pivot): ${r['pivot']:.2f}",
+            f"💰 اطلب الدخول بين: ${r['entry'][0]:.2f} – ${r['entry'][1]:.2f}",
+            f"   (الأمثل قرب ${r['entry'][0]:.2f} · لا تطلب فوق ${r['entry'][1]:.2f})",
+            f"🛑 وقف الخسارة: ${r['stop'][0]:.2f} – ${r['stop'][1]:.2f} "
+            f"(5-7% تحت القاع · اخرج لو أغلق تحته)",
+            f"🌀 منطقة سحب السيولة محتملة: ${r['sweep'][0]:.2f} – "
+            f"${r['sweep'][1]:.2f} (قد يكنس الستوبات ثم يرتد)",
+            f"🎯 خذ ربح عند المقاومات: 1) ${r['t1']:.2f}  2) ${r['t2']:.2f}  "
+            f"3) ${r['t3']:.2f}",
+        ]
+        lines += risk_lines(r["price"], r["stop"][0], r["t1"], r["t2"], r["rr"])
+        # ملخص بوابات فيصل المختصر (✅/❌ لكل شرط) — تأكيد بصري سريع
+        gs = r.get("gates_status") or {}
+        if gs:
+            lines.append("")
+            lines.append("<b>━━ فحص شروط فيصل ━━</b>")
+            for name, (ok, val) in gs.items():
+                mark = "✅" if ok else "❌"
+                lines.append(f"{mark} {name}: {val}")
+            # الشورت (يُضاف من apply_short_gate كعلم)
+            short_flag = next((f for f in r.get("flags", [])
+                               if "شورت" in f), None)
+            if short_flag:
+                sok = "مقبول" in short_flag or "غير متاح" in short_flag
+                lines.append(f"{'✅' if sok else '❌'} {short_flag}")
+            lines.append("<b>━━━━━━━━━━━━━━</b>")
+        lines.append(f"🧩 الإشارات: {('، '.join(r['flags'])) or '-'}")
+        if r.get("tf_display"):
+            lines.append(f"📊 الفريمات: {r['tf_display']} "
+                         f"({r.get('tf_count', 0)}/3)")
+        if r.get("patterns"):
+            lines.append("🕯️ أنماط الشموع: " + "، ".join(r["patterns"]))
+        g = r.get("gaps") or {}
+        if g.get("count", 0) > 0:
+            extra = " · مفتوحة ✅" if g.get("unfilled") else ""
+            ago = g.get("last_gap_ago")
+            ago_txt = (f" · آخرها قبل {ago} جلسة" if ago is not None else "")
+            # عرض أي فريمات فيها فجوات
+            fr = []
+            if g.get("daily", {}).get("count", 0) > 0:
+                fr.append("يومي")
+            if g.get("weekly", {}).get("count", 0) > 0:
+                fr.append("أسبوعي")
+            if g.get("monthly", {}).get("count", 0) > 0:
+                fr.append("شهري")
+            fr_txt = (" | فريمات: " + "، ".join(fr)) if fr else ""
+            lines.append(f"📈 فجوات صاعدة (يومي): {g['count']} | أكبرها "
+                         f"{g['max_gap']:.0f}%{ago_txt}{extra}{fr_txt}")
+        # الفجوة-هدف غير المملوءة فوق السعر (مفهوم فيصل)
+        ga = r.get("gaps_above") or {}
+        if ga.get("nearest"):
+            zones = ga.get("all_zones") or []
+            tops = "، ".join(f"${z['bottom']:.2f}" for z in zones[:3])
+            lines.append(f"🎯 فجوات-هدف فوق السعر ({ga['count']}): {tops}"
+                         + (" ..." if len(zones) > 3 else ""))
+        if r.get("tf4h") and r["tf4h"] not in ("غير متوفر", "غير مفعّل"):
+            lines.append(f"⏱️ تأكيد 4 ساعات: {r['tf4h']}")
+        if r.get("warnings"):
+            lines.append("⚠️ تنبيهات: " + "؛ ".join(esc(w) for w in r["warnings"]))
+        if r.get("recent_split"):
+            d, ratio = r["recent_split"]
+            lines.append(f"✂️ تقسيم عكسي حديث: {d} (نسبة {ratio})")
+        # إعلانات SEC الرسمية المصنّفة
+        st = r.get("sec_status")
+        fl = r.get("sec_filings") or []
+        if fl:
+            lines.append(f"📋 <b>إعلانات SEC (آخر {CONFIG['SEC_FILING_DAYS']} "
+                         f"يوم):</b>")
+            for f in fl:
+                lines.append(f"  {esc(f)}")
+        elif st == "ok":
+            lines.append("📋 لا إعلانات SEC مهمة آخر "
+                         f"{CONFIG['SEC_FILING_DAYS']} يوم ✓")
+        elif st == "no_cik":
+            lines.append("📋 SEC: الرمز غير مسجل لدى SEC (شركة أجنبية/OTC؟)")
+        else:
+            lines.append("📋 SEC: تعذر جلب الإعلانات")
+        # الأخبار: عناوين ياهو التلقائية + روابط متابعة (TipRanks/Yahoo/Finviz)
+        lines += news_block(r)
+    lines += splits_block(splits)
+    lines += ["", FOOTER]
+    return "\n".join(lines)
+
+
+def send_telegram(text: str) -> bool:
+    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
+        log("ℹ️ لا يوجد توكن تيليجرام — الطباعة على الشاشة فقط:")
+        print("\n" + text.replace("<b>", "").replace("</b>", "")
+              .replace("<i>", "").replace("</i>", "") + "\n")
+        return False
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    chunks, cur = [], ""
+    for ln in text.split("\n"):
+        if len(cur) + len(ln) + 1 > 3800:
+            chunks.append(cur)
+            cur = ln
+        else:
+            cur = cur + "\n" + ln if cur else ln
+    if cur:
+        chunks.append(cur)
+    ok = True
+    for ch in chunks:
+        try:
+            resp = requests.post(url, json={
+                "chat_id": TELEGRAM_CHAT, "text": ch,
+                "parse_mode": "HTML",
+                "disable_web_page_preview": True}, timeout=30)
+            if resp.status_code != 200:
+                log(f"⚠️ تيليجرام رفض: {resp.text[:200]}")
+                ok = False
+        except Exception as e:
+            log(f"⚠️ خطأ تيليجرام: {e}")
+            ok = False
+        time.sleep(1)
+    return ok
+
+
+# ==========================================================
+# 9) نظام القائمة الأسبوعية الثابتة (v2.0)
+# ==========================================================
+WATCH_FILE = "weekly_watchlist.json"   # ملف ذاكرة القائمة في الـ repo
+WEEKLY_RENEW_DAY = 4                   # 4 = الجمعة (الاثنين = 0)
+
+
+def load_watchlist() -> dict:
+    if os.path.exists(WATCH_FILE):
+        try:
+            with open(WATCH_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            log(f"⚠️ قراءة ملف القائمة: {e}")
+    return {"week_start": None, "created": None, "stocks": [],
+            "removed": [], "replacements_log": [], "notes": [],
+            "history": []}
+
+
+def save_watchlist(wl: dict) -> None:
+    try:
+        with open(WATCH_FILE, "w", encoding="utf-8") as f:
+            json.dump(wl, f, ensure_ascii=False, indent=1)
+    except Exception as e:
+        log(f"⚠️ حفظ ملف القائمة: {e}")
+
+
+def should_renew(wl: dict, today: dt.date, force: bool = False) -> bool:
+    """تحديد متى نفرز السوق كاملاً ونبني قائمة جديدة.
+    - DAILY_FULL_SCAN=True (فيصل، v2.6): فرز كامل كل يوم بعد الإغلاق
+      (لأن أسهم الشروط الصارمة نادرة، نصطادها أي يوم تظهر).
+    - غير ذلك: جمعة = تجديد | لا قائمة = تأسيس | FORCE_RENEW=1 = إجبار."""
+    if force:
+        return True
+    if not wl.get("stocks") and not wl.get("removed"):
+        return True  # أول تشغيل — لا تنتظر الجمعة
+    if CONFIG.get("DAILY_FULL_SCAN", False):
+        return True  # فرز كامل يومي (شروط فيصل الصارمة)
+    return today.weekday() == WEEKLY_RENEW_DAY
+
+
+def make_watch_entry(r: dict, today_iso: str) -> dict:
+    """تحويل نتيجة تحليل إلى سجل سهم في القائمة الأسبوعية"""
+    return {
+        "symbol": r["symbol"], "added": today_iso,
+        "entry_ref": round(r["price"], 4),
+        "pivot": round(r["pivot"], 4),
+        "stop": round(r["stop"][0], 4),        # الوقف الأبعد (2% تحت القاع)
+        "stop_hi": round(r["stop"][1], 4),
+        "t1": round(r["t1"], 4), "t2": round(r["t2"], 4),
+        "t3": round(r["t3"], 4),
+        "score": r["score"], "flags": list(r["flags"]),
+        "status": "active", "removed_date": None, "removal_reason": None,
+        "replaced": False,
+        "readiness": None, "have": [], "partial": [], "missing": [],
+        "hit": None, "hit_date": None,
+        "max_gain_pct": 0.0,
+        "last_price": round(r["price"], 4),
+    }
+
+
+def apply_short_gate(results: list) -> list:
+    """M13 — بوابة الشورت العالي، تُطبّق بعد الفرز (مرحلة ثانية).
+    الشورت يُجلب فقط للأسهم الناجحة (جلبه بطيء، يستحيل لكل السوق).
+    يرفض السهم لو شورته معروف وعالي (≥ الحد). لو البيانة مفقودة من
+    المصادر الثلاثة (Fintel→FINRA→Yahoo) → يعدّي (فائدة الشك)."""
+    if not CONFIG.get("SHORT_GATE_REQUIRED", False) or not results:
+        return results
+    syms = [r["symbol"] for r in results]
+    # نجلب الشورت من المصادر (نفس منطق الإثراء: Fintel ثم FINRA)
+    short_map = {}
+    try:
+        short_map = fintel_short(sorted(syms)) or {}
+    except Exception:
+        short_map = {}
+    try:
+        finra = finra_daily_short(set(syms)) or {}
+        for k, v in finra.items():
+            short_map.setdefault(k, v)   # FINRA يكمّل ما نقص
+    except Exception:
+        pass
+    kept, rejected = [], []
+    limit = CONFIG["SHORT_GATE_MAX"]
+    for r in results:
+        srt = short_map.get(r["symbol"])
+        if srt is not None and srt >= limit:
+            rejected.append((r["symbol"], srt))
+        else:
+            if srt is not None:
+                r.setdefault("flags", []).append(f"شورت {int(srt):,} (مقبول)")
+            else:
+                r.setdefault("flags", []).append("شورت غير متاح — مُرِّر بفائدة الشك")
+            kept.append(r)
+    if rejected:
+        names = "، ".join(f"{s}({int(v):,})" for s, v in rejected)
+        log(f"بوابة الشورت (M13) رفضت {len(rejected)}: {names}")
+    return kept
+
+
+def apply_float_gate(results: list) -> list:
+    """M14 — بوابة الفلوت الكبير، تُطبّق بعد الفرز (مرحلة ثانية، آخر فلتر).
+    أقوى رابط مشترك في كل أسهم فيصل = الفلوت الصغير (HCAI 163ألف،
+    GWAV 778ألف، BJDX 918ألف، EHGO 1.62م... كلها صغيرة). الفلوت الصغير
+    ينفجر بسهولة (أسهم قليلة، الطلب يرفعه بقوة). الفلوت يُجلب من
+    yf.Ticker().info['floatShares'] — بطيء، فيُجلب للناجحين فقط.
+    يرفض السهم لو فلوته معروف وكبير (≥ الحد). لو البيانة مفقودة →
+    يعدّي (فائدة الشك، نفس منطق الشورت)."""
+    if not CONFIG.get("FLOAT_GATE_REQUIRED", False) or not results:
+        return results
+    if yf is None:
+        return results
+    limit = CONFIG["FLOAT_GATE_MAX"]
+    kept, rejected = [], []
+    for r in results:
+        fl = r.get("float")          # قد يكون مجلوباً مسبقاً من enrich
+        if fl is None:               # غير مجلوب بعد → نجلبه الآن
+            try:
+                info = yf.Ticker(r["symbol"]).info or {}
+                fl = info.get("floatShares")
+                r["float"] = fl
+                sp = info.get("shortPercentOfFloat")
+                if r.get("short_pct") is None and sp:
+                    r["short_pct"] = round(sp * 100, 1)
+            except Exception:
+                fl = None
+            time.sleep(0.10)         # احترام حدود الطلبات
+        if fl is not None and fl >= limit:
+            rejected.append((r["symbol"], fl))
+        else:
+            if fl is not None:
+                r.setdefault("flags", []).append(
+                    f"فلوت {int(fl):,} (صغير ✅)")
+            else:
+                r.setdefault("flags", []).append(
+                    "فلوت غير متاح — مُرِّر بفائدة الشك")
+            kept.append(r)
+    if rejected:
+        names = "، ".join(f"{s}({int(v):,})" for s, v in rejected)
+        log(f"بوابة الفلوت (M14) رفضت {len(rejected)}: {names}")
+    return kept
+
+
+def scan_market():
+    """فرز السوق (تجديد الجمعة أو جلب بدائل) — يرجع (نتائج مرتبة، بيانات)"""
+    if MODE == "FULL":
+        universe = get_universe()
+        if not universe:
+            log("⚠️ فشل جلب الكون — التحويل لوضع TEST")
+            universe = CONFIG["TEST_TICKERS"]
+    else:
+        universe = CONFIG["TEST_TICKERS"]
+        log(f"وضع تجربة: {len(universe)} سهم من العينة الموثقة")
+    history = download_history(universe)
+    results = []
+    for sym, df in history.items():
+        r = analyze_ticker(sym, df)
+        if r:
+            results.append(r)
+    # M13: بوابة الشورت العالي (مرحلة ثانية على الناجحين فقط)
+    results = apply_short_gate(results)
+    # M14: بوابة الفلوت الكبير (آخر فلتر — الفلوت بطيء، والناجحون هنا قلائل)
+    results = apply_float_gate(results)
+    results.sort(key=lambda x: (0 if x["ready"] else 1, -x["score"], -x["rr"]))
+    log(f"الفرز وجد {len(results)} مرشحاً يطابق الشروط")
+    return results, history
+
+
+def select_top(results: list, n: int, exclude: set) -> list:
+    """أفضل n نتيجة مع استبعاد رموز محددة"""
+    out = []
+    for r in results:
+        if r["symbol"] in exclude:
+            continue
+        out.append(r)
+        if len(out) >= n:
+            break
+    return out
+
+
+def entry_readiness(df: pd.DataFrame):
+    """نسبة جاهزية الدخول 0-100% (تتغير يومياً، الأسهم ثابتة).
+    الأوزان: ثبات بعد القاع 30 (الأهم) + RSI 20 + MACD 10 + KST 10
+    + قرب متوسط 30/50 10 + جفاف بيع 10 + مسح سيولة 10 = 100"""
+    close = df["Close"]
+    high, low, vol = df["High"], df["Low"], df["Volume"]
+    c = close.values
+    price = float(c[-1])
+    comp = {}
+
+    # 1) الثبات بعد القاع — 30 (كامل في النافذة الذهبية 3-8، نصفها خارجها)
+    ps = pivot_stability(low.values.astype(float), c)
+    pts = 0
+    if ps and ps["held"]:
+        pts = 30 if ps["ready"] else 15
+    comp["ثبات بعد القاع"] = (pts, 30)
+
+    # 2) RSI — 20 (كامل: قاع ≤35 + انحناء + الحالي ≤50 | نصف: ارتد فوق 50)
+    rsi_s = rsi(close)
+    r_now, r_prev = float(rsi_s.iloc[-1]), float(rsi_s.iloc[-2])
+    r_min = float(rsi_s.tail(CONFIG["RSI_RECENT_WINDOW"]).min())
+    pts = 0
+    if r_min <= CONFIG["RSI_OVERSOLD"] and r_now > r_prev:
+        pts = 20 if r_now <= CONFIG["RSI_MAX_NOW"] else 10
+    comp["RSI تشبع وانحناء"] = (pts, 20)
+
+    # 3) MACD — 10
+    m_line, m_sig = macd(close)
+    pts = 10 if ((m_line.iloc[-5:] > m_sig.iloc[-5:]).any()
+                 and float(m_line.iloc[-1]) >= float(m_sig.iloc[-1])) else 0
+    comp["تقاطع MACD"] = (pts, 10)
+
+    # 4) KST — 10
+    k_line, k_sig = kst(close)
+    pts = 0
+    try:
+        if (float(k_line.iloc[-1]) > float(k_sig.iloc[-1])
+                and float(k_line.iloc[-1]) > float(k_line.iloc[-3])):
+            pts = 10
+    except Exception:
+        pass
+    comp["KST صاعد"] = (pts, 10)
+
+    # 5) قرب متوسط 30/50 — 10
+    sma30 = ema(close, 30)
+    sma50 = ema(close, 50)
+    near = any(ma > 0 and abs(price / ma - 1.0) <= 0.05
+               for ma in (sma30, sma50))
+    comp["قرب متوسط 30/50"] = (10 if near else 0, 10)
+
+    # 6) جفاف بيع — 10
+    v20 = float(vol.tail(20).mean())
+    v5 = float(vol.tail(5).mean())
+    dry = bool(v20 > 0 and v5 <= CONFIG["VOL_DRY_RATIO"] * v20)
+    comp["جفاف بيع"] = (10 if dry else 0, 10)
+
+    # 7) مسح سيولة — 10 (كسر قاع سابق ثم استعادة)
+    sweep = False
+    lows_arr = low.values.astype(float)
+    if len(lows_arr) > 35:
+        prior_low = float(np.min(lows_arr[-35:-10]))
+        recent_min = float(np.min(lows_arr[-10:]))
+        mfi_s = mfi(high, low, close, vol)
+        if (prior_low > 0 and recent_min < prior_low * 0.995
+                and price > prior_low
+                and float(mfi_s.iloc[-1]) >= float(mfi_s.tail(10).min())):
+            sweep = True
+    comp["مسح سيولة"] = (10 if sweep else 0, 10)
+
+    total = int(sum(p for p, _ in comp.values()))
+    return total, comp
+
+
+def _note(wl: dict, sym: str, text: str, family: str = None) -> None:
+    """تسجيل ملاحظة تعلّم (مرة واحدة لكل عائلة ملاحظة لكل سهم بالأسبوع)"""
+    fam = family or text
+    for n in wl.get("notes", []):
+        if n.get("symbol") == sym and n.get("family") == fam:
+            return
+    wl.setdefault("notes", []).append({
+        "date": dt.date.today().isoformat(),
+        "symbol": sym, "text": text, "family": fam})
+
+
+def update_watchlist_status(wl: dict, history: dict) -> list:
+    """فحص الستوب/الأهداف/الملاحظات لكل سهم نشط منذ إضافته.
+    الستوب أولاً = افتراض محافظ (إلا إذا تحقق هدف قبله).
+    يرجع قائمة المشطوبين في هذا التشغيل."""
+    today_iso = dt.date.today().isoformat()
+    for s in [x for x in wl["stocks"] if x["status"] == "active"]:
+        df = history.get(s["symbol"])
+        if df is None or len(df) == 0:
+            _note(wl, s["symbol"], "تعذر جلب بياناته (تداول موقوف؟)",
+                  family="لا بيانات")
+            continue
+        added = dt.date.fromisoformat(s["added"])
+        s["last_price"] = round(float(df["Close"].iloc[-1]), 4)
+        # شموع ما بعد يوم الإضافة فقط (التنبيه صدر بعد إغلاق يومه)
+        rows = []
+        for i in range(len(df)):
+            try:
+                day = df.index[i].date()
+            except Exception:
+                continue
+            if day > added:
+                rows.append((day, float(df["High"].iloc[i]),
+                             float(df["Low"].iloc[i])))
+        if rows:
+            mx = max(h for _, h, _ in rows)
+            s["max_gain_pct"] = round((mx / s["entry_ref"] - 1.0) * 100.0, 1)
+        for day, hi, lo in rows:
+            # الستوب أولاً (محافظ) إذا لم يتحقق أي هدف قبله
+            if lo <= s["stop"] and not s["hit"]:
+                s["status"] = "stopped"
+                s["removed_date"] = today_iso
+                loss = (s["stop"] / s["entry_ref"] - 1.0) * 100.0
+                s["removal_reason"] = (f"ضرب الستوب ${s['stop']:.2f} "
+                                       f"يوم {day} ({loss:+.1f}%)")
+                break
+            # الأهداف (تصاعدياً)
+            if hi >= s["t3"] and s["hit"] != "t3":
+                s["hit"], s["hit_date"] = "t3", str(day)
+            elif hi >= s["t2"] and s["hit"] not in ("t2", "t3"):
+                s["hit"], s["hit_date"] = "t2", str(day)
+            elif hi >= s["t1"] and not s["hit"]:
+                s["hit"], s["hit_date"] = "t1", str(day)
+            # ستوب بعد تحقيق هدف = خروج رابح مفترض، لكن النموذج انتهى
+            if lo <= s["stop"]:
+                s["status"] = "stopped"
+                s["removed_date"] = today_iso
+                s["removal_reason"] = (f"لمس الستوب يوم {day} بعد تحقيق "
+                                       f"هدف{s['hit'][-1]} (خروج رابح مفترض)")
+                break
+        # ملاحظات تعلّم (لا تُشطب بسببها — تُعرض الجمعة)
+        if s["status"] == "active":
+            lp = s["last_price"]
+            if lp < CONFIG["MIN_PRICE"]:
+                _note(wl, s["symbol"],
+                      f"نزل تحت ${CONFIG['MIN_PRICE']:.0f} (${lp:.2f})",
+                      family="تحت الحد")
+            cvals = df["Close"].values
+            if len(cvals) > 6:
+                g5 = (float(cvals[-1]) / float(cvals[-6]) - 1.0) * 100.0
+                if g5 > CONFIG["RECENT_RISE_BLOCK_PCT"]:
+                    _note(wl, s["symbol"],
+                          f"انفجر {g5:+.0f}% خلال أسبوع — النموذج اشتغل "
+                          "(الدخول الجديد فات)", family="انفجر")
+            if s["stop"] < lp < s["pivot"]:
+                _note(wl, s["symbol"],
+                      f"يتداول تحت القاع ${s['pivot']:.2f} بدون لمس الستوب",
+                      family="تحت القاع")
+    # نقل المشطوبين من النشطين إلى سجل المشطوبين
+    newly = [s for s in wl["stocks"] if s["status"] != "active"]
+    wl["stocks"] = [s for s in wl["stocks"] if s["status"] == "active"]
+    wl["removed"].extend(newly)
+    return newly
+
+
+def fill_replacements(wl: dict):
+    """جلب بدائل لمن شُطب في يوم *سابق* (قاعدة: الاستبدال اليوم التالي).
+    يرجع (نتائج البدائل، بياناتهم التاريخية)"""
+    today_iso = dt.date.today().isoformat()
+    pending = [rm for rm in wl["removed"]
+               if not rm.get("replaced")
+               and rm.get("removed_date")
+               and rm["removed_date"] < today_iso]
+    space = CONFIG["WATCHLIST_SIZE"] - len(wl["stocks"])
+    n = min(len(pending), max(space, 0))
+    if n <= 0:
+        if space > 0 and any(not rm.get("replaced") for rm in wl["removed"]):
+            log("شُطب اليوم → الاستبدال غداً (حسب القاعدة)")
+        return [], {}
+    exclude = ({s["symbol"] for s in wl["stocks"]}
+               | {rm["symbol"] for rm in wl["removed"]})
+    log(f"البحث عن {n} بديل من السوق...")
+    results, hist = scan_market()
+    picks = select_top(results, n, exclude)
+    added = []
+    for r, rm in zip(picks, pending):
+        rm["replaced"] = True
+        wl["stocks"].append(make_watch_entry(r, today_iso))
+        wl["replacements_log"].append({
+            "date": today_iso, "out": rm["symbol"],
+            "in": r["symbol"], "score": r["score"]})
+        added.append(r)
+    if added:
+        log("أُضيف بديل: " + "، ".join(p["symbol"] for p in added))
+    elif n > 0:
+        log("لم يُعثر على بدائل تطابق الشروط اليوم — سيُعاد غداً")
+    sub_hist = {r["symbol"]: hist[r["symbol"]]
+                for r in added if r["symbol"] in hist}
+    return added, sub_hist
+
+
+def compute_readiness(wl: dict, history: dict) -> None:
+    """حساب نسبة الجاهزية اليومية لكل سهم نشط + الترتيب بها"""
+    for s in wl["stocks"]:
+        df = history.get(s["symbol"])
+        if df is None or len(df) < 60:
+            s["readiness"] = None
+            s["have"], s["partial"], s["missing"] = [], [], []
+            continue
+        pct, comp = entry_readiness(df)
+        s["readiness"] = pct
+        s["have"] = [k for k, (p, m) in comp.items() if p >= m]
+        s["partial"] = [k for k, (p, m) in comp.items() if 0 < p < m]
+        s["missing"] = [k for k, (p, m) in comp.items() if p == 0]
+    wl["stocks"].sort(
+        key=lambda s: -(s["readiness"] if s["readiness"] is not None else -1))
+
+
+def readiness_badge(p):
+    if p is None:
+        return "⚠️ لا بيانات"
+    if p >= CONFIG["READY_PCT"]:
+        return f"<b>{p}%</b> 🟢 جاهز"
+    if p >= CONFIG["NEAR_PCT"]:
+        return f"<b>{p}%</b> 🟡 يقترب"
+    return f"<b>{p}%</b> 🔴 بعيد عن الدخول"
+
+
+def build_daily_message(wl: dict, splits: list,
+                        stopped_today: list, replaced: list) -> str:
+    """التقرير اليومي (الاثنين→الخميس): القائمة الثابتة مرتبة بالجاهزية"""
+    today = dt.date.today().isoformat()
+    n = len(wl["stocks"])
+    lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
+             f"{n}/{CONFIG['WATCHLIST_SIZE']} سهم | مرتبة حسب جاهزية الدخول "
+             f"(تجديد القائمة: الجمعة)", ""]
+    if not wl["stocks"]:
+        lines.append("القائمة فارغة مؤقتاً — البدائل تُجلب في التشغيل القادم.")
+    for i, s in enumerate(wl["stocks"], 1):
+        lp = s["last_price"]
+        lines.append(f"{i}) 📌 <b>{s['symbol']}</b> — "
+                     f"{readiness_badge(s['readiness'])}")
+        lines.append(f"   💵 ${lp:.2f} | قاع ${s['pivot']:.2f} | "
+                     f"ستوب ${s['stop']:.2f}")
+        risk = lp - s["stop"]
+        if lp < s["t1"] and risk > 0:
+            g1 = s["t1"] - lp
+            mult = g1 / risk
+            lines.append(f"   🛡️ تخاطر ${risk:.2f} ← ربح هدف1 ${g1:.2f} "
+                         f"({mult:.1f}× المخاطرة)")
+        elif lp >= s["t1"]:
+            lines.append(f"   🎯 تجاوز هدف1 (${s['t1']:.2f}) — "
+                         f"التالي ${s['t2']:.2f}")
+        if s.get("hit"):
+            lines.append(f"   🏆 حقق هدف{s['hit'][-1]} يوم {s['hit_date']} | "
+                         f"أقصى ارتفاع {s['max_gain_pct']:+.0f}%")
+        if s.get("have"):
+            lines.append("   ✅ متوفر: " + "، ".join(s["have"]))
+        if s.get("partial"):
+            lines.append("   🔸 جزئي: " + "، ".join(s["partial"]))
+        if s.get("missing"):
+            lines.append("   ⏳ ناقص: " + "، ".join(s["missing"]))
+    if replaced:
+        lines += ["", "🔄 <b>بدلاء اليوم (انضموا للقائمة):</b>"]
+        for r in replaced:
+            lines.append(f"• <b>{r['symbol']}</b> | ${r['price']:.2f} | "
+                         f"نقاط {r['score']} | قاع ${r['pivot']:.2f} | "
+                         f"ستوب ${r['stop'][0]:.2f} | هدف1 ${r['t1']:.2f}")
+        lines.append("(بطاقاتهم الكاملة مع SEC والشورت في تقرير الجمعة)")
+    if stopped_today:
+        lines += ["", "🛑 <b>شُطب اليوم (يُستبدل غداً):</b>"]
+        for s in stopped_today:
+            lines.append(f"• {s['symbol']}: {s['removal_reason']}")
+    lines += splits_block(splits)
+    lines += ["", FOOTER]
+    return "\n".join(lines)
+
+
+def build_wrapup_message(wl: dict) -> str:
+    """حصاد الأسبوع (الجمعة قبل التجديد): الأداء + أسباب الشطب للتعلم"""
+    entries = wl["stocks"] + wl["removed"]
+    if not entries:
+        return ""
+    today = dt.date.today().isoformat()
+    start = wl.get("week_start") or "؟"
+    lines = [f"📊 <b>حصاد أسبوع القائمة</b> ({start} ← {today})", ""]
+    for s in sorted(entries, key=lambda x: -(x.get("max_gain_pct") or 0)):
+        chg = (s["last_price"] / s["entry_ref"] - 1.0) * 100.0
+        if s["status"] == "stopped":
+            st = "🛑 شُطب"
+        elif s.get("hit"):
+            st = f"🏆 هدف{s['hit'][-1]}"
+        else:
+            st = "⏳ ما زال يتشكل"
+        lines.append(f"• <b>{s['symbol']}</b>: ${s['entry_ref']:.2f} ← "
+                     f"${s['last_price']:.2f} ({chg:+.0f}%) | "
+                     f"أقصى {s['max_gain_pct']:+.0f}% | {st}")
+    stopped = [s for s in entries if s["status"] == "stopped"]
+    if stopped:
+        lines += ["", "🛑 <b>المشطوبون وأسبابهم (للتعلم):</b>"]
+        for s in stopped:
+            lines.append(f"• {s['symbol']}: {s['removal_reason']}")
+            if s.get("flags"):
+                lines.append(f"  إشاراته عند الاختيار: "
+                             f"{'، '.join(s['flags'])}")
+        cnt = {}
+        for s in stopped:
+            for f in s.get("flags", []):
+                name = f.split("(")[0].strip()
+                cnt[name] = cnt.get(name, 0) + 1
+        common = [f"{k} ({v})" for k, v in
+                  sorted(cnt.items(), key=lambda x: -x[1]) if v >= 2]
+        if common:
+            lines += ["", "💡 إشارات تكررت عند المشطوبين: "
+                      + "، ".join(common),
+                      "(إذا تكرر النمط أسابيع متتالية، نراجع وزنها)"]
+    notes = wl.get("notes") or []
+    if notes:
+        lines += ["", "📝 <b>ملاحظات الأسبوع:</b>"]
+        for nt in notes[-12:]:
+            lines.append(f"• {nt['date']} {nt['symbol']}: {nt['text']}")
+    wins = len([s for s in entries if s.get("hit")])
+    act = len([s for s in entries
+               if s["status"] == "active" and not s.get("hit")])
+    lines += ["", f"الخلاصة: {wins} حقق هدفاً | {len(stopped)} ضرب الستوب | "
+              f"{act} ما زال يتشكل",
+              "", "⚠️ <i>إحصاءات آلية للتقييم الذاتي — ليست توصية.</i>"]
+    return "\n".join(lines)
+
+
+def write_csv(rows: list, prefix: str) -> None:
+    if not (CONFIG["REPORT_CSV"] and rows):
+        return
+    try:
+        fn = f"{prefix}_{dt.date.today().isoformat()}.csv"
+        pd.DataFrame(rows).to_csv(fn, index=False, encoding="utf-8-sig")
+        log(f"حُفظ التقرير: {fn}")
+    except Exception as e:
+        log(f"⚠️ حفظ CSV: {e}")
+
+
+def run_weekly_renewal(wl: dict) -> None:
+    """الجمعة (أو التأسيس الأول): حصاد الأسبوع المنتهي + قائمة جديدة"""
+    today_iso = dt.date.today().isoformat()
+    is_friday = dt.date.today().weekday() == WEEKLY_RENEW_DAY
+    # 1) إغلاق الأسبوع المنتهي (إن وُجد) بتحديث أخير + رسالة حصاد
+    old_syms = sorted({s["symbol"] for s in wl["stocks"]})
+    if old_syms and yf is not None:
+        try:
+            hist_old = download_history(old_syms)
+            update_watchlist_status(wl, hist_old)
+        except Exception as e:
+            log(f"⚠️ تحديث الأسبوع المنتهي: {e}")
+    # رسالة الحصاد تُرسل دائماً (حتى لو تعذر التحديث الأخير)
+    wrap = build_wrapup_message(wl)
+    if wrap:
+        send_telegram(wrap)
+    # 2) أرشفة مختصرة (آخر 8 أسابيع للتعلم التراكمي)
+    if wl.get("week_start"):
+        summary = {"week_start": wl["week_start"], "ended": today_iso,
+                   "stocks": [{k: s.get(k) for k in
+                               ("symbol", "entry_ref", "last_price",
+                                "max_gain_pct", "status", "hit",
+                                "removal_reason")}
+                              for s in wl["stocks"] + wl["removed"]]}
+        wl.setdefault("history", []).append(summary)
+        wl["history"] = wl["history"][-8:]
+    # 3) فرز جديد واختيار القائمة
+    exclude = set()
+    if CONFIG["EXCLUDE_STOPPED_FROM_RENEWAL"]:
+        exclude = {s["symbol"] for s in wl["removed"]
+                   if s["status"] == "stopped"}
+    results, hist = scan_market()
+    picks = select_top(results, CONFIG["WATCHLIST_SIZE"], exclude)
+    try:
+        enrich(picks)  # SEC + شورت للقائمة الجديدة
+    except Exception as e:
+        log(f"⚠️ الإثراء: {e}")
+    splits = []
+    try:
+        splits = split_watch_report(hist)
+    except Exception as e:
+        log(f"⚠️ تقرير التقسيمات: {e}")
+    # 4) حفظ القائمة الجديدة
+    new_wl = {"week_start": today_iso, "created": today_iso,
+              "stocks": [make_watch_entry(r, today_iso) for r in picks],
+              "removed": [], "replacements_log": [], "notes": [],
+              "history": wl.get("history", [])}
+    save_watchlist(new_wl)
+    # 5) رسالة القائمة الجديدة (بطاقات كاملة)
+    title = ("🔄 <b>القائمة الأسبوعية الجديدة</b>" if is_friday
+             else "🚀 <b>القائمة التأسيسية (تُجدَّد الجمعة)</b>")
+    subnote = None
+    if len(picks) < CONFIG["WATCHLIST_SIZE"]:
+        subnote = (f"(وُجد {len(picks)} فقط يطابق الشروط — "
+                   f"الحد الأقصى {CONFIG['WATCHLIST_SIZE']})")
+    send_telegram(build_message(picks, splits, title=title, subnote=subnote))
+    # 6) CSV + تتبع الأداء (يسجل القائمة كتنبيهات ويتابع القدامى)
+    write_csv([{
+        "symbol": r["symbol"], "price": r["price"], "score": r["score"],
+        "drop%": round(r["drop_pct"], 1), "spike%": round(r["best_spike"], 0),
+        "pivot": round(r["pivot"], 2), "stop_lo": round(r["stop"][0], 2),
+        "t1": round(r["t1"], 2), "rr1": round(r["rr"], 2),
+        "rr2": round(r["rr2"], 2), "ready": r["ready"],
+        "flags": " | ".join(r["flags"]),
+        "warnings": " | ".join(r.get("warnings", [])),
+    } for r in picks], "weekly_list")
+    try:
+        run_performance_system(picks)
+    except Exception as e:
+        log(f"⚠️ نظام التتبع: {e}")
+
+
+def run_daily_watchlist(wl: dict) -> None:
+    """الاثنين→الخميس: متابعة القائمة الثابتة + نسبة الجاهزية اليومية"""
+    syms = sorted({s["symbol"] for s in wl["stocks"]}
+                  | set(CONFIG["SPLIT_WATCHLIST"]))
+    history = {}
+    if syms and yf is not None:
+        try:
+            history = download_history(syms)
+        except Exception as e:
+            log(f"⚠️ تحميل بيانات القائمة: {e}")
+    stopped_today = update_watchlist_status(wl, history)
+    replaced, extra_hist = [], {}
+    try:
+        replaced, extra_hist = fill_replacements(wl)
+    except Exception as e:
+        log(f"⚠️ جلب البدائل: {e}")
+    history.update(extra_hist)
+    compute_readiness(wl, history)
+    splits = []
+    try:
+        splits = split_watch_report(history)
+    except Exception as e:
+        log(f"⚠️ تقرير التقسيمات: {e}")
+    msg = build_daily_message(wl, splits, stopped_today, replaced)
+    send_telegram(msg)
+    save_watchlist(wl)
+    write_csv([{
+        "symbol": s["symbol"], "readiness%": s["readiness"],
+        "price": s["last_price"], "pivot": s["pivot"], "stop": s["stop"],
+        "t1": s["t1"], "hit": s["hit"] or "",
+        "max_gain%": s["max_gain_pct"],
+    } for s in wl["stocks"]], "daily_watch")
+    try:
+        run_performance_system(replaced)
+    except Exception as e:
+        log(f"⚠️ نظام التتبع: {e}")
+
+
+# ==========================================================
+# 10) التشغيل الرئيسي
+# ==========================================================
+def main():
+    log(f"بدء الفحص — الوضع: {MODE}")
+    today = dt.date.today()
+    force = os.environ.get("FORCE_RENEW", "").strip() == "1"
+    wl = load_watchlist()
+    if should_renew(wl, today, force):
+        why = ("إجبار يدوي" if force else
+               ("تجديد الجمعة" if today.weekday() == WEEKLY_RENEW_DAY
+                else "تأسيس أول قائمة"))
+        log(f"وضع اليوم: {why}")
+        run_weekly_renewal(wl)
+    else:
+        log("وضع اليوم: متابعة يومية للقائمة الثابتة")
+        run_daily_watchlist(wl)
+    log("انتهى الفحص ✅")
+
+
+# ==========================================================
+# 11) نظام تتبع الأداء + الذاكرة الدائمة + التقرير الأسبوعي
+# ==========================================================
+TRACK_FILE = "alerts_history.json"   # ملف الذاكرة الدائمة في الـ repo
+TRACK_EXPIRE_DAYS = 30               # نغلق تتبع السهم بعد 30 يوم
+WEEKLY_REPORT_DAY = 4                # 4 = الجمعة (الاثنين = 0) — غيّره إن أردت
+
+STATUS_AR = {
+    "hit_t1": "✅ حقق الهدف 1",
+    "hit_t2": "✅✅ حقق الهدف 2",
+    "hit_t3": "🏆 حقق الهدف 3",
+    "stopped": "🛑 ضرب الستوب",
+    "expired": "⌛ انتهى التتبع (30 يوم)",
+}
+
+
+def git_save(filenames):
+    """يرفع ملفات البيانات إلى الـ repo حتى لا تضيع بين تشغيلات GitHub Actions"""
+    try:
+        os.system('git config user.email "bot@screener.local"')
+        os.system('git config user.name "Screener Bot"')
+        added = False
+        for fn in filenames:
+            if os.path.exists(fn):
+                os.system(f'git add "{fn}"')
+                added = True
+        if not added:
+            return
+        if os.system("git diff --cached --quiet") == 0:
+            log("ℹ️ لا تغييرات جديدة للحفظ")
+            return
+        os.system(f'git commit -m "bot data {dt.date.today().isoformat()}"')
+        # HEAD:main يضمن الدفع حتى لو كان checkout بوضع detached
+        if os.system("git push origin HEAD:main") == 0:
+            log("✅ حُفظت بيانات التتبع في الـ repo")
+        else:
+            log("⚠️ git push فشل — تأكد من permissions: contents: write في YML")
+    except Exception as e:
+        log(f"⚠️ git_save: {e}")
+
+
+def load_alerts():
+    if os.path.exists(TRACK_FILE):
+        try:
+            with open(TRACK_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception as e:
+            log(f"⚠️ قراءة سجل التنبيهات: {e}")
+    return {"alerts": []}
+
+
+def save_alerts_file(data):
+    try:
+        with open(TRACK_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=1)
+    except Exception as e:
+        log(f"⚠️ حفظ سجل التنبيهات: {e}")
+
+
+def record_new_alerts(data, results):
+    """يضيف تنبيهات اليوم للسجل (يتجاهل سهماً ما زال تتبعه مفتوحاً)"""
+    open_syms = {a["symbol"] for a in data["alerts"] if a["status"] == "open"}
+    today = dt.date.today().isoformat()
+    for r in results:
+        if r["symbol"] in open_syms:
+            continue
+        data["alerts"].append({
+            "symbol": r["symbol"], "date": today,
+            "price": round(r["price"], 4),
+            "stop": round(r["stop"][0], 4),   # الوقف الأبعد (2% تحت القاع)
+            "t1": round(r["t1"], 4),
+            "t2": round(r["t2"], 4),
+            "t3": round(r["t3"], 4),
+            "score": r["score"],
+            "flags": r["flags"],
+            "ready": r["ready"],
+            "status": "open",
+            "result_date": None,
+            "max_gain_pct": 0.0,
+        })
+
+
+def update_tracking(data):
+    """يرجع قائمة بالتنبيهات التي تغيّرت حالتها اليوم"""
+    updates = []
+    open_alerts = [a for a in data["alerts"] if a["status"] == "open"]
+    if not open_alerts or yf is None:
+        return updates
+    log(f"متابعة {len(open_alerts)} تنبيه مفتوح...")
+    for a in open_alerts:
+        try:
+            # نبدأ من اليوم التالي للتنبيه (التنبيه صدر بعد إغلاق يومه)
+            start = (dt.date.fromisoformat(a["date"])
+                     + dt.timedelta(days=1)).isoformat()
+            df = yf.download(a["symbol"], start=start, interval="1d",
+                             auto_adjust=True, progress=False)
+            age = (dt.date.today() - dt.date.fromisoformat(a["date"])).days
+            if df is None or df.empty:
+                if age >= TRACK_EXPIRE_DAYS:
+                    a["status"] = "expired"
+                    a["result_date"] = dt.date.today().isoformat()
+                    updates.append(a)
+                continue
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
+            df = df.dropna(subset=["Close"])
+            highs = df["High"].astype(float).values
+            lows = df["Low"].astype(float).values
+            entry = float(a["price"])
+            if len(highs):
+                a["max_gain_pct"] = round(
+                    (float(np.max(highs)) / entry - 1.0) * 100.0, 1)
+
+            best, status, when = 0, None, None
+            for i in range(len(df)):
+                day = str(df.index[i].date())
+                # الستوب أولاً = افتراض محافظ
+                # (إلا إذا حقق هدفاً قبله، فالصفقة رابحة أصلاً)
+                if lows[i] <= a["stop"] and best == 0:
+                    status, when = "stopped", day
+                    break
+                if highs[i] >= a["t3"]:
+                    best, when = 3, day
+                    break
+                if highs[i] >= a["t2"] and best < 2:
+                    best, when = 2, day
+                elif highs[i] >= a["t1"] and best < 1:
+                    best, when = 1, day
+            if status is None and best > 0:
+                status = f"hit_t{best}"
+            if status is None and age >= TRACK_EXPIRE_DAYS:
+                status, when = "expired", dt.date.today().isoformat()
+
+            if status:
+                a["status"], a["result_date"] = status, when
+                updates.append(a)
+        except Exception as e:
+            log(f"⚠️ تتبع {a['symbol']}: {e}")
+        time.sleep(0.4)
+    return updates
+
+
+def realized_pct(a):
+    """نسبة الربح/الخسارة المحققة حسب الحالة النهائية"""
+    e = float(a["price"])
+    if a["status"] == "stopped":
+        return (float(a["stop"]) / e - 1.0) * 100.0
+    if a["status"].startswith("hit_t"):
+        t = float(a[a["status"].replace("hit_", "")])  # t1 / t2 / t3
+        return (t / e - 1.0) * 100.0
+    return float(a.get("max_gain_pct") or 0.0)
+
+
+def tracking_message(updates):
+    lines = [f"📡 <b>متابعة التنبيهات السابقة</b> — "
+             f"{dt.date.today().isoformat()}", ""]
+    for a in updates:
+        lines.append(f"• <b>{a['symbol']}</b> | سعر التنبيه "
+                     f"${a['price']:.2f} يوم {a['date']}")
+        if a["status"] == "expired":
+            lines.append(f"  {STATUS_AR['expired']} — أقصى ارتفاع شافه: "
+                         f"{a['max_gain_pct']:+.0f}%")
+        else:
+            pct = realized_pct(a)
+            lines.append(f"  {STATUS_AR[a['status']]} يوم {a['result_date']} "
+                         f"({pct:+.0f}%) | أقصى ارتفاع: "
+                         f"{a['max_gain_pct']:+.0f}%")
+    return "\n".join(lines)
+
+
+def weekly_report(data):
+    alerts = data["alerts"]
+    if not alerts:
+        return ""
+    opens = [a for a in alerts if a["status"] == "open"]
+    closed = [a for a in alerts if a["status"] != "open"]
+    expired = [a for a in closed if a["status"] == "expired"]
+    decided = [a for a in closed if a["status"] != "expired"]
+    wins = [a for a in decided if a["status"].startswith("hit")]
+    losses = [a for a in decided if a["status"] == "stopped"]
+
+    lines = [f"📊 <b>تقرير الأداء الأسبوعي</b> — "
+             f"{dt.date.today().isoformat()}", "",
+             f"إجمالي التنبيهات: {len(alerts)} | مفتوحة: {len(opens)} | "
+             f"منتهية بلا حسم: {len(expired)}"]
+
+    if decided:
+        wr = len(wins) / len(decided) * 100.0
+        avg_w = (sum(realized_pct(a) for a in wins) / len(wins)) if wins else 0.0
+        avg_l = (sum(realized_pct(a) for a in losses) / len(losses)) \
+            if losses else 0.0
+        lines += [
+            f"✅ رابحة: {len(wins)} | 🛑 خاسرة: {len(losses)} | "
+            f"نسبة النجاح: <b>{wr:.0f}%</b>",
+            f"متوسط ربح الرابحة: {avg_w:+.0f}% | "
+            f"متوسط خسارة الخاسرة: {avg_l:+.0f}%",
+        ]
+        # تحليل دقة كل إشارة (flag)
+        stats = {}
+        for a in decided:
+            won = a["status"].startswith("hit")
+            for f in a.get("flags", []):
+                name = f.split("(")[0].strip()
+                s = stats.setdefault(name, [0, 0])
+                s[0] += 1
+                if won:
+                    s[1] += 1
+        ranked = [(n, c[1] / c[0] * 100.0, c[0])
+                  for n, c in stats.items() if c[0] >= 3]
+        ranked.sort(key=lambda x: x[1], reverse=True)
+        if ranked:
+            lines += ["", "🧩 <b>دقة الإشارات</b> (3 ظهورات فأكثر):"]
+            for n, pct, cnt in ranked:
+                lines.append(f"• {n}: {pct:.0f}% نجاح ({cnt} مرة)")
+            lines += ["", f"💡 أقوى إشارة: {ranked[0][0]} | "
+                          f"أضعف إشارة: {ranked[-1][0]}. "
+                          "إذا ثبت النمط أسبوعين، نعدّل أوزان النقاط."]
+    else:
+        lines += ["", "لا توجد صفقات محسومة كافية بعد — "
+                      "التقييم يحتاج أسبوعين إلى شهر من البيانات."]
+
+    lines += ["", "⚠️ <i>إحصاءات آلية للتقييم الذاتي — ليست توصية.</i>"]
+    return "\n".join(lines)
+
+
+def run_performance_system(results):
+    data = load_alerts()
+    updates = update_tracking(data)      # 1) تابع التنبيهات القديمة
+    record_new_alerts(data, results)     # 2) سجّل تنبيهات اليوم
+    save_alerts_file(data)               # 3) احفظ السجل محلياً
+    if updates:
+        send_telegram(tracking_message(updates))
+    if dt.date.today().weekday() == WEEKLY_REPORT_DAY:
+        rep = weekly_report(data)
+        if rep:
+            send_telegram(rep)
+    # 4) ذاكرة دائمة في الـ repo (سجل التنبيهات + قائمة الأسبوع)
+    git_save([TRACK_FILE, WATCH_FILE])
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception:
+        err = traceback.format_exc()
+        log("❌ خطأ غير متوقع:\n" + err)
+        # محاولة إبلاغك بالخطأ على تيليجرام بدل الصمت
+        try:
+            send_telegram("❌ البوت توقف بخطأ:\n<code>"
+                          + esc(err[-1500:]) + "</code>")
+        except Exception:
+            pass
+        sys.exit(1)
