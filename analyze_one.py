@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 """
 ==========================================================
-تحليل سهم واحد عند الطلب (Manual / On-Demand Analyzer)
+تحليل سهم واحد عند الطلب (Manual / On-Demand Analyzer) — v2 موحّد
 ==========================================================
-ملف منفصل تماماً — لا يعدّل Super_stock.py ولا يلمس الفرز التلقائي.
+ملف منفصل — لا يعدّل Super_stock.py ولا يلمس الفرز التلقائي.
 
-الفكرة: تكتب رمز سهم، فيحلله بنفس نظام البوت بالضبط (نفس الدوال
-والمؤشرات والفريمات والأنماط)، لكن:
-  • لا يرفض السهم إذا فشل بوابة — بل يبيّن نجاح/فشل كل بوابة.
-  • يعطي درجة فنية من 100 حتى لو فشل بوابات (مثل سهم تحت $2).
-  • يحسب المستويات (وقف/أهداف) ويرسل بطاقة كاملة عبر تيليجرام.
+v2: مُواءَم بالكامل مع البوت الأساسي الجديد:
+  • يفحص كل البوابات الإلزامية الحالية (لا 7 فقط): يضيف الفجوة-فوق،
+    RSI، MACD، المتوسط الأسي، الشورت، والفلوت — تماماً كقرار الترشيح.
+  • يستخدم المتوسط الأسي (EMA) لا البسيط (SMA) في النقاط — مطابقة لفيصل.
+  • نقاط الفجوات والفجوة-هدف مُضافة لتطابق درجة البوت بالضبط.
+  • الأهداف من نفس منطق البوت (مقاومات حقيقية + فجوات-هدف).
+  • أُضيف حقل entry المفقود (كان غيابه يوقف build_message بخطأ KeyError).
+  • يعرض نسبة جاهزية الدخول (entry_readiness) إلى جانب الدرجة الفنية.
 
-التشغيل (عبر GitHub، نفس آلية الإرسال اليومي):
-  متغير البيئة:  ANALYZE=BBLG   →   python analyze_one.py
-
-كل العمليات الثقيلة (الرسم، الإثراء، التحميل) مُعاد استخدامها من
-الملف الرئيسي — هذا الملف مجرد "غلاف" رفيع فوقه.
+التشغيل: ANALYZE=BBLG  →  python analyze_one.py
 """
 import os
 import math
@@ -24,7 +23,7 @@ import numpy as np
 # استيراد الملف الرئيسي (يدعم الاسم بحرف كبير في GitHub أو صغير محلياً)
 try:
     import Super_stock as bot
-except ImportError:                       # بديل للتشغيل المحلي/الاختبار
+except ImportError:
     import super_stock as bot
 
 C = bot.CONFIG
@@ -34,9 +33,9 @@ C = bot.CONFIG
 # التحليل عند الطلب — يحسب كل بوابة كمعلومة (بلا رفض)
 # ==========================================================
 def analyze_on_demand(sym: str):
-    """يرجع (result_dict, gates) عند النجاح، أو (None, رسالة_خطأ) عند تعذّر البيانات.
-    result_dict يحوي كل مفاتيح build_message + درجة فنية محسوبة دائماً.
-    gates = قائمة (اسم البوابة، نجح؟، تفصيل) لكل البوابات الإلزامية السبع."""
+    """يرجع (result_dict, gates) عند النجاح، أو (None, رسالة) عند تعذّر البيانات.
+    gates = قائمة (اسم، نجح؟، تفصيل) لكل البوابات الإلزامية الحالية في البوت
+    (الشورت والفلوت يُضافان لاحقاً في main بعد الإثراء)."""
     sym = sym.strip().upper()
     try:
         data = bot.download_history([sym])
@@ -53,9 +52,25 @@ def analyze_on_demand(sym: str):
     c = close.values
     price = float(c[-1])
 
+    # ---- المؤشرات تُحسب مرة واحدة وتُعاد في البوابات والنقاط (لا ازدواج) ----
+    rsi_s = bot.rsi(close)
+    r_now = float(rsi_s.iloc[-1])
+    r_prev = float(rsi_s.iloc[-2])
+    r_min_recent = float(rsi_s.tail(C["RSI_RECENT_WINDOW"]).min())
+    m_line, m_sig = bot.macd(close)
+    ema30 = bot.ema(close, 30)
+    ema50 = bot.ema(close, 50)
+    mtf = bot.multi_timeframe(df)
+    patterns = mtf["patterns"]
+    gaps = bot.gap_analysis(df)
+    gaps_above = bot.all_unfilled_gaps_above(df)
+    maxd = C["GAP_ABOVE_MAX_DIST_PCT"]
+    near_zones = [z for z in gaps_above["all_zones"]
+                  if (z["bottom"] / price - 1.0) * 100.0 <= maxd]
+    best_spike, n_spikes = bot.spike_info(c, exclude_last=C["BASE_WINDOW"])
+
     gates = []   # (الاسم، نجح؟، التفصيل)
 
-    # ===== البوابات الإلزامية السبع (تُحسب كلها كمعلومة) =====
     # M1: السعر
     g1 = price >= C["MIN_PRICE"]
     gates.append((f"السعر فوق ${C['MIN_PRICE']:.0f}", g1, f"${price:.2f}"))
@@ -68,7 +83,6 @@ def analyze_on_demand(sym: str):
                   g2, f"{drop_pct:.0f}%"))
 
     # M3: الانفجار السابق
-    best_spike, n_spikes = bot.spike_info(c, exclude_last=C["BASE_WINDOW"])
     g3 = best_spike >= C["PRIOR_SPIKE_PCT"]
     gates.append((f"انفجار سابق ≥ {C['PRIOR_SPIKE_PCT']:.0f}%",
                   g3, f"{best_spike:.0f}% ({n_spikes} انفجار موثّق)"))
@@ -91,18 +105,46 @@ def analyze_on_demand(sym: str):
                   g5, f"{bot.fmt_money(dvol)}/يوم"))
 
     # M6: توافق الفريمات
-    mtf = bot.multi_timeframe(df)
     g6 = mtf["count"] >= C["TF_MIN_REVERSALS"]
     gates.append((f"توافق الفريمات ≥ {C['TF_MIN_REVERSALS']}/3",
                   g6, f"{mtf['count']}/3 — {mtf['display']}"))
 
     # M7: نمط شمعة انعكاسي
-    patterns = mtf["patterns"]
     g7 = bool(patterns)
     gates.append(("نمط شمعة انعكاسي (يومي/أسبوعي)",
                   g7, "، ".join(patterns) if patterns else "لا يوجد"))
 
-    # ===== حساب الدرجة الفنية (نفس أوزان البوت — تُحسب دائماً) =====
+    # M9: فجوة-هدف غير مملوءة فوق السعر (إلزامي لو مفعّل في البوت)
+    if C.get("GAP_ABOVE_REQUIRED", False):
+        g9 = bool(near_zones)
+        d9 = (f"{len(near_zones)} منطقة (أقرب ${near_zones[0]['bottom']:.2f})"
+              if near_zones else "لا توجد فجوة-هدف فوق السعر")
+        gates.append(("فجوة-هدف غير مملوءة فوق السعر", g9, d9))
+
+    # M10: RSI في التشبع وتحت السقف (إلزامي لو مفعّل)
+    if C.get("RSI_GATE_REQUIRED", False):
+        g10 = (r_min_recent <= C["RSI_OVERSOLD"] and r_now <= C["RSI_MAX_NOW"])
+        gates.append((f"RSI تشبع (قاع ≤{C['RSI_OVERSOLD']:.0f}) وتحت "
+                      f"{C['RSI_MAX_NOW']:.0f}", g10,
+                      f"قاع {r_min_recent:.0f} / الآن {r_now:.0f}"))
+
+    # M11: تقاطع MACD إيجابي (إلزامي لو مفعّل)
+    if C.get("MACD_GATE_REQUIRED", False):
+        g11 = (float(m_line.iloc[-1]) >= float(m_sig.iloc[-1])
+               or (m_line.iloc[-5:] > m_sig.iloc[-5:]).any())
+        gates.append(("تقاطع MACD إيجابي", g11,
+                      "إيجابي" if g11 else "سلبي/لا تقاطع"))
+
+    # M12: السعر على المتوسط الأسي 30/50 (إلزامي لو مفعّل)
+    if C.get("MA_GATE_REQUIRED", False):
+        band = C["MA_GATE_MAX_ABOVE_PCT"] / 100.0
+        g12 = any(m > 0 and price >= m * 0.98 and (price / m - 1.0) <= band
+                  for m in (ema30, ema50))
+        ma_dist = ((price / ema30 - 1.0) * 100.0) if ema30 > 0 else 0.0
+        gates.append((f"على المتوسط الأسي 30/50 (≤+{C['MA_GATE_MAX_ABOVE_PCT']:.0f}%)",
+                      g12, f"{ma_dist:+.0f}% من EMA30"))
+
+    # ===== الدرجة الفنية (نفس أوزان البوت — تُحسب دائماً) =====
     score = 0
     flags = []
     warnings = []
@@ -113,15 +155,11 @@ def analyze_on_demand(sym: str):
     if dvol < C["LOW_LIQ_WARN"]:
         warnings.append(f"سيولة منخفضة ({bot.fmt_money(dvol)}/يوم)")
 
-    rsi_s = bot.rsi(close)
-    r_now, r_prev = float(rsi_s.iloc[-1]), float(rsi_s.iloc[-2])
-    r_min_recent = float(rsi_s.tail(C["RSI_RECENT_WINDOW"]).min())
     if (r_min_recent <= C["RSI_OVERSOLD"] and r_now > r_prev
             and r_now <= C["RSI_MAX_NOW"]):
         score += 15
         flags.append(f"RSI تشبع وانحناء (قاع {r_min_recent:.0f}→{r_now:.0f})")
 
-    m_line, m_sig = bot.macd(close)
     if (m_line.iloc[-5:] > m_sig.iloc[-5:]).any() and \
        float(m_line.iloc[-1]) >= float(m_sig.iloc[-1]):
         score += 10
@@ -152,10 +190,9 @@ def analyze_on_demand(sym: str):
         score += 5
         flags.append("جفاف بيع")
 
-    sma30 = float(close.rolling(30).mean().iloc[-1])
-    sma50 = float(close.rolling(50).mean().iloc[-1])
+    # المتوسط الأسي (EMA) لا البسيط (SMA) — مطابقة للبوت الأساسي وفيصل
     near_ma = any(ma > 0 and abs(price / ma - 1.0) <= 0.05
-                  for ma in (sma30, sma50))
+                  for ma in (ema30, ema50))
     if near_ma:
         score += 10
         flags.append("يرتكز على متوسط 30/50")
@@ -192,7 +229,35 @@ def analyze_on_demand(sym: str):
         score += 5
         flags.append("نمط شمعة قوي")
 
+    # نقاط الفجوات الصاعدة (مطابقة للبوت)
+    if gaps["count"] > 0:
+        if gaps["max_gap"] >= C["GAP_BIG_PCT"]:
+            score += C["GAP_SCORE_BIG"]
+            flags.append(f"فجوة عالية يومي {gaps['max_gap']:.0f}%")
+        else:
+            score += C["GAP_SCORE_NORMAL"]
+            flags.append(f"فجوة صاعدة يومي {gaps['max_gap']:.0f}%")
+        if gaps.get("frames_with_gaps", 1) >= 2:
+            score += C["GAP_SCORE_MULTIFRAME"]
+            flags.append("فجوات متعددة الفريمات")
+
+    # نقاط الفجوة-هدف فوق السعر (مطابقة للبوت)
+    if near_zones:
+        score += C["GAP_ABOVE_SCORE"]
+        nz = near_zones[0]
+        dist = round((nz["bottom"] / price - 1.0) * 100.0, 1)
+        flags.append(f"فجوة-هدف فوق السعر عند ${nz['bottom']:.2f} (+{dist:.0f}%)")
+
     score = int(min(score, 100))
+
+    # ===== نسبة جاهزية الدخول (نفس دالة البوت بالضبط) =====
+    try:
+        readiness_pct, readiness_comp = bot.entry_readiness(df)
+    except Exception:
+        readiness_pct, readiness_comp = None, {}
+    have = [k for k, (p, m) in readiness_comp.items() if p >= m]
+    partial = [k for k, (p, m) in readiness_comp.items() if 0 < p < m]
+    missing = [k for k, (p, m) in readiness_comp.items() if p == 0]
 
     # ===== المستويات (نفس منطق البوت) =====
     pivot = ps["pivot"] if ps else float(low.tail(20).min())
@@ -204,21 +269,35 @@ def analyze_on_demand(sym: str):
     sweep_lo = pivot * (1 - d_hi / 100.0)
     sweep_hi = pivot * (1 - d_lo / 100.0)
 
+    # نطاق الدخول (كان مفقوداً — غيابه يوقف build_message بخطأ KeyError)
+    entry_lo = round(sweep_hi, 2)
+    entry_hi_cap = pivot * (1 + C["ENTRY_ABOVE_PIVOT_PCT"] / 100.0)
+    entry_hi = round(min(price, entry_hi_cap), 2)
+    if entry_hi < entry_lo:
+        entry_lo, entry_hi = round(min(price, sweep_lo), 2), round(price, 2)
+
+    # الأهداف (مقاومات حقيقية + فجوات-هدف — نفس منطق البوت، لا SMA عشوائي)
+    resist = bot.resistance_levels(df, price)
     raw_t1 = bot.first_target(df)
-    raw_t2 = max(sma30, sma50)
     raw_t3 = float(high.tail(60).max())
     cap = price * C["TARGET_CAP_MULT"]
     min_first = price * (1.0 + C["MIN_T1_GAIN_PCT"] / 100.0)
-    gap = 1.0 + C["MIN_TARGET_GAP_PCT"] / 100.0
-    cands = sorted(t for t in (raw_t1, raw_t2, raw_t3) if min_first <= t <= cap)
+    gapm = 1.0 + C["MIN_TARGET_GAP_PCT"] / 100.0
+    target_cands = list(resist) + [raw_t1, raw_t3]
+    if C.get("GAP_ABOVE_USE_AS_TARGET", False):
+        for z in near_zones:
+            target_cands.append(z["bottom"])
+    cands = sorted(t for t in target_cands if min_first <= t <= cap)
     targets = []
     for t in cands:
-        if not targets or t >= targets[-1] * gap:
+        if not targets or t >= targets[-1] * gapm:
             targets.append(round(float(t), 2))
     if not targets:
-        targets = [round(price * 1.25, 2)]
+        above = sorted(t for t in (list(resist) + [raw_t3]) if t > price)
+        targets = [round(above[0], 2)] if above else [round(price * 1.25, 2)]
     while len(targets) < 3:
-        targets.append(round(targets[-1] * 1.25, 2))
+        nxt = next((t for t in cands if t > targets[-1] * gapm), None)
+        targets.append(round(nxt, 2) if nxt else round(targets[-1] * 1.25, 2))
     t1, t2, t3 = targets[0], targets[1], targets[2]
 
     risk = max(price - stop_lo, 1e-9)
@@ -235,11 +314,16 @@ def analyze_on_demand(sym: str):
         "n_spikes": n_spikes, "base_range": base_range,
         "rsi": r_now, "dollar_vol": dvol,
         "pivot": pivot, "stop": (stop_lo, stop_hi),
+        "entry": (entry_lo, entry_hi),
         "sweep": (sweep_lo, sweep_hi),
         "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
         "ready": ready, "flags": flags, "warnings": warnings,
         "tf_count": mtf["count"], "tf_display": mtf["display"],
         "patterns": patterns,
+        "gaps": gaps, "gaps_above": gaps_above,
+        "readiness": readiness_pct,
+        "readiness_have": have, "readiness_partial": partial,
+        "readiness_missing": missing,
         # مفاتيح اختيارية يملؤها الإثراء — نهيّئها لتفادي أي خطأ
         "short_pct": None, "float": None, "recent_split": None,
         "news": [], "tf4h": "غير متوفر",
@@ -248,8 +332,34 @@ def analyze_on_demand(sym: str):
     return result, gates
 
 
+def append_short_float_gates(result: dict, gates: list) -> list:
+    """يضيف بوابتي الشورت (M13) والفلوت (M14) بعد الإثراء — لأنهما يحتاجان
+    بيانات شبكية يجلبها enrich. نفس منطق البوت: يعدّي لو البيانة مفقودة."""
+    gates = list(gates)
+    # M13 — الشورت العالي
+    if C.get("SHORT_GATE_REQUIRED", False):
+        fd = result.get("fintel") or {}
+        srt = fd.get("short_volume")
+        if srt is None:
+            srt = result.get("finra_short")
+        g13 = (srt is None) or (srt < C["SHORT_GATE_MAX"])
+        d13 = (f"{bot.fmt_money(srt)} (الحد {bot.fmt_money(C['SHORT_GATE_MAX'])})"
+               if srt is not None else "غير متاح — مُرِّر بفائدة الشك")
+        gates.append((f"الشورت تحت {bot.fmt_money(C['SHORT_GATE_MAX'])}",
+                      g13, d13))
+    # M14 — الفلوت الكبير (أقوى رابط مشترك في أسهم فيصل)
+    if C.get("FLOAT_GATE_REQUIRED", False):
+        fl = result.get("float")
+        g14 = (fl is None) or (fl < C["FLOAT_GATE_MAX"])
+        d14 = (f"{bot.fmt_money(fl)} (الحد {bot.fmt_money(C['FLOAT_GATE_MAX'])})"
+               if fl is not None else "غير متاح — مُرِّر بفائدة الشك")
+        gates.append((f"الفلوت تحت {bot.fmt_money(C['FLOAT_GATE_MAX'])}",
+                      g14, d14))
+    return gates
+
+
 # ==========================================================
-# بناء الرسالة: ترويسة البوابات + البطاقة الكاملة (إعادة استخدام build_message)
+# بناء الرسالة: ترويسة البوابات + النسبة + البطاقة الكاملة
 # ==========================================================
 def render_ondemand(result: dict, gates: list) -> str:
     passed = sum(1 for _, ok, _ in gates if ok)
@@ -261,8 +371,10 @@ def render_ondemand(result: dict, gates: list) -> str:
 
     head = [
         f"🔎 <b>تحليل يدوي عند الطلب: {result['symbol']}</b>",
+        f"نسبة جاهزية الدخول: {bot.readiness_badge(result.get('readiness'))}  "
+        "(متى أدخل — التوقيت)",
         f"الدرجة الفنية: <b>{result['score']}/100</b>  "
-        f"(نقاط الإشارات الفنية فقط)",
+        "(قوة الإشارات الفنية)",
         f"البوابات الإلزامية: <b>{passed}/{total}</b> ✅",
     ]
     if qualifies:
@@ -271,7 +383,16 @@ def render_ondemand(result: dict, gates: list) -> str:
         why = "، ".join(failed) if failed else "عائد/مخاطرة أو الحد الأدنى للنقاط"
         head.append(f"الحكم: ❌ <b>لم يكن البوت ليرشّحه</b> (سبب الاستبعاد: {why})")
     head.append("")
-    head.append("📋 <b>تفصيل البوابات السبع:</b>")
+    # تفصيل نسبة الجاهزية (المتوفر/الجزئي/الناقص)
+    if result.get("readiness") is not None:
+        if result.get("readiness_have"):
+            head.append("✅ متوفر: " + "، ".join(result["readiness_have"]))
+        if result.get("readiness_partial"):
+            head.append("🔸 جزئي: " + "، ".join(result["readiness_partial"]))
+        if result.get("readiness_missing"):
+            head.append("⏳ ناقص: " + "، ".join(result["readiness_missing"]))
+        head.append("")
+    head.append("📋 <b>تفصيل البوابات الإلزامية:</b>")
     for name, ok, detail in gates:
         head.append(f"  {'✅' if ok else '❌'} {name} — {detail}")
     head.append("")
@@ -297,11 +418,13 @@ def main():
         bot.send_telegram(msg)
         bot.log(f"تعذّر التحليل: {gates}")
         return
-    # إثراء (SEC + شورت + أخبار + تأكيد 4 ساعات) — نفس دالة البوت
+    # إثراء (SEC + شورت + فلوت + أخبار + تأكيد 4 ساعات) — نفس دالة البوت
     try:
         bot.enrich([result])
     except Exception as e:
         bot.log(f"⚠️ الإثراء فشل (نُكمل بدونه): {e}")
+    # بوابتا الشورت والفلوت بعد الإثراء (تحتاجان بياناته)
+    gates = append_short_float_gates(result, gates)
     msg = render_ondemand(result, gates)
     bot.send_telegram(msg)
     bot.log("✅ أُرسل التحليل اليدوي.")
