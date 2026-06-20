@@ -1,15 +1,15 @@
-name: تحليل فني كلاسيكي شامل
+name: تحليل سهم (يدوي)
 
 on:
   workflow_dispatch:
     inputs:
       ticker:
-        description: "رمز السهم (مثل AAPL)"
+        description: "رمز السهم المراد تحليله (مثل: VOR أو BBLG أو PRFX)"
         required: true
-        default: "AAPL"
+        type: string
 
 jobs:
-  report:
+  analyze:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -24,10 +24,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run technical report
+      - name: Run on-demand analysis
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          ALPHAVANTAGE_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
-          TICKER: ${{ inputs.ticker }}
-        run: python technical_report.py
+          ANALYZE: ${{ github.event.inputs.ticker }}
+        run: python analyze_one.py
