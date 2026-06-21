@@ -2265,13 +2265,9 @@ def build_message(results: list, splits: list,
         badge = "🅰️" if tier == "A" else "🅱️"
         # رقمان واضحان: «نسبة الدخول/الجاهزية» (قرب الدخول) بصيغة /100،
         # و«النسبة العامة» (قوة المطابقة) بصيغة %. حالة الجاهزية (🟢🟡🔴) بسطرها.
-        rdy = r.get("readiness")
-        status = readiness_badge(rdy, tier).split("</b>")[-1].strip() \
-            if rdy is not None else ""
-        rdy_disp = f"{rdy}/100 {status}" if rdy is not None else "غير متاح"
         lines.append("━━━━━━━━━━━━━━━")
         lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f}")
-        lines.append(f"   نسبة الدخول/الجاهزية <b>{rdy_disp}</b> · "
+        lines.append(f"   {readiness_ratio(r.get('readiness'), tier)} · "
                      f"النسبة العامة <b>{r['score']}%</b>")
         if tier == "B":
             sf = r.get("soft_fails", [])
@@ -2953,6 +2949,15 @@ def readiness_badge(p, tier="A"):
     return f"<b>{p}%</b> 🔴 بعيد عن الدخول"
 
 
+def readiness_ratio(p, tier="A"):
+    """«نسبة الدخول/الجاهزية» بصيغة X/100 + حالتها (🟢🟡🔴) — تنسيق موحّد
+    للبطاقة والتقرير اليومي (مصدر واحد، لا اختلاف)."""
+    if p is None:
+        return "نسبة الدخول/الجاهزية غير متاحة"
+    status = readiness_badge(p, tier).split("</b>")[-1].strip()
+    return f"نسبة الدخول/الجاهزية <b>{p}/100</b> {status}"
+
+
 def build_pullback_section(entries: list, triggered: list = None) -> str:
     """قسم «مراقبة الارتداد»: أسهم ارتكاز ارتفعت ننتظر رجوعها للدعم +
     تنبيهات الأسهم التي وصلت سعر الدعم اليوم (جاهزة للدخول)."""
@@ -3033,7 +3038,7 @@ def build_daily_message(wl: dict, splits: list,
         tb = "🅰️" if s.get("tier", "A") == "A" else "🅱️"
         promo = " 🚀" if s.get("promoted_date") == today else ""
         lines.append(f"{i}) {tb}{promo} 📌 <b>{s['symbol']}</b> — "
-                     f"{readiness_badge(s['readiness'], s.get('tier', 'A'))}")
+                     f"{readiness_ratio(s['readiness'], s.get('tier', 'A'))}")
         if s.get("tier") == "B" and s.get("soft_fails"):
             lines.append("   🅱️ مراقبة — ينقصها:")
             for f in s["soft_fails"]:
