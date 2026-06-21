@@ -1693,7 +1693,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # عائد/مخاطرة من سعر الدخول المخطّط (أعلى نطاق الدخول = أسوأ تعبئة)،
         # لا من السعر الحالي — لأن المضارب يدخل عند الدعم وينتظر التنفيذ، فالعائد
         # الحقيقي يُقاس من نقطة الشراء الفعلية (يصحّح ظلم الأسهم المرتدّة فوق دخولها).
-        entry_ref = entry_hi
+        # مرجع RR موحّد = متوسط الدفعات (فيصل يمتّع → تعبئته الفعلية ≈ المتوسط).
+        entry_ref = round(sum(tranches) / len(tranches), 4)
         risk = max(entry_ref - stop_lo, 1e-9)
         rr = (t1 - entry_ref) / risk
         rr2 = (t2 - entry_ref) / risk
@@ -3291,15 +3292,15 @@ def build_daily_message(wl: dict, splits: list,
         lines += h4_levels_block(s.get("h4_levels"))
         for w in (s.get("warnings") or []):
             lines.append(f"   ⚠️ {esc(w)}")
-        # العائد/المخاطرة من أعلى دفعة دخول (أسوأ تعبئة) لا من السعر الحالي —
-        # لأنك تنتظر السهم ينزل للدفعات قبل ما تشتري (تحفّظ في الحساب).
-        entry_px = (s.get("entry") or [None, s["pivot"]])[1] or s["pivot"]
+        # العائد/المخاطرة من **متوسط الدفعات** (تعبئة فيصل الفعلية ≈ المتوسط) —
+        # لا من السعر الحالي؛ موحّد مع r["rr"] فلا تناقض في الكرت.
+        entry_px = round(sum(trs) / len(trs), 2)
         e_risk = entry_px - s["stop"]
         if entry_px < s["t1"] and e_risk > 0:
             g1 = s["t1"] - entry_px
             mult = g1 / e_risk
-            lines.append(f"   🛡️ عند الدخول ${entry_px:.2f}: تخاطر ${e_risk:.2f} "
-                         f"← ربح هدف1 ${g1:.2f} ({mult:.1f}× المخاطرة)")
+            lines.append(f"   🛡️ عند متوسط الدخول ${entry_px:.2f}: تخاطر "
+                         f"${e_risk:.2f} ← ربح هدف1 ${g1:.2f} ({mult:.1f}× المخاطرة)")
         elif lp >= s["t1"]:
             lines.append(f"   🎯 تجاوز هدف1 (${s['t1']:.2f}) — "
                          f"التالي ${s['t2']:.2f}")

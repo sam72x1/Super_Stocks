@@ -314,7 +314,7 @@ def analyze_on_demand(sym: str):
         targets.append(round(nxt, 2) if nxt else round(targets[-1] * 1.25, 2))
     t1, t2, t3 = targets[0], targets[1], targets[2]
 
-    entry_ref = entry_hi            # نقطة الشراء المخطّطة (لا السعر الحالي)
+    entry_ref = round(sum(tranches) / len(tranches), 4)  # متوسط الدفعات (فيصل يمتّع)
     risk = max(entry_ref - stop_lo, 1e-9)
     rr = (t1 - entry_ref) / risk
     rr2 = (t2 - entry_ref) / risk
