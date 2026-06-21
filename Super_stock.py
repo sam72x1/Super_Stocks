@@ -116,10 +116,15 @@ CONFIG = {
     ],
 
     # ---- الشروط الإلزامية (M) ----
-    "MIN_PRICE": 2.0,            # M1: فوق دولارين (قاعدة فيصل) — بلا سقف
-    "MIN_DROP_PCT": 50.0,        # M2: هبوط من قمة 52 أسبوع ≥ 50% (v2.1: كان 60)
+    "MIN_PRICE": 1.5,            # M1: الحد الأدنى للسعر (v2.7: نُزّل من 2.0
+                                 # إلى 1.5 — أسهم فيصل تنزل تحت دولارين بعد
+                                 # التقسيم العكسي: ADIL/AUUD/EHGO/BNKK. الأفترهارز
+                                 # ينزل لحظيًا تحت، والإغلاق اليومي غالبًا فوق 1.5)
+    "MIN_DROP_PCT": 50.0,        # M2: هبوط مثالي ≥ 50% (تحته حتى الأرضية = نقص B)
+    "MIN_DROP_FLOOR": 40.0,      # M2 أرضية صلبة: تحتها = ليس ارتكازًا (رفض) v2.7
     "MAX_DROP_PCT": 97.0,        # M2+: فوقه = سهم محتضر/فخ تقسيم (v2.1: كان 92)
-    "PRIOR_SPIKE_PCT": 100.0,    # M3: انفجار سابق ≥ 100%...
+    "PRIOR_SPIKE_PCT": 100.0,    # M3: انفجار مثالي ≥ 100% (تحته حتى الأرضية = نقص B)
+    "PRIOR_SPIKE_FLOOR": 60.0,   # M3 أرضية صلبة: تحتها = ما انفجر كفاية (رفض) v2.7
     "PRIOR_SPIKE_WINDOW": 20,    # ...خلال ≤ 20 جلسة (v2.1: كان 10 — أكبر فلتر خانق)
     "BASE_WINDOW": 15,           # M4: نافذة التجميع (جلسات)
     "BASE_RANGE_MAX_PCT": 40.0,  # M4: مدى التجميع ≤ 40% (v2.1: كان 30)
@@ -1051,21 +1056,31 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         if price < CONFIG["MIN_PRICE"]:
             return None
 
-        # ---- M2: الهبوط من قمة 52 أسبوع ----
+        # نواقص التأكيد (v2.7): تُجمع من M2/M3 الحدّية + M9-M14 + RR.
+        # 0 = قائمة A · 1-2 = قائمة B · أكثر = يُرفض.
+        soft_fails = []
+
+        # ---- M2: الهبوط من قمة 52 أسبوع (تدرّج v2.7) ----
+        # أرضية صلبة (<40%) = ليس ارتكازًا → رفض. حدّي (40-50%) = نقص (B).
+        # مثالي (≥50%) = بلا عقوبة. (>97% = محتضر → رفض).
         hi52 = float(high.tail(252).max())
         if hi52 <= 0:
             return None
         drop_pct = (1.0 - price / hi52) * 100.0
-        if drop_pct < CONFIG["MIN_DROP_PCT"]:
-            return None
-        # هبوط كارثي = سهم محتضر أو فخ تقسيم عكسي — مرفوض
         if drop_pct > CONFIG["MAX_DROP_PCT"]:
-            return None
+            return None  # هبوط كارثي = سهم محتضر/فخ تقسيم
+        if drop_pct < CONFIG["MIN_DROP_FLOOR"]:
+            return None  # تحت الأرضية = ليس سهم ارتكاز أصلاً
+        if drop_pct < CONFIG["MIN_DROP_PCT"]:
+            soft_fails.append(f"هبوط حدّي {drop_pct:.0f}%")
 
-        # ---- M3: الانفجار السابق ≥ 100% ----
+        # ---- M3: الانفجار السابق (تدرّج v2.7) ----
+        # أرضية (<60%) = رفض. حدّي (60-100%) = نقص (B). مثالي (≥100%) = بلا عقوبة.
         best_spike, n_spikes = spike_info(c, exclude_last=CONFIG["BASE_WINDOW"])
+        if best_spike < CONFIG["PRIOR_SPIKE_FLOOR"]:
+            return None  # ما انفجر سابقًا بما يكفي → ليس ارتكازًا
         if best_spike < CONFIG["PRIOR_SPIKE_PCT"]:
-            return None
+            soft_fails.append(f"انفجار حدّي {best_spike:.0f}%")
 
         # ---- M4: تجميع حالي (مدى ضيق + ما انفجر بعد) ----
         bw = CONFIG["BASE_WINDOW"]
@@ -1108,10 +1123,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             if not recent_gap:
                 return None  # لا فجوة معتبرة حديثة → يُرفض (بوابة فيصل السادسة)
 
-        # بوابات التأكيد اللينة (v2.7): تُعدّ النواقص بدل الرفض الفوري.
-        # 0 نواقص → قائمة A الصارمة | 1-2 → قائمة B المراقبة | أكثر → يُرفض.
-        soft_fails = []
-
+        # (soft_fails مُهيّأة بعد M1؛ تتجمّع من M2/M3 الحدّية + M9-M14 + RR)
         # ---- M9: فجوة غير مملوءة فوق السعر (مفهوم فيصل) — بوابة لينة ----
         # من صور MTVA/TRUG/ONCO: الفجوة منطقة-هدف فوق السعر الراكد.
         gaps_above = all_unfilled_gaps_above(df)
@@ -1982,7 +1994,7 @@ def news_block(r) -> list:
     lines = []
     news = r.get("news") or []
     if news:
-        lines.append(f"📰 <b>آخر الأخبار (Yahoo):</b>")
+        lines.append("📰 <b>آخر الأخبار (Yahoo):</b>")
         for it in news:
             head = esc(it.get("title", ""))[:140]
             src = esc(it.get("publisher", ""))
@@ -2035,151 +2047,79 @@ def build_message(results: list, splits: list,
     if not results:
         lines.append("لا توجد أسهم تطابق الشروط اليوم. ✋")
     for r in results:
-        ready = "✅ <b>جاهز للدخول (ثبات بعد القاع)</b>" if r["ready"] else \
-            "⏳ قيد التكوّن — انتظر الثبات"
-        # شارة القائمة A/B (v2.7)
+        # ===== بطاقة مرتّبة ومختصرة (v2.7) — أساسيات فقط =====
         tier = r.get("tier", "A")
-        if tier == "A":
-            tier_badge = "🅰️ <b>قائمة صارمة</b> (كل الشروط)"
-        else:
+        badge = "🅰️" if tier == "A" else "🅱️"
+        ready = "🟢 جاهز" if r["ready"] else "⏳ يتكوّن"
+        lines.append("━━━━━━━━━━━━━━━")
+        lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f} · "
+                     f"{r['score']}/100 · {ready}")
+        if tier == "B":
             miss = "، ".join(r.get("soft_fails", [])) or "—"
-            tier_badge = f"🅱️ <b>مراقبة</b> (ينقصها: {miss})"
-        lines += [
-            f"━━━━━━━━━━━━━━━",
-            f"📌 <b>{r['symbol']}</b> | ${r['price']:.2f} | "
-            f"نقاط: <b>{r['score']}/100</b>",
-            tier_badge,
-            f"{ready}",]
-        # ملف الشركة (طريقة فيصل: القطاع/النشاط + المالية) — إن توفّر
+            lines.append(f"   🅱️ مراقبة — ينقصها: {miss}")
+        # سطر الشركة (مختصر)
         sec = r.get("sector") or r.get("industry")
-        if sec or r.get("business") or r.get("recent_split"):
-            bits = []
-            if sec:
-                bits.append(f"القطاع: {esc(sec)}")
-            if r.get("country"):
-                bits.append(esc(r["country"]))
-            if r.get("cash"):
-                bits.append(f"نقد {fmt_money(r['cash'])}")
-            if r.get("revenue"):
-                bits.append(f"إيراد {fmt_money(r['revenue'])}")
-            if bits:
-                lines.append("🏢 " + " | ".join(bits))
-            if r.get("business"):
-                lines.append(f"   {esc(r['business'])}")
-        lines += [
-            f"📉 هبوط من القمة: {r['drop_pct']:.0f}%  |  "
-            f"💥 أكبر انفجار سابق: {r['best_spike']:.0f}%",
-            f"🔁 انفجارات موثقة: {r['n_spikes']}  |  "
-            f"RSI: {r['rsi']:.0f}  |  سيولة/يوم: {fmt_money(r['dollar_vol'])}",
-            short_line(r),
-            f"🧲 الدعم الحرج (القاع/Pivot): ${r['pivot']:.2f}",
-            f"💰 اطلب الدخول بين: ${r['entry'][0]:.2f} – ${r['entry'][1]:.2f}",
-            f"   (الأمثل قرب ${r['entry'][0]:.2f} · لا تطلب فوق ${r['entry'][1]:.2f})",
-            f"🛑 وقف الخسارة: ${r['stop'][0]:.2f} – ${r['stop'][1]:.2f} "
-            f"(5-7% تحت القاع · اخرج لو أغلق تحته)",
-            f"🌀 منطقة سحب السيولة محتملة: ${r['sweep'][0]:.2f} – "
-            f"${r['sweep'][1]:.2f} (قد يكنس الستوبات ثم يرتد)",
-            f"🎯 خذ ربح عند المقاومات: 1) ${r['t1']:.2f}  2) ${r['t2']:.2f}  "
-            f"3) ${r['t3']:.2f}",
-        ]
-        # "تحرر السهم" + "قاب/الفجوة" (مفهوم فيصل الذهبي)
+        cbits = []
+        if sec:
+            cbits.append(esc(sec))
+        if r.get("country"):
+            cbits.append(esc(r["country"]))
+        if r.get("cash"):
+            cbits.append(f"نقد {fmt_money(r['cash'])}")
+        if cbits:
+            lines.append("🏢 " + " · ".join(cbits))
+        # سطر النمط (لماذا ارتكاز): هبوط/انفجار/RSI/شورت/فلوت
+        pat = [f"هبوط {r['drop_pct']:.0f}%", f"انفجار {r['best_spike']:.0f}%",
+               f"RSI {r['rsi']:.0f}"]
+        sv = (r.get("fintel") or {}).get("short_volume") or r.get("finra_short")
+        if sv is not None:
+            pat.append(f"شورت {fmt_money(sv)}")
+        if r.get("float"):
+            pat.append(f"فلوت {fmt_money(r['float'])}")
+        lines.append("📊 " + " · ".join(pat))
+        # سطر التأكيد الفني (نمط الشمعة + الفريمات + إشارات مفتاحية)
+        conf = []
+        if r.get("patterns"):
+            conf.append("، ".join(r["patterns"]))
+        conf.append(f"فريمات {r.get('tf_count', 0)}/3")
+        if any("مسح سيولة" in f for f in r.get("flags", [])):
+            conf.append("مسح سيولة ✓")
+        if any("MFI" in f for f in r.get("flags", [])):
+            conf.append("تباعد MFI ✓")
+        lines.append("🕯️ " + " · ".join(conf))
+        # ===== الخطة (الأسعار الأساسية فقط) =====
+        lines.append("🎯 <b>الخطة:</b>")
+        lines.append(f"   دخول ${r['entry'][0]:.2f}–${r['entry'][1]:.2f}  ·  "
+                     f"وقف ${r['stop'][0]:.2f}")
+        lines.append(f"   أهداف ${r['t1']:.2f} → ${r['t2']:.2f} → ${r['t3']:.2f}"
+                     f"  (ربح/مخاطرة {r['rr']:.1f}×)")
         if r.get("qab"):
             q = r["qab"]
-            lines.append(f"🟡 قاب (فجوة) فوق السعر: ${q['bottom']:.2f}–"
-                         f"${q['top']:.2f} (+{q['dist_pct']:.0f}% · فراغ "
-                         f"{q['size_pct']:.0f}% = هدف ذهبي)")
+            lines.append(f"   🟡 قاب (فجوة-هدف) ${q['bottom']:.2f} "
+                         f"(+{q['dist_pct']:.0f}%)")
         if r.get("liberation"):
             tag = " 🔓 قريب!" if r.get("lib_near") else ""
-            lines.append(f"🚀 تحرر السهم فوق: ${r['liberation']:.2f} "
-                         f"(تجاوزه بثبات = انطلاق بلا مقاومة){tag}")
-        # مؤشرات فيصل الإضافية (صفحة إعداداته)
+            lines.append(f"   🚀 تحرر فوق ${r['liberation']:.2f}{tag}")
+        # مؤشرات مختصرة (سطر واحد)
         ic = r.get("indicators") or {}
-        if ic:
-            mp = []
-            if "mfi" in ic:
-                mp.append(f"MFI {ic['mfi']:.0f}")
-            if "stochrsi_k" in ic:
-                mp.append(f"StochRSI {ic['stochrsi_k']:.0f}")
-            if "adx" in ic:
-                mp.append(f"ADX {ic['adx']:.0f}(+DI {ic.get('plus_di',0):.0f}/"
-                          f"-DI {ic.get('minus_di',0):.0f})")
-            if "boll_pctb" in ic:
-                mp.append(f"كلنجر %B {ic['boll_pctb']:.2f}")
-            if "atr" in ic and ic["atr"]:
-                mp.append(f"ATR {ic['atr']:.2f}")
-            if "vwap" in ic:
-                mp.append(f"VWAP ${ic['vwap']:.2f}")
-            if mp:
-                lines.append("📐 مؤشرات: " + " · ".join(mp))
-        lines += risk_lines(r["price"], r["stop"][0], r["t1"], r["t2"], r["rr"])
-        # ملخص بوابات فيصل المختصر (✅/❌ لكل شرط) — تأكيد بصري سريع
-        gs = r.get("gates_status") or {}
-        if gs:
-            lines.append("")
-            lines.append("<b>━━ فحص شروط فيصل ━━</b>")
-            for name, (ok, val) in gs.items():
-                mark = "✅" if ok else "❌"
-                lines.append(f"{mark} {name}: {val}")
-            # الشورت (يُضاف من apply_short_gate كعلم)
-            short_flag = next((f for f in r.get("flags", [])
-                               if "شورت" in f), None)
-            if short_flag:
-                sok = "مقبول" in short_flag or "غير متاح" in short_flag
-                lines.append(f"{'✅' if sok else '❌'} {short_flag}")
-            lines.append("<b>━━━━━━━━━━━━━━</b>")
-        lines.append(f"🧩 الإشارات: {('، '.join(r['flags'])) or '-'}")
-        if r.get("tf_display"):
-            lines.append(f"📊 الفريمات: {r['tf_display']} "
-                         f"({r.get('tf_count', 0)}/3)")
-        if r.get("patterns"):
-            lines.append("🕯️ أنماط الشموع: " + "، ".join(r["patterns"]))
-        g = r.get("gaps") or {}
-        if g.get("count", 0) > 0:
-            extra = " · مفتوحة ✅" if g.get("unfilled") else ""
-            ago = g.get("last_gap_ago")
-            ago_txt = (f" · آخرها قبل {ago} جلسة" if ago is not None else "")
-            # عرض أي فريمات فيها فجوات
-            fr = []
-            if g.get("daily", {}).get("count", 0) > 0:
-                fr.append("يومي")
-            if g.get("weekly", {}).get("count", 0) > 0:
-                fr.append("أسبوعي")
-            if g.get("monthly", {}).get("count", 0) > 0:
-                fr.append("شهري")
-            fr_txt = (" | فريمات: " + "، ".join(fr)) if fr else ""
-            lines.append(f"📈 فجوات صاعدة (يومي): {g['count']} | أكبرها "
-                         f"{g['max_gap']:.0f}%{ago_txt}{extra}{fr_txt}")
-        # الفجوة-هدف غير المملوءة فوق السعر (مفهوم فيصل)
-        ga = r.get("gaps_above") or {}
-        if ga.get("nearest"):
-            zones = ga.get("all_zones") or []
-            tops = "، ".join(f"${z['bottom']:.2f}" for z in zones[:3])
-            lines.append(f"🎯 فجوات-هدف فوق السعر ({ga['count']}): {tops}"
-                         + (" ..." if len(zones) > 3 else ""))
-        if r.get("tf4h") and r["tf4h"] not in ("غير متوفر", "غير مفعّل"):
-            lines.append(f"⏱️ تأكيد 4 ساعات: {r['tf4h']}")
-        if r.get("warnings"):
-            lines.append("⚠️ تنبيهات: " + "؛ ".join(esc(w) for w in r["warnings"]))
+        mp = []
+        if "mfi" in ic:
+            mp.append(f"MFI {ic['mfi']:.0f}")
+        if "adx" in ic:
+            mp.append(f"ADX {ic['adx']:.0f}")
+        if ic.get("boll_pctb") is not None:
+            mp.append(f"كلنجر%B {ic['boll_pctb']:.2f}")
+        if mp:
+            lines.append("📐 " + " · ".join(mp))
+        # تنبيهات حرجة فقط (تقسيم + SEC أحمر + تحذيرات)
         if r.get("recent_split"):
-            d, ratio = r["recent_split"]
-            lines.append(f"✂️ تقسيم عكسي حديث: {d} (نسبة {ratio})")
-        # إعلانات SEC الرسمية المصنّفة
-        st = r.get("sec_status")
-        fl = r.get("sec_filings") or []
-        if fl:
-            lines.append(f"📋 <b>إعلانات SEC (آخر {CONFIG['SEC_FILING_DAYS']} "
-                         f"يوم):</b>")
-            for f in fl:
-                lines.append(f"  {esc(f)}")
-        elif st == "ok":
-            lines.append("📋 لا إعلانات SEC مهمة آخر "
-                         f"{CONFIG['SEC_FILING_DAYS']} يوم ✓")
-        elif st == "no_cik":
-            lines.append("📋 SEC: الرمز غير مسجل لدى SEC (شركة أجنبية/OTC؟)")
-        else:
-            lines.append("📋 SEC: تعذر جلب الإعلانات")
-        # الأخبار: عناوين ياهو التلقائية + روابط متابعة (TipRanks/Yahoo/Finviz)
-        lines += news_block(r)
+            lines.append(f"✂️ تقسيم عكسي {r['recent_split'][0]}")
+        red = [x for x in (r.get("sec_filings") or []) if "🔴" in x]
+        if red:
+            lines.append("📋 " + esc(red[0]))
+        if r.get("warnings"):
+            lines.append("⚠️ " + "؛ ".join(esc(w) for w in r["warnings"]))
+        lines.append(news_links(r["symbol"]))
     lines += splits_block(splits)
     lines += ["", FOOTER]
     return "\n".join(lines)
@@ -2632,6 +2572,40 @@ def fill_replacements(wl: dict):
     return added, sub_hist
 
 
+def check_promotions(wl: dict, history: dict) -> list:
+    """ترقية B→A (v2.7): يعيد تحليل كل سهم نشط بالبيانات الحالية. السهم
+    الذي اكتمل نموذجه (0 نواقص تأكيد) يُرقّى من قائمة المراقبة B إلى A مع
+    تنبيه «🚀 جاهز». يحدّث أيضًا النواقص الحالية لكل سهم B (عرض حيّ).
+    هذا قلب فكرة الارتكاز: نمسك السهم مبكرًا (B) ثم ننبّه لحظة جاهزيته."""
+    promoted = []
+    today = dt.date.today().isoformat()
+    for s in wl.get("stocks", []):
+        if s.get("status") != "active":
+            continue
+        df = history.get(s["symbol"])
+        if df is None or len(df) < CONFIG["MIN_BARS"]:
+            continue
+        fresh = analyze_ticker(s["symbol"], df)
+        if fresh is None:
+            continue  # تعذّر إعادة التحليل (لا نغيّر حالته)
+        # الشورت/الفلوت (M13/M14) يُحسبان في الفرز لا في analyze — نحتفظ بهما
+        prev_extra = [x for x in s.get("soft_fails", [])
+                      if "شورت" in x or "فلوت" in x]
+        combined = list(fresh.get("soft_fails", []))
+        combined += [x for x in prev_extra if x not in combined]
+        was = s.get("tier", "A")
+        s["soft_fails"] = combined
+        s["tier"] = "A" if not combined else "B"
+        s["liberation"] = fresh.get("liberation")
+        if was == "B" and s["tier"] == "A":
+            s["promoted_date"] = today
+            promoted.append(s)
+            _note(wl, s["symbol"], "🚀 ترقية B→A: اكتمل النموذج", family="ترقية")
+    if promoted:
+        log("ترقيات B→A: " + "، ".join(p["symbol"] for p in promoted))
+    return promoted
+
+
 def compute_readiness(wl: dict, history: dict) -> None:
     """حساب نسبة الجاهزية اليومية لكل سهم نشط + الترتيب بها"""
     for s in wl["stocks"]:
@@ -2660,19 +2634,31 @@ def readiness_badge(p):
 
 
 def build_daily_message(wl: dict, splits: list,
-                        stopped_today: list, replaced: list) -> str:
+                        stopped_today: list, replaced: list,
+                        promoted: list = None) -> str:
     """التقرير اليومي (الاثنين→الخميس): القائمة الثابتة مرتبة بالجاهزية"""
     today = dt.date.today().isoformat()
     n = len(wl["stocks"])
     lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
              f"{n}/{CONFIG['WATCHLIST_SIZE']} سهم | مرتبة حسب جاهزية الدخول "
              f"(تجديد القائمة: الجمعة)", ""]
+    # 🚀 ترقيات اليوم (B→A): إنذار مبكر — اكتمل النموذج، جاهز للدخول
+    if promoted:
+        lines.append("🚀 <b>ترقيات اليوم (اكتمل النموذج — جاهز للدخول):</b>")
+        for s in promoted:
+            lib = (f" · تحرر فوق ${s['liberation']:.2f}"
+                   if s.get("liberation") else "")
+            lines.append(f"• <b>{s['symbol']}</b> صعد من مراقبة B → A "
+                         f"| ${s['last_price']:.2f} | قاع ${s['pivot']:.2f} "
+                         f"| ستوب ${s['stop']:.2f}{lib}")
+        lines.append("")
     if not wl["stocks"]:
         lines.append("القائمة فارغة مؤقتاً — البدائل تُجلب في التشغيل القادم.")
     for i, s in enumerate(wl["stocks"], 1):
         lp = s["last_price"]
         tb = "🅰️" if s.get("tier", "A") == "A" else "🅱️"
-        lines.append(f"{i}) {tb} 📌 <b>{s['symbol']}</b> — "
+        promo = " 🚀" if s.get("promoted_date") == today else ""
+        lines.append(f"{i}) {tb}{promo} 📌 <b>{s['symbol']}</b> — "
                      f"{readiness_badge(s['readiness'])}")
         if s.get("tier") == "B" and s.get("soft_fails"):
             lines.append(f"   🅱️ مراقبة (ينقصها: {'، '.join(s['soft_fails'])})")
@@ -2866,13 +2852,19 @@ def run_daily_watchlist(wl: dict) -> None:
     except Exception as e:
         log(f"⚠️ جلب البدائل: {e}")
     history.update(extra_hist)
+    # ترقية B→A (إنذار مبكر): من اكتمل نموذجه يُرقّى وينبّه
+    promoted = []
+    try:
+        promoted = check_promotions(wl, history)
+    except Exception as e:
+        log(f"⚠️ فحص الترقيات: {e}")
     compute_readiness(wl, history)
     splits = []
     try:
         splits = split_watch_report(history)
     except Exception as e:
         log(f"⚠️ تقرير التقسيمات: {e}")
-    msg = build_daily_message(wl, splits, stopped_today, replaced)
+    msg = build_daily_message(wl, splits, stopped_today, replaced, promoted)
     send_telegram(msg)
     save_watchlist(wl)
     write_csv([{
