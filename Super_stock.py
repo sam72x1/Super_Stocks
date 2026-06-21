@@ -2459,6 +2459,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
     return {
         "symbol": r["symbol"], "added": today_iso,
         "entry_ref": round(r["price"], 4),
+        "entry": [round(r["entry"][0], 4), round(r["entry"][1], 4)],
         "pivot": round(r["pivot"], 4),
         "stop": round(r["stop"][0], 4),        # الوقف الأبعد (2% تحت القاع)
         "stop_hi": round(r["stop"][1], 4),
@@ -3041,12 +3042,15 @@ def build_daily_message(wl: dict, splits: list,
                      f"ستوب ${s['stop']:.2f}")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
-        risk = lp - s["stop"]
-        if lp < s["t1"] and risk > 0:
-            g1 = s["t1"] - lp
-            mult = g1 / risk
-            lines.append(f"   🛡️ تخاطر ${risk:.2f} ← ربح هدف1 ${g1:.2f} "
-                         f"({mult:.1f}× المخاطرة)")
+        # العائد/المخاطرة من سعر الدخول المخطّط (أعلى نطاق الدخول ≈ القاع)،
+        # لا من السعر الحالي — لأنك تنتظر السهم ينزل للدخول قبل ما تشتري.
+        entry_px = (s.get("entry") or [None, s["pivot"]])[1] or s["pivot"]
+        e_risk = entry_px - s["stop"]
+        if entry_px < s["t1"] and e_risk > 0:
+            g1 = s["t1"] - entry_px
+            mult = g1 / e_risk
+            lines.append(f"   🛡️ عند الدخول ${entry_px:.2f}: تخاطر ${e_risk:.2f} "
+                         f"← ربح هدف1 ${g1:.2f} ({mult:.1f}× المخاطرة)")
         elif lp >= s["t1"]:
             lines.append(f"   🎯 تجاوز هدف1 (${s['t1']:.2f}) — "
                          f"التالي ${s['t2']:.2f}")
