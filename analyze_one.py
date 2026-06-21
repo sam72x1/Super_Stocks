@@ -40,12 +40,12 @@ def analyze_on_demand(sym: str):
     try:
         data = bot.download_history([sym])
     except Exception as e:
-        return None, f"تعذّر الاتصال لجلب بيانات {sym}: {e}"
+        return None, f"تعذّر الاتصال لجلب بيانات {sym}: {e}", None
     df = data.get(sym)
     if df is None or len(df) < C["MIN_BARS"]:
         return None, (f"تعذّر جلب بيانات كافية لـ {sym}. "
                       "غالباً: رمز خاطئ، سهم جديد جداً، أو سيولة شبه معدومة "
-                      "(أقل من الحد الأدنى للشموع المطلوبة).")
+                      "(أقل من الحد الأدنى للشموع المطلوبة).", None)
 
     close = df["Close"]
     high, low, vol = df["High"], df["Low"], df["Volume"]
@@ -121,12 +121,13 @@ def analyze_on_demand(sym: str):
               if near_zones else "لا توجد فجوة-هدف فوق السعر")
         gates.append(("فجوة-هدف غير مملوءة فوق السعر", g9, d9))
 
-    # M10: RSI في التشبع وتحت السقف (إلزامي لو مفعّل)
+    # M10: RSI متدرّج (مطابق للبوت): قاع التشبّع ≤RSI_OS_HARD + الآن ≤RSI_NOW_HARD
     if C.get("RSI_GATE_REQUIRED", False):
-        g10 = (r_min_recent <= C["RSI_OVERSOLD"] and r_now <= C["RSI_MAX_NOW"])
-        gates.append((f"RSI تشبع (قاع ≤{C['RSI_OVERSOLD']:.0f}) وتحت "
-                      f"{C['RSI_MAX_NOW']:.0f}", g10,
-                      f"قاع {r_min_recent:.0f} / الآن {r_now:.0f}"))
+        r_min_os = float(rsi_s.tail(C["RSI_OS_LOOKBACK"]).min())
+        g10 = (r_min_os <= C["RSI_OS_HARD"] and r_now <= C["RSI_NOW_HARD"])
+        gates.append((f"RSI تشبّع (قاع ≤{C['RSI_OS_HARD']:.0f}) والآن ≤"
+                      f"{C['RSI_NOW_HARD']:.0f}", g10,
+                      f"قاع {r_min_os:.0f} / الآن {r_now:.0f}"))
 
     # M11: تقاطع MACD إيجابي (إلزامي لو مفعّل)
     if C.get("MACD_GATE_REQUIRED", False):
@@ -202,10 +203,8 @@ def analyze_on_demand(sym: str):
         flags.append(f"معيد إجرام ({n_spikes} انفجارات)")
 
     ps = bot.pivot_stability(low.values.astype(float), c)
-    ready = False
     if ps and ps["held"]:
         score += 15
-        ready = bool(ps["ready"])
         flags.append(f"ثبات {ps['bars_after']} جلسات فوق القاع")
 
     mfi_s = bot.mfi(high, low, close, vol)
@@ -255,26 +254,40 @@ def analyze_on_demand(sym: str):
         readiness_pct, readiness_comp = bot.entry_readiness(df)
     except Exception:
         readiness_pct, readiness_comp = None, {}
+    # «جاهز» مشتقّة حصريًا من النسبة (مطابق للبوت — مصدر واحد، لا تناقض)
+    ready = (readiness_pct is not None and readiness_pct >= C["READY_PCT"])
     have = [k for k, (p, m) in readiness_comp.items() if p >= m]
     partial = [k for k, (p, m) in readiness_comp.items() if 0 < p < m]
     missing = [k for k, (p, m) in readiness_comp.items() if p == 0]
 
-    # ===== المستويات (نفس منطق البوت) =====
+    # ===== المستويات (مطابقة للبوت الأساسي بالحرف) =====
     pivot = ps["pivot"] if ps else float(low.tail(20).min())
     s_lo, s_hi = C["STOP_BELOW_LOW_PCT"]
     stop_hi = pivot * (1 - s_lo / 100.0)
     stop_lo = pivot * (1 - s_hi / 100.0)
+    # ستوب ATR ديناميكي (مطابق للبوت)
+    try:
+        atr_val = float(bot.atr(high, low, close).iloc[-1])
+    except Exception:
+        atr_val = 0.0
+    if C.get("USE_ATR_STOP", False) and atr_val > 0:
+        stop_lo = min(stop_lo, pivot - C["ATR_STOP_MULT"] * atr_val)
     big = price >= C["LARGE_PRICE_CUT"]
     d_lo, d_hi = (C["SWEEP_LARGE_PCT"] if big else C["SWEEP_SMALL_PCT"])
     sweep_lo = pivot * (1 - d_hi / 100.0)
     sweep_hi = pivot * (1 - d_lo / 100.0)
 
-    # نطاق الدخول (كان مفقوداً — غيابه يوقف build_message بخطأ KeyError)
-    entry_lo = round(sweep_hi, 2)
-    entry_hi_cap = pivot * (1 + C["ENTRY_ABOVE_PIVOT_PCT"] / 100.0)
-    entry_hi = round(min(price, entry_hi_cap), 2)
-    if entry_hi < entry_lo:
-        entry_lo, entry_hi = round(min(price, sweep_lo), 2), round(price, 2)
+    # نطاق الدخول الضيّق عند الدعم (مطابق للبوت — لا يطارد السعر الحالي)
+    anchor = min(pivot, price)
+    zone = C["ENTRY_ZONE_PCT"] / 100.0
+    entry_hi = round(anchor, 2)
+    entry_lo = round(anchor * (1 - zone), 2)
+    # الضمان الذهبي: الوقف دائمًا تحت أدنى الدخول
+    entry_floor = min(entry_lo, entry_hi)
+    if stop_hi >= entry_floor:
+        stop_hi = round(entry_floor * (1 - s_lo / 100.0), 2)
+    if stop_lo >= stop_hi:
+        stop_lo = round(entry_floor * (1 - s_hi / 100.0), 2)
 
     # الأهداف (مقاومات حقيقية + فجوات-هدف — نفس منطق البوت، لا SMA عشوائي)
     resist = bot.resistance_levels(df, price)
@@ -329,7 +342,7 @@ def analyze_on_demand(sym: str):
         "news": [], "tf4h": "غير متوفر",
         "sec_status": None, "sec_filings": [],
     }
-    return result, gates
+    return result, gates, df
 
 
 def append_short_float_gates(result: dict, gates: list) -> list:
@@ -361,27 +374,30 @@ def append_short_float_gates(result: dict, gates: list) -> list:
 # ==========================================================
 # بناء الرسالة: ترويسة البوابات + النسبة + البطاقة الكاملة
 # ==========================================================
-def render_ondemand(result: dict, gates: list) -> str:
+def render_ondemand(result: dict, gates: list, official, reject_reason=None) -> str:
     passed = sum(1 for _, ok, _ in gates if ok)
     total = len(gates)
-    failed = [name for name, ok, _ in gates if not ok]
-    qualifies = (passed == total
-                 and result["score"] >= C["SCORE_MIN"]
-                 and result["rr"] >= C["MIN_RR_T1"])
 
     head = [
         f"🔎 <b>تحليل يدوي عند الطلب: {result['symbol']}</b>",
-        f"نسبة جاهزية الدخول: {bot.readiness_badge(result.get('readiness'))}  "
+        f"نسبة جاهزية الدخول: "
+        f"{bot.readiness_badge(result.get('readiness'), result.get('tier', 'A'))}  "
         "(متى أدخل — التوقيت)",
         f"الدرجة الفنية: <b>{result['score']}/100</b>  "
         "(قوة الإشارات الفنية)",
-        f"البوابات الإلزامية: <b>{passed}/{total}</b> ✅",
+        f"البوابات الإلزامية: <b>{passed}/{total}</b>",
     ]
-    if qualifies:
-        head.append("الحكم: ✅ <b>يطابق كل شروط البوت</b> — كان سيُرشَّح في القائمة")
+    # الحكم = قرار البوت الأساسي نفسه (A / مراقبة B / مرفوض) — لا تناقض
+    if official is not None and official.get("tier") == "A":
+        head.append("الحكم: 🅰️ <b>يطابق القائمة A الصارمة</b> — كان سيُرشَّح أولًا")
+    elif official is not None and official.get("tier") == "B":
+        miss = "، ".join(official.get("soft_fails", [])) or "—"
+        head.append(f"الحكم: 🅱️ <b>مراقبة B</b> — كان سيُرشَّح بقائمة المراقبة "
+                    f"(ينقصها: {miss})")
     else:
-        why = "، ".join(failed) if failed else "عائد/مخاطرة أو الحد الأدنى للنقاط"
-        head.append(f"الحكم: ❌ <b>لم يكن البوت ليرشّحه</b> (سبب الاستبعاد: {why})")
+        why = reject_reason or "؛ ".join(n for n, ok, _ in gates if not ok) \
+            or "لم يجتز بوابة إلزامية"
+        head.append(f"الحكم: ❌ <b>لم يكن البوت ليرشّحه</b> (السبب: {why})")
     head.append("")
     # تفصيل نسبة الجاهزية (المتوفر/الجزئي/الناقص)
     if result.get("readiness") is not None:
@@ -411,21 +427,58 @@ def main():
         bot.log("⚠️ لم يُحدَّد رمز. ضع متغير البيئة ANALYZE=الرمز (مثل ANALYZE=VOR).")
         return
     bot.log(f"🔎 تحليل يدوي للسهم: {sym}")
-    result, gates = analyze_on_demand(sym)
+    result, gates, df = analyze_on_demand(sym)
     if result is None:
         # عند الفشل: gates تحمل رسالة الخطأ النصية
         msg = f"🔎 <b>تحليل يدوي: {sym.upper()}</b>\n\n⚠️ {gates}\n\n{bot.FOOTER}"
         bot.send_telegram(msg)
         bot.log(f"تعذّر التحليل: {gates}")
         return
-    # إثراء (SEC + شورت + فلوت + أخبار + تأكيد 4 ساعات) — نفس دالة البوت
+
+    # ===== القرار الرسمي من البوت الأساسي (يضمن التطابق التام للأبد) =====
+    # نفس analyze_ticker الذي يستخدمه الفرز: دخول ضيّق + وقف مضمون + جاهزية
+    # موحّدة + قاب + تحرّر + مؤشرات. لو رُفض، نلتقط السبب من عدّاد الرفض.
+    bot._REJECT_STATS.clear()
+    official = None
     try:
-        bot.enrich([result])
+        official = bot.analyze_ticker(sym, df)
+    except Exception as e:
+        bot.log(f"⚠️ analyze_ticker: {e}")
+    reject_reason = None
+    if official is None and getattr(bot, "_REJECT_STATS", None):
+        reject_reason = " · ".join(f"{k}={v}"
+                                   for k, v in bot._REJECT_STATS.items())
+
+    # البطاقة من النتيجة الرسمية إن اجتاز (مطابقة 100%)، وإلا التشخيصية
+    card_result = official if official is not None else result
+    if official is None:
+        card_result["tier"] = "B"   # عرض فقط — الحكم بالأعلى يوضّح الرفض
+
+    # إثراء (SEC + شورت + فلوت + أخبار + قطاع/دولة) — نفس دالة البوت
+    try:
+        bot.enrich([card_result])
     except Exception as e:
         bot.log(f"⚠️ الإثراء فشل (نُكمل بدونه): {e}")
-    # بوابتا الشورت والفلوت بعد الإثراء (تحتاجان بياناته)
-    gates = append_short_float_gates(result, gates)
-    msg = render_ondemand(result, gates)
+
+    # تثبيت تصنيف A/B بعد الشورت/الفلوت (مطابق لـ scan_market تمامًا)
+    if official is not None:
+        sf = list(official.get("soft_fails", []))
+        srt = ((official.get("fintel") or {}).get("short_volume")
+               or official.get("finra_short"))
+        if srt is not None and srt >= C["SHORT_GATE_MAX"]:
+            sf.append("شورت عالٍ")
+        fl = official.get("float")
+        if fl is not None and fl >= C["FLOAT_GATE_MAX"]:
+            sf.append("فلوت كبير")
+        official["soft_fails"] = sf
+        official["tier"] = bot.classify_tier(sf)
+        if official["tier"] is None:        # تجاوز حد النواقص بعد الشورت/الفلوت
+            reject_reason = (f"نواقص أكثر من الحد ({len(sf)}): "
+                             + "، ".join(sf))
+            official = None                 # يُعرض كمرفوض
+
+    gates = append_short_float_gates(card_result, gates)
+    msg = render_ondemand(card_result, gates, official, reject_reason)
     bot.send_telegram(msg)
     bot.log("✅ أُرسل التحليل اليدوي.")
 
