@@ -2172,6 +2172,10 @@ def send_telegram(text: str) -> bool:
               .replace("<i>", "").replace("</i>", "") + "\n")
         return False
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    # دعم أكثر من مستلم: TELEGRAM_CHAT_ID يقبل عدة أرقام مفصولة بفاصلة
+    # (لإضافة أصدقاء يستقبلون نفس الرسائل). رقم واحد يشتغل عادي.
+    recipients = [c.strip() for c in TELEGRAM_CHAT.replace(";", ",").split(",")
+                  if c.strip()]
     chunks, cur = [], ""
     for ln in text.split("\n"):
         if len(cur) + len(ln) + 1 > 3800:
@@ -2183,17 +2187,18 @@ def send_telegram(text: str) -> bool:
         chunks.append(cur)
     ok = True
     for ch in chunks:
-        try:
-            resp = requests.post(url, json={
-                "chat_id": TELEGRAM_CHAT, "text": ch,
-                "parse_mode": "HTML",
-                "disable_web_page_preview": True}, timeout=30)
-            if resp.status_code != 200:
-                log(f"⚠️ تيليجرام رفض: {resp.text[:200]}")
+        for cid in recipients:
+            try:
+                resp = requests.post(url, json={
+                    "chat_id": cid, "text": ch,
+                    "parse_mode": "HTML",
+                    "disable_web_page_preview": True}, timeout=30)
+                if resp.status_code != 200:
+                    log(f"⚠️ تيليجرام رفض ({cid}): {resp.text[:200]}")
+                    ok = False
+            except Exception as e:
+                log(f"⚠️ خطأ تيليجرام ({cid}): {e}")
                 ok = False
-        except Exception as e:
-            log(f"⚠️ خطأ تيليجرام: {e}")
-            ok = False
         time.sleep(1)
     return ok
 
