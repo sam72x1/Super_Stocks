@@ -1266,6 +1266,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             ready = bool(ps["ready"])
             flags.append(f"ثبات {ps['bars_after']} جلسات فوق القاع")
 
+        # نسبة جاهزية الدخول 0-100% (نفس مقياس التقرير اليومي — نظام واحد للقائمتين)
+        try:
+            readiness_pct, _ = entry_readiness(df)
+        except Exception:
+            readiness_pct = None
+
         # مسح سيولة حقيقي: كسر قاع *سابق* ثم استعادة فوقه
         # (القاع السابق = أدنى قاع في الجلسات 35→10 قبل الأخيرة)
         mfi_s = mfi(high, low, close, vol)
@@ -1542,7 +1548,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             "entry": (entry_lo, entry_hi),
             "sweep": (sweep_lo, sweep_hi),
             "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
-            "ready": ready, "flags": flags, "warnings": warnings,
+            "ready": ready, "readiness": readiness_pct,
+            "flags": flags, "warnings": warnings,
             "tf_count": mtf["count"], "tf_display": mtf["display"],
             "patterns": patterns,
             "gaps": gaps,
@@ -2075,11 +2082,9 @@ def build_message(results: list, splits: list,
         # ===== بطاقة مرتّبة ومختصرة (v2.7) — أساسيات فقط =====
         tier = r.get("tier", "A")
         badge = "🅰️" if tier == "A" else "🅱️"
-        if r["ready"]:
-            # "جاهز" محجوزة للقائمة A (النموذج مكتمل). B عند نطاق السعر = "قرب الدخول"
-            ready = "🟢 جاهز" if tier == "A" else "🟢 قرب الدخول"
-        else:
-            ready = "⏳ يتكوّن"
+        # نسبة جاهزية موحّدة للقائمتين A وB (نفس مقياس التقرير اليومي).
+        # كلمة "جاهز" محجوزة للقائمة A فقط (داخل readiness_badge).
+        ready = readiness_badge(r.get("readiness"), tier)
         lines.append("━━━━━━━━━━━━━━━")
         lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f} · "
                      f"{r['score']}/100 · {ready}")
