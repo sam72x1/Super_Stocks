@@ -459,6 +459,28 @@ _a = {"tier": "A", "readiness": 40, "score": 50, "rr": 0.5}
 check("القائمة A تسبق B دائمًا مهما كانت الجاهزية",
       sorted([_hi_rdy, _a], key=S.rank_key)[0] is _a)
 
+# (ح) الثابت الجوهري: «جاهز» (البوليان) = (النسبة ≥ READY_PCT) دائمًا — مصدر
+#     واحد للحقيقة. يستحيل سهم «🟢 جاهز» ونسبته أقل من «🟡 يقترب». مقفول للأبد.
+_inv_ok = True
+for sd in range(8):
+    for cur, cl, ph in [(3.6, 3.0, 20.0), (2.0, 1.6, 11.0), (9.0, 7.0, 55.0)]:
+        _ri = S.analyze_ticker("INV", synth_pivot(current=cur, crash_low=cl,
+                                                  prior_high=ph, seed=sd))
+        if _ri is None:
+            continue
+        _exp = (_ri["readiness"] is not None
+                and _ri["readiness"] >= S.CONFIG["READY_PCT"])
+        if bool(_ri["ready"]) != _exp:
+            _inv_ok = False
+            print(f"   ✗ بذرة {sd}: ready={_ri['ready']} rdy={_ri['readiness']}")
+check("ثابت جوهري: ready ⟺ (النسبة ≥ READY_PCT) — مصدر واحد", _inv_ok)
+
+# «جاهز» (نسبة عالية) يسبق «يقترب» (نسبة أقل) دائمًا مهما علت نقاطه/عائده
+_rdy_hi = {"tier": "B", "readiness": 80, "score": 40, "rr": 0.3}
+_rdy_lo = {"tier": "B", "readiness": 60, "score": 99, "rr": 9.0}
+check("«جاهز» يسبق «يقترب» دائمًا (لا يتفوّق سهم أقل جاهزيةً بالنقاط)",
+      sorted([_rdy_lo, _rdy_hi], key=S.rank_key)[0] is _rdy_hi)
+
 
 # ==========================================================
 print("\n" + "=" * 50)
