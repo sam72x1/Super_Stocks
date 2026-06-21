@@ -1,6 +1,7 @@
 {
  "week_start": "2026-06-21",
  "created": "2026-06-21",
+ "logic_version": "2026.06.21-tranches+4h+keylevels+avgRR",
  "stocks": [
   {
    "symbol": "IDN",
@@ -701,11 +702,6 @@
  ],
  "history": [
   {
-   "week_start": "2026-06-20",
-   "ended": "2026-06-21",
-   "stocks": []
-  },
-  {
    "week_start": "2026-06-21",
    "ended": "2026-06-21",
    "stocks": []
@@ -874,6 +870,39 @@
      "symbol": "INSM",
      "entry_ref": 95.8,
      "last_price": 95.8,
+     "max_gain_pct": 0.0,
+     "status": "active",
+     "hit": null,
+     "removal_reason": null
+    }
+   ]
+  },
+  {
+   "week_start": "2026-06-21",
+   "ended": "2026-06-21",
+   "stocks": [
+    {
+     "symbol": "IDN",
+     "entry_ref": 4.09,
+     "last_price": 4.09,
+     "max_gain_pct": 0.0,
+     "status": "active",
+     "hit": null,
+     "removal_reason": null
+    },
+    {
+     "symbol": "USGO",
+     "entry_ref": 8.45,
+     "last_price": 8.45,
+     "max_gain_pct": 0.0,
+     "status": "active",
+     "hit": null,
+     "removal_reason": null
+    },
+    {
+     "symbol": "SOGP",
+     "entry_ref": 11.85,
+     "last_price": 11.85,
      "max_gain_pct": 0.0,
      "status": "active",
      "hit": null,
