@@ -137,7 +137,10 @@ CONFIG = {
 
     # ---- إشارات النقاط (S) ----
     "RSI_OVERSOLD": 27.0,        # فيصل: التشبع البيعي 23-27 (مستحيل ينفجر فوق هذا)
-    "RSI_RECENT_WINDOW": 5,      # نافذة قاع RSI
+    "RSI_RECENT_WINDOW": 5,      # نافذة قاع RSI (للنقاط/الجاهزية)
+    "RSI_OS_LOOKBACK": 25,       # نافذة فحص «وصل التشبع» (تطابق PIVOT_LOOKBACK)
+    "RSI_OS_HARD": 32.0,         # أرضية صلبة: قاع RSI لازم ≤32 (تشبّع فعلاً) —
+                                 # فوقها = ما حقّق نموذج الارتكاز → رفض. 27-32 = نقص.
     "RSI_MAX_NOW": 40.0,         # فيصل: "مستحيل يصعد إذا RSI بمناطق 40"
     # ---- بوابات فيصل الإلزامية (v2.6: مطابقة الشروط الستة بصرامة) ----
     "RSI_GATE_REQUIRED": True,   # M10: RSI لازم في التشبع (27) وتحت السقف (40)
@@ -152,8 +155,8 @@ CONFIG = {
                                   # ذكي: يعدّي لو الفلوت مفقود (فائدة الشك).
     "VOL_SPIKE_MULT": 5.0,       # شمعة الفوليوم الضخمة ≥ 5x متوسط 20
     "VOL_DRY_RATIO": 0.6,        # جفاف: متوسط 5 < 60% من متوسط 20
-    "SCORE_MIN": 30,             # الحد الأدنى لدخول الترشيح (v2.7: نُزّل 40→30
-                                 # عشان قائمة المراقبة B تطلع مع البوابات اللينة)
+    "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
+                                 # لجودة أعلى — السهم لازم يجمع إشارات حقيقية)
 
     # ---- نظام القائمتين (v2.7): صارمة A + مراقبة B ----
     # قرار المستخدم: ما نطلع صفر أبدًا. القائمة A تجتاز كل البوابات،
@@ -161,8 +164,8 @@ CONFIG = {
     # ينقصها 1-2 من بوابات التأكيد (RSI/MACD/MA/شورت/فلوت/فجوة-فوق).
     "WATCHLIST_TWO_TIER": True,
     "WATCH_SOFT_GATES": ["M6", "M7", "M9", "M10", "M11", "M12", "M13", "M14"],
-    "WATCH_MAX_FAILS": 3,        # أقصى بوابات تأكيد ناقصة لقبوله بقائمة B
-                                 # (v2.7: رُفع من 2 إلى 3 بعد تليين M6/M7)
+    "WATCH_MAX_FAILS": 3,        # الوسط: السهم باقي له 2-3 بوابات بالكثير
+                                 # (مع SCORE_MIN=35 للجودة). أنزله لـ2 لأصرم
     # بوابات البنية الأساسية (إلزامية دائمًا — فشلها = ليس سهم ارتكاز):
     # M1 سعر · M2 هبوط · M3 انفجار · M4 قاعدة/طزاجة · M5 سيولة ·
     # M6 توافق فريمات · M7 نمط شمعة · M8 فجوة طازجة (لو مفعّلة).
@@ -1144,15 +1147,22 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         if CONFIG.get("GAP_ABOVE_REQUIRED", False) and not near_zones:
             soft_fails.append("فجوة-هدف فوق")
 
-        # ---- M10: RSI في التشبع البيعي — بوابة لينة (فيصل: 23-27، تحت 40) ----
+        # ---- M10: RSI — قاعدة فيصل الذهبية «مستحيل يتحرك قبل يوصل 23-27» ----
+        # جزء صلب (إلزامي): لازم يكون لمس التشبع البيعي (≤27) خلال نافذة قريبة.
+        #   سهم ما وصل التشبع أصلاً = ما اكتمل قاعه → لا يتحرك → يُرفض.
+        # جزء لين (نقص→B): RSI الحالي ما طار فوق 40 (لسّه ما انطلق).
         rsi_s = rsi(close)
         r_now = float(rsi_s.iloc[-1])
         r_prev = float(rsi_s.iloc[-2])
         r_min_recent = float(rsi_s.tail(CONFIG["RSI_RECENT_WINDOW"]).min())
-        rsi_ok = (r_min_recent <= CONFIG["RSI_OVERSOLD"]
-                  and r_now <= CONFIG["RSI_MAX_NOW"])
-        if CONFIG.get("RSI_GATE_REQUIRED", False) and not rsi_ok:
-            soft_fails.append("RSI تشبع")
+        r_min_os = float(rsi_s.tail(CONFIG["RSI_OS_LOOKBACK"]).min())
+        if CONFIG.get("RSI_GATE_REQUIRED", False):
+            if r_min_os > CONFIG["RSI_OS_HARD"]:
+                return _reject("M10_RSI_ما_تشبّع")     # قاعه >32 = ليس ارتكازًا
+            if r_min_os > CONFIG["RSI_OVERSOLD"]:
+                soft_fails.append(f"RSI تشبع حدّي ({r_min_os:.0f})")  # 27-32 → B
+            if r_now > CONFIG["RSI_MAX_NOW"]:
+                soft_fails.append(f"RSI الآن {r_now:.0f}>40")        # طار → B
 
         # ---- M11: تقاطع MACD إيجابي — بوابة لينة ----
         m_line, m_sig = macd(close)
@@ -1255,6 +1265,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             score += 15
             ready = bool(ps["ready"])
             flags.append(f"ثبات {ps['bars_after']} جلسات فوق القاع")
+
+        # نسبة جاهزية الدخول 0-100% (نفس مقياس التقرير اليومي — نظام واحد للقائمتين)
+        try:
+            readiness_pct, _ = entry_readiness(df)
+        except Exception:
+            readiness_pct = None
 
         # مسح سيولة حقيقي: كسر قاع *سابق* ثم استعادة فوقه
         # (القاع السابق = أدنى قاع في الجلسات 35→10 قبل الأخيرة)
@@ -1532,7 +1548,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             "entry": (entry_lo, entry_hi),
             "sweep": (sweep_lo, sweep_hi),
             "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
-            "ready": ready, "flags": flags, "warnings": warnings,
+            "ready": ready, "readiness": readiness_pct,
+            "flags": flags, "warnings": warnings,
             "tf_count": mtf["count"], "tf_display": mtf["display"],
             "patterns": patterns,
             "gaps": gaps,
@@ -2065,7 +2082,9 @@ def build_message(results: list, splits: list,
         # ===== بطاقة مرتّبة ومختصرة (v2.7) — أساسيات فقط =====
         tier = r.get("tier", "A")
         badge = "🅰️" if tier == "A" else "🅱️"
-        ready = "🟢 جاهز" if r["ready"] else "⏳ يتكوّن"
+        # نسبة جاهزية موحّدة للقائمتين A وB (نفس مقياس التقرير اليومي).
+        # كلمة "جاهز" محجوزة للقائمة A فقط (داخل readiness_badge).
+        ready = readiness_badge(r.get("readiness"), tier)
         lines.append("━━━━━━━━━━━━━━━")
         lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f} · "
                      f"{r['score']}/100 · {ready}")
@@ -2642,11 +2661,13 @@ def compute_readiness(wl: dict, history: dict) -> None:
         key=lambda s: -(s["readiness"] if s["readiness"] is not None else -1))
 
 
-def readiness_badge(p):
+def readiness_badge(p, tier="A"):
     if p is None:
         return "⚠️ لا بيانات"
     if p >= CONFIG["READY_PCT"]:
-        return f"<b>{p}%</b> 🟢 جاهز"
+        # "جاهز" للقائمة A فقط (النموذج مكتمل). B = "قرب الدخول" (السعر بالنطاق)
+        label = "جاهز" if tier == "A" else "قرب الدخول"
+        return f"<b>{p}%</b> 🟢 {label}"
     if p >= CONFIG["NEAR_PCT"]:
         return f"<b>{p}%</b> 🟡 يقترب"
     return f"<b>{p}%</b> 🔴 بعيد عن الدخول"
@@ -2678,7 +2699,7 @@ def build_daily_message(wl: dict, splits: list,
         tb = "🅰️" if s.get("tier", "A") == "A" else "🅱️"
         promo = " 🚀" if s.get("promoted_date") == today else ""
         lines.append(f"{i}) {tb}{promo} 📌 <b>{s['symbol']}</b> — "
-                     f"{readiness_badge(s['readiness'])}")
+                     f"{readiness_badge(s['readiness'], s.get('tier', 'A'))}")
         if s.get("tier") == "B" and s.get("soft_fails"):
             lines.append(f"   🅱️ مراقبة (ينقصها: {'، '.join(s['soft_fails'])})")
         lines.append(f"   💵 ${lp:.2f} | قاع ${s['pivot']:.2f} | "
