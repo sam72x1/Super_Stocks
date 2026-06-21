@@ -3109,12 +3109,16 @@ def update_tracking(data):
     log(f"متابعة {len(open_alerts)} تنبيه مفتوح...")
     for a in open_alerts:
         try:
+            age = (dt.date.today() - dt.date.fromisoformat(a["date"])).days
+            # التنبيه صدر اليوم (أو تاريخه بالمستقبل) — ما في جلسة جديدة بعده
+            # لمتابعتها؛ نتخطّاه (وإلا نطلب start=بكرة > end=اليوم = خطأ Yahoo).
+            if age < 1:
+                continue
             # نبدأ من اليوم التالي للتنبيه (التنبيه صدر بعد إغلاق يومه)
             start = (dt.date.fromisoformat(a["date"])
                      + dt.timedelta(days=1)).isoformat()
             df = yf.download(a["symbol"], start=start, interval="1d",
                              auto_adjust=True, progress=False)
-            age = (dt.date.today() - dt.date.fromisoformat(a["date"])).days
             if df is None or df.empty:
                 if age >= TRACK_EXPIRE_DAYS:
                     a["status"] = "expired"
