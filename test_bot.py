@@ -313,6 +313,28 @@ check("تحديث يومي: القطاع/الدولة من الذاكرة + ال
       and _wlc["stocks"][0].get("key_levels", {}).get("sup_major") == 3.0)
 S.COMPANY_CACHE.pop("CCC", None)
 S.analyze_ticker = _orig
+
+# الضمان الآلي: ترحيل القائمة عند تغيّر نسخة المنطق (يعيد حساب الكل فورًا)
+_wlm = {"logic_version": "OLD-VERSION", "stocks": [
+        {"symbol": "MIG", "status": "active", "tier": "A", "added": "2024-01-01",
+         "entry_ref": 9.9, "pivot": 1.0, "stop": 0.5, "stop_hi": 0.6,
+         "entry": [1.0, 1.0], "t1": 2, "t2": 3, "t3": 4}], "notes": []}
+_mig_df = synth_pivot(seed=2)
+_n_mig = S.migrate_watchlist(_wlm, {"MIG": _mig_df})
+_mg = _wlm["stocks"][0]
+_fresh_mig = S.analyze_ticker("MIG", _mig_df)
+check("ترحيل آلي: يعيد الحساب عند تغيّر نسخة المنطق",
+      _n_mig == 1 and _wlm["logic_version"] == S.LOGIC_VERSION
+      and _mg["stop"] == round(_fresh_mig["stop"][0], 4)
+      and _mg["tranches"] == [round(p, 4) for p in _fresh_mig["tranches"]]
+      and _mg["entry_ref"] == 9.9)            # المرجع/التاريخ يبقى
+# لا ترحيل لو النسخة نفسها (idempotent — صفر تغيير)
+_wlm2 = {"logic_version": S.LOGIC_VERSION, "stocks": [
+         {"symbol": "X", "status": "active", "pivot": 1.0, "stop": 0.5}],
+         "notes": []}
+check("ترحيل آلي: لا عمل لو النسخة نفسها (idempotent)",
+      S.migrate_watchlist(_wlm2, {"X": synth_pivot(seed=2)}) == 0)
+
 # الرسالة اليومية تعرض بانر الترقية
 try:
     wlp["stocks"][0]["readiness"] = 80
