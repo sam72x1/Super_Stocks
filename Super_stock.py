@@ -1869,6 +1869,24 @@ def parse_yahoo_news(items, max_items: int, days: int) -> list:
     return out
 
 
+def _fetch_info(t):
+    """جلب معلومات الشركة من Yahoo مع إعادة محاولة (info يُخنق كثيرًا)."""
+    attempts = CONFIG.get("DOWNLOAD_RETRIES", 3)
+    base = CONFIG.get("RETRY_BACKOFF", 3.0)
+    for i in range(attempts):
+        try:
+            info = t.info or {}
+            # نعتبرها ناجحة لو رجّعت حقولًا مفيدة (وإلا غالبًا خُنقت)
+            if info.get("sector") or info.get("country") or \
+                    info.get("floatShares") or info.get("longBusinessSummary"):
+                return info
+        except Exception:
+            pass
+        if i < attempts - 1:
+            time.sleep(base * (2 ** i))
+    return {}
+
+
 def enrich(results: list) -> None:
     """إثراء المرشحين: شورت (Fintel→FINRA→Yahoo) + SEC + تقسيمات + أخبار"""
     syms = {r["symbol"] for r in results}
@@ -1899,20 +1917,33 @@ def enrich(results: list) -> None:
         try:
             t = yf.Ticker(r["symbol"])
             try:
-                info = t.info or {}
+                info = _fetch_info(t)                 # مع إعادة محاولة
+                sym = r["symbol"]
+                cached = COMPANY_CACHE.get(sym, {})    # آخر قيم معروفة
                 sp = info.get("shortPercentOfFloat")
-                r["short_pct"] = round(sp * 100, 1) if sp else None
-                fl = info.get("floatShares")
-                r["float"] = fl
-                # v2.7: ملف الشركة (طريقة فيصل: القطاع/النشاط + المالية)
-                r["sector"] = info.get("sector") or info.get("industry")
-                r["industry"] = info.get("industry")
+                r["short_pct"] = (round(sp * 100, 1) if sp
+                                  else cached.get("short_pct"))
+                # القيمة المجلوبة إن وُجدت، وإلا آخر قيمة معروفة (لا يختفي 🏢)
+                r["float"] = _or_cache(info.get("floatShares"), cached, "float")
+                r["sector"] = _or_cache(info.get("sector") or
+                                        info.get("industry"), cached, "sector")
+                r["industry"] = _or_cache(info.get("industry"),
+                                          cached, "industry")
                 summ = info.get("longBusinessSummary") or ""
-                r["business"] = (summ[:160].strip() + "…") if summ else None
-                r["country"] = info.get("country")
-                r["cash"] = info.get("totalCash")
-                r["revenue"] = info.get("totalRevenue")
-                r["shares_out"] = info.get("sharesOutstanding")
+                r["business"] = ((summ[:160].strip() + "…") if summ
+                                 else cached.get("business"))
+                r["country"] = _or_cache(info.get("country"), cached, "country")
+                r["cash"] = _or_cache(info.get("totalCash"), cached, "cash")
+                r["revenue"] = _or_cache(info.get("totalRevenue"),
+                                         cached, "revenue")
+                r["shares_out"] = _or_cache(info.get("sharesOutstanding"),
+                                            cached, "shares_out")
+                # حدّث الذاكرة بالقيم المعروفة الآن (للتشغيلات القادمة)
+                COMPANY_CACHE[sym] = {k: r.get(k) for k in
+                                      ("sector", "industry", "business",
+                                       "country", "cash", "revenue",
+                                       "shares_out", "short_pct", "float")
+                                      if r.get(k) is not None}
                 # تحذير جغرافي (تحذير فقط — السهم يظل يظهر حتى في A)
                 if r.get("country") in CONFIG.get("HIGH_RISK_COUNTRIES", []):
                     r.setdefault("warnings", []).append(
@@ -1949,6 +1980,7 @@ def enrich(results: list) -> None:
         except Exception:
             continue
         time.sleep(0.5)
+    _save_company_cache(COMPANY_CACHE)   # حفظ آخر القطاعات/الدول المعروفة
 
 
 # ==========================================================
@@ -2324,7 +2356,34 @@ def send_telegram(text: str) -> bool:
 # 9) نظام القائمة الأسبوعية الثابتة (v2.0)
 # ==========================================================
 WATCH_FILE = "weekly_watchlist.json"   # ملف ذاكرة القائمة في الـ repo
+COMPANY_FILE = "company_cache.json"    # ذاكرة آخر قطاع/دولة معروفة لكل سهم
 WEEKLY_RENEW_DAY = 4                   # 4 = الجمعة (الاثنين = 0)
+
+
+def _load_company_cache() -> dict:
+    if os.path.exists(COMPANY_FILE):
+        try:
+            with open(COMPANY_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {}
+
+
+def _save_company_cache(cache: dict) -> None:
+    try:
+        with open(COMPANY_FILE, "w", encoding="utf-8") as f:
+            json.dump(cache, f, ensure_ascii=False, indent=1)
+    except Exception as e:
+        log(f"⚠️ حفظ ذاكرة الشركات: {e}")
+
+
+def _or_cache(val, cached, key):
+    """يرجّع القيمة المجلوبة إن وُجدت، وإلا آخر قيمة معروفة من الذاكرة."""
+    return val if val not in (None, "") else cached.get(key)
+
+
+COMPANY_CACHE = _load_company_cache()
 
 
 def load_watchlist() -> dict:
@@ -3321,7 +3380,7 @@ def run_performance_system(results):
         if rep:
             send_telegram(rep)
     # 4) ذاكرة دائمة في الـ repo (سجل التنبيهات + قائمة الأسبوع)
-    git_save([TRACK_FILE, WATCH_FILE])
+    git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE])
 
 
 if __name__ == "__main__":
