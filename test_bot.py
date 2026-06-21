@@ -795,6 +795,27 @@ check("دمج #3: تأكيد 0-3 · الترتيب يرفع المؤكَّد · 
       and {m["symbol"] for m in _sorted} == {"X", "Y", "Z"}
       and _sorted[0]["symbol"] == "Y")        # المؤكَّد على 4س يطلع أول
 
+# 9-ح) الدعوم/المقاومات الأساسية والفرعية (مفهوم فيصل NAMM)
+_kl_ok = True
+for _sd in range(8):
+    _r = S.analyze_ticker("KL", synth_pivot(seed=_sd))
+    if _r is None:
+        continue
+    _kl = _r["key_levels"]; _px = _r["price"]; _piv = _r["pivot"]
+    if _kl is None:
+        continue
+    # الدعم الأساسي = الأرضية (pivot) · الفرعي (إن وُجد) فوق الأساسي وتحت السعر
+    if abs(_kl["sup_major"] - round(_piv, 2)) > 0.02:
+        _kl_ok = False; print(f"   ✗ دعم أساسي ≠ pivot: {_kl}")
+    if _kl["sup_minor"] is not None and not (
+            _kl["sup_major"] < _kl["sup_minor"] < _px):
+        _kl_ok = False; print(f"   ✗ دعم فرعي خارج النطاق: {_kl} سعر {_px}")
+    # المقاومات (إن وُجدت) فوق السعر
+    for _k in ("res_minor", "res_major"):
+        if _kl[_k] is not None and _kl[_k] <= _px:
+            _kl_ok = False; print(f"   ✗ {_k} تحت السعر: {_kl} سعر {_px}")
+check("دعوم/مقاومات أساسية وفرعية (فيصل): أساسي=الأرضية · الكل بمكانه", _kl_ok)
+
 
 # ==========================================================
 print("\n" + "=" * 50)
