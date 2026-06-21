@@ -32,9 +32,10 @@ def synth_pivot(prior_high=20.0, crash_low=3.0, current=3.6,
     closes += list(np.linspace(prior_high, crash_low * 1.4, 40))  # انهيار
     closes += list(np.linspace(crash_low * 1.4, current * 1.15,
                                n - len(closes) - 40))
-    base = current * (1.0 + 0.04 * np.sin(np.linspace(0, 6, 40)))
-    base[:18] = current * 0.95           # قاع تشبع حديث (RSI ينزل)
-    base[18:] = np.linspace(current * 0.95, current, 22)  # انعكاس
+    base = np.empty(40)
+    base[:20] = np.linspace(current * 1.15, current * 0.72, 20)   # هبوط للتشبع (RSI≤27)
+    base[20:26] = np.linspace(current * 0.72, current * 0.95, 6)  # ارتداد من القاع
+    base[26:] = current * (0.96 + 0.015 * np.sin(np.linspace(0, 4, 14)))  # قاعدة ضيّقة (آخر 14)
     closes += list(base)
     closes = np.array(closes[:n], dtype=float)
     closes[-1] = current

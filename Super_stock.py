@@ -137,7 +137,10 @@ CONFIG = {
 
     # ---- إشارات النقاط (S) ----
     "RSI_OVERSOLD": 27.0,        # فيصل: التشبع البيعي 23-27 (مستحيل ينفجر فوق هذا)
-    "RSI_RECENT_WINDOW": 5,      # نافذة قاع RSI
+    "RSI_RECENT_WINDOW": 5,      # نافذة قاع RSI (للنقاط/الجاهزية)
+    "RSI_OS_LOOKBACK": 25,       # نافذة فحص «وصل التشبع» (تطابق PIVOT_LOOKBACK)
+    "RSI_OS_HARD": 32.0,         # أرضية صلبة: قاع RSI لازم ≤32 (تشبّع فعلاً) —
+                                 # فوقها = ما حقّق نموذج الارتكاز → رفض. 27-32 = نقص.
     "RSI_MAX_NOW": 40.0,         # فيصل: "مستحيل يصعد إذا RSI بمناطق 40"
     # ---- بوابات فيصل الإلزامية (v2.6: مطابقة الشروط الستة بصرامة) ----
     "RSI_GATE_REQUIRED": True,   # M10: RSI لازم في التشبع (27) وتحت السقف (40)
@@ -1144,15 +1147,22 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         if CONFIG.get("GAP_ABOVE_REQUIRED", False) and not near_zones:
             soft_fails.append("فجوة-هدف فوق")
 
-        # ---- M10: RSI في التشبع البيعي — بوابة لينة (فيصل: 23-27، تحت 40) ----
+        # ---- M10: RSI — قاعدة فيصل الذهبية «مستحيل يتحرك قبل يوصل 23-27» ----
+        # جزء صلب (إلزامي): لازم يكون لمس التشبع البيعي (≤27) خلال نافذة قريبة.
+        #   سهم ما وصل التشبع أصلاً = ما اكتمل قاعه → لا يتحرك → يُرفض.
+        # جزء لين (نقص→B): RSI الحالي ما طار فوق 40 (لسّه ما انطلق).
         rsi_s = rsi(close)
         r_now = float(rsi_s.iloc[-1])
         r_prev = float(rsi_s.iloc[-2])
         r_min_recent = float(rsi_s.tail(CONFIG["RSI_RECENT_WINDOW"]).min())
-        rsi_ok = (r_min_recent <= CONFIG["RSI_OVERSOLD"]
-                  and r_now <= CONFIG["RSI_MAX_NOW"])
-        if CONFIG.get("RSI_GATE_REQUIRED", False) and not rsi_ok:
-            soft_fails.append("RSI تشبع")
+        r_min_os = float(rsi_s.tail(CONFIG["RSI_OS_LOOKBACK"]).min())
+        if CONFIG.get("RSI_GATE_REQUIRED", False):
+            if r_min_os > CONFIG["RSI_OS_HARD"]:
+                return _reject("M10_RSI_ما_تشبّع")     # قاعه >32 = ليس ارتكازًا
+            if r_min_os > CONFIG["RSI_OVERSOLD"]:
+                soft_fails.append(f"RSI تشبع حدّي ({r_min_os:.0f})")  # 27-32 → B
+            if r_now > CONFIG["RSI_MAX_NOW"]:
+                soft_fails.append(f"RSI الآن {r_now:.0f}>40")        # طار → B
 
         # ---- M11: تقاطع MACD إيجابي — بوابة لينة ----
         m_line, m_sig = macd(close)
