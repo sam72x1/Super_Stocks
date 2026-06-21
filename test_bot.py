@@ -245,11 +245,11 @@ for x in results:                       # حقول الإثراء الاختيا
 try:
     msg = S.build_message(results, [])
     check("build_message يعمل", isinstance(msg, str) and len(msg) > 0)
-    check("الرسالة تعرض القائمة A/B", "قائمة صارمة" in msg or "مراقبة" in msg)
-    check("الرسالة تعرض القطاع", "القطاع" in msg)
+    check("الرسالة تعرض القائمة A/B", "🅰️" in msg or "🅱️" in msg)
+    check("الرسالة تعرض القطاع/الشركة", "🏢" in msg)
     has_lib = any(x.get("liberation") for x in results)
     check("الرسالة تعرض التحرر (إن وُجد)",
-          (not has_lib) or ("تحرر السهم" in msg))
+          (not has_lib) or ("تحرر فوق" in msg))
 except Exception as e:
     check("build_message يعمل", False, str(e))
 
@@ -267,6 +267,45 @@ try:
           all("tier" in s for s in wl["stocks"]))
 except Exception as e:
     check("build_daily_message يعمل", False, str(e))
+
+
+# ==========================================================
+# 5ب) ترقية B→A + التنبيه (الإنذار المبكر)
+# ==========================================================
+print("\n=== 5ب) ترقية B→A ===")
+_orig = S.analyze_ticker
+# حالة: سهم B اكتمل نموذجه (0 نواقص) → يُرقّى A
+wlp = {"stocks": [{"symbol": "PROM", "status": "active", "tier": "B",
+                   "soft_fails": ["MACD"], "pivot": 3.0,
+                   "stop": 2.7, "last_price": 3.5, "liberation": 5.0}],
+       "notes": []}
+S.analyze_ticker = lambda sym, d: {"soft_fails": [], "liberation": 5.0}
+prom = S.check_promotions(wlp, {"PROM": synth_pivot(seed=9)})
+check("الترقية B→A تعمل",
+      len(prom) == 1 and wlp["stocks"][0]["tier"] == "A")
+check("تاريخ الترقية مسجّل", bool(wlp["stocks"][0].get("promoted_date")))
+# حالة: ما زال ناقصًا → لا ترقية + يحتفظ بنقص الشورت
+wls = {"stocks": [{"symbol": "STILL", "status": "active", "tier": "B",
+                   "soft_fails": ["MACD", "شورت عالٍ"], "pivot": 3.0,
+                   "stop": 2.7, "last_price": 3.5}], "notes": []}
+S.analyze_ticker = lambda sym, d: {"soft_fails": ["MACD"], "liberation": None}
+prom2 = S.check_promotions(wls, {"STILL": synth_pivot(seed=9)})
+check("لا ترقية مع نقص قائم",
+      len(prom2) == 0 and wls["stocks"][0]["tier"] == "B")
+check("يحتفظ بنقص الشورت (M13) عند إعادة التحليل",
+      "شورت عالٍ" in wls["stocks"][0]["soft_fails"])
+S.analyze_ticker = _orig
+# الرسالة اليومية تعرض بانر الترقية
+try:
+    wlp["stocks"][0]["readiness"] = 80
+    wlp["stocks"][0]["have"] = []; wlp["stocks"][0]["partial"] = []
+    wlp["stocks"][0]["missing"] = []; wlp["stocks"][0]["t1"] = 4.0
+    wlp["stocks"][0]["t2"] = 4.5; wlp["stocks"][0]["t3"] = 5.0
+    wlp["stocks"][0]["hit"] = None
+    dmp = S.build_daily_message(wlp, [], [], [], prom)
+    check("بانر الترقية يظهر بالرسالة", "ترقيات اليوم" in dmp and "🚀" in dmp)
+except Exception as e:
+    check("بانر الترقية يظهر بالرسالة", False, str(e))
 
 
 # ==========================================================
