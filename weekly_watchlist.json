@@ -140,6 +140,21 @@
      "removal_reason": null
     }
    ]
+  },
+  {
+   "week_start": "2026-06-21",
+   "ended": "2026-06-21",
+   "stocks": [
+    {
+     "symbol": "IDN",
+     "entry_ref": 4.09,
+     "last_price": 4.09,
+     "max_gain_pct": 0.0,
+     "status": "active",
+     "hit": null,
+     "removal_reason": null
+    }
+   ]
   }
  ]
 }
