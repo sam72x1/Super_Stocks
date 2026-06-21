@@ -1994,7 +1994,7 @@ def news_block(r) -> list:
     lines = []
     news = r.get("news") or []
     if news:
-        lines.append(f"📰 <b>آخر الأخبار (Yahoo):</b>")
+        lines.append("📰 <b>آخر الأخبار (Yahoo):</b>")
         for it in news:
             head = esc(it.get("title", ""))[:140]
             src = esc(it.get("publisher", ""))
