@@ -313,9 +313,10 @@ def analyze_on_demand(sym: str):
         targets.append(round(nxt, 2) if nxt else round(targets[-1] * 1.25, 2))
     t1, t2, t3 = targets[0], targets[1], targets[2]
 
-    risk = max(price - stop_lo, 1e-9)
-    rr = (t1 - price) / risk
-    rr2 = (t2 - price) / risk
+    entry_ref = entry_hi            # نقطة الشراء المخطّطة (لا السعر الحالي)
+    risk = max(entry_ref - stop_lo, 1e-9)
+    rr = (t1 - entry_ref) / risk
+    rr2 = (t2 - entry_ref) / risk
     if rr < C["MIN_RR_T1"]:
         warnings.append(f"عائد/مخاطرة الهدف الأول ضعيف ({rr:.1f}× < "
                         f"{C['MIN_RR_T1']:.1f}× المطلوب)")

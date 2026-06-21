@@ -497,6 +497,19 @@ for sd in range(6):
             print(f"   ✗ بذرة {sd} سعر {cur}: دخول {_lo}-{_hi} عرض {_w:.1f}%")
 check("الدخول نطاق ضيّق عند الدعم (لا مطاردة)", _entry_ok)
 
+# (ي) العائد/المخاطرة يُحسب من سعر الدخول المخطّط (entry_hi) لا السعر الحالي
+_rr_ok = True
+for sd in range(6):
+    _rt = S.analyze_ticker("RR", synth_pivot(seed=sd))
+    if _rt is None:
+        continue
+    _ehi, _slo, _t1 = _rt["entry"][1], _rt["stop"][0], _rt["t1"]
+    _expected = (_t1 - _ehi) / max(_ehi - _slo, 1e-9)
+    if abs(_rt["rr"] - _expected) > 0.05:
+        _rr_ok = False
+        print(f"   ✗ بذرة {sd}: rr={_rt['rr']:.2f} متوقع {_expected:.2f}")
+check("RR من سعر الدخول المخطّط لا السعر الحالي", _rr_ok)
+
 
 # ==========================================================
 print("\n" + "=" * 50)
