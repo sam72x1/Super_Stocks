@@ -3038,7 +3038,8 @@ def build_daily_message(wl: dict, splits: list,
         tb = "🅰️" if s.get("tier", "A") == "A" else "🅱️"
         promo = " 🚀" if s.get("promoted_date") == today else ""
         lines.append(f"{i}) {tb}{promo} 📌 <b>{s['symbol']}</b> — "
-                     f"{readiness_ratio(s['readiness'], s.get('tier', 'A'))}")
+                     f"{readiness_ratio(s['readiness'], s.get('tier', 'A'))} · "
+                     f"النسبة العامة <b>{s.get('score', '?')}%</b>")
         if s.get("tier") == "B" and s.get("soft_fails"):
             lines.append("   🅱️ مراقبة — ينقصها:")
             for f in s["soft_fails"]:
