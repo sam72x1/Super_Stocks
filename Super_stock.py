@@ -152,15 +152,17 @@ CONFIG = {
                                   # ذكي: يعدّي لو الفلوت مفقود (فائدة الشك).
     "VOL_SPIKE_MULT": 5.0,       # شمعة الفوليوم الضخمة ≥ 5x متوسط 20
     "VOL_DRY_RATIO": 0.6,        # جفاف: متوسط 5 < 60% من متوسط 20
-    "SCORE_MIN": 40,             # الحد الأدنى لدخول الترشيح (v2.1: كان 50)
+    "SCORE_MIN": 30,             # الحد الأدنى لدخول الترشيح (v2.7: نُزّل 40→30
+                                 # عشان قائمة المراقبة B تطلع مع البوابات اللينة)
 
     # ---- نظام القائمتين (v2.7): صارمة A + مراقبة B ----
     # قرار المستخدم: ما نطلع صفر أبدًا. القائمة A تجتاز كل البوابات،
     # والقائمة B "قريبة" تجتاز البنية الأساسية (سهم ارتكاز فعلي) لكن
     # ينقصها 1-2 من بوابات التأكيد (RSI/MACD/MA/شورت/فلوت/فجوة-فوق).
     "WATCHLIST_TWO_TIER": True,
-    "WATCH_SOFT_GATES": ["M9", "M10", "M11", "M12", "M13", "M14"],
-    "WATCH_MAX_FAILS": 2,        # أقصى بوابات تأكيد ناقصة لقبوله بقائمة B
+    "WATCH_SOFT_GATES": ["M6", "M7", "M9", "M10", "M11", "M12", "M13", "M14"],
+    "WATCH_MAX_FAILS": 3,        # أقصى بوابات تأكيد ناقصة لقبوله بقائمة B
+                                 # (v2.7: رُفع من 2 إلى 3 بعد تليين M6/M7)
     # بوابات البنية الأساسية (إلزامية دائمًا — فشلها = ليس سهم ارتكاز):
     # M1 سعر · M2 هبوط · M3 انفجار · M4 قاعدة/طزاجة · M5 سيولة ·
     # M6 توافق فريمات · M7 نمط شمعة · M8 فجوة طازجة (لو مفعّلة).
@@ -1044,6 +1046,15 @@ def all_unfilled_gaps_above(df: pd.DataFrame):
     }
 
 
+_REJECT_STATS = {}
+
+
+def _reject(code):
+    """يسجّل سبب رفض السهم (للتشخيص في سجل الفرز) ويرجع None."""
+    _REJECT_STATS[code] = _REJECT_STATS.get(code, 0) + 1
+    return None
+
+
 def analyze_ticker(sym: str, df: pd.DataFrame):
     """يرجع dict بالنتيجة إذا اجتاز الشروط الإلزامية، وإلا None"""
     try:
@@ -1054,7 +1065,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
 
         # ---- M1: السعر ----
         if price < CONFIG["MIN_PRICE"]:
-            return None
+            return _reject("M1_سعر")
 
         # نواقص التأكيد (v2.7): تُجمع من M2/M3 الحدّية + M9-M14 + RR.
         # 0 = قائمة A · 1-2 = قائمة B · أكثر = يُرفض.
@@ -1065,12 +1076,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         # مثالي (≥50%) = بلا عقوبة. (>97% = محتضر → رفض).
         hi52 = float(high.tail(252).max())
         if hi52 <= 0:
-            return None
+            return _reject("M2_hi52")
         drop_pct = (1.0 - price / hi52) * 100.0
         if drop_pct > CONFIG["MAX_DROP_PCT"]:
-            return None  # هبوط كارثي = سهم محتضر/فخ تقسيم
+            return _reject("M2_هبوط>97")  # محتضر/فخ تقسيم
         if drop_pct < CONFIG["MIN_DROP_FLOOR"]:
-            return None  # تحت الأرضية = ليس سهم ارتكاز أصلاً
+            return _reject("M2_هبوط<40")   # تحت الأرضية = ليس ارتكازًا
         if drop_pct < CONFIG["MIN_DROP_PCT"]:
             soft_fails.append(f"هبوط حدّي {drop_pct:.0f}%")
 
@@ -1078,7 +1089,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         # أرضية (<60%) = رفض. حدّي (60-100%) = نقص (B). مثالي (≥100%) = بلا عقوبة.
         best_spike, n_spikes = spike_info(c, exclude_last=CONFIG["BASE_WINDOW"])
         if best_spike < CONFIG["PRIOR_SPIKE_FLOOR"]:
-            return None  # ما انفجر سابقًا بما يكفي → ليس ارتكازًا
+            return _reject("M3_انفجار<60")  # ما انفجر كفاية
         if best_spike < CONFIG["PRIOR_SPIKE_PCT"]:
             soft_fails.append(f"انفجار حدّي {best_spike:.0f}%")
 
@@ -1087,30 +1098,30 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         base_hi = float(high.tail(bw).max())
         base_lo = float(low.tail(bw).min())
         if base_lo <= 0:
-            return None
+            return _reject("M4_base_lo")
         base_range = (base_hi / base_lo - 1.0) * 100.0
         if base_range > CONFIG["BASE_RANGE_MAX_PCT"]:
-            return None
+            return _reject("M4_base_واسعة")
         if len(c) > 6:
             gain5 = (c[-1] / c[-6] - 1.0) * 100.0
             if gain5 > CONFIG["RECENT_RISE_BLOCK_PCT"]:
-                return None  # فاتنا القطار — انفجر فعلاً
+                return _reject("M4_انفجر_فعلاً")  # فاتنا القطار
 
         # ---- M5: سيولة دولارية ----
         dvol = float((close * vol).tail(20).mean())
         if not math.isfinite(dvol) or dvol < CONFIG["MIN_DOLLAR_VOL"]:
-            return None
+            return _reject("M5_سيولة")
 
-        # ---- M6: توافق الفريمات (شهري/أسبوعي/يومي) — إلزامي ≥ 2 من 3 ----
-        # (يُحسب بإعادة تجميع اليومي — بلا أي تحميل إضافي)
+        # ---- M6: توافق الفريمات (شهري/أسبوعي/يومي) — بوابة لينة (v2.7) ----
+        # (كانت رفضًا صلبًا؛ صارت نقصًا حتى تظهر أسهم الارتكاز قبل تأكيد الفريمات)
         mtf = multi_timeframe(df)
         if mtf["count"] < CONFIG["TF_MIN_REVERSALS"]:
-            return None  # ضعيف على الإطار الأكبر → يُرفض
+            soft_fails.append(f"توافق فريمات {mtf['count']}/3")
 
-        # ---- M7: نمط شمعة انعكاسي على اليومي أو الأسبوعي — إلزامي ----
+        # ---- M7: نمط شمعة انعكاسي — بوابة لينة (v2.7) ----
         patterns = mtf["patterns"]
         if not patterns:
-            return None  # لا إشارة شمعة انعكاسية واضحة → يُرفض
+            soft_fails.append("لا نمط شمعة انعكاسي")
 
         # ---- M8: فجوة سعرية معتبرة حديثة — إلزامي (v2.4 نسخة B) ----
         # فيصل: "أسهم الارتكاز عدوها السيولة بسبب الفجوات الكبيرة"
@@ -1164,7 +1175,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
 
         # حد أقصى للنواقص هنا (M13/M14 شورت/فلوت تُضاف لاحقًا في الفرز)
         if len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
-            return None  # بعيد جدًا عن النموذج → يُرفض حتى من قائمة المراقبة
+            return _reject(f"نواقص>{CONFIG.get('WATCH_MAX_FAILS',2)}")
 
         # ---- M13: الشورت العالي — يُطبّق كمرحلة ثانية بعد الفرز ----
         # (الشورت يُجلب فقط للأسهم الناجحة لأن جلبه بطيء — لا يمكن لكل
@@ -1370,7 +1381,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
                          f"(+{dist:.0f}%)")
 
         if score < CONFIG["SCORE_MIN"]:
-            return None
+            return _reject(f"نقاط<{CONFIG['SCORE_MIN']}")
 
         # ======== المستويات المقترحة ========
         pivot = ps["pivot"] if ps else float(low.tail(20).min())
@@ -1481,7 +1492,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         if rr < CONFIG["MIN_RR_T1"]:
             soft_fails.append("عائد/مخاطرة منخفض")
             if len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
-                return None
+                return _reject("RR+نواقص>الحد")
 
         # ملخص حالة بوابات فيصل (للرسالة المختصرة) — كلها ✅ لأن السهم
         # اجتازها، لكن نعرضها للتأكيد البصري ولمعرفة قيمة كل شرط فعلياً
@@ -2046,6 +2057,10 @@ def build_message(results: list, splits: list,
     lines.append("")
     if not results:
         lines.append("لا توجد أسهم تطابق الشروط اليوم. ✋")
+        if _REJECT_STATS:   # تشخيص مباشر: أكثر البوابات رفضًا
+            top = sorted(_REJECT_STATS.items(), key=lambda x: -x[1])[:6]
+            lines.append("🔎 أكثر بوابة رفضت اليوم: "
+                         + " · ".join(f"{k}={v}" for k, v in top))
     for r in results:
         # ===== بطاقة مرتّبة ومختصرة (v2.7) — أساسيات فقط =====
         tier = r.get("tier", "A")
@@ -2120,7 +2135,6 @@ def build_message(results: list, splits: list,
         if r.get("warnings"):
             lines.append("⚠️ " + "؛ ".join(esc(w) for w in r["warnings"]))
         lines.append(news_links(r["symbol"]))
-    lines += splits_block(splits)
     lines += ["", FOOTER]
     return "\n".join(lines)
 
@@ -2339,10 +2353,15 @@ def scan_market():
         log(f"وضع تجربة: {len(universe)} سهم من العينة الموثقة")
     history = download_history(universe)
     results = []
+    _REJECT_STATS.clear()                 # تصفير عدّاد أسباب الرفض
     for sym, df in history.items():
         r = analyze_ticker(sym, df)
         if r:
             results.append(r)
+    # تشخيص: أين تُرفض الأسهم؟ (يظهر بسجل الأكشن لمعرفة البوابة الخانقة)
+    if _REJECT_STATS:
+        top = sorted(_REJECT_STATS.items(), key=lambda x: -x[1])
+        log("أسباب الرفض: " + " · ".join(f"{k}={v}" for k, v in top))
     # M13: بوابة الشورت العالي (مرحلة ثانية على الناجحين فقط)
     results = apply_short_gate(results)
     # M14: بوابة الفلوت الكبير (آخر فلتر — الفلوت بطيء، والناجحون هنا قلائل)
@@ -2695,7 +2714,6 @@ def build_daily_message(wl: dict, splits: list,
         lines += ["", "🛑 <b>شُطب اليوم (يُستبدل غداً):</b>"]
         for s in stopped_today:
             lines.append(f"• {s['symbol']}: {s['removal_reason']}")
-    lines += splits_block(splits)
     lines += ["", FOOTER]
     return "\n".join(lines)
 
@@ -2800,11 +2818,7 @@ def run_weekly_renewal(wl: dict) -> None:
         enrich(picks)  # SEC + شورت للقائمة الجديدة
     except Exception as e:
         log(f"⚠️ الإثراء: {e}")
-    splits = []
-    try:
-        splits = split_watch_report(hist)
-    except Exception as e:
-        log(f"⚠️ تقرير التقسيمات: {e}")
+    splits = []   # (أُلغي عرض التقسيم العكسي — يهمّنا A وB فقط)
     # 4) حفظ القائمة الجديدة
     new_wl = {"week_start": today_iso, "created": today_iso,
               "stocks": [make_watch_entry(r, today_iso) for r in picks],
@@ -2837,8 +2851,7 @@ def run_weekly_renewal(wl: dict) -> None:
 
 def run_daily_watchlist(wl: dict) -> None:
     """الاثنين→الخميس: متابعة القائمة الثابتة + نسبة الجاهزية اليومية"""
-    syms = sorted({s["symbol"] for s in wl["stocks"]}
-                  | set(CONFIG["SPLIT_WATCHLIST"]))
+    syms = sorted({s["symbol"] for s in wl["stocks"]})
     history = {}
     if syms and yf is not None:
         try:
@@ -2859,11 +2872,7 @@ def run_daily_watchlist(wl: dict) -> None:
     except Exception as e:
         log(f"⚠️ فحص الترقيات: {e}")
     compute_readiness(wl, history)
-    splits = []
-    try:
-        splits = split_watch_report(history)
-    except Exception as e:
-        log(f"⚠️ تقرير التقسيمات: {e}")
+    splits = []   # (أُلغي عرض التقسيم العكسي — يهمّنا A وB فقط)
     msg = build_daily_message(wl, splits, stopped_today, replaced, promoted)
     send_telegram(msg)
     save_watchlist(wl)
