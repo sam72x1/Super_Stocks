@@ -123,7 +123,9 @@ if r0:
 check("0 نواقص → A", S.classify_tier([]) == "A")
 check("نقص واحد → B", S.classify_tier(["MACD"]) == "B")
 check("نقصان → B", S.classify_tier(["MACD", "RSI"]) == "B")
-check("3 نواقص → يُرفض None", S.classify_tier(["MACD", "RSI", "فلوت"]) is None)
+check("3 نواقص → B (الحد 3)", S.classify_tier(["MACD", "RSI", "فلوت"]) == "B")
+check("4 نواقص → يُرفض None",
+      S.classify_tier(["MACD", "RSI", "فلوت", "MA"]) is None)
 check("التصنيف الصارم (بلا قائمتين)",
       S.classify_tier(["MACD"], two_tier=False) is None)
 
