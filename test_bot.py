@@ -483,22 +483,30 @@ _rdy_lo = {"tier": "B", "readiness": 60, "score": 99, "rr": 9.0}
 check("«جاهز» يسبق «يقترب» دائمًا (لا يتفوّق سهم أقل جاهزيةً بالنقاط)",
       sorted([_rdy_lo, _rdy_hi], key=S.rank_key)[0] is _rdy_hi)
 
-# (ط) نقطة الدخول: من الدعم لفوقه بقليل — لا شراء تحت الدعم أبدًا
+# (ط) دفعات الدخول (أسلوب فيصل): N دفعات عند الدعم وصعوداً بخطوة ثابتة
 _entry_ok = True
+_N = S.CONFIG["ENTRY_TRANCHES"]
+_step = S.CONFIG["ENTRY_STEP_PCT"] / 100.0
 for sd in range(6):
     for cur, cl, ph in [(3.6, 3.0, 20.0), (2.0, 1.6, 11.0), (9.0, 7.0, 55.0)]:
         _re = S.analyze_ticker("E", synth_pivot(current=cur, crash_low=cl,
                                                 prior_high=ph, seed=sd))
         if _re is None:
             continue
-        _lo, _hi = _re["entry"]
-        _w = (_hi / _lo - 1.0) * 100.0
+        _tr = _re["tranches"]
         _piv = round(_re["pivot"], 2)
-        # أدنى الدخول = الدعم (لا تحته)، وأعلاه فوق الدعم ضمن النطاق
-        if _lo < _piv - 0.01 or _w > S.CONFIG["ENTRY_ZONE_PCT"] + 1.0:
+        _stop = _re["stop"][1]                      # أعلى وقف (الأقرب للدخول)
+        # عدد الدفعات صحيح · أدنى دفعة = الدعم · تصاعدية بالخطوة · الوقف تحت الكل
+        ok_n = len(_tr) == _N
+        ok_lo = abs(_tr[0] - _piv) <= 0.02          # أدنى دفعة عند الدعم
+        ok_asc = all(_tr[i] < _tr[i + 1] for i in range(len(_tr) - 1))
+        ok_step = all(abs((_tr[i + 1] / _tr[i] - 1.0) - _step) < 0.01
+                      for i in range(len(_tr) - 1))
+        ok_stop = _stop < _tr[0]                     # ضمان ذهبي: وقف تحت أدنى دفعة
+        if not (ok_n and ok_lo and ok_asc and ok_step and ok_stop):
             _entry_ok = False
-            print(f"   ✗ بذرة {sd} سعر {cur}: دخول {_lo}-{_hi} دعم {_piv}")
-check("الدخول من الدعم لفوقه (لا شراء تحت الدعم)", _entry_ok)
+            print(f"   ✗ بذرة {sd} سعر {cur}: دفعات {_tr} دعم {_piv} وقف {_stop}")
+check("دفعات الدخول: عند الدعم وصعوداً بخطوة ثابتة (أسلوب فيصل)", _entry_ok)
 
 # (ي) العائد/المخاطرة يُحسب من سعر الدخول المخطّط (entry_hi) لا السعر الحالي
 _rr_ok = True
