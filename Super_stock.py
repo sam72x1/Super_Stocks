@@ -196,6 +196,11 @@ CONFIG = {
 
     # ---- القائمة الأسبوعية (v2.0) ----
     "WATCHLIST_SIZE": 10,        # حجم القائمة الثابتة (حد أقصى)
+    # ---- قائمة مراقبة الارتداد المستقلة (v2.8): أسهم ارتكاز حقيقية ارتفعت
+    # فوق دخولها؛ نتابعها يوميًا وننبّه أول ما تنزل لسعر الدعم (انهيار البورصة)
+    "PULLBACK_WATCH": True,
+    "PULLBACK_SIZE": 10,         # حجم قائمة مراقبة الارتداد (حد أقصى)
+    "PULLBACK_TRIGGER_PCT": 2.0,  # تنبيه عند الوصول ضمن +2% فوق سعر الدعم
     # v2.6 (فيصل): فرز السوق كاملاً كل يوم بعد الإغلاق بدل الجمعة فقط
     # (أسهم الشروط الصارمة نادرة جداً — نصطادها أي يوم تظهر)
     "DAILY_FULL_SCAN": True,
@@ -1098,13 +1103,18 @@ def _reject(code):
     return None
 
 
-def analyze_ticker(sym: str, df: pd.DataFrame):
-    """يرجع dict بالنتيجة إذا اجتاز الشروط الإلزامية، وإلا None"""
+def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
+    """يرجع dict بالنتيجة إذا اجتاز الشروط الإلزامية، وإلا None.
+    pullback=True: وضع «مراقبة الارتداد» — سهم ارتكاز حقيقي (بنية مكتملة)
+    لكنه ارتفع فوق دخوله؛ نرصده ليُتابَع يوميًا وندخله لو رجع للدعم (انهيار
+    البورصة). الوضع العادي (pullback=False) يبقى مطابقًا تمامًا بلا أي تغيير."""
     try:
         close = df["Close"]
         high, low, vol = df["High"], df["Low"], df["Volume"]
         c = close.values
         price = float(c[-1])
+        watch_reasons = []        # أسباب وضعه في مراقبة الارتداد
+        risen = False             # هل ارتفع فعلاً فوق دخوله؟ (شرط الارتداد)
 
         # ---- M1: السعر ----
         if price < CONFIG["MIN_PRICE"]:
@@ -1144,11 +1154,15 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             return _reject("M4_base_lo")
         base_range = (base_hi / base_lo - 1.0) * 100.0
         if base_range > CONFIG["BASE_RANGE_MAX_PCT"]:
-            return _reject("M4_base_واسعة")
+            if not pullback:
+                return _reject("M4_base_واسعة")
+            risen = True       # القاعدة اتسعت لأنه ارتفع = مرشّح ارتداد
+            watch_reasons.append("ارتفع عن قاعدته")
         if len(c) > 6:
             gain5 = (c[-1] / c[-6] - 1.0) * 100.0
+            # «انفجر فعلاً» (قفزة 5 جلسات) = فاتنا القطار — يُرفض حتى للارتداد
             if gain5 > CONFIG["RECENT_RISE_BLOCK_PCT"]:
-                return _reject("M4_انفجر_فعلاً")  # فاتنا القطار
+                return _reject("M4_انفجر_فعلاً")
 
         # ---- M5: سيولة دولارية ----
         dvol = float((close * vol).tail(20).mean())
@@ -1198,12 +1212,17 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         r_min_os = float(rsi_s.tail(CONFIG["RSI_OS_LOOKBACK"]).min())
         if CONFIG.get("RSI_GATE_REQUIRED", False):
             if r_min_os > CONFIG["RSI_OS_HARD"]:
-                return _reject("M10_RSI_ما_تشبّع")     # قاعه >32 = ليس ارتكازًا
-            if r_min_os > CONFIG["RSI_OVERSOLD"]:
+                if not pullback:
+                    return _reject("M10_RSI_ما_تشبّع")  # قاعه >32 = ليس ارتكازًا
+                watch_reasons.append("لم يصل التشبّع بعد")  # سيتشبّع عند الارتداد
+            elif r_min_os > CONFIG["RSI_OVERSOLD"]:
                 soft_fails.append(f"RSI تشبع حدّي ({r_min_os:.0f})")  # 27-32 → B
             if r_now > CONFIG["RSI_NOW_HARD"]:
-                return _reject("M10_RSI_فات_القطار")   # >50 = تحرّك وفات الارتكاز
-            if r_now > CONFIG["RSI_MAX_NOW"]:
+                if not pullback:
+                    return _reject("M10_RSI_فات_القطار")  # >50 = فات الارتكاز
+                risen = True
+                watch_reasons.append(f"RSI ارتفع للـ{r_now:.0f}")
+            elif r_now > CONFIG["RSI_MAX_NOW"]:
                 soft_fails.append(f"RSI الآن {r_now:.0f}>40")        # 40-50 طار → B
 
         # ---- M11: تقاطع MACD إيجابي — بوابة لينة ----
@@ -1226,7 +1245,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             soft_fails.append("المتوسط الأسي")
 
         # حد أقصى للنواقص هنا (M13/M14 شورت/فلوت تُضاف لاحقًا في الفرز)
-        if len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
+        if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
             return _reject(f"نواقص>{CONFIG.get('WATCH_MAX_FAILS',2)}")
 
         # ---- M13: الشورت العالي — يُطبّق كمرحلة ثانية بعد الفرز ----
@@ -1315,7 +1334,10 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         # قرار المستخدم: السهم "بعيد عن الدخول" (نسبة < NEAR_PCT) لا يدخل القائمة
         # حتى المراقبة B — لأنه لسّه ما تهيّأ. (None = بيانات ناقصة → فائدة الشك)
         if readiness_pct is not None and readiness_pct < CONFIG["NEAR_PCT"]:
-            return _reject(f"بعيد_عن_الدخول({readiness_pct:.0f}%)")
+            if not pullback:
+                return _reject(f"بعيد_عن_الدخول({readiness_pct:.0f}%)")
+            risen = True       # بعيد عن الدخول = مرشّح ارتداد (ننتظر رجوعه)
+            watch_reasons.append(f"بعيد عن الدخول ({readiness_pct:.0f}%)")
         # «جاهز» (البوليان) = مشتقّة حصريًا من النسبة (≥ READY_PCT). مصدر واحد:
         # مستحيل يطلع سهم «🟢 جاهز» ونسبته أقل من «🟡 يقترب». انتهى التناقض.
         ready = (readiness_pct is not None
@@ -1445,7 +1467,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             flags.append(f"فجوة-هدف فوق السعر عند ${nz['bottom']:.2f} "
                          f"(+{dist:.0f}%)")
 
-        if score < CONFIG["SCORE_MIN"]:
+        if not pullback and score < CONFIG["SCORE_MIN"]:
             return _reject(f"نقاط<{CONFIG['SCORE_MIN']}")
 
         # ======== المستويات المقترحة ========
@@ -1564,7 +1586,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         # متوافق مع قرار «ما نطلع صفر». لو تجاوز مجموع النواقص الحد → يُرفض.
         if rr < CONFIG["MIN_RR_T1"]:
             soft_fails.append("عائد/مخاطرة منخفض")
-            if len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
+            if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
                 return _reject("RR+نواقص>الحد")
 
         # ملخص حالة بوابات فيصل (للرسالة المختصرة) — كلها ✅ لأن السهم
@@ -1596,6 +1618,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
                             f"{len(near_zones)} منطقة" if near_zones else "لا"),
         }
 
+        # وضع الارتداد: لازم يكون مرتفعًا فعلاً فوق دخوله (وإلا فهو مرشّح
+        # دخول عادي يلتقطه المسار العادي). لو مرتفع → tier="W" مراقبة ارتداد.
+        if pullback and not risen:
+            return None
+        tier = "W" if pullback else ("A" if not soft_fails else "B")
+
         return {
             "symbol": sym, "price": price, "score": int(min(score, 100)),
             "drop_pct": drop_pct, "best_spike": best_spike,
@@ -1613,7 +1641,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             "gaps_above": gaps_above,
             "gates_status": gates_status,
             "soft_fails": soft_fails,                 # بوابات تأكيد ناقصة
-            "tier": "A" if not soft_fails else "B",   # مبدئي (يُحدّث بعد الشورت/الفلوت)
+            "tier": tier,                             # A/B عادي · W مراقبة ارتداد
+            "watch_reasons": watch_reasons,           # أسباب وضع الارتداد
             "indicators": ind,                        # مؤشرات فيصل الإضافية
             "liberation": liberation,                 # بوابة "تحرر السهم"
             "lib_near": lib_near,                      # قريب من التحرر؟
@@ -2444,6 +2473,26 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
     }
 
 
+def make_pullback_entry(r: dict, today_iso: str) -> dict:
+    """سجل سهم في قائمة مراقبة الارتداد (نتابعه يوميًا حتى ينزل للدعم)."""
+    return {
+        "symbol": r["symbol"], "added": today_iso,
+        "entry": [round(r["entry"][0], 4), round(r["entry"][1], 4)],
+        "pivot": round(r["pivot"], 4),
+        "stop": round(r["stop"][0], 4),
+        "t1": round(r["t1"], 4), "t2": round(r["t2"], 4),
+        "t3": round(r["t3"], 4),
+        "score": r["score"],
+        "liberation": r.get("liberation"),
+        "watch_reasons": list(r.get("watch_reasons", [])),
+        "sector": r.get("sector"), "country": r.get("country"),
+        "float": r.get("float"),
+        "last_price": round(r["price"], 4),
+        "status": "watching",          # watching → triggered (وصل الدعم)
+        "triggered_date": None,
+    }
+
+
 def apply_short_gate(results: list) -> list:
     """M13 — بوابة الشورت العالي، تُطبّق بعد الفرز (مرحلة ثانية).
     الشورت يُجلب فقط للأسهم الناجحة (جلبه بطيء، يستحيل لكل السوق).
@@ -2556,6 +2605,27 @@ def rank_key(x):
     return (0 if x.get("tier") == "A" else 1,
             -(rdy if rdy is not None else -1),
             -x.get("score", 0), -x.get("rr", 0))
+
+
+def scan_pullback(history: dict, exclude: set = None) -> list:
+    """قائمة مراقبة الارتداد: أسهم ارتكاز حقيقية ارتفعت فوق دخولها.
+    تعيد استخدام البيانات المحمّلة (لا تحميل إضافي). مرتّبة بالأقرب للدعم."""
+    if not CONFIG.get("PULLBACK_WATCH", False):
+        return []
+    exclude = exclude or set()
+    out = []
+    for sym, df in history.items():
+        if sym in exclude:
+            continue
+        try:
+            w = analyze_ticker(sym, df, pullback=True)
+        except Exception:
+            w = None
+        if w:
+            out.append(w)
+    # الأقرب للدعم أولاً (أعلى جاهزية) ثم الأعلى نقاطًا
+    out.sort(key=lambda x: (-(x.get("readiness") or 0), -x.get("score", 0)))
+    return out[:CONFIG.get("PULLBACK_SIZE", 10)]
 
 
 def scan_market():
@@ -2878,6 +2948,60 @@ def readiness_badge(p, tier="A"):
     return f"<b>{p}%</b> 🔴 بعيد عن الدخول"
 
 
+def build_pullback_section(entries: list, triggered: list = None) -> str:
+    """قسم «مراقبة الارتداد»: أسهم ارتكاز ارتفعت ننتظر رجوعها للدعم +
+    تنبيهات الأسهم التي وصلت سعر الدعم اليوم (جاهزة للدخول)."""
+    triggered = triggered or []
+    if not entries and not triggered:
+        return ""
+    lines = []
+    if triggered:
+        lines.append("🎯 <b>وصلت الدعم — جاهزة للدخول!</b>")
+        for e in triggered:
+            lines.append(f"• <b>{e['symbol']}</b> نزل ${e['last_price']:.2f} "
+                         f"≈ دخول ${e['entry'][1]:.2f} · وقف ${e['stop']:.2f} "
+                         f"· هدف١ ${e['t1']:.2f}")
+        lines.append("")
+    if entries:
+        lines.append("👁️ <b>مراقبة للارتداد</b> "
+                     "(ارتكاز ارتفع — ننتظر رجوعه لسعر الدعم):")
+        for e in entries:
+            tgt = e["entry"][1]
+            dist = (e["last_price"] / tgt - 1.0) * 100.0 if tgt else 0.0
+            sec = f" · {esc(ar_sector(e['sector']))}" if e.get("sector") else ""
+            lines.append(f"• <b>{e['symbol']}</b> ${e['last_price']:.2f} "
+                         f"→ دخول الدعم ${tgt:.2f} (يبعد {dist:+.0f}%){sec}")
+        lines.append("<i>يُنبَّه تلقائيًا أول ما ينزل لسعر الدعم.</i>")
+    return "\n".join(lines)
+
+
+def monitor_pullback(wl: dict) -> list:
+    """متابعة يومية لقائمة الارتداد: يحدّث السعر، ويُطلق تنبيهًا عند نزول
+    السهم لسعر الدعم (ضمن PULLBACK_TRIGGER_PCT). يعيد قائمة المُنبَّه عنها."""
+    entries = wl.get("pullback") or []
+    if not entries or yf is None:
+        return []
+    triggered = []
+    buf = 1.0 + CONFIG.get("PULLBACK_TRIGGER_PCT", 2.0) / 100.0
+    for e in entries:
+        if e.get("status") == "triggered":
+            continue
+        try:
+            d = download_history([e["symbol"]])
+            df = d.get(e["symbol"])
+            if df is None or df.empty:
+                continue
+            lp = float(df["Close"].iloc[-1])
+            e["last_price"] = round(lp, 4)
+            if lp <= e["entry"][1] * buf:        # نزل لسعر الدعم
+                e["status"] = "triggered"
+                e["triggered_date"] = dt.date.today().isoformat()
+                triggered.append(e)
+        except Exception:
+            continue
+    return triggered
+
+
 def build_daily_message(wl: dict, splits: list,
                         stopped_today: list, replaced: list,
                         promoted: list = None) -> str:
@@ -3051,10 +3175,21 @@ def run_weekly_renewal(wl: dict) -> None:
     except Exception as e:
         log(f"⚠️ الإثراء: {e}")
     splits = []   # (أُلغي عرض التقسيم العكسي — يهمّنا A وB فقط)
+    # 3ب) قائمة مراقبة الارتداد المستقلة (تعيد استخدام نفس البيانات)
+    pull_entries = []
+    try:
+        excl = {r["symbol"] for r in picks}
+        w_list = scan_pullback(hist, exclude=excl)
+        if w_list:
+            enrich(w_list)
+        pull_entries = [make_pullback_entry(w, today_iso) for w in w_list]
+    except Exception as e:
+        log(f"⚠️ مراقبة الارتداد: {e}")
     # 4) حفظ القائمة الجديدة
     new_wl = {"week_start": today_iso, "created": today_iso,
               "stocks": [make_watch_entry(r, today_iso) for r in picks],
               "removed": [], "replacements_log": [], "notes": [],
+              "pullback": pull_entries,
               "history": wl.get("history", [])}
     save_watchlist(new_wl)
     # 5) رسالة القائمة الجديدة (بطاقات كاملة)
@@ -3064,7 +3199,9 @@ def run_weekly_renewal(wl: dict) -> None:
     if len(picks) < CONFIG["WATCHLIST_SIZE"]:
         subnote = (f"(وُجد {len(picks)} فقط يطابق الشروط — "
                    f"الحد الأقصى {CONFIG['WATCHLIST_SIZE']})")
-    send_telegram(build_message(picks, splits, title=title, subnote=subnote))
+    msg = build_message(picks, splits, title=title, subnote=subnote)
+    msg += "\n" + build_pullback_section(pull_entries)
+    send_telegram(msg)
     # 6) CSV + تتبع الأداء (يسجل القائمة كتنبيهات ويتابع القدامى)
     write_csv([{
         "symbol": r["symbol"], "price": r["price"], "score": r["score"],
@@ -3104,8 +3241,18 @@ def run_daily_watchlist(wl: dict) -> None:
     except Exception as e:
         log(f"⚠️ فحص الترقيات: {e}")
     compute_readiness(wl, history)
+    # متابعة قائمة الارتداد المستقلة + تنبيه أول ما ينزل سهم لسعر الدعم
+    pull_triggered = []
+    try:
+        pull_triggered = monitor_pullback(wl)
+    except Exception as e:
+        log(f"⚠️ متابعة الارتداد: {e}")
     splits = []   # (أُلغي عرض التقسيم العكسي — يهمّنا A وB فقط)
     msg = build_daily_message(wl, splits, stopped_today, replaced, promoted)
+    watching = [e for e in wl.get("pullback", []) if e.get("status") != "triggered"]
+    pull_sec = build_pullback_section(watching, pull_triggered)
+    if pull_sec:
+        msg += "\n\n" + pull_sec
     send_telegram(msg)
     save_watchlist(wl)
     write_csv([{
