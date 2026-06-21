@@ -2075,7 +2075,11 @@ def build_message(results: list, splits: list,
         # ===== بطاقة مرتّبة ومختصرة (v2.7) — أساسيات فقط =====
         tier = r.get("tier", "A")
         badge = "🅰️" if tier == "A" else "🅱️"
-        ready = "🟢 جاهز" if r["ready"] else "⏳ يتكوّن"
+        if r["ready"]:
+            # "جاهز" محجوزة للقائمة A (النموذج مكتمل). B عند نطاق السعر = "قرب الدخول"
+            ready = "🟢 جاهز" if tier == "A" else "🟢 قرب الدخول"
+        else:
+            ready = "⏳ يتكوّن"
         lines.append("━━━━━━━━━━━━━━━")
         lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f} · "
                      f"{r['score']}/100 · {ready}")
@@ -2652,11 +2656,13 @@ def compute_readiness(wl: dict, history: dict) -> None:
         key=lambda s: -(s["readiness"] if s["readiness"] is not None else -1))
 
 
-def readiness_badge(p):
+def readiness_badge(p, tier="A"):
     if p is None:
         return "⚠️ لا بيانات"
     if p >= CONFIG["READY_PCT"]:
-        return f"<b>{p}%</b> 🟢 جاهز"
+        # "جاهز" للقائمة A فقط (النموذج مكتمل). B = "قرب الدخول" (السعر بالنطاق)
+        label = "جاهز" if tier == "A" else "قرب الدخول"
+        return f"<b>{p}%</b> 🟢 {label}"
     if p >= CONFIG["NEAR_PCT"]:
         return f"<b>{p}%</b> 🟡 يقترب"
     return f"<b>{p}%</b> 🔴 بعيد عن الدخول"
@@ -2688,7 +2694,7 @@ def build_daily_message(wl: dict, splits: list,
         tb = "🅰️" if s.get("tier", "A") == "A" else "🅱️"
         promo = " 🚀" if s.get("promoted_date") == today else ""
         lines.append(f"{i}) {tb}{promo} 📌 <b>{s['symbol']}</b> — "
-                     f"{readiness_badge(s['readiness'])}")
+                     f"{readiness_badge(s['readiness'], s.get('tier', 'A'))}")
         if s.get("tier") == "B" and s.get("soft_fails"):
             lines.append(f"   🅱️ مراقبة (ينقصها: {'، '.join(s['soft_fails'])})")
         lines.append(f"   💵 ${lp:.2f} | قاع ${s['pivot']:.2f} | "
