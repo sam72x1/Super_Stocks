@@ -117,8 +117,10 @@ if r0:
           str(r0["liberation"]))
     check("القاب فوق السعر (إن وُجد)",
           r0["qab"] is None or r0["qab"]["bottom"] > r0["price"])
-    check("الستوب يحترم ATR (أبعد من نسبة فقط)",
-          r0["stop"][0] <= r0["pivot"] * (1 - S.CONFIG["STOP_BELOW_LOW_PCT"][1] / 100.0) + 1e-6)
+    # قاعدة فيصل: الوقف ~7% تحت الدعم — لا أعمق بكثير (لا ATR يعمّقه)
+    check("الوقف ~7% تحت الدعم (لا عميق شاذ)",
+          r0["pivot"] * 0.90 <= r0["stop"][0] <= r0["pivot"] * 0.95 + 1e-6,
+          f"stop={r0['stop'][0]:.2f} pivot={r0['pivot']:.2f}")
 
 # تصنيف القائمتين (دالة نقية) — 0=A · 1-2=B · أكثر=None
 check("0 نواقص → A", S.classify_tier([]) == "A")
