@@ -508,18 +508,19 @@ for sd in range(6):
             print(f"   ✗ بذرة {sd} سعر {cur}: دفعات {_tr} دعم {_piv} وقف {_stop}")
 check("دفعات الدخول: عند الدعم وصعوداً بخطوة ثابتة (أسلوب فيصل)", _entry_ok)
 
-# (ي) العائد/المخاطرة يُحسب من سعر الدخول المخطّط (entry_hi) لا السعر الحالي
+# (ي) العائد/المخاطرة يُحسب من **متوسط الدفعات** (فيصل يمتّع) لا السعر الحالي
 _rr_ok = True
 for sd in range(6):
     _rt = S.analyze_ticker("RR", synth_pivot(seed=sd))
     if _rt is None:
         continue
-    _ehi, _slo, _t1 = _rt["entry"][1], _rt["stop"][0], _rt["t1"]
-    _expected = (_t1 - _ehi) / max(_ehi - _slo, 1e-9)
+    _avg = sum(_rt["tranches"]) / len(_rt["tranches"])
+    _slo, _t1 = _rt["stop"][0], _rt["t1"]
+    _expected = (_t1 - _avg) / max(_avg - _slo, 1e-9)
     if abs(_rt["rr"] - _expected) > 0.05:
         _rr_ok = False
         print(f"   ✗ بذرة {sd}: rr={_rt['rr']:.2f} متوقع {_expected:.2f}")
-check("RR من سعر الدخول المخطّط لا السعر الحالي", _rr_ok)
+check("RR من متوسط الدفعات لا السعر الحالي", _rr_ok)
 
 # (ل) فحص أخبار الخطر الآلي: يمسك الطرح/التخفيف/التقسيم/الشطب من العناوين
 _danger = [
@@ -690,7 +691,7 @@ for _sd in range(12):
         _piv = _r["pivot"]; _tr = _r["tranches"]
         _slo, _shi = _r["stop"]; _px = _r["price"]
         _t1, _t2, _t3 = _r["t1"], _r["t2"], _r["t3"]
-        _ehi = _r["entry"][1]
+        _eavg = sum(_tr) / len(_tr)              # متوسط الدفعات = مرجع RR
 
         def _bad(msg):
             _inv_fail.append(f"بذرة {_sd} سعر {_cur}: {msg}")
@@ -713,8 +714,8 @@ for _sd in range(12):
             _bad(f"أهداف غير تصاعدية {_t1}/{_t2}/{_t3}")
         if _t1 < _px * _min_gain - 0.02:
             _bad(f"t1 قريب جدًا {_t1} < {_px*_min_gain:.2f}")
-        # (5) صيغة RR من أعلى دفعة (أسوأ تعبئة)
-        _exp_rr = (_t1 - _ehi) / max(_ehi - _slo, 1e-9)
+        # (5) صيغة RR من متوسط الدفعات (تعبئة فيصل الفعلية)
+        _exp_rr = (_t1 - _eavg) / max(_eavg - _slo, 1e-9)
         if abs(_r["rr"] - _exp_rr) > 0.05:
             _bad(f"RR {_r['rr']} ≠ {_exp_rr:.2f}")
 if _inv_fail:
