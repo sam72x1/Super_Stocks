@@ -616,6 +616,131 @@
    "last_price": 1.93,
    "status": "watching",
    "triggered_date": null
+  },
+  {
+   "symbol": "PEPG",
+   "added": "2026-06-21",
+   "entry": [
+    1.26,
+    1.31
+   ],
+   "pivot": 1.31,
+   "stop": 1.128,
+   "t1": 2.03,
+   "t2": 2.66,
+   "t3": 3.17,
+   "score": 100,
+   "liberation": 5.11,
+   "watch_reasons": [
+    "RSI ارتفع للـ61"
+   ],
+   "sector": "Healthcare",
+   "country": "United States",
+   "float": 36046153,
+   "last_price": 1.79,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "CING",
+   "added": "2026-06-21",
+   "entry": [
+    3.03,
+    3.16
+   ],
+   "pivot": 3.16,
+   "stop": 2.3805,
+   "t1": 5.46,
+   "t2": 6.01,
+   "t3": 6.76,
+   "score": 100,
+   "liberation": 11.98,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ53"
+   ],
+   "sector": "Healthcare",
+   "country": "United States",
+   "float": 12939475,
+   "last_price": 4.99,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "EEIQ",
+   "added": "2026-06-21",
+   "entry": [
+    2.4,
+    2.5
+   ],
+   "pivot": 2.5,
+   "stop": 1.6623,
+   "t1": 3.8,
+   "t2": 4.64,
+   "t3": 5.17,
+   "score": 100,
+   "liberation": 6.4,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ52"
+   ],
+   "sector": "Consumer Defensive",
+   "country": "United States",
+   "float": 899310,
+   "last_price": 3.45,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "IXHL",
+   "added": "2026-06-21",
+   "entry": [
+    2.66,
+    2.77
+   ],
+   "pivot": 2.77,
+   "stop": 2.2336,
+   "t1": 3.88,
+   "t2": 4.25,
+   "t3": 5.0,
+   "score": 100,
+   "liberation": 9.0,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد"
+   ],
+   "sector": "Healthcare",
+   "country": "Australia",
+   "float": 9871355,
+   "last_price": 3.56,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "SEV",
+   "added": "2026-06-21",
+   "entry": [
+    1.89,
+    1.97
+   ],
+   "pivot": 1.969,
+   "stop": 1.7248,
+   "t1": 2.7,
+   "t2": 3.17,
+   "t3": 3.49,
+   "score": 100,
+   "liberation": 5.7,
+   "watch_reasons": [
+    "RSI ارتفع للـ51"
+   ],
+   "sector": null,
+   "country": null,
+   "float": null,
+   "last_price": 2.37,
+   "status": "watching",
+   "triggered_date": null
   }
  ],
  "history": [

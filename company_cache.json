@@ -112,5 +112,48 @@
   "shares_out": 191520241,
   "short_pct": 2.5,
   "float": 12509001
- }
+ },
+ "PEPG": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "PepGen Inc., a clinical-stage biotechnology company, develops oligonucleotide therapeutics for the treatment of severe neuromuscular and neurologic diseases in…",
+  "country": "United States",
+  "cash": 132303000,
+  "shares_out": 69169215,
+  "short_pct": 7.6,
+  "float": 36046153
+ },
+ "CING": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Cingulate Inc., a biopharmaceutical company, develops pharmaceutical products using its drug delivery platform technology for the treatment of attention deficit…",
+  "country": "United States",
+  "cash": 25893210,
+  "shares_out": 13469036,
+  "short_pct": 21.0,
+  "float": 12939475
+ },
+ "EEIQ": {
+  "sector": "Consumer Defensive",
+  "industry": "Education & Training Services",
+  "business": "EpicQuest Education Group International Limited, together with its subsidiaries, provides education solutions for students interested in university and college…",
+  "country": "United States",
+  "cash": 4754522,
+  "revenue": 8939989,
+  "shares_out": 1646623,
+  "short_pct": 2.2,
+  "float": 899310
+ },
+ "IXHL": {
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - Specialty & Generic",
+  "business": "Incannex Healthcare Inc., a clinical-stage biopharmaceutical company, engages in the research and development of psychedelic medicines and therapies for patient…",
+  "country": "Australia",
+  "cash": 74450000,
+  "revenue": 0,
+  "shares_out": 11964554,
+  "short_pct": 7.1,
+  "float": 9871355
+ },
+ "SEV": {}
 }
