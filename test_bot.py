@@ -481,6 +481,22 @@ _rdy_lo = {"tier": "B", "readiness": 60, "score": 99, "rr": 9.0}
 check("«جاهز» يسبق «يقترب» دائمًا (لا يتفوّق سهم أقل جاهزيةً بالنقاط)",
       sorted([_rdy_lo, _rdy_hi], key=S.rank_key)[0] is _rdy_hi)
 
+# (ط) نقطة الدخول: نطاق ضيّق عند الدعم — لا يطارد السعر الحالي فوق القاع
+_entry_ok = True
+for sd in range(6):
+    for cur, cl, ph in [(3.6, 3.0, 20.0), (2.0, 1.6, 11.0), (9.0, 7.0, 55.0)]:
+        _re = S.analyze_ticker("E", synth_pivot(current=cur, crash_low=cl,
+                                                prior_high=ph, seed=sd))
+        if _re is None:
+            continue
+        _lo, _hi = _re["entry"]
+        _w = (_hi / _lo - 1.0) * 100.0
+        # العرض ضمن الإعداد (+ هامش تقريب) والحد الأعلى لا يتجاوز الدعم
+        if _w > S.CONFIG["ENTRY_ZONE_PCT"] + 1.0 or _hi > round(_re["pivot"], 2) + 0.01:
+            _entry_ok = False
+            print(f"   ✗ بذرة {sd} سعر {cur}: دخول {_lo}-{_hi} عرض {_w:.1f}%")
+check("الدخول نطاق ضيّق عند الدعم (لا مطاردة)", _entry_ok)
+
 
 # ==========================================================
 print("\n" + "=" * 50)
