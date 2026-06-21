@@ -330,6 +330,126 @@ for nm, d in [
 
 
 # ==========================================================
+# 7) ضمانات ضد رجوع الأخطاء (regression) — كل bug طلع يُقفل باختبار
+# ==========================================================
+print("\n=== 7) ضمانات ضد رجوع الأخطاء ===")
+
+# (أ) الكارثة: الوقف لازم يكون دائمًا تحت أدنى منطقة الدخول — لكل البذور/الأسعار
+_stop_ok = True
+for sd in range(6):
+    for cur, cl, ph in [(3.6, 3.0, 20.0), (1.6, 1.3, 9.0), (12.0, 9.0, 60.0)]:
+        rr = S.analyze_ticker("X", synth_pivot(current=cur, crash_low=cl,
+                                               prior_high=ph, seed=sd))
+        if rr is None:
+            continue
+        lo = rr["entry"][0]
+        if not (rr["stop"][0] < lo and rr["stop"][1] < lo):
+            _stop_ok = False
+            print(f"   ✗ بذرة {sd} سعر {cur}: stop={rr['stop']} entry_lo={lo}")
+check("الوقف دائمًا تحت أدنى الدخول (لا كارثة)", _stop_ok)
+
+# (ب) رفض RSI الحالي > 50 (فات الارتكاز) — bug ما كان موجود قبل
+df_hi = synth_pivot(seed=2).copy()
+_c = df_hi["Close"].values.astype(float)
+_c[-9:] = np.linspace(_c[-9], _c[-9] * 1.7, 9)          # ارتداد V حاد
+df_hi["Close"] = _c
+df_hi["High"] = np.maximum(df_hi["High"].values, _c * 1.01)
+df_hi["Low"] = np.minimum(df_hi["Low"].values, _c * 0.99)
+_rnow = float(S.rsi(df_hi["Close"]).iloc[-1])
+S._REJECT_STATS.clear()
+_res_hi = S.analyze_ticker("HI", df_hi)
+check("RSI الحالي > 50 → يُرفض (فات الارتكاز)",
+      _rnow <= 50 or _res_hi is None, f"rsi_now={_rnow:.0f}")
+
+# (ج) سهم «بعيد عن الدخول» (جاهزية < NEAR_PCT) لا يدخل القائمة.
+#     نرفع العتبة مؤقتًا فوق جاهزية السهم لنضمن أن الرفض يشتغل فعلًا.
+_df_ok = synth_pivot(seed=3)
+_rd_ok, _ = S.entry_readiness(_df_ok)
+_orig_near = S.CONFIG["NEAR_PCT"]
+S.CONFIG["NEAR_PCT"] = min(100, int(_rd_ok) + 5)        # أعلى من جاهزيته
+try:
+    _res_far = S.analyze_ticker("FAR", _df_ok)
+finally:
+    S.CONFIG["NEAR_PCT"] = _orig_near
+check("بعيد عن الدخول (جاهزية<العتبة) → يُرفض",
+      _res_far is None, f"rdy={_rd_ok} عتبة={int(_rd_ok)+5}")
+
+# (د) bug تتبع التاريخ: تنبيه صادر اليوم لا يُطلب تحميله (start=بكرة>end=اليوم)
+import datetime as _dt
+_today = _dt.date.today().isoformat()
+_old = (_dt.date.today() - _dt.timedelta(days=10)).isoformat()
+
+
+def _mk_alert(sym, d):
+    return {"symbol": sym, "date": d, "price": 5.0, "stop": 4.0,
+            "t1": 6.0, "t2": 7.0, "t3": 8.0, "score": 50, "flags": [],
+            "ready": False, "status": "open", "result_date": None,
+            "max_gain_pct": 0.0}
+
+
+_calls = []
+
+
+class _StubYF:
+    @staticmethod
+    def download(sym, **kw):
+        _calls.append(sym)
+        return pd.DataFrame()           # فارغ = لا بيانات جديدة
+
+
+_orig_yf = S.yf
+S.yf = _StubYF
+try:
+    _data = {"alerts": [_mk_alert("TODAYSYM", _today),
+                        _mk_alert("OLDSYM", _old)]}
+    _crash = False
+    try:
+        S.update_tracking(_data)
+    except Exception as e:
+        _crash = True
+        print(f"   ✗ انهيار التتبع: {e}")
+finally:
+    S.yf = _orig_yf
+check("التتبع لا ينهار", not _crash)
+check("تتبع: تنبيه اليوم لا يُحمّل (لا start>end)", "TODAYSYM" not in _calls)
+check("تتبع: تنبيه قديم يُحمّل عادي", "OLDSYM" in _calls)
+
+# (هـ) ثبات التحميل: _download_chunk يعيد المحاولة عند الفشل ثم ينجح
+_attempts = {"n": 0}
+
+
+class _FlakyYF:
+    @staticmethod
+    def download(chunk, **kw):
+        _attempts["n"] += 1
+        if _attempts["n"] < 2:
+            raise RuntimeError("Rate limited")     # تفشل أول مرة
+        return pd.DataFrame({"Close": [1.0, 2.0]})  # تنجح بعدها
+
+
+_orig_yf2 = S.yf
+_orig_backoff = S.CONFIG.get("RETRY_BACKOFF")
+S.yf = _FlakyYF
+S.CONFIG["RETRY_BACKOFF"] = 0.0                     # بلا انتظار في الاختبار
+try:
+    _got = S._download_chunk(["AAA"], "2024-01-01")
+finally:
+    S.yf = _orig_yf2
+    S.CONFIG["RETRY_BACKOFF"] = _orig_backoff
+check("التحميل يعيد المحاولة بعد الفشل (rate-limit)",
+      _got is not None and _attempts["n"] >= 2)
+
+# (و) مؤشر صحة البيانات يظهر في الرسالة (يكشف الخنق بدل الصمت)
+S._SCAN_STATS["universe"], S._SCAN_STATS["valid"] = 1000, 500   # تغطية 50%
+_msg_health = S.build_message([], [], title="t")
+check("تحذير تغطية منخفضة يظهر بالرسالة", "تغطية بيانات 50%" in _msg_health)
+S._SCAN_STATS["universe"], S._SCAN_STATS["valid"] = 1000, 990   # تغطية 99%
+_msg_ok = S.build_message([], [], title="t")
+check("تغطية عالية تظهر ✓", "99%" in _msg_ok and "✓" in _msg_ok)
+S._SCAN_STATS.clear()
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
