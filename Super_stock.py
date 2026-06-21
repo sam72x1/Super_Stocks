@@ -3045,7 +3045,8 @@ def build_daily_message(wl: dict, splits: list,
             lines.append("   🅱️ مراقبة — ينقصها:")
             for f in s["soft_fails"]:
                 lines.append(f"      • {f}")
-        lines.append(f"   💵 ${lp:.2f} | قاع ${s['pivot']:.2f} | "
+        ez = s.get("entry") or [s["pivot"], s["pivot"]]
+        lines.append(f"   💵 ${lp:.2f} | دخول ${ez[0]:.2f}–${ez[1]:.2f} | "
                      f"ستوب ${s['stop']:.2f}")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
