@@ -3206,6 +3206,15 @@ def check_promotions(wl: dict, history: dict) -> list:
         s["soft_fails"] = combined
         s["tier"] = "A" if not combined else "B"
         s["liberation"] = fresh.get("liberation")
+        # تحديث يومي رخيص (بلا تحميل زائد): المستويات من إعادة التحليل +
+        # القطاع/الدولة من الذاكرة لو ناقصة بالسجل (تظهر بدل ما تبقى فاضية).
+        if fresh.get("key_levels"):
+            s["key_levels"] = fresh["key_levels"]
+        _cc = COMPANY_CACHE.get(s["symbol"], {})
+        if not s.get("sector") and _cc.get("sector"):
+            s["sector"] = _cc["sector"]
+        if not s.get("country") and _cc.get("country"):
+            s["country"] = _cc["country"]
         if was == "B" and s["tier"] == "A":
             s["promoted_date"] = today
             promoted.append(s)
