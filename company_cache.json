@@ -1,0 +1,116 @@
+{
+ "NGEN": {},
+ "DJT": {},
+ "NAGE": {},
+ "IDN": {},
+ "USGO": {},
+ "SOGP": {},
+ "INSM": {},
+ "BTOG": {
+  "sector": "Financial Services",
+  "industry": "Financial Data & Stock Exchanges",
+  "business": "Bit Origin Ltd engages in the cryptocurrency mining business. It deploys crypto asset mining and blockchain technologies. The company was formerly known as Chin…",
+  "country": "Singapore",
+  "cash": 55639,
+  "revenue": 39495,
+  "shares_out": 1597541,
+  "short_pct": 2.4,
+  "float": 975172
+ },
+ "MSAI": {
+  "sector": "Technology",
+  "industry": "Electronic Components",
+  "business": "MultiSensor AI Holdings, Inc. builds and deploys integrated condition monitoring and early threat detection solutions that connect multiple sensor types through…",
+  "country": "United States",
+  "cash": 22552000,
+  "revenue": 5995000,
+  "shares_out": 2019434,
+  "short_pct": 122.3,
+  "float": 1167637
+ },
+ "VOR": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Vor Biopharma Inc., a clinical-stage biopharmaceutical company, focuses on the development of a novel therapy in the treatment of autoimmune diseases. The compa…",
+  "country": "United States",
+  "cash": 491524992,
+  "shares_out": 54185877,
+  "short_pct": 10.6,
+  "float": 40169074
+ },
+ "BGLC": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals",
+  "business": "BioNexus Gene Lab Corp., together with its subsidiaries, focuses on the sale of chemical raw materials for the manufacture of industrial, medical, appliance, ae…",
+  "country": "Malaysia",
+  "cash": 3964962,
+  "revenue": 5310678,
+  "shares_out": 2417314,
+  "short_pct": 1.1,
+  "float": 1758475
+ },
+ "BETR": {
+  "sector": "Financial Services",
+  "industry": "Mortgage Finance",
+  "business": "Better Home & Finance Holding Company operates as a homeownership company in the United States. The company provides government-sponsored enterprise (GSE) confo…",
+  "country": "United States",
+  "cash": 70282000,
+  "revenue": 181040992,
+  "shares_out": 13086244,
+  "short_pct": 19.7,
+  "float": 9584360
+ },
+ "EHGO": {
+  "sector": "Industrials",
+  "industry": "Business Equipment & Supplies",
+  "business": "Eshallgo Inc. engages in the sale, leasing, and maintenance of office equipment, such as printers and copiers in the People's Republic of China. It sells office…",
+  "country": "China",
+  "cash": 5993838,
+  "revenue": 14549899,
+  "shares_out": 1656609,
+  "short_pct": 1.2,
+  "float": 1151428
+ },
+ "LXEO": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Lexeo Therapeutics, Inc., a clinical stage genetic medicine company, focuses on hereditary and acquired diseases with high unmet need in the United States. Its…",
+  "country": "United States",
+  "cash": 193043008,
+  "shares_out": 78521634,
+  "short_pct": 20.6,
+  "float": 47506374
+ },
+ "LRMR": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Larimar Therapeutics, Inc., a clinical-stage biotechnology company, focuses on developing treatments for rare diseases using its novel cell penetrating peptide…",
+  "country": "United States",
+  "cash": 200384992,
+  "shares_out": 103882937,
+  "short_pct": 12.0,
+  "float": 59977392
+ },
+ "SBFM": {
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - Specialty & Generic",
+  "business": "Sunshine Biopharma, Inc. operates as a pharmaceutical company that engages in the research and development of life-saving medicines in various therapeutic areas…",
+  "country": "United States",
+  "cash": 6913013,
+  "revenue": 35493316,
+  "shares_out": 1616594,
+  "short_pct": 6.8,
+  "float": 497436
+ },
+ "CNCK": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets",
+  "business": "Coincheck Group N.V. provides cryptocurrency exchange platform in Japan. It operates Coincheck NFT Marketplace that enables non-fungible tokens to be purchased.…",
+  "country": "Netherlands",
+  "cash": 9457999872,
+  "revenue": 480244006912,
+  "shares_out": 191520241,
+  "short_pct": 2.5,
+  "float": 12509001
+ }
+}
