@@ -155,6 +155,8 @@ CONFIG = {
                                   # ذكي: يعدّي لو الفلوت مفقود (فائدة الشك).
     "VOL_SPIKE_MULT": 5.0,       # شمعة الفوليوم الضخمة ≥ 5x متوسط 20
     "VOL_DRY_RATIO": 0.6,        # جفاف: متوسط 5 < 60% من متوسط 20
+    # دول مشهورة بتجاهل التحليل الفني (تلاعب/pump&dump): تحذير فقط (تظل تظهر)
+    "HIGH_RISK_COUNTRIES": ["China", "Hong Kong"],
     "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
                                  # لجودة أعلى — السهم لازم يجمع إشارات حقيقية)
 
@@ -1857,6 +1859,11 @@ def enrich(results: list) -> None:
                 r["cash"] = info.get("totalCash")
                 r["revenue"] = info.get("totalRevenue")
                 r["shares_out"] = info.get("sharesOutstanding")
+                # تحذير جغرافي (تحذير فقط — السهم يظل يظهر حتى في A)
+                if r.get("country") in CONFIG.get("HIGH_RISK_COUNTRIES", []):
+                    r.setdefault("warnings", []).append(
+                        f"بلد عالي التلاعب ({r['country']}) — "
+                        "غالباً يتجاهل التحليل الفني؛ تحقق يدوياً")
             except Exception:
                 pass
             try:
