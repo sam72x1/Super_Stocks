@@ -299,6 +299,19 @@ check("لا ترقية مع نقص قائم",
       len(prom2) == 0 and wls["stocks"][0]["tier"] == "B")
 check("يحتفظ بنقص الشورت (M13) عند إعادة التحليل",
       "شورت عالٍ" in wls["stocks"][0]["soft_fails"])
+# تحديث يومي رخيص: القطاع/الدولة من الذاكرة + المستويات من إعادة التحليل
+_wlc = {"stocks": [{"symbol": "CCC", "status": "active", "tier": "B",
+                    "soft_fails": ["MACD"], "pivot": 3.0, "stop": 2.7}],
+        "notes": []}
+S.analyze_ticker = lambda sym, d: {"soft_fails": [], "liberation": None,
+                                   "key_levels": {"sup_major": 3.0}}
+S.COMPANY_CACHE["CCC"] = {"sector": "Technology", "country": "United States"}
+S.check_promotions(_wlc, {"CCC": synth_pivot(seed=9)})
+check("تحديث يومي: القطاع/الدولة من الذاكرة + المستويات",
+      _wlc["stocks"][0].get("sector") == "Technology"
+      and _wlc["stocks"][0].get("country") == "United States"
+      and _wlc["stocks"][0].get("key_levels", {}).get("sup_major") == 3.0)
+S.COMPANY_CACHE.pop("CCC", None)
 S.analyze_ticker = _orig
 # الرسالة اليومية تعرض بانر الترقية
 try:
