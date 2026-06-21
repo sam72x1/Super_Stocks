@@ -280,6 +280,8 @@ CONFIG = {
     "HISTORY_DAYS": 800,         # ~2.2 سنة (يكفي لفريم شهري سليم ~27 شمعة)
     "CHUNK_SIZE": 250,           # حجم دفعة التحميل
     "CHUNK_SLEEP": 2.0,          # ثوانٍ بين الدفعات (احترام Yahoo)
+    "DOWNLOAD_RETRIES": 3,       # محاولات إعادة تحميل الدفعة عند الخنق/الفشل
+    "RETRY_BACKOFF": 3.0,        # ثوانٍ أساس التراجع الأسّي (3,6,12...)
     "MIN_BARS": 120,             # أقل عدد شموع مقبول للتحليل
     "REPORT_CSV": True,
 }
@@ -681,39 +683,69 @@ def get_universe() -> list:
 # ==========================================================
 # 4) تحميل البيانات التاريخية على دفعات
 # ==========================================================
+def _download_chunk(chunk: list, start: str):
+    """تحميل دفعة مع إعادة محاولة وتراجع أسّي عند الخنق/الفشل (rate-limit)."""
+    attempts = CONFIG.get("DOWNLOAD_RETRIES", 3)
+    base = CONFIG.get("RETRY_BACKOFF", 3.0)
+    for i in range(attempts):
+        try:
+            data = yf.download(chunk, start=start, interval="1d",
+                               auto_adjust=True, group_by="ticker",
+                               threads=True, progress=False)
+            if data is not None and len(data):
+                return data
+        except Exception as e:
+            if i == attempts - 1:
+                log(f"⚠️ فشل التحميل بعد {attempts} محاولات: {e}")
+        if i < attempts - 1:
+            time.sleep(base * (2 ** i))      # 3 ثم 6 ثم 12 ...
+    return None
+
+
+def _extract_into(out: dict, data, chunk: list):
+    """استخراج إطارات الأسهم من نتيجة yfinance إلى out (يتجاهل الناقص)."""
+    for sym in chunk:
+        if sym in out:
+            continue
+        try:
+            if len(chunk) == 1:
+                df = data.copy()
+                if isinstance(df.columns, pd.MultiIndex):
+                    df = df[sym]
+            else:
+                if sym not in data.columns.get_level_values(0):
+                    continue
+                df = data[sym].copy()
+            df = df.dropna(subset=["Close"])
+            if len(df) >= CONFIG["MIN_BARS"]:
+                out[sym] = df[["Open", "High", "Low", "Close", "Volume"]]
+        except Exception:
+            continue
+
+
 def download_history(tickers: list) -> dict:
     if yf is None:
         raise RuntimeError("yfinance غير مثبتة — ثبّتها أو استخدم GitHub Actions")
     start = (dt.date.today() - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
     out = {}
-    chunks = [tickers[i:i + CONFIG["CHUNK_SIZE"]]
-              for i in range(0, len(tickers), CONFIG["CHUNK_SIZE"])]
+    size = CONFIG["CHUNK_SIZE"]
+    chunks = [tickers[i:i + size] for i in range(0, len(tickers), size)]
     for n, chunk in enumerate(chunks, 1):
         log(f"تحميل دفعة {n}/{len(chunks)} ({len(chunk)} سهم)...")
-        try:
-            data = yf.download(chunk, start=start, interval="1d",
-                               auto_adjust=True, group_by="ticker",
-                               threads=True, progress=False)
-        except Exception as e:
-            log(f"⚠️ فشل دفعة {n}: {e} — تخطّي")
-            time.sleep(CONFIG["CHUNK_SLEEP"])
-            continue
-        for sym in chunk:
-            try:
-                if len(chunk) == 1:
-                    df = data.copy()
-                    if isinstance(df.columns, pd.MultiIndex):
-                        df = df[sym]
-                else:
-                    if sym not in data.columns.get_level_values(0):
-                        continue
-                    df = data[sym].copy()
-                df = df.dropna(subset=["Close"])
-                if len(df) >= CONFIG["MIN_BARS"]:
-                    out[sym] = df[["Open", "High", "Low", "Close", "Volume"]]
-            except Exception:
-                continue
+        data = _download_chunk(chunk, start)
+        if data is not None:
+            _extract_into(out, data, chunk)
         time.sleep(CONFIG["CHUNK_SLEEP"])
+    # تمريرة ثانية: إعادة محاولة الرموز التي لم تُحمّل (غالبًا خُنقت ضمن دفعتها)
+    missing = [t for t in tickers if t not in out]
+    if missing:
+        log(f"إعادة محاولة {len(missing)} رمز لم يُحمّل...")
+        for i in range(0, len(missing), size):
+            sub = missing[i:i + size]
+            data = _download_chunk(sub, start)
+            if data is not None:
+                _extract_into(out, data, sub)
+            time.sleep(CONFIG["CHUNK_SLEEP"])
     log(f"بيانات صالحة لـ {len(out)} سهم")
     return out
 
