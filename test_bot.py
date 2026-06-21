@@ -544,6 +544,35 @@ check("الارتداد: تنبيه عند نزول السعر للدعم",
 check("قسم الارتداد يُعرض",
       "وصلت الدعم" in S.build_pullback_section([], _trig))
 
+# (ل) ثبات القائمة: سهم محفوظ لا يُحذف لو غابت بياناته (سوق مقفل/خنق Yahoo)
+_hold = {"symbol": "HOLD", "added": "2024-01-01", "entry_ref": 3.0,
+         "pivot": 3.0, "stop": 2.7, "t1": 3.6, "t2": 4.0, "t3": 5.0,
+         "status": "active", "hit": None, "hit_date": None,
+         "max_gain_pct": 0.0, "last_price": 3.0}
+_wl2 = {"stocks": [_hold], "removed": [], "notes": []}
+_st = S.update_watchlist_status(_wl2, {})        # لا بيانات إطلاقاً
+check("ثبات: سهم محفوظ يبقى رغم غياب بياناته (لا رفرفة)",
+      len(_wl2["stocks"]) == 1
+      and _wl2["stocks"][0]["status"] == "active" and _st == [])
+
+# should_renew: قائمة غير فارغة في غير الجمعة لا تُعاد بناؤها (لا إعادة فرز يومي)
+import datetime as _d2
+_nonfri = next(_d2.date(2026, 6, 22) + _d2.timedelta(days=o)
+               for o in range(7)
+               if (_d2.date(2026, 6, 22) + _d2.timedelta(days=o)).weekday()
+               != S.WEEKLY_RENEW_DAY)
+_fri = next(_d2.date(2026, 6, 22) + _d2.timedelta(days=o)
+            for o in range(7)
+            if (_d2.date(2026, 6, 22) + _d2.timedelta(days=o)).weekday()
+            == S.WEEKLY_RENEW_DAY)
+_nonempty = {"stocks": [{"symbol": "X"}], "removed": []}
+check("ثبات: قائمة قائمة في غير الجمعة لا تُعاد بناؤها",
+      S.should_renew(_nonempty, _nonfri, False) is False)
+check("التجديد: الجمعة تُجدَّد القائمة",
+      S.should_renew(_nonempty, _fri, False) is True)
+check("التأسيس: قائمة فارغة تُؤسَّس فورًا",
+      S.should_renew({"stocks": [], "removed": []}, _nonfri, False) is True)
+
 
 # ==========================================================
 print("\n" + "=" * 50)
