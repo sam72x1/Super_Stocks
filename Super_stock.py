@@ -2444,9 +2444,9 @@ def should_renew(wl: dict, today: dt.date, force: bool = False) -> bool:
     if force:
         return True
     if not wl.get("stocks") and not wl.get("removed"):
-        return True  # أول تشغيل — لا تنتظر الجمعة
-    if CONFIG.get("DAILY_FULL_SCAN", False):
-        return True  # فرز كامل يومي (شروط فيصل الصارمة)
+        return True  # أول تشغيل — تأسيس فوري
+    # القائمة ثابتة دائمة: لا نعيد بناءها كل تشغيل (يسبب رفرفة الأسهم).
+    # التجديد الكامل = الجمعة فقط؛ باقي الأيام = متابعة + إضافة الجديد فقط.
     return today.weekday() == WEEKLY_RENEW_DAY
 
 
@@ -3218,38 +3218,84 @@ def run_weekly_renewal(wl: dict) -> None:
         log(f"⚠️ نظام التتبع: {e}")
 
 
-def run_daily_watchlist(wl: dict) -> None:
-    """الاثنين→الخميس: متابعة القائمة الثابتة + نسبة الجاهزية اليومية"""
-    syms = sorted({s["symbol"] for s in wl["stocks"]})
-    history = {}
-    if syms and yf is not None:
-        try:
-            history = download_history(syms)
-        except Exception as e:
-            log(f"⚠️ تحميل بيانات القائمة: {e}")
-    stopped_today = update_watchlist_status(wl, history)
-    replaced, extra_hist = [], {}
+def merge_pullback(wl: dict, hist: dict, exclude: set, today_iso: str) -> None:
+    """يدمج مرشّحي الارتداد الجدد في القائمة المستقلة (يُضيف فقط، لا يحذف).
+    لا يُكرّر سهماً موجوداً، ويحترم الحد الأقصى."""
+    if not CONFIG.get("PULLBACK_WATCH", False):
+        return
+    existing = {e["symbol"] for e in wl.get("pullback", [])}
+    active = [e for e in wl.get("pullback", []) if e.get("status") != "triggered"]
+    space = CONFIG.get("PULLBACK_SIZE", 10) - len(active)
+    if space <= 0:
+        return
+    cands = scan_pullback(hist, exclude=exclude | existing)
+    new = cands[:space]
+    if not new:
+        return
     try:
-        replaced, extra_hist = fill_replacements(wl)
+        enrich(new)
     except Exception as e:
-        log(f"⚠️ جلب البدائل: {e}")
-    history.update(extra_hist)
-    # ترقية B→A (إنذار مبكر): من اكتمل نموذجه يُرقّى وينبّه
+        log(f"⚠️ إثراء الارتداد: {e}")
+    wl.setdefault("pullback", []).extend(
+        make_pullback_entry(w, today_iso) for w in new)
+
+
+def run_daily_watchlist(wl: dict) -> None:
+    """يومي (غير الجمعة): قائمة ثابتة دائمة — تُتابَع وتُضاف لها الجديد فقط،
+    ولا يُحذف منها سهم إلا بستوب/هدف. سوق مقفل = نفس القائمة (تنمو، ما ترفرف)."""
+    today_iso = dt.date.today().isoformat()
+    # 1) فرز كامل للسوق (لالتقاط الجديد) — بياناته تُعاد استخدامها للمتابعة
+    results, hist = scan_market()
+    # 2) تحميل أي رمز في القائمة لم يأتِ ضمن الفرز (نادر) حتى نتابعه
+    wl_syms = {s["symbol"] for s in wl["stocks"]}
+    missing = [s for s in wl_syms if s not in hist]
+    if missing and yf is not None:
+        try:
+            hist.update(download_history(missing))
+        except Exception as e:
+            log(f"⚠️ تحميل رموز القائمة: {e}")
+    # 3) متابعة القائمة الحالية (تُحذف فقط بستوب/هدف؛ نقص البيانات = تُبقى)
+    stopped_today = update_watchlist_status(wl, hist)
+    # 4) إضافة الجديد دون حذف القديم (حتى حد القائمة)
+    held = {s["symbol"] for s in wl["stocks"]}
+    stopped = {rm["symbol"] for rm in wl["removed"]
+               if rm.get("status") == "stopped"}
+    space = CONFIG["WATCHLIST_SIZE"] - len(wl["stocks"])
+    added = []
+    if space > 0:
+        picks = select_top(results, space, exclude=held | stopped)
+        if picks:
+            try:
+                enrich(picks)
+            except Exception as e:
+                log(f"⚠️ الإثراء: {e}")
+            for r in picks:
+                wl["stocks"].append(make_watch_entry(r, today_iso))
+                added.append(r)
+            if added:
+                log("أُضيف للقائمة: " + "، ".join(p["symbol"] for p in added))
+    # 5) ترقية B→A (إنذار مبكر) + نسبة الجاهزية اليومية
     promoted = []
     try:
-        promoted = check_promotions(wl, history)
+        promoted = check_promotions(wl, hist)
     except Exception as e:
         log(f"⚠️ فحص الترقيات: {e}")
-    compute_readiness(wl, history)
-    # متابعة قائمة الارتداد المستقلة + تنبيه أول ما ينزل سهم لسعر الدعم
+    compute_readiness(wl, hist)
+    # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم
+    try:
+        merge_pullback(wl, hist, held | stopped, today_iso)
+    except Exception as e:
+        log(f"⚠️ دمج الارتداد: {e}")
     pull_triggered = []
     try:
         pull_triggered = monitor_pullback(wl)
     except Exception as e:
         log(f"⚠️ متابعة الارتداد: {e}")
-    splits = []   # (أُلغي عرض التقسيم العكسي — يهمّنا A وB فقط)
-    msg = build_daily_message(wl, splits, stopped_today, replaced, promoted)
-    watching = [e for e in wl.get("pullback", []) if e.get("status") != "triggered"]
+    # 7) الرسالة
+    splits = []
+    msg = build_daily_message(wl, splits, stopped_today, added, promoted)
+    watching = [e for e in wl.get("pullback", [])
+                if e.get("status") != "triggered"]
     pull_sec = build_pullback_section(watching, pull_triggered)
     if pull_sec:
         msg += "\n\n" + pull_sec
@@ -3262,7 +3308,7 @@ def run_daily_watchlist(wl: dict) -> None:
         "max_gain%": s["max_gain_pct"],
     } for s in wl["stocks"]], "daily_watch")
     try:
-        run_performance_system(replaced)
+        run_performance_system(added)
     except Exception as e:
         log(f"⚠️ نظام التتبع: {e}")
 
