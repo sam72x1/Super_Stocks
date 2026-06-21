@@ -1026,6 +1026,73 @@ def refine_targets_4h(t1, t2, t3, price, h4l):
     return out[1], out[2]
 
 
+def _swing_lows(low: np.ndarray, lo_bound: float, hi_bound: float, win: int):
+    """قيعان سوينغ ضمن نطاق (قاع أدنى من المجاور ضمن نافذة win كل جهة)."""
+    out = []
+    n = len(low)
+    for i in range(win, n - win):
+        seg = low[i - win:i + win + 1]
+        if low[i] == seg.min() and lo_bound < low[i] < hi_bound:
+            out.append(float(low[i]))
+    return out
+
+
+def key_levels(df: pd.DataFrame, price: float, pivot: float, h4l=None):
+    """الدعوم والمقاومات **الأساسية والفرعية** (مفهوم فيصل NAMM: «$2 دعم أساسي ·
+    2.20 دعم فرعي»). أساسي = المستوى الأقوى/الهيكلي · فرعي = الأقرب للسعر (أول
+    لمسة). يُثرى بمستويات 4س إن توفّرت. **معلومة/عرض فقط — لا يمسّ الدعم/الوقف
+    المقفول.** يرجع dict أو None."""
+    if df is None or not price or price <= 0:
+        return None
+    # ----- المقاومات فوق السعر (يومي + 4س) -----
+    res = list(resistance_levels(df, price))
+    if h4l:
+        res += [x for x in (h4l.get("resistances") or []) if x > price]
+    res = _cluster_levels([x for x in res if x > price * 1.01])
+    res_minor = res[0] if res else None                  # الأقرب = مقاومة فرعية
+    try:
+        ft = first_target(df)                            # منشأ أكبر شمعة حمرا
+    except Exception:
+        ft = None
+    if ft and ft > price * 1.02 and (res_minor is None or ft > res_minor * 1.02):
+        res_major = round(float(ft), 2)                  # المقاومة الأساسية (الكبرى)
+    else:
+        res_major = res[1] if len(res) > 1 else res_minor
+    # ----- الدعوم تحت السعر (يومي + 4س) -----
+    sup_major = round(float(pivot), 2)                    # الأرضية = الدعم الأساسي
+    cands = _swing_lows(df["Low"].values.astype(float),
+                        pivot * 1.005, price * 0.99, 3)
+    if h4l:
+        cands += [x for x in (h4l.get("supports") or [])
+                  if pivot * 1.005 < x < price * 0.99]
+    cands = _cluster_levels(cands)
+    sup_minor = cands[-1] if cands else None              # الأقرب للسعر = دعم فرعي
+    return {"sup_major": sup_major, "sup_minor": sup_minor,
+            "res_major": res_major, "res_minor": res_minor}
+
+
+def key_levels_block(kl) -> list:
+    """سطر الدعوم/المقاومات الأساسية والفرعية (مصطلحات فيصل)."""
+    if not kl:
+        return []
+    parts = []
+    sup = []
+    if kl.get("sup_major"):
+        sup.append(f"أساسي ${kl['sup_major']:.2f}")
+    if kl.get("sup_minor"):
+        sup.append(f"فرعي ${kl['sup_minor']:.2f}")
+    res = []
+    if kl.get("res_minor"):
+        res.append(f"فرعية ${kl['res_minor']:.2f}")
+    if kl.get("res_major") and kl.get("res_major") != kl.get("res_minor"):
+        res.append(f"أساسية ${kl['res_major']:.2f}")
+    if sup:
+        parts.append("🟢 دعم: " + " · ".join(sup))
+    if res:
+        parts.append("🔴 مقاومة: " + " · ".join(res))
+    return ["   🧱 " + " | ".join(parts)] if parts else []
+
+
 def h4_confirm_score(r) -> int:
     """دمج فيصل #3: قوة تأكيد الـ4س للترتيب فقط (0-3). **لا يمسّ أي بوابة
     ولا اختيار** — يرفع الإعدادات المحاذية لكل الفريمات لأعلى القائمة.
@@ -1747,6 +1814,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             "rsi": r_now, "dollar_vol": dvol,
             "pivot": pivot, "stop": (stop_lo, stop_hi),
             "entry": (entry_lo, entry_hi), "tranches": tranches,
+            "key_levels": key_levels(df, price, pivot),
             "sweep": (sweep_lo, sweep_hi),
             "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
             "ready": ready, "readiness": readiness_pct,
@@ -2526,6 +2594,7 @@ def build_message(results: list, splits: list,
         if r.get("liberation"):
             tag = " 🔓 قريب!" if r.get("lib_near") else ""
             lines.append(f"   🚀 تحرر فوق ${r['liberation']:.2f}{tag}")
+        lines += key_levels_block(r.get("key_levels"))
         lines += h4_levels_block(r.get("h4_levels"))
         # مؤشرات مختصرة (سطر واحد)
         ic = r.get("indicators") or {}
@@ -2676,6 +2745,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "news_risk": bool([w for w in r.get("warnings", [])
                            if "تخفيف" in w or "طرح" in w]),  # خبر تخفيف؟
         "h4_levels": r.get("h4_levels"),                  # مستويات 4س (فيصل)
+        "key_levels": r.get("key_levels"),                # دعوم/مقاومات أساسي/فرعي
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "liberation": r.get("liberation"),               # بوابة التحرر
         "sector": r.get("sector"), "country": r.get("country"),
@@ -3289,6 +3359,7 @@ def build_daily_message(wl: dict, splits: list,
                      + f" | الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
+        lines += key_levels_block(s.get("key_levels"))
         lines += h4_levels_block(s.get("h4_levels"))
         for w in (s.get("warnings") or []):
             lines.append(f"   ⚠️ {esc(w)}")

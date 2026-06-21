@@ -338,6 +338,7 @@ def analyze_on_demand(sym: str):
         "pivot": pivot, "stop": (stop_lo, stop_hi),
         "entry": (entry_lo, entry_hi), "tranches": tranches,
         "h4_levels": h4_levels,
+        "key_levels": bot.key_levels(df, price, pivot, h4_levels),
         "sweep": (sweep_lo, sweep_hi),
         "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
         "ready": ready, "flags": flags, "warnings": warnings,
