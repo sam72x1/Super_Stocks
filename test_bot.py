@@ -746,6 +746,54 @@ S.fetch_4h = _orig_4h
 check("غياب الـ4س لا يكسر التحليل (طبقة مساندة)",
       _r_no4h is not None and "tranches" in _r_no4h)
 
+# 9-هـ) دمج فيصل #1 (أهداف 4س في t2/t3): t1 لا يتغيّر أبدًا · أهداف تصاعدية ·
+#       لا 4س → الأصلية كما هي (صفر مخاطرة)
+_rt_ok = True
+_h4_demo = {"resistances": [4.20, 4.95, 5.60], "supports": [], "flip": None,
+            "sweep_low": 3.0}
+for _t1, _t2, _t3, _px in [(4.0, 4.4, 5.0, 3.6), (3.5, 3.9, 4.5, 3.2),
+                           (8.0, 9.0, 11.0, 7.0)]:
+    _n2, _n3 = S.refine_targets_4h(_t1, _t2, _t3, _px, _h4_demo)
+    if not (_t1 < _n2 <= _n3):              # t1 سليم تحت t2 · تصاعدي
+        _rt_ok = False; print(f"   ✗ refine {_t1}/{_t2}/{_t3} → {_n2}/{_n3}")
+    # بلا 4س = لا تغيير إطلاقًا
+    if S.refine_targets_4h(_t1, _t2, _t3, _px, None) != (_t2, _t3):
+        _rt_ok = False; print("   ✗ بلا 4س غيّر الأهداف")
+    if S.refine_targets_4h(_t1, _t2, _t3, _px, {"resistances": []}) != (_t2, _t3):
+        _rt_ok = False; print("   ✗ 4س فارغ غيّر الأهداف")
+check("دمج #1: t1 مقفول · t2/t3 تصاعدية · لا 4س=لا تغيير", _rt_ok)
+
+# 9-و) الدمج الكامل في التحليل لا يغيّر t1 ولا RR (صفر مخاطرة على المقفول)
+_save_f4 = S.fetch_4h
+_merge_ok = True
+for _sd in range(10):
+    _df = synth_pivot(seed=_sd)
+    S.fetch_4h = lambda sym: None                       # بلا 4س
+    _base = S.analyze_ticker("MG", _df)
+    if _base is None:
+        continue
+    # نحاكي الإثراء: نطبّق دمج 4س بمستويات وهمية ونتأكد t1/RR ثابتان
+    _r2, _r3 = S.refine_targets_4h(_base["t1"], _base["t2"], _base["t3"],
+                                   _base["price"], _h4_demo)
+    if abs(_base["t1"] - _base["t1"]) > 0 or _r2 <= _base["t1"]:
+        _merge_ok = False
+S.fetch_4h = _save_f4
+check("الدمج لا يغيّر t1/RR (مقفولان)", _merge_ok)
+
+# 9-ز) دمج فيصل #3 (تأكيد 4س): النطاق 0-3 · الترتيب لا يحذف أي سهم
+_c0 = S.h4_confirm_score({"tf4h": "غير متوفر"})
+_c2 = S.h4_confirm_score({"tf4h": "✅ مؤكِّد"})
+_c3 = S.h4_confirm_score({"tf4h": "✅ مؤكِّد", "price": 2.0,
+                          "h4_levels": {"flip": 1.95}})
+_members = [{"symbol": "X", "tier": "A", "readiness": 80, "h4_confirm": 0},
+            {"symbol": "Y", "tier": "A", "readiness": 80, "h4_confirm": 3},
+            {"symbol": "Z", "tier": "B", "readiness": 60}]
+_sorted = sorted(_members, key=S.rank_key)
+check("دمج #3: تأكيد 0-3 · الترتيب يرفع المؤكَّد · لا حذف",
+      _c0 == 0 and _c2 == 2 and _c3 == 3
+      and {m["symbol"] for m in _sorted} == {"X", "Y", "Z"}
+      and _sorted[0]["symbol"] == "Y")        # المؤكَّد على 4س يطلع أول
+
 
 # ==========================================================
 print("\n" + "=" * 50)

@@ -1002,6 +1002,44 @@ def four_hour_levels(h4: pd.DataFrame, price: float):
             "flip": flip, "sweep_low": round(float(np.min(lo)), 2)}
 
 
+def refine_targets_4h(t1, t2, t3, price, h4l):
+    """دمج فيصل #1: يضيف رؤوس الشموع الحمرا على 4س لأهداف **t2/t3 فقط**
+    (فيصل: «الأهداف ع يومي + 4 ساعات»). **t1 وRR مقفولان — لا يتغيّران.**
+    يرجع (t2, t3) المنقّحة، أو الأصلية لو لا جديد من الـ4س."""
+    if not h4l or not price:
+        return t2, t3
+    cap = price * CONFIG["TARGET_CAP_MULT"]
+    gap = 1.0 + CONFIG["MIN_TARGET_GAP_PCT"] / 100.0
+    extra = [round(float(x), 2) for x in (h4l.get("resistances") or [])
+             if t1 * gap < x <= cap]
+    if not extra:
+        return t2, t3                       # لا مستوى 4س جديد → لا تغيير
+    pool = sorted({round(t2, 2), round(t3, 2), *extra})
+    out = [round(t1, 2)]
+    for x in pool:
+        if x >= out[-1] * gap:
+            out.append(x)
+        if len(out) >= 3:
+            break
+    while len(out) < 3:                      # إكمال احتياطي (نادر)
+        out.append(round(out[-1] * 1.25, 2))
+    return out[1], out[2]
+
+
+def h4_confirm_score(r) -> int:
+    """دمج فيصل #3: قوة تأكيد الـ4س للترتيب فقط (0-3). **لا يمسّ أي بوابة
+    ولا اختيار** — يرفع الإعدادات المحاذية لكل الفريمات لأعلى القائمة.
+    +2 انعكاس 4س مؤكَّد · +1 مقاومة↗دعم قريبة (السعر استرجعها)."""
+    s = 0
+    if r.get("tf4h") == "✅ مؤكِّد":
+        s += 2
+    h4l = r.get("h4_levels") or {}
+    price = r.get("price")
+    if h4l.get("flip") and price and h4l["flip"] >= price * 0.92:
+        s += 1
+    return s
+
+
 def _gaps_on_frame(df: pd.DataFrame, lookback: int):
     """كشف الفجوات الصاعدة على فريم واحد (يومي/أسبوعي/شهري).
     فجوة صاعدة = افتتاح الشمعة > إغلاق الشمعة السابقة بنسبة ≥ GAP_MIN_PCT.
@@ -2140,6 +2178,11 @@ def enrich(results: list) -> None:
                     _ok4 = timeframe_reversal(h4, 60, 20)
                     r["tf4h"] = "✅ مؤكِّد" if _ok4 else "⏳ غير مؤكِّد بعد"
                     r["h4_levels"] = four_hour_levels(h4, r["price"])
+                    # دمج فيصل (#1+#3): أهداف 4س في t2/t3 (t1/RR مقفولان) +
+                    # تأكيد 4س للترتيب — بنفس بيانات الـ4س المجلوبة (بلا تحميل زائد).
+                    r["t2"], r["t3"] = refine_targets_4h(
+                        r["t1"], r["t2"], r["t3"], r["price"], r["h4_levels"])
+                    r["h4_confirm"] = h4_confirm_score(r)
                 else:
                     r["tf4h"] = "غير متوفر"
             except Exception:
@@ -2632,6 +2675,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "news_risk": bool([w for w in r.get("warnings", [])
                            if "تخفيف" in w or "طرح" in w]),  # خبر تخفيف؟
         "h4_levels": r.get("h4_levels"),                  # مستويات 4س (فيصل)
+        "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "liberation": r.get("liberation"),               # بوابة التحرر
         "sector": r.get("sector"), "country": r.get("country"),
         "status": "active", "removed_date": None, "removal_reason": None,
@@ -2771,10 +2815,12 @@ def classify_tier(soft_fails, two_tier=None, maxf=None):
 
 def rank_key(x):
     """مفتاح ترتيب القائمة التأسيسية (موحّد مع التقرير اليومي والرقم المعروض):
-    A قبل B → الأعلى جاهزيةً → الأعلى نقاطًا → الأعلى عائدًا/مخاطرة."""
+    A قبل B → الأعلى جاهزيةً → الأقوى تأكيدًا على 4س (دمج فيصل #3) →
+    الأعلى نقاطًا → الأعلى عائدًا/مخاطرة. (الترتيب فقط — لا يمسّ الاختيار.)"""
     rdy = x.get("readiness")
     return (0 if x.get("tier") == "A" else 1,
             -(rdy if rdy is not None else -1),
+            -x.get("h4_confirm", 0),
             -x.get("score", 0), -x.get("rr", 0))
 
 
