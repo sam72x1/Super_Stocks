@@ -510,6 +510,40 @@ for sd in range(6):
         print(f"   ✗ بذرة {sd}: rr={_rt['rr']:.2f} متوقع {_expected:.2f}")
 check("RR من سعر الدخول المخطّط لا السعر الحالي", _rr_ok)
 
+# (ك) قائمة مراقبة الارتداد: ارتكاز حقيقي ارتفع فوق دخوله
+_wdf = synth_pivot(seed=2).copy()
+_wc = _wdf["Close"].values.astype(float)
+_wc[-30:] = np.linspace(_wc[-30], _wc[-30] * 1.45, 30)
+_wc[-3:] = _wc[-4] * np.array([0.99, 0.985, 0.98])     # تراجع بسيط (لا انفجار 5ج)
+_wdf["Close"] = _wc
+_wdf["High"] = np.maximum(_wdf["High"].values, _wc * 1.01)
+_wdf["Low"] = np.minimum(_wdf["Low"].values, _wc * 0.99)
+_wnorm = S.analyze_ticker("W", _wdf)
+_wpb = S.analyze_ticker("W", _wdf, pullback=True)
+check("الارتداد: المرتفع يُرفض عاديًا ويُقبل كـ W",
+      _wnorm is None and _wpb is not None and _wpb["tier"] == "W")
+check("الارتداد: سهم عند الدخول (غير مرتفع) لا يُعدّ ارتدادًا",
+      S.analyze_ticker("N", synth_pivot(seed=2), pullback=True) is None)
+
+# monitor_pullback يطلق تنبيهًا عند نزول السعر لسعر الدعم
+_e = {"symbol": "PB", "entry": [2.4, 2.5], "pivot": 2.5, "stop": 1.9,
+      "t1": 3.6, "t2": 4.0, "t3": 5.0, "last_price": 3.2,
+      "status": "watching", "triggered_date": None}
+_lowdf = pd.DataFrame({"Open": [2.5], "High": [2.55], "Low": [2.45],
+                       "Close": [2.45], "Volume": [1e6]},
+                      index=pd.date_range("2024-01-01", periods=1))
+_odl, _oyf = S.download_history, S.yf
+S.download_history = lambda syms: {"PB": _lowdf}
+S.yf = object()
+try:
+    _trig = S.monitor_pullback({"pullback": [_e]})
+finally:
+    S.download_history, S.yf = _odl, _oyf
+check("الارتداد: تنبيه عند نزول السعر للدعم",
+      len(_trig) == 1 and _e["status"] == "triggered")
+check("قسم الارتداد يُعرض",
+      "وصلت الدعم" in S.build_pullback_section([], _trig))
+
 
 # ==========================================================
 print("\n" + "=" * 50)

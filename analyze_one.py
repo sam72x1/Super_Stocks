@@ -375,7 +375,8 @@ def append_short_float_gates(result: dict, gates: list) -> list:
 # ==========================================================
 # بناء الرسالة: ترويسة البوابات + النسبة + البطاقة الكاملة
 # ==========================================================
-def render_ondemand(result: dict, gates: list, official, reject_reason=None) -> str:
+def render_ondemand(result: dict, gates: list, official, reject_reason=None,
+                    pullback=None) -> str:
     passed = sum(1 for _, ok, _ in gates if ok)
     total = len(gates)
 
@@ -395,6 +396,12 @@ def render_ondemand(result: dict, gates: list, official, reject_reason=None) -> 
         miss = "، ".join(official.get("soft_fails", [])) or "—"
         head.append(f"الحكم: 🅱️ <b>مراقبة B</b> — كان سيُرشَّح بقائمة المراقبة "
                     f"(ينقصها: {miss})")
+    elif pullback is not None:
+        tgt = pullback["entry"][1]
+        wr = "، ".join(pullback.get("watch_reasons", [])) or "ارتفع عن دخوله"
+        head.append(f"الحكم: 👁️ <b>مراقبة ارتداد</b> — سهم ارتكاز حقيقي لكنه "
+                    f"ارتفع ({wr}). انتظر رجوعه لسعر الدعم "
+                    f"<b>${tgt:.2f}</b> ثم ادخل.")
     else:
         why = reject_reason or "؛ ".join(n for n, ok, _ in gates if not ok) \
             or "لم يجتز بوابة إلزامية"
@@ -450,9 +457,17 @@ def main():
         reject_reason = " · ".join(f"{k}={v}"
                                    for k, v in bot._REJECT_STATS.items())
 
-    # البطاقة من النتيجة الرسمية إن اجتاز (مطابقة 100%)، وإلا التشخيصية
-    card_result = official if official is not None else result
+    # لو رُفض عاديًا: نجرّب «مراقبة الارتداد» (ارتكاز حقيقي ارتفع فوق دخوله)
+    pull = None
     if official is None:
+        try:
+            pull = bot.analyze_ticker(sym, df, pullback=True)
+        except Exception as e:
+            bot.log(f"⚠️ تحليل الارتداد: {e}")
+
+    # البطاقة: الرسمية إن اجتاز، وإلا الارتداد إن وُجد، وإلا التشخيصية
+    card_result = official or pull or result
+    if official is None and pull is None:
         card_result["tier"] = "B"   # عرض فقط — الحكم بالأعلى يوضّح الرفض
 
     # إثراء (SEC + شورت + فلوت + أخبار + قطاع/دولة) — نفس دالة البوت
@@ -479,7 +494,7 @@ def main():
             official = None                 # يُعرض كمرفوض
 
     gates = append_short_float_gates(card_result, gates)
-    msg = render_ondemand(card_result, gates, official, reject_reason)
+    msg = render_ondemand(card_result, gates, official, reject_reason, pull)
     bot.send_telegram(msg)
     bot.log("✅ أُرسل التحليل اليدوي.")
 
