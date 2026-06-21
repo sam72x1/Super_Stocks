@@ -1072,25 +1072,22 @@ def key_levels(df: pd.DataFrame, price: float, pivot: float, h4l=None):
 
 
 def key_levels_block(kl) -> list:
-    """سطر الدعوم/المقاومات الأساسية والفرعية (مصطلحات فيصل)."""
+    """سطر الدعوم/المقاومات الأساسية والفرعية (مصطلحات فيصل). المستوى الناقص
+    يظهر شرطة (-) ليبقى الشكل ثابتًا (قرار المستخدم)."""
     if not kl:
         return []
-    parts = []
-    sup = []
-    if kl.get("sup_major"):
-        sup.append(f"أساسي ${kl['sup_major']:.2f}")
-    if kl.get("sup_minor"):
-        sup.append(f"فرعي ${kl['sup_minor']:.2f}")
-    res = []
-    if kl.get("res_minor"):
-        res.append(f"فرعية ${kl['res_minor']:.2f}")
-    if kl.get("res_major") and kl.get("res_major") != kl.get("res_minor"):
-        res.append(f"أساسية ${kl['res_major']:.2f}")
-    if sup:
-        parts.append("🟢 دعم: " + " · ".join(sup))
-    if res:
-        parts.append("🔴 مقاومة: " + " · ".join(res))
-    return ["   🧱 " + " | ".join(parts)] if parts else []
+
+    def _f(v):
+        return f"${v:.2f}" if v else "-"
+
+    rmaj = kl.get("res_major")
+    rmin = kl.get("res_minor")
+    if rmaj == rmin:                       # مقاومة واحدة فقط = نعتبرها أساسية
+        rmin = None
+    sup = (f"🟢 دعم: أساسي {_f(kl.get('sup_major'))} · "
+           f"فرعي {_f(kl.get('sup_minor'))}")
+    res = f"🔴 مقاومة: فرعية {_f(rmin)} · أساسية {_f(rmaj)}"
+    return ["   🧱 " + sup + " | " + res]
 
 
 def h4_confirm_score(r) -> int:
