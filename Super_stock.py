@@ -117,9 +117,11 @@ CONFIG = {
 
     # ---- الشروط الإلزامية (M) ----
     "MIN_PRICE": 2.0,            # M1: فوق دولارين (قاعدة فيصل) — بلا سقف
-    "MIN_DROP_PCT": 50.0,        # M2: هبوط من قمة 52 أسبوع ≥ 50% (v2.1: كان 60)
+    "MIN_DROP_PCT": 50.0,        # M2: هبوط مثالي ≥ 50% (تحته حتى الأرضية = نقص B)
+    "MIN_DROP_FLOOR": 40.0,      # M2 أرضية صلبة: تحتها = ليس ارتكازًا (رفض) v2.7
     "MAX_DROP_PCT": 97.0,        # M2+: فوقه = سهم محتضر/فخ تقسيم (v2.1: كان 92)
-    "PRIOR_SPIKE_PCT": 100.0,    # M3: انفجار سابق ≥ 100%...
+    "PRIOR_SPIKE_PCT": 100.0,    # M3: انفجار مثالي ≥ 100% (تحته حتى الأرضية = نقص B)
+    "PRIOR_SPIKE_FLOOR": 60.0,   # M3 أرضية صلبة: تحتها = ما انفجر كفاية (رفض) v2.7
     "PRIOR_SPIKE_WINDOW": 20,    # ...خلال ≤ 20 جلسة (v2.1: كان 10 — أكبر فلتر خانق)
     "BASE_WINDOW": 15,           # M4: نافذة التجميع (جلسات)
     "BASE_RANGE_MAX_PCT": 40.0,  # M4: مدى التجميع ≤ 40% (v2.1: كان 30)
@@ -1051,21 +1053,31 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         if price < CONFIG["MIN_PRICE"]:
             return None
 
-        # ---- M2: الهبوط من قمة 52 أسبوع ----
+        # نواقص التأكيد (v2.7): تُجمع من M2/M3 الحدّية + M9-M14 + RR.
+        # 0 = قائمة A · 1-2 = قائمة B · أكثر = يُرفض.
+        soft_fails = []
+
+        # ---- M2: الهبوط من قمة 52 أسبوع (تدرّج v2.7) ----
+        # أرضية صلبة (<40%) = ليس ارتكازًا → رفض. حدّي (40-50%) = نقص (B).
+        # مثالي (≥50%) = بلا عقوبة. (>97% = محتضر → رفض).
         hi52 = float(high.tail(252).max())
         if hi52 <= 0:
             return None
         drop_pct = (1.0 - price / hi52) * 100.0
-        if drop_pct < CONFIG["MIN_DROP_PCT"]:
-            return None
-        # هبوط كارثي = سهم محتضر أو فخ تقسيم عكسي — مرفوض
         if drop_pct > CONFIG["MAX_DROP_PCT"]:
-            return None
+            return None  # هبوط كارثي = سهم محتضر/فخ تقسيم
+        if drop_pct < CONFIG["MIN_DROP_FLOOR"]:
+            return None  # تحت الأرضية = ليس سهم ارتكاز أصلاً
+        if drop_pct < CONFIG["MIN_DROP_PCT"]:
+            soft_fails.append(f"هبوط حدّي {drop_pct:.0f}%")
 
-        # ---- M3: الانفجار السابق ≥ 100% ----
+        # ---- M3: الانفجار السابق (تدرّج v2.7) ----
+        # أرضية (<60%) = رفض. حدّي (60-100%) = نقص (B). مثالي (≥100%) = بلا عقوبة.
         best_spike, n_spikes = spike_info(c, exclude_last=CONFIG["BASE_WINDOW"])
+        if best_spike < CONFIG["PRIOR_SPIKE_FLOOR"]:
+            return None  # ما انفجر سابقًا بما يكفي → ليس ارتكازًا
         if best_spike < CONFIG["PRIOR_SPIKE_PCT"]:
-            return None
+            soft_fails.append(f"انفجار حدّي {best_spike:.0f}%")
 
         # ---- M4: تجميع حالي (مدى ضيق + ما انفجر بعد) ----
         bw = CONFIG["BASE_WINDOW"]
@@ -1108,10 +1120,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             if not recent_gap:
                 return None  # لا فجوة معتبرة حديثة → يُرفض (بوابة فيصل السادسة)
 
-        # بوابات التأكيد اللينة (v2.7): تُعدّ النواقص بدل الرفض الفوري.
-        # 0 نواقص → قائمة A الصارمة | 1-2 → قائمة B المراقبة | أكثر → يُرفض.
-        soft_fails = []
-
+        # (soft_fails مُهيّأة بعد M1؛ تتجمّع من M2/M3 الحدّية + M9-M14 + RR)
         # ---- M9: فجوة غير مملوءة فوق السعر (مفهوم فيصل) — بوابة لينة ----
         # من صور MTVA/TRUG/ONCO: الفجوة منطقة-هدف فوق السعر الراكد.
         gaps_above = all_unfilled_gaps_above(df)
