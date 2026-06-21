@@ -2466,6 +2466,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "tier": r.get("tier", "A"),                       # A صارمة / B مراقبة
         "soft_fails": list(r.get("soft_fails", [])),
         "liberation": r.get("liberation"),               # بوابة التحرر
+        "sector": r.get("sector"), "country": r.get("country"),
         "status": "active", "removed_date": None, "removal_reason": None,
         "replaced": False,
         "readiness": None, "have": [], "partial": [], "missing": [],
@@ -3046,6 +3047,14 @@ def build_daily_message(wl: dict, splits: list,
             lines.append("   🅱️ مراقبة — ينقصها:")
             for f in s["soft_fails"]:
                 lines.append(f"      • {f}")
+        # القطاع/الدولة (بالعربي) إن توفّرا
+        cbits = []
+        if s.get("sector"):
+            cbits.append(esc(ar_sector(s["sector"])))
+        if s.get("country"):
+            cbits.append(esc(ar_country(s["country"])))
+        if cbits:
+            lines.append("   🏢 " + " · ".join(cbits))
         ez = s.get("entry") or [s["pivot"], s["pivot"]]
         lines.append(f"   💵 ${lp:.2f} | دخول ${ez[0]:.2f}–${ez[1]:.2f} | "
                      f"الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
