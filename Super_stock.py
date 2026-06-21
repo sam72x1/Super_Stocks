@@ -1300,13 +1300,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             flags.append(f"معيد إجرام ({n_spikes} انفجارات)")
 
         ps = pivot_stability(low.values.astype(float), c)
-        ready = False
         if ps and ps["held"]:
-            score += 15
-            ready = bool(ps["ready"])
+            score += 15           # الثبات يرفع النقاط (مكوّن، لا قرار جاهزية)
             flags.append(f"ثبات {ps['bars_after']} جلسات فوق القاع")
 
-        # نسبة جاهزية الدخول 0-100% (نفس مقياس التقرير اليومي — نظام واحد للقائمتين)
+        # نسبة جاهزية الدخول 0-100% — المصدر الوحيد للجاهزية في كل البوت
+        # (العرض + الترتيب + الحالة المنطقية تشتقّ كلها من هذا الرقم → لا تناقض)
         try:
             readiness_pct, _ = entry_readiness(df)
         except Exception:
@@ -1315,6 +1314,10 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         # حتى المراقبة B — لأنه لسّه ما تهيّأ. (None = بيانات ناقصة → فائدة الشك)
         if readiness_pct is not None and readiness_pct < CONFIG["NEAR_PCT"]:
             return _reject(f"بعيد_عن_الدخول({readiness_pct:.0f}%)")
+        # «جاهز» (البوليان) = مشتقّة حصريًا من النسبة (≥ READY_PCT). مصدر واحد:
+        # مستحيل يطلع سهم «🟢 جاهز» ونسبته أقل من «🟡 يقترب». انتهى التناقض.
+        ready = (readiness_pct is not None
+                 and readiness_pct >= CONFIG["READY_PCT"])
 
         # مسح سيولة حقيقي: كسر قاع *سابق* ثم استعادة فوقه
         # (القاع السابق = أدنى قاع في الجلسات 35→10 قبل الأخيرة)
