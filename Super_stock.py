@@ -261,6 +261,8 @@ CONFIG = {
     # ---- الأهداف ----
     "TARGET_CAP_MULT": 2.0,      # سقف الأهداف: 2x السعر
     "MIN_TARGET_GAP_PCT": 8.0,   # أقل مسافة بين هدف وآخر
+    "USE_MULTIFRAME_TARGETS": True,  # فيصل: «الأهداف ع يومي + أسبوعي» — أضف
+                                 # قمم ومنشأ الشمعة الحمرا الأسبوعية لمرشّحي الأهداف
 
     # ---- تحذيرات الجودة ----
     "SPIKE_VERIFY_PCT": 800.0,   # انفجار فوقه = تحذير "تحقق من تقسيم عكسي"
@@ -1584,6 +1586,16 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         gap = 1.0 + CONFIG["MIN_TARGET_GAP_PCT"] / 100.0
         # نجمع كل المرشحين من الشارت
         target_cands = list(resist) + [raw_t1, raw_t3]
+        # أهداف الفريم الأسبوعي (فيصل: «الأهداف ع يومي + أسبوعي»). إضافة فقط —
+        # المنطق أدناه (min_first/cap/gap) يرتّبها ويمنع الأهداف غير الواقعية.
+        if CONFIG.get("USE_MULTIFRAME_TARGETS", True):
+            try:
+                wk = resample_ohlc(df, "W")
+                if wk is not None and len(wk) >= 10:
+                    target_cands += list(resistance_levels(wk, price))
+                    target_cands.append(first_target(wk))
+            except Exception:
+                pass
         if CONFIG.get("GAP_ABOVE_USE_AS_TARGET", False):
             for z in near_zones:
                 target_cands.append(z["bottom"])   # قاع الفجوة = مقاومة
