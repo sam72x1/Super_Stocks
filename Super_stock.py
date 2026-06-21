@@ -3055,7 +3055,10 @@ def build_daily_message(wl: dict, splits: list,
             cbits.append(esc(ar_country(s["country"])))
         if cbits:
             lines.append("   🏢 " + " · ".join(cbits))
-        ez = s.get("entry") or [s["pivot"], s["pivot"]]
+        # نطاق الدخول؛ السجلّات القديمة بلا المفتاح → نحسب النطاق الضيّق من القاع
+        ez = s.get("entry") or [
+            round(s["pivot"] * (1 - CONFIG["ENTRY_ZONE_PCT"] / 100.0), 2),
+            round(s["pivot"], 2)]
         lines.append(f"   💵 ${lp:.2f} | دخول ${ez[0]:.2f}–${ez[1]:.2f} | "
                      f"الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
         if s.get("liberation"):
