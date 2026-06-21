@@ -3047,7 +3047,7 @@ def build_daily_message(wl: dict, splits: list,
                 lines.append(f"      • {f}")
         ez = s.get("entry") or [s["pivot"], s["pivot"]]
         lines.append(f"   💵 ${lp:.2f} | دخول ${ez[0]:.2f}–${ez[1]:.2f} | "
-                     f"ستوب ${s['stop']:.2f}")
+                     f"الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
         # العائد/المخاطرة من سعر الدخول المخطّط (أعلى نطاق الدخول ≈ القاع)،
