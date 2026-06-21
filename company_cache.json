@@ -2,9 +2,38 @@
  "NGEN": {},
  "DJT": {},
  "NAGE": {},
- "IDN": {},
- "USGO": {},
- "SOGP": {},
+ "IDN": {
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "business": "Intellicheck, Inc., a technology company, provides on-demand digital identity validation solutions for KYC, fraud, and age verification needs in North America.…",
+  "country": "United States",
+  "cash": 10062000,
+  "revenue": 23296000,
+  "shares_out": 20251221,
+  "short_pct": 3.8,
+  "float": 17719818
+ },
+ "USGO": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining",
+  "business": "U.S. GoldMining Inc., an exploration stage company, engages in the exploration and development of mineral properties in the United States. Its primary asset is…",
+  "country": "Canada",
+  "cash": 4709577,
+  "shares_out": 13354420,
+  "short_pct": 9.5,
+  "float": 2416482
+ },
+ "SOGP": {
+  "sector": "Communication Services",
+  "industry": "Internet Content & Information",
+  "business": "Sound Group Inc. operates as an AI-powered audio company in the People's Republic of China. The company offers voice live streaming, multi-user voice interactio…",
+  "country": "Singapore",
+  "cash": 660873984,
+  "revenue": 3102754048,
+  "shares_out": 3058071,
+  "short_pct": 2.1,
+  "float": 2890179
+ },
  "INSM": {},
  "BTOG": {
   "sector": "Financial Services",
@@ -155,5 +184,76 @@
   "short_pct": 7.1,
   "float": 9871355
  },
- "SEV": {}
+ "SEV": {},
+ "MLEC": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Moolec Science SA, a science-based ingredient company, engages in the development of ingredients for food, pet food, animal feed, and dietary supplements using…",
+  "country": "Cayman Islands",
+  "shares_out": 726118,
+  "short_pct": 1.6
+ },
+ "PMN": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "ProMIS Neurosciences, Inc. discovers and develops antibody therapies and therapeutic vaccines for neurodegenerative diseases and other misfolded protein disease…",
+  "country": "Canada",
+  "cash": 63848096,
+  "shares_out": 8967693,
+  "short_pct": 2.1,
+  "float": 4597467
+ },
+ "MYSE": {
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "business": "Myseum.AI, Inc. operates as a privacy, and social media technology company that focuses on protecting privacy on personal devices and user information after it…",
+  "country": "United States",
+  "cash": 3730939,
+  "revenue": 550,
+  "shares_out": 5074329,
+  "short_pct": 7.1,
+  "float": 4029799
+ },
+ "DUKR": {
+  "sector": "Industrials",
+  "industry": "Aerospace & Defense",
+  "business": "DUKE Robotics Corp., a robotics company, develops robotic and drone-based systems. The company's products include Bird of Prey and IC Drone. It offers robotic s…",
+  "country": "Israel",
+  "cash": 475000,
+  "revenue": 377000,
+  "shares_out": 3407977,
+  "short_pct": 2.0,
+  "float": 2204382
+ },
+ "RETO": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials",
+  "business": "ReTo Eco-Solutions, Inc. focuses to design, research and development, manufactures, and sale of ecological environmental protection equipment and intelligent eq…",
+  "country": "China",
+  "cash": 250008,
+  "revenue": 3370789,
+  "shares_out": 3269801,
+  "short_pct": 1.2,
+  "float": 3249069
+ },
+ "AEC": {
+  "sector": "Energy",
+  "industry": "Uranium",
+  "business": "Anfield Energy Inc. engages in the exploration, evaluation, development, and production of mineral properties in the United States. It explores for vanadium, ur…",
+  "country": "Canada",
+  "cash": 8114300,
+  "shares_out": 18234976,
+  "short_pct": 0.2,
+  "float": 10362025
+ },
+ "NCEL": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "NewcelX Ltd., a biopharmaceutical company, engages in developing transformative stem-cell-derived therapies for Diabetes. The company develops NCEL-101, a cellu…",
+  "country": "Switzerland",
+  "cash": 2201000,
+  "shares_out": 5383871,
+  "short_pct": 2.5,
+  "float": 2605563
+ }
 }
