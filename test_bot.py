@@ -448,6 +448,17 @@ _msg_ok = S.build_message([], [], title="t")
 check("تغطية عالية تظهر ✓", "99%" in _msg_ok and "✓" in _msg_ok)
 S._SCAN_STATS.clear()
 
+# (ز) الترتيب موحّد على نسبة الجاهزية (الرقم المعروض) — لا تناقض مع العرض.
+#     سهم جاهزيته أعلى لازم يسبق حتى لو نقاطه/عائده أقل (حالة NAGE فوق IDN).
+_hi_rdy = {"tier": "B", "readiness": 60, "score": 60, "rr": 0.7}   # مثل IDN
+_lo_rdy = {"tier": "B", "readiness": 50, "score": 70, "rr": 1.3}   # مثل NAGE
+_ordered = sorted([_lo_rdy, _hi_rdy], key=S.rank_key)
+check("الترتيب بالجاهزية: الأعلى جاهزيةً أولاً (لا تناقض)",
+      _ordered[0] is _hi_rdy)
+_a = {"tier": "A", "readiness": 40, "score": 50, "rr": 0.5}
+check("القائمة A تسبق B دائمًا مهما كانت الجاهزية",
+      sorted([_hi_rdy, _a], key=S.rank_key)[0] is _a)
+
 
 # ==========================================================
 print("\n" + "=" * 50)

@@ -2486,6 +2486,15 @@ def classify_tier(soft_fails, two_tier=None, maxf=None):
     return None
 
 
+def rank_key(x):
+    """مفتاح ترتيب القائمة التأسيسية (موحّد مع التقرير اليومي والرقم المعروض):
+    A قبل B → الأعلى جاهزيةً → الأعلى نقاطًا → الأعلى عائدًا/مخاطرة."""
+    rdy = x.get("readiness")
+    return (0 if x.get("tier") == "A" else 1,
+            -(rdy if rdy is not None else -1),
+            -x.get("score", 0), -x.get("rr", 0))
+
+
 def scan_market():
     """فرز السوق (تجديد الجمعة أو جلب بدائل) — يرجع (نتائج مرتبة، بيانات)"""
     if MODE == "FULL":
@@ -2528,9 +2537,9 @@ def scan_market():
         r["tier"] = tier
         final.append(r)
     results = final
-    # ترتيب: A قبل B → الجاهز → النقاط → العائد
-    results.sort(key=lambda x: (0 if x.get("tier") == "A" else 1,
-                                0 if x["ready"] else 1, -x["score"], -x["rr"]))
+    # ترتيب موحّد: A قبل B → الأعلى جاهزيةً (الرقم المعروض) → النقاط → العائد.
+    # (يطابق التقرير اليومي + ترويسة «الجاهز أولاً» = لا تناقض مع الرقم المعروض)
+    results.sort(key=rank_key)
     na = sum(1 for r in results if r.get("tier") == "A")
     log(f"الفرز: {na} (A صارمة) + {len(results) - na} (B مراقبة) "
         f"= {len(results)} مرشح")
