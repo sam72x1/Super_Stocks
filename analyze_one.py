@@ -277,10 +277,12 @@ def analyze_on_demand(sym: str):
     sweep_lo = pivot * (1 - d_hi / 100.0)
     sweep_hi = pivot * (1 - d_lo / 100.0)
 
-    # نطاق الدخول: عند الدعم وفوقه بقليل (مطابق للبوت — لا شراء تحت الدعم)
-    zone = C["ENTRY_ZONE_PCT"] / 100.0
-    entry_lo = round(pivot, 2)
-    entry_hi = round(pivot * (1 + zone), 2)
+    # دفعات الدخول (أسلوب فيصل): أوامر عند الدعم وصعوداً بخطوة ثابتة
+    n_tr = max(1, int(C["ENTRY_TRANCHES"]))
+    step = C["ENTRY_STEP_PCT"] / 100.0
+    tranches = [round(pivot * (1 + step * i), 2) for i in range(n_tr)]
+    entry_lo = tranches[0]
+    entry_hi = tranches[-1]
     # الضمان الذهبي: الوقف دائمًا تحت أدنى الدخول
     entry_floor = min(entry_lo, entry_hi)
     if stop_hi >= entry_floor:
@@ -327,7 +329,7 @@ def analyze_on_demand(sym: str):
         "n_spikes": n_spikes, "base_range": base_range,
         "rsi": r_now, "dollar_vol": dvol,
         "pivot": pivot, "stop": (stop_lo, stop_hi),
-        "entry": (entry_lo, entry_hi),
+        "entry": (entry_lo, entry_hi), "tranches": tranches,
         "sweep": (sweep_lo, sweep_hi),
         "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
         "ready": ready, "flags": flags, "warnings": warnings,

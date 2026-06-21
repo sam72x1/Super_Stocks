@@ -223,8 +223,13 @@ CONFIG = {
                                          # منطقة سحب السيولة، لا 1-2% الضيقة)
     "ENTRY_ABOVE_PIVOT_PCT": 8.0,        # الحد الأعلى للدخول = القاع +8%
                                          # (لا تطارد السهم أعلى من هذا)
-    "ENTRY_ZONE_PCT": 4.0,               # عرض نطاق الدخول: من الدعم لفوقه بقليل
-                                         # (أمر محدّد عند الدعم — حط سعر وانتظر)
+    "ENTRY_ZONE_PCT": 4.0,               # (للتوافق القديم فقط — استُبدل بالدفعات)
+    # ---- دفعات الدخول (أسلوب فيصل الموثّق @kisar_) ----
+    # فيصل: "الدخول دفعات 1.80 · 1.75 · 1.70 · الوقف 1.50". أي 3 أوامر عند
+    # الدعم وصعوداً بخطوة ثابتة؛ تتعبّى كلما نزل السعر للدعم. أدنى دفعة =
+    # الدعم = أفضل تعبئة. (راجع FAISAL_METHODOLOGY_NOTES.md)
+    "ENTRY_TRANCHES": 3,                  # عدد دفعات الدخول (فيصل: 3)
+    "ENTRY_STEP_PCT": 3.0,               # الخطوة بين الدفعات (~5سنت على $1.8 ≈ 3%)
     "SWEEP_SMALL_PCT": (8.0, 10.0),      # عمق المسح: أسهم صغيرة
     "SWEEP_LARGE_PCT": (5.0, 7.0),       # عمق المسح: أسهم كبيرة (سعر ≥ 15)
     "LARGE_PRICE_CUT": 15.0,
@@ -1493,11 +1498,14 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         sweep_lo = pivot * (1 - d_hi / 100.0)
         sweep_hi = pivot * (1 - d_lo / 100.0)
 
-        # ---- نطاق الدخول: عند الدعم وفوقه بقليل (قرار المستخدم: لا شراء تحت
-        #      الدعم أبدًا). تحط أمرك عند الدعم وتنتظر نزول السعر إليه. ----
-        zone = CONFIG["ENTRY_ZONE_PCT"] / 100.0
-        entry_lo = round(pivot, 2)                      # عند الدعم (القاع)
-        entry_hi = round(pivot * (1 + zone), 2)         # فوق الدعم بقليل
+        # ---- دفعات الدخول (أسلوب فيصل): أوامر عند الدعم وصعوداً بخطوة ثابتة.
+        #      تتعبّى كلما نزل السعر للدعم؛ أدنى دفعة = الدعم = أفضل تعبئة.
+        #      (فيصل @kisar_: 1.70/1.75/1.80 · الوقف 1.50). ----
+        n_tr = max(1, int(CONFIG["ENTRY_TRANCHES"]))
+        step = CONFIG["ENTRY_STEP_PCT"] / 100.0
+        tranches = [round(pivot * (1 + step * i), 2) for i in range(n_tr)]
+        entry_lo = tranches[0]                           # عند الدعم (أفضل تعبئة)
+        entry_hi = tranches[-1]                          # أعلى دفعة (أسوأ تعبئة)
 
         # ضمان ذهبي: الوقف لازم يكون دائمًا تحت أدنى منطقة الدخول.
         # (السحب 8-10% قد يكون أعمق من الوقف 5-7%، فيصير الوقف فوق الدخول
@@ -1632,7 +1640,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             "n_spikes": n_spikes, "base_range": base_range,
             "rsi": r_now, "dollar_vol": dvol,
             "pivot": pivot, "stop": (stop_lo, stop_hi),
-            "entry": (entry_lo, entry_hi),
+            "entry": (entry_lo, entry_hi), "tranches": tranches,
             "sweep": (sweep_lo, sweep_hi),
             "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
             "ready": ready, "readiness": readiness_pct,
@@ -2367,8 +2375,10 @@ def build_message(results: list, splits: list,
         lines.append("🕯️ " + " · ".join(conf))
         # ===== الخطة (الأسعار الأساسية فقط) =====
         lines.append("🎯 <b>الخطة:</b>")
-        lines.append(f"   دخول ${r['entry'][0]:.2f}–${r['entry'][1]:.2f}  ·  "
-                     f"وقف ${r['stop'][0]:.2f}")
+        _trs = r.get("tranches") or [r['entry'][0], r['entry'][1]]
+        lines.append("   دخول دفعات: "
+                     + " · ".join(f"${p:.2f}" for p in _trs)
+                     + f"  ·  وقف ${r['stop'][0]:.2f}")
         lines.append(f"   أهداف ${r['t1']:.2f} → ${r['t2']:.2f} → ${r['t3']:.2f}"
                      f"  (ربح/مخاطرة {r['rr']:.1f}×)")
         if r.get("qab"):
@@ -2514,6 +2524,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "symbol": r["symbol"], "added": today_iso,
         "entry_ref": round(r["price"], 4),
         "entry": [round(r["entry"][0], 4), round(r["entry"][1], 4)],
+        "tranches": [round(p, 4) for p in (r.get("tranches") or r["entry"])],
         "pivot": round(r["pivot"], 4),
         "stop": round(r["stop"][0], 4),        # الوقف الأبعد (2% تحت القاع)
         "stop_hi": round(r["stop"][1], 4),
@@ -2538,6 +2549,7 @@ def make_pullback_entry(r: dict, today_iso: str) -> dict:
     return {
         "symbol": r["symbol"], "added": today_iso,
         "entry": [round(r["entry"][0], 4), round(r["entry"][1], 4)],
+        "tranches": [round(p, 4) for p in (r.get("tranches") or r["entry"])],
         "pivot": round(r["pivot"], 4),
         "stop": round(r["stop"][0], 4),
         "t1": round(r["t1"], 4), "t2": round(r["t2"], 4),
@@ -3113,15 +3125,16 @@ def build_daily_message(wl: dict, splits: list,
         if cbits:
             lines.append("   🏢 " + " · ".join(cbits))
         # نطاق الدخول؛ السجلّات القديمة بلا المفتاح → من الدعم لفوقه بقليل
-        ez = s.get("entry") or [
-            round(s["pivot"], 2),
-            round(s["pivot"] * (1 + CONFIG["ENTRY_ZONE_PCT"] / 100.0), 2)]
-        lines.append(f"   💵 ${lp:.2f} | دخول ${ez[0]:.2f}–${ez[1]:.2f} | "
-                     f"الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
+        trs = s.get("tranches") or [
+            round(s["pivot"] * (1 + CONFIG["ENTRY_STEP_PCT"] / 100.0 * i), 2)
+            for i in range(int(CONFIG["ENTRY_TRANCHES"]))]
+        lines.append(f"   💵 ${lp:.2f} | دفعات "
+                     + " · ".join(f"${p:.2f}" for p in trs)
+                     + f" | الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
-        # العائد/المخاطرة من سعر الدخول المخطّط (أعلى نطاق الدخول ≈ القاع)،
-        # لا من السعر الحالي — لأنك تنتظر السهم ينزل للدخول قبل ما تشتري.
+        # العائد/المخاطرة من أعلى دفعة دخول (أسوأ تعبئة) لا من السعر الحالي —
+        # لأنك تنتظر السهم ينزل للدفعات قبل ما تشتري (تحفّظ في الحساب).
         entry_px = (s.get("entry") or [None, s["pivot"]])[1] or s["pivot"]
         e_risk = entry_px - s["stop"]
         if entry_px < s["t1"] and e_risk > 0:
