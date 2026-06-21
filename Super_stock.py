@@ -2617,6 +2617,12 @@ def build_message(results: list, splits: list,
     return "\n".join(lines)
 
 
+def code_version() -> str:
+    """رقم إصدار الكود (SHA قصير) — يُختم في كل رسالة حتى تُعرف النسخة فورًا
+    ولا تختلط برسائل تشغيلات قديمة. GitHub Actions يضبط GITHUB_SHA."""
+    return (os.environ.get("GITHUB_SHA") or "").strip()[:7] or "local"
+
+
 def send_telegram(text: str) -> bool:
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
         log("ℹ️ لا يوجد توكن تيليجرام — الطباعة على الشاشة فقط:")
@@ -2637,6 +2643,9 @@ def send_telegram(text: str) -> bool:
             cur = cur + "\n" + ln if cur else ln
     if cur:
         chunks.append(cur)
+    # ختم الإصدار في كل رسالة (تعريف النسخة فورًا — ضمان ضد لبس الرسائل القديمة)
+    stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}"
+    chunks = [c + stamp for c in chunks]
     ok = True
     for ch in chunks:
         for cid in recipients:
