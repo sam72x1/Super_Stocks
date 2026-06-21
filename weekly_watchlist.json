@@ -1,6 +1,6 @@
 {
- "week_start": "2026-06-20",
- "created": "2026-06-20",
+ "week_start": "2026-06-21",
+ "created": "2026-06-21",
  "stocks": [],
  "removed": [],
  "replacements_log": [],
@@ -14,6 +14,11 @@
   {
    "week_start": "2026-06-20",
    "ended": "2026-06-20",
+   "stocks": []
+  },
+  {
+   "week_start": "2026-06-20",
+   "ended": "2026-06-21",
    "stocks": []
   }
  ]
