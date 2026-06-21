@@ -25,8 +25,10 @@
   • روابط متابعة بضغطة واحدة: TipRanks + Yahoo + Finviz لكل سهم.
     (TipRanks/thefly مدفوع ومحمي ضد السحب الآلي، فنعطي رابطه
      المباشر بدل محاولة سحب غير موثوقة.)
+  • فحص آلي لعناوين ياهو (scan_news_risk): يمسك الطرح/التخفيف/التقسيم
+    العكسي/الشطب من نص الخبر → تحذير صريح في البطاقة (يخدم البوت تلقائياً).
   • ملاحظة: أخطار التخفيف المهمة (طرح أسهم/وحدات مثل خبر EHGO)
-    يلتقطها مرصد SEC أصلاً كـ"🔴 نشرة طرح (تخفيف)" — أسرع وأوثق.
+    يلتقطها مرصد SEC أيضاً كـ"🔴 نشرة طرح (تخفيف)" — أسرع وأوثق رسمياً.
 
 جديد v2.1 — معايرة الفلاتر بعد مراجعة المنهجية (سبب "السهم الواحد"):
   خُفّفت الفلاتر التي كانت مشددة زيادة عن كلام فيصل، دون المساس
@@ -1898,6 +1900,58 @@ def parse_yahoo_news(items, max_items: int, days: int) -> list:
     return out
 
 
+# ---- كشف أخبار الخطر تلقائياً (للبوت، لا يعتمد على المستخدم): يمسح عناوين
+#      ياهو عن الطرح/التخفيف/التقسيم العكسي/الشطب → تحذير صريح في البطاقة.
+#      الأنماط من الأخص للأعم (نأخذ أول تطابق لكل عنوان لتفادي التكرار). ----
+NEWS_RISK_PATTERNS = [
+    ("registered direct",    "طرح مباشر مسجّل (تخفيف)"),
+    ("private placement",    "اكتتاب خاص (تخفيف)"),
+    ("at-the-market",        "طرح ATM (تخفيف)"),
+    ("at the market",        "طرح ATM (تخفيف)"),
+    ("shelf offering",       "طرح رفّي (تخفيف)"),
+    ("public offering",      "طرح عام (تخفيف)"),
+    ("underwritten",         "طرح مكتتب (تخفيف)"),
+    ("proposed offering",    "طرح مقترح (تخفيف)"),
+    ("common stock offering", "طرح أسهم (تخفيف)"),
+    ("convertible note",     "سند قابل للتحويل (تخفيف)"),
+    ("convertible debenture", "سند قابل للتحويل (تخفيف)"),
+    ("offering",             "طرح/تخفيف"),
+    ("dilut",                "تخفيف (dilution)"),
+    ("reverse stock split",  "تقسيم عكسي"),
+    ("reverse split",        "تقسيم عكسي"),
+    ("going concern",        "شك في الاستمرارية"),
+    ("chapter 11",           "إفلاس (Chapter 11)"),
+    ("bankrupt",             "إفلاس"),
+    ("delist",               "خطر الشطب"),
+]
+
+
+def scan_news_risk(news) -> list:
+    """يمسح عناوين الأخبار (Yahoo) عن إشارات الطرح/التخفيف/الخطر ويرجع
+    تحذيراً عربياً واحداً مجمّعاً (أو [] لو لا خطر). يخدم البوت تلقائياً
+    حتى قبل أن يصل الملف الرسمي لمرصد SEC."""
+    labels = []
+    for it in (news or []):
+        low = (it.get("title") or "").lower()
+        if not low:
+            continue
+        hit = None
+        for kw, lbl in NEWS_RISK_PATTERNS:
+            if kw in low:
+                hit = lbl
+                break
+        # نمط "files to sell N units/shares" (مثل خبر EHGO) بلا كلمة offering
+        if hit is None and "to sell" in low and (
+                "unit" in low or "share" in low):
+            hit = "طرح/تخفيف"
+        if hit and hit not in labels:
+            labels.append(hit)
+    if labels:
+        return [f"📰 خبر محتمل بالتخفيف/الخطر (Yahoo): "
+                f"{' · '.join(labels)} — تحقّق"]
+    return []
+
+
 def _fetch_info(t):
     """جلب معلومات الشركة من Yahoo مع إعادة محاولة (info يُخنق كثيرًا)."""
     attempts = CONFIG.get("DOWNLOAD_RETRIES", 3)
@@ -2000,6 +2054,9 @@ def enrich(results: list) -> None:
                     t.news, CONFIG["NEWS_MAX_SHOW"], CONFIG["NEWS_DAYS"])
             except Exception:
                 r["news"] = []
+            # فحص آلي لعناوين الأخبار عن الطرح/التخفيف/الخطر → تحذير بالبطاقة
+            for _w in scan_news_risk(r["news"]):
+                r.setdefault("warnings", []).append(_w)
             # تأكيد فريم 4 ساعات (للمرشحين النهائيين فقط — اختياري)
             try:
                 _ok4, _lbl4 = fetch_4h_signal(r["symbol"])
