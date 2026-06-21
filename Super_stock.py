@@ -2179,13 +2179,14 @@ def risk_lines(price, stop_lo, t1, t2, rr):
 
 def news_links(sym: str) -> str:
     """روابط أخبار قابلة للضغط لكل سهم (موثوقة 100% — لا سحب آلي).
-    ضغطة واحدة → تفتح صفحة أخبار السهم في الموقع. TipRanks مدفوع
-    ومحمي ضد السحب، فنعطيك رابطه المباشر بدل محاولة سحب فاشلة."""
+    ضغطة واحدة → تفتح صفحة أخبار السهم في الموقع. TipRanks هو المصدر
+    الأفضل حسب فيصل (قسم The Fly يرصد الطرح/التخفيف بسرعة)، لكنه مدفوع
+    ومحمي ضد السحب الآلي، فنعطيك رابطه المباشر بدل محاولة سحب فاشلة."""
     s = sym.upper()
     tr = f"https://www.tipranks.com/stocks/{s.lower()}/stock-news"
     yh = f"https://finance.yahoo.com/quote/{s}/news"
     fv = f"https://finviz.com/quote.ashx?t={s}"
-    return (f'🔗 تابع أخباره: <a href="{tr}">TipRanks</a> | '
+    return (f'🔗 تابع أخباره — <a href="{tr}">⭐ TipRanks</a> (الأفضل) | '
             f'<a href="{yh}">Yahoo</a> | <a href="{fv}">Finviz</a>')
 
 
