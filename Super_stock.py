@@ -2263,12 +2263,16 @@ def build_message(results: list, splits: list,
         # ===== بطاقة مرتّبة ومختصرة (v2.7) — أساسيات فقط =====
         tier = r.get("tier", "A")
         badge = "🅰️" if tier == "A" else "🅱️"
-        # نسبة جاهزية موحّدة للقائمتين A وB (نفس مقياس التقرير اليومي).
-        # كلمة "جاهز" محجوزة للقائمة A فقط (داخل readiness_badge).
-        ready = readiness_badge(r.get("readiness"), tier)
+        # رقمان واضحان: «نسبة الدخول/الجاهزية» (قرب الدخول) بصيغة /100،
+        # و«النسبة العامة» (قوة المطابقة) بصيغة %. حالة الجاهزية (🟢🟡🔴) بسطرها.
+        rdy = r.get("readiness")
+        status = readiness_badge(rdy, tier).split("</b>")[-1].strip() \
+            if rdy is not None else ""
+        rdy_disp = f"{rdy}/100 {status}" if rdy is not None else "غير متاح"
         lines.append("━━━━━━━━━━━━━━━")
         lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f}")
-        lines.append(f"   جودة {r['score']}/100 · جاهزية {ready}")
+        lines.append(f"   نسبة الدخول/الجاهزية <b>{rdy_disp}</b> · "
+                     f"النسبة العامة <b>{r['score']}%</b>")
         if tier == "B":
             sf = r.get("soft_fails", [])
             if sf:
