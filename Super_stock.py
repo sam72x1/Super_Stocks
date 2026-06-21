@@ -142,6 +142,8 @@ CONFIG = {
     "RSI_OS_HARD": 32.0,         # أرضية صلبة: قاع RSI لازم ≤32 (تشبّع فعلاً) —
                                  # فوقها = ما حقّق نموذج الارتكاز → رفض. 27-32 = نقص.
     "RSI_MAX_NOW": 40.0,         # فيصل: "مستحيل يصعد إذا RSI بمناطق 40"
+    "RSI_NOW_HARD": 50.0,        # سقف صلب: RSI الحالي >50 = فات الارتكاز (تحرّك
+                                 # أصلاً) → رفض. 40-50 = طار قليلًا → نقص ناعم (B).
     # ---- بوابات فيصل الإلزامية (v2.6: مطابقة الشروط الستة بصرامة) ----
     "RSI_GATE_REQUIRED": True,   # M10: RSI لازم في التشبع (27) وتحت السقف (40)
     "MACD_GATE_REQUIRED": True,  # M11: تقاطع MACD إيجابي إلزامي
@@ -1163,8 +1165,10 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
                 return _reject("M10_RSI_ما_تشبّع")     # قاعه >32 = ليس ارتكازًا
             if r_min_os > CONFIG["RSI_OVERSOLD"]:
                 soft_fails.append(f"RSI تشبع حدّي ({r_min_os:.0f})")  # 27-32 → B
+            if r_now > CONFIG["RSI_NOW_HARD"]:
+                return _reject("M10_RSI_فات_القطار")   # >50 = تحرّك وفات الارتكاز
             if r_now > CONFIG["RSI_MAX_NOW"]:
-                soft_fails.append(f"RSI الآن {r_now:.0f}>40")        # طار → B
+                soft_fails.append(f"RSI الآن {r_now:.0f}>40")        # 40-50 طار → B
 
         # ---- M11: تقاطع MACD إيجابي — بوابة لينة ----
         m_line, m_sig = macd(close)
@@ -1273,6 +1277,10 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             readiness_pct, _ = entry_readiness(df)
         except Exception:
             readiness_pct = None
+        # قرار المستخدم: السهم "بعيد عن الدخول" (نسبة < NEAR_PCT) لا يدخل القائمة
+        # حتى المراقبة B — لأنه لسّه ما تهيّأ. (None = بيانات ناقصة → فائدة الشك)
+        if readiness_pct is not None and readiness_pct < CONFIG["NEAR_PCT"]:
+            return _reject(f"بعيد_عن_الدخول({readiness_pct:.0f}%)")
 
         # مسح سيولة حقيقي: كسر قاع *سابق* ثم استعادة فوقه
         # (القاع السابق = أدنى قاع في الجلسات 35→10 قبل الأخيرة)
@@ -1431,6 +1439,15 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         entry_hi = round(min(price, entry_hi_cap), 2)  # لا تطلب فوق هذا
         if entry_hi < entry_lo:                        # السعر تحت منطقة السحب
             entry_lo, entry_hi = round(min(price, sweep_lo), 2), round(price, 2)
+
+        # ضمان ذهبي: الوقف لازم يكون دائمًا تحت أدنى منطقة الدخول.
+        # (السحب 8-10% قد يكون أعمق من الوقف 5-7%، فيصير الوقف فوق الدخول
+        #  = يُضرب فورًا. هنا نُجبر الوقف تحت الدخول بهامش فيصل 5-7%.)
+        entry_floor = min(entry_lo, entry_hi)
+        if stop_hi >= entry_floor:
+            stop_hi = round(entry_floor * (1 - s_lo / 100.0), 2)
+        if stop_lo >= stop_hi:
+            stop_lo = round(entry_floor * (1 - s_hi / 100.0), 2)
 
         # ---- الأهداف الثلاثة (من مستويات الشارت الحقيقية، لا عشوائية) ----
         # مصادر الأهداف كلها من الشارت (كخطوط فيصل الأفقية):
@@ -1862,7 +1879,7 @@ def enrich(results: list) -> None:
                 # تحذير جغرافي (تحذير فقط — السهم يظل يظهر حتى في A)
                 if r.get("country") in CONFIG.get("HIGH_RISK_COUNTRIES", []):
                     r.setdefault("warnings", []).append(
-                        f"بلد عالي التلاعب ({r['country']}) — "
+                        f"بلد عالي التلاعب ({ar_country(r['country'])}) — "
                         "غالباً يتجاهل التحليل الفني؛ تحقق يدوياً")
             except Exception:
                 pass
@@ -1969,6 +1986,56 @@ def fmt_money(x):
     if x >= 1_000:
         return f"{x/1_000:.0f}K"
     return str(int(x))
+
+
+# ترجمة القطاع/الدولة للعربي (تعريب البطاقة)
+SECTOR_AR = {
+    "Technology": "تقنية",
+    "Communication Services": "اتصالات وإعلام",
+    "Healthcare": "رعاية صحية",
+    "Financial Services": "خدمات مالية",
+    "Financials": "خدمات مالية",
+    "Consumer Cyclical": "استهلاكي تدويري",
+    "Consumer Defensive": "استهلاكي دفاعي",
+    "Energy": "طاقة",
+    "Industrials": "صناعات",
+    "Basic Materials": "مواد أساسية",
+    "Real Estate": "عقارات",
+    "Utilities": "مرافق",
+    "Biotechnology": "تقنية حيوية",
+}
+COUNTRY_AR = {
+    "United States": "أمريكا",
+    "China": "الصين",
+    "Hong Kong": "هونغ كونغ",
+    "Singapore": "سنغافورة",
+    "Canada": "كندا",
+    "Israel": "إسرائيل",
+    "United Kingdom": "بريطانيا",
+    "Ireland": "أيرلندا",
+    "Germany": "ألمانيا",
+    "France": "فرنسا",
+    "Switzerland": "سويسرا",
+    "Netherlands": "هولندا",
+    "Australia": "أستراليا",
+    "Japan": "اليابان",
+    "South Korea": "كوريا الجنوبية",
+    "Taiwan": "تايوان",
+    "India": "الهند",
+    "Brazil": "البرازيل",
+    "Cayman Islands": "جزر كايمان",
+    "Bermuda": "برمودا",
+}
+
+
+def ar_sector(s):
+    """يرجّع القطاع بالعربي إن وُجد، وإلا الأصل كما هو"""
+    return SECTOR_AR.get(s, s) if s else s
+
+
+def ar_country(c):
+    """يرجّع الدولة بالعربي إن وُجد، وإلا الأصل كما هو"""
+    return COUNTRY_AR.get(c, c) if c else c
 
 
 def short_line(r) -> str:
@@ -2096,15 +2163,20 @@ def build_message(results: list, splits: list,
         lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f} · "
                      f"{r['score']}/100 · {ready}")
         if tier == "B":
-            miss = "، ".join(r.get("soft_fails", [])) or "—"
-            lines.append(f"   🅱️ مراقبة — ينقصها: {miss}")
+            sf = r.get("soft_fails", [])
+            if sf:
+                lines.append("   🅱️ مراقبة — ينقصها:")
+                for f in sf:
+                    lines.append(f"      • {f}")
+            else:
+                lines.append("   🅱️ مراقبة")
         # سطر الشركة (مختصر)
         sec = r.get("sector") or r.get("industry")
         cbits = []
         if sec:
-            cbits.append(esc(sec))
+            cbits.append(esc(ar_sector(sec)))
         if r.get("country"):
-            cbits.append(esc(r["country"]))
+            cbits.append(esc(ar_country(r["country"])))
         if r.get("cash"):
             cbits.append(f"نقد {fmt_money(r['cash'])}")
         if cbits:
@@ -2136,8 +2208,8 @@ def build_message(results: list, splits: list,
                      f"  (ربح/مخاطرة {r['rr']:.1f}×)")
         if r.get("qab"):
             q = r["qab"]
-            lines.append(f"   🟡 قاب (فجوة-هدف) ${q['bottom']:.2f} "
-                         f"(+{q['dist_pct']:.0f}%)")
+            lines.append(f"   🟡 قاب (فجوة-هدف) من ${q['bottom']:.2f} "
+                         f"إلى ${q['top']:.2f}  (يبعد +{q['dist_pct']:.0f}%)")
         if r.get("liberation"):
             tag = " 🔓 قريب!" if r.get("lib_near") else ""
             lines.append(f"   🚀 تحرر فوق ${r['liberation']:.2f}{tag}")
@@ -2713,7 +2785,9 @@ def build_daily_message(wl: dict, splits: list,
         lines.append(f"{i}) {tb}{promo} 📌 <b>{s['symbol']}</b> — "
                      f"{readiness_badge(s['readiness'], s.get('tier', 'A'))}")
         if s.get("tier") == "B" and s.get("soft_fails"):
-            lines.append(f"   🅱️ مراقبة (ينقصها: {'، '.join(s['soft_fails'])})")
+            lines.append("   🅱️ مراقبة — ينقصها:")
+            for f in s["soft_fails"]:
+                lines.append(f"      • {f}")
         lines.append(f"   💵 ${lp:.2f} | قاع ${s['pivot']:.2f} | "
                      f"ستوب ${s['stop']:.2f}")
         if s.get("liberation"):

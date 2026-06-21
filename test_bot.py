@@ -23,34 +23,34 @@ def check(name, cond, extra=""):
 # ==========================================================
 def synth_pivot(prior_high=20.0, crash_low=3.0, current=3.6,
                 with_gap_above=True, n=250, seed=0):
-    """سهم ارتكاز مثالي: انفجار ≥100% ضمن السنة → انهيار ≥50% → قاعدة
-    ضيقة قرب القاع + تشبع RSI + ابتلاع صاعد + فجوة (قاب) فوق السعر."""
+    """سهم ارتكاز مثالي: انفجار ≥100% ضمن السنة → انهيار ≥50% → انحدار
+    لطيف مطوّل للتشبع (RSI≤27) ثم قاع حديث ضحل + انحناء بسيط (RSI الآن ≤50،
+    قريب من الدخول) + مطرقة عند الدعم + فجوة (قاب) فوق السعر."""
     rs = np.random.RandomState(seed)
     closes = []
     closes += list(np.linspace(crash_low * 1.2, crash_low, 20))
     closes += list(np.linspace(crash_low, prior_high, 12))        # انفجار
     closes += list(np.linspace(prior_high, crash_low * 1.4, 40))  # انهيار
-    closes += list(np.linspace(crash_low * 1.4, current * 1.15,
+    closes += list(np.linspace(crash_low * 1.4, current * 1.18,
                                n - len(closes) - 40))
     base = np.empty(40)
-    base[:20] = np.linspace(current * 1.15, current * 0.72, 20)   # هبوط للتشبع (RSI≤27)
-    base[20:26] = np.linspace(current * 0.72, current * 0.95, 6)  # ارتداد من القاع
-    base[26:] = current * (0.96 + 0.015 * np.sin(np.linspace(0, 4, 14)))  # قاعدة ضيّقة (آخر 14)
+    tail = 4                                                       # عمر القاعدة بعد القاع
+    pre = 40 - tail
+    base[:pre] = np.linspace(current * 1.18, current * 0.93, pre)    # انحدار لطيف للتشبع
+    base[pre:] = np.linspace(current * 0.93, current * 0.995, tail)  # انحناء بسيط من القاع
     closes += list(base)
     closes = np.array(closes[:n], dtype=float)
     closes[-1] = current
 
-    o = closes * (1 + rs.uniform(-0.01, 0.01, n))
-    h = np.maximum(o, closes) * (1 + rs.uniform(0.0, 0.03, n))
-    l = np.minimum(o, closes) * (1 - rs.uniform(0.0, 0.03, n))
+    o = closes * (1 + rs.uniform(-0.006, 0.006, n))
+    h = np.maximum(o, closes) * (1 + rs.uniform(0.0, 0.018, n))
+    l = np.minimum(o, closes) * (1 - rs.uniform(0.0, 0.018, n))
     v = rs.randint(300_000, 2_000_000, n).astype(float)
-    v[-15:] *= 0.5                       # جفاف بيع بالقاعدة
+    v[-15:] *= 0.45                      # جفاف بيع بالقاعدة
 
-    # ابتلاع صاعد واضح في آخر شمعتين (جسم الأخضر > جسم الأحمر) — M7
-    o[-2], closes[-2] = current * 1.02, current * 0.98   # أحمر (جسم 0.04)
-    h[-2], l[-2] = current * 1.03, current * 0.95
-    o[-1], closes[-1] = current * 0.96, current * 1.04   # أخضر (جسم 0.08)
-    h[-1], l[-1] = current * 1.05, current * 0.955
+    # مطرقة عند الدعم بآخر شمعة (جسم صغير + ذيل سفلي طويل) — M7 بدون رفع RSI
+    o[-1], closes[-1] = current * 1.003, current * 1.00
+    h[-1], l[-1] = current * 1.008, current * 0.95
 
     # فجوة هابطة غير مملوءة فوق السعر (قاب) — فراغ بين شمعتين، وكل ما بعده أدنى
     if with_gap_above:
