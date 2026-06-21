@@ -651,6 +651,103 @@ check("التأسيس: قائمة فارغة تُؤسَّس فورًا",
 
 
 # ==========================================================
+# 9) حُرّاس القرارات المقفولة (INVARIANTS) — يمنعون أي كسر صامت مستقبلاً
+#    «شرط المستخدم: لا تعطب اللي سوينا». أي تعديل يكسر قرارًا محسومًا = فشل.
+# ==========================================================
+print("\n=== 9) حُرّاس القرارات المقفولة (Invariants) ===")
+
+# 9-أ) إعدادات محسومة لا تتغيّر إلا بقرار صريح
+check("قفل: الوقف ثابت 5-7% (لا ATR)",
+      S.CONFIG["USE_ATR_STOP"] is False
+      and tuple(S.CONFIG["STOP_BELOW_LOW_PCT"]) == (5.0, 7.0))
+check("قفل: دفعات الدخول 3 بخطوة 3%",
+      S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
+check("قفل: حد الشورت 40 ألف · الفلوت 50م",
+      S.CONFIG["SHORT_GATE_MAX"] == 40_000
+      and S.CONFIG["FLOAT_GATE_MAX"] == 50_000_000)
+check("قفل: عتبات RSI (≤40 الآن · ≤32 قاع · >50 رفض)",
+      S.CONFIG["RSI_MAX_NOW"] == 40.0 and S.CONFIG["RSI_OS_HARD"] == 32.0
+      and S.CONFIG["RSI_NOW_HARD"] == 50.0)
+check("قفل: أرضيات الهوية (هبوط≥40% · انفجار≥60%)",
+      S.CONFIG["MIN_DROP_FLOOR"] == 40.0
+      and S.CONFIG["PRIOR_SPIKE_FLOOR"] == 60.0)
+
+# 9-ب) مسح واسع على عشرات الأسهم الصناعية → كل الثوابت تصمد لكل سهم
+_inv_fail = []
+_N = S.CONFIG["ENTRY_TRANCHES"]
+_step = S.CONFIG["ENTRY_STEP_PCT"] / 100.0
+_s_lo, _s_hi = S.CONFIG["STOP_BELOW_LOW_PCT"]
+_min_gain = 1.0 + S.CONFIG["MIN_T1_GAIN_PCT"] / 100.0
+_scan = 0
+for _sd in range(12):
+    for _cur, _cl, _ph in [(3.6, 3.0, 20.0), (2.1, 1.6, 11.0), (9.0, 7.0, 55.0),
+                           (1.8, 1.4, 9.0), (5.5, 4.2, 30.0)]:
+        _df = synth_pivot(current=_cur, crash_low=_cl, prior_high=_ph, seed=_sd)
+        _r = S.analyze_ticker("INV", _df)
+        if _r is None:
+            continue
+        _scan += 1
+        _piv = _r["pivot"]; _tr = _r["tranches"]
+        _slo, _shi = _r["stop"]; _px = _r["price"]
+        _t1, _t2, _t3 = _r["t1"], _r["t2"], _r["t3"]
+        _ehi = _r["entry"][1]
+
+        def _bad(msg):
+            _inv_fail.append(f"بذرة {_sd} سعر {_cur}: {msg}")
+        # (1) الضمان الذهبي: الوقف دائمًا تحت أدنى دفعة
+        if not (_shi < _tr[0] and _slo <= _shi):
+            _bad(f"وقف فوق الدخول {_slo}/{_shi} ≥ {_tr[0]}")
+        # (2) الوقف تحت الدعم وضمن نطاق معقول (≤ ~15% تحت)
+        if not (_piv * 0.84 <= _shi < _piv):
+            _bad(f"وقف خارج النطاق {_shi} مقابل دعم {_piv}")
+        # (3) الدفعات: العدد · أدنى=الدعم · تصاعدية · الخطوة
+        if len(_tr) != _N or abs(_tr[0] - round(_piv, 2)) > 0.02:
+            _bad(f"دفعات {_tr} لا تبدأ من الدعم {_piv}")
+        if any(_tr[i] >= _tr[i + 1] for i in range(len(_tr) - 1)):
+            _bad(f"دفعات غير تصاعدية {_tr}")
+        if any(abs((_tr[i + 1] / _tr[i] - 1.0) - _step) > 0.01
+               for i in range(len(_tr) - 1)):
+            _bad(f"خطوة الدفعات غير مطابقة {_tr}")
+        # (4) الأهداف تصاعدية و t1 يبعد ≥ MIN_T1_GAIN
+        if not (_t1 <= _t2 <= _t3):
+            _bad(f"أهداف غير تصاعدية {_t1}/{_t2}/{_t3}")
+        if _t1 < _px * _min_gain - 0.02:
+            _bad(f"t1 قريب جدًا {_t1} < {_px*_min_gain:.2f}")
+        # (5) صيغة RR من أعلى دفعة (أسوأ تعبئة)
+        _exp_rr = (_t1 - _ehi) / max(_ehi - _slo, 1e-9)
+        if abs(_r["rr"] - _exp_rr) > 0.05:
+            _bad(f"RR {_r['rr']} ≠ {_exp_rr:.2f}")
+if _inv_fail:
+    for _m in _inv_fail[:8]:
+        print("   ✗ " + _m)
+check(f"الثوابت تصمد على {_scan} سهم صناعي (وقف/دفعات/أهداف/RR)",
+      not _inv_fail)
+
+# 9-ج) أهداف الفريم الأسبوعي لا تغيّر t1 ولا RR (التحسين إضافي لا كاسر)
+_t1_locked = True
+for _sd in range(12):
+    _df = synth_pivot(seed=_sd)
+    S.CONFIG["USE_MULTIFRAME_TARGETS"] = False
+    _a = S.analyze_ticker("MF", _df)
+    S.CONFIG["USE_MULTIFRAME_TARGETS"] = True
+    _b = S.analyze_ticker("MF", _df)
+    if _a and _b:
+        if abs(_a["t1"] - _b["t1"]) > 1e-6 or abs(_a["rr"] - _b["rr"]) > 1e-6:
+            _t1_locked = False
+            print(f"   ✗ بذرة {_sd}: t1/RR تغيّرا بالأسبوعي "
+                  f"{_a['t1']}/{_a['rr']} → {_b['t1']}/{_b['rr']}")
+check("أهداف الأسبوعي إضافية: t1 وRR ثابتان (لا كسر)", _t1_locked)
+
+# 9-د) إيقاف منظومة الـ4س لا يكسر التحليل (طبقة مساندة فقط)
+_orig_4h = S.fetch_4h
+S.fetch_4h = lambda sym: None             # محاكاة عدم توفّر 4س
+_r_no4h = S.analyze_ticker("N4", synth_pivot(seed=2))
+S.fetch_4h = _orig_4h
+check("غياب الـ4س لا يكسر التحليل (طبقة مساندة)",
+      _r_no4h is not None and "tranches" in _r_no4h)
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
