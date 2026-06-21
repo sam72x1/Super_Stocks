@@ -322,6 +322,13 @@ def analyze_on_demand(sym: str):
         warnings.append(f"عائد/مخاطرة الهدف الأول ضعيف ({rr:.1f}× < "
                         f"{C['MIN_RR_T1']:.1f}× المطلوب)")
 
+    # مستويات الـ4 ساعات (منظومة فيصل) — طبقة مساندة، لا تمسّ الخطة اليومية
+    try:
+        _h4 = bot.fetch_4h(sym)
+        h4_levels = bot.four_hour_levels(_h4, price) if _h4 is not None else None
+    except Exception:
+        h4_levels = None
+
     # نتيجة كاملة بكل المفاتيح التي يحتاجها build_message + الإثراء
     result = {
         "symbol": sym, "price": price, "score": score,
@@ -330,6 +337,7 @@ def analyze_on_demand(sym: str):
         "rsi": r_now, "dollar_vol": dvol,
         "pivot": pivot, "stop": (stop_lo, stop_hi),
         "entry": (entry_lo, entry_hi), "tranches": tranches,
+        "h4_levels": h4_levels,
         "sweep": (sweep_lo, sweep_hi),
         "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
         "ready": ready, "flags": flags, "warnings": warnings,
