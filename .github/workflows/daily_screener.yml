@@ -4,7 +4,12 @@ permissions:
 on:
   schedule:
     - cron: "0 7 * * 2-6"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force_renew:
+        description: "إعادة بناء القائمة كاملة على آخر كود (1=نعم)"
+        required: false
+        default: "0"
 jobs:
   screen:
     runs-on: ubuntu-latest
@@ -23,6 +28,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SCREENER_MODE: FULL
+          FORCE_RENEW: ${{ github.event.inputs.force_renew }}
         run: python Super_stock.py
       - name: Upload report
         if: always()
