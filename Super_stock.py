@@ -2267,8 +2267,8 @@ def build_message(results: list, splits: list,
         # كلمة "جاهز" محجوزة للقائمة A فقط (داخل readiness_badge).
         ready = readiness_badge(r.get("readiness"), tier)
         lines.append("━━━━━━━━━━━━━━━")
-        lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f} · "
-                     f"{r['score']}/100 · {ready}")
+        lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f}")
+        lines.append(f"   جودة {r['score']}/100 · جاهزية {ready}")
         if tier == "B":
             sf = r.get("soft_fails", [])
             if sf:
