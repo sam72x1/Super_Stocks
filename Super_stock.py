@@ -2832,6 +2832,10 @@ def build_wrapup_message(wl: dict) -> str:
         return ""
     today = dt.date.today().isoformat()
     start = wl.get("week_start") or "؟"
+    # حماية: لو القائمة تأسست اليوم نفسه (عمرها 0 يوم) لا يوجد أسبوع لحصاده —
+    # نتجنّب رسالة "حصاد" فارغة بـ +0% للكل (تظهر عند تكرار التشغيل بنفس اليوم).
+    if start == today or wl.get("created") == today:
+        return ""
     lines = [f"📊 <b>حصاد أسبوع القائمة</b> ({start} ← {today})", ""]
     for s in sorted(entries, key=lambda x: -(x.get("max_gain_pct") or 0)):
         chg = (s["last_price"] / s["entry_ref"] - 1.0) * 100.0
