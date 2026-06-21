@@ -1464,8 +1464,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         risk = max(price - stop_lo, 1e-9)
         rr = (t1 - price) / risk
         rr2 = (t2 - price) / risk
+        # v2.7: ضعف RR = نقص (ينقل لقائمة B المراقبة) بدل الرفض النهائي —
+        # متوافق مع قرار «ما نطلع صفر». لو تجاوز مجموع النواقص الحد → يُرفض.
         if rr < CONFIG["MIN_RR_T1"]:
-            return None  # صفقة خاسرة رياضياً — مرفوضة نهائياً
+            soft_fails.append("عائد/مخاطرة منخفض")
+            if len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
+                return None
 
         # ملخص حالة بوابات فيصل (للرسالة المختصرة) — كلها ✅ لأن السهم
         # اجتازها، لكن نعرضها للتأكيد البصري ولمعرفة قيمة كل شرط فعلياً
@@ -2369,6 +2373,20 @@ def apply_float_gate(results: list) -> list:
     return kept
 
 
+def classify_tier(soft_fails, two_tier=None, maxf=None):
+    """تصنيف السهم حسب عدد بوابات التأكيد الناقصة:
+    0 → 'A' (صارمة) | 1..maxf → 'B' (مراقبة) | أكثر → None (يُرفض).
+    دالة نقية لتسهيل الاختبار (تستخدمها scan_market)."""
+    two_tier = CONFIG.get("WATCHLIST_TWO_TIER", True) if two_tier is None else two_tier
+    maxf = CONFIG.get("WATCH_MAX_FAILS", 2) if maxf is None else maxf
+    n = len(soft_fails or [])
+    if n == 0:
+        return "A"
+    if two_tier and n <= maxf:
+        return "B"
+    return None
+
+
 def scan_market():
     """فرز السوق (تجديد الجمعة أو جلب بدائل) — يرجع (نتائج مرتبة، بيانات)"""
     if MODE == "FULL":
@@ -2391,17 +2409,12 @@ def scan_market():
     results = apply_float_gate(results)
     # ===== التصنيف النهائي لقائمتين (v2.7) =====
     # A = صفر نواقص (صارمة) | B = 1-2 نواقص (مراقبة) | أكثر = يُحذف.
-    maxf = CONFIG.get("WATCH_MAX_FAILS", 2)
-    two_tier = CONFIG.get("WATCHLIST_TWO_TIER", True)
     final = []
     for r in results:
-        sf = r.get("soft_fails", [])
-        if len(sf) == 0:
-            r["tier"] = "A"
-        elif two_tier and len(sf) <= maxf:
-            r["tier"] = "B"
-        else:
+        tier = classify_tier(r.get("soft_fails", []))
+        if tier is None:
             continue
+        r["tier"] = tier
         final.append(r)
     results = final
     # ترتيب: A قبل B → الجاهز → النقاط → العائد
