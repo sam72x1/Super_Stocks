@@ -52,7 +52,13 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.2
+   "last_price": 2.2,
+   "key_levels": {
+    "sup_major": 1.7,
+    "sup_minor": 2.11,
+    "res_major": 4.67,
+    "res_minor": 2.34
+   }
   },
   {
    "symbol": "DJT",
@@ -106,7 +112,13 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 8.49
+   "last_price": 8.49,
+   "key_levels": {
+    "sup_major": 7.75,
+    "sup_minor": 8.34,
+    "res_major": 10.55,
+    "res_minor": 9.24
+   }
   },
   {
    "symbol": "NAGE",
@@ -159,7 +171,13 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.5
+   "last_price": 3.5,
+   "key_levels": {
+    "sup_major": 3.35,
+    "sup_minor": 3.39,
+    "res_major": 5.18,
+    "res_minor": 4.04
+   }
   },
   {
    "symbol": "IDN",
@@ -210,7 +228,13 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.09
+   "last_price": 4.09,
+   "key_levels": {
+    "sup_major": 3.95,
+    "sup_minor": 4.01,
+    "res_major": 6.02,
+    "res_minor": 4.19
+   }
   },
   {
    "symbol": "USGO",
@@ -259,7 +283,13 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 8.45
+   "last_price": 8.45,
+   "key_levels": {
+    "sup_major": 7.55,
+    "sup_minor": 8.26,
+    "res_major": 13.95,
+    "res_minor": 9.2
+   }
   },
   {
    "symbol": "SOGP",
@@ -311,7 +341,13 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 11.85
+   "last_price": 11.85,
+   "key_levels": {
+    "sup_major": 11.1,
+    "sup_minor": 11.58,
+    "res_major": 20.15,
+    "res_minor": 13.83
+   }
   },
   {
    "symbol": "INSM",
@@ -361,7 +397,13 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 95.8
+   "last_price": 95.8,
+   "key_levels": {
+    "sup_major": 90.39,
+    "sup_minor": null,
+    "res_major": 166.19,
+    "res_minor": 106.83
+   }
   }
  ],
  "removed": [],
