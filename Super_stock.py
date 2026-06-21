@@ -309,6 +309,11 @@ TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 MODE = os.environ.get("SCREENER_MODE", CONFIG["MODE"]).strip().upper()
 
+# نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
+# المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
+# (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار الجمعة ولا تدخّل يدوي).
+LOGIC_VERSION = "2026.06.21-tranches+4h+keylevels+avgRR"
+
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل — يمكن ضبطه بمتغير بيئة SEC_CONTACT
 SEC_UA = {"User-Agent": os.environ.get(
@@ -3180,6 +3185,45 @@ def fill_replacements(wl: dict):
     return added, sub_hist
 
 
+def migrate_watchlist(wl: dict, history: dict) -> int:
+    """ضمان آلي ضد تكرار مشكلة البيانات القديمة: لو تغيّرت نسخة منطق الكود
+    (LOGIC_VERSION) عن المختومة في القائمة، يعيد حساب الدخول/الوقف/الأهداف/
+    الدفعات/المستويات لكل سهم نشط **فورًا** (لا ينتظر الجمعة). يحافظ على
+    تاريخ الإضافة/المرجع/التصنيف. يرجع عدد الأسهم المُحدّثة."""
+    if wl.get("logic_version") == LOGIC_VERSION:
+        return 0
+    migrated = 0
+    for s in wl.get("stocks", []):
+        if s.get("status") != "active":
+            continue
+        df = history.get(s["symbol"])
+        if df is None or len(df) < CONFIG["MIN_BARS"]:
+            continue
+        try:
+            fresh = analyze_ticker(s["symbol"], df)
+        except Exception:
+            fresh = None
+        if fresh is None:
+            continue
+        # تحديث القيم المحسوبة بالمنطق الجديد (entry_ref/added/tier تبقى)
+        s["entry"] = [round(fresh["entry"][0], 4), round(fresh["entry"][1], 4)]
+        s["tranches"] = [round(p, 4) for p in fresh["tranches"]]
+        s["pivot"] = round(fresh["pivot"], 4)
+        s["stop"] = round(fresh["stop"][0], 4)
+        s["stop_hi"] = round(fresh["stop"][1], 4)
+        s["t1"] = round(fresh["t1"], 4)
+        s["t2"] = round(fresh["t2"], 4)
+        s["t3"] = round(fresh["t3"], 4)
+        s["key_levels"] = fresh.get("key_levels")
+        s["liberation"] = fresh.get("liberation")
+        migrated += 1
+    wl["logic_version"] = LOGIC_VERSION
+    if migrated:
+        log(f"ترحيل القائمة لنسخة المنطق {LOGIC_VERSION}: "
+            f"حُدّث {migrated} سهم تلقائيًا")
+    return migrated
+
+
 def check_promotions(wl: dict, history: dict) -> list:
     """ترقية B→A (v2.7): يعيد تحليل كل سهم نشط بالبيانات الحالية. السهم
     الذي اكتمل نموذجه (0 نواقص تأكيد) يُرقّى من قائمة المراقبة B إلى A مع
@@ -3531,6 +3575,7 @@ def run_weekly_renewal(wl: dict) -> None:
         log(f"⚠️ مراقبة الارتداد: {e}")
     # 4) حفظ القائمة الجديدة
     new_wl = {"week_start": today_iso, "created": today_iso,
+              "logic_version": LOGIC_VERSION,   # القائمة مبنية على آخر منطق
               "stocks": [make_watch_entry(r, today_iso) for r in picks],
               "removed": [], "replacements_log": [], "notes": [],
               "pullback": pull_entries,
@@ -3598,6 +3643,12 @@ def run_daily_watchlist(wl: dict) -> None:
             hist.update(download_history(missing))
         except Exception as e:
             log(f"⚠️ تحميل رموز القائمة: {e}")
+    # 2.5) ترحيل آلي: لو تغيّرت نسخة منطق الكود → أعِد حساب القائمة كاملة فورًا
+    #      (ضمان: لا تبقى بيانات قديمة بعد أي تعديل — قبل فحص الستوب).
+    try:
+        migrate_watchlist(wl, hist)
+    except Exception as e:
+        log(f"⚠️ ترحيل القائمة: {e}")
     # 3) متابعة القائمة الحالية (تُحذف فقط بستوب/هدف؛ نقص البيانات = تُبقى)
     stopped_today = update_watchlist_status(wl, hist)
     # 4) إضافة الجديد دون حذف القديم (حتى حد القائمة)
