@@ -282,6 +282,7 @@ CONFIG = {
     "CHUNK_SLEEP": 2.0,          # ثوانٍ بين الدفعات (احترام Yahoo)
     "DOWNLOAD_RETRIES": 3,       # محاولات إعادة تحميل الدفعة عند الخنق/الفشل
     "RETRY_BACKOFF": 3.0,        # ثوانٍ أساس التراجع الأسّي (3,6,12...)
+    "DATA_HEALTH_MIN_PCT": 85,   # تغطية بيانات أقل من هذا = تحذير صحة في الرسالة
     "MIN_BARS": 120,             # أقل عدد شموع مقبول للتحليل
     "REPORT_CSV": True,
 }
@@ -1086,6 +1087,7 @@ def all_unfilled_gaps_above(df: pd.DataFrame):
 
 
 _REJECT_STATS = {}
+_SCAN_STATS = {}        # صحة الفرز: حجم الكون مقابل البيانات الصالحة المحمّلة
 
 
 def _reject(code):
@@ -2174,6 +2176,15 @@ def build_message(results: list, splits: list,
     today = dt.date.today().isoformat()
     lines = [f"{title} — {today}",
              f"العدد: {len(results)} (الجاهز أولاً)"]
+    # مؤشر صحة البيانات (يكشف خنق Yahoo بدل ما تنقص الأسهم بصمت)
+    uni, val = _SCAN_STATS.get("universe"), _SCAN_STATS.get("valid")
+    if uni and val is not None:
+        cov = val / uni * 100.0
+        if cov < CONFIG["DATA_HEALTH_MIN_PCT"]:
+            lines.append(f"⚠️ تغطية بيانات {cov:.0f}% ({val}/{uni}) — "
+                         "Yahoo خنق الطلبات، قد تنقص أسهم")
+        else:
+            lines.append(f"⚙️ تغطية بيانات {cov:.0f}% ({val}/{uni}) ✓")
     if subnote:
         lines.append(subnote)
     lines.append("")
@@ -2486,6 +2497,13 @@ def scan_market():
         universe = CONFIG["TEST_TICKERS"]
         log(f"وضع تجربة: {len(universe)} سهم من العينة الموثقة")
     history = download_history(universe)
+    # صحة البيانات: كم سهم من الكون وصلت بياناته فعلاً (يكشف خنق Yahoo)
+    _SCAN_STATS["universe"] = len(universe)
+    _SCAN_STATS["valid"] = len(history)
+    cov = (len(history) / len(universe) * 100.0) if universe else 0.0
+    if MODE == "FULL" and cov < CONFIG["DATA_HEALTH_MIN_PCT"]:
+        log(f"⚠️ تغطية بيانات منخفضة: {cov:.0f}% ({len(history)}/{len(universe)})"
+            " — Yahoo خنق الطلبات؛ قد تنقص أسهم")
     results = []
     _REJECT_STATS.clear()                 # تصفير عدّاد أسباب الرفض
     for sym, df in history.items():
