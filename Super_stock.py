@@ -2457,7 +2457,11 @@ def build_message(results: list, splits: list,
         conf = []
         if r.get("patterns"):
             conf.append("، ".join(r["patterns"]))
-        conf.append(f"فريمات {r.get('tf_count', 0)}/3")
+        _fr = f"فريمات {r.get('tf_count', 0)}/3"
+        _tf4 = r.get("tf4h")
+        if _tf4 and _tf4 not in ("غير متوفر", "غير مفعّل"):
+            _fr += f" + 4س {_tf4}"
+        conf.append(_fr)
         if any("مسح سيولة" in f for f in r.get("flags", [])):
             conf.append("مسح سيولة ✓")
         if any("MFI" in f for f in r.get("flags", [])):
