@@ -277,11 +277,10 @@ def analyze_on_demand(sym: str):
     sweep_lo = pivot * (1 - d_hi / 100.0)
     sweep_hi = pivot * (1 - d_lo / 100.0)
 
-    # نطاق الدخول الضيّق عند الدعم (مطابق للبوت — لا يطارد السعر الحالي)
-    anchor = min(pivot, price)
+    # نطاق الدخول: عند الدعم وفوقه بقليل (مطابق للبوت — لا شراء تحت الدعم)
     zone = C["ENTRY_ZONE_PCT"] / 100.0
-    entry_hi = round(anchor, 2)
-    entry_lo = round(anchor * (1 - zone), 2)
+    entry_lo = round(pivot, 2)
+    entry_hi = round(pivot * (1 + zone), 2)
     # الضمان الذهبي: الوقف دائمًا تحت أدنى الدخول
     entry_floor = min(entry_lo, entry_hi)
     if stop_hi >= entry_floor:

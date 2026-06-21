@@ -220,7 +220,7 @@ CONFIG = {
                                          # منطقة سحب السيولة، لا 1-2% الضيقة)
     "ENTRY_ABOVE_PIVOT_PCT": 8.0,        # الحد الأعلى للدخول = القاع +8%
                                          # (لا تطارد السهم أعلى من هذا)
-    "ENTRY_ZONE_PCT": 4.0,               # عرض نطاق الدخول الضيّق تحت الدعم
+    "ENTRY_ZONE_PCT": 4.0,               # عرض نطاق الدخول: من الدعم لفوقه بقليل
                                          # (أمر محدّد عند الدعم — حط سعر وانتظر)
     "SWEEP_SMALL_PCT": (8.0, 10.0),      # عمق المسح: أسهم صغيرة
     "SWEEP_LARGE_PCT": (5.0, 7.0),       # عمق المسح: أسهم كبيرة (سعر ≥ 15)
@@ -1490,13 +1490,11 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         sweep_lo = pivot * (1 - d_hi / 100.0)
         sweep_hi = pivot * (1 - d_lo / 100.0)
 
-        # ---- نطاق الدخول: أمر محدّد ضيّق عند الدعم (أسلوب المستخدم: حط سعر
-        #      وانتظر التنفيذ). المرساة = الدعم (القاع)، ولا نطارد السعر الحالي
-        #      فوقه. نطاق ضيّق (ENTRY_ZONE_PCT) تحت المرساة فقط. ----
-        anchor = min(pivot, price)                     # لا فوق الدعم ولا فوق السعر
+        # ---- نطاق الدخول: عند الدعم وفوقه بقليل (قرار المستخدم: لا شراء تحت
+        #      الدعم أبدًا). تحط أمرك عند الدعم وتنتظر نزول السعر إليه. ----
         zone = CONFIG["ENTRY_ZONE_PCT"] / 100.0
-        entry_hi = round(anchor, 2)                    # أعلى سعر تحط عنده الأمر
-        entry_lo = round(anchor * (1 - zone), 2)       # أدنى النطاق الضيّق
+        entry_lo = round(pivot, 2)                      # عند الدعم (القاع)
+        entry_hi = round(pivot * (1 + zone), 2)         # فوق الدعم بقليل
 
         # ضمان ذهبي: الوقف لازم يكون دائمًا تحت أدنى منطقة الدخول.
         # (السحب 8-10% قد يكون أعمق من الوقف 5-7%، فيصير الوقف فوق الدخول
@@ -3055,10 +3053,10 @@ def build_daily_message(wl: dict, splits: list,
             cbits.append(esc(ar_country(s["country"])))
         if cbits:
             lines.append("   🏢 " + " · ".join(cbits))
-        # نطاق الدخول؛ السجلّات القديمة بلا المفتاح → نحسب النطاق الضيّق من القاع
+        # نطاق الدخول؛ السجلّات القديمة بلا المفتاح → من الدعم لفوقه بقليل
         ez = s.get("entry") or [
-            round(s["pivot"] * (1 - CONFIG["ENTRY_ZONE_PCT"] / 100.0), 2),
-            round(s["pivot"], 2)]
+            round(s["pivot"], 2),
+            round(s["pivot"] * (1 + CONFIG["ENTRY_ZONE_PCT"] / 100.0), 2)]
         lines.append(f"   💵 ${lp:.2f} | دخول ${ez[0]:.2f}–${ez[1]:.2f} | "
                      f"الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
         if s.get("liberation"):
