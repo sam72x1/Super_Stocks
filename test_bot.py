@@ -513,6 +513,24 @@ for sd in range(6):
         print(f"   ✗ بذرة {sd}: rr={_rt['rr']:.2f} متوقع {_expected:.2f}")
 check("RR من سعر الدخول المخطّط لا السعر الحالي", _rr_ok)
 
+# (ل) فحص أخبار الخطر الآلي: يمسك الطرح/التخفيف/التقسيم/الشطب من العناوين
+_danger = [
+    {"title": "Acme files to sell 1.52M units in registered direct offering"},
+    {"title": "XYZ announces $20M public offering of common stock"},
+    {"title": "ABC to conduct 1-for-10 reverse stock split"},
+    {"title": "DEF auditor raises going concern doubt"},
+    {"title": "GHI receives Nasdaq delisting notice"},
+]
+_safe = [
+    {"title": "Acme reports record quarterly revenue and raises guidance"},
+    {"title": "XYZ wins major contract with government agency"},
+]
+_news_ok = bool(S.scan_news_risk(_danger)) and not S.scan_news_risk(_safe)
+# لا تطابقات كاذبة على الأخبار الإيجابية، وتطابق مؤكد على أخبار التخفيف
+if not _news_ok:
+    print(f"   ✗ خطر={S.scan_news_risk(_danger)} | آمن={S.scan_news_risk(_safe)}")
+check("فحص أخبار الطرح/التخفيف الآلي (للبوت)", _news_ok)
+
 # (ك) قائمة مراقبة الارتداد: ارتكاز حقيقي ارتفع فوق دخوله
 _wdf = synth_pivot(seed=2).copy()
 _wc = _wdf["Close"].values.astype(float)
