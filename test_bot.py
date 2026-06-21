@@ -539,6 +539,53 @@ if not _news_ok:
     print(f"   ✗ خطر={S.scan_news_risk(_danger)} | آمن={S.scan_news_risk(_safe)}")
 check("فحص أخبار الطرح/التخفيف الآلي (للبوت)", _news_ok)
 
+# (ل2) مستويات الـ4 ساعات (منظومة فيصل): دعوم تحت السعر · أهداف فوق · انقلاب
+_h4idx = pd.date_range("2026-01-01", periods=30, freq="4h")
+_seq = [5.0, 4.6, 4.2, 3.8, 3.5, 3.7, 4.0, 4.3, 4.1, 4.5, 4.8, 5.2, 5.0, 5.5,
+        5.9, 5.7, 6.1, 6.0, 6.3, 6.6, 6.4, 6.8, 7.1, 6.9, 7.3, 7.6, 7.4, 7.8,
+        8.0, 7.9]
+_o = []; _c = []; _h = []; _l = []; _pv = 5.2
+for _v in _seq:
+    _h.append(max(_pv, _v) * 1.03); _l.append(min(_pv, _v) * 0.97)
+    _o.append(_pv); _c.append(_v); _pv = _v
+_h4 = pd.DataFrame({"Open": _o, "High": _h, "Low": _l, "Close": _c},
+                   index=_h4idx)
+_lv = S.four_hour_levels(_h4, 7.9)
+_ok4l = (_lv is not None
+         and bool(_lv["supports"]) and all(x < 7.9 for x in _lv["supports"])
+         and bool(_lv["resistances"]) and all(x > 7.9 for x in _lv["resistances"])
+         and _lv["flip"] is not None and _lv["flip"] < 7.9
+         and abs(_lv["sweep_low"] - round(min(_l), 2)) < 0.02
+         and S.four_hour_levels(_h4.head(5), 7.9) is None)
+if not _ok4l:
+    print(f"   ✗ مستويات 4س: {_lv}")
+check("مستويات الـ4 ساعات (دعوم/أهداف/انقلاب/ذيل المسح)", _ok4l)
+
+# (ل3) نزول A→B لخبر التخفيف عند كسر الدعم، ورجوع A عند الاستقرار فوقه
+_save_at = S.analyze_ticker
+S.analyze_ticker = lambda sym, d: {"soft_fails": [], "liberation": None,
+                                   "price": float(d["Close"].iloc[-1])}
+_brk = synth_pivot(seed=9).copy()
+_brk.loc[_brk.index[-5:], "Low"] = 2.5
+_brk.loc[_brk.index[-1], "Close"] = 2.8          # آخر سعر تحت الدعم 3.0
+_wld = {"stocks": [{"symbol": "DIL", "status": "active", "tier": "A",
+                    "soft_fails": [], "pivot": 3.0, "stop": 2.7,
+                    "news_risk": True, "last_price": 2.8}], "notes": []}
+S.check_promotions(_wld, {"DIL": _brk})
+check("تخفيف + كسر الدعم → نزول A→B",
+      _wld["stocks"][0]["tier"] == "B"
+      and any("تخفيف" in f for f in _wld["stocks"][0]["soft_fails"]))
+_rec = synth_pivot(seed=9).copy()
+_rec.loc[_rec.index[-5:], "Low"] = 3.2
+_rec.loc[_rec.index[-1], "Close"] = 3.4          # استقر فوق الدعم
+_wlr = {"stocks": [{"symbol": "DIL", "status": "active", "tier": "B",
+                    "soft_fails": ["تخفيف: كسر الدعم"], "pivot": 3.0,
+                    "stop": 2.7, "news_risk": True, "last_price": 3.4}],
+        "notes": []}
+S.check_promotions(_wlr, {"DIL": _rec})
+check("تخفيف استقر فوق الدعم → يرجع A", _wlr["stocks"][0]["tier"] == "A")
+S.analyze_ticker = _save_at
+
 # (ك) قائمة مراقبة الارتداد: ارتكاز حقيقي ارتفع فوق دخوله
 _wdf = synth_pivot(seed=2).copy()
 _wc = _wdf["Close"].values.astype(float)

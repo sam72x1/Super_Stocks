@@ -631,26 +631,34 @@ def multi_timeframe(df: pd.DataFrame) -> dict:
             "monthly": m, "patterns": pats, "display": disp}
 
 
-def fetch_4h_signal(sym: str):
-    """تأكيد فريم 4 ساعات (للمرشحين النهائيين فقط — اختياري، معلومة/نقاط).
-    يحمّل بيانات الساعة ويجمّعها إلى 4 ساعات. يرجع (إشارة bool/None، وصف)."""
+def fetch_4h(sym: str):
+    """يحمّل فريم 4 ساعات (يشمل التداول خارج السوق prepost — لرصد ذيل المسح
+    الحقيقي مثل ما يوضّح فيصل). يرجع DataFrame مجمّعة 4س أو None."""
     if yf is None or not CONFIG.get("ENABLE_4H", True):
-        return None, "غير مفعّل"
+        return None
     try:
-        h1 = yf.download(sym, period="60d", interval="1h",
-                         auto_adjust=True, progress=False)
+        h1 = yf.download(sym, period="60d", interval="1h", auto_adjust=True,
+                         prepost=True, progress=False)
         if h1 is None or h1.empty:
-            return None, "غير متوفر"
+            return None
         if isinstance(h1.columns, pd.MultiIndex):
             h1.columns = h1.columns.get_level_values(0)
         h1 = h1.dropna(subset=["Close"])
         h4 = resample_ohlc(h1, "4h")
-        if len(h4) < 20:
-            return None, "بيانات قليلة"
-        ok = timeframe_reversal(h4, 60, 20)
-        return ok, ("✅ مؤكِّد" if ok else "⏳ غير مؤكِّد بعد")
+        return h4 if len(h4) >= 20 else None
     except Exception:
+        return None
+
+
+def fetch_4h_signal(sym: str):
+    """تأكيد انعكاس فريم 4 ساعات. يرجع (إشارة bool/None، وصف)."""
+    if yf is None or not CONFIG.get("ENABLE_4H", True):
+        return None, "غير مفعّل"
+    h4 = fetch_4h(sym)
+    if h4 is None:
         return None, "غير متوفر"
+    ok = timeframe_reversal(h4, 60, 20)
+    return ok, ("✅ مؤكِّد" if ok else "⏳ غير مؤكِّد بعد")
 
 
 # ==========================================================
@@ -943,6 +951,53 @@ def first_target(df: pd.DataFrame):
     if n > 70:
         return float(np.max(hi[-70:-15]))
     return float(np.max(hi))
+
+
+def _cluster_levels(levels, tol=0.02):
+    """يدمج المستويات المتقاربة (ضمن نسبة tol) في مستوى واحد = متوسطها.
+    يرجع قائمة مرتّبة تصاعدياً (بلا تكرار قريب)."""
+    out = []
+    for lv in sorted(float(x) for x in levels):
+        if out and abs(lv / out[-1][0] - 1.0) <= tol:
+            g = out[-1]
+            g[1].append(lv)
+            g[0] = sum(g[1]) / len(g[1])
+        else:
+            out.append([lv, [lv]])
+    return [round(g[0], 2) for g in out]
+
+
+def four_hour_levels(h4: pd.DataFrame, price: float):
+    """منظومة فيصل على فريم 4 ساعات (موثّقة بصور @kisar_ — الـ6 صور):
+      • resistances/أهداف = رؤوس (High) الشموع الحمرا الهابطة فوق السعر.
+      • supports/دعوم   = ذيول (Low) الشمعة الحمرا اللي بعدها صعود مباشر، تحت السعر.
+      • flip            = أعلى رأس حمرا تحت السعر (مقاومة استرجعها السهم = دعم/دخول).
+      • sweep_low       = أدنى قاع 4س (يشمل خارج السوق) = ذيل المسح الحقيقي.
+    يرجع dict أو None لو البيانات غير كافية. (طبقة إضافية — لا تمسّ الدعم/الوقف
+    اليومي المقفول؛ معلومة مساندة لفيصل.)"""
+    if h4 is None or len(h4) < 10 or not price:
+        return None
+    o = h4["Open"].values.astype(float)
+    c = h4["Close"].values.astype(float)
+    hi = h4["High"].values.astype(float)
+    lo = h4["Low"].values.astype(float)
+    n = len(c)
+    red = c < o
+    res, sup, heads_below = [], [], []
+    for i in range(n):
+        if not red[i]:
+            continue
+        if hi[i] > price * 1.005:                     # رأس حمرا فوق السعر = هدف
+            res.append(hi[i])
+        else:
+            heads_below.append(hi[i])                  # رأس حمرا تحت السعر
+        if i + 1 < n and c[i + 1] > c[i] and lo[i] < price * 0.995:
+            sup.append(lo[i])                         # ذيل حمرا بعده صعود = دعم
+    resistances = _cluster_levels(res)[:5]            # تصاعدي (أقرب هدف أولاً)
+    supports = sorted(_cluster_levels(sup), reverse=True)[:5]  # أقرب دعم أولاً
+    flip = round(max(heads_below), 2) if heads_below else None
+    return {"supports": supports, "resistances": resistances,
+            "flip": flip, "sweep_low": round(float(np.min(lo)), 2)}
 
 
 def _gaps_on_frame(df: pd.DataFrame, lookback: int):
@@ -2066,10 +2121,15 @@ def enrich(results: list) -> None:
             # فحص آلي لعناوين الأخبار عن الطرح/التخفيف/الخطر → تحذير بالبطاقة
             for _w in scan_news_risk(r["news"]):
                 r.setdefault("warnings", []).append(_w)
-            # تأكيد فريم 4 ساعات (للمرشحين النهائيين فقط — اختياري)
+            # فريم 4 ساعات: تأكيد الانعكاس + مستويات فيصل (دعوم/أهداف/انقلاب)
             try:
-                _ok4, _lbl4 = fetch_4h_signal(r["symbol"])
-                r["tf4h"] = _lbl4
+                h4 = fetch_4h(r["symbol"])
+                if h4 is not None:
+                    _ok4 = timeframe_reversal(h4, 60, 20)
+                    r["tf4h"] = "✅ مؤكِّد" if _ok4 else "⏳ غير مؤكِّد بعد"
+                    r["h4_levels"] = four_hour_levels(h4, r["price"])
+                else:
+                    r["tf4h"] = "غير متوفر"
             except Exception:
                 r["tf4h"] = "غير متوفر"
         except Exception:
@@ -2190,6 +2250,24 @@ COUNTRY_AR = {
     "Cayman Islands": "جزر كايمان",
     "Bermuda": "برمودا",
 }
+
+
+def h4_levels_block(h4l) -> list:
+    """سطر مستويات الـ4 ساعات (منظومة فيصل): انقلاب/دعوم/أهداف/قاع المسح.
+    طبقة مساندة — لا تغيّر الخطة اليومية. يرجع [] لو لا مستويات."""
+    if not h4l:
+        return []
+    bits = []
+    if h4l.get("flip"):
+        bits.append(f"مقاومة↗دعم ${h4l['flip']:.2f}")
+    if h4l.get("supports"):
+        bits.append("دعوم " + "/".join(f"${x:.2f}" for x in h4l["supports"][:3]))
+    if h4l.get("resistances"):
+        bits.append("أهداف " + "/".join(f"${x:.2f}"
+                                          for x in h4l["resistances"][:3]))
+    if h4l.get("sweep_low"):
+        bits.append(f"ذيل المسح ${h4l['sweep_low']:.2f}")
+    return ["   🕓 4س: " + " · ".join(bits)] if bits else []
 
 
 def ar_sector(s):
@@ -2388,6 +2466,7 @@ def build_message(results: list, splits: list,
         if r.get("liberation"):
             tag = " 🔓 قريب!" if r.get("lib_near") else ""
             lines.append(f"   🚀 تحرر فوق ${r['liberation']:.2f}{tag}")
+        lines += h4_levels_block(r.get("h4_levels"))
         # مؤشرات مختصرة (سطر واحد)
         ic = r.get("indicators") or {}
         mp = []
@@ -2533,6 +2612,10 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "score": r["score"], "flags": list(r["flags"]),
         "tier": r.get("tier", "A"),                       # A صارمة / B مراقبة
         "soft_fails": list(r.get("soft_fails", [])),
+        "warnings": list(r.get("warnings", [])),          # تحذيرات (تخفيف/جغرافي)
+        "news_risk": bool([w for w in r.get("warnings", [])
+                           if "تخفيف" in w or "طرح" in w]),  # خبر تخفيف؟
+        "h4_levels": r.get("h4_levels"),                  # مستويات 4س (فيصل)
         "liberation": r.get("liberation"),               # بوابة التحرر
         "sector": r.get("sector"), "country": r.get("country"),
         "status": "active", "removed_date": None, "removal_reason": None,
@@ -2979,6 +3062,16 @@ def check_promotions(wl: dict, history: dict) -> list:
                       if "شورت" in x or "فلوت" in x]
         combined = list(fresh.get("soft_fails", []))
         combined += [x for x in prev_extra if x not in combined]
+        # نزول A→B لخبر التخفيف فقط لو ظهر «تأثير سلبي فعلي» (قرار المستخدم):
+        # كسر الدعم أو قاع أدنى جديد. يرجع A تلقائياً لمّا يستقر فوق الدعم.
+        if s.get("news_risk"):
+            piv = s.get("pivot")
+            last = float(fresh.get("price") or df["Close"].iloc[-1])
+            recent_low = float(df["Low"].tail(5).min())
+            broke = bool(piv) and (last < piv or recent_low < piv * 0.99)
+            tag = "تخفيف: كسر الدعم"
+            if broke and tag not in combined:
+                combined.append(tag)
         was = s.get("tier", "A")
         s["soft_fails"] = combined
         s["tier"] = "A" if not combined else "B"
@@ -3133,6 +3226,9 @@ def build_daily_message(wl: dict, splits: list,
                      + f" | الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
+        lines += h4_levels_block(s.get("h4_levels"))
+        for w in (s.get("warnings") or []):
+            lines.append(f"   ⚠️ {esc(w)}")
         # العائد/المخاطرة من أعلى دفعة دخول (أسوأ تعبئة) لا من السعر الحالي —
         # لأنك تنتظر السهم ينزل للدفعات قبل ما تشتري (تحفّظ في الحساب).
         entry_px = (s.get("entry") or [None, s["pivot"]])[1] or s["pivot"]
