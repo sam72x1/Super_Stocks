@@ -149,6 +149,37 @@ CONFIG = {
     "VOL_DRY_RATIO": 0.6,        # جفاف: متوسط 5 < 60% من متوسط 20
     "SCORE_MIN": 40,             # الحد الأدنى لدخول الترشيح (v2.1: كان 50)
 
+    # ---- نظام القائمتين (v2.7): صارمة A + مراقبة B ----
+    # قرار المستخدم: ما نطلع صفر أبدًا. القائمة A تجتاز كل البوابات،
+    # والقائمة B "قريبة" تجتاز البنية الأساسية (سهم ارتكاز فعلي) لكن
+    # ينقصها 1-2 من بوابات التأكيد (RSI/MACD/MA/شورت/فلوت/فجوة-فوق).
+    "WATCHLIST_TWO_TIER": True,
+    "WATCH_SOFT_GATES": ["M9", "M10", "M11", "M12", "M13", "M14"],
+    "WATCH_MAX_FAILS": 2,        # أقصى بوابات تأكيد ناقصة لقبوله بقائمة B
+    # بوابات البنية الأساسية (إلزامية دائمًا — فشلها = ليس سهم ارتكاز):
+    # M1 سعر · M2 هبوط · M3 انفجار · M4 قاعدة/طزاجة · M5 سيولة ·
+    # M6 توافق فريمات · M7 نمط شمعة · M8 فجوة طازجة (لو مفعّلة).
+
+    # ---- ستوب ATR ديناميكي (v2.7، قرار المستخدم) ----
+    "USE_ATR_STOP": True,        # ستوب = الأبعد بين (5-7% تحت القاع) و(ATR×مضاعف)
+    "ATR_STOP_MULT": 1.5,        # القاع - 1.5×ATR (يحترم تذبذب السهم الفعلي)
+    "ATR_PERIOD": 14,
+
+    # ---- Fibonacci كأهداف (v2.7، قرار المستخدم) ----
+    "USE_FIB_TARGETS": True,     # أضف مستويات فيب فوق السعر لمرشحي الأهداف
+
+    # ---- MFI: كشف خلق السيولة الوهمية (v2.7، تغريدة فيصل 7379) ----
+    "MFI_PERIOD": 14,
+    "MFI_OVERSOLD": 25.0,        # تشبع بيعي بالـMFI (تأكيد مع RSI)
+    "MFI_DIVERGENCE_SCORE": 10,  # نقاط: السعر يكسر قاعًا والـMFI لا يتبع (تباعد)
+
+    # ---- نقاط المؤشرات الإضافية (v2.7) ----
+    "SCORE_BOLLINGER_SQUEEZE": 5,  # انكماش حزمة كلنجر (تجميع قبل الانفجار)
+    "SCORE_STOCHRSI": 5,           # StochRSI من التشبع وانعطاف صاعد
+    "SCORE_DMI": 5,                # +DI يتجاوز -DI (بداية اتجاه صاعد)
+    "SCORE_MA_SHORT": 5,           # السعر استعاد MA5/MA20 (إشارة تجميع)
+    "BOLL_SQUEEZE_PCTL": 0.25,     # عرض الحزمة ضمن أدنى 25% من آخر 60 جلسة
+
     # ---- القائمة الأسبوعية (v2.0) ----
     "WATCHLIST_SIZE": 10,        # حجم القائمة الثابتة (حد أقصى)
     # v2.6 (فيصل): فرز السوق كاملاً كل يوم بعد الإغلاق بدل الجمعة فقط
@@ -317,6 +348,104 @@ def williams_r(high, low, close, period: int = 14) -> pd.Series:
     ll = low.rolling(period).min()
     rng = (hh - ll).replace(0, np.nan)
     return (-100.0 * (hh - close) / rng).fillna(-50.0)
+
+
+# ==========================================================
+# 2أ) مؤشرات فيصل الإضافية (v2.7): صفحة إعداداته الكاملة
+#   Bollinger 20/2 · StochRSI 14/14/3/3 · DMI 14 · ATR 14 ·
+#   Fibonacci 0.236-0.786 · VWAP · DMA(10,50,10).
+#   كلها مكتوبة يدوياً = صفر اعتماد على مكتبات هشة (نفس نهج الملف).
+# ==========================================================
+def atr(high, low, close, period: int = 14) -> pd.Series:
+    """المدى الحقيقي المتوسط (ATR 14) — لقياس التذبذب وحساب ستوب ديناميكي."""
+    pc = close.shift(1)
+    tr = pd.concat([(high - low),
+                    (high - pc).abs(),
+                    (low - pc).abs()], axis=1).max(axis=1)
+    return tr.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+
+
+def bollinger(close: pd.Series, period: int = 20, mult: float = 2.0):
+    """مؤشر كلنجر (Bollinger 20/2) — يرجع (وسط، علوي، سفلي، %B، عرض الحزمة).
+    فيصل: ينتظر انكماش الحزمة (تجميع) قبل الانفجار."""
+    mid = close.rolling(period).mean()
+    sd = close.rolling(period).std(ddof=0)
+    upper = mid + mult * sd
+    lower = mid - mult * sd
+    width = (upper - lower) / mid.replace(0, np.nan)         # عرض نسبي
+    pctb = (close - lower) / (upper - lower).replace(0, np.nan)
+    return mid, upper, lower, pctb, width
+
+
+def stoch_rsi(close: pd.Series, period: int = 14, k: int = 3, d: int = 3):
+    """Stochastic RSI (14/14/3/3) — يرجع (%K، %D) بين 0-100."""
+    r = rsi(close, period)
+    lo = r.rolling(period).min()
+    hi = r.rolling(period).max()
+    st = (r - lo) / (hi - lo).replace(0, np.nan) * 100.0
+    kline = st.rolling(k).mean()
+    dline = kline.rolling(d).mean()
+    return kline.fillna(50.0), dline.fillna(50.0)
+
+
+def dmi_adx(high, low, close, period: int = 14):
+    """DMI/ADX (14) — يرجع (+DI، -DI، ADX). +DI>-DI = اتجاه صاعد."""
+    up = high.diff()
+    dn = -low.diff()
+    plus_dm = np.where((up > dn) & (up > 0), up, 0.0)
+    minus_dm = np.where((dn > up) & (dn > 0), dn, 0.0)
+    pc = close.shift(1)
+    tr = pd.concat([(high - low), (high - pc).abs(),
+                    (low - pc).abs()], axis=1).max(axis=1)
+    atr_ = tr.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+    pdi = 100.0 * pd.Series(plus_dm, index=high.index).ewm(
+        alpha=1.0 / period, min_periods=period, adjust=False).mean() \
+        / atr_.replace(0, np.nan)
+    mdi = 100.0 * pd.Series(minus_dm, index=high.index).ewm(
+        alpha=1.0 / period, min_periods=period, adjust=False).mean() \
+        / atr_.replace(0, np.nan)
+    dx = 100.0 * (pdi - mdi).abs() / (pdi + mdi).replace(0, np.nan)
+    adx = dx.ewm(alpha=1.0 / period, min_periods=period, adjust=False).mean()
+    return pdi.fillna(0.0), mdi.fillna(0.0), adx.fillna(0.0)
+
+
+def rolling_vwap(df: pd.DataFrame, period: int = 20) -> float:
+    """VWAP تقريبي على آخر period جلسة (السعر المرجّح بالحجم).
+    فيصل يستخدمه كخط مرجعي (CDIO VWAP 1.246)."""
+    tail = df.tail(period)
+    tp = (tail["High"] + tail["Low"] + tail["Close"]) / 3.0
+    vol = tail["Volume"]
+    denom = float(vol.sum())
+    if denom <= 0:
+        return float(tail["Close"].iloc[-1])
+    return float((tp * vol).sum() / denom)
+
+
+def dma_oscillator(close: pd.Series, short: int = 10, long: int = 50,
+                   disp: int = 10):
+    """DMA(10,50,10) المزاحة كما في شارتات فيصل (RAYA/CDIO): الفرق بين
+    متوسطين بسيطين مزاحين للأمام. يرجع (DDD، AMA) ≈ القيمتين المعروضتين."""
+    ma_s = close.rolling(short).mean().shift(disp)
+    ma_l = close.rolling(long).mean().shift(disp)
+    ddd = ma_s - ma_l                     # الفرق (الخط الأزرق DDD)
+    ama = ddd.rolling(short).mean()       # تنعيمه (البرتقالي AMA)
+    return ddd, ama
+
+
+def fibonacci_levels(swing_low: float, swing_high: float) -> dict:
+    """مستويات فيبوناتشي الارتدادية/الامتدادية (فيصل IMG_6473): تُستخدم
+    كأهداف/مناطق. من القاع للقمة: 0.236/0.382/0.5/0.618/0.786 ارتداد،
+    و1.272/1.618 امتداد فوق القمة."""
+    if swing_high <= swing_low or swing_low <= 0:
+        return {}
+    rng = swing_high - swing_low
+    out = {}
+    for r in (0.236, 0.382, 0.5, 0.618, 0.786):
+        out[f"{r:.3f}"] = round(swing_low + rng * r, 3)
+    out["1.000"] = round(swing_high, 3)
+    out["1.272"] = round(swing_high + rng * 0.272, 3)
+    out["1.618"] = round(swing_high + rng * 0.618, 3)
+    return out
 
 
 # ==========================================================
@@ -979,55 +1108,51 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             if not recent_gap:
                 return None  # لا فجوة معتبرة حديثة → يُرفض (بوابة فيصل السادسة)
 
-        # ---- M9: فجوة غير مملوءة فوق السعر — إلزامي (v2.5، مفهوم فيصل) ----
+        # بوابات التأكيد اللينة (v2.7): تُعدّ النواقص بدل الرفض الفوري.
+        # 0 نواقص → قائمة A الصارمة | 1-2 → قائمة B المراقبة | أكثر → يُرفض.
+        soft_fails = []
+
+        # ---- M9: فجوة غير مملوءة فوق السعر (مفهوم فيصل) — بوابة لينة ----
         # من صور MTVA/TRUG/ONCO: الفجوة منطقة-هدف فوق السعر الراكد.
-        # هذا يصطاد السهم الراكد تحت فجوته (بدل اشتراط فجوة طازجة).
         gaps_above = all_unfilled_gaps_above(df)
-        # نحصر الفجوات ضمن مسافة واقعية فوق السعر
         maxd = CONFIG["GAP_ABOVE_MAX_DIST_PCT"]
         near_zones = [z for z in gaps_above["all_zones"]
                       if (z["bottom"] / price - 1.0) * 100.0 <= maxd]
-        if CONFIG.get("GAP_ABOVE_REQUIRED", False):
-            if not near_zones:
-                return None  # لا فجوة-هدف فوق السعر → يُرفض (مفهوم فيصل)
+        if CONFIG.get("GAP_ABOVE_REQUIRED", False) and not near_zones:
+            soft_fails.append("فجوة-هدف فوق")
 
-        # ---- M10: RSI في التشبع البيعي — إلزامي (فيصل: مستحيل ينفجر فوق 40) ----
-        # فيصل: "RSI لازم بين 23-27 ... مستحيل يصعد إذا RSI بمناطق 40"
+        # ---- M10: RSI في التشبع البيعي — بوابة لينة (فيصل: 23-27، تحت 40) ----
         rsi_s = rsi(close)
         r_now = float(rsi_s.iloc[-1])
         r_prev = float(rsi_s.iloc[-2])
         r_min_recent = float(rsi_s.tail(CONFIG["RSI_RECENT_WINDOW"]).min())
-        if CONFIG.get("RSI_GATE_REQUIRED", False):
-            # لازم: قاع تشبع حديث ≤ العتبة (27) + RSI الحالي ≤ السقف (40)
-            rsi_ok = (r_min_recent <= CONFIG["RSI_OVERSOLD"]
-                      and r_now <= CONFIG["RSI_MAX_NOW"])
-            if not rsi_ok:
-                return None  # RSI خارج منطقة التشبع → يُرفض (شرط فيصل الثاني)
+        rsi_ok = (r_min_recent <= CONFIG["RSI_OVERSOLD"]
+                  and r_now <= CONFIG["RSI_MAX_NOW"])
+        if CONFIG.get("RSI_GATE_REQUIRED", False) and not rsi_ok:
+            soft_fails.append("RSI تشبع")
 
-        # ---- M11: تقاطع MACD إيجابي — إلزامي (فيصل: شرط ثالث) ----
+        # ---- M11: تقاطع MACD إيجابي — بوابة لينة ----
         m_line, m_sig = macd(close)
-        if CONFIG.get("MACD_GATE_REQUIRED", False):
-            # تقاطع صاعد حديث: الخط فوق الإشارة الآن أو خلال آخر جلسات
-            macd_ok = (float(m_line.iloc[-1]) >= float(m_sig.iloc[-1])
-                       or (m_line.iloc[-5:] > m_sig.iloc[-5:]).any())
-            if not macd_ok:
-                return None  # لا تقاطع MACD إيجابي → يُرفض (شرط فيصل الثالث)
+        macd_ok = (float(m_line.iloc[-1]) >= float(m_sig.iloc[-1])
+                   or (m_line.iloc[-5:] > m_sig.iloc[-5:]).any())
+        if CONFIG.get("MACD_GATE_REQUIRED", False) and not macd_ok:
+            soft_fails.append("MACD")
 
-        # ---- M12: السعر على المتوسط الأسي 30/50 — إلزامي (فيصل: شرط أول) ----
-        # فيصل: "بعد التقسيم > متوسط الحركة" = السعر فوق EMA وقريب منه
-        # (مرتكز على متوسطه الأسي، لا طائر بعيد فوقه ولا منهار تحته بكثير)
+        # ---- M12: السعر على المتوسط الأسي 30/50 — بوابة لينة ----
         ema30 = ema(close, 30)
         ema50 = ema(close, 50)
-        if CONFIG.get("MA_GATE_REQUIRED", False):
-            band = CONFIG["MA_GATE_MAX_ABOVE_PCT"] / 100.0  # +15% فوق
-            # السعر ضمن النطاق فوق أحد المتوسطين الأسيين
-            ma_ok = any(
-                m > 0 and (price >= m * (1.0 - 0.02))  # ليس تحت المتوسط بكثير
-                and (price / m - 1.0) <= band            # وليس فوقه أبعد من الحد
-                for m in (ema30, ema50)
-            )
-            if not ma_ok:
-                return None  # بعيد عن المتوسط الأسي → يُرفض (شرط فيصل الأول)
+        band = CONFIG["MA_GATE_MAX_ABOVE_PCT"] / 100.0
+        ma_ok = any(
+            m > 0 and (price >= m * (1.0 - 0.02))
+            and (price / m - 1.0) <= band
+            for m in (ema30, ema50)
+        )
+        if CONFIG.get("MA_GATE_REQUIRED", False) and not ma_ok:
+            soft_fails.append("المتوسط الأسي")
+
+        # حد أقصى للنواقص هنا (M13/M14 شورت/فلوت تُضاف لاحقًا في الفرز)
+        if len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
+            return None  # بعيد جدًا عن النموذج → يُرفض حتى من قائمة المراقبة
 
         # ---- M13: الشورت العالي — يُطبّق كمرحلة ثانية بعد الفرز ----
         # (الشورت يُجلب فقط للأسهم الناجحة لأن جلبه بطيء — لا يمكن لكل
@@ -1132,6 +1257,74 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             score += 5
             flags.append("نمط شمعة قوي")
 
+        # ======== مؤشرات فيصل الإضافية (v2.7): نقاط فقط، لا ترفض ========
+        ind = {}   # قيم تُعرض بالبطاقة (مطابقة لصفحة إعدادات فيصل)
+        try:
+            atr_s = atr(high, low, close, CONFIG["ATR_PERIOD"])
+            ind["atr"] = float(atr_s.iloc[-1])
+        except Exception:
+            ind["atr"] = 0.0
+        # MFI: كشف "خلق السيولة الوهمية" — تباعد صعودي عند مسح القاع
+        try:
+            mfi_now = float(mfi_s.iloc[-1])
+            mfi_min = float(mfi_s.tail(10).min())
+            ind["mfi"] = mfi_now
+            if sweep and mfi_now > mfi_min and mfi_min <= CONFIG["MFI_OVERSOLD"]:
+                score += CONFIG["MFI_DIVERGENCE_SCORE"]
+                flags.append(f"تباعد MFI صعودي ({mfi_min:.0f}→{mfi_now:.0f}) — سيولة مخفية")
+        except Exception:
+            ind["mfi"] = 50.0
+        # Bollinger: انكماش الحزمة = تجميع قبل الانفجار
+        try:
+            _bm, _bu, _bl, _pctb, _bw = bollinger(close)
+            ind["boll_pctb"] = float(_pctb.iloc[-1])
+            bw_tail = _bw.dropna().tail(60)
+            if len(bw_tail) >= 20:
+                thr = float(bw_tail.quantile(CONFIG["BOLL_SQUEEZE_PCTL"]))
+                if float(_bw.iloc[-1]) <= thr:
+                    score += CONFIG["SCORE_BOLLINGER_SQUEEZE"]
+                    flags.append("انكماش حزمة كلنجر (تجميع)")
+        except Exception:
+            pass
+        # StochRSI: من التشبع وانعطاف صاعد
+        try:
+            _sk, _sd = stoch_rsi(close)
+            ind["stochrsi_k"] = float(_sk.iloc[-1])
+            if float(_sk.iloc[-2]) <= 20 and float(_sk.iloc[-1]) > float(_sk.iloc[-2]):
+                score += CONFIG["SCORE_STOCHRSI"]
+                flags.append("StochRSI انعطاف من التشبع")
+        except Exception:
+            pass
+        # DMI: +DI يتجاوز -DI (بداية اتجاه صاعد)
+        try:
+            _pdi, _mdi, _adx = dmi_adx(high, low, close)
+            ind["plus_di"] = float(_pdi.iloc[-1])
+            ind["minus_di"] = float(_mdi.iloc[-1])
+            ind["adx"] = float(_adx.iloc[-1])
+            if float(_pdi.iloc[-1]) > float(_mdi.iloc[-1]):
+                score += CONFIG["SCORE_DMI"]
+                flags.append("DMI: ‎+DI فوق ‎-DI")
+        except Exception:
+            pass
+        # MA5/MA20 القصيرة: استعادتها = تجميع مبكر (فيصل يستخدمها مع 30/50)
+        try:
+            ma5 = float(close.rolling(5).mean().iloc[-1])
+            ma20 = float(close.rolling(20).mean().iloc[-1])
+            ind["ma5"], ind["ma20"] = ma5, ma20
+            if ma5 > 0 and price >= ma5 and ma5 >= ma20 * 0.99:
+                score += CONFIG["SCORE_MA_SHORT"]
+                flags.append("استعاد MA5/MA20 (تجميع)")
+        except Exception:
+            pass
+        # VWAP + DMA(10,50,10) — خطوط فيصل المرجعية (عرض فقط)
+        try:
+            ind["vwap"] = rolling_vwap(df)
+            _ddd, _ama = dma_oscillator(close)
+            ind["dma_ddd"] = float(_ddd.iloc[-1])
+            ind["dma_ama"] = float(_ama.iloc[-1])
+        except Exception:
+            pass
+
         # الفجوات السعرية (شرط فيصل السادس) — نقاط (gaps محسوبة فوق في M8)
         if gaps["count"] > 0:
             if gaps["max_gap"] >= CONFIG["GAP_BIG_PCT"]:
@@ -1175,6 +1368,11 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         s_lo, s_hi = CONFIG["STOP_BELOW_LOW_PCT"]
         stop_hi = pivot * (1 - s_lo / 100.0)    # أعلى الوقف (أقرب للقاع)
         stop_lo = pivot * (1 - s_hi / 100.0)    # أدنى الوقف (تحت السحب)
+        # ستوب ATR ديناميكي (v2.7): يحترم تذبذب السهم الفعلي — نأخذ الأبعد
+        # (الأكثر أمانًا) بين نسبة 5-7% و(القاع - 1.5×ATR) حتى لا يُكنس.
+        if CONFIG.get("USE_ATR_STOP", False) and ind.get("atr", 0) > 0:
+            atr_stop = pivot - CONFIG["ATR_STOP_MULT"] * ind["atr"]
+            stop_lo = min(stop_lo, atr_stop)
         big = price >= CONFIG["LARGE_PRICE_CUT"]
         d_lo, d_hi = (CONFIG["SWEEP_LARGE_PCT"] if big
                       else CONFIG["SWEEP_SMALL_PCT"])
@@ -1209,6 +1407,15 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
         if CONFIG.get("GAP_ABOVE_USE_AS_TARGET", False):
             for z in near_zones:
                 target_cands.append(z["bottom"])   # قاع الفجوة = مقاومة
+        # Fibonacci كأهداف (فيصل IMG_6473): مستويات ارتداد من القاع للقمة
+        if CONFIG.get("USE_FIB_TARGETS", False):
+            try:
+                fib = fibonacci_levels(pivot, raw_t3)
+                for key in ("0.382", "0.500", "0.618", "0.786", "1.000"):
+                    if fib.get(key):
+                        target_cands.append(fib[key])
+            except Exception:
+                pass
         cands = sorted(t for t in target_cands
                        if min_first <= t <= cap)
         targets = []
@@ -1224,12 +1431,45 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             targets.append(round(nxt, 2) if nxt else round(targets[-1] * 1.25, 2))
         t1, t2, t3 = targets[0], targets[1], targets[2]
 
+        # ===== "تحرر السهم" + "قاب/الفجوة" (مفهوم فيصل الذهبي، v2.7) =====
+        # تحرر = أعلى مقاومة حقيقية فوق السعر؛ تجاوزها بثبات = انطلاق لمساحة
+        # بلا مقاومة (فيصل: LNAI تحرر 3.38 · CLIK 2.21 · FRSX فوق 3 · SMX 23).
+        liberation = None
+        lib_near = False
+        try:
+            res_above = sorted(x for x in resist if x > price)
+            if res_above:
+                liberation = round(float(res_above[-1]), 2)  # أعلى مقاومة = بوابة التحرر
+            elif raw_t3 > price:
+                liberation = round(float(raw_t3), 2)
+            if liberation:
+                # "قريب من التحرر" = ضمن 12% تحت بوابة التحرر (قابل للانطلاق)
+                lib_near = price >= liberation * 0.88
+        except Exception:
+            liberation = None
+        # قاب/الفجوة: أقرب فجوة غير مملوءة فوق السعر = منطقة-هدف ذهبية
+        qab = None
+        if near_zones:
+            z0 = near_zones[0]
+            qab = {"bottom": z0["bottom"], "top": z0["top"],
+                   "size_pct": z0["size_pct"],
+                   "dist_pct": round((z0["bottom"] / price - 1.0) * 100.0, 1)}
+            flags.append(f"قاب (فجوة) فوق السعر عند ${z0['bottom']:.2f} "
+                         f"(فراغ {z0['size_pct']:.0f}% = هدف ذهبي)")
+        if lib_near and liberation:
+            flags.append(f"🔓 قرب التحرر فوق ${liberation:.2f} "
+                         f"(تجاوزه بثبات = انطلاق)")
+
         # عائد/مخاطرة للهدفين الأول والثاني
         risk = max(price - stop_lo, 1e-9)
         rr = (t1 - price) / risk
         rr2 = (t2 - price) / risk
+        # v2.7: ضعف RR = نقص (ينقل لقائمة B المراقبة) بدل الرفض النهائي —
+        # متوافق مع قرار «ما نطلع صفر». لو تجاوز مجموع النواقص الحد → يُرفض.
         if rr < CONFIG["MIN_RR_T1"]:
-            return None  # صفقة خاسرة رياضياً — مرفوضة نهائياً
+            soft_fails.append("عائد/مخاطرة منخفض")
+            if len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
+                return None
 
         # ملخص حالة بوابات فيصل (للرسالة المختصرة) — كلها ✅ لأن السهم
         # اجتازها، لكن نعرضها للتأكيد البصري ولمعرفة قيمة كل شرط فعلياً
@@ -1275,6 +1515,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame):
             "gaps": gaps,
             "gaps_above": gaps_above,
             "gates_status": gates_status,
+            "soft_fails": soft_fails,                 # بوابات تأكيد ناقصة
+            "tier": "A" if not soft_fails else "B",   # مبدئي (يُحدّث بعد الشورت/الفلوت)
+            "indicators": ind,                        # مؤشرات فيصل الإضافية
+            "liberation": liberation,                 # بوابة "تحرر السهم"
+            "lib_near": lib_near,                      # قريب من التحرر؟
+            "qab": qab,                               # أقرب فجوة (قاب) فوق السعر
         }
     except Exception:
         return None
@@ -1562,6 +1808,15 @@ def enrich(results: list) -> None:
                 r["short_pct"] = round(sp * 100, 1) if sp else None
                 fl = info.get("floatShares")
                 r["float"] = fl
+                # v2.7: ملف الشركة (طريقة فيصل: القطاع/النشاط + المالية)
+                r["sector"] = info.get("sector") or info.get("industry")
+                r["industry"] = info.get("industry")
+                summ = info.get("longBusinessSummary") or ""
+                r["business"] = (summ[:160].strip() + "…") if summ else None
+                r["country"] = info.get("country")
+                r["cash"] = info.get("totalCash")
+                r["revenue"] = info.get("totalRevenue")
+                r["shares_out"] = info.get("sharesOutstanding")
             except Exception:
                 pass
             try:
@@ -1782,11 +2037,36 @@ def build_message(results: list, splits: list,
     for r in results:
         ready = "✅ <b>جاهز للدخول (ثبات بعد القاع)</b>" if r["ready"] else \
             "⏳ قيد التكوّن — انتظر الثبات"
+        # شارة القائمة A/B (v2.7)
+        tier = r.get("tier", "A")
+        if tier == "A":
+            tier_badge = "🅰️ <b>قائمة صارمة</b> (كل الشروط)"
+        else:
+            miss = "، ".join(r.get("soft_fails", [])) or "—"
+            tier_badge = f"🅱️ <b>مراقبة</b> (ينقصها: {miss})"
         lines += [
             f"━━━━━━━━━━━━━━━",
             f"📌 <b>{r['symbol']}</b> | ${r['price']:.2f} | "
             f"نقاط: <b>{r['score']}/100</b>",
-            f"{ready}",
+            tier_badge,
+            f"{ready}",]
+        # ملف الشركة (طريقة فيصل: القطاع/النشاط + المالية) — إن توفّر
+        sec = r.get("sector") or r.get("industry")
+        if sec or r.get("business") or r.get("recent_split"):
+            bits = []
+            if sec:
+                bits.append(f"القطاع: {esc(sec)}")
+            if r.get("country"):
+                bits.append(esc(r["country"]))
+            if r.get("cash"):
+                bits.append(f"نقد {fmt_money(r['cash'])}")
+            if r.get("revenue"):
+                bits.append(f"إيراد {fmt_money(r['revenue'])}")
+            if bits:
+                lines.append("🏢 " + " | ".join(bits))
+            if r.get("business"):
+                lines.append(f"   {esc(r['business'])}")
+        lines += [
             f"📉 هبوط من القمة: {r['drop_pct']:.0f}%  |  "
             f"💥 أكبر انفجار سابق: {r['best_spike']:.0f}%",
             f"🔁 انفجارات موثقة: {r['n_spikes']}  |  "
@@ -1802,6 +2082,35 @@ def build_message(results: list, splits: list,
             f"🎯 خذ ربح عند المقاومات: 1) ${r['t1']:.2f}  2) ${r['t2']:.2f}  "
             f"3) ${r['t3']:.2f}",
         ]
+        # "تحرر السهم" + "قاب/الفجوة" (مفهوم فيصل الذهبي)
+        if r.get("qab"):
+            q = r["qab"]
+            lines.append(f"🟡 قاب (فجوة) فوق السعر: ${q['bottom']:.2f}–"
+                         f"${q['top']:.2f} (+{q['dist_pct']:.0f}% · فراغ "
+                         f"{q['size_pct']:.0f}% = هدف ذهبي)")
+        if r.get("liberation"):
+            tag = " 🔓 قريب!" if r.get("lib_near") else ""
+            lines.append(f"🚀 تحرر السهم فوق: ${r['liberation']:.2f} "
+                         f"(تجاوزه بثبات = انطلاق بلا مقاومة){tag}")
+        # مؤشرات فيصل الإضافية (صفحة إعداداته)
+        ic = r.get("indicators") or {}
+        if ic:
+            mp = []
+            if "mfi" in ic:
+                mp.append(f"MFI {ic['mfi']:.0f}")
+            if "stochrsi_k" in ic:
+                mp.append(f"StochRSI {ic['stochrsi_k']:.0f}")
+            if "adx" in ic:
+                mp.append(f"ADX {ic['adx']:.0f}(+DI {ic.get('plus_di',0):.0f}/"
+                          f"-DI {ic.get('minus_di',0):.0f})")
+            if "boll_pctb" in ic:
+                mp.append(f"كلنجر %B {ic['boll_pctb']:.2f}")
+            if "atr" in ic and ic["atr"]:
+                mp.append(f"ATR {ic['atr']:.2f}")
+            if "vwap" in ic:
+                mp.append(f"VWAP ${ic['vwap']:.2f}")
+            if mp:
+                lines.append("📐 مؤشرات: " + " · ".join(mp))
         lines += risk_lines(r["price"], r["stop"][0], r["t1"], r["t2"], r["rr"])
         # ملخص بوابات فيصل المختصر (✅/❌ لكل شرط) — تأكيد بصري سريع
         gs = r.get("gates_status") or {}
@@ -1961,6 +2270,9 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "t1": round(r["t1"], 4), "t2": round(r["t2"], 4),
         "t3": round(r["t3"], 4),
         "score": r["score"], "flags": list(r["flags"]),
+        "tier": r.get("tier", "A"),                       # A صارمة / B مراقبة
+        "soft_fails": list(r.get("soft_fails", [])),
+        "liberation": r.get("liberation"),               # بوابة التحرر
         "status": "active", "removed_date": None, "removal_reason": None,
         "replaced": False,
         "readiness": None, "have": [], "partial": [], "missing": [],
@@ -1995,7 +2307,12 @@ def apply_short_gate(results: list) -> list:
     for r in results:
         srt = short_map.get(r["symbol"])
         if srt is not None and srt >= limit:
+            # v2.7: لا يُحذف — يُسجّل نقصًا وينزل لقائمة المراقبة B
+            r.setdefault("soft_fails", []).append("شورت عالٍ")
+            r.setdefault("flags", []).append(
+                f"⚠️ شورت عالٍ {int(srt):,} (فوق {limit:,})")
             rejected.append((r["symbol"], srt))
+            kept.append(r)
         else:
             if srt is not None:
                 r.setdefault("flags", []).append(f"شورت {int(srt):,} (مقبول)")
@@ -2004,7 +2321,7 @@ def apply_short_gate(results: list) -> list:
             kept.append(r)
     if rejected:
         names = "، ".join(f"{s}({int(v):,})" for s, v in rejected)
-        log(f"بوابة الشورت (M13) رفضت {len(rejected)}: {names}")
+        log(f"بوابة الشورت (M13) نقلت لقائمة B: {len(rejected)}: {names}")
     return kept
 
 
@@ -2036,7 +2353,12 @@ def apply_float_gate(results: list) -> list:
                 fl = None
             time.sleep(0.10)         # احترام حدود الطلبات
         if fl is not None and fl >= limit:
+            # v2.7: لا يُحذف — يُسجّل نقصًا وينزل لقائمة المراقبة B
+            r.setdefault("soft_fails", []).append("فلوت كبير")
+            r.setdefault("flags", []).append(
+                f"⚠️ فلوت كبير {int(fl):,} (فوق {limit:,})")
             rejected.append((r["symbol"], fl))
+            kept.append(r)
         else:
             if fl is not None:
                 r.setdefault("flags", []).append(
@@ -2047,8 +2369,22 @@ def apply_float_gate(results: list) -> list:
             kept.append(r)
     if rejected:
         names = "، ".join(f"{s}({int(v):,})" for s, v in rejected)
-        log(f"بوابة الفلوت (M14) رفضت {len(rejected)}: {names}")
+        log(f"بوابة الفلوت (M14) نقلت لقائمة B: {len(rejected)}: {names}")
     return kept
+
+
+def classify_tier(soft_fails, two_tier=None, maxf=None):
+    """تصنيف السهم حسب عدد بوابات التأكيد الناقصة:
+    0 → 'A' (صارمة) | 1..maxf → 'B' (مراقبة) | أكثر → None (يُرفض).
+    دالة نقية لتسهيل الاختبار (تستخدمها scan_market)."""
+    two_tier = CONFIG.get("WATCHLIST_TWO_TIER", True) if two_tier is None else two_tier
+    maxf = CONFIG.get("WATCH_MAX_FAILS", 2) if maxf is None else maxf
+    n = len(soft_fails or [])
+    if n == 0:
+        return "A"
+    if two_tier and n <= maxf:
+        return "B"
+    return None
 
 
 def scan_market():
@@ -2071,8 +2407,22 @@ def scan_market():
     results = apply_short_gate(results)
     # M14: بوابة الفلوت الكبير (آخر فلتر — الفلوت بطيء، والناجحون هنا قلائل)
     results = apply_float_gate(results)
-    results.sort(key=lambda x: (0 if x["ready"] else 1, -x["score"], -x["rr"]))
-    log(f"الفرز وجد {len(results)} مرشحاً يطابق الشروط")
+    # ===== التصنيف النهائي لقائمتين (v2.7) =====
+    # A = صفر نواقص (صارمة) | B = 1-2 نواقص (مراقبة) | أكثر = يُحذف.
+    final = []
+    for r in results:
+        tier = classify_tier(r.get("soft_fails", []))
+        if tier is None:
+            continue
+        r["tier"] = tier
+        final.append(r)
+    results = final
+    # ترتيب: A قبل B → الجاهز → النقاط → العائد
+    results.sort(key=lambda x: (0 if x.get("tier") == "A" else 1,
+                                0 if x["ready"] else 1, -x["score"], -x["rr"]))
+    na = sum(1 for r in results if r.get("tier") == "A")
+    log(f"الفرز: {na} (A صارمة) + {len(results) - na} (B مراقبة) "
+        f"= {len(results)} مرشح")
     return results, history
 
 
@@ -2321,10 +2671,15 @@ def build_daily_message(wl: dict, splits: list,
         lines.append("القائمة فارغة مؤقتاً — البدائل تُجلب في التشغيل القادم.")
     for i, s in enumerate(wl["stocks"], 1):
         lp = s["last_price"]
-        lines.append(f"{i}) 📌 <b>{s['symbol']}</b> — "
+        tb = "🅰️" if s.get("tier", "A") == "A" else "🅱️"
+        lines.append(f"{i}) {tb} 📌 <b>{s['symbol']}</b> — "
                      f"{readiness_badge(s['readiness'])}")
+        if s.get("tier") == "B" and s.get("soft_fails"):
+            lines.append(f"   🅱️ مراقبة (ينقصها: {'، '.join(s['soft_fails'])})")
         lines.append(f"   💵 ${lp:.2f} | قاع ${s['pivot']:.2f} | "
                      f"ستوب ${s['stop']:.2f}")
+        if s.get("liberation"):
+            lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
         risk = lp - s["stop"]
         if lp < s["t1"] and risk > 0:
             g1 = s["t1"] - lp
