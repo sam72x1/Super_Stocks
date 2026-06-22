@@ -308,11 +308,21 @@ CONFIG = {
     "EXPLOSION_PCT": 70.0,       # قفزة يوم واحد ≥ هذا = انفجار نحلّله (قرار المستخدم)
     "EXPLOSION_LOOKBACK": 5,     # نبحث عن يوم الانفجار في آخر N جلسة
     "EXPLOSION_KEEP_DAYS": 30,   # نحتفظ بسجل الانفجارات آخر N يوم للتقرير
+    # ---- حجم المركز + الباكتيست ----
+    "ACCOUNT_SIZE": 10000.0,     # رأس المال لحساب حجم المركز (env: ACCOUNT_SIZE)
+    "RISK_PER_TRADE_PCT": 1.0,   # نسبة المخاطرة من رأس المال لكل صفقة
+    "BACKTEST_FORWARD_DAYS": 40, # أفق الباكتيست للأمام (جلسات) لقياس الهدف/الوقف
+    "BACKTEST_STEP": 5,          # خطوة المشي للأمام (جلسات) لتقليل التداخل
 }
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 MODE = os.environ.get("SCREENER_MODE", CONFIG["MODE"]).strip().upper()
+try:                                  # رأس المال من البيئة (اختياري)
+    if os.environ.get("ACCOUNT_SIZE"):
+        CONFIG["ACCOUNT_SIZE"] = float(os.environ["ACCOUNT_SIZE"])
+except Exception:
+    pass
 
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
@@ -2390,6 +2400,36 @@ COUNTRY_AR = {
 }
 
 
+def position_size(avg_entry, stop_lo):
+    """حجم المركز من إدارة المخاطر: كم سهم تشتري بحيث خسارتك لو ضُرب الوقف =
+    RISK_PER_TRADE_PCT% من رأس المال. يرجع dict أو None."""
+    try:
+        risk_share = float(avg_entry) - float(stop_lo)
+    except Exception:
+        return None
+    if risk_share <= 0 or not CONFIG.get("ACCOUNT_SIZE"):
+        return None
+    budget = CONFIG["ACCOUNT_SIZE"] * CONFIG["RISK_PER_TRADE_PCT"] / 100.0
+    shares = int(budget / risk_share)
+    if shares <= 0:
+        return None
+    return {"shares": shares, "cost": round(shares * float(avg_entry), 0),
+            "risk": round(budget, 0)}
+
+
+def position_size_line(tranches, stop_lo) -> list:
+    """سطر حجم المركز (يُحسب من متوسط الدفعات = تعبئة فيصل الفعلية)."""
+    if not tranches:
+        return []
+    avg = sum(tranches) / len(tranches)
+    ps = position_size(avg, stop_lo)
+    if not ps:
+        return []
+    return [f"   📐 حجم المركز (مخاطرة {CONFIG['RISK_PER_TRADE_PCT']:.0f}% من "
+            f"${CONFIG['ACCOUNT_SIZE']:,.0f}): ~{ps['shares']:,} سهم "
+            f"(~${ps['cost']:,.0f} · مخاطرة ${ps['risk']:,.0f})"]
+
+
 def h4_levels_block(h4l) -> list:
     """سطر مستويات الـ4 ساعات (منظومة فيصل): انقلاب/دعوم/أهداف/قاع المسح.
     طبقة مساندة — لا تغيّر الخطة اليومية. يرجع [] لو لا مستويات."""
@@ -2601,6 +2641,7 @@ def build_message(results: list, splits: list,
                      + f"  ·  وقف ${r['stop'][0]:.2f}")
         lines.append(f"   أهداف ${r['t1']:.2f} → ${r['t2']:.2f} → ${r['t3']:.2f}"
                      f"  (ربح/مخاطرة {r['rr']:.1f}×)")
+        lines += position_size_line(_trs, r["stop"][0])
         if r.get("qab"):
             q = r["qab"]
             lines.append(f"   🟡 قاب (فجوة-هدف) من ${q['bottom']:.2f} "
@@ -2729,7 +2770,7 @@ def export_weekly_csvs(wl: dict, picks: list) -> None:
     d = dt.date.today().isoformat()
     cols_t = ("symbol", "tier", "sector", "rsi", "float", "short", "drop_pct",
               "best_spike", "rr", "score", "max_gain_pct", "status", "hit",
-              "removal_reason")
+              "hit_date", "added", "removal_reason")
     trades = [{k: r.get(k) for k in cols_t} for r in _collect_closed(wl)]
     signals = [{"symbol": r["symbol"], "tier": r.get("tier"),
                 "sector": r.get("sector"), "rsi": r.get("rsi"),
@@ -3595,6 +3636,10 @@ def build_daily_message(wl: dict, splits: list,
         elif lp >= s["t1"]:
             lines.append(f"   🎯 تجاوز هدف1 (${s['t1']:.2f}) — "
                          f"التالي ${s['t2']:.2f}")
+        # 🎯 تنبيه الدخول: السعر نزل داخل منطقة الدفعات الآن → اللحظة العملية
+        if trs and min(trs) <= lp <= max(trs) * 1.005 and lp > s["stop"]:
+            lines.append("   🎯 <b>في منطقة الدفعات الآن — نفّذ خطتك</b>")
+        lines += position_size_line(trs, s["stop"])
         if s.get("hit"):
             lines.append(f"   🏆 حقق هدف{s['hit'][-1]} يوم {s['hit_date']} | "
                          f"أقصى ارتفاع {s['max_gain_pct']:+.0f}%")
@@ -3848,6 +3893,30 @@ def build_dev_assistant_report(wl: dict) -> str:
             fails.append("   • أكثر قطاعات الخسارة: "
                          + "، ".join(f"{k} ({v})" for k, v in top_sec))
     body += fails if len(fails) > 1 else []
+
+    # عمق الأهداف: أي هدف نوصله؟ وكم يطول؟ (هل أهدافنا واقعية / نخرج بدري؟)
+    if wins:
+        depth = {"t1": 0, "t2": 0, "t3": 0}
+        for w_ in wins:
+            h = w_.get("hit")
+            if h in depth:
+                depth[h] += 1
+        days = []
+        for w_ in wins:
+            try:
+                a = dt.date.fromisoformat(str(w_.get("added")))
+                hd = dt.date.fromisoformat(str(w_.get("hit_date")))
+                days.append((hd - a).days)
+            except Exception:
+                pass
+        dep = ["\n🎯 <b>عمق الأهداف (الرابحون)</b>",
+               f"   t1 فقط: {depth['t1']} · t2: {depth['t2']} · t3: {depth['t3']}"]
+        if depth["t2"] + depth["t3"] == 0 and depth["t1"] >= 4:
+            dep.append("   ↳ نوصل t1 فقط دائمًا — قد تكون t2/t3 بعيدة، فكّر بتقريبها.")
+        if days:
+            dep.append(f"   متوسط زمن الوصول للهدف: {sum(days)/len(days):.0f} يوم")
+        body += dep
+
     body += _missed_block()           # 👻 الفرص الفائتة
     body += _explosions_block()       # 💥 الانفجارات المفقودة
 
@@ -3909,10 +3978,10 @@ def run_weekly_renewal(wl: dict) -> None:
         summary = {"week_start": wl["week_start"], "ended": today_iso,
                    "stocks": [{k: s.get(k) for k in
                                ("symbol", "entry_ref", "last_price",
-                                "max_gain_pct", "status", "hit",
-                                "removal_reason", "tier", "sector", "score",
-                                "flags", "rsi", "float", "short", "drop_pct",
-                                "best_spike", "rr")}
+                                "max_gain_pct", "status", "hit", "hit_date",
+                                "added", "removal_reason", "tier", "sector",
+                                "score", "flags", "rsi", "float", "short",
+                                "drop_pct", "best_spike", "rr")}
                               for s in wl["stocks"] + wl["removed"]]}
         wl.setdefault("history", []).append(summary)
         wl["history"] = wl["history"][-26:]
@@ -4098,8 +4167,104 @@ def run_daily_watchlist(wl: dict) -> None:
 # ==========================================================
 # 10) التشغيل الرئيسي
 # ==========================================================
+def backtest_symbol(sym: str, df: pd.DataFrame) -> list:
+    """باكتيست سهم واحد — **مشي للأمام بلا نظر للمستقبل**: عند كل نقطة نحلّل
+    البيانات حتى تلك النقطة فقط، ولو رشّح البوت ننتظر وصول السعر لمنطقة الدفعات
+    (تعبئة واقعية) ثم نقيس: t1 قبل الوقف = ربح، الوقف أولًا = خسارة (محافظ:
+    الوقف يفوز بالتعادل داخل الشمعة). يرجع قائمة صفقات بنتائجها."""
+    trades = []
+    n = len(df)
+    fwd = int(CONFIG["BACKTEST_FORWARD_DAYS"])
+    step = int(CONFIG["BACKTEST_STEP"])
+    i = int(CONFIG["MIN_BARS"])
+    while i < n - fwd:
+        try:
+            r = analyze_ticker(sym, df.iloc[:i])
+        except Exception:
+            r = None
+        if not r:
+            i += step
+            continue
+        entry = sum(r["tranches"]) / len(r["tranches"])   # متوسط الدفعات
+        stop, t1 = r["stop"][0], r["t1"]
+        fut = df.iloc[i:i + fwd]
+        hi = fut["High"].values.astype(float)
+        lo = fut["Low"].values.astype(float)
+        filled = next((k for k in range(len(fut)) if lo[k] <= entry), None)
+        if filled is None:
+            outcome = "no_fill"                 # ما وصل منطقة الدخول
+        else:
+            outcome = "open"
+            for k in range(filled, len(fut)):
+                if lo[k] <= stop:               # الوقف أولًا (محافظ)
+                    outcome = "loss"
+                    break
+                if hi[k] >= t1:
+                    outcome = "win"
+                    break
+        trades.append({"symbol": sym, "date": str(df.index[i - 1].date()),
+                       "entry": round(entry, 2), "stop": round(stop, 2),
+                       "t1": round(t1, 2), "outcome": outcome,
+                       "tier": r.get("tier")})
+        i += fwd                                # تخطَّ نافذة كاملة (لا تكرار)
+    return trades
+
+
+def backtest_stats(trades: list) -> dict:
+    """يجمّع نتائج الباكتيست: عدد الصفقات المحسومة ونسبة النجاح."""
+    decided = [t for t in trades if t["outcome"] in ("win", "loss")]
+    wins = [t for t in decided if t["outcome"] == "win"]
+    nofill = [t for t in trades if t["outcome"] == "no_fill"]
+    wr = (len(wins) / len(decided) * 100.0) if decided else 0.0
+    return {"signals": len(trades), "decided": len(decided),
+            "wins": len(wins), "losses": len(decided) - len(wins),
+            "win_rate": round(wr, 1), "no_fill": len(nofill)}
+
+
+def run_backtest(symbols=None) -> None:
+    """يشغّل الباكتيست على قائمة رموز (env BACKTEST_SYMBOLS أو وسيط) ويرسل
+    تقريرًا + CSV. **تنبيه انحياز الناجين:** لو جرّبت رموز رابحة معروفة فقط
+    تطلع النسبة متضخّمة — للحُكم الحقيقي جرّب عيّنة عشوائية واسعة من السوق."""
+    if symbols is None:
+        env = os.environ.get("BACKTEST_SYMBOLS", "").strip()
+        symbols = [s.strip().upper() for s in env.replace(";", ",").split(",")
+                   if s.strip()]
+    if not symbols:
+        log("⚠️ باكتيست: لا رموز (مرّر BACKTEST_SYMBOLS=AAA,BBB)")
+        send_telegram("🧪 الباكتيست: لم تُحدَّد رموز. مرّر BACKTEST_SYMBOLS.")
+        return
+    log(f"باكتيست {len(symbols)} رمز…")
+    hist = download_history(symbols)
+    all_trades = []
+    for sym in symbols:
+        df = hist.get(sym)
+        if df is None or len(df) < CONFIG["MIN_BARS"] + CONFIG["BACKTEST_FORWARD_DAYS"]:
+            continue
+        all_trades += backtest_symbol(sym, df)
+    st = backtest_stats(all_trades)
+    lines = ["🧪 <b>باكتيست تاريخي (مشي للأمام، بلا نظر للمستقبل)</b>",
+             f"رموز: {len(symbols)} · إشارات: {st['signals']} · "
+             f"غير مُعبّأة: {st['no_fill']}",
+             f"صفقات محسومة: <b>{st['decided']}</b> · "
+             f"نجاح: <b>{st['win_rate']:.0f}%</b> "
+             f"({st['wins']}✅ / {st['losses']}🛑)"]
+    if st["decided"] < 20:
+        lines.append("⏳ عيّنة صغيرة — وسّع الرموز لحُكم موثوق.")
+    lines.append("⚠️ <i>انحياز الناجين: رموز رابحة معروفة فقط تضخّم النسبة. "
+                 "للحقيقة استخدم عيّنة واسعة عشوائية. باكتيست ليس توصية.</i>")
+    send_telegram("\n".join(lines))
+    fn = _write_csv_file(all_trades, "backtest")
+    if fn:
+        send_telegram_document(fn, f"🧪 تفاصيل الباكتيست — {dt.date.today()}")
+    log(f"باكتيست: {st}")
+
+
 def main():
     log(f"بدء الفحص — الوضع: {MODE}")
+    if MODE == "BACKTEST":
+        run_backtest()
+        log("انتهى الباكتيست ✅")
+        return
     today = dt.date.today()
     force = os.environ.get("FORCE_RENEW", "").strip() == "1"
     wl = load_watchlist()

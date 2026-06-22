@@ -379,6 +379,35 @@ _calm = synth_pivot(seed=3)
 check("كاشف الانفجارات: يتجاهل ما دون العتبة",
       len(S.scan_explosions({"CALM": _calm})) == 0)
 
+# 📐 حجم المركز: مخاطرة ثابتة من رأس المال
+_ps = S.position_size(1.75, 1.39)   # risk/سهم=0.36 · 1% من 10000=100
+check("حجم المركز: عدد الأسهم صحيح من المخاطرة",
+      _ps and _ps["shares"] == int(100 / (1.75 - 1.39)) and _ps["risk"] == 100)
+check("حجم المركز: None لو الوقف ≥ الدخول",
+      S.position_size(1.50, 1.60) is None)
+check("سطر حجم المركز يظهر", bool(S.position_size_line([1.70, 1.75, 1.80], 1.39)))
+
+# 🧪 الباكتيست: مشي للأمام + إحصاء سليم
+_bt = S.backtest_symbol("BT", synth_pivot(seed=2))
+check("الباكتيست: يرجع صفقات بنتائج صحيحة",
+      all(t["outcome"] in ("win", "loss", "open", "no_fill") for t in _bt)
+      and all("entry" in t and "t1" in t for t in _bt))
+_bstats = S.backtest_stats([{"outcome": "win"}, {"outcome": "loss"},
+                            {"outcome": "win"}, {"outcome": "no_fill"}])
+check("الباكتيست: إحصاء النجاح صحيح",
+      _bstats["decided"] == 3 and _bstats["wins"] == 2
+      and _bstats["no_fill"] == 1 and abs(_bstats["win_rate"] - 66.7) < 0.2)
+
+# 🎯 عمق الأهداف في مساعد التطوير
+_wd = [{"symbol": f"W{i}", "status": "active", "hit": ("t2" if i % 3 else "t1"),
+        "hit_date": "2026-01-10", "added": "2026-01-02", "entry_ref": 2.0,
+        "max_gain_pct": 40, "tier": "A", "sector": "Technology", "rsi": 27,
+        "rr": 2.5, "flags": ["مسح سيولة"]} for i in range(12)]
+_repd = S.build_dev_assistant_report({"history": [{"stocks": _wd}],
+                                      "removed": [], "stocks": []})
+check("مساعد التطوير: عمق الأهداف + زمن الوصول",
+      "عمق الأهداف" in _repd and "زمن الوصول" in _repd)
+
 # الرسالة اليومية تعرض بانر الترقية
 try:
     wlp["stocks"][0]["readiness"] = 80
