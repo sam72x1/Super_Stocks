@@ -335,6 +335,29 @@ _wlm2 = {"logic_version": S.LOGIC_VERSION, "stocks": [
 check("ترحيل آلي: لا عمل لو النسخة نفسها (idempotent)",
       S.migrate_watchlist(_wlm2, {"X": synth_pivot(seed=2)}) == 0)
 
+# 🔬 مساعد التطوير: عينة قليلة → رسالة "بيانات قليلة"؛ عينة كافية → تشخيص
+def _mkrow(sym, won, tier, sec, rsi, fl, rr):
+    return {"symbol": sym, "entry_ref": 2.0, "max_gain_pct": 40 if won else -7,
+            "status": "active" if won else "stopped", "hit": "t1" if won else None,
+            "tier": tier, "sector": sec, "score": 70, "rsi": rsi, "float": fl,
+            "rr": rr, "flags": ["مسح سيولة"] if won else ["تقاطع MACD"]}
+_small = {"history": [{"stocks": [_mkrow("S1", True, "A", "Technology", 27, 8e6, 2.6)]}],
+          "removed": [], "stocks": []}
+check("مساعد التطوير: بيانات قليلة → تنبيه",
+      "بيانات قليلة" in S.build_dev_assistant_report(_small))
+_rowsA = [_mkrow(f"A{i}", True, "A", "Technology", 27, 8e6, 2.6) for i in range(7)]
+_rowsB = [_mkrow(f"B{i}", False, "B", "Healthcare", 45, 40e6, 1.2) for i in range(6)]
+_big = {"history": [{"stocks": _rowsA + _rowsB}], "removed": [], "stocks": []}
+_rep = S.build_dev_assistant_report(_big)
+check("مساعد التطوير: يشخّص بالشرائح + أنماط فشل + اقتراحات",
+      "النجاح الكلي" in _rep and "حسب القائمة" in _rep
+      and "أنماط الخاسرين" in _rep and "اقتراحات ضبط" in _rep
+      and "A صارمة" in _rep)
+# لا يكرّر الصفقة لو ظهرت بالأرشيف والحالي معًا (dedup)
+_dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)]}],
+        "removed": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)], "stocks": []}
+check("مساعد التطوير: dedup للصفقة المكررة", len(S._collect_closed(_dup)) == 1)
+
 # الرسالة اليومية تعرض بانر الترقية
 try:
     wlp["stocks"][0]["readiness"] = 80
