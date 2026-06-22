@@ -292,7 +292,7 @@
    "sector": "Energy",
    "country": "Canada",
    "float": 10362025,
-   "last_price": 4.69,
+   "last_price": 4.695,
    "status": "watching",
    "triggered_date": null
   },
@@ -322,7 +322,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 40169074,
-   "last_price": 14.77,
+   "last_price": 14.81,
    "status": "watching",
    "triggered_date": null
   },
@@ -353,7 +353,7 @@
    "sector": "Financial Services",
    "country": "Singapore",
    "float": 975172,
-   "last_price": 2.0,
+   "last_price": 1.96,
    "status": "watching",
    "triggered_date": null
   },
@@ -383,7 +383,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 36046153,
-   "last_price": 1.8423,
+   "last_price": 1.86,
    "status": "watching",
    "triggered_date": null
   },
@@ -413,7 +413,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 1383053,
-   "last_price": 4.05,
+   "last_price": 4.0,
    "status": "watching",
    "triggered_date": null
   },
@@ -474,7 +474,7 @@
    "sector": "Healthcare",
    "country": "Switzerland",
    "float": 2605563,
-   "last_price": 3.38,
+   "last_price": 3.5,
    "status": "watching",
    "triggered_date": null
   },
@@ -538,7 +538,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 3444814,
-   "last_price": 2.755,
+   "last_price": 2.7227,
    "status": "watching",
    "triggered_date": null
   },
@@ -569,7 +569,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 4029799,
-   "last_price": 2.39,
+   "last_price": 2.299,
    "status": "watching",
    "triggered_date": null
   },
@@ -598,9 +598,9 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 7478152,
-   "last_price": 3.75,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 3.865,
+   "status": "triggered",
+   "triggered_date": "2026-06-22"
   },
   {
    "symbol": "ACTU",
@@ -627,7 +627,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 8571676,
-   "last_price": 2.045,
+   "last_price": 2.035,
    "status": "watching",
    "triggered_date": null
   },
@@ -656,7 +656,7 @@
    "sector": "Healthcare",
    "country": "Canada",
    "float": 4597467,
-   "last_price": 10.953,
+   "last_price": 10.8,
    "status": "watching",
    "triggered_date": null
   },
@@ -716,7 +716,7 @@
    "sector": "Consumer Defensive",
    "country": "United States",
    "float": 665850,
-   "last_price": 14.57,
+   "last_price": 14.44,
    "status": "watching",
    "triggered_date": null
   }
