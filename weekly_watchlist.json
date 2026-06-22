@@ -70,10 +70,19 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -149,10 +158,19 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "RSI تشبع وانحناء",
+    "تقاطع MACD"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -230,10 +248,19 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 50,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "جفاف بيع"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -909,6 +936,127 @@
      "removal_reason": null
     }
    ]
+  }
+ ],
+ "explosions": [
+  {
+   "symbol": "ICCM",
+   "date": "2026-06-22",
+   "gain": 200.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "SLBT",
+   "date": "2026-06-22",
+   "gain": 167.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ADTX",
+   "date": "2026-06-22",
+   "gain": 150.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "EHGO",
+   "date": "2026-06-22",
+   "gain": 119.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "SNBR",
+   "date": "2026-06-22",
+   "gain": 117.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "CUPR",
+   "date": "2026-06-22",
+   "gain": 112.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "SDOT",
+   "date": "2026-06-22",
+   "gain": 98.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "YMAT",
+   "date": "2026-06-22",
+   "gain": 94.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "VSME",
+   "date": "2026-06-22",
+   "gain": 92.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "CCTG",
+   "date": "2026-06-22",
+   "gain": 90.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "PRFX",
+   "date": "2026-06-22",
+   "gain": 83.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "CRVO",
+   "date": "2026-06-22",
+   "gain": 82.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "QURE",
+   "date": "2026-06-22",
+   "gain": 78.0,
+   "reason": "M2_هبوط<40",
+   "was_pivot": false
+  },
+  {
+   "symbol": "FTHM",
+   "date": "2026-06-22",
+   "gain": 75.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ELTX",
+   "date": "2026-06-22",
+   "gain": 71.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "QTEX",
+   "date": "2026-06-22",
+   "gain": 71.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "NMRA",
+   "date": "2026-06-22",
+   "gain": 70.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
   }
  ]
 }
