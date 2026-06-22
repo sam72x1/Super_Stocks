@@ -302,6 +302,8 @@ try:
           all("tier" in s for s in wl["stocks"]))
     check("التقرير اليومي يعرض «دخول المضارب» (Williams)",
           "دخول المضارب" in dm)
+    check("التقرير اليومي يعرض سلّم الأهداف الكامل (t1→t2→t3)",
+          "🎯 أهداف" in dm)
 except Exception as e:
     check("build_daily_message يعمل", False, str(e))
 

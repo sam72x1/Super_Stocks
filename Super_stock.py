@@ -3686,6 +3686,9 @@ def build_daily_message(wl: dict, splits: list,
         lines.append(f"   💵 ${lp:.2f} | دفعات "
                      + " · ".join(f"${p:.2f}" for p in trs)
                      + f" | الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
+        # سلّم الأهداف الكامل (يُعرض في النشر اليومي، مطابق للبطاقة) — أقرب أولًا
+        lines.append(f"   🎯 أهداف ${s['t1']:.2f} → ${s['t2']:.2f} "
+                     f"→ ${s['t3']:.2f}")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
         if any("Williams" in f for f in (s.get("flags") or [])):
