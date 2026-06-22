@@ -236,6 +236,8 @@ CONFIG = {
     "SWEEP_LARGE_PCT": (5.0, 7.0),       # عمق المسح: أسهم كبيرة (سعر ≥ 15)
     "LARGE_PRICE_CUT": 15.0,
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
+    "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
+                                         #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
 
     # ---- الفجوات السعرية (شرط فيصل السادس: "مع فجوات عالية") ----
     # v2.4 (نسخة B التجريبية): الفجوة بوابة إلزامية — فيصل: "أسهم الارتكاز
@@ -330,7 +332,7 @@ except Exception:
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار الجمعة ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.06.21-tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.06.22-redheads+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل — يمكن ضبطه بمتغير بيئة SEC_CONTACT
@@ -888,7 +890,27 @@ def psychological_levels(price: float, top: float):
     return lvls
 
 
-def resistance_levels(df: pd.DataFrame, price: float, max_levels: int = 8):
+def _red_candle_heads(df: pd.DataFrame, price: float, span: int = 130):
+    """رؤوس (High) الشموع الحمرا ذات الجسم المعتبر فوق السعر = مقاومات/أهداف.
+    قاعدة فيصل الموثّقة: «رأس الشمعة الحمرا = مقاومة/هدف» (مطبّقة في 4س،
+    نضيفها لليومي حتى لا نتخطّى مناطق العرض المتوسطة مثل EZRA 4.00/4.38 التي
+    ليست قمم سوينغ بل منشأ هبوط). إضافة فقط — لا تحذف أي مستوى."""
+    o = df["Open"].values.astype(float)
+    c = df["Close"].values.astype(float)
+    h = df["High"].values.astype(float)
+    n = len(c)
+    thr = CONFIG.get("RES_RED_HEAD_MIN_DROP", 3.0) / 100.0
+    s = min(span, n)
+    out = []
+    for i in range(n - s, n):
+        if o[i] > 0 and c[i] < o[i] and (o[i] - c[i]) / o[i] >= thr \
+                and h[i] > price:
+            out.append(float(h[i]))
+    return out
+
+
+def resistance_levels(df: pd.DataFrame, price: float, max_levels: int = 8,
+                      include_red_heads: bool = True):
     """كشف مستويات المقاومة الأفقية فوق السعر — كخطوط فيصل الأفقية
     (SMX: 9.53/11.84/14/16.51/23 · LNAI: 2.80/3.25/3.49/3.83/4.35).
 
@@ -906,6 +928,8 @@ def resistance_levels(df: pd.DataFrame, price: float, max_levels: int = 8):
     real = []
     real += _swing_highs(h, price, 3)
     real += _swing_highs(h, price, 6)
+    if include_red_heads:                  # رؤوس الشموع الحمرا (قاعدة فيصل، يومي)
+        real += _red_candle_heads(df, price)
     try:
         wk = resample_ohlc(df, "W")
         if wk is not None and len(wk) >= 7:
@@ -1735,7 +1759,9 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             try:
                 wk = resample_ohlc(df, "W")
                 if wk is not None and len(wk) >= 10:
-                    target_cands += list(resistance_levels(wk, price))
+                    # الأسبوعي إضافي فقط (لا يغيّر t1) → بلا رؤوس حمرا قريبة
+                    target_cands += list(resistance_levels(
+                        wk, price, include_red_heads=False))
                     target_cands.append(first_target(wk))
             except Exception:
                 pass

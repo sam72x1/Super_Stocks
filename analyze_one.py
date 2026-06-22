@@ -374,7 +374,8 @@ def analyze_on_demand(sym: str):
         try:
             wk = bot.resample_ohlc(df, "W")
             if wk is not None and len(wk) >= 10:
-                target_cands += list(bot.resistance_levels(wk, price))
+                target_cands += list(bot.resistance_levels(
+                    wk, price, include_red_heads=False))
                 target_cands.append(bot.first_target(wk))
         except Exception:
             pass

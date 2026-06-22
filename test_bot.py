@@ -406,6 +406,24 @@ check("تنظيف المراقبة: المتخرّج لـA/B يُحذف منها
       _grad == ["GRAD"]
       and [e["symbol"] for e in _wlg["pullback"]] == ["STILLPB"])
 
+# 🧱 مقاومة من رؤوس الشموع الحمرا (قاعدة فيصل) — تلتقط المستويات المتوسطة
+# التي ليست قمم سوينغ (مثل EZRA 4.00/4.38) فلا يتخطّاها البوت. هبوط متدرّج
+# برؤوس حمرا 6.0→4.0 (كل رأس أدنى من سابقه = ليست قمم سوينغ).
+_rn = 80
+_rhi = [3.6] * _rn
+for _k, _hv in enumerate([6.0, 5.6, 5.2, 4.8, 4.4, 4.0]):
+    _rhi[40 + _k] = _hv
+_rop = list(_rhi)
+_rcl = [h * 0.95 for h in _rhi]          # كلها حمرا (close < open، جسم 5%)
+_rlo = [h * 0.93 for h in _rhi]
+_rop[-1], _rcl[-1], _rhi[-1], _rlo[-1] = 3.55, 3.60, 3.62, 3.50
+_rdf = pd.DataFrame({"Open": _rop, "High": _rhi, "Low": _rlo,
+                     "Close": _rcl, "Volume": [1e5] * _rn})
+_rres = S.resistance_levels(_rdf, 3.60)
+check("مقاومة من رؤوس الشموع الحمرا (فيصل): تلتقط المتوسطة بلا تخطّي",
+      any(3.9 <= r <= 4.1 for r in _rres)
+      and any(4.3 <= r <= 4.5 for r in _rres))
+
 # 🔬 مساعد التطوير: عينة قليلة → رسالة "بيانات قليلة"؛ عينة كافية → تشخيص
 def _mkrow(sym, won, tier, sec, rsi, fl, rr):
     return {"symbol": sym, "entry_ref": 2.0, "max_gain_pct": 40 if won else -7,
