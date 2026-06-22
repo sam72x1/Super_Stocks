@@ -1,0 +1,37 @@
+name: Backtest (historical)
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      symbols:
+        description: "رموز مفصولة بفاصلة (مثال: NGEN,SMX,VEEE) — للحُكم الحقيقي وسّع العيّنة"
+        required: true
+        default: ""
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run backtest
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SCREENER_MODE: BACKTEST
+          BACKTEST_SYMBOLS: ${{ github.event.inputs.symbols }}
+        run: python Super_stock.py
+      - name: Upload backtest CSV
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backtest-report
+          path: backtest_*.csv
+          if-no-files-found: ignore
