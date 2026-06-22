@@ -303,6 +303,7 @@ CONFIG = {
     "DATA_HEALTH_MIN_PCT": 85,   # تغطية بيانات أقل من هذا = تحذير صحة في الرسالة
     "MIN_BARS": 120,             # أقل عدد شموع مقبول للتحليل
     "REPORT_CSV": True,
+    "MISSED_RISE_PCT": 30.0,     # مرفوض صعد ≥ هذا (آخر ~10 جلسات) = فرصة فائتة
 }
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
@@ -1268,11 +1269,16 @@ def all_unfilled_gaps_above(df: pd.DataFrame):
 
 _REJECT_STATS = {}
 _SCAN_STATS = {}        # صحة الفرز: حجم الكون مقابل البيانات الصالحة المحمّلة
+_REJECT_REASONS = {}    # سبب رفض كل سهم (رمز→سبب) — لتتبّع الفرص الفائتة
+_MISSED = []            # فرص فائتة: مرفوض صعد فعلاً (symbol/reason/gain)
+_CUR_SYM = None         # السهم قيد التحليل (لربط سبب الرفض به)
 
 
 def _reject(code):
-    """يسجّل سبب رفض السهم (للتشخيص في سجل الفرز) ويرجع None."""
+    """يسجّل سبب رفض السهم (عدّاد + لكل سهم لتتبّع الفرص الفائتة) ويرجع None."""
     _REJECT_STATS[code] = _REJECT_STATS.get(code, 0) + 1
+    if _CUR_SYM:
+        _REJECT_REASONS[_CUR_SYM] = code
     return None
 
 
@@ -1281,6 +1287,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
     pullback=True: وضع «مراقبة الارتداد» — سهم ارتكاز حقيقي (بنية مكتملة)
     لكنه ارتفع فوق دخوله؛ نرصده ليُتابَع يوميًا وندخله لو رجع للدعم (انهيار
     البورصة). الوضع العادي (pullback=False) يبقى مطابقًا تمامًا بلا أي تغيير."""
+    global _CUR_SYM
+    _CUR_SYM = sym                 # لربط سبب الرفض بالسهم (تتبّع الفرص الفائتة)
     try:
         close = df["Close"]
         high, low, vol = df["High"], df["Low"], df["Volume"]
@@ -2669,6 +2677,74 @@ def send_telegram(text: str) -> bool:
     return ok
 
 
+def _admin_chat() -> list:
+    """المستلم المشرف (أول رقم) فقط — لا يُرسل الملفات للأصدقاء."""
+    recips = [c.strip() for c in TELEGRAM_CHAT.replace(";", ",").split(",")
+              if c.strip()]
+    return recips[:1]
+
+
+def send_telegram_document(path: str, caption: str = "") -> bool:
+    """يرسل ملفًا (CSV) للمشرف فقط (يبقى بمحادثته للأبد حتى لو ضاع القرص)."""
+    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
+        log(f"ℹ️ (بلا تيليجرام) ملف جاهز: {path}")
+        return False
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument"
+    ok = True
+    for cid in _admin_chat():
+        try:
+            with open(path, "rb") as fh:
+                resp = requests.post(url, data={"chat_id": cid,
+                                                "caption": caption[:1000]},
+                                     files={"document": fh}, timeout=60)
+            if resp.status_code != 200:
+                log(f"⚠️ sendDocument رفض ({resp.status_code}): {resp.text[:160]}")
+                ok = False
+        except Exception as e:
+            log(f"⚠️ خطأ sendDocument: {e}")
+            ok = False
+    return ok
+
+
+def _write_csv_file(rows: list, prefix: str):
+    """يكتب صفوفًا إلى CSV ويرجع المسار (أو None لو فاضي/فشل)."""
+    if not rows:
+        return None
+    try:
+        fn = f"{prefix}_{dt.date.today().isoformat()}.csv"
+        pd.DataFrame(rows).to_csv(fn, index=False, encoding="utf-8-sig")
+        return fn
+    except Exception as e:
+        log(f"⚠️ كتابة CSV {prefix}: {e}")
+        return None
+
+
+def export_weekly_csvs(wl: dict, picks: list) -> None:
+    """يصدّر 3 ملفات CSV للمشرف الجمعة: الصفقات المحسومة · الإشارات الحالية ·
+    الفرص الفائتة. (البيانات محفوظة أصلًا في git؛ هذا للراحة وسهولة التحليل.)"""
+    d = dt.date.today().isoformat()
+    cols_t = ("symbol", "tier", "sector", "rsi", "float", "short", "drop_pct",
+              "best_spike", "rr", "score", "max_gain_pct", "status", "hit",
+              "removal_reason")
+    trades = [{k: r.get(k) for k in cols_t} for r in _collect_closed(wl)]
+    signals = [{"symbol": r["symbol"], "tier": r.get("tier"),
+                "sector": r.get("sector"), "rsi": r.get("rsi"),
+                "float": r.get("float"), "short": r.get("finra_short"),
+                "drop_pct": round(r.get("drop_pct", 0), 1),
+                "best_spike": round(r.get("best_spike", 0), 0),
+                "rr": r.get("rr"), "score": r.get("score"),
+                "pivot": round(r["pivot"], 2), "stop": round(r["stop"][0], 2),
+                "t1": round(r["t1"], 2), "t2": round(r["t2"], 2),
+                "t3": round(r["t3"], 2)} for r in picks]
+    for rows, prefix, cap in [
+            (trades, "trades", "📎 الصفقات المحسومة ونتائجها"),
+            (signals, "signals", "📎 كل الإشارات (القائمة الحالية)"),
+            (list(_MISSED), "missed", "📎 الفرص الفائتة (مرفوض صعد)")]:
+        fn = _write_csv_file(rows, prefix)
+        if fn:
+            send_telegram_document(fn, f"{cap} — {d}")
+
+
 # ==========================================================
 # 9) نظام القائمة الأسبوعية الثابتة (v2.0)
 # ==========================================================
@@ -2751,6 +2827,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "t3": round(r["t3"], 4),
         "score": r["score"], "flags": list(r["flags"]),
         "rsi": r.get("rsi"), "float": r.get("float"),      # سمات للتعلم
+        "short": r.get("finra_short"), "short_pct": r.get("short_pct"),
         "drop_pct": r.get("drop_pct"), "best_spike": r.get("best_spike"),
         "rr": r.get("rr"),
         "tier": r.get("tier", "A"),                       # A صارمة / B مراقبة
@@ -2951,6 +3028,7 @@ def scan_market():
             " — Yahoo خنق الطلبات؛ قد تنقص أسهم")
     results = []
     _REJECT_STATS.clear()                 # تصفير عدّاد أسباب الرفض
+    _REJECT_REASONS.clear()
     for sym, df in history.items():
         r = analyze_ticker(sym, df)
         if r:
@@ -2959,6 +3037,26 @@ def scan_market():
     if _REJECT_STATS:
         top = sorted(_REJECT_STATS.items(), key=lambda x: -x[1])
         log("أسباب الرفض: " + " · ".join(f"{k}={v}" for k, v in top))
+    # 👻 الفرص الفائتة: مرفوض صعد فعلاً (آخر ~10 جلسات) → يكشف تشدّد البوت
+    _MISSED.clear()
+    passed = {r["symbol"] for r in results}
+    for sym, reason in _REJECT_REASONS.items():
+        df = history.get(sym)
+        if sym in passed or df is None or len(df) < 12:
+            continue
+        try:
+            c = df["Close"].values.astype(float)
+            g = (c[-1] / c[-11] - 1.0) * 100.0
+        except Exception:
+            continue
+        if g >= CONFIG["MISSED_RISE_PCT"]:
+            _MISSED.append({"symbol": sym, "reason": reason,
+                            "gain_10d": round(g, 1),
+                            "price": round(float(c[-1]), 2)})
+    _MISSED.sort(key=lambda x: -x["gain_10d"])
+    if _MISSED:
+        log(f"فرص فائتة (مرفوض صعد ≥{CONFIG['MISSED_RISE_PCT']:.0f}%): "
+            f"{len(_MISSED)}")
     # M13: بوابة الشورت العالي (مرحلة ثانية على الناجحين فقط)
     results = apply_short_gate(results)
     # M14: بوابة الفلوت الكبير (آخر فلتر — الفلوت بطيء، والناجحون هنا قلائل)
@@ -3561,10 +3659,28 @@ def build_dev_assistant_report(wl: dict) -> str:
     n, wr, avg = _wr(rows)
     head = ["🔬 <b>مساعد التطوير — تحليل أداء المنهجية</b>",
             f"صفقات محسومة متراكمة: <b>{n}</b>"]
+
+    def _missed_block():
+        if not _MISSED:
+            return []
+        rc = {}
+        for m in _MISSED:
+            rc[m["reason"]] = rc.get(m["reason"], 0) + 1
+        out = [f"\n👻 <b>فرص فائتة (مرفوض صعد ≥{int(CONFIG['MISSED_RISE_PCT'])}%)</b>",
+               f"   العدد: {len(_MISSED)} · أكثر سبب رفض: "
+               + "، ".join(f"{k} ({v})" for k, v in
+                          sorted(rc.items(), key=lambda x: -x[1])[:3])]
+        for m in _MISSED[:6]:
+            out.append(f"   • {m['symbol']}: +{m['gain_10d']:.0f}% رغم رفضه "
+                       f"({m['reason']})")
+        out.append("   ↳ لو تكرر سبب واحد كثيرًا = البوت متشدّد فيه؛ راجعه.")
+        return out
+
     if n < DEV_MIN_SAMPLE:
-        head.append(f"⏳ بيانات قليلة (أقل من {DEV_MIN_SAMPLE}) — يتراكم أسبوعيًا. "
-                    "الأرقام تصير ذات معنى بعد ~10+ صفقة.")
-        head.append("⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
+        head.append(f"⏳ صفقات محسومة قليلة (أقل من {DEV_MIN_SAMPLE}) — "
+                    "تشخيص الأداء يتراكم أسبوعيًا (~10+ صفقة).")
+        head += _missed_block()           # الفرص الفائتة تظهر فورًا (مستقلة)
+        head.append("\n⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
         return "\n".join(head)
     wins = [r for r in rows if r["_win"]]
     losses = [r for r in rows if not r["_win"]]
@@ -3606,6 +3722,9 @@ def build_dev_assistant_report(wl: dict) -> str:
     body += seg("حسب الفلوت", lambda r: _bucket(
         (r.get("float") or 0) / 1e6 if r.get("float") else None,
         [(0, 10, "<10م"), (10, 30, "10-30م"), (30, 1e9, ">30م")]))
+    body += seg("حسب الشورت", lambda r: _bucket(
+        r.get("short"),
+        [(0, 20000, "≤20ألف"), (20000, 40000, "20-40ألف"), (40000, 1e12, ">40ألف")]))
     body += seg("حسب العائد/المخاطرة", lambda r: _bucket(
         r.get("rr"), [(0, 1.5, "<1.5×"), (1.5, 2.5, "1.5-2.5×"), (2.5, 99, "≥2.5×")]))
 
@@ -3645,6 +3764,7 @@ def build_dev_assistant_report(wl: dict) -> str:
             fails.append("   • أكثر قطاعات الخسارة: "
                          + "، ".join(f"{k} ({v})" for k, v in top_sec))
     body += fails if len(fails) > 1 else []
+    body += _missed_block()           # 👻 الفرص الفائتة
 
     # (3) اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات)
     sugg = ["\n💡 <b>اقتراحات ضبط (للمراجعة فقط — لا تُطبّق تلقائيًا)</b>"]
@@ -3706,18 +3826,11 @@ def run_weekly_renewal(wl: dict) -> None:
                                ("symbol", "entry_ref", "last_price",
                                 "max_gain_pct", "status", "hit",
                                 "removal_reason", "tier", "sector", "score",
-                                "flags", "rsi", "float", "drop_pct",
+                                "flags", "rsi", "float", "short", "drop_pct",
                                 "best_spike", "rr")}
                               for s in wl["stocks"] + wl["removed"]]}
         wl.setdefault("history", []).append(summary)
         wl["history"] = wl["history"][-26:]
-    # 2.5) 🔬 مساعد التطوير (تقرير مستقل) — بعد الأرشفة (يشمل الأسبوع الحالي)
-    try:
-        dev = build_dev_assistant_report(wl)
-        if dev:
-            send_telegram(dev)
-    except Exception as e:
-        log(f"⚠️ مساعد التطوير: {e}")
     # 3) فرز جديد واختيار القائمة
     exclude = set()
     if CONFIG["EXCLUDE_STOPPED_FROM_RENEWAL"]:
@@ -3758,6 +3871,18 @@ def run_weekly_renewal(wl: dict) -> None:
     msg = build_message(picks, splits, title=title, subnote=subnote)
     msg += "\n" + build_pullback_section(pull_entries)
     send_telegram(msg)
+    # 5.5) 🔬 مساعد التطوير (تقرير مستقل) + تصدير CSV للمشرف — بعد الفرز
+    #      (الفرص الفائتة _MISSED جاهزة الآن من scan_market أعلاه).
+    try:
+        dev = build_dev_assistant_report(wl)
+        if dev:
+            send_telegram(dev)
+    except Exception as e:
+        log(f"⚠️ مساعد التطوير: {e}")
+    try:
+        export_weekly_csvs(wl, picks)
+    except Exception as e:
+        log(f"⚠️ تصدير CSV: {e}")
     # 6) CSV + تتبع الأداء (يسجل القائمة كتنبيهات ويتابع القدامى)
     write_csv([{
         "symbol": r["symbol"], "price": r["price"], "score": r["score"],
