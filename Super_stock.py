@@ -313,6 +313,7 @@ CONFIG = {
     "RISK_PER_TRADE_PCT": 1.0,   # نسبة المخاطرة من رأس المال لكل صفقة
     "BACKTEST_FORWARD_DAYS": 40, # أفق الباكتيست للأمام (جلسات) لقياس الهدف/الوقف
     "BACKTEST_STEP": 5,          # خطوة المشي للأمام (جلسات) لتقليل التداخل
+    "ALERTS_KEEP_DAYS": 180,     # نقلّم سجل التنبيهات المغلقة الأقدم من هذا (نمو محدود)
 }
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
@@ -4509,10 +4510,27 @@ def weekly_report(data):
     return "\n".join(lines)
 
 
+def _prune_alerts(data):
+    """يقلّم سجل التنبيهات: يبقي المفتوحة + المغلقة خلال ALERTS_KEEP_DAYS فقط
+    (يمنع نمو alerts_history.json بلا حد عبر الشهور — البيانات المؤرشفة كافية)."""
+    cutoff = (dt.date.today()
+              - dt.timedelta(days=int(CONFIG["ALERTS_KEEP_DAYS"]))).isoformat()
+    kept = []
+    for a in data.get("alerts", []):
+        if a.get("status") == "open":
+            kept.append(a)
+            continue
+        when = a.get("result_date") or a.get("date") or ""
+        if when >= cutoff:
+            kept.append(a)
+    data["alerts"] = kept
+
+
 def run_performance_system(results):
     data = load_alerts()
     updates = update_tracking(data)      # 1) تابع التنبيهات القديمة
     record_new_alerts(data, results)     # 2) سجّل تنبيهات اليوم
+    _prune_alerts(data)                  # 2.5) قلّم القديم (نمو محدود)
     save_alerts_file(data)               # 3) احفظ السجل محلياً
     if updates:
         send_telegram(tracking_message(updates))

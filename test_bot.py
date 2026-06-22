@@ -408,6 +408,19 @@ _repd = S.build_dev_assistant_report({"history": [{"stocks": _wd}],
 check("مساعد التطوير: عمق الأهداف + زمن الوصول",
       "عمق الأهداف" in _repd and "زمن الوصول" in _repd)
 
+# 🧹 تقليم سجل التنبيهات: يبقي المفتوحة + المغلقة الحديثة فقط (نمو محدود)
+import datetime as _dt
+_old = (_dt.date.today() - _dt.timedelta(days=400)).isoformat()
+_new = _dt.date.today().isoformat()
+_ad = {"alerts": [
+    {"symbol": "OPN", "status": "open", "date": _old, "result_date": None},
+    {"symbol": "OLD", "status": "stopped", "date": _old, "result_date": _old},
+    {"symbol": "REC", "status": "stopped", "date": _new, "result_date": _new}]}
+S._prune_alerts(_ad)
+_syms = {a["symbol"] for a in _ad["alerts"]}
+check("تقليم التنبيهات: يبقي المفتوحة+الحديثة ويحذف القديمة المغلقة",
+      _syms == {"OPN", "REC"})
+
 # الرسالة اليومية تعرض بانر الترقية
 try:
     wlp["stocks"][0]["readiness"] = 80
