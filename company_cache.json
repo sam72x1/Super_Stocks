@@ -331,5 +331,80 @@
   "shares_out": 1011803,
   "short_pct": 3.2,
   "float": 665850
+ },
+ "NBP": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "NovaBridge Biosciences, a biotechnology company, engages in the research and development of immuno-oncology agents for the treatment of cancer in the United Sta…",
+  "country": "United States",
+  "cash": 210842000,
+  "shares_out": 115648505,
+  "short_pct": 6.9,
+  "float": 64483293
+ },
+ "CTMX": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "CytomX Therapeutics, Inc. operates as an oncology-focused biopharmaceutical company that focuses on developing potent biologics designed to treat tumor microenv…",
+  "country": "United States",
+  "cash": 346707008,
+  "revenue": 35542000,
+  "shares_out": 217702919,
+  "short_pct": 15.0,
+  "float": 186262263
+ },
+ "SXTP": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "60 Degrees Pharmaceuticals, Inc., a specialty pharmaceutical company, engages in the development and commercialization of therapies for the prevention and treat…",
+  "country": "United States",
+  "cash": 3337760,
+  "revenue": 1314904,
+  "shares_out": 2659288,
+  "short_pct": 5.0,
+  "float": 2430669
+ },
+ "TNXP": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Tonix Pharmaceuticals Holding Corp., a fully integrated biopharmaceutical company, develops and commercializes therapies for central nervous system (CNS) disord…",
+  "country": "United States",
+  "cash": 185470000,
+  "revenue": 17556000,
+  "shares_out": 15940801,
+  "short_pct": 18.0,
+  "float": 15013684
+ },
+ "KYNB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Kyntra Bio, Inc., a biopharmaceutical company, discovers, develops, and commercializes therapeutics to treat serious unmet medical needs. The company is develop…",
+  "country": "United States",
+  "cash": 87237000,
+  "revenue": 7439000,
+  "shares_out": 4048112,
+  "short_pct": 2.9,
+  "float": 3561165
+ },
+ "GLXG": {
+  "sector": "Industrials",
+  "industry": "Staffing & Employment Services",
+  "business": "Galaxy Payroll Group Limited, through its subsidiaries, provides payroll outsourcing, employment, and consultancy and market research services. It has operation…",
+  "country": "Hong Kong",
+  "cash": 33195112,
+  "revenue": 27736940,
+  "shares_out": 5601515,
+  "short_pct": 0.2,
+  "float": 1575593
+ },
+ "INKT": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "MiNK Therapeutics, Inc., a clinical-stage biopharmaceutical company, engages in the discovery, development, manufacture, and commercialization of allogeneic, of…",
+  "country": "United States",
+  "cash": 9525676,
+  "shares_out": 4981899,
+  "short_pct": 4.8,
+  "float": 1952207
  }
 }
