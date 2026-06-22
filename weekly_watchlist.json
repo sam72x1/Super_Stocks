@@ -463,7 +463,7 @@
    "sector": "Energy",
    "country": "Canada",
    "float": 10362025,
-   "last_price": 4.66,
+   "last_price": 4.57,
    "status": "watching",
    "triggered_date": null
   },
@@ -494,7 +494,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 2430669,
-   "last_price": 1.72,
+   "last_price": 1.69,
    "status": "watching",
    "triggered_date": null
   },
@@ -524,7 +524,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 15013684,
-   "last_price": 12.25,
+   "last_price": 12.2,
    "status": "watching",
    "triggered_date": null
   },
@@ -554,7 +554,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 40169074,
-   "last_price": 14.91,
+   "last_price": 14.94,
    "status": "watching",
    "triggered_date": null
   },
@@ -585,7 +585,7 @@
    "sector": "Financial Services",
    "country": "Singapore",
    "float": 975172,
-   "last_price": 1.94,
+   "last_price": 1.96,
    "status": "watching",
    "triggered_date": null
   },
@@ -615,9 +615,9 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 3561165,
-   "last_price": 6.9099,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 6.88,
+   "status": "triggered",
+   "triggered_date": "2026-06-22"
   },
   {
    "symbol": "PEPG",
@@ -645,7 +645,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 36046153,
-   "last_price": 1.845,
+   "last_price": 1.83,
    "status": "watching",
    "triggered_date": null
   },
@@ -675,7 +675,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 1383053,
-   "last_price": 3.88,
+   "last_price": 3.62,
    "status": "watching",
    "triggered_date": null
   },
@@ -706,7 +706,7 @@
    "sector": "Consumer Defensive",
    "country": "United States",
    "float": 899310,
-   "last_price": 3.56,
+   "last_price": 3.585,
    "status": "watching",
    "triggered_date": null
   },
@@ -738,7 +738,7 @@
    "sector": "Healthcare",
    "country": "Cayman Islands",
    "float": null,
-   "last_price": 8.05,
+   "last_price": 7.99,
    "status": "watching",
    "triggered_date": null
   },
@@ -769,7 +769,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 4029799,
-   "last_price": 2.32,
+   "last_price": 2.31,
    "status": "watching",
    "triggered_date": null
   },
@@ -798,9 +798,9 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 7478152,
-   "last_price": 3.855,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 3.77,
+   "status": "triggered",
+   "triggered_date": "2026-06-22"
   },
   {
    "symbol": "CING",
@@ -829,7 +829,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 12939475,
-   "last_price": 4.95,
+   "last_price": 4.94,
    "status": "watching",
    "triggered_date": null
   },
@@ -889,7 +889,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 1952207,
-   "last_price": 12.355,
+   "last_price": 12.25,
    "status": "watching",
    "triggered_date": null
   }
