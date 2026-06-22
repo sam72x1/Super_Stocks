@@ -304,6 +304,10 @@ CONFIG = {
     "MIN_BARS": 120,             # أقل عدد شموع مقبول للتحليل
     "REPORT_CSV": True,
     "MISSED_RISE_PCT": 30.0,     # مرفوض صعد ≥ هذا (آخر ~10 جلسات) = فرصة فائتة
+    # ---- كاشف الانفجارات اليومية (للتعلّم) ----
+    "EXPLOSION_PCT": 70.0,       # قفزة يوم واحد ≥ هذا = انفجار نحلّله (قرار المستخدم)
+    "EXPLOSION_LOOKBACK": 5,     # نبحث عن يوم الانفجار في آخر N جلسة
+    "EXPLOSION_KEEP_DAYS": 30,   # نحتفظ بسجل الانفجارات آخر N يوم للتقرير
 }
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
@@ -2986,6 +2990,62 @@ def rank_key(x):
             -x.get("score", 0), -x.get("rr", 0))
 
 
+def scan_explosions(history: dict) -> list:
+    """كاشف الانفجارات اليومية (للتعلّم): يلتقط الأسهم اللي قفزت ≥ EXPLOSION_PCT
+    في يوم واحد (آخر EXPLOSION_LOOKBACK جلسة) ويصنّفها:
+      • was_pivot=True  → كان **ارتكازًا قبل الانفجار** (نحلّل بياناته حتى قبل يوم
+        الانفجار) = فرصة فاتتنا → نراجع سبب عدم الترشيح.
+      • was_pivot=False → انفجار عشوائي/خرابيط (لا بنية ارتكاز) = صح تجاهلناه.
+    يعيد استخدام البيانات المحمّلة (لا تحميل إضافي)."""
+    global _CUR_SYM
+    today = dt.date.today().isoformat()
+    out = []
+    for sym, df in history.items():
+        try:
+            c = df["Close"].values.astype(float)
+        except Exception:
+            continue
+        if len(c) < CONFIG["MIN_BARS"] + 1:
+            continue
+        look = min(int(CONFIG["EXPLOSION_LOOKBACK"]), len(c) - 1)
+        gains = [(c[-k] / c[-k - 1] - 1.0) * 100.0 for k in range(1, look + 1)
+                 if c[-k - 1] > 0]
+        if not gains:
+            continue
+        g = max(gains)
+        if g < CONFIG["EXPLOSION_PCT"]:
+            continue
+        idx = len(c) - 1 - gains.index(g)        # موقع يوم الانفجار
+        reason = _REJECT_REASONS.get(sym, "—")    # لماذا لم يُرشّح اليوم
+        was_pivot = False
+        slice_df = df.iloc[:idx]                  # بياناته قبل يوم الانفجار
+        if len(slice_df) >= CONFIG["MIN_BARS"]:
+            try:
+                was_pivot = analyze_ticker(sym, slice_df) is not None
+            except Exception:
+                was_pivot = False
+        out.append({"symbol": sym, "date": today, "gain": round(g, 0),
+                    "reason": reason, "was_pivot": bool(was_pivot)})
+    _CUR_SYM = None
+    out.sort(key=lambda x: -x["gain"])
+    return out
+
+
+def accumulate_explosions(wl: dict, history: dict) -> int:
+    """يضيف انفجارات اليوم لسجل تراكمي في القائمة (dedup symbol+date، يحتفظ
+    بآخر EXPLOSION_KEEP_DAYS يوم) — يُعرض في تقرير مساعد التطوير الجمعة."""
+    found = scan_explosions(history)
+    log_ex = wl.setdefault("explosions", [])
+    seen = {(e["symbol"], e["date"]) for e in log_ex}
+    for e in found:
+        if (e["symbol"], e["date"]) not in seen:
+            log_ex.append(e)
+    cutoff = (dt.date.today()
+              - dt.timedelta(days=int(CONFIG["EXPLOSION_KEEP_DAYS"]))).isoformat()
+    wl["explosions"] = [e for e in log_ex if e.get("date", "") >= cutoff][-300:]
+    return len(found)
+
+
 def scan_pullback(history: dict, exclude: set = None) -> list:
     """قائمة مراقبة الارتداد: أسهم ارتكاز حقيقية ارتفعت فوق دخولها.
     تعيد استخدام البيانات المحمّلة (لا تحميل إضافي). مرتّبة بالأقرب للدعم."""
@@ -3676,10 +3736,34 @@ def build_dev_assistant_report(wl: dict) -> str:
         out.append("   ↳ لو تكرر سبب واحد كثيرًا = البوت متشدّد فيه؛ راجعه.")
         return out
 
+    def _explosions_block():
+        ex = wl.get("explosions") or []
+        if not ex:
+            return []
+        missed = [e for e in ex if e.get("was_pivot")]
+        junk = [e for e in ex if not e.get("was_pivot")]
+        out = [f"\n💥 <b>انفجارات يومية (≥{int(CONFIG['EXPLOSION_PCT'])}%) — "
+               f"{len(ex)} سهم</b>",
+               f"   🎯 كانت ارتكازًا فاتتنا: {len(missed)} · "
+               f"🗑️ عشوائية (صح تجاهلناها): {len(junk)}"]
+        if missed:
+            rc = {}
+            for e in missed:
+                rc[e["reason"]] = rc.get(e["reason"], 0) + 1
+            out.append("   سبب تفويت الارتكازات: "
+                       + "، ".join(f"{k} ({v})" for k, v in
+                                   sorted(rc.items(), key=lambda x: -x[1])[:3]))
+            for e in sorted(missed, key=lambda x: -x["gain"])[:6]:
+                out.append(f"   • {e['symbol']}: +{e['gain']:.0f}% — كان ارتكازًا، "
+                           f"رُفض بـ{e['reason']}")
+            out.append("   ↳ راجع هذي البوابة — قد تكون متشدّدة وتفوّت ارتكازات.")
+        return out
+
     if n < DEV_MIN_SAMPLE:
         head.append(f"⏳ صفقات محسومة قليلة (أقل من {DEV_MIN_SAMPLE}) — "
                     "تشخيص الأداء يتراكم أسبوعيًا (~10+ صفقة).")
         head += _missed_block()           # الفرص الفائتة تظهر فورًا (مستقلة)
+        head += _explosions_block()       # الانفجارات المفقودة (مستقلة)
         head.append("\n⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
         return "\n".join(head)
     wins = [r for r in rows if r["_win"]]
@@ -3765,6 +3849,7 @@ def build_dev_assistant_report(wl: dict) -> str:
                          + "، ".join(f"{k} ({v})" for k, v in top_sec))
     body += fails if len(fails) > 1 else []
     body += _missed_block()           # 👻 الفرص الفائتة
+    body += _explosions_block()       # 💥 الانفجارات المفقودة
 
     # (3) اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات)
     sugg = ["\n💡 <b>اقتراحات ضبط (للمراجعة فقط — لا تُطبّق تلقائيًا)</b>"]
@@ -3837,6 +3922,10 @@ def run_weekly_renewal(wl: dict) -> None:
         exclude = {s["symbol"] for s in wl["removed"]
                    if s["status"] == "stopped"}
     results, hist = scan_market()
+    try:
+        accumulate_explosions(wl, hist)   # كاشف الانفجارات (للتعلّم)
+    except Exception as e:
+        log(f"⚠️ كاشف الانفجارات: {e}")
     picks = select_top(results, CONFIG["WATCHLIST_SIZE"], exclude)
     try:
         enrich(picks)  # SEC + شورت للقائمة الجديدة
@@ -3859,7 +3948,8 @@ def run_weekly_renewal(wl: dict) -> None:
               "stocks": [make_watch_entry(r, today_iso) for r in picks],
               "removed": [], "replacements_log": [], "notes": [],
               "pullback": pull_entries,
-              "history": wl.get("history", [])}
+              "history": wl.get("history", []),
+              "explosions": wl.get("explosions", [])}   # سجل الانفجارات يستمر
     save_watchlist(new_wl)
     # 5) رسالة القائمة الجديدة (بطاقات كاملة)
     title = ("🔄 <b>القائمة الأسبوعية الجديدة</b>" if is_friday
@@ -3941,6 +4031,11 @@ def run_daily_watchlist(wl: dict) -> None:
         migrate_watchlist(wl, hist)
     except Exception as e:
         log(f"⚠️ ترحيل القائمة: {e}")
+    # 2.6) كاشف الانفجارات اليومية (للتعلّم) — يتراكم ويُعرض بتقرير الجمعة
+    try:
+        accumulate_explosions(wl, hist)
+    except Exception as e:
+        log(f"⚠️ كاشف الانفجارات: {e}")
     # 3) متابعة القائمة الحالية (تُحذف فقط بستوب/هدف؛ نقص البيانات = تُبقى)
     stopped_today = update_watchlist_status(wl, hist)
     # 4) إضافة الجديد دون حذف القديم (حتى حد القائمة)
