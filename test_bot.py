@@ -274,6 +274,8 @@ try:
     check("build_daily_message يعمل", isinstance(dm, str) and len(dm) > 0)
     check("سجل القائمة يحفظ tier",
           all("tier" in s for s in wl["stocks"]))
+    check("التقرير اليومي يعرض «دخول المضارب» (Williams)",
+          "دخول المضارب" in dm)
 except Exception as e:
     check("build_daily_message يعمل", False, str(e))
 

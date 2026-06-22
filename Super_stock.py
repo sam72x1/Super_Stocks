@@ -3658,6 +3658,8 @@ def build_daily_message(wl: dict, splits: list,
                      + f" | الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
+        if any("Williams" in f for f in (s.get("flags") or [])):
+            lines.append("   ⚡ دخول المضارب ✓ (Williams %R خرج من التشبع)")
         lines += key_levels_block(s.get("key_levels"))
         lines += h4_levels_block(s.get("h4_levels"))
         for w in (s.get("warnings") or []):
