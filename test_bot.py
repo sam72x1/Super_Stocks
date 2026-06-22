@@ -353,6 +353,18 @@ check("متانة: حدود النمو تُقصّ التراكمي وتحتفظ 
       and len(_rl["replacements_log"]) == 120 and _rl["notes"][-1] == 999)
 S.WATCH_FILE = _save_wf
 
+# 🧮 Williams %R مربوط بالتقييم (آخر مؤشر من صور فيصل — تغريدة 7377)
+_wr_hh = pd.Series([10.0] * 15)
+_wr_ll = pd.Series([1.0] * 15)
+# قرب القاع (تشبع %R≈-98) في الشمعة قبل الأخيرة ثم قفزة صعودية
+_wr_cl = pd.Series([2.0] * 13 + [1.2, 7.0])
+_wr_s = S.williams_r(_wr_hh, _wr_ll, _wr_cl)
+check("Williams %R: المدى (-100..0) والانعطاف من التشبع يُكتشف ومربوط بالنقاط",
+      -100.0 <= float(_wr_s.iloc[-1]) <= 0.0
+      and float(_wr_s.iloc[-2]) <= S.CONFIG["WILLIAMS_OVERSOLD"]
+      and float(_wr_s.iloc[-1]) > float(_wr_s.iloc[-2])
+      and S.CONFIG["SCORE_WILLIAMS"] > 0)
+
 # 🔬 مساعد التطوير: عينة قليلة → رسالة "بيانات قليلة"؛ عينة كافية → تشخيص
 def _mkrow(sym, won, tier, sec, rsi, fl, rr):
     return {"symbol": sym, "entry_ref": 2.0, "max_gain_pct": 40 if won else -7,

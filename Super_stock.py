@@ -196,6 +196,8 @@ CONFIG = {
     "SCORE_STOCHRSI": 5,           # StochRSI من التشبع وانعطاف صاعد
     "SCORE_DMI": 5,                # +DI يتجاوز -DI (بداية اتجاه صاعد)
     "SCORE_MA_SHORT": 5,           # السعر استعاد MA5/MA20 (إشارة تجميع)
+    "SCORE_WILLIAMS": 5,           # Williams %R انعطاف من التشبع (فيصل + كلنجر، 7377)
+    "WILLIAMS_OVERSOLD": -80.0,    # %R ≤ -80 = تشبع بيعي («بانتظار دخول المضارب»)
     "BOLL_SQUEEZE_PCTL": 0.25,     # عرض الحزمة ضمن أدنى 25% من آخر 60 جلسة
 
     # ---- القائمة الأسبوعية (v2.0) ----
@@ -408,7 +410,7 @@ def williams_r(high, low, close, period: int = 14) -> pd.Series:
 
 # ==========================================================
 # 2أ) مؤشرات فيصل الإضافية (v2.7): صفحة إعداداته الكاملة
-#   Bollinger 20/2 · StochRSI 14/14/3/3 · DMI 14 · ATR 14 ·
+#   Bollinger 20/2 · StochRSI 14/14/3/3 · DMI 14 · ATR 14 · Williams %R 14 ·
 #   Fibonacci 0.236-0.786 · VWAP · DMA(10,50,10).
 #   كلها مكتوبة يدوياً = صفر اعتماد على مكتبات هشة (نفس نهج الملف).
 # ==========================================================
@@ -1599,6 +1601,17 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             if float(_sk.iloc[-2]) <= 20 and float(_sk.iloc[-1]) > float(_sk.iloc[-2]):
                 score += CONFIG["SCORE_STOCHRSI"]
                 flags.append("StochRSI انعطاف من التشبع")
+        except Exception:
+            pass
+        # Williams %R: من التشبع البيعي وانعطاف صاعد (فيصل يقرنه بكلنجر —
+        # «بانتظار دخول المضارب»، تغريدة 7377)
+        try:
+            _wlr = williams_r(high, low, close)
+            ind["williams_r"] = float(_wlr.iloc[-1])
+            if (float(_wlr.iloc[-2]) <= CONFIG["WILLIAMS_OVERSOLD"]
+                    and float(_wlr.iloc[-1]) > float(_wlr.iloc[-2])):
+                score += CONFIG["SCORE_WILLIAMS"]
+                flags.append("Williams %R انعطاف من التشبع")
         except Exception:
             pass
         # DMI: +DI يتجاوز -DI (بداية اتجاه صاعد)
