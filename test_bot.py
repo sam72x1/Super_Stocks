@@ -358,6 +358,27 @@ _dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2
         "removed": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)], "stocks": []}
 check("مساعد التطوير: dedup للصفقة المكررة", len(S._collect_closed(_dup)) == 1)
 
+# 💥 كاشف الانفجارات: يلتقط قفزة ≥70% · يتراكم/dedup · يظهر بالتقرير
+_boom = synth_pivot(seed=2).copy()
+_bc = _boom["Close"].values.astype(float).copy()
+_bc[-1] = _bc[-2] * 2.0                          # قفزة 100% آخر يوم
+_boom["Close"] = _bc
+_exp = S.scan_explosions({"BOOM": _boom})
+check("كاشف الانفجارات: يلتقط القفزة ≥70% ويصنّفها",
+      len(_exp) == 1 and _exp[0]["symbol"] == "BOOM" and _exp[0]["gain"] >= 70
+      and "was_pivot" in _exp[0])
+_wlx = {"stocks": [], "notes": []}
+S.accumulate_explosions(_wlx, {"BOOM": _boom})
+S.accumulate_explosions(_wlx, {"BOOM": _boom})   # نفس اليوم → لا تكرار
+check("كاشف الانفجارات: تراكم + dedup",
+      len(_wlx.get("explosions", [])) == 1)
+check("مساعد التطوير: يعرض الانفجارات المفقودة",
+      "انفجارات يومية" in S.build_dev_assistant_report(_wlx))
+# قفزة أقل من العتبة لا تُلتقط
+_calm = synth_pivot(seed=3)
+check("كاشف الانفجارات: يتجاهل ما دون العتبة",
+      len(S.scan_explosions({"CALM": _calm})) == 0)
+
 # الرسالة اليومية تعرض بانر الترقية
 try:
     wlp["stocks"][0]["readiness"] = 80
