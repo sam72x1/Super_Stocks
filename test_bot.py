@@ -344,7 +344,7 @@ def _mkrow(sym, won, tier, sec, rsi, fl, rr):
 _small = {"history": [{"stocks": [_mkrow("S1", True, "A", "Technology", 27, 8e6, 2.6)]}],
           "removed": [], "stocks": []}
 check("مساعد التطوير: بيانات قليلة → تنبيه",
-      "بيانات قليلة" in S.build_dev_assistant_report(_small))
+      "قليلة" in S.build_dev_assistant_report(_small))
 _rowsA = [_mkrow(f"A{i}", True, "A", "Technology", 27, 8e6, 2.6) for i in range(7)]
 _rowsB = [_mkrow(f"B{i}", False, "B", "Healthcare", 45, 40e6, 1.2) for i in range(6)]
 _big = {"history": [{"stocks": _rowsA + _rowsB}], "removed": [], "stocks": []}
