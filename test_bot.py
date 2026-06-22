@@ -424,6 +424,29 @@ check("مقاومة من رؤوس الشموع الحمرا (فيصل): تلتق
       any(3.9 <= r <= 4.1 for r in _rres)
       and any(4.3 <= r <= 4.5 for r in _rres))
 
+# 🎯 إعادة بناء حالة EZRA المُبلّغة: انهيار متدرّج برؤوس شمعات حمرا عند المستويات
+# الموثّقة (6.76→6.23→5.79→5.44→4.84→4.35→4.00→3.5) ثم تجميع عند ~3.6.
+# فيصل: «مقاومة السهم 4 و4.38». الكود القديم (قمم سوينغ فقط) كان يلتقط 6.76 فقط
+# ويتخطّى 4.00/4.35؛ بعد رؤوس الحمرا لازم يلتقطهما كأقرب مقاومتين (بلا تخطّي).
+_ez_op, _ez_cl, _ez_hi, _ez_lo = [], [], [], []
+for _ in range(40):                      # قاعدة/صعود قبل الانفجار
+    _ez_op.append(3.0); _ez_cl.append(3.1); _ez_hi.append(3.15); _ez_lo.append(2.95)
+_ez_desc = [6.76, 6.23, 5.79, 5.44, 4.835, 4.348, 4.008, 3.55]
+for _j in range(len(_ez_desc) - 1):      # الانهيار: كل خطوة شمعة حمرا رأسها=المستوى
+    _top, _btm = _ez_desc[_j], _ez_desc[_j + 1]
+    _ez_op.append(_top); _ez_cl.append(_btm * 1.01)
+    _ez_hi.append(_top); _ez_lo.append(_btm * 0.99)
+for _ in range(60):                      # تجميع عند الدعم ~3.6
+    _ez_op.append(3.60); _ez_cl.append(3.55); _ez_hi.append(3.68); _ez_lo.append(3.45)
+_ez_df = pd.DataFrame({"Open": _ez_op, "High": _ez_hi, "Low": _ez_lo,
+                       "Close": _ez_cl, "Volume": [3e5] * len(_ez_op)})
+_ez_res = S.resistance_levels(_ez_df, 3.65)
+_ez_above = [r for r in _ez_res if r >= 3.94]   # فوق أرضية الهدف الأول (8%)
+check("EZRA المُبلّغة: يلتقط 4.00 و4.35 كأقرب مقاومتين (مطابقة فيصل، بلا تخطّي لـ5.44)",
+      any(3.9 <= r <= 4.1 for r in _ez_res)
+      and any(4.25 <= r <= 4.45 for r in _ez_res)
+      and bool(_ez_above) and min(_ez_above) <= 4.1)
+
 # 🔬 مساعد التطوير: عينة قليلة → رسالة "بيانات قليلة"؛ عينة كافية → تشخيص
 def _mkrow(sym, won, tier, sec, rsi, fl, rr):
     return {"symbol": sym, "entry_ref": 2.0, "max_gain_pct": 40 if won else -7,
