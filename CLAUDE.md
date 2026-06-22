@@ -12,7 +12,7 @@
 - `Super_stock.py` — البوت الكامل (الفرز + الرسائل + التتبع).
 - `analyze_one.py` — تحليل سهم واحد عند الطلب (يفوّض لـ`analyze_ticker`).
 - `pullback_live.py` — مراقبة الارتداد اللحظية (كل 30د بالسوق).
-- `test_bot.py` — 141 اختبار (يشتغل بلا إنترنت). **شغّله قبل أي دفع:** `python3 test_bot.py`
+- `test_bot.py` — 142 اختبار (يشتغل بلا إنترنت). **شغّله قبل أي دفع:** `python3 test_bot.py`
 - `FAISAL_METHODOLOGY_NOTES.md` / `FAISAL_IMAGES_CATALOG.md` — توثيق منهجية فيصل من الصور.
 - `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · analyze.yml/technical.yml (يدوي).
 
@@ -82,7 +82,9 @@
 - القطاع/الدولة **بالعربي** (`ar_sector`/`ar_country`).
 
 ## التشغيل والاختبار
-- اختبار: `python3 test_bot.py` (لازم 141/141).
+- اختبار: `python3 test_bot.py` (لازم 142/142).
+- `analyze_one.py` (الفحص اليدوي) **مطابق تمامًا** لـ`analyze_ticker` (نفس الدرجة/
+  الأهداف/الوقف/RR/المؤشرات) — مقفول باختبار «الفحص اليدوي = الأساسي».
 - **جلسات Claude Code ويب**: `.claude/hooks/session-start.sh` (SessionStart hook،
   مُسجَّل في `.claude/settings.json`) يثبّت `requirements.txt` + `ruff`/`pyflakes`
   تلقائيًا عند بدء كل جلسة ويب (متزامن · ويب فقط · آمن للتكرار).

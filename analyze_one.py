@@ -228,6 +228,77 @@ def analyze_on_demand(sym: str):
         score += 5
         flags.append("نمط شمعة قوي")
 
+    # ===== مؤشرات فيصل الإضافية (v2.7) — مطابقة analyze_ticker بالحرف =====
+    # (أي اختلاف هنا = فشل اختبار «تطابق الفحص اليدوي مع الأساسي» في test_bot)
+    ind = {}
+    try:
+        ind["atr"] = float(bot.atr(high, low, close, C["ATR_PERIOD"]).iloc[-1])
+    except Exception:
+        ind["atr"] = 0.0
+    try:
+        mfi_now = float(mfi_s.iloc[-1])
+        mfi_min = float(mfi_s.tail(10).min())
+        ind["mfi"] = mfi_now
+        if sweep and mfi_now > mfi_min and mfi_min <= C["MFI_OVERSOLD"]:
+            score += C["MFI_DIVERGENCE_SCORE"]
+            flags.append(f"تباعد MFI صعودي ({mfi_min:.0f}→{mfi_now:.0f}) — سيولة مخفية")
+    except Exception:
+        ind["mfi"] = 50.0
+    try:
+        _bm, _bu, _bl, _pctb, _bw = bot.bollinger(close)
+        ind["boll_pctb"] = float(_pctb.iloc[-1])
+        bw_tail = _bw.dropna().tail(60)
+        if len(bw_tail) >= 20:
+            thr = float(bw_tail.quantile(C["BOLL_SQUEEZE_PCTL"]))
+            if float(_bw.iloc[-1]) <= thr:
+                score += C["SCORE_BOLLINGER_SQUEEZE"]
+                flags.append("انكماش حزمة كلنجر (تجميع)")
+    except Exception:
+        pass
+    try:
+        _sk, _sd = bot.stoch_rsi(close)
+        ind["stochrsi_k"] = float(_sk.iloc[-1])
+        if float(_sk.iloc[-2]) <= 20 and float(_sk.iloc[-1]) > float(_sk.iloc[-2]):
+            score += C["SCORE_STOCHRSI"]
+            flags.append("StochRSI انعطاف من التشبع")
+    except Exception:
+        pass
+    try:
+        _wlr = bot.williams_r(high, low, close)
+        ind["williams_r"] = float(_wlr.iloc[-1])
+        if (float(_wlr.iloc[-2]) <= C["WILLIAMS_OVERSOLD"]
+                and float(_wlr.iloc[-1]) > float(_wlr.iloc[-2])):
+            score += C["SCORE_WILLIAMS"]
+            flags.append("Williams %R انعطاف من التشبع")
+    except Exception:
+        pass
+    try:
+        _pdi, _mdi, _adx = bot.dmi_adx(high, low, close)
+        ind["plus_di"] = float(_pdi.iloc[-1])
+        ind["minus_di"] = float(_mdi.iloc[-1])
+        ind["adx"] = float(_adx.iloc[-1])
+        if float(_pdi.iloc[-1]) > float(_mdi.iloc[-1]):
+            score += C["SCORE_DMI"]
+            flags.append("DMI: ‎+DI فوق ‎-DI")
+    except Exception:
+        pass
+    try:
+        ma5 = float(close.rolling(5).mean().iloc[-1])
+        ma20 = float(close.rolling(20).mean().iloc[-1])
+        ind["ma5"], ind["ma20"] = ma5, ma20
+        if ma5 > 0 and price >= ma5 and ma5 >= ma20 * 0.99:
+            score += C["SCORE_MA_SHORT"]
+            flags.append("استعاد MA5/MA20 (تجميع)")
+    except Exception:
+        pass
+    try:
+        ind["vwap"] = bot.rolling_vwap(df)
+        _ddd, _ama = bot.dma_oscillator(close)
+        ind["dma_ddd"] = float(_ddd.iloc[-1])
+        ind["dma_ama"] = float(_ama.iloc[-1])
+    except Exception:
+        pass
+
     # نقاط الفجوات الصاعدة (مطابقة للبوت)
     if gaps["count"] > 0:
         if gaps["max_gap"] >= C["GAP_BIG_PCT"]:
@@ -298,9 +369,27 @@ def analyze_on_demand(sym: str):
     min_first = price * (1.0 + C["MIN_T1_GAIN_PCT"] / 100.0)
     gapm = 1.0 + C["MIN_TARGET_GAP_PCT"] / 100.0
     target_cands = list(resist) + [raw_t1, raw_t3]
+    # أهداف الفريم الأسبوعي (مطابقة analyze_ticker — فيصل: يومي + أسبوعي)
+    if C.get("USE_MULTIFRAME_TARGETS", True):
+        try:
+            wk = bot.resample_ohlc(df, "W")
+            if wk is not None and len(wk) >= 10:
+                target_cands += list(bot.resistance_levels(wk, price))
+                target_cands.append(bot.first_target(wk))
+        except Exception:
+            pass
     if C.get("GAP_ABOVE_USE_AS_TARGET", False):
         for z in near_zones:
             target_cands.append(z["bottom"])
+    # Fibonacci كأهداف (مطابقة analyze_ticker — فيصل IMG_6473)
+    if C.get("USE_FIB_TARGETS", False):
+        try:
+            fib = bot.fibonacci_levels(pivot, raw_t3)
+            for key in ("0.382", "0.500", "0.618", "0.786", "1.000"):
+                if fib.get(key):
+                    target_cands.append(fib[key])
+        except Exception:
+            pass
     cands = sorted(t for t in target_cands if min_first <= t <= cap)
     targets = []
     for t in cands:
@@ -339,6 +428,7 @@ def analyze_on_demand(sym: str):
         "entry": (entry_lo, entry_hi), "tranches": tranches,
         "h4_levels": h4_levels,
         "key_levels": bot.key_levels(df, price, pivot, h4_levels),
+        "indicators": ind,                 # MFI/ADX/كلنجر%B/%R — يطابق البطاقة
         "sweep": (sweep_lo, sweep_hi),
         "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
         "ready": ready, "flags": flags, "warnings": warnings,

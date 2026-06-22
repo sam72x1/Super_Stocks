@@ -100,6 +100,32 @@ print("\n=== 2) المحرك: التصنيف A/B + المستويات ===")
 # سهم ارتكاز مُركّب → اختبار شامل للمحرك من البداية للنهاية
 r0 = S.analyze_ticker("TEST", synth_pivot(seed=2))
 check("سهم الارتكاز يُحلَّل (ليس None)", r0 is not None)
+
+# 🔁 تطابق أداة الفحص اليدوي (analyze_one) مع الأداة الأساسية (analyze_ticker)
+# نُغذّي الاثنتين بنفس السهم الصناعي بالضبط → لازم نفس الدرجة/الأهداف/الوقف/RR.
+# (يمنع انحراف الفحص اليدوي عن الفارز مستقبلًا — أي اختلاف = فشل اختبار)
+try:
+    import analyze_one as AO
+    _sdl, _s4h = S.download_history, getattr(S, "fetch_4h", None)
+    S.download_history = lambda syms: {"TEST": synth_pivot(seed=2)}
+    S.fetch_4h = lambda *a, **k: None
+    _diag, _g, _ = AO.analyze_on_demand("TEST")
+    S.download_history = _sdl
+    if _s4h is not None:
+        S.fetch_4h = _s4h
+    if r0 and _diag:
+        check("الفحص اليدوي = الأساسي (درجة/أهداف/وقف/RR بالضبط)",
+              _diag["score"] == r0["score"]
+              and _diag["t1"] == r0["t1"] and _diag["t2"] == r0["t2"]
+              and _diag["t3"] == r0["t3"] and _diag["pivot"] == r0["pivot"]
+              and tuple(_diag["stop"]) == tuple(r0["stop"])
+              and round(_diag["rr"], 4) == round(r0["rr"], 4),
+              f"diag={_diag['score']}/{_diag['t1']}/{_diag['t2']}/{_diag['t3']} "
+              f"vs main={r0['score']}/{r0['t1']}/{r0['t2']}/{r0['t3']}")
+    else:
+        check("الفحص اليدوي = الأساسي", _diag is not None, "r0/diag فارغ")
+except Exception as e:
+    check("الفحص اليدوي = الأساسي", False, str(e))
 if r0:
     check("مُصنّف A أو B", r0["tier"] in ("A", "B"), f"tier={r0['tier']} soft={r0['soft_fails']}")
     check("نواقصه ضمن الحد", len(r0["soft_fails"]) <= S.CONFIG["WATCH_MAX_FAILS"])
