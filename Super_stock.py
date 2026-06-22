@@ -2646,6 +2646,8 @@ def build_message(results: list, splits: list,
             conf.append("مسح سيولة ✓")
         if any("MFI" in f for f in r.get("flags", [])):
             conf.append("تباعد MFI ✓")
+        if any("Williams" in f for f in r.get("flags", [])):
+            conf.append("دخول المضارب ✓")   # %R خرج من التشبع (فيصل 7377)
         lines.append("🕯️ " + " · ".join(conf))
         # ===== الخطة (الأسعار الأساسية فقط) =====
         lines.append("🎯 <b>الخطة:</b>")
@@ -2674,6 +2676,8 @@ def build_message(results: list, splits: list,
             mp.append(f"ADX {ic['adx']:.0f}")
         if ic.get("boll_pctb") is not None:
             mp.append(f"كلنجر%B {ic['boll_pctb']:.2f}")
+        if "williams_r" in ic:
+            mp.append(f"%R {ic['williams_r']:.0f}")
         if mp:
             lines.append("📐 " + " · ".join(mp))
         # تنبيهات حرجة فقط (تقسيم + SEC أحمر + تحذيرات)

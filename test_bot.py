@@ -241,6 +241,8 @@ if r0:
     rb["tier"] = "B"
     rb["soft_fails"] = ["MACD"]
     rb["flags"] = list(r0["flags"])
+    rb["flags"].append("Williams %R انعطاف من التشبع")   # إشارة دخول المضارب
+    rb["indicators"] = dict(rb.get("indicators") or {}, williams_r=-35.0)
     results.append(rb)
 for x in results:                       # حقول الإثراء الاختيارية
     x.setdefault("sector", "Technology")
@@ -255,6 +257,8 @@ try:
     has_lib = any(x.get("liberation") for x in results)
     check("الرسالة تعرض التحرر (إن وُجد)",
           (not has_lib) or ("تحرر فوق" in msg))
+    check("الرسالة تعرض «دخول المضارب» + %R (Williams)",
+          "دخول المضارب" in msg and "%R" in msg)
 except Exception as e:
     check("build_message يعمل", False, str(e))
 
