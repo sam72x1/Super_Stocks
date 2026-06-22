@@ -397,6 +397,15 @@ check("Williams %R: المدى (-100..0) والانعطاف من التشبع ي
       and float(_wr_s.iloc[-1]) > float(_wr_s.iloc[-2])
       and S.CONFIG["SCORE_WILLIAMS"] > 0)
 
+# 🧹 تخرّج المراقبة: السهم الذي دخل A/B يُحذف من قائمة الارتداد (لا ازدواج)
+_wlg = {"stocks": [{"symbol": "GRAD"}, {"symbol": "MAINONLY"}],
+        "pullback": [{"symbol": "GRAD", "status": "triggered"},
+                     {"symbol": "STILLPB", "status": "active"}]}
+_grad = S.prune_graduated_pullback(_wlg)
+check("تنظيف المراقبة: المتخرّج لـA/B يُحذف منها ويبقى غيره",
+      _grad == ["GRAD"]
+      and [e["symbol"] for e in _wlg["pullback"]] == ["STILLPB"])
+
 # 🔬 مساعد التطوير: عينة قليلة → رسالة "بيانات قليلة"؛ عينة كافية → تشخيص
 def _mkrow(sym, won, tier, sec, rsi, fl, rr):
     return {"symbol": sym, "entry_ref": 2.0, "max_gain_pct": 40 if won else -7,

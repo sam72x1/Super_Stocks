@@ -4120,6 +4120,18 @@ def merge_pullback(wl: dict, hist: dict, exclude: set, today_iso: str) -> None:
         make_pullback_entry(w, today_iso) for w in new)
 
 
+def prune_graduated_pullback(wl: dict) -> list:
+    """نظافة بيانات: يشيل من قائمة مراقبة الارتداد أي سهم **تخرّج فعليًا**
+    لقائمة A/B الأساسية (دخل `wl["stocks"]`) — فلا يبقى في القائمتين معًا.
+    يرجع رموز المُتخرّجة."""
+    main = {s["symbol"] for s in wl.get("stocks", [])}
+    pb = wl.get("pullback") or []
+    graduated = [e["symbol"] for e in pb if e["symbol"] in main]
+    if graduated:
+        wl["pullback"] = [e for e in pb if e["symbol"] not in main]
+    return graduated
+
+
 def run_daily_watchlist(wl: dict) -> None:
     """يومي (غير الجمعة): قائمة ثابتة دائمة — تُتابَع وتُضاف لها الجديد فقط،
     ولا يُحذف منها سهم إلا بستوب/هدف. سوق مقفل = نفس القائمة (تنمو، ما ترفرف)."""
@@ -4172,11 +4184,17 @@ def run_daily_watchlist(wl: dict) -> None:
     except Exception as e:
         log(f"⚠️ فحص الترقيات: {e}")
     compute_readiness(wl, hist)
-    # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم
+    # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم.
+    #    نمرّر القائمة الأساسية الحالية (تشمل ما أُضيف توًّا) كاستبعاد، ثم
+    #    نشيل أي سهم تخرّج للأساسية من المراقبة (لا ازدواج بين القائمتين).
+    held_now = {s["symbol"] for s in wl["stocks"]}
     try:
-        merge_pullback(wl, hist, held | stopped, today_iso)
+        merge_pullback(wl, hist, held_now | stopped, today_iso)
     except Exception as e:
         log(f"⚠️ دمج الارتداد: {e}")
+    graduated = prune_graduated_pullback(wl)
+    if graduated:
+        log("تخرّج من مراقبة الارتداد → A/B: " + "، ".join(graduated))
     pull_triggered = []
     try:
         pull_triggered = monitor_pullback(wl)
