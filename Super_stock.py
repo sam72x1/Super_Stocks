@@ -2750,6 +2750,9 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "t1": round(r["t1"], 4), "t2": round(r["t2"], 4),
         "t3": round(r["t3"], 4),
         "score": r["score"], "flags": list(r["flags"]),
+        "rsi": r.get("rsi"), "float": r.get("float"),      # سمات للتعلم
+        "drop_pct": r.get("drop_pct"), "best_spike": r.get("best_spike"),
+        "rr": r.get("rr"),
         "tier": r.get("tier", "A"),                       # A صارمة / B مراقبة
         "soft_fails": list(r.get("soft_fails", [])),
         "warnings": list(r.get("warnings", [])),          # تحذيرات (تخفيف/جغرافي)
@@ -3514,6 +3517,160 @@ def build_wrapup_message(wl: dict) -> str:
     return "\n".join(lines)
 
 
+# ===== 🔬 مساعد التطوير (المساعد الثالث) — يحلّل نتائج البوت نفسه =====
+DEV_MIN_SAMPLE = 10        # أقل عدد صفقات محسومة قبل أن تكون الأرقام ذات معنى
+
+
+def _collect_closed(wl: dict) -> list:
+    """يجمع كل الصفقات المحسومة (رابحة=حقّقت هدفًا · خاسرة=ضربت الستوب بلا هدف)
+    من الأرشيف التراكمي + الأسبوع الحالي. كل صف يحمل سماته عند الدخول."""
+    rows = []
+    seen = set()
+    buckets = list(wl.get("history") or [])
+    buckets.append({"stocks": (wl.get("removed") or []) + (wl.get("stocks") or [])})
+    for wk in buckets:
+        for s in wk.get("stocks", []):
+            won = bool(s.get("hit"))
+            lost = (s.get("status") == "stopped") and not won
+            if not (won or lost):
+                continue
+            key = (s.get("symbol"), s.get("entry_ref"))
+            if key in seen:                 # تفادي التكرار بين الأرشيف والحالي
+                continue
+            seen.add(key)
+            r = dict(s)
+            r["_win"] = won
+            rows.append(r)
+    return rows
+
+
+def _wr(rows: list):
+    """(عدد، نسبة النجاح %، متوسط أقصى ربح%) لمجموعة صفقات."""
+    n = len(rows)
+    if not n:
+        return (0, 0.0, 0.0)
+    wins = sum(1 for r in rows if r["_win"])
+    avg_mg = sum((r.get("max_gain_pct") or 0) for r in rows) / n
+    return (n, wins / n * 100.0, avg_mg)
+
+
+def build_dev_assistant_report(wl: dict) -> str:
+    """🔬 المساعد الثالث: يحلّل الصفقات المحسومة ويطلّع تشخيص الأداء بالشرائح
+    + أنماط الفشل + اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات). يُرسل الجمعة."""
+    rows = _collect_closed(wl)
+    n, wr, avg = _wr(rows)
+    head = ["🔬 <b>مساعد التطوير — تحليل أداء المنهجية</b>",
+            f"صفقات محسومة متراكمة: <b>{n}</b>"]
+    if n < DEV_MIN_SAMPLE:
+        head.append(f"⏳ بيانات قليلة (أقل من {DEV_MIN_SAMPLE}) — يتراكم أسبوعيًا. "
+                    "الأرقام تصير ذات معنى بعد ~10+ صفقة.")
+        head.append("⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
+        return "\n".join(head)
+    wins = [r for r in rows if r["_win"]]
+    losses = [r for r in rows if not r["_win"]]
+    head.append(f"النجاح الكلي: <b>{wr:.0f}%</b> ({len(wins)}✅ / {len(losses)}🛑) "
+                f"· متوسط أقصى ربح {avg:+.0f}%")
+
+    def seg(title, keyfn):
+        groups = {}
+        for r in rows:
+            k = keyfn(r)
+            if k is None:
+                continue
+            groups.setdefault(k, []).append(r)
+        items = [(k, _wr(v)) for k, v in groups.items() if _wr(v)[0] >= 3]
+        if not items:
+            return []
+        items.sort(key=lambda x: -x[1][1])
+        out = [f"\n📊 <b>{title}</b>"]
+        for k, (gn, gwr, gmg) in items:
+            out.append(f"   • {k}: {gwr:.0f}% نجاح ({gn} صفقة · {gmg:+.0f}% متوسط)")
+        return out
+
+    def _bucket(v, edges):
+        if v is None:
+            return None
+        for lo, hi, lbl in edges:
+            if lo <= v < hi:
+                return lbl
+        return None
+
+    # (1) تشخيص الأداء بالشرائح
+    body = []
+    body += seg("حسب القائمة", lambda r: ("A صارمة" if r.get("tier") == "A"
+                                          else "B مراقبة") if r.get("tier") else None)
+    body += seg("حسب القطاع", lambda r: ar_sector(r.get("sector")) or None)
+    body += seg("حسب RSI عند الدخول", lambda r: _bucket(
+        r.get("rsi"), [(0, 28, "≤27 مثالي"), (28, 33, "28-32"),
+                       (33, 41, "33-40"), (41, 200, ">40")]))
+    body += seg("حسب الفلوت", lambda r: _bucket(
+        (r.get("float") or 0) / 1e6 if r.get("float") else None,
+        [(0, 10, "<10م"), (10, 30, "10-30م"), (30, 1e9, ">30م")]))
+    body += seg("حسب العائد/المخاطرة", lambda r: _bucket(
+        r.get("rr"), [(0, 1.5, "<1.5×"), (1.5, 2.5, "1.5-2.5×"), (2.5, 99, "≥2.5×")]))
+
+    # إشارات: نسبة النجاح عند وجود كل إشارة
+    flag_names = set()
+    for r in rows:
+        for f in (r.get("flags") or []):
+            flag_names.add(f.split("(")[0].strip())
+    flag_rows = []
+    for fn in flag_names:
+        present = [r for r in rows if any(
+            (f.split("(")[0].strip() == fn) for f in (r.get("flags") or []))]
+        gn, gwr, _ = _wr(present)
+        if gn >= 3:
+            flag_rows.append((fn, gn, gwr))
+    if flag_rows:
+        flag_rows.sort(key=lambda x: -x[2])
+        body.append("\n🚦 <b>حسب الإشارة (نسبة النجاح عند وجودها)</b>")
+        for fn, gn, gwr in flag_rows:
+            body.append(f"   • {fn}: {gwr:.0f}% ({gn})")
+
+    # (2) أنماط الفشل
+    fails = ["\n🛑 <b>أنماط الخاسرين</b>"]
+    if losses:
+        sec_cnt, flag_cnt = {}, {}
+        for r in losses:
+            sc = ar_sector(r.get("sector"))
+            if sc:
+                sec_cnt[sc] = sec_cnt.get(sc, 0) + 1
+            for f in (r.get("flags") or []):
+                nm = f.split("(")[0].strip()
+                flag_cnt[nm] = flag_cnt.get(nm, 0) + 1
+        tier_l = sum(1 for r in losses if r.get("tier") == "B")
+        fails.append(f"   • {tier_l}/{len(losses)} من الخاسرين كانوا B مراقبة")
+        top_sec = sorted(sec_cnt.items(), key=lambda x: -x[1])[:2]
+        if top_sec:
+            fails.append("   • أكثر قطاعات الخسارة: "
+                         + "، ".join(f"{k} ({v})" for k, v in top_sec))
+    body += fails if len(fails) > 1 else []
+
+    # (3) اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات)
+    sugg = ["\n💡 <b>اقتراحات ضبط (للمراجعة فقط — لا تُطبّق تلقائيًا)</b>"]
+    a_rows = [r for r in rows if r.get("tier") == "A"]
+    b_rows = [r for r in rows if r.get("tier") == "B"]
+    an, awr, _ = _wr(a_rows)
+    bn, bwr, _ = _wr(b_rows)
+    if an >= 5 and bn >= 5 and awr - bwr >= 20:
+        sugg.append(f"   • A ({awr:.0f}%) أفضل بوضوح من B ({bwr:.0f}%) — "
+                    "فكّر بتشديد B أو تقليل وزنها.")
+    hi_rsi = [r for r in rows if (r.get("rsi") or 0) > 40]
+    if len(hi_rsi) >= 5 and _wr(hi_rsi)[1] < wr - 15:
+        sugg.append(f"   • صفقات RSI>40 نجاحها {_wr(hi_rsi)[1]:.0f}% (أقل من المعدل) "
+                    "— فكّر بتشديد سقف RSI.")
+    lo_rr = [r for r in rows if (r.get("rr") or 0) < 1.5]
+    if len(lo_rr) >= 5 and _wr(lo_rr)[1] < wr - 15:
+        sugg.append(f"   • صفقات RR<1.5× نجاحها {_wr(lo_rr)[1]:.0f}% — "
+                    "فكّر برفع حد RR الأدنى.")
+    if len(sugg) == 1:
+        sugg.append("   • لا نمط واضح بعد — البيانات متّسقة أو غير كافية لاقتراح.")
+
+    tail = ["", "⚠️ <i>أداة تطوير ذاتي تتعلّم من نتائج البوت — ليست توصية. "
+            "الاقتراحات للمراجعة البشرية فقط.</i>"]
+    return "\n".join(head + body + sugg + tail)
+
+
 def write_csv(rows: list, prefix: str) -> None:
     if not (CONFIG["REPORT_CSV"] and rows):
         return
@@ -3541,16 +3698,26 @@ def run_weekly_renewal(wl: dict) -> None:
     wrap = build_wrapup_message(wl)
     if wrap:
         send_telegram(wrap)
-    # 2) أرشفة مختصرة (آخر 8 أسابيع للتعلم التراكمي)
+    # 2) أرشفة (آخر 26 أسبوع للتعلم التراكمي + مساعد التطوير) — نحفظ سمات
+    #    الدخول مع النتيجة حتى نربط «ليش نجح/فشل» لاحقًا.
     if wl.get("week_start"):
         summary = {"week_start": wl["week_start"], "ended": today_iso,
                    "stocks": [{k: s.get(k) for k in
                                ("symbol", "entry_ref", "last_price",
                                 "max_gain_pct", "status", "hit",
-                                "removal_reason")}
+                                "removal_reason", "tier", "sector", "score",
+                                "flags", "rsi", "float", "drop_pct",
+                                "best_spike", "rr")}
                               for s in wl["stocks"] + wl["removed"]]}
         wl.setdefault("history", []).append(summary)
-        wl["history"] = wl["history"][-8:]
+        wl["history"] = wl["history"][-26:]
+    # 2.5) 🔬 مساعد التطوير (تقرير مستقل) — بعد الأرشفة (يشمل الأسبوع الحالي)
+    try:
+        dev = build_dev_assistant_report(wl)
+        if dev:
+            send_telegram(dev)
+    except Exception as e:
+        log(f"⚠️ مساعد التطوير: {e}")
     # 3) فرز جديد واختيار القائمة
     exclude = set()
     if CONFIG["EXCLUDE_STOPPED_FROM_RENEWAL"]:
