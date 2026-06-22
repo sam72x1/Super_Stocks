@@ -9,7 +9,7 @@
 > (أعلى `Super_stock.py`). البوت يكتشف التغيّر ويعيد حساب القائمة كاملة **تلقائيًا**
 > في أول تشغيل (`migrate_watchlist`) — بلا انتظار الجمعة ولا تدخّل يدوي.
 > ضمانات إضافية: كل رسالة مختومة «🧾 إصدار SHA» (`code_version`) · Action
-> بـ`force_renew=1` لإعادة بناء فورية · 139 اختبار + حُرّاس قرارات.
+> بـ`force_renew=1` لإعادة بناء فورية · 141 اختبار + حُرّاس قرارات.
 
 > **للمستخدم:** انسخ «نص التشغيل» أدناه في أي محادثة جديدة على نفس الـ repo.
 > **لـ Claude:** هذا الملف = الحالة الكاملة. اقرأه + `CLAUDE.md` + `Super_stock.py`
@@ -63,7 +63,7 @@ Super_stock.py كامل ثم FAISAL_METHODOLOGY_NOTES.md. بعدها لخّص ل
 - **حُرّاس القرارات (Invariants) في `test_bot.py` قسم 9**: يقفلون الوقف 5-7%/
   لا ATR · الدفعات 3×3% · الشورت 40ألف/الفلوت 50م · عتبات RSI · أرضيات الهوية ·
   الضمان الذهبي + الأهداف + RR على 60 سهم صناعي · أن الأسبوعي لا يغيّر t1/RR ·
-  أن غياب 4س لا يكسر. **أي كسر صامت مستقبلي = فشل اختبار.** (139/139)
+  أن غياب 4س لا يكسر. **أي كسر صامت مستقبلي = فشل اختبار.** (141/141)
 - `SCORE_MIN=45` · `WATCH_MAX_FAILS=3` · `MIN_PRICE=1.5` · `NEAR_PCT=50` · `READY_PCT=75`.
 - تحذير الصين/هونغ كونغ (`HIGH_RISK_COUNTRIES`) — تحذير فقط (تظل تظهر).
 
@@ -79,7 +79,9 @@ Super_stock.py كامل ثم FAISAL_METHODOLOGY_NOTES.md. بعدها لخّص ل
   `make_watch_entry`، `make_pullback_entry`، `readiness_ratio`، `rank_key`.
 - `analyze_one.py` — تحليل يدوي (يفوّض لـ`analyze_ticker`؛ يعرض A/B/مراقبة ارتداد).
 - `pullback_live.py` — مراقبة لحظية.
-- `test_bot.py` — **139 اختبار**. شغّله قبل أي دفع: `python3 test_bot.py`.
+- `test_bot.py` — **141 اختبار**. شغّله قبل أي دفع: `python3 test_bot.py`.
+- `.claude/hooks/session-start.sh` + `.claude/settings.json` — SessionStart hook
+  لجلسات Claude Code ويب (يثبّت requirements + ruff/pyflakes تلقائيًا).
 - `CLAUDE.md` — دليل سريع (يُقرأ آليًا). `FAISAL_METHODOLOGY_NOTES.md`/`FAISAL_IMAGES_CATALOG.md` — منهجية فيصل.
 - `.github/workflows/`: daily_screener · pullback_monitor · analyze/technical (يدوي).
 
