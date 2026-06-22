@@ -332,7 +332,7 @@ except Exception:
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار الجمعة ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.06.22-redheads+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.06.22-redheads.dw+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل — يمكن ضبطه بمتغير بيئة SEC_CONTACT
@@ -934,6 +934,8 @@ def resistance_levels(df: pd.DataFrame, price: float, max_levels: int = 8,
         wk = resample_ohlc(df, "W")
         if wk is not None and len(wk) >= 7:
             real += _swing_highs(wk["High"].values.astype(float), price, 2)
+            if include_red_heads:          # رؤوس حمرا أسبوعي (للشارتات الأسبوعية)
+                real += _red_candle_heads(wk, price)
     except Exception:
         pass
     real = sorted(set(round(s, 2) for s in real if s > price))
