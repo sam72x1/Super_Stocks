@@ -1,6 +1,9 @@
 name: Daily Pivot Screener
 permissions:
   contents: write
+concurrency:
+  group: daily-screener
+  cancel-in-progress: false
 on:
   schedule:
     - cron: "0 7 * * 2-6"

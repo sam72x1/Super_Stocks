@@ -45,7 +45,7 @@ def analyze_on_demand(sym: str):
     if df is None or len(df) < C["MIN_BARS"]:
         return None, (f"تعذّر جلب بيانات كافية لـ {sym}. "
                       "غالباً: رمز خاطئ، سهم جديد جداً، أو سيولة شبه معدومة "
-                      "(أقل من الحد الأدنى للشموع المطلوبة).", None)
+                      "(أقل من الحد الأدنى للشموع المطلوبة)."), None
 
     close = df["Close"]
     high, low, vol = df["High"], df["Low"], df["Volume"]

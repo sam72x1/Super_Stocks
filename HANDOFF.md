@@ -9,7 +9,7 @@
 > (أعلى `Super_stock.py`). البوت يكتشف التغيّر ويعيد حساب القائمة كاملة **تلقائيًا**
 > في أول تشغيل (`migrate_watchlist`) — بلا انتظار الجمعة ولا تدخّل يدوي.
 > ضمانات إضافية: كل رسالة مختومة «🧾 إصدار SHA» (`code_version`) · Action
-> بـ`force_renew=1` لإعادة بناء فورية · 122 اختبار + حُرّاس قرارات.
+> بـ`force_renew=1` لإعادة بناء فورية · 138 اختبار + حُرّاس قرارات.
 
 > **للمستخدم:** انسخ «نص التشغيل» أدناه في أي محادثة جديدة على نفس الـ repo.
 > **لـ Claude:** هذا الملف = الحالة الكاملة. اقرأه + `CLAUDE.md` + `Super_stock.py`
@@ -63,7 +63,7 @@ Super_stock.py كامل ثم FAISAL_METHODOLOGY_NOTES.md. بعدها لخّص ل
 - **حُرّاس القرارات (Invariants) في `test_bot.py` قسم 9**: يقفلون الوقف 5-7%/
   لا ATR · الدفعات 3×3% · الشورت 40ألف/الفلوت 50م · عتبات RSI · أرضيات الهوية ·
   الضمان الذهبي + الأهداف + RR على 60 سهم صناعي · أن الأسبوعي لا يغيّر t1/RR ·
-  أن غياب 4س لا يكسر. **أي كسر صامت مستقبلي = فشل اختبار.** (115/115)
+  أن غياب 4س لا يكسر. **أي كسر صامت مستقبلي = فشل اختبار.** (138/138)
 - `SCORE_MIN=45` · `WATCH_MAX_FAILS=3` · `MIN_PRICE=1.5` · `NEAR_PCT=50` · `READY_PCT=75`.
 - تحذير الصين/هونغ كونغ (`HIGH_RISK_COUNTRIES`) — تحذير فقط (تظل تظهر).
 
@@ -79,7 +79,7 @@ Super_stock.py كامل ثم FAISAL_METHODOLOGY_NOTES.md. بعدها لخّص ل
   `make_watch_entry`، `make_pullback_entry`، `readiness_ratio`، `rank_key`.
 - `analyze_one.py` — تحليل يدوي (يفوّض لـ`analyze_ticker`؛ يعرض A/B/مراقبة ارتداد).
 - `pullback_live.py` — مراقبة لحظية.
-- `test_bot.py` — **103 اختبار**. شغّله قبل أي دفع: `python3 test_bot.py`.
+- `test_bot.py` — **138 اختبار**. شغّله قبل أي دفع: `python3 test_bot.py`.
 - `CLAUDE.md` — دليل سريع (يُقرأ آليًا). `FAISAL_METHODOLOGY_NOTES.md`/`FAISAL_IMAGES_CATALOG.md` — منهجية فيصل.
 - `.github/workflows/`: daily_screener · pullback_monitor · analyze/technical (يدوي).
 
@@ -90,7 +90,20 @@ Super_stock.py كامل ثم FAISAL_METHODOLOGY_NOTES.md. بعدها لخّص ل
 - رسائل commit تنتهي بـ Co-Authored-By + Claude-Session (انظر CLAUDE.md). لا PR إلا بطلب.
 - لا تضع معرّف النموذج في أي ملف مدفوع.
 
-## آخر حالة (2026-06-21)
-كل ما سبق منفّذ ومدفوع على main. آخر إصلاحات: الوقف 7% · دخول من–إلى + الدعم
-في التقرير اليومي · النسبة العامة + القطاع/الدولة بالتقرير اليومي · قائمة الارتداد
-بالجودة · القائمة الثابتة. 103/103 اختبار. لا مهام معلّقة معروفة.
+## آخر حالة (2026-06-22) — فحص شامل أقصى + تصليبات
+فحص كامل للبوت (اختبارات + compile + تحليل ساكن ruff/pyflakes + 3 وكلاء فحص
+عميق). **المنهجية والمسارات الأساسية سليمة** (حُرّاس القرارات خضراء). طُبّقت 6
+تصليبات لا تمسّ معادلات الدخول/الوقف/الأهداف ولا تحتاج force_renew:
+- **A** `analyze_one.py`: إصلاح خطأ كتابة كان يرجّع عنصرين بدل 3 (`, None` خارج
+  قوس النص) → التحليل اليدوي ما عاد ينهار على رمز ببيانات ناقصة.
+- **B** `migrate_watchlist`: يحدّث الآن `rr/drop_pct/best_spike` مع الوقف/الأهداف
+  (كانت تبقى قديمة). score/flags/h4/float/short تبقى (مشتقّة من الإثراء، تُبنى جمعةً).
+- **C** كتابة JSON ذرّية (`_atomic_write_json`: temp ثم os.replace) لـwatchlist/
+  alerts/companies → لا تلف صامت ولا فقدان للقائمة.
+- **D** `git_save`: fetch+rebase قبل الدفع + 4 محاولات + كشف الفشل (لا دفع
+  قسري) → لا تضيع بيانات تشغيل عند التزامن/الرفض.
+- **E** حدود نمو في `save_watchlist`: notes≤250 · removed≤120 · replacements_log≤120.
+- **F** `zip(strict=False)` · `technical.yml` صار يشغّل `technical_report.py`
+  (كان مكرّرًا لـanalyze) · `daily_screener.yml` صار له `concurrency` group.
+**138/138 اختبار** (أُضيف اختبار rr-في-الترحيل + اختبارا الكتابة الذرّية/الحدود).
+لا مهام معلّقة معروفة.

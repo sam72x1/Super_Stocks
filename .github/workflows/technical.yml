@@ -1,4 +1,4 @@
-name: تحليل سهم (يدوي)
+name: تقرير فني كلاسيكي (يدوي)
 
 on:
   workflow_dispatch:
@@ -24,9 +24,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run on-demand analysis
+      - name: Run classical technical report
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          ANALYZE: ${{ github.event.inputs.ticker }}
-        run: python analyze_one.py
+          TICKER: ${{ github.event.inputs.ticker }}
+        run: python technical_report.py

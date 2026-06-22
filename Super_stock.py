@@ -2809,10 +2809,19 @@ def _load_company_cache() -> dict:
     return {}
 
 
+def _atomic_write_json(path: str, data) -> None:
+    """كتابة ذرّية: نكتب لملف مؤقت ثم نستبدله دفعة واحدة (os.replace).
+    لا يبقى أبدًا ملف نصف-مكتوب/تالف لو انقطع التشغيل أو تزامن تشغيلان —
+    حماية «قاعدة البيانات» من الفقدان الصامت."""
+    tmp = f"{path}.tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=1)
+    os.replace(tmp, path)
+
+
 def _save_company_cache(cache: dict) -> None:
     try:
-        with open(COMPANY_FILE, "w", encoding="utf-8") as f:
-            json.dump(cache, f, ensure_ascii=False, indent=1)
+        _atomic_write_json(COMPANY_FILE, cache)
     except Exception as e:
         log(f"⚠️ حفظ ذاكرة الشركات: {e}")
 
@@ -2838,9 +2847,14 @@ def load_watchlist() -> dict:
 
 
 def save_watchlist(wl: dict) -> None:
+    # حدود نمو: تُقصّ السجلّات التراكمية عند كل حفظ (لا تنتظر تجديد الجمعة)
+    # حتى لا تنمو بلا حدّ لو تأخّر/تخطّى التجديد. لا تمسّ الأسهم النشطة.
+    for _k, _cap in (("notes", 250), ("removed", 120), ("replacements_log", 120)):
+        _lst = wl.get(_k)
+        if isinstance(_lst, list) and len(_lst) > _cap:
+            wl[_k] = _lst[-_cap:]
     try:
-        with open(WATCH_FILE, "w", encoding="utf-8") as f:
-            json.dump(wl, f, ensure_ascii=False, indent=1)
+        _atomic_write_json(WATCH_FILE, wl)
     except Exception as e:
         log(f"⚠️ حفظ ملف القائمة: {e}")
 
@@ -3372,7 +3386,7 @@ def fill_replacements(wl: dict):
     results, hist = scan_market()
     picks = select_top(results, n, exclude)
     added = []
-    for r, rm in zip(picks, pending):
+    for r, rm in zip(picks, pending, strict=False):
         rm["replaced"] = True
         wl["stocks"].append(make_watch_entry(r, today_iso))
         wl["replacements_log"].append({
@@ -3419,6 +3433,12 @@ def migrate_watchlist(wl: dict, history: dict) -> int:
         s["t3"] = round(fresh["t3"], 4)
         s["key_levels"] = fresh.get("key_levels")
         s["liberation"] = fresh.get("liberation")
+        # حقول مشتقّة من السعر تتغيّر مع الوقف/الأهداف → نحدّثها معها حتى لا
+        # يظهر RR قديم بجانب وقف/أهداف جديدة (تناقض). أمّا score/flags/h4/
+        # float/short فمشتقّة من الإثراء (شبكة) ويعاد بناؤها كاملةً جمعةَ التجديد.
+        s["rr"] = fresh.get("rr")
+        s["drop_pct"] = fresh.get("drop_pct")
+        s["best_spike"] = fresh.get("best_spike")
         migrated += 1
     wl["logic_version"] = LOGIC_VERSION
     if migrated:
@@ -4313,11 +4333,25 @@ def git_save(filenames):
             log("ℹ️ لا تغييرات جديدة للحفظ")
             return
         os.system(f'git commit -m "bot data {dt.date.today().isoformat()}"')
-        # HEAD:main يضمن الدفع حتى لو كان checkout بوضع detached
-        if os.system("git push origin HEAD:main") == 0:
+        # دفع آمن ضد السباق: قبل كل محاولة نضمّ تغييرات main البعيدة
+        # (تشغيل متزامن) عبر rebase، فلا يُرفض الدفع ولا تضيع بيانات تشغيل.
+        # HEAD:main يضمن الدفع حتى لو كان checkout بوضع detached.
+        pushed = False
+        for attempt in range(4):
+            os.system("git fetch origin main >/dev/null 2>&1")
+            if os.system("git rebase FETCH_HEAD >/dev/null 2>&1") != 0:
+                os.system("git rebase --abort >/dev/null 2>&1")
+            if os.system("git push origin HEAD:main") == 0:
+                pushed = True
+                break
+            wait = 2 ** (attempt + 1)
+            log(f"⚠️ git push فشل (محاولة {attempt + 1}/4) — إعادة بعد {wait}ث")
+            time.sleep(wait)
+        if pushed:
             log("✅ حُفظت بيانات التتبع في الـ repo")
         else:
-            log("⚠️ git push فشل — تأكد من permissions: contents: write في YML")
+            log("⛔ git push فشل نهائيًا — البيانات محفوظة محليًا فقط. "
+                "تأكّد من permissions: contents: write في الـ YML")
     except Exception as e:
         log(f"⚠️ git_save: {e}")
 
@@ -4334,8 +4368,7 @@ def load_alerts():
 
 def save_alerts_file(data):
     try:
-        with open(TRACK_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=1)
+        _atomic_write_json(TRACK_FILE, data)
     except Exception as e:
         log(f"⚠️ حفظ سجل التنبيهات: {e}")
 
