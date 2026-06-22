@@ -3646,7 +3646,7 @@ def build_wrapup_message(wl: dict) -> str:
     if stopped:
         lines += ["", "🛑 <b>المشطوبون وأسبابهم (للتعلم):</b>"]
         for s in stopped:
-            lines.append(f"• {s['symbol']}: {s['removal_reason']}")
+            lines.append(f"• {s['symbol']}: {s.get('removal_reason') or '—'}")
             if s.get("flags"):
                 lines.append(f"  إشاراته عند الاختيار: "
                              f"{'، '.join(s['flags'])}")
