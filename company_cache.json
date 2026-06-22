@@ -255,5 +255,81 @@
   "shares_out": 5383871,
   "short_pct": 2.5,
   "float": 2605563
+ },
+ "EZRA": {
+  "sector": "Financial Services",
+  "industry": "Insurance Brokers",
+  "business": "Reliance Global Group, Inc. acquires, owns, and manages insurance distribution and technology-oriented businesses in the United States. The company operates REL…",
+  "country": "United States",
+  "cash": 2273952,
+  "revenue": 12021531,
+  "shares_out": 555764,
+  "short_pct": 14.9,
+  "float": 493362
+ },
+ "TAOX": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "business": "TAO Synergies Inc. owns and operates an AI token. It focuses on the pure play artificial intelligence (AI) crypto coin, TAO, the native cryptocurrency of Bitten…",
+  "country": "United States",
+  "cash": 3645809,
+  "revenue": 687835,
+  "shares_out": 7471931,
+  "short_pct": 5.8,
+  "float": 7308370
+ },
+ "BCAB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "BioAtla, Inc., a clinical-stage biopharmaceutical company, develops specific and selective antibody-based therapeutics for the treatment of solid tumor cancer.…",
+  "country": "United States",
+  "cash": 1961000,
+  "revenue": 2000000,
+  "shares_out": 1659554,
+  "short_pct": 9.2,
+  "float": 1383053
+ },
+ "SUNE": {
+  "sector": "Technology",
+  "industry": "Solar",
+  "business": "SUNation Energy Inc. engages in the design, installation, and maintenance of photovoltaic solar energy systems and battery storage systems in the United States.…",
+  "country": "United States",
+  "cash": 1686605,
+  "revenue": 66463336,
+  "shares_out": 4123171,
+  "short_pct": 5.4,
+  "float": 3444814
+ },
+ "QTI": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "business": "QT Imaging Holdings, Inc. engages in the research, development, and commercialization of body imaging systems with low frequency sound waves for detection, diag…",
+  "country": "United States",
+  "cash": 6900000,
+  "revenue": 22657000,
+  "shares_out": 13242500,
+  "short_pct": 1.9,
+  "float": 7478152
+ },
+ "ACTU": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Actuate Therapeutics, Inc., a clinical-stage biopharmaceutical company, develops therapies for the treatment of cancers in the United States. The company's lead…",
+  "country": "United States",
+  "cash": 8134004,
+  "shares_out": 23925852,
+  "short_pct": 8.8,
+  "float": 8571676
+ },
+ "SDOT": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products",
+  "business": "Sadot Group Inc. provides supply chain solutions that address growing food security challenges worldwide. The company is involved in the agri-commodity sourcing…",
+  "country": "United States",
+  "cash": 409000,
+  "revenue": 114801000,
+  "shares_out": 1011803,
+  "short_pct": 3.2,
+  "float": 665850
  }
 }
