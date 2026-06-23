@@ -2601,6 +2601,40 @@ FOOTER = ("⚠️ <i>فارز آلي حسب منهجية موثقة — ليست
           "القرار النهائي وإدارة المخاطر عليك.</i>")
 
 
+def strength_bar(score):
+    """شريط القوة العامة (10 خانات) + وصف — للبطاقة المختصرة (عرض فقط)."""
+    s = max(0, min(int(score or 0), 100))
+    filled = int(round(s / 10.0))
+    bar = "█" * filled + "░" * (10 - filled)
+    if s >= 85:
+        label = "🔥 قوي جدًا"
+    elif s >= 70:
+        label = "💪 قوي"
+    elif s >= 55:
+        label = "⚖️ متوسط"
+    else:
+        label = "🔻 ضعيف"
+    return bar, label
+
+
+def readiness_tag(p, tier="A"):
+    """وسم حالة الجاهزية (🟢/🟡/🔴 + الكلمة) بلا النسبة — لرأس البطاقة المختصرة.
+    يعيد استخدام `readiness_badge` (مصدر العتبات/المسمّيات الوحيد، لا تكرار)."""
+    if p is None:
+        return "⚠️ لا بيانات"
+    return readiness_badge(p, tier).split("</b>")[-1].strip()
+
+
+def news_links_compact(sym: str) -> str:
+    """روابط أخبار مختصرة (سطر واحد نظيف) — نفس مصادر `news_links` بمسمّيات أقصر."""
+    s = sym.upper()
+    tr = f"https://www.tipranks.com/stocks/{s.lower()}/stock-news"
+    yh = f"https://finance.yahoo.com/quote/{s}/news"
+    fv = f"https://finviz.com/quote.ashx?t={s}"
+    return (f'🔗 <a href="{tr}">TipRanks</a> · '
+            f'<a href="{yh}">Yahoo</a> · <a href="{fv}">Finviz</a>')
+
+
 def build_message(results: list, splits: list,
                   title="🎯 <b>فارز أسهم الارتكاز</b>", subnote=None) -> str:
     """بطاقات الترشيح الكاملة (تُستخدم يوم تجديد القائمة)"""
@@ -2626,91 +2660,93 @@ def build_message(results: list, splits: list,
             lines.append("🔎 أكثر بوابة رفضت اليوم: "
                          + " · ".join(f"{k}={v}" for k, v in top))
     for r in results:
-        # ===== بطاقة مرتّبة ومختصرة (v2.7) — أساسيات فقط =====
+        # ===== بطاقة مختصرة ومرتّبة (v2.9): كل معلومة مهمّة بسطرها،
+        #   والصغيرة (فلوت/شورت/قطاع) تتجمّع بسطر واحد. عرض فقط — لا يمسّ الحساب. =====
         tier = r.get("tier", "A")
         badge = "🅰️" if tier == "A" else "🅱️"
-        # رقمان واضحان: «نسبة الدخول/الجاهزية» (قرب الدخول) بصيغة /100،
-        # و«النسبة العامة» (قوة المطابقة) بصيغة %. حالة الجاهزية (🟢🟡🔴) بسطرها.
+        price = r["price"]
         lines.append("━━━━━━━━━━━━━━━")
-        lines.append(f"{badge} <b>{r['symbol']}</b> · ${r['price']:.2f}")
-        lines.append(f"   {readiness_ratio(r.get('readiness'), tier)} · "
-                     f"النسبة العامة <b>{r['score']}%</b>")
+        # الرأس: الرمز + حالة الجاهزية (🟢🟡🔴 + الكلمة) + النسبة /100
+        rdy = r.get("readiness")
+        if rdy is not None:
+            lines.append(f"{badge} <b>${r['symbol']}</b>  ·  "
+                         f"{readiness_tag(rdy, tier)} {rdy}/100")
+        else:
+            lines.append(f"{badge} <b>${r['symbol']}</b>")
+        # القوة العامة + شريط بصري
+        bar, slabel = strength_bar(r.get("score", 0))
+        lines.append(f"💪 القوة العامة: {r.get('score', 0)}/100  {bar}  {slabel}")
+        # المعلومات الصغيرة بسطر واحد (سعر · فلوت · شورت · قطاع · دولة)
+        small = [f"${price:.2f}"]
+        if r.get("float"):
+            small.append(f"فلوت {fmt_money(r['float'])}")
+        sv = (r.get("fintel") or {}).get("short_volume") or r.get("finra_short")
+        if sv is not None:
+            small.append(f"شورت {fmt_money(sv)}")
+        sec = r.get("sector") or r.get("industry")
+        if sec:
+            small.append(esc(ar_sector(sec)))
+        if r.get("country"):
+            small.append(esc(ar_country(r["country"])))
+        lines.append("💰 " + " · ".join(small))
+
+        # ===== مجموعة الدخول / الدعم / الوقف =====
+        lines.append("")
+        _trs = r.get("tranches") or [r["entry"][0], r["entry"][1]]
+        lines.append("📥 الشراء (دفعات): "
+                     + " · ".join(f"${p:.2f}" for p in _trs))
+        kl = r.get("key_levels") or {}
+        pivot = r.get("pivot")
+        sup_major = kl.get("sup_major") or pivot
+        if sup_major:
+            lines.append(f"🟢 الدعم الأساسي: ${sup_major:.2f}")
+        if kl.get("sup_minor"):
+            lines.append(f"🟢 الدعم الفرعي: ${kl['sup_minor']:.2f}")
+        stop_lo = r["stop"][0]
+        base = pivot or sup_major or stop_lo
+        stop_pct = ((stop_lo / base - 1.0) * 100.0) if base else 0.0
+        lines.append(f"⛔ الوقف: ${stop_lo:.2f} ({stop_pct:+.0f}%)")
+
+        # ===== مجموعة الأهداف / المقاومات / التحرر =====
+        lines.append("")
+        res_minor = kl.get("res_minor")
+        res_major = kl.get("res_major")
+        targets = (r["t1"], r["t2"], r["t3"])
+        for i, tv in enumerate(targets, 1):
+            gain = ((tv / price - 1.0) * 100.0) if price else 0.0
+            is_minor = (res_minor is not None
+                        and abs(round(tv, 2) - round(res_minor, 2)) < 0.005)
+            suffix = " (مقاومة فرعية)" if is_minor else ""
+            lines.append(f"🎯 الهدف {i}{suffix}: ${tv:.2f} ({gain:+.0f}%)")
+        # المقاومة الفرعية لو ما طابقت أي هدف معروض (لا تكرار)
+        minor_shown = res_minor is not None and any(
+            abs(round(tv, 2) - round(res_minor, 2)) < 0.005 for tv in targets)
+        if res_minor is not None and not minor_shown:
+            lines.append(f"🔴 المقاومة الفرعية: ${res_minor:.2f}")
+        # المقاومة الأساسية: مستوى أعلى متميّز فوق الهدف الثالث (إلا لو = التحرر)
+        lib = r.get("liberation")
+        dup_lib = (lib is not None and res_major is not None
+                   and abs(round(res_major, 2) - round(lib, 2)) < 0.005)
+        if res_major is not None and res_major > targets[-1] * 1.005 and not dup_lib:
+            lines.append(f"🔴 المقاومة الأساسية: ${res_major:.2f}")
+        if lib:
+            ctag = " 🔓 قريب!" if r.get("lib_near") else ""
+            lines.append(f"🚀 تحرر فوق ${lib:.2f}{ctag}")
+
+        # ===== مجموعة العائد / البوابات / التنبيهات =====
+        lines.append("")
+        lines.append(f"⚖️ ربح/مخاطرة: {r['rr']:.1f}×")
         if tier == "B":
             sf = r.get("soft_fails", [])
             if sf:
-                lines.append("   🅱️ مراقبة — ينقصها:")
-                for f in sf:
-                    lines.append(f"      • {f}")
+                lines.append(f"🅱️ البوابات الناقصة ({len(sf)} من 14):")
+                for i, f in enumerate(sf, 1):
+                    lines.append(f"   {i}- {f}")
             else:
-                lines.append("   🅱️ مراقبة")
-        # سطر الشركة (مختصر)
-        sec = r.get("sector") or r.get("industry")
-        cbits = []
-        if sec:
-            cbits.append(esc(ar_sector(sec)))
-        if r.get("country"):
-            cbits.append(esc(ar_country(r["country"])))
-        if r.get("cash"):
-            cbits.append(f"نقد {fmt_money(r['cash'])}")
-        if cbits:
-            lines.append("🏢 " + " · ".join(cbits))
-        # سطر النمط (لماذا ارتكاز): هبوط/انفجار/RSI/شورت/فلوت
-        pat = [f"هبوط {r['drop_pct']:.0f}%", f"انفجار {r['best_spike']:.0f}%",
-               f"RSI {r['rsi']:.0f}"]
-        sv = (r.get("fintel") or {}).get("short_volume") or r.get("finra_short")
-        if sv is not None:
-            pat.append(f"شورت {fmt_money(sv)}")
-        if r.get("float"):
-            pat.append(f"فلوت {fmt_money(r['float'])}")
-        lines.append("📊 " + " · ".join(pat))
-        # سطر التأكيد الفني (نمط الشمعة + الفريمات + إشارات مفتاحية)
-        conf = []
-        if r.get("patterns"):
-            conf.append("، ".join(r["patterns"]))
-        _fr = f"فريمات {r.get('tf_count', 0)}/3"
-        _tf4 = r.get("tf4h")
-        if _tf4 and _tf4 not in ("غير متوفر", "غير مفعّل"):
-            _fr += f" + 4س {_tf4}"
-        conf.append(_fr)
-        if any("مسح سيولة" in f for f in r.get("flags", [])):
-            conf.append("مسح سيولة ✓")
-        if any("MFI" in f for f in r.get("flags", [])):
-            conf.append("تباعد MFI ✓")
-        if any("Williams" in f for f in r.get("flags", [])):
-            conf.append("دخول المضارب ✓")   # %R خرج من التشبع (فيصل 7377)
-        lines.append("🕯️ " + " · ".join(conf))
-        # ===== الخطة (الأسعار الأساسية فقط) =====
-        lines.append("🎯 <b>الخطة:</b>")
-        _trs = r.get("tranches") or [r['entry'][0], r['entry'][1]]
-        lines.append("   دخول دفعات: "
-                     + " · ".join(f"${p:.2f}" for p in _trs)
-                     + f"  ·  وقف ${r['stop'][0]:.2f}")
-        lines.append(f"   أهداف ${r['t1']:.2f} → ${r['t2']:.2f} → ${r['t3']:.2f}"
-                     f"  (ربح/مخاطرة {r['rr']:.1f}×)")
-        lines += position_size_line(_trs, r["stop"][0])
-        if r.get("qab"):
-            q = r["qab"]
-            lines.append(f"   🟡 قاب (فجوة-هدف) من ${q['bottom']:.2f} "
-                         f"إلى ${q['top']:.2f}  (يبعد +{q['dist_pct']:.0f}%)")
-        if r.get("liberation"):
-            tag = " 🔓 قريب!" if r.get("lib_near") else ""
-            lines.append(f"   🚀 تحرر فوق ${r['liberation']:.2f}{tag}")
-        lines += key_levels_block(r.get("key_levels"))
-        lines += h4_levels_block(r.get("h4_levels"))
-        # مؤشرات مختصرة (سطر واحد)
-        ic = r.get("indicators") or {}
-        mp = []
-        if "mfi" in ic:
-            mp.append(f"MFI {ic['mfi']:.0f}")
-        if "adx" in ic:
-            mp.append(f"ADX {ic['adx']:.0f}")
-        if ic.get("boll_pctb") is not None:
-            mp.append(f"كلنجر%B {ic['boll_pctb']:.2f}")
-        if "williams_r" in ic:
-            mp.append(f"%R {ic['williams_r']:.0f}")
-        if mp:
-            lines.append("📐 " + " · ".join(mp))
-        # تنبيهات حرجة فقط (تقسيم + SEC أحمر + تحذيرات)
+                lines.append("🅱️ مراقبة")
+        else:
+            lines.append("✅ اجتاز 14/14 بوابة")
+        # تنبيهات حرجة تبقى (تقسيم عكسي / SEC أحمر / تحذيرات تخفيف-جغرافي)
         if r.get("recent_split"):
             lines.append(f"✂️ تقسيم عكسي {r['recent_split'][0]}")
         red = [x for x in (r.get("sec_filings") or []) if "🔴" in x]
@@ -2718,7 +2754,7 @@ def build_message(results: list, splits: list,
             lines.append("📋 " + esc(red[0]))
         if r.get("warnings"):
             lines.append("⚠️ " + "؛ ".join(esc(w) for w in r["warnings"]))
-        lines.append(news_links(r["symbol"]))
+        lines.append(news_links_compact(r["symbol"]))
     lines += ["", FOOTER]
     return "\n".join(lines)
 

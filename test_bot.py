@@ -279,12 +279,17 @@ try:
     msg = S.build_message(results, [])
     check("build_message يعمل", isinstance(msg, str) and len(msg) > 0)
     check("الرسالة تعرض القائمة A/B", "🅰️" in msg or "🅱️" in msg)
-    check("الرسالة تعرض القطاع/الشركة", "🏢" in msg)
+    check("البطاقة تعرض القطاع (بالعربي)", S.ar_sector("Technology") in msg)
     has_lib = any(x.get("liberation") for x in results)
     check("الرسالة تعرض التحرر (إن وُجد)",
           (not has_lib) or ("تحرر فوق" in msg))
-    check("الرسالة تعرض «دخول المضارب» + %R (Williams)",
-          "دخول المضارب" in msg and "%R" in msg)
+    # الشكل المختصر (v2.9): أهداف مرقّمة بالنسب + دعم أساسي + شريط قوة + بوابات B مرقّمة
+    check("البطاقة تعرض الأهداف المرقّمة بالنسب",
+          "الهدف 1" in msg and "%)" in msg)
+    check("البطاقة تعرض الدعم الأساسي + شريط القوة",
+          "الدعم الأساسي" in msg and "القوة العامة" in msg)
+    check("البطاقة B تعرض البوابات الناقصة مرقّمة من 14",
+          "البوابات الناقصة" in msg and "من 14" in msg and "1- MACD" in msg)
 except Exception as e:
     check("build_message يعمل", False, str(e))
 
