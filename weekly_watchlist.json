@@ -96,7 +96,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.49
+   "last_price": 3.49,
+   "tf_count": 2
   },
   {
    "symbol": "UPB",
@@ -188,7 +189,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 6.32
+   "last_price": 6.32,
+   "tf_count": 2
   },
   {
    "symbol": "VFS",
@@ -280,7 +282,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.16
+   "last_price": 3.16,
+   "tf_count": 2
   }
  ],
  "removed": [],
