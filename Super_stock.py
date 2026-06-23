@@ -1362,7 +1362,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         if drop_pct < CONFIG["MIN_DROP_FLOOR"]:
             return _reject("M2_هبوط<40")   # تحت الأرضية = ليس ارتكازًا
         if drop_pct < CONFIG["MIN_DROP_PCT"]:
-            soft_fails.append(f"هبوط حدّي {drop_pct:.0f}%")
+            soft_fails.append(f"الهبوط {drop_pct:.0f}% (المثالي 50% فأكثر)")
 
         # ---- M3: الانفجار السابق (تدرّج v2.7) ----
         # أرضية (<60%) = رفض. حدّي (60-100%) = نقص (B). مثالي (≥100%) = بلا عقوبة.
@@ -1370,7 +1370,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         if best_spike < CONFIG["PRIOR_SPIKE_FLOOR"]:
             return _reject("M3_انفجار<60")  # ما انفجر كفاية
         if best_spike < CONFIG["PRIOR_SPIKE_PCT"]:
-            soft_fails.append(f"انفجار حدّي {best_spike:.0f}%")
+            soft_fails.append(f"الانفجار السابق {best_spike:.0f}% (المثالي 100% فأكثر)")
 
         # ---- M4: تجميع حالي (مدى ضيق + ما انفجر بعد) ----
         bw = CONFIG["BASE_WINDOW"]
@@ -1399,7 +1399,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # (كانت رفضًا صلبًا؛ صارت نقصًا حتى تظهر أسهم الارتكاز قبل تأكيد الفريمات)
         mtf = multi_timeframe(df)
         if mtf["count"] < CONFIG["TF_MIN_REVERSALS"]:
-            soft_fails.append(f"توافق فريمات {mtf['count']}/3")
+            soft_fails.append(f"توافق الفريمات {mtf['count']} من 3 (نحتاج 2 على الأقل)")
 
         # ---- M7: نمط شمعة انعكاسي — بوابة لينة (v2.7) ----
         patterns = mtf["patterns"]
@@ -1425,7 +1425,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         near_zones = [z for z in gaps_above["all_zones"]
                       if (z["bottom"] / price - 1.0) * 100.0 <= maxd]
         if CONFIG.get("GAP_ABOVE_REQUIRED", False) and not near_zones:
-            soft_fails.append("فجوة-هدف فوق")
+            soft_fails.append("ما فيه فجوة سعرية فوقه (هدف)")
 
         # ---- M10: RSI — قاعدة فيصل الذهبية «مستحيل يتحرك قبل يوصل 23-27» ----
         # جزء صلب (إلزامي): لازم يكون لمس التشبع البيعي (≤27) خلال نافذة قريبة.
@@ -1442,7 +1442,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
                     return _reject("M10_RSI_ما_تشبّع")  # قاعه >32 = ليس ارتكازًا
                 watch_reasons.append("لم يصل التشبّع بعد")  # سيتشبّع عند الارتداد
             elif r_min_os > CONFIG["RSI_OVERSOLD"]:
-                soft_fails.append(f"RSI تشبع حدّي ({r_min_os:.0f})")  # 27-32 → B
+                soft_fails.append(f"قاع RSI {r_min_os:.0f} (المثالي 27 أو أقل)")  # 27-32 → B
             if r_now > CONFIG["RSI_NOW_HARD"]:
                 if not pullback:
                     return _reject("M10_RSI_فات_القطار")  # >50 = فات الارتكاز
@@ -1456,7 +1456,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         macd_ok = (float(m_line.iloc[-1]) >= float(m_sig.iloc[-1])
                    or (m_line.iloc[-5:] > m_sig.iloc[-5:]).any())
         if CONFIG.get("MACD_GATE_REQUIRED", False) and not macd_ok:
-            soft_fails.append("MACD")
+            soft_fails.append("MACD لسّا ما أعطى إشارة إيجابية")
 
         # ---- M12: السعر على المتوسط الأسي 30/50 — بوابة لينة ----
         ema30 = ema(close, 30)
@@ -1468,7 +1468,13 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             for m in (ema30, ema50)
         )
         if CONFIG.get("MA_GATE_REQUIRED", False) and not ma_ok:
-            soft_fails.append("المتوسط الأسي")
+            _md = ((price / ema30 - 1.0) * 100.0) if ema30 else 0.0
+            if _md < 0:
+                soft_fails.append(
+                    f"السعر أقل من متوسطه المتحرك (30) بـ{abs(_md):.0f}%")
+            else:
+                soft_fails.append(
+                    f"السعر أعلى من متوسطه المتحرك (30) بـ{_md:.0f}%")
 
         # حد أقصى للنواقص هنا (M13/M14 شورت/فلوت تُضاف لاحقًا في الفرز)
         if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
@@ -1836,7 +1842,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # v2.7: ضعف RR = نقص (ينقل لقائمة B المراقبة) بدل الرفض النهائي —
         # متوافق مع قرار «ما نطلع صفر». لو تجاوز مجموع النواقص الحد → يُرفض.
         if rr < CONFIG["MIN_RR_T1"]:
-            soft_fails.append("عائد/مخاطرة منخفض")
+            soft_fails.append("العائد مقابل المخاطرة منخفض")
             if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
                 return _reject("RR+نواقص>الحد")
 
@@ -3879,7 +3885,7 @@ def build_dev_assistant_report(wl: dict) -> str:
             return str(reason).startswith(("M1_", "M2_", "M3_"))
         moved = [m for m in _MISSED if not _identity(m["reason"])]
         not_pivot = [m for m in _MISSED if _identity(m["reason"])]
-        out = [f"\n👻 <b>فرص فائتة (مرفوض صعد ≥{int(CONFIG['MISSED_RISE_PCT'])}%)</b>",
+        out = [f"\n👻 <b>فرص فائتة (مرفوض صعد {int(CONFIG['MISSED_RISE_PCT'])}% أو أكثر)</b>",
                f"   📌 ارتكاز تحرّك (راجع الارتداد): <b>{len(moved)}</b> · "
                f"🗑️ ليس ارتكازًا (تجاهل صحيح): {len(not_pivot)}"]
         if moved:
@@ -3903,7 +3909,7 @@ def build_dev_assistant_report(wl: dict) -> str:
             return []
         missed = [e for e in ex if e.get("was_pivot")]
         junk = [e for e in ex if not e.get("was_pivot")]
-        out = [f"\n💥 <b>انفجارات يومية (≥{int(CONFIG['EXPLOSION_PCT'])}%) — "
+        out = [f"\n💥 <b>انفجارات يومية ({int(CONFIG['EXPLOSION_PCT'])}% أو أكثر) — "
                f"{len(ex)} سهم</b>",
                f"   🎯 كانت ارتكازًا فاتتنا: {len(missed)} · "
                f"🗑️ عشوائية (صح تجاهلناها): {len(junk)}"]
@@ -3962,16 +3968,16 @@ def build_dev_assistant_report(wl: dict) -> str:
                                           else "B مراقبة") if r.get("tier") else None)
     body += seg("حسب القطاع", lambda r: ar_sector(r.get("sector")) or None)
     body += seg("حسب RSI عند الدخول", lambda r: _bucket(
-        r.get("rsi"), [(0, 28, "≤27 مثالي"), (28, 33, "28-32"),
+        r.get("rsi"), [(0, 28, "27 أو أقل (مثالي)"), (28, 33, "28-32"),
                        (33, 41, "33-40"), (41, 200, "أعلى من 40")]))
     body += seg("حسب الفلوت", lambda r: _bucket(
         (r.get("float") or 0) / 1e6 if r.get("float") else None,
         [(0, 10, "<10م"), (10, 30, "10-30م"), (30, 1e9, ">30م")]))
     body += seg("حسب الشورت", lambda r: _bucket(
         r.get("short"),
-        [(0, 20000, "≤20ألف"), (20000, 40000, "20-40ألف"), (40000, 1e12, ">40ألف")]))
+        [(0, 20000, "20ألف أو أقل"), (20000, 40000, "20-40ألف"), (40000, 1e12, "أعلى من 40ألف")]))
     body += seg("حسب العائد/المخاطرة", lambda r: _bucket(
-        r.get("rr"), [(0, 1.5, "<1.5×"), (1.5, 2.5, "1.5-2.5×"), (2.5, 99, "≥2.5×")]))
+        r.get("rr"), [(0, 1.5, "أقل من 1.5×"), (1.5, 2.5, "1.5-2.5×"), (2.5, 99, "2.5× أو أكثر")]))
 
     # إشارات: نسبة النجاح عند وجود كل إشارة
     flag_names = set()
@@ -4051,7 +4057,7 @@ def build_dev_assistant_report(wl: dict) -> str:
                     "— فكّر بتشديد سقف RSI.")
     lo_rr = [r for r in rows if (r.get("rr") or 0) < 1.5]
     if len(lo_rr) >= 5 and _wr(lo_rr)[1] < wr - 15:
-        sugg.append(f"   • صفقات RR<1.5× نجاحها {_wr(lo_rr)[1]:.0f}% — "
+        sugg.append(f"   • صفقات RR أقل من 1.5× نجاحها {_wr(lo_rr)[1]:.0f}% — "
                     "فكّر برفع حد RR الأدنى.")
     if len(sugg) == 1:
         sugg.append("   • لا نمط واضح بعد — البيانات متّسقة أو غير كافية لاقتراح.")
