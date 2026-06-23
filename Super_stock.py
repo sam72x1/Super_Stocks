@@ -1449,7 +1449,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
                 risen = True
                 watch_reasons.append(f"RSI ارتفع للـ{r_now:.0f}")
             elif r_now > CONFIG["RSI_MAX_NOW"]:
-                soft_fails.append(f"RSI الآن {r_now:.0f}>40")        # 40-50 طار → B
+                soft_fails.append(f"RSI الآن {r_now:.0f} أعلى من 40")  # 40-50 طار → B
 
         # ---- M11: تقاطع MACD إيجابي — بوابة لينة ----
         m_line, m_sig = macd(close)
@@ -2732,6 +2732,8 @@ def build_message(results: list, splits: list,
         if lib:
             ctag = " 🔓 قريب!" if r.get("lib_near") else ""
             lines.append(f"🚀 تحرر فوق ${lib:.2f}{ctag}")
+        if any("Williams" in f for f in (r.get("flags") or [])):
+            lines.append("⚡ دخول المضارب ✓ (%R خرج من التشبع)")
 
         # ===== مجموعة العائد / البوابات / التنبيهات =====
         lines.append("")
@@ -3698,66 +3700,59 @@ def build_daily_message(wl: dict, splits: list,
         lines.append("القائمة فارغة مؤقتاً — البدائل تُجلب في التشغيل القادم.")
     for i, s in enumerate(wl["stocks"], 1):
         lp = s["last_price"]
-        tb = "🅰️" if s.get("tier", "A") == "A" else "🅱️"
+        tier = s.get("tier", "A")
+        tb = "🅰️" if tier == "A" else "🅱️"
         promo = " 🚀" if s.get("promoted_date") == today else ""
-        lines.append(f"{i}) {tb}{promo} 📌 <b>{s['symbol']}</b> — "
-                     f"{readiness_ratio(s['readiness'], s.get('tier', 'A'))} · "
-                     f"النسبة العامة <b>{s.get('score', '?')}%</b>")
-        if s.get("tier") == "B" and s.get("soft_fails"):
-            lines.append("   🅱️ مراقبة — ينقصها:")
-            for f in s["soft_fails"]:
-                lines.append(f"      • {f}")
-        # القطاع/الدولة (بالعربي) إن توفّرا
-        cbits = []
+        # الرأس: الرمز + حالة الجاهزية + النسبة + القوة العامة (سطر واحد)
+        rdy = s.get("readiness")
+        head = f"{i}) {tb}{promo} <b>${s['symbol']}</b> · "
+        if rdy is not None:
+            head += (f"{readiness_tag(rdy, tier)} {rdy}/100 · "
+                     f"قوة {s.get('score', '?')}")
+        else:
+            head += f"قوة {s.get('score', '?')}"
+        lines.append(head)
+        # المعلومات الصغيرة بسطر واحد (سعر · فلوت · شورت · قطاع)
+        small = [f"${lp:.2f}"]
+        if s.get("float"):
+            small.append(f"فلوت {fmt_money(s['float'])}")
+        if s.get("short") is not None:
+            small.append(f"شورت {fmt_money(s['short'])}")
         if s.get("sector"):
-            cbits.append(esc(ar_sector(s["sector"])))
-        if s.get("country"):
-            cbits.append(esc(ar_country(s["country"])))
-        if cbits:
-            lines.append("   🏢 " + " · ".join(cbits))
-        # نطاق الدخول؛ السجلّات القديمة بلا المفتاح → من الدعم لفوقه بقليل
+            small.append(esc(ar_sector(s["sector"])))
+        lines.append("   💰 " + " · ".join(small))
+        # الدخول (دفعات) + الوقف بنسبته. السجلّات القديمة بلا tranches → تُبنى من الدعم
         trs = s.get("tranches") or [
-            round(s["pivot"] * (1 + CONFIG["ENTRY_STEP_PCT"] / 100.0 * i), 2)
-            for i in range(int(CONFIG["ENTRY_TRANCHES"]))]
-        lines.append(f"   💵 ${lp:.2f} | دفعات "
-                     + " · ".join(f"${p:.2f}" for p in trs)
-                     + f" | الدعم ${s['pivot']:.2f} | ستوب ${s['stop']:.2f}")
-        # سلّم الأهداف الكامل (يُعرض في النشر اليومي، مطابق للبطاقة) — أقرب أولًا
-        lines.append(f"   🎯 أهداف ${s['t1']:.2f} → ${s['t2']:.2f} "
-                     f"→ ${s['t3']:.2f}")
+            round(s["pivot"] * (1 + CONFIG["ENTRY_STEP_PCT"] / 100.0 * j), 2)
+            for j in range(int(CONFIG["ENTRY_TRANCHES"]))]
+        piv = s.get("pivot") or 0
+        stop = s["stop"]
+        sp = ((stop / piv - 1.0) * 100.0) if piv else 0.0
+        lines.append("   📥 دخول: " + " · ".join(f"${p:.2f}" for p in trs)
+                     + f"  ·  ⛔ {stop:.2f} ({sp:+.0f}%)")
+        # الأهداف الثلاثة بسطر واحد (النسبة من السعر الحالي)
+        g1 = ((s["t1"] / lp - 1.0) * 100.0) if lp else 0.0
+        g2 = ((s["t2"] / lp - 1.0) * 100.0) if lp else 0.0
+        g3 = ((s["t3"] / lp - 1.0) * 100.0) if lp else 0.0
+        lines.append(f"   🎯 ${s['t1']:.2f} ({g1:+.0f}%) · "
+                     f"${s['t2']:.2f} ({g2:+.0f}%) · ${s['t3']:.2f} ({g3:+.0f}%)")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
         if any("Williams" in f for f in (s.get("flags") or [])):
-            lines.append("   ⚡ دخول المضارب ✓ (Williams %R خرج من التشبع)")
-        lines += key_levels_block(s.get("key_levels"))
-        lines += h4_levels_block(s.get("h4_levels"))
+            lines.append("   ⚡ دخول المضارب ✓ (%R خرج من التشبع)")
+        # النواقص (B) مرقّمة بسطر واحد (n من 14)
+        if tier == "B" and s.get("soft_fails"):
+            sf = s["soft_fails"]
+            lines.append(f"   🅱️ ناقص ({len(sf)}/14): "
+                         + " · ".join(f"{j}- {x}" for j, x in enumerate(sf, 1)))
+        # تنبيهات عملية تبقى: لحظة الدخول · تحقيق هدف · تحذيرات حرجة
+        if trs and min(trs) <= lp <= max(trs) * 1.005 and lp > stop:
+            lines.append("   🎯 <b>في منطقة الدفعات الآن — نفّذ خطتك</b>")
+        if s.get("hit"):
+            lines.append(f"   🏆 حقق هدف{s['hit'][-1]} يوم {s['hit_date']} "
+                         f"| أقصى {s['max_gain_pct']:+.0f}%")
         for w in (s.get("warnings") or []):
             lines.append(f"   ⚠️ {esc(w)}")
-        # العائد/المخاطرة من **متوسط الدفعات** (تعبئة فيصل الفعلية ≈ المتوسط) —
-        # لا من السعر الحالي؛ موحّد مع r["rr"] فلا تناقض في الكرت.
-        entry_px = round(sum(trs) / len(trs), 2)
-        e_risk = entry_px - s["stop"]
-        if entry_px < s["t1"] and e_risk > 0:
-            g1 = s["t1"] - entry_px
-            mult = g1 / e_risk
-            lines.append(f"   🛡️ عند متوسط الدخول ${entry_px:.2f}: تخاطر "
-                         f"${e_risk:.2f} ← ربح هدف1 ${g1:.2f} ({mult:.1f}× المخاطرة)")
-        elif lp >= s["t1"]:
-            lines.append(f"   🎯 تجاوز هدف1 (${s['t1']:.2f}) — "
-                         f"التالي ${s['t2']:.2f}")
-        # 🎯 تنبيه الدخول: السعر نزل داخل منطقة الدفعات الآن → اللحظة العملية
-        if trs and min(trs) <= lp <= max(trs) * 1.005 and lp > s["stop"]:
-            lines.append("   🎯 <b>في منطقة الدفعات الآن — نفّذ خطتك</b>")
-        lines += position_size_line(trs, s["stop"])
-        if s.get("hit"):
-            lines.append(f"   🏆 حقق هدف{s['hit'][-1]} يوم {s['hit_date']} | "
-                         f"أقصى ارتفاع {s['max_gain_pct']:+.0f}%")
-        if s.get("have"):
-            lines.append("   ✅ متوفر: " + "، ".join(s["have"]))
-        if s.get("partial"):
-            lines.append("   🔸 جزئي: " + "، ".join(s["partial"]))
-        if s.get("missing"):
-            lines.append("   ⏳ ناقص: " + "، ".join(s["missing"]))
     if replaced:
         lines += ["", "🔄 <b>بدلاء اليوم (انضموا للقائمة):</b>"]
         for r in replaced:
@@ -3968,7 +3963,7 @@ def build_dev_assistant_report(wl: dict) -> str:
     body += seg("حسب القطاع", lambda r: ar_sector(r.get("sector")) or None)
     body += seg("حسب RSI عند الدخول", lambda r: _bucket(
         r.get("rsi"), [(0, 28, "≤27 مثالي"), (28, 33, "28-32"),
-                       (33, 41, "33-40"), (41, 200, ">40")]))
+                       (33, 41, "33-40"), (41, 200, "أعلى من 40")]))
     body += seg("حسب الفلوت", lambda r: _bucket(
         (r.get("float") or 0) / 1e6 if r.get("float") else None,
         [(0, 10, "<10م"), (10, 30, "10-30م"), (30, 1e9, ">30م")]))
@@ -4052,7 +4047,7 @@ def build_dev_assistant_report(wl: dict) -> str:
                     "فكّر بتشديد B أو تقليل وزنها.")
     hi_rsi = [r for r in rows if (r.get("rsi") or 0) > 40]
     if len(hi_rsi) >= 5 and _wr(hi_rsi)[1] < wr - 15:
-        sugg.append(f"   • صفقات RSI>40 نجاحها {_wr(hi_rsi)[1]:.0f}% (أقل من المعدل) "
+        sugg.append(f"   • صفقات RSI أعلى من 40 نجاحها {_wr(hi_rsi)[1]:.0f}% (أقل من المعدل) "
                     "— فكّر بتشديد سقف RSI.")
     lo_rr = [r for r in rows if (r.get("rr") or 0) < 1.5]
     if len(lo_rr) >= 5 and _wr(lo_rr)[1] < wr - 15:

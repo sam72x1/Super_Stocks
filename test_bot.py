@@ -290,6 +290,7 @@ try:
           "الدعم الأساسي" in msg and "القوة العامة" in msg)
     check("البطاقة B تعرض البوابات الناقصة مرقّمة من 14",
           "البوابات الناقصة" in msg and "من 14" in msg and "1- MACD" in msg)
+    check("البطاقة تعرض «دخول المضارب» (Williams %R)", "دخول المضارب" in msg)
 except Exception as e:
     check("build_message يعمل", False, str(e))
 
@@ -305,10 +306,14 @@ try:
     check("build_daily_message يعمل", isinstance(dm, str) and len(dm) > 0)
     check("سجل القائمة يحفظ tier",
           all("tier" in s for s in wl["stocks"]))
+    check("التقرير اليومي المختصر: سطر الدخول + الوقف بنسبته",
+          "📥 دخول:" in dm and "⛔" in dm)
+    check("التقرير اليومي يعرض الأهداف الثلاثة بالنسب",
+          "🎯 $" in dm and "%)" in dm)
+    check("التقرير اليومي يعرض الجاهزية + القوة العامة",
+          "/100" in dm and "قوة" in dm)
     check("التقرير اليومي يعرض «دخول المضارب» (Williams)",
           "دخول المضارب" in dm)
-    check("التقرير اليومي يعرض سلّم الأهداف الكامل (t1→t2→t3)",
-          "🎯 أهداف" in dm)
 except Exception as e:
     check("build_daily_message يعمل", False, str(e))
 
