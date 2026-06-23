@@ -73,18 +73,22 @@ Super_stock.py كامل ثم FAISAL_METHODOLOGY_NOTES.md. بعدها لخّص ل
 - القطاع/الدولة **بالعربي** (`ar_sector`/`ar_country`). موحّد عبر `readiness_ratio`.
 
 ## الملفات
-- `Super_stock.py` (~3300س) — البوت. دوال مفتاحية: `analyze_ticker(sym,df,pullback=)`،
+- `Super_stock.py` (~4670س) — البوت. دوال مفتاحية: `analyze_ticker(sym,df,pullback=)`،
   `scan_market`، `scan_pullback`، `run_daily_watchlist`، `run_weekly_renewal`،
   `build_message`، `build_daily_message`، `build_pullback_section`، `monitor_pullback`،
   `make_watch_entry`، `make_pullback_entry`، `readiness_ratio`، `rank_key`.
 - `analyze_one.py` — تحليل يدوي (يفوّض لـ`analyze_ticker`؛ يعرض A/B/مراقبة ارتداد).
 - `pullback_live.py` — مراقبة لحظية.
+- `technical_report.py` — **أداة مستقلة** (تستورد دوال البوت فقط): `TICKER=رمز` → تقرير
+  فني كلاسيكي · `SCAN_EARNINGS=1` → أداة الأرباح. مصادر تقويم الأرباح بالأولوية:
+  AlphaVantage(`ALPHAVANTAGE_KEY`)→FMP→Finnhub→yfinance. ثابت `SCAN_MIN_SCORE=60`.
 - `test_bot.py` — **147 اختبار**. شغّله قبل أي دفع: `python3 test_bot.py`.
 - `analyze_one.py` — الفحص اليدوي، **مطابق تمامًا لـ`analyze_ticker`** (مقفول باختبار).
 - `.claude/hooks/session-start.sh` + `.claude/settings.json` — SessionStart hook
   لجلسات Claude Code ويب (يثبّت requirements + ruff/pyflakes تلقائيًا).
 - `CLAUDE.md` — دليل سريع (يُقرأ آليًا). `FAISAL_METHODOLOGY_NOTES.md`/`FAISAL_IMAGES_CATALOG.md` — منهجية فيصل.
-- `.github/workflows/`: daily_screener · pullback_monitor · analyze/technical (يدوي).
+- `.github/workflows/`: daily_screener · pullback_monitor · scan_earnings (أداة الأرباح،
+  يومي 06:00 UTC) · backtest · analyze/technical (يدوي).
 
 ## ضوابط العمل
 - الفروع: طوّر على `claude/faisal-images-methodology-r6gfhq` ثم **ادمج في main** (الأكشن على main).
