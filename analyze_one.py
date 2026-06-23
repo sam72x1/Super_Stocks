@@ -142,9 +142,14 @@ def analyze_on_demand(sym: str):
         g12 = any(m > 0 and price >= m * 0.98 and (price / m - 1.0) <= band
                   for m in (ema30, ema50))
         ma_dist = ((price / ema30 - 1.0) * 100.0) if ema30 > 0 else 0.0
-        _dir = "أقل" if ma_dist < 0 else "أعلى"
-        gates.append(("السعر قرب متوسطه المتحرك 30/50",
-                      g12, f"السعر {_dir} بـ{abs(ma_dist):.0f}% من متوسطه المتحرك (30 يوم)"))
+        if ma_dist < 0:
+            _rise = ((ema30 * 0.98 / price - 1.0) * 100.0) if price else 0.0
+            _d12 = (f"السعر أقل بـ{abs(ma_dist):.0f}% من متوسطه المتحرك "
+                    f"(يفتح بصعود ~{_rise:.0f}% أو بثبات أسابيع)")
+        else:
+            _d12 = (f"السعر أعلى بـ{ma_dist:.0f}% من متوسطه المتحرك "
+                    "(يفتح برجوعه قرب متوسطه)")
+        gates.append(("السعر قرب متوسطه المتحرك 30/50", g12, _d12))
 
     # ===== الدرجة الفنية (نفس أوزان البوت — تُحسب دائماً) =====
     score = 0
