@@ -543,6 +543,59 @@ def analyze_tf(df, name, scan_last):
     bulls = bot.detect_candle_patterns(df, scan_last)
     bears = detect_bearish(df, scan_last)
 
+    # ===== مؤشرات كلاسيكية إضافية (معلومات فقط — لا تمسّ الدرجة/الحكم) =====
+    extra = {"adx": None, "boll": None, "stoch": None, "fib": None}
+    # قوة الاتجاه ADX/DMI (Wilder): الاتجاه له قوّة، مب اتجاه فقط
+    try:
+        pdi, mdi, adx = bot.dmi_adx(df["High"], df["Low"], close)
+        a = float(adx.iloc[-1])
+        p_di, m_di = float(pdi.iloc[-1]), float(mdi.iloc[-1])
+        if np.isfinite(a) and a > 0:
+            strength = ("قوي جداً" if a >= 40 else "قوي" if a >= 25
+                        else "ناشئ" if a >= 20 else "ضعيف/عرضي")
+            di = "+DI" if p_di > m_di else "−DI"
+            extra["adx"] = (f"ADX {a:.0f} ({strength}) · {di} مهيمن → "
+                            f"ميل {'صاعد' if p_di > m_di else 'هابط'}")
+    except Exception:
+        pass
+    # بولنجر باند: الموقع داخل الحزمة + الانضغاط (تجميع)
+    try:
+        _, _, _, pctb, width = bot.bollinger(close)
+        b, w = float(pctb.iloc[-1]), float(width.iloc[-1])
+        if np.isfinite(b) and np.isfinite(w):
+            pos = ("فوق الحزمة العليا" if b >= 1.0 else
+                   "تحت الحزمة السفلى" if b <= 0.0 else
+                   "قرب العليا" if b >= 0.8 else
+                   "قرب السفلى" if b <= 0.2 else "وسط الحزمة")
+            ws = width.dropna()
+            squeeze = ""
+            if len(ws) >= 40 and w <= float(ws.tail(120).min()) * 1.15:
+                squeeze = " · انضغاط (تجميع — احتمال انفجار)"
+            extra["boll"] = f"%B {b*100:.0f} — {pos}{squeeze}"
+    except Exception:
+        pass
+    # ستوكاستيك RSI: زخم كلاسيكي يكمّل RSI
+    try:
+        kline, dline = bot.stoch_rsi(close)
+        kk, dd = float(kline.iloc[-1]), float(dline.iloc[-1])
+        if np.isfinite(kk) and np.isfinite(dd):
+            st = ("تشبع شرائي" if kk >= 80 else
+                  "تشبع بيعي" if kk <= 20 else "محايد")
+            extra["stoch"] = (f"%K {kk:.0f}/%D {dd:.0f} ({st}، "
+                              f"{'K فوق D' if kk >= dd else 'K تحت D'})")
+    except Exception:
+        pass
+    # فيبوناتشي التصحيحي: مناطق ارتداد 38.2/50/61.8 من آخر سوينغ
+    try:
+        seg = df.tail(min(len(df), 160))
+        sw_lo, sw_hi = float(seg["Low"].min()), float(seg["High"].max())
+        fib = bot.fibonacci_levels(sw_lo, sw_hi)
+        lv = {k: fib[k] for k in ("0.382", "0.500", "0.618") if k in fib}
+        if lv:
+            extra["fib"] = (sw_lo, sw_hi, lv)
+    except Exception:
+        pass
+
     # ===== الدرجة الجزئية [-100, +100] =====
     s = 0.0
     s += {"صاعد": 40, "هابط": -40, "عرضي": 0}[tr]
@@ -574,7 +627,7 @@ def analyze_tf(df, name, scan_last):
     return {"name": name, "price": price, "trend": tr, "trend_detail": tr_detail,
             "support": sup, "resistance": res, "ma": mas, "mom": mom,
             "div": div, "div_detail": div_detail, "vol": volc,
-            "bulls": bulls, "bears": bears, "subscore": s}
+            "bulls": bulls, "bears": bears, "extra": extra, "subscore": s}
 
 
 # ==========================================================
@@ -663,6 +716,18 @@ def render(rep):
             L.append(f"🔀 دايفرجنس: {t['div']} — {t['div_detail']}")
         # الحجم
         L.append(f"🔊 الحجم: {t['vol']}")
+        # مؤشرات كلاسيكية إضافية (معلومات)
+        ex = t.get("extra") or {}
+        if ex.get("adx"):
+            L.append(f"💪 قوة الاتجاه: {ex['adx']}")
+        if ex.get("boll"):
+            L.append(f"📉 بولنجر: {ex['boll']}")
+        if ex.get("stoch"):
+            L.append(f"🎚️ ستوكاستيك RSI: {ex['stoch']}")
+        if ex.get("fib"):
+            lo_, hi_, lv = ex["fib"]
+            ftxt = "، ".join(f"{k}: ${v:.2f}" for k, v in lv.items())
+            L.append(f"🔱 فيبوناتشي (قاع ${lo_:.2f}→قمة ${hi_:.2f}): {ftxt}")
         # الشموع
         if t["bulls"]:
             L.append("🕯️ شموع صاعدة: " + "، ".join(t["bulls"]))
