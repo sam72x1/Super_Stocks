@@ -503,5 +503,16 @@
   "shares_out": 72375355,
   "short_pct": 23.3,
   "float": 69786489
+ },
+ "UPB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Upstream Bio, Inc., a clinical-stage biotechnology company, develops treatments for inflammatory diseases focusing on severe respiratory disorders. It offers ve…",
+  "country": "United States",
+  "cash": 294579008,
+  "revenue": 3322000,
+  "shares_out": 54419986,
+  "short_pct": 10.3,
+  "float": 34977358
  }
 }

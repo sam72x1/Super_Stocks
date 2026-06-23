@@ -81,14 +81,115 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.43
+   "last_price": 3.46
+  },
+  {
+   "symbol": "UPB",
+   "added": "2026-06-23",
+   "entry_ref": 6.305,
+   "entry": [
+    5.85,
+    6.2
+   ],
+   "tranches": [
+    5.85,
+    6.03,
+    6.2
+   ],
+   "pivot": 5.85,
+   "stop": 5.4405,
+   "stop_hi": 5.5575,
+   "t1": 6.86,
+   "t2": 7.16,
+   "t3": 7.41,
+   "score": 50,
+   "flags": [
+    "RSI تشبع وانحناء (قاع 26→34)",
+    "تقاطع MACD",
+    "ثبات 6 جلسات فوق القاع",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 34,977,358 (صغير ✅)"
+   ],
+   "rsi": 33.834713490270275,
+   "float": 34977358,
+   "short": null,
+   "short_pct": 10.3,
+   "drop_pct": 81.27969189071028,
+   "best_spike": 77.91353096201266,
+   "rr": 1.4215282734940715,
+   "tier": "B",
+   "soft_fails": [
+    "انفجار حدّي 78%",
+    "فجوة-هدف فوق",
+    "المتوسط الأسي"
+   ],
+   "warnings": [],
+   "news_risk": false,
+   "h4_levels": {
+    "supports": [
+     6.19,
+     6.01,
+     5.72
+    ],
+    "resistances": [
+     6.43,
+     6.8,
+     7.18,
+     7.41,
+     7.7
+    ],
+    "flip": 6.33,
+    "sweep_low": 5.72
+   },
+   "key_levels": {
+    "sup_major": 5.85,
+    "sup_minor": null,
+    "res_major": 12.69,
+    "res_minor": 6.86
+   },
+   "h4_confirm": 3,
+   "liberation": 10.09,
+   "sector": "Healthcare",
+   "country": "United States",
+   "status": "active",
+   "removed_date": null,
+   "removal_reason": null,
+   "replaced": false,
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "RSI تشبع وانحناء",
+    "تقاطع MACD"
+   ],
+   "partial": [],
+   "missing": [
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
+   "hit": null,
+   "hit_date": null,
+   "max_gain_pct": 0.0,
+   "last_price": 6.305
   }
  ],
  "removed": [],
@@ -151,7 +252,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 10910374,
-   "last_price": 4.34,
+   "last_price": 4.29,
    "status": "watching",
    "triggered_date": null
   },
@@ -181,7 +282,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 3959390,
-   "last_price": 3.53,
+   "last_price": 3.495,
    "status": "watching",
    "triggered_date": null
   },
@@ -212,7 +313,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 2430669,
-   "last_price": 1.6831,
+   "last_price": 1.671,
    "status": "watching",
    "triggered_date": null
   },
@@ -242,7 +343,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 986446,
-   "last_price": 3.6,
+   "last_price": 3.535,
    "status": "watching",
    "triggered_date": null
   },
@@ -273,7 +374,7 @@
    "sector": "Consumer Defensive",
    "country": "United States",
    "float": 899310,
-   "last_price": 3.4002,
+   "last_price": 3.475,
    "status": "watching",
    "triggered_date": null
   },
@@ -304,7 +405,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 7000000,
-   "last_price": 1.745,
+   "last_price": 1.5601,
    "status": "watching",
    "triggered_date": null
   },
@@ -334,7 +435,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 40169074,
-   "last_price": 15.04,
+   "last_price": 15.11,
    "status": "watching",
    "triggered_date": null
   },
@@ -364,7 +465,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 5292005,
-   "last_price": 2.67,
+   "last_price": 2.66,
    "status": "watching",
    "triggered_date": null
   },
@@ -427,7 +528,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 36046153,
-   "last_price": 1.86,
+   "last_price": 1.845,
    "status": "watching",
    "triggered_date": null
   },
@@ -459,7 +560,7 @@
    "sector": "Basic Materials",
    "country": "Israel",
    "float": 426449,
-   "last_price": 6.11,
+   "last_price": 5.92,
    "status": "watching",
    "triggered_date": null
   },
@@ -490,7 +591,7 @@
    "sector": "Financial Services",
    "country": "Hong Kong",
    "float": 892196,
-   "last_price": 2.44,
+   "last_price": 2.465,
    "status": "watching",
    "triggered_date": null
   },
@@ -519,7 +620,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 69786489,
-   "last_price": 10.34,
+   "last_price": 10.4,
    "status": "watching",
    "triggered_date": null
   },
