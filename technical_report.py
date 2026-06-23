@@ -809,9 +809,12 @@ def scan_nasdaq_earnings():
             tfs, score, verdict = _tfs_and_score(df)
             checked += 1
             if score >= SCAN_MIN_SCORE:
+                d0 = tfs[0]   # الفريم اليومي (مستويات التخطيط للدخول)
                 strong.append({"symbol": sym, "price": price,
                                "score": score, "verdict": verdict,
-                               "dvol": dvol})
+                               "dvol": dvol,
+                               "sup": d0["support"][0] if d0["support"] else None,
+                               "res": d0["resistance"][0] if d0["resistance"] else None})
         except Exception:
             continue
     bot.log(f"حُلِّل {checked} سهماً · أقوياء فنياً: {len(strong)}")
@@ -856,6 +859,11 @@ def render_scan(results):
         L.append(f"{i}) 📌 <b>{s['symbol']}</b> — {s['score']}/100 "
                  f"({s['verdict']})")
         L.append(f"   💵 ${s['price']:.2f} | سيولة ${s['dvol']/1e6:.1f}M")
+        sup, res = s.get("sup"), s.get("res")
+        if sup or res:
+            sup_t = f"دعم ${sup:.2f}" if sup else "دعم —"
+            res_t = f"مقاومة ${res:.2f}" if res else "مقاومة —"
+            L.append(f"   🧱 {sup_t} · {res_t} (للتخطيط بعد الإعلان)")
         L.append(f"   📅 {warn}إعلان أرباح خلال {s['earn_days']} يوم "
                  f"({s['earn_date']})")
     L.append("")
