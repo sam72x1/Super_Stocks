@@ -144,7 +144,7 @@ def analyze_on_demand(sym: str):
         ma_dist = ((price / ema30 - 1.0) * 100.0) if ema30 > 0 else 0.0
         _dir = "أقل" if ma_dist < 0 else "أعلى"
         gates.append(("السعر قرب متوسطه المتحرك 30/50",
-                      g12, f"السعر {_dir} من متوسطه المتحرك (30 يوم) بـ{abs(ma_dist):.0f}%"))
+                      g12, f"السعر {_dir} بـ{abs(ma_dist):.0f}% من متوسطه المتحرك (30 يوم)"))
 
     # ===== الدرجة الفنية (نفس أوزان البوت — تُحسب دائماً) =====
     score = 0

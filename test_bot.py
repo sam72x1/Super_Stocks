@@ -284,8 +284,8 @@ try:
     check("الرسالة تعرض التحرر (إن وُجد)",
           (not has_lib) or ("تحرر فوق" in msg))
     # الشكل المختصر (v2.9): أهداف مرقّمة بالنسب + دعم أساسي + شريط قوة + بوابات B مرقّمة
-    check("البطاقة تعرض الأهداف المرقّمة بالنسب",
-          "الهدف 1" in msg and "%)" in msg)
+    check("البطاقة تعرض الأهداف المرقّمة",
+          "الهدف 1" in msg)
     check("البطاقة تعرض الدعم الأساسي + شريط القوة",
           "الدعم الأساسي" in msg and "القوة العامة" in msg)
     check("البطاقة B تعرض البوابات الناقصة مرقّمة من 14",
@@ -296,6 +296,10 @@ try:
     check("سطر الفريمات أقل من 2 لا يظهر (يبقى نقصًا)", S.timeframes_info(1) is None)
     check("سطر الفريمات يسمّي الفريم الناقص (⏳)",
           "يومي ⏳" in (S.timeframes_info(2, "شهري ✅ · أسبوعي ✅ · يومي ⏳") or ""))
+    check("علم الدولة: 🇺🇸 + أمريكا",
+          "🇺🇸" in S.country_label("United States")
+          and "أمريكا" in S.country_label("United States"))
+    check("علم الدولة: بلا دولة → فارغ", S.country_label(None) == "")
 except Exception as e:
     check("build_message يعمل", False, str(e))
 
@@ -311,10 +315,10 @@ try:
     check("build_daily_message يعمل", isinstance(dm, str) and len(dm) > 0)
     check("سجل القائمة يحفظ tier",
           all("tier" in s for s in wl["stocks"]))
-    check("التقرير اليومي المختصر: سطر الدخول + الوقف بنسبته",
-          "📥 دخول:" in dm and "⛔" in dm)
-    check("التقرير اليومي يعرض الأهداف الثلاثة بالنسب (الرقم والنسبة بقوس واحد)",
-          "🎯 (" in dm and "%)" in dm)
+    check("التقرير اليومي: سطر الدخول + وقف خسارة",
+          "📥 دخول:" in dm and "وقف خسارة" in dm)
+    check("التقرير اليومي يعرض أهداف (أسعار بلا نسبة)",
+          "🎯 أهداف:" in dm)
     check("التقرير اليومي يعرض الجاهزية + القوة العامة",
           "/100" in dm and "قوة" in dm)
     check("التقرير اليومي يعرض «دخول المضارب» (Williams)",

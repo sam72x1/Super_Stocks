@@ -1471,10 +1471,10 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             _md = ((price / ema30 - 1.0) * 100.0) if ema30 else 0.0
             if _md < 0:
                 soft_fails.append(
-                    f"السعر أقل من متوسطه المتحرك (30) بـ{abs(_md):.0f}%")
+                    f"السعر أقل بـ{abs(_md):.0f}% من متوسطه المتحرك (30)")
             else:
                 soft_fails.append(
-                    f"السعر أعلى من متوسطه المتحرك (30) بـ{_md:.0f}%")
+                    f"السعر أعلى بـ{_md:.0f}% من متوسطه المتحرك (30)")
 
         # حد أقصى للنواقص هنا (M13/M14 شورت/فلوت تُضاف لاحقًا في الفرز)
         if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
@@ -2448,6 +2448,16 @@ COUNTRY_AR = {
     "Cayman Islands": "جزر كايمان",
     "Bermuda": "برمودا",
 }
+# علم الدولة (إيموجي) — يُعرض بجانب اسمها بالكرت واليومي (طلب المستخدم)
+COUNTRY_FLAG = {
+    "United States": "🇺🇸", "China": "🇨🇳", "Hong Kong": "🇭🇰",
+    "Singapore": "🇸🇬", "Canada": "🇨🇦", "Israel": "🇮🇱",
+    "United Kingdom": "🇬🇧", "Ireland": "🇮🇪", "Germany": "🇩🇪",
+    "France": "🇫🇷", "Switzerland": "🇨🇭", "Netherlands": "🇳🇱",
+    "Australia": "🇦🇺", "Japan": "🇯🇵", "South Korea": "🇰🇷",
+    "Taiwan": "🇹🇼", "India": "🇮🇳", "Brazil": "🇧🇷",
+    "Cayman Islands": "🇰🇾", "Bermuda": "🇧🇲",
+}
 
 
 def position_size(avg_entry, stop_lo):
@@ -2506,6 +2516,15 @@ def ar_sector(s):
 def ar_country(c):
     """يرجّع الدولة بالعربي إن وُجد، وإلا الأصل كما هو"""
     return COUNTRY_AR.get(c, c) if c else c
+
+
+def country_label(c):
+    """علم الدولة + اسمها بالعربي (مثل «🇺🇸 أمريكا») — أو الاسم فقط لو لا علم،
+    أو "" لو لا دولة. يُعرض في الكرت واليومي."""
+    if not c:
+        return ""
+    flag = COUNTRY_FLAG.get(c, "")
+    return f"{flag} {esc(ar_country(c))}".strip()
 
 
 def short_line(r) -> str:
@@ -2605,6 +2624,13 @@ def splits_block(splits) -> list:
 
 FOOTER = ("⚠️ <i>فارز آلي حسب منهجية موثقة — ليست توصية. "
           "القرار النهائي وإدارة المخاطر عليك.</i>")
+
+
+def _rtl_join(lines):
+    """يربط الأسطر مع **إجبار اتجاه RTL** لكل سطر (علامة RLM غير مرئية ‏ في
+    بدايته) — فيبدأ كل سطر من **اليمين** ويتّسق الترتيب في تيليجرام العربي، فلا
+    تتفاوت الأسطر (بعضها يبدأ برقم/$ من اليسار وبعضها بعربي من اليمين). عرض بحت."""
+    return "\n".join(("‏" + ln) if ln.strip() else ln for ln in lines)
 
 
 def strength_bar(score):
@@ -2707,7 +2733,7 @@ def build_message(results: list, splits: list,
         if sec:
             small.append(esc(ar_sector(sec)))
         if r.get("country"):
-            small.append(esc(ar_country(r["country"])))
+            small.append(country_label(r["country"]))
         lines.append("💰 " + " · ".join(small))
 
         # ===== مجموعة الدخول / الدعم / الوقف =====
@@ -2723,9 +2749,7 @@ def build_message(results: list, splits: list,
         if kl.get("sup_minor"):
             lines.append(f"🟢 الدعم الفرعي: ${kl['sup_minor']:.2f}")
         stop_lo = r["stop"][0]
-        base = pivot or sup_major or stop_lo
-        stop_pct = ((stop_lo / base - 1.0) * 100.0) if base else 0.0
-        lines.append(f"⛔ الوقف: (${stop_lo:.2f} · {stop_pct:+.0f}%)")
+        lines.append(f"⛔ وقف خسارة: ${stop_lo:.2f}")
 
         # ===== مجموعة الأهداف / المقاومات / التحرر =====
         lines.append("")
@@ -2733,11 +2757,10 @@ def build_message(results: list, splits: list,
         res_major = kl.get("res_major")
         targets = (r["t1"], r["t2"], r["t3"])
         for i, tv in enumerate(targets, 1):
-            gain = ((tv / price - 1.0) * 100.0) if price else 0.0
             is_minor = (res_minor is not None
                         and abs(round(tv, 2) - round(res_minor, 2)) < 0.005)
             suffix = " (مقاومة فرعية)" if is_minor else ""
-            lines.append(f"🎯 الهدف {i}{suffix}: (${tv:.2f} · {gain:+.0f}%)")
+            lines.append(f"🎯 الهدف {i}{suffix}: ${tv:.2f}")
         # المقاومة الفرعية لو ما طابقت أي هدف معروض (لا تكرار)
         minor_shown = res_minor is not None and any(
             abs(round(tv, 2) - round(res_minor, 2)) < 0.005 for tv in targets)
@@ -2781,7 +2804,7 @@ def build_message(results: list, splits: list,
             lines.append("⚠️ " + "؛ ".join(esc(w) for w in r["warnings"]))
         lines.append(news_links_compact(r["symbol"]))
     lines += ["", FOOTER]
-    return "\n".join(lines)
+    return _rtl_join(lines)
 
 
 def code_version() -> str:
@@ -3674,7 +3697,7 @@ def build_pullback_section(entries: list, triggered: list = None) -> str:
             lines.append(f"• <b>{e['symbol']}</b> ${e['last_price']:.2f} "
                          f"→ دخول الدعم ${tgt:.2f} (يبعد {dist:+.0f}%){sec}")
         lines.append("<i>يُنبَّه تلقائيًا أول ما ينزل لسعر الدعم.</i>")
-    return "\n".join(lines)
+    return _rtl_join(lines)
 
 
 def monitor_pullback(wl: dict) -> list:
@@ -3747,22 +3770,18 @@ def build_daily_message(wl: dict, splits: list,
             small.append(f"شورت {fmt_money(s['short'])}")
         if s.get("sector"):
             small.append(esc(ar_sector(s["sector"])))
+        if s.get("country"):
+            small.append(country_label(s["country"]))
         lines.append("   💰 " + " · ".join(small))
         # الدخول (دفعات) + الوقف بنسبته. السجلّات القديمة بلا tranches → تُبنى من الدعم
         trs = s.get("tranches") or [
             round(s["pivot"] * (1 + CONFIG["ENTRY_STEP_PCT"] / 100.0 * j), 2)
             for j in range(int(CONFIG["ENTRY_TRANCHES"]))]
-        piv = s.get("pivot") or 0
         stop = s["stop"]
-        sp = ((stop / piv - 1.0) * 100.0) if piv else 0.0
         lines.append("   📥 دخول: " + " · ".join(f"${p:.2f}" for p in trs)
-                     + f"  ·  ⛔ (${stop:.2f} · {sp:+.0f}%)")
-        # الأهداف الثلاثة بسطر واحد (النسبة من السعر الحالي)
-        g1 = ((s["t1"] / lp - 1.0) * 100.0) if lp else 0.0
-        g2 = ((s["t2"] / lp - 1.0) * 100.0) if lp else 0.0
-        g3 = ((s["t3"] / lp - 1.0) * 100.0) if lp else 0.0
-        lines.append(f"   🎯 (${s['t1']:.2f} · {g1:+.0f}%) · "
-                     f"(${s['t2']:.2f} · {g2:+.0f}%) · (${s['t3']:.2f} · {g3:+.0f}%)")
+                     + f"  ·  ⛔ وقف خسارة ${stop:.2f}")
+        # الأهداف الثلاثة (أسعار فقط — بلا نسبة، تفاديًا لتشوّش ٪ في العربي RTL)
+        lines.append(f"   🎯 أهداف: ${s['t1']:.2f} · ${s['t2']:.2f} · ${s['t3']:.2f}")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
         if any("Williams" in f for f in (s.get("flags") or [])):
@@ -3795,7 +3814,7 @@ def build_daily_message(wl: dict, splits: list,
         for s in stopped_today:
             lines.append(f"• {s['symbol']}: {s['removal_reason']}")
     lines += ["", FOOTER]
-    return "\n".join(lines)
+    return _rtl_join(lines)
 
 
 def build_wrapup_message(wl: dict) -> str:
