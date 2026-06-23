@@ -84,7 +84,7 @@ def analyze_on_demand(sym: str):
 
     # M3: الانفجار السابق
     g3 = best_spike >= C["PRIOR_SPIKE_PCT"]
-    gates.append((f"انفجار سابق ≥ {C['PRIOR_SPIKE_PCT']:.0f}%",
+    gates.append((f"انفجار سابق {C['PRIOR_SPIKE_PCT']:.0f}% أو أكثر",
                   g3, f"{best_spike:.0f}% ({n_spikes} انفجار موثّق)"))
 
     # M4: قاعدة ضيقة + لم ينفجر بعد
@@ -95,18 +95,18 @@ def analyze_on_demand(sym: str):
     gain5 = (c[-1] / c[-6] - 1.0) * 100.0 if len(c) > 6 else 0.0
     g4 = (base_range <= C["BASE_RANGE_MAX_PCT"]) and \
          (gain5 <= C["RECENT_RISE_BLOCK_PCT"])
-    gates.append((f"قاعدة ضيقة ≤{C['BASE_RANGE_MAX_PCT']:.0f}% ولم ينفجر",
+    gates.append((f"قاعدة ضيقة ({C['BASE_RANGE_MAX_PCT']:.0f}% أو أقل) ولم ينفجر",
                   g4, f"مدى القاعدة {base_range:.0f}%، حركة 5 جلسات {gain5:+.0f}%"))
 
     # M5: السيولة الدولارية
     dvol = float((close * vol).tail(20).mean())
     g5 = math.isfinite(dvol) and dvol >= C["MIN_DOLLAR_VOL"]
-    gates.append((f"سيولة ≥ {bot.fmt_money(C['MIN_DOLLAR_VOL'])}/يوم",
+    gates.append((f"سيولة {bot.fmt_money(C['MIN_DOLLAR_VOL'])}/يوم أو أكثر",
                   g5, f"{bot.fmt_money(dvol)}/يوم"))
 
     # M6: توافق الفريمات
     g6 = mtf["count"] >= C["TF_MIN_REVERSALS"]
-    gates.append((f"توافق الفريمات ≥ {C['TF_MIN_REVERSALS']}/3",
+    gates.append((f"توافق الفريمات {C['TF_MIN_REVERSALS']} من 3 على الأقل",
                   g6, f"{mtf['count']}/3 — {mtf['display']}"))
 
     # M7: نمط شمعة انعكاسي
@@ -125,8 +125,8 @@ def analyze_on_demand(sym: str):
     if C.get("RSI_GATE_REQUIRED", False):
         r_min_os = float(rsi_s.tail(C["RSI_OS_LOOKBACK"]).min())
         g10 = (r_min_os <= C["RSI_OS_HARD"] and r_now <= C["RSI_NOW_HARD"])
-        gates.append((f"RSI تشبّع (قاع ≤{C['RSI_OS_HARD']:.0f}) والآن ≤"
-                      f"{C['RSI_NOW_HARD']:.0f}", g10,
+        gates.append((f"RSI تشبّع (قاع {C['RSI_OS_HARD']:.0f} أو أقل) والآن "
+                      f"{C['RSI_NOW_HARD']:.0f} أو أقل", g10,
                       f"قاع {r_min_os:.0f} / الآن {r_now:.0f}"))
 
     # M11: تقاطع MACD إيجابي (إلزامي لو مفعّل)
@@ -142,8 +142,9 @@ def analyze_on_demand(sym: str):
         g12 = any(m > 0 and price >= m * 0.98 and (price / m - 1.0) <= band
                   for m in (ema30, ema50))
         ma_dist = ((price / ema30 - 1.0) * 100.0) if ema30 > 0 else 0.0
-        gates.append((f"على المتوسط الأسي 30/50 (≤+{C['MA_GATE_MAX_ABOVE_PCT']:.0f}%)",
-                      g12, f"{ma_dist:+.0f}% من EMA30"))
+        _dir = "أقل" if ma_dist < 0 else "أعلى"
+        gates.append(("السعر قرب متوسطه المتحرك 30/50",
+                      g12, f"السعر {_dir} من متوسطه المتحرك (30 يوم) بـ{abs(ma_dist):.0f}%"))
 
     # ===== الدرجة الفنية (نفس أوزان البوت — تُحسب دائماً) =====
     score = 0
