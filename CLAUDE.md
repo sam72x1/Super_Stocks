@@ -17,7 +17,8 @@
 - `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · analyze.yml/technical.yml (يدوي).
 
 ## الفروع (مهم)
-- التطوير على `claude/untitled-session-htj4lv`، ثم **دمج في `main`** (الأكشن يشتغل على main).
+- التطوير على `claude/faisal-images-methodology-r6gfhq`، ثم **دمج في `main`** (الأكشن يشتغل على main).
+  ⚠️ git push لـ`main` متعطّل (503) في بيئة الويب → الدمج عبر GitHub API (PR مؤقت + دمج فوري).
 - بعد كل تعديل: اختبار → commit → push للفرعين.
 - **لا تلمس «جذور» البوت بدون سؤال المستخدم.** المستخدم لا يتقبّل أي خطأ — تأكّد وطابق منهجية فيصل الموثّقة، لا تضف اجتهادات شخصية.
 
