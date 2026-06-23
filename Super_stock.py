@@ -2641,6 +2641,16 @@ def news_links_compact(sym: str) -> str:
             f'<a href="{yh}">Yahoo</a> · <a href="{fv}">Finviz</a>')
 
 
+def timeframes_info(tf_count):
+    """سطر معلومة عن توافق الفريمات لمّا تجتاز البوابة (2 فأكثر) — يوضّح كم باقٍ
+    للكمال (3/3). يرجع None لو لم تُجتَز (تظهر وقتها ضمن النواقص) أو العدد غير متوفر."""
+    if tf_count is None or tf_count < CONFIG["TF_MIN_REVERSALS"]:
+        return None
+    if tf_count >= 3:
+        return "🕯️ الفريمات 3/3 ✓ (مكتمل)"
+    return f"🕯️ الفريمات {tf_count}/3 ✓ (باقي فريم للكمال)"
+
+
 def build_message(results: list, splits: list,
                   title="🎯 <b>فارز أسهم الارتكاز</b>", subnote=None) -> str:
     """بطاقات الترشيح الكاملة (تُستخدم يوم تجديد القائمة)"""
@@ -2754,6 +2764,9 @@ def build_message(results: list, splits: list,
                 lines.append("🅱️ مراقبة")
         else:
             lines.append("✅ اجتاز 14/14 بوابة")
+        _tfi = timeframes_info(r.get("tf_count"))
+        if _tfi:
+            lines.append(_tfi)
         # تنبيهات حرجة تبقى (تقسيم عكسي / SEC أحمر / تحذيرات تخفيف-جغرافي)
         if r.get("recent_split"):
             lines.append(f"✂️ تقسيم عكسي {r['recent_split'][0]}")
@@ -2989,6 +3002,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "h4_levels": r.get("h4_levels"),                  # مستويات 4س (فيصل)
         "key_levels": r.get("key_levels"),                # دعوم/مقاومات أساسي/فرعي
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
+        "tf_count": r.get("tf_count"),                    # عدد الفريمات المتوافقة (0-3)
         "liberation": r.get("liberation"),               # بوابة التحرر
         "sector": r.get("sector"), "country": r.get("country"),
         "status": "active", "removed_date": None, "removal_reason": None,
@@ -3573,6 +3587,7 @@ def check_promotions(wl: dict, history: dict) -> list:
         s["soft_fails"] = combined
         s["tier"] = "A" if not combined else "B"
         s["liberation"] = fresh.get("liberation")
+        s["tf_count"] = fresh.get("tf_count")
         # تحديث يومي رخيص (بلا تحميل زائد): المستويات من إعادة التحليل +
         # القطاع/الدولة من الذاكرة لو ناقصة بالسجل (تظهر بدل ما تبقى فاضية).
         if fresh.get("key_levels"):
@@ -3751,6 +3766,9 @@ def build_daily_message(wl: dict, splits: list,
             sf = s["soft_fails"]
             lines.append(f"   🅱️ ناقص ({len(sf)}/14): "
                          + " · ".join(f"{j}- {x}" for j, x in enumerate(sf, 1)))
+        _tfi = timeframes_info(s.get("tf_count"))
+        if _tfi:
+            lines.append("   " + _tfi)
         # تنبيهات عملية تبقى: لحظة الدخول · تحقيق هدف · تحذيرات حرجة
         if trs and min(trs) <= lp <= max(trs) * 1.005 and lp > stop:
             lines.append("   🎯 <b>في منطقة الدفعات الآن — نفّذ خطتك</b>")

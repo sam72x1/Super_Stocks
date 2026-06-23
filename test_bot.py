@@ -291,6 +291,9 @@ try:
     check("البطاقة B تعرض البوابات الناقصة مرقّمة من 14",
           "البوابات الناقصة" in msg and "من 14" in msg and "1- MACD" in msg)
     check("البطاقة تعرض «دخول المضارب» (Williams %R)", "دخول المضارب" in msg)
+    check("سطر الفريمات 2/3 يوضّح الباقي", "باقي فريم" in (S.timeframes_info(2) or ""))
+    check("سطر الفريمات 3/3 مكتمل", "مكتمل" in (S.timeframes_info(3) or ""))
+    check("سطر الفريمات أقل من 2 لا يظهر (يبقى نقصًا)", S.timeframes_info(1) is None)
 except Exception as e:
     check("build_message يعمل", False, str(e))
 
