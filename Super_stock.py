@@ -211,7 +211,7 @@ CONFIG = {
     # (أسهم الشروط الصارمة نادرة جداً — نصطادها أي يوم تظهر)
     "DAILY_FULL_SCAN": True,
     "READY_PCT": 75,             # نسبة الجاهزية: 🟢 جاهز من هنا وفوق
-    "NEAR_PCT": 50,              # 🟡 يقترب من هنا وفوق، وتحتها 🔴 بعيد
+    "NEAR_PCT": 50,              # 🟡 يقترب من هنا وفوق، وتحتها 🔴 إعداد فني ضعيف
     "EXCLUDE_STOPPED_FROM_RENEWAL": True,  # لا تُعِد سهماً ضرب ستوبه هذا الأسبوع
 
     # ---- قاعدة الثبات (التوقيت الذهبي: 3-5 جلسات بعد القاع) ----
@@ -3573,7 +3573,7 @@ def readiness_badge(p, tier="A"):
         return f"<b>{p}%</b> 🟢 {label}"
     if p >= CONFIG["NEAR_PCT"]:
         return f"<b>{p}%</b> 🟡 يقترب"
-    return f"<b>{p}%</b> 🔴 بعيد عن الدخول"
+    return f"<b>{p}%</b> 🔴 إعداد فني ضعيف"
 
 
 def readiness_ratio(p, tier="A"):
