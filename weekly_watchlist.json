@@ -4,6 +4,105 @@
  "logic_version": "2026.06.22-redheads.dw+noskip+tranches+4h+keylevels+avgRR",
  "stocks": [
   {
+   "symbol": "VSTM",
+   "added": "2026-06-23",
+   "entry_ref": 4.25,
+   "entry": [
+    3.55,
+    3.76
+   ],
+   "tranches": [
+    3.55,
+    3.66,
+    3.76
+   ],
+   "pivot": 3.55,
+   "stop": 3.3015,
+   "stop_hi": 3.3725,
+   "t1": 4.79,
+   "t2": 4.97,
+   "t3": 5.15,
+   "score": 80,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "يرتكز على متوسط 30/50",
+    "ثبات 8 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "انكماش حزمة كلنجر (تجميع)",
+    "استعاد MA5/MA20 (تجميع)",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (أسبوعي)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "rsi": 49.63506684544375,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 62.22222222222222,
+   "best_spike": 91.6370227237516,
+   "rr": 3.1905964485086433,
+   "tier": "B",
+   "soft_fails": [
+    "انفجار حدّي 92%",
+    "فجوة-هدف فوق",
+    "RSI الآن 50>40"
+   ],
+   "warnings": [],
+   "news_risk": false,
+   "h4_levels": {
+    "supports": [
+     4.15,
+     4.0,
+     3.89,
+     3.75,
+     3.6
+    ],
+    "resistances": [
+     4.36,
+     4.51,
+     4.82,
+     4.97,
+     5.15
+    ],
+    "flip": 4.27,
+    "sweep_low": 3.55
+   },
+   "key_levels": {
+    "sup_major": 3.55,
+    "sup_minor": 4.01,
+    "res_major": 6.8,
+    "res_minor": 4.35
+   },
+   "h4_confirm": 1,
+   "liberation": 11.49,
+   "sector": null,
+   "country": null,
+   "status": "active",
+   "removed_date": null,
+   "removal_reason": null,
+   "replaced": false,
+   "readiness": 70,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "مسح سيولة"
+   ],
+   "partial": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "جفاف بيع"
+   ],
+   "hit": null,
+   "hit_date": null,
+   "max_gain_pct": 0.0,
+   "last_price": 4.25
+  },
+  {
    "symbol": "EZRA",
    "added": "2026-06-23",
    "entry_ref": 3.76,
@@ -82,10 +181,19 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -169,10 +277,19 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "RSI تشبع وانحناء",
+    "تقاطع MACD"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -251,14 +368,118 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 4.13
+  },
+  {
+   "symbol": "INSM",
+   "added": "2026-06-23",
+   "entry_ref": 98.61,
+   "entry": [
+    90.39,
+    95.81
+   ],
+   "tranches": [
+    90.39,
+    93.1,
+    95.81
+   ],
+   "pivot": 90.39,
+   "stop": 84.0627,
+   "stop_hi": 85.8705,
+   "t1": 106.83,
+   "t2": 110.69,
+   "t3": 114.51,
+   "score": 65,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 7 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "انكماش حزمة كلنجر (تجميع)",
+    "فجوة-هدف فوق السعر عند $125.36 (+27%)",
+    "قاب (فجوة) فوق السعر عند $125.36 (فراغ 9% = هدف ذهبي)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "rsi": 42.179280268349544,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 53.64982344989351,
+   "best_spike": 216.86363220214844,
+   "rr": 1.5192589753164834,
+   "tier": "B",
+   "soft_fails": [
+    "RSI تشبع حدّي (28)",
+    "RSI الآن 42>40",
+    "المتوسط الأسي"
+   ],
+   "warnings": [],
+   "news_risk": false,
+   "h4_levels": {
+    "supports": [
+     97.53,
+     94.43,
+     90.39
+    ],
+    "resistances": [
+     99.82,
+     108.09,
+     110.69,
+     115.99,
+     120.26
+    ],
+    "flip": 99.09,
+    "sweep_low": 90.39
+   },
+   "key_levels": {
+    "sup_major": 90.39,
+    "sup_minor": 95.01,
+    "res_major": 166.19,
+    "res_minor": 100.25
+   },
+   "h4_confirm": 1,
+   "liberation": 212.75,
+   "sector": null,
+   "country": null,
+   "status": "active",
+   "removed_date": null,
+   "removal_reason": null,
+   "replaced": false,
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
+   "partial": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
+   "hit": null,
+   "hit_date": null,
+   "max_gain_pct": 0.0,
+   "last_price": 98.61
   },
   {
    "symbol": "CTMX",
@@ -335,10 +556,19 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 50,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -621,8 +851,8 @@
    "country": "United States",
    "float": 7478152,
    "last_price": 3.77,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-06-23"
   },
   {
    "symbol": "GLXG",

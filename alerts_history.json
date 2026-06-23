@@ -49,7 +49,7 @@
    "ready": true,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.3
+   "max_gain_pct": 4.4
   },
   {
    "symbol": "SEV",
@@ -130,7 +130,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 6.4
+   "max_gain_pct": 6.6
   },
   {
    "symbol": "DJT",
@@ -158,7 +158,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.7
+   "max_gain_pct": 0.8
   },
   {
    "symbol": "USGO",
@@ -231,7 +231,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 10.0
   },
   {
    "symbol": "TAOX",
@@ -257,7 +257,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.7
   },
   {
    "symbol": "NBP",
@@ -283,7 +283,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 1.6
   },
   {
    "symbol": "CTMX",
@@ -303,6 +303,34 @@
     "Williams %R انعطاف من التشبع",
     "شورت غير متاح — مُرِّر بفائدة الشك",
     "⚠️ فلوت كبير 186,262,263 (فوق 50,000,000)"
+   ],
+   "ready": false,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.4
+  },
+  {
+   "symbol": "VSTM",
+   "date": "2026-06-23",
+   "price": 4.25,
+   "stop": 3.3015,
+   "t1": 4.79,
+   "t2": 4.97,
+   "t3": 5.15,
+   "score": 80,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "يرتكز على متوسط 30/50",
+    "ثبات 8 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "انكماش حزمة كلنجر (تجميع)",
+    "استعاد MA5/MA20 (تجميع)",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (أسبوعي)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
    ],
    "ready": false,
    "status": "open",
