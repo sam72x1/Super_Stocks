@@ -294,6 +294,8 @@ try:
     check("سطر الفريمات 2/3 يوضّح الباقي", "باقي فريم" in (S.timeframes_info(2) or ""))
     check("سطر الفريمات 3/3 مكتمل", "مكتمل" in (S.timeframes_info(3) or ""))
     check("سطر الفريمات أقل من 2 لا يظهر (يبقى نقصًا)", S.timeframes_info(1) is None)
+    check("سطر الفريمات يسمّي الفريم الناقص (⏳)",
+          "يومي ⏳" in (S.timeframes_info(2, "شهري ✅ · أسبوعي ✅ · يومي ⏳") or ""))
 except Exception as e:
     check("build_message يعمل", False, str(e))
 
@@ -311,8 +313,8 @@ try:
           all("tier" in s for s in wl["stocks"]))
     check("التقرير اليومي المختصر: سطر الدخول + الوقف بنسبته",
           "📥 دخول:" in dm and "⛔" in dm)
-    check("التقرير اليومي يعرض الأهداف الثلاثة بالنسب",
-          "🎯 $" in dm and "%)" in dm)
+    check("التقرير اليومي يعرض الأهداف الثلاثة بالنسب (الرقم والنسبة بقوس واحد)",
+          "🎯 (" in dm and "%)" in dm)
     check("التقرير اليومي يعرض الجاهزية + القوة العامة",
           "/100" in dm and "قوة" in dm)
     check("التقرير اليومي يعرض «دخول المضارب» (Williams)",

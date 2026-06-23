@@ -2641,14 +2641,18 @@ def news_links_compact(sym: str) -> str:
             f'<a href="{yh}">Yahoo</a> · <a href="{fv}">Finviz</a>')
 
 
-def timeframes_info(tf_count):
-    """سطر معلومة عن توافق الفريمات لمّا تجتاز البوابة (2 فأكثر) — يوضّح كم باقٍ
-    للكمال (3/3). يرجع None لو لم تُجتَز (تظهر وقتها ضمن النواقص) أو العدد غير متوفر."""
+def timeframes_info(tf_count, tf_display=None):
+    """سطر معلومة عن توافق الفريمات لمّا تُجتاز البوابة (2 فأكثر) — يسمّي كل فريم
+    (شهري/أسبوعي/يومي) بعلامته فيبان الفريم الناقص (⏳). يرجع None لو لم تُجتَز
+    (تظهر وقتها ضمن النواقص) أو العدد غير متوفر."""
     if tf_count is None or tf_count < CONFIG["TF_MIN_REVERSALS"]:
         return None
-    if tf_count >= 3:
-        return "🕯️ الفريمات 3/3 ✓ (مكتمل)"
-    return f"🕯️ الفريمات {tf_count}/3 ✓ (باقي فريم للكمال)"
+    if tf_display:
+        tag = "مكتمل" if tf_count >= 3 else f"{tf_count}/3 · ⏳ = الباقي للكمال"
+        return f"🕯️ الفريمات ({tag}): {tf_display}"
+    # احتياطي (سجلّات قديمة بلا تفصيل الفريمات)
+    return ("🕯️ الفريمات 3/3 ✓ (مكتمل)" if tf_count >= 3
+            else "🕯️ الفريمات 2/3 ✓ (باقي فريم للكمال)")
 
 
 def build_message(results: list, splits: list,
@@ -2721,7 +2725,7 @@ def build_message(results: list, splits: list,
         stop_lo = r["stop"][0]
         base = pivot or sup_major or stop_lo
         stop_pct = ((stop_lo / base - 1.0) * 100.0) if base else 0.0
-        lines.append(f"⛔ الوقف: ${stop_lo:.2f} ({stop_pct:+.0f}%)")
+        lines.append(f"⛔ الوقف: (${stop_lo:.2f} · {stop_pct:+.0f}%)")
 
         # ===== مجموعة الأهداف / المقاومات / التحرر =====
         lines.append("")
@@ -2733,7 +2737,7 @@ def build_message(results: list, splits: list,
             is_minor = (res_minor is not None
                         and abs(round(tv, 2) - round(res_minor, 2)) < 0.005)
             suffix = " (مقاومة فرعية)" if is_minor else ""
-            lines.append(f"🎯 الهدف {i}{suffix}: ${tv:.2f} ({gain:+.0f}%)")
+            lines.append(f"🎯 الهدف {i}{suffix}: (${tv:.2f} · {gain:+.0f}%)")
         # المقاومة الفرعية لو ما طابقت أي هدف معروض (لا تكرار)
         minor_shown = res_minor is not None and any(
             abs(round(tv, 2) - round(res_minor, 2)) < 0.005 for tv in targets)
@@ -2764,7 +2768,7 @@ def build_message(results: list, splits: list,
                 lines.append("🅱️ مراقبة")
         else:
             lines.append("✅ اجتاز 14/14 بوابة")
-        _tfi = timeframes_info(r.get("tf_count"))
+        _tfi = timeframes_info(r.get("tf_count"), r.get("tf_display"))
         if _tfi:
             lines.append(_tfi)
         # تنبيهات حرجة تبقى (تقسيم عكسي / SEC أحمر / تحذيرات تخفيف-جغرافي)
@@ -3003,6 +3007,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "key_levels": r.get("key_levels"),                # دعوم/مقاومات أساسي/فرعي
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "tf_count": r.get("tf_count"),                    # عدد الفريمات المتوافقة (0-3)
+        "tf_display": r.get("tf_display"),                # تفصيل الفريمات (شهري/أسبوعي/يومي)
         "liberation": r.get("liberation"),               # بوابة التحرر
         "sector": r.get("sector"), "country": r.get("country"),
         "status": "active", "removed_date": None, "removal_reason": None,
@@ -3588,6 +3593,7 @@ def check_promotions(wl: dict, history: dict) -> list:
         s["tier"] = "A" if not combined else "B"
         s["liberation"] = fresh.get("liberation")
         s["tf_count"] = fresh.get("tf_count")
+        s["tf_display"] = fresh.get("tf_display")
         # تحديث يومي رخيص (بلا تحميل زائد): المستويات من إعادة التحليل +
         # القطاع/الدولة من الذاكرة لو ناقصة بالسجل (تظهر بدل ما تبقى فاضية).
         if fresh.get("key_levels"):
@@ -3750,13 +3756,13 @@ def build_daily_message(wl: dict, splits: list,
         stop = s["stop"]
         sp = ((stop / piv - 1.0) * 100.0) if piv else 0.0
         lines.append("   📥 دخول: " + " · ".join(f"${p:.2f}" for p in trs)
-                     + f"  ·  ⛔ {stop:.2f} ({sp:+.0f}%)")
+                     + f"  ·  ⛔ (${stop:.2f} · {sp:+.0f}%)")
         # الأهداف الثلاثة بسطر واحد (النسبة من السعر الحالي)
         g1 = ((s["t1"] / lp - 1.0) * 100.0) if lp else 0.0
         g2 = ((s["t2"] / lp - 1.0) * 100.0) if lp else 0.0
         g3 = ((s["t3"] / lp - 1.0) * 100.0) if lp else 0.0
-        lines.append(f"   🎯 ${s['t1']:.2f} ({g1:+.0f}%) · "
-                     f"${s['t2']:.2f} ({g2:+.0f}%) · ${s['t3']:.2f} ({g3:+.0f}%)")
+        lines.append(f"   🎯 (${s['t1']:.2f} · {g1:+.0f}%) · "
+                     f"(${s['t2']:.2f} · {g2:+.0f}%) · (${s['t3']:.2f} · {g3:+.0f}%)")
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
         if any("Williams" in f for f in (s.get("flags") or [])):
@@ -3766,7 +3772,7 @@ def build_daily_message(wl: dict, splits: list,
             sf = s["soft_fails"]
             lines.append(f"   🅱️ ناقص ({len(sf)}/14): "
                          + " · ".join(f"{j}- {x}" for j, x in enumerate(sf, 1)))
-        _tfi = timeframes_info(s.get("tf_count"))
+        _tfi = timeframes_info(s.get("tf_count"), s.get("tf_display"))
         if _tfi:
             lines.append("   " + _tfi)
         # تنبيهات عملية تبقى: لحظة الدخول · تحقيق هدف · تحذيرات حرجة
