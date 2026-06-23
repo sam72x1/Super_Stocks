@@ -1470,11 +1470,14 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         if CONFIG.get("MA_GATE_REQUIRED", False) and not ma_ok:
             _md = ((price / ema30 - 1.0) * 100.0) if ema30 else 0.0
             if _md < 0:
+                _rise = ((ema30 * 0.98 / price - 1.0) * 100.0) if price else 0.0
                 soft_fails.append(
-                    f"السعر أقل بـ{abs(_md):.0f}% من متوسطه المتحرك (30)")
+                    f"السعر أقل بـ{abs(_md):.0f}% من متوسطه المتحرك "
+                    f"(يفتح بصعود ~{_rise:.0f}% أو بثبات أسابيع)")
             else:
                 soft_fails.append(
-                    f"السعر أعلى بـ{_md:.0f}% من متوسطه المتحرك (30)")
+                    f"السعر أعلى بـ{_md:.0f}% من متوسطه المتحرك "
+                    "(يفتح برجوعه قرب متوسطه)")
 
         # حد أقصى للنواقص هنا (M13/M14 شورت/فلوت تُضاف لاحقًا في الفرز)
         if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
