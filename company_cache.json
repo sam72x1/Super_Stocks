@@ -429,5 +429,79 @@
   "short_pct": 1.7,
   "float": 892196
  },
- "VSTM": {}
+ "VSTM": {},
+ "AARD": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Aardvark Therapeutics, Inc., a clinical-stage biopharmaceutical company, focuses on developing small-molecule therapeutics to activate innate homeostatic pathwa…",
+  "country": "United States",
+  "cash": 91200000,
+  "shares_out": 21816385,
+  "short_pct": 6.9,
+  "float": 10910374
+ },
+ "ICU": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "SeaStar Medical Holding Corporation, a commercial-stage healthcare company, develops a proprietary platform therapy to reduce the consequences of hyperinflammat…",
+  "country": "United States",
+  "cash": 9348000,
+  "revenue": 1436000,
+  "shares_out": 3997002,
+  "short_pct": 3.6,
+  "float": 3959390
+ },
+ "ILAG": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment",
+  "business": "Intelligent Living Application Group Inc., through its subsidiaries, designs, manufactures and sells mechanical locksets to customers mainly in the United State…",
+  "country": "Hong Kong",
+  "cash": 645939,
+  "revenue": 4493572,
+  "shares_out": 2076948,
+  "short_pct": 0.6,
+  "float": 986446
+ },
+ "ONEG": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction",
+  "business": "OneConstruction Group Limited, together with its subsidiaries, provides structural steelwork for construction projects in Hong Kong. The company engages in the…",
+  "country": "Hong Kong",
+  "cash": 5001000,
+  "revenue": 52231000,
+  "shares_out": 16000000,
+  "short_pct": 0.2,
+  "float": 7000000
+ },
+ "MBRX": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Moleculin Biotech, Inc., a late-stage pharmaceutical development company, engages in the development of therapeutic candidates for the treatment of tumors and v…",
+  "country": "United States",
+  "cash": 10317000,
+  "shares_out": 5336350,
+  "short_pct": 15.7,
+  "float": 5292005
+ },
+ "NXTS": {
+  "sector": "Basic Materials",
+  "industry": "Agricultural Inputs",
+  "business": "Nexentis Technologies Inc., through its subsidiary, develops therapeutics related to cancer and inflammatory metabolic diseases. It operates through two segment…",
+  "country": "Israel",
+  "cash": 6201000,
+  "shares_out": 730459,
+  "short_pct": 4.1,
+  "float": 426449
+ },
+ "OMER": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Omeros Corporation, a clinical-stage biopharmaceutical company, discovers, develops, and commercializes small-molecule and protein therapeutics, and orphan indi…",
+  "country": "United States",
+  "cash": 135316000,
+  "revenue": 9893000,
+  "shares_out": 72375355,
+  "short_pct": 23.3,
+  "float": 69786489
+ }
 }
