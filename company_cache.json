@@ -406,5 +406,16 @@
   "shares_out": 4981899,
   "short_pct": 4.8,
   "float": 1952207
+ },
+ "PHOE": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction",
+  "business": "Phoenix Asia Holdings Limited provides substructure works services in Hong Kong. The company undertakes site formation, such as clearance of construction site,…",
+  "country": "Hong Kong",
+  "cash": 2985024,
+  "revenue": 7092526,
+  "shares_out": 21600000,
+  "short_pct": 0.3,
+  "float": 5500008
  }
 }

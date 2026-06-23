@@ -82,14 +82,23 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.74
+   "last_price": 3.76
   },
   {
    "symbol": "NBP",
@@ -157,26 +166,35 @@
    },
    "key_levels": {
     "sup_major": 1.46,
-    "sup_minor": 1.49,
+    "sup_minor": 1.5,
     "res_major": 5.16,
     "res_minor": 1.7
    },
    "h4_confirm": 3,
-   "liberation": 3.18,
+   "liberation": 3.55,
    "sector": "Healthcare",
    "country": "United States",
    "status": "active",
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "RSI تشبع وانحناء",
+    "تقاطع MACD"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.525
+   "last_price": 1.53
   },
   {
    "symbol": "IDN",
@@ -219,8 +237,7 @@
    "rr": 0.9836066673868314,
    "tier": "B",
    "soft_fails": [
-    "المتوسط الأسي",
-    "عائد/مخاطرة منخفض"
+    "المتوسط الأسي"
    ],
    "warnings": [],
    "news_risk": false,
@@ -240,7 +257,7 @@
    },
    "key_levels": {
     "sup_major": 3.95,
-    "sup_minor": 4.01,
+    "sup_minor": 4.03,
     "res_major": 6.02,
     "res_minor": 4.19
    },
@@ -252,14 +269,23 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.1083
+   "last_price": 4.13
   },
   {
    "symbol": "CTMX",
@@ -336,14 +362,23 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 50,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.065
+   "last_price": 3.04
   },
   {
    "symbol": "TAOX",
@@ -423,14 +458,23 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 40,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.7
+   "last_price": 3.63
   }
  ],
  "removed": [],
@@ -890,6 +934,66 @@
    "country": "United States",
    "float": 1952207,
    "last_price": 12.25,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "RETO",
+   "added": "2026-06-23",
+   "entry": [
+    1.8,
+    1.91
+   ],
+   "tranches": [
+    1.8,
+    1.85,
+    1.91
+   ],
+   "pivot": 1.8,
+   "stop": 1.674,
+   "t1": 2.8,
+   "t2": 3.0,
+   "t3": 3.12,
+   "score": 95,
+   "liberation": 4.28,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد"
+   ],
+   "sector": "Basic Materials",
+   "country": "China",
+   "float": 3249069,
+   "last_price": 2.49,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "PHOE",
+   "added": "2026-06-23",
+   "entry": [
+    12.5,
+    13.25
+   ],
+   "tranches": [
+    12.5,
+    12.88,
+    13.25
+   ],
+   "pivot": 12.5,
+   "stop": 11.625,
+   "t1": 17.98,
+   "t2": 18.88,
+   "t3": 19.69,
+   "score": 95,
+   "liberation": 44.0,
+   "watch_reasons": [
+    "لم يصل التشبّع بعد",
+    "بعيد عن الدخول (45%)"
+   ],
+   "sector": "Industrials",
+   "country": "Hong Kong",
+   "float": 5500008,
+   "last_price": 16.15,
    "status": "watching",
    "triggered_date": null
   }
@@ -1479,6 +1583,216 @@
    "date": "2026-06-22",
    "gain": 51.0,
    "reason": "M2_هبوط<40",
+   "was_pivot": false
+  },
+  {
+   "symbol": "POM",
+   "date": "2026-06-23",
+   "gain": 1844.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "LHSW",
+   "date": "2026-06-23",
+   "gain": 1766.0,
+   "reason": "M2_هبوط<40",
+   "was_pivot": false
+  },
+  {
+   "symbol": "BMGL",
+   "date": "2026-06-23",
+   "gain": 1101.0,
+   "reason": "M2_هبوط<40",
+   "was_pivot": false
+  },
+  {
+   "symbol": "WTO",
+   "date": "2026-06-23",
+   "gain": 1010.0,
+   "reason": "M2_هبوط>97",
+   "was_pivot": false
+  },
+  {
+   "symbol": "BOXL",
+   "date": "2026-06-23",
+   "gain": 500.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ORIS",
+   "date": "2026-06-23",
+   "gain": 375.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ICCM",
+   "date": "2026-06-23",
+   "gain": 200.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "WLDS",
+   "date": "2026-06-23",
+   "gain": 171.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "SLBT",
+   "date": "2026-06-23",
+   "gain": 167.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "NXTS",
+   "date": "2026-06-23",
+   "gain": 156.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ADTX",
+   "date": "2026-06-23",
+   "gain": 150.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "EHGO",
+   "date": "2026-06-23",
+   "gain": 126.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "SNBR",
+   "date": "2026-06-23",
+   "gain": 117.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "CUPR",
+   "date": "2026-06-23",
+   "gain": 112.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "SDOT",
+   "date": "2026-06-23",
+   "gain": 98.0,
+   "reason": "M2_هبوط>97",
+   "was_pivot": false
+  },
+  {
+   "symbol": "YMAT",
+   "date": "2026-06-23",
+   "gain": 94.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "VSME",
+   "date": "2026-06-23",
+   "gain": 92.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "CCTG",
+   "date": "2026-06-23",
+   "gain": 90.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "PRFX",
+   "date": "2026-06-23",
+   "gain": 83.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "CRVO",
+   "date": "2026-06-23",
+   "gain": 82.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "QURE",
+   "date": "2026-06-23",
+   "gain": 78.0,
+   "reason": "M2_هبوط<40",
+   "was_pivot": false
+  },
+  {
+   "symbol": "TNON",
+   "date": "2026-06-23",
+   "gain": 78.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "FTHM",
+   "date": "2026-06-23",
+   "gain": 75.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ELTX",
+   "date": "2026-06-23",
+   "gain": 71.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "QTEX",
+   "date": "2026-06-23",
+   "gain": 71.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ALOT",
+   "date": "2026-06-23",
+   "gain": 70.0,
+   "reason": "M2_هبوط<40",
+   "was_pivot": false
+  },
+  {
+   "symbol": "NMRA",
+   "date": "2026-06-23",
+   "gain": 70.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "LNKS",
+   "date": "2026-06-23",
+   "gain": 68.0,
+   "reason": "M2_هبوط>97",
+   "was_pivot": false
+  },
+  {
+   "symbol": "IVDA",
+   "date": "2026-06-23",
+   "gain": 62.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "SKYQ",
+   "date": "2026-06-23",
+   "gain": 62.0,
+   "reason": "M4_base_واسعة",
    "was_pivot": false
   }
  ]
