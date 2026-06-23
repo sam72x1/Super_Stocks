@@ -493,6 +493,20 @@ _calm = synth_pivot(seed=3)
 check("كاشف الانفجارات: يتجاهل ما دون العتبة",
       len(S.scan_explosions({"CALM": _calm})) == 0)
 
+# 👻 تصنيف الفرص الفائتة: هوية (ليس ارتكازًا) مقابل M4 (ارتكاز تحرّك)
+S._MISSED.clear()
+S._MISSED += [
+    {"symbol": "MOVEDX", "reason": "M4_base_واسعة", "gain_10d": 80.0, "price": 4.0},
+    {"symbol": "BIGCAP", "reason": "M2_هبوط<40", "gain_10d": 40.0, "price": 90.0},
+    {"symbol": "SPLITX", "reason": "M2_هبوط>97", "gain_10d": 999.0, "price": 30.0},
+]
+_mrep = S.build_dev_assistant_report({"stocks": [], "notes": []})
+S._MISSED.clear()
+check("الفائتة تُفصل: ارتكاز تحرّك عن «ليس ارتكازًا» وتعرض المتحرّك فقط",
+      "ارتكاز تحرّك (راجع الارتداد): <b>1</b>" in _mrep
+      and "ليس ارتكازًا (تجاهل صحيح): 2" in _mrep
+      and "MOVEDX" in _mrep and "BIGCAP" not in _mrep)
+
 # 📐 حجم المركز: مخاطرة ثابتة من رأس المال
 _ps = S.position_size(1.75, 1.39)   # risk/سهم=0.36 · 1% من 10000=100
 check("حجم المركز: عدد الأسهم صحيح من المخاطرة",
