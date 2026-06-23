@@ -12,9 +12,10 @@
 - `Super_stock.py` — البوت الكامل (الفرز + الرسائل + التتبع).
 - `analyze_one.py` — تحليل سهم واحد عند الطلب (يفوّض لـ`analyze_ticker`).
 - `pullback_live.py` — مراقبة الارتداد اللحظية (كل 30د بالسوق).
+- `technical_report.py` — **أداة مستقلة**: `TICKER=رمز` → تقرير فني كلاسيكي · `SCAN_EARNINGS=1` → أداة الأرباح (مسح ناسداك قوي فنيًا + أرباح قريبة).
 - `test_bot.py` — 147 اختبار (يشتغل بلا إنترنت). **شغّله قبل أي دفع:** `python3 test_bot.py`
 - `FAISAL_METHODOLOGY_NOTES.md` / `FAISAL_IMAGES_CATALOG.md` — توثيق منهجية فيصل من الصور.
-- `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · analyze.yml/technical.yml (يدوي).
+- `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · scan_earnings.yml (أداة الأرباح، يومي 06:00 UTC) · backtest.yml · analyze.yml/technical.yml (يدوي).
 
 ## الفروع (مهم)
 - التطوير على `claude/faisal-images-methodology-r6gfhq`، ثم **دمج في `main`** (الأكشن يشتغل على main).
