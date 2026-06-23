@@ -514,5 +514,14 @@
   "shares_out": 54419986,
   "short_pct": 10.3,
   "float": 34977358
+ },
+ "VFS": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Manufacturers",
+  "business": "VinFast Auto Ltd. engages in the design and manufacture of electric vehicles (EV), e-scooters, and e-buses in Vietnam, Canada, and the United States. The compan…",
+  "country": "Vietnam",
+  "shares_out": 2339536010,
+  "short_pct": 4.3,
+  "float": 49644954
  }
 }
