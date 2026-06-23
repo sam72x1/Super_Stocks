@@ -760,9 +760,10 @@ def render(rep):
 # الماسح اليومي: أسهم ناسداك القوية فنياً + إعلان أرباح قريب
 # ==========================================================
 SCAN_MIN_PRICE = 2.0           # لا سنتات — أقل سعر مقبول
+SCAN_MAX_PRICE = 30.0          # نستبعد ما فوق $30 (تركيز على الأسعار الصغيرة)
 SCAN_MIN_DOLLAR_VOL = 1_000_000  # أرضية سيولة (تستبعد النانو-كاب)
 SCAN_MIN_SCORE = 60            # القوة الفنية الدنيا (خُفّضت من 70)
-SCAN_EARN_WINDOW = 14          # إعلان أرباح خلال كم يوم يُعتبر «قريب»
+SCAN_EARN_WINDOW = 3           # تنبيه الأرباح قبل ٣ أيام فقط (كان 14)
 SCAN_MIN_BARS = 200            # نحتاج تاريخ كافٍ (متوسط 200 + شهري)
 
 
@@ -802,6 +803,8 @@ def scan_nasdaq_earnings():
         try:
             price = float(df["Close"].iloc[-1])
             if price < SCAN_MIN_PRICE:                 # لا سنتات
+                continue
+            if price > SCAN_MAX_PRICE:                 # لا فوق $30
                 continue
             dvol = float((df["Close"] * df["Volume"]).tail(20).mean())
             if dvol < SCAN_MIN_DOLLAR_VOL:             # لا نانو-كاب
@@ -846,12 +849,13 @@ def render_scan(results):
         return ("🗓️ <b>مرشحو ناسداك (قوي فنياً + إعلان أرباح قريب)</b>\n"
                 f"التاريخ: {today}\n\n"
                 "لا توجد أسهم تطابق الشروط اليوم "
-                f"(قوة فنية ≥ {SCAN_MIN_SCORE}، سعر ≥ ${SCAN_MIN_PRICE:.0f}، "
+                f"(قوة فنية ≥ {SCAN_MIN_SCORE}، سعر "
+                f"${SCAN_MIN_PRICE:.0f}–${SCAN_MAX_PRICE:.0f}، "
                 f"أرباح خلال {SCAN_EARN_WINDOW} يوم).\n\n" + bot.FOOTER)
     L = ["🗓️ <b>مرشحو ناسداك (قوي فنياً + إعلان أرباح قريب)</b>",
          f"التاريخ: {today} | العدد: {len(results)}",
-         f"<i>الشروط: قوة فنية ≥ {SCAN_MIN_SCORE} · سعر ≥ "
-         f"${SCAN_MIN_PRICE:.0f} · سيولة ≥ "
+         f"<i>الشروط: قوة فنية ≥ {SCAN_MIN_SCORE} · سعر "
+         f"${SCAN_MIN_PRICE:.0f}–${SCAN_MAX_PRICE:.0f} · سيولة ≥ "
          f"${SCAN_MIN_DOLLAR_VOL/1e6:.0f}M · أرباح ≤ {SCAN_EARN_WINDOW}ي</i>",
          ""]
     for i, s in enumerate(results, 1):
