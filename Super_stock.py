@@ -3841,17 +3841,29 @@ def build_dev_assistant_report(wl: dict) -> str:
     def _missed_block():
         if not _MISSED:
             return []
-        rc = {}
-        for m in _MISSED:
-            rc[m["reason"]] = rc.get(m["reason"], 0) + 1
+        # تصنيف: بوابات الهوية (M1 سعر · M2 هبوط · M3 انفجار) = «ليس ارتكازًا
+        # أصلًا» (رفض صحيح، لا يدل على تشدّد). الباقي (M4 تحرّك/حدّي/RSI/نواقص)
+        # = ارتكاز فعلي تحرّك أو حدّي → هو الإشارة الحقيقية للمراجعة.
+        def _identity(reason):
+            return str(reason).startswith(("M1_", "M2_", "M3_"))
+        moved = [m for m in _MISSED if not _identity(m["reason"])]
+        not_pivot = [m for m in _MISSED if _identity(m["reason"])]
         out = [f"\n👻 <b>فرص فائتة (مرفوض صعد ≥{int(CONFIG['MISSED_RISE_PCT'])}%)</b>",
-               f"   العدد: {len(_MISSED)} · أكثر سبب رفض: "
-               + "، ".join(f"{k} ({v})" for k, v in
-                          sorted(rc.items(), key=lambda x: -x[1])[:3])]
-        for m in _MISSED[:6]:
-            out.append(f"   • {m['symbol']}: +{m['gain_10d']:.0f}% رغم رفضه "
-                       f"({m['reason']})")
-        out.append("   ↳ لو تكرر سبب واحد كثيرًا = البوت متشدّد فيه؛ راجعه.")
+               f"   📌 ارتكاز تحرّك (راجع الارتداد): <b>{len(moved)}</b> · "
+               f"🗑️ ليس ارتكازًا (تجاهل صحيح): {len(not_pivot)}"]
+        if moved:
+            rc = {}
+            for m in moved:
+                rc[m["reason"]] = rc.get(m["reason"], 0) + 1
+            out.append("   أسباب الارتكاز المتحرّك: "
+                       + "، ".join(f"{k} ({v})" for k, v in
+                                   sorted(rc.items(), key=lambda x: -x[1])[:3]))
+            for m in sorted(moved, key=lambda x: -x["gain_10d"])[:6]:
+                out.append(f"   • {m['symbol']}: +{m['gain_10d']:.0f}% — "
+                           f"ارتكاز تحرّك ({m['reason']})")
+            out.append("   ↳ هذي مرشّحات ارتداد؛ تأكّد قائمة المراقبة تلتقط أقواها.")
+        else:
+            out.append("   ✅ لا ارتكاز فعلي فاتنا — كل الفائتة ليست أسهم ارتكاز.")
         return out
 
     def _explosions_block():
