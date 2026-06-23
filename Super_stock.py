@@ -2739,7 +2739,7 @@ def build_message(results: list, splits: list,
             ctag = " 🔓 قريب!" if r.get("lib_near") else ""
             lines.append(f"🚀 تحرر فوق ${lib:.2f}{ctag}")
         if any("Williams" in f for f in (r.get("flags") or [])):
-            lines.append("⚡ دخول المضارب ✓ (%R خرج من التشبع)")
+            lines.append("⚡ دخول المضارب ✓ (إشارة زخم للدخول)")
 
         # ===== مجموعة العائد / البوابات / التنبيهات =====
         lines.append("")
@@ -3745,7 +3745,7 @@ def build_daily_message(wl: dict, splits: list,
         if s.get("liberation"):
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
         if any("Williams" in f for f in (s.get("flags") or [])):
-            lines.append("   ⚡ دخول المضارب ✓ (%R خرج من التشبع)")
+            lines.append("   ⚡ دخول المضارب ✓ (إشارة زخم للدخول)")
         # النواقص (B) مرقّمة بسطر واحد (n من 14)
         if tier == "B" and s.get("soft_fails"):
             sf = s["soft_fails"]
