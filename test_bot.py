@@ -198,6 +198,46 @@ S.yf = None
 
 
 # ==========================================================
+# 3ب) استرجاع الشورت/البيانات (تغطية ثابتة — لا تختفي)
+# ==========================================================
+print("\n=== 3ب) استرجاع الشورت/البيانات ===")
+
+
+class _FakeT:
+    def __init__(self, info):
+        self._i = info
+
+    @property
+    def info(self):
+        return self._i
+
+
+_old_retries = S.CONFIG.get("DOWNLOAD_RETRIES", 3)
+S.CONFIG["DOWNLOAD_RETRIES"] = 1   # بلا انتظار في الاختبار
+_full = {"sector": "Healthcare", "country": "United States", "floatShares": 1000}
+check("_fetch_info يرجّع الرد الكامل", S._fetch_info(_FakeT(_full)) == _full)
+check("_fetch_info يحتفظ بالرد الجزئي بدل {}",
+      S._fetch_info(_FakeT({"sharesShort": 12345})) == {"sharesShort": 12345})
+check("_fetch_info يرجّع {} للرد الفارغ", S._fetch_info(_FakeT({})) == {})
+S.CONFIG["DOWNLOAD_RETRIES"] = _old_retries
+
+# بوابة الشورت تخزّن القيمة المجلوبة بدل رميها (للعرض/التخزين)
+S.fintel_short = lambda syms: {"WB": 5000}
+S.finra_daily_short = lambda syms: {}
+_wb = mk("WB")
+_wb["finra_short"] = None
+S.apply_short_gate([_wb])
+check("بوابة الشورت تخزّن القيمة المجلوبة (لا ترميها)",
+      _wb.get("finra_short") == 5000)
+
+# _or_cache: قيمة الذاكرة عند غياب الجلب
+check("الشورت يُسترجع من الذاكرة لو غاب",
+      S._or_cache(None, {"finra_short": 9999}, "finra_short") == 9999)
+check("القيمة المجلوبة تُقدَّم على الذاكرة",
+      S._or_cache(50, {"finra_short": 9999}, "finra_short") == 50)
+
+
+# ==========================================================
 # 4) قرارات البوابات على أرقام الصور الفعلية (اختبار مباشر للصور)
 #    لكل سهم: RSI/MACD من الشارت + الشورت/الفلوت من التغريدة.
 #    نتأكد أن منطق البوابة يعطي نفس الحكم المتوقع.

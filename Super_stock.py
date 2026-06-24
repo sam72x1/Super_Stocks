@@ -2216,6 +2216,7 @@ def _fetch_info(t):
     """جلب معلومات الشركة من Yahoo مع إعادة محاولة (info يُخنق كثيرًا)."""
     attempts = CONFIG.get("DOWNLOAD_RETRIES", 3)
     base = CONFIG.get("RETRY_BACKOFF", 3.0)
+    last = {}
     for i in range(attempts):
         try:
             info = t.info or {}
@@ -2223,11 +2224,13 @@ def _fetch_info(t):
             if info.get("sector") or info.get("country") or \
                     info.get("floatShares") or info.get("longBusinessSummary"):
                 return info
+            if info and not last:
+                last = info        # رد جزئي — نحتفظ به ونعيد المحاولة
         except Exception:
             pass
         if i < attempts - 1:
             time.sleep(base * (2 ** i))
-    return {}
+    return last                    # أفضل رد جزئي توفّر بدل {} (كان يرمي الجزئي فتختفي البيانات)
 
 
 def enrich(results: list) -> None:
@@ -2247,6 +2250,9 @@ def enrich(results: list) -> None:
     for r in results:
         r["fintel"] = fintel.get(r["symbol"]) or {}
         r["finra_short"] = shorts.get(r["symbol"])
+        # سلسلة fintel→FINRA الموثّقة للقيمة المخزّنة (Yahoo يُضاف داخل كتلة .info)
+        if r["finra_short"] is None:
+            r["finra_short"] = r["fintel"].get("short_volume")
         r["short_pct"] = None
         r["float"] = None
         r["recent_split"] = None
@@ -2266,6 +2272,11 @@ def enrich(results: list) -> None:
                 sp = info.get("shortPercentOfFloat")
                 r["short_pct"] = (round(sp * 100, 1) if sp
                                   else cached.get("short_pct"))
+                # عدد الشورت: FINRA→Yahoo(sharesShort)→آخر قيمة معروفة (يُكمّل
+                # سلسلة Fintel→FINRA→Yahoo الموثّقة فلا يختفي الشورت لو غاب عن FINRA)
+                if r.get("finra_short") is None:
+                    r["finra_short"] = _or_cache(info.get("sharesShort"),
+                                                 cached, "finra_short")
                 # القيمة المجلوبة إن وُجدت، وإلا آخر قيمة معروفة (لا يختفي 🏢)
                 r["float"] = _or_cache(info.get("floatShares"), cached, "float")
                 r["sector"] = _or_cache(info.get("sector") or
@@ -2285,7 +2296,8 @@ def enrich(results: list) -> None:
                 COMPANY_CACHE[sym] = {k: r.get(k) for k in
                                       ("sector", "industry", "business",
                                        "country", "cash", "revenue",
-                                       "shares_out", "short_pct", "float")
+                                       "shares_out", "short_pct", "float",
+                                       "finra_short")
                                       if r.get(k) is not None}
                 # تحذير جغرافي (تحذير فقط — السهم يظل يظهر حتى في A)
                 if r.get("country") in CONFIG.get("HIGH_RISK_COUNTRIES", []):
@@ -2450,6 +2462,31 @@ COUNTRY_AR = {
     "Brazil": "البرازيل",
     "Cayman Islands": "جزر كايمان",
     "Bermuda": "برمودا",
+    "Vietnam": "فيتنام",
+    "Greece": "اليونان",
+    "Marshall Islands": "جزر مارشال",
+    "Cyprus": "قبرص",
+    "Monaco": "موناكو",
+    "Mexico": "المكسيك",
+    "Argentina": "الأرجنتين",
+    "Chile": "تشيلي",
+    "Indonesia": "إندونيسيا",
+    "Malaysia": "ماليزيا",
+    "Philippines": "الفلبين",
+    "Thailand": "تايلاند",
+    "Sweden": "السويد",
+    "Norway": "النرويج",
+    "Denmark": "الدنمارك",
+    "Finland": "فنلندا",
+    "Italy": "إيطاليا",
+    "Spain": "إسبانيا",
+    "Belgium": "بلجيكا",
+    "Austria": "النمسا",
+    "Luxembourg": "لوكسمبورغ",
+    "United Arab Emirates": "الإمارات",
+    "South Africa": "جنوب أفريقيا",
+    "New Zealand": "نيوزيلندا",
+    "Turkey": "تركيا",
 }
 # علم الدولة (إيموجي) — يُعرض بجانب اسمها بالكرت واليومي (طلب المستخدم)
 COUNTRY_FLAG = {
@@ -2460,6 +2497,15 @@ COUNTRY_FLAG = {
     "Australia": "🇦🇺", "Japan": "🇯🇵", "South Korea": "🇰🇷",
     "Taiwan": "🇹🇼", "India": "🇮🇳", "Brazil": "🇧🇷",
     "Cayman Islands": "🇰🇾", "Bermuda": "🇧🇲",
+    "Vietnam": "🇻🇳", "Greece": "🇬🇷", "Marshall Islands": "🇲🇭",
+    "Cyprus": "🇨🇾", "Monaco": "🇲🇨", "Mexico": "🇲🇽",
+    "Argentina": "🇦🇷", "Chile": "🇨🇱", "Indonesia": "🇮🇩",
+    "Malaysia": "🇲🇾", "Philippines": "🇵🇭", "Thailand": "🇹🇭",
+    "Sweden": "🇸🇪", "Norway": "🇳🇴", "Denmark": "🇩🇰",
+    "Finland": "🇫🇮", "Italy": "🇮🇹", "Spain": "🇪🇸",
+    "Belgium": "🇧🇪", "Austria": "🇦🇹", "Luxembourg": "🇱🇺",
+    "United Arab Emirates": "🇦🇪", "South Africa": "🇿🇦",
+    "New Zealand": "🇳🇿", "Turkey": "🇹🇷",
 }
 
 
@@ -3090,6 +3136,10 @@ def apply_short_gate(results: list) -> list:
     limit = CONFIG["SHORT_GATE_MAX"]
     for r in results:
         srt = short_map.get(r["symbol"])
+        # نعيد استعمال القيمة المجلوبة هنا للتخزين/العرض بدل رميها (لا يمسّ
+        # قرار البوابة: القرار أدناه يعتمد srt المحلي لا finra_short).
+        if srt is not None and r.get("finra_short") is None:
+            r["finra_short"] = srt
         if srt is not None and srt >= limit:
             # v2.7: لا يُحذف — يُسجّل نقصًا وينزل لقائمة المراقبة B
             r.setdefault("soft_fails", []).append("شورت عالٍ")
@@ -3629,6 +3679,13 @@ def check_promotions(wl: dict, history: dict) -> list:
             s["sector"] = _cc["sector"]
         if not s.get("country") and _cc.get("country"):
             s["country"] = _cc["country"]
+        # استرجاع فلوت/شورت من الذاكرة لو ناقصة (تغطية ثابتة — لا تختفي)
+        if not s.get("float") and _cc.get("float"):
+            s["float"] = _cc["float"]
+        if s.get("short") is None and _cc.get("finra_short") is not None:
+            s["short"] = _cc["finra_short"]
+        if not s.get("short_pct") and _cc.get("short_pct"):
+            s["short_pct"] = _cc["short_pct"]
         if was == "B" and s["tier"] == "A":
             s["promoted_date"] = today
             promoted.append(s)
