@@ -236,6 +236,33 @@ check("الشورت يُسترجع من الذاكرة لو غاب",
 check("القيمة المجلوبة تُقدَّم على الذاكرة",
       S._or_cache(50, {"finra_short": 9999}, "finra_short") == 50)
 
+# حدّ ذاكرة الشركات (LRU): يبقى محدودًا ويحتفظ بالأحدث (بلا كتابة قرص)
+_cap0, _wj0, _cc0 = S.COMPANY_CACHE_MAX, S._atomic_write_json, dict(S.COMPANY_CACHE)
+try:
+    S.COMPANY_CACHE_MAX = 3
+    S._atomic_write_json = lambda *a, **k: None      # لا كتابة قرص بالاختبار
+    _cache = {f"S{i}": {"float": i} for i in range(6)}   # 6 > الحد 3
+    S._save_company_cache(_cache)
+    check("ذاكرة الشركات محدودة بالحد الأعلى",
+          len(_cache) == 3)
+    check("ذاكرة الشركات تحتفظ بالأحدث (LRU)",
+          list(_cache.keys()) == ["S3", "S4", "S5"])
+finally:
+    S.COMPANY_CACHE_MAX, S._atomic_write_json = _cap0, _wj0
+    S.COMPANY_CACHE.clear()
+    S.COMPANY_CACHE.update(_cc0)
+
+# تقسيم الرسالة: السلوك الطبيعي + السطر الطويل بلا HTML يُقسَّم + سطر فيه وسم لا يُقسَّم
+check("التقسيم الطبيعي: رسالة قصيرة = قطعة واحدة",
+      S._chunk_message("سطر١\nسطر٢\nسطر٣") == ["سطر١\nسطر٢\nسطر٣"])
+_long = "كلمة " * 1000           # ~5000 محرف بلا وسوم
+_ch = S._chunk_message(_long, limit=3800)
+check("سطر طويل بلا HTML يُقسَّم لقطع ضمن الحد",
+      len(_ch) >= 2 and all(len(c) <= 3800 for c in _ch))
+_htmlline = "<b>" + (" x" * 2500) + "</b>"   # طويل لكن فيه وسم → لا يُقسَّم
+check("سطر فيه وسم HTML لا يُقسَّم (لا ينكسر الوسم)",
+      S._chunk_message(_htmlline, limit=3800) == [_htmlline])
+
 
 # ==========================================================
 # 4) قرارات البوابات على أرقام الصور الفعلية (اختبار مباشر للصور)
@@ -269,9 +296,10 @@ IMG = [
     ("FRSX", None, -0.066, -0.072, True, None, None),
 ]
 
-short_limit = S.CONFIG["SHORT_GATE_MAX"]     # 20,000
+short_limit = S.CONFIG["SHORT_GATE_MAX"]     # 40,000
 float_limit = S.CONFIG["FLOAT_GATE_MAX"]     # 50,000,000
 macd_ok_cnt = short_ok_cnt = float_ok_cnt = 0
+_fs_orig, _fd_orig = S.fintel_short, S.finra_daily_short   # تُستعاد بعد الحلقة
 for sym, rsi_v, ml, msig, exp_macd, srt, fl in IMG:
     # بوابة MACD (نفس منطق الكود: الخط ≥ الإشارة)
     if ml is not None and exp_macd is not None:
@@ -279,20 +307,25 @@ for sym, rsi_v, ml, msig, exp_macd, srt, fl in IMG:
         check(f"[{sym}] MACD بوابة تطابق الشارت", got == exp_macd,
               f"{ml} vs {msig} → {got}")
         macd_ok_cnt += 1
-    # بوابة الشورت (فيصل: تحت 20 ألف مقبول · 20ألف بالضبط = حدّي → مراقبة)
+    # بوابة الشورت: نُشغّل البوابة الحقيقية على رقم الصورة (لا نعيد كتابة الشرط).
+    # شورت تحت الحد = مقبول · الحد فأكثر = نقص «شورت عالٍ» يُبقيه B (لا حذف).
     if srt is not None:
-        if srt >= short_limit:   # شورت عالٍ → نقص «شورت عالٍ» يُبقيه B (لا حذف)
-            check(f"[{sym}] شورت {srt:,} عالٍ → نقص يبقيه B (لا حذف)",
-                  S.classify_tier(["شورت عالٍ"]) == "B")
-        else:
-            check(f"[{sym}] شورت {srt:,} مقبول (<20ألف)", srt < short_limit)
+        S.fintel_short = lambda q, _sym=sym, _s=srt: {_sym: _s}
+        S.finra_daily_short = lambda q: {}
+        _go = S.apply_short_gate([mk(sym)])
+        _is_high = "شورت عالٍ" in _go[0].get("soft_fails", [])
+        check(f"[{sym}] بوابة الشورت {srt:,} (عالٍ؟ {srt >= short_limit})",
+              _is_high == (srt >= short_limit))
         short_ok_cnt += 1
-    # بوابة الفلوت (فيصل: فلوت صغير <50م)
+    # بوابة الفلوت: نُشغّل البوابة الحقيقية (فلوت تحت 50م صغير · فأكثر = نقص لا حذف).
     if fl is not None:
-        passes = fl < float_limit
-        check(f"[{sym}] فلوت {fl:,} صغير (<50م)", passes)
+        _gf = S.apply_float_gate([mk(sym, float=fl)])
+        _is_big = "فلوت كبير" in _gf[0].get("soft_fails", [])
+        check(f"[{sym}] بوابة الفلوت {fl:,} (كبير؟ {fl >= float_limit})",
+              _is_big == (fl >= float_limit))
         float_ok_cnt += 1
 print(f"   (فُحص MACD لـ{macd_ok_cnt} سهم · شورت {short_ok_cnt} · فلوت {float_ok_cnt})")
+S.fintel_short, S.finra_daily_short = _fs_orig, _fd_orig   # استعادة بعد الحلقة
 
 
 # ==========================================================

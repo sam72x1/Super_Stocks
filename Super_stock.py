@@ -2291,12 +2291,14 @@ def enrich(results: list) -> None:
                 r["shares_out"] = _or_cache(info.get("sharesOutstanding"),
                                             cached, "shares_out")
                 # حدّث الذاكرة بالقيم المعروفة الآن (للتشغيلات القادمة)
-                COMPANY_CACHE[sym] = {k: r.get(k) for k in
-                                      ("sector", "industry", "business",
-                                       "country", "cash", "revenue",
-                                       "shares_out", "short_pct", "float",
-                                       "finra_short")
-                                      if r.get(k) is not None}
+                _cc_entry = {k: r.get(k) for k in
+                             ("sector", "industry", "business",
+                              "country", "cash", "revenue",
+                              "shares_out", "short_pct", "float",
+                              "finra_short")
+                             if r.get(k) is not None}
+                COMPANY_CACHE.pop(sym, None)      # LRU: ينقله لأحدث موضع
+                COMPANY_CACHE[sym] = _cc_entry
                 # تحذير جغرافي (تحذير فقط — السهم يظل يظهر حتى في A)
                 if r.get("country") in CONFIG.get("HIGH_RISK_COUNTRIES", []):
                     r.setdefault("warnings", []).append(
@@ -2872,6 +2874,32 @@ def code_version() -> str:
     return (os.environ.get("GITHUB_SHA") or "").strip()[:7] or "local"
 
 
+def _chunk_message(text: str, limit: int = 3800) -> list:
+    """تقسيم الرسالة على الأسطر ضمن حدّ تيليجرام. السطر الطويل جدًا **وبلا وسوم
+    HTML** يُقسَّم على أقرب مسافة (آمن — لا نقسم سطرًا فيه «<...>» حتى لا ينكسر
+    الوسم). احتياط نادر يمنع رفض الرسالة لو طال سطر بشكل غير متوقّع."""
+    chunks, cur = [], ""
+    for ln in text.split("\n"):
+        while len(ln) > limit and "<" not in ln:
+            cut = ln.rfind(" ", 0, limit)
+            if cut <= 0:
+                cut = limit
+            if cur:
+                chunks.append(cur)
+                cur = ""
+            chunks.append(ln[:cut])
+            ln = ln[cut:].lstrip(" ")
+        if len(cur) + len(ln) + 1 > limit:
+            if cur:
+                chunks.append(cur)
+            cur = ln
+        else:
+            cur = cur + "\n" + ln if cur else ln
+    if cur:
+        chunks.append(cur)
+    return chunks
+
+
 def send_telegram(text: str) -> bool:
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
         log("ℹ️ لا يوجد توكن تيليجرام — الطباعة على الشاشة فقط:")
@@ -2883,15 +2911,7 @@ def send_telegram(text: str) -> bool:
     # (لإضافة أصدقاء يستقبلون نفس الرسائل). رقم واحد يشتغل عادي.
     recipients = [c.strip() for c in TELEGRAM_CHAT.replace(";", ",").split(",")
                   if c.strip()]
-    chunks, cur = [], ""
-    for ln in text.split("\n"):
-        if len(cur) + len(ln) + 1 > 3800:
-            chunks.append(cur)
-            cur = ln
-        else:
-            cur = cur + "\n" + ln if cur else ln
-    if cur:
-        chunks.append(cur)
+    chunks = _chunk_message(text)
     # ختم الإصدار في كل رسالة (تعريف النسخة فورًا — ضمان ضد لبس الرسائل القديمة)
     stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}"
     chunks = [c + stamp for c in chunks]
@@ -2986,6 +3006,7 @@ def export_weekly_csvs(wl: dict, picks: list) -> None:
 # ==========================================================
 WATCH_FILE = "weekly_watchlist.json"   # ملف ذاكرة القائمة في الـ repo
 COMPANY_FILE = "company_cache.json"    # ذاكرة آخر قطاع/دولة معروفة لكل سهم
+COMPANY_CACHE_MAX = 5000               # حدّ علوي سخيّ لذاكرة الشركات (LRU)
 WEEKLY_RENEW_DAY = 4                   # 4 = الجمعة (الاثنين = 0)
 
 
@@ -3011,6 +3032,13 @@ def _atomic_write_json(path: str, data) -> None:
 
 def _save_company_cache(cache: dict) -> None:
     try:
+        # حدّ علوي سخيّ (LRU): نُبقي آخر COMPANY_CACHE_MAX رمزًا تم إثراؤه
+        # (الأحدث في النهاية). الأسهم النشطة تُثرى في كل تجديد فتبقى ضمن الأحدث
+        # ولا تُطرد بياناتها (تغطية ثابتة محفوظة) — يمنع النمو غير المحدود فقط.
+        if len(cache) > COMPANY_CACHE_MAX:
+            items = list(cache.items())[-COMPANY_CACHE_MAX:]
+            cache.clear()
+            cache.update(items)
         _atomic_write_json(COMPANY_FILE, cache)
     except Exception as e:
         log(f"⚠️ حفظ ذاكرة الشركات: {e}")
@@ -3560,42 +3588,6 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
     wl["stocks"] = [s for s in wl["stocks"] if s["status"] == "active"]
     wl["removed"].extend(newly)
     return newly
-
-
-def fill_replacements(wl: dict):
-    """جلب بدائل لمن شُطب في يوم *سابق* (قاعدة: الاستبدال اليوم التالي).
-    يرجع (نتائج البدائل، بياناتهم التاريخية)"""
-    today_iso = dt.date.today().isoformat()
-    pending = [rm for rm in wl["removed"]
-               if not rm.get("replaced")
-               and rm.get("removed_date")
-               and rm["removed_date"] < today_iso]
-    space = CONFIG["WATCHLIST_SIZE"] - len(wl["stocks"])
-    n = min(len(pending), max(space, 0))
-    if n <= 0:
-        if space > 0 and any(not rm.get("replaced") for rm in wl["removed"]):
-            log("شُطب اليوم → الاستبدال غداً (حسب القاعدة)")
-        return [], {}
-    exclude = ({s["symbol"] for s in wl["stocks"]}
-               | {rm["symbol"] for rm in wl["removed"]})
-    log(f"البحث عن {n} بديل من السوق...")
-    results, hist = scan_market()
-    picks = select_top(results, n, exclude)
-    added = []
-    for r, rm in zip(picks, pending, strict=False):
-        rm["replaced"] = True
-        wl["stocks"].append(make_watch_entry(r, today_iso))
-        wl["replacements_log"].append({
-            "date": today_iso, "out": rm["symbol"],
-            "in": r["symbol"], "score": r["score"]})
-        added.append(r)
-    if added:
-        log("أُضيف بديل: " + "، ".join(p["symbol"] for p in added))
-    elif n > 0:
-        log("لم يُعثر على بدائل تطابق الشروط اليوم — سيُعاد غداً")
-    sub_hist = {r["symbol"]: hist[r["symbol"]]
-                for r in added if r["symbol"] in hist}
-    return added, sub_hist
 
 
 def migrate_watchlist(wl: dict, history: dict) -> int:
