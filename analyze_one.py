@@ -342,13 +342,8 @@ def analyze_on_demand(sym: str):
     s_lo, s_hi = C["STOP_BELOW_LOW_PCT"]
     stop_hi = pivot * (1 - s_lo / 100.0)
     stop_lo = pivot * (1 - s_hi / 100.0)
-    # ستوب ATR ديناميكي (مطابق للبوت)
-    try:
-        atr_val = float(bot.atr(high, low, close).iloc[-1])
-    except Exception:
-        atr_val = 0.0
-    if C.get("USE_ATR_STOP", False) and atr_val > 0:
-        stop_lo = min(stop_lo, pivot - C["ATR_STOP_MULT"] * atr_val)
+    # وقف ATR أُلغي عمدًا (USE_ATR_STOP=False) — منهجية فيصل: 5-7% تحت القاع فقط
+    # (مطابق للبوت بعد إزالة فرع ATR الميت).
     big = price >= C["LARGE_PRICE_CUT"]
     d_lo, d_hi = (C["SWEEP_LARGE_PCT"] if big else C["SWEEP_SMALL_PCT"])
     sweep_lo = pivot * (1 - d_hi / 100.0)
@@ -415,8 +410,8 @@ def analyze_on_demand(sym: str):
     rr = (t1 - entry_ref) / risk
     rr2 = (t2 - entry_ref) / risk
     if rr < C["MIN_RR_T1"]:
-        warnings.append(f"عائد/مخاطرة الهدف الأول ضعيف ({rr:.1f}× < "
-                        f"{C['MIN_RR_T1']:.1f}× المطلوب)")
+        warnings.append(f"العائد مقابل المخاطرة منخفض ({rr:.1f}× — "
+                        f"المطلوب {C['MIN_RR_T1']:.1f}× على الأقل)")
 
     # مستويات الـ4 ساعات (منظومة فيصل) — طبقة مساندة، لا تمسّ الخطة اليومية
     try:
@@ -424,6 +419,11 @@ def analyze_on_demand(sym: str):
         h4_levels = bot.four_hour_levels(_h4, price) if _h4 is not None else None
     except Exception:
         h4_levels = None
+    # دمج فيصل #1: تنقيح t2/t3 بأهداف الـ4س (t1/RR مقفولان) — مطابقة لِما يُنقّح
+    # في enrich بالمسار الأساسي، فالفحص اليدوي = ما يراه المستخدم بالكرت بالضبط.
+    if h4_levels:
+        t2, t3 = bot.refine_targets_4h(t1, t2, t3, price, h4_levels)
+        rr2 = (t2 - entry_ref) / risk
 
     # نتيجة كاملة بكل المفاتيح التي يحتاجها build_message + الإثراء
     result = {

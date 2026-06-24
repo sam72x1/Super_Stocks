@@ -849,14 +849,15 @@ def render_scan(results):
         return ("🗓️ <b>مرشحو ناسداك (قوي فنياً + إعلان أرباح قريب)</b>\n"
                 f"التاريخ: {today}\n\n"
                 "لا توجد أسهم تطابق الشروط اليوم "
-                f"(قوة فنية ≥ {SCAN_MIN_SCORE}، سعر "
+                f"(قوة فنية {SCAN_MIN_SCORE} فأكثر، سعر "
                 f"${SCAN_MIN_PRICE:.0f}–${SCAN_MAX_PRICE:.0f}، "
                 f"أرباح خلال {SCAN_EARN_WINDOW} يوم).\n\n" + bot.FOOTER)
     L = ["🗓️ <b>مرشحو ناسداك (قوي فنياً + إعلان أرباح قريب)</b>",
          f"التاريخ: {today} | العدد: {len(results)}",
-         f"<i>الشروط: قوة فنية ≥ {SCAN_MIN_SCORE} · سعر "
-         f"${SCAN_MIN_PRICE:.0f}–${SCAN_MAX_PRICE:.0f} · سيولة ≥ "
-         f"${SCAN_MIN_DOLLAR_VOL/1e6:.0f}M · أرباح ≤ {SCAN_EARN_WINDOW}ي</i>",
+         f"<i>الشروط: قوة فنية {SCAN_MIN_SCORE} فأكثر · سعر "
+         f"${SCAN_MIN_PRICE:.0f}–${SCAN_MAX_PRICE:.0f} · سيولة "
+         f"${SCAN_MIN_DOLLAR_VOL/1e6:.0f}M فأكثر · أرباح خلال "
+         f"{SCAN_EARN_WINDOW}ي</i>",
          ""]
     for i, s in enumerate(results, 1):
         warn = "⚠️ " if s["earn_days"] <= EARNINGS_WARN_DAYS else ""
@@ -884,7 +885,7 @@ def render_scan(results):
 # ==========================================================
 def main():
     # وضع المسح اليومي
-    if os.environ.get("SCAN_EARNINGS", "").strip() in ("1", "true", "yes"):
+    if os.environ.get("SCAN_EARNINGS", "").strip().lower() in ("1", "true", "yes"):
         bot.log("🗓️ بدء مسح ناسداك (قوي فنياً + أرباح قريبة)...")
         results = scan_nasdaq_earnings()
         bot.send_telegram(render_scan(results))
