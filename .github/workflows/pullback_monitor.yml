@@ -6,9 +6,10 @@ on:
     - cron: "*/30 13-21 * * 1-5"
   workflow_dispatch: {}
 
-# يمنع تشغيلين متوازيين على نفس القائمة (تفادي تعارض الحفظ)
+# مجموعة تزامن مشتركة مع daily_screener: كلاهما يكتب weekly_watchlist.json،
+# فلا يعملان متزامنَين (يمنع تضارب git_save وفقدان حالة «triggered»).
 concurrency:
-  group: pullback-monitor
+  group: super-stocks-state
   cancel-in-progress: false
 
 permissions:

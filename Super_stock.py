@@ -1358,9 +1358,9 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             return _reject("M2_hi52")
         drop_pct = (1.0 - price / hi52) * 100.0
         if drop_pct > CONFIG["MAX_DROP_PCT"]:
-            return _reject("M2_هبوط>97")  # محتضر/فخ تقسيم
+            return _reject("M2_هبوط_فوق_97")  # محتضر/فخ تقسيم
         if drop_pct < CONFIG["MIN_DROP_FLOOR"]:
-            return _reject("M2_هبوط<40")   # تحت الأرضية = ليس ارتكازًا
+            return _reject("M2_هبوط_تحت_40")   # تحت الأرضية = ليس ارتكازًا
         if drop_pct < CONFIG["MIN_DROP_PCT"]:
             soft_fails.append(f"الهبوط {drop_pct:.0f}% (المثالي 50% فأكثر)")
 
@@ -1368,7 +1368,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # أرضية (<60%) = رفض. حدّي (60-100%) = نقص (B). مثالي (≥100%) = بلا عقوبة.
         best_spike, n_spikes = spike_info(c, exclude_last=CONFIG["BASE_WINDOW"])
         if best_spike < CONFIG["PRIOR_SPIKE_FLOOR"]:
-            return _reject("M3_انفجار<60")  # ما انفجر كفاية
+            return _reject("M3_انفجار_تحت_60")  # ما انفجر كفاية
         if best_spike < CONFIG["PRIOR_SPIKE_PCT"]:
             soft_fails.append(f"الانفجار السابق {best_spike:.0f}% (المثالي 100% فأكثر)")
 
@@ -1480,8 +1480,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
                     "(يفتح برجوعه قرب متوسطه)")
 
         # حد أقصى للنواقص هنا (M13/M14 شورت/فلوت تُضاف لاحقًا في الفرز)
-        if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
-            return _reject(f"نواقص>{CONFIG.get('WATCH_MAX_FAILS',2)}")
+        if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 3):
+            return _reject(f"نواقص_فوق_{CONFIG.get('WATCH_MAX_FAILS',3)}")
 
         # ---- M13: الشورت العالي — يُطبّق كمرحلة ثانية بعد الفرز ----
         # (الشورت يُجلب فقط للأسهم الناجحة لأن جلبه بطيء — لا يمكن لكل
@@ -1714,7 +1714,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
                          f"(+{dist:.0f}%)")
 
         if not pullback and score < CONFIG["SCORE_MIN"]:
-            return _reject(f"نقاط<{CONFIG['SCORE_MIN']}")
+            return _reject(f"نقاط_تحت_{CONFIG['SCORE_MIN']}")
 
         # ======== المستويات المقترحة ========
         pivot = ps["pivot"] if ps else float(low.tail(20).min())
@@ -1724,11 +1724,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         s_lo, s_hi = CONFIG["STOP_BELOW_LOW_PCT"]
         stop_hi = pivot * (1 - s_lo / 100.0)    # أعلى الوقف (أقرب للقاع)
         stop_lo = pivot * (1 - s_hi / 100.0)    # أدنى الوقف (تحت السحب)
-        # ستوب ATR ديناميكي (v2.7): يحترم تذبذب السهم الفعلي — نأخذ الأبعد
-        # (الأكثر أمانًا) بين نسبة 5-7% و(القاع - 1.5×ATR) حتى لا يُكنس.
-        if CONFIG.get("USE_ATR_STOP", False) and ind.get("atr", 0) > 0:
-            atr_stop = pivot - CONFIG["ATR_STOP_MULT"] * ind["atr"]
-            stop_lo = min(stop_lo, atr_stop)
+        # وقف ATR أُلغي عمدًا (USE_ATR_STOP=False): كان يعمّق الوقف ويُكنَس.
+        # منهجية فيصل: 5-7% تحت القاع فقط (قرار مقفول — لا تُعِد فرع ATR هنا).
         big = price >= CONFIG["LARGE_PRICE_CUT"]
         d_lo, d_hi = (CONFIG["SWEEP_LARGE_PCT"] if big
                       else CONFIG["SWEEP_SMALL_PCT"])
@@ -1846,8 +1843,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # متوافق مع قرار «ما نطلع صفر». لو تجاوز مجموع النواقص الحد → يُرفض.
         if rr < CONFIG["MIN_RR_T1"]:
             soft_fails.append("العائد مقابل المخاطرة منخفض")
-            if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 2):
-                return _reject("RR+نواقص>الحد")
+            if not pullback and len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS", 3):
+                return _reject("RR+نواقص_فوق_الحد")
 
         # ملخص حالة بوابات فيصل (للرسالة المختصرة) — كلها ✅ لأن السهم
         # اجتازها، لكن نعرضها للتأكيد البصري ولمعرفة قيمة كل شرط فعلياً
@@ -1856,17 +1853,17 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
                        or (m_line.iloc[-5:] > m_sig.iloc[-5:]).any())
         ma_dist = ((price / ema30_v - 1.0) * 100.0) if ema30_v > 0 else 0.0
         gates_status = {
-            "السعر≥2": (True, f"${price:.2f}"),
+            "السعر فوق 2": (True, f"${price:.2f}"),
             "هبوط 50-97%": (True, f"{drop_pct:.0f}%"),
-            "انفجار≥100%": (True, f"{best_spike:.0f}%"),
+            "انفجار 100% فأكثر": (True, f"{best_spike:.0f}%"),
             "قاعدة ضيقة": (True, f"{base_range:.0f}%"),
             "سيولة كافية": (True, fmt_money(dvol)),
             "توافق فريمات": (mtf["count"] >= CONFIG["TF_MIN_REVERSALS"],
                             f"{mtf['count']}/3"),
             "شمعة انعكاس": (bool(patterns),
                            "، ".join(patterns) if patterns else "لا"),
-            "RSI تشبع (≤27)": (r_min_recent <= CONFIG["RSI_OVERSOLD"],
-                              f"قاع {r_min_recent:.0f}"),
+            "RSI تشبع (27 أو أقل)": (r_min_recent <= CONFIG["RSI_OVERSOLD"],
+                                    f"قاع {r_min_recent:.0f}"),
             "RSI تحت 40": (r_now <= CONFIG["RSI_MAX_NOW"], f"{r_now:.0f}"),
             "تقاطع MACD": (macd_now_ok, "إيجابي" if macd_now_ok else "لا"),
             "على المتوسط الأسي": (
@@ -2272,11 +2269,12 @@ def enrich(results: list) -> None:
                 sp = info.get("shortPercentOfFloat")
                 r["short_pct"] = (round(sp * 100, 1) if sp
                                   else cached.get("short_pct"))
-                # عدد الشورت: FINRA→Yahoo(sharesShort)→آخر قيمة معروفة (يُكمّل
-                # سلسلة Fintel→FINRA→Yahoo الموثّقة فلا يختفي الشورت لو غاب عن FINRA)
+                # عدد الشورت (حجم يومي): لو غاب عن FINRA/Fintel استرجع آخر قيمة
+                # معروفة من الذاكرة — نفس المقياس بالضبط (لا نخلط بفائدة شورت
+                # Yahoo «sharesShort» بالملايين؛ بديل Yahoo يُعرَض كنسبة من الفلوت
+                # عبر short_pct). تغطية ثابتة بلا تلوّث مقياس.
                 if r.get("finra_short") is None:
-                    r["finra_short"] = _or_cache(info.get("sharesShort"),
-                                                 cached, "finra_short")
+                    r["finra_short"] = cached.get("finra_short")
                 # القيمة المجلوبة إن وُجدت، وإلا آخر قيمة معروفة (لا يختفي 🏢)
                 r["float"] = _or_cache(info.get("floatShares"), cached, "float")
                 r["sector"] = _or_cache(info.get("sector") or
@@ -2340,6 +2338,13 @@ def enrich(results: list) -> None:
                     # تأكيد 4س للترتيب — بنفس بيانات الـ4س المجلوبة (بلا تحميل زائد).
                     r["t2"], r["t3"] = refine_targets_4h(
                         r["t1"], r["t2"], r["t3"], r["price"], r["h4_levels"])
+                    # حدّث rr2 بعد تنقيح t2 (يُكتب في CSV الأسبوعي) — من متوسط
+                    # الدفعات نفسه، فلا يتعارض مع t2 الجديد (t1/rr مقفولان).
+                    try:
+                        _er = sum(r["tranches"]) / len(r["tranches"])
+                        r["rr2"] = (r["t2"] - _er) / max(_er - r["stop"][0], 1e-9)
+                    except Exception:
+                        pass
                     r["h4_confirm"] = h4_confirm_score(r)
                 else:
                     r["tf4h"] = "غير متوفر"
@@ -2753,7 +2758,7 @@ def build_message(results: list, splits: list,
         if _REJECT_STATS:   # تشخيص مباشر: أكثر البوابات رفضًا
             top = sorted(_REJECT_STATS.items(), key=lambda x: -x[1])[:6]
             lines.append("🔎 أكثر بوابة رفضت اليوم: "
-                         + " · ".join(f"{k}={v}" for k, v in top))
+                         + " · ".join(f"{esc(k)}={v}" for k, v in top))
     for r in results:
         # ===== بطاقة مختصرة ومرتّبة (v2.9): كل معلومة مهمّة بسطرها،
         #   والصغيرة (فلوت/شورت/قطاع) تتجمّع بسطر واحد. عرض فقط — لا يمسّ الحساب. =====
@@ -2773,11 +2778,16 @@ def build_message(results: list, splits: list,
         lines.append(f"💪 القوة العامة: {r.get('score', 0)}/100  {bar}  {slabel}")
         # المعلومات الصغيرة بسطر واحد (سعر · فلوت · شورت · قطاع · دولة)
         small = [f"${price:.2f}"]
-        if r.get("float"):
-            small.append(f"فلوت {fmt_money(r['float'])}")
+        # فلوت/شورت: لو تعذّر الجلب من كل المصادر نعرض شرطة «—» (وضوح: تعذّر
+        # الجلب ≠ صفر) بدل إخفاء الحقل بصمت (طلب المستخدم 2026-06-24).
+        small.append(f"فلوت {fmt_money(r['float'])}" if r.get("float") else "فلوت —")
         sv = (r.get("fintel") or {}).get("short_volume") or r.get("finra_short")
         if sv is not None:
             small.append(f"شورت {fmt_money(sv)}")
+        elif r.get("short_pct") is not None:
+            small.append(f"شورت {r['short_pct']}% من الفلوت")
+        else:
+            small.append("شورت —")
         sec = r.get("sector") or r.get("industry")
         if sec:
             small.append(esc(ar_sector(sec)))
@@ -3212,7 +3222,7 @@ def classify_tier(soft_fails, two_tier=None, maxf=None):
     0 → 'A' (صارمة) | 1..maxf → 'B' (مراقبة) | أكثر → None (يُرفض).
     دالة نقية لتسهيل الاختبار (تستخدمها scan_market)."""
     two_tier = CONFIG.get("WATCHLIST_TWO_TIER", True) if two_tier is None else two_tier
-    maxf = CONFIG.get("WATCH_MAX_FAILS", 2) if maxf is None else maxf
+    maxf = CONFIG.get("WATCH_MAX_FAILS", 3) if maxf is None else maxf
     n = len(soft_fails or [])
     if n == 0:
         return "A"
@@ -3357,7 +3367,7 @@ def scan_market():
                             "price": round(float(c[-1]), 2)})
     _MISSED.sort(key=lambda x: -x["gain_10d"])
     if _MISSED:
-        log(f"فرص فائتة (مرفوض صعد ≥{CONFIG['MISSED_RISE_PCT']:.0f}%): "
+        log(f"فرص فائتة (مرفوض صعد فوق {CONFIG['MISSED_RISE_PCT']:.0f}%): "
             f"{len(_MISSED)}")
     # M13: بوابة الشورت العالي (مرحلة ثانية على الناجحين فقط)
     results = apply_short_gate(results)
@@ -3824,10 +3834,14 @@ def build_daily_message(wl: dict, splits: list,
         lines.append(head)
         # المعلومات الصغيرة بسطر واحد (سعر · فلوت · شورت · قطاع)
         small = [f"${lp:.2f}"]
-        if s.get("float"):
-            small.append(f"فلوت {fmt_money(s['float'])}")
+        # فلوت/شورت: شرطة «—» عند تعذّر الجلب (تعذّر ≠ صفر) بدل الإخفاء الصامت.
+        small.append(f"فلوت {fmt_money(s['float'])}" if s.get("float") else "فلوت —")
         if s.get("short") is not None:
             small.append(f"شورت {fmt_money(s['short'])}")
+        elif s.get("short_pct") is not None:
+            small.append(f"شورت {s['short_pct']}% من الفلوت")
+        else:
+            small.append("شورت —")
         if s.get("sector"):
             small.append(esc(ar_sector(s["sector"])))
         if s.get("country"):
@@ -4075,7 +4089,7 @@ def build_dev_assistant_report(wl: dict) -> str:
                        (33, 41, "33-40"), (41, 200, "أعلى من 40")]))
     body += seg("حسب الفلوت", lambda r: _bucket(
         (r.get("float") or 0) / 1e6 if r.get("float") else None,
-        [(0, 10, "<10م"), (10, 30, "10-30م"), (30, 1e9, ">30م")]))
+        [(0, 10, "أقل من 10م"), (10, 30, "10-30م"), (30, 1e9, "أكثر من 30م")]))
     body += seg("حسب الشورت", lambda r: _bucket(
         r.get("short"),
         [(0, 20000, "20ألف أو أقل"), (20000, 40000, "20-40ألف"), (40000, 1e12, "أعلى من 40ألف")]))
@@ -4216,6 +4230,23 @@ def run_weekly_renewal(wl: dict) -> None:
         exclude = {s["symbol"] for s in wl["removed"]
                    if s["status"] == "stopped"}
     results, hist = scan_market()
+    # حارس ضد مسح القائمة: لو خُنق فحص الجمعة (تغطية بيانات ضعيفة/صفر نتائج)
+    # لا نستبدل القائمة النشطة بقائمة شبه فارغة — نُبقيها كما هي ويُؤجَّل التجديد
+    # للتشغيل القادم (المتابعات الجارية لا تُفقد). إصلاح 2026-06-24.
+    _uni = _SCAN_STATS.get("universe") or 0
+    _val = _SCAN_STATS.get("valid") or 0
+    _cov = (_val / _uni * 100.0) if _uni else 0.0
+    if not results or _cov < CONFIG["DATA_HEALTH_MIN_PCT"]:
+        log(f"⚠️ تجديد مُلغى: تغطية بيانات {_cov:.0f}% (خنق Yahoo؟) — "
+            "القائمة النشطة محفوظة بلا تغيير، يُعاد التجديد لاحقًا.")
+        try:
+            send_telegram("⚠️ <b>تأجّل تجديد القائمة الأسبوعية</b>\n"
+                          f"سبب: تغطية بيانات ضعيفة ({_cov:.0f}%) — غالبًا خنق "
+                          "مؤقت من Yahoo.\nالقائمة النشطة الحالية محفوظة كما هي، "
+                          "ويُعاد التجديد تلقائيًا في التشغيل القادم.")
+        except Exception as e:
+            log(f"⚠️ إشعار تأجيل التجديد: {e}")
+        return
     try:
         accumulate_explosions(wl, hist)   # كاشف الانفجارات (للتعلّم)
     except Exception as e:
@@ -4289,8 +4320,9 @@ def merge_pullback(wl: dict, hist: dict, exclude: set, today_iso: str) -> None:
     if not CONFIG.get("PULLBACK_WATCH", False):
         return
     existing = {e["symbol"] for e in wl.get("pullback", [])}
-    active = [e for e in wl.get("pullback", []) if e.get("status") != "triggered"]
-    space = CONFIG.get("PULLBACK_SIZE", 10) - len(active)
+    # الحد على إجمالي القائمة (يشمل «triggered») حتى لا تتجاوز PULLBACK_SIZE
+    # بتراكم المُفعّلة فوق الحد بين تجديدات الجمعة (إصلاح 2026-06-24).
+    space = CONFIG.get("PULLBACK_SIZE", 10) - len(wl.get("pullback", []))
     if space <= 0:
         return
     cands = scan_pullback(hist, exclude=exclude | existing)
@@ -4393,8 +4425,10 @@ def run_daily_watchlist(wl: dict) -> None:
     pull_sec = build_pullback_section(watching, pull_triggered)
     if pull_sec:
         msg += "\n\n" + pull_sec
-    send_telegram(msg)
+    # احفظ حالة اليوم (ترقيات/تنبيهات/تحديثات) قبل الإرسال — لو فشل الإرسال
+    # (شبكة/تيليجرام) لا تضيع الحالة المحسوبة (إصلاح 2026-06-24).
     save_watchlist(wl)
+    send_telegram(msg)
     write_csv([{
         "symbol": s["symbol"], "readiness%": s["readiness"],
         "price": s["last_price"], "pivot": s["pivot"], "stop": s["stop"],

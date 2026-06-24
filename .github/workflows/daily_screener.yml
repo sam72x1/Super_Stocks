@@ -2,7 +2,9 @@ name: Daily Pivot Screener
 permissions:
   contents: write
 concurrency:
-  group: daily-screener
+  # مجموعة مشتركة مع pullback_monitor: كلاهما يكتب weekly_watchlist.json،
+  # فلا يعملان متزامنَين (يمنع تضارب git_save وفقدان حالة «triggered»).
+  group: super-stocks-state
   cancel-in-progress: false
 on:
   schedule:

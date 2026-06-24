@@ -281,8 +281,9 @@ for sym, rsi_v, ml, msig, exp_macd, srt, fl in IMG:
         macd_ok_cnt += 1
     # بوابة الشورت (فيصل: تحت 20 ألف مقبول · 20ألف بالضبط = حدّي → مراقبة)
     if srt is not None:
-        if srt >= short_limit:   # GWAV=20ألف بالضبط (فيصل وصفه «تهييض»)
-            check(f"[{sym}] شورت {srt:,} حدّي → مراقبة B", True)
+        if srt >= short_limit:   # شورت عالٍ → نقص «شورت عالٍ» يُبقيه B (لا حذف)
+            check(f"[{sym}] شورت {srt:,} عالٍ → نقص يبقيه B (لا حذف)",
+                  S.classify_tier(["شورت عالٍ"]) == "B")
         else:
             check(f"[{sym}] شورت {srt:,} مقبول (<20ألف)", srt < short_limit)
         short_ok_cnt += 1
@@ -363,6 +364,24 @@ try:
           "/100" in dm and "قوة" in dm)
     check("التقرير اليومي يعرض «دخول المضارب» (Williams)",
           "دخول المضارب" in dm)
+    # شرطة «—» عند تعذّر جلب الفلوت/الشورت (طلب المستخدم 2026-06-24) — تعذّر ≠ صفر
+    if wl["stocks"]:
+        _d = dict(wl["stocks"][0])
+        _d["float"], _d["short"], _d["short_pct"] = None, None, None
+        _wld = {"week_start": "2024-01-01", "stocks": [_d],
+                "removed": [], "notes": []}
+        _dmd = S.build_daily_message(_wld, [], [], [])
+        check("التقرير اليومي: شرطة «—» عند تعذّر الفلوت/الشورت",
+              "فلوت —" in _dmd and "شورت —" in _dmd)
+    # بديل Yahoo: نسبة الشورت من الفلوت تظهر لو غاب الحجم اليومي
+    if wl["stocks"]:
+        _d2 = dict(wl["stocks"][0])
+        _d2["short"], _d2["short_pct"] = None, 6.9
+        _wld2 = {"week_start": "2024-01-01", "stocks": [_d2],
+                 "removed": [], "notes": []}
+        _dmd2 = S.build_daily_message(_wld2, [], [], [])
+        check("التقرير اليومي: شورت كنسبة من الفلوت عند غياب الحجم",
+              "6.9% من الفلوت" in _dmd2)
 except Exception as e:
     check("build_daily_message يعمل", False, str(e))
 
@@ -398,12 +417,19 @@ _wlc = {"stocks": [{"symbol": "CCC", "status": "active", "tier": "B",
         "notes": []}
 S.analyze_ticker = lambda sym, d: {"soft_fails": [], "liberation": None,
                                    "key_levels": {"sup_major": 3.0}}
-S.COMPANY_CACHE["CCC"] = {"sector": "Technology", "country": "United States"}
+S.COMPANY_CACHE["CCC"] = {"sector": "Technology", "country": "United States",
+                          "finra_short": 12345, "float": 9_000_000,
+                          "short_pct": 5.5}
 S.check_promotions(_wlc, {"CCC": synth_pivot(seed=9)})
 check("تحديث يومي: القطاع/الدولة من الذاكرة + المستويات",
       _wlc["stocks"][0].get("sector") == "Technology"
       and _wlc["stocks"][0].get("country") == "United States"
       and _wlc["stocks"][0].get("key_levels", {}).get("sup_major") == 3.0)
+# استرجاع الفلوت/الشورت/النسبة من الذاكرة (إصلاح 2026-06-24 — لا تختفي)
+check("تحديث يومي: الفلوت/الشورت/النسبة تُسترجع من الذاكرة",
+      _wlc["stocks"][0].get("float") == 9_000_000
+      and _wlc["stocks"][0].get("short") == 12345
+      and _wlc["stocks"][0].get("short_pct") == 5.5)
 S.COMPANY_CACHE.pop("CCC", None)
 S.analyze_ticker = _orig
 
