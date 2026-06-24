@@ -82,14 +82,23 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.39
+   "last_price": 4.38
   },
   {
    "symbol": "UPB",
@@ -169,14 +178,23 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 40,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 6.41
+   "last_price": 6.37
   }
  ],
  "removed": [],
@@ -209,7 +227,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 10910374,
-   "last_price": 4.525,
+   "last_price": 4.85,
    "status": "watching",
    "triggered_date": null
   },
@@ -239,7 +257,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 7384774,
-   "last_price": 7.015,
+   "last_price": 7.025,
    "status": "watching",
    "triggered_date": null
   },
@@ -300,7 +318,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 7000000,
-   "last_price": 1.68,
+   "last_price": 1.63,
    "status": "watching",
    "triggered_date": null
   },
@@ -332,7 +350,7 @@
    "sector": "Healthcare",
    "country": "Cayman Islands",
    "float": null,
-   "last_price": 7.95,
+   "last_price": 7.84,
    "status": "watching",
    "triggered_date": null
   },
@@ -363,7 +381,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 2886804,
-   "last_price": 5.98,
+   "last_price": 5.92,
    "status": "watching",
    "triggered_date": null
   },
@@ -395,7 +413,7 @@
    "sector": "Healthcare",
    "country": "Singapore",
    "float": 920634,
-   "last_price": 6.025,
+   "last_price": 5.6602,
    "status": "watching",
    "triggered_date": null
   },
@@ -424,7 +442,7 @@
    "sector": "Financial Services",
    "country": "United States",
    "float": 696780,
-   "last_price": 9.9501,
+   "last_price": 9.82,
    "status": "watching",
    "triggered_date": null
   },
@@ -454,7 +472,7 @@
    "sector": "Basic Materials",
    "country": "Malaysia",
    "float": 1758475,
-   "last_price": 2.24,
+   "last_price": 2.1,
    "status": "watching",
    "triggered_date": null
   },
@@ -484,7 +502,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 12939475,
-   "last_price": 4.86,
+   "last_price": 4.7601,
    "status": "watching",
    "triggered_date": null
   },
@@ -609,7 +627,7 @@
    "sector": "Basic Materials",
    "country": "Israel",
    "float": 426449,
-   "last_price": 6.2501,
+   "last_price": 6.1869,
    "status": "watching",
    "triggered_date": null
   },
@@ -639,7 +657,7 @@
    "sector": "Financial Services",
    "country": "Singapore",
    "float": 975172,
-   "last_price": 1.87,
+   "last_price": 1.83,
    "status": "watching",
    "triggered_date": null
   }
@@ -2389,6 +2407,14 @@
    "expl_date": "2026-06-24",
    "gain": 53.0,
    "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "FMFC",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-24",
+   "gain": 65.0,
+   "reason": "M1_سعر",
    "was_pivot": false
   }
  ]
