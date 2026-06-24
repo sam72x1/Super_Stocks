@@ -3781,7 +3781,7 @@ def build_pullback_section(entries: list, triggered: list = None) -> str:
         return ""
     lines = []
     if triggered:
-        lines.append("🎯 <b>وصلت الدعم — جاهزة للدخول!</b>")
+        lines.append("🎯 <b>وصلت منطقة الدخول — جاهزة!</b>")
         for e in triggered:
             lines.append(f"• <b>{e['symbol']}</b> نزل ${e['last_price']:.2f} "
                          f"≈ دخول ${e['entry'][1]:.2f} · وقف ${e['stop']:.2f} "
@@ -3789,13 +3789,13 @@ def build_pullback_section(entries: list, triggered: list = None) -> str:
         lines.append("")
     if entries:
         lines.append("👁️ <b>مراقبة للارتداد</b> "
-                     "(ارتكاز ارتفع — ننتظر رجوعه لسعر الدعم):")
+                     "(ارتكاز ارتفع — ننتظر رجوعه لمنطقة الدخول):")
         for e in entries:
             tgt = e["entry"][1]
             dist = (e["last_price"] / tgt - 1.0) * 100.0 if tgt else 0.0
             sec = f" · {esc(ar_sector(e['sector']))}" if e.get("sector") else ""
             lines.append(f"• <b>{e['symbol']}</b> ${e['last_price']:.2f} "
-                         f"→ دخول الدعم ${tgt:.2f} (يبعد {dist:+.0f}%){sec}")
+                         f"→ منطقة الدخول ${tgt:.2f} (يبعد {dist:+.0f}%){sec}")
         lines.append("<i>يُنبَّه تلقائيًا أول ما ينزل لسعر الدعم.</i>")
     return _rtl_join(lines)
 
