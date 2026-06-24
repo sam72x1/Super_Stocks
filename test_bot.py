@@ -263,6 +263,40 @@ _htmlline = "<b>" + (" x" * 2500) + "</b>"   # طويل لكن فيه وسم →
 check("سطر فيه وسم HTML لا يُقسَّم (لا ينكسر الوسم)",
       S._chunk_message(_htmlline, limit=3800) == [_htmlline])
 
+# === حُرّاس الفحص العميق 2026-06-24 (ثلاث ملاحظات حرجة) ===
+# 1) apply_short_gate: Fintel يرجّع dict — لا تنكسر المقارنة وتُخزَّن int
+_fs0b, _fd0b = S.fintel_short, S.finra_daily_short
+try:
+    S.fintel_short = lambda q: {"FX": {"short_volume": 55000, "si_pct_float": 3.1}}
+    S.finra_daily_short = lambda q: {}
+    _rx = {"symbol": "FX", "soft_fails": [], "flags": [], "finra_short": None}
+    _outx = S.apply_short_gate([_rx])
+    check("بوابة الشورت تتحمّل dict من Fintel (لا كراش) وتخزّن الحجم int",
+          _rx.get("finra_short") == 55000
+          and "شورت عالٍ" in _rx.get("soft_fails", []))
+finally:
+    S.fintel_short, S.finra_daily_short = _fs0b, _fd0b
+
+# 2) migrate_watchlist: لا يختم نسخة المنطق لو تُخطّي سهم لنقص بيانات
+_old_lv = S.LOGIC_VERSION
+_wlmg = {"logic_version": "OLD_X", "stocks": [
+    {"symbol": "AAA", "status": "active"}, {"symbol": "BBB", "status": "active"}]}
+S.migrate_watchlist(_wlmg, {})   # لا بيانات لأيٍّ منهما → migrated=0
+check("الترحيل لا يختم النسخة عند تخطّي أسهم (بيانات مخنوقة)",
+      _wlmg.get("logic_version") == "OLD_X")
+
+# 3) حارس التجديد: فشل جلب الكون يضبط عَلَم universe_fallback (يمنع المسح لاحقًا)
+_gu0, _dh0, _mode0 = S.get_universe, S.download_history, S.MODE
+try:
+    S.get_universe = lambda: []           # محاكاة فشل جلب ناسداك
+    S.download_history = lambda syms: {}   # لا بيانات
+    S.MODE = "FULL"
+    S.scan_market()
+    check("فشل جلب الكون يضبط عَلَم universe_fallback (حارس ضد المسح)",
+          S._SCAN_STATS.get("universe_fallback") is True)
+finally:
+    S.get_universe, S.download_history, S.MODE = _gu0, _dh0, _mode0
+
 
 # ==========================================================
 # 4) قرارات البوابات على أرقام الصور الفعلية (اختبار مباشر للصور)
@@ -615,8 +649,8 @@ check("كاشف الانفجارات: يتجاهل ما دون العتبة",
 S._MISSED.clear()
 S._MISSED += [
     {"symbol": "MOVEDX", "reason": "M4_base_واسعة", "gain_10d": 80.0, "price": 4.0},
-    {"symbol": "BIGCAP", "reason": "M2_هبوط<40", "gain_10d": 40.0, "price": 90.0},
-    {"symbol": "SPLITX", "reason": "M2_هبوط>97", "gain_10d": 999.0, "price": 30.0},
+    {"symbol": "BIGCAP", "reason": "M2_هبوط_تحت_40", "gain_10d": 40.0, "price": 90.0},
+    {"symbol": "SPLITX", "reason": "M2_هبوط_فوق_97", "gain_10d": 999.0, "price": 30.0},
 ]
 _mrep = S.build_dev_assistant_report({"stocks": [], "notes": []})
 S._MISSED.clear()
@@ -624,6 +658,14 @@ check("الفائتة تُفصل: ارتكاز تحرّك عن «ليس ارتك
       "ارتكاز تحرّك (راجع الارتداد): <b>1</b>" in _mrep
       and "ليس ارتكازًا (تجاهل صحيح): 2" in _mrep
       and "MOVEDX" in _mrep and "BIGCAP" not in _mrep)
+
+# أكواد الرفض خالية من علامات < > (تكسر HTML تيليجرام) — حارس ضد الانحدار
+import re as _re_codes
+_src_sb = open("Super_stock.py", encoding="utf-8").read()
+_rcodes = _re_codes.findall(r'_reject\(\s*f?["\']([^"\']*)["\']', _src_sb)
+check("أكواد الرفض خالية من علامات المقارنة < > (لا تكسر تيليجرام)",
+      bool(_rcodes) and all("<" not in rc and ">" not in rc for rc in _rcodes),
+      f"عدد الأكواد المفحوصة: {len(_rcodes)}")
 
 # 📐 حجم المركز: مخاطرة ثابتة من رأس المال
 _ps = S.position_size(1.75, 1.39)   # risk/سهم=0.36 · 1% من 10000=100
