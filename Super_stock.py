@@ -2250,6 +2250,10 @@ def enrich(results: list) -> None:
         # سلسلة fintel→FINRA الموثّقة للقيمة المخزّنة (Yahoo يُضاف داخل كتلة .info)
         if r["finra_short"] is None:
             r["finra_short"] = r["fintel"].get("short_volume")
+        # نلتقط قيمة بوابة الفلوت/الشورت المجلوبة في scan_market كاحتياط أخير قبل
+        # التصفير وإعادة الجلب (لا تضيع لو خُنق .info — إصلاح فحص 2026-06-24).
+        _prev_float = r.get("float")
+        _prev_short_pct = r.get("short_pct")
         r["short_pct"] = None
         r["float"] = None
         r["recent_split"] = None
@@ -2268,7 +2272,7 @@ def enrich(results: list) -> None:
                 cached = COMPANY_CACHE.get(sym, {})    # آخر قيم معروفة
                 sp = info.get("shortPercentOfFloat")
                 r["short_pct"] = (round(sp * 100, 1) if sp
-                                  else cached.get("short_pct"))
+                                  else cached.get("short_pct") or _prev_short_pct)
                 # عدد الشورت (حجم يومي): لو غاب عن FINRA/Fintel استرجع آخر قيمة
                 # معروفة من الذاكرة — نفس المقياس بالضبط (لا نخلط بفائدة شورت
                 # Yahoo «sharesShort» بالملايين؛ بديل Yahoo يُعرَض كنسبة من الفلوت
@@ -2276,7 +2280,8 @@ def enrich(results: list) -> None:
                 if r.get("finra_short") is None:
                     r["finra_short"] = cached.get("finra_short")
                 # القيمة المجلوبة إن وُجدت، وإلا آخر قيمة معروفة (لا يختفي 🏢)
-                r["float"] = _or_cache(info.get("floatShares"), cached, "float")
+                r["float"] = (_or_cache(info.get("floatShares"), cached, "float")
+                              or _prev_float)
                 r["sector"] = _or_cache(info.get("sector") or
                                         info.get("industry"), cached, "sector")
                 r["industry"] = _or_cache(info.get("industry"),
@@ -3099,7 +3104,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "entry": [round(r["entry"][0], 4), round(r["entry"][1], 4)],
         "tranches": [round(p, 4) for p in (r.get("tranches") or r["entry"])],
         "pivot": round(r["pivot"], 4),
-        "stop": round(r["stop"][0], 4),        # الوقف الأبعد (2% تحت القاع)
+        "stop": round(r["stop"][0], 4),        # الوقف الأبعد (~7% تحت القاع)
         "stop_hi": round(r["stop"][1], 4),
         "t1": round(r["t1"], 4), "t2": round(r["t2"], 4),
         "t3": round(r["t3"], 4),
@@ -3174,6 +3179,10 @@ def apply_short_gate(results: list) -> list:
     limit = CONFIG["SHORT_GATE_MAX"]
     for r in results:
         srt = short_map.get(r["symbol"])
+        # Fintel يرجّع dict {short_volume, si_pct_float} — نستخرج الحجم اليومي
+        # (مثل enrich) فلا تنكسر المقارنة/التخزين بقيمة dict.
+        if isinstance(srt, dict):
+            srt = srt.get("short_volume")
         # نعيد استعمال القيمة المجلوبة هنا للتخزين/العرض بدل رميها (لا يمسّ
         # قرار البوابة: القرار أدناه يعتمد srt المحلي لا finra_short).
         if srt is not None and r.get("finra_short") is None:
@@ -3279,6 +3288,10 @@ def scan_explosions(history: dict) -> list:
     يعيد استخدام البيانات المحمّلة (لا تحميل إضافي)."""
     global _CUR_SYM
     today = dt.date.today().isoformat()
+    # تحليل الشرائح التاريخية أدناه يستدعي analyze_ticker الذي يلوّث خرائط الرفض
+    # الحيّة عبر _reject — نلتقط نسخة ونستعيدها في النهاية (لا يفسد الإحصاء الحي).
+    _snap_reasons = dict(_REJECT_REASONS)
+    _snap_stats = dict(_REJECT_STATS)
     out = []
     for sym, df in history.items():
         try:
@@ -3288,25 +3301,39 @@ def scan_explosions(history: dict) -> list:
         if len(c) < CONFIG["MIN_BARS"] + 1:
             continue
         look = min(int(CONFIG["EXPLOSION_LOOKBACK"]), len(c) - 1)
-        gains = [(c[-k] / c[-k - 1] - 1.0) * 100.0 for k in range(1, look + 1)
-                 if c[-k - 1] > 0]
+        # نتتبّع إزاحة اليوم k مع كل قفزة (لا نعتمد .index على قائمة مُرشَّحة قد
+        # تُسقط أيامًا بإغلاق ≤0 فينحرف موقع يوم الانفجار).
+        gains = [(k, (c[-k] / c[-k - 1] - 1.0) * 100.0)
+                 for k in range(1, look + 1) if c[-k - 1] > 0]
         if not gains:
             continue
-        g = max(gains)
+        k_max, g = max(gains, key=lambda p: p[1])
         if g < CONFIG["EXPLOSION_PCT"]:
             continue
-        idx = len(c) - 1 - gains.index(g)        # موقع يوم الانفجار
+        idx = len(c) - k_max                      # موقع يوم الانفجار (مطلق، صحيح)
+        # تاريخ يوم الانفجار الفعلي (لا تاريخ المسح) — حتى لا يُحسَب نفس الانفجار
+        # عدّة مرّات عبر أيام النافذة (dedup = symbol + تاريخ الانفجار).
+        try:
+            expl_date = df.index[idx].date().isoformat()
+        except Exception:
+            expl_date = today
         reason = _REJECT_REASONS.get(sym, "—")    # لماذا لم يُرشّح اليوم
         was_pivot = False
-        slice_df = df.iloc[:idx]                  # بياناته قبل يوم الانفجار
+        slice_df = df.iloc[:idx]                   # بياناته قبل يوم الانفجار
         if len(slice_df) >= CONFIG["MIN_BARS"]:
             try:
                 was_pivot = analyze_ticker(sym, slice_df) is not None
             except Exception:
                 was_pivot = False
-        out.append({"symbol": sym, "date": today, "gain": round(g, 0),
-                    "reason": reason, "was_pivot": bool(was_pivot)})
+        out.append({"symbol": sym, "date": today, "expl_date": expl_date,
+                    "gain": round(g, 0), "reason": reason,
+                    "was_pivot": bool(was_pivot)})
     _CUR_SYM = None
+    # استعادة خرائط الرفض كما كانت قبل تحليل الشرائح التاريخية (لا تلوّث الحيّة)
+    _REJECT_REASONS.clear()
+    _REJECT_REASONS.update(_snap_reasons)
+    _REJECT_STATS.clear()
+    _REJECT_STATS.update(_snap_stats)
     out.sort(key=lambda x: -x["gain"])
     return out
 
@@ -3316,10 +3343,16 @@ def accumulate_explosions(wl: dict, history: dict) -> int:
     بآخر EXPLOSION_KEEP_DAYS يوم) — يُعرض في تقرير مساعد التطوير الجمعة."""
     found = scan_explosions(history)
     log_ex = wl.setdefault("explosions", [])
-    seen = {(e["symbol"], e["date"]) for e in log_ex}
+    # dedup على **تاريخ الانفجار الفعلي** (expl_date) لا تاريخ المسح — فلا يُحسب
+    # نفس الانفجار عدّة مرّات عبر أيام نافذة المسح. التاريخ المعروض/الانقضاء يبقى
+    # تاريخ المسح (date) للحفاظ على نافذة الاحتفاظ. إصلاح فحص 2026-06-24.
+    def _ek(e):
+        return (e["symbol"], e.get("expl_date", e.get("date")))
+    seen = {_ek(e) for e in log_ex}
     for e in found:
-        if (e["symbol"], e["date"]) not in seen:
+        if _ek(e) not in seen:
             log_ex.append(e)
+            seen.add(_ek(e))
     cutoff = (dt.date.today()
               - dt.timedelta(days=int(CONFIG["EXPLOSION_KEEP_DAYS"]))).isoformat()
     wl["explosions"] = [e for e in log_ex if e.get("date", "") >= cutoff][-300:]
@@ -3350,11 +3383,13 @@ def scan_pullback(history: dict, exclude: set = None) -> list:
 
 def scan_market():
     """فرز السوق (تجديد الجمعة أو جلب بدائل) — يرجع (نتائج مرتبة، بيانات)"""
+    _SCAN_STATS["universe_fallback"] = False
     if MODE == "FULL":
         universe = get_universe()
         if not universe:
             log("⚠️ فشل جلب الكون — التحويل لوضع TEST")
             universe = CONFIG["TEST_TICKERS"]
+            _SCAN_STATS["universe_fallback"] = True   # عيّنة اختبار صغيرة ≠ السوق
     else:
         universe = CONFIG["TEST_TICKERS"]
         log(f"وضع تجربة: {len(universe)} سهم من العينة الموثقة")
@@ -3597,10 +3632,9 @@ def migrate_watchlist(wl: dict, history: dict) -> int:
     تاريخ الإضافة/المرجع/التصنيف. يرجع عدد الأسهم المُحدّثة."""
     if wl.get("logic_version") == LOGIC_VERSION:
         return 0
+    active = [s for s in wl.get("stocks", []) if s.get("status") == "active"]
     migrated = 0
-    for s in wl.get("stocks", []):
-        if s.get("status") != "active":
-            continue
+    for s in active:
         df = history.get(s["symbol"])
         if df is None or len(df) < CONFIG["MIN_BARS"]:
             continue
@@ -3628,7 +3662,11 @@ def migrate_watchlist(wl: dict, history: dict) -> int:
         s["drop_pct"] = fresh.get("drop_pct")
         s["best_spike"] = fresh.get("best_spike")
         migrated += 1
-    wl["logic_version"] = LOGIC_VERSION
+    # لا نختم نسخة المنطق إلا لو رُحّل كل سهم نشط فعلًا — لو خُنقت البيانات
+    # وتُخطّي بعضها نُبقي النسخة القديمة فيُعاد الترحيل لاحقًا (لا عَلَم زائف
+    # يترك قيمًا قديمة بلا تحديث). إصلاح فحص 2026-06-24.
+    if migrated == len(active):
+        wl["logic_version"] = LOGIC_VERSION
     if migrated:
         log(f"ترحيل القائمة لنسخة المنطق {LOGIC_VERSION}: "
             f"حُدّث {migrated} سهم تلقائيًا")
@@ -4060,7 +4098,8 @@ def build_dev_assistant_report(wl: dict) -> str:
         items.sort(key=lambda x: -x[1][1])
         out = [f"\n📊 <b>{title}</b>"]
         for k, (gn, gwr, gmg) in items:
-            out.append(f"   • {k}: {gwr:.0f}% نجاح ({gn} صفقة · {gmg:+.0f}% متوسط)")
+            out.append(f"   • {esc(str(k))}: {gwr:.0f}% نجاح "
+                       f"({gn} صفقة · {gmg:+.0f}% متوسط)")
         return out
 
     def _bucket(v, edges):
@@ -4122,7 +4161,7 @@ def build_dev_assistant_report(wl: dict) -> str:
         top_sec = sorted(sec_cnt.items(), key=lambda x: -x[1])[:2]
         if top_sec:
             fails.append("   • أكثر قطاعات الخسارة: "
-                         + "، ".join(f"{k} ({v})" for k, v in top_sec))
+                         + "، ".join(f"{esc(str(k))} ({v})" for k, v in top_sec))
     body += fails if len(fails) > 1 else []
 
     # عمق الأهداف: أي هدف نوصله؟ وكم يطول؟ (هل أهدافنا واقعية / نخرج بدري؟)
@@ -4203,8 +4242,34 @@ def run_weekly_renewal(wl: dict) -> None:
     wrap = build_wrapup_message(wl)
     if wrap:
         send_telegram(wrap)
-    # 2) أرشفة (آخر 26 أسبوع للتعلم التراكمي + مساعد التطوير) — نحفظ سمات
-    #    الدخول مع النتيجة حتى نربط «ليش نجح/فشل» لاحقًا.
+    # 3) فرز جديد واختيار القائمة
+    exclude = set()
+    if CONFIG["EXCLUDE_STOPPED_FROM_RENEWAL"]:
+        exclude = {s["symbol"] for s in wl["removed"]
+                   if s["status"] == "stopped"}
+    results, hist = scan_market()
+    # حارس ضد مسح القائمة: لو خُنق فحص الجمعة (تغطية ضعيفة/صفر نتائج) **أو** فشل
+    # جلب كون ناسداك (يتحوّل لعيّنة اختبار صغيرة تغطيتها ~100% فيخدع حساب التغطية)
+    # — لا نستبدل القائمة النشطة. نحفظ الستوبات المرصودة ونُبقي القائمة، ويُؤجَّل
+    # التجديد للتشغيل القادم (المتابعات الجارية لا تُفقد). إصلاح فحص 2026-06-24.
+    _uni = _SCAN_STATS.get("universe") or 0
+    _val = _SCAN_STATS.get("valid") or 0
+    _cov = (_val / _uni * 100.0) if _uni else 0.0
+    _fallback = _SCAN_STATS.get("universe_fallback", False)
+    if not results or _cov < CONFIG["DATA_HEALTH_MIN_PCT"] or _fallback:
+        _why = ("فشل جلب كون ناسداك (عيّنة اختبار صغيرة)" if _fallback
+                else f"تغطية بيانات ضعيفة ({_cov:.0f}%) — غالبًا خنق مؤقت من Yahoo")
+        log(f"⚠️ تجديد مُلغى: {_why} — القائمة النشطة محفوظة، يُعاد التجديد لاحقًا.")
+        save_watchlist(wl)   # نحفظ الستوبات المرصودة (لا تضيع) — القائمة كما هي
+        try:
+            send_telegram("⚠️ <b>تأجّل تجديد القائمة الأسبوعية</b>\n"
+                          f"السبب: {_why}.\nالقائمة النشطة الحالية محفوظة كما هي، "
+                          "ويُعاد التجديد تلقائيًا في التشغيل القادم.")
+        except Exception as e:
+            log(f"⚠️ إشعار تأجيل التجديد: {e}")
+        return
+    # 2) أرشفة الأسبوع المنتهي (فقط عند تجديد فعلي — لا على مسار التأجيل) —
+    #    نحفظ سمات الدخول مع النتيجة لربط «ليش نجح/فشل» لاحقًا.
     if wl.get("week_start"):
         summary = {"week_start": wl["week_start"], "ended": today_iso,
                    "stocks": [{k: s.get(k) for k in
@@ -4216,29 +4281,6 @@ def run_weekly_renewal(wl: dict) -> None:
                               for s in wl["stocks"] + wl["removed"]]}
         wl.setdefault("history", []).append(summary)
         wl["history"] = wl["history"][-26:]
-    # 3) فرز جديد واختيار القائمة
-    exclude = set()
-    if CONFIG["EXCLUDE_STOPPED_FROM_RENEWAL"]:
-        exclude = {s["symbol"] for s in wl["removed"]
-                   if s["status"] == "stopped"}
-    results, hist = scan_market()
-    # حارس ضد مسح القائمة: لو خُنق فحص الجمعة (تغطية بيانات ضعيفة/صفر نتائج)
-    # لا نستبدل القائمة النشطة بقائمة شبه فارغة — نُبقيها كما هي ويُؤجَّل التجديد
-    # للتشغيل القادم (المتابعات الجارية لا تُفقد). إصلاح 2026-06-24.
-    _uni = _SCAN_STATS.get("universe") or 0
-    _val = _SCAN_STATS.get("valid") or 0
-    _cov = (_val / _uni * 100.0) if _uni else 0.0
-    if not results or _cov < CONFIG["DATA_HEALTH_MIN_PCT"]:
-        log(f"⚠️ تجديد مُلغى: تغطية بيانات {_cov:.0f}% (خنق Yahoo؟) — "
-            "القائمة النشطة محفوظة بلا تغيير، يُعاد التجديد لاحقًا.")
-        try:
-            send_telegram("⚠️ <b>تأجّل تجديد القائمة الأسبوعية</b>\n"
-                          f"سبب: تغطية بيانات ضعيفة ({_cov:.0f}%) — غالبًا خنق "
-                          "مؤقت من Yahoo.\nالقائمة النشطة الحالية محفوظة كما هي، "
-                          "ويُعاد التجديد تلقائيًا في التشغيل القادم.")
-        except Exception as e:
-            log(f"⚠️ إشعار تأجيل التجديد: {e}")
-        return
     try:
         accumulate_explosions(wl, hist)   # كاشف الانفجارات (للتعلّم)
     except Exception as e:
@@ -4367,7 +4409,11 @@ def run_daily_watchlist(wl: dict) -> None:
     except Exception as e:
         log(f"⚠️ كاشف الانفجارات: {e}")
     # 3) متابعة القائمة الحالية (تُحذف فقط بستوب/هدف؛ نقص البيانات = تُبقى)
-    stopped_today = update_watchlist_status(wl, hist)
+    try:
+        stopped_today = update_watchlist_status(wl, hist)
+    except Exception as e:
+        log(f"⚠️ تحديث حالة القائمة: {e}")
+        stopped_today = []
     # 4) إضافة الجديد دون حذف القديم (حتى حد القائمة)
     held = {s["symbol"] for s in wl["stocks"]}
     stopped = {rm["symbol"] for rm in wl["removed"]
@@ -4631,7 +4677,7 @@ def record_new_alerts(data, results):
         data["alerts"].append({
             "symbol": r["symbol"], "date": today,
             "price": round(r["price"], 4),
-            "stop": round(r["stop"][0], 4),   # الوقف الأبعد (2% تحت القاع)
+            "stop": round(r["stop"][0], 4),   # الوقف الأبعد (~7% تحت القاع)
             "t1": round(r["t1"], 4),
             "t2": round(r["t2"], 4),
             "t3": round(r["t3"], 4),

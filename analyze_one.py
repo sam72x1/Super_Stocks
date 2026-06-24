@@ -78,13 +78,17 @@ def analyze_on_demand(sym: str):
     # M2: الهبوط من قمة 52 أسبوع
     hi52 = float(high.tail(252).max())
     drop_pct = (1.0 - price / hi52) * 100.0 if hi52 > 0 else 0.0
-    g2 = (drop_pct >= C["MIN_DROP_PCT"]) and (drop_pct <= C["MAX_DROP_PCT"])
-    gates.append((f"الهبوط ضمن {C['MIN_DROP_PCT']:.0f}–{C['MAX_DROP_PCT']:.0f}%",
+    # يجتاز عند الأرضية (مثل البوت): 40–97% يمرّ · 40–50% نقص لا رفض → فلا يتناقض
+    # مع حكم «B» المعروض في نفس الرسالة (إصلاح فحص 2026-06-24).
+    g2 = (drop_pct >= C["MIN_DROP_FLOOR"]) and (drop_pct <= C["MAX_DROP_PCT"])
+    gates.append((f"الهبوط ضمن {C['MIN_DROP_FLOOR']:.0f}–{C['MAX_DROP_PCT']:.0f}%"
+                  f" (المثالي {C['MIN_DROP_PCT']:.0f}% فأكثر)",
                   g2, f"{drop_pct:.0f}%"))
 
-    # M3: الانفجار السابق
-    g3 = best_spike >= C["PRIOR_SPIKE_PCT"]
-    gates.append((f"انفجار سابق {C['PRIOR_SPIKE_PCT']:.0f}% أو أكثر",
+    # M3: الانفجار السابق — يجتاز عند الأرضية 60% (مثل البوت)، و60–100% نقص لا رفض
+    g3 = best_spike >= C["PRIOR_SPIKE_FLOOR"]
+    gates.append((f"انفجار سابق {C['PRIOR_SPIKE_FLOOR']:.0f}% فأكثر"
+                  f" (المثالي {C['PRIOR_SPIKE_PCT']:.0f}%)",
                   g3, f"{best_spike:.0f}% ({n_spikes} انفجار موثّق)"))
 
     # M4: قاعدة ضيقة + لم ينفجر بعد
@@ -434,7 +438,7 @@ def analyze_on_demand(sym: str):
         "pivot": pivot, "stop": (stop_lo, stop_hi),
         "entry": (entry_lo, entry_hi), "tranches": tranches,
         "h4_levels": h4_levels,
-        "key_levels": bot.key_levels(df, price, pivot, h4_levels),
+        "key_levels": bot.key_levels(df, price, pivot),  # بلا 4س — مطابق للبوت
         "indicators": ind,                 # MFI/ADX/كلنجر%B/%R — يطابق البطاقة
         "sweep": (sweep_lo, sweep_hi),
         "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
