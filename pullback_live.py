@@ -29,12 +29,14 @@ def main():
         msg = ("🚨 <b>تنبيه ارتداد فوري</b>\n\n"
                + bot.build_pullback_section([], triggered)
                + "\n\n" + bot.FOOTER)
-        bot.send_telegram(msg)
+        # احفظ حالة «triggered» قبل الإرسال (مثل المسار اليومي) — لو فشل الإرسال
+        # أو انهار العملية بعده لا تتكرّر التنبيهات. إصلاح فحص 2026-06-24.
         bot.save_watchlist(wl)
         try:
             bot.git_save([bot.WATCH_FILE])   # تثبيت حالة «وصل الدعم»
         except Exception as e:
             bot.log(f"⚠️ حفظ الحالة: {e}")
+        bot.send_telegram(msg)
         bot.log(f"🚨 تنبيه: {len(triggered)} سهم وصل الدعم.")
     else:
         bot.log("مراقبة الارتداد: لا سهم وصل الدعم بعد.")

@@ -688,7 +688,7 @@ def _fmt_levels(levels):
 
 
 def render(rep):
-    L = [f"📐 <b>التحليل الفني الكلاسيكي: {rep['symbol']}</b>",
+    L = [f"📐 <b>التحليل الفني الكلاسيكي: {bot.esc(rep['symbol'])}</b>",
          f"السعر الحالي: ${rep['price']:.2f}",
          f"التقييم العام: <b>{rep['verdict']}</b>",
          f"مؤشر القوة الفني: <b>{rep['score']}/100</b> "
@@ -899,7 +899,8 @@ def main():
     bot.log(f"📐 تقرير فني كلاسيكي للسهم: {sym}")
     rep, err = technical_report(sym)
     if rep is None:
-        msg = f"📐 <b>تحليل فني: {sym.upper()}</b>\n\n⚠️ {err}\n\n{bot.FOOTER}"
+        msg = (f"📐 <b>تحليل فني: {bot.esc(sym.upper())}</b>\n\n"
+               f"⚠️ {bot.esc(err)}\n\n{bot.FOOTER}")
         bot.send_telegram(msg)
         bot.log(f"تعذّر: {err}")
         return
