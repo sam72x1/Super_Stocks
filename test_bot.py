@@ -1055,7 +1055,7 @@ finally:
 check("الارتداد: تنبيه عند نزول السعر للدعم",
       len(_trig) == 1 and _e["status"] == "triggered")
 check("قسم الارتداد يُعرض",
-      "وصلت الدعم" in S.build_pullback_section([], _trig))
+      "وصلت منطقة الدخول" in S.build_pullback_section([], _trig))
 
 # (ل) ثبات القائمة: سهم محفوظ لا يُحذف لو غابت بياناته (سوق مقفل/خنق Yahoo)
 _hold = {"symbol": "HOLD", "added": "2024-01-01", "entry_ref": 3.0,
