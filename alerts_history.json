@@ -257,7 +257,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -0.5
+   "max_gain_pct": 0.8
   },
   {
    "symbol": "NBP",
@@ -335,7 +335,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.6
   },
   {
    "symbol": "UPB",
@@ -358,7 +358,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.7
   },
   {
    "symbol": "VFS",
@@ -381,7 +381,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 0.3
   }
  ]
 }
