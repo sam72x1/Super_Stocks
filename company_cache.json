@@ -35,17 +35,6 @@
   "float": 2890179
  },
  "INSM": {},
- "BTOG": {
-  "sector": "Financial Services",
-  "industry": "Financial Data & Stock Exchanges",
-  "business": "Bit Origin Ltd engages in the cryptocurrency mining business. It deploys crypto asset mining and blockchain technologies. The company was formerly known as Chin…",
-  "country": "Singapore",
-  "cash": 55639,
-  "revenue": 39495,
-  "shares_out": 1597541,
-  "short_pct": 2.4,
-  "float": 975172
- },
  "MSAI": {
   "sector": "Technology",
   "industry": "Electronic Components",
@@ -66,17 +55,6 @@
   "shares_out": 54185877,
   "short_pct": 10.6,
   "float": 40169074
- },
- "BGLC": {
-  "sector": "Basic Materials",
-  "industry": "Specialty Chemicals",
-  "business": "BioNexus Gene Lab Corp., together with its subsidiaries, focuses on the sale of chemical raw materials for the manufacture of industrial, medical, appliance, ae…",
-  "country": "Malaysia",
-  "cash": 3964962,
-  "revenue": 5310678,
-  "shares_out": 2417314,
-  "short_pct": 1.1,
-  "float": 1758475
  },
  "BETR": {
   "sector": "Financial Services",
@@ -152,27 +130,6 @@
   "short_pct": 7.6,
   "float": 36046153
  },
- "CING": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Cingulate Inc., a biopharmaceutical company, develops pharmaceutical products using its drug delivery platform technology for the treatment of attention deficit…",
-  "country": "United States",
-  "cash": 25893210,
-  "shares_out": 13469036,
-  "short_pct": 21.0,
-  "float": 12939475
- },
- "EEIQ": {
-  "sector": "Consumer Defensive",
-  "industry": "Education & Training Services",
-  "business": "EpicQuest Education Group International Limited, together with its subsidiaries, provides education solutions for students interested in university and college…",
-  "country": "United States",
-  "cash": 4754522,
-  "revenue": 8939989,
-  "shares_out": 1646623,
-  "short_pct": 2.2,
-  "float": 899310
- },
  "IXHL": {
   "sector": "Healthcare",
   "industry": "Drug Manufacturers - Specialty & Generic",
@@ -185,14 +142,6 @@
   "float": 9871355
  },
  "SEV": {},
- "MLEC": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Moolec Science SA, a science-based ingredient company, engages in the development of ingredients for food, pet food, animal feed, and dietary supplements using…",
-  "country": "Cayman Islands",
-  "shares_out": 726118,
-  "short_pct": 1.6
- },
  "PMN": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -224,17 +173,6 @@
   "shares_out": 3407977,
   "short_pct": 2.0,
   "float": 2204382
- },
- "RETO": {
-  "sector": "Basic Materials",
-  "industry": "Building Materials",
-  "business": "ReTo Eco-Solutions, Inc. focuses to design, research and development, manufactures, and sale of ecological environmental protection equipment and intelligent eq…",
-  "country": "China",
-  "cash": 250008,
-  "revenue": 3370789,
-  "shares_out": 3269801,
-  "short_pct": 1.2,
-  "float": 3249069
  },
  "AEC": {
   "sector": "Energy",
@@ -407,39 +345,7 @@
   "short_pct": 4.8,
   "float": 1952207
  },
- "PHOE": {
-  "sector": "Industrials",
-  "industry": "Engineering & Construction",
-  "business": "Phoenix Asia Holdings Limited provides substructure works services in Hong Kong. The company undertakes site formation, such as clearance of construction site,…",
-  "country": "Hong Kong",
-  "cash": 2985024,
-  "revenue": 7092526,
-  "shares_out": 21600000,
-  "short_pct": 0.3,
-  "float": 5500008
- },
- "PMAX": {
-  "sector": "Financial Services",
-  "industry": "Capital Markets",
-  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
-  "country": "Hong Kong",
-  "cash": 7774304,
-  "revenue": 47647540,
-  "shares_out": 1037171,
-  "short_pct": 1.7,
-  "float": 892196
- },
  "VSTM": {},
- "AARD": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Aardvark Therapeutics, Inc., a clinical-stage biopharmaceutical company, focuses on developing small-molecule therapeutics to activate innate homeostatic pathwa…",
-  "country": "United States",
-  "cash": 91200000,
-  "shares_out": 21816385,
-  "short_pct": 6.9,
-  "float": 10910374
- },
  "ICU": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -462,17 +368,6 @@
   "short_pct": 0.6,
   "float": 986446
  },
- "ONEG": {
-  "sector": "Industrials",
-  "industry": "Engineering & Construction",
-  "business": "OneConstruction Group Limited, together with its subsidiaries, provides structural steelwork for construction projects in Hong Kong. The company engages in the…",
-  "country": "Hong Kong",
-  "cash": 5001000,
-  "revenue": 52231000,
-  "shares_out": 16000000,
-  "short_pct": 0.2,
-  "float": 7000000
- },
  "MBRX": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -482,16 +377,6 @@
   "shares_out": 5336350,
   "short_pct": 15.7,
   "float": 5292005
- },
- "NXTS": {
-  "sector": "Basic Materials",
-  "industry": "Agricultural Inputs",
-  "business": "Nexentis Technologies Inc., through its subsidiary, develops therapeutics related to cancer and inflammatory metabolic diseases. It operates through two segment…",
-  "country": "Israel",
-  "cash": 6201000,
-  "shares_out": 730459,
-  "short_pct": 4.1,
-  "float": 426449
  },
  "OMER": {
   "sector": "Healthcare",
@@ -504,6 +389,25 @@
   "short_pct": 23.3,
   "float": 69786489
  },
+ "VFS": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Manufacturers",
+  "business": "VinFast Auto Ltd. engages in the design and manufacture of electric vehicles (EV), e-scooters, and e-buses in Vietnam, Canada, and the United States. The compan…",
+  "country": "Vietnam",
+  "shares_out": 2339536010,
+  "short_pct": 4.3,
+  "float": 49644954
+ },
+ "NERV": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Minerva Neurosciences, Inc., a clinical-stage biopharmaceutical company, focuses on the development and commercialization of product candidates for the treatmen…",
+  "country": "United States",
+  "cash": 78064896,
+  "shares_out": 46588709,
+  "short_pct": 2.2,
+  "float": 30871076
+ },
  "UPB": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -515,13 +419,170 @@
   "short_pct": 10.3,
   "float": 34977358
  },
- "VFS": {
-  "sector": "Consumer Cyclical",
-  "industry": "Auto Manufacturers",
-  "business": "VinFast Auto Ltd. engages in the design and manufacture of electric vehicles (EV), e-scooters, and e-buses in Vietnam, Canada, and the United States. The compan…",
-  "country": "Vietnam",
-  "shares_out": 2339536010,
-  "short_pct": 4.3,
-  "float": 49644954
+ "AARD": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Aardvark Therapeutics, Inc., a clinical-stage biopharmaceutical company, focuses on developing small-molecule therapeutics to activate innate homeostatic pathwa…",
+  "country": "United States",
+  "cash": 91200000,
+  "shares_out": 21816385,
+  "short_pct": 6.9,
+  "float": 10910374
+ },
+ "MCRB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Seres Therapeutics, Inc., a clinical-stage company, focuses on developing biotherapeutics for serious diseases. The company develops SER-155, an investigational…",
+  "country": "United States",
+  "cash": 29834000,
+  "revenue": 1147000,
+  "shares_out": 9683934,
+  "short_pct": 6.5,
+  "float": 7384774
+ },
+ "EEIQ": {
+  "sector": "Consumer Defensive",
+  "industry": "Education & Training Services",
+  "business": "EpicQuest Education Group International Limited, together with its subsidiaries, provides education solutions for students interested in university and college…",
+  "country": "United States",
+  "cash": 4754522,
+  "revenue": 8939989,
+  "shares_out": 1646623,
+  "short_pct": 2.2,
+  "float": 899310,
+  "finra_short": 487
+ },
+ "ONEG": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction",
+  "business": "OneConstruction Group Limited, together with its subsidiaries, provides structural steelwork for construction projects in Hong Kong. The company engages in the…",
+  "country": "Hong Kong",
+  "cash": 5001000,
+  "revenue": 52231000,
+  "shares_out": 16000000,
+  "short_pct": 0.2,
+  "float": 7000000
+ },
+ "MLEC": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Moolec Science SA, a science-based ingredient company, engages in the development of ingredients for food, pet food, animal feed, and dietary supplements using…",
+  "country": "Cayman Islands",
+  "shares_out": 726118,
+  "short_pct": 1.6,
+  "finra_short": 3574
+ },
+ "PASG": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Passage Bio, Inc., a genetic medicines company, develops gene therapies for central nervous system diseases. It develops PBFT02, a functional granulin (GRN) and…",
+  "country": "United States",
+  "cash": 33336000,
+  "shares_out": 3207810,
+  "short_pct": 4.7,
+  "float": 2886804,
+  "finra_short": 28731
+ },
+ "CUPR": {
+  "sector": "Healthcare",
+  "industry": "Medical Instruments & Supplies",
+  "business": "Cuprina Holdings (Cayman) Limited, a biomedical and biotechnology company, focuses on the development and commercialization of products for the management of ch…",
+  "country": "Singapore",
+  "cash": 3204308,
+  "revenue": 49894,
+  "shares_out": 920625,
+  "short_pct": 9.2,
+  "float": 920634,
+  "finra_short": 10672
+ },
+ "VRM": {
+  "sector": "Financial Services",
+  "industry": "Credit Services",
+  "business": "Vroom, Inc., through its subsidiaries, operates as an automotive finance company. It offers vehicle financing to its customers through third party dealers under…",
+  "country": "United States",
+  "cash": 14478000,
+  "revenue": 210408992,
+  "shares_out": 5207627,
+  "short_pct": 4.6,
+  "float": 696780
+ },
+ "BGLC": {
+  "sector": "Basic Materials",
+  "industry": "Specialty Chemicals",
+  "business": "BioNexus Gene Lab Corp., together with its subsidiaries, focuses on the sale of chemical raw materials for the manufacture of industrial, medical, appliance, ae…",
+  "country": "Malaysia",
+  "cash": 3964962,
+  "revenue": 5310678,
+  "shares_out": 2417314,
+  "short_pct": 1.1,
+  "float": 1758475,
+  "finra_short": 305
+ },
+ "CING": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Cingulate Inc., a biopharmaceutical company, develops pharmaceutical products using its drug delivery platform technology for the treatment of attention deficit…",
+  "country": "United States",
+  "cash": 25893210,
+  "shares_out": 13469036,
+  "short_pct": 21.0,
+  "float": 12939475
+ },
+ "RETO": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials",
+  "business": "ReTo Eco-Solutions, Inc. focuses to design, research and development, manufactures, and sale of ecological environmental protection equipment and intelligent eq…",
+  "country": "China",
+  "cash": 250008,
+  "revenue": 3370789,
+  "shares_out": 3269801,
+  "short_pct": 1.2,
+  "float": 3249069,
+  "finra_short": 1115
+ },
+ "PHOE": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction",
+  "business": "Phoenix Asia Holdings Limited provides substructure works services in Hong Kong. The company undertakes site formation, such as clearance of construction site,…",
+  "country": "Hong Kong",
+  "cash": 2985024,
+  "revenue": 7092526,
+  "shares_out": 21600000,
+  "short_pct": 0.3,
+  "float": 5500008
+ },
+ "PMAX": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets",
+  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
+  "country": "Hong Kong",
+  "cash": 7774304,
+  "revenue": 47647540,
+  "shares_out": 1037171,
+  "short_pct": 1.7,
+  "float": 892196,
+  "finra_short": 10860
+ },
+ "NXTS": {
+  "sector": "Basic Materials",
+  "industry": "Agricultural Inputs",
+  "business": "Nexentis Technologies Inc., through its subsidiary, develops therapeutics related to cancer and inflammatory metabolic diseases. It operates through two segment…",
+  "country": "Israel",
+  "cash": 6201000,
+  "shares_out": 730459,
+  "short_pct": 4.1,
+  "float": 426449
+ },
+ "BTOG": {
+  "sector": "Financial Services",
+  "industry": "Financial Data & Stock Exchanges",
+  "business": "Bit Origin Ltd engages in the cryptocurrency mining business. It deploys crypto asset mining and blockchain technologies. The company was formerly known as Chin…",
+  "country": "Singapore",
+  "cash": 55639,
+  "revenue": 39495,
+  "shares_out": 1597541,
+  "short_pct": 2.4,
+  "float": 975172,
+  "finra_short": 3464
  }
 }

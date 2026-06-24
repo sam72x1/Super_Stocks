@@ -104,7 +104,7 @@
    "ready": true,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.3
+   "max_gain_pct": 5.8
   },
   {
    "symbol": "NGEN",
@@ -203,9 +203,9 @@
     "فلوت غير متاح — مُرِّر بفائدة الشك"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 7.7
+   "status": "hit_t1",
+   "result_date": "2026-06-24",
+   "max_gain_pct": 11.9
   },
   {
    "symbol": "EZRA",
@@ -307,7 +307,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.1
+   "max_gain_pct": 9.8
   },
   {
    "symbol": "VSTM",
@@ -335,7 +335,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.6
+   "max_gain_pct": 3.5
   },
   {
    "symbol": "UPB",
@@ -358,7 +358,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.7
+   "max_gain_pct": 6.4
   },
   {
    "symbol": "VFS",
@@ -381,7 +381,32 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.3
+   "max_gain_pct": 1.6
+  },
+  {
+   "symbol": "NERV",
+   "date": "2026-06-24",
+   "price": 4.39,
+   "stop": 3.7758,
+   "t1": 4.86,
+   "t2": 5.17,
+   "t3": 5.36,
+   "score": 65,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 3 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (19→47) — سيولة مخفية",
+    "انكماش حزمة كلنجر (تجميع)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 30,871,076 (صغير ✅)"
+   ],
+   "ready": false,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
   }
  ]
 }

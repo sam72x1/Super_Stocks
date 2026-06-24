@@ -1,208 +1,100 @@
 {
- "week_start": "2026-06-23",
- "created": "2026-06-23",
+ "week_start": "2026-06-24",
+ "created": "2026-06-24",
  "logic_version": "2026.06.22-redheads.dw+noskip+tranches+4h+keylevels+avgRR",
  "stocks": [
   {
-   "symbol": "INSM",
-   "added": "2026-06-23",
-   "entry_ref": 102.15,
+   "symbol": "NERV",
+   "added": "2026-06-24",
+   "entry_ref": 4.39,
    "entry": [
-    90.39,
-    95.81
+    4.06,
+    4.3
    ],
    "tranches": [
-    90.39,
-    93.1,
-    95.81
+    4.06,
+    4.18,
+    4.3
    ],
-   "pivot": 90.39,
-   "stop": 84.0627,
-   "stop_hi": 85.8705,
-   "t1": 114.51,
-   "t2": 119.35,
-   "t3": 125.36,
-   "score": 75,
+   "pivot": 4.06,
+   "stop": 3.7758,
+   "stop_hi": 3.857,
+   "t1": 4.86,
+   "t2": 5.17,
+   "t3": 5.36,
+   "score": 65,
    "flags": [
     "تقاطع MACD",
     "KST صاعد",
-    "يرتكز على متوسط 30/50",
-    "ثبات 8 جلسات فوق القاع",
+    "ثبات 3 جلسات فوق القاع",
     "مسح سيولة (كسر قاع سابق واستعادة)",
     "نمط شمعة قوي",
+    "تباعد MFI صعودي (19→47) — سيولة مخفية",
     "انكماش حزمة كلنجر (تجميع)",
-    "فجوة-هدف فوق السعر عند $125.36 (+23%)",
-    "قاب (فجوة) فوق السعر عند $125.36 (فراغ 9% = هدف ذهبي)",
     "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
+    "فلوت 30,871,076 (صغير ✅)"
    ],
-   "rsi": 46.87542039108814,
-   "float": null,
+   "rsi": 39.708139121551405,
+   "float": 30871076,
    "short": null,
-   "short_pct": null,
-   "drop_pct": 51.98589822520381,
-   "best_spike": 216.86363220214844,
-   "rr": 2.369070259397372,
+   "short_pct": 2.2,
+   "drop_pct": 64.76725639610457,
+   "best_spike": 207.13944300299127,
+   "rr": 1.68233525599823,
    "tier": "B",
    "soft_fails": [
-    "قاع RSI 28 (المثالي 27 أو أقل)",
-    "RSI الآن 47 أعلى من 40",
-    "السعر أقل بـ4% من متوسطه المتحرك (يفتح بصعود ~2% أو بثبات أسابيع)"
-   ],
-   "warnings": [],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     100.73,
-     97.53,
-     94.41,
-     90.39
-    ],
-    "resistances": [
-     105.36,
-     109.43,
-     115.99,
-     120.26,
-     132.27
-    ],
-    "flip": 100.25,
-    "sweep_low": 90.39
-   },
-   "key_levels": {
-    "sup_major": 90.39,
-    "sup_minor": 98.9,
-    "res_major": 166.19,
-    "res_minor": 114.51
-   },
-   "h4_confirm": 1,
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
-   "liberation": 212.75,
-   "sector": null,
-   "country": null,
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 70,
-   "have": [
-    "ثبات بعد القاع",
-    "تقاطع MACD",
-    "KST صاعد",
-    "قرب متوسط 30/50",
-    "مسح سيولة"
-   ],
-   "partial": [],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "جفاف بيع"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 0.0,
-   "last_price": 102.15
-  },
-  {
-   "symbol": "EZRA",
-   "added": "2026-06-23",
-   "entry_ref": 3.43,
-   "entry": [
-    3.21,
-    3.41
-   ],
-   "tranches": [
-    3.21,
-    3.31,
-    3.41
-   ],
-   "pivot": 3.215,
-   "stop": 2.9899,
-   "stop_hi": 3.0542,
-   "t1": 4.14,
-   "t2": 4.35,
-   "t3": 4.58,
-   "score": 80,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "معيد إجرام (3 انفجارات)",
-    "ثبات 8 جلسات فوق القاع",
-    "مسح سيولة (كسر قاع سابق واستعادة)",
-    "انكماش حزمة كلنجر (تجميع)",
-    "فجوة عالية يومي 10%",
-    "فجوات متعددة الفريمات (أسبوعي، شهري)",
-    "شورت 4,194 (مقبول)",
-    "فلوت 493,362 (صغير ✅)"
-   ],
-   "rsi": 34.812328812629445,
-   "float": 493362,
-   "short": 4194,
-   "short_pct": 14.9,
-   "drop_pct": 96.59992076875497,
-   "best_spike": 173.30316012664957,
-   "rr": 2.593344143079772,
-   "tier": "B",
-   "soft_fails": [
+    "توافق الفريمات 1 من 3 (نحتاج 2 على الأقل)",
     "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ19% من متوسطه المتحرك (يفتح بصعود ~20% أو بثبات أسابيع)"
+    "السعر أقل بـ10% من متوسطه المتحرك (يفتح بصعود ~9% أو بثبات أسابيع)"
    ],
    "warnings": [
-    "سيولة منخفضة (575K/يوم)"
+    "سيولة منخفضة (604K/يوم)"
    ],
    "news_risk": false,
    "h4_levels": {
     "supports": [
-     3.4,
-     3.21
+     4.32,
+     4.17
     ],
     "resistances": [
-     3.58,
-     3.71,
-     3.8,
-     3.93,
-     4.06
+     4.47,
+     4.72,
+     4.94,
+     5.17,
+     5.36
     ],
-    "flip": null,
-    "sweep_low": 2.74
+    "flip": 4.33,
+    "sweep_low": 4.0
    },
    "key_levels": {
-    "sup_major": 3.21,
-    "sup_minor": 3.45,
+    "sup_major": 4.06,
+    "sup_minor": 4.3,
     "res_major": 8.8,
-    "res_minor": 4.14
+    "res_minor": 4.99
    },
-   "h4_confirm": 0,
-   "liberation": 9.6,
-   "sector": "Financial Services",
+   "h4_confirm": 3,
+   "tf_count": 1,
+   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ✅",
+   "liberation": 8.17,
+   "sector": "Healthcare",
    "country": "United States",
    "status": "active",
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": 60,
-   "have": [
-    "ثبات بعد القاع",
-    "تقاطع MACD",
-    "KST صاعد",
-    "مسح سيولة"
-   ],
+   "readiness": null,
+   "have": [],
    "partial": [],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "قرب متوسط 30/50",
-    "جفاف بيع"
-   ],
+   "missing": [],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.49,
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅"
+   "last_price": 4.39
   },
   {
    "symbol": "UPB",
-   "added": "2026-06-23",
-   "entry_ref": 6.305,
+   "added": "2026-06-24",
+   "entry_ref": 6.41,
    "entry": [
     5.85,
     6.2
@@ -215,48 +107,50 @@
    "pivot": 5.85,
    "stop": 5.4405,
    "stop_hi": 5.5575,
-   "t1": 6.86,
-   "t2": 7.16,
-   "t3": 7.41,
-   "score": 50,
+   "t1": 7.16,
+   "t2": 7.41,
+   "t3": 7.69,
+   "score": 60,
    "flags": [
-    "RSI تشبع وانحناء (قاع 26→34)",
     "تقاطع MACD",
-    "ثبات 6 جلسات فوق القاع",
+    "ثبات 7 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (14→27) — سيولة مخفية",
     "فجوة صاعدة يومي 4%",
     "فجوات متعددة الفريمات (شهري)",
     "شورت غير متاح — مُرِّر بفائدة الشك",
     "فلوت 34,977,358 (صغير ✅)"
    ],
-   "rsi": 33.834713490270275,
+   "rsi": 36.17853058814314,
    "float": 34977358,
    "short": null,
    "short_pct": 10.3,
-   "drop_pct": 81.27969189071028,
+   "drop_pct": 80.96793411718868,
    "best_spike": 77.91353096201266,
-   "rr": 1.4215282734940715,
+   "rr": 1.933298922777908,
    "tier": "B",
    "soft_fails": [
     "الانفجار السابق 78% (المثالي 100% فأكثر)",
     "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ14% من متوسطه المتحرك (يفتح بصعود ~14% أو بثبات أسابيع)"
+    "السعر أقل بـ12% من متوسطه المتحرك (يفتح بصعود ~12% أو بثبات أسابيع)"
    ],
    "warnings": [],
    "news_risk": false,
    "h4_levels": {
     "supports": [
-     6.19,
+     6.21,
      6.01,
      5.72
     ],
     "resistances": [
-     6.43,
+     6.47,
      6.8,
      7.18,
      7.41,
      7.7
     ],
-    "flip": 6.33,
+    "flip": 6.43,
     "sweep_low": 5.72
    },
    "key_levels": {
@@ -266,6 +160,8 @@
     "res_minor": 6.86
    },
    "h4_confirm": 3,
+   "tf_count": 2,
+   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
    "liberation": 10.09,
    "sector": "Healthcare",
    "country": "United States",
@@ -273,316 +169,14 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": 60,
-   "have": [
-    "ثبات بعد القاع",
-    "RSI تشبع وانحناء",
-    "تقاطع MACD"
-   ],
+   "readiness": null,
+   "have": [],
    "partial": [],
-   "missing": [
-    "KST صاعد",
-    "قرب متوسط 30/50",
-    "جفاف بيع",
-    "مسح سيولة"
-   ],
+   "missing": [],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 6.32,
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅"
-  },
-  {
-   "symbol": "NBP",
-   "added": "2026-06-23",
-   "entry_ref": 1.61,
-   "entry": [
-    1.46,
-    1.55
-   ],
-   "tranches": [
-    1.46,
-    1.5,
-    1.55
-   ],
-   "pivot": 1.46,
-   "stop": 1.3578,
-   "stop_hi": 1.387,
-   "t1": 1.78,
-   "t2": 1.91,
-   "t3": 2.0,
-   "score": 85,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "معيد إجرام (2 انفجارات)",
-    "ثبات 7 جلسات فوق القاع",
-    "مسح سيولة (كسر قاع سابق واستعادة)",
-    "نمط شمعة قوي",
-    "Williams %R انعطاف من التشبع",
-    "فجوة عالية يومي 10%",
-    "فجوات متعددة الفريمات (أسبوعي، شهري)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
-   ],
-   "rsi": 42.18354447691374,
-   "float": 64483293,
-   "short": null,
-   "short_pct": 6.9,
-   "drop_pct": 76.28865944992233,
-   "best_spike": 218.18181448731536,
-   "rr": 1.9017186767468939,
-   "tier": "B",
-   "soft_fails": [
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "RSI الآن 42 أعلى من 40",
-    "السعر أقل بـ8% من متوسطه المتحرك (يفتح بصعود ~7% أو بثبات أسابيع)"
-   ],
-   "warnings": [
-    "سيولة منخفضة (888K/يوم)"
-   ],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     1.52,
-     1.47
-    ],
-    "resistances": [
-     1.64,
-     1.7,
-     1.75,
-     1.82,
-     1.91
-    ],
-    "flip": 1.6,
-    "sweep_low": 1.46
-   },
-   "key_levels": {
-    "sup_major": 1.46,
-    "sup_minor": 1.5,
-    "res_major": 5.16,
-    "res_minor": 1.7
-   },
-   "h4_confirm": 1,
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
-   "liberation": 3.55,
-   "sector": "Healthcare",
-   "country": "United States",
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 60,
-   "have": [
-    "ثبات بعد القاع",
-    "تقاطع MACD",
-    "KST صاعد",
-    "مسح سيولة"
-   ],
-   "partial": [],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "قرب متوسط 30/50",
-    "جفاف بيع"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 0.0,
-   "last_price": 1.61
-  },
-  {
-   "symbol": "NGEN",
-   "added": "2026-06-23",
-   "entry_ref": 2.06,
-   "entry": [
-    1.7,
-    1.8
-   ],
-   "tranches": [
-    1.7,
-    1.75,
-    1.8
-   ],
-   "pivot": 1.7,
-   "stop": 1.581,
-   "stop_hi": 1.615,
-   "t1": 2.25,
-   "t2": 2.34,
-   "t3": 2.42,
-   "score": 65,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "ثبات 8 جلسات فوق القاع",
-    "مسح سيولة (كسر قاع سابق واستعادة)",
-    "تباعد MFI صعودي (7→58) — سيولة مخفية",
-    "فجوة صاعدة يومي 6%",
-    "فجوات متعددة الفريمات (أسبوعي، شهري)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
-   ],
-   "rsi": 38.902557686297406,
-   "float": null,
-   "short": null,
-   "short_pct": null,
-   "drop_pct": 67.3015891998052,
-   "best_spike": 121.59622237534737,
-   "rr": 2.958580657992844,
-   "tier": "B",
-   "soft_fails": [
-    "توافق الفريمات 0 من 3 (نحتاج 2 على الأقل)",
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ16% من متوسطه المتحرك (يفتح بصعود ~16% أو بثبات أسابيع)"
-   ],
-   "warnings": [],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     1.98,
-     1.91,
-     1.84,
-     1.78,
-     1.7
-    ],
-    "resistances": [
-     2.12,
-     2.2,
-     2.28,
-     2.34,
-     2.45
-    ],
-    "flip": 2.04,
-    "sweep_low": 1.5
-   },
-   "key_levels": {
-    "sup_major": 1.7,
-    "sup_minor": 2.02,
-    "res_major": 4.67,
-    "res_minor": 2.42
-   },
-   "h4_confirm": 1,
-   "tf_count": 0,
-   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ⏳",
-   "liberation": 4.7,
-   "sector": null,
-   "country": null,
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 60,
-   "have": [
-    "ثبات بعد القاع",
-    "تقاطع MACD",
-    "KST صاعد",
-    "مسح سيولة"
-   ],
-   "partial": [],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "قرب متوسط 30/50",
-    "جفاف بيع"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 0.0,
-   "last_price": 2.06
-  },
-  {
-   "symbol": "VFS",
-   "added": "2026-06-23",
-   "entry_ref": 3.16,
-   "entry": [
-    2.9,
-    3.07
-   ],
-   "tranches": [
-    2.9,
-    2.99,
-    3.07
-   ],
-   "pivot": 2.9,
-   "stop": 2.697,
-   "stop_hi": 2.755,
-   "t1": 3.5,
-   "t2": 3.7,
-   "t3": 4.0,
-   "score": 55,
-   "flags": [
-    "RSI تشبع وانحناء (قاع 27→37)",
-    "تقاطع MACD",
-    "KST صاعد",
-    "ثبات 10 جلسات فوق القاع",
-    "نمط شمعة قوي",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت 49,644,954 (صغير ✅)"
-   ],
-   "rsi": 37.38016505503011,
-   "float": 49644954,
-   "short": null,
-   "short_pct": 4.3,
-   "drop_pct": 40.20813288427934,
-   "best_spike": 161.15702365348676,
-   "rr": 1.771833473065044,
-   "tier": "B",
-   "soft_fails": [
-    "الهبوط 40% (المثالي 50% فأكثر)",
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ7% من متوسطه المتحرك (يفتح بصعود ~5% أو بثبات أسابيع)"
-   ],
-   "warnings": [],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     3.13,
-     3.03
-    ],
-    "resistances": [
-     3.2,
-     3.29,
-     3.4,
-     3.58,
-     3.7
-    ],
-    "flip": 3.16,
-    "sweep_low": 2.9
-   },
-   "key_levels": {
-    "sup_major": 2.9,
-    "sup_minor": 3.11,
-    "res_major": 5.28,
-    "res_minor": 3.5
-   },
-   "h4_confirm": 3,
-   "liberation": 6.42,
-   "sector": "Consumer Cyclical",
-   "country": "Vietnam",
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 55,
-   "have": [
-    "RSI تشبع وانحناء",
-    "تقاطع MACD",
-    "KST صاعد"
-   ],
-   "partial": [
-    "ثبات بعد القاع"
-   ],
-   "missing": [
-    "قرب متوسط 30/50",
-    "جفاف بيع",
-    "مسح سيولة"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 0.0,
-   "last_price": 3.16,
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅"
+   "last_price": 6.41
   }
  ],
  "removed": [],
@@ -590,38 +184,8 @@
  "notes": [],
  "pullback": [
   {
-   "symbol": "BGLC",
-   "added": "2026-06-23",
-   "entry": [
-    1.07,
-    1.13
-   ],
-   "tranches": [
-    1.07,
-    1.1,
-    1.13
-   ],
-   "pivot": 1.07,
-   "stop": 0.9951,
-   "t1": 2.42,
-   "t2": 2.5,
-   "t3": 2.6,
-   "score": 100,
-   "liberation": 6.5,
-   "watch_reasons": [
-    "ارتفع عن قاعدته",
-    "لم يصل التشبّع بعد"
-   ],
-   "sector": "Basic Materials",
-   "country": "Malaysia",
-   "float": 1758475,
-   "last_price": 2.42,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
    "symbol": "AARD",
-   "added": "2026-06-23",
+   "added": "2026-06-24",
    "entry": [
     3.4,
     3.6
@@ -633,116 +197,55 @@
    ],
    "pivot": 3.4,
    "stop": 3.162,
-   "t1": 4.7,
-   "t2": 4.93,
-   "t3": 5.09,
+   "t1": 4.93,
+   "t2": 5.09,
+   "t3": 5.4,
    "score": 100,
-   "liberation": 8.3,
+   "liberation": 9.8,
    "watch_reasons": [
     "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ53"
+    "RSI ارتفع للـ57"
    ],
    "sector": "Healthcare",
    "country": "United States",
    "float": 10910374,
-   "last_price": 4.23,
+   "last_price": 4.525,
    "status": "watching",
    "triggered_date": null
   },
   {
-   "symbol": "ICU",
-   "added": "2026-06-23",
+   "symbol": "MCRB",
+   "added": "2026-06-24",
    "entry": [
-    2.59,
-    2.75
+    5.31,
+    5.63
    ],
    "tranches": [
-    2.59,
-    2.67,
-    2.75
+    5.31,
+    5.47,
+    5.63
    ],
-   "pivot": 2.59,
-   "stop": 2.4087,
-   "t1": 3.85,
-   "t2": 3.98,
-   "t3": 4.12,
+   "pivot": 5.31,
+   "stop": 4.9383,
+   "t1": 7.93,
+   "t2": 8.25,
+   "t3": 8.64,
    "score": 100,
-   "liberation": 8.18,
+   "liberation": 26.4,
    "watch_reasons": [
     "ارتفع عن قاعدته",
-    "RSI ارتفع للـ54"
+    "RSI ارتفع للـ52"
    ],
    "sector": "Healthcare",
    "country": "United States",
-   "float": 3959390,
-   "last_price": 3.47,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "SXTP",
-   "added": "2026-06-23",
-   "entry": [
-    1.22,
-    1.29
-   ],
-   "tranches": [
-    1.22,
-    1.26,
-    1.29
-   ],
-   "pivot": 1.22,
-   "stop": 1.1346,
-   "t1": 1.88,
-   "t2": 1.95,
-   "t3": 2.15,
-   "score": 100,
-   "liberation": 4.03,
-   "watch_reasons": [
-    "ارتفع عن قاعدته",
-    "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ62"
-   ],
-   "sector": "Healthcare",
-   "country": "United States",
-   "float": 2430669,
-   "last_price": 1.68,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "ILAG",
-   "added": "2026-06-23",
-   "entry": [
-    2.51,
-    2.66
-   ],
-   "tranches": [
-    2.51,
-    2.59,
-    2.66
-   ],
-   "pivot": 2.51,
-   "stop": 2.3343,
-   "t1": 4.18,
-   "t2": 4.33,
-   "t3": 4.64,
-   "score": 100,
-   "liberation": 7.27,
-   "watch_reasons": [
-    "ارتفع عن قاعدته",
-    "RSI ارتفع للـ55"
-   ],
-   "sector": "Industrials",
-   "country": "Hong Kong",
-   "float": 986446,
-   "last_price": 3.44,
+   "float": 7384774,
+   "last_price": 7.015,
    "status": "watching",
    "triggered_date": null
   },
   {
    "symbol": "EEIQ",
-   "added": "2026-06-23",
+   "added": "2026-06-24",
    "entry": [
     2.5,
     2.65
@@ -758,22 +261,21 @@
    "t2": 3.95,
    "t3": 4.07,
    "score": 100,
-   "liberation": 8.0,
+   "liberation": 6.4,
    "watch_reasons": [
     "ارتفع عن قاعدته",
-    "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ51"
+    "لم يصل التشبّع بعد"
    ],
    "sector": "Consumer Defensive",
    "country": "United States",
    "float": 899310,
-   "last_price": 3.4,
+   "last_price": 3.34,
    "status": "watching",
    "triggered_date": null
   },
   {
    "symbol": "ONEG",
-   "added": "2026-06-23",
+   "added": "2026-06-24",
    "entry": [
     0.85,
     0.9
@@ -785,86 +287,26 @@
    ],
    "pivot": 0.85,
    "stop": 0.7905,
-   "t1": 2.0,
-   "t2": 2.12,
-   "t3": 2.29,
+   "t1": 1.85,
+   "t2": 1.95,
+   "t3": 2.12,
    "score": 100,
    "liberation": 3.2,
    "watch_reasons": [
     "ارتفع عن قاعدته",
     "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ51"
+    "RSI ارتفع للـ50"
    ],
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 7000000,
-   "last_price": 1.56,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "VOR",
-   "added": "2026-06-23",
-   "entry": [
-    12.58,
-    13.33
-   ],
-   "tranches": [
-    12.58,
-    12.96,
-    13.33
-   ],
-   "pivot": 12.58,
-   "stop": 11.6994,
-   "t1": 16.98,
-   "t2": 17.64,
-   "t3": 18.18,
-   "score": 100,
-   "liberation": 33.42,
-   "watch_reasons": [
-    "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ54"
-   ],
-   "sector": "Healthcare",
-   "country": "United States",
-   "float": 40169074,
-   "last_price": 14.85,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "MBRX",
-   "added": "2026-06-23",
-   "entry": [
-    2.03,
-    2.15
-   ],
-   "tranches": [
-    2.03,
-    2.09,
-    2.15
-   ],
-   "pivot": 2.025,
-   "stop": 1.8833,
-   "t1": 2.92,
-   "t2": 3.11,
-   "t3": 3.86,
-   "score": 100,
-   "liberation": 5.3,
-   "watch_reasons": [
-    "RSI ارتفع للـ52",
-    "بعيد عن الدخول (45%)"
-   ],
-   "sector": "Healthcare",
-   "country": "United States",
-   "float": 5292005,
-   "last_price": 2.75,
+   "last_price": 1.68,
    "status": "watching",
    "triggered_date": null
   },
   {
    "symbol": "MLEC",
-   "added": "2026-06-23",
+   "added": "2026-06-24",
    "entry": [
     6.46,
     6.85
@@ -876,90 +318,241 @@
    ],
    "pivot": 6.46,
    "stop": 6.0078,
-   "t1": 9.11,
-   "t2": 9.59,
-   "t3": 10.63,
+   "t1": 8.76,
+   "t2": 9.09,
+   "t3": 9.4,
    "score": 100,
-   "liberation": 15.47,
+   "liberation": 14.4,
    "watch_reasons": [
     "ارتفع عن قاعدته",
     "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ54",
+    "RSI ارتفع للـ52",
     "بعيد عن الدخول (45%)"
    ],
    "sector": "Healthcare",
    "country": "Cayman Islands",
    "float": null,
-   "last_price": 8.0,
+   "last_price": 7.95,
    "status": "watching",
    "triggered_date": null
   },
   {
-   "symbol": "PEPG",
-   "added": "2026-06-23",
+   "symbol": "PASG",
+   "added": "2026-06-24",
    "entry": [
-    1.31,
-    1.39
+    4.92,
+    5.22
    ],
    "tranches": [
-    1.31,
-    1.35,
-    1.39
+    4.92,
+    5.07,
+    5.22
    ],
-   "pivot": 1.31,
-   "stop": 1.2183,
-   "t1": 2.08,
-   "t2": 2.44,
-   "t3": 2.66,
+   "pivot": 4.92,
+   "stop": 4.5756,
+   "t1": 6.5,
+   "t2": 6.79,
+   "t3": 7.02,
    "score": 100,
-   "liberation": 4.48,
+   "liberation": 17.2,
    "watch_reasons": [
-    "ارتفع عن قاعدته",
-    "RSI ارتفع للـ64",
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ55",
     "بعيد عن الدخول (45%)"
    ],
    "sector": "Healthcare",
    "country": "United States",
-   "float": 36046153,
-   "last_price": 1.82,
+   "float": 2886804,
+   "last_price": 5.98,
    "status": "watching",
    "triggered_date": null
   },
   {
-   "symbol": "NXTS",
-   "added": "2026-06-23",
+   "symbol": "CUPR",
+   "added": "2026-06-24",
    "entry": [
-    4.02,
-    4.26
+    1.86,
+    1.97
    ],
    "tranches": [
-    4.02,
-    4.14,
-    4.26
+    1.86,
+    1.92,
+    1.97
    ],
-   "pivot": 4.02,
-   "stop": 3.7386,
-   "t1": 6.75,
-   "t2": 7.09,
-   "t3": 7.56,
+   "pivot": 1.86,
+   "stop": 1.7298,
+   "t1": 6.79,
+   "t2": 7.0,
+   "t3": 7.32,
    "score": 100,
-   "liberation": 11.52,
+   "liberation": 11.12,
    "watch_reasons": [
     "ارتفع عن قاعدته",
     "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ51",
+    "RSI ارتفع للـ62",
     "بعيد عن الدخول (35%)"
    ],
+   "sector": "Healthcare",
+   "country": "Singapore",
+   "float": 920634,
+   "last_price": 6.025,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "VRM",
+   "added": "2026-06-24",
+   "entry": [
+    7.22,
+    7.65
+   ],
+   "tranches": [
+    7.22,
+    7.44,
+    7.65
+   ],
+   "pivot": 7.22,
+   "stop": 6.7146,
+   "t1": 11.2,
+   "t2": 12.44,
+   "t3": 13.1,
+   "score": 95,
+   "liberation": 22.0,
+   "watch_reasons": [
+    "ارتفع عن قاعدته"
+   ],
+   "sector": "Financial Services",
+   "country": "United States",
+   "float": 696780,
+   "last_price": 9.9501,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "BGLC",
+   "added": "2026-06-24",
+   "entry": [
+    1.07,
+    1.13
+   ],
+   "tranches": [
+    1.07,
+    1.1,
+    1.13
+   ],
+   "pivot": 1.07,
+   "stop": 0.9951,
+   "t1": 2.42,
+   "t2": 2.5,
+   "t3": 2.6,
+   "score": 95,
+   "liberation": 6.5,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد"
+   ],
    "sector": "Basic Materials",
-   "country": "Israel",
-   "float": 426449,
-   "last_price": 5.81,
+   "country": "Malaysia",
+   "float": 1758475,
+   "last_price": 2.24,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "CING",
+   "added": "2026-06-24",
+   "entry": [
+    3.16,
+    3.35
+   ],
+   "tranches": [
+    3.16,
+    3.25,
+    3.35
+   ],
+   "pivot": 3.16,
+   "stop": 2.9388,
+   "t1": 5.38,
+   "t2": 5.57,
+   "t3": 5.75,
+   "score": 95,
+   "liberation": 12.48,
+   "watch_reasons": [
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ51"
+   ],
+   "sector": "Healthcare",
+   "country": "United States",
+   "float": 12939475,
+   "last_price": 4.86,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "RETO",
+   "added": "2026-06-24",
+   "entry": [
+    1.85,
+    1.96
+   ],
+   "tranches": [
+    1.85,
+    1.91,
+    1.96
+   ],
+   "pivot": 1.85,
+   "stop": 1.7205,
+   "t1": 2.8,
+   "t2": 2.99,
+   "t3": 3.12,
+   "score": 95,
+   "liberation": 4.64,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ51"
+   ],
+   "sector": "Basic Materials",
+   "country": "China",
+   "float": 3249069,
+   "last_price": 2.59,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "PHOE",
+   "added": "2026-06-24",
+   "entry": [
+    12.9,
+    13.67
+   ],
+   "tranches": [
+    12.9,
+    13.29,
+    13.67
+   ],
+   "pivot": 12.9,
+   "stop": 11.997,
+   "t1": 18.88,
+   "t2": 19.5,
+   "t3": 20.9,
+   "score": 95,
+   "liberation": 44.0,
+   "watch_reasons": [
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ51",
+    "بعيد عن الدخول (45%)"
+   ],
+   "sector": "Industrials",
+   "country": "Hong Kong",
+   "float": 5500008,
+   "last_price": 16.75,
    "status": "watching",
    "triggered_date": null
   },
   {
    "symbol": "PMAX",
-   "added": "2026-06-23",
+   "added": "2026-06-24",
    "entry": [
     1.7,
     1.8
@@ -971,78 +564,82 @@
    ],
    "pivot": 1.7,
    "stop": 1.581,
-   "t1": 2.69,
-   "t2": 2.78,
-   "t3": 2.89,
-   "score": 100,
-   "liberation": 4.06,
+   "t1": 2.6,
+   "t2": 2.69,
+   "t3": 2.78,
+   "score": 95,
+   "liberation": 3.92,
    "watch_reasons": [
     "ارتفع عن قاعدته",
     "لم يصل التشبّع بعد",
-    "بعيد عن الدخول (35%)"
+    "بعيد عن الدخول (45%)"
    ],
    "sector": "Financial Services",
    "country": "Hong Kong",
    "float": 892196,
-   "last_price": 2.48,
+   "last_price": 2.345,
    "status": "watching",
    "triggered_date": null
   },
   {
-   "symbol": "OMER",
-   "added": "2026-06-23",
+   "symbol": "NXTS",
+   "added": "2026-06-24",
    "entry": [
-    6.7,
-    7.1
+    4.02,
+    4.26
    ],
    "tranches": [
-    6.7,
-    6.9,
-    7.1
+    4.02,
+    4.14,
+    4.26
    ],
-   "pivot": 6.7,
-   "stop": 6.231,
-   "t1": 12.0,
-   "t2": 12.43,
-   "t3": 13.0,
+   "pivot": 4.02,
+   "stop": 3.7386,
+   "t1": 6.9,
+   "t2": 7.28,
+   "t3": 7.56,
    "score": 95,
-   "liberation": 17.65,
+   "liberation": 11.52,
    "watch_reasons": [
-    "ارتفع عن قاعدته"
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ52",
+    "بعيد عن الدخول (35%)"
    ],
-   "sector": "Healthcare",
-   "country": "United States",
-   "float": 69786489,
-   "last_price": 10.48,
+   "sector": "Basic Materials",
+   "country": "Israel",
+   "float": 426449,
+   "last_price": 6.2501,
    "status": "watching",
    "triggered_date": null
   },
   {
-   "symbol": "AEC",
-   "added": "2026-06-23",
+   "symbol": "BTOG",
+   "added": "2026-06-24",
    "entry": [
-    3.66,
-    3.88
+    1.57,
+    1.66
    ],
    "tranches": [
-    3.66,
-    3.77,
-    3.88
+    1.57,
+    1.62,
+    1.66
    ],
-   "pivot": 3.66,
-   "stop": 3.4038,
-   "t1": 4.95,
-   "t2": 5.11,
-   "t3": 5.28,
-   "score": 95,
-   "liberation": 10.24,
+   "pivot": 1.57,
+   "stop": 1.4601,
+   "t1": 2.08,
+   "t2": 2.16,
+   "t3": 2.23,
+   "score": 90,
+   "liberation": 3.4,
    "watch_reasons": [
-    "ارتفع عن قاعدته"
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد"
    ],
-   "sector": "Energy",
-   "country": "Canada",
-   "float": 10362025,
-   "last_price": 4.4,
+   "sector": "Financial Services",
+   "country": "Singapore",
+   "float": 975172,
+   "last_price": 1.87,
    "status": "watching",
    "triggered_date": null
   }
@@ -1818,6 +1415,199 @@
      "rr": 2.1272827980975393
     }
    ]
+  },
+  {
+   "week_start": "2026-06-23",
+   "ended": "2026-06-24",
+   "stocks": [
+    {
+     "symbol": "INSM",
+     "entry_ref": 102.15,
+     "last_price": 104.385,
+     "max_gain_pct": 4.9,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-06-23",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": null,
+     "score": 75,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "يرتكز على متوسط 30/50",
+      "ثبات 8 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "نمط شمعة قوي",
+      "انكماش حزمة كلنجر (تجميع)",
+      "فجوة-هدف فوق السعر عند $125.36 (+23%)",
+      "قاب (فجوة) فوق السعر عند $125.36 (فراغ 9% = هدف ذهبي)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 46.87542039108814,
+     "float": null,
+     "short": null,
+     "drop_pct": 51.98589822520381,
+     "best_spike": 216.86363220214844,
+     "rr": 2.369070259397372
+    },
+    {
+     "symbol": "EZRA",
+     "entry_ref": 3.43,
+     "last_price": 3.61,
+     "max_gain_pct": 7.0,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-06-23",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Financial Services",
+     "score": 80,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "معيد إجرام (3 انفجارات)",
+      "ثبات 8 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "انكماش حزمة كلنجر (تجميع)",
+      "فجوة عالية يومي 10%",
+      "فجوات متعددة الفريمات (أسبوعي، شهري)",
+      "شورت 4,194 (مقبول)",
+      "فلوت 493,362 (صغير ✅)"
+     ],
+     "rsi": 34.812328812629445,
+     "float": 493362,
+     "short": 4194,
+     "drop_pct": 96.59992076875497,
+     "best_spike": 173.30316012664957,
+     "rr": 2.593344143079772
+    },
+    {
+     "symbol": "UPB",
+     "entry_ref": 6.305,
+     "last_price": 6.3853,
+     "max_gain_pct": 6.4,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-06-23",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Healthcare",
+     "score": 50,
+     "flags": [
+      "RSI تشبع وانحناء (قاع 26→34)",
+      "تقاطع MACD",
+      "ثبات 6 جلسات فوق القاع",
+      "فجوة صاعدة يومي 4%",
+      "فجوات متعددة الفريمات (شهري)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت 34,977,358 (صغير ✅)"
+     ],
+     "rsi": 33.834713490270275,
+     "float": 34977358,
+     "short": null,
+     "drop_pct": 81.27969189071028,
+     "best_spike": 77.91353096201266,
+     "rr": 1.4215282734940715
+    },
+    {
+     "symbol": "NBP",
+     "entry_ref": 1.61,
+     "last_price": 1.615,
+     "max_gain_pct": 2.5,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-06-23",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Healthcare",
+     "score": 85,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "معيد إجرام (2 انفجارات)",
+      "ثبات 7 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "نمط شمعة قوي",
+      "Williams %R انعطاف من التشبع",
+      "فجوة عالية يومي 10%",
+      "فجوات متعددة الفريمات (أسبوعي، شهري)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 42.18354447691374,
+     "float": 64483293,
+     "short": null,
+     "drop_pct": 76.28865944992233,
+     "best_spike": 218.18181448731536,
+     "rr": 1.9017186767468939
+    },
+    {
+     "symbol": "NGEN",
+     "entry_ref": 2.06,
+     "last_price": 1.98,
+     "max_gain_pct": 4.4,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-06-23",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": null,
+     "score": 65,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "ثبات 8 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "تباعد MFI صعودي (7→58) — سيولة مخفية",
+      "فجوة صاعدة يومي 6%",
+      "فجوات متعددة الفريمات (أسبوعي، شهري)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 38.902557686297406,
+     "float": null,
+     "short": null,
+     "drop_pct": 67.3015891998052,
+     "best_spike": 121.59622237534737,
+     "rr": 2.958580657992844
+    },
+    {
+     "symbol": "VFS",
+     "entry_ref": 3.16,
+     "last_price": 3.12,
+     "max_gain_pct": 1.6,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-06-23",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Consumer Cyclical",
+     "score": 55,
+     "flags": [
+      "RSI تشبع وانحناء (قاع 27→37)",
+      "تقاطع MACD",
+      "KST صاعد",
+      "ثبات 10 جلسات فوق القاع",
+      "نمط شمعة قوي",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت 49,644,954 (صغير ✅)"
+     ],
+     "rsi": 37.38016505503011,
+     "float": 49644954,
+     "short": null,
+     "drop_pct": 40.20813288427934,
+     "best_spike": 161.15702365348676,
+     "rr": 1.771833473065044
+    }
+   ]
   }
  ],
  "explosions": [
@@ -2463,6 +2253,142 @@
    "date": "2026-06-24",
    "gain": 52.0,
    "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "YYGH",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-24",
+   "gain": 2131.0,
+   "reason": "M2_هبوط_فوق_97",
+   "was_pivot": false
+  },
+  {
+   "symbol": "POM",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-22",
+   "gain": 1844.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "LHSW",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-22",
+   "gain": 1766.0,
+   "reason": "M2_هبوط_تحت_40",
+   "was_pivot": false
+  },
+  {
+   "symbol": "WTO",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-22",
+   "gain": 1010.0,
+   "reason": "M2_هبوط_فوق_97",
+   "was_pivot": false
+  },
+  {
+   "symbol": "BOXL",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-22",
+   "gain": 500.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ILLR",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-24",
+   "gain": 431.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ICCM",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-17",
+   "gain": 200.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "WLDS",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-22",
+   "gain": 171.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ADTX",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-18",
+   "gain": 150.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "SDOT",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-17",
+   "gain": 98.0,
+   "reason": "M2_هبوط_فوق_97",
+   "was_pivot": false
+  },
+  {
+   "symbol": "YMAT",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-17",
+   "gain": 94.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "QURE",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-17",
+   "gain": 78.0,
+   "reason": "M2_هبوط_تحت_40",
+   "was_pivot": false
+  },
+  {
+   "symbol": "FTHM",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-17",
+   "gain": 75.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ELTX",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-17",
+   "gain": 71.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ALOT",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-17",
+   "gain": 70.0,
+   "reason": "M2_هبوط_تحت_40",
+   "was_pivot": false
+  },
+  {
+   "symbol": "LNKS",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-18",
+   "gain": 68.0,
+   "reason": "M2_هبوط_فوق_97",
+   "was_pivot": false
+  },
+  {
+   "symbol": "CUPR",
+   "date": "2026-06-24",
+   "expl_date": "2026-06-24",
+   "gain": 53.0,
+   "reason": "M4_base_واسعة",
    "was_pivot": false
   }
  ]
