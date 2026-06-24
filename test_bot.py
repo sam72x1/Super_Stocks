@@ -297,6 +297,26 @@ try:
 finally:
     S.get_universe, S.download_history, S.MODE = _gu0, _dh0, _mode0
 
+# 4) حارس التجديد الأسبوعي: فحص فارغ لا يمسح القائمة النشطة (يُبقيها)
+_wlw = {"week_start": "2024-01-01", "stocks": [{"symbol": "KEEP", "status": "active"}],
+        "removed": [], "notes": [], "pullback": [], "history": []}
+_sv = (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
+       S.download_history, S.build_wrapup_message)
+try:
+    S.scan_market = lambda: ([], {})            # فحص فارغ (خنق Yahoo)
+    S.send_telegram = lambda m: True
+    S.save_watchlist = lambda w: None
+    S.download_history = lambda syms: {}
+    S.build_wrapup_message = lambda w: ""
+    S.yf = None                                  # يتخطّى تحديث الأسبوع المنتهي
+    _before = list(_wlw["stocks"])
+    S.run_weekly_renewal(_wlw)
+    check("التجديد الأسبوعي لا يمسح القائمة عند فحص فارغ (حارس ضد المسح)",
+          _wlw["stocks"] == _before and len(_wlw["stocks"]) == 1)
+finally:
+    (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
+     S.download_history, S.build_wrapup_message) = _sv
+
 
 # ==========================================================
 # 4) قرارات البوابات على أرقام الصور الفعلية (اختبار مباشر للصور)
@@ -360,6 +380,13 @@ for sym, rsi_v, ml, msig, exp_macd, srt, fl in IMG:
         float_ok_cnt += 1
 print(f"   (فُحص MACD لـ{macd_ok_cnt} سهم · شورت {short_ok_cnt} · فلوت {float_ok_cnt})")
 S.fintel_short, S.finra_daily_short = _fs_orig, _fd_orig   # استعادة بعد الحلقة
+# اختبار MACD حقيقي على دالة الإنتاج S.macd (لا إعادة كتابة الشرط): سلسلة صاعدة
+# → الخط فوق الإشارة · هابطة → تحتها (تغطية فعلية للمؤشر بدل تكرار ml>=msig).
+_mlu, _sgu = S.macd(pd.Series([1.0 + 0.12 * i for i in range(60)]))
+_mld, _sgd = S.macd(pd.Series([8.0 - 0.12 * i for i in range(60)]))
+check("MACD (دالة الإنتاج): صاعد→الخط فوق الإشارة · هابط→تحتها",
+      float(_mlu.iloc[-1]) >= float(_sgu.iloc[-1])
+      and float(_mld.iloc[-1]) < float(_sgd.iloc[-1]))
 
 
 # ==========================================================
@@ -1183,9 +1210,13 @@ for _sd in range(10):
     if _base is None:
         continue
     # نحاكي الإثراء: نطبّق دمج 4س بمستويات وهمية ونتأكد t1/RR ثابتان
+    _t1_0, _rr_0 = _base["t1"], _base["rr"]
     _r2, _r3 = S.refine_targets_4h(_base["t1"], _base["t2"], _base["t3"],
                                    _base["price"], _h4_demo)
-    if abs(_base["t1"] - _base["t1"]) > 0 or _r2 <= _base["t1"]:
+    # حارس حقيقي (كان الشرط ميتًا: abs(t1-t1)>0): refine يُرجِع (t2,t3) فقط فـ t1
+    # يبقى ثابتًا والترتيب محفوظ t1<t2<=t3؛ و rr مبني على t1 فلا يتغيّر بالدمج.
+    if not (_r2 > _t1_0 and _r3 >= _r2 and _base["t1"] == _t1_0
+            and _base["rr"] == _rr_0 and _rr_0 and _rr_0 > 0):
         _merge_ok = False
 S.fetch_4h = _save_f4
 check("الدمج لا يغيّر t1/RR (مقفولان)", _merge_ok)

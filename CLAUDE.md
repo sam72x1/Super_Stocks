@@ -13,7 +13,7 @@
 - `analyze_one.py` — تحليل سهم واحد عند الطلب (يفوّض لـ`analyze_ticker`).
 - `pullback_live.py` — مراقبة الارتداد اللحظية (كل 30د بالسوق).
 - `technical_report.py` — **أداة مستقلة**: `TICKER=رمز` → تقرير فني كلاسيكي · `SCAN_EARNINGS=1` → أداة الأرباح (مسح ناسداك قوي فنيًا + أرباح قريبة).
-- `test_bot.py` — 176 اختبار (يشتغل بلا إنترنت). **شغّله قبل أي دفع:** `python3 test_bot.py`
+- `test_bot.py` — 178 اختبار (يشتغل بلا إنترنت). **شغّله قبل أي دفع:** `python3 test_bot.py`
 - `FAISAL_METHODOLOGY_NOTES.md` / `FAISAL_IMAGES_CATALOG.md` — توثيق منهجية فيصل من الصور.
 - `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · scan_earnings.yml (أداة الأرباح، يومي 06:00 UTC) · backtest.yml · analyze.yml/technical.yml (يدوي).
 
@@ -143,7 +143,7 @@
   «ما فيه فجوة سعرية فوقه (هدف)». يشمل البطاقة + اليومي + التحليل اليدوي + تقرير التطوير.
 
 ## التشغيل والاختبار
-- اختبار: `python3 test_bot.py` (لازم 176/176).
+- اختبار: `python3 test_bot.py` (لازم 178/178).
 - `analyze_one.py` (الفحص اليدوي) **مطابق تمامًا** لـ`analyze_ticker` (نفس الدرجة/
   الأهداف/الوقف/RR/المؤشرات) — مقفول باختبار «الفحص اليدوي = الأساسي».
 - **جلسات Claude Code ويب**: `.claude/hooks/session-start.sh` (SessionStart hook،
