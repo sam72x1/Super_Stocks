@@ -526,7 +526,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 10910374,
-   "last_price": 4.96,
+   "last_price": 5.05,
    "status": "watching",
    "triggered_date": null
   },
@@ -556,7 +556,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 7384774,
-   "last_price": 6.81,
+   "last_price": 6.76,
    "status": "watching",
    "triggered_date": null
   },
@@ -586,7 +586,7 @@
    "sector": "Consumer Defensive",
    "country": "United States",
    "float": 899310,
-   "last_price": 3.28,
+   "last_price": 3.2,
    "status": "watching",
    "triggered_date": null
   },
@@ -617,7 +617,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 7000000,
-   "last_price": 1.63,
+   "last_price": 1.581,
    "status": "watching",
    "triggered_date": null
   },
@@ -649,7 +649,7 @@
    "sector": "Healthcare",
    "country": "Cayman Islands",
    "float": null,
-   "last_price": 7.616,
+   "last_price": 7.71,
    "status": "watching",
    "triggered_date": null
   },
@@ -680,9 +680,9 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 2886804,
-   "last_price": 5.88,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 3.355,
+   "status": "triggered",
+   "triggered_date": "2026-06-25"
   },
   {
    "symbol": "CUPR",
@@ -712,7 +712,7 @@
    "sector": "Healthcare",
    "country": "Singapore",
    "float": 920634,
-   "last_price": 5.74,
+   "last_price": 5.5,
    "status": "watching",
    "triggered_date": null
   },
@@ -741,7 +741,7 @@
    "sector": "Financial Services",
    "country": "United States",
    "float": 696780,
-   "last_price": 9.36,
+   "last_price": 9.96,
    "status": "watching",
    "triggered_date": null
   },
@@ -771,7 +771,7 @@
    "sector": "Basic Materials",
    "country": "Malaysia",
    "float": 1758475,
-   "last_price": 2.095,
+   "last_price": 2.135,
    "status": "watching",
    "triggered_date": null
   },
@@ -801,7 +801,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 12939475,
-   "last_price": 4.81,
+   "last_price": 4.815,
    "status": "watching",
    "triggered_date": null
   },
@@ -832,7 +832,7 @@
    "sector": "Basic Materials",
    "country": "China",
    "float": 3249069,
-   "last_price": 2.65,
+   "last_price": 2.55,
    "status": "watching",
    "triggered_date": null
   },
@@ -863,7 +863,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 5500008,
-   "last_price": 17.56,
+   "last_price": 17.491,
    "status": "watching",
    "triggered_date": null
   },
@@ -894,7 +894,7 @@
    "sector": "Financial Services",
    "country": "Hong Kong",
    "float": 892196,
-   "last_price": 2.5,
+   "last_price": 2.5711,
    "status": "watching",
    "triggered_date": null
   },
@@ -926,7 +926,7 @@
    "sector": "Basic Materials",
    "country": "Israel",
    "float": 426449,
-   "last_price": 5.93,
+   "last_price": 5.21,
    "status": "watching",
    "triggered_date": null
   },
@@ -956,7 +956,7 @@
    "sector": "Financial Services",
    "country": "Singapore",
    "float": 975172,
-   "last_price": 1.77,
+   "last_price": 1.7,
    "status": "watching",
    "triggered_date": null
   }
