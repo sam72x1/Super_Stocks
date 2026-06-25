@@ -4,6 +4,104 @@
  "logic_version": "2026.06.22-redheads.dw+noskip+tranches+4h+keylevels+avgRR",
  "stocks": [
   {
+   "symbol": "OLMA",
+   "added": "2026-06-25",
+   "entry_ref": 11.14,
+   "entry": [
+    9.06,
+    9.6
+   ],
+   "tranches": [
+    9.06,
+    9.33,
+    9.6
+   ],
+   "pivot": 9.06,
+   "stop": 8.4258,
+   "stop_hi": 8.607,
+   "t1": 12.27,
+   "t2": 12.82,
+   "t3": 13.26,
+   "score": 70,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "يرتكز على متوسط 30/50",
+    "ثبات 3 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (18→66) — سيولة مخفية",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "rsi": 48.34522653999972,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 69.27659149387395,
+   "best_spike": 326.5476602167248,
+   "rr": 3.2514944358268827,
+   "tier": "B",
+   "soft_fails": [
+    "ما فيه فجوة سعرية فوقه (هدف)",
+    "RSI الآن 48 أعلى من 40",
+    "السعر أقل بـ3% من متوسطه المتحرك (يفتح بصعود ~1% أو بثبات أسابيع)"
+   ],
+   "warnings": [],
+   "news_risk": false,
+   "h4_levels": {
+    "supports": [
+     11.06,
+     10.66,
+     10.31,
+     9.72,
+     9.11
+    ],
+    "resistances": [
+     11.41,
+     11.65,
+     12.0,
+     12.82,
+     13.4
+    ],
+    "flip": 11.01,
+    "sweep_low": 8.5
+   },
+   "key_levels": {
+    "sup_major": 9.06,
+    "sup_minor": 10.94,
+    "res_major": 17.47,
+    "res_minor": 11.54
+   },
+   "h4_confirm": 1,
+   "tf_count": 2,
+   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
+   "liberation": 35.13,
+   "sector": null,
+   "country": null,
+   "status": "active",
+   "removed_date": null,
+   "removal_reason": null,
+   "replaced": false,
+   "readiness": 70,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "مسح سيولة"
+   ],
+   "partial": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "جفاف بيع"
+   ],
+   "hit": null,
+   "hit_date": null,
+   "max_gain_pct": 0.0,
+   "last_price": 11.14
+  },
+  {
    "symbol": "NERV",
    "added": "2026-06-24",
    "entry_ref": 4.39,
@@ -99,6 +197,207 @@
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 4.33
+  },
+  {
+   "symbol": "NBP",
+   "added": "2026-06-25",
+   "entry_ref": 1.6,
+   "entry": [
+    1.46,
+    1.55
+   ],
+   "tranches": [
+    1.46,
+    1.5,
+    1.55
+   ],
+   "pivot": 1.46,
+   "stop": 1.3578,
+   "stop_hi": 1.387,
+   "t1": 1.78,
+   "t2": 1.91,
+   "t3": 2.0,
+   "score": 80,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "معيد إجرام (2 انفجارات)",
+    "ثبات 8 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "فجوة عالية يومي 10%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "rsi": 41.603115423230285,
+   "float": 64483293,
+   "short": null,
+   "short_pct": 6.9,
+   "drop_pct": 76.43593471530434,
+   "best_spike": 218.18181448731536,
+   "rr": 1.9017186767468939,
+   "tier": "B",
+   "soft_fails": [
+    "ما فيه فجوة سعرية فوقه (هدف)",
+    "RSI الآن 42 أعلى من 40",
+    "السعر أقل بـ8% من متوسطه المتحرك (يفتح بصعود ~7% أو بثبات أسابيع)"
+   ],
+   "warnings": [
+    "سيولة منخفضة (841K/يوم)"
+   ],
+   "news_risk": false,
+   "h4_levels": {
+    "supports": [
+     1.59,
+     1.52,
+     1.47
+    ],
+    "resistances": [
+     1.64,
+     1.7,
+     1.75,
+     1.82,
+     1.91
+    ],
+    "flip": 1.6,
+    "sweep_low": 1.46
+   },
+   "key_levels": {
+    "sup_major": 1.46,
+    "sup_minor": 1.5,
+    "res_major": 5.16,
+    "res_minor": 1.7
+   },
+   "h4_confirm": 1,
+   "tf_count": 2,
+   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
+   "liberation": 3.55,
+   "sector": "Healthcare",
+   "country": "United States",
+   "status": "active",
+   "removed_date": null,
+   "removal_reason": null,
+   "replaced": false,
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
+   "partial": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
+   "hit": null,
+   "hit_date": null,
+   "max_gain_pct": 0.0,
+   "last_price": 1.6
+  },
+  {
+   "symbol": "INSM",
+   "added": "2026-06-25",
+   "entry_ref": 103.46,
+   "entry": [
+    90.39,
+    95.81
+   ],
+   "tranches": [
+    90.39,
+    93.1,
+    95.81
+   ],
+   "pivot": 90.39,
+   "stop": 84.0627,
+   "stop_hi": 85.8705,
+   "t1": 114.51,
+   "t2": 119.35,
+   "t3": 125.36,
+   "score": 80,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "يرتكز على متوسط 30/50",
+    "ثبات 9 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "انكماش حزمة كلنجر (تجميع)",
+    "استعاد MA5/MA20 (تجميع)",
+    "فجوة-هدف فوق السعر عند $125.36 (+21%)",
+    "قاب (فجوة) فوق السعر عند $125.36 (فراغ 9% = هدف ذهبي)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "rsi": 48.541019673781506,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 51.37015319178724,
+   "best_spike": 216.86363220214844,
+   "rr": 2.369070259397372,
+   "tier": "B",
+   "soft_fails": [
+    "قاع RSI 28 (المثالي 27 أو أقل)",
+    "RSI الآن 49 أعلى من 40",
+    "السعر أقل بـ2% من متوسطه المتحرك (يفتح بصعود ~0% أو بثبات أسابيع)"
+   ],
+   "warnings": [],
+   "news_risk": false,
+   "h4_levels": {
+    "supports": [
+     102.93,
+     100.73,
+     97.53,
+     94.41,
+     90.39
+    ],
+    "resistances": [
+     107.31,
+     110.23,
+     115.99,
+     120.26,
+     132.27
+    ],
+    "flip": 102.79,
+    "sweep_low": 90.39
+   },
+   "key_levels": {
+    "sup_major": 90.39,
+    "sup_minor": 101.55,
+    "res_major": 166.19,
+    "res_minor": 114.51
+   },
+   "h4_confirm": 1,
+   "tf_count": 2,
+   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
+   "liberation": 212.75,
+   "sector": null,
+   "country": null,
+   "status": "active",
+   "removed_date": null,
+   "removal_reason": null,
+   "replaced": false,
+   "readiness": 55,
+   "have": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "مسح سيولة"
+   ],
+   "partial": [
+    "ثبات بعد القاع"
+   ],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "جفاف بيع"
+   ],
+   "hit": null,
+   "hit_date": null,
+   "max_gain_pct": 0.0,
+   "last_price": 103.46
   },
   {
    "symbol": "UPB",
@@ -2447,6 +2746,14 @@
    "expl_date": "2026-06-24",
    "gain": 52.0,
    "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "AMIX",
+   "date": "2026-06-25",
+   "expl_date": "2026-06-24",
+   "gain": 1797.0,
+   "reason": "M2_هبوط_تحت_40",
    "was_pivot": false
   }
  ]
