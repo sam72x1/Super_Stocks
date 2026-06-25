@@ -43,9 +43,9 @@
    "rr": 1.68233525599823,
    "tier": "B",
    "soft_fails": [
-    "توافق الفريمات 1 من 3 (نحتاج 2 على الأقل)",
+    "توافق الفريمات 0 من 3 (نحتاج 2 على الأقل)",
     "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ10% من متوسطه المتحرك (يفتح بصعود ~9% أو بثبات أسابيع)"
+    "السعر أقل بـ11% من متوسطه المتحرك (يفتح بصعود ~10% أو بثبات أسابيع)"
    ],
    "warnings": [
     "سيولة منخفضة (604K/يوم)"
@@ -68,13 +68,13 @@
    },
    "key_levels": {
     "sup_major": 4.06,
-    "sup_minor": 4.3,
+    "sup_minor": 4.13,
     "res_major": 8.8,
     "res_minor": 4.99
    },
    "h4_confirm": 3,
-   "tf_count": 1,
-   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ✅",
+   "tf_count": 0,
+   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ⏳",
    "liberation": 8.17,
    "sector": "Healthcare",
    "country": "United States",
@@ -98,7 +98,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.38
+   "last_price": 4.33
   },
   {
    "symbol": "UPB",
@@ -194,7 +194,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 6.37
+   "last_price": 6.35
   }
  ],
  "removed": [],
@@ -227,7 +227,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 10910374,
-   "last_price": 4.85,
+   "last_price": 4.96,
    "status": "watching",
    "triggered_date": null
   },
@@ -257,7 +257,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 7384774,
-   "last_price": 7.025,
+   "last_price": 6.81,
    "status": "watching",
    "triggered_date": null
   },
@@ -287,7 +287,7 @@
    "sector": "Consumer Defensive",
    "country": "United States",
    "float": 899310,
-   "last_price": 3.34,
+   "last_price": 3.28,
    "status": "watching",
    "triggered_date": null
   },
@@ -350,7 +350,7 @@
    "sector": "Healthcare",
    "country": "Cayman Islands",
    "float": null,
-   "last_price": 7.84,
+   "last_price": 7.616,
    "status": "watching",
    "triggered_date": null
   },
@@ -381,7 +381,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 2886804,
-   "last_price": 5.92,
+   "last_price": 5.88,
    "status": "watching",
    "triggered_date": null
   },
@@ -413,7 +413,7 @@
    "sector": "Healthcare",
    "country": "Singapore",
    "float": 920634,
-   "last_price": 5.6602,
+   "last_price": 5.74,
    "status": "watching",
    "triggered_date": null
   },
@@ -442,7 +442,7 @@
    "sector": "Financial Services",
    "country": "United States",
    "float": 696780,
-   "last_price": 9.82,
+   "last_price": 9.36,
    "status": "watching",
    "triggered_date": null
   },
@@ -472,7 +472,7 @@
    "sector": "Basic Materials",
    "country": "Malaysia",
    "float": 1758475,
-   "last_price": 2.1,
+   "last_price": 2.095,
    "status": "watching",
    "triggered_date": null
   },
@@ -502,7 +502,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 12939475,
-   "last_price": 4.7601,
+   "last_price": 4.81,
    "status": "watching",
    "triggered_date": null
   },
@@ -533,7 +533,7 @@
    "sector": "Basic Materials",
    "country": "China",
    "float": 3249069,
-   "last_price": 2.59,
+   "last_price": 2.65,
    "status": "watching",
    "triggered_date": null
   },
@@ -564,7 +564,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 5500008,
-   "last_price": 16.75,
+   "last_price": 17.56,
    "status": "watching",
    "triggered_date": null
   },
@@ -595,7 +595,7 @@
    "sector": "Financial Services",
    "country": "Hong Kong",
    "float": 892196,
-   "last_price": 2.345,
+   "last_price": 2.5,
    "status": "watching",
    "triggered_date": null
   },
@@ -627,7 +627,7 @@
    "sector": "Basic Materials",
    "country": "Israel",
    "float": 426449,
-   "last_price": 6.1869,
+   "last_price": 5.93,
    "status": "watching",
    "triggered_date": null
   },
@@ -657,7 +657,7 @@
    "sector": "Financial Services",
    "country": "Singapore",
    "float": 975172,
-   "last_price": 1.83,
+   "last_price": 1.77,
    "status": "watching",
    "triggered_date": null
   }
@@ -2415,6 +2415,38 @@
    "expl_date": "2026-06-24",
    "gain": 65.0,
    "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "YYGH",
+   "date": "2026-06-25",
+   "expl_date": "2026-06-23",
+   "gain": 2563.0,
+   "reason": "M2_هبوط_فوق_97",
+   "was_pivot": false
+  },
+  {
+   "symbol": "ILLR",
+   "date": "2026-06-25",
+   "expl_date": "2026-06-23",
+   "gain": 365.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "SCAG",
+   "date": "2026-06-25",
+   "expl_date": "2026-06-24",
+   "gain": 101.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "STFS",
+   "date": "2026-06-25",
+   "expl_date": "2026-06-24",
+   "gain": 52.0,
+   "reason": "M4_base_واسعة",
    "was_pivot": false
   }
  ]
