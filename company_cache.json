@@ -315,17 +315,6 @@
   "short_pct": 3.6,
   "float": 3959390
  },
- "ILAG": {
-  "sector": "Industrials",
-  "industry": "Building Products & Equipment",
-  "business": "Intelligent Living Application Group Inc., through its subsidiaries, designs, manufactures and sells mechanical locksets to customers mainly in the United State…",
-  "country": "Hong Kong",
-  "cash": 645939,
-  "revenue": 4493572,
-  "shares_out": 2076948,
-  "short_pct": 0.6,
-  "float": 986446
- },
  "MBRX": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -388,15 +377,6 @@
   "float": 899310,
   "finra_short": 487
  },
- "MLEC": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Moolec Science SA, a science-based ingredient company, engages in the development of ingredients for food, pet food, animal feed, and dietary supplements using…",
-  "country": "Cayman Islands",
-  "shares_out": 726118,
-  "short_pct": 1.6,
-  "finra_short": 3574
- },
  "PASG": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -443,39 +423,6 @@
   "float": 1758475,
   "finra_short": 305
  },
- "CING": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Cingulate Inc., a biopharmaceutical company, develops pharmaceutical products using its drug delivery platform technology for the treatment of attention deficit…",
-  "country": "United States",
-  "cash": 25893210,
-  "shares_out": 13469036,
-  "short_pct": 21.0,
-  "float": 12939475
- },
- "RETO": {
-  "sector": "Basic Materials",
-  "industry": "Building Materials",
-  "business": "ReTo Eco-Solutions, Inc. focuses to design, research and development, manufactures, and sale of ecological environmental protection equipment and intelligent eq…",
-  "country": "China",
-  "cash": 250008,
-  "revenue": 3370789,
-  "shares_out": 3269801,
-  "short_pct": 1.2,
-  "float": 3249069,
-  "finra_short": 1115
- },
- "PHOE": {
-  "sector": "Industrials",
-  "industry": "Engineering & Construction",
-  "business": "Phoenix Asia Holdings Limited provides substructure works services in Hong Kong. The company undertakes site formation, such as clearance of construction site,…",
-  "country": "Hong Kong",
-  "cash": 2985024,
-  "revenue": 7092526,
-  "shares_out": 21600000,
-  "short_pct": 0.3,
-  "float": 5500008
- },
  "NXTS": {
   "sector": "Basic Materials",
   "industry": "Agricultural Inputs",
@@ -521,17 +468,6 @@
   "short_pct": 11.0,
   "float": 34977358
  },
- "ICCM": {
-  "sector": "Healthcare",
-  "industry": "Medical Devices",
-  "business": "IceCure Medical Ltd, a commercial-stage medical device company, engages in the research, development, and marketing of cryoablation systems, disposables, and te…",
-  "country": "Israel",
-  "cash": 8115000,
-  "revenue": 3565000,
-  "shares_out": 2806701,
-  "short_pct": 5.3,
-  "float": 1520609
- },
  "UBXG": {
   "sector": "Communication Services",
   "industry": "Advertising Agencies",
@@ -554,28 +490,6 @@
   "short_pct": 2.2,
   "float": 269938,
   "finra_short": 4500
- },
- "MCRB": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Seres Therapeutics, Inc., a clinical-stage company, focuses on developing biotherapeutics for serious diseases. The company develops SER-155, an investigational…",
-  "country": "United States",
-  "cash": 29834000,
-  "revenue": 1147000,
-  "shares_out": 9683934,
-  "short_pct": 3.0,
-  "float": 7384774
- },
- "MGRT": {
-  "sector": "Technology",
-  "industry": "Information Technology Services",
-  "business": "Mega Fortune Company Limited, through its subsidiaries, provides Internet of Things (IoT) solutions and services to various industries. Its IoT integration solu…",
-  "country": "Hong Kong",
-  "cash": 764761,
-  "revenue": 11085548,
-  "shares_out": 13750000,
-  "short_pct": 1.6,
-  "float": 2026888
  },
  "ONEG": {
   "sector": "Industrials",
@@ -612,17 +526,6 @@
   "short_pct": 16.9,
   "float": 5848187
  },
- "LNAI": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Lunai Bioworks Inc., a pre-clinical stage biotechnology company, provides medicine, diagnostics, and biodefense products the United States and the Netherlands.…",
-  "country": "United States",
-  "cash": 3155272,
-  "revenue": 20942,
-  "shares_out": 4533890,
-  "short_pct": 7.3,
-  "float": 3348686
- },
  "MYSE": {
   "sector": "Technology",
   "industry": "Software - Application",
@@ -634,29 +537,6 @@
   "short_pct": 5.5,
   "float": 4728716,
   "finra_short": 22893
- },
- "PEPG": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "PepGen Inc., a clinical-stage biotechnology company, develops oligonucleotide therapeutics for the treatment of severe neuromuscular and neurologic diseases in…",
-  "country": "United States",
-  "cash": 132303000,
-  "shares_out": 69169215,
-  "short_pct": 7.9,
-  "float": 36046153,
-  "finra_short": 53312
- },
- "PMAX": {
-  "sector": "Financial Services",
-  "industry": "Capital Markets",
-  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
-  "country": "Hong Kong",
-  "cash": 7774304,
-  "revenue": 47647540,
-  "shares_out": 1037171,
-  "short_pct": 10.5,
-  "float": 892196,
-  "finra_short": 9177
  },
  "SOWG": {
   "sector": "Consumer Defensive",
@@ -689,5 +569,194 @@
   "shares_out": 54185877,
   "short_pct": 13.1,
   "float": 40169074
+ },
+ "OPRX": {
+  "sector": "Healthcare",
+  "industry": "Health Information Services",
+  "business": "OptimizeRx Corporation operates as a digital healthcare technology company. It offers Dynamic Audience Activation Platform, which generates dynamic audiences wi…",
+  "country": "United States",
+  "cash": 20169000,
+  "revenue": 107345000,
+  "shares_out": 18765075,
+  "short_pct": 10.3,
+  "float": 14426777
+ },
+ "NEGG": {
+  "sector": "Consumer Cyclical",
+  "industry": "Internet Retail",
+  "business": "Newegg Commerce, Inc. operates as an electronics-focused e-retailer in the United States, Canada, and internationally. The company sells desktops, laptops, gami…",
+  "country": "United States",
+  "cash": 57050000,
+  "revenue": 1403527040,
+  "shares_out": 20973423,
+  "short_pct": 26.4,
+  "float": 1346854
+ },
+ "ICCM": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "business": "IceCure Medical Ltd, a commercial-stage medical device company, engages in the research, development, and marketing of cryoablation systems, disposables, and te…",
+  "country": "Israel",
+  "cash": 8115000,
+  "revenue": 3565000,
+  "shares_out": 2806701,
+  "short_pct": 5.3,
+  "float": 1520609
+ },
+ "MCRB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Seres Therapeutics, Inc., a clinical-stage company, focuses on developing biotherapeutics for serious diseases. The company develops SER-155, an investigational…",
+  "country": "United States",
+  "cash": 29834000,
+  "revenue": 1147000,
+  "shares_out": 9683934,
+  "short_pct": 3.0,
+  "float": 7384774
+ },
+ "CING": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Cingulate Inc., a biopharmaceutical company, develops pharmaceutical products using its drug delivery platform technology for the treatment of attention deficit…",
+  "country": "United States",
+  "cash": 25893210,
+  "shares_out": 13469036,
+  "short_pct": 18.8,
+  "float": 12939475
+ },
+ "MLEC": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Moolec Science SA, a science-based ingredient company, engages in the development of ingredients for food, pet food, animal feed, and dietary supplements using…",
+  "country": "Cayman Islands",
+  "shares_out": 726118,
+  "short_pct": 3.6,
+  "finra_short": 2919
+ },
+ "RENX": {
+  "sector": "Real Estate",
+  "industry": "Real Estate - Development",
+  "business": "RenX Enterprises Corp. engages in the biomass recycling, logistics, and real estate businesses. The company is involved in engineered soils, mulch production, a…",
+  "country": "United States",
+  "cash": 511741,
+  "revenue": 12160403,
+  "shares_out": 2613022,
+  "short_pct": 4.7,
+  "float": 2400271,
+  "finra_short": 12728
+ },
+ "PN": {
+  "sector": "Technology",
+  "industry": "Solar",
+  "business": "PN Smart Energy Limited, through its subsidiaries, designs, develops, manufactures, and sells solar PV products and solar power system solution services in Main…",
+  "country": "China",
+  "cash": 9549384,
+  "revenue": 63311196,
+  "shares_out": 7744775,
+  "short_pct": 1.1,
+  "float": 1273288
+ },
+ "AHMA": {
+  "sector": "Consumer Cyclical",
+  "industry": "Travel Services",
+  "business": "Ambitions Enterprise Management Co. L.L.C engages in tour, travel, and event planning and management businesses in the United Arab Emirates. The company is invo…",
+  "country": "United Arab Emirates",
+  "cash": 2928797,
+  "revenue": 20229180,
+  "shares_out": 10965000,
+  "short_pct": 3.3,
+  "float": 2144956
+ },
+ "ILAG": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment",
+  "business": "Intelligent Living Application Group Inc., through its subsidiaries, designs, manufactures and sells mechanical locksets to customers mainly in the United State…",
+  "country": "Hong Kong",
+  "cash": 645939,
+  "revenue": 4493572,
+  "shares_out": 2076948,
+  "short_pct": 7.7,
+  "float": 986446,
+  "finra_short": 3556
+ },
+ "MGRT": {
+  "sector": "Technology",
+  "industry": "Information Technology Services",
+  "business": "Mega Fortune Company Limited, through its subsidiaries, provides Internet of Things (IoT) solutions and services to various industries. Its IoT integration solu…",
+  "country": "Hong Kong",
+  "cash": 764761,
+  "revenue": 11085548,
+  "shares_out": 13750000,
+  "short_pct": 1.6,
+  "float": 2026888
+ },
+ "PHOE": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction",
+  "business": "Phoenix Asia Holdings Limited provides substructure works services in Hong Kong. The company undertakes site formation, such as clearance of construction site,…",
+  "country": "Hong Kong",
+  "cash": 2985024,
+  "revenue": 7092526,
+  "shares_out": 21600000,
+  "short_pct": 0.2,
+  "float": 5500008
+ },
+ "NPT": {
+  "sector": "Consumer Cyclical",
+  "industry": "Specialty Retail",
+  "business": "Texxon Holding Limited, through its subsidiaries, engages in the supply chain management business in the People's Republic of China. It operates through two seg…",
+  "country": "China",
+  "cash": 2517577,
+  "revenue": 797148672,
+  "shares_out": 22185000,
+  "short_pct": 2.4,
+  "float": 2689266,
+  "finra_short": 8096
+ },
+ "RETO": {
+  "sector": "Basic Materials",
+  "industry": "Building Materials",
+  "business": "ReTo Eco-Solutions, Inc. focuses to design, research and development, manufactures, and sale of ecological environmental protection equipment and intelligent eq…",
+  "country": "China",
+  "cash": 250008,
+  "revenue": 3370789,
+  "shares_out": 3269801,
+  "short_pct": 1.2,
+  "float": 3249069,
+  "finra_short": 447
+ },
+ "LNAI": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Lunai Bioworks Inc., a pre-clinical stage biotechnology company, provides medicine, diagnostics, and biodefense products the United States and the Netherlands.…",
+  "country": "United States",
+  "cash": 3155272,
+  "revenue": 20942,
+  "shares_out": 4533890,
+  "short_pct": 7.3,
+  "float": 3348686
+ },
+ "PEPG": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "PepGen Inc., a clinical-stage biotechnology company, develops oligonucleotide therapeutics for the treatment of severe neuromuscular and neurologic diseases in…",
+  "country": "United States",
+  "cash": 132303000,
+  "shares_out": 69169215,
+  "short_pct": 7.9,
+  "float": 36046153,
+  "finra_short": 53312
+ },
+ "PMAX": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets",
+  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
+  "country": "Hong Kong",
+  "cash": 7774304,
+  "revenue": 47647540,
+  "shares_out": 1037171,
+  "short_pct": 10.5,
+  "float": 892196,
+  "finra_short": 9177
  }
 }
