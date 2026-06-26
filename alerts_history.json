@@ -283,7 +283,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 8.2
+   "max_gain_pct": 8.9
   },
   {
    "symbol": "CTMX",
@@ -406,7 +406,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.1
+   "max_gain_pct": 4.8
   },
   {
    "symbol": "OLMA",
@@ -431,7 +431,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 5.9
   },
   {
    "symbol": "INSM",
@@ -459,7 +459,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.9
   }
  ]
 }

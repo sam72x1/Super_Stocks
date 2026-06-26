@@ -45,16 +45,6 @@
   "short_pct": 122.3,
   "float": 1167637
  },
- "VOR": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Vor Biopharma Inc., a clinical-stage biopharmaceutical company, focuses on the development of a novel therapy in the treatment of autoimmune diseases. The compa…",
-  "country": "United States",
-  "cash": 491524992,
-  "shares_out": 54185877,
-  "short_pct": 10.6,
-  "float": 40169074
- },
  "BETR": {
   "sector": "Financial Services",
   "industry": "Mortgage Finance",
@@ -119,16 +109,6 @@
   "short_pct": 2.5,
   "float": 12509001
  },
- "PEPG": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "PepGen Inc., a clinical-stage biotechnology company, develops oligonucleotide therapeutics for the treatment of severe neuromuscular and neurologic diseases in…",
-  "country": "United States",
-  "cash": 132303000,
-  "shares_out": 69169215,
-  "short_pct": 7.6,
-  "float": 36046153
- },
  "IXHL": {
   "sector": "Healthcare",
   "industry": "Drug Manufacturers - Specialty & Generic",
@@ -150,17 +130,6 @@
   "shares_out": 8967693,
   "short_pct": 2.1,
   "float": 4597467
- },
- "MYSE": {
-  "sector": "Technology",
-  "industry": "Software - Application",
-  "business": "Myseum.AI, Inc. operates as a privacy, and social media technology company that focuses on protecting privacy on personal devices and user information after it…",
-  "country": "United States",
-  "cash": 3730939,
-  "revenue": 550,
-  "shares_out": 5074329,
-  "short_pct": 7.1,
-  "float": 4029799
  },
  "DUKR": {
   "sector": "Industrials",
@@ -397,17 +366,6 @@
   "short_pct": 2.2,
   "float": 30871076
  },
- "UPB": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Upstream Bio, Inc., a clinical-stage biotechnology company, develops treatments for inflammatory diseases focusing on severe respiratory disorders. It offers ve…",
-  "country": "United States",
-  "cash": 294579008,
-  "revenue": 3322000,
-  "shares_out": 54419986,
-  "short_pct": 10.3,
-  "float": 34977358
- },
  "AARD": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -417,17 +375,6 @@
   "shares_out": 21816385,
   "short_pct": 6.9,
   "float": 10910374
- },
- "MCRB": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Seres Therapeutics, Inc., a clinical-stage company, focuses on developing biotherapeutics for serious diseases. The company develops SER-155, an investigational…",
-  "country": "United States",
-  "cash": 29834000,
-  "revenue": 1147000,
-  "shares_out": 9683934,
-  "short_pct": 6.5,
-  "float": 7384774
  },
  "EEIQ": {
   "sector": "Consumer Defensive",
@@ -440,17 +387,6 @@
   "short_pct": 2.2,
   "float": 899310,
   "finra_short": 487
- },
- "ONEG": {
-  "sector": "Industrials",
-  "industry": "Engineering & Construction",
-  "business": "OneConstruction Group Limited, together with its subsidiaries, provides structural steelwork for construction projects in Hong Kong. The company engages in the…",
-  "country": "Hong Kong",
-  "cash": 5001000,
-  "revenue": 52231000,
-  "shares_out": 16000000,
-  "short_pct": 0.2,
-  "float": 7000000
  },
  "MLEC": {
   "sector": "Healthcare",
@@ -540,18 +476,6 @@
   "short_pct": 0.3,
   "float": 5500008
  },
- "PMAX": {
-  "sector": "Financial Services",
-  "industry": "Capital Markets",
-  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
-  "country": "Hong Kong",
-  "cash": 7774304,
-  "revenue": 47647540,
-  "shares_out": 1037171,
-  "short_pct": 1.7,
-  "float": 892196,
-  "finra_short": 10860
- },
  "NXTS": {
   "sector": "Basic Materials",
   "industry": "Agricultural Inputs",
@@ -585,5 +509,185 @@
   "short_pct": 6.9,
   "float": 64483293
  },
- "INSM": {}
+ "INSM": {},
+ "UPB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Upstream Bio, Inc., a clinical-stage biotechnology company, develops treatments for inflammatory diseases focusing on severe respiratory disorders. It offers ve…",
+  "country": "United States",
+  "cash": 294579008,
+  "revenue": 3322000,
+  "shares_out": 54419986,
+  "short_pct": 11.0,
+  "float": 34977358
+ },
+ "ICCM": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "business": "IceCure Medical Ltd, a commercial-stage medical device company, engages in the research, development, and marketing of cryoablation systems, disposables, and te…",
+  "country": "Israel",
+  "cash": 8115000,
+  "revenue": 3565000,
+  "shares_out": 2806701,
+  "short_pct": 5.3,
+  "float": 1520609
+ },
+ "UBXG": {
+  "sector": "Communication Services",
+  "industry": "Advertising Agencies",
+  "business": "U-BX Technology Ltd., together with its subsidiaries, focuses on providing value-added services using artificial intelligence-driven technology to businesses in…",
+  "country": "China",
+  "cash": 9873052,
+  "revenue": 24040028,
+  "shares_out": 1511651,
+  "short_pct": 19.8,
+  "float": 593084
+ },
+ "HCAI": {
+  "sector": "Industrials",
+  "industry": "Farm & Heavy Construction Machinery",
+  "business": "Huachen AI Parking Management Technology Holding Co., Ltd, a technology company, designs, manufactures, sells, installs, and maintains cubic parking garage and…",
+  "country": "China",
+  "cash": 389,
+  "revenue": 6575095,
+  "shares_out": 629942,
+  "short_pct": 2.2,
+  "float": 269938,
+  "finra_short": 4500
+ },
+ "MCRB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Seres Therapeutics, Inc., a clinical-stage company, focuses on developing biotherapeutics for serious diseases. The company develops SER-155, an investigational…",
+  "country": "United States",
+  "cash": 29834000,
+  "revenue": 1147000,
+  "shares_out": 9683934,
+  "short_pct": 3.0,
+  "float": 7384774
+ },
+ "MGRT": {
+  "sector": "Technology",
+  "industry": "Information Technology Services",
+  "business": "Mega Fortune Company Limited, through its subsidiaries, provides Internet of Things (IoT) solutions and services to various industries. Its IoT integration solu…",
+  "country": "Hong Kong",
+  "cash": 764761,
+  "revenue": 11085548,
+  "shares_out": 13750000,
+  "short_pct": 1.6,
+  "float": 2026888
+ },
+ "ONEG": {
+  "sector": "Industrials",
+  "industry": "Engineering & Construction",
+  "business": "OneConstruction Group Limited, together with its subsidiaries, provides structural steelwork for construction projects in Hong Kong. The company engages in the…",
+  "country": "Hong Kong",
+  "cash": 5001000,
+  "revenue": 52231000,
+  "shares_out": 16000000,
+  "short_pct": 3.7,
+  "float": 7000000,
+  "finra_short": 20195
+ },
+ "WXM": {
+  "sector": "Industrials",
+  "industry": "Industrial Distribution",
+  "business": "WF International Limited, through its subsidiaries, provides supply, installation, fitting-out, and maintenance services for heating, ventilation, and air condi…",
+  "country": "China",
+  "cash": 2913019,
+  "revenue": 13397793,
+  "shares_out": 1126875,
+  "short_pct": 3.6,
+  "float": 399422,
+  "finra_short": 414
+ },
+ "BIRD": {
+  "sector": "Consumer Cyclical",
+  "industry": "Apparel Retail",
+  "business": "Smartbird, Inc provides footwear and apparel products in the United States and internationally. The company offers a range of lifestyle products for men and wom…",
+  "country": "United States",
+  "cash": 14397000,
+  "revenue": 142671008,
+  "shares_out": 6274827,
+  "short_pct": 16.9,
+  "float": 5848187
+ },
+ "LNAI": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Lunai Bioworks Inc., a pre-clinical stage biotechnology company, provides medicine, diagnostics, and biodefense products the United States and the Netherlands.…",
+  "country": "United States",
+  "cash": 3155272,
+  "revenue": 20942,
+  "shares_out": 4533890,
+  "short_pct": 7.3,
+  "float": 3348686
+ },
+ "MYSE": {
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "business": "Myseum.AI, Inc. operates as a privacy, and social media technology company that focuses on protecting privacy on personal devices and user information after it…",
+  "country": "United States",
+  "cash": 2368536,
+  "revenue": 540,
+  "shares_out": 5196430,
+  "short_pct": 5.5,
+  "float": 4728716,
+  "finra_short": 22893
+ },
+ "PEPG": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "PepGen Inc., a clinical-stage biotechnology company, develops oligonucleotide therapeutics for the treatment of severe neuromuscular and neurologic diseases in…",
+  "country": "United States",
+  "cash": 132303000,
+  "shares_out": 69169215,
+  "short_pct": 7.9,
+  "float": 36046153,
+  "finra_short": 53312
+ },
+ "PMAX": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets",
+  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
+  "country": "Hong Kong",
+  "cash": 7774304,
+  "revenue": 47647540,
+  "shares_out": 1037171,
+  "short_pct": 10.5,
+  "float": 892196,
+  "finra_short": 9177
+ },
+ "SOWG": {
+  "sector": "Consumer Defensive",
+  "industry": "Confectioners",
+  "business": "Sow Good Inc. operates as a distributor of freeze-dried candy and snack products. The company markets its products through a distribution partner. It offers its…",
+  "country": "United States",
+  "cash": 2318848,
+  "shares_out": 20120117,
+  "short_pct": 0.4,
+  "float": 19199219
+ },
+ "TURB": {
+  "sector": "Technology",
+  "industry": "Solar",
+  "business": "Turbo Energy, S.A. designs, develops, and distributes equipment for the generation, management, and storage of photovoltaic energy in Spain, rest of Europe, and…",
+  "country": "Spain",
+  "cash": 819496,
+  "revenue": 19874526,
+  "shares_out": 12017140,
+  "short_pct": 23.9,
+  "float": 3392728,
+  "finra_short": 11534
+ },
+ "VOR": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Vor Biopharma Inc., a clinical-stage biopharmaceutical company, focuses on the development of a novel therapy in the treatment of autoimmune diseases. The compa…",
+  "country": "United States",
+  "cash": 491524992,
+  "shares_out": 54185877,
+  "short_pct": 13.1,
+  "float": 40169074
+ }
 }
