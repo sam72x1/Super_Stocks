@@ -151,9 +151,12 @@ def _wr(rows: list):
 
 def _is_identity_reason(reason) -> bool:
     """هل سبب الرفض = «ليس النمط المطلوب أصلًا» (رفض صحيح لا يدل على تشدّد)؟
-    في مشروع الارتكاز: بوابات الهوية M1(سعر)/M2(هبوط)/M3(انفجار).
+    في مشروع الارتكاز: بوابات الهوية/البنية M1(سعر)/M2(هبوط)/M3(انفجار) +
+    M4_base (قاعدة واسعة/شاذّة = ليست تجميعًا ضيّقًا، بنيوية مثل M1-M3). أما
+    M4_انفجر_فعلاً («فات القطار») وRSI/النواقص فتبقى «متحرّكة» قابلة للمراجعة.
     عدّل البادئات بما يناسب أكواد رفض بوتك."""
-    return str(reason).startswith(("M1_", "M2_", "M3_"))
+    r = str(reason)
+    return r.startswith(("M1_", "M2_", "M3_")) or r.startswith("M4_base")
 
 
 # ==========================================================
@@ -480,7 +483,12 @@ def export_weekly_csvs(wl: dict, picks: list, missed: list = None,
 
     signals = [{"symbol": r.get("symbol"), "tier": r.get("tier"),
                 "sector": r.get("sector"), "rsi": r.get("rsi"),
-                "float": r.get("float"), "short": r.get("finra_short") or r.get("short"),
+                "float": r.get("float"),
+                # تدرّج الشورت: حجم Fintel ← FINRA ← (نسبة Yahoo بعمود منفصل)،
+                # فلا يظهر فارغًا رغم توفّر short_pct.
+                "short": ((r.get("fintel") or {}).get("short_volume")
+                          or r.get("finra_short")),
+                "short_pct": r.get("short_pct"),
                 "drop_pct": round(r.get("drop_pct", 0) or 0, 1),
                 "best_spike": round(r.get("best_spike", 0) or 0, 0),
                 "rr": r.get("rr"), "score": r.get("score"),

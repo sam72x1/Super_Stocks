@@ -2990,7 +2990,13 @@ def export_weekly_csvs(wl: dict, picks: list) -> None:
     trades = [{k: r.get(k) for k in cols_t} for r in _collect_closed(wl)]
     signals = [{"symbol": r["symbol"], "tier": r.get("tier"),
                 "sector": r.get("sector"), "rsi": r.get("rsi"),
-                "float": r.get("float"), "short": r.get("finra_short"),
+                "float": r.get("float"),
+                # تدرّج الشورت مثل short_line: حجم Fintel ← FINRA ← (نسبة Yahoo
+                # بعمود منفصل). كان يكتب finra_short فقط فيظهر فارغًا رغم توفّر
+                # short_pct (مثل UPB). إصلاح فحص 2026-06-26 — تصدير فقط.
+                "short": ((r.get("fintel") or {}).get("short_volume")
+                          or r.get("finra_short")),
+                "short_pct": r.get("short_pct"),
                 "drop_pct": round(r.get("drop_pct", 0), 1),
                 "best_spike": round(r.get("best_spike", 0), 0),
                 "rr": r.get("rr"), "score": r.get("score"),
@@ -3279,6 +3285,31 @@ def rank_key(x):
             -x.get("score", 0), -x.get("rr", 0))
 
 
+def _had_pivot_identity(df) -> bool:
+    """هل توفّرت **هوية الارتكاز** (بوابات البنية M1-M3) في هذه البيانات؟
+    سعر مقبول + هبوط ضمن المدى (فوق الأرضية وتحت السقف) + انفجار سابق فوق الأرضية.
+    لا تفحص جاهزية الدخول (RSI الآن/القرب/النواقص) — فقط البنية، وهو ما يقصده كاشف
+    الانفجارات بـ«كان ارتكازًا». تستعمل نفس spike_info والثوابت (بلا ازدواج منطق).
+    فاشل-آمن → False. (إصلاح فحص 2026-06-26: كان was_pivot يعيد تشغيل مصنّف الدخول
+    الكامل على شمعة ما قبل الانفجار، وهي تفشل بنيويًا دائمًا (RSI/قرب/نواقص) →
+    was_pivot=False لكل الانفجارات؛ الآن يقيس الهوية فقط فيصير ذا معنى.)"""
+    try:
+        c = df["Close"].values.astype(float)
+        price = float(c[-1])
+        if price < CONFIG["MIN_PRICE"]:                                # M1
+            return False
+        hi52 = float(df["High"].tail(252).max())
+        if hi52 <= 0:
+            return False
+        drop_pct = (1.0 - price / hi52) * 100.0                        # M2
+        if not (CONFIG["MIN_DROP_FLOOR"] <= drop_pct <= CONFIG["MAX_DROP_PCT"]):
+            return False
+        best_spike, _ = spike_info(c, exclude_last=CONFIG["BASE_WINDOW"])  # M3
+        return best_spike >= CONFIG["PRIOR_SPIKE_FLOOR"]
+    except Exception:
+        return False
+
+
 def scan_explosions(history: dict) -> list:
     """كاشف الانفجارات اليومية (للتعلّم): يلتقط الأسهم اللي قفزت ≥ EXPLOSION_PCT
     في يوم واحد (آخر EXPLOSION_LOOKBACK جلسة) ويصنّفها:
@@ -3321,10 +3352,8 @@ def scan_explosions(history: dict) -> list:
         was_pivot = False
         slice_df = df.iloc[:idx]                   # بياناته قبل يوم الانفجار
         if len(slice_df) >= CONFIG["MIN_BARS"]:
-            try:
-                was_pivot = analyze_ticker(sym, slice_df) is not None
-            except Exception:
-                was_pivot = False
+            # هوية الارتكاز فقط (M1-M3)، لا جاهزية الدخول — انظر _had_pivot_identity.
+            was_pivot = _had_pivot_identity(slice_df)
         out.append({"symbol": sym, "date": today, "expl_date": expl_date,
                     "gain": round(g, 0), "reason": reason,
                     "was_pivot": bool(was_pivot)})
@@ -4025,11 +4054,15 @@ def build_dev_assistant_report(wl: dict) -> str:
     def _missed_block():
         if not _MISSED:
             return []
-        # تصنيف: بوابات الهوية (M1 سعر · M2 هبوط · M3 انفجار) = «ليس ارتكازًا
-        # أصلًا» (رفض صحيح، لا يدل على تشدّد). الباقي (M4 تحرّك/حدّي/RSI/نواقص)
-        # = ارتكاز فعلي تحرّك أو حدّي → هو الإشارة الحقيقية للمراجعة.
+        # تصنيف: بوابات الهوية/البنية = «ليس ارتكازًا أصلًا» (رفض صحيح، لا تشدّد):
+        # M1 سعر · M2 هبوط · M3 انفجار · M4_base (قاعدة واسعة/شاذّة = ليست تجميعًا
+        # ضيّقًا — بنيوية مثل M1-M3، وملتقَطة أصلًا بمسار الارتداد إن كانت ارتكازًا
+        # حقيقيًا ارتفع). الباقي (M4_انفجر_فعلاً «فات القطار»/حدّي/RSI/نواقص) = ارتكاز
+        # فعلي تحرّك → هو الإشارة الحقيقية للمراجعة. (إصلاح فحص 2026-06-26: كان M4_base
+        # يُحسب خطأً «ارتكاز فاتنا» فيفبرك فرصًا فائتة وهمية.)
         def _identity(reason):
-            return str(reason).startswith(("M1_", "M2_", "M3_"))
+            r = str(reason)
+            return r.startswith(("M1_", "M2_", "M3_")) or r.startswith("M4_base")
         moved = [m for m in _MISSED if not _identity(m["reason"])]
         not_pivot = [m for m in _MISSED if _identity(m["reason"])]
         out = [f"\n👻 <b>فرص فائتة (مرفوض صعد {int(CONFIG['MISSED_RISE_PCT'])}% أو أكثر)</b>",
@@ -4415,12 +4448,28 @@ def run_daily_watchlist(wl: dict) -> None:
         log(f"⚠️ تحديث حالة القائمة: {e}")
         stopped_today = []
     # 4) إضافة الجديد دون حذف القديم (حتى حد القائمة)
+    # حارس التغطية اليومي (إصلاح فحص 2026-06-26): لو خُنق Yahoo (تغطية ضعيفة) أو
+    # فشل جلب كون ناسداك (رجوع لعيّنة 28 رمز تبدو 100%) — لا نضيف أسهمًا من فرز غير
+    # موثوق (نتجنّب تفويت ارتكازات حقيقية لم تُفحَص أصلًا). المتابعة مستمرة دائمًا.
+    # نفس مقياس حارس الجمعة (run_weekly_renewal) — كان غائبًا عن المسار اليومي (4/5 أيام).
+    _uni = _SCAN_STATS.get("universe") or 0
+    _val = _SCAN_STATS.get("valid") or 0
+    _cov = (_val / _uni * 100.0) if _uni else 0.0
+    _fallback = _SCAN_STATS.get("universe_fallback", False)
+    coverage_ok = bool(results) and _cov >= CONFIG["DATA_HEALTH_MIN_PCT"] \
+        and not _fallback
     held = {s["symbol"] for s in wl["stocks"]}
     stopped = {rm["symbol"] for rm in wl["removed"]
                if rm.get("status") == "stopped"}
     space = CONFIG["WATCHLIST_SIZE"] - len(wl["stocks"])
     added = []
-    if space > 0:
+    low_coverage_note = None
+    if space > 0 and not coverage_ok:
+        low_coverage_note = ("فشل جلب كون ناسداك (عيّنة اختبار صغيرة)" if _fallback
+                             else f"تغطية بيانات ضعيفة ({_cov:.0f}%)")
+        log(f"⚠️ تخطّي إضافة الجديد اليوم: {low_coverage_note} — "
+            "القائمة الحالية تُتابَع كالمعتاد.")
+    elif space > 0:
         picks = select_top(results, space, exclude=held | stopped)
         if picks:
             try:
@@ -4458,6 +4507,9 @@ def run_daily_watchlist(wl: dict) -> None:
     # 7) الرسالة
     splits = []
     msg = build_daily_message(wl, splits, stopped_today, added, promoted)
+    if low_coverage_note:   # تنبيه التغطية للمستخدم (يكشف الخنق الصامت Mon-Thu)
+        msg += ("\n\n⚠️ <b>تنبيه تغطية:</b> " + low_coverage_note
+                + " — لم تُضف أسهم جديدة اليوم (متابعة القائمة الحالية مستمرة).")
     watching = [e for e in wl.get("pullback", [])
                 if e.get("status") != "triggered"]
     pull_sec = build_pullback_section(watching, pull_triggered)
