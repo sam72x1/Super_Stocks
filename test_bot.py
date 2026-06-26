@@ -660,6 +660,16 @@ _exp = S.scan_explosions({"BOOM": _boom})
 check("كاشف الانفجارات: يلتقط القفزة ≥70% ويصنّفها",
       len(_exp) == 1 and _exp[0]["symbol"] == "BOOM" and _exp[0]["gain"] >= 70
       and "was_pivot" in _exp[0])
+# was_pivot يقيس هوية الارتكاز (M1-M3) لا جاهزية الدخول (إصلاح فحص 2026-06-26):
+# ارتكاز حقيقي انفجر → was_pivot=True (كان دائمًا False لإعادة تشغيل مصنّف الدخول).
+check("كاشف الانفجارات: ارتكاز انفجر → was_pivot=True (لا صفر دائمًا)",
+      _exp[0]["was_pivot"] is True)
+_flat_id = pd.DataFrame({k: [5.0] * 200 for k in ["Open", "High", "Low", "Close"]}
+                        | {"Volume": [1e5] * 200},
+                        index=pd.date_range("2024-01-01", periods=200))
+check("هوية الارتكاز: ارتكاز=True · مسطّح (بلا انهيار/انفجار)=False",
+      S._had_pivot_identity(synth_pivot(seed=2)) is True
+      and S._had_pivot_identity(_flat_id) is False)
 _wlx = {"stocks": [], "notes": []}
 S.accumulate_explosions(_wlx, {"BOOM": _boom})
 S.accumulate_explosions(_wlx, {"BOOM": _boom})   # نفس اليوم → لا تكرار
@@ -672,19 +682,43 @@ _calm = synth_pivot(seed=3)
 check("كاشف الانفجارات: يتجاهل ما دون العتبة",
       len(S.scan_explosions({"CALM": _calm})) == 0)
 
-# 👻 تصنيف الفرص الفائتة: هوية (ليس ارتكازًا) مقابل M4 (ارتكاز تحرّك)
+# 📎 تصدير CSV: عمود الشورت يرجع لـshort_pct عند غياب finra_short (إصلاح فحص
+# 2026-06-26 — كان UPB يظهر شورت فارغ رغم توفّر short_pct). تصدير فقط.
+import glob as _glob_csv
+import os as _os_csv
+S._MISSED.clear()
+_save_doc = S.send_telegram_document
+S.send_telegram_document = lambda *a, **k: None
+_pick_csv = {"symbol": "UPBX", "tier": "B", "sector": "Healthcare", "rsi": 35.0,
+             "float": 35e6, "finra_short": None, "short_pct": 7.5, "fintel": {},
+             "drop_pct": 80.0, "best_spike": 78.0, "rr": 1.9, "score": 60,
+             "pivot": 5.85, "stop": [5.44], "t1": 7.16, "t2": 7.41, "t3": 7.69}
+S.export_weekly_csvs({"stocks": [], "removed": [], "history": []}, [_pick_csv])
+S.send_telegram_document = _save_doc
+_sig_files = sorted(_glob_csv.glob("signals_*.csv"))
+_sig_txt = (open(_sig_files[-1], encoding="utf-8-sig").read()
+            if _sig_files else "")
+for _f in (_glob_csv.glob("signals_*.csv")):
+    _os_csv.remove(_f)
+check("تصدير CSV: short_pct يظهر عند غياب finra_short (UPB)",
+      "short_pct" in _sig_txt and "7.5" in _sig_txt)
+
+# 👻 تصنيف الفرص الفائتة: الهوية/البنية (ليس ارتكازًا: M1-M3 + M4_base) مقابل
+# المتحرّك القابل للمراجعة (M4_انفجر_فعلاً «فات القطار»/RSI/نواقص).
+# إصلاح فحص 2026-06-26: M4_base (قاعدة واسعة) بنيوية = «ليس ارتكازًا» لا «تحرّك».
 S._MISSED.clear()
 S._MISSED += [
-    {"symbol": "MOVEDX", "reason": "M4_base_واسعة", "gain_10d": 80.0, "price": 4.0},
+    {"symbol": "MOVEDX", "reason": "M4_انفجر_فعلاً", "gain_10d": 80.0, "price": 4.0},
+    {"symbol": "WIDEBS", "reason": "M4_base_واسعة", "gain_10d": 120.0, "price": 5.0},
     {"symbol": "BIGCAP", "reason": "M2_هبوط_تحت_40", "gain_10d": 40.0, "price": 90.0},
     {"symbol": "SPLITX", "reason": "M2_هبوط_فوق_97", "gain_10d": 999.0, "price": 30.0},
 ]
 _mrep = S.build_dev_assistant_report({"stocks": [], "notes": []})
 S._MISSED.clear()
-check("الفائتة تُفصل: ارتكاز تحرّك عن «ليس ارتكازًا» وتعرض المتحرّك فقط",
+check("الفائتة تُفصل: المتحرّك (M4_انفجر) عن «ليس ارتكازًا» (M1-M3 + M4_base)",
       "ارتكاز تحرّك (راجع الارتداد): <b>1</b>" in _mrep
-      and "ليس ارتكازًا (تجاهل صحيح): 2" in _mrep
-      and "MOVEDX" in _mrep and "BIGCAP" not in _mrep)
+      and "ليس ارتكازًا (تجاهل صحيح): 3" in _mrep
+      and "MOVEDX" in _mrep and "WIDEBS" not in _mrep and "BIGCAP" not in _mrep)
 
 # أكواد الرفض خالية من علامات < > (تكسر HTML تيليجرام) — حارس ضد الانحدار
 import re as _re_codes
