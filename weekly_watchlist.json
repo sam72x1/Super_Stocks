@@ -45,8 +45,8 @@
    "tier": "B",
    "soft_fails": [
     "قاع RSI 32 (المثالي 27 أو أقل)",
-    "RSI الآن 46 أعلى من 40",
-    "السعر أقل بـ4% من متوسطه المتحرك (يفتح بصعود ~2% أو بثبات أسابيع)"
+    "RSI الآن 49 أعلى من 40",
+    "السعر أقل بـ2% من متوسطه المتحرك (يفتح بصعود ~0% أو بثبات أسابيع)"
    ],
    "warnings": [],
    "news_risk": false,
@@ -68,28 +68,37 @@
    },
    "key_levels": {
     "sup_major": 4.54,
-    "sup_minor": 4.92,
+    "sup_minor": 5.04,
     "res_major": 8.26,
     "res_minor": 6.04
    },
    "h4_confirm": 1,
    "tf_count": 2,
    "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
-   "liberation": 11.53,
+   "liberation": 11.16,
    "sector": "Healthcare",
    "country": "United States",
    "status": "active",
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 70,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.01
+   "last_price": 5.12
   },
   {
    "symbol": "NEGG",
@@ -133,9 +142,9 @@
    "rr": 1.3181734744715135,
    "tier": "B",
    "soft_fails": [
-    "توافق الفريمات 1 من 3 (نحتاج 2 على الأقل)",
+    "توافق الفريمات 0 من 3 (نحتاج 2 على الأقل)",
     "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ18% من متوسطه المتحرك (يفتح بصعود ~19% أو بثبات أسابيع)"
+    "السعر أقل بـ18% من متوسطه المتحرك (يفتح بصعود ~20% أو بثبات أسابيع)"
    ],
    "warnings": [],
    "news_risk": false,
@@ -155,13 +164,13 @@
    },
    "key_levels": {
     "sup_major": 16.01,
-    "sup_minor": 16.3,
+    "sup_minor": 16.2,
     "res_major": 48.3,
     "res_minor": 16.8
    },
    "h4_confirm": 3,
-   "tf_count": 1,
-   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ✅",
+   "tf_count": 0,
+   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ⏳",
    "liberation": 29.95,
    "sector": "Consumer Cyclical",
    "country": "United States",
@@ -169,14 +178,23 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 50,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 16.62
+   "last_price": 16.49
   }
  ],
  "removed": [],
@@ -209,7 +227,7 @@
    "sector": "Healthcare",
    "country": "Israel",
    "float": 1520609,
-   "last_price": 5.9,
+   "last_price": 5.96,
    "status": "watching",
    "triggered_date": null
   },
@@ -239,7 +257,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 7384774,
-   "last_price": 6.9803,
+   "last_price": 7.08,
    "status": "watching",
    "triggered_date": null
   },
@@ -269,7 +287,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 12939475,
-   "last_price": 4.89,
+   "last_price": 4.96,
    "status": "watching",
    "triggered_date": null
   },
@@ -299,7 +317,7 @@
    "sector": "Healthcare",
    "country": "Cayman Islands",
    "float": null,
-   "last_price": 7.92,
+   "last_price": 7.6,
    "status": "watching",
    "triggered_date": null
   },
@@ -329,7 +347,7 @@
    "sector": "Real Estate",
    "country": "United States",
    "float": 2400271,
-   "last_price": 1.8,
+   "last_price": 1.81,
    "status": "watching",
    "triggered_date": null
   },
@@ -360,7 +378,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 1273288,
-   "last_price": 3.77,
+   "last_price": 3.72,
    "status": "watching",
    "triggered_date": null
   },
@@ -391,7 +409,7 @@
    "sector": "Consumer Cyclical",
    "country": "United Arab Emirates",
    "float": 2144956,
-   "last_price": 1.74,
+   "last_price": 1.71,
    "status": "watching",
    "triggered_date": null
   },
@@ -421,7 +439,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 986446,
-   "last_price": 3.42,
+   "last_price": 3.69,
    "status": "watching",
    "triggered_date": null
   },
@@ -450,7 +468,7 @@
    "sector": "Technology",
    "country": "Hong Kong",
    "float": 2026888,
-   "last_price": 79.99,
+   "last_price": 77.11,
    "status": "watching",
    "triggered_date": null
   },
@@ -481,7 +499,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 5500008,
-   "last_price": 17.5001,
+   "last_price": 16.5,
    "status": "watching",
    "triggered_date": null
   },
@@ -512,7 +530,7 @@
    "sector": "Consumer Cyclical",
    "country": "China",
    "float": 2689266,
-   "last_price": 2.39,
+   "last_price": 2.31,
    "status": "watching",
    "triggered_date": null
   },
@@ -542,7 +560,7 @@
    "sector": "Basic Materials",
    "country": "China",
    "float": 3249069,
-   "last_price": 2.47,
+   "last_price": 2.6,
    "status": "watching",
    "triggered_date": null
   },
@@ -574,7 +592,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 3348686,
-   "last_price": 3.23,
+   "last_price": 3.21,
    "status": "watching",
    "triggered_date": null
   },
@@ -605,7 +623,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 36046153,
-   "last_price": 1.645,
+   "last_price": 1.7,
    "status": "watching",
    "triggered_date": null
   },
@@ -636,7 +654,7 @@
    "sector": "Financial Services",
    "country": "Hong Kong",
    "float": 892196,
-   "last_price": 2.31,
+   "last_price": 2.4,
    "status": "watching",
    "triggered_date": null
   }
@@ -2795,6 +2813,22 @@
    "date": "2026-06-26",
    "expl_date": "2026-06-26",
    "gain": 71.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "WSHP",
+   "date": "2026-06-27",
+   "expl_date": "2026-06-26",
+   "gain": 70.0,
+   "reason": "M4_base_واسعة",
+   "was_pivot": false
+  },
+  {
+   "symbol": "CRIS",
+   "date": "2026-06-27",
+   "expl_date": "2026-06-26",
+   "gain": 52.0,
    "reason": "M1_سعر",
    "was_pivot": false
   }

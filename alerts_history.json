@@ -49,7 +49,7 @@
    "ready": true,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 6.4
+   "max_gain_pct": 7.1
   },
   {
    "symbol": "SEV",
@@ -307,7 +307,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 10.9
+   "max_gain_pct": 13.5
   },
   {
    "symbol": "VSTM",
@@ -358,7 +358,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 6.4
+   "max_gain_pct": 7.5
   },
   {
    "symbol": "VFS",
@@ -485,7 +485,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.4
   },
   {
    "symbol": "NEGG",
@@ -512,7 +512,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.2
   }
  ]
 }
