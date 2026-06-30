@@ -12,8 +12,8 @@ name: Cline Weekly Auditor
 
 on:
   workflow_dispatch: {}
-  # schedule:
-  #   - cron: "0 8 * * 5"   # الجمعة 08:00 UTC (بعد تقرير أداة التطوير) — فعّله لاحقًا
+  schedule:
+    - cron: "17 8 * * 5"   # الجمعة 08:17 UTC (بعد تقرير أداة التطوير من daily_screener)
 
 permissions:
   contents: write

@@ -2988,7 +2988,8 @@ def export_weekly_csvs(wl: dict, picks: list, alert_data: dict = None) -> None:
               "best_spike", "rr", "score", "max_gain_pct", "status", "hit",
               "hit_date", "added", "removal_reason")
     trades = [{k: r.get(k) for k in cols_t}
-              for r in (_collect_closed(wl) + _collect_closed_alerts(alert_data))]
+              for r in _dedup_closed(_collect_closed(wl)
+                                     + _collect_closed_alerts(alert_data))]
     def _stop0(r):
         st = r.get("stop")
         try:
@@ -4053,6 +4054,21 @@ def _collect_closed_alerts(alert_data) -> list:
     return rows
 
 
+def _dedup_closed(rows: list) -> list:
+    """يزيل تكرار الصفقة المحسومة بين المصدرين (القائمة + alerts) بمفتاح
+    (رمز, entry_ref) — الأول يفوز. طبقة تقارير فقط، لا تمسّ الفرز. (تأمين فحص
+    2026-06-30: دمج _collect_closed + _collect_closed_alerts كان يحتمل عدّ نفس
+    الصفقة مرّتين لو ظهرت في القائمة و alerts معًا — غير مؤذٍ الآن، حارس وقائي.)"""
+    seen, out = set(), []
+    for r in rows:
+        k = (r.get("symbol"), r.get("entry_ref"))
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(r)
+    return out
+
+
 def _collect_closed(wl: dict) -> list:
     """يجمع كل الصفقات المحسومة (رابحة=حقّقت هدفًا · خاسرة=ضربت الستوب بلا هدف)
     من الأرشيف التراكمي + الأسبوع الحالي. كل صف يحمل سماته عند الدخول."""
@@ -4089,7 +4105,7 @@ def _wr(rows: list):
 def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     """🔬 المساعد الثالث: يحلّل الصفقات المحسومة ويطلّع تشخيص الأداء بالشرائح
     + أنماط الفشل + اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات). يُرسل الجمعة."""
-    rows = _collect_closed(wl) + _collect_closed_alerts(alert_data)
+    rows = _dedup_closed(_collect_closed(wl) + _collect_closed_alerts(alert_data))
     n, wr, avg = _wr(rows)
     head = ["🔬 <b>مساعد التطوير — تحليل أداء المنهجية</b>",
             f"صفقات محسومة متراكمة: <b>{n}</b>"]
