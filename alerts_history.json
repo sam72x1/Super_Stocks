@@ -49,7 +49,7 @@
    "ready": true,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 7.1
+   "max_gain_pct": 8.1
   },
   {
    "symbol": "SEV",
@@ -257,7 +257,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.8
+   "max_gain_pct": 7.5
   },
   {
    "symbol": "NBP",
@@ -281,9 +281,9 @@
     "⚠️ فلوت كبير 64,483,293 (فوق 50,000,000)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 8.9
+   "status": "hit_t3",
+   "result_date": "2026-06-29",
+   "max_gain_pct": 38.4
   },
   {
    "symbol": "CTMX",
@@ -305,9 +305,9 @@
     "⚠️ فلوت كبير 186,262,263 (فوق 50,000,000)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 13.5
+   "status": "hit_t2",
+   "result_date": "2026-06-29",
+   "max_gain_pct": 24.3
   },
   {
    "symbol": "VSTM",
@@ -356,9 +356,9 @@
     "فلوت 34,977,358 (صغير ✅)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 7.5
+   "status": "hit_t1",
+   "result_date": "2026-06-29",
+   "max_gain_pct": 11.0
   },
   {
    "symbol": "VFS",
@@ -404,9 +404,9 @@
     "فلوت 30,871,076 (صغير ✅)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 4.8
+   "status": "hit_t3",
+   "result_date": "2026-06-29",
+   "max_gain_pct": 26.0
   },
   {
    "symbol": "OLMA",
@@ -431,7 +431,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.5
+   "max_gain_pct": 9.9
   },
   {
    "symbol": "INSM",
@@ -485,7 +485,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.4
+   "max_gain_pct": 11.0
   },
   {
    "symbol": "NEGG",
@@ -512,7 +512,33 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.2
+   "max_gain_pct": 4.4
+  },
+  {
+   "symbol": "KSCP",
+   "date": "2026-06-30",
+   "price": 2.02,
+   "stop": 1.6563,
+   "t1": 2.31,
+   "t2": 2.38,
+   "t3": 2.56,
+   "score": 75,
+   "flags": [
+    "تقاطع MACD",
+    "معيد إجرام (3 انفجارات)",
+    "ثبات 4 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (11→29) — سيولة مخفية",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 15,189,572 (صغير ✅)"
+   ],
+   "ready": false,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
   }
  ]
 }

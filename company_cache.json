@@ -758,5 +758,16 @@
   "short_pct": 10.5,
   "float": 892196,
   "finra_short": 9177
+ },
+ "KSCP": {
+  "sector": "Industrials",
+  "industry": "Security & Protection Services",
+  "business": "Knightscope, Inc. designs, develops, manufactures, markets, deploys, and supports autonomous security robots (ASR) in the United States. The company provides K5…",
+  "country": "United States",
+  "cash": 11401000,
+  "revenue": 14434000,
+  "shares_out": 16916595,
+  "short_pct": 16.7,
+  "float": 15189572
  }
 }

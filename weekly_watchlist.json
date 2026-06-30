@@ -97,8 +97,8 @@
    ],
    "hit": null,
    "hit_date": null,
-   "max_gain_pct": 0.0,
-   "last_price": 5.12
+   "max_gain_pct": 11.0,
+   "last_price": 5.43
   },
   {
    "symbol": "NEGG",
@@ -142,9 +142,9 @@
    "rr": 1.3181734744715135,
    "tier": "B",
    "soft_fails": [
-    "توافق الفريمات 0 من 3 (نحتاج 2 على الأقل)",
+    "توافق الفريمات 1 من 3 (نحتاج 2 على الأقل)",
     "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ18% من متوسطه المتحرك (يفتح بصعود ~20% أو بثبات أسابيع)"
+    "السعر أقل بـ15% من متوسطه المتحرك (يفتح بصعود ~15% أو بثبات أسابيع)"
    ],
    "warnings": [],
    "news_risk": false,
@@ -164,15 +164,111 @@
    },
    "key_levels": {
     "sup_major": 16.01,
-    "sup_minor": 16.2,
+    "sup_minor": 16.48,
     "res_major": 48.3,
-    "res_minor": 16.8
+    "res_minor": 19.01
    },
    "h4_confirm": 3,
-   "tf_count": 0,
-   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ⏳",
-   "liberation": 29.95,
+   "tf_count": 1,
+   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ✅",
+   "liberation": 32.2,
    "sector": "Consumer Cyclical",
+   "country": "United States",
+   "status": "active",
+   "removed_date": null,
+   "removal_reason": null,
+   "replaced": false,
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
+   "partial": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
+   "hit": null,
+   "hit_date": null,
+   "max_gain_pct": 4.4,
+   "last_price": 16.94
+  },
+  {
+   "symbol": "KSCP",
+   "added": "2026-06-30",
+   "entry_ref": 2.02,
+   "entry": [
+    1.78,
+    1.89
+   ],
+   "tranches": [
+    1.78,
+    1.83,
+    1.89
+   ],
+   "pivot": 1.781,
+   "stop": 1.6563,
+   "stop_hi": 1.692,
+   "t1": 2.31,
+   "t2": 2.38,
+   "t3": 2.56,
+   "score": 75,
+   "flags": [
+    "تقاطع MACD",
+    "معيد إجرام (3 انفجارات)",
+    "ثبات 4 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (11→29) — سيولة مخفية",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 15,189,572 (صغير ✅)"
+   ],
+   "rsi": 36.552826878208954,
+   "float": 15189572,
+   "short": null,
+   "short_pct": 16.7,
+   "drop_pct": 80.0788963261062,
+   "best_spike": 302.3188383362419,
+   "rr": 2.693677150886019,
+   "tier": "B",
+   "soft_fails": [
+    "ما فيه فجوة سعرية فوقه (هدف)",
+    "السعر أقل بـ14% من متوسطه المتحرك (يفتح بصعود ~13% أو بثبات أسابيع)"
+   ],
+   "warnings": [],
+   "news_risk": false,
+   "h4_levels": {
+    "supports": [
+     1.99,
+     1.94,
+     1.85
+    ],
+    "resistances": [
+     2.06,
+     2.12,
+     2.18,
+     2.31,
+     2.38
+    ],
+    "flip": 2.03,
+    "sweep_low": 1.79
+   },
+   "key_levels": {
+    "sup_major": 1.78,
+    "sup_minor": 1.95,
+    "res_major": 4.84,
+    "res_minor": 2.05
+   },
+   "h4_confirm": 3,
+   "tf_count": 2,
+   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
+   "liberation": 3.02,
+   "sector": "Industrials",
    "country": "United States",
    "status": "active",
    "removed_date": null,
@@ -182,19 +278,19 @@
    "have": [
     "ثبات بعد القاع",
     "تقاطع MACD",
-    "KST صاعد"
+    "مسح سيولة"
    ],
    "partial": [],
    "missing": [
     "RSI تشبع وانحناء",
+    "KST صاعد",
     "قرب متوسط 30/50",
-    "جفاف بيع",
-    "مسح سيولة"
+    "جفاف بيع"
    ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 16.49
+   "last_price": 2.02
   }
  ],
  "removed": [],
@@ -227,7 +323,7 @@
    "sector": "Healthcare",
    "country": "Israel",
    "float": 1520609,
-   "last_price": 5.96,
+   "last_price": 5.26,
    "status": "watching",
    "triggered_date": null
   },
@@ -257,7 +353,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 7384774,
-   "last_price": 7.08,
+   "last_price": 7.79,
    "status": "watching",
    "triggered_date": null
   },
@@ -287,7 +383,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 12939475,
-   "last_price": 4.96,
+   "last_price": 5.32,
    "status": "watching",
    "triggered_date": null
   },
@@ -317,7 +413,7 @@
    "sector": "Healthcare",
    "country": "Cayman Islands",
    "float": null,
-   "last_price": 7.6,
+   "last_price": 8.09,
    "status": "watching",
    "triggered_date": null
   },
@@ -347,7 +443,7 @@
    "sector": "Real Estate",
    "country": "United States",
    "float": 2400271,
-   "last_price": 1.81,
+   "last_price": 1.92,
    "status": "watching",
    "triggered_date": null
   },
@@ -409,7 +505,7 @@
    "sector": "Consumer Cyclical",
    "country": "United Arab Emirates",
    "float": 2144956,
-   "last_price": 1.71,
+   "last_price": 1.72,
    "status": "watching",
    "triggered_date": null
   },
@@ -439,7 +535,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 986446,
-   "last_price": 3.69,
+   "last_price": 3.5,
    "status": "watching",
    "triggered_date": null
   },
@@ -468,7 +564,7 @@
    "sector": "Technology",
    "country": "Hong Kong",
    "float": 2026888,
-   "last_price": 77.11,
+   "last_price": 75.24,
    "status": "watching",
    "triggered_date": null
   },
@@ -499,7 +595,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 5500008,
-   "last_price": 16.5,
+   "last_price": 17.704,
    "status": "watching",
    "triggered_date": null
   },
@@ -530,7 +626,7 @@
    "sector": "Consumer Cyclical",
    "country": "China",
    "float": 2689266,
-   "last_price": 2.31,
+   "last_price": 2.26,
    "status": "watching",
    "triggered_date": null
   },
@@ -560,7 +656,7 @@
    "sector": "Basic Materials",
    "country": "China",
    "float": 3249069,
-   "last_price": 2.6,
+   "last_price": 2.47,
    "status": "watching",
    "triggered_date": null
   },
@@ -592,7 +688,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 3348686,
-   "last_price": 3.21,
+   "last_price": 3.17,
    "status": "watching",
    "triggered_date": null
   },
@@ -623,7 +719,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 36046153,
-   "last_price": 1.7,
+   "last_price": 1.78,
    "status": "watching",
    "triggered_date": null
   },
@@ -654,7 +750,7 @@
    "sector": "Financial Services",
    "country": "Hong Kong",
    "float": 892196,
-   "last_price": 2.4,
+   "last_price": 2.23,
    "status": "watching",
    "triggered_date": null
   }
@@ -2829,6 +2925,38 @@
    "date": "2026-06-27",
    "expl_date": "2026-06-26",
    "gain": 52.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "UPC",
+   "date": "2026-06-30",
+   "expl_date": "2026-06-29",
+   "gain": 311.0,
+   "reason": "M2_هبوط_تحت_40",
+   "was_pivot": true
+  },
+  {
+   "symbol": "TNMG",
+   "date": "2026-06-30",
+   "expl_date": "2026-06-29",
+   "gain": 107.0,
+   "reason": "M1_سعر",
+   "was_pivot": false
+  },
+  {
+   "symbol": "DCOY",
+   "date": "2026-06-30",
+   "expl_date": "2026-06-29",
+   "gain": 74.0,
+   "reason": "M2_هبوط_فوق_97",
+   "was_pivot": false
+  },
+  {
+   "symbol": "DGNX",
+   "date": "2026-06-30",
+   "expl_date": "2026-06-29",
+   "gain": 59.0,
    "reason": "M1_سعر",
    "was_pivot": false
   }
