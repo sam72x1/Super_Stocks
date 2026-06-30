@@ -2980,14 +2980,23 @@ def _write_csv_file(rows: list, prefix: str):
         return None
 
 
-def export_weekly_csvs(wl: dict, picks: list) -> None:
+def export_weekly_csvs(wl: dict, picks: list, alert_data: dict = None) -> None:
     """يصدّر 3 ملفات CSV للمشرف الجمعة: الصفقات المحسومة · الإشارات الحالية ·
     الفرص الفائتة. (البيانات محفوظة أصلًا في git؛ هذا للراحة وسهولة التحليل.)"""
     d = dt.date.today().isoformat()
     cols_t = ("symbol", "tier", "sector", "rsi", "float", "short", "drop_pct",
               "best_spike", "rr", "score", "max_gain_pct", "status", "hit",
               "hit_date", "added", "removal_reason")
-    trades = [{k: r.get(k) for k in cols_t} for r in _collect_closed(wl)]
+    trades = [{k: r.get(k) for k in cols_t}
+              for r in (_collect_closed(wl) + _collect_closed_alerts(alert_data))]
+    def _stop0(r):
+        st = r.get("stop")
+        try:
+            return round(st[0], 2)
+        except Exception:
+            return round(st, 2) if isinstance(st, (int, float)) else st
+
+
     signals = [{"symbol": r["symbol"], "tier": r.get("tier"),
                 "sector": r.get("sector"), "rsi": r.get("rsi"),
                 "float": r.get("float"),
@@ -3000,7 +3009,7 @@ def export_weekly_csvs(wl: dict, picks: list) -> None:
                 "drop_pct": round(r.get("drop_pct", 0), 1),
                 "best_spike": round(r.get("best_spike", 0), 0),
                 "rr": r.get("rr"), "score": r.get("score"),
-                "pivot": round(r["pivot"], 2), "stop": round(r["stop"][0], 2),
+                "pivot": round(r["pivot"], 2), "stop": _stop0(r),
                 "t1": round(r["t1"], 2), "t2": round(r["t2"], 2),
                 "t3": round(r["t3"], 2)} for r in picks]
     for rows, prefix, cap in [
@@ -4010,6 +4019,40 @@ def build_wrapup_message(wl: dict) -> str:
 DEV_MIN_SAMPLE = 10        # أقل عدد صفقات محسومة قبل أن تكون الأرقام ذات معنى
 
 
+
+def _alert_hit_from_status(status: str):
+    """يرجّع t1/t2/t3 من حالة سجل التنبيهات hit_t*، وإلا None."""
+    st = str(status or "")
+    return st.replace("hit_", "") if st.startswith("hit_t") else None
+
+
+def _collect_closed_alerts(alert_data) -> list:
+    """يجمع الصفقات المحسومة من alerts_history.json (نظام التتبع القديم/الموازي).
+    طبقة تقارير فقط: لا تغيّر الفرز ولا الدخول/الوقف/الأهداف؛ تمنع أن يعرض مساعد
+    التطوير 0 صفقات بينما تقرير الأداء الأسبوعي سجّل أهدافًا/ستوبات."""
+    if not alert_data:
+        return []
+    alerts = alert_data.get("alerts", alert_data) if isinstance(alert_data, dict) else alert_data
+    rows = []
+    for a in alerts or []:
+        status = str(a.get("status") or "")
+        hit = _alert_hit_from_status(status)
+        won = bool(hit)
+        lost = status == "stopped"
+        if not (won or lost):
+            continue
+        r = dict(a)
+        r["entry_ref"] = r.get("entry_ref", r.get("price"))
+        r["hit"] = hit
+        r["hit_date"] = r.get("hit_date") or r.get("result_date")
+        r["added"] = r.get("added") or r.get("date")
+        if lost and not r.get("removal_reason"):
+            r["removal_reason"] = "ضرب الستوب"
+        r["_win"] = won
+        rows.append(r)
+    return rows
+
+
 def _collect_closed(wl: dict) -> list:
     """يجمع كل الصفقات المحسومة (رابحة=حقّقت هدفًا · خاسرة=ضربت الستوب بلا هدف)
     من الأرشيف التراكمي + الأسبوع الحالي. كل صف يحمل سماته عند الدخول."""
@@ -4043,10 +4086,10 @@ def _wr(rows: list):
     return (n, wins / n * 100.0, avg_mg)
 
 
-def build_dev_assistant_report(wl: dict) -> str:
+def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     """🔬 المساعد الثالث: يحلّل الصفقات المحسومة ويطلّع تشخيص الأداء بالشرائح
     + أنماط الفشل + اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات). يُرسل الجمعة."""
-    rows = _collect_closed(wl)
+    rows = _collect_closed(wl) + _collect_closed_alerts(alert_data)
     n, wr, avg = _wr(rows)
     head = ["🔬 <b>مساعد التطوير — تحليل أداء المنهجية</b>",
             f"صفقات محسومة متراكمة: <b>{n}</b>"]
@@ -4355,14 +4398,17 @@ def run_weekly_renewal(wl: dict) -> None:
     send_telegram(msg)
     # 5.5) 🔬 مساعد التطوير (تقرير مستقل) + تصدير CSV للمشرف — بعد الفرز
     #      (الفرص الفائتة _MISSED جاهزة الآن من scan_market أعلاه).
+    alert_data = None
+
     try:
-        dev = build_dev_assistant_report(wl)
+        alert_data = load_alerts()
+        dev = build_dev_assistant_report(wl, alert_data)
         if dev:
             send_telegram(dev)
     except Exception as e:
         log(f"⚠️ مساعد التطوير: {e}")
     try:
-        export_weekly_csvs(wl, picks)
+        export_weekly_csvs(wl, picks, alert_data)
     except Exception as e:
         log(f"⚠️ تصدير CSV: {e}")
     # 6) CSV + تتبع الأداء (يسجل القائمة كتنبيهات ويتابع القدامى)
