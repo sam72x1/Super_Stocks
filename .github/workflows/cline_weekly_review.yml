@@ -49,7 +49,7 @@ jobs:
           # كامل بلا واجهة تفاعلية (يبثّ لـstdout). النموذج = افتراضي حساب Cline Pass.
           DATE=$(date +%F)
           mkdir -p reports
-          cline -y "اقرأ ونفّذ دستور CLINE_WEEKLY_REVIEW.md حرفيًا: دقّق البوت لهذا الأسبوع (الكود + git log الأسبوع + weekly_watchlist.json + ملفات signals/trades/missed CSV + تقرير أداة التطوير + PENDING_VERIFICATION.md). اكتب التقرير في reports/cline_weekly_${DATE}.md، وحدّث PENDING_VERIFICATION.md (احسم المحسوم وأبقِ المعلّق). لا تلمس جذور الفرز/الدخول/الوقف/الأهداف بلا توثيق. شغّل python3 test_bot.py وتأكّد نجاحها قبل الانتهاء."
+          cline -y "نفّذ CLINE_WEEKLY_REVIEW.md **باقتصاد صارم في القراءة** (التوكنز مكلفة): ركّز على (1) **git diff منذ آخر مراجعة** لمعرفة ما تغيّر، (2) ملفات البيانات: weekly_watchlist.json · alerts_history.json · ملفات CSV · PENDING_VERIFICATION.md. **لا تُعِد قراءة كامل Super_stock.py ولا ملفات المنهجية** — اقرأ المقاطع المعنية فقط (بـgrep ثم قراءة نطاق محدود) عند التحقق من شيء بعينه. اكتب التقرير في reports/cline_weekly_${DATE}.md وحدّث PENDING_VERIFICATION.md (احسم المحسوم وأبقِ المعلّق). لا تلمس جذور الفرز/الدخول/الوقف/الأهداف بلا توثيق. شغّل python3 test_bot.py وتأكّد نجاحها قبل الانتهاء."
 
       - name: فتح PR بالتقرير + التحديثات (مراجعة فقط — لا دمج)
         # لا يُفشل الـworkflow لو منع GitHub إنشاء PR (إعداد Settings→Actions مغلق):
