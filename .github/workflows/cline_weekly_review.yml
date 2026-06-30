@@ -1,0 +1,70 @@
+name: Cline Weekly Auditor
+
+# مراجِع مستقل أسبوعي يدقّق البوت نفسه — انظر CLINE_WEEKLY_REVIEW.md (عقل الوكيل).
+# آمن بالتصميم: تشغيل يدوي فقط الآن (workflow_dispatch). فعّل الجدولة (cron) بعد
+# أول تشغيل ناجح + تأكيد صيغة استدعاء Cline. PR فقط — لا دمج تلقائي (قرار المستخدم).
+#
+# قبل أول تشغيل (يفعلها المستخدم في GitHub):
+#   1) أضِف سرّ CLINE_API_KEY (Settings → Secrets and variables → Actions).
+#      ⚠️ استخدم مفتاحًا **جديدًا** (المفتاح المُشارَك بالمحادثة يُعتبر مُخترَقًا).
+#   2) ادمج هذا الملف في main (الـActions تُشغَّل من main).
+#   3) أكّد سطر استدعاء Cline أدناه (شغّل «cline --help» — الصيغة قد تختلف).
+
+on:
+  workflow_dispatch: {}
+  # schedule:
+  #   - cron: "0 8 * * 5"   # الجمعة 08:00 UTC (بعد تقرير أداة التطوير) — فعّله لاحقًا
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: سحب المستودع (كل تاريخ git)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: تهيئة Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: المتطلبات + بوابة الاختبارات (لازم تنجح قبل المراجعة)
+        run: |
+          pip install -r requirements.txt || true
+          python3 test_bot.py
+
+      - name: تثبيت Cline
+        run: npm install -g cline
+
+      - name: المراجعة الأسبوعية المستقلة (Cline · GLM-5.2)
+        env:
+          CLINE_API_KEY: ${{ secrets.CLINE_API_KEY }}   # سرّ — لا قيمة هنا
+        run: |
+          # ⚠️ أكّد الصيغة الدقيقة: «cline --help» أو docs.cline.bot.
+          # المطلوب: تشغيل headless غير تفاعلي + تنفيذ دستور CLINE_WEEKLY_REVIEW.md
+          # على نموذج GLM-5.2. (المثال تقريبي — عدّله حسب CLI الحالي.)
+          cline task --headless --model "glm-5.2" --prompt "$(cat <<'EOF'
+          اقرأ CLINE_WEEKLY_REVIEW.md ونفّذه حرفيًا: دقّق البوت لهذا الأسبوع
+          (الكود + git + weekly_watchlist.json + CSVs + تقرير أداة التطوير +
+          PENDING_VERIFICATION.md). اكتب التقرير في
+          reports/cline_weekly_$(date +%F).md، وحدّث PENDING_VERIFICATION.md
+          (احسم المحسوم، أبقِ المعلّق). لا تلمس جذور الفرز/الدخول/الوقف/الأهداف
+          بلا توثيق. شغّل python3 test_bot.py وتأكّد نجاحها الكامل قبل الانتهاء.
+          EOF
+          )"
+
+      - name: فتح PR بالتقرير + التحديثات (مراجعة فقط — لا دمج)
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: cline/weekly-review
+          title: "🔬 مراجعة Cline الأسبوعية المستقلة"
+          commit-message: "مراجعة Cline الأسبوعية المستقلة (GLM-5.2)"
+          body: |
+            تقرير تدقيق مستقل من وكيل **Cline (GLM-5.2)** حسب `CLINE_WEEKLY_REVIEW.md`.
+            **مراجعة فقط — لا دمج للجذور بلا موافقة بشرية.** راجع `reports/`.
+          labels: cline-audit
