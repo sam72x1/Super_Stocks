@@ -116,6 +116,38 @@ def ar_sector(s):
 # ==========================================================
 # جمع الصفقات المحسومة + حساب نسبة النجاح
 # ==========================================================
+
+def _alert_hit_from_status(status: str):
+    """يرجّع t1/t2/t3 من حالة سجل التنبيهات hit_t*، وإلا None."""
+    st = str(status or "")
+    return st.replace("hit_", "") if st.startswith("hit_t") else None
+
+
+def _collect_closed_alerts(alert_data) -> list:
+    """يجمع الصفقات المحسومة من alerts_history.json (اختياري، طبقة تقارير فقط)."""
+    if not alert_data:
+        return []
+    alerts = alert_data.get("alerts", alert_data) if isinstance(alert_data, dict) else alert_data
+    rows = []
+    for a in alerts or []:
+        status = str(a.get("status") or "")
+        hit = _alert_hit_from_status(status)
+        won = bool(hit)
+        lost = status == "stopped"
+        if not (won or lost):
+            continue
+        r = dict(a)
+        r["entry_ref"] = r.get("entry_ref", r.get("price"))
+        r["hit"] = hit
+        r["hit_date"] = r.get("hit_date") or r.get("result_date")
+        r["added"] = r.get("added") or r.get("date")
+        if lost and not r.get("removal_reason"):
+            r["removal_reason"] = "ضرب الستوب"
+        r["_win"] = won
+        rows.append(r)
+    return rows
+
+
 def _collect_closed(wl: dict) -> list:
     """يجمع كل الصفقات المحسومة (رابحة=حقّقت هدفًا · خاسرة=ضربت الستوب بلا هدف)
     من الأرشيف التراكمي + الأسبوع الحالي. كل صف يحمل سماته عند الدخول."""
@@ -162,16 +194,19 @@ def _is_identity_reason(reason) -> bool:
 # ==========================================================
 # التقرير الرئيسي: مساعد التطوير
 # ==========================================================
-def build_dev_assistant_report(wl: dict, missed: list = None) -> str:
+def build_dev_assistant_report(wl: dict, missed: list = None,
+                               alert_data: dict = None) -> str:
     """🔬 يحلّل الصفقات المحسومة ويطلّع تشخيص الأداء بالشرائح + أنماط الفشل
     + الفرص الفائتة + الانفجارات + اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات).
 
     wl     : قاموس حالة بوتك (انظر البنية أعلى الملف).
     missed : قائمة الفرص الفائتة (اختياري) — [{symbol, reason, gain_10d}, ...].
+    alert_data : محتوى alerts_history.json اختياريًا؛ يضم صفقات محسومة من نظام
+                 التتبع القديم/الموازي حتى لا تظهر «0» كاذبة في تقرير التطوير.
     يرجّع نص HTML جاهز للإرسال على تيليجرام.
     """
     missed = missed or []
-    rows = _collect_closed(wl)
+    rows = _collect_closed(wl) + _collect_closed_alerts(alert_data)
     n, wr, avg = _wr(rows)
     head = ["🔬 <b>مساعد التطوير — تحليل أداء المنهجية</b>",
             f"صفقات محسومة متراكمة: <b>{n}</b>"]
@@ -458,13 +493,14 @@ def _write_csv_file(rows: list, prefix: str):
 
 
 def export_weekly_csvs(wl: dict, picks: list, missed: list = None,
-                       send_document_fn=None) -> list:
+                       send_document_fn=None, alert_data: dict = None) -> list:
     """يصدّر 3 ملفات CSV: الصفقات المحسومة · الإشارات الحالية · الفرص الفائتة.
 
     picks            : القائمة الحالية (لكل عنصر: symbol/tier/sector/.../pivot/stop/t1..t3).
     missed           : قائمة الفرص الفائتة (اختياري).
     send_document_fn : دالة إرسال اختيارية send_document_fn(filepath, caption).
                        لو None → تُكتب الملفات فقط وتُرجَع مساراتها.
+    alert_data       : محتوى alerts_history.json اختياريًا لإدخال صفقات نظام التتبع.
     يرجّع قائمة مسارات الملفات المكتوبة.
     """
     missed = missed or []
@@ -472,7 +508,8 @@ def export_weekly_csvs(wl: dict, picks: list, missed: list = None,
     cols_t = ("symbol", "tier", "sector", "rsi", "float", "short", "drop_pct",
               "best_spike", "rr", "score", "max_gain_pct", "status", "hit",
               "hit_date", "added", "removal_reason")
-    trades = [{k: r.get(k) for k in cols_t} for r in _collect_closed(wl)]
+    trades = [{k: r.get(k) for k in cols_t}
+              for r in (_collect_closed(wl) + _collect_closed_alerts(alert_data))]
 
     def _stop0(r):
         st = r.get("stop")
