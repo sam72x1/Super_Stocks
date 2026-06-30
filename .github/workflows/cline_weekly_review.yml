@@ -52,6 +52,10 @@ jobs:
           cline -y "اقرأ ونفّذ دستور CLINE_WEEKLY_REVIEW.md حرفيًا: دقّق البوت لهذا الأسبوع (الكود + git log الأسبوع + weekly_watchlist.json + ملفات signals/trades/missed CSV + تقرير أداة التطوير + PENDING_VERIFICATION.md). اكتب التقرير في reports/cline_weekly_${DATE}.md، وحدّث PENDING_VERIFICATION.md (احسم المحسوم وأبقِ المعلّق). لا تلمس جذور الفرز/الدخول/الوقف/الأهداف بلا توثيق. شغّل python3 test_bot.py وتأكّد نجاحها قبل الانتهاء."
 
       - name: فتح PR بالتقرير + التحديثات (مراجعة فقط — لا دمج)
+        # لا يُفشل الـworkflow لو منع GitHub إنشاء PR (إعداد Settings→Actions مغلق):
+        # peter-evans يدفع الفرع أولًا (فالتقرير يُحفظ)، وفشل خطوة الـPR لا يُحمّر التشغيل.
+        # متى فُعّل الإعداد، يفتح الـPR تلقائيًا بلا أي تغيير آخر.
+        continue-on-error: true
         uses: peter-evans/create-pull-request@v6
         with:
           branch: cline/weekly-review
