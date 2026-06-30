@@ -41,22 +41,15 @@ jobs:
       - name: تثبيت Cline
         run: npm install -g cline
 
-      - name: المراجعة الأسبوعية المستقلة (Cline · GLM-5.2)
+      - name: المراجعة الأسبوعية المستقلة (Cline)
         env:
           CLINE_API_KEY: ${{ secrets.CLINE_API_KEY }}   # سرّ — لا قيمة هنا
         run: |
-          # ⚠️ أكّد الصيغة الدقيقة: «cline --help» أو docs.cline.bot.
-          # المطلوب: تشغيل headless غير تفاعلي + تنفيذ دستور CLINE_WEEKLY_REVIEW.md
-          # على نموذج GLM-5.2. (المثال تقريبي — عدّله حسب CLI الحالي.)
-          cline task --headless --model "glm-5.2" --prompt "$(cat <<'EOF'
-          اقرأ CLINE_WEEKLY_REVIEW.md ونفّذه حرفيًا: دقّق البوت لهذا الأسبوع
-          (الكود + git + weekly_watchlist.json + CSVs + تقرير أداة التطوير +
-          PENDING_VERIFICATION.md). اكتب التقرير في
-          reports/cline_weekly_$(date +%F).md، وحدّث PENDING_VERIFICATION.md
-          (احسم المحسوم، أبقِ المعلّق). لا تلمس جذور الفرز/الدخول/الوقف/الأهداف
-          بلا توثيق. شغّل python3 test_bot.py وتأكّد نجاحها الكامل قبل الانتهاء.
-          EOF
-          )"
+          # الصيغة الصحيحة (Cline CLI 2.0): البرومبت positional + «-y» تشغيل ذاتي
+          # كامل بلا واجهة تفاعلية (يبثّ لـstdout). النموذج = افتراضي حساب Cline Pass.
+          DATE=$(date +%F)
+          mkdir -p reports
+          cline -y "اقرأ ونفّذ دستور CLINE_WEEKLY_REVIEW.md حرفيًا: دقّق البوت لهذا الأسبوع (الكود + git log الأسبوع + weekly_watchlist.json + ملفات signals/trades/missed CSV + تقرير أداة التطوير + PENDING_VERIFICATION.md). اكتب التقرير في reports/cline_weekly_${DATE}.md، وحدّث PENDING_VERIFICATION.md (احسم المحسوم وأبقِ المعلّق). لا تلمس جذور الفرز/الدخول/الوقف/الأهداف بلا توثيق. شغّل python3 test_bot.py وتأكّد نجاحها قبل الانتهاء."
 
       - name: فتح PR بالتقرير + التحديثات (مراجعة فقط — لا دمج)
         uses: peter-evans/create-pull-request@v6
