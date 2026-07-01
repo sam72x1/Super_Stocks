@@ -748,6 +748,39 @@ check("الفائتة تُفصل: المتحرّك (M4_انفجر) عن «ليس
       and "ليس ارتكازًا (تجاهل صحيح): 3" in _mrep
       and "MOVEDX" in _mrep and "WIDEBS" not in _mrep and "BIGCAP" not in _mrep)
 
+
+# 📲 تنبيه Cline: لا يرسل تقريرًا قديمًا باسم اليوم إذا فشل إنشاء تقرير اليوم.
+#     المسار الصريح CLINE_REPORT_PATH يبقى مسموحًا للاختبار/التشغيل اليدوي.
+import tempfile as _tf_notify
+import os as _os_notify
+import cline_notify as _cn
+
+_old_cwd = _os_notify.getcwd()
+_old_env_report = _os_notify.environ.get("CLINE_REPORT_PATH")
+try:
+    with _tf_notify.TemporaryDirectory() as _tdn:
+        _os_notify.chdir(_tdn)
+        _os_notify.makedirs("reports", exist_ok=True)
+        with open("reports/cline_weekly_2000-01-01.md", "w", encoding="utf-8") as _f:
+            _f.write("## ملخّص تنفيذي\n- تقرير قديم لا يجب إرساله\n")
+        _os_notify.environ.pop("CLINE_REPORT_PATH", None)
+        check("تنبيه Cline: لا يلتقط تقريرًا قديمًا عند غياب تقرير اليوم",
+              _cn.find_report() is None
+              and "لم يُعثر على تقرير هذا الأسبوع" in _cn.build_message())
+        with open("custom_report.md", "w", encoding="utf-8") as _f:
+            _f.write("## ملخّص تنفيذي\n- تقرير محدد صراحة\n")
+        _os_notify.environ["CLINE_REPORT_PATH"] = "custom_report.md"
+        check("تنبيه Cline: CLINE_REPORT_PATH الصريح يعمل",
+              _cn.find_report() == "custom_report.md"
+              and "تقرير محدد صراحة" in _cn.build_message())
+finally:
+    _os_notify.chdir(_old_cwd)
+    if _old_env_report is None:
+        _os_notify.environ.pop("CLINE_REPORT_PATH", None)
+    else:
+        _os_notify.environ["CLINE_REPORT_PATH"] = _old_env_report
+
+
 # أكواد الرفض خالية من علامات < > (تكسر HTML تيليجرام) — حارس ضد الانحدار
 import re as _re_codes
 _src_sb = open("Super_stock.py", encoding="utf-8").read()
