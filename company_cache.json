@@ -769,5 +769,49 @@
   "shares_out": 16916595,
   "short_pct": 16.7,
   "float": 15189572
+ },
+ "EVTV": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Manufacturers",
+  "business": "Envirotech Vehicles, Inc. manufactures and provides zero-emission electric vehicles in the United States. It offers class 2 through logistics vans; class 4 thro…",
+  "country": "United States",
+  "cash": 2013817,
+  "revenue": 7597062,
+  "shares_out": 12930719,
+  "short_pct": 7.1,
+  "float": 12549004
+ },
+ "LYEL": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Lyell Immunopharma, Inc., a clinical-stage cell therapy company, develops chimeric antigen receptor (CAR) T-cell product candidates for patients with hematologi…",
+  "country": "United States",
+  "cash": 254023008,
+  "revenue": 31000,
+  "shares_out": 23334087,
+  "short_pct": 6.6,
+  "float": 9490207
+ },
+ "PRTS": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto Parts",
+  "business": "CarParts.com, Inc., together with its subsidiaries, operates as an online retailer of aftermarket auto parts and accessories in the United States and the Philip…",
+  "country": "United States",
+  "cash": 37856000,
+  "revenue": 532108000,
+  "shares_out": 8098751,
+  "short_pct": 4.6,
+  "float": 7085147
+ },
+ "SCYX": {
+  "sector": "Healthcare",
+  "industry": "Drug Manufacturers - Specialty & Generic",
+  "business": "SCYNEXIS, Inc., a biotechnology company, engages in drug development for the treatment and prevention of difficult-to-treat and drug-resistant fungal infections…",
+  "country": "United States",
+  "cash": 59263000,
+  "revenue": 20344000,
+  "shares_out": 9930329,
+  "short_pct": 3.3,
+  "float": 7703751
  }
 }
