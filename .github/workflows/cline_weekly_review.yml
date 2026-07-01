@@ -1,8 +1,8 @@
 name: Cline Weekly Auditor
 
 # مراجِع مستقل أسبوعي يدقّق البوت نفسه — انظر CLINE_WEEKLY_REVIEW.md (عقل الوكيل).
-# آمن بالتصميم: تشغيل يدوي فقط الآن (workflow_dispatch). فعّل الجدولة (cron) بعد
-# أول تشغيل ناجح + تأكيد صيغة استدعاء Cline. PR فقط — لا دمج تلقائي (قرار المستخدم).
+# مُفعّل: يدوي (workflow_dispatch) + جدولة الجمعة 08:17 UTC. بعد التدقيق يرسل
+# ملخّصًا لتلقرام (cline_notify.py) ثم يفتح PR للمراجعة — لا دمج تلقائي للجذور.
 #
 # قبل أول تشغيل (يفعلها المستخدم في GitHub):
 #   1) أضِف سرّ CLINE_API_KEY (Settings → Secrets and variables → Actions).
@@ -50,6 +50,18 @@ jobs:
           DATE=$(date +%F)
           mkdir -p reports
           cline -y "نفّذ CLINE_WEEKLY_REVIEW.md **باقتصاد صارم في القراءة** (التوكنز مكلفة): ركّز على (1) **git diff منذ آخر مراجعة** لمعرفة ما تغيّر، (2) ملفات البيانات: weekly_watchlist.json · alerts_history.json · ملفات CSV · PENDING_VERIFICATION.md. **لا تُعِد قراءة كامل Super_stock.py ولا ملفات المنهجية** — اقرأ المقاطع المعنية فقط (بـgrep ثم قراءة نطاق محدود) عند التحقق من شيء بعينه. اكتب التقرير في reports/cline_weekly_${DATE}.md وحدّث PENDING_VERIFICATION.md (احسم المحسوم وأبقِ المعلّق). لا تلمس جذور الفرز/الدخول/الوقف/الأهداف بلا توثيق. شغّل python3 test_bot.py وتأكّد نجاحها قبل الانتهاء."
+
+      - name: تنبيه تلقرام بملخّص التدقيق (طبقة عرض — لا يمسّ الجذور)
+        # يرسل «الملخّص التنفيذي» من reports/cline_weekly_<DATE>.md لتلقرام.
+        # قبل خطوة الـPR (فالتقرير مضمون في شجرة العمل، لم تلمسه git بعد).
+        # if: always() → يُبلّغ حتى لو فشل التدقيق · continue-on-error → إشعار
+        # غير حرج لا يُحمّر التشغيل. نفس أسرار البوت (بلا Cline، بلا تكلفة).
+        if: always()
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python3 cline_notify.py
 
       - name: فتح PR بالتقرير + التحديثات (مراجعة فقط — لا دمج)
         # لا يُفشل الـworkflow لو منع GitHub إنشاء PR (إعداد Settings→Actions مغلق):
