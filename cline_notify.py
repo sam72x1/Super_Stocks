@@ -4,7 +4,7 @@
 
 طبقة إشعار مستقلّة — **لا تمسّ جذور الفرز/الدخول/الوقف/الأهداف إطلاقًا**.
 تُستدعى من `.github/workflows/cline_weekly_review.yml` بعد خطوة التدقيق
-مباشرةً (قبل خطوة الـPR). تقرأ أحدث `reports/cline_weekly_*.md`، تستخرج
+مباشرةً (قبل خطوة الـPR). تقرأ تقرير اليوم `reports/cline_weekly_<today>.md`، تستخرج
 قسم «الملخّص التنفيذي»، وترسله لتلقرام عبر:
     TELEGRAM_BOT_TOKEN   — نفس توكن البوت.
     TELEGRAM_CHAT_ID     — يقبل عدّة معرّفات مفصولة بفاصلة (مثل البوت).
@@ -13,7 +13,6 @@
 غير حرجة: تخرج بنجاح (0) دائمًا حتى لا تُفشل الـworkflow لو غاب التوكن
 أو فشل الإرسال.
 """
-import glob
 import os
 import sys
 import urllib.parse
@@ -26,15 +25,16 @@ MAX_LEN = 3900  # حدّ تلغرام ~4096؛ نترك هامشًا للتروي
 
 
 def find_report():
-    """أحدث تقرير Cline: تجاوز صريح ← تقرير اليوم ← أحدث موجود."""
+    """تقرير اليوم فقط، إلا إذا حدّد الاختبار/المشغّل مسارًا صريحًا.
+
+    لا نرجع لأحدث تقرير قديم تلقائيًا: في فشل خطوة Cline قد يبقى تقرير أسبوع سابق
+    موجودًا في المستودع، وإرساله بعنوان اليوم يعطي اطمئنانًا كاذبًا.
+    """
     override = (os.environ.get("CLINE_REPORT_PATH") or "").strip()
     if override:
         return override if os.path.exists(override) else None
     today = f"reports/cline_weekly_{date.today().isoformat()}.md"
-    if os.path.exists(today):
-        return today
-    files = sorted(glob.glob("reports/cline_weekly_*.md"))
-    return files[-1] if files else None
+    return today if os.path.exists(today) else None
 
 
 def extract_summary(text):
