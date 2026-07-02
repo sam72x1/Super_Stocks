@@ -459,7 +459,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.0
+   "max_gain_pct": 5.5
   },
   {
    "symbol": "OPRX",
@@ -538,7 +538,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.4
+   "max_gain_pct": 6.4
   },
   {
    "symbol": "EVTV",
@@ -565,7 +565,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 8.2
   },
   {
    "symbol": "LYEL",
@@ -591,7 +591,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 0.1
   },
   {
    "symbol": "PRTS",
@@ -618,7 +618,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 1.1
   },
   {
    "symbol": "SCYX",
@@ -639,6 +639,33 @@
     "فجوات متعددة الفريمات (أسبوعي، شهري)",
     "شورت غير متاح — مُرِّر بفائدة الشك",
     "فلوت 7,703,751 (صغير ✅)"
+   ],
+   "ready": false,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 9.6
+  },
+  {
+   "symbol": "VFF",
+   "date": "2026-07-02",
+   "price": 1.99,
+   "stop": 1.6786,
+   "t1": 2.27,
+   "t2": 2.35,
+   "t3": 2.5,
+   "score": 70,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 4 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (6→39) — سيولة مخفية",
+    "فجوة صاعدة يومي 4%",
+    "فجوة يومية مفتوحة (لم تُغلق)",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "⚠️ فلوت كبير 101,976,366 (فوق 50,000,000)"
    ],
    "ready": false,
    "status": "open",

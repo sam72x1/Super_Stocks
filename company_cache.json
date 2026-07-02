@@ -813,5 +813,16 @@
   "shares_out": 9930329,
   "short_pct": 3.3,
   "float": 7703751
+ },
+ "VFF": {
+  "sector": "Consumer Defensive",
+  "industry": "Farm Products",
+  "business": "Village Farms International, Inc., together with its subsidiaries, produces, markets, and distributes greenhouse grown tomatoes, bell peppers, and cucumbers in…",
+  "country": "United States",
+  "cash": 50468000,
+  "revenue": 226495008,
+  "shares_out": 121811130,
+  "short_pct": 4.9,
+  "float": 101976366
  }
 }
