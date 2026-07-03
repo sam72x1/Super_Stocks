@@ -13,7 +13,7 @@
 - `analyze_one.py` — تحليل سهم واحد عند الطلب (يفوّض لـ`analyze_ticker`).
 - `pullback_live.py` — مراقبة الارتداد اللحظية (كل 30د بالسوق).
 - `technical_report.py` — **أداة مستقلة**: `TICKER=رمز` → تقرير فني كلاسيكي · `SCAN_EARNINGS=1` → أداة الأرباح (مسح ناسداك قوي فنيًا + أرباح قريبة).
-- `test_bot.py` — 178 اختبار (يشتغل بلا إنترنت). **شغّله قبل أي دفع:** `python3 test_bot.py`
+- `test_bot.py` — 191+ اختبار (العدد وقت آخر تحديث؛ يشتغل بلا إنترنت). **شغّله قبل أي دفع:** `python3 test_bot.py`
 - `FAISAL_METHODOLOGY_NOTES.md` / `FAISAL_IMAGES_CATALOG.md` — توثيق منهجية فيصل من الصور.
 - `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · scan_earnings.yml (أداة الأرباح، يومي 06:00 UTC) · backtest.yml · analyze.yml/technical.yml (يدوي).
 
@@ -72,7 +72,7 @@
    - **مراجِع Cline الأسبوعي المستقل** (`.github/workflows/cline_weekly_review.yml` +
      `CLINE_WEEKLY_REVIEW.md` = دستوره): وكيل Cline (GLM-5.2) headless كل جمعة 08:17 UTC
      → يدقّق البوت **بتحليل مفتوح** (git diff + ملفات البيانات؛ رشيق لتقليل التكلفة) →
-     **PR للمراجعة فقط** (لا يلمس الجذور · 181+ اختبار بوابة). أنا (Claude) أراجع الـPR.
+     **PR للمراجعة فقط** (لا يلمس الجذور · 191+ اختبار بوابة). أنا (Claude) أراجع الـPR.
      **تنبيه تلقرام بعد التدقيق** (`cline_notify.py`، أُضيف 2026-07-01، طلب المستخدم):
      خطوة بالـworkflow **قبل الـPR** (`if: always()`+`continue-on-error`) تستخرج «الملخّص
      التنفيذي» من `reports/cline_weekly_<DATE>.md` وترسله لتلغرام (نفس أسرار البوت
@@ -82,7 +82,7 @@
      **إصلاح alerts_history (لقاه Cline 2026-06-30، أكّدته يدويًا):** مساعد التطوير و
      `trades` CSV كانا يقرآن `weekly_watchlist.json` فقط فيعرضان «صفقات محسومة=0» **كذبًا**
      — الإغلاقات الحقيقية في `alerts_history.json` (`load_alerts`). الآن يُدمج المصدران
-     (`_collect_closed_alerts` + `_dedup_closed` حارس ضد العدّ المزدوج). 183 اختبار،
+     (`_collect_closed_alerts` + `_dedup_closed` حارس ضد العدّ المزدوج). 191+ اختبار،
      طبقة تقارير فقط لا `LOGIC_VERSION`. (كان أداء البوت 5 ربح/1 خسارة مخفيًّا!)
 8. **ضمانات ضد البيانات القديمة**: `LOGIC_VERSION`+`migrate_watchlist` (ترحيل
    آلي عند تغيّر المنطق) · ختم «🧾 إصدار SHA» بكل رسالة · Action `force_renew=1`.
@@ -166,7 +166,7 @@
   «ما فيه فجوة سعرية فوقه (هدف)». يشمل البطاقة + اليومي + التحليل اليدوي + تقرير التطوير.
 
 ## التشغيل والاختبار
-- اختبار: `python3 test_bot.py` (لازم 178/178).
+- اختبار: `python3 test_bot.py` (لازم 191+/191+ — العدد وقت آخر تحديث، الكل ينجح).
 - `analyze_one.py` (الفحص اليدوي) **مطابق تمامًا** لـ`analyze_ticker` (نفس الدرجة/
   الأهداف/الوقف/RR/المؤشرات) — مقفول باختبار «الفحص اليدوي = الأساسي».
 - **جلسات Claude Code ويب**: `.claude/hooks/session-start.sh` (SessionStart hook،

@@ -1204,6 +1204,49 @@ check("قفل: أرضيات الهوية (هبوط≥40% · انفجار≥60%)"
       S.CONFIG["MIN_DROP_FLOOR"] == 40.0
       and S.CONFIG["PRIOR_SPIKE_FLOOR"] == 60.0)
 
+# ==========================================================
+# أقفال القرارات المحسومة (فيصل) — خطة OPUS T1-T5
+# قرارات محسومة يصونها الكود؛ هذه الأقفال تمنع تغييرها بالغلط بلا فشل اختبار.
+# ==========================================================
+# T1 — «لا تجاوز في الأهداف»: القيمة + قاعدة التجميع.
+check("قفل T1: MIN_TARGET_GAP_PCT == 3% (لا يُعاد لـ8% القافز فوق القريب)",
+      S.CONFIG["MIN_TARGET_GAP_PCT"] == 3.0)
+# سلوكي: يحاكي قاعدة الدمج (Super_stock.py:1793-1795) بقيمة CONFIG الفعلية —
+# مستوى 5% فوق الأول يُبقى (لا يُتخطّى)، ومستوى ضمن 3% يُدمج. مع 8% كان 2.10 يُحذف.
+_t1_gap = 1.0 + S.CONFIG["MIN_TARGET_GAP_PCT"] / 100.0
+_t1_cands = [2.00, 2.05, 2.10, 2.50]   # 2.05=2.5%فوق(يُدمج) · 2.10=5%فوق(يُبقى)
+_t1_picked = []
+for _t1c in _t1_cands:
+    if not _t1_picked or _t1c >= _t1_picked[-1] * _t1_gap:
+        _t1_picked.append(round(_t1c, 2))
+check("قفل T1 سلوكي: التجميع يُبقي 2.10 (5%) ويدمج 2.05 (2.5%)",
+      _t1_picked == [2.00, 2.10, 2.50], f"{_t1_picked}")
+
+# T2 — قاع RSI المثالي (تغريدة 8057: «قبل ينفجر RSI بين 23-27»).
+check("قفل T2: RSI_OVERSOLD == 27", S.CONFIG["RSI_OVERSOLD"] == 27.0)
+
+# T3 — معاملات MACD الافتراضية 12/26/9 (صفحة إعدادات فيصل IMG_6472).
+import inspect as _inspect_macd
+_macd_defs = _inspect_macd.signature(S.macd).parameters
+check("قفل T3: MACD الافتراضي 12/26/9",
+      _macd_defs["fast"].default == 12
+      and _macd_defs["slow"].default == 26
+      and _macd_defs["signal"].default == 9)
+
+# T4 — EMA 30/50 لبوابة M12 (فيصل: «متوسط حركة 30/50»، تغريدات 6916/6919/8056).
+# قفل على مصدر البوابة (لا نتيجتها فقط)؛ مقاوم لفراغات التنسيق.
+_src_m12 = open("Super_stock.py", encoding="utf-8").read().replace(" ", "")
+check("قفل T4: بوابة M12 تستعمل EMA 30 و50",
+      "ema(close,30)" in _src_m12 and "ema(close,50)" in _src_m12)
+
+# T5 — الثبات + نافذة القاع + منع الملاحقة (7403/8056 «ثبات 3-5» + كتلة v2.1).
+check("قفل T5: ثبات 3-8 · تسامح 2% · قاع 25ج · منع ملاحقة 35%/5ج",
+      S.CONFIG["STABILITY_MIN"] == 3
+      and S.CONFIG["STABILITY_MAX"] == 8
+      and S.CONFIG["STABILITY_TOL_PCT"] == 2.0
+      and S.CONFIG["PIVOT_LOOKBACK"] == 25
+      and S.CONFIG["RECENT_RISE_BLOCK_PCT"] == 35.0)
+
 # 9-ب) مسح واسع على عشرات الأسهم الصناعية → كل الثوابت تصمد لكل سهم
 _inv_fail = []
 _N = S.CONFIG["ENTRY_TRANCHES"]
