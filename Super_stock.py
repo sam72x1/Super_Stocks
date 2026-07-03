@@ -1971,7 +1971,14 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             "lib_near": lib_near,                      # قريب من التحرر؟
             "qab": qab,                               # أقرب فجوة (قاب) فوق السعر
         }
-    except Exception:
+    except Exception as exc:
+        # C4 (خطة الضبط، موافقة المستخدم 2026-07-03): تسجيل تشخيصي فقط —
+        # كان استثناءً صامتًا يخفي أخطاء بيانات/حسابات وقد يفوّت سهمًا بلا أثر.
+        # **لا يغيّر نتيجة الفرز إطلاقًا** (يبقى return None كما هو).
+        try:
+            log(f"⚠️ استثناء تحليل {sym}: {type(exc).__name__}: {exc}")
+        except Exception:
+            pass
         return None
 
 
