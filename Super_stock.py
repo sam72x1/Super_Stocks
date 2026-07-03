@@ -348,13 +348,19 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
     if str(mode).strip().upper() != "BACKTEST":
         return applied
     env = env if env is not None else os.environ
-    for bt_env, cfg_key in (("BT_BASE_RANGE_MAX", "BASE_RANGE_MAX_PCT"),
-                            ("BT_MIN_DROP_FLOOR", "MIN_DROP_FLOOR")):
+    # (توسعة 2026-07-03 بعد تشخيص أسهم فيصل: السقف 97 والنافذة 20 والسيولة 200K
+    #  أرقام هندسية غير موثّقة من فيصل وتخنق أسهمه — صارت قابلة للتجربة أيضًا.)
+    for bt_env, cfg_key, cast in (
+            ("BT_BASE_RANGE_MAX", "BASE_RANGE_MAX_PCT", float),
+            ("BT_MIN_DROP_FLOOR", "MIN_DROP_FLOOR", float),
+            ("BT_MAX_DROP_PCT", "MAX_DROP_PCT", float),
+            ("BT_SPIKE_WINDOW", "PRIOR_SPIKE_WINDOW", int),
+            ("BT_MIN_DOLLAR_VOL", "MIN_DOLLAR_VOL", float)):
         v = (env.get(bt_env) or "").strip()
         if not v:
             continue
         try:
-            CONFIG[cfg_key] = float(v)
+            CONFIG[cfg_key] = cast(float(v))
             applied.append(f"{cfg_key}={CONFIG[cfg_key]:g}")
         except ValueError:
             pass

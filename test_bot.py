@@ -1387,6 +1387,23 @@ check("B1: وضع BACKTEST يطبّق المفاتيح (تجربة A/B)",
       S.CONFIG["BASE_RANGE_MAX_PCT"] == 55.0
       and S.CONFIG["MIN_DROP_FLOOR"] == 30.0 and len(_b1_bt) == 2)
 S.CONFIG["BASE_RANGE_MAX_PCT"], S.CONFIG["MIN_DROP_FLOOR"] = _b1_before
+# مفاتيح التجربة الموسّعة (سقف الانهيار/نافذة الانفجار/السيولة) — نفس التحصين
+_b1x_env = {"BT_MAX_DROP_PCT": "99.5", "BT_SPIKE_WINDOW": "60",
+            "BT_MIN_DOLLAR_VOL": "100000"}
+_b1x_before = (S.CONFIG["MAX_DROP_PCT"], S.CONFIG["PRIOR_SPIKE_WINDOW"],
+               S.CONFIG["MIN_DOLLAR_VOL"])
+check("B1x: الإنتاج يتجاهل المفاتيح الموسّعة",
+      S._apply_backtest_overrides("FULL", _b1x_env) == []
+      and (S.CONFIG["MAX_DROP_PCT"], S.CONFIG["PRIOR_SPIKE_WINDOW"],
+           S.CONFIG["MIN_DOLLAR_VOL"]) == _b1x_before)
+S._apply_backtest_overrides("BACKTEST", _b1x_env)
+check("B1x: وضع BACKTEST يطبّقها (النافذة int للـrange)",
+      S.CONFIG["MAX_DROP_PCT"] == 99.5
+      and S.CONFIG["PRIOR_SPIKE_WINDOW"] == 60
+      and isinstance(S.CONFIG["PRIOR_SPIKE_WINDOW"], int)
+      and S.CONFIG["MIN_DOLLAR_VOL"] == 100000.0)
+(S.CONFIG["MAX_DROP_PCT"], S.CONFIG["PRIOR_SPIKE_WINDOW"],
+ S.CONFIG["MIN_DOLLAR_VOL"]) = _b1x_before
 check("B1: قيمة فاسدة تُتجاهل بأمان",
       S._apply_backtest_overrides("BACKTEST", {"BT_BASE_RANGE_MAX": "abc"}) == []
       and S.CONFIG["BASE_RANGE_MAX_PCT"] == _b1_before[0])
