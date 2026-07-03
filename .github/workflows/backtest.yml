@@ -16,6 +16,18 @@ on:
         description: "تجربة B1 (اختياري): تجاوز MIN_DROP_FLOOR — باكتيست فقط، لا يمسّ الإنتاج"
         required: false
         default: ""
+      bt_max_drop_pct:
+        description: "تجربة C (اختياري): تجاوز سقف الانهيار MAX_DROP_PCT (97) — باكتيست فقط"
+        required: false
+        default: ""
+      bt_spike_window:
+        description: "تجربة C (اختياري): تجاوز نافذة سرعة الانفجار PRIOR_SPIKE_WINDOW (20ج) — باكتيست فقط"
+        required: false
+        default: ""
+      bt_min_dollar_vol:
+        description: "تجربة C (اختياري): تجاوز أرضية السيولة MIN_DOLLAR_VOL (200K$) — باكتيست فقط"
+        required: false
+        default: ""
 jobs:
   backtest:
     runs-on: ubuntu-latest
@@ -38,6 +50,9 @@ jobs:
           # B1: مفاتيح تجربة A/B — تُقرأ في وضع BACKTEST حصريًا (الإنتاج محصّن بقفل اختبار)
           BT_BASE_RANGE_MAX: ${{ github.event.inputs.bt_base_range_max }}
           BT_MIN_DROP_FLOOR: ${{ github.event.inputs.bt_min_drop_floor }}
+          BT_MAX_DROP_PCT: ${{ github.event.inputs.bt_max_drop_pct }}
+          BT_SPIKE_WINDOW: ${{ github.event.inputs.bt_spike_window }}
+          BT_MIN_DOLLAR_VOL: ${{ github.event.inputs.bt_min_dollar_vol }}
         run: python Super_stock.py
       - name: Upload backtest CSV
         if: always()
