@@ -1287,6 +1287,112 @@ if r0:
     check("D10: make_watch_entry يحفظ rotation_pct",
           S.make_watch_entry(_d10_hi, "2026-07-03").get("rotation_pct") == 200)
 
+# ==========================================================
+# اختبارات خطة الضبط (OPUS_TUNING_PLAN 2026-07-03): A1/A2/A3/A5/B1
+# ==========================================================
+# --- A1: لقطة مقام أسباب الرفض (كانت تضيع كل تشغيل) ---
+_a1_wl = {}
+_a1_snap_stats = dict(S._REJECT_STATS)
+S._REJECT_STATS.clear()
+S._REJECT_STATS.update({"M4_base_واسعة": 100, "M2_هبوط_تحت_40": 200})
+S._SCAN_STATS["universe"], S._SCAN_STATS["valid"] = 1000, 950
+S.record_reject_stats(_a1_wl)
+_a1_today = S.dt.date.today().isoformat()
+check("A1: لقطة المقام تُحفظ بتاريخ اليوم + الأرقام",
+      len(_a1_wl.get("reject_stats", [])) == 1
+      and _a1_wl["reject_stats"][0]["date"] == _a1_today
+      and _a1_wl["reject_stats"][0]["stats"]["M4_base_واسعة"] == 100
+      and _a1_wl["reject_stats"][0]["universe"] == 1000)
+S._REJECT_STATS["M4_base_واسعة"] = 120
+S.record_reject_stats(_a1_wl)
+check("A1: لقطة واحدة لكل يوم (الأحدث تفوز)",
+      len(_a1_wl["reject_stats"]) == 1
+      and _a1_wl["reject_stats"][0]["stats"]["M4_base_واسعة"] == 120)
+_a1_wl["reject_stats"].insert(0, {"date": "2020-01-01", "stats": {"X": 1}})
+S.record_reject_stats(_a1_wl)
+check("A1: تقليم اللقطات الأقدم من 56 يومًا",
+      all(e["date"] > "2020-01-01" for e in _a1_wl["reject_stats"]))
+_a1_empty = {}
+S._REJECT_STATS.clear()
+S.record_reject_stats(_a1_empty)
+check("A1: بلا رفض = بلا لقطة (لا يفسد القائمة)", "reject_stats" not in _a1_empty)
+S._REJECT_STATS.update(_a1_snap_stats)
+
+# --- A2 + A1-عرض: تقرير مساعد التطوير يفصل المشبوه ويعرض المقام ---
+_a2_missed_bak = list(S._MISSED)
+S._MISSED[:] = [
+    {"symbol": "GDC", "reason": "M4_base_واسعة", "gain_10d": 11423.8,
+     "price": 2.42, "suspect_split": True},
+    {"symbol": "TC", "reason": "M4_base_واسعة", "gain_10d": 159.0,
+     "price": 4.0, "suspect_split": False},
+    {"symbol": "EXOZ", "reason": "M5_سيولة", "gain_10d": 34.0,
+     "price": 8.48, "suspect_split": False},
+]
+_a2_wl = {"stocks": [], "removed": [],
+          "explosions": [{"symbol": "UPC", "date": _a1_today,
+                          "expl_date": _a1_today, "gain": 311.0,
+                          "reason": "M2_هبوط_تحت_40", "was_pivot": True,
+                          "suspect_split": True}],
+          "reject_stats": [{"date": _a1_today,
+                            "stats": {"M4_base_واسعة": 50,
+                                      "M2_هبوط_تحت_40": 500}}]}
+_a2_rep = S.build_dev_assistant_report(_a2_wl)
+check("A2: المشبوه مفصول من الإحصاء (GDC يظهر ببند التحقق فقط)",
+      "مستبعد من الإحصاء (1)" in _a2_rep and "GDC +11424%" in _a2_rep)
+check("A2: الإحصاء النظيف يحسب الواقعي فقط (تجاهل صحيح: 1)",
+      "تجاهل صحيح): 1" in _a2_rep)
+check("A2: الانفجار المشبوه يُعلَّم 🔍 ويبقى بالإحصاء",
+      "+311% 🔍" in _a2_rep and "كانت ارتكازًا فاتتنا: 1" in _a2_rep)
+check("A1-عرض: مقام الرفض يظهر بالتقرير + نسبة الفائتة/المقام",
+      "مقام الرفض" in _a2_rep and "M4_base_واسعة=50" in _a2_rep
+      and "1/50 (2.0%)" in _a2_rep)
+S._MISSED[:] = _a2_missed_bak
+
+# --- A3: التنبيهات الجديدة تحمل سمات التعلّم ---
+if r0:
+    _a3_data = {"alerts": []}
+    S.record_new_alerts(_a3_data, [r0])
+    _a3_alert = _a3_data["alerts"][0]
+    check("A3: التنبيه الجديد يحمل سمات التعلّم التسع",
+          all(k in _a3_alert for k in
+              ("tier", "sector", "rsi", "float", "short", "short_pct",
+               "drop_pct", "best_spike", "rr"))
+          and _a3_alert["tier"] == r0.get("tier")
+          and _a3_alert["rr"] == r0.get("rr"))
+
+# --- A5: حارس العيّنة الصغيرة + مفارقة القوة ---
+_a5_alerts = {"alerts": (
+    [{"symbol": f"W{i}", "status": "hit_t1", "score": 60, "max_gain_pct": 15.0,
+      "date": "2026-06-01", "result_date": "2026-06-05"} for i in range(8)]
+    + [{"symbol": f"L{i}", "status": "stopped", "score": 80, "max_gain_pct": 1.0,
+        "date": "2026-06-01", "result_date": "2026-06-05"} for i in range(2)])}
+_a5_rep = S.build_dev_assistant_report({"stocks": [], "removed": []},
+                                       alert_data=_a5_alerts)
+check("A5: حارس العيّنة الصغيرة يظهر عند N<20",
+      "العيّنة صغيرة (N=10)" in _a5_rep
+      and "لا قرارات ضبط قبل 20 صفقة" in _a5_rep)
+check("A5: مفارقة القوة تُوثَّق (خاسرون 80 > رابحون 60)",
+      "القوة ليست تنبؤية بعد" in _a5_rep)
+
+# --- B1: مفاتيح الباكتيست — الإنتاج محصّن ---
+_b1_env = {"BT_BASE_RANGE_MAX": "55", "BT_MIN_DROP_FLOOR": "30"}
+_b1_before = (S.CONFIG["BASE_RANGE_MAX_PCT"], S.CONFIG["MIN_DROP_FLOOR"])
+_b1_prod = S._apply_backtest_overrides("FULL", _b1_env)
+check("B1: الوضع الإنتاجي يتجاهل مفاتيح BT_* تمامًا",
+      _b1_prod == []
+      and (S.CONFIG["BASE_RANGE_MAX_PCT"],
+           S.CONFIG["MIN_DROP_FLOOR"]) == _b1_before)
+_b1_bt = S._apply_backtest_overrides("BACKTEST", _b1_env)
+check("B1: وضع BACKTEST يطبّق المفاتيح (تجربة A/B)",
+      S.CONFIG["BASE_RANGE_MAX_PCT"] == 55.0
+      and S.CONFIG["MIN_DROP_FLOOR"] == 30.0 and len(_b1_bt) == 2)
+S.CONFIG["BASE_RANGE_MAX_PCT"], S.CONFIG["MIN_DROP_FLOOR"] = _b1_before
+check("B1: قيمة فاسدة تُتجاهل بأمان",
+      S._apply_backtest_overrides("BACKTEST", {"BT_BASE_RANGE_MAX": "abc"}) == []
+      and S.CONFIG["BASE_RANGE_MAX_PCT"] == _b1_before[0])
+check("B1: استيراد الاختبار الحالي بلا تجاوزات (إنتاج نظيف)",
+      S._BT_OVERRIDES == [])
+
 # 9-ب) مسح واسع على عشرات الأسهم الصناعية → كل الثوابت تصمد لكل سهم
 _inv_fail = []
 _N = S.CONFIG["ENTRY_TRANCHES"]
