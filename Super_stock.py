@@ -209,7 +209,8 @@ CONFIG = {
     # فوق دخولها؛ نتابعها يوميًا وننبّه أول ما تنزل لسعر الدعم (انهيار البورصة)
     "PULLBACK_WATCH": True,
     "PULLBACK_SIZE": 15,         # حجم قائمة مراقبة الارتداد (حد أقصى)
-    "PULLBACK_TRIGGER_PCT": 2.0,  # تنبيه عند الوصول ضمن +2% فوق سعر الدعم
+    "PULLBACK_TRIGGER_PCT": 2.0,  # تنبيه عند الوصول ضمن +2% فوق أعلى دفعة (بداية
+                                  # منطقة الدفعات) — أبكر وأأمن من انتظار الدعم نفسه (D3)
     # v2.6 (فيصل): فرز السوق كاملاً كل يوم بعد الإغلاق بدل الجمعة فقط
     # (أسهم الشروط الصارمة نادرة جداً — نصطادها أي يوم تظهر)
     "DAILY_FULL_SCAN": True,
@@ -226,8 +227,9 @@ CONFIG = {
     # ---- مستويات مقترحة ----
     "STOP_BELOW_LOW_PCT": (5.0, 7.0),    # الوقف 5-7% تحت القاع (فيصل: تحت
                                          # منطقة سحب السيولة، لا 1-2% الضيقة)
-    "ENTRY_ABOVE_PIVOT_PCT": 8.0,        # الحد الأعلى للدخول = القاع +8%
-                                         # (لا تطارد السهم أعلى من هذا)
+    # (D1، تدقيق 2026-07-03: حُذف ENTRY_ABOVE_PIVOT_PCT — كان ثابتًا ميتًا غير
+    #  مقروء في أي منطق. «عدم الملاحقة» منفّذ فعليًا عبر: M4 يرفض صعود 5 جلسات
+    #  أكثر من 35% (RECENT_RISE_BLOCK_PCT) + الدفعات مرساة على القاع + رفض الجاهزية<50%.)
     "ENTRY_ZONE_PCT": 4.0,               # (للتوافق القديم فقط — استُبدل بالدفعات)
     # ---- دفعات الدخول (أسلوب فيصل الموثّق @kisar_) ----
     # فيصل: "الدخول دفعات 1.80 · 1.75 · 1.70 · الوقف 1.50". أي 3 أوامر عند
@@ -1330,6 +1332,33 @@ def _reject(code):
     return None
 
 
+def _hanging_man(df: pd.DataFrame) -> bool:
+    """كشف «الرجل المشنوق» (D8، فيصل CUR IMG_6334): الشمعة الأخيرة بشكل مطرقة
+    (جسم صغير · ظل سفلي طويل ≥2× الجسم · ظل علوي صغير) لكن **عند قمة قريبة بعد
+    صعود** = تحذير انعكاس هابط. عرض/تحذير فقط — لا نقاط ولا بوابة (لا يمسّ الفرز).
+    يطابق منطق technical_report.py:482-484."""
+    try:
+        if df is None or len(df) < 20:
+            return False
+        o = float(df["Open"].iloc[-1])
+        h = float(df["High"].iloc[-1])
+        lo = float(df["Low"].iloc[-1])
+        c = float(df["Close"].iloc[-1])
+        rng = h - lo
+        if rng <= 0:
+            return False
+        body = abs(c - o)
+        up = h - max(o, c)               # الظل العلوي
+        dn = min(o, c) - lo              # الظل السفلي
+        small_up = up <= max(body * 0.5, 0.10 * rng)
+        recent_high = float(df["High"].tail(20).max())
+        near_top = recent_high > 0 and c >= recent_high * 0.97
+        return (body <= 0.40 * rng and dn >= 2.0 * body
+                and small_up and near_top)
+    except Exception:
+        return False
+
+
 def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
     """يرجع dict بالنتيجة إذا اجتاز الشروط الإلزامية، وإلا None.
     pullback=True: وضع «مراقبة الارتداد» — سهم ارتكاز حقيقي (بنية مكتملة)
@@ -1504,6 +1533,10 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # تحذير سيولة منخفضة (يصعب الدخول/الخروج بأمان)
         if dvol < CONFIG["LOW_LIQ_WARN"]:
             warnings.append(f"سيولة منخفضة ({fmt_money(dvol)}/يوم)")
+        # D8: شمعة «الرجل المشنوق» عند قمة = تحذير انعكاس (فيصل CUR: انتظر الدعم)
+        if _hanging_man(df):
+            warnings.append("شمعة الرجل المشنوق (انعكاس هابط محتمل) — "
+                            "انتظر تكوين دعم قبل الدخول")
 
         # RSI: قاع تشبع حديث (≤5 جلسات) + انحناء + لم يرتد فوق 50
         rsi_s = rsi(close)
@@ -1889,10 +1922,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             "drop_pct": drop_pct, "best_spike": best_spike,
             "n_spikes": n_spikes, "base_range": base_range,
             "rsi": r_now, "dollar_vol": dvol,
+            "vol_today": float(vol.iloc[-1]),   # D10: لحساب تدوير الفلوت في enrich
             "pivot": pivot, "stop": (stop_lo, stop_hi),
             "entry": (entry_lo, entry_hi), "tranches": tranches,
             "key_levels": key_levels(df, price, pivot),
-            "sweep": (sweep_lo, sweep_hi),
+            "sweep": (sweep_lo, sweep_hi),  # محفوظ للمستقبل — غير معروض؛ حماية الوقف
+                                            # الفعلية = الحارس الذهبي أعلاه (D2)
             "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
             "ready": ready, "readiness": readiness_pct,
             "flags": flags, "warnings": warnings,
@@ -2285,6 +2320,11 @@ def enrich(results: list) -> None:
                 # القيمة المجلوبة إن وُجدت، وإلا آخر قيمة معروفة (لا يختفي 🏢)
                 r["float"] = (_or_cache(info.get("floatShares"), cached, "float")
                               or _prev_float)
+                # D10: تدوير الفلوت (حجم اليوم ÷ الفلوت) — إشارة سكويز عند تجاوز
+                # 100% (فيصل ELAB: تدوير 750%). عرض فقط — لا نقاط ولا بوابة.
+                _flt, _vt = r.get("float"), r.get("vol_today")
+                if _flt and _vt:
+                    r["rotation_pct"] = round(_vt / _flt * 100.0)
                 r["sector"] = _or_cache(info.get("sector") or
                                         info.get("industry"), cached, "sector")
                 r["industry"] = _or_cache(info.get("industry"),
@@ -2369,6 +2409,16 @@ def enrich(results: list) -> None:
 # ==========================================================
 # 7) استراتيجية التقسيم العكسي
 # ==========================================================
+def _split_row(sym, split_date, day_open, price, short):
+    """صفّ تقرير التقسيم العكسي (D9): هدف الهبوط = افتتاح التقسيم ÷ 2 (فيصل
+    EHGO 2.80÷2=1.40)؛ والشورت «مقبول» لو أقل من SHORT_DAILY_MAX («تابعه لين
+    الشورت تحت 20 ألف»). دالة نقية قابلة للاختبار بلا شبكة."""
+    target = round(day_open / 2.0, 2) if day_open else None
+    ok = (short is not None and short < CONFIG["SHORT_DAILY_MAX"])
+    return {"symbol": sym, "split_date": str(split_date), "open": day_open,
+            "half": target, "price": price, "short": short, "short_ok": ok}
+
+
 def split_watch_report(history: dict) -> list:
     """مراقبة قائمة التقسيمات اليدوية: قاع متوقع = شمعة التقسيم ÷ 2"""
     rows = []
@@ -2408,17 +2458,29 @@ def split_watch_report(history: dict) -> list:
             except Exception:
                 pass
             price = float(df["Close"].iloc[-1])
-            target = round(day_open / 2.0, 2) if day_open else None
-            srt = shorts.get(sym)
-            ok = (srt is not None and srt < CONFIG["SHORT_DAILY_MAX"])
-            rows.append({
-                "symbol": sym, "split_date": str(split_date),
-                "open": day_open, "half": target, "price": price,
-                "short": srt, "short_ok": ok,
-            })
+            rows.append(_split_row(sym, split_date, day_open, price,
+                                   shorts.get(sym)))
         except Exception:
             continue
     return rows
+
+
+def build_split_watch_section(rows: list) -> str:
+    """قسم «مراقبة التقسيم العكسي» (D9): يفعّل قاعدة فيصل ÷2 النائمة — عرض فقط."""
+    if not rows:
+        return ""
+    lines = ["✂️ <b>مراقبة التقسيم العكسي</b> (هدف الهبوط = افتتاح التقسيم ÷2):"]
+    for r in rows:
+        half = f"${r['half']:.2f}" if r.get("half") else "—"
+        if r.get("short") is not None:
+            stag = (f"شورت {fmt_money(r['short'])} "
+                    + ("✓" if r.get("short_ok") else "⚠️ عالٍ"))
+        else:
+            stag = "شورت —"
+        lines.append(f"• <b>{esc(r['symbol'])}</b> ${r['price']:.2f} · "
+                     f"هدف هبوط {half} · {stag}")
+    lines.append("<i>القاع المتوقع بعد التقسيم ≈ نصف افتتاح التقسيم (فيصل).</i>")
+    return _rtl_join(lines)
 
 
 # ==========================================================
@@ -2804,6 +2866,10 @@ def build_message(results: list, splits: list,
         if r.get("country"):
             small.append(country_label(r["country"]))
         lines.append("💰 " + " · ".join(small))
+        # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
+        rot = r.get("rotation_pct")
+        if rot and rot >= 100:
+            lines.append(f"🔄 تدوير اليوم ≈ {rot:.0f}% من الفلوت (إشارة سكويز)")
 
         # ===== مجموعة الدخول / الدعم / الوقف =====
         lines.append("")
@@ -3130,6 +3196,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "score": r["score"], "flags": list(r["flags"]),
         "rsi": r.get("rsi"), "float": r.get("float"),      # سمات للتعلم
         "short": r.get("finra_short"), "short_pct": r.get("short_pct"),
+        "rotation_pct": r.get("rotation_pct"),             # D10: تدوير الفلوت (سكويز)
         "drop_pct": r.get("drop_pct"), "best_spike": r.get("best_spike"),
         "rr": r.get("rr"),
         "tier": r.get("tier", "A"),                       # A صارمة / B مراقبة
@@ -3919,6 +3986,10 @@ def build_daily_message(wl: dict, splits: list,
         if s.get("country"):
             small.append(country_label(s["country"]))
         lines.append("   💰 " + " · ".join(small))
+        # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
+        rot = s.get("rotation_pct")
+        if rot and rot >= 100:
+            lines.append(f"   🔄 تدوير ≈ {rot:.0f}% من الفلوت")
         # الدخول (دفعات) + الوقف بنسبته. السجلّات القديمة بلا tranches → تُبنى من الدعم
         trs = s.get("tranches") or [
             round(s["pivot"] * (1 + CONFIG["ENTRY_STEP_PCT"] / 100.0 * j), 2)
@@ -4580,6 +4651,15 @@ def run_daily_watchlist(wl: dict) -> None:
     pull_sec = build_pullback_section(watching, pull_triggered)
     if pull_sec:
         msg += "\n\n" + pull_sec
+    # D9: قسم مراقبة التقسيم العكسي (يفعّل قاعدة فيصل ÷2 النائمة) — طبقة عرض،
+    # داخل try فلا يكسر التقرير لو فشلت الشبكة/الجلب.
+    try:
+        split_sec = build_split_watch_section(
+            split_watch_report(download_history(CONFIG["SPLIT_WATCHLIST"])))
+        if split_sec:
+            msg += "\n\n" + split_sec
+    except Exception as e:
+        log(f"⚠️ تقرير التقسيم العكسي: {e}")
     # احفظ حالة اليوم (ترقيات/تنبيهات/تحديثات) قبل الإرسال — لو فشل الإرسال
     # (شبكة/تيليجرام) لا تضيع الحالة المحسوبة (إصلاح 2026-06-24).
     save_watchlist(wl)
