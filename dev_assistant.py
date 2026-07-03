@@ -229,11 +229,20 @@ def build_dev_assistant_report(wl: dict, missed: list = None,
             return []
         # تصنيف: بوابات الهوية = «ليس النمط أصلًا» (رفض صحيح). الباقي = نمط فعلي
         # تحرّك أو حدّي → هو الإشارة الحقيقية للمراجعة.
-        moved = [m for m in missed if not _is_identity_reason(m["reason"])]
-        not_pivot = [m for m in missed if _is_identity_reason(m["reason"])]
+        # A2: كسب خارق (suspect_split من المُزوِّد) = يُرجَّح أثر تقسيم عكسي غير
+        # معدَّل بالبيانات → يُفصل من الإحصاء ويُعرض ببند تحقق يدوي (لا حذف).
+        suspects = [m for m in missed if m.get("suspect_split")]
+        clean = [m for m in missed if not m.get("suspect_split")]
+        moved = [m for m in clean if not _is_identity_reason(m["reason"])]
+        not_pivot = [m for m in clean if _is_identity_reason(m["reason"])]
         out = [f"\n👻 <b>فرص فائتة (مرفوض صعد {int(MISSED_RISE_PCT)}% أو أكثر)</b>",
                f"   📌 نمط تحرّك (راجِع): <b>{len(moved)}</b> · "
                f"🗑️ ليس النمط (تجاهل صحيح): {len(not_pivot)}"]
+        if suspects:
+            top_sus = " · ".join(f"{m['symbol']} +{m['gain_10d']:.0f}%"
+                                 for m in suspects[:4])
+            out.append(f"   ⚠️ مستبعد من الإحصاء ({len(suspects)}) — يُرجَّح أثر "
+                       f"تقسيم عكسي بالبيانات (تحقق يدوي): {top_sus}")
         if moved:
             rc = {}
             for m in moved:
@@ -267,9 +276,13 @@ def build_dev_assistant_report(wl: dict, missed: list = None,
                        + "، ".join(f"{k} ({v})" for k, v in
                                    sorted(rc.items(), key=lambda x: -x[1])[:3]))
             for e in sorted(was_target, key=lambda x: -x["gain"])[:6]:
-                out.append(f"   • {e['symbol']}: +{e['gain']:.0f}% — كان نمطنا، "
-                           f"رُفض بـ{e['reason']}")
+                # A2: 🔍 = قفزة خارقة قد تكون تقسيمًا غير معدَّل — تحقق يدويًا
+                sus = " 🔍" if e.get("suspect_split") else ""
+                out.append(f"   • {e['symbol']}: +{e['gain']:.0f}%{sus} — كان "
+                           f"نمطنا، رُفض بـ{e['reason']}")
             out.append("   ↳ راجِع هذي البوابة — قد تكون متشدّدة وتفوّت فرصًا.")
+            if any(e.get("suspect_split") for e in was_target):
+                out.append("   🔍 = قفزة خارقة، قد تكون أثر تقسيم — تحقق يدويًا.")
         return out
 
     if n < DEV_MIN_SAMPLE:
@@ -284,6 +297,16 @@ def build_dev_assistant_report(wl: dict, missed: list = None,
     losses = [r for r in rows if not r["_win"]]
     head.append(f"النجاح الكلي: <b>{wr:.0f}%</b> ({len(wins)}✅ / {len(losses)}🛑) "
                 f"· متوسط أقصى ربح {avg:+.0f}%")
+    # A5: حارس العيّنة الصغيرة — يمنع الانجرار خلف نسب على 3-10 صفقات
+    if n < 20:
+        head.append(f"⚠️ العيّنة صغيرة (N={n}) — النِّسَب أدناه استرشادية؛ "
+                    "لا قرارات ضبط قبل 20 صفقة محسومة.")
+        _sw = [r.get("score") for r in wins if r.get("score") is not None]
+        _sl = [r.get("score") for r in losses if r.get("score") is not None]
+        if _sw and _sl and sum(_sl) / len(_sl) > sum(_sw) / len(_sw):
+            head.append(f"   ملاحظة: متوسط قوة الخاسرين "
+                        f"({sum(_sl) / len(_sl):.0f}) أعلى من الرابحين "
+                        f"({sum(_sw) / len(_sw):.0f}) — القوة ليست تنبؤية بعد.")
 
     def seg(title, keyfn):
         groups = {}
