@@ -4876,6 +4876,11 @@ def run_backtest(symbols=None) -> None:
             continue
         all_trades += backtest_symbol(sym, df)
     st = backtest_stats(all_trades)
+    # تشخيص للسجل: تفاصيل كل إشارة (يُقرأ من سجل Actions لتحليل أي سهم/تاريخ
+    # أطلق البوت إشارته تاريخيًا — مثلاً: هل التقط أسهم فيصل الموثّقة يومها؟)
+    for t in all_trades:
+        log(f"باكتيست·{t['symbol']}: {t['date']} → {t['outcome']} "
+            f"(دخول {t['entry']} · هدف {t['t1']} · وقف {t['stop']})")
     # B1: هوية التجربة — تظهر برسالة التلقرام + اللوق (لمقارنة تشغيلات A/B)
     settings = (f"إعدادات: M4 قاعدة {CONFIG['BASE_RANGE_MAX_PCT']:g}% · "
                 f"M2 أرضية {CONFIG['MIN_DROP_FLOOR']:g}%"
