@@ -4801,11 +4801,13 @@ def run_daily_watchlist(wl: dict) -> None:
 # ==========================================================
 # 10) التشغيل الرئيسي
 # ==========================================================
-def backtest_symbol(sym: str, df: pd.DataFrame) -> list:
+def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None) -> list:
     """باكتيست سهم واحد — **مشي للأمام بلا نظر للمستقبل**: عند كل نقطة نحلّل
     البيانات حتى تلك النقطة فقط، ولو رشّح البوت ننتظر وصول السعر لمنطقة الدفعات
     (تعبئة واقعية) ثم نقيس: t1 قبل الوقف = ربح، الوقف أولًا = خسارة (محافظ:
-    الوقف يفوز بالتعادل داخل الشمعة). يرجع قائمة صفقات بنتائجها."""
+    الوقف يفوز بالتعادل داخل الشمعة). يرجع قائمة صفقات بنتائجها.
+    reasons (اختياري): dict يُملأ بعدّاد أسباب الرفض عبر أيام المشي — تشخيص
+    «أي بوابة خنقت هذا السهم تاريخيًا» (باكتيست فقط، لا يمسّ الفرز)."""
     trades = []
     n = len(df)
     fwd = int(CONFIG["BACKTEST_FORWARD_DAYS"])
@@ -4817,6 +4819,9 @@ def backtest_symbol(sym: str, df: pd.DataFrame) -> list:
         except Exception:
             r = None
         if not r:
+            if reasons is not None:
+                _rr = _REJECT_REASONS.get(sym, "؟")
+                reasons[_rr] = reasons.get(_rr, 0) + 1
             i += step
             continue
         entry = sum(r["tranches"]) / len(r["tranches"])   # متوسط الدفعات
@@ -4873,8 +4878,15 @@ def run_backtest(symbols=None) -> None:
     for sym in symbols:
         df = hist.get(sym)
         if df is None or len(df) < CONFIG["MIN_BARS"] + CONFIG["BACKTEST_FORWARD_DAYS"]:
+            log(f"باكتيست·{sym}: بيانات غير كافية "
+                f"({0 if df is None else len(df)} شمعة)")
             continue
-        all_trades += backtest_symbol(sym, df)
+        sym_reasons = {}
+        all_trades += backtest_symbol(sym, df, sym_reasons)
+        if sym_reasons:   # تشخيص: أكثر بوابة رفضت هذا السهم عبر تاريخه
+            top = sorted(sym_reasons.items(), key=lambda x: -x[1])[:3]
+            log(f"باكتيست·أسباب {sym}: "
+                + " · ".join(f"{k}={v}" for k, v in top))
     st = backtest_stats(all_trades)
     # تشخيص للسجل: تفاصيل كل إشارة (يُقرأ من سجل Actions لتحليل أي سهم/تاريخ
     # أطلق البوت إشارته تاريخيًا — مثلاً: هل التقط أسهم فيصل الموثّقة يومها؟)
