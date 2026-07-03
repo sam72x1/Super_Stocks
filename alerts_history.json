@@ -181,7 +181,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.8
+   "max_gain_pct": 5.7
   },
   {
    "symbol": "INSM",
@@ -335,7 +335,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.5
+   "max_gain_pct": 7.5
   },
   {
    "symbol": "UPB",
@@ -459,7 +459,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.5
+   "max_gain_pct": 8.2
   },
   {
    "symbol": "OPRX",
@@ -510,8 +510,8 @@
     "فلوت 1,346,854 (صغير ✅)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-07-02",
    "max_gain_pct": 4.4
   },
   {
@@ -538,7 +538,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 6.4
+   "max_gain_pct": 7.4
   },
   {
    "symbol": "EVTV",
@@ -565,7 +565,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 8.2
+   "max_gain_pct": 5.9
   },
   {
    "symbol": "LYEL",
@@ -591,7 +591,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.1
+   "max_gain_pct": 1.2
   },
   {
    "symbol": "PRTS",
@@ -618,7 +618,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.1
+   "max_gain_pct": -2.2
   },
   {
    "symbol": "SCYX",
@@ -641,9 +641,9 @@
     "فلوت 7,703,751 (صغير ✅)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 9.6
+   "status": "hit_t1",
+   "result_date": "2026-07-02",
+   "max_gain_pct": 16.5
   },
   {
    "symbol": "VFF",
@@ -670,7 +670,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 4.3
   }
  ]
 }

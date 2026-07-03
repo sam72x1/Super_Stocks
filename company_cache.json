@@ -1,7 +1,6 @@
 {
  "NGEN": {},
  "DJT": {},
- "NAGE": {},
  "IDN": {
   "sector": "Technology",
   "industry": "Software - Application",
@@ -479,18 +478,6 @@
   "short_pct": 19.8,
   "float": 593084
  },
- "HCAI": {
-  "sector": "Industrials",
-  "industry": "Farm & Heavy Construction Machinery",
-  "business": "Huachen AI Parking Management Technology Holding Co., Ltd, a technology company, designs, manufactures, sells, installs, and maintains cubic parking garage and…",
-  "country": "China",
-  "cash": 389,
-  "revenue": 6575095,
-  "shares_out": 629942,
-  "short_pct": 2.2,
-  "float": 269938,
-  "finra_short": 4500
- },
  "ONEG": {
   "sector": "Industrials",
   "industry": "Engineering & Construction",
@@ -603,17 +590,6 @@
   "short_pct": 5.3,
   "float": 1520609
  },
- "MCRB": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Seres Therapeutics, Inc., a clinical-stage company, focuses on developing biotherapeutics for serious diseases. The company develops SER-155, an investigational…",
-  "country": "United States",
-  "cash": 29834000,
-  "revenue": 1147000,
-  "shares_out": 9683934,
-  "short_pct": 3.0,
-  "float": 7384774
- },
  "CING": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -644,17 +620,6 @@
   "short_pct": 4.7,
   "float": 2400271,
   "finra_short": 12728
- },
- "PN": {
-  "sector": "Technology",
-  "industry": "Solar",
-  "business": "PN Smart Energy Limited, through its subsidiaries, designs, develops, manufactures, and sells solar PV products and solar power system solution services in Main…",
-  "country": "China",
-  "cash": 9549384,
-  "revenue": 63311196,
-  "shares_out": 7744775,
-  "short_pct": 1.1,
-  "float": 1273288
  },
  "AHMA": {
   "sector": "Consumer Cyclical",
@@ -759,17 +724,6 @@
   "float": 892196,
   "finra_short": 9177
  },
- "KSCP": {
-  "sector": "Industrials",
-  "industry": "Security & Protection Services",
-  "business": "Knightscope, Inc. designs, develops, manufactures, markets, deploys, and supports autonomous security robots (ASR) in the United States. The company provides K5…",
-  "country": "United States",
-  "cash": 11401000,
-  "revenue": 14434000,
-  "shares_out": 16916595,
-  "short_pct": 16.7,
-  "float": 15189572
- },
  "EVTV": {
   "sector": "Consumer Cyclical",
   "industry": "Auto Manufacturers",
@@ -780,17 +734,6 @@
   "shares_out": 12930719,
   "short_pct": 7.1,
   "float": 12549004
- },
- "LYEL": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Lyell Immunopharma, Inc., a clinical-stage cell therapy company, develops chimeric antigen receptor (CAR) T-cell product candidates for patients with hematologi…",
-  "country": "United States",
-  "cash": 254023008,
-  "revenue": 31000,
-  "shares_out": 23334087,
-  "short_pct": 6.6,
-  "float": 9490207
  },
  "PRTS": {
   "sector": "Consumer Cyclical",
@@ -814,6 +757,28 @@
   "short_pct": 3.3,
   "float": 7703751
  },
+ "LYEL": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Lyell Immunopharma, Inc., a clinical-stage cell therapy company, develops chimeric antigen receptor (CAR) T-cell product candidates for patients with hematologi…",
+  "country": "United States",
+  "cash": 254023008,
+  "revenue": 31000,
+  "shares_out": 23334087,
+  "short_pct": 6.6,
+  "float": 9490207
+ },
+ "KSCP": {
+  "sector": "Industrials",
+  "industry": "Security & Protection Services",
+  "business": "Knightscope, Inc. designs, develops, manufactures, markets, deploys, and supports autonomous security robots (ASR) in the United States. The company provides K5…",
+  "country": "United States",
+  "cash": 11401000,
+  "revenue": 14434000,
+  "shares_out": 16916595,
+  "short_pct": 16.7,
+  "float": 15189572
+ },
  "VFF": {
   "sector": "Consumer Defensive",
   "industry": "Farm Products",
@@ -824,5 +789,101 @@
   "shares_out": 121811130,
   "short_pct": 4.9,
   "float": 101976366
+ },
+ "NAGE": {},
+ "QNRX": {
+  "finra_short": 8463
+ },
+ "ACON": {
+  "finra_short": 1782
+ },
+ "AMCI": {},
+ "BDTX": {},
+ "CAMP": {
+  "finra_short": 31589
+ },
+ "CRBU": {},
+ "STFS": {
+  "finra_short": 4955
+ },
+ "FOXX": {
+  "finra_short": 4530
+ },
+ "HCAI": {
+  "sector": "Industrials",
+  "industry": "Farm & Heavy Construction Machinery",
+  "business": "Huachen AI Parking Management Technology Holding Co., Ltd, operates as an electric vehicle charging solutions and equipment structural parts provider in the Peo…",
+  "country": "China",
+  "cash": 389,
+  "revenue": 6575095,
+  "shares_out": 629942,
+  "short_pct": 2.2,
+  "float": 269938,
+  "finra_short": 2567
+ },
+ "MCRB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Seres Therapeutics, Inc., a clinical-stage company, focuses on developing biotherapeutics for serious diseases. The company develops SER-155, an investigational…",
+  "country": "United States",
+  "cash": 29834000,
+  "revenue": 1147000,
+  "shares_out": 9683934,
+  "short_pct": 3.0,
+  "float": 7384774
+ },
+ "PN": {
+  "sector": "Technology",
+  "industry": "Solar",
+  "business": "PN Smart Energy Limited, through its subsidiaries, designs, develops, manufactures, and sells solar PV products and solar power system solution services in Main…",
+  "country": "China",
+  "cash": 9549384,
+  "revenue": 63311196,
+  "shares_out": 7744775,
+  "short_pct": 1.1,
+  "float": 1273288
+ },
+ "SKYQ": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Integrated",
+  "business": "Sky Quarry Inc. operates as an oil production, refining, and development-stage environmental remediation company in the United States. It facilitates the recycl…",
+  "country": "United States",
+  "cash": 66828,
+  "revenue": 6158505,
+  "shares_out": 4794646,
+  "short_pct": 10.2,
+  "float": 4070750
+ },
+ "SSII": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "business": "SS Innovations International, Inc., together with its subsidiaries, operates as a commercial-stage surgical robotics company in India, Philippines, Indonesia, S…",
+  "country": "India",
+  "cash": 15979714,
+  "revenue": 48465504,
+  "shares_out": 200131535,
+  "short_pct": 0.1,
+  "float": 40320500,
+  "finra_short": 6589
+ },
+ "KLRS": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Kalaris Therapeutics, Inc., a clinical-stage biopharmaceutical company, engages in the development and commercialization of treatments for prevalent retinal dis…",
+  "country": "United States",
+  "cash": 97215000,
+  "shares_out": 23792278,
+  "short_pct": 9.2,
+  "float": 7219053
+ },
+ "BCTX": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "BriaCell Therapeutics Corp., a pre-clinical stage immuno-oncology company, engages in developing targeted immunotherapies to transform cancer care. Its lead can…",
+  "country": "Canada",
+  "cash": 22804424,
+  "shares_out": 8699787,
+  "short_pct": 4.3,
+  "float": 7859562
  }
 }
