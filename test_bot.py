@@ -1434,6 +1434,25 @@ _c4_bad = pd.DataFrame({"Open": ["x"] * 130, "High": ["x"] * 130,
 check("C4: بيانات فاسدة → None بلا انهيار (التسجيل تشخيصي فقط)",
       S.analyze_ticker("BAD_C4", _c4_bad) is None)
 
+# --- N2: إزالة تكرار أرشيف history (كان 2026-06-21 مكرر ×9 بالبيانات الحية) ---
+_n2_hist = [
+    {"week_start": "2026-06-21", "ended": "2026-06-22"},
+    {"week_start": "2026-06-21", "ended": "2026-06-23"},
+    {"week_start": "2026-06-21", "ended": "2026-06-24"},   # الأحدث لهذا الأسبوع
+    {"week_start": "2026-06-26", "ended": "2026-06-27"},
+]
+_n2_out = S._dedup_history(_n2_hist)
+check("N2: إزالة تكرار الأسبوع → إدخال واحد لكل week_start", len(_n2_out) == 2)
+check("N2: الأحدث يفوز (2026-06-21 → ended=06-24)",
+      next(h for h in _n2_out if h["week_start"] == "2026-06-21")["ended"]
+      == "2026-06-24")
+check("N2: ترتيب الأسابيع محفوظ (21 ثم 26)",
+      [h["week_start"] for h in _n2_out] == ["2026-06-21", "2026-06-26"])
+check("N2: إدخال واحد يبقى كما هو",
+      S._dedup_history([{"week_start": "W1"}]) == [{"week_start": "W1"}])
+check("N2: الإدخالات بلا week_start تبقى مستقلة",
+      len(S._dedup_history([{"a": 1}, {"a": 2}])) == 2)
+
 # 9-ب) مسح واسع على عشرات الأسهم الصناعية → كل الثوابت تصمد لكل سهم
 _inv_fail = []
 _N = S.CONFIG["ENTRY_TRANCHES"]

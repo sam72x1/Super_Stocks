@@ -3182,6 +3182,23 @@ def _or_cache(val, cached, key):
 COMPANY_CACHE = _load_company_cache()
 
 
+def _dedup_history(history: list) -> list:
+    """N2 (2026-07-04): يبقي **أحدث** إدخال أرشيف لكل `week_start` (الأحدث = آخر
+    إضافة) مع الحفاظ على ترتيب أول ظهور — يمنع تكرار الأسبوع نفسه عبر تشغيلات
+    متعددة (كان `2026-06-21` مكرَّرًا ×9). الإدخالات بلا `week_start` تبقى مستقلة.
+    طبقة ذاكرة/أرشيف فقط — لا تمسّ الفرز/الدخول/الوقف/الأهداف."""
+    if not isinstance(history, list) or len(history) < 2:
+        return history if isinstance(history, list) else []
+    latest, order = {}, []
+    for i, h in enumerate(history):
+        wk = h.get("week_start") if isinstance(h, dict) else None
+        key = wk if wk else ("__none__", i)   # بلا week_start = يبقى مستقلًا
+        if key not in latest:
+            order.append(key)
+        latest[key] = h                        # الأحدث بنفس الأسبوع يفوز
+    return [latest[k] for k in order]
+
+
 def load_watchlist() -> dict:
     if os.path.exists(WATCH_FILE):
         try:
@@ -3201,6 +3218,11 @@ def save_watchlist(wl: dict) -> None:
         _lst = wl.get(_k)
         if isinstance(_lst, list) and len(_lst) > _cap:
             wl[_k] = _lst[-_cap:]
+    # N2: أرشيف history — إزالة تكرار الأسبوع (أحدث إدخال يفوز) + قصّ لـ26.
+    # ينظّف التلوّث القديم على أول حفظ ويمنع تكراره مستقبلًا (ذاتي الشفاء).
+    _h = wl.get("history")
+    if isinstance(_h, list) and _h:
+        wl["history"] = _dedup_history(_h)[-26:]
     try:
         _atomic_write_json(WATCH_FILE, wl)
     except Exception as e:
@@ -4565,8 +4587,11 @@ def run_weekly_renewal(wl: dict) -> None:
                                 "score", "flags", "rsi", "float", "short",
                                 "drop_pct", "best_spike", "rr")}
                               for s in wl["stocks"] + wl["removed"]]}
-        wl.setdefault("history", []).append(summary)
-        wl["history"] = wl["history"][-26:]
+        hist = wl.setdefault("history", [])
+        hist.append(summary)
+        # N2: حارس تكرار — لو أُرشِف الأسبوع نفسه سابقًا (تشغيل متكرر) يُستبدل
+        # بالأحدث بدل ما يتراكم؛ فالتقرير في نفس التشغيل يرى أرشيفًا نظيفًا.
+        wl["history"] = _dedup_history(hist)[-26:]
     try:
         accumulate_explosions(wl, hist)   # كاشف الانفجارات (للتعلّم)
     except Exception as e:
