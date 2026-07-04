@@ -4891,6 +4891,41 @@ def backtest_stats(trades: list) -> dict:
             "win_rate": round(wr, 1), "no_fill": len(nofill)}
 
 
+def _diagnose_symbol(sym, df):
+    """تشخيص دقيق (باكتيست فقط، طلب المستخدم 2026-07-04): يطبع الأرقام الخام لكل
+    بوابة هوية + الحكم النهائي للحالة الحالية والارتداد — للإجابة بدقة على «ليش لم
+    يُرشَّح هذا السهم؟». لا يمسّ الفرز (يستدعي نفس analyze_ticker على البيانات كاملة)."""
+    try:
+        close, high, low, vol = df["Close"], df["High"], df["Low"], df["Volume"]
+        c = close.values.astype(float)
+        price = float(c[-1])
+        hi52 = float(high.tail(252).max())
+        drop = (1.0 - price / hi52) * 100.0 if hi52 > 0 else 0.0
+        best_spike, n_sp = spike_info(c, exclude_last=CONFIG["BASE_WINDOW"])
+        bw = CONFIG["BASE_WINDOW"]
+        base_hi, base_lo = float(high.tail(bw).max()), float(low.tail(bw).min())
+        base_range = (base_hi / base_lo - 1.0) * 100.0 if base_lo > 0 else -1.0
+        dvol = float((close * vol).tail(20).mean())
+        rs = rsi(close)
+        rsi_min = float(rs.tail(CONFIG["RSI_OS_LOOKBACK"]).min())
+        rsi_now = float(rs.iloc[-1])
+        gain5 = (c[-1] / c[-6] - 1.0) * 100.0 if len(c) > 6 and c[-6] > 0 else 0.0
+        log(f"🔬{sym} خام: سعر={price:.2f} هبوط={drop:.0f}% انفجار={best_spike:.0f}%"
+            f"(معيد×{n_sp}) قاعدة={base_range:.0f}% سيولة=${dvol:,.0f}"
+            f" RSIقاع={rsi_min:.0f}/الآن={rsi_now:.0f} صعود5ج={gain5:+.0f}% شموع={len(c)}")
+        r = analyze_ticker(sym, df)
+        rej = _REJECT_REASONS.get(sym, "—")
+        rp = analyze_ticker(sym, df, pullback=True)
+        if r:
+            log(f"🔬{sym} حكم: ✅ مرشّح درجة={r['score']} فئة={r['tier']}"
+                f" جاهزية={r.get('readiness')} نواقص={r.get('soft_fails')}")
+        else:
+            log(f"🔬{sym} حكم: ❌ مرفوض بـ«{rej}» · مسار الارتداد="
+                f"{'✅ يُقبل' if rp else '❌ يُرفض'}")
+    except Exception as e:
+        log(f"🔬{sym} تشخيص: خطأ {type(e).__name__}: {e}")
+
+
 def run_backtest(symbols=None) -> None:
     """يشغّل الباكتيست على قائمة رموز (env BACKTEST_SYMBOLS أو وسيط) ويرسل
     تقريرًا + CSV. **تنبيه انحياز الناجين:** لو جرّبت رموز رابحة معروفة فقط
@@ -4908,9 +4943,12 @@ def run_backtest(symbols=None) -> None:
     all_trades = []
     for sym in symbols:
         df = hist.get(sym)
-        if df is None or len(df) < CONFIG["MIN_BARS"] + CONFIG["BACKTEST_FORWARD_DAYS"]:
-            log(f"باكتيست·{sym}: بيانات غير كافية "
-                f"({0 if df is None else len(df)} شمعة)")
+        if df is None or df.empty:
+            log(f"🔬{sym}: لا بيانات (محذوف/رمز خطأ؟)")
+            continue
+        _diagnose_symbol(sym, df)     # تشخيص الحالة الحالية (دائمًا)
+        if len(df) < CONFIG["MIN_BARS"] + CONFIG["BACKTEST_FORWARD_DAYS"]:
+            log(f"باكتيست·{sym}: بيانات غير كافية للمشي الأمامي ({len(df)} شمعة)")
             continue
         sym_reasons = {}
         all_trades += backtest_symbol(sym, df, sym_reasons)
