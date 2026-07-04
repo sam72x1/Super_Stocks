@@ -4891,12 +4891,25 @@ def backtest_stats(trades: list) -> dict:
             "win_rate": round(wr, 1), "no_fill": len(nofill)}
 
 
-def _diagnose_symbol(sym, df):
+def _diagnose_symbol(sym, df, cutoff=0):
     """تشخيص دقيق (باكتيست فقط، طلب المستخدم 2026-07-04): يطبع الأرقام الخام لكل
-    بوابة هوية + الحكم النهائي للحالة الحالية والارتداد — للإجابة بدقة على «ليش لم
-    يُرشَّح هذا السهم؟». لا يمسّ الفرز (يستدعي نفس analyze_ticker على البيانات كاملة)."""
+    بوابة هوية + الحكم النهائي — للإجابة بدقة على «ليش لم يُرشَّح هذا السهم؟».
+    لا يمسّ الفرز (يستدعي نفس analyze_ticker).
+
+    ⏪ **cutoff** (طلب المستخدم 2026-07-04): يقيّم السهم كأنه **قبل `cutoff` يوم تداول**
+    (يقصّ آخر `cutoff` شمعة) — أي «كيف رآه البوت وقت القاع قبل الانفجار» لا بعده.
+    cutoff=0 = الحالة الحالية. هذا هو التقييم بلا-نظر-للمستقبل عند لحظة تاريخية محددة."""
     try:
-        close, high, low, vol = df["Close"], df["High"], df["Low"], df["Volume"]
+        d = df.iloc[:len(df) - cutoff] if cutoff > 0 else df
+        if len(d) < CONFIG["MIN_BARS"]:
+            log(f"🔬{sym}@-{cutoff}ي: بيانات غير كافية عند هذا القصّ ({len(d)} شمعة)")
+            return
+        tag = f"{sym}@-{cutoff}ي" if cutoff > 0 else sym
+        try:
+            asof = str(d.index[-1].date())
+        except Exception:
+            asof = "?"
+        close, high, low, vol = d["Close"], d["High"], d["Low"], d["Volume"]
         c = close.values.astype(float)
         price = float(c[-1])
         hi52 = float(high.tail(252).max())
@@ -4910,20 +4923,21 @@ def _diagnose_symbol(sym, df):
         rsi_min = float(rs.tail(CONFIG["RSI_OS_LOOKBACK"]).min())
         rsi_now = float(rs.iloc[-1])
         gain5 = (c[-1] / c[-6] - 1.0) * 100.0 if len(c) > 6 and c[-6] > 0 else 0.0
-        log(f"🔬{sym} خام: سعر={price:.2f} هبوط={drop:.0f}% انفجار={best_spike:.0f}%"
-            f"(معيد×{n_sp}) قاعدة={base_range:.0f}% سيولة=${dvol:,.0f}"
-            f" RSIقاع={rsi_min:.0f}/الآن={rsi_now:.0f} صعود5ج={gain5:+.0f}% شموع={len(c)}")
-        r = analyze_ticker(sym, df)
+        log(f"🔬{tag} خام(بتاريخ {asof}): سعر={price:.2f} هبوط={drop:.0f}%"
+            f" انفجار={best_spike:.0f}%(معيد×{n_sp}) قاعدة={base_range:.0f}%"
+            f" سيولة=${dvol:,.0f} RSIقاع={rsi_min:.0f}/الآن={rsi_now:.0f}"
+            f" صعود5ج={gain5:+.0f}% شموع={len(c)}")
+        r = analyze_ticker(sym, d)
         rej = _REJECT_REASONS.get(sym, "—")
-        rp = analyze_ticker(sym, df, pullback=True)
+        rp = analyze_ticker(sym, d, pullback=True)
         if r:
-            log(f"🔬{sym} حكم: ✅ مرشّح درجة={r['score']} فئة={r['tier']}"
+            log(f"🔬{tag} حكم: ✅ مرشّح درجة={r['score']} فئة={r['tier']}"
                 f" جاهزية={r.get('readiness')} نواقص={r.get('soft_fails')}")
         else:
-            log(f"🔬{sym} حكم: ❌ مرفوض بـ«{rej}» · مسار الارتداد="
+            log(f"🔬{tag} حكم: ❌ مرفوض بـ«{rej}» · مسار الارتداد="
                 f"{'✅ يُقبل' if rp else '❌ يُرفض'}")
     except Exception as e:
-        log(f"🔬{sym} تشخيص: خطأ {type(e).__name__}: {e}")
+        log(f"🔬{sym}@-{cutoff} تشخيص: خطأ {type(e).__name__}: {e}")
 
 
 def run_backtest(symbols=None) -> None:
@@ -4947,6 +4961,11 @@ def run_backtest(symbols=None) -> None:
             log(f"🔬{sym}: لا بيانات (محذوف/رمز خطأ؟)")
             continue
         _diagnose_symbol(sym, df)     # تشخيص الحالة الحالية (دائمًا)
+        # ⏪ تشخيص «قبل الانفجار» (طلب المستخدم 2026-07-04): نقيّم السهم كأنه قبل
+        # N يوم تداول — أي وقت القاع قبل ما يركض — لا بعد ما انفجر. يجيب بدقة:
+        # «هل كان يبدو ارتكازًا نظيفًا وقتها ولو كان البوت سيلتقطه؟»
+        for off in (15, 20, 25, 30, 40, 50, 60):
+            _diagnose_symbol(sym, df, cutoff=off)
         if len(df) < CONFIG["MIN_BARS"] + CONFIG["BACKTEST_FORWARD_DAYS"]:
             log(f"باكتيست·{sym}: بيانات غير كافية للمشي الأمامي ({len(df)} شمعة)")
             continue
