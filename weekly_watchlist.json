@@ -83,10 +83,19 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 70,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -172,10 +181,19 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -260,10 +278,19 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -351,10 +378,20 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
-   "partial": [],
-   "missing": [],
+   "readiness": 55,
+   "have": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "مسح سيولة"
+   ],
+   "partial": [
+    "ثبات بعد القاع"
+   ],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
@@ -819,215 +856,6 @@
  "history": [
   {
    "week_start": "2026-06-21",
-   "ended": "2026-06-21",
-   "stocks": []
-  },
-  {
-   "week_start": "2026-06-21",
-   "ended": "2026-06-21",
-   "stocks": [
-    {
-     "symbol": "SOGP",
-     "entry_ref": 11.85,
-     "last_price": 11.85,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "IDN",
-     "entry_ref": 4.09,
-     "last_price": 4.09,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "SEV",
-     "entry_ref": 2.37,
-     "last_price": 2.37,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-21",
-   "ended": "2026-06-21",
-   "stocks": [
-    {
-     "symbol": "NAGE",
-     "entry_ref": 3.37,
-     "last_price": 3.5,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "IDN",
-     "entry_ref": 4.09,
-     "last_price": 4.09,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-21",
-   "ended": "2026-06-21",
-   "stocks": [
-    {
-     "symbol": "IDN",
-     "entry_ref": 4.09,
-     "last_price": 4.09,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-21",
-   "ended": "2026-06-21",
-   "stocks": [
-    {
-     "symbol": "IDN",
-     "entry_ref": 4.09,
-     "last_price": 4.09,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-21",
-   "ended": "2026-06-21",
-   "stocks": [
-    {
-     "symbol": "IDN",
-     "entry_ref": 4.09,
-     "last_price": 4.09,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-21",
-   "ended": "2026-06-21",
-   "stocks": [
-    {
-     "symbol": "NGEN",
-     "entry_ref": 2.2,
-     "last_price": 2.2,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "DJT",
-     "entry_ref": 8.49,
-     "last_price": 8.49,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "NAGE",
-     "entry_ref": 3.5,
-     "last_price": 3.5,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "IDN",
-     "entry_ref": 4.09,
-     "last_price": 4.09,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "USGO",
-     "entry_ref": 8.45,
-     "last_price": 8.45,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "SOGP",
-     "entry_ref": 11.85,
-     "last_price": 11.85,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "INSM",
-     "entry_ref": 95.8,
-     "last_price": 95.8,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-21",
-   "ended": "2026-06-21",
-   "stocks": [
-    {
-     "symbol": "IDN",
-     "entry_ref": 4.09,
-     "last_price": 4.09,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "USGO",
-     "entry_ref": 8.45,
-     "last_price": 8.45,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    },
-    {
-     "symbol": "SOGP",
-     "entry_ref": 11.85,
-     "last_price": 11.85,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "removal_reason": null
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-21",
    "ended": "2026-06-22",
    "stocks": [
     {
@@ -1121,108 +949,6 @@
      "drop_pct": null,
      "best_spike": null,
      "rr": null
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-22",
-   "ended": "2026-06-22",
-   "stocks": [
-    {
-     "symbol": "EZRA",
-     "entry_ref": 3.655,
-     "last_price": 3.6653,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-22",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": "Financial Services",
-     "score": 80,
-     "flags": [
-      "تقاطع MACD",
-      "KST صاعد",
-      "معيد إجرام (3 انفجارات)",
-      "ثبات 7 جلسات فوق القاع",
-      "مسح سيولة (كسر قاع سابق واستعادة)",
-      "انكماش حزمة كلنجر (تجميع)",
-      "فجوة عالية يومي 13%",
-      "فجوات متعددة الفريمات (أسبوعي، شهري)",
-      "شورت 4,194 (مقبول)",
-      "فلوت 493,362 (صغير ✅)"
-     ],
-     "rsi": 37.20415128735191,
-     "float": 493362,
-     "short": 4194,
-     "drop_pct": 96.43177922719897,
-     "best_spike": 173.30316012664957,
-     "rr": 6.686453573723753
-    },
-    {
-     "symbol": "IDN",
-     "entry_ref": 4.08,
-     "last_price": 4.1083,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-22",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": "Technology",
-     "score": 70,
-     "flags": [
-      "تقاطع MACD",
-      "KST صاعد",
-      "ثبات 8 جلسات فوق القاع",
-      "مسح سيولة (كسر قاع سابق واستعادة)",
-      "تباعد MFI صعودي (23→27) — سيولة مخفية",
-      "انكماش حزمة كلنجر (تجميع)",
-      "فجوة-هدف فوق السعر عند $6.02 (+48%)",
-      "قاب (فجوة) فوق السعر عند $6.02 (فراغ 18% = هدف ذهبي)",
-      "شورت غير متاح — مُرِّر بفائدة الشك",
-      "فلوت 17,719,818 (صغير ✅)"
-     ],
-     "rsi": 31.636783776390402,
-     "float": 17719818,
-     "short": null,
-     "drop_pct": 55.066079757842346,
-     "best_spike": 118.34533216296683,
-     "rr": 0.9836066673868314
-    },
-    {
-     "symbol": "TAOX",
-     "entry_ref": 3.72,
-     "last_price": 3.69,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-22",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": "Technology",
-     "score": 65,
-     "flags": [
-      "تقاطع MACD",
-      "ثبات 6 جلسات فوق القاع",
-      "مسح سيولة (كسر قاع سابق واستعادة)",
-      "تباعد MFI صعودي (24→37) — سيولة مخفية",
-      "انكماش حزمة كلنجر (تجميع)",
-      "فجوة عالية يومي 12%",
-      "فجوة يومية مفتوحة (لم تُغلق)",
-      "فجوات متعددة الفريمات (أسبوعي، شهري)",
-      "شورت غير متاح — مُرِّر بفائدة الشك",
-      "فلوت 7,308,370 (صغير ✅)"
-     ],
-     "rsi": 37.81547583037463,
-     "float": 7308370,
-     "short": null,
-     "drop_pct": 68.94824565313957,
-     "best_spike": 252.69708287459193,
-     "rr": 1.397358598908986
     }
    ]
   },
@@ -1387,204 +1113,6 @@
      "drop_pct": 69.11519040848786,
      "best_spike": 252.69708287459193,
      "rr": 1.397358598908986
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-23",
-   "ended": "2026-06-23",
-   "stocks": [
-    {
-     "symbol": "VSTM",
-     "entry_ref": 4.25,
-     "last_price": 4.225,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-23",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": null,
-     "score": 80,
-     "flags": [
-      "تقاطع MACD",
-      "KST صاعد",
-      "يرتكز على متوسط 30/50",
-      "ثبات 8 جلسات فوق القاع",
-      "مسح سيولة (كسر قاع سابق واستعادة)",
-      "نمط شمعة قوي",
-      "انكماش حزمة كلنجر (تجميع)",
-      "استعاد MA5/MA20 (تجميع)",
-      "فجوة صاعدة يومي 4%",
-      "فجوات متعددة الفريمات (أسبوعي)",
-      "شورت غير متاح — مُرِّر بفائدة الشك",
-      "فلوت غير متاح — مُرِّر بفائدة الشك"
-     ],
-     "rsi": 49.63506684544375,
-     "float": null,
-     "short": null,
-     "drop_pct": 62.22222222222222,
-     "best_spike": 91.6370227237516,
-     "rr": 3.1905964485086433
-    },
-    {
-     "symbol": "EZRA",
-     "entry_ref": 3.76,
-     "last_price": 3.43,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-23",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": "Financial Services",
-     "score": 80,
-     "flags": [
-      "تقاطع MACD",
-      "KST صاعد",
-      "معيد إجرام (3 انفجارات)",
-      "ثبات 7 جلسات فوق القاع",
-      "مسح سيولة (كسر قاع سابق واستعادة)",
-      "انكماش حزمة كلنجر (تجميع)",
-      "فجوة عالية يومي 13%",
-      "فجوات متعددة الفريمات (أسبوعي، شهري)",
-      "شورت 4,194 (مقبول)",
-      "فلوت 493,362 (صغير ✅)"
-     ],
-     "rsi": 39.93348627049377,
-     "float": 493362,
-     "short": 4194,
-     "drop_pct": 96.32927218147113,
-     "best_spike": 173.30316012664957,
-     "rr": 2.593344143079772
-    },
-    {
-     "symbol": "NBP",
-     "entry_ref": 1.53,
-     "last_price": 1.6,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-23",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": "Healthcare",
-     "score": 80,
-     "flags": [
-      "RSI تشبع وانحناء (قاع 27→35)",
-      "تقاطع MACD",
-      "معيد إجرام (2 انفجارات)",
-      "ثبات 6 جلسات فوق القاع",
-      "نمط شمعة قوي",
-      "Williams %R انعطاف من التشبع",
-      "فجوة عالية يومي 10%",
-      "فجوات متعددة الفريمات (أسبوعي، شهري)",
-      "شورت غير متاح — مُرِّر بفائدة الشك",
-      "⚠️ فلوت كبير 64,483,293 (فوق 50,000,000)"
-     ],
-     "rsi": 35.4985900951536,
-     "float": 64483293,
-     "short": null,
-     "drop_pct": 77.466863328638,
-     "best_spike": 218.18181448731536,
-     "rr": 1.3518903639902922
-    },
-    {
-     "symbol": "IDN",
-     "entry_ref": 4.13,
-     "last_price": 4.27,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-23",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": "Technology",
-     "score": 70,
-     "flags": [
-      "تقاطع MACD",
-      "KST صاعد",
-      "ثبات 8 جلسات فوق القاع",
-      "مسح سيولة (كسر قاع سابق واستعادة)",
-      "تباعد MFI صعودي (23→28) — سيولة مخفية",
-      "انكماش حزمة كلنجر (تجميع)",
-      "فجوة-هدف فوق السعر عند $6.02 (+46%)",
-      "قاب (فجوة) فوق السعر عند $6.02 (فراغ 18% = هدف ذهبي)",
-      "شورت غير متاح — مُرِّر بفائدة الشك",
-      "فلوت 17,719,818 (صغير ✅)"
-     ],
-     "rsi": 33.451937533148026,
-     "float": 17719818,
-     "short": null,
-     "drop_pct": 54.51541685965968,
-     "best_spike": 118.34533216296683,
-     "rr": 1.235813505178326
-    },
-    {
-     "symbol": "INSM",
-     "entry_ref": 98.61,
-     "last_price": 101.645,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-23",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": null,
-     "score": 65,
-     "flags": [
-      "تقاطع MACD",
-      "KST صاعد",
-      "ثبات 7 جلسات فوق القاع",
-      "مسح سيولة (كسر قاع سابق واستعادة)",
-      "نمط شمعة قوي",
-      "انكماش حزمة كلنجر (تجميع)",
-      "فجوة-هدف فوق السعر عند $125.36 (+27%)",
-      "قاب (فجوة) فوق السعر عند $125.36 (فراغ 9% = هدف ذهبي)",
-      "شورت غير متاح — مُرِّر بفائدة الشك",
-      "فلوت غير متاح — مُرِّر بفائدة الشك"
-     ],
-     "rsi": 42.179280268349544,
-     "float": null,
-     "short": null,
-     "drop_pct": 53.64982344989351,
-     "best_spike": 216.86363220214844,
-     "rr": 1.5192589753164834
-    },
-    {
-     "symbol": "CTMX",
-     "entry_ref": 3.04,
-     "last_price": 3.165,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-23",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": "Healthcare",
-     "score": 65,
-     "flags": [
-      "تقاطع MACD",
-      "معيد إجرام (2 انفجارات)",
-      "ثبات 8 جلسات فوق القاع",
-      "مسح سيولة (كسر قاع سابق واستعادة)",
-      "تباعد MFI صعودي (13→26) — سيولة مخفية",
-      "Williams %R انعطاف من التشبع",
-      "شورت غير متاح — مُرِّر بفائدة الشك",
-      "⚠️ فلوت كبير 186,262,263 (فوق 50,000,000)"
-     ],
-     "rsi": 36.47234306231077,
-     "float": 186262263,
-     "short": null,
-     "drop_pct": 62.97198602036589,
-     "best_spike": 312.54124990545387,
-     "rr": 2.1272827980975393
     }
    ]
   },
@@ -1941,43 +1469,6 @@
      "float": 34977358,
      "short": null,
      "drop_pct": 80.96793411718868,
-     "best_spike": 77.91353096201266,
-     "rr": 1.933298922777908
-    }
-   ]
-  },
-  {
-   "week_start": "2026-06-26",
-   "ended": "2026-06-26",
-   "stocks": [
-    {
-     "symbol": "UPB",
-     "entry_ref": 6.36,
-     "last_price": 6.49,
-     "max_gain_pct": 0.0,
-     "status": "active",
-     "hit": null,
-     "hit_date": null,
-     "added": "2026-06-26",
-     "removal_reason": null,
-     "tier": "B",
-     "sector": "Healthcare",
-     "score": 60,
-     "flags": [
-      "تقاطع MACD",
-      "ثبات 8 جلسات فوق القاع",
-      "مسح سيولة (كسر قاع سابق واستعادة)",
-      "نمط شمعة قوي",
-      "تباعد MFI صعودي (14→31) — سيولة مخفية",
-      "فجوة صاعدة يومي 4%",
-      "فجوات متعددة الفريمات (شهري)",
-      "شورت غير متاح — مُرِّر بفائدة الشك",
-      "فلوت 34,977,358 (صغير ✅)"
-     ],
-     "rsi": 35.08932807939556,
-     "float": 34977358,
-     "short": null,
-     "drop_pct": 81.11638932337827,
      "best_spike": 77.91353096201266,
      "rr": 1.933298922777908
     }
@@ -3469,6 +2960,28 @@
    "gain": 55.0,
    "reason": "M4_base_واسعة",
    "was_pivot": false
+  }
+ ],
+ "reject_stats": [
+  {
+   "date": "2026-07-04",
+   "stats": {
+    "M2_هبوط_تحت_40": 1867,
+    "M1_سعر": 524,
+    "M5_سيولة": 113,
+    "M4_base_واسعة": 309,
+    "M10_RSI_فات_القطار": 26,
+    "نواقص_فوق_3": 55,
+    "M10_RSI_ما_تشبّع": 202,
+    "M3_انفجار_تحت_60": 188,
+    "M2_هبوط_فوق_97": 68,
+    "بعيد_عن_الدخول(35%)": 5,
+    "بعيد_عن_الدخول(20%)": 1,
+    "بعيد_عن_الدخول(40%)": 3,
+    "بعيد_عن_الدخول(45%)": 1
+   },
+   "universe": 3559,
+   "valid": 3366
   }
  ]
 }
