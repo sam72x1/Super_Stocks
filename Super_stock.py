@@ -320,8 +320,13 @@ CONFIG = {
                                       # ويُفصل من إحصاء الفائتة، لا يُحذف (شفافية)
     # ---- كاشف الانفجارات اليومية (للتعلّم) ----
     "EXPLOSION_PCT": 50.0,       # قفزة يوم واحد ≥ هذا = انفجار نحلّله (قرار المستخدم)
-    "EXPLOSION_LOOKBACK": 5,     # نبحث عن يوم الانفجار في آخر N جلسة
+    "EXPLOSION_LOOKBACK": 5,     # نبحث عن يوم القفزة في آخر N جلسة
+    # طلب المستخدم 2026-07-04: «لا سهم يرتفع >70% إلا وحنا عارفين بوابة رفضه» —
+    # نضيف شبكة **تجمّع متعدّد الأيام** (قاع→قمة) تلتقط الصاعد التدريجي بلا يوم قفزة.
+    "EXPLOSION_RUN_PCT": 70.0,   # ارتفاع تراكمي قاع→قمة ≥ هذا داخل النافذة = متحرّك
+    "EXPLOSION_RUN_LOOKBACK": 20,  # نافذة البحث عن الركض التراكمي (جلسات)
     "EXPLOSION_KEEP_DAYS": 30,   # نحتفظ بسجل الانفجارات آخر N يوم للتقرير
+    "EXPLOSION_KEEP_MAX": 600,   # سقف السجل (شبكة التجمّع تزيد الحجم — الارتكازات أولًا)
     # ---- حجم المركز + الباكتيست ----
     "ACCOUNT_SIZE": 10000.0,     # رأس المال لحساب حجم المركز (env: ACCOUNT_SIZE)
     "RISK_PER_TRADE_PCT": 1.0,   # نسبة المخاطرة من رأس المال لكل صفقة
@@ -3452,13 +3457,45 @@ def _had_pivot_identity(df) -> bool:
         return False
 
 
+def _run_explosion(c):
+    """شبكة «التجمّع» (طلب المستخدم 2026-07-04): أكبر ارتفاع تراكمي **قاع→قمة**
+    داخل آخر EXPLOSION_RUN_LOOKBACK جلسة — يلتقط الصاعد التدريجي >70% الذي لا يملك
+    يوم قفزة واحد ≥50% (فلا يفلت متحرّك كبير من التصنيف). يعيد (نسبة الارتفاع %،
+    موقع «يوم الانطلاق» المطلق = أول يوم بعد القاع) أو (None, None) إن لم يبلغ العتبة."""
+    try:
+        n = len(c)
+        look = min(int(CONFIG["EXPLOSION_RUN_LOOKBACK"]), n - 1)
+        if look < 2:
+            return None, None
+        seg = c[n - look - 1:]                 # آخر look+1 إغلاق
+        best_rise, best_trough_j = 0.0, 0
+        run_min, run_min_j = float(seg[0]), 0
+        for j in range(1, len(seg)):
+            if run_min > 0:
+                rise = (float(seg[j]) / run_min - 1.0) * 100.0
+                if rise > best_rise:
+                    best_rise, best_trough_j = rise, run_min_j
+            if float(seg[j]) < run_min:
+                run_min, run_min_j = float(seg[j]), j
+        if best_rise < CONFIG["EXPLOSION_RUN_PCT"]:
+            return None, None
+        # يوم الانطلاق = أول يوم بعد القاع → القاعدة = البيانات حتى القاع (شامل)
+        launch_abs = (n - look - 1) + best_trough_j + 1
+        return best_rise, min(launch_abs, n - 1)
+    except Exception:
+        return None, None
+
+
 def scan_explosions(history: dict) -> list:
-    """كاشف الانفجارات اليومية (للتعلّم): يلتقط الأسهم اللي قفزت ≥ EXPLOSION_PCT
-    في يوم واحد (آخر EXPLOSION_LOOKBACK جلسة) ويصنّفها:
+    """كاشف المتحرّكين (للتعلّم): يلتقط الأسهم اللي **قفزت ≥ EXPLOSION_PCT في يوم**
+    (آخر EXPLOSION_LOOKBACK جلسة) **أو تجمّعت ≥ EXPLOSION_RUN_PCT قاع→قمة** (نافذة
+    أطول) ويصنّفها:
       • was_pivot=True  → كان **ارتكازًا قبل الانفجار** (نحلّل بياناته حتى قبل يوم
         الانفجار) = فرصة فاتتنا → نراجع سبب عدم الترشيح.
       • was_pivot=False → انفجار عشوائي/خرابيط (لا بنية ارتكاز) = صح تجاهلناه.
-    يعيد استخدام البيانات المحمّلة (لا تحميل إضافي)."""
+    **`base_reason`** (طلب المستخدم 2026-07-04) = **البوابة الدقيقة التي رفضته عند
+    قاعه قبل الركض** (لا الرفض الحالي بعد الانفجار) — فلا متحرّك >العتبة بلا بوابة
+    معروفة. يعيد استخدام البيانات المحمّلة (لا تحميل إضافي)."""
     global _CUR_SYM
     today = dt.date.today().isoformat()
     # تحليل الشرائح التاريخية أدناه يستدعي analyze_ticker الذي يلوّث خرائط الرفض
@@ -3478,29 +3515,42 @@ def scan_explosions(history: dict) -> list:
         # تُسقط أيامًا بإغلاق ≤0 فينحرف موقع يوم الانفجار).
         gains = [(k, (c[-k] / c[-k - 1] - 1.0) * 100.0)
                  for k in range(1, look + 1) if c[-k - 1] > 0]
-        if not gains:
-            continue
-        k_max, g = max(gains, key=lambda p: p[1])
-        if g < CONFIG["EXPLOSION_PCT"]:
-            continue
-        idx = len(c) - k_max                      # موقع يوم الانفجار (مطلق، صحيح)
+        # (1) قفزة يوم واحد (المسار الأصلي — بلا تغيير سلوك). (2) وإلا: تجمّع تراكمي.
+        kind, g, idx = None, None, None
+        if gains:
+            k_max, g1 = max(gains, key=lambda p: p[1])
+            if g1 >= CONFIG["EXPLOSION_PCT"]:
+                kind, g = "قفزة", g1
+                idx = len(c) - k_max              # موقع يوم القفزة (مطلق، صحيح)
+        if kind is None:                          # لا قفزة → جرّب التجمّع التدريجي
+            grun, launch = _run_explosion(c)
+            if grun is None:
+                continue
+            kind, g, idx = "تجمّع", grun, launch
         # تاريخ يوم الانفجار الفعلي (لا تاريخ المسح) — حتى لا يُحسَب نفس الانفجار
         # عدّة مرّات عبر أيام النافذة (dedup = symbol + تاريخ الانفجار).
         try:
             expl_date = df.index[idx].date().isoformat()
         except Exception:
             expl_date = today
-        reason = _REJECT_REASONS.get(sym, "—")    # لماذا لم يُرشّح اليوم
+        live_reason = _REJECT_REASONS.get(sym, "—")   # الرفض الحالي (بعد الانفجار)
         was_pivot = False
-        slice_df = df.iloc[:idx]                   # بياناته قبل يوم الانفجار
+        base_reason = "—"
+        slice_df = df.iloc[:idx]                   # بياناته قبل الانفجار/الركض
         if len(slice_df) >= CONFIG["MIN_BARS"]:
             # هوية الارتكاز فقط (M1-M3)، لا جاهزية الدخول — انظر _had_pivot_identity.
             was_pivot = _had_pivot_identity(slice_df)
+            # **البوابة الدقيقة عند القاع قبل الركض** (لا الرفض الحالي): نشغّل الفارز
+            # الكامل على شريحة ما قبل الانفجار فيُسجّل _reject البوابة الأولى الفاشلة.
+            _REJECT_REASONS.pop(sym, None)
+            base_reason = ("مرشّح" if analyze_ticker(sym, slice_df)
+                           else _REJECT_REASONS.get(sym, "—"))
         out.append({"symbol": sym, "date": today, "expl_date": expl_date,
-                    "gain": round(g, 0), "reason": reason,
+                    "gain": round(g, 0), "kind": kind,
+                    "reason": live_reason,        # توافق خلفي (الرفض الحالي)
+                    "base_reason": base_reason,   # البوابة عند القاع (الأهم)
                     "was_pivot": bool(was_pivot),
-                    # A2: قفزة يوم واحد خارقة قد تكون تقسيمًا غير معدَّل — وسم
-                    # للتحقق اليدوي (يبقى في الإحصاء، يُعلَّم 🔍 في التقرير)
+                    # A2: قفزة خارقة قد تكون تقسيمًا غير معدَّل — وسم للتحقق اليدوي
                     "suspect_split": g >= CONFIG["SPLIT_SUSPECT_GAIN_PCT"]})
     _CUR_SYM = None
     # استعادة خرائط الرفض كما كانت قبل تحليل الشرائح التاريخية (لا تلوّث الحيّة)
@@ -3529,7 +3579,16 @@ def accumulate_explosions(wl: dict, history: dict) -> int:
             seen.add(_ek(e))
     cutoff = (dt.date.today()
               - dt.timedelta(days=int(CONFIG["EXPLOSION_KEEP_DAYS"]))).isoformat()
-    wl["explosions"] = [e for e in log_ex if e.get("date", "") >= cutoff][-300:]
+    kept = [e for e in log_ex if e.get("date", "") >= cutoff]
+    cap = int(CONFIG["EXPLOSION_KEEP_MAX"])
+    if len(kept) > cap:                    # شفافية: لا قصّ صامت (طلب المستخدم)
+        # نُبقي الارتكازات الفائتة أولًا ثم الأحدث — فلا يُطرد «ارتكاز فاتنا» بضجيج
+        # عشوائي عند الامتلاء (الوعد: لا متحرّك ارتكازي يُفقَد بلا بوابة معروفة).
+        piv = [e for e in kept if e.get("was_pivot")]
+        rest = [e for e in kept if not e.get("was_pivot")]
+        kept = (piv + rest)[-cap:] if len(piv) >= cap else piv + rest[-(cap - len(piv)):]
+        log(f"⚠️ كاشف الانفجارات: تجاوز السعة ({cap}) — أُبقيت الارتكازات + الأحدث.")
+    wl["explosions"] = kept
     return len(found)
 
 
@@ -4315,27 +4374,52 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         ex = wl.get("explosions") or []
         if not ex:
             return []
+
+        def _br(e):    # البوابة الدقيقة عند القاع (توافق خلفي مع السجلات القديمة)
+            return e.get("base_reason") or e.get("reason") or "—"
+
         missed = [e for e in ex if e.get("was_pivot")]
         junk = [e for e in ex if not e.get("was_pivot")]
-        out = [f"\n💥 <b>انفجارات يومية ({int(CONFIG['EXPLOSION_PCT'])}% أو أكثر) — "
-               f"{len(ex)} سهم</b>",
-               f"   🎯 كانت ارتكازًا فاتتنا: {len(missed)} · "
-               f"🗑️ عشوائية (صح تجاهلناها): {len(junk)}"]
+        thr = (f"{int(CONFIG['EXPLOSION_PCT'])}% قفزة أو "
+               f"{int(CONFIG['EXPLOSION_RUN_PCT'])}% تجمّع")
+        out = [f"\n💥 <b>المتحرّكون ({thr}) — {len(ex)} سهم</b>",
+               f"   🎯 كان ارتكازًا فاتنا: {len(missed)} · "
+               f"🗑️ عشوائي (صح تجاهلناه): {len(junk)}"]
+        # 🚪 توزيع البوابات على **كل** المتحرّكين — طلب المستخدم: لا متحرّك >العتبة
+        # بلا بوابة رفض معروفة بالضبط عند قاعه (لا الرفض الحالي بعد الانفجار).
+        gc = {}
+        for e in ex:
+            gc[_br(e)] = gc.get(_br(e), 0) + 1
+        out.append("   🚪 بوابة الرفض عند القاع (كل المتحرّكين): "
+                   + " · ".join(f"{esc(str(k))}={v}" for k, v in
+                                sorted(gc.items(), key=lambda x: -x[1])[:6]))
         if missed:
-            rc = {}
-            for e in missed:
-                rc[e["reason"]] = rc.get(e["reason"], 0) + 1
-            out.append("   سبب تفويت الارتكازات: "
-                       + "، ".join(f"{k} ({v})" for k, v in
-                                   sorted(rc.items(), key=lambda x: -x[1])[:3]))
             for e in sorted(missed, key=lambda x: -x["gain"])[:6]:
                 # A2: 🔍 = قفزة خارقة قد تكون تقسيمًا غير معدَّل — تحقق يدويًا
                 sus = " 🔍" if e.get("suspect_split") else ""
-                out.append(f"   • {e['symbol']}: +{e['gain']:.0f}%{sus} — كان "
-                           f"ارتكازًا، رُفض بـ{e['reason']}")
-            out.append("   ↳ راجع هذي البوابة — قد تكون متشدّدة وتفوّت ارتكازات.")
+                knd = e.get("kind", "قفزة")
+                out.append(f"   • {e['symbol']}: +{e['gain']:.0f}% ({knd}){sus} — "
+                           f"كان ارتكازًا، بوابة القاع: {esc(str(_br(e)))}")
+            mc = {}
+            for e in missed:                    # بوابات فعلية فقط (لا «مرشّح»/«—»)
+                br = _br(e)
+                if br not in ("مرشّح", "—"):
+                    mc[br] = mc.get(br, 0) + 1
+            if mc:
+                out.append("   ↳ أكثر بوابة فوّتت ارتكازًا: "
+                           + "، ".join(f"{esc(str(k))} ({v})" for k, v in
+                                       sorted(mc.items(), key=lambda x: -x[1])[:3])
+                           + " — راجعها (قد تكون متشدّدة).")
             if any(e.get("suspect_split") for e in missed):
                 out.append("   🔍 = قفزة خارقة، قد تكون أثر تقسيم — تحقق يدويًا.")
+        # ⚠️ الأخطر: متحرّك كان **مرشّحًا** عند قاعه (اجتاز الفارز) لكنه لم يدخل
+        # القائمة — تأكّد لِمَ (توقيت/تغطية؟)، هذا أقوى إشارة «تفويت حقيقي».
+        real = [e for e in ex if _br(e) == "مرشّح"]
+        if real:
+            out.append(f"   ⚠️ {len(real)} متحرّك كان مرشّحًا عند قاعه — تأكّد لِمَ "
+                       "لم يدخل القائمة: "
+                       + "، ".join(f"{e['symbol']}(+{e['gain']:.0f}%)" for e in
+                                   sorted(real, key=lambda x: -x["gain"])[:5]))
         return out
 
     def _denominator_block():

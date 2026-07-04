@@ -691,11 +691,39 @@ S.accumulate_explosions(_wlx, {"BOOM": _boom})   # نفس اليوم → لا ت
 check("كاشف الانفجارات: تراكم + dedup",
       len(_wlx.get("explosions", [])) == 1)
 check("مساعد التطوير: يعرض الانفجارات المفقودة",
-      "انفجارات يومية" in S.build_dev_assistant_report(_wlx))
+      "المتحرّكون" in S.build_dev_assistant_report(_wlx))
 # قفزة أقل من العتبة لا تُلتقط
 _calm = synth_pivot(seed=3)
 check("كاشف الانفجارات: يتجاهل ما دون العتبة",
       len(S.scan_explosions({"CALM": _calm})) == 0)
+
+# 🔬 base_reason (طلب المستخدم 2026-07-04): كل متحرّك يحمل بوابة الرفض الدقيقة
+# **عند قاعه** + النوع (قفزة/تجمّع) — فلا متحرّك >العتبة بلا بوابة معروفة.
+check("كاشف الانفجارات: يسجّل base_reason (بوابة القاع) + kind=قفزة",
+      "base_reason" in _exp[0] and _exp[0].get("kind") == "قفزة"
+      and isinstance(_exp[0].get("base_reason"), str) and _exp[0]["base_reason"])
+check("مساعد التطوير: يعرض توزيع بوابة القاع لكل متحرّك",
+      "بوابة الرفض عند القاع" in S.build_dev_assistant_report(_wlx))
+# 🆕 شبكة التجمّع: ركض تدريجي >70% بلا يوم قفزة ≥50% يُلتقط (kind=تجمّع)
+_run = synth_pivot(seed=4).copy()
+_rc = _run["Close"].values.astype(float).copy()
+_lvl = float(_rc[-15])
+for _i in range(15):                        # آخر 15 يوم: ~6%/يوم (لا قفزة ≥50%)
+    _rc[-15 + _i] = _lvl * (1.06 ** _i)
+_run["Close"] = _rc
+for _col, _m in (("High", 1.01), ("Low", 0.99), ("Open", 1.0)):
+    _rv = _run[_col].values.astype(float).copy()
+    _rv[-15:] = _rc[-15:] * _m
+    _run[_col] = _rv
+_run_exp = S.scan_explosions({"GRAD": _run})
+check("كاشف الانفجارات: يلتقط الركض التدريجي >70% بلا قفزة (kind=تجمّع)",
+      len(_run_exp) == 1 and _run_exp[0].get("kind") == "تجمّع"
+      and _run_exp[0]["gain"] >= 70)
+# لا قفزة يوم واحد ≥50% في هذه السلسلة (تأكيد أنها التقطت بالتجمّع لا بالقفزة)
+_grad_1day = max((_rc[-k] / _rc[-k - 1] - 1.0) * 100.0
+                 for k in range(1, 6) if _rc[-k - 1] > 0)
+check("شبكة التجمّع: السلسلة التدريجية بلا يوم قفزة ≥50% فعلًا",
+      _grad_1day < 50.0)
 
 # 📎 تصدير CSV: عمود الشورت يرجع لـshort_pct عند غياب finra_short (إصلاح فحص
 # 2026-06-26 — كان UPB يظهر شورت فارغ رغم توفّر short_pct). تصدير فقط.
@@ -1342,7 +1370,7 @@ check("A2: المشبوه مفصول من الإحصاء (GDC يظهر ببند 
 check("A2: الإحصاء النظيف يحسب الواقعي فقط (تجاهل صحيح: 1)",
       "تجاهل صحيح): 1" in _a2_rep)
 check("A2: الانفجار المشبوه يُعلَّم 🔍 ويبقى بالإحصاء",
-      "+311% 🔍" in _a2_rep and "كانت ارتكازًا فاتتنا: 1" in _a2_rep)
+      "+311%" in _a2_rep and " 🔍" in _a2_rep and "كان ارتكازًا فاتنا: 1" in _a2_rep)
 check("A1-عرض: مقام الرفض يظهر بالتقرير + نسبة الفائتة/المقام",
       "مقام الرفض" in _a2_rep and "M4_base_واسعة=50" in _a2_rep
       and "1/50 (2.0%)" in _a2_rep)
