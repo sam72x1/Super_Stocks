@@ -987,6 +987,71 @@ check("الباكتيست·تجربة: المقارنة تحسب الإنقاذ 
 check("الباكتيست·تجربة: عرض صادق (عالق مُفصَح + تحذير + الفرق الحاسم أولًا)",
       "عالق" in _cmpv and "لا تُخدع بنسبة نجاح B" in _cmpv
       and "الفرق الزوجي B−A" in _cmpv)
+
+# 🔬 تجربة «الدخول المؤكَّد بالمسح» (T1، 2026-07-05 — صور فيصل + مراجعة خصومية 7 وكلاء).
+# (أ) _sweep_confirmed_fill: مسح تحت الدعم ثم استعادة — بلا نظر مستقبلي.
+_sf_fill = S._sweep_confirmed_fill(np.array([100.,89,95,101]),
+                                   np.array([99.,92,96,101]), 100.0, 0.10)
+_sf_none = S._sweep_confirmed_fill(np.array([100.,95,98,102]),
+                                   np.array([99.,96,99,102]), 100.0, 0.10)
+_sf_norec = S._sweep_confirmed_fill(np.array([100.,88,85,80]),
+                                    np.array([98.,89,86,82]), 100.0, 0.10)
+# لا نظر مستقبلي: إغلاق≥الدعم قبل المسح (k=0,1) لا يُحتسب استعادة — الاستعادة بعد المسح (k=3)
+_sf_look = S._sweep_confirmed_fill(np.array([101.,102,88,101]),
+                                   np.array([101.,102,89,101]), 100.0, 0.10)
+check("المسح·تعبئة: مسح(low≤90)+استعادة(close≥100) → filled عند الاستعادة، أدنى ذيل محفوظ",
+      _sf_fill[0] == "filled" and _sf_fill[1] == 3 and _sf_fill[3] == 89.0
+      and _sf_none[0] == "no_sweep" and _sf_norec[0] == "sweep_no_reclaim")
+check("المسح·لا نظر مستقبلي: الاستعادة تُحتسب بعد المسح فقط (reclaim_idx=3 لا 0/1)",
+      _sf_look[0] == "filled" and _sf_look[1] == 3)
+# (ب) _resolve_arm: مصدر واحد لذراعَي A/B (ربح/خسارة/لا-تعبئة)
+_ra_win = S._resolve_arm(np.array([102.,110]), np.array([98.,100]),
+                         np.array([100.,108]), np.array([99.,101]), 100.0, 93.0, 109.0, 0)
+_ra_los = S._resolve_arm(np.array([101.,101]), np.array([92.,90]),
+                         np.array([95.,93]), np.array([96.,94]), 100.0, 93.0, 120.0, 0)
+_ra_nf = S._resolve_arm(np.array([1.]), np.array([1.]), np.array([1.]),
+                        np.array([1.]), 100.0, 93.0, 120.0, None)
+check("المسح·_resolve_arm: ربح(t1)=+9 · خسارة(وقف)=−7 · لا-تعبئة=None",
+      _ra_win[0] == "win" and abs(_ra_win[1] - 9.0) < 0.01
+      and _ra_los[0] == "loss" and abs(_ra_los[1] + 7.0) < 0.01
+      and _ra_nf == ("no_fill", None, "no_fill", None))
+# (ج) مطفأة افتراضيًا: لا حقول مسح · المقارنة ترجع []
+_bt_off = S.backtest_symbol("SWOFF", synth_pivot(seed=2))
+check("المسح·مطفأة: صفقة الأساس بلا حقول مسح + المقارنة ترجع []",
+      all("entry_model" not in t for t in _bt_off)
+      and S.backtest_sweep_compare(_bt_off) == [])
+# (د) مفعّلة: حقول المسح تُلحَق (ثم نُطفئها فورًا لئلا تتسرّب لبقية الاختبارات)
+S.CONFIG["BT_SWEEP_ENTRY"] = 1
+_bt_on = S.backtest_symbol("SWON", synth_pivot(seed=2))
+S.CONFIG["BT_SWEEP_ENTRY"] = 0
+check("المسح·مفعّلة: كل صفقة تحمل حقول المسح (entry_model/fill_reason_sweep/ret_sweep_a)",
+      len(_bt_on) >= 1 and all({"entry_model", "fill_reason_sweep",
+          "ret_sweep_a", "entry_sweep", "stop_sweep", "swept"} <= set(t)
+          for t in _bt_on))
+# (هـ) 🛡️ حارس فخّ عدم-التعبئة (مراجعة خصومية): حافة تحملها الامتناعات (تفادٍ>تحويل)
+# **تُرفَض** رغم أن الفرق الزوجي على المُعبَّأة موجب. 8 تفادٍ · 2 تحويل · 5 رابح مُبقى.
+def _swt(oc, ra, os_, rsa, fr, d="2025-01-01"):
+    return {"entry_model": "sweep_confirmed", "outcome": oc, "ret_a": ra,
+            "ret_b": ra, "outcome_sweep": os_, "outcome_sweep_b": os_,
+            "ret_sweep_a": rsa, "ret_sweep_b": rsa,
+            "fill_reason_sweep": fr, "date": d}
+_trap = ([_swt("loss", -10.0, "sweep_no_reclaim", None, "sweep_no_reclaim")] * 8
+         + [_swt("loss", -10.0, "win", 20.0, "filled", "2025-02-01")] * 2
+         + [_swt("win", 15.0, "win", 18.0, "filled", "2025-03-01")] * 5)
+_trap_r = "\n".join(S.backtest_sweep_compare(_trap))
+check("المسح·حارس الامتناع: تفادٍ يفوق التحويل ⇒ يُرفض (لا يُخدع بحافة الامتناع)",
+      "التحويل ≥ التفادي" in _trap_r or "يُرفض" in _trap_r)
+check("المسح·حكم الامتناع: الحكم الأولي «يُرفض» رغم فرق زوجي موجب على المُعبَّأة",
+      "يُرفض ويُقفل" in _trap_r)
+# (و) حافة حقيقية: تحويل يفوق التفادي + موجب الذراعين + يصمد سنتين + تعبئة كافية ⇒ يتبنّى
+_good = ([_swt("loss", -10.0, "win", 20.0, "filled", "2025-05-01")] * 3
+         + [_swt("loss", -10.0, "win", 20.0, "filled", "2026-05-01")] * 3
+         + [_swt("win", 15.0, "win", 15.0, "filled", "2025-06-01")] * 2
+         + [_swt("win", 15.0, "win", 15.0, "filled", "2026-06-01")] * 2
+         + [_swt("loss", -10.0, "sweep_no_reclaim", None, "sweep_no_reclaim")])
+_good_r = "\n".join(S.backtest_sweep_compare(_good))
+check("المسح·حافة حقيقية: تحويل≥تفادي + موجب سنتين + تعبئة≥40% ⇒ الحكم «يتبنّى»",
+      "يتبنّى الدخول" in _good_r and "المُعبَّأة في الطرفين" in _good_r)
 # كون الباكتيست الافتراضي (طلب المستخدم: تشغيل بالشهر وحده بلا رموز): يجمع من
 # القائمة + التنبيهات، ترجع قائمة رموز نصّية مرتّبة (لا يرمي عند غياب الملفات).
 _defsyms = S._default_backtest_symbols()
