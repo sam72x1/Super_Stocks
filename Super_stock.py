@@ -5251,17 +5251,34 @@ def backtest_honest_summary(trades: list) -> list:
     return out
 
 
-def _filter_trades_by_month(trades, month):
-    """يقصر صفقات الباكتيست على **شهر تقويمي محدّد** (1-12) من **آخر سنة متوفّرة**
-    بالبيانات (طلب المستخدم 2026-07-04: «احدد الشهر ١ او ٢»). البيانات ~800 يوم فقد
-    يظهر الشهر في عدّة سنوات → نأخذ الأحدث. يرجّع (الصفقات المفلترة، وسم الفترة أو None).
-    باكتيست فقط — طبقة تحليل، لا تمسّ الفرز."""
+def _bt_year_of(m, year=None):
+    """السنة المستهدفة للشهر m: صريحة (year) إن مُرّرت، وإلا **أحدث ظهور** (الحالية
+    إن مضى/جارٍ الشهر وإلا السابقة). طلب المستخدم 2026-07-05: تحديد سنة (مثلًا 2025)."""
+    if year:
+        try:
+            return int(year)
+        except (TypeError, ValueError):
+            pass
+    today = dt.date.today()
+    return today.year if int(m) <= today.month else today.year - 1
+
+
+def _filter_trades_by_month(trades, month, year=None):
+    """يقصر صفقات الباكتيست على **شهر تقويمي** (1-12) من سنة محدّدة (year) أو **أحدث
+    سنة متوفّرة** (طلب المستخدم 2026-07-04/07-05: الشهر + السنة). يرجّع (الصفقات، وسم
+    الفترة أو None). باكتيست فقط — طبقة تحليل، لا تمسّ الفرز."""
     try:
         m = int(str(month).strip())
     except (TypeError, ValueError):
         return trades, None
     if not 1 <= m <= 12:
         return trades, None
+    y_want = None
+    if year:
+        try:
+            y_want = str(int(year))
+        except (TypeError, ValueError):
+            y_want = None
 
     def _ym(t):
         d = str(t.get("date", ""))
@@ -5269,34 +5286,34 @@ def _filter_trades_by_month(trades, month):
 
     mm = f"{m:02d}"
     in_month = [t for t in trades if _ym(t)[1] == mm]
+    if y_want:
+        in_month = [t for t in in_month if _ym(t)[0] == y_want]
     if not in_month:
-        return [], f"شهر {mm} (لا صفقات بالبيانات)"
-    yr = max(y for y, _ in map(_ym, in_month) if y)
+        tag = f"{y_want}-{mm}" if y_want else f"شهر {mm}"
+        return [], f"{tag} (لا صفقات بالبيانات)"
+    yr = y_want or max(y for y, _ in map(_ym, in_month) if y)
     return [t for t in in_month if _ym(t)[0] == yr], f"{yr}-{mm}"
 
 
-def _recent_month_window(m):
-    """نافذة (من، إلى) ISO لأحدث ظهور للشهر التقويمي m (1-12) — لقصر مسح السوق
-    الكامل على شهر واحد (الجدوى). السنة = الحالية إن كان الشهر مضى/جارٍ، وإلا السابقة.
-    الحدّ الأعلى «..-31» يعمل بمقارنة النصوص (يشمل كل أيام الشهر بلا حاجة calendar)."""
+def _recent_month_window(m, year=None):
+    """نافذة (من، إلى) ISO للشهر m من سنة محدّدة أو أحدث ظهور — لقصر مسح السوق الكامل
+    على شهر واحد (الجدوى). الحدّ الأعلى «..-31» يعمل بمقارنة النصوص (يشمل كل الأيام)."""
     m = int(m)
-    today = dt.date.today()
-    y = today.year if m <= today.month else today.year - 1
+    y = _bt_year_of(m, year)
     return (f"{y}-{m:02d}-01", f"{y}-{m:02d}-31")
 
 
-def _forward_window_complete(m):
-    """هل لأحدث ظهور للشهر m نافذة أمامية كافية (BACKTEST_FORWARD_DAYS جلسة) قبل
-    اليوم؟ (مراجعة خصومية 2026-07-04: شهر حديث جدًا نافذته الأمامية ناقصة فيُستبعَد
-    كل دخوله بحارس `i < n-fwd` → تقرير فارغ.) ~1.5 يوم تقويمي لكل جلسة (تقريب آمن)."""
+def _forward_window_complete(m, year=None):
+    """هل للشهر m (من سنة محدّدة أو أحدث ظهور) نافذة أمامية كافية (BACKTEST_FORWARD_DAYS
+    جلسة) قبل اليوم؟ (مراجعة خصومية 2026-07-04: شهر حديث نافذته ناقصة فيُستبعَد كل دخوله
+    بحارس `i < n-fwd` → تقرير فارغ.) سنة سابقة = مكتملة دومًا. ~1.5 يوم تقويمي لكل جلسة."""
     try:
         m = int(m)
     except (TypeError, ValueError):
         return True
-    today = dt.date.today()
-    y = today.year if m <= today.month else today.year - 1
+    y = _bt_year_of(m, year)
     nxt = dt.date(y + (m == 12), (m % 12) + 1, 1)     # أول الشهر التالي = نهاية الشهر
-    return (today - nxt).days >= int(CONFIG["BACKTEST_FORWARD_DAYS"] * 1.5)
+    return (dt.date.today() - nxt).days >= int(CONFIG["BACKTEST_FORWARD_DAYS"] * 1.5)
 
 
 def _diagnose_symbol(sym, df, cutoff=0):
@@ -5385,6 +5402,7 @@ def run_backtest(symbols=None) -> None:
         symbols = [s.strip().upper() for s in env.replace(";", ",").split(",")
                    if s.strip()]
     _bt_month = os.environ.get("BACKTEST_MONTH", "").strip()
+    _bt_year = os.environ.get("BACKTEST_YEAR", "").strip()   # سنة محدّدة (2025 مثلًا)
     date_window = None
     # 🌍 **لا رموز محدّدة → مسح السوق الكامل** (طلب المستخدم: يكفي تحديد الشهر، بلا
     # خانة ثانية). رموز صريحة → تلك فقط. السوق مقصور على شهر واحد للجدوى + بلا انحياز.
@@ -5399,25 +5417,28 @@ def run_backtest(symbols=None) -> None:
             log(f"⚠️ باكتيست·السوق: تعذّر جلب ناسداك → كون البوت الاحتياطي "
                 f"({len(symbols)} رمز)")
         if not _bt_month:
-            # أحدث شهر **نافذته الأمامية (fwd) مكتملة** لا «آخر شهر مكتمل» (بياناته
-            # الأمامية ناقصة فيُستبعَد كل دخوله → تقرير فارغ — عيب لقّته المراجعة).
-            _base = dt.date.today().replace(day=1)
-            for _ in range(24):
-                _base = (_base - dt.timedelta(days=1)).replace(day=1)
-                if _forward_window_complete(_base.month):
-                    break
-            _bt_month = str(_base.month)
-            log(f"باكتيست·السوق: بلا شهر → أحدث شهر نافذته الأمامية مكتملة "
-                f"({_base.year}-{_base.month:02d}؛ يحتاج ~{CONFIG['BACKTEST_FORWARD_DAYS']}ج بعده)")
+            # سنة محدّدة بلا شهر → يناير؛ وإلا أحدث شهر **نافذته الأمامية مكتملة**
+            # (لا «آخر شهر مكتمل» — بياناته الأمامية ناقصة فيُفرَّغ التقرير، عيب لقّته المراجعة).
+            if _bt_year:
+                _bt_month = "1"
+            else:
+                _base = dt.date.today().replace(day=1)
+                for _ in range(24):
+                    _base = (_base - dt.timedelta(days=1)).replace(day=1)
+                    if _forward_window_complete(_base.month):
+                        break
+                _bt_month = str(_base.month)
+                log(f"باكتيست·السوق: بلا شهر → أحدث شهر نافذته الأمامية مكتملة "
+                    f"({_base.year}-{_base.month:02d}؛ يحتاج ~{CONFIG['BACKTEST_FORWARD_DAYS']}ج بعده)")
         try:
-            date_window = _recent_month_window(int(_bt_month))
+            date_window = _recent_month_window(int(_bt_month), _bt_year)
         except (TypeError, ValueError):
             date_window = None
         # تحذير: شهر حديث نافذته الأمامية ناقصة → صفقات محسومة قليلة/معدومة (لا صمت)
-        if not _forward_window_complete(_bt_month):
-            log(f"⚠️ باكتيست·السوق: الشهر {_bt_month} حديث — نافذته الأمامية "
+        if not _forward_window_complete(_bt_month, _bt_year):
+            log(f"⚠️ باكتيست·السوق: الفترة حديثة — نافذتها الأمامية "
                 f"(~{CONFIG['BACKTEST_FORWARD_DAYS']}ج) غير مكتملة، فقد تقلّ/تنعدم "
-                "الصفقات المحسومة. اختر شهرًا أقدم لنتيجة كاملة.")
+                "الصفقات المحسومة. اختر شهرًا/سنة أقدم لنتيجة كاملة.")
     if not symbols:
         log("⚠️ باكتيست: تعذّر تحديد رموز (لا ناسداك ولا كون احتياطي)")
         send_telegram("🧪 الباكتيست: تعذّر تحديد رموز (لا ناسداك ولا كون احتياطي).")
@@ -5451,9 +5472,8 @@ def run_backtest(symbols=None) -> None:
     # الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ. باكتيست فقط، لا يمسّ الفرز.
     period_tag = None
     if _bt_month:
-        all_trades, period_tag = _filter_trades_by_month(all_trades, _bt_month)
-        log(f"باكتيست: قصر على الشهر {_bt_month} → الفترة {period_tag} "
-            f"({len(all_trades)} صفقة)")
+        all_trades, period_tag = _filter_trades_by_month(all_trades, _bt_month, _bt_year)
+        log(f"باكتيست: قصر على {period_tag} ({len(all_trades)} صفقة)")
     st = backtest_stats(all_trades)
     # تشخيص للسجل: تفاصيل كل إشارة (سقف 200 سطر في وضع السوق تفاديًا لتضخّم السجل).
     for t in all_trades[:(200 if market else len(all_trades))]:

@@ -924,6 +924,13 @@ check("قصر الشهر: فارغ/غير صالح → كل الصفقات · ش
       and S._filter_trades_by_month(_mt, 13)[1] is None
       and S._filter_trades_by_month(_mt, 7)[0] == []
       and "لا صفقات" in S._filter_trades_by_month(_mt, 7)[1])
+# 📅 تحديد السنة (طلب المستخدم 2026-07-05): شهر 2 من 2024 → السنة الصريحة تُفلتر
+_sel24, _tag24 = S._filter_trades_by_month(_mt, 2, 2024)
+check("قصر الشهر+السنة: فبراير 2024 صريحة (لا أحدث سنة)",
+      _tag24 == "2024-02" and {t["symbol"] for t in _sel24} == {"X"})
+check("نافذة الشهر+السنة: تستعمل السنة الصريحة · النافذة الأمامية لسنة سابقة مكتملة",
+      S._recent_month_window(2, 2025)[0] == "2025-02-01"
+      and S._forward_window_complete(2, 2025) is True)
 # كون الباكتيست الافتراضي (طلب المستخدم: تشغيل بالشهر وحده بلا رموز): يجمع من
 # القائمة + التنبيهات، ترجع قائمة رموز نصّية مرتّبة (لا يرمي عند غياب الملفات).
 _defsyms = S._default_backtest_symbols()
