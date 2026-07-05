@@ -1090,6 +1090,24 @@ _card_r = {"symbol": "ZZ", "score": 60, "tier": "A", "price": 3.6,
 _card = S.build_message([_card_r], [])   # يرجّع نصًّا جاهزًا (لا قائمة)
 check("سلوك المضارب·عرض: البطاقة تُظهر «🧬 طريقة الارتفاع» + الوصف",
       "🧬 طريقة الارتفاع" in _card and "يد نشطة تعيد الضخّ" in _card)
+
+# 🔬 تشخيص التصنيف A/B (T2، طلب المستخدم «التصنيف عشوائي ولا سهم وصل A»): تحليل بالدليل
+# هل عدد النواقص/الجاهزية يميّز؟ — تحليل فقط، لا يمسّ الفرز/التصنيف.
+def _tt(ns, oc, rdy=55):
+    return {"outcome": oc, "n_soft": ns, "readiness": rdy, "exploded": False}
+_disc = ([_tt(0, "win")] * 8 + [_tt(1, "win")] * 7 + [_tt(1, "loss")] * 3
+         + [_tt(4, "loss")] * 12 + [_tt(4, "win")] * 1)
+_disc_r = "\n".join(S.backtest_tier_analysis(_disc))
+check("التصنيف·تشخيص: نواقص مميِّزة ⇒ يوصي «A = ناقص واحد أو أقل»",
+      "يميّز" in _disc_r and "ناقص واحد أو أقل" in _disc_r
+      and "صفر نواقص" in _disc_r and "<b>8</b>" in _disc_r)
+_flat = ([_tt(0, "win")] * 3 + [_tt(0, "loss")] * 7 + [_tt(4, "win")] * 3
+         + [_tt(4, "loss")] * 7)
+_flat_r = "\n".join(S.backtest_tier_analysis(_flat))
+check("التصنيف·تشخيص: نواقص غير مميِّزة ⇒ يوصي حلًّا جذريًا (محور مُثبَت لا بوابة صفرية)",
+      "لا يميّز" in _flat_r and "ضجيج" in _flat_r)
+check("التصنيف·تشخيص: عيّنة صغيرة (<10) → لا تقرير (لا حكم على ضجيج)",
+      S.backtest_tier_analysis([_tt(0, "win")] * 3) == [])
 # كون الباكتيست الافتراضي (طلب المستخدم: تشغيل بالشهر وحده بلا رموز): يجمع من
 # القائمة + التنبيهات، ترجع قائمة رموز نصّية مرتّبة (لا يرمي عند غياب الملفات).
 _defsyms = S._default_backtest_symbols()
