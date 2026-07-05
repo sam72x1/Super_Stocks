@@ -5404,8 +5404,10 @@ def run_backtest(symbols=None) -> None:
     _bt_month = os.environ.get("BACKTEST_MONTH", "").strip()
     _bt_year = os.environ.get("BACKTEST_YEAR", "").strip()   # سنة محدّدة (2025 مثلًا)
     date_window = None
+    whole_year = False
+    _month_valid = _bt_month.isdigit() and 1 <= int(_bt_month) <= 12
     # 🌍 **لا رموز محدّدة → مسح السوق الكامل** (طلب المستخدم: يكفي تحديد الشهر، بلا
-    # خانة ثانية). رموز صريحة → تلك فقط. السوق مقصور على شهر واحد للجدوى + بلا انحياز.
+    # خانة ثانية). رموز صريحة → تلك فقط. السوق مقصور على شهر/سنة للجدوى + بلا انحياز.
     market = not symbols
     if market:
         uni = get_universe()
@@ -5416,12 +5418,19 @@ def run_backtest(symbols=None) -> None:
             symbols = _default_backtest_symbols()
             log(f"⚠️ باكتيست·السوق: تعذّر جلب ناسداك → كون البوت الاحتياطي "
                 f"({len(symbols)} رمز)")
-        if not _bt_month:
-            # سنة محدّدة بلا شهر → يناير؛ وإلا أحدث شهر **نافذته الأمامية مكتملة**
-            # (لا «آخر شهر مكتمل» — بياناته الأمامية ناقصة فيُفرَّغ التقرير، عيب لقّته المراجعة).
-            if _bt_year:
-                _bt_month = "1"
-            else:
+        if _bt_year and not _month_valid:
+            # 📆 **سنة كاملة بتشغيل واحد** (طلب المستخدم: 2025 كاملة، شهر فارغ = كل الأشهر).
+            whole_year = True
+            _yv = int(_bt_year)
+            date_window = (f"{_yv}-01-01", f"{_yv}-12-31")
+            log(f"باكتيست·السوق: السنة {_yv} كاملة (كل الأشهر بتشغيل واحد)")
+            if _yv >= dt.date.today().year:   # صدق: أشهر السنة الجارية الأخيرة نافذتها ناقصة
+                log(f"⚠️ باكتيست·السوق: {_yv} سنة جارية — آخر ~شهرين نافذتهما الأمامية "
+                    "ناقصة فتقلّ صفقاتهما. للسنة الكاملة اختر سنة مكتملة (2025).")
+        else:
+            if not _bt_month:
+                # أحدث شهر **نافذته الأمامية مكتملة** (لا «آخر شهر مكتمل» — بياناته
+                # الأمامية ناقصة فيُفرَّغ التقرير، عيب لقّته المراجعة الخصومية).
                 _base = dt.date.today().replace(day=1)
                 for _ in range(24):
                     _base = (_base - dt.timedelta(days=1)).replace(day=1)
@@ -5430,15 +5439,14 @@ def run_backtest(symbols=None) -> None:
                 _bt_month = str(_base.month)
                 log(f"باكتيست·السوق: بلا شهر → أحدث شهر نافذته الأمامية مكتملة "
                     f"({_base.year}-{_base.month:02d}؛ يحتاج ~{CONFIG['BACKTEST_FORWARD_DAYS']}ج بعده)")
-        try:
-            date_window = _recent_month_window(int(_bt_month), _bt_year)
-        except (TypeError, ValueError):
-            date_window = None
-        # تحذير: شهر حديث نافذته الأمامية ناقصة → صفقات محسومة قليلة/معدومة (لا صمت)
-        if not _forward_window_complete(_bt_month, _bt_year):
-            log(f"⚠️ باكتيست·السوق: الفترة حديثة — نافذتها الأمامية "
-                f"(~{CONFIG['BACKTEST_FORWARD_DAYS']}ج) غير مكتملة، فقد تقلّ/تنعدم "
-                "الصفقات المحسومة. اختر شهرًا/سنة أقدم لنتيجة كاملة.")
+            try:
+                date_window = _recent_month_window(int(_bt_month), _bt_year)
+            except (TypeError, ValueError):
+                date_window = None
+            if not _forward_window_complete(_bt_month, _bt_year):
+                log(f"⚠️ باكتيست·السوق: الفترة حديثة — نافذتها الأمامية "
+                    f"(~{CONFIG['BACKTEST_FORWARD_DAYS']}ج) غير مكتملة، فقد تقلّ/تنعدم "
+                    "الصفقات المحسومة. اختر شهرًا/سنة أقدم لنتيجة كاملة.")
     if not symbols:
         log("⚠️ باكتيست: تعذّر تحديد رموز (لا ناسداك ولا كون احتياطي)")
         send_telegram("🧪 الباكتيست: تعذّر تحديد رموز (لا ناسداك ولا كون احتياطي).")
@@ -5471,7 +5479,12 @@ def run_backtest(symbols=None) -> None:
     # 📅 قصر على شهر تقويمي محدّد (طلب المستخدم): BACKTEST_MONTH=1..12 → إشارات ذلك
     # الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ. باكتيست فقط، لا يمسّ الفرز.
     period_tag = None
-    if _bt_month:
+    if whole_year:
+        _yv = str(int(_bt_year))
+        all_trades = [t for t in all_trades if str(t.get("date", ""))[:4] == _yv]
+        period_tag = f"{_yv} (كل السنة)"
+        log(f"باكتيست: قصر على السنة {period_tag} ({len(all_trades)} صفقة)")
+    elif _bt_month:
         all_trades, period_tag = _filter_trades_by_month(all_trades, _bt_month, _bt_year)
         log(f"باكتيست: قصر على {period_tag} ({len(all_trades)} صفقة)")
     st = backtest_stats(all_trades)
