@@ -8,6 +8,10 @@ on:
         description: "رموز مفصولة بفاصلة (مثال: NGEN,SMX,VEEE) — للحُكم الحقيقي وسّع العيّنة"
         required: true
         default: ""
+      month:
+        description: "شهر تقويمي محدّد (اختياري): 1=يناير … 12=ديسمبر — يفحص إشارات ذلك الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ"
+        required: false
+        default: ""
       bt_base_range_max:
         description: "تجربة B1 (اختياري): تجاوز BASE_RANGE_MAX_PCT — باكتيست فقط، لا يمسّ الإنتاج"
         required: false
@@ -47,6 +51,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SCREENER_MODE: BACKTEST
           BACKTEST_SYMBOLS: ${{ github.event.inputs.symbols }}
+          BACKTEST_MONTH: ${{ github.event.inputs.month }}
           # B1: مفاتيح تجربة A/B — تُقرأ في وضع BACKTEST حصريًا (الإنتاج محصّن بقفل اختبار)
           BT_BASE_RANGE_MAX: ${{ github.event.inputs.bt_base_range_max }}
           BT_MIN_DROP_FLOOR: ${{ github.event.inputs.bt_min_drop_floor }}

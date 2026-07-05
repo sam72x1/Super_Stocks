@@ -5228,6 +5228,30 @@ def backtest_honest_summary(trades: list) -> list:
     return out
 
 
+def _filter_trades_by_month(trades, month):
+    """يقصر صفقات الباكتيست على **شهر تقويمي محدّد** (1-12) من **آخر سنة متوفّرة**
+    بالبيانات (طلب المستخدم 2026-07-04: «احدد الشهر ١ او ٢»). البيانات ~800 يوم فقد
+    يظهر الشهر في عدّة سنوات → نأخذ الأحدث. يرجّع (الصفقات المفلترة، وسم الفترة أو None).
+    باكتيست فقط — طبقة تحليل، لا تمسّ الفرز."""
+    try:
+        m = int(str(month).strip())
+    except (TypeError, ValueError):
+        return trades, None
+    if not 1 <= m <= 12:
+        return trades, None
+
+    def _ym(t):
+        d = str(t.get("date", ""))
+        return (d[:4], d[5:7]) if len(d) >= 7 else (None, None)
+
+    mm = f"{m:02d}"
+    in_month = [t for t in trades if _ym(t)[1] == mm]
+    if not in_month:
+        return [], f"شهر {mm} (لا صفقات بالبيانات)"
+    yr = max(y for y, _ in map(_ym, in_month) if y)
+    return [t for t in in_month if _ym(t)[0] == yr], f"{yr}-{mm}"
+
+
 def _diagnose_symbol(sym, df, cutoff=0):
     """تشخيص دقيق (باكتيست فقط، طلب المستخدم 2026-07-04): يطبع الأرقام الخام لكل
     بوابة هوية + الحكم النهائي — للإجابة بدقة على «ليش لم يُرشَّح هذا السهم؟».
@@ -5312,6 +5336,14 @@ def run_backtest(symbols=None) -> None:
             top = sorted(sym_reasons.items(), key=lambda x: -x[1])[:3]
             log(f"باكتيست·أسباب {sym}: "
                 + " · ".join(f"{k}={v}" for k, v in top))
+    # 📅 قصر على شهر تقويمي محدّد (طلب المستخدم): BACKTEST_MONTH=1..12 → إشارات ذلك
+    # الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ. باكتيست فقط، لا يمسّ الفرز.
+    period_tag = None
+    _bt_month = os.environ.get("BACKTEST_MONTH", "").strip()
+    if _bt_month:
+        all_trades, period_tag = _filter_trades_by_month(all_trades, _bt_month)
+        log(f"باكتيست: قصر على الشهر {_bt_month} → الفترة {period_tag} "
+            f"({len(all_trades)} صفقة)")
     st = backtest_stats(all_trades)
     # تشخيص للسجل: تفاصيل كل إشارة (يُقرأ من سجل Actions لتحليل أي سهم/تاريخ
     # أطلق البوت إشارته تاريخيًا — مثلاً: هل التقط أسهم فيصل الموثّقة يومها؟)
@@ -5327,9 +5359,11 @@ def run_backtest(symbols=None) -> None:
         f"محسومة={st['decided']} نجاح={st['win_rate']:.0f}% "
         f"({st['wins']}✅/{st['losses']}🛑) غير_مُعبّأة={st['no_fill']}")
     lines = ["🧪 <b>باكتيست تاريخي (مشي للأمام، بلا نظر للمستقبل)</b>",
-             settings,
-             f"رموز: {len(symbols)} · إشارات: {st['signals']} · "
-             f"غير مُعبّأة: {st['no_fill']} · عالقة (لم تُحسم): {st['open']}",
+             settings]
+    if period_tag:
+        lines.append(f"📅 <b>الفترة: {period_tag}</b> (شهر محدّد)")
+    lines += [f"رموز: {len(symbols)} · إشارات: {st['signals']} · "
+              f"غير مُعبّأة: {st['no_fill']} · عالقة (لم تُحسم): {st['open']}",
              f"صفقات محسومة: <b>{st['decided']}</b> · "
              f"نجاح: <b>{st['win_rate']:.0f}%</b> "
              f"({st['wins']}✅ / {st['losses']}🛑)"]
