@@ -4340,17 +4340,25 @@ def _median(vals):
     return s[m] if n % 2 else (s[m - 1] + s[m]) / 2.0
 
 
-def _wilson_lower_pct(wins, n):
-    """أرضية ثقة Wilson السفلى 95% لنسبة نجاح ثنائية (%). أصدق من النسبة الخام
-    لعيّنة صغيرة (الأداة الصحيحة للعنوان الثنائي، لا bootstrap). دالة صرفة."""
+def _wilson_ci(wins, n):
+    """فاصل ثقة Wilson 95% (سفلى%، عليا%) لنسبة نجاح ثنائية — أصدق من النسبة الخام
+    لعيّنة صغيرة، وعرضُه يميّز الإشارة من الضجيج. دالة صرفة بلا عشوائية (أنسب من
+    bootstrap للعنوان الثنائي، وقابل لإعادة الإنتاج)."""
     if n <= 0:
-        return 0.0
+        return (0.0, 0.0)
     z = 1.96
     p = wins / n
     denom = 1.0 + z * z / n
     centre = p + z * z / (2 * n)
     margin = z * ((p * (1 - p) / n + z * z / (4 * n * n)) ** 0.5)
-    return max(0.0, (centre - margin) / denom) * 100.0
+    lo = max(0.0, (centre - margin) / denom)
+    hi = min(1.0, (centre + margin) / denom)
+    return (lo * 100.0, hi * 100.0)
+
+
+def _wilson_lower_pct(wins, n):
+    """أرضية ثقة Wilson السفلى 95% (%) — للرأس بمساعد التطوير."""
+    return _wilson_ci(wins, n)[0]
 
 
 def _realized_r(r):
@@ -5131,10 +5139,93 @@ def backtest_stats(trades: list) -> dict:
     decided = [t for t in trades if t["outcome"] in ("win", "loss")]
     wins = [t for t in decided if t["outcome"] == "win"]
     nofill = [t for t in trades if t["outcome"] == "no_fill"]
+    open_ = [t for t in trades if t["outcome"] == "open"]
     wr = (len(wins) / len(decided) * 100.0) if decided else 0.0
     return {"signals": len(trades), "decided": len(decided),
             "wins": len(wins), "losses": len(decided) - len(wins),
-            "win_rate": round(wr, 1), "no_fill": len(nofill)}
+            "win_rate": round(wr, 1), "no_fill": len(nofill),
+            "open": len(open_)}   # عُبّئت لكن لم تُحسم (شفافية: خارج النسبة/العائد)
+
+
+def _bt_realized(t):
+    """العائد المحقَّق% لصفقة باكتيست محسومة: الرابح يخرج عند t1 · الخاسر عند الوقف
+    (الباكتيست يقيس t1 قبل الوقف = خروج فعلي لا «لمس=فوز» غامض). None لو نقص حقل."""
+    try:
+        e = float(t["entry"])
+        if e <= 0:
+            return None
+        px = float(t["t1"]) if t["outcome"] == "win" else float(t["stop"])
+        return (px / e - 1.0) * 100.0
+    except (TypeError, ValueError, KeyError):
+        return None
+
+
+def _bt_realized_r(t):
+    """العائد بوحدة المخاطرة (R): الرابح=(t1−دخول)/(دخول−وقف) · الخاسر=−1."""
+    try:
+        e, s = float(t["entry"]), float(t["stop"])
+        risk = e - s
+        if risk <= 0:
+            return None
+        return (float(t["t1"]) - e) / risk if t["outcome"] == "win" else -1.0
+    except (TypeError, ValueError, KeyError):
+        return None
+
+
+def backtest_honest_summary(trades: list) -> list:
+    """📊 المقاييس الصادقة للباكتيست (اقتباس مُكيَّف من dev_backtest_toolkit.honest_summary
+    على منهجية فيصل): لا تكتفِ بنسبة النجاح (تخدع على عيّنة صغيرة) — أضِف الوسيط +
+    توقّع R + اعتماد الذيل + **فاصل ثقة Wilson** (إشارة أم ضجيج؟) + **الأشهر الموجبة**
+    (صلابة زمنية). باكتيست فقط — طبقة تحليل، لا تمسّ الفرز. أسطر عربية بلا علامات مقارنة."""
+    decided = [t for t in trades if t["outcome"] in ("win", "loss")]
+    n = len(decided)
+    if n < 3:
+        return []
+    wins = [t for t in decided if t["outcome"] == "win"]
+    w = len(wins)
+    rets = sorted(x for x in (_bt_realized(t) for t in decided) if x is not None)
+    rs = [x for x in (_bt_realized_r(t) for t in decided) if x is not None]
+    out = ["\n📊 <b>مقاييس صادقة للباكتيست</b>"]
+    # شفافية (مراجعة خصومية): الصفقات «العالقة» (عُبّئت ولم تلمس هدفًا ولا وقفًا خلال
+    # النافذة) خارج النسبة والعائد أدناه — نُفصح عن عددها فلا تُقرأ النسبة كأنها الكل.
+    open_n = sum(1 for t in trades if t.get("outcome") == "open")
+    if open_n:
+        out.append(f"   ℹ️ {open_n} صفقة عُبّئت ولم تُحسم بعد (خارج النسبة والعائد "
+                   "أدناه — المقاييس على المحسومة فقط).")
+    if rets:
+        mean = sum(rets) / len(rets)
+        med = _median(rets)
+        out.append(f"   العائد المحقّق: المتوسط {mean:+.0f}% · الوسيط {med:+.0f}%")
+        if mean - med >= 3:
+            out.append("   ↳ المتوسط أعلى من الوسيط — الحافة يحملها قليل من الصفقات.")
+    if rs:
+        exp_r = sum(rs) / len(rs)
+        out.append(f"   توقّع الصفقة الواحدة: {exp_r:+.1f}R (الهدف مقابل الوقف)")
+    lo, hi = _wilson_ci(w, n)
+    span = "واسع = عيّنة صغيرة/ضجيج" if hi - lo >= 30 else "ضيّق نسبيًا"
+    out.append(f"   نسبة النجاح {w / n * 100:.0f}% · فاصل الثقة 95%: من {lo:.0f}% "
+               f"إلى {hi:.0f}% ({span})")
+    # اعتماد الذيل على الرابحين (العائد المحقّق) مقارنًا بخط أساس التساوي k/W
+    wr_rets = sorted((x for x in (_bt_realized(t) for t in wins) if x is not None),
+                     reverse=True)
+    if len(wr_rets) >= 5 and sum(wr_rets) > 0:
+        share = sum(wr_rets[:2]) / sum(wr_rets) * 100.0
+        base = 2.0 / len(wr_rets) * 100.0
+        tag = " — حافة هشّة" if share - base >= 25 else " — حافة عريضة"
+        out.append(f"   اعتماد الذيل: أعلى صفقتين تصنعان {share:.0f}% من الربح "
+                   f"(لو توزّع بالتساوي {base:.0f}%){tag}")
+    # الأشهر الموجبة (صلابة زمنية) — شهر «موجب» إذا مجموع عائده المحقّق أكبر من صفر
+    by_month = {}
+    for t in decided:
+        m = str(t.get("date", ""))[:7]
+        rv = _bt_realized(t)
+        if m and rv is not None:
+            by_month.setdefault(m, []).append(rv)
+    big = {m: v for m, v in by_month.items() if len(v) >= 3}
+    if len(big) >= 2:
+        pos = sum(1 for v in big.values() if sum(v) > 0)
+        out.append(f"   الأشهر الموجبة: {pos} من {len(big)} (صلابة زمنية)")
+    return out
 
 
 def _diagnose_symbol(sym, df, cutoff=0):
@@ -5238,12 +5329,24 @@ def run_backtest(symbols=None) -> None:
     lines = ["🧪 <b>باكتيست تاريخي (مشي للأمام، بلا نظر للمستقبل)</b>",
              settings,
              f"رموز: {len(symbols)} · إشارات: {st['signals']} · "
-             f"غير مُعبّأة: {st['no_fill']}",
+             f"غير مُعبّأة: {st['no_fill']} · عالقة (لم تُحسم): {st['open']}",
              f"صفقات محسومة: <b>{st['decided']}</b> · "
              f"نجاح: <b>{st['win_rate']:.0f}%</b> "
              f"({st['wins']}✅ / {st['losses']}🛑)"]
+    # 📊 المقاييس الصادقة (اقتباس dev_backtest_toolkit): وسيط + R + فاصل ثقة +
+    # أشهر موجبة — تكشف إن كانت النسبة إشارة أم ضجيج/ذيل قِلّة.
+    honest = backtest_honest_summary(all_trades)
+    lines += honest
+    for _hl in honest:
+        log("باكتيست·" + _hl.strip().replace("\n", " "))
     if st["decided"] < 20:
         lines.append("⏳ عيّنة صغيرة — وسّع الرموز لحُكم موثوق.")
+    # 📋 معيار القرار المسجَّل مسبقًا (يمنع p-hacking) — التجربة الزوجية لا تناسب
+    # تغيير البوابة (يغيّر مجموعة الصفقات)، فقارِن ذراعين مستقلّين بحذر بالفاصل.
+    lines.append("📋 <b>معيار القرار المسجَّل مسبقًا</b>: عدّل بوابة فقط لو الفرق "
+                 "واضح + فاصل الثقة لا يلمس صفر الفرق + عيّنة واسعة + يصمد عبر "
+                 "الأشهر. لا تعصر متغيّرات حتى «يعدّي أحدها». تغيير البوابة يغيّر "
+                 "الصفقات فلا يُقارَن زوجيًا — قارن ذراعين مستقلّين.")
     lines.append("⚠️ <i>انحياز الناجين: رموز رابحة معروفة فقط تضخّم النسبة. "
                  "للحقيقة استخدم عيّنة واسعة عشوائية. باكتيست ليس توصية.</i>")
     send_telegram("\n".join(lines))
