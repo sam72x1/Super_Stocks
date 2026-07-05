@@ -5086,19 +5086,35 @@ def run_daily_watchlist(wl: dict) -> None:
 # ==========================================================
 # 10) التشغيل الرئيسي
 # ==========================================================
-def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None) -> list:
+def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
+                    date_window: tuple = None) -> list:
     """باكتيست سهم واحد — **مشي للأمام بلا نظر للمستقبل**: عند كل نقطة نحلّل
     البيانات حتى تلك النقطة فقط، ولو رشّح البوت ننتظر وصول السعر لمنطقة الدفعات
     (تعبئة واقعية) ثم نقيس: t1 قبل الوقف = ربح، الوقف أولًا = خسارة (محافظ:
     الوقف يفوز بالتعادل داخل الشمعة). يرجع قائمة صفقات بنتائجها.
     reasons (اختياري): dict يُملأ بعدّاد أسباب الرفض عبر أيام المشي — تشخيص
-    «أي بوابة خنقت هذا السهم تاريخيًا» (باكتيست فقط، لا يمسّ الفرز)."""
+    «أي بوابة خنقت هذا السهم تاريخيًا» (باكتيست فقط، لا يمسّ الفرز).
+    date_window (اختياري = (من، إلى) ISO، لوضع السوق الكامل): نقيّم نقاط الدخول
+    **داخل هذه النافذة فقط** (النافذة الأمامية تمتدّ بعدها لقياس النتيجة) — يقصر
+    الحساب فيصير مسح السوق كامل ضمن الجدوى.
+    كل صفقة تحمل **fwd_max_gain** (أقصى صعود أمامي من الدخول) و**exploded** (صعد
+    ≥EXPLOSION_PCT = «انفجر فعلًا» بمعنى فيصل) — للإجابة «أي ارتكاز انفجر واللي لا»."""
     trades = []
     n = len(df)
     fwd = int(CONFIG["BACKTEST_FORWARD_DAYS"])
     step = int(CONFIG["BACKTEST_STEP"])
+    expl_thr = CONFIG["EXPLOSION_PCT"]
+    lo_d, hi_d = (date_window or (None, None))
     i = int(CONFIG["MIN_BARS"])
     while i < n - fwd:
+        if date_window is not None:      # قصر نقاط الدخول على النافذة (وضع السوق)
+            try:
+                d_iso = df.index[i - 1].date().isoformat()
+            except Exception:
+                d_iso = None
+            if d_iso is None or (lo_d and d_iso < lo_d) or (hi_d and d_iso > hi_d):
+                i += step
+                continue
         try:
             r = analyze_ticker(sym, df.iloc[:i])
         except Exception:
@@ -5115,9 +5131,13 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None) -> list:
         hi = fut["High"].values.astype(float)
         lo = fut["Low"].values.astype(float)
         filled = next((k for k in range(len(fut)) if lo[k] <= entry), None)
+        fwd_max = 0.0
         if filled is None:
             outcome = "no_fill"                 # ما وصل منطقة الدخول
         else:
+            # أقصى صعود أمامي من الدخول (بمعزل عن ضرب الوقف) — يقيس «هل انفجر الارتكاز»
+            if entry > 0:
+                fwd_max = (float(max(hi[filled:])) / entry - 1.0) * 100.0
             outcome = "open"
             for k in range(filled, len(fut)):
                 if lo[k] <= stop:               # الوقف أولًا (محافظ)
@@ -5129,7 +5149,10 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None) -> list:
         trades.append({"symbol": sym, "date": str(df.index[i - 1].date()),
                        "entry": round(entry, 2), "stop": round(stop, 2),
                        "t1": round(t1, 2), "outcome": outcome,
-                       "tier": r.get("tier")})
+                       "tier": r.get("tier"),
+                       "fwd_max_gain": round(fwd_max, 1),
+                       "exploded": bool(filled is not None
+                                        and fwd_max >= expl_thr)})
         i += fwd                                # تخطَّ نافذة كاملة (لا تكرار)
     return trades
 
@@ -5252,6 +5275,30 @@ def _filter_trades_by_month(trades, month):
     return [t for t in in_month if _ym(t)[0] == yr], f"{yr}-{mm}"
 
 
+def _recent_month_window(m):
+    """نافذة (من، إلى) ISO لأحدث ظهور للشهر التقويمي m (1-12) — لقصر مسح السوق
+    الكامل على شهر واحد (الجدوى). السنة = الحالية إن كان الشهر مضى/جارٍ، وإلا السابقة.
+    الحدّ الأعلى «..-31» يعمل بمقارنة النصوص (يشمل كل أيام الشهر بلا حاجة calendar)."""
+    m = int(m)
+    today = dt.date.today()
+    y = today.year if m <= today.month else today.year - 1
+    return (f"{y}-{m:02d}-01", f"{y}-{m:02d}-31")
+
+
+def _forward_window_complete(m):
+    """هل لأحدث ظهور للشهر m نافذة أمامية كافية (BACKTEST_FORWARD_DAYS جلسة) قبل
+    اليوم؟ (مراجعة خصومية 2026-07-04: شهر حديث جدًا نافذته الأمامية ناقصة فيُستبعَد
+    كل دخوله بحارس `i < n-fwd` → تقرير فارغ.) ~1.5 يوم تقويمي لكل جلسة (تقريب آمن)."""
+    try:
+        m = int(m)
+    except (TypeError, ValueError):
+        return True
+    today = dt.date.today()
+    y = today.year if m <= today.month else today.year - 1
+    nxt = dt.date(y + (m == 12), (m % 12) + 1, 1)     # أول الشهر التالي = نهاية الشهر
+    return (today - nxt).days >= int(CONFIG["BACKTEST_FORWARD_DAYS"] * 1.5)
+
+
 def _diagnose_symbol(sym, df, cutoff=0):
     """تشخيص دقيق (باكتيست فقط، طلب المستخدم 2026-07-04): يطبع الأرقام الخام لكل
     بوابة هوية + الحكم النهائي — للإجابة بدقة على «ليش لم يُرشَّح هذا السهم؟».
@@ -5337,51 +5384,84 @@ def run_backtest(symbols=None) -> None:
         env = os.environ.get("BACKTEST_SYMBOLS", "").strip()
         symbols = [s.strip().upper() for s in env.replace(";", ",").split(",")
                    if s.strip()]
-    if not symbols:
-        # لا رموز محدّدة → كون البوت المعروف (طلب المستخدم: تشغيل بالشهر وحده)
+    market = os.environ.get("BACKTEST_MARKET", "").strip().lower() in (
+        "1", "true", "yes", "نعم")
+    _bt_month = os.environ.get("BACKTEST_MONTH", "").strip()
+    date_window = None
+    if market:
+        # 🌍 وضع السوق الكامل (طلب المستخدم): امسح ناسداك كاملًا لأسهم الارتكاز وشوف
+        # اللي انفجر فعلًا واللي لا — **بلا انحياز اختيار**. مقصور على شهر واحد للجدوى.
+        uni = get_universe()
+        if uni:
+            symbols = uni
+            log(f"باكتيست·السوق الكامل: {len(symbols)} رمز ناسداك (بلا انحياز اختيار)")
+        else:
+            log("⚠️ باكتيست·السوق: فشل جلب كون ناسداك — يُكمل بالرموز المتاحة")
+        if not _bt_month:
+            # أحدث شهر **نافذته الأمامية (fwd) مكتملة** لا «آخر شهر مكتمل» (بياناته
+            # الأمامية ناقصة فيُستبعَد كل دخوله → تقرير فارغ — عيب لقّته المراجعة).
+            _base = dt.date.today().replace(day=1)
+            for _ in range(24):
+                _base = (_base - dt.timedelta(days=1)).replace(day=1)
+                if _forward_window_complete(_base.month):
+                    break
+            _bt_month = str(_base.month)
+            log(f"باكتيست·السوق: بلا شهر → أحدث شهر نافذته الأمامية مكتملة "
+                f"({_base.year}-{_base.month:02d}؛ يحتاج ~{CONFIG['BACKTEST_FORWARD_DAYS']}ج بعده)")
+        try:
+            date_window = _recent_month_window(int(_bt_month))
+        except (TypeError, ValueError):
+            date_window = None
+        # تحذير: شهر حديث نافذته الأمامية ناقصة → صفقات محسومة قليلة/معدومة (لا صمت)
+        if not _forward_window_complete(_bt_month):
+            log(f"⚠️ باكتيست·السوق: الشهر {_bt_month} حديث — نافذته الأمامية "
+                f"(~{CONFIG['BACKTEST_FORWARD_DAYS']}ج) غير مكتملة، فقد تقلّ/تنعدم "
+                "الصفقات المحسومة. اختر شهرًا أقدم لنتيجة كاملة.")
+    elif not symbols:
+        # لا رموز ولا سوق → كون البوت المعروف (طلب المستخدم: تشغيل بالشهر وحده)
         symbols = _default_backtest_symbols()
         if symbols:
             log(f"باكتيست: لا رموز محدّدة → كون البوت الافتراضي "
                 f"({len(symbols)} رمز: القائمة + التنبيهات)")
     if not symbols:
         log("⚠️ باكتيست: لا رموز ولا كون افتراضي (مرّر BACKTEST_SYMBOLS=AAA,BBB)")
-        send_telegram("🧪 الباكتيست: لم تُحدَّد رموز ولا وُجد كون افتراضي بالقائمة/التنبيهات.")
+        send_telegram("🧪 الباكتيست: لم تُحدَّد رموز ولا وُجد كون افتراضي.")
         return
-    log(f"باكتيست {len(symbols)} رمز…")
+    log(f"باكتيست {len(symbols)} رمز…"
+        + (f" · نافذة {date_window[0]}..{date_window[1]}" if date_window else ""))
     hist = download_history(symbols)
     all_trades = []
     for sym in symbols:
         df = hist.get(sym)
         if df is None or df.empty:
-            log(f"🔬{sym}: لا بيانات (محذوف/رمز خطأ؟)")
+            if not market:
+                log(f"🔬{sym}: لا بيانات (محذوف/رمز خطأ؟)")
             continue
-        _diagnose_symbol(sym, df)     # تشخيص الحالة الحالية (دائمًا)
-        # ⏪ تشخيص «قبل الانفجار» (طلب المستخدم 2026-07-04): نقيّم السهم كأنه قبل
-        # N يوم تداول — أي وقت القاع قبل ما يركض — لا بعد ما انفجر. يجيب بدقة:
-        # «هل كان يبدو ارتكازًا نظيفًا وقتها ولو كان البوت سيلتقطه؟»
-        for off in (15, 20, 25, 30, 40, 50, 60):
-            _diagnose_symbol(sym, df, cutoff=off)
+        if not market:      # التشخيص المفصّل (8 قصّات/رمز) لعيّنة صغيرة فقط — لا للسوق
+            _diagnose_symbol(sym, df)     # تشخيص الحالة الحالية (دائمًا)
+            # ⏪ تشخيص «قبل الانفجار»: نقيّم السهم كأنه قبل N يوم — وقت القاع قبل الركض.
+            for off in (15, 20, 25, 30, 40, 50, 60):
+                _diagnose_symbol(sym, df, cutoff=off)
         if len(df) < CONFIG["MIN_BARS"] + CONFIG["BACKTEST_FORWARD_DAYS"]:
-            log(f"باكتيست·{sym}: بيانات غير كافية للمشي الأمامي ({len(df)} شمعة)")
+            if not market:
+                log(f"باكتيست·{sym}: بيانات غير كافية للمشي ({len(df)} شمعة)")
             continue
         sym_reasons = {}
-        all_trades += backtest_symbol(sym, df, sym_reasons)
-        if sym_reasons:   # تشخيص: أكثر بوابة رفضت هذا السهم عبر تاريخه
+        all_trades += backtest_symbol(sym, df, sym_reasons, date_window=date_window)
+        if sym_reasons and not market:   # تشخيص: أكثر بوابة رفضت هذا السهم تاريخيًا
             top = sorted(sym_reasons.items(), key=lambda x: -x[1])[:3]
             log(f"باكتيست·أسباب {sym}: "
                 + " · ".join(f"{k}={v}" for k, v in top))
     # 📅 قصر على شهر تقويمي محدّد (طلب المستخدم): BACKTEST_MONTH=1..12 → إشارات ذلك
     # الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ. باكتيست فقط، لا يمسّ الفرز.
     period_tag = None
-    _bt_month = os.environ.get("BACKTEST_MONTH", "").strip()
     if _bt_month:
         all_trades, period_tag = _filter_trades_by_month(all_trades, _bt_month)
         log(f"باكتيست: قصر على الشهر {_bt_month} → الفترة {period_tag} "
             f"({len(all_trades)} صفقة)")
     st = backtest_stats(all_trades)
-    # تشخيص للسجل: تفاصيل كل إشارة (يُقرأ من سجل Actions لتحليل أي سهم/تاريخ
-    # أطلق البوت إشارته تاريخيًا — مثلاً: هل التقط أسهم فيصل الموثّقة يومها؟)
-    for t in all_trades:
+    # تشخيص للسجل: تفاصيل كل إشارة (سقف 200 سطر في وضع السوق تفاديًا لتضخّم السجل).
+    for t in all_trades[:(200 if market else len(all_trades))]:
         log(f"باكتيست·{t['symbol']}: {t['date']} → {t['outcome']} "
             f"(دخول {t['entry']} · هدف {t['t1']} · وقف {t['stop']})")
     # B1: هوية التجربة — تظهر برسالة التلقرام + اللوق (لمقارنة تشغيلات A/B)
@@ -5392,15 +5472,33 @@ def run_backtest(symbols=None) -> None:
     log(f"باكتيست — {settings} | إشارات={st['signals']} "
         f"محسومة={st['decided']} نجاح={st['win_rate']:.0f}% "
         f"({st['wins']}✅/{st['losses']}🛑) غير_مُعبّأة={st['no_fill']}")
-    lines = ["🧪 <b>باكتيست تاريخي (مشي للأمام، بلا نظر للمستقبل)</b>",
-             settings]
+    head0 = ("🌍 <b>باكتيست السوق الكامل (بلا انحياز اختيار)</b>" if market
+             else "🧪 <b>باكتيست تاريخي (مشي للأمام، بلا نظر للمستقبل)</b>")
+    lines = [head0, settings]
     if period_tag:
-        lines.append(f"📅 <b>الفترة: {period_tag}</b> (شهر محدّد)")
+        lines.append(f"📅 <b>الفترة: {period_tag}</b>"
+                     + (" (السوق كامل)" if market else " (شهر محدّد)"))
     lines += [f"رموز: {len(symbols)} · إشارات: {st['signals']} · "
               f"غير مُعبّأة: {st['no_fill']} · عالقة (لم تُحسم): {st['open']}",
              f"صفقات محسومة: <b>{st['decided']}</b> · "
              f"نجاح: <b>{st['win_rate']:.0f}%</b> "
              f"({st['wins']}✅ / {st['losses']}🛑)"]
+    # 💥 «اللي انفجر فعلًا واللي لا» (طلب المستخدم): من الارتكازات التي رشّحها البوت
+    # وعُبّئت، كم صعد ≥EXPLOSION_PCT بعد الدخول. يجيب السؤال مباشرة (مقياس فيصل ≥50%).
+    filled = [t for t in all_trades if t.get("outcome") != "no_fill"]
+    exploded = [t for t in all_trades if t.get("exploded")]
+    if filled:
+        pct = len(exploded) / len(filled) * 100.0
+        lines.append(f"\n💥 <b>انفجر فعلًا (صعد {int(CONFIG['EXPLOSION_PCT'])}% أو "
+                     f"أكثر بعد الدخول): {len(exploded)} من {len(filled)} "
+                     f"({pct:.0f}%)</b>")
+        top_expl = sorted(exploded, key=lambda t: -t.get("fwd_max_gain", 0))[:8]
+        if top_expl:
+            lines.append("   أقوى الانفجارات: " + " · ".join(
+                f"{esc(str(t['symbol']))} +{t.get('fwd_max_gain', 0):.0f}%"
+                for t in top_expl))
+        lines.append("   ↳ الباقي: ربح صغير (لمس t1) أو خسارة أو تحرّك محدود — "
+                     "أي الارتكازات فجّرت فعلًا وأيها لا.")
     # 📊 المقاييس الصادقة (اقتباس dev_backtest_toolkit): وسيط + R + فاصل ثقة +
     # أشهر موجبة — تكشف إن كانت النسبة إشارة أم ضجيج/ذيل قِلّة.
     honest = backtest_honest_summary(all_trades)

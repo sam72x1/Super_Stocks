@@ -8,8 +8,12 @@ on:
         description: "رموز مفصولة بفاصلة (مثال: NGEN,SMX,VEEE). فارغ = كون البوت (القائمة + التنبيهات) فيكفي تحديد الشهر وحده"
         required: false
         default: ""
+      market:
+        description: "1 = امسح السوق الكامل (ناسداك) لأسهم الارتكاز وشوف اللي انفجر واللي لا — بلا انحياز اختيار (يُقصر على شهر للجدوى؛ حدّد month أو يأخذ آخر شهر مكتمل). فارغ = عادي"
+        required: false
+        default: ""
       month:
-        description: "شهر تقويمي محدّد (اختياري): 1=يناير … 12=ديسمبر — يفحص إشارات ذلك الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ"
+        description: "شهر تقويمي محدّد (اختياري): 1=يناير … 12=ديسمبر — يفحص إشارات ذلك الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ (أو آخر شهر في وضع السوق)"
         required: false
         default: ""
       bt_base_range_max:
@@ -35,7 +39,7 @@ on:
 jobs:
   backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 300   # وضع السوق الكامل أثقل (جلب ~3500 رمز + مشي شهري)
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,6 +56,7 @@ jobs:
           SCREENER_MODE: BACKTEST
           BACKTEST_SYMBOLS: ${{ github.event.inputs.symbols }}
           BACKTEST_MONTH: ${{ github.event.inputs.month }}
+          BACKTEST_MARKET: ${{ github.event.inputs.market }}
           # B1: مفاتيح تجربة A/B — تُقرأ في وضع BACKTEST حصريًا (الإنتاج محصّن بقفل اختبار)
           BT_BASE_RANGE_MAX: ${{ github.event.inputs.bt_base_range_max }}
           BT_MIN_DROP_FLOOR: ${{ github.event.inputs.bt_min_drop_floor }}
