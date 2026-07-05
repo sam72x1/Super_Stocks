@@ -5384,19 +5384,20 @@ def run_backtest(symbols=None) -> None:
         env = os.environ.get("BACKTEST_SYMBOLS", "").strip()
         symbols = [s.strip().upper() for s in env.replace(";", ",").split(",")
                    if s.strip()]
-    market = os.environ.get("BACKTEST_MARKET", "").strip().lower() in (
-        "1", "true", "yes", "نعم")
     _bt_month = os.environ.get("BACKTEST_MONTH", "").strip()
     date_window = None
+    # 🌍 **لا رموز محدّدة → مسح السوق الكامل** (طلب المستخدم: يكفي تحديد الشهر، بلا
+    # خانة ثانية). رموز صريحة → تلك فقط. السوق مقصور على شهر واحد للجدوى + بلا انحياز.
+    market = not symbols
     if market:
-        # 🌍 وضع السوق الكامل (طلب المستخدم): امسح ناسداك كاملًا لأسهم الارتكاز وشوف
-        # اللي انفجر فعلًا واللي لا — **بلا انحياز اختيار**. مقصور على شهر واحد للجدوى.
         uni = get_universe()
         if uni:
             symbols = uni
             log(f"باكتيست·السوق الكامل: {len(symbols)} رمز ناسداك (بلا انحياز اختيار)")
-        else:
-            log("⚠️ باكتيست·السوق: فشل جلب كون ناسداك — يُكمل بالرموز المتاحة")
+        else:      # تعذّر جلب ناسداك (شبكة) → كون البوت الاحتياطي بدل الفشل الكامل
+            symbols = _default_backtest_symbols()
+            log(f"⚠️ باكتيست·السوق: تعذّر جلب ناسداك → كون البوت الاحتياطي "
+                f"({len(symbols)} رمز)")
         if not _bt_month:
             # أحدث شهر **نافذته الأمامية (fwd) مكتملة** لا «آخر شهر مكتمل» (بياناته
             # الأمامية ناقصة فيُستبعَد كل دخوله → تقرير فارغ — عيب لقّته المراجعة).
@@ -5417,15 +5418,9 @@ def run_backtest(symbols=None) -> None:
             log(f"⚠️ باكتيست·السوق: الشهر {_bt_month} حديث — نافذته الأمامية "
                 f"(~{CONFIG['BACKTEST_FORWARD_DAYS']}ج) غير مكتملة، فقد تقلّ/تنعدم "
                 "الصفقات المحسومة. اختر شهرًا أقدم لنتيجة كاملة.")
-    elif not symbols:
-        # لا رموز ولا سوق → كون البوت المعروف (طلب المستخدم: تشغيل بالشهر وحده)
-        symbols = _default_backtest_symbols()
-        if symbols:
-            log(f"باكتيست: لا رموز محدّدة → كون البوت الافتراضي "
-                f"({len(symbols)} رمز: القائمة + التنبيهات)")
     if not symbols:
-        log("⚠️ باكتيست: لا رموز ولا كون افتراضي (مرّر BACKTEST_SYMBOLS=AAA,BBB)")
-        send_telegram("🧪 الباكتيست: لم تُحدَّد رموز ولا وُجد كون افتراضي.")
+        log("⚠️ باكتيست: تعذّر تحديد رموز (لا ناسداك ولا كون احتياطي)")
+        send_telegram("🧪 الباكتيست: تعذّر تحديد رموز (لا ناسداك ولا كون احتياطي).")
         return
     log(f"باكتيست {len(symbols)} رمز…"
         + (f" · نافذة {date_window[0]}..{date_window[1]}" if date_window else ""))
