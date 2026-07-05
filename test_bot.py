@@ -881,6 +881,29 @@ check("الباكتيست: إحصاء النجاح صحيح",
       _bstats["decided"] == 3 and _bstats["wins"] == 2
       and _bstats["no_fill"] == 1 and abs(_bstats["win_rate"] - 66.7) < 0.2)
 
+# 📊 مقاييس الباكتيست الصادقة (اقتباس dev_backtest_toolkit): عائد محقّق + R +
+# فاصل ثقة + أشهر موجبة. طبقة تحليل باكتيست فقط. أقفال جديدة.
+check("الباكتيست·صادق: العائد المحقّق (رابح=t1 · خاسر=وقف) + R",
+      abs(S._bt_realized({"entry": 2.0, "t1": 2.4, "stop": 1.8,
+                          "outcome": "win"}) - 20.0) < 1e-6
+      and abs(S._bt_realized({"entry": 2.0, "t1": 2.4, "stop": 1.8,
+                              "outcome": "loss"}) - (-10.0)) < 1e-6
+      and abs(S._bt_realized_r({"entry": 2.0, "t1": 2.4, "stop": 1.8,
+                                "outcome": "win"}) - 2.0) < 1e-6)
+check("Wilson CI: فاصل ضمن [0,100] والسفلى أقل من العليا",
+      S._wilson_ci(8, 10)[0] < S._wilson_ci(8, 10)[1] <= 100.0
+      and S._wilson_ci(8, 10)[0] >= 0.0)
+_bt_ht = ([{"symbol": "A", "date": "2026-05-01", "entry": 2.0, "t1": 2.4,
+            "stop": 1.8, "outcome": "win"}] * 5 +
+          [{"symbol": "B", "date": "2026-06-01", "entry": 2.0, "t1": 2.4,
+            "stop": 1.8, "outcome": "win"}] * 3 +
+          [{"symbol": "C", "date": "2026-06-02", "entry": 2.0, "t1": 2.4,
+            "stop": 1.8, "outcome": "loss"}] * 2)
+_bth = "\n".join(S.backtest_honest_summary(_bt_ht))
+check("الباكتيست·صادق: الوسيط + فاصل الثقة + الأشهر الموجبة تظهر",
+      "مقاييس صادقة للباكتيست" in _bth and "الوسيط" in _bth
+      and "فاصل الثقة" in _bth and "الأشهر الموجبة" in _bth and "R" in _bth)
+
 # 🎯 عمق الأهداف في مساعد التطوير
 _wd = [{"symbol": f"W{i}", "status": "active", "hit": ("t2" if i % 3 else "t1"),
         "hit_date": "2026-01-10", "added": "2026-01-02", "entry_ref": 2.0,
