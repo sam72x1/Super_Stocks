@@ -12,6 +12,10 @@ on:
         description: "الشهر (اختياري): 1=يناير … 12=ديسمبر. مع «السوق الكامل» (رموز فارغة) يفحص ذلك الشهر؛ فارغ = أحدث شهر نافذته مكتملة تلقائيًا. مع رموز محدّدة = يقصرها على الشهر"
         required: false
         default: ""
+      year:
+        description: "السنة (اختياري): مثال 2025 — مع الشهر يفحص ذلك الشهر من تلك السنة بالضبط (لسحب سنة كاملة شهرًا-بشهر). فارغ = أحدث سنة متوفّرة"
+        required: false
+        default: ""
       bt_base_range_max:
         description: "تجربة B1 (اختياري): تجاوز BASE_RANGE_MAX_PCT — باكتيست فقط، لا يمسّ الإنتاج"
         required: false
@@ -52,6 +56,7 @@ jobs:
           SCREENER_MODE: BACKTEST
           BACKTEST_SYMBOLS: ${{ github.event.inputs.symbols }}
           BACKTEST_MONTH: ${{ github.event.inputs.month }}
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
           # B1: مفاتيح تجربة A/B — تُقرأ في وضع BACKTEST حصريًا (الإنتاج محصّن بقفل اختبار)
           BT_BASE_RANGE_MAX: ${{ github.event.inputs.bt_base_range_max }}
           BT_MIN_DROP_FLOOR: ${{ github.event.inputs.bt_min_drop_floor }}
