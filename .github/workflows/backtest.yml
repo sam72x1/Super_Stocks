@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
     inputs:
       symbols:
-        description: "رموز مفصولة بفاصلة (مثال: NGEN,SMX,VEEE) — للحُكم الحقيقي وسّع العيّنة"
-        required: true
+        description: "رموز مفصولة بفاصلة (مثال: NGEN,SMX,VEEE). فارغ = كون البوت (القائمة + التنبيهات) فيكفي تحديد الشهر وحده"
+        required: false
         default: ""
       month:
         description: "شهر تقويمي محدّد (اختياري): 1=يناير … 12=ديسمبر — يفحص إشارات ذلك الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ"

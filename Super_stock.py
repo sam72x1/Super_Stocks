@@ -5301,17 +5301,51 @@ def _diagnose_symbol(sym, df, cutoff=0):
         log(f"🔬{sym}@-{cutoff} تشخيص: خطأ {type(e).__name__}: {e}")
 
 
+def _default_backtest_symbols() -> list:
+    """كون افتراضي للباكتيست عند عدم تحديد رموز (طلب المستخدم 2026-07-04: «التشغيل
+    بالشهر فقط بلا تعبئة الرموز»): اتحاد رموز القائمة الحالية + الأرشيف + سجل
+    التنبيهات = **كون البوت المعروف**. باكتيست فقط — طبقة تحليل، لا تمسّ الفرز.
+    ⚠️ انحياز اختيار: هذه رموز رشّحها البوت أصلًا، فالنسبة عليها متفائلة (التقرير
+    يحذّر). للحُكم الحقيقي مرّر عيّنة واسعة."""
+    syms = set()
+    try:
+        wl = load_watchlist()
+        buckets = list(wl.get("history") or [])
+        buckets.append({"stocks": (wl.get("stocks") or []) + (wl.get("removed") or [])})
+        for wk in buckets:
+            for s in wk.get("stocks", []):
+                if s.get("symbol"):
+                    syms.add(str(s["symbol"]).upper())
+    except Exception as e:
+        log(f"⚠️ باكتيست·كون القائمة: {e}")
+    try:
+        ad = load_alerts()
+        for a in (ad.get("alerts") if isinstance(ad, dict) else ad) or []:
+            if a.get("symbol"):
+                syms.add(str(a["symbol"]).upper())
+    except Exception as e:
+        log(f"⚠️ باكتيست·كون التنبيهات: {e}")
+    return sorted(syms)
+
+
 def run_backtest(symbols=None) -> None:
     """يشغّل الباكتيست على قائمة رموز (env BACKTEST_SYMBOLS أو وسيط) ويرسل
-    تقريرًا + CSV. **تنبيه انحياز الناجين:** لو جرّبت رموز رابحة معروفة فقط
+    تقريرًا + CSV. عند عدم تحديد رموز → **كون البوت الافتراضي** (القائمة + التنبيهات)
+    فيكفي تحديد الشهر وحده. **تنبيه انحياز الناجين:** لو جرّبت رموز رابحة معروفة فقط
     تطلع النسبة متضخّمة — للحُكم الحقيقي جرّب عيّنة عشوائية واسعة من السوق."""
     if symbols is None:
         env = os.environ.get("BACKTEST_SYMBOLS", "").strip()
         symbols = [s.strip().upper() for s in env.replace(";", ",").split(",")
                    if s.strip()]
     if not symbols:
-        log("⚠️ باكتيست: لا رموز (مرّر BACKTEST_SYMBOLS=AAA,BBB)")
-        send_telegram("🧪 الباكتيست: لم تُحدَّد رموز. مرّر BACKTEST_SYMBOLS.")
+        # لا رموز محدّدة → كون البوت المعروف (طلب المستخدم: تشغيل بالشهر وحده)
+        symbols = _default_backtest_symbols()
+        if symbols:
+            log(f"باكتيست: لا رموز محدّدة → كون البوت الافتراضي "
+                f"({len(symbols)} رمز: القائمة + التنبيهات)")
+    if not symbols:
+        log("⚠️ باكتيست: لا رموز ولا كون افتراضي (مرّر BACKTEST_SYMBOLS=AAA,BBB)")
+        send_telegram("🧪 الباكتيست: لم تُحدَّد رموز ولا وُجد كون افتراضي بالقائمة/التنبيهات.")
         return
     log(f"باكتيست {len(symbols)} رمز…")
     hist = download_history(symbols)

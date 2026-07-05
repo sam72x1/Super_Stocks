@@ -924,6 +924,12 @@ check("قصر الشهر: فارغ/غير صالح → كل الصفقات · ش
       and S._filter_trades_by_month(_mt, 13)[1] is None
       and S._filter_trades_by_month(_mt, 7)[0] == []
       and "لا صفقات" in S._filter_trades_by_month(_mt, 7)[1])
+# كون الباكتيست الافتراضي (طلب المستخدم: تشغيل بالشهر وحده بلا رموز): يجمع من
+# القائمة + التنبيهات، ترجع قائمة رموز نصّية مرتّبة (لا يرمي عند غياب الملفات).
+_defsyms = S._default_backtest_symbols()
+check("كون الباكتيست الافتراضي: قائمة رموز (لا استثناء)",
+      isinstance(_defsyms, list)
+      and all(isinstance(x, str) for x in _defsyms))
 
 # 🎯 عمق الأهداف في مساعد التطوير
 _wd = [{"symbol": f"W{i}", "status": "active", "hit": ("t2" if i % 3 else "t1"),
