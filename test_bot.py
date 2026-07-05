@@ -955,6 +955,13 @@ _expl_trades = [{"symbol": "E", "outcome": "win", "fwd_max_gain": 80.0,
 check("وضع السوق: تصنيف «انفجر» يفصل الكبير عن الصغير/غير المعبّأ",
       sum(1 for t in _expl_trades if t.get("exploded")) == 1
       and sum(1 for t in _expl_trades if t.get("outcome") != "no_fill") == 2)
+# مراجعة خصومية: الشهر الجاري نافذته الأمامية (fwd=40ج) غير مكتملة → يجب أن يُكشف
+# (كان الافتراضي «آخر شهر مكتمل» فيخرج التقرير فارغًا). شهر أقدم بأشهر → مكتمل.
+_cur_m = S.dt.date.today().month
+_old_m = (S.dt.date.today().replace(day=1) - S.dt.timedelta(days=150)).month
+check("نافذة أمامية: الشهر الجاري غير مكتمل · شهر أقدم بـ5 أشهر مكتمل",
+      S._forward_window_complete(_cur_m) is False
+      and S._forward_window_complete(_old_m) is True)
 
 # 🎯 عمق الأهداف في مساعد التطوير
 _wd = [{"symbol": f"W{i}", "status": "active", "hit": ("t2" if i % 3 else "t1"),

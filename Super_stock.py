@@ -5285,6 +5285,20 @@ def _recent_month_window(m):
     return (f"{y}-{m:02d}-01", f"{y}-{m:02d}-31")
 
 
+def _forward_window_complete(m):
+    """هل لأحدث ظهور للشهر m نافذة أمامية كافية (BACKTEST_FORWARD_DAYS جلسة) قبل
+    اليوم؟ (مراجعة خصومية 2026-07-04: شهر حديث جدًا نافذته الأمامية ناقصة فيُستبعَد
+    كل دخوله بحارس `i < n-fwd` → تقرير فارغ.) ~1.5 يوم تقويمي لكل جلسة (تقريب آمن)."""
+    try:
+        m = int(m)
+    except (TypeError, ValueError):
+        return True
+    today = dt.date.today()
+    y = today.year if m <= today.month else today.year - 1
+    nxt = dt.date(y + (m == 12), (m % 12) + 1, 1)     # أول الشهر التالي = نهاية الشهر
+    return (today - nxt).days >= int(CONFIG["BACKTEST_FORWARD_DAYS"] * 1.5)
+
+
 def _diagnose_symbol(sym, df, cutoff=0):
     """تشخيص دقيق (باكتيست فقط، طلب المستخدم 2026-07-04): يطبع الأرقام الخام لكل
     بوابة هوية + الحكم النهائي — للإجابة بدقة على «ليش لم يُرشَّح هذا السهم؟».
@@ -5383,15 +5397,26 @@ def run_backtest(symbols=None) -> None:
             log(f"باكتيست·السوق الكامل: {len(symbols)} رمز ناسداك (بلا انحياز اختيار)")
         else:
             log("⚠️ باكتيست·السوق: فشل جلب كون ناسداك — يُكمل بالرموز المتاحة")
-        if not _bt_month:                       # الجدوى: شهر واحد (آخر مكتمل)
-            _lm = dt.date.today().replace(day=1) - dt.timedelta(days=1)
-            _bt_month = str(_lm.month)
-            log(f"باكتيست·السوق: بلا شهر محدّد → آخر شهر مكتمل "
-                f"({_lm.year}-{_lm.month:02d})")
+        if not _bt_month:
+            # أحدث شهر **نافذته الأمامية (fwd) مكتملة** لا «آخر شهر مكتمل» (بياناته
+            # الأمامية ناقصة فيُستبعَد كل دخوله → تقرير فارغ — عيب لقّته المراجعة).
+            _base = dt.date.today().replace(day=1)
+            for _ in range(24):
+                _base = (_base - dt.timedelta(days=1)).replace(day=1)
+                if _forward_window_complete(_base.month):
+                    break
+            _bt_month = str(_base.month)
+            log(f"باكتيست·السوق: بلا شهر → أحدث شهر نافذته الأمامية مكتملة "
+                f"({_base.year}-{_base.month:02d}؛ يحتاج ~{CONFIG['BACKTEST_FORWARD_DAYS']}ج بعده)")
         try:
             date_window = _recent_month_window(int(_bt_month))
         except (TypeError, ValueError):
             date_window = None
+        # تحذير: شهر حديث نافذته الأمامية ناقصة → صفقات محسومة قليلة/معدومة (لا صمت)
+        if not _forward_window_complete(_bt_month):
+            log(f"⚠️ باكتيست·السوق: الشهر {_bt_month} حديث — نافذته الأمامية "
+                f"(~{CONFIG['BACKTEST_FORWARD_DAYS']}ج) غير مكتملة، فقد تقلّ/تنعدم "
+                "الصفقات المحسومة. اختر شهرًا أقدم لنتيجة كاملة.")
     elif not symbols:
         # لا رموز ولا سوق → كون البوت المعروف (طلب المستخدم: تشغيل بالشهر وحده)
         symbols = _default_backtest_symbols()
