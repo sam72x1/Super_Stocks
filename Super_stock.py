@@ -5344,6 +5344,25 @@ def backtest_variant_compare(trades: list) -> list:
     return out
 
 
+def _normalize_bt_period(month, year):
+    """🧭 يصحّح خانتَي «الشهر»/«السنة» للباكتيست قبل بناء النافذة (طلب/التباس متكرّر
+    للمستخدم، أُصلح 2026-07-05): كتب «2025» في خانة **الشهر** بدل السنة والسنة فارغة →
+    البوت بنى نافذة مشوّهة «2025-2025-01..2025-2025-31» فسقطت كل التواريخ خارجها = **صفر
+    إشارة بلا سطر فترة**. القواعد:
+      (1) رقم يشبه سنة (4 خانات، 2000 فأكثر) في «الشهر» والسنة فارغة → المقصود **السنة
+          كاملة**: يُنقل الرقم لخانة السنة، والشهر يُفرَّغ (فيمرّ على مسار «السنة كاملة»).
+      (2) أي شهر يبقى بعدها **غير صالح** (ليس 1-12) → يُفرَّغ (لا نبني نافذة مشوّهة؛
+          يسقط على المنتقي التلقائي/كل التاريخ).
+    يرجّع (شهر، سنة) نظيفَين كنصوص. باكتيست فقط — طبقة إدخال، لا تمسّ الفرز."""
+    month = str(month or "").strip()
+    year = str(year or "").strip()
+    if (month.isdigit() and len(month) == 4 and int(month) >= 2000 and not year):
+        year, month = month, ""             # سنة كُتبت بخانة الشهر → انقلها للسنة
+    if month and not (month.isdigit() and 1 <= int(month) <= 12):
+        month = ""                          # شهر غير صالح (ليس 1-12 وليس سنة) → أهمِله
+    return month, year
+
+
 def _bt_year_of(m, year=None):
     """السنة المستهدفة للشهر m: صريحة (year) إن مُرّرت، وإلا **أحدث ظهور** (الحالية
     إن مضى/جارٍ الشهر وإلا السابقة). طلب المستخدم 2026-07-05: تحديد سنة (مثلًا 2025)."""
@@ -5390,8 +5409,11 @@ def _filter_trades_by_month(trades, month, year=None):
 
 def _recent_month_window(m, year=None):
     """نافذة (من، إلى) ISO للشهر m من سنة محدّدة أو أحدث ظهور — لقصر مسح السوق الكامل
-    على شهر واحد (الجدوى). الحدّ الأعلى «..-31» يعمل بمقارنة النصوص (يشمل كل الأيام)."""
+    على شهر واحد (الجدوى). الحدّ الأعلى «..-31» يعمل بمقارنة النصوص (يشمل كل الأيام).
+    يرفع ValueError لشهر خارج 1-12 (دفاع عميق: يُلتقط بالمستدعي → نافذة None بدل مشوّهة)."""
     m = int(m)
+    if not 1 <= m <= 12:
+        raise ValueError(f"شهر خارج النطاق 1-12: {m}")
     y = _bt_year_of(m, year)
     return (f"{y}-{m:02d}-01", f"{y}-{m:02d}-31")
 
@@ -5494,8 +5516,15 @@ def run_backtest(symbols=None) -> None:
         env = os.environ.get("BACKTEST_SYMBOLS", "").strip()
         symbols = [s.strip().upper() for s in env.replace(";", ",").split(",")
                    if s.strip()]
-    _bt_month = os.environ.get("BACKTEST_MONTH", "").strip()
-    _bt_year = os.environ.get("BACKTEST_YEAR", "").strip()   # سنة محدّدة (2025 مثلًا)
+    _raw_month = os.environ.get("BACKTEST_MONTH", "").strip()
+    _bt_month, _bt_year = _normalize_bt_period(
+        _raw_month, os.environ.get("BACKTEST_YEAR", ""))   # سنة محدّدة (2025 مثلًا)
+    if _raw_month and _raw_month != _bt_month:   # التُقط خلط الخانتين → أبلغ بالسجل
+        if _bt_year == _raw_month:
+            log(f"🧭 باكتيست: «{_raw_month}» كُتب بخانة الشهر ويشبه سنة والسنة فارغة "
+                f"→ فُسِّر كـ«السنة {_raw_month} كاملة» (أُفرِّغت خانة الشهر).")
+        else:
+            log(f"⚠️ باكتيست: «{_raw_month}» ليس شهرًا صالحًا (1-12) → أُهمِلت خانة الشهر.")
     date_window = None
     whole_year = False
     _month_valid = _bt_month.isdigit() and 1 <= int(_bt_month) <= 12
