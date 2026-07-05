@@ -903,6 +903,12 @@ _bth = "\n".join(S.backtest_honest_summary(_bt_ht))
 check("الباكتيست·صادق: الوسيط + فاصل الثقة + الأشهر الموجبة تظهر",
       "مقاييس صادقة للباكتيست" in _bth and "الوسيط" in _bth
       and "فاصل الثقة" in _bth and "الأشهر الموجبة" in _bth and "R" in _bth)
+# شفافية (مراجعة خصومية): الصفقات العالقة تُفصح لا تُخفى + backtest_stats يعدّها
+_bt_open = _bt_ht + [{"symbol": "O", "date": "2026-06-03", "entry": 2.0,
+                      "t1": 2.4, "stop": 1.8, "outcome": "open"}] * 3
+check("الباكتيست·صادق: الصفقات العالقة تُفصح (لا تُخفى من النسبة)",
+      "لم تُحسم بعد" in "\n".join(S.backtest_honest_summary(_bt_open))
+      and S.backtest_stats(_bt_open)["open"] == 3)
 
 # 🎯 عمق الأهداف في مساعد التطوير
 _wd = [{"symbol": f"W{i}", "status": "active", "hit": ("t2" if i % 3 else "t1"),

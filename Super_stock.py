@@ -5139,10 +5139,12 @@ def backtest_stats(trades: list) -> dict:
     decided = [t for t in trades if t["outcome"] in ("win", "loss")]
     wins = [t for t in decided if t["outcome"] == "win"]
     nofill = [t for t in trades if t["outcome"] == "no_fill"]
+    open_ = [t for t in trades if t["outcome"] == "open"]
     wr = (len(wins) / len(decided) * 100.0) if decided else 0.0
     return {"signals": len(trades), "decided": len(decided),
             "wins": len(wins), "losses": len(decided) - len(wins),
-            "win_rate": round(wr, 1), "no_fill": len(nofill)}
+            "win_rate": round(wr, 1), "no_fill": len(nofill),
+            "open": len(open_)}   # عُبّئت لكن لم تُحسم (شفافية: خارج النسبة/العائد)
 
 
 def _bt_realized(t):
@@ -5184,6 +5186,12 @@ def backtest_honest_summary(trades: list) -> list:
     rets = sorted(x for x in (_bt_realized(t) for t in decided) if x is not None)
     rs = [x for x in (_bt_realized_r(t) for t in decided) if x is not None]
     out = ["\n📊 <b>مقاييس صادقة للباكتيست</b>"]
+    # شفافية (مراجعة خصومية): الصفقات «العالقة» (عُبّئت ولم تلمس هدفًا ولا وقفًا خلال
+    # النافذة) خارج النسبة والعائد أدناه — نُفصح عن عددها فلا تُقرأ النسبة كأنها الكل.
+    open_n = sum(1 for t in trades if t.get("outcome") == "open")
+    if open_n:
+        out.append(f"   ℹ️ {open_n} صفقة عُبّئت ولم تُحسم بعد (خارج النسبة والعائد "
+                   "أدناه — المقاييس على المحسومة فقط).")
     if rets:
         mean = sum(rets) / len(rets)
         med = _median(rets)
@@ -5321,7 +5329,7 @@ def run_backtest(symbols=None) -> None:
     lines = ["🧪 <b>باكتيست تاريخي (مشي للأمام، بلا نظر للمستقبل)</b>",
              settings,
              f"رموز: {len(symbols)} · إشارات: {st['signals']} · "
-             f"غير مُعبّأة: {st['no_fill']}",
+             f"غير مُعبّأة: {st['no_fill']} · عالقة (لم تُحسم): {st['open']}",
              f"صفقات محسومة: <b>{st['decided']}</b> · "
              f"نجاح: <b>{st['win_rate']:.0f}%</b> "
              f"({st['wins']}✅ / {st['losses']}🛑)"]
