@@ -5365,6 +5365,10 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                  # نواقص مستحيل). تحليل فقط، لا يمسّ الفرز.
                  "n_soft": len(r.get("soft_fails") or []),
                  "readiness": r.get("readiness"),
+                 # 🧬 درجة بصمة «طريقة الارتفاع» عند لحظة الإشارة (df حتى i، خلفي = لا
+                 # تسريب) — لاختبار: هل البصمة العالية ترتبط بالانفجار الفعلي؟ (تحقّق قبل
+                 # منحها وزن ترتيب). تُحسب على الإشارة فقط (~عشرات المرّات) = رخيصة.
+                 "behav_score": behavior_rise_profile(df.iloc[:i]).get("score"),
                  "fwd_max_gain": round(fwd_max, 1),
                  "max_draw_pct": round(max_draw, 1),
                  "exploded": bool(filled is not None and fwd_max >= expl_thr)}
@@ -5724,6 +5728,46 @@ def backtest_tier_analysis(trades: list) -> list:
     return out
 
 
+def backtest_behav_correlation(trades: list) -> list:
+    """🧬 تحقّق ارتباط بصمة «طريقة الارتفاع» بالانفجار (طلب المستخدم: امنحها وزنًا في
+    الترتيب **فقط بعد** إثبات أن الدرجة العالية ترتبط بالانفجار فعلًا، بلا تسريب —
+    البصمة تُحسب على df حتى لحظة الإشارة). يبوّب المعبّأة بشرائح البصمة → معدل الانفجار
+    + النجاح + فاصل Wilson، ثم يحكم: هل يرتفع الانفجار مع الدرجة (فرق واضح + فاصلان
+    منفصلان)؟ **تحليل فقط — لا يمسّ الترتيب؛ البصمة تبقى عرضًا حتى يثبت هذا.**"""
+    fb = [t for t in trades if t.get("behav_score") is not None
+          and t.get("outcome") != "no_fill"]
+    if len(fb) < 12:
+        return []
+    out = ["\n🧬 <b>تحقّق البصمة: هل «طريقة الارتفاع» ترتبط بالانفجار؟</b>"]
+    rows = []
+    for lbl, a, b in [("بصمة أقل من 35", 0, 34), ("35-59", 35, 59),
+                      ("60 فأكثر", 60, 200)]:
+        sel = [t for t in fb if a <= t["behav_score"] <= b]
+        if not sel:
+            continue
+        exp = sum(1 for t in sel if t.get("exploded"))
+        dec = [t for t in sel if t["outcome"] in ("win", "loss")]
+        w = sum(1 for t in dec if t["outcome"] == "win")
+        elo, ehi = _wilson_ci(exp, len(sel))
+        wr = (w / len(dec) * 100.0) if dec else 0.0
+        rows.append((exp / len(sel) * 100.0, elo, ehi))
+        out.append(f"   {lbl}: {len(sel)} معبّأة · انفجر {exp} "
+                   f"({exp / len(sel) * 100:.0f}%، ثقة {elo:.0f}-{ehi:.0f}%) · "
+                   f"نجاح {wr:.0f}%")
+    disc = False
+    if len(rows) >= 2:
+        gap = rows[-1][0] - rows[0][0]                 # فرق معدل الانفجار أعلى-أدنى
+        sep = rows[-1][1] > rows[0][2]                 # فاصلا الانفجار منفصلان
+        disc = gap >= 10 and sep
+        out.append(f"   📊 فرق الانفجار (أعلى بصمة − أدنى): {gap:+.0f}% · فاصلان "
+                   f"{'منفصلان' if sep else 'متداخلان'}")
+    rec = ("<b>تُمنح وزن ترتيب</b> (داخل المختارين بعد القصّ فقط): البصمة العالية "
+           "ترتبط بالانفجار فعلًا" if disc else
+           "<b>تبقى عرضًا فقط</b>: لا ارتباط واضح بعد — لا تُمنح وزنًا (تجنّب الضجيج)")
+    out.append(f"   ✅ التوصية بالدليل: {rec}")
+    return out
+
+
 def _normalize_bt_period(month, year):
     """🧭 يصحّح خانتَي «الشهر»/«السنة» للباكتيست قبل بناء النافذة (طلب/التباس متكرّر
     للمستخدم، أُصلح 2026-07-05): كتب «2025» في خانة **الشهر** بدل السنة والسنة فارغة →
@@ -6051,6 +6095,11 @@ def run_backtest(symbols=None) -> None:
     lines += tier_diag
     for _tl in tier_diag:
         log("باكتيست·" + _tl.strip().replace("\n", " "))
+    # 🧬 تحقّق ارتباط البصمة بالانفجار (T0-تحقّق): قبل منح البصمة وزن ترتيب
+    behav_diag = backtest_behav_correlation(all_trades)
+    lines += behav_diag
+    for _bl in behav_diag:
+        log("باكتيست·" + _bl.strip().replace("\n", " "))
     if st["decided"] < 20:
         lines.append("⏳ عيّنة صغيرة — وسّع الرموز لحُكم موثوق.")
     # 📋 معيار القرار المسجَّل مسبقًا (يمنع p-hacking) — التجربة الزوجية لا تناسب
