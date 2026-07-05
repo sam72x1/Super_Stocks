@@ -5137,6 +5137,7 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         hi = fut["High"].values.astype(float)
         lo = fut["Low"].values.astype(float)
         cl = fut["Close"].values.astype(float)
+        op = fut["Open"].values.astype(float)
         filled = next((k for k in range(len(fut)) if lo[k] <= entry), None)
         fwd_max = max_draw = 0.0
         outcome = outcome_b = "no_fill"
@@ -5145,11 +5146,13 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             fwd_max = (float(max(hi[filled:])) / entry - 1.0) * 100.0
             max_draw = (float(min(lo[filled:])) / entry - 1.0) * 100.0
             last_close = float(cl[-1])
-            # ذراع A (الأساس، بلا تغيير سلوك): الوقف بلمسة الذيل · الخروج عند الوقف
+            # ذراع A (الأساس، بلا تغيير سلوك): الوقف بلمسة الذيل · الخروج عند الوقف.
+            # واقعية الفجوة (مراجعة خصومية): لو فتحت الشمعة تحت الوقف (جاب) يُنفَّذ عند
+            # الافتتاح لا الوقف المثالي — فلا يتفاءل A زورًا في خسائر الفجوة.
             outcome, exit_a = "open", last_close
             for k in range(filled, len(fut)):
                 if lo[k] <= stop:               # الوقف أولًا (محافظ)
-                    outcome, exit_a = "loss", stop
+                    outcome, exit_a = "loss", min(stop, float(op[k]))
                     break
                 if hi[k] >= t1:
                     outcome, exit_a = "win", t1
@@ -5289,46 +5292,55 @@ def backtest_variant_compare(trades: list) -> list:
     if len(fill) < 5:
         return []
 
+    n = len(fill)
+
     def _arm(oc, rk):
-        dec = [t for t in fill if t[oc] in ("win", "loss")]
-        wins = sum(1 for t in dec if t[oc] == "win")
+        # **مقام موحّد لكلا الذراعين = كل المعبّأة** (مراجعة خصومية): B يوقف أقل فتصير
+        # بعض خسائر A «عالق» عند B وتخرج من مقامه، فتبدو نسبة نجاح B أعلى بنيويًا مهما
+        # كانت جدارته. نحسب على نفس المقام n ونُظهر العالق صراحةً — والحاسم مع ذلك هو
+        # الفرق الزوجي بالعائد المحقّق لا نسبة النجاح.
         rets = [t[rk] for t in fill]
         cap = sum(1 for t in fill if t.get("exploded") and t[oc] == "win")
-        return {"wr": (wins / len(dec) * 100 if dec else 0.0),
-                "stop": (sum(1 for t in dec if t[oc] == "loss") / len(dec) * 100
-                         if dec else 0.0),
-                "mean": sum(rets) / len(rets), "med": _median(rets), "cap": cap}
+        return {"win": sum(1 for t in fill if t[oc] == "win"),
+                "loss": sum(1 for t in fill if t[oc] == "loss"),
+                "open": sum(1 for t in fill if t[oc] == "open"),
+                "mean": sum(rets) / n, "med": _median(rets), "cap": cap}
 
     A = _arm("outcome", "ret_a")
     B = _arm("outcome_b", "ret_b")
     diffs = [t["ret_b"] - t["ret_a"] for t in fill]
-    mean_diff = sum(diffs) / len(diffs)
+    mean_diff = sum(diffs) / n
+    med_diff = _median(diffs)
     recovered = [t for t in fill
                  if t["outcome"] == "loss" and t["outcome_b"] == "win"]
     deeper = [t for t in fill
               if t["outcome_b"] == "loss" and t["ret_b"] < t["ret_a"] - 0.5]
     exp_total = sum(1 for t in fill if t.get("exploded"))
     out = ["\n🔬 <b>تجربة الوقف الزوجية: لمسة الذيل (A) مقابل الإغلاق (B)</b>",
-           f"   العيّنة: {len(fill)} صفقة معبّأة (نفسها للذراعين)",
-           f"   الحالي A: نجاح {A['wr']:.0f}% · وقف {A['stop']:.0f}% · عائد محقّق "
-           f"متوسط {A['mean']:+.1f}% (وسيط {A['med']:+.1f}%) · انفجارات ملتقَطة "
+           f"   العيّنة: {n} صفقة معبّأة (نفسها ونفس المقام للذراعين)",
+           # 🎯 المقياس الحاسم أولًا (صادق، نفس المقام، غير قابل للتحيّز البنيوي):
+           f"   🎯 <b>العائد المحقّق (الحاسم): A متوسط {A['mean']:+.1f}% · B متوسط "
+           f"{B['mean']:+.1f}% → الفرق الزوجي B−A = {mean_diff:+.1f} نقطة/صفقة "
+           f"(وسيط الفرق {med_diff:+.1f})</b>",
+           f"   A: ربح {A['win']} · وقف {A['loss']} · عالق {A['open']} · انفجارات "
            f"{A['cap']}/{exp_total}",
-           f"   الإغلاق B: نجاح {B['wr']:.0f}% · وقف {B['stop']:.0f}% · عائد محقّق "
-           f"متوسط {B['mean']:+.1f}% (وسيط {B['med']:+.1f}%) · انفجارات ملتقَطة "
+           f"   B: ربح {B['win']} · وقف {B['loss']} · عالق {B['open']} · انفجارات "
            f"{B['cap']}/{exp_total}",
-           f"   <b>الفرق الزوجي (B−A) في العائد المحقّق: {mean_diff:+.1f} نقطة/صفقة</b>",
+           "   ⚠️ لا تُخدع بنسبة نجاح B الأعلى — بعض خسائر A تصير «عالق» عند B فترفعها "
+           "بنيويًا؛ الحاسم هو الفرق الزوجي بالعائد المحقّق أعلاه.",
            f"   انفجارات أنقذها الإغلاق (وقف→ربح): {len(recovered)} · "
            f"خسائر عمّقها الإغلاق: {len(deeper)}"]
     if recovered:
         out.append("   الأسهم المُنقَذة: " + " · ".join(
             f"{esc(str(t['symbol']))} +{t.get('fwd_max_gain', 0):.0f}%"
             for t in sorted(recovered, key=lambda x: -x.get("fwd_max_gain", 0))[:8]))
-    # 📋 معيار مسجَّل مسبقًا (لا p-hacking): القرار للمستخدم بالأرقام لا آليًا
+    # 📋 معيار مسجَّل مسبقًا (لا p-hacking): الحكم على الفرق الزوجي بالعائد المحقّق
     verdict = ("مبدئيًا لصالح B (فرق زوجي موجب + إنقاذ يفوق التعميق)"
                if (mean_diff > 0 and len(recovered) >= len(deeper))
                else "مبدئيًا لا يتبنّى (التعميق يأكل المكسب أو الفرق غير موجب)")
-    out.append(f"   📋 المعيار المسجَّل: يُعتمد B فقط لو (الفرق الزوجي موجب بوضوح + "
-               f"يصمد عبر السنتين) → الحكم الأولي: <b>{verdict}</b> (قرارك بالأرقام)")
+    out.append(f"   📋 المعيار المسجَّل: يُعتمد B فقط لو (الفرق الزوجي بالعائد المحقّق "
+               f"موجب بوضوح + يصمد عبر السنتين) → الحكم الأولي: <b>{verdict}</b> "
+               "(قرارك بالأرقام لا آليًا)")
     return out
 
 
