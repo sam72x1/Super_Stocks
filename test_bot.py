@@ -1108,6 +1108,22 @@ check("التصنيف·تشخيص: نواقص غير مميِّزة ⇒ يوصي
       "لا يميّز" in _flat_r and "ضجيج" in _flat_r)
 check("التصنيف·تشخيص: عيّنة صغيرة (<10) → لا تقرير (لا حكم على ضجيج)",
       S.backtest_tier_analysis([_tt(0, "win")] * 3) == [])
+
+# 🧬 تحقّق ارتباط البصمة بالانفجار (طلب المستخدم: وزن ترتيب فقط بعد إثبات الارتباط).
+def _bt(bs, oc, exploded=False):
+    return {"behav_score": bs, "outcome": oc, "exploded": exploded}
+# مرتبطة: البصمة العالية (60+) تنفجر كثيرًا · المنخفضة لا
+_bcorr = ([_bt(70, "win", True)] * 7 + [_bt(65, "loss", True)] * 3
+          + [_bt(20, "loss")] * 12 + [_bt(15, "win")] * 1)
+_bcorr_r = "\n".join(S.backtest_behav_correlation(_bcorr))
+check("البصمة·تحقّق: ارتباط واضح بالانفجار ⇒ يوصي «تُمنح وزن ترتيب»",
+      "تُمنح وزن ترتيب" in _bcorr_r and "منفصلان" in _bcorr_r)
+# غير مرتبطة: الانفجار مسطّح عبر الشرائح
+_bflat = ([_bt(70, "win", False)] * 8 + [_bt(70, "loss", True)] * 2
+          + [_bt(20, "win", False)] * 8 + [_bt(20, "loss", True)] * 2)
+_bflat_r = "\n".join(S.backtest_behav_correlation(_bflat))
+check("البصمة·تحقّق: لا ارتباط ⇒ يوصي «تبقى عرضًا فقط» (لا وزن)",
+      "تبقى عرضًا فقط" in _bflat_r)
 # كون الباكتيست الافتراضي (طلب المستخدم: تشغيل بالشهر وحده بلا رموز): يجمع من
 # القائمة + التنبيهات، ترجع قائمة رموز نصّية مرتّبة (لا يرمي عند غياب الملفات).
 _defsyms = S._default_backtest_symbols()
