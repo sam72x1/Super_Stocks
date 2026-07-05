@@ -240,6 +240,16 @@ CONFIG = {
     "SWEEP_SMALL_PCT": (8.0, 10.0),      # عمق المسح: أسهم صغيرة
     "SWEEP_LARGE_PCT": (5.0, 7.0),       # عمق المسح: أسهم كبيرة (سعر ≥ 15)
     "LARGE_PRICE_CUT": 15.0,
+    # 🔬 تجربة «الدخول المؤكَّد بالمسح» (T1، باكتيست حصريًا — كلها تتصفّر افتراضيًا =
+    # صفر أثر على الإنتاج، لا LOGIC_VERSION). فيصل: «قبل يصعد لازم مسح سيولة تحت القاع
+    # ثم استعادة · لا تدخل الدعم الأول». تُحقن عبر BT_SWEEP_* في وضع BACKTEST فقط.
+    # ⚠️ الدخول والوقف **منفصلان** (مراجعة خصومية: خلطهما يعيد استيراد «الوقف الأعمق»
+    # الفاشل حيًّا تحت لافتة الدخول) — BT_SWEEP_ENTRY يعزل أثر الدخول ووقفه = الأساس.
+    "BT_SWEEP_ENTRY": 0,                  # 1 = دخول بعد مسح+استعادة (بدل التعبئة الفورية)
+    "BT_SWEEP_STOP": 0,                   # 1 = وقف تحت ذيل المسح (0 = وقف الأساس، لعزل الدخول)
+    "BT_SWEEP_PCT": 0.10,                # عمق المسح المطلوب تحت الدعم (مفتاح، لا قاعدة فيصل)
+    "BT_SWEEP_STOP_MARGIN": 0.03,        # هامش الوقف تحت أدنى ذيل المسح (عند BT_SWEEP_STOP=1)
+    "BT_SWEEP_MIN_RR": 1.0,              # أرضية العائد/المخاطرة لقبول تعبئة المسح
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -360,7 +370,13 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_MIN_DROP_FLOOR", "MIN_DROP_FLOOR", float),
             ("BT_MAX_DROP_PCT", "MAX_DROP_PCT", float),
             ("BT_SPIKE_WINDOW", "PRIOR_SPIKE_WINDOW", int),
-            ("BT_MIN_DOLLAR_VOL", "MIN_DOLLAR_VOL", float)):
+            ("BT_MIN_DOLLAR_VOL", "MIN_DOLLAR_VOL", float),
+            # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — باكتيست حصريًا، منفصلة الدخول/الوقف
+            ("BT_SWEEP_ENTRY", "BT_SWEEP_ENTRY", int),
+            ("BT_SWEEP_STOP", "BT_SWEEP_STOP", int),
+            ("BT_SWEEP_PCT", "BT_SWEEP_PCT", float),
+            ("BT_SWEEP_STOP_MARGIN", "BT_SWEEP_STOP_MARGIN", float),
+            ("BT_SWEEP_MIN_RR", "BT_SWEEP_MIN_RR", float)):
         v = (env.get(bt_env) or "").strip()
         if not v:
             continue
@@ -5086,6 +5102,94 @@ def run_daily_watchlist(wl: dict) -> None:
 # ==========================================================
 # 10) التشغيل الرئيسي
 # ==========================================================
+def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled):
+    """يحسم صفقة باكتيست من فهرس التعبئة بذراعَي الوقف (نفس منطق A/B، مصدر واحد):
+    ذراع الذيل (A): الوقف بلمسة الذيل `low<=stop`، الخروج `min(stop, open)` لواقعية
+    الفجوة · ذراع الإغلاق (B): الوقف بإغلاق `close<=stop`. الرابح يخرج t1، العالق آخر
+    إغلاق. يرجّع (outcome_wick, ret_wick, outcome_close, ret_close)؛ العائد None إن لم
+    تُعبَّأ. مصدر واحد يضمن أن تجربة الدخول تُقاس بنفس محرّك الأساس تمامًا (مقارنة عادلة)."""
+    if filled is None or entry <= 0:
+        return ("no_fill", None, "no_fill", None)
+    last_close = float(cl[-1])
+    ow, exit_w = "open", last_close
+    for k in range(filled, len(cl)):
+        if lo[k] <= stop:                       # الوقف أولًا (محافظ)
+            ow, exit_w = "loss", min(stop, float(op[k]))
+            break
+        if hi[k] >= t1:
+            ow, exit_w = "win", t1
+            break
+    oc, exit_c = "open", last_close
+    for k in range(filled, len(cl)):
+        if cl[k] <= stop:
+            oc, exit_c = "loss", float(cl[k])
+            break
+        if hi[k] >= t1:
+            oc, exit_c = "win", t1
+            break
+    return (ow, (exit_w / entry - 1.0) * 100.0,
+            oc, (exit_c / entry - 1.0) * 100.0)
+
+
+def _sweep_confirmed_fill(lo, cl, support, sweep_pct):
+    """🔬 تعبئة «الدخول المؤكَّد بالمسح» (فيصل: «قبل يصعد لازم مسح سيولة تحت القاع ثم
+    استعادة · لا تدخل الدعم الأول»). مشي أمامي **بلا نظر مستقبلي**: عند كل شمعة نقرأ
+    `lo[≤k]`/`cl[k]` فقط. (أ) شمعة مسح `low<=support*(1-sweep_pct)` ثم (ب) أول شمعة
+    إغلاق يستعيد الدعم `close>=support` = تعبئة عند **إغلاق** الاستعادة (سعر محقَّق).
+    يرجّع (fill_reason, reclaim_idx, entry_px, sweep_low): fill_reason ∈ {filled,
+    no_sweep, sweep_no_reclaim}. sweep_low = أعمق ذيل حتى الاستعادة (لوقف تحت-الذيل).
+    الحسم اللاحق يبدأ من reclaim_idx+1 حصرًا (لا نستعمل ذيل/رأس شمعة الدخول = لا تسريب).
+    باكتيست حصريًا — لا يمسّ الفرز/الإنتاج."""
+    sweep_px = support * (1.0 - sweep_pct)
+    swept = False
+    run_low = float("inf")
+    for k in range(len(cl)):
+        run_low = min(run_low, float(lo[k]))       # ماضٍ+حاضر فقط
+        if not swept and lo[k] <= sweep_px:
+            swept = True
+        if swept and cl[k] >= support:             # استعادة مؤكَّدة بالإغلاق
+            return ("filled", k, float(cl[k]), run_low)
+    return (("sweep_no_reclaim" if swept else "no_sweep"), None, None,
+            (run_low if run_low != float("inf") else None))
+
+
+def _sweep_augment(trade, r, hi, lo, cl, op, stop, t1):
+    """🔬 يُلحِق حقول تجربة «الدخول المؤكَّد بالمسح» بصفقة الأساس (باكتيست حصريًا،
+    مطفأة افتراضيًا). على **نفس الإشارة**: نموذج دخول بديل = مسح تحت الدعم ثم استعادة
+    (`_sweep_confirmed_fill`)، مقاسًا بنفس `_resolve_arm` (مقارنة عادلة). **الدخول
+    منفصل عن الوقف**: `BT_SWEEP_STOP=0` (الافتراضي) يُبقي وقف الأساس فيعزل أثر الدخول
+    عن أثر «تعميق الوقف» الذي فشل حيًّا (مراجعة خصومية)؛ `=1` يضع الوقف تحت ذيل المسح.
+    الحقول: fill_reason_sweep · outcome_sweep(+_b) · ret_sweep_a/b · entry_sweep ·
+    stop_sweep · swept. الحكم لاحقًا على المُعبَّأة فقط (backtest_sweep_compare)."""
+    support = float(r.get("pivot") or min(r["tranches"]))
+    fr, ridx, e_sw, sw_low = _sweep_confirmed_fill(
+        lo, cl, support, CONFIG["BT_SWEEP_PCT"])
+    trade["entry_model"] = "sweep_confirmed"
+    trade["swept"] = (fr != "no_sweep")
+    filled_sw = stop_sw = None
+    if fr == "filled":
+        filled_sw = ridx + 1
+        if filled_sw >= len(cl):                 # استعادة بآخر شمعة = لا حسم أمامي
+            fr, filled_sw = "reclaim_at_end", None
+    if filled_sw is not None:
+        stop_sw = (sw_low * (1.0 - CONFIG["BT_SWEEP_STOP_MARGIN"])
+                   if CONFIG.get("BT_SWEEP_STOP") else stop)   # عزل الدخول عن الوقف
+        rr = ((t1 - e_sw) / (e_sw - stop_sw)) if e_sw > stop_sw else 0.0
+        if CONFIG["BT_SWEEP_MIN_RR"] and rr < CONFIG["BT_SWEEP_MIN_RR"]:
+            fr, filled_sw = "rr_too_low", None
+    o_sw = ret_sa = ret_sb = ob_sw = None
+    if filled_sw is not None:
+        o_sw, ret_sa, ob_sw, ret_sb = _resolve_arm(
+            hi, lo, cl, op, e_sw, stop_sw, t1, filled_sw)
+    trade["fill_reason_sweep"] = fr
+    trade["outcome_sweep"] = o_sw if o_sw is not None else fr
+    trade["outcome_sweep_b"] = ob_sw if ob_sw is not None else fr
+    trade["entry_sweep"] = (round(e_sw, 2) if e_sw is not None else None)
+    trade["stop_sweep"] = (round(stop_sw, 2) if stop_sw is not None else None)
+    trade["ret_sweep_a"] = (round(ret_sa, 1) if ret_sa is not None else None)
+    trade["ret_sweep_b"] = (round(ret_sb, 1) if ret_sb is not None else None)
+
+
 def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                     date_window: tuple = None) -> list:
     """باكتيست سهم واحد — **مشي للأمام بلا نظر للمستقبل**: عند كل نقطة نحلّل
@@ -5140,47 +5244,30 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         op = fut["Open"].values.astype(float)
         filled = next((k for k in range(len(fut)) if lo[k] <= entry), None)
         fwd_max = max_draw = 0.0
-        outcome = outcome_b = "no_fill"
-        ret_a = ret_b = None
         if filled is not None and entry > 0:
             fwd_max = (float(max(hi[filled:])) / entry - 1.0) * 100.0
             max_draw = (float(min(lo[filled:])) / entry - 1.0) * 100.0
-            last_close = float(cl[-1])
-            # ذراع A (الأساس، بلا تغيير سلوك): الوقف بلمسة الذيل · الخروج عند الوقف.
-            # واقعية الفجوة (مراجعة خصومية): لو فتحت الشمعة تحت الوقف (جاب) يُنفَّذ عند
-            # الافتتاح لا الوقف المثالي — فلا يتفاءل A زورًا في خسائر الفجوة.
-            outcome, exit_a = "open", last_close
-            for k in range(filled, len(fut)):
-                if lo[k] <= stop:               # الوقف أولًا (محافظ)
-                    outcome, exit_a = "loss", min(stop, float(op[k]))
-                    break
-                if hi[k] >= t1:
-                    outcome, exit_a = "win", t1
-                    break
-            # ذراع B (المتغيّر): الوقف بـ**إغلاق** تحت الوقف (نصمد على الذيل) · الخروج
-            # عند إغلاق الكسر (≤ الوقف = تكلفة أعمق). نفس ترتيب التعادل (الوقف أولًا)
-            # لعزل المتغيّر الوحيد (لمسة ذيل مقابل إغلاق) — تحفّظ يميل ضد B لا معه.
-            outcome_b, exit_b = "open", last_close
-            for k in range(filled, len(fut)):
-                if cl[k] <= stop:
-                    outcome_b, exit_b = "loss", float(cl[k])
-                    break
-                if hi[k] >= t1:
-                    outcome_b, exit_b = "win", t1
-                    break
-            ret_a = (exit_a / entry - 1.0) * 100.0
-            ret_b = (exit_b / entry - 1.0) * 100.0
-        trades.append({"symbol": sym, "date": str(df.index[i - 1].date()),
-                       "entry": round(entry, 2), "stop": round(stop, 2),
-                       "t1": round(t1, 2), "outcome": outcome,
-                       "outcome_b": outcome_b,
-                       "ret_a": (round(ret_a, 1) if ret_a is not None else None),
-                       "ret_b": (round(ret_b, 1) if ret_b is not None else None),
-                       "tier": r.get("tier"),
-                       "fwd_max_gain": round(fwd_max, 1),
-                       "max_draw_pct": round(max_draw, 1),
-                       "exploded": bool(filled is not None
-                                        and fwd_max >= expl_thr)})
+        # الأساس: ذراعا الوقف (لمسة ذيل A · إغلاق B) بمصدر واحد _resolve_arm — بلا
+        # تغيير سلوك (نفس المنطق السابق حرفيًا، DRY فقط لتقيس تجربة المسح بنفس المحرّك).
+        outcome, ret_a, outcome_b, ret_b = _resolve_arm(
+            hi, lo, cl, op, entry, stop, t1, filled)
+        trade = {"symbol": sym, "date": str(df.index[i - 1].date()),
+                 "entry": round(entry, 2), "stop": round(stop, 2),
+                 "t1": round(t1, 2), "outcome": outcome,
+                 "outcome_b": outcome_b,
+                 "ret_a": (round(ret_a, 1) if ret_a is not None else None),
+                 "ret_b": (round(ret_b, 1) if ret_b is not None else None),
+                 "tier": r.get("tier"),
+                 "fwd_max_gain": round(fwd_max, 1),
+                 "max_draw_pct": round(max_draw, 1),
+                 "exploded": bool(filled is not None and fwd_max >= expl_thr)}
+        # 🔬 تجربة «الدخول المؤكَّد بالمسح» (BT_SWEEP_ENTRY، باكتيست حصريًا): على نفس
+        # الإشارة نموذج دخول بديل (مسح+استعادة)، مقاسًا بنفس _resolve_arm. الدخول منفصل
+        # عن الوقف (BT_SWEEP_STOP) لعزل أثر الدخول. المقارنة على المُعبَّأة في
+        # backtest_sweep_compare. مطفأة افتراضيًا = صفقة الأساس بلا تغيير (صفر أثر).
+        if CONFIG.get("BT_SWEEP_ENTRY"):
+            _sweep_augment(trade, r, hi, lo, cl, op, stop, t1)
+        trades.append(trade)
         i += fwd                                # تخطَّ نافذة كاملة (لا تكرار)
     return trades
 
@@ -5341,6 +5428,118 @@ def backtest_variant_compare(trades: list) -> list:
     out.append(f"   📋 المعيار المسجَّل: يُعتمد B فقط لو (الفرق الزوجي بالعائد المحقّق "
                f"موجب بوضوح + يصمد عبر السنتين) → الحكم الأولي: <b>{verdict}</b> "
                "(قرارك بالأرقام لا آليًا)")
+    return out
+
+
+def _mean_lo95(xs):
+    """المتوسط + الحدّ السفلي لفاصل الثقة 95% (تقريب طبيعي) + العدد. للحكم على الفرق
+    الزوجي: نطلب الحدّ السفلي > 0 (لا مجرد المتوسط) فلا نُخدع بضجيج عيّنة صغيرة."""
+    n = len(xs)
+    if n == 0:
+        return (0.0, 0.0, 0)
+    m = sum(xs) / n
+    if n < 2:
+        return (m, m, n)
+    var = sum((x - m) ** 2 for x in xs) / (n - 1)
+    se = (var ** 0.5) / (n ** 0.5)
+    return (m, m - 1.96 * se, n)
+
+
+def backtest_sweep_compare(trades: list) -> list:
+    """🔬 تجربة «الدخول المؤكَّد بالمسح» (T1، طلب المستخدم 2026-07-05 + صور فيصل: «قبل
+    يصعد لازم مسح سيولة تحت القاع ثم استعادة · لا تدخل الدعم الأول»). نموذج دخول بديل
+    (مسح+استعادة) مقابل التعبئة الفورية على **نفس الإشارة**. مطفأة ما لم يُفعَّل
+    BT_SWEEP_ENTRY → ترجّع [] فلا تمسّ التقرير العادي. باكتيست حصريًا.
+
+    🛡️ تحرس فخّين كشفتهما المراجعة الخصومية (7 وكلاء):
+    - **فخّ عدم-التعبئة:** تحويل خسائر إلى عدم-تعبئة يزيّف «حافة». فالحكم الحاسم على
+      **المُعبَّأة في الطرفين فقط** (بما أننا دخلنا كلانا، أيّهما أفضل؟) + تفكيك كامل
+      يفصل «التفادي» (امتناع) عن «التحويل» (رافعة دخول حقيقية) ويشترط التحويل ≥ التفادي.
+    - **خلط الدخول بالوقف:** الوقف الأعمق فشل حيًّا؛ فالدخول معزول (BT_SWEEP_STOP=0)
+      فأيّ حافة تُنسب للدخول وحده لا لتعميق الوقف."""
+    sw = [t for t in trades if t.get("entry_model") == "sweep_confirmed"]
+    if not sw:
+        return []
+
+    def _bf(t):     # عبّأ الأساس؟
+        return t.get("ret_a") is not None
+
+    def _sf(t):     # عبّأ المسح؟
+        return t.get("ret_sweep_a") is not None
+
+    n_sig = len(sw)
+    n_bf = sum(1 for t in sw if _bf(t))
+    n_sf = sum(1 for t in sw if _sf(t))
+    # أسباب عدم تعبئة المسح (شفافية — قد يكون «التحسّن» مجرّد امتناع)
+    reasons = {}
+    for t in sw:
+        if not _sf(t):
+            reasons[t.get("fill_reason_sweep", "?")] = \
+                reasons.get(t.get("fill_reason_sweep", "?"), 0) + 1
+    stop_iso = "الوقف=الأساس (عزل الدخول)" if not CONFIG.get("BT_SWEEP_STOP") \
+        else "الوقف=تحت الذيل (دخول+وقف معًا)"
+    out = ["\n🔬 <b>تجربة الدخول المؤكَّد بالمسح (T1): مسح+استعادة مقابل التعبئة الفورية</b>",
+           f"   إعداد: عمق المسح {CONFIG['BT_SWEEP_PCT']*100:.0f}% · {stop_iso}",
+           f"   الإشارات: {n_sig} · عبّأ الأساس: {n_bf} · عبّأ المسح: {n_sf}"
+           + (f" ({n_sf / n_bf * 100:.0f}% من تعبئات الأساس)" if n_bf else "")]
+    if reasons:
+        out.append("   لم يعبّئ المسح بسبب: " + " · ".join(
+            f"{k}={v}" for k, v in sorted(reasons.items(), key=lambda x: -x[1])))
+    # 🎯 الحكم الحاسم: المُعبَّأة في الطرفين (يستبعد رصيد الامتناع تمامًا)
+    both = [t for t in sw if _bf(t) and _sf(t)]
+    da = [t["ret_sweep_a"] - t["ret_a"] for t in both]
+    db = [t["ret_sweep_b"] - t["ret_b"] for t in both
+          if t.get("ret_b") is not None and t.get("ret_sweep_b") is not None]
+    ma, la, na = _mean_lo95(da)
+    mb, lb, nb = _mean_lo95(db)
+    if na:
+        out.append(f"   🎯 <b>المُعبَّأة في الطرفين ({na}) — الفرق الزوجي (مسح−أساس): "
+                   f"ذراع A {ma:+.1f} نقطة (حدّ ثقة سفلي {la:+.1f}) · "
+                   f"ذراع B {mb:+.1f} (سفلي {lb:+.1f})</b>")
+    else:
+        out.append("   ⚠️ لا صفقة عبّأها الطرفان — لا حكم على الدخول (امتناع صافٍ).")
+    # 🧩 تفكيك كامل (يفصل التفادي عن التحويل): br/sr = العائد المحقّق (0 = خارج السوق)
+    av_sum = cv_sum = deep_sum = cost_sum = 0.0
+    av_n = cv_n = deep_n = cost_n = 0
+    for t in sw:
+        bo, so = t.get("outcome"), t.get("outcome_sweep")
+        br = t["ret_a"] if _bf(t) else 0.0
+        sr = t["ret_sweep_a"] if _sf(t) else 0.0
+        d = sr - br
+        if bo == "loss" and not _sf(t):            # تفادٍ (امتناع): خسارة أساس → لا دخول
+            av_sum += d; av_n += 1
+        elif bo == "loss" and so == "win":         # تحويل: خسارة أساس → ربح مسح (الرافعة)
+            cv_sum += d; cv_n += 1
+        elif bo == "loss" and _sf(t):              # خسارة أساس بقيت خسارة/عالق بالمسح
+            deep_sum += d; deep_n += 1
+        elif bo == "win" and so != "win":          # كلفة: ربح أساس ضاع
+            cost_sum += d; cost_n += 1
+    out.append(f"   🧩 التفكيك: تفادٍ(امتناع) {av_n}={av_sum:+.0f} · "
+               f"تحويل(دخول→ربح) {cv_n}={cv_sum:+.0f} · "
+               f"خسارة-تبقى {deep_n}={deep_sum:+.0f} · كلفة(ربح ضاع) {cost_n}={cost_sum:+.0f}")
+    # 📅 يصمد عبر السنوات؟ (الفرق الزوجي للمُعبَّأة في الطرفين لكل سنة)
+    by_year = {}
+    for t in both:
+        y = str(t.get("date", ""))[:4]
+        by_year.setdefault(y, []).append(t["ret_sweep_a"] - t["ret_a"])
+    yr_line = " · ".join(f"{y}: {sum(v) / len(v):+.1f}({len(v)})"
+                         for y, v in sorted(by_year.items()))
+    if yr_line:
+        out.append(f"   📅 بالسنة (فرق A): {yr_line}")
+    # 📋 معيار مسجَّل مسبقًا (افتراض الرفض + قفل، أسلوب C3) — كل الأرجل معًا:
+    yrs_ok = [y for y, v in by_year.items() if len(v) >= 3]
+    year_pass = bool(yrs_ok) and all(sum(by_year[y]) > 0 for y in yrs_ok)
+    fill_ok = n_bf and (n_sf / n_bf) >= 0.40
+    passed = (na >= 5 and la > 0 and mb > 0 and cv_sum >= av_sum
+              and cv_sum > 0 and fill_ok and year_pass)
+    verdict = ("مبدئيًا يتبنّى الدخول (فرق موجب بحدّ ثقة + تحويل يفوق التفادي + "
+               "تعبئة كافية + يصمد بالسنوات)" if passed else
+               "مبدئيًا يُرفض ويُقفل (فرق غير حاسم / الحافة من الامتناع لا التحويل / "
+               "تعبئة ضعيفة / لا يصمد بالسنوات)")
+    out.append("   📋 المعيار المسجَّل (قبل التشغيل): يُعتمد الدخول فقط لو — فرق A "
+               "المُعبَّأة حدّه السفلي فوق صفر + ذراع B موجب + التحويل ≥ التفادي + "
+               "تعبئة المسح ≥ 40% + موجب كل سنة. أي رِجل تسقط ⇒ رفض. "
+               f"→ الحكم الأولي: <b>{verdict}</b> (قرارك بالأرقام لا آليًا).")
     return out
 
 
@@ -5661,6 +5860,11 @@ def run_backtest(symbols=None) -> None:
     lines += variant
     for _vl in variant:
         log("باكتيست·" + _vl.strip().replace("\n", " "))
+    # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — ترجع [] ما لم يُفعَّل BT_SWEEP_ENTRY
+    sweep = backtest_sweep_compare(all_trades)
+    lines += sweep
+    for _sl in sweep:
+        log("باكتيست·" + _sl.strip().replace("\n", " "))
     if st["decided"] < 20:
         lines.append("⏳ عيّنة صغيرة — وسّع الرموز لحُكم موثوق.")
     # 📋 معيار القرار المسجَّل مسبقًا (يمنع p-hacking) — التجربة الزوجية لا تناسب

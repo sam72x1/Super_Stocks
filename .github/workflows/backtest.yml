@@ -36,6 +36,22 @@ on:
         description: "تجربة C (اختياري): تجاوز أرضية السيولة MIN_DOLLAR_VOL (200K$) — باكتيست فقط"
         required: false
         default: ""
+      bt_sweep_entry:
+        description: "تجربة T1 «الدخول المؤكَّد بالمسح» (اختياري): 1 = فعّلها (دخول بعد مسح تحت الدعم ثم استعادة، بدل التعبئة الفورية). يقارن على نفس الإشارة ويحكم على المُعبَّأة فقط. باكتيست فقط، لا يمسّ الإنتاج"
+        required: false
+        default: ""
+      bt_sweep_stop:
+        description: "تجربة T1 (اختياري): 0 = وقف الأساس (يعزل أثر الدخول — موصى) · 1 = وقف تحت ذيل المسح (يخلط الدخول بتعميق الوقف الذي فشل حيًّا)"
+        required: false
+        default: ""
+      bt_sweep_pct:
+        description: "تجربة T1 (اختياري): عمق المسح المطلوب تحت الدعم (افتراضي 0.10 = 10%). امسح {0.05,0.08,0.10,0.12} لاختبار ثبات الإشارة"
+        required: false
+        default: ""
+      bt_sweep_min_rr:
+        description: "تجربة T1 (اختياري): أرضية العائد/المخاطرة لقبول تعبئة المسح (افتراضي 1.0)"
+        required: false
+        default: ""
 jobs:
   backtest:
     runs-on: ubuntu-latest
@@ -63,6 +79,11 @@ jobs:
           BT_MAX_DROP_PCT: ${{ github.event.inputs.bt_max_drop_pct }}
           BT_SPIKE_WINDOW: ${{ github.event.inputs.bt_spike_window }}
           BT_MIN_DOLLAR_VOL: ${{ github.event.inputs.bt_min_dollar_vol }}
+          # T1: تجربة الدخول المؤكَّد بالمسح — تُقرأ في وضع BACKTEST حصريًا
+          BT_SWEEP_ENTRY: ${{ github.event.inputs.bt_sweep_entry }}
+          BT_SWEEP_STOP: ${{ github.event.inputs.bt_sweep_stop }}
+          BT_SWEEP_PCT: ${{ github.event.inputs.bt_sweep_pct }}
+          BT_SWEEP_MIN_RR: ${{ github.event.inputs.bt_sweep_min_rr }}
         run: python Super_stock.py
       - name: Upload backtest CSV
         if: always()
