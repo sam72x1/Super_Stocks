@@ -896,6 +896,83 @@ def spike_info(close: np.ndarray, exclude_last: int):
     return best * 100.0, clusters
 
 
+def behavior_rise_profile(df):
+    """🧬 بصمة «طريقة ارتفاع اليد» (سلوك المضارب — طلب المستخدم 2026-07-05، أولويته
+    القصوى: «كيف يرفعها»). **عرض/تشخيص فقط — لا تمسّ الفرز ولا اختيار select_top إطلاقًا**
+    (مقفول باختبار الثبات؛ درس C3: بصمة تدخل الاختيار = بوابة خفية تخنق ارتكازات فيصل).
+    تقرأ من OHLCV **الخلفي فقط** (بلا نظر مستقبلي · بلا today · المسافات بالجلسات لا
+    بالتقويم) كيف رفع المضاربُ السهمَ تاريخيًا — لأن بصمة اليد **تتكرّر**. المكوّنات
+    ومتانة سندها عند فيصل (لا نلوّن الضعيف بلونه):
+      • عدد الرفعات + الأكبر [جزئي: GWAV «تهييض 4 مرات» · «ارتفع سابقًا 100%+»].
+      • حداثة آخر رفعة (جلسات) + إعادة الرفع بعده [استنتاج مسنود بـ«النموذج يتكرر» 7403
+        · «ننتظر صعوده ثانية»].
+      • بصمة المسح: كنس دعم بذيل ثم استعادة [مسنود قوي: 7379/7366/7402].
+    يرجّع dict: score(0-100 أو None) · n_pumps · best_pump · recency_bars · repumps ·
+    sweeps · label(عربي مبسّط). فاشل-آمن → score=None. **الوقود (فلوت/شورت) ليس هنا**
+    (مكرّر لبوابتَي M13/M14 ومُعاير على ناجين — يبقى وسمًا حيًّا منفصلًا لا وزنًا)."""
+    try:
+        c = df["Close"].values.astype(float)
+        lo = df["Low"].values.astype(float)
+        n = len(c)
+        if n < CONFIG["MIN_BARS"]:
+            return {"score": None, "label": "—", "n_pumps": 0, "best_pump": 0.0,
+                    "recency_bars": None, "repumps": 0, "sweeps": 0}
+        bw = int(CONFIG["BASE_WINDOW"])
+        best, _ = spike_info(c, exclude_last=bw)      # الأكبر (نفس ثوابت البوت)
+        # مواقع عناقيد الانفجار (خلفي، لاستخراج الحداثة/الإعادة) — نفس منطق spike_info
+        seg = c[:n - bw] if bw > 0 else c
+        m = len(seg)
+        w_max = int(CONFIG["PRIOR_SPIKE_WINDOW"])
+        thr = CONFIG["PRIOR_SPIKE_PCT"] / 100.0
+        ends = set()
+        for w in range(1, w_max + 1):
+            if m <= w:
+                break
+            with np.errstate(divide="ignore", invalid="ignore"):
+                ratio = seg[w:] / np.where(seg[:-w] > 0, seg[:-w], np.nan) - 1.0
+            ratio = np.nan_to_num(ratio, nan=0.0)
+            ends.update((np.where(ratio >= thr)[0] + w).tolist())
+        clusters = []
+        last = -10_000
+        for i in sorted(ends):
+            if i - last >= 20:                        # فجوة 20ج = انفجار مستقل
+                clusters.append(int(i))
+            last = i
+        n_pumps = len(clusters)
+        recency_bars = (m - 1 - clusters[-1]) if clusters else None
+        repumps = max(0, n_pumps - 1)                 # كم مرّة أعاد الرفع بعد الأولى
+        # بصمة المسح التاريخية: كنس أدنى نافذة W بذيل ≥8% ثم إغلاق يستعيدها
+        sweeps = 0
+        W = 20
+        for i in range(W, m):
+            sup = float(np.min(lo[i - W:i]))
+            if sup > 0 and lo[i] <= sup * 0.92 and c[i] >= sup:
+                sweeps += 1
+        # الدرجة المركّبة (سقف 100): العدد 35 · المقدار 15 · الحداثة 15 · الإعادة 10 · المسح 25
+        pump_ct = min(n_pumps, 4)                      # سقف 4 = «تهييض 4 مرات»
+        count_pts = pump_ct / 4.0 * 35.0
+        mag_pts = min(best / 200.0, 1.0) * 15.0        # 200%+ = يد قوية
+        rec_pts = (max(0.0, 1.0 - recency_bars / 250.0) * 15.0
+                   if recency_bars is not None else 0.0)
+        repump_pts = min(repumps, 3) / 3.0 * 10.0
+        sweep_pts = min(sweeps, 3) / 3.0 * 25.0
+        score = int(round(count_pts + mag_pts + rec_pts + repump_pts + sweep_pts))
+        if n_pumps == 0:
+            label = "رفعة يتيمة / يد خاملة"
+        elif score >= 70:
+            label = "🔥 يد نشطة تعيد الضخّ بقوة"
+        elif score >= 45:
+            label = "يد فعّالة (تعيد الرفع)"
+        else:
+            label = "نشاط محدود"
+        return {"score": score, "label": label, "n_pumps": n_pumps,
+                "best_pump": round(best, 0), "recency_bars": recency_bars,
+                "repumps": repumps, "sweeps": sweeps}
+    except Exception:
+        return {"score": None, "label": "—", "n_pumps": 0, "best_pump": 0.0,
+                "recency_bars": None, "repumps": 0, "sweeps": 0}
+
+
 def pivot_stability(lows: np.ndarray, closes: np.ndarray):
     """كشف Pivot Low + ثبات 3-5 جلسات (قاعدة التوقيت الذهبية)"""
     look = min(CONFIG["PIVOT_LOOKBACK"], len(lows))
@@ -2909,6 +2986,19 @@ def build_message(results: list, splits: list,
         # القوة العامة + شريط بصري
         bar, slabel = strength_bar(r.get("score", 0))
         lines.append(f"💪 القوة العامة: {r.get('score', 0)}/100  {bar}  {slabel}")
+        # 🧬 طريقة ارتفاع اليد (سلوك المضارب — **عرض/تشخيص فقط، لا يمسّ الفرز ولا الاختيار**):
+        # كيف رفع المضاربُ السهمَ تاريخيًا (كم مرّة · أكبر رفعة · بصمة المسح). فيصل: البصمة تتكرّر.
+        bh = r.get("behav") or {}
+        if bh.get("score") is not None:
+            det = []
+            if bh.get("n_pumps"):
+                det.append(f"رفع {bh['n_pumps']} مرّة")
+            if bh.get("best_pump"):
+                det.append(f"أكبر {bh['best_pump']:.0f}%")
+            if bh.get("sweeps"):
+                det.append(f"مسح {bh['sweeps']} مرّة")
+            tail = (" (" + " · ".join(det) + ")") if det else ""
+            lines.append(f"🧬 طريقة الارتفاع: {bh['score']}/100 · {bh['label']}{tail}")
         # المعلومات الصغيرة بسطر واحد (سعر · فلوت · شورت · قطاع · دولة)
         small = [f"${price:.2f}"]
         # فلوت/شورت: لو تعذّر الجلب من كل المصادر نعرض شرطة «—» (وضوح: تعذّر
@@ -3290,6 +3380,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "h4_levels": r.get("h4_levels"),                  # مستويات 4س (فيصل)
         "key_levels": r.get("key_levels"),                # دعوم/مقاومات أساسي/فرعي
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
+        "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
         "tf_count": r.get("tf_count"),                    # عدد الفريمات المتوافقة (0-3)
         "tf_display": r.get("tf_display"),                # تفصيل الفريمات (شهري/أسبوعي/يومي)
         "liberation": r.get("liberation"),               # بوابة التحرر
@@ -3674,6 +3765,7 @@ def scan_market():
     for sym, df in history.items():
         r = analyze_ticker(sym, df)
         if r:
+            r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
             results.append(r)
     # تشخيص: أين تُرفض الأسهم؟ (يظهر بسجل الأكشن لمعرفة البوابة الخانقة)
     if _REJECT_STATS:
@@ -4147,6 +4239,16 @@ def build_daily_message(wl: dict, splits: list,
         if s.get("country"):
             small.append(country_label(s["country"]))
         lines.append("   💰 " + " · ".join(small))
+        # 🧬 طريقة ارتفاع اليد (سلوك المضارب — عرض فقط، لا يمسّ الفرز/الاختيار)
+        _bh = s.get("behav") or {}
+        if _bh.get("score") is not None:
+            _bd = []
+            if _bh.get("n_pumps"):
+                _bd.append(f"رفع {_bh['n_pumps']} مرّة")
+            if _bh.get("sweeps"):
+                _bd.append(f"مسح {_bh['sweeps']}")
+            _bt = (" (" + " · ".join(_bd) + ")") if _bd else ""
+            lines.append(f"   🧬 طريقة الارتفاع: {_bh['score']}/100 · {_bh['label']}{_bt}")
         # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
         rot = s.get("rotation_pct")
         if rot and rot >= 100:
