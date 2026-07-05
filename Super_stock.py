@@ -3676,26 +3676,9 @@ def scan_market():
         except Exception:
             continue
         if g >= CONFIG["MISSED_RISE_PCT"]:
-            # صرامة الفائتة (مُكيَّف من dev_assistant_standalone): أقصى هبوط **قبل
-            # القمة** داخل نافذة الصعود — لو أعمق من مسافة الوقف كان بيضرب وقفنا قبل
-            # القمة (ربح ورقي لا فرصة حقيقية فاتتنا). القياس قبل القمة حصرًا فلا يُوسم
-            # هبوطٌ بعد الركض «موقوفًا» خطأً. try يحمي أسهم البنسات (ref≈0).
-            draw, would_stop = 0.0, False
-            try:
-                w = c[-11:]
-                ref = float(w[0])
-                if ref > 0:
-                    peak_i = int(np.argmax(w))
-                    trough = float(min(w[:peak_i + 1]))
-                    draw = (trough / ref - 1.0) * 100.0
-                    would_stop = draw <= -CONFIG["STOP_BELOW_LOW_PCT"][1]
-            except Exception:
-                pass
             _MISSED.append({"symbol": sym, "reason": reason,
                             "gain_10d": round(g, 1),
                             "price": round(float(c[-1]), 2),
-                            "max_draw_pct": round(draw, 1),
-                            "would_stop": bool(would_stop),
                             # A2: كسب خارق = يُرجَّح أثر تقسيم عكسي غير معدَّل
                             "suspect_split":
                                 g >= CONFIG["SPLIT_SUSPECT_GAIN_PCT"]})
@@ -4513,15 +4496,10 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         # وتُعرض ببند مستقل للتحقق اليدوي — لا تُحذف (شفافية).
         suspects = [m for m in _MISSED if m.get("suspect_split")]
         clean = [m for m in _MISSED if not m.get("suspect_split")]
-        moved_all = [m for m in clean if not _identity(m["reason"])]
+        moved = [m for m in clean if not _identity(m["reason"])]
         not_pivot = [m for m in clean if _identity(m["reason"])]
-        # صرامة: من «الارتكاز المتحرّك» نفصل ما كان بيضرب وقفنا قبل القمة (ربح ورقي
-        # لا فرصة حقيقية فاتتنا) — يمنع فبركة فرص فائتة وهمية بفخّ FOMO القمة.
-        moved = [m for m in moved_all if not m.get("would_stop")]
-        trap = [m for m in moved_all if m.get("would_stop")]
         out = [f"\n👻 <b>فرص فائتة (مرفوض صعد {int(CONFIG['MISSED_RISE_PCT'])}% أو أكثر)</b>",
-               f"   📌 ارتكاز تحرّك حقيقي (راجع الارتداد): <b>{len(moved)}</b> · "
-               f"⛔ كان بيضرب وقفنا قبل القمة: {len(trap)} · "
+               f"   📌 ارتكاز تحرّك (راجع الارتداد): <b>{len(moved)}</b> · "
                f"🗑️ ليس ارتكازًا (تجاهل صحيح): {len(not_pivot)}"]
         if suspects:
             top_sus = " · ".join(f"{m['symbol']} +{m['gain_10d']:.0f}%"
@@ -4536,20 +4514,11 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
                        + "، ".join(f"{k} ({v})" for k, v in
                                    sorted(rc.items(), key=lambda x: -x[1])[:3]))
             for m in sorted(moved, key=lambda x: -x["gain_10d"])[:6]:
-                dd = m.get("max_draw_pct")
-                dtxt = (f" · أقصى نزول {abs(dd):.0f}% (ما لمس الوقف)"
-                        if dd is not None else "")
                 out.append(f"   • {m['symbol']}: +{m['gain_10d']:.0f}% — "
-                           f"ارتكاز تحرّك ({m['reason']}){dtxt}")
+                           f"ارتكاز تحرّك ({m['reason']})")
             out.append("   ↳ هذي مرشّحات ارتداد؛ تأكّد قائمة المراقبة تلتقط أقواها.")
         else:
-            out.append("   ✅ لا ارتكاز حقيقي فاتنا — الفائتة إمّا ليست ارتكازًا "
-                       "أو كانت ستُوقَف قبل قمتها.")
-        if trap:
-            out.append("   ⛔ ربح ورقي (كان بيوقفنا قبل القمة): "
-                       + "، ".join(
-                           f"{m['symbol']} (نزل {abs(m.get('max_draw_pct', 0)):.0f}% أول)"
-                           for m in sorted(trap, key=lambda x: -x["gain_10d"])[:5]))
+            out.append("   ✅ لا ارتكاز فعلي فاتنا — كل الفائتة ليست أسهم ارتكاز.")
         return out
 
     def _explosions_block():
@@ -4623,11 +4592,8 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         top = sorted(totals.items(), key=lambda x: -x[1])[:6]
         out = [f"\n🧮 <b>مقام الرفض (مجموع {len(recent)} تشغيل، آخر 7 أيام)</b>",
                "   " + " · ".join(f"{esc(k)}={v}" for k, v in top)]
-        # نسبة الفائتة الواقعية ÷ المقام لكل بوابة (تُظهر البوابة المتشددة فعلًا).
-        # صرامة: نستبعد من البسط ما كان بيضرب الوقف قبل قمته (ليس ربحًا فاتنا) —
-        # للأمانة لا للإخفاء (يبقى معروضًا ببند «ربح ورقي»).
-        clean_missed = [m for m in _MISSED if not m.get("suspect_split")
-                        and not m.get("would_stop")]
+        # نسبة الفائتة الواقعية ÷ المقام لكل بوابة (تُظهر البوابة المتشددة فعلًا)
+        clean_missed = [m for m in _MISSED if not m.get("suspect_split")]
         ratios = []
         for gate, total in top:
             miss = sum(1 for m in clean_missed if str(m["reason"]) == gate)
