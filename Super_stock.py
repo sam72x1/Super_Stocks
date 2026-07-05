@@ -5360,6 +5360,11 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                  "ret_a": (round(ret_a, 1) if ret_a is not None else None),
                  "ret_b": (round(ret_b, 1) if ret_b is not None else None),
                  "tier": r.get("tier"),
+                 # 🔬 تشخيص تصنيف A/B (T2): عدد النواقص + الجاهزية لكل صفقة — لاختبار
+                 # «هل قلّة النواقص/عُلوّ الجاهزية تميّز النجاح؟» (كل الصفقات B لأن A=صفر
+                 # نواقص مستحيل). تحليل فقط، لا يمسّ الفرز.
+                 "n_soft": len(r.get("soft_fails") or []),
+                 "readiness": r.get("readiness"),
                  "fwd_max_gain": round(fwd_max, 1),
                  "max_draw_pct": round(max_draw, 1),
                  "exploded": bool(filled is not None and fwd_max >= expl_thr)}
@@ -5642,6 +5647,80 @@ def backtest_sweep_compare(trades: list) -> list:
                "المُعبَّأة حدّه السفلي فوق صفر + ذراع B موجب + التحويل ≥ التفادي + "
                "تعبئة المسح ≥ 40% + موجب كل سنة. أي رِجل تسقط ⇒ رفض. "
                f"→ الحكم الأولي: <b>{verdict}</b> (قرارك بالأرقام لا آليًا).")
+    return out
+
+
+def backtest_tier_analysis(trades: list) -> list:
+    """🔬 تشخيص تصنيف A/B (T2 — طلب المستخدم: «التصنيف عشوائي ولا سهم وصل A»). فئة A
+    تتطلّب **صفر نواقص** عبر ~8-10 بوابات = مستحيل (0 من كل الصفقات). هذا يختبر **بالدليل**:
+    هل عدد النواقص (أو الجاهزية) يميّز النجاح/الانفجار فعلًا؟ لو نعم → «A = ناقص واحد أو
+    أقل» يعيد التمييز؛ لو لا → التصنيف بعدد النواقص ضجيج، والتمييز يجي من غيره (سلوك/جاهزية).
+    تحليل فقط — لا يمسّ الفرز/التصنيف/الجذور."""
+    dec = [t for t in trades if t.get("outcome") in ("win", "loss")
+           and t.get("n_soft") is not None]
+    if len(dec) < 10:
+        return []
+
+    def _bucket(sel):
+        d = [t for t in sel if t["outcome"] in ("win", "loss")]
+        if not d:
+            return None
+        w = sum(1 for t in d if t["outcome"] == "win")
+        f = [t for t in sel if t.get("outcome") != "no_fill"]
+        exp = sum(1 for t in f if t.get("exploded"))
+        lo, hi = _wilson_ci(w, len(d))
+        return (len(d), w / len(d) * 100.0, exp, len(f), lo, hi)
+
+    zero = sum(1 for t in dec if t["n_soft"] == 0)
+    out = ["\n🔬 <b>تشخيص التصنيف A/B (هل عدد النواقص يميّز النجاح؟)</b>",
+           f"   محسومة: {len(dec)} · منها «صفر نواقص»(=A): <b>{zero}</b> "
+           "(تأكيد: A مستحيل عمليًا)"]
+    # شرائح عدد النواقص
+    sb = []
+    for lbl, a, b in [("0-1 نقص", 0, 1), ("2 نقص", 2, 2),
+                      ("3 نقص", 3, 3), ("4 فأكثر", 4, 99)]:
+        r = _bucket([t for t in dec if a <= t["n_soft"] <= b])
+        if r:
+            sb.append((lbl, r))
+            out.append(f"   {lbl}: {r[0]} صفقة · نجاح {r[1]:.0f}% "
+                       f"(ثقة {r[4]:.0f}-{r[5]:.0f}%) · انفجر {r[2]}/{r[3]}")
+    # حكم تمييز النواقص: أقلّها مقابل أكثرها + هل فاصلا الثقة منفصلان
+    soft_disc = False
+    if len(sb) >= 2:
+        best, worst = sb[0][1], sb[-1][1]
+        gap = best[1] - worst[1]
+        sep = best[4] > worst[5]                       # lo(الأقل) فوق hi(الأكثر)
+        soft_disc = gap >= 15 and sep
+        out.append(f"   📊 الفرق (أقل نواقص − أكثر): {gap:+.0f} نقطة · فاصلان "
+                   f"{'منفصلان' if sep else 'متداخلان'} → عدد النواقص "
+                   f"{'<b>يميّز</b>' if soft_disc else '<b>لا يميّز بوضوح</b>'}")
+    # شرائح الجاهزية (قد تميّز حتى لو النواقص لا — بديل جذري للتصنيف)
+    rb = []
+    for lbl, a, b in [("جاهزية أقل من 50", 0, 49), ("50-64", 50, 64),
+                      ("65 فأكثر", 65, 200)]:
+        r = _bucket([t for t in dec if t.get("readiness") is not None
+                     and a <= t["readiness"] <= b])
+        if r:
+            rb.append((lbl, r))
+    if rb:
+        out.append("   — بالجاهزية —")
+        for lbl, r in rb:
+            out.append(f"   {lbl}: {r[0]} · نجاح {r[1]:.0f}% "
+                       f"(ثقة {r[4]:.0f}-{r[5]:.0f}%) · انفجر {r[2]}/{r[3]}")
+    rdy_disc = False
+    if len(rb) >= 2:
+        g = rb[-1][1][1] - rb[0][1][1]
+        rdy_disc = g >= 15 and rb[-1][1][4] > rb[0][1][5]
+    # التوصية المبنية على الدليل (لا اجتهاد)
+    if soft_disc:
+        rec = "عدّل التصنيف: A = «ناقص واحد أو أقل» (النواقص تميّز فعلًا)"
+    elif rdy_disc:
+        rec = ("عدّل التصنيف: A بعتبة **جاهزية** لا بعدد النواقص (الجاهزية تميّز، "
+               "النواقص لا) — حلّ جذري يعيد A حيّة")
+    else:
+        rec = ("لا النواقص ولا الجاهزية تميّز بوضوح → التصنيف الثنائي الحالي **ضجيج**؛ "
+               "الحلّ الجذري = استبدال A/B بمحور مُثبَت (سلوك المضارب/الترتيب) لا بوابة صفرية")
+    out.append(f"   ✅ <b>التوصية بالدليل: {rec}</b>")
     return out
 
 
@@ -5967,6 +6046,11 @@ def run_backtest(symbols=None) -> None:
     lines += sweep
     for _sl in sweep:
         log("باكتيست·" + _sl.strip().replace("\n", " "))
+    # 🔬 تشخيص التصنيف A/B (T2): هل النواقص/الجاهزية تميّز؟ (تحليل دائم، لا يمسّ الفرز)
+    tier_diag = backtest_tier_analysis(all_trades)
+    lines += tier_diag
+    for _tl in tier_diag:
+        log("باكتيست·" + _tl.strip().replace("\n", " "))
     if st["decided"] < 20:
         lines.append("⏳ عيّنة صغيرة — وسّع الرموز لحُكم موثوق.")
     # 📋 معيار القرار المسجَّل مسبقًا (يمنع p-hacking) — التجربة الزوجية لا تناسب
