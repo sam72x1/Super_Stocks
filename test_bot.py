@@ -1052,6 +1052,44 @@ _good = ([_swt("loss", -10.0, "win", 20.0, "filled", "2025-05-01")] * 3
 _good_r = "\n".join(S.backtest_sweep_compare(_good))
 check("المسح·حافة حقيقية: تحويل≥تفادي + موجب سنتين + تعبئة≥40% ⇒ الحكم «يتبنّى»",
       "يتبنّى الدخول" in _good_r and "المُعبَّأة في الطرفين" in _good_r)
+
+# 🧬 بصمة «طريقة ارتفاع اليد» (سلوك المضارب، T0 — عرض/تشخيص فقط، لا تمسّ الفرز/الاختيار).
+_bp = S.behavior_rise_profile(synth_pivot(seed=1))
+check("سلوك المضارب: البروفايل يرجع الحقول + درجة 0-100 + وصف",
+      {"score", "label", "n_pumps", "best_pump", "recency_bars", "sweeps"} <= set(_bp)
+      and (_bp["score"] is None or 0 <= _bp["score"] <= 100)
+      and isinstance(_bp["label"], str))
+# لا نظر مستقبلي: البروفايل على شريحة لا يتأثّر بالعبث بما بعدها (نقاء + مسافات بالبارات)
+_sp = synth_pivot(seed=1); _i = 200
+_a = S.behavior_rise_profile(_sp.iloc[:_i])
+_sp2 = _sp.copy(); _sp2.iloc[_i:, :] = 999.0
+check("سلوك المضارب: لا تسريب مستقبلي (نفس الشريحة رغم العبث بالمستقبل)",
+      _a == S.behavior_rise_profile(_sp2.iloc[:_i]))
+check("سلوك المضارب: فاشل-آمن على بيانات قصيرة → score=None",
+      S.behavior_rise_profile(_sp.iloc[:30])["score"] is None)
+# 🔒 قفل السلامة الحاسم (مراجعة خصومية T0): البصمة **لا تغيّر عضوية select_top**.
+# rank_key لا يذكر behav إطلاقًا، و select_top يمشي بترتيب المدخل — فمهما تغيّرت
+# البصمة تبقى المجموعة المختارة نفسها (لئلا تخنق ارتكاز فيصل = درس C3).
+import inspect as _insp
+_rk_src = _insp.getsource(S.rank_key)
+_res_lo = [{"symbol": "X", "tier": "A", "readiness": 70, "score": 80, "rr": 2.0,
+            "behav": {"score": 5}},
+           {"symbol": "Y", "tier": "A", "readiness": 70, "score": 80, "rr": 2.0,
+            "behav": {"score": 95}}]
+_res_hi = [dict(t, behav={"score": 100 - t["behav"]["score"]}) for t in _res_lo]
+_sel_lo = {r["symbol"] for r in S.select_top(_res_lo, 1, set())}
+_sel_hi = {r["symbol"] for r in S.select_top(_res_hi, 1, set())}
+check("سلوك المضارب·قفل السلامة: behav لا يدخل rank_key ولا يغيّر عضوية select_top",
+      "behav" not in _rk_src and _sel_lo == _sel_hi)
+# العرض: البطاقة تُظهر سطر 🧬 عند توفّر البصمة (عرض فقط)
+_card_r = {"symbol": "ZZ", "score": 60, "tier": "A", "price": 3.6,
+           "readiness": 50, "behav": {"score": 72, "label": "🔥 يد نشطة تعيد الضخّ بقوة",
+           "n_pumps": 4, "best_pump": 300.0, "recency_bars": 30, "repumps": 3,
+           "sweeps": 2}, "tranches": [3.5, 3.6], "entry": (3.5, 3.6),
+           "stop": (3.2, 3.3), "t1": 4.0, "t2": 4.5, "t3": 5.0, "rr": 2.0}
+_card = S.build_message([_card_r], [])   # يرجّع نصًّا جاهزًا (لا قائمة)
+check("سلوك المضارب·عرض: البطاقة تُظهر «🧬 طريقة الارتفاع» + الوصف",
+      "🧬 طريقة الارتفاع" in _card and "يد نشطة تعيد الضخّ" in _card)
 # كون الباكتيست الافتراضي (طلب المستخدم: تشغيل بالشهر وحده بلا رموز): يجمع من
 # القائمة + التنبيهات، ترجع قائمة رموز نصّية مرتّبة (لا يرمي عند غياب الملفات).
 _defsyms = S._default_backtest_symbols()
