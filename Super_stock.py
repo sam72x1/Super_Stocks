@@ -3676,9 +3676,26 @@ def scan_market():
         except Exception:
             continue
         if g >= CONFIG["MISSED_RISE_PCT"]:
+            # صرامة الفائتة (مُكيَّف من dev_assistant_standalone): أقصى هبوط **قبل
+            # القمة** داخل نافذة الصعود — لو أعمق من مسافة الوقف كان بيضرب وقفنا قبل
+            # القمة (ربح ورقي لا فرصة حقيقية فاتتنا). القياس قبل القمة حصرًا فلا يُوسم
+            # هبوطٌ بعد الركض «موقوفًا» خطأً. try يحمي أسهم البنسات (ref≈0).
+            draw, would_stop = 0.0, False
+            try:
+                w = c[-11:]
+                ref = float(w[0])
+                if ref > 0:
+                    peak_i = int(np.argmax(w))
+                    trough = float(min(w[:peak_i + 1]))
+                    draw = (trough / ref - 1.0) * 100.0
+                    would_stop = draw <= -CONFIG["STOP_BELOW_LOW_PCT"][1]
+            except Exception:
+                pass
             _MISSED.append({"symbol": sym, "reason": reason,
                             "gain_10d": round(g, 1),
                             "price": round(float(c[-1]), 2),
+                            "max_draw_pct": round(draw, 1),
+                            "would_stop": bool(would_stop),
                             # A2: كسب خارق = يُرجَّح أثر تقسيم عكسي غير معدَّل
                             "suspect_split":
                                 g >= CONFIG["SPLIT_SUSPECT_GAIN_PCT"]})
@@ -4321,6 +4338,154 @@ def _wr(rows: list):
     return (n, wins / n * 100.0, avg_mg)
 
 
+# ── مساعدات تحليل مقتبَسة ومُكيَّفة من أداتَي التطوير (dev_assistant_standalone +
+#    dev_backtest_toolkit) على منهجية فيصل. طبقة تقارير/تحليل بحتة — لا تمسّ الفرز
+#    ولا الدخول/الوقف/الأهداف/البوابات (لا LOGIC_VERSION). كلها على بياناتنا المتاحة.
+def _close_date(r):
+    """تاريخ **إغلاق** الصفقة (لا الدخول): الرابح=hit_date · الخاسر=result_date/
+    removed_date. للتبويب الزمني «قبل/بعد» — السؤال عن نتائج تحقّقت لا صفقات فُتحت."""
+    return r.get("hit_date") or r.get("result_date") or r.get("removed_date")
+
+
+def _median(vals):
+    """الوسيط (الصفقة النموذجية) — أمتن من المتوسط ضد ذيل صفقة واحدة."""
+    s = sorted(float(v) for v in vals)
+    n = len(s)
+    if not n:
+        return 0.0
+    m = n // 2
+    return s[m] if n % 2 else (s[m - 1] + s[m]) / 2.0
+
+
+def _wilson_lower_pct(wins, n):
+    """أرضية ثقة Wilson السفلى 95% لنسبة نجاح ثنائية (%). أصدق من النسبة الخام
+    لعيّنة صغيرة (الأداة الصحيحة للعنوان الثنائي، لا bootstrap). دالة صرفة."""
+    if n <= 0:
+        return 0.0
+    z = 1.96
+    p = wins / n
+    denom = 1.0 + z * z / n
+    centre = p + z * z / (2 * n)
+    margin = z * ((p * (1 - p) / n + z * z / (4 * n * n)) ** 0.5)
+    return max(0.0, (centre - margin) / denom) * 100.0
+
+
+def _realized_r(r):
+    """عائد الصفقة بوحدة المخاطرة (R): الرابح=(هدف مُصاب−دخول)/(دخول−وقف) ·
+    الخاسر≈−1. يوحّد الدخول على entry_ref (نفس أساس RR بالكرت). None لو نقص حقل.
+    مقياس «هل الحافة موجبة أصلًا؟» — مختلف عن أقصى الربح (ذروة لحظية)."""
+    try:
+        entry = float(r.get("entry_ref") or r.get("price"))
+        stop = float(r.get("stop"))
+        risk = entry - stop
+        if risk <= 0:
+            return None
+        if r.get("_win"):
+            h = r.get("hit")
+            tp = r.get(h) if h in ("t1", "t2", "t3") else None
+            return (float(tp) - entry) / risk if tp else None
+        return -1.0
+    except (TypeError, ValueError):
+        return None
+
+
+def _weekly_compare_block(rows, today=None):
+    """📅 «التطوير مقابل الأسبوع الماضي» (مُكيَّف من dev_assistant_standalone.compare):
+    يبوّب المحسومة بتاريخ **الإغلاق** إلى نافذتين (آخر 7 أيام · الـ7 السابقة) ويقيس
+    فرق نسبة النجاح بالنقاط = «نسبة التطوير» (متين ضد ذيل صفقة واحدة، لا متوسط الربح).
+    يجيب سؤال المستخدم المتكرّر تلقائيًا. حارس عيّنة يقود العرض (اتجاه لا حكم)."""
+    today = today or dt.date.today()
+    cur_lo = (today - dt.timedelta(days=6)).isoformat()
+    prev_lo = (today - dt.timedelta(days=13)).isoformat()
+    prev_hi = (today - dt.timedelta(days=7)).isoformat()
+    cur, prev = [], []
+    for r in rows:
+        d = _close_date(r)
+        if not d:
+            continue
+        d = str(d)
+        if d >= cur_lo:
+            cur.append(r)
+        elif prev_lo <= d <= prev_hi:
+            prev.append(r)
+    if not cur and not prev:
+        return []
+
+    def _wl(g):
+        w = sum(1 for r in g if r["_win"])
+        return w, len(g) - w
+
+    cw, cl = _wl(cur)
+    pw, pl = _wl(prev)
+    out = ["\n📅 <b>التطوير مقابل الأسبوع الماضي</b>"]
+    # حارس: أي نافذة أقل من 3 صفقات → عدّ فقط بلا نسب (تقلّب لا إشارة)
+    if len(cur) < 3 or len(prev) < 3:
+        cs = f"{len(cur)} صفقة ({cw}✅ / {cl}🛑)" if cur else "لا صفقات محسومة"
+        ps = f"{len(prev)} صفقة ({pw}✅ / {pl}🛑)" if prev else "لا صفقات محسومة"
+        out.append(f"   هذا الأسبوع: {cs} · الأسبوع الماضي: {ps}")
+        out.append("   ⚠️ عدد الصفقات أقل من أن تُحسب منه نسبة موثوقة — "
+                   "نكتفي بالعدّ حتى تتراكم.")
+        return out
+    _, cwr, cmg = _wr(cur)
+    _, pwr, pmg = _wr(prev)
+    out.append(f"   هذا الأسبوع: {len(cur)} صفقات · نجاح {cwr:.0f}% · "
+               f"متوسط أقصى ربح {cmg:+.0f}% · لمس الوقف {cl}")
+    out.append(f"   الأسبوع الماضي: {len(prev)} صفقات · نجاح {pwr:.0f}% · "
+               f"متوسط أقصى ربح {pmg:+.0f}% · لمس الوقف {pl}")
+    diff = cwr - pwr
+    if diff >= 10:
+        d_txt = f"النجاح أعلى (فارق {diff:+.0f} نقطة) 🔼"
+    elif diff <= -10:
+        d_txt = f"النجاح أقل (فارق {diff:+.0f} نقطة) 🔽"
+    else:
+        d_txt = f"النجاح ثابت تقريبًا (فارق {diff:+.0f}) ↔️"
+    gdiff = cmg - pmg
+    out.append(f"   التطوير: {d_txt} · الربح (فارق {gdiff:+.0f})")
+    out.append(f"   ⚠️ العيّنة صغيرة ({len(cur) + len(prev)} صفقة على أسبوعين) — "
+               "المؤشر اتجاهي لا حاسم.")
+    return out
+
+
+def _honest_metrics_block(rows):
+    """📏 مقاييس صادقة (مُكيَّف من dev_backtest_toolkit.honest_summary): الوسيط +
+    استبعاد الأعلى/الأدنى + اعتماد الذيل — تكشف إن كانت الحافة يحملها ذيل قِلّة
+    (متوسط مرتفع + وسيط منخفض) أم عريضة. كلها على أقصى الربح (نفس مقياس الرأس)."""
+    gains = [float(r.get("max_gain_pct") or 0) for r in rows]
+    if len(gains) < 3:
+        return []
+    s = sorted(gains)
+    mean = sum(s) / len(s)
+    med = _median(s)
+    # مشذّب-5% على N~10 يقرّب لصفر → نستبدله باستبعاد أعلى صفقة وأدنى صفقة
+    trimmed = sum(s[1:-1]) / len(s[1:-1]) if len(s) > 2 else mean
+    out = ["\n📏 <b>مقاييس صادقة (أقصى ربح)</b>",
+           f"   المتوسط {mean:+.0f}% · الوسيط {med:+.0f}% · "
+           f"بعد استبعاد الأعلى والأدنى {trimmed:+.0f}%"]
+    if mean - med >= 5:
+        out.append("   ↳ المتوسط أعلى من الوسيط بوضوح — الحافة يحملها قليل من "
+                   "الصفقات لا الجسم.")
+    # اعتماد الذيل: بركة الرابحين فقط (نسبة الفوز ثنائية بلا ذيل)، مقارنة بخط
+    # أساس التساوي k/W (حارس W خمسة فأكثر وإلا صِغَر عيّنة يوهم تركّزًا).
+    winners = sorted(((float(r.get("max_gain_pct") or 0), r.get("symbol"))
+                      for r in rows if r.get("_win")), reverse=True)
+    W = len(winners)
+    tot = sum(g for g, _ in winners)
+    if W >= 5 and tot > 0:
+        share = sum(g for g, _ in winners[:2]) / tot * 100.0
+        base = 2.0 / W * 100.0
+        out.append("\n🎢 <b>اعتماد الذيل (تركّز الربح بين الرابحين)</b>")
+        out.append(f"   أعلى صفقتين تصنعان {share:.0f}% من مجمّع أقصى الأرباح "
+                   f"(لو توزّع بالتساوي لكانت {base:.0f}%)")
+        if share - base >= 25:
+            names = " · ".join(f"{esc(str(sym))} {g:+.0f}%"
+                               for g, sym in winners[:2])
+            out.append(f"   الحاملتان: {names} — الحافة تعتمد عليهما؛ تأكّد أن "
+                       "المنهجية تكرّر أمثالهما لا أنها حظّ صفقتين.")
+        else:
+            out.append("   الربح موزّع على صفقات كثيرة — حافة عريضة أمتن.")
+    return out
+
+
 def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     """🔬 المساعد الثالث: يحلّل الصفقات المحسومة ويطلّع تشخيص الأداء بالشرائح
     + أنماط الفشل + اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات). يُرسل الجمعة."""
@@ -4328,6 +4493,9 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     n, wr, avg = _wr(rows)
     head = ["🔬 <b>مساعد التطوير — تحليل أداء المنهجية</b>",
             f"صفقات محسومة متراكمة: <b>{n}</b>"]
+    # 📅 «التطوير مقابل الأسبوع الماضي» — يظهر دائمًا (يجيب سؤال المستخدم المتكرّر
+    # مهما صغرت العيّنة). طبقة تقارير فقط.
+    head += _weekly_compare_block(rows)
 
     def _missed_block():
         if not _MISSED:
@@ -4345,10 +4513,15 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         # وتُعرض ببند مستقل للتحقق اليدوي — لا تُحذف (شفافية).
         suspects = [m for m in _MISSED if m.get("suspect_split")]
         clean = [m for m in _MISSED if not m.get("suspect_split")]
-        moved = [m for m in clean if not _identity(m["reason"])]
+        moved_all = [m for m in clean if not _identity(m["reason"])]
         not_pivot = [m for m in clean if _identity(m["reason"])]
+        # صرامة: من «الارتكاز المتحرّك» نفصل ما كان بيضرب وقفنا قبل القمة (ربح ورقي
+        # لا فرصة حقيقية فاتتنا) — يمنع فبركة فرص فائتة وهمية بفخّ FOMO القمة.
+        moved = [m for m in moved_all if not m.get("would_stop")]
+        trap = [m for m in moved_all if m.get("would_stop")]
         out = [f"\n👻 <b>فرص فائتة (مرفوض صعد {int(CONFIG['MISSED_RISE_PCT'])}% أو أكثر)</b>",
-               f"   📌 ارتكاز تحرّك (راجع الارتداد): <b>{len(moved)}</b> · "
+               f"   📌 ارتكاز تحرّك حقيقي (راجع الارتداد): <b>{len(moved)}</b> · "
+               f"⛔ كان بيضرب وقفنا قبل القمة: {len(trap)} · "
                f"🗑️ ليس ارتكازًا (تجاهل صحيح): {len(not_pivot)}"]
         if suspects:
             top_sus = " · ".join(f"{m['symbol']} +{m['gain_10d']:.0f}%"
@@ -4363,11 +4536,20 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
                        + "، ".join(f"{k} ({v})" for k, v in
                                    sorted(rc.items(), key=lambda x: -x[1])[:3]))
             for m in sorted(moved, key=lambda x: -x["gain_10d"])[:6]:
+                dd = m.get("max_draw_pct")
+                dtxt = (f" · أقصى نزول {abs(dd):.0f}% (ما لمس الوقف)"
+                        if dd is not None else "")
                 out.append(f"   • {m['symbol']}: +{m['gain_10d']:.0f}% — "
-                           f"ارتكاز تحرّك ({m['reason']})")
+                           f"ارتكاز تحرّك ({m['reason']}){dtxt}")
             out.append("   ↳ هذي مرشّحات ارتداد؛ تأكّد قائمة المراقبة تلتقط أقواها.")
         else:
-            out.append("   ✅ لا ارتكاز فعلي فاتنا — كل الفائتة ليست أسهم ارتكاز.")
+            out.append("   ✅ لا ارتكاز حقيقي فاتنا — الفائتة إمّا ليست ارتكازًا "
+                       "أو كانت ستُوقَف قبل قمتها.")
+        if trap:
+            out.append("   ⛔ ربح ورقي (كان بيوقفنا قبل القمة): "
+                       + "، ".join(
+                           f"{m['symbol']} (نزل {abs(m.get('max_draw_pct', 0)):.0f}% أول)"
+                           for m in sorted(trap, key=lambda x: -x["gain_10d"])[:5]))
         return out
 
     def _explosions_block():
@@ -4441,8 +4623,11 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         top = sorted(totals.items(), key=lambda x: -x[1])[:6]
         out = [f"\n🧮 <b>مقام الرفض (مجموع {len(recent)} تشغيل، آخر 7 أيام)</b>",
                "   " + " · ".join(f"{esc(k)}={v}" for k, v in top)]
-        # نسبة الفائتة الواقعية ÷ المقام لكل بوابة (تُظهر البوابة المتشددة فعلًا)
-        clean_missed = [m for m in _MISSED if not m.get("suspect_split")]
+        # نسبة الفائتة الواقعية ÷ المقام لكل بوابة (تُظهر البوابة المتشددة فعلًا).
+        # صرامة: نستبعد من البسط ما كان بيضرب الوقف قبل قمته (ليس ربحًا فاتنا) —
+        # للأمانة لا للإخفاء (يبقى معروضًا ببند «ربح ورقي»).
+        clean_missed = [m for m in _MISSED if not m.get("suspect_split")
+                        and not m.get("would_stop")]
         ratios = []
         for gate, total in top:
             miss = sum(1 for m in clean_missed if str(m["reason"]) == gate)
@@ -4465,6 +4650,16 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     losses = [r for r in rows if not r["_win"]]
     head.append(f"النجاح الكلي: <b>{wr:.0f}%</b> ({len(wins)}✅ / {len(losses)}🛑) "
                 f"· متوسط أقصى ربح {avg:+.0f}%")
+    # أرضية ثقة Wilson: يحوّل «العيّنة صغيرة» من تحذير نصّي إلى رقم صلب
+    head.append(f"   الأرضية الموثوقة للنجاح على {n} صفقة: "
+                f"{_wilson_lower_pct(len(wins), n):.0f}% (لا تنبؤ — حدّ أدنى إحصائي)")
+    # 🎯 توقّع الصفقة بوحدة المخاطرة (R): هل الحافة موجبة أصلًا؟ (مقياس مختلف عن النسبة)
+    _rs = [x for x in (_realized_r(r) for r in rows) if x is not None]
+    if _rs:
+        _er = sum(_rs) / len(_rs)
+        head.append(f"🎯 توقّع الصفقة الواحدة: <b>{_er:+.1f}R</b> — النجاح {wr:.0f}% "
+                    f"والصفقة الواحدة تكسب متوسطًا {_er:.1f} ضعف ما تخاطر به "
+                    "(الهدف المُصاب مقابل الوقف).")
     # A5: حارس العيّنة الصغيرة — يمنع الانجرار خلف نسب على 3-10 صفقات
     if n < 20:
         head.append(f"⚠️ العيّنة صغيرة (N={n}) — النِّسَب أدناه استرشادية؛ "
@@ -4503,6 +4698,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
 
     # (1) تشخيص الأداء بالشرائح
     body = []
+    body += _honest_metrics_block(rows)   # 📏 الوسيط + اعتماد الذيل (صدق الحافة)
     body += seg("حسب القائمة", lambda r: ("A صارمة" if r.get("tier") == "A"
                                           else "B مراقبة") if r.get("tier") else None)
     body += seg("حسب القطاع", lambda r: ar_sector(r.get("sector")) or None)

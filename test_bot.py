@@ -772,9 +772,68 @@ S._MISSED += [
 _mrep = S.build_dev_assistant_report({"stocks": [], "notes": []})
 S._MISSED.clear()
 check("الفائتة تُفصل: المتحرّك (M4_انفجر) عن «ليس ارتكازًا» (M1-M3 + M4_base)",
-      "ارتكاز تحرّك (راجع الارتداد): <b>1</b>" in _mrep
+      "ارتكاز تحرّك حقيقي (راجع الارتداد): <b>1</b>" in _mrep
       and "ليس ارتكازًا (تجاهل صحيح): 3" in _mrep
       and "MOVEDX" in _mrep and "WIDEBS" not in _mrep and "BIGCAP" not in _mrep)
+
+# ── اقتباسات أداتَي التطوير (2026-07-04): قبل/بعد أسبوعي · مقاييس صادقة · Wilson ·
+#    توقّع R · صرامة الفائتة (ربح ورقي). طبقة تقارير فقط على بياناتنا. أقفال جديدة.
+_today_dev = S.dt.date(2026, 7, 10)
+
+
+def _crow(win, cd, mg, **kw):
+    r = {"_win": win, "max_gain_pct": mg}
+    r.update(kw)
+    r["hit_date" if win else "result_date"] = cd
+    return r
+
+
+_cmp_rows = [
+    _crow(True, "2026-07-05", 20), _crow(True, "2026-07-06", 15),
+    _crow(True, "2026-07-07", 10), _crow(False, "2026-07-08", 2),
+    _crow(True, "2026-06-29", 30), _crow(False, "2026-06-30", 3),
+    _crow(False, "2026-07-01", 1),
+]
+_cmp = "\n".join(S._weekly_compare_block(_cmp_rows, today=_today_dev))
+check("قبل/بعد: يبوّب بتاريخ الإغلاق ويعرض فرق النجاح باتجاه",
+      "التطوير مقابل الأسبوع الماضي" in _cmp and "هذا الأسبوع: 4 صفقات" in _cmp
+      and "نجاح 75%" in _cmp and "🔼" in _cmp)
+_cmp_small = "\n".join(S._weekly_compare_block(
+    [_crow(True, "2026-07-05", 20), _crow(False, "2026-06-29", 3)],
+    today=_today_dev))
+check("قبل/بعد: حارس العيّنة الصغيرة (عدّ بلا نسب)",
+      "نكتفي بالعدّ" in _cmp_small and "لمس الوقف" not in _cmp_small)
+
+_hm_rows = [{"_win": True, "max_gain_pct": g, "symbol": s} for g, s in
+            [(40, "NBP"), (26, "NERV"), (5, "A"), (4, "B"), (3, "C"), (2, "D")]]
+_hm = "\n".join(S._honest_metrics_block(_hm_rows))
+check("مقاييس صادقة: الوسيط + اعتماد الذيل (الحافة هشّة يحملها قليل)",
+      "مقاييس صادقة" in _hm and "الوسيط" in _hm
+      and "اعتماد الذيل" in _hm and "NBP" in _hm)
+
+check("Wilson: أرضية ثقة ضمن حدود منطقية (صفر عند 0، أقل من الخام)",
+      abs(S._wilson_lower_pct(0, 5)) < 1.0
+      and 40 < S._wilson_lower_pct(8, 10) < 75
+      and S._wilson_lower_pct(10, 10) > 55)
+
+check("توقّع R: الرابح من الهدف/الوقف موجب · الخاسر −1",
+      abs(S._realized_r({"_win": True, "entry_ref": 2.0, "stop": 1.8,
+                         "hit": "t1", "t1": 2.4}) - 2.0) < 1e-6
+      and S._realized_r({"_win": False, "entry_ref": 2.0, "stop": 1.8}) == -1.0)
+
+S._MISSED.clear()
+S._MISSED += [
+    {"symbol": "REALX", "reason": "M4_انفجر_فعلاً", "gain_10d": 80.0,
+     "price": 4.0, "would_stop": False, "max_draw_pct": -4.0},
+    {"symbol": "TRAPX", "reason": "M4_انفجر_فعلاً", "gain_10d": 90.0,
+     "price": 4.0, "would_stop": True, "max_draw_pct": -11.0},
+]
+_trep = S.build_dev_assistant_report({"stocks": [], "notes": []})
+S._MISSED.clear()
+check("صرامة الفائتة: الموقوف قبل القمة = ربح ورقي لا فرصة حقيقية",
+      "ارتكاز تحرّك حقيقي (راجع الارتداد): <b>1</b>" in _trep
+      and "كان بيضرب وقفنا قبل القمة: 1" in _trep
+      and "ربح ورقي" in _trep and "TRAPX" in _trep)
 
 
 # 📲 تنبيه Cline: لا يرسل تقريرًا قديمًا باسم اليوم إذا فشل إنشاء تقرير اليوم.
