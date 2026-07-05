@@ -5,15 +5,11 @@ on:
   workflow_dispatch:
     inputs:
       symbols:
-        description: "رموز مفصولة بفاصلة (مثال: NGEN,SMX,VEEE). فارغ = كون البوت (القائمة + التنبيهات) فيكفي تحديد الشهر وحده"
-        required: false
-        default: ""
-      market:
-        description: "1 = امسح السوق الكامل (ناسداك) لأسهم الارتكاز وشوف اللي انفجر واللي لا — بلا انحياز اختيار (يُقصر على شهر للجدوى؛ حدّد month أو يأخذ آخر شهر مكتمل). فارغ = عادي"
+        description: "رموز مفصولة بفاصلة (مثال: NGEN,SMX,VEEE). **فارغ = امسح السوق الكامل (ناسداك)** لأسهم الارتكاز وشوف اللي انفجر واللي لا — بلا انحياز اختيار"
         required: false
         default: ""
       month:
-        description: "شهر تقويمي محدّد (اختياري): 1=يناير … 12=ديسمبر — يفحص إشارات ذلك الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ (أو آخر شهر في وضع السوق)"
+        description: "الشهر (اختياري): 1=يناير … 12=ديسمبر. مع «السوق الكامل» (رموز فارغة) يفحص ذلك الشهر؛ فارغ = أحدث شهر نافذته مكتملة تلقائيًا. مع رموز محدّدة = يقصرها على الشهر"
         required: false
         default: ""
       bt_base_range_max:
@@ -56,7 +52,6 @@ jobs:
           SCREENER_MODE: BACKTEST
           BACKTEST_SYMBOLS: ${{ github.event.inputs.symbols }}
           BACKTEST_MONTH: ${{ github.event.inputs.month }}
-          BACKTEST_MARKET: ${{ github.event.inputs.market }}
           # B1: مفاتيح تجربة A/B — تُقرأ في وضع BACKTEST حصريًا (الإنتاج محصّن بقفل اختبار)
           BT_BASE_RANGE_MAX: ${{ github.event.inputs.bt_base_range_max }}
           BT_MIN_DROP_FLOOR: ${{ github.event.inputs.bt_min_drop_floor }}
