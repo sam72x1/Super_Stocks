@@ -936,6 +936,36 @@ check("نافذة الشهر+السنة: تستعمل السنة الصريحة 
 check("سنة كاملة: «1-2-…-12» غير صالح كشهر مفرد (يفعّل وضع السنة)",
       ("1-2-3-4-5-6-7-8-9-10-11-12".isdigit() is False)
       and ("2".isdigit() and 1 <= int("2") <= 12))
+
+# 🔬 التجربة الزوجية للوقف (طلب المستخدم 2026-07-05): ذراعان + العائد المحقّق.
+_bt2 = S.backtest_symbol("BT2", synth_pivot(seed=2))
+check("الباكتيست·تجربة: كل صفقة تحمل ذراعي الوقف + العائد المحقّق + أعمق ذيل",
+      all({"outcome", "outcome_b", "ret_a", "ret_b", "max_draw_pct"} <= set(t)
+          for t in _bt2)
+      and all((t["ret_a"] is None) == (t["outcome"] == "no_fill") for t in _bt2))
+# مقارنة يدوية: سهم أنقذه الإغلاق (A خسارة → B ربح) · سهمان عمّقهما (B أعمق) · رابح · عالق
+_cmp_tr = [
+    {"symbol": "SAVE", "outcome": "loss", "outcome_b": "win", "ret_a": -10.0,
+     "ret_b": 20.0, "exploded": True, "fwd_max_gain": 80.0},
+    {"symbol": "DEEP", "outcome": "loss", "outcome_b": "loss", "ret_a": -10.0,
+     "ret_b": -18.0, "exploded": False, "fwd_max_gain": 5.0},
+    {"symbol": "WINW", "outcome": "win", "outcome_b": "win", "ret_a": 20.0,
+     "ret_b": 20.0, "exploded": False, "fwd_max_gain": 25.0},
+    {"symbol": "OPN", "outcome": "open", "outcome_b": "open", "ret_a": -3.0,
+     "ret_b": -3.0, "exploded": False, "fwd_max_gain": 10.0},
+    {"symbol": "L2", "outcome": "loss", "outcome_b": "loss", "ret_a": -10.0,
+     "ret_b": -12.0, "exploded": False, "fwd_max_gain": 3.0},
+]
+_cmpv = "\n".join(S.backtest_variant_compare(_cmp_tr))
+check("الباكتيست·تجربة: المقارنة تحسب الإنقاذ (وقف→ربح) + التعميق + الفرق الزوجي",
+      "تجربة الوقف الزوجية" in _cmpv
+      and "أنقذها الإغلاق (وقف→ربح): 1" in _cmpv
+      and "عمّقها الإغلاق: 2" in _cmpv and "SAVE" in _cmpv)
+# مراجعة خصومية: مقام موحّد + إفصاح «عالق» + تحذير من تحيّز نسبة النجاح + قيادة
+# المقياس الحاسم (الفرق الزوجي بالعائد المحقّق) — لا نسبة النجاح البنيوية المضلِّلة.
+check("الباكتيست·تجربة: عرض صادق (عالق مُفصَح + تحذير + الفرق الحاسم أولًا)",
+      "عالق" in _cmpv and "لا تُخدع بنسبة نجاح B" in _cmpv
+      and "الفرق الزوجي B−A" in _cmpv)
 # كون الباكتيست الافتراضي (طلب المستخدم: تشغيل بالشهر وحده بلا رموز): يجمع من
 # القائمة + التنبيهات، ترجع قائمة رموز نصّية مرتّبة (لا يرمي عند غياب الملفات).
 _defsyms = S._default_backtest_symbols()
