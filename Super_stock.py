@@ -2046,7 +2046,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # دخول عادي يلتقطه المسار العادي). لو مرتفع → tier="W" مراقبة ارتداد.
         if pullback and not risen:
             return None
-        tier = "W" if pullback else ("A" if not soft_fails else "B")
+        tier = "W" if pullback else "B"    # 🪦 A/B متقاعد → فئة واحدة "B" (مؤهّل) · W للارتداد
 
         return {
             "symbol": sym, "price": price, "score": int(min(score, 100)),
@@ -2972,8 +2972,8 @@ def build_message(results: list, splits: list,
     for r in results:
         # ===== بطاقة مختصرة ومرتّبة (v2.9): كل معلومة مهمّة بسطرها،
         #   والصغيرة (فلوت/شورت/قطاع) تتجمّع بسطر واحد. عرض فقط — لا يمسّ الحساب. =====
-        tier = r.get("tier", "A")
-        badge = "🅰️" if tier == "A" else "🅱️"
+        tier = r.get("tier", "B")
+        badge = "🎯"        # 🪦 A/B متقاعد → شارة موحّدة «ارتكاز مؤهّل»؛ الجاهزية بالوسم التالي
         price = r["price"]
         lines.append("━━━━━━━━━━━━━━━")
         # الرأس: الرمز + حالة الجاهزية (🟢🟡🔴 + الكلمة) + النسبة /100
@@ -3515,26 +3515,30 @@ def apply_float_gate(results: list) -> list:
 
 
 def classify_tier(soft_fails, two_tier=None, maxf=None):
-    """تصنيف السهم حسب عدد بوابات التأكيد الناقصة:
-    0 → 'A' (صارمة) | 1..maxf → 'B' (مراقبة) | أكثر → None (يُرفض).
-    دالة نقية لتسهيل الاختبار (تستخدمها scan_market)."""
+    """قبول/رفض السهم حسب عدد بوابات التأكيد الناقصة: 0..maxf → 'B' (مؤهّل) | أكثر → None
+    (يُرفض). دالة نقية (تستخدمها scan_market).
+    🪦 **تقاعد A/B** (2026-07-05، بالدليل — سنتان باكتيست + الحي): فئة A («صفر نواقص»)
+    **ميتة** (0 سهم بلغها) و**ضجيج** (نسبة النجاح موزّعة بالتساوي على شرائح النواقص،
+    والاتجاه ينقلب بين السنتين). فألغينا التمييز النوعي A/B: القبول **فئة واحدة "B"
+    (مؤهّل)**، والترتيب بالجاهزية. **بوابة الرفض (n>maxf) محفوظة حرفيًا** (لا تمسّ العضوية)."""
     two_tier = CONFIG.get("WATCHLIST_TWO_TIER", True) if two_tier is None else two_tier
     maxf = CONFIG.get("WATCH_MAX_FAILS", 3) if maxf is None else maxf
     n = len(soft_fails or [])
-    if n == 0:
-        return "A"
-    if two_tier and n <= maxf:
+    # n==0 يبقى مقبولًا حتى مع two_tier=False (وضع الفئة الواحدة الصارمة) — نفس مجموعة
+    # القبول السابقة تمامًا (كانت 0→A · 1..maxf→B)، لكن بمسمّى موحّد = ثبات العضوية.
+    if n == 0 or (two_tier and n <= maxf):
         return "B"
     return None
 
 
 def rank_key(x):
     """مفتاح ترتيب القائمة التأسيسية (موحّد مع التقرير اليومي والرقم المعروض):
-    A قبل B → الأعلى جاهزيةً → الأقوى تأكيدًا على 4س (دمج فيصل #3) →
-    الأعلى نقاطًا → الأعلى عائدًا/مخاطرة. (الترتيب فقط — لا يمسّ الاختيار.)"""
+    **الأعلى جاهزيةً** → الأقوى تأكيدًا على 4س (دمج فيصل #3) → الأعلى نقاطًا → الأعلى
+    عائدًا/مخاطرة. (الترتيب فقط — لا يمسّ الاختيار.)
+    🪦 أُزيل مفتاح «A قبل B» بعد تقاعد A/B (كان ثابتًا=B للجميع فبلا أثر؛ إزالته تُبقي
+    الترتيب/العضوية مطابقَين حرفيًا، والجاهزية هي المحور)."""
     rdy = x.get("readiness")
-    return (0 if x.get("tier") == "A" else 1,
-            -(rdy if rdy is not None else -1),
+    return (-(rdy if rdy is not None else -1),
             -x.get("h4_confirm", 0),
             -x.get("score", 0), -x.get("rr", 0))
 
@@ -4066,9 +4070,9 @@ def check_promotions(wl: dict, history: dict) -> list:
             tag = "تخفيف: كسر الدعم"
             if broke and tag not in combined:
                 combined.append(tag)
-        was = s.get("tier", "A")
-        s["soft_fails"] = combined
-        s["tier"] = "A" if not combined else "B"
+        was = s.get("tier", "B")
+        s["soft_fails"] = combined            # نحفظ النواقص (تُعرض) — تأثير خبر التخفيف باقٍ
+        s["tier"] = "W" if was == "W" else "B"  # 🪦 A متقاعد → يبقى "B" (لا إحياء لـA)
         s["liberation"] = fresh.get("liberation")
         s["tf_count"] = fresh.get("tf_count")
         s["tf_display"] = fresh.get("tf_display")
@@ -4118,9 +4122,8 @@ def readiness_badge(p, tier="A"):
     if p is None:
         return "⚠️ لا بيانات"
     if p >= CONFIG["READY_PCT"]:
-        # "جاهز" للقائمة A فقط (النموذج مكتمل). B = "قرب الدخول" (السعر بالنطاق)
-        label = "جاهز" if tier == "A" else "قرب الدخول"
-        return f"<b>{p}%</b> 🟢 {label}"
+        # 🪦 A/B متقاعد: الجاهزية هي المحور — تجاوز عتبة الجاهزية = «جاهز» للجميع.
+        return f"<b>{p}%</b> 🟢 جاهز"
     if p >= CONFIG["NEAR_PCT"]:
         return f"<b>{p}%</b> 🟡 يقترب"
     return f"<b>{p}%</b> 🔴 إعداد فني ضعيف"
@@ -4212,8 +4215,8 @@ def build_daily_message(wl: dict, splits: list,
         lines.append("القائمة فارغة مؤقتاً — البدائل تُجلب في التشغيل القادم.")
     for i, s in enumerate(wl["stocks"], 1):
         lp = s["last_price"]
-        tier = s.get("tier", "A")
-        tb = "🅰️" if tier == "A" else "🅱️"
+        tier = s.get("tier", "B")
+        tb = "🎯"          # 🪦 A/B متقاعد → شارة موحّدة؛ الجاهزية بالوسم التالي
         promo = " 🚀" if s.get("promoted_date") == today else ""
         # الرأس: الرمز + حالة الجاهزية + النسبة + القوة العامة (سطر واحد)
         rdy = s.get("readiness")
