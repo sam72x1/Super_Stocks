@@ -5,6 +5,15 @@
 > (`CLAUDE.md` + `MARKET_BACKTEST_FINDINGS.md` §0) — ما يلي هو **المعتمد فقط**، مع تكييفات ملزِمة.
 > **الجوهر:** لا إعادة بناء. طبقة **تفسير/عرض** فوق النتائج الحالية: ماذا يعني كل رقم؟ هل الهدف
 > مفعّل؟ ما الرقم الحرج؟ دخول الآن أم انتظار؟ حالة 4س؟ درجة الخطر؟
+>
+> ## ✅ حالة التنفيذ
+> **المرحلة 1 نُفِّذت ودُمجت (2026-07-05):** `build_interpretation(r)` + `interp_card_lines` — setup_type ·
+> critical_number · activation_state (وسم على الأهداف الحالية) · entry_mode (وصفي) · four_hour_context ·
+> risk_profile · level_roles · targets_src. مربوطة: scan_market + make_watch_entry (تخزين) + build_message +
+> build_daily_message + analyze_one (تطابق الفحص اليدوي). عرض/تفسير فقط · لا LOGIC_VERSION · **287 اختبار**
+> (تشمل: الرقم الحرج · الأهداف المعلّقة خلف الحاجز · sweep وصفي · بطاقة الخطر · فاشل-آمن · قفل «لا يدخل rank_key»).
+> **المرحلة 2 (متبقّية، تحتاج مواصفة + مراجعة خصومية):** خط الترند الهابط (§10) · cycle_context (§11) ·
+> session_context دنيا (§12) · توسعة وسوم 🧬 (§13) · تحويل «الأهداف المعلّقة» لوسم على سطور الأهداف بالكرت.
 
 ---
 

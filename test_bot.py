@@ -1130,6 +1130,55 @@ _bflat = ([_bt(70, "win", False)] * 8 + [_bt(70, "loss", True)] * 2
 _bflat_r = "\n".join(S.backtest_behav_correlation(_bflat))
 check("البصمة·تحقّق: لا ارتباط ⇒ يوصي «تبقى عرضًا فقط» (لا وزن)",
       "تبقى عرضًا فقط" in _bflat_r)
+
+# 🧭 طبقة التفسير والقرار (INTERPRETATION_LAYER_PLAN.md — عرض/تفسير فقط).
+_ir = {"symbol": "TST", "price": 1.85, "pivot": 1.80, "tier": "B",
+       "score": 60, "rr": 2.4, "entry": (1.80, 1.91),
+       "tranches": [1.80, 1.85, 1.91], "stop": (1.67, 1.71),
+       "t1": 2.10, "t2": 2.45, "t3": 2.90,
+       "key_levels": {"sup_major": 1.80, "sup_minor": 1.83, "res_minor": 2.05,
+                      "res_major": 2.45},
+       "h4_levels": {"resistances": [2.05, 2.4], "supports": [1.78], "flip": 1.82,
+                     "sweep_low": 1.66},
+       "behav": {"sweeps": 2}, "warnings": ["⚠️ خبر تخفيف محتمل"]}
+_ip = S.build_interpretation(_ir)
+check("التفسير: يُنتج الحقول الأساسية (نوع/رقم حرج/تفعيل/دخول/خطر/أدوار)",
+      all(k in _ip for k in ("setup_type", "critical_number", "activation_state",
+          "entry_mode", "risk_profile", "level_roles")))
+check("التفسير: الرقم الحرج = أقرب مقاومة فوق السعر (2.05)",
+      _ip["critical_number"]["price"] == 2.05)
+check("التفسير: هدف فوق الرقم الحرج = معلّق (blocked_by) لا مفعّل",
+      2.10 in _ip["activation_state"]["inactive_targets"]
+      and _ip["activation_state"]["blocked_by"] == 2.05)
+check("التفسير: مسح+استعادة ⇒ setup=liquidity_sweep · entry=sweep_confirmed (وصفي)",
+      _ip["setup_type"] == "liquidity_sweep"
+      and _ip["entry_mode"]["mode"] == "sweep_confirmed")
+check("التفسير: بطاقة الخطر تلتقط خبر التخفيف (بلا تجريم فلوت/رسملة)",
+      "خبر تخفيف/طرح" in _ip["risk_profile"]["flags"])
+# كسر الوقف → activation=high_risk + لا دخول
+_ir2 = dict(_ir, price=1.60)
+check("التفسير: كسر الوقف ⇒ activation=high_risk + entry=no_entry_far",
+      S.build_interpretation(_ir2)["activation_state"]["setup"] == "high_risk"
+      and S.build_interpretation(_ir2)["entry_mode"]["mode"] == "no_entry_far")
+# فاشل-آمن: مدخل ناقص → {} بلا انهيار
+check("التفسير·فاشل-آمن: مدخل بلا سعر/pivot → {} (لا انهيار)",
+      S.build_interpretation({"symbol": "X"}) == {})
+# أسطر الكرت ≤3 + بلا علامات مقارنة + العلامات المطلوبة
+_icl = S.interp_card_lines(_ip)
+check("التفسير·الكرت: ≤3 أسطر + «🧭 الإعداد» + «🎯 الرقم الحرج» + بلا علامات مقارنة",
+      len(_icl) <= 3 and any("🧭 الإعداد" in x for x in _icl)
+      and any("🎯 الرقم الحرج" in x for x in _icl)
+      and not any(c in "".join(_icl) for c in "≥≤<>"))
+# 🔒 قفل: التفسير لا يدخل rank_key (عرض فقط — لا يمسّ العضوية)
+import inspect as _insp2
+check("التفسير·قفل: build_interpretation/interp غير مذكور في rank_key (عرض فقط)",
+      "interp" not in _insp2.getsource(S.rank_key))
+# العرض: البطاقة تُظهر سطر التفسير
+_ir["readiness"] = 60
+_ir["interp"] = _ip
+_card_i = S.build_message([_ir], [])
+check("التفسير·عرض: البطاقة تُظهر «🧭 الإعداد» + «🎯 الرقم الحرج»",
+      "🧭 الإعداد" in _card_i and "🎯 الرقم الحرج" in _card_i)
 # كون الباكتيست الافتراضي (طلب المستخدم: تشغيل بالشهر وحده بلا رموز): يجمع من
 # القائمة + التنبيهات، ترجع قائمة رموز نصّية مرتّبة (لا يرمي عند غياب الملفات).
 _defsyms = S._default_backtest_symbols()
