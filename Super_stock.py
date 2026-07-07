@@ -2945,6 +2945,184 @@ def timeframes_info(tf_count, tf_display=None):
             else "🕯️ الفريمات 2/3 ✓ (باقي فريم للكمال)")
 
 
+_SETUP_AR = {"pivot_reversal": "ارتكاز انعكاسي", "liquidity_sweep": "مسح سيولة",
+             "support_reclaim": "استعادة دعم", "h4_reclaim": "استعادة 4س",
+             "extended_risk": "ممتد/بعيد عن الدعم", "unclassified": "غير مصنّف"}
+_ENTRY_AR = {"near_support": "قرب الدعم", "sweep_confirmed": "بعد مسح مؤكَّد",
+             "reclaim_wait": "انتظار استعادة الدعم", "no_entry_far": "لا دخول (بعيد)"}
+
+
+def build_interpretation(r: dict) -> dict:
+    """🧭 طبقة التفسير والقرار (خطة INTERPRETATION_LAYER_PLAN.md، 2026-07-05 — **عرض/تفسير
+    فقط**: لا تمسّ الفرز/الدخول/الوقف/الأهداف/العضوية · لا LOGIC_VERSION). تقرأ حقول r
+    المحسوبة أصلًا (key_levels/h4_levels/t1..t3/tranches/pivot/warnings/behav/sec/split)
+    وتُنتج تفسيرًا: setup_type · critical_number (الرقم الحرج، فيصل NAMM) · activation_state
+    (**وسم** على الأهداف الحالية لا يعيد حسابها) · entry_mode (وصفي) · four_hour_context ·
+    risk_profile (تجميع، بلا تجريم الفلوت/الرسملة) · level_roles · targets_src. فاشل-آمن:
+    أي جزء ينكسر يُهمَل بلا إسقاط البقية. حيّ فقط (لا يُستدعى بالباكتيست)."""
+    out = {}
+    try:
+        price = float(r.get("price") or 0)
+        pivot = float(r.get("pivot") or 0)
+        if price <= 0 or pivot <= 0:
+            return out
+        trs = [float(x) for x in (r.get("tranches") or []) if x]
+        kl = r.get("key_levels") or {}
+        h4l = r.get("h4_levels") or {}
+        behav = r.get("behav") or {}
+        _st = r.get("stop")
+        stop0 = (float(_st[0]) if isinstance(_st, (list, tuple)) and _st
+                 else (float(_st) if isinstance(_st, (int, float)) else None))
+        res_minor, res_major = kl.get("res_minor"), kl.get("res_major")
+        sup_major = kl.get("sup_major") or round(pivot, 2)
+        sup_minor = kl.get("sup_minor")
+        targets = [float(t) for t in (r.get("t1"), r.get("t2"), r.get("t3")) if t]
+        top_tr = max(trs) if trs else price
+
+        # ---- setup_type
+        if price < pivot * 0.995:
+            setup = "support_reclaim"
+        elif price > top_tr * 1.05:
+            setup = "extended_risk"
+        elif behav.get("sweeps", 0) >= 1 and h4l.get("sweep_low"):
+            setup = "liquidity_sweep"
+        elif h4l.get("flip") and abs(h4l["flip"] / price - 1.0) <= 0.05:
+            setup = "h4_reclaim"
+        else:
+            setup = "pivot_reversal"
+        out["setup_type"] = setup
+
+        # ---- الرقم الحرج (رقم حسم واحد)
+        crit = None
+        if price < pivot * 0.995:
+            crit = {"price": round(float(sup_major), 2), "type": "reclaim_level",
+                    "why": "استعادته تعيد فكرة الارتكاز"}
+        else:
+            barrier = next((float(b) for b in (
+                res_minor, res_major, (h4l.get("resistances") or [None])[0])
+                if b and float(b) > price * 1.01), None)
+            if barrier is None:
+                up = [t for t in targets if t > price * 1.01]
+                barrier = min(up) if up else None
+            if barrier:
+                crit = {"price": round(barrier, 2), "type": "breakout_activation",
+                        "why": "تجاوزه يفعّل الهدف التالي"}
+        out["critical_number"] = crit
+
+        # ---- activation_state (وسم على الأهداف الحالية فقط — لا يعيد حسابها)
+        gate = crit["price"] if crit and crit["type"] == "breakout_activation" else None
+        active = [t for t in targets if not (gate and t > gate * 1.02)]
+        pending = [t for t in targets if gate and t > gate * 1.02]
+        if stop0 and price <= stop0:
+            a_state = "high_risk"
+        elif setup == "support_reclaim":
+            a_state = "waiting_reclaim"
+        else:
+            a_state = "active"
+        out["activation_state"] = {"setup": a_state, "active_targets": active,
+                                   "inactive_targets": pending,
+                                   "blocked_by": (gate if pending else None)}
+
+        # ---- entry_mode (وصفي — sweep وصفًا لا شرطًا)
+        lo_z = round(min(trs), 2) if trs else round(pivot, 2)
+        hi_z = round(max(trs), 2) if trs else round(price, 2)
+        if stop0 and price <= stop0:
+            mode, ereason = "no_entry_far", "كسر الوقف — الفكرة ملغاة/خطرة"
+        elif price < pivot * 0.995:
+            mode, ereason = "reclaim_wait", "تحت الدعم — ننتظر استعادته"
+        elif price > hi_z * 1.05:
+            mode, ereason = "no_entry_far", "بعيد فوق منطقة الدفعات"
+        elif setup == "liquidity_sweep":
+            mode, ereason = "sweep_confirmed", "مسح تحت الدعم ثم استعادة"
+        else:
+            mode, ereason = "near_support", "داخل/قرب منطقة الدفعات"
+        out["entry_mode"] = {"mode": mode, "entry_zone": [lo_z, hi_z],
+                             "stop": (round(stop0, 2) if stop0 else None),
+                             "reason": ereason}
+
+        # ---- four_hour_context (من h4_levels — بلا وقف تكتيكي)
+        if h4l:
+            red_head = (h4l.get("resistances") or [None])[0]
+            flip = h4l.get("flip")
+            if red_head and red_head > price:
+                h4state = "blocked_by_red_head"
+            elif flip and flip <= price * 1.01:
+                h4state = "support_flipped"
+            elif h4l.get("sweep_low"):
+                h4state = "confirming"
+            else:
+                h4state = "weak"
+            out["four_hour_context"] = {
+                "state": h4state, "red_candle_head": red_head, "flip": flip,
+                "sweep_low": h4l.get("sweep_low")}
+
+        # ---- risk_profile (تجميع التحذيرات الموجودة — بلا تجريم الفلوت/الرسملة)
+        flags = []
+        wtext = " ".join(str(w) for w in (r.get("warnings") or []))
+        if "تخفيف" in wtext or "طرح" in wtext:
+            flags.append("خبر تخفيف/طرح")
+        if r.get("recent_split"):
+            flags.append("تقسيم حديث")
+        if r.get("sec_filings"):
+            flags.append("ملفات SEC")
+        if "الصين" in wtext or "هونغ" in wtext:
+            flags.append("صيني/هونغ كونغ")
+        if "مشنوق" in wtext:
+            flags.append("شمعة انعكاس (المشنوق)")
+        if price > sup_major * 1.15:
+            flags.append("بعيد عن الدعم")
+        out["risk_profile"] = {
+            "risk_level": ("منخفض", "متوسط", "مرتفع", "شديد")[min(len(flags), 3)],
+            "flags": flags}
+
+        # ---- level_roles (بنية داخلية/تقرير — لا الكرت المختصر)
+        roles = [{"price": round(float(sup_major), 2), "role": "support",
+                  "note": "دعم أساسي (الأرضية)"}]
+        if sup_minor:
+            roles.append({"price": sup_minor, "role": "support", "note": "دعم فرعي"})
+        if stop0:
+            roles.append({"price": round(stop0, 2), "role": "stop_source",
+                          "note": "الوقف"})
+        if res_minor:
+            roles.append({"price": res_minor, "role": "resistance",
+                          "note": "مقاومة فرعية"})
+        if res_major and res_major != res_minor:
+            roles.append({"price": res_major, "role": "resistance",
+                          "note": "مقاومة أساسية"})
+        for i, t in enumerate(targets, 1):
+            roles.append({"price": t, "role": "target",
+                          "state": ("active" if t in active else "pending"),
+                          "note": f"الهدف {i}"})
+        if crit:
+            roles.append({"price": crit["price"], "role": "critical_number",
+                          "note": crit["why"]})
+        out["level_roles"] = roles
+    except Exception:
+        pass
+    return out
+
+
+def interp_card_lines(interp: dict) -> list:
+    """أسطر التفسير المدمجة بالكرت (≤3، عربي مبسّط بلا علامات مقارنة). عرض فقط."""
+    if not interp:
+        return []
+    lines = []
+    st = interp.get("setup_type")
+    em = interp.get("entry_mode") or {}
+    if st:
+        seg = f"🧭 الإعداد: {_SETUP_AR.get(st, st)}"
+        if em.get("mode"):
+            seg += f" · الدخول: {_ENTRY_AR.get(em['mode'], em['mode'])}"
+        lines.append(seg)
+    cr = interp.get("critical_number")
+    if cr and cr.get("price"):
+        lines.append(f"🎯 الرقم الحرج: ${cr['price']:.2f} ({cr.get('why', '')})")
+    rp = interp.get("risk_profile") or {}
+    if rp.get("flags") and rp.get("risk_level") != "منخفض":
+        lines.append(f"⚠️ الخطر: {rp['risk_level']} ({' · '.join(rp['flags'][:3])})")
+    return lines
+
+
 def build_message(results: list, splits: list,
                   title="🎯 <b>فارز أسهم الارتكاز</b>", subnote=None) -> str:
     """بطاقات الترشيح الكاملة (تُستخدم يوم تجديد القائمة)"""
@@ -3017,6 +3195,7 @@ def build_message(results: list, splits: list,
         if r.get("country"):
             small.append(country_label(r["country"]))
         lines.append("💰 " + " · ".join(small))
+        lines += interp_card_lines(r.get("interp"))   # 🧭 التفسير/القرار (عرض فقط)
         # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
         rot = r.get("rotation_pct")
         if rot and rot >= 100:
@@ -3381,6 +3560,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "key_levels": r.get("key_levels"),                # دعوم/مقاومات أساسي/فرعي
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
+        "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "tf_count": r.get("tf_count"),                    # عدد الفريمات المتوافقة (0-3)
         "tf_display": r.get("tf_display"),                # تفصيل الفريمات (شهري/أسبوعي/يومي)
         "liberation": r.get("liberation"),               # بوابة التحرر
@@ -3770,6 +3950,7 @@ def scan_market():
         r = analyze_ticker(sym, df)
         if r:
             r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
+            r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
             results.append(r)
     # تشخيص: أين تُرفض الأسهم؟ (يظهر بسجل الأكشن لمعرفة البوابة الخانقة)
     if _REJECT_STATS:
@@ -4242,6 +4423,8 @@ def build_daily_message(wl: dict, splits: list,
         if s.get("country"):
             small.append(country_label(s["country"]))
         lines.append("   💰 " + " · ".join(small))
+        for _il in interp_card_lines(s.get("interp")):   # 🧭 التفسير/القرار (عرض فقط)
+            lines.append("   " + _il)
         # 🧬 طريقة ارتفاع اليد (سلوك المضارب — عرض فقط، لا يمسّ الفرز/الاختيار)
         _bh = s.get("behav") or {}
         if _bh.get("score") is not None:

@@ -533,6 +533,7 @@ def render_ondemand(result: dict, gates: list, official, reject_reason=None,
     head.append("")
     head.append("— — — البطاقة الكاملة — — —")
 
+    result["interp"] = bot.build_interpretation(result)   # 🧭 التفسير/القرار (مطابقة الفرز)
     card = bot.build_message([result], [], title="📊 <b>التفاصيل الفنية</b>")
     return "\n".join(head) + "\n" + card
 
