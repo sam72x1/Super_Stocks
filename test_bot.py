@@ -148,15 +148,20 @@ if r0:
           r0["pivot"] * 0.90 <= r0["stop"][0] <= r0["pivot"] * 0.95 + 1e-6,
           f"stop={r0['stop'][0]:.2f} pivot={r0['pivot']:.2f}")
 
-# تصنيف القائمتين (دالة نقية) — 0=A · 1-2=B · أكثر=None
-check("0 نواقص → A", S.classify_tier([]) == "A")
+# 🪦 تقاعد A/B (2026-07-05): القبول فئة واحدة "B" (مؤهّل) · أكثر من الحد=None (يُرفض).
+# الرفض (n>maxf) محفوظ حرفيًا؛ A لم تعد تُسنَد أبدًا (كانت ضجيجًا — سنتان دليل).
+check("0 نواقص → B (A متقاعد، القبول موحّد)", S.classify_tier([]) == "B")
 check("نقص واحد → B", S.classify_tier(["MACD"]) == "B")
 check("نقصان → B", S.classify_tier(["MACD", "RSI"]) == "B")
 check("3 نواقص → B (الحد 3)", S.classify_tier(["MACD", "RSI", "فلوت"]) == "B")
 check("4 نواقص → يُرفض None",
       S.classify_tier(["MACD", "RSI", "فلوت", "MA"]) is None)
-check("التصنيف الصارم (بلا قائمتين)",
-      S.classify_tier(["MACD"], two_tier=False) is None)
+check("التصنيف الصارم (بلا قائمتين): 0 نواقص يُقبل «B» · نقص واحد يُرفض",
+      S.classify_tier([], two_tier=False) == "B"
+      and S.classify_tier(["MACD"], two_tier=False) is None)
+# 🔒 قفل: A متقاعد — classify_tier لا تعيد "A" أبدًا لأي عدد نواقص (0..10)
+check("قفل تقاعد A: classify_tier لا تُنتج «A» إطلاقًا",
+      all(S.classify_tier(["x"] * n) != "A" for n in range(0, 11)))
 
 
 # ==========================================================
@@ -481,20 +486,21 @@ except Exception as e:
 
 
 # ==========================================================
-# 5ب) ترقية B→A + التنبيه (الإنذار المبكر)
+# 5ب) 🪦 تقاعد الترقية B→A (A متقاعدة — ثبت أنها ضجيج)
 # ==========================================================
-print("\n=== 5ب) ترقية B→A ===")
+print("\n=== 5ب) تقاعد الترقية B→A ===")
 _orig = S.analyze_ticker
-# حالة: سهم B اكتمل نموذجه (0 نواقص) → يُرقّى A
+# حالة: سهم B «اكتمل نموذجه» (0 نواقص عند إعادة التحليل) → يبقى B (لا إحياء لـA)
 wlp = {"stocks": [{"symbol": "PROM", "status": "active", "tier": "B",
                    "soft_fails": ["MACD"], "pivot": 3.0,
                    "stop": 2.7, "last_price": 3.5, "liberation": 5.0}],
        "notes": []}
 S.analyze_ticker = lambda sym, d: {"soft_fails": [], "liberation": 5.0}
 prom = S.check_promotions(wlp, {"PROM": synth_pivot(seed=9)})
-check("الترقية B→A تعمل",
-      len(prom) == 1 and wlp["stocks"][0]["tier"] == "A")
-check("تاريخ الترقية مسجّل", bool(wlp["stocks"][0].get("promoted_date")))
+check("🪦 تقاعد A: صفر نواقص عند إعادة التحليل يبقى «B» (لا ترقية لـA)",
+      len(prom) == 0 and wlp["stocks"][0]["tier"] == "B")
+check("🪦 تقاعد A: لا تاريخ ترقية (الترقية B→A متقاعدة)",
+      not wlp["stocks"][0].get("promoted_date"))
 # حالة: ما زال ناقصًا → لا ترقية + يحتفظ بنقص الشورت
 wls = {"stocks": [{"symbol": "STILL", "status": "active", "tier": "B",
                    "soft_fails": ["MACD", "شورت عالٍ"], "pivot": 3.0,
@@ -1186,7 +1192,7 @@ _syms = {a["symbol"] for a in _ad["alerts"]}
 check("تقليم التنبيهات: يبقي المفتوحة+الحديثة ويحذف القديمة المغلقة",
       _syms == {"OPN", "REC"})
 
-# الرسالة اليومية تعرض بانر الترقية
+# 🪦 الرسالة اليومية: لا بانر ترقية (الترقية B→A متقاعدة، prom فارغ) + تعرض الشارة الموحّدة
 try:
     wlp["stocks"][0]["readiness"] = 80
     wlp["stocks"][0]["have"] = []; wlp["stocks"][0]["partial"] = []
@@ -1194,9 +1200,11 @@ try:
     wlp["stocks"][0]["t2"] = 4.5; wlp["stocks"][0]["t3"] = 5.0
     wlp["stocks"][0]["hit"] = None
     dmp = S.build_daily_message(wlp, [], [], [], prom)
-    check("بانر الترقية يظهر بالرسالة", "ترقيات اليوم" in dmp and "🚀" in dmp)
+    check("🪦 تقاعد الترقية: لا بانر «ترقيات اليوم» + الشارة الموحّدة 🎯 لا 🅰️/🅱️",
+          "ترقيات اليوم" not in dmp and "🎯" in dmp
+          and "🅰️" not in dmp and "🅱️" not in dmp)
 except Exception as e:
-    check("بانر الترقية يظهر بالرسالة", False, str(e))
+    check("🪦 تقاعد الترقية: لا بانر ترقية", False, str(e))
 
 
 # ==========================================================
@@ -1343,9 +1351,19 @@ _lo_rdy = {"tier": "B", "readiness": 50, "score": 70, "rr": 1.3}   # مثل NAGE
 _ordered = sorted([_lo_rdy, _hi_rdy], key=S.rank_key)
 check("الترتيب بالجاهزية: الأعلى جاهزيةً أولاً (لا تناقض)",
       _ordered[0] is _hi_rdy)
-_a = {"tier": "A", "readiness": 40, "score": 50, "rr": 0.5}
-check("القائمة A تسبق B دائمًا مهما كانت الجاهزية",
-      sorted([_hi_rdy, _a], key=S.rank_key)[0] is _a)
+# 🪦 تقاعد A/B: rank_key لم يعد يقدّم «A» — الترتيب بالجاهزية فقط.
+_fake_a = {"tier": "A", "readiness": 40, "score": 50, "rr": 0.5}
+check("🪦 تقاعد A: «A» وهمي بجاهزية أدنى لا يتصدّر (الترتيب بالجاهزية لا التصنيف)",
+      sorted([_hi_rdy, _fake_a], key=S.rank_key)[0] is _hi_rdy)
+# 🔒 قفل ثبات العضوية (توصية المراجعة): ترتيب rank_key ثابت تجاه قيمة tier —
+# فتغيّر/إلغاء A/B لا يغيّر مجموعة select_top إطلاقًا (لا خنق ارتكاز، درس C3).
+_inv = [{"symbol": "S1", "tier": "B", "readiness": 70, "score": 50, "rr": 1.0},
+        {"symbol": "S2", "tier": "B", "readiness": 55, "score": 90, "rr": 2.0},
+        {"symbol": "S3", "tier": "B", "readiness": 60, "score": 60, "rr": 1.5}]
+_ord_b = [x["symbol"] for x in sorted(_inv, key=S.rank_key)]
+_inv2 = [dict(x, tier=("A" if x["symbol"] == "S2" else "B")) for x in _inv]
+check("🔒 قفل: ترتيب rank_key ثابت تجاه tier (العضوية لا تتأثر بـA/B)",
+      [x["symbol"] for x in sorted(_inv2, key=S.rank_key)] == _ord_b)
 
 # (ح) الثابت الجوهري: «جاهز» (البوليان) = (النسبة ≥ READY_PCT) دائمًا — مصدر
 #     واحد للحقيقة. يستحيل سهم «🟢 جاهز» ونسبته أقل من «🟡 يقترب». مقفول للأبد.
@@ -1470,7 +1488,8 @@ _wlr = {"stocks": [{"symbol": "DIL", "status": "active", "tier": "B",
                     "stop": 2.7, "news_risk": True, "last_price": 3.4}],
         "notes": []}
 S.check_promotions(_wlr, {"DIL": _rec})
-check("تخفيف استقر فوق الدعم → يرجع A", _wlr["stocks"][0]["tier"] == "A")
+check("🪦 تقاعد A: تخفيف استقر فوق الدعم → يبقى «B» (لا رجوع لـA)",
+      _wlr["stocks"][0]["tier"] == "B")
 S.analyze_ticker = _save_at
 
 # (ك) قائمة مراقبة الارتداد: ارتكاز حقيقي ارتفع فوق دخوله
