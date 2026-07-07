@@ -1179,6 +1179,86 @@ _ir["interp"] = _ip
 _card_i = S.build_message([_ir], [])
 check("التفسير·عرض: البطاقة تُظهر «🧭 الإعداد» + «🎯 الرقم الحرج»",
       "🧭 الإعداد" in _card_i and "🎯 الرقم الحرج" in _card_i)
+
+# ===== 🧭 المرحلة 2أ (خطة التفسير §11-§13 + وسم الأهداف المعلّقة + إصلاح الربط) =====
+# §13: وسوم 🧬 الوصفية — عند توفّر الدليل حصريًا، عرض فقط
+check("🧬وسوم§13: مسح مرّتين فأكثر ⇒ «صيد وقفات متكرّر»",
+      "صيد وقفات متكرّر" in S.behavior_tags({"sweeps": 2, "n_pumps": 0}))
+check("🧬وسوم§13: رفعة قديمة + خمول 120ج فأكثر ⇒ «رفعة قديمة وخمول طويل» (BJDX)",
+      "رفعة قديمة وخمول طويل" in S.behavior_tags(
+          {"sweeps": 0, "n_pumps": 1, "recency_bars": 200}))
+check("🧬وسوم§13: بلا دليل ⇒ لا وسوم (وبلا انهيار على None/{})",
+      S.behavior_tags({"sweeps": 1, "n_pumps": 1, "recency_bars": 10}) == []
+      and S.behavior_tags(None) == [] and S.behavior_tags({}) == [])
+check("🧬وسوم§13·قفل: لا مساس بدرجة/مكوّنات البصمة المقفولة",
+      "behavior_tags" not in _insp2.getsource(S.behavior_rise_profile))
+# عرض الوسوم بسطر 🧬 في الكرت
+_ir6 = dict(_ir)
+_ir6["behav"] = {"score": 55, "label": "يد فعّالة (تعيد الرفع)", "n_pumps": 2,
+                 "best_pump": 150.0, "recency_bars": 200, "repumps": 1, "sweeps": 3}
+_ir6["interp"] = S.build_interpretation(_ir6)
+_card6 = S.build_message([_ir6], [])
+check("🧬وسوم§13·عرض: سطر 🧬 بالكرت يحمل «صيد وقفات» و«خمول طويل»",
+      "صيد وقفات متكرّر" in _card6 and "رفعة قديمة وخمول طويل" in _card6)
+
+# §11: cycle_context — عرض/تخزين فقط، لا يدخل أي ترتيب
+_ir3 = dict(_ir, behav={"sweeps": 2, "recency_bars": 40}, bars_after=6)
+_ip3 = S.build_interpretation(_ir3)
+check("الدورة§11: recency 40 ⇒ «داخل النافذة الشائعة (30-50)» + جلسات القاع تُنقل",
+      "30-50" in _ip3["cycle_context"]["window_state"]
+      and _ip3["cycle_context"]["days_since_major_low"] == 6
+      and _ip3["cycle_context"]["days_since_last_impulse"] == 40)
+check("الدورة§11·قفل: cycle غير مذكور في rank_key (لا يدخل الترتيب)",
+      "cycle" not in _insp2.getsource(S.rank_key))
+check("الدورة§11: analyze_ticker يخزّن bars_after (جلسات منذ القاع)",
+      "bars_after" in r0)
+
+# §12: session_context دنيا صادقة — snapshot يُنقل + سبب صريح لغياب pre/after
+_ir4 = dict(_ir, session_ctx={"open": 1.8, "prev_close": 1.75, "volume": 1e6,
+                              "market_cap": 5e7, "pre_after": None,
+                              "unavailable_reason": ("بيانات ما قبل/بعد السوق "
+                                                     "غير متاحة بمسار البوت")})
+_ip4 = S.build_interpretation(_ir4)
+check("الجلسة§12: session_ctx يُنقل للتفسير + سبب غياب pre/after صريح (لا تخمين)",
+      _ip4["session_context"]["prev_close"] == 1.75
+      and "غير متاحة" in _ip4["session_context"]["unavailable_reason"])
+check("الجلسة§12: بلا session_ctx ⇒ الحقل غائب (صدق، لا فبركة)",
+      "session_context" not in _ip)
+
+# تجديد يومي: سجل مخزّن بلا price (له last_price) ⇒ تفسير كامل لا {}
+_ir5 = {k: v for k, v in _ir.items() if k != "price"}
+_ir5["last_price"] = 1.85
+check("التفسير·تجديد يومي: last_price بديل price ⇒ الرقم الحرج يُحسب (2.05)",
+      S.build_interpretation(_ir5).get("critical_number", {}).get("price") == 2.05)
+
+# وسم «معلّق» على أسطر الأهداف (عرض فقط — السعر نفسه يبقى كما هو)
+check("الأهداف·كرت: هدف خلف الحاجز يحمل «(معلّق حتى $2.05)» وسعره باقٍ",
+      "معلّق حتى $2.05" in _card_i and "$2.10" in _card_i)
+_wl_p = {"week_start": "2024-01-01", "removed": [], "notes": [],
+         "stocks": [{"symbol": "TST", "added": "2024-01-02", "entry_ref": 1.85,
+                     "entry": [1.80, 1.91], "tranches": [1.80, 1.85, 1.91],
+                     "pivot": 1.80, "stop": 1.67, "stop_hi": 1.71,
+                     "t1": 2.10, "t2": 2.45, "t3": 2.90, "score": 60,
+                     "flags": [], "rr": 2.4, "tier": "B", "soft_fails": [],
+                     "warnings": [], "readiness": 60, "have": [], "partial": [],
+                     "missing": [], "hit": None, "hit_date": None,
+                     "max_gain_pct": 0.0, "last_price": 1.85,
+                     "status": "active", "interp": _ip}]}
+_dm_p = S.build_daily_message(_wl_p, [], [], [])
+check("الأهداف·يومي: وسم «(معلّق)» + سطر «⏳ المعلّق يتفعّل بتجاوز $2.05»",
+      "(معلّق)" in _dm_p and "يتفعّل بتجاوز $2.05" in _dm_p)
+check("الأهداف·يومي: الأسعار نفسها باقية بلا تغيير",
+      "$2.10" in _dm_p and "$2.45" in _dm_p and "$2.90" in _dm_p)
+
+# إصلاح الربط: تجديد التفسير بعد الإثراء لا يمسح الموجود لو رجع فارغًا
+# (المنطق: enrich/update_watchlist_status يستبدلان فقط عند نتيجة غير فارغة)
+check("التفسير·حارس التجديد: مدخل ناقص ⇒ {} (فلا يُستبدل التفسير المخزّن)",
+      S.build_interpretation({"symbol": "NOPRICE"}) == {})
+_src_enrich = _insp2.getsource(S.enrich)
+check("التفسير·ربط: enrich يجدّد التفسير بعد الإثراء (h4/أخبار/SEC) بحارس لا-يمسح",
+      "build_interpretation" in _src_enrich)
+check("التفسير·ربط: التجديد اليومي في update_watchlist_status (الرقم الحرج يتحرّك)",
+      "build_interpretation" in _insp2.getsource(S.update_watchlist_status))
 # كون الباكتيست الافتراضي (طلب المستخدم: تشغيل بالشهر وحده بلا رموز): يجمع من
 # القائمة + التنبيهات، ترجع قائمة رموز نصّية مرتّبة (لا يرمي عند غياب الملفات).
 _defsyms = S._default_backtest_symbols()
