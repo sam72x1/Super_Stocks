@@ -794,9 +794,6 @@
  "QNRX": {
   "finra_short": 8463
  },
- "ACON": {
-  "finra_short": 1782
- },
  "AMCI": {},
  "BDTX": {},
  "CAMP": {
@@ -885,5 +882,40 @@
   "shares_out": 8699787,
   "short_pct": 4.3,
   "float": 7859562
+ },
+ "ACON": {
+  "sector": "Healthcare",
+  "industry": "Health Information Services",
+  "business": "Aclarion, Inc. operates as a healthcare technology company in the United States. It uses magnetic resonance spectroscopy (MRS) combined with proprietary signal-…",
+  "country": "United States",
+  "cash": 19014976,
+  "revenue": 77879,
+  "shares_out": 2462250,
+  "short_pct": 5.1,
+  "float": 2202163,
+  "finra_short": 1782
+ },
+ "FEMY": {
+  "sector": "Healthcare",
+  "industry": "Medical Instruments & Supplies",
+  "business": "Femasys Inc., a biomedical company, develops and commercializes therapeutic and diagnostic products for women's reproductive health needs in the United States a…",
+  "country": "United States",
+  "cash": 5386041,
+  "revenue": 2376938,
+  "shares_out": 3019534,
+  "short_pct": 6.9,
+  "float": 2495041,
+  "finra_short": 2321
+ },
+ "GEOS": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services",
+  "business": "Geospace Technologies Corporation designs and manufactures instruments and equipment used in the oil and gas industry to acquire seismic data in order to locate…",
+  "country": "United States",
+  "cash": 13358000,
+  "revenue": 100885000,
+  "shares_out": 12935603,
+  "short_pct": 3.9,
+  "float": 12552321
  }
 }

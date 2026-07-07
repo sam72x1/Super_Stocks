@@ -22,8 +22,8 @@
     "فلوت 2,890,179 (صغير ✅)"
    ],
    "ready": true,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-07-06",
    "max_gain_pct": 0.3
   },
   {
@@ -181,7 +181,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.7
+   "max_gain_pct": 8.8
   },
   {
    "symbol": "INSM",
@@ -229,8 +229,8 @@
     "فلوت 493,362 (صغير ✅)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-07-06",
    "max_gain_pct": 3.0
   },
   {
@@ -335,7 +335,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 7.5
+   "max_gain_pct": 11.5
   },
   {
    "symbol": "UPB",
@@ -459,7 +459,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 8.2
+   "max_gain_pct": 8.8
   },
   {
    "symbol": "OPRX",
@@ -563,9 +563,9 @@
     "فلوت 12,549,004 (صغير ✅)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 5.9
+   "status": "hit_t2",
+   "result_date": "2026-07-06",
+   "max_gain_pct": 16.5
   },
   {
    "symbol": "LYEL",
@@ -591,7 +591,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.2
+   "max_gain_pct": 4.6
   },
   {
    "symbol": "PRTS",
@@ -618,7 +618,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -2.2
+   "max_gain_pct": 0.0
   },
   {
    "symbol": "SCYX",
@@ -670,7 +670,112 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.3
+   "max_gain_pct": 2.3
+  },
+  {
+   "symbol": "ACON",
+   "date": "2026-07-07",
+   "price": 3.07,
+   "stop": 2.4366,
+   "t1": 3.44,
+   "t2": 3.55,
+   "t3": 3.72,
+   "score": 95,
+   "flags": [
+    "تقاطع MACD",
+    "جفاف بيع",
+    "يرتكز على متوسط 30/50",
+    "معيد إجرام (2 انفجارات)",
+    "ثبات 6 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "توافق 3 فريمات",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة عالية يومي 16%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت 1,782 (مقبول)",
+    "فلوت 2,202,163 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 49.88861100349887,
+   "float": 2202163,
+   "short": 1782,
+   "short_pct": 5.1,
+   "drop_pct": 74.48046549137733,
+   "best_spike": 188.97337103943806,
+   "rr": 2.8094142027103057,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "FEMY",
+   "date": "2026-07-07",
+   "price": 4.08,
+   "stop": 3.255,
+   "t1": 4.49,
+   "t2": 4.68,
+   "t3": 4.84,
+   "score": 70,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 6 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (8→50) — سيولة مخفية",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت 2,321 (مقبول)",
+    "فلوت 2,495,041 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 36.177786689562446,
+   "float": 2495041,
+   "short": 2321,
+   "short_pct": 6.9,
+   "drop_pct": 81.62162259689116,
+   "best_spike": 143.89535476060212,
+   "rr": 2.5457938558713757,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "GEOS",
+   "date": "2026-07-07",
+   "price": 7.0,
+   "stop": 5.8404,
+   "t1": 7.87,
+   "t2": 8.19,
+   "t3": 8.56,
+   "score": 55,
+   "flags": [
+    "تقاطع MACD",
+    "ثبات 4 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (11→34) — سيولة مخفية",
+    "انكماش حزمة كلنجر (تجميع)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 12,552,321 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Energy",
+   "rsi": 42.678872898421474,
+   "float": 12552321,
+   "short": null,
+   "short_pct": 3.9,
+   "drop_pct": 76.580795774709,
+   "best_spike": 226.2411357111557,
+   "rr": 2.2236347425024396,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
   }
  ]
 }
