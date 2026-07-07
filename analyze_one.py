@@ -582,6 +582,17 @@ def main():
     if official is None and pull is None:
         card_result["tier"] = "B"   # عرض فقط — الحكم بالأعلى يوضّح الرفض
 
+    # 🧬 بصمة طريقة الارتفاع + جلسات القاع (تطابق scan_market — عرض/تفسير فقط):
+    # كانتا ناقصتين بالفحص اليدوي فيغيب سطر 🧬 وسياق الدورة عن بطاقته (إصلاح 2026-07-07)
+    try:
+        card_result["behav"] = bot.behavior_rise_profile(df)
+        if card_result.get("bars_after") is None:
+            _ps = bot.pivot_stability(df["Low"].values.astype(float),
+                                      df["Close"].values.astype(float))
+            card_result["bars_after"] = int(_ps["bars_after"]) if _ps else None
+    except Exception:
+        pass
+
     # إثراء (SEC + شورت + فلوت + أخبار + قطاع/دولة) — نفس دالة البوت
     try:
         bot.enrich([card_result])
