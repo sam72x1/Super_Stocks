@@ -31,21 +31,30 @@ def main():
             bot.log(f"🚨 تنبيه ارتداد: {len(triggered)} سهم وصل الدعم.")
         else:
             bot.log("مراقبة الارتداد: لا سهم وصل الدعم بعد.")
-    # (2) 🚨 كشف مسح السيولة اللحظي على أسهم القائمة الرئيسية (لحظة فيصل «مسح
-    #     ثم استعادة») — تنبيه فوري بدل انتظار تقرير الصباح/المساء.
+    # (2) 🚨 الأحداث اللحظية على أسهم القائمة الرئيسية (مسح سيولة · دخول منطقة
+    #     الشراء · كسر دعم/وقف · تجاوز الرقم الحرج) + لقطة أوامر السهم المتحرّك.
     main_syms = [s["symbol"] for s in wl.get("stocks", [])
                  if s.get("status") == "active"]
     if main_syms and bot.yf is not None:
         try:
             hist = bot.download_history(main_syms)
-            sweeps = bot.monitor_sweeps(wl, hist, bot.dt.date.today().isoformat())
-            if sweeps:
-                alerts.append(bot.build_sweep_alert(sweeps))
-                bot.log(f"🚨 مسح سيولة لحظي: {len(sweeps)} سهم.")
+            events = bot.monitor_live_events(
+                wl, hist, bot.dt.date.today().isoformat())
+            if events:
+                # لقطة الأوامر تُجلب **فقط** للأسهم التي وقع عليها حدث (لا للكل)
+                quotes = {}
+                for s, _kind, _desc in events:
+                    sym = s["symbol"]
+                    if sym not in quotes:
+                        q = bot.order_snapshot(sym)
+                        if q:
+                            quotes[sym] = q
+                alerts.append(bot.build_live_alert(events, quotes))
+                bot.log(f"🚨 أحداث لحظية: {len(events)}.")
             else:
-                bot.log("مراقبة المسح: لا مسح سيولة جديد.")
+                bot.log("المراقبة اللحظية: لا أحداث جديدة.")
         except Exception as e:
-            bot.log(f"⚠️ كشف المسح اللحظي: {e}")
+            bot.log(f"⚠️ الأحداث اللحظية: {e}")
     if not alerts:
         return
     # احفظ الحالة (triggered + sweep_alert_date) **قبل** الإرسال — لو فشل الإرسال

@@ -4900,13 +4900,15 @@ def build_hand_section(wl: dict) -> str:
     return _rtl_join(lines)
 
 
-def monitor_sweeps(wl: dict, history: dict, today_iso: str) -> list:
-    """🚨 كشف «مسح السيولة اللحظي» على أسهم القائمة (طلب المستخدم 2026-07-08:
-    «هل يوصلني إشعار إن المضارب مسح السيولة؟»): يفحص آخر شمعة لكل سهم نشط — لو
-    كنس المضاربُ الدعمَ بذيل ثم استعاد فوقه (لحظة فيصل «مسح ثم استعادة») يجمعه
-    للتنبيه الفوري. **دِدوب: مرة واحدة/سهم/يوم** (`sweep_alert_date`) فلا تتكرّر
-    التنبيهات كل 30د. يحدّث last_price. عرض/تشخيص فقط — لا يمسّ الفرز/الاختيار.
-    يرجع قائمة (s, desc) الجديدة فقط."""
+def monitor_live_events(wl: dict, history: dict, today_iso: str) -> list:
+    """🚨 كشف الأحداث اللحظية على أسهم القائمة (كل 30د بالسوق — طلب المستخدم
+    2026-07-08) للتنبيه الفوري بلحظات التنفيذ/الخطر:
+      • `sweep`    : كنس دعم بذيل ثم استعادة (لحظة فيصل «مسح ثم استعادة»).
+      • `buyzone`  : دخل منطقة الشراء (لحظة تنفيذ الدفعات نفسها).
+      • `break`    : كسر الوقف/الدعم وأغلق تحته (خطر — الفكرة مهدّدة).
+      • `breakout` : تجاوز الرقم الحرج (يفعّل الهدف التالي).
+    **دِدوب مرة/سهم/حدث/يوم** (`s['live_alert'][kind]`) فلا تتكرّر كل 30د. يحدّث
+    last_price. عرض/تنبيه فقط — خارج الفرز/الاختيار. يرجع [(s, kind, desc)]."""
     out = []
     for s in wl.get("stocks", []):
         if s.get("status") != "active":
@@ -4915,29 +4917,86 @@ def monitor_sweeps(wl: dict, history: dict, today_iso: str) -> list:
         if df is None or len(df) < 25:
             continue
         try:
-            s["last_price"] = round(float(df["Close"].iloc[-1]), 4)
-            desc = next((a for a in hand_activity_today(s, df)
-                         if "كنس الدعم" in a), None)
+            lp = round(float(df["Close"].iloc[-1]), 4)
+            s["last_price"] = lp
         except Exception:
             continue
-        if desc and s.get("sweep_alert_date") != today_iso:
-            s["sweep_alert_date"] = today_iso        # دِدوب: مرة/يوم
-            out.append((s, desc))
+        trs = [float(x) for x in (s.get("tranches") or []) if x]
+        _st = s.get("stop")
+        stop0 = (float(_st[0]) if isinstance(_st, (list, tuple)) and _st
+                 else (float(_st) if isinstance(_st, (int, float)) else None))
+        piv = float(s.get("pivot") or 0)
+        events = []
+        try:
+            sw = next((a for a in hand_activity_today(s, df)
+                       if "كنس الدعم" in a), None)
+        except Exception:
+            sw = None
+        if sw:
+            events.append(("sweep", sw))
+        if stop0 is not None and lp <= stop0:
+            events.append(("break", f"كسر الوقف ${stop0:.2f} — الفكرة ملغاة/خطرة"))
+        elif piv and lp < piv * 0.995:
+            events.append(("break", f"كسر الدعم ${piv:.2f} وأغلق تحته — خطر"))
+        elif trs and min(trs) <= lp <= max(trs) * 1.005:
+            events.append(("buyzone", f"دخل منطقة الشراء "
+                           f"(${min(trs):.2f}–${max(trs):.2f}) — لحظة التنفيذ"))
+        crit = (s.get("interp") or {}).get("critical_number") or {}
+        cp = crit.get("price")
+        if cp and crit.get("type") == "breakout_activation" \
+                and lp > float(cp) * 1.005:
+            events.append(("breakout", f"تجاوز الرقم الحرج ${float(cp):.2f} "
+                           "— يفعّل الهدف التالي"))
+        seen = s.setdefault("live_alert", {})
+        for kind, desc in events:
+            if seen.get(kind) != today_iso:
+                seen[kind] = today_iso               # دِدوب: مرة/حدث/يوم
+                out.append((s, kind, desc))
     return out
 
 
-def build_sweep_alert(rows: list) -> str:
-    """رسالة تنبيه مسح السيولة اللحظي (لحظة فيصل «مسح ثم استعادة»)."""
+_LIVE_ICON = {"sweep": "🚨", "buyzone": "🎯", "break": "⛔", "breakout": "🚀"}
+
+
+def order_snapshot(sym: str):
+    """📊 لقطة أفضل عرض/طلب (bid/ask + أحجامها) من Yahoo — **لقطة وحيدة، لا تدفق
+    أوامر حي** (Level 2/عمق السوق غير متاح بالمصدر المجاني). يرجع نصًا مختصرًا أو
+    None. تُجلب فقط للسهم الذي وقع عليه حدث لحظي (لا لكل السوق)."""
+    if yf is None:
+        return None
+    try:
+        info = _fetch_info(yf.Ticker(sym))
+        bid, ask = info.get("bid"), info.get("ask")
+        if not (bid and ask and ask > 0):
+            return None
+        bs, ask_sz = info.get("bidSize"), info.get("askSize")
+        spread = round((ask - bid) / ask * 100.0, 1)
+        buy = f"شراء ${bid:.2f}" + (f"×{bs}" if bs else "")
+        sell = f"بيع ${ask:.2f}" + (f"×{ask_sz}" if ask_sz else "")
+        return f"{buy} · {sell} · سبريد {spread:.0f}%"
+    except Exception:
+        return None
+
+
+def build_live_alert(rows: list, quotes: dict = None) -> str:
+    """رسالة تنبيه الأحداث اللحظية (مسح/دخول/كسر/تجاوز) + لقطة الأوامر إن توفّرت."""
     if not rows:
         return ""
-    lines = ["🚨 <b>مسح سيولة الآن — لحظة «مسح ثم استعادة»</b>",
-             "المضاربُ كنس الدعم بذيل واستعاد فوقه — راقب الدخول:"]
-    for s, desc in rows:
+    quotes = quotes or {}
+    lines = ["🚨 <b>أحداث لحظية على القائمة</b>",
+             "لحظات تنفيذ/خطر — راقبها الآن:"]
+    for s, kind, desc in rows:
+        icon = _LIVE_ICON.get(kind, "•")
         es = entry_status(s)
-        tag = "🟢 جاهز للدخول" if es["status"] == "ready_now" else "👀 متابعة"
+        tag = "🟢 جاهز" if es["status"] == "ready_now" else "👀 متابعة"
         lp = s.get("last_price")
         px = f" ${lp:.2f}" if lp else ""
-        lines.append(f"• {tag} · <b>${s['symbol']}</b>{px} — {desc}")
+        lines.append(f"{icon} <b>${s['symbol']}</b>{px} · {tag} — {desc}")
+        q = quotes.get(s["symbol"])
+        if q:
+            lines.append(f"   📊 لقطة الأوامر: {q}")
+    lines.append("ℹ️ لقطة الأوامر لحظية من Yahoo (أفضل عرض/طلب فقط) — "
+                 "ليست تدفق أوامر حيًّا (Level 2 غير متاح بمسار البوت).")
     return _rtl_join(lines)
 
 
