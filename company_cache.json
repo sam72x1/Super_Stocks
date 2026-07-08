@@ -895,6 +895,8 @@
   "float": 2202163,
   "finra_short": 1782
  },
+ "SBET": {},
+ "LENZ": {},
  "FEMY": {
   "sector": "Healthcare",
   "industry": "Medical Instruments & Supplies",
@@ -905,8 +907,9 @@
   "shares_out": 3019534,
   "short_pct": 6.9,
   "float": 2495041,
-  "finra_short": 2321
+  "finra_short": 3791
  },
+ "LI": {},
  "GEOS": {
   "sector": "Energy",
   "industry": "Oil & Gas Equipment & Services",

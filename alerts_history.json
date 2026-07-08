@@ -104,7 +104,7 @@
    "ready": true,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.9
+   "max_gain_pct": 8.0
   },
   {
    "symbol": "NGEN",
@@ -333,9 +333,9 @@
     "فلوت غير متاح — مُرِّر بفائدة الشك"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 11.5
+   "status": "hit_t2",
+   "result_date": "2026-07-07",
+   "max_gain_pct": 17.4
   },
   {
    "symbol": "UPB",
@@ -457,9 +457,9 @@
     "فلوت غير متاح — مُرِّر بفائدة الشك"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 8.8
+   "status": "hit_t1",
+   "result_date": "2026-07-07",
+   "max_gain_pct": 10.9
   },
   {
    "symbol": "OPRX",
@@ -589,9 +589,9 @@
     "فلوت 9,490,207 (صغير ✅)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 4.6
+   "status": "hit_t1",
+   "result_date": "2026-07-07",
+   "max_gain_pct": 14.9
   },
   {
    "symbol": "PRTS",
@@ -707,7 +707,7 @@
    "rr": 2.8094142027103057,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.3
   },
   {
    "symbol": "FEMY",
@@ -742,7 +742,7 @@
    "rr": 2.5457938558713757,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 1.5
   },
   {
    "symbol": "GEOS",
@@ -773,6 +773,116 @@
    "drop_pct": 76.580795774709,
    "best_spike": 226.2411357111557,
    "rr": 2.2236347425024396,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 3.5
+  },
+  {
+   "symbol": "SBET",
+   "date": "2026-07-08",
+   "price": 5.45,
+   "stop": 4.1478,
+   "t1": 6.12,
+   "t2": 6.7,
+   "t3": 7.31,
+   "score": 80,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "يرتكز على متوسط 30/50",
+    "ثبات 6 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "انكماش حزمة كلنجر (تجميع)",
+    "استعاد MA5/MA20 (تجميع)",
+    "فجوة صاعدة يومي 7%",
+    "فجوة يومية مفتوحة (لم تُغلق)",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 49.51648008673907,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 86.5299062466942,
+   "best_spike": 2739.068106361691,
+   "rr": 3.4269362998346478,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "LENZ",
+   "date": "2026-07-08",
+   "price": 5.9,
+   "stop": 4.8639,
+   "t1": 6.55,
+   "t2": 6.82,
+   "t3": 7.2,
+   "score": 75,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 7 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (9→38) — سيولة مخفية",
+    "Williams %R انعطاف من التشبع",
+    "فجوة صاعدة يومي 3%",
+    "فجوات متعددة الفريمات (أسبوعي)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 39.92874397746798,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 88.29365095884381,
+   "best_spike": 61.13537636195314,
+   "rr": 2.225133969912367,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "LI",
+   "date": "2026-07-08",
+   "price": 12.05,
+   "stop": 10.8345,
+   "t1": 13.1,
+   "t2": 13.84,
+   "t3": 14.59,
+   "score": 70,
+   "flags": [
+    "RSI تشبع وانحناء (قاع 24→31)",
+    "تقاطع MACD",
+    "ثبات 4 جلسات فوق القاع",
+    "نمط شمعة قوي",
+    "Williams %R انعطاف من التشبع",
+    "فجوة صاعدة يومي 6%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "فجوة-هدف فوق السعر عند $17.01 (+41%)",
+    "قاب (فجوة) فوق السعر عند $17.01 (فراغ 7% = هدف ذهبي)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 31.15146809948888,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 62.37314717690975,
+   "best_spike": 63.29874653544329,
+   "rr": 0.9438006565172173,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
