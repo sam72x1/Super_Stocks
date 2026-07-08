@@ -1,0 +1,76 @@
+name: T-ACC Report (إعادة الحكم من CSV)
+
+# 🔬 يعيد طباعة حكم T-ACC من الـCSV المرفوعة كـartifacts في تشغيلات سابقة —
+# بلا أي نداء Polygon (صفر تكلفة). يطبع الـCSV الخام + تقرير الأثلاث لكل سنة في
+# **سجل الأكشن** (قراءة/تدقيق: حكم السنتين «يصمد في 2025 و2026» يُقرأ من التقريرين).
+# أداة قراءة فقط — لا تلمس الفرز ولا الحالة.
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_2025:
+        description: رقم تشغيلة acc_verify التي فيها artifact سنة 2025
+        required: true
+        type: string
+        default: "28956826857"
+      run_2026:
+        description: رقم تشغيلة acc_verify التي فيها artifact سنة 2026
+        required: true
+        type: string
+        default: "28956834611"
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download CSV 2025
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: acc-verify-2025
+          run-id: ${{ github.event.inputs.run_2025 }}
+          github-token: ${{ github.token }}
+
+      - name: Download CSV 2026
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: acc-verify-2026
+          run-id: ${{ github.event.inputs.run_2026 }}
+          github-token: ${{ github.token }}
+
+      - name: Print raw CSVs
+        run: |
+          for f in acc_verify_*.csv; do
+            echo "======== $f ========"
+            cat "$f"
+            echo
+          done
+
+      - name: Print T-ACC verdicts (per year)
+        run: |
+          python - <<'EOF'
+          import acc_verify as A
+          import Super_stock as bot
+          import os
+          for year in (2025, 2026):
+              path = f"acc_verify_{year}.csv"
+              if not os.path.exists(path):
+                  print(f"\n===== سنة {year}: لا CSV (artifact مفقود) =====")
+                  continue
+              rows = list(A._load_done(path).values())
+              print(f"\n===== سنة {year}: {len(rows)} إشارة محفوظة =====")
+              print("\n".join(bot.acc_verify_report(rows)))
+          EOF
