@@ -4900,6 +4900,47 @@ def build_hand_section(wl: dict) -> str:
     return _rtl_join(lines)
 
 
+def monitor_sweeps(wl: dict, history: dict, today_iso: str) -> list:
+    """🚨 كشف «مسح السيولة اللحظي» على أسهم القائمة (طلب المستخدم 2026-07-08:
+    «هل يوصلني إشعار إن المضارب مسح السيولة؟»): يفحص آخر شمعة لكل سهم نشط — لو
+    كنس المضاربُ الدعمَ بذيل ثم استعاد فوقه (لحظة فيصل «مسح ثم استعادة») يجمعه
+    للتنبيه الفوري. **دِدوب: مرة واحدة/سهم/يوم** (`sweep_alert_date`) فلا تتكرّر
+    التنبيهات كل 30د. يحدّث last_price. عرض/تشخيص فقط — لا يمسّ الفرز/الاختيار.
+    يرجع قائمة (s, desc) الجديدة فقط."""
+    out = []
+    for s in wl.get("stocks", []):
+        if s.get("status") != "active":
+            continue
+        df = history.get(s["symbol"])
+        if df is None or len(df) < 25:
+            continue
+        try:
+            s["last_price"] = round(float(df["Close"].iloc[-1]), 4)
+            desc = next((a for a in hand_activity_today(s, df)
+                         if "كنس الدعم" in a), None)
+        except Exception:
+            continue
+        if desc and s.get("sweep_alert_date") != today_iso:
+            s["sweep_alert_date"] = today_iso        # دِدوب: مرة/يوم
+            out.append((s, desc))
+    return out
+
+
+def build_sweep_alert(rows: list) -> str:
+    """رسالة تنبيه مسح السيولة اللحظي (لحظة فيصل «مسح ثم استعادة»)."""
+    if not rows:
+        return ""
+    lines = ["🚨 <b>مسح سيولة الآن — لحظة «مسح ثم استعادة»</b>",
+             "المضاربُ كنس الدعم بذيل واستعاد فوقه — راقب الدخول:"]
+    for s, desc in rows:
+        es = entry_status(s)
+        tag = "🟢 جاهز للدخول" if es["status"] == "ready_now" else "👀 متابعة"
+        lp = s.get("last_price")
+        px = f" ${lp:.2f}" if lp else ""
+        lines.append(f"• {tag} · <b>${s['symbol']}</b>{px} — {desc}")
+    return _rtl_join(lines)
+
+
 def build_pullback_section(entries: list, triggered: list = None) -> str:
     """قسم «مراقبة الارتداد»: أسهم ارتكاز ارتفعت ننتظر رجوعها للدعم +
     تنبيهات الأسهم التي وصلت سعر الدعم اليوم (جاهزة للدخول)."""
