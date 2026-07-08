@@ -5363,8 +5363,18 @@ def build_live_alert(rows: list, quotes: dict = None) -> str:
         q = quotes.get(s["symbol"])
         if q:
             lines.append(f"   📊 لقطة الأوامر: {q}")
-    lines.append("ℹ️ لقطة الأوامر لحظية من Yahoo (أفضل عرض/طلب فقط) — "
-                 "ليست تدفق أوامر حيًّا (Level 2 غير متاح بمسار البوت).")
+    # تذييل صادق **حسب المصدر الفعلي** (order_snapshot يوسم المصدر): مع اشتراك
+    # المستخدم، «تدفق حي (Polygon)» = نسبة الشراء/البيع من آخر ~100 صفقة (Lee-Ready)
+    # + أفضل عرض/طلب = **تدفق أوامر حي فعلي**. بلا اشتراك = لقطة Yahoo (عرض/طلب فقط).
+    _has_poly = any("تدفق حي" in (quotes.get(s["symbol"]) or "")
+                    for s, _k, _d in rows)
+    if _has_poly:
+        lines.append("ℹ️ «تدفق حي (Polygon)» = شراء/بيع من آخر ~100 صفقة (Lee-Ready) "
+                     "+ أفضل عرض/طلب = تدفق أوامر حي فعلي · عمق L2 الكامل (كل مستويات "
+                     "الأوامر) غير مستعمل.")
+    else:
+        lines.append("ℹ️ لقطة الأوامر من Yahoo (أفضل عرض/طلب فقط) — ليست تدفق "
+                     "أوامر حيًّا.")
     return _rtl_join(lines)
 
 
