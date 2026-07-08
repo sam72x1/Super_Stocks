@@ -662,6 +662,53 @@ def _tfs_and_score(df):
 # ==========================================================
 # التقرير الكامل
 # ==========================================================
+def pivot_depth_section(sym, df):
+    """🧭 عمق منهجية الارتكاز (طبقة التفسير — عرض فقط): يظهر **فقط** لو السهم
+    مؤهّل بفارز الارتكاز نفسه؛ وإلا يبقى التقرير الكلاسيكي نقيًّا بلا حشو.
+    يعرض التفصيل الكامل لمن يريد العمق (خطة INTERPRETATION_LAYER_PLAN):
+    حالة الدخول (جاهز/متابعة) + أسطر التفسير + أدوار المستويات + مصادر
+    الأهداف + الدورة + بصمة 🧬. فاشل-آمن → لا قسم (قائمة فارغة)."""
+    try:
+        bot._REJECT_STATS.clear()
+        r = bot.analyze_ticker(sym, df)
+        if not r:
+            return []
+        r["behav"] = bot.behavior_rise_profile(df)
+        r["trendline"] = bot.descending_trendline(df, r["price"])
+        r["interp"] = bot.build_interpretation(r)
+        interp = r["interp"] or {}
+        es = bot.entry_status(r)
+        L = ["", "━━━━━ 🧭 <b>عمق منهجية الارتكاز</b> ━━━━━",
+             es["label"] + (f" — {es['reason']}" if es["reason"] else "")]
+        L += bot.interp_card_lines(interp)
+        roles = interp.get("level_roles") or []
+        if roles:
+            L.append("🧱 أدوار المستويات:")
+            for x in roles:
+                seg = f"  • ${x['price']:.2f} — {x.get('note', '')}"
+                if x.get("src"):
+                    seg += f" (المصدر: {x['src']})"
+                if x.get("state") == "pending":
+                    seg += " · معلّق"
+                L.append(seg)
+        cyc = interp.get("cycle_context") or {}
+        parts = []
+        if cyc.get("days_since_last_impulse") is not None:
+            parts.append(f"آخر رفعة قبل {cyc['days_since_last_impulse']} جلسة")
+        if cyc.get("days_since_major_low") is not None:
+            parts.append(f"القاع الرئيسي قبل {cyc['days_since_major_low']} جلسة")
+        if cyc.get("window_state"):
+            parts.append(cyc["window_state"])
+        if parts:
+            L.append("⏱️ الدورة: " + " · ".join(parts))
+        bh = r.get("behav") or {}
+        if bh.get("score") is not None:
+            L.append(f"🧬 طريقة الارتفاع: {bh['score']}/100 · {bh['label']}")
+        return L
+    except Exception:
+        return []
+
+
 def technical_report(sym):
     sym = sym.strip().upper()
     try:
@@ -677,7 +724,8 @@ def technical_report(sym):
     earn_label, earn_warn = earnings_alert(sym)
     return {"symbol": sym, "price": float(df["Close"].iloc[-1]),
             "score": score, "verdict": verdict, "tfs": tfs,
-            "earnings": earn_label, "earnings_warn": earn_warn}, None
+            "earnings": earn_label, "earnings_warn": earn_warn,
+            "pivot_depth": pivot_depth_section(sym, df)}, None
 
 
 # ==========================================================
@@ -751,6 +799,8 @@ def render(rep):
         L.append("⚠️ <b>تنبيه:</b> يوجد إعلان أرباح وشيك — مهما كان التقييم "
                  "الفني قوياً، الأرقام قد تكسر الحركة بفجوة سعرية. الأأمن "
                  "الانتظار حتى بعد الإعلان.")
+    # 🧭 عمق منهجية الارتكاز — يظهر فقط لو السهم مؤهّل بالفارز (وإلا لا شيء)
+    L += rep.get("pivot_depth") or []
     L.append("")
     L.append(bot.FOOTER)
     return "\n".join(L)

@@ -1265,8 +1265,18 @@ def four_hour_levels(h4: pd.DataFrame, price: float):
     resistances = _cluster_levels(res)[:5]            # تصاعدي (أقرب هدف أولاً)
     supports = sorted(_cluster_levels(sup), reverse=True)[:5]  # أقرب دعم أولاً
     flip = round(max(heads_below), 2) if heads_below else None
+    # تغطية الخضرا (المقطع: «تغطية الشمعة الحمراء بشمعة خضراء تعطي تأكيد»):
+    # آخر شمعة حمرا — هل جاءت بعدها خضرا أغلقت عند/فوق جسمها (open الحمرا)؟
+    # True=تأكيد · False=حمرا بلا تغطية (ننتظر) · None=لا شموع حمرا (غير منطبق).
+    green_cover = None
+    red_idx = [i for i in range(n) if red[i]]
+    if red_idx:
+        li = red_idx[-1]
+        green_cover = bool(any(c[j] > o[j] and c[j] >= o[li]
+                               for j in range(li + 1, n)))
     return {"supports": supports, "resistances": resistances,
-            "flip": flip, "sweep_low": round(float(np.min(lo)), 2)}
+            "flip": flip, "sweep_low": round(float(np.min(lo)), 2),
+            "green_cover": green_cover}
 
 
 def refine_targets_4h(t1, t2, t3, price, h4l):
@@ -3187,17 +3197,20 @@ def build_interpretation(r: dict) -> dict:
         if h4l:
             red_head = (h4l.get("resistances") or [None])[0]
             flip = h4l.get("flip")
+            gcov = h4l.get("green_cover")     # المقطع: تغطية الخضرا = تأكيد
             if red_head and red_head > price:
                 h4state = "blocked_by_red_head"
             elif flip and flip <= price * 1.01:
                 h4state = "support_flipped"
+            elif gcov is False:
+                h4state = "waiting_green_cover"   # حمرا أخيرة بلا تغطية = ننتظر
             elif h4l.get("sweep_low"):
                 h4state = "confirming"
             else:
                 h4state = "weak"
             out["four_hour_context"] = {
                 "state": h4state, "red_candle_head": red_head, "flip": flip,
-                "sweep_low": h4l.get("sweep_low")}
+                "sweep_low": h4l.get("sweep_low"), "green_cover": gcov}
 
         # ---- risk_profile (تجميع التحذيرات الموجودة — بلا تجريم الفلوت/الرسملة)
         flags = []
@@ -3256,10 +3269,37 @@ def build_interpretation(r: dict) -> dict:
         if res_major and res_major != res_minor:
             roles.append({"price": res_major, "role": "resistance",
                           "note": "مقاومة أساسية"})
+        # مصدر كل هدف (P1-4 — **استدلال بالمطابقة** على المستويات المعروفة وقت
+        # التفسير، عرض فقط: لا يغيّر الأهداف ولا يدّعي دقة أعلى من الواقع؛
+        # ما لا يطابق مصدرًا معروفًا = «سلّم المقاومات اليومي» الافتراضي الصادق)
+        def _target_source(tv):
+            t2 = round(float(tv), 2)
+            if res_minor is not None and abs(t2 - round(res_minor, 2)) < 0.005:
+                return "المقاومة الفرعية (قمة يومية)"
+            if res_major is not None and abs(t2 - round(res_major, 2)) < 0.005:
+                return "المقاومة الأساسية (منشأ الهبوط)"
+            for x in (h4l.get("resistances") or []):
+                if abs(t2 - round(float(x), 2)) < 0.005:
+                    return "رأس شمعة حمرا 4س"
+            _lib = r.get("liberation")
+            if _lib and abs(t2 - round(float(_lib), 2)) < 0.005:
+                return "مستوى التحرر"
+            for z in ((r.get("gaps_above") or {}).get("zones") or []):
+                if (isinstance(z, dict) and z.get("bottom")
+                        and abs(t2 - round(float(z["bottom"]), 2)) < 0.005):
+                    return "حافة فجوة فوقية"
+            return "سلّم المقاومات اليومي"
+
+        tsrc = []
         for i, t in enumerate(targets, 1):
-            roles.append({"price": t, "role": "target",
-                          "state": ("active" if t in active else "pending"),
-                          "note": f"الهدف {i}"})
+            src = _target_source(t)
+            st_t = "active" if t in active else "pending"
+            roles.append({"price": t, "role": "target", "state": st_t,
+                          "note": f"الهدف {i}", "src": src})
+            tsrc.append({"price": round(float(t), 2), "source": src,
+                         "activation": st_t,
+                         "blocked_by": (gate if st_t == "pending" else None)})
+        out["targets_src"] = tsrc
         if crit:
             roles.append({"price": crit["price"], "role": "critical_number",
                           "note": crit["why"]})
@@ -3286,14 +3326,18 @@ def interp_card_lines(interp: dict) -> list:
     cr = interp.get("critical_number")
     if cr and cr.get("price"):
         lines.append(f"🎯 الرقم الحرج: ${cr['price']:.2f} ({cr.get('why', '')})")
-    # 🕓 سياق الـ4 ساعات (قصة الشموع — فيصل: «رأس الحمرا مقاومة، تجاوزه يؤكّد»)
+    # 🕓 سياق الـ4 ساعات (قصة الشموع — فيصل: «رأس الحمرا مقاومة، تجاوزه يؤكّد»
+    # و«تغطية الحمرا بخضرا تعطي تأكيد»)
     h4c = interp.get("four_hour_context") or {}
     h4s = h4c.get("state")
     if h4s == "blocked_by_red_head" and h4c.get("red_candle_head"):
+        _gc = " · الحمرا الأخيرة مغطّاة بخضرا" if h4c.get("green_cover") else ""
         lines.append(f"🕓 4س: رأس الشمعة الحمرا ${h4c['red_candle_head']:.2f} "
-                     "مقاومة — تجاوزه يؤكّد")
+                     f"مقاومة — تجاوزه يؤكّد{_gc}")
     elif h4s == "support_flipped" and h4c.get("flip"):
         lines.append(f"🕓 4س: مقاومة انقلبت دعمًا قرب ${h4c['flip']:.2f}")
+    elif h4s == "waiting_green_cover":
+        lines.append("🕓 4س: الشمعة الحمرا الأخيرة بلا تغطية خضرا — ننتظر التأكيد")
     elif h4s == "confirming" and h4c.get("sweep_low"):
         lines.append(f"🕓 4س: ذيل مسح عند ${h4c['sweep_low']:.2f} ثم استعادة "
                      "(تأكيد)")
