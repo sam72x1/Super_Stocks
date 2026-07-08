@@ -62,14 +62,24 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
         L.append("")
         L.append(f"🧬 طريقة الارتفاع: {bh['score']}/100 · {bh.get('label', '')}")
 
-    # ===== 📊 التحليل كسهم ارتكاز (طلب المستخدم: يحلّله على أنه سهم ارتكاز) =====
+    # ===== 📊 التحليل كسهم ارتكاز (طلب المستخدم: كل البوابات حتى لو سقط مبكرًا) =====
     L.append("")
     L.append("━━━━━ 📊 <b>التحليل كسهم ارتكاز</b> ━━━━━")
-    if r.get("interp"):        # مؤهّل بالفارز → interp محسوب
+    # كل البوابات الإلزامية بحالتها ✅/❌ (تُقيَّم مستقلة — تظهر كاملة حتى لو سقط
+    # السهم على بوابة صلبة مثل السعر تحت $1.5). هذا جوهر طلب المستخدم.
+    gates = r.get("gates") or []
+    if gates:
+        passed = sum(1 for _, ok, _ in gates if ok)
+        L.append(f"البوابات الإلزامية: <b>{passed}/{len(gates)}</b> "
+                 "(كلها معروضة حتى لو سقط على بوابة صلبة):")
+        for name, ok, detail in gates:
+            L.append(f"  {'✅' if ok else '❌'} {name} — {detail}")
+        L.append("")
+    if r.get("interp"):        # مؤهّل بالفارز → الحالة + الدخول + الأهداف
         es = bot.entry_status(r)
-        L.append("الحكم: 🎯 <b>سهم ارتكاز مؤهّل</b>")
-        L.append(("🟢 جاهز للدخول الآن" if es["status"] == "ready_now"
-                  else "👀 متابعة")
+        L.append("الحكم: 🎯 <b>سهم ارتكاز مؤهّل</b> · "
+                 + ("🟢 جاهز للدخول الآن" if es["status"] == "ready_now"
+                    else "👀 متابعة")
                  + (f" — {es['reason']}" if es["reason"] else ""))
         L += bot.interp_card_lines(r["interp"])      # 🧭 الإعداد · 🎯 الرقم الحرج · 🕓 4س · ⚠️
         if r.get("tranches") and r.get("stop"):
@@ -79,19 +89,10 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
                      + f"  ·  ⛔ وقف ${stop0:.2f}")
         if all(r.get(k) for k in ("t1", "t2", "t3")):
             L.append(f"🎯 أهداف: ${r['t1']:.2f} · ${r['t2']:.2f} · ${r['t3']:.2f}")
-        # النواقص (بوابات التأكيد الناقصة) — نفس صيغة التقرير اليومي «N/14»
-        sf = r.get("soft_fails") or []
-        if sf:
-            L.append(f"🅱️ الناقص ({len(sf)}/14): "
-                     + " · ".join(f"{j}- {x}" for j, x in enumerate(sf, 1)))
-        else:
-            L.append("✅ اجتاز كل بوابات التأكيد (لا نواقص)")
-        _tfi = bot.timeframes_info(r.get("tf_count"), r.get("tf_display"))
-        if _tfi:
-            L.append(_tfi)
     else:
-        why = r.get("reject_reason") or "لم يجتز بوابات الارتكاز الإلزامية"
-        L.append(f"الحكم: ❌ <b>ليس سهم ارتكاز مؤهّلًا حاليًا</b> (السبب: {why})")
+        why = r.get("reject_reason") or "لم يجتز بوابة إلزامية (انظر ❌ أعلاه)"
+        L.append(f"الحكم: ❌ <b>ليس سهم ارتكاز مؤهّلًا حاليًا</b> "
+                 f"(أول سبب: {why})")
         L.append("<i>القرائن أعلاه عن اليد تبقى صالحة — لكن الفارز لا يرشّحه الآن "
                  "كارتكاز.</i>")
     L.append("")
@@ -103,65 +104,49 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
 
 
 def hand_check(sym: str):
-    """يجمع بيانات السهم (يومي + 4س + info) ويحسب القرائن. يرجع (نص، None) أو
-    (None, رسالة خطأ). يعيد استخدام دوال البوت — لا منطق فرز جديد."""
+    """يجمع بيانات السهم + كل البوابات + القرائن. يرجع (نص، None) أو (None، خطأ).
+    يعيد استخدام `analyze_on_demand` (كل البوابات مستقلة — تظهر حتى لو سقط على
+    بوابة صلبة) + `enrich` (شورت/فلوت/تدوير/لقطة طلبات/4س) — لا منطق فرز جديد."""
+    import analyze_one as AO
     sym = sym.strip().upper()
     try:
-        data = bot.download_history([sym])
+        diag, gates, df = AO.analyze_on_demand(sym)
     except Exception as e:
-        return None, f"تعذّر الاتصال لجلب بيانات {sym}: {e}"
-    df = data.get(sym)
-    if df is None or len(df) < 30:
-        return None, (f"تعذّر جلب بيانات كافية لـ {sym} "
-                      "(رمز خاطئ أو سهم جديد جدًا).")
+        return None, f"تعذّر تحليل {sym}: {e}"
+    if diag is None or df is None:
+        return None, (gates if isinstance(gates, str)
+                      else f"تعذّر جلب بيانات كافية لـ {sym}.")
     price = float(df["Close"].iloc[-1])
-    r = {"symbol": sym, "price": price, "last_price": price,
-         "vol_today": float(df["Volume"].iloc[-1])}
-    # بصمة اليومي + رفعة القروب
+    diag["vol_today"] = float(df["Volume"].iloc[-1])   # للتدوير في enrich
+    # إثراء (شورت/فلوت/تدوير/لقطة الطلبات N3/مستويات 4س بالسقف المُدار N2) — نفس
+    # دالة البوت؛ ثم بوابتا الشورت/الفلوت (M13/M14) على البيانات المُثراة.
     try:
-        r["behav"] = bot.behavior_rise_profile(df)
-        r["pump_scar"] = bot.group_pump_scar(df)
+        bot.enrich([diag])
     except Exception:
         pass
-    # مستويات 4س (السقف المُدار) — بيانات 4س المجلوبة
     try:
-        h4 = bot.fetch_4h(sym)
-        if h4 is not None:
-            r["h4_levels"] = bot.four_hour_levels(h4, price)
+        gates = AO.append_short_float_gates(diag, gates)
     except Exception:
         pass
-    # info: الفلوت (للتدوير) + لقطة bid/ask الصادقة
-    if bot.yf is not None:
-        try:
-            info = bot._fetch_info(bot.yf.Ticker(sym))
-            flt = info.get("floatShares")
-            if flt:
-                r["float"] = flt
-                r["rotation_pct"] = round(r["vol_today"] / flt * 100.0)
-            _bid, _ask = info.get("bid"), info.get("ask")
-            _spread = None
-            if _bid and _ask and _ask > 0 and _ask >= _bid:
-                _spread = round((_ask - _bid) / _ask * 100.0, 1)
-            r["session_ctx"] = {"quote": {
-                "bid": _bid, "ask": _ask, "spread_pct": _spread,
-                "note": "لقطة وحيدة — تدفق الطلبات الحي غير متاح بمسار البوت"}}
-        except Exception:
-            pass
-    # التحليل كسهم ارتكاز (طلب المستخدم): مؤهّل → interp كامل · مرفوض → السبب
+    r = {"symbol": sym, "price": price, "last_price": price, "gates": gates,
+         "float": diag.get("float"), "rotation_pct": diag.get("rotation_pct"),
+         "session_ctx": diag.get("session_ctx"),
+         "h4_levels": diag.get("h4_levels")}
+    try:
+        r["behav"] = bot.behavior_rise_profile(df)     # بصمة اليومي
+        r["pump_scar"] = bot.group_pump_scar(df)       # رفعة القروب/كسر الدعوم
+    except Exception:
+        pass
+    # مؤهّل ارتكاز؟ (interp + دخول/أهداف لو مرّ) · وإلا السبب الأول
     try:
         bot._REJECT_STATS.clear()
         official = bot.analyze_ticker(sym, df)
         if official:
-            r["pivot"] = official.get("pivot")
-            r["tranches"] = official.get("tranches")
-            r["stop"] = official.get("stop")
-            r["key_levels"] = official.get("key_levels")
-            for k in ("t1", "t2", "t3", "warnings", "soft_fails",
-                      "readiness", "tf_count", "tf_display"):
+            for k in ("pivot", "tranches", "stop", "key_levels",
+                      "t1", "t2", "t3", "warnings", "soft_fails"):
                 r[k] = official.get(k)
             if r.get("h4_levels"):
                 official["h4_levels"] = r["h4_levels"]
-                r["h4_levels"] = r["h4_levels"]
             r["interp"] = bot.build_interpretation(r)
         elif getattr(bot, "_REJECT_STATS", None):
             r["reject_reason"] = " · ".join(f"{k}={v}"
