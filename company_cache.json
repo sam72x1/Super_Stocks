@@ -896,6 +896,7 @@
   "finra_short": 1782
  },
  "SBET": {},
+ "LI": {},
  "LENZ": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -919,7 +920,6 @@
   "float": 2495041,
   "finra_short": 3791
  },
- "LI": {},
  "GEOS": {
   "sector": "Energy",
   "industry": "Oil & Gas Equipment & Services",
