@@ -1039,7 +1039,8 @@ _acc_trA = [{"price": p, "size": 100, "exchange": 10}
             for p in _acc_up + _acc_dn]                         # 31 صفقة
 check("تجميع·مكوّنات: شراء عدواني 20÷30 مصنَّف = 67% · بلا طبعات/دارك",
       S.acc_components(_acc_trA) == {"aggressive_buy_pct": 67, "block_share_pct": 0,
-                                     "dark_share_pct": 0, "n_trades": 31})
+                                     "block_buy_pct": None, "dark_share_pct": 0,
+                                     "n_trades": 31})
 # طبعات كبيرة (≥10× الوسيط) + دارك (exchange==4): معايرة ذاتية نسبية
 _acc_trB = [{"price": round(2.0 + 0.01 * i, 2),
              "size": (4000 if i >= 27 else 100),
@@ -1049,6 +1050,19 @@ check("تجميع·طبعات: 3 طبعات ضخمة (4000 مقابل وسيط 1
       _acc_B["block_share_pct"] == 82 and _acc_B["n_trades"] == 30)
 check("تجميع·دارك: صفقات exchange==4 تُحسب حصّة دارك",
       _acc_B["dark_share_pct"] == 84)
+# 🔬 T-ACC-2: عدوانية الشراء داخل الطبعات الكبيرة فقط (اتجاه×حجم، مسجَّل مسبقًا)
+check("T-ACC-2·طبعات<5: أقل من 5 طبعات مصنَّفة ⇒ block_buy_pct=None (لا نسبة على <5)",
+      _acc_B["block_buy_pct"] is None)
+_acc_trC = [{"price": 2.00, "size": 100, "exchange": 10} for _ in range(24)] + [
+    {"price": p, "size": 5000, "exchange": 10} for p in
+    (2.05, 2.10, 2.15, 2.20, 2.25, 2.30, 2.25, 2.20)]   # 6 صعود / 2 هبوط = 75%
+check("T-ACC-2·حساب: 6 طبعات شراء ÷ 8 مصنَّفة = 75% (اتجاه×حجم)",
+      S.acc_components(_acc_trC)["block_buy_pct"] == 75)
+check("T-ACC-2·قفل: block_buy_pct يُحكم بنفس معيار _ACC_COMPS وخارج الفرز",
+      any(k == "block_buy_pct" for k, _ in S._ACC_COMPS)
+      and all("block_buy_pct" not in _insp0.getsource(_f)
+              for _f in (S.rank_key, S.select_top, S.classify_tier,
+                         S.entry_status, S.analyze_ticker, S.backtest_symbol)))
 check("تجميع·صدق: أقل من 30 صفقة ⇒ None (عيّنة غير كافية، لا تخمين)",
       S.acc_components([{"price": 1.0, "size": 100}] * 29) is None)
 check("تجميع·صدق: بيانات فارغة/فاسدة ⇒ None (لا انهيار)",

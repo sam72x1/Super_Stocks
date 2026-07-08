@@ -5246,6 +5246,10 @@ def acc_components(trades: list):
         نسبي ذاتي المعايرة، لا رقم مطلق) ÷ الحجم الكلي ×100.
       • dark_share_pct: حجم صفقات الدارك/خارج البورصة ÷ الكلي ×100. Polygon يرمز
         الطبعات المُبلَّغة عبر FINRA TRF (خارج البورصة = دارك) بـ exchange==4 (موثّق).
+      • block_buy_pct (🔬 T-ACC-2، `T_ACC2_PREREGISTRATION.md`): عدوانية الشراء **داخل
+        الطبعات الكبيرة فقط** (اتجاه×حجم) = حجم الطبعات الكبيرة المصنَّفة شراءً ÷ المصنَّفة
+        (شراء+بيع) ×100. None لو أقل من 5 طبعات مصنَّفة (نسبة على <5 = بلا معنى). محور
+        مستقل عن الاتجاه العام والحجم العام — «هل المال الكبير هو المُبادِر بالشراء؟».
       • n_trades."""
     try:
         rows = [(float(t["price"]), float(t["size"]), t.get("exchange"))
@@ -5263,10 +5267,19 @@ def acc_components(trades: list):
         classified = buy_vol + sell_vol
         agg_buy = round(buy_vol / classified * 100.0) if classified > 0 else None
         med = sorted(sizes)[len(sizes) // 2]              # وسيط أحجام العيّنة
-        block_vol = sum(sz for sz in sizes if sz >= 10 * med) if med > 0 else 0.0
+        is_block = [sz >= 10 * med for sz in sizes] if med > 0 else [False] * len(sizes)
+        block_vol = sum(sz for sz, b in zip(sizes, is_block) if b)
+        # 🔬 T-ACC-2: عدوانية الشراء داخل الطبعات الكبيرة فقط (اتجاه×حجم، تسجيل مسبق)
+        blk_buy = sum(sz for d, sz, b in zip(dirs, sizes, is_block) if b and d > 0)
+        blk_sell = sum(sz for d, sz, b in zip(dirs, sizes, is_block) if b and d < 0)
+        blk_n = sum(1 for d, b in zip(dirs, is_block) if b and d != 0)
+        blk_cls = blk_buy + blk_sell
+        block_buy = (round(blk_buy / blk_cls * 100.0)
+                     if blk_n >= 5 and blk_cls > 0 else None)
         dark_vol = sum(sz for _p, sz, ex in rows if ex == 4)
         return {"aggressive_buy_pct": agg_buy,
                 "block_share_pct": round(block_vol / total * 100.0),
+                "block_buy_pct": block_buy,               # 🔬 T-ACC-2 (مسجَّل مسبقًا)
                 "dark_share_pct": round(dark_vol / total * 100.0),
                 "n_trades": len(rows)}
     except Exception:
@@ -7067,6 +7080,7 @@ def backtest_behav_correlation(trades: list) -> list:
 
 _ACC_COMPS = [("aggressive_buy_pct", "الشراء العدواني"),
               ("block_share_pct", "الطبعات الكبيرة"),
+              ("block_buy_pct", "شراء الطبعات الكبيرة (T-ACC-2)"),
               ("dark_share_pct", "الدارك بول")]
 
 
