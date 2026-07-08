@@ -958,6 +958,9 @@ check("🕵️قسم: لا أسهم يد ⇒ قسم فارغ (لا ترويسة 
 check("🕵️قسم·تنظيف: سطر 🕵️ أُزيل من كرت اليومي (انتقل للقسم المستقل)",
       "hand_evidence_line" not in _insp0.getsource(S.build_daily_message)
       and "build_hand_section" in _insp0.getsource(S.run_daily_watchlist))
+check("🕵️رسالة مستقلة: أسهم اليد تُرسَل send_telegram منفصلة (لا تُدفن بالتقرير)",
+      "send_telegram(hand_msg" in _insp0.getsource(S.run_daily_watchlist)
+      and 'msg += "\\n\\n" + hand' not in _insp0.getsource(S.run_daily_watchlist))
 
 # ===== 🕵️ أداة فحص اليد المستقلة (hand_check.py — عرض/تشخيص فقط) =====
 _hc_r = {"symbol": "TST", "price": 2.0,
