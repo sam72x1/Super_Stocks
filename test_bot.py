@@ -9,6 +9,7 @@ import inspect as _insp0
 import numpy as np
 import pandas as pd
 import Super_stock as S
+import technical_report as TR
 
 PASS, FAIL = [], []
 
@@ -786,6 +787,42 @@ check("جاهز/متابعة 12-قفل: entry_status لا يمسّ t1/t2/t3/ال
 check("جاهز/متابعة 12-قفل: نصوص الحالة بلا علامات مقارنة ≥≤><",
       not any(c in (_e1["label"] + _e3["reason"] + _e4["reason"] + _e5["reason"])
               for c in "≥≤<>"))
+# ===== إكمال نواقص المقطع الثلاثة (2026-07-08: تدقيق «ناقص شي؟») =====
+# (1) تغطية الخضرا green_cover (المقطع: «تغطية الحمرا بخضرا تعطي تأكيد»)
+def _h4df(rows):
+    """h4 صناعي: rows=[(open,close,high,low), ...]"""
+    import pandas as _pd
+    o = [x[0] for x in rows]
+    c = [x[1] for x in rows]
+    h = [x[2] for x in rows]
+    lo = [x[3] for x in rows]
+    idx = _pd.date_range("2026-01-01", periods=len(rows), freq="4h")
+    return _pd.DataFrame({"Open": o, "Close": c, "High": h, "Low": lo,
+                          "Volume": [1e5] * len(rows)}, index=idx)
+_base = [(2.0, 2.05, 2.1, 1.95)] * 10
+_red = (2.3, 2.1, 2.35, 2.05)                      # حمرا: جسمها 2.1-2.3
+_h4_cov = S.four_hour_levels(_h4df(_base + [_red, (2.15, 2.35, 2.4, 2.1)]), 2.0)
+check("4س·تغطية: خضرا أغلقت فوق جسم الحمرا ⇒ green_cover=True",
+      _h4_cov is not None and _h4_cov.get("green_cover") is True)
+_h4_unc = S.four_hour_levels(_h4df(_base + [_red, (2.05, 2.12, 2.15, 2.0)]), 2.0)
+check("4س·تغطية: خضرا لم تبلغ جسم الحمرا ⇒ green_cover=False",
+      _h4_unc is not None and _h4_unc.get("green_cover") is False)
+_h4_nor = S.four_hour_levels(_h4df([(2.0, 2.1, 2.15, 1.95)] * 12), 2.0)
+check("4س·تغطية: لا شموع حمرا ⇒ green_cover=None (غير منطبق)",
+      _h4_nor is not None and _h4_nor.get("green_cover") is None)
+# (بقية اختبارات (1) waiting_green_cover و(2) targets_src في قسم التفسير
+#  بالأسفل — تعتمد على fixtures _ir/_ip المعرّفة هناك)
+# (3) عمق الارتكاز في التقرير الفني المستقل (استيراد TR أعلى الملف)
+_pd_lines = TR.pivot_depth_section("TEST", synth_pivot(seed=2))
+check("التقرير الفني·عمق: سهم مؤهّل ⇒ قسم «عمق منهجية الارتكاز» بأدوار المستويات",
+      any("عمق منهجية الارتكاز" in x for x in _pd_lines)
+      and any("أدوار المستويات" in x for x in _pd_lines))
+_flat_df = pd.DataFrame(
+    {"Open": [5.0] * 300, "High": [5.05] * 300, "Low": [4.95] * 300,
+     "Close": [5.0] * 300, "Volume": [3e5] * 300},
+    index=pd.date_range("2025-01-01", periods=300, freq="B"))
+check("التقرير الفني·عمق: سهم غير مؤهّل ⇒ لا قسم (التقرير الكلاسيكي نقي)",
+      TR.pivot_depth_section("FLAT", _flat_df) == [])
 # 🧬 التجديد اليومي للبصمة (ملاحظة المستخدم من التقرير الحي 2026-07-08: سطر 🧬
 # كان يغيب عن الأسهم المضافة قبل الميزة — الآن يُحسب يوميًا مثل التفسير/الترند)
 _wlb = {"week_start": "2026-07-01", "removed": [], "notes": [],
@@ -1324,6 +1361,25 @@ check("التفسير·4س: مقاومة منقلبة دعمًا ⇒ سطر «ا
       any("انقلبت دعمًا" in x for x in S.interp_card_lines(
           {"setup_type": "pivot_reversal",
            "four_hour_context": {"state": "support_flipped", "flip": 1.82}})))
+# تغطية الخضرا (المقطع): حالة الانتظار + سطرها بالكرت
+_irg = dict(_ir, h4_levels={"resistances": [], "supports": [], "flip": None,
+                            "sweep_low": None, "green_cover": False})
+_ipg = S.build_interpretation(_irg)
+check("4س·تغطية: حمرا بلا تغطية (بلا حاجز أقوى) ⇒ state=waiting_green_cover",
+      _ipg["four_hour_context"]["state"] == "waiting_green_cover")
+check("4س·تغطية: سطر «بلا تغطية خضرا — ننتظر التأكيد» بالكرت",
+      any("بلا تغطية خضرا" in x for x in S.interp_card_lines(_ipg)))
+# مصدر كل هدف targets_src (P1-4 — استدلال بالمطابقة، عرض فقط)
+check("مصادر الأهداف: تُبنى لكل هدف مع activation/blocked_by",
+      len(_ip.get("targets_src", [])) == 3
+      and all("source" in x and "activation" in x for x in _ip["targets_src"]))
+check("مصادر الأهداف: t2=2.45 يطابق المقاومة الأساسية ⇒ مصدره «المقاومة الأساسية»",
+      any(x["price"] == 2.45 and "المقاومة الأساسية" in x["source"]
+          for x in _ip["targets_src"]))
+check("مصادر الأهداف: ما لا يطابق مصدرًا ⇒ «سلّم المقاومات اليومي» (صدق افتراضي)",
+      any(x["source"] == "سلّم المقاومات اليومي" for x in _ip["targets_src"]))
+check("مصادر الأهداف·قفل: الأهداف نفسها لم تتغيّر (قفل D5)",
+      (_ir["t1"], _ir["t2"], _ir["t3"]) == (2.10, 2.45, 2.90))
 # 🔒 قفل: التفسير لا يدخل rank_key (عرض فقط — لا يمسّ العضوية)
 import inspect as _insp2
 check("التفسير·قفل: build_interpretation/interp غير مذكور في rank_key (عرض فقط)",
