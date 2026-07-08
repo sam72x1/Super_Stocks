@@ -586,6 +586,7 @@ def main():
     # كانتا ناقصتين بالفحص اليدوي فيغيب سطر 🧬 وسياق الدورة عن بطاقته (إصلاح 2026-07-07)
     try:
         card_result["behav"] = bot.behavior_rise_profile(df)
+        card_result["pump_scar"] = bot.group_pump_scar(df)   # 🕵️ N1 (تطابق الفرز)
         card_result["trendline"] = bot.descending_trendline(
             df, card_result.get("price") or 0)          # §10 (تطابق الفرز)
         if card_result.get("bars_after") is None:

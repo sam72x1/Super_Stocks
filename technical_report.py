@@ -674,6 +674,7 @@ def pivot_depth_section(sym, df):
         if not r:
             return []
         r["behav"] = bot.behavior_rise_profile(df)
+        r["pump_scar"] = bot.group_pump_scar(df)
         r["trendline"] = bot.descending_trendline(df, r["price"])
         r["interp"] = bot.build_interpretation(r)
         interp = r["interp"] or {}
@@ -681,6 +682,14 @@ def pivot_depth_section(sym, df):
         L = ["", "━━━━━ 🧭 <b>عمق منهجية الارتكاز</b> ━━━━━",
              es["label"] + (f" — {es['reason']}" if es["reason"] else "")]
         L += bot.interp_card_lines(interp)
+        # 🕵️ لوحة علامات اليد الكاملة (كل دليل بسطر) + جملة الصدق عن الطلبات
+        ev = bot.hand_evidence(r)
+        if ev:
+            L.append(f"🕵️ <b>علامات اليد ({len(ev)}):</b>")
+            for e in ev:
+                L.append(f"  • [{e['frame']}] {e['sign']} — {e['detail']}")
+        L.append("ℹ️ تدفق الطلبات الحي (Level 2) غير متاح بمسار البوت — "
+                 "لقطة bid/ask وحيدة فقط، لا تخمين.")
         roles = interp.get("level_roles") or []
         if roles:
             L.append("🧱 أدوار المستويات:")

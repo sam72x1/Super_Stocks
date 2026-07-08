@@ -833,6 +833,105 @@ _sb = _wlb["stocks"][0]
 check("🧬تجديد يومي: سجل قديم بلا بصمة → behav+bars_after يُحسبان بالتحديث اليومي",
       (_sb.get("behav") or {}).get("score") is not None
       and isinstance(_sb.get("bars_after"), int))
+
+# ===== 🕵️ لوحة علامات اليد (HAND_EVIDENCE_PANEL_PLAN — عرض/تحذير فقط) =====
+def _pump_df(fast_break=True):
+    """داتا صناعية: قروب (قفزة 60%+ بحجم ضخم) ثم كسر دعم سريع/بطيء."""
+    pre = list(np.full(60, 2.0) + np.random.default_rng(3).normal(0, 0.01, 60))
+    jump = [2.0, 2.1, 3.4]                     # قفزة قروب عند الأخير
+    if fast_break:
+        after = list(np.linspace(3.4, 1.6, 8)) + list(np.full(29, 1.7))
+    else:
+        after = list(np.full(37, 3.3))         # لا كسر
+    c = np.array(pre + jump + after)
+    n = len(c)
+    o = c.copy()
+    hi = c * 1.03
+    lo = c * 0.97
+    v = np.full(n, 1e5)
+    v[62] = 9e5                                # حجم القفزة ضخم (سيولة قروب)
+    return pd.DataFrame(
+        {"Open": o, "High": hi, "Low": lo, "Close": c, "Volume": v},
+        index=pd.date_range("2025-01-01", periods=n, freq="B"))
+# N1: قروب + كسر دعم سريع → found + broke_support
+_n1 = S.group_pump_scar(_pump_df(fast_break=True))
+check("🕵️N1: قروب (قفزة+حجم) ثم كسر دعم سريع ⇒ found + broke_support",
+      _n1 and _n1["found"] and _n1["broke_support"]
+      and _n1["jump_pct"] >= 50)
+_n1b = S.group_pump_scar(_pump_df(fast_break=False))
+check("🕵️N1: قروب بلا كسر خلال النافذة ⇒ found + broke_support=False (صدق)",
+      _n1b and _n1b["found"] and _n1b["broke_support"] is False)
+_n1c = S.group_pump_scar(_flat_df)   # مسطّح بلا قفزة/حجم
+check("🕵️N1: بلا قفزة قروب ⇒ None (لا فبركة)", _n1c is None)
+# N2: سقف مُدار 4س (3 رؤوس حمرا عند نفس المستوى)
+def _h4_ceiling(rep):
+    rows = [(2.0, 2.05, 2.1, 1.95)] * 12       # قاعدة ≥10 شمعة (شرط four_hour_levels)
+    for _ in range(rep):                       # rep شمعة حمرا رأسها ~3.5
+        rows.append((3.5, 3.2, 3.52, 3.15))
+        rows.append((3.2, 3.3, 3.35, 3.15))    # خضرا فاصلة
+    return _h4df(rows)
+_n2 = S.four_hour_levels(_h4_ceiling(3), 2.0)
+check("🕵️N2: 3 رؤوس حمرا عند نفس السعر ⇒ managed_ceiling بلمساته",
+      _n2 and _n2.get("managed_ceiling")
+      and _n2["managed_ceiling"]["touches"] >= 3
+      and abs(_n2["managed_ceiling"]["price"] - 3.52) < 0.1)
+_n2b = S.four_hour_levels(_h4_ceiling(1), 2.0)
+check("🕵️N2: رأس حمرا واحد ⇒ لا سقف مُدار (None)",
+      _n2b and _n2b.get("managed_ceiling") is None)
+# N4: المجمّع + العدّ + عتبة الدليلين
+_r_hand = {"behav": {"sweeps": 3, "score": 65},
+           "pump_scar": {"found": True, "jump_pct": 67, "bars_ago": 20,
+                         "broke_support": True},
+           "rotation_pct": 150,
+           "h4_levels": {"managed_ceiling": {"price": 3.53, "touches": 4}},
+           "session_ctx": {"quote": {"spread_pct": 5.0}},
+           "interp": {"entry_mode": {"mode": "near_support"}}}
+_ev = S.hand_evidence(_r_hand)
+check("🕵️N4: يجمع الأدلة من المصادر الأربعة (يومي/4س/حجم/طلبات)",
+      {e["frame"] for e in _ev} >= {"يومي", "4س", "حجم", "طلبات"}
+      and len(_ev) >= 5)
+check("🕵️N4: «رفعة قروب ثم كسر دعوم» تظهر عند broke_support=True",
+      any("كسر دعوم" in e["sign"] for e in _ev))
+check("🕵️N4·سطر: عند دليلين فأكثر ⇒ «🕵️ علامات اليد (N)» + عددها",
+      S.hand_evidence_line(_r_hand).startswith("🕵️ علامات اليد (")
+      and "+" in S.hand_evidence_line(_r_hand))    # +N للباقي فوق 3
+check("🕵️N4·سطر: دليل واحد فقط ⇒ لا سطر (لا حشو)",
+      S.hand_evidence_line({"behav": {"sweeps": 3}}) == "")
+check("🕵️N4·فاشل-آمن: مدخل فاضٍ ⇒ [] (لا انهيار)",
+      S.hand_evidence({}) == [] and S.hand_evidence_line({}) == "")
+check("🕵️N4·صدق الطلبات: سبريد ضيّق ⇒ لا دليل طلبات",
+      not any(e["frame"] == "طلبات" for e in S.hand_evidence(
+          dict(_r_hand, session_ctx={"quote": {"spread_pct": 1.0}}))))
+# العرض بالكرت + التجديد اليومي لـpump_scar
+_card_h = {"symbol": "HND", "price": 2.0, "pivot": 1.95, "score": 60,
+           "readiness": 60, "rr": 2.0, "entry": (1.9, 2.0),
+           "tranches": [1.9, 1.95, 2.0], "stop": (1.75, 1.79),
+           "t1": 2.3, "t2": 2.6, "t3": 3.0, "tier": "B", "soft_fails": [],
+           "flags": [], "behav": {"sweeps": 3, "score": 65,
+                                  "label": "🔥 يد نشطة", "n_pumps": 2,
+                                  "best_pump": 150.0, "recency_bars": 30},
+           "pump_scar": {"found": True, "jump_pct": 67, "bars_ago": 20,
+                         "broke_support": True}, "rotation_pct": 150}
+_card_h["interp"] = S.build_interpretation(_card_h)
+check("🕵️عرض: الكرت يُظهر «🕵️ علامات اليد»",
+      "🕵️ علامات اليد" in S.build_message([_card_h], []))
+_wlh = {"week_start": "2026-07-01", "removed": [], "notes": [],
+        "stocks": [_wl_entry("PMP", "near_support")]}
+S.update_watchlist_status(_wlh, {"PMP": _pump_df(fast_break=True)})
+check("🕵️تجديد يومي: pump_scar يُحسب بالتحديث اليومي (سجل قديم)",
+      "pump_scar" in _wlh["stocks"][0])
+# 🔒 أقفال: خارج الاختيار/الترتيب/التصنيف/الباكتيست + بلا درجة رقمية بالمخرج
+check("🕵️قفل: hand_evidence/pump_scar خارج rank_key/select_top/classify_tier/entry_status",
+      all(("hand_evidence" not in _insp0.getsource(f)
+           and "pump_scar" not in _insp0.getsource(f))
+          for f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status)))
+check("🕵️قفل: group_pump_scar خارج backtest_symbol/analyze_ticker (حيّ فقط)",
+      "group_pump_scar" not in _insp0.getsource(S.backtest_symbol)
+      and "group_pump_scar" not in _insp0.getsource(S.analyze_ticker))
+check("🕵️قفل: نصوص اللوحة بلا علامات مقارنة ≥≤><",
+      not any(c in (S.hand_evidence_line(_r_hand)
+                    + " ".join(e["sign"] + e["detail"] for e in _ev))
+              for c in "≥≤<>"))
 # لا يكرّر الصفقة لو ظهرت بالأرشيف والحالي معًا (dedup)
 _dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)]}],
         "removed": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)], "stocks": []}

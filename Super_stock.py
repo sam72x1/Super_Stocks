@@ -973,6 +973,46 @@ def behavior_rise_profile(df):
                 "recency_bars": None, "repumps": 0, "sweeps": 0}
 
 
+def group_pump_scar(df, scan_bars=90, rise_window=5, break_window=15):
+    """N1 (لوحة علامات اليد — طلب المستخدم 2026-07-08): «رفعة قروب ثم كسر دعوم» —
+    قفزة مفاجئة بسيولة عالية (نمط الضخّ الجماعي/القروب) يعقبها كسر متعمّد للدعم
+    لهزّ المتعلّقين قبل الانطلاق. **عرض/تشخيص فقط · خلفي بلا نظر مستقبلي** (النمط
+    اكتمل تاريخيًا حتى آخر شمعة). العتبات من الموجود: الصعود ≥`EXPLOSION_PCT`
+    خلال ≤5ج + حجم يوم القفزة ≥`VOL_SPIKE_MULT`× متوسط 20ج (سيولة القروب). يعيد
+    آخر نمط مطابق في آخر `scan_bars`: {found, jump_pct, bars_ago, broke_support,
+    pre_support} أو None."""
+    try:
+        c = df["Close"].values.astype(float)
+        lo = df["Low"].values.astype(float)
+        v = df["Volume"].values.astype(float)
+        n = len(c)
+        if n < 40:
+            return None
+        rise_thr = CONFIG["EXPLOSION_PCT"] / 100.0
+        vmult = CONFIG["VOL_SPIKE_MULT"]
+        start = max(21, n - scan_bars)
+        found = None
+        for i in range(start, n):
+            base = float(np.min(c[max(0, i - rise_window):i]))
+            vavg = float(np.mean(v[i - 20:i]))
+            if base <= 0 or vavg <= 0:
+                continue
+            rise = c[i] / base - 1.0
+            if rise < rise_thr or v[i] < vmult * vavg:     # قروب: قفزة + سيولة
+                continue
+            j = max(0, i - rise_window)                     # دعم ما قبل الرفعة
+            pre_sup = float(np.min(lo[max(0, j - 5):j + 1]))
+            end = min(n, i + 1 + break_window)
+            broke = bool(pre_sup > 0 and end > i + 1
+                         and float(np.min(c[i + 1:end])) < pre_sup)
+            found = {"found": True, "jump_pct": round(rise * 100, 0),
+                     "bars_ago": int(n - 1 - i), "broke_support": broke,
+                     "pre_support": round(pre_sup, 2)}
+        return found
+    except Exception:
+        return None
+
+
 def pivot_stability(lows: np.ndarray, closes: np.ndarray):
     """كشف Pivot Low + ثبات 3-5 جلسات (قاعدة التوقيت الذهبية)"""
     look = min(CONFIG["PIVOT_LOOKBACK"], len(lows))
@@ -1265,6 +1305,20 @@ def four_hour_levels(h4: pd.DataFrame, price: float):
     resistances = _cluster_levels(res)[:5]            # تصاعدي (أقرب هدف أولاً)
     supports = sorted(_cluster_levels(sup), reverse=True)[:5]  # أقرب دعم أولاً
     flip = round(max(heads_below), 2) if heads_below else None
+    # N2 (لوحة علامات اليد): «سقف مُدار» = رأس مقاومة 4س تجمّعت عنده 3 لمسات فأكثر
+    # (يد تبيع عند نفس السعر بانتظام). يُختار الأكثر لمسًا (الأكثر دفاعًا).
+    managed = None
+    grp = []
+    for lv in sorted(res):
+        if grp and abs(lv / (sum(grp) / len(grp)) - 1.0) <= 0.02:
+            grp.append(lv)
+        else:
+            if len(grp) >= 3 and (managed is None or len(grp) > managed["touches"]):
+                managed = {"price": round(sum(grp) / len(grp), 2),
+                           "touches": len(grp)}
+            grp = [lv]
+    if len(grp) >= 3 and (managed is None or len(grp) > managed["touches"]):
+        managed = {"price": round(sum(grp) / len(grp), 2), "touches": len(grp)}
     # تغطية الخضرا (المقطع: «تغطية الشمعة الحمراء بشمعة خضراء تعطي تأكيد»):
     # آخر شمعة حمرا — هل جاءت بعدها خضرا أغلقت عند/فوق جسمها (open الحمرا)؟
     # True=تأكيد · False=حمرا بلا تغطية (ننتظر) · None=لا شموع حمرا (غير منطبق).
@@ -1276,7 +1330,7 @@ def four_hour_levels(h4: pd.DataFrame, price: float):
                                for j in range(li + 1, n)))
     return {"supports": supports, "resistances": resistances,
             "flip": flip, "sweep_low": round(float(np.min(lo)), 2),
-            "green_cover": green_cover}
+            "green_cover": green_cover, "managed_ceiling": managed}
 
 
 def refine_targets_4h(t1, t2, t3, price, h4l):
@@ -2587,6 +2641,20 @@ def enrich(results: list) -> None:
                     "unavailable_reason": ("بيانات ما قبل/بعد السوق غير متاحة "
                                            "بمسار البوت — لا تخمين"),
                 }
+                # N3 (لوحة علامات اليد): لقطة الطلبات الصادقة — bid/ask وحيدة وقت
+                # الفرز. تدفق الطلبات الحي (Level 2) غير متاح بمسارنا → يُقال صراحة،
+                # لا يُخمَّن. السبريد الواسع = علامة ضعف سيولة/يد تتحكّم بالعرض.
+                _bid, _ask = info.get("bid"), info.get("ask")
+                _spread = None
+                if _bid and _ask and _ask > 0 and _ask >= _bid:
+                    _spread = round((_ask - _bid) / _ask * 100.0, 1)
+                r["session_ctx"]["quote"] = {
+                    "bid": _bid, "ask": _ask,
+                    "bid_size": info.get("bidSize"),
+                    "ask_size": info.get("askSize"), "spread_pct": _spread,
+                    "note": ("لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح "
+                             "بمسار البوت"),
+                }
                 # حدّث الذاكرة بالقيم المعروفة الآن (للتشغيلات القادمة)
                 _cc_entry = {k: r.get(k) for k in
                              ("sector", "industry", "business",
@@ -3097,6 +3165,62 @@ def behavior_tags(bh: dict) -> list:
     return tags
 
 
+def hand_evidence(r: dict) -> list:
+    """🕵️ لوحة «علامات اليد» (خطة HAND_EVIDENCE_PANEL_PLAN، طلب المستخدم 2026-07-08:
+    «أي سهم فيه شك أن وراه مضارب»). تجمع قرائن يدٍ تشتغل على السهم من المصادر
+    الأربعة (شموع يومية · 4س · طلبات · رفعة قروب ثم كسر دعوم) في **قائمة أدلة
+    نوعية موحّدة — بلا درجة مبتدعة ولا أولوية اختيار** (حكم السنتين §0-ح: اليد
+    النشطة تمسح الوقف الثابت، فالقيمة أن يعرف المتداول ويتوقّع الكنسة لا أن يُرجَّح
+    السهم بالفرز). عرض/تحذير فقط · تُقرأ من حقول مخزّنة (behav/h4_levels/pump_scar/
+    rotation/session_ctx/interp). كل دليل: {frame, sign, detail}. فاشل-آمن → []."""
+    ev = []
+    try:
+        bh = r.get("behav") or {}
+        if (bh.get("sweeps") or 0) >= 2:
+            ev.append({"frame": "يومي", "sign": "مسح دعم متكرر",
+                       "detail": f"{bh['sweeps']} مرّات"})
+        # (لا نكرّر درجة البصمة هنا — هي على سطر 🧬 بالفعل؛ اللوحة تجمع الأدلة
+        # النوعية المتمايزة لا الدرجة — مراجعة خصومية عدسة العرض 2026-07-08)
+        ps = r.get("pump_scar") or {}
+        if ps.get("found"):
+            sign = ("رفعة قروب ثم كسر دعوم" if ps.get("broke_support")
+                    else "رفعة قروب بسيولة")
+            det = f"قفزة {ps.get('jump_pct', 0):.0f}% قبل {ps.get('bars_ago', 0)}ج"
+            ev.append({"frame": "يومي", "sign": sign, "detail": det})
+        h4 = r.get("h4_levels") or {}
+        mc = h4.get("managed_ceiling")
+        if mc and mc.get("price"):
+            ev.append({"frame": "4س",
+                       "sign": f"سقف مُدار عند ${mc['price']:.2f}",
+                       "detail": f"{mc['touches']} لمسات"})
+        if (r.get("interp") or {}).get("entry_mode", {}).get(
+                "mode") == "sweep_confirmed":
+            ev.append({"frame": "4س", "sign": "مسح واستعادة الآن",
+                       "detail": "تأكيد لحظي"})
+        rot = r.get("rotation_pct")
+        if rot and rot >= 100:
+            ev.append({"frame": "حجم", "sign": "تدوير فلوت مرتفع",
+                       "detail": f"{rot:.0f}% (سكويز)"})
+        q = (r.get("session_ctx") or {}).get("quote") or {}
+        if q.get("spread_pct") is not None and q["spread_pct"] >= 3.0:
+            ev.append({"frame": "طلبات", "sign": "سبريد واسع",
+                       "detail": f"{q['spread_pct']:.0f}% (لقطة)"})
+    except Exception:
+        pass
+    return ev
+
+
+def hand_evidence_line(r: dict) -> str:
+    """سطر «🕵️ علامات اليد» المكثّف (يظهر عند دليلين فأكثر — لا حشو لكل سهم).
+    أول 3 أدلة نصًّا و«+N» للباقي. يرجع "" لو أقل من دليلين. عرض فقط."""
+    ev = hand_evidence(r)
+    if len(ev) < 2:
+        return ""
+    shown = [f"{e['sign']} ({e['frame']})" for e in ev[:3]]
+    extra = f" +{len(ev) - 3}" if len(ev) > 3 else ""
+    return f"🕵️ علامات اليد ({len(ev)}): " + " · ".join(shown) + extra
+
+
 def build_interpretation(r: dict) -> dict:
     """🧭 طبقة التفسير والقرار (خطة INTERPRETATION_LAYER_PLAN.md، 2026-07-05 — **عرض/تفسير
     فقط**: لا تمسّ الفرز/الدخول/الوقف/الأهداف/العضوية · لا LOGIC_VERSION). تقرأ حقول r
@@ -3411,6 +3535,10 @@ def build_message(results: list, splits: list,
             det += behavior_tags(bh)      # §13: وسوم وصفية (صيد وقفات/خمول طويل)
             tail = (" (" + " · ".join(det) + ")") if det else ""
             lines.append(f"🧬 طريقة الارتفاع: {bh['score']}/100 · {bh['label']}{tail}")
+        # 🕵️ لوحة علامات اليد (تجميع قرائن مضارب — يظهر عند دليلين فأكثر)
+        _he = hand_evidence_line(r)
+        if _he:
+            lines.append(_he)
         # المعلومات الصغيرة بسطر واحد (سعر · فلوت · شورت · قطاع · دولة)
         small = [f"${price:.2f}"]
         # فلوت/شورت: لو تعذّر الجلب من كل المصادر نعرض شرطة «—» (وضوح: تعذّر
@@ -3801,6 +3929,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "key_levels": r.get("key_levels"),                # دعوم/مقاومات أساسي/فرعي
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
+        "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "bars_after": r.get("bars_after"),                # §11: جلسات منذ القاع (تفسير)
         "trendline": r.get("trendline"),                  # §10: خط الترند الهابط (تفسير)
@@ -4196,6 +4325,7 @@ def scan_market():
         r = analyze_ticker(sym, df)
         if r:
             r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
+            r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
             r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
             r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
             results.append(r)
@@ -4375,6 +4505,7 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                                    df["Close"].values.astype(float))
             if _psn:
                 s["bars_after"] = int(_psn["bars_after"])
+            s["pump_scar"] = group_pump_scar(df)   # 🕵️ N1 يتجدّد يوميًا (عرض فقط)
         except Exception:
             pass
         # 🧭 تجديد التفسير يوميًا بالسعر الجديد (عرض فقط — الرقم الحرج/وضع الدخول
@@ -4790,6 +4921,10 @@ def build_daily_message(wl: dict, splits: list,
             _bd += behavior_tags(_bh)     # §13: وسوم وصفية (صيد وقفات/خمول طويل)
             _bt = (" (" + " · ".join(_bd) + ")") if _bd else ""
             lines.append(f"   🧬 طريقة الارتفاع: {_bh['score']}/100 · {_bh['label']}{_bt}")
+        # 🕵️ لوحة علامات اليد (تجميع قرائن مضارب — يظهر عند دليلين فأكثر)
+        _dhe = hand_evidence_line(s)
+        if _dhe:
+            lines.append("   " + _dhe)
         # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
         rot = s.get("rotation_pct")
         if rot and rot >= 100:
