@@ -3288,7 +3288,9 @@ def build_hand_digest(wl: dict, history: dict) -> str:
         rows.sort(key=lambda x: (-len(x[2]), -len(x[1])))   # النشط اليوم أولًا
         for s, ev, acts in rows:
             lp = s.get("last_price")
-            head = f"🎯 <b>${s['symbol']}</b>"
+            es = entry_status(s)             # الأهم: جاهز للدخول أم متابعة؟
+            tag = "🟢 جاهز للدخول" if es["status"] == "ready_now" else "👀 متابعة"
+            head = f"{tag} · <b>${s['symbol']}</b>"
             if lp:
                 head += f" · ${lp:.2f}"
             lines.append(head)
@@ -4868,6 +4870,36 @@ def entry_status(s: dict) -> dict:
                 "reason": "تعذّر تقييم وضع الدخول"}
 
 
+def build_hand_section(wl: dict) -> str:
+    """🕵️ قسم مستقل مختصر (طلب المستخدم 2026-07-08: «أبي أسهم علامة المضارب في
+    قائمة لحالها عشان ما أضيع من كثر بيانات الأسهم»): أسهم القائمة التي وراءها
+    علامات يد (دليلان فأكثر) — قائمة نظيفة لحالها، سطر لكل سهم. عرض/تحذير فقط،
+    لا يمسّ الفرز/الحالة/الترتيب المخزّن (partition عرضي فقط)."""
+    rows = []
+    for s in wl.get("stocks", []):
+        if s.get("status") != "active":
+            continue
+        ev = hand_evidence(s)
+        if len(ev) >= 2:
+            rows.append((s, ev))
+    if not rows:
+        return ""
+    # الجاهز للدخول أولًا (الأهم للمستخدم) ثم الأكثر أدلةً
+    rows.sort(key=lambda x: (entry_status(x[0])["status"] != "ready_now",
+                             -len(x[1])))
+    lines = [f"🕵️ <b>أسهم فيها علامات يد ({len(rows)})</b>",
+             "أسهم مُدارة — توقّع كسر دعوم مفتعل قبل الانطلاق، لا تتعجّل:"]
+    for s, ev in rows:
+        signs = " · ".join(e["sign"] for e in ev[:3])
+        extra = f" +{len(ev) - 3}" if len(ev) > 3 else ""
+        lp = s.get("last_price")
+        px = f" ${lp:.2f}" if lp else ""
+        es = entry_status(s)                  # الأهم: جاهز للدخول أم متابعة؟
+        tag = "🟢 جاهز للدخول" if es["status"] == "ready_now" else "👀 متابعة"
+        lines.append(f"• {tag} · <b>${s['symbol']}</b>{px} — {signs}{extra}")
+    return _rtl_join(lines)
+
+
 def build_pullback_section(entries: list, triggered: list = None) -> str:
     """قسم «مراقبة الارتداد»: أسهم ارتكاز ارتفعت ننتظر رجوعها للدعم +
     تنبيهات الأسهم التي وصلت سعر الدعم اليوم (جاهزة للدخول)."""
@@ -5007,10 +5039,8 @@ def build_daily_message(wl: dict, splits: list,
             _bd += behavior_tags(_bh)     # §13: وسوم وصفية (صيد وقفات/خمول طويل)
             _bt = (" (" + " · ".join(_bd) + ")") if _bd else ""
             lines.append(f"   🧬 طريقة الارتفاع: {_bh['score']}/100 · {_bh['label']}{_bt}")
-        # 🕵️ لوحة علامات اليد (تجميع قرائن مضارب — يظهر عند دليلين فأكثر)
-        _dhe = hand_evidence_line(s)
-        if _dhe:
-            lines.append("   " + _dhe)
+        # 🕵️ علامات اليد لم تعد سطرًا داخل كل كرت (طلب المستخدم: تُجمع في قسم
+        # «أسهم فيها علامات يد» المستقل أسفل التقرير — قائمة نظيفة لحالها).
         # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
         rot = s.get("rotation_pct")
         if rot and rot >= 100:
@@ -5945,6 +5975,10 @@ def run_daily_watchlist(wl: dict) -> None:
                 + " — لم تُضف أسهم جديدة اليوم (متابعة القائمة الحالية مستمرة).")
     watching = [e for e in wl.get("pullback", [])
                 if e.get("status") != "triggered"]
+    # 🕵️ قسم مستقل «أسهم فيها علامات يد» (قائمة نظيفة لحالها — طلب المستخدم)
+    hand_sec = build_hand_section(wl)
+    if hand_sec:
+        msg += "\n\n" + hand_sec
     pull_sec = build_pullback_section(watching, pull_triggered)
     if pull_sec:
         msg += "\n\n" + pull_sec

@@ -932,6 +932,31 @@ check("🕵️قفل: نصوص اللوحة بلا علامات مقارنة ≥
       not any(c in (S.hand_evidence_line(_r_hand)
                     + " ".join(e["sign"] + e["detail"] for e in _ev))
               for c in "≥≤<>"))
+# 🕵️ القسم المستقل «أسهم فيها علامات يد» (طلب المستخدم: قائمة لحالها للتنظيف)
+_wl_hs = {"stocks": [
+    {"symbol": "HND", "status": "active", "last_price": 2.0,
+     "behav": {"sweeps": 3, "score": 66}, "rotation_pct": 160,
+     "h4_levels": {"managed_ceiling": {"price": 3.0, "touches": 4}},
+     "pump_scar": {"found": True, "jump_pct": 60, "bars_ago": 10,
+                   "broke_support": True}},
+    {"symbol": "CLN", "status": "active", "last_price": 5.0, "behav": {}}]}
+_wl_hs["stocks"][0]["interp"] = {"entry_mode": {"mode": "near_support"}}
+_hs = S.build_hand_section(_wl_hs)
+check("🕵️قسم: يعرض «أسهم فيها علامات يد» + السهم المُدار فقط (النظيف مستبعد)",
+      "أسهم فيها علامات يد (1)" in _hs and "$HND" in _hs and "$CLN" not in _hs)
+check("🕵️قسم·الأهم: يوضّح حالة الدخول لكل سهم يد (جاهز/متابعة)",
+      "🟢 جاهز للدخول" in _hs)
+_wl_hw = {"stocks": [dict(_wl_hs["stocks"][0],
+                         interp={"entry_mode": {"mode": "no_entry_far",
+                                                "reason": "بعيد فوق المنطقة"}})]}
+check("🕵️قسم·الأهم: سهم يد بعيد ⇒ «👀 متابعة» (لا يُعرض جاهزًا خطأً)",
+      "👀 متابعة" in S.build_hand_section(_wl_hw))
+check("🕵️قسم: لا أسهم يد ⇒ قسم فارغ (لا ترويسة معلّقة)",
+      S.build_hand_section({"stocks": [
+          {"symbol": "X", "status": "active", "behav": {}}]}) == "")
+check("🕵️قسم·تنظيف: سطر 🕵️ أُزيل من كرت اليومي (انتقل للقسم المستقل)",
+      "hand_evidence_line" not in _insp0.getsource(S.build_daily_message)
+      and "build_hand_section" in _insp0.getsource(S.run_daily_watchlist))
 
 # ===== 🕵️ تحديث نهاية اليوم «ماذا فعلت اليد اليوم» (DIGEST — إشعار/عرض فقط) =====
 def _today_df(kind):
@@ -969,10 +994,13 @@ _wl_dg = {"week_start": "2026-07-01", "removed": [], "notes": [], "stocks": [
      "pump_scar": {"found": True, "jump_pct": 60, "bars_ago": 10,
                    "broke_support": True}},
     {"symbol": "QUIET", "status": "active", "last_price": 5.0, "behav": {}}]}
+_wl_dg["stocks"][0]["interp"] = {"entry_mode": {"mode": "near_support"}}
 _dg = S.build_hand_digest(_wl_dg, {"ACT": _today_df("sweep")})
 check("🕵️الملخّص: ترويسة «تحديث اليد — نهاية اليوم» + السهم النشط + فعله اليوم",
       "تحديث اليد — نهاية اليوم" in _dg and "$ACT" in _dg
       and "كنس الدعم" in _dg and "🕵️ علامات اليد" in _dg)
+check("🕵️الملخّص·الأهم: يوضّح حالة الدخول (جاهز/متابعة) لكل سهم",
+      "🟢 جاهز للدخول" in _dg or "👀 متابعة" in _dg)
 check("🕵️الملخّص: السهم بلا يد ولا نشاط لا يظهر (QUIET مستبعد)",
       "$QUIET" not in _dg)
 _dg_empty = S.build_hand_digest(
