@@ -975,26 +975,36 @@ check("فحص اليد: بلا قرائن ⇒ «لا قرائن واضحة» (ص
                                                      "behav": {}}))
 check("فحص اليد·الأهم: يحلّله كسهم ارتكاز (قسم «التحليل كسهم ارتكاز»)",
       "التحليل كسهم ارتكاز" in _hc_msg)
-_hc_piv = dict(_hc_r, interp={"setup_type": "liquidity_sweep",
-                              "entry_mode": {"mode": "near_support"},
-                              "critical_number": {"price": 2.2,
-                                                  "why": "تجاوزه يفعّل الهدف"}},
+_hc_gates = [("السعر فوق $1", True, "$2.00"),
+             ("الهبوط ضمن 40–97%", True, "-70%"),
+             ("انفجار سابق 60% فأكثر", True, "120%"),
+             ("قاعدة ضيقة (40% أو أقل) ولم ينفجر", False, "55%"),
+             ("RSI تشبّع (قاع 32 أو أقل) والآن أقل من 50", False, "الآن 47")]
+_hc_piv = dict(_hc_r, gates=_hc_gates,
+               interp={"setup_type": "liquidity_sweep",
+                       "entry_mode": {"mode": "near_support"},
+                       "critical_number": {"price": 2.2, "why": "تجاوزه يفعّل"}},
                tranches=[1.8, 1.9, 2.0], stop=(1.7, 1.75),
-               t1=2.3, t2=2.6, t3=3.0,
-               soft_fails=["قاع RSI 30 (المثالي 27 أو أقل)", "لا فجوة فوقه"])
+               t1=2.3, t2=2.6, t3=3.0)
 _hc_pmsg = HC.render_hand_check("TST", _hc_piv)
 check("فحص اليد·ارتكاز مؤهّل: يعرض «مؤهّل» + الحالة + الرقم الحرج + الأهداف",
       "سهم ارتكاز مؤهّل" in _hc_pmsg and "الرقم الحرج" in _hc_pmsg
       and "🎯 أهداف:" in _hc_pmsg)
-check("فحص اليد·النواقص: يعرض بوابات التأكيد الناقصة «N/14» (طلب المستخدم)",
-      "الناقص (2/14)" in _hc_pmsg and "قاع RSI 30" in _hc_pmsg)
-check("فحص اليد·النواقص: بلا نواقص ⇒ «اجتاز كل بوابات التأكيد»",
-      "اجتاز كل بوابات التأكيد" in HC.render_hand_check(
-          "F", dict(_hc_piv, soft_fails=[])))
-check("فحص اليد·ارتكاز مرفوض: يوضّح «ليس ارتكازًا مؤهّلًا» + السبب",
-      "ليس سهم ارتكاز مؤهّلًا" in HC.render_hand_check(
-          "R", {"symbol": "R", "price": 9.0, "behav": {},
-                "reject_reason": "قاع_غير_مكتمل"}))
+check("فحص اليد·البوابات: يعرض كل البوابات ✅/❌ + العدّ «N/M» (طلب المستخدم)",
+      "البوابات الإلزامية:" in _hc_pmsg and "3/5" in _hc_pmsg
+      and "❌ قاعدة ضيقة" in _hc_pmsg and "✅ السعر فوق" in _hc_pmsg)
+# 🎯 جوهر الطلب: سهم سقط على بوابة صلبة (السعر) — تظهر باقي البوابات مع ذلك
+_hc_low = {"symbol": "BBLG", "price": 1.30, "behav": {"sweeps": 3, "score": 61},
+           "reject_reason": "M1_سعر=1",
+           "gates": [("السعر فوق $1", False, "$1.30"),
+                     ("الهبوط ضمن 40–97%", True, "-60%"),
+                     ("انفجار سابق 60% فأكثر", True, "90%"),
+                     ("قاعدة ضيقة (40% أو أقل)", True, "30%")]}
+_hc_lmsg = HC.render_hand_check("BBLG", _hc_low)
+check("فحص اليد·الأهم: سهم تحت الحد (سقط على السعر) يعرض باقي البوابات كاملة",
+      "ليس سهم ارتكاز مؤهّلًا" in _hc_lmsg and "3/4" in _hc_lmsg
+      and "❌ السعر فوق" in _hc_lmsg and "✅ الهبوط" in _hc_lmsg
+      and "✅ انفجار سابق" in _hc_lmsg)
 check("فحص اليد·صدق: نص «تدفق الطلبات الحي غير متاح» موجود",
       "تدفق الطلبات الحي" in _hc_msg)
 check("فحص اليد·قفل: render_hand_check لا يخترع درجة اشتباه رقمية (نوعي فقط)",
