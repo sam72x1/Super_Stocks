@@ -1347,8 +1347,9 @@ def _ig_bars(prices, vols):
 _ig_quiet = [1.95, 1.96, 1.95, 1.96, 1.97, 1.96, 1.95, 1.96, 1.97]
 _ig_fire = _ig_bars(_ig_quiet + [2.05], [100] * 9 + [500])     # حجم 5× · كسر 2.00 صاعدًا
 # دالة الكشف النقية
-check("انطلاق·كشف: قفزة حجم + كسر صاعد + اتجاه صاعد ⇒ اشتعال {price,vol_x}",
-      S._ignition_signal(_ig_fire, 2.00) == {"price": 2.05, "vol_x": 5.0})
+check("انطلاق·كشف: قفزة حجم + كسر صاعد + اتجاه صاعد ⇒ اشتعال {price,vol_x,usd}",
+      S._ignition_signal(_ig_fire, 2.00) == {"price": 2.05, "vol_x": 5.0,
+                                             "usd": round(2.05 * 500)})
 check("انطلاق·كشف: لا قفزة حجم (1.2×) ⇒ None",
       S._ignition_signal(_ig_bars(_ig_quiet + [2.05], [100] * 9 + [120]), 2.00) is None)
 check("انطلاق·كشف: لا كسر (السعر تحت الحاجز) ⇒ None",
@@ -1413,6 +1414,54 @@ check("تحقّق·قفل: دالّتا التحقّق خارج rank_key/select_
       all(("_find_explosion_day" not in _insp0.getsource(_f)
            and "_ignition_first_fire" not in _insp0.getsource(_f))
           for _f in (S.rank_key, S.select_top, S.backtest_symbol)))
+
+# ===== 🕵️💰 حزمة «قراءة المضارب» من صور فيصل (FAISAL_OPERATOR_PACK_PLAN) =====
+# P1 💰 وسم شمعة مضارب/قروب بسيولتها الدولارية (قاعدة فيصل: ≥100ألف مضارب · ≤50ألف قروب)
+check("مضارب·P1 تصنيف: ≥300ألف قوية · ≥100ألف مضارب · ≤50ألف قروب · بينها mid",
+      S._ignition_candle_class(300000)[0] == "strong"
+      and S._ignition_candle_class(150000)[0] == "operator"
+      and S._ignition_candle_class(100000)[0] == "operator"      # حدّي شامل
+      and S._ignition_candle_class(50000)[0] == "group"          # حدّي شامل
+      and S._ignition_candle_class(70000)[0] == "mid"
+      and S._ignition_candle_class(None) == ("", ""))
+_ig_us = [{"o": p, "h": p * 1.01, "l": p * 0.99, "c": p, "v": v} for p, v in zip(
+    [2.0, 2.0, 2.01, 2.0, 2.01, 2.0, 2.0, 2.01, 2.08], [3000] * 8 + [100000])]
+_ig_us_sig = S._ignition_signal(_ig_us, 2.05)
+check("مضارب·P1 سيولة: _ignition_signal يُرجع usd = سعر×حجم شمعة الاشتعال",
+      _ig_us_sig["usd"] == 208000)
+_ig_us_msg = S.build_ignition_alert([({"symbol": "OP", "t1": 2.4, "stop": 1.6,
+    "pivot": 1.9, "interp": {"critical_number": {"price": 2.0}}}, _ig_us_sig, None)])
+check("مضارب·P1 عرض: التنبيه يعرض «سيولة الشمعة $X — شمعة مضارب»",
+      "سيولة الشمعة $208,000" in _ig_us_msg and "شمعة مضارب" in _ig_us_msg)
+check("مضارب·P1 قفل: الوسم عرض فقط — _ignition_candle_class خارج الفرز/الاختيار",
+      all("_ignition_candle_class" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.backtest_symbol, S.scan_ignition)))
+# P3 ⚠️ تحذير «سيولة قطيع قبل الرفعة» (قاعدة LABT) في hand_activity_today
+def _labt_df(t_c, t_o, t_v):
+    b = dict(o=[2.0] * 24, c=[2.0] * 24, h=[2.05] * 24, lo=[1.95] * 24, v=[1e5] * 24)
+    return pd.DataFrame(
+        {"Open": b["o"] + [t_o], "Close": b["c"] + [t_c],
+         "High": b["h"] + [max(t_o, t_c) * 1.02], "Low": b["lo"] + [min(t_o, t_c) * 0.98],
+         "Volume": b["v"] + [t_v]},
+        index=pd.date_range("2025-01-01", periods=25, freq="B"))
+_labt_s = {"interp": {"critical_number": {"price": 3.0}}}
+check("مضارب·P3 LABT: حجم ضخم + إغلاق تحت الرقم الحرج ⇒ تحذير «سيولة قبل الرفعة تُهبِط»",
+      any("سيولة قبل رفعة المضارب" in a
+          for a in S.hand_activity_today(_labt_s, _labt_df(2.4, 2.3, 8e5))))
+check("مضارب·P3 LABT: نفس الحجم مع كسر الرقم الحرج ⇒ لا تحذير (اخترق صاعدًا)",
+      not any("سيولة قبل رفعة" in a
+              for a in S.hand_activity_today(_labt_s, _labt_df(3.2, 3.0, 8e5))))
+check("مضارب·P3 LABT·فاشل-آمن: بلا رقم حرج ⇒ السلوك القديم (حجم ضخم يظهر بلا تحذير)",
+      (not any("سيولة قبل رفعة" in a
+               for a in S.hand_activity_today({}, _labt_df(2.4, 2.3, 8e5))))
+      and any("حجم ضخم" in a for a in S.hand_activity_today({}, _labt_df(2.4, 2.3, 8e5))))
+check("مضارب·P3 LABT: لا حجم ضخم ⇒ لا تحذير",
+      not any("سيولة قبل رفعة" in a
+              for a in S.hand_activity_today(_labt_s, _labt_df(2.4, 2.3, 1e5))))
+check("مضارب·P3 قفل: التحذير لا يطابق فلتر «كنس الدعم» (لا حدث لحظي جديد)",
+      not any("كنس الدعم" in a
+              for a in S.hand_activity_today(_labt_s, _labt_df(2.4, 2.3, 8e5))))
 
 # لا يكرّر الصفقة لو ظهرت بالأرشيف والحالي معًا (dedup)
 _dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)]}],

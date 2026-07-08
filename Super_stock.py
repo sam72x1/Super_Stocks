@@ -164,6 +164,11 @@ CONFIG = {
                                  # عرضية موثّقة): تحرّك ≥10% بحجم بريماركت = «راقب الافتتاح»
     "IGNITION_VOL_MULT": 3.0,    # 🔥 رادار الانطلاق: قفزة حجم الدقيقة ≥3× متوسط الدقائق
                                  # السابقة = لحظة الاشتعال (رد فعل حي، `IGNITION_PLAN.md`)
+    # 💰 عتبات «شمعة مضارب/قروب» بالدولار (FAISAL_OPERATOR_PACK_PLAN §P1، عرضية موثّقة
+    # من كلام فيصل حرفيًّا): شمعة المضارب سيولتها ≥100 ألف (قوية ≥300 ألف) · القروب ≤50 ألف.
+    "IGNITION_USD_OPERATOR": 100_000,
+    "IGNITION_USD_STRONG": 300_000,
+    "IGNITION_USD_GROUP": 50_000,
     # دول مشهورة بتجاهل التحليل الفني (تلاعب/pump&dump): تحذير فقط (تظل تظهر)
     "HIGH_RISK_COUNTRIES": ["China", "Hong Kong"],
     "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
@@ -3292,6 +3297,13 @@ def hand_activity_today(s: dict, df) -> list:
                 acts.append(f"شمعة صعود بحجم ضخم (+{gain:.0f}% · {mult:.0f}× الحجم)")
             else:
                 acts.append(f"شمعة هبوط بحجم ضخم ({gain:.0f}% · {mult:.0f}× — توزيع/هزّ)")
+            # ⚠️ قاعدة فيصل LABT (FAISAL_OPERATOR_PACK §P3): سيولة كبيرة تدخل **قبل**
+            # كسر الرقم الحرج = سيولة قطيع قبل رفعة المضارب → غالبًا يُهبِطه عمدًا
+            # (LABT هبط −40% بالأفتر). عرض/تحذير فقط — فاشل-آمن (لا رقم حرج = لا سطر).
+            _crit = ((s.get("interp") or {}).get("critical_number") or {}).get("price")
+            if _crit and t_c < float(_crit):
+                acts.append(f"⚠️ سيولة كبيرة بلا كسر الرقم الحرج ${float(_crit):.2f} — "
+                            "قاعدة فيصل: سيولة قبل رفعة المضارب تُهبِط (مثال LABT −40%)")
     except Exception:
         pass
     return acts
@@ -5406,7 +5418,8 @@ def _ignition_signal(bars: list, break_level: float, vol_mult: float = 3.0,
     """كشف نقي «لحظة الانطلاق» من شموع الدقيقة (رد فعل لا تنبّؤ، بلا شبكة، قابل
     للاختبار): (1) قفزة حجم الدقيقة الأخيرة ≥ `vol_mult`× متوسط الدقائق السابقة ·
     (2) آخر سعر كسر `break_level` صاعدًا · (3) الاتجاه صاعد داخل النافذة (آخر > أول).
-    يرجّع {price, vol_x} أو None (لا اشتعال / بيانات غير كافية)."""
+    يرجّع {price, vol_x, usd} أو None (لا اشتعال / بيانات غير كافية). `usd` = سيولة
+    شمعة الاشتعال بالدولار (السعر×الحجم) — لوسم «مضارب/قروب» (FAISAL_OPERATOR_PACK §P1)."""
     try:
         if (not bars or len(bars) < min_bars
                 or not break_level or break_level <= 0):
@@ -5421,10 +5434,30 @@ def _ignition_signal(bars: list, break_level: float, vol_mult: float = 3.0,
         vol_x = (lvol / avg) if avg > 0 else 0.0
         rising = lc > float(bars[0]["c"])
         if vol_x >= vol_mult and lc > float(break_level) and rising:
-            return {"price": round(lc, 4), "vol_x": round(vol_x, 1)}
+            return {"price": round(lc, 4), "vol_x": round(vol_x, 1),
+                    "usd": round(lc * lvol)}
         return None
     except Exception:
         return None
+
+
+def _ignition_candle_class(usd):
+    """💰 تصنيف شمعة الاشتعال بسيولتها الدولارية (FAISAL_OPERATOR_PACK §P1 — قاعدة
+    فيصل: شمعة المضارب ≥100 ألف/قوية ≥300 ألف · القروب ≤50 ألف ويهبط). نقيّة، تُرجّع
+    (مفتاح، وصف عربي) — والوصف يذكر رقم فيصل. `None`/غير رقم → ("", "")."""
+    try:
+        if usd is None:
+            return ("", "")
+        usd = float(usd)
+    except (TypeError, ValueError):
+        return ("", "")
+    if usd >= CONFIG["IGNITION_USD_STRONG"]:
+        return ("strong", "شمعة مضارب قوية (فيصل: 300 ألف فأكثر)")
+    if usd >= CONFIG["IGNITION_USD_OPERATOR"]:
+        return ("operator", "شمعة مضارب (فيصل: 100 ألف فأصعد)")
+    if usd <= CONFIG["IGNITION_USD_GROUP"]:
+        return ("group", "حجم قروب — حذارِ تصريفًا سريعًا (فيصل: حدّها 50 ألف ويهبط)")
+    return ("mid", "بين حدّي المضارب والقروب")
 
 
 def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
@@ -5474,6 +5507,12 @@ def build_ignition_alert(rows: list) -> str:
         lvl_txt = f" · كسر ${lvl:.2f} صاعدًا" if lvl else ""
         lines.append(f"🔥 <b>${esc(s['symbol'])}</b> ${sig['price']:.2f}{lvl_txt} "
                      f"· حجم الدقيقة {sig['vol_x']:.0f}× المتوسط")
+        # 💰 وسم شمعة مضارب/قروب بسيولتها الدولارية (قاعدة فيصل — عرض فقط، لا فلترة)
+        _usd = sig.get("usd")
+        _cls, _desc = _ignition_candle_class(_usd)
+        if _desc:
+            _icon = "⚠️" if _cls == "group" else "💰"
+            lines.append(f"   {_icon} سيولة الشمعة ${_usd:,.0f} — {_desc}")
         if flow:
             lines.append(f"   📊 تدفق الأوامر: {flow}")
         _st = s.get("stop")
