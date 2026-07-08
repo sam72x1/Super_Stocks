@@ -2556,6 +2556,10 @@ def _fetch_info(t):
 def enrich(results: list) -> None:
     """إثراء المرشحين: شورت (Fintel→FINRA→Yahoo) + SEC + تقسيمات + أخبار"""
     syms = {r["symbol"] for r in results}
+    # 🔬 رادار التجميع: يُقرأ المفتاح مرّة (وقت الفرز) — بلا مفتاح = القسم كلّه يُتخطّى
+    # (صفر تأخير، صفر أثر). مع مفتاح: كل طلب فاشل-آمن → None. (POLYGON_EDGE_PLAN §أ)
+    _acc_on = bool(os.environ.get("POLYGON_API_KEY", "").strip())
+    _acc_budget = [0]        # 🔬 سقف طلبات رادار التجميع (POLYGON_EDGE_PLAN §أ)
     fintel = {}
     try:
         fintel = fintel_short(sorted(syms))
@@ -2719,6 +2723,18 @@ def enrich(results: list) -> None:
                 r["tf4h"] = "غير متوفر"
         except Exception:
             continue
+        # 🔬 رادار التجميع الصامت (Polygon — طبقة اختيارية فاشلة-آمنة، عرض/تسجيل
+        # فقط): يُحسب للمرشّحين المؤهّلين ضمن سقف طلبات عاقل (POLYGON_EDGE_PLAN §أ).
+        # غياب المفتاح/أي فشل = None (يُعرض «—»)، صفر أثر على الفرز.
+        if _acc_on and _acc_budget[0] < 30:
+            try:
+                _a = silent_accumulation(r["symbol"])
+                if _a:
+                    r["acc"] = _a
+                _acc_budget[0] += 1
+                time.sleep(0.2)
+            except Exception:
+                pass
         time.sleep(0.5)
     _save_company_cache(COMPANY_CACHE)   # حفظ آخر القطاعات/الدول المعروفة
     # 🧭 تجديد طبقة التفسير **بعد** الإثراء (إصلاح 2026-07-07): h4_levels والأخبار
@@ -3623,6 +3639,10 @@ def build_message(results: list, splits: list,
             det += behavior_tags(bh)      # §13: وسوم وصفية (صيد وقفات/خمول طويل)
             tail = (" (" + " · ".join(det) + ")") if det else ""
             lines.append(f"🧬 طريقة الارتفاع: {bh['score']}/100 · {bh['label']}{tail}")
+        # 🔬 التجميع الصامت (Polygon — يظهر فقط لو توفّر؛ عرض/تشخيص فقط)
+        _accl = acc_line(r.get("acc"))
+        if _accl:
+            lines.append(_accl)
         # 🕵️ لوحة علامات اليد (تجميع قرائن مضارب — يظهر عند دليلين فأكثر)
         _he = hand_evidence_line(r)
         if _he:
@@ -4018,6 +4038,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
         "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
+        "acc": r.get("acc"),                              # 🔬 التجميع الصامت (Polygon، عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "bars_after": r.get("bars_after"),                # §11: جلسات منذ القاع (تفسير)
         "trendline": r.get("trendline"),                  # §10: خط الترند الهابط (تفسير)
@@ -5034,6 +5055,126 @@ def order_snapshot(sym: str):
         return None
 
 
+# ==========================================================
+# 🔬 رادار التجميع الصامت (POLYGON_EDGE_PLAN §أ) — من الصفقات الخام عند القاع
+# ==========================================================
+def _tick_classify(prices: list) -> list:
+    """قاعدة التيك (tick rule — نقية، قابلة للاختبار): صفقة أعلى من سابقتها =
+    شراء عدواني (+1) · أدنى = بيع (-1) · مساوية = اتجاه آخر صفقة مصنّفة (0 لو لم
+    يسبقها اتجاه). الأولى دائمًا 0 (لا سابق). يرجع قائمة بطول prices."""
+    out = []
+    last_dir = 0
+    prev = None
+    for p in prices:
+        if prev is None:
+            out.append(0)
+        elif p > prev:
+            last_dir = 1
+            out.append(1)
+        elif p < prev:
+            last_dir = -1
+            out.append(-1)
+        else:
+            out.append(last_dir)
+        prev = p
+    return out
+
+
+def acc_components(trades: list):
+    """🔬 مكوّنات التجميع الصامت من صفقات خام [{'price','size','exchange'}...]
+    (نقية، بلا شبكة — قلب رادار التجميع). **عرض/تشخيص فقط — لا تدخل أي فرز/ترتيب
+    قبل نجاح تجربة T-ACC** (POLYGON_EDGE_PLAN §أ-4). يرجع dict أو None لو أقل من
+    30 صفقة (عيّنة غير كافية — صدق):
+      • aggressive_buy_pct: حجم الشراء العدواني (تيك رول +1) ÷ الحجم المصنَّف ×100.
+      • block_share_pct: حجم الطبعات الكبيرة (≥10× **وسيط** أحجام هذه العيّنة —
+        نسبي ذاتي المعايرة، لا رقم مطلق) ÷ الحجم الكلي ×100.
+      • dark_share_pct: حجم صفقات الدارك/خارج البورصة ÷ الكلي ×100. Polygon يرمز
+        الطبعات المُبلَّغة عبر FINRA TRF (خارج البورصة = دارك) بـ exchange==4 (موثّق).
+      • n_trades."""
+    try:
+        rows = [(float(t["price"]), float(t["size"]), t.get("exchange"))
+                for t in trades if t.get("price") and t.get("size")]
+        if len(rows) < 30:
+            return None
+        prices = [r[0] for r in rows]
+        sizes = [r[1] for r in rows]
+        total = sum(sizes)
+        if total <= 0:
+            return None
+        dirs = _tick_classify(prices)
+        buy_vol = sum(sz for d, sz in zip(dirs, sizes) if d > 0)
+        sell_vol = sum(sz for d, sz in zip(dirs, sizes) if d < 0)
+        classified = buy_vol + sell_vol
+        agg_buy = round(buy_vol / classified * 100.0) if classified > 0 else None
+        med = sorted(sizes)[len(sizes) // 2]              # وسيط أحجام العيّنة
+        block_vol = sum(sz for sz in sizes if sz >= 10 * med) if med > 0 else 0.0
+        dark_vol = sum(sz for _p, sz, ex in rows if ex == 4)
+        return {"aggressive_buy_pct": agg_buy,
+                "block_share_pct": round(block_vol / total * 100.0),
+                "dark_share_pct": round(dark_vol / total * 100.0),
+                "n_trades": len(rows)}
+    except Exception:
+        return None
+
+
+def polygon_base_trades(sym: str, days: int = None, end_date=None,
+                        cap: int = 150_000):
+    """غلاف جلب صفقات نافذة القاع (BASE_WINDOW يوم تداول) من Polygon مع ترقيم صفحات
+    حتى `cap`. `end_date` (ISO/date) = نهاية النافذة **حصريًا** (`timestamp.lt`) —
+    للتجربة التاريخية بلا تسريب؛ None = حتى اليوم. **فاشل-آمن مطلق** → None عند
+    غياب المفتاح/401/403/429/شبكة. يرجع [{'price','size','exchange'}...]."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        return None
+    days = days or int(CONFIG["BASE_WINDOW"])
+    try:
+        h = {"Authorization": f"Bearer {key}"}
+        end = end_date if end_date else dt.date.today()
+        if isinstance(end, str):
+            end = dt.date.fromisoformat(end[:10])
+        start = (end - dt.timedelta(days=days * 2)).isoformat()
+        url = (f"https://api.polygon.io/v3/trades/{sym.upper()}"
+               f"?timestamp.gte={start}&limit=50000&order=asc")
+        if end_date:                          # نهاية حصرية (بلا تسريب)
+            url += f"&timestamp.lt={end.isoformat()}"
+        out = []
+        for _ in range(6):                                # حتى ~300k سقف صلب
+            r = requests.get(url, headers=h, timeout=12)
+            if r.status_code != 200:
+                return out or None
+            j = r.json() or {}
+            for t in (j.get("results") or []):
+                out.append({"price": t.get("price"), "size": t.get("size"),
+                            "exchange": t.get("exchange")})
+            nxt = j.get("next_url")
+            if not nxt or len(out) >= cap:
+                break
+            url = nxt + f"&apiKey={key}" if "apiKey" not in nxt else nxt
+        return out or None
+    except Exception:
+        return None
+
+
+def silent_accumulation(sym: str):
+    """🔬 درجة التجميع الصامت الحية لسهم (غلاف: polygon_base_trades ← acc_components).
+    فاشل-آمن → None (يُعرض «—»). **عرض/تسجيل فقط، خارج الفرز نهائيًا** حتى تثبت T-ACC."""
+    trades = polygon_base_trades(sym)
+    return acc_components(trades) if trades else None
+
+
+def acc_line(acc: dict) -> str:
+    """سطر عرض التجميع الصامت (يظهر فقط لو acc موجود). عربي مبسّط."""
+    if not acc:
+        return ""
+    parts = []
+    if acc.get("aggressive_buy_pct") is not None:
+        parts.append(f"شراء عدواني {acc['aggressive_buy_pct']}%")
+    parts.append(f"طبعات كبيرة {acc.get('block_share_pct', 0)}%")
+    parts.append(f"دارك {acc.get('dark_share_pct', 0)}%")
+    return (f"🔬 تجميع صامت: {' · '.join(parts)} "
+            f"(آخر {CONFIG['BASE_WINDOW']}ج)")
+
+
 def build_live_alert(rows: list, quotes: dict = None) -> str:
     """رسالة تنبيه الأحداث اللحظية (مسح/دخول/كسر/تجاوز) + لقطة الأوامر إن توفّرت."""
     if not rows:
@@ -5195,6 +5336,9 @@ def build_daily_message(wl: dict, splits: list,
             _bd += behavior_tags(_bh)     # §13: وسوم وصفية (صيد وقفات/خمول طويل)
             _bt = (" (" + " · ".join(_bd) + ")") if _bd else ""
             lines.append(f"   🧬 طريقة الارتفاع: {_bh['score']}/100 · {_bh['label']}{_bt}")
+        _daccl = acc_line(s.get("acc"))   # 🔬 التجميع الصامت (Polygon، عرض فقط)
+        if _daccl:
+            lines.append("   " + _daccl)
         # 🕵️ علامات اليد لم تعد سطرًا داخل كل كرت (طلب المستخدم: تُجمع في قسم
         # «أسهم فيها علامات يد» المستقل أسفل التقرير — قائمة نظيفة لحالها).
         # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
@@ -6762,6 +6906,57 @@ def backtest_behav_correlation(trades: list) -> list:
            "ترتبط بالانفجار فعلًا" if disc else
            "<b>تبقى عرضًا فقط</b>: لا ارتباط واضح بعد — لا تُمنح وزنًا (تجنّب الضجيج)")
     out.append(f"   ✅ التوصية بالدليل: {rec}")
+    return out
+
+
+_ACC_COMPS = [("aggressive_buy_pct", "الشراء العدواني"),
+              ("block_share_pct", "الطبعات الكبيرة"),
+              ("dark_share_pct", "الدارك بول")]
+
+
+def acc_verify_report(signals: list) -> list:
+    """🔬 حكم تجربة T-ACC (POLYGON_EDGE_PLAN §أ-4، بلا تسريب — كل مكوّن يُحسب من
+    صفقات ما قبل الإشارة حصريًا). لكل مكوّن تجميع: يبوّب الإشارات المعبّأة لثلاثة
+    أثلاث (أدنى/أوسط/أعلى) → معدل الانفجار + فاصل Wilson، ثم يحكم بالمعيار **المسجّل
+    مسبقًا** (لا يتغيّر بعد النتائج): فرق الانفجار (الأعلى − الأدنى) ≥ 10 نقاط **و**
+    فاصلا Wilson منفصلان (لهذه السنة) — ويُعتمد نهائيًا **فقط لو صمد في السنتين**.
+    **تحليل/تحقّق فقط — لا يمنح وزن ترتيب تلقائيًا** (قرار المستخدم بالأرقام)."""
+    fb = [s for s in signals if s.get("outcome") != "no_fill"]
+    out = [f"\n🔬 <b>تحقّق التجميع الصامت (T-ACC) — {len(fb)} إشارة معبّأة</b>"]
+    if len(fb) < 12:
+        out.append("   عيّنة غير كافية (أقل من 12) — شغّل سنة كاملة.")
+        return out
+    for key, label in _ACC_COMPS:
+        vals = sorted(s[key] for s in fb if s.get(key) is not None)
+        if len(vals) < 12:
+            out.append(f"   {label}: عيّنة غير كافية.")
+            continue
+        q1, q2 = vals[len(vals) // 3], vals[2 * len(vals) // 3]
+        buckets = [("الأدنى", lambda v: v <= q1),
+                   ("الأوسط", lambda v: q1 < v <= q2),
+                   ("الأعلى", lambda v: v > q2)]
+        rates = []
+        out.append(f"   <b>{label}:</b>")
+        for blbl, cond in buckets:
+            sel = [s for s in fb if s.get(key) is not None and cond(s[key])]
+            if not sel:
+                continue
+            exp = sum(1 for s in sel if s.get("exploded"))
+            elo, ehi = _wilson_ci(exp, len(sel))
+            rates.append((exp / len(sel) * 100.0, elo, ehi))
+            out.append(f"     {blbl}: {len(sel)} · انفجر {exp} "
+                       f"({exp / len(sel) * 100:.0f}%، ثقة {elo:.0f}-{ehi:.0f}%)")
+        if len(rates) >= 2:
+            gap = rates[-1][0] - rates[0][0]
+            sep = rates[-1][1] > rates[0][2]
+            disc = gap >= 10 and sep
+            out.append(f"     📊 فرق الانفجار (الأعلى − الأدنى): {gap:+.0f}% · "
+                       f"فاصلان {'منفصلان' if sep else 'متداخلان'} → "
+                       + ("<b>مرشّح للاعتماد</b> (لو صمد بالسنة الأخرى)" if disc
+                          else "<b>يبقى عرضًا</b>"))
+    out.append("   📋 المعيار المسجَّل: يُعتمد المكوّن **فقط** لو (فرق ≥10 نقاط + "
+               "فاصلان منفصلان) **وصمد في 2025 و2026** — وقتها يُمنح وزن ترتيب "
+               "بموافقتك (لا آليًا).")
     return out
 
 

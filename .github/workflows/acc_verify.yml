@@ -1,0 +1,47 @@
+name: T-ACC Verify (تحقّق التجميع الصامت)
+
+# 🔬 تجربة التحقّق المسجَّلة مسبقًا (POLYGON_EDGE_PLAN §أ-4): هل «التجميع الصامت»
+# عند القاع يرتبط بالانفجار فعلًا؟ يدوي فقط — يُشغَّل لكل سنة (2025 ثم 2026).
+# يحتاج POLYGON_API_KEY (بلا مفتاح ⇒ رسالة تلغرام تطلب إضافته، بلا انهيار).
+# CSV تراكمي (acc_verify_<YEAR>.csv) ⇒ لو انقطع/انتهى الوقت يُستأنف بإعادة التشغيل.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: السنة المكتملة للتحقّق (2025 أو 2026)
+        required: true
+        type: string
+        default: "2025"
+
+jobs:
+  acc-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340        # سنة كاملة + جلب صفقات لكل إشارة (CSV يستأنف لو انقطع)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run T-ACC verification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          ACC_VERIFY_YEAR: ${{ github.event.inputs.year }}
+        run: python acc_verify.py
+
+      - name: Upload CSV (استئناف/مراجعة)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: acc-verify-${{ github.event.inputs.year }}
+          path: acc_verify_*.csv
+          if-no-files-found: ignore
