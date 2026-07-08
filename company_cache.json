@@ -896,7 +896,18 @@
   "finra_short": 1782
  },
  "SBET": {},
- "LENZ": {},
+ "LI": {},
+ "LENZ": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "LENZ Therapeutics, Inc. operates as a commercial pharmaceutical company that focuses on the development and commercialization of therapies to improve vision in…",
+  "country": "United States",
+  "cash": 258384992,
+  "revenue": 20989000,
+  "shares_out": 31354394,
+  "short_pct": 54.5,
+  "float": 18481220
+ },
  "FEMY": {
   "sector": "Healthcare",
   "industry": "Medical Instruments & Supplies",
@@ -909,7 +920,6 @@
   "float": 2495041,
   "finra_short": 3791
  },
- "LI": {},
  "GEOS": {
   "sector": "Energy",
   "industry": "Oil & Gas Equipment & Services",
