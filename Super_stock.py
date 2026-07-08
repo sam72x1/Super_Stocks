@@ -169,6 +169,10 @@ CONFIG = {
     "IGNITION_USD_OPERATOR": 100_000,
     "IGNITION_USD_STRONG": 300_000,
     "IGNITION_USD_GROUP": 50_000,
+    # 📏 قياس حافة الرادار من السجلّ الحي (أداة التطوير — حلقة القياس، عرض/قياس فقط):
+    "IGNITION_CONFIRM_PCT": 12.0,   # صعود ≥12% من سعر الاشتعال لاحقًا = اشتعال حقيقي
+    "IGNITION_LOG_CAP": 500,        # حدّ سجلّ الإطلاقات (لا ينمو بلا حدّ)
+    "IGNITION_OUTCOME_MIN": 8,      # أقل نتائج محسومة قبل عرض نسبة الإنذار الكاذب (صدق)
     # دول مشهورة بتجاهل التحليل الفني (تلاعب/pump&dump): تحذير فقط (تظل تظهر)
     "HIGH_RISK_COUNTRIES": ["China", "Hong Kong"],
     "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
@@ -3988,6 +3992,7 @@ def export_weekly_csvs(wl: dict, picks: list, alert_data: dict = None) -> None:
 # ==========================================================
 WATCH_FILE = "weekly_watchlist.json"   # ملف ذاكرة القائمة في الـ repo
 COMPANY_FILE = "company_cache.json"    # ذاكرة آخر قطاع/دولة معروفة لكل سهم
+IGNITION_LOG_FILE = "ignition_log.json"  # 📏 سجلّ إطلاقات رادار الانطلاق (قياس الحافة)
 COMPANY_CACHE_MAX = 5000               # حدّ علوي سخيّ لذاكرة الشركات (LRU)
 WEEKLY_RENEW_DAY = 4                   # 4 = الجمعة (الاثنين = 0)
 
@@ -5579,6 +5584,149 @@ def build_ignition_alert(rows: list) -> str:
     return _rtl_join(lines)
 
 
+# ==========================================================
+# 📏 حلقة قياس رادار الانطلاق (سجلّ حي → أداة التطوير) — قياس الحافة الوحيدة المثبتة
+# (الالتقاط ونسبة الإنذار الكاذب لا تُقاسان إلا حيًّا). **قياس/عرض فقط — خارج الفرز/
+# الاختيار.** الرادار يسجّل إطلاقاته؛ أداة التطوير تجلب النتيجة اليومية اللاحقة وتحكم.
+# ==========================================================
+def load_ignition_log() -> list:
+    """يقرأ سجلّ إطلاقات رادار الانطلاق (قائمة سجلّات) — فاشل-آمن → []."""
+    try:
+        if os.path.exists(IGNITION_LOG_FILE):
+            with open(IGNITION_LOG_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data if isinstance(data, list) else []
+    except Exception as e:
+        log(f"⚠️ قراءة سجلّ الانطلاق: {e}")
+    return []
+
+
+def record_ignition_fires(rows, today_iso) -> int:
+    """يسجّل إطلاقات الرادار في سجلّ دائم لقياس الحافة (الالتقاط/الإنذار الكاذب لاحقًا
+    بأداة التطوير). كل سجلّ: رمز·تاريخ·مستوى الكسر·سعر الاشتعال·مضاعف الحجم·سيولة الشمعة
+    وتصنيفها. **قياس فقط — خارج الفرز/الاختيار.** دِدوب مرة/سهم/يوم. فاشل-آمن → 0.
+    يُستدعى من عامل الجلسة (ignition_live) عند نهاية الجلسة، لا من scan_ignition النقيّة."""
+    try:
+        if not rows:
+            return 0
+        log_data = load_ignition_log()
+        seen = {(r.get("symbol"), r.get("date")) for r in log_data}
+        added = 0
+        for s, sig, _flow in rows:
+            sym = s.get("symbol")
+            if not sym or (sym, today_iso) in seen:
+                continue
+            usd = sig.get("usd")
+            log_data.append({"symbol": sym, "date": today_iso,
+                             "break_level": _ignition_break_level(s),
+                             "price": sig.get("price"), "vol_x": sig.get("vol_x"),
+                             "usd": usd, "candle_class": _ignition_candle_class(usd)[0]})
+            seen.add((sym, today_iso))
+            added += 1
+        if added:
+            _atomic_write_json(IGNITION_LOG_FILE, log_data[-CONFIG["IGNITION_LOG_CAP"]:])
+        return added
+    except Exception as e:
+        log(f"⚠️ تسجيل إطلاقات الانطلاق: {e}")
+        return 0
+
+
+def _ignition_outcome(fire, df, confirm_pct=None) -> str:
+    """نتيجة إطلاق مسجَّل من الشموع اليومية اللاحقة (نقيّة، قابلة للاختبار):
+      • «real» حقيقي: بلغ أعلى لاحق صعودًا ≥confirm_pct% من سعر الاشتعال (الزنبرك اشتعل).
+      • «fakeout» كاذب: أغلق يوم لاحق **تحت مستوى الكسر** قبل بلوغ التأكيد (اشتعال فاشل).
+      • «pending» معلّق: لا شموع لاحقة كافية / لم يُحسم بعد.
+    يمشي يومًا بيوم بعد يوم الاشتعال حصريًا؛ الأسبق يحكم. داخل اليوم الواحد يُفحَص بلوغ
+    التأكيد (الأعلى) قبل الكسر الهابط (الإغلاق) — فرصة صعود ≥12% تُحتسب حقيقية (غاية
+    الرادار توقيت الدخول). فاشل-آمن → «pending». **قياس فقط — خارج الفرز.**"""
+    try:
+        conf = confirm_pct if confirm_pct is not None else CONFIG["IGNITION_CONFIRM_PCT"]
+        price = float(fire.get("price") or 0)
+        lvl = float(fire.get("break_level") or 0)
+        fdate = str(fire.get("date") or "")
+        if price <= 0 or df is None or len(df) == 0:
+            return "pending"
+        highs = df["High"].astype(float).values
+        closes = df["Close"].astype(float).values
+        dates = [str(t.date()) if hasattr(t, "date") else str(t)[:10]
+                 for t in df.index]
+        target = price * (1.0 + conf / 100.0)
+        for i, d in enumerate(dates):
+            if d <= fdate:                       # بعد يوم الاشتعال حصريًا (لا تسريب)
+                continue
+            if highs[i] >= target:
+                return "real"
+            if lvl > 0 and closes[i] < lvl:
+                return "fakeout"
+        return "pending"
+    except Exception:
+        return "pending"
+
+
+def _ignition_outcome_fetch(sym, fire_date):
+    """يجلب الشموع اليومية بعد يوم الاشتعال (لحساب النتيجة) — فاشل-آمن → None."""
+    if yf is None:
+        return None
+    try:
+        start = (dt.date.fromisoformat(str(fire_date)[:10])
+                 + dt.timedelta(days=1)).isoformat()
+        df = yf.download(sym, start=start, interval="1d",
+                         auto_adjust=True, progress=False)
+        if df is None or df.empty:
+            return None
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+        return df.dropna(subset=["Close"])
+    except Exception:
+        return None
+
+
+def _ignition_log_block(log, fetch=None, today=None) -> list:
+    """🔥 قياس رادار الانطلاق من السجلّ الحي (أداة التطوير — الحافة الوحيدة المثبتة
+    §0-ك): الالتقاط ونسبة الإنذار الكاذب + تفصيل حسب تصنيف الشمعة (مضارب/قروب — يجيب
+    «هل القروب يكذب أكثر؟» = دليل معايرة عتبات المضارب). يجلب الشموع اليومية اللاحقة لكل
+    إطلاق (`fetch` قابل للحقن للاختبار، فاشل-آمن). عيّنة محسومة أقل من العتبة → يُقال
+    «تتراكم» بصدق. **عرض/قياس فقط — لا قرار قبل عيّنة كافية + موافقة المستخدم.**"""
+    if not log:
+        return []
+    fx = fetch or _ignition_outcome_fetch
+    measured = log[-120:]                # سقف جلب واقعي (أحدث 120) — لا تكلفة شبكة مفتوحة
+    real = fake = pend = 0
+    by_class = {}                        # class → [real, fake]
+    for fire in measured:
+        try:
+            df = fx(fire.get("symbol"), fire.get("date"))
+        except Exception:
+            df = None
+        oc = _ignition_outcome(fire, df)
+        if oc == "pending":
+            pend += 1
+            continue
+        if oc == "real":
+            real += 1
+        else:
+            fake += 1
+        b = by_class.setdefault(fire.get("candle_class") or "—", [0, 0])
+        b[0 if oc == "real" else 1] += 1
+    decided = real + fake
+    _cap = f" · قِيس أحدث {len(measured)}" if len(log) > len(measured) else ""
+    out = [f"\n🔥 <b>رادار الانطلاق — قياس حي ({len(log)} إطلاق مسجَّل{_cap})</b>"]
+    if decided < CONFIG["IGNITION_OUTCOME_MIN"]:
+        out.append(f"   ⏳ محسوم {decided} فقط (أقل من {CONFIG['IGNITION_OUTCOME_MIN']}) "
+                   f"· معلّق {pend} — النسبة تتراكم أسبوعيًّا بصدق.")
+        return out
+    out.append(f"   ✅ حقيقي {real} · 🚫 كاذب {fake} · ⏳ معلّق {pend} → "
+               f"إنذار كاذب <b>{fake / decided * 100:.0f}%</b> (من {decided} محسوم)")
+    labels = {"strong": "قوية", "operator": "مضارب", "mid": "وسط",
+              "group": "قروب", "—": "بلا تصنيف"}
+    parts = [f"{labels.get(c, c)}: {f_}/{r_ + f_} كاذب"
+             for c, (r_, f_) in by_class.items() if (r_ + f_)]
+    if parts:
+        out.append("   حسب تصنيف الشمعة: " + " · ".join(parts))
+    out.append("   <i>قياس تقريبي (نتيجة الشمعة اليومية) — كلّما تراكم السجلّ زادت الثقة.</i>")
+    return out
+
+
 # دالّتان نقيّتان للتحقّق التاريخي من الرادار (IGNITION_VERIFY_PLAN.md) — قابلتان
 # للاختبار، لا تُستعملان في المسار الحي (تحقّق/قياس فقط).
 def _find_explosion_day(fwd_highs: list, entry: float, expl_pct: float):
@@ -6123,6 +6271,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     + أنماط الفشل + اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات). يُرسل الجمعة."""
     rows = _dedup_closed(_collect_closed(wl) + _collect_closed_alerts(alert_data))
     n, wr, avg = _wr(rows)
+    _ig_log = load_ignition_log()      # 📏 قياس حافة الرادار (مستقل عن الصفقات المحسومة)
     head = ["🔬 <b>مساعد التطوير — تحليل أداء المنهجية</b>",
             f"صفقات محسومة متراكمة: <b>{n}</b>"]
     # 📅 «التطوير مقابل الأسبوع الماضي» — يظهر دائمًا (يجيب سؤال المستخدم المتكرّر
@@ -6259,6 +6408,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         head += _missed_block()           # الفرص الفائتة تظهر فورًا (مستقلة)
         head += _explosions_block()       # الانفجارات المفقودة (مستقلة)
         head += _denominator_block()      # A1: مقام الرفض (مستقل)
+        head += _ignition_log_block(_ig_log)  # 📏 قياس حافة الرادار (مستقل)
         head.append("\n⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
         return "\n".join(head)
     wins = [r for r in rows if r["_win"]]
@@ -6394,6 +6544,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     body += _missed_block()           # 👻 الفرص الفائتة
     body += _explosions_block()       # 💥 الانفجارات المفقودة
     body += _denominator_block()      # 🧮 A1: مقام الرفض (نسبة الفائتة/المقام)
+    body += _ignition_log_block(_ig_log)  # 🔥 قياس حافة الرادار الحي (الالتقاط/الكاذب)
 
     # (3) اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات)
     # 🪦 اقتراح «A أفضل من B» أُزيل مع تقاعد التصنيف (A لم تُنتَج قط —

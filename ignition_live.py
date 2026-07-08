@@ -52,6 +52,8 @@ def main():
             f"{deadline.strftime('%H:%M')} UTC.")
     loops = 0
     max_loops = 2000                       # حارس ضد اللف اللانهائي (≈25س عند 45ث)
+    session_fires, seen = [], set()        # 📏 جمع إطلاقات الجلسة لتسجيلها بالنهاية
+    session_day = bot.dt.date.today().isoformat()
     while bot.dt.datetime.utcnow() < deadline and loops < max_loops:
         loops += 1
         today = bot.dt.date.today().isoformat()
@@ -67,7 +69,21 @@ def main():
                         + ", ".join(r[0]["symbol"] for r in rows))
             except Exception as e:
                 bot.log(f"⚠️ إرسال تنبيه الانطلاق: {e}")
+            for r in rows:                 # جمع فريد (دِدوب مرة/سهم/جلسة)
+                if r[0]["symbol"] not in seen:
+                    seen.add(r[0]["symbol"])
+                    session_fires.append(r)
         time.sleep(interval)
+    # 📏 حلقة القياس: سجّل إطلاقات الجلسة بسجلّ دائم + احفظه بالريبو (فاشل-آمن — لا
+    # يعيق إنهاء الرادار). أداة التطوير تقرأه الجمعة وتحكم على الالتقاط/الإنذار الكاذب.
+    if session_fires:
+        try:
+            n_rec = bot.record_ignition_fires(session_fires, session_day)
+            if n_rec:
+                bot.git_save([bot.IGNITION_LOG_FILE])
+                bot.log(f"📝 سُجِّل {n_rec} إطلاق في سجلّ القياس.")
+        except Exception as e:
+            bot.log(f"⚠️ حفظ سجلّ الانطلاق: {e}")
     bot.log(f"رادار الانطلاق: انتهت الجلسة ({loops} دورة).")
 
 
