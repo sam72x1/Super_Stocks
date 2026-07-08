@@ -980,11 +980,17 @@ _hc_piv = dict(_hc_r, interp={"setup_type": "liquidity_sweep",
                               "critical_number": {"price": 2.2,
                                                   "why": "تجاوزه يفعّل الهدف"}},
                tranches=[1.8, 1.9, 2.0], stop=(1.7, 1.75),
-               t1=2.3, t2=2.6, t3=3.0)
+               t1=2.3, t2=2.6, t3=3.0,
+               soft_fails=["قاع RSI 30 (المثالي 27 أو أقل)", "لا فجوة فوقه"])
 _hc_pmsg = HC.render_hand_check("TST", _hc_piv)
 check("فحص اليد·ارتكاز مؤهّل: يعرض «مؤهّل» + الحالة + الرقم الحرج + الأهداف",
       "سهم ارتكاز مؤهّل" in _hc_pmsg and "الرقم الحرج" in _hc_pmsg
       and "🎯 أهداف:" in _hc_pmsg)
+check("فحص اليد·النواقص: يعرض بوابات التأكيد الناقصة «N/14» (طلب المستخدم)",
+      "الناقص (2/14)" in _hc_pmsg and "قاع RSI 30" in _hc_pmsg)
+check("فحص اليد·النواقص: بلا نواقص ⇒ «اجتاز كل بوابات التأكيد»",
+      "اجتاز كل بوابات التأكيد" in HC.render_hand_check(
+          "F", dict(_hc_piv, soft_fails=[])))
 check("فحص اليد·ارتكاز مرفوض: يوضّح «ليس ارتكازًا مؤهّلًا» + السبب",
       "ليس سهم ارتكاز مؤهّلًا" in HC.render_hand_check(
           "R", {"symbol": "R", "price": 9.0, "behav": {},
