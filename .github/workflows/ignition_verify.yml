@@ -1,0 +1,38 @@
+name: Ignition Verify (تحقّق رادار الانطلاق)
+
+# 🔥📏 يجيب «هل فادنا الاشتراك فعلًا؟» بالأرقام (IGNITION_VERIFY_PLAN.md، مسجَّل مسبقًا):
+# لكل منفجر تاريخي — هل يشتعل الرادار على شموع يوم الانفجار وأين في الحركة؟
+# تحقّق/قياس فقط — لا يمسّ الفرز/الحالة/الرادار. يلزم POLYGON_API_KEY.
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: السنة المكتملة للتحقّق (2025 أو 2026)
+        required: true
+        type: string
+        default: "2025"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run ignition verification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          IGNITION_VERIFY_YEAR: ${{ github.event.inputs.year }}
+        run: python ignition_verify.py

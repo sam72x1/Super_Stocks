@@ -5484,6 +5484,42 @@ def build_ignition_alert(rows: list) -> str:
     return _rtl_join(lines)
 
 
+# دالّتان نقيّتان للتحقّق التاريخي من الرادار (IGNITION_VERIFY_PLAN.md) — قابلتان
+# للاختبار، لا تُستعملان في المسار الحي (تحقّق/قياس فقط).
+def _find_explosion_day(fwd_highs: list, entry: float, expl_pct: float):
+    """يوم الانفجار: أول فهرس في القمم الأمامية اليومية يبلغ فيه الصعود من الدخول
+    `expl_pct`%. None لو لم يبلغه (أو مدخلات غير صالحة). نقيّة."""
+    try:
+        if not fwd_highs or not entry or entry <= 0:
+            return None
+        for i, h in enumerate(fwd_highs):
+            if (float(h) / entry - 1.0) * 100.0 >= expl_pct:
+                return i
+        return None
+    except Exception:
+        return None
+
+
+def _ignition_first_fire(day_bars: list, break_level: float, open_px: float,
+                         vol_mult: float = 3.0, win: int = 10):
+    """يمشي شموع دقيقة يوم الانفجار ويعيد **أول لحظة** يشتعل فيها الرادار
+    (`_ignition_signal` على نافذة زاحفة) + **مكسب اليوم من الافتتاح عند الاشتعال**
+    (يقيس: هل يشتعل مبكرًا فيبقى معظم الحركة أمامنا؟). None لو لم يشتعل. نقيّة."""
+    try:
+        if not day_bars or not open_px or open_px <= 0:
+            return None
+        for i in range(6, len(day_bars) + 1):
+            sig = _ignition_signal(day_bars[max(0, i - win):i], break_level,
+                                   vol_mult=vol_mult)
+            if sig:
+                return {"minute": i - 1, "price": sig["price"],
+                        "vol_x": sig["vol_x"],
+                        "gain_pct": round((sig["price"] / open_px - 1.0) * 100.0, 1)}
+        return None
+    except Exception:
+        return None
+
+
 def build_pullback_section(entries: list, triggered: list = None) -> str:
     """قسم «مراقبة الارتداد»: أسهم ارتكاز ارتفعت ننتظر رجوعها للدعم +
     تنبيهات الأسهم التي وصلت سعر الدعم اليوم (جاهزة للدخول)."""
