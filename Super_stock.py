@@ -1006,6 +1006,86 @@ def _swing_highs(h: np.ndarray, price: float, win: int):
     return out
 
 
+def descending_trendline(df: pd.DataFrame, price: float,
+                         win: int = 3, tol_pct: float = 2.0, span: int = 130):
+    """§10 خط الترند الهابط (خطة طبقة التفسير — **عرض/تفسير فقط، حيّ فقط**، لا يمسّ
+    الفرز/الأهداف/الوقف ولا يُستدعى بالباكتيست). المواصفة الملزمة (+ تشديدات
+    المراجعة الخصومية 2026-07-08):
+      • قمم سوينغ **فريدة** هابطة (هضبة مسطّحة ليست قمة) · **لمستان على الأقل** ·
+        ميل سالب · تسامح ~2%. **كل قمة مرشّحة مرساةً** (ليس أعلى قمة حصريًا —
+        قفلها على الأعلى كان يُسقط الخط الحقيقي عند ازدواج القمة/الريتيست).
+      • **حد أدنى للانحدار:** هبوط الخط من المرساة إلى اليوم لا يقل عن التسامح
+        نفسه — ازدواج قمة شبه أفقي = مقاومة أفقية، لا «خط ترند هابط».
+      • **حارس ضد فبركة الخطوط:** الخط لا يُرسم لو اخترقته قمة فوق التسامح
+        (يُسمح بالاختراق في آخر 5 شموع فقط = الكسر الحديث نفسه).
+      • `line_price_now` بإسقاط خطي **عند آخر شمعة فقط** (لا نظر مستقبلي).
+      • state **لكل مرشّح** (الكسر = إغلاق أخير فوق الخط بأكثر من التسامح ·
+        testing = قربه · below = تحته)، والتفضيل: **قائم (غير مكسور) أولًا** ثم
+        الأكثر لمساتٍ ثم الأدنى الآن (أقرب حاجز = الأكثر تحفّظًا) — خط مكسور
+        كثير اللمسات لا يحجب خطًا قائمًا يسقف السعر فعلًا.
+      • الحالة لقطة يومية والخط قد يُستبدل بتطوّر البنية (رأس كسرٍ فاشل يصير
+        مرساة جديدة) — سلوك مقصود، يُعاد الحساب يوميًا من بيانات اليوم.
+    يرجع dict {touches, slope_per_bar, anchor, line_price_now, state}
+    أو None لو لا خط صادق."""
+    try:
+        h = df["High"].values.astype(float)[-span:]
+        c = df["Close"].values.astype(float)[-span:]
+        n = len(h)
+        if n < 30 or price <= 0:
+            return None
+        tol = tol_pct / 100.0
+        # قمة سوينغ **فريدة** ضمن نافذتها (تعادل = هضبة مسطّحة، ليست قمة —
+        # حارس ضد فبركة خط من ضجيج قاعدة مسطّحة)
+        piv = [(i, float(h[i])) for i in range(win, n - win)
+               if h[i] == h[i - win:i + win + 1].max()
+               and (h[i - win:i + win + 1] == h[i]).sum() == 1]
+        if len(piv) < 2:
+            return None
+        break_allow = 5                              # آخر 5 شموع = كسر حديث مسموح
+        last_close = float(c[-1])
+        best = None
+        for k, (ia, pa) in enumerate(piv):           # كل قمة مرشّحة مرساةً
+            for ib, pb in piv[k + 1:]:
+                if pb >= pa:                          # لمسة أدنى من مرساتها حتمًا
+                    continue
+                slope = (pb - pa) / (ib - ia)         # سالب حتمًا (pb < pa)
+                # صدق الخط: لا قمة تخترقه فوق التسامح (عدا آخر 5 شموع)
+                ok = True
+                for i in range(ia, max(ia, n - break_allow)):
+                    if h[i] > (pa + slope * (i - ia)) * (1.0 + tol):
+                        ok = False
+                        break
+                if not ok:
+                    continue
+                line_now = pa + slope * (n - 1 - ia)
+                if line_now <= 0:
+                    continue
+                # حد أدنى للانحدار: نزول الخط من المرساة لليوم ≥ التسامح
+                if pa - line_now < pa * tol:
+                    continue
+                touches = sum(1 for j, pj in piv if j >= ia
+                              and abs(pj / (pa + slope * (j - ia)) - 1.0) <= tol)
+                if touches < 2:
+                    continue
+                if last_close > line_now * (1.0 + tol):
+                    state = "broken"
+                elif last_close >= line_now * (1.0 - tol):
+                    state = "testing"
+                else:
+                    state = "below"
+                cand = {"touches": touches, "slope_per_bar": round(slope, 6),
+                        "anchor": round(pa, 4),
+                        "line_price_now": round(line_now, 4), "state": state}
+                if best is None or (
+                        (state != "broken", touches, -line_now)
+                        > (best["state"] != "broken", best["touches"],
+                           -best["line_price_now"])):
+                    best = cand
+        return best
+    except Exception:
+        return None
+
+
 def psychological_levels(price: float, top: float):
     """المستويات النفسية الدائرية بين السعر والسقف (أرقام صحيحة وأنصاف:
     1.0, 1.5, 2.0...). المضاربون يضعون أوامر عندها فتعمل كمقاومات."""
@@ -3043,21 +3123,33 @@ def build_interpretation(r: dict) -> dict:
             setup = "pivot_reversal"
         out["setup_type"] = setup
 
-        # ---- الرقم الحرج (رقم حسم واحد)
+        # ---- §10 خط الترند الهابط (حاجز إضافي — عرض/تفسير، لا يمسّ الأهداف نفسها)
+        tl = r.get("trendline") or {}
+        tl_px = (float(tl["line_price_now"])
+                 if tl.get("line_price_now")
+                 and tl.get("state") in ("below", "testing") else None)
+        if tl:
+            out["trendline_pressure"] = tl
+
+        # ---- الرقم الحرج (رقم حسم واحد = **أقرب** حاجز فوق السعر، مواصفة §3)
         crit = None
         if price < pivot * 0.995:
             crit = {"price": round(float(sup_major), 2), "type": "reclaim_level",
                     "why": "استعادته تعيد فكرة الارتكاز"}
         else:
-            barrier = next((float(b) for b in (
-                res_minor, res_major, (h4l.get("resistances") or [None])[0])
-                if b and float(b) > price * 1.01), None)
+            cands = [float(b) for b in (
+                res_minor, res_major, (h4l.get("resistances") or [None])[0],
+                tl_px) if b and float(b) > price * 1.01]
+            barrier = min(cands) if cands else None
             if barrier is None:
                 up = [t for t in targets if t > price * 1.01]
                 barrier = min(up) if up else None
             if barrier:
+                why = ("إغلاق فوقه يكسر خط الترند الهابط ويفعّل الهدف التالي"
+                       if tl_px is not None and barrier == tl_px
+                       else "تجاوزه يفعّل الهدف التالي")
                 crit = {"price": round(barrier, 2), "type": "breakout_activation",
-                        "why": "تجاوزه يفعّل الهدف التالي"}
+                        "why": why}
         out["critical_number"] = crit
 
         # ---- activation_state (وسم على الأهداف الحالية فقط — لا يعيد حسابها)
@@ -3645,6 +3737,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "bars_after": r.get("bars_after"),                # §11: جلسات منذ القاع (تفسير)
+        "trendline": r.get("trendline"),                  # §10: خط الترند الهابط (تفسير)
         "sec_filings": bool(r.get("sec_filings")),        # لعلم SEC عند تجديد التفسير
         "recent_split": r.get("recent_split"),            # لعلم التقسيم عند التجديد
         "session_ctx": r.get("session_ctx"),              # §12: snapshot الجلسة (صادق)
@@ -4037,6 +4130,7 @@ def scan_market():
         r = analyze_ticker(sym, df)
         if r:
             r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
+            r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
             r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
             results.append(r)
     # تشخيص: أين تُرفض الأسهم؟ (يظهر بسجل الأكشن لمعرفة البوابة الخانقة)
@@ -4198,9 +4292,16 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
             continue
         added = dt.date.fromisoformat(s["added"])
         s["last_price"] = round(float(df["Close"].iloc[-1]), 4)
+        # §10: خط الترند يُعاد حسابه من بيانات اليوم (الخط الهابط ينزل يوميًا).
+        # ⚠️ الإسناد **بلا شرط عمدًا**: None اليوم = الخط مات → يجب أن يختفي من
+        # العرض اليوم نفسه (إبقاء المخزّن = حاجز بالٍ لم يعد موجودًا — لا «تصلحها»).
+        try:
+            s["trendline"] = descending_trendline(df, s["last_price"])
+        except Exception:
+            pass
         # 🧭 تجديد التفسير يوميًا بالسعر الجديد (عرض فقط — الرقم الحرج/وضع الدخول
-        # يتحرّكان مع السعر؛ بلا تجديد يتجمّدان يوم الترشيح). حارس: لو رجع فارغًا
-        # (سجل قديم ناقص الحقول) يبقى التفسير المخزّن.
+        # يتحرّكان مع السعر؛ بلا تجديد يتجمّدان يوم الترشيح). الحارس هنا يخصّ
+        # interp وحده: لو رجع فارغًا (سجل قديم ناقص الحقول) يبقى التفسير المخزّن.
         try:
             _ip = build_interpretation(s)
             if _ip:
@@ -4369,6 +4470,16 @@ def check_promotions(wl: dict, history: dict) -> list:
             s["short"] = _cc["finra_short"]
         if not s.get("short_pct") and _cc.get("short_pct"):
             s["short_pct"] = _cc["short_pct"]
+        # 🧭 تجديد التفسير بعد تحديث المستويات (مراجعة 2026-07-08: توحيد أعمار
+        # الحواجز — بدونه min() بالرقم الحرج يقارن ترند اليوم بمقاومات الأمس،
+        # لأن check_promotions يجدّد key_levels **بعد** تجديد update_watchlist_status
+        # للتفسير). عرض فقط، بحارس لا-يمسح.
+        try:
+            _ipn = build_interpretation(s)
+            if _ipn:
+                s["interp"] = _ipn
+        except Exception:
+            pass
         if was == "B" and s["tier"] == "A":
             s["promoted_date"] = today
             promoted.append(s)
