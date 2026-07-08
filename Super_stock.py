@@ -4921,6 +4921,49 @@ def build_hand_section(wl: dict) -> str:
     return _rtl_join(lines)
 
 
+# ==========================================================
+# ⚡ كنسة الدقيقة الحية (POLYGON_EDGE_PLAN §ب) — تأكيد مسح أدق بشموع الدقيقة
+# ==========================================================
+def polygon_minute_bars(sym: str, minutes: int = 90):
+    """شموع الدقيقة الحية (آخر ~`minutes` دقيقة) من Polygon:
+    `GET /v2/aggs/ticker/{sym}/range/1/minute/{from}/{to}`. **فاشل-آمن مطلق** →
+    None عند غياب المفتاح/401/403/429/شبكة (يسقط للمسار اليومي، لا يعيق التنبيه).
+    يرجّع [{'o','h','l','c','v'}...] بترتيب زمني تصاعدي، أو None."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        return None
+    try:
+        h = {"Authorization": f"Bearer {key}"}
+        now_ms = int(time.time() * 1000)
+        frm = now_ms - int(minutes) * 60_000
+        url = (f"https://api.polygon.io/v2/aggs/ticker/{sym.upper()}"
+               f"/range/1/minute/{frm}/{now_ms}?adjusted=true&sort=asc&limit=500")
+        r = requests.get(url, headers=h, timeout=10)
+        if r.status_code != 200:
+            return None
+        res = (r.json() or {}).get("results") or []
+        bars = [{"o": b.get("o"), "h": b.get("h"), "l": b.get("l"),
+                 "c": b.get("c"), "v": b.get("v")} for b in res
+                if b.get("l") is not None and b.get("c") is not None]
+        return bars or None
+    except Exception:
+        return None
+
+
+def _minute_sweep(bars: list, support: float) -> bool:
+    """كشف نقي (بلا شبكة) لكنسة السيولة بشموع الدقيقة (قاعدة فيصل «مسح ثم استعادة»):
+    أدنى دقيقة خرقت الدعم بأكثر من 2% (`< support*0.98`) **ثم آخر إغلاق دقيقة استعاد
+    فوقه** (`>= support`). خرق بلا استعادة = False · بلا خرق = False. قابل للاختبار."""
+    try:
+        if not bars or support <= 0:
+            return False
+        low_min = min(float(b["l"]) for b in bars if b.get("l") is not None)
+        last_close = float(bars[-1]["c"])
+        return low_min < support * 0.98 and last_close >= support
+    except Exception:
+        return False
+
+
 def monitor_live_events(wl: dict, history: dict, today_iso: str) -> list:
     """🚨 كشف الأحداث اللحظية على أسهم القائمة (كل 30د بالسوق — طلب المستخدم
     2026-07-08) للتنبيه الفوري بلحظات التنفيذ/الخطر:
@@ -4953,6 +4996,24 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str) -> list:
                        if "كنس الدعم" in a), None)
         except Exception:
             sw = None
+        # ⚡ تأكيد أدق بشموع الدقيقة (POLYGON_EDGE_PLAN §ب): **لو** المفتاح موجود
+        # والمسار اليومي لم يرصد المسح، افحص دقائق Polygon على نفس الدعم (أدنى 20ج).
+        # نفس نوع الحدث (sweep) ونفس الدِدوب — لا نوع جديد. بلا مفتاح = المسار اليومي
+        # حرفيًا (polygon_minute_bars ترجع None → _minute_sweep=False → صفر تغيير).
+        if not sw and os.environ.get("POLYGON_API_KEY", "").strip():
+            try:
+                _lo = df["Low"].values.astype(float)
+                _sup20 = float(np.min(_lo[-21:-1]))
+                # سقف الطلبات (يحمي ميزانية المراقب 15د): نفحص الدقائق فقط للأسهم
+                # **قرب دعمها** (ضمن 8% فوقه) حيث المسح ممكن أصلًا. البعيد لا يُمسح،
+                # والمسح-ثم-الركض البعيد يلتقطه المسار اليومي (كسر t_lo + t_c مرتفع).
+                if _sup20 > 0 and lp <= _sup20 * 1.08:
+                    _mb = polygon_minute_bars(s["symbol"])
+                    if _mb and _minute_sweep(_mb, _sup20):
+                        sw = (f"كنس الدعم ${_sup20:.2f} بذيل ثم استعاده "
+                              "(تأكيد دقائق Polygon)")
+            except Exception:
+                pass
         if sw:
             events.append(("sweep", sw))
         if stop0 is not None and lp <= stop0:
