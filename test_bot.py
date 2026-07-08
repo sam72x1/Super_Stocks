@@ -1065,6 +1065,29 @@ check("🕵️الملخّص: لا يد ولا نشاط ⇒ «لا نشاط مض
 check("🕵️الملخّص·قفل: DIGEST لا يحفظ القائمة (إشعار فقط، لا سباق حالة)",
       "save_watchlist" not in _insp0.getsource(S.build_hand_digest)
       and "save_watchlist" not in _insp0.getsource(S.run_hand_digest))
+
+# ===== 🚨 تنبيه مسح السيولة اللحظي (طلب المستخدم: إشعار لحظة المسح) =====
+_wl_sw = {"stocks": [
+    {"symbol": "SWP", "status": "active", "last_price": 2.0,
+     "interp": {"entry_mode": {"mode": "near_support"}}},
+    {"symbol": "CLM", "status": "active", "last_price": 5.0}]}
+_sw_hist = {"SWP": _today_df("sweep"), "CLM": _today_df("quiet")}
+_sw = S.monitor_sweeps(_wl_sw, _sw_hist, "2026-07-08")
+check("مسح لحظي: يكشف كنس الدعم على السهم الذي مسح (SWP) دون الهادئ (CLM)",
+      len(_sw) == 1 and _sw[0][0]["symbol"] == "SWP"
+      and "كنس الدعم" in _sw[0][1])
+check("مسح لحظي·دِدوب: نفس اليوم لا يتكرّر التنبيه (sweep_alert_date)",
+      S.monitor_sweeps(_wl_sw, _sw_hist, "2026-07-08") == []
+      and _wl_sw["stocks"][0]["sweep_alert_date"] == "2026-07-08")
+check("مسح لحظي·دِدوب: يوم جديد ⇒ ينبّه ثانية",
+      len(S.monitor_sweeps(_wl_sw, _sw_hist, "2026-07-09")) == 1)
+_sw_msg = S.build_sweep_alert(_sw)
+check("مسح لحظي·رسالة: «مسح سيولة الآن» + حالة الدخول للسهم",
+      "مسح سيولة الآن" in _sw_msg and "$SWP" in _sw_msg
+      and ("🟢 جاهز" in _sw_msg or "👀 متابعة" in _sw_msg))
+check("مسح لحظي·قفل: monitor_sweeps خارج rank_key/select_top (عرض/تنبيه فقط)",
+      "monitor_sweeps" not in _insp0.getsource(S.rank_key)
+      and "monitor_sweeps" not in _insp0.getsource(S.select_top))
 # لا يكرّر الصفقة لو ظهرت بالأرشيف والحالي معًا (dedup)
 _dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)]}],
         "removed": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)], "stocks": []}
