@@ -494,19 +494,19 @@ def render_ondemand(result: dict, gates: list, official, reject_reason=None,
     head = [
         f"🔎 <b>تحليل يدوي عند الطلب: {result['symbol']}</b>",
         f"نسبة جاهزية الدخول: "
-        f"{bot.readiness_badge(result.get('readiness'), result.get('tier', 'A'))}  "
+        f"{bot.readiness_badge(result.get('readiness'))}  "
         "(متى أدخل — التوقيت)",
         f"الدرجة الفنية: <b>{result['score']}/100</b>  "
         "(قوة الإشارات الفنية)",
         f"البوابات الإلزامية: <b>{passed}/{total}</b>",
     ]
-    # الحكم = قرار البوت الأساسي نفسه (A / مراقبة B / مرفوض) — لا تناقض
-    if official is not None and official.get("tier") == "A":
-        head.append("الحكم: 🅰️ <b>يطابق القائمة A الصارمة</b> — كان سيُرشَّح أولًا")
-    elif official is not None and official.get("tier") == "B":
-        miss = "، ".join(official.get("soft_fails", [])) or "—"
-        head.append(f"الحكم: 🅱️ <b>مراقبة B</b> — كان سيُرشَّح بقائمة المراقبة "
-                    f"(ينقصها: {miss})")
+    # الحكم = قرار البوت الأساسي نفسه (مؤهّل / ارتداد / مرفوض) — لا تناقض
+    # (🪦 A/B متقاعد 2026-07-05: فئة واحدة مؤهّلة، الجاهزية هي المحور)
+    if official is not None:
+        sf = official.get("soft_fails", [])
+        tail = (f" (بوابات التأكيد الناقصة: {'، '.join(sf)})" if sf
+                else " (اجتاز كل بوابات التأكيد)")
+        head.append(f"الحكم: 🎯 <b>مؤهّل — كان سيدخل قائمة المراقبة</b>{tail}")
     elif pullback is not None:
         tgt = pullback["entry"][1]
         wr = "، ".join(pullback.get("watch_reasons", [])) or "ارتفع عن دخوله"
