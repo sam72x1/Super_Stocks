@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import Super_stock as S
 import technical_report as TR
+import hand_check as HC
 
 PASS, FAIL = [], []
 
@@ -957,6 +958,41 @@ check("🕵️قسم: لا أسهم يد ⇒ قسم فارغ (لا ترويسة 
 check("🕵️قسم·تنظيف: سطر 🕵️ أُزيل من كرت اليومي (انتقل للقسم المستقل)",
       "hand_evidence_line" not in _insp0.getsource(S.build_daily_message)
       and "build_hand_section" in _insp0.getsource(S.run_daily_watchlist))
+
+# ===== 🕵️ أداة فحص اليد المستقلة (hand_check.py — عرض/تشخيص فقط) =====
+_hc_r = {"symbol": "TST", "price": 2.0,
+         "behav": {"sweeps": 3, "score": 66, "label": "🔥 يد نشطة"},
+         "rotation_pct": 160,
+         "h4_levels": {"managed_ceiling": {"price": 3.0, "touches": 4}},
+         "pump_scar": {"found": True, "jump_pct": 60, "bars_ago": 20,
+                       "broke_support": True}}
+_hc_msg = HC.render_hand_check("TST", _hc_r)
+check("فحص اليد: حكم «قرائن قوية» عند 3 أدلة فأكثر + قائمة القرائن",
+      "قرائن قوية" in _hc_msg and "القرائن المرصودة" in _hc_msg
+      and "سقف مُدار" in _hc_msg)
+check("فحص اليد: بلا قرائن ⇒ «لا قرائن واضحة» (صدق)",
+      "لا قرائن واضحة" in HC.render_hand_check("Q", {"symbol": "Q", "price": 5.0,
+                                                     "behav": {}}))
+check("فحص اليد·الأهم: يحلّله كسهم ارتكاز (قسم «التحليل كسهم ارتكاز»)",
+      "التحليل كسهم ارتكاز" in _hc_msg)
+_hc_piv = dict(_hc_r, interp={"setup_type": "liquidity_sweep",
+                              "entry_mode": {"mode": "near_support"},
+                              "critical_number": {"price": 2.2,
+                                                  "why": "تجاوزه يفعّل الهدف"}},
+               tranches=[1.8, 1.9, 2.0], stop=(1.7, 1.75),
+               t1=2.3, t2=2.6, t3=3.0)
+_hc_pmsg = HC.render_hand_check("TST", _hc_piv)
+check("فحص اليد·ارتكاز مؤهّل: يعرض «مؤهّل» + الحالة + الرقم الحرج + الأهداف",
+      "سهم ارتكاز مؤهّل" in _hc_pmsg and "الرقم الحرج" in _hc_pmsg
+      and "🎯 أهداف:" in _hc_pmsg)
+check("فحص اليد·ارتكاز مرفوض: يوضّح «ليس ارتكازًا مؤهّلًا» + السبب",
+      "ليس سهم ارتكاز مؤهّلًا" in HC.render_hand_check(
+          "R", {"symbol": "R", "price": 9.0, "behav": {},
+                "reject_reason": "قاع_غير_مكتمل"}))
+check("فحص اليد·صدق: نص «تدفق الطلبات الحي غير متاح» موجود",
+      "تدفق الطلبات الحي" in _hc_msg)
+check("فحص اليد·قفل: render_hand_check لا يخترع درجة اشتباه رقمية (نوعي فقط)",
+      "من 100" not in _hc_msg and "درجة اشتباه" not in _hc_msg)
 
 # ===== 🕵️ تحديث نهاية اليوم «ماذا فعلت اليد اليوم» (DIGEST — إشعار/عرض فقط) =====
 def _today_df(kind):

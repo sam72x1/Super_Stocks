@@ -13,6 +13,7 @@
 - `analyze_one.py` — تحليل سهم واحد عند الطلب (يفوّض لـ`analyze_ticker`).
 - `pullback_live.py` — مراقبة الارتداد اللحظية (كل 30د بالسوق).
 - `technical_report.py` — **أداة مستقلة**: `TICKER=رمز` → تقرير فني كلاسيكي · `SCAN_EARNINGS=1` → أداة الأرباح (مسح ناسداك قوي فنيًا + أرباح قريبة).
+- `hand_check.py` — **أداة مستقلة (🕵️ فحص اليد، `HAND_CHECK=رمز`)**: هل وراء السهم مضارب؟ حكم نوعي بعدد القرائن (شموع يومية/4س/تدوير/رفعة قروب/لقطة طلبات) + «ماذا فعلت اليد اليوم» + **التحليل كسهم ارتكاز** (مؤهّل→الحالة/الرقم الحرج/الأهداف · مرفوض→السبب). عرض/تشخيص فقط، يعيد استخدام دوال البوت. workflow `hand_check.yml` (يدوي، input=ticker).
 - `test_bot.py` — 191+ اختبار (العدد وقت آخر تحديث؛ يشتغل بلا إنترنت). **شغّله قبل أي دفع:** `python3 test_bot.py`
 - `FAISAL_METHODOLOGY_NOTES.md` / `FAISAL_IMAGES_CATALOG.md` — توثيق منهجية فيصل من الصور.
 - `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · scan_earnings.yml (أداة الأرباح، يومي 06:00 UTC) · **hand_digest.yml (🕵️ تحديث نهاية اليوم، 22:00 UTC اثنين→جمعة — `SCREENER_MODE=DIGEST`)** · backtest.yml · analyze.yml/technical.yml (يدوي).
