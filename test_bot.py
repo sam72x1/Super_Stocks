@@ -1430,6 +1430,80 @@ check("تحقّق·قفل: دالّتا التحقّق خارج rank_key/select_
            and "_ignition_first_fire" not in _insp0.getsource(_f))
           for _f in (S.rank_key, S.select_top, S.backtest_symbol)))
 
+# ===== 📏 حلقة قياس رادار الانطلاق (سجلّ حي → أداة التطوير: الالتقاط/الإنذار الكاذب) =====
+def _ig_oc_df(rows):        # rows = [(تاريخ, أعلى, إغلاق), ...]
+    return pd.DataFrame({"High": [r[1] for r in rows], "Close": [r[2] for r in rows]},
+                        index=pd.to_datetime([r[0] for r in rows]))
+_oc_fire = {"price": 2.0, "break_level": 2.0, "date": "2026-07-08",
+            "candle_class": "operator"}
+_oc_real = _ig_oc_df([("2026-07-09", 2.1, 2.05), ("2026-07-10", 2.30, 2.28)])
+_oc_fake = _ig_oc_df([("2026-07-09", 2.1, 1.90)])
+_oc_pend = _ig_oc_df([("2026-07-09", 2.1, 2.05)])
+check("📏 نتيجة الاشتعال: أعلى لاحق ≥+12% من سعر الاشتعال ⇒ حقيقي",
+      S._ignition_outcome(_oc_fire, _oc_real) == "real")
+check("📏 نتيجة الاشتعال: إغلاق لاحق تحت الكسر قبل التأكيد ⇒ كاذب",
+      S._ignition_outcome(_oc_fire, _oc_fake) == "fakeout")
+check("📏 نتيجة الاشتعال: لم يُحسم ⇒ معلّق",
+      S._ignition_outcome(_oc_fire, _oc_pend) == "pending")
+check("📏 نتيجة·فاشل-آمن + بلا تسريب: None/شموع قبل الاشتعال ⇒ معلّق",
+      S._ignition_outcome(_oc_fire, None) == "pending"
+      and S._ignition_outcome(_oc_fire, _ig_oc_df([("2026-07-07", 2.9, 2.8)])) == "pending")
+# كتلة القياس (بحقن جالب — بلا شبكة): الالتقاط/الكاذب + تفصيل تصنيف الشمعة
+_log_fires = (
+    [{"symbol": f"R{i}", "date": "2026-07-08", "price": 2.0, "break_level": 2.0,
+      "candle_class": "operator"} for i in range(4)]
+    + [{"symbol": "RG0", "date": "2026-07-08", "price": 2.0, "break_level": 2.0,
+        "candle_class": "group"}]
+    + [{"symbol": "F1", "date": "2026-07-08", "price": 2.0, "break_level": 2.0,
+        "candle_class": "operator"}]
+    + [{"symbol": f"FG{i}", "date": "2026-07-08", "price": 2.0, "break_level": 2.0,
+        "candle_class": "group"} for i in range(3)]
+    + [{"symbol": "P1", "date": "2026-07-08", "price": 2.0, "break_level": 2.0,
+        "candle_class": "mid"}])
+def _log_fetch(sym, d):
+    return _oc_real if sym.startswith("R") else (
+        _oc_fake if sym.startswith("F") else _oc_pend)
+_blk = "\n".join(S._ignition_log_block(_log_fires, fetch=_log_fetch))
+check("📏 كتلة القياس: تعرض «إنذار كاذب %» من المحسوم (4 كاذب / 9 محسوم = 44%)",
+      "إنذار كاذب" in _blk and "44%" in _blk)
+check("📏 كتلة القياس: تفصيل حسب تصنيف الشمعة (قروب يكذب أكثر — دليل المعايرة)",
+      "قروب: 3/4 كاذب" in _blk and "مضارب: 1/5 كاذب" in _blk)
+check("📏 كتلة القياس·عيّنة صغيرة: تقول «تتراكم» بلا نسبة",
+      "تتراكم" in "\n".join(S._ignition_log_block(
+          [_log_fires[0]], fetch=_log_fetch))
+      and "إنذار كاذب" not in "\n".join(S._ignition_log_block(
+          [_log_fires[0]], fetch=_log_fetch)))
+check("📏 كتلة القياس: سجلّ فارغ ⇒ [] (لا كتلة)", S._ignition_log_block([]) == [])
+# تسجيل/قراءة السجلّ (ملف مؤقت — لا يمسّ سجلّ الريبو الحقيقي)
+import tempfile as _tf_ig
+_igtmp = _tf_ig.mkdtemp()
+_save_igf = S.IGNITION_LOG_FILE
+try:
+    S.IGNITION_LOG_FILE = _igtmp + "/ig_log.json"
+    _rec_rows = [({"symbol": "REC", "pivot": 1.9,
+                   "interp": {"critical_number": {"price": 2.0}}},
+                  {"price": 2.08, "vol_x": 5.0, "usd": 208000}, None)]
+    _n1 = S.record_ignition_fires(_rec_rows, "2026-07-08")
+    _n2 = S.record_ignition_fires(_rec_rows, "2026-07-08")   # دِدوب مرة/سهم/يوم
+    _loaded = S.load_ignition_log()
+    check("📏 تسجيل: يكتب إطلاقًا + دِدوب + يحفظ تصنيف الشمعة",
+          _n1 == 1 and _n2 == 0 and len(_loaded) == 1
+          and _loaded[0]["symbol"] == "REC"
+          and _loaded[0]["candle_class"] == "operator"
+          and _loaded[0]["break_level"] == 2.0)
+    check("📏 تسجيل·فاشل-آمن: rows فارغة ⇒ 0",
+          S.record_ignition_fires([], "2026-07-08") == 0)
+    S.IGNITION_LOG_FILE = _igtmp + "/nope.json"
+    check("📏 قراءة·فاشل-آمن: ملف غير موجود ⇒ []", S.load_ignition_log() == [])
+finally:
+    S.IGNITION_LOG_FILE = _save_igf
+check("📏 قفل: دوال القياس خارج rank_key/select_top/classify_tier/analyze_ticker/backtest_symbol",
+      all(("_ignition_outcome" not in _insp0.getsource(_f)
+           and "record_ignition_fires" not in _insp0.getsource(_f)
+           and "_ignition_log_block" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.backtest_symbol)))
+
 # ===== 🕵️💰 حزمة «قراءة المضارب» من صور فيصل (FAISAL_OPERATOR_PACK_PLAN) =====
 # P1 💰 وسم شمعة مضارب/قروب بسيولتها الدولارية (قاعدة فيصل: ≥100ألف مضارب · ≤50ألف قروب)
 check("مضارب·P1 تصنيف: ≥300ألف قوية · ≥100ألف مضارب · ≤50ألف قروب · بينها mid",
