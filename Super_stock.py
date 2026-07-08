@@ -5975,10 +5975,9 @@ def run_daily_watchlist(wl: dict) -> None:
                 + " — لم تُضف أسهم جديدة اليوم (متابعة القائمة الحالية مستمرة).")
     watching = [e for e in wl.get("pullback", [])
                 if e.get("status") != "triggered"]
-    # 🕵️ قسم مستقل «أسهم فيها علامات يد» (قائمة نظيفة لحالها — طلب المستخدم)
-    hand_sec = build_hand_section(wl)
-    if hand_sec:
-        msg += "\n\n" + hand_sec
+    # 🕵️ أسهم اليد = **رسالة تلغرام مستقلة** (طلب المستخدم: «ما تندفن بالتقرير
+    # الطويل») — تُرسَل منفصلة بعد التقرير الرئيسي أدناه، لا تُلحَق به.
+    hand_msg = build_hand_section(wl)
     pull_sec = build_pullback_section(watching, pull_triggered)
     if pull_sec:
         msg += "\n\n" + pull_sec
@@ -5995,6 +5994,9 @@ def run_daily_watchlist(wl: dict) -> None:
     # (شبكة/تيليجرام) لا تضيع الحالة المحسوبة (إصلاح 2026-06-24).
     save_watchlist(wl)
     send_telegram(msg)
+    # 🕵️ رسالة أسهم اليد المستقلة (منفصلة عن التقرير الطويل — لا تُدفن)
+    if hand_msg:
+        send_telegram(hand_msg + "\n\n" + FOOTER)
     write_csv([{
         "symbol": s["symbol"], "readiness%": s["readiness"],
         "price": s["last_price"], "pivot": s["pivot"], "stop": s["stop"],
