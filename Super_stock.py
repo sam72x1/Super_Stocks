@@ -3331,6 +3331,9 @@ def build_message(results: list, splits: list,
         # القوة العامة + شريط بصري
         bar, slabel = strength_bar(r.get("score", 0))
         lines.append(f"💪 القوة العامة: {r.get('score', 0)}/100  {bar}  {slabel}")
+        # 🟢👀 حالة الدخول العملية (جاهز للدخول الآن / متابعة + السبب) — من موقع السعر
+        _es = entry_status(r)
+        lines.append(_es["label"] + (f" — {_es['reason']}" if _es["reason"] else ""))
         # 🧬 طريقة ارتفاع اليد (سلوك المضارب — **عرض/تشخيص فقط، لا يمسّ الفرز ولا الاختيار**):
         # كيف رفع المضاربُ السهمَ تاريخيًا (كم مرّة · أكبر رفعة · بصمة المسح). فيصل: البصمة تتكرّر.
         bh = r.get("behav") or {}
@@ -4519,6 +4522,58 @@ def readiness_ratio(p):
     return f"نسبة الدخول/الجاهزية <b>{p}/100</b> {status}"
 
 
+def entry_status(s: dict) -> dict:
+    """🟢👀 حالة الدخول العملية (خطة ENTRY_READY_SPLIT_PLAN.md — طلب المستخدم
+    2026-07-08: «فرّق بين سهم جاهز للدخول وسهم متابعة»). **عرض/تصنيف-عرضي فقط**:
+    لا يمسّ الفرز/الاختيار/الترتيب/الأهداف/الوقف · لا LOGIC_VERSION.
+
+    القرار من **موقع السعر** (منهجية المقطع P0-5: قرار فيصل = قرب الدعم/بعد مسح، لا
+    اكتمال بوابات ولا عتبة جاهزية) — مصدره الوحيد `entry_mode` المحسوب أصلًا في
+    `build_interpretation` (يتجدّد يوميًا). **الجاهزية لا تدخل القرار إطلاقًا** (قفل
+    ضد تكرار عتبة 75 الفاضية). فاشل-آمن → «متابعة» بسبب صريح. يرجّع:
+      {"status": "ready_now"|"watch", "label": "🟢 جاهز للدخول الآن"|"👀 متابعة",
+       "reason": نص عربي مبسّط (فارغ للجاهز)}"""
+    try:
+        em = (s.get("interp") or {}).get("entry_mode") or {}
+        mode = em.get("mode")
+        reason = em.get("reason") or ""
+        if mode is None:
+            # احتياط السجلّات القديمة بلا interp: نفس صيغ build_interpretation حرفيًا
+            lp = float(s.get("last_price") or s.get("price") or 0)
+            trs = [float(x) for x in (s.get("tranches") or []) if x]
+            _st = s.get("stop")
+            stop0 = (float(_st[0]) if isinstance(_st, (list, tuple)) and _st
+                     else (float(_st) if isinstance(_st, (int, float)) else None))
+            piv = float(s.get("pivot") or 0)
+            if lp <= 0 or not trs or piv <= 0:
+                return {"status": "watch", "label": "👀 متابعة",
+                        "reason": "بيانات ناقصة لتقييم وضع الدخول"}
+            hi_z = max(trs)
+            if stop0 and lp <= stop0:
+                mode, reason = "no_entry_far", "كسر الوقف — الفكرة ملغاة/خطرة"
+            elif lp < piv * 0.995:
+                mode, reason = "reclaim_wait", "تحت الدعم — ننتظر استعادته"
+            elif lp > hi_z * 1.05:
+                mode, reason = "no_entry_far", "بعيد فوق منطقة الدفعات"
+            else:
+                mode, reason = "near_support", ""
+        if mode in ("near_support", "sweep_confirmed"):
+            return {"status": "ready_now", "label": "🟢 جاهز للدخول الآن",
+                    "reason": ""}
+        if mode == "reclaim_wait":
+            return {"status": "watch", "label": "👀 متابعة",
+                    "reason": "تحت الدعم — يتحوّل جاهزًا باستعادته"}
+        # no_entry_far: كسر الوقف يبقى بلا لاحقة (خطر لا انتظار) · البُعد يوضّح كيف يعود
+        if "كسر الوقف" in reason:
+            return {"status": "watch", "label": "👀 متابعة", "reason": reason}
+        return {"status": "watch", "label": "👀 متابعة",
+                "reason": (reason or "بعيد عن منطقة الدفعات")
+                + " — يتحوّل جاهزًا برجوعه لمنطقة الدفعات"}
+    except Exception:
+        return {"status": "watch", "label": "👀 متابعة",
+                "reason": "تعذّر تقييم وضع الدخول"}
+
+
 def build_pullback_section(entries: list, triggered: list = None) -> str:
     """قسم «مراقبة الارتداد»: أسهم ارتكاز ارتفعت ننتظر رجوعها للدعم +
     تنبيهات الأسهم التي وصلت سعر الدعم اليوم (جاهزة للدخول)."""
@@ -4579,8 +4634,13 @@ def build_daily_message(wl: dict, splits: list,
     """التقرير اليومي (الاثنين→الخميس): القائمة الثابتة مرتبة بالجاهزية"""
     today = dt.date.today().isoformat()
     n = len(wl["stocks"])
+    # 🟢👀 فصل «جاهز للدخول الآن» عن «متابعة» (خطة ENTRY_READY_SPLIT_PLAN — عرض فقط،
+    # من موقع السعر عبر entry_status؛ الترتيب المخزّن لا يُلمس، فقط partition للعرض).
+    _st = [(s, entry_status(s)) for s in wl["stocks"]]
+    _ready = [(s, es) for s, es in _st if es["status"] == "ready_now"]
+    _watch = [(s, es) for s, es in _st if es["status"] != "ready_now"]
     lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
-             f"{n}/{CONFIG['WATCHLIST_SIZE']} سهم | مرتبة حسب جاهزية الدخول "
+             f"{n} سهم: {len(_ready)} جاهز للدخول · {len(_watch)} متابعة "
              f"(تجديد القائمة: الجمعة)", ""]
     # 🚀 ترقيات اليوم (B→A): إنذار مبكر — اكتمل النموذج، جاهز للدخول
     if promoted:
@@ -4594,7 +4654,21 @@ def build_daily_message(wl: dict, splits: list,
         lines.append("")
     if not wl["stocks"]:
         lines.append("القائمة فارغة مؤقتاً — البدائل تُجلب في التشغيل القادم.")
-    for i, s in enumerate(wl["stocks"], 1):
+    # الجاهز أولًا ثم المتابعة (ترقيم مستمر 1..N · عنوان القسم يُطبع مرة عند تغيّره ·
+    # القسم الفاضي لا يظهر عنوانه — من _ready/_watch أعلاه).
+    _partition = ([(s, es, "ready_now") for s, es in _ready]
+                  + [(s, es, "watch") for s, es in _watch])
+    _cur_section = None
+    for i, (s, _es, _sec) in enumerate(_partition, 1):
+        if _sec != _cur_section:
+            if _cur_section is not None:   # فراغ بين القسمين فقط (الترويسة توفّره للأول)
+                lines.append("")
+            _cur_section = _sec
+            if _sec == "ready_now":
+                lines.append(f"🟢 <b>جاهز للدخول الآن</b> ({len(_ready)})")
+            else:
+                lines.append("👀 <b>متابعة — ننتظر وصولها لمنطقة الدخول</b> "
+                             f"({len(_watch)})")
         lp = s["last_price"]
         tier = s.get("tier", "B")
         tb = "🎯"          # 🪦 A/B متقاعد → شارة موحّدة؛ الجاهزية بالوسم التالي
@@ -4608,6 +4682,9 @@ def build_daily_message(wl: dict, splits: list,
         else:
             head += f"قوة {s.get('score', '?')}"
         lines.append(head)
+        # سطر السبب لأسهم المتابعة فقط (ما الذي يحوّلها جاهزة) — الجاهز يكفيه عنوان القسم
+        if _sec == "watch" and _es.get("reason"):
+            lines.append(f"   👀 {_es['reason']}")
         # المعلومات الصغيرة بسطر واحد (سعر · فلوت · شورت · قطاع)
         small = [f"${lp:.2f}"]
         # فلوت/شورت: شرطة «—» عند تعذّر الجلب (تعذّر ≠ صفر) بدل الإخفاء الصامت.
