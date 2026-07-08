@@ -59,6 +59,9 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     # 📊 تدفق الأوامر (Polygon حي · وإلا لقطة Yahoo · وإلا «—» — لا يعيق الفحص)
     L.append("")
     L.append(f"📊 تدفق الأوامر: {r.get('order_flow') or '—'}")
+    # 🔬 التجميع الصامت عند القاع (Polygon · وإلا «—»)
+    _al = bot.acc_line(r.get("acc"))
+    L.append(_al if _al else "🔬 تجميع صامت: —")
     # بصمة طريقة الارتفاع (سياق)
     bh = r.get("behav") or {}
     if bh.get("score") is not None:
@@ -145,6 +148,11 @@ def hand_check(sym: str):
         r["order_flow"] = bot.order_snapshot(sym)
     except Exception:
         r["order_flow"] = None
+    # 🔬 التجميع الصامت عند القاع (Polygon — فاشل-آمن → «—»، عرض/تشخيص فقط)
+    try:
+        r["acc"] = bot.silent_accumulation(sym)
+    except Exception:
+        r["acc"] = None
     # مؤهّل ارتكاز؟ (interp + دخول/أهداف لو مرّ) · وإلا السبب الأول
     try:
         bot._REJECT_STATS.clear()
