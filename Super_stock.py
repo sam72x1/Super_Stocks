@@ -4958,11 +4958,67 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str) -> list:
 _LIVE_ICON = {"sweep": "🚨", "buyzone": "🎯", "break": "⛔", "breakout": "🚀"}
 
 
+def polygon_flow(sym: str):
+    """📊 تدفق الأوامر الحقيقي من Polygon (اشتراك المستخدم — **طبقة اختيارية بالكامل**):
+    NBBO حي (أفضل عرض/طلب + أحجام) + نسبة الشراء/البيع من آخر ~100 صفقة (صفقة عند/فوق
+    منتصف السعر = شراء عدواني · تحته = بيع — قاعدة Lee-Ready المبسّطة). **فاشل-آمن
+    تمامًا** → None عند: غياب المفتاح · انتهاء الاشتراك (401/403) · حد الطلبات (429) ·
+    أي خطأ شبكي/رد. **لا يعيق الفحص إطلاقًا** (طلب المستخدم: «شرطة، لا تعطيل»). المفتاح
+    يُقرأ وقت النداء (غيابه = None فورًا). عرض فقط — خارج الفرز نهائيًا."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        return None
+    try:
+        base, h = "https://api.polygon.io", {"Authorization": f"Bearer {key}"}
+        s = sym.upper()
+        q = requests.get(f"{base}/v2/last/nbbo/{s}", headers=h, timeout=12)
+        if q.status_code != 200:
+            return None
+        res = (q.json() or {}).get("results") or {}
+        bid, ask = res.get("p"), res.get("P")       # p=أفضل طلب · P=أفضل عرض
+        bsz, asz = res.get("s"), res.get("S")
+        if not (bid and ask and ask > 0):
+            return None
+        out = {"bid": float(bid), "ask": float(ask),
+               "bid_size": bsz, "ask_size": asz,
+               "spread_pct": round((ask - bid) / ask * 100.0, 1),
+               "buy_pct": None, "sell_pct": None, "n_trades": 0}
+        try:
+            mid = (float(bid) + float(ask)) / 2.0
+            tr = requests.get(f"{base}/v3/trades/{s}",
+                              headers=h, params={"limit": 100, "order": "desc"},
+                              timeout=12)
+            if tr.status_code == 200:
+                trades = (tr.json() or {}).get("results") or []
+                prices = [t.get("price") for t in trades if t.get("price")]
+                if prices:
+                    buys = sum(1 for p in prices if p >= mid)
+                    out["n_trades"] = len(prices)
+                    out["buy_pct"] = round(buys / len(prices) * 100.0)
+                    out["sell_pct"] = 100 - out["buy_pct"]
+        except Exception:
+            pass
+        return out
+    except Exception:
+        return None
+
+
 def order_snapshot(sym: str):
-    """📊 لقطة أفضل عرض/طلب (bid/ask + أحجامها) من Yahoo — **لقطة وحيدة، لا تدفق
-    أوامر حي** (Level 2/عمق السوق غير متاح بالمصدر المجاني). يرجع نصًا مختصرًا أو
-    None. تُجلب فقط للسهم الذي وقع عليه حدث لحظي (لا لكل السوق)."""
-    if yf is None:
+    """📊 تدفق/لقطة الأوامر — **طبقة اختيارية فاشلة-آمنة** (طلب المستخدم: لا تعيق
+    الفحص أبدًا؛ تعذّرها = «—»): تُفضّل تدفق Polygon الحي (اشتراك المستخدم)، وإلا
+    لقطة Yahoo الوحيدة، وإلا None (فيُعرض «—»). Level 2 غير مستعمل. عرض فقط."""
+    pf = polygon_flow(sym)              # 1) تدفق حي من Polygon (إن توفّر الاشتراك)
+    if pf:
+        parts = []
+        if pf.get("buy_pct") is not None:
+            parts.append(f"{pf['buy_pct']:.0f}% شراء · {pf['sell_pct']:.0f}% بيع "
+                         f"(آخر {pf['n_trades']} صفقة)")
+        parts.append(f"طلب ${pf['bid']:.2f}"
+                     + (f"×{pf['bid_size']}" if pf.get('bid_size') else "")
+                     + f" · عرض ${pf['ask']:.2f}"
+                     + (f"×{pf['ask_size']}" if pf.get('ask_size') else ""))
+        return "🟢 تدفق حي (Polygon): " + " · ".join(parts)
+    if yf is None:                     # 2) احتياط: لقطة Yahoo الوحيدة
         return None
     try:
         info = _fetch_info(yf.Ticker(sym))
@@ -4971,9 +5027,9 @@ def order_snapshot(sym: str):
             return None
         bs, ask_sz = info.get("bidSize"), info.get("askSize")
         spread = round((ask - bid) / ask * 100.0, 1)
-        buy = f"شراء ${bid:.2f}" + (f"×{bs}" if bs else "")
-        sell = f"بيع ${ask:.2f}" + (f"×{ask_sz}" if ask_sz else "")
-        return f"{buy} · {sell} · سبريد {spread:.0f}%"
+        return (f"لقطة Yahoo: شراء ${bid:.2f}" + (f"×{bs}" if bs else "")
+                + f" · بيع ${ask:.2f}" + (f"×{ask_sz}" if ask_sz else "")
+                + f" · سبريد {spread:.0f}%")
     except Exception:
         return None
 
