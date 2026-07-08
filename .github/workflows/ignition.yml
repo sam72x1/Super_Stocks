@@ -1,0 +1,39 @@
+name: Ignition Radar (رادار الانطلاق اللحظي)
+
+# 🔥 عامل جلسة حي: من الافتتاح، يلفّ كل ~45ث يفحص القائمة المؤهّلة ويكشف لحظة
+# الاشتعال (حجم + كسر صاعد + تدفق أوامر يؤكّد) → تنبيه فوري «ادخل الآن». جوب واحد
+# طويل (لا كرون كل دقيقة). إشعار فقط — لا يحفظ القائمة. فاشل-آمن: بلا مفتاح = لا عمل.
+
+on:
+  schedule:
+    - cron: "35 13 * * 1-5"        # بعد افتتاح ناسداك (13:30 UTC) مباشرةً، أيام التداول
+  workflow_dispatch: {}
+
+# مجموعة تزامن مستقلة (لا يحفظ الحالة → يعمل بالتوازي مع الفرز/المراقبة بلا تضارب)
+concurrency:
+  group: super-stocks-ignition
+  cancel-in-progress: false
+
+jobs:
+  ignition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350            # ≈ من 13:35 إلى ~19:25 UTC (يغطّي الافتتاح + معظم الجلسة)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run ignition radar
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          IGNITION_END_UTC: "19:20"   # يخرج بأمان قبل حدّ الجوب (350د)
+        run: python ignition_live.py

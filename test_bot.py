@@ -1327,6 +1327,63 @@ check("بريماركت·قفل: polygon_premarket/_premarket_summary خارج r
            and "_premarket_summary" not in _insp0.getsource(_f))
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.backtest_symbol)))
 
+# ===== 🔥 رادار الانطلاق اللحظي (IGNITION_PLAN.md — رد فعل حي، توقيت لا اختيار) =====
+def _ig_bars(prices, vols):
+    return [{"o": p, "h": p * 1.01, "l": p * 0.99, "c": p, "v": v}
+            for p, v in zip(prices, vols)]
+_ig_quiet = [1.95, 1.96, 1.95, 1.96, 1.97, 1.96, 1.95, 1.96, 1.97]
+_ig_fire = _ig_bars(_ig_quiet + [2.05], [100] * 9 + [500])     # حجم 5× · كسر 2.00 صاعدًا
+# دالة الكشف النقية
+check("انطلاق·كشف: قفزة حجم + كسر صاعد + اتجاه صاعد ⇒ اشتعال {price,vol_x}",
+      S._ignition_signal(_ig_fire, 2.00) == {"price": 2.05, "vol_x": 5.0})
+check("انطلاق·كشف: لا قفزة حجم (1.2×) ⇒ None",
+      S._ignition_signal(_ig_bars(_ig_quiet + [2.05], [100] * 9 + [120]), 2.00) is None)
+check("انطلاق·كشف: لا كسر (السعر تحت الحاجز) ⇒ None",
+      S._ignition_signal(_ig_bars(_ig_quiet + [1.99], [100] * 9 + [500]), 2.00) is None)
+check("انطلاق·كشف: هابط (آخر أقل من أول النافذة) ⇒ None (لا اشتعال زائف)",
+      S._ignition_signal(_ig_bars([2.10] * 9 + [2.05], [100] * 9 + [500]), 2.00) is None)
+check("انطلاق·صدق: بارات غير كافية/حاجز غير صالح ⇒ None",
+      S._ignition_signal(_ig_bars([2.0] * 3, [100] * 3), 2.00) is None
+      and S._ignition_signal(_ig_fire, 0) is None)
+# حاجز الكسر: الرقم الحرج ثم أرضية×1.05
+check("انطلاق·حاجز: الرقم الحرج (فيصل) ثم 5% فوق الأرضية · None لو لا مرجع",
+      S._ignition_break_level({"interp": {"critical_number": {"price": 2.5}}}) == 2.5
+      and S._ignition_break_level({"pivot": 2.0}) == 2.10
+      and S._ignition_break_level({}) is None)
+# المنسّق scan_ignition (بحقن جالبات — بلا شبكة) + دِدوب
+_ig_wl = {"stocks": [
+    {"symbol": "IGN", "status": "active", "pivot": 1.90, "t1": 2.4, "stop": 1.6,
+     "interp": {"critical_number": {"price": 2.00}}},
+    {"symbol": "QUIET", "status": "active", "pivot": 5.0,
+     "interp": {"critical_number": {"price": 6.0}}}]}
+_ig_map = {"IGN": _ig_fire, "QUIET": _ig_bars([5.0] * 10, [100] * 10)}
+_ig_rows = S.scan_ignition(_ig_wl, "2026-07-08",
+                           fetch_bars=lambda s: _ig_map.get(s),
+                           fetch_flow=lambda s: "65% شراء" if s == "IGN" else None)
+check("انطلاق·منسّق: يكشف المشتعل (IGN) دون الهادئ (QUIET) + يرفق التدفق",
+      len(_ig_rows) == 1 and _ig_rows[0][0]["symbol"] == "IGN"
+      and _ig_rows[0][2] == "65% شراء")
+check("انطلاق·دِدوب: نفس اليوم لا يتكرّر · يوم جديد ينبّه",
+      S.scan_ignition(_ig_wl, "2026-07-08", fetch_bars=lambda s: _ig_map.get(s)) == []
+      and len(S.scan_ignition(_ig_wl, "2026-07-09",
+                              fetch_bars=lambda s: _ig_map.get(s))) == 1)
+check("انطلاق·فاشل-آمن: فشل جلب البارات ⇒ يتخطّى السهم (لا انهيار)",
+      S.scan_ignition({"stocks": [{"symbol": "E", "status": "active", "pivot": 1.9,
+                                   "interp": {"critical_number": {"price": 2.0}}}]},
+                      "2026-07-08",
+                      fetch_bars=lambda s: (_ for _ in ()).throw(ValueError("x"))) == [])
+check("انطلاق·رسالة: «انطلاق لحظي» + السهم + الحجم + الكسر + هدف/وقف",
+      "انطلاق لحظي" in S.build_ignition_alert(_ig_rows)
+      and "$IGN" in S.build_ignition_alert(_ig_rows)
+      and "5× المتوسط" in S.build_ignition_alert(_ig_rows)
+      and "رد فعل لحظي" in S.build_ignition_alert(_ig_rows))
+check("انطلاق·قفل: رادار توقيت/تنبيه فقط — خارج rank_key/select_top/classify_tier/"
+      "analyze_ticker/backtest_symbol (لا يمسّ الاختيار)",
+      all(("scan_ignition" not in _insp0.getsource(_f)
+           and "_ignition_signal" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.backtest_symbol)))
+
 # لا يكرّر الصفقة لو ظهرت بالأرشيف والحالي معًا (dedup)
 _dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)]}],
         "removed": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)], "stocks": []}

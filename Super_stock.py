@@ -162,6 +162,8 @@ CONFIG = {
     "VOL_DRY_RATIO": 0.6,        # جفاف: متوسط 5 < 60% من متوسط 20
     "PM_MOVE_PCT": 10,           # 🌙 عتبة تنبيه تحرّك البريماركت (POLYGON_EDGE_PLAN §ج،
                                  # عرضية موثّقة): تحرّك ≥10% بحجم بريماركت = «راقب الافتتاح»
+    "IGNITION_VOL_MULT": 3.0,    # 🔥 رادار الانطلاق: قفزة حجم الدقيقة ≥3× متوسط الدقائق
+                                 # السابقة = لحظة الاشتعال (رد فعل حي، `IGNITION_PLAN.md`)
     # دول مشهورة بتجاهل التحليل الفني (تلاعب/pump&dump): تحذير فقط (تظل تظهر)
     "HIGH_RISK_COUNTRIES": ["China", "Hong Kong"],
     "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
@@ -5363,6 +5365,112 @@ def build_live_alert(rows: list, quotes: dict = None) -> str:
             lines.append(f"   📊 لقطة الأوامر: {q}")
     lines.append("ℹ️ لقطة الأوامر لحظية من Yahoo (أفضل عرض/طلب فقط) — "
                  "ليست تدفق أوامر حيًّا (Level 2 غير متاح بمسار البوت).")
+    return _rtl_join(lines)
+
+
+# ==========================================================
+# 🔥 رادار الانطلاق اللحظي (IGNITION_PLAN.md) — عامل جلسة حي على القائمة المؤهّلة
+# ==========================================================
+# الفكرة (بعد أن أثبت T-ACC أن الاختيار عند القاع مستحيل): لا نتنبّأ بأيّ زنبرك ينفجر
+# — بل نراقب القائمة المؤهّلة **كلها لحظيًّا** ونمسك **لحظة الاشتعال** (رد فعل لا تنبّؤ:
+# الحجم والسعر حقيقيان، والتدفق يؤكّد). يسبق البوت على Yahoo بـ15-25د. أسرع تنفيذ لحافة
+# التوقيت المثبتة. 🔒 خارج الفرز/الاختيار (القائمة مختارة مسبقًا) — تنبيه/توقيت فقط.
+def _ignition_break_level(s: dict):
+    """السعر الذي يعني «خرج من القاع صاعدًا» لسهم القائمة: الرقم الحرج (تفعيل فيصل
+    NAMM) إن وُجد، وإلا 5% فوق الأرضية (pivot). None لو لا مرجع."""
+    crit = ((s.get("interp") or {}).get("critical_number") or {}).get("price")
+    if crit:
+        try:
+            return float(crit)
+        except (TypeError, ValueError):
+            pass
+    piv = s.get("pivot")
+    try:
+        return round(float(piv) * 1.05, 4) if piv else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _ignition_signal(bars: list, break_level: float, vol_mult: float = 3.0,
+                     min_bars: int = 6):
+    """كشف نقي «لحظة الانطلاق» من شموع الدقيقة (رد فعل لا تنبّؤ، بلا شبكة، قابل
+    للاختبار): (1) قفزة حجم الدقيقة الأخيرة ≥ `vol_mult`× متوسط الدقائق السابقة ·
+    (2) آخر سعر كسر `break_level` صاعدًا · (3) الاتجاه صاعد داخل النافذة (آخر > أول).
+    يرجّع {price, vol_x} أو None (لا اشتعال / بيانات غير كافية)."""
+    try:
+        if (not bars or len(bars) < min_bars
+                or not break_level or break_level <= 0):
+            return None
+        vols = [float(b["v"]) for b in bars if b.get("v") is not None]
+        if len(vols) < min_bars:
+            return None
+        lc = float(bars[-1]["c"])
+        lvol = float(bars[-1]["v"])
+        prior = vols[:-1]
+        avg = sum(prior) / len(prior) if prior else 0.0
+        vol_x = (lvol / avg) if avg > 0 else 0.0
+        rising = lc > float(bars[0]["c"])
+        if vol_x >= vol_mult and lc > float(break_level) and rising:
+            return {"price": round(lc, 4), "vol_x": round(vol_x, 1)}
+        return None
+    except Exception:
+        return None
+
+
+def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
+                  vol_mult: float = None) -> list:
+    """🔥 يفحص القائمة المؤهّلة ويكشف **لحظة اشتعال** كل زنبرك (قفزة حجم + كسر الرقم
+    الحرج صاعدًا) ثم يرفق تدفق الأوامر الحي للتأكيد. `fetch_bars`/`fetch_flow` قابلان
+    للحقن (اختبار بلا شبكة)؛ الافتراض دقائق Polygon + `order_snapshot`. **دِدوب مرة/
+    سهم/يوم** (`s['ignition_alert']`). **فاشل-آمن** → يتخطّى أي سهم يفشل جلبه. **رد فعل
+    لا تنبّؤ · خارج الفرز/الاختيار** (القائمة مختارة مسبقًا). يرجّع [(s, metrics, flow)]."""
+    fb = fetch_bars or (lambda sym: polygon_minute_bars(sym, minutes=30))
+    ff = fetch_flow or order_snapshot
+    vm = vol_mult if vol_mult is not None else CONFIG["IGNITION_VOL_MULT"]
+    out = []
+    for s in wl.get("stocks", []):
+        if s.get("status") != "active" or s.get("ignition_alert") == today_iso:
+            continue
+        lvl = _ignition_break_level(s)
+        if not lvl:
+            continue
+        try:
+            bars = fb(s["symbol"])
+        except Exception:
+            bars = None
+        sig = _ignition_signal(bars, lvl, vol_mult=vm) if bars else None
+        if not sig:
+            continue
+        flow = None
+        try:
+            flow = ff(s["symbol"])
+        except Exception:
+            flow = None
+        s["ignition_alert"] = today_iso          # دِدوب مرة/سهم/يوم (بالذاكرة)
+        s["last_price"] = sig["price"]
+        out.append((s, sig, flow))
+    return out
+
+
+def build_ignition_alert(rows: list) -> str:
+    """رسالة رادار الانطلاق: «🔥 انطلاق الآن» لكل زنبرك اشتعل + الحجم/الكسر + تدفق
+    الأوامر + هدف/وقف للتنفيذ الفوري."""
+    if not rows:
+        return ""
+    lines = ["🔥 <b>انطلاق لحظي — القائمة المؤهّلة</b>",
+             "زنبرك اشتعل الآن (حجم + كسر صاعد) — لحظة الدخول:"]
+    for s, sig, flow in rows:
+        lvl = _ignition_break_level(s)
+        lvl_txt = f" · كسر ${lvl:.2f} صاعدًا" if lvl else ""
+        lines.append(f"🔥 <b>${esc(s['symbol'])}</b> ${sig['price']:.2f}{lvl_txt} "
+                     f"· حجم الدقيقة {sig['vol_x']:.0f}× المتوسط")
+        if flow:
+            lines.append(f"   📊 تدفق الأوامر: {flow}")
+        _st = s.get("stop")
+        stop0 = (_st[0] if isinstance(_st, (list, tuple)) and _st else _st)
+        if s.get("t1") and stop0:
+            lines.append(f"   🎯 هدف1 ${float(s['t1']):.2f} · ⛔ وقف ${float(stop0):.2f}")
+    lines.append("ℹ️ رد فعل لحظي على حركة بدأت فعلًا (لا تنبّؤ) — أكّد بعينك قبل الدخول.")
     return _rtl_join(lines)
 
 
