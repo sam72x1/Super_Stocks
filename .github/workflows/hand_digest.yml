@@ -1,0 +1,34 @@
+name: Hand Digest (end-of-day)
+permissions:
+  contents: read
+concurrency:
+  # مسار قراءة فقط لا يكتب weekly_watchlist.json (إشعار فقط) — لكن نبقيه بنفس
+  # المجموعة تفاديًا لأي تداخل قراءة/كتابة مع تشغيلات الحالة الأخرى.
+  group: super-stocks-state
+  cancel-in-progress: false
+on:
+  schedule:
+    # بعد إغلاق سوق ناسداك (4م ET) — 22:00 UTC، أيام التداول (الاثنين→الجمعة).
+    # هامش آمن (ساعة بعد إغلاق EST · ساعتان بعد EDT) ليُغلق Yahoo شمعة اليوم
+    # قبل قراءة «ماذا فعلت اليد اليوم». (يمكن التشغيل يدويًا أي وقت من Actions.)
+    - cron: "0 22 * * 1-5"
+  workflow_dispatch: {}
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Send hand digest
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SCREENER_MODE: DIGEST
+        run: python Super_stock.py

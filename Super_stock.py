@@ -3221,6 +3221,92 @@ def hand_evidence_line(r: dict) -> str:
     return f"🕵️ علامات اليد ({len(ev)}): " + " · ".join(shown) + extra
 
 
+def hand_activity_today(s: dict, df) -> list:
+    """🕵️ «ماذا فعلت اليد اليوم؟» (تحديث نهاية اليوم — طلب المستخدم 2026-07-08:
+    «يوصلني تحديث نهاية اليوم بخصوص الأسهم اللي وراها مضارب وأعرف وش سوّى»).
+    يقرأ شمعة اليوم (آخر شمعة) مقابل السياق القريب ويصف تحرّك اليد الفعلي:
+    كنس دعم · كسر دعم · دفاع عن سقف · شمعة بحجم ضخم. **عرض/تشخيص فقط · خلفي بلا
+    نظر مستقبلي** (يصف ما حدث في آخر شمعة مكتملة). العتبات من الموجود
+    (VOL_SPIKE_MULT + الدعم القريب). يرجّع قائمة أفعال عربية — فارغة عند الهدوء."""
+    acts = []
+    try:
+        c = df["Close"].values.astype(float)
+        h = df["High"].values.astype(float)
+        lo = df["Low"].values.astype(float)
+        o = df["Open"].values.astype(float)
+        v = df["Volume"].values.astype(float)
+        n = len(c)
+        if n < 25:
+            return acts
+        t_c, t_h, t_lo, t_o, t_v = c[-1], h[-1], lo[-1], o[-1], v[-1]
+        prev_c = c[-2]
+        sup = float(np.min(lo[-21:-1]))            # دعم قريب (20ج قبل اليوم)
+        vavg = float(np.mean(v[-21:-1]))
+        gain = (t_c / prev_c - 1.0) * 100.0 if prev_c > 0 else 0.0
+        # 1) كنس دعم اليوم (ذيل خرق الدعم ثم إغلاق فوقه) · أو 2) كسر دعم (إغلاق تحته)
+        if sup > 0 and t_lo < sup * 0.98 and t_c >= sup:
+            acts.append(f"كنس الدعم ${sup:.2f} بذيل ثم استعاده (مسح سيولة)")
+        elif sup > 0 and t_c < sup:
+            acts.append(f"كسر الدعم ${sup:.2f} وأغلق تحته")
+        # 3) دفاع عن السقف المُدار (ضربه ثم أغلق أحمر تحته = بيع اليد عنده)
+        ceil = ((s.get("h4_levels") or {}).get("managed_ceiling") or {}).get("price")
+        if ceil and t_h >= ceil * 0.99 and t_c < t_o and t_c < ceil:
+            acts.append(f"دافع عن السقف ${ceil:.2f} (ضربه ثم ارتد بيعًا)")
+        # 4) شمعة بحجم ضخم (سيولة قروب) — أخضر=رفع · أحمر=توزيع/هزّ
+        if vavg > 0 and t_v >= CONFIG["VOL_SPIKE_MULT"] * vavg:
+            mult = t_v / vavg
+            if t_c > t_o:
+                acts.append(f"شمعة صعود بحجم ضخم (+{gain:.0f}% · {mult:.0f}× الحجم)")
+            else:
+                acts.append(f"شمعة هبوط بحجم ضخم ({gain:.0f}% · {mult:.0f}× — توزيع/هزّ)")
+    except Exception:
+        pass
+    return acts
+
+
+def build_hand_digest(wl: dict, history: dict) -> str:
+    """🕵️ تحديث نهاية اليوم: الأسهم التي وراءها بصمة يد + ماذا فعلت اليوم.
+    عرض/تحذير فقط — يجمع `hand_evidence` (بصمة اليد الثابتة) + `hand_activity_today`
+    (تحرّك اليوم) لكل سهم نشط. يُدرَج السهم لو له دليلان فأكثر **أو** فعل اليد شيئًا
+    اليوم. النشط اليوم أولًا. لا يمسّ أي حساب."""
+    today = dt.date.today().isoformat()
+    lines = [f"🕵️ <b>تحديث اليد — نهاية اليوم</b> · {today}",
+             "أسهم القائمة التي وراءها بصمة يد + ماذا فعلت اليوم", ""]
+    rows = []
+    for s in wl.get("stocks", []):
+        if s.get("status") != "active":
+            continue
+        df = history.get(s["symbol"])
+        ev = hand_evidence(s)
+        acts = hand_activity_today(s, df) if df is not None else []
+        if len(ev) < 2 and not acts:
+            continue
+        rows.append((s, ev, acts))
+    if not rows:
+        lines.append("🟢 لا نشاط مضارب ملحوظ اليوم على القائمة.")
+    else:
+        rows.sort(key=lambda x: (-len(x[2]), -len(x[1])))   # النشط اليوم أولًا
+        for s, ev, acts in rows:
+            lp = s.get("last_price")
+            head = f"🎯 <b>${s['symbol']}</b>"
+            if lp:
+                head += f" · ${lp:.2f}"
+            lines.append(head)
+            if acts:
+                for a in acts:
+                    lines.append(f"   📌 اليوم: {a}")
+            else:
+                lines.append("   💤 اليوم: هدوء (لا تحرّك يد واضح)")
+            hl = hand_evidence_line(s)
+            if hl:
+                lines.append("   " + hl)
+            lines.append("")
+    lines.append("ℹ️ كشف/تحذير — علامات اشتباه بيد نشطة، ليست توصية ولا تُرجّح "
+                 "السهم بالفرز. تدفق الطلبات الحي غير متاح (لقطة فقط).")
+    lines.append(FOOTER)
+    return _rtl_join(lines)
+
+
 def build_interpretation(r: dict) -> dict:
     """🧭 طبقة التفسير والقرار (خطة INTERPRETATION_LAYER_PLAN.md، 2026-07-05 — **عرض/تفسير
     فقط**: لا تمسّ الفرز/الدخول/الوقف/الأهداف/العضوية · لا LOGIC_VERSION). تقرأ حقول r
@@ -5887,6 +5973,39 @@ def run_daily_watchlist(wl: dict) -> None:
         log(f"⚠️ نظام التتبع: {e}")
 
 
+def run_hand_digest() -> None:
+    """🕵️ تحديث نهاية اليوم (مسار خفيف مستقل — طلب المستخدم 2026-07-08): يحمّل
+    القائمة + بيانات رموزها **الطازجة فقط** (لا فرز سوق كامل) → يحدّث بصمة اليد/
+    الرفعة من شمعة اليوم → يرسل ملخّص «ماذا فعلت اليد اليوم». **عرض/إشعار فقط —
+    لا يحفظ القائمة ولا يمسّ الحالة القانونية** (تجنّب أي سباق مع تشغيل الصباح)."""
+    wl = load_watchlist()
+    syms = [s["symbol"] for s in wl.get("stocks", [])
+            if s.get("status") == "active"]
+    if not syms:
+        log("تحديث اليد: القائمة فارغة — لا شيء لإرساله.")
+        return
+    hist = {}
+    if yf is not None:
+        try:
+            hist = download_history(syms)
+        except Exception as e:
+            log(f"⚠️ تحديث اليد: تحميل البيانات {e}")
+    for s in wl.get("stocks", []):     # تحديث البصمة/الرفعة من شمعة اليوم (بالذاكرة)
+        df = hist.get(s["symbol"])
+        if df is None:
+            continue
+        try:
+            _bh = behavior_rise_profile(df)
+            if _bh.get("score") is not None:
+                s["behav"] = _bh
+            s["pump_scar"] = group_pump_scar(df)
+            s["last_price"] = round(float(df["Close"].iloc[-1]), 4)
+        except Exception:
+            pass
+    send_telegram(build_hand_digest(wl, hist))
+    log("✅ أُرسل تحديث اليد (نهاية اليوم).")
+
+
 # ==========================================================
 # 10) التشغيل الرئيسي
 # ==========================================================
@@ -6808,6 +6927,9 @@ def main():
     if MODE == "BACKTEST":
         run_backtest()
         log("انتهى الباكتيست ✅")
+        return
+    if MODE == "DIGEST":              # 🕵️ تحديث نهاية اليوم (مسار خفيف مستقل)
+        run_hand_digest()
         return
     today = dt.date.today()
     force = os.environ.get("FORCE_RENEW", "").strip() == "1"
