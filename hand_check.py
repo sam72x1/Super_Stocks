@@ -79,6 +79,16 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
                      + f"  ·  ⛔ وقف ${stop0:.2f}")
         if all(r.get(k) for k in ("t1", "t2", "t3")):
             L.append(f"🎯 أهداف: ${r['t1']:.2f} · ${r['t2']:.2f} · ${r['t3']:.2f}")
+        # النواقص (بوابات التأكيد الناقصة) — نفس صيغة التقرير اليومي «N/14»
+        sf = r.get("soft_fails") or []
+        if sf:
+            L.append(f"🅱️ الناقص ({len(sf)}/14): "
+                     + " · ".join(f"{j}- {x}" for j, x in enumerate(sf, 1)))
+        else:
+            L.append("✅ اجتاز كل بوابات التأكيد (لا نواقص)")
+        _tfi = bot.timeframes_info(r.get("tf_count"), r.get("tf_display"))
+        if _tfi:
+            L.append(_tfi)
     else:
         why = r.get("reject_reason") or "لم يجتز بوابات الارتكاز الإلزامية"
         L.append(f"الحكم: ❌ <b>ليس سهم ارتكاز مؤهّلًا حاليًا</b> (السبب: {why})")
@@ -146,7 +156,8 @@ def hand_check(sym: str):
             r["tranches"] = official.get("tranches")
             r["stop"] = official.get("stop")
             r["key_levels"] = official.get("key_levels")
-            for k in ("t1", "t2", "t3", "warnings"):
+            for k in ("t1", "t2", "t3", "warnings", "soft_fails",
+                      "readiness", "tf_count", "tf_display"):
                 r[k] = official.get(k)
             if r.get("h4_levels"):
                 official["h4_levels"] = r["h4_levels"]
