@@ -2775,14 +2775,53 @@ def enrich(results: list) -> None:
 # ==========================================================
 # 7) استراتيجية التقسيم العكسي
 # ==========================================================
-def _split_row(sym, split_date, day_open, price, short):
+def _split_frequency(splits, today, days: int = 365) -> int:
+    """🔁 عدد التقسيمات العكسية (نسبة أقل من 1) في آخر `days` يومًا (سنة افتراضيًا).
+    قاعدة فيصل (FAISAL_OPERATOR_PACK §P4، من الصور): «اذا تقسيم كثير خلال فتره زمنيه
+    قصيره غالبا مايطول، سبوع بالكثير» (مثل ZCMD حقّق 600% ثم ارتدّ). دالة نقيّة ·
+    فاشلة-آمنة (بيانات مفقودة/غير صالحة → 0). تقبل pandas Series (فهرسها تواريخ ·
+    قيمتها نسبة التقسيم) أو قائمة أزواج (تاريخ, نسبة). `today` = dt.date. **عرض/تحذير
+    فقط — خارج الفرز نهائيًا** (لا يمسّ الدخول/الوقف/الأهداف/العضوية)."""
+    try:
+        cutoff = today - dt.timedelta(days=days)
+        if hasattr(splits, "index") and hasattr(splits, "values"):
+            pairs = list(zip(splits.index, splits.values))
+        else:
+            pairs = list(splits or [])
+        n = 0
+        for ts, ratio in pairs:
+            try:
+                d = ts.date() if hasattr(ts, "date") else ts
+                if isinstance(d, str):
+                    d = dt.date.fromisoformat(d[:10])
+                if float(ratio) < 1.0 and d >= cutoff:
+                    n += 1
+            except Exception:
+                continue
+        return n
+    except Exception:
+        return 0
+
+
+def _split_freq_line(freq) -> str:
+    """سطر تحذير «تقسيمات متكررة = نَفَس قصير» (عند تقسيمين فأكثر في سنة). عرض فقط —
+    يرجع "" لو أقل من تقسيمين (لا حشو). موحَّد بين قسم D9 وفحص اليد."""
+    if (freq or 0) >= 2:
+        return (f"🔁 تقسيمات متكررة ({int(freq)} في سنة) — قاعدة فيصل: الصعود "
+                "غالبًا لا يتجاوز أسبوعًا (ZCMD صعد 600% ثم ارتدّ)")
+    return ""
+
+
+def _split_row(sym, split_date, day_open, price, short, freq=None):
     """صفّ تقرير التقسيم العكسي (D9): هدف الهبوط = افتتاح التقسيم ÷ 2 (فيصل
     EHGO 2.80÷2=1.40)؛ والشورت «مقبول» لو أقل من SHORT_DAILY_MAX («تابعه لين
-    الشورت تحت 20 ألف»). دالة نقية قابلة للاختبار بلا شبكة."""
+    الشورت تحت 20 ألف»). `freq` = عدد التقسيمات العكسية في آخر سنة (قرينة فيصل §P4،
+    عرض فقط). دالة نقية قابلة للاختبار بلا شبكة."""
     target = round(day_open / 2.0, 2) if day_open else None
     ok = (short is not None and short < CONFIG["SHORT_DAILY_MAX"])
     return {"symbol": sym, "split_date": str(split_date), "open": day_open,
-            "half": target, "price": price, "short": short, "short_ok": ok}
+            "half": target, "price": price, "short": short, "short_ok": ok,
+            "freq": freq}
 
 
 def split_watch_report(history: dict) -> list:
@@ -2824,8 +2863,9 @@ def split_watch_report(history: dict) -> list:
             except Exception:
                 pass
             price = float(df["Close"].iloc[-1])
+            freq = _split_frequency(sp, dt.date.today())   # §P4 (نفس بيانات sp)
             rows.append(_split_row(sym, split_date, day_open, price,
-                                   shorts.get(sym)))
+                                   shorts.get(sym), freq))
         except Exception:
             continue
     return rows
@@ -2845,6 +2885,9 @@ def build_split_watch_section(rows: list) -> str:
             stag = "شورت —"
         lines.append(f"• <b>{esc(r['symbol'])}</b> ${r['price']:.2f} · "
                      f"هدف هبوط {half} · {stag}")
+        _fl = _split_freq_line(r.get("freq"))              # §P4 (عرض/تحذير فقط)
+        if _fl:
+            lines.append("  " + _fl)
     lines.append("<i>القاع المتوقع بعد التقسيم ≈ نصف افتتاح التقسيم (فيصل).</i>")
     return _rtl_join(lines)
 
@@ -3243,6 +3286,19 @@ def hand_evidence(r: dict) -> list:
         if q.get("spread_pct") is not None and q["spread_pct"] >= 3.0:
             ev.append({"frame": "طلبات", "sign": "سبريد واسع",
                        "detail": f"{q['spread_pct']:.0f}% (لقطة)"})
+        # N5 (FAISAL_OPERATOR_PACK §P2): «عروض شبه مُفرَّغة» — بصمة تجهيز المضارب
+        # (فيصل باللقطة الحقيقية: «يفرّغ العروض كامله · اقرب عرض 30٪ فوق · يشري بالف
+        # دولار ارتفع 30% · لايريد ضخ سيوله عاليه»). وكيل صادق من لقطة NBBO الخام
+        # (flow_raw، تُخزَّن بفحص اليد فقط): دولارات أفضل عرض تافهة + سبريد واسع.
+        # حدّ الصدق مكتوب داخل الدليل (أفضل عرض فقط — عمق L2 غير متاح). فاشل-آمن.
+        fr = r.get("flow_raw") or {}
+        _ask, _asz, _spr = fr.get("ask"), fr.get("ask_size"), fr.get("spread_pct")
+        if (_ask and _asz and _spr is not None
+                and _spr >= 5.0 and float(_ask) * float(_asz) <= 1000):
+            ev.append({"frame": "طلبات", "sign": "عروض شبه مُفرَّغة",
+                       "detail": f"${float(_ask) * float(_asz):.0f} فقط عند أفضل "
+                                 f"عرض · سبريد {_spr:.0f}% (تجهيز مضارب — أفضل عرض "
+                                 "فقط، عمق الدفتر غير متاح)"})
     except Exception:
         pass
     return ev

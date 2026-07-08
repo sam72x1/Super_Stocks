@@ -904,6 +904,21 @@ check("🕵️N4·فاشل-آمن: مدخل فاضٍ ⇒ [] (لا انهيار)"
 check("🕵️N4·صدق الطلبات: سبريد ضيّق ⇒ لا دليل طلبات",
       not any(e["frame"] == "طلبات" for e in S.hand_evidence(
           dict(_r_hand, session_ctx={"quote": {"spread_pct": 1.0}}))))
+# N5 (§P2 مضارب): «عروض شبه مُفرَّغة» من لقطة NBBO الخام (flow_raw) — بصمة تجهيز
+_n5_hit = {"flow_raw": {"ask": 2.60, "ask_size": 100, "spread_pct": 8.0}}  # $260≤1000·8%
+check("🕵️N5·مضارب: دولارات عرض تافهة + سبريد واسع ⇒ دليل «عروض شبه مُفرَّغة»",
+      any(e["sign"] == "عروض شبه مُفرَّغة" for e in S.hand_evidence(_n5_hit)))
+check("🕵️N5·صدق: حدّ «عمق الدفتر غير متاح» مكتوب داخل الدليل (أفضل عرض فقط)",
+      any("عمق الدفتر غير متاح" in e["detail"]
+          for e in S.hand_evidence(_n5_hit) if e["sign"] == "عروض شبه مُفرَّغة"))
+check("🕵️N5: عرض سمين ($10K) ⇒ لا دليل مُفرَّغة",
+      not any(e["sign"] == "عروض شبه مُفرَّغة" for e in S.hand_evidence(
+          {"flow_raw": {"ask": 2.0, "ask_size": 5000, "spread_pct": 8.0}})))
+check("🕵️N5: سبريد ضيّق (2%) ⇒ لا دليل مُفرَّغة",
+      not any(e["sign"] == "عروض شبه مُفرَّغة" for e in S.hand_evidence(
+          {"flow_raw": {"ask": 2.60, "ask_size": 100, "spread_pct": 2.0}})))
+check("🕵️N5·فاشل-آمن: بلا flow_raw ⇒ لا دليل (مسار الفرز لا يجلبه)",
+      not any(e["sign"] == "عروض شبه مُفرَّغة" for e in S.hand_evidence(_r_hand)))
 # العرض بالكرت + التجديد اليومي لـpump_scar
 _card_h = {"symbol": "HND", "price": 2.0, "pivot": 1.95, "score": 60,
            "readiness": 60, "rr": 2.0, "entry": (1.9, 2.0),
@@ -2714,6 +2729,43 @@ _d9_sec = S.build_split_watch_section([_d9_sr])
 check("D9: قسم التقسيم يعرض الرمز + الهدف ÷2",
       "EHGO" in _d9_sec and "1.40" in _d9_sec)
 check("D9: القسم فارغ بلا صفوف", S.build_split_watch_section([]) == "")
+
+# §P4 — 🔁 تقسيمات متكررة = نَفَس قصير (قاعدة فيصل: ZCMD صعد 600% ثم ارتدّ)
+_p4_today = S.dt.date(2026, 7, 8)
+_p4_recent = [(S.dt.date(2026, 6, 1), 0.1), (S.dt.date(2026, 2, 1), 0.2)]  # تقسيمان بسنة
+_p4_old = [(S.dt.date(2024, 1, 1), 0.1), (S.dt.date(2026, 6, 1), 0.1)]     # قديم + حديث
+check("§P4: تقسيمان عكسيان خلال سنة ⇒ العدّ 2",
+      S._split_frequency(_p4_recent, _p4_today) == 2)
+check("§P4: تقسيم قبل سنة لا يُحسب ⇒ العدّ 1",
+      S._split_frequency(_p4_old, _p4_today) == 1)
+check("§P4: تقسيم عادي (نسبة أكبر من 1) لا يُحسب",
+      S._split_frequency([(S.dt.date(2026, 6, 1), 2.0)], _p4_today) == 0)
+check("§P4·فاشل-آمن: بلا بيانات ⇒ 0",
+      S._split_frequency(None, _p4_today) == 0
+      and S._split_frequency([], _p4_today) == 0)
+check("§P4·صيغة نصية للتاريخ مقبولة",
+      S._split_frequency([("2026-06-01", 0.1), ("2026-05-01", 0.2)], _p4_today) == 2)
+_p4_ser = pd.Series([0.1, 0.2, 2.0],
+                    index=pd.to_datetime(["2026-06-01", "2026-02-01", "2023-01-01"]))
+check("§P4: pandas Series (مثل yfinance splits) ⇒ يحسب العكسية بالسنة",
+      S._split_frequency(_p4_ser, _p4_today) == 2)
+check("§P4·سطر التحذير: يظهر عند تقسيمين فأكثر",
+      "تقسيمات متكررة (2 في سنة)" in S._split_freq_line(2))
+check("§P4·سطر التحذير: فارغ عند أقل من تقسيمين",
+      S._split_freq_line(1) == "" and S._split_freq_line(0) == ""
+      and S._split_freq_line(None) == "")
+_p4_row = S._split_row("ZCMD", "2026-05-01", 3.0, 1.5, 10000, freq=3)
+check("§P4: _split_row يخزّن freq", _p4_row["freq"] == 3)
+check("§P4: قسم D9 يعرض تحذير التقسيمات المتكررة",
+      "تقسيمات متكررة (3 في سنة)" in S.build_split_watch_section([_p4_row]))
+check("§P4: تقسيم واحد ⇒ لا تحذير بالقسم",
+      "تقسيمات متكررة" not in S.build_split_watch_section(
+          [S._split_row("ONE", "2026-05-01", 3.0, 1.5, 10000, freq=1)]))
+check("§P4: التوافق الخلفي — _split_row بلا freq (السلوك القديم)",
+      S._split_row("OLD", "2026-05-01", 2.80, 1.55, 15000)["freq"] is None)
+check("§P4·قفل: _split_frequency خارج rank_key/select_top/backtest_symbol/analyze_ticker",
+      all("_split_frequency" not in _insp0.getsource(f)
+          for f in (S.rank_key, S.select_top, S.backtest_symbol, S.analyze_ticker)))
 
 # D10 — عرض تدوير الفلوت في الكرت (عند تجاوز 100% فقط)
 if r0:

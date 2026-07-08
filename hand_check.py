@@ -16,6 +16,7 @@
   متغير البيئة:  HAND_CHECK=AAPL   →   python hand_check.py
 """
 import os
+import datetime as dt
 
 try:
     import Super_stock as bot
@@ -62,6 +63,10 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     # 🔬 التجميع الصامت عند القاع (Polygon · وإلا «—»)
     _al = bot.acc_line(r.get("acc"))
     L.append(_al if _al else "🔬 تجميع صامت: —")
+    # 🔁 تقسيمات متكررة = نَفَس قصير (قرينة فيصل §P4 — عرض/تحذير فقط)
+    _sf = bot._split_freq_line(r.get("split_freq"))
+    if _sf:
+        L.append(_sf)
     # بصمة طريقة الارتفاع (سياق)
     bh = r.get("behav") or {}
     if bh.get("score") is not None:
@@ -155,6 +160,18 @@ def hand_check(sym: str):
         r["order_flow"] = bot.order_snapshot(sym)
     except Exception:
         r["order_flow"] = None
+    # 🕳️ لقطة NBBO الخام لقرينة N5 «عروض شبه مُفرَّغة» (§P2 — فاشل-آمن → None)
+    try:
+        r["flow_raw"] = bot.polygon_flow(sym)
+    except Exception:
+        r["flow_raw"] = None
+    # 🔁 تكرار التقسيم العكسي في آخر سنة (قرينة فيصل §P4 — فاشل-آمن → 0)
+    try:
+        sp = bot.yf.Ticker(sym).splits if bot.yf is not None else None
+        r["split_freq"] = (bot._split_frequency(sp, dt.date.today())
+                           if sp is not None and len(sp) else 0)
+    except Exception:
+        r["split_freq"] = 0
     # 🔬 التجميع الصامت عند القاع (Polygon — فاشل-آمن → «—»، عرض/تشخيص فقط)
     try:
         r["acc"] = bot.silent_accumulation(sym)
