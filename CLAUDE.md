@@ -15,7 +15,7 @@
 - `technical_report.py` — **أداة مستقلة**: `TICKER=رمز` → تقرير فني كلاسيكي · `SCAN_EARNINGS=1` → أداة الأرباح (مسح ناسداك قوي فنيًا + أرباح قريبة).
 - `test_bot.py` — 191+ اختبار (العدد وقت آخر تحديث؛ يشتغل بلا إنترنت). **شغّله قبل أي دفع:** `python3 test_bot.py`
 - `FAISAL_METHODOLOGY_NOTES.md` / `FAISAL_IMAGES_CATALOG.md` — توثيق منهجية فيصل من الصور.
-- `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · scan_earnings.yml (أداة الأرباح، يومي 06:00 UTC) · backtest.yml · analyze.yml/technical.yml (يدوي).
+- `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · scan_earnings.yml (أداة الأرباح، يومي 06:00 UTC) · **hand_digest.yml (🕵️ تحديث نهاية اليوم، 22:00 UTC اثنين→جمعة — `SCREENER_MODE=DIGEST`)** · backtest.yml · analyze.yml/technical.yml (يدوي).
 
 ## الفروع (مهم)
 - التطوير على `claude/faisal-images-methodology-r6gfhq`، ثم **دمج في `main`** (الأكشن يشتغل على main).
@@ -191,6 +191,13 @@
   واليومي + القائمة الكاملة بعمق التقرير الفني. **🔒 عرض فقط:** خارج rank_key/select_top/classify_tier/
   entry_status/backtest (مقفول) · لا درجة مبتدعة · الإطار §0-ح (لا أولوية اختيار). مراجعة خصومية 3
   عدسات (أزالت تكرار درجة البصمة). 379 اختبار.
+- **🕵️ تحديث نهاية اليوم «ماذا فعلت اليد اليوم» (2026-07-08، طلب المستخدم — إشعار/عرض فقط):**
+  `hand_activity_today(s, df)` يقرأ شمعة اليوم مقابل السياق: كنس دعم/كسر دعم/دفاع عن سقف مُدار/شمعة
+  بحجم ضخم (عتبات من الموجود VOL_SPIKE_MULT). `build_hand_digest` يرسل ملخّصًا لأسهم القائمة التي
+  وراءها بصمة يد (دليلان فأكثر) **أو** فعلت شيئًا اليوم — النشط أولًا. `run_hand_digest` مسار خفيف
+  (`SCREENER_MODE=DIGEST` بـ`main`): يحمّل رموز القائمة فقط (لا فرز سوق كامل) + يحدّث behav/pump_scar
+  من شمعة اليوم بالذاكرة **ولا يحفظ القائمة** (إشعار فقط، صفر سباق حالة). workflow `hand_digest.yml`
+  22:00 UTC بعد إغلاق ناسداك. **🔒 عرض/تحذير فقط** (لا يمسّ الفرز/الحالة). 389 اختبار.
 - **🧭 طبقة التفسير والقرار (2026-07-05/07، خطة `INTERPRETATION_LAYER_PLAN.md` — عرض/تفسير
   فقط · لا LOGIC_VERSION · لا تمسّ الفرز/الدخول/الوقف/الأهداف/العضوية):** `build_interpretation(r)`
   تقرأ الموجود وتنتج: setup_type · **الرقم الحرج** (فيصل NAMM) · activation_state (وسم مفعّل/معلّق

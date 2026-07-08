@@ -932,6 +932,56 @@ check("🕵️قفل: نصوص اللوحة بلا علامات مقارنة ≥
       not any(c in (S.hand_evidence_line(_r_hand)
                     + " ".join(e["sign"] + e["detail"] for e in _ev))
               for c in "≥≤<>"))
+
+# ===== 🕵️ تحديث نهاية اليوم «ماذا فعلت اليد اليوم» (DIGEST — إشعار/عرض فقط) =====
+def _today_df(kind):
+    """آخر شمعة تمثّل فعل اليوم: sweep/break/pump/quiet فوق قاعدة هادئة."""
+    base = dict(o=[2.0] * 24, c=[2.0] * 24, h=[2.06] * 24, lo=[1.90] * 24,
+                v=[1e5] * 24)                  # دعم قريب ~1.90
+    t = {"sweep": (2.0, 1.95, 2.0, 1.80, 1e5),   # ذيل يخرق 1.90 ثم يغلق فوقه
+         "break": (1.95, 1.80, 1.97, 1.78, 1e5),  # إغلاق تحت الدعم
+         "pump": (2.0, 2.6, 2.7, 2.0, 9e5),        # صعود بحجم ضخم
+         "quiet": (2.0, 2.01, 2.03, 1.98, 1e5)}[kind]
+    return pd.DataFrame(
+        {"Open": base["o"] + [t[0]], "Close": base["c"] + [t[1]],
+         "High": base["h"] + [t[2]], "Low": base["lo"] + [t[3]],
+         "Volume": base["v"] + [t[4]]},
+        index=pd.date_range("2025-01-01", periods=25, freq="B"))
+check("🕵️اليوم: كنس دعم (ذيل خرق ثم استعادة) ⇒ «كنس الدعم … مسح سيولة»",
+      any("كنس الدعم" in a for a in S.hand_activity_today({}, _today_df("sweep"))))
+check("🕵️اليوم: كسر دعم (إغلاق تحته) ⇒ «كسر الدعم … وأغلق تحته»",
+      any("كسر الدعم" in a for a in S.hand_activity_today({}, _today_df("break"))))
+check("🕵️اليوم: شمعة صعود بحجم ضخم ⇒ تُرصد",
+      any("بحجم ضخم" in a for a in S.hand_activity_today({}, _today_df("pump"))))
+check("🕵️اليوم: هدوء ⇒ لا أفعال (قائمة فارغة)",
+      S.hand_activity_today({}, _today_df("quiet")) == [])
+check("🕵️اليوم: دفاع عن السقف المُدار (ضربه ثم أغلق أحمر تحته)",
+      any("دافع عن السقف" in a for a in S.hand_activity_today(
+          {"h4_levels": {"managed_ceiling": {"price": 1.96, "touches": 4}}},
+          _today_df("break"))))     # شمعة break: high 1.97 يضرب السقف 1.96 وتغلق أحمر
+check("🕵️اليوم·فاشل-آمن: df قصير ⇒ [] (لا انهيار)",
+      S.hand_activity_today({}, _today_df("quiet").head(5)) == [])
+# الملخّص الكامل build_hand_digest
+_wl_dg = {"week_start": "2026-07-01", "removed": [], "notes": [], "stocks": [
+    {"symbol": "ACT", "status": "active", "last_price": 1.95,
+     "behav": {"sweeps": 3, "score": 65}, "rotation_pct": 160,
+     "h4_levels": {"managed_ceiling": {"price": 3.0, "touches": 4}},
+     "pump_scar": {"found": True, "jump_pct": 60, "bars_ago": 10,
+                   "broke_support": True}},
+    {"symbol": "QUIET", "status": "active", "last_price": 5.0, "behav": {}}]}
+_dg = S.build_hand_digest(_wl_dg, {"ACT": _today_df("sweep")})
+check("🕵️الملخّص: ترويسة «تحديث اليد — نهاية اليوم» + السهم النشط + فعله اليوم",
+      "تحديث اليد — نهاية اليوم" in _dg and "$ACT" in _dg
+      and "كنس الدعم" in _dg and "🕵️ علامات اليد" in _dg)
+check("🕵️الملخّص: السهم بلا يد ولا نشاط لا يظهر (QUIET مستبعد)",
+      "$QUIET" not in _dg)
+_dg_empty = S.build_hand_digest(
+    {"stocks": [{"symbol": "Z", "status": "active", "behav": {}}]}, {})
+check("🕵️الملخّص: لا يد ولا نشاط ⇒ «لا نشاط مضارب ملحوظ اليوم»",
+      "لا نشاط مضارب ملحوظ" in _dg_empty)
+check("🕵️الملخّص·قفل: DIGEST لا يحفظ القائمة (إشعار فقط، لا سباق حالة)",
+      "save_watchlist" not in _insp0.getsource(S.build_hand_digest)
+      and "save_watchlist" not in _insp0.getsource(S.run_hand_digest))
 # لا يكرّر الصفقة لو ظهرت بالأرشيف والحالي معًا (dedup)
 _dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)]}],
         "removed": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)], "stocks": []}
