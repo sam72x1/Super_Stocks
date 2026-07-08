@@ -114,6 +114,7 @@ def main():
             bot.log(f"T-ACC: {i + 1}/{len(signals)}")
         time.sleep(0.25)                       # احترام حدّ Polygon
     report = "\n".join(bot.acc_verify_report(rows))
+    bot.log(report)         # الحكم في سجل الأكشن أيضًا (تدقيق/احتياط لو تعطّل تلغرام)
     bot.send_telegram(f"🔬 <b>تحقّق التجميع الصامت — سنة {year}</b>\n{report}"
                       f"\n\n{bot.FOOTER}")
     bot.log("✅ أُرسل حكم T-ACC.")
