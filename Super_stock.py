@@ -2150,7 +2150,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             "gaps_above": gaps_above,
             "gates_status": gates_status,
             "soft_fails": soft_fails,                 # بوابات تأكيد ناقصة
-            "tier": tier,                             # A/B عادي · W مراقبة ارتداد
+            "tier": tier,                             # B مؤهّل · W مراقبة ارتداد (A متقاعد)
             "watch_reasons": watch_reasons,           # أسباب وضع الارتداد
             "indicators": ind,                        # مؤشرات فيصل الإضافية
             "liberation": liberation,                 # بوابة "تحرر السهم"
@@ -3025,12 +3025,12 @@ def strength_bar(score):
     return bar, label
 
 
-def readiness_tag(p, tier="A"):
+def readiness_tag(p):
     """وسم حالة الجاهزية (🟢/🟡/🔴 + الكلمة) بلا النسبة — لرأس البطاقة المختصرة.
     يعيد استخدام `readiness_badge` (مصدر العتبات/المسمّيات الوحيد، لا تكرار)."""
     if p is None:
         return "⚠️ لا بيانات"
-    return readiness_badge(p, tier).split("</b>")[-1].strip()
+    return readiness_badge(p).split("</b>")[-1].strip()
 
 
 def news_links_compact(sym: str) -> str:
@@ -3325,7 +3325,7 @@ def build_message(results: list, splits: list,
         rdy = r.get("readiness")
         if rdy is not None:
             lines.append(f"{badge} <b>${r['symbol']}</b>  ·  "
-                         f"{readiness_tag(rdy, tier)} {rdy}/100")
+                         f"{readiness_tag(rdy)} {rdy}/100")
         else:
             lines.append(f"{badge} <b>${r['symbol']}</b>")
         # القوة العامة + شريط بصري
@@ -3726,7 +3726,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "rotation_pct": r.get("rotation_pct"),             # D10: تدوير الفلوت (سكويز)
         "drop_pct": r.get("drop_pct"), "best_spike": r.get("best_spike"),
         "rr": r.get("rr"),
-        "tier": r.get("tier", "A"),                       # A صارمة / B مراقبة
+        "tier": r.get("tier", "B"),                       # 🪦 A متقاعد: B مؤهّل · W ارتداد
         "soft_fails": list(r.get("soft_fails", [])),
         "warnings": list(r.get("warnings", [])),          # تحذيرات (تخفيف/جغرافي)
         "news_risk": bool([w for w in r.get("warnings", [])
@@ -4174,12 +4174,10 @@ def scan_market():
         r["tier"] = tier
         final.append(r)
     results = final
-    # ترتيب موحّد: A قبل B → الأعلى جاهزيةً (الرقم المعروض) → النقاط → العائد.
-    # (يطابق التقرير اليومي + ترويسة «الجاهز أولاً» = لا تناقض مع الرقم المعروض)
+    # ترتيب موحّد: الأعلى جاهزيةً (الرقم المعروض) → تأكيد 4س → النقاط → العائد.
+    # (🪦 A/B متقاعد — الجاهزية هي المحور؛ يطابق اليومي وترويسة «الجاهز أولاً»)
     results.sort(key=rank_key)
-    na = sum(1 for r in results if r.get("tier") == "A")
-    log(f"الفرز: {na} (A صارمة) + {len(results) - na} (B مراقبة) "
-        f"= {len(results)} مرشح")
+    log(f"الفرز: {len(results)} مرشح مؤهّل (مرتّب بالجاهزية)")
     return results, history
 
 
@@ -4418,12 +4416,12 @@ def migrate_watchlist(wl: dict, history: dict) -> int:
 
 
 def check_promotions(wl: dict, history: dict) -> list:
-    """ترقية B→A (v2.7): يعيد تحليل كل سهم نشط بالبيانات الحالية. السهم
-    الذي اكتمل نموذجه (0 نواقص تأكيد) يُرقّى من قائمة المراقبة B إلى A مع
-    تنبيه «🚀 جاهز». يحدّث أيضًا النواقص الحالية لكل سهم B (عرض حيّ).
-    هذا قلب فكرة الارتكاز: نمسك السهم مبكرًا (B) ثم ننبّه لحظة جاهزيته."""
+    """التحديث اليومي الحيّ لكل سهم نشط (إعادة تحليل بالبيانات الحالية):
+    النواقص الحالية + المستويات + وسم «تخفيف: كسر الدعم» + تجديد التفسير.
+    🪦 الترقية B→A تقاعدت مع التصنيف (2026-07-05: A وهمية — 0 سهم بلغها،
+    والنجاح لا يميّزها) — الدالة تُبقي اسمها للتوافق وترجع [] دائمًا
+    (run_daily_watchlist يمرّرها لبانر الترقيات الذي لن يظهر)."""
     promoted = []
-    today = dt.date.today().isoformat()
     for s in wl.get("stocks", []):
         if s.get("status") != "active":
             continue
@@ -4438,8 +4436,8 @@ def check_promotions(wl: dict, history: dict) -> list:
                       if "شورت" in x or "فلوت" in x]
         combined = list(fresh.get("soft_fails", []))
         combined += [x for x in prev_extra if x not in combined]
-        # نزول A→B لخبر التخفيف فقط لو ظهر «تأثير سلبي فعلي» (قرار المستخدم):
-        # كسر الدعم أو قاع أدنى جديد. يرجع A تلقائياً لمّا يستقر فوق الدعم.
+        # وسم خبر التخفيف لو ظهر «تأثير سلبي فعلي» (قرار المستخدم): كسر الدعم
+        # أو قاع أدنى جديد → يُضاف للنواقص المعروضة، ويزول لمّا يستقر فوق الدعم.
         if s.get("news_risk"):
             piv = s.get("pivot")
             last = float(fresh.get("price") or df["Close"].iloc[-1])
@@ -4480,12 +4478,6 @@ def check_promotions(wl: dict, history: dict) -> list:
                 s["interp"] = _ipn
         except Exception:
             pass
-        if was == "B" and s["tier"] == "A":
-            s["promoted_date"] = today
-            promoted.append(s)
-            _note(wl, s["symbol"], "🚀 ترقية B→A: اكتمل النموذج", family="ترقية")
-    if promoted:
-        log("ترقيات B→A: " + "، ".join(p["symbol"] for p in promoted))
     return promoted
 
 
@@ -4506,7 +4498,8 @@ def compute_readiness(wl: dict, history: dict) -> None:
         key=lambda s: -(s["readiness"] if s["readiness"] is not None else -1))
 
 
-def readiness_badge(p, tier="A"):
+def readiness_badge(p):
+    """شارة الجاهزية (🪦 وسيط tier أُزيل مع تقاعد A/B — الجاهزية وحدها المحور)."""
     if p is None:
         return "⚠️ لا بيانات"
     if p >= CONFIG["READY_PCT"]:
@@ -4517,12 +4510,12 @@ def readiness_badge(p, tier="A"):
     return f"<b>{p}%</b> 🔴 إعداد فني ضعيف"
 
 
-def readiness_ratio(p, tier="A"):
+def readiness_ratio(p):
     """«نسبة الدخول/الجاهزية» بصيغة X/100 + حالتها (🟢🟡🔴) — تنسيق موحّد
     للبطاقة والتقرير اليومي (مصدر واحد، لا اختلاف)."""
     if p is None:
         return "نسبة الدخول/الجاهزية غير متاحة"
-    status = readiness_badge(p, tier).split("</b>")[-1].strip()
+    status = readiness_badge(p).split("</b>")[-1].strip()
     return f"نسبة الدخول/الجاهزية <b>{p}/100</b> {status}"
 
 
@@ -4610,7 +4603,7 @@ def build_daily_message(wl: dict, splits: list,
         rdy = s.get("readiness")
         head = f"{i}) {tb}{promo} <b>${s['symbol']}</b> · "
         if rdy is not None:
-            head += (f"{readiness_tag(rdy, tier)} {rdy}/100 · "
+            head += (f"{readiness_tag(rdy)} {rdy}/100 · "
                      f"قوة {s.get('score', '?')}")
         else:
             head += f"قوة {s.get('score', '?')}"
@@ -5198,8 +5191,10 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     # (1) تشخيص الأداء بالشرائح
     body = []
     body += _honest_metrics_block(rows)   # 📏 الوسيط + اعتماد الذيل (صدق الحافة)
-    body += seg("حسب القائمة", lambda r: ("A صارمة" if r.get("tier") == "A"
-                                          else "B مراقبة") if r.get("tier") else None)
+    # 🪦 A متقاعد: الوسم يبقى للصفوف التاريخية فقط (لو وُجدت) — الجديد كله «مؤهّل»
+    body += seg("حسب القائمة", lambda r: {
+        "A": "A (تاريخي — تصنيف متقاعد)", "B": "مؤهّل",
+        "W": "مراقبة ارتداد"}.get(r.get("tier")) if r.get("tier") else None)
     body += seg("حسب القطاع", lambda r: ar_sector(r.get("sector")) or None)
     body += seg("حسب RSI عند الدخول", lambda r: _bucket(
         r.get("rsi"), [(0, 28, "27 أو أقل (مثالي)"), (28, 33, "28-32"),
@@ -5278,14 +5273,9 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     body += _denominator_block()      # 🧮 A1: مقام الرفض (نسبة الفائتة/المقام)
 
     # (3) اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات)
+    # 🪦 اقتراح «A أفضل من B» أُزيل مع تقاعد التصنيف (A لم تُنتَج قط —
+    # الشرط مستحيل التحقّق، وبقاؤه يوحي أن المقارنة ما زالت قائمة).
     sugg = ["\n💡 <b>اقتراحات ضبط (للمراجعة فقط — لا تُطبّق تلقائيًا)</b>"]
-    a_rows = [r for r in rows if r.get("tier") == "A"]
-    b_rows = [r for r in rows if r.get("tier") == "B"]
-    an, awr, _ = _wr(a_rows)
-    bn, bwr, _ = _wr(b_rows)
-    if an >= 5 and bn >= 5 and awr - bwr >= 20:
-        sugg.append(f"   • A ({awr:.0f}%) أفضل بوضوح من B ({bwr:.0f}%) — "
-                    "فكّر بتشديد B أو تقليل وزنها.")
     hi_rsi = [r for r in rows if (r.get("rsi") or 0) > 40]
     if len(hi_rsi) >= 5 and _wr(hi_rsi)[1] < wr - 15:
         sugg.append(f"   • صفقات RSI أعلى من 40 نجاحها {_wr(hi_rsi)[1]:.0f}% (أقل من المعدل) "
