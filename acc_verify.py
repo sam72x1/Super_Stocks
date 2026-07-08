@@ -26,7 +26,8 @@ except ImportError:
     import super_stock as bot
 
 _FIELDS = ["symbol", "date", "outcome", "exploded",
-           "aggressive_buy_pct", "block_share_pct", "dark_share_pct"]
+           "aggressive_buy_pct", "block_share_pct", "block_buy_pct",
+           "dark_share_pct"]
 
 
 def _load_done(path):
@@ -38,7 +39,7 @@ def _load_done(path):
         with open(path, encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 for k in ("aggressive_buy_pct", "block_share_pct",
-                          "dark_share_pct"):
+                          "block_buy_pct", "dark_share_pct"):
                     row[k] = int(row[k]) if row.get(k) not in ("", None) else None
                 row["exploded"] = row.get("exploded") == "True"
                 done[f"{row['symbol']}|{row['date']}"] = row
@@ -107,6 +108,7 @@ def main():
                "outcome": t.get("outcome"), "exploded": bool(t.get("exploded")),
                "aggressive_buy_pct": (acc or {}).get("aggressive_buy_pct"),
                "block_share_pct": (acc or {}).get("block_share_pct"),
+               "block_buy_pct": (acc or {}).get("block_buy_pct"),
                "dark_share_pct": (acc or {}).get("dark_share_pct")}
         rows.append(row)
         _append_csv(path, row)
