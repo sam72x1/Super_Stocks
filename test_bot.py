@@ -786,6 +786,16 @@ check("جاهز/متابعة 12-قفل: entry_status لا يمسّ t1/t2/t3/ال
 check("جاهز/متابعة 12-قفل: نصوص الحالة بلا علامات مقارنة ≥≤><",
       not any(c in (_e1["label"] + _e3["reason"] + _e4["reason"] + _e5["reason"])
               for c in "≥≤<>"))
+# 🧬 التجديد اليومي للبصمة (ملاحظة المستخدم من التقرير الحي 2026-07-08: سطر 🧬
+# كان يغيب عن الأسهم المضافة قبل الميزة — الآن يُحسب يوميًا مثل التفسير/الترند)
+_wlb = {"week_start": "2026-07-01", "removed": [], "notes": [],
+        "stocks": [_wl_entry("BHV", "near_support")]}
+assert "behav" not in _wlb["stocks"][0]     # سجل قديم: بلا بصمة مخزّنة
+S.update_watchlist_status(_wlb, {"BHV": synth_pivot(seed=2)})
+_sb = _wlb["stocks"][0]
+check("🧬تجديد يومي: سجل قديم بلا بصمة → behav+bars_after يُحسبان بالتحديث اليومي",
+      (_sb.get("behav") or {}).get("score") is not None
+      and isinstance(_sb.get("bars_after"), int))
 # لا يكرّر الصفقة لو ظهرت بالأرشيف والحالي معًا (dedup)
 _dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)]}],
         "removed": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)], "stocks": []}
@@ -1297,12 +1307,23 @@ check("التفسير: كسر الوقف ⇒ activation=high_risk + entry=no_ent
 # فاشل-آمن: مدخل ناقص → {} بلا انهيار
 check("التفسير·فاشل-آمن: مدخل بلا سعر/pivot → {} (لا انهيار)",
       S.build_interpretation({"symbol": "X"}) == {})
-# أسطر الكرت ≤3 + بلا علامات مقارنة + العلامات المطلوبة
+# أسطر الكرت ≤4 (+سطر 4س من المقطع) + بلا علامات مقارنة + العلامات المطلوبة
 _icl = S.interp_card_lines(_ip)
-check("التفسير·الكرت: ≤3 أسطر + «🧭 الإعداد» + «🎯 الرقم الحرج» + بلا علامات مقارنة",
-      len(_icl) <= 3 and any("🧭 الإعداد" in x for x in _icl)
+check("التفسير·الكرت: ≤4 أسطر + «🧭 الإعداد» + «🎯 الرقم الحرج» + بلا علامات مقارنة",
+      len(_icl) <= 4 and any("🧭 الإعداد" in x for x in _icl)
       and any("🎯 الرقم الحرج" in x for x in _icl)
       and not any(c in "".join(_icl) for c in "≥≤<>"))
+# 🕓 سطر قصة الـ4س (المقطع: «رأس الحمرا مقاومة، تجاوزه يؤكّد»)
+check("التفسير·4س: رأس حمرا فوق السعر ⇒ سطر «🕓 4س: … تجاوزه يؤكّد»",
+      any("🕓 4س" in x and "تجاوزه يؤكّد" in x for x in _icl))
+check("التفسير·4س: حالة weak ⇒ لا سطر 🕓 (لا حشو)",
+      not any("🕓" in x for x in S.interp_card_lines(
+          {"setup_type": "pivot_reversal",
+           "four_hour_context": {"state": "weak"}})))
+check("التفسير·4س: مقاومة منقلبة دعمًا ⇒ سطر «انقلبت دعمًا»",
+      any("انقلبت دعمًا" in x for x in S.interp_card_lines(
+          {"setup_type": "pivot_reversal",
+           "four_hour_context": {"state": "support_flipped", "flip": 1.82}})))
 # 🔒 قفل: التفسير لا يدخل rank_key (عرض فقط — لا يمسّ العضوية)
 import inspect as _insp2
 check("التفسير·قفل: build_interpretation/interp غير مذكور في rank_key (عرض فقط)",

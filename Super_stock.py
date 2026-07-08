@@ -3270,7 +3270,9 @@ def build_interpretation(r: dict) -> dict:
 
 
 def interp_card_lines(interp: dict) -> list:
-    """أسطر التفسير المدمجة بالكرت (≤3، عربي مبسّط بلا علامات مقارنة). عرض فقط."""
+    """أسطر التفسير المدمجة بالكرت (≤4، عربي مبسّط بلا علامات مقارنة). عرض فقط.
+    السطر الرابع = قصة شموع الـ4س من المقطع (رأس الحمرا مقاومة/الدعم المنقلب/
+    ذيل المسح) — يظهر عند وجود حالة ذات معنى فقط (weak لا يُعرض)."""
     if not interp:
         return []
     lines = []
@@ -3284,6 +3286,17 @@ def interp_card_lines(interp: dict) -> list:
     cr = interp.get("critical_number")
     if cr and cr.get("price"):
         lines.append(f"🎯 الرقم الحرج: ${cr['price']:.2f} ({cr.get('why', '')})")
+    # 🕓 سياق الـ4 ساعات (قصة الشموع — فيصل: «رأس الحمرا مقاومة، تجاوزه يؤكّد»)
+    h4c = interp.get("four_hour_context") or {}
+    h4s = h4c.get("state")
+    if h4s == "blocked_by_red_head" and h4c.get("red_candle_head"):
+        lines.append(f"🕓 4س: رأس الشمعة الحمرا ${h4c['red_candle_head']:.2f} "
+                     "مقاومة — تجاوزه يؤكّد")
+    elif h4s == "support_flipped" and h4c.get("flip"):
+        lines.append(f"🕓 4س: مقاومة انقلبت دعمًا قرب ${h4c['flip']:.2f}")
+    elif h4s == "confirming" and h4c.get("sweep_low"):
+        lines.append(f"🕓 4س: ذيل مسح عند ${h4c['sweep_low']:.2f} ثم استعادة "
+                     "(تأكيد)")
     rp = interp.get("risk_profile") or {}
     if rp.get("flags") and rp.get("risk_level") != "منخفض":
         lines.append(f"⚠️ الخطر: {rp['risk_level']} ({' · '.join(rp['flags'][:3])})")
@@ -4298,6 +4311,20 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
         # العرض اليوم نفسه (إبقاء المخزّن = حاجز بالٍ لم يعد موجودًا — لا «تصلحها»).
         try:
             s["trendline"] = descending_trendline(df, s["last_price"])
+        except Exception:
+            pass
+        # 🧬 بصمة طريقة الارتفاع + جلسات القاع تتجدّدان يوميًا (إصلاح 2026-07-08،
+        # ملاحظة المستخدم من التقرير الحي: سطر 🧬 كان يغيب عن الأسهم المضافة قبل
+        # الميزة لأن البصمة تُخزَّن وقت الإضافة فقط). حارس لا-يمسح: بيانات اليوم
+        # القاصرة (score=None) لا تمحو بصمة مخزّنة صالحة. عرض فقط.
+        try:
+            _bh_new = behavior_rise_profile(df)
+            if _bh_new.get("score") is not None:
+                s["behav"] = _bh_new
+            _psn = pivot_stability(df["Low"].values.astype(float),
+                                   df["Close"].values.astype(float))
+            if _psn:
+                s["bars_after"] = int(_psn["bars_after"])
         except Exception:
             pass
         # 🧭 تجديد التفسير يوميًا بالسعر الجديد (عرض فقط — الرقم الحرج/وضع الدخول
