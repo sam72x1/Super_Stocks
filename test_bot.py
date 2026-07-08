@@ -670,6 +670,122 @@ check("🧹تنظيف: اقتراح «A أفضل من B» الميت أُزيل 
       "أفضل بوضوح من B" not in _rep)
 check("🧹تنظيف: الفحص اليدوي بلا حكم 🅰️ (حكم موحّد 🎯 مؤهّل)",
       "🅰️" not in open("analyze_one.py", encoding="utf-8").read())
+
+# ===== 🟢👀 فصل «جاهز للدخول» عن «متابعة» (ENTRY_READY_SPLIT_PLAN — عرض فقط) =====
+def _es_mode(mode, reason=""):
+    return {"interp": {"entry_mode": {"mode": mode, "reason": reason}}}
+# 1) قرب الدعم → جاهز
+_e1 = S.entry_status(_es_mode("near_support", "داخل/قرب منطقة الدفعات"))
+check("جاهز/متابعة 1: near_support → جاهز للدخول الآن",
+      _e1["status"] == "ready_now" and "🟢 جاهز للدخول الآن" == _e1["label"]
+      and _e1["reason"] == "")
+# 2) مسح مؤكَّد → جاهز
+check("جاهز/متابعة 2: sweep_confirmed → جاهز (المسح دخول عند فيصل)",
+      S.entry_status(_es_mode("sweep_confirmed"))["status"] == "ready_now")
+# 3) انتظار استعادة → متابعة + «تحت الدعم»
+_e3 = S.entry_status(_es_mode("reclaim_wait", "تحت الدعم — ننتظر استعادته"))
+check("جاهز/متابعة 3: reclaim_wait → متابعة + «تحت الدعم»",
+      _e3["status"] == "watch" and "تحت الدعم" in _e3["reason"]
+      and "👀 متابعة" == _e3["label"])
+# 4) بعيد فوق المنطقة → متابعة + «يتحوّل جاهزًا برجوعه»
+_e4 = S.entry_status(_es_mode("no_entry_far", "بعيد فوق منطقة الدفعات"))
+check("جاهز/متابعة 4: بعيد → متابعة + «يتحوّل جاهزًا برجوعه»",
+      _e4["status"] == "watch" and "يتحوّل جاهزًا برجوعه" in _e4["reason"])
+# 5) كسر الوقف → متابعة، السبب يذكر الوقف بلا لاحقة «يتحوّل جاهزًا»
+_e5 = S.entry_status(_es_mode("no_entry_far", "كسر الوقف — الفكرة ملغاة/خطرة"))
+check("جاهز/متابعة 5: كسر الوقف → متابعة (خطر، بلا لاحقة «يتحوّل جاهزًا»)",
+      _e5["status"] == "watch" and "الوقف" in _e5["reason"]
+      and "يتحوّل جاهزًا" not in _e5["reason"])
+# 6) احتياط بلا interp = نفس تصنيف build_interpretation (قفل اتّساق)
+_rb = {"price": 1.85, "last_price": 1.85, "pivot": 1.80,
+       "tranches": [1.80, 1.85, 1.90], "stop": [1.67, 1.71],
+       "t1": 2.0, "t2": 2.2, "t3": 2.5,
+       "key_levels": {"sup_major": 1.80}, "warnings": []}
+_rb_with = dict(_rb, interp=S.build_interpretation(_rb))
+check("جاهز/متابعة 6أ: احتياط (بلا interp) داخل المنطقة → جاهز",
+      S.entry_status(_rb)["status"] == "ready_now")
+check("جاهز/متابعة 6-قفل: الاحتياط = مسار interp (نفس المدخل نفس الحالة)",
+      S.entry_status(_rb)["status"] == S.entry_status(_rb_with)["status"])
+_rb_out = dict(_rb, price=2.10, last_price=2.10)   # فوق max(trs)*1.05=1.995
+check("جاهز/متابعة 6ب: احتياط فوق المنطقة → متابعة",
+      S.entry_status(_rb_out)["status"] == "watch")
+# 7) فاشل-آمن
+check("جاهز/متابعة 7: مدخل فاضٍ → متابعة «بيانات ناقصة» (لا انهيار)",
+      S.entry_status({})["status"] == "watch"
+      and "ناقصة" in S.entry_status({})["reason"])
+# 8) اليومي: ترويسة العدّ + عنوانا قسمين + سطر 👀 للمتابعة + ترقيم مستمر
+def _wl_entry(sym, mode, reason=""):
+    return {"symbol": sym, "added": "2026-07-01", "entry_ref": 2.0,
+            "entry": [1.9, 2.0], "tranches": [1.9, 1.95, 2.0], "pivot": 1.9,
+            "stop": 1.75, "stop_hi": 1.79, "t1": 2.3, "t2": 2.6, "t3": 3.0,
+            "score": 60, "flags": [], "rr": 2.0, "tier": "B", "soft_fails": [],
+            "warnings": [], "readiness": 60, "have": [], "partial": [],
+            "missing": [], "hit": None, "hit_date": None, "max_gain_pct": 0.0,
+            "last_price": 2.0, "status": "active",
+            "interp": {"entry_mode": {"mode": mode, "reason": reason}}}
+_wl_mix = {"week_start": "2026-07-01", "removed": [], "notes": [], "stocks": [
+    _wl_entry("RDY", "near_support"),
+    _wl_entry("WCH", "no_entry_far", "بعيد فوق منطقة الدفعات")]}
+_dm_mix = S.build_daily_message(_wl_mix, [], [], [])
+check("جاهز/متابعة 8: اليومي — ترويسة العدّ «1 جاهز للدخول · 1 متابعة»",
+      "1 جاهز للدخول · 1 متابعة" in _dm_mix)
+check("جاهز/متابعة 8: اليومي — العنوانان + سطر 👀 للمتابعة",
+      "🟢 <b>جاهز للدخول الآن</b> (1)" in _dm_mix
+      and "متابعة — ننتظر وصولها لمنطقة الدخول</b> (1)" in _dm_mix
+      and "👀 بعيد فوق منطقة الدفعات" in _dm_mix)
+check("جاهز/متابعة 8: اليومي — ترقيم مستمر (الجاهز 1، المتابعة 2)",
+      "1) 🎯 <b>$RDY</b>" in _dm_mix and "2) 🎯 <b>$WCH</b>" in _dm_mix)
+# 9) قسم فاضٍ لا يظهر عنوانه
+_wl_allw = {"week_start": "2026-07-01", "removed": [], "notes": [],
+            "stocks": [_wl_entry("W1", "reclaim_wait"),
+                       _wl_entry("W2", "no_entry_far", "بعيد فوق منطقة الدفعات")]}
+_dm_allw = S.build_daily_message(_wl_allw, [], [], [])
+check("جاهز/متابعة 9أ: كلها متابعة → عنوان 🟢 لا يظهر",
+      "جاهز للدخول الآن</b> (" not in _dm_allw and "2 متابعة" in _dm_allw)
+_wl_allr = {"week_start": "2026-07-01", "removed": [], "notes": [],
+            "stocks": [_wl_entry("R1", "near_support"),
+                       _wl_entry("R2", "sweep_confirmed")]}
+_dm_allr = S.build_daily_message(_wl_allr, [], [], [])
+check("جاهز/متابعة 9ب: كلها جاهزة → عنوان 👀 المتابعة لا يظهر",
+      "متابعة — ننتظر وصولها" not in _dm_allr and "2 جاهز للدخول" in _dm_allr)
+# 10) الكرت: سطر الحالة يظهر (جاهز ومتابعة)
+_card_rdy = dict(_rb, symbol="CRD", score=60, readiness=60, rr=2.0,
+                 entry=(1.80, 1.90), tier="B", soft_fails=[], flags=[])
+_card_rdy["interp"] = S.build_interpretation(_card_rdy)
+check("جاهز/متابعة 10: الكرت يعرض «🟢 جاهز للدخول الآن»",
+      "🟢 جاهز للدخول الآن" in S.build_message([_card_rdy], []))
+_card_wch = dict(_card_rdy, price=2.10, last_price=2.10)
+_card_wch["interp"] = S.build_interpretation(_card_wch)
+check("جاهز/متابعة 10: الكرت يعرض «👀 متابعة» مع السبب",
+      "👀 متابعة —" in S.build_message([_card_wch], []))
+# 11) محاكاة القائمة الحية (تثبيت اعتراض المستخدم: القسمان يمتلئان واقعًا)
+def _live(sym, lp, trs, stop, piv):
+    r = {"symbol": sym, "price": lp, "last_price": lp, "tranches": trs,
+         "stop": [stop, stop * 1.02], "pivot": piv, "t1": round(trs[-1] * 1.15, 2),
+         "t2": round(trs[-1] * 1.3, 2), "t3": round(trs[-1] * 1.5, 2),
+         "key_levels": {"sup_major": piv}, "warnings": []}
+    r["interp"] = S.build_interpretation(r)
+    return r
+check("جاهز/متابعة 11: VFF (داخل منطقته) → جاهز · LYEL (فوقها) → متابعة",
+      S.entry_status(_live("VFF", 1.95, [1.8, 1.86, 1.91], 1.6786, 1.90))["status"]
+      == "ready_now"
+      and S.entry_status(_live("LYEL", 14.05, [11.47, 11.81, 12.16], 10.67,
+                               12.0))["status"] == "watch")
+# 12) 🔒 أقفال
+check("جاهز/متابعة 12-قفل: entry_status خارج rank_key/select_top/classify_tier",
+      all("entry_status" not in _insp0.getsource(f)
+          for f in (S.rank_key, S.select_top, S.classify_tier)))
+check("جاهز/متابعة 12-قفل: الجاهزية لا تدخل entry_status (ضد رجوع عتبة 75)",
+      "readiness" not in _insp0.getsource(S.entry_status)
+      and "READY_PCT" not in _insp0.getsource(S.entry_status))
+_lk = dict(_rb)
+_lk_before = (_lk["t1"], _lk["t2"], _lk["t3"], tuple(_lk["stop"]))
+S.entry_status(_lk)
+check("جاهز/متابعة 12-قفل: entry_status لا يمسّ t1/t2/t3/الوقف (نقية)",
+      (_lk["t1"], _lk["t2"], _lk["t3"], tuple(_lk["stop"])) == _lk_before)
+check("جاهز/متابعة 12-قفل: نصوص الحالة بلا علامات مقارنة ≥≤><",
+      not any(c in (_e1["label"] + _e3["reason"] + _e4["reason"] + _e5["reason"])
+              for c in "≥≤<>"))
 # لا يكرّر الصفقة لو ظهرت بالأرشيف والحالي معًا (dedup)
 _dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)]}],
         "removed": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)], "stocks": []}
