@@ -1238,6 +1238,81 @@ check("دقيقة·قفل: التأكيد بالدقيقة داخل monitor فق
            and "_minute_sweep" not in _insp0.getsource(_f))
           for _f in (S.rank_key, S.select_top, S.backtest_symbol)))
 
+# ===== 🌙 رادار البريماركت (POLYGON_EDGE_PLAN §ج — Polygon، تحرّك ما قبل الافتتاح) =====
+# ملخّص البريماركت النقي: أعلى/أدنى/آخر + حجم تراكمي + تغيّر% صحيح عن إغلاق الأمس
+_pm_bars = [{"o": 10, "h": 10.5, "l": 9.8, "c": 10.2, "v": 1000},
+            {"o": 10.2, "h": 11.5, "l": 10.1, "c": 11.0, "v": 3000},
+            {"o": 11.0, "h": 11.8, "l": 10.9, "c": 11.5, "v": 2000}]  # آخر 11.5
+_pm_s = S._premarket_summary(_pm_bars, prev_close=10.0)     # (11.5/10-1)=+15%
+check("بريماركت·ملخّص: أعلى/أدنى/آخر + حجم تراكمي + تغيّر% صحيح عن إغلاق الأمس",
+      _pm_s["change_pct"] == 15.0 and _pm_s["cum_vol"] == 6000
+      and _pm_s["high"] == 11.8 and _pm_s["low"] == 9.8 and _pm_s["last"] == 11.5)
+check("بريماركت·ملخّص: بلا إغلاق أمس ⇒ تغيّر% None (لا تخمين) · بلا بارات ⇒ None",
+      S._premarket_summary(_pm_bars)["change_pct"] is None
+      and S._premarket_summary([]) is None)
+# 🔴 فاشل-آمن: بلا مفتاح ⇒ None (يبقى session_ctx الحالي بسببه الصريح)
+_os_hc.environ.pop("POLYGON_API_KEY", None)
+check("بريماركت·فاشل-آمن: بلا مفتاح POLYGON ⇒ polygon_premarket=None",
+      S.polygon_premarket("AAPL") is None)
+check("بريماركت·قفل: بلا مفتاح ⇒ لا حدث premarket (المسار القائم حرفيًا)",
+      not any(k == "premarket" for _, k, _ in S.monitor_live_events(
+          {"stocks": [{"symbol": "PMZ", "status": "active", "last_price": 2.0,
+                       "pivot": 1.85}]},
+          {"PMZ": _today_df("quiet")}, "2026-07-08")))
+# حدث premarket + دِدوب + عتبة (بمفتاح + ستب بلا شبكة، ثم استعادة الأصل)
+_os_hc.environ["POLYGON_API_KEY"] = "x"
+_pm_orig = S.polygon_premarket
+S.polygon_premarket = lambda sym, prev_close=None: {
+    "kind": "premarket", "high": 2.4, "low": 2.0, "last": 2.3,
+    "cum_vol": 50000, "change_pct": 15.0}
+try:
+    _wl_pm = {"stocks": [{"symbol": "PMX", "status": "active", "last_price": 2.0,
+                          "tranches": [1.7, 1.75, 1.8], "stop": 1.6, "pivot": 1.85}]}
+    _pm_ev = S.monitor_live_events(_wl_pm, {"PMX": _today_df("quiet")}, "2026-07-08")
+    check("بريماركت·حدث: تحرّك ≥10% بحجم ⇒ حدث premarket «راقب الافتتاح»",
+          any(k == "premarket" and "راقب الافتتاح" in d for _, k, d in _pm_ev))
+    check("بريماركت·دِدوب: نفس اليوم لا يتكرّر · يوم جديد ينبّه ثانية",
+          not any(k == "premarket" for _, k, _ in S.monitor_live_events(
+              _wl_pm, {"PMX": _today_df("quiet")}, "2026-07-08"))
+          and any(k == "premarket" for _, k, _ in S.monitor_live_events(
+              _wl_pm, {"PMX": _today_df("quiet")}, "2026-07-09")))
+    # premarket_only=True: يبقى رادار البريماركت فعّالًا لكن يتخطّى أحداث الجلسة
+    # (الشمعة اليومية = أمس قبل الافتتاح، فلا نُعيد إطلاق مسح/كسر الأمس صباحًا)
+    _po_stub = S.monitor_live_events(
+        {"stocks": [{"symbol": "POS", "status": "active", "last_price": 2.0,
+                     "pivot": 1.85, "tranches": [1.7, 1.75, 1.8], "stop": 1.6}]},
+        {"POS": _today_df("sweep")}, "2026-07-08", premarket_only=True)
+    check("بريماركت·premarket_only: يبقي البريماركت ويتخطّى أحداث الجلسة (لا مسح أمس)",
+          any(k == "premarket" for _, k, _ in _po_stub)
+          and not any(k == "sweep" for _, k, _ in _po_stub))
+    S.polygon_premarket = lambda sym, prev_close=None: {"change_pct": 5.0,
+                                                        "cum_vol": 1000}
+    check("بريماركت·عتبة: تحرّك دون PM_MOVE_PCT (5%<10%) ⇒ لا حدث",
+          not any(k == "premarket" for _, k, _ in S.monitor_live_events(
+              {"stocks": [{"symbol": "PMY", "status": "active", "last_price": 2.0,
+                           "pivot": 1.85}]},
+              {"PMY": _today_df("quiet")}, "2026-07-08")))
+finally:
+    S.polygon_premarket = _pm_orig
+    _os_hc.environ.pop("POLYGON_API_KEY", None)
+# 🔴 تشغيل مبكر بلا مفتاح = لا عمل (رخيص، مطابق للخطة): premarket_only يتخطّى الجلسة
+# وبلا مفتاح لا بريماركت → صفر أحداث (حتى على شمعة تُرصد مسحًا في المسار العادي)
+check("بريماركت·premarket_only بلا مفتاح: لا أحداث (تشغيل مبكر رخيص بلا عمل)",
+      S.monitor_live_events(
+          {"stocks": [{"symbol": "POE", "status": "active", "last_price": 2.0,
+                       "pivot": 1.85, "tranches": [1.7, 1.75, 1.8], "stop": 1.6}]},
+          {"POE": _today_df("sweep")}, "2026-07-08", premarket_only=True) == [])
+# session_ctx صادق: الإكمال موصول في enrich + السبب الصريح باقٍ (بلا مفتاح = حرفيًا)
+check("بريماركت·session_ctx: enrich يوصل إكمال Polygon + يبقي السبب الصريح بلا مفتاح",
+      "polygon_premarket" in _insp0.getsource(S.enrich)
+      and "من Polygon" in _insp0.getsource(S.enrich)
+      and "غير متاحة" in _insp0.getsource(S.enrich))
+check("بريماركت·قفل: polygon_premarket/_premarket_summary خارج rank_key/select_top/"
+      "classify_tier/backtest_symbol",
+      all(("polygon_premarket" not in _insp0.getsource(_f)
+           and "_premarket_summary" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.backtest_symbol)))
+
 # لا يكرّر الصفقة لو ظهرت بالأرشيف والحالي معًا (dedup)
 _dup = {"history": [{"stocks": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)]}],
         "removed": [_mkrow("D1", True, "A", "Technology", 27, 8e6, 2.6)], "stocks": []}

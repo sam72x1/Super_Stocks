@@ -38,8 +38,13 @@ def main():
     if main_syms and bot.yf is not None:
         try:
             hist = bot.download_history(main_syms)
+            # قبل الافتتاح (13:30 UTC): الشمعة اليومية = أمس (بايتة) → premarket_only
+            # يتخطّى أحداث الجلسة ويكتفي برادار البريماركت الحي (POLYGON_EDGE_PLAN §ج).
+            _now = bot.dt.datetime.utcnow()
+            _pm_only = (_now.hour * 60 + _now.minute) < 13 * 60 + 30
             events = bot.monitor_live_events(
-                wl, hist, bot.dt.date.today().isoformat())
+                wl, hist, bot.dt.date.today().isoformat(),
+                premarket_only=_pm_only)
             if events:
                 # لقطة الأوامر تُجلب **فقط** للأسهم التي وقع عليها حدث (لا للكل)
                 quotes = {}

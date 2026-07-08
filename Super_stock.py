@@ -160,6 +160,8 @@ CONFIG = {
                                   # ذكي: يعدّي لو الفلوت مفقود (فائدة الشك).
     "VOL_SPIKE_MULT": 5.0,       # شمعة الفوليوم الضخمة ≥ 5x متوسط 20
     "VOL_DRY_RATIO": 0.6,        # جفاف: متوسط 5 < 60% من متوسط 20
+    "PM_MOVE_PCT": 10,           # 🌙 عتبة تنبيه تحرّك البريماركت (POLYGON_EDGE_PLAN §ج،
+                                 # عرضية موثّقة): تحرّك ≥10% بحجم بريماركت = «راقب الافتتاح»
     # دول مشهورة بتجاهل التحليل الفني (تلاعب/pump&dump): تحذير فقط (تظل تظهر)
     "HIGH_RISK_COUNTRIES": ["China", "Hong Kong"],
     "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
@@ -2659,6 +2661,19 @@ def enrich(results: list) -> None:
                     "note": ("لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح "
                              "بمسار البوت"),
                 }
+                # 🌙 إكمال pre_after بصدق (POLYGON_EDGE_PLAN §ج): **لو** المفتاح موجود
+                # وداخل نافذة البريماركت، املأ ببيانات Polygon الفعلية وبدّل السبب —
+                # وإلا يبقى None بسببه الصريح (لا تخمين). فاشل-آمن (يكمل P1-1 بشرف).
+                if os.environ.get("POLYGON_API_KEY", "").strip():
+                    try:
+                        _pm = polygon_premarket(
+                            r["symbol"], prev_close=r["session_ctx"].get("prev_close"))
+                        if _pm:
+                            r["session_ctx"]["pre_after"] = _pm
+                            r["session_ctx"]["unavailable_reason"] = \
+                                "من Polygon (اشتراك المستخدم)"
+                    except Exception:
+                        pass
                 # حدّث الذاكرة بالقيم المعروفة الآن (للتشغيلات القادمة)
                 _cc_entry = {k: r.get(k) for k in
                              ("sector", "industry", "business",
@@ -4964,15 +4979,74 @@ def _minute_sweep(bars: list, support: float) -> bool:
         return False
 
 
-def monitor_live_events(wl: dict, history: dict, today_iso: str) -> list:
+# ==========================================================
+# 🌙 رادار البريماركت (POLYGON_EDGE_PLAN §ج) — تحرّك ما قبل الافتتاح + session_ctx صادق
+# ==========================================================
+def _premarket_summary(bars: list, prev_close=None):
+    """ملخّص البريماركت من شموع الدقيقة (دالّة نقيّة، بلا شبكة): أعلى/أدنى/آخر سعر +
+    حجم تراكمي + التغيّر% عن إغلاق الأمس (لو مُرّر `prev_close`). None لو لا بارات.
+    قابلة للاختبار — قلب رادار البريماركت وإكمال session_ctx الصادق."""
+    try:
+        if not bars:
+            return None
+        highs = [float(b["h"]) for b in bars if b.get("h") is not None]
+        lows = [float(b["l"]) for b in bars if b.get("l") is not None]
+        if not highs or not lows:
+            return None
+        last = float(bars[-1]["c"])
+        cum_vol = sum(float(b["v"]) for b in bars if b.get("v") is not None)
+        chg = (round((last / prev_close - 1.0) * 100.0, 1)
+               if prev_close and prev_close > 0 else None)
+        return {"kind": "premarket", "high": round(max(highs), 4),
+                "low": round(min(lows), 4), "last": round(last, 4),
+                "cum_vol": cum_vol, "change_pct": chg}
+    except Exception:
+        return None
+
+
+def polygon_premarket(sym: str, prev_close=None):
+    """🌙 ملخّص بريماركت اليوم من دقائق Polygon (شموع اليوم قبل الافتتاح 13:30 UTC).
+    **فاشل-آمن مطلق** → None عند: غياب المفتاح · خارج نافذة البريماركت (قبل 08:00 أو
+    بعد 13:30 UTC — فحص زمني **قبل** الشبكة، فصفر نداء مهدور بالفرز الباكر 07:00) ·
+    401/403/429/شبكة. يرجّع dict `_premarket_summary` أو None. عرض/تنبيه فقط."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        return None
+    try:
+        now = dt.datetime.utcnow()
+        _m = now.hour * 60 + now.minute
+        if _m < 8 * 60 or _m >= 13 * 60 + 30:    # خارج نافذة البريماركت → None فورًا
+            return None
+        h = {"Authorization": f"Bearer {key}"}
+        today = dt.date.today().isoformat()
+        url = (f"https://api.polygon.io/v2/aggs/ticker/{sym.upper()}"
+               f"/range/1/minute/{today}/{today}?adjusted=true&sort=asc&limit=1000")
+        r = requests.get(url, headers=h, timeout=10)
+        if r.status_code != 200:
+            return None
+        res = (r.json() or {}).get("results") or []
+        bars = [{"o": b.get("o"), "h": b.get("h"), "l": b.get("l"),
+                 "c": b.get("c"), "v": b.get("v")} for b in res
+                if b.get("c") is not None]
+        return _premarket_summary(bars, prev_close)
+    except Exception:
+        return None
+
+
+def monitor_live_events(wl: dict, history: dict, today_iso: str,
+                        premarket_only: bool = False) -> list:
     """🚨 كشف الأحداث اللحظية على أسهم القائمة (كل 30د بالسوق — طلب المستخدم
     2026-07-08) للتنبيه الفوري بلحظات التنفيذ/الخطر:
       • `sweep`    : كنس دعم بذيل ثم استعادة (لحظة فيصل «مسح ثم استعادة»).
       • `buyzone`  : دخل منطقة الشراء (لحظة تنفيذ الدفعات نفسها).
       • `break`    : كسر الوقف/الدعم وأغلق تحته (خطر — الفكرة مهدّدة).
       • `breakout` : تجاوز الرقم الحرج (يفعّل الهدف التالي).
+      • `premarket`: 🌙 تحرّك ما قبل الافتتاح (Polygon حي — POLYGON_EDGE_PLAN §ج).
     **دِدوب مرة/سهم/حدث/يوم** (`s['live_alert'][kind]`) فلا تتكرّر كل 30د. يحدّث
-    last_price. عرض/تنبيه فقط — خارج الفرز/الاختيار. يرجع [(s, kind, desc)]."""
+    last_price. عرض/تنبيه فقط — خارج الفرز/الاختيار. يرجع [(s, kind, desc)].
+    `premarket_only` (قبل الافتتاح 13:30 UTC — يمرّره pullback_live حسب الساعة):
+    يتخطّى أحداث الجلسة (مسح/كسر/منطقة/تجاوز) لأن الشمعة اليومية وقتها = أمس (بايتة،
+    فتُعيد إطلاق حالة الأمس صباحًا)، ويكتفي برادار البريماركت الحي من Polygon."""
     out = []
     for s in wl.get("stocks", []):
         if s.get("status") != "active":
@@ -4991,44 +5065,64 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str) -> list:
                  else (float(_st) if isinstance(_st, (int, float)) else None))
         piv = float(s.get("pivot") or 0)
         events = []
-        try:
-            sw = next((a for a in hand_activity_today(s, df)
-                       if "كنس الدعم" in a), None)
-        except Exception:
-            sw = None
-        # ⚡ تأكيد أدق بشموع الدقيقة (POLYGON_EDGE_PLAN §ب): **لو** المفتاح موجود
-        # والمسار اليومي لم يرصد المسح، افحص دقائق Polygon على نفس الدعم (أدنى 20ج).
-        # نفس نوع الحدث (sweep) ونفس الدِدوب — لا نوع جديد. بلا مفتاح = المسار اليومي
-        # حرفيًا (polygon_minute_bars ترجع None → _minute_sweep=False → صفر تغيير).
-        if not sw and os.environ.get("POLYGON_API_KEY", "").strip():
+        # أحداث الجلسة (تحتاج سعر الجلسة الحي) — تُتخطّى قبل الافتتاح (premarket_only)
+        if not premarket_only:
             try:
-                _lo = df["Low"].values.astype(float)
-                _sup20 = float(np.min(_lo[-21:-1]))
-                # سقف الطلبات (يحمي ميزانية المراقب 15د): نفحص الدقائق فقط للأسهم
-                # **قرب دعمها** (ضمن 8% فوقه) حيث المسح ممكن أصلًا. البعيد لا يُمسح،
-                # والمسح-ثم-الركض البعيد يلتقطه المسار اليومي (كسر t_lo + t_c مرتفع).
-                if _sup20 > 0 and lp <= _sup20 * 1.08:
-                    _mb = polygon_minute_bars(s["symbol"])
-                    if _mb and _minute_sweep(_mb, _sup20):
-                        sw = (f"كنس الدعم ${_sup20:.2f} بذيل ثم استعاده "
-                              "(تأكيد دقائق Polygon)")
+                sw = next((a for a in hand_activity_today(s, df)
+                           if "كنس الدعم" in a), None)
+            except Exception:
+                sw = None
+            # ⚡ تأكيد أدق بشموع الدقيقة (POLYGON_EDGE_PLAN §ب): **لو** المفتاح موجود
+            # والمسار اليومي لم يرصد المسح، افحص دقائق Polygon على نفس الدعم (أدنى 20ج).
+            # نفس نوع الحدث (sweep) ونفس الدِدوب — لا نوع جديد. بلا مفتاح = المسار
+            # اليومي حرفيًا (polygon_minute_bars ترجع None → _minute_sweep=False).
+            if not sw and os.environ.get("POLYGON_API_KEY", "").strip():
+                try:
+                    _lo = df["Low"].values.astype(float)
+                    _sup20 = float(np.min(_lo[-21:-1]))
+                    # سقف الطلبات (يحمي ميزانية المراقب 15د): نفحص الدقائق فقط
+                    # للأسهم **قرب دعمها** (ضمن 8% فوقه) حيث المسح ممكن. البعيد لا
+                    # يُمسح، والمسح-ثم-الركض البعيد يلتقطه المسار اليومي (كسر+ارتفاع).
+                    if _sup20 > 0 and lp <= _sup20 * 1.08:
+                        _mb = polygon_minute_bars(s["symbol"])
+                        if _mb and _minute_sweep(_mb, _sup20):
+                            sw = (f"كنس الدعم ${_sup20:.2f} بذيل ثم استعاده "
+                                  "(تأكيد دقائق Polygon)")
+                except Exception:
+                    pass
+            if sw:
+                events.append(("sweep", sw))
+            if stop0 is not None and lp <= stop0:
+                events.append(("break",
+                               f"كسر الوقف ${stop0:.2f} — الفكرة ملغاة/خطرة"))
+            elif piv and lp < piv * 0.995:
+                events.append(("break", f"كسر الدعم ${piv:.2f} وأغلق تحته — خطر"))
+            elif trs and min(trs) <= lp <= max(trs) * 1.005:
+                events.append(("buyzone", f"دخل منطقة الشراء "
+                               f"(${min(trs):.2f}–${max(trs):.2f}) — لحظة التنفيذ"))
+            crit = (s.get("interp") or {}).get("critical_number") or {}
+            cp = crit.get("price")
+            if cp and crit.get("type") == "breakout_activation" \
+                    and lp > float(cp) * 1.005:
+                events.append(("breakout", f"تجاوز الرقم الحرج ${float(cp):.2f} "
+                               "— يفعّل الهدف التالي"))
+        # 🌙 تحرّك بريماركت (POLYGON_EDGE_PLAN §ج): فقط بوجود المفتاح وداخل نافذة
+        # البريماركت (polygon_premarket تُرجع None خارجها/بلا مفتاح فورًا). تحرّك
+        # ≥PM_MOVE_PCT بحجم بريماركت >0 → «راقب الافتتاح». إغلاق الأمس = آخر إغلاق
+        # يومي (البريماركت لم يفتح بعد فآخر بار = أمس). فاشل-آمن → لا حدث.
+        if os.environ.get("POLYGON_API_KEY", "").strip():
+            try:
+                _prev = float(df["Close"].iloc[-1])
+                _pm = polygon_premarket(s["symbol"], prev_close=_prev)
+                if (_pm and _pm.get("change_pct") is not None
+                        and abs(_pm["change_pct"]) >= CONFIG["PM_MOVE_PCT"]
+                        and (_pm.get("cum_vol") or 0) > 0):
+                    _sg = "+" if _pm["change_pct"] >= 0 else ""
+                    events.append(("premarket",
+                                   f"تحرّك بريماركت {_sg}{_pm['change_pct']:.0f}% "
+                                   f"بحجم {_pm['cum_vol']:,.0f} — راقب الافتتاح"))
             except Exception:
                 pass
-        if sw:
-            events.append(("sweep", sw))
-        if stop0 is not None and lp <= stop0:
-            events.append(("break", f"كسر الوقف ${stop0:.2f} — الفكرة ملغاة/خطرة"))
-        elif piv and lp < piv * 0.995:
-            events.append(("break", f"كسر الدعم ${piv:.2f} وأغلق تحته — خطر"))
-        elif trs and min(trs) <= lp <= max(trs) * 1.005:
-            events.append(("buyzone", f"دخل منطقة الشراء "
-                           f"(${min(trs):.2f}–${max(trs):.2f}) — لحظة التنفيذ"))
-        crit = (s.get("interp") or {}).get("critical_number") or {}
-        cp = crit.get("price")
-        if cp and crit.get("type") == "breakout_activation" \
-                and lp > float(cp) * 1.005:
-            events.append(("breakout", f"تجاوز الرقم الحرج ${float(cp):.2f} "
-                           "— يفعّل الهدف التالي"))
         seen = s.setdefault("live_alert", {})
         for kind, desc in events:
             if seen.get(kind) != today_iso:
@@ -5037,7 +5131,8 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str) -> list:
     return out
 
 
-_LIVE_ICON = {"sweep": "🚨", "buyzone": "🎯", "break": "⛔", "breakout": "🚀"}
+_LIVE_ICON = {"sweep": "🚨", "buyzone": "🎯", "break": "⛔", "breakout": "🚀",
+              "premarket": "🌙"}
 
 
 def polygon_flow(sym: str):
