@@ -930,5 +930,39 @@
   "short_pct": 6.9,
   "float": 2495041,
   "finra_short": 3791
+ },
+ "HFFG": {
+  "sector": "Consumer Defensive",
+  "industry": "Food Distribution",
+  "business": "HF Foods Group Inc., together with its subsidiaries, operates as a marketer and distributor of specialty food products, seafood, fresh produce, frozen and dry f…",
+  "country": "United States",
+  "cash": 11061000,
+  "revenue": 1241856000,
+  "shares_out": 53475417,
+  "short_pct": 2.4,
+  "float": 40112980
+ },
+ "DTI": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services",
+  "business": "Drilling Tools International Corporation designs, engineers, manufactures, and provides a rental-focused offering of tools for use in onshore and offshore horiz…",
+  "country": "United States",
+  "cash": 2840000,
+  "revenue": 154704992,
+  "shares_out": 35139094,
+  "short_pct": 1.9,
+  "float": 11914964
+ },
+ "PTN": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Palatin Technologies, Inc., a biopharmaceutical company, develops first-in-class medicines based on molecules that modulate the activity of the melanocortin rec…",
+  "country": "United States",
+  "cash": 10159494,
+  "revenue": 12884261,
+  "shares_out": 1779275,
+  "short_pct": 10.6,
+  "float": 1384205,
+  "finra_short": 2163
  }
 }
