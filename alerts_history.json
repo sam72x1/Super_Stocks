@@ -618,7 +618,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 1.2
   },
   {
    "symbol": "SCYX",
@@ -707,7 +707,7 @@
    "rr": 2.8094142027103057,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.3
+   "max_gain_pct": -1.0
   },
   {
    "symbol": "FEMY",
@@ -742,7 +742,7 @@
    "rr": 2.5457938558713757,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.5
+   "max_gain_pct": -2.5
   },
   {
    "symbol": "GEOS",
@@ -775,7 +775,7 @@
    "rr": 2.2236347425024396,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.5
+   "max_gain_pct": 1.0
   },
   {
    "symbol": "SBET",

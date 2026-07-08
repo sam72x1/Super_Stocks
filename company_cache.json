@@ -908,6 +908,17 @@
   "short_pct": 54.5,
   "float": 18481220
  },
+ "GEOS": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services",
+  "business": "Geospace Technologies Corporation designs and manufactures instruments and equipment used in the oil and gas industry to acquire seismic data in order to locate…",
+  "country": "United States",
+  "cash": 13358000,
+  "revenue": 100885000,
+  "shares_out": 12935603,
+  "short_pct": 3.9,
+  "float": 12552321
+ },
  "FEMY": {
   "sector": "Healthcare",
   "industry": "Medical Instruments & Supplies",
@@ -919,16 +930,5 @@
   "short_pct": 6.9,
   "float": 2495041,
   "finra_short": 3791
- },
- "GEOS": {
-  "sector": "Energy",
-  "industry": "Oil & Gas Equipment & Services",
-  "business": "Geospace Technologies Corporation designs and manufactures instruments and equipment used in the oil and gas industry to acquire seismic data in order to locate…",
-  "country": "United States",
-  "cash": 13358000,
-  "revenue": 100885000,
-  "shares_out": 12935603,
-  "short_pct": 3.9,
-  "float": 12552321
  }
 }
