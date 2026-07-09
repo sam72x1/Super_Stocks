@@ -1691,6 +1691,99 @@ check("🔒 قفل: دوال الاقتراض خارج rank_key/select_top/class
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.backtest_symbol)))
 
+# ===== 📅 الأحداث المعلنة القادمة (أرباح/تجارب — «يوم الانفجار الذي ينتظره المضارب») =====
+_ev_today = S.dt.date(2026, 7, 9)
+def _ct_study(sponsor, date, phase="PHASE2", nct="NCT01"):
+    return {"protocolSection": {
+        "sponsorCollaboratorsModule": {"leadSponsor": {"name": sponsor}},
+        "statusModule": {"primaryCompletionDateStruct": {"date": date}},
+        "designModule": {"phases": [phase]},
+        "identificationModule": {"nctId": nct}}}
+_ct_data = {"studies": [
+    _ct_study("Femasys Inc", "2026-07-30", "PHASE2", "NCT111"),   # مطابق قادم
+    _ct_study("Other Pharma", "2026-07-20"),                       # راعٍ مختلف → يُستبعد
+    _ct_study("Femasys Inc", "2026-06-01"),                        # ماضٍ → يُستبعد
+    _ct_study("Femasys Inc", "2026-08"),                           # شهر فقط → أول الشهر
+    _ct_study("Femasys Inc", "2026-12-01")]}                       # أبعد من الأفق → يُستبعد
+_ct_out = S._parse_ct_studies(_ct_data, "Femasys Inc", _ev_today, 45)
+check("📅 تجارب: مطابقة الراعي + قادم ضمن الأفق فقط + «سنة-شهر» → أول الشهر + الترتيب",
+      [e["date"] for e in _ct_out] == ["2026-07-30", "2026-08-01"]
+      and all(e["kind"] == "تجربة" for e in _ct_out)
+      and "المرحلة 2" in _ct_out[0]["note"] and "NCT111" in _ct_out[0]["note"])
+check("📅 تجارب·فاشل-آمن: ردّ فارغ/بلا شركة ⇒ []",
+      S._parse_ct_studies({}, "X", _ev_today, 45) == []
+      and S._parse_ct_studies(_ct_data, "", _ev_today, 45) == [])
+_ev_mix = [{"kind": "أرباح", "date": "2026-07-19", "note": ""},
+           {"kind": "تجربة", "date": "2026-07-30", "note": "المرحلة 2 · NCT111"}]
+_evl = S.events_lines(_ev_mix, today=_ev_today)
+check("📅 الأسطر: أرباح «بعد 10 يوم» بتفسير المضارب + تجربة بملاحظتها وتحفّظ التقدير",
+      len(_evl) == 2 and "أرباح معلنة: 2026-07-19 (بعد 10 يوم)" in _evl[0]
+      and "المضارب يجهّز قبل الإعلان" in _evl[0]
+      and "اكتمال تجربة سريرية (المرحلة 2 · NCT111)" in _evl[1]
+      and "قد يتغيّر" in _evl[1])
+check("📅 الأسطر: «اليوم!» و«غدًا» للقريب",
+      "اليوم!" in S.events_lines([{"kind": "أرباح", "date": "2026-07-09"}],
+                                 today=_ev_today)[0]
+      and "غدًا" in S.events_lines([{"kind": "أرباح", "date": "2026-07-10"}],
+                                   today=_ev_today)[0])
+check("📅 الأسطر: الماضي والأبعد من الأفق يُخفيان · None ⇒ []",
+      S.events_lines([{"kind": "أرباح", "date": "2026-07-01"},
+                      {"kind": "أرباح", "date": "2026-12-01"}],
+                     today=_ev_today) == []
+      and S.events_lines(None) == [])
+check("📅 الأسطر: بحدّ سطرين (لا حشو) + بلا علامات مقارنة",
+      len(S.events_lines([{"kind": "أرباح", "date": "2026-07-19"}] * 5,
+                         today=_ev_today)) == 2
+      and not any(c in " ".join(_evl) for c in "≥≤><"))
+# التجميع upcoming_events (بحقن الدوال — بلا شبكة) + بوّابة قطاع الرعاية للتجارب
+_sv_ne, _sv_ce = S.next_earnings, S.clinical_events
+try:
+    S.next_earnings = lambda sym: "2026-07-19"
+    S.clinical_events = lambda co: [{"kind": "تجربة", "date": "2026-07-15",
+                                     "note": "NCT9"}]
+    _ue_hc = S.upcoming_events("FEMY", "Femasys Inc", "Healthcare")
+    check("📅 التجميع: أرباح + تجربة (رعاية صحية) مرتّبة بالأقرب",
+          [e["kind"] for e in _ue_hc] == ["تجربة", "أرباح"])
+    _ue_en = S.upcoming_events("GEOS", "Geospace", "Energy")
+    check("📅 التجميع·بوّابة القطاع: غير الرعاية الصحية ⇒ أرباح فقط (لا نداء تجارب)",
+          [e["kind"] for e in _ue_en] == ["أرباح"])
+    S.next_earnings = lambda sym: None
+    S.clinical_events = lambda co: []
+    check("📅 التجميع·فاشل-آمن: لا شيء ⇒ None",
+          S.upcoming_events("X", "Y", "Healthcare") is None)
+finally:
+    S.next_earnings, S.clinical_events = _sv_ne, _sv_ce
+check("📅 حفظ: make_watch_entry يخزّن upcoming_events + company_name",
+      (lambda _w: _w["upcoming_events"] == _ev_mix
+       and _w["company_name"] == "Femasys Inc")(
+          S.make_watch_entry(dict(r0 or {"symbol": "EVT", "price": 2.0,
+              "pivot": 1.9, "entry": (1.9, 2.0), "tranches": [1.9, 2.0],
+              "stop": (1.75, 1.79), "t1": 2.3, "t2": 2.6, "t3": 3.0,
+              "score": 60, "flags": [], "rr": 2.0, "drop_pct": 60,
+              "best_spike": 120}, upcoming_events=_ev_mix,
+              company_name="Femasys Inc"), "2026-07-09")))
+_wl_ev = {"week_start": "2026-07-01", "removed": [], "notes": [], "stocks": [
+    dict(_wl_entry("EVD", "near_support"),
+         upcoming_events=[{"kind": "أرباح",
+                           "date": (S.dt.date.today()
+                                    + S.dt.timedelta(days=10)).isoformat()}])]}
+check("📅 اليومي: كرت الجاهز يعرض سطر «أرباح معلنة»",
+      "أرباح معلنة" in S.build_daily_message(_wl_ev, [], [], [], ready_only=True))
+check("📅 قفل: دوال الأحداث خارج rank_key/select_top/classify_tier/analyze_ticker/backtest_symbol",
+      all(("upcoming_events" not in _insp0.getsource(_f)
+           and "next_earnings" not in _insp0.getsource(_f)
+           and "clinical_events" not in _insp0.getsource(_f)
+           and "events_lines" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.backtest_symbol)))
+_sv_tr = TR._next_earnings_date
+try:
+    TR._next_earnings_date = lambda sym: (_ for _ in ()).throw(ValueError("x"))
+    check("📅 فاشل-آمن: انهيار مصدر الأرباح ⇒ next_earnings يرجع None بهدوء",
+          S.next_earnings("ANY") is None)
+finally:
+    TR._next_earnings_date = _sv_tr
+
 # ===== 📉 ضغط/تصريف المضارب (طلب المستخدم: نمط LABT الحيّ — يومي + أفتر) =====
 def _dump_st(sym):
     return {"symbol": sym, "status": "active", "pivot": 1.5,

@@ -65,6 +65,9 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     L.append(_al if _al else "🔬 تجميع صامت: —")
     # 🔒 معدّل الاقتراض (فيصل: أساس الارتكاز · اقتراض صعب = وقود سكويز · «—» عند التعذّر)
     L.append(bot.borrow_line(r))
+    # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
+    _evls = bot.events_lines(r.get("upcoming_events"))
+    L += _evls if _evls else ["📅 أحداث معلنة قادمة: — (لا أرباح/تجارب معلنة بالأفق)"]
     # 🔁 تقسيمات متكررة = نَفَس قصير (قرينة فيصل §P4 — عرض/تحذير فقط)
     _sf = bot._split_freq_line(r.get("split_freq"))
     if _sf:
@@ -153,7 +156,8 @@ def hand_check(sym: str):
          "session_ctx": diag.get("session_ctx"),
          "h4_levels": diag.get("h4_levels"),
          "borrow_fee": diag.get("borrow_fee"),              # 🔒 الاقتراض (فيصل: سكويز)
-         "shares_available": diag.get("shares_available")}
+         "shares_available": diag.get("shares_available"),
+         "upcoming_events": diag.get("upcoming_events")}    # 📅 أحداث معلنة قادمة
     try:
         r["behav"] = bot.behavior_rise_profile(df)     # بصمة اليومي
         r["pump_scar"] = bot.group_pump_scar(df)       # رفعة القروب/كسر الدعوم
