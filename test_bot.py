@@ -3057,23 +3057,40 @@ check("ثبات: سهم محفوظ يبقى رغم غياب بياناته (لا
       len(_wl2["stocks"]) == 1
       and _wl2["stocks"][0]["status"] == "active" and _st == [])
 
-# should_renew: قائمة غير فارغة في غير الجمعة لا تُعاد بناؤها (لا إعادة فرز يومي)
+# should_renew: قائمة غير فارغة في غير يوم التجديد لا تُعاد بناؤها (لا فرز يومي)
 import datetime as _d2
-_nonfri = next(_d2.date(2026, 6, 22) + _d2.timedelta(days=o)
+_nonren = next(_d2.date(2026, 6, 22) + _d2.timedelta(days=o)
                for o in range(7)
                if (_d2.date(2026, 6, 22) + _d2.timedelta(days=o)).weekday()
                != S.WEEKLY_RENEW_DAY)
-_fri = next(_d2.date(2026, 6, 22) + _d2.timedelta(days=o)
-            for o in range(7)
-            if (_d2.date(2026, 6, 22) + _d2.timedelta(days=o)).weekday()
-            == S.WEEKLY_RENEW_DAY)
+_renday = next(_d2.date(2026, 6, 22) + _d2.timedelta(days=o)
+               for o in range(7)
+               if (_d2.date(2026, 6, 22) + _d2.timedelta(days=o)).weekday()
+               == S.WEEKLY_RENEW_DAY)
 _nonempty = {"stocks": [{"symbol": "X"}], "removed": []}
-check("ثبات: قائمة قائمة في غير الجمعة لا تُعاد بناؤها",
-      S.should_renew(_nonempty, _nonfri, False) is False)
-check("التجديد: الجمعة تُجدَّد القائمة",
-      S.should_renew(_nonempty, _fri, False) is True)
+check("ثبات: قائمة قائمة في غير يوم التجديد لا تُعاد بناؤها",
+      S.should_renew(_nonempty, _nonren, False) is False)
+check("التجديد: يوم التجديد تُجدَّد القائمة",
+      S.should_renew(_nonempty, _renday, False) is True)
 check("التأسيس: قائمة فارغة تُؤسَّس فورًا",
-      S.should_renew({"stocks": [], "removed": []}, _nonfri, False) is True)
+      S.should_renew({"stocks": [], "removed": []}, _nonren, False) is True)
+
+# 🔒 قفل قرار المستخدم (2026-07-09): التجديد الكامل = السبت (weekday=5) —
+# تشغيل صباح السبت يقرأ إغلاق الجمعة = شمعة أسبوعية مكتملة (اثنين→جمعة)
+# لفريمات M6/الفجوات/الأهداف الأسبوعية. صباح الجمعة كان يرى إغلاق الخميس
+# فقط → فريم أسبوعي ناقص يوم. تقرير الأداء الأسبوعي يتبع نفس اليوم.
+check("🔒 يوم التجديد = السبت (شمعة أسبوعية مكتملة على إغلاق الجمعة)",
+      S.WEEKLY_RENEW_DAY == 5)
+check("🔒 تقرير الأداء الأسبوعي = السبت (مع يوم التجديد، أسبوع كامل)",
+      S.WEEKLY_REPORT_DAY == 5)
+_friday = _d2.date(2026, 7, 10)          # جمعة (weekday=4)
+assert _friday.weekday() == 4
+check("🔒 صباح الجمعة لم يعد يجدّد (كان يبني على شمعة أسبوعية ناقصة)",
+      S.should_renew(_nonempty, _friday, False) is False)
+_saturday = _d2.date(2026, 7, 11)        # سبت (weekday=5)
+assert _saturday.weekday() == 5
+check("🔒 السبت يجدّد (يقرأ إغلاق الجمعة)",
+      S.should_renew(_nonempty, _saturday, False) is True)
 
 
 # ==========================================================
