@@ -908,6 +908,17 @@
   "short_pct": 54.5,
   "float": 18481220
  },
+ "HFFG": {
+  "sector": "Consumer Defensive",
+  "industry": "Food Distribution",
+  "business": "HF Foods Group Inc., together with its subsidiaries, operates as a marketer and distributor of specialty food products, seafood, fresh produce, frozen and dry f…",
+  "country": "United States",
+  "cash": 11061000,
+  "revenue": 1241856000,
+  "shares_out": 53475417,
+  "short_pct": 2.4,
+  "float": 40112980
+ },
  "GEOS": {
   "sector": "Energy",
   "industry": "Oil & Gas Equipment & Services",
@@ -929,18 +940,7 @@
   "shares_out": 3019534,
   "short_pct": 6.9,
   "float": 2495041,
-  "finra_short": 3791
- },
- "HFFG": {
-  "sector": "Consumer Defensive",
-  "industry": "Food Distribution",
-  "business": "HF Foods Group Inc., together with its subsidiaries, operates as a marketer and distributor of specialty food products, seafood, fresh produce, frozen and dry f…",
-  "country": "United States",
-  "cash": 11061000,
-  "revenue": 1241856000,
-  "shares_out": 53475417,
-  "short_pct": 2.4,
-  "float": 40112980
+  "finra_short": 3087
  },
  "DTI": {
   "sector": "Energy",
@@ -963,6 +963,6 @@
   "shares_out": 1779275,
   "short_pct": 10.6,
   "float": 1384205,
-  "finra_short": 2163
+  "finra_short": 2567
  }
 }
