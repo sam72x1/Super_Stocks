@@ -1588,6 +1588,41 @@ check("🕵️قفل: دوال المضارب خارج rank_key/select_top/class
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.backtest_symbol)))
 
+# ===== 🔒 معدّل الاقتراض (طلب المستخدم: أساس الارتكاز · اقتراض صعب = وقود سكويز) =====
+_fin_html = "Cost to Borrow: 45.5% . Shares Available to Borrow: 12,000 ."
+_fb = S._parse_fintel_borrow(_fin_html)
+check("🔒 Fintel: يستخرج رسوم الاقتراض + الأسهم المتاحة من نفس HTML (بلا نداء إضافي)",
+      _fb.get("borrow_fee") == 45.5 and _fb.get("shares_available") == 12000)
+check("🔒 Fintel·فاشل-آمن: HTML بلا اقتراض ⇒ {}",
+      S._parse_fintel_borrow("<html>لا شيء</html>") == {})
+_ib = S._parse_iborrow({"real_time": [{"fee": 62.0, "available": 5000, "time": "t"}]})
+check("🔒 iBorrowDesk: يستخرج أحدث رسوم/متاح من real_time",
+      _ib.get("borrow_fee") == 62.0 and _ib.get("shares_available") == 5000)
+check("🔒 iBorrowDesk: يسقط لـdaily لو غاب real_time",
+      S._parse_iborrow({"daily": [{"fee": 10.0, "available": 900}]})["borrow_fee"] == 10.0)
+check("🔒 iBorrowDesk·فاشل-آمن: رد فارغ/غير صالح ⇒ {}",
+      S._parse_iborrow({}) == {} and S._parse_iborrow({"real_time": []}) == {})
+check("🔒 سطر الاقتراض: رسوم عالية ⇒ «🔥 صعب» (وقود سكويز) + المتاح",
+      "رسوم 45%" in S.borrow_line({"borrow_fee": 45.0, "shares_available": 12000})
+      and "🔥 صعب" in S.borrow_line({"borrow_fee": 45.0})
+      and "متاح 12K" in S.borrow_line({"borrow_fee": 45.0, "shares_available": 12000}))
+check("🔒 سطر الاقتراض: رسوم منخفضة ⇒ بلا «🔥 صعب»",
+      "🔥 صعب" not in S.borrow_line({"borrow_fee": 5.0}))
+check("🔒 سطر الاقتراض·فاشل-آمن: لا بيانات ⇒ «—» (تعذّر ≠ صفر)",
+      S.borrow_line({}) == "🔒 اقتراض: —")
+check("🔒 حفظ: make_watch_entry يخزّن borrow_fee/shares_available",
+      S.make_watch_entry(dict(r0 or {"symbol": "BOR", "price": 2.0, "pivot": 1.9,
+          "entry": (1.9, 2.0), "tranches": [1.9, 2.0], "stop": (1.75, 1.79),
+          "t1": 2.3, "t2": 2.6, "t3": 3.0, "score": 60, "flags": [], "rr": 2.0,
+          "drop_pct": 60, "best_spike": 120}, borrow_fee=33.0, shares_available=8000),
+          "2026-07-09")["borrow_fee"] == 33.0)
+check("🔒 قفل: دوال الاقتراض خارج rank_key/select_top/classify_tier/analyze_ticker/backtest_symbol",
+      all(("_parse_fintel_borrow" not in _insp0.getsource(_f)
+           and "borrow_line" not in _insp0.getsource(_f)
+           and "iborrow_info" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.backtest_symbol)))
+
 # ===== 🕵️💰 حزمة «قراءة المضارب» من صور فيصل (FAISAL_OPERATOR_PACK_PLAN) =====
 # P1 💰 وسم شمعة مضارب/قروب بسيولتها الدولارية (قاعدة فيصل: ≥100ألف مضارب · ≤50ألف قروب)
 check("مضارب·P1 تصنيف: ≥300ألف قوية · ≥100ألف مضارب · ≤50ألف قروب · بينها mid",
