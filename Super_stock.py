@@ -183,6 +183,9 @@ CONFIG = {
     "BORROW_HIGH_PCT": 20.0,        # رسوم اقتراض ≥20% سنويًّا = صعب الاقتراض (وقود سكويز)
     "BORROW_MID_PCT": 5.0,          # 5-20% = متوسط (وقود جزئي) · أقل = سهل (لا وقود) —
                                     # حدود عرضية للتفسير فقط (لا بوابة/ترتيب)
+    # 📅 الأحداث المعلنة القادمة (طلب المستخدم 2026-07-09 — «يوم الانفجار الذي ينتظره
+    # المضارب»، فيصل 9428): أرباح + اكتمال تجارب سريرية. أبعد من هذا الأفق لا يُعرض
+    "EVENTS_SHOW_DAYS": 45,
     # دول مشهورة بتجاهل التحليل الفني (تلاعب/pump&dump): تحذير فقط (تظل تظهر)
     "HIGH_RISK_COUNTRIES": ["China", "Hong Kong"],
     "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
@@ -2376,6 +2379,137 @@ def borrow_line(r: dict) -> str:
     return "🔒 اقتراض: " + body + (f" · {av_txt}" if av_txt else "")
 
 
+# ==========================================================
+# 📅 الأحداث المعلنة القادمة (طلب المستخدم 2026-07-09: «تواريخ الإعلانات المعلنة
+# مسبقًا — غالبًا يوم الانفجار اللي ينتظره المضارب»؛ فيصل صورة 9428: «المضارب قبل
+# صدور اعلان للشركه يهيئ السهم فنيا للصعود»). أرباح (كل الأسهم) + اكتمال التجارب
+# السريرية (الرعاية الصحية، من السجل الرسمي ClinicalTrials.gov). **عرض/سياق فقط —
+# خارج الفرز/الترتيب.** فاشل-آمن مطلق. ⚠️ حدود صدق: مواعيد قرارات FDA (PDUFA)
+# والمؤتمرات لا API مجاني موثوق لها — غير مشمولة؛ وتاريخ اكتمال التجربة تقدير
+# معلن بالسجل (الإعلان الرسمي للنتيجة عادة بعده).
+# ==========================================================
+def next_earnings(sym: str):
+    """📅 أقرب تاريخ أرباح معلن (ISO أو None) — يعيد استخدام مصادر أداة الأرباح
+    (`technical_report`: Alpha Vantage→FMP→Finnhub→yfinance؛ المفاتيح اختيارية
+    وكلها فاشلة-آمنة). استيراد كسول لتفادي الاستيراد الدائري. عرض فقط."""
+    try:
+        import technical_report as _tr
+        d = _tr._next_earnings_date(sym)
+        return d.isoformat() if d else None
+    except Exception:
+        return None
+
+
+def _parse_ct_studies(data, company, today, horizon_days):
+    """نقيّة (بلا شبكة): من ردّ ClinicalTrials.gov v2 تستخرج التجارب التي راعيها
+    الرئيسي يطابق اسم الشركة وتاريخ اكتمالها (الأولي أو الكلي) قادم ضمن الأفق.
+    صيغة «سنة-شهر» فقط → أول الشهر (تقدير). ترجع [{'kind','date','note'}...]
+    مرتّبة بالأقرب (بحدّ 2). فاشلة-آمنة → []."""
+    out = []
+    try:
+        base = (company or "").strip().lower().split()
+        base = base[0] if base else ""
+        for st in (data.get("studies") or []):
+            try:
+                proto = st.get("protocolSection") or {}
+                spons = (((proto.get("sponsorCollaboratorsModule") or {})
+                          .get("leadSponsor") or {}).get("name") or "")
+                if not base or base not in spons.lower():
+                    continue                    # حارس المطابقة (لا ننسب تجربة لغير شركتها)
+                stat = proto.get("statusModule") or {}
+                d = ((stat.get("primaryCompletionDateStruct") or {}).get("date")
+                     or (stat.get("completionDateStruct") or {}).get("date"))
+                if not d:
+                    continue
+                iso = d if len(str(d)) >= 10 else f"{d}-01"
+                dd = dt.date.fromisoformat(str(iso)[:10])
+                days = (dd - today).days
+                if days < 0 or days > horizon_days:
+                    continue
+                phases = (proto.get("designModule") or {}).get("phases") or []
+                ph = str(phases[0]).replace("PHASE", "المرحلة ").strip() \
+                    if phases else ""
+                nct = ((proto.get("identificationModule") or {})
+                       .get("nctId") or "")
+                note = " · ".join(x for x in (ph, nct) if x)
+                out.append({"kind": "تجربة", "date": dd.isoformat(),
+                            "note": note})
+            except Exception:
+                continue
+        out.sort(key=lambda e: e["date"])
+    except Exception:
+        return []
+    return out[:2]
+
+
+def clinical_events(company: str) -> list:
+    """📅 تجارب سريرية تكتمل قريبًا لشركة (ClinicalTrials.gov v2 — رسمي مجاني بلا
+    مفتاح). فاشل-آمن مطلق → [] (شبكة/شكل/حجب). عرض فقط — خارج الفرز."""
+    try:
+        if not company:
+            return []
+        r = requests.get(
+            "https://clinicaltrials.gov/api/v2/studies",
+            params={"query.spons": company, "pageSize": 30,
+                    "filter.overallStatus":
+                        "RECRUITING,ACTIVE_NOT_RECRUITING,"
+                        "ENROLLING_BY_INVITATION,NOT_YET_RECRUITING"},
+            timeout=10)
+        if r.status_code != 200:
+            return []
+        return _parse_ct_studies(r.json() or {}, company, dt.date.today(),
+                                 CONFIG["EVENTS_SHOW_DAYS"])
+    except Exception:
+        return []
+
+
+def upcoming_events(sym: str, company: str = None, sector: str = None):
+    """📅 يجمع الأحداث المعلنة القادمة للسهم: أرباح (دائمًا) + اكتمال تجارب سريرية
+    (قطاع الرعاية الصحية فقط — يوفّر النداءات). يرجع قائمة مرتّبة بالأقرب أو None.
+    فاشل-آمن. عرض/سياق فقط — لا يدخل أي فرز/ترتيب/بوابة."""
+    ev = []
+    try:
+        ne = next_earnings(sym)
+        if ne:
+            ev.append({"kind": "أرباح", "date": ne, "note": ""})
+    except Exception:
+        pass
+    try:
+        if company and (sector or "") == "Healthcare":
+            ev += clinical_events(company)
+    except Exception:
+        pass
+    ev = [e for e in ev if e.get("date")]
+    ev.sort(key=lambda e: e["date"])
+    return ev or None
+
+
+def events_lines(events, today=None) -> list:
+    """📅 أسطر «الأحداث المعلنة» للكرت/اليومي (نقيّة): تُخفي الماضي والأبعد من
+    الأفق · «اليوم!»/«غدًا» للقريب · بحدّ سطرين (لا حشو). لغة مبتدئ بلا رموز
+    مقارنة. ترجع [] عند لا شيء. عرض فقط."""
+    out = []
+    try:
+        t = today or dt.date.today()
+        for e in (events or []):
+            d = dt.date.fromisoformat(str(e.get("date"))[:10])
+            days = (d - t).days
+            if days < 0 or days > CONFIG["EVENTS_SHOW_DAYS"]:
+                continue
+            when = ("اليوم!" if days == 0 else
+                    ("غدًا" if days == 1 else f"بعد {days} يوم"))
+            if e.get("kind") == "أرباح":
+                out.append(f"📅 أرباح معلنة: {d.isoformat()} ({when}) — "
+                           "يوم انفجار محتمل (المضارب يجهّز قبل الإعلان)")
+            else:
+                note = f" ({e['note']})" if e.get("note") else ""
+                out.append(f"📅 اكتمال تجربة سريرية{note}: {d.isoformat()} "
+                           f"({when}) — موعد تقديري معلن قد يتغيّر")
+    except Exception:
+        return []
+    return out[:2]
+
+
 def fintel_short(symbols: list) -> dict:
     """محاولة أولى صامتة من fintel.io (الأدق عند نجاحها).
     Cloudflare غالباً يحجب الطلبات الآلية — عند الفشل نرجع {}
@@ -2745,6 +2879,10 @@ def enrich(results: list) -> None:
                                         info.get("industry"), cached, "sector")
                 r["industry"] = _or_cache(info.get("industry"),
                                           cached, "industry")
+                # 📅 اسم الشركة (لمطابقة راعي التجارب السريرية — الأحداث المعلنة)
+                r["company_name"] = (info.get("shortName")
+                                     or info.get("longName")
+                                     or cached.get("company_name"))
                 summ = info.get("longBusinessSummary") or ""
                 r["business"] = ((summ[:160].strip() + "…") if summ
                                  else cached.get("business"))
@@ -2804,7 +2942,7 @@ def enrich(results: list) -> None:
                              ("sector", "industry", "business",
                               "country", "cash", "revenue",
                               "shares_out", "short_pct", "float",
-                              "finra_short")
+                              "finra_short", "company_name")
                              if r.get(k) is not None}
                 COMPANY_CACHE.pop(sym, None)      # LRU: ينقله لأحدث موضع
                 COMPANY_CACHE[sym] = _cc_entry
@@ -2875,6 +3013,13 @@ def enrich(results: list) -> None:
                 time.sleep(0.2)
             except Exception:
                 pass
+        # 📅 الأحداث المعلنة القادمة (أرباح + تجارب سريرية للرعاية الصحية) —
+        # فاشل-آمن → None (عرض/سياق فقط، «يوم الانفجار الذي ينتظره المضارب»)
+        try:
+            r["upcoming_events"] = upcoming_events(
+                r["symbol"], r.get("company_name"), r.get("sector"))
+        except Exception:
+            r["upcoming_events"] = None
         time.sleep(0.5)
     _save_company_cache(COMPANY_CACHE)   # حفظ آخر القطاعات/الدول المعروفة
     # 🧭 تجديد طبقة التفسير **بعد** الإثراء (إصلاح 2026-07-07): h4_levels والأخبار
@@ -3872,6 +4017,8 @@ def build_message(results: list, splits: list,
         # توفّره فقط (غالبًا يُحجب Fintel؛ لا نحشو «—» بسطر مستقل لكل كرت). عرض/سياق فقط.
         if r.get("borrow_fee") is not None or r.get("shares_available") is not None:
             lines.append(borrow_line(r))
+        # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
+        lines += events_lines(r.get("upcoming_events"))
         lines += interp_card_lines(r.get("interp"))   # 🧭 التفسير/القرار (عرض فقط)
         # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
         rot = r.get("rotation_pct")
@@ -4256,6 +4403,8 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "short": r.get("finra_short"), "short_pct": r.get("short_pct"),
         "borrow_fee": r.get("borrow_fee"),                 # 🔒 رسوم الاقتراض (فيصل: سكويز)
         "shares_available": r.get("shares_available"),     # 🔒 الأسهم المتاحة للاقتراض
+        "company_name": r.get("company_name"),             # 📅 لمطابقة راعي التجارب
+        "upcoming_events": r.get("upcoming_events"),       # 📅 أحداث معلنة (أرباح/تجارب)
         "rotation_pct": r.get("rotation_pct"),             # D10: تدوير الفلوت (سكويز)
         "drop_pct": r.get("drop_pct"), "best_spike": r.get("best_spike"),
         "rr": r.get("rr"),
@@ -6247,6 +6396,9 @@ def build_daily_message(wl: dict, splits: list,
         # 🔒 معدّل الاقتراض (فيصل: أساس الارتكاز · اقتراض صعب = سكويز) — عند توفّره فقط
         if s.get("borrow_fee") is not None or s.get("shares_available") is not None:
             lines.append("   " + borrow_line(s))
+        # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
+        for _evl in events_lines(s.get("upcoming_events")):
+            lines.append("   " + _evl)
         for _il in interp_card_lines(s.get("interp")):   # 🧭 التفسير/القرار (عرض فقط)
             lines.append("   " + _il)
         # 🧬 طريقة ارتفاع اليد (سلوك المضارب — عرض فقط، لا يمسّ الفرز/الاختيار)
@@ -7180,6 +7332,19 @@ def run_daily_watchlist(wl: dict) -> None:
     except Exception as e:
         log(f"⚠️ فحص الترقيات: {e}")
     compute_readiness(wl, hist)
+    # 📅 تحديث الأحداث المعلنة يوميًّا لكل النشطين («يوم الانفجار الذي ينتظره المضارب»
+    # — فيصل 9428): فاشل-آمن لكل رمز على حدة، والقيمة القديمة تبقى لو تعذّر الجلب
+    # (تاريخ معلوم لا يختفي بعطل شبكي؛ الماضي يُخفيه العرض ذاتيًّا).
+    for s in wl["stocks"]:
+        if s.get("status") != "active":
+            continue
+        try:
+            _ue = upcoming_events(s["symbol"], s.get("company_name"),
+                                  s.get("sector"))
+            if _ue:
+                s["upcoming_events"] = _ue
+        except Exception:
+            pass
     # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم.
     #    نمرّر القائمة الأساسية الحالية (تشمل ما أُضيف توًّا) كاستبعاد، ثم
     #    نشيل أي سهم تخرّج للأساسية من المراقبة (لا ازدواج بين القائمتين).
