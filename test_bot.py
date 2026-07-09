@@ -788,6 +788,26 @@ _wl_allr = {"week_start": "2026-07-01", "removed": [], "notes": [],
 _dm_allr = S.build_daily_message(_wl_allr, [], [], [])
 check("جاهز/متابعة 9ب: كلها جاهزة → عنوان 👀 المتابعة لا يظهر",
       "متابعة — ننتظر وصولها" not in _dm_allr and "2 جاهز للدخول" in _dm_allr)
+# 🟢 وضع «الجاهز فقط» (طلب المستخدم 2026-07-09: رسالتان فقط — جاهز + يد؛ المتابعة للبوت)
+_dm_ro = S.build_daily_message(_wl_mix, [], [], [], ready_only=True)
+check("جاهز-فقط: يعرض كرت الجاهز (RDY) ويُخفي المتابعة (WCH) تمامًا",
+      "$RDY" in _dm_ro and "$WCH" not in _dm_ro)
+check("جاهز-فقط: الترويسة تُحصي المتابعة بلا عرض كروتها («تحت متابعة البوت»)",
+      "تحت متابعة البوت" in _dm_ro and "متابعة — ننتظر وصولها" not in _dm_ro)
+_dm_ro2 = S.build_daily_message(_wl_allr, [], [], [], ready_only=True)
+check("جاهز-فقط: فاصل شرطات بين كل سهم جاهز وسهم (سهمان → فاصل)",
+      S.DAILY_CARD_SEP in _dm_ro2 and "$R1" in _dm_ro2 and "$R2" in _dm_ro2)
+check("جاهز-فقط: سهم جاهز واحد ⇒ لا فاصل شرطات (لا حشو)",
+      S.DAILY_CARD_SEP not in _dm_ro)
+check("جاهز-فقط: صفر جاهز ⇒ «لا سهم جاهز — N تحت متابعة البوت»",
+      "لا سهم جاهز للدخول الآن"
+      in S.build_daily_message(_wl_allw, [], [], [], ready_only=True))
+_dm_ro3 = S.build_daily_message(
+    _wl_allr, [], [{"symbol": "OUT", "removal_reason": "ضرب الوقف"}],
+    [{"symbol": "NEW", "price": 2.0, "score": 60, "pivot": 1.9,
+      "stop": (1.75, 1.79), "t1": 2.3}], ready_only=True)
+check("جاهز-فقط: «بدلاء اليوم» تُخفى · «شُطب اليوم» يبقى (تنبيه حرج)",
+      "بدلاء اليوم" not in _dm_ro3 and "شُطب اليوم" in _dm_ro3 and "OUT" in _dm_ro3)
 # 10) الكرت: سطر الحالة يظهر (جاهز ومتابعة)
 _card_rdy = dict(_rb, symbol="CRD", score=60, readiness=60, rr=2.0,
                  entry=(1.80, 1.90), tier="B", soft_fails=[], flags=[])

@@ -5435,6 +5435,9 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
 _LIVE_ICON = {"sweep": "🚨", "buyzone": "🎯", "break": "⛔", "breakout": "🚀",
               "premarket": "🌙", "dump": "📉", "afterdump": "📉"}
 
+# فاصل شرطات بين أسهم التقرير اليومي (طلب المستخدم 2026-07-09: «ارفع شرطات» بين كل سهم)
+DAILY_CARD_SEP = "━━━━━━━━━━━━━━━"
+
 
 def polygon_flow(sym: str):
     """📊 تدفق الأوامر الحقيقي من Polygon (اشتراك المستخدم — **طبقة اختيارية بالكامل**):
@@ -6151,8 +6154,10 @@ def monitor_pullback(wl: dict) -> list:
 
 def build_daily_message(wl: dict, splits: list,
                         stopped_today: list, replaced: list,
-                        promoted: list = None) -> str:
-    """التقرير اليومي (الاثنين→الخميس): القائمة الثابتة مرتبة بالجاهزية"""
+                        promoted: list = None, ready_only: bool = False) -> str:
+    """التقرير اليومي (الاثنين→الخميس): القائمة الثابتة مرتبة بالجاهزية.
+    `ready_only` (طلب المستخدم 2026-07-09): يدفع **الجاهزين للدخول فقط** بفواصل شرطات ·
+    المتابعة تُحصى بالترويسة لكن لا تُعرض كروتها (البوت يتكفّل بها داخليًّا)."""
     today = dt.date.today().isoformat()
     n = len(wl["stocks"])
     # 🟢👀 فصل «جاهز للدخول الآن» عن «متابعة» (خطة ENTRY_READY_SPLIT_PLAN — عرض فقط،
@@ -6160,9 +6165,14 @@ def build_daily_message(wl: dict, splits: list,
     _st = [(s, entry_status(s)) for s in wl["stocks"]]
     _ready = [(s, es) for s, es in _st if es["status"] == "ready_now"]
     _watch = [(s, es) for s, es in _st if es["status"] != "ready_now"]
-    lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
-             f"{n} سهم: {len(_ready)} جاهز للدخول · {len(_watch)} متابعة "
-             f"(تجديد القائمة: الجمعة)", ""]
+    if ready_only:
+        lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
+                 f"🟢 {len(_ready)} جاهز للدخول · 👀 {len(_watch)} تحت متابعة البوت "
+                 "(تجديد: الجمعة)", ""]
+    else:
+        lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
+                 f"{n} سهم: {len(_ready)} جاهز للدخول · {len(_watch)} متابعة "
+                 f"(تجديد القائمة: الجمعة)", ""]
     # 🚀 ترقيات اليوم (B→A): إنذار مبكر — اكتمل النموذج، جاهز للدخول
     if promoted:
         lines.append("🚀 <b>ترقيات اليوم (اكتمل النموذج — جاهز للدخول):</b>")
@@ -6177,11 +6187,24 @@ def build_daily_message(wl: dict, splits: list,
         lines.append("القائمة فارغة مؤقتاً — البدائل تُجلب في التشغيل القادم.")
     # الجاهز أولًا ثم المتابعة (ترقيم مستمر 1..N · عنوان القسم يُطبع مرة عند تغيّره ·
     # القسم الفاضي لا يظهر عنوانه — من _ready/_watch أعلاه).
-    _partition = ([(s, es, "ready_now") for s, es in _ready]
-                  + [(s, es, "watch") for s, es in _watch])
+    # 🟢 وضع الجاهز-فقط: كروت الجاهزين فقط، مفصولة بشرطات (طلب المستخدم). المتابعة لا
+    # تُعرض (البوت يتابعها + يُنبّه لحظيًّا عند جاهزيتها). غير الوضع = السلوك القديم (قسمان).
+    if ready_only:
+        _partition = [(s, es, "ready_now") for s, es in _ready]
+        if not _ready:
+            lines.append(f"🟢 لا سهم جاهز للدخول الآن — {len(_watch)} تحت متابعة البوت "
+                         "(يُنبّهك أول ما يجهز).")
+    else:
+        _partition = ([(s, es, "ready_now") for s, es in _ready]
+                      + [(s, es, "watch") for s, es in _watch])
     _cur_section = None
     for i, (s, _es, _sec) in enumerate(_partition, 1):
-        if _sec != _cur_section:
+        if ready_only:
+            if i == 1:
+                lines.append(f"🟢 <b>جاهز للدخول الآن</b> ({len(_ready)})")
+            else:                          # فاصل شرطات بين كل سهم وسهم (طلب المستخدم)
+                lines += ["", DAILY_CARD_SEP, ""]
+        elif _sec != _cur_section:
             if _cur_section is not None:   # فراغ بين القسمين فقط (الترويسة توفّره للأول)
                 lines.append("")
             _cur_section = _sec
@@ -6288,7 +6311,9 @@ def build_daily_message(wl: dict, splits: list,
                          f"| أقصى {s['max_gain_pct']:+.0f}%")
         for w in (s.get("warnings") or []):
             lines.append(f"   ⚠️ {esc(w)}")
-    if replaced:
+    # بدلاء اليوم: قائمة الإضافات — تُخفى بوضع الجاهز-فقط (الجديد يظهر كرته لو جاهز؛
+    # وإلا فهو «تحت المتابعة» يتكفّل بها البوت — طلب المستخدم «ما يوصلني إلا الجاهز»).
+    if replaced and not ready_only:
         lines += ["", "🔄 <b>بدلاء اليوم (انضموا للقائمة):</b>"]
         for r in replaced:
             lines.append(f"• <b>{r['symbol']}</b> | ${r['price']:.2f} | "
@@ -7171,29 +7196,24 @@ def run_daily_watchlist(wl: dict) -> None:
         pull_triggered = monitor_pullback(wl)
     except Exception as e:
         log(f"⚠️ متابعة الارتداد: {e}")
-    # 7) الرسالة
+    # 7) الرسالة — **رسالتان فقط** (طلب المستخدم 2026-07-09): (1) الجاهز للدخول فقط
+    # (2) أسهم اليد. المتابعة/الارتداد المنتظِر/التقسيم = «تحت المراقبة» يتكفّل بها البوت
+    # داخليًّا (تنبيه لحظي عند الجاهزية) — لا تُدفَع في التقرير حتى لا تغرق المهم.
     splits = []
-    msg = build_daily_message(wl, splits, stopped_today, added, promoted)
+    msg = build_daily_message(wl, splits, stopped_today, added, promoted,
+                              ready_only=True)
     if low_coverage_note:   # تنبيه التغطية للمستخدم (يكشف الخنق الصامت Mon-Thu)
         msg += ("\n\n⚠️ <b>تنبيه تغطية:</b> " + low_coverage_note
                 + " — لم تُضف أسهم جديدة اليوم (متابعة القائمة الحالية مستمرة).")
-    watching = [e for e in wl.get("pullback", [])
-                if e.get("status") != "triggered"]
     # 🕵️ أسهم اليد = **رسالة تلغرام مستقلة** (طلب المستخدم: «ما تندفن بالتقرير
     # الطويل») — تُرسَل منفصلة بعد التقرير الرئيسي أدناه، لا تُلحَق به.
     hand_msg = build_hand_section(wl)
-    pull_sec = build_pullback_section(watching, pull_triggered)
+    # الارتداد: يُدفَع **فقط ما وصل منطقة الدخول** (جاهز الآن) — المنتظِر يتابعه البوت.
+    pull_sec = build_pullback_section([], pull_triggered)
     if pull_sec:
         msg += "\n\n" + pull_sec
-    # D9: قسم مراقبة التقسيم العكسي (يفعّل قاعدة فيصل ÷2 النائمة) — طبقة عرض،
-    # داخل try فلا يكسر التقرير لو فشلت الشبكة/الجلب.
-    try:
-        split_sec = build_split_watch_section(
-            split_watch_report(download_history(CONFIG["SPLIT_WATCHLIST"])))
-        if split_sec:
-            msg += "\n\n" + split_sec
-    except Exception as e:
-        log(f"⚠️ تقرير التقسيم العكسي: {e}")
+    # (قسم مراقبة التقسيم العكسي D9 لم يعد يُدفَع بالتقرير اليومي — «تحت المراقبة»؛
+    # قاعدة فيصل ÷2 محفوظة بالكود وتُستدعى عند الحاجة/الجمعة، لا تغرق تقرير الجاهز.)
     # احفظ حالة اليوم (ترقيات/تنبيهات/تحديثات) قبل الإرسال — لو فشل الإرسال
     # (شبكة/تيليجرام) لا تضيع الحالة المحسوبة (إصلاح 2026-06-24).
     save_watchlist(wl)
