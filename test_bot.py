@@ -1623,6 +1623,44 @@ check("🔒 قفل: دوال الاقتراض خارج rank_key/select_top/class
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.backtest_symbol)))
 
+# ===== 📉 ضغط/تصريف المضارب (طلب المستخدم: نمط LABT الحيّ — يومي + أفتر) =====
+def _dump_st(sym):
+    return {"symbol": sym, "status": "active", "pivot": 1.5,
+            "tranches": [1.5, 1.6], "stop": (1.2, 1.25), "interp": {}}
+_dump_df = pd.DataFrame(
+    {"Open": [3.0] * 30, "High": [3.1] * 30, "Low": [2.4] * 30,
+     "Close": [3.0] * 29 + [2.5], "Volume": [1e5] * 30},   # 3.0→2.5 = -16.7%
+    index=pd.date_range("2025-01-01", periods=30, freq="B"))
+_nodump_df = pd.DataFrame(
+    {"Open": [3.0] * 30, "High": [3.1] * 30, "Low": [2.9] * 30,
+     "Close": [3.0] * 29 + [2.95], "Volume": [1e5] * 30},   # -1.7%
+    index=pd.date_range("2025-01-01", periods=30, freq="B"))
+_ev_d = S.monitor_live_events({"stocks": [_dump_st("DMP")]}, {"DMP": _dump_df},
+    "2026-07-20", fetch_operator=lambda s: {"has_operator": False})
+check("📉 ضغط المضارب: هبوط اليوم ≥15% عن الأمس ⇒ dump (خطر — يظهر بلا مضارب)",
+      any(k == "dump" and "تصريف" in d for _s, k, d in _ev_d))
+check("📉 لا هبوط حادّ ⇒ لا dump",
+      not any(k == "dump" for _s, k, _d in S.monitor_live_events(
+          {"stocks": [_dump_st("ND")]}, {"ND": _nodump_df}, "2026-07-20",
+          fetch_operator=lambda s: {"has_operator": True})))
+_ev_ah = S.monitor_live_events({"stocks": [_dump_st("AHD")]}, {"AHD": _nodump_df},
+    "2026-07-20",
+    fetch_afterhours=lambda sym, rc: {"kind": "afterhours", "change_pct": -22.0})
+check("📉 أفتر (بحقن جالب): هبوط ≥15% عن الإغلاق ⇒ afterdump (نمط LABT)",
+      any(k == "afterdump" and "الأفتر" in d for _s, k, d in _ev_ah))
+check("📉 أفتر: هبوط بسيط (-5%) ⇒ لا afterdump",
+      not any(k == "afterdump" for _s, k, _d in S.monitor_live_events(
+          {"stocks": [_dump_st("AH2")]}, {"AH2": _nodump_df}, "2026-07-20",
+          fetch_afterhours=lambda sym, rc: {"change_pct": -5.0})))
+check("📉 أيقونات: dump/afterdump = 📉",
+      S._LIVE_ICON.get("dump") == "📉" and S._LIVE_ICON.get("afterdump") == "📉")
+check("📉 قفل: polygon_after_hours خارج rank_key/select_top/analyze_ticker/backtest_symbol",
+      all("polygon_after_hours" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.analyze_ticker, S.backtest_symbol)))
+check("📉 _premarket_summary يعيد آخر بار مقابل المرجع (يخدم الأفتر أيضًا)",
+      S._premarket_summary([{"o": 3, "h": 3, "l": 2, "c": 2.4, "v": 100}], 3.0)
+      ["change_pct"] == -20.0)
+
 # ===== 🕵️💰 حزمة «قراءة المضارب» من صور فيصل (FAISAL_OPERATOR_PACK_PLAN) =====
 # P1 💰 وسم شمعة مضارب/قروب بسيولتها الدولارية (قاعدة فيصل: ≥100ألف مضارب · ≤50ألف قروب)
 check("مضارب·P1 تصنيف: ≥300ألف قوية · ≥100ألف مضارب · ≤50ألف قروب · بينها mid",

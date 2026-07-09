@@ -162,6 +162,8 @@ CONFIG = {
     "VOL_DRY_RATIO": 0.6,        # جفاف: متوسط 5 < 60% من متوسط 20
     "PM_MOVE_PCT": 10,           # 🌙 عتبة تنبيه تحرّك البريماركت (POLYGON_EDGE_PLAN §ج،
                                  # عرضية موثّقة): تحرّك ≥10% بحجم بريماركت = «راقب الافتتاح»
+    "PRESS_DROP_PCT": 15,        # 📉 عتبة «ضغط/تصريف المضارب» (طلب المستخدم — نمط LABT):
+                                 # هبوط ≥15% (يومي عن الأمس · أو أفتر عن الإغلاق) = تصريف
     "IGNITION_VOL_MULT": 3.0,    # 🔥 رادار الانطلاق: قفزة حجم الدقيقة ≥3× متوسط الدقائق
                                  # السابقة = لحظة الاشتعال (رد فعل حي، `IGNITION_PLAN.md`)
     # 💰 عتبات «شمعة مضارب/قروب» بالدولار (FAISAL_OPERATOR_PACK_PLAN §P1، عرضية موثّقة
@@ -5215,9 +5217,41 @@ def polygon_premarket(sym: str, prev_close=None):
         return None
 
 
+def polygon_after_hours(sym: str, regular_close=None):
+    """🌆 ملخّص ما بعد الإغلاق (ضغط/تصريف المضارب — نمط LABT الحيّ). دقائق اليوم من
+    Polygon، آخر سعر (أفتر) مقابل إغلاق الجلسة النظامية `regular_close`. **فحص زمني
+    قبل الشبكة: None قبل 20:00 UTC (الجلسة لم تُغلق) = صفر نداء مهدور** · فاشل-آمن →
+    None (بلا مفتاح/401/403/429/شبكة). يعيد استخدام `_premarket_summary` (آخر بار مقابل
+    المرجع) بـ`kind='afterhours'`. عرض/تنبيه فقط — خارج الفرز."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        return None
+    try:
+        now = dt.datetime.utcnow()
+        if now.hour * 60 + now.minute < 20 * 60:     # قبل 20:00 UTC = الجلسة النظامية
+            return None
+        h = {"Authorization": f"Bearer {key}"}
+        today = dt.date.today().isoformat()
+        url = (f"https://api.polygon.io/v2/aggs/ticker/{sym.upper()}"
+               f"/range/1/minute/{today}/{today}?adjusted=true&sort=asc&limit=1000")
+        r = requests.get(url, headers=h, timeout=10)
+        if r.status_code != 200:
+            return None
+        res = (r.json() or {}).get("results") or []
+        bars = [{"o": b.get("o"), "h": b.get("h"), "l": b.get("l"),
+                 "c": b.get("c"), "v": b.get("v")} for b in res
+                if b.get("c") is not None]
+        s = _premarket_summary(bars, regular_close)   # آخر بار (أفتر) مقابل الإغلاق
+        if s:
+            s["kind"] = "afterhours"
+        return s
+    except Exception:
+        return None
+
+
 def monitor_live_events(wl: dict, history: dict, today_iso: str,
                         premarket_only: bool = False,
-                        fetch_operator=None) -> list:
+                        fetch_operator=None, fetch_afterhours=None) -> list:
     """🚨 كشف الأحداث اللحظية على أسهم القائمة (كل 30د بالسوق — طلب المستخدم
     2026-07-08) للتنبيه الفوري بلحظات التنفيذ/الخطر:
       • `sweep`    : كنس دعم بذيل ثم استعادة (لحظة فيصل «مسح ثم استعادة»).
@@ -5289,6 +5323,17 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
                     and lp > float(cp) * 1.005:
                 events.append(("breakout", f"تجاوز الرقم الحرج ${float(cp):.2f} "
                                "— يفعّل الهدف التالي"))
+            # 📉 ضغط/تصريف المضارب (طلب المستخدم 2026-07-09، نمط LABT): هبوط اليوم
+            # الحادّ عن إغلاق الأمس = المضارب يضغط السهم للهاوية. مستقل عن break (قد
+            # يتزامنان بمعلومة مختلفة: dump=هبوط حادّ · break=كسر مستوى). تنبيه خطر.
+            try:
+                _pc = float(df["Close"].iloc[-2])
+                if _pc > 0 and lp <= _pc * (1 - CONFIG["PRESS_DROP_PCT"] / 100.0):
+                    events.append(("dump", f"ضغط المضارب: هبوط "
+                                   f"{(lp / _pc - 1) * 100:.0f}% عن إغلاق الأمس "
+                                   f"${_pc:.2f} — تصريف (نمط LABT)"))
+            except Exception:
+                pass
         # 🌙 تحرّك بريماركت (POLYGON_EDGE_PLAN §ج): فقط بوجود المفتاح وداخل نافذة
         # البريماركت (polygon_premarket تُرجع None خارجها/بلا مفتاح فورًا). تحرّك
         # ≥PM_MOVE_PCT بحجم بريماركت >0 → «راقب الافتتاح». إغلاق الأمس = آخر إغلاق
@@ -5304,6 +5349,23 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
                     events.append(("premarket",
                                    f"تحرّك بريماركت {_sg}{_pm['change_pct']:.0f}% "
                                    f"بحجم {_pm['cum_vol']:,.0f} — راقب الافتتاح"))
+            except Exception:
+                pass
+        # 📉 ضغط المضارب بعد الإغلاق (الأفتر — نمط LABT الحيّ، طلب المستخدم): هبوط حادّ
+        # بالأفتر عن إغلاق الجلسة = تصريف المضارب (LABT هبط 3.10→1.97 بالأفتر). فحص زمني
+        # داخل polygon_after_hours (None قبل 20:00 UTC) · بلا مفتاح = لا حدث · فاشل-آمن.
+        _fah = fetch_afterhours or (polygon_after_hours
+                                    if os.environ.get("POLYGON_API_KEY", "").strip()
+                                    else None)
+        if _fah:
+            try:
+                _rc = float(df["Close"].iloc[-1])     # إغلاق الجلسة النظامية (آخر شمعة)
+                _ah = _fah(s["symbol"], _rc)
+                if (_ah and _ah.get("change_pct") is not None
+                        and _ah["change_pct"] <= -CONFIG["PRESS_DROP_PCT"]):
+                    events.append(("afterdump",
+                                   f"ضغط المضارب بالأفتر: هبوط {_ah['change_pct']:.0f}% "
+                                   f"عن الإغلاق ${_rc:.2f} — تصريف (نمط LABT)"))
             except Exception:
                 pass
         # 🕵️ بوّابة المضارب على الأحداث الإيجابية (طلب المستخدم 2026-07-09 — كلا
@@ -5335,7 +5397,7 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
 
 
 _LIVE_ICON = {"sweep": "🚨", "buyzone": "🎯", "break": "⛔", "breakout": "🚀",
-              "premarket": "🌙"}
+              "premarket": "🌙", "dump": "📉", "afterdump": "📉"}
 
 
 def polygon_flow(sym: str):
