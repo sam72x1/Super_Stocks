@@ -176,6 +176,9 @@ CONFIG = {
     # 🕵️ بوّابة المضارب على التنبيهات (طلب المستخدم: «لا إشعار إلا لو دخل المضارب» —
     # قاعدة فيصل: صفقة المضارب ≥1000 سهم؛ يشتري على الطلب، يفرّغ العروض لحظة الرفع):
     "OPERATOR_MIN_SHARES": 1000,    # أقل حجم طبعة تُعدّ «مضاربًا» (فيصل — عرضية موثّقة)
+    # 🔒 معدّل الاقتراض (طلب المستخدم 2026-07-09 — فيصل يركّز عليه للارتكاز: فلوت صغير +
+    # شورت منخفض + **اقتراض صعب** = وقود سكويز). عرض/سياق فقط — عتبة عرضية تُعاير لاحقًا:
+    "BORROW_HIGH_PCT": 20.0,        # رسوم اقتراض ≥20% سنويًّا = صعب الاقتراض (وقود سكويز)
     # دول مشهورة بتجاهل التحليل الفني (تلاعب/pump&dump): تحذير فقط (تظل تظهر)
     "HIGH_RISK_COUNTRIES": ["China", "Hong Kong"],
     "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
@@ -2285,6 +2288,81 @@ def finra_daily_short(symbols: set) -> dict:
     return out
 
 
+# ==========================================================
+# 🔒 معدّل الاقتراض (Cost to Borrow) — طلب المستخدم 2026-07-09: فيصل يركّز عليه
+# للارتكاز (رابط chartexchange بصورة 9431). فلوت صغير + شورت منخفض + **اقتراض صعب**
+# = وقود سكويز. **عرض/سياق + تحذير إيجابي فقط — خارج الفرز/الاختيار** (لا عتبة قرار
+# موثّقة من فيصل؛ لا بوابة رفض). فاشل-آمن مطلق → «—». مصدران فاشلان-آمنان: Fintel
+# (نفس طلب الشورت، بلا نداء إضافي) ثم iBorrowDesk (بيانات IBKR، احتياط للتغطية).
+# ==========================================================
+def _parse_fintel_borrow(html: str) -> dict:
+    """نقيّة: يستخرج رسوم الاقتراض (Cost to Borrow %) + الأسهم المتاحة من صفحة Fintel
+    (نفس HTML المجلوب للشورت — بلا نداء إضافي). يرجّع {} لو غاب أيّهما. فاشل-آمن."""
+    d = {}
+    try:
+        mb = re.search(r"(?:Cost\s*to\s*Borrow|Borrow\s*Fee(?:\s*Rate)?)"
+                       r"[^0-9%]{0,80}?([\d.]+)\s*%", html, re.I | re.S)
+        if mb:
+            d["borrow_fee"] = float(mb.group(1))
+        ma = re.search(r"(?:Shares\s*Available|Available\s*(?:Shares|to\s*Borrow))"
+                       r"[^0-9]{0,80}?([\d,]{2,})", html, re.I | re.S)
+        if ma:
+            d["shares_available"] = int(ma.group(1).replace(",", ""))
+    except Exception:
+        pass
+    return d
+
+
+def _parse_iborrow(data) -> dict:
+    """نقيّة: يستخرج (رسوم%, أسهم متاحة) من رد iBorrowDesk (بيانات IBKR). يأخذ أحدث
+    لقطة `real_time` (وإلا `daily`). يرجّع {} لو غير صالح/فارغ. فاشل-آمن."""
+    try:
+        rt = data.get("real_time") or data.get("daily") or []
+        if isinstance(rt, dict):
+            rt = [rt]
+        if not rt:
+            return {}
+        last = rt[-1]
+        out = {}
+        if last.get("fee") is not None:
+            out["borrow_fee"] = float(last["fee"])
+        if last.get("available") is not None:
+            out["shares_available"] = int(last["available"])
+        return out
+    except Exception:
+        return {}
+
+
+def iborrow_info(sym: str) -> dict:
+    """غلاف شبكي فاشل-آمن لـ iBorrowDesk (احتياط لمعدّل الاقتراض حين يُحجب Fintel).
+    يرجّع {} عند أي فشل (بلا شبكة/حجب/شكل غير متوقّع) — لا يعيق الإثراء إطلاقًا.
+    ⚠️ خدمة مجتمعية (بيانات IBKR) قد تنقطع؛ العرض «—» عندها. عرض/سياق فقط."""
+    try:
+        r = requests.get(f"https://iborrowdesk.com/api/ticker/{sym.upper()}",
+                         headers=BROWSER_UA, timeout=8)
+        if r.status_code != 200:
+            return {}
+        return _parse_iborrow(r.json() or {})
+    except Exception:
+        return {}
+
+
+def borrow_line(r: dict) -> str:
+    """سطر «🔒 اقتراض» من حقول الإثراء (borrow_fee/shares_available). يعرض «—» عند
+    تعذّر الجلب (تعذّر ≠ صفر — طلب المستخدم). عرض فقط."""
+    fee = r.get("borrow_fee")
+    avail = r.get("shares_available")
+    if fee is None and avail is None:
+        return "🔒 اقتراض: —"
+    parts = []
+    if fee is not None:
+        hard = " 🔥 صعب" if fee >= CONFIG["BORROW_HIGH_PCT"] else ""
+        parts.append(f"رسوم {fee:.0f}%{hard}")
+    if avail is not None:
+        parts.append(f"متاح {fmt_money(avail)} سهم")
+    return "🔒 اقتراض: " + " · ".join(parts)
+
+
 def fintel_short(symbols: list) -> dict:
     """محاولة أولى صامتة من fintel.io (الأدق عند نجاحها).
     Cloudflare غالباً يحجب الطلبات الآلية — عند الفشل نرجع {}
@@ -2306,6 +2384,7 @@ def fintel_short(symbols: list) -> dict:
                            html, re.I | re.S)
             if m2:
                 d["short_volume"] = int(m2.group(1).replace(",", ""))
+            d.update(_parse_fintel_borrow(html))   # 🔒 اقتراض (نفس الطلب — بلا نداء إضافي)
             if d:
                 out[sym] = d
         except Exception:
@@ -2576,6 +2655,8 @@ def enrich(results: list) -> None:
     # (صفر تأخير، صفر أثر). مع مفتاح: كل طلب فاشل-آمن → None. (POLYGON_EDGE_PLAN §أ)
     _acc_on = bool(os.environ.get("POLYGON_API_KEY", "").strip())
     _acc_budget = [0]        # 🔬 سقف طلبات رادار التجميع (POLYGON_EDGE_PLAN §أ)
+    _bor_budget = [0]        # 🔒 سقف طلبات iBorrowDesk (احتياط الاقتراض — فاشل-آمن)
+    _bor_fails = [0]         # قاطع دائرة: يوقف iBorrowDesk بعد 3 إخفاقات متتالية (لا تعليق)
     fintel = {}
     try:
         fintel = fintel_short(sorted(syms))
@@ -2593,6 +2674,23 @@ def enrich(results: list) -> None:
         # سلسلة fintel→FINRA الموثّقة للقيمة المخزّنة (Yahoo يُضاف داخل كتلة .info)
         if r["finra_short"] is None:
             r["finra_short"] = r["fintel"].get("short_volume")
+        # 🔒 معدّل الاقتراض (طلب المستخدم — فيصل: أساس الارتكاز · اقتراض صعب = سكويز):
+        # Fintel أولًا (من نفس طلب الشورت، بلا نداء) ثم iBorrowDesk احتياطًا (سقف + فاشل-آمن)
+        r["borrow_fee"] = r["fintel"].get("borrow_fee")
+        r["shares_available"] = r["fintel"].get("shares_available")
+        if (r["borrow_fee"] is None and r["shares_available"] is None
+                and _bor_budget[0] < 25 and _bor_fails[0] < 3):
+            _bor_budget[0] += 1
+            try:
+                _ib = iborrow_info(r["symbol"])
+            except Exception:
+                _ib = {}
+            if _ib:
+                _bor_fails[0] = 0                          # نجاح → صفّر القاطع
+                r["borrow_fee"] = _ib.get("borrow_fee")
+                r["shares_available"] = _ib.get("shares_available")
+            else:
+                _bor_fails[0] += 1                         # إخفاق متتالٍ (قد تكون الخدمة منقطعة)
         # نلتقط قيمة بوابة الفلوت/الشورت المجلوبة في scan_market كاحتياط أخير قبل
         # التصفير وإعادة الجلب (لا تضيع لو خُنق .info — إصلاح فحص 2026-06-24).
         _prev_float = r.get("float")
@@ -3757,6 +3855,10 @@ def build_message(results: list, splits: list,
         if r.get("country"):
             small.append(country_label(r["country"]))
         lines.append("💰 " + " · ".join(small))
+        # 🔒 معدّل الاقتراض (فيصل: أساس الارتكاز · اقتراض صعب = وقود سكويز) — يظهر عند
+        # توفّره فقط (غالبًا يُحجب Fintel؛ لا نحشو «—» بسطر مستقل لكل كرت). عرض/سياق فقط.
+        if r.get("borrow_fee") is not None or r.get("shares_available") is not None:
+            lines.append(borrow_line(r))
         lines += interp_card_lines(r.get("interp"))   # 🧭 التفسير/القرار (عرض فقط)
         # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
         rot = r.get("rotation_pct")
@@ -4118,6 +4220,8 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "score": r["score"], "flags": list(r["flags"]),
         "rsi": r.get("rsi"), "float": r.get("float"),      # سمات للتعلم
         "short": r.get("finra_short"), "short_pct": r.get("short_pct"),
+        "borrow_fee": r.get("borrow_fee"),                 # 🔒 رسوم الاقتراض (فيصل: سكويز)
+        "shares_available": r.get("shares_available"),     # 🔒 الأسهم المتاحة للاقتراض
         "rotation_pct": r.get("rotation_pct"),             # D10: تدوير الفلوت (سكويز)
         "drop_pct": r.get("drop_pct"), "best_spike": r.get("best_spike"),
         "rr": r.get("rr"),
@@ -6019,6 +6123,9 @@ def build_daily_message(wl: dict, splits: list,
         if s.get("country"):
             small.append(country_label(s["country"]))
         lines.append("   💰 " + " · ".join(small))
+        # 🔒 معدّل الاقتراض (فيصل: أساس الارتكاز · اقتراض صعب = سكويز) — عند توفّره فقط
+        if s.get("borrow_fee") is not None or s.get("shares_available") is not None:
+            lines.append("   " + borrow_line(s))
         for _il in interp_card_lines(s.get("interp")):   # 🧭 التفسير/القرار (عرض فقط)
             lines.append("   " + _il)
         # 🧬 طريقة ارتفاع اليد (سلوك المضارب — عرض فقط، لا يمسّ الفرز/الاختيار)

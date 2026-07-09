@@ -63,6 +63,8 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     # 🔬 التجميع الصامت عند القاع (Polygon · وإلا «—»)
     _al = bot.acc_line(r.get("acc"))
     L.append(_al if _al else "🔬 تجميع صامت: —")
+    # 🔒 معدّل الاقتراض (فيصل: أساس الارتكاز · اقتراض صعب = وقود سكويز · «—» عند التعذّر)
+    L.append(bot.borrow_line(r))
     # 🔁 تقسيمات متكررة = نَفَس قصير (قرينة فيصل §P4 — عرض/تحذير فقط)
     _sf = bot._split_freq_line(r.get("split_freq"))
     if _sf:
@@ -149,7 +151,9 @@ def hand_check(sym: str):
     r = {"symbol": sym, "price": price, "last_price": price, "gates": gates,
          "float": diag.get("float"), "rotation_pct": diag.get("rotation_pct"),
          "session_ctx": diag.get("session_ctx"),
-         "h4_levels": diag.get("h4_levels")}
+         "h4_levels": diag.get("h4_levels"),
+         "borrow_fee": diag.get("borrow_fee"),              # 🔒 الاقتراض (فيصل: سكويز)
+         "shares_available": diag.get("shares_available")}
     try:
         r["behav"] = bot.behavior_rise_profile(df)     # بصمة اليومي
         r["pump_scar"] = bot.group_pump_scar(df)       # رفعة القروب/كسر الدعوم
