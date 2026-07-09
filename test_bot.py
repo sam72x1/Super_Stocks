@@ -1639,14 +1639,25 @@ check("🔒 iBorrowDesk: يسقط لـdaily لو غاب real_time",
       S._parse_iborrow({"daily": [{"fee": 10.0, "available": 900}]})["borrow_fee"] == 10.0)
 check("🔒 iBorrowDesk·فاشل-آمن: رد فارغ/غير صالح ⇒ {}",
       S._parse_iborrow({}) == {} and S._parse_iborrow({"real_time": []}) == {})
-check("🔒 سطر الاقتراض: رسوم عالية ⇒ «🔥 صعب» (وقود سكويز) + المتاح",
-      "رسوم 45%" in S.borrow_line({"borrow_fee": 45.0, "shares_available": 12000})
-      and "🔥 صعب" in S.borrow_line({"borrow_fee": 45.0})
-      and "متاح 12K" in S.borrow_line({"borrow_fee": 45.0, "shares_available": 12000}))
-check("🔒 سطر الاقتراض: رسوم منخفضة ⇒ بلا «🔥 صعب»",
-      "🔥 صعب" not in S.borrow_line({"borrow_fee": 5.0}))
+# السطر مفسَّر ذاتيًّا (طلب المستخدم 2026-07-09: يشرح الفايدة لا الرقم الخام)
+_bl_hi = S.borrow_line({"borrow_fee": 45.0, "shares_available": 12000})
+check("🔒 سطر الاقتراض·صعب: يشرح وقود السكويز (يجبر الشورت يغطّي) + المتاح",
+      "رسوم 45%" in _bl_hi and "صعب 🔥" in _bl_hi
+      and "وقود سكويز" in _bl_hi and "يغطّي" in _bl_hi
+      and "متاح للشورت 12K" in _bl_hi)
+check("🔒 سطر الاقتراض·متوسط (5-20%): «وقود سكويز جزئي»",
+      "متوسط" in S.borrow_line({"borrow_fee": 12.0})
+      and "جزئي" in S.borrow_line({"borrow_fee": 12.0}))
+check("🔒 سطر الاقتراض·سهل (أقل من 5%): «لا وقود سكويز» — يفسّر حتى الصفر",
+      "سهل ورخيص" in S.borrow_line({"borrow_fee": 0.0})
+      and "لا وقود سكويز" in S.borrow_line({"borrow_fee": 0.0})
+      and "🔥" not in S.borrow_line({"borrow_fee": 0.0}))
+check("🔒 سطر الاقتراض: متاح بلا رسوم ⇒ يصرّح «الرسوم غير معروفة»",
+      "الرسوم غير معروفة" in S.borrow_line({"shares_available": 9000}))
 check("🔒 سطر الاقتراض·فاشل-آمن: لا بيانات ⇒ «—» (تعذّر ≠ صفر)",
       S.borrow_line({}) == "🔒 اقتراض: —")
+check("🔒 سطر الاقتراض: بلا علامات مقارنة ≥≤>< (قاعدة لغة المبتدئ)",
+      not any(c in _bl_hi + S.borrow_line({"borrow_fee": 12.0}) for c in "≥≤><"))
 check("🔒 حفظ: make_watch_entry يخزّن borrow_fee/shares_available",
       S.make_watch_entry(dict(r0 or {"symbol": "BOR", "price": 2.0, "pivot": 1.9,
           "entry": (1.9, 2.0), "tranches": [1.9, 2.0], "stop": (1.75, 1.79),
