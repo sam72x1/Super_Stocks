@@ -4114,13 +4114,34 @@ def _load_company_cache() -> dict:
     return {}
 
 
+def _json_default(o):
+    """🛡️ شبكة أمان تسلسل «قاعدة البيانات» (إصلاح حادثة 2026-07-09 — فقدان صامت):
+    قيم numpy تتسرّب أحيانًا لحقول مخزَّنة فتفجّر json.dump ويضيع **حفظ القائمة
+    كاملًا** بصمت (سجلّ الأكشن: «Object of type bool is not JSON serializable» →
+    ضاعت إضافات اليوم GEOS/FEMY/DTI/PTN — انفجار «قفزة» حمل suspect_split كـnp.bool).
+    نحوّل عائلة numpy لأنواع بايثون + التواريخ isoformat، وأي نوع مجهول آخر → str
+    (حقل غريب مقروء أهون بكثير من ضياع القائمة كلها — درس الحادثة)."""
+    if isinstance(o, np.bool_):
+        return bool(o)
+    if isinstance(o, np.integer):
+        return int(o)
+    if isinstance(o, np.floating):
+        return float(o)
+    if isinstance(o, np.ndarray):
+        return o.tolist()
+    if isinstance(o, (dt.date, dt.datetime)):
+        return o.isoformat()
+    return str(o)
+
+
 def _atomic_write_json(path: str, data) -> None:
     """كتابة ذرّية: نكتب لملف مؤقت ثم نستبدله دفعة واحدة (os.replace).
     لا يبقى أبدًا ملف نصف-مكتوب/تالف لو انقطع التشغيل أو تزامن تشغيلان —
-    حماية «قاعدة البيانات» من الفقدان الصامت."""
+    حماية «قاعدة البيانات» من الفقدان الصامت. `default=_json_default` = شبكة
+    أمان ضد أنواع numpy المتسرّبة (حادثة 2026-07-09)."""
     tmp = f"{path}.tmp"
     with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=1)
+        json.dump(data, f, ensure_ascii=False, indent=1, default=_json_default)
     os.replace(tmp, path)
 
 
@@ -4524,8 +4545,11 @@ def scan_explosions(history: dict) -> list:
                     "reason": live_reason,        # توافق خلفي (الرفض الحالي)
                     "base_reason": base_reason,   # البوابة عند القاع (الأهم)
                     "was_pivot": bool(was_pivot),
-                    # A2: قفزة خارقة قد تكون تقسيمًا غير معدَّل — وسم للتحقق اليدوي
-                    "suspect_split": g >= CONFIG["SPLIT_SUSPECT_GAIN_PCT"]})
+                    # A2: قفزة خارقة قد تكون تقسيمًا غير معدَّل — وسم للتحقق اليدوي.
+                    # 🛡️ bool() إلزامي: مسار «قفزة» يمرّ من numpy → np.bool كان يفجّر
+                    # حفظ القائمة كلها (حادثة 2026-07-09 — لهذا كان المخزَّن كله «تجمّع»
+                    # وصفر «قفزة»: كل يوم فيه قفزة كان الحفظ يفشل بصمت!).
+                    "suspect_split": bool(g >= CONFIG["SPLIT_SUSPECT_GAIN_PCT"])})
     _CUR_SYM = None
     # استعادة خرائط الرفض كما كانت قبل تحليل الشرائح التاريخية (لا تلوّث الحيّة)
     _REJECT_REASONS.clear()
@@ -4655,11 +4679,12 @@ def scan_market():
             continue
         if g >= CONFIG["MISSED_RISE_PCT"]:
             _MISSED.append({"symbol": sym, "reason": reason,
-                            "gain_10d": round(g, 1),
+                            "gain_10d": round(float(g), 1),
                             "price": round(float(c[-1]), 2),
-                            # A2: كسب خارق = يُرجَّح أثر تقسيم عكسي غير معدَّل
+                            # A2: كسب خارق = يُرجَّح أثر تقسيم عكسي غير معدَّل.
+                            # 🛡️ bool() ضد np.bool (نفس صنف حادثة 2026-07-09)
                             "suspect_split":
-                                g >= CONFIG["SPLIT_SUSPECT_GAIN_PCT"]})
+                                bool(g >= CONFIG["SPLIT_SUSPECT_GAIN_PCT"])})
     _MISSED.sort(key=lambda x: -x["gain_10d"])
     if _MISSED:
         log(f"فرص فائتة (مرفوض صعد فوق {CONFIG['MISSED_RISE_PCT']:.0f}%): "
