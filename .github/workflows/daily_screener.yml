@@ -8,7 +8,12 @@ concurrency:
   cancel-in-progress: false
 on:
   schedule:
-    - cron: "0 7 * * 2-6"
+    # متابعة يومية: الثلاثاء→الجمعة 07:00 UTC (تقرأ إغلاق الاثنين→الخميس).
+    - cron: "0 7 * * 2-5"
+    # 🔄 التجديد الأسبوعي: الجمعة 22:00 UTC = بعد إغلاق السوق الأمريكي
+    #    (20:00 صيفًا / 21:00 شتاءً UTC) → شمعة أسبوعية مكتملة (اثنين→جمعة).
+    #    ⚠️ لو غيّرت هذا الوقت، غيّر مطابقته في RENEW_ON_CLOSE أدناه.
+    - cron: "0 22 * * 5"
   workflow_dispatch:
     inputs:
       force_renew:
@@ -34,6 +39,9 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SCREENER_MODE: FULL
           FORCE_RENEW: ${{ github.event.inputs.force_renew }}
+          # 🔄 إشارة التجديد الأسبوعي: تُرفع فقط في جوب كرون الجمعة 22:00 UTC
+          #    (بعد إغلاق السوق). أي تشغيل آخر (متابعة يومية/يدوي) = 0.
+          RENEW_ON_CLOSE: ${{ github.event.schedule == '0 22 * * 5' && '1' || '0' }}
         run: python Super_stock.py
       - name: Upload report
         if: always()
