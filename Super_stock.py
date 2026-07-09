@@ -173,6 +173,9 @@ CONFIG = {
     "IGNITION_CONFIRM_PCT": 12.0,   # صعود ≥12% من سعر الاشتعال لاحقًا = اشتعال حقيقي
     "IGNITION_LOG_CAP": 500,        # حدّ سجلّ الإطلاقات (لا ينمو بلا حدّ)
     "IGNITION_OUTCOME_MIN": 8,      # أقل نتائج محسومة قبل عرض نسبة الإنذار الكاذب (صدق)
+    # 🕵️ بوّابة المضارب على التنبيهات (طلب المستخدم: «لا إشعار إلا لو دخل المضارب» —
+    # قاعدة فيصل: صفقة المضارب ≥1000 سهم؛ يشتري على الطلب، يفرّغ العروض لحظة الرفع):
+    "OPERATOR_MIN_SHARES": 1000,    # أقل حجم طبعة تُعدّ «مضاربًا» (فيصل — عرضية موثّقة)
     # دول مشهورة بتجاهل التحليل الفني (تلاعب/pump&dump): تحذير فقط (تظل تظهر)
     "HIGH_RISK_COUNTRIES": ["China", "Hong Kong"],
     "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
@@ -5109,7 +5112,8 @@ def polygon_premarket(sym: str, prev_close=None):
 
 
 def monitor_live_events(wl: dict, history: dict, today_iso: str,
-                        premarket_only: bool = False) -> list:
+                        premarket_only: bool = False,
+                        fetch_operator=None) -> list:
     """🚨 كشف الأحداث اللحظية على أسهم القائمة (كل 30د بالسوق — طلب المستخدم
     2026-07-08) للتنبيه الفوري بلحظات التنفيذ/الخطر:
       • `sweep`    : كنس دعم بذيل ثم استعادة (لحظة فيصل «مسح ثم استعادة»).
@@ -5198,6 +5202,26 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
                                    f"بحجم {_pm['cum_vol']:,.0f} — راقب الافتتاح"))
             except Exception:
                 pass
+        # 🕵️ بوّابة المضارب على الأحداث الإيجابية (طلب المستخدم 2026-07-09 — كلا
+        # النظامين): لا تنبيه مسح/دخول/تجاوز إلا لو دخل المضارب (طبعات ≥
+        # OPERATOR_MIN_SHARES). الخطر (break) والبريماركت لا يُبوَّبان (تنبيه واجب/مغطّى).
+        # فاشل-آمن: تعذّر القياس (None) → لا نكتم (لا نفوّت حدثًا حقيقيًا بعطل شبكي)؛
+        # وُجد المضارب → نُلحق كمياته بوصف الحدث المبوَّب.
+        _gated = {"sweep", "buyzone", "breakout"}
+        _fo = fetch_operator or (operator_flow
+                                 if os.environ.get("POLYGON_API_KEY", "").strip()
+                                 else None)
+        if _fo and events and any(k in _gated for k, _ in events):
+            try:
+                _of = _fo(s["symbol"])
+            except Exception:
+                _of = None
+            if _of is not None and not _of.get("has_operator"):
+                events = [(k, d) for k, d in events if k not in _gated]
+            elif _of is not None:
+                _ol = operator_line(_of)
+                events = [(k, (d + " · " + _ol) if k in _gated else d)
+                          for k, d in events]
         seen = s.setdefault("live_alert", {})
         for kind, desc in events:
             if seen.get(kind) != today_iso:
@@ -5452,6 +5476,93 @@ def build_live_alert(rows: list, quotes: dict = None) -> str:
 
 
 # ==========================================================
+# 🕵️ كشف دخول المضارب من الطبعات الكبيرة (طلب المستخدم 2026-07-09: «علّمني لو دخل
+# المضارب + كميات شرائه على الطلب — ولا يجيني إشعار إلا على شي يستاهل»). قاعدة فيصل:
+# صفقة المضارب ≥1000 سهم · يشتري على الطلب (امتصاص) · يفرّغ العروض لحظة الرفع.
+# **بوّابة تنبيه + عرض فقط — خارج الفرز/الاختيار.** حدّ الصدق: تصنيف تيك تقريبي + قمة
+# الدفتر فقط (لا L2 كامل) — يُذكر صراحةً بالعرض.
+# ==========================================================
+def _operator_blocks(trades, min_shares):
+    """نقيّة (بلا شبكة): من صفقات [(price, size)...] **بترتيب زمني تصاعدي**، تصنّف
+    الطبعات الكبيرة (≥min_shares سهم) بقاعدة التيك:
+      • buy_block_shares: طبعات صعودية (رفع/شراء عدواني من العرض — لحظة الإشعال).
+      • bid_block_shares: طبعات هبوطية (بائع ضرب الطلب = امتصاص المضارب على الطلب —
+        «الأوامر في الطلب» التي تهمّ المستخدم؛ تُوسم امتصاصًا محتملًا لا يقينًا).
+      • n_blocks: عدد الطبعات ≥min_shares.
+      • has_operator: وُجدت طبعة شراء (عدوانية أو على الطلب) ≥min_shares = المضارب دخل.
+    يرجع dict أو None لو أقل من 20 صفقة (عيّنة غير كافية — صدق). **قياس/عرض فقط.**"""
+    try:
+        rows = [(float(p), float(s)) for p, s in trades if p and s]
+        if len(rows) < 20:
+            return None
+        dirs = _tick_classify([p for p, _ in rows])
+        buy = sum(sz for (p, sz), d in zip(rows, dirs) if sz >= min_shares and d > 0)
+        bid = sum(sz for (p, sz), d in zip(rows, dirs) if sz >= min_shares and d < 0)
+        n = sum(1 for (p, sz) in rows if sz >= min_shares)
+        return {"n_blocks": n, "buy_block_shares": int(buy),
+                "bid_block_shares": int(bid),
+                "has_operator": (buy >= min_shares or bid >= min_shares)}
+    except Exception:
+        return None
+
+
+def operator_flow(sym: str):
+    """🕵️ كشف دخول المضارب من صفقات Polygon الخام (غلاف شبكي فاشل-آمن حول
+    `_operator_blocks`). يجلب آخر ~250 صفقة + NBBO (جدار الطلب) → طبعات ≥
+    `OPERATOR_MIN_SHARES` مصنَّفة (شراء عدواني/على الطلب). **فاشل-آمن مطلق → None**
+    (بلا مفتاح/401/403/429/شبكة — لا يعيق شيئًا). المفتاح يُقرأ وقت النداء. عرض/تنبيه
+    فقط — خارج الفرز. حدّ الصدق: تصنيف تيك تقريبي + قمة الدفتر فقط (لا L2)."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        return None
+    try:
+        base, h = "https://api.polygon.io", {"Authorization": f"Bearer {key}"}
+        s = sym.upper()
+        tr = requests.get(f"{base}/v3/trades/{s}", headers=h,
+                          params={"limit": 250, "order": "desc"}, timeout=12)
+        if tr.status_code != 200:
+            return None
+        trades = (tr.json() or {}).get("results") or []
+        rows = [(t.get("price"), t.get("size")) for t in trades
+                if t.get("price") and t.get("size")]
+        rows.reverse()                       # Polygon يرجع desc → تصاعدي للتيك
+        ob = _operator_blocks(rows, CONFIG["OPERATOR_MIN_SHARES"])
+        if ob is None:
+            return None
+        try:                                 # جدار الطلب (NBBO — أفضل طلب + حجمه)
+            q = requests.get(f"{base}/v2/last/nbbo/{s}", headers=h, timeout=12)
+            if q.status_code == 200:
+                res = (q.json() or {}).get("results") or {}
+                ob["bid"] = float(res["p"]) if res.get("p") else None
+                ob["bid_size"] = res.get("s")
+        except Exception:
+            pass
+        return ob
+    except Exception:
+        return None
+
+
+def operator_line(of) -> str:
+    """سطر «🕵️ المضارب» من `operator_flow`: كميات الطبعات الكبيرة (شراء عدواني / على
+    الطلب) + جدار الطلب، مع حدّ الصدق. «—» لو None. عرض فقط."""
+    mn = CONFIG["OPERATOR_MIN_SHARES"]
+    if not of:
+        return "🕵️ المضارب: —"
+    parts = []
+    if of.get("buy_block_shares"):
+        parts.append(f"شراء عدواني ~{of['buy_block_shares']:,} سهم")
+    if of.get("bid_block_shares"):
+        parts.append(f"على الطلب ~{of['bid_block_shares']:,} سهم (امتصاص)")
+    if not parts:
+        parts.append(f"لا طبعات مضارب ({mn} سهم فأكثر)")
+    wall = ""
+    if of.get("bid") and of.get("bid_size"):
+        wall = f" · جدار طلب ${of['bid']:.2f}×{of['bid_size']}"
+    return (f"🕵️ المضارب (طبعات {mn} سهم فأكثر · تصنيف تقريبي بلا عمق L2): "
+            + " · ".join(parts) + wall)
+
+
+# ==========================================================
 # 🔥 رادار الانطلاق اللحظي (IGNITION_PLAN.md) — عامل جلسة حي على القائمة المؤهّلة
 # ==========================================================
 # الفكرة (بعد أن أثبت T-ACC أن الاختيار عند القاع مستحيل): لا نتنبّأ بأيّ زنبرك ينفجر
@@ -5522,14 +5633,18 @@ def _ignition_candle_class(usd):
 
 
 def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
-                  vol_mult: float = None) -> list:
+                  vol_mult: float = None, fetch_operator=None) -> list:
     """🔥 يفحص القائمة المؤهّلة ويكشف **لحظة اشتعال** كل زنبرك (قفزة حجم + كسر الرقم
-    الحرج صاعدًا) ثم يرفق تدفق الأوامر الحي للتأكيد. `fetch_bars`/`fetch_flow` قابلان
-    للحقن (اختبار بلا شبكة)؛ الافتراض دقائق Polygon + `order_snapshot`. **دِدوب مرة/
-    سهم/يوم** (`s['ignition_alert']`). **فاشل-آمن** → يتخطّى أي سهم يفشل جلبه. **رد فعل
-    لا تنبّؤ · خارج الفرز/الاختيار** (القائمة مختارة مسبقًا). يرجّع [(s, metrics, flow)]."""
+    الحرج صاعدًا) ثم يرفق تدفق الأوامر الحي للتأكيد. `fetch_bars`/`fetch_flow`/
+    `fetch_operator` قابلة للحقن (اختبار بلا شبكة). **دِدوب مرة/سهم/يوم**
+    (`s['ignition_alert']`). **فاشل-آمن** → يتخطّى أي سهم يفشل جلبه. **رد فعل لا تنبّؤ ·
+    خارج الفرز/الاختيار** (القائمة مختارة مسبقًا). يرجّع [(s, metrics, flow)].
+    🕵️ **بوّابة المضارب (طلب المستخدم 2026-07-09): لا إشعار إلا لو دخل المضارب** — لو
+    قِيس التدفق ولا طبعات مضارب (≥OPERATOR_MIN_SHARES) = ضجيج يُكتَم؛ لو تعذّر القياس
+    (None) = احتياط لتصنيف شمعة الدولار (يُكتَم القروب فقط) فلا نفوّت بعطل شبكي."""
     fb = fetch_bars or (lambda sym: polygon_minute_bars(sym, minutes=30))
     ff = fetch_flow or order_snapshot
+    fo = fetch_operator or operator_flow
     vm = vol_mult if vol_mult is not None else CONFIG["IGNITION_VOL_MULT"]
     out = []
     for s in wl.get("stocks", []):
@@ -5545,6 +5660,18 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
         sig = _ignition_signal(bars, lvl, vol_mult=vm) if bars else None
         if not sig:
             continue
+        # 🕵️ بوّابة المضارب: يُكتَم الاشتعال بلا مضارب (لا نضع ignition_alert = يُعاد
+        # الفحص لو دخل المضارب لاحقًا نفس اليوم). فاشل-آمن: تعذّر القياس → شمعة الدولار.
+        try:
+            of = fo(s["symbol"])
+        except Exception:
+            of = None
+        if of is not None:
+            if not of.get("has_operator"):
+                continue
+        elif _ignition_candle_class(sig.get("usd"))[0] == "group":
+            continue
+        sig["operator"] = of
         flow = None
         try:
             flow = ff(s["symbol"])
@@ -5574,6 +5701,9 @@ def build_ignition_alert(rows: list) -> str:
         if _desc:
             _icon = "⚠️" if _cls == "group" else "💰"
             lines.append(f"   {_icon} سيولة الشمعة ${_usd:,.0f} — {_desc}")
+        # 🕵️ كميات المضارب (طلب المستخدم: شراء عدواني/على الطلب) — تظهر لو قِيست
+        if sig.get("operator"):
+            lines.append("   " + operator_line(sig["operator"]))
         if flow:
             lines.append(f"   📊 تدفق الأوامر: {flow}")
         _st = s.get("stop")
