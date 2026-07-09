@@ -186,6 +186,10 @@ CONFIG = {
     # 📅 الأحداث المعلنة القادمة (طلب المستخدم 2026-07-09 — «يوم الانفجار الذي ينتظره
     # المضارب»، فيصل 9428): أرباح + اكتمال تجارب سريرية. أبعد من هذا الأفق لا يُعرض
     "EVENTS_SHOW_DAYS": 45,
+    "PROXY_LOOKBACK_DAYS": 75,      # 📅 نافذة التقاط دعوة اجتماع المساهمين (الاجتماع
+                                    # يُعقد عادة بعد شهر-شهرين من الدعوة)
+    "LOCKUP_DAYS": 180,             # 📅 حظر بيع المؤسسين الشائع بعد الإدراج (تقدير —
+                                    # العقد قد يختلف؛ يُوسم «تقديري» بالعرض)
     # دول مشهورة بتجاهل التحليل الفني (تلاعب/pump&dump): تحذير فقط (تظل تظهر)
     "HIGH_RISK_COUNTRIES": ["China", "Hong Kong"],
     "SCORE_MIN": 45,             # الحد الأدنى لدخول الترشيح (v2.7: رُفع لـ45
@@ -2463,10 +2467,13 @@ def clinical_events(company: str) -> list:
         return []
 
 
-def upcoming_events(sym: str, company: str = None, sector: str = None):
+def upcoming_events(sym: str, company: str = None, sector: str = None,
+                    proxy: dict = None, first_trade: str = None):
     """📅 يجمع الأحداث المعلنة القادمة للسهم: أرباح (دائمًا) + اكتمال تجارب سريرية
-    (قطاع الرعاية الصحية فقط — يوفّر النداءات). يرجع قائمة مرتّبة بالأقرب أو None.
-    فاشل-آمن. عرض/سياق فقط — لا يدخل أي فرز/ترتيب/بوابة."""
+    (قطاع الرعاية الصحية فقط — يوفّر النداءات) + دعوة اجتماع مساهمين (`proxy` من
+    قناة SEC — غالبًا تصويت تقسيم/زيادة أسهم) + انتهاء حظر بيع المؤسسين التقديري
+    (`first_trade` + LOCKUP_DAYS للإدراجات الحديثة). يرجع قائمة مرتّبة بالأقرب أو
+    None. فاشل-آمن. عرض/سياق فقط — لا يدخل أي فرز/ترتيب/بوابة."""
     ev = []
     try:
         ne = next_earnings(sym)
@@ -2479,6 +2486,22 @@ def upcoming_events(sym: str, company: str = None, sector: str = None):
             ev += clinical_events(company)
     except Exception:
         pass
+    try:
+        if proxy and proxy.get("date"):
+            ev.append({"kind": "اجتماع", "date": str(proxy["date"])[:10],
+                       "note": proxy.get("form") or ""})
+    except Exception:
+        pass
+    try:
+        if first_trade:
+            _est = (dt.date.fromisoformat(str(first_trade)[:10])
+                    + dt.timedelta(days=int(CONFIG["LOCKUP_DAYS"])))
+            _d = (_est - dt.date.today()).days
+            if 0 <= _d <= CONFIG["EVENTS_SHOW_DAYS"]:
+                ev.append({"kind": "حظر", "date": _est.isoformat(),
+                           "note": "تقدير من تاريخ الإدراج"})
+    except Exception:
+        pass
     ev = [e for e in ev if e.get("date")]
     ev.sort(key=lambda e: e["date"])
     return ev or None
@@ -2486,13 +2509,24 @@ def upcoming_events(sym: str, company: str = None, sector: str = None):
 
 def events_lines(events, today=None) -> list:
     """📅 أسطر «الأحداث المعلنة» للكرت/اليومي (نقيّة): تُخفي الماضي والأبعد من
-    الأفق · «اليوم!»/«غدًا» للقريب · بحدّ سطرين (لا حشو). لغة مبتدئ بلا رموز
-    مقارنة. ترجع [] عند لا شيء. عرض فقط."""
+    الأفق · «اليوم!»/«غدًا» للقريب · بحدّ 3 أسطر (لا حشو). أنواعها: أرباح · تجربة
+    سريرية · اجتماع مساهمين (تاريخه = تاريخ الدعوة الماضي، يظهر ما دامت الدعوة
+    ضمن PROXY_LOOKBACK_DAYS لأن الاجتماع بعدها بشهر-شهرين) · حظر مؤسسين (تقديري).
+    لغة مبتدئ بلا رموز مقارنة. ترجع [] عند لا شيء. عرض فقط."""
     out = []
     try:
         t = today or dt.date.today()
         for e in (events or []):
             d = dt.date.fromisoformat(str(e.get("date"))[:10])
+            if e.get("kind") == "اجتماع":
+                _behind = (t - d).days           # كم مضى على تقديم الدعوة
+                if _behind < 0 or _behind > CONFIG["PROXY_LOOKBACK_DAYS"]:
+                    continue
+                _frm = f" (دعوة {e['note']})" if e.get("note") else ""
+                out.append(f"📅 اجتماع مساهمين قادم{_frm}: الدعوة قُدّمت "
+                           f"{d.isoformat()} — يُعقد عادة خلال شهر إلى شهرين؛ "
+                           "راقب بنود التقسيم العكسي/زيادة الأسهم")
+                continue
             days = (d - t).days
             if days < 0 or days > CONFIG["EVENTS_SHOW_DAYS"]:
                 continue
@@ -2501,13 +2535,17 @@ def events_lines(events, today=None) -> list:
             if e.get("kind") == "أرباح":
                 out.append(f"📅 أرباح معلنة: {d.isoformat()} ({when}) — "
                            "يوم انفجار محتمل (المضارب يجهّز قبل الإعلان)")
+            elif e.get("kind") == "حظر":
+                out.append(f"📅 انتهاء حظر بيع المؤسسين (تقديري): {d.isoformat()} "
+                           f"({when}) — نحو {int(CONFIG['LOCKUP_DAYS'])} يومًا من "
+                           "الإدراج؛ قد يفكّ أسهمًا للبيع (العقد قد يختلف)")
             else:
                 note = f" ({e['note']})" if e.get("note") else ""
                 out.append(f"📅 اكتمال تجربة سريرية{note}: {d.isoformat()} "
                            f"({when}) — موعد تقديري معلن قد يتغيّر")
     except Exception:
         return []
-    return out[:2]
+    return out[:3]
 
 
 def fintel_short(symbols: list) -> dict:
@@ -2605,7 +2643,18 @@ SEC_FORM_CLASS = {
     "25-NSE": ("🔴", "بدء إجراءات شطب"),
     "NT 10-K": ("🔴", "تأخر التقرير السنوي"),
     "NT 10-Q": ("🔴", "تأخر التقرير الربعي"),
+    # 📅 دعوات اجتماع المساهمين (وكالة): غالبًا تصويت تقسيم عكسي/زيادة أسهم لأسهم
+    # الارتكاز — تُلتقط أيضًا كحدث قادم (قناة _SEC_PROXY → upcoming_events)
+    "DEF 14A": ("🟡", "دعوة اجتماع مساهمين (راقب بنود تقسيم/طرح)"),
+    "PRE 14A": ("🟡", "دعوة اجتماع مساهمين مبدئية"),
+    "DEF 14C": ("🟡", "إشعار قرار مساهمين (بلا تصويت)"),
 }
+
+# 📅 قناة جانبية: آخر دعوة اجتماع مساهمين لكل رمز (نمط _REJECT_STATS) — تُلتقط في
+# sec_recent_filings بنافذة أطول من نافذة العرض وتُستهلك في enrich → upcoming_events
+_SEC_PROXY = {}
+_PROXY_FORMS = ("DEF 14A", "DEFA14A", "DEFR14A", "PRE 14A", "PRER14A",
+                "DEF 14C", "PRE 14C")
 
 _RANK = {"🔴": 0, "🟢": 1, "🟡": 2, "⚪": 3}
 
@@ -2643,11 +2692,20 @@ def sec_recent_filings(sym: str):
         items_l = recent.get("items", []) or []
         cutoff = (dt.date.today()
                   - dt.timedelta(days=CONFIG["SEC_FILING_DAYS"])).isoformat()
+        # 📅 نافذة أطول لالتقاط دعوة اجتماع المساهمين (الاجتماع يُعقد عادة بعد
+        # شهر-شهرين من الدعوة، فنافذة العرض القصيرة تفوّته) — التقاط فقط، لا عرض.
+        pcut = (dt.date.today()
+                - dt.timedelta(days=CONFIG["PROXY_LOOKBACK_DAYS"])).isoformat()
+        full = False
         for i in range(len(forms)):
             fdate = dates[i] if i < len(dates) else ""
-            if fdate < cutoff:
+            if fdate < pcut:
                 break  # القائمة مرتبة من الأحدث للأقدم
             form = (forms[i] or "").strip()
+            if form in _PROXY_FORMS and sym.upper() not in _SEC_PROXY:
+                _SEC_PROXY[sym.upper()] = {"form": form, "date": fdate}
+            if fdate < cutoff or full:
+                continue           # خارج نافذة العرض — نكمل لالتقاط الوكالة فقط
             line = None
             if form.startswith("8-K"):
                 cls = classify_8k_items(items_l[i] if i < len(items_l) else "")
@@ -2660,7 +2718,7 @@ def sec_recent_filings(sym: str):
             if line:
                 out.append(line)
             if len(out) >= CONFIG["SEC_MAX_SHOW"]:
-                break
+                full = True
         return out, "ok"
     except Exception as e:
         log(f"⚠️ SEC {sym}: {e}")
@@ -2849,6 +2907,8 @@ def enrich(results: list) -> None:
         r["tf4h"] = "غير متوفر"
         # إعلانات SEC الرسمية (هوية مضمونة بالـCIK)
         r["sec_filings"], r["sec_status"] = sec_recent_filings(r["symbol"])
+        # 📅 دعوة اجتماع مساهمين (قناة _SEC_PROXY من النداء أعلاه — حدث قادم)
+        r["proxy_filing"] = _SEC_PROXY.pop(r["symbol"].upper(), None)
         time.sleep(0.15)  # احترام حد SEC (10 طلبات/ثانية)
         if yf is None:
             continue
@@ -2883,6 +2943,16 @@ def enrich(results: list) -> None:
                 r["company_name"] = (info.get("shortName")
                                      or info.get("longName")
                                      or cached.get("company_name"))
+                # 📅 تاريخ أول تداول (لتقدير انتهاء حظر المؤسسين للإدراجات الحديثة)
+                try:
+                    _ftd = info.get("firstTradeDateEpochUtc")
+                    if _ftd:
+                        r["first_trade"] = dt.datetime.fromtimestamp(
+                            int(_ftd), dt.timezone.utc).date().isoformat()
+                except Exception:
+                    pass
+                if not r.get("first_trade"):
+                    r["first_trade"] = cached.get("first_trade")
                 summ = info.get("longBusinessSummary") or ""
                 r["business"] = ((summ[:160].strip() + "…") if summ
                                  else cached.get("business"))
@@ -2942,7 +3012,7 @@ def enrich(results: list) -> None:
                              ("sector", "industry", "business",
                               "country", "cash", "revenue",
                               "shares_out", "short_pct", "float",
-                              "finra_short", "company_name")
+                              "finra_short", "company_name", "first_trade")
                              if r.get(k) is not None}
                 COMPANY_CACHE.pop(sym, None)      # LRU: ينقله لأحدث موضع
                 COMPANY_CACHE[sym] = _cc_entry
@@ -3017,7 +3087,8 @@ def enrich(results: list) -> None:
         # فاشل-آمن → None (عرض/سياق فقط، «يوم الانفجار الذي ينتظره المضارب»)
         try:
             r["upcoming_events"] = upcoming_events(
-                r["symbol"], r.get("company_name"), r.get("sector"))
+                r["symbol"], r.get("company_name"), r.get("sector"),
+                r.get("proxy_filing"), r.get("first_trade"))
         except Exception:
             r["upcoming_events"] = None
         time.sleep(0.5)
@@ -4405,6 +4476,8 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "shares_available": r.get("shares_available"),     # 🔒 الأسهم المتاحة للاقتراض
         "company_name": r.get("company_name"),             # 📅 لمطابقة راعي التجارب
         "upcoming_events": r.get("upcoming_events"),       # 📅 أحداث معلنة (أرباح/تجارب)
+        "proxy_filing": r.get("proxy_filing"),             # 📅 دعوة اجتماع مساهمين (SEC)
+        "first_trade": r.get("first_trade"),               # 📅 أول تداول (تقدير الحظر)
         "rotation_pct": r.get("rotation_pct"),             # D10: تدوير الفلوت (سكويز)
         "drop_pct": r.get("drop_pct"), "best_spike": r.get("best_spike"),
         "rr": r.get("rr"),
@@ -7340,7 +7413,8 @@ def run_daily_watchlist(wl: dict) -> None:
             continue
         try:
             _ue = upcoming_events(s["symbol"], s.get("company_name"),
-                                  s.get("sector"))
+                                  s.get("sector"), s.get("proxy_filing"),
+                                  s.get("first_trade"))
             if _ue:
                 s["upcoming_events"] = _ue
         except Exception:
