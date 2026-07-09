@@ -1731,10 +1731,55 @@ check("📅 الأسطر: الماضي والأبعد من الأفق يُخفي
                       {"kind": "أرباح", "date": "2026-12-01"}],
                      today=_ev_today) == []
       and S.events_lines(None) == [])
-check("📅 الأسطر: بحدّ سطرين (لا حشو) + بلا علامات مقارنة",
+check("📅 الأسطر: بحدّ 3 أسطر (لا حشو) + بلا علامات مقارنة",
       len(S.events_lines([{"kind": "أرباح", "date": "2026-07-19"}] * 5,
-                         today=_ev_today)) == 2
+                         today=_ev_today)) == 3
       and not any(c in " ".join(_evl) for c in "≥≤><"))
+# اجتماع مساهمين (تاريخه = تاريخ الدعوة الماضي — يظهر ضمن نافذة PROXY_LOOKBACK)
+_evm = S.events_lines([{"kind": "اجتماع", "date": "2026-06-25",
+                        "note": "DEF 14A"}], today=_ev_today)
+check("📅 اجتماع: دعوة قبل 14 يومًا ⇒ سطر «اجتماع مساهمين قادم» + تحذير التقسيم",
+      len(_evm) == 1 and "اجتماع مساهمين قادم (دعوة DEF 14A)" in _evm[0]
+      and "شهر إلى شهرين" in _evm[0] and "التقسيم العكسي" in _evm[0])
+check("📅 اجتماع: دعوة أقدم من نافذة الالتقاط (100 يوم) ⇒ تُخفى",
+      S.events_lines([{"kind": "اجتماع", "date": "2026-03-25"}],
+                     today=_ev_today) == [])
+check("📅 حظر المؤسسين: تقديري + «قد يفكّ أسهمًا» · الماضي يُخفى",
+      (lambda L: len(L) == 1 and "انتهاء حظر بيع المؤسسين (تقديري)" in L[0]
+       and "قد يفكّ أسهمًا" in L[0])(
+          S.events_lines([{"kind": "حظر", "date": "2026-07-25"}],
+                         today=_ev_today))
+      and S.events_lines([{"kind": "حظر", "date": "2026-07-01"}],
+                         today=_ev_today) == [])
+# التجميع مع الوكالة والحظر (نقي — بلا شبكة: الأرباح/التجارب محقونة None/[])
+_sv_ne2, _sv_ce2 = S.next_earnings, S.clinical_events
+try:
+    S.next_earnings = lambda sym: None
+    S.clinical_events = lambda co: []
+    _ft_recent = (S.dt.date.today() - S.dt.timedelta(days=160)).isoformat()
+    _ue_px = S.upcoming_events("X", proxy={"form": "DEF 14A",
+                                           "date": "2026-06-25"},
+                               first_trade=_ft_recent)
+    check("📅 التجميع: الوكالة + الحظر (إدراج قبل 160ي ⇒ الحظر بعد ~20ي) يدخلان",
+          {e["kind"] for e in _ue_px} == {"اجتماع", "حظر"})
+    check("📅 التجميع: إدراج قديم (400ي — الحظر ماضٍ) ⇒ لا حدث حظر",
+          S.upcoming_events("X", first_trade=(
+              S.dt.date.today() - S.dt.timedelta(days=400)).isoformat()) is None)
+finally:
+    S.next_earnings, S.clinical_events = _sv_ne2, _sv_ce2
+check("📅 حفظ: make_watch_entry يخزّن proxy_filing + first_trade",
+      (lambda _w: _w["proxy_filing"] == {"form": "DEF 14A", "date": "2026-06-25"}
+       and _w["first_trade"] == "2026-01-15")(
+          S.make_watch_entry(dict(r0 or {"symbol": "PXF", "price": 2.0,
+              "pivot": 1.9, "entry": (1.9, 2.0), "tranches": [1.9, 2.0],
+              "stop": (1.75, 1.79), "t1": 2.3, "t2": 2.6, "t3": 3.0,
+              "score": 60, "flags": [], "rr": 2.0, "drop_pct": 60,
+              "best_spike": 120},
+              proxy_filing={"form": "DEF 14A", "date": "2026-06-25"},
+              first_trade="2026-01-15"), "2026-07-09")))
+check("📅 SEC: دعوات الاجتماع مصنّفة بالعرض (DEF 14A 🟡) + قائمة أشكال الالتقاط",
+      S.SEC_FORM_CLASS.get("DEF 14A", ("",))[0] == "🟡"
+      and "PRE 14A" in S._PROXY_FORMS and "DEFA14A" in S._PROXY_FORMS)
 # التجميع upcoming_events (بحقن الدوال — بلا شبكة) + بوّابة قطاع الرعاية للتجارب
 _sv_ne, _sv_ce = S.next_earnings, S.clinical_events
 try:
