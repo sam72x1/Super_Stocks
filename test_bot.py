@@ -3057,40 +3057,33 @@ check("ثبات: سهم محفوظ يبقى رغم غياب بياناته (لا
       len(_wl2["stocks"]) == 1
       and _wl2["stocks"][0]["status"] == "active" and _st == [])
 
-# should_renew: قائمة غير فارغة في غير يوم التجديد لا تُعاد بناؤها (لا فرز يومي)
-import datetime as _d2
-_nonren = next(_d2.date(2026, 6, 22) + _d2.timedelta(days=o)
-               for o in range(7)
-               if (_d2.date(2026, 6, 22) + _d2.timedelta(days=o)).weekday()
-               != S.WEEKLY_RENEW_DAY)
-_renday = next(_d2.date(2026, 6, 22) + _d2.timedelta(days=o)
-               for o in range(7)
-               if (_d2.date(2026, 6, 22) + _d2.timedelta(days=o)).weekday()
-               == S.WEEKLY_RENEW_DAY)
+# should_renew: التجديد مدفوع بإشارة الـworkflow (RENEW_ON_CLOSE) لا بيوم الأسبوع.
+# قرار المستخدم (2026-07-09): «ابيه يبدأ بعد إغلاق الجمعة» → كرون الجمعة 22:00 UTC
+# (بعد إغلاق السوق) يرفع الإشارة، فتُبنى القائمة على شمعة أسبوعية مكتملة (اثنين→جمعة).
+# صباح الجمعة/السبت كان يقرأ إغلاقًا ناقصًا. التوقيع الجديد: should_renew(wl, force, signal).
 _nonempty = {"stocks": [{"symbol": "X"}], "removed": []}
-check("ثبات: قائمة قائمة في غير يوم التجديد لا تُعاد بناؤها",
-      S.should_renew(_nonempty, _nonren, False) is False)
-check("التجديد: يوم التجديد تُجدَّد القائمة",
-      S.should_renew(_nonempty, _renday, False) is True)
-check("التأسيس: قائمة فارغة تُؤسَّس فورًا",
-      S.should_renew({"stocks": [], "removed": []}, _nonren, False) is True)
+check("ثبات: قائمة قائمة بلا إشارة تجديد لا تُعاد بناؤها (لا رفرفة)",
+      S.should_renew(_nonempty, False, False) is False)
+check("التجديد: إشارة الإغلاق (الجمعة بعد الإغلاق) تُجدِّد القائمة",
+      S.should_renew(_nonempty, False, True) is True)
+check("الإجبار: FORCE_RENEW يُجدِّد فورًا بلا إشارة",
+      S.should_renew(_nonempty, True, False) is True)
+check("التأسيس: قائمة فارغة تُؤسَّس فورًا (أي تشغيل، بلا إشارة)",
+      S.should_renew({"stocks": [], "removed": []}, False, False) is True)
 
-# 🔒 قفل قرار المستخدم (2026-07-09): التجديد الكامل = السبت (weekday=5) —
-# تشغيل صباح السبت يقرأ إغلاق الجمعة = شمعة أسبوعية مكتملة (اثنين→جمعة)
-# لفريمات M6/الفجوات/الأهداف الأسبوعية. صباح الجمعة كان يرى إغلاق الخميس
-# فقط → فريم أسبوعي ناقص يوم. تقرير الأداء الأسبوعي يتبع نفس اليوم.
-check("🔒 يوم التجديد = السبت (شمعة أسبوعية مكتملة على إغلاق الجمعة)",
-      S.WEEKLY_RENEW_DAY == 5)
-check("🔒 تقرير الأداء الأسبوعي = السبت (مع يوم التجديد، أسبوع كامل)",
-      S.WEEKLY_REPORT_DAY == 5)
-_friday = _d2.date(2026, 7, 10)          # جمعة (weekday=4)
-assert _friday.weekday() == 4
-check("🔒 صباح الجمعة لم يعد يجدّد (كان يبني على شمعة أسبوعية ناقصة)",
-      S.should_renew(_nonempty, _friday, False) is False)
-_saturday = _d2.date(2026, 7, 11)        # سبت (weekday=5)
-assert _saturday.weekday() == 5
-check("🔒 السبت يجدّد (يقرأ إغلاق الجمعة)",
-      S.should_renew(_nonempty, _saturday, False) is True)
+# 🔒 قفل قرار المستخدم (2026-07-09): التجديد لا يُشتَقّ من يوم الأسبوع — لازم
+# إشارة صريحة (كرون الجمعة بعد الإغلاق). فالمتابعة اليومية (أي يوم) لا تُجدِّد
+# بمجرد مرور يوم، ولا تُرسِل التقرير الأسبوعي على إغلاق ناقص.
+check("🔒 بلا إشارة ولا إجبار ولا قائمة فارغة = لا تجديد",
+      S.should_renew(_nonempty, False, False) is False)
+check("🔒 القيم الافتراضية (بلا force/signal) = لا تجديد لقائمة قائمة",
+      S.should_renew(_nonempty) is False)
+# ثوابت اليوم القديمة أُزيلت (WEEKLY_RENEW_DAY / WEEKLY_REPORT_DAY) — التجديد
+# صار مدفوعًا بالإشارة؛ نتأكّد أنها لم تعد مرجعًا صامتًا.
+check("🔒 ثابت يوم التجديد أُزيل (لا اشتقاق من weekday)",
+      not hasattr(S, "WEEKLY_RENEW_DAY"))
+check("🔒 ثابت يوم التقرير أُزيل (التقرير مع التجديد لا مع weekday)",
+      not hasattr(S, "WEEKLY_REPORT_DAY"))
 
 
 # ==========================================================
