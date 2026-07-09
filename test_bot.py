@@ -1386,16 +1386,20 @@ _ig_wl = {"stocks": [
     {"symbol": "QUIET", "status": "active", "pivot": 5.0,
      "interp": {"critical_number": {"price": 6.0}}}]}
 _ig_map = {"IGN": _ig_fire, "QUIET": _ig_bars([5.0] * 10, [100] * 10)}
+_ig_op = lambda s: {"has_operator": True}   # مضارب موجود (تُختبر البوّابة مستقلةً أدناه)
 _ig_rows = S.scan_ignition(_ig_wl, "2026-07-08",
                            fetch_bars=lambda s: _ig_map.get(s),
-                           fetch_flow=lambda s: "65% شراء" if s == "IGN" else None)
+                           fetch_flow=lambda s: "65% شراء" if s == "IGN" else None,
+                           fetch_operator=_ig_op)
 check("انطلاق·منسّق: يكشف المشتعل (IGN) دون الهادئ (QUIET) + يرفق التدفق",
       len(_ig_rows) == 1 and _ig_rows[0][0]["symbol"] == "IGN"
       and _ig_rows[0][2] == "65% شراء")
 check("انطلاق·دِدوب: نفس اليوم لا يتكرّر · يوم جديد ينبّه",
-      S.scan_ignition(_ig_wl, "2026-07-08", fetch_bars=lambda s: _ig_map.get(s)) == []
+      S.scan_ignition(_ig_wl, "2026-07-08", fetch_bars=lambda s: _ig_map.get(s),
+                      fetch_operator=_ig_op) == []
       and len(S.scan_ignition(_ig_wl, "2026-07-09",
-                              fetch_bars=lambda s: _ig_map.get(s))) == 1)
+                              fetch_bars=lambda s: _ig_map.get(s),
+                              fetch_operator=_ig_op)) == 1)
 check("انطلاق·فاشل-آمن: فشل جلب البارات ⇒ يتخطّى السهم (لا انهيار)",
       S.scan_ignition({"stocks": [{"symbol": "E", "status": "active", "pivot": 1.9,
                                    "interp": {"critical_number": {"price": 2.0}}}]},
@@ -1504,6 +1508,86 @@ check("📏 قفل: دوال القياس خارج rank_key/select_top/classify_
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.backtest_symbol)))
 
+# ===== 🕵️ بوّابة المضارب على التنبيهات («لا إشعار إلا لو دخل المضارب» — 2026-07-09) =====
+# طبعات كبيرة مصنَّفة بقاعدة التيك (صعودي=شراء عدواني · هبوطي=على الطلب/امتصاص)
+_optr = [(2.00, 100)] * 15 + [(2.01, 1500), (2.00, 2000), (2.02, 1200),
+                              (2.00, 300), (2.00, 500)]
+_ob = S._operator_blocks(_optr, 1000)
+check("🕵️طبعات: شراء عدواني (صعودي ≥1000)=2700 · على الطلب (هبوطي ≥1000)=2000",
+      _ob["buy_block_shares"] == 2700 and _ob["bid_block_shares"] == 2000)
+check("🕵️طبعات: عدد الطبعات ≥1000 = 3 · دخل المضارب",
+      _ob["n_blocks"] == 3 and _ob["has_operator"] is True)
+check("🕵️طبعات: كلها <1000 سهم ⇒ لا مضارب",
+      S._operator_blocks([(2.0, 100)] * 25, 1000)["has_operator"] is False)
+check("🕵️طبعات·صدق: أقل من 20 صفقة ⇒ None (عيّنة غير كافية)",
+      S._operator_blocks([(2.0, 1500)] * 10, 1000) is None)
+check("🕵️سطر المضارب: يعرض الشراء العدواني/على الطلب + حدّ الصدق (بلا L2)",
+      "شراء عدواني ~2,700" in S.operator_line(_ob)
+      and "على الطلب ~2,000" in S.operator_line(_ob)
+      and "بلا عمق L2" in S.operator_line(_ob))
+check("🕵️سطر المضارب: None ⇒ «—»", S.operator_line(None) == "🕵️ المضارب: —")
+# بوّابة الرادار: لا إشعار إلا لو دخل المضارب
+_op_bars = [{"o": p, "h": p * 1.01, "l": p * 0.99, "c": p, "v": v} for p, v in zip(
+    [2.0, 2.0, 2.01, 2.0, 2.01, 2.0, 2.0, 2.01, 2.08], [3000] * 8 + [100000])]  # $208K
+_grp_bars = [{"o": p, "h": p * 1.01, "l": p * 0.99, "c": p, "v": v} for p, v in zip(
+    [2.0, 2.0, 2.01, 2.0, 2.01, 2.0, 2.0, 2.01, 2.08], [1000] * 8 + [15000])]   # $31K قروب
+def _op_st(sym):
+    return {"symbol": sym, "status": "active", "pivot": 1.9, "t1": 2.4, "stop": 1.6,
+            "interp": {"critical_number": {"price": 2.0}}}
+_r_yes = S.scan_ignition({"stocks": [_op_st("OPY")]}, "2026-07-20",
+    fetch_bars=lambda s: _op_bars, fetch_flow=lambda s: None,
+    fetch_operator=lambda s: {"has_operator": True, "buy_block_shares": 2700,
+                              "bid_block_shares": 2000, "n_blocks": 3})
+check("🕵️بوّابة الرادار: دخل المضارب ⇒ يطلق + كمياته بالإشارة",
+      len(_r_yes) == 1 and _r_yes[0][1]["operator"]["has_operator"] is True)
+_wl_no = {"stocks": [_op_st("OPN")]}
+check("🕵️بوّابة الرادار: لا مضارب ⇒ يُكتَم (لا إشعار · لا يُعلَّم اليوم فيُعاد الفحص)",
+      S.scan_ignition(_wl_no, "2026-07-20", fetch_bars=lambda s: _op_bars,
+          fetch_flow=lambda s: None,
+          fetch_operator=lambda s: {"has_operator": False}) == []
+      and "ignition_alert" not in _wl_no["stocks"][0])
+check("🕵️بوّابة الرادار·فاشل-آمن: تعذّر القياس (None) + شمعة مضارب $ ⇒ يطلق (لا نفوّت)",
+      len(S.scan_ignition({"stocks": [_op_st("OPF")]}, "2026-07-20",
+          fetch_bars=lambda s: _op_bars, fetch_flow=lambda s: None,
+          fetch_operator=lambda s: None)) == 1)
+check("🕵️بوّابة الرادار·فاشل-آمن: تعذّر القياس (None) + شمعة قروب ⇒ يُكتَم",
+      S.scan_ignition({"stocks": [_op_st("OPG")]}, "2026-07-20",
+          fetch_bars=lambda s: _grp_bars, fetch_flow=lambda s: None,
+          fetch_operator=lambda s: None) == [])
+check("🕵️عرض الرادار: التنبيه يعرض كميات المضارب",
+      "المضارب" in S.build_ignition_alert(_r_yes)
+      and "شراء عدواني ~2,700" in S.build_ignition_alert(_r_yes))
+# بوّابة مراقب الجلسة (نفس القاعدة — الأحداث الإيجابية فقط · الخطر لا يُبوَّب)
+_mle_df = pd.DataFrame(
+    {"Open": [2.0] * 30, "High": [2.1] * 30, "Low": [1.9] * 30,
+     "Close": [2.0] * 29 + [1.95], "Volume": [1e5] * 30},
+    index=pd.date_range("2025-01-01", periods=30, freq="B"))
+def _mle_st(sym):
+    return {"symbol": sym, "status": "active", "pivot": 1.90,
+            "tranches": [1.90, 1.95, 2.00], "stop": (1.75, 1.79), "interp": {}}
+_ev_no = S.monitor_live_events({"stocks": [_mle_st("MLN")]}, {"MLN": _mle_df},
+    "2026-07-20", fetch_operator=lambda s: {"has_operator": False})
+check("🕵️بوّابة المراقب: لا مضارب ⇒ يُكتَم حدث الدخول (buyzone)",
+      not any(k == "buyzone" for _s, k, _d in _ev_no))
+_ev_yes = S.monitor_live_events({"stocks": [_mle_st("MLY")]}, {"MLY": _mle_df},
+    "2026-07-20", fetch_operator=lambda s: {"has_operator": True,
+        "buy_block_shares": 2700, "bid_block_shares": 2000, "n_blocks": 3})
+check("🕵️بوّابة المراقب: دخل المضارب ⇒ حدث الدخول يبقى + كمياته بالوصف",
+      any(k == "buyzone" and "المضارب" in d for _s, k, d in _ev_yes))
+_brk_df = pd.DataFrame(
+    {"Open": [2.0] * 30, "High": [2.1] * 30, "Low": [1.5] * 30,
+     "Close": [2.0] * 29 + [1.70], "Volume": [1e5] * 30},
+    index=pd.date_range("2025-01-01", periods=30, freq="B"))
+_ev_brk = S.monitor_live_events({"stocks": [_mle_st("BRK")]}, {"BRK": _brk_df},
+    "2026-07-20", fetch_operator=lambda s: {"has_operator": False})
+check("🕵️بوّابة المراقب: الخطر (كسر الوقف) لا يُبوَّب — يظهر حتى بلا مضارب",
+      any(k == "break" for _s, k, _d in _ev_brk))
+check("🕵️قفل: دوال المضارب خارج rank_key/select_top/classify_tier/analyze_ticker/backtest_symbol",
+      all(("_operator_blocks" not in _insp0.getsource(_f)
+           and "operator_flow" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.backtest_symbol)))
+
 # ===== 🕵️💰 حزمة «قراءة المضارب» من صور فيصل (FAISAL_OPERATOR_PACK_PLAN) =====
 # P1 💰 وسم شمعة مضارب/قروب بسيولتها الدولارية (قاعدة فيصل: ≥100ألف مضارب · ≤50ألف قروب)
 check("مضارب·P1 تصنيف: ≥300ألف قوية · ≥100ألف مضارب · ≤50ألف قروب · بينها mid",
@@ -1522,10 +1606,13 @@ _ig_us_msg = S.build_ignition_alert([({"symbol": "OP", "t1": 2.4, "stop": 1.6,
     "pivot": 1.9, "interp": {"critical_number": {"price": 2.0}}}, _ig_us_sig, None)])
 check("مضارب·P1 عرض: التنبيه يعرض «سيولة الشمعة $X — شمعة مضارب»",
       "سيولة الشمعة $208,000" in _ig_us_msg and "شمعة مضارب" in _ig_us_msg)
-check("مضارب·P1 قفل: الوسم عرض فقط — _ignition_candle_class خارج الفرز/الاختيار",
+# _ignition_candle_class خارج **الاختيار** (rank_key/select_top/…). (scan_ignition
+# أُزيل من القفل عمدًا 2026-07-09: صار يستعمله بوّابةً احتياطية للرادار «اكتم القروب
+# لو تعذّر قياس المضارب» — طلب المستخدم؛ الرادار طبقة توقيت/تنبيه لا اختيار.)
+check("مضارب·P1 قفل: الوسم خارج الاختيار (rank_key/select_top/classify/analyze/backtest)",
       all("_ignition_candle_class" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
-                     S.backtest_symbol, S.scan_ignition)))
+                     S.backtest_symbol)))
 # P3 ⚠️ تحذير «سيولة قطيع قبل الرفعة» (قاعدة LABT) في hand_activity_today
 def _labt_df(t_c, t_o, t_v):
     b = dict(o=[2.0] * 24, c=[2.0] * 24, h=[2.05] * 24, lo=[1.95] * 24, v=[1e5] * 24)
