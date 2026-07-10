@@ -99,7 +99,7 @@
    "hit": "t2",
    "hit_date": "2026-07-08",
    "max_gain_pct": 19.6,
-   "last_price": 15.21,
+   "last_price": 14.42,
    "live_alert": {
     "breakout": "2026-07-09"
    },
@@ -348,7 +348,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.1,
-   "last_price": 3.49,
+   "last_price": 3.42,
    "live_alert": {
     "buyzone": "2026-07-08"
    },
@@ -793,7 +793,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 7.19,
+   "last_price": 7.285,
    "upcoming_events": [
     {
      "kind": "أرباح",
@@ -1393,7 +1393,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.0
+   "last_price": 3.9802,
+   "live_alert": {}
   },
   {
    "symbol": "FEMY",
@@ -1692,8 +1693,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.85,
-   "live_alert": {}
+   "last_price": 4.03,
+   "live_alert": {
+    "breakout": "2026-07-10"
+   }
   },
   {
    "symbol": "VFF",
@@ -1791,7 +1794,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.4,
-   "last_price": 2.005,
+   "last_price": 1.995,
    "live_alert": {},
    "trendline": {
     "touches": 3,
@@ -2038,10 +2041,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.2,
-   "last_price": 1.82,
+   "last_price": 1.7199,
    "live_alert": {
-    "break": "2026-07-08",
-    "sweep": "2026-07-08",
+    "break": "2026-07-10",
+    "sweep": "2026-07-10",
     "buyzone": "2026-07-09"
    },
    "trendline": {
@@ -2476,7 +2479,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.09,
+   "last_price": 2.14,
    "live_alert": {}
   }
  ],
@@ -2509,7 +2512,7 @@
    "sector": null,
    "country": null,
    "float": null,
-   "last_price": 4.67,
+   "last_price": 4.5,
    "status": "watching",
    "triggered_date": null
   },
@@ -2538,9 +2541,9 @@
    "sector": null,
    "country": null,
    "float": null,
-   "last_price": 2.91,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 2.83,
+   "status": "triggered",
+   "triggered_date": "2026-07-10"
   },
   {
    "symbol": "AMCI",
@@ -2569,7 +2572,7 @@
    "sector": null,
    "country": null,
    "float": null,
-   "last_price": 5.25,
+   "last_price": 5.15,
    "status": "watching",
    "triggered_date": null
   },
@@ -2598,7 +2601,7 @@
    "sector": null,
    "country": null,
    "float": null,
-   "last_price": 1.88,
+   "last_price": 1.845,
    "status": "watching",
    "triggered_date": null
   },
@@ -2629,7 +2632,7 @@
    "sector": null,
    "country": null,
    "float": null,
-   "last_price": 4.34,
+   "last_price": 4.425,
    "status": "watching",
    "triggered_date": null
   },
@@ -2658,7 +2661,7 @@
    "sector": null,
    "country": null,
    "float": null,
-   "last_price": 1.94,
+   "last_price": 1.78,
    "status": "watching",
    "triggered_date": null
   },
@@ -2689,7 +2692,7 @@
    "sector": null,
    "country": null,
    "float": null,
-   "last_price": 16.71,
+   "last_price": 16.29,
    "status": "watching",
    "triggered_date": null
   },
@@ -2718,7 +2721,7 @@
    "sector": null,
    "country": null,
    "float": null,
-   "last_price": 2.87,
+   "last_price": 2.98,
    "status": "watching",
    "triggered_date": null
   },
@@ -2748,7 +2751,7 @@
    "sector": "Industrials",
    "country": "China",
    "float": 269938,
-   "last_price": 7.9,
+   "last_price": 7.53,
    "status": "watching",
    "triggered_date": null
   },
@@ -2779,7 +2782,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 7384774,
-   "last_price": 6.74,
+   "last_price": 6.115,
    "status": "watching",
    "triggered_date": null
   },
@@ -2810,7 +2813,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 1273288,
-   "last_price": 3.77,
+   "last_price": 3.875,
    "status": "watching",
    "triggered_date": null
   },
@@ -2841,7 +2844,7 @@
    "sector": "Energy",
    "country": "United States",
    "float": 4070750,
-   "last_price": 3.32,
+   "last_price": 3.2,
    "status": "watching",
    "triggered_date": null
   },
@@ -2871,7 +2874,7 @@
    "sector": "Healthcare",
    "country": "India",
    "float": 40320500,
-   "last_price": 3.78,
+   "last_price": 3.645,
    "status": "watching",
    "triggered_date": null
   },
@@ -2900,7 +2903,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 7219053,
-   "last_price": 4.49,
+   "last_price": 4.455,
    "status": "watching",
    "triggered_date": null
   },
@@ -2930,7 +2933,7 @@
    "sector": "Healthcare",
    "country": "Canada",
    "float": 7859562,
-   "last_price": 3.64,
+   "last_price": 3.8599,
    "status": "watching",
    "triggered_date": null
   }
