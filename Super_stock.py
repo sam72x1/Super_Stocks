@@ -2395,6 +2395,49 @@ def ce_borrow_info(sym: str) -> dict:
         return {}
 
 
+def _ce_num(s):
+    """يحوّل رقم ChartExchange المختصر (12.55M · 778K · 1.2B · 550,000) إلى int.
+    None عند التعذّر (فاشل-آمن)."""
+    try:
+        s = s.strip().replace(",", "")
+        mult = {"K": 1e3, "M": 1e6, "B": 1e9}.get(s[-1:].upper(), 1)
+        if mult != 1:
+            s = s[:-1]
+        return int(float(s) * mult)
+    except Exception:
+        return None
+
+
+def _parse_ce_float(html: str):
+    """محلّل الفلوت النقي من صفحة ChartExchange (اقتراح المستخدم 2026-07-10 لحلّ
+    «الفلوت مجهول» من ياهو المخنوق). مكتوب من الشكل الحقيقي (مجسّ Actions،
+    مؤكَّد على GEOS/PTN/FEMY):
+      `stat-flow-label">Float</div><div class="stat-flow-value">12.55M</div>`
+    مطابقة تسمية «Float» **بالضبط** (لا «Free Float»/«Free Float %»). يرجّع
+    الفلوت int أو None (فاشل-آمن). عرض/سياق فقط — خارج الفرز."""
+    try:
+        m = re.search(r'stat-flow-label">Float</div>\s*<div[^>]*'
+                      r'stat-flow-value[^>]*>\s*([\d.,]+)\s*([KMB]?)', html)
+        if not m:
+            return None
+        return _ce_num(m.group(1) + m.group(2))
+    except Exception:
+        return None
+
+
+def ce_float_info(sym: str):
+    """غلاف شبكي فاشل-آمن لفلوت ChartExchange (صفحة النظرة العامة، ناسداك فقط).
+    None عند أي فشل — لا يعيق الإثراء. عرض/سياق فقط — خارج الفرز (M14 لا تُمسّ)."""
+    try:
+        r = requests.get("https://chartexchange.com/symbol/"
+                         f"nasdaq-{sym.lower()}/", headers=BROWSER_UA, timeout=8)
+        if r.status_code != 200:
+            return None
+        return _parse_ce_float(r.text or "")
+    except Exception:
+        return None
+
+
 def refresh_borrow(s: dict, today_iso: str, fetch=None) -> None:
     """تحديث يومي لاقتراض سهم قائمة من ChartExchange + **مسار «المتاح»** في
     `borrow_hist` [[تاريخ، متاح]…] (سقف 14). فيصل يتابع «المتاح» يوميًّا (IMG_9505:
@@ -2975,9 +3018,10 @@ def enrich(results: list) -> None:
     # 🔬 التجميع الصامت أُزيل من الإثراء (2026-07-09): تجربة T-ACC فشلت بالسنتين
     # (غير مميِّز للمنفجر) فتقاعد عرضه من الكرت/اليومي/فحص اليد — لا نستهلك نداءات
     # Polygon لإشارة غير مُجدية. الدوال النقيّة + acc_verify.py محفوظة لإعادة الاختبار.
-    _bor_budget = [0]        # 🔒 سقف طلبات احتياطَي الاقتراض معًا (CE+iBorrow — فاشل-آمن)
-    _ce_fails = [0]          # قاطع دائرة ChartExchange: يتوقف بعد 3 إخفاقات متتالية
+    _bor_budget = [0]        # 🔒 سقف طلبات احتياط الاقتراض/الفلوت من CE+iBorrow (فاشل-آمن)
+    _ce_fails = [0]          # قاطع دائرة اقتراض ChartExchange: يتوقف بعد 3 إخفاقات
     _bor_fails = [0]         # قاطع دائرة iBorrowDesk: يتوقف بعد 3 إخفاقات متتالية
+    _flt_fails = [0]         # 🏢 قاطع دائرة فلوت ChartExchange: يتوقف بعد 3 إخفاقات
     fintel = {}
     try:
         fintel = fintel_short(sorted(syms))
@@ -3065,6 +3109,22 @@ def enrich(results: list) -> None:
                 # القيمة المجلوبة إن وُجدت، وإلا آخر قيمة معروفة (لا يختفي 🏢)
                 r["float"] = (_or_cache(info.get("floatShares"), cached, "float")
                               or _prev_float)
+                # 🏢 احتياط ChartExchange للفلوت (اقتراح المستخدم 2026-07-10: «كثير
+                # أسهم يجيني الفلوت مجهول» — ياهو مخنوق). آخر ملاذ لو غاب من ياهو
+                # والذاكرة. **عرض فقط: بعد select_top، وM14 مرّت أثناء الفرز فلا
+                # تتأثر إطلاقًا.** بودجت + قاطع دائرة مستقل، فاشل-آمن.
+                if (r["float"] is None
+                        and _bor_budget[0] < 25 and _flt_fails[0] < 3):
+                    _bor_budget[0] += 1
+                    try:
+                        _cf = ce_float_info(sym)
+                    except Exception:
+                        _cf = None
+                    if _cf:
+                        _flt_fails[0] = 0
+                        r["float"] = _cf
+                    else:
+                        _flt_fails[0] += 1
                 # D10: تدوير الفلوت (حجم اليوم ÷ الفلوت) — إشارة سكويز عند تجاوز
                 # 100% (فيصل ELAB: تدوير 750%). عرض فقط — لا نقاط ولا بوابة.
                 _flt, _vt = r.get("float"), r.get("vol_today")
@@ -7575,6 +7635,16 @@ def run_daily_watchlist(wl: dict) -> None:
         # 🔒 تحديث الاقتراض يوميًّا + مسار «المتاح» (فيصل يتابعه يوميًّا — IMG_9505:
         # قفز 30 ألف→600 ألف في 3 أيام قبيل «طاخ طيخ»). فاشل-آمن: القديم يبقى.
         refresh_borrow(s, today_iso)
+        # 🏢 ردم الفلوت المجهول من ChartExchange (اقتراح المستخدم 2026-07-10):
+        # الأسهم القديمة التي غاب فلوتها (ياهو مخنوق) تُملأ مرة واحدة (الفلوت
+        # ثابت فيُخزَّن ويبقى). فاشل-آمن، وفقط عند الغياب (نداء واحد/سهم مرّة).
+        if s.get("float") is None:
+            try:
+                _cf = ce_float_info(s["symbol"])
+                if _cf:
+                    s["float"] = _cf
+            except Exception:
+                pass
     # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم.
     #    نمرّر القائمة الأساسية الحالية (تشمل ما أُضيف توًّا) كاستبعاد، ثم
     #    نشيل أي سهم تخرّج للأساسية من المراقبة (لا ازدواج بين القائمتين).
