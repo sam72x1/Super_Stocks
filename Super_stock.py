@@ -2483,13 +2483,14 @@ def refresh_borrow(s: dict, today_iso: str, fetch=None) -> None:
         pass
 
 
-def spread_line(bid, ask, session=None) -> str:
+def spread_line(bid, ask, session=None, brief=False) -> str:
     """💧 سطر السبريد وتحذير السيولة (🎬 فيصل يبدأ فيديو DSY بدفتر الأوامر — الحالة
     المرئية Bid 2.52 / Ask 3.12 = سبريد ~21%). السبريد نسبةً لمنتصف السعر (صيغة
     الفيديو: 0.60/2.82 = 21.28%، لا نسبةً للعرض). **عرض/تحذير فقط — لا بوابة**
     (اقتراح التقرير بالحظر ليس قول فيصل). العتبة 5% هندسية (نفس N5، لا رقم فيصل
     منطوق). session للوسم بصدق (سبريد خارج الجلسة واسع طبيعيًّا — لقطة الفيديو 21%
-    كانت مغلقة). '' عند غياب bid/ask أو سبريد طبيعي (فاشل-آمن)."""
+    كانت مغلقة). brief=True نسخة مختصرة للتنبيهات اللحظية. '' عند غياب bid/ask أو
+    سبريد طبيعي (فاشل-آمن)."""
     try:
         bid, ask = float(bid or 0), float(ask or 0)
         if bid <= 0 or ask <= 0 or ask < bid:
@@ -2497,6 +2498,8 @@ def spread_line(bid, ask, session=None) -> str:
         pct = (ask - bid) / ((ask + bid) / 2.0) * 100.0
         if pct < 5.0:
             return ""
+        if brief:
+            return f"💧 سبريد واسع {pct:.0f}% — سيولة ضعيفة، ادخل بأمر محدّد"
         sess = f" [{session}]" if session else ""
         return (f"💧 سبريد واسع: {pct:.0f}% (طلب ${bid:.2f} / عرض ${ask:.2f}){sess} "
                 "— السعر الأخير قد لا يكون قابلًا للتنفيذ؛ ادخل بأوامر محدّدة")
@@ -5913,7 +5916,12 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
                 events = [(k, d) for k, d in events if k not in _gated]
             elif _of is not None:
                 _ol = operator_line(_of, s)
-                events = [(k, (d + " · " + _ol) if k in _gated else d)
+                # 💧 سبريد لحظي (اشتراك المستخدم Polygon Advanced لحظي — الجلسة مفتوحة
+                # وقت المراقب فالسبريد حقيقي، خلاف تقرير السبت بعد الإغلاق). فيصل يبدأ
+                # بدفتر الأوامر — تحذير سيولة عند الدخول. مختصر · فاشل-آمن ('' لو طبيعي).
+                _spl = spread_line(_of.get("bid"), _of.get("ask"), brief=True)
+                _tail = _ol + ((" · " + _spl) if _spl else "")
+                events = [(k, (d + " · " + _tail) if k in _gated else d)
                           for k, d in events]
         seen = s.setdefault("live_alert", {})
         for kind, desc in events:
