@@ -60,9 +60,8 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     # 📊 تدفق الأوامر (Polygon حي · وإلا لقطة Yahoo · وإلا «—» — لا يعيق الفحص)
     L.append("")
     L.append(f"📊 تدفق الأوامر: {r.get('order_flow') or '—'}")
-    # 🔬 التجميع الصامت عند القاع (Polygon · وإلا «—»)
-    _al = bot.acc_line(r.get("acc"))
-    L.append(_al if _al else "🔬 تجميع صامت: —")
+    # (🔬 التجميع الصامت أُزيل 2026-07-09 — تجربة T-ACC فشلت بالسنتين، غير مميِّز
+    #  للمنفجر؛ لا نعرض إشارة سقطت في اختبارها. الدوال + acc_verify.py محفوظة.)
     # 🔒 معدّل الاقتراض (فيصل: أساس الارتكاز · اقتراض صعب = وقود سكويز · «—» عند التعذّر)
     L.append(bot.borrow_line(r))
     # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
@@ -180,11 +179,7 @@ def hand_check(sym: str):
                            if sp is not None and len(sp) else 0)
     except Exception:
         r["split_freq"] = 0
-    # 🔬 التجميع الصامت عند القاع (Polygon — فاشل-آمن → «—»، عرض/تشخيص فقط)
-    try:
-        r["acc"] = bot.silent_accumulation(sym)
-    except Exception:
-        r["acc"] = None
+    # (🔬 التجميع الصامت أُزيل — تجربة T-ACC فشلت بالسنتين؛ لا نجلبه ولا نعرضه)
     # مؤهّل ارتكاز؟ (interp + دخول/أهداف لو مرّ) · وإلا السبب الأول
     try:
         bot._REJECT_STATS.clear()

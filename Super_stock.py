@@ -2855,10 +2855,9 @@ def _fetch_info(t):
 def enrich(results: list) -> None:
     """إثراء المرشحين: شورت (Fintel→FINRA→Yahoo) + SEC + تقسيمات + أخبار"""
     syms = {r["symbol"] for r in results}
-    # 🔬 رادار التجميع: يُقرأ المفتاح مرّة (وقت الفرز) — بلا مفتاح = القسم كلّه يُتخطّى
-    # (صفر تأخير، صفر أثر). مع مفتاح: كل طلب فاشل-آمن → None. (POLYGON_EDGE_PLAN §أ)
-    _acc_on = bool(os.environ.get("POLYGON_API_KEY", "").strip())
-    _acc_budget = [0]        # 🔬 سقف طلبات رادار التجميع (POLYGON_EDGE_PLAN §أ)
+    # 🔬 التجميع الصامت أُزيل من الإثراء (2026-07-09): تجربة T-ACC فشلت بالسنتين
+    # (غير مميِّز للمنفجر) فتقاعد عرضه من الكرت/اليومي/فحص اليد — لا نستهلك نداءات
+    # Polygon لإشارة غير مُجدية. الدوال النقيّة + acc_verify.py محفوظة لإعادة الاختبار.
     _bor_budget = [0]        # 🔒 سقف طلبات iBorrowDesk (احتياط الاقتراض — فاشل-آمن)
     _bor_fails = [0]         # قاطع دائرة: يوقف iBorrowDesk بعد 3 إخفاقات متتالية (لا تعليق)
     fintel = {}
@@ -3070,18 +3069,6 @@ def enrich(results: list) -> None:
                 r["tf4h"] = "غير متوفر"
         except Exception:
             continue
-        # 🔬 رادار التجميع الصامت (Polygon — طبقة اختيارية فاشلة-آمنة، عرض/تسجيل
-        # فقط): يُحسب للمرشّحين المؤهّلين ضمن سقف طلبات عاقل (POLYGON_EDGE_PLAN §أ).
-        # غياب المفتاح/أي فشل = None (يُعرض «—»)، صفر أثر على الفرز.
-        if _acc_on and _acc_budget[0] < 30:
-            try:
-                _a = silent_accumulation(r["symbol"])
-                if _a:
-                    r["acc"] = _a
-                _acc_budget[0] += 1
-                time.sleep(0.2)
-            except Exception:
-                pass
         # 📅 الأحداث المعلنة القادمة (أرباح + تجارب سريرية للرعاية الصحية) —
         # فاشل-آمن → None (عرض/سياق فقط، «يوم الانفجار الذي ينتظره المضارب»)
         try:
@@ -4057,10 +4044,7 @@ def build_message(results: list, splits: list,
             det += behavior_tags(bh)      # §13: وسوم وصفية (صيد وقفات/خمول طويل)
             tail = (" (" + " · ".join(det) + ")") if det else ""
             lines.append(f"🧬 طريقة الارتفاع: {bh['score']}/100 · {bh['label']}{tail}")
-        # 🔬 التجميع الصامت (Polygon — يظهر فقط لو توفّر؛ عرض/تشخيص فقط)
-        _accl = acc_line(r.get("acc"))
-        if _accl:
-            lines.append(_accl)
+        # (🔬 التجميع الصامت أُزيل من العرض — تجربة T-ACC فشلت بالسنتين، غير مميِّز)
         # 🕵️ لوحة علامات اليد (تجميع قرائن مضارب — يظهر عند دليلين فأكثر)
         _he = hand_evidence_line(r)
         if _he:
@@ -4495,7 +4479,6 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
         "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
-        "acc": r.get("acc"),                              # 🔬 التجميع الصامت (Polygon، عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "bars_after": r.get("bars_after"),                # §11: جلسات منذ القاع (تفسير)
         "trendline": r.get("trendline"),                  # §10: خط الترند الهابط (تفسير)
@@ -6516,9 +6499,7 @@ def build_daily_message(wl: dict, splits: list,
             _bd += behavior_tags(_bh)     # §13: وسوم وصفية (صيد وقفات/خمول طويل)
             _bt = (" (" + " · ".join(_bd) + ")") if _bd else ""
             lines.append(f"   🧬 طريقة الارتفاع: {_bh['score']}/100 · {_bh['label']}{_bt}")
-        _daccl = acc_line(s.get("acc"))   # 🔬 التجميع الصامت (Polygon، عرض فقط)
-        if _daccl:
-            lines.append("   " + _daccl)
+        # (🔬 التجميع الصامت أُزيل — تجربة T-ACC فشلت بالسنتين، غير مميِّز للمنفجر)
         # 🕵️ علامات اليد لم تعد سطرًا داخل كل كرت (طلب المستخدم: تُجمع في قسم
         # «أسهم فيها علامات يد» المستقل أسفل التقرير — قائمة نظيفة لحالها).
         # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط

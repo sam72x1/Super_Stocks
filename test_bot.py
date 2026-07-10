@@ -1151,16 +1151,15 @@ check("تجميع·فاشل-آمن: بلا مفتاح POLYGON ⇒ polygon_base_t
       S.polygon_base_trades("AAPL") is None)
 check("تجميع·فاشل-آمن: بلا مفتاح ⇒ silent_accumulation=None (يُعرض «—»)",
       S.silent_accumulation("AAPL") is None)
-# العرض: سطر عربي مبسّط · فارغ عند None (لا سطر) · «—» في فحص اليد
-check("تجميع·عرض: acc_line فارغ عند None/{} (لا سطر وهمي)",
-      S.acc_line(None) == "" and S.acc_line({}) == "")
-check("تجميع·عرض: acc_line يعرض المكوّنات عربيًا مبسّطًا",
-      "شراء عدواني 67%" in S.acc_line({"aggressive_buy_pct": 67,
-          "block_share_pct": 12, "dark_share_pct": 40})
-      and "دارك 40%" in S.acc_line({"aggressive_buy_pct": 67,
+# 🪦 تقاعد العرض (2026-07-09): تجربة T-ACC فشلت بالسنتين (غير مميِّزة للمنفجر) →
+# أُزيل «🔬 تجميع صامت» من الكرت واليومي وفحص اليد ولم يعد يُجلب بالإثراء. الدوال
+# النقيّة محفوظة (research infra + acc_verify.py) وتبقى مُختبَرة لإعادة الاختبار.
+check("تجميع·دوال محفوظة: acc_line ما زالت تعمل (بحث/إعادة اختبار — غير معروضة)",
+      S.acc_line(None) == ""
+      and "شراء عدواني 67%" in S.acc_line({"aggressive_buy_pct": 67,
           "block_share_pct": 12, "dark_share_pct": 40}))
-check("تجميع·شرطة: فحص اليد يعرض «تجميع صامت: —» عند تعذّره (لا يعيق الفحص)",
-      "تجميع صامت: —" in HC.render_hand_check(
+check("🪦 تقاعد العرض: «تجميع صامت» لم يعد يظهر في فحص اليد (إشارة سقطت باختبارها)",
+      "تجميع صامت" not in HC.render_hand_check(
           "N", {"symbol": "N", "price": 2.0, "behav": {}}))
 # 🔒 قفل: دوال التجميع خارج الفرز/الترتيب/الاختيار/الحالة/الباكتيست نهائيًا
 check("تجميع·قفل: دوال التجميع خارج rank_key/select_top/classify_tier/entry_status/"
