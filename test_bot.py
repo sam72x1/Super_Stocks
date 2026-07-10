@@ -1708,10 +1708,17 @@ check("🌐 ChartExchange·فاشل-آمن: HTML بلا مرساة/بلا جمل
       and S._parse_ce_borrow("") == {})
 check("🌐 ChartExchange·فاشل-آمن: بلا شبكة ⇒ ce_borrow_info={} (لا يعيق الإثراء)",
       S.ce_borrow_info("GEOS") == {})
-check("🌐 قفل: سلسلة الاقتراض في enrich = Fintel ثم ChartExchange ثم iBorrowDesk",
-      _insp0.getsource(S.enrich).find("ce_borrow_info")
-      < _insp0.getsource(S.enrich).find("iborrow_info")
-      and "ce_borrow_info" in _insp0.getsource(S.enrich))
+# ⚖️ CE = المرجع الأول صراحةً (قرار المستخدم 2026-07-10): CE قبل احتياط Fintel
+# وقبل iBorrowDesk في enrich، و`refresh_borrow` اليومي يبدأ بـCE مباشرة.
+_es = _insp0.getsource(S.enrich)
+check("🌐 قفل: CE هو المرجع الأول — ce_borrow_info قبل fintel-احتياط وقبل iBorrowDesk",
+      _es.find("ce_borrow_info") < _es.find('"fintel"].get("borrow_fee")')
+      < _es.find("iborrow_info"))
+check("🌐 قفل: نداء CE غير مشروط بفشل مصدر سابق (المرجع الأول لا الاحتياط)",
+      "ce_borrow_info(r" in _es
+      and _es.find("ce_borrow_info(r") < _es.find('borrow_fee"] = r["fintel"]'))
+check("🔄 refresh_borrow اليومي يعتمد CE مباشرة (المرجع الأول)",
+      "ce_borrow_info" in _insp0.getsource(S.refresh_borrow))
 check("🌐 قفل: ChartExchange خارج rank_key/select_top/classify_tier/analyze_ticker/"
       "backtest_symbol (عرض/سياق فقط)",
       all("ce_borrow" not in _insp0.getsource(_f)
