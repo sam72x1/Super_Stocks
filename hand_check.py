@@ -62,6 +62,18 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     L.append(f"📊 تدفق الأوامر: {r.get('order_flow') or '—'}")
     # (🔬 التجميع الصامت أُزيل 2026-07-09 — تجربة T-ACC فشلت بالسنتين، غير مميِّز
     #  للمنفجر؛ لا نعرض إشارة سقطت في اختبارها. الدوال + acc_verify.py محفوظة.)
+    # 📊 الشورت الرسمي (SI) + أيام التغطية (🎬 فيديو DSY — فيصل قرأهما من Fintel)
+    _sil = bot.short_interest_line(r)
+    if _sil:
+        L.append(_sil)
+    # 💧 سبريد/سيولة (🎬 فيصل يبدأ فيديو DSY بدفتر الأوامر) — من NBBO الخام إن توفّر
+    _fr = r.get("flow_raw") or {}
+    _spl = bot.spread_line(_fr.get("bid"), _fr.get("ask"))
+    if _spl:
+        L.append(_spl)
+    # 🎬 KST 4س (حالة زخم مساندة — مؤشر فيصل بالفيديو)
+    if r.get("kst4"):
+        L.append(f"📈 KST (4س): {r['kst4']}")
     # 🔒 معدّل الاقتراض (فيصل: أساس الارتكاز · اقتراض صعب = وقود سكويز · «—» عند التعذّر)
     L.append(bot.borrow_line(r))
     # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
@@ -156,6 +168,9 @@ def hand_check(sym: str):
          "h4_levels": diag.get("h4_levels"),
          "borrow_fee": diag.get("borrow_fee"),              # 🔒 الاقتراض (فيصل: سكويز)
          "shares_available": diag.get("shares_available"),
+         "short_interest": diag.get("short_interest"),      # 📊 SI الرسمي (🎬 فيديو DSY)
+         "days_to_cover": diag.get("days_to_cover"),        # 📊 أيام التغطية (🎬 DSY)
+         "kst4": diag.get("kst4"),                          # 🎬 KST 4س (حالة زخم)
          "upcoming_events": diag.get("upcoming_events")}    # 📅 أحداث معلنة قادمة
     try:
         r["behav"] = bot.behavior_rise_profile(df)     # بصمة اليومي
