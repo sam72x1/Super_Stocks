@@ -5647,7 +5647,7 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
             if _of is not None and not _of.get("has_operator"):
                 events = [(k, d) for k, d in events if k not in _gated]
             elif _of is not None:
-                _ol = operator_line(_of)
+                _ol = operator_line(_of, s)
                 events = [(k, (d + " · " + _ol) if k in _gated else d)
                           for k, d in events]
         seen = s.setdefault("live_alert", {})
@@ -5875,10 +5875,13 @@ def acc_line(acc: dict) -> str:
 
 
 def build_live_alert(rows: list, quotes: dict = None) -> str:
-    """رسالة تنبيه الأحداث اللحظية (مسح/دخول/كسر/تجاوز) + لقطة الأوامر إن توفّرت."""
+    """رسالة تنبيه الأحداث اللحظية (مسح/دخول/كسر/تجاوز) — مختصرة (طلب المستخدم
+    2026-07-09 «فيها فلسفة كثيرة»): سطر الحدث فقط، ومعلومات الأوامر تأتي داخل
+    وصف الحدث المبوَّب بسطر المضارب المختصر (operator_line بلغة المتداول).
+    أُسقطت «📊 لقطة الأوامر» وتذييلا ℹ️ (Lee-Ready/L2/Yahoo) — التفصيل وحدود
+    الصدق بقيا في أداة فحص اليد فقط. `quotes` تُقبل وتُتجاهَل (توافق خلفي)."""
     if not rows:
         return ""
-    quotes = quotes or {}
     lines = ["🚨 <b>أحداث لحظية على القائمة</b>",
              "لحظات تنفيذ/خطر — راقبها الآن:"]
     for s, kind, desc in rows:
@@ -5888,21 +5891,6 @@ def build_live_alert(rows: list, quotes: dict = None) -> str:
         lp = s.get("last_price")
         px = f" ${lp:.2f}" if lp else ""
         lines.append(f"{icon} <b>${s['symbol']}</b>{px} · {tag} — {desc}")
-        q = quotes.get(s["symbol"])
-        if q:
-            lines.append(f"   📊 لقطة الأوامر: {q}")
-    # تذييل صادق **حسب المصدر الفعلي** (order_snapshot يوسم المصدر): مع اشتراك
-    # المستخدم، «تدفق حي (Polygon)» = نسبة الشراء/البيع من آخر ~100 صفقة (Lee-Ready)
-    # + أفضل عرض/طلب = **تدفق أوامر حي فعلي**. بلا اشتراك = لقطة Yahoo (عرض/طلب فقط).
-    _has_poly = any("تدفق حي" in (quotes.get(s["symbol"]) or "")
-                    for s, _k, _d in rows)
-    if _has_poly:
-        lines.append("ℹ️ «تدفق حي (Polygon)» = شراء/بيع من آخر ~100 صفقة (Lee-Ready) "
-                     "+ أفضل عرض/طلب = تدفق أوامر حي فعلي · عمق L2 الكامل (كل مستويات "
-                     "الأوامر) غير مستعمل.")
-    else:
-        lines.append("ℹ️ لقطة الأوامر من Yahoo (أفضل عرض/طلب فقط) — ليست تدفق "
-                     "أوامر حيًّا.")
     return _rtl_join(lines)
 
 
@@ -5960,12 +5948,14 @@ def operator_flow(sym: str):
         ob = _operator_blocks(rows, CONFIG["OPERATOR_MIN_SHARES"])
         if ob is None:
             return None
-        try:                                 # جدار الطلب (NBBO — أفضل طلب + حجمه)
+        try:     # جدارا الطلب والعرض (NBBO — نفس النداء، أفضل طلب/عرض + حجمهما)
             q = requests.get(f"{base}/v2/last/nbbo/{s}", headers=h, timeout=12)
             if q.status_code == 200:
                 res = (q.json() or {}).get("results") or {}
                 ob["bid"] = float(res["p"]) if res.get("p") else None
                 ob["bid_size"] = res.get("s")
+                ob["ask"] = float(res["P"]) if res.get("P") else None
+                ob["ask_size"] = res.get("S")
         except Exception:
             pass
         return ob
@@ -5973,24 +5963,61 @@ def operator_flow(sym: str):
         return None
 
 
-def operator_line(of) -> str:
-    """سطر «🕵️ المضارب» من `operator_flow`: كميات الطبعات الكبيرة (شراء عدواني / على
-    الطلب) + جدار الطلب، مع حدّ الصدق. «—» لو None. عرض فقط."""
-    mn = CONFIG["OPERATOR_MIN_SHARES"]
+def _price_level_tag(price, s) -> str:
+    """وسم موقع سعرٍ من مستويات السهم المخزّنة بلغة المتداول (طلب المستخدم
+    2026-07-09: «المضارب طلب 1000 سهم فوق الدعم»): يختار أقرب مستوى معروف
+    (وقف/دعم أساسي/فرعي/الرقم الحرج/مقاومة فرعية/أساسية) ويصف الموقع —
+    «عند» ضمن 1.5%، وإلا «فوق/تحت». '' لو لا مستويات (فاشل-آمن). عرض فقط."""
+    try:
+        if not price or not s:
+            return ""
+        kl = s.get("key_levels") or {}
+        crit = ((s.get("interp") or {}).get("critical_number") or {}).get("price")
+        _st = s.get("stop")
+        stop0 = (_st[0] if isinstance(_st, (list, tuple)) and _st else _st)
+        levels = [("الوقف", stop0),
+                  ("الدعم", kl.get("sup_major") or s.get("pivot")),
+                  ("الدعم الفرعي", kl.get("sup_minor")),
+                  ("الرقم الحرج", crit),
+                  ("المقاومة الفرعية", kl.get("res_minor")),
+                  ("المقاومة", kl.get("res_major"))]
+        levels = [(n, float(v)) for n, v in levels if v]
+        if not levels:
+            return ""
+        name, lvl = min(levels, key=lambda x: abs(price - x[1]) / x[1])
+        rel = (price - lvl) / lvl
+        if abs(rel) <= 0.015:
+            return f" (عند {name} ${lvl:.2f})"
+        return f" ({'فوق' if rel > 0 else 'تحت'} {name} ${lvl:.2f})"
+    except Exception:
+        return ""
+
+
+def operator_line(of, s=None) -> str:
+    """سطر «🕵️ المضارب» المختصر بلغة أوامر المتداول (طلب المستخدم 2026-07-09:
+    «ابي شي مختصر جدا — المضارب طلب 1000 سهم فوق الدعم · عرض 5 آلاف عند
+    المقاومة» — بلا فلسفة/نسب/حدود صدق؛ التفصيل والحدود بفحص اليد فقط):
+    ما نفّذه (شرى على الطلب/رفع بشراء) + جدارا الطلب والعرض موسومَين بأقرب
+    مستوى (`_price_level_tag` لو مُرّر السهم). «—» لو None. عرض فقط."""
     if not of:
         return "🕵️ المضارب: —"
     parts = []
+    if of.get("bid_block_shares"):       # الأهم عند المستخدم: الشراء على الطلب
+        parts.append(f"شرى على الطلب ~{of['bid_block_shares']:,} سهم")
     if of.get("buy_block_shares"):
-        parts.append(f"شراء عدواني ~{of['buy_block_shares']:,} سهم")
-    if of.get("bid_block_shares"):
-        parts.append(f"على الطلب ~{of['bid_block_shares']:,} سهم (امتصاص)")
+        parts.append(f"رفع بشراء ~{of['buy_block_shares']:,} سهم")
     if not parts:
-        parts.append(f"لا طبعات مضارب ({mn} سهم فأكثر)")
-    wall = ""
+        parts.append(f"لا صفقات مضارب ({CONFIG['OPERATOR_MIN_SHARES']} سهم فأكثر)")
+    def _wall(label, size, price):
+        tag = _price_level_tag(price, s)
+        if tag.startswith(" (عند "):     # الجدار عند مستوى ⇒ المستوى هو الموقع
+            return f"{label} {size:,} سهم {tag[2:-1]} (${price:.2f})"
+        return f"{label} {size:,} سهم عند ${price:.2f}{tag}"
     if of.get("bid") and of.get("bid_size"):
-        wall = f" · جدار طلب ${of['bid']:.2f}×{of['bid_size']}"
-    return (f"🕵️ المضارب (طبعات {mn} سهم فأكثر · تصنيف تقريبي بلا عمق L2): "
-            + " · ".join(parts) + wall)
+        parts.append(_wall("طلب", of["bid_size"], of["bid"]))
+    if of.get("ask") and of.get("ask_size"):
+        parts.append(_wall("عرض", of["ask_size"], of["ask"]))
+    return "🕵️ المضارب: " + " · ".join(parts)
 
 
 # ==========================================================
@@ -6132,11 +6159,11 @@ def build_ignition_alert(rows: list) -> str:
         if _desc:
             _icon = "⚠️" if _cls == "group" else "💰"
             lines.append(f"   {_icon} سيولة الشمعة ${_usd:,.0f} — {_desc}")
-        # 🕵️ كميات المضارب (طلب المستخدم: شراء عدواني/على الطلب) — تظهر لو قِيست
+        # 🕵️ كميات المضارب (طلب المستخدم: شراء عدواني/على الطلب) — تظهر لو قِيست.
+        # مختصرة بلغة الأوامر مع وسم المستوى (طلب المستخدم 2026-07-09)؛ سطر التدفق
+        # المفصّل (نِسَب/لقطة) أُسقط من التنبيه — التفصيل بفحص اليد.
         if sig.get("operator"):
-            lines.append("   " + operator_line(sig["operator"]))
-        if flow:
-            lines.append(f"   📊 تدفق الأوامر: {flow}")
+            lines.append("   " + operator_line(sig["operator"], s))
         _st = s.get("stop")
         stop0 = (_st[0] if isinstance(_st, (list, tuple)) and _st else _st)
         if s.get("t1") and stop0:

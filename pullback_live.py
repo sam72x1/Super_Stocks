@@ -46,15 +46,9 @@ def main():
                 wl, hist, bot.dt.date.today().isoformat(),
                 premarket_only=_pm_only)
             if events:
-                # لقطة الأوامر تُجلب **فقط** للأسهم التي وقع عليها حدث (لا للكل)
-                quotes = {}
-                for s, _kind, _desc in events:
-                    sym = s["symbol"]
-                    if sym not in quotes:
-                        q = bot.order_snapshot(sym)
-                        if q:
-                            quotes[sym] = q
-                alerts.append(bot.build_live_alert(events, quotes))
+                # سطر المضارب المختصر داخل وصف الحدث يكفي (طلب المستخدم 2026-07-09)
+                # — «لقطة الأوامر» لم تعد تُعرض فلا تُجلب (توفير نداءات).
+                alerts.append(bot.build_live_alert(events))
                 bot.log(f"🚨 أحداث لحظية: {len(events)}.")
             else:
                 bot.log("المراقبة اللحظية: لا أحداث جديدة.")
