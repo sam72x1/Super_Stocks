@@ -1717,12 +1717,26 @@ check("🌐 قفل: ChartExchange خارج rank_key/select_top/classify_tier/ana
       all("ce_borrow" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.backtest_symbol)))
-# السطر مفسَّر ذاتيًّا (طلب المستخدم 2026-07-09: يشرح الفايدة لا الرقم الخام)
+# السطر مفسَّر ذاتيًّا **على إطار فيصل الموثّق** (تصحيح 2026-07-10 بعد تشكيك
+# المستخدم: سردية «يجبر الشورت يغطّي» أُزيلت — غير موثّقة؛ ثم أكّد فيصل مباشرة
+# في DSY: «نسبة الاقتراض 725% عاليه جدا للشورت = اجابي» مع 7 آلاف متاح فقط).
 _bl_hi = S.borrow_line({"borrow_fee": 45.0, "shares_available": 12000})
-check("🔒 سطر الاقتراض·صعب: يشرح وقود السكويز (يجبر الشورت يغطّي) + المتاح",
+check("🔒 اقتراض·صعب+متاح قليل = إيجابي (فيصل DSY حرفيًّا) — بلا سردية التغطية",
       "رسوم 45%" in _bl_hi and "صعب 🔥" in _bl_hi
-      and "وقود سكويز" in _bl_hi and "يغطّي" in _bl_hi
-      and "متاح للشورت 12K" in _bl_hi)
+      and "إيجابي" in _bl_hi and "DSY" in _bl_hi
+      and "وقود سكويز" not in _bl_hi and "يغطّي" not in _bl_hi
+      and "متاح للشورت 12K سهم (قليل — تحت حد فيصل 40 ألف)" in _bl_hi)
+# حالة DSY الحرفية (IMG_9509/9510): رسوم 728.64% + متاح 7,000
+_bl_dsy = S.borrow_line({"borrow_fee": 728.64, "shares_available": 7000})
+check("🔒 اقتراض·DSY حرفيًّا (729% + 7K): إيجابي + وسم «قليل»",
+      "رسوم 729%" in _bl_dsy and "إيجابي" in _bl_dsy and "7K" in _bl_dsy
+      and "قليل" in _bl_dsy)
+check("🔒 اقتراض·صعب بلا «متاح»: حكم ناقص يُصرَّح به (لا إيجابي أعمى — درس XHLD)",
+      "إيجابي" not in S.borrow_line({"borrow_fee": 45.0})
+      and "الحكم الكامل يحتاج" in S.borrow_line({"borrow_fee": 45.0}))
+check("🔒 اقتراض·متاح صفر: وسم ELAB (شرط حالة السكويز الموثّقة)",
+      "لا أسهم متاحة للشورت أصلًا (فيصل ELAB: شرط حالة السكويز)"
+      in S.borrow_line({"borrow_fee": 45.0, "shares_available": 0}))
 # ⚠️ قراءة فيصل المركّبة (IMG_9504/9505 — XHLD حرفيًّا: متاح 600 ألف برسوم 23.31%
 # → «طاخ طيخ الى الهاويه»): المتاح فوق حد فيصل (SHORT_GATE_MAX=40 ألف) = ذخيرة
 # هبوط حتى مع رسوم عالية — لا يُوسَم وقود سكويز إيجابيًّا.
@@ -1773,12 +1787,12 @@ check("🔄 قفل: refresh_borrow خارج rank_key/select_top/classify_tier/an
       all("refresh_borrow" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.backtest_symbol)))
-check("🔒 سطر الاقتراض·متوسط (5-20%): «وقود سكويز جزئي»",
-      "متوسط" in S.borrow_line({"borrow_fee": 12.0})
-      and "جزئي" in S.borrow_line({"borrow_fee": 12.0}))
-check("🔒 سطر الاقتراض·سهل (أقل من 5%): «لا وقود سكويز» — يفسّر حتى الصفر",
+check("🔒 سطر الاقتراض·متوسط (5-20%): وصف واقعي بلا سرديات",
+      "متوسط (رسوم 12% سنويًّا على من يشورته)" in S.borrow_line({"borrow_fee": 12.0})
+      and "جزئي" not in S.borrow_line({"borrow_fee": 12.0}))
+check("🔒 سطر الاقتراض·سهل (أقل من 5%): باب حرب الشورت مفتوح ورخيص",
       "سهل ورخيص" in S.borrow_line({"borrow_fee": 0.0})
-      and "لا وقود سكويز" in S.borrow_line({"borrow_fee": 0.0})
+      and "باب دخول شورت جديد للحرب عليه مفتوح" in S.borrow_line({"borrow_fee": 0.0})
       and "🔥" not in S.borrow_line({"borrow_fee": 0.0}))
 check("🔒 سطر الاقتراض: متاح بلا رسوم ⇒ يصرّح «الرسوم غير معروفة»",
       "الرسوم غير معروفة" in S.borrow_line({"shares_available": 9000}))
