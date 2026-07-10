@@ -1684,6 +1684,39 @@ check("🔒 iBorrowDesk: يسقط لـdaily لو غاب real_time",
       S._parse_iborrow({"daily": [{"fee": 10.0, "available": 900}]})["borrow_fee"] == 10.0)
 check("🔒 iBorrowDesk·فاشل-آمن: رد فارغ/غير صالح ⇒ {}",
       S._parse_iborrow({}) == {} and S._parse_iborrow({"real_time": []}) == {})
+# 🌐 ChartExchange (اقتراح المستخدم 2026-07-10 — مصدر فيصل نفسه، صورة 9431).
+# الثوابت من مجسّ Actions الحقيقي (لا تخمين): جملة ctbtoday ثابتة الشكل عبر الرموز.
+_CE_GEOS = ('<a name="ctbtoday" href="#ctbtoday">GEOS Borrow Fee (CTB) Latest</a>'
+            '</div><div style="padding: 0 0 0 1em;">As of <span style="font-weight:'
+            ' bold;">2026-07-10 03:54:27 AM EDT</span>, there were <span style='
+            '"font-weight: bold;">550,000</span> shares available with a fee of '
+            '<span style="font-weight: bold;">0.40%</span>.</div>')
+_CE_PTN = ('<a name="ctbtoday">PTN Borrow Fee (CTB) Latest</a><div>As of <span>'
+           '2026-07-10 03:54:27 AM EDT</span>, there were <span>40,000</span> '
+           'shares available with a fee of <span>12.43%</span>.</div>')
+check("🌐 ChartExchange: يستخرج المتاح/الرسوم من مقطع ctbtoday (شكل المجسّ الحقيقي)",
+      S._parse_ce_borrow(_CE_GEOS) == {"shares_available": 550000,
+                                       "borrow_fee": 0.40}
+      and S._parse_ce_borrow(_CE_PTN) == {"shares_available": 40000,
+                                          "borrow_fee": 12.43})
+check("🌐 ChartExchange: رسوم بفاصلة آلاف (صعب جدًّا 1,234.5%) تُقرأ سليمة",
+      S._parse_ce_borrow('name="ctbtoday" there were <b>500</b> shares available '
+                         'with a fee of <b>1,234.5%</b>')["borrow_fee"] == 1234.5)
+check("🌐 ChartExchange·فاشل-آمن: HTML بلا مرساة/بلا جملة ⇒ {}",
+      S._parse_ce_borrow("<html>لا شيء</html>") == {}
+      and S._parse_ce_borrow('name="ctbtoday" نص بلا أرقام') == {}
+      and S._parse_ce_borrow("") == {})
+check("🌐 ChartExchange·فاشل-آمن: بلا شبكة ⇒ ce_borrow_info={} (لا يعيق الإثراء)",
+      S.ce_borrow_info("GEOS") == {})
+check("🌐 قفل: سلسلة الاقتراض في enrich = Fintel ثم ChartExchange ثم iBorrowDesk",
+      _insp0.getsource(S.enrich).find("ce_borrow_info")
+      < _insp0.getsource(S.enrich).find("iborrow_info")
+      and "ce_borrow_info" in _insp0.getsource(S.enrich))
+check("🌐 قفل: ChartExchange خارج rank_key/select_top/classify_tier/analyze_ticker/"
+      "backtest_symbol (عرض/سياق فقط)",
+      all("ce_borrow" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.backtest_symbol)))
 # السطر مفسَّر ذاتيًّا (طلب المستخدم 2026-07-09: يشرح الفايدة لا الرقم الخام)
 _bl_hi = S.borrow_line({"borrow_fee": 45.0, "shares_available": 12000})
 check("🔒 سطر الاقتراض·صعب: يشرح وقود السكويز (يجبر الشورت يغطّي) + المتاح",

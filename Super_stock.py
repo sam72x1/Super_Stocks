@@ -2357,6 +2357,44 @@ def iborrow_info(sym: str) -> dict:
         return {}
 
 
+def _parse_ce_borrow(html: str) -> dict:
+    """محلّل ChartExchange النقي (اقتراح المستخدم 2026-07-10 — **مصدر فيصل نفسه**،
+    رابطه في صورة 9431). مكتوب من الشكل الحقيقي (مجسّ Actions، لا تخمين): مقطع
+    `name="ctbtoday"` يحوي جملة ثابتة الشكل عبر الرموز (GEOS/PTN مطابقان):
+      «As of <b>2026-07-10 03:54 AM EDT</b>, there were <b>550,000</b> shares
+       available with a fee of <b>0.40%</b>.»
+    (بيانات Interactive Brokers، تُحدَّث كل 15 دقيقة.) نقتصّ نافذة بعد المرساة،
+    نجرّد الوسوم، ثم regex بسيط. {} عند أي شكل غير متوقّع (فاشل-آمن)."""
+    try:
+        i = html.find('name="ctbtoday"')
+        if i < 0:
+            return {}
+        window = re.sub(r"<[^>]+>", " ", html[i:i + 1200])
+        m = re.search(r"there were\s*([\d,]+)\s*shares available with a fee of"
+                      r"\s*([\d,]+(?:\.\d+)?)\s*%", window)
+        if not m:
+            return {}
+        return {"shares_available": int(m.group(1).replace(",", "")),
+                "borrow_fee": float(m.group(2).replace(",", ""))}
+    except Exception:
+        return {}
+
+
+def ce_borrow_info(sym: str) -> dict:
+    """غلاف شبكي فاشل-آمن لصفحة اقتراض ChartExchange (ناسداك فقط — بورصة البوت
+    المعتمدة). أثبت مجسّ Actions (2026-07-10) أن بيئة البوت تصل 200/سريعة رغم
+    حجب بيئات التطوير. {} عند أي فشل — لا يعيق الإثراء. عرض/سياق فقط."""
+    try:
+        r = requests.get("https://chartexchange.com/symbol/"
+                         f"nasdaq-{sym.lower()}/borrow-fee/",
+                         headers=BROWSER_UA, timeout=8)
+        if r.status_code != 200:
+            return {}
+        return _parse_ce_borrow(r.text or "")
+    except Exception:
+        return {}
+
+
 def borrow_line(r: dict) -> str:
     """سطر «🔒 اقتراض» **مفسَّر ذاتيًّا** (طلب المستخدم 2026-07-09: «لو تذكرها لي ما
     اعرف الفايده» — البوت يشرح المعنى بدل الرقم الخام، بلغة مبتدئ). الفكرة (فيصل،
@@ -2858,8 +2896,9 @@ def enrich(results: list) -> None:
     # 🔬 التجميع الصامت أُزيل من الإثراء (2026-07-09): تجربة T-ACC فشلت بالسنتين
     # (غير مميِّز للمنفجر) فتقاعد عرضه من الكرت/اليومي/فحص اليد — لا نستهلك نداءات
     # Polygon لإشارة غير مُجدية. الدوال النقيّة + acc_verify.py محفوظة لإعادة الاختبار.
-    _bor_budget = [0]        # 🔒 سقف طلبات iBorrowDesk (احتياط الاقتراض — فاشل-آمن)
-    _bor_fails = [0]         # قاطع دائرة: يوقف iBorrowDesk بعد 3 إخفاقات متتالية (لا تعليق)
+    _bor_budget = [0]        # 🔒 سقف طلبات احتياطَي الاقتراض معًا (CE+iBorrow — فاشل-آمن)
+    _ce_fails = [0]          # قاطع دائرة ChartExchange: يتوقف بعد 3 إخفاقات متتالية
+    _bor_fails = [0]         # قاطع دائرة iBorrowDesk: يتوقف بعد 3 إخفاقات متتالية
     fintel = {}
     try:
         fintel = fintel_short(sorted(syms))
@@ -2878,9 +2917,24 @@ def enrich(results: list) -> None:
         if r["finra_short"] is None:
             r["finra_short"] = r["fintel"].get("short_volume")
         # 🔒 معدّل الاقتراض (طلب المستخدم — فيصل: أساس الارتكاز · اقتراض صعب = سكويز):
-        # Fintel أولًا (من نفس طلب الشورت، بلا نداء) ثم iBorrowDesk احتياطًا (سقف + فاشل-آمن)
+        # السلسلة: Fintel (من نفس طلب الشورت، بلا نداء) ← ChartExchange (مصدر فيصل
+        # نفسه — IBKR كل 15د، مجسّ Actions أثبت وصوله 2026-07-10) ← iBorrowDesk.
+        # سقف نداءات مشترك + قاطع دائرة مستقل لكل مصدر (انقطاع أحدهما لا يعطّل الآخر).
         r["borrow_fee"] = r["fintel"].get("borrow_fee")
         r["shares_available"] = r["fintel"].get("shares_available")
+        if (r["borrow_fee"] is None and r["shares_available"] is None
+                and _bor_budget[0] < 25 and _ce_fails[0] < 3):
+            _bor_budget[0] += 1
+            try:
+                _ce = ce_borrow_info(r["symbol"])
+            except Exception:
+                _ce = {}
+            if _ce:
+                _ce_fails[0] = 0                           # نجاح → صفّر القاطع
+                r["borrow_fee"] = _ce.get("borrow_fee")
+                r["shares_available"] = _ce.get("shares_available")
+            else:
+                _ce_fails[0] += 1                          # إخفاق متتالٍ → قاطع بعد 3
         if (r["borrow_fee"] is None and r["shares_available"] is None
                 and _bor_budget[0] < 25 and _bor_fails[0] < 3):
             _bor_budget[0] += 1
