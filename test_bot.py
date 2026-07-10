@@ -1708,6 +1708,35 @@ check("🌐 ChartExchange·فاشل-آمن: HTML بلا مرساة/بلا جمل
       and S._parse_ce_borrow("") == {})
 check("🌐 ChartExchange·فاشل-آمن: بلا شبكة ⇒ ce_borrow_info={} (لا يعيق الإثراء)",
       S.ce_borrow_info("GEOS") == {})
+# 🏢 فلوت ChartExchange (اقتراح المستخدم 2026-07-10 لحلّ «الفلوت مجهول» من ياهو).
+# HTML من مجسّ Actions الحقيقي (GEOS/PTN/FEMY) — لا تخمين.
+_CE_FLOAT = ('<div class="stat-flow-item"><div class="stat-flow-label">Shares Outstanding'
+             '</div><div class="stat-flow-value">12.94M</div></div>'
+             '<div class="stat-flow-item"><div class="stat-flow-label">Float</div>'
+             '<div class="stat-flow-value">12.55M</div></div>'
+             '<div class="stat-flow-item"><div class="stat-flow-label">Free Float</div>'
+             '<div class="stat-flow-value">12.55M</div></div>'
+             '<div class="stat-flow-item"><div class="stat-flow-label">Free Float %</div>'
+             '<div class="stat-flow-value">97%</div></div>')
+check("🏢 فلوت CE: يستخرج «Float» بالضبط = 12.55M ⇒ 12,550,000 (لا Free Float)",
+      S._parse_ce_float(_CE_FLOAT) == 12_550_000)
+check("🏢 فلوت CE·وحدات: K/M/B + فاصلة الآلاف تُقرأ سليمة",
+      S._ce_num("778K") == 778_000 and S._ce_num("1.2B") == 1_200_000_000
+      and S._ce_num("2.50M") == 2_500_000 and S._ce_num("550,000") == 550_000)
+check("🏢 فلوت CE·فاشل-آمن: بلا مقطع Float ⇒ None · بلا شبكة ⇒ ce_float_info=None",
+      S._parse_ce_float("<html>لا فلوت</html>") is None
+      and S._parse_ce_float("") is None
+      and S.ce_float_info("GEOS") is None)
+check("🏢 فلوت CE·تمييز: صفحة فيها «Free Float» فقط (بلا «Float» مفرد) ⇒ None",
+      S._parse_ce_float('stat-flow-label">Free Float</div>'
+                        '<div class="stat-flow-value">9.9M</div>') is None)
+# 🔒 قفل حاسم: فلوت CE عرض فقط — خارج بوابة الفلوت M14 والفرز نهائيًّا
+check("🔒 قفل: فلوت CE خارج apply_float_gate/rank_key/select_top/classify_tier/"
+      "analyze_ticker/backtest_symbol (M14 لا تُمسّ)",
+      all(("ce_float_info" not in _insp0.getsource(_f)
+           and "_parse_ce_float" not in _insp0.getsource(_f))
+          for _f in (S.apply_float_gate, S.rank_key, S.select_top, S.classify_tier,
+                     S.analyze_ticker, S.backtest_symbol)))
 # ⚖️ CE = المرجع الأول صراحةً (قرار المستخدم 2026-07-10): CE قبل احتياط Fintel
 # وقبل iBorrowDesk في enrich، و`refresh_borrow` اليومي يبدأ بـCE مباشرة.
 _es = _insp0.getsource(S.enrich)
