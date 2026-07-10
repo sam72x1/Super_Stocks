@@ -1849,6 +1849,64 @@ check("🔒 قفل: دوال الاقتراض خارج rank_key/select_top/class
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.backtest_symbol)))
 
+# ===== 🎬 تنفيذ خطة فيديو فيصل 1 (DSY) — P1 السبريد · P2 الشورت الرسمي · P3 KST =====
+# القيم من fixture الفيديو الحرفي (reference_fixture.json): last 2.79 · Bid 2.52 ·
+# Ask 3.12 · SI 37,993 · DTC 0.30 · KST −309 فوق KSTMA −320.222.
+# 💧 P1 — سطر السبريد (نسبةً لمنتصف السعر = صيغة الفيديو 0.60/2.82 = 21.28%)
+_spl = S.spread_line(2.52, 3.12)
+check("💧 P1·سبريد: Bid 2.52/Ask 3.12 ⇒ ~21% + تحذير تنفيذ (صيغة منتصف الفيديو)",
+      "21%" in _spl and "طلب $2.52" in _spl and "عرض $3.12" in _spl
+      and "قد لا يكون قابلًا للتنفيذ" in _spl)
+check("💧 P1·سبريد·وسم الجلسة: session يُعرض (لقطة الفيديو كانت خارج الجلسة)",
+      "[بريماركت]" in S.spread_line(2.52, 3.12, "بريماركت"))
+check("💧 P1·سبريد·فاشل-آمن: سبريد طبيعي (<5%) أو bid/ask ناقص ⇒ '' (لا سطر)",
+      S.spread_line(2.79, 2.81) == "" and S.spread_line(None, 3.12) == ""
+      and S.spread_line(0, 0) == "" and S.spread_line(3.12, 2.52) == "")
+check("💧 P1·سبريد: تحذير لا بوابة (لا يمنع/يرفض — نص عرض فقط)",
+      "امنع" not in _spl and "رفض" not in _spl and "block" not in _spl.lower())
+# 📊 P2 — الشورت الرسمي (SI) + أيام التغطية (رقما DSY الحرفيان)
+_sir = {"short_interest": 37993, "days_to_cover": 0.30}
+check("📊 P2·SI: «شورت رسمي 37,993 سهم · تغطية 0.30 يوم» (رقما فيديو DSY)",
+      "شورت رسمي 37,993 سهم" in S.short_interest_line(_sir)
+      and "تغطية 0.30 يوم" in S.short_interest_line(_sir))
+check("📊 P2·SI·فاشل-آمن: غياب الحقلين ⇒ '' · حقل واحد ⇒ يعرضه وحده",
+      S.short_interest_line({}) == ""
+      and S.short_interest_line({"short_interest": 37993}) == "📊 شورت رسمي 37,993 سهم"
+      and "تغطية" in S.short_interest_line({"days_to_cover": 0.3}))
+check("📊 P2·صدق: make_watch_entry يخزّن short_interest/days_to_cover منفصلين عن short",
+      (lambda e: e["short_interest"] == 37993 and e["days_to_cover"] == 0.3
+       and e["short"] != 37993)(S.make_watch_entry(
+          {"symbol": "DSY", "price": 2.79, "pivot": 2.5, "entry": (2.5, 2.6),
+           "tranches": [2.5, 2.6], "stop": (2.3, 2.4), "t1": 3.0, "t2": 3.4,
+           "t3": 4.0, "score": 60, "flags": [], "rr": 2.0, "drop_pct": 60,
+           "best_spike": 120, "finra_short": 5000, "short_interest": 37993,
+           "days_to_cover": 0.30}, "2026-07-10")))
+# 📈 P3 — KST بإعدادات فيصل (4 حالات كما يفرّقها فيصل بالفيديو)
+import pandas as _pd3
+_rally = _pd3.Series([1.0] * 40 + [1.0 * (1.05 ** i) for i in range(1, 41)])
+_fall = _pd3.Series([10.0 - 0.05 * i for i in range(80)])
+_declerate = _pd3.Series([1.0 + i * 0.02 for i in range(80)])  # صعود خطّي = زخم يتباطأ
+check("📈 P3·KST: رالي متسارع ⇒ «زخم صاعد» · هبوط مستمر ⇒ «زخم هابط»",
+      "زخم صاعد" in (S.momentum_kst_state(_rally) or "")
+      and "زخم هابط" in (S.momentum_kst_state(_fall) or ""))
+check("📈 P3·KST: صعود خطّي (زخم متباطئ) ⇒ «تراجع زخم» (يفرّق الحالات لا حالة واحدة)",
+      "تراجع زخم" in (S.momentum_kst_state(_declerate) or ""))
+check("📈 P3·KST·فاشل-آمن: بيانات قصيرة ⇒ None (لا انهيار)",
+      S.momentum_kst_state(_pd3.Series([1.0, 2.0, 3.0])) is None)
+check("📈 P3·KST: الدالة موجودة بإعدادات فيصل الحرفية (10,15,20,30,10,10,10,15,9)",
+      "roc(30).rolling(15)" in _insp0.getsource(S.kst)
+      and "roc(10).rolling(10)" in _insp0.getsource(S.kst))
+# 🔒 قفل حاسم: كل الثلاث عرض/سياق فقط — خارج الفرز والبوابات والتصنيف
+check("🔒 قفل: spread_line/short_interest_line/momentum_kst_state خارج rank_key/"
+      "select_top/classify_tier/entry_status/apply_float_gate/backtest_symbol",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("spread_line", "short_interest_line", "momentum_kst_state")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_float_gate, S.backtest_symbol)))
+check("🔒 قفل: short_interest/days_to_cover لا يمسّان finra_short ولا M13 (مقياس مستقل)",
+      "short_interest" not in _insp0.getsource(S.apply_short_gate)
+      if hasattr(S, "apply_short_gate") else True)
+
 # ===== 📅 الأحداث المعلنة القادمة (أرباح/تجارب — «يوم الانفجار الذي ينتظره المضارب») =====
 _ev_today = S.dt.date(2026, 7, 9)
 def _ct_study(sponsor, date, phase="PHASE2", nct="NCT01"):

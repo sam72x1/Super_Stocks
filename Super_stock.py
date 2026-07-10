@@ -482,6 +482,27 @@ def kst(close: pd.Series):
     return k, k.rolling(9).mean()
 
 
+def momentum_kst_state(close: pd.Series):
+    """🎬 حالة KST بإعدادات فيصل — أربع حالات كما يفرّقها بفيديو DSY (KST −309 فوق
+    KSTMA −320 وكلاهما سالب = «تحسّن مبكر تحت الصفر»). فيصل يقرأه على 4س. عرض/سياق
+    فقط — لا بوابة ولا نقاط (المؤشر مساند لا أساس؛ درس §0-ز). None لو البيانات قصيرة."""
+    try:
+        k, s = kst(close)
+        kv, sv = float(k.iloc[-1]), float(s.iloc[-1])
+        if kv != kv or sv != sv:                  # NaN (بيانات غير كافية)
+            return None
+        above, neg = kv > sv, (kv < 0 and sv < 0)
+        if above and neg:
+            return "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)"
+        if above:
+            return "فوق إشارته فوق الصفر — زخم صاعد"
+        if neg:
+            return "تحت إشارته تحت الصفر — زخم هابط"
+        return "تحت إشارته فوق الصفر — تراجع زخم"
+    except Exception:
+        return None
+
+
 def mfi(high, low, close, volume, period: int = 14) -> pd.Series:
     tp = (high + low + close) / 3.0
     raw = tp * volume
@@ -2462,6 +2483,42 @@ def refresh_borrow(s: dict, today_iso: str, fetch=None) -> None:
         pass
 
 
+def spread_line(bid, ask, session=None) -> str:
+    """💧 سطر السبريد وتحذير السيولة (🎬 فيصل يبدأ فيديو DSY بدفتر الأوامر — الحالة
+    المرئية Bid 2.52 / Ask 3.12 = سبريد ~21%). السبريد نسبةً لمنتصف السعر (صيغة
+    الفيديو: 0.60/2.82 = 21.28%، لا نسبةً للعرض). **عرض/تحذير فقط — لا بوابة**
+    (اقتراح التقرير بالحظر ليس قول فيصل). العتبة 5% هندسية (نفس N5، لا رقم فيصل
+    منطوق). session للوسم بصدق (سبريد خارج الجلسة واسع طبيعيًّا — لقطة الفيديو 21%
+    كانت مغلقة). '' عند غياب bid/ask أو سبريد طبيعي (فاشل-آمن)."""
+    try:
+        bid, ask = float(bid or 0), float(ask or 0)
+        if bid <= 0 or ask <= 0 or ask < bid:
+            return ""
+        pct = (ask - bid) / ((ask + bid) / 2.0) * 100.0
+        if pct < 5.0:
+            return ""
+        sess = f" [{session}]" if session else ""
+        return (f"💧 سبريد واسع: {pct:.0f}% (طلب ${bid:.2f} / عرض ${ask:.2f}){sess} "
+                "— السعر الأخير قد لا يكون قابلًا للتنفيذ؛ ادخل بأوامر محدّدة")
+    except Exception:
+        return ""
+
+
+def short_interest_line(r: dict) -> str:
+    """📊 الشورت الرسمي (SI) + أيام التغطية — من ياهو `.info` (🎬 نفس رقمَي Fintel
+    اللذين قرأهما فيصل بفيديو DSY: SI 37,993 · Days to Cover 0.30). **حقلان
+    مستقلان — لا يُخلطان بـ`finra_short`** (مقياس مختلف؛ درس التلوّث 2026-06-24:
+    sharesShort بالملايين ≠ الحجم اليومي بالآلاف). '' عند غيابهما. عرض/سياق فقط."""
+    si = r.get("short_interest")
+    dtc = r.get("days_to_cover")
+    parts = []
+    if si:
+        parts.append(f"شورت رسمي {int(si):,} سهم")
+    if dtc:
+        parts.append(f"تغطية {float(dtc):.2f} يوم")
+    return "📊 " + " · ".join(parts) if parts else ""
+
+
 def borrow_line(r: dict) -> str:
     """سطر «🔒 اقتراض» **مفسَّر ذاتيًّا** بلغة مبتدئ — **على إطار فيصل الموثّق فقط**
     (⚖️ تصحيح 2026-07-10 بعد تشكيك المستخدم «متأكد من معلومة الوقود؟»: سردية
@@ -3106,6 +3163,13 @@ def enrich(results: list) -> None:
                 # عبر short_pct). تغطية ثابتة بلا تلوّث مقياس.
                 if r.get("finra_short") is None:
                     r["finra_short"] = cached.get("finra_short")
+                # 📊 الشورت الرسمي (SI) + أيام التغطية (🎬 فيصل قرأهما بفيديو DSY من
+                # Fintel: 37,993 · 0.30). حقلان مستقلان بمقياسهما — **لا يُخلطان
+                # بfinra_short** (الحجم اليومي). عرض/سياق فقط — خارج M13/الفرز.
+                r["short_interest"] = _or_cache(info.get("sharesShort"),
+                                                cached, "short_interest")
+                r["days_to_cover"] = _or_cache(info.get("shortRatio"),
+                                               cached, "days_to_cover")
                 # القيمة المجلوبة إن وُجدت، وإلا آخر قيمة معروفة (لا يختفي 🏢)
                 r["float"] = (_or_cache(info.get("floatShares"), cached, "float")
                               or _prev_float)
@@ -3207,7 +3271,8 @@ def enrich(results: list) -> None:
                              ("sector", "industry", "business",
                               "country", "cash", "revenue",
                               "shares_out", "short_pct", "float",
-                              "finra_short", "company_name", "first_trade")
+                              "finra_short", "company_name", "first_trade",
+                              "short_interest", "days_to_cover")
                              if r.get(k) is not None}
                 COMPANY_CACHE.pop(sym, None)      # LRU: ينقله لأحدث موضع
                 COMPANY_CACHE[sym] = _cc_entry
@@ -3260,6 +3325,12 @@ def enrich(results: list) -> None:
                     except Exception:
                         pass
                     r["h4_confirm"] = h4_confirm_score(r)
+                    # 🎬 KST على 4س بإعدادات فيصل (فيديو DSY) — حالة زخم مساندة.
+                    # عرض/سياق فقط — لا نقاط ولا بوابة (المؤشر مساند لا أساس).
+                    try:
+                        r["kst4"] = momentum_kst_state(h4["Close"])
+                    except Exception:
+                        r["kst4"] = None
                 else:
                     r["tf4h"] = "غير متوفر"
             except Exception:
@@ -4268,6 +4339,17 @@ def build_message(results: list, splits: list,
         # توفّره فقط (غالبًا يُحجب Fintel؛ لا نحشو «—» بسطر مستقل لكل كرت). عرض/سياق فقط.
         if r.get("borrow_fee") is not None or r.get("shares_available") is not None:
             lines.append(borrow_line(r))
+        # 📊 الشورت الرسمي (SI) + أيام التغطية (🎬 فيديو DSY — فيصل قرأهما من Fintel)
+        _sil = short_interest_line(r)
+        if _sil:
+            lines.append(_sil)
+        # 🎬 KST 4س (حالة زخم مساندة من فيديو فيصل) — يظهر عند توفّره فقط
+        if r.get("kst4"):
+            lines.append(f"📈 KST (4س): {r['kst4']}")
+        # 💧 سبريد/سيولة (🎬 فيصل يبدأ بدفتر الأوامر) — يظهر فقط لو NBBO حاضر (نادر بالكرت)
+        _spl = spread_line(r.get("bid"), r.get("ask"), r.get("session"))
+        if _spl:
+            lines.append(_spl)
         # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
         lines += events_lines(r.get("upcoming_events"))
         lines += interp_card_lines(r.get("interp"))   # 🧭 التفسير/القرار (عرض فقط)
@@ -4657,6 +4739,9 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "score": r["score"], "flags": list(r["flags"]),
         "rsi": r.get("rsi"), "float": r.get("float"),      # سمات للتعلم
         "short": r.get("finra_short"), "short_pct": r.get("short_pct"),
+        "short_interest": r.get("short_interest"),         # 📊 SI الرسمي (🎬 فيديو DSY)
+        "days_to_cover": r.get("days_to_cover"),           # 📊 أيام التغطية (🎬 فيديو DSY)
+        "kst4": r.get("kst4"),                             # 🎬 حالة KST 4س (عرض/سياق)
         "borrow_fee": r.get("borrow_fee"),                 # 🔒 رسوم الاقتراض (فيصل: سكويز)
         "shares_available": r.get("shares_available"),     # 🔒 الأسهم المتاحة للاقتراض
         "company_name": r.get("company_name"),             # 📅 لمطابقة راعي التجارب
