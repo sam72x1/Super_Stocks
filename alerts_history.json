@@ -536,8 +536,8 @@
     "فلوت 15,189,572 (صغير ✅)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-07-10",
    "max_gain_pct": 7.4
   },
   {
@@ -670,7 +670,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 2.3
+   "max_gain_pct": 3.0
   },
   {
    "symbol": "ACON",
@@ -742,7 +742,7 @@
    "rr": 2.5457938558713757,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -0.5
+   "max_gain_pct": -0.4
   },
   {
    "symbol": "GEOS",
@@ -775,7 +775,7 @@
    "rr": 2.2236347425024396,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.1
+   "max_gain_pct": 9.2
   },
   {
    "symbol": "SBET",
@@ -813,7 +813,7 @@
    "rr": 3.4269362998346478,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.2
+   "max_gain_pct": 3.3
   },
   {
    "symbol": "LENZ",
@@ -885,7 +885,7 @@
    "rr": 0.9438006565172173,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -0.7
+   "max_gain_pct": 1.7
   },
   {
    "symbol": "HFFG",
@@ -920,7 +920,7 @@
    "rr": 3.7490979352568923,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -0.2
+   "max_gain_pct": 2.0
   },
   {
    "symbol": "DTI",
@@ -953,7 +953,7 @@
    "rr": 3.0559702214923283,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.9
+   "max_gain_pct": 3.2
   },
   {
    "symbol": "PTN",
@@ -1019,6 +1019,39 @@
    "drop_pct": 82.97872340425532,
    "best_spike": 423.3333333333333,
    "rr": 2.059620843728043,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "CDLX",
+   "date": "2026-07-10",
+   "price": 4.32,
+   "stop": 3.6735,
+   "t1": 5.2,
+   "t2": 5.38,
+   "t3": 5.7,
+   "score": 60,
+   "flags": [
+    "RSI تشبع وانحناء (قاع 26→34)",
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 2 جلسات فوق القاع",
+    "StochRSI انعطاف من التشبع",
+    "Williams %R انعطاف من التشبع",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 5,001,325 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Communication Services",
+   "rsi": 34.354226746012245,
+   "float": 5001325,
+   "short": null,
+   "short_pct": 13.1,
+   "drop_pct": 86.82926746296923,
+   "best_spike": 216.85395473754346,
+   "rr": 2.8499372670438983,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
