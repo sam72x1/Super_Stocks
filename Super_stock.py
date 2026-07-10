@@ -2395,6 +2395,30 @@ def ce_borrow_info(sym: str) -> dict:
         return {}
 
 
+def refresh_borrow(s: dict, today_iso: str, fetch=None) -> None:
+    """تحديث يومي لاقتراض سهم قائمة من ChartExchange + **مسار «المتاح»** في
+    `borrow_hist` [[تاريخ، متاح]…] (سقف 14). فيصل يتابع «المتاح» يوميًّا (IMG_9505:
+    جدول Changes — المتاح تضخّم 30 ألف→600 ألف في 3 أيام قبيل حكم «طاخ طيخ»)،
+    فمسار التضخّم نفسه معلومة. فاشل-آمن: فشل الجلب = القيم القديمة تبقى (تعذّر ≠
+    اختفاء). عرض/سياق فقط — خارج الفرز."""
+    try:
+        d = (fetch or ce_borrow_info)(s.get("symbol", "")) or {}
+        if not d:
+            return
+        s["borrow_fee"] = d.get("borrow_fee")
+        s["shares_available"] = d.get("shares_available")
+        av = d.get("shares_available")
+        if av is not None:
+            h = s.setdefault("borrow_hist", [])
+            if h and h[-1] and h[-1][0] == today_iso:
+                h[-1][1] = int(av)               # نفس اليوم → حدّث القيمة
+            else:
+                h.append([today_iso, int(av)])
+            del h[:-14]                          # سقف أسبوعان (لا نموّ بلا حد)
+    except Exception:
+        pass
+
+
 def borrow_line(r: dict) -> str:
     """سطر «🔒 اقتراض» **مفسَّر ذاتيًّا** (طلب المستخدم 2026-07-09: «لو تذكرها لي ما
     اعرف الفايده» — البوت يشرح المعنى بدل الرقم الخام، بلغة مبتدئ). الفكرة (فيصل،
@@ -2407,6 +2431,29 @@ def borrow_line(r: dict) -> str:
     if fee is None and avail is None:
         return "🔒 اقتراض: —"
     av_txt = f"متاح للشورت {fmt_money(avail)} سهم" if avail is not None else ""
+    # ⚠️ قراءة فيصل المركّبة (IMG_9504، XHLD: «سهم شورته 600 الف يصعد؟ طاخ طيخ الى
+    # الهاويه» — رقمه = «المتاح» من نفس صفحة CE، وكان 600 ألف برسوم 23%): متاح ضخم
+    # = ذخيرة شورت تهبط السهم حتى مع رسوم عالية — الرسوم وقود سكويز فقط لو المتاح
+    # قليل. العتبة = حد فيصل الموثّق (SHORT_GATE_MAX=40 ألف · 600 ألف = مثال الهاوية).
+    if avail is not None and avail > CONFIG["SHORT_GATE_MAX"]:
+        fee_txt = f" مع رسوم {fee:.0f}%" if fee is not None else ""
+        # مسار التضخّم من borrow_hist (IMG_9505: 30 ألف→600 ألف في 3 أيام) —
+        # يُعرض فقط لو التاريخ يثبت نموًّا حقيقيًّا عبر أيام.
+        traj = ""
+        try:
+            h = r.get("borrow_hist") or []
+            if len(h) >= 2 and h[0][1] and avail > h[0][1]:
+                days = (dt.date.fromisoformat(h[-1][0])
+                        - dt.date.fromisoformat(h[0][0])).days
+                if days >= 1:
+                    traj = (f" — كان {fmt_money(h[0][1])} قبل {days} "
+                            "يوم (يتضخّم = تكدّس ذخيرة)")
+        except Exception:
+            traj = ""
+        return ("🔒 اقتراض: ⚠️ متاح للشورت ضخم "
+                f"({fmt_money(avail)} سهم — فوق حد فيصل "
+                f"{CONFIG['SHORT_GATE_MAX'] // 1000} ألف){fee_txt}{traj} — "
+                "ذخيرة هبوط لا وقود سكويز (فيصل: شورته 600 ألف؟ طاخ طيخ إلى الهاوية)")
     if fee is None:
         return f"🔒 اقتراض: {av_txt} (الرسوم غير معروفة)"
     if fee >= CONFIG["BORROW_HIGH_PCT"]:
@@ -7489,6 +7536,9 @@ def run_daily_watchlist(wl: dict) -> None:
                 s["upcoming_events"] = _ue
         except Exception:
             pass
+        # 🔒 تحديث الاقتراض يوميًّا + مسار «المتاح» (فيصل يتابعه يوميًّا — IMG_9505:
+        # قفز 30 ألف→600 ألف في 3 أيام قبيل «طاخ طيخ»). فاشل-آمن: القديم يبقى.
+        refresh_borrow(s, today_iso)
     # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم.
     #    نمرّر القائمة الأساسية الحالية (تشمل ما أُضيف توًّا) كاستبعاد، ثم
     #    نشيل أي سهم تخرّج للأساسية من المراقبة (لا ازدواج بين القائمتين).
