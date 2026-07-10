@@ -2995,14 +2995,14 @@ def enrich(results: list) -> None:
         # سلسلة fintel→FINRA الموثّقة للقيمة المخزّنة (Yahoo يُضاف داخل كتلة .info)
         if r["finra_short"] is None:
             r["finra_short"] = r["fintel"].get("short_volume")
-        # 🔒 معدّل الاقتراض (طلب المستخدم — فيصل: أساس الارتكاز · اقتراض صعب = سكويز):
-        # السلسلة: Fintel (من نفس طلب الشورت، بلا نداء) ← ChartExchange (مصدر فيصل
-        # نفسه — IBKR كل 15د، مجسّ Actions أثبت وصوله 2026-07-10) ← iBorrowDesk.
-        # سقف نداءات مشترك + قاطع دائرة مستقل لكل مصدر (انقطاع أحدهما لا يعطّل الآخر).
-        r["borrow_fee"] = r["fintel"].get("borrow_fee")
-        r["shares_available"] = r["fintel"].get("shares_available")
-        if (r["borrow_fee"] is None and r["shares_available"] is None
-                and _bor_budget[0] < 25 and _ce_fails[0] < 3):
+        # 🔒 معدّل الاقتراض (طلب المستخدم — فيصل: أساس الارتكاز):
+        # ⚖️ **ChartExchange = المرجع الأول صراحةً** (قرار المستخدم 2026-07-10 «نعتمد
+        # الموقع مرجعنا الأول» — مصدر فيصل نفسه، IBKR مباشر كل 15د). السلسلة:
+        # **ChartExchange ← Fintel (احتياط، من طلب الشورت بلا نداء) ← iBorrowDesk**.
+        # نبدأ بـNone ونملؤها بالأولوية. سقف نداءات مشترك + قاطع دائرة مستقل لكل مصدر.
+        r["borrow_fee"] = None
+        r["shares_available"] = None
+        if _bor_budget[0] < 25 and _ce_fails[0] < 3:      # 1) CE أولًا (المرجع الأول)
             _bor_budget[0] += 1
             try:
                 _ce = ce_borrow_info(r["symbol"])
@@ -3014,6 +3014,10 @@ def enrich(results: list) -> None:
                 r["shares_available"] = _ce.get("shares_available")
             else:
                 _ce_fails[0] += 1                          # إخفاق متتالٍ → قاطع بعد 3
+        if r["borrow_fee"] is None and r["shares_available"] is None:
+            # 2) Fintel احتياطًا (مُلتقط مجّانًا من طلب الشورت أعلاه)
+            r["borrow_fee"] = r["fintel"].get("borrow_fee")
+            r["shares_available"] = r["fintel"].get("shares_available")
         if (r["borrow_fee"] is None and r["shares_available"] is None
                 and _bor_budget[0] < 25 and _bor_fails[0] < 3):
             _bor_budget[0] += 1
