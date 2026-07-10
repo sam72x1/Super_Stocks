@@ -295,7 +295,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 10.0
+   "last_price": 10.0,
+   "live_alert": {
+    "buyzone": "2026-07-10"
+   }
   },
   {
    "symbol": "PSTV",
@@ -586,7 +589,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.0
+   "last_price": 4.0,
+   "live_alert": {}
   },
   {
    "symbol": "CDLX",
@@ -877,7 +881,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.32
+   "last_price": 4.32,
+   "live_alert": {}
   }
  ],
  "removed": [],
