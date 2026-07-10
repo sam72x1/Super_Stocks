@@ -339,6 +339,127 @@ finally:
     (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
      S.download_history, S.build_wrapup_message) = _sv
 
+# 4ب) 🔒 قفل F-01 (إصلاح تدقيق 2026-07-10): التجديد الكامل مع week_start
+#     يمرّر **قاموس الأسعار** (لا قائمة الأرشيف) إلى scan_pullback
+#     وaccumulate_explosions — تظليل hist كان يفرغ قائمة الارتداد كل جمعة.
+_f01_df = synth_pivot()
+_f01_r = S.analyze_ticker("F01T", _f01_df)
+check("F-01·تمهيد: السهم الصناعي يجتاز الفارز (مدخل التجديد الكامل)",
+      _f01_r is not None)
+_f01_types = {}
+_f01_saved = {}
+_sv_f01 = (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
+           S.download_history, S.build_wrapup_message, S.enrich,
+           S.scan_pullback, S.accumulate_explosions, S.load_alerts,
+           S.build_dev_assistant_report, S.export_weekly_csvs,
+           S.write_csv, S.run_performance_system)
+try:
+    def _f01_scan():
+        S._SCAN_STATS.update({"universe": 10, "valid": 10,
+                              "universe_fallback": False})
+        return ([_f01_r], {"F01T": _f01_df})
+    _real_sp, _real_ae = S.scan_pullback, S.accumulate_explosions
+    S.scan_market = _f01_scan
+    S.send_telegram = lambda m: True
+    S.save_watchlist = lambda w: _f01_saved.update(w)
+    S.yf = None                       # يتخطى تحديث الأسبوع المنتهي (شبكة)
+    S.download_history = lambda syms: {}
+    S.build_wrapup_message = lambda w: ""
+    S.enrich = lambda rs: None
+    S.scan_pullback = lambda h, exclude=None: (
+        _f01_types.setdefault("pull", type(h)), _real_sp(h, exclude))[1]
+    S.accumulate_explosions = lambda wl_, h: (
+        _f01_types.setdefault("expl", type(h)), _real_ae(wl_, h))[1]
+    S.load_alerts = lambda: {"alerts": []}
+    S.build_dev_assistant_report = lambda wl_, ad=None: ""
+    S.export_weekly_csvs = lambda *a, **k: None
+    S.write_csv = lambda *a, **k: None
+    S.run_performance_system = lambda *a, **k: None
+    _wlf01 = {"week_start": "2026-07-03", "stocks": [], "removed": [],
+              "notes": [], "pullback": [], "history": []}
+    S.run_weekly_renewal(_wlf01)
+    check("🔒F-01: scan_pullback يستقبل قاموس الأسعار (لا قائمة الأرشيف)",
+          _f01_types.get("pull") is dict)
+    check("🔒F-01: accumulate_explosions يستقبل قاموس الأسعار",
+          _f01_types.get("expl") is dict)
+    check("🔒F-01: الأسبوع المنتهي أُرشِف والقائمة الجديدة حُفظت",
+          len(_f01_saved.get("history") or []) == 1
+          and len(_f01_saved.get("stocks") or []) == 1)
+finally:
+    (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
+     S.download_history, S.build_wrapup_message, S.enrich,
+     S.scan_pullback, S.accumulate_explosions, S.load_alerts,
+     S.build_dev_assistant_report, S.export_weekly_csvs,
+     S.write_csv, S.run_performance_system) = _sv_f01
+
+# 4ج) 🔒 قفل F-02 (إصلاح تدقيق 2026-07-10): تسوية مقياس التقسيم في الحسم —
+#     تقسيم عكسي أثناء التتبع لا يسجّل «هدفًا محققًا» زائفًا بعد الآن.
+# (1) الدالة النقية _split_scale_factor
+_spl_series = pd.Series([0.1], index=[pd.Timestamp("2026-01-08")])
+check("⚖️F-02: عامل التقسيم بعد التاريخ المرجعي (عكسي 1:10 → 0.1)",
+      abs(S._split_scale_factor(_spl_series, "2026-01-05") - 0.1) < 1e-9)
+check("⚖️F-02: تقسيم قبل المرجع لا يُحسب (عامل 1.0)",
+      S._split_scale_factor(_spl_series, "2026-01-10") == 1.0)
+check("⚖️F-02: بلا أحداث/None → عامل 1.0 (فاشل-آمن)",
+      S._split_scale_factor(None, "2026-01-01") == 1.0
+      and S._split_scale_factor(pd.Series(dtype=float), "2026-01-01") == 1.0)
+check("⚖️F-02: قائمة أزواج تتراكم بالضرب (0.1×0.5=0.05)",
+      abs(S._split_scale_factor([("2026-01-08", 0.1), ("2026-02-01", 0.5)],
+                                "2026-01-01") - 0.05) < 1e-9)
+# (2) مُختار تماسك المقياس (حارس التصحيح المزدوج بعد الترحيل)
+check("⚖️F-02: مستويات بمقياس قديم → يختار القسمة على العامل",
+      S._scale_divisor(10.0, 1.0, 0.1) == 0.1)
+check("⚖️F-02: مستويات أعيد حسابها (مقياس اليوم) → لا يقسم (يمنع الازدواج)",
+      S._scale_divisor(10.0, 9.5, 0.1) == 1.0)
+check("⚖️F-02: عامل 1.0 → قاسم 1.0 دائمًا",
+      S._scale_divisor(10.0, 1.0, 1.0) == 1.0)
+# (3) تكامل update_tracking: سلسلة ×10 بعد تقسيم عكسي → hit_t1 صحيح لا hit_t3 زائف
+import types as _ty_spl
+_spl_idx = pd.to_datetime(["2026-01-06", "2026-01-07", "2026-01-08",
+                           "2026-01-09"])
+_spl_df = pd.DataFrame({"Close": [10.0, 10.5, 11.0, 10.8],
+                        "High": [10.5, 11.0, 13.0, 11.0],
+                        "Low": [9.6, 9.8, 10.2, 10.4]}, index=_spl_idx)
+_sv_spl = (S.yf, S._fetch_splits)
+try:
+    S.yf = _ty_spl.SimpleNamespace(
+        download=lambda *a, **k: _spl_df.copy())
+    S._fetch_splits = lambda sym: _spl_series
+    _al = {"symbol": "SPLA", "date": "2026-01-05", "price": 1.0,
+           "stop": 0.9, "t1": 1.2, "t2": 1.5, "t3": 2.0,
+           "status": "open", "max_gain_pct": 0.0}
+    S.update_tracking({"alerts": [_al]})
+    check("⚖️F-02·تتبع التنبيهات: hit_t1 الصحيح (t1=1.2→12 بمقياس اليوم)",
+          _al["status"] == "hit_t1")
+    check("⚖️F-02·تتبع التنبيهات: لا hit_t3 زائف ولا ستوب زائف بعد التقسيم",
+          _al["status"] not in ("hit_t3", "stopped"))
+    check("⚖️F-02·تتبع التنبيهات: أقصى ارتفاع بمقياس موحّد (~+30%)",
+          abs(_al["max_gain_pct"] - 30.0) < 0.6)
+finally:
+    S.yf, S._fetch_splits = _sv_spl
+# (4) تكامل update_watchlist_status: لا شطب/أهداف زائفة بعد تقسيم عكسي
+_spl_idx2 = pd.to_datetime(["2026-02-02", "2026-02-03", "2026-02-04",
+                            "2026-02-05", "2026-02-06"])
+_spl_df2 = pd.DataFrame({"Close": [10.0, 10.2, 10.4, 10.1, 10.3],
+                         "Open": [10.0, 10.1, 10.3, 10.2, 10.2],
+                         "High": [10.5, 10.6, 11.0, 10.7, 10.8],
+                         "Low": [9.6, 9.7, 9.5, 9.8, 9.9],
+                         "Volume": [1e5] * 5}, index=_spl_idx2)
+_sv_spl2 = S._fetch_splits
+try:
+    S._fetch_splits = lambda sym: _spl_series
+    _st = {"symbol": "SPLB", "status": "active", "added": "2026-01-05",
+           "entry_ref": 1.0, "pivot": 1.0, "stop": 0.9, "t1": 1.2,
+           "t2": 1.5, "t3": 2.0, "hit": None, "max_gain_pct": 0.0}
+    _wlspl = {"stocks": [_st], "removed": [], "notes": []}
+    S.update_watchlist_status(_wlspl, {"SPLB": _spl_df2})
+    check("⚖️F-02·حسم القائمة: لا hit زائف بعد التقسيم (11 أقل من t1=12)",
+          not _st["hit"] and _st["status"] == "active")
+    check("⚖️F-02·حسم القائمة: لا ستوب زائف (أدنى 9.5 فوق الوقف المسوّى 9.0)",
+          _wlspl["stocks"] and _wlspl["stocks"][0]["symbol"] == "SPLB")
+finally:
+    S._fetch_splits = _sv_spl2
+
 
 # ==========================================================
 # 4) قرارات البوابات على أرقام الصور الفعلية (اختبار مباشر للصور)

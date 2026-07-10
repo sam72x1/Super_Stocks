@@ -5311,6 +5311,67 @@ def _note(wl: dict, sym: str, text: str, family: str = None) -> None:
         "symbol": sym, "text": text, "family": fam})
 
 
+def _split_scale_factor(splits, since_iso: str) -> float:
+    """⚖️ عامل تحويل المقياس من أحداث التقسيم **بعد** تاريخ مرجعي (إصلاح تدقيق
+    2026-07-10 — F-02): المستويات المخزّنة (وقف/أهداف) بمقياس يوم الترشيح، بينما
+    بيانات yfinance المعاد تحميلها معدَّلة بالتقسيم — تقسيم عكسي أثناء التتبع كان
+    يجعل «هدفًا محققًا» زائفًا يدخل سجل النجاح. دالة نقيّة (بلا شبكة، قابلة للاختبار):
+    تقبل pandas Series (فهرس تواريخ، القيمة = جديد/قديم: 0.1 لعكسي 1:10) أو قائمة
+    أزواج (تاريخ، نسبة). ترجع حاصل ضرب النسب بعد `since_iso` حصريًا — والقسمة عليه
+    تحوّل المستوى المخزّن لمقياس البيانات الحالية. فاشلة-آمنة → 1.0 (سلوك اليوم)."""
+    try:
+        if splits is None:
+            return 1.0
+        pairs = []
+        if hasattr(splits, "items"):                     # pandas Series
+            for idx, val in splits.items():
+                try:
+                    d = idx.date().isoformat() if hasattr(idx, "date") else str(idx)[:10]
+                    pairs.append((d, float(val)))
+                except Exception:
+                    continue
+        else:                                            # قائمة أزواج
+            for d, val in splits:
+                pairs.append((str(d)[:10], float(val)))
+        factor = 1.0
+        for d, val in pairs:
+            if d > str(since_iso)[:10] and val > 0:
+                factor *= val
+        return factor if factor > 0 else 1.0
+    except Exception:
+        return 1.0
+
+
+def _fetch_splits(sym: str):
+    """جلب أحداث التقسيم من ياهو — **فاشل-آمن مطلق** → None (فيصير العامل 1.0 =
+    سلوك اليوم حرفيًا، لا تعطيل للحسم بعطل شبكي). تُستدعى فقط في مسارَي تسوية
+    النتائج (update_tracking/update_watchlist_status) — خارج الفرز كليًّا."""
+    try:
+        if yf is None:
+            return None
+        return yf.Ticker(sym).splits
+    except Exception:
+        return None
+
+
+def _scale_divisor(last_price, ref_level, factor: float) -> float:
+    """⚖️ مُختار تماسك المقياس (حارس ضد التصحيح المزدوج): بعد ترحيل LOGIC_VERSION
+    قد تكون المستويات أعيد حسابها من بيانات معدَّلة أصلًا (مقياس جديد) رغم أن تاريخ
+    الإضافة قديم — القسمة على العامل حينها تُفسدها. نقارن المستوى كما هو مقابل
+    المستوى÷العامل ونختار **الأقرب لوغاريتميًا لسعر اليوم** (فرق المقياس بالتقسيم
+    العكسي ×5+ أكبر بكثير من أي حركة سعرية). نقيّة، ترجع 1.0 أو `factor`."""
+    try:
+        lp = float(last_price)
+        ref = float(ref_level)
+        if factor == 1.0 or lp <= 0 or ref <= 0 or factor <= 0:
+            return 1.0
+        raw_gap = abs(math.log(lp / ref))                 # المستوى بمقياسه المخزّن
+        scaled_gap = abs(math.log(lp / (ref / factor)))   # المستوى محوَّلًا
+        return factor if scaled_gap < raw_gap else 1.0
+    except Exception:
+        return 1.0
+
+
 def update_watchlist_status(wl: dict, history: dict) -> list:
     """فحص الستوب/الأهداف/الملاحظات لكل سهم نشط منذ إضافته.
     الستوب أولاً = افتراض محافظ (إلا إذا تحقق هدف قبله).
@@ -5355,6 +5416,24 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                 s["interp"] = _ip
         except Exception:
             pass
+        # ⚖️ F-02 (إصلاح تدقيق 2026-07-10): تسوية مقياس التقسيم قبل الحسم —
+        # المستويات مخزّنة بمقياس يوم الترشيح والبيانات معدَّلة بالتقسيم؛ تقسيم
+        # عكسي أثناء التتبع كان يُنتج «أهدافًا محققة» زائفة. العامل من أحداث
+        # التقسيم بعد الإضافة، ومُختار التماسك يحمي من التصحيح المزدوج لو كانت
+        # المستويات أعيد حسابها بعد الترحيل. فاشل-آمن: تعذُّر الجلب → عامل 1.0
+        # = السلوك السابق حرفيًا. **تسوية مقارنات فقط — المخزّن لا يُمسّ.**
+        _spf = _split_scale_factor(_fetch_splits(s["symbol"]), s["added"])
+        _div = _scale_divisor(s["last_price"],
+                              s.get("pivot") or s["stop"], _spf)
+        if _div != 1.0:
+            log(f"⚖️ {s['symbol']}: تقسيم بعد الإضافة (عامل {_spf:g}) — "
+                "تُسوَّى مستويات الحسم لمقياس اليوم")
+        _stop_c = float(s["stop"]) / _div
+        _t1_c = float(s["t1"]) / _div
+        _t2_c = float(s["t2"]) / _div
+        _t3_c = float(s["t3"]) / _div
+        _eref_c = float(s["entry_ref"]) / _div
+        _split_tag = " (بعد تسوية تقسيم)" if _div != 1.0 else ""
         # شموع ما بعد يوم الإضافة فقط (التنبيه صدر بعد إغلاق يومه)
         rows = []
         for i in range(len(df)):
@@ -5367,29 +5446,30 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                              float(df["Low"].iloc[i])))
         if rows:
             mx = max(h for _, h, _ in rows)
-            s["max_gain_pct"] = round((mx / s["entry_ref"] - 1.0) * 100.0, 1)
+            s["max_gain_pct"] = round((mx / _eref_c - 1.0) * 100.0, 1)
         for day, hi, lo in rows:
             # الستوب أولاً (محافظ) إذا لم يتحقق أي هدف قبله
-            if lo <= s["stop"] and not s["hit"]:
+            if lo <= _stop_c and not s["hit"]:
                 s["status"] = "stopped"
                 s["removed_date"] = today_iso
-                loss = (s["stop"] / s["entry_ref"] - 1.0) * 100.0
-                s["removal_reason"] = (f"ضرب الستوب ${s['stop']:.2f} "
-                                       f"يوم {day} ({loss:+.1f}%)")
+                loss = (_stop_c / _eref_c - 1.0) * 100.0
+                s["removal_reason"] = (f"ضرب الستوب ${_stop_c:.2f} "
+                                       f"يوم {day} ({loss:+.1f}%){_split_tag}")
                 break
             # الأهداف (تصاعدياً)
-            if hi >= s["t3"] and s["hit"] != "t3":
+            if hi >= _t3_c and s["hit"] != "t3":
                 s["hit"], s["hit_date"] = "t3", str(day)
-            elif hi >= s["t2"] and s["hit"] not in ("t2", "t3"):
+            elif hi >= _t2_c and s["hit"] not in ("t2", "t3"):
                 s["hit"], s["hit_date"] = "t2", str(day)
-            elif hi >= s["t1"] and not s["hit"]:
+            elif hi >= _t1_c and not s["hit"]:
                 s["hit"], s["hit_date"] = "t1", str(day)
             # ستوب بعد تحقيق هدف = خروج رابح مفترض، لكن النموذج انتهى
-            if lo <= s["stop"]:
+            if lo <= _stop_c:
                 s["status"] = "stopped"
                 s["removed_date"] = today_iso
                 s["removal_reason"] = (f"لمس الستوب يوم {day} بعد تحقيق "
-                                       f"هدف{s['hit'][-1]} (خروج رابح مفترض)")
+                                       f"هدف{s['hit'][-1]} (خروج رابح مفترض)"
+                                       f"{_split_tag}")
                 break
         # ملاحظات تعلّم (لا تُشطب بسببها — تُعرض يوم التجديد)
         if s["status"] == "active":
@@ -5405,9 +5485,10 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                     _note(wl, s["symbol"],
                           f"انفجر {g5:+.0f}% خلال أسبوع — النموذج اشتغل "
                           "(الدخول الجديد فات)", family="انفجر")
-            if s["stop"] < lp < s["pivot"]:
+            _piv_c = float(s["pivot"]) / _div     # ⚖️ نفس تسوية المقياس
+            if _stop_c < lp < _piv_c:
                 _note(wl, s["symbol"],
-                      f"يتداول تحت القاع ${s['pivot']:.2f} بدون لمس الستوب",
+                      f"يتداول تحت القاع ${_piv_c:.2f} بدون لمس الستوب",
                       family="تحت القاع")
     # نقل المشطوبين من النشطين إلى سجل المشطوبين
     newly = [s for s in wl["stocks"] if s["status"] != "active"]
@@ -7520,11 +7601,15 @@ def run_weekly_renewal(wl: dict) -> None:
                                 "score", "flags", "rsi", "float", "short",
                                 "drop_pct", "best_spike", "rr")}
                               for s in wl["stocks"] + wl["removed"]]}
-        hist = wl.setdefault("history", [])
-        hist.append(summary)
+        # ⚠️ اسم مستقل (arch) عمدًا — لا تُعِد استخدام `hist` هنا: تظليل الاسم كان
+        # يمرّر قائمة الأرشيف بدل قاموس الأسعار إلى accumulate_explosions/
+        # scan_pullback أدناه فيفشلان بصمت وتُبنى قائمة الارتداد فارغة كل جمعة
+        # (إصلاح تدقيق 2026-07-10 — F-01).
+        arch = wl.setdefault("history", [])
+        arch.append(summary)
         # N2: حارس تكرار — لو أُرشِف الأسبوع نفسه سابقًا (تشغيل متكرر) يُستبدل
         # بالأحدث بدل ما يتراكم؛ فالتقرير في نفس التشغيل يرى أرشيفًا نظيفًا.
-        wl["history"] = _dedup_history(hist)[-26:]
+        wl["history"] = _dedup_history(arch)[-26:]
     try:
         accumulate_explosions(wl, hist)   # كاشف الانفجارات (للتعلّم)
     except Exception as e:
@@ -8955,7 +9040,20 @@ def update_tracking(data):
             df = df.dropna(subset=["Close"])
             highs = df["High"].astype(float).values
             lows = df["Low"].astype(float).values
-            entry = float(a["price"])
+            # ⚖️ F-02 (إصلاح تدقيق 2026-07-10): المستويات المخزّنة بمقياس يوم
+            # التنبيه والسلسلة المعاد تحميلها معدَّلة بالتقسيم — تقسيم عكسي أثناء
+            # التتبع كان يسجّل «hit_t3» زائفًا. نقسم المستويات على عامل التقسيم
+            # منذ التنبيه (فاشل-آمن → 1.0 = السلوك السابق). التنبيهات لا يُعاد
+            # حساب مستوياتها أبدًا فالعامل الخام يكفي (بلا مُختار تماسك).
+            _spf = _split_scale_factor(_fetch_splits(a["symbol"]), a["date"])
+            if _spf != 1.0:
+                log(f"⚖️ {a['symbol']}: تقسيم بعد التنبيه (عامل {_spf:g}) — "
+                    "تُسوَّى مستويات الحسم لمقياس اليوم")
+            entry = float(a["price"]) / _spf
+            _stop_c = float(a["stop"]) / _spf
+            _t1_c = float(a["t1"]) / _spf
+            _t2_c = float(a["t2"]) / _spf
+            _t3_c = float(a["t3"]) / _spf
             if len(highs):
                 a["max_gain_pct"] = round(
                     (float(np.max(highs)) / entry - 1.0) * 100.0, 1)
@@ -8965,15 +9063,15 @@ def update_tracking(data):
                 day = str(df.index[i].date())
                 # الستوب أولاً = افتراض محافظ
                 # (إلا إذا حقق هدفاً قبله، فالصفقة رابحة أصلاً)
-                if lows[i] <= a["stop"] and best == 0:
+                if lows[i] <= _stop_c and best == 0:
                     status, when = "stopped", day
                     break
-                if highs[i] >= a["t3"]:
+                if highs[i] >= _t3_c:
                     best, when = 3, day
                     break
-                if highs[i] >= a["t2"] and best < 2:
+                if highs[i] >= _t2_c and best < 2:
                     best, when = 2, day
-                elif highs[i] >= a["t1"] and best < 1:
+                elif highs[i] >= _t1_c and best < 1:
                     best, when = 1, day
             if status is None and best > 0:
                 status = f"hit_t{best}"
