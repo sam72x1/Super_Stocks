@@ -26,15 +26,20 @@ except ImportError:
 
 
 def _deadline():
-    """نهاية الجلسة (UTC): IGNITION_END_UTC أو 20:00 (إغلاق ناسداك). كود بوت عادي —
-    utcnow متاح (ليس سكربت workflow)."""
-    end = os.environ.get("IGNITION_END_UTC", "20:00").strip()
-    try:
-        hh, mm = (int(x) for x in end.split(":"))
-    except Exception:
-        hh, mm = 20, 0
+    """نهاية الجلسة (UTC): IGNITION_END_UTC إن ضُبط، وإلا **إغلاق ناسداك الفعلي**
+    المشتق من توقيت نيويورك (⑤ إصلاح تدقيق 2026-07-12: كان 20:00 UTC مثبّتًا =
+    صيفي فقط؛ شتاءً الإغلاق 21:00 فكان الرادار يتوقف ساعة قبل الإغلاق)."""
+    end = os.environ.get("IGNITION_END_UTC", "").strip()
     now = bot.dt.datetime.utcnow()
-    return now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+    if end:
+        try:
+            hh, mm = (int(x) for x in end.split(":"))
+            return now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+        except Exception:
+            pass
+    _close = bot.market_session_now()["close"]           # دقائق-UTC (يتشتّى آليًا)
+    return now.replace(hour=_close // 60, minute=_close % 60,
+                       second=0, microsecond=0)
 
 
 def main():
@@ -47,6 +52,17 @@ def main():
         bot.log("رادار الانطلاق: القائمة فارغة — لا شيء نراقبه.")
         return
     interval = max(15, int(os.environ.get("IGNITION_INTERVAL", "45") or 45))
+    # ⑤ انتظر الافتتاح الفعلي (شتاءً كرون 13:35 يسبق الافتتاح 14:30 بساعة — كان
+    # يلفّ أعمى على سوق مغلق ويحرق ميزانية الجوب). نوم واحد مقيَّد بساعة.
+    try:
+        _open_m = bot.market_session_now()["open"]
+        _now = bot.dt.datetime.utcnow()
+        _gap = _open_m - (_now.hour * 60 + _now.minute)
+        if 0 < _gap <= 70:
+            bot.log(f"⏳ قبل الافتتاح — انتظار {_gap} دقيقة حتى الجرس.")
+            time.sleep(_gap * 60)
+    except Exception:
+        pass
     deadline = _deadline()
     bot.log(f"🔥 رادار الانطلاق: {len(active)} زنبرك · كل {interval}ث حتى "
             f"{deadline.strftime('%H:%M')} UTC.")

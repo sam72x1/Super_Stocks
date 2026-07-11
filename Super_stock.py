@@ -5954,8 +5954,32 @@ def _premarket_summary(bars: list, prev_close=None):
         return None
 
 
+def market_session_now(now=None):
+    """⑤ (إصلاح تدقيق 2026-07-12) نوافذ جلسة ناسداك **بالدقائق-UTC لليوم الجاري**،
+    مشتقة من توقيت نيويورك فتتصيّف/تتشتّى آليًا. الثوابت الصيفية المثبّتة (13:30
+    افتتاحًا · 20:00 إغلاقًا) كانت تجعل المراقبة شتاءً (الافتتاح الفعلي 14:30 UTC)
+    تقرأ شمعة **أمس** كأنها حيّة وتستهلك خانة الدِدوب فيُكتَم التنبيه الحقيقي.
+    يرجع: pre_start (بريماركت 04:00 نيويورك) · open (09:30) · close (16:00).
+    الثلاثة داخل نفس يوم UTC فلا التفاف منتصف الليل. **فاشل-آمن: أي خطأ →
+    ثوابت الصيف = سلوك اليوم حرفيًا.** `now` قابل للحقن للاختبار (aware UTC)."""
+    try:
+        from zoneinfo import ZoneInfo
+        ny = ZoneInfo("America/New_York")
+        now_utc = now or dt.datetime.now(dt.timezone.utc)
+        d = now_utc.astimezone(ny).date()
+
+        def _mins(h, m=0):
+            t = dt.datetime(d.year, d.month, d.day, h, m,
+                            tzinfo=ny).astimezone(dt.timezone.utc)
+            return t.hour * 60 + t.minute
+        return {"pre_start": _mins(4, 0), "open": _mins(9, 30),
+                "close": _mins(16, 0)}
+    except Exception:
+        return {"pre_start": 8 * 60, "open": 13 * 60 + 30, "close": 20 * 60}
+
+
 def polygon_premarket(sym: str, prev_close=None):
-    """🌙 ملخّص بريماركت اليوم من دقائق Polygon (شموع اليوم قبل الافتتاح 13:30 UTC).
+    """🌙 ملخّص بريماركت اليوم من دقائق Polygon (شموع اليوم قبل افتتاح السوق).
     **فاشل-آمن مطلق** → None عند: غياب المفتاح · خارج نافذة البريماركت (قبل 08:00 أو
     بعد 13:30 UTC — فحص زمني **قبل** الشبكة، فصفر نداء مهدور بالفرز الباكر 07:00) ·
     401/403/429/شبكة. يرجّع dict `_premarket_summary` أو None. عرض/تنبيه فقط."""
@@ -5965,7 +5989,9 @@ def polygon_premarket(sym: str, prev_close=None):
     try:
         now = dt.datetime.utcnow()
         _m = now.hour * 60 + now.minute
-        if _m < 8 * 60 or _m >= 13 * 60 + 30:    # خارج نافذة البريماركت → None فورًا
+        # ⑤ نافذة البريماركت مشتقة من توقيت نيويورك (شتاءً تنزاح ساعة تلقائيًا)
+        _w = market_session_now()
+        if _m < _w["pre_start"] or _m >= _w["open"]:  # خارج النافذة → None فورًا
             return None
         h = {"Authorization": f"Bearer {key}"}
         today = dt.date.today().isoformat()
@@ -5994,7 +6020,8 @@ def polygon_after_hours(sym: str, regular_close=None):
         return None
     try:
         now = dt.datetime.utcnow()
-        if now.hour * 60 + now.minute < 20 * 60:     # قبل 20:00 UTC = الجلسة النظامية
+        # ⑤ عتبة الأفتر = إغلاق الجلسة النظامية بتوقيت نيويورك (20:00 صيفًا/21:00 شتاءً UTC)
+        if now.hour * 60 + now.minute < market_session_now()["close"]:
             return None
         h = {"Authorization": f"Bearer {key}"}
         today = dt.date.today().isoformat()
@@ -6042,6 +6069,15 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
             s["last_price"] = lp
         except Exception:
             continue
+        # ⑤ حارس الشمعة البائتة (إصلاح تدقيق 2026-07-12): أحداث الجلسة تُقيَّم فقط
+        # إذا كانت آخر شمعة بتاريخ **اليوم** — شتاءً كانت تشغيلات ما قبل الافتتاح
+        # (بالثوابت الصيفية) تقرأ شمعة أمس كأنها حيّة، والأدهى أن الحدث الكاذب
+        # يستهلك خانة الدِدوب الوحيدة فيُكتَم الحدث الحقيقي بقية اليوم. فاشل-آمن:
+        # تعذّر قراءة تاريخ الشمعة → السلوك السابق (لا كتم زائد).
+        try:
+            _stale = df.index[-1].date().isoformat() != str(today_iso)[:10]
+        except Exception:
+            _stale = False
         trs = [float(x) for x in (s.get("tranches") or []) if x]
         _st = s.get("stop")
         stop0 = (float(_st[0]) if isinstance(_st, (list, tuple)) and _st
@@ -6049,7 +6085,8 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
         piv = float(s.get("pivot") or 0)
         events = []
         # أحداث الجلسة (تحتاج سعر الجلسة الحي) — تُتخطّى قبل الافتتاح (premarket_only)
-        if not premarket_only:
+        # و⑤ عند شمعة بائتة (تاريخها ≠ اليوم = السوق لم يفتح/البيانات متأخرة).
+        if not premarket_only and not _stale:
             try:
                 sw = next((a for a in hand_activity_today(s, df)
                            if "كنس الدعم" in a), None)

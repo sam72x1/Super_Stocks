@@ -602,6 +602,21 @@ try:
 finally:
     S.yf, S._fetch_splits = _sv_rb2
 # (هـ) المصدر: scan_market يخزّن ref_bar وmake_watch_entry/record_new_alerts ينقلانه
+# 4و) 🔒 ⑤ (إصلاح تدقيق 2026-07-12): نوافذ الجلسة تتصيّف/تتشتّى آليًا
+_ms_sum = S.market_session_now(
+    now=S.dt.datetime(2026, 7, 15, 12, 0, tzinfo=S.dt.timezone.utc))
+_ms_win = S.market_session_now(
+    now=S.dt.datetime(2026, 1, 15, 12, 0, tzinfo=S.dt.timezone.utc))
+check("⑤ صيفًا (EDT): الافتتاح 13:30 · الإغلاق 20:00 · البريماركت 08:00 UTC",
+      _ms_sum["open"] == 13 * 60 + 30 and _ms_sum["close"] == 20 * 60
+      and _ms_sum["pre_start"] == 8 * 60)
+check("⑤ شتاءً (EST): الافتتاح 14:30 · الإغلاق 21:00 · البريماركت 09:00 UTC",
+      _ms_win["open"] == 14 * 60 + 30 and _ms_win["close"] == 21 * 60
+      and _ms_win["pre_start"] == 9 * 60)
+check("⑤ نوفمبر (بعد نهاية التصييف 11-01): شتوي",
+      S.market_session_now(now=S.dt.datetime(2026, 11, 15, 12, 0,
+          tzinfo=S.dt.timezone.utc))["open"] == 14 * 60 + 30)
+
 check("① make_watch_entry ينقل ref_bar",
       S.make_watch_entry({"symbol": "RB6", "ref_bar": "2026-03-01", "price": 2.0,
                           "entry": (1.9, 2.0), "tranches": [1.9, 1.95, 2.0],
@@ -1475,11 +1490,13 @@ def _today_df(kind):
          "break": (1.95, 1.80, 1.97, 1.78, 1e5),  # إغلاق تحت الدعم
          "pump": (2.0, 2.6, 2.7, 2.0, 9e5),        # صعود بحجم ضخم
          "quiet": (2.0, 2.01, 2.03, 1.98, 1e5)}[kind]
+    # ⑤ الشموع تنتهي بيوم `today` المستعمل بالفحوص (2026-07-08) — حارس الشمعة
+    # البائتة صار يشترط تطابق تاريخ آخر شمعة مع اليوم لأحداث الجلسة (كالواقع).
     return pd.DataFrame(
         {"Open": base["o"] + [t[0]], "Close": base["c"] + [t[1]],
          "High": base["h"] + [t[2]], "Low": base["lo"] + [t[3]],
          "Volume": base["v"] + [t[4]]},
-        index=pd.date_range("2025-01-01", periods=25, freq="B"))
+        index=pd.date_range(end="2026-07-08", periods=25, freq="B"))
 check("🕵️اليوم: كنس دعم (ذيل خرق ثم استعادة) ⇒ «كنس الدعم … مسح سيولة»",
       any("كنس الدعم" in a for a in S.hand_activity_today({}, _today_df("sweep"))))
 check("🕵️اليوم: كسر دعم (إغلاق تحته) ⇒ «كسر الدعم … وأغلق تحته»",
@@ -1534,9 +1551,19 @@ check("لحظي·دِدوب: نفس اليوم/الحدث لا يتكرّر (liv
       not any(k == "sweep" for _, k, _ in
               S.monitor_live_events(_wl_sw, _sw_hist, "2026-07-08"))
       and _wl_sw["stocks"][0]["live_alert"]["sweep"] == "2026-07-08")
-check("لحظي·دِدوب: يوم جديد ⇒ ينبّه ثانية",
+# ⑤ اليوم الجديد = شمعة جديدة بتاريخه (كالواقع) — الشمعة القديمة صارت بائتة عمدًا.
+_sw_hist_d2 = {k: v.set_axis(v.index + pd.tseries.offsets.BDay(1))
+               for k, v in _sw_hist.items()}
+check("لحظي·دِدوب: يوم جديد (بشمعته الجديدة) ⇒ ينبّه ثانية",
       any(k == "sweep" for _, k, _ in
-          S.monitor_live_events(_wl_sw, _sw_hist, "2026-07-09")))
+          S.monitor_live_events(_wl_sw, _sw_hist_d2, "2026-07-09")))
+check("⑤ حارس الشمعة البائتة: يوم جديد بشمعة الأمس ⇒ صفر أحداث جلسة (لا يحرق الدِدوب)",
+      not any(k in ("sweep", "buyzone", "break", "breakout", "dump") for _, k, _ in
+              S.monitor_live_events(
+                  {"stocks": [{"symbol": "STL", "status": "active",
+                               "tranches": [1.9, 1.95, 2.0], "stop": 2.05,
+                               "pivot": 1.9, "interp": {}}]},
+                  {"STL": _today_df("quiet")}, "2026-07-09")))
 # دخول منطقة الشراء (لحظة التنفيذ): السعر داخل [min,max] الدفعات
 _wl_bz = {"stocks": [{"symbol": "BZ", "status": "active",
                       "tranches": [1.95, 2.0, 2.05], "stop": 1.7, "pivot": 1.9}]}
@@ -1913,7 +1940,7 @@ check("🕵️عرض الرادار: التنبيه يعرض كميات المض
 _mle_df = pd.DataFrame(
     {"Open": [2.0] * 30, "High": [2.1] * 30, "Low": [1.9] * 30,
      "Close": [2.0] * 29 + [1.95], "Volume": [1e5] * 30},
-    index=pd.date_range("2025-01-01", periods=30, freq="B"))
+    index=pd.date_range(end="2026-07-20", periods=30, freq="B"))   # ⑤ = today
 def _mle_st(sym):
     return {"symbol": sym, "status": "active", "pivot": 1.90,
             "tranches": [1.90, 1.95, 2.00], "stop": (1.75, 1.79), "interp": {}}
@@ -1929,7 +1956,7 @@ check("🕵️بوّابة المراقب: دخل المضارب ⇒ حدث ال
 _brk_df = pd.DataFrame(
     {"Open": [2.0] * 30, "High": [2.1] * 30, "Low": [1.5] * 30,
      "Close": [2.0] * 29 + [1.70], "Volume": [1e5] * 30},
-    index=pd.date_range("2025-01-01", periods=30, freq="B"))
+    index=pd.date_range(end="2026-07-20", periods=30, freq="B"))   # ⑤ = today
 _ev_brk = S.monitor_live_events({"stocks": [_mle_st("BRK")]}, {"BRK": _brk_df},
     "2026-07-20", fetch_operator=lambda s: {"has_operator": False})
 check("🕵️بوّابة المراقب: الخطر (كسر الوقف) لا يُبوَّب — يظهر حتى بلا مضارب",
@@ -2349,11 +2376,11 @@ def _dump_st(sym):
 _dump_df = pd.DataFrame(
     {"Open": [3.0] * 30, "High": [3.1] * 30, "Low": [2.4] * 30,
      "Close": [3.0] * 29 + [2.5], "Volume": [1e5] * 30},   # 3.0→2.5 = -16.7%
-    index=pd.date_range("2025-01-01", periods=30, freq="B"))
+    index=pd.date_range(end="2026-07-20", periods=30, freq="B"))   # ⑤ = today
 _nodump_df = pd.DataFrame(
     {"Open": [3.0] * 30, "High": [3.1] * 30, "Low": [2.9] * 30,
      "Close": [3.0] * 29 + [2.95], "Volume": [1e5] * 30},   # -1.7%
-    index=pd.date_range("2025-01-01", periods=30, freq="B"))
+    index=pd.date_range(end="2026-07-20", periods=30, freq="B"))   # ⑤ = today
 _ev_d = S.monitor_live_events({"stocks": [_dump_st("DMP")]}, {"DMP": _dump_df},
     "2026-07-20", fetch_operator=lambda s: {"has_operator": False})
 check("📉 ضغط المضارب: هبوط اليوم ≥15% عن الأمس ⇒ dump (خطر — يظهر بلا مضارب)",

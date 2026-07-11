@@ -38,10 +38,14 @@ def main():
     if main_syms and bot.yf is not None:
         try:
             hist = bot.download_history(main_syms)
-            # قبل الافتتاح (13:30 UTC): الشمعة اليومية = أمس (بايتة) → premarket_only
-            # يتخطّى أحداث الجلسة ويكتفي برادار البريماركت الحي (POLYGON_EDGE_PLAN §ج).
+            # قبل الافتتاح: الشمعة اليومية = أمس (بايتة) → premarket_only يتخطّى
+            # أحداث الجلسة ويكتفي برادار البريماركت الحي (POLYGON_EDGE_PLAN §ج).
+            # ⑤ (إصلاح تدقيق 2026-07-12): الافتتاح مشتق من توقيت نيويورك — كان
+            # مثبّتًا 13:30 UTC (صيفي) فتشغيلات 13:30-14:30 شتاءً تقرأ شمعة أمس
+            # كأنها حيّة وتحرق الدِدوب فيُكتَم التنبيه الحقيقي.
             _now = bot.dt.datetime.utcnow()
-            _pm_only = (_now.hour * 60 + _now.minute) < 13 * 60 + 30
+            _pm_only = ((_now.hour * 60 + _now.minute)
+                        < bot.market_session_now()["open"])
             events = bot.monitor_live_events(
                 wl, hist, bot.dt.date.today().isoformat(),
                 premarket_only=_pm_only)
