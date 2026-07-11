@@ -2507,6 +2507,26 @@ def spread_line(bid, ask, session=None, brief=False) -> str:
         return ""
 
 
+def _short_headline(r: dict) -> str:
+    """نص «شورت» في السطر الرئيسي للكرت/اليومي (2026-07-11، طلب المستخدم — عرض فقط).
+    يعتمد **عمود Available من ChartExchange** (`shares_available`) = قراءة فيصل للشورت
+    الموثّقة (XHLD «شورته 600 ألف طاخ طيخ» · DSY IMG_9509-9510 «7000 سهم متوفر») بدل
+    الحجم اليومي المربِك. السلسلة الصادقة: المتاح (CE) → الحجم اليومي (Fintel/FINRA) →
+    نسبة من الفلوت → «—». **عرض فقط — لا يمسّ M13** (تبقى على الحجم اليومي: قيد معماري،
+    CE يُجلب بعد الاختيار). فاشل-آمن. `shares_available=0` (ELAB) قيمة صحيحة تُعرض."""
+    av = r.get("shares_available")
+    if av is not None:
+        return f"شورت {fmt_money(av)}"
+    # احتياط الحجم اليومي: الكرت الحي (fintel/finra_short) أو المخزَّن باليومي (short).
+    sv = ((r.get("fintel") or {}).get("short_volume")
+          or r.get("finra_short") or r.get("short"))
+    if sv is not None:
+        return f"شورت {fmt_money(sv)}"
+    if r.get("short_pct") is not None:
+        return f"شورت {r['short_pct']}% من الفلوت"
+    return "شورت —"
+
+
 def short_interest_line(r: dict) -> str:
     """📊 الشورت الرسمي (SI) + أيام التغطية — من ياهو `.info` (🎬 نفس رقمَي Fintel
     اللذين قرأهما فيصل بفيديو DSY: SI 37,993 · Days to Cover 0.30). **حقلان
@@ -4325,13 +4345,8 @@ def build_message(results: list, splits: list,
         # فلوت/شورت: لو تعذّر الجلب من كل المصادر نعرض شرطة «—» (وضوح: تعذّر
         # الجلب ≠ صفر) بدل إخفاء الحقل بصمت (طلب المستخدم 2026-06-24).
         small.append(f"فلوت {fmt_money(r['float'])}" if r.get("float") else "فلوت —")
-        sv = (r.get("fintel") or {}).get("short_volume") or r.get("finra_short")
-        if sv is not None:
-            small.append(f"شورت {fmt_money(sv)}")
-        elif r.get("short_pct") is not None:
-            small.append(f"شورت {r['short_pct']}% من الفلوت")
-        else:
-            small.append("شورت —")
+        # «شورت» = المتاح من ChartExchange (قراءة فيصل) ← الحجم اليومي ← نسبة ← «—».
+        small.append(_short_headline(r))
         sec = r.get("sector") or r.get("industry")
         if sec:
             small.append(esc(ar_sector(sec)))
@@ -6959,12 +6974,8 @@ def build_daily_message(wl: dict, splits: list,
         small = [f"${lp:.2f}"]
         # فلوت/شورت: شرطة «—» عند تعذّر الجلب (تعذّر ≠ صفر) بدل الإخفاء الصامت.
         small.append(f"فلوت {fmt_money(s['float'])}" if s.get("float") else "فلوت —")
-        if s.get("short") is not None:
-            small.append(f"شورت {fmt_money(s['short'])}")
-        elif s.get("short_pct") is not None:
-            small.append(f"شورت {s['short_pct']}% من الفلوت")
-        else:
-            small.append("شورت —")
+        # «شورت» = المتاح من ChartExchange (قراءة فيصل) ← الحجم اليومي ← نسبة ← «—».
+        small.append(_short_headline(s))
         if s.get("sector"):
             small.append(esc(ar_sector(s["sector"])))
         if s.get("country"):
