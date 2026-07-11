@@ -710,6 +710,94 @@ try:
 finally:
     _os_hc.remove(_gs_tmp) if _os_hc.path.exists(_gs_tmp) else None
 
+# 4ط) 🔒 ④ (إصلاح تدقيق 2026-07-12): اختبارات **رفض** البوابات الصلبة M1-M5/M10 —
+#     كانت صفرًا: أي عتبة CONFIG يمكن تغييرها (أو عكس عامل مقارنة) والسويّة خضراء.
+#     الآن كل رمز رفض حي له فحص يطعم إطارًا يكسره ويؤكّد None + الرمز الدقيق.
+#     (M2_hi52 ميت بنيويًا: بوابة M1 تضمن price≥1.5 وhi52≥price>0 — حارس دفاعي.)
+def _expect_reject(df, code):
+    S._REJECT_REASONS.pop("GT", None)
+    _r = S.analyze_ticker("GT", df)
+    _got = str(S._REJECT_REASONS.get("GT", ""))
+    if _r is not None or not _got.startswith(code):
+        print(f"   ✗ متوقع {code} — النتيجة: r={'قاموس' if _r else None} · "
+          f"السبب المسجّل: {_got or '—'}")
+        return False
+    return True
+
+check("④ M1_سعر: سهم $1.20 (تحت 1.50) يُرفض",
+      _expect_reject(synth_pivot(prior_high=8.0, crash_low=1.0, current=1.2),
+                     "M1_سعر"))
+check("④ M2_هبوط_فوق_97: هبوط 98% (محتضر/فخ تقسيم) يُرفض",
+      _expect_reject(synth_pivot(prior_high=200.0, crash_low=3.0, current=3.6),
+                     "M2_هبوط_فوق_97"))
+check("④ M2_هبوط_تحت_40: هبوط 28% (تحت الأرضية 40) يُرفض",
+      _expect_reject(synth_pivot(prior_high=5.0, crash_low=3.0, current=3.6),
+                     "M2_هبوط_تحت_40"))
+check("④ M3_انفجار_تحت_60: انفجار سابق +50% فقط (تحت أرضية 60) يُرفض",
+      _expect_reject(synth_pivot(prior_high=15.0, crash_low=10.0, current=6.0),
+                     "M3_انفجار_تحت_60"))
+# M4_base_lo: قاع صفري بنافذة القاعدة (بيانات فاسدة) — حارس دفاعي قابل للاختبار
+_df_blo = synth_pivot(seed=2)
+_df_blo.iloc[-3, _df_blo.columns.get_loc("Low")] = 0.0
+check("④ M4_base_lo: قاع صفري بنافذة القاعدة (بيانات فاسدة) يُرفض",
+      _expect_reject(_df_blo, "M4_base_lo"))
+# M4_base_واسعة: نوسّع مدى القاعدة فوق 40% (قيعان هابطة داخل النافذة)
+_df_bw = synth_pivot(seed=2)
+_lo_c = _df_bw.columns.get_loc("Low")
+_df_bw.iloc[-10, _lo_c] = 2.2                     # 3.6/2.2 ≈ 64% مدى
+check("④ M4_base_واسعة: مدى قاعدة فوق 40% يُرفض",
+      _expect_reject(_df_bw, "M4_base_واسعة"))
+# M4_انفجر_فعلاً: قفزة 5 جلسات فوق RECENT_RISE_BLOCK_PCT مع قاعدة ما اتسعت
+_df_run = synth_pivot(seed=2)
+_cl = _df_run.columns.get_loc("Close")
+_hi = _df_run.columns.get_loc("High")
+_lo = _df_run.columns.get_loc("Low")
+_op = _df_run.columns.get_loc("Open")
+# معايرة دقيقة: gain5=4.50/3.30=+36.4% (فوق حد الملاحقة 35) بينما مدى القاعدة
+# (أعلى High الجديد 4.52 ÷ أدنى Low القديم ~3.29) ≈ 38% يبقى تحت 40 — فتسقط
+# على «انفجر فعلاً» تحديدًا لا على اتساع القاعدة.
+for _k, _v in enumerate([3.30, 3.5, 3.8, 4.1, 4.3, 4.5]):
+    _row = -6 + _k
+    _df_run.iloc[_row, _cl] = _v
+    _df_run.iloc[_row, _op] = _v * 0.997
+    _df_run.iloc[_row, _hi] = _v * 1.004
+    _df_run.iloc[_row, _lo] = _v * 0.995
+check("④ M4_انفجر_فعلاً: قفزة +36% في 5 جلسات (فات القطار) يُرفض",
+      _expect_reject(_df_run, "M4_انفجر_فعلاً"))
+# M5_سيولة: نفس السهم الناجح لكن بحجم يومي هزيل (دولار-فوليوم تحت 200K)
+_df_liq = synth_pivot(seed=2)
+_df_liq["Volume"] = 100.0
+check("④ M5_سيولة: سيولة دولارية تحت الأرضية (200K) تُرفض",
+      _expect_reject(_df_liq, "M5_سيولة"))
+# M10_RSI_ما_تشبّع: هبوط عميق قديم ثم هضبة طويلة بلا تشبّع حديث (RSI قاعه فوق 32)
+_n_flat = 250
+_flat = np.concatenate([
+    np.full(20, 8.0),                              # قاعدة ما قبل الانفجار
+    np.linspace(8.0, 20.0, 12),                    # انفجار +150%
+    np.linspace(20.0, 7.2, 30),                    # انهيار 64%
+    7.2 * (1 + 0.004 * np.array([(-1) ** i for i in range(_n_flat - 62)]))])
+_df_nos = pd.DataFrame({
+    "Open": _flat * 0.999, "Close": _flat,
+    "High": _flat * 1.006, "Low": _flat * 0.994,
+    "Volume": np.full(_n_flat, 500_000.0)},
+    index=pd.date_range("2024-01-01", periods=_n_flat, freq="D"))
+check("④ M10_RSI_ما_تشبّع: قاع RSI فوق 32 (ما اكتمل قاعه) يُرفض",
+      _expect_reject(_df_nos, "M10_RSI_ما_تشبّع"))
+# M10_RSI_فات_القطار: تشبّع قديم موجود لكن RSI الحالي طار فوق 50 (ركض بلا قفزة 35%)
+_df_ran = synth_pivot(seed=2)
+for _k, _v in enumerate([3.32, 3.40, 3.48, 3.56, 3.64, 3.72]):
+    _row = -6 + _k
+    _df_ran.iloc[_row, _cl] = _v
+    _df_ran.iloc[_row, _op] = _v * 0.997
+    _df_ran.iloc[_row, _hi] = _v * 1.004
+    _df_ran.iloc[_row, _lo] = _v * 0.993
+check("④ M10_RSI_فات_القطار: RSI الحالي فوق 50 (فات الارتكاز) يُرفض",
+      _expect_reject(_df_ran, "M10_RSI_فات_القطار"))
+# 🔒 القفل المزدوج: العيّنة المرجعية (seed=2 الافتراضية) ما زالت **تجتاز** —
+# فالفحوص أعلاه تسقط ببوابتها المقصودة لا بعطل عام في الفارز.
+check("④ العيّنة المرجعية تجتاز الفارز (الانتهاكات معزولة لا عطل عام)",
+      S.analyze_ticker("GT", synth_pivot(seed=2)) is not None)
+
 
 # ==========================================================
 # 4) قرارات البوابات على أرقام الصور الفعلية (اختبار مباشر للصور)
