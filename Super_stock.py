@@ -4746,6 +4746,8 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
     """تحويل نتيجة تحليل إلى سجل سهم في القائمة الأسبوعية"""
     return {
         "symbol": r["symbol"], "added": today_iso,
+        # ① تاريخ شمعة الترشيح الفعلية (لا تاريخ التشغيل) — مرجع نافذة التقييم.
+        "ref_bar": r.get("ref_bar"),
         "entry_ref": round(r["price"], 4),
         "entry": [round(r["entry"][0], 4), round(r["entry"][1], 4)],
         "tranches": [round(p, 4) for p in (r.get("tranches") or r["entry"])],
@@ -5176,6 +5178,15 @@ def scan_market():
     for sym, df in history.items():
         r = analyze_ticker(sym, df)
         if r:
+            # ① (إصلاح تدقيق 2026-07-12): تاريخ **شمعة الترشيح الفعلية** (آخر شمعة
+            # في البيانات) — المسار اليومي يعمل 07:23 UTC قبل الافتتاح فتاريخ التشغيل
+            # (added) أحدثُ من آخر شمعة بيوم، وكانت مقارنة `day > added` تُسقط شمعة
+            # يوم الترشيح من التقييم للأبد (ستوب اليوم الأول غير مرئي). التتبع صار
+            # يقارن بـ ref_bar. فاشل-آمن: تعذّر القراءة → None → ارتداد لـ added.
+            try:
+                r["ref_bar"] = df.index[-1].date().isoformat()
+            except Exception:
+                r["ref_bar"] = None
             r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
             r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
             r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
@@ -5518,6 +5529,15 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                   family="لا بيانات")
             continue
         added = dt.date.fromisoformat(s["added"])
+        # ① (إصلاح تدقيق 2026-07-12): مرجع نافذة التقييم = شمعة الترشيح الفعلية
+        # (ref_bar) لا تاريخ التشغيل — المسار اليومي يعمل قبل الافتتاح فشمعة يوم
+        # الترشيح تتكوّن **بعد** الختم وكان `day > added` يُسقطها للأبد (ستوب اليوم
+        # الأول غير مرئي). ارتداد للسجلات القديمة بلا ref_bar → added = سلوك اليوم
+        # حرفيًا (توافق خلفي، لا موجة تصحيح رجعية).
+        try:
+            ref_bar = dt.date.fromisoformat(str(s.get("ref_bar") or s["added"])[:10])
+        except Exception:
+            ref_bar = added
         s["last_price"] = round(float(df["Close"].iloc[-1]), 4)
         # §10: خط الترند يُعاد حسابه من بيانات اليوم (الخط الهابط ينزل يوميًا).
         # ⚠️ الإسناد **بلا شرط عمدًا**: None اليوم = الخط مات → يجب أن يختفي من
@@ -5568,14 +5588,15 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
         _t3_c = float(s["t3"]) / _div
         _eref_c = float(s["entry_ref"]) / _div
         _split_tag = " (بعد تسوية تقسيم)" if _div != 1.0 else ""
-        # شموع ما بعد يوم الإضافة فقط (التنبيه صدر بعد إغلاق يومه)
+        # ① شموع ما بعد **شمعة الترشيح** (ref_bar) — لا بعد تاريخ التشغيل: المسار
+        # اليومي يختم قبل الافتتاح فشمعة يوم الختم نفسها تدخل التقييم (كانت تضيع).
         rows = []
         for i in range(len(df)):
             try:
                 day = df.index[i].date()
             except Exception:
                 continue
-            if day > added:
+            if day > ref_bar:
                 rows.append((day, float(df["High"].iloc[i]),
                              float(df["Low"].iloc[i])))
         if rows:
@@ -9134,6 +9155,8 @@ def record_new_alerts(data, results):
             continue
         data["alerts"].append({
             "symbol": r["symbol"], "date": today,
+            # ① تاريخ شمعة الترشيح الفعلية — مرجع نافذة المتابعة (لا تاريخ التشغيل).
+            "ref_bar": r.get("ref_bar"),
             "price": round(r["price"], 4),
             "stop": round(r["stop"][0], 4),   # الوقف الأبعد (~7% تحت القاع)
             "t1": round(r["t1"], 4),
@@ -9169,13 +9192,22 @@ def update_tracking(data):
     log(f"متابعة {len(open_alerts)} تنبيه مفتوح...")
     for a in open_alerts:
         try:
-            age = (dt.date.today() - dt.date.fromisoformat(a["date"])).days
-            # التنبيه صدر اليوم (أو تاريخه بالمستقبل) — ما في جلسة جديدة بعده
+            # ① (إصلاح تدقيق 2026-07-12): مرجع النافذة = شمعة الترشيح (ref_bar) لا
+            # تاريخ التشغيل — المسار اليومي يختم قبل الافتتاح فشمعة يوم التنبيه
+            # تتكوّن بعده وكان `start = date+1` يُسقطها للأبد. ارتداد للسجلات
+            # القديمة بلا ref_bar → date = سلوك اليوم حرفيًا.
+            try:
+                _ref = str(a.get("ref_bar") or a["date"])[:10]
+                dt.date.fromisoformat(_ref)
+            except Exception:
+                _ref = a["date"]
+            age = (dt.date.today() - dt.date.fromisoformat(_ref)).days
+            # الشمعة المرجعية اليوم (أو بالمستقبل) — ما في جلسة جديدة بعدها
             # لمتابعتها؛ نتخطّاه (وإلا نطلب start=بكرة > end=اليوم = خطأ Yahoo).
             if age < 1:
                 continue
-            # نبدأ من اليوم التالي للتنبيه (التنبيه صدر بعد إغلاق يومه)
-            start = (dt.date.fromisoformat(a["date"])
+            # نبدأ من اليوم التالي لشمعة الترشيح (لا التالي لتاريخ التشغيل)
+            start = (dt.date.fromisoformat(_ref)
                      + dt.timedelta(days=1)).isoformat()
             df = yf.download(a["symbol"], start=start, interval="1d",
                              auto_adjust=True, progress=False)
