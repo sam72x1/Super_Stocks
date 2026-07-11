@@ -381,7 +381,11 @@ try:
     S.write_csv = lambda *a, **k: None
     S.run_performance_system = lambda *a, **k: None
     _wlf01 = {"week_start": "2026-07-03", "stocks": [], "removed": [],
-              "notes": [], "pullback": [], "history": []}
+              "notes": [], "pullback": [], "history": [],
+              # ⑥: حالة متراكمة يجب أن تنجو التجديد (كانت تُمسح كل جمعة)
+              "reject_stats": [{"date": f"2026-07-{d:02d}", "stats": {"M2": 5}}
+                               for d in range(1, 11)],
+              "مفتاح_مستقبلي": {"x": 1}}
     S.run_weekly_renewal(_wlf01)
     check("🔒F-01: scan_pullback يستقبل قاموس الأسعار (لا قائمة الأرشيف)",
           _f01_types.get("pull") is dict)
@@ -390,6 +394,13 @@ try:
     check("🔒F-01: الأسبوع المنتهي أُرشِف والقائمة الجديدة حُفظت",
           len(_f01_saved.get("history") or []) == 1
           and len(_f01_saved.get("stocks") or []) == 1)
+    # ⑥ (إصلاح تدقيق 2026-07-12): التجديد لا يمسح الحالة المتراكمة بعد الآن
+    check("⑥ reject_stats ينجو التجديد كاملًا (10 لقطات — كان يُمسح كل جمعة)",
+          len(_f01_saved.get("reject_stats") or []) == 10)
+    check("⑥ قفل اللغم البنيوي: مفتاح حالة مجهول ينجو التجديد افتراضيًا",
+          _f01_saved.get("مفتاح_مستقبلي") == {"x": 1})
+    check("⑥ قفل عكسي: مفاتيح التجديد تُصفَّر فعلًا (removed/notes جديدة فارغة)",
+          _f01_saved.get("removed") == [] and _f01_saved.get("notes") == [])
 finally:
     (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
      S.download_history, S.build_wrapup_message, S.enrich,

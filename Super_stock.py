@@ -7842,14 +7842,19 @@ def run_weekly_renewal(wl: dict) -> None:
         pull_entries = [make_pullback_entry(w, today_iso) for w in w_list]
     except Exception as e:
         log(f"⚠️ مراقبة الارتداد: {e}")
-    # 4) حفظ القائمة الجديدة
-    new_wl = {"week_start": today_iso, "created": today_iso,
-              "logic_version": LOGIC_VERSION,   # القائمة مبنية على آخر منطق
-              "stocks": [make_watch_entry(r, today_iso) for r in picks],
-              "removed": [], "replacements_log": [], "notes": [],
-              "pullback": pull_entries,
-              "history": wl.get("history", []),
-              "explosions": wl.get("explosions", [])}   # سجل الانفجارات يستمر
+    # 4) حفظ القائمة الجديدة — ⑥ (إصلاح تدقيق 2026-07-12): نبدأ بنسخة من wl
+    # القديم ثم نكتب فوق **مفاتيح التجديد فقط**، فتنجو المفاتيح المتراكمة
+    # (reject_stats — كان يُمسح كل جمعة فمقام «الفائتة/المقام» لا يتراكم 56 يومًا
+    # أبدًا رغم وعد الدالة) **وأي مفتاح حالة مستقبلي افتراضيًا** (كانت القائمة
+    # البيضاء لغمًا بنيويًا: كل مفتاح جديد يختفي بصمت أول جمعة).
+    new_wl = dict(wl)
+    new_wl.update({"week_start": today_iso, "created": today_iso,
+                   "logic_version": LOGIC_VERSION,   # القائمة مبنية على آخر منطق
+                   "stocks": [make_watch_entry(r, today_iso) for r in picks],
+                   "removed": [], "replacements_log": [], "notes": [],
+                   "pullback": pull_entries,
+                   "history": wl.get("history", []),
+                   "explosions": wl.get("explosions", [])})   # سجل الانفجارات يستمر
     save_watchlist(new_wl)
     # 5) رسالة القائمة الجديدة (بطاقات كاملة)
     title = ("🔄 <b>القائمة الأسبوعية الجديدة</b>" if had_prev_list
