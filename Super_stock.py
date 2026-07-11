@@ -9127,31 +9127,57 @@ STATUS_AR = {
 }
 
 
-def git_save(filenames):
-    """يرفع ملفات البيانات إلى الـ repo حتى لا تضيع بين تشغيلات GitHub Actions"""
+def git_save(filenames, runner=None, sender=None):
+    """يرفع ملفات البيانات إلى الـ repo حتى لا تضيع بين تشغيلات GitHub Actions.
+    ⑬ (إصلاح تدقيق 2026-07-12): عند تعارض rebase كان `--abort` يعيد الحالة كما
+    كانت فتفشل المحاولات الأربع **بمدخلات متطابقة** (حلقة ميتة ~30ث) ثم تضيع
+    حالة التشغيلة بصمت مع الرنر المؤقت (جوب أخضر!). الآن التعارض يُحل فعليًا:
+    نقرأ ملفاتنا للذاكرة → نعتمد الريموت (`reset --hard FETCH_HEAD`) → نعيد
+    كتابة ملفاتنا فوقه ونعيد الكوميت (آخر-كاتب-يفوز **لملفاتنا فقط** = نفس دلالة
+    نجاح الـrebase أصلًا؛ untracked لا يمسّها reset). والفشل النهائي يُبلَّغ
+    **تلغرام** لا لوقًا فقط. `runner`/`sender` محقونان للاختبار بلا git/شبكة.
+    ملاحظة معمارية: لم نُدرج ignition.yml في مجموعة `super-stocks-state` (اقتراح
+    التقرير) — جوب الرادار 6 ساعات وسيحجز المراقب خلفه طوال الجلسة؛ هذا
+    الاسترجاع يحل تعارضه بلا قتل التوازي المقصود."""
+    run = runner or os.system
     try:
-        os.system('git config user.email "bot@screener.local"')
-        os.system('git config user.name "Screener Bot"')
+        run('git config user.email "bot@screener.local"')
+        run('git config user.name "Screener Bot"')
         added = False
         for fn in filenames:
             if os.path.exists(fn):
-                os.system(f'git add "{fn}"')
+                run(f'git add "{fn}"')
                 added = True
         if not added:
             return
-        if os.system("git diff --cached --quiet") == 0:
+        if run("git diff --cached --quiet") == 0:
             log("ℹ️ لا تغييرات جديدة للحفظ")
             return
-        os.system(f'git commit -m "bot data {dt.date.today().isoformat()}"')
-        # دفع آمن ضد السباق: قبل كل محاولة نضمّ تغييرات main البعيدة
-        # (تشغيل متزامن) عبر rebase، فلا يُرفض الدفع ولا تضيع بيانات تشغيل.
-        # HEAD:main يضمن الدفع حتى لو كان checkout بوضع detached.
+        _msg = f"bot data {dt.date.today().isoformat()}"
+        run(f'git commit -m "{_msg}"')
+        # دفع آمن ضد السباق (HEAD:main يضمن الدفع حتى بوضع detached).
         pushed = False
         for attempt in range(4):
-            os.system("git fetch origin main >/dev/null 2>&1")
-            if os.system("git rebase FETCH_HEAD >/dev/null 2>&1") != 0:
-                os.system("git rebase --abort >/dev/null 2>&1")
-            if os.system("git push origin HEAD:main") == 0:
+            run("git fetch origin main >/dev/null 2>&1")
+            if run("git rebase FETCH_HEAD >/dev/null 2>&1") != 0:
+                run("git rebase --abort >/dev/null 2>&1")
+                # ⑬ حل التعارض فعليًا: اعتمد الريموت ثم أعد ملفاتنا فوقه.
+                try:
+                    _blobs = {}
+                    for fn in filenames:
+                        if os.path.exists(fn):
+                            with open(fn, "rb") as f:
+                                _blobs[fn] = f.read()
+                    run("git reset --hard FETCH_HEAD >/dev/null 2>&1")
+                    for fn, _b in _blobs.items():
+                        with open(fn, "wb") as f:
+                            f.write(_b)
+                        run(f'git add "{fn}"')
+                    run(f'git commit -m "{_msg}"')
+                    log("⚖️ تعارض rebase — اعتُمد الريموت وأُعيدت ملفاتنا فوقه")
+                except Exception as e:
+                    log(f"⚠️ استرجاع التعارض: {e}")
+            if run("git push origin HEAD:main") == 0:
                 pushed = True
                 break
             wait = 2 ** (attempt + 1)
@@ -9162,6 +9188,14 @@ def git_save(filenames):
         else:
             log("⛔ git push فشل نهائيًا — البيانات محفوظة محليًا فقط. "
                 "تأكّد من permissions: contents: write في الـ YML")
+            # ⑬ فشل نهائي = حالة التشغيلة ستضيع مع الرنر — تنبيه واجب لا لوق.
+            try:
+                _snd = sender or send_telegram
+                _snd("⛔ <b>فشل حفظ حالة البوت في GitHub</b> بعد 4 محاولات — "
+                     "بيانات هذه التشغيلة (حسم/دِدوب) قد تضيع مع انتهاء الرنر. "
+                     "تحقّق من سجلّ Actions." + "\n\n" + FOOTER)
+            except Exception:
+                pass
     except Exception as e:
         log(f"⚠️ git_save: {e}")
 

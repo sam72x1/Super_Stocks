@@ -659,6 +659,57 @@ check("⑧ فاشل-آمن: فشل git/JSON فاسد/قائمة فارغة → N
 check("⑧ قفل: حلقة الرادار تستدعي _fresh_watchlist (التحديث موصول فعلًا)",
       "_fresh_watchlist" in _insp0.getsource(IG.main))
 
+# 4ح) 🔒 ⑬ (إصلاح تدقيق 2026-07-12): git_save — حل التعارض فعليًا + تلغرام عند
+#     الفشل النهائي (كان: 4 محاولات متطابقة فاشلة ثم فقد حالة صامت بجوب أخضر).
+_gs_tmp = "test_gitsave_tmp.json"
+with open(_gs_tmp, "w") as _f:
+    _f.write('{"x": 1}')
+try:
+    # (أ) الفشل النهائي (push يفشل دائمًا) → sender يُستدعى بتنبيه ⛔
+    _gs_cmds, _gs_sent = [], []
+    def _gs_runner_fail(cmd):
+        _gs_cmds.append(cmd)
+        if "git push" in cmd:
+            return 1                             # الدفع يفشل دائمًا
+        if "git diff --cached --quiet" in cmd:
+            return 1                             # يوجد تغيير مُدرَج
+        return 0
+    _sv_sleep = S.time.sleep
+    S.time.sleep = lambda *_: None               # لا انتظار حقيقي بالاختبار
+    S.git_save([_gs_tmp], runner=_gs_runner_fail,
+               sender=lambda m: _gs_sent.append(m))
+    S.time.sleep = _sv_sleep
+    check("⑬ فشل نهائي → تنبيه تلغرام (لا فقد حالة صامت بجوب أخضر)",
+          len(_gs_sent) == 1 and "فشل حفظ حالة البوت" in _gs_sent[0])
+    check("⑬ الفشل النهائي بعد 4 محاولات دفع فعلًا",
+          sum(1 for c in _gs_cmds if "git push" in c) == 4)
+    # (ب) تعارض rebase → استرجاع فعلي: اعتماد الريموت + إعادة ملفاتنا + إعادة كوميت
+    _gs_cmds2, _gs_sent2 = [], []
+    def _gs_runner_conflict(cmd):
+        _gs_cmds2.append(cmd)
+        if "git rebase FETCH_HEAD" in cmd:
+            return 1                             # تعارض
+        if "git diff --cached --quiet" in cmd:
+            return 1
+        return 0                                 # الدفع ينجح بعد الاسترجاع
+    S.git_save([_gs_tmp], runner=_gs_runner_conflict,
+               sender=lambda m: _gs_sent2.append(m))
+    check("⑬ تعارض rebase → reset --hard FETCH_HEAD + إعادة ملفاتنا + إعادة كوميت",
+          any("reset --hard FETCH_HEAD" in c for c in _gs_cmds2)
+          and sum(1 for c in _gs_cmds2 if "git commit" in c) == 2
+          and not _gs_sent2)                     # نجح — لا تنبيه فشل
+    # (ج) لا تغييرات مُدرَجة → لا كوميت ولا دفع
+    _gs_cmds3 = []
+    def _gs_runner_clean(cmd):
+        _gs_cmds3.append(cmd)
+        return 0                                 # diff --cached --quiet = 0 (نظيف)
+    S.git_save([_gs_tmp], runner=_gs_runner_clean, sender=lambda m: None)
+    check("⑬ لا تغييرات → لا كوميت ولا دفع",
+          not any("git commit" in c for c in _gs_cmds3)
+          and not any("git push" in c for c in _gs_cmds3))
+finally:
+    _os_hc.remove(_gs_tmp) if _os_hc.path.exists(_gs_tmp) else None
+
 
 # ==========================================================
 # 4) قرارات البوابات على أرقام الصور الفعلية (اختبار مباشر للصور)
