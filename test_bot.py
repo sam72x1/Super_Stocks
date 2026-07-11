@@ -6,6 +6,7 @@
 يعمل بلا إنترنت (يحاكي البيانات + يعطّل yfinance).
 """
 import inspect as _insp0
+import json
 import os as _os_hc
 import numpy as np
 import pandas as pd
@@ -623,6 +624,40 @@ check("① make_watch_entry ينقل ref_bar",
                           "pivot": 1.9, "stop": (1.75, 1.79), "t1": 2.3,
                           "t2": 2.6, "t3": 3.0, "score": 60, "flags": [],
                           "rr": 2.0}, "2026-03-02")["ref_bar"] == "2026-03-01")
+
+# 4ز) 🔒 ⑧ (إصلاح تدقيق 2026-07-12): رادار الانطلاق يحدّث قائمته من origin/main
+#     أثناء الجلسة (رنر منفصل — دفعات المراقب لا تصل ملفه المحلي) + ينقل أختام
+#     الدِدوب (الرادار لا يحفظ فالأختام بالذاكرة فقط).
+import ignition_live as IG
+import types as _ty_ig
+_ig_remote = {"stocks": [
+    {"symbol": "ACON", "status": "stopped"},          # شُطب بدفعة المراقب
+    {"symbol": "GEOS", "status": "active"}]}
+def _ig_runner(cmd, **kw):
+    if "show" in cmd:
+        return _ty_ig.SimpleNamespace(
+            returncode=0, stdout=json.dumps(_ig_remote).encode("utf-8"))
+    return _ty_ig.SimpleNamespace(returncode=0, stdout=b"")
+_ig_cur = {"stocks": [
+    {"symbol": "ACON", "status": "active", "ignition_alert": "2026-07-12"},
+    {"symbol": "GEOS", "status": "active", "ignition_alert": "2026-07-12"}]}
+_ig_new = IG._fresh_watchlist(_ig_cur, runner=_ig_runner)
+check("⑧ الرادار يرى الشطب الطازج من origin (ACON صار stopped)",
+      _ig_new is not None
+      and next(s for s in _ig_new["stocks"]
+               if s["symbol"] == "ACON")["status"] == "stopped")
+check("⑧ أختام الدِدوب تُنقل للنسخة الجديدة (لا إعادة إطلاق تنبيه منفَّذ)",
+      next(s for s in _ig_new["stocks"]
+           if s["symbol"] == "GEOS")["ignition_alert"] == "2026-07-12")
+check("⑧ فاشل-آمن: فشل git/JSON فاسد/قائمة فارغة → None (نواصل على آخر نسخة)",
+      IG._fresh_watchlist(_ig_cur, runner=lambda cmd, **k: _ty_ig.SimpleNamespace(
+          returncode=1, stdout=b"")) is None
+      and IG._fresh_watchlist(_ig_cur, runner=lambda cmd, **k: _ty_ig.SimpleNamespace(
+          returncode=0, stdout=b"not json")) is None
+      and IG._fresh_watchlist(_ig_cur, runner=lambda cmd, **k: _ty_ig.SimpleNamespace(
+          returncode=0, stdout=b'{"stocks": []}')) is None)
+check("⑧ قفل: حلقة الرادار تستدعي _fresh_watchlist (التحديث موصول فعلًا)",
+      "_fresh_watchlist" in _insp0.getsource(IG.main))
 
 
 # ==========================================================

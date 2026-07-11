@@ -16,13 +16,46 @@
 متغيّرات اختيارية: IGNITION_INTERVAL (ثوانٍ، افتراضي 45) · IGNITION_END_UTC (HH:MM،
 افتراضي 20:00 = إغلاق ناسداك).
 """
+import json
 import os
+import subprocess
 import time
 
 try:
     import Super_stock as bot
 except ImportError:
     import super_stock as bot
+
+
+def _fresh_watchlist(cur_wl, runner=None):
+    """⑧ (إصلاح تدقيق 2026-07-12): يجلب أحدث قائمة من `origin/main` — الرادار يعمل
+    على **رنر منفصل** عن مراقب الارتداد، فدفعات المراقب (شطب ستوب مثلًا) لا تصل
+    ملفه المحلي أبدًا؛ كان يلفّ ~6 ساعات على لقطة مجمَّدة وقد يصرخ «ادخل الآن»
+    على سهم شُطب قبل ساعات. (إعادة قراءة الملف المحلي — إصلاح تقرير التدقيق
+    المقترح — لا تكفي لنفس السبب.) ينقل أختام دِدوب الجلسة (`ignition_alert`)
+    من النسخة الحالية للجديدة (الرادار لا يحفظ — الأختام بالذاكرة فقط، وبدون
+    النقل يُعاد إطلاق تنبيه منفَّذ). `runner` محقون للاختبار بلا شبكة/git.
+    **فاشل-آمن → None** (نواصل على آخر نسخة = سلوك اليوم)."""
+    run = runner or subprocess.run
+    try:
+        run(["git", "fetch", "origin", "main", "-q"],
+            capture_output=True, timeout=60)
+        r2 = run(["git", "show", "FETCH_HEAD:weekly_watchlist.json"],
+                 capture_output=True, timeout=30)
+        if getattr(r2, "returncode", 1) != 0 or not getattr(r2, "stdout", None):
+            return None
+        new_wl = json.loads(r2.stdout.decode("utf-8"))
+        if not isinstance(new_wl, dict) or not new_wl.get("stocks"):
+            return None
+        stamps = {s.get("symbol"): s.get("ignition_alert")
+                  for s in (cur_wl or {}).get("stocks", [])
+                  if s.get("ignition_alert")}
+        for s in new_wl["stocks"]:
+            if s.get("symbol") in stamps:
+                s["ignition_alert"] = stamps[s["symbol"]]
+        return new_wl
+    except Exception:
+        return None
 
 
 def _deadline():
@@ -73,6 +106,12 @@ def main():
     while bot.dt.datetime.utcnow() < deadline and loops < max_loops:
         loops += 1
         today = bot.dt.date.today().isoformat()
+        # ⑧ تحديث القائمة من origin/main كل ~5 دقائق (7 دورات × 45ث): سهم شُطب
+        # بدفعة المراقب يختفي من الرادار بدل «ادخل الآن» على مشطوب. فاشل-آمن.
+        if loops % 7 == 0:
+            _new = _fresh_watchlist(wl)
+            if _new:
+                wl = _new
         try:
             rows = bot.scan_ignition(wl, today)
         except Exception as e:
