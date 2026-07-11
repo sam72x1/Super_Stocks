@@ -460,6 +460,80 @@ try:
 finally:
     S._fetch_splits = _sv_spl2
 
+# 4د) 🔒 §6 (2026-07-11): تسوية مشتبهات التقسيم في تقرير التطوير (طبقة تقارير
+#     فقط) — الكسب الخارق يُصحَّح بعامل تقسيم عكسي مؤكَّد بدل استبعاده الأعمى.
+# (1) الدالة النقية _split_corrected_gain
+check("§6: عامل عكسي 0.1 على +900% → ≈0% (يُزيل تضخّم 1:10)",
+      abs(S._split_corrected_gain(900.0, 0.1) - 0.0) < 1e-6)
+check("§6: عامل ≥1 (لا تقسيم/أمامي) → يُرجع الكسب الأصل بلا مساس",
+      S._split_corrected_gain(50.0, 1.0) == 50.0
+      and S._split_corrected_gain(50.0, 2.0) == 50.0)
+check("§6: عامل صفر/سالب/None → الأصل (فاشل-آمن)",
+      S._split_corrected_gain(50.0, 0.0) == 50.0
+      and S._split_corrected_gain(50.0, -1.0) == 50.0
+      and S._split_corrected_gain(50.0, None) == 50.0)
+# (2) _resolve_split_suspects — بمُحلّل تقسيم محقون (بلا شبكة).
+#   الصيغة بعامل 0.1: corrected = 0.1×g − 90. INLF +1250% → +35% (بالنطاق) → نظيف.
+_ms_in = [
+    {"symbol": "INLF", "reason": "M4_base", "gain_10d": 1250.0,
+     "window_start": "2026-06-01", "suspect_split": True},   # →+35% نظيف
+    {"symbol": "NOISE", "reason": "M2_x", "gain_10d": 900.0,
+     "window_start": "2026-06-01", "suspect_split": True},   # →0% يُسقَط
+    {"symbol": "NOSPL", "reason": "M2_x", "gain_10d": 900.0,
+     "window_start": "2026-06-01", "suspect_split": True},   # لا تقسيم → يبقى
+    {"symbol": "CLEAN", "reason": "M4_x", "gain_10d": 45.0,
+     "window_start": "2026-06-01", "suspect_split": False},  # يمرّ بلا مساس
+]
+_spl_map = {"INLF": pd.Series([0.1], index=[pd.Timestamp("2026-06-11")]),
+            "NOISE": pd.Series([0.1], index=[pd.Timestamp("2026-06-11")]),
+            "NOSPL": None}
+_ms_res = S._resolve_split_suspects(_ms_in,
+                                    fetch=lambda s: _spl_map.get(s))
+_by = {m["symbol"]: m for m in _ms_res}
+check("§6: مشتبه بتقسيم عكسي مؤكَّد يُنزله للنطاق → يصير نظيفًا (split_corrected)",
+      "INLF" in _by and _by["INLF"].get("split_corrected") is True
+      and not _by["INLF"]["suspect_split"]
+      and abs(_by["INLF"]["gain_10d"] - 35.0) < 0.5)
+check("§6: مشتبه يُصحَّح دون عتبة الفائتة (30%) → يُسقَط من القائمة",
+      "NOISE" not in _by)
+check("§6: مشتبه بلا تقسيم فعلي (fetch→None) → يبقى موسومًا (سلوك اليوم)",
+      "NOSPL" in _by and _by["NOSPL"]["suspect_split"] is True
+      and not _by["NOSPL"].get("split_corrected"))
+check("§6: غير المشتبه يمرّ بلا مساس",
+      "CLEAN" in _by and _by["CLEAN"]["gain_10d"] == 45.0)
+check("§6: بلا window_start → يبقى suspect (توافق خلفي مع السجلات القديمة)",
+      S._resolve_split_suspects(
+          [{"symbol": "OLD", "reason": "M2", "gain_10d": 900.0,
+            "suspect_split": True}],
+          fetch=lambda s: _spl_map.get("INLF"))[0]["suspect_split"] is True)
+# (3) _resolve_explosion_suspects — مرجع expl_date−1 يلتقط تقسيم يوم الانفجار.
+#   عتبة الإسقاط هنا = EXPLOSION_PCT(50). INLF +1500% → +60% نظيف (0.1×1500−90).
+_ex_in = [
+    {"symbol": "INLF", "gain": 1500.0, "expl_date": "2026-06-11",
+     "was_pivot": True, "suspect_split": True},
+    {"symbol": "NOSPL", "gain": 900.0, "expl_date": "2026-06-11",
+     "was_pivot": True, "suspect_split": True},
+]
+_ex_res = S._resolve_explosion_suspects(
+    _ex_in, fetch=lambda s: _spl_map.get(s))
+_exby = {e["symbol"]: e for e in _ex_res}
+check("§6·انفجارات: مشتبه بتقسيم يوم الانفجار يُصحَّح (expl_date−1 يلتقطه)",
+      "INLF" in _exby and _exby["INLF"].get("split_corrected") is True
+      and abs(_exby["INLF"]["gain"] - 60.0) < 1.0)
+check("§6·انفجارات: بلا تقسيم فعلي → يبقى موسومًا",
+      "NOSPL" in _exby and _exby["NOSPL"]["suspect_split"] is True)
+# (4) 🔒 قفل: الدوال الأربع خارج الفرز/الاختيار/الاختبار (طبقة تقارير فقط)
+_split6_fns = (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+               S.analyze_ticker, S.backtest_symbol)
+check("§6: _split_corrected_gain خارج rank_key/select_top/classify_tier/"
+      "entry_status/analyze_ticker/backtest_symbol",
+      all("_split_corrected_gain" not in _insp0.getsource(f)
+          for f in _split6_fns))
+check("§6: _resolve_split_suspects/_resolve_explosion_suspects خارج الفرز/الاختيار",
+      all(("_resolve_split_suspects" not in _insp0.getsource(f)
+           and "_resolve_explosion_suspects" not in _insp0.getsource(f))
+          for f in _split6_fns))
+
 
 # ==========================================================
 # 4) قرارات البوابات على أرقام الصور الفعلية (اختبار مباشر للصور)

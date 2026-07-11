@@ -5183,9 +5183,15 @@ def scan_market():
         except Exception:
             continue
         if g >= CONFIG["MISSED_RISE_PCT"]:
+            # §6: تاريخ بداية نافذة الكسب (c[-11]) لتسوية تقسيم دقيقة بالتقرير.
+            try:
+                _ws = df.index[-11].date().isoformat()
+            except Exception:
+                _ws = None
             _MISSED.append({"symbol": sym, "reason": reason,
                             "gain_10d": round(float(g), 1),
                             "price": round(float(c[-1]), 2),
+                            "window_start": _ws,
                             # A2: كسب خارق = يُرجَّح أثر تقسيم عكسي غير معدَّل.
                             # 🛡️ bool() ضد np.bool (نفس صنف حادثة 2026-07-09)
                             "suspect_split":
@@ -5370,6 +5376,119 @@ def _scale_divisor(last_price, ref_level, factor: float) -> float:
         return factor if scaled_gap < raw_gap else 1.0
     except Exception:
         return 1.0
+
+
+def _split_corrected_gain(gain_pct, factor):
+    """§6 (2026-07-11): يزيل تضخّم تقسيم عكسي من كسب مُبلَّغ في تقرير التطوير.
+    `factor` = حاصل ضرب قيم التقسيم بعد بداية النافذة (عكسي 1:10 = 0.1). ذو معنى
+    فقط عند `factor < 1.0` — التقسيم العكسي على بيانات غير معدَّلة يضخّم الكسب
+    (c[-1] بمقياس جديد ×10 مقابل c[-11] بمقياس قديم). الصيغة تعيد الكسب لمقياس
+    البداية: ((1+g/100)×factor − 1)×100. عامل ≥1 (لا تقسيم/تقسيم أمامي) → الأصل
+    بلا مساس. نقيّة، فاشلة-آمنة → الأصل عند أي خطأ. طبقة تقارير فقط."""
+    try:
+        f = float(factor)
+        if f <= 0 or f >= 1.0:
+            return gain_pct
+        return ((1.0 + float(gain_pct) / 100.0) * f - 1.0) * 100.0
+    except Exception:
+        return gain_pct
+
+
+def _resolve_split_suspects(missed, fetch=None):
+    """§6: يسوّي مشتبهات التقسيم في الفرص الفائتة (طبقة تقارير فقط) بدل استبعادها
+    الأعمى. لكل عنصر موسوم `suspect_split`: يجلب أحداث التقسيم ويحسب العامل بعد
+    `window_start`؛ لو حدث **تقسيم عكسي فعلي** (عامل < 1.0) بالنافذة يصحّح الكسب
+    ويُعيد التصنيف:
+      • مصحَّح في [MISSED_RISE_PCT, SPLIT_SUSPECT_GAIN_PCT) → نظيف (`split_corrected`).
+      • مصحَّح أقل من MISSED_RISE_PCT → ضجيج تقسيم صرف، يُسقَط.
+      • لا تقسيم عكسي / بقي ≥ SPLIT_SUSPECT_GAIN_PCT → يبقى موسومًا (سلوك اليوم).
+    غير المشتبه يمرّ بلا مساس. **أسوأ حالة = سلوك اليوم حرفيًا** (تعذّر الجلب/لا
+    window_start → يبقى suspect). `fetch` محقون للاختبار بلا شبكة. يرجع قائمة جديدة
+    (لا يمسّ _MISSED). مقفول خارج الفرز/الاختيار."""
+    _f = fetch or _fetch_splits              # بحث وقت النداء (يُتيح المونكي-باتش)
+    lo = float(CONFIG["MISSED_RISE_PCT"])
+    hi = float(CONFIG["SPLIT_SUSPECT_GAIN_PCT"])
+    out = []
+    for m in missed:
+        if not m.get("suspect_split"):
+            out.append(m)
+            continue
+        ws = m.get("window_start")
+        if not ws:
+            out.append(m)
+            continue
+        try:
+            factor = _split_scale_factor(_f(m["symbol"]), ws)
+        except Exception:
+            factor = 1.0
+        if factor >= 1.0:                       # لا تقسيم عكسي بالنافذة
+            out.append(m)
+            continue
+        cg = _split_corrected_gain(m["gain_10d"], factor)
+        if cg >= hi:                            # التصحيح لم يحسم الشذوذ
+            out.append(m)
+            continue
+        if cg < lo:                             # ضجيج تقسيم صرف
+            log(f"👻 {m['symbol']}: +{m['gain_10d']:.0f}% كان تقسيمًا عكسيًا "
+                f"(عامل {factor:g}) → +{cg:.0f}% فعلي، أقل من عتبة الفائتة — يُسقَط")
+            continue
+        mm = dict(m)
+        mm["gain_10d"] = round(float(cg), 1)
+        mm["suspect_split"] = False
+        mm["split_corrected"] = True
+        log(f"👻 {m['symbol']}: +{m['gain_10d']:.0f}% بعد تسوية تقسيم "
+            f"(عامل {factor:g}) → +{cg:.0f}% فعلي (يدخل الإحصاء)")
+        out.append(mm)
+    return out
+
+
+def _resolve_explosion_suspects(explosions, fetch=None):
+    """§6: نظير `_resolve_split_suspects` لسجل الانفجارات المتراكم. المرجع =
+    `expl_date` **ناقص يوم** (لالتقاط تقسيم يوم الانفجار نفسه — `_split_scale_factor`
+    تستخدم `d > since` الصارمة). يصحّح كسب الانفجار المشتبه عند تقسيم عكسي مؤكَّد،
+    ويُعيد التصنيف بنفس المنطق (نظيف/يُسقَط/يبقى). `gain` رقم لا نسبة (round(g,0)).
+    أسوأ حالة = سلوك اليوم. يرجع قائمة جديدة. مقفول خارج الفرز/الاختيار."""
+    _f = fetch or _fetch_splits              # بحث وقت النداء (يُتيح المونكي-باتش)
+    hi = float(CONFIG["SPLIT_SUSPECT_GAIN_PCT"])
+    ex_lo = float(CONFIG["EXPLOSION_PCT"])      # دون عتبة الانفجار = لم يعد انفجارًا
+    out = []
+    for e in explosions:
+        if not e.get("suspect_split"):
+            out.append(e)
+            continue
+        ed = e.get("expl_date") or e.get("date")
+        if not ed:
+            out.append(e)
+            continue
+        try:
+            since = (dt.date.fromisoformat(str(ed)[:10])
+                     - dt.timedelta(days=1)).isoformat()
+        except Exception:
+            out.append(e)
+            continue
+        try:
+            factor = _split_scale_factor(_f(e["symbol"]), since)
+        except Exception:
+            factor = 1.0
+        if factor >= 1.0:
+            out.append(e)
+            continue
+        cg = _split_corrected_gain(e.get("gain", 0), factor)
+        if cg >= hi:
+            out.append(e)
+            continue
+        if cg < ex_lo:                          # ضجيج تقسيم صرف
+            log(f"💥 {e['symbol']}: +{e.get('gain', 0):.0f}% كان تقسيمًا عكسيًا "
+                f"(عامل {factor:g}) → +{cg:.0f}% فعلي، دون عتبة الانفجار — يُسقَط")
+            continue
+        ee = dict(e)
+        ee["gain"] = round(float(cg), 0)
+        ee["suspect_split"] = False
+        ee["split_corrected"] = True
+        log(f"💥 {e['symbol']}: +{e.get('gain', 0):.0f}% بعد تسوية تقسيم "
+            f"(عامل {factor:g}) → +{cg:.0f}% فعلي")
+        out.append(ee)
+    return out
 
 
 def update_watchlist_status(wl: dict, history: dict) -> list:
@@ -7246,8 +7365,15 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     # مهما صغرت العيّنة). طبقة تقارير فقط.
     head += _weekly_compare_block(rows)
 
+    # §6 (2026-07-11): تسوية مشتبهات التقسيم مرّة واحدة — الكسب الخارق (≥300%)
+    # يُصحَّح بعامل التقسيم العكسي المؤكَّد بدل استبعاده الأعمى، فنسترجع عيّنات
+    # حقيقية. طبقة تقارير فقط · أسوأ حالة = سلوك اليوم (يبقى suspect). القوائم
+    # الجديدة تُستعمل في المُداخل الثلاثة بدل _MISSED / wl["explosions"] الخام.
+    _missed_resolved = _resolve_split_suspects(_MISSED)
+    _ex_resolved = _resolve_explosion_suspects(wl.get("explosions") or [])
+
     def _missed_block():
-        if not _MISSED:
+        if not _missed_resolved:
             return []
         # تصنيف: بوابات الهوية/البنية = «ليس ارتكازًا أصلًا» (رفض صحيح، لا تشدّد):
         # M1 سعر · M2 هبوط · M3 انفجار · M4_base (قاعدة واسعة/شاذّة = ليست تجميعًا
@@ -7259,14 +7385,22 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
             r = str(reason)
             return r.startswith(("M1_", "M2_", "M3_")) or r.startswith("M4_base")
         # A2: القفزات الخارقة (يُرجَّح أثر تقسيم غير معدَّل) تُفصل من الإحصاء
-        # وتُعرض ببند مستقل للتحقق اليدوي — لا تُحذف (شفافية).
-        suspects = [m for m in _MISSED if m.get("suspect_split")]
-        clean = [m for m in _MISSED if not m.get("suspect_split")]
+        # وتُعرض ببند مستقل للتحقق اليدوي — لا تُحذف (شفافية). §6: المصحَّحة
+        # بتقسيم عكسي مؤكَّد دخلت clean بأرقامها الحقيقية (split_corrected).
+        suspects = [m for m in _missed_resolved if m.get("suspect_split")]
+        clean = [m for m in _missed_resolved if not m.get("suspect_split")]
+        corrected = [m for m in clean if m.get("split_corrected")]
         moved = [m for m in clean if not _identity(m["reason"])]
         not_pivot = [m for m in clean if _identity(m["reason"])]
         out = [f"\n👻 <b>فرص فائتة (مرفوض صعد {int(CONFIG['MISSED_RISE_PCT'])}% أو أكثر)</b>",
                f"   📌 ارتكاز تحرّك (راجع الارتداد): <b>{len(moved)}</b> · "
                f"🗑️ ليس ارتكازًا (تجاهل صحيح): {len(not_pivot)}"]
+        if corrected:
+            top_cor = " · ".join(f"{m['symbol']} +{m['gain_10d']:.0f}%"
+                                 for m in sorted(corrected,
+                                                 key=lambda x: -x["gain_10d"])[:4])
+            out.append(f"   ✅ مصحّح تقسيم ({len(corrected)}) — الكسب الخارق كان "
+                       f"تقسيمًا عكسيًا فأُعيد لمقياسه الحقيقي: {top_cor}")
         if suspects:
             top_sus = " · ".join(f"{m['symbol']} +{m['gain_10d']:.0f}%"
                                  for m in suspects[:4])
@@ -7288,7 +7422,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         return out
 
     def _explosions_block():
-        ex = wl.get("explosions") or []
+        ex = _ex_resolved                      # §6: المشتبهات مُسوّاة تقسيميًّا
         if not ex:
             return []
 
@@ -7297,11 +7431,15 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
 
         missed = [e for e in ex if e.get("was_pivot")]
         junk = [e for e in ex if not e.get("was_pivot")]
+        corrected = [e for e in ex if e.get("split_corrected")]
         thr = (f"{int(CONFIG['EXPLOSION_PCT'])}% قفزة أو "
                f"{int(CONFIG['EXPLOSION_RUN_PCT'])}% تجمّع")
         out = [f"\n💥 <b>المتحرّكون ({thr}) — {len(ex)} سهم</b>",
                f"   🎯 كان ارتكازًا فاتنا: {len(missed)} · "
                f"🗑️ عشوائي (صح تجاهلناه): {len(junk)}"]
+        if corrected:
+            out.append(f"   ✅ مصحّح تقسيم ({len(corrected)}) — كسب خارق أُعيد "
+                       "لمقياسه الحقيقي بعامل تقسيم عكسي مؤكَّد.")
         # 🚪 توزيع البوابات على **كل** المتحرّكين — طلب المستخدم: لا متحرّك >العتبة
         # بلا بوابة رفض معروفة بالضبط عند قاعه (لا الرفض الحالي بعد الانفجار).
         gc = {}
@@ -7359,7 +7497,8 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         out = [f"\n🧮 <b>مقام الرفض (مجموع {len(recent)} تشغيل، آخر 7 أيام)</b>",
                "   " + " · ".join(f"{esc(k)}={v}" for k, v in top)]
         # نسبة الفائتة الواقعية ÷ المقام لكل بوابة (تُظهر البوابة المتشددة فعلًا)
-        clean_missed = [m for m in _MISSED if not m.get("suspect_split")]
+        # §6: القائمة المُسوّاة تقسيميًّا (المصحَّح دخل، الضجيج سقط).
+        clean_missed = [m for m in _missed_resolved if not m.get("suspect_split")]
         ratios = []
         for gate, total in top:
             miss = sum(1 for m in clean_missed if str(m["reason"]) == gate)
