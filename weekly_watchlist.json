@@ -288,17 +288,32 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 70,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 10.0,
    "live_alert": {
     "buyzone": "2026-07-10"
-   }
+   },
+   "borrow_hist": [
+    [
+     "2026-07-11",
+     35000
+    ]
+   ]
   },
   {
    "symbol": "PSTV",
@@ -582,15 +597,31 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
-   "partial": [],
-   "missing": [],
+   "readiness": 55,
+   "have": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
+   "partial": [
+    "ثبات بعد القاع"
+   ],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 4.0,
-   "live_alert": {}
+   "live_alert": {},
+   "borrow_hist": [
+    [
+     "2026-07-11",
+     100000
+    ]
+   ]
   },
   {
    "symbol": "CDLX",
@@ -874,15 +905,31 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
-   "partial": [],
-   "missing": [],
+   "readiness": 55,
+   "have": [
+    "RSI تشبع وانحناء",
+    "تقاطع MACD",
+    "KST صاعد"
+   ],
+   "partial": [
+    "ثبات بعد القاع"
+   ],
+   "missing": [
+    "قرب متوسط 30/50",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 4.32,
-   "live_alert": {}
+   "live_alert": {},
+   "borrow_hist": [
+    [
+     "2026-07-11",
+     150000
+    ]
+   ]
   }
  ],
  "removed": [],
@@ -6792,6 +6839,28 @@
    "base_reason": "M4_base_واسعة",
    "was_pivot": true,
    "suspect_split": false
+  }
+ ],
+ "reject_stats": [
+  {
+   "date": "2026-07-11",
+   "stats": {
+    "M2_هبوط_تحت_40": 1864,
+    "M1_سعر": 514,
+    "M5_سيولة": 125,
+    "M4_base_واسعة": 301,
+    "M10_RSI_فات_القطار": 24,
+    "M10_RSI_ما_تشبّع": 197,
+    "نواقص_فوق_3": 65,
+    "M3_انفجار_تحت_60": 189,
+    "بعيد_عن_الدخول(45%)": 7,
+    "M2_هبوط_فوق_97": 69,
+    "بعيد_عن_الدخول(35%)": 2,
+    "بعيد_عن_الدخول(25%)": 1,
+    "بعيد_عن_الدخول(0%)": 1
+   },
+   "universe": 3562,
+   "valid": 3364
   }
  ]
 }
