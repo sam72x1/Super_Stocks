@@ -1055,6 +1055,40 @@
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "SY",
+   "date": "2026-07-11",
+   "price": 1.71,
+   "stop": 1.1904,
+   "t1": 1.95,
+   "t2": 2.06,
+   "t3": 2.22,
+   "score": 60,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "جفاف بيع",
+    "يرتكز على متوسط 30/50",
+    "ثبات 13 جلسات فوق القاع",
+    "DMI: ‎+DI فوق ‎-DI",
+    "استعاد MA5/MA20 (تجميع)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 48.2432038491543,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 72.77070093920972,
+   "best_spike": 481.18811296886133,
+   "rr": 4.861110113101444,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
   }
  ]
 }

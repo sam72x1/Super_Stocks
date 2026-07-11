@@ -861,7 +861,6 @@
   "finra_short": 1782
  },
  "SBET": {},
- "LI": {},
  "LENZ": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -1161,5 +1160,7 @@
   "company_name": "Ascentage Pharma Group Internat",
   "short_interest": 783,
   "days_to_cover": 0.08
- }
+ },
+ "LI": {},
+ "SY": {}
 }
