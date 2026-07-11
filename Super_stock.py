@@ -7763,11 +7763,28 @@ def run_weekly_renewal(wl: dict) -> None:
     # 1) إغلاق الأسبوع المنتهي (إن وُجد) بتحديث أخير + رسالة حصاد
     old_syms = sorted({s["symbol"] for s in wl["stocks"]})
     if old_syms and yf is not None:
+        # ⑫ (إصلاح تدقيق 2026-07-12): حارس تغطية **الأسبوع المنتهي** — كان حارس
+        # الصحة يحرس الفرز الجديد فقط؛ خنق ياهو هنا كان يؤرشف أسبوعًا غير محسوم
+        # (ستوبات الأسبوع تفلت بأسعار قديمة وتُعاد ترشيحها بنفس المساء). دون
+        # التغطية → تأجيل التجديد كاملًا (نفس دلالة حارس الكون: القائمة النشطة
+        # محفوظة ويُعاد التجديد لاحقًا).
         try:
             hist_old = download_history(old_syms)
+            _cov_old = (sum(1 for s in old_syms
+                            if hist_old.get(s) is not None
+                            and len(hist_old[s]) > 0) / len(old_syms) * 100.0)
+            if _cov_old < CONFIG["DATA_HEALTH_MIN_PCT"]:
+                msg = (f"⚠️ تجديد مؤجَّل: تغطية بيانات الأسبوع المنتهي "
+                       f"{_cov_old:.0f}% فقط (خنق مصدر البيانات؟) — لا نؤرشف "
+                       "أسبوعًا غير محسوم. القائمة النشطة محفوظة، يُعاد التجديد لاحقًا.")
+                log(msg)
+                send_telegram(msg + "\n\n" + FOOTER)
+                return
             update_watchlist_status(wl, hist_old)
         except Exception as e:
-            log(f"⚠️ تحديث الأسبوع المنتهي: {e}")
+            log(f"⚠️ تحديث الأسبوع المنتهي فشل كليًا: {e} — تأجيل التجديد "
+                "(لا أرشفة لأسبوع غير محسوم)")
+            return
     # رسالة الحصاد تُرسل دائماً (حتى لو تعذر التحديث الأخير)
     wrap = build_wrapup_message(wl)
     if wrap:

@@ -401,6 +401,25 @@ try:
           _f01_saved.get("مفتاح_مستقبلي") == {"x": 1})
     check("⑥ قفل عكسي: مفاتيح التجديد تُصفَّر فعلًا (removed/notes جديدة فارغة)",
           _f01_saved.get("removed") == [] and _f01_saved.get("notes") == [])
+    # ⑫ (إصلاح تدقيق 2026-07-12): خنق بيانات الأسبوع المنتهي → التجديد يُؤجَّل
+    # كاملًا (لا أرشفة لأسبوع غير محسوم، القائمة النشطة تبقى كما هي).
+    import types as _ty12
+    _sv_yf12 = S.yf
+    _f01_saved.clear()
+    S.yf = _ty12.SimpleNamespace()               # موجود (فلا يُتخطّى تحديث الأسبوع)
+    S.download_history = lambda syms: {}          # خنق تام: صفر تغطية
+    _wl12 = {"week_start": "2026-07-03",
+             "stocks": [{"symbol": "OLD1", "status": "active",
+                         "added": "2026-07-06", "entry_ref": 2.0, "pivot": 2.0,
+                         "stop": 1.8, "t1": 2.4, "t2": 2.8, "t3": 3.2,
+                         "hit": None, "max_gain_pct": 0.0}],
+             "removed": [], "notes": [], "pullback": [], "history": []}
+    S.run_weekly_renewal(_wl12)
+    check("⑫ خنق الأسبوع المنتهي (تغطية 0%) → التجديد مؤجَّل ولا أرشفة",
+          not _f01_saved                          # save_watchlist لم تُستدع
+          and _wl12["week_start"] == "2026-07-03"
+          and len(_wl12["stocks"]) == 1 and not _wl12["history"])
+    S.yf = _sv_yf12
 finally:
     (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
      S.download_history, S.build_wrapup_message, S.enrich,
