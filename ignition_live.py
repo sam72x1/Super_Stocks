@@ -129,16 +129,24 @@ def main():
                     seen.add(r[0]["symbol"])
                     session_fires.append(r)
         time.sleep(interval)
-    # 📏 حلقة القياس: سجّل إطلاقات الجلسة بسجلّ دائم + احفظه بالريبو (فاشل-آمن — لا
-    # يعيق إنهاء الرادار). أداة التطوير تقرأه الجمعة وتحكم على الالتقاط/الإنذار الكاذب.
-    if session_fires:
-        try:
+    # 📏 حلقة القياس: سجّل إطلاقات الجلسة + ⑩ **مقام الالتقاط** (كل أسهم الجلسة
+    # ولو صفر إطلاق — بدونه «الالتقاط» غير قابل للحساب) بسجلّ دائم + احفظه بالريبو
+    # (فاشل-آمن — لا يعيق إنهاء الرادار). أداة التطوير تقرأهما الجمعة.
+    try:
+        _save_files = []
+        _uni_syms = [s.get("symbol") for s in wl.get("stocks", [])
+                     if s.get("status") == "active"]
+        if bot.record_ignition_universe(_uni_syms, session_day):
+            _save_files.append(bot.IGNITION_UNI_FILE)
+        if session_fires:
             n_rec = bot.record_ignition_fires(session_fires, session_day)
             if n_rec:
-                bot.git_save([bot.IGNITION_LOG_FILE])
+                _save_files.append(bot.IGNITION_LOG_FILE)
                 bot.log(f"📝 سُجِّل {n_rec} إطلاق في سجلّ القياس.")
-        except Exception as e:
-            bot.log(f"⚠️ حفظ سجلّ الانطلاق: {e}")
+        if _save_files:
+            bot.git_save(_save_files)
+    except Exception as e:
+        bot.log(f"⚠️ حفظ سجلّ الانطلاق: {e}")
     bot.log(f"رادار الانطلاق: انتهت الجلسة ({loops} دورة).")
 
 

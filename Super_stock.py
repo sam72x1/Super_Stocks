@@ -4609,6 +4609,7 @@ def export_weekly_csvs(wl: dict, picks: list, alert_data: dict = None) -> None:
 WATCH_FILE = "weekly_watchlist.json"   # ملف ذاكرة القائمة في الـ repo
 COMPANY_FILE = "company_cache.json"    # ذاكرة آخر قطاع/دولة معروفة لكل سهم
 IGNITION_LOG_FILE = "ignition_log.json"  # 📏 سجلّ إطلاقات رادار الانطلاق (قياس الحافة)
+IGNITION_UNI_FILE = "ignition_universe.json"  # ⑩ مقام الالتقاط: أسهم كل جلسة رادار
 COMPANY_CACHE_MAX = 5000               # حدّ علوي سخيّ لذاكرة الشركات (LRU)
 # 🔄 التجديد الأسبوعي مدفوع بإشارة الجدولة (RENEW_ON_CLOSE) لا بيوم الأسبوع:
 # الـworkflow يشغّل جوب تجديد **الجمعة 22:00 UTC = بعد إغلاق السوق الأمريكي**
@@ -6752,6 +6753,12 @@ def record_ignition_fires(rows, today_iso) -> int:
                 continue
             usd = sig.get("usd")
             log_data.append({"symbol": sym, "date": today_iso,
+                             # ⑩ (إصلاح تدقيق 2026-07-12): طابع وقت الإطلاق —
+                             # بدونه مقياس «الأبكرية» (كم دقيقة سبقنا المسار
+                             # اليومي) مستحيل بنيويًا. إلحاق فقط، توافق خلفي
+                             # (السجلات القديمة بلا الحقل تُقرأ بـ.get عادي).
+                             "fired_at": dt.datetime.utcnow().isoformat(
+                                 timespec="seconds") + "Z",
                              "break_level": _ignition_break_level(s),
                              "price": sig.get("price"), "vol_x": sig.get("vol_x"),
                              "usd": usd, "candle_class": _ignition_candle_class(usd)[0]})
@@ -6763,6 +6770,34 @@ def record_ignition_fires(rows, today_iso) -> int:
     except Exception as e:
         log(f"⚠️ تسجيل إطلاقات الانطلاق: {e}")
         return 0
+
+
+def record_ignition_universe(symbols, today_iso) -> bool:
+    """⑩ (إصلاح تدقيق 2026-07-12): يسجّل **مقام الالتقاط** — أسهم القائمة التي
+    راقبها الرادار في الجلسة (سواء أُطلق عليها أم لا). بدون المقام، مقياس
+    «الالتقاط» (% المنفجرات التي أطلقنا عليها) مستحيل بنيويًا: السجل كان يحفظ
+    الإطلاقات فقط. أداة التطوير تقاطعه لاحقًا مع الشموع اليومية (المنفجر بلا
+    إطلاق = تفويت). دِدوب مرة/يوم · سقف 90 جلسة · فاشل-آمن → False.
+    **قياس فقط — خارج الفرز/الاختيار.**"""
+    try:
+        syms = sorted({str(x) for x in (symbols or []) if x})
+        if not syms:
+            return False
+        data = []
+        if os.path.exists(IGNITION_UNI_FILE):
+            try:
+                with open(IGNITION_UNI_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f) or []
+            except Exception:
+                data = []
+        if any(e.get("date") == today_iso for e in data):
+            return False                       # جلسة اليوم مسجَّلة أصلًا
+        data.append({"date": today_iso, "symbols": syms})
+        _atomic_write_json(IGNITION_UNI_FILE, data[-90:])
+        return True
+    except Exception as e:
+        log(f"⚠️ تسجيل مقام الانطلاق: {e}")
+        return False
 
 
 def _ignition_outcome(fire, df, confirm_pct=None) -> str:
