@@ -2507,6 +2507,22 @@ def spread_line(bid, ask, session=None, brief=False) -> str:
         return ""
 
 
+def _sanitize_name(name, max_len: int = 64):
+    """⑦ (إصلاح تدقيق 2026-07-12): تعقيم اسم الشركة عند حدّ الدخول — نص حرّ من
+    مصدر خارجي (ياهو) يُخزَّن في JSON يقرأه وكيل Cline المستقل (contents: write)؛
+    لنموذج لغوي لا يتمايز النص عن التعليمات. محارف محافظة فقط (حروف/أرقام/مسافة/
+    `.,&'()-`) + سقف طول. None تمرّ كما هي. نقيّة، فاشلة-آمنة → None."""
+    try:
+        if not name:
+            return None
+        clean = "".join(ch if (ch.isalnum() or ch in " .,&'()-") else " "
+                        for ch in str(name))
+        clean = " ".join(clean.split())[:max_len].strip()
+        return clean or None
+    except Exception:
+        return None
+
+
 def _short_headline(r: dict) -> str:
     """نص «شورت» في السطر الرئيسي للكرت/اليومي (2026-07-11، طلب المستخدم — عرض فقط).
     يعتمد **عمود Available من ChartExchange** (`shares_available`) = قراءة فيصل للشورت
@@ -3222,9 +3238,13 @@ def enrich(results: list) -> None:
                 r["industry"] = _or_cache(info.get("industry"),
                                           cached, "industry")
                 # 📅 اسم الشركة (لمطابقة راعي التجارب السريرية — الأحداث المعلنة)
-                r["company_name"] = (info.get("shortName")
-                                     or info.get("longName")
-                                     or cached.get("company_name"))
+                # ⑦ (إصلاح تدقيق 2026-07-12): تعقيم عند الحد — نص حرّ من مصدر
+                # خارجي يُكوَّت في weekly_watchlist.json الذي يقرأه وكيل Cline
+                # (contents: write). محارف محافظة + سقف طول، فلا يحمل الحقلُ
+                # تعليماتٍ لنموذج لغوي ولا وسومًا.
+                r["company_name"] = _sanitize_name(info.get("shortName")
+                                                   or info.get("longName")
+                                                   or cached.get("company_name"))
                 # 📅 تاريخ أول تداول (لتقدير انتهاء حظر المؤسسين للإدراجات الحديثة)
                 try:
                     _ftd = info.get("firstTradeDateEpochUtc")
