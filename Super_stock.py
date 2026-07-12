@@ -279,6 +279,8 @@ CONFIG = {
     "BT_SWEEP_PCT": 0.10,                # عمق المسح المطلوب تحت الدعم (مفتاح، لا قاعدة فيصل)
     "BT_SWEEP_STOP_MARGIN": 0.03,        # هامش الوقف تحت أدنى ذيل المسح (عند BT_SWEEP_STOP=1)
     "BT_SWEEP_MIN_RR": 1.0,              # أرضية العائد/المخاطرة لقبول تعبئة المسح
+    "BT_SPREAD_PCT": 0.0,                # 🔬 F-COST: تكلفة تنفيذ (سبريد+انزلاق) — 0=سلوك
+                                         # اليوم؛ نصفها يرفع الدخول ويخفض الخروج (حساسية 1/3/5%)
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -405,7 +407,8 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_SWEEP_STOP", "BT_SWEEP_STOP", int),
             ("BT_SWEEP_PCT", "BT_SWEEP_PCT", float),
             ("BT_SWEEP_STOP_MARGIN", "BT_SWEEP_STOP_MARGIN", float),
-            ("BT_SWEEP_MIN_RR", "BT_SWEEP_MIN_RR", float)):
+            ("BT_SWEEP_MIN_RR", "BT_SWEEP_MIN_RR", float),
+            ("BT_SPREAD_PCT", "BT_SPREAD_PCT", float)):   # 🔬 F-COST
         v = (env.get(bt_env) or "").strip()
         if not v:
             continue
@@ -8213,7 +8216,8 @@ def run_hand_digest() -> None:
 # ==========================================================
 # 10) التشغيل الرئيسي
 # ==========================================================
-def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled):
+def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled, entry_intrabar=True,
+                 spread=0.0):
     """يحسم صفقة باكتيست من فهرس التعبئة بذراعَي الوقف (نفس منطق A/B، مصدر واحد):
     ذراع الذيل (A): الوقف بلمسة الذيل `low<=stop`، الخروج `min(stop, open)` لواقعية
     الفجوة · ذراع الإغلاق (B): الوقف بإغلاق `close<=stop`. الرابح يخرج t1، العالق آخر
@@ -8221,13 +8225,18 @@ def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled):
     تُعبَّأ. مصدر واحد يضمن أن تجربة الدخول تُقاس بنفس محرّك الأساس تمامًا (مقارنة عادلة)."""
     if filled is None or entry <= 0:
         return ("no_fill", None, "no_fill", None)
+    # 🔬 F-L1 (تدقيق النظر المستقبلي 2026-07-12): للتعبئة داخل الشمعة (الأساس) لا
+    # يُحسم الهدف على شمعة التعبئة نفسها — ترتيب اللمس داخلها مجهول (قد يُضرب t1 قبل
+    # نزول السعر لدخولنا = فوز وهمي). الستوب يبقى محميًّا (يُفحص أولًا). ذراع المسح
+    # (entry_intrabar=False) يدخل بإغلاق الاستعادة فيملك من الفتح التالي = لا لبس.
+    t1_from = (filled + 1) if entry_intrabar else filled
     last_close = float(cl[-1])
     ow, exit_w = "open", last_close
     for k in range(filled, len(cl)):
-        if lo[k] <= stop:                       # الوقف أولًا (محافظ)
+        if lo[k] <= stop:                       # الوقف أولًا (محافظ، حتى شمعة التعبئة)
             ow, exit_w = "loss", min(stop, float(op[k]))
             break
-        if hi[k] >= t1:
+        if k >= t1_from and hi[k] >= t1:        # F-L1: ليس على شمعة التعبئة الداخلية
             ow, exit_w = "win", t1
             break
     oc, exit_c = "open", last_close
@@ -8235,11 +8244,15 @@ def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled):
         if cl[k] <= stop:
             oc, exit_c = "loss", float(cl[k])
             break
-        if hi[k] >= t1:
+        if k >= t1_from and hi[k] >= t1:
             oc, exit_c = "win", t1
             break
-    return (ow, (exit_w / entry - 1.0) * 100.0,
-            oc, (exit_c / entry - 1.0) * 100.0)
+    # 🔬 F-COST: تكلفة التنفيذ (سبريد+انزلاق) — نشتري أغلى (ask) ونبيع أرخص (bid):
+    # نصف السبريد على كل جهة. spread=0 → buy=entry والعامل 1 = سلوك اليوم حرفيًا.
+    buy = entry * (1.0 + spread / 2.0)
+    sell_f = 1.0 - spread / 2.0
+    return (ow, (exit_w * sell_f / buy - 1.0) * 100.0,
+            oc, (exit_c * sell_f / buy - 1.0) * 100.0)
 
 
 def _sweep_confirmed_fill(lo, cl, support, sweep_pct):
@@ -8290,8 +8303,11 @@ def _sweep_augment(trade, r, hi, lo, cl, op, stop, t1):
             fr, filled_sw = "rr_too_low", None
     o_sw = ret_sa = ret_sb = ob_sw = None
     if filled_sw is not None:
+        # ذراع المسح يدخل بإغلاق الاستعادة (يملك من الفتح التالي) — لا لبس شمعة
+        # التعبئة، فـ entry_intrabar=False (كان سلوكه الصحيح أصلًا؛ F-L1 يوثّقه صراحة).
         o_sw, ret_sa, ob_sw, ret_sb = _resolve_arm(
-            hi, lo, cl, op, e_sw, stop_sw, t1, filled_sw)
+            hi, lo, cl, op, e_sw, stop_sw, t1, filled_sw, entry_intrabar=False,
+            spread=CONFIG.get("BT_SPREAD_PCT", 0.0) or 0.0)   # 🔬 F-COST بالتساوي
     trade["fill_reason_sweep"] = fr
     trade["outcome_sweep"] = o_sw if o_sw is not None else fr
     trade["outcome_sweep_b"] = ob_sw if ob_sw is not None else fr
@@ -8360,9 +8376,18 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             max_draw = (float(min(lo[filled:])) / entry - 1.0) * 100.0
         # الأساس: ذراعا الوقف (لمسة ذيل A · إغلاق B) بمصدر واحد _resolve_arm — بلا
         # تغيير سلوك (نفس المنطق السابق حرفيًا، DRY فقط لتقيس تجربة المسح بنفس المحرّك).
+        _spread = CONFIG.get("BT_SPREAD_PCT", 0.0) or 0.0   # 🔬 F-COST
         outcome, ret_a, outcome_b, ret_b = _resolve_arm(
-            hi, lo, cl, op, entry, stop, t1, filled)
+            hi, lo, cl, op, entry, stop, t1, filled, spread=_spread)
+        # 🔬 F-L1: قياس أثر «تفاؤل شمعة التعبئة» — السلوك القديم (t1 من شمعة التعبئة)
+        # محفوظ للمقارنة بتشغيل واحد؛ تقرير الباكتيست يطبع «كم فوزًا كان وهميًا».
+        # (نفس السبريد ليُعزَل أثر شمعة التعبئة وحده عن تكلفة التنفيذ.)
+        _lg_out, _lg_ret, _, _ = _resolve_arm(
+            hi, lo, cl, op, entry, stop, t1, filled, entry_intrabar=False,
+            spread=_spread)
         trade = {"symbol": sym, "date": str(df.index[i - 1].date()),
+                 "outcome_legacy": _lg_out,
+                 "ret_legacy": (round(_lg_ret, 1) if _lg_ret is not None else None),
                  "entry": round(entry, 2), "stop": round(stop, 2),
                  "t1": round(t1, 2), "outcome": outcome,
                  "outcome_b": outcome_b,
@@ -9118,6 +9143,19 @@ def run_backtest(symbols=None) -> None:
              f"صفقات محسومة: <b>{st['decided']}</b> · "
              f"نجاح: <b>{st['win_rate']:.0f}%</b> "
              f"({st['wins']}✅ / {st['losses']}🛑)"]
+    # 🔬 F-L1: قياس «تفاؤل شمعة التعبئة» بتشغيل واحد — النجاح القديم (t1 يُحسم على
+    # شمعة التعبئة) مقابل المحافظ الآن. الفرق = كم فوزًا كان وهميًا.
+    _lg_wins = sum(1 for t in all_trades if t.get("outcome_legacy") == "win")
+    _lg_dec = sum(1 for t in all_trades
+                  if t.get("outcome_legacy") in ("win", "loss"))
+    if _lg_dec:
+        _lg_wr = _lg_wins / _lg_dec * 100.0
+        lines.append(f"🔬 F-L1: النجاح القديم (تفاؤل شمعة التعبئة) {_lg_wr:.0f}% → "
+                     f"المحافظ {st['win_rate']:.0f}% (تضخّم {_lg_wr - st['win_rate']:+.0f} نقطة)")
+    _spread_v = CONFIG.get("BT_SPREAD_PCT", 0.0) or 0.0
+    if _spread_v:
+        lines.append(f"🔬 F-COST: العوائد بعد تكلفة تنفيذ {_spread_v * 100:.0f}% "
+                     "(سبريد+انزلاق، نصفها كل جهة)")
     # 💥 «اللي انفجر فعلًا واللي لا» (طلب المستخدم): من الارتكازات التي رشّحها البوت
     # وعُبّئت، كم صعد ≥EXPLOSION_PCT بعد الدخول. يجيب السؤال مباشرة (مقياس فيصل ≥50%).
     filled = [t for t in all_trades if t.get("outcome") != "no_fill"]

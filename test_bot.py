@@ -3133,6 +3133,55 @@ _bt_off = S.backtest_symbol("SWOFF", synth_pivot(seed=2))
 check("المسح·مطفأة: صفقة الأساس بلا حقول مسح + المقارنة ترجع []",
       all("entry_model" not in t for t in _bt_off)
       and S.backtest_sweep_compare(_bt_off) == [])
+# 🔬 F-L1 (تدقيق النظر المستقبلي 2026-07-12): الهدف لا يُحسم على شمعة التعبئة
+# الداخلية (ترتيب اللمس مجهول = فوز وهمي)؛ الستوب يبقى محميًّا؛ ذراع المسح (دخول
+# بإغلاق) يحسم من شمعة دخوله. + حقل outcome_legacy لقياس حجم التفاؤل بتشغيل واحد.
+_fl1_hi = np.array([110., 100.]); _fl1_lo = np.array([97., 98.])
+_fl1_cl = np.array([100., 99.]); _fl1_op = np.array([99., 99.])
+check("F-L1: هدف على شمعة التعبئة الداخلية ⇒ open لا win (يفشل قبل الإصلاح)",
+      S._resolve_arm(_fl1_hi, _fl1_lo, _fl1_cl, _fl1_op, 100., 93., 109., 0)[0]
+      == "open")
+check("F-L1: السلوك القديم (entry_intrabar=False) على نفس الشمعة ⇒ win (يقيس التفاؤل)",
+      S._resolve_arm(_fl1_hi, _fl1_lo, _fl1_cl, _fl1_op, 100., 93., 109., 0,
+                     entry_intrabar=False)[0] == "win")
+check("F-L1: الهدف على الشمعة التالية ⇒ win (لا يُكبت الفوز الحقيقي)",
+      S._resolve_arm(np.array([105., 110.]), np.array([97., 99.]),
+                     np.array([100., 108.]), np.array([99., 101.]),
+                     100., 93., 109., 0)[0] == "win")
+check("F-L1: الستوب على شمعة التعبئة يبقى محميًّا (loss فوري — محافظ)",
+      S._resolve_arm(np.array([110., 100.]), np.array([90., 95.]),
+                     np.array([94., 96.]), np.array([99., 97.]),
+                     100., 93., 109., 0)[0] == "loss")
+check("F-L1: ذراع المسح (entry_intrabar=False) يحسم الهدف من شمعة دخوله (يملك من الفتح)",
+      S._resolve_arm(np.array([110.]), np.array([99.]), np.array([108.]),
+                     np.array([100.]), 100., 93., 109., 0,
+                     entry_intrabar=False)[0] == "win")
+check("F-L1: backtest_symbol يحفظ outcome_legacy/ret_legacy لكل صفقة (للمقارنة)",
+      len(_bt_off) >= 1 and all("outcome_legacy" in t and "ret_legacy" in t
+                                for t in _bt_off))
+# 🔬 F-COST (تدقيق 2026-07-12): تكلفة تنفيذ اختيارية (BT_SPREAD_PCT) — 0 = سلوك
+# اليوم حرفيًا · موجب يخفض العائد رتيبًا · محصَّن بقفل B1 (الإنتاج يتجاهله).
+# filled=0 والهدف يُضرب على الشمعة 1 (غير شمعة التعبئة) = win نظيف نقيس عائده.
+_fc_args = (np.array([102., 110.]), np.array([98., 100.]),
+            np.array([100., 108.]), np.array([99., 101.]), 100., 93., 109., 0)
+check("F-COST: spread=0 ⇒ العائد كما اليوم حرفيًا (+9% على t1=109)",
+      abs(S._resolve_arm(*_fc_args, spread=0.0)[1] - 9.0) < 1e-9)
+_fc_ret = S._resolve_arm(*_fc_args, spread=0.04)[1]     # سبريد 4%
+# buy=100×1.02=102 · sell=109×0.98=106.82 · العائد=106.82/102−1≈+4.73%
+check("F-COST: spread=4% يخفض عائد الرابح (+9% ⇒ ~+4.7%، رتيبًا)",
+      _fc_ret < 9.0 and abs(_fc_ret - 4.73) < 0.1)
+check("F-COST: أكبر سبريد ⇒ عائد أقل رتيبًا (حساسية 1/3/5%)",
+      S._resolve_arm(*_fc_args, spread=0.01)[1]
+      > S._resolve_arm(*_fc_args, spread=0.03)[1]
+      > S._resolve_arm(*_fc_args, spread=0.05)[1])
+_fc_sv = S.CONFIG.get("BT_SPREAD_PCT", 0.0)
+try:
+    _fc_prod = S._apply_backtest_overrides("FULL", {"BT_SPREAD_PCT": "0.05"})
+    _fc_bt = S._apply_backtest_overrides("BACKTEST", {"BT_SPREAD_PCT": "0.05"})
+    check("F-COST·قفل B1: الإنتاج يتجاهل BT_SPREAD_PCT (باكتيست حصريًا)",
+          _fc_prod == [] and any("BT_SPREAD_PCT" in s for s in _fc_bt))
+finally:
+    S.CONFIG["BT_SPREAD_PCT"] = _fc_sv          # لا تلوّث بقية الاختبارات
 # (د) مفعّلة: حقول المسح تُلحَق (ثم نُطفئها فورًا لئلا تتسرّب لبقية الاختبارات)
 S.CONFIG["BT_SWEEP_ENTRY"] = 1
 _bt_on = S.backtest_symbol("SWON", synth_pivot(seed=2))
