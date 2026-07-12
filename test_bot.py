@@ -3182,6 +3182,40 @@ try:
           _fc_prod == [] and any("BT_SPREAD_PCT" in s for s in _fc_bt))
 finally:
     S.CONFIG["BT_SPREAD_PCT"] = _fc_sv          # لا تلوّث بقية الاختبارات
+# 🏦 BT_POTENTIAL «قوة البوت» (تصحيح المستخدم 2026-07-12): أقصى صعود من الدخول
+# **قبل** ضرب الوقف (الأهداف تمهيدية = خارج القياس). دالة نقيّة _max_gain_before_stop.
+# (أ) صعود نظيف ثم وقف لاحق: يصعد لذروة ثم ينهار للوقف → stopped بالذروة قبل الوقف.
+_mg_up = S._max_gain_before_stop(
+    np.array([100., 130., 160., 120.]),          # ذروة +60% بالشمعة 2
+    np.array([98., 110., 140., 89.]),            # الوقف=90 يُضرب بالشمعة 3
+    np.array([99., 115., 145., 118.]), 100., 90., 0)
+check("🏦 قوة البوت: صعود +60% ثم وقف ⇒ stopped بصعود مشروط +60 (الذروة قبل الوقف)",
+      _mg_up[0] == "stopped" and abs(_mg_up[1] - 60.0) < 0.5 and _mg_up[2] == 2)
+# (ب) وقف مبكر قبل أي صعود ⇒ stopped بصعود ~0 (يفرّق عن fwd_max الكامل — سيناريو QNTM)
+_mg_early = S._max_gain_before_stop(
+    np.array([101., 180.]), np.array([99., 88.]),   # الشمعة 1 تضرب الوقف=90 ثم يطير 180
+    np.array([100., 92.]), 100., 90., 0)
+check("🏦 قوة البوت·QNTM: وقف مبكر ⇒ stopped بصعود ~0 (لا +80 الكامل — الوقف حاكم)",
+      _mg_early[0] == "stopped" and _mg_early[1] == 0.0)
+# (ج) لا وقف بالنافذة ⇒ survived بأقصى الصعود + يوم الذروة
+_mg_surv = S._max_gain_before_stop(
+    np.array([105., 145., 130.]), np.array([98., 108., 112.]),
+    np.array([99., 106., 128.]), 100., 90., 0)
+check("🏦 قوة البوت: لا وقف ⇒ survived بأقصى صعود +45 يوم الذروة 1",
+      _mg_surv[0] == "survived" and abs(_mg_surv[1] - 45.0) < 0.5 and _mg_surv[2] == 1)
+# (د) F-L1: رأس شمعة التعبئة الداخلية لا يدخل القياس (يبدأ من filled+1)
+check("🏦 قوة البوت·F-L1: رأس شمعة التعبئة الداخلية لا يُحسب (يفشل لو حُسب)",
+      S._max_gain_before_stop(np.array([200., 110.]), np.array([98., 99.]),
+                              np.array([99., 101.]), 100., 90., 0)[1] == 10.0)
+# (هـ) رأس شمعة الوقف لا يُحسب (ترتيب اللمس مجهول — درس F-L1)
+check("🏦 قوة البوت: رأس شمعة الوقف لا يُحسب (الصعود قبلها فقط)",
+      S._max_gain_before_stop(np.array([100., 120., 300.]),
+                              np.array([98., 105., 85.]),   # الشمعة 2 وقف+رأس ضخم
+                              np.array([99., 110., 90.]), 100., 90., 0)[1] == 20.0)
+# (و) لا تعبئة ⇒ no_fill
+check("🏦 قوة البوت: لا تعبئة (filled=None) ⇒ no_fill",
+      S._max_gain_before_stop(np.array([1.]), np.array([1.]), np.array([1.]),
+                              100., 90., None) == ("no_fill", None, None))
 # (د) مفعّلة: حقول المسح تُلحَق (ثم نُطفئها فورًا لئلا تتسرّب لبقية الاختبارات)
 S.CONFIG["BT_SWEEP_ENTRY"] = 1
 _bt_on = S.backtest_symbol("SWON", synth_pivot(seed=2))

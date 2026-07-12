@@ -8255,6 +8255,34 @@ def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled, entry_intrabar=True,
             oc, (exit_c * sell_f / buy - 1.0) * 100.0)
 
 
+def _max_gain_before_stop(hi, lo, op, entry, stop, filled, entry_intrabar=True):
+    """🏦 «قوة البوت» (خطة BT_LADDER_PLAN، تصحيح المستخدم 2026-07-12): الحكم الحقيقي
+    ليس أهداف البوت (تمهيدية = سلّم مقاومات) بل **كم انفجر السهم من نقطة الدخول قبل
+    أن يضرب وقفه** — والوقف يبقى حاكمًا. دالة نقيّة، مشي يومي محافظ متّسق مع F-L1:
+      • الوقف يُفحص أولًا كل شمعة (`low<=stop`): لمسه يقطع القياس → أقصى صعود **قبل**
+        شمعة الوقف (رأس شمعة الوقف لا يُحسب — ترتيب اللمس داخلها مجهول).
+      • القياس الموجب يبدأ من `filled+1` عند `entry_intrabar` (رأس شمعة التعبئة
+        الداخلية لا يُحسب — قد يسبق تعبئتنا؛ نفس درس F-L1).
+      • لا وقف بالنافذة → «survived» بأقصى صعود بها.
+    يرجّع (outcome, max_gain_pct_before_stop, peak_day): outcome ∈ {stopped,
+    survived, no_fill}. **يختلف عمدًا عن `fwd_max_gain`** (يُحسب على كامل النافذة
+    حتى بعد الوقف) — الفرق بينهما = «انفجارات قتلها الوقف» (يقيس §0-ب بالأرقام).
+    باكتيست حصريًا — لا يمسّ الفرز/الإنتاج."""
+    if filled is None or entry <= 0:
+        return ("no_fill", None, None)
+    g_from = (filled + 1) if entry_intrabar else filled
+    peak = 0.0
+    peak_day = 0
+    for k in range(filled, len(hi)):
+        if lo[k] <= stop:                       # الوقف حاكم — يقطع القياس محافظًا
+            return ("stopped", round(peak, 1), peak_day)
+        if k >= g_from:
+            g = (float(hi[k]) / entry - 1.0) * 100.0
+            if g > peak:
+                peak, peak_day = g, k - filled
+    return ("survived", round(peak, 1), peak_day)
+
+
 def _sweep_confirmed_fill(lo, cl, support, sweep_pct):
     """🔬 تعبئة «الدخول المؤكَّد بالمسح» (فيصل: «قبل يصعد لازم مسح سيولة تحت القاع ثم
     استعادة · لا تدخل الدعم الأول»). مشي أمامي **بلا نظر مستقبلي**: عند كل شمعة نقرأ
