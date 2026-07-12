@@ -8014,8 +8014,11 @@ def prune_graduated_pullback(wl: dict) -> list:
 
 
 def run_daily_watchlist(wl: dict) -> None:
-    """يومي (غير الجمعة): قائمة ثابتة دائمة — تُتابَع وتُضاف لها الجديد فقط،
-    ولا يُحذف منها سهم إلا بستوب/هدف. سوق مقفل = نفس القائمة (تنمو، ما ترفرف)."""
+    """يومي (غير الجمعة): قائمة ثابتة دائمة — تُتابَع وتُضاف لها الجديد فقط.
+    **الشطب بالستوب فقط**؛ الهدف المُحقَّق **لا يُنهي المتابعة** (يبقى نشطًا
+    لتسجيل سلّم الأهداف t1→t2→t3، فيصل يمتّع) لكنه **لا يحجز خانة** فلا يمنع
+    مرشّحًا جديدًا (⑨ خيار ب، تدقيق 2026-07-12). التجديد الكامل الجمعة. سوق
+    مقفل = نفس القائمة (تنمو، ما ترفرف)."""
     today_iso = dt.date.today().isoformat()
     # 1) فرز كامل للسوق (لالتقاط الجديد) — بياناته تُعاد استخدامها للمتابعة
     results, hist = scan_market()
@@ -8062,7 +8065,12 @@ def run_daily_watchlist(wl: dict) -> None:
     held = {s["symbol"] for s in wl["stocks"]}
     stopped = {rm["symbol"] for rm in wl["removed"]
                if rm.get("status") == "stopped"}
-    space = CONFIG["WATCHLIST_SIZE"] - len(wl["stocks"])
+    # ⑨ (تدقيق 2026-07-12، خيار ب): أصحاب الهدف المُحقَّق (`hit`) لا يحجزون خانة —
+    # النموذج نجح ويبقى نشطًا لتسجيل سلّم الأهداف (t1→t2→t3، فيصل يمتّع)، لكن
+    # لا يجب أن يمنع مرشّحًا جديدًا في أفضل الأسابيع. نحسب السعة على «الحاملين
+    # للخانة» = النشطون **بلا هدف** فقط. (الأرباح ما زالت في held فلا تُكرَّر.)
+    _slot_holders = [s for s in wl["stocks"] if not s.get("hit")]
+    space = CONFIG["WATCHLIST_SIZE"] - len(_slot_holders)
     added = []
     low_coverage_note = None
     if space > 0 and not coverage_ok:
