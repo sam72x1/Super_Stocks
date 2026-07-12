@@ -281,6 +281,9 @@ CONFIG = {
     "BT_SWEEP_MIN_RR": 1.0,              # أرضية العائد/المخاطرة لقبول تعبئة المسح
     "BT_SPREAD_PCT": 0.0,                # 🔬 F-COST: تكلفة تنفيذ (سبريد+انزلاق) — 0=سلوك
                                          # اليوم؛ نصفها يرفع الدخول ويخفض الخروج (حساسية 1/3/5%)
+    "BT_POTENTIAL": 0,                   # 🏦 قوة البوت: قِس أقصى صعود من الدخول قبل الوقف
+    "BT_PORTFOLIO": 0,                   # 🏦 محاكاة الانتقائية (أفضل N بالترتيب)
+    "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE)
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -408,7 +411,10 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_SWEEP_PCT", "BT_SWEEP_PCT", float),
             ("BT_SWEEP_STOP_MARGIN", "BT_SWEEP_STOP_MARGIN", float),
             ("BT_SWEEP_MIN_RR", "BT_SWEEP_MIN_RR", float),
-            ("BT_SPREAD_PCT", "BT_SPREAD_PCT", float)):   # 🔬 F-COST
+            ("BT_SPREAD_PCT", "BT_SPREAD_PCT", float),    # 🔬 F-COST
+            ("BT_POTENTIAL", "BT_POTENTIAL", int),        # 🏦 قوة البوت
+            ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
+            ("BT_PORT_SIZE", "BT_PORT_SIZE", int)):
         v = (env.get(bt_env) or "").strip()
         if not v:
             continue
@@ -8440,6 +8446,13 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         # backtest_sweep_compare. مطفأة افتراضيًا = صفقة الأساس بلا تغيير (صفر أثر).
         if CONFIG.get("BT_SWEEP_ENTRY"):
             _sweep_augment(trade, r, hi, lo, cl, op, stop, t1)
+        # 🏦 قوة البوت (BT_POTENTIAL): أقصى صعود من الدخول **قبل الوقف** + يوم الذروة.
+        # إلحاق فقط (كنمط المسح) — صفقة الأساس بلا تغيير. مطفأ = صفر حقول.
+        if CONFIG.get("BT_POTENTIAL"):
+            _mgo, _mgg, _mgd = _max_gain_before_stop(hi, lo, op, entry, stop, filled)
+            trade["mg_outcome"] = _mgo
+            trade["mg_pre_stop"] = _mgg
+            trade["mg_peak_day"] = _mgd
         trades.append(trade)
         i += fwd                                # تخطَّ نافذة كاملة (لا تكرار)
     return trades
