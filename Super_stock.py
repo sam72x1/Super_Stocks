@@ -8213,7 +8213,7 @@ def run_hand_digest() -> None:
 # ==========================================================
 # 10) التشغيل الرئيسي
 # ==========================================================
-def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled):
+def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled, entry_intrabar=True):
     """يحسم صفقة باكتيست من فهرس التعبئة بذراعَي الوقف (نفس منطق A/B، مصدر واحد):
     ذراع الذيل (A): الوقف بلمسة الذيل `low<=stop`، الخروج `min(stop, open)` لواقعية
     الفجوة · ذراع الإغلاق (B): الوقف بإغلاق `close<=stop`. الرابح يخرج t1، العالق آخر
@@ -8221,13 +8221,18 @@ def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled):
     تُعبَّأ. مصدر واحد يضمن أن تجربة الدخول تُقاس بنفس محرّك الأساس تمامًا (مقارنة عادلة)."""
     if filled is None or entry <= 0:
         return ("no_fill", None, "no_fill", None)
+    # 🔬 F-L1 (تدقيق النظر المستقبلي 2026-07-12): للتعبئة داخل الشمعة (الأساس) لا
+    # يُحسم الهدف على شمعة التعبئة نفسها — ترتيب اللمس داخلها مجهول (قد يُضرب t1 قبل
+    # نزول السعر لدخولنا = فوز وهمي). الستوب يبقى محميًّا (يُفحص أولًا). ذراع المسح
+    # (entry_intrabar=False) يدخل بإغلاق الاستعادة فيملك من الفتح التالي = لا لبس.
+    t1_from = (filled + 1) if entry_intrabar else filled
     last_close = float(cl[-1])
     ow, exit_w = "open", last_close
     for k in range(filled, len(cl)):
-        if lo[k] <= stop:                       # الوقف أولًا (محافظ)
+        if lo[k] <= stop:                       # الوقف أولًا (محافظ، حتى شمعة التعبئة)
             ow, exit_w = "loss", min(stop, float(op[k]))
             break
-        if hi[k] >= t1:
+        if k >= t1_from and hi[k] >= t1:        # F-L1: ليس على شمعة التعبئة الداخلية
             ow, exit_w = "win", t1
             break
     oc, exit_c = "open", last_close
@@ -8235,7 +8240,7 @@ def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled):
         if cl[k] <= stop:
             oc, exit_c = "loss", float(cl[k])
             break
-        if hi[k] >= t1:
+        if k >= t1_from and hi[k] >= t1:
             oc, exit_c = "win", t1
             break
     return (ow, (exit_w / entry - 1.0) * 100.0,
@@ -8290,8 +8295,10 @@ def _sweep_augment(trade, r, hi, lo, cl, op, stop, t1):
             fr, filled_sw = "rr_too_low", None
     o_sw = ret_sa = ret_sb = ob_sw = None
     if filled_sw is not None:
+        # ذراع المسح يدخل بإغلاق الاستعادة (يملك من الفتح التالي) — لا لبس شمعة
+        # التعبئة، فـ entry_intrabar=False (كان سلوكه الصحيح أصلًا؛ F-L1 يوثّقه صراحة).
         o_sw, ret_sa, ob_sw, ret_sb = _resolve_arm(
-            hi, lo, cl, op, e_sw, stop_sw, t1, filled_sw)
+            hi, lo, cl, op, e_sw, stop_sw, t1, filled_sw, entry_intrabar=False)
     trade["fill_reason_sweep"] = fr
     trade["outcome_sweep"] = o_sw if o_sw is not None else fr
     trade["outcome_sweep_b"] = ob_sw if ob_sw is not None else fr
@@ -8362,7 +8369,13 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         # تغيير سلوك (نفس المنطق السابق حرفيًا، DRY فقط لتقيس تجربة المسح بنفس المحرّك).
         outcome, ret_a, outcome_b, ret_b = _resolve_arm(
             hi, lo, cl, op, entry, stop, t1, filled)
+        # 🔬 F-L1: قياس أثر «تفاؤل شمعة التعبئة» — السلوك القديم (t1 من شمعة التعبئة)
+        # محفوظ للمقارنة بتشغيل واحد؛ تقرير الباكتيست يطبع «كم فوزًا كان وهميًا».
+        _lg_out, _lg_ret, _, _ = _resolve_arm(
+            hi, lo, cl, op, entry, stop, t1, filled, entry_intrabar=False)
         trade = {"symbol": sym, "date": str(df.index[i - 1].date()),
+                 "outcome_legacy": _lg_out,
+                 "ret_legacy": (round(_lg_ret, 1) if _lg_ret is not None else None),
                  "entry": round(entry, 2), "stop": round(stop, 2),
                  "t1": round(t1, 2), "outcome": outcome,
                  "outcome_b": outcome_b,

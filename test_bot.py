@@ -3133,6 +3133,32 @@ _bt_off = S.backtest_symbol("SWOFF", synth_pivot(seed=2))
 check("المسح·مطفأة: صفقة الأساس بلا حقول مسح + المقارنة ترجع []",
       all("entry_model" not in t for t in _bt_off)
       and S.backtest_sweep_compare(_bt_off) == [])
+# 🔬 F-L1 (تدقيق النظر المستقبلي 2026-07-12): الهدف لا يُحسم على شمعة التعبئة
+# الداخلية (ترتيب اللمس مجهول = فوز وهمي)؛ الستوب يبقى محميًّا؛ ذراع المسح (دخول
+# بإغلاق) يحسم من شمعة دخوله. + حقل outcome_legacy لقياس حجم التفاؤل بتشغيل واحد.
+_fl1_hi = np.array([110., 100.]); _fl1_lo = np.array([97., 98.])
+_fl1_cl = np.array([100., 99.]); _fl1_op = np.array([99., 99.])
+check("F-L1: هدف على شمعة التعبئة الداخلية ⇒ open لا win (يفشل قبل الإصلاح)",
+      S._resolve_arm(_fl1_hi, _fl1_lo, _fl1_cl, _fl1_op, 100., 93., 109., 0)[0]
+      == "open")
+check("F-L1: السلوك القديم (entry_intrabar=False) على نفس الشمعة ⇒ win (يقيس التفاؤل)",
+      S._resolve_arm(_fl1_hi, _fl1_lo, _fl1_cl, _fl1_op, 100., 93., 109., 0,
+                     entry_intrabar=False)[0] == "win")
+check("F-L1: الهدف على الشمعة التالية ⇒ win (لا يُكبت الفوز الحقيقي)",
+      S._resolve_arm(np.array([105., 110.]), np.array([97., 99.]),
+                     np.array([100., 108.]), np.array([99., 101.]),
+                     100., 93., 109., 0)[0] == "win")
+check("F-L1: الستوب على شمعة التعبئة يبقى محميًّا (loss فوري — محافظ)",
+      S._resolve_arm(np.array([110., 100.]), np.array([90., 95.]),
+                     np.array([94., 96.]), np.array([99., 97.]),
+                     100., 93., 109., 0)[0] == "loss")
+check("F-L1: ذراع المسح (entry_intrabar=False) يحسم الهدف من شمعة دخوله (يملك من الفتح)",
+      S._resolve_arm(np.array([110.]), np.array([99.]), np.array([108.]),
+                     np.array([100.]), 100., 93., 109., 0,
+                     entry_intrabar=False)[0] == "win")
+check("F-L1: backtest_symbol يحفظ outcome_legacy/ret_legacy لكل صفقة (للمقارنة)",
+      len(_bt_off) >= 1 and all("outcome_legacy" in t and "ret_legacy" in t
+                                for t in _bt_off))
 # (د) مفعّلة: حقول المسح تُلحَق (ثم نُطفئها فورًا لئلا تتسرّب لبقية الاختبارات)
 S.CONFIG["BT_SWEEP_ENTRY"] = 1
 _bt_on = S.backtest_symbol("SWON", synth_pivot(seed=2))
