@@ -3249,6 +3249,36 @@ check("🏦 قوة البوت·قفل: _max_gain_before_stop خارج rank_key/s
       all("_max_gain_before_stop" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.update_tracking, S.update_watchlist_status)))
+# 🏦 backtest_portfolio (خطة §3): محاكاة انتقائية سعة محدودة — الأعلى readiness يفوز
+# بالتزاحم · الخانة تُحرَّر بعد النافذة · لا دخول مزدوج لرمز · المرفوض يُعدّ.
+def _pf(sym, date, rdy, sc, oc="win"):
+    return {"symbol": sym, "date": date, "readiness": rdy, "score": sc, "outcome": oc}
+# size=2, fwd=10: يوم واحد 3 إشارات → الأعلى readiness (AAA·BBB) يؤخذان · CCC يُرفض بالسعة.
+# AAA يعيد الإشارة داخل النافذة (01-05<01-11) → دخول مزدوج مرفوض. DDD بعد التحرّر يؤخذ.
+_pf_trades = [
+    _pf("AAA", "2025-01-01", 90, 50), _pf("BBB", "2025-01-01", 80, 40),
+    _pf("CCC", "2025-01-01", 70, 30),                 # يُرفض بالسعة (top-2 فقط)
+    _pf("AAA", "2025-01-05", 95, 60),                 # دخول مزدوج (AAA نشط) مرفوض
+    _pf("DDD", "2025-01-20", 60, 20),                 # الخانات تحرّرت → يؤخذ
+    {"symbol": "NF", "date": "2025-01-02", "readiness": 99, "outcome": "no_fill"},
+]
+_pf_res = S.backtest_portfolio(_pf_trades, size=2, fwd_days=10)
+_pf_syms = [t["symbol"] for t in _pf_res["taken"]]
+check("🏦 محفظة: تزاحم اليوم ⇒ الأعلى readiness يؤخذان (AAA·BBB لا CCC)",
+      _pf_syms[:2] == ["AAA", "BBB"] and "CCC" not in _pf_syms)
+check("🏦 محفظة: الخانة تُحرَّر بعد النافذة ⇒ DDD يؤخذ لاحقًا",
+      "DDD" in _pf_syms)
+check("🏦 محفظة: لا دخول مزدوج لرمز نشط (AAA المتكرر يُرفض)",
+      _pf_syms.count("AAA") == 1 and _pf_res["n_rejected_dup"] == 1)
+check("🏦 محفظة: المرفوض بالسعة يُعدّ (CCC واحد)",
+      _pf_res["n_rejected_cap"] == 1)
+check("🏦 محفظة: غير المُعبَّأة (no_fill) لا تحجز خانة",
+      "NF" not in _pf_syms)
+check("🏦 محفظة·قفل: backtest_portfolio خارج rank_key/select_top/classify_tier/"
+      "analyze_ticker/update_tracking/update_watchlist_status",
+      all("backtest_portfolio" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.update_tracking, S.update_watchlist_status)))
 # (د) مفعّلة: حقول المسح تُلحَق (ثم نُطفئها فورًا لئلا تتسرّب لبقية الاختبارات)
 S.CONFIG["BT_SWEEP_ENTRY"] = 1
 _bt_on = S.backtest_symbol("SWON", synth_pivot(seed=2))

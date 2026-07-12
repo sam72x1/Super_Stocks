@@ -8289,6 +8289,51 @@ def _max_gain_before_stop(hi, lo, op, entry, stop, filled, entry_intrabar=True):
     return ("survived", round(peak, 1), peak_day)
 
 
+def backtest_portfolio(trades, size=None, fwd_days=None):
+    """🏦 محاكاة الانتقائية الحية (خطة BT_LADDER_PLAN §3): يوميًا تتزاحم إشاراتٌ كثيرة
+    على محفظة سعتها `size` (=BT_PORT_SIZE=WATCHLIST_SIZE) — تُؤخذ **الأعلى ترتيبًا**
+    (readiness ثم score، محورا rank_key الحيّان المخزَّنان بكل صفقة) وتحجز كل مأخوذة
+    خانةً نافذةً أمامية (`fwd_days` يومًا تقويميًا — نموذج محافظ يقارب «حتى الحسم/نهاية
+    النافذة»). **لا خانتان لرمز واحد متزامنًا** · المرفوض بالسعة/التكرار **يُعدّ** (لا
+    قصّ صامت). يرجّع dict: taken (الصفقات المأخوذة) · n_rejected_cap · n_rejected_dup.
+    يجيب سؤال §0 النسبي: هل الانتقائية (top-N بالترتيب) تتفوّق على «كل المُعبَّئين»؟
+    دالة نقيّة، بلا نظر مستقبلي (ترتيب زمني + مخزَّنات لحظة الإشارة) — **باكتيست/تحليل
+    فقط، خارج الفرز/الاختيار الحي** (قفل getsource)."""
+    size = int(size or CONFIG.get("BT_PORT_SIZE", 15))
+    fwd_days = int(fwd_days if fwd_days is not None
+                   else CONFIG["BACKTEST_FORWARD_DAYS"])
+
+    def _pri(t):                       # أولوية اليوم = محورا rank_key (readiness→score)
+        rdy = t.get("readiness")
+        return (-(rdy if rdy is not None else -1), -(t.get("score") or 0))
+    rows = []
+    for t in trades:
+        if t.get("outcome") == "no_fill":          # غير مُعبَّأة لا تحجز خانة
+            continue
+        try:
+            o = dt.date.fromisoformat(str(t.get("date"))).toordinal()
+        except Exception:
+            continue                               # تاريخ غير صالح يُتخطّى بأمان
+        rows.append((o, t))
+    rows.sort(key=lambda ot: (ot[0], _pri(ot[1])))  # زمنيًا ثم الأعلى أولوية داخل اليوم
+    active = {}                        # symbol → يوم تحرّر الخانة (ordinal)
+    taken, n_cap, n_dup = [], 0, 0
+    for o, t in rows:
+        for s in [s for s, fo in active.items() if fo <= o]:   # حرّر المنتهية
+            del active[s]
+        sym = t.get("symbol")
+        if sym in active:              # الرمز يحجز خانة أصلًا — لا دخول مزدوج
+            n_dup += 1
+            continue
+        if len(active) >= size:        # لا خانة شاغرة — رُفض بالسعة (يُعدّ)
+            n_cap += 1
+            continue
+        active[sym] = o + fwd_days
+        taken.append(t)
+    return {"taken": taken, "n_rejected_cap": n_cap, "n_rejected_dup": n_dup,
+            "size": size, "fwd_days": fwd_days}
+
+
 def _sweep_confirmed_fill(lo, cl, support, sweep_pct):
     """🔬 تعبئة «الدخول المؤكَّد بالمسح» (فيصل: «قبل يصعد لازم مسح سيولة تحت القاع ثم
     استعادة · لا تدخل الدعم الأول»). مشي أمامي **بلا نظر مستقبلي**: عند كل شمعة نقرأ
@@ -8453,6 +8498,10 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             trade["mg_outcome"] = _mgo
             trade["mg_pre_stop"] = _mgg
             trade["mg_peak_day"] = _mgd
+        # 🏦 محاكاة الانتقائية (BT_PORTFOLIO): خزّن `score` (المحور الثاني لترتيب المحفظة
+        # بعد readiness المخزَّن أصلًا) — إلحاق فقط، مطفأ = صفقة الأساس بت-بت.
+        if CONFIG.get("BT_PORTFOLIO"):
+            trade["score"] = r.get("score")
         trades.append(trade)
         i += fwd                                # تخطَّ نافذة كاملة (لا تكرار)
     return trades
