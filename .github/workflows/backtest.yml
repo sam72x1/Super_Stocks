@@ -52,6 +52,10 @@ on:
         description: "تجربة T1 (اختياري): أرضية العائد/المخاطرة لقبول تعبئة المسح (افتراضي 1.0)"
         required: false
         default: ""
+      bt_spread_pct:
+        description: "🔬 F-COST (اختياري): تكلفة تنفيذ (سبريد+انزلاق) بالكسر — مثال 0.03 = 3%. فارغ/0 = صفر تكلفة (سلوك اليوم). امسح {0.01,0.03,0.05} لاختبار «عند أي سبريد تنكسر الحافة؟». باكتيست فقط، لا يمسّ الإنتاج"
+        required: false
+        default: ""
 jobs:
   backtest:
     runs-on: ubuntu-latest
@@ -84,6 +88,8 @@ jobs:
           BT_SWEEP_STOP: ${{ github.event.inputs.bt_sweep_stop }}
           BT_SWEEP_PCT: ${{ github.event.inputs.bt_sweep_pct }}
           BT_SWEEP_MIN_RR: ${{ github.event.inputs.bt_sweep_min_rr }}
+          # 🔬 F-COST: تكلفة التنفيذ (سبريد+انزلاق) — تُقرأ في وضع BACKTEST حصريًا
+          BT_SPREAD_PCT: ${{ github.event.inputs.bt_spread_pct }}
         run: python Super_stock.py
       - name: Upload backtest CSV
         if: always()
