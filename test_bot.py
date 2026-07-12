@@ -8,6 +8,7 @@
 import inspect as _insp0
 import json
 import os as _os_hc
+import types as _ty0
 import numpy as np
 import pandas as pd
 import Super_stock as S
@@ -2270,8 +2271,19 @@ check("🌐 ChartExchange·فاشل-آمن: HTML بلا مرساة/بلا جمل
       S._parse_ce_borrow("<html>لا شيء</html>") == {}
       and S._parse_ce_borrow('name="ctbtoday" نص بلا أرقام') == {}
       and S._parse_ce_borrow("") == {})
-check("🌐 ChartExchange·فاشل-آمن: بلا شبكة ⇒ ce_borrow_info={} (لا يعيق الإثراء)",
-      S.ce_borrow_info("GEOS") == {})
+# فاشل-آمن بحقن فشل الشبكة (لا بالاعتماد على غياب الإنترنت — كان يفشل على رنر CI
+# حيث الشبكة متاحة وCE يرد 200؛ إصلاح تحديد 2026-07-12).
+_sv_req_ce = S.requests
+try:
+    def _raise_get(*a, **k):
+        raise RuntimeError("no network (اختبار)")
+    S.requests = _ty0.SimpleNamespace(get=_raise_get)
+    check("🌐 ChartExchange·فاشل-آمن: فشل الشبكة ⇒ اقتراض/فلوت/iBorrow (لا يعيق الإثراء)",
+          S.ce_borrow_info("GEOS") == {}          # الاقتراض → {}
+          and S.ce_float_info("GEOS") is None     # الفلوت → None (عقده)
+          and S.iborrow_info("GEOS") == {})       # iBorrow → {}
+finally:
+    S.requests = _sv_req_ce
 # 🏢 فلوت ChartExchange (اقتراح المستخدم 2026-07-10 لحلّ «الفلوت مجهول» من ياهو).
 # HTML من مجسّ Actions الحقيقي (GEOS/PTN/FEMY) — لا تخمين.
 _CE_FLOAT = ('<div class="stat-flow-item"><div class="stat-flow-label">Shares Outstanding'
@@ -2287,10 +2299,10 @@ check("🏢 فلوت CE: يستخرج «Float» بالضبط = 12.55M ⇒ 12,550
 check("🏢 فلوت CE·وحدات: K/M/B + فاصلة الآلاف تُقرأ سليمة",
       S._ce_num("778K") == 778_000 and S._ce_num("1.2B") == 1_200_000_000
       and S._ce_num("2.50M") == 2_500_000 and S._ce_num("550,000") == 550_000)
-check("🏢 فلوت CE·فاشل-آمن: بلا مقطع Float ⇒ None · بلا شبكة ⇒ ce_float_info=None",
+# ce_float_info الشبكي يُختبر بحقن الفشل أعلاه (سطر واحد، حتمي)؛ هنا المُحلّل النقي فقط.
+check("🏢 فلوت CE·فاشل-آمن: بلا مقطع Float ⇒ None",
       S._parse_ce_float("<html>لا فلوت</html>") is None
-      and S._parse_ce_float("") is None
-      and S.ce_float_info("GEOS") is None)
+      and S._parse_ce_float("") is None)
 check("🏢 فلوت CE·تمييز: صفحة فيها «Free Float» فقط (بلا «Float» مفرد) ⇒ None",
       S._parse_ce_float('stat-flow-label">Free Float</div>'
                         '<div class="stat-flow-value">9.9M</div>') is None)
