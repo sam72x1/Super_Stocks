@@ -56,6 +56,18 @@ on:
         description: "🔬 F-COST (اختياري): تكلفة تنفيذ (سبريد+انزلاق) بالكسر — مثال 0.03 = 3%. فارغ/0 = صفر تكلفة (سلوك اليوم). امسح {0.01,0.03,0.05} لاختبار «عند أي سبريد تنكسر الحافة؟». باكتيست فقط، لا يمسّ الإنتاج"
         required: false
         default: ""
+      bt_potential:
+        description: "🏦 قوة البوت (اختياري): 1 = قِس أقصى صعود من الدخول **قبل الوقف** لكل سهم + كم انفجر من المجمل (المحور الحقيقي — الأهداف تمهيدية). باكتيست فقط"
+        required: false
+        default: ""
+      bt_portfolio:
+        description: "🏦 محاكاة الانتقائية (اختياري): 1 = محفظة top-N بالترتيب (readiness→score) بجانب «كل المُعبَّئين» — هل الانتقائية تضيف؟ يلزم bt_potential=1. باكتيست فقط"
+        required: false
+        default: ""
+      bt_port_size:
+        description: "🏦 سعة المحفظة المحاكاة (اختياري): افتراضي 15 (= WATCHLIST_SIZE). باكتيست فقط"
+        required: false
+        default: ""
 jobs:
   backtest:
     runs-on: ubuntu-latest
@@ -90,6 +102,10 @@ jobs:
           BT_SWEEP_MIN_RR: ${{ github.event.inputs.bt_sweep_min_rr }}
           # 🔬 F-COST: تكلفة التنفيذ (سبريد+انزلاق) — تُقرأ في وضع BACKTEST حصريًا
           BT_SPREAD_PCT: ${{ github.event.inputs.bt_spread_pct }}
+          # 🏦 قوة البوت + الانتقائية — تُقرأ في وضع BACKTEST حصريًا (الإنتاج محصّن بقفل B1)
+          BT_POTENTIAL: ${{ github.event.inputs.bt_potential }}
+          BT_PORTFOLIO: ${{ github.event.inputs.bt_portfolio }}
+          BT_PORT_SIZE: ${{ github.event.inputs.bt_port_size }}
         run: python Super_stock.py
       - name: Upload backtest CSV
         if: always()
