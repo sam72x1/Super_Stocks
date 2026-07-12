@@ -281,6 +281,9 @@ CONFIG = {
     "BT_SWEEP_MIN_RR": 1.0,              # أرضية العائد/المخاطرة لقبول تعبئة المسح
     "BT_SPREAD_PCT": 0.0,                # 🔬 F-COST: تكلفة تنفيذ (سبريد+انزلاق) — 0=سلوك
                                          # اليوم؛ نصفها يرفع الدخول ويخفض الخروج (حساسية 1/3/5%)
+    "BT_POTENTIAL": 0,                   # 🏦 قوة البوت: قِس أقصى صعود من الدخول قبل الوقف
+    "BT_PORTFOLIO": 0,                   # 🏦 محاكاة الانتقائية (أفضل N بالترتيب)
+    "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE)
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -408,7 +411,10 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_SWEEP_PCT", "BT_SWEEP_PCT", float),
             ("BT_SWEEP_STOP_MARGIN", "BT_SWEEP_STOP_MARGIN", float),
             ("BT_SWEEP_MIN_RR", "BT_SWEEP_MIN_RR", float),
-            ("BT_SPREAD_PCT", "BT_SPREAD_PCT", float)):   # 🔬 F-COST
+            ("BT_SPREAD_PCT", "BT_SPREAD_PCT", float),    # 🔬 F-COST
+            ("BT_POTENTIAL", "BT_POTENTIAL", int),        # 🏦 قوة البوت
+            ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
+            ("BT_PORT_SIZE", "BT_PORT_SIZE", int)):
         v = (env.get(bt_env) or "").strip()
         if not v:
             continue
@@ -8255,6 +8261,140 @@ def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled, entry_intrabar=True,
             oc, (exit_c * sell_f / buy - 1.0) * 100.0)
 
 
+def _max_gain_before_stop(hi, lo, op, entry, stop, filled, entry_intrabar=True):
+    """🏦 «قوة البوت» (خطة BT_LADDER_PLAN، تصحيح المستخدم 2026-07-12): الحكم الحقيقي
+    ليس أهداف البوت (تمهيدية = سلّم مقاومات) بل **كم انفجر السهم من نقطة الدخول قبل
+    أن يضرب وقفه** — والوقف يبقى حاكمًا. دالة نقيّة، مشي يومي محافظ متّسق مع F-L1:
+      • الوقف يُفحص أولًا كل شمعة (`low<=stop`): لمسه يقطع القياس → أقصى صعود **قبل**
+        شمعة الوقف (رأس شمعة الوقف لا يُحسب — ترتيب اللمس داخلها مجهول).
+      • القياس الموجب يبدأ من `filled+1` عند `entry_intrabar` (رأس شمعة التعبئة
+        الداخلية لا يُحسب — قد يسبق تعبئتنا؛ نفس درس F-L1).
+      • لا وقف بالنافذة → «survived» بأقصى صعود بها.
+    يرجّع (outcome, max_gain_pct_before_stop, peak_day): outcome ∈ {stopped,
+    survived, no_fill}. **يختلف عمدًا عن `fwd_max_gain`** (يُحسب على كامل النافذة
+    حتى بعد الوقف) — الفرق بينهما = «انفجارات قتلها الوقف» (يقيس §0-ب بالأرقام).
+    باكتيست حصريًا — لا يمسّ الفرز/الإنتاج."""
+    if filled is None or entry <= 0:
+        return ("no_fill", None, None)
+    g_from = (filled + 1) if entry_intrabar else filled
+    peak = 0.0
+    peak_day = 0
+    for k in range(filled, len(hi)):
+        if lo[k] <= stop:                       # الوقف حاكم — يقطع القياس محافظًا
+            return ("stopped", round(peak, 1), peak_day)
+        if k >= g_from:
+            g = (float(hi[k]) / entry - 1.0) * 100.0
+            if g > peak:
+                peak, peak_day = g, k - filled
+    return ("survived", round(peak, 1), peak_day)
+
+
+def backtest_portfolio(trades, size=None, fwd_days=None):
+    """🏦 محاكاة الانتقائية الحية (خطة BT_LADDER_PLAN §3): يوميًا تتزاحم إشاراتٌ كثيرة
+    على محفظة سعتها `size` (=BT_PORT_SIZE=WATCHLIST_SIZE) — تُؤخذ **الأعلى ترتيبًا**
+    (readiness ثم score، محورا rank_key الحيّان المخزَّنان بكل صفقة) وتحجز كل مأخوذة
+    خانةً نافذةً أمامية (`fwd_days` يومًا تقويميًا — نموذج محافظ يقارب «حتى الحسم/نهاية
+    النافذة»). **لا خانتان لرمز واحد متزامنًا** · المرفوض بالسعة/التكرار **يُعدّ** (لا
+    قصّ صامت). يرجّع dict: taken (الصفقات المأخوذة) · n_rejected_cap · n_rejected_dup.
+    يجيب سؤال §0 النسبي: هل الانتقائية (top-N بالترتيب) تتفوّق على «كل المُعبَّئين»؟
+    دالة نقيّة، بلا نظر مستقبلي (ترتيب زمني + مخزَّنات لحظة الإشارة) — **باكتيست/تحليل
+    فقط، خارج الفرز/الاختيار الحي** (قفل getsource)."""
+    size = int(size or CONFIG.get("BT_PORT_SIZE", 15))
+    fwd_days = int(fwd_days if fwd_days is not None
+                   else CONFIG["BACKTEST_FORWARD_DAYS"])
+
+    def _pri(t):                       # أولوية اليوم = محورا rank_key (readiness→score)
+        rdy = t.get("readiness")
+        return (-(rdy if rdy is not None else -1), -(t.get("score") or 0))
+    rows = []
+    for t in trades:
+        if t.get("outcome") == "no_fill":          # غير مُعبَّأة لا تحجز خانة
+            continue
+        try:
+            o = dt.date.fromisoformat(str(t.get("date"))).toordinal()
+        except Exception:
+            continue                               # تاريخ غير صالح يُتخطّى بأمان
+        rows.append((o, t))
+    rows.sort(key=lambda ot: (ot[0], _pri(ot[1])))  # زمنيًا ثم الأعلى أولوية داخل اليوم
+    active = {}                        # symbol → يوم تحرّر الخانة (ordinal)
+    taken, n_cap, n_dup = [], 0, 0
+    for o, t in rows:
+        for s in [s for s, fo in active.items() if fo <= o]:   # حرّر المنتهية
+            del active[s]
+        sym = t.get("symbol")
+        if sym in active:              # الرمز يحجز خانة أصلًا — لا دخول مزدوج
+            n_dup += 1
+            continue
+        if len(active) >= size:        # لا خانة شاغرة — رُفض بالسعة (يُعدّ)
+            n_cap += 1
+            continue
+        active[sym] = o + fwd_days
+        taken.append(t)
+    return {"taken": taken, "n_rejected_cap": n_cap, "n_rejected_dup": n_dup,
+            "size": size, "fwd_days": fwd_days}
+
+
+def _mg_segment_lines(trades, label):
+    """أسطر شرائح «الحركة المتاحة قبل الوقف» لمجموعة صفقات (نقيّة، للتقرير)."""
+    filled = [t for t in trades if t.get("mg_outcome") not in (None, "no_fill")]
+    n = len(filled)
+    if not n:
+        return []
+    gains = [float(t.get("mg_pre_stop") or 0.0) for t in filled]
+    expl = int(CONFIG["EXPLOSION_PCT"])
+    b100 = sum(1 for g in gains if g >= 100)
+    b50 = sum(1 for g in gains if g >= expl)
+    b30 = sum(1 for g in gains if g >= 30)
+    b1030 = sum(1 for g in gains if 10 <= g < 30)
+    blt = sum(1 for g in gains if g < 10)
+    days = [t.get("mg_peak_day") for t in filled if t.get("mg_peak_day") is not None]
+    return [f"  <b>{esc(label)}</b> ({n} مُعبَّأة): منفجر {expl}% أو أكثر قبل الوقف "
+            f"<b>{b50} ({b50 / n * 100:.0f}%)</b>",
+            f"    شرائح: 100%+={b100} · {expl}%+={b50} · 30%+={b30} · "
+            f"10-30%={b1030} · أقل من 10%={blt}",
+            f"    وسيط الصعود المشروط {_median(gains):.0f}% · متوسط "
+            f"{sum(gains) / n:.0f}% · وسيط أيام الذروة {_median(days):.0f}"]
+
+
+def backtest_potential_report(all_trades):
+    """🏦 كتلة تقرير «قوة البوت» (خطة BT_LADDER_PLAN §4، تصحيح المستخدم 2026-07-12):
+    الحكم = **كم انفجر كل سهم من نقطة الدخول قبل ضرب وقفه** + كم عددهم من المجمل —
+    لا البيع على أهداف البوت (تمهيدية). المقاييس على «كل المُعبَّئين» **و** على محفظة
+    top-N (هل الانتقائية تضيف؟ = سؤال §0 النسبي). يطبع المعيار المسجَّل + حدّي الصدق
+    حرفيًا. يرجّع [] ما لم يُفعَّل BT_POTENTIAL (لا صفقة تحمل mg_*). تحليل فقط."""
+    if not CONFIG.get("BT_POTENTIAL"):
+        return []
+    base = [t for t in all_trades if t.get("mg_outcome") not in (None, "no_fill")]
+    if not base:
+        return []
+    lines = ["\n🏦 <b>قوة البوت (الحركة المتاحة من الدخول قبل الوقف)</b>"]
+    lines += _mg_segment_lines(base, "كل المُعبَّئين")
+    top = sorted(base, key=lambda t: -(float(t.get("mg_pre_stop") or 0)))[:8]
+    if top:
+        lines.append("    أقوى 8: " + " · ".join(
+            f"{esc(str(t['symbol']))} +{float(t.get('mg_pre_stop') or 0):.0f}%"
+            for t in top))
+    # المحفظة (الانتقائية) — العمود المقابل: هل top-N بالترتيب يتفوّق على الكل؟
+    if CONFIG.get("BT_PORTFOLIO"):
+        pf = backtest_portfolio(all_trades)
+        lines += _mg_segment_lines(pf["taken"], f"محفظة top-{pf['size']}")
+        lines.append(f"    (المحفظة: مأخوذة {len(pf['taken'])} · مرفوض بالسعة "
+                     f"{pf['n_rejected_cap']} · تكرار رمز {pf['n_rejected_dup']})")
+    # §0-ب بالأرقام: انفجارات قتلها الوقف (صعدت ≥50% بالنافذة لكن بعد ضرب وقفها)
+    expl = int(CONFIG["EXPLOSION_PCT"])
+    killed = [t for t in base if t.get("exploded") and t.get("mg_outcome") == "stopped"
+              and float(t.get("mg_pre_stop") or 0) < CONFIG["EXPLOSION_PCT"]]
+    lines.append(f"  🔪 انفجارات قتلها الوقف: <b>{len(killed)}</b> "
+                 f"(صعدت {expl}% أو أكثر بالنافذة لكن بعد ضرب وقفها)")
+    # المعيار المسجَّل مسبقًا §0 (قرار المستخدم بالأرقام، لا آليًا) + حدّا الصدق حرفيًا
+    lines.append("  📋 <b>معيار مسجَّل مسبقًا</b>: قوي = منفجرون 20% أو أكثر (بالمحفظة، "
+                 "السنتين) ووسيط صعود مشروط +15% أو أكثر · حدّي 10-20% · ضعيف أقل. "
+                 "القرار بالأرقام لا آليًا.")
+    lines.append("  ⚠️ أقصى الصعود = <b>الحركة المتاحة لا عائد محقَّق</b> (التحقيق يعتمد "
+                 "إدارتك) · <b>أرضية لا سقف</b>: بلا حافة التوقيت اللحظي (الرادار/الكنسة).")
+    return lines
+
+
 def _sweep_confirmed_fill(lo, cl, support, sweep_pct):
     """🔬 تعبئة «الدخول المؤكَّد بالمسح» (فيصل: «قبل يصعد لازم مسح سيولة تحت القاع ثم
     استعادة · لا تدخل الدعم الأول»). مشي أمامي **بلا نظر مستقبلي**: عند كل شمعة نقرأ
@@ -8412,6 +8552,17 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         # backtest_sweep_compare. مطفأة افتراضيًا = صفقة الأساس بلا تغيير (صفر أثر).
         if CONFIG.get("BT_SWEEP_ENTRY"):
             _sweep_augment(trade, r, hi, lo, cl, op, stop, t1)
+        # 🏦 قوة البوت (BT_POTENTIAL): أقصى صعود من الدخول **قبل الوقف** + يوم الذروة.
+        # إلحاق فقط (كنمط المسح) — صفقة الأساس بلا تغيير. مطفأ = صفر حقول.
+        if CONFIG.get("BT_POTENTIAL"):
+            _mgo, _mgg, _mgd = _max_gain_before_stop(hi, lo, op, entry, stop, filled)
+            trade["mg_outcome"] = _mgo
+            trade["mg_pre_stop"] = _mgg
+            trade["mg_peak_day"] = _mgd
+        # 🏦 محاكاة الانتقائية (BT_PORTFOLIO): خزّن `score` (المحور الثاني لترتيب المحفظة
+        # بعد readiness المخزَّن أصلًا) — إلحاق فقط، مطفأ = صفقة الأساس بت-بت.
+        if CONFIG.get("BT_PORTFOLIO"):
+            trade["score"] = r.get("score")
         trades.append(trade)
         i += fwd                                # تخطَّ نافذة كاملة (لا تكرار)
     return trades
@@ -9199,6 +9350,12 @@ def run_backtest(symbols=None) -> None:
     lines += behav_diag
     for _bl in behav_diag:
         log("باكتيست·" + _bl.strip().replace("\n", " "))
+    # 🏦 قوة البوت (BT_POTENTIAL): الحركة المتاحة من الدخول قبل الوقف + الانتقائية
+    # (المحفظة) — ترجع [] ما لم يُفعَّل BT_POTENTIAL (المحور الذي طلبه المستخدم).
+    potential = backtest_potential_report(all_trades)
+    lines += potential
+    for _pl in potential:
+        log("باكتيست·" + _pl.strip().replace("\n", " "))
     if st["decided"] < 20:
         lines.append("⏳ عيّنة صغيرة — وسّع الرموز لحُكم موثوق.")
     # 📋 معيار القرار المسجَّل مسبقًا (يمنع p-hacking) — التجربة الزوجية لا تناسب

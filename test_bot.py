@@ -3182,6 +3182,136 @@ try:
           _fc_prod == [] and any("BT_SPREAD_PCT" in s for s in _fc_bt))
 finally:
     S.CONFIG["BT_SPREAD_PCT"] = _fc_sv          # لا تلوّث بقية الاختبارات
+# 🏦 BT_POTENTIAL «قوة البوت» (تصحيح المستخدم 2026-07-12): أقصى صعود من الدخول
+# **قبل** ضرب الوقف (الأهداف تمهيدية = خارج القياس). دالة نقيّة _max_gain_before_stop.
+# (أ) صعود نظيف ثم وقف لاحق: يصعد لذروة ثم ينهار للوقف → stopped بالذروة قبل الوقف.
+_mg_up = S._max_gain_before_stop(
+    np.array([100., 130., 160., 120.]),          # ذروة +60% بالشمعة 2
+    np.array([98., 110., 140., 89.]),            # الوقف=90 يُضرب بالشمعة 3
+    np.array([99., 115., 145., 118.]), 100., 90., 0)
+check("🏦 قوة البوت: صعود +60% ثم وقف ⇒ stopped بصعود مشروط +60 (الذروة قبل الوقف)",
+      _mg_up[0] == "stopped" and abs(_mg_up[1] - 60.0) < 0.5 and _mg_up[2] == 2)
+# (ب) وقف مبكر قبل أي صعود ⇒ stopped بصعود ~0 (يفرّق عن fwd_max الكامل — سيناريو QNTM)
+_mg_early = S._max_gain_before_stop(
+    np.array([101., 180.]), np.array([99., 88.]),   # الشمعة 1 تضرب الوقف=90 ثم يطير 180
+    np.array([100., 92.]), 100., 90., 0)
+check("🏦 قوة البوت·QNTM: وقف مبكر ⇒ stopped بصعود ~0 (لا +80 الكامل — الوقف حاكم)",
+      _mg_early[0] == "stopped" and _mg_early[1] == 0.0)
+# (ج) لا وقف بالنافذة ⇒ survived بأقصى الصعود + يوم الذروة
+_mg_surv = S._max_gain_before_stop(
+    np.array([105., 145., 130.]), np.array([98., 108., 112.]),
+    np.array([99., 106., 128.]), 100., 90., 0)
+check("🏦 قوة البوت: لا وقف ⇒ survived بأقصى صعود +45 يوم الذروة 1",
+      _mg_surv[0] == "survived" and abs(_mg_surv[1] - 45.0) < 0.5 and _mg_surv[2] == 1)
+# (د) F-L1: رأس شمعة التعبئة الداخلية لا يدخل القياس (يبدأ من filled+1)
+check("🏦 قوة البوت·F-L1: رأس شمعة التعبئة الداخلية لا يُحسب (يفشل لو حُسب)",
+      S._max_gain_before_stop(np.array([200., 110.]), np.array([98., 99.]),
+                              np.array([99., 101.]), 100., 90., 0)[1] == 10.0)
+# (هـ) رأس شمعة الوقف لا يُحسب (ترتيب اللمس مجهول — درس F-L1)
+check("🏦 قوة البوت: رأس شمعة الوقف لا يُحسب (الصعود قبلها فقط)",
+      S._max_gain_before_stop(np.array([100., 120., 300.]),
+                              np.array([98., 105., 85.]),   # الشمعة 2 وقف+رأس ضخم
+                              np.array([99., 110., 90.]), 100., 90., 0)[1] == 20.0)
+# (و) لا تعبئة ⇒ no_fill
+check("🏦 قوة البوت: لا تعبئة (filled=None) ⇒ no_fill",
+      S._max_gain_before_stop(np.array([1.]), np.array([1.]), np.array([1.]),
+                              100., 90., None) == ("no_fill", None, None))
+# (ز) الوصل بـbacktest_symbol خلف BT_POTENTIAL: مفعّلة ⇒ حقول mg_* تُلحَق لكل صفقة ·
+# مطفأة (الافتراض) ⇒ صفر حقول (توافق: صفقة الأساس بت-بت). نُطفئها فورًا كي لا تتسرّب.
+S.CONFIG["BT_POTENTIAL"] = 1
+_mg_bt_on = S.backtest_symbol("MGON", synth_pivot(seed=2))
+S.CONFIG["BT_POTENTIAL"] = 0
+_mg_bt_off = S.backtest_symbol("MGOFF", synth_pivot(seed=2))
+check("🏦 قوة البوت·وصل: مفعّلة ⇒ كل صفقة تحمل mg_outcome/mg_pre_stop/mg_peak_day",
+      len(_mg_bt_on) >= 1 and all({"mg_outcome", "mg_pre_stop", "mg_peak_day"}
+                                  <= set(t) for t in _mg_bt_on))
+check("🏦 قوة البوت·توافق: مطفأة (الافتراض) ⇒ صفر حقول mg_ (صفقة الأساس بت-بت)",
+      len(_mg_bt_off) >= 1 and all("mg_outcome" not in t and "mg_pre_stop" not in t
+                                   and "mg_peak_day" not in t for t in _mg_bt_off))
+# (ح) قفل B1: BT_POTENTIAL/BT_PORTFOLIO/BT_PORT_SIZE — باكتيست حصريًا (الإنتاج يتجاهلها)
+_mg_env = {"BT_POTENTIAL": "1", "BT_PORTFOLIO": "1", "BT_PORT_SIZE": "20"}
+_mg_sv = (S.CONFIG.get("BT_POTENTIAL"), S.CONFIG.get("BT_PORTFOLIO"),
+          S.CONFIG.get("BT_PORT_SIZE"))
+try:
+    check("🏦 قوة البوت·قفل B1: الإنتاج يتجاهل مفاتيح BT_POTENTIAL/PORTFOLIO/PORT_SIZE",
+          S._apply_backtest_overrides("FULL", _mg_env) == [])
+    _mg_applied = S._apply_backtest_overrides("BACKTEST", _mg_env)
+    check("🏦 قوة البوت·قفل B1: وضع BACKTEST يطبّق المفاتيح الثلاثة",
+          all(any(k in s for s in _mg_applied)
+              for k in ("BT_POTENTIAL", "BT_PORTFOLIO", "BT_PORT_SIZE")))
+finally:
+    (S.CONFIG["BT_POTENTIAL"], S.CONFIG["BT_PORTFOLIO"],
+     S.CONFIG["BT_PORT_SIZE"]) = _mg_sv         # لا تلوّث بقية الاختبارات
+# (ط) 🔒 قفل getsource: دالة القياس خارج الفرز/الاختيار/التتبّع (باكتيست/عرض فقط —
+# لا تدخل قرار الدخول/الوقف/الأهداف/العضوية). درس C3: أي دالة قياس تلمس الاختيار = بوابة خفية.
+check("🏦 قوة البوت·قفل: _max_gain_before_stop خارج rank_key/select_top/classify_tier/"
+      "analyze_ticker/update_tracking/update_watchlist_status",
+      all("_max_gain_before_stop" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.update_tracking, S.update_watchlist_status)))
+# 🏦 backtest_portfolio (خطة §3): محاكاة انتقائية سعة محدودة — الأعلى readiness يفوز
+# بالتزاحم · الخانة تُحرَّر بعد النافذة · لا دخول مزدوج لرمز · المرفوض يُعدّ.
+def _pf(sym, date, rdy, sc, oc="win"):
+    return {"symbol": sym, "date": date, "readiness": rdy, "score": sc, "outcome": oc}
+# size=2, fwd=10: يوم واحد 3 إشارات → الأعلى readiness (AAA·BBB) يؤخذان · CCC يُرفض بالسعة.
+# AAA يعيد الإشارة داخل النافذة (01-05<01-11) → دخول مزدوج مرفوض. DDD بعد التحرّر يؤخذ.
+_pf_trades = [
+    _pf("AAA", "2025-01-01", 90, 50), _pf("BBB", "2025-01-01", 80, 40),
+    _pf("CCC", "2025-01-01", 70, 30),                 # يُرفض بالسعة (top-2 فقط)
+    _pf("AAA", "2025-01-05", 95, 60),                 # دخول مزدوج (AAA نشط) مرفوض
+    _pf("DDD", "2025-01-20", 60, 20),                 # الخانات تحرّرت → يؤخذ
+    {"symbol": "NF", "date": "2025-01-02", "readiness": 99, "outcome": "no_fill"},
+]
+_pf_res = S.backtest_portfolio(_pf_trades, size=2, fwd_days=10)
+_pf_syms = [t["symbol"] for t in _pf_res["taken"]]
+check("🏦 محفظة: تزاحم اليوم ⇒ الأعلى readiness يؤخذان (AAA·BBB لا CCC)",
+      _pf_syms[:2] == ["AAA", "BBB"] and "CCC" not in _pf_syms)
+check("🏦 محفظة: الخانة تُحرَّر بعد النافذة ⇒ DDD يؤخذ لاحقًا",
+      "DDD" in _pf_syms)
+check("🏦 محفظة: لا دخول مزدوج لرمز نشط (AAA المتكرر يُرفض)",
+      _pf_syms.count("AAA") == 1 and _pf_res["n_rejected_dup"] == 1)
+check("🏦 محفظة: المرفوض بالسعة يُعدّ (CCC واحد)",
+      _pf_res["n_rejected_cap"] == 1)
+check("🏦 محفظة: غير المُعبَّأة (no_fill) لا تحجز خانة",
+      "NF" not in _pf_syms)
+check("🏦 محفظة·قفل: backtest_portfolio خارج rank_key/select_top/classify_tier/"
+      "analyze_ticker/update_tracking/update_watchlist_status",
+      all("backtest_portfolio" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.update_tracking, S.update_watchlist_status)))
+# 🏦 backtest_potential_report (خطة §4): كتلة التقرير — شرائح الحركة المتاحة قبل الوقف
+# + انفجارات قتلها الوقف + المعيار المسجَّل + حدّا الصدق. مطفأ ⇒ [] (توافق).
+_pt_trades = [
+    {"symbol": "AAA", "date": "2025-02-01", "outcome": "win", "exploded": True,
+     "mg_outcome": "survived", "mg_pre_stop": 80.0, "mg_peak_day": 5,
+     "readiness": 90, "score": 50},
+    {"symbol": "BBB", "date": "2025-02-02", "outcome": "loss", "exploded": True,
+     "mg_outcome": "stopped", "mg_pre_stop": 8.0, "mg_peak_day": 1,   # انفجر لكن وُقف
+     "readiness": 70, "score": 30},
+    {"symbol": "CCC", "date": "2025-02-03", "outcome": "loss", "exploded": False,
+     "mg_outcome": "stopped", "mg_pre_stop": 0.0, "mg_peak_day": 0,
+     "readiness": 60, "score": 20},
+    {"symbol": "NF", "date": "2025-02-04", "outcome": "no_fill", "mg_outcome": "no_fill"},
+]
+check("🏦 تقرير·توافق: مطفأ (الافتراض) ⇒ [] (لا صفقة تحمل mg_)",
+      S.backtest_potential_report(_pt_trades) == [])
+_pt_sv = S.CONFIG.get("BT_POTENTIAL")
+S.CONFIG["BT_POTENTIAL"] = 1
+try:
+    _pt_join = "\n".join(S.backtest_potential_report(_pt_trades))
+    check("🏦 تقرير: مفعّل ⇒ يطبع «قوة البوت» + منفجر قبل الوقف (AAA في شريحة ≥50)",
+          "قوة البوت" in _pt_join and "منفجر" in _pt_join)
+    check("🏦 تقرير: انفجار قتله الوقف يُعدّ (BBB انفجر بالنافذة لكن وُقف قبل +50)",
+          "انفجارات قتلها الوقف: <b>1</b>" in _pt_join)
+    check("🏦 تقرير: المعيار المسجَّل + حدّا الصدق حرفيًا (أرضية لا سقف)",
+          "معيار مسجَّل مسبقًا" in _pt_join and "أرضية لا سقف" in _pt_join)
+finally:
+    S.CONFIG["BT_POTENTIAL"] = _pt_sv          # لا تلوّث بقية الاختبارات
+check("🏦 تقرير·قفل: backtest_potential_report/_mg_segment_lines خارج الفرز/الاختيار/التتبّع",
+      all(("backtest_potential_report" not in _insp0.getsource(_f)
+           and "_mg_segment_lines" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.update_tracking, S.update_watchlist_status)))
 # (د) مفعّلة: حقول المسح تُلحَق (ثم نُطفئها فورًا لئلا تتسرّب لبقية الاختبارات)
 S.CONFIG["BT_SWEEP_ENTRY"] = 1
 _bt_on = S.backtest_symbol("SWON", synth_pivot(seed=2))
