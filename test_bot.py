@@ -876,6 +876,21 @@ check("⑦ فاشل-آمن: None/فارغ/رموز صرفة → None",
 check("⑦ قفل: enrich يعقّم عند الحد (company_name يمرّ عبر _sanitize_name)",
       "_sanitize_name" in _insp0.getsource(S.enrich))
 
+# 4ل) 🔒 ⑭ الصغائر (إصلاح تدقيق 2026-07-12)
+check("14أ esc() يهرّب الاقتباس (اقتباس برابط كان يكسر href فترفض تلغرام الرسالة)",
+      S.esc('a"b') == "a&quot;b" and S.esc("<x>&") == "&lt;x&gt;&amp;")
+check("14ب مسح الأرباح: الفشل التام يرجع None (لا «لا مرشّحين» مطمئنة زائفة)",
+      "return None" in _insp0.getsource(TR.scan_nasdaq_earnings)
+      and "تعذّر مسح الأرباح" in _insp0.getsource(TR.main))
+with open("Super_stock.py", encoding="utf-8") as _f14:
+    _src14 = _f14.read(30000)
+check("14ج SEC_CONTACT: حارس or (سرّ فارغ لا يُفرغ الـUA) + بريد افتراضي قائم",
+      'os.environ.get("SEC_CONTACT") or' in _src14
+      and "@" in S.SEC_UA["User-Agent"])
+check("14د فحص اليد: انهيار التحليل → analysis_error لا حكم سلبي واثق",
+      "analysis_error" in _insp0.getsource(HC.render_hand_check)
+      and "تعذّر تقييمه" in _insp0.getsource(HC.render_hand_check))
+
 
 # ==========================================================
 # 4) قرارات البوابات على أرقام الصور الفعلية (اختبار مباشر للصور)

@@ -425,9 +425,11 @@ _BT_OVERRIDES = _apply_backtest_overrides(MODE)
 LOGIC_VERSION = "2026.06.22-redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
-# SEC تتطلب User-Agent فيه وسيلة تواصل — يمكن ضبطه بمتغير بيئة SEC_CONTACT
-SEC_UA = {"User-Agent": os.environ.get(
-    "SEC_CONTACT", "PivotScreener/2.0 (personal research; contact@example.com)")}
+# SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
+# workflows (14ج: الوهمي contact@example.com قد يُبطأ/يُحجب بسياسة الوصول العادل).
+# `or` لا الوسيط الثاني: السرّ غير المضبوط يصل بيئةً فارغةً "" ويجب ألا يُعتمد.
+SEC_UA = {"User-Agent": (os.environ.get("SEC_CONTACT") or
+                         "PivotScreener/2.0 (personal research; contact@example.com)")}
 # متصفح عادي لـ fintel (محاولة أولى صامتة — قد يحجب الطلبات الآلية)
 BROWSER_UA = {
     "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -2777,7 +2779,7 @@ def events_lines(events, today=None) -> list:
                 _behind = (t - d).days           # كم مضى على تقديم الدعوة
                 if _behind < 0 or _behind > CONFIG["PROXY_LOOKBACK_DAYS"]:
                     continue
-                _frm = f" (دعوة {e['note']})" if e.get("note") else ""
+                _frm = f" (دعوة {esc(e['note'])})" if e.get("note") else ""  # 14أ
                 out.append(f"📅 اجتماع مساهمين قادم{_frm}: الدعوة قُدّمت "
                            f"{d.isoformat()} — يُعقد عادة خلال شهر إلى شهرين؛ "
                            "راقب بنود التقسيم العكسي/زيادة الأسهم")
@@ -2795,7 +2797,7 @@ def events_lines(events, today=None) -> list:
                            f"({when}) — نحو {int(CONFIG['LOCKUP_DAYS'])} يومًا من "
                            "الإدراج؛ قد يفكّ أسهمًا للبيع (العقد قد يختلف)")
             else:
-                note = f" ({e['note']})" if e.get("note") else ""
+                note = f" ({esc(e['note'])})" if e.get("note") else ""  # 14أ
                 out.append(f"📅 اكتمال تجربة سريرية{note}: {d.isoformat()} "
                            f"({when}) — موعد تقديري معلن قد يتغيّر")
     except Exception:
@@ -3527,9 +3529,13 @@ def build_split_watch_section(rows: list) -> str:
 # 8) أدوات الرسائل المشتركة
 # ==========================================================
 def esc(s):
-    """تعقيم النصوص الخارجية حتى لا تكسر HTML تيليجرام"""
+    """تعقيم النصوص الخارجية حتى لا تكسر HTML تيليجرام.
+    14أ (إصلاح تدقيق 2026-07-12): إضافة تهريب `\"` — الدالة تُستعمل داخل خاصية
+    href=\"...\" واقتباس في رابط خارجي كان يكسر الخاصية → تلغرام يرفض الرسالة
+    كلها بـ400 وsend_telegram يسجّل ويمضي = تنبيه تداول لا يصل."""
     return (str(s).replace("&", "&amp;")
-            .replace("<", "&lt;").replace(">", "&gt;"))
+            .replace("<", "&lt;").replace(">", "&gt;")
+            .replace('"', "&quot;"))
 
 
 def fmt_money(x):
@@ -3754,7 +3760,9 @@ def news_block(r) -> list:
     if news:
         lines.append("📰 <b>آخر الأخبار (Yahoo):</b>")
         for it in news:
-            head = esc(it.get("title", ""))[:140]
+            # 14أ: القصّ **قبل** التهريب — القصّ بعده كان قد يشطر كيان HTML
+            # (مثل &amp; → &am) فيكسر رسالة تلغرام كاملة.
+            head = esc(it.get("title", "")[:140])
             src = esc(it.get("publisher", ""))
             day = it.get("date", "")
             meta = " — ".join(x for x in (src, day) if x)

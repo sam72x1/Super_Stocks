@@ -29,4 +29,10 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TICKER: ${{ github.event.inputs.ticker }}
+          # 14ح (إصلاح تدقيق 2026-07-12): مفاتيح مصادر الأرباح كانت غائبة هنا
+          # (موجودة بscan_earnings فقط) فالتقرير يتدهور لمسار ياهو بصمت رغم وجود
+          # السرّ بالريبو. الفارغ = يتخطّى المصدر عاديًّا (سلسلة فاشلة-آمنة).
+          ALPHAVANTAGE_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
         run: python technical_report.py

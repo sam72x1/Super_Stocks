@@ -41,6 +41,9 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 14ج: بريد تواصل حقيقي لطلبات SEC (أضف سرّ SEC_CONTACT بصيغة
+          # «Bot/1.0 (email@example.com)») — فارغ = الافتراضي القديم.
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
           SCREENER_MODE: FULL
           FORCE_RENEW: ${{ github.event.inputs.force_renew }}
           # 🔄 إشارة التجديد الأسبوعي: تُرفع فقط في جوب كرون الجمعة 22:07 UTC

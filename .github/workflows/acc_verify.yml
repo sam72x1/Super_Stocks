@@ -30,6 +30,28 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # 14ز (إصلاح تدقيق 2026-07-12): الاستئناف الموعود كان لا يعمل — الـCSV
+      # التراكمي يُرفع artifact لكنه لا يُنزَّل أبدًا، فكل إعادة تشغيل تبدأ من
+      # الصفر في جوب 340 دقيقة. (download-artifact@v4 لا يجلب عبر التشغيلات بلا
+      # run-id — نجلب أحدث artifact بالاسم عبر gh api.) فاشل-آمن: لا artifact
+      # سابق = بداية جديدة عادية.
+      - name: Download previous CSV (استئناف)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          NAME="acc-verify-${{ github.event.inputs.year }}"
+          URL=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
+            --jq "[.artifacts[] | select(.name==\"$NAME\" and .expired==false)][0].archive_download_url" 2>/dev/null)
+          if [ -n "$URL" ] && [ "$URL" != "null" ]; then
+            curl -sL -H "Authorization: Bearer $GH_TOKEN" -o _prev.zip "$URL" \
+              && unzip -o _prev.zip && rm -f _prev.zip \
+              && echo "✅ استُؤنف الـCSV من artifact سابق" \
+              || echo "⚠️ تعذّر التنزيل — بداية جديدة"
+          else
+            echo "لا artifact سابق — بداية جديدة"
+          fi
+
       - name: Run T-ACC verification
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}

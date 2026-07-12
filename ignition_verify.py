@@ -111,10 +111,14 @@ def main():
         return
     exps = _exploders(int(year))
     bot.log(f"🔥📏 {len(exps)} منفجر · جلب دقائق يوم الانفجار…")
-    caught, gains = 0, []
+    # 14و (إصلاح تدقيق 2026-07-12): المقام = **المجلوب فعلًا** لا كل المنفجرات —
+    # تشغيلة مخنوقة (429/عدم استحقاق → mins=None) كانت تدخل المقام فتُنتج حكمًا
+    # سلبيًّا كاذبًا على الحافة لا يتمايز عن حكم حقيقي. + أرضية جلب 70% قبل الحكم.
+    caught, gains, fetched = 0, [], 0
     for j, e in enumerate(exps):
         mins = _day_minutes(e["symbol"], e["day"], key)
         if mins:
+            fetched += 1
             fire = bot._ignition_first_fire(mins, e["break_level"], e["open_px"])
             if fire:
                 caught += 1
@@ -122,12 +126,20 @@ def main():
         if (j + 1) % 20 == 0:
             bot.log(f"🔥📏 {j + 1}/{len(exps)}")
         time.sleep(0.2)
-    n = len(exps)
+    n = fetched
     rate = round(caught / n * 100.0) if n else 0
     med = _median(gains)
     useful = n >= 12 and rate >= 50 and med is not None and med <= 20
+    _fetch_pct = (fetched / len(exps) * 100.0) if exps else 0.0
     lines = [f"🔥📏 <b>تحقّق رادار الانطلاق — سنة {year}</b>",
-             f"منفجرات مفحوصة: <b>{n}</b>" + (f" (سقف {_CAP})" if n >= _CAP else "")]
+             f"منفجرات: <b>{len(exps)}</b>" + (f" (سقف {_CAP})" if len(exps) >= _CAP else "")
+             + f" · جُلبت دقائقها: <b>{fetched}</b> ({_fetch_pct:.0f}%)"]
+    if exps and _fetch_pct < 70:
+        lines.append("⚠️ جلب ناقص (تحت 70% — خنق/اشتراك؟) — <b>لا حكم</b> من "
+                     "تشغيلة مخنوقة؛ أعد التشغيل لاحقًا.")
+        bot.send_telegram("\n".join(lines) + "\n\n" + bot.FOOTER)
+        bot.log("⚠️ جلب ناقص — لا حكم.")
+        return
     if n < 12:
         lines.append("عيّنة غير كافية (أقل من 12) — شغّل سنة كاملة.")
     else:

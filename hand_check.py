@@ -116,6 +116,11 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
                      + f"  ·  ⛔ وقف ${stop0:.2f}")
         if all(r.get(k) for k in ("t1", "t2", "t3")):
             L.append(f"🎯 أهداف: ${r['t1']:.2f} · ${r['t2']:.2f} · ${r['t3']:.2f}")
+    elif r.get("analysis_error"):
+        # 14د (إصلاح تدقيق 2026-07-12): انهيار التحليل كان يُعرض حكمًا سلبيًا
+        # واثقًا «ليس ارتكازًا» — الآن يُصرَّح بالتعذّر (تعذّر ≠ رفض).
+        L.append("الحكم: ⚠️ <b>تعذّر تقييمه كارتكاز</b> (خطأ أثناء التحليل — "
+                 "ليس رفضًا؛ أعد المحاولة أو افحص السجل)")
     else:
         why = r.get("reject_reason") or "لم يجتز بوابة إلزامية (انظر ❌ أعلاه)"
         L.append(f"الحكم: ❌ <b>ليس سهم ارتكاز مؤهّلًا حاليًا</b> "
@@ -209,8 +214,10 @@ def hand_check(sym: str):
         elif getattr(bot, "_REJECT_STATS", None):
             r["reject_reason"] = " · ".join(f"{k}={v}"
                                             for k, v in bot._REJECT_STATS.items())
-    except Exception:
-        pass
+    except Exception as e:
+        # 14د: كان `pass` صامتًا فيُعرض انهيارُ التحليل حكمًا سلبيًا واثقًا.
+        bot.log(f"⚠️ فحص اليد: انهار تحليل الارتكاز لـ{sym}: {e}")
+        r["analysis_error"] = True
     return render_hand_check(sym, r, df), None
 
 
