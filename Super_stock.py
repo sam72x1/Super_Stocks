@@ -8386,6 +8386,22 @@ def backtest_potential_report(all_trades):
               and float(t.get("mg_pre_stop") or 0) < CONFIG["EXPLOSION_PCT"]]
     lines.append(f"  🔪 انفجارات قتلها الوقف: <b>{len(killed)}</b> "
                  f"(صعدت {expl}% أو أكثر بالنافذة لكن بعد ضرب وقفها)")
+    # 🔬 ذراع المسح (لو BT_SWEEP_ENTRY+BT_POTENTIAL): هل الدخول-بعد-المسح يلتقط
+    # الانفجارات المقتولة **من نقطة الدخول** (لا t1)؟ = سؤال المستخدم المباشر.
+    swf = [t for t in base if t.get("mg_sweep_outcome")]   # عبّأ ذراع المسح
+    if swf:
+        base_e = sum(1 for t in swf if float(t.get("mg_pre_stop") or 0) >= expl)
+        sw_e = sum(1 for t in swf if float(t.get("mg_sweep_pre_stop") or 0) >= expl)
+        lines.append(f"  🔬 <b>ذراع المسح</b> (عبّأ {len(swf)} من {len(base)}): انفجار "
+                     f"{expl}%+ قبل الوقف — الأساس {base_e} ← المسح <b>{sw_e}</b>")
+        # الأهم: من الانفجارات المقتولة، كم عبّأها المسح وكم التقط ≥50% منها فعلًا
+        sw_on_killed = [t for t in killed if t.get("mg_sweep_outcome")]
+        recov = [t for t in sw_on_killed if float(t.get("mg_sweep_pre_stop") or 0) >= expl]
+        lines.append(f"  🎯 <b>استرداد المقتولة</b>: من {len(killed)} قتلها الوقف — "
+                     f"المسح عبّأ {len(sw_on_killed)} · التقط {expl}%+ منها <b>{len(recov)}</b>"
+                     + ("  (" + " · ".join(f"{esc(str(t['symbol']))} +"
+                        f"{float(t.get('mg_sweep_pre_stop') or 0):.0f}%" for t in recov)
+                        + ")" if recov else ""))
     # المعيار المسجَّل مسبقًا §0 (قرار المستخدم بالأرقام، لا آليًا) + حدّا الصدق حرفيًا
     lines.append("  📋 <b>معيار مسجَّل مسبقًا</b>: قوي = منفجرون 20% أو أكثر (بالمحفظة، "
                  "السنتين) ووسيط صعود مشروط +15% أو أكثر · حدّي 10-20% · ضعيف أقل. "
@@ -8455,6 +8471,16 @@ def _sweep_augment(trade, r, hi, lo, cl, op, stop, t1):
     trade["stop_sweep"] = (round(stop_sw, 2) if stop_sw is not None else None)
     trade["ret_sweep_a"] = (round(ret_sa, 1) if ret_sa is not None else None)
     trade["ret_sweep_b"] = (round(ret_sb, 1) if ret_sb is not None else None)
+    # 🏦 قوة البوت لذراع المسح (لو BT_POTENTIAL): أقصى صعود من **دخول المسح** قبل وقفه —
+    # يجيب سؤال المستخدم مباشرة: كم من «الانفجارات المقتولة» (مُسِحت تحت الوقف الثابت ثم
+    # انطلقت) يلتقطها الدخول-بعد-المسح من نقطة الدخول (لا t1). نفس entry_intrabar=False
+    # (يملك من فتح ridx+1 فرأس تلك الشمعة صالح). إلحاق فقط · مطفأ = لا حقول.
+    if filled_sw is not None and CONFIG.get("BT_POTENTIAL"):
+        _smo, _smg, _smd = _max_gain_before_stop(
+            hi, lo, op, e_sw, stop_sw, filled_sw, entry_intrabar=False)
+        trade["mg_sweep_outcome"] = _smo
+        trade["mg_sweep_pre_stop"] = _smg
+        trade["mg_sweep_peak_day"] = _smd
 
 
 def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
