@@ -3312,6 +3312,43 @@ check("🏦 تقرير·قفل: backtest_potential_report/_mg_segment_lines خا
            and "_mg_segment_lines" not in _insp0.getsource(_f))
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.update_tracking, S.update_watchlist_status)))
+# 🔬 ذراع المسح على المحور المصحَّح (2026-07-12): هل الدخول-بعد-المسح يسترد الانفجارات
+# المقتولة **من نقطة الدخول**؟ مقتولان (وُقفا قبل +50) — KILL استردّه المسح (+80) وKMISS لا (+10).
+_sw_trades = [
+    {"symbol": "KILL", "date": "2025-03-01", "outcome": "loss", "exploded": True,
+     "mg_outcome": "stopped", "mg_pre_stop": 5.0, "mg_peak_day": 1, "readiness": 60,
+     "score": 70, "mg_sweep_outcome": "survived", "mg_sweep_pre_stop": 80.0,
+     "mg_sweep_peak_day": 20},
+    {"symbol": "KMISS", "date": "2025-03-02", "outcome": "loss", "exploded": True,
+     "mg_outcome": "stopped", "mg_pre_stop": 3.0, "mg_peak_day": 1, "readiness": 60,
+     "score": 70, "mg_sweep_outcome": "stopped", "mg_sweep_pre_stop": 10.0,
+     "mg_sweep_peak_day": 2},
+    {"symbol": "CLN", "date": "2025-03-03", "outcome": "win", "exploded": True,
+     "mg_outcome": "survived", "mg_pre_stop": 60.0, "mg_peak_day": 10, "readiness": 60,
+     "score": 70, "mg_sweep_outcome": "survived", "mg_sweep_pre_stop": 55.0,
+     "mg_sweep_peak_day": 12},
+]
+_sw_sv = S.CONFIG.get("BT_POTENTIAL")
+S.CONFIG["BT_POTENTIAL"] = 1
+try:
+    _sw_join = "\n".join(S.backtest_potential_report(_sw_trades))
+    check("🔬 ذراع المسح: كتلة «ذراع المسح» + «استرداد المقتولة» تظهران",
+          "ذراع المسح" in _sw_join and "استرداد المقتولة" in _sw_join)
+    check("🔬 ذراع المسح: انفجار قبل الوقف الأساس 1 ← المسح 2 (KILL+CLN استعادا)",
+          "الأساس 1 ← المسح <b>2</b>" in _sw_join)
+    check("🔬 ذراع المسح: يسترد المقتول الملتقَط ≥50 فقط (KILL +80، لا KMISS)",
+          "التقط 50%+ منها <b>1</b>" in _sw_join and "KILL +80%" in _sw_join)
+finally:
+    S.CONFIG["BT_POTENTIAL"] = _sw_sv
+# التركيبة الحيّة (BT_SWEEP_ENTRY+BT_POTENTIAL): mg_sweep_* يظهر فقط حين عبّأ ذراع المسح
+S.CONFIG["BT_SWEEP_ENTRY"] = 1
+S.CONFIG["BT_POTENTIAL"] = 1
+_swmg = S.backtest_symbol("SWMG", synth_pivot(seed=2))
+S.CONFIG["BT_SWEEP_ENTRY"] = 0
+S.CONFIG["BT_POTENTIAL"] = 0
+check("🔬 ذراع المسح+قوة البوت: التركيبة تعمل · mg_sweep_pre_stop رقم حين وُجد الحقل",
+      len(_swmg) >= 1 and all(t.get("mg_sweep_pre_stop") is not None
+                              for t in _swmg if "mg_sweep_outcome" in t))
 # (د) مفعّلة: حقول المسح تُلحَق (ثم نُطفئها فورًا لئلا تتسرّب لبقية الاختبارات)
 S.CONFIG["BT_SWEEP_ENTRY"] = 1
 _bt_on = S.backtest_symbol("SWON", synth_pivot(seed=2))
