@@ -3159,6 +3159,29 @@ check("F-L1: ذراع المسح (entry_intrabar=False) يحسم الهدف من
 check("F-L1: backtest_symbol يحفظ outcome_legacy/ret_legacy لكل صفقة (للمقارنة)",
       len(_bt_off) >= 1 and all("outcome_legacy" in t and "ret_legacy" in t
                                 for t in _bt_off))
+# 🔬 F-COST (تدقيق 2026-07-12): تكلفة تنفيذ اختيارية (BT_SPREAD_PCT) — 0 = سلوك
+# اليوم حرفيًا · موجب يخفض العائد رتيبًا · محصَّن بقفل B1 (الإنتاج يتجاهله).
+# filled=0 والهدف يُضرب على الشمعة 1 (غير شمعة التعبئة) = win نظيف نقيس عائده.
+_fc_args = (np.array([102., 110.]), np.array([98., 100.]),
+            np.array([100., 108.]), np.array([99., 101.]), 100., 93., 109., 0)
+check("F-COST: spread=0 ⇒ العائد كما اليوم حرفيًا (+9% على t1=109)",
+      abs(S._resolve_arm(*_fc_args, spread=0.0)[1] - 9.0) < 1e-9)
+_fc_ret = S._resolve_arm(*_fc_args, spread=0.04)[1]     # سبريد 4%
+# buy=100×1.02=102 · sell=109×0.98=106.82 · العائد=106.82/102−1≈+4.73%
+check("F-COST: spread=4% يخفض عائد الرابح (+9% ⇒ ~+4.7%، رتيبًا)",
+      _fc_ret < 9.0 and abs(_fc_ret - 4.73) < 0.1)
+check("F-COST: أكبر سبريد ⇒ عائد أقل رتيبًا (حساسية 1/3/5%)",
+      S._resolve_arm(*_fc_args, spread=0.01)[1]
+      > S._resolve_arm(*_fc_args, spread=0.03)[1]
+      > S._resolve_arm(*_fc_args, spread=0.05)[1])
+_fc_sv = S.CONFIG.get("BT_SPREAD_PCT", 0.0)
+try:
+    _fc_prod = S._apply_backtest_overrides("FULL", {"BT_SPREAD_PCT": "0.05"})
+    _fc_bt = S._apply_backtest_overrides("BACKTEST", {"BT_SPREAD_PCT": "0.05"})
+    check("F-COST·قفل B1: الإنتاج يتجاهل BT_SPREAD_PCT (باكتيست حصريًا)",
+          _fc_prod == [] and any("BT_SPREAD_PCT" in s for s in _fc_bt))
+finally:
+    S.CONFIG["BT_SPREAD_PCT"] = _fc_sv          # لا تلوّث بقية الاختبارات
 # (د) مفعّلة: حقول المسح تُلحَق (ثم نُطفئها فورًا لئلا تتسرّب لبقية الاختبارات)
 S.CONFIG["BT_SWEEP_ENTRY"] = 1
 _bt_on = S.backtest_symbol("SWON", synth_pivot(seed=2))
