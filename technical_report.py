@@ -841,17 +841,20 @@ def scan_nasdaq_earnings():
     """يفرز ناسداك → الأقوياء فنياً (≥SCAN_MIN_SCORE) فوق السعر/السيولة،
     ثم يُبقي من عندهم إعلان أرباح خلال SCAN_EARN_WINDOW يوم. يرجع قائمة."""
     bot.log("🌐 جلب قائمة ناسداك...")
+    # 14ب (إصلاح تدقيق 2026-07-12): الفشل التام كان يرجع [] فتصل رسالة مطمئنة
+    # «لا مرشّحين اليوم» — لا تمييز بين «السوق فاضي» و«المسح لم يعمل». الآن
+    # الفشل يرجع None والرسالة تصرّح «تعذّر المسح».
     try:
         universe = bot.get_universe()
     except Exception as e:
         bot.log(f"تعذّر جلب الكون: {e}")
-        return []
+        return None
     bot.log(f"الكون: {len(universe)} رمز — جاري التحميل بالجملة (قد يطول)...")
     try:
         data = bot.download_history(universe)
     except Exception as e:
         bot.log(f"تعذّر التحميل: {e}")
-        return []
+        return None
 
     # المرحلة 1: ترشيح فني + سعر + سيولة (في الذاكرة، بلا تنزيل إضافي)
     strong = []
@@ -947,6 +950,12 @@ def main():
     if os.environ.get("SCAN_EARNINGS", "").strip().lower() in ("1", "true", "yes"):
         bot.log("🗓️ بدء مسح ناسداك (قوي فنياً + أرباح قريبة)...")
         results = scan_nasdaq_earnings()
+        if results is None:                     # 14ب: عطل ≠ «لا مرشّحين»
+            bot.send_telegram("🗓️ ⚠️ <b>تعذّر مسح الأرباح اليوم</b> (فشل جلب "
+                              "الكون/التحميل) — هذه ليست «لا مرشّحين»؛ أعد "
+                              f"التشغيل لاحقًا.\n\n{bot.FOOTER}")
+            bot.log("⚠️ المسح لم يعمل — أُرسل تصريح بالتعذّر.")
+            return
         bot.send_telegram(render_scan(results))
         bot.log("✅ أُرسلت قائمة المرشحين.")
         return

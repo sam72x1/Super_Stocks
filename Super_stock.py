@@ -425,9 +425,11 @@ _BT_OVERRIDES = _apply_backtest_overrides(MODE)
 LOGIC_VERSION = "2026.06.22-redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
-# SEC تتطلب User-Agent فيه وسيلة تواصل — يمكن ضبطه بمتغير بيئة SEC_CONTACT
-SEC_UA = {"User-Agent": os.environ.get(
-    "SEC_CONTACT", "PivotScreener/2.0 (personal research; contact@example.com)")}
+# SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
+# workflows (14ج: الوهمي contact@example.com قد يُبطأ/يُحجب بسياسة الوصول العادل).
+# `or` لا الوسيط الثاني: السرّ غير المضبوط يصل بيئةً فارغةً "" ويجب ألا يُعتمد.
+SEC_UA = {"User-Agent": (os.environ.get("SEC_CONTACT") or
+                         "PivotScreener/2.0 (personal research; contact@example.com)")}
 # متصفح عادي لـ fintel (محاولة أولى صامتة — قد يحجب الطلبات الآلية)
 BROWSER_UA = {
     "User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -2507,6 +2509,22 @@ def spread_line(bid, ask, session=None, brief=False) -> str:
         return ""
 
 
+def _sanitize_name(name, max_len: int = 64):
+    """⑦ (إصلاح تدقيق 2026-07-12): تعقيم اسم الشركة عند حدّ الدخول — نص حرّ من
+    مصدر خارجي (ياهو) يُخزَّن في JSON يقرأه وكيل Cline المستقل (contents: write)؛
+    لنموذج لغوي لا يتمايز النص عن التعليمات. محارف محافظة فقط (حروف/أرقام/مسافة/
+    `.,&'()-`) + سقف طول. None تمرّ كما هي. نقيّة، فاشلة-آمنة → None."""
+    try:
+        if not name:
+            return None
+        clean = "".join(ch if (ch.isalnum() or ch in " .,&'()-") else " "
+                        for ch in str(name))
+        clean = " ".join(clean.split())[:max_len].strip()
+        return clean or None
+    except Exception:
+        return None
+
+
 def _short_headline(r: dict) -> str:
     """نص «شورت» في السطر الرئيسي للكرت/اليومي (2026-07-11، طلب المستخدم — عرض فقط).
     يعتمد **عمود Available من ChartExchange** (`shares_available`) = قراءة فيصل للشورت
@@ -2761,7 +2779,7 @@ def events_lines(events, today=None) -> list:
                 _behind = (t - d).days           # كم مضى على تقديم الدعوة
                 if _behind < 0 or _behind > CONFIG["PROXY_LOOKBACK_DAYS"]:
                     continue
-                _frm = f" (دعوة {e['note']})" if e.get("note") else ""
+                _frm = f" (دعوة {esc(e['note'])})" if e.get("note") else ""  # 14أ
                 out.append(f"📅 اجتماع مساهمين قادم{_frm}: الدعوة قُدّمت "
                            f"{d.isoformat()} — يُعقد عادة خلال شهر إلى شهرين؛ "
                            "راقب بنود التقسيم العكسي/زيادة الأسهم")
@@ -2779,7 +2797,7 @@ def events_lines(events, today=None) -> list:
                            f"({when}) — نحو {int(CONFIG['LOCKUP_DAYS'])} يومًا من "
                            "الإدراج؛ قد يفكّ أسهمًا للبيع (العقد قد يختلف)")
             else:
-                note = f" ({e['note']})" if e.get("note") else ""
+                note = f" ({esc(e['note'])})" if e.get("note") else ""  # 14أ
                 out.append(f"📅 اكتمال تجربة سريرية{note}: {d.isoformat()} "
                            f"({when}) — موعد تقديري معلن قد يتغيّر")
     except Exception:
@@ -3222,9 +3240,13 @@ def enrich(results: list) -> None:
                 r["industry"] = _or_cache(info.get("industry"),
                                           cached, "industry")
                 # 📅 اسم الشركة (لمطابقة راعي التجارب السريرية — الأحداث المعلنة)
-                r["company_name"] = (info.get("shortName")
-                                     or info.get("longName")
-                                     or cached.get("company_name"))
+                # ⑦ (إصلاح تدقيق 2026-07-12): تعقيم عند الحد — نص حرّ من مصدر
+                # خارجي يُكوَّت في weekly_watchlist.json الذي يقرأه وكيل Cline
+                # (contents: write). محارف محافظة + سقف طول، فلا يحمل الحقلُ
+                # تعليماتٍ لنموذج لغوي ولا وسومًا.
+                r["company_name"] = _sanitize_name(info.get("shortName")
+                                                   or info.get("longName")
+                                                   or cached.get("company_name"))
                 # 📅 تاريخ أول تداول (لتقدير انتهاء حظر المؤسسين للإدراجات الحديثة)
                 try:
                     _ftd = info.get("firstTradeDateEpochUtc")
@@ -3507,9 +3529,13 @@ def build_split_watch_section(rows: list) -> str:
 # 8) أدوات الرسائل المشتركة
 # ==========================================================
 def esc(s):
-    """تعقيم النصوص الخارجية حتى لا تكسر HTML تيليجرام"""
+    """تعقيم النصوص الخارجية حتى لا تكسر HTML تيليجرام.
+    14أ (إصلاح تدقيق 2026-07-12): إضافة تهريب `\"` — الدالة تُستعمل داخل خاصية
+    href=\"...\" واقتباس في رابط خارجي كان يكسر الخاصية → تلغرام يرفض الرسالة
+    كلها بـ400 وsend_telegram يسجّل ويمضي = تنبيه تداول لا يصل."""
     return (str(s).replace("&", "&amp;")
-            .replace("<", "&lt;").replace(">", "&gt;"))
+            .replace("<", "&lt;").replace(">", "&gt;")
+            .replace('"', "&quot;"))
 
 
 def fmt_money(x):
@@ -3734,7 +3760,9 @@ def news_block(r) -> list:
     if news:
         lines.append("📰 <b>آخر الأخبار (Yahoo):</b>")
         for it in news:
-            head = esc(it.get("title", ""))[:140]
+            # 14أ: القصّ **قبل** التهريب — القصّ بعده كان قد يشطر كيان HTML
+            # (مثل &amp; → &am) فيكسر رسالة تلغرام كاملة.
+            head = esc(it.get("title", "")[:140])
             src = esc(it.get("publisher", ""))
             day = it.get("date", "")
             meta = " — ".join(x for x in (src, day) if x)
@@ -4609,6 +4637,7 @@ def export_weekly_csvs(wl: dict, picks: list, alert_data: dict = None) -> None:
 WATCH_FILE = "weekly_watchlist.json"   # ملف ذاكرة القائمة في الـ repo
 COMPANY_FILE = "company_cache.json"    # ذاكرة آخر قطاع/دولة معروفة لكل سهم
 IGNITION_LOG_FILE = "ignition_log.json"  # 📏 سجلّ إطلاقات رادار الانطلاق (قياس الحافة)
+IGNITION_UNI_FILE = "ignition_universe.json"  # ⑩ مقام الالتقاط: أسهم كل جلسة رادار
 COMPANY_CACHE_MAX = 5000               # حدّ علوي سخيّ لذاكرة الشركات (LRU)
 # 🔄 التجديد الأسبوعي مدفوع بإشارة الجدولة (RENEW_ON_CLOSE) لا بيوم الأسبوع:
 # الـworkflow يشغّل جوب تجديد **الجمعة 22:00 UTC = بعد إغلاق السوق الأمريكي**
@@ -4746,6 +4775,8 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
     """تحويل نتيجة تحليل إلى سجل سهم في القائمة الأسبوعية"""
     return {
         "symbol": r["symbol"], "added": today_iso,
+        # ① تاريخ شمعة الترشيح الفعلية (لا تاريخ التشغيل) — مرجع نافذة التقييم.
+        "ref_bar": r.get("ref_bar"),
         "entry_ref": round(r["price"], 4),
         "entry": [round(r["entry"][0], 4), round(r["entry"][1], 4)],
         "tranches": [round(p, 4) for p in (r.get("tranches") or r["entry"])],
@@ -5176,6 +5207,15 @@ def scan_market():
     for sym, df in history.items():
         r = analyze_ticker(sym, df)
         if r:
+            # ① (إصلاح تدقيق 2026-07-12): تاريخ **شمعة الترشيح الفعلية** (آخر شمعة
+            # في البيانات) — المسار اليومي يعمل 07:23 UTC قبل الافتتاح فتاريخ التشغيل
+            # (added) أحدثُ من آخر شمعة بيوم، وكانت مقارنة `day > added` تُسقط شمعة
+            # يوم الترشيح من التقييم للأبد (ستوب اليوم الأول غير مرئي). التتبع صار
+            # يقارن بـ ref_bar. فاشل-آمن: تعذّر القراءة → None → ارتداد لـ added.
+            try:
+                r["ref_bar"] = df.index[-1].date().isoformat()
+            except Exception:
+                r["ref_bar"] = None
             r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
             r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
             r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
@@ -5518,6 +5558,15 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                   family="لا بيانات")
             continue
         added = dt.date.fromisoformat(s["added"])
+        # ① (إصلاح تدقيق 2026-07-12): مرجع نافذة التقييم = شمعة الترشيح الفعلية
+        # (ref_bar) لا تاريخ التشغيل — المسار اليومي يعمل قبل الافتتاح فشمعة يوم
+        # الترشيح تتكوّن **بعد** الختم وكان `day > added` يُسقطها للأبد (ستوب اليوم
+        # الأول غير مرئي). ارتداد للسجلات القديمة بلا ref_bar → added = سلوك اليوم
+        # حرفيًا (توافق خلفي، لا موجة تصحيح رجعية).
+        try:
+            ref_bar = dt.date.fromisoformat(str(s.get("ref_bar") or s["added"])[:10])
+        except Exception:
+            ref_bar = added
         s["last_price"] = round(float(df["Close"].iloc[-1]), 4)
         # §10: خط الترند يُعاد حسابه من بيانات اليوم (الخط الهابط ينزل يوميًا).
         # ⚠️ الإسناد **بلا شرط عمدًا**: None اليوم = الخط مات → يجب أن يختفي من
@@ -5568,14 +5617,15 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
         _t3_c = float(s["t3"]) / _div
         _eref_c = float(s["entry_ref"]) / _div
         _split_tag = " (بعد تسوية تقسيم)" if _div != 1.0 else ""
-        # شموع ما بعد يوم الإضافة فقط (التنبيه صدر بعد إغلاق يومه)
+        # ① شموع ما بعد **شمعة الترشيح** (ref_bar) — لا بعد تاريخ التشغيل: المسار
+        # اليومي يختم قبل الافتتاح فشمعة يوم الختم نفسها تدخل التقييم (كانت تضيع).
         rows = []
         for i in range(len(df)):
             try:
                 day = df.index[i].date()
             except Exception:
                 continue
-            if day > added:
+            if day > ref_bar:
                 rows.append((day, float(df["High"].iloc[i]),
                              float(df["Low"].iloc[i])))
         if rows:
@@ -5933,8 +5983,32 @@ def _premarket_summary(bars: list, prev_close=None):
         return None
 
 
+def market_session_now(now=None):
+    """⑤ (إصلاح تدقيق 2026-07-12) نوافذ جلسة ناسداك **بالدقائق-UTC لليوم الجاري**،
+    مشتقة من توقيت نيويورك فتتصيّف/تتشتّى آليًا. الثوابت الصيفية المثبّتة (13:30
+    افتتاحًا · 20:00 إغلاقًا) كانت تجعل المراقبة شتاءً (الافتتاح الفعلي 14:30 UTC)
+    تقرأ شمعة **أمس** كأنها حيّة وتستهلك خانة الدِدوب فيُكتَم التنبيه الحقيقي.
+    يرجع: pre_start (بريماركت 04:00 نيويورك) · open (09:30) · close (16:00).
+    الثلاثة داخل نفس يوم UTC فلا التفاف منتصف الليل. **فاشل-آمن: أي خطأ →
+    ثوابت الصيف = سلوك اليوم حرفيًا.** `now` قابل للحقن للاختبار (aware UTC)."""
+    try:
+        from zoneinfo import ZoneInfo
+        ny = ZoneInfo("America/New_York")
+        now_utc = now or dt.datetime.now(dt.timezone.utc)
+        d = now_utc.astimezone(ny).date()
+
+        def _mins(h, m=0):
+            t = dt.datetime(d.year, d.month, d.day, h, m,
+                            tzinfo=ny).astimezone(dt.timezone.utc)
+            return t.hour * 60 + t.minute
+        return {"pre_start": _mins(4, 0), "open": _mins(9, 30),
+                "close": _mins(16, 0)}
+    except Exception:
+        return {"pre_start": 8 * 60, "open": 13 * 60 + 30, "close": 20 * 60}
+
+
 def polygon_premarket(sym: str, prev_close=None):
-    """🌙 ملخّص بريماركت اليوم من دقائق Polygon (شموع اليوم قبل الافتتاح 13:30 UTC).
+    """🌙 ملخّص بريماركت اليوم من دقائق Polygon (شموع اليوم قبل افتتاح السوق).
     **فاشل-آمن مطلق** → None عند: غياب المفتاح · خارج نافذة البريماركت (قبل 08:00 أو
     بعد 13:30 UTC — فحص زمني **قبل** الشبكة، فصفر نداء مهدور بالفرز الباكر 07:00) ·
     401/403/429/شبكة. يرجّع dict `_premarket_summary` أو None. عرض/تنبيه فقط."""
@@ -5944,7 +6018,9 @@ def polygon_premarket(sym: str, prev_close=None):
     try:
         now = dt.datetime.utcnow()
         _m = now.hour * 60 + now.minute
-        if _m < 8 * 60 or _m >= 13 * 60 + 30:    # خارج نافذة البريماركت → None فورًا
+        # ⑤ نافذة البريماركت مشتقة من توقيت نيويورك (شتاءً تنزاح ساعة تلقائيًا)
+        _w = market_session_now()
+        if _m < _w["pre_start"] or _m >= _w["open"]:  # خارج النافذة → None فورًا
             return None
         h = {"Authorization": f"Bearer {key}"}
         today = dt.date.today().isoformat()
@@ -5973,7 +6049,8 @@ def polygon_after_hours(sym: str, regular_close=None):
         return None
     try:
         now = dt.datetime.utcnow()
-        if now.hour * 60 + now.minute < 20 * 60:     # قبل 20:00 UTC = الجلسة النظامية
+        # ⑤ عتبة الأفتر = إغلاق الجلسة النظامية بتوقيت نيويورك (20:00 صيفًا/21:00 شتاءً UTC)
+        if now.hour * 60 + now.minute < market_session_now()["close"]:
             return None
         h = {"Authorization": f"Bearer {key}"}
         today = dt.date.today().isoformat()
@@ -6021,6 +6098,15 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
             s["last_price"] = lp
         except Exception:
             continue
+        # ⑤ حارس الشمعة البائتة (إصلاح تدقيق 2026-07-12): أحداث الجلسة تُقيَّم فقط
+        # إذا كانت آخر شمعة بتاريخ **اليوم** — شتاءً كانت تشغيلات ما قبل الافتتاح
+        # (بالثوابت الصيفية) تقرأ شمعة أمس كأنها حيّة، والأدهى أن الحدث الكاذب
+        # يستهلك خانة الدِدوب الوحيدة فيُكتَم الحدث الحقيقي بقية اليوم. فاشل-آمن:
+        # تعذّر قراءة تاريخ الشمعة → السلوك السابق (لا كتم زائد).
+        try:
+            _stale = df.index[-1].date().isoformat() != str(today_iso)[:10]
+        except Exception:
+            _stale = False
         trs = [float(x) for x in (s.get("tranches") or []) if x]
         _st = s.get("stop")
         stop0 = (float(_st[0]) if isinstance(_st, (list, tuple)) and _st
@@ -6028,7 +6114,8 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
         piv = float(s.get("pivot") or 0)
         events = []
         # أحداث الجلسة (تحتاج سعر الجلسة الحي) — تُتخطّى قبل الافتتاح (premarket_only)
-        if not premarket_only:
+        # و⑤ عند شمعة بائتة (تاريخها ≠ اليوم = السوق لم يفتح/البيانات متأخرة).
+        if not premarket_only and not _stale:
             try:
                 sw = next((a for a in hand_activity_today(s, df)
                            if "كنس الدعم" in a), None)
@@ -6694,6 +6781,12 @@ def record_ignition_fires(rows, today_iso) -> int:
                 continue
             usd = sig.get("usd")
             log_data.append({"symbol": sym, "date": today_iso,
+                             # ⑩ (إصلاح تدقيق 2026-07-12): طابع وقت الإطلاق —
+                             # بدونه مقياس «الأبكرية» (كم دقيقة سبقنا المسار
+                             # اليومي) مستحيل بنيويًا. إلحاق فقط، توافق خلفي
+                             # (السجلات القديمة بلا الحقل تُقرأ بـ.get عادي).
+                             "fired_at": dt.datetime.utcnow().isoformat(
+                                 timespec="seconds") + "Z",
                              "break_level": _ignition_break_level(s),
                              "price": sig.get("price"), "vol_x": sig.get("vol_x"),
                              "usd": usd, "candle_class": _ignition_candle_class(usd)[0]})
@@ -6705,6 +6798,34 @@ def record_ignition_fires(rows, today_iso) -> int:
     except Exception as e:
         log(f"⚠️ تسجيل إطلاقات الانطلاق: {e}")
         return 0
+
+
+def record_ignition_universe(symbols, today_iso) -> bool:
+    """⑩ (إصلاح تدقيق 2026-07-12): يسجّل **مقام الالتقاط** — أسهم القائمة التي
+    راقبها الرادار في الجلسة (سواء أُطلق عليها أم لا). بدون المقام، مقياس
+    «الالتقاط» (% المنفجرات التي أطلقنا عليها) مستحيل بنيويًا: السجل كان يحفظ
+    الإطلاقات فقط. أداة التطوير تقاطعه لاحقًا مع الشموع اليومية (المنفجر بلا
+    إطلاق = تفويت). دِدوب مرة/يوم · سقف 90 جلسة · فاشل-آمن → False.
+    **قياس فقط — خارج الفرز/الاختيار.**"""
+    try:
+        syms = sorted({str(x) for x in (symbols or []) if x})
+        if not syms:
+            return False
+        data = []
+        if os.path.exists(IGNITION_UNI_FILE):
+            try:
+                with open(IGNITION_UNI_FILE, "r", encoding="utf-8") as f:
+                    data = json.load(f) or []
+            except Exception:
+                data = []
+        if any(e.get("date") == today_iso for e in data):
+            return False                       # جلسة اليوم مسجَّلة أصلًا
+        data.append({"date": today_iso, "symbols": syms})
+        _atomic_write_json(IGNITION_UNI_FILE, data[-90:])
+        return True
+    except Exception as e:
+        log(f"⚠️ تسجيل مقام الانطلاق: {e}")
+        return False
 
 
 def _ignition_outcome(fire, df, confirm_pct=None) -> str:
@@ -7705,11 +7826,28 @@ def run_weekly_renewal(wl: dict) -> None:
     # 1) إغلاق الأسبوع المنتهي (إن وُجد) بتحديث أخير + رسالة حصاد
     old_syms = sorted({s["symbol"] for s in wl["stocks"]})
     if old_syms and yf is not None:
+        # ⑫ (إصلاح تدقيق 2026-07-12): حارس تغطية **الأسبوع المنتهي** — كان حارس
+        # الصحة يحرس الفرز الجديد فقط؛ خنق ياهو هنا كان يؤرشف أسبوعًا غير محسوم
+        # (ستوبات الأسبوع تفلت بأسعار قديمة وتُعاد ترشيحها بنفس المساء). دون
+        # التغطية → تأجيل التجديد كاملًا (نفس دلالة حارس الكون: القائمة النشطة
+        # محفوظة ويُعاد التجديد لاحقًا).
         try:
             hist_old = download_history(old_syms)
+            _cov_old = (sum(1 for s in old_syms
+                            if hist_old.get(s) is not None
+                            and len(hist_old[s]) > 0) / len(old_syms) * 100.0)
+            if _cov_old < CONFIG["DATA_HEALTH_MIN_PCT"]:
+                msg = (f"⚠️ تجديد مؤجَّل: تغطية بيانات الأسبوع المنتهي "
+                       f"{_cov_old:.0f}% فقط (خنق مصدر البيانات؟) — لا نؤرشف "
+                       "أسبوعًا غير محسوم. القائمة النشطة محفوظة، يُعاد التجديد لاحقًا.")
+                log(msg)
+                send_telegram(msg + "\n\n" + FOOTER)
+                return
             update_watchlist_status(wl, hist_old)
         except Exception as e:
-            log(f"⚠️ تحديث الأسبوع المنتهي: {e}")
+            log(f"⚠️ تحديث الأسبوع المنتهي فشل كليًا: {e} — تأجيل التجديد "
+                "(لا أرشفة لأسبوع غير محسوم)")
+            return
     # رسالة الحصاد تُرسل دائماً (حتى لو تعذر التحديث الأخير)
     wrap = build_wrapup_message(wl)
     if wrap:
@@ -7784,14 +7922,19 @@ def run_weekly_renewal(wl: dict) -> None:
         pull_entries = [make_pullback_entry(w, today_iso) for w in w_list]
     except Exception as e:
         log(f"⚠️ مراقبة الارتداد: {e}")
-    # 4) حفظ القائمة الجديدة
-    new_wl = {"week_start": today_iso, "created": today_iso,
-              "logic_version": LOGIC_VERSION,   # القائمة مبنية على آخر منطق
-              "stocks": [make_watch_entry(r, today_iso) for r in picks],
-              "removed": [], "replacements_log": [], "notes": [],
-              "pullback": pull_entries,
-              "history": wl.get("history", []),
-              "explosions": wl.get("explosions", [])}   # سجل الانفجارات يستمر
+    # 4) حفظ القائمة الجديدة — ⑥ (إصلاح تدقيق 2026-07-12): نبدأ بنسخة من wl
+    # القديم ثم نكتب فوق **مفاتيح التجديد فقط**، فتنجو المفاتيح المتراكمة
+    # (reject_stats — كان يُمسح كل جمعة فمقام «الفائتة/المقام» لا يتراكم 56 يومًا
+    # أبدًا رغم وعد الدالة) **وأي مفتاح حالة مستقبلي افتراضيًا** (كانت القائمة
+    # البيضاء لغمًا بنيويًا: كل مفتاح جديد يختفي بصمت أول جمعة).
+    new_wl = dict(wl)
+    new_wl.update({"week_start": today_iso, "created": today_iso,
+                   "logic_version": LOGIC_VERSION,   # القائمة مبنية على آخر منطق
+                   "stocks": [make_watch_entry(r, today_iso) for r in picks],
+                   "removed": [], "replacements_log": [], "notes": [],
+                   "pullback": pull_entries,
+                   "history": wl.get("history", []),
+                   "explosions": wl.get("explosions", [])})   # سجل الانفجارات يستمر
     save_watchlist(new_wl)
     # 5) رسالة القائمة الجديدة (بطاقات كاملة)
     title = ("🔄 <b>القائمة الأسبوعية الجديدة</b>" if had_prev_list
@@ -7871,8 +8014,11 @@ def prune_graduated_pullback(wl: dict) -> list:
 
 
 def run_daily_watchlist(wl: dict) -> None:
-    """يومي (غير الجمعة): قائمة ثابتة دائمة — تُتابَع وتُضاف لها الجديد فقط،
-    ولا يُحذف منها سهم إلا بستوب/هدف. سوق مقفل = نفس القائمة (تنمو، ما ترفرف)."""
+    """يومي (غير الجمعة): قائمة ثابتة دائمة — تُتابَع وتُضاف لها الجديد فقط.
+    **الشطب بالستوب فقط**؛ الهدف المُحقَّق **لا يُنهي المتابعة** (يبقى نشطًا
+    لتسجيل سلّم الأهداف t1→t2→t3، فيصل يمتّع) لكنه **لا يحجز خانة** فلا يمنع
+    مرشّحًا جديدًا (⑨ خيار ب، تدقيق 2026-07-12). التجديد الكامل الجمعة. سوق
+    مقفل = نفس القائمة (تنمو، ما ترفرف)."""
     today_iso = dt.date.today().isoformat()
     # 1) فرز كامل للسوق (لالتقاط الجديد) — بياناته تُعاد استخدامها للمتابعة
     results, hist = scan_market()
@@ -7919,7 +8065,12 @@ def run_daily_watchlist(wl: dict) -> None:
     held = {s["symbol"] for s in wl["stocks"]}
     stopped = {rm["symbol"] for rm in wl["removed"]
                if rm.get("status") == "stopped"}
-    space = CONFIG["WATCHLIST_SIZE"] - len(wl["stocks"])
+    # ⑨ (تدقيق 2026-07-12، خيار ب): أصحاب الهدف المُحقَّق (`hit`) لا يحجزون خانة —
+    # النموذج نجح ويبقى نشطًا لتسجيل سلّم الأهداف (t1→t2→t3، فيصل يمتّع)، لكن
+    # لا يجب أن يمنع مرشّحًا جديدًا في أفضل الأسابيع. نحسب السعة على «الحاملين
+    # للخانة» = النشطون **بلا هدف** فقط. (الأرباح ما زالت في held فلا تُكرَّر.)
+    _slot_holders = [s for s in wl["stocks"] if not s.get("hit")]
+    space = CONFIG["WATCHLIST_SIZE"] - len(_slot_holders)
     added = []
     low_coverage_note = None
     if space > 0 and not coverage_ok:
@@ -9069,31 +9220,57 @@ STATUS_AR = {
 }
 
 
-def git_save(filenames):
-    """يرفع ملفات البيانات إلى الـ repo حتى لا تضيع بين تشغيلات GitHub Actions"""
+def git_save(filenames, runner=None, sender=None):
+    """يرفع ملفات البيانات إلى الـ repo حتى لا تضيع بين تشغيلات GitHub Actions.
+    ⑬ (إصلاح تدقيق 2026-07-12): عند تعارض rebase كان `--abort` يعيد الحالة كما
+    كانت فتفشل المحاولات الأربع **بمدخلات متطابقة** (حلقة ميتة ~30ث) ثم تضيع
+    حالة التشغيلة بصمت مع الرنر المؤقت (جوب أخضر!). الآن التعارض يُحل فعليًا:
+    نقرأ ملفاتنا للذاكرة → نعتمد الريموت (`reset --hard FETCH_HEAD`) → نعيد
+    كتابة ملفاتنا فوقه ونعيد الكوميت (آخر-كاتب-يفوز **لملفاتنا فقط** = نفس دلالة
+    نجاح الـrebase أصلًا؛ untracked لا يمسّها reset). والفشل النهائي يُبلَّغ
+    **تلغرام** لا لوقًا فقط. `runner`/`sender` محقونان للاختبار بلا git/شبكة.
+    ملاحظة معمارية: لم نُدرج ignition.yml في مجموعة `super-stocks-state` (اقتراح
+    التقرير) — جوب الرادار 6 ساعات وسيحجز المراقب خلفه طوال الجلسة؛ هذا
+    الاسترجاع يحل تعارضه بلا قتل التوازي المقصود."""
+    run = runner or os.system
     try:
-        os.system('git config user.email "bot@screener.local"')
-        os.system('git config user.name "Screener Bot"')
+        run('git config user.email "bot@screener.local"')
+        run('git config user.name "Screener Bot"')
         added = False
         for fn in filenames:
             if os.path.exists(fn):
-                os.system(f'git add "{fn}"')
+                run(f'git add "{fn}"')
                 added = True
         if not added:
             return
-        if os.system("git diff --cached --quiet") == 0:
+        if run("git diff --cached --quiet") == 0:
             log("ℹ️ لا تغييرات جديدة للحفظ")
             return
-        os.system(f'git commit -m "bot data {dt.date.today().isoformat()}"')
-        # دفع آمن ضد السباق: قبل كل محاولة نضمّ تغييرات main البعيدة
-        # (تشغيل متزامن) عبر rebase، فلا يُرفض الدفع ولا تضيع بيانات تشغيل.
-        # HEAD:main يضمن الدفع حتى لو كان checkout بوضع detached.
+        _msg = f"bot data {dt.date.today().isoformat()}"
+        run(f'git commit -m "{_msg}"')
+        # دفع آمن ضد السباق (HEAD:main يضمن الدفع حتى بوضع detached).
         pushed = False
         for attempt in range(4):
-            os.system("git fetch origin main >/dev/null 2>&1")
-            if os.system("git rebase FETCH_HEAD >/dev/null 2>&1") != 0:
-                os.system("git rebase --abort >/dev/null 2>&1")
-            if os.system("git push origin HEAD:main") == 0:
+            run("git fetch origin main >/dev/null 2>&1")
+            if run("git rebase FETCH_HEAD >/dev/null 2>&1") != 0:
+                run("git rebase --abort >/dev/null 2>&1")
+                # ⑬ حل التعارض فعليًا: اعتمد الريموت ثم أعد ملفاتنا فوقه.
+                try:
+                    _blobs = {}
+                    for fn in filenames:
+                        if os.path.exists(fn):
+                            with open(fn, "rb") as f:
+                                _blobs[fn] = f.read()
+                    run("git reset --hard FETCH_HEAD >/dev/null 2>&1")
+                    for fn, _b in _blobs.items():
+                        with open(fn, "wb") as f:
+                            f.write(_b)
+                        run(f'git add "{fn}"')
+                    run(f'git commit -m "{_msg}"')
+                    log("⚖️ تعارض rebase — اعتُمد الريموت وأُعيدت ملفاتنا فوقه")
+                except Exception as e:
+                    log(f"⚠️ استرجاع التعارض: {e}")
+            if run("git push origin HEAD:main") == 0:
                 pushed = True
                 break
             wait = 2 ** (attempt + 1)
@@ -9104,6 +9281,14 @@ def git_save(filenames):
         else:
             log("⛔ git push فشل نهائيًا — البيانات محفوظة محليًا فقط. "
                 "تأكّد من permissions: contents: write في الـ YML")
+            # ⑬ فشل نهائي = حالة التشغيلة ستضيع مع الرنر — تنبيه واجب لا لوق.
+            try:
+                _snd = sender or send_telegram
+                _snd("⛔ <b>فشل حفظ حالة البوت في GitHub</b> بعد 4 محاولات — "
+                     "بيانات هذه التشغيلة (حسم/دِدوب) قد تضيع مع انتهاء الرنر. "
+                     "تحقّق من سجلّ Actions." + "\n\n" + FOOTER)
+            except Exception:
+                pass
     except Exception as e:
         log(f"⚠️ git_save: {e}")
 
@@ -9134,6 +9319,8 @@ def record_new_alerts(data, results):
             continue
         data["alerts"].append({
             "symbol": r["symbol"], "date": today,
+            # ① تاريخ شمعة الترشيح الفعلية — مرجع نافذة المتابعة (لا تاريخ التشغيل).
+            "ref_bar": r.get("ref_bar"),
             "price": round(r["price"], 4),
             "stop": round(r["stop"][0], 4),   # الوقف الأبعد (~7% تحت القاع)
             "t1": round(r["t1"], 4),
@@ -9169,13 +9356,22 @@ def update_tracking(data):
     log(f"متابعة {len(open_alerts)} تنبيه مفتوح...")
     for a in open_alerts:
         try:
-            age = (dt.date.today() - dt.date.fromisoformat(a["date"])).days
-            # التنبيه صدر اليوم (أو تاريخه بالمستقبل) — ما في جلسة جديدة بعده
+            # ① (إصلاح تدقيق 2026-07-12): مرجع النافذة = شمعة الترشيح (ref_bar) لا
+            # تاريخ التشغيل — المسار اليومي يختم قبل الافتتاح فشمعة يوم التنبيه
+            # تتكوّن بعده وكان `start = date+1` يُسقطها للأبد. ارتداد للسجلات
+            # القديمة بلا ref_bar → date = سلوك اليوم حرفيًا.
+            try:
+                _ref = str(a.get("ref_bar") or a["date"])[:10]
+                dt.date.fromisoformat(_ref)
+            except Exception:
+                _ref = a["date"]
+            age = (dt.date.today() - dt.date.fromisoformat(_ref)).days
+            # الشمعة المرجعية اليوم (أو بالمستقبل) — ما في جلسة جديدة بعدها
             # لمتابعتها؛ نتخطّاه (وإلا نطلب start=بكرة > end=اليوم = خطأ Yahoo).
             if age < 1:
                 continue
-            # نبدأ من اليوم التالي للتنبيه (التنبيه صدر بعد إغلاق يومه)
-            start = (dt.date.fromisoformat(a["date"])
+            # نبدأ من اليوم التالي لشمعة الترشيح (لا التالي لتاريخ التشغيل)
+            start = (dt.date.fromisoformat(_ref)
                      + dt.timedelta(days=1)).isoformat()
             df = yf.download(a["symbol"], start=start, interval="1d",
                              auto_adjust=True, progress=False)
