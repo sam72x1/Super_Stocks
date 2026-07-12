@@ -3279,6 +3279,39 @@ check("🏦 محفظة·قفل: backtest_portfolio خارج rank_key/select_top/
       all("backtest_portfolio" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.update_tracking, S.update_watchlist_status)))
+# 🏦 backtest_potential_report (خطة §4): كتلة التقرير — شرائح الحركة المتاحة قبل الوقف
+# + انفجارات قتلها الوقف + المعيار المسجَّل + حدّا الصدق. مطفأ ⇒ [] (توافق).
+_pt_trades = [
+    {"symbol": "AAA", "date": "2025-02-01", "outcome": "win", "exploded": True,
+     "mg_outcome": "survived", "mg_pre_stop": 80.0, "mg_peak_day": 5,
+     "readiness": 90, "score": 50},
+    {"symbol": "BBB", "date": "2025-02-02", "outcome": "loss", "exploded": True,
+     "mg_outcome": "stopped", "mg_pre_stop": 8.0, "mg_peak_day": 1,   # انفجر لكن وُقف
+     "readiness": 70, "score": 30},
+    {"symbol": "CCC", "date": "2025-02-03", "outcome": "loss", "exploded": False,
+     "mg_outcome": "stopped", "mg_pre_stop": 0.0, "mg_peak_day": 0,
+     "readiness": 60, "score": 20},
+    {"symbol": "NF", "date": "2025-02-04", "outcome": "no_fill", "mg_outcome": "no_fill"},
+]
+check("🏦 تقرير·توافق: مطفأ (الافتراض) ⇒ [] (لا صفقة تحمل mg_)",
+      S.backtest_potential_report(_pt_trades) == [])
+_pt_sv = S.CONFIG.get("BT_POTENTIAL")
+S.CONFIG["BT_POTENTIAL"] = 1
+try:
+    _pt_join = "\n".join(S.backtest_potential_report(_pt_trades))
+    check("🏦 تقرير: مفعّل ⇒ يطبع «قوة البوت» + منفجر قبل الوقف (AAA في شريحة ≥50)",
+          "قوة البوت" in _pt_join and "منفجر" in _pt_join)
+    check("🏦 تقرير: انفجار قتله الوقف يُعدّ (BBB انفجر بالنافذة لكن وُقف قبل +50)",
+          "انفجارات قتلها الوقف: <b>1</b>" in _pt_join)
+    check("🏦 تقرير: المعيار المسجَّل + حدّا الصدق حرفيًا (أرضية لا سقف)",
+          "معيار مسجَّل مسبقًا" in _pt_join and "أرضية لا سقف" in _pt_join)
+finally:
+    S.CONFIG["BT_POTENTIAL"] = _pt_sv          # لا تلوّث بقية الاختبارات
+check("🏦 تقرير·قفل: backtest_potential_report/_mg_segment_lines خارج الفرز/الاختيار/التتبّع",
+      all(("backtest_potential_report" not in _insp0.getsource(_f)
+           and "_mg_segment_lines" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+                     S.update_tracking, S.update_watchlist_status)))
 # (د) مفعّلة: حقول المسح تُلحَق (ثم نُطفئها فورًا لئلا تتسرّب لبقية الاختبارات)
 S.CONFIG["BT_SWEEP_ENTRY"] = 1
 _bt_on = S.backtest_symbol("SWON", synth_pivot(seed=2))

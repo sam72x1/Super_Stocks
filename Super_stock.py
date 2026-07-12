@@ -8334,6 +8334,67 @@ def backtest_portfolio(trades, size=None, fwd_days=None):
             "size": size, "fwd_days": fwd_days}
 
 
+def _mg_segment_lines(trades, label):
+    """أسطر شرائح «الحركة المتاحة قبل الوقف» لمجموعة صفقات (نقيّة، للتقرير)."""
+    filled = [t for t in trades if t.get("mg_outcome") not in (None, "no_fill")]
+    n = len(filled)
+    if not n:
+        return []
+    gains = [float(t.get("mg_pre_stop") or 0.0) for t in filled]
+    expl = int(CONFIG["EXPLOSION_PCT"])
+    b100 = sum(1 for g in gains if g >= 100)
+    b50 = sum(1 for g in gains if g >= expl)
+    b30 = sum(1 for g in gains if g >= 30)
+    b1030 = sum(1 for g in gains if 10 <= g < 30)
+    blt = sum(1 for g in gains if g < 10)
+    days = [t.get("mg_peak_day") for t in filled if t.get("mg_peak_day") is not None]
+    return [f"  <b>{esc(label)}</b> ({n} مُعبَّأة): منفجر {expl}% أو أكثر قبل الوقف "
+            f"<b>{b50} ({b50 / n * 100:.0f}%)</b>",
+            f"    شرائح: 100%+={b100} · {expl}%+={b50} · 30%+={b30} · "
+            f"10-30%={b1030} · أقل من 10%={blt}",
+            f"    وسيط الصعود المشروط {_median(gains):.0f}% · متوسط "
+            f"{sum(gains) / n:.0f}% · وسيط أيام الذروة {_median(days):.0f}"]
+
+
+def backtest_potential_report(all_trades):
+    """🏦 كتلة تقرير «قوة البوت» (خطة BT_LADDER_PLAN §4، تصحيح المستخدم 2026-07-12):
+    الحكم = **كم انفجر كل سهم من نقطة الدخول قبل ضرب وقفه** + كم عددهم من المجمل —
+    لا البيع على أهداف البوت (تمهيدية). المقاييس على «كل المُعبَّئين» **و** على محفظة
+    top-N (هل الانتقائية تضيف؟ = سؤال §0 النسبي). يطبع المعيار المسجَّل + حدّي الصدق
+    حرفيًا. يرجّع [] ما لم يُفعَّل BT_POTENTIAL (لا صفقة تحمل mg_*). تحليل فقط."""
+    if not CONFIG.get("BT_POTENTIAL"):
+        return []
+    base = [t for t in all_trades if t.get("mg_outcome") not in (None, "no_fill")]
+    if not base:
+        return []
+    lines = ["\n🏦 <b>قوة البوت (الحركة المتاحة من الدخول قبل الوقف)</b>"]
+    lines += _mg_segment_lines(base, "كل المُعبَّئين")
+    top = sorted(base, key=lambda t: -(float(t.get("mg_pre_stop") or 0)))[:8]
+    if top:
+        lines.append("    أقوى 8: " + " · ".join(
+            f"{esc(str(t['symbol']))} +{float(t.get('mg_pre_stop') or 0):.0f}%"
+            for t in top))
+    # المحفظة (الانتقائية) — العمود المقابل: هل top-N بالترتيب يتفوّق على الكل؟
+    if CONFIG.get("BT_PORTFOLIO"):
+        pf = backtest_portfolio(all_trades)
+        lines += _mg_segment_lines(pf["taken"], f"محفظة top-{pf['size']}")
+        lines.append(f"    (المحفظة: مأخوذة {len(pf['taken'])} · مرفوض بالسعة "
+                     f"{pf['n_rejected_cap']} · تكرار رمز {pf['n_rejected_dup']})")
+    # §0-ب بالأرقام: انفجارات قتلها الوقف (صعدت ≥50% بالنافذة لكن بعد ضرب وقفها)
+    expl = int(CONFIG["EXPLOSION_PCT"])
+    killed = [t for t in base if t.get("exploded") and t.get("mg_outcome") == "stopped"
+              and float(t.get("mg_pre_stop") or 0) < CONFIG["EXPLOSION_PCT"]]
+    lines.append(f"  🔪 انفجارات قتلها الوقف: <b>{len(killed)}</b> "
+                 f"(صعدت {expl}% أو أكثر بالنافذة لكن بعد ضرب وقفها)")
+    # المعيار المسجَّل مسبقًا §0 (قرار المستخدم بالأرقام، لا آليًا) + حدّا الصدق حرفيًا
+    lines.append("  📋 <b>معيار مسجَّل مسبقًا</b>: قوي = منفجرون 20% أو أكثر (بالمحفظة، "
+                 "السنتين) ووسيط صعود مشروط +15% أو أكثر · حدّي 10-20% · ضعيف أقل. "
+                 "القرار بالأرقام لا آليًا.")
+    lines.append("  ⚠️ أقصى الصعود = <b>الحركة المتاحة لا عائد محقَّق</b> (التحقيق يعتمد "
+                 "إدارتك) · <b>أرضية لا سقف</b>: بلا حافة التوقيت اللحظي (الرادار/الكنسة).")
+    return lines
+
+
 def _sweep_confirmed_fill(lo, cl, support, sweep_pct):
     """🔬 تعبئة «الدخول المؤكَّد بالمسح» (فيصل: «قبل يصعد لازم مسح سيولة تحت القاع ثم
     استعادة · لا تدخل الدعم الأول»). مشي أمامي **بلا نظر مستقبلي**: عند كل شمعة نقرأ
@@ -9289,6 +9350,12 @@ def run_backtest(symbols=None) -> None:
     lines += behav_diag
     for _bl in behav_diag:
         log("باكتيست·" + _bl.strip().replace("\n", " "))
+    # 🏦 قوة البوت (BT_POTENTIAL): الحركة المتاحة من الدخول قبل الوقف + الانتقائية
+    # (المحفظة) — ترجع [] ما لم يُفعَّل BT_POTENTIAL (المحور الذي طلبه المستخدم).
+    potential = backtest_potential_report(all_trades)
+    lines += potential
+    for _pl in potential:
+        log("باكتيست·" + _pl.strip().replace("\n", " "))
     if st["decided"] < 20:
         lines.append("⏳ عيّنة صغيرة — وسّع الرموز لحُكم موثوق.")
     # 📋 معيار القرار المسجَّل مسبقًا (يمنع p-hacking) — التجربة الزوجية لا تناسب
