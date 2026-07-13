@@ -8686,7 +8686,7 @@ def _sweep_augment(trade, r, hi, lo, cl, op, stop, t1):
 
 
 def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
-                    date_window: tuple = None, splits=None) -> list:
+                    date_window: tuple = None, splits=None, frozen: bool = False) -> list:
     """باكتيست سهم واحد — **مشي للأمام بلا نظر للمستقبل**: عند كل نقطة نحلّل
     البيانات حتى تلك النقطة فقط، ولو رشّح البوت ننتظر وصول السعر لمنطقة الدفعات
     (تعبئة واقعية) ثم نقيس: t1 قبل الوقف = ربح، الوقف أولًا = خسارة (محافظ:
@@ -8822,8 +8822,10 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             trade["entry_adjusted_exact"] = entry
             trade["raw_pit_entry_exact"] = _pit_raw_price(entry, splits, _sig_date)
             trade["post_signal_split_factor"] = _spf
+            # 🔬 P0-3 (تدقيق Codex): افصل «رمز مجمَّد بلا أحداث تقسيم» (معروف) عن «لا بيانات
+            # تقسيم أصلًا» (تشغيل حيّ). `frozen` يُمرَّر من run_backtest = bool(BT_FROZEN_PATH).
             trade["split_lookup_status"] = (
-                "no_frozen_splits" if splits is None
+                ("frozen_no_split_events" if frozen else "no_frozen_splits") if splits is None
                 else "no_post_signal_split" if _spf == 1.0 else "corrected")
         # 🔬 تجربة «الدخول المؤكَّد بالمسح» (BT_SWEEP_ENTRY، باكتيست حصريًا): على نفس
         # الإشارة نموذج دخول بديل (مسح+استعادة)، مقاسًا بنفس _resolve_arm. الدخول منفصل
@@ -9559,7 +9561,8 @@ def run_backtest(symbols=None) -> None:
             continue
         sym_reasons = {}
         all_trades += backtest_symbol(sym, df, sym_reasons, date_window=date_window,
-                                      splits=(splits_map or {}).get(sym))
+                                      splits=(splits_map or {}).get(sym),
+                                      frozen=bool(_frozen_path))
         if sym_reasons and not market:   # تشخيص: أكثر بوابة رفضت هذا السهم تاريخيًا
             top = sorted(sym_reasons.items(), key=lambda x: -x[1])[:3]
             log(f"باكتيست·أسباب {sym}: "
@@ -9704,11 +9707,17 @@ def run_backtest(symbols=None) -> None:
         # وh4_* فارغة ما لم يُفعَّل BT_DUMP_4H (توافق خلفي).
         # 🔬 P0-S6: سطر meta واحد ببصمة اللقطة + الإصدارات + عتبات الفرز + النافذة =
         # provenance كامل لإعادة إنتاج/تدقيق التفريغ من السجل (المنافذ الخارجية محجوبة).
+        _snap_commit = (_frozen_meta or {}).get("source_commit")
+        _ana_commit = os.environ.get("GITHUB_SHA", "").strip() or None
         _dsmeta = {
             "frozen_sha256": (_frozen_meta or {}).get("payload_sha256"),
             "asof": _asof,
-            "source_commit": ((_frozen_meta or {}).get("source_commit")
-                              or os.environ.get("GITHUB_SHA", "").strip() or None),
+            # 🔬 P0-4 (تدقيق Codex): افصل كوميت بناء اللقطة عن كوميت كود التحليل + أبلِغ التعارض
+            # (كانا يُدمجان في قيمة واحدة فيتعذّر معرفة الاثنين معًا).
+            "snapshot_source_commit": _snap_commit,
+            "analysis_source_commit": _ana_commit,
+            "commit_mismatch": bool(_snap_commit and _ana_commit and _snap_commit != _ana_commit),
+            "source_commit": _snap_commit or _ana_commit,   # توافق خلفي (المفتاح القديم)
             "python_version": (_frozen_meta or {}).get("python_version"),
             "package_versions": ((_frozen_meta or {}).get("package_versions")
                                  or _package_versions()),

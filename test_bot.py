@@ -3410,9 +3410,23 @@ def _prov_consistent(t):
 check("🔬 P0-S4: provenance نافذة النتيجة + السعر الحقيقي + حالة التقسيم حاضرة/متّسقة (مع splits)",
       bool(_prov_with) and all(_prov_ok(t) and _prov_consistent(t)
           and t["split_lookup_status"] != "no_frozen_splits" for t in _prov_with))
-check("🔬 P0-S3: بلا splits → split_lookup_status=no_frozen_splits + عامل التقسيم=1.0",
+check("🔬 P0-S3: بلا splits (حيّ) → split_lookup_status=no_frozen_splits + عامل التقسيم=1.0",
       bool(_prov_none) and all(t.get("split_lookup_status") == "no_frozen_splits"
           and t.get("post_signal_split_factor") == 1.0 for t in _prov_none))
+# 🔬 P0-3 (تدقيق Codex): افصل «مجمَّد بلا أحداث تقسيم» (معروف) عن «لا بيانات» (حيّ).
+S.CONFIG["BT_DUMP_DATASET"] = 1
+try:
+    _prov_frozen_none = S.backtest_symbol("TEST", synth_pivot(seed=2), splits=None, frozen=True)
+finally:
+    S.CONFIG["BT_DUMP_DATASET"] = _old_dump
+check("🔬 P0-3: frozen بلا أحداث تقسيم → frozen_no_split_events (لا يُخلط بحالة الحيّ)",
+      bool(_prov_frozen_none) and all(
+          t.get("split_lookup_status") == "frozen_no_split_events" for t in _prov_frozen_none))
+check("🔬 P0-3: run_backtest يمرّر frozen=bool(_frozen_path) لـbacktest_symbol",
+      "frozen=bool(_frozen_path)" in _insp0.getsource(S.run_backtest))
+check("🔬 P0-4: DSMETA يفصل snapshot_source_commit عن analysis_source_commit + commit_mismatch",
+      all(_k in _insp0.getsource(S.run_backtest) for _k in
+          ("snapshot_source_commit", "analysis_source_commit", "commit_mismatch")))
 check("🔬 P0: provenance غائب تمامًا حين BT_DUMP_DATASET مطفأ (توافق خلفي · صفر أثر على الأساس)",
       bool(_prov_off) and all("forward_window_end" not in t
           and "split_lookup_status" not in t for t in _prov_off))
