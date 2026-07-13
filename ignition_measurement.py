@@ -21,8 +21,10 @@ import datetime as _dt
 import gzip
 import json
 import os
+import queue as _queue
+import threading as _threading
 
-SCHEMA_VERSION = 2                 # 🔬 §2c/2d/2e: توقيت الشمعة + عمر NBBO + exposure
+SCHEMA_VERSION = 3                 # 🔬 مراجعة Codex 4: NBBO لا-تزامني + latency مفكّكة + manifest
 _TERMINATION = ("normal", "exception", "timeout", "cancelled", "unknown")
 
 BAR_INTERVAL_MS = 60_000           # §2c: شمعة الدقيقة الواحدة
@@ -178,7 +180,7 @@ class IgnitionMeasurementRecorder:
     كل دالّة فاشلة-آمنة (لا ترفع) فلا تُسقط الرادار."""
 
     def __init__(self, session_date, out_root="e2_measurement", meta=None,
-                 write_repo_index=False, segment=None):
+                 write_repo_index=False, segment=None, nbbo_fetcher=None):
         self.session_date = session_date
         # 🔬 (ب+): مقطع مستقلّ لكل جوب (open/close) فلا يتصادمان؛ assembler يدمجهما لاحقًا.
         # بلا segment = المسار القديم (جلسة واحدة session_<date>/) — توافق خلفي كامل.
@@ -205,6 +207,7 @@ class IgnitionMeasurementRecorder:
         self.minutes_short_of_close = None
         # 🔬 P1.4: تتبّع commit القائمة (يتغيّر مع _fresh_watchlist كل ~5د).
         self.watchlist_commit_current = self.meta.get("watchlist_commit_start")
+        self.manifest_sha256 = None        # 🔬 P0-4: hash المقطع (يُحسب في finalize)
         self.enabled = False
         self._cand_fh = None
         self._deliv_fh = None
@@ -216,6 +219,87 @@ class IgnitionMeasurementRecorder:
             self.enabled = True
         except Exception:
             self.enabled = False
+        # 🔬 P0-1: worker NBBO **لا-تزامني** — يجلب NBBO القياسي خارج مسار التنبيه الحرج فلا
+        # ينتظر send_telegram أي شبكة. القفل يحمي تعديل candidate بين الخيط الرئيسي والـworker.
+        self._lock = _threading.Lock()
+        self.nbbo_fetcher = nbbo_fetcher
+        self._nbbo_q = None
+        self._nbbo_worker = None
+        self._nbbo_stop = None
+        if nbbo_fetcher is not None:
+            try:
+                self._nbbo_q = _queue.Queue()
+                self._nbbo_stop = _threading.Event()
+                self._nbbo_worker = _threading.Thread(target=self._nbbo_loop, daemon=True)
+                self._nbbo_worker.start()
+            except Exception:
+                self._nbbo_q = None
+
+    # ── worker NBBO لا-تزامني (P0-1) ────────────────────────────────────────
+    def _enqueue_nbbo(self, cid, symbol):
+        """يضع طلب NBBO في الطابور (لا-حاجز). فاشل-آمن."""
+        try:
+            if self._nbbo_q is not None and cid and symbol:
+                self._nbbo_q.put_nowait((cid, symbol))
+        except Exception:
+            pass
+
+    def _nbbo_loop(self):
+        while True:
+            try:
+                item = self._nbbo_q.get(timeout=0.5)
+            except Exception:
+                if self._nbbo_stop is not None and self._nbbo_stop.is_set() \
+                        and (self._nbbo_q is None or self._nbbo_q.empty()):
+                    return
+                continue
+            try:
+                if item is None:
+                    return
+                self._do_measure_nbbo(item[0], item[1])
+            except Exception:
+                pass
+            finally:
+                try:
+                    self._nbbo_q.task_done()
+                except Exception:
+                    pass
+
+    def _do_measure_nbbo(self, cid, symbol):
+        """يجلب NBBO القياسي (المُحقَن) ويربطه بالمرشّح بـcandidate_id. يسجّل التوقيت والحالة.
+        **الصلاحية من طابع المصدر لا من انتهاء HTTP** (§P0-1). قياس فقط."""
+        started = _utcnow_ms()
+        nb, status = None, "error"
+        try:
+            nb = self.nbbo_fetcher(symbol)
+            status = "success" if nb else "empty"
+        except Exception as e:
+            nb = None
+            status = "timeout" if "timeout" in type(e).__name__.lower() else "error"
+        received = _utcnow_ms()
+        with self._lock:
+            cand = self.candidates.get(cid)
+            if cand is None:
+                return
+            cand["measurement_nbbo_status"] = status
+            cand["quote_request_started_at_ms"] = started
+            cand["quote_received_at_ms"] = received
+            if cand.get("detected_at_ms") is not None and received is not None:
+                cand["quote_capture_lag_ms"] = int(received - cand["detected_at_ms"])
+            if nb:
+                self._apply_nbbo_source(cand, "measurement", nb.get("bid"), nb.get("ask"),
+                                        nb.get("quote_ts"), _locked=True)
+
+    def _drain_nbbo(self, timeout=10.0):
+        """يوقف الـworker بعد تفريغ الطابور (يُستدعى في finalize قبل الكتابة). فاشل-آمن."""
+        try:
+            if self._nbbo_worker is None:
+                return
+            if self._nbbo_stop is not None:
+                self._nbbo_stop.set()
+            self._nbbo_worker.join(timeout=timeout)
+        except Exception:
+            pass
 
     def set_watchlist_commit(self, commit):
         """🔬 P1.4: يُحدَّث عند كل تحديث قائمة (_fresh_watchlist). المرشّح اللاحق يختمه."""
@@ -306,7 +390,8 @@ class IgnitionMeasurementRecorder:
         elif event == "07_OPERATOR_FAIL":
             ss["operator_fail_count"] += 1
             self._patch_candidate(symbol, {"operator_status": "fail", "fallback_status": "not_used",
-                                           "gate_decision": "suppress_operator", "alert_emitted": False})
+                                           "gate_decision": "suppress_operator", "alert_emitted": False,
+                                           "gate_decision_at_ms": _utcnow_ms()})
             self._flush_candidate(symbol)
         elif event == "09_FALLBACK_PASS":
             ss["fallback_pass_count"] += 1
@@ -314,16 +399,18 @@ class IgnitionMeasurementRecorder:
         elif event == "10_FALLBACK_FAIL":
             ss["fallback_fail_count"] += 1
             self._patch_candidate(symbol, {"fallback_status": "fail",
-                                           "gate_decision": "suppress_group", "alert_emitted": False})
+                                           "gate_decision": "suppress_group", "alert_emitted": False,
+                                           "gate_decision_at_ms": _utcnow_ms()})
             self._flush_candidate(symbol)
         elif event == "11_ALERT_EMITTED":
             ss["emitted_count"] += 1
             self._patch_candidate(symbol, {"gate_decision": "emit", "alert_emitted": True})
-            # 🔬 P1.5: زمن الإصدار + latency القرار (من الاكتشاف إلى قرار الإصدار).
+            # 🔬 P1.5: زمن الإصدار = لحظة قرار البوّابة (emit) + latency القرار.
             cand = self._cur_candidate(symbol)
             if cand is not None:
                 em = _utcnow_ms()
                 cand["emitted_at_ms"] = em
+                cand["gate_decision_at_ms"] = em
                 if cand.get("detected_at_ms") is not None and em is not None:
                     cand["decision_latency_ms"] = int(em - cand["detected_at_ms"])
             self._flush_candidate(symbol)
@@ -366,6 +453,10 @@ class IgnitionMeasurementRecorder:
             "measurement_spread_pct_mid": None, "measurement_quote_ts_raw": None,
             "measurement_quote_ts_ms": None, "measurement_quote_age_ms": None,
             "measurement_executable": None,
+            # 🔬 P0-1/P1.5: حالة NBBO القياسي (لا-تزامني) + توقيت الجلب (الصلاحية من طابع المصدر
+            # لا انتهاء HTTP). not_requested = بلا جالب · pending = طُلب ولم يعُد بعد.
+            "measurement_nbbo_status": ("pending" if self.nbbo_fetcher is not None else "not_requested"),
+            "quote_request_started_at_ms": None, "quote_received_at_ms": None, "quote_capture_lag_ms": None,
             "operator_nbbo_bid": None, "operator_nbbo_ask": None, "operator_nbbo_mid": None,
             "operator_spread_pct_mid": None, "operator_quote_ts_raw": None,
             "operator_quote_ts_ms": None, "operator_quote_age_ms": None, "operator_executable": None,
@@ -373,18 +464,20 @@ class IgnitionMeasurementRecorder:
             "nbbo_source": None, "nbbo_bid": None, "nbbo_ask": None, "nbbo_mid": None,
             "spread_pct_mid": None, "quote_timestamp_raw": None, "quote_timestamp": None,
             "quote_age_ms": None, "primary_executable": None,
-            "fallback_status": "not_used", "gate_decision": None,
+            "fallback_status": "not_used", "gate_decision": None, "gate_decision_at_ms": None,
             "alert_emitted": False, "telegram_delivered": None,
-            # 🔬 P1.5: زمنيات (latency) بالملّي.
-            "emitted_at_ms": None, "telegram_attempted_at_ms": None, "telegram_sent_at_ms": None,
+            # 🔬 P1.5/P1-3: زمنيات + **تفكيك latency** (bar→raw→gate→attempt→success).
+            "raw_signal_computed_at_ms": now_ms, "emitted_at_ms": None,
+            "telegram_attempted_at_ms": None, "telegram_sent_at_ms": None,
             "decision_latency_ms": None, "delivery_latency_ms": None,
+            "bar_end_to_raw_signal_ms": None, "raw_signal_to_gate_decision_ms": None,
+            "gate_decision_to_telegram_attempt_ms": None, "telegram_attempt_to_success_ms": None,
+            "bar_end_to_telegram_success_ms": None,
         }
         self.candidates[cid] = cand
         self.symbols[symbol]["_cur_cand"] = cid
-        # 🔬 P1.3: NBBO القياسي المستقلّ (لو جُلب في trace) — قياس فقط، لا يمسّ أي قرار تنبيه.
-        if p.get("measurement_nbbo_bid") is not None or p.get("measurement_nbbo_ask") is not None:
-            self._apply_nbbo_source(cand, "measurement", p.get("measurement_nbbo_bid"),
-                                    p.get("measurement_nbbo_ask"), p.get("measurement_quote_ts"))
+        # 🔬 P0-1: طلب NBBO القياسي **لا-تزامنيًّا** (لا ينتظره التنبيه). يُربط لاحقًا بـcandidate_id.
+        self._enqueue_nbbo(cid, symbol)
 
     def _patch_candidate(self, symbol, fields):
         cand = self._cur_candidate(symbol)
@@ -393,11 +486,16 @@ class IgnitionMeasurementRecorder:
                 if v is not None or cand.get(k) is None:
                     cand[k] = v
 
-    def _apply_nbbo_source(self, cand, src, bid, ask, quote_raw):
+    def _apply_nbbo_source(self, cand, src, bid, ask, quote_raw, _locked=False):
         """🔬 P1.3: يخزّن مقاييس NBBO لمصدرٍ (measurement|operator) في حقول `{src}_*`، ويضبط
         «الأساسي» (primary_executable + nbbo_source + المرآة). **measurement مفضَّل**: يضبط الأساسي
-        دائمًا لو له NBBO؛ operator يضبطه **فقط** لو الأساسي فارغ (measurement غائب). قياس فقط."""
+        دائمًا لو له NBBO؛ operator يضبطه **فقط** لو الأساسي فارغ. **آمن-خيوط** (القفل يمنع سباق
+        الـworker اللا-تزامني مع الخيط الرئيسي على المرآة). قياس فقط."""
         if cand is None:
+            return
+        if not _locked:                       # الخيط الرئيسي (operator) — اقفل ثم أعد الدخول
+            with self._lock:
+                self._apply_nbbo_source(cand, src, bid, ask, quote_raw, _locked=True)
             return
         m = _nbbo_metrics(bid, ask, quote_raw, _utcnow_ms())
         cand["%s_nbbo_bid" % src] = bid
@@ -419,11 +517,32 @@ class IgnitionMeasurementRecorder:
             cand["primary_executable"] = m["executable"]
 
     def _flush_candidate(self, symbol):
-        """crash-safe: يُلحق الـcandidate عند وصوله قرار البوّابة النهائي (مع flush)."""
+        """crash-safe: يُلحق الـcandidate عند وصوله قرار البوّابة النهائي (مع flush). القفل يمنع
+        قراءة الـdict أثناء تعديل الـworker اللا-تزامني له (النسخة النهائية تُكتب في finalize)."""
         cand = self._cur_candidate(symbol)
         if cand is not None and self._cand_fh is not None and not cand.get("_flushed"):
             cand["_flushed"] = True
-            self._append(self._cand_fh, {k: v for k, v in cand.items() if not k.startswith("_")})
+            with self._lock:
+                snap = {k: v for k, v in cand.items() if not k.startswith("_")}
+            self._append(self._cand_fh, snap)
+
+    @staticmethod
+    def _decompose_latencies(cand):
+        """🔬 P1-3: يفكّك التأخير: bar→raw · raw→gate · gate→attempt · attempt→success · bar→success.
+        لا يخلط latency الشمعة بـlatency القرار. فاشل-آمن (None عند نقص أي طرف)."""
+        def _d(a, b):
+            try:
+                return int(a - b) if (a is not None and b is not None) else None
+            except (TypeError, ValueError):
+                return None
+        be, raw = cand.get("trigger_bar_end"), cand.get("raw_signal_computed_at_ms")
+        gate = cand.get("gate_decision_at_ms")
+        att, sent = cand.get("telegram_attempted_at_ms"), cand.get("telegram_sent_at_ms")
+        cand["bar_end_to_raw_signal_ms"] = _d(raw, be)
+        cand["raw_signal_to_gate_decision_ms"] = _d(gate, raw)
+        cand["gate_decision_to_telegram_attempt_ms"] = _d(att, gate)
+        cand["telegram_attempt_to_success_ms"] = _d(sent, att)
+        cand["bar_end_to_telegram_success_ms"] = _d(sent, be)
 
     # ── تسليم Telegram (emitted ≠ delivered، SPEC §4) ──────────────────────
     def telegram_attempt(self, rows):
@@ -596,7 +715,9 @@ class IgnitionMeasurementRecorder:
                 "symbols_union": sorted(self.symbols.keys()),
                 "loops_started": self.loops_started, "loops_completed": self.loops_completed,
                 "raw_files_sha256": self._raw_files_sha256(),
-                "previous_segment_sha256": self.meta.get("previous_segment_sha256"),
+                # 🔬 P0-4: hashes حقيقية (سلسلة تحقّق) — لا نص JSON.
+                "manifest_sha256": self.manifest_sha256,
+                "previous_segment_manifest_sha256": self.meta.get("previous_segment_manifest_sha256"),
             }
         except Exception:
             return {}
@@ -680,6 +801,12 @@ class IgnitionMeasurementRecorder:
         """يُستدعى في finally: يكتب session/symbol_sessions/candidates(النهائي)/summary/index.
         فاشل-آمن مطلق (لا يرفع)."""
         try:
+            self._drain_nbbo()                 # 🔬 P0-1: أنهِ worker NBBO قبل الكتابة (لا سباق)
+            # أي طلب NBBO لم يعُد بعد التفريغ = «pending» → «not_received» (يُوسَم لا يُخفى).
+            for c in self.candidates.values():
+                if c.get("measurement_nbbo_status") == "pending":
+                    c["measurement_nbbo_status"] = "not_received"
+                self._decompose_latencies(c)   # 🔬 P1-3: تفكيك التأخير قبل الكتابة النهائية
             self.termination = termination if termination in _TERMINATION else "unknown"
             self.ended_at = _utcnow_iso()
             self._compute_close_gap()          # §2a: هل انتهت قبل الإغلاق المتوقّع؟
@@ -713,8 +840,29 @@ class IgnitionMeasurementRecorder:
                 pass
             self._write_session(self.termination)
             self._write_summary()
+            self._write_manifest()             # 🔬 P0-4: manifest + hash (بعد كل الملفّات الخام)
         except Exception:
             pass
+
+    def _write_manifest(self):
+        """🔬 P0-4: يبني manifest المقطع (canonical JSON + SHA-256 فوق ملفّاته الخام) ويكتبه.
+        يُخزَّن `self.manifest_sha256` لحمله في handoff (سلسلة تحقّق). فاشل-آمن."""
+        try:
+            import ignition_e2_manifest as _man
+            mf = _man.build_manifest(
+                session_date=self.session_date, segment=self.segment, segment_id=self.segment_id,
+                source_commit=self.meta.get("source_commit"),
+                workflow_run_id=self.meta.get("workflow_run_id"),
+                expected_segment_start=self.meta.get("expected_segment_start_iso"),
+                expected_segment_end=self.meta.get("expected_segment_end_iso"),
+                alerted_symbols=self._emitted_symbols(), candidate_ids=list(self.candidates.keys()),
+                symbols_union=list(self.symbols.keys()),
+                loops_started=self.loops_started, loops_completed=self.loops_completed,
+                segment_dir=self.dir,
+                previous_segment_manifest_sha256=self.meta.get("previous_segment_manifest_sha256"))
+            self.manifest_sha256 = _man.write_manifest(self.dir, mf)
+        except Exception:
+            self.manifest_sha256 = None
 
     def _write_summary(self):
         """summary صغير قابل للدفع (SPEC §5 ignition_e2_summary.json) + index — لا خام."""

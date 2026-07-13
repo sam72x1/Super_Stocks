@@ -125,20 +125,27 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ign-close-${{ github.run_id }}
-      - name: Assemble session (merge + post-close backfill + analyzer)
+      - name: Assemble session (merge + post-close backfill)
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}   # لـbackfill بعد الإغلاق
-        run: |
-          python ignition_e2_assemble.py
-          python ignition_e2_analyze.py e2_measurement || true
-      - name: Push E2 summary/index (best-effort)
-        if: always()
+        run: python ignition_e2_assemble.py
+      # 🔬 P1-7: دفع واحد فقط من الـassembler (summary/index + السجلّ القديم) — بلا || true على
+      # الدفع (لا نخفي فشله). المقاطع لا تدفع شيئًا.
+      - name: Push E2 summary/index + legacy log (single push)
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ignition_e2_summary.json ignition_e2_session_index.json 2>/dev/null || true
-          git commit -m "🔬 E2: ملخّص جلسة الرادار المدموجة (assembler)" 2>/dev/null || true
-          git push 2>/dev/null || true
+          git add ignition_e2_summary.json ignition_e2_session_index.json \
+                  ignition_log.json ignition_universe.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "لا تغييرات للدفع."
+          else
+            git commit -m "🔬 E2: ملخّص + سجلّ جلسة الرادار المدموجة (assembler)"
+            git push
+          fi
+      # 🔬 P0-6: بوّابة صارمة — تفشل الـjob لو الجلسة المدموجة غير مكتملة (بعد رفع artifact).
+      - name: Analyzer strict gate
+        run: python ignition_e2_analyze.py e2_measurement --strict
       - name: Upload assembled session
         if: always()
         uses: actions/upload-artifact@v4

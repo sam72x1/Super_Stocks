@@ -2395,32 +2395,51 @@ check("🔬 (ب+) مدقّق: المقطع ⇒ segment_complete (لا session_co
       and _asm_summ["n_symbols"] == 2 and _r_asm["n_emitted"] == 2)
 check("🔬 (ب+) دمج: candidates المقطعين مدموجة بلا ازدواج + backfill بلغ الإغلاق (success)",
       _r_asm["n_candidates"] == 2 and _r_asm["incomplete_reasons"] == [])
-# ── 🔬 P1.3: NBBO قياسي مستقلّ (measurement) مفضَّل + **لا يمسّ قرار التنبيه** ──
+# ── 🔬 P0-1/P1.3: NBBO قياسي **لا-تزامني** (worker) خارج مسار التنبيه + measurement مفضَّل ──
 _p13_fresh = int(_time_e2.time() * 1e9)
 _p13_stale = int((_time_e2.time() - 100) * 1e9)
-_rec_p13 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "p13"))
-# measurement طازج + operator بائت ⇒ الأساسي = measurement (مفضَّل)
+# recorder بجالب NBBO محقون (measurement طازج) — يُربط لا-تزامنيًّا؛ operator بائت عبر scan.
+_rec_p13 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "p13"),
+             nbbo_fetcher=lambda s: {"bid": 2.10, "ask": 2.20, "quote_ts": _p13_fresh})
 S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb,
                 fetch_operator=lambda s: {"has_operator": True, "bid": 2.14, "ask": 2.16, "quote_ts": _p13_stale},
-                fetch_measure_nbbo=lambda s: {"bid": 2.10, "ask": 2.20, "quote_ts": _p13_fresh},
                 trace=_rec_p13.trace)
-_c13 = _rec_p13._cur_candidate("IGN")
-check("🔬 P1.3: NBBO measurement مستقلّ + مفضَّل (طازج) على operator (بائت) — كلاهما مخزَّن",
-      _c13["nbbo_source"] == "measurement" and _c13["measurement_executable"] is True
-      and _c13["operator_executable"] is False and _c13["primary_executable"] is True
+_rec_p13.finalize("normal")          # يفرّغ worker → measurement مربوط بـcandidate_id
+_c13 = _rec_p13.candidates[list(_rec_p13.candidates)[0]]
+check("🔬 P0-1/P1.3: NBBO measurement لا-تزامني (طازج) مفضَّل على operator (بائت) + الحالة resolved",
+      _c13["measurement_nbbo_status"] == "success" and _c13["measurement_executable"] is True
+      and _c13["operator_executable"] is False and _c13["nbbo_source"] == "measurement"
+      and _c13["primary_executable"] is True and _c13["quote_capture_lag_ms"] is not None
       and _c13["measurement_nbbo_mid"] == 2.15 and _c13["operator_nbbo_mid"] == 2.15)
-# **قفل السلامة:** fetch_measure_nbbo لا يغيّر الصفوف المُصدَرة (بت-بت في القرار)
-_rows_nom = S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_pass,
-                            trace=lambda e, p: None)
-_rows_wm = S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_pass,
-                           fetch_measure_nbbo=lambda s: {"bid": 1.0, "ask": 9.0, "quote_ts": _p13_fresh},
-                           trace=lambda e, p: None)
-check("🔬 P1.3 قفل: fetch_measure_nbbo **لا يغيّر** الصفوف المُصدَرة (قياس فقط، خارج القرار)",
-      [r[0]["symbol"] for r in _rows_nom] == [r[0]["symbol"] for r in _rows_wm] == ["IGN"]
-      and [r[1] for r in _rows_nom] == [r[1] for r in _rows_wm])
-check("🔬 P1.3 قفل: polygon_nbbo خارج rank_key/select_top/scan_ignition القراري",
-      all("polygon_nbbo" not in _insp0.getsource(_f) for _f in (S.rank_key, S.select_top))
-      and "fetch_measure_nbbo" in _insp0.getsource(S.scan_ignition))
+# **قفل P0-1 الحاسم:** جالب NBBO بطيء (محاكاة 8ث) **لا يؤخّر** مسار الاشتعال/التنبيه (لا-تزامني)
+_rec_slow = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "slow"),
+              nbbo_fetcher=lambda s: (_time_e2.sleep(1.2), {"bid": 2.1, "ask": 2.2, "quote_ts": _p13_fresh})[1])
+_t_alert0 = _time_e2.time()
+S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_fresh, trace=_rec_slow.trace)
+_alert_ms = (_time_e2.time() - _t_alert0) * 1000
+_rec_slow.finalize("normal")
+check("🔬 P0-1 قفل: جالب NBBO بطيء (1.2ث) **لا يؤخّر** مسار الاشتعال/التنبيه (لا-تزامني)",
+      _alert_ms < 400)
+check("🔬 P0-1 قفل: scan_ignition **لا** يجلب NBBO القياسي إطلاقًا · polygon_nbbo خارج الفرز",
+      "polygon_nbbo" not in _insp0.getsource(S.scan_ignition)
+      and "fetch_measure_nbbo" not in _insp0.getsource(S.scan_ignition)
+      and all("polygon_nbbo" not in _insp0.getsource(_f) for _f in (S.rank_key, S.select_top)))
+check("🔬 P1-3: تفكيك latency (bar→raw→gate→attempt→success) موجود في candidate",
+      all(_k in _c13 for _k in ("bar_end_to_raw_signal_ms", "raw_signal_to_gate_decision_ms",
+          "gate_decision_to_telegram_attempt_ms", "telegram_attempt_to_success_ms",
+          "bar_end_to_telegram_success_ms")))
+def _p15_status(sub, fetcher):
+    _r = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, sub), nbbo_fetcher=fetcher)
+    _r.trace("04_RAW_IGNITION", {"symbol": "Z", "trigger_bar_start": 1_750_000_060_000, "break_level": 2.0})
+    _r.finalize("normal")
+    return _r.candidates[list(_r.candidates)[0]]["measurement_nbbo_status"]
+def _p15_raise_timeout(s):
+    raise TimeoutError("x")
+check("🔬 P1-5: measurement_nbbo_status محسوم لكل cohorts (success/empty/timeout/not_requested)",
+      _p15_status("co_ok", lambda s: {"bid": 2.1, "ask": 2.2, "quote_ts": _p13_fresh}) == "success"
+      and _p15_status("co_empty", lambda s: None) == "empty"
+      and _p15_status("co_to", _p15_raise_timeout) == "timeout"
+      and _p15_status("co_nr", None) == "not_requested")
 # ── 🔬 P1.6: أثر الأداة (median/p95 + نسبة تجاوز interval) ──
 _rec_p16 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "p16"),
                                           meta={"interval_seconds": 1})
@@ -2441,6 +2460,47 @@ check("🔬 (ب+) قفل: رمز مُنبَّه في المقطع السابق (
 check("🔬 §2 قفل: مساعِدات الفجوات نقيّة خارج مسار الفرز (لا تُستورَد بـSuper_stock)",
       all(_n not in _insp0.getsource(S.scan_ignition) and _n not in _insp0.getsource(S.rank_key)
           for _n in ("_normalize_ts_ms", "_quote_freshness", "backfill_emitted", "_recall_eligible")))
+# ── 🔬 P0-4: manifest + سلسلة SHA-256 + كشف العبث (fail-closed) ──
+import ignition_e2_manifest as _MAN
+def _mseg(sub, role, sym, prev=None):
+    _r = _M.IgnitionMeasurementRecorder("2026-07-26", out_root=_os.path.join(_e2_out, sub), segment=role,
+          meta={"expected_close_iso": "2026-07-26T20:00:00Z", "source_commit": "abc", "workflow_run_id": "r1",
+                "previous_segment_manifest_sha256": prev})
+    _r.trace("04_RAW_IGNITION", {"symbol": sym, "trigger_bar_start": 1_750_000_060_000, "break_level": 2.0})
+    _r.trace("11_ALERT_EMITTED", {"symbol": sym}); _r.finalize("normal")
+    return _r
+_mo = _mseg("manf", "open", "IGN")
+_mc = _mseg("manf", "close", "BBB", prev=_mo.manifest_sha256)
+_mo_dir = _os.path.join(_e2_out, "manf", "session_2026-07-26", "segment_open")
+_mc_dir = _os.path.join(_e2_out, "manf", "session_2026-07-26", "segment_close")
+_om, _cm = _MAN.read_manifest(_mo_dir), _MAN.read_manifest(_mc_dir)
+_ok_o = _MAN.verify_manifest(_om, _mo_dir, expect_session_date="2026-07-26", expect_segment="open")[0]
+_ok_chain = _MAN.verify_chain(_om, _cm)[0]
+# tamper: عدّل بايت في candidates → raw_hash_mismatch
+_tp = _os.path.join(_mo_dir, "candidates.jsonl")
+_orig = open(_tp, "rb").read()
+open(_tp, "wb").write(_orig.replace(b'"IGN"', b'"ZZZ"', 1))
+_ok_tamper, _r_tamper = _MAN.verify_manifest(_om, _mo_dir)
+open(_tp, "wb").write(_orig)   # استرجاع
+# chain break
+_ok_break = _MAN.verify_chain(_om, dict(_cm, previous_segment_manifest_sha256="deadbeef"))[0]
+check("🔬 P0-4: manifest نظيف يتحقّق + العبث (byte) = raw_hash_mismatch + كسر السلسلة يُرفض",
+      _ok_o is True and _ok_chain is True
+      and _ok_tamper is False and any("raw_hash_mismatch" in x for x in _r_tamper)
+      and _ok_break is False)
+# _verify_prev_segment (fail-closed): مفقود/تطابق/عدم تطابق hash
+_good_ho = {"manifest_sha256": _mo.manifest_sha256, "alerted_symbols": ["IGN"]}
+check("🔬 P0-4: _verify_prev_segment يقبل السليم ويرفض المفقود/عدم تطابق handoff",
+      IG._verify_prev_segment(_good_ho, "2026-07-26", e2_root=_os.path.join(_e2_out, "manf"))[0] is True
+      and IG._verify_prev_segment(None, "2026-07-26", e2_root=_os.path.join(_e2_out, "manf"))[0] is False
+      and IG._verify_prev_segment({"manifest_sha256": "wrong", "alerted_symbols": ["IGN"]},
+                                  "2026-07-26", e2_root=_os.path.join(_e2_out, "manf"))[0] is False)
+check("🔬 P0-4/P1-7 قفل: المقطع (role) لا يستدعي git_save · close يتحقّق قبل المسح (fail-closed)",
+      "if role:" in _insp0.getsource(IG.main) and "git_save" in _insp0.getsource(IG.main)
+      and "_verify_prev_segment" in _insp0.getsource(IG.main) and "SystemExit" in _insp0.getsource(IG.main))
+check("🔬 P1-8: manifest نقيّ + canonical JSON حتمي (نفس المدخل = نفس الـhash)",
+      _MAN.manifest_sha256({"a": 1, "b": 2}) == _MAN.manifest_sha256({"b": 2, "a": 1})
+      and _MAN.sha256_hex("x") == _MAN.sha256_hex("x") and _MAN.manifest_sha256({}) is not None)
 _shutil.rmtree(_e2_out, ignore_errors=True)
 # 🔥📏 دالّتا التحقّق التاريخي (IGNITION_VERIFY_PLAN.md — قياس «هل فاد الاشتراك؟»)
 check("تحقّق·يوم الانفجار: أول قمة تبلغ +50% من الدخول (وإلا None)",

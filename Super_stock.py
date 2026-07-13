@@ -6826,8 +6826,7 @@ def _ignition_candle_class(usd):
 
 
 def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
-                  vol_mult: float = None, fetch_operator=None, trace=None,
-                  fetch_measure_nbbo=None) -> list:
+                  vol_mult: float = None, fetch_operator=None, trace=None) -> list:
     """🔥 يفحص القائمة المؤهّلة ويكشف **لحظة اشتعال** كل زنبرك (قفزة حجم + كسر الرقم
     الحرج صاعدًا) ثم يرفق تدفق الأوامر الحي للتأكيد. `fetch_bars`/`fetch_flow`/
     `fetch_operator` قابلة للحقن (اختبار بلا شبكة). **دِدوب مرة/سهم/يوم**
@@ -6838,9 +6837,8 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
     (None) = احتياط لتصنيف شمعة الدولار (يُكتَم القروب فقط) فلا نفوّت بعطل شبكي.
     🔬 **E2-A:** `trace` (اختياري، افتراضي None) دالّة قياس ظلّي تتلقّى أحداث funnel وصفية
     عبر `_emit_trace` — **لا تغيّر أي قرار/عتبة/تنبيه**؛ None = سلوك الرادار حرفيًّا بت-بت.
-    🔬 **P1.3:** `fetch_measure_nbbo` (اختياري) جالب NBBO **قياسي مستقلّ** لكل raw candidate —
-    **يُستدعى فقط عند `trace` مُفعَّل** (قياس)، و**ممنوع أن يمسّ أي قرار تنبيه** (يُضاف لحمولة
-    04 فقط). None (الافتراضي/الإنتاج) = صفر نداء = بت-بت."""
+    🔬 **P0-1 (مراجعة Codex 4):** لا جلب NBBO قياسي هنا إطلاقًا — كان يؤخّر مسار التنبيه حتى 8ث.
+    المسجّل يجلب NBBO القياسي **لا-تزامنيًّا** (worker) بعد بثّ 04 فورًا، فلا ينتظر التنبيه القياس."""
     fb = fetch_bars or (lambda sym: polygon_minute_bars(sym, minutes=30))
     ff = fetch_flow or order_snapshot
     fo = fetch_operator or operator_flow
@@ -6870,14 +6868,8 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
         sig = _ignition_signal(bars, lvl, vol_mult=vm) if bars else None
         if not sig:
             continue
-        # 🔬 P1.3: NBBO قياسي مستقلّ لكل raw candidate — **قياس فقط** (عند trace مُفعَّل + جالب
-        # محقون)، لا يُقرأ في أي قرار تنبيه. None = صفر نداء (بت-بت في الإنتاج).
-        _mnbbo = None
-        if trace is not None and fetch_measure_nbbo is not None:
-            try:
-                _mnbbo = fetch_measure_nbbo(s["symbol"])
-            except Exception:
-                _mnbbo = None
+        # 🔬 P0-1: بثّ raw candidate **فورًا** بعد _ignition_signal — لا نداء قياس هنا (المسجّل
+        # يجلب NBBO لا-تزامنيًّا). المسار حتى send_telegram لا ينتظر أي شبكة قياس.
         _emit_trace(trace, "04_RAW_IGNITION", lambda: {
             "symbol": _sym, "signal_price": sig.get("price"), "vol_x": sig.get("vol_x"),
             "signal_usd": sig.get("usd"), "candle_class": _ignition_candle_class(sig.get("usd"))[0],
@@ -6886,11 +6878,7 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
             "stop": (s.get("stop")[0] if isinstance(s.get("stop"), (list, tuple)) and s.get("stop") else s.get("stop")),
             "t1": s.get("t1"), "t2": s.get("t2"), "t3": s.get("t3"),
             # 🔬 §2c: Polygon `t` = **بداية** شمعة الدقيقة؛ المسجّل يشتقّ النهاية = البداية+60000.
-            "trigger_bar_start": (bars[-1].get("t") if bars else None),
-            # 🔬 P1.3: NBBO القياسي المستقلّ (قياس فقط، خارج القرار).
-            "measurement_nbbo_bid": (_mnbbo.get("bid") if _mnbbo else None),
-            "measurement_nbbo_ask": (_mnbbo.get("ask") if _mnbbo else None),
-            "measurement_quote_ts": (_mnbbo.get("quote_ts") if _mnbbo else None)})
+            "trigger_bar_start": (bars[-1].get("t") if bars else None)})
         # 🕵️ بوّابة المضارب: يُكتَم الاشتعال بلا مضارب (لا نضع ignition_alert = يُعاد
         # الفحص لو دخل المضارب لاحقًا نفس اليوم). فاشل-آمن: تعذّر القياس → شمعة الدولار.
         try:

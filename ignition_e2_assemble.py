@@ -128,11 +128,30 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
                          "expected_segment_start_iso": sj.get("expected_segment_start_iso"),
                          "expected_segment_end_iso": sj.get("expected_segment_end_iso"),
                          "ended_before_expected_close": sj.get("ended_before_expected_close")})
+    # 🔬 P0-4: تحقّق سلسلة manifest (كل مقطع + السلسلة open→close). الفشل يُسجَّل ويرفضه المدقّق.
+    import ignition_e2_manifest as _man
+    seg_manifests, manifest_reasons = {}, []
+    for role, sdir in seg_dirs:
+        mman = _man.read_manifest(sdir)
+        seg_manifests[role] = mman
+        ok, r = _man.verify_manifest(mman, sdir, expect_session_date=session_date, expect_segment=role)
+        if not ok:
+            manifest_reasons += ["%s:%s" % (role, x) for x in r]
+    if "open" in seg_manifests and "close" in seg_manifests:
+        ok, r = _man.verify_chain(seg_manifests["open"], seg_manifests["close"])
+        if not ok:
+            manifest_reasons += r
+    manifest_chain_ok = not manifest_reasons
     # مصدر meta من مقطع الإغلاق (يحمل الإغلاق المتوقّع) وإلّا أوّل مقطع
     base_sj = _read_json(os.path.join(seg_dirs[-1][1], "session.json")) or \
         _read_json(os.path.join(seg_dirs[0][1], "session.json"))
     expected_close_iso = base_sj.get("expected_close_iso")
     # بنِ recorder للجلسة المدموجة (segment=None → يكتب في جذر session_<date>/)
+    # 🔬 P1-8: provenance صادق — نافذة المراقبة (من المقاطع) ≠ وقت التجميع.
+    _mon_start = min((s.get("segment_started_at") for s in seg_meta if s.get("segment_started_at")),
+                     default=None)
+    _mon_end = max((s.get("segment_ended_at") for s in seg_meta if s.get("segment_ended_at")),
+                   default=None)
     rec = M.IgnitionMeasurementRecorder(
         session_date, out_root=root, segment=None, write_repo_index=write_repo_index,
         meta={"assembled": True, "segments": seg_meta,
@@ -140,7 +159,12 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
               "expected_close_iso": expected_close_iso,
               "source_commit": base_sj.get("source_commit"),
               "workflow_run_id": base_sj.get("workflow_run_id"),
-              "interval_seconds": base_sj.get("interval_seconds")})
+              "interval_seconds": base_sj.get("interval_seconds"),
+              # 🔬 P0-4: نتيجة سلسلة التحقّق (يرفضها المدقّق لو فشلت).
+              "manifest_chain_ok": manifest_chain_ok, "manifest_chain_reasons": manifest_reasons,
+              # 🔬 P1-8: نافذة المراقبة الحقيقية vs وقت التجميع (assembled_at يُملأ في finalize).
+              "monitoring_started_at": _mon_start, "monitoring_ended_at": _mon_end})
+    rec.meta["assembled_at"] = rec.started_at    # 🔬 P1-8: وقت التجميع (≠ نافذة المراقبة)
     # عبّئ الحالة المدموجة
     rec.symbols = _merge_symbol_sessions(session_date, ss_rows)
     seen_cid = set()
@@ -179,7 +203,7 @@ def main():
     session_date = sys.argv[1] if len(sys.argv) > 1 else None
     root = sys.argv[2] if len(sys.argv) > 2 else "e2_measurement"
     # جالب البارات الحيّ (بعد الإغلاق) — فاشل-آمن؛ بلا bot/مفتاح = بلا backfill (المسار من المقاطع).
-    fetch = None
+    fetch, bot = None, None
     try:
         try:
             import Super_stock as bot
@@ -187,6 +211,7 @@ def main():
             import super_stock as bot
         fetch = lambda sym: bot.polygon_minute_bars(sym, minutes=480)
     except Exception:
+        bot = None
         fetch = None
     if not session_date:
         try:
@@ -208,6 +233,24 @@ def main():
     print(f"    recall-eligible={summ.get('n_recall_eligible_symbol_sessions')} "
           f"· الإنهاء={summ.get('termination')}")
     print("=" * 70)
+    # 🔬 P1-7: الـassembler **وحده** يولّد السجلّ القديم (ignition_log/universe) من البيانات
+    # المدموجة (الإطلاقات = candidates المُصدَرة) — الـworkflow يدفعه مرة واحدة. فاشل-آمن.
+    try:
+        if bot is None:
+            raise RuntimeError("bot غير متاح")
+        session_dir = os.path.join(root, "session_%s" % session_date)
+        cands = _read_jsonl(os.path.join(session_dir, "candidates.jsonl"))
+        ss = _read_jsonl(os.path.join(session_dir, "symbol_sessions.jsonl"))
+        fires = [({"symbol": c.get("symbol"), "stop": [c.get("stop")], "t1": c.get("t1"),
+                   "pivot": c.get("pivot"), "last_price": c.get("signal_price"),
+                   "interp": {"critical_number": {"price": c.get("break_level")}}},
+                  {"price": c.get("signal_price"), "vol_x": c.get("vol_x"), "usd": c.get("signal_usd")},
+                  None) for c in cands if c.get("alert_emitted")]
+        if fires:
+            bot.record_ignition_fires(fires, session_date)
+        bot.record_ignition_universe(sorted({r.get("symbol") for r in ss if r.get("symbol")}), session_date)
+    except Exception as e:
+        print(f"⚠️ توليد السجلّ القديم: {e}")
     # شغّل المدقّق على الجذر المدموج (session_complete)
     try:
         import ignition_e2_analyze as A

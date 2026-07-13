@@ -188,20 +188,26 @@ def analyze_session(sdir):
 
 
 def main():
-    root = sys.argv[1] if len(sys.argv) > 1 else "e2_measurement"
+    args = [a for a in sys.argv[1:] if not a.startswith("-")]
+    strict = "--strict" in sys.argv        # 🔬 P0-6: يفشل بخروج غير صفر عند جلسة غير مكتملة
+    root = args[0] if args else "e2_measurement"
     if not os.path.isdir(root):
         print(f"📋 لا مجلّد قياس بعد: {root} (يُنشأ عند أول جلسة رادار بـE2_MEASUREMENT=1).")
         return
     sessions = sorted(d for d in os.listdir(root) if d.startswith("session_"))
     if not sessions:
         print(f"📋 لا جلسات مُسجَّلة بعد في {root}.")
+        if strict:
+            sys.exit(3)                    # لا جلسة = فشل في الوضع الصارم (بوّابة Pilot)
         return
     print("=" * 78)
     print("🔬 E2-A — تدقيق تغطية/اكتمال القياس الظلّي (لا معايرة عتبات — SPEC §18)")
     print("=" * 78)
     total_complete = 0                       # 🔬 (ب+): البوّابة تعدّ session_complete فقط (لا المقاطع)
+    results = []
     for s in sessions:
         r = analyze_session(os.path.join(root, s))
+        results.append(r)
         if r.get("session_complete"):        # المقاطع/الجلسات القديمة ذات session_complete=None لا تُعدّ
             total_complete += 1
         print(f"\n▸ {r['session_date']} [{r['kind']}] · إنهاء={r['termination']} · "
@@ -226,6 +232,13 @@ def main():
           f"بوّابة E2-A (SPEC §18): {'✅ عيّنة قابلة للتقييم' if total_complete >= 5 else 'تتراكم (المطلوب 5 جلسات session_complete)'}.")
     print("⚠️ E2-A: قياس فقط — لا معايرة/حكم عتبات (E2-B/C بعد العيّنة + تسجيل مسبق + موافقة المالك).")
     print("=" * 78)
+    # 🔬 P0-6: بوّابة صارمة — أي جلسة (assembled/single) غير مكتملة تُفشل الأمر (بوّابة Pilot).
+    if strict:
+        incomplete = [r for r in results if r.get("session_complete") is False]
+        if incomplete:
+            print("❌ --strict: %d جلسة غير مكتملة → فشل." % len(incomplete))
+            sys.exit(1)
+        print("✅ --strict: كل الجلسات (assembled/single) مكتملة.")
 
 
 if __name__ == "__main__":

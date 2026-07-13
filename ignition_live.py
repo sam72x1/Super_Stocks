@@ -159,6 +159,29 @@ def _apply_handoff_dedup(wl, handoff, today_iso):
     return n
 
 
+def _verify_prev_segment(handoff, session_day, e2_root="e2_measurement"):
+    """🔬 P0-4: تحقّق **صارم** من manifest المقطع السابق (open) قبل مسح مقطع close: البنية ·
+    تطابق hash الـmanifest · تطابق hash كل ملف خام · التاريخ/الدور · تطابق handoff.manifest_sha256
+    مع manifest المقطع · تطابق alerted_symbols. يرجّع (ok, reasons). فاشل-آمن في القراءة."""
+    reasons = []
+    try:
+        import ignition_e2_manifest as man
+        if not handoff:
+            return (False, ["handoff_missing"])
+        open_dir = os.path.join(e2_root, "session_%s" % session_day, "segment_open")
+        open_man = man.read_manifest(open_dir)
+        ok, r = man.verify_manifest(open_man, open_dir, expect_session_date=session_day,
+                                    expect_segment="open")
+        reasons += r
+        if (open_man or {}).get("manifest_sha256") != handoff.get("manifest_sha256"):
+            reasons.append("handoff_manifest_sha_mismatch")
+        if sorted(handoff.get("alerted_symbols") or []) != sorted((open_man or {}).get("alerted_symbols") or []):
+            reasons.append("alerted_symbols_mismatch")
+        return (not reasons, reasons)
+    except Exception as e:
+        return (False, ["verify_exception:%s" % type(e).__name__])
+
+
 def _write_handoff(path, ho):
     """🔬 (ب+): يكتب handoff هذا المقطع (JSON) للـjob التالي. فاشل-آمن."""
     try:
@@ -208,10 +231,19 @@ def main():
     seen = set()
     if role == "close":
         handoff_in = _load_handoff(os.environ.get("IGNITION_HANDOFF_IN", "").strip())
+        # 🔬 P0-4: تحقّق صارم من سلامة المقطع السابق قبل المسح. **fail-closed** (افتراضي):
+        # handoff/manifest فاسد ⇒ إيقاف المقطع (يمنع تنبيهًا على أساس فاسد ووصف الجلسة بالمكتملة).
+        _ok, _vr = _verify_prev_segment(handoff_in, session_day)
+        if not _ok:
+            bot.log(f"❌ E2 (P0-4): تحقّق handoff/manifest المقطع السابق فشل: {_vr}")
+            if os.environ.get("IGNITION_HANDOFF_STRICT", "1").strip() != "0":
+                raise SystemExit(2)          # fail-closed للـconfirmatory
+            bot.log("⚠️ E2: وضع lenient — نواصل بلا استعادة دِدوب (قد يكرّر تنبيهًا).")
+            handoff_in = None
         if handoff_in:
             _nd = _apply_handoff_dedup(wl, handoff_in, session_day)
             seen |= set(handoff_in.get("alerted_symbols") or [])
-            bot.log(f"🔁 استعادة {_nd} ختم دِدوب من المقطع السابق (لا تنبيه مكرّر).")
+            bot.log(f"🔁 استعادة {_nd} ختم دِدوب من المقطع السابق (تحقّق manifest ✓ · لا تنبيه مكرّر).")
     bot.log(f"🔥 رادار الانطلاق [{window['role']}]: {len(active)} زنبرك · كل {interval}ث حتى "
             f"{deadline.strftime('%H:%M')} UTC (نافذة {window['segment_start'].strftime('%H:%M')}–"
             f"{window['segment_end'].strftime('%H:%M')} · إغلاق {window['close'].strftime('%H:%M')} · "
@@ -223,14 +255,11 @@ def main():
     recorder = None
     if os.environ.get("E2_MEASUREMENT", "").strip() == "1":
         try:
-            _prev_sha = None                # سلسلة sha للمقطع السابق (تحقّق التسلسل)
-            if handoff_in:
-                try:
-                    _prev_sha = json.dumps(handoff_in.get("raw_files_sha256") or {}, sort_keys=True)
-                except Exception:
-                    _prev_sha = None
+            # 🔬 P0-4: hash manifest المقطع السابق الحقيقي (سلسلة التحقّق) — لا نص JSON.
+            _prev_manifest_sha = (handoff_in or {}).get("manifest_sha256") if handoff_in else None
             recorder = measure.IgnitionMeasurementRecorder(
                 session_day, segment=(role or None), write_repo_index=(role == ""),
+                nbbo_fetcher=bot.polygon_nbbo,   # 🔬 P0-1: NBBO قياسي لا-تزامني (خارج مسار التنبيه)
                 meta={"source_commit": os.environ.get("GITHUB_SHA", "").strip() or None,
                       "workflow_run_id": os.environ.get("GITHUB_RUN_ID", "").strip() or None,
                       "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "").strip() or None,
@@ -242,13 +271,12 @@ def main():
                       "deadline_iso": _iso(window["deadline"]),
                       "deadline_reason": window["reason"],
                       "watchlist_commit_start": os.environ.get("GITHUB_SHA", "").strip() or None,
-                      "previous_segment_sha256": _prev_sha})
+                      "previous_segment_manifest_sha256": _prev_manifest_sha})
             bot.log("🔬 E2: القياس الظلّي مُفعَّل (لا يغيّر أي تنبيه/عتبة/اختيار).")
         except Exception as e:
             bot.log(f"⚠️ E2: تعذّر تهيئة القياس ({e}) — نواصل بلا قياس.")
             recorder = None
     _trace = recorder.trace if recorder is not None else None
-    _fm = bot.polygon_nbbo if recorder is not None else None    # 🔬 P1.3: NBBO قياسي مستقلّ
     termination = "normal"
     _last_start = None
     try:
@@ -265,7 +293,7 @@ def main():
                     if recorder is not None:
                         recorder.set_watchlist_commit(_fetch_head_sha())
             try:
-                rows = bot.scan_ignition(wl, today, trace=_trace, fetch_measure_nbbo=_fm)
+                rows = bot.scan_ignition(wl, today, trace=_trace)
             except Exception as e:
                 rows = []
                 bot.log(f"⚠️ رادار الانطلاق (دورة {loops}): {e}")
@@ -319,27 +347,42 @@ def main():
         _out = os.environ.get("IGNITION_HANDOFF_OUT", "").strip() or ("handoff_%s.json" % window["role"])
         if _write_handoff(_out, ho):
             bot.log(f"🔁 handoff [{window['role']}] → {_out} ({len(ho['alerted_symbols'])} مُنبَّه).")
-    # 📏 سجلّ الإطلاقات + مقام الالتقاط + الملفّان القابلان للدفع (الجلسة الواحدة فقط —
-    # المجزّأة يدفعها الـassembler بعد الدمج). فاشل-آمن.
-    try:
-        _save_files = []
-        _uni_syms = [s.get("symbol") for s in wl.get("stocks", [])
-                     if s.get("status") == "active"]
-        if bot.record_ignition_universe(_uni_syms, session_day):
-            _save_files.append(bot.IGNITION_UNI_FILE)
-        if session_fires:
-            n_rec = bot.record_ignition_fires(session_fires, session_day)
-            if n_rec:
-                _save_files.append(bot.IGNITION_LOG_FILE)
-                bot.log(f"📝 سُجِّل {n_rec} إطلاق في سجلّ القياس.")
-        if recorder is not None and role == "":
-            for _f in ("ignition_e2_summary.json", "ignition_e2_session_index.json"):
-                if os.path.exists(_f):
-                    _save_files.append(_f)
-        if _save_files:
-            bot.git_save(_save_files)
-    except Exception as e:
-        bot.log(f"⚠️ حفظ سجلّ الانطلاق: {e}")
+    # 🔬 P1-7: **المقاطع (open/close) لا تدفع أي شيء للريبو** (كل job على checkout مربوط بـSHA
+    # الحدث؛ دفع open يجعل دفع close/assembler non-fast-forward أو يفشل بصمت). الـassembler
+    # **وحده** يولّد السجلّ القديم/الملخّص ويدفع مرة واحدة. المقاطع تكتب إطلاقاتها في الـartifact.
+    if role:
+        try:
+            if recorder is not None and session_fires:
+                _fires = [{"symbol": r[0].get("symbol"), "price": (r[1] or {}).get("price"),
+                           "vol_x": (r[1] or {}).get("vol_x"), "usd": (r[1] or {}).get("usd"),
+                           "stop": (r[0].get("stop")[0] if isinstance(r[0].get("stop"), (list, tuple))
+                                    and r[0].get("stop") else r[0].get("stop")),
+                           "t1": r[0].get("t1")} for r in session_fires]
+                with open(os.path.join(recorder.dir, "segment_fires.json"), "w", encoding="utf-8") as fh:
+                    json.dump({"session_date": session_day, "segment": window["role"], "fires": _fires}, fh)
+        except Exception as e:
+            bot.log(f"⚠️ E2: كتابة إطلاقات المقطع ({e})")
+    else:
+        # الجلسة الواحدة (القديمة، توافق خلفي) — تسجّل وتدفع كما كانت. فاشل-آمن.
+        try:
+            _save_files = []
+            _uni_syms = [s.get("symbol") for s in wl.get("stocks", [])
+                         if s.get("status") == "active"]
+            if bot.record_ignition_universe(_uni_syms, session_day):
+                _save_files.append(bot.IGNITION_UNI_FILE)
+            if session_fires:
+                n_rec = bot.record_ignition_fires(session_fires, session_day)
+                if n_rec:
+                    _save_files.append(bot.IGNITION_LOG_FILE)
+                    bot.log(f"📝 سُجِّل {n_rec} إطلاق في سجلّ القياس.")
+            if recorder is not None:
+                for _f in ("ignition_e2_summary.json", "ignition_e2_session_index.json"):
+                    if os.path.exists(_f):
+                        _save_files.append(_f)
+            if _save_files:
+                bot.git_save(_save_files)
+        except Exception as e:
+            bot.log(f"⚠️ حفظ سجلّ الانطلاق: {e}")
     bot.log(f"رادار الانطلاق [{window['role']}]: انتهت الجلسة ({loops} دورة).")
 
 
