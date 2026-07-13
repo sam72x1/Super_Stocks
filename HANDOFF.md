@@ -17,6 +17,20 @@
 > + `git log` قبل أي عمل. لا تعِد عمل تم. التزم بقرارات فيصل المحسومة. المستخدم
 > لا يتقبّل أي خطأ ولا الفلسفة الزائدة — طابق منهجية فيصل الموثّقة بدقة.
 
+> 🔬 **E2-A (قياس التوقيت اللحظي) منفَّذ ومدفوع — فرع مستقل `claude/e2a-ignition-measurement` من 49f3f0d
+> (2026-07-13، مواصفة Codex، 812 اختبار · لا LOGIC_VERSION · لا مسّ جذور · لا معايرة):** حوّل رادار
+> الانطلاق من «يسجّل الناجح للإرسال» إلى **تجربة prospective تسجّل كل مراحل القرار + التغطية + التنفيذ +
+> التوقيت** دون تغيير تنبيه واحد. **① instrumentation ظلّي** (`scan_ignition(trace=None)` + `_emit_trace`
+> بحمولة lazy = بت-بت عند None؛ اختبار تكافؤ + استثناء trace آمن + نص Telegram متطابق) + funnel كامل +
+> تصحيح overclaim (E2-F09). **②** `ignition_measurement.py` (recorder فاشل-آمن · crash-safe · لا أسرار):
+> exposure حقيقي/symbol-session · candidate لكل raw فريد حتى المكبوت (NBBO/توقيت/بوّابة) · emitted≠delivered ·
+> مسار الدقيقة. **③** توصيل `ignition_live` خلف `E2_MEASUREMENT=1` (مطفأ=حرفيّ) + try/finally + telegram
+> events · `ignition.yml` artifact if:always. **④** `E2_IGNITION_PREREGISTRATION_2026-07-13.yaml` (يستبعد
+> GEOS) + `E2_IGNITION_SCHEMA.md` + `ignition_e2_analyze.py` (تدقيق تغطية فقط). **التوقيت فرضية غير مثبتة —
+> لا نتيجة قبل ≥5 جلسات كاملة (E2-A) ثم E2-B الوصفي بموافقة المستخدم.** التقرير الكامل (15 بندًا):
+> `CLAUDE_E2A_IMPLEMENTATION_REPORT.md`. **⏳ متبقٍّ: تشغيل حيّ على Actions يؤكّد التغطية (لم يُشغَّل من بيئة
+> التطوير — Polygon محجوب) · مراجعة Codex للـPR · دمج بموافقة المستخدم.**
+
 > 🔬 **P0 (تدقيق Codex المستقل للمصدر) — مكتمل كودًا ووثائقيًّا ومدفوع (2026-07-13، فرع
 > `claude/sharp-bohr-vz31gl`، 784 اختبار · لا LOGIC_VERSION · لا مسّ إنتاج):** أربع كوميتات:
 > **① تحميل لقطة صارم fail-closed** (طُلبت لقطة → أي فشل تحقّق يُفشل الـjob بلا تحميل حيّ صامت) +

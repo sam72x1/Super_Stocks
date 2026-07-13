@@ -597,6 +597,17 @@
   «تتراكم» بصدق. **🔒 كل الدوال خارج rank_key/select_top/classify_tier/analyze_ticker/backtest_symbol (أقفال
   getsource) · لا LOGIC_VERSION · لا قمع/وزن قبل عيّنة كافية + موافقة المستخدم.** كانت أداة التطوير تقيس طبقة
   الاختيار (السقف الميت §0-ز) وعمياء عن الحافة الحيّة — هذه الحلقة تسدّها.
+- **🔬 E2-A: القياس الظلّي (2026-07-13، فرع `claude/e2a-ignition-measurement` من مواصفة Codex — قياس
+  prospective · لا LOGIC_VERSION · لا مسّ جذور · لا معايرة):** حوّل الرادار من «يسجّل الناجح للإرسال» إلى
+  **تجربة تسجّل كل مراحل القرار** دون تغيير تنبيه واحد. `scan_ignition(trace=None)` (`_emit_trace` بحمولة
+  lazy = صفر عمل عند None = بت-بت) يبعث funnel كامل (raw→operator→fallback→emitted). `ignition_measurement.py`
+  (`IgnitionMeasurementRecorder`، فاشل-آمن مطلق · crash-safe · لا أسرار): exposure حقيقي لكل symbol-session
+  (polls/coverage — لا قائمة مسطّحة) · candidate لكل raw فريد **حتى المكبوت** (NBBO/توقيت/بوّابة) · emitted ≠
+  delivered · مسار الدقيقة. خلف `E2_MEASUREMENT=1` (مطفأ = سلوك الرادار حرفيًّا). `ignition.yml` يرفع
+  artifact `if:always`. `E2_IGNITION_PREREGISTRATION_2026-07-13.yaml` (يستبعد GEOS) + `E2_IGNITION_SCHEMA.md`
+  + `ignition_e2_analyze.py` (تدقيق تغطية فقط). **التوقيت اللحظي فرضية غير مثبتة — E2-A قياس فقط، لا نتيجة
+  قبل ≥5 جلسات + E2-B/C بموافقة المستخدم.** التقرير: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md`. 812 اختبار.
+  🔒 كل طبقة القياس خارج rank_key/select_top/classify_tier/entry_status (لا تُستورَد في مسار الفرز).
 
 ## 🕵️💰 حزمة «قراءة المضارب» (`FAISAL_OPERATOR_PACK_PLAN.md`، 2026-07-08 — عرض/تحذير فقط)
 - **المصدر:** 9 صور فيصل بأرقام صريحة لأول مرة لتمييز المضارب عن القروب. **⚖️ ليست مؤشر اختيار**
