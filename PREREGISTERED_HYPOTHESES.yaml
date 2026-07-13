@@ -1,0 +1,76 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# فرضيات مسجَّلة مسبقًا — قبل لمس البيانات المجمَّدة (منع p-hacking)
+# ═══════════════════════════════════════════════════════════════════════════
+# التاريخ: 2026-07-13
+# السياق: التدقيق الخارجي أظهر أن كل «الأفكار» قرائن لا حواف (لا تنجو من FDR على
+#   عيّنة التوليد نفسها). القاعدة الذهبية: فرضية تُولَّد من بيانات لا تُختبر عليها.
+#   هذا الملف يُقفل الفرضيات + المعيار + طريقة الاختبار **قبل** أي تشغيل على المجمَّد.
+# ⚠️ لا يُعدَّل بعد رؤية نتائج الاختبار. أي تعديل = فرضية جديدة بتاريخ جديد.
+# اللقطة المجمَّدة المرجعية: as-of 2026-07-13 · SHA-256 aac35221ec83a5d3 · 3365 رمز.
+
+principles:
+  point_in_time: "raw_pit_entry = adjusted_entry × _pit_split_factor(splits, date)؛ الوهميات (raw < MIN_PRICE=1.5) مرفوضة قبل التوليد."
+  denominators: "لكل اختبار: filled_n · settled_n · open_n صريحة. الانفجار على المُعبَّأة · النجاح على المحسومة."
+  targets:
+    target_full_explosion_50: "fwd_max_gain >= 50 (النافذة الكاملة)"
+    target_tradable_50_before_stop: "mg_pre_stop >= 50 (قبل الوقف)"
+    target_tradable_30_before_stop: "mg_pre_stop >= 30"
+    target_reexplode_after_stop: "mg_outcome==stopped AND fwd_max_gain>=50 (انفجر بعد الوقف)"
+
+# ── الفرضيات الأربع (بترتيب قوّة الدليل الاستكشافي) ──────────────────────────
+hypotheses:
+  - id: H_BEHAV_REARM
+    rank: 1
+    population: stopped_signals            # mg_outcome == stopped فقط
+    target: target_reexplode_after_stop
+    rule: "behav_score >= 60"
+    expected_direction: positive
+    exploratory_evidence: "5/23 (21.7%) مقابل 7/103 (6.8%) · OR≈3.8 · p≈0.043 · متسق بالسنتين (لم ينجُ من FDR)"
+    rationale: "اليد النشطة تمسح الوقف الثابت ثم تطلق → أعلى precision لإعادة الانفجار بعد الوقف. راوتر مراقبة بعد الوقف لا فارز دخول."
+    if_confirmed: "تفعيل مراقبة ما بعد الوقف + استعادة لحظية مؤكَّدة (Polygon دقيقة) لأسهم البصمة العالية فقط — لا توسيع وقف عام."
+
+  - id: H_SCORE_INVERSE
+    rank: 2
+    population: all_filled
+    target: target_tradable_50_before_stop
+    rule: "lower score ranks trad50 higher"   # وزن سالب لـscore
+    expected_direction: negative
+    exploratory_evidence: "score>=80: 4.1% مقابل <80: 12.2% · walk-forward AUC(-score) 0.60/0.75"
+    rationale: "score يكافئ النظافة الفنية العامة لا وجود مضارب؛ مقلوبًا قد يرتّب المنفجر-قبل-الوقف."
+    if_confirmed: "وزن ترتيب سالب لـscore (عرض/ترتيب فقط، لا بوابة) بعد مراجعة خصومية."
+
+  - id: H_PRICE_2_5
+    rank: 3
+    population: all_filled
+    target: target_full_explosion_50
+    rule: "2 <= raw_pit_entry < 5"          # السعر الحقيقي point-in-time لا المعدَّل
+    expected_direction: positive
+    exploratory_evidence: "20.6% مقابل 10.7% · OR 2.17 · p 0.081 (ملوّث قبل التصحيح — يُعاد على المجمَّد)"
+    rationale: "أسهم فيصل المقسّمة عكسيًّا (فلوت صغير + سعر مضاربي) تتكثّف هنا — يحتاج تأكيدًا على أسعار حقيقية."
+    if_confirmed: "وزن ترتيب موجب لشريحة $2-5 (لا بوابة — البوابة تخنق) بعد باكتيست منفصل."
+
+  - id: H_READINESS_LOW
+    rank: 4
+    population: all_filled
+    target: target_full_explosion_50
+    rule: "readiness <= 54"
+    expected_direction: positive
+    exploratory_evidence: "26.7% مقابل 12.1% · OR 2.65 · p 0.049 (لم ينجُ من FDR)"
+    rationale: "السهم البعيد تحت دخوله عنده مسافة أكبر للركض؛ لكن الجاهزية توقيت لا جودة."
+    if_confirmed: "مراجعة: هل تُقلب الجاهزية لترتيب معكوس؟ (حذر — قد يكسر منطق «جاهز/متابعة»)."
+
+# ── معيار القبول (مقفول) ────────────────────────────────────────────────────
+acceptance_criteria:
+  test_method: "walk-forward بحسب تاريخ الإشارة + embargo بطول النافذة الأمامية (منع تداخل النتائج بين train/test)."
+  significance: "Fisher/logistic ثم Benjamini-Hochberg FDR عبر الفرضيات الأربع؛ q < 0.10 على فترة الاختبار (لا التوليد)."
+  consistency: "الاتجاه نفسه في كل ثنية زمنية (لا انقلاب بين السنوات)."
+  effect_size: "فرق مطلق ذو معنى + فاصل ثقة لا يلمس صفر الفرق."
+  reproducibility: "على اللقطة المجمَّدة (SHA ثابت) — النتيجة تتطابق عند إعادة التشغيل."
+  governance: "أي فرضية ناجية → مراجعة خصومية 3 عدسات + أقفال getsource + موافقة المستخدم صريحة قبل أي مسّ إنتاج."
+  honest_expectation: "العيّنة صغيرة (تحليل القوة: ~195-319/مجموعة للفرق 8-15%). الأرجح أن أغلبها لا ينجو — والقيمة الأكبر = الأساس المجمَّد القابل للإعادة + التحوّل للتوقيت اللحظي/4س."
+
+# ── ما لا يُختبر (مُستبعَد مسبقًا) ──────────────────────────────────────────
+excluded:
+  - "أي فرضية جديدة تُبتكر بعد رؤية نتائج الاختبار (تُسجَّل بتاريخ جديد وتُختبر على فترة أخرى)."
+  - "عصر عتبات (behav>=55 بدل 60 إلخ) بعد الفشل — العتبة مقفولة كما وُلدت."
+  - "أي تغيير بوابة/وقف/دخول إنتاجي بلا باكتيست منفصل + موافقة (جذور C3)."
