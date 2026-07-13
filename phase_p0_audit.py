@@ -8,7 +8,7 @@
 
 يصلح العيوب السبعة (طبقة قياس/توثيق): فصل الهدفين (Y_DISCOVERY/Y_TRADABLE/Y_POST_STOP) ·
 estimand مصحَّح لـH_BEHAV (Y_POST_STOP) · عتبات train-only (2025→2026 primary، عكسي=حساسية،
-pooled=legacy) · Newcombe/Wilson RD CI ضمنيًّا (proportion) · permutation للشهر · عائلات FDR
+pooled=legacy) · Newcombe RD CI + Wilson للنسب + bootstrap AUC CI **محسوبة صراحةً** · permutation للشهر · عائلات FDR
 (legacy 4/5 + audit sensitivity) · تصحيح الصياغة (لا «حافة مثبتة»).
 
 تشغيل:  python3 phase_p0_audit.py   → يكتب p0_audit_outputs/ + يطبع PASS/FAIL مقابل مرجع Codex.
@@ -19,7 +19,7 @@ import csv, json, math, hashlib, platform, sys, collections
 import datetime as dt
 import numpy as np
 import scipy
-from scipy.stats import fisher_exact, mannwhitneyu, chi2_contingency
+from scipy.stats import fisher_exact, mannwhitneyu, chi2_contingency, rankdata
 from scipy.optimize import brentq
 import statsmodels
 from statsmodels.stats.multitest import multipletests
@@ -94,6 +94,44 @@ def json_num(x):
     return x
 
 
+def newcombe_rd_ci(a, n1, c, n2, alpha=0.05):
+    """🔬 P0-1 (تدقيق Codex): فاصل ثقة 95% لفرق النسبتين (Newcombe method 10 المبني على Wilson
+    لكل نسبة). محسوب صراحةً (كان موصوفًا «ضمنيًّا» فقط). None لو خلية فارغة."""
+    if not n1 or not n2:
+        return None
+    p1, p2 = a / n1, c / n2
+    l1, u1 = proportion_confint(a, n1, alpha=alpha, method="wilson")
+    l2, u2 = proportion_confint(c, n2, alpha=alpha, method="wilson")
+    lo = (p1 - p2) - math.sqrt((p1 - l1) ** 2 + (u2 - p2) ** 2)
+    hi = (p1 - p2) + math.sqrt((u1 - p1) ** 2 + (p2 - l2) ** 2)
+    return [float(lo), float(hi)]
+
+
+def _fast_auc(y, x):
+    """AUC عبر رتب Mann-Whitney (سريع للـbootstrap، يعالج التعادل بالرتبة الوسطى = يطابق roc_auc_score)."""
+    n_pos = int(y.sum()); n_neg = len(y) - n_pos
+    if n_pos == 0 or n_neg == 0:
+        return float("nan")
+    ranks = rankdata(x)
+    return (ranks[y == 1].sum() - n_pos * (n_pos + 1) / 2.0) / (n_pos * n_neg)
+
+
+def auc_ci_bootstrap(y, x, n_boot=BOOTSTRAPS, seed=SEED, alpha=0.05):
+    """🔬 P0-1 (تدقيق Codex): فاصل ثقة bootstrap للـAUC (طبقي داخل كل فئة فتبقى الفئتان حاضرتان).
+    يستعمل BOOTSTRAPS الذي كان معرَّفًا وغير مستعمل. النقطة (auc) تبقى من roc_auc_score بلا تغيير."""
+    idx_pos = np.where(y == 1)[0]; idx_neg = np.where(y == 0)[0]
+    if len(idx_pos) == 0 or len(idx_neg) == 0:
+        return None
+    rng = np.random.default_rng(seed)
+    aucs = np.empty(n_boot, dtype=float)
+    for i in range(n_boot):
+        bi = np.concatenate([rng.choice(idx_pos, len(idx_pos), replace=True),
+                             rng.choice(idx_neg, len(idx_neg), replace=True)])
+        aucs[i] = _fast_auc(y[bi], x[bi])
+    lo, hi = np.quantile(aucs, [alpha / 2, 1 - alpha / 2])
+    return [float(lo), float(hi)]
+
+
 def binary_test(source, exposure, target, eligible):
     z = [r for r in source if eligible(r)]
     a = sum(bool(exposure(r)) and bool(target(r)) for r in z)
@@ -106,6 +144,7 @@ def binary_test(source, exposure, target, eligible):
     return {"table": [[a, b], [c, d]], "success_exposed": a, "n_exposed": a + b,
             "success_control": c, "n_control": c + d, "risk_exposed": re, "risk_control": rc,
             "risk_difference": None if re is None or rc is None else re - rc,
+            "risk_difference_ci_newcombe95": newcombe_rd_ci(a, a + b, c, c + d),
             "odds_ratio": json_num(OR), "p_fisher_two_sided": float(p)}
 
 
@@ -118,7 +157,8 @@ def score_test(source, target):
     auc = roc_auc_score(y, x)
     p = mannwhitneyu(x[y == 1], x[y == 0], alternative="greater").pvalue
     return {"n": len(z), "positives": int(y.sum()), "negatives": int((1 - y).sum()),
-            "auc_negative_score": float(auc), "p_mwu_one_sided": float(p)}
+            "auc_negative_score": float(auc), "auc_ci_bootstrap95": auc_ci_bootstrap(y, x),
+            "p_mwu_one_sided": float(p)}
 
 
 def month_test(source, target, permutations=PERMUTATIONS, seed=SEED):
@@ -346,7 +386,7 @@ power = {"method": "statsmodels NormalIndPower using Cohen h from proportion_eff
          "alpha_0_0125_detectable_rate": detectable_rate(42, 82, .16, .0125)}
 
 result = {"schema_version": "2.0", "generated_by": "phase_p0_audit.py (logic identical to Codex reproduce_phase_e_audit.py)",
-          "seeds": {"global": SEED, "permutations": PERMUTATIONS, "bootstraps_reserved": BOOTSTRAPS},
+          "seeds": {"global": SEED, "permutations": PERMUTATIONS, "bootstraps": BOOTSTRAPS},
           "environment": {"python": sys.version, "platform": platform.platform(), "numpy": np.__version__,
                           "scipy": scipy.__version__, "statsmodels": statsmodels.__version__, "sklearn": sklearn.__version__},
           "input_sha256": hashes, "locked_targets": {"Y_DISCOVERY": "fwd_max_gain >= 50", "Y_TRADABLE": "mg_pre_stop >= 50",
