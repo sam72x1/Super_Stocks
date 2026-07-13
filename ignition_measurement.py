@@ -96,6 +96,27 @@ def _quote_freshness(quote_ms, now_ms, max_age_ms=MAX_QUOTE_AGE_MS):
     return (age, age <= max_age_ms)
 
 
+def _nbbo_metrics(bid, ask, quote_raw, now_ms):
+    """🔬 §2d/P1.3: مقاييس NBBO لمصدرٍ واحد (نقيّة): mid · spread_pct_mid · quote_ts_ms ·
+    quote_age_ms · executable. **executable = NBBO صالح (ask>0 · ask≥bid · سبريد متاح) ‏و‏
+    طازج (0≤العمر≤5000ملّي).** قابلة للاختبار (بلا شبكة)."""
+    q_ms = _normalize_ts_ms(quote_raw)
+    age, fresh = _quote_freshness(q_ms, now_ms)
+    mid = spread = None
+    valid = False
+    try:
+        if bid is not None and ask is not None and float(ask) > 0:
+            mid = round((float(bid) + float(ask)) / 2.0, 6)
+            if mid > 0:
+                spread = round((float(ask) - float(bid)) / mid * 100.0, 4)
+            valid = bool(float(ask) >= float(bid) and spread is not None)
+    except Exception:
+        valid = False
+    return {"mid": mid, "spread_pct_mid": spread, "quote_ts_ms": q_ms,
+            "quote_age_ms": (int(age) if age is not None else None),
+            "executable": bool(valid and fresh)}
+
+
 def _exposure_minutes(first_iso, last_iso):
     """🔬 §2e: دقائق التعرّض بين أول/آخر مشاهدة (ISO). نقيّة/فاشلة-آمنة → 0.0."""
     a, b = _iso_epoch_s(first_iso), _iso_epoch_s(last_iso)
@@ -141,9 +162,10 @@ def _new_symbol_session(session_date, symbol):
         "first_bar_ts": None, "last_bar_ts": None,
         "break_level_first": None, "break_level_last": None, "break_level_source_first": None,
         "coverage_ratio": 0.0,
-        # §2e: exposure حقيقي + أهلية recall (تُحسب في finalize) · §2b: أعلام الردم البعدي.
+        # §2e: exposure حقيقي + أهلية recall (تُحسب في finalize).
         "exposure_minutes": 0.0, "recall_eligible": False,
-        "backfilled": False, "backfill_bars_added": 0,
+        # 🔬 P1.2 §2b: حالة الردم البعدي (success فقط عند وصول المسار للحدّ المتوقّع).
+        "backfill_status": "not_attempted", "backfill_bars_added": 0, "backfill_last_bar_ts": None,
     }
 
 
@@ -156,10 +178,16 @@ class IgnitionMeasurementRecorder:
     كل دالّة فاشلة-آمنة (لا ترفع) فلا تُسقط الرادار."""
 
     def __init__(self, session_date, out_root="e2_measurement", meta=None,
-                 write_repo_index=False):
+                 write_repo_index=False, segment=None):
         self.session_date = session_date
-        self.dir = os.path.join(out_root, "session_%s" % session_date)
+        # 🔬 (ب+): مقطع مستقلّ لكل جوب (open/close) فلا يتصادمان؛ assembler يدمجهما لاحقًا.
+        # بلا segment = المسار القديم (جلسة واحدة session_<date>/) — توافق خلفي كامل.
+        self.segment = (str(segment).strip() or None) if segment else None
+        base = os.path.join(out_root, "session_%s" % session_date)
+        self.dir = os.path.join(base, "segment_%s" % self.segment) if self.segment else base
         self.meta = dict(meta or {})
+        self.segment_id = self.meta.get("segment_id") or (
+            "%s|%s" % (session_date, self.segment) if self.segment else session_date)
         # الملفّان الصغيران القابلان للدفع للريبو (SPEC §5) يُكتبان في جذر العمل **فقط** حين
         # يطلبها العامل الحيّ صراحةً (write_repo_index=True) — الاختبارات لا تلوّث الريبو.
         self.write_repo_index = bool(write_repo_index)
@@ -168,12 +196,15 @@ class IgnitionMeasurementRecorder:
         self._minute_seen = set()  # (symbol, t) لدِدوب مسار الدقيقة
         self.loops_started = 0
         self.loops_completed = 0
+        self._loop_timings = []    # 🔬 P1.6: (schedule_lag_ms, loop_duration_ms) لكل دورة
         self.started_at = _utcnow_iso()
         self.ended_at = None
         self.termination = "unknown"
         # §2a: هل انتهت الجلسة قبل الإغلاق المتوقّع (يُحسب في finalize من meta.expected_close_iso).
         self.ended_before_expected_close = None
         self.minutes_short_of_close = None
+        # 🔬 P1.4: تتبّع commit القائمة (يتغيّر مع _fresh_watchlist كل ~5د).
+        self.watchlist_commit_current = self.meta.get("watchlist_commit_start")
         self.enabled = False
         self._cand_fh = None
         self._deliv_fh = None
@@ -185,6 +216,14 @@ class IgnitionMeasurementRecorder:
             self.enabled = True
         except Exception:
             self.enabled = False
+
+    def set_watchlist_commit(self, commit):
+        """🔬 P1.4: يُحدَّث عند كل تحديث قائمة (_fresh_watchlist). المرشّح اللاحق يختمه."""
+        try:
+            if commit:
+                self.watchlist_commit_current = str(commit)
+        except Exception:
+            pass
 
     # ── مساعِدات داخلية ────────────────────────────────────────────────────
     def _sym(self, symbol):
@@ -253,10 +292,11 @@ class IgnitionMeasurementRecorder:
                                     else p.get("operator_status") or "unavailable"),
                 "operator_has_operator": p.get("has_operator"),
                 "operator_buy_block_shares": p.get("buy_block_shares"),
-                "operator_bid_block_shares": p.get("bid_block_shares"),
-                "nbbo_bid": p.get("nbbo_bid"), "nbbo_ask": p.get("nbbo_ask"),
-                "quote_timestamp_raw": p.get("quote_ts")})   # §2d: الخام كما ورد (provenance)
-            self._compute_nbbo(symbol)
+                "operator_bid_block_shares": p.get("bid_block_shares")})
+            # 🔬 P1.3: NBBO من operator_flow يُخزَّن كمصدر operator (يصبح الأساسي فقط لو
+            # measurement غائب). measurement (لو جُلب) ضُبط أصلًا في _start_candidate.
+            self._apply_nbbo_source(self._cur_candidate(symbol), "operator",
+                                    p.get("nbbo_bid"), p.get("nbbo_ask"), p.get("quote_ts"))
         elif event == "08_OPERATOR_UNAVAILABLE":
             ss["operator_unavailable_count"] += 1
             self._patch_candidate(symbol, {"operator_status": "unavailable"})
@@ -279,6 +319,13 @@ class IgnitionMeasurementRecorder:
         elif event == "11_ALERT_EMITTED":
             ss["emitted_count"] += 1
             self._patch_candidate(symbol, {"gate_decision": "emit", "alert_emitted": True})
+            # 🔬 P1.5: زمن الإصدار + latency القرار (من الاكتشاف إلى قرار الإصدار).
+            cand = self._cur_candidate(symbol)
+            if cand is not None:
+                em = _utcnow_ms()
+                cand["emitted_at_ms"] = em
+                if cand.get("detected_at_ms") is not None and em is not None:
+                    cand["decision_latency_ms"] = int(em - cand["detected_at_ms"])
             self._flush_candidate(symbol)
 
     def _start_candidate(self, symbol, now, p):
@@ -299,8 +346,11 @@ class IgnitionMeasurementRecorder:
             return                                   # دِدوب: نفس شمعة الاشتعال ونفس الحاجز
         cand = {
             "schema_version": SCHEMA_VERSION, "session_date": self.session_date, "symbol": symbol,
+            "segment": self.segment,
             "candidate_id": cid, "source_commit": self.meta.get("source_commit"),
-            "watchlist_commit": self.meta.get("watchlist_source_commit_start"),
+            # 🔬 P1.4: commit القائمة الفعلي وقت الترشيح (يتغيّر مع _fresh_watchlist).
+            "watchlist_commit_start": self.meta.get("watchlist_commit_start"),
+            "watchlist_commit_at_candidate": self.watchlist_commit_current,
             "break_level": bl, "break_level_source": p.get("break_level_source"),
             "pivot": p.get("pivot"), "stop": p.get("stop"),
             "t1": p.get("t1"), "t2": p.get("t2"), "t3": p.get("t3"),
@@ -311,15 +361,30 @@ class IgnitionMeasurementRecorder:
             "signal_usd": p.get("signal_usd"), "candle_class": p.get("candle_class"),
             "operator_status": None, "operator_has_operator": None,
             "operator_bid_block_shares": None, "operator_buy_block_shares": None,
-            "nbbo_bid": None, "nbbo_ask": None, "nbbo_mid": None, "spread_pct_mid": None,
-            "quote_timestamp_raw": None, "quote_timestamp": None, "quote_age_ms": None,
-            "primary_executable": None,
+            # 🔬 P1.3: NBBO قياسي مستقلّ (measurement) + NBBO operator (من operator_flow) — منفصلان.
+            "measurement_nbbo_bid": None, "measurement_nbbo_ask": None, "measurement_nbbo_mid": None,
+            "measurement_spread_pct_mid": None, "measurement_quote_ts_raw": None,
+            "measurement_quote_ts_ms": None, "measurement_quote_age_ms": None,
+            "measurement_executable": None,
+            "operator_nbbo_bid": None, "operator_nbbo_ask": None, "operator_nbbo_mid": None,
+            "operator_spread_pct_mid": None, "operator_quote_ts_raw": None,
+            "operator_quote_ts_ms": None, "operator_quote_age_ms": None, "operator_executable": None,
+            # مرآة «الأساسي» (يفضّل measurement) + مصدره — توافق خلفي مع المدقّق/الاختبارات.
+            "nbbo_source": None, "nbbo_bid": None, "nbbo_ask": None, "nbbo_mid": None,
+            "spread_pct_mid": None, "quote_timestamp_raw": None, "quote_timestamp": None,
+            "quote_age_ms": None, "primary_executable": None,
             "fallback_status": "not_used", "gate_decision": None,
             "alert_emitted": False, "telegram_delivered": None,
+            # 🔬 P1.5: زمنيات (latency) بالملّي.
+            "emitted_at_ms": None, "telegram_attempted_at_ms": None, "telegram_sent_at_ms": None,
             "decision_latency_ms": None, "delivery_latency_ms": None,
         }
         self.candidates[cid] = cand
         self.symbols[symbol]["_cur_cand"] = cid
+        # 🔬 P1.3: NBBO القياسي المستقلّ (لو جُلب في trace) — قياس فقط، لا يمسّ أي قرار تنبيه.
+        if p.get("measurement_nbbo_bid") is not None or p.get("measurement_nbbo_ask") is not None:
+            self._apply_nbbo_source(cand, "measurement", p.get("measurement_nbbo_bid"),
+                                    p.get("measurement_nbbo_ask"), p.get("measurement_quote_ts"))
 
     def _patch_candidate(self, symbol, fields):
         cand = self._cur_candidate(symbol)
@@ -328,31 +393,30 @@ class IgnitionMeasurementRecorder:
                 if v is not None or cand.get(k) is None:
                     cand[k] = v
 
-    def _compute_nbbo(self, symbol):
-        """🔬 §2d: يوحّد طابع NBBO لملّي-UTC، يحسب عمره وقت القرار، ويحسم الصلاحية
-        التنفيذية = (NBBO صالح) **و** (طازج ≤5ث). مجهول/قديم/مستقبلي = غير تنفيذي."""
-        cand = self._cur_candidate(symbol)
+    def _apply_nbbo_source(self, cand, src, bid, ask, quote_raw):
+        """🔬 P1.3: يخزّن مقاييس NBBO لمصدرٍ (measurement|operator) في حقول `{src}_*`، ويضبط
+        «الأساسي» (primary_executable + nbbo_source + المرآة). **measurement مفضَّل**: يضبط الأساسي
+        دائمًا لو له NBBO؛ operator يضبطه **فقط** لو الأساسي فارغ (measurement غائب). قياس فقط."""
         if cand is None:
             return
-        # توحيد الطابع (نانو/مايكرو/ملّي/ثوانٍ → ملّي) + العمر مقابل «الآن» (وقت القياس ≈ القرار).
-        q_ms = _normalize_ts_ms(cand.get("quote_timestamp_raw"))
-        cand["quote_timestamp"] = q_ms
-        age, fresh = _quote_freshness(q_ms, _utcnow_ms())
-        cand["quote_age_ms"] = (int(age) if age is not None else None)
-        bid, ask = cand.get("nbbo_bid"), cand.get("nbbo_ask")
-        valid = False
-        try:
-            if bid is not None and ask is not None and float(ask) > 0:
-                mid = (float(bid) + float(ask)) / 2.0
-                cand["nbbo_mid"] = round(mid, 6)
-                if mid > 0:
-                    cand["spread_pct_mid"] = round((float(ask) - float(bid)) / mid * 100.0, 4)
-                # NBBO صالح (SPEC §13.1): ask>0, ask>=bid, سبريد متاح.
-                valid = bool(float(ask) >= float(bid) and cand.get("spread_pct_mid") is not None)
-        except Exception:
-            valid = False
-        # تنفيذي أوّلي **فقط** لو NBBO صالح وطازج (§2d): يخرج البائت من تحليل العائد لاحقًا.
-        cand["primary_executable"] = bool(valid and fresh)
+        m = _nbbo_metrics(bid, ask, quote_raw, _utcnow_ms())
+        cand["%s_nbbo_bid" % src] = bid
+        cand["%s_nbbo_ask" % src] = ask
+        cand["%s_nbbo_mid" % src] = m["mid"]
+        cand["%s_spread_pct_mid" % src] = m["spread_pct_mid"]
+        cand["%s_quote_ts_raw" % src] = quote_raw
+        cand["%s_quote_ts_ms" % src] = m["quote_ts_ms"]
+        cand["%s_quote_age_ms" % src] = m["quote_age_ms"]
+        cand["%s_executable" % src] = m["executable"]
+        has_nbbo = (bid is not None or ask is not None)
+        if has_nbbo and (src == "measurement" or cand.get("nbbo_source") is None):
+            cand["nbbo_source"] = src
+            cand["nbbo_bid"], cand["nbbo_ask"], cand["nbbo_mid"] = bid, ask, m["mid"]
+            cand["spread_pct_mid"] = m["spread_pct_mid"]
+            cand["quote_timestamp_raw"] = quote_raw
+            cand["quote_timestamp"] = m["quote_ts_ms"]
+            cand["quote_age_ms"] = m["quote_age_ms"]
+            cand["primary_executable"] = m["executable"]
 
     def _flush_candidate(self, symbol):
         """crash-safe: يُلحق الـcandidate عند وصوله قرار البوّابة النهائي (مع flush)."""
@@ -365,10 +429,12 @@ class IgnitionMeasurementRecorder:
     def telegram_attempt(self, rows):
         try:
             now = _utcnow_iso()
+            now_ms = _utcnow_ms()
             for sym in self._row_symbols(rows):
                 cand = self._latest_emitted(sym)
                 if cand is not None and cand.get("telegram_attempted_at") is None:
                     cand["telegram_attempted_at"] = now
+                    cand["telegram_attempted_at_ms"] = now_ms      # 🔬 P1.5
         except Exception:
             pass
 
@@ -381,6 +447,7 @@ class IgnitionMeasurementRecorder:
     def _telegram_result(self, rows, delivered, error_type):
         try:
             now = _utcnow_iso()
+            now_ms = _utcnow_ms()
             for sym in self._row_symbols(rows):
                 if delivered:
                     self._sym(sym)["delivered_count"] += 1
@@ -389,6 +456,9 @@ class IgnitionMeasurementRecorder:
                     cand["telegram_delivered"] = bool(delivered)
                     if delivered:
                         cand["telegram_sent_at"] = now
+                        cand["telegram_sent_at_ms"] = now_ms       # 🔬 P1.5
+                        if cand.get("emitted_at_ms") is not None and now_ms is not None:
+                            cand["delivery_latency_ms"] = int(now_ms - cand["emitted_at_ms"])
                 self._append(self._deliv_fh, {
                     "session_date": self.session_date, "symbol": sym, "delivered": bool(delivered),
                     "error_type": error_type, "at": now})
@@ -434,44 +504,141 @@ class IgnitionMeasurementRecorder:
         except Exception:
             pass
 
-    def backfill_emitted(self, fetch_bars):
-        """🔬 §2b: يكمّل **مسار الدقيقة لكل رمز مُنبَّه** من لحظة الاشتعال حتى نهاية الجلسة.
-        الرادار يتوقّف عن جلب شموع السهم بعد التنبيه (دِدوب `ignition_alert`) فتُفقَد الحركة
-        اللاحقة اللازمة لتحليل النتيجة (T1/ذروة الجلسة). `fetch_bars(symbol)->bars` **محقون**
-        (حيّ = polygon_minute_bars بنافذة يوم كامل) فيبقى المسجّل بلا شبكة. يُستدعى **مرة**
-        بعد اللف. **فاشل-آمن مطلق · لا يمسّ التنبيه/الدِدوب/الاختيار** (دِدوب symbol+t يمنع
-        الازدواج مع ما سُجِّل أثناء اللف). يرجّع عدد الرموز المردومة."""
+    def backfill_emitted(self, fetch_bars, expected_last_bar_ts=None,
+                         tolerance_ms=BAR_INTERVAL_MS * 3):
+        """🔬 §2b/P1.2: يكمّل **مسار الدقيقة لكل رمز مُنبَّه** من الاشتعال حتى نهاية الجلسة.
+        الرادار يتوقّف عن جلب شموع السهم بعد التنبيه (دِدوب) فتُفقَد الحركة اللاحقة اللازمة لتحليل
+        النتيجة (T1/ذروة الجلسة). `fetch_bars(symbol)->bars` **محقون** (حيّ = polygon_minute_bars
+        نافذة يوم كامل) فيبقى المسجّل بلا شبكة. **يُستدعى بعد الإغلاق (P0-2)** — في الجلسة المجزّأة
+        من الـassembler حصريًّا. `expected_last_bar_ts` (بداية آخر شمعة دقيقة قبل الإغلاق) → الحالة
+        `success` **فقط** لو وصل المسار إليه (ضمن `tolerance_ms`) وإلّا `partial`. بلا حدّ متوقّع =
+        `done_unverified`. **فاشل-آمن · لا يمسّ التنبيه/الدِدوب/الاختيار** (دِدوب symbol+t). يرجّع العدد."""
         n = 0
         try:
             emitted = sorted({c.get("symbol") for c in self.candidates.values()
                               if c.get("alert_emitted") and c.get("symbol")})
             for sym in emitted:
+                err = False
                 try:
                     bars = fetch_bars(sym)
                 except Exception:
-                    bars = None
+                    bars, err = None, True
                 before = len(self._minute_seen)
+                last_t = None
                 if bars:
                     self.record_minute_path(sym, bars)
+                    try:
+                        last_t = max(b.get("t") for b in bars if b.get("t") is not None)
+                    except (ValueError, TypeError):
+                        last_t = None
                 ss = self._sym(sym)
-                ss["backfilled"] = True
                 ss["backfill_bars_added"] = len(self._minute_seen) - before
+                ss["backfill_last_bar_ts"] = last_t if last_t is not None else ss.get("last_bar_ts")
+                if err:
+                    ss["backfill_status"] = "error"
+                elif not bars:
+                    ss["backfill_status"] = "empty"
+                elif expected_last_bar_ts is not None:
+                    reached = (ss["backfill_last_bar_ts"] is not None
+                               and ss["backfill_last_bar_ts"] >= expected_last_bar_ts - tolerance_ms)
+                    ss["backfill_status"] = "success" if reached else "partial"
+                else:
+                    ss["backfill_status"] = "done_unverified"
                 n += 1
         except Exception:
             pass
         return n
 
+    # ── handoff بين المقاطع (ب+) ───────────────────────────────────────────
+    @staticmethod
+    def _file_sha256(path):
+        try:
+            import hashlib
+            h = hashlib.sha256()
+            with open(path, "rb") as fh:
+                for chunk in iter(lambda: fh.read(65536), b""):
+                    h.update(chunk)
+            return h.hexdigest()
+        except Exception:
+            return None
+
+    def _raw_files_sha256(self):
+        out = {}
+        for name in ("candidates.jsonl", "deliveries.jsonl", "symbol_sessions.jsonl",
+                     "minute_paths.jsonl.gz", "session.json"):
+            p = os.path.join(self.dir, name)
+            if os.path.exists(p):
+                out[name] = self._file_sha256(p)
+        return out
+
+    def _emitted_symbols(self):
+        return sorted({c.get("symbol") for c in self.candidates.values()
+                       if c.get("alert_emitted") and c.get("symbol")})
+
+    def export_handoff(self):
+        """🔬 (ب+): يبني handoff المقطع (يُستدعى بعد finalize فالملفّات الخام مكتوبة).
+        يُمرَّر لـjob التالي لاستعادة أختام الدِدوب + التسلسل + تحقّق السلامة. فاشل-آمن → {}."""
+        try:
+            return {
+                "schema_version": SCHEMA_VERSION, "session_date": self.session_date,
+                "segment": self.segment, "segment_id": self.segment_id,
+                "segment_started_at": self.started_at, "segment_ended_at": self.ended_at,
+                "expected_segment_start": self.meta.get("expected_segment_start_iso"),
+                "expected_segment_end": self.meta.get("expected_segment_end_iso"),
+                "source_commit": self.meta.get("source_commit"),
+                "watchlist_commit_start": self.meta.get("watchlist_commit_start"),
+                "watchlist_commit_end": self.watchlist_commit_current,
+                "workflow_run_id": self.meta.get("workflow_run_id"),
+                "alerted_symbols": self._emitted_symbols(),
+                "candidate_ids": sorted(self.candidates.keys()),
+                "last_bar_by_symbol": {s: ss.get("last_bar_ts") for s, ss in self.symbols.items()
+                                       if ss.get("last_bar_ts") is not None},
+                "symbols_union": sorted(self.symbols.keys()),
+                "loops_started": self.loops_started, "loops_completed": self.loops_completed,
+                "raw_files_sha256": self._raw_files_sha256(),
+                "previous_segment_sha256": self.meta.get("previous_segment_sha256"),
+            }
+        except Exception:
+            return {}
+
     def loop_start(self):
         self.loops_started += 1
 
-    def loop_end(self, checkpoint_every=7):
+    def loop_end(self, checkpoint_every=7, schedule_lag_ms=None, loop_duration_ms=None):
         self.loops_completed += 1
+        # 🔬 P1.6: قياس أثر الأداة نفسها (تأخّر الجدولة + زمن الدورة) — يُلخَّص median/p95.
+        if schedule_lag_ms is not None or loop_duration_ms is not None:
+            self._loop_timings.append((schedule_lag_ms, loop_duration_ms))
         if checkpoint_every and self.loops_completed % checkpoint_every == 0:
             self._write_session("running")
 
     # ── الإنهاء (يُستدعى في finally) ───────────────────────────────────────
     def _coverage(self, ss):
         return round(ss["bars_ok"] / max(1, ss["bars_attempted"]), 4)
+
+    def _timing_stats(self):
+        """🔬 P1.6: إحصاء أثر الأداة (median/p95 لزمن الدورة + تأخّر الجدولة + نسبة الدورات
+        التي تجاوزت interval). فاشل-آمن → dict فارغ القيم."""
+        try:
+            interval_ms = float(self.meta.get("interval_seconds") or 0) * 1000.0
+            durs = sorted(d for _, d in self._loop_timings if d is not None)
+            lags = sorted(l for l, _ in self._loop_timings if l is not None)
+
+            def _pct(vals, q):
+                if not vals:
+                    return None
+                i = min(len(vals) - 1, int(round(q * (len(vals) - 1))))
+                return round(vals[i], 1)
+            over = (sum(1 for d in durs if interval_ms and d > interval_ms) / len(durs)
+                    if durs else None)
+            return {
+                "loop_duration_ms_median": _pct(durs, 0.5), "loop_duration_ms_p95": _pct(durs, 0.95),
+                "schedule_lag_ms_median": _pct(lags, 0.5), "schedule_lag_ms_p95": _pct(lags, 0.95),
+                "loops_over_interval_ratio": (round(over, 4) if over is not None else None),
+                "n_timed_loops": len(durs),
+            }
+        except Exception:
+            return {}
 
     def _compute_close_gap(self):
         """🔬 §2a: يحسب هل انتهت الجلسة **قبل الإغلاق المتوقّع** (من meta.expected_close_iso)
@@ -498,6 +665,10 @@ class IgnitionMeasurementRecorder:
                 # §2a: أعلام إغلاق الجلسة (تُحسب في finalize؛ None أثناء اللف/بلا expected_close).
                 "ended_before_expected_close": self.ended_before_expected_close,
                 "minutes_short_of_close": self.minutes_short_of_close,
+                # 🔬 (ب+): هوية المقطع · P1.6: أثر الأداة.
+                "segment": self.segment, "segment_id": self.segment_id,
+                "segment_started_at": self.started_at, "segment_ended_at": self.ended_at,
+                "instrumentation_timing": self._timing_stats(),
             }
             sess.update(self.meta)
             _atomic_write(os.path.join(self.dir, "session.json"),

@@ -46,6 +46,23 @@
 > + Draft PR + مراجعة Codex (الخطوات 3-5) · ثم Pilot واحد (الخطوة 6) بعد مراجعة نظيفة — لا confirmatory قبل
 > الدمج.** التفاصيل: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md §16`.
 
+> 🔬 **E2 — المعمارية المجزّأة (ب+، 2026-07-13، مراجعة Codex الثالثة REQUEST CHANGES على `7e98422` ·
+> 801 اختبار · قياس فقط · بت-بت في الإنتاج · لا LOGIC_VERSION):** Codex قبِل جوهر القياس لكن حجب Pilot الرأس
+> السابق بـ**3 موانع P0** واختار **(ب+): جوبان متسلسلان + assembler** (رفض «أ» يضحّي بالافتتاح و«ج» كتعريف
+> للجلسة لأن التسجيل المسبق يقفل regular_hours حتى الإغلاق). **نُفِّذ بالكامل:** `ignition.yml` صار **3 jobs**
+> `open_segment`→`close_segment`(needs)→`assemble_e2_session`(needs). `close_segment` يستعيد أختام الدِدوب من
+> handoff (`_apply_handoff_dedup` → **لا تنبيه Telegram مكرّر** عبر المقطعين، الاستثناء الإنتاجي الوحيد المقصود،
+> مقفول باختبار). **P0-1** `_segment_window` يحسب الحدود **من الافتتاح الفعلي** لا بدء الرنر · **P0-2** الردم
+> النهائي بعد الإغلاق في `ignition_e2_assemble.py` (يدمج bars/candidates/deliveries + counters `min/max` +
+> backfill) · **P0-3** المدقّق يشترط **وصول المسار للإغلاق** (`path_last_bar ≥ close−3د`). **P1 (كلها):**
+> `backfill_status` · **NBBO قياسي مستقلّ** `polygon_nbbo`/`fetch_measure_nbbo` (**قفل: لا يمسّ القرار**،
+> measurement مفضَّل) + `operator_nbbo_*`/`nbbo_source` · watchlist provenance · latency · أثر الأداة
+> (`instrumentation_timing` median/p95). المدقّق: `kind=segment|assembled|single`؛ **`session_complete`
+> (الجزآن + المسار للإغلاق) وحده يعدّ نحو 5/20** · `segment_complete` لا. ملفّات جديدة: `ignition_e2_assemble.py`
+> + `E2_IGNITION_SEGMENTED_ARCH.md`. **⏳ متبقٍّ: دفع الفرع + تحديث PR #167 + مراجعة Codex الرابعة على الرأس
+> الجديد · ثم Pilot واحد `excluded_from_confirmatory` (بموافقته + المالك) — لا Pilot على رأسٍ لم يُراجَع.**
+> التفاصيل: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md §17`.
+
 > 🏦 **حكم «قوة البوت» بالمحور المصحَّح — اكتمل ووُثّق (2026-07-12، PR #161 sha 922aee2 مُدمَج ·
 > شُغِّل السوق الكامل 3562 رمز/سنة · `MARKET_BACKTEST_FINDINGS §0-م`):** الحكم = كم انفجر كل سهم
 > من الدخول قبل وقفه (لا t1). **الناجحون (انفجر 50%+ قبل الوقف): 10% (2025) · 8% (2026)** · ~1 من

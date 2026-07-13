@@ -104,5 +104,44 @@ Actions → **Ignition Radar** → Run workflow على `claude/e2a-ignition-meas
 لم أختر صامتًا — سجّلت الحقيقة وطرحت القرار.
 
 ---
+
+### 17. المعمارية المجزّأة (ب+) — استجابة مراجعة Codex الثالثة (REQUEST CHANGES على `7e98422`)
+Codex قبِل جوهر القياس لكن حجب Pilot الرأس السابق بـ**3 موانع P0** واختار **(ب+): جوبان متسلسلان +
+handoff + assembler**. نُفِّذ بالكامل (قياس فقط · لا LOGIC_VERSION · بت-بت في الإنتاج · 801 اختبار).
+التفاصيل: `E2_IGNITION_SEGMENTED_ARCH.md`.
+
+**الموانع P0 (حُلّت):**
+- **P0-1** `IGNITION_MAX_RUNTIME_MIN` كان من t0 قبل انتظار الافتتاح → لا جلسة تكتمل. الحلّ: `_segment_window`
+  يحسب حدود المقطع **من الافتتاح الفعلي** (لا بدء الرنر)، ومقطعان يغطّيان النافذة كاملةً.
+- **P0-2** backfill كان يُشغَّل عند نهاية اللف المبكر (بارات ما بعده لم توجد بعد). الحلّ: **الردم النهائي
+  في الـassembler بعد الإغلاق** (`ignition_e2_assemble.py`).
+- **P0-3** المدقّق كان يقبل بارًا واحدًا بعد الاشتعال. الحلّ: **`path_last_bar ≥ expected_close_last_bar −
+  locked_tolerance`** (3د) في `session_complete`.
+
+**المعمارية:** `open_segment` [افتتاح→+195د] → `close_segment` [→إغلاق] (يستعيد أختام الدِدوب من handoff
+open → **لا تنبيه Telegram مكرّر**) → `assemble_e2_session` (يدمج · دِدوب bars/candidates/deliveries ·
+`min(first_seen)`/`max(last_seen)` · **backfill نهائي بعد الإغلاق** · المدقّق · وحده يكتب summary/index).
+`handoff` يحمل: segment_id/timestamps/expected · alerted_symbols · candidate_ids · last_bar_by_symbol ·
+symbols_union · loops · **raw_files_sha256** + previous_segment_sha256 (تسلسل).
+
+**تعريف الاكتمال:** `segment_complete` (إنهاء طبيعي · loops متوازنة · غطّى نافذته · schema) — **لا** يدخل
+البوّابة. `session_complete` (الجزآن · union افتتاح→إغلاق · handoff · لا duplicate · المسارات تصل الإغلاق ·
+فجوة الانتقال مقاسة) — **وحده** يعدّ نحو 5/20. المدقّق يميّز `kind = segment|assembled|single`.
+
+**P1 (كلها نُفِّذت):** **P1.1** حدود من الافتتاح (=P0-1) · **P1.2** `backfill_status` (success **فقط** عند
+بلوغ الحدّ · partial/empty/error/not_attempted) + `backfill_last_bar_ts` · **P1.3** **NBBO قياسي مستقلّ**
+(`polygon_nbbo`، مُحقَن كـ`fetch_measure_nbbo` — **قفل: لا يمسّ قرار التنبيه**، بت-بت مؤكَّد باختبار) مع
+`measurement_nbbo_*`/`operator_nbbo_*`/`nbbo_source` (measurement مفضَّل) · **P1.4** `watchlist_commit_start/
+at_candidate/end` (يُحدَّث مع `_fresh_watchlist`) · **P1.5** latency (`emitted_at_ms`/`telegram_*_at_ms`/
+`decision_latency_ms`/`delivery_latency_ms`) · **P1.6** أثر الأداة (`instrumentation_timing`: median/p95 لزمن
+الدورة + تأخّر الجدولة + نسبة تجاوز interval) · **P1.7** المدقّق يفحص نهاية المسار قرب الإغلاق (=P0-3).
+
+`schema_version` يبقى 2. **الاستثناء الإنتاجي الوحيد المقصود:** استعادة أختام الدِدوب عبر المقطعين (صون
+«مرة/سهم/يوم» عبر البنية الجديدة — طبقة توقيت الرادار لا الاختيار؛ مقفول باختبار «لا تكرار»).
+
+**⏳ متبقٍّ:** دفع الفرع + تحديث PR #167 · مراجعة Codex الرابعة على الرأس الجديد · ثم **Pilot واحد** موسوم
+`excluded_from_confirmatory=true` (بموافقة Codex + المالك — **لا** على رأسٍ لم يُراجَع).
+
+---
 **الخلاصة:** الرادار صار تجربة prospective كاملة القياس **دون أن يتغيّر تنبيه واحد**. الخطوة التالية =
 تراكم ≥5 جلسات كاملة (E2-A) ثم E2-B الوصفي — بموافقة المالك، لا تطبيق تلقائي.

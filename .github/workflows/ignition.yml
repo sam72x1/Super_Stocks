@@ -1,70 +1,152 @@
 name: Ignition Radar (رادار الانطلاق اللحظي)
 
 # 🔥 عامل جلسة حي: من الافتتاح، يلفّ كل ~45ث يفحص القائمة المؤهّلة ويكشف لحظة
-# الاشتعال (حجم + كسر صاعد + تدفق أوامر يؤكّد) → تنبيه فوري «ادخل الآن». جوب واحد
-# طويل (لا كرون كل دقيقة). إشعار فقط — لا يحفظ حالة الفرز (عدا سجلّ القياس المستقل
-# ignition_log.json بنهاية الجلسة). فاشل-آمن: بلا مفتاح = لا عمل.
+# الاشتعال (حجم + كسر صاعد + تدفق أوامر يؤكّد) → تنبيه فوري «ادخل الآن». إشعار فقط.
+#
+# 🔬 (ب+ · قرار Codex §2a): الجلسة (6.5س) لا تُغطّى بجوب واحد (سقف رنر 6س). **3 jobs
+# متسلسلة:** open_segment [الافتتاح→+195د] → close_segment [→الإغلاق] (يستعيد أختام الدِدوب
+# من open فلا تنبيه مكرّر) → assemble_e2_session (يدمج + backfill بعد الإغلاق + المدقّق).
+# التفاصيل: E2_IGNITION_SEGMENTED_ARCH.md. فاشل-آمن: بلا مفتاح = لا عمل.
 
-# contents: write ليحفظ عامل الجلسة سجلّ القياس (ignition_log.json) بالريبو عند النهاية
+# contents: write ليدفع الـassembler سجلّ القياس (summary/index) بالريبو عند النهاية
 permissions:
   contents: write
 
 on:
   schedule:
-    - cron: "35 13 * * 1-5"        # بعد افتتاح ناسداك (13:30 UTC) مباشرةً، أيام التداول
+    - cron: "35 13 * * 1-5"        # بعد افتتاح ناسداك (13:30 UTC) — job1 ينتظر الجرس شتاءً
   workflow_dispatch: {}
 
-# مجموعة تزامن مستقلة (لا يحفظ الحالة → يعمل بالتوازي مع الفرز/المراقبة بلا تضارب)
+# مجموعة تزامن مستقلة (لا يحفظ حالة الفرز → يعمل بالتوازي مع الفرز/المراقبة بلا تضارب)
 concurrency:
   group: super-stocks-ignition
   cancel-in-progress: false
 
-jobs:
-  ignition:
-    runs-on: ubuntu-latest
-    # 🔬 §2a: قرب سقف رنر GitHub (6 ساعات = 360د). اللفّ يخرج رشيقًا عند
-    # IGNITION_MAX_RUNTIME_MIN (أدناه) **قبل** هذا الحدّ فيضمن finalize/ردم/رفع artifact.
-    timeout-minutes: 355
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+env:
+  # سقف أمان لزمن كل مقطع (نادرًا يبلغ — الموعد الطبيعي = نهاية المقطع من الافتتاح).
+  IGNITION_MAX_RUNTIME_MIN: "290"
+  IGNITION_SEGMENT_SPLIT_MIN: "195"
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+jobs:
+  # ═══ job1: مقطع الافتتاح [open, open+195د] ═══
+  open_segment:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Run ignition radar
+      - name: Run open segment
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
-          # 🔬 §2a: بلا IGNITION_END_UTC مثبّت — الموعد النهائي ديناميكي (الإغلاق الفعلي
-          # المشتقّ من توقيت نيويورك، يتصيّف/يتشتّى). سقف زمن التشغيل يضمن خروجًا رشيقًا
-          # (finalize + ردم المسار البعدي) **قبل** حدّ الجوب 355د. الإغلاق المتوقّع يُسجَّل
-          # فالتغطية الجزئية (قيد 6س للرنر مقابل جلسة 6.5س) صريحة في session.json لا صامتة.
-          IGNITION_MAX_RUNTIME_MIN: "335"
-          # 🔬 E2-A: يفعّل المسجّل الظلّي فقط (لا يغيّر أي تنبيه/عتبة/اختيار). GITHUB_SHA/RUN_ID/
-          # RUN_ATTEMPT يوفّرها Actions تلقائيًّا فيقرؤها المسجّل للـprovenance.
           E2_MEASUREMENT: "1"
+          IGNITION_SEGMENT: "open"
+          IGNITION_HANDOFF_OUT: "handoff_open.json"
         run: python ignition_live.py
-
-      # 🔬 E2-A: بيئة القياس (provenance) + رفع الخام artifact دائمًا (حتى عند timeout/فشل).
       - name: Capture E2 environment (provenance)
         if: always()
         run: |
           mkdir -p e2_measurement
           { python -VV; echo "---pip freeze---"; pip freeze; } \
-            > "e2_measurement/env_${{ github.run_id }}.txt" 2>&1 || true
-
-      - name: Upload E2 measurement
+            > "e2_measurement/env_open_${{ github.run_id }}.txt" 2>&1 || true
+      - name: Upload open segment
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ignition-e2-${{ github.run_id }}
-          path: e2_measurement/
+          name: ign-open-${{ github.run_id }}
+          path: |
+            e2_measurement/
+            handoff_open.json
+          retention-days: 90
+          if-no-files-found: warn
+
+  # ═══ job2: مقطع الإغلاق [open+195د, close] — يستعيد دِدوب open (لا تنبيه مكرّر) ═══
+  close_segment:
+    runs-on: ubuntu-latest
+    needs: open_segment
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download open segment (handoff + raw)
+        uses: actions/download-artifact@v4
+        with:
+          name: ign-open-${{ github.run_id }}
+      - name: Run close segment
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          E2_MEASUREMENT: "1"
+          IGNITION_SEGMENT: "close"
+          IGNITION_HANDOFF_IN: "handoff_open.json"     # يستعيد أختام الدِدوب
+          IGNITION_HANDOFF_OUT: "handoff_close.json"
+        run: python ignition_live.py
+      - name: Capture E2 environment (provenance)
+        if: always()
+        run: |
+          mkdir -p e2_measurement
+          { python -VV; echo "---pip freeze---"; pip freeze; } \
+            > "e2_measurement/env_close_${{ github.run_id }}.txt" 2>&1 || true
+      - name: Upload both segments (raw)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ign-close-${{ github.run_id }}
+          path: |
+            e2_measurement/
+            handoff_open.json
+            handoff_close.json
+          retention-days: 90
+          if-no-files-found: warn
+
+  # ═══ job3: الدمج بعد الإغلاق — يجمع المقطعين + backfill نهائي + المدقّق ═══
+  assemble_e2_session:
+    runs-on: ubuntu-latest
+    needs: close_segment
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download both segments
+        uses: actions/download-artifact@v4
+        with:
+          name: ign-close-${{ github.run_id }}
+      - name: Assemble session (merge + post-close backfill + analyzer)
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}   # لـbackfill بعد الإغلاق
+        run: |
+          python ignition_e2_assemble.py
+          python ignition_e2_analyze.py e2_measurement || true
+      - name: Push E2 summary/index (best-effort)
+        if: always()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ignition_e2_summary.json ignition_e2_session_index.json 2>/dev/null || true
+          git commit -m "🔬 E2: ملخّص جلسة الرادار المدموجة (assembler)" 2>/dev/null || true
+          git push 2>/dev/null || true
+      - name: Upload assembled session
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ign-assembled-${{ github.run_id }}
+          path: |
+            e2_measurement/
+            ignition_e2_summary.json
+            ignition_e2_session_index.json
           retention-days: 90
           if-no-files-found: warn

@@ -2219,6 +2219,7 @@ check("🔬 E2-A §21.7 قفل: ignition_live يبوّب بـE2_MEASUREMENT + tr
 
 # ═══ 🔬 إصلاحات فجوات مراجعة Codex لـE2-A (§2a–§2e) — قياس فقط، لا تغيير تنبيه/عتبة ═══
 import ignition_e2_analyze as _A
+import ignition_e2_assemble as _ASM
 import gzip as _gz
 # ── §2d: توحيد طابع NBBO (نانو/مايكرو/ملّي/ثوانٍ → ملّي) + عمر/طزاجة (نقيّة) ──
 check("🔬 §2d نقيّة: _normalize_ts_ms يوحّد نانو/مايكرو/ملّي/ثوانٍ → ملّي (وNone للصغير)",
@@ -2259,9 +2260,30 @@ with _gz.open(_bf_path, "rt", encoding="utf-8") as _fh:
     _bf_mins = [_json.loads(x) for x in _fh if x.strip()]
 _bf_post = [m["t"] for m in _bf_mins if m["symbol"] == "IGN" and m["t"] > _bf_start]
 _bf_ss = {r["symbol"]: r for r in _e2_read_jsonl("bf", "symbol_sessions.jsonl")}
-check("🔬 §2b ردم بعدي: مسار الدقيقة يحوي بارات **بعد** لحظة الاشتعال للرمز المُنبَّه (+علم backfilled)",
+check("🔬 §2b ردم بعدي: مسار الدقيقة يحوي بارات **بعد** لحظة الاشتعال للرمز المُنبَّه (+حالة backfill)",
       _bf_n == 1 and len(_bf_post) == 3 and all(t > _bf_start for t in _bf_post)
-      and _bf_ss["IGN"]["backfilled"] is True and _bf_ss["IGN"]["backfill_bars_added"] == 3)
+      and _bf_ss["IGN"]["backfill_status"] == "done_unverified"
+      and _bf_ss["IGN"]["backfill_bars_added"] == 3 and _bf_ss["IGN"]["backfill_last_bar_ts"] is not None)
+# 🔬 P1.2: backfill_status = success فقط عند بلوغ الحدّ المتوقّع؛ partial لو قصُر؛ empty/error.
+_rec_bs = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "bstat"))
+S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_fresh, trace=_rec_bs.trace)
+_bs_start = int(_rec_bs._cur_candidate("IGN")["trigger_bar_start"])
+_rec_bs.backfill_emitted(lambda s: [{"o": 2.2, "h": 2.3, "l": 2.1, "c": 2.25, "v": 5,
+                                     "t": _bs_start + 60000 * k} for k in (1, 2, 3)],
+                         expected_last_bar_ts=_bs_start + 60000 * 3)
+_bs_ss_ok = _rec_bs._sym("IGN")["backfill_status"]
+_rec_bs2 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "bstat2"))
+S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_fresh, trace=_rec_bs2.trace)
+_bs2_start = int(_rec_bs2._cur_candidate("IGN")["trigger_bar_start"])
+_rec_bs2.backfill_emitted(lambda s: [{"o": 2.2, "h": 2.3, "l": 2.1, "c": 2.25, "v": 5, "t": _bs2_start + 60000}],
+                          expected_last_bar_ts=_bs2_start + 60000 * 100)   # الحدّ بعيد ⇒ قصور
+_bs_ss_partial = _rec_bs2._sym("IGN")["backfill_status"]
+_rec_bs3 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "bstat3"))
+S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_fresh, trace=_rec_bs3.trace)
+_rec_bs3.backfill_emitted(lambda s: None)          # لا بارات ⇒ empty
+_bs_ss_empty = _rec_bs3._sym("IGN")["backfill_status"]
+check("🔬 P1.2: backfill_status success(بلغ الحدّ)/partial(قصُر)/empty(بلا بارات)",
+      _bs_ss_ok == "success" and _bs_ss_partial == "partial" and _bs_ss_empty == "empty")
 # ── §2e نقيّة: exposure + أهلية recall بالشروط الثلاثة ──
 check("🔬 §2e نقيّة: _exposure_minutes(90د) + _recall_eligible يشترط الثلاثة معًا",
       _M._exposure_minutes("2026-07-20T13:30:00Z", "2026-07-20T15:00:00Z") == 90.0
@@ -2274,19 +2296,22 @@ check("🔬 §2e نقيّة: _exposure_minutes(90د) + _recall_eligible يشتر
 _e2_env_saved = {_k: _os.environ.get(_k) for _k in ("IGNITION_MAX_RUNTIME_MIN", "IGNITION_END_UTC")}
 _os.environ["IGNITION_MAX_RUNTIME_MIN"] = "335"
 _os.environ.pop("IGNITION_END_UTC", None)
-_win_su = IG._session_window(S.dt.datetime(2026, 7, 13, 13, 35, tzinfo=S.dt.timezone.utc))   # صيف
-_win_wi = IG._session_window(S.dt.datetime(2026, 1, 15, 13, 35, tzinfo=S.dt.timezone.utc))   # شتاء
+_win_su = IG._segment_window("", S.dt.datetime(2026, 7, 13, 13, 35, tzinfo=S.dt.timezone.utc))   # صيف
+_win_wi = IG._segment_window("", S.dt.datetime(2026, 1, 15, 13, 35, tzinfo=S.dt.timezone.utc))   # شتاء
 _os.environ["IGNITION_END_UTC"] = "18:00"
-_win_ov = IG._session_window(S.dt.datetime(2026, 7, 13, 13, 35, tzinfo=S.dt.timezone.utc))
+_win_ov = IG._segment_window("", S.dt.datetime(2026, 7, 13, 13, 35, tzinfo=S.dt.timezone.utc))
 for _k, _v in _e2_env_saved.items():          # استرجاع البيئة
     _os.environ.pop(_k, None) if _v is None else _os.environ.__setitem__(_k, _v)
-check("🔬 §2a: _session_window إغلاق ديناميكي (صيف 20:00 · شتاء 21:00) + سقف تشغيل + تجاوز صريح",
+check("🔬 §2a: _segment_window إغلاق ديناميكي (صيف 20:00 · شتاء 21:00) + سقف تشغيل + تجاوز صريح",
       _win_su["close"].strftime("%H:%M") == "20:00" and _win_wi["close"].strftime("%H:%M") == "21:00"
       and _win_su["reason"] == "max_runtime_cap" and _win_su["deadline"].strftime("%H:%M") == "19:10"
       and _win_ov["reason"] == "env_override" and _win_ov["deadline"].strftime("%H:%M") == "18:00")
-check("🔬 §2a قفل workflow: بلا مفتاح IGNITION_END_UTC مثبّت + IGNITION_MAX_RUNTIME_MIN + timeout مرفوع",
+check("🔬 (ب+) قفل workflow: 3 jobs متسلسلة (open→close→assemble) + دِدوب handoff + بلا 19:20",
       (lambda t: "IGNITION_END_UTC:" not in t and "IGNITION_MAX_RUNTIME_MIN:" in t
-       and "timeout-minutes: 355" in t)(open(".github/workflows/ignition.yml", encoding="utf-8").read()))
+       and "open_segment:" in t and "close_segment:" in t and "assemble_e2_session:" in t
+       and t.count("needs:") >= 2 and 'IGNITION_SEGMENT: "open"' in t
+       and 'IGNITION_SEGMENT: "close"' in t and "IGNITION_HANDOFF_IN" in t
+       )(open(".github/workflows/ignition.yml", encoding="utf-8").read()))
 # session.json يسجّل «انتهت قبل الإغلاق المتوقّع» (إغلاق متوقّع بعد ساعتين من الآن)
 _rec_ec = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "early"),
             meta={"expected_close_iso": (S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)
@@ -2296,11 +2321,13 @@ _rec_ec.finalize("normal")
 _ec_sess = _e2_read_json("early", "session.json")
 check("🔬 §2a: session.json يعلِّم ended_before_expected_close + minutes_short_of_close",
       _ec_sess["ended_before_expected_close"] is True and _ec_sess["minutes_short_of_close"] >= 100)
-# ── §2e: المدقّق يشدّد الاكتمال (مكتملة نظيفة مقابل أسباب عدم اكتمال) ──
+# ── §2e/P0-3: المدقّق يشدّد الاكتمال (session_complete: المسار يصل للإغلاق) ──
 def _e2_build_session(sub, sd, *, close_off=-5, backfill=True, loops=(2, 2), term="normal"):
+    _close_dt = (S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)
+                 + S.dt.timedelta(minutes=close_off))
+    _close_ms = int(_close_dt.timestamp() * 1000)
     _r = _M.IgnitionMeasurementRecorder(sd, out_root=_os.path.join(_e2_out, sub),
-          meta={"expected_close_iso": (S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)
-                + S.dt.timedelta(minutes=close_off)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+          meta={"expected_close_iso": _close_dt.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "deadline_reason": "market_close"})
     for _ in range(loops[0]):
         _r.loop_start()
@@ -2308,10 +2335,10 @@ def _e2_build_session(sub, sd, *, close_off=-5, backfill=True, loops=(2, 2), ter
     _r.telegram_attempt([({"symbol": "IGN"},)]); _r.telegram_success([({"symbol": "IGN"},)])
     for _ in range(loops[1]):
         _r.loop_end()
-    if backfill:
-        _bs = 1000 + 9 * 60           # آخر t في _e2_fire_t (بداية شمعة الاشتعال)
+    if backfill:                     # بارات تصل للإغلاق (P0-3): success + path_reaching_close
         _r.backfill_emitted(lambda s: [{"o": 2.2, "h": 2.3, "l": 2.1, "c": 2.25, "v": 5,
-                                        "t": _bs + 60 * k} for k in (2, 3)])
+                                        "t": _close_ms - 60000 * k} for k in (3, 2, 1)],
+                            expected_last_bar_ts=_close_ms - 60000)
     _r.finalize(term)
     return _A.analyze_session(_os.path.join(_e2_out, sub, "session_" + sd))
 _an_ok = _e2_build_session("an_ok", "2026-07-20")
@@ -2319,14 +2346,98 @@ _an_lost = _e2_build_session("an_lost", "2026-07-21", backfill=False)
 _an_loop = _e2_build_session("an_loop", "2026-07-22", loops=(3, 2))
 _an_early = _e2_build_session("an_early", "2026-07-23", close_off=+120)
 _an_exc = _e2_build_session("an_exc", "2026-07-24", term="exception")
-check("🔬 §2e مدقّق: جلسة نظيفة (توقيت+تسليم+ردم+إغلاق) ⇒ complete=True بلا أسباب",
-      _an_ok["complete"] is True and _an_ok["incomplete_reasons"] == []
+check("🔬 §2e/P0-3 مدقّق: جلسة نظيفة (المسار يصل للإغلاق) ⇒ session_complete=True بلا أسباب",
+      _an_ok["complete"] is True and _an_ok["session_complete"] is True
+      and _an_ok["incomplete_reasons"] == [] and _an_ok["kind"] == "single"
       and _an_ok["candidates_with_timestamps"] == _an_ok["n_candidates"])
-check("🔬 §2e مدقّق: يرفض الاكتمال عند فقد المسار/عدم توازن الدورات/إغلاق مبكّر/إنهاء غير طبيعي",
-      _an_lost["complete"] is False and any("lost_post_alert" in x for x in _an_lost["incomplete_reasons"])
+check("🔬 §2e/P0-3 مدقّق: يرفض عند عدم بلوغ المسار الإغلاق/عدم توازن الدورات/إغلاق مبكّر/إنهاء غير طبيعي",
+      _an_lost["complete"] is False and any("path_not_reaching_close" in x for x in _an_lost["incomplete_reasons"])
       and _an_loop["complete"] is False and any("loops_mismatch" in x for x in _an_loop["incomplete_reasons"])
       and _an_early["complete"] is False and any("ended_before_expected_close" in x for x in _an_early["incomplete_reasons"])
       and _an_exc["complete"] is False and any("termination" in x for x in _an_exc["incomplete_reasons"]))
+# ── 🔬 (ب+): مقطع (segment_complete) + دمج مقطعين → assembled (session_complete) ──
+def _e2_seg(sub, sd, role, sym, tbs, seg_end_off, close_off=-5):
+    _now = S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)
+    _r = _M.IgnitionMeasurementRecorder(sd, out_root=_os.path.join(_e2_out, sub), segment=role,
+          meta={"expected_close_iso": (_now + S.dt.timedelta(minutes=close_off)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "expected_segment_end_iso": (_now + S.dt.timedelta(minutes=seg_end_off)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "source_commit": "abc", "workflow_run_id": "run1", "interval_seconds": 45})
+    _r.loop_start()
+    _r.trace("01_SEEN_ACTIVE", {"symbol": sym})
+    _r.trace("03_BARS_FETCH", {"symbol": sym, "bars_ok": True, "last_bar_t": tbs,
+             "bars": [{"o": 2, "h": 2.1, "l": 1.9, "c": 2.05, "v": 100, "t": tbs}]})
+    _r.trace("04_RAW_IGNITION", {"symbol": sym, "signal_price": 2.15, "break_level": 2.0,
+             "break_level_source": "critical_number", "trigger_bar_start": tbs})
+    _r.trace("05_OPERATOR_MEASURED", {"symbol": sym, "operator_status": "measured", "has_operator": True,
+             "nbbo_bid": 2.14, "nbbo_ask": 2.16, "quote_ts": int(_time_e2.time() * 1e9)})
+    _r.trace("06_OPERATOR_PASS", {"symbol": sym}); _r.trace("11_ALERT_EMITTED", {"symbol": sym})
+    _r.trace("03_BARS_FETCH", {"symbol": sym, "bars_ok": True, "last_bar_t": tbs + 60000,
+             "bars": [{"o": 2, "h": 2.1, "l": 1.9, "c": 2.06, "v": 90, "t": tbs + 60000}]})
+    _r.telegram_attempt([({"symbol": sym},)]); _r.telegram_success([({"symbol": sym},)])
+    _r.loop_end()
+    _r.finalize("normal")
+    return _r
+_seg_now_ms = int(S.dt.datetime.now(S.dt.timezone.utc).timestamp() * 1000)
+_e2_seg("segd", "2026-07-25", "open", "IGN", _seg_now_ms - 3600_000, seg_end_off=-90)
+_e2_seg("segd", "2026-07-25", "close", "BBB", _seg_now_ms - 600_000, seg_end_off=+5)
+_r_seg_open = _A.analyze_session(_os.path.join(_e2_out, "segd", "session_2026-07-25", "segment_open"))
+# assemble the two segments (backfill reaching close)
+_asm_close_ms = int((S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)
+                     - S.dt.timedelta(minutes=5)).timestamp() * 1000)
+_asm_summ = _ASM.assemble("2026-07-25", root=_os.path.join(_e2_out, "segd"), write_repo_index=False,
+                          fetch_bars=lambda s: [{"o": 2, "h": 2.1, "l": 2, "c": 2.05, "v": 10,
+                                                 "t": _asm_close_ms - 60000 * k} for k in (3, 2, 1)])
+_r_asm = _A.analyze_session(_os.path.join(_e2_out, "segd", "session_2026-07-25"))
+check("🔬 (ب+) مدقّق: المقطع ⇒ segment_complete (لا session_complete) · المدموجة ⇒ session_complete",
+      _r_seg_open["kind"] == "segment" and _r_seg_open["segment_complete"] is True
+      and _r_seg_open["session_complete"] is None
+      and _r_asm["kind"] == "assembled" and _r_asm["session_complete"] is True
+      and _asm_summ["n_symbols"] == 2 and _r_asm["n_emitted"] == 2)
+check("🔬 (ب+) دمج: candidates المقطعين مدموجة بلا ازدواج + backfill بلغ الإغلاق (success)",
+      _r_asm["n_candidates"] == 2 and _r_asm["incomplete_reasons"] == [])
+# ── 🔬 P1.3: NBBO قياسي مستقلّ (measurement) مفضَّل + **لا يمسّ قرار التنبيه** ──
+_p13_fresh = int(_time_e2.time() * 1e9)
+_p13_stale = int((_time_e2.time() - 100) * 1e9)
+_rec_p13 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "p13"))
+# measurement طازج + operator بائت ⇒ الأساسي = measurement (مفضَّل)
+S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb,
+                fetch_operator=lambda s: {"has_operator": True, "bid": 2.14, "ask": 2.16, "quote_ts": _p13_stale},
+                fetch_measure_nbbo=lambda s: {"bid": 2.10, "ask": 2.20, "quote_ts": _p13_fresh},
+                trace=_rec_p13.trace)
+_c13 = _rec_p13._cur_candidate("IGN")
+check("🔬 P1.3: NBBO measurement مستقلّ + مفضَّل (طازج) على operator (بائت) — كلاهما مخزَّن",
+      _c13["nbbo_source"] == "measurement" and _c13["measurement_executable"] is True
+      and _c13["operator_executable"] is False and _c13["primary_executable"] is True
+      and _c13["measurement_nbbo_mid"] == 2.15 and _c13["operator_nbbo_mid"] == 2.15)
+# **قفل السلامة:** fetch_measure_nbbo لا يغيّر الصفوف المُصدَرة (بت-بت في القرار)
+_rows_nom = S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_pass,
+                            trace=lambda e, p: None)
+_rows_wm = S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_pass,
+                           fetch_measure_nbbo=lambda s: {"bid": 1.0, "ask": 9.0, "quote_ts": _p13_fresh},
+                           trace=lambda e, p: None)
+check("🔬 P1.3 قفل: fetch_measure_nbbo **لا يغيّر** الصفوف المُصدَرة (قياس فقط، خارج القرار)",
+      [r[0]["symbol"] for r in _rows_nom] == [r[0]["symbol"] for r in _rows_wm] == ["IGN"]
+      and [r[1] for r in _rows_nom] == [r[1] for r in _rows_wm])
+check("🔬 P1.3 قفل: polygon_nbbo خارج rank_key/select_top/scan_ignition القراري",
+      all("polygon_nbbo" not in _insp0.getsource(_f) for _f in (S.rank_key, S.select_top))
+      and "fetch_measure_nbbo" in _insp0.getsource(S.scan_ignition))
+# ── 🔬 P1.6: أثر الأداة (median/p95 + نسبة تجاوز interval) ──
+_rec_p16 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "p16"),
+                                          meta={"interval_seconds": 1})
+for _d in (500, 1500, 800):        # واحدة (1500) تجاوزت interval=1000ms
+    _rec_p16.loop_start(); _rec_p16.loop_end(schedule_lag_ms=50, loop_duration_ms=_d)
+_rec_p16.finalize("normal")
+_p16 = _e2_read_json("p16", "session.json")["instrumentation_timing"]
+check("🔬 P1.6: instrumentation_timing (median/p95 + نسبة تجاوز interval) محسوب",
+      _p16["loop_duration_ms_median"] == 800 and _p16["n_timed_loops"] == 3
+      and abs(_p16["loops_over_interval_ratio"] - (1 / 3)) < 0.01)
+# ── 🔬 (ب+): استعادة الدِدوب عبر المقاطع = **لا تنبيه مكرّر** ──
+_wl_seg2 = {"stocks": [{"symbol": "IGN", "status": "active", "pivot": 1.90,
+                        "interp": {"critical_number": {"price": 2.00}}}]}
+IG._apply_handoff_dedup(_wl_seg2, {"alerted_symbols": ["IGN"]}, "2026-07-20")
+_rows_seg2 = S.scan_ignition(_wl_seg2, "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_fresh)
+check("🔬 (ب+) قفل: رمز مُنبَّه في المقطع السابق (ختم دِدوب مُستعاد) لا يُطلَق ثانيةً (لا تكرار)",
+      _rows_seg2 == [] and IG._apply_handoff_dedup({"stocks": []}, {}, "x") == 0)
 check("🔬 §2 قفل: مساعِدات الفجوات نقيّة خارج مسار الفرز (لا تُستورَد بـSuper_stock)",
       all(_n not in _insp0.getsource(S.scan_ignition) and _n not in _insp0.getsource(S.rank_key)
           for _n in ("_normalize_ts_ms", "_quote_freshness", "backfill_emitted", "_recall_eligible")))

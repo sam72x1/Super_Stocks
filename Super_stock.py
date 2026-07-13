@@ -6643,6 +6643,29 @@ def operator_flow(sym: str):
         return None
 
 
+def polygon_nbbo(sym: str):
+    """🔬 P1.3: NBBO لحظي **مستقلّ** (`/v2/last/nbbo`) لقياس E2 حصريًّا — يرجّع
+    {'bid','ask','quote_ts'} أو None. **مستقلّ عن `operator_flow`** (يعمل حتى لو قلّت الصفقات)
+    فيتوفّر سعر التنفيذ لكل raw candidate. **فاشل-آمن مطلق** (بلا مفتاح/401/403/429/شبكة → None).
+    🔒 **قياس فقط — خارج rank_key/select_top/scan_ignition القراري** (يُحقَن كـfetch_measure_nbbo
+    ولا يُقرأ في أي قرار تنبيه). المفتاح يُقرأ وقت النداء."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        return None
+    try:
+        h = {"Authorization": f"Bearer {key}"}
+        r = requests.get(f"https://api.polygon.io/v2/last/nbbo/{sym.upper()}",
+                         headers=h, timeout=8)
+        if r.status_code != 200:
+            return None
+        res = (r.json() or {}).get("results") or {}
+        return {"bid": (float(res["p"]) if res.get("p") else None),
+                "ask": (float(res["P"]) if res.get("P") else None),
+                "quote_ts": res.get("t")}
+    except Exception:
+        return None
+
+
 def _price_level_tag(price, s) -> str:
     """وسم موقع سعرٍ من مستويات السهم المخزّنة بلغة المتداول (طلب المستخدم
     2026-07-09: «المضارب طلب 1000 سهم فوق الدعم»): يختار أقرب مستوى معروف
@@ -6803,7 +6826,8 @@ def _ignition_candle_class(usd):
 
 
 def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
-                  vol_mult: float = None, fetch_operator=None, trace=None) -> list:
+                  vol_mult: float = None, fetch_operator=None, trace=None,
+                  fetch_measure_nbbo=None) -> list:
     """🔥 يفحص القائمة المؤهّلة ويكشف **لحظة اشتعال** كل زنبرك (قفزة حجم + كسر الرقم
     الحرج صاعدًا) ثم يرفق تدفق الأوامر الحي للتأكيد. `fetch_bars`/`fetch_flow`/
     `fetch_operator` قابلة للحقن (اختبار بلا شبكة). **دِدوب مرة/سهم/يوم**
@@ -6813,7 +6837,10 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
     قِيس التدفق ولا طبعات مضارب (≥OPERATOR_MIN_SHARES) = ضجيج يُكتَم؛ لو تعذّر القياس
     (None) = احتياط لتصنيف شمعة الدولار (يُكتَم القروب فقط) فلا نفوّت بعطل شبكي.
     🔬 **E2-A:** `trace` (اختياري، افتراضي None) دالّة قياس ظلّي تتلقّى أحداث funnel وصفية
-    عبر `_emit_trace` — **لا تغيّر أي قرار/عتبة/تنبيه**؛ None = سلوك الرادار حرفيًّا بت-بت."""
+    عبر `_emit_trace` — **لا تغيّر أي قرار/عتبة/تنبيه**؛ None = سلوك الرادار حرفيًّا بت-بت.
+    🔬 **P1.3:** `fetch_measure_nbbo` (اختياري) جالب NBBO **قياسي مستقلّ** لكل raw candidate —
+    **يُستدعى فقط عند `trace` مُفعَّل** (قياس)، و**ممنوع أن يمسّ أي قرار تنبيه** (يُضاف لحمولة
+    04 فقط). None (الافتراضي/الإنتاج) = صفر نداء = بت-بت."""
     fb = fetch_bars or (lambda sym: polygon_minute_bars(sym, minutes=30))
     ff = fetch_flow or order_snapshot
     fo = fetch_operator or operator_flow
@@ -6843,6 +6870,14 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
         sig = _ignition_signal(bars, lvl, vol_mult=vm) if bars else None
         if not sig:
             continue
+        # 🔬 P1.3: NBBO قياسي مستقلّ لكل raw candidate — **قياس فقط** (عند trace مُفعَّل + جالب
+        # محقون)، لا يُقرأ في أي قرار تنبيه. None = صفر نداء (بت-بت في الإنتاج).
+        _mnbbo = None
+        if trace is not None and fetch_measure_nbbo is not None:
+            try:
+                _mnbbo = fetch_measure_nbbo(s["symbol"])
+            except Exception:
+                _mnbbo = None
         _emit_trace(trace, "04_RAW_IGNITION", lambda: {
             "symbol": _sym, "signal_price": sig.get("price"), "vol_x": sig.get("vol_x"),
             "signal_usd": sig.get("usd"), "candle_class": _ignition_candle_class(sig.get("usd"))[0],
@@ -6851,7 +6886,11 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
             "stop": (s.get("stop")[0] if isinstance(s.get("stop"), (list, tuple)) and s.get("stop") else s.get("stop")),
             "t1": s.get("t1"), "t2": s.get("t2"), "t3": s.get("t3"),
             # 🔬 §2c: Polygon `t` = **بداية** شمعة الدقيقة؛ المسجّل يشتقّ النهاية = البداية+60000.
-            "trigger_bar_start": (bars[-1].get("t") if bars else None)})
+            "trigger_bar_start": (bars[-1].get("t") if bars else None),
+            # 🔬 P1.3: NBBO القياسي المستقلّ (قياس فقط، خارج القرار).
+            "measurement_nbbo_bid": (_mnbbo.get("bid") if _mnbbo else None),
+            "measurement_nbbo_ask": (_mnbbo.get("ask") if _mnbbo else None),
+            "measurement_quote_ts": (_mnbbo.get("quote_ts") if _mnbbo else None)})
         # 🕵️ بوّابة المضارب: يُكتَم الاشتعال بلا مضارب (لا نضع ignition_alert = يُعاد
         # الفحص لو دخل المضارب لاحقًا نفس اليوم). فاشل-آمن: تعذّر القياس → شمعة الدولار.
         try:

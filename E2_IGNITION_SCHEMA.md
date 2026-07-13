@@ -90,6 +90,30 @@ decision_latency_ms · delivery_latency_ms`
 ## schema — minute_paths.jsonl.gz
 `session_date · symbol · t · o · h · l · c · v` (دِدوب `(symbol, t)`).
 
+## 🔬 إضافات المعمارية المجزّأة (ب+) — مراجعة Codex الثالثة
+> `E2_IGNITION_SEGMENTED_ARCH.md`. **قياس فقط · لا LOGIC_VERSION · بت-بت في الإنتاج.**
+
+**المقاطع + الدمج:** كل جوب مقطع (`open`/`close`) يكتب في `session_<date>/segment_<role>/`. الـassembler
+(`ignition_e2_assemble.py`) يدمجهما في `session_<date>/` (الجذر) + **backfill بعد الإغلاق** (P0-2).
+`session.json` يكتسب: `segment · segment_id · segment_started_at/ended_at · assembled(bool) · segments[]
+(provenance المقطعين) · instrumentation_timing (P1.6)`.
+
+**candidate — حقول (ب+) الجديدة:**
+- **P1.3 NBBO مزدوج:** `measurement_nbbo_bid/ask/mid · measurement_spread_pct_mid · measurement_quote_ts_raw/
+  ms · measurement_quote_age_ms · measurement_executable` (مصدر مستقلّ `polygon_nbbo`) · نظير `operator_*`
+  (من operator_flow) · `nbbo_source` (measurement مفضَّل). **primary_executable = مصدر الأساسي** (المرآة).
+  **قفل: measurement لا يمسّ قرار التنبيه** (مُحقَن كـ`fetch_measure_nbbo`، بت-بت مؤكَّد باختبار).
+- **P1.4 provenance القائمة:** `watchlist_commit_start · watchlist_commit_at_candidate` (يتغيّر مع التحديث).
+- **P1.5 latency:** `emitted_at_ms · telegram_attempted_at_ms · telegram_sent_at_ms · decision_latency_ms ·
+  delivery_latency_ms`.
+
+**symbol-session — P1.2:** `backfill_status (success|partial|empty|error|not_attempted) · backfill_bars_added
+· backfill_last_bar_ts`. **success فقط** عند بلوغ المسار الحدّ المتوقّع قبل الإغلاق.
+
+**تعريف الاكتمال (المدقّق):** `kind = segment|assembled|single`. **`segment_complete`** (إنهاء طبيعي · loops
+متوازنة · غطّى نافذته · schema) — لا يدخل البوّابة. **`session_complete`** (الجزآن · union افتتاح→إغلاق ·
+**المسارات تصل الإغلاق** `path_last_bar ≥ close_last_bar − 3د` · لا duplicate) — **وحده** يعدّ نحو 5/20.
+
 ## حدود E2-A (SPEC §18)
 الحكم على: **اكتمال schema · التغطية · عدم فقد البيانات · timestamps · تكافؤ التنبيهات · artifact
 recovery** فقط. **ممنوع** تحليل جودة عتبة/نتيجة/expectancy هنا (E2-B عند 20 · E2-C عند 50 + موافقة المالك).

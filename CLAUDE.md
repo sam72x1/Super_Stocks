@@ -574,6 +574,16 @@
     توحيد طابع NBBO (نانو→ملّي) + `quote_age_ms` + **executable = صالح ‏و‏ طازج ≤5ث** · **2e** `exposure_minutes`
     + أهلية recall بالشروط الثلاثة + مدقّق يرفض «مكتملة» عند فقد مسار/إغلاق مبكّر/عدم توازن دورات/تناقض
     emitted-delivered. 793 اختبار. فرع نظيف `claude/e2a-measurement-clean` (E2-A فقط، بلا P0/Phase C/E).
+  - **🔬 المعمارية المجزّأة (ب+، 2026-07-13، مراجعة Codex الثالثة REQUEST CHANGES — قياس فقط · بت-بت ·
+    801 اختبار · `E2_IGNITION_SEGMENTED_ARCH.md`):** الجلسة (6.5س) لا تُغطّى بجوب واحد (سقف رنر 6س) فاختار
+    Codex **جوبين متسلسلين + assembler**. **3 jobs:** `open_segment` [افتتاح→+195د] → `close_segment`
+    [→إغلاق] (يستعيد أختام الدِدوب من handoff → **لا تنبيه مكرّر**) → `assemble_e2_session` (يدمج + backfill
+    بعد الإغلاق + المدقّق، وحده يكتب summary/index). **P0-1** حدود المقطع من الافتتاح الفعلي · **P0-2** الردم
+    النهائي بعد الإغلاق (`ignition_e2_assemble.py`) · **P0-3** المدقّق يشترط وصول المسار للإغلاق. **P1:**
+    `backfill_status` · NBBO قياسي مستقلّ (`polygon_nbbo`/`fetch_measure_nbbo` — **لا يمسّ القرار**) ·
+    watchlist provenance · latency · أثر الأداة (median/p95). `session_complete` (الجزآن + المسار للإغلاق) وحده
+    يعدّ نحو 5/20؛ `segment_complete` لا. 🔒 لا LOGIC_VERSION · scan_ignition بت-بت (measurement مُحقَن مقفول).
+    ⏳ **متبقٍّ: مراجعة Codex الرابعة ثم Pilot واحد (بموافقته + المالك) — لا Pilot على رأسٍ لم يُراجَع.**
 
 ## 🕵️💰 حزمة «قراءة المضارب» (`FAISAL_OPERATOR_PACK_PLAN.md`، 2026-07-08 — عرض/تحذير فقط)
 - **المصدر:** 9 صور فيصل بأرقام صريحة لأول مرة لتمييز المضارب عن القروب. **⚖️ ليست مؤشر اختيار**
