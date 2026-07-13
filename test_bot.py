@@ -2705,6 +2705,57 @@ check("🔬 Codex5 قفل: الخطّافات الساخنة لا-تزامنية
       and "put_nowait" in _insp0.getsource(IG._SafeRecorder)
       and "queue.Full" in _insp0.getsource(IG._SafeRecorder)
       and "measurement_dropped" in _insp0.getsource(IG._SafeRecorder))
+
+
+# 🔬 مراجعة Codex 5 (P0-ج): **التهيئة نفسها** (استيراد + بناء المسجّل = إنشاء مجلّد/فتح ملفات)
+# كانت على خيط الإنتاج **قبل** الحلقة ⇒ تعليقها يمنع كل مسح وتنبيه. الآن بخيط daemon والرادار
+# يبدأ فورًا بـtrace=None. الاختبار: **البنّاء يعلّق للأبد** ⇒ 3 دورات و3 تنبيهات بزمن قصير.
+class _HangCtorRec:
+    def __init__(self, *a, **kw):
+        _hang_ev2.wait()                  # تعليق أبدي أثناء البناء
+
+
+_hang_ev2 = _threading_ml.Event()
+_ctor_mod = _types_ml.ModuleType("ignition_measurement")
+_ctor_mod.IgnitionMeasurementRecorder = _HangCtorRec
+_sys.modules["ignition_measurement"] = _ctor_mod
+_os.environ.update({"E2_MEASUREMENT": "1", "IGNITION_SEGMENT": "close", "IGNITION_HANDOFF_IN": "",
+                    "IGNITION_HANDOFF_OUT": _os.path.join(_e2_out, "ho_ctor.json"),
+                    "POLYGON_API_KEY": "TEST_KEY_NOT_USED"})
+_sent_ct, _loops_ct, _traces_ct = [], [], []
+_ml_saved4 = (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+              IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep)
+IG._segment_window = lambda role, t0=None: {
+    "role": role, "open": _ml_now, "close": _ml_now + S.dt.timedelta(hours=1),
+    "segment_start": _ml_now, "segment_end": _ml_now + S.dt.timedelta(hours=1),
+    "deadline": _ml_now + S.dt.timedelta(hours=1), "reason": "test",
+    "session_type": "regular", "calendar_version": "test"}
+IG.bot.load_watchlist = lambda: {"stocks": [{"symbol": "IGN", "status": "active"}]}
+IG.bot.scan_ignition = lambda wl, today, trace=None: (
+    _loops_ct.append(1), _traces_ct.append(trace),
+    [({"symbol": "IGN"}, {"price": 2.0}, None)])[2]
+IG.bot.build_ignition_alert = lambda rows: "ALERT"
+IG.bot.send_telegram = lambda m: _sent_ct.append(m)
+IG.time.sleep = lambda *_a: (_ for _ in ()).throw(_StopLoop()) if len(_loops_ct) >= 3 else None
+_t_ct = _time_e2.time()
+try:
+    IG.main()
+except (_StopLoop, Exception):
+    pass
+finally:
+    _elapsed_ct = _time_e2.time() - _t_ct
+    (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+     IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep) = _ml_saved4
+    _hang_ev2.set()
+    _sys.modules.pop("ignition_measurement", None)
+    for _k, _v in _ml_env.items():
+        _os.environ.pop(_k, None) if _v is None else _os.environ.update({_k: _v})
+check("🔬 Codex5 قفل: تهيئة قياس **معلّقة** لا تمنع بدء الرادار (3 دورات · 3 تنبيهات · زمن قصير)",
+      len(_loops_ct) >= 3 and len(_sent_ct) >= 3 and _elapsed_ct < 5.0
+      and _traces_ct[0] is None)          # الرادار بدأ فورًا بلا انتظار المسجّل
+check("🔬 Codex5 قفل: تهيئة المسجّل خارج خيط الإنتاج (Thread) والربط لا-حاجب",
+      "threading.Thread(target=_init_recorder" in _insp0.getsource(IG.main)
+      and "_rec_settled" in _insp0.getsource(IG.main))
 check("🔬 P1-8: manifest نقيّ + canonical JSON حتمي (نفس المدخل = نفس الـhash)",
       _MAN.manifest_sha256({"a": 1, "b": 2}) == _MAN.manifest_sha256({"b": 2, "a": 1})
       and _MAN.sha256_hex("x") == _MAN.sha256_hex("x") and _MAN.manifest_sha256({}) is not None)
