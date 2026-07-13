@@ -68,6 +68,10 @@ on:
         description: "🏦 سعة المحفظة المحاكاة (اختياري): افتراضي 15 (= WATCHLIST_SIZE). باكتيست فقط"
         required: false
         default: ""
+      bt_raw_price:
+        description: "🕰️ point-in-time (اختياري): 1 = أسعار خام (auto_adjust=False) لتفادي إشارات وهمية من تعديل تقسيم مستقبلي (تدقيق خارجي). قارن مع التشغيل المعدَّل. باكتيست فقط"
+        required: false
+        default: ""
 jobs:
   backtest:
     runs-on: ubuntu-latest
@@ -106,6 +110,8 @@ jobs:
           BT_POTENTIAL: ${{ github.event.inputs.bt_potential }}
           BT_PORTFOLIO: ${{ github.event.inputs.bt_portfolio }}
           BT_PORT_SIZE: ${{ github.event.inputs.bt_port_size }}
+          # 🕰️ point-in-time (تدقيق خارجي) — يُقرأ في وضع BACKTEST حصريًا
+          BT_RAW_PRICE: ${{ github.event.inputs.bt_raw_price }}
         run: python Super_stock.py
       - name: Upload backtest CSV
         if: always()
