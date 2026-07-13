@@ -3265,6 +3265,23 @@ try:
           any("BT_RAW_PRICE" in s for s in _rp_ap) and S.CONFIG["BT_RAW_PRICE"] == 1)
 finally:
     S.CONFIG["BT_RAW_PRICE"] = _rp_sv          # لا تلوّث بقية الاختبارات
+# 🔬 Phase C: BT_DUMP_DATASET (تفريغ صفوف المتغيّرات للسجل لاختبار OOS) — نفس قفل B1:
+# باكتيست حصريًا، الإنتاج يتجاهله. تشخيص/تصدير فقط (لا يمسّ أي حساب).
+check("🔬 BT_DUMP_DATASET: الافتراض 0 (الإنتاج لا يفرّغ شيئًا)",
+      S.CONFIG.get("BT_DUMP_DATASET") == 0)
+check("🔬 BT_DUMP_DATASET·وصل: run_backtest يطبع بمعلَم ثابت خلف العلم",
+      "BT_DUMP_DATASET" in _insp0.getsource(S.run_backtest)
+      and "⟪DSROW⟫" in _insp0.getsource(S.run_backtest))
+_dd_env = {"BT_DUMP_DATASET": "1"}
+check("🔬 BT_DUMP_DATASET·قفل B1: الإنتاج يتجاهله (باكتيست حصريًا)",
+      S._apply_backtest_overrides("FULL", _dd_env) == [])
+_dd_sv = S.CONFIG.get("BT_DUMP_DATASET")
+try:
+    _dd_ap = S._apply_backtest_overrides("BACKTEST", _dd_env)
+    check("🔬 BT_DUMP_DATASET·قفل B1: وضع BACKTEST يطبّقه",
+          any("BT_DUMP_DATASET" in s for s in _dd_ap) and S.CONFIG["BT_DUMP_DATASET"] == 1)
+finally:
+    S.CONFIG["BT_DUMP_DATASET"] = _dd_sv       # لا تلوّث بقية الاختبارات
 # 🕰️ تجميد point-in-time (تدقيق خارجي 2026-07-12): إلغاء تعديل التقسيم يدويًّا (auto_adjust
 # لا يكفي) + حفظ ببصمة لإعادة إنتاج مضمونة. سبب: الباكتيست الحيّ يقفز 26↔44% لمجرد إعادة تشغيل.
 _spl = pd.Series({pd.Timestamp("2026-04-06"): 0.0625, pd.Timestamp("2026-07-06"): 0.005})

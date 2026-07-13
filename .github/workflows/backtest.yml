@@ -77,6 +77,10 @@ on:
         description: "🕰️ التجميد الصحيح (موصى): run-id لتشغيلة «Freeze backtest dataset» لتحميل لقطتها المجمَّدة → باكتيست قابل لإعادة الإنتاج 100% + يرفض الوهميات (تعديل تقسيم مستقبلي). فارغ = تحميل حيّ متغيّر"
         required: false
         default: ""
+      bt_dump_dataset:
+        description: "🔬 Phase C (اختياري): 1 = اطبع صفوف المتغيّرات (raw_pit_entry/behav/score/readiness/mg…) في السجل بمعلَم ثابت لاختبار OOS المسجَّل مسبقًا. باكتيست/تشخيص فقط"
+        required: false
+        default: ""
 jobs:
   backtest:
     runs-on: ubuntu-latest
@@ -124,6 +128,8 @@ jobs:
           BT_PORT_SIZE: ${{ github.event.inputs.bt_port_size }}
           # 🕰️ point-in-time (تدقيق خارجي) — يُقرأ في وضع BACKTEST حصريًا
           BT_RAW_PRICE: ${{ github.event.inputs.bt_raw_price }}
+          # 🔬 Phase C: تفريغ صفوف المتغيّرات للسجل (اختبار OOS) — يُقرأ في وضع BACKTEST حصريًا
+          BT_DUMP_DATASET: ${{ github.event.inputs.bt_dump_dataset }}
           # 🕰️ التجميد الصحيح: لو frozen_run_id مُعطى → حُمِّلت اللقطة، فاقرأها (قابل لإعادة الإنتاج)
           BT_FROZEN_PATH: ${{ github.event.inputs.frozen_run_id != '' && 'frozen_backtest.pkl.gz' || '' }}
         run: python Super_stock.py

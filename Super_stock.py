@@ -287,6 +287,10 @@ CONFIG = {
     "BT_RAW_PRICE": 0,                   # 🕰️ point-in-time: 1 = تحميل خام (auto_adjust=False)
                                          #   لتفادي إشارات وهمية من تعديل تقسيم مستقبلي (تدقيق
                                          #   خارجي). باكتيست حصريًا؛ الإنتاج يتجاهله (قفل B1).
+    "BT_DUMP_DATASET": 0,                # 🔬 Phase C: 1 = اطبع صفوف المتغيّرات (raw_pit_entry/
+                                         #   behav/score/readiness/mg…) للـstdout بمعلَم ثابت
+                                         #   لسحبها من سجل Actions (المنافذ الخارجية محجوبة).
+                                         #   باكتيست حصريًا · تشخيص/تصدير فقط · الإنتاج يتجاهله.
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -418,7 +422,8 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_POTENTIAL", "BT_POTENTIAL", int),        # 🏦 قوة البوت
             ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
             ("BT_PORT_SIZE", "BT_PORT_SIZE", int),
-            ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
+            ("BT_RAW_PRICE", "BT_RAW_PRICE", int),         # 🕰️ point-in-time
+            ("BT_DUMP_DATASET", "BT_DUMP_DATASET", int)):   # 🔬 Phase C dump
         v = (env.get(bt_env) or "").strip()
         if not v:
             continue
@@ -9530,6 +9535,19 @@ def run_backtest(symbols=None) -> None:
     fn = _write_csv_file(all_trades, "backtest")
     if fn:
         send_telegram_document(fn, f"🧪 تفاصيل الباكتيست — {dt.date.today()}")
+    # 🔬 Phase C: فرّغ صفوف المتغيّرات للـstdout بمعلَم ثابت (⟪DSROW⟫) لسحبها من سجل
+    # Actions واختبارها OOS — المنافذ الخارجية (تنزيل الأرتيفاكت) محجوبة بسياسة الحوكمة.
+    # تشخيص/باكتيست حصريًا · الإنتاج يتجاهله (قفل B1) · لا يمسّ أي حساب.
+    if CONFIG.get("BT_DUMP_DATASET"):
+        _dcols = ("symbol", "date", "outcome", "mg_outcome", "readiness",
+                  "behav_score", "score", "fwd_max_gain", "mg_pre_stop",
+                  "exploded", "raw_pit_entry")
+        print("⟪DSHEAD⟫" + ",".join(_dcols), flush=True)
+        for _t in all_trades:
+            print("⟪DSROW⟫" + ",".join(
+                "" if _t.get(_c) is None else str(_t.get(_c)) for _c in _dcols),
+                flush=True)
+        print(f"⟪DSEND⟫{len(all_trades)}", flush=True)
     log(f"باكتيست: {st}")
 
 
