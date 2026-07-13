@@ -6162,8 +6162,10 @@ def polygon_minute_bars(sym: str, minutes: int = 90):
         if r.status_code != 200:
             return None
         res = (r.json() or {}).get("results") or []
+        # 🔬 E2 (§9): نحفظ الطابع الزمني `t` (بداية شمعة الدقيقة، ms) — مطلوب لقياس الأبكرية/
+        # الـlatency في القياس الظلّي. **حقل إضافي فقط** (المستهلكون يقرؤون c/v/l/h فلا يتأثّرون).
         bars = [{"o": b.get("o"), "h": b.get("h"), "l": b.get("l"),
-                 "c": b.get("c"), "v": b.get("v")} for b in res
+                 "c": b.get("c"), "v": b.get("v"), "t": b.get("t")} for b in res
                 if b.get("l") is not None and b.get("c") is not None]
         return bars or None
     except Exception:
@@ -6757,6 +6759,7 @@ def operator_flow(sym: str):
                 ob["bid_size"] = res.get("s")
                 ob["ask"] = float(res["P"]) if res.get("P") else None
                 ob["ask_size"] = res.get("S")
+                ob["quote_ts"] = res.get("t")   # 🔬 E2 (§13.1): طابع NBBO الزمني (quote_age)
         except Exception:
             pass
         return ob
@@ -6826,8 +6829,40 @@ def operator_line(of, s=None) -> str:
 # ==========================================================
 # الفكرة (بعد أن أثبت T-ACC أن الاختيار عند القاع مستحيل): لا نتنبّأ بأيّ زنبرك ينفجر
 # — بل نراقب القائمة المؤهّلة **كلها لحظيًّا** ونمسك **لحظة الاشتعال** (رد فعل لا تنبّؤ:
-# الحجم والسعر حقيقيان، والتدفق يؤكّد). يسبق البوت على Yahoo بـ15-25د. أسرع تنفيذ لحافة
-# التوقيت المثبتة. 🔒 خارج الفرز/الاختيار (القائمة مختارة مسبقًا) — تنبيه/توقيت فقط.
+# الحجم والسعر حقيقيان، والتدفق يؤكّد). يسبق البوت على Yahoo بـ15-25د. أسرع تنفيذ لفرضية
+# التوقيت اللحظي (فرضية بحثية ذات أولوية — **غير مثبتة حتى الآن**؛ E2 يقيسها).
+# 🔒 خارج الفرز/الاختيار (القائمة مختارة مسبقًا) — تنبيه/توقيت فقط.
+def _emit_trace(trace, event, payload_fn):
+    """🔬 E2-A (قياس ظلّي · IGNITION MEASUREMENT §3): يبعث حدث funnel وصفيًّا فقط.
+    **فاشل-آمن مطلق:** `trace=None` (الافتراضي) = صفر عمل = سلوك الرادار حرفيًّا · الحمولة
+    دالّة (lazy) فلا تُبنى إلا عند وجود trace (زمن-صفر عند None) · أي استثناء (حتى في بناء
+    الحمولة) يُبتلع فلا يمسّ التنبيه · لا يقرأ trace قرارًا ولا يعدّل سهمًا/إشارة/عتبة.
+    🔒 قياس/توثيق فقط — خارج أي قرار فرز/اختيار/تنبيه."""
+    if trace is None:
+        return
+    try:
+        trace(event, payload_fn())
+    except Exception:
+        pass
+
+
+def _ignition_break_source(s: dict) -> str:
+    """🔬 E2: مصدر break_level (مواز لـ_ignition_break_level بلا تغييره): «critical_number»
+    (الرقم الحرج) · «pivot_plus_5pct» (5% فوق الأرضية) · «none». قياس فقط."""
+    crit = ((s.get("interp") or {}).get("critical_number") or {}).get("price")
+    if crit:
+        try:
+            float(crit)
+            return "critical_number"
+        except (TypeError, ValueError):
+            pass
+    piv = s.get("pivot")
+    try:
+        return "pivot_plus_5pct" if piv and float(piv) else "none"
+    except (TypeError, ValueError):
+        return "none"
+
+
 def _ignition_break_level(s: dict):
     """السعر الذي يعني «خرج من القاع صاعدًا» لسهم القائمة: الرقم الحرج (تفعيل فيصل
     NAMM) إن وُجد، وإلا 5% فوق الأرضية (pivot). None لو لا مرجع."""
@@ -6892,7 +6927,7 @@ def _ignition_candle_class(usd):
 
 
 def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
-                  vol_mult: float = None, fetch_operator=None) -> list:
+                  vol_mult: float = None, fetch_operator=None, trace=None) -> list:
     """🔥 يفحص القائمة المؤهّلة ويكشف **لحظة اشتعال** كل زنبرك (قفزة حجم + كسر الرقم
     الحرج صاعدًا) ثم يرفق تدفق الأوامر الحي للتأكيد. `fetch_bars`/`fetch_flow`/
     `fetch_operator` قابلة للحقن (اختبار بلا شبكة). **دِدوب مرة/سهم/يوم**
@@ -6900,7 +6935,9 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
     خارج الفرز/الاختيار** (القائمة مختارة مسبقًا). يرجّع [(s, metrics, flow)].
     🕵️ **بوّابة المضارب (طلب المستخدم 2026-07-09): لا إشعار إلا لو دخل المضارب** — لو
     قِيس التدفق ولا طبعات مضارب (≥OPERATOR_MIN_SHARES) = ضجيج يُكتَم؛ لو تعذّر القياس
-    (None) = احتياط لتصنيف شمعة الدولار (يُكتَم القروب فقط) فلا نفوّت بعطل شبكي."""
+    (None) = احتياط لتصنيف شمعة الدولار (يُكتَم القروب فقط) فلا نفوّت بعطل شبكي.
+    🔬 **E2-A:** `trace` (اختياري، افتراضي None) دالّة قياس ظلّي تتلقّى أحداث funnel وصفية
+    عبر `_emit_trace` — **لا تغيّر أي قرار/عتبة/تنبيه**؛ None = سلوك الرادار حرفيًّا بت-بت."""
     fb = fetch_bars or (lambda sym: polygon_minute_bars(sym, minutes=30))
     ff = fetch_flow or order_snapshot
     fo = fetch_operator or operator_flow
@@ -6909,27 +6946,60 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
     for s in wl.get("stocks", []):
         if s.get("status") != "active" or s.get("ignition_alert") == today_iso:
             continue
+        _sym = s.get("symbol")
+        # 🔬 E2-A: كل _emit_trace no-op تام عند trace=None (الافتراضي) → التحكّم أدناه حرفيّ.
+        _emit_trace(trace, "01_SEEN_ACTIVE", lambda: {"symbol": _sym})
         lvl = _ignition_break_level(s)
         if not lvl:
             continue
+        _emit_trace(trace, "02_LEVEL_AVAILABLE", lambda: {
+            "symbol": _sym, "break_level": lvl,
+            "break_level_source": _ignition_break_source(s)})
         try:
             bars = fb(s["symbol"])
         except Exception:
             bars = None
+        _emit_trace(trace, "03_BARS_FETCH", lambda: {
+            "symbol": _sym, "bars_ok": bool(bars), "n_bars": (len(bars) if bars else 0),
+            "first_bar_t": (bars[0].get("t") if bars else None),
+            "last_bar_t": (bars[-1].get("t") if bars else None)})
         sig = _ignition_signal(bars, lvl, vol_mult=vm) if bars else None
         if not sig:
             continue
+        _emit_trace(trace, "04_RAW_IGNITION", lambda: {
+            "symbol": _sym, "signal_price": sig.get("price"), "vol_x": sig.get("vol_x"),
+            "signal_usd": sig.get("usd"), "candle_class": _ignition_candle_class(sig.get("usd"))[0],
+            "break_level": lvl, "break_level_source": _ignition_break_source(s),
+            "pivot": s.get("pivot"),
+            "stop": (s.get("stop")[0] if isinstance(s.get("stop"), (list, tuple)) and s.get("stop") else s.get("stop")),
+            "t1": s.get("t1"), "t2": s.get("t2"), "t3": s.get("t3"),
+            "trigger_bar_end": (bars[-1].get("t") if bars else None)})
         # 🕵️ بوّابة المضارب: يُكتَم الاشتعال بلا مضارب (لا نضع ignition_alert = يُعاد
         # الفحص لو دخل المضارب لاحقًا نفس اليوم). فاشل-آمن: تعذّر القياس → شمعة الدولار.
         try:
             of = fo(s["symbol"])
         except Exception:
             of = None
+        _emit_trace(trace, "05_OPERATOR_MEASURED" if of is not None else "08_OPERATOR_UNAVAILABLE",
+                    lambda: {"symbol": _sym,
+                             "operator_status": ("measured" if of is not None else "unavailable"),
+                             "has_operator": (of.get("has_operator") if of else None),
+                             "buy_block_shares": (of.get("buy_block_shares") if of else None),
+                             "bid_block_shares": (of.get("bid_block_shares") if of else None),
+                             "nbbo_bid": (of.get("bid") if of else None),
+                             "nbbo_ask": (of.get("ask") if of else None),
+                             "quote_ts": (of.get("quote_ts") if of else None)})
         if of is not None:
             if not of.get("has_operator"):
+                _emit_trace(trace, "07_OPERATOR_FAIL", lambda: {"symbol": _sym})
                 continue
+            _emit_trace(trace, "06_OPERATOR_PASS", lambda: {"symbol": _sym})
         elif _ignition_candle_class(sig.get("usd"))[0] == "group":
+            _emit_trace(trace, "10_FALLBACK_FAIL", lambda: {"symbol": _sym, "candle_class": "group"})
             continue
+        else:
+            _emit_trace(trace, "09_FALLBACK_PASS", lambda: {
+                "symbol": _sym, "candle_class": _ignition_candle_class(sig.get("usd"))[0]})
         sig["operator"] = of
         flow = None
         try:
@@ -6938,6 +7008,7 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
             flow = None
         s["ignition_alert"] = today_iso          # دِدوب مرة/سهم/يوم (بالذاكرة)
         s["last_price"] = sig["price"]
+        _emit_trace(trace, "11_ALERT_EMITTED", lambda: {"symbol": _sym, "signal_price": sig.get("price")})
         out.append((s, sig, flow))
     return out
 
@@ -6974,8 +7045,9 @@ def build_ignition_alert(rows: list) -> str:
 
 
 # ==========================================================
-# 📏 حلقة قياس رادار الانطلاق (سجلّ حي → أداة التطوير) — قياس الحافة الوحيدة المثبتة
-# (الالتقاط ونسبة الإنذار الكاذب لا تُقاسان إلا حيًّا). **قياس/عرض فقط — خارج الفرز/
+# 📏 حلقة قياس رادار الانطلاق (سجلّ حي → أداة التطوير) — قياس فرضية التوقيت اللحظي (ذات
+# الأولوية — **غير مثبتة حتى الآن**؛ E2). (الالتقاط ونسبة الإنذار الكاذب لا تُقاسان إلا حيًّا).
+# **قياس/عرض فقط — خارج الفرز/
 # الاختيار.** الرادار يسجّل إطلاقاته؛ أداة التطوير تجلب النتيجة اليومية اللاحقة وتحكم.
 # ==========================================================
 def load_ignition_log() -> list:
@@ -7105,8 +7177,8 @@ def _ignition_outcome_fetch(sym, fire_date):
 
 
 def _ignition_log_block(log, fetch=None, today=None) -> list:
-    """🔥 قياس رادار الانطلاق من السجلّ الحي (أداة التطوير — الحافة الوحيدة المثبتة
-    §0-ك): الالتقاط ونسبة الإنذار الكاذب + تفصيل حسب تصنيف الشمعة (مضارب/قروب — يجيب
+    """🔥 قياس رادار الانطلاق من السجلّ الحي (أداة التطوير — فرضية التوقيت اللحظي ذات
+    الأولوية، **غير مثبتة حتى الآن**؛ E2 §0-ك): الالتقاط ونسبة الإنذار الكاذب + تفصيل حسب تصنيف الشمعة (مضارب/قروب — يجيب
     «هل القروب يكذب أكثر؟» = دليل معايرة عتبات المضارب). يجلب الشموع اليومية اللاحقة لكل
     إطلاق (`fetch` قابل للحقن للاختبار، فاشل-آمن). عيّنة محسومة أقل من العتبة → يُقال
     «تتراكم» بصدق. **عرض/قياس فقط — لا قرار قبل عيّنة كافية + موافقة المستخدم.**"""
