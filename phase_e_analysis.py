@@ -80,7 +80,9 @@ def run_binary(hid, popcol, rulefn, direction="positive"):
 
 
 print("=" * 80)
-print("Phase E — E1 (4س) + E3 (نظام السوق) — OOS مسجَّل مسبقًا")
+print("Phase E — E1 (4س) + E3 (نظام السوق) — legacy reproduction (temporal replication على مجمَّد مُصلَح)")
+print("⚠️ تصحيح P0 (تدقيق Codex): هذا **إعادة إنتاج legacy**؛ التدقيق الثنائي الهدف (Y_DISCOVERY/")
+print("   Y_TRADABLE) + عتبات train-only + CIs + permutation في phase_p0_audit.py (المرجع القانوني).")
 print("=" * 80)
 for nm, d in [("2025", d25), ("2026", d26)]:
     f = d[d["filled"]]
@@ -154,5 +156,6 @@ if surv:
     print(f"🎯 ناجون (يحتاجون مراجعة خصومية + موافقة): {surv}")
 else:
     print("📋 الحكم المسجَّل: لا شيء ينجو من FDR بالسنتين →")
-    print("   لا 4س ولا نظام سوق يميّز المنفجر على مستوى الفرز. يتّسق مع حكم السنتين: الحافة التوقيت لا الفرز.")
+    print("   لم تُكتشف حافة فرز كبيرة مستقرة ضمن الفرضيات المختبرة (القوة منخفضة تمنع نفي أثر متوسط).")
+    print("   التوقيت اللحظي هو الفرضية التالية ذات الأولوية، ولم يُثبت بعد. (تصحيح P0 — تدقيق Codex.)")
 print("=" * 80)

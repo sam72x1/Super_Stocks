@@ -1,0 +1,134 @@
+{
+  "exact_counts": {
+    "2025": {
+      "Y_DISCOVERY": 12,
+      "Y_POST_STOP": 3,
+      "Y_TRADABLE": 9,
+      "date_max": "2025-12-30",
+      "date_min": "2025-01-07",
+      "filled": 68,
+      "h4_covered": 65,
+      "settled_t1": 62,
+      "signals": 85,
+      "t1_wins": 18
+    },
+    "2026": {
+      "Y_DISCOVERY": 8,
+      "Y_POST_STOP": 1,
+      "Y_TRADABLE": 7,
+      "date_max": "2026-05-11",
+      "date_min": "2026-01-07",
+      "filled": 56,
+      "h4_covered": 55,
+      "settled_t1": 51,
+      "signals": 73,
+      "t1_wins": 24
+    }
+  },
+  "input_sha256": {
+    "phase_e_dataset_2025_frozen.csv": "b9b3d4e1921f39369adfa386de4262a120bfe9ec1428ed2720d6fa882368b855",
+    "phase_e_dataset_2026_frozen.csv": "c634f33b3a4050057c91f228906867e08636fb5a25cb24a58d622a693867da91",
+    "phase_e_previous_dataset_for_overlap.csv": "a9b6bafd402f677c4b2005cfafd01836cf2b02852830891132ba3b6d5bb40ede"
+  },
+  "legacy_required": {
+    "BEHAV_REARM": {
+      "OR": 4.0,
+      "p": 0.16463814797416518,
+      "table": [
+        [
+          2,
+          9
+        ],
+        [
+          4,
+          72
+        ]
+      ]
+    },
+    "H4_REV": {
+      "OR": 1.009009009009009,
+      "p": 1.0,
+      "table": [
+        [
+          7,
+          37
+        ],
+        [
+          12,
+          64
+        ]
+      ]
+    },
+    "OVERLAP": {
+      "common_symbol_year": 106,
+      "discovery_label_agreement": 0.9716981132075472,
+      "exact_symbol_date_overlap": 10,
+      "exact_symbol_date_pct_of_new": 0.06329113924050633,
+      "new_rows": 158,
+      "old_rows": 211,
+      "symbol_year_overlap": 106,
+      "symbol_year_pct_of_new": 0.6973684210526315,
+      "tradable_label_agreement": 0.9716981132075472
+    },
+    "PHASE_C_Q": [
+      0.5389436754161956,
+      0.5389436754161956,
+      1.0,
+      1.0
+    ],
+    "POOLED_THRESHOLDS": {
+      "best_spike": 188.0,
+      "drop_pct": 81.0,
+      "rr": 2.4936500186264805
+    },
+    "POWER": {
+      "alpha_0_0125_detectable_rate": 0.4430592708189388,
+      "alpha_0_05_detectable_rate": 0.39275699267954606,
+      "baseline_control": 0.16,
+      "method": "statsmodels NormalIndPower using Cohen h from proportion_effectsize; two-sided z approximation",
+      "n_control": 82,
+      "n_exposed": 42,
+      "target_power": 0.8
+    },
+    "PRICE": {
+      "OR": 1.024390243902439,
+      "p": 1.0,
+      "table": [
+        [
+          8,
+          41
+        ],
+        [
+          12,
+          63
+        ]
+      ]
+    },
+    "READINESS": {
+      "OR": 1.0533333333333332,
+      "p": 1.0,
+      "table": [
+        [
+          5,
+          25
+        ],
+        [
+          15,
+          79
+        ]
+      ]
+    },
+    "SCORE": {
+      "AUC": 0.5477430555555556,
+      "p": 0.2694718377080978
+    }
+  },
+  "tolerances": {
+    "OR_AUC_p_q_CI_MDE": 1e-06,
+    "canonical_json_byte_match": "required only with identical package versions and platform",
+    "integer_counts_and_2x2_tables": "exact",
+    "permutation_p": 0.0005,
+    "sha256": "exact",
+    "thresholds": 1e-12
+  }
+}

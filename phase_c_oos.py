@@ -81,7 +81,8 @@ d26 = load(P26, 2026)
 alld = pd.concat([d25, d26], ignore_index=True)
 
 print("=" * 78)
-print("Phase C — اختبار OOS مسجَّل مسبقًا (walk-forward بالسنتين + FDR)")
+print("Phase C — legacy reproduction (temporal replication على مجمَّد مُصلَح، لا OOS مستقل — تصحيح P0)")
+print("⚠️ التدقيق الثنائي الهدف + estimand المصحَّح لـH_BEHAV (Y_POST_STOP) + train-only في phase_p0_audit.py.")
 print("=" * 78)
 for nm, d in [("2025", d25), ("2026", d26)]:
     f = is_filled(d)

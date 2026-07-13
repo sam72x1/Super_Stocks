@@ -1,0 +1,92 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# P0 AUDIT AMENDMENT — 2026-07-13
+# تعديل تدقيقي **لا يُلغي** التسجيل التاريخي (PREREGISTERED_HYPOTHESES.yaml ·
+# PHASE_E_PREREGISTRATION.yaml) — يُقرأ **معه**. صادر عن تدقيق Codex المستقل للمصدر.
+# الحالة: retrospective_audit_not_confirmatory (رُئيت النتائج مسبقًا فالخريطة الثنائية
+# حساسية تدقيقية لا اختبار confirmatory جديد). لا يمسّ الفرز · لا LOGIC_VERSION.
+# ═══════════════════════════════════════════════════════════════════════════
+schema_version: 1
+date: "2026-07-13"
+status: retrospective_audit_not_confirmatory
+source_commit: "06539a6"
+reference: "phase_p0_audit.py (منطق مطابق لـCodex reproduce_phase_e_audit.py؛ فحص ذاتي PASS)"
+
+# ── الأهداف المقفولة (تُفصَل صراحةً بعد كشف الخلط) ───────────────────────────
+targets:
+  Y_DISCOVERY: "fwd_max_gain >= 50"          # الانفجار بالنافذة الكاملة (حتى بعد الوقف)
+  Y_TRADABLE:  "mg_pre_stop >= 50"           # الصعود القابل للمتاجرة قبل الوقف
+  Y_POST_STOP: "Y_DISCOVERY and not Y_TRADABLE"   # بلوغ 50% **بعد** الوقف حصرًا
+
+# ── تصحيح estimand لـH_BEHAV (السؤال «إعادة التسليح بعد الوقف») ──────────────
+h_behav_rearm_corrected:
+  legacy_estimand: "Y_DISCOVERY بين stopped (يشمل من بلغ 50% قبل الوقف) → [[2,9],[4,72]] OR 4.0 p 0.1646"
+  corrected_estimand: "Y_POST_STOP بين stopped → [[2,9],[2,74]] OR 8.222 p 0.07620"
+  note: "التصحيح يضبط السؤال فقط؛ **لا يثبت الحافة** (p>0.05، عيّنة حدثان في الخلية المهمّة)."
+
+# ── قاعدة العتبة الأمامية (إصلاح تسريب pooled في E3) ─────────────────────────
+train_only:
+  train: 2025
+  test: 2026
+  quantile: 0.6666666666666666
+  numpy_method: linear
+  comparison: ">="
+  reverse_direction: sensitivity_only        # 2026→2025 حساسية فقط، ليست forward OOS
+  forward_thresholds_2025_to_2026:
+    drop_pct:  86.46666666666667
+    best_spike: 183.0
+    rr:        2.5439829358098103
+  pooled_thresholds_legacy:
+    drop_pct: 81.0
+    best_spike: 188.0
+    rr: 2.4936500186264805
+
+# ── عائلات FDR ──────────────────────────────────────────────────────────────
+legacy_fdr:
+  phase_c: {m: 4, q_threshold: 0.10}
+  phase_e_confirmatory: {m: 5, q_threshold: 0.10}   # H_MONTH استكشافية خارج العائلة
+  month_regime: legacy_exploratory
+audit_fdr:
+  primary_10: report_only            # الخريطة الثنائية = حساسية تدقيقية لا confirmatory
+  secondary_10: report_only
+  global_20: sensitivity_only
+
+# ── embargo/purge (لم يكن مطبَّقًا؛ يلزم تصدير النافذة) ──────────────────────
+embargo:
+  required_field: forward_window_end
+  train_rule: "year==2025 and forward_window_end < 2026-01-01"
+  test_rule:  "year==2026 and date >= 2026-01-01"
+  status: "يلزم إعادة تشغيل باكتيست بمخطط القياس v2 (P0-S4) لتصدير النافذة ثم إبلاغ purged مقابل legacy."
+
+# ── التكافؤ (equivalence) — لا يُتوقّع إثباته بالعيّنة الحالية ────────────────
+equivalence:
+  scale: absolute_risk_difference
+  primary_margin: 0.08
+  sensitivity_margin: 0.05
+  confidence_interval: 0.90
+  preferred_method: "score/Newcombe or Farrington-Manning (لا Wald البسيط مع الخلايا الصغيرة)"
+  effect_threshold_defined: false             # لم يسجّل YAML رقمًا لـ«فرق ذو معنى»
+  full_preregistered_survival_claim: not_evaluable
+
+# ── القوة (تفسير «لا شيء ينجو») ──────────────────────────────────────────────
+power:
+  method: "statsmodels NormalIndPower · Cohen h · two-sided · n1=42 n0=82 baseline=0.16 power=0.80"
+  detectable_rate_alpha_0_05: 0.39275699267954606
+  detectable_rate_alpha_0_0125: 0.4430592708189388
+  interpretation: "الاختبار يكشف فقط أثرًا ضخمًا (~39-44%). «لا شيء ينجو» = «لا حافة كبيرة»، لا «لا أثر»."
+
+# ── استقلال العيّنة (تصحيح تسمية) ────────────────────────────────────────────
+independence:
+  description: "repaired-pipeline replication + temporal consistency (لا untouched future OOS)."
+  symbol_year_overlap_with_prior: 0.6973684210526315
+  label_agreement_with_prior: 0.9716981132075472
+
+# ── الحوكمة (ملزِمة) ─────────────────────────────────────────────────────────
+governance:
+  production_change: none                     # لا مسّ M1-M14/rank/entry/stop/targets/LOGIC_VERSION
+  forbidden:
+    - "تسمية الخريطة الثنائية confirmatory OOS"
+    - "عكس وزن RR/score"
+    - "عصر عتبات RSI"
+    - "إعلان حافة التوقيت مثبَتة"
+    - "إعادة كتابة YAML التاريخي (هذا amendment منفصل)"
+  next_confirmatory: "فترة مستقبلية untouched + تسجيل مسبق جديد (لا يُختبر على بيانات وُلّدت منها الفرضية)."

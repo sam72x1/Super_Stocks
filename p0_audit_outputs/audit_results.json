@@ -1,0 +1,2017 @@
+{
+  "environment": {
+    "numpy": "2.4.6",
+    "platform": "Linux-6.18.5-x86_64-with-glibc2.39",
+    "python": "3.11.15 (main, Mar  3 2026, 09:26:23) [GCC 13.3.0]",
+    "scipy": "1.17.1",
+    "sklearn": "1.9.0",
+    "statsmodels": "0.14.6"
+  },
+  "equivalence_spec": {
+    "accept_equivalence_if": "90% CI for risk difference lies wholly inside [-margin,+margin]",
+    "alpha": 0.05,
+    "primary_margin": 0.08,
+    "scale": "risk difference",
+    "sensitivity_margin": 0.05
+  },
+  "fdr": {
+    "global_20_sensitivity": {
+      "PRIMARY::H_4H_REVERSAL": {
+        "p": 0.5682711469281845,
+        "q_bh": 1.0
+      },
+      "PRIMARY::H_4H_RSI_LOW": {
+        "p": 0.33250249252243275,
+        "q_bh": 1.0
+      },
+      "PRIMARY::H_BEHAV_REARM": {
+        "p": 0.07620305540018733,
+        "q_bh": 1.0
+      },
+      "PRIMARY::H_DROP_DEEP": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "PRIMARY::H_MONTH_REGIME": {
+        "p": 0.2603347933041339,
+        "q_bh": 1.0
+      },
+      "PRIMARY::H_PRICE_2_5": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "PRIMARY::H_READINESS_LOW": {
+        "p": 0.5341383838967331,
+        "q_bh": 1.0
+      },
+      "PRIMARY::H_RR_HIGH": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "PRIMARY::H_SCORE_INVERSE": {
+        "p": 0.2694718377080978,
+        "q_bh": 1.0
+      },
+      "PRIMARY::H_SPIKE_BIG": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_4H_REVERSAL": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_4H_RSI_LOW": {
+        "p": 0.4066016237003276,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_BEHAV_REARM": {
+        "p": 0.16463814797416518,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_DROP_DEEP": {
+        "p": 0.6485900020385511,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_MONTH_REGIME": {
+        "p": 0.39425211495770085,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_PRICE_2_5": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_READINESS_LOW": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_RR_HIGH": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_SCORE_INVERSE": {
+        "p": 0.3260872528890306,
+        "q_bh": 1.0
+      },
+      "SECONDARY::H_SPIKE_BIG": {
+        "p": 0.7130681280736773,
+        "q_bh": 1.0
+      }
+    },
+    "legacy_mapping": {
+      "H_4H_REVERSAL": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_4H_RSI_LOW": {
+        "p": 0.4066016237003276,
+        "q_bh": 0.7420366208320809
+      },
+      "H_BEHAV_REARM": {
+        "p": 0.16463814797416518,
+        "q_bh": 0.7420366208320809
+      },
+      "H_DROP_DEEP": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_MONTH_REGIME": {
+        "p": 0.39425211495770085,
+        "q_bh": 0.7420366208320809
+      },
+      "H_PRICE_2_5": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_READINESS_LOW": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_RR_HIGH": {
+        "p": 0.20029529586583802,
+        "q_bh": 0.7420366208320809
+      },
+      "H_SCORE_INVERSE": {
+        "p": 0.2694718377080978,
+        "q_bh": 0.7420366208320809
+      },
+      "H_SPIKE_BIG": {
+        "p": 0.4452219724992485,
+        "q_bh": 0.7420366208320809
+      }
+    },
+    "recommended_primary_family_10": {
+      "H_4H_REVERSAL": {
+        "p": 0.5682711469281845,
+        "q_bh": 0.9471185782136409
+      },
+      "H_4H_RSI_LOW": {
+        "p": 0.33250249252243275,
+        "q_bh": 0.8312562313060818
+      },
+      "H_BEHAV_REARM": {
+        "p": 0.07620305540018733,
+        "q_bh": 0.7620305540018733
+      },
+      "H_DROP_DEEP": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_MONTH_REGIME": {
+        "p": 0.2603347933041339,
+        "q_bh": 0.8312562313060818
+      },
+      "H_PRICE_2_5": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_READINESS_LOW": {
+        "p": 0.5341383838967331,
+        "q_bh": 0.9471185782136409
+      },
+      "H_RR_HIGH": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_SCORE_INVERSE": {
+        "p": 0.2694718377080978,
+        "q_bh": 0.8312562313060818
+      },
+      "H_SPIKE_BIG": {
+        "p": 1.0,
+        "q_bh": 1.0
+      }
+    },
+    "recommended_secondary_family_10": {
+      "H_4H_REVERSAL": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_4H_RSI_LOW": {
+        "p": 0.4066016237003276,
+        "q_bh": 1.0
+      },
+      "H_BEHAV_REARM": {
+        "p": 0.16463814797416518,
+        "q_bh": 1.0
+      },
+      "H_DROP_DEEP": {
+        "p": 0.6485900020385511,
+        "q_bh": 1.0
+      },
+      "H_MONTH_REGIME": {
+        "p": 0.39425211495770085,
+        "q_bh": 1.0
+      },
+      "H_PRICE_2_5": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_READINESS_LOW": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_RR_HIGH": {
+        "p": 1.0,
+        "q_bh": 1.0
+      },
+      "H_SCORE_INVERSE": {
+        "p": 0.3260872528890306,
+        "q_bh": 1.0
+      },
+      "H_SPIKE_BIG": {
+        "p": 0.7130681280736773,
+        "q_bh": 1.0
+      }
+    }
+  },
+  "generated_by": "phase_p0_audit.py (logic identical to Codex reproduce_phase_e_audit.py)",
+  "hypotheses": {
+    "H_4H_REVERSAL": {
+      "Y_DISCOVERY": {
+        "2025": {
+          "n_control": 42,
+          "n_exposed": 23,
+          "odds_ratio": 1.0526315789473684,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.16666666666666666,
+          "risk_difference": 0.007246376811594207,
+          "risk_exposed": 0.17391304347826086,
+          "success_control": 7,
+          "success_exposed": 4,
+          "table": [
+            [
+              4,
+              19
+            ],
+            [
+              7,
+              35
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 34,
+          "n_exposed": 21,
+          "odds_ratio": 0.9666666666666667,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.14705882352941177,
+          "risk_difference": -0.00420168067226892,
+          "risk_exposed": 0.14285714285714285,
+          "success_control": 5,
+          "success_exposed": 3,
+          "table": [
+            [
+              3,
+              18
+            ],
+            [
+              5,
+              29
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 76,
+          "n_exposed": 44,
+          "odds_ratio": 1.009009009009009,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.15789473684210525,
+          "risk_difference": 0.001196172248803834,
+          "risk_exposed": 0.1590909090909091,
+          "success_control": 12,
+          "success_exposed": 7,
+          "table": [
+            [
+              7,
+              37
+            ],
+            [
+              12,
+              64
+            ]
+          ]
+        }
+      },
+      "Y_TRADABLE": {
+        "2025": {
+          "n_control": 42,
+          "n_exposed": 23,
+          "odds_ratio": 0.5714285714285714,
+          "p_fisher_two_sided": 0.70152186631993,
+          "risk_control": 0.14285714285714285,
+          "risk_difference": -0.05590062111801242,
+          "risk_exposed": 0.08695652173913043,
+          "success_control": 6,
+          "success_exposed": 2,
+          "table": [
+            [
+              2,
+              21
+            ],
+            [
+              6,
+              36
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 34,
+          "n_exposed": 21,
+          "odds_ratio": 0.6105263157894737,
+          "p_fisher_two_sided": 0.6960490243509111,
+          "risk_control": 0.14705882352941177,
+          "risk_difference": -0.05182072829131654,
+          "risk_exposed": 0.09523809523809523,
+          "success_control": 5,
+          "success_exposed": 2,
+          "table": [
+            [
+              2,
+              19
+            ],
+            [
+              5,
+              29
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 76,
+          "n_exposed": 44,
+          "odds_ratio": 0.5909090909090909,
+          "p_fisher_two_sided": 0.5682711469281845,
+          "risk_control": 0.14473684210526316,
+          "risk_difference": -0.05382775119617225,
+          "risk_exposed": 0.09090909090909091,
+          "success_control": 11,
+          "success_exposed": 4,
+          "table": [
+            [
+              4,
+              40
+            ],
+            [
+              11,
+              65
+            ]
+          ]
+        }
+      },
+      "eligibility": "filled and h4_bars >= 10",
+      "exposure": "h4_reversal == True"
+    },
+    "H_4H_RSI_LOW": {
+      "Y_DISCOVERY": {
+        "2025": {
+          "n_control": 63,
+          "n_exposed": 2,
+          "odds_ratio": 5.3,
+          "p_fisher_two_sided": 0.31201923076923077,
+          "risk_control": 0.15873015873015872,
+          "risk_difference": 0.3412698412698413,
+          "risk_exposed": 0.5,
+          "success_control": 10,
+          "success_exposed": 1,
+          "table": [
+            [
+              1,
+              1
+            ],
+            [
+              10,
+              53
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 54,
+          "n_exposed": 1,
+          "odds_ratio": 0.0,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.14814814814814814,
+          "risk_difference": -0.14814814814814814,
+          "risk_exposed": 0.0,
+          "success_control": 8,
+          "success_exposed": 0,
+          "table": [
+            [
+              0,
+              1
+            ],
+            [
+              8,
+              46
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 117,
+          "n_exposed": 3,
+          "odds_ratio": 2.75,
+          "p_fisher_two_sided": 0.4066016237003276,
+          "risk_control": 0.15384615384615385,
+          "risk_difference": 0.17948717948717946,
+          "risk_exposed": 0.3333333333333333,
+          "success_control": 18,
+          "success_exposed": 1,
+          "table": [
+            [
+              1,
+              2
+            ],
+            [
+              18,
+              99
+            ]
+          ]
+        }
+      },
+      "Y_TRADABLE": {
+        "2025": {
+          "n_control": 63,
+          "n_exposed": 2,
+          "odds_ratio": 8.0,
+          "p_fisher_two_sided": 0.23269230769230767,
+          "risk_control": 0.1111111111111111,
+          "risk_difference": 0.3888888888888889,
+          "risk_exposed": 0.5,
+          "success_control": 7,
+          "success_exposed": 1,
+          "table": [
+            [
+              1,
+              1
+            ],
+            [
+              7,
+              56
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 54,
+          "n_exposed": 1,
+          "odds_ratio": 0.0,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.12962962962962962,
+          "risk_difference": -0.12962962962962962,
+          "risk_exposed": 0.0,
+          "success_control": 7,
+          "success_exposed": 0,
+          "table": [
+            [
+              0,
+              1
+            ],
+            [
+              7,
+              47
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 117,
+          "n_exposed": 3,
+          "odds_ratio": 3.6785714285714284,
+          "p_fisher_two_sided": 0.33250249252243275,
+          "risk_control": 0.11965811965811966,
+          "risk_difference": 0.21367521367521364,
+          "risk_exposed": 0.3333333333333333,
+          "success_control": 14,
+          "success_exposed": 1,
+          "table": [
+            [
+              1,
+              2
+            ],
+            [
+              14,
+              103
+            ]
+          ]
+        }
+      },
+      "eligibility": "filled and h4_bars >= 10 and h4_rsi nonmissing",
+      "exposure": "h4_rsi <= 35"
+    },
+    "H_BEHAV_REARM": {
+      "Y_DISCOVERY": {
+        "2025": {
+          "n_control": 46,
+          "n_exposed": 3,
+          "odds_ratio": 5.25,
+          "p_fisher_two_sided": 0.2811550151975684,
+          "risk_control": 0.08695652173913043,
+          "risk_difference": 0.24637681159420288,
+          "risk_exposed": 0.3333333333333333,
+          "success_control": 4,
+          "success_exposed": 1,
+          "table": [
+            [
+              1,
+              2
+            ],
+            [
+              4,
+              42
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 30,
+          "n_exposed": 8,
+          "odds_ratio": "inf",
+          "p_fisher_two_sided": 0.21052631578947367,
+          "risk_control": 0.0,
+          "risk_difference": 0.125,
+          "risk_exposed": 0.125,
+          "success_control": 0,
+          "success_exposed": 1,
+          "table": [
+            [
+              1,
+              7
+            ],
+            [
+              0,
+              30
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 76,
+          "n_exposed": 11,
+          "odds_ratio": 4.0,
+          "p_fisher_two_sided": 0.16463814797416518,
+          "risk_control": 0.05263157894736842,
+          "risk_difference": 0.1291866028708134,
+          "risk_exposed": 0.18181818181818182,
+          "success_control": 4,
+          "success_exposed": 2,
+          "table": [
+            [
+              2,
+              9
+            ],
+            [
+              4,
+              72
+            ]
+          ]
+        }
+      },
+      "Y_POST_STOP": {
+        "2025": {
+          "n_control": 46,
+          "n_exposed": 3,
+          "odds_ratio": 11.0,
+          "p_fisher_two_sided": 0.17607468519322628,
+          "risk_control": 0.043478260869565216,
+          "risk_difference": 0.28985507246376807,
+          "risk_exposed": 0.3333333333333333,
+          "success_control": 2,
+          "success_exposed": 1,
+          "table": [
+            [
+              1,
+              2
+            ],
+            [
+              2,
+              44
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 30,
+          "n_exposed": 8,
+          "odds_ratio": "inf",
+          "p_fisher_two_sided": 0.21052631578947367,
+          "risk_control": 0.0,
+          "risk_difference": 0.125,
+          "risk_exposed": 0.125,
+          "success_control": 0,
+          "success_exposed": 1,
+          "table": [
+            [
+              1,
+              7
+            ],
+            [
+              0,
+              30
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 76,
+          "n_exposed": 11,
+          "odds_ratio": 8.222222222222221,
+          "p_fisher_two_sided": 0.07620305540018733,
+          "risk_control": 0.02631578947368421,
+          "risk_difference": 0.15550239234449761,
+          "risk_exposed": 0.18181818181818182,
+          "success_control": 2,
+          "success_exposed": 2,
+          "table": [
+            [
+              2,
+              9
+            ],
+            [
+              2,
+              74
+            ]
+          ]
+        }
+      },
+      "Y_TRADABLE": {
+        "2025": {
+          "n_control": 46,
+          "n_exposed": 3,
+          "odds_ratio": 0.0,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.043478260869565216,
+          "risk_difference": -0.043478260869565216,
+          "risk_exposed": 0.0,
+          "success_control": 2,
+          "success_exposed": 0,
+          "table": [
+            [
+              0,
+              3
+            ],
+            [
+              2,
+              44
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 30,
+          "n_exposed": 8,
+          "odds_ratio": null,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.0,
+          "risk_difference": 0.0,
+          "risk_exposed": 0.0,
+          "success_control": 0,
+          "success_exposed": 0,
+          "table": [
+            [
+              0,
+              8
+            ],
+            [
+              0,
+              30
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 76,
+          "n_exposed": 11,
+          "odds_ratio": 0.0,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.02631578947368421,
+          "risk_difference": -0.02631578947368421,
+          "risk_exposed": 0.0,
+          "success_control": 2,
+          "success_exposed": 0,
+          "table": [
+            [
+              0,
+              11
+            ],
+            [
+              2,
+              74
+            ]
+          ]
+        }
+      },
+      "eligibility": "mg_outcome == stopped",
+      "exposure": "behav_score >= 60"
+    },
+    "H_DROP_DEEP": {
+      "feature": "drop_pct",
+      "forward_2025_to_2026": {
+        "Y_DISCOVERY": {
+          "comparison": ">=",
+          "feature": "drop_pct",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 45,
+            "n_exposed": 11,
+            "odds_ratio": 1.4444444444444444,
+            "p_fisher_two_sided": 0.6485900020385511,
+            "risk_control": 0.13333333333333333,
+            "risk_difference": 0.04848484848484849,
+            "risk_exposed": 0.18181818181818182,
+            "success_control": 6,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                9
+              ],
+              [
+                6,
+                39
+              ]
+            ]
+          },
+          "test_year": 2026,
+          "threshold": 86.46666666666667,
+          "train_year": 2025
+        },
+        "Y_TRADABLE": {
+          "comparison": ">=",
+          "feature": "drop_pct",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 45,
+            "n_exposed": 11,
+            "odds_ratio": 0.65,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.13333333333333333,
+            "risk_difference": -0.04242424242424242,
+            "risk_exposed": 0.09090909090909091,
+            "success_control": 6,
+            "success_exposed": 1,
+            "table": [
+              [
+                1,
+                10
+              ],
+              [
+                6,
+                39
+              ]
+            ]
+          },
+          "test_year": 2026,
+          "threshold": 86.46666666666667,
+          "train_year": 2025
+        }
+      },
+      "pooled_legacy": {
+        "Y_DISCOVERY": {
+          "2025": {
+            "n_control": 37,
+            "n_exposed": 31,
+            "odds_ratio": 0.8241758241758241,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.1891891891891892,
+            "risk_difference": -0.027898866608544043,
+            "risk_exposed": 0.16129032258064516,
+            "success_control": 7,
+            "success_exposed": 5,
+            "table": [
+              [
+                5,
+                26
+              ],
+              [
+                7,
+                30
+              ]
+            ]
+          },
+          "2026": {
+            "n_control": 44,
+            "n_exposed": 12,
+            "odds_ratio": 1.2666666666666666,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.13636363636363635,
+            "risk_difference": 0.030303030303030304,
+            "risk_exposed": 0.16666666666666666,
+            "success_control": 6,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                10
+              ],
+              [
+                6,
+                38
+              ]
+            ]
+          },
+          "pooled": {
+            "n_control": 81,
+            "n_exposed": 43,
+            "odds_ratio": 1.017094017094017,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.16049382716049382,
+            "risk_difference": 0.002296870513924798,
+            "risk_exposed": 0.16279069767441862,
+            "success_control": 13,
+            "success_exposed": 7,
+            "table": [
+              [
+                7,
+                36
+              ],
+              [
+                13,
+                68
+              ]
+            ]
+          }
+        },
+        "Y_TRADABLE": {
+          "2025": {
+            "n_control": 37,
+            "n_exposed": 31,
+            "odds_ratio": 0.9481481481481482,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.13513513513513514,
+            "risk_difference": -0.006102877070619017,
+            "risk_exposed": 0.12903225806451613,
+            "success_control": 5,
+            "success_exposed": 4,
+            "table": [
+              [
+                4,
+                27
+              ],
+              [
+                5,
+                32
+              ]
+            ]
+          },
+          "2026": {
+            "n_control": 44,
+            "n_exposed": 12,
+            "odds_ratio": 0.5757575757575758,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.13636363636363635,
+            "risk_difference": -0.053030303030303025,
+            "risk_exposed": 0.08333333333333333,
+            "success_control": 6,
+            "success_exposed": 1,
+            "table": [
+              [
+                1,
+                11
+              ],
+              [
+                6,
+                38
+              ]
+            ]
+          },
+          "pooled": {
+            "n_control": 81,
+            "n_exposed": 43,
+            "odds_ratio": 0.8373205741626795,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.13580246913580246,
+            "risk_difference": -0.019523399368360603,
+            "risk_exposed": 0.11627906976744186,
+            "success_control": 11,
+            "success_exposed": 5,
+            "table": [
+              [
+                5,
+                38
+              ],
+              [
+                11,
+                70
+              ]
+            ]
+          }
+        },
+        "comparison": ">=",
+        "threshold": 81.0
+      },
+      "reverse_sensitivity_2026_to_2025": {
+        "Y_DISCOVERY": {
+          "comparison": ">=",
+          "feature": "drop_pct",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 34,
+            "n_exposed": 34,
+            "odds_ratio": 1.5037037037037038,
+            "p_fisher_two_sided": 0.7516121388550822,
+            "risk_control": 0.14705882352941177,
+            "risk_difference": 0.05882352941176469,
+            "risk_exposed": 0.20588235294117646,
+            "success_control": 5,
+            "success_exposed": 7,
+            "table": [
+              [
+                7,
+                27
+              ],
+              [
+                5,
+                29
+              ]
+            ]
+          },
+          "test_year": 2025,
+          "threshold": 75.23333333333332,
+          "train_year": 2026
+        },
+        "Y_TRADABLE": {
+          "comparison": ">=",
+          "feature": "drop_pct",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 34,
+            "n_exposed": 34,
+            "odds_ratio": 1.293103448275862,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.11764705882352941,
+            "risk_difference": 0.02941176470588236,
+            "risk_exposed": 0.14705882352941177,
+            "success_control": 4,
+            "success_exposed": 5,
+            "table": [
+              [
+                5,
+                29
+              ],
+              [
+                4,
+                30
+              ]
+            ]
+          },
+          "test_year": 2025,
+          "threshold": 75.23333333333332,
+          "train_year": 2026
+        }
+      }
+    },
+    "H_MONTH_REGIME": {
+      "Y_DISCOVERY": {
+        "chi_square": 3.09892848164907,
+        "expected": [
+          [
+            7.741935483870968,
+            40.25806451612903
+          ],
+          [
+            3.870967741935484,
+            20.129032258064516
+          ],
+          [
+            2.903225806451613,
+            15.096774193548388
+          ],
+          [
+            5.483870967741935,
+            28.516129032258064
+          ]
+        ],
+        "p_chi_square": 0.37662242499625026,
+        "p_permutation": 0.39425211495770085,
+        "permutation_seed": 20260713,
+        "permutations": 50000,
+        "table": [
+          [
+            5,
+            43
+          ],
+          [
+            6,
+            18
+          ],
+          [
+            4,
+            14
+          ],
+          [
+            5,
+            29
+          ]
+        ]
+      },
+      "Y_TRADABLE": {
+        "chi_square": 4.12944051077221,
+        "expected": [
+          [
+            6.193548387096774,
+            41.806451612903224
+          ],
+          [
+            3.096774193548387,
+            20.903225806451612
+          ],
+          [
+            2.3225806451612905,
+            15.67741935483871
+          ],
+          [
+            4.387096774193548,
+            29.612903225806452
+          ]
+        ],
+        "p_chi_square": 0.24782185692897973,
+        "p_permutation": 0.2603347933041339,
+        "permutation_seed": 20260713,
+        "permutations": 50000,
+        "table": [
+          [
+            4,
+            44
+          ],
+          [
+            5,
+            19
+          ],
+          [
+            4,
+            14
+          ],
+          [
+            3,
+            31
+          ]
+        ]
+      }
+    },
+    "H_PRICE_2_5": {
+      "Y_DISCOVERY": {
+        "2025": {
+          "n_control": 41,
+          "n_exposed": 27,
+          "odds_ratio": 0.4444444444444444,
+          "p_fisher_two_sided": 0.3377097558102716,
+          "risk_control": 0.21951219512195122,
+          "risk_difference": -0.10840108401084012,
+          "risk_exposed": 0.1111111111111111,
+          "success_control": 9,
+          "success_exposed": 3,
+          "table": [
+            [
+              3,
+              24
+            ],
+            [
+              9,
+              32
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 34,
+          "n_exposed": 22,
+          "odds_ratio": 3.0392156862745097,
+          "p_fisher_two_sided": 0.24080816458174953,
+          "risk_control": 0.08823529411764706,
+          "risk_difference": 0.13903743315508021,
+          "risk_exposed": 0.22727272727272727,
+          "success_control": 3,
+          "success_exposed": 5,
+          "table": [
+            [
+              5,
+              17
+            ],
+            [
+              3,
+              31
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 75,
+          "n_exposed": 49,
+          "odds_ratio": 1.024390243902439,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.16,
+          "risk_difference": 0.0032653061224489632,
+          "risk_exposed": 0.16326530612244897,
+          "success_control": 12,
+          "success_exposed": 8,
+          "table": [
+            [
+              8,
+              41
+            ],
+            [
+              12,
+              63
+            ]
+          ]
+        }
+      },
+      "Y_TRADABLE": {
+        "2025": {
+          "n_control": 41,
+          "n_exposed": 27,
+          "odds_ratio": 0.38857142857142857,
+          "p_fisher_two_sided": 0.30033783810876585,
+          "risk_control": 0.17073170731707318,
+          "risk_difference": -0.09665763324299911,
+          "risk_exposed": 0.07407407407407407,
+          "success_control": 7,
+          "success_exposed": 2,
+          "table": [
+            [
+              2,
+              25
+            ],
+            [
+              7,
+              34
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 34,
+          "n_exposed": 22,
+          "odds_ratio": 2.2962962962962963,
+          "p_fisher_two_sided": 0.4148943718755039,
+          "risk_control": 0.08823529411764706,
+          "risk_difference": 0.09358288770053476,
+          "risk_exposed": 0.18181818181818182,
+          "success_control": 3,
+          "success_exposed": 4,
+          "table": [
+            [
+              4,
+              18
+            ],
+            [
+              3,
+              31
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 75,
+          "n_exposed": 49,
+          "odds_ratio": 0.9069767441860465,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.13333333333333333,
+          "risk_difference": -0.0108843537414966,
+          "risk_exposed": 0.12244897959183673,
+          "success_control": 10,
+          "success_exposed": 6,
+          "table": [
+            [
+              6,
+              43
+            ],
+            [
+              10,
+              65
+            ]
+          ]
+        }
+      },
+      "exposure": "2 <= effective_entry < 5"
+    },
+    "H_READINESS_LOW": {
+      "Y_DISCOVERY": {
+        "2025": {
+          "n_control": 54,
+          "n_exposed": 14,
+          "odds_ratio": 0.7333333333333333,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.18518518518518517,
+          "risk_difference": -0.042328042328042326,
+          "risk_exposed": 0.14285714285714285,
+          "success_control": 10,
+          "success_exposed": 2,
+          "table": [
+            [
+              2,
+              12
+            ],
+            [
+              10,
+              44
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 40,
+          "n_exposed": 16,
+          "odds_ratio": 1.6153846153846154,
+          "p_fisher_two_sided": 0.6757426812920707,
+          "risk_control": 0.125,
+          "risk_difference": 0.0625,
+          "risk_exposed": 0.1875,
+          "success_control": 5,
+          "success_exposed": 3,
+          "table": [
+            [
+              3,
+              13
+            ],
+            [
+              5,
+              35
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 94,
+          "n_exposed": 30,
+          "odds_ratio": 1.0533333333333332,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.1595744680851064,
+          "risk_difference": 0.007092198581560266,
+          "risk_exposed": 0.16666666666666666,
+          "success_control": 15,
+          "success_exposed": 5,
+          "table": [
+            [
+              5,
+              25
+            ],
+            [
+              15,
+              79
+            ]
+          ]
+        }
+      },
+      "Y_TRADABLE": {
+        "2025": {
+          "n_control": 54,
+          "n_exposed": 14,
+          "odds_ratio": 1.119047619047619,
+          "p_fisher_two_sided": 1.0,
+          "risk_control": 0.12962962962962962,
+          "risk_difference": 0.013227513227513227,
+          "risk_exposed": 0.14285714285714285,
+          "success_control": 7,
+          "success_exposed": 2,
+          "table": [
+            [
+              2,
+              12
+            ],
+            [
+              7,
+              47
+            ]
+          ]
+        },
+        "2026": {
+          "n_control": 40,
+          "n_exposed": 16,
+          "odds_ratio": 2.076923076923077,
+          "p_fisher_two_sided": 0.3947196717451988,
+          "risk_control": 0.1,
+          "risk_difference": 0.0875,
+          "risk_exposed": 0.1875,
+          "success_control": 4,
+          "success_exposed": 3,
+          "table": [
+            [
+              3,
+              13
+            ],
+            [
+              4,
+              36
+            ]
+          ]
+        },
+        "pooled": {
+          "n_control": 94,
+          "n_exposed": 30,
+          "odds_ratio": 1.509090909090909,
+          "p_fisher_two_sided": 0.5341383838967331,
+          "risk_control": 0.11702127659574468,
+          "risk_difference": 0.049645390070921974,
+          "risk_exposed": 0.16666666666666666,
+          "success_control": 11,
+          "success_exposed": 5,
+          "table": [
+            [
+              5,
+              25
+            ],
+            [
+              11,
+              83
+            ]
+          ]
+        }
+      },
+      "exposure": "readiness <= 54"
+    },
+    "H_RR_HIGH": {
+      "feature": "rr",
+      "forward_2025_to_2026": {
+        "Y_DISCOVERY": {
+          "comparison": ">=",
+          "feature": "rr",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 41,
+            "n_exposed": 15,
+            "odds_ratio": 0.8974358974358975,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.14634146341463414,
+            "risk_difference": -0.013008130081300806,
+            "risk_exposed": 0.13333333333333333,
+            "success_control": 6,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                13
+              ],
+              [
+                6,
+                35
+              ]
+            ]
+          },
+          "test_year": 2026,
+          "threshold": 2.5439829358098103,
+          "train_year": 2025
+        },
+        "Y_TRADABLE": {
+          "comparison": ">=",
+          "feature": "rr",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 41,
+            "n_exposed": 15,
+            "odds_ratio": 1.1076923076923078,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.12195121951219512,
+            "risk_difference": 0.011382113821138212,
+            "risk_exposed": 0.13333333333333333,
+            "success_control": 5,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                13
+              ],
+              [
+                5,
+                36
+              ]
+            ]
+          },
+          "test_year": 2026,
+          "threshold": 2.5439829358098103,
+          "train_year": 2025
+        }
+      },
+      "pooled_legacy": {
+        "Y_DISCOVERY": {
+          "2025": {
+            "n_control": 42,
+            "n_exposed": 26,
+            "odds_ratio": 0.26666666666666666,
+            "p_fisher_two_sided": 0.11208619087437412,
+            "risk_control": 0.23809523809523808,
+            "risk_difference": -0.16117216117216115,
+            "risk_exposed": 0.07692307692307693,
+            "success_control": 10,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                24
+              ],
+              [
+                10,
+                32
+              ]
+            ]
+          },
+          "2026": {
+            "n_control": 40,
+            "n_exposed": 16,
+            "odds_ratio": 0.8095238095238095,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.15,
+            "risk_difference": -0.024999999999999994,
+            "risk_exposed": 0.125,
+            "success_control": 6,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                14
+              ],
+              [
+                6,
+                34
+              ]
+            ]
+          },
+          "pooled": {
+            "n_control": 82,
+            "n_exposed": 42,
+            "odds_ratio": 0.4342105263157895,
+            "p_fisher_two_sided": 0.20029529586583802,
+            "risk_control": 0.1951219512195122,
+            "risk_difference": -0.09988385598141697,
+            "risk_exposed": 0.09523809523809523,
+            "success_control": 16,
+            "success_exposed": 4,
+            "table": [
+              [
+                4,
+                38
+              ],
+              [
+                16,
+                66
+              ]
+            ]
+          }
+        },
+        "Y_TRADABLE": {
+          "2025": {
+            "n_control": 42,
+            "n_exposed": 26,
+            "odds_ratio": 0.4166666666666667,
+            "p_fisher_two_sided": 0.46516851924159963,
+            "risk_control": 0.16666666666666666,
+            "risk_difference": -0.08974358974358973,
+            "risk_exposed": 0.07692307692307693,
+            "success_control": 7,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                24
+              ],
+              [
+                7,
+                35
+              ]
+            ]
+          },
+          "2026": {
+            "n_control": 40,
+            "n_exposed": 16,
+            "odds_ratio": 1.0,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.125,
+            "risk_difference": 0.0,
+            "risk_exposed": 0.125,
+            "success_control": 5,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                14
+              ],
+              [
+                5,
+                35
+              ]
+            ]
+          },
+          "pooled": {
+            "n_control": 82,
+            "n_exposed": 42,
+            "odds_ratio": 0.6140350877192983,
+            "p_fisher_two_sided": 0.5743055264459057,
+            "risk_control": 0.14634146341463414,
+            "risk_difference": -0.051103368176538905,
+            "risk_exposed": 0.09523809523809523,
+            "success_control": 12,
+            "success_exposed": 4,
+            "table": [
+              [
+                4,
+                38
+              ],
+              [
+                12,
+                70
+              ]
+            ]
+          }
+        },
+        "comparison": ">=",
+        "threshold": 2.4936500186264805
+      },
+      "reverse_sensitivity_2026_to_2025": {
+        "Y_DISCOVERY": {
+          "comparison": ">=",
+          "feature": "rr",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 39,
+            "n_exposed": 29,
+            "odds_ratio": 0.38461538461538464,
+            "p_fisher_two_sided": 0.21227207959143474,
+            "risk_control": 0.23076923076923078,
+            "risk_difference": -0.12732095490716183,
+            "risk_exposed": 0.10344827586206896,
+            "success_control": 9,
+            "success_exposed": 3,
+            "table": [
+              [
+                3,
+                26
+              ],
+              [
+                9,
+                30
+              ]
+            ]
+          },
+          "test_year": 2025,
+          "threshold": 2.400119526578238,
+          "train_year": 2026
+        },
+        "Y_TRADABLE": {
+          "comparison": ">=",
+          "feature": "rr",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 39,
+            "n_exposed": 29,
+            "odds_ratio": 0.3386243386243386,
+            "p_fisher_two_sided": 0.28238434003920004,
+            "risk_control": 0.1794871794871795,
+            "risk_difference": -0.11052166224580018,
+            "risk_exposed": 0.06896551724137931,
+            "success_control": 7,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                27
+              ],
+              [
+                7,
+                32
+              ]
+            ]
+          },
+          "test_year": 2025,
+          "threshold": 2.400119526578238,
+          "train_year": 2026
+        }
+      }
+    },
+    "H_SCORE_INVERSE": {
+      "Y_DISCOVERY": {
+        "2025": {
+          "auc_negative_score": 0.5230654761904762,
+          "n": 68,
+          "negatives": 56,
+          "p_mwu_one_sided": 0.4038647366250417,
+          "positives": 12
+        },
+        "2026": {
+          "auc_negative_score": 0.5572916666666666,
+          "n": 56,
+          "negatives": 48,
+          "p_mwu_one_sided": 0.3063092809379995,
+          "positives": 8
+        },
+        "pooled": {
+          "auc_negative_score": 0.5319711538461539,
+          "n": 124,
+          "negatives": 104,
+          "p_mwu_one_sided": 0.3260872528890306,
+          "positives": 20
+        }
+      },
+      "Y_TRADABLE": {
+        "2025": {
+          "auc_negative_score": 0.5235404896421845,
+          "n": 68,
+          "negatives": 59,
+          "p_mwu_one_sided": 0.4133199841659702,
+          "positives": 9
+        },
+        "2026": {
+          "auc_negative_score": 0.5889212827988338,
+          "n": 56,
+          "negatives": 49,
+          "p_mwu_one_sided": 0.22736444764300767,
+          "positives": 7
+        },
+        "pooled": {
+          "auc_negative_score": 0.5477430555555556,
+          "n": 124,
+          "negatives": 108,
+          "p_mwu_one_sided": 0.2694718377080978,
+          "positives": 16
+        }
+      },
+      "direction": "lower score is positive; evaluate AUC(-score)"
+    },
+    "H_SPIKE_BIG": {
+      "feature": "best_spike",
+      "forward_2025_to_2026": {
+        "Y_DISCOVERY": {
+          "comparison": ">=",
+          "feature": "best_spike",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 32,
+            "n_exposed": 24,
+            "odds_ratio": 1.4,
+            "p_fisher_two_sided": 0.7130681280736773,
+            "risk_control": 0.125,
+            "risk_difference": 0.04166666666666666,
+            "risk_exposed": 0.16666666666666666,
+            "success_control": 4,
+            "success_exposed": 4,
+            "table": [
+              [
+                4,
+                20
+              ],
+              [
+                4,
+                28
+              ]
+            ]
+          },
+          "test_year": 2026,
+          "threshold": 183.0,
+          "train_year": 2025
+        },
+        "Y_TRADABLE": {
+          "comparison": ">=",
+          "feature": "best_spike",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 32,
+            "n_exposed": 24,
+            "odds_ratio": 1.0,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.125,
+            "risk_difference": 0.0,
+            "risk_exposed": 0.125,
+            "success_control": 4,
+            "success_exposed": 3,
+            "table": [
+              [
+                3,
+                21
+              ],
+              [
+                4,
+                28
+              ]
+            ]
+          },
+          "test_year": 2026,
+          "threshold": 183.0,
+          "train_year": 2025
+        }
+      },
+      "pooled_legacy": {
+        "Y_DISCOVERY": {
+          "2025": {
+            "n_control": 48,
+            "n_exposed": 20,
+            "odds_ratio": 0.4222222222222222,
+            "p_fisher_two_sided": 0.4863850198646061,
+            "risk_control": 0.20833333333333334,
+            "risk_difference": -0.10833333333333334,
+            "risk_exposed": 0.1,
+            "success_control": 10,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                18
+              ],
+              [
+                10,
+                38
+              ]
+            ]
+          },
+          "2026": {
+            "n_control": 34,
+            "n_exposed": 22,
+            "odds_ratio": 0.9157894736842105,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.14705882352941177,
+            "risk_difference": -0.010695187165775416,
+            "risk_exposed": 0.13636363636363635,
+            "success_control": 5,
+            "success_exposed": 3,
+            "table": [
+              [
+                3,
+                19
+              ],
+              [
+                5,
+                29
+              ]
+            ]
+          },
+          "pooled": {
+            "n_control": 82,
+            "n_exposed": 42,
+            "odds_ratio": 0.6036036036036037,
+            "p_fisher_two_sided": 0.4452219724992485,
+            "risk_control": 0.18292682926829268,
+            "risk_difference": -0.06387921022067364,
+            "risk_exposed": 0.11904761904761904,
+            "success_control": 15,
+            "success_exposed": 5,
+            "table": [
+              [
+                5,
+                37
+              ],
+              [
+                15,
+                67
+              ]
+            ]
+          }
+        },
+        "Y_TRADABLE": {
+          "2025": {
+            "n_control": 48,
+            "n_exposed": 20,
+            "odds_ratio": 0.6507936507936508,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.14583333333333334,
+            "risk_difference": -0.04583333333333334,
+            "risk_exposed": 0.1,
+            "success_control": 7,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                18
+              ],
+              [
+                7,
+                41
+              ]
+            ]
+          },
+          "2026": {
+            "n_control": 34,
+            "n_exposed": 22,
+            "odds_ratio": 0.58,
+            "p_fisher_two_sided": 0.6920496694081598,
+            "risk_control": 0.14705882352941177,
+            "risk_difference": -0.05614973262032086,
+            "risk_exposed": 0.09090909090909091,
+            "success_control": 5,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                20
+              ],
+              [
+                5,
+                29
+              ]
+            ]
+          },
+          "pooled": {
+            "n_control": 82,
+            "n_exposed": 42,
+            "odds_ratio": 0.6140350877192983,
+            "p_fisher_two_sided": 0.5743055264459057,
+            "risk_control": 0.14634146341463414,
+            "risk_difference": -0.051103368176538905,
+            "risk_exposed": 0.09523809523809523,
+            "success_control": 12,
+            "success_exposed": 4,
+            "table": [
+              [
+                4,
+                38
+              ],
+              [
+                12,
+                70
+              ]
+            ]
+          }
+        },
+        "comparison": ">=",
+        "threshold": 188.0
+      },
+      "reverse_sensitivity_2026_to_2025": {
+        "Y_DISCOVERY": {
+          "comparison": ">=",
+          "feature": "best_spike",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 54,
+            "n_exposed": 14,
+            "odds_ratio": 0.7333333333333333,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.18518518518518517,
+            "risk_difference": -0.042328042328042326,
+            "risk_exposed": 0.14285714285714285,
+            "success_control": 10,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                12
+              ],
+              [
+                10,
+                44
+              ]
+            ]
+          },
+          "test_year": 2025,
+          "threshold": 216.66666666666663,
+          "train_year": 2026
+        },
+        "Y_TRADABLE": {
+          "comparison": ">=",
+          "feature": "best_spike",
+          "quantile": 0.6666666666666666,
+          "quantile_method": "linear",
+          "result": {
+            "n_control": 54,
+            "n_exposed": 14,
+            "odds_ratio": 1.119047619047619,
+            "p_fisher_two_sided": 1.0,
+            "risk_control": 0.12962962962962962,
+            "risk_difference": 0.013227513227513227,
+            "risk_exposed": 0.14285714285714285,
+            "success_control": 7,
+            "success_exposed": 2,
+            "table": [
+              [
+                2,
+                12
+              ],
+              [
+                7,
+                47
+              ]
+            ]
+          },
+          "test_year": 2025,
+          "threshold": 216.66666666666663,
+          "train_year": 2026
+        }
+      }
+    }
+  },
+  "input_sha256": {
+    "phase_e_dataset_2025_frozen.csv": "b9b3d4e1921f39369adfa386de4262a120bfe9ec1428ed2720d6fa882368b855",
+    "phase_e_dataset_2026_frozen.csv": "c634f33b3a4050057c91f228906867e08636fb5a25cb24a58d622a693867da91",
+    "phase_e_previous_dataset_for_overlap.csv": "a9b6bafd402f677c4b2005cfafd01836cf2b02852830891132ba3b6d5bb40ede"
+  },
+  "integrity_summary": {
+    "category_counts": {
+      "EFFECTIVE_ENTRY_LT_1_5": 11,
+      "MG_PRE_STOP_GT_FWD_MAX_GAIN": 2,
+      "RAW_PIT_ENTRY_MISSING": 104
+    },
+    "rows_flagged": 110
+  },
+  "locked_targets": {
+    "Y_DISCOVERY": "fwd_max_gain >= 50",
+    "Y_POST_STOP": "Y_DISCOVERY and not Y_TRADABLE; used only for H_BEHAV_REARM",
+    "Y_TRADABLE": "mg_pre_stop >= 50"
+  },
+  "power": {
+    "alpha_0_0125_detectable_rate": 0.4430592708189388,
+    "alpha_0_05_detectable_rate": 0.39275699267954606,
+    "baseline_control": 0.16,
+    "method": "statsmodels NormalIndPower using Cohen h from proportion_effectsize; two-sided z approximation",
+    "n_control": 82,
+    "n_exposed": 42,
+    "target_power": 0.8
+  },
+  "previous_dataset_overlap_summary": {
+    "common_symbol_year": 106,
+    "discovery_label_agreement": 0.9716981132075472,
+    "exact_symbol_date_overlap": 10,
+    "exact_symbol_date_pct_of_new": 0.06329113924050633,
+    "new_rows": 158,
+    "old_rows": 211,
+    "symbol_year_overlap": 106,
+    "symbol_year_pct_of_new": 0.6973684210526315,
+    "tradable_label_agreement": 0.9716981132075472
+  },
+  "rate_confidence_intervals": {
+    "2025_discovery": {
+      "k": 12,
+      "n": 68,
+      "rate": 0.17647058823529413,
+      "wilson95": [
+        0.10393587249437693,
+        0.28360440407743354
+      ]
+    },
+    "2025_tradable": {
+      "k": 9,
+      "n": 68,
+      "rate": 0.1323529411764706,
+      "wilson95": [
+        0.07122244410229807,
+        0.23280059745657739
+      ]
+    },
+    "2026_discovery": {
+      "k": 8,
+      "n": 56,
+      "rate": 0.14285714285714285,
+      "wilson95": [
+        0.07420788536920624,
+        0.2573592122870534
+      ]
+    },
+    "2026_tradable": {
+      "k": 7,
+      "n": 56,
+      "rate": 0.125,
+      "wilson95": [
+        0.06189068695717119,
+        0.2362547655819014
+      ]
+    },
+    "pooled_discovery": {
+      "k": 20,
+      "n": 124,
+      "rate": 0.16129032258064516,
+      "wilson95": [
+        0.10690465442449375,
+        0.23603150435467501
+      ]
+    },
+    "pooled_tradable": {
+      "k": 16,
+      "n": 124,
+      "rate": 0.12903225806451613,
+      "wilson95": [
+        0.08100831296864845,
+        0.19935033712282207
+      ]
+    }
+  },
+  "schema_version": "2.0",
+  "seeds": {
+    "bootstraps_reserved": 20000,
+    "global": 20260713,
+    "permutations": 50000
+  },
+  "summary": {
+    "2025": {
+      "Y_DISCOVERY": 12,
+      "Y_POST_STOP": 3,
+      "Y_TRADABLE": 9,
+      "date_max": "2025-12-30",
+      "date_min": "2025-01-07",
+      "filled": 68,
+      "h4_covered": 65,
+      "settled_t1": 62,
+      "signals": 85,
+      "t1_wins": 18
+    },
+    "2026": {
+      "Y_DISCOVERY": 8,
+      "Y_POST_STOP": 1,
+      "Y_TRADABLE": 7,
+      "date_max": "2026-05-11",
+      "date_min": "2026-01-07",
+      "filled": 56,
+      "h4_covered": 55,
+      "settled_t1": 51,
+      "signals": 73,
+      "t1_wins": 24
+    }
+  },
+  "train_only_rule": {
+    "comparison": ">=",
+    "numpy_method": "linear",
+    "q": 0.6666666666666666,
+    "reverse_2026_to_2025": "sensitivity only; never call it forward OOS",
+    "test": 2026,
+    "train": 2025
+  }
+}
