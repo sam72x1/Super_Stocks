@@ -51,7 +51,7 @@ class _SafeRecorder:
     🔒 غلاف قياس فقط — لا يمسّ قرارًا/عتبة/تنبيهًا (بلا E2 = الغلاف غير موجود أصلًا)."""
 
     _HOT = ("trace", "loop_start", "loop_end", "mark_first_poll", "set_watchlist_commit",
-            "telegram_attempt", "telegram_success", "telegram_failure")
+            "telegram_attempt", "telegram_success", "telegram_failure", "__submit__")
 
     def __init__(self, rec, log):
         object.__setattr__(self, "_rec", rec)
@@ -89,10 +89,15 @@ class _SafeRecorder:
             rec = object.__getattribute__(self, "_rec")
             if rec is not None:
                 try:
-                    getattr(rec, name)(*a, **kw)
+                    a[0](rec) if name == "__submit__" else getattr(rec, name)(*a, **kw)
                 except Exception as e:
                     self._die(name, e)
             q.task_done()
+
+    def submit(self, fn):
+        """🔬 مراجعة Codex 5 (P0-و): يؤجّل **عملًا قياسيًّا كاملًا** (حساب + خطّاف) لخيط العامل —
+        `fn(rec)`. يمنع تسرّب حسابات القياس (git subprocess · هَشّ) لخيط الإنتاج عبر تقييم الوسائط."""
+        return self.__getattr__("__submit__")(fn)
 
     def _close_worker(self):
         """يوقف العامل ويصرّف الطابور بمهلة محدودة (خطّاف معلّق لا يعلّق الجوب إلى الأبد)."""
@@ -174,9 +179,13 @@ def _fresh_watchlist(cur_wl, runner=None):
                  capture_output=True, timeout=30)
         if getattr(r2, "returncode", 1) != 0 or not getattr(r2, "stdout", None):
             return None
-        new_wl = json.loads(r2.stdout.decode("utf-8"))
+        _raw = r2.stdout.decode("utf-8")
+        new_wl = json.loads(_raw)
         if not isinstance(new_wl, dict) or not new_wl.get("stocks"):
             return None
+        # 🔬 مراجعة Codex 5 (P0-و): نحتفظ بالنصّ الخام ليهشّه **العامل** لاحقًا — فلا هَشّ على
+        # خيط الإنتاج، ولا سباق تعديل (الحلقة تختم `ignition_alert` على نفس القاموس).
+        _WL_RAW["text"] = _raw
         stamps = {s.get("symbol"): s.get("ignition_alert")
                   for s in (cur_wl or {}).get("stocks", [])
                   if s.get("ignition_alert")}
@@ -201,12 +210,26 @@ def _fetch_head_sha(runner=None):
     return None
 
 
+_WL_RAW = {"text": None}      # 🔬 آخر نصّ قائمة مجلوب (يهشّه العامل — لا هَشّ على خيط الإنتاج)
+
+
 def _wl_content_sha256(wl):
     """🔬 P1-4: SHA-256 لمحتوى القائمة **الفعلي المُستعمَل** (canonical JSON) — إثبات أن نفس
-    bytes استُخدمت وقت الترشيح، لا مجرّد commit غير-null. فاشل-آمن → None."""
+    bytes استُخدمت وقت الترشيح، لا مجرّد commit غير-null. فاشل-آمن → None.
+    ⚠️ يُنادى **على خيط العامل فقط** (يستورد manifest ويقنون ويهشّ = عمل قياسي)."""
     try:
         import ignition_e2_manifest as man
         return man.sha256_hex(man.canonical_json(wl))
+    except Exception:
+        return None
+
+
+def _wl_sha_from_raw():
+    """🔬 مراجعة Codex 5 (P0-و): هَشّ القائمة من **النصّ الخام المجلوب** (لا من القاموس الحيّ
+    الذي تختمه الحلقة) — يُنفَّذ على خيط العامل. فاشل-آمن → None."""
+    try:
+        txt = _WL_RAW.get("text")
+        return _wl_content_sha256(json.loads(txt)) if txt else None
     except Exception:
         return None
 
@@ -412,7 +435,6 @@ def main():
     recorder = None
     _rec_box = {}
     if os.environ.get("E2_MEASUREMENT", "").strip() == "1":
-        _wl_start = wl                     # ربط اسم فقط (صفر عمل) — الميتا تُبنى داخل الخيط
         _rec_ready = threading.Event()     # جاهزية صريحة (لا سباق على «الصندوق فارغ»)
 
         def _init_recorder():
@@ -437,7 +459,9 @@ def main():
                          "session_type": window.get("session_type"),
                          "calendar_version": window.get("calendar_version"),
                          "watchlist_commit_start": os.environ.get("GITHUB_SHA", "").strip() or None,
-                         "watchlist_file_sha256_start": _wl_content_sha256(_wl_start),   # 🔬 P1-4
+                         # 🔬 P1-4: هَشّ من **نسخة طازجة من القرص** لا من القاموس الحيّ (الحلقة
+                         # تختم `ignition_alert` عليه ⇒ سباق تعديل يفسد الـprovenance).
+                         "watchlist_file_sha256_start": _wl_content_sha256(bot.load_watchlist()),
                          # 🔬 P0-4: hash manifest المقطع السابق الحقيقي (سلسلة التحقّق).
                          "previous_segment_manifest_sha256": ((handoff_in or {}).get("manifest_sha256")
                                                               if handoff_in else None),
@@ -479,7 +503,12 @@ def main():
                 if _new:
                     wl = _new
                     if recorder is not None:
-                        recorder.set_watchlist_commit(_fetch_head_sha(), _wl_content_sha256(wl))
+                        # 🔬 مراجعة Codex 5 (P0-و): `_fetch_head_sha` (نداء git فرعي بمهلة 15ث)
+                        # و`_wl_sha_from_raw` (استيراد+تقنين+هَشّ) **كانا يُقيَّمان كوسائط على خيط
+                        # الإنتاج** قبل الغلاف اللا-تزامني ⇒ بطؤهما يخنق المسح. الآن كلاهما داخل
+                        # المهمّة المؤجَّلة (تُنفَّذ على العامل).
+                        recorder.submit(
+                            lambda rec: rec.set_watchlist_commit(_fetch_head_sha(), _wl_sha_from_raw()))
             try:
                 rows = bot.scan_ignition(wl, today, trace=_trace)
                 if recorder is not None:
