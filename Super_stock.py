@@ -9541,7 +9541,9 @@ def run_backtest(symbols=None) -> None:
     if CONFIG.get("BT_DUMP_DATASET"):
         _dcols = ("symbol", "date", "outcome", "mg_outcome", "readiness",
                   "behav_score", "score", "fwd_max_gain", "mg_pre_stop",
-                  "exploded", "raw_pit_entry")
+                  "exploded", "entry", "raw_pit_entry")
+        # ملاحظة: raw_pit_entry يُملأ فقط للرموز ذات تقسيمات باللقطة؛ لغيرها السعر
+        # الحقيقي = entry المعدَّل نفسه (لا تقسيم لاحق) → التحليل: raw_pit_entry أو entry.
         print("⟪DSHEAD⟫" + ",".join(_dcols), flush=True)
         for _t in all_trades:
             print("⟪DSROW⟫" + ",".join(
