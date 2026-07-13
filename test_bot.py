@@ -2331,6 +2331,14 @@ check("🔬 (ب+) قفل workflow: 3 jobs متسلسلة (open→close→assembl
        and t.count("needs:") >= 2 and 'IGNITION_SEGMENT: "open"' in t
        and 'IGNITION_SEGMENT: "close"' in t and "IGNITION_HANDOFF_IN" in t
        )(open(".github/workflows/ignition.yml", encoding="utf-8").read()))
+# 🔬 مراجعة Codex 5 (P0): تنبيهات مقطع الإغلاق **لا تُعلَّق على نجاح القياس** — لا على نجاح job
+# الافتتاح (`if: always()`) ولا على تنزيل الartifact (`continue-on-error`). فشل نقل القياس يجعل
+# الجلسة غير مؤهّلة للتحليل، لا يُسكت الرادار 195 دقيقة حتى الإغلاق.
+check("🔬 Codex5 قفل workflow: close_segment يشتغل رغم فشل open/غياب artifact (fail-open للتنبيه)",
+      (lambda t: (lambda cl: "if: always()" in cl and "continue-on-error: true" in cl
+                  and cl.index("continue-on-error: true") < cl.index("run: python ignition_live.py")
+                  )(t[t.index("close_segment:"):t.index("assemble_e2_session:")])
+       )(open(".github/workflows/ignition.yml", encoding="utf-8").read()))
 # session.json يسجّل «انتهت قبل الإغلاق المتوقّع» (إغلاق متوقّع بعد ساعتين من الآن)
 _rec_ec = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "early"),
             meta={"expected_close_iso": (S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)

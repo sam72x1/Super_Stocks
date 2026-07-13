@@ -70,7 +70,11 @@ jobs:
   # ═══ job2: مقطع الإغلاق [open+195د, close] — يستعيد دِدوب open (لا تنبيه مكرّر) ═══
   close_segment:
     runs-on: ubuntu-latest
+    # 🔬 مراجعة Codex 5 (P0): `needs` للترتيب فقط (close يبدأ بعد انتهاء open) — **لا للنجاح**.
+    # `if: always()` ⇒ فشل/إلغاء/انتهاء مهلة open **لا يلغي تنبيهات مقطع الإغلاق** (195د حتى
+    # الإغلاق). فشل نقل القياس يجعل الجلسة غير مؤهّلة للتحليل، لا يُسكت الرادار.
     needs: open_segment
+    if: always()
     timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
@@ -79,7 +83,10 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: pip install -r requirements.txt
+      # 🔬 مراجعة Codex 5 (P0): تنزيل الartifact **أفضل-جهد** — غيابه/فساده لا يمنع المسح
+      # (ignition_live فاشل-آمن: بلا handoff = بلا استعادة دِدوب، والمدقّق يرفض الجلسة).
       - name: Download open segment (handoff + raw)
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: ign-open-${{ github.run_id }}
@@ -114,7 +121,9 @@ jobs:
   # ═══ job3: الدمج بعد الإغلاق — يجمع المقطعين + backfill نهائي + المدقّق ═══
   assemble_e2_session:
     runs-on: ubuntu-latest
+    # 🔬 مراجعة Codex 5: يجمع ما توفّر حتى لو تعثّر مقطع (المدقّق يحكم بالاكتمال، لا الـCI).
     needs: close_segment
+    if: always()
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -124,6 +133,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Download both segments
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: ign-close-${{ github.run_id }}
