@@ -933,6 +933,91 @@ def download_history(tickers: list) -> dict:
 
 
 # ==========================================================
+# 4ب) تجميد باكتيست point-in-time (قابلية إعادة الإنتاج + رفض الوهميات)
+# ==========================================================
+# سبب (تدقيق خارجي 2026-07-12): الباكتيست يعيد التحميل حيًّا كل تشغيلة → غير قابل
+# لإعادة الإنتاج (نجاح 26↔44% لمجرد إعادة التشغيل، تواريخ الإشارات تنزاح). وyfinance
+# يعدّل التقسيمات دائمًا → أسعار وهمية (INLF المخزَّن $1779 وحقيقته $0.56 تحت أرضية M1).
+# الحل: تحميل مرة → حفظ ببصمة → إلغاء تعديل التقسيم يدويًّا لبوابة M1. باكتيست/بنية فقط.
+def _pit_split_factor(splits, asof) -> float:
+    """عامل إلغاء تعديل التقسيم لسعر point-in-time: **raw = adjusted × factor**.
+    `factor` = حاصل ضرب نسب التقسيم (بصيغة yfinance) للتقسيمات **بعد** تاريخ الشمعة `asof`
+    فقط (لا تسريب: تقسيم لاحق لم يكن معروفًا وقتها). مثال INLF (شمعة 2025-12-09): تقسيمان
+    لاحقان 1:16 (0.0625) و1:200 (0.005) → factor=0.0003125 → 1779.84×factor=$0.556 الحقيقي.
+    نقيّة، فاشلة-آمنة → 1.0 (لا تقسيم/تعذّر = لا تغيير = سلوك اليوم)."""
+    if splits is None:
+        return 1.0
+    try:
+        items = splits.items() if hasattr(splits, "items") else splits
+        a = pd.Timestamp(asof)
+        a = a.tz_localize(None) if getattr(a, "tz", None) is not None else a
+        f = 1.0
+        for d, ratio in items:
+            dd = pd.Timestamp(d)
+            dd = dd.tz_localize(None) if getattr(dd, "tz", None) is not None else dd
+            if dd > a and ratio and float(ratio) > 0:
+                f *= float(ratio)
+        return f if f > 0 else 1.0
+    except Exception:
+        return 1.0
+
+
+def _pit_raw_price(adjusted_price, splits, asof) -> float:
+    """السعر الحقيقي المعاصر (point-in-time) = المعدَّل × عامل إلغاء التقسيم اللاحق.
+    يُستعمل لرفض «الإشارات الوهمية» ببوابة M1 (سعرها الحقيقي تحت الأرضية، لكن تعديل
+    تقسيم لاحق رفعه فوقها). باكتيست فقط."""
+    try:
+        return float(adjusted_price) * _pit_split_factor(splits, asof)
+    except Exception:
+        return float(adjusted_price)
+
+
+def save_frozen_dataset(hist: dict, splits: dict, asof: str, path: str) -> dict:
+    """يحفظ لقطة باكتيست مجمَّدة (gzip-pickle) + ملف بصمة (manifest JSON) للاسترجاع
+    القابل لإعادة الإنتاج 100%. المخزَّن: {hist: {رمز→DataFrame معدَّل}, splits:
+    {رمز→Series}, asof}. المانفست: SHA-256 للبكل + as-of + عدد الرموز. بنية/باكتيست فقط."""
+    import gzip
+    import pickle
+    import hashlib
+    import json as _json
+    payload = {"hist": hist, "splits": splits, "asof": asof,
+               "history_days": CONFIG["HISTORY_DAYS"]}
+    blob = pickle.dumps(payload, protocol=4)
+    with gzip.open(path, "wb") as fh:
+        fh.write(blob)
+    sha = hashlib.sha256(blob).hexdigest()
+    manifest = {"asof": asof, "n_symbols": len(hist), "sha256": sha,
+                "history_days": CONFIG["HISTORY_DAYS"], "path": path}
+    with open(path + ".manifest.json", "w", encoding="utf-8") as fh:
+        _json.dump(manifest, fh, ensure_ascii=False, indent=2)
+    return manifest
+
+
+def load_frozen_dataset(path: str):
+    """يحمّل لقطة مجمَّدة ويتحقّق من بصمتها (SHA-256) مقابل المانفست — أي اختلاف يُبلَّغ.
+    يرجّع (hist, splits, asof) أو (None, None, None) عند التعذّر (فاشل-آمن). باكتيست فقط."""
+    import gzip
+    import pickle
+    import hashlib
+    import json as _json
+    try:
+        with gzip.open(path, "rb") as fh:
+            blob = fh.read()
+        try:
+            with open(path + ".manifest.json", encoding="utf-8") as fh:
+                man = _json.load(fh)
+            if man.get("sha256") and man["sha256"] != hashlib.sha256(blob).hexdigest():
+                log("⚠️ تجميد: بصمة SHA-256 لا تطابق المانفست — البيانات تغيّرت!")
+        except Exception:
+            pass
+        payload = pickle.loads(blob)
+        return payload.get("hist"), payload.get("splits"), payload.get("asof")
+    except Exception as e:
+        log(f"⚠️ تجميد: تعذّر تحميل اللقطة {path}: {e}")
+        return None, None, None
+
+
+# ==========================================================
 # 5) أدوات تحليل النموذج
 # ==========================================================
 def spike_info(close: np.ndarray, exclude_last: int):
@@ -8492,7 +8577,7 @@ def _sweep_augment(trade, r, hi, lo, cl, op, stop, t1):
 
 
 def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
-                    date_window: tuple = None) -> list:
+                    date_window: tuple = None, splits=None) -> list:
     """باكتيست سهم واحد — **مشي للأمام بلا نظر للمستقبل**: عند كل نقطة نحلّل
     البيانات حتى تلك النقطة فقط، ولو رشّح البوت ننتظر وصول السعر لمنطقة الدفعات
     (تعبئة واقعية) ثم نقيس: t1 قبل الوقف = ربح، الوقف أولًا = خسارة (محافظ:
@@ -8534,6 +8619,16 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             if reasons is not None:
                 _rr = _REJECT_REASONS.get(sym, "؟")
                 reasons[_rr] = reasons.get(_rr, 0) + 1
+            i += step
+            continue
+        # 🕰️ بوابة point-in-time (splits من اللقطة المجمَّدة): ارفض «الإشارة الوهمية» —
+        # سعرها الحقيقي وقت الإشارة تحت أرضية M1 لكن تعديل تقسيم لاحق (yfinance يعدّله دائمًا)
+        # رفعه فوقها. بلا splits = سلوك اليوم حرفيًا (لا بوابة). باكتيست فقط.
+        if splits is not None and _pit_raw_price(
+                r.get("price") or r["tranches"][-1], splits,
+                df.index[i - 1]) < CONFIG["MIN_PRICE"]:
+            if reasons is not None:
+                reasons["M1_phantom_split"] = reasons.get("M1_phantom_split", 0) + 1
             i += step
             continue
         entry = sum(r["tranches"]) / len(r["tranches"])   # متوسط الدفعات
@@ -9270,7 +9365,21 @@ def run_backtest(symbols=None) -> None:
         return
     log(f"باكتيست {len(symbols)} رمز…"
         + (f" · نافذة {date_window[0]}..{date_window[1]}" if date_window else ""))
-    hist = download_history(symbols)
+    # 🕰️ تجميد point-in-time (تدقيق خارجي): لو BT_FROZEN_PATH لملف لقطة موجود → حمّل منه
+    # (قابل لإعادة الإنتاج 100% + splits لبوابة الوهميات) بدل التحميل الحيّ المتغيّر.
+    splits_map = None
+    _frozen_path = os.environ.get("BT_FROZEN_PATH", "").strip()
+    if _frozen_path and os.path.exists(_frozen_path):
+        hist, splits_map, _asof = load_frozen_dataset(_frozen_path)
+        if hist:
+            symbols = list(hist.keys())
+            log(f"🕰️ تجميد: حُمِّلت لقطة point-in-time ({len(hist)} رمز · as-of {_asof}) "
+                "— قابلة لإعادة الإنتاج + بوابة الوهميات مفعّلة")
+        else:
+            log("⚠️ تجميد: تعذّر تحميل اللقطة → تحميل حيّ (غير مجمَّد)")
+            hist = download_history(symbols)
+    else:
+        hist = download_history(symbols)
     all_trades = []
     for sym in symbols:
         df = hist.get(sym)
@@ -9288,7 +9397,8 @@ def run_backtest(symbols=None) -> None:
                 log(f"باكتيست·{sym}: بيانات غير كافية للمشي ({len(df)} شمعة)")
             continue
         sym_reasons = {}
-        all_trades += backtest_symbol(sym, df, sym_reasons, date_window=date_window)
+        all_trades += backtest_symbol(sym, df, sym_reasons, date_window=date_window,
+                                      splits=(splits_map or {}).get(sym))
         if sym_reasons and not market:   # تشخيص: أكثر بوابة رفضت هذا السهم تاريخيًا
             top = sorted(sym_reasons.items(), key=lambda x: -x[1])[:3]
             log(f"باكتيست·أسباب {sym}: "
@@ -9416,8 +9526,60 @@ def run_backtest(symbols=None) -> None:
     log(f"باكتيست: {st}")
 
 
+def run_freeze() -> None:
+    """🕰️ يجمّد لقطة باكتيست point-in-time: يحمّل الكون مرة (OHLCV + التقسيمات معًا عبر
+    actions=True) ويحفظها ببصمة SHA-256. تشغيل واحد → كل باكتيست لاحق بـ`BT_FROZEN_PATH`
+    قابل لإعادة الإنتاج 100% (نفس البيانات نفس النتيجة) + يرفض الإشارات الوهمية. حلّ P0
+    من التدقيق الخارجي (الباكتيست الحيّ يقفز 26↔44% لمجرد إعادة التشغيل). بنية/باكتيست فقط."""
+    uni = get_universe() or _default_backtest_symbols()
+    asof = dt.date.today().isoformat()
+    start = (dt.date.today() - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
+    log(f"🕰️ تجميد: تحميل {len(uni)} رمز (OHLCV + تقسيمات) as-of {asof}…")
+    hist, splits = {}, {}
+    size = CONFIG["CHUNK_SIZE"]
+    for k in range(0, len(uni), size):
+        chunk = uni[k:k + size]
+        try:
+            data = yf.download(chunk, start=start, interval="1d", auto_adjust=True,
+                               actions=True, group_by="ticker", threads=True,
+                               progress=False)
+        except Exception:
+            data = None
+        if data is not None:
+            for sym in chunk:
+                try:
+                    df = (data[sym].copy() if len(chunk) > 1 else data.copy())
+                    df = df.dropna(subset=["Close"])
+                    if len(df) < CONFIG["MIN_BARS"]:
+                        continue
+                    hist[sym] = df[["Open", "High", "Low", "Close", "Volume"]]
+                    if "Stock Splits" in df.columns:
+                        sp = df["Stock Splits"]
+                        sp = sp[sp != 0]
+                        if len(sp):
+                            splits[sym] = sp
+                except Exception:
+                    continue
+        if (k // size) % 20 == 0:
+            log(f"🕰️ تجميد: {len(hist)} رمز حتى الآن…")
+        time.sleep(CONFIG["CHUNK_SLEEP"])
+    path = os.environ.get("BT_FREEZE_OUT", "frozen_backtest.pkl.gz")
+    man = save_frozen_dataset(hist, splits, asof, path)
+    log(f"🕰️ تجميد: حُفِظت لقطة {man['n_symbols']} رمز · {len(splits)} بتقسيمات · "
+        f"SHA {man['sha256'][:12]} · {path}")
+    send_telegram(
+        f"🕰️ <b>تُجمّدت لقطة باكتيست point-in-time</b>\n"
+        f"رموز: {man['n_symbols']} · بتقسيمات: {len(splits)} · as-of {asof}\n"
+        f"SHA-256: <code>{man['sha256'][:16]}</code>\n"
+        f"جاهزة لباكتيست قابل لإعادة الإنتاج (BT_FROZEN_PATH) + رفض الوهميات." + FOOTER)
+
+
 def main():
     log(f"بدء الفحص — الوضع: {MODE}")
+    if MODE == "FREEZE":              # 🕰️ تجميد لقطة point-in-time (تدقيق خارجي)
+        run_freeze()
+        log("انتهى التجميد ✅")
+        return
     if MODE == "BACKTEST":
         run_backtest()
         log("انتهى الباكتيست ✅")
