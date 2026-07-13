@@ -2945,9 +2945,9 @@ _fetch_n = {"n": 0}
 def _fake_fresh(cur, runner=None):        # جلبة 1 → A · جلبة 2 → B (تحدّث اللقطة كالأصل)
     _fetch_n["n"] += 1
     if _fetch_n["n"] == 1:
-        IG._WL_RAW["text"], IG._WL_RAW["commit"] = _json_ml.dumps(_wl_a), "sha_A"
+        IG._WL_RAW["text"], IG._WL_RAW["commit"] = _json_ml.dumps(_wl_a), "snap_A"
         return _json_ml.loads(_json_ml.dumps(_wl_a))
-    IG._WL_RAW["text"], IG._WL_RAW["commit"] = _json_ml.dumps(_wl_b), "sha_B"
+    IG._WL_RAW["text"], IG._WL_RAW["commit"] = _json_ml.dumps(_wl_b), "snap_B"
     return _json_ml.loads(_json_ml.dumps(_wl_b))
 
 
@@ -3007,7 +3007,15 @@ finally:
     for _k, _v in _ml_env.items():
         _os.environ.pop(_k, None) if _v is None else _os.environ.update({_k: _v})
 check("🔬 Codex5 قفل: عامل متوقّف عبر جلبتين ⇒ كل تحديث يسجّل commit/هَشّ **قائمته** (لا الأحدث)",
-      _prov == [("sha_A", _sha_a), ("sha_B", _sha_b)])
+      _prov == [("snap_A", _sha_a), ("snap_B", _sha_b)])
+# 🔬 مراجعة Codex 5 (P0-ح): `_fresh_watchlist` (مسار إنتاجي) لا يفعل **أي** عمل قياسي: لا هَشّ ·
+# لا subprocess إضافي · لا قراءة `.git/FETCH_HEAD`. commit القائمة المحدَّثة يُصرَّح «غير محسوم»
+# (البرهان = هَشّ المحتوى) بدل commit مضلِّل أو I/O قياسي على خيط التنبيه.
+check("🔬 Codex5 قفل: صفر عمل قياسي داخل _fresh_watchlist (لا هَشّ/rev-parse/FETCH_HEAD)",
+      (lambda src: "_wl_content_sha256" not in src and "rev-parse" not in src
+       and "FETCH_HEAD:" in src and "open(" not in src
+       and "WL_COMMIT_UNRESOLVED" in src)(_insp0.getsource(IG._fresh_watchlist))
+      and IG.WL_COMMIT_UNRESOLVED == "unresolved_offthread")
 check("🔬 P1-8: manifest نقيّ + canonical JSON حتمي (نفس المدخل = نفس الـhash)",
       _MAN.manifest_sha256({"a": 1, "b": 2}) == _MAN.manifest_sha256({"b": 2, "a": 1})
       and _MAN.sha256_hex("x") == _MAN.sha256_hex("x") and _MAN.manifest_sha256({}) is not None)

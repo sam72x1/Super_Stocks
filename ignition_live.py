@@ -183,9 +183,10 @@ def _fresh_watchlist(cur_wl, runner=None):
         new_wl = json.loads(_raw)
         if not isinstance(new_wl, dict) or not new_wl.get("stocks"):
             return None
-        # 🔬 مراجعة Codex 5 (P0-و/ز): لقطة **هذه الجلبة** (نصّ خام + commitها) — يهشّها العامل
-        # لاحقًا (لا هَشّ على خيط الإنتاج · لا سباق تعديل على القاموس الحيّ · ولا نسبة لجلبة أحدث).
-        _WL_RAW["text"], _WL_RAW["commit"] = _raw, _head_sha_from_git_dir()
+        # 🔬 مراجعة Codex 5 (P0-و/ز/ح): لقطة **هذه الجلبة** = النصّ الخام (مفكوك أصلًا للإنتاج =
+        # صفر عمل قياسي) — يهشّها **العامل** لاحقًا. لا هَشّ ولا git ولا I/O قياسي على خيط التنبيه ·
+        # لا سباق تعديل على القاموس الحيّ · ولا نسبة لجلبة أحدث (اللقطة تُنسَخ وقت الجلب).
+        _WL_RAW["text"], _WL_RAW["commit"] = _raw, WL_COMMIT_UNRESOLVED
         stamps = {s.get("symbol"): s.get("ignition_alert")
                   for s in (cur_wl or {}).get("stocks", [])
                   if s.get("ignition_alert")}
@@ -224,16 +225,15 @@ def _wl_content_sha256(wl):
         return None
 
 
-def _head_sha_from_git_dir():
-    """🔬 مراجعة Codex 5 (P0-ز): commit الجلبة من `.git/FETCH_HEAD` مباشرةً — **قراءة ملف صغيرة
-    لا subprocess**، تُنفَّذ داخل `_fresh_watchlist` فورًا بعد الجلب فتُربَط الـprovenance بجلبتها
-    (تأجيلها للعامل = سباق: جلبة لاحقة تحرّك FETCH_HEAD فيُنسَب المرشّح لقائمة خاطئة). لا تضيف
-    صنف فشل جديدًا: نفس الخيط ينفّذ أصلًا `git fetch`/`git show` (عمل إنتاجي لازم). فاشل-آمن."""
-    try:
-        with open(os.path.join(".git", "FETCH_HEAD"), encoding="utf-8") as fh:
-            return (fh.readline().split() or [None])[0] or None
-    except Exception:
-        return None
+WL_COMMIT_UNRESOLVED = "unresolved_offthread"
+"""🔬 مراجعة Codex 5 (P0-ح): commit القائمة **المحدَّثة** لا يُلتقَط إطلاقًا على خيط التنبيه.
+كل طريق لالتقاطه = عمل قياسي على ذلك الخيط (`git rev-parse` = subprocess · قراءة `.git/FETCH_HEAD`
+= I/O بلا مهلة) وكلاهما يخالف «صفر عمل قياسي على مسار التنبيه». وتأجيله للعامل = **سباق** (جلبة
+لاحقة تحرّك FETCH_HEAD فيُنسَب المرشّح لقائمة خاطئة). فنكتب هذه القيمة **الصادقة صراحةً** بدل
+commit مضلِّل، و**البرهان الحقيقي = هَشّ المحتوى** (`watchlist_file_sha256_at_candidate`، من النصّ
+الخام المجلوب أصلًا للإنتاج = صفر عمل إضافي) — وهو أقوى من commit (يثبت الـbytes نفسها).
+⚠️ نقل التحديث كلّه لخلفية محدودة = **تغيير سلوك إنتاجي** (الرادار قد يمسح على قائمة أقدم) —
+خارج نطاق طبقة القياس؛ قرار المالك."""
 
 
 def _wl_sha_from_snapshot(snap):
