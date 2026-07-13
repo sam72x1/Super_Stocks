@@ -2042,7 +2042,8 @@ def _e2_wl():   # قائمة جديدة كل مرّة (scan_ignition يضع igni
          "stop": [1.6], "interp": {"critical_number": {"price": 2.00}}},
         {"symbol": "QUIET", "status": "active", "pivot": 5.0,
          "interp": {"critical_number": {"price": 6.0}}}]}
-_e2_bars = {"IGN": _ig_fire, "QUIET": _ig_bars([5.0] * 10, [100] * 10)}
+_e2_fire_t = [dict(_b, t=1000 + _i * 60) for _i, _b in enumerate(_ig_fire)]   # + طابع t (E2 §9)
+_e2_bars = {"IGN": _e2_fire_t, "QUIET": _ig_bars([5.0] * 10, [100] * 10)}
 _e2_fb = lambda s: _e2_bars.get(s)
 _e2_fo_pass = lambda s: {"has_operator": True, "buy_block_shares": 2000, "bid_block_shares": 3000,
                          "bid": 2.04, "ask": 2.06, "quote_ts": 1300}
@@ -2090,6 +2091,76 @@ check("🔬 E2-A قفل: _emit_trace/_ignition_break_source خارج rank_key/se
       all(("_emit_trace" not in _insp0.getsource(_f)
            and "_ignition_break_source" not in _insp0.getsource(_f))
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status)))
+# ===== 🔬 E2-A: recorder (ignition_measurement) — exposure/funnel/crash-safe (SPEC §7/§21) =====
+import ignition_measurement as _M
+import tempfile as _tmp
+import json as _json
+import os as _os
+import shutil as _shutil
+_e2_out = _tmp.mkdtemp(prefix="e2test_")
+
+
+def _e2_read_jsonl(sub, name):
+    p = _os.path.join(_e2_out, sub, "session_2026-07-20", name)
+    with open(p, encoding="utf-8") as fh:
+        return [_json.loads(x) for x in fh if x.strip()]
+
+
+def _e2_read_json(sub, name):
+    with open(_os.path.join(_e2_out, sub, "session_2026-07-20", name), encoding="utf-8") as fh:
+        return _json.load(fh)
+
+
+# مسار المضارب-موجود (emitted + delivered)
+_rec = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "pass"),
+                                      meta={"source_commit": "abc123"})
+_rec.loop_start()
+_e2_rows = S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb, fetch_operator=_e2_fo_pass,
+                           trace=_rec.trace)
+_rec.telegram_attempt(_e2_rows)
+_rec.telegram_success(_e2_rows)
+_rec.loop_end()
+_rec.finalize(termination="normal")
+_e2_ss = {r["symbol"]: r for r in _e2_read_jsonl("pass", "symbol_sessions.jsonl")}
+_e2_cands = _e2_read_jsonl("pass", "candidates.jsonl")
+_e2_sess = _e2_read_json("pass", "session.json")
+check("🔬 E2-A §7 recorder: symbol-session IGN يجمّع funnel (raw/emitted/delivered) + coverage",
+      _e2_ss["IGN"]["raw_candidate_count"] == 1 and _e2_ss["IGN"]["emitted_count"] == 1
+      and _e2_ss["IGN"]["delivered_count"] == 1 and _e2_ss["IGN"]["operator_pass_count"] == 1
+      and _e2_ss["IGN"]["coverage_ratio"] == 1.0 and _e2_ss["IGN"]["first_seen_at"] is not None)
+check("🔬 E2-A §4 recorder: candidate كامل (NBBO/mid/spread/executable/gate/emitted/delivered)",
+      len(_e2_cands) == 1 and _e2_cands[0]["signal_price"] == 2.05
+      and _e2_cands[0]["nbbo_mid"] == 2.05 and _e2_cands[0]["primary_executable"] is True
+      and _e2_cands[0]["gate_decision"] == "emit" and _e2_cands[0]["alert_emitted"] is True
+      and _e2_cands[0]["telegram_delivered"] is True and _e2_cands[0]["trigger_bar_end"] is not None)
+# مسار المضارب-غائب (emitted=False · candidate مكبوت مُسجَّل · لا تسليم)
+_rec2 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "fail"))
+S.scan_ignition(_e2_wl(), "2026-07-20", fetch_bars=_e2_fb,
+                fetch_operator=lambda s: {"has_operator": False}, trace=_rec2.trace)
+_rec2.finalize(termination="normal")
+_e2_cf = _e2_read_jsonl("fail", "candidates.jsonl")
+check("🔬 E2-A §4 recorder: emitted ≠ delivered — مضارب غائب يُسجَّل candidate مكبوت (suppress_operator)",
+      len(_e2_cf) == 1 and _e2_cf[0]["gate_decision"] == "suppress_operator"
+      and _e2_cf[0]["alert_emitted"] is False and _e2_cf[0]["telegram_delivered"] is None)
+# crash-safe: finalize بعد انقطاع
+_rec3 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "crash"))
+_rec3.trace("01_SEEN_ACTIVE", {"symbol": "X"})
+_rec3.finalize(termination="exception")
+check("🔬 E2-A §21.5 crash-safe: finalize(termination=exception) يكتب session.json حتى عند الانقطاع",
+      _e2_read_json("crash", "session.json")["termination"] == "exception")
+# فاشل-آمن مطلق (حمولة معطوبة/حدث مجهول لا يرفع)
+_rec4 = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "safe"))
+_rec4.trace("99_UNKNOWN", {"symbol": "X"})
+_rec4.trace("04_RAW_IGNITION", None)
+_rec4.trace(None, None)
+check("🔬 E2-A recorder: trace فاشل-آمن مطلق (حمولة معطوبة/حدث مجهول لا يرفع)", True)
+check("🔬 E2-A §8 recorder: لا أسرار في المخرجات (لا مفاتيح/توكن/apiKey)",
+      not any(_k in _json.dumps(_e2_cands) + _json.dumps(_e2_sess)
+              for _k in ("POLYGON", "Bearer", "apiKey", "TELEGRAM_")))
+check("🔬 E2-A قفل: ignition_measurement غير مستورد في مسار الفرز (Super_stock لا يعتمده)",
+      "import ignition_measurement" not in _insp0.getsource(S.scan_ignition)
+      and "ignition_measurement" not in _insp0.getsource(S.rank_key))
+_shutil.rmtree(_e2_out, ignore_errors=True)
 # 🔥📏 دالّتا التحقّق التاريخي (IGNITION_VERIFY_PLAN.md — قياس «هل فاد الاشتراك؟»)
 check("تحقّق·يوم الانفجار: أول قمة تبلغ +50% من الدخول (وإلا None)",
       S._find_explosion_day([2.1, 2.3, 2.8, 3.05, 3.4], 2.0, 50) == 3
