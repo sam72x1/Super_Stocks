@@ -2582,6 +2582,65 @@ finally:
 check("🔬 Codex5 قفل: انكسار وحدة القياس (ImportError) لا يمنع المسح ولا إرسال التنبيه",
       len(_sent_ml) == 1 and _sent_ml[0].startswith("ALERT")   # التنبيه أُرسل (+ التذييل)
       and _traces_ml == [None])                                # المسجّل سقط ⇒ trace=None والرادار يواصل
+
+
+# 🔬 مراجعة Codex 5 (P0): مسجّل **كل خطّافاته ترمي** — الحلقة الإنتاجية تستمرّ عبر عدة دورات
+# والتنبيه يُرسَل في كلٍّ منها (بالذات: telegram_attempt لا يمنع send_telegram). `_SafeRecorder`
+# يبتلع ويُعطّل القياس؛ عزل الإنتاج لا يعتمد على «كل خطّاف يبتلع استثناءه بنفسه».
+class _BoomRec:
+    def __init__(self, *a, **kw):
+        pass
+
+    def __getattr__(self, name):
+        def _boom(*a, **kw):
+            raise RuntimeError("boom:" + name)
+        return _boom
+
+
+import types as _types_ml
+_boom_mod = _types_ml.ModuleType("ignition_measurement")
+_boom_mod.IgnitionMeasurementRecorder = _BoomRec
+_sys.modules["ignition_measurement"] = _boom_mod
+_os.environ.update({"E2_MEASUREMENT": "1", "IGNITION_SEGMENT": "close", "IGNITION_HANDOFF_IN": "",
+                    "IGNITION_HANDOFF_OUT": _os.path.join(_e2_out, "ho_boom.json"),
+                    "POLYGON_API_KEY": "TEST_KEY_NOT_USED"})
+_sent_bm, _loops_bm = [], []
+_ml_saved2 = (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+              IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep)
+IG._segment_window = lambda role, t0=None: {
+    "role": role, "open": _ml_now, "close": _ml_now + S.dt.timedelta(hours=1),
+    "segment_start": _ml_now, "segment_end": _ml_now + S.dt.timedelta(hours=1),
+    "deadline": _ml_now + S.dt.timedelta(hours=1), "reason": "test",
+    "session_type": "regular", "calendar_version": "test"}
+IG.bot.load_watchlist = lambda: {"stocks": [{"symbol": "IGN", "status": "active"}]}
+IG.bot.scan_ignition = lambda wl, today, trace=None: (
+    _loops_bm.append(1), [({"symbol": "IGN"}, {"price": 2.0}, None)])[1]
+IG.bot.build_ignition_alert = lambda rows: "ALERT"
+IG.bot.send_telegram = lambda m: _sent_bm.append(m)
+
+
+def _sleep_3(*_a):                      # يوقف الحلقة بعد 3 دورات (يثبت الاستمرار لا دورة واحدة)
+    if len(_loops_bm) >= 3:
+        raise _StopLoop()
+
+
+IG.time.sleep = _sleep_3
+try:
+    IG.main()
+except (_StopLoop, Exception):
+    pass
+finally:
+    (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+     IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep) = _ml_saved2
+    _sys.modules.pop("ignition_measurement", None)
+    for _k, _v in _ml_env.items():
+        _os.environ.pop(_k, None) if _v is None else _os.environ.update({_k: _v})
+check("🔬 Codex5 قفل: مسجّل ترمي كل خطّافاته لا يوقف الحلقة ولا يمنع التنبيه (3 دورات)",
+      len(_loops_bm) >= 3 and len(_sent_bm) >= 3
+      and all(m.startswith("ALERT") for m in _sent_bm))
+check("🔬 Codex5 قفل: _SafeRecorder يغلّف المسجّل عند نقطة النداء (حدّ فاشل-آمن واحد)",
+      "_SafeRecorder(" in _insp0.getsource(IG.main)
+      and "except Exception" in _insp0.getsource(IG._SafeRecorder))
 check("🔬 P1-8: manifest نقيّ + canonical JSON حتمي (نفس المدخل = نفس الـhash)",
       _MAN.manifest_sha256({"a": 1, "b": 2}) == _MAN.manifest_sha256({"b": 2, "a": 1})
       and _MAN.sha256_hex("x") == _MAN.sha256_hex("x") and _MAN.manifest_sha256({}) is not None)

@@ -33,6 +33,42 @@ except ImportError:
 # كان يقتل السكربت قبل main() فتضيع تنبيهات المقطع كلّها. الاستيراد كسول داخل فرع E2_MEASUREMENT
 # المحمي بـtry/except ⇒ أي فشل قياس = recorder=None والرادار يواصل. (الرادار لا يعتمد القياس.)
 
+class _SafeRecorder:
+    """🔬 مراجعة Codex 5 (P0): **حدّ فاشل-آمن عند نقطة نداء كل خطّاف قياس**. أي استثناء من أي
+    خطّاف (بالتنفيذ الحالي أو أيّ تنفيذ مستقبلي) يُبتلَع، ويُعطَّل القياس لبقية العملية (فلا يتكرّر
+    الفشل كل دورة)، **والرادار يواصل المسح والإرسال بلا تغيير**. عزل الإنتاج لا يعتمد على «كل
+    خطّاف يبتلع استثناءه بنفسه» — الحدّ هنا. بالذات: `telegram_attempt` لا يمكن أن يمنع
+    `send_telegram`. 🔒 غلاف قياس فقط — لا يمسّ قرارًا/عتبة/تنبيهًا."""
+
+    def __init__(self, rec, log):
+        object.__setattr__(self, "_rec", rec)
+        object.__setattr__(self, "_log", log)
+
+    @property
+    def alive(self):
+        return object.__getattribute__(self, "_rec") is not None
+
+    @property
+    def dir(self):
+        rec = object.__getattribute__(self, "_rec")
+        return getattr(rec, "dir", None) if rec is not None else None
+
+    def __getattr__(self, name):           # أي خطّاف (trace/loop_*/telegram_*/finalize/…) = نداء محروس
+        def _call(*a, **kw):
+            rec = object.__getattribute__(self, "_rec")
+            if rec is None:
+                return None
+            try:
+                return getattr(rec, name)(*a, **kw)
+            except Exception as e:
+                object.__setattr__(self, "_rec", None)      # تعطيل دائم (لا ضجيج كل دورة)
+                object.__getattribute__(self, "_log")(
+                    f"⚠️ E2: خطّاف القياس «{name}» فشل ({type(e).__name__}) — "
+                    "عُطِّل القياس · الرادار يواصل المسح والإرسال.")
+                return None
+        return _call
+
+
 SEGMENT_SPLIT_MIN_DEFAULT = 195           # حدّ المقطعين من الافتتاح (~3س15د) — الجزآن < 6س رنر
 MAX_RUNTIME_SAFETY_DEFAULT = 340          # سقف أمان (نادرًا يبلغ) لضمان finalize قبل قتل الجوب
 START_TOLERANCE_MIN = 2                    # 🔬 P0-2: أقصى تأخّر لبدء مراقبة open عن الافتتاح (مقفول)
@@ -291,7 +327,7 @@ def main():
             import ignition_measurement as measure   # 🔬 كسول: فشله لا يوقف الرادار
             # 🔬 P0-4: hash manifest المقطع السابق الحقيقي (سلسلة التحقّق) — لا نص JSON.
             _prev_manifest_sha = (handoff_in or {}).get("manifest_sha256") if handoff_in else None
-            recorder = measure.IgnitionMeasurementRecorder(
+            recorder = _SafeRecorder(measure.IgnitionMeasurementRecorder(
                 session_day, segment=(role or None), write_repo_index=(role == ""),
                 nbbo_fetcher=bot.polygon_nbbo,   # 🔬 P0-1: NBBO قياسي لا-تزامني (خارج مسار التنبيه)
                 meta={"source_commit": os.environ.get("GITHUB_SHA", "").strip() or None,
@@ -314,7 +350,7 @@ def main():
                       "previous_segment_manifest_sha256": _prev_manifest_sha,
                       # 🔬 مراجعة Codex 5: فشل التحقّق يُسجَّل (أهلية القياس) ولا يوقف التنبيه.
                       "handoff_verify_failed": bool(handoff_reasons),
-                      "handoff_verify_reasons": (handoff_reasons or None)})
+                      "handoff_verify_reasons": (handoff_reasons or None)}), bot.log)
             bot.log("🔬 E2: القياس الظلّي مُفعَّل (لا يغيّر أي تنبيه/عتبة/اختيار).")
         except Exception as e:
             bot.log(f"⚠️ E2: تعذّر تهيئة القياس ({e}) — نواصل بلا قياس.")
@@ -400,7 +436,7 @@ def main():
     # **وحده** يولّد السجلّ القديم/الملخّص ويدفع مرة واحدة. المقاطع تكتب إطلاقاتها في الـartifact.
     if role:
         try:
-            if recorder is not None and session_fires:
+            if recorder is not None and recorder.alive and session_fires:
                 _fires = [{"symbol": r[0].get("symbol"), "price": (r[1] or {}).get("price"),
                            "vol_x": (r[1] or {}).get("vol_x"), "usd": (r[1] or {}).get("usd"),
                            "stop": (r[0].get("stop")[0] if isinstance(r[0].get("stop"), (list, tuple))
