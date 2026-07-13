@@ -106,6 +106,7 @@ jobs:
           run-id: ${{ github.event.inputs.frozen_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Run backtest
+        shell: bash   # 🕰️ P0: bash صريح → pipefail فعّال، فيمرّر خروج python عبر `tee` (لا يقنّعه)
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -138,11 +139,21 @@ jobs:
           BT_DUMP_4H: ${{ github.event.inputs.bt_dump_4h }}
           # 🕰️ التجميد الصحيح: لو frozen_run_id مُعطى → حُمِّلت اللقطة، فاقرأها (قابل لإعادة الإنتاج)
           BT_FROZEN_PATH: ${{ github.event.inputs.frozen_run_id != '' && 'frozen_backtest.pkl.gz' || '' }}
-        run: python Super_stock.py
+          # 🕰️ P0 (تدقيق المصدر): حين frozen_run_id مُعطى → افرض الوضع الصارم صراحةً (fail-closed،
+          # لا تحميل حيّ بديل). حارس يقوّي فقط — التحميل صارم أصلًا عند وجود المسار.
+          BT_FROZEN_STRICT: ${{ github.event.inputs.frozen_run_id != '' && '1' || '' }}
+        run: python Super_stock.py 2>&1 | tee backtest.log
       - name: Upload backtest CSV
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backtest-report
           path: backtest_*.csv
+          if-no-files-found: ignore
+      - name: Upload backtest log (provenance — سجل التشغيل الكامل لإعادة الإنتاج/التدقيق)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backtest-log
+          path: backtest.log
           if-no-files-found: ignore

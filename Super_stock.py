@@ -9499,6 +9499,12 @@ def run_backtest(symbols=None) -> None:
     _frozen_meta = None
     _asof = None
     _frozen_path = os.environ.get("BT_FROZEN_PATH", "").strip()
+    # 🕰️ P0 (تدقيق المصدر): حارس صريح **يقوّي فقط**. BT_FROZEN_STRICT=1 يعلن «لا تشغّل حيًّا
+    # كأنه مجمَّد». لو رُفع بلا مسار لقطة → misconfig يُفشل الـjob بدل تحميل حيّ صامت. لا يُضعف
+    # أبدًا: حين BT_FROZEN_PATH مُعطى فالتحميل صارم أصلًا (strict=True أدناه) بصرف النظر عنه.
+    _frozen_strict = os.environ.get("BT_FROZEN_STRICT", "").strip() == "1"
+    if _frozen_strict and not _frozen_path:
+        raise SystemExit("BT_FROZEN_STRICT=1 لكن BT_FROZEN_PATH فارغ — أرفض التشغيل الحيّ كأنه مجمَّد")
     if _frozen_path:
         # 🕰️ P0 (تدقيق المصدر): الوضع الصارم — إن طُلبت لقطة، أي فشل تحقّق يُفشل الـjob
         # (SystemExit) **بلا أي تحميل حيّ بديل**. كان يرجع بصمت لتحميل حيّ = تشغيل «مجمَّد»

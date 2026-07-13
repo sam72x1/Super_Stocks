@@ -19,6 +19,10 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Capture environment (provenance — إصدارات الحزم الدقيقة التي بنت اللقطة)
+        run: |
+          python -V | tee frozen_env.txt
+          pip freeze | tee -a frozen_env.txt
       - name: Freeze point-in-time dataset
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -34,5 +38,6 @@ jobs:
           path: |
             frozen_backtest.pkl.gz
             frozen_backtest.pkl.gz.manifest.json
+            frozen_env.txt
           if-no-files-found: warn
           retention-days: 90

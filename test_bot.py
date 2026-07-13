@@ -3360,6 +3360,16 @@ try:
 finally:
     with open(_fz_path + ".manifest.json", "w", encoding="utf-8") as _fh:
         _fh.write(_p0_orig_man)
+# 🔬 P0 (تدقيق المصدر): حارس BT_FROZEN_STRICT **يقوّي فقط** — يرفض التشغيل الحيّ حين طُلب التجميد
+# الصارم بلا مسار لقطة، **قبل** أي تحميل حيّ. لا يُضعف أبدًا: التحميل صارم أصلًا عند وجود المسار.
+_rbt_src = _insp0.getsource(S.run_backtest)
+check("🔬 P0: run_backtest يقرأ BT_FROZEN_STRICT ويرفع SystemExit لو رُفع بلا مسار (يفشل قبل التحميل الحيّ)",
+      'os.environ.get("BT_FROZEN_STRICT"' in _rbt_src
+      and "_frozen_strict and not _frozen_path" in _rbt_src
+      and "raise SystemExit" in _rbt_src
+      and _rbt_src.index("_frozen_strict and not _frozen_path") < _rbt_src.index("download_history"))
+check("🔬 P0: حارس strict يقوّي فقط — لا يُضعف التحميل المجمَّد (يبقى strict=True عند المسار)",
+      "load_frozen_dataset(_frozen_path, strict=True)" in _rbt_src)
 check("🕰️ تجميد: 🔒 دوال التجميد خارج الفرز/الاختيار (بنية/باكتيست فقط)",
       all(("_pit_split_factor" not in _insp0.getsource(_f)
            and "load_frozen_dataset" not in _insp0.getsource(_f))
