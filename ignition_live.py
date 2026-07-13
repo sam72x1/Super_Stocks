@@ -412,35 +412,38 @@ def main():
     recorder = None
     _rec_box = {}
     if os.environ.get("E2_MEASUREMENT", "").strip() == "1":
-        # 🔬 P0-4: hash manifest المقطع السابق الحقيقي (سلسلة التحقّق) — لا نص JSON.
-        _prev_manifest_sha = (handoff_in or {}).get("manifest_sha256") if handoff_in else None
-        _meta = {"source_commit": os.environ.get("GITHUB_SHA", "").strip() or None,
-                 "workflow_run_id": os.environ.get("GITHUB_RUN_ID", "").strip() or None,
-                 "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "").strip() or None,
-                 "interval_seconds": interval,
-                 "expected_open_iso": _iso(window["open"]),
-                 "expected_close_iso": _iso(window["close"]),
-                 "expected_segment_start_iso": _iso(window["segment_start"]),
-                 "expected_segment_end_iso": _iso(window["segment_end"]),
-                 "deadline_iso": _iso(window["deadline"]),
-                 "deadline_reason": window["reason"],
-                 # 🔬 P0-2/P1-6: تغطية البداية + التقويم.
-                 "job_started_at": job_started_at,
-                 "start_tolerance_min": START_TOLERANCE_MIN,
-                 "session_type": window.get("session_type"),
-                 "calendar_version": window.get("calendar_version"),
-                 "watchlist_commit_start": os.environ.get("GITHUB_SHA", "").strip() or None,
-                 "watchlist_file_sha256_start": _wl_content_sha256(wl),   # 🔬 P1-4
-                 "previous_segment_manifest_sha256": _prev_manifest_sha,
-                 # 🔬 مراجعة Codex 5: فشل التحقّق يُسجَّل (أهلية القياس) ولا يوقف التنبيه.
-                 "handoff_verify_failed": bool(handoff_reasons),
-                 "handoff_verify_reasons": (handoff_reasons or None)}
-
+        _wl_start = wl                     # ربط اسم فقط (صفر عمل) — الميتا تُبنى داخل الخيط
         _rec_ready = threading.Event()     # جاهزية صريحة (لا سباق على «الصندوق فارغ»)
 
         def _init_recorder():
+            # 🔬 مراجعة Codex 5 (P0-هـ): **كل** عمل قياسي هنا — بما فيه هَشّ القائمة
+            # (`_wl_content_sha256` يستورد manifest ويقنون ويهشّ) وبناء الميتا. أي عمل قياسي
+            # قبل الحلقة (ولو محروسًا باستثناء) يؤخّر أول مسح ⇒ يؤخّر تنبيهًا.
             try:
                 import ignition_measurement as measure    # كسول + خارج خيط الإنتاج
+                _meta = {"source_commit": os.environ.get("GITHUB_SHA", "").strip() or None,
+                         "workflow_run_id": os.environ.get("GITHUB_RUN_ID", "").strip() or None,
+                         "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "").strip() or None,
+                         "interval_seconds": interval,
+                         "expected_open_iso": _iso(window["open"]),
+                         "expected_close_iso": _iso(window["close"]),
+                         "expected_segment_start_iso": _iso(window["segment_start"]),
+                         "expected_segment_end_iso": _iso(window["segment_end"]),
+                         "deadline_iso": _iso(window["deadline"]),
+                         "deadline_reason": window["reason"],
+                         # 🔬 P0-2/P1-6: تغطية البداية + التقويم.
+                         "job_started_at": job_started_at,
+                         "start_tolerance_min": START_TOLERANCE_MIN,
+                         "session_type": window.get("session_type"),
+                         "calendar_version": window.get("calendar_version"),
+                         "watchlist_commit_start": os.environ.get("GITHUB_SHA", "").strip() or None,
+                         "watchlist_file_sha256_start": _wl_content_sha256(_wl_start),   # 🔬 P1-4
+                         # 🔬 P0-4: hash manifest المقطع السابق الحقيقي (سلسلة التحقّق).
+                         "previous_segment_manifest_sha256": ((handoff_in or {}).get("manifest_sha256")
+                                                              if handoff_in else None),
+                         # 🔬 مراجعة Codex 5: فشل التحقّق يُسجَّل (أهلية القياس) ولا يوقف التنبيه.
+                         "handoff_verify_failed": bool(handoff_reasons),
+                         "handoff_verify_reasons": (handoff_reasons or None)}
                 _rec_box["rec"] = _SafeRecorder(measure.IgnitionMeasurementRecorder(
                     session_day, segment=(role or None), write_repo_index=(role == ""),
                     nbbo_fetcher=bot.polygon_nbbo,   # 🔬 P0-1: NBBO قياسي لا-تزامني
