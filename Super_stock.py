@@ -291,6 +291,9 @@ CONFIG = {
                                          #   behav/score/readiness/mg…) للـstdout بمعلَم ثابت
                                          #   لسحبها من سجل Actions (المنافذ الخارجية محجوبة).
                                          #   باكتيست حصريًا · تشخيص/تصدير فقط · الإنتاج يتجاهله.
+    "BT_DUMP_4H": 0,                     # 🔬 Phase E1: 1 = احسب سمات 4س نقطة-زمنية لكل إشارة
+                                         #   (تغطية/انعكاس/RSI) وأضفها للتفريغ — لاختبار «هل 4س
+                                         #   أدقّ من اليومية؟». يجلب 1h حيًّا (بطيء). باكتيست فقط.
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -423,7 +426,8 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
             ("BT_PORT_SIZE", "BT_PORT_SIZE", int),
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int),         # 🕰️ point-in-time
-            ("BT_DUMP_DATASET", "BT_DUMP_DATASET", int)):   # 🔬 Phase C dump
+            ("BT_DUMP_DATASET", "BT_DUMP_DATASET", int),    # 🔬 Phase C dump
+            ("BT_DUMP_4H", "BT_DUMP_4H", int)):             # 🔬 Phase E1 4h features
         v = (env.get(bt_env) or "").strip()
         if not v:
             continue
@@ -817,6 +821,55 @@ def fetch_4h_signal(sym: str):
         return None, "غير متوفر"
     ok = timeframe_reversal(h4, 60, 20)
     return ok, ("✅ مؤكِّد" if ok else "⏳ غير مؤكِّد بعد")
+
+
+def _fetch_1h_window(sym: str, asof, days: int = 120):
+    """🔬 Phase E1 (بحث/باكتيست فقط): يحمّل شموع الساعة في نافذة [asof-days, asof] لبناء 4س
+    نقطة-زمنية (point-in-time) عند إشارة تاريخية — end=asof فلا تسريب مستقبلي. yfinance يتيح 1h
+    حتى ~730 يومًا للخلف فقط، فالتغطية التاريخية للمايكروكاب مجهولة (نقيسها). فاشل-آمن → None."""
+    if yf is None:
+        return None
+    try:
+        a = pd.Timestamp(asof)
+        end = (a + pd.Timedelta(days=1)).date().isoformat()
+        start = (a - pd.Timedelta(days=days)).date().isoformat()
+        h1 = yf.download(sym, start=start, end=end, interval="1h", auto_adjust=True,
+                         prepost=True, progress=False)
+        if h1 is None or h1.empty:
+            return None
+        if isinstance(h1.columns, pd.MultiIndex):
+            h1.columns = h1.columns.get_level_values(0)
+        return h1.dropna(subset=["Close"])
+    except Exception:
+        return None
+
+
+def h4_features_at(sym: str, asof, fetch=None):
+    """🔬 Phase E1: يستخرج سمات 4س نقطة-زمنية عند إشارة تاريخية (بلا تسريب) لاختبار
+    «هل شمعة 4س أدقّ من اليومية في تمييز المنفجر؟». يعيد dict أو None (تعذّر جلب). المفتاح
+    الأول = التغطية (h4_bars): كم شمعة 4س توفّرت تاريخيًّا. بحث/باكتيست فقط · فاشل-آمن.
+    `fetch` قابل للحقن للاختبار (يعيد إطار شموع ساعة أو None)."""
+    fetch = fetch if fetch is not None else _fetch_1h_window
+    h1 = fetch(sym, asof)
+    if h1 is None or len(h1) < 8:
+        return None
+    try:
+        h4 = resample_ohlc(h1, "4h")
+    except Exception:
+        return None
+    if h4 is None or len(h4) < 10:
+        return {"h4_bars": (0 if h4 is None else int(len(h4))),
+                "h4_reversal": None, "h4_rsi": None}
+    try:
+        rev = bool(timeframe_reversal(h4, 60, 20))
+    except Exception:
+        rev = None
+    try:
+        _r = rsi(h4["Close"])
+        h4r = round(float(_r.iloc[-1]), 1)
+    except Exception:
+        h4r = None
+    return {"h4_bars": int(len(h4)), "h4_reversal": rev, "h4_rsi": h4r}
 
 
 # ==========================================================
@@ -8679,7 +8732,19 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                  "behav_score": behavior_rise_profile(df.iloc[:i]).get("score"),
                  "fwd_max_gain": round(fwd_max, 1),
                  "max_draw_pct": round(max_draw, 1),
+                 # 🔬 Phase E3 (نظام السوق/خارج الشموع): متغيّرات سياقية متاحة في نتيجة
+                 # analyze_ticker (بلا جلب إضافي) لاختبار «هل عمق الانهيار/حجم الانفجار
+                 # السابق/العائد-المخاطرة يميّز المنفجر؟». تصدير/باكتيست فقط.
+                 "drop_pct": (round(r["drop_pct"], 1) if r.get("drop_pct") is not None else None),
+                 "best_spike": (round(r["best_spike"], 0) if r.get("best_spike") is not None else None),
+                 "rr": r.get("rr"),
                  "exploded": bool(filled is not None and fwd_max >= expl_thr)}
+        # 🔬 Phase E1: سمات 4س نقطة-زمنية عند الإشارة (يجلب 1h حيًّا، بطيء) — للمُعبَّئين فقط
+        # (توفيرًا) خلف BT_DUMP_4H. المفتاح الأول h4_bars = التغطية التاريخية (مجهولة للمايكروكاب).
+        if CONFIG.get("BT_DUMP_4H") and filled is not None:
+            _h4 = h4_features_at(sym, df.index[i - 1])
+            if _h4:
+                trade.update(_h4)
         # 🕰️ H_PRICE_2_5 (فرضية مسجَّلة مسبقًا): السعر الحقيقي point-in-time للدخول =
         # المعدَّل × عامل التقسيم اللاحق (yfinance يعدّل دائمًا). لاختبار شريحة $2-5 على
         # اللقطة المجمَّدة بلا تلوّث تقسيم (السعر المخزَّن `entry` معدَّل). بلا splits
@@ -9541,9 +9606,13 @@ def run_backtest(symbols=None) -> None:
     if CONFIG.get("BT_DUMP_DATASET"):
         _dcols = ("symbol", "date", "outcome", "mg_outcome", "readiness",
                   "behav_score", "score", "fwd_max_gain", "mg_pre_stop",
-                  "exploded", "entry", "raw_pit_entry")
+                  "exploded", "entry", "raw_pit_entry",
+                  # 🔬 Phase E3 (نظام السوق) + E1 (سمات 4س، فارغة إن لم يُفعَّل BT_DUMP_4H)
+                  "drop_pct", "best_spike", "rr",
+                  "h4_bars", "h4_reversal", "h4_rsi")
         # ملاحظة: raw_pit_entry يُملأ فقط للرموز ذات تقسيمات باللقطة؛ لغيرها السعر
         # الحقيقي = entry المعدَّل نفسه (لا تقسيم لاحق) → التحليل: raw_pit_entry أو entry.
+        # وh4_* فارغة ما لم يُفعَّل BT_DUMP_4H (توافق خلفي).
         print("⟪DSHEAD⟫" + ",".join(_dcols), flush=True)
         for _t in all_trades:
             print("⟪DSROW⟫" + ",".join(

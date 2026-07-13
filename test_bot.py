@@ -3282,6 +3282,37 @@ try:
           any("BT_DUMP_DATASET" in s for s in _dd_ap) and S.CONFIG["BT_DUMP_DATASET"] == 1)
 finally:
     S.CONFIG["BT_DUMP_DATASET"] = _dd_sv       # لا تلوّث بقية الاختبارات
+# 🔬 Phase E1: BT_DUMP_4H (سمات 4س نقطة-زمنية) — نفس قفل B1 (باكتيست حصريًا).
+check("🔬 BT_DUMP_4H: الافتراض 0", S.CONFIG.get("BT_DUMP_4H") == 0)
+_d4_env = {"BT_DUMP_4H": "1"}
+check("🔬 BT_DUMP_4H·قفل B1: الإنتاج يتجاهله (باكتيست حصريًا)",
+      S._apply_backtest_overrides("FULL", _d4_env) == [])
+_d4_sv = S.CONFIG.get("BT_DUMP_4H")
+try:
+    _d4_ap = S._apply_backtest_overrides("BACKTEST", _d4_env)
+    check("🔬 BT_DUMP_4H·قفل B1: وضع BACKTEST يطبّقه",
+          any("BT_DUMP_4H" in s for s in _d4_ap) and S.CONFIG["BT_DUMP_4H"] == 1)
+finally:
+    S.CONFIG["BT_DUMP_4H"] = _d4_sv
+# 🔬 Phase E1: h4_features_at — سمات 4س نقطة-زمنية بجالب محقون (بلا شبكة، بلا تسريب).
+def _fake_1h(sym, asof, days=120):
+    _idx = pd.date_range(pd.Timestamp(asof) - pd.Timedelta(days=6), periods=140, freq="h")
+    _c = np.linspace(10.0, 6.0, 140)                       # هبوط نحو القاع
+    return pd.DataFrame({"Open": _c, "High": _c * 1.01, "Low": _c * 0.99,
+                         "Close": _c, "Volume": 1e5}, index=_idx)
+_h4f = S.h4_features_at("X", "2025-06-15", fetch=_fake_1h)
+check("🔬 E1: h4_features_at يعيد dict بالتغطية (h4_bars≥10) + سمات",
+      isinstance(_h4f, dict) and _h4f.get("h4_bars", 0) >= 10
+      and "h4_reversal" in _h4f and "h4_rsi" in _h4f)
+check("🔬 E1: h4_features_at → None عند تعذّر الجلب (فاشل-آمن)",
+      S.h4_features_at("X", "2025-06-15", fetch=lambda s, a, days=120: None) is None)
+check("🔬 E1: _fetch_1h_window بلا تسريب مستقبلي (end=asof+يوم)",
+      "Timedelta(days=1)" in _insp0.getsource(S._fetch_1h_window)
+      and "end=end" in _insp0.getsource(S._fetch_1h_window))
+check("🔬 E1·قفل: سمات 4س خارج الفرز/الاختيار (بحث/باكتيست فقط)",
+      all(("h4_features_at" not in _insp0.getsource(_f)
+           and "_fetch_1h_window" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.scan_market)))
 # 🕰️ تجميد point-in-time (تدقيق خارجي 2026-07-12): إلغاء تعديل التقسيم يدويًّا (auto_adjust
 # لا يكفي) + حفظ ببصمة لإعادة إنتاج مضمونة. سبب: الباكتيست الحيّ يقفز 26↔44% لمجرد إعادة تشغيل.
 _spl = pd.Series({pd.Timestamp("2026-04-06"): 0.0625, pd.Timestamp("2026-07-06"): 0.005})
