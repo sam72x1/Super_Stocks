@@ -229,6 +229,18 @@
     نظام)؛ التوقيت اللحظي فرضية تالية غير مثبتة (⚠️ تصحيح P0/تدقيق Codex — «إغلاق مثلّث/حصرًا» بالغت؛ القوة
     المنخفضة لا تنفي أثرًا متوسطًا، المرجع `phase_p0_audit.py`).** `bt_dump_4h` + `phase_e_analysis.py`. 770 اختبار.
     🔒 سمات 4س خارج rank_key/select_top/classify_tier/scan_market.
+  - **🔬 P0 (تدقيق Codex المستقل للمصدر) مكتمل (2026-07-13، 784 اختبار · لا LOGIC_VERSION · لا مسّ إنتاج):**
+    ① تحميل لقطة **صارم fail-closed** (`load_frozen_dataset(strict=True)` حين `BT_FROZEN_PATH` — بلا تحميل
+    حيّ صامت) + حارس `BT_FROZEN_STRICT` (يقوّي فقط) + **manifest v2** (payload_sha256/source_commit/إصدارات/
+    معاملات التحميل/بصمة الكون/الفاشلة/حالة التقسيم لكل رمز عبر `run_freeze` extra_meta). ② **مخطط provenance
+    للصف** خلف `BT_DUMP_DATASET` (`forward_window_start/end`+`outcome_complete` لـembargo · `signal_price_raw_pit`/
+    `raw_pit_entry_exact`/`post_signal_split_factor`/`split_lookup_status` · `h4_status` لـmissingness) + `⟪DSMETA⟫`
+    بالتفريغ. ③ **`phase_p0_audit.py`** (ثنائي الهدف Y_DISCOVERY/Y_TRADABLE + عتبات train-only + Wilson +
+    permutation؛ SELF-CHECK PASS يطابق Codex بت-بت: H_BEHAV [[2,9],[2,74]] OR 8.222 p 0.076). ④ تصحيح overclaim
+    (بانرات + تليين) + `requirements-research.lock` + provenance workflows + `P0_AUDIT_AMENDMENT_2026-07-13.yaml`.
+    🔒 كل حقول provenance خارج rank_key/select_top/classify_tier/entry_status/analyze_ticker (مقفول getsource).
+    ⏳ متبقٍّ (تحقّق Actions فقط): إعادة تشغيل بـ`frozen_run_id=29218708626`+`bt_dump_dataset=1` لتأكيد امتلاء
+    الأعمدة وثبات الأرقام (مضمون بنيويًّا — provenance إضافي لا يغيّر الإشارات).
 - تحذير الصين/هونغ كونغ (تتجاهل التحليل) — تحذير فقط.
 
 ## شكل البطاقة (build_message — مختصر ومرتّب، معتمد من المستخدم 2026-06-23)
