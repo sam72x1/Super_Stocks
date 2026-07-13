@@ -19,6 +19,7 @@ import sys
 
 import ignition_measurement as M
 
+MAX_TRANSITION_GAP_MIN = 10        # 🔬 P0-3: أقصى فجوة انتقال مقبولة (مقفول قبل confirmatory)
 # عدّادات symbol-session التي تُجمَّع عبر المقاطع (بقيّة الحقول min/max أو أوّل غير-None).
 _SUM_KEYS = ["active_polls", "level_available_polls", "bars_attempted", "bars_ok", "bars_failed",
              "raw_candidate_count", "operator_pass_count", "operator_fail_count",
@@ -56,6 +57,30 @@ def _read_json(path):
         return {}
 
 
+_IMMUTABLE = ("break_level", "trigger_bar_start", "trigger_bar_end", "symbol", "session_date")
+
+
+def _merge_candidate(a, b):
+    """🔬 P1-1: دمج candidate **field-wise** (لا «أول ظهور يفوز») عند تكرار candidate_id على حدود
+    المقاطع: `alert_emitted`/`telegram_delivered` = OR (لا يُسقَطان) · `gate_decision` emit يفوز
+    suppress · غير-None يفوز None · تعارض حقل ثابت يُسجَّل في `merge_conflicts`. نقيّة."""
+    out = dict(a)
+    for k, v in (b or {}).items():
+        if k == "alert_emitted":
+            out[k] = bool(a.get(k)) or bool(v)
+        elif k == "telegram_delivered":
+            out[k] = True if (a.get(k) is True or v is True) else (a.get(k) if a.get(k) is not None else v)
+        elif k == "gate_decision":
+            out[k] = "emit" if "emit" in (a.get(k), v) else (a.get(k) or v)
+        elif k in _IMMUTABLE:
+            if a.get(k) is not None and v is not None and a.get(k) != v:
+                out["merge_conflicts"] = sorted(set(out.get("merge_conflicts", []) + [k]))
+            out[k] = a.get(k) if a.get(k) is not None else v
+        else:
+            out[k] = a.get(k) if a.get(k) is not None else v
+    return out
+
+
 def _merge_symbol_sessions(session_date, rows):
     """يدمج صفوف symbol-session عبر المقاطع: يجمع العدّادات، `min(first_seen)`/`max(last_seen)`،
     وأوّل/آخر بار. يرجّع dict {symbol: ss}. النوافذ **متقطّعة زمنيًّا** فالجمع دقيق (لا ازدواج)."""
@@ -70,6 +95,9 @@ def _merge_symbol_sessions(session_date, rows):
             out[sym] = m
         for k in _SUM_KEYS:
             m[k] = (m.get(k) or 0) + (r.get(k) or 0)
+        # 🔬 P0-3: exposure = **مجموع** فترات المراقبة (لا max−min الذي يخفي فجوة الانتقال).
+        m["exposure_minutes"] = round((m.get("exposure_minutes") or 0.0)
+                                      + (r.get("exposure_minutes") or 0.0), 2)
         fs = r.get("first_seen_at")
         if fs and (m["first_seen_at"] is None or fs < m["first_seen_at"]):
             m["first_seen_at"] = fs
@@ -127,7 +155,14 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
                          "segment_ended_at": sj.get("segment_ended_at"),
                          "expected_segment_start_iso": sj.get("expected_segment_start_iso"),
                          "expected_segment_end_iso": sj.get("expected_segment_end_iso"),
-                         "ended_before_expected_close": sj.get("ended_before_expected_close")})
+                         "ended_before_expected_close": sj.get("ended_before_expected_close"),
+                         # 🔬 P0-2/P0-3: توقيت المراقبة الفعلي (لتغطية البداية + فجوة الانتقال).
+                         "monitoring_started_at": sj.get("monitoring_started_at"),
+                         "monitoring_ended_at": sj.get("monitoring_ended_at"),
+                         "first_successful_poll_at": sj.get("first_successful_poll_at"),
+                         "expected_open_iso": sj.get("expected_open_iso"),
+                         "start_tolerance_min": sj.get("start_tolerance_min"),
+                         "session_type": sj.get("session_type")})
     # 🔬 P0-4: تحقّق سلسلة manifest (كل مقطع + السلسلة open→close). الفشل يُسجَّل ويرفضه المدقّق.
     import ignition_e2_manifest as _man
     seg_manifests, manifest_reasons = {}, []
@@ -142,6 +177,15 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
         if not ok:
             manifest_reasons += r
     manifest_chain_ok = not manifest_reasons
+    # 🔬 P0-3: فجوة الانتقال بين الجوبين (open.monitoring_ended → close.monitoring_started) — غير
+    # مراقبة حيًّا (رفع/تنزيل artifact + تجهيز runner). تُقاس وتُقفَل؛ تجاوزها يرفض الجلسة.
+    _by_role = {s["role"]: s for s in seg_meta}
+    transition_gap_ms = None
+    if "open" in _by_role and "close" in _by_role:
+        _a = M._iso_epoch_s(_by_role["open"].get("monitoring_ended_at"))
+        _b = M._iso_epoch_s(_by_role["close"].get("monitoring_started_at"))
+        if _a is not None and _b is not None:
+            transition_gap_ms = int(max(0.0, _b - _a) * 1000)
     # مصدر meta من مقطع الإغلاق (يحمل الإغلاق المتوقّع) وإلّا أوّل مقطع
     base_sj = _read_json(os.path.join(seg_dirs[-1][1], "session.json")) or \
         _read_json(os.path.join(seg_dirs[0][1], "session.json"))
@@ -162,17 +206,19 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
               "interval_seconds": base_sj.get("interval_seconds"),
               # 🔬 P0-4: نتيجة سلسلة التحقّق (يرفضها المدقّق لو فشلت).
               "manifest_chain_ok": manifest_chain_ok, "manifest_chain_reasons": manifest_reasons,
+              # 🔬 P0-3: فجوة الانتقال + حدّها المقفول (يرفضها المدقّق لو تجاوزت).
+              "transition_gap_ms": transition_gap_ms,
+              "max_transition_gap_min": MAX_TRANSITION_GAP_MIN,
               # 🔬 P1-8: نافذة المراقبة الحقيقية vs وقت التجميع (assembled_at يُملأ في finalize).
               "monitoring_started_at": _mon_start, "monitoring_ended_at": _mon_end})
     rec.meta["assembled_at"] = rec.started_at    # 🔬 P1-8: وقت التجميع (≠ نافذة المراقبة)
     # عبّئ الحالة المدموجة
     rec.symbols = _merge_symbol_sessions(session_date, ss_rows)
-    seen_cid = set()
-    for c in cand_rows:                      # دِدوب candidate_id (أوّل ظهور)
+    for c in cand_rows:                      # 🔬 P1-1: دمج field-wise (لا يُسقط emitted/delivered)
         cid = c.get("candidate_id")
-        if cid and cid not in seen_cid:
-            seen_cid.add(cid)
-            rec.candidates[cid] = c
+        if not cid:
+            continue
+        rec.candidates[cid] = _merge_candidate(rec.candidates[cid], c) if cid in rec.candidates else c
     for d in deliv_rows:                     # deliveries تُجمَّع كما هي
         rec._append(rec._deliv_fh, d)
     # اكتب البارات المدموجة (دِدوب symbol+t) عبر record_minute_path

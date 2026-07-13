@@ -17,16 +17,20 @@ import json
 import os
 import sys
 
-# حقول candidate المقفولة (منها توقيت §2c/§2d) — نقصها = schema-gap.
+# 🔬 P1-9: حقول candidate المقفولة (توقيت §2c/§2d + مراجعة Codex 4) — نقصها = schema-gap.
 CAND_REQUIRED = ["candidate_id", "symbol", "session_date", "break_level",
                  "trigger_bar_start", "trigger_bar_end", "bar_is_closed",
-                 "detected_at", "detected_at_ms", "signal_price", "gate_decision", "alert_emitted"]
+                 "detected_at", "detected_at_ms", "raw_signal_computed_at_ms",
+                 "signal_price", "gate_decision", "alert_emitted",
+                 "measurement_nbbo_status", "watchlist_commit_at_candidate"]
+# حقول إضافية مطلوبة **للمرشّح المُصدَر** فقط (latency + توقيت التسليم).
+EMITTED_REQUIRED = ["emitted_at_ms", "telegram_attempted_at_ms", "bar_end_to_raw_signal_ms"]
 # 🔬 P0-3/P1.7: سماحية «وصول المسار للإغلاق» + هامش «تغطية النافذة».
 CLOSE_PATH_TOLERANCE_MS = 3 * 60_000
 WINDOW_MARGIN_MIN = 10
 SS_REQUIRED = ["symbol", "active_polls", "bars_attempted", "bars_ok", "coverage_ratio",
                "first_seen_at", "last_seen_at", "raw_candidate_count", "emitted_count",
-               "exposure_minutes", "recall_eligible"]
+               "exposure_minutes", "recall_eligible", "backfill_status"]
 # حدود جودة البيانات لأهلية recall (SPEC §7) — **ليست عتبات تداول** (الثلاثة تُطبَّق في المسجّل).
 RECALL_MIN_POLLS, RECALL_MIN_COVERAGE, RECALL_MIN_EXPOSURE_MIN = 20, 0.80, 60
 
@@ -80,6 +84,17 @@ def _ended_before(end_iso, expected_iso, margin_min):
     return a < b - margin_min * 60
 
 
+def _start_coverage_reason(sess):
+    """🔬 P0-2: أول poll ناجح يجب أن يكون ≤ الافتتاح المتوقّع + start_tolerance (مقفول). يرجّع
+    سبب التأخّر أو None. بلا بيانات = None (يُلتقَط بنقص الحقول لا هنا)."""
+    a = _iso_epoch_s(sess.get("first_successful_poll_at"))
+    b = _iso_epoch_s(sess.get("expected_open_iso"))
+    tol = sess.get("start_tolerance_min") or 2
+    if a is None or b is None:
+        return None
+    return ("start_coverage_late(%.1fد)" % ((a - b) / 60.0)) if a > b + tol * 60 else None
+
+
 def analyze_session(sdir):
     sess = _read_json(os.path.join(sdir, "session.json"))
     ss = _read_jsonl(os.path.join(sdir, "symbol_sessions.jsonl"))
@@ -89,9 +104,11 @@ def analyze_session(sdir):
     # نوع الوحدة: segment (جزء) · assembled (مدموجة) · single (جلسة واحدة قديمة).
     kind = "assembled" if sess.get("assembled") else ("segment" if sess.get("segment") else "single")
     is_session = (kind != "segment")        # فقط الجلسة الكاملة تخضع لـsession_complete
-    # اكتمال الـschema
+    # اكتمال الـschema (P1-9: candidate + المُصدَر + symbol-session)
     ss_missing = sum(1 for r in ss for k in SS_REQUIRED if k not in r)
     cand_missing = sum(1 for c in cands for k in CAND_REQUIRED if k not in c)
+    emitted_missing = sum(1 for c in cands if c.get("alert_emitted")
+                          for k in EMITTED_REQUIRED if k not in c)
     eligible = [r for r in ss if r.get("recall_eligible")]
     cov_vals = sorted(r.get("coverage_ratio", 0) for r in ss)
     med_cov = cov_vals[len(cov_vals) // 2] if cov_vals else 0.0
@@ -117,14 +134,22 @@ def analyze_session(sdir):
     ls, lc = sess.get("loops_started"), sess.get("loops_completed")
     if ls is not None and lc is not None and ls != lc:
         reasons.append(f"loops_mismatch({ls}≠{lc})")
-    if ss_missing or cand_missing:
-        reasons.append("schema_gaps")
+    if ss_missing or cand_missing or emitted_missing:
+        reasons.append("schema_gaps(ss=%d,cand=%d,emit=%d)" % (ss_missing, cand_missing, emitted_missing))
     if with_ts != len(cands):
         reasons.append("missing_locked_timestamps")
     emitted_syms = {c.get("symbol") for c in emitted_cands}
     deliv_syms = {d.get("symbol") for d in delivs if d.get("delivered")}
     if delivered > emitted or not deliv_syms.issubset(emitted_syms):
         reasons.append("emitted_delivered_contradiction")
+    # 🔬 P0-5: لا تسليم مكرّر — كل رمز يُسلَّم مرة واحدة (دِدوب مرة/سهم/يوم).
+    _dpsym = {}
+    for d in delivs:
+        if d.get("delivered"):
+            _dpsym[d.get("symbol")] = _dpsym.get(d.get("symbol"), 0) + 1
+    _dups = sorted(str(s) for s, n in _dpsym.items() if n > 1)
+    if _dups:
+        reasons.append("duplicate_delivery(%s)" % ",".join(_dups))
     unresolved_nbbo = [c.get("symbol") for c in emitted_cands
                        if c.get("operator_status") == "pass" and c.get("primary_executable") is None]
     if unresolved_nbbo:
@@ -137,13 +162,17 @@ def analyze_session(sdir):
         if _ended_before(sess.get("segment_ended_at") or sess.get("ended_at"),
                          sess.get("expected_segment_end_iso"), WINDOW_MARGIN_MIN):
             reasons.append("segment_window_not_covered")
+        if sess.get("segment") == "open":          # 🔬 P0-2: تغطية بداية الافتتاح (open فقط)
+            _sc = _start_coverage_reason(sess)
+            if _sc:
+                reasons.append(_sc)
         lost = [c.get("symbol") for c in emitted_cands
                 if c.get("trigger_bar_start") is not None
                 and max_t.get(c.get("symbol"), c["trigger_bar_start"]) <= c["trigger_bar_start"]]
         if lost:
             reasons.append("lost_post_alert_path(%s)" % ",".join(sorted(set(lost))))
     else:
-        # session_complete: انتهت للإغلاق + المسارات تصل للإغلاق (P0-3/P1.7) + (المدموجة) الجزآن.
+        # session_complete: انتهت للإغلاق + المسارات تصل للإغلاق + بدء التغطية + الجزآن + الفجوة + السلسلة.
         if sess.get("ended_before_expected_close"):
             reasons.append("ended_before_expected_close(%s د)" % sess.get("minutes_short_of_close"))
         close_ms = _iso_epoch_s(sess.get("expected_close_iso"))
@@ -157,14 +186,31 @@ def analyze_session(sdir):
                 reasons.append("path_not_reaching_close(%s)" % ",".join(sorted(set(not_reaching))))
         elif emitted_cands:
             reasons.append("expected_close_unknown")   # لا يمكن إثبات وصول المسار
+        if kind == "single":                       # 🔬 P0-2: الجلسة الواحدة تغطّي الافتتاح بنفسها
+            _sc = _start_coverage_reason(sess)
+            if _sc:
+                reasons.append(_sc)
         if kind == "assembled":
             segs = sess.get("segments") or []
             roles = {s.get("role") for s in segs}
             if not ({"open", "close"} <= roles):
-                reasons.append("missing_segment(%s)" % ",".join(sorted(roles)) or "none")
-            bad = [s.get("role") for s in segs if s.get("termination") != "normal"]
-            if bad:
-                reasons.append("segment_not_normal(%s)" % ",".join(str(x) for x in bad))
+                reasons.append("missing_segment(%s)" % (",".join(sorted(str(x) for x in roles)) or "none"))
+            # 🔬 P0-5: **اكتمال كل مقطع فعليًّا** (يحلّل المجلّدات الفرعية — يشمل تغطية بداية open).
+            for _role in ("open", "close"):
+                _segdir = os.path.join(sdir, "segment_%s" % _role)
+                if os.path.isdir(_segdir):
+                    _sr = analyze_session(_segdir)
+                    if not _sr.get("segment_complete"):
+                        reasons.append("segment_incomplete(%s:%s)"
+                                       % (_role, "|".join(_sr.get("incomplete_reasons", []))[:80]))
+            # 🔬 P0-3: فجوة الانتقال ضمن الحدّ المقفول.
+            _gap, _gmax = sess.get("transition_gap_ms"), sess.get("max_transition_gap_min")
+            if _gap is not None and _gmax and _gap > _gmax * 60_000:
+                reasons.append("transition_gap_exceeded(%.1fد>%sد)" % (_gap / 60000.0, _gmax))
+            # 🔬 P0-4: سلسلة manifest سليمة.
+            if sess.get("manifest_chain_ok") is False:
+                reasons.append("manifest_chain_failed(%s)"
+                               % "|".join(sess.get("manifest_chain_reasons") or [])[:80])
 
     complete = (not reasons)
     return {

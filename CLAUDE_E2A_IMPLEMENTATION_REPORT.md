@@ -143,5 +143,32 @@ at_candidate/end` (يُحدَّث مع `_fresh_watchlist`) · **P1.5** latency (
 `excluded_from_confirmatory=true` (بموافقة Codex + المالك — **لا** على رأسٍ لم يُراجَع).
 
 ---
+
+### 18. مراجعة Codex الرابعة (REQUEST CHANGES على `ae0b325`) — 6 موانع P0 + 9 P1 (كلها نُفِّذت)
+`schema_version` 2→3 · قياس فقط · **scan_ignition بت-بت في الإنتاج (أُزيل جلب NBBO منه كليًّا)** ·
+LOGIC_VERSION بلا تغيير · 815 اختبار · خروج 0. ملفّان جديدان: `ignition_e2_manifest.py` · `market_calendar.py`.
+
+| # | المانع/التحسين | الحلّ |
+|---|---|---|
+| **P0-1** | جلب NBBO القياسي كان تزامنيًّا في scan_ignition قبل التنبيه (حتى 8ث تأخير) | أُزيل كليًّا من المسار الحرج؛ المسجّل يجلبه **لا-تزامنيًّا** (worker+queue، آمن-خيوط بقفل) ويربطه بـcandidate_id. **اختبار: جالب 1.2ث لا يؤخّر التنبيه (« 400ms).** الصلاحية من طابع المصدر لا انتهاء HTTP. + raw_signal_computed_at_ms/quote_request_started/received/capture_lag_ms |
+| **P0-2** | كرون 13:35 يفوّت أول دقائق الصيف (افتتاح 13:30 + تجهيز) | كرون **13:18** (قبل الافتتاح) · انتظار حتى 90د (الشتاء) · `first_successful_poll_at`/`monitoring_started_at` · **بوّابة: أول poll ≤ الافتتاح + start_tolerance(2د)** |
+| **P0-3** | فجوة الانتقال بين الجوبين غير مقاسة/مستبعدة | `transition_gap_ms` (open.monitoring_ended→close.monitoring_started) · حدّ مقفول `MAX_TRANSITION_GAP_MIN`=10 · تجاوزه ⇒ session غير مكتملة · **exposure = مجموع فترات المقاطع لا max−min** (لا يخفي الفجوة) |
+| **P0-4** | handoff غير متحقّق منه · previous_sha نص لا hash · assembler لا يقرأ handoff | `ignition_e2_manifest.py`: manifest مقفول (canonical JSON + **SHA-256 حقيقي**) + سلسلة تحقّق. **close fail-closed** (يرفض المسح قبله عند فساد) · الassembler يتحقّق من السلسلة. اختبارات عبث (byte/chain/mismatch) |
+| **P0-5** | session_complete لا يطبّق التعريف الموثّق | المدقّق (assembled) يحلّل **كل مقطع فعليًّا** (segment_complete) + بدء open + فجوة الانتقال + سلسلة manifest + **تسليم مكرّر** (delivered/symbol ≤1) |
+| **P0-6** | فشل المدقّق لا يفشل الـworkflow (`|| true`) | `--strict` (خروج غير صفر عند incomplete) · أُزيل `|| true` من البوّابة · artifact upload يبقى `if:always` |
+| **P1-1** | دمج candidate «أول ظهور يفوز» | دمج **field-wise** (`_merge_candidate`): emitted/delivered=OR · emit يفوز suppress · تعارض ثابت→`merge_conflicts` (لا يُسقط emitted) |
+| **P1-2** | cadence = interval + scan | جدولة **مطلقة** (`_next_tick += interval`) |
+| **P1-3** | latency لا تقيس كامل التأخير | تفكيك bar→raw→gate→attempt→success |
+| **P1-4** | provenance القائمة non-null فقط | + **SHA-256 لمحتوى القائمة الفعلي** (`watchlist_file_sha256_at_candidate` — إثبات نفس bytes) |
+| **P1-5** | NBBO status لبعض cohorts فقط | resolved **لكل** raw candidate (success/empty/error/timeout/not_requested/not_received) |
+| **P1-6** | لا عطلات/إغلاق مبكر | `market_calendar.py` (مثبَّت الإصدار `2026.1`): عطلة⇒لا جلسة · إغلاق مبكر⇒close حقيقي |
+| **P1-7** | كل job يدفع legacy log (non-ff) | **المقاطع لا تدفع**؛ الassembler وحده يولّد + يدفع **مرة واحدة بلا `|| true`** على الدفع |
+| **P1-8** | provenance المجمَّع مضلِّل | `monitoring_started/ended_at` (النافذة) ≠ `assembled_at` (وقت التجميع) |
+| **P1-9** | الحقول الجديدة خارج schema gate | `CAND_REQUIRED`+`EMITTED_REQUIRED`+`SS_REQUIRED` تشمل الجديد |
+
+**⚠️ حدود صدق:** تقويم 2026 مثبَّت الإصدار **يُتحقَّق قبل الـconfirmatory** · لم يُشغَّل حيًّا (Polygon محجوب) ·
+**لا Pilot على هذا الرأس قبل مراجعة Codex الخامسة** (قرار Codex).
+
+---
 **الخلاصة:** الرادار صار تجربة prospective كاملة القياس **دون أن يتغيّر تنبيه واحد**. الخطوة التالية =
 تراكم ≥5 جلسات كاملة (E2-A) ثم E2-B الوصفي — بموافقة المالك، لا تطبيق تلقائي.

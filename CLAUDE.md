@@ -583,7 +583,18 @@
     `backfill_status` · NBBO قياسي مستقلّ (`polygon_nbbo`/`fetch_measure_nbbo` — **لا يمسّ القرار**) ·
     watchlist provenance · latency · أثر الأداة (median/p95). `session_complete` (الجزآن + المسار للإغلاق) وحده
     يعدّ نحو 5/20؛ `segment_complete` لا. 🔒 لا LOGIC_VERSION · scan_ignition بت-بت (measurement مُحقَن مقفول).
-    ⏳ **متبقٍّ: مراجعة Codex الرابعة ثم Pilot واحد (بموافقته + المالك) — لا Pilot على رأسٍ لم يُراجَع.**
+  - **🔬 مراجعة Codex الرابعة (2026-07-13، REQUEST CHANGES على `ae0b325` — 6 P0 + 9 P1، كلها نُفِّذت ·
+    `schema_version`=3 · 815 اختبار · قياس فقط):** **P0-1 حاسم:** جلب NBBO القياسي كان تزامنيًّا يؤخّر
+    التنبيه حتى 8ث — أُزيل كليًّا من scan_ignition (بت-بت في الإنتاج)؛ المسجّل يجلبه **لا-تزامنيًّا**
+    (worker+queue آمن-خيوط) · اختبار: جالب 1.2ث لا يؤخّر التنبيه. **P0-2** كرون 13:18 قبل الافتتاح +
+    بوّابة `first_successful_poll ≤ open+2د`. **P0-3** `transition_gap_ms` مقاس ومقفول (>10د يرفض) +
+    exposure = مجموع فترات المقاطع. **P0-4** `ignition_e2_manifest.py`: SHA-256 حقيقي + سلسلة تحقّق +
+    close **fail-closed** + اختبارات عبث. **P0-5** المدقّق يفرض اكتمال كل مقطع + الفجوة + السلسلة +
+    لا تسليم مكرّر. **P0-6** `--strict` (خروج غير صفر) بلا `|| true`. **P1:** دمج candidate field-wise
+    (لا يُسقط emitted) · cadence مطلقة · تفكيك latency · watchlist file SHA · NBBO status لكل cohorts ·
+    `market_calendar.py` (عطلات/إغلاق مبكر مثبَّت الإصدار) · دفع واحد من الassembler · provenance صادق ·
+    schema gate موسَّع. التفاصيل: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md §18`.
+    ⏳ **متبقٍّ: مراجعة Codex الخامسة ثم Pilot واحد (بموافقته + المالك) — لا Pilot على رأسٍ لم يُراجَع.**
 
 ## 🕵️💰 حزمة «قراءة المضارب» (`FAISAL_OPERATOR_PACK_PLAN.md`، 2026-07-08 — عرض/تحذير فقط)
 - **المصدر:** 9 صور فيصل بأرقام صريحة لأول مرة لتمييز المضارب عن القروب. **⚖️ ليست مؤشر اختيار**

@@ -63,6 +63,21 @@
 > الجديد · ثم Pilot واحد `excluded_from_confirmatory` (بموافقته + المالك) — لا Pilot على رأسٍ لم يُراجَع.**
 > التفاصيل: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md §17`.
 
+> 🔬 **E2 — مراجعة Codex الرابعة (2026-07-13، REQUEST CHANGES على `ae0b325` — 6 موانع P0 + 9 P1، كلها
+> نُفِّذت · `schema_version`=3 · 815 اختبار · قياس فقط · scan_ignition بت-بت في الإنتاج · لا LOGIC_VERSION):**
+> **P0-1 (حاسم):** جلب NBBO القياسي كان **تزامنيًّا** في scan_ignition قبل التنبيه (حتى 8ث تأخير — سلوك
+> توقيت لا membership) — أُزيل كليًّا؛ المسجّل يجلبه **لا-تزامنيًّا** (worker+queue آمن-خيوط بقفل) ويربطه
+> بـcandidate_id. **اختبار: جالب 1.2ث لا يؤخّر التنبيه («400ms).** الصلاحية من طابع المصدر لا انتهاء HTTP.
+> **P0-2** كرون 13:18 (قبل افتتاح الصيف) + بوّابة `first_successful_poll ≤ open+2د`. **P0-3** `transition_gap_ms`
+> مقاس ومقفول (>10د يرفض) + exposure = مجموع فترات المقاطع (لا max−min). **P0-4** `ignition_e2_manifest.py`:
+> manifest مقفول (SHA-256 حقيقي) + سلسلة تحقّق + close **fail-closed** + الassembler يتحقّق + اختبارات عبث.
+> **P0-5** المدقّق يفرض اكتمال كل مقطع + بدء open + الفجوة + السلسلة + لا تسليم مكرّر. **P0-6** `--strict`
+> (خروج غير صفر) بلا `|| true`. **P1:** دمج candidate field-wise (لا يُسقط emitted) · cadence مطلقة · تفكيك
+> latency · watchlist file SHA · NBBO status لكل cohorts · `market_calendar.py` (عطلات/إغلاق مبكر مثبَّت
+> الإصدار) · دفع واحد من الassembler · provenance صادق · schema gate موسَّع. ملفّان جديدان:
+> `ignition_e2_manifest.py` + `market_calendar.py`. **⏳ متبقٍّ: دفع + تحديث PR #167 + مراجعة Codex الخامسة ·
+> ثم Pilot واحد (بموافقته + المالك).** التفاصيل: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md §18`.
+
 > 🏦 **حكم «قوة البوت» بالمحور المصحَّح — اكتمل ووُثّق (2026-07-12، PR #161 sha 922aee2 مُدمَج ·
 > شُغِّل السوق الكامل 3562 رمز/سنة · `MARKET_BACKTEST_FINDINGS §0-م`):** الحكم = كم انفجر كل سهم
 > من الدخول قبل وقفه (لا t1). **الناجحون (انفجر 50%+ قبل الوقف): 10% (2025) · 8% (2026)** · ~1 من

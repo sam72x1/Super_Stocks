@@ -199,14 +199,20 @@ class IgnitionMeasurementRecorder:
         self.loops_started = 0
         self.loops_completed = 0
         self._loop_timings = []    # 🔬 P1.6: (schedule_lag_ms, loop_duration_ms) لكل دورة
+        # 🔬 P0-2/P0-3: توقيت المراقبة (لبوّابة تغطية البداية + فجوة الانتقال).
+        self.monitoring_started_at = None
+        self.monitoring_ended_at = None
+        self.first_successful_poll_at = None
         self.started_at = _utcnow_iso()
         self.ended_at = None
         self.termination = "unknown"
         # §2a: هل انتهت الجلسة قبل الإغلاق المتوقّع (يُحسب في finalize من meta.expected_close_iso).
         self.ended_before_expected_close = None
         self.minutes_short_of_close = None
-        # 🔬 P1.4: تتبّع commit القائمة (يتغيّر مع _fresh_watchlist كل ~5د).
+        # 🔬 P1.4/P1-4: تتبّع commit + **SHA محتوى** القائمة (يتغيّر مع _fresh_watchlist كل ~5د)
+        # — لا يكفي non-null؛ SHA يثبت أن نفس bytes استُخدمت وقت الترشيح.
         self.watchlist_commit_current = self.meta.get("watchlist_commit_start")
+        self.watchlist_file_sha256_current = self.meta.get("watchlist_file_sha256_start")
         self.manifest_sha256 = None        # 🔬 P0-4: hash المقطع (يُحسب في finalize)
         self.enabled = False
         self._cand_fh = None
@@ -301,11 +307,14 @@ class IgnitionMeasurementRecorder:
         except Exception:
             pass
 
-    def set_watchlist_commit(self, commit):
-        """🔬 P1.4: يُحدَّث عند كل تحديث قائمة (_fresh_watchlist). المرشّح اللاحق يختمه."""
+    def set_watchlist_commit(self, commit, file_sha256=None):
+        """🔬 P1.4/P1-4: يُحدَّث عند كل تحديث قائمة (_fresh_watchlist). المرشّح اللاحق يختم
+        commit **و**SHA المحتوى (إثبات أن نفس bytes استُخدمت)."""
         try:
             if commit:
                 self.watchlist_commit_current = str(commit)
+            if file_sha256:
+                self.watchlist_file_sha256_current = str(file_sha256)
         except Exception:
             pass
 
@@ -435,9 +444,10 @@ class IgnitionMeasurementRecorder:
             "schema_version": SCHEMA_VERSION, "session_date": self.session_date, "symbol": symbol,
             "segment": self.segment,
             "candidate_id": cid, "source_commit": self.meta.get("source_commit"),
-            # 🔬 P1.4: commit القائمة الفعلي وقت الترشيح (يتغيّر مع _fresh_watchlist).
+            # 🔬 P1.4/P1-4: commit + SHA محتوى القائمة وقت الترشيح (إثبات نفس bytes).
             "watchlist_commit_start": self.meta.get("watchlist_commit_start"),
             "watchlist_commit_at_candidate": self.watchlist_commit_current,
+            "watchlist_file_sha256_at_candidate": self.watchlist_file_sha256_current,
             "break_level": bl, "break_level_source": p.get("break_level_source"),
             "pivot": p.get("pivot"), "stop": p.get("stop"),
             "t1": p.get("t1"), "t2": p.get("t2"), "t3": p.get("t3"),
@@ -724,9 +734,17 @@ class IgnitionMeasurementRecorder:
 
     def loop_start(self):
         self.loops_started += 1
+        if self.monitoring_started_at is None:     # 🔬 P0-2: أول لفّة = بدء المراقبة الفعلي
+            self.monitoring_started_at = _utcnow_iso()
+
+    def mark_first_poll(self):
+        """🔬 P0-2: أول poll ناجح (scan فعلي) — لبوّابة تغطية بداية المقطع."""
+        if self.first_successful_poll_at is None:
+            self.first_successful_poll_at = _utcnow_iso()
 
     def loop_end(self, checkpoint_every=7, schedule_lag_ms=None, loop_duration_ms=None):
         self.loops_completed += 1
+        self.monitoring_ended_at = _utcnow_iso()   # 🔬 P0-3: آخر لفّة = نهاية المراقبة
         # 🔬 P1.6: قياس أثر الأداة نفسها (تأخّر الجدولة + زمن الدورة) — يُلخَّص median/p95.
         if schedule_lag_ms is not None or loop_duration_ms is not None:
             self._loop_timings.append((schedule_lag_ms, loop_duration_ms))
@@ -790,6 +808,10 @@ class IgnitionMeasurementRecorder:
                 "segment": self.segment, "segment_id": self.segment_id,
                 "segment_started_at": self.started_at, "segment_ended_at": self.ended_at,
                 "instrumentation_timing": self._timing_stats(),
+                # 🔬 P0-2/P0-3: توقيت المراقبة (بدء/نهاية/أول poll ناجح) — لبوّابات التغطية/الفجوة.
+                "monitoring_started_at": self.monitoring_started_at,
+                "monitoring_ended_at": self.monitoring_ended_at,
+                "first_successful_poll_at": self.first_successful_poll_at,
             }
             sess.update(self.meta)
             _atomic_write(os.path.join(self.dir, "session.json"),
@@ -812,11 +834,15 @@ class IgnitionMeasurementRecorder:
             self._compute_close_gap()          # §2a: هل انتهت قبل الإغلاق المتوقّع؟
             # symbol-sessions: coverage + §2e exposure حقيقي + أهلية recall (الشروط الثلاثة).
             lines = []
+            _assembled = bool(self.meta.get("assembled"))
             for sym in sorted(self.symbols):
                 ss = self.symbols[sym]
                 ss["coverage_ratio"] = self._coverage(ss)
-                ss["exposure_minutes"] = _exposure_minutes(ss.get("first_seen_at"),
-                                                           ss.get("last_seen_at"))
+                # 🔬 P0-3: الجلسة المدموجة = مجموع فترات المقاطع (محسوب في الدمج، يستبعد الفجوة)؛
+                # الجلسة الواحدة = من أول/آخر مشاهدة. لا نعيد الحساب للمدموجة (يخفي الفجوة).
+                if not _assembled:
+                    ss["exposure_minutes"] = _exposure_minutes(ss.get("first_seen_at"),
+                                                               ss.get("last_seen_at"))
                 ss["recall_eligible"] = _recall_eligible(
                     ss["active_polls"], ss["coverage_ratio"], ss["exposure_minutes"])
                 lines.append(json.dumps({k: v for k, v in ss.items() if not k.startswith("_")},
