@@ -27,6 +27,8 @@ try:
 except ImportError:
     import super_stock as bot
 
+import ignition_measurement as measure   # 🔬 E2-A: قياس ظلّي (مطفأ افتراضيًّا)
+
 
 def _fresh_watchlist(cur_wl, runner=None):
     """⑧ (إصلاح تدقيق 2026-07-12): يجلب أحدث قائمة من `origin/main` — الرادار يعمل
@@ -104,32 +106,69 @@ def main():
     max_loops = 2000                       # حارس ضد اللف اللانهائي (≈25س عند 45ث)
     session_fires, seen = [], set()        # 📏 جمع إطلاقات الجلسة لتسجيلها بالنهاية
     session_day = bot.dt.date.today().isoformat()
-    while bot.dt.datetime.utcnow() < deadline and loops < max_loops:
-        loops += 1
-        today = bot.dt.date.today().isoformat()
-        # ⑧ تحديث القائمة من origin/main كل ~5 دقائق (7 دورات × 45ث): سهم شُطب
-        # بدفعة المراقب يختفي من الرادار بدل «ادخل الآن» على مشطوب. فاشل-آمن.
-        if loops % 7 == 0:
-            _new = _fresh_watchlist(wl)
-            if _new:
-                wl = _new
+    # 🔬 E2-A: مسجّل القياس الظلّي (اختياري · `E2_MEASUREMENT=1`). **مطفأ = trace=None = سلوك
+    # الرادار حرفيًّا بت-بت.** فاشل-آمن: أي خطأ تهيئة = نواصل بلا قياس. لا يغيّر تنبيهًا/عتبة.
+    recorder = None
+    if os.environ.get("E2_MEASUREMENT", "").strip() == "1":
         try:
-            rows = bot.scan_ignition(wl, today)
+            recorder = measure.IgnitionMeasurementRecorder(
+                session_day, write_repo_index=True,
+                meta={"source_commit": os.environ.get("GITHUB_SHA", "").strip() or None,
+                      "workflow_run_id": os.environ.get("GITHUB_RUN_ID", "").strip() or None,
+                      "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "").strip() or None,
+                      "interval_seconds": interval})
+            bot.log("🔬 E2: القياس الظلّي مُفعَّل (لا يغيّر أي تنبيه/عتبة/اختيار).")
         except Exception as e:
-            rows = []
-            bot.log(f"⚠️ رادار الانطلاق (دورة {loops}): {e}")
-        if rows:
+            bot.log(f"⚠️ E2: تعذّر تهيئة القياس ({e}) — نواصل بلا قياس.")
+            recorder = None
+    _trace = recorder.trace if recorder is not None else None
+    termination = "normal"
+    try:
+        while bot.dt.datetime.utcnow() < deadline and loops < max_loops:
+            loops += 1
+            if recorder is not None:
+                recorder.loop_start()
+            today = bot.dt.date.today().isoformat()
+            # ⑧ تحديث القائمة من origin/main كل ~5 دقائق (7 دورات × 45ث): سهم شُطب
+            # بدفعة المراقب يختفي من الرادار بدل «ادخل الآن» على مشطوب. فاشل-آمن.
+            if loops % 7 == 0:
+                _new = _fresh_watchlist(wl)
+                if _new:
+                    wl = _new
             try:
-                bot.send_telegram(bot.build_ignition_alert(rows) + "\n\n" + bot.FOOTER)
-                bot.log(f"🔥 {len(rows)} انطلاق: "
-                        + ", ".join(r[0]["symbol"] for r in rows))
+                rows = bot.scan_ignition(wl, today, trace=_trace)
             except Exception as e:
-                bot.log(f"⚠️ إرسال تنبيه الانطلاق: {e}")
-            for r in rows:                 # جمع فريد (دِدوب مرة/سهم/جلسة)
-                if r[0]["symbol"] not in seen:
-                    seen.add(r[0]["symbol"])
-                    session_fires.append(r)
-        time.sleep(interval)
+                rows = []
+                bot.log(f"⚠️ رادار الانطلاق (دورة {loops}): {e}")
+            if rows:
+                if recorder is not None:
+                    recorder.telegram_attempt(rows)
+                try:
+                    bot.send_telegram(bot.build_ignition_alert(rows) + "\n\n" + bot.FOOTER)
+                    bot.log(f"🔥 {len(rows)} انطلاق: "
+                            + ", ".join(r[0]["symbol"] for r in rows))
+                    if recorder is not None:
+                        recorder.telegram_success(rows)
+                except Exception as e:
+                    bot.log(f"⚠️ إرسال تنبيه الانطلاق: {e}")
+                    if recorder is not None:
+                        recorder.telegram_failure(rows, error_type=type(e).__name__)
+                for r in rows:                 # جمع فريد (دِدوب مرة/سهم/جلسة)
+                    if r[0]["symbol"] not in seen:
+                        seen.add(r[0]["symbol"])
+                        session_fires.append(r)
+            if recorder is not None:
+                recorder.loop_end()
+            time.sleep(interval)
+    except Exception as e:                 # 🔬 E2 §21.5: لا نفقد الجلسة عند انقطاع غير متوقّع
+        termination = "exception"
+        bot.log(f"⚠️ رادار الانطلاق: انقطاع غير متوقّع ({type(e).__name__}: {e})")
+    finally:
+        if recorder is not None:           # finalize في finally = crash-safe (يكتب حتى عند الانقطاع)
+            try:
+                recorder.finalize(termination=termination)
+            except Exception as e:
+                bot.log(f"⚠️ E2: finalize ({e})")
     # 📏 حلقة القياس: سجّل إطلاقات الجلسة + ⑩ **مقام الالتقاط** (كل أسهم الجلسة
     # ولو صفر إطلاق — بدونه «الالتقاط» غير قابل للحساب) بسجلّ دائم + احفظه بالريبو
     # (فاشل-آمن — لا يعيق إنهاء الرادار). أداة التطوير تقرأهما الجمعة.
@@ -144,6 +183,11 @@ def main():
             if n_rec:
                 _save_files.append(bot.IGNITION_LOG_FILE)
                 bot.log(f"📝 سُجِّل {n_rec} إطلاق في سجلّ القياس.")
+        # 🔬 E2: الملفّان الصغيران القابلان للدفع فقط (الخام e2_measurement/ يبقى artifact).
+        if recorder is not None:
+            for _f in ("ignition_e2_summary.json", "ignition_e2_session_index.json"):
+                if os.path.exists(_f):
+                    _save_files.append(_f)
         if _save_files:
             bot.git_save(_save_files)
     except Exception as e:

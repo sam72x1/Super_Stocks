@@ -6838,7 +6838,8 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
         _emit_trace(trace, "03_BARS_FETCH", lambda: {
             "symbol": _sym, "bars_ok": bool(bars), "n_bars": (len(bars) if bars else 0),
             "first_bar_t": (bars[0].get("t") if bars else None),
-            "last_bar_t": (bars[-1].get("t") if bars else None)})
+            "last_bar_t": (bars[-1].get("t") if bars else None),
+            "bars": bars})   # 🔬 E2 (§10): مسار الدقيقة (lazy — لا يُبنى إلا عند trace)
         sig = _ignition_signal(bars, lvl, vol_mult=vm) if bars else None
         if not sig:
             continue

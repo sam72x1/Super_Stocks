@@ -41,4 +41,24 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           IGNITION_END_UTC: "19:20"   # يخرج بأمان قبل حدّ الجوب (350د)
+          # 🔬 E2-A: يفعّل المسجّل الظلّي فقط (لا يغيّر أي تنبيه/عتبة/اختيار). GITHUB_SHA/RUN_ID/
+          # RUN_ATTEMPT يوفّرها Actions تلقائيًّا فيقرؤها المسجّل للـprovenance.
+          E2_MEASUREMENT: "1"
         run: python ignition_live.py
+
+      # 🔬 E2-A: بيئة القياس (provenance) + رفع الخام artifact دائمًا (حتى عند timeout/فشل).
+      - name: Capture E2 environment (provenance)
+        if: always()
+        run: |
+          mkdir -p e2_measurement
+          { python -VV; echo "---pip freeze---"; pip freeze; } \
+            > "e2_measurement/env_${{ github.run_id }}.txt" 2>&1 || true
+
+      - name: Upload E2 measurement
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ignition-e2-${{ github.run_id }}
+          path: e2_measurement/
+          retention-days: 90
+          if-no-files-found: warn

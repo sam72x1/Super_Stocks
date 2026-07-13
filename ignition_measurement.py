@@ -156,6 +156,8 @@ class IgnitionMeasurementRecorder:
                 ss["first_bar_ts"] = p.get("first_bar_t")
             if p.get("last_bar_t") is not None:
                 ss["last_bar_ts"] = p.get("last_bar_t")
+            if p.get("bars"):                     # 🔬 §10: مسار الدقيقة (دِدوب symbol+t)
+                self.record_minute_path(symbol, p.get("bars"))
         elif event == "04_RAW_IGNITION":
             ss["raw_candidate_count"] += 1
             self._start_candidate(symbol, now, p)
