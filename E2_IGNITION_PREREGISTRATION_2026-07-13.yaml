@@ -1,0 +1,87 @@
+# ═══════════════════════════════════════════════════════════════════════════
+# E2 — تسجيل مسبق (prospective) لقياس التوقيت اللحظي (رادار الانطلاق)
+# ═══════════════════════════════════════════════════════════════════════════
+# يُثبَّت **قبل** أول جلسة confirmatory (SPEC §17). المعايير مقفولة قبل رؤية أي بيانات =
+# لا p-hacking. **E2-A = instrumentation فقط** (لا تحليل عتبات)؛ E2-B/E2-C بعد بلوغ العيّنة
+# + موافقة المالك. التوقيت اللحظي **فرضية بحثية غير مثبتة** حتى الآن.
+# طبقة قياس/بحث فقط — لا يمسّ الفرز/الاختيار/الدخول/الوقف/الأهداف/العتبات · لا LOGIC_VERSION.
+# ═══════════════════════════════════════════════════════════════════════════
+schema_version: 1
+status: prospective_from_next_session_after_merge
+
+# بيانات تجريبية سابقة تُستبعَد من الـconfirmatory (لا نُقيّم على عيّنة ولّدت الفرضية):
+pilot_data:
+  excluded_from_confirmatory:
+    - GEOS_2026-07-09          # الإطلاق الوحيد في السجل القديم — pilot لا confirmatory
+
+locked_source:
+  base_commit: 49f3f0d259834e711de710ac9b673c2bbdb42227
+  production_alert_logic: unchanged     # scan_ignition/_ignition_signal/العتبات بلا تغيير
+
+# النقاط النهائية الأساسية (تُحسم مسبقًا):
+primary_endpoints:
+  - Y_T1_BEFORE_STOP_5D                 # بلوغ T1 المخزَّن عند الإطلاق قبل الوقف خلال 5 جلسات
+  - CAPTURE_RATE                        # الفرص الملتقَطة / الفرص المؤهّلة (تعريف opportunity مستقل)
+  - remaining_gain_to_session_peak      # الأبكرية: الصعود المتبقّي بعد التنبيه حتى ذروة الجلسة
+
+# مجتمع التحليل الأساسي:
+primary_population:
+  alert:
+    executable_nbbo_required: true      # سعر الدخول = NBBO ask صالح وقت الاكتشاف
+  capture:
+    min_active_polls: 20                # حدود **جودة بيانات** لا عتبات تداول
+    min_coverage_ratio: 0.80
+    min_exposure_minutes: 60
+
+entry:
+  primary: nbbo_ask
+  max_quote_age_seconds: 5
+
+same_bar_tie:                           # target + stop في نفس الدقيقة (لا ترتيب intraminute)
+  primary: stop_first                   # محافظ
+  sensitivity: target_first
+
+windows:
+  session: regular_hours                # من أول دقيقة كاملة بعد detected_at حتى الإغلاق
+  extended: five_sessions
+
+opportunity_definition:                 # denominator مستقل (SPEC §14 P2) — لا «كل القائمة»
+  1_eligible_by_coverage: true
+  2_crosses_break_level_from_below_or_opens_above: true
+  3_reaches_plus_12pct_from_crossing_before_stop: true
+
+analysis:
+  binary_ci: wilson_95
+  median_ci: cluster_bootstrap_symbol_session   # لا نعامل مرشحات نفس اليوم كعيّنات مستقلة
+  first_candidate_per_symbol_session: true      # التحليل الأولي = أول raw candidate لكل symbol-session
+  bootstrap_seed: 20260713
+  bootstrap_repetitions: 20000
+  small_groups: fisher_exact_not_chi_square
+
+# بوّابات العيّنة (لا حكم قبل بلوغها):
+sample_gates:
+  operational:                          # E2-A: اكتمال القياس فقط
+    complete_sessions: 5
+  preliminary:                          # E2-B: وصف + CIs فقط، لا تغيير إنتاجي
+    decided_alerts: 20
+    eligible_opportunities: 20
+  decision:                             # E2-C: يجوز **اقتراح** للمالك (لا تطبيق تلقائي)
+    decided_alerts: 50
+    eligible_opportunities: 50
+    complete_sessions: 20
+
+# معيار «مرشّح لحافة عملية» (SPEC §19 — بعد E2-C فقط، لا p-value وحده):
+practical_edge_criterion:
+  - mean_R_expectancy_after_costs_gt_0
+  - bootstrap95_mean_not_clearly_below_0
+  - capture_rate_reasonable_ci_not_too_wide
+  - executable_alert_ratio_ge_0.80
+  - median_spread_allows_T1_execution
+  - not_dependent_on_single_symbol_or_session
+  - holds_in_conservative_stop_first
+
+prohibited_before_decision_gate:
+  - threshold_changes
+  - operator_gate_changes
+  - alert_logic_changes
+  - production_ranking_changes
