@@ -3458,6 +3458,8 @@ check("🔬 P0-S6: DSMETA + أعمدة provenance (نافذة/سعر/تقسيم/
       "⟪DSMETA⟫" in _rbt_src2 and "forward_window_end" in _rbt_src2
       and "signal_price_raw_pit" in _rbt_src2 and "split_lookup_status" in _rbt_src2
       and "h4_status" in _rbt_src2)
+check("🔬 comma-safe: DSROW يستبدل الفواصل داخل الخلايا (h4_source يحوي فواصل — يمنع إزاحة الأعمدة)",
+      '.replace(",", ";")' in _rbt_src2)
 check("🔬 P0·قفل: حقول provenance خارج rank_key/select_top/classify_tier/entry_status/analyze_ticker",
       all(all(_fld not in _insp0.getsource(_f) for _fld in
               ("forward_window_end", "signal_price_raw_pit", "split_lookup_status",

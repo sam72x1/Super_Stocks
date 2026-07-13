@@ -9752,8 +9752,10 @@ def run_backtest(symbols=None) -> None:
         print("⟪DSMETA⟫" + json.dumps(_dsmeta, ensure_ascii=False, default=str), flush=True)
         print("⟪DSHEAD⟫" + ",".join(_dcols), flush=True)
         for _t in all_trades:
+            # 🔬 comma-safe: نستبدل أي فاصلة داخل خليّة بـ«;» فلا تُزيح الأعمدة (h4_source يحوي
+            # فواصل — كان يكسر محاذاة الصف عند السحب من السجل). DSMETA منفصل (JSON) فلا يُمَسّ.
             print("⟪DSROW⟫" + ",".join(
-                "" if _t.get(_c) is None else str(_t.get(_c)) for _c in _dcols),
+                "" if _t.get(_c) is None else str(_t.get(_c)).replace(",", ";") for _c in _dcols),
                 flush=True)
         print(f"⟪DSEND⟫{len(all_trades)}", flush=True)
     log(f"باكتيست: {st}")
