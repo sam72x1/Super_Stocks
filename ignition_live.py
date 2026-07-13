@@ -436,6 +436,8 @@ def main():
                  "handoff_verify_failed": bool(handoff_reasons),
                  "handoff_verify_reasons": (handoff_reasons or None)}
 
+        _rec_ready = threading.Event()     # جاهزية صريحة (لا سباق على «الصندوق فارغ»)
+
         def _init_recorder():
             try:
                 import ignition_measurement as measure    # كسول + خارج خيط الإنتاج
@@ -445,17 +447,22 @@ def main():
                     meta=_meta), bot.log)
             except Exception as e:
                 _rec_box["err"] = e
+            finally:
+                _rec_ready.set()           # ينشر النتيجة (نجاح أو فشل) دائمًا
+        _rec_pending = True
         threading.Thread(target=_init_recorder, name="e2-init", daemon=True).start()
+    else:
+        _rec_pending, _rec_ready = False, None
     _trace = None                          # الرادار يبدأ بلا قياس — يلتحق لاحقًا لو جهز
     termination = "normal"
     _last_start = None
-    _rec_settled = not _rec_box            # لا قياس مطلوب ⇒ لا انتظار أصلًا
     try:
         while bot.dt.datetime.utcnow() < deadline and loops < max_loops:
             loops += 1
             _loop_start = time.time()
-            if not _rec_settled and _rec_box:          # ربط لا-حاجب (فحص قاموس فقط)
-                _rec_settled = True
+            # ربط لا-حاجب: `is_set()` لا ينتظر. لو تعلّقت التهيئة يبقى trace=None والرادار يعمل.
+            if _rec_pending and _rec_ready.is_set():
+                _rec_pending = False
                 recorder = _rec_box.get("rec")
                 _trace = recorder.trace if recorder is not None else None
                 bot.log("🔬 E2: القياس الظلّي مُفعَّل (لا يغيّر أي تنبيه/عتبة/اختيار)."

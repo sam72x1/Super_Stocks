@@ -2755,7 +2755,75 @@ check("🔬 Codex5 قفل: تهيئة قياس **معلّقة** لا تمنع ب
       and _traces_ct[0] is None)          # الرادار بدأ فورًا بلا انتظار المسجّل
 check("🔬 Codex5 قفل: تهيئة المسجّل خارج خيط الإنتاج (Thread) والربط لا-حاجب",
       "threading.Thread(target=_init_recorder" in _insp0.getsource(IG.main)
-      and "_rec_settled" in _insp0.getsource(IG.main))
+      and "_rec_ready.is_set()" in _insp0.getsource(IG.main))
+
+
+# 🔬 مراجعة Codex 5 (P0-د): **سباق الجاهزية** — لو حُكم بـ«استقرّ» قبل أن ينشر الخيط نتيجته
+# لظلّ trace=None للأبد و**ضاع قياس الجلسة بصمت**. الاختبار: بنّاء بطيء (يجهز بعد الدورة الأولى)
+# ⇒ الدورة الأولى trace=None، ودورة لاحقة **تلتحق فعلًا** وتصل أحداث trace للمسجّل.
+_slow_ev = _threading_ml.Event()
+_slow_traces = []
+
+
+class _SlowRec:
+    def __init__(self, *a, **kw):
+        _slow_ev.wait(5)                  # يجهز حين يُضبَط العلم (بعد الدورة الأولى)
+
+    def trace(self, event, payload):
+        _slow_traces.append(event)
+
+    def __getattr__(self, name):          # بقيّة الخطّافات لا تفعل شيئًا
+        return lambda *a, **kw: None
+
+
+_slow_mod = _types_ml.ModuleType("ignition_measurement")
+_slow_mod.IgnitionMeasurementRecorder = _SlowRec
+_sys.modules["ignition_measurement"] = _slow_mod
+_os.environ.update({"E2_MEASUREMENT": "1", "IGNITION_SEGMENT": "close", "IGNITION_HANDOFF_IN": "",
+                    "IGNITION_HANDOFF_OUT": _os.path.join(_e2_out, "ho_slow.json"),
+                    "POLYGON_API_KEY": "TEST_KEY_NOT_USED"})
+_sent_sl, _loops_sl, _traces_sl = [], [], []
+_real_sleep = _time_e2.sleep
+_ml_saved5 = (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+              IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep)
+IG._segment_window = lambda role, t0=None: {
+    "role": role, "open": _ml_now, "close": _ml_now + S.dt.timedelta(hours=1),
+    "segment_start": _ml_now, "segment_end": _ml_now + S.dt.timedelta(hours=1),
+    "deadline": _ml_now + S.dt.timedelta(hours=1), "reason": "test",
+    "session_type": "regular", "calendar_version": "test"}
+IG.bot.load_watchlist = lambda: {"stocks": [{"symbol": "IGN", "status": "active"}]}
+IG.bot.scan_ignition = lambda wl, today, trace=None: (
+    _loops_sl.append(1), _traces_sl.append(trace),
+    (trace("01_SEEN_ACTIVE", {"symbol": "IGN"}) if trace else None),
+    [({"symbol": "IGN"}, {"price": 2.0}, None)])[3]
+IG.bot.build_ignition_alert = lambda rows: "ALERT"
+IG.bot.send_telegram = lambda m: _sent_sl.append(m)
+
+
+def _sleep_slow(*_a):
+    if len(_loops_sl) == 1:               # بعد الدورة الأولى: اجعل المسجّل يجهز
+        _slow_ev.set()
+        _real_sleep(0.3)                  # مهلة نشر (الخيط ينشر نتيجته)
+    if len(_loops_sl) >= 3:
+        raise _StopLoop()
+
+
+IG.time.sleep = _sleep_slow
+try:
+    IG.main()
+except (_StopLoop, Exception):
+    pass
+finally:
+    (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+     IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep) = _ml_saved5
+    _slow_ev.set()
+    _sys.modules.pop("ignition_measurement", None)
+    for _k, _v in _ml_env.items():
+        _os.environ.pop(_k, None) if _v is None else _os.environ.update({_k: _v})
+check("🔬 Codex5 قفل: الالتحاق المتأخّر ينجح (تهيئة بطيئة ⇒ دورة أولى بلا قياس ثم يلتحق فعلًا)",
+      len(_loops_sl) >= 3 and len(_sent_sl) >= 3
+      and _traces_sl[0] is None and _traces_sl[-1] is not None
+      and _slow_traces == ["01_SEEN_ACTIVE"] * len(_slow_traces) and len(_slow_traces) >= 1)
 check("🔬 P1-8: manifest نقيّ + canonical JSON حتمي (نفس المدخل = نفس الـhash)",
       _MAN.manifest_sha256({"a": 1, "b": 2}) == _MAN.manifest_sha256({"b": 2, "a": 1})
       and _MAN.sha256_hex("x") == _MAN.sha256_hex("x") and _MAN.manifest_sha256({}) is not None)
