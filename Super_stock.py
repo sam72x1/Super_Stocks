@@ -1030,49 +1030,100 @@ def _pit_raw_price(adjusted_price, splits, asof) -> float:
         return float(adjusted_price)
 
 
-def save_frozen_dataset(hist: dict, splits: dict, asof: str, path: str) -> dict:
+def _package_versions() -> dict:
+    """إصدارات المكتبات الفعلية (provenance) — للمانفست v2. فاشل-آمن."""
+    import importlib
+    out = {}
+    for _p in ("numpy", "pandas", "yfinance", "scipy", "sklearn", "statsmodels"):
+        try:
+            out[_p] = getattr(importlib.import_module(_p), "__version__", "?")
+        except Exception:
+            out[_p] = None
+    return out
+
+
+def save_frozen_dataset(hist: dict, splits: dict, asof: str, path: str,
+                        extra_meta: dict = None) -> dict:
     """يحفظ لقطة باكتيست مجمَّدة (gzip-pickle) + ملف بصمة (manifest JSON) للاسترجاع
-    القابل لإعادة الإنتاج 100%. المخزَّن: {hist: {رمز→DataFrame معدَّل}, splits:
-    {رمز→Series}, asof}. المانفست: SHA-256 للبكل + as-of + عدد الرموز. بنية/باكتيست فقط."""
+    القابل لإعادة الإنتاج 100%. المخزَّن: {hist, splits, asof, split_status, meta}.
+    المانفست v2 (P0): SHA-256 + as-of + عدد الرموز + source_commit + إصدارات المكتبات +
+    معاملات التحميل + بصمة الكون + الرموز الفاشلة + عدّ حالات التقسيم. بنية/باكتيست فقط."""
     import gzip
     import pickle
     import hashlib
     import json as _json
-    payload = {"hist": hist, "splits": splits, "asof": asof,
-               "history_days": CONFIG["HISTORY_DAYS"]}
+    import sys
+    extra_meta = dict(extra_meta or {})
+    payload = {"schema_version": 2, "hist": hist, "splits": splits, "asof": asof,
+               "history_days": CONFIG["HISTORY_DAYS"],
+               "split_status": extra_meta.get("split_status", {})}
     blob = pickle.dumps(payload, protocol=4)
     with gzip.open(path, "wb") as fh:
         fh.write(blob)
     sha = hashlib.sha256(blob).hexdigest()
-    manifest = {"asof": asof, "n_symbols": len(hist), "sha256": sha,
-                "history_days": CONFIG["HISTORY_DAYS"], "path": path}
+    manifest = {
+        "schema_version": 2,
+        "asof": asof,
+        "n_symbols": len(hist),
+        "sha256": sha,                       # = payload_sha256 (توافق خلفي: المفتاح نفسه)
+        "payload_sha256": sha,
+        "history_days": CONFIG["HISTORY_DAYS"],
+        "path": path,
+        "source_commit": os.environ.get("GITHUB_SHA", "").strip() or None,
+        "python_version": sys.version.split()[0],
+        "package_versions": _package_versions(),
+        "download_params": {"interval": "1d", "auto_adjust": True, "actions": True,
+                            "group_by": "ticker", "history_days": CONFIG["HISTORY_DAYS"]},
+        "universe_n": extra_meta.get("universe_n"),
+        "universe_sha256": extra_meta.get("universe_sha256"),
+        "failed_symbols": extra_meta.get("failed_symbols", []),
+        "split_status_counts": extra_meta.get("split_status_counts", {}),
+    }
     with open(path + ".manifest.json", "w", encoding="utf-8") as fh:
         _json.dump(manifest, fh, ensure_ascii=False, indent=2)
     return manifest
 
 
-def load_frozen_dataset(path: str):
-    """يحمّل لقطة مجمَّدة ويتحقّق من بصمتها (SHA-256) مقابل المانفست — أي اختلاف يُبلَّغ.
-    يرجّع (hist, splits, asof) أو (None, None, None) عند التعذّر (فاشل-آمن). باكتيست فقط."""
+def load_frozen_dataset(path: str, strict: bool = False):
+    """يحمّل لقطة مجمَّدة ويتحقّق من بصمتها (SHA-256) مقابل المانفست.
+    **strict=True** (يُطلب حين BT_FROZEN_PATH): أي فشل تحقّق (ملف/مانفست مفقود · SHA لا يطابق ·
+    schema غير مدعوم) → يرفع استثناء = fail-closed **بلا** أي تحميل حيّ بديل (P0). strict=False:
+    فاشل-آمن (يرجّع None) كالسابق. يرجّع (hist, splits, asof, meta). meta فيه payload_sha256."""
     import gzip
     import pickle
     import hashlib
     import json as _json
+
+    def _fail(msg):
+        if strict:
+            raise ValueError(f"Frozen dataset validation failed: {msg}")
+        log(f"⚠️ تجميد: {msg}")
+        return None, None, None, None
+
     try:
         with gzip.open(path, "rb") as fh:
             blob = fh.read()
-        try:
-            with open(path + ".manifest.json", encoding="utf-8") as fh:
-                man = _json.load(fh)
-            if man.get("sha256") and man["sha256"] != hashlib.sha256(blob).hexdigest():
-                log("⚠️ تجميد: بصمة SHA-256 لا تطابق المانفست — البيانات تغيّرت!")
-        except Exception:
-            pass
-        payload = pickle.loads(blob)
-        return payload.get("hist"), payload.get("splits"), payload.get("asof")
     except Exception as e:
-        log(f"⚠️ تجميد: تعذّر تحميل اللقطة {path}: {e}")
-        return None, None, None
+        return _fail(f"تعذّر فتح اللقطة {path}: {e}")
+    try:
+        with open(path + ".manifest.json", encoding="utf-8") as fh:
+            man = _json.load(fh)
+    except Exception as e:
+        return _fail(f"تعذّر قراءة المانفست: {e}")
+    got_sha = hashlib.sha256(blob).hexdigest()
+    if man.get("sha256") and man["sha256"] != got_sha:
+        return _fail(f"بصمة SHA-256 لا تطابق المانفست (البيانات تغيّرت): "
+                     f"{got_sha[:12]} != {str(man['sha256'])[:12]}")
+    try:
+        payload = pickle.loads(blob)
+    except Exception as e:
+        return _fail(f"تعذّر فكّ payload: {e}")
+    if not isinstance(payload, dict) or "hist" not in payload:
+        return _fail("payload schema غير مدعوم (لا مفتاح hist)")
+    meta = dict(man)
+    meta["payload_sha256"] = got_sha
+    meta["split_status"] = payload.get("split_status", {})
+    return payload.get("hist"), payload.get("splits"), payload.get("asof"), meta
 
 
 # ==========================================================
@@ -9445,16 +9496,21 @@ def run_backtest(symbols=None) -> None:
     # 🕰️ تجميد point-in-time (تدقيق خارجي): لو BT_FROZEN_PATH لملف لقطة موجود → حمّل منه
     # (قابل لإعادة الإنتاج 100% + splits لبوابة الوهميات) بدل التحميل الحيّ المتغيّر.
     splits_map = None
+    _frozen_meta = None
+    _asof = None
     _frozen_path = os.environ.get("BT_FROZEN_PATH", "").strip()
-    if _frozen_path and os.path.exists(_frozen_path):
-        hist, splits_map, _asof = load_frozen_dataset(_frozen_path)
-        if hist:
-            symbols = list(hist.keys())
-            log(f"🕰️ تجميد: حُمِّلت لقطة point-in-time ({len(hist)} رمز · as-of {_asof}) "
-                "— قابلة لإعادة الإنتاج + بوابة الوهميات مفعّلة")
-        else:
-            log("⚠️ تجميد: تعذّر تحميل اللقطة → تحميل حيّ (غير مجمَّد)")
-            hist = download_history(symbols)
+    if _frozen_path:
+        # 🕰️ P0 (تدقيق المصدر): الوضع الصارم — إن طُلبت لقطة، أي فشل تحقّق يُفشل الـjob
+        # (SystemExit) **بلا أي تحميل حيّ بديل**. كان يرجع بصمت لتحميل حيّ = تشغيل «مجمَّد»
+        # يتحوّل حيًّا دون علم. بنية/باكتيست فقط.
+        if not os.path.exists(_frozen_path):
+            raise SystemExit(f"Frozen dataset requested but file missing: {_frozen_path}")
+        hist, splits_map, _asof, _frozen_meta = load_frozen_dataset(_frozen_path, strict=True)
+        if not hist:
+            raise SystemExit("Frozen dataset requested but validation failed")
+        symbols = list(hist.keys())
+        log(f"🕰️ تجميد: حُمِّلت لقطة point-in-time ({len(hist)} رمز · as-of {_asof}) "
+            "— قابلة لإعادة الإنتاج + بوابة الوهميات مفعّلة")
     else:
         hist = download_history(symbols)
     all_trades = []

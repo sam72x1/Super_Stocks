@@ -3327,10 +3327,39 @@ check("🕰️ pit: لا تقسيم/None ⇒ 1.0 (سلوك اليوم حرفيً
 _fz_hist = {"AAA": synth_pivot(seed=1)}
 _fz_path = "/tmp/_test_frozen_bt.pkl.gz"
 _man = S.save_frozen_dataset(_fz_hist, {"AAA": _spl}, "2026-07-13", _fz_path)
-_h2, _s2, _asof2 = S.load_frozen_dataset(_fz_path)
+_h2, _s2, _asof2, _man2 = S.load_frozen_dataset(_fz_path)
 check("🕰️ تجميد: حفظ/تحميل دائري + بصمة SHA-256 + as-of مطابقة",
       bool(_man.get("sha256")) and _asof2 == "2026-07-13" and _h2 is not None
       and "AAA" in _h2 and len(_h2["AAA"]) == len(_fz_hist["AAA"]))
+# 🔬 P0-S1 (تدقيق المصدر): manifest v2 + تحميل صارم (fail-closed، لا تحميل حيّ صامت).
+check("🔬 P0: manifest v2 يسجّل الإصدارات + معاملات التحميل + payload_sha256",
+      _man.get("schema_version") == 2 and _man.get("payload_sha256") == _man.get("sha256")
+      and isinstance(_man.get("package_versions"), dict) and "pandas" in _man["package_versions"]
+      and _man.get("download_params", {}).get("interval") == "1d")
+check("🔬 P0: load meta يرجّع payload_sha256 مطابقًا للمانفست",
+      bool(_man2) and _man2.get("payload_sha256") == _man["sha256"])
+_p0_missing = False
+try:
+    S.load_frozen_dataset("/tmp/_nope_frozen_p0.pkl.gz", strict=True)
+except ValueError:
+    _p0_missing = True
+check("🔬 P0: strict + ملف مفقود → يرفع استثناء (fail-closed)", _p0_missing)
+with open(_fz_path + ".manifest.json", encoding="utf-8") as _fh:
+    _p0_orig_man = _fh.read()
+try:
+    with open(_fz_path + ".manifest.json", "w", encoding="utf-8") as _fh:
+        _fh.write(_p0_orig_man.replace(_man["sha256"], "0" * 64))
+    _p0_sha = False
+    try:
+        S.load_frozen_dataset(_fz_path, strict=True)
+    except ValueError:
+        _p0_sha = True
+    check("🔬 P0: strict + SHA mismatch → يرفع استثناء", _p0_sha)
+    check("🔬 P0: بلا strict + mismatch → None (فاشل-آمن، لا تحميل صامت)",
+          S.load_frozen_dataset(_fz_path)[0] is None)
+finally:
+    with open(_fz_path + ".manifest.json", "w", encoding="utf-8") as _fh:
+        _fh.write(_p0_orig_man)
 check("🕰️ تجميد: 🔒 دوال التجميد خارج الفرز/الاختيار (بنية/باكتيست فقط)",
       all(("_pit_split_factor" not in _insp0.getsource(_f)
            and "load_frozen_dataset" not in _insp0.getsource(_f))
