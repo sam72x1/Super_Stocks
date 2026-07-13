@@ -2876,9 +2876,9 @@ check("🔬 Codex5 قفل: صفر عمل قياسي على خيط الإنتاج
 # (نداء git فرعي · مهلة 15ث) و`_wl_content_sha256()` **كوسائط على خيط الإنتاج** قبل الغلاف
 # اللا-تزامني ⇒ بطؤهما يخنق المسح. الاختبار: كلاهما معلّق للأبد ⇒ 8 دورات مسح وتنبيهاتها تمرّ.
 _hs_ev = _threading_ml.Event()
-_hs_saved = (IG._fetch_head_sha, IG._wl_sha_from_raw, IG._fresh_watchlist)
+_hs_saved = (IG._fetch_head_sha, IG._wl_sha_from_snapshot, IG._fresh_watchlist)
 IG._fetch_head_sha = lambda *_a, **_k: (_hs_ev.wait(), None)[1]      # تعليق أبدي (git)
-IG._wl_sha_from_raw = lambda *_a, **_k: (_hs_ev.wait(), None)[1]     # تعليق أبدي (هَشّ)
+IG._wl_sha_from_snapshot = lambda *_a, **_k: (_hs_ev.wait(), None)[1]  # تعليق أبدي (هَشّ)
 IG._fresh_watchlist = lambda cur, runner=None: {"stocks": [{"symbol": "IGN", "status": "active"}]}
 _sys.modules["ignition_measurement"] = _slow_mod2 = _types_ml.ModuleType("ignition_measurement")
 
@@ -2917,7 +2917,7 @@ finally:
     _elapsed_hs = _time_e2.time() - _t_hs
     (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
      IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep) = _ml_saved7
-    (IG._fetch_head_sha, IG._wl_sha_from_raw, IG._fresh_watchlist) = _hs_saved
+    (IG._fetch_head_sha, IG._wl_sha_from_snapshot, IG._fresh_watchlist) = _hs_saved
     IG.E2_DRAIN_TIMEOUT_SEC = _drain_saved3
     _hs_ev.set()
     _sys.modules.pop("ignition_measurement", None)
@@ -2927,8 +2927,87 @@ check("🔬 Codex5 قفل: هَشّ/git التحديث (دورة 7) معلّقً
       len(_loops_hs) >= 8 and len(_sent_hs) >= 8 and _elapsed_hs < 5.0)
 check("🔬 Codex5 قفل: حسابات التحديث مؤجَّلة للعامل (recorder.submit · لا تقييم وسائط بالإنتاج)",
       "recorder.submit(" in _insp0.getsource(IG.main)
-      and "_fetch_head_sha()" not in _insp0.getsource(IG.main).replace(
-          "lambda rec: rec.set_watchlist_commit(_fetch_head_sha(), _wl_sha_from_raw())", ""))
+      and "_fetch_head_sha(" not in _insp0.getsource(IG.main))
+
+
+# 🔬 مراجعة Codex 5 (P0-ز): **سباق provenance**: المهمّة المؤجَّلة كانت تقرأ الحالة العامّة
+# (`_WL_RAW`/FETCH_HEAD) **وقت تنفيذها**؛ لو تعطّل العامل حتى جلبة تالية، تُنسَب القائمة الأحدث
+# لتحديث أقدم = provenance كاذب. الآن: **لقطة لكل جلبة** تُنسَخ وقت الجلب ويُغلق عليها.
+# الاختبار: عامل متوقّف عبر **جلبتين مختلفتين** ⇒ كل تحديث يسجّل commit/هَشّ قائمته بالترتيب.
+_wl_a = {"stocks": [{"symbol": "AAA", "status": "active"}]}
+_wl_b = {"stocks": [{"symbol": "BBB", "status": "active"}]}
+_sha_a, _sha_b = IG._wl_content_sha256(_wl_a), IG._wl_content_sha256(_wl_b)
+_gate_ev = _threading_ml.Event()          # يحبس العامل حتى تتمّ الجلبتان
+_prov = []
+_fetch_n = {"n": 0}
+
+
+def _fake_fresh(cur, runner=None):        # جلبة 1 → A · جلبة 2 → B (تحدّث اللقطة كالأصل)
+    _fetch_n["n"] += 1
+    if _fetch_n["n"] == 1:
+        IG._WL_RAW["text"], IG._WL_RAW["commit"] = _json_ml.dumps(_wl_a), "sha_A"
+        return _json_ml.loads(_json_ml.dumps(_wl_a))
+    IG._WL_RAW["text"], IG._WL_RAW["commit"] = _json_ml.dumps(_wl_b), "sha_B"
+    return _json_ml.loads(_json_ml.dumps(_wl_b))
+
+
+class _ProvRec:
+    def set_watchlist_commit(self, commit, file_sha):
+        _gate_ev.wait(5)                  # العامل متوقّف حتى تتمّ الجلبتان (يكشف القراءة المتأخّرة)
+        _prov.append((commit, file_sha))
+
+    def __getattr__(self, name):
+        return lambda *a, **kw: None
+
+
+import json as _json_ml
+_prov_mod = _types_ml.ModuleType("ignition_measurement")
+_prov_mod.IgnitionMeasurementRecorder = lambda *a, **kw: _ProvRec()
+_sys.modules["ignition_measurement"] = _prov_mod
+_os.environ.update({"E2_MEASUREMENT": "1", "IGNITION_SEGMENT": "close", "IGNITION_HANDOFF_IN": "",
+                    "IGNITION_HANDOFF_OUT": _os.path.join(_e2_out, "ho_prov.json"),
+                    "POLYGON_API_KEY": "TEST_KEY_NOT_USED"})
+_loops_pv = []
+_wlraw_saved, _fresh_saved = dict(IG._WL_RAW), IG._fresh_watchlist
+_drain_saved4 = IG.E2_DRAIN_TIMEOUT_SEC
+IG.E2_DRAIN_TIMEOUT_SEC = 5               # يكفي لتصريف التحديثين بعد فتح البوّابة
+IG._fresh_watchlist = _fake_fresh
+_ml_saved8 = (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+              IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep)
+IG._segment_window = lambda role, t0=None: {
+    "role": role, "open": _ml_now, "close": _ml_now + S.dt.timedelta(hours=1),
+    "segment_start": _ml_now, "segment_end": _ml_now + S.dt.timedelta(hours=1),
+    "deadline": _ml_now + S.dt.timedelta(hours=1), "reason": "test",
+    "session_type": "regular", "calendar_version": "test"}
+IG.bot.load_watchlist = lambda: _json_ml.loads(_json_ml.dumps(_wl_a))
+IG.bot.scan_ignition = lambda wl, today, trace=None: (_loops_pv.append(1), [])[1]
+IG.bot.build_ignition_alert = lambda rows: "ALERT"
+IG.bot.send_telegram = lambda m: None
+
+
+def _sleep_prov(*_a):
+    _real_sleep(0.02)                      # مهلة حقيقية قصيرة: يلتحق المسجّل قبل جلبة الدورة 7
+    if len(_loops_pv) >= 14:               # تمّت الجلبتان (دورة 7 ودورة 14) ⇒ حرّر العامل
+        _gate_ev.set()
+        raise _StopLoop()
+
+
+IG.time.sleep = _sleep_prov
+try:
+    IG.main()
+except (_StopLoop, Exception):
+    pass
+finally:
+    (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+     IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep) = _ml_saved8
+    IG._fresh_watchlist, IG.E2_DRAIN_TIMEOUT_SEC = _fresh_saved, _drain_saved4
+    IG._WL_RAW.update(_wlraw_saved)
+    _gate_ev.set()
+    _sys.modules.pop("ignition_measurement", None)
+    for _k, _v in _ml_env.items():
+        _os.environ.pop(_k, None) if _v is None else _os.environ.update({_k: _v})
+check("🔬 Codex5 قفل: عامل متوقّف عبر جلبتين ⇒ كل تحديث يسجّل commit/هَشّ **قائمته** (لا الأحدث)",
+      _prov == [("sha_A", _sha_a), ("sha_B", _sha_b)])
 check("🔬 P1-8: manifest نقيّ + canonical JSON حتمي (نفس المدخل = نفس الـhash)",
       _MAN.manifest_sha256({"a": 1, "b": 2}) == _MAN.manifest_sha256({"b": 2, "a": 1})
       and _MAN.sha256_hex("x") == _MAN.sha256_hex("x") and _MAN.manifest_sha256({}) is not None)

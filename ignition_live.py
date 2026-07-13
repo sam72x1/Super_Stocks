@@ -183,9 +183,9 @@ def _fresh_watchlist(cur_wl, runner=None):
         new_wl = json.loads(_raw)
         if not isinstance(new_wl, dict) or not new_wl.get("stocks"):
             return None
-        # 🔬 مراجعة Codex 5 (P0-و): نحتفظ بالنصّ الخام ليهشّه **العامل** لاحقًا — فلا هَشّ على
-        # خيط الإنتاج، ولا سباق تعديل (الحلقة تختم `ignition_alert` على نفس القاموس).
-        _WL_RAW["text"] = _raw
+        # 🔬 مراجعة Codex 5 (P0-و/ز): لقطة **هذه الجلبة** (نصّ خام + commitها) — يهشّها العامل
+        # لاحقًا (لا هَشّ على خيط الإنتاج · لا سباق تعديل على القاموس الحيّ · ولا نسبة لجلبة أحدث).
+        _WL_RAW["text"], _WL_RAW["commit"] = _raw, _head_sha_from_git_dir()
         stamps = {s.get("symbol"): s.get("ignition_alert")
                   for s in (cur_wl or {}).get("stocks", [])
                   if s.get("ignition_alert")}
@@ -210,7 +210,7 @@ def _fetch_head_sha(runner=None):
     return None
 
 
-_WL_RAW = {"text": None}      # 🔬 آخر نصّ قائمة مجلوب (يهشّه العامل — لا هَشّ على خيط الإنتاج)
+_WL_RAW = {"text": None, "commit": None}   # 🔬 لقطة آخر جلبة (تُنسَخ فورًا — لا يقرأها العامل)
 
 
 def _wl_content_sha256(wl):
@@ -224,11 +224,23 @@ def _wl_content_sha256(wl):
         return None
 
 
-def _wl_sha_from_raw():
-    """🔬 مراجعة Codex 5 (P0-و): هَشّ القائمة من **النصّ الخام المجلوب** (لا من القاموس الحيّ
-    الذي تختمه الحلقة) — يُنفَّذ على خيط العامل. فاشل-آمن → None."""
+def _head_sha_from_git_dir():
+    """🔬 مراجعة Codex 5 (P0-ز): commit الجلبة من `.git/FETCH_HEAD` مباشرةً — **قراءة ملف صغيرة
+    لا subprocess**، تُنفَّذ داخل `_fresh_watchlist` فورًا بعد الجلب فتُربَط الـprovenance بجلبتها
+    (تأجيلها للعامل = سباق: جلبة لاحقة تحرّك FETCH_HEAD فيُنسَب المرشّح لقائمة خاطئة). لا تضيف
+    صنف فشل جديدًا: نفس الخيط ينفّذ أصلًا `git fetch`/`git show` (عمل إنتاجي لازم). فاشل-آمن."""
     try:
-        txt = _WL_RAW.get("text")
+        with open(os.path.join(".git", "FETCH_HEAD"), encoding="utf-8") as fh:
+            return (fh.readline().split() or [None])[0] or None
+    except Exception:
+        return None
+
+
+def _wl_sha_from_snapshot(snap):
+    """🔬 هَشّ القائمة من **لقطة الجلبة** (نصّها الخام، غير قابل للتغيّر) — على خيط العامل.
+    لا يقرأ حالة عامّة ولا القاموس الحيّ (الحلقة تختم `ignition_alert` عليه). فاشل-آمن → None."""
+    try:
+        txt = (snap or {}).get("text")
         return _wl_content_sha256(json.loads(txt)) if txt else None
     except Exception:
         return None
@@ -503,12 +515,12 @@ def main():
                 if _new:
                     wl = _new
                     if recorder is not None:
-                        # 🔬 مراجعة Codex 5 (P0-و): `_fetch_head_sha` (نداء git فرعي بمهلة 15ث)
-                        # و`_wl_sha_from_raw` (استيراد+تقنين+هَشّ) **كانا يُقيَّمان كوسائط على خيط
-                        # الإنتاج** قبل الغلاف اللا-تزامني ⇒ بطؤهما يخنق المسح. الآن كلاهما داخل
-                        # المهمّة المؤجَّلة (تُنفَّذ على العامل).
-                        recorder.submit(
-                            lambda rec: rec.set_watchlist_commit(_fetch_head_sha(), _wl_sha_from_raw()))
+                        # 🔬 مراجعة Codex 5 (P0-و/ز): الهَشّ (استيراد+تقنين) يجري **على العامل**،
+                        # لكن على **لقطة هذه الجلبة** المنسوخة الآن — لا يقرأ العامل حالة عامّة
+                        # (جلبة لاحقة كانت ستُنسَب لمرشّح سابق = provenance كاذب).
+                        _snap = dict(_WL_RAW)
+                        recorder.submit(lambda rec, s=_snap: rec.set_watchlist_commit(
+                            s.get("commit"), _wl_sha_from_snapshot(s)))
             try:
                 rows = bot.scan_ignition(wl, today, trace=_trace)
                 if recorder is not None:
