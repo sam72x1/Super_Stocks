@@ -3304,6 +3304,14 @@ _h4f = S.h4_features_at("X", "2025-06-15", fetch=_fake_1h)
 check("🔬 E1: h4_features_at يعيد dict بالتغطية (h4_bars≥10) + سمات",
       isinstance(_h4f, dict) and _h4f.get("h4_bars", 0) >= 10
       and "h4_reversal" in _h4f and "h4_rsi" in _h4f)
+# 🔬 P0-5 (تدقيق Codex): provenance 4س كافٍ لإعادة إنتاج السمة بت-بت (نافذة/tz/حدود/مصدر).
+check("🔬 P0-5: h4_features_at يضيف provenance (asof/tz/resample/حدود البارات/المصدر)",
+      isinstance(_h4f, dict) and all(_k in _h4f for _k in
+          ("h4_asof", "h4_timezone", "h4_resample", "h4_1h_bars", "h4_1h_first",
+           "h4_1h_last", "h4_first_bar", "h4_last_bar", "h4_source")))
+check("🔬 P0-5: أعمدة provenance 4س مُدرَجة في تفريغ DSHEAD",
+      all(_k in _insp0.getsource(S.run_backtest) for _k in
+          ("h4_asof", "h4_timezone", "h4_resample", "h4_first_bar", "h4_source")))
 check("🔬 E1: h4_features_at → None عند تعذّر الجلب (فاشل-آمن)",
       S.h4_features_at("X", "2025-06-15", fetch=lambda s, a, days=120: None) is None)
 check("🔬 E1: _fetch_1h_window بلا تسريب مستقبلي (end=asof+يوم)",

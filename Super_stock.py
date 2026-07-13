@@ -857,9 +857,24 @@ def h4_features_at(sym: str, asof, fetch=None):
         h4 = resample_ohlc(h1, "4h")
     except Exception:
         return None
+    # 🔬 P0-5 (تدقيق Codex): provenance يكفي لإعادة إنتاج السمة بت-بت — نافذة/tz/حدود البارات/
+    # قاعدة إعادة التجميع/المصدر (كله مشتقّ من البيانات الفعلية المجلوبة، لا وقت جدار). كان
+    # الموجود (h4_status/bars/reversal/rsi) يكفي للتغطية لا لإعادة الإنتاج (الثغرة التي رصدها Codex).
+    prov = {
+        "h4_asof": str(pd.Timestamp(asof).date()),
+        "h4_source": "yfinance 1h->4h (interval=1h, prepost=True, auto_adjust=True)",
+        "h4_resample": "4h",
+        "h4_timezone": str(getattr(h1.index, "tz", None)),
+        "h4_1h_bars": int(len(h1)),
+        "h4_1h_first": str(h1.index[0]),
+        "h4_1h_last": str(h1.index[-1]),
+    }
+    if h4 is not None and len(h4):
+        prov["h4_first_bar"] = str(h4.index[0])
+        prov["h4_last_bar"] = str(h4.index[-1])
     if h4 is None or len(h4) < 10:
         return {"h4_bars": (0 if h4 is None else int(len(h4))),
-                "h4_reversal": None, "h4_rsi": None}
+                "h4_reversal": None, "h4_rsi": None, **prov}
     try:
         rev = bool(timeframe_reversal(h4, 60, 20))
     except Exception:
@@ -869,7 +884,7 @@ def h4_features_at(sym: str, asof, fetch=None):
         h4r = round(float(_r.iloc[-1]), 1)
     except Exception:
         h4r = None
-    return {"h4_bars": int(len(h4)), "h4_reversal": rev, "h4_rsi": h4r}
+    return {"h4_bars": int(len(h4)), "h4_reversal": rev, "h4_rsi": h4r, **prov}
 
 
 # ==========================================================
@@ -9697,6 +9712,9 @@ def run_backtest(symbols=None) -> None:
                   # 🔬 Phase E3 (نظام السوق) + E1 (سمات 4س، فارغة إن لم يُفعَّل BT_DUMP_4H)
                   "drop_pct", "best_spike", "rr",
                   "h4_bars", "h4_reversal", "h4_rsi", "h4_status",
+                  # 🔬 P0-5 (تدقيق Codex): provenance 4س لإعادة إنتاج السمة بت-بت.
+                  "h4_asof", "h4_timezone", "h4_resample", "h4_1h_bars",
+                  "h4_1h_first", "h4_1h_last", "h4_first_bar", "h4_last_bar", "h4_source",
                   # 🔬 P0 (تدقيق المصدر): provenance الصف — نافذة النتيجة (لتطبيق embargo) +
                   # السعر الحقيقي/عامل التقسيم الدقيق + حالة بحث التقسيم (سبب أي «تصحيح»).
                   "forward_window_start", "forward_window_end", "outcome_complete",
