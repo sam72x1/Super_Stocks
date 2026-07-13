@@ -3265,6 +3265,28 @@ try:
           any("BT_RAW_PRICE" in s for s in _rp_ap) and S.CONFIG["BT_RAW_PRICE"] == 1)
 finally:
     S.CONFIG["BT_RAW_PRICE"] = _rp_sv          # لا تلوّث بقية الاختبارات
+# 🕰️ تجميد point-in-time (تدقيق خارجي 2026-07-12): إلغاء تعديل التقسيم يدويًّا (auto_adjust
+# لا يكفي) + حفظ ببصمة لإعادة إنتاج مضمونة. سبب: الباكتيست الحيّ يقفز 26↔44% لمجرد إعادة تشغيل.
+_spl = pd.Series({pd.Timestamp("2026-04-06"): 0.0625, pd.Timestamp("2026-07-06"): 0.005})
+check("🕰️ pit: عامل التقسيم اللاحق يعيد INLF 1779.84 → ~0.556 (السعر الحقيقي)",
+      abs(S._pit_split_factor(_spl, "2025-12-09") - 0.0003125) < 1e-9
+      and abs(S._pit_raw_price(1779.84, _spl, "2025-12-09") - 0.556) < 0.01)
+check("🕰️ pit: تقسيم قبل تاريخ الشمعة لا يُحسب (لا تسريب مستقبلي)",
+      S._pit_split_factor(_spl, "2026-07-10") == 1.0)
+check("🕰️ pit: لا تقسيم/None ⇒ 1.0 (سلوك اليوم حرفيًا)",
+      S._pit_split_factor(None, "2025-01-01") == 1.0
+      and S._pit_raw_price(3.5, None, "2025-01-01") == 3.5)
+_fz_hist = {"AAA": synth_pivot(seed=1)}
+_fz_path = "/tmp/_test_frozen_bt.pkl.gz"
+_man = S.save_frozen_dataset(_fz_hist, {"AAA": _spl}, "2026-07-13", _fz_path)
+_h2, _s2, _asof2 = S.load_frozen_dataset(_fz_path)
+check("🕰️ تجميد: حفظ/تحميل دائري + بصمة SHA-256 + as-of مطابقة",
+      bool(_man.get("sha256")) and _asof2 == "2026-07-13" and _h2 is not None
+      and "AAA" in _h2 and len(_h2["AAA"]) == len(_fz_hist["AAA"]))
+check("🕰️ تجميد: 🔒 دوال التجميد خارج الفرز/الاختيار (بنية/باكتيست فقط)",
+      all(("_pit_split_factor" not in _insp0.getsource(_f)
+           and "load_frozen_dataset" not in _insp0.getsource(_f))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.scan_market)))
 # 🏦 backtest_portfolio (خطة §3): محاكاة انتقائية سعة محدودة — الأعلى readiness يفوز
 # بالتزاحم · الخانة تُحرَّر بعد النافذة · لا دخول مزدوج لرمز · المرفوض يُعدّ.
 def _pf(sym, date, rdy, sc, oc="win"):

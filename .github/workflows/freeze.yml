@@ -1,0 +1,38 @@
+name: Freeze backtest dataset (point-in-time)
+# 🕰️ حلّ P0 من التدقيق الخارجي: يجمّد لقطة السوق (OHLCV + التقسيمات) مرة واحدة ببصمة
+# SHA-256 → كل باكتيست لاحق يشير إليها بـrun-id فيصير قابلًا لإعادة الإنتاج 100% + يرفض
+# الإشارات الوهمية (تعديل تقسيم مستقبلي). بنية/باكتيست فقط — لا يمسّ الفرز/الإنتاج.
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300   # تحميل الكون كامل (~3500 رمز) + التقسيمات
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Freeze point-in-time dataset
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SCREENER_MODE: FREEZE
+          BT_FREEZE_OUT: frozen_backtest.pkl.gz
+        run: python Super_stock.py
+      - name: Upload frozen dataset
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-dataset
+          path: |
+            frozen_backtest.pkl.gz
+            frozen_backtest.pkl.gz.manifest.json
+          if-no-files-found: warn
+          retention-days: 90
