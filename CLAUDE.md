@@ -214,8 +214,11 @@
     (`backtest.yml` مدخل `frozen_run_id`) يشير للقطة = **قابل لإعادة الإنتاج 100%** + بوابة الوهميات
     (`_pit_raw_price`/`_pit_split_factor`؛ INLF 1779→$0.556). **Phase A مُثبَتة:** 2025-أ ≡ 2025-ب بت-بت ·
     INLF/WOK/YYGH/CTNT اختفت · الأساس النظيف حدّي-إلى-ضعيف (أرضية لا سقف، أنظف من الملوَّث). عمود
-    `raw_pit_entry` أُضيف (لـH_PRICE_2_5). **Phase C:** اختبار OOS مسجَّل مسبقًا (`PREREGISTERED_HYPOTHESES.yaml`)
-    للفرضيات الأربع walk-forward + FDR. 🔒 دوال التجميد خارج rank_key/select_top/classify_tier/scan_market.
+    `raw_pit_entry`+`entry` أُضيفا (لـH_PRICE_2_5). **Phase C مكتملة (`PHASE_C_RESULTS.md`): لا شيء ينجو**
+    — الفرضيات الأربع walk-forward+FDR على المجمَّد (`bt_dump_dataset=1` يفرّغ الصفوف للسجل · `phase_c_oos.py`):
+    السعر/الجاهزية تنقلبان بالسنتين · score العكسي انهار (AUC 0.60/0.75→0.52/0.59) · البصمة q=0.54 (عيّنة 11).
+    **يؤكّد: لا مؤشّر شمعة/صفقة يميّز المنفجر — الحافة التوقيت لا الفرز.** صفر تغيير إنتاجي. التالي Phase E
+    (4س/خارج الشموع، طلب المستخدم — يلزمه تجميد 4س). 🔒 دوال التجميد خارج rank_key/select_top/classify_tier/scan_market.
 - تحذير الصين/هونغ كونغ (تتجاهل التحليل) — تحذير فقط.
 
 ## شكل البطاقة (build_message — مختصر ومرتّب، معتمد من المستخدم 2026-06-23)
