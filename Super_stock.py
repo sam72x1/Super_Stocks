@@ -8796,6 +8796,10 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             _h4 = h4_features_at(sym, df.index[i - 1])
             if _h4:
                 trade.update(_h4)
+                trade["h4_status"] = "ok"
+            else:
+                # 🔬 P0-S5: غياب 4س صريح (لا حذف صامت) — لفحص non-random missingness (تدقيق Codex).
+                trade["h4_status"] = "no_1h_data"
         # 🕰️ H_PRICE_2_5 (فرضية مسجَّلة مسبقًا): السعر الحقيقي point-in-time للدخول =
         # المعدَّل × عامل التقسيم اللاحق (yfinance يعدّل دائمًا). لاختبار شريحة $2-5 على
         # اللقطة المجمَّدة بلا تلوّث تقسيم (السعر المخزَّن `entry` معدَّل). بلا splits
@@ -8803,6 +8807,24 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         if splits is not None:
             trade["raw_pit_entry"] = round(
                 _pit_raw_price(trade["entry"], splits, df.index[i - 1]), 4)
+        # 🔬 P0 (تدقيق المصدر): مخطط provenance للصف — خلف BT_DUMP_DATASET فقط (صفر أثر على
+        # صفقة الأساس أو CSV القياسي). يمكّن: نافذة النتيجة لتطبيق embargo (forward_window_end) +
+        # تتبّع دقيق للسعر الحقيقي/عامل التقسيم + سبب صريح لأي «تصحيح» (split_lookup_status).
+        # كله مشتقّ من المحسوب سلفًا (لا جلب · لا نظر مستقبلي · df.index[i-1] = شمعة الإشارة).
+        if CONFIG.get("BT_DUMP_DATASET"):
+            _sig_date = df.index[i - 1]
+            _sig_price = r.get("price") or r["tranches"][-1]
+            _spf = _pit_split_factor(splits, _sig_date) if splits is not None else 1.0
+            trade["forward_window_start"] = str(fut.index[0].date()) if len(fut) else ""
+            trade["forward_window_end"] = str(fut.index[-1].date()) if len(fut) else ""
+            trade["outcome_complete"] = bool(len(fut) >= fwd)
+            trade["signal_price_raw_pit"] = round(_pit_raw_price(_sig_price, splits, _sig_date), 6)
+            trade["entry_adjusted_exact"] = entry
+            trade["raw_pit_entry_exact"] = _pit_raw_price(entry, splits, _sig_date)
+            trade["post_signal_split_factor"] = _spf
+            trade["split_lookup_status"] = (
+                "no_frozen_splits" if splits is None
+                else "no_post_signal_split" if _spf == 1.0 else "corrected")
         # 🔬 تجربة «الدخول المؤكَّد بالمسح» (BT_SWEEP_ENTRY، باكتيست حصريًا): على نفس
         # الإشارة نموذج دخول بديل (مسح+استعادة)، مقاسًا بنفس _resolve_arm. الدخول منفصل
         # عن الوقف (BT_SWEEP_STOP) لعزل أثر الدخول. المقارنة على المُعبَّأة في
@@ -9671,10 +9693,36 @@ def run_backtest(symbols=None) -> None:
                   "exploded", "entry", "raw_pit_entry",
                   # 🔬 Phase E3 (نظام السوق) + E1 (سمات 4س، فارغة إن لم يُفعَّل BT_DUMP_4H)
                   "drop_pct", "best_spike", "rr",
-                  "h4_bars", "h4_reversal", "h4_rsi")
+                  "h4_bars", "h4_reversal", "h4_rsi", "h4_status",
+                  # 🔬 P0 (تدقيق المصدر): provenance الصف — نافذة النتيجة (لتطبيق embargo) +
+                  # السعر الحقيقي/عامل التقسيم الدقيق + حالة بحث التقسيم (سبب أي «تصحيح»).
+                  "forward_window_start", "forward_window_end", "outcome_complete",
+                  "signal_price_raw_pit", "entry_adjusted_exact", "raw_pit_entry_exact",
+                  "post_signal_split_factor", "split_lookup_status")
         # ملاحظة: raw_pit_entry يُملأ فقط للرموز ذات تقسيمات باللقطة؛ لغيرها السعر
         # الحقيقي = entry المعدَّل نفسه (لا تقسيم لاحق) → التحليل: raw_pit_entry أو entry.
         # وh4_* فارغة ما لم يُفعَّل BT_DUMP_4H (توافق خلفي).
+        # 🔬 P0-S6: سطر meta واحد ببصمة اللقطة + الإصدارات + عتبات الفرز + النافذة =
+        # provenance كامل لإعادة إنتاج/تدقيق التفريغ من السجل (المنافذ الخارجية محجوبة).
+        _dsmeta = {
+            "frozen_sha256": (_frozen_meta or {}).get("payload_sha256"),
+            "asof": _asof,
+            "source_commit": ((_frozen_meta or {}).get("source_commit")
+                              or os.environ.get("GITHUB_SHA", "").strip() or None),
+            "python_version": (_frozen_meta or {}).get("python_version"),
+            "package_versions": ((_frozen_meta or {}).get("package_versions")
+                                 or _package_versions()),
+            "date_window": date_window,
+            "forward_days": int(CONFIG["BACKTEST_FORWARD_DAYS"]),
+            "min_price": CONFIG["MIN_PRICE"],
+            "max_drop_pct": CONFIG["MAX_DROP_PCT"],
+            "min_drop_floor": CONFIG["MIN_DROP_FLOOR"],
+            "prior_spike_window": CONFIG["PRIOR_SPIKE_WINDOW"],
+            "min_dollar_vol": CONFIG["MIN_DOLLAR_VOL"],
+            "n_trades": len(all_trades),
+            "schema_version": 2,
+        }
+        print("⟪DSMETA⟫" + json.dumps(_dsmeta, ensure_ascii=False, default=str), flush=True)
         print("⟪DSHEAD⟫" + ",".join(_dcols), flush=True)
         for _t in all_trades:
             print("⟪DSROW⟫" + ",".join(
@@ -9694,6 +9742,7 @@ def run_freeze() -> None:
     start = (dt.date.today() - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
     log(f"🕰️ تجميد: تحميل {len(uni)} رمز (OHLCV + تقسيمات) as-of {asof}…")
     hist, splits = {}, {}
+    split_status = {}          # 🔬 P0-S2: حالة التقسيم لكل رمز (provenance المانفست)
     size = CONFIG["CHUNK_SIZE"]
     for k in range(0, len(uni), size):
         chunk = uni[k:k + size]
@@ -9711,18 +9760,35 @@ def run_freeze() -> None:
                     if len(df) < CONFIG["MIN_BARS"]:
                         continue
                     hist[sym] = df[["Open", "High", "Low", "Close", "Volume"]]
+                    _st = "none"
                     if "Stock Splits" in df.columns:
                         sp = df["Stock Splits"]
                         sp = sp[sp != 0]
                         if len(sp):
                             splits[sym] = sp
+                            _st = ("reverse" if any(float(x) < 1.0 for x in sp.values)
+                                   else "forward")
+                    split_status[sym] = _st
                 except Exception:
                     continue
         if (k // size) % 20 == 0:
             log(f"🕰️ تجميد: {len(hist)} رمز حتى الآن…")
         time.sleep(CONFIG["CHUNK_SLEEP"])
+    # 🔬 P0-S2 (تدقيق المصدر): provenance اللقطة للمانفست v2 — حالة التقسيم لكل رمز + عدّها
+    # + بصمة الكون + الرموز الفاشلة (طُلبت بالكون لكن لم تدخل hist: لا بيانات/أقل من MIN_BARS).
+    import hashlib as _hl
+    _counts = {}
+    for _v in split_status.values():
+        _counts[_v] = _counts.get(_v, 0) + 1
+    extra_meta = {
+        "split_status": split_status,
+        "split_status_counts": _counts,
+        "universe_n": len(uni),
+        "universe_sha256": _hl.sha256(",".join(sorted(uni)).encode("utf-8")).hexdigest(),
+        "failed_symbols": sorted(set(uni) - set(hist.keys())),
+    }
     path = os.environ.get("BT_FREEZE_OUT", "frozen_backtest.pkl.gz")
-    man = save_frozen_dataset(hist, splits, asof, path)
+    man = save_frozen_dataset(hist, splits, asof, path, extra_meta=extra_meta)
     log(f"🕰️ تجميد: حُفِظت لقطة {man['n_symbols']} رمز · {len(splits)} بتقسيمات · "
         f"SHA {man['sha256'][:12]} · {path}")
     send_telegram(

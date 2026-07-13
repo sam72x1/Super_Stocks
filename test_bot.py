@@ -3388,6 +3388,59 @@ check("🕰️ H_PRICE_2_5: raw_pit_entry مُصدَّر مع splits (=entry×ع
       ("raw_pit_entry" in _bt_src and "splits is not None" in _bt_src)
       and all("raw_pit_entry" not in t for t in _rpe_without)
       and all(_rpe_ok(t) for t in _rpe_with))
+# 🔬 P0 (تدقيق المصدر): مخطط provenance للصف — خلف BT_DUMP_DATASET فقط (embargo/تتبّع دقيق).
+_old_dump = S.CONFIG.get("BT_DUMP_DATASET")
+S.CONFIG["BT_DUMP_DATASET"] = 1
+try:
+    _prov_with = S.backtest_symbol("TEST", synth_pivot(seed=2), splits=_rpe_spl)
+    _prov_none = S.backtest_symbol("TEST", synth_pivot(seed=2))
+finally:
+    S.CONFIG["BT_DUMP_DATASET"] = _old_dump
+_prov_off = S.backtest_symbol("TEST", synth_pivot(seed=2), splits=_rpe_spl)   # مطفأ
+def _prov_ok(t):
+    return (t.get("forward_window_start") and t.get("forward_window_end")
+            and t["forward_window_end"] >= t["forward_window_start"]
+            and t.get("outcome_complete") is True
+            and t.get("signal_price_raw_pit") is not None
+            and t.get("post_signal_split_factor") is not None
+            and t.get("entry_adjusted_exact") is not None)
+def _prov_consistent(t):
+    f = t.get("post_signal_split_factor"); s = t.get("split_lookup_status")
+    return (s in ("no_frozen_splits", "no_post_signal_split")) if f == 1.0 else (s == "corrected")
+check("🔬 P0-S4: provenance نافذة النتيجة + السعر الحقيقي + حالة التقسيم حاضرة/متّسقة (مع splits)",
+      bool(_prov_with) and all(_prov_ok(t) and _prov_consistent(t)
+          and t["split_lookup_status"] != "no_frozen_splits" for t in _prov_with))
+check("🔬 P0-S3: بلا splits → split_lookup_status=no_frozen_splits + عامل التقسيم=1.0",
+      bool(_prov_none) and all(t.get("split_lookup_status") == "no_frozen_splits"
+          and t.get("post_signal_split_factor") == 1.0 for t in _prov_none))
+check("🔬 P0: provenance غائب تمامًا حين BT_DUMP_DATASET مطفأ (توافق خلفي · صفر أثر على الأساس)",
+      bool(_prov_off) and all("forward_window_end" not in t
+          and "split_lookup_status" not in t for t in _prov_off))
+# 🔬 P0-S2: manifest v2 يحمل provenance اللقطة (حالة التقسيم لكل رمز + بصمة الكون + الفاشلة).
+_sf_extra = {"split_status": {"AAA": "reverse", "BBB": "none"},
+             "split_status_counts": {"reverse": 1, "none": 1},
+             "universe_n": 3, "universe_sha256": "deadbeef", "failed_symbols": ["CCC"]}
+_sf_man = S.save_frozen_dataset({"AAA": synth_pivot(seed=1)}, {"AAA": _spl},
+                                "2026-07-13", "/tmp/_test_frozen_s2.pkl.gz", extra_meta=_sf_extra)
+check("🔬 P0-S2: manifest يحمل split_status_counts + universe_sha256 + failed_symbols",
+      _sf_man.get("split_status_counts") == {"reverse": 1, "none": 1}
+      and _sf_man.get("universe_sha256") == "deadbeef"
+      and _sf_man.get("failed_symbols") == ["CCC"] and _sf_man.get("universe_n") == 3)
+_rfz_src = _insp0.getsource(S.run_freeze)
+check("🔬 P0-S2: run_freeze يصنّف التقسيم لكل رمز + يمرّر extra_meta لـsave_frozen_dataset",
+      "split_status" in _rfz_src and "extra_meta=extra_meta" in _rfz_src
+      and "universe_sha256" in _rfz_src and "failed_symbols" in _rfz_src)
+# 🔬 P0-S6: تفريغ Phase C يُصدِّر DSMETA (provenance التشغيل) + أعمدة provenance في DSHEAD.
+_rbt_src2 = _insp0.getsource(S.run_backtest)
+check("🔬 P0-S6: DSMETA + أعمدة provenance (نافذة/سعر/تقسيم/h4_status) في تفريغ DSHEAD",
+      "⟪DSMETA⟫" in _rbt_src2 and "forward_window_end" in _rbt_src2
+      and "signal_price_raw_pit" in _rbt_src2 and "split_lookup_status" in _rbt_src2
+      and "h4_status" in _rbt_src2)
+check("🔬 P0·قفل: حقول provenance خارج rank_key/select_top/classify_tier/entry_status/analyze_ticker",
+      all(all(_fld not in _insp0.getsource(_f) for _fld in
+              ("forward_window_end", "signal_price_raw_pit", "split_lookup_status",
+               "post_signal_split_factor", "outcome_complete"))
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status, S.analyze_ticker)))
 # 🏦 backtest_portfolio (خطة §3): محاكاة انتقائية سعة محدودة — الأعلى readiness يفوز
 # بالتزاحم · الخانة تُحرَّر بعد النافذة · لا دخول مزدوج لرمز · المرفوض يُعدّ.
 def _pf(sym, date, rdy, sc, oc="win"):
