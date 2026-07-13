@@ -258,16 +258,18 @@ def main():
     # 🔬 (ب+): استعادة أختام الدِدوب من handoff المقطع السابق (المقطع close فقط) — لا تنبيه مكرّر.
     handoff_in = None
     seen = set()
+    handoff_reasons = []
     if role == "close":
         handoff_in = _load_handoff(os.environ.get("IGNITION_HANDOFF_IN", "").strip())
-        # 🔬 P0-4: تحقّق صارم من سلامة المقطع السابق قبل المسح. **fail-closed** (افتراضي):
-        # handoff/manifest فاسد ⇒ إيقاف المقطع (يمنع تنبيهًا على أساس فاسد ووصف الجلسة بالمكتملة).
+        # 🔬 مراجعة Codex 5 (P0): التحقّق **لا يوقف التنبيه**. سلامة القياس تقرّر أهلية الجلسة
+        # للتحليل لا استمرار الرادار (fail-open للإنتاج): manifest فاسد ⇒ نواصل المسح بلا استعادة
+        # دِدوب (قد يتكرّر تنبيه — أهون من فقد كل تنبيهات مقطع الإغلاق) والassembler/المدقّق يرفض
+        # الجلسة بسلسلة manifest (`manifest_chain_ok=False`) فلا تُعدّ نحو 5/20.
         _ok, _vr = _verify_prev_segment(handoff_in, session_day)
         if not _ok:
-            bot.log(f"❌ E2 (P0-4): تحقّق handoff/manifest المقطع السابق فشل: {_vr}")
-            if os.environ.get("IGNITION_HANDOFF_STRICT", "1").strip() != "0":
-                raise SystemExit(2)          # fail-closed للـconfirmatory
-            bot.log("⚠️ E2: وضع lenient — نواصل بلا استعادة دِدوب (قد يكرّر تنبيهًا).")
+            handoff_reasons = _vr
+            bot.log(f"❌ E2: تحقّق handoff/manifest المقطع السابق فشل: {_vr} — "
+                    "نواصل التنبيه (fail-open) · الجلسة تُوسَم غير مؤهّلة للقياس.")
             handoff_in = None
         if handoff_in:
             _nd = _apply_handoff_dedup(wl, handoff_in, session_day)
@@ -306,7 +308,10 @@ def main():
                       "calendar_version": window.get("calendar_version"),
                       "watchlist_commit_start": os.environ.get("GITHUB_SHA", "").strip() or None,
                       "watchlist_file_sha256_start": _wl_content_sha256(wl),   # 🔬 P1-4
-                      "previous_segment_manifest_sha256": _prev_manifest_sha})
+                      "previous_segment_manifest_sha256": _prev_manifest_sha,
+                      # 🔬 مراجعة Codex 5: فشل التحقّق يُسجَّل (أهلية القياس) ولا يوقف التنبيه.
+                      "handoff_verify_failed": bool(handoff_reasons),
+                      "handoff_verify_reasons": (handoff_reasons or None)})
             bot.log("🔬 E2: القياس الظلّي مُفعَّل (لا يغيّر أي تنبيه/عتبة/اختيار).")
         except Exception as e:
             bot.log(f"⚠️ E2: تعذّر تهيئة القياس ({e}) — نواصل بلا قياس.")
@@ -314,7 +319,6 @@ def main():
     _trace = recorder.trace if recorder is not None else None
     termination = "normal"
     _last_start = None
-    _next_tick = time.time()               # 🔬 P1-2: جدولة إيقاع **مطلقة** (لا interval+scan)
     try:
         while bot.dt.datetime.utcnow() < deadline and loops < max_loops:
             loops += 1
@@ -352,20 +356,17 @@ def main():
                     if r[0]["symbol"] not in seen:
                         seen.add(r[0]["symbol"])
                         session_fires.append(r)
-            if recorder is not None:           # 🔬 P1.6/P1-2: أثر الأداة + تأخّر الإيقاع المطلق
+            if recorder is not None:           # 🔬 P1.6: أثر الأداة (رصد سلبي: زمن الدورة + التأخّر)
                 _now_s = time.time()
                 _lag = (int((_loop_start - _last_start) * 1000 - interval * 1000)
                         if _last_start is not None else None)
                 recorder.loop_end(schedule_lag_ms=_lag,
                                   loop_duration_ms=int((_now_s - _loop_start) * 1000))
             _last_start = _loop_start
-            # 🔬 P1-2: إيقاع مطلق — next_tick += interval ثم نم للفارق (لا interval+scan).
-            _next_tick += interval
-            _sleep = _next_tick - time.time()
-            if _sleep > 0:
-                time.sleep(_sleep)
-            else:
-                _next_tick = time.time()       # الدورة تجاوزت interval — أعِد ضبط الإيقاع
+            # 🔬 مراجعة Codex 5 (P0): الإيقاع = **سلوك الإنتاج قبل الفرع حرفيًّا** (نوم interval
+            # بعد المسح). الجدولة المطلقة (P1-2) كانت تغيّر أوقات المسح ⇒ تغيّر أي إشارة تُرصَد ومتى
+            # يُختَم الدِدوب = تغيير سلوك تنبيه. القياس **يرصد** التأخّر/التجاوز ولا يصحّحه.
+            time.sleep(interval)
         # 🔬 §2b/P0-2: **الجلسة الواحدة (القديمة) فقط** تردم هنا. الجلسة المجزّأة تؤجّل الردم
         # النهائي للـassembler **بعد الإغلاق** (بارات ما بعد المقطع لم توجد بعد وقت اللف).
         if recorder is not None and role == "":

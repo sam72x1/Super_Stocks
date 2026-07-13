@@ -6844,67 +6844,78 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
     fo = fetch_operator or operator_flow
     vm = vol_mult if vol_mult is not None else CONFIG["IGNITION_VOL_MULT"]
     out = []
+    # 🔬 مراجعة Codex 5: **كل** عمل القياس خلف `_tr` — عند trace=None لا يُبنى lambda ولا يُقرأ
+    # رمز ولا يُنادى _emit_trace أصلًا (صفر عمل حقيقي، لا «حمولة كسولة» فقط) = مسار الإنتاج حرفيّ.
+    _tr = trace is not None
     for s in wl.get("stocks", []):
         if s.get("status") != "active" or s.get("ignition_alert") == today_iso:
             continue
-        _sym = s.get("symbol")
-        # 🔬 E2-A: كل _emit_trace no-op تام عند trace=None (الافتراضي) → التحكّم أدناه حرفيّ.
-        _emit_trace(trace, "01_SEEN_ACTIVE", lambda: {"symbol": _sym})
+        if _tr:
+            _sym = s.get("symbol")
+            _emit_trace(trace, "01_SEEN_ACTIVE", lambda: {"symbol": _sym})
         lvl = _ignition_break_level(s)
         if not lvl:
             continue
-        _emit_trace(trace, "02_LEVEL_AVAILABLE", lambda: {
-            "symbol": _sym, "break_level": lvl,
-            "break_level_source": _ignition_break_source(s)})
+        if _tr:
+            _emit_trace(trace, "02_LEVEL_AVAILABLE", lambda: {
+                "symbol": _sym, "break_level": lvl,
+                "break_level_source": _ignition_break_source(s)})
         try:
             bars = fb(s["symbol"])
         except Exception:
             bars = None
-        _emit_trace(trace, "03_BARS_FETCH", lambda: {
-            "symbol": _sym, "bars_ok": bool(bars), "n_bars": (len(bars) if bars else 0),
-            "first_bar_t": (bars[0].get("t") if bars else None),
-            "last_bar_t": (bars[-1].get("t") if bars else None),
-            "bars": bars})   # 🔬 E2 (§10): مسار الدقيقة (lazy — لا يُبنى إلا عند trace)
+        if _tr:
+            _emit_trace(trace, "03_BARS_FETCH", lambda: {
+                "symbol": _sym, "bars_ok": bool(bars), "n_bars": (len(bars) if bars else 0),
+                "first_bar_t": (bars[0].get("t") if bars else None),
+                "last_bar_t": (bars[-1].get("t") if bars else None),
+                "bars": bars})   # 🔬 E2 (§10): مسار الدقيقة
         sig = _ignition_signal(bars, lvl, vol_mult=vm) if bars else None
         if not sig:
             continue
         # 🔬 P0-1: بثّ raw candidate **فورًا** بعد _ignition_signal — لا نداء قياس هنا (المسجّل
         # يجلب NBBO لا-تزامنيًّا). المسار حتى send_telegram لا ينتظر أي شبكة قياس.
-        _emit_trace(trace, "04_RAW_IGNITION", lambda: {
-            "symbol": _sym, "signal_price": sig.get("price"), "vol_x": sig.get("vol_x"),
-            "signal_usd": sig.get("usd"), "candle_class": _ignition_candle_class(sig.get("usd"))[0],
-            "break_level": lvl, "break_level_source": _ignition_break_source(s),
-            "pivot": s.get("pivot"),
-            "stop": (s.get("stop")[0] if isinstance(s.get("stop"), (list, tuple)) and s.get("stop") else s.get("stop")),
-            "t1": s.get("t1"), "t2": s.get("t2"), "t3": s.get("t3"),
-            # 🔬 §2c: Polygon `t` = **بداية** شمعة الدقيقة؛ المسجّل يشتقّ النهاية = البداية+60000.
-            "trigger_bar_start": (bars[-1].get("t") if bars else None)})
+        if _tr:
+            _emit_trace(trace, "04_RAW_IGNITION", lambda: {
+                "symbol": _sym, "signal_price": sig.get("price"), "vol_x": sig.get("vol_x"),
+                "signal_usd": sig.get("usd"), "candle_class": _ignition_candle_class(sig.get("usd"))[0],
+                "break_level": lvl, "break_level_source": _ignition_break_source(s),
+                "pivot": s.get("pivot"),
+                "stop": (s.get("stop")[0] if isinstance(s.get("stop"), (list, tuple)) and s.get("stop") else s.get("stop")),
+                "t1": s.get("t1"), "t2": s.get("t2"), "t3": s.get("t3"),
+                # 🔬 §2c: Polygon `t` = **بداية** شمعة الدقيقة؛ المسجّل يشتقّ النهاية = البداية+60000.
+                "trigger_bar_start": (bars[-1].get("t") if bars else None)})
         # 🕵️ بوّابة المضارب: يُكتَم الاشتعال بلا مضارب (لا نضع ignition_alert = يُعاد
         # الفحص لو دخل المضارب لاحقًا نفس اليوم). فاشل-آمن: تعذّر القياس → شمعة الدولار.
         try:
             of = fo(s["symbol"])
         except Exception:
             of = None
-        _emit_trace(trace, "05_OPERATOR_MEASURED" if of is not None else "08_OPERATOR_UNAVAILABLE",
-                    lambda: {"symbol": _sym,
-                             "operator_status": ("measured" if of is not None else "unavailable"),
-                             "has_operator": (of.get("has_operator") if of else None),
-                             "buy_block_shares": (of.get("buy_block_shares") if of else None),
-                             "bid_block_shares": (of.get("bid_block_shares") if of else None),
-                             "nbbo_bid": (of.get("bid") if of else None),
-                             "nbbo_ask": (of.get("ask") if of else None),
-                             "quote_ts": (of.get("quote_ts") if of else None)})
+        if _tr:
+            _emit_trace(trace, "05_OPERATOR_MEASURED" if of is not None else "08_OPERATOR_UNAVAILABLE",
+                        lambda: {"symbol": _sym,
+                                 "operator_status": ("measured" if of is not None else "unavailable"),
+                                 "has_operator": (of.get("has_operator") if of else None),
+                                 "buy_block_shares": (of.get("buy_block_shares") if of else None),
+                                 "bid_block_shares": (of.get("bid_block_shares") if of else None),
+                                 "nbbo_bid": (of.get("bid") if of else None),
+                                 "nbbo_ask": (of.get("ask") if of else None),
+                                 "quote_ts": (of.get("quote_ts") if of else None)})
         if of is not None:
             if not of.get("has_operator"):
-                _emit_trace(trace, "07_OPERATOR_FAIL", lambda: {"symbol": _sym})
+                if _tr:
+                    _emit_trace(trace, "07_OPERATOR_FAIL", lambda: {"symbol": _sym})
                 continue
-            _emit_trace(trace, "06_OPERATOR_PASS", lambda: {"symbol": _sym})
+            if _tr:
+                _emit_trace(trace, "06_OPERATOR_PASS", lambda: {"symbol": _sym})
         elif _ignition_candle_class(sig.get("usd"))[0] == "group":
-            _emit_trace(trace, "10_FALLBACK_FAIL", lambda: {"symbol": _sym, "candle_class": "group"})
+            if _tr:
+                _emit_trace(trace, "10_FALLBACK_FAIL", lambda: {"symbol": _sym, "candle_class": "group"})
             continue
         else:
-            _emit_trace(trace, "09_FALLBACK_PASS", lambda: {
-                "symbol": _sym, "candle_class": _ignition_candle_class(sig.get("usd"))[0]})
+            if _tr:
+                _emit_trace(trace, "09_FALLBACK_PASS", lambda: {
+                    "symbol": _sym, "candle_class": _ignition_candle_class(sig.get("usd"))[0]})
         sig["operator"] = of
         flow = None
         try:
@@ -6913,7 +6924,8 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
             flow = None
         s["ignition_alert"] = today_iso          # دِدوب مرة/سهم/يوم (بالذاكرة)
         s["last_price"] = sig["price"]
-        _emit_trace(trace, "11_ALERT_EMITTED", lambda: {"symbol": _sym, "signal_price": sig.get("price")})
+        if _tr:
+            _emit_trace(trace, "11_ALERT_EMITTED", lambda: {"symbol": _sym, "signal_price": sig.get("price")})
         out.append((s, sig, flow))
     return out
 
