@@ -21,7 +21,9 @@ IGNITION_MAX_RUNTIME_MIN · IGNITION_HANDOFF_IN/OUT · E2_MEASUREMENT.
 """
 import json
 import os
+import queue
 import subprocess
+import threading
 import time
 
 try:
@@ -33,16 +35,33 @@ except ImportError:
 # كان يقتل السكربت قبل main() فتضيع تنبيهات المقطع كلّها. الاستيراد كسول داخل فرع E2_MEASUREMENT
 # المحمي بـtry/except ⇒ أي فشل قياس = recorder=None والرادار يواصل. (الرادار لا يعتمد القياس.)
 
+E2_QUEUE_MAX = 20000          # سقف طابور القياس (إسقاط عند الامتلاء — لا ضغط عكسي على التنبيه)
+E2_DRAIN_TIMEOUT_SEC = 30     # أقصى انتظار لتصريف الطابور عند الختام (خطّاف معلّق لا يعلّق الجوب)
+
+
 class _SafeRecorder:
-    """🔬 مراجعة Codex 5 (P0): **حدّ فاشل-آمن عند نقطة نداء كل خطّاف قياس**. أي استثناء من أي
-    خطّاف (بالتنفيذ الحالي أو أيّ تنفيذ مستقبلي) يُبتلَع، ويُعطَّل القياس لبقية العملية (فلا يتكرّر
-    الفشل كل دورة)، **والرادار يواصل المسح والإرسال بلا تغيير**. عزل الإنتاج لا يعتمد على «كل
-    خطّاف يبتلع استثناءه بنفسه» — الحدّ هنا. بالذات: `telegram_attempt` لا يمكن أن يمنع
-    `send_telegram`. 🔒 غلاف قياس فقط — لا يمسّ قرارًا/عتبة/تنبيهًا."""
+    """🔬 مراجعة Codex 5 (P0 ×2): **عزل كامل لمسار التنبيه عن القياس** بحدّين:
+    ① **فاشل-آمن**: أي استثناء من أي خطّاف (الآن أو بتنفيذ مستقبلي) يُبتلَع ويُعطَّل القياس لبقية
+       العملية — لا يعتمد العزل على «كل خطّاف يبتلع استثناءه بنفسه».
+    ② **لا-تزامني**: الخطّافات الساخنة (`_HOT` — التي تُنادى داخل الحلقة/قبل `send_telegram`)
+       تُوضَع في **طابور محدود** ويستهلكها خيط عامل. خطّاف **معلّق** (deadlock/قرص بطيء) لا يصل
+       استثناءً أبدًا — فلا حماية إلا بإخراجه عن خيط الإنتاج. الطابور ممتلئ ⇒ **إسقاط** (لا ضغط
+       عكسي) + وسم الجلسة `measurement_dropped` (المدقّق يرفضها — لا قياس كاذب).
+    `telegram_attempt` لم يعد بأي حال يسبق/يمنع `send_telegram`.
+    🔒 غلاف قياس فقط — لا يمسّ قرارًا/عتبة/تنبيهًا (بلا E2 = الغلاف غير موجود أصلًا)."""
+
+    _HOT = ("trace", "loop_start", "loop_end", "mark_first_poll", "set_watchlist_commit",
+            "telegram_attempt", "telegram_success", "telegram_failure")
 
     def __init__(self, rec, log):
         object.__setattr__(self, "_rec", rec)
         object.__setattr__(self, "_log", log)
+        object.__setattr__(self, "_q", queue.Queue(maxsize=E2_QUEUE_MAX))
+        object.__setattr__(self, "_dropped", 0)
+        object.__setattr__(self, "_closed", False)
+        t = threading.Thread(target=self._worker, name="e2-recorder", daemon=True)
+        object.__setattr__(self, "_t", t)
+        t.start()
 
     @property
     def alive(self):
@@ -53,20 +72,86 @@ class _SafeRecorder:
         rec = object.__getattribute__(self, "_rec")
         return getattr(rec, "dir", None) if rec is not None else None
 
-    def __getattr__(self, name):           # أي خطّاف (trace/loop_*/telegram_*/finalize/…) = نداء محروس
-        def _call(*a, **kw):
+    def _die(self, name, e):
+        object.__setattr__(self, "_rec", None)             # تعطيل دائم (لا ضجيج كل دورة)
+        object.__getattribute__(self, "_log")(
+            f"⚠️ E2: خطّاف القياس «{name}» فشل ({type(e).__name__}) — "
+            "عُطِّل القياس · الرادار يواصل المسح والإرسال.")
+
+    def _worker(self):
+        q = object.__getattribute__(self, "_q")
+        while True:
+            item = q.get()
+            if item is None:                                # إشارة الختام
+                q.task_done()
+                return
+            name, a, kw = item
+            rec = object.__getattribute__(self, "_rec")
+            if rec is not None:
+                try:
+                    getattr(rec, name)(*a, **kw)
+                except Exception as e:
+                    self._die(name, e)
+            q.task_done()
+
+    def _close_worker(self):
+        """يوقف العامل ويصرّف الطابور بمهلة محدودة (خطّاف معلّق لا يعلّق الجوب إلى الأبد)."""
+        if object.__getattribute__(self, "_closed"):
+            return
+        object.__setattr__(self, "_closed", True)
+        try:
+            object.__getattribute__(self, "_q").put_nowait(None)
+        except queue.Full:
+            pass
+        object.__getattribute__(self, "_t").join(E2_DRAIN_TIMEOUT_SEC)
+
+    def __getattr__(self, name):
+        if name in _SafeRecorder._HOT:                     # ② لا-تزامني (مسار التنبيه)
+            def _async(*a, **kw):
+                if object.__getattribute__(self, "_rec") is None:
+                    return None
+                try:
+                    object.__getattribute__(self, "_q").put_nowait((name, a, kw))
+                except queue.Full:                          # إسقاط — لا ضغط عكسي على التنبيه
+                    n = object.__getattribute__(self, "_dropped") + 1
+                    object.__setattr__(self, "_dropped", n)
+                    if n == 1:
+                        object.__getattribute__(self, "_log")(
+                            "⚠️ E2: طابور القياس ممتلئ — إسقاط أحداث · الجلسة تُوسَم غير مؤهّلة "
+                            "(الرادار غير متأثّر).")
+                except Exception:
+                    pass
+                return None
+            return _async
+
+        def _sync(*a, **kw):                                # ختامي (بعد الحلقة — خارج مسار التنبيه)
+            self._close_worker()                            # الترتيب: كل الأحداث قبل الختام
             rec = object.__getattribute__(self, "_rec")
             if rec is None:
                 return None
-            try:
-                return getattr(rec, name)(*a, **kw)
-            except Exception as e:
-                object.__setattr__(self, "_rec", None)      # تعطيل دائم (لا ضجيج كل دورة)
+            if name == "finalize" and object.__getattribute__(self, "_dropped"):
+                kw["termination"] = "measurement_dropped"   # صدق: جلسة ناقصة الأحداث تُرفَض
+            # حتى الختامي **محدود الزمن**: خطّاف معلّق (بلا استثناء) يجب ألّا يعلّق الجوب.
+            box = {}
+
+            def _run():
+                try:
+                    box["v"] = getattr(rec, name)(*a, **kw)
+                except Exception as e:
+                    box["e"] = e
+            th = threading.Thread(target=_run, name="e2-final", daemon=True)
+            th.start()
+            th.join(E2_DRAIN_TIMEOUT_SEC)
+            if th.is_alive():                               # تجاوز المهلة = قياس معطوب لا إنتاج
+                object.__setattr__(self, "_rec", None)
                 object.__getattribute__(self, "_log")(
-                    f"⚠️ E2: خطّاف القياس «{name}» فشل ({type(e).__name__}) — "
-                    "عُطِّل القياس · الرادار يواصل المسح والإرسال.")
+                    f"⚠️ E2: خطّاف الختام «{name}» تجاوز المهلة — عُطِّل القياس · الرادار غير متأثّر.")
                 return None
-        return _call
+            if "e" in box:
+                self._die(name, box["e"])
+                return None
+            return box.get("v")
+        return _sync
 
 
 SEGMENT_SPLIT_MIN_DEFAULT = 195           # حدّ المقطعين من الافتتاح (~3س15د) — الجزآن < 6س رنر

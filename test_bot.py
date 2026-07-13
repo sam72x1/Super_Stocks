@@ -2641,6 +2641,70 @@ check("🔬 Codex5 قفل: مسجّل ترمي كل خطّافاته لا يوق
 check("🔬 Codex5 قفل: _SafeRecorder يغلّف المسجّل عند نقطة النداء (حدّ فاشل-آمن واحد)",
       "_SafeRecorder(" in _insp0.getsource(IG.main)
       and "except Exception" in _insp0.getsource(IG._SafeRecorder))
+
+
+# 🔬 مراجعة Codex 5 (P0-ب): خطّاف **معلّق** (deadlock/قرص بطيء) لا يرمي استثناءً أبدًا فلا يحميه
+# الحدّ الفاشل-آمن — الحماية الوحيدة = إخراج الخطّافات الساخنة عن خيط الإنتاج (طابور محدود + عامل).
+# الاختبار: كل خطّاف يعلّق للأبد ⇒ الحلقة تُكمل 3 دورات وترسل 3 تنبيهات **بزمن محدود**.
+_hang_ev = _threading_ml = None
+import threading as _threading_ml
+_hang_ev = _threading_ml.Event()          # لا يُضبَط أبدًا ⇒ الخطّاف معلّق
+
+
+class _HangRec:
+    def __init__(self, *a, **kw):
+        pass
+
+    def __getattr__(self, name):
+        def _hang(*a, **kw):
+            _hang_ev.wait()               # تعليق أبدي (بلا استثناء) على خيط العامل
+        return _hang
+
+
+_hang_mod = _types_ml.ModuleType("ignition_measurement")
+_hang_mod.IgnitionMeasurementRecorder = _HangRec
+_sys.modules["ignition_measurement"] = _hang_mod
+_os.environ.update({"E2_MEASUREMENT": "1", "IGNITION_SEGMENT": "close", "IGNITION_HANDOFF_IN": "",
+                    "IGNITION_HANDOFF_OUT": _os.path.join(_e2_out, "ho_hang.json"),
+                    "POLYGON_API_KEY": "TEST_KEY_NOT_USED"})
+_sent_hg, _loops_hg = [], []
+_drain_saved = IG.E2_DRAIN_TIMEOUT_SEC
+IG.E2_DRAIN_TIMEOUT_SEC = 0.2             # مهلة تصريف قصيرة للاختبار (الإنتاج 30ث)
+_ml_saved3 = (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+              IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep)
+IG._segment_window = lambda role, t0=None: {
+    "role": role, "open": _ml_now, "close": _ml_now + S.dt.timedelta(hours=1),
+    "segment_start": _ml_now, "segment_end": _ml_now + S.dt.timedelta(hours=1),
+    "deadline": _ml_now + S.dt.timedelta(hours=1), "reason": "test",
+    "session_type": "regular", "calendar_version": "test"}
+IG.bot.load_watchlist = lambda: {"stocks": [{"symbol": "IGN", "status": "active"}]}
+IG.bot.scan_ignition = lambda wl, today, trace=None: (
+    _loops_hg.append(1), (trace("01_SEEN_ACTIVE", {"symbol": "IGN"}) if trace else None),
+    [({"symbol": "IGN"}, {"price": 2.0}, None)])[2]        # trace يُنادى فعلًا (يعلّق العامل)
+IG.bot.build_ignition_alert = lambda rows: "ALERT"
+IG.bot.send_telegram = lambda m: _sent_hg.append(m)
+IG.time.sleep = lambda *_a: (_ for _ in ()).throw(_StopLoop()) if len(_loops_hg) >= 3 else None
+_t_hang = _time_e2.time()
+try:
+    IG.main()
+except (_StopLoop, Exception):
+    pass
+finally:
+    _elapsed_hg = _time_e2.time() - _t_hang
+    (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+     IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep) = _ml_saved3
+    IG.E2_DRAIN_TIMEOUT_SEC = _drain_saved
+    _hang_ev.set()                        # حرّر خيط العامل
+    _sys.modules.pop("ignition_measurement", None)
+    for _k, _v in _ml_env.items():
+        _os.environ.pop(_k, None) if _v is None else _os.environ.update({_k: _v})
+check("🔬 Codex5 قفل: خطّاف قياس **معلّق** لا يخنق الحلقة ولا التنبيه (3 دورات · زمن محدود)",
+      len(_loops_hg) >= 3 and len(_sent_hg) >= 3 and _elapsed_hg < 5.0)
+check("🔬 Codex5 قفل: الخطّافات الساخنة لا-تزامنية (طابور محدود + عامل · إسقاط عند الامتلاء)",
+      set(IG._SafeRecorder._HOT) >= {"trace", "telegram_attempt", "loop_start"}
+      and "put_nowait" in _insp0.getsource(IG._SafeRecorder)
+      and "queue.Full" in _insp0.getsource(IG._SafeRecorder)
+      and "measurement_dropped" in _insp0.getsource(IG._SafeRecorder))
 check("🔬 P1-8: manifest نقيّ + canonical JSON حتمي (نفس المدخل = نفس الـhash)",
       _MAN.manifest_sha256({"a": 1, "b": 2}) == _MAN.manifest_sha256({"b": 2, "a": 1})
       and _MAN.sha256_hex("x") == _MAN.sha256_hex("x") and _MAN.manifest_sha256({}) is not None)
