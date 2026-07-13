@@ -3287,6 +3287,20 @@ check("🕰️ تجميد: 🔒 دوال التجميد خارج الفرز/ال
       all(("_pit_split_factor" not in _insp0.getsource(_f)
            and "load_frozen_dataset" not in _insp0.getsource(_f))
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.scan_market)))
+# 🕰️ H_PRICE_2_5 enabler (فرضية مسجَّلة مسبقًا): صفقات الباكتيست تُصدِّر `raw_pit_entry`
+# (السعر الحقيقي point-in-time = `entry` المعدَّل × عامل التقسيم اللاحق) **فقط** عند توفّر
+# splits (لقطة مجمَّدة). بلا splits (تشغيل حيّ/غير مجمَّد) = الحقل غائب = صفقة الأساس بت-بت.
+_rpe_spl = pd.Series({pd.Timestamp("2026-01-01"): 0.5})   # تقسيم عكسي لاحق ×0.5 (بعد كل الشموع)
+_rpe_with = S.backtest_symbol("TEST", synth_pivot(seed=2), splits=_rpe_spl)
+_rpe_without = S.backtest_symbol("TEST", synth_pivot(seed=2))
+def _rpe_ok(t):
+    exp = round(S._pit_raw_price(t["entry"], _rpe_spl, t["date"]), 4)
+    return t.get("raw_pit_entry") is not None and abs(t["raw_pit_entry"] - exp) < 1e-6
+_bt_src = _insp0.getsource(S.backtest_symbol)
+check("🕰️ H_PRICE_2_5: raw_pit_entry مُصدَّر مع splits (=entry×عامل التقسيم) · غائب بلا splits (توافق خلفي)",
+      ("raw_pit_entry" in _bt_src and "splits is not None" in _bt_src)
+      and all("raw_pit_entry" not in t for t in _rpe_without)
+      and all(_rpe_ok(t) for t in _rpe_with))
 # 🏦 backtest_portfolio (خطة §3): محاكاة انتقائية سعة محدودة — الأعلى readiness يفوز
 # بالتزاحم · الخانة تُحرَّر بعد النافذة · لا دخول مزدوج لرمز · المرفوض يُعدّ.
 def _pf(sym, date, rdy, sc, oc="win"):

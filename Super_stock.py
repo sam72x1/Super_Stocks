@@ -8675,6 +8675,13 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                  "fwd_max_gain": round(fwd_max, 1),
                  "max_draw_pct": round(max_draw, 1),
                  "exploded": bool(filled is not None and fwd_max >= expl_thr)}
+        # 🕰️ H_PRICE_2_5 (فرضية مسجَّلة مسبقًا): السعر الحقيقي point-in-time للدخول =
+        # المعدَّل × عامل التقسيم اللاحق (yfinance يعدّل دائمًا). لاختبار شريحة $2-5 على
+        # اللقطة المجمَّدة بلا تلوّث تقسيم (السعر المخزَّن `entry` معدَّل). بلا splits
+        # (تشغيل حيّ/غير مجمَّد) = الحقل غائب = صفقة الأساس بت-بت. تصدير/باكتيست فقط.
+        if splits is not None:
+            trade["raw_pit_entry"] = round(
+                _pit_raw_price(trade["entry"], splits, df.index[i - 1]), 4)
         # 🔬 تجربة «الدخول المؤكَّد بالمسح» (BT_SWEEP_ENTRY، باكتيست حصريًا): على نفس
         # الإشارة نموذج دخول بديل (مسح+استعادة)، مقاسًا بنفس _resolve_arm. الدخول منفصل
         # عن الوقف (BT_SWEEP_STOP) لعزل أثر الدخول. المقارنة على المُعبَّأة في
