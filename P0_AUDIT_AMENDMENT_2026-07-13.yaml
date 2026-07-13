@@ -55,7 +55,18 @@ embargo:
   required_field: forward_window_end
   train_rule: "year==2025 and forward_window_end < 2026-01-01"
   test_rule:  "year==2026 and date >= 2026-01-01"
-  status: "يلزم إعادة تشغيل باكتيست بمخطط القياس v2 (P0-S4) لتصدير النافذة ثم إبلاغ purged مقابل legacy."
+  status: "مطبَّق (2026-07-13، phase_p0_purge.py على المجمَّد v2 من تشغيلة Actions المرجعية)."
+  result:
+    ref_run_2025: 29241244794
+    ref_run_2026: 29241252744
+    frozen_sha256: aac35221ec83a5d3
+    purged_2025_signals: 34            # نافذتها الأمامية تمتدّ إلى 2026 (fwe>=2026-01-01)
+    clean_train_2025_signals: 51
+    filled_shrink: "68 -> 41 (قوة أقلّ)"
+    y_discovery: {full_2025: "12/68=18%", purged_train: "9/41=22%", test_2026: "8/56=14%"}
+    y_tradable:  {full_2025: "9/68=13%",  purged_train: "7/41=17%", test_2026: "7/56=12%"}
+    verdict: "الخلاصة صامدة أمام الembargo — لا حافة كبيرة تظهر؛ التنقية تُضعف القوة أكثر."
+  legacy_reproduction_check: "الأعمدة الـ15 المشتقّة من المجمَّد متطابقة بت-بت مع phase_e_dataset_*_frozen.csv؛ فروق h4 فقط (تُجلب 1h حيًّا لا من المجمَّد — موثّق بprovenance P0-5)."
 
 # ── التكافؤ (equivalence) — لا يُتوقّع إثباته بالعيّنة الحالية ────────────────
 equivalence:
