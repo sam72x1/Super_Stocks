@@ -284,6 +284,9 @@ CONFIG = {
     "BT_POTENTIAL": 0,                   # 🏦 قوة البوت: قِس أقصى صعود من الدخول قبل الوقف
     "BT_PORTFOLIO": 0,                   # 🏦 محاكاة الانتقائية (أفضل N بالترتيب)
     "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE)
+    "BT_RAW_PRICE": 0,                   # 🕰️ point-in-time: 1 = تحميل خام (auto_adjust=False)
+                                         #   لتفادي إشارات وهمية من تعديل تقسيم مستقبلي (تدقيق
+                                         #   خارجي). باكتيست حصريًا؛ الإنتاج يتجاهله (قفل B1).
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -414,7 +417,8 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_SPREAD_PCT", "BT_SPREAD_PCT", float),    # 🔬 F-COST
             ("BT_POTENTIAL", "BT_POTENTIAL", int),        # 🏦 قوة البوت
             ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
-            ("BT_PORT_SIZE", "BT_PORT_SIZE", int)):
+            ("BT_PORT_SIZE", "BT_PORT_SIZE", int),
+            ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
         v = (env.get(bt_env) or "").strip()
         if not v:
             continue
@@ -863,8 +867,12 @@ def _download_chunk(chunk: list, start: str):
     base = CONFIG.get("RETRY_BACKOFF", 3.0)
     for i in range(attempts):
         try:
+            # 🕰️ point-in-time (BT_RAW_PRICE، باكتيست حصريًا): auto_adjust=False يُبقي
+            # الأسعار الخام (لا تعديل تقسيم مستقبلي) فتُرفَض الإشارات الوهمية ببوابة M1.
+            # الإنتاج =0 دائمًا (قفل B1) → auto_adjust=True كما كان.
             data = yf.download(chunk, start=start, interval="1d",
-                               auto_adjust=True, group_by="ticker",
+                               auto_adjust=not CONFIG.get("BT_RAW_PRICE"),
+                               group_by="ticker",
                                threads=True, progress=False)
             if data is not None and len(data):
                 return data
@@ -9333,6 +9341,15 @@ def run_backtest(symbols=None) -> None:
     if _spread_v:
         lines.append(f"🔬 F-COST: العوائد بعد تكلفة تنفيذ {_spread_v * 100:.0f}% "
                      "(سبريد+انزلاق، نصفها كل جهة)")
+    # 🕰️ point-in-time (BT_RAW_PRICE): أسعار خام بلا تعديل تقسيم مستقبلي — تُرفَض الإشارات
+    # الوهمية (سعرها الحقيقي تحت أرضية M1). تشخيص: صفقات بصعود شاذّ (>300%) قد تحمل تقسيمًا
+    # داخل النافذة (نادر) فتُعرَض للفحص لا تُخفى.
+    if CONFIG.get("BT_RAW_PRICE"):
+        _raw_susp = [t for t in all_trades if (t.get("fwd_max_gain") or 0) > 300]
+        lines.append("🕰️ <b>point-in-time (أسعار خام، بلا تعديل تقسيم مستقبلي)</b>"
+                     + (f" · ⚠️ {len(_raw_susp)} صفقة صعودها >300% (افحص تقسيمًا داخل النافذة): "
+                        + " · ".join(esc(str(t["symbol"])) for t in _raw_susp[:8])
+                        if _raw_susp else " · لا صعود شاذّ (>300%)"))
     # 💥 «اللي انفجر فعلًا واللي لا» (طلب المستخدم): من الارتكازات التي رشّحها البوت
     # وعُبّئت، كم صعد ≥EXPLOSION_PCT بعد الدخول. يجيب السؤال مباشرة (مقياس فيصل ≥50%).
     filled = [t for t in all_trades if t.get("outcome") != "no_fill"]

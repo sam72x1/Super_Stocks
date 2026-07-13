@@ -3249,6 +3249,22 @@ check("🏦 قوة البوت·قفل: _max_gain_before_stop خارج rank_key/s
       all("_max_gain_before_stop" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
                      S.update_tracking, S.update_watchlist_status)))
+# 🕰️ BT_RAW_PRICE (تدقيق خارجي 2026-07-12): point-in-time بالباكتيست — auto_adjust=False
+# لتفادي إشارات وهمية من تعديل تقسيم مستقبلي. الإنتاج يتجاهله (قفل B1) → auto_adjust=True.
+check("🕰️ BT_RAW_PRICE: الافتراض 0 (الإنتاج يحمّل معدّلًا كما كان)",
+      S.CONFIG.get("BT_RAW_PRICE") == 0)
+check("🕰️ BT_RAW_PRICE·وصل: _download_chunk يقرأ العلم (auto_adjust=not BT_RAW_PRICE)",
+      'auto_adjust=not CONFIG.get("BT_RAW_PRICE")' in _insp0.getsource(S._download_chunk))
+_rp_env = {"BT_RAW_PRICE": "1"}
+check("🕰️ BT_RAW_PRICE·قفل B1: الإنتاج يتجاهله (باكتيست حصريًا)",
+      S._apply_backtest_overrides("FULL", _rp_env) == [])
+_rp_sv = S.CONFIG.get("BT_RAW_PRICE")
+try:
+    _rp_ap = S._apply_backtest_overrides("BACKTEST", _rp_env)
+    check("🕰️ BT_RAW_PRICE·قفل B1: وضع BACKTEST يطبّقه",
+          any("BT_RAW_PRICE" in s for s in _rp_ap) and S.CONFIG["BT_RAW_PRICE"] == 1)
+finally:
+    S.CONFIG["BT_RAW_PRICE"] = _rp_sv          # لا تلوّث بقية الاختبارات
 # 🏦 backtest_portfolio (خطة §3): محاكاة انتقائية سعة محدودة — الأعلى readiness يفوز
 # بالتزاحم · الخانة تُحرَّر بعد النافذة · لا دخول مزدوج لرمز · المرفوض يُعدّ.
 def _pf(sym, date, rdy, sc, oc="win"):
