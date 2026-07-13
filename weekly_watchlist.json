@@ -304,7 +304,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 10.0,
+   "last_price": 9.98,
    "live_alert": {
     "buyzone": "2026-07-10"
    },
@@ -599,13 +599,16 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 12.1,
+   "last_price": 12.139,
    "borrow_hist": [
     [
      "2026-07-11",
      3000000
     ]
-   ]
+   ],
+   "live_alert": {
+    "buyzone": "2026-07-13"
+   }
   },
   {
    "symbol": "PSTV",
@@ -906,8 +909,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.0,
-   "live_alert": {},
+   "last_price": 4.29,
+   "live_alert": {
+    "breakout": "2026-07-13"
+   },
    "borrow_hist": [
     [
      "2026-07-11",
@@ -1214,7 +1219,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.32,
+   "last_price": 4.22,
    "live_alert": {},
    "borrow_hist": [
     [
@@ -1519,13 +1524,14 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.71,
+   "last_price": 1.7,
    "borrow_hist": [
     [
      "2026-07-11",
      6500000
     ]
-   ]
+   ],
+   "live_alert": {}
   }
  ],
  "removed": [],
@@ -1559,7 +1565,7 @@
    "sector": "Industrials",
    "country": "Australia",
    "float": 1484786,
-   "last_price": 4.32,
+   "last_price": 4.1905,
    "status": "watching",
    "triggered_date": null
   },
@@ -1589,7 +1595,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 9831841,
-   "last_price": 1.98,
+   "last_price": 1.8932,
    "status": "watching",
    "triggered_date": null
   },
@@ -1620,7 +1626,7 @@
    "sector": "Healthcare",
    "country": "United Kingdom",
    "float": 529035,
-   "last_price": 4.08,
+   "last_price": 4.55,
    "status": "watching",
    "triggered_date": null
   },
@@ -1650,7 +1656,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 26497736,
-   "last_price": 4.33,
+   "last_price": 4.3025,
    "status": "watching",
    "triggered_date": null
   },
@@ -1680,7 +1686,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 6060850,
-   "last_price": 3.57,
+   "last_price": 3.255,
    "status": "watching",
    "triggered_date": null
   },
@@ -1709,7 +1715,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 170966875,
-   "last_price": 10.91,
+   "last_price": 10.515,
    "status": "watching",
    "triggered_date": null
   },
@@ -1740,7 +1746,7 @@
    "sector": "Energy",
    "country": "United States",
    "float": 9752727,
-   "last_price": 3.18,
+   "last_price": 3.175,
    "status": "watching",
    "triggered_date": null
   },
@@ -1769,7 +1775,7 @@
    "sector": "Energy",
    "country": "United States",
    "float": 12552321,
-   "last_price": 7.47,
+   "last_price": 7.49,
    "status": "watching",
    "triggered_date": null
   },
@@ -1799,7 +1805,7 @@
    "sector": "Real Estate",
    "country": "United States",
    "float": 2400271,
-   "last_price": 2.06,
+   "last_price": 2.0616,
    "status": "watching",
    "triggered_date": null
   },
@@ -1828,7 +1834,7 @@
    "sector": "Energy",
    "country": "Canada",
    "float": 10357102,
-   "last_price": 4.25,
+   "last_price": 4.255,
    "status": "watching",
    "triggered_date": null
   },
@@ -1857,9 +1863,9 @@
    "sector": "Technology",
    "country": "Canada",
    "float": 38240999,
-   "last_price": 5.64,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 5.47,
+   "status": "triggered",
+   "triggered_date": "2026-07-13"
   },
   {
    "symbol": "GITS",
@@ -1889,7 +1895,7 @@
    "sector": "Communication Services",
    "country": "South Korea",
    "float": 2307880,
-   "last_price": 2.08,
+   "last_price": 2.0,
    "status": "watching",
    "triggered_date": null
   },
@@ -1920,7 +1926,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 11035067,
-   "last_price": 2.34,
+   "last_price": 2.2877,
    "status": "watching",
    "triggered_date": null
   },
@@ -1951,7 +1957,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 63286331,
-   "last_price": 1.9,
+   "last_price": 1.945,
    "status": "watching",
    "triggered_date": null
   },
@@ -1980,7 +1986,7 @@
    "sector": "Healthcare",
    "country": "China",
    "float": 71058342,
-   "last_price": 19.97,
+   "last_price": 19.482,
    "status": "watching",
    "triggered_date": null
   }
