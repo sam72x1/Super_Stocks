@@ -2,35 +2,60 @@
 """🔬 E2-A — مدقّق تغطية/اكتمال القياس الظلّي (لا معايرة · لا حكم عتبات).
 
 **E2-A حصريًّا (SPEC §18):** يقرأ مخرجات `ignition_measurement` ويتحقّق من: اكتمال الـschema ·
-التغطية · عدم فقد البيانات · التوقيت · funnel متّسق. **ممنوع** هنا أي تحليل جودة عتبة/نتيجة/expectancy
-(ذلك E2-B/E2-C بعد اكتمال العيّنة + تسجيل مسبق + موافقة المالك). قياس/تدقيق فقط · لا يمسّ الفرز.
+التغطية · عدم فقد البيانات · التوقيت · funnel متّسق · تكافؤ التنبيهات · استرداد artifact. **ممنوع**
+هنا أي تحليل جودة عتبة/نتيجة/expectancy (ذلك E2-B/E2-C بعد اكتمال العيّنة + تسجيل مسبق + موافقة
+المالك). قياس/تدقيق فقط · لا يمسّ الفرز.
+
+🔬 **تشديد مراجعة Codex (§2e):** الجلسة **لا تُعدّ مكتملة** إن: انتهت قبل الإغلاق المتوقّع ·
+loops_started ≠ loops_completed · فُقِد مسار ما بعد التنبيه لرمز مُنبَّه · NBBO غير محسوم لمرشّح
+مطلوب · تناقض emitted/delivered · نقص حقل توقيت مقفول.
 
 تشغيل:  python3 ignition_e2_analyze.py [e2_measurement]
 """
+import gzip
 import json
 import os
 import sys
 
-CAND_REQUIRED = ["candidate_id", "symbol", "session_date", "break_level", "trigger_bar_end",
-                 "detected_at", "signal_price", "gate_decision", "alert_emitted"]
+# حقول candidate المقفولة (منها توقيت §2c/§2d) — نقصها = schema-gap.
+CAND_REQUIRED = ["candidate_id", "symbol", "session_date", "break_level",
+                 "trigger_bar_start", "trigger_bar_end", "bar_is_closed",
+                 "detected_at", "detected_at_ms", "signal_price", "gate_decision", "alert_emitted"]
 SS_REQUIRED = ["symbol", "active_polls", "bars_attempted", "bars_ok", "coverage_ratio",
-               "first_seen_at", "last_seen_at", "raw_candidate_count", "emitted_count"]
-# حدود جودة البيانات لأهلية recall (SPEC §7) — **ليست عتبات تداول**.
-RECALL_MIN_POLLS, RECALL_MIN_COVERAGE = 20, 0.80
+               "first_seen_at", "last_seen_at", "raw_candidate_count", "emitted_count",
+               "exposure_minutes", "recall_eligible"]
+# حدود جودة البيانات لأهلية recall (SPEC §7) — **ليست عتبات تداول** (الثلاثة تُطبَّق في المسجّل).
+RECALL_MIN_POLLS, RECALL_MIN_COVERAGE, RECALL_MIN_EXPOSURE_MIN = 20, 0.80, 60
 
 
 def _read_jsonl(path):
     if not os.path.exists(path):
         return []
-    with open(path, encoding="utf-8") as fh:
-        return [json.loads(x) for x in fh if x.strip()]
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return [json.loads(x) for x in fh if x.strip()]
+    except Exception:
+        return []
+
+
+def _read_jsonl_gz(path):
+    if not os.path.exists(path):
+        return []
+    try:
+        with gzip.open(path, "rt", encoding="utf-8") as fh:
+            return [json.loads(x) for x in fh if x.strip()]
+    except Exception:
+        return []
 
 
 def _read_json(path):
     if not os.path.exists(path):
         return {}
-    with open(path, encoding="utf-8") as fh:
-        return json.load(fh)
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception:
+        return {}
 
 
 def analyze_session(sdir):
@@ -38,31 +63,79 @@ def analyze_session(sdir):
     ss = _read_jsonl(os.path.join(sdir, "symbol_sessions.jsonl"))
     cands = _read_jsonl(os.path.join(sdir, "candidates.jsonl"))
     delivs = _read_jsonl(os.path.join(sdir, "deliveries.jsonl"))
+    minute = _read_jsonl_gz(os.path.join(sdir, "minute_paths.jsonl.gz"))
     # اكتمال الـschema
     ss_missing = sum(1 for r in ss for k in SS_REQUIRED if k not in r)
     cand_missing = sum(1 for c in cands for k in CAND_REQUIRED if k not in c)
-    # التغطية
-    eligible = [r for r in ss if r.get("active_polls", 0) >= RECALL_MIN_POLLS
-                and r.get("coverage_ratio", 0) >= RECALL_MIN_COVERAGE]
+    # التغطية + أهلية recall (الشروط الثلاثة محسوبة بالمسجّل؛ نعتمد العلم ونتحقّق منه)
+    eligible = [r for r in ss if r.get("recall_eligible")]
     cov_vals = sorted(r.get("coverage_ratio", 0) for r in ss)
     med_cov = cov_vals[len(cov_vals) // 2] if cov_vals else 0.0
     # funnel
-    emitted = sum(1 for c in cands if c.get("alert_emitted"))
+    emitted_cands = [c for c in cands if c.get("alert_emitted")]
+    emitted = len(emitted_cands)
     delivered = sum(1 for d in delivs if d.get("delivered"))
     executable = sum(1 for c in cands if c.get("primary_executable"))
-    # اتساق: كل candidate له trigger_bar_end + detected_at + gate_decision
-    with_ts = sum(1 for c in cands if c.get("trigger_bar_end") is not None
-                  and c.get("detected_at") is not None)
+    with_ts = sum(1 for c in cands if c.get("trigger_bar_start") is not None
+                  and c.get("trigger_bar_end") is not None and c.get("detected_at") is not None)
     with_gate = sum(1 for c in cands if c.get("gate_decision"))
+
+    # ── تشديد §2e: أسباب عدم الاكتمال (data-integrity فقط، لا حكم عتبات) ──────────
+    reasons = []
+    term = sess.get("termination")
+    if term != "normal":
+        reasons.append(f"termination={term}")
+    ls, lc = sess.get("loops_started"), sess.get("loops_completed")
+    if ls is not None and lc is not None and ls != lc:
+        reasons.append(f"loops_mismatch({ls}≠{lc})")
+    if sess.get("ended_before_expected_close"):
+        reasons.append("ended_before_expected_close(%s د)" % sess.get("minutes_short_of_close"))
+    if ss_missing or cand_missing:
+        reasons.append("schema_gaps")
+    if with_ts != len(cands):
+        reasons.append("missing_locked_timestamps")
+    # تناقض emitted/delivered: لا يُسلَّم ما لم يُصدَر (delivered ⊆ emitted symbols)
+    emitted_syms = {c.get("symbol") for c in emitted_cands}
+    deliv_syms = {d.get("symbol") for d in delivs if d.get("delivered")}
+    if delivered > emitted or not deliv_syms.issubset(emitted_syms):
+        reasons.append("emitted_delivered_contradiction")
+    # NBBO غير محسوم لمرشّح مطلوب: مُصدَر بمرور المضارب (05 قِيس) لكن primary_executable=None
+    unresolved_nbbo = [c.get("symbol") for c in emitted_cands
+                       if c.get("operator_status") == "pass" and c.get("primary_executable") is None]
+    if unresolved_nbbo:
+        reasons.append("unresolved_nbbo(%s)" % ",".join(sorted(set(unresolved_nbbo))))
+    # فقد مسار ما بعد التنبيه: لكل رمز مُنبَّه، لازم شمعة دقيقة **بعد** شمعة الاشتعال (الردم البعدي)
+    max_t = {}
+    for m in minute:
+        sym, t = m.get("symbol"), m.get("t")
+        if sym is not None and t is not None:
+            max_t[sym] = max(max_t.get(sym, t), t)
+    lost = []
+    for c in emitted_cands:
+        sym, tbs = c.get("symbol"), c.get("trigger_bar_start")
+        if sym is None or tbs is None:
+            continue
+        if max_t.get(sym, tbs) <= tbs:      # لا شمعة بعد شمعة الاشتعال ⇒ فُقِد المسار
+            lost.append(sym)
+    if lost:
+        reasons.append("lost_post_alert_path(%s)" % ",".join(sorted(set(lost))))
+    if sess.get("alert_logic_version") != "unchanged":
+        reasons.append("alert_logic_version_changed")
+
+    complete = (not reasons)
     return {
-        "session_date": sess.get("session_date"), "termination": sess.get("termination"),
-        "loops_completed": sess.get("loops_completed"),
+        "session_date": sess.get("session_date"), "termination": term,
+        "loops_started": ls, "loops_completed": lc,
+        "deadline_reason": sess.get("deadline_reason"),
+        "ended_before_expected_close": sess.get("ended_before_expected_close"),
+        "minutes_short_of_close": sess.get("minutes_short_of_close"),
         "n_symbols": len(ss), "n_candidates": len(cands),
         "n_emitted": emitted, "n_delivered": delivered, "n_executable": executable,
         "recall_eligible_symbol_sessions": len(eligible), "median_coverage": round(med_cov, 3),
         "schema_gaps_symbol_sessions": ss_missing, "schema_gaps_candidates": cand_missing,
         "candidates_with_timestamps": with_ts, "candidates_with_gate_decision": with_gate,
         "alert_logic_version": sess.get("alert_logic_version"),
+        "incomplete_reasons": reasons, "complete": complete,
     }
 
 
@@ -81,24 +154,26 @@ def main():
     total_complete = 0
     for s in sessions:
         r = analyze_session(os.path.join(root, s))
-        clean = (r["schema_gaps_symbol_sessions"] == 0 and r["schema_gaps_candidates"] == 0
-                 and r["candidates_with_timestamps"] == r["n_candidates"]
-                 and r["candidates_with_gate_decision"] == r["n_candidates"]
-                 and r["alert_logic_version"] == "unchanged")
-        if r["termination"] == "normal" and clean:
+        if r["complete"]:
             total_complete += 1
-        print(f"\n▸ {r['session_date']} · إنهاء={r['termination']} · دورات={r['loops_completed']}")
+        print(f"\n▸ {r['session_date']} · إنهاء={r['termination']} · "
+              f"دورات {r['loops_started']}→{r['loops_completed']} · موعد={r['deadline_reason']}")
         print(f"    رموز={r['n_symbols']} · candidates={r['n_candidates']} "
               f"(نُفِّذ NBBO={r['n_executable']}) · emitted={r['n_emitted']} · delivered={r['n_delivered']}")
         print(f"    recall-eligible symbol-sessions={r['recall_eligible_symbol_sessions']} "
+              f"(polls≥{RECALL_MIN_POLLS}·cov≥{RECALL_MIN_COVERAGE}·exp≥{RECALL_MIN_EXPOSURE_MIN}د) "
               f"· وسيط التغطية={r['median_coverage']}")
         print(f"    اكتمال schema: ثغرات symbol-session={r['schema_gaps_symbol_sessions']} "
               f"· ثغرات candidate={r['schema_gaps_candidates']} "
               f"· بالطوابع={r['candidates_with_timestamps']}/{r['n_candidates']} "
               f"· ببوّابة={r['candidates_with_gate_decision']}/{r['n_candidates']}")
-        print(f"    منطق التنبيه: {r['alert_logic_version']} · اكتمال الجلسة: {'✅' if clean else '⚠️'}")
+        if r["ended_before_expected_close"]:
+            print(f"    ⚠️ انتهت قبل الإغلاق المتوقّع بـ{r['minutes_short_of_close']} د "
+                  f"(قيد سقف رنر GitHub — تغطية جزئية صريحة).")
+        verdict = "✅ مكتملة" if r["complete"] else ("⚠️ غير مكتملة: " + " · ".join(r["incomplete_reasons"]))
+        print(f"    منطق التنبيه: {r['alert_logic_version']} · الحكم: {verdict}")
     print("\n" + "=" * 78)
-    print(f"📋 جلسات مُسجَّلة={len(sessions)} · مكتملة نظيفة={total_complete}. "
+    print(f"📋 جلسات مُسجَّلة={len(sessions)} · مكتملة={total_complete}. "
           f"بوّابة E2-A (SPEC §18): {'✅ عيّنة قابلة للتقييم' if total_complete >= 5 else 'تتراكم (المطلوب 5 جلسات كاملة)'}.")
     print("⚠️ E2-A: قياس فقط — لا معايرة/حكم عتبات (E2-B/C بعد العيّنة + تسجيل مسبق + موافقة المالك).")
     print("=" * 78)

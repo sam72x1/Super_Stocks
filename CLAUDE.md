@@ -563,8 +563,17 @@
   delivered · مسار الدقيقة. خلف `E2_MEASUREMENT=1` (مطفأ = سلوك الرادار حرفيًّا). `ignition.yml` يرفع
   artifact `if:always`. `E2_IGNITION_PREREGISTRATION_2026-07-13.yaml` (يستبعد GEOS) + `E2_IGNITION_SCHEMA.md`
   + `ignition_e2_analyze.py` (تدقيق تغطية فقط). **التوقيت اللحظي فرضية غير مثبتة — E2-A قياس فقط، لا نتيجة
-  قبل ≥5 جلسات + E2-B/C بموافقة المستخدم.** التقرير: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md`. 812 اختبار.
+  قبل ≥5 جلسات + E2-B/C بموافقة المستخدم.** التقرير: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md`.
   🔒 كل طبقة القياس خارج rank_key/select_top/classify_tier/entry_status (لا تُستورَد في مسار الفرز).
+  - **🔬 إصلاحات فجوات مراجعة Codex (§2a–§2e، 2026-07-13، `schema_version`=2 · قياس فقط · لا تغيير
+    تنبيه/عتبة/اختيار):** **2a** إنهاء ديناميكي (`_session_window`: الأبكر من الإغلاق الفعلي/بدء الجوب+
+    `IGNITION_MAX_RUNTIME_MIN`=335/تجاوز صريح؛ أُزيل مثبّت 19:20؛ timeout 355؛ session.json يسجّل
+    الإغلاق المتوقّع + علم «انتهت قبله» — **قيد سقف رنر 6س < جلسة 6.5س فالتغطية جزئية صريحة، قرار
+    المعمارية للمالك**) · **2b** `backfill_emitted` يردم مسار الدقيقة بعد التنبيه (لا تُفقَد الحركة اللاحقة) ·
+    **2c** `trigger_bar_start` صريح + end=start+60000 + `bar_is_closed` حتمي (Polygon t=بداية) · **2d**
+    توحيد طابع NBBO (نانو→ملّي) + `quote_age_ms` + **executable = صالح ‏و‏ طازج ≤5ث** · **2e** `exposure_minutes`
+    + أهلية recall بالشروط الثلاثة + مدقّق يرفض «مكتملة» عند فقد مسار/إغلاق مبكّر/عدم توازن دورات/تناقض
+    emitted-delivered. 793 اختبار. فرع نظيف `claude/e2a-measurement-clean` (E2-A فقط، بلا P0/Phase C/E).
 
 ## 🕵️💰 حزمة «قراءة المضارب» (`FAISAL_OPERATOR_PACK_PLAN.md`، 2026-07-08 — عرض/تحذير فقط)
 - **المصدر:** 9 صور فيصل بأرقام صريحة لأول مرة لتمييز المضارب عن القروب. **⚖️ ليست مؤشر اختيار**

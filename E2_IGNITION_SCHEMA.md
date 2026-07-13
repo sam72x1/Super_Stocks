@@ -45,31 +45,46 @@ e2_measurement/session_YYYY-MM-DD/
 **crash-safe:** candidates/deliveries/minute تُلحَق فورًا مع flush · session كل 7 دورات ·
 `finalize` في `finally` (يكتب حتى عند exception/timeout).
 
-## schema — session.json
+## schema — session.json  (`schema_version=2`)
 `schema_version · session_date · started_at · ended_at · termination(normal|exception|timeout|
 cancelled|unknown) · loops_started/completed · symbols_union · n_symbols · n_candidates ·
 measurement_enabled · alert_logic_version="unchanged" · source_commit · workflow_run_id · …`
+- **🔬 §2a إغلاق الجلسة:** `expected_open_iso · expected_close_iso · deadline_iso · deadline_reason
+  (market_close|max_runtime_cap|env_override) · ended_before_expected_close(bool|null) ·
+  minutes_short_of_close`. الموعد النهائي للّف = الأبكر من (الإغلاق الفعلي المشتقّ من نيويورك ·
+  بدء الجوب + IGNITION_MAX_RUNTIME_MIN · IGNITION_END_UTC الصريح). **قيد سقف رنر GitHub (6س)
+  مقابل جلسة 6.5س ⇒ التغطية قد تكون جزئية — تُسجَّل صراحةً بعلم «انتهت قبل الإغلاق» لا تُخفى.**
 
-## schema — symbol_sessions.jsonl (صف لكل symbol-day)
+## schema — symbol_sessions.jsonl (صف لكل symbol-day)  (`schema_version=2`)
 `symbol · first_seen_at · last_seen_at · active_polls · level_available_polls · bars_attempted/ok/
 failed · raw_candidate_count · operator_pass/fail/unavailable_count · fallback_pass/fail_count ·
 emitted_count · delivered_count · first_bar_ts · last_bar_ts · break_level_first/last ·
-break_level_source_first · coverage_ratio`
+break_level_source_first · coverage_ratio · exposure_minutes · recall_eligible · backfilled ·
+backfill_bars_added`
 - `coverage_ratio = bars_ok / max(1, bars_attempted)`.
-- **أهلية recall** (جودة بيانات لا عتبات تداول): `active_polls≥20 · coverage_ratio≥0.80 ·
-  exposure≥60 دقيقة`.
+- **🔬 §2e exposure_minutes** = دقائق (first_seen_at→last_seen_at). **أهلية recall (`recall_eligible`)
+  = الشروط الثلاثة معًا** (جودة بيانات لا عتبات تداول): `active_polls≥20 · coverage_ratio≥0.80 ·
+  exposure_minutes≥60`.
+- **🔬 §2b `backfilled`/`backfill_bars_added`:** بعد التنبيه يتوقّف الرادار عن جلب شموع السهم
+  (دِدوب) فيُردَم مسار الدقيقة بعد الجلسة (نافذة يوم كامل) — فلا تُفقَد الحركة اللاحقة لتحليل النتيجة.
 
-## schema — candidates.jsonl (أول raw candidate فريد)
+## schema — candidates.jsonl (أول raw candidate فريد)  (`schema_version=2`)
 مفتاح الدِدوب: `session_date + symbol + trigger_bar_end + break_level`.
 `candidate_id · symbol · source_commit · watchlist_commit · break_level · break_level_source ·
-pivot · stop · t1/t2/t3 · trigger_bar_end · bar_is_closed · detected_at · telegram_attempted_at ·
-telegram_sent_at · signal_price · vol_x · signal_usd · candle_class · operator_status(pass|fail|
-unavailable|error) · operator_has_operator · operator_bid/buy_block_shares · nbbo_bid/ask/mid ·
-spread_pct_mid · quote_timestamp · quote_age_ms · primary_executable · fallback_status ·
+pivot · stop · t1/t2/t3 · trigger_bar_start · trigger_bar_end · bar_is_closed · detected_at ·
+detected_at_ms · telegram_attempted_at · telegram_sent_at · signal_price · vol_x · signal_usd ·
+candle_class · operator_status(pass|fail|unavailable|error) · operator_has_operator ·
+operator_bid/buy_block_shares · nbbo_bid/ask/mid · spread_pct_mid · quote_timestamp_raw ·
+quote_timestamp · quote_age_ms · primary_executable · fallback_status ·
 gate_decision(emit|suppress_operator|suppress_group) · alert_emitted · telegram_delivered ·
 decision_latency_ms · delivery_latency_ms`
-- **primary_executable** (§13.1): `ask>0 · ask≥bid · spread متاح` (وإلا الحدث يبقى في التغطية/funnel
-  لكن يخرج من تحليل العائد الأولي؛ الثانوي يجوز أن يستعمل signal_price بوسم صريح).
+- **🔬 §2c توقيت الشمعة:** Polygon `t` = **بداية** شمعة الدقيقة. `trigger_bar_start` مسجَّل صراحةً ·
+  `trigger_bar_end = trigger_bar_start + 60000` · `bar_is_closed` يُحسم حتميًّا وقت القرار
+  (`detected_at_ms ≥ trigger_bar_end`).
+- **🔬 §2d عمر NBBO:** `quote_timestamp_raw` كما ورد (نانو/مايكرو/ملّي) · `quote_timestamp` موحّد
+  **ملّي-UTC** · `quote_age_ms` = وقت القرار − الطابع. **primary_executable = NBBO صالح
+  (ask>0 · ask≥bid · سبريد متاح) ‏و‏ طازج (0 ≤ العمر ≤ 5000ملّي).** مجهول/بائت/مستقبلي = غير تنفيذي
+  (يبقى في التغطية/funnel لكن يخرج من تحليل العائد الأولي؛ الثانوي قد يستعمل signal_price بوسم صريح).
 - **لا أسرار:** لا مفاتيح/توكن/Authorization/URLs فيها apiKey.
 
 ## schema — minute_paths.jsonl.gz

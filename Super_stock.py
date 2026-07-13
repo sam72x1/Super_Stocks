@@ -6850,7 +6850,8 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
             "pivot": s.get("pivot"),
             "stop": (s.get("stop")[0] if isinstance(s.get("stop"), (list, tuple)) and s.get("stop") else s.get("stop")),
             "t1": s.get("t1"), "t2": s.get("t2"), "t3": s.get("t3"),
-            "trigger_bar_end": (bars[-1].get("t") if bars else None)})
+            # 🔬 §2c: Polygon `t` = **بداية** شمعة الدقيقة؛ المسجّل يشتقّ النهاية = البداية+60000.
+            "trigger_bar_start": (bars[-1].get("t") if bars else None)})
         # 🕵️ بوّابة المضارب: يُكتَم الاشتعال بلا مضارب (لا نضع ignition_alert = يُعاد
         # الفحص لو دخل المضارب لاحقًا نفس اليوم). فاشل-آمن: تعذّر القياس → شمعة الدولار.
         try:

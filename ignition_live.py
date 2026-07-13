@@ -61,21 +61,48 @@ def _fresh_watchlist(cur_wl, runner=None):
         return None
 
 
-def _deadline():
-    """نهاية الجلسة (UTC): IGNITION_END_UTC إن ضُبط، وإلا **إغلاق ناسداك الفعلي**
-    المشتق من توقيت نيويورك (⑤ إصلاح تدقيق 2026-07-12: كان 20:00 UTC مثبّتًا =
-    صيفي فقط؛ شتاءً الإغلاق 21:00 فكان الرادار يتوقف ساعة قبل الإغلاق)."""
-    end = os.environ.get("IGNITION_END_UTC", "").strip()
-    now = bot.dt.datetime.utcnow()
+def _iso(d):
+    """datetime (naive UTC) → «YYYY-MM-DDTHH:MM:SSZ» (يطابق مُحلّل المسجّل). فاشل-آمن → None."""
+    try:
+        return d.replace(second=0, microsecond=0).isoformat() + "Z"
+    except Exception:
+        return None
+
+
+def _session_window(t0=None):
+    """🔬 §2a: نافذة الجلسة (UTC) + **الموعد النهائي الفعلي للّف**. يرجّع dict:
+    `open`/`close` (من `market_session_now`، يتصيّف/يتشتّى آليًا) · `deadline` (الأبكر من:
+    الإغلاق الفعلي · بدء الجوب + `IGNITION_MAX_RUNTIME_MIN` · `IGNITION_END_UTC` الصريح) ·
+    `reason`. **قيد سقف رنر GitHub (6 ساعات):** جلسة 6.5س لا تُغطّى بجوب واحد فالحدّ
+    الأدنى يضمن `finalize` رشيقًا **قبل** قتل الجوب (وإلّا لا session.json نظيف). الإغلاق
+    الحقيقي يُسجَّل في `session.json` (expected_close) + علم «انتهت قبل الإغلاق»
+    (`_compute_close_gap`) فالتغطية الجزئية صريحة لا صامتة. `t0` = بدء الجوب (يُحقَن للاختبار)."""
+    now = t0 or bot.dt.datetime.utcnow()
+    # مرّر نفس اللحظة (aware) لـmarket_session_now فالافتتاح/الإغلاق يطابقان تاريخ الموعد
+    # (يتصيّف/يتشتّى بنفس اليوم) — وقابل للاختبار بحقن t0.
+    now_aware = now if now.tzinfo else now.replace(tzinfo=bot.dt.timezone.utc)
+    sess = bot.market_session_now(now_aware)
+
+    def _at(mins):
+        return now.replace(hour=(mins // 60) % 24, minute=mins % 60, second=0, microsecond=0)
+    open_dt, close_dt = _at(sess["open"]), _at(sess["close"])
+    deadline, reason = close_dt, "market_close"
+    mr = os.environ.get("IGNITION_MAX_RUNTIME_MIN", "").strip()
+    if mr:
+        try:
+            cap = now + bot.dt.timedelta(minutes=int(mr))   # نسبةً لبدء الجوب (لا بعد النوم)
+            if cap < deadline:
+                deadline, reason = cap, "max_runtime_cap"
+        except Exception:
+            pass
+    end = os.environ.get("IGNITION_END_UTC", "").strip()     # تجاوز يدوي صريح (يحكم)
     if end:
         try:
             hh, mm = (int(x) for x in end.split(":"))
-            return now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+            deadline, reason = now.replace(hour=hh, minute=mm, second=0, microsecond=0), "env_override"
         except Exception:
             pass
-    _close = bot.market_session_now()["close"]           # دقائق-UTC (يتشتّى آليًا)
-    return now.replace(hour=_close // 60, minute=_close % 60,
-                       second=0, microsecond=0)
+    return {"open": open_dt, "close": close_dt, "deadline": deadline, "reason": reason}
 
 
 def main():
@@ -88,6 +115,7 @@ def main():
         bot.log("رادار الانطلاق: القائمة فارغة — لا شيء نراقبه.")
         return
     interval = max(15, int(os.environ.get("IGNITION_INTERVAL", "45") or 45))
+    t0 = bot.dt.datetime.utcnow()          # 🔬 §2a: بدء الجوب (مرجع سقف زمن التشغيل)
     # ⑤ انتظر الافتتاح الفعلي (شتاءً كرون 13:35 يسبق الافتتاح 14:30 بساعة — كان
     # يلفّ أعمى على سوق مغلق ويحرق ميزانية الجوب). نوم واحد مقيَّد بساعة.
     try:
@@ -99,9 +127,13 @@ def main():
             time.sleep(_gap * 60)
     except Exception:
         pass
-    deadline = _deadline()
+    # 🔬 §2a: الموعد النهائي = الأبكر من (الإغلاق الفعلي · بدء الجوب + سقف التشغيل ·
+    # IGNITION_END_UTC الصريح). الإغلاق المتوقّع يُسجَّل بالقياس فالتغطية الجزئية صريحة.
+    window = _session_window(t0)
+    deadline = window["deadline"]
     bot.log(f"🔥 رادار الانطلاق: {len(active)} زنبرك · كل {interval}ث حتى "
-            f"{deadline.strftime('%H:%M')} UTC.")
+            f"{deadline.strftime('%H:%M')} UTC (إغلاق متوقّع {window['close'].strftime('%H:%M')} · "
+            f"سبب={window['reason']}).")
     loops = 0
     max_loops = 2000                       # حارس ضد اللف اللانهائي (≈25س عند 45ث)
     session_fires, seen = [], set()        # 📏 جمع إطلاقات الجلسة لتسجيلها بالنهاية
@@ -116,7 +148,13 @@ def main():
                 meta={"source_commit": os.environ.get("GITHUB_SHA", "").strip() or None,
                       "workflow_run_id": os.environ.get("GITHUB_RUN_ID", "").strip() or None,
                       "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT", "").strip() or None,
-                      "interval_seconds": interval})
+                      "interval_seconds": interval,
+                      # 🔬 §2a: الافتتاح/الإغلاق المتوقّعان + الموعد الفعلي وسببه (لعلم «انتهت
+                      # قبل الإغلاق» + تدقيق المدقّق). الإغلاق الحقيقي مرجعُ التغطية الصريحة.
+                      "expected_open_iso": _iso(window["open"]),
+                      "expected_close_iso": _iso(window["close"]),
+                      "deadline_iso": _iso(window["deadline"]),
+                      "deadline_reason": window["reason"]})
             bot.log("🔬 E2: القياس الظلّي مُفعَّل (لا يغيّر أي تنبيه/عتبة/اختيار).")
         except Exception as e:
             bot.log(f"⚠️ E2: تعذّر تهيئة القياس ({e}) — نواصل بلا قياس.")
@@ -160,6 +198,17 @@ def main():
             if recorder is not None:
                 recorder.loop_end()
             time.sleep(interval)
+        # 🔬 §2b: بعد اللف الطبيعي، أكمِل مسار الدقيقة لكل رمز مُنبَّه من لحظة الاشتعال حتى
+        # نهاية الجلسة (الرادار يتوقّف عن جلبه بعد التنبيه — دِدوب — فتُفقَد الحركة اللاحقة
+        # اللازمة لتحليل النتيجة). نافذة يوم كامل · فاشل-آمن · لا يمسّ التنبيه/الاختيار.
+        if recorder is not None:
+            try:
+                n_bf = recorder.backfill_emitted(
+                    lambda sym: bot.polygon_minute_bars(sym, minutes=480))
+                if n_bf:
+                    bot.log(f"🔬 E2: رُدم مسار الدقيقة لـ{n_bf} رمز مُنبَّه حتى نهاية الجلسة.")
+            except Exception as e:
+                bot.log(f"⚠️ E2: ردم المسار البعدي ({e})")
     except Exception as e:                 # 🔬 E2 §21.5: لا نفقد الجلسة عند انقطاع غير متوقّع
         termination = "exception"
         bot.log(f"⚠️ رادار الانطلاق: انقطاع غير متوقّع ({type(e).__name__}: {e})")
