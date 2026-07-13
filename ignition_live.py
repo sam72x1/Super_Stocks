@@ -29,7 +29,9 @@ try:
 except ImportError:
     import super_stock as bot
 
-import ignition_measurement as measure   # 🔬 E2-A: قياس ظلّي (مطفأ افتراضيًّا)
+# 🔬 مراجعة Codex 5 (P0): **لا استيراد قياس على مستوى الوحدة** — انكساره (خطأ استيراد/صياغة)
+# كان يقتل السكربت قبل main() فتضيع تنبيهات المقطع كلّها. الاستيراد كسول داخل فرع E2_MEASUREMENT
+# المحمي بـtry/except ⇒ أي فشل قياس = recorder=None والرادار يواصل. (الرادار لا يعتمد القياس.)
 
 SEGMENT_SPLIT_MIN_DEFAULT = 195           # حدّ المقطعين من الافتتاح (~3س15د) — الجزآن < 6س رنر
 MAX_RUNTIME_SAFETY_DEFAULT = 340          # سقف أمان (نادرًا يبلغ) لضمان finalize قبل قتل الجوب
@@ -286,6 +288,7 @@ def main():
     recorder = None
     if os.environ.get("E2_MEASUREMENT", "").strip() == "1":
         try:
+            import ignition_measurement as measure   # 🔬 كسول: فشله لا يوقف الرادار
             # 🔬 P0-4: hash manifest المقطع السابق الحقيقي (سلسلة التحقّق) — لا نص JSON.
             _prev_manifest_sha = (handoff_in or {}).get("manifest_sha256") if handoff_in else None
             recorder = measure.IgnitionMeasurementRecorder(

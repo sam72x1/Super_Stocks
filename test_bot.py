@@ -2533,6 +2533,55 @@ check("🔬 P0-4/P1-7 قفل: المقطع (role) لا يستدعي git_save · 
 check("🔬 Codex5 قفل: فشل handoff/manifest لا يوقف المسح (لا SystemExit/strict بمسار الرادار)",
       "SystemExit" not in _insp0.getsource(IG.main)
       and "IGNITION_HANDOFF_STRICT" not in _insp0.getsource(IG.main))
+# 🔬 مراجعة Codex 5 (P0): استيراد وحدة القياس **كسول داخل فرع E2 المحمي** — لو كان على مستوى
+# الوحدة لقتَل السكربت قبل main() (انكسار قياس ⇒ صفر تنبيه). هنا نُجبر ImportError حقيقيًّا
+# (sys.modules[...] = None) ونثبت أن المسح والإرسال يستمرّان.
+check("🔬 Codex5 قفل: لا استيراد قياس على مستوى الوحدة (كسول داخل فرع E2_MEASUREMENT)",
+      not hasattr(IG, "measure")
+      and "import ignition_measurement" in _insp0.getsource(IG.main))
+_ml_keys = ("E2_MEASUREMENT", "IGNITION_SEGMENT", "IGNITION_HANDOFF_IN", "IGNITION_HANDOFF_OUT",
+            "POLYGON_API_KEY")
+_ml_env = {k: _os.environ.get(k) for k in _ml_keys}
+# مفتاح وهمي: بوّابة «بلا مفتاح = لا عمل» تُخرج main مبكرًا؛ لا شبكة (scan/send مُستبدلان).
+_os.environ.update({"E2_MEASUREMENT": "1", "IGNITION_SEGMENT": "close", "IGNITION_HANDOFF_IN": "",
+                    "IGNITION_HANDOFF_OUT": _os.path.join(_e2_out, "ho_close.json"),
+                    "POLYGON_API_KEY": "TEST_KEY_NOT_USED"})
+import sys as _sys
+_sys.modules["ignition_measurement"] = None      # يجبر ImportError عند الاستيراد الكسول
+
+
+class _StopLoop(Exception):
+    pass
+
+
+_sent_ml, _traces_ml = [], []
+_ml_now = S.dt.datetime.utcnow()
+_ml_saved = (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+             IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep)
+IG._segment_window = lambda role, t0=None: {
+    "role": role, "open": _ml_now, "close": _ml_now + S.dt.timedelta(hours=1),
+    "segment_start": _ml_now, "segment_end": _ml_now + S.dt.timedelta(hours=1),
+    "deadline": _ml_now + S.dt.timedelta(hours=1), "reason": "test",
+    "session_type": "regular", "calendar_version": "test"}
+IG.bot.load_watchlist = lambda: {"stocks": [{"symbol": "IGN", "status": "active"}]}
+IG.bot.scan_ignition = lambda wl, today, trace=None: (
+    _traces_ml.append(trace), [({"symbol": "IGN"}, {"price": 2.0}, None)])[1]
+IG.bot.build_ignition_alert = lambda rows: "ALERT"
+IG.bot.send_telegram = lambda m: _sent_ml.append(m)
+IG.time.sleep = lambda *_a: (_ for _ in ()).throw(_StopLoop())   # يوقف الحلقة بعد دورة واحدة
+try:
+    IG.main()
+except (_StopLoop, Exception):
+    pass
+finally:
+    (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+     IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep) = _ml_saved
+    _sys.modules.pop("ignition_measurement", None)
+    for _k, _v in _ml_env.items():
+        _os.environ.pop(_k, None) if _v is None else _os.environ.update({_k: _v})
+check("🔬 Codex5 قفل: انكسار وحدة القياس (ImportError) لا يمنع المسح ولا إرسال التنبيه",
+      len(_sent_ml) == 1 and _sent_ml[0].startswith("ALERT")   # التنبيه أُرسل (+ التذييل)
+      and _traces_ml == [None])                                # المسجّل سقط ⇒ trace=None والرادار يواصل
 check("🔬 P1-8: manifest نقيّ + canonical JSON حتمي (نفس المدخل = نفس الـhash)",
       _MAN.manifest_sha256({"a": 1, "b": 2}) == _MAN.manifest_sha256({"b": 2, "a": 1})
       and _MAN.sha256_hex("x") == _MAN.sha256_hex("x") and _MAN.manifest_sha256({}) is not None)
