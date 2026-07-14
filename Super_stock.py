@@ -83,6 +83,7 @@ import os
 import re
 import sys
 import json
+import shutil
 import time
 import math
 import datetime as dt
@@ -4616,6 +4617,19 @@ def _chunk_message(text: str, limit: int = 3800) -> list:
     return chunks
 
 
+def _redact_secrets(s) -> str:
+    """يخفي توكن تيليجرام من أي نص يُسجَّل. P1-8 (تدقيق Codex 2026-07-14):
+    استثناءات requests (اتصال/TLS/انتهاء المحاولات) تضع الرابط الكامل
+    ‏/bot<TOKEN>/… في نصّها، وتسجيلها الخام يسرّب التوكن في سجل GitHub Actions."""
+    try:
+        s = str(s)
+        if TELEGRAM_TOKEN and TELEGRAM_TOKEN in s:
+            s = s.replace(TELEGRAM_TOKEN, "***")
+    except Exception:
+        return "***"
+    return s
+
+
 def send_telegram(text: str) -> bool:
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
         log("ℹ️ لا يوجد توكن تيليجرام — الطباعة على الشاشة فقط:")
@@ -4643,7 +4657,7 @@ def send_telegram(text: str) -> bool:
                     log(f"⚠️ تيليجرام رفض ({cid}): {resp.text[:200]}")
                     ok = False
             except Exception as e:
-                log(f"⚠️ خطأ تيليجرام ({cid}): {e}")
+                log(f"⚠️ خطأ تيليجرام ({cid}): {_redact_secrets(e)}")
                 ok = False
         time.sleep(1)
     return ok
@@ -4673,7 +4687,7 @@ def send_telegram_document(path: str, caption: str = "") -> bool:
                 log(f"⚠️ sendDocument رفض ({resp.status_code}): {resp.text[:160]}")
                 ok = False
         except Exception as e:
-            log(f"⚠️ خطأ sendDocument: {e}")
+            log(f"⚠️ خطأ sendDocument: {_redact_secrets(e)}")
             ok = False
     return ok
 
@@ -4828,13 +4842,38 @@ def _dedup_history(history: list) -> list:
     return [latest[k] for k in order]
 
 
+def _handle_corrupt_state_file(path: str, err: Exception) -> None:
+    """ملف حالة موجود لكنه تالف (JSON غير صالح). P0-5 (تدقيق Codex 2026-07-14):
+    كان يُرجَع فارغًا بصمت فيكتب التشغيلُ التالي الفارغَ فوقه = فقد الأسهم النشطة
+    والوقف والدِدوب والتاريخ. الآن: نسخة احتياطية (للتشخيص) + تنبيه المشرف فورًا
+    ليسترجع آخر نسخة سليمة من سجل git. نبقى نُرجع فارغًا (توفّر البوت) لكن بصوتٍ
+    عالٍ لا صمت. عرض/سلامة فقط — لا يمسّ الفرز ولا LOGIC_VERSION."""
+    try:
+        bak = f"{path}.corrupt-{dt.datetime.utcnow().strftime('%Y%m%dT%H%M%S')}"
+        try:
+            shutil.copy2(path, bak)
+        except Exception:
+            bak = "(تعذّر النسخ الاحتياطي)"
+        log(f"🛑 ملف حالة تالف: {path} — {err}. نسخة احتياطية: {bak}. "
+            f"استرجع آخر نسخة سليمة من git قبل الكتابة فوقه.")
+        try:
+            send_telegram(
+                f"🛑 <b>تحذير حالة</b>\nالملف <code>{path}</code> تالف "
+                f"(JSON غير صالح).\nالبوت واصل بقائمة أولية مؤقتًا — "
+                f"استرجع آخر نسخة سليمة من git قبل أن تُكتَب فوقه.")
+        except Exception:
+            pass
+    except Exception as e2:
+        log(f"⚠️ معالجة الملف التالف {path}: {e2}")
+
+
 def load_watchlist() -> dict:
     if os.path.exists(WATCH_FILE):
         try:
             with open(WATCH_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
-            log(f"⚠️ قراءة ملف القائمة: {e}")
+            _handle_corrupt_state_file(WATCH_FILE, e)
     return {"week_start": None, "created": None, "stocks": [],
             "removed": [], "replacements_log": [], "notes": [],
             "history": []}
@@ -9812,7 +9851,7 @@ def load_alerts():
             with open(TRACK_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
-            log(f"⚠️ قراءة سجل التنبيهات: {e}")
+            _handle_corrupt_state_file(TRACK_FILE, e)   # P0-5: لا فقد صامت
     return {"alerts": []}
 
 

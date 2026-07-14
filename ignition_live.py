@@ -532,11 +532,22 @@ def main():
                 if recorder is not None:
                     recorder.telegram_attempt(rows)
                 try:
-                    bot.send_telegram(bot.build_ignition_alert(rows) + "\n\n" + bot.FOOTER)
-                    bot.log(f"🔥 {len(rows)} انطلاق: "
-                            + ", ".join(r[0]["symbol"] for r in rows))
-                    if recorder is not None:
-                        recorder.telegram_success(rows)
+                    # P0-4 (تدقيق Codex 2026-07-14): send_telegram يُرجع False عند رفض
+                    # تيليجرام (429/غير-200) بلا رمي استثناء، فكان يُسجَّل «نجاح» زائف
+                    # (والقياس E2 يقول «وصل»). نحترم القيمة: النجاح فقط عند الوصول الفعلي.
+                    sent_ok = bot.send_telegram(
+                        bot.build_ignition_alert(rows) + "\n\n" + bot.FOOTER)
+                    if sent_ok:
+                        bot.log(f"🔥 {len(rows)} انطلاق: "
+                                + ", ".join(r[0]["symbol"] for r in rows))
+                        if recorder is not None:
+                            recorder.telegram_success(rows)
+                    else:
+                        bot.log(f"⚠️ تيليجرام رفض تنبيه الانطلاق "
+                                f"({len(rows)} سهم) — لم يصل.")
+                        if recorder is not None:
+                            recorder.telegram_failure(
+                                rows, error_type="telegram_send_failed")
                 except Exception as e:
                     bot.log(f"⚠️ إرسال تنبيه الانطلاق: {e}")
                     if recorder is not None:

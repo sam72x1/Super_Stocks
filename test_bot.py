@@ -5713,6 +5713,58 @@ check("دعوم/مقاومات أساسية وفرعية (فيصل): أساسي=
 check(f"③ حارس المستويات فُحص كاملًا ({_kl_seen}/8)", _kl_seen == 8)
 
 
+# ══════════════════════════════════════════════════════════
+# 🔍 أقفال تدقيق Codex المستقل (gpt-5.6-sol·xhigh) — 2026-07-14
+# P0-4 (تنبيه مفقود + نجاح قياس زائف) · P0-5 (ملف تالف→فقد صامت) · P1-8 (تسريب توكن)
+# ══════════════════════════════════════════════════════════
+import tempfile as _tf, os as _os2, inspect as _insp2
+
+# P1-8: إخفاء التوكن من النصوص المسجَّلة
+_tok_save = S.TELEGRAM_TOKEN
+try:
+    S.TELEGRAM_TOKEN = "999888:SEKRET_tok_XYZ"
+    _leak = f"HTTPSConnectionPool url: /bot{S.TELEGRAM_TOKEN}/sendMessage failed"
+    _red = S._redact_secrets(_leak)
+    check("P1-8: التوكن يُخفى من نص الاستثناء المسجَّل",
+          S.TELEGRAM_TOKEN not in _red and "***" in _red)
+    check("P1-8: _redact_secrets آمن مع None",
+          isinstance(S._redact_secrets(None), str))
+finally:
+    S.TELEGRAM_TOKEN = _tok_save
+
+# P0-5: ملف حالة تالف → لا فقد صامت (نسخة احتياطية + بنية أولية + تحذير)
+_wf_save, _tk_save = S.WATCH_FILE, S.TELEGRAM_TOKEN
+try:
+    S.TELEGRAM_TOKEN = ""              # لا إرسال فعلي أثناء الاختبار
+    _d = _tf.mkdtemp()
+    _cf = _os2.path.join(_d, "weekly_watchlist.json")
+    with open(_cf, "w", encoding="utf-8") as _fh:
+        _fh.write('{"stocks": [ TALEF ghyr sahih JSON')
+    S.WATCH_FILE = _cf
+    _r = S.load_watchlist()
+    _baks = [f for f in _os2.listdir(_d) if ".corrupt-" in f]
+    check("P0-5: ملف تالف لا يرمي ويُرجع بنية أولية",
+          isinstance(_r, dict) and _r.get("stocks") == [])
+    check("P0-5: ملف تالف يُنسَخ احتياطيًّا (لا فقد صامت)", len(_baks) >= 1)
+    check("P0-5: النسخة الاحتياطية تحفظ المحتوى التالف الأصلي",
+          bool(_baks) and open(_os2.path.join(_d, _baks[0]),
+                               encoding="utf-8").read().startswith('{"stocks"'))
+finally:
+    S.WATCH_FILE, S.TELEGRAM_TOKEN = _wf_save, _tk_save
+
+# P0-4: send_telegram يُرجع False عند تعذّر الإرسال + ignition_live يحترم القيمة
+_tk_save2 = S.TELEGRAM_TOKEN
+try:
+    S.TELEGRAM_TOKEN = ""
+    check("P0-4: send_telegram يُرجع False بلا توكن (قيمة صادقة للمستدعي)",
+          S.send_telegram("t") is False)
+finally:
+    S.TELEGRAM_TOKEN = _tk_save2
+_il_src = _insp2.getsource(IG.main)
+check("P0-4: ignition_live يفحص قيمة send_telegram قبل تسجيل نجاح القياس",
+      "sent_ok" in _il_src and "telegram_send_failed" in _il_src)
+
+
 # ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
