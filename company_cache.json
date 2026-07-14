@@ -758,7 +758,6 @@
   "short_pct": 4.9,
   "float": 101976366
  },
- "NAGE": {},
  "QNRX": {
   "finra_short": 8463
  },
@@ -1162,5 +1161,7 @@
   "days_to_cover": 0.08
  },
  "LI": {},
- "SY": {}
+ "SY": {},
+ "NAGE": {},
+ "PETS": {}
 }

@@ -773,9 +773,9 @@
    "drop_pct": 76.580795774709,
    "best_spike": 226.2411357111557,
    "rr": 2.2236347425024396,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 9.2
+   "status": "hit_t1",
+   "result_date": "2026-07-13",
+   "max_gain_pct": 14.3
   },
   {
    "symbol": "SBET",
@@ -885,7 +885,7 @@
    "rr": 0.9438006565172173,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.7
+   "max_gain_pct": 2.8
   },
   {
    "symbol": "HFFG",
@@ -953,7 +953,7 @@
    "rr": 3.0559702214923283,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.2
+   "max_gain_pct": 7.6
   },
   {
    "symbol": "PTN",
@@ -1021,7 +1021,7 @@
    "rr": 2.059620843728043,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 9.0
   },
   {
    "symbol": "CDLX",
@@ -1054,7 +1054,7 @@
    "rr": 2.8499372670438983,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 0.5
   },
   {
    "symbol": "SY",
@@ -1086,6 +1086,42 @@
    "drop_pct": 72.77070093920972,
    "best_spike": 481.18811296886133,
    "rr": 4.861110113101444,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 1.5
+  },
+  {
+   "symbol": "PETS",
+   "date": "2026-07-14",
+   "ref_bar": "2026-07-13",
+   "price": 1.91,
+   "stop": 1.5066,
+   "t1": 2.07,
+   "t2": 2.2,
+   "t3": 2.28,
+   "score": 70,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "جفاف بيع",
+    "يرتكز على متوسط 30/50",
+    "ثبات 24 جلسات فوق القاع",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة عالية يومي 27%",
+    "فجوات متعددة الفريمات (أسبوعي)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 48.31881042943484,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 53.41463387686181,
+   "best_spike": 143.75000232830638,
+   "rr": 2.4479804825935063,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
