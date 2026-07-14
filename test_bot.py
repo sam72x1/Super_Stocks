@@ -5887,6 +5887,27 @@ finally:
 check("🛡️ حارس: _fresh_watchlist/_fetch_head_sha لا ينفّذان git بلا runner تحت الاختبار",
       IG._fresh_watchlist({"stocks": []}) is None and IG._fetch_head_sha() is None)
 
+# 📊 P1-6 (أداة الأرباح · عرض/صدق فقط): كون فارغ (فشل شبكة يبتلعه get_universe) =
+# «تعذّر المسح» لا «لا توجد أسهم» — الاطمئنان الكاذب كان يخفي أن المسح لم يعمل أصلًا.
+_gu_save = S.get_universe
+try:
+    S.get_universe = lambda: []                     # فشل شبكة مبتلَع (بلا استثناء)
+    check("📊 P1-6: كون ناسداك فارغ ⇒ scan_nasdaq_earnings يرجع None (تعذّر مسح، لا «صفر»)",
+          TR.scan_nasdaq_earnings() is None)
+finally:
+    S.get_universe = _gu_save
+check("📊 P1-6: رسالة «تعذّر المسح» مغايرة لرسالة «لا توجد أسهم» (لا خلط)",
+      "تعذّر" in TR.render_scan(None) and "تعذّر" not in TR.render_scan([]))
+
+# 🌍 P1-5 (الباكتيست · عرض/صدق فقط): سقوط الكون للاحتياطي (= أسهم رشّحها البوت) كان
+# يُعنوَن «السوق الكامل بلا انحياز اختيار» = عكس الحقيقة. الآن يُصرَّح بالانحياز.
+_bt_src = _insp0.getsource(S.run_backtest)
+check("🌍 P1-5: الكون الاحتياطي يُعلَّم `market_fallback` ولا يُعنوَن «بلا انحياز»",
+      "market_fallback = True" in _bt_src
+      and "منحاز اختيارًا" in _bt_src
+      and _bt_src.index("market_fallback = True") < _bt_src.index(
+          "🌍 <b>باكتيست السوق الكامل (بلا انحياز اختيار)</b>"))
+
 
 # ==========================================================
 print("\n" + "=" * 50)
