@@ -8,6 +8,9 @@
 import inspect as _insp0
 import json
 import os as _os_hc
+# 🛡️ حارس حادثة 2026-07-14: يمنع أي git_save حقيقي أثناء الاختبارات (اختبار E2 شغّل
+# ignition_live.main() فنفّذ git حقيقيًّا ودفع بيانات وهمية على main). يُقرأ وقت النداء.
+_os_hc.environ["SUPER_STOCKS_TESTING"] = "1"
 import types as _ty0
 import numpy as np
 import pandas as pd
@@ -5763,6 +5766,18 @@ finally:
 _il_src = _insp2.getsource(IG.main)
 check("P0-4: ignition_live يفحص قيمة send_telegram قبل تسجيل نجاح القياس",
       "sent_ok" in _il_src and "telegram_send_failed" in _il_src)
+
+# 🛡️ حادثة 2026-07-14: git_save بلا runner محقون لا ينفّذ git حقيقيًّا تحت الاختبار
+# (اختبار E2 كان يشغّل main() فيدفع بيانات وهمية على main — هذا يمنع تكراره)
+_gs_called = []
+_real_system_hc = S.os.system
+try:
+    S.os.system = lambda *a, **k: (_gs_called.append(a), 0)[1]
+    S.git_save(["nonexistent_incident_guard.json"])   # بلا runner + SUPER_STOCKS_TESTING=1
+    check("🛡️ حادثة: git_save بلا runner لا ينفّذ git حقيقيًّا تحت الاختبار",
+          len(_gs_called) == 0)
+finally:
+    S.os.system = _real_system_hc
 
 
 # ==========================================================
