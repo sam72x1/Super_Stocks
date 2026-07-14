@@ -17,5 +17,15 @@
   "vol_x": 29.0,
   "usd": 85934,
   "candle_class": "mid"
+ },
+ {
+  "symbol": "LI",
+  "date": "2026-07-14",
+  "fired_at": "2026-07-14T19:20:36Z",
+  "break_level": 12.34,
+  "price": 12.485,
+  "vol_x": 6.0,
+  "usd": 203680,
+  "candle_class": "operator"
  }
 ]
