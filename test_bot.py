@@ -5779,6 +5779,51 @@ try:
 finally:
     S.os.system = _real_system_hc
 
+# ══════════════════════════════════════════════════════════
+# 🔍 متابعة Codex على a0c6947 (2026-07-14): تغطية أوسع للتسريب/الفقد الصامت
+# ══════════════════════════════════════════════════════════
+# #3: cline_notify يخفي التوكن من الاستثناءات المطبوعة
+import cline_notify as _CN
+_cn_tok_save = _os2.environ.get("TELEGRAM_BOT_TOKEN")
+try:
+    _os2.environ["TELEGRAM_BOT_TOKEN"] = "777:CN_secret_tok"
+    _cn_red = _CN._redact("URLError url: /bot777:CN_secret_tok/sendMessage")
+    check("متابعة P1-8: cline_notify يخفي التوكن من النص المطبوع",
+          "777:CN_secret_tok" not in _cn_red and "***" in _cn_red)
+finally:
+    if _cn_tok_save is None:
+        _os2.environ.pop("TELEGRAM_BOT_TOKEN", None)
+    else:
+        _os2.environ["TELEGRAM_BOT_TOKEN"] = _cn_tok_save
+
+# #4: باقي ملفات الحالة (company/ignition_log/ignition_universe) تعالج التلف بلا فقد صامت
+_files_save = (S.COMPANY_FILE, S.IGNITION_LOG_FILE, S.IGNITION_UNI_FILE)
+_tk_save4 = S.TELEGRAM_TOKEN
+try:
+    S.TELEGRAM_TOKEN = ""                      # لا إرسال فعلي أثناء الاختبار
+    _d4 = _tf.mkdtemp()
+
+    def _mk_corrupt(name):
+        _p = _os2.path.join(_d4, name)
+        with open(_p, "w", encoding="utf-8") as _fh:
+            _fh.write("{ TALEF ghyr sahih JSON")
+        return _p
+
+    S.COMPANY_FILE = _mk_corrupt("company_cache.json")
+    S.IGNITION_LOG_FILE = _mk_corrupt("ignition_log.json")
+    S.IGNITION_UNI_FILE = _mk_corrupt("ignition_universe.json")
+    _cc = S._load_company_cache()
+    _il = S.load_ignition_log()
+    S.record_ignition_universe(["PTN"], "2026-07-20")   # يقرأ التالف ثم يكتب
+    _baks4 = [f for f in _os2.listdir(_d4) if ".corrupt-" in f]
+    check("متابعة P0-5: _load_company_cache تالف → {} بلا انهيار", _cc == {})
+    check("متابعة P0-5: load_ignition_log تالف → [] بلا انهيار", _il == [])
+    check("متابعة P0-5: الملفات الثلاثة تُنسَخ احتياطيًّا عند التلف (لا فقد صامت)",
+          len(_baks4) >= 3)
+finally:
+    (S.COMPANY_FILE, S.IGNITION_LOG_FILE, S.IGNITION_UNI_FILE) = _files_save
+    S.TELEGRAM_TOKEN = _tk_save4
+
 
 # ==========================================================
 print("\n" + "=" * 50)

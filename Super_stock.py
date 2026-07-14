@@ -4767,8 +4767,8 @@ def _load_company_cache() -> dict:
         try:
             with open(COMPANY_FILE, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except Exception:
-            pass
+        except Exception as e:
+            _handle_corrupt_state_file(COMPANY_FILE, e)   # P0-5: لا فقد صامت
     return {}
 
 
@@ -7014,7 +7014,7 @@ def load_ignition_log() -> list:
                 data = json.load(f)
                 return data if isinstance(data, list) else []
     except Exception as e:
-        log(f"⚠️ قراءة سجلّ الانطلاق: {e}")
+        _handle_corrupt_state_file(IGNITION_LOG_FILE, e)   # P0-5: لا فقد صامت
     return []
 
 
@@ -7070,7 +7070,8 @@ def record_ignition_universe(symbols, today_iso) -> bool:
             try:
                 with open(IGNITION_UNI_FILE, "r", encoding="utf-8") as f:
                     data = json.load(f) or []
-            except Exception:
+            except Exception as e:
+                _handle_corrupt_state_file(IGNITION_UNI_FILE, e)   # P0-5: لا فقد صامت
                 data = []
         if any(e.get("date") == today_iso for e in data):
             return False                       # جلسة اليوم مسجَّلة أصلًا
