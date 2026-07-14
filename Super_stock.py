@@ -6568,7 +6568,13 @@ def polygon_base_trades(sym: str, days: int = None, end_date=None,
         for _ in range(6):                                # حتى ~300k سقف صلب
             r = requests.get(url, headers=h, timeout=12)
             if r.status_code != 200:
-                return out or None
+                # P2-4 (تدقيق Codex 2026-07-14 · بحث/قياس فقط — خارج مسار التنبيه):
+                # كان `return out or None` يُرجع **نصف النافذة كأنها كاملة** عند 429 في
+                # صفحة لاحقة، فتُحسب نسب `acc_components` على عيّنة مبتورة **بلا أي علامة**
+                # (تجربة T-ACC تُحسم على بيانات ناقصة). عقد الطبقة: فشل = None، لا بتر صامت.
+                log(f"⚠️ Polygon·صفقات {sym}: صفحة فشلت ({r.status_code}) — "
+                    f"نافذة مبتورة ({len(out)} صفقة) تُسقَط (فاشل-آمن، لا نتيجة على ناقص).")
+                return None
             j = r.json() or {}
             for t in (j.get("results") or []):
                 out.append({"price": t.get("price"), "size": t.get("size"),
@@ -7548,12 +7554,17 @@ def _collect_closed_alerts(alert_data) -> list:
 
 def _dedup_closed(rows: list) -> list:
     """يزيل تكرار الصفقة المحسومة بين المصدرين (القائمة + alerts) بمفتاح
-    (رمز, entry_ref) — الأول يفوز. طبقة تقارير فقط، لا تمسّ الفرز. (تأمين فحص
+    (رمز, entry_ref, added) — الأول يفوز. طبقة تقارير فقط، لا تمسّ الفرز. (تأمين فحص
     2026-06-30: دمج _collect_closed + _collect_closed_alerts كان يحتمل عدّ نفس
-    الصفقة مرّتين لو ظهرت في القائمة و alerts معًا — غير مؤذٍ الآن، حارس وقائي.)"""
+    الصفقة مرّتين لو ظهرت في القائمة و alerts معًا — غير مؤذٍ الآن، حارس وقائي.)
+    ⚠️ **P2-6 (تدقيق Codex 2026-07-14): أُضيف `added` للمفتاح.** المفتاح بالرمز والسعر
+    وحدهما كان يخلط **ترشيحين مستقلّين** لنفس السهم بنفس سعر الدخول في أسبوعين مختلفين
+    (تصادم مثبَت في السجل: LYEL بنفس entry_ref وتاريخَي إضافة مختلفين) → الصفقة الثانية
+    **تُحذف من الإحصاء بصمت**، فتنحاز نسبة النجاح ويختفي كسبٌ/خسارةٌ حقيقية من التقرير.
+    `added` مضمون في الصفوف (يُملأ من `date` احتياطًا في `_collect_closed*`)."""
     seen, out = set(), []
     for r in rows:
-        k = (r.get("symbol"), r.get("entry_ref"))
+        k = (r.get("symbol"), r.get("entry_ref"), r.get("added"))
         if k in seen:
             continue
         seen.add(k)

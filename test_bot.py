@@ -5908,6 +5908,51 @@ check("🌍 P1-5: الكون الاحتياطي يُعلَّم `market_fallback`
       and _bt_src.index("market_fallback = True") < _bt_src.index(
           "🌍 <b>باكتيست السوق الكامل (بلا انحياز اختيار)</b>"))
 
+# 📈 P2-6 (تقارير فقط): ترشيحان مستقلّان لنفس السهم بنفس سعر الدخول (تاريخان مختلفان)
+# كانا يُدمجان في صفقة واحدة — الثانية تختفي من الإحصاء بصمت (تصادم LYEL المثبَت).
+_dc = S._dedup_closed([
+    {"symbol": "LYEL", "entry_ref": 14.05, "added": "2026-05-04", "_win": True},
+    {"symbol": "LYEL", "entry_ref": 14.05, "added": "2026-05-18", "_win": False},
+    {"symbol": "LYEL", "entry_ref": 14.05, "added": "2026-05-18", "_win": False},   # تكرار حقيقي
+])
+check("📈 P2-6: صفقتان بنفس (رمز, سعر) وتاريخَي إضافة مختلفين **لا تُدمجان** (لا فقد إحصاء)",
+      len(_dc) == 2 and {r["added"] for r in _dc} == {"2026-05-04", "2026-05-18"})
+
+# 🔬 P2-4 (بحث/قياس فقط · خارج مسار التنبيه): فشل صفحة لاحقة من Polygon كان يُرجع نصف
+# النافذة **كأنها كاملة** ⇒ نِسَب T-ACC تُحسب على عيّنة مبتورة بلا علامة. الآن None.
+# اختبار سلوكي: الصفحة 1 تنجح (بـnext_url) والصفحة 2 ترد 429 ⇒ يجب None لا بيانات جزئية.
+class _FakeResp:
+    def __init__(self, code, payload=None):
+        self.status_code, self._p = code, (payload or {})
+
+    def json(self):
+        return self._p
+
+
+_pg = {"n": 0}
+
+
+def _fake_get(url, headers=None, timeout=None, **kw):
+    _pg["n"] += 1
+    if _pg["n"] == 1:
+        return _FakeResp(200, {"results": [{"price": 1.0, "size": 100, "exchange": 4}] * 40,
+                               "next_url": "https://api.polygon.io/next"})
+    return _FakeResp(429)                       # خنق في الصفحة الثانية
+
+
+_req_save = S.requests.get
+_key_save = _os2.environ.get("POLYGON_API_KEY")
+try:
+    S.requests.get = _fake_get
+    _os2.environ["POLYGON_API_KEY"] = "TEST_KEY"
+    _partial = S.polygon_base_trades("TST")
+    check("🔬 P2-4 سلوكي: خنق صفحة لاحقة ⇒ None (لا نافذة مبتورة تُقدَّم كاملة)",
+          _partial is None and _pg["n"] == 2)
+finally:
+    S.requests.get = _req_save
+    _os2.environ.pop("POLYGON_API_KEY", None) if _key_save is None \
+        else _os2.environ.update({"POLYGON_API_KEY": _key_save})
+
 
 # ==========================================================
 print("\n" + "=" * 50)
