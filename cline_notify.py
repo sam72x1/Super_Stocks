@@ -30,7 +30,13 @@ def _redact(text):
     في سجلّ GitHub Actions."""
     tok = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
     s = str(text)
-    return s.replace(tok, "***") if tok and tok in s else s
+    if not tok:
+        return s
+    # 🔒 توسعة (مراجعة Codex على 1e322c5): الشكل المرمّز-URL أيضًا (`:` → `%3A`).
+    for form in (tok, urllib.parse.quote(tok, safe="")):
+        if form and form in s:
+            s = s.replace(form, "***")
+    return s
 
 
 def find_report():

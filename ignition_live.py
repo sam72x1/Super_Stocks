@@ -170,7 +170,11 @@ def _fresh_watchlist(cur_wl, runner=None):
     ملفه المحلي أبدًا؛ كان يلفّ ~6 ساعات على لقطة مجمَّدة وقد يصرخ «ادخل الآن»
     على سهم شُطب قبل ساعات. ينقل أختام دِدوب الجلسة (`ignition_alert`) من النسخة
     الحالية للجديدة (الرادار لا يحفظ — الأختام بالذاكرة). `runner` محقون للاختبار.
-    **فاشل-آمن → None** (نواصل على آخر نسخة = سلوك اليوم)."""
+    **فاشل-آمن → None** (نواصل على آخر نسخة = سلوك اليوم).
+    🛡️ حارس اختبار (مراجعة Codex على 1e322c5): بلا `runner` محقون تحت `SUPER_STOCKS_TESTING`
+    = **لا git/شبكة حقيقيان** (اختبار ينسى المحاكاة كان يجلب فعليًّا — صنف حادثة 2026-07-14)."""
+    if runner is None and os.environ.get("SUPER_STOCKS_TESTING") == "1":
+        return None
     run = runner or subprocess.run
     try:
         run(["git", "fetch", "origin", "main", "-q"],
@@ -200,7 +204,9 @@ def _fresh_watchlist(cur_wl, runner=None):
 
 def _fetch_head_sha(runner=None):
     """🔬 P1.4: commit `weekly_watchlist.json` على origin/main (بعد fetch) — للـprovenance.
-    فاشل-آمن → None."""
+    فاشل-آمن → None. 🛡️ حارس اختبار: لا git حقيقي بلا runner محقون تحت SUPER_STOCKS_TESTING."""
+    if runner is None and os.environ.get("SUPER_STOCKS_TESTING") == "1":
+        return None
     run = runner or subprocess.run
     try:
         r = run(["git", "rev-parse", "FETCH_HEAD"], capture_output=True, timeout=15)

@@ -5825,6 +5825,69 @@ finally:
     S.TELEGRAM_TOKEN = _tk_save4
 
 
+# ══════════════════════════════════════════════════════════
+# 🔍 مراجعة Codex على 1e322c5 (2026-07-15) — أقفال الإصلاحات الآمنة
+# ══════════════════════════════════════════════════════════
+# 🛑 P0 (انحدار أدخله 1e322c5): كاش شركة تالف كان يقتل **الاستيراد** بـNameError
+# (`COMPANY_CACHE = _load_company_cache()` يُنفَّذ وقت الاستيراد قبل تعريف المعالِج) ⇒
+# كل workflow يموت قبل أي فرز/تنبيه. القفل الوحيد الذي يمسكه = **عملية جديدة** فعلًا.
+import subprocess as _sp_imp, tempfile as _tf_imp, shutil as _sh_imp
+_imp_dir = _tf_imp.mkdtemp()
+try:
+    _sh_imp.copy2("Super_stock.py", _os2.path.join(_imp_dir, "Super_stock.py"))
+    with open(_os2.path.join(_imp_dir, "company_cache.json"), "w", encoding="utf-8") as _fh:
+        _fh.write('{"AAPL": TALEF ghyr sahih')
+    _imp = _sp_imp.run(
+        [_sys.executable, "-c",
+         "import Super_stock as S; assert S.COMPANY_CACHE == {}; print('IMPORT_OK')"],
+        cwd=_imp_dir, capture_output=True, text=True, timeout=180,
+        env={**_os2.environ, "TELEGRAM_BOT_TOKEN": "", "SUPER_STOCKS_TESTING": "1"})
+    check("🛑 P0 (Codex/1e322c5): كاش شركة تالف **لا يقتل الاستيراد** (ترتيب التعريف)",
+          _imp.returncode == 0 and "IMPORT_OK" in _imp.stdout
+          and "NameError" not in (_imp.stderr or ""))
+finally:
+    _sh_imp.rmtree(_imp_dir, ignore_errors=True)
+
+# 🔒 P1-8 (توسعة): الشكل المرمّز-URL + جسم رد تيليجرام + cline_notify
+_tk_save5 = S.TELEGRAM_TOKEN
+try:
+    S.TELEGRAM_TOKEN = "998877:SEKRET_tok_ABC"
+    from urllib.parse import quote as _q8
+    _enc = _q8(S.TELEGRAM_TOKEN, safe="")
+    _out8 = S._redact_secrets(f"ProxyError url=/bot{_enc}/sendMessage")
+    check("🔒 P1-8: التوكن **المرمّز-URL** (%3A) يُخفى أيضًا",
+          S.TELEGRAM_TOKEN not in _out8 and _enc not in _out8 and "***" in _out8)
+    _src8 = _insp2.getsource(S.send_telegram) + _insp2.getsource(S.send_telegram_document)
+    check("🔒 P1-8: جسم رد تيليجرام (resp.text) يمرّ عبر المُخفي — لا تسجيل خام",
+          "_redact_secrets(resp.text)" in _src8 and "{resp.text[" not in _src8)
+finally:
+    S.TELEGRAM_TOKEN = _tk_save5
+_cn_tok5 = _os2.environ.get("TELEGRAM_BOT_TOKEN")
+try:
+    _os2.environ["TELEGRAM_BOT_TOKEN"] = "555:CN_tok_XY"
+    import urllib.parse as _up5
+    _cn_enc = _up5.quote("555:CN_tok_XY", safe="")
+    check("🔒 P1-8: cline_notify يخفي التوكن حرفيًّا **ومرمّزًا**",
+          "555:CN_tok_XY" not in _CN._redact("err /bot555:CN_tok_XY/x")
+          and _cn_enc not in _CN._redact(f"err /bot{_cn_enc}/x"))
+finally:
+    _os2.environ.pop("TELEGRAM_BOT_TOKEN", None) if _cn_tok5 is None \
+        else _os2.environ.update({"TELEGRAM_BOT_TOKEN": _cn_tok5})
+
+# 🛡️ حارس الحادثة (توسعة): لا يُتجاوَز بحقن المشغّل الحقيقي · ورادار الانطلاق لا يجلب git
+_gs_calls2 = []
+_real_sys2 = S.os.system
+try:
+    S.os.system = lambda *a, **k: (_gs_calls2.append(a), 0)[1]
+    S.git_save(["nonexistent_guard2.json"], runner=S.os.system)   # حقن المشغّل الحقيقي
+    check("🛡️ حارس: حقن `runner=os.system` **لا يتجاوز** وضع الاختبار (لا git حقيقي)",
+          len(_gs_calls2) == 0)
+finally:
+    S.os.system = _real_sys2
+check("🛡️ حارس: _fresh_watchlist/_fetch_head_sha لا ينفّذان git بلا runner تحت الاختبار",
+      IG._fresh_watchlist({"stocks": []}) is None and IG._fetch_head_sha() is None)
+
+
 # ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
