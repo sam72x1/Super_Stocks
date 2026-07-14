@@ -8,6 +8,9 @@
 import inspect as _insp0
 import json
 import os as _os_hc
+# 🛡️ حارس حادثة 2026-07-14: يمنع أي git_save حقيقي أثناء الاختبارات (اختبار E2 شغّل
+# ignition_live.main() فنفّذ git حقيقيًّا ودفع بيانات وهمية على main). يُقرأ وقت النداء.
+_os_hc.environ["SUPER_STOCKS_TESTING"] = "1"
 import types as _ty0
 import numpy as np
 import pandas as pd
@@ -740,6 +743,18 @@ try:
           and not any("git push" in c for c in _gs_cmds3))
 finally:
     _os_hc.remove(_gs_tmp) if _os_hc.path.exists(_gs_tmp) else None
+
+# 🛡️ حادثة 2026-07-14: git_save بلا runner محقون لا ينفّذ git حقيقيًّا تحت الاختبار
+# (اختبار E2 كان يشغّل ignition_live.main() فيدفع بيانات وهمية على main — يمنع تكراره)
+_gs_incident = []
+_real_system_inc = S.os.system
+try:
+    S.os.system = lambda *a, **k: (_gs_incident.append(a), 0)[1]
+    S.git_save(["nonexistent_incident_guard.json"])   # بلا runner + SUPER_STOCKS_TESTING=1
+    check("🛡️ حادثة 2026-07-14: git_save بلا runner لا ينفّذ git حقيقيًّا تحت الاختبار",
+          len(_gs_incident) == 0)
+finally:
+    S.os.system = _real_system_inc
 
 # 4ط) 🔒 ④ (إصلاح تدقيق 2026-07-12): اختبارات **رفض** البوابات الصلبة M1-M5/M10 —
 #     كانت صفرًا: أي عتبة CONFIG يمكن تغييرها (أو عكس عامل مقارنة) والسويّة خضراء.

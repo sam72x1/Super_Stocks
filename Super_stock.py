@@ -9633,6 +9633,14 @@ def git_save(filenames, runner=None, sender=None):
     التقرير) — جوب الرادار 6 ساعات وسيحجز المراقب خلفه طوال الجلسة؛ هذا
     الاسترجاع يحل تعارضه بلا قتل التوازي المقصود."""
     run = runner or os.system
+    # 🛡️ حارس اختبار (حادثة تدقيق 2026-07-14): لا git حقيقي أثناء الاختبارات.
+    # اختبار E2 شغّل ignition_live.main() في الوضع الفردي بلا عزل git_save، فنفّذ
+    # reset --hard + commit + push حقيقيًّا وكتب بيانات وهمية (["IGN"]) على main.
+    # الآن: تحت SUPER_STOCKS_TESTING وبلا runner محقون = لا عمل إطلاقًا. الاختبارات
+    # التي تحقن runner (اختبار git_save نفسه) تعمل عادي. الإنتاج غير متأثّر (المتغيّر
+    # يُضبط في test_bot.py فقط) · لا يمسّ الفرز/الجذور · لا LOGIC_VERSION.
+    if runner is None and os.environ.get("SUPER_STOCKS_TESTING") == "1":
+        return
     try:
         run('git config user.email "bot@screener.local"')
         run('git config user.name "Screener Bot"')
