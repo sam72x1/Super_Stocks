@@ -284,6 +284,7 @@ CONFIG = {
     "BT_SPREAD_PCT": 0.0,                # 🔬 F-COST: تكلفة تنفيذ (سبريد+انزلاق) — 0=سلوك
                                          # اليوم؛ نصفها يرفع الدخول ويخفض الخروج (حساسية 1/3/5%)
     "BT_POTENTIAL": 0,                   # 🏦 قوة البوت: قِس أقصى صعود من الدخول قبل الوقف
+    "BT_FEATURES": 0,                    # 🔬 أعمدة تحليل point-in-time (قطاع + أيام أرباح) — باكتيست فقط
     "BT_PORTFOLIO": 0,                   # 🏦 محاكاة الانتقائية (أفضل N بالترتيب)
     "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE)
     "BT_RAW_PRICE": 0,                   # 🕰️ point-in-time: 1 = تحميل خام (auto_adjust=False)
@@ -418,6 +419,7 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_SWEEP_MIN_RR", "BT_SWEEP_MIN_RR", float),
             ("BT_SPREAD_PCT", "BT_SPREAD_PCT", float),    # 🔬 F-COST
             ("BT_POTENTIAL", "BT_POTENTIAL", int),        # 🏦 قوة البوت
+            ("BT_FEATURES", "BT_FEATURES", int),          # 🔬 أعمدة تحليل point-in-time
             ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
             ("BT_PORT_SIZE", "BT_PORT_SIZE", int),
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
@@ -9544,6 +9546,75 @@ def _default_backtest_symbols() -> list:
     return sorted(syms)
 
 
+def _bt_sector(sym, fetch=None):
+    """قطاع السهم (شبه ثابت → مخاطر نظر مستقبلي دنيا). فاشل-آمن → «—». fetch للاختبار.
+    ⚠️ **إصلاح مراجعة Codex:** `_fetch_info` يتوقّع **كائن Ticker** (يقرأ `t.info`) لا نصًّا —
+    فنبني `yf.Ticker(sym)` بمسار الإنتاج (تمرير النصّ كان يفشل 9ث/سهم ثم «—»). fetch يتخطّاه للاختبار."""
+    try:
+        if fetch is not None:
+            info = fetch(sym)
+        elif yf is not None:
+            info = _fetch_info(yf.Ticker(sym)) or {}
+        else:
+            return "—"
+        return (info.get("sector") if isinstance(info, dict) else info) or "—"
+    except Exception:
+        return "—"
+
+
+def _bt_earnings_dates(sym, fetch=None):
+    """تواريخ أرباح (تاريخية+قادمة) ISO — فاشل-آمن → []. fetch للاختبار.
+    ⚠️ **حدّ صدق (مراجعة Codex):** `Ticker.earnings_dates` تُجلب **وقت التشغيل** بلا طابع
+    «معلوم-في» (known_at) — تثبت أن الحدث **بعد** الإشارة لكن **لا** تثبت أن تاريخه كان **معلومًا**
+    يوم الإشارة (قد يكون backfill/مُعاد جدولة). فـ`days_to_earnings` **best-effort لا point-in-time
+    مضمون تاريخيًّا** (الأرباح القادمة عادةً مُعلَنة ربعًا مقدَّمًا فالتقريب معقول، لكن للاستدلال
+    التاريخي الصارم يلزم مصدر as-of أو لقطات prospective — لا يُعتمَد كسمة اختيار بلا ذلك)."""
+    try:
+        if fetch is not None:
+            return list(fetch(sym) or [])
+        if yf is None:
+            return []
+        ed = yf.Ticker(sym).earnings_dates
+        if ed is None or len(ed) == 0:
+            return []
+        return [ix.date().isoformat() for ix in ed.index]
+    except Exception:
+        return []
+
+
+def _bt_days_to_earnings(signal_iso, dates):
+    """دالّة نقيّة: أيام من الإشارة لأقرب أرباح **بعدها** (point-in-time، تواريخ معلنة مسبقًا =
+    بلا تسريب). None لو لا لاحق/تعذّر."""
+    try:
+        sd = str(signal_iso)[:10]
+        fut = sorted(str(d)[:10] for d in dates if d and str(d)[:10] >= sd)
+        return (dt.date.fromisoformat(fut[0]) - dt.date.fromisoformat(sd)).days if fut else None
+    except Exception:
+        return None
+
+
+def _bt_feature_enrich(all_trades, sector_fetch=None, earn_fetch=None):
+    """يُثري صفقات الباكتيست بعمودَي تحليل (قطاع + أيام لأقرب أرباح) **قبل** كتابة الـCSV.
+    **إلحاق فقط, لا يمسّ أي حكم باكتيست** (fwd_max_gain/exploded محسوبة في backtest_symbol الجذر).
+    قطاع/أرباح مرة/سهم (كاش). ⚠️ float و cost-to-borrow **مُستبعَدان عمدًا** (نظر مستقبلي/بلا
+    تاريخ مجاني = لا يُباكتَستان بصدق — يُقاسان مستقبليًّا فقط). فاشل-آمن.
+    ⚠️ **حدّ صدق (مراجعة Codex):** `days_to_earnings` **best-effort لا point-in-time مضمون تاريخيًّا**
+    (`earnings_dates` بلا known_at — تفصيل في `_bt_earnings_dates`). `sector` شبه ثابت فخطر النظر
+    المستقبلي فيه أدنى. الاستدلال الصارم على الأرباح يلزمه مصدر as-of/لقطات prospective."""
+    _sec, _earn = {}, {}
+    for t in all_trades:
+        sym = t.get("symbol")
+        if not sym:
+            continue
+        if sym not in _sec:
+            _sec[sym] = _bt_sector(sym, fetch=sector_fetch)
+        if sym not in _earn:
+            _earn[sym] = _bt_earnings_dates(sym, fetch=earn_fetch)
+        t["sector"] = _sec[sym]
+        t["days_to_earnings"] = _bt_days_to_earnings(t.get("date", ""), _earn[sym])
+    return all_trades
+
+
 def run_backtest(symbols=None) -> None:
     """يشغّل الباكتيست على قائمة رموز (env BACKTEST_SYMBOLS أو وسيط) ويرسل
     تقريرًا + CSV. عند عدم تحديد رموز → **كون البوت الافتراضي** (القائمة + التنبيهات)
@@ -9781,6 +9852,10 @@ def run_backtest(symbols=None) -> None:
     lines.append("⚠️ <i>انحياز الناجين: رموز رابحة معروفة فقط تضخّم النسبة. "
                  "للحقيقة استخدم عيّنة واسعة عشوائية. باكتيست ليس توصية.</i>")
     send_telegram("\n".join(lines))
+    # 🔬 (BT_FEATURES) إثراء تحليلي point-in-time قبل الـCSV — إلحاق فقط، مطفأ = CSV بلا تغيير.
+    # float/CTB مُستبعَدان (نظر مستقبلي/بلا تاريخ). خارج backtest_symbol (الجذر) — تحليل فقط.
+    if CONFIG.get("BT_FEATURES"):
+        _bt_feature_enrich(all_trades)
     fn = _write_csv_file(all_trades, "backtest")
     if fn:
         send_telegram_document(fn, f"🧪 تفاصيل الباكتيست — {dt.date.today()}")

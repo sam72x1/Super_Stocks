@@ -4455,6 +4455,63 @@ try:
 finally:
     (S.CONFIG["BT_POTENTIAL"], S.CONFIG["BT_PORTFOLIO"],
      S.CONFIG["BT_PORT_SIZE"]) = _mg_sv         # لا تلوّث بقية الاختبارات
+
+
+# 🔬 BT_FEATURES: أعمدة تحليل point-in-time (قطاع + أيام لأقرب أرباح) — باكتيست/تحليل فقط
+def _bt_raise(s):
+    raise ValueError("boom")
+check("🔬 BT_FEATURES: _bt_days_to_earnings نقيّة point-in-time (أقرب أرباح بعد الإشارة)",
+      S._bt_days_to_earnings("2025-05-05", ["2025-03-01", "2025-06-10", "2025-09-01"]) == 36
+      and S._bt_days_to_earnings("2025-05-05", ["2025-01-01", "2025-02-01"]) is None
+      and S._bt_days_to_earnings("2025-05-05", []) is None)
+_bt_tr = [{"symbol": "AAA", "date": "2025-05-05"}, {"symbol": "AAA", "date": "2025-07-01"},
+          {"symbol": "BBB", "date": "2025-06-01"}]
+S._bt_feature_enrich(_bt_tr,
+    sector_fetch=lambda s: {"sector": "Technology"} if s == "AAA" else {},
+    earn_fetch=lambda s: ["2025-06-10"] if s == "AAA" else [])
+check("🔬 BT_FEATURES: enrich يضيف sector + days_to_earnings (point-in-time لكل إشارة)",
+      _bt_tr[0]["sector"] == "Technology" and _bt_tr[0]["days_to_earnings"] == 36
+      and _bt_tr[1]["days_to_earnings"] is None       # أرباح 06-10 قبل إشارة 07-01 = لا لاحق
+      and _bt_tr[2]["sector"] == "—" and _bt_tr[2]["days_to_earnings"] is None)
+_bt_fs = [{"symbol": "ZZZ", "date": "2025-05-05"}]
+S._bt_feature_enrich(_bt_fs, sector_fetch=_bt_raise, earn_fetch=_bt_raise)
+check("🔬 BT_FEATURES: فاشل-آمن (الجالب يرمي) → «—»/None بلا انهيار",
+      _bt_fs[0]["sector"] == "—" and _bt_fs[0]["days_to_earnings"] is None)
+check("🔬 BT_FEATURES: خارج الجذر backtest_symbol + مُبوَّب بعلم في run_backtest",
+      "_bt_feature_enrich" not in _insp0.getsource(S.backtest_symbol)
+      and "sector" not in _insp0.getsource(S.backtest_symbol)
+      and 'CONFIG.get("BT_FEATURES")' in _insp0.getsource(S.run_backtest))
+# 🔬 BT_FEATURES (إصلاح مراجعة Codex): المسار الافتراضي يمرّر **كائن Ticker** لـ_fetch_info لا نصًّا
+# (تمرير النصّ كان يفشل 9ث/سهم ثم «—»). نحاكي yf/_fetch_info بلا شبكة ونثبت العقد.
+_bt_yf_s, _bt_fi_s = S.yf, S._fetch_info
+_bt_seen = {}
+
+
+class _FakeTk:
+    def __init__(self, sym):
+        self.sym = sym
+
+
+class _FakeYf:
+    Ticker = staticmethod(lambda s: _FakeTk(s))
+
+
+def _fake_fi(t):
+    _bt_seen["type"] = type(t).__name__          # يجب أن يكون كائنًا لا str
+    _bt_seen["sym"] = getattr(t, "sym", None)
+    return {"sector": "Healthcare"}
+
+
+try:
+    S.yf, S._fetch_info = _FakeYf(), _fake_fi
+    _sec_def = S._bt_sector("GEOS")               # المسار الافتراضي (بلا fetch محقون)
+    check("🔬 BT_FEATURES: _bt_sector الافتراضي يمرّر Ticker (كائن) لـ_fetch_info ويرجع قطاعًا",
+          _sec_def == "Healthcare" and _bt_seen.get("type") == "_FakeTk"
+          and _bt_seen.get("sym") == "GEOS")
+    S.yf = None                                   # بلا yf ⇒ «—» فاشل-آمن (لا انهيار)
+    check("🔬 BT_FEATURES: _bt_sector بلا yf ⇒ «—» فاشل-آمن", S._bt_sector("X") == "—")
+finally:
+    S.yf, S._fetch_info = _bt_yf_s, _bt_fi_s
 # (ط) 🔒 قفل getsource: دالة القياس خارج الفرز/الاختيار/التتبّع (باكتيست/عرض فقط —
 # لا تدخل قرار الدخول/الوقف/الأهداف/العضوية). درس C3: أي دالة قياس تلمس الاختيار = بوابة خفية.
 check("🏦 قوة البوت·قفل: _max_gain_before_stop خارج rank_key/select_top/classify_tier/"

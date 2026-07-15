@@ -61,6 +61,10 @@ on:
         description: "🏦 قوة البوت (اختياري): 1 = قِس أقصى صعود من الدخول **قبل الوقف** لكل سهم + كم انفجر من المجمل (المحور الحقيقي — الأهداف تمهيدية). باكتيست فقط"
         required: false
         default: ""
+      bt_features:
+        description: "🔬 أعمدة تحليل (اختياري): 1 = أضِف للـCSV قطاع + أيام لأقرب أرباح لاختبار «الرابط المشترك». ⚠️ الأرباح best-effort لا point-in-time مضمون تاريخيًّا (بلا known_at). float/CTB مُستبعَدان (نظر مستقبلي/لا تاريخ). باكتيست فقط"
+        required: false
+        default: ""
       bt_portfolio:
         description: "🏦 محاكاة الانتقائية (اختياري): 1 = محفظة top-N بالترتيب (readiness→score) بجانب «كل المُعبَّئين» — هل الانتقائية تضيف؟ يلزم bt_potential=1. باكتيست فقط"
         required: false
@@ -120,6 +124,7 @@ jobs:
           BT_SPREAD_PCT: ${{ github.event.inputs.bt_spread_pct }}
           # 🏦 قوة البوت + الانتقائية — تُقرأ في وضع BACKTEST حصريًا (الإنتاج محصّن بقفل B1)
           BT_POTENTIAL: ${{ github.event.inputs.bt_potential }}
+          BT_FEATURES: ${{ github.event.inputs.bt_features }}
           BT_PORTFOLIO: ${{ github.event.inputs.bt_portfolio }}
           BT_PORT_SIZE: ${{ github.event.inputs.bt_port_size }}
           # 🕰️ point-in-time (تدقيق خارجي) — يُقرأ في وضع BACKTEST حصريًا
