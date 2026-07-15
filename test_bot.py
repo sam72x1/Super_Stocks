@@ -5824,6 +5824,62 @@ finally:
     (S.COMPANY_FILE, S.IGNITION_LOG_FILE, S.IGNITION_UNI_FILE) = _files_save
     S.TELEGRAM_TOKEN = _tk_save4
 
+# ①ب حجر صحّي: بعد وسم ملف تالف، _atomic_write_json يرفض الكتابة عليه (لا طمس النسخة السليمة)
+_tk_saveq = S.TELEGRAM_TOKEN
+try:
+    S.TELEGRAM_TOKEN = ""
+    _dq = _tf.mkdtemp()
+    _qf = _os2.path.join(_dq, "state.json")
+    with open(_qf, "w", encoding="utf-8") as _fh:
+        _fh.write("{ TALEF")
+    S._handle_corrupt_state_file(_qf, ValueError("x"))    # يسجّله في الحجر
+    _before = open(_qf, encoding="utf-8").read()
+    S._atomic_write_json(_qf, {"new": "data"})            # المفروض تُرفَض
+    _after = open(_qf, encoding="utf-8").read()
+    check("①ب حجر: _atomic_write_json يرفض الكتابة على ملف محجور (يبقى كما هو)",
+          _before == _after and "TALEF" in _after)
+finally:
+    S.TELEGRAM_TOKEN = _tk_saveq
+    S._CORRUPT_STATE_FILES.discard(_os2.path.abspath(_qf))   # تنظيف حالة عامة
+
+# ①أ: فشل إرسال الانطلاق يلغي ختم ignition_alert (يُعاد الفحص — لا كتم صامت بقية اليوم)
+_persist_stock = {"symbol": "IGN", "status": "active", "ignition_alert": "STAMPED"}
+_ia_saved = (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+             IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep,
+             IG._fresh_watchlist, S.IGNITION_UNI_FILE, S.IGNITION_LOG_FILE)
+_ia_env = {k: _os2.environ.get(k) for k in ("IGNITION_SEGMENT", "E2_MEASUREMENT", "POLYGON_API_KEY")}
+try:
+    _dia = _tf.mkdtemp()
+    S.IGNITION_UNI_FILE = _os2.path.join(_dia, "u.json")
+    S.IGNITION_LOG_FILE = _os2.path.join(_dia, "l.json")
+    _os2.environ.pop("IGNITION_SEGMENT", None)
+    _os2.environ.pop("E2_MEASUREMENT", None)
+    _os2.environ["POLYGON_API_KEY"] = "TEST_KEY_NOT_USED"
+    _now_ia = S.dt.datetime.utcnow()
+    IG._segment_window = lambda role, t0=None: {
+        "role": role, "open": _now_ia, "close": _now_ia + S.dt.timedelta(hours=1),
+        "segment_start": _now_ia, "segment_end": _now_ia + S.dt.timedelta(hours=1),
+        "deadline": _now_ia + S.dt.timedelta(hours=1), "reason": "test",
+        "session_type": "regular", "calendar_version": "test"}
+    IG._fresh_watchlist = lambda wl: None            # لا جلب من origin أثناء الاختبار
+    IG.bot.load_watchlist = lambda: {"stocks": [_persist_stock]}
+    IG.bot.scan_ignition = lambda wl, today, trace=None: [(_persist_stock, {"price": 2.0}, None)]
+    IG.bot.build_ignition_alert = lambda rows: "ALERT"
+    IG.bot.send_telegram = lambda m: False           # فشل الإرسال (429 عابر)
+    IG.time.sleep = lambda *_a: (_ for _ in ()).throw(_StopLoop())
+    try:
+        IG.main()
+    except (_StopLoop, Exception):
+        pass
+    check("①أ: فشل إرسال الانطلاق يلغي ختم ignition_alert (يُعاد الفحص لا كتم)",
+          "ignition_alert" not in _persist_stock)
+finally:
+    (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+     IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep,
+     IG._fresh_watchlist, S.IGNITION_UNI_FILE, S.IGNITION_LOG_FILE) = _ia_saved
+    for _k, _v in _ia_env.items():
+        _os2.environ.pop(_k, None) if _v is None else _os2.environ.update({_k: _v})
+
 
 # ══════════════════════════════════════════════════════════
 # 🔍 مراجعة Codex على 1e322c5 (2026-07-15) — أقفال الإصلاحات الآمنة

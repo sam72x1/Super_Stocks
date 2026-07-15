@@ -537,12 +537,14 @@ def main():
             if rows:
                 if recorder is not None:
                     recorder.telegram_attempt(rows)
+                delivered = False
                 try:
                     # P0-4 (تدقيق Codex 2026-07-14): send_telegram يُرجع False عند رفض
                     # تيليجرام (429/غير-200) بلا رمي استثناء، فكان يُسجَّل «نجاح» زائف
                     # (والقياس E2 يقول «وصل»). نحترم القيمة: النجاح فقط عند الوصول الفعلي.
                     sent_ok = bot.send_telegram(
                         bot.build_ignition_alert(rows) + "\n\n" + bot.FOOTER)
+                    delivered = bool(sent_ok)
                     if sent_ok:
                         bot.log(f"🔥 {len(rows)} انطلاق: "
                                 + ", ".join(r[0]["symbol"] for r in rows))
@@ -558,10 +560,19 @@ def main():
                     bot.log(f"⚠️ إرسال تنبيه الانطلاق: {e}")
                     if recorder is not None:
                         recorder.telegram_failure(rows, error_type=type(e).__name__)
-                for r in rows:                 # جمع فريد (دِدوب مرة/سهم/جلسة)
-                    if r[0]["symbol"] not in seen:
-                        seen.add(r[0]["symbol"])
-                        session_fires.append(r)
+                if delivered:
+                    for r in rows:             # جمع فريد **فقط عند الوصول** (دِدوب مرة/سهم/جلسة)
+                        if r[0]["symbol"] not in seen:
+                            seen.add(r[0]["symbol"])
+                            session_fires.append(r)
+                else:
+                    # ①أ (قرار المالك 2026-07-15، مراجعة Codex): لم يصل التنبيه ⇒ ألغِ ختم
+                    # الدِدوب الذي وضعه scan_ignition **قبل** الإرسال، كي يُعاد الفحص والإرسال
+                    # الدورة القادمة. حافتنا الوحيدة = التوقيت؛ 429 عابر لا يجوز يكتم السهم بقية
+                    # اليوم. ولا يُضاف إلى seen/handoff فلا يُنقَل ككتم للمقطع التالي. (⚖️ لو وصل
+                    # لمستلم وفشل آخر يتكرّر التنبيه على من وصله — تكرار أهون من تفويت دخول.)
+                    for r in rows:
+                        r[0].pop("ignition_alert", None)
             if recorder is not None:           # 🔬 P1.6: أثر الأداة (رصد سلبي: زمن الدورة + التأخّر)
                 _now_s = time.time()
                 _lag = (int((_loop_start - _last_start) * 1000 - interval * 1000)
