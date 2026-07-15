@@ -1324,7 +1324,8 @@ def _red_candle_heads(df: pd.DataFrame, price: float, span: int = 130):
 
 
 def resistance_levels(df: pd.DataFrame, price: float, max_levels: int = 8,
-                      include_red_heads: bool = True):
+                      include_red_heads: bool = True,
+                      include_weekly_red_heads: bool = False):
     """كشف مستويات المقاومة الأفقية فوق السعر — كخطوط فيصل الأفقية
     (SMX: 9.53/11.84/14/16.51/23 · LNAI: 2.80/3.25/3.49/3.83/4.35).
 
@@ -1333,7 +1334,12 @@ def resistance_levels(df: pd.DataFrame, price: float, max_levels: int = 8,
     1) قمم سوينغ يومية (نافذتان: قصيرة 3 + أطول 6 لقمم أبعد)
     2) قمم سوينغ من الفريم الأسبوعي (فيصل يرسم من الأسبوعي أيضاً)
     3) مستويات نفسية دائرية — تُضاف فقط في الفجوات الكبيرة بين القمم
-    ثم يجمّع المتقاربة (ضمن 3%) في مستوى واحد."""
+    ثم يجمّع المتقاربة (ضمن 3%) في مستوى واحد.
+    ⚠️ **P1-2 (تدقيق Codex 2026-07-14): رؤوس الحمرا الأسبوعية بعلم مستقلّ**
+    (`include_weekly_red_heads`, افتراضيًّا **False** = يطابق قرار CLAUDE.md المحسوم «الأسبوعي
+    بلا رؤوس حمرا حفاظًا على ثبات t1»). كانت مربوطة بنفس علم اليومي فتتسرّب رؤوسٌ أسبوعية إلى
+    مقاومات اليومي وتصير t1 حتى مع إطفاء المتعدّد-فريمات — مخالفة تنفيذية للقرار. رؤوس الحمرا
+    **اليومية** (`include_red_heads`) بلا تغيير — تبقى قاعدة فيصل على اليومي."""
     h = df["High"].values.astype(float)
     n = len(h)
     if n < 11 or price <= 0:
@@ -1348,7 +1354,7 @@ def resistance_levels(df: pd.DataFrame, price: float, max_levels: int = 8,
         wk = resample_ohlc(df, "W")
         if wk is not None and len(wk) >= 7:
             real += _swing_highs(wk["High"].values.astype(float), price, 2)
-            if include_red_heads:          # رؤوس حمرا أسبوعي (للشارتات الأسبوعية)
+            if include_weekly_red_heads:   # P1-2: أسبوعي بلا رؤوس حمرا افتراضيًّا (ثبات t1)
                 real += _red_candle_heads(wk, price)
     except Exception:
         pass

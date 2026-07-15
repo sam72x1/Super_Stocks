@@ -1244,6 +1244,36 @@ check("EZRA المُبلّغة: يلتقط 4.00 و4.35 كأقرب مقاومتي
       and any(4.25 <= r <= 4.45 for r in _ez_res)
       and bool(_ez_above) and min(_ez_above) <= 4.1)
 
+# 🎯 P1-2 (مراجعة Codex، جذور — أقصى حذر): رؤوس الحمرا **الأسبوعية** خارج مقاومات اليومي
+# افتراضيًّا (يطابق قرار CLAUDE.md «الأسبوعي بلا رؤوس حمرا حفاظًا على ثبات t1»)؛ رؤوس اليومية
+# بلا تغيير. نعزل المساهمتين بحقن `_red_candle_heads` و`_swing_highs` و`resample_ohlc`.
+_p12_saved = (S._red_candle_heads, S._swing_highs, S.resample_ohlc)
+try:
+    # يومي (طويل ≥20 صف) ⇒ مستوى A ثابت؛ أسبوعي (قصير) ⇒ مستوى B مميّز.
+    S._red_candle_heads = lambda dframe, px, span=130: (
+        [round(px * 1.2, 2)] if len(dframe) >= 20 else [round(px * 1.5, 2)])
+    S._swing_highs = lambda *a, **k: []              # نعزل رؤوس الحمرا وحدها
+    _wk_stub = pd.DataFrame({"Open": [1.0] * 8, "High": [1.0] * 8, "Low": [1.0] * 8,
+                             "Close": [1.0] * 8, "Volume": [1.0] * 8})
+    S.resample_ohlc = lambda df, rule: _wk_stub      # أسبوعي صالح (len≥7)
+    _p12_df = pd.DataFrame({"Open": [1.0] * 30, "High": [1.0] * 30, "Low": [1.0] * 30,
+                            "Close": [1.0] * 30, "Volume": [1.0] * 30})
+    _p12_px = 2.0
+    _def = S.resistance_levels(_p12_df, _p12_px)                       # افتراضي
+    _wkon = S.resistance_levels(_p12_df, _p12_px, include_weekly_red_heads=True)
+    _A, _B = round(_p12_px * 1.2, 2), round(_p12_px * 1.5, 2)          # 2.40 (يومي) · 3.00 (أسبوعي)
+    check("🎯 P1-2: رأس الحمرا الأسبوعي (3.00) **خارج** مقاومات اليومي افتراضيًّا",
+          _A in _def and _B not in _def)
+    check("🎯 P1-2: رأس الحمرا اليومي (2.40) يبقى — قاعدة فيصل اليومية بلا تغيير",
+          _A in _def)
+    check("🎯 P1-2: العلم الصريح include_weekly_red_heads=True يُعيد الأسبوعي (توافق خلفي)",
+          _A in _wkon and _B in _wkon)
+finally:
+    S._red_candle_heads, S._swing_highs, S.resample_ohlc = _p12_saved
+check("🎯 P1-2: التوقيع فيه include_weekly_red_heads=False افتراضيًّا (يطابق CLAUDE.md)",
+      "include_weekly_red_heads: bool = False" in _insp0.getsource(S.resistance_levels)
+      and "if include_weekly_red_heads:" in _insp0.getsource(S.resistance_levels))
+
 # 🔬 مساعد التطوير: عينة قليلة → رسالة "بيانات قليلة"؛ عينة كافية → تشخيص
 def _mkrow(sym, won, tier, sec, rsi, fl, rr):
     return {"symbol": sym, "entry_ref": 2.0, "max_gain_pct": 40 if won else -7,
