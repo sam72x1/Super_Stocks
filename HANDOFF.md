@@ -16,6 +16,68 @@
 > + `git log` قبل أي عمل. لا تعِد عمل تم. التزم بقرارات فيصل المحسومة. المستخدم
 > لا يتقبّل أي خطأ ولا الفلسفة الزائدة — طابق منهجية فيصل الموثّقة بدقة.
 
+> 🔬 **E2-A (قياس التوقيت اللحظي) منفَّذ ومدفوع — فرع مستقل `claude/e2a-ignition-measurement` من 49f3f0d
+> (2026-07-13، مواصفة Codex، 812 اختبار · لا LOGIC_VERSION · لا مسّ جذور · لا معايرة):** حوّل رادار
+> الانطلاق من «يسجّل الناجح للإرسال» إلى **تجربة prospective تسجّل كل مراحل القرار + التغطية + التنفيذ +
+> التوقيت** دون تغيير تنبيه واحد. **① instrumentation ظلّي** (`scan_ignition(trace=None)` + `_emit_trace`
+> بحمولة lazy = بت-بت عند None؛ اختبار تكافؤ + استثناء trace آمن + نص Telegram متطابق) + funnel كامل +
+> تصحيح overclaim (E2-F09). **②** `ignition_measurement.py` (recorder فاشل-آمن · crash-safe · لا أسرار):
+> exposure حقيقي/symbol-session · candidate لكل raw فريد حتى المكبوت (NBBO/توقيت/بوّابة) · emitted≠delivered ·
+> مسار الدقيقة. **③** توصيل `ignition_live` خلف `E2_MEASUREMENT=1` (مطفأ=حرفيّ) + try/finally + telegram
+> events · `ignition.yml` artifact if:always. **④** `E2_IGNITION_PREREGISTRATION_2026-07-13.yaml` (يستبعد
+> GEOS) + `E2_IGNITION_SCHEMA.md` + `ignition_e2_analyze.py` (تدقيق تغطية فقط). **التوقيت فرضية غير مثبتة —
+> لا نتيجة قبل ≥5 جلسات كاملة (E2-A) ثم E2-B الوصفي بموافقة المستخدم.** التقرير الكامل (15 بندًا):
+> `CLAUDE_E2A_IMPLEMENTATION_REPORT.md`. **⏳ متبقٍّ: تشغيل حيّ على Actions يؤكّد التغطية (لم يُشغَّل من بيئة
+> التطوير — Polygon محجوب) · مراجعة Codex للـPR · دمج بموافقة المستخدم.**
+
+> 🔬 **E2-A — إصلاحات فجوات مراجعة Codex الثانية (2026-07-13، فرع نظيف `claude/e2a-measurement-clean`
+> من أحدث `origin/main`، `schema_version`=2، 793 اختبار · قياس فقط · لا LOGIC_VERSION · لا تغيير تنبيه/
+> عتبة/اختيار · لا معايرة):** Codex راجع `5708fdeb` وطلب 6 خطوات. **الخطوة 1 (فرع نظيف):** cherry-pick
+> الكوميتات الخمسة على `origin/main` فالـPR = ملفّات E2-A **فقط** (بلا Phase C/E/P0 أو تاريخ جانبي — مؤكَّد
+> `git diff --stat`). **الخطوة 2 (5 فجوات):** **2a** إنهاء ديناميكي (`_session_window`: الأبكر من الإغلاق
+> الفعلي/بدء الجوب+`IGNITION_MAX_RUNTIME_MIN`=335/تجاوز صريح؛ أُزيل مثبّت 19:20؛ timeout 355؛ session.json
+> يسجّل الإغلاق المتوقّع + علم «انتهت قبله») · **2b** `backfill_emitted` يردم مسار الدقيقة بعد التنبيه ·
+> **2c** `trigger_bar_start` صريح + end=start+60000 + `bar_is_closed` حتمي · **2d** توحيد طابع NBBO (نانو→
+> ملّي) + `quote_age_ms` + **executable = صالح ‏و‏ طازج ≤5ث** · **2e** `exposure_minutes` + أهلية recall
+> بالشروط الثلاثة + مدقّق يرفض «مكتملة» عند فقد مسار/إغلاق مبكّر/عدم توازن دورات/تناقض emitted-delivered/
+> نقص طابع مقفول. **🔴 قرار معماري مطروح على المالك/Codex:** سقف رنر GitHub 6س < جلسة 6.5س ⇒ جوب واحد من
+> 13:35 لا يبلغ الإغلاق (20:00/21:00) — التغطية جزئية صريحة والمدقّق يرفضها كمكتملة؛ الخيارات (كرون أمتّ
+> يضحّي بالافتتاح / جوبان متسلسلان / تعريف «مكتملة» = «نافذتها المقصودة بلا انقطاع»). **⏳ متبقٍّ: دفع الفرع
+> + Draft PR + مراجعة Codex (الخطوات 3-5) · ثم Pilot واحد (الخطوة 6) بعد مراجعة نظيفة — لا confirmatory قبل
+> الدمج.** التفاصيل: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md §16`.
+
+> 🔬 **E2 — المعمارية المجزّأة (ب+، 2026-07-13، مراجعة Codex الثالثة REQUEST CHANGES على `7e98422` ·
+> 801 اختبار · قياس فقط · بت-بت في الإنتاج · لا LOGIC_VERSION):** Codex قبِل جوهر القياس لكن حجب Pilot الرأس
+> السابق بـ**3 موانع P0** واختار **(ب+): جوبان متسلسلان + assembler** (رفض «أ» يضحّي بالافتتاح و«ج» كتعريف
+> للجلسة لأن التسجيل المسبق يقفل regular_hours حتى الإغلاق). **نُفِّذ بالكامل:** `ignition.yml` صار **3 jobs**
+> `open_segment`→`close_segment`(needs)→`assemble_e2_session`(needs). `close_segment` يستعيد أختام الدِدوب من
+> handoff (`_apply_handoff_dedup` → **لا تنبيه Telegram مكرّر** عبر المقطعين، الاستثناء الإنتاجي الوحيد المقصود،
+> مقفول باختبار). **P0-1** `_segment_window` يحسب الحدود **من الافتتاح الفعلي** لا بدء الرنر · **P0-2** الردم
+> النهائي بعد الإغلاق في `ignition_e2_assemble.py` (يدمج bars/candidates/deliveries + counters `min/max` +
+> backfill) · **P0-3** المدقّق يشترط **وصول المسار للإغلاق** (`path_last_bar ≥ close−3د`). **P1 (كلها):**
+> `backfill_status` · **NBBO قياسي مستقلّ** `polygon_nbbo`/`fetch_measure_nbbo` (**قفل: لا يمسّ القرار**،
+> measurement مفضَّل) + `operator_nbbo_*`/`nbbo_source` · watchlist provenance · latency · أثر الأداة
+> (`instrumentation_timing` median/p95). المدقّق: `kind=segment|assembled|single`؛ **`session_complete`
+> (الجزآن + المسار للإغلاق) وحده يعدّ نحو 5/20** · `segment_complete` لا. ملفّات جديدة: `ignition_e2_assemble.py`
+> + `E2_IGNITION_SEGMENTED_ARCH.md`. **⏳ متبقٍّ: دفع الفرع + تحديث PR #167 + مراجعة Codex الرابعة على الرأس
+> الجديد · ثم Pilot واحد `excluded_from_confirmatory` (بموافقته + المالك) — لا Pilot على رأسٍ لم يُراجَع.**
+> التفاصيل: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md §17`.
+
+> 🔬 **E2 — مراجعة Codex الرابعة (2026-07-13، REQUEST CHANGES على `ae0b325` — 6 موانع P0 + 9 P1، كلها
+> نُفِّذت · `schema_version`=3 · 815 اختبار · قياس فقط · scan_ignition بت-بت في الإنتاج · لا LOGIC_VERSION):**
+> **P0-1 (حاسم):** جلب NBBO القياسي كان **تزامنيًّا** في scan_ignition قبل التنبيه (حتى 8ث تأخير — سلوك
+> توقيت لا membership) — أُزيل كليًّا؛ المسجّل يجلبه **لا-تزامنيًّا** (worker+queue آمن-خيوط بقفل) ويربطه
+> بـcandidate_id. **اختبار: جالب 1.2ث لا يؤخّر التنبيه («400ms).** الصلاحية من طابع المصدر لا انتهاء HTTP.
+> **P0-2** كرون 13:18 (قبل افتتاح الصيف) + بوّابة `first_successful_poll ≤ open+2د`. **P0-3** `transition_gap_ms`
+> مقاس ومقفول (>10د يرفض) + exposure = مجموع فترات المقاطع (لا max−min). **P0-4** `ignition_e2_manifest.py`:
+> manifest مقفول (SHA-256 حقيقي) + سلسلة تحقّق + close **fail-closed** + الassembler يتحقّق + اختبارات عبث.
+> **P0-5** المدقّق يفرض اكتمال كل مقطع + بدء open + الفجوة + السلسلة + لا تسليم مكرّر. **P0-6** `--strict`
+> (خروج غير صفر) بلا `|| true`. **P1:** دمج candidate field-wise (لا يُسقط emitted) · cadence مطلقة · تفكيك
+> latency · watchlist file SHA · NBBO status لكل cohorts · `market_calendar.py` (عطلات/إغلاق مبكر مثبَّت
+> الإصدار) · دفع واحد من الassembler · provenance صادق · schema gate موسَّع. ملفّان جديدان:
+> `ignition_e2_manifest.py` + `market_calendar.py`. **⏳ متبقٍّ: دفع + تحديث PR #167 + مراجعة Codex الخامسة ·
+> ثم Pilot واحد (بموافقته + المالك).** التفاصيل: `CLAUDE_E2A_IMPLEMENTATION_REPORT.md §18`.
+
 > 🏦 **حكم «قوة البوت» بالمحور المصحَّح — اكتمل ووُثّق (2026-07-12، PR #161 sha 922aee2 مُدمَج ·
 > شُغِّل السوق الكامل 3562 رمز/سنة · `MARKET_BACKTEST_FINDINGS §0-م`):** الحكم = كم انفجر كل سهم
 > من الدخول قبل وقفه (لا t1). **الناجحون (انفجر 50%+ قبل الوقف): 10% (2025) · 8% (2026)** · ~1 من

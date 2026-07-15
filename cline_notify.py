@@ -24,6 +24,21 @@ PULLS_URL = f"https://github.com/{REPO}/pulls"
 MAX_LEN = 3900  # حدّ تلغرام ~4096؛ نترك هامشًا للترويسة/الرابط.
 
 
+def _redact(text):
+    """يخفي توكن تلقرام من أي نص يُطبَع. P1-8 (تدقيق Codex 2026-07-14): استثناءات
+    urllib (شبكة/TLS) تضع الرابط ‏/bot<TOKEN>/… في رسالتها، وطباعتها الخام تسرّبه
+    في سجلّ GitHub Actions."""
+    tok = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    s = str(text)
+    if not tok:
+        return s
+    # 🔒 توسعة (مراجعة Codex على 1e322c5): الشكل المرمّز-URL أيضًا (`:` → `%3A`).
+    for form in (tok, urllib.parse.quote(tok, safe="")):
+        if form and form in s:
+            s = s.replace(form, "***")
+    return s
+
+
 def find_report():
     """تقرير اليوم فقط، إلا إذا حدّد الاختبار/المشغّل مسارًا صريحًا.
 
@@ -102,7 +117,7 @@ def main():
             print(f"أُرسل التنبيه لـ {chat}: HTTP {status}")
             ok += 1
         except Exception as exc:  # noqa: BLE001 — إشعار غير حرج
-            print(f"فشل الإرسال لـ {chat}: {exc}")
+            print(f"فشل الإرسال لـ {chat}: {_redact(exc)}")
     print(f"تم إرسال تنبيه Cline لـ {ok}/{len(chats)} وجهة.")
 
 
@@ -110,5 +125,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as exc:  # noqa: BLE001 — لا تُفشل الـworkflow أبدًا
-        print(f"تحذير: فشل تنبيه تلقرام (غير حرج): {exc}")
+        print(f"تحذير: فشل تنبيه تلقرام (غير حرج): {_redact(exc)}")
     sys.exit(0)
