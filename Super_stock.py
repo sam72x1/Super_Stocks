@@ -909,10 +909,13 @@ def _extract_into(out: dict, data, chunk: list):
             continue
 
 
-def download_history(tickers: list) -> dict:
+def download_history(tickers: list, start_override: str = None) -> dict:
+    """🔬 start_override (باكتيست حصريًا): تاريخ بدء تحميل أقدم يصل للسنة المستهدفة — النافذة
+    الافتراضية (اليوم−HISTORY_DAYS) لا تصل للسنوات القديمة فتُنتج صفر إشارة. None = الإنتاج حرفيًّا."""
     if yf is None:
         raise RuntimeError("yfinance غير مثبتة — ثبّتها أو استخدم GitHub Actions")
-    start = (dt.date.today() - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
+    start = start_override or (
+        dt.date.today() - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
     out = {}
     size = CONFIG["CHUNK_SIZE"]
     chunks = [tickers[i:i + size] for i in range(0, len(tickers), size)]
@@ -9644,7 +9647,8 @@ def run_backtest(symbols=None) -> None:
         uni = get_universe()
         if uni:
             symbols = uni
-            log(f"باكتيست·السوق الكامل: {len(symbols)} رمز ناسداك (بلا انحياز اختيار)")
+            # 🔬 (مراجعة Codex) إفصاح البقاء بالسجل أيضًا: كون ناسداك اليوم (ناجٍ)، لا «السوق الكامل».
+            log(f"باكتيست·كون ناسداك اليوم (ناجٍ، يستبعد المشطوبة): {len(symbols)} رمز — بلا انتقاء رموز")
         else:      # تعذّر جلب ناسداك (شبكة) → كون البوت الاحتياطي بدل الفشل الكامل
             # ⚠️ P1-5 (تدقيق Codex 2026-07-14 · عرض/صدق فقط — لا يمسّ الفرز/العتبات):
             # الكون الاحتياطي = **أسهم رشّحها البوت أصلًا** = منحاز اختيارًا بامتياز،
@@ -9689,6 +9693,16 @@ def run_backtest(symbols=None) -> None:
         return
     log(f"باكتيست {len(symbols)} رمز…"
         + (f" · نافذة {date_window[0]}..{date_window[1]}" if date_window else ""))
+    # 🔬 نافذة تحميل ممتدّة (إصلاح حاجز السنوات القديمة): الافتراضية (اليوم−HISTORY_DAYS) لا تصل
+    # 2023 → صفر إشارة. نمدّ البدء لبداية النافذة المستهدفة ناقص HISTORY_DAYS (لوكباك كافٍ للفريم
+    # الشهري). None بلا date_window = الإنتاج حرفيًّا. ⚠️ انحياز البقاء يبقى (كون ناسداك = رموز اليوم).
+    _bt_dl_start = None
+    if date_window is not None:
+        try:
+            _bt_dl_start = (dt.date.fromisoformat(date_window[0])
+                            - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
+        except Exception:
+            _bt_dl_start = None
     # 🕰️ تجميد point-in-time (تدقيق خارجي): لو BT_FROZEN_PATH لملف لقطة موجود → حمّل منه
     # (قابل لإعادة الإنتاج 100% + splits لبوابة الوهميات) بدل التحميل الحيّ المتغيّر.
     splits_map = None
@@ -9699,11 +9713,24 @@ def run_backtest(symbols=None) -> None:
             symbols = list(hist.keys())
             log(f"🕰️ تجميد: حُمِّلت لقطة point-in-time ({len(hist)} رمز · as-of {_asof}) "
                 "— قابلة لإعادة الإنتاج + بوابة الوهميات مفعّلة")
+            # 🔬 (مراجعة Codex) تحذير تغطية **غير صامت**: مسار التجميد لا يمدّ النافذة، فلقطة
+            # حديثة (تبدأ ~اليوم−HISTORY_DAYS) لا تصل نافذة قديمة ⇒ صفر إشارة **بصمت**. لا نعيد
+            # تصميم التجميد (يبقى مقيّدًا)، لكن نصرخ لو أقدم تاريخ باللقطة يتجاوز بدء النافذة.
+            if date_window is not None:
+                try:
+                    _snap_earliest = min(str(df.index[0].date()) for df in hist.values()
+                                         if df is not None and len(df))
+                    if _snap_earliest > date_window[0]:
+                        log(f"⛔ تجميد·تغطية ناقصة: أقدم تاريخ باللقطة {_snap_earliest} > بدء "
+                            f"النافذة {date_window[0]} — إشارات ما قبله **تُفقَد** (صفر أو ناقص). "
+                            "أعِد تجميد لقطة تغطّي النافذة، أو استخدم التحميل الحيّ (بلا BT_FROZEN_PATH).")
+                except Exception:
+                    pass
         else:
             log("⚠️ تجميد: تعذّر تحميل اللقطة → تحميل حيّ (غير مجمَّد)")
-            hist = download_history(symbols)
+            hist = download_history(symbols, start_override=_bt_dl_start)
     else:
-        hist = download_history(symbols)
+        hist = download_history(symbols, start_override=_bt_dl_start)
     all_trades = []
     for sym in symbols:
         df = hist.get(sym)
@@ -9757,13 +9784,18 @@ def run_backtest(symbols=None) -> None:
                  "تعذّر جلب ناسداك، فالعيّنة = أسهم رشّحها البوت أصلًا "
                  "(النسبة متفائلة — ليست حكم سوق).")
     elif market:
-        head0 = "🌍 <b>باكتيست السوق الكامل (بلا انحياز اختيار)</b>"
+        # 🔬 (مراجعة Codex) إفصاح انحياز البقاء: get_universe يجلب قائمة ناسداك **اليوم** فتُستبعَد
+        # الشركات المشطوبة تاريخيًّا ⇒ ليس كونًا point-in-time. «بلا انحياز اختيار للرموز» (لا
+        # ننتقي رابحين) صحيح، لكن «كون ناجٍ» (survivorship) قائم — يُصرَّح به بدل «السوق الكامل».
+        head0 = ("🌍 <b>باكتيست كون ناسداك اليوم (بلا انتقاء رموز)</b>\n"
+                 "⚠️ كون ناجٍ: قائمة اليوم تستبعد المشطوبة تاريخيًّا — ليس point-in-time، "
+                 "قد يبالغ الأداء التاريخي.")
     else:
         head0 = "🧪 <b>باكتيست تاريخي (مشي للأمام، بلا نظر للمستقبل)</b>"
     lines = [head0, settings]
     if period_tag:
         lines.append(f"📅 <b>الفترة: {period_tag}</b>"
-                     + ((" (كون احتياطي منحاز)" if market_fallback else " (السوق كامل)")
+                     + ((" (كون احتياطي منحاز)" if market_fallback else " (كون ناسداك اليوم؛ ناجٍ)")
                         if market else " (شهر محدّد)"))
     lines += [f"رموز: {len(symbols)} · إشارات: {st['signals']} · "
               f"غير مُعبّأة: {st['no_fill']} · عالقة (لم تُحسم): {st['open']}",

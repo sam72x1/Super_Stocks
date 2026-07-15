@@ -4512,6 +4512,27 @@ try:
     check("🔬 BT_FEATURES: _bt_sector بلا yf ⇒ «—» فاشل-آمن", S._bt_sector("X") == "—")
 finally:
     S.yf, S._fetch_info = _bt_yf_s, _bt_fi_s
+
+# 🔬 نافذة التحميل الممتدّة (إصلاح حاجز الباكتيست متعدّد السنوات) — باكتيست فقط، الإنتاج بت-بت
+_dh_saved = (S.yf, S._download_chunk)
+try:
+    S.yf = object()                        # truthy (يتجاوز yf is None)
+    _dh_cap = {}
+    S._download_chunk = lambda chunk, start: _dh_cap.update({"start": start})
+    S.download_history(["AAA"], start_override="2020-10-01")
+    check("🔬 نافذة تحميل: start_override يُستعمَل حرفيًّا (باكتيست قديم يصل 2023)",
+          _dh_cap.get("start") == "2020-10-01")
+    _dh_cap.clear()
+    S.download_history(["AAA"])            # الإنتاج: بلا override
+    _dh_exp = (S.dt.date.today() - S.dt.timedelta(days=S.CONFIG["HISTORY_DAYS"])).isoformat()
+    check("🔬 نافذة تحميل: بلا override = اليوم−HISTORY_DAYS (الإنتاج حرفيًّا)",
+          _dh_cap.get("start") == _dh_exp)
+finally:
+    S.yf, S._download_chunk = _dh_saved
+check("🔬 نافذة تحميل: run_backtest يمدّ البدء من date_window ويمرّره",
+      "_bt_dl_start" in _insp0.getsource(S.run_backtest)
+      and "start_override=_bt_dl_start" in _insp0.getsource(S.run_backtest)
+      and "start_override" in _insp0.getsource(S.download_history))
 # (ط) 🔒 قفل getsource: دالة القياس خارج الفرز/الاختيار/التتبّع (باكتيست/عرض فقط —
 # لا تدخل قرار الدخول/الوقف/الأهداف/العضوية). درس C3: أي دالة قياس تلمس الاختيار = بوابة خفية.
 check("🏦 قوة البوت·قفل: _max_gain_before_stop خارج rank_key/select_top/classify_tier/"
@@ -6177,7 +6198,17 @@ check("🌍 P1-5: الكون الاحتياطي يُعلَّم `market_fallback`
       "market_fallback = True" in _bt_src
       and "منحاز اختيارًا" in _bt_src
       and _bt_src.index("market_fallback = True") < _bt_src.index(
-          "🌍 <b>باكتيست السوق الكامل (بلا انحياز اختيار)</b>"))
+          "🌍 <b>باكتيست كون ناسداك اليوم (بلا انتقاء رموز)</b>"))
+# 🔬 (مراجعة Codex) إفصاح انحياز البقاء: **لا أيّ ادّعاء «السوق الكامل» في النصوص المرئية** (عنوان +
+# لاحقة الفترة + سطر السجل) — كلها تُصرّح «كون ناسداك اليوم/ناجٍ». نجرّد أسطر التعليقات (# تشرح
+# الإصلاح فتذكر النصّ القديم) ونفحص الكود المُنفَّذ فقط. (يمسك التناقض الذي رصده Codex.)
+_bt_code = "\n".join(l for l in _bt_src.split("\n") if not l.lstrip().startswith("#"))
+check("🔬 انحياز البقاء: صفر ادّعاء «السوق الكامل» بالنصوص المرئية + إفصاح «كون ناجٍ يستبعد المشطوبة»",
+      "كون ناجٍ" in _bt_code and "المشطوبة" in _bt_code and "كون ناسداك اليوم" in _bt_code
+      and "السوق الكامل" not in _bt_code and "(السوق كامل)" not in _bt_code)
+# 🔬 (مراجعة Codex) تحذير تغطية التجميد غير الصامت (لقطة لا تصل النافذة ⇒ صراخ لا صمت)
+check("🔬 تجميد·تغطية: تحذير غير صامت عند لقطة لا تغطّي بدء النافذة",
+      "تجميد·تغطية ناقصة" in _bt_src and "_snap_earliest" in _bt_src)
 
 # 📈 P2-6 (تقارير فقط): ترشيحان مستقلّان لنفس السهم بنفس سعر الدخول (تاريخان مختلفان)
 # كانا يُدمجان في صفقة واحدة — الثانية تختفي من الإحصاء بصمت (تصادم LYEL المثبَت).
