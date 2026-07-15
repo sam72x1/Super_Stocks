@@ -303,7 +303,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 9.0,
-   "last_price": 3.955,
+   "last_price": 4.01,
    "live_alert": {
     "breakout": "2026-07-13",
     "buyzone": "2026-07-15"
@@ -626,7 +626,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.475,
+   "last_price": 3.505,
    "borrow_hist": [
     [
      "2026-07-14",
@@ -939,9 +939,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.5,
-   "last_price": 4.33,
+   "last_price": 4.42,
    "live_alert": {
-    "buyzone": "2026-07-14"
+    "buyzone": "2026-07-14",
+    "breakout": "2026-07-15"
    },
    "borrow_hist": [
     [
@@ -1263,7 +1264,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.67,
+   "last_price": 4.54,
    "borrow_hist": [
     [
      "2026-07-15",
@@ -1587,7 +1588,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.0145,
+   "last_price": 2.01,
    "borrow_hist": [
     [
      "2026-07-14",
@@ -1892,7 +1893,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.1,
-   "last_price": 12.835,
+   "last_price": 12.755,
    "borrow_hist": [
     [
      "2026-07-11",
@@ -2214,7 +2215,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.5,
-   "last_price": 1.7897,
+   "last_price": 1.805,
    "borrow_hist": [
     [
      "2026-07-11",
@@ -2534,7 +2535,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.9,
-   "last_price": 9.6866,
+   "last_price": 9.26,
    "live_alert": {
     "buyzone": "2026-07-10",
     "break": "2026-07-15"
@@ -2593,7 +2594,7 @@
    "sector": "Industrials",
    "country": "Australia",
    "float": 1484786,
-   "last_price": 4.5,
+   "last_price": 4.59,
    "status": "watching",
    "triggered_date": null
   },
@@ -2623,7 +2624,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 9831841,
-   "last_price": 1.9567,
+   "last_price": 1.9601,
    "status": "watching",
    "triggered_date": null
   },
@@ -2654,7 +2655,7 @@
    "sector": "Healthcare",
    "country": "United Kingdom",
    "float": 529035,
-   "last_price": 3.42,
+   "last_price": 3.47,
    "status": "watching",
    "triggered_date": null
   },
@@ -2684,7 +2685,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 26497736,
-   "last_price": 4.36,
+   "last_price": 4.415,
    "status": "watching",
    "triggered_date": null
   },
@@ -2714,7 +2715,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 6060850,
-   "last_price": 2.945,
+   "last_price": 2.98,
    "status": "watching",
    "triggered_date": null
   },
@@ -2743,7 +2744,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 170966875,
-   "last_price": 10.07,
+   "last_price": 10.04,
    "status": "watching",
    "triggered_date": null
   },
@@ -2774,7 +2775,7 @@
    "sector": "Energy",
    "country": "United States",
    "float": 9752727,
-   "last_price": 3.1622,
+   "last_price": 3.15,
    "status": "watching",
    "triggered_date": null
   },
@@ -2803,7 +2804,7 @@
    "sector": "Energy",
    "country": "United States",
    "float": 12552321,
-   "last_price": 7.16,
+   "last_price": 7.145,
    "status": "watching",
    "triggered_date": null
   },
@@ -2833,7 +2834,7 @@
    "sector": "Real Estate",
    "country": "United States",
    "float": 2400271,
-   "last_price": 2.005,
+   "last_price": 2.0,
    "status": "watching",
    "triggered_date": null
   },
@@ -2862,7 +2863,7 @@
    "sector": "Energy",
    "country": "Canada",
    "float": 10357102,
-   "last_price": 4.4782,
+   "last_price": 4.4,
    "status": "watching",
    "triggered_date": null
   },
@@ -2954,7 +2955,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 11035067,
-   "last_price": 2.05,
+   "last_price": 1.5101,
    "status": "watching",
    "triggered_date": null
   },
@@ -2985,7 +2986,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 63286331,
-   "last_price": 1.83,
+   "last_price": 1.835,
    "status": "watching",
    "triggered_date": null
   },
