@@ -1319,6 +1319,89 @@ check("🔬 P0-2: التأجيل يقرأ فشل الجلب صراحةً (_raw_s
       "_raw_splits is None and _split_suspected" in _insp0.getsource(S.update_tracking)
       and "_split_scale_factor(" not in _insp0.getsource(S._split_suspected))   # لا نداء (C3)
 
+# ⚖️ P1-3 (تدقيق Codex): الاختلاف بين الدالّتين **مقصود** — قفل ضد إعادة التوحيد الخاطئ.
+_src_ut_p13 = _insp0.getsource(S.update_tracking)
+_src_uws_p13 = _insp0.getsource(S.update_watchlist_status)
+check("⚖️ P1-3: update_tracking لا يشطب بعد الهدف (ربح) · update_watchlist_status يشطب (انتهى)",
+      _src_ut_p13.count("<= _stop_c") == 1
+      and _src_uws_p13.count("<= _stop_c") >= 2
+      and "خروج رابح مفترض" in _src_uws_p13
+      and "P1-3" in _src_ut_p13 and "P1-3" in _src_uws_p13)
+
+# 🔬 P0-2 (update_watchlist_status الحيّ — نفس حارس update_tracking): قفزة ≥3× + فشل جلب ⇒ تأجيل.
+_uws_saved_fs = S._fetch_splits
+try:
+    _jump_w = pd.DataFrame(
+        {"Open": [2.0]*3 + [11.0]*3, "High": [2.05]*3 + [12.0]*3,
+         "Low": [1.95]*3 + [10.5]*3, "Close": [2.0]*3 + [11.5]*3,
+         "Volume": [1e5]*6},
+        index=pd.date_range("2026-06-02", periods=6, freq="D"))
+    _flat_w = pd.DataFrame(
+        {"Open": [2.0]*6, "High": [2.05]*6, "Low": [1.50]*6,
+         "Close": [1.60]*6, "Volume": [1e5]*6},
+        index=pd.date_range("2026-06-02", periods=6, freq="D"))
+    def _mk_stw():
+        return {"symbol": "SPLW", "added": "2026-06-01", "ref_bar": "2026-06-01",
+                "status": "active", "entry_ref": 2.0, "pivot": 2.0, "stop": 1.8,
+                "t1": 2.4, "t2": 2.8, "t3": 3.2, "hit": None, "max_gain_pct": 0.0}
+    S._fetch_splits = lambda sym: None
+    # حالة أ: قفزة (High 12 كان بيحقّق t3 زائفًا) + فشل جلب ⇒ تأجيل ⇒ يبقى active بلا hit
+    _st_ja = _mk_stw()
+    _wl_ja = {"stocks": [_st_ja], "removed": [], "notes": []}
+    S.update_watchlist_status(_wl_ja, {"SPLW": _jump_w})
+    check("🔬 P0-2 حيّ: قفزة + فشل جلب ⇒ الحسم مؤجَّل (يبقى active، لا هدف/شطب زائف)",
+          _st_ja["status"] == "active" and not _st_ja["hit"])
+    # حالة ب: بلا قفزة + الوقف مضروب (أدنى 1.50 دون 1.8) ⇒ يُشطب عادي (لا تأجيل)
+    _st_jb = _mk_stw()
+    _wl_jb = {"stocks": [_st_jb], "removed": [], "notes": []}
+    S.update_watchlist_status(_wl_jb, {"SPLW": _flat_w})
+    check("🔬 P0-2 حيّ: بلا قفزة + وقف مضروب ⇒ يُشطب عادي (لا تأجيل خاطئ)",
+          _st_jb["status"] == "stopped")
+    # 🔧 انحدار (مراجعة Codex د3): قفزة **قبل** ref_bar (مُنعكسة بالمستويات) + نافذة نظيفة
+    # فيها وقف حقيقي ⇒ **لا تأجيل** (يُشطب) — لا مسار «عالق للأبد».
+    _pre_df = pd.DataFrame(
+        {"Open": [2.0, 11.0, 2.05, 2.05, 2.0, 2.0, 2.0],
+         "High": [2.0, 11.0, 2.05, 2.05, 2.05, 2.05, 2.05],
+         "Low":  [1.95, 10.0, 1.95, 1.95, 1.50, 1.50, 1.50],   # الوقف 1.50 دون 1.8 بعد ref_bar
+         "Close": [2.0, 10.5, 2.0, 2.0, 1.6, 1.6, 1.6], "Volume": [1e5]*7},
+        index=pd.date_range("2026-06-01", periods=7, freq="D"))
+    _st_pre = _mk_stw(); _st_pre["added"] = _st_pre["ref_bar"] = "2026-06-05"  # القفزة قبله
+    _wl_pre = {"stocks": [_st_pre], "removed": [], "notes": []}
+    S.update_watchlist_status(_wl_pre, {"SPLW": _pre_df})
+    check("🔧 P0-2 حيّ (انحدار): قفزة **قبل** ref_bar + نافذة نظيفة بها وقف ⇒ يُشطب (لا تأجيل)",
+          _st_pre["status"] == "stopped")
+    # 🔧 قفزة على **حدّ** ref_bar (شمعة ref_bar ثم قفزة) ⇒ تُكشَف ⇒ تأجيل (الحدّ مشمول)
+    _bnd_df = pd.DataFrame(
+        {"Open": [2.0]*5 + [11.0, 11.0], "High": [2.0]*5 + [11.0, 12.0],
+         "Low": [1.95]*5 + [10.5, 11.0], "Close": [2.0]*5 + [11.5, 11.5],
+         "Volume": [1e5]*7},
+        index=pd.date_range("2026-06-01", periods=7, freq="D"))
+    _st_bnd = _mk_stw(); _st_bnd["added"] = _st_bnd["ref_bar"] = "2026-06-05"  # idx4=الحدّ
+    _wl_bnd = {"stocks": [_st_bnd], "removed": [], "notes": []}
+    S.update_watchlist_status(_wl_bnd, {"SPLW": _bnd_df})
+    check("🔧 P0-2 حيّ (انحدار): قفزة على حدّ ref_bar ⇒ مؤجَّل (شمعة الحدّ مشمولة بالكشف)",
+          _st_bnd["status"] == "active" and not _st_bnd["hit"])
+    # 🔧 انحدار (مراجعة Codex د3-ب): **ref_bar غائب عن الفهرس** (added يوم غير تداولي) + قفزة
+    # **إلى** أول شمعة مُقيَّمة ⇒ تُكشَف عبر شمعة الأساس (آخر عند/قبل ref_bar) ⇒ مؤجَّل.
+    # (حالة حيّة: كل الأسهم النشطة بلا ref_bar.) قبل الإصلاح كان الكشف [10,10] = لا قفزة = t3 زائف.
+    _miss_df = pd.DataFrame(
+        {"Open": [2.0, 2.0, 2.0, 10.0, 10.0], "High": [2.0, 2.0, 2.0, 10.0, 10.0],
+         "Low": [1.95, 1.95, 1.95, 9.5, 9.5], "Close": [2.0, 2.0, 2.0, 10.0, 10.0],
+         "Volume": [1e5]*5},
+        index=pd.to_datetime(["2026-06-01", "2026-06-02", "2026-06-03",
+                              "2026-06-08", "2026-06-09"]))   # 06-04..07 غائبة (المرجع)
+    _st_miss = _mk_stw()
+    _st_miss["added"] = "2026-06-04"                          # يوم غائب عن الفهرس
+    _st_miss["ref_bar"] = None                                # ref_bar مفقود ⇒ يسقط لـadded
+    _wl_miss = {"stocks": [_st_miss], "removed": [], "notes": []}
+    S.update_watchlist_status(_wl_miss, {"SPLW": _miss_df})
+    check("🔧 P0-2 حيّ (انحدار): ref_bar غائب + قفزة إلى أول شمعة مُقيَّمة ⇒ مؤجَّل (لا t3 زائف)",
+          _st_miss["status"] == "active" and not _st_miss["hit"])
+finally:
+    S._fetch_splits = _uws_saved_fs
+check("🔬 P0-2 حيّ: الحارس بالمصدر (فشل الجلب صراحةً + الكاشف) — بلا مسّ C3",
+      "_raw_splits is None and _split_suspected" in _insp0.getsource(S.update_watchlist_status))
+
 # 🔬 مساعد التطوير: عينة قليلة → رسالة "بيانات قليلة"؛ عينة كافية → تشخيص
 def _mkrow(sym, won, tier, sec, rsi, fl, rr):
     return {"symbol": sym, "entry_ref": 2.0, "max_gain_pct": 40 if won else -7,
