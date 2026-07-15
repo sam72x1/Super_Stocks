@@ -381,7 +381,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.6
+   "max_gain_pct": 3.2
   },
   {
    "symbol": "NERV",
@@ -670,7 +670,7 @@
    "ready": false,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.0
+   "max_gain_pct": 6.0
   },
   {
    "symbol": "ACON",
@@ -885,7 +885,7 @@
    "rr": 0.9438006565172173,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 2.8
+   "max_gain_pct": 4.5
   },
   {
    "symbol": "HFFG",
@@ -1122,6 +1122,46 @@
    "drop_pct": 53.41463387686181,
    "best_spike": 143.75000232830638,
    "rr": 2.4479804825935063,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 2.1
+  },
+  {
+   "symbol": "KLRS",
+   "date": "2026-07-15",
+   "ref_bar": "2026-07-14",
+   "price": 4.55,
+   "stop": 3.627,
+   "t1": 4.96,
+   "t2": 5.29,
+   "t3": 5.57,
+   "score": 95,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "جفاف بيع",
+    "يرتكز على متوسط 30/50",
+    "ثبات 9 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (22→26) — سيولة مخفية",
+    "انكماش حزمة كلنجر (تجميع)",
+    "استعاد MA5/MA20 (تجميع)",
+    "فجوة صاعدة يومي 7%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 7,219,053 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 49.24275549271863,
+   "float": 7219053,
+   "short": null,
+   "short_pct": 6.0,
+   "drop_pct": 61.70033546376787,
+   "best_spike": 116.44203909447724,
+   "rr": 2.4205804841812277,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0

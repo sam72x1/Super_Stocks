@@ -827,16 +827,6 @@
   "float": 40320500,
   "finra_short": 6589
  },
- "KLRS": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Kalaris Therapeutics, Inc., a clinical-stage biopharmaceutical company, engages in the development and commercialization of treatments for prevalent retinal dis…",
-  "country": "United States",
-  "cash": 97215000,
-  "shares_out": 23792278,
-  "short_pct": 9.2,
-  "float": 7219053
- },
  "BCTX": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -1163,5 +1153,18 @@
  "LI": {},
  "SY": {},
  "NAGE": {},
- "PETS": {}
+ "PETS": {},
+ "KLRS": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Kalaris Therapeutics, Inc., a clinical-stage biopharmaceutical company, engages in the development and commercialization of treatments for prevalent retinal dis…",
+  "country": "United States",
+  "cash": 97215000,
+  "shares_out": 23792278,
+  "short_pct": 6.0,
+  "float": 7219053,
+  "company_name": "Kalaris Therapeutics, Inc.",
+  "short_interest": 502578,
+  "days_to_cover": 6.12
+ }
 }
