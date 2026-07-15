@@ -14,6 +14,7 @@
 أو فشل الإرسال.
 """
 import os
+import re
 import sys
 import urllib.parse
 import urllib.request
@@ -22,6 +23,32 @@ from datetime import date
 REPO = "sam72x1/Super_Stocks"
 PULLS_URL = f"https://github.com/{REPO}/pulls"
 MAX_LEN = 3900  # حدّ تلغرام ~4096؛ نترك هامشًا للترويسة/الرابط.
+
+
+def _mask_id(cid):
+    """يخفي معرّف المستلم (مراجعة Codex، [low] أمني): آخر 4 خانات فقط في السجل العلني."""
+    s = str(cid)
+    return ("…" + s[-4:]) if len(s) > 4 else "…"
+
+
+def _redact(text):
+    """يخفي توكن تلقرام **ومعرّفات المستلمين** من أي نص يُطبَع. P1-8 (تدقيق Codex): استثناءات
+    urllib (شبكة/TLS) تضع الرابط ‏/bot<TOKEN>/… في رسالتها، وطباعتها الخام تسرّبه في سجلّ Actions.
+    🔒 **مستقلّ عن التمثيل (مراجعة Codex على main-safety):** regex على `/bot…/` يخفي التوكن بأي
+    ترميز (خام · %3A · %3a) + الشكلان الحرفي/المرمّز + معرّفات `TELEGRAM_CHAT_ID` المنعكسة."""
+    s = str(text)
+    s = re.sub(r'(/bot)[^/\s"\']+', r'\1***', s)          # التوكن بأي ترميز في URL
+    tok = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
+    if tok:
+        _enc = urllib.parse.quote(tok, safe="")
+        for form in (tok, _enc, _enc.lower(), _enc.upper()):
+            if form and form in s:
+                s = s.replace(form, "***")
+    for _cid in (os.environ.get("TELEGRAM_CHAT_ID") or "").replace(";", ",").split(","):
+        _cid = _cid.strip()
+        if len(_cid) >= 4 and _cid in s:
+            s = s.replace(_cid, _mask_id(_cid))
+    return s
 
 
 def find_report():
@@ -99,10 +126,11 @@ def main():
     for chat in chats:
         try:
             status = send(token, chat, msg)
-            print(f"أُرسل التنبيه لـ {chat}: HTTP {status}")
+            print(f"أُرسل التنبيه لـ {_mask_id(chat)}: HTTP {status}")
             ok += 1
         except Exception as exc:  # noqa: BLE001 — إشعار غير حرج
-            print(f"فشل الإرسال لـ {chat}: {exc}")
+            # 🔒 P1-8 (مراجعة Codex 3): نوع الاستثناء فقط — رسالته قد تضمّ /bot<token>/.
+            print(f"فشل الإرسال لـ {_mask_id(chat)}: {type(exc).__name__}")
     print(f"تم إرسال تنبيه Cline لـ {ok}/{len(chats)} وجهة.")
 
 
@@ -110,5 +138,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as exc:  # noqa: BLE001 — لا تُفشل الـworkflow أبدًا
-        print(f"تحذير: فشل تنبيه تلقرام (غير حرج): {exc}")
+        print(f"تحذير: فشل تنبيه تلقرام (غير حرج): {type(exc).__name__}")
     sys.exit(0)

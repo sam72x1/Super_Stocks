@@ -4676,6 +4676,205 @@ check("دعوم/مقاومات أساسية وفرعية (فيصل): أساسي=
 check(f"③ حارس المستويات فُحص كاملًا ({_kl_seen}/8)", _kl_seen == 8)
 
 
+# ══════════════════════════════════════════════════════════
+# 🛡️ أقفال سلامة فرع main-safety (منقولة من audit-fixes · بلا E2) — 2026-07-15
+# P0-5 (ملف تالف: حجر + لا كتابة فوقه) · P1-8 (تسريب توكن) · P1-5/P1-6 · P2-6
+# ══════════════════════════════════════════════════════════
+import os as _os2, sys as _sys, tempfile as _tf2, subprocess as _sp2, shutil as _sh2, inspect as _insp2b
+from urllib.parse import quote as _q2
+
+# 🛑 P0-5 سلوكي: ملف تالف يُحجَر، والكتابة فوقه **تُرفَض** (البايتات تبقى — لا فقد)
+_wf_s, _tk_s = S.WATCH_FILE, S.TELEGRAM_TOKEN
+try:
+    S.TELEGRAM_TOKEN = ""                       # لا إرسال فعلي
+    _d2 = _tf2.mkdtemp()
+    _cf2 = _os2.path.join(_d2, "weekly_watchlist.json")
+    with open(_cf2, "w", encoding="utf-8") as _fh:
+        _fh.write('{"stocks": [ TALEF ghyr sahih JSON')
+    _raw2 = open(_cf2, encoding="utf-8").read()
+    S.WATCH_FILE = _cf2
+    S._CORRUPT_STATE_FILES.discard(_os2.path.abspath(_cf2))
+    _r2 = S.load_watchlist()
+    check("🛑 P0-5: ملف تالف لا يرمي ويُرجع بنية أولية", isinstance(_r2, dict) and _r2.get("stocks") == [])
+    check("🛑 P0-5: الملف يُحجَر بعد قراءة تالفة", _os2.path.abspath(_cf2) in S._CORRUPT_STATE_FILES)
+    check("🛑 P0-5: نسخة احتياطية للتشخيص", any(".corrupt-" in f for f in _os2.listdir(_d2)))
+    S.save_watchlist({"stocks": [{"symbol": "NEW"}], "history": []})   # يجب أن تُرفَض
+    check("🛑 P0-5 سلوكي: **الحفظ فوق الملف التالف مرفوض** (البايتات كما هي = لا فقد)",
+          open(_cf2, encoding="utf-8").read() == _raw2)
+finally:
+    S.WATCH_FILE, S.TELEGRAM_TOKEN = _wf_s, _tk_s
+    S._CORRUPT_STATE_FILES.discard(_os2.path.abspath(_cf2))
+
+# 🛑 P0-5 (انحدار ترتيب التعريف): كاش شركة تالف لا يقتل **الاستيراد** — عملية جديدة فعلًا
+_imp_d = _tf2.mkdtemp()
+try:
+    _sh2.copy2("Super_stock.py", _os2.path.join(_imp_d, "Super_stock.py"))
+    with open(_os2.path.join(_imp_d, "company_cache.json"), "w", encoding="utf-8") as _fh:
+        _fh.write('{"AAPL": TALEF ghyr')
+    _imp = _sp2.run([_sys.executable, "-c",
+                     "import Super_stock as S; assert S.COMPANY_CACHE == {}; print('OK')"],
+                    cwd=_imp_d, capture_output=True, text=True, timeout=180,
+                    env={**_os2.environ, "TELEGRAM_BOT_TOKEN": "", "SUPER_STOCKS_TESTING": "1"})
+    check("🛑 P0-5: كاش شركة تالف **لا يقتل الاستيراد** (ترتيب التعريف)",
+          _imp.returncode == 0 and "OK" in _imp.stdout and "NameError" not in (_imp.stderr or ""))
+finally:
+    _sh2.rmtree(_imp_d, ignore_errors=True)
+
+# 🔒 P1-8: إخفاء التوكن (حرفي + مرمّز-URL) + resp.text عبر المُخفي
+_tk_s2 = S.TELEGRAM_TOKEN
+try:
+    S.TELEGRAM_TOKEN = "998877:SEKRET_tok_ABC"
+    _enc2 = _q2(S.TELEGRAM_TOKEN, safe="")
+    check("🔒 P1-8: التوكن الحرفي يُخفى من نص الاستثناء",
+          S.TELEGRAM_TOKEN not in S._redact_secrets(f"err /bot{S.TELEGRAM_TOKEN}/x") and
+          "***" in S._redact_secrets(f"err /bot{S.TELEGRAM_TOKEN}/x"))
+    check("🔒 P1-8: التوكن المرمّز-URL (%3A) يُخفى أيضًا",
+          _enc2 not in S._redact_secrets(f"err /bot{_enc2}/x"))
+    # مراجعة Codex 2: مستقلّ عن التمثيل — الشكل المرمّز **الصغير** (%3a) و`/bot…/` بأي ترميز.
+    check("🔒 P1-8: التوكن المرمّز-URL بأحرف صغيرة (%3a) يُخفى أيضًا",
+          _enc2.lower() not in S._redact_secrets(f"err /bot{_enc2.lower()}/x")
+          and S.TELEGRAM_TOKEN not in S._redact_secrets(f"err /bot{_enc2.lower()}/x"))
+    check("🔒 P1-8: `/bot…/` بترميز مجهول (توكن ملفّق) يُخفى عبر regex",
+          "/botWEIRD%2Fenc.tok/" not in S._redact_secrets("url /botWEIRD%2Fenc.tok/sendMessage"))
+    check("🔒 P1-8: _redact_secrets آمن مع None", isinstance(S._redact_secrets(None), str))
+    # مراجعة Codex 3: **لا يُسجَّل جسم الرد/نص الاستثناء أصلًا** (سباق تنقيح لا يُكسَب) —
+    # status + نوع الاستثناء فقط ⇒ صنف التسريب مُغلَق بنيويًّا.
+    _s8 = _insp2b.getsource(S.send_telegram) + _insp2b.getsource(S.send_telegram_document)
+    check("🔒 P1-8: لا تسجيل لجسم الرد أو نص الاستثناء (status/نوع فقط = لا تسريب بنيويًّا)",
+          "resp.text" not in _s8 and "type(e).__name__" in _s8 and "HTTP {resp.status_code}" in _s8)
+finally:
+    S.TELEGRAM_TOKEN = _tk_s2
+import cline_notify as _CN2
+_cn_s = _os2.environ.get("TELEGRAM_BOT_TOKEN")
+try:
+    _os2.environ["TELEGRAM_BOT_TOKEN"] = "555:CN_tok_XY"
+    import urllib.parse as _up2
+    check("🔒 P1-8: cline_notify يخفي التوكن (حرفيًّا ومرمّزًا)",
+          "555:CN_tok_XY" not in _CN2._redact("err /bot555:CN_tok_XY/x")
+          and _up2.quote("555:CN_tok_XY", safe="") not in
+          _CN2._redact(f"err /bot{_up2.quote('555:CN_tok_XY', safe='')}/x"))
+    # مراجعة Codex 4: مسار **استثناء cline_notify.send** — التقاط stdout والتأكّد أن رسالة
+    # الاستثناء (تضمّ /bot<token>/) لا تُطبَع (نوع الاستثناء فقط) والمعرّف مُقنَّع.
+    import io as _io4, contextlib as _cl4
+    _cid_s, _snd_s = _os2.environ.get("TELEGRAM_CHAT_ID"), _CN2.send
+    try:
+        _os2.environ["TELEGRAM_CHAT_ID"] = "777888999"
+        _cn_leak = "URLError /bot555:CN_tok_XY/sendMessage to 777888999"
+        _CN2.send = lambda t, c, m: (_ for _ in ()).throw(RuntimeError(_cn_leak))
+        _buf4 = _io4.StringIO()
+        with _cl4.redirect_stdout(_buf4):
+            _CN2.main()
+        _cn_out = _buf4.getvalue()
+        check("🔒 P1-8 سلوكي: استثناء cline_notify.send لا يطبع التوكن/المعرّف الكامل",
+              "555:CN_tok_XY" not in _cn_out and "777888999" not in _cn_out
+              and "RuntimeError" in _cn_out)
+    finally:
+        _CN2.send = _snd_s
+        _os2.environ.pop("TELEGRAM_CHAT_ID", None) if _cid_s is None \
+            else _os2.environ.update({"TELEGRAM_CHAT_ID": _cid_s})
+finally:
+    _os2.environ.pop("TELEGRAM_BOT_TOKEN", None) if _cn_s is None \
+        else _os2.environ.update({"TELEGRAM_BOT_TOKEN": _cn_s})
+
+# 🔒 P1-8 سلوكي: رد تيليجرام يعكس التوكن ⇒ لا يظهر في السجل (محاكاة requests + التقاط log)
+_tk_s3, _req_s, _log_s, _ch_s = S.TELEGRAM_TOKEN, S.requests.post, S.log, S.TELEGRAM_CHAT
+try:
+    S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT = "424242:LEAKTOKEN", "111222333"
+    _caplog = []
+    S.log = lambda *a, **k: _caplog.append(" ".join(str(x) for x in a))
+
+    class _Rj:                              # جسم الرد يعكس التوكن ومعرّف المستلم (خارجي، مهما كان)
+        status_code = 400
+        text = 'Bad Request: /bot424242:LEAKTOKEN/sendMessage to chat 111222333 failed'
+    S.requests.post = lambda *a, **k: _Rj()
+    S.send_telegram("x")
+    _joined = " | ".join(_caplog)
+    # مراجعة Codex 3: بما أن الجسم لا يُسجَّل أصلًا، لا التوكن ولا المعرّف الكامل يصلان السجل
+    # **مهما كان ترميزهما في الرد** — مع بقاء التشخيص العملي (HTTP 400) ومعرّف مُقنَّع.
+    check("🔒 P1-8 سلوكي: لا التوكن ولا معرّف المستلم الكامل في السجل (الجسم غير مُسجَّل)",
+          "424242:LEAKTOKEN" not in _joined and "111222333" not in _joined)
+    check("🔒 P1-8 سلوكي: يبقى التشخيص العملي (HTTP status + معرّف مُقنَّع …2333)",
+          "HTTP 400" in _joined and "…2333" in _joined)
+    # مراجعة Codex 4: مسار **الاستثناء** في send_telegram (رسالته تضمّ /bot<token>/ الكامل)
+    _caplog.clear()
+    _LEAK_URL = "HTTPSConnectionPool: /bot424242:LEAKTOKEN/sendMessage to 111222333 failed"
+    S.requests.post = lambda *a, **k: (_ for _ in ()).throw(RuntimeError(_LEAK_URL))
+    S.send_telegram("x")
+    _j_exc = " | ".join(_caplog)
+    check("🔒 P1-8 سلوكي: مسار الاستثناء لا يسرّب التوكن/المعرّف (نوع الاستثناء فقط)",
+          "424242:LEAKTOKEN" not in _j_exc and "111222333" not in _j_exc
+          and "RuntimeError" in _j_exc)
+    # مراجعة Codex 4: مسار **استثناء** send_telegram_document كذلك
+    _caplog.clear()
+    S.requests.post = lambda *a, **k: (_ for _ in ()).throw(RuntimeError(_LEAK_URL))
+    _docp = _os2.path.join(_tf2.mkdtemp(), "d.txt")
+    open(_docp, "w").write("x")
+    S.send_telegram_document(_docp, "cap")
+    _j_doc = " | ".join(_caplog)
+    check("🔒 P1-8 سلوكي: استثناء sendDocument لا يسرّب التوكن (نوع فقط)",
+          "424242:LEAKTOKEN" not in _j_doc and "RuntimeError" in _j_doc
+          and "111222333" not in _j_doc)
+finally:
+    S.TELEGRAM_TOKEN, S.requests.post, S.log, S.TELEGRAM_CHAT = _tk_s3, _req_s, _log_s, _ch_s
+
+# 🛡️ git_save سلوكي: ملف محجور **لا يُدفَع** (لا git add له) — لا تلويث origin ببايتات تالفة
+_gs_cmds = []
+
+
+def _gs_run(cmd):
+    _gs_cmds.append(cmd)
+    return 1 if "diff --cached --quiet" in cmd else 0   # «فيه تغييرات» ثم بقيّة النجاح
+
+
+_qf = _os2.path.join(_tf2.mkdtemp(), "weekly_watchlist.json")
+open(_qf, "w").write("{corrupt")
+S._CORRUPT_STATE_FILES.add(_os2.path.abspath(_qf))
+try:
+    S.git_save([_qf], runner=_gs_run, sender=lambda m: None)
+    check("🛡️ git_save: ملف محجور تالف **لا يُضاف/يُدفَع** (لا git add له)",
+          not any(f'git add "{_qf}"' in c for c in _gs_cmds))
+finally:
+    S._CORRUPT_STATE_FILES.discard(_os2.path.abspath(_qf))
+
+# 📈 P2-6 سلوكي عبر _collect_closed (المنبع) + _dedup_closed (المصبّ)
+_wl_p26 = {"history": [
+    {"stocks": [{"symbol": "LYEL", "entry_ref": 14.05, "added": "2026-05-04",
+                 "hit": True, "status": "active"}]},
+    {"stocks": [{"symbol": "LYEL", "entry_ref": 14.05, "added": "2026-05-18",
+                 "status": "stopped"}]}],
+    "stocks": [], "removed": []}
+_cc = S._dedup_closed(S._collect_closed(_wl_p26))
+check("📈 P2-6 سلوكي: ترشيحان بنفس (رمز,سعر) تاريخان مختلفان يبقيان صفقتين (منبع+مصبّ)",
+      len(_cc) == 2 and {r["added"] for r in _cc} == {"2026-05-04", "2026-05-18"})
+
+# 📊 P1-6: كون فارغ ⇒ تعذّر · تحميل فارغ (data={}) ⇒ تعذّر · «تعذّر» ≠ «لا توجد أسهم»
+_gu_s, _dl_s = S.get_universe, S.download_history
+try:
+    S.get_universe = lambda: []
+    check("📊 P1-6: كون ناسداك فارغ ⇒ scan_nasdaq_earnings يرجع None (تعذّر لا «صفر»)",
+          TR.scan_nasdaq_earnings() is None)
+    S.get_universe = lambda: ["AAA", "BBB"]         # كون سليم
+    S.download_history = lambda syms: {}            # لكن التحميل التام فشل (dict فارغ)
+    check("📊 P1-6: كون سليم + تحميل فارغ ⇒ None (لا يُقرأ كـ«صفر مرشّح»)",
+          TR.scan_nasdaq_earnings() is None)
+    # مراجعة Codex 2: تغطية جزئية شديدة (1/1000) = تعذُّر مسح لا «صفر مرشّح».
+    S.get_universe = lambda: [f"S{i}" for i in range(1000)]
+    S.download_history = lambda syms: {"S0": None}   # رمز واحد فقط عاد (تغطية 0.1%)
+    check("📊 P1-6: تغطية جزئية شديدة (1/1000 < الحدّ) ⇒ None (لا false-success)",
+          TR.scan_nasdaq_earnings() is None)
+finally:
+    S.get_universe, S.download_history = _gu_s, _dl_s
+check("📊 P1-6: رسالة «تعذّر المسح» (None) مغايرة لرسالة «لا توجد أسهم» ([])",
+      "تعذّر" in TR.render_scan(None) and "تعذّر" not in TR.render_scan([]))
+
+# 🌍 P1-5: الكون الاحتياطي يُعلَّم منحازًا ولا يُعنوَن «بلا انحياز»
+_bt_s = _insp2b.getsource(S.run_backtest)
+check("🌍 P1-5: الاحتياطي يُعلَّم `market_fallback` قبل العنوان «بلا انحياز اختيار»",
+      "market_fallback = True" in _bt_s and "منحاز اختيارًا" in _bt_s
+      and _bt_s.index("market_fallback = True") < _bt_s.index(
+          "🌍 <b>باكتيست السوق الكامل (بلا انحياز اختيار)</b>"))
+
+
 # ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
