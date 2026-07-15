@@ -5545,6 +5545,21 @@ def _note(wl: dict, sym: str, text: str, family: str = None) -> None:
         "symbol": sym, "text": text, "family": fam})
 
 
+def _split_suspected(highs, min_ratio: float = 3.0) -> bool:
+    """🔬 P0-2 (تدقيق Codex 2026-07-14): هل في نافذة التتبّع **قفزة مقياس ≥`min_ratio`×**
+    بين شمعتين متتاليتين؟ = بصمة تقسيم في البيانات المعاد تحميلها. **دالّة نقيّة، لا تمسّ
+    منطق كشف التقسيم `_split_scale_factor` (قفل C3) إطلاقًا** — مجرّد حارس «هل نثق بالحسم؟».
+    تُستعمل فقط لتأجيل الحسم عند **فشل** جلب التقسيم (لا لتغيير أي عتبة/اختيار). فاشلة-آمنة → False."""
+    try:
+        vals = [float(h) for h in highs if h is not None and float(h) > 0]
+        for a, b in zip(vals, vals[1:]):
+            if max(a / b, b / a) >= min_ratio:
+                return True
+    except Exception:
+        return False
+    return False
+
+
 def _split_scale_factor(splits, since_iso: str) -> float:
     """⚖️ عامل تحويل المقياس من أحداث التقسيم **بعد** تاريخ مرجعي (إصلاح تدقيق
     2026-07-10 — F-02): المستويات المخزّنة (وقف/أهداف) بمقياس يوم الترشيح، بينما
@@ -10012,7 +10027,17 @@ def update_tracking(data):
             # التتبع كان يسجّل «hit_t3» زائفًا. نقسم المستويات على عامل التقسيم
             # منذ التنبيه (فاشل-آمن → 1.0 = السلوك السابق). التنبيهات لا يُعاد
             # حساب مستوياتها أبدًا فالعامل الخام يكفي (بلا مُختار تماسك).
-            _spf = _split_scale_factor(_fetch_splits(a["symbol"]), a["date"])
+            _raw_splits = _fetch_splits(a["symbol"])
+            _spf = _split_scale_factor(_raw_splits, a["date"])
+            # 🔬 P0-2 (تدقيق Codex 2026-07-14): فشل جلب التقسيم (None) لسهم بياناته تُظهر
+            # قفزة مقياس ≥3× = تقسيم محتمل لم نجلبه ⇒ الحسم بعامل 1.0 يزيّف hit/stop. **نؤجّل
+            # الحسم** (نتخطّى هذا التنبيه هذه الدورة، حالته كما هي، يُعاد لاحقًا حين ينجح الجلب)
+            # بدل تسجيل نتيجة زائفة في سجلّ الأداء. **سجلّ فقط — خارج الفرز والسعة والاختيار**
+            # (alerts_history لا يغذّي select_top ولا space). لا يمسّ منطق كشف التقسيم (C3).
+            if _raw_splits is None and _split_suspected(highs):
+                log(f"⏳ {a['symbol']}: تعذّر جلب التقسيم + قفزة مقياس مشبوهة — "
+                    "تأجيل الحسم (لا نسجّل نتيجة على بيانات غير موثوقة).")
+                continue
             if _spf != 1.0:
                 log(f"⚖️ {a['symbol']}: تقسيم بعد التنبيه (عامل {_spf:g}) — "
                     "تُسوَّى مستويات الحسم لمقياس اليوم")
