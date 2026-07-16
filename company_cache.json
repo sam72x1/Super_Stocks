@@ -12,16 +12,6 @@
   "short_pct": 3.8,
   "float": 17719818
  },
- "USGO": {
-  "sector": "Basic Materials",
-  "industry": "Other Industrial Metals & Mining",
-  "business": "U.S. GoldMining Inc., an exploration stage company, engages in the exploration and development of mineral properties in the United States. Its primary asset is…",
-  "country": "Canada",
-  "cash": 4709577,
-  "shares_out": 13354420,
-  "short_pct": 9.5,
-  "float": 2416482
- },
  "SOGP": {
   "sector": "Communication Services",
   "industry": "Internet Content & Information",
@@ -161,17 +151,6 @@
   "shares_out": 555764,
   "short_pct": 14.9,
   "float": 493362
- },
- "TAOX": {
-  "sector": "Technology",
-  "industry": "Software - Infrastructure",
-  "business": "TAO Synergies Inc. owns and operates an AI token. It focuses on the pure play artificial intelligence (AI) crypto coin, TAO, the native cryptocurrency of Bitten…",
-  "country": "United States",
-  "cash": 3645809,
-  "revenue": 687835,
-  "shares_out": 7471931,
-  "short_pct": 5.8,
-  "float": 7308370
  },
  "BCAB": {
   "sector": "Healthcare",
@@ -1166,5 +1145,45 @@
   "company_name": "Kalaris Therapeutics, Inc.",
   "short_interest": 502578,
   "days_to_cover": 6.12
+ },
+ "USGO": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining",
+  "business": "U.S. GoldMining Inc., an exploration stage company, engages in the exploration and development of mineral properties in the United States. Its primary asset is…",
+  "country": "Canada",
+  "cash": 4709577,
+  "shares_out": 13877296,
+  "short_pct": 10.0,
+  "float": 2416482,
+  "company_name": "U.S. GoldMining Inc.",
+  "short_interest": 366137,
+  "days_to_cover": 5.87
+ },
+ "SMMT": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Summit Therapeutics Inc., a biopharmaceutical company, focuses on discovery, development, and commercialization of patient, physician, caregiver, and societal f…",
+  "country": "United States",
+  "cash": 598731008,
+  "shares_out": 776162645,
+  "short_pct": 29.5,
+  "float": 130705789,
+  "company_name": "Summit Therapeutics Inc.",
+  "short_interest": 39855640,
+  "days_to_cover": 5.46
+ },
+ "TAOX": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "business": "TAO Synergies Inc. owns and operates an AI token. It focuses on the pure play artificial intelligence (AI) crypto coin, TAO, the native cryptocurrency of Bitten…",
+  "country": "United States",
+  "cash": 3645809,
+  "revenue": 687835,
+  "shares_out": 7471931,
+  "short_pct": 5.2,
+  "float": 7308370,
+  "company_name": "Tao Synergies Inc.",
+  "short_interest": 379547,
+  "days_to_cover": 3.1
  }
 }
