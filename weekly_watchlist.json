@@ -1,2714 +1,124 @@
 {
- "week_start": "2026-07-10",
- "created": "2026-07-10",
+ "week_start": "2026-07-17",
+ "created": "2026-07-17",
  "logic_version": "2026.06.22-redheads.dw+noskip+tranches+4h+keylevels+avgRR",
  "stocks": [
   {
-   "symbol": "APVO",
+   "symbol": "NAMI",
    "added": "2026-07-17",
-   "ref_bar": "2026-07-16",
-   "entry_ref": 4.5,
+   "ref_bar": "2026-07-17",
+   "entry_ref": 3.38,
    "entry": [
-    3.68,
-    3.9
+    3.1,
+    3.29
    ],
    "tranches": [
-    3.68,
-    3.79,
-    3.9
+    3.1,
+    3.19,
+    3.29
    ],
-   "pivot": 3.68,
-   "stop": 3.4224,
-   "stop_hi": 3.496,
-   "t1": 4.88,
-   "t2": 5.19,
-   "t3": 5.36,
-   "score": 80,
-   "flags": [
-    "تقاطع MACD",
-    "جفاف بيع",
-    "يرتكز على متوسط 30/50",
-    "ثبات 5 جلسات فوق القاع",
-    "مسح سيولة (كسر قاع سابق واستعادة)",
-    "نمط شمعة قوي",
-    "DMI: ‎+DI فوق ‎-DI",
-    "فجوة صاعدة يومي 4%",
-    "فجوات متعددة الفريمات (أسبوعي، شهري)",
-    "فجوة-هدف فوق السعر عند $5.90 (+31%)",
-    "قاب (فجوة) فوق السعر عند $5.90 (فراغ 7% = هدف ذهبي)",
-    "شورت 4,116 (مقبول)",
-    "فلوت 1,093,632 (صغير ✅)"
-   ],
-   "rsi": 48.98202454454311,
-   "float": 1093632,
-   "short": 4116,
-   "short_pct": 6.4,
-   "short_interest": 79436,
-   "days_to_cover": 2.55,
-   "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": 17.74,
-   "shares_available": 50000,
-   "company_name": "Aptevo Therapeutics Inc.",
-   "upcoming_events": null,
-   "proxy_filing": null,
-   "first_trade": null,
-   "rotation_pct": 2,
-   "drop_pct": 92.42424261884997,
-   "best_spike": 151.0638190006616,
-   "rr": 2.965180043772645,
-   "tier": "B",
-   "soft_fails": [
-    "قاع RSI 29 (المثالي 27 أو أقل)",
-    "RSI الآن 49 أعلى من 40"
-   ],
-   "warnings": [
-    "سيولة منخفضة (426K/يوم)"
-   ],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     4.44,
-     4.31,
-     4.01,
-     3.85,
-     3.75
-    ],
-    "resistances": [
-     4.6,
-     4.8,
-     4.99,
-     5.19,
-     5.36
-    ],
-    "flip": 4.47,
-    "sweep_low": 3.57,
-    "green_cover": false,
-    "managed_ceiling": {
-     "price": 4.99,
-     "touches": 33
-    }
-   },
-   "key_levels": {
-    "sup_major": 3.68,
-    "sup_minor": 4.42,
-    "res_major": 5.9,
-    "res_minor": 5.69
-   },
-   "h4_confirm": 1,
-   "behav": {
-    "score": 37,
-    "label": "نشاط محدود",
-    "n_pumps": 1,
-    "best_pump": 151.0,
-    "recency_bars": 417,
-    "repumps": 0,
-    "sweeps": 2
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "extended_risk",
-    "trendline_pressure": {
-     "touches": 4,
-     "slope_per_bar": -0.030176,
-     "anchor": 7.698,
-     "line_price_now": 4.5899,
-     "state": "testing"
-    },
-    "critical_number": {
-     "price": 4.59,
-     "type": "breakout_activation",
-     "why": "إغلاق فوقه يكسر خط الترند الهابط ويفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [],
-     "inactive_targets": [
-      4.88,
-      5.19,
-      5.36
-     ],
-     "blocked_by": 4.59
-    },
-    "entry_mode": {
-     "mode": "no_entry_far",
-     "entry_zone": [
-      3.68,
-      3.9
-     ],
-     "stop": 3.42,
-     "reason": "بعيد فوق منطقة الدفعات"
-    },
-    "four_hour_context": {
-     "state": "blocked_by_red_head",
-     "red_candle_head": 4.6,
-     "flip": 4.47,
-     "sweep_low": 3.57,
-     "green_cover": false
-    },
-    "risk_profile": {
-     "risk_level": "مرتفع",
-     "flags": [
-      "ملفات SEC",
-      "بعيد عن الدعم"
-     ]
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 417,
-     "days_since_major_low": 5,
-     "window_state": "خمول أطول من النافذة الشائعة"
-    },
-    "session_context": {
-     "open": 4.49,
-     "high": 4.5799,
-     "low": 4.4,
-     "prev_close": 4.57,
-     "volume": 25109,
-     "market_cap": 5607472,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": 3.17,
-      "ask": 5.76,
-      "bid_size": 2,
-      "ask_size": 2,
-      "spread_pct": 45.0,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "صيد وقفات متكرّر",
-     "رفعة قديمة وخمول طويل"
-    ],
-    "targets_src": [
-     {
-      "price": 4.88,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 4.59
-     },
-     {
-      "price": 5.19,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "pending",
-      "blocked_by": 4.59
-     },
-     {
-      "price": 5.36,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "pending",
-      "blocked_by": 4.59
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 3.68,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 4.42,
-      "role": "support",
-      "note": "دعم فرعي"
-     },
-     {
-      "price": 3.42,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 5.69,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 5.9,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 4.88,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 1",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 5.19,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 2",
-      "src": "رأس شمعة حمرا 4س"
-     },
-     {
-      "price": 5.36,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 3",
-      "src": "رأس شمعة حمرا 4س"
-     },
-     {
-      "price": 4.59,
-      "role": "critical_number",
-      "note": "إغلاق فوقه يكسر خط الترند الهابط ويفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 5,
-   "trendline": {
-    "touches": 4,
-    "slope_per_bar": -0.030176,
-    "anchor": 7.698,
-    "line_price_now": 4.5899,
-    "state": "testing"
-   },
-   "sec_filings": true,
-   "recent_split": null,
-   "session_ctx": {
-    "open": 4.49,
-    "high": 4.5799,
-    "low": 4.4,
-    "prev_close": 4.57,
-    "volume": 25109,
-    "market_cap": 5607472,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": 3.17,
-     "ask": 5.76,
-     "bid_size": 2,
-     "ask_size": 2,
-     "spread_pct": 45.0,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 2,
-   "tf_display": "شهري ✅ · أسبوعي ✅ · يومي ⏳",
-   "liberation": 8.81,
-   "sector": "Healthcare",
-   "country": "United States",
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 70,
-   "have": [
-    "ثبات بعد القاع",
-    "تقاطع MACD",
-    "قرب متوسط 30/50",
-    "جفاف بيع",
-    "مسح سيولة"
-   ],
-   "partial": [],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "KST صاعد"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 0.0,
-   "last_price": 4.74,
-   "borrow_hist": [
-    [
-     "2026-07-17",
-     50000
-    ]
-   ],
-   "live_alert": {
-    "breakout": "2026-07-17"
-   }
-  },
-  {
-   "symbol": "PSTV",
-   "added": "2026-07-10",
-   "entry_ref": 4.0,
-   "entry": [
-    3.7,
-    3.92
-   ],
-   "tranches": [
-    3.7,
-    3.81,
-    3.92
-   ],
-   "pivot": 3.7,
-   "stop": 3.441,
-   "stop_hi": 3.515,
-   "t1": 4.57,
-   "t2": 5.03,
-   "t3": 5.21,
-   "score": 70,
+   "pivot": 3.1,
+   "stop": 2.883,
+   "stop_hi": 2.945,
+   "t1": 3.87,
+   "t2": 4.0,
+   "t3": 4.83,
+   "score": 75,
    "flags": [
     "تقاطع MACD",
     "KST صاعد",
+    "شمعة فوليوم ضخمة",
     "جفاف بيع",
-    "معيد إجرام (4 انفجارات)",
-    "ثبات 2 جلسات فوق القاع",
-    "مسح سيولة (كسر قاع سابق واستعادة)",
-    "نمط شمعة قوي",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت 6,456,422 (صغير ✅)"
-   ],
-   "rsi": 36.88082461601383,
-   "float": 6456422,
-   "short": null,
-   "short_pct": 16.3,
-   "short_interest": 1115738,
-   "days_to_cover": 7.3,
-   "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 47.35,
-   "shares_available": 100000,
-   "company_name": "PLUS THERAPEUTICS, Inc.",
-   "upcoming_events": null,
-   "proxy_filing": null,
-   "first_trade": null,
-   "rotation_pct": 1,
-   "drop_pct": 82.97872340425532,
-   "best_spike": 423.3333333333333,
-   "rr": 2.059620843728043,
-   "tier": "B",
-   "soft_fails": [
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "RSI الآن 42 أعلى من 40",
-    "السعر أقل بـ9% من متوسطه المتحرك (يفتح بصعود ~8% أو بثبات أسابيع)"
-   ],
-   "warnings": [
-    "سيولة منخفضة (916K/يوم)"
-   ],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     3.93,
-     3.82,
-     3.7
-    ],
-    "resistances": [
-     4.14,
-     4.3,
-     4.43,
-     4.7,
-     5.05
-    ],
-    "flip": 4.02,
-    "sweep_low": 3.2,
-    "green_cover": false,
-    "managed_ceiling": {
-     "price": 6.02,
-     "touches": 15
-    }
-   },
-   "key_levels": {
-    "sup_major": 3.7,
-    "sup_minor": 4.0,
-    "res_major": 8.0,
-    "res_minor": 4.57
-   },
-   "h4_confirm": 1,
-   "behav": {
-    "score": 97,
-    "label": "🔥 يد نشطة تعيد الضخّ بقوة",
-    "n_pumps": 4,
-    "best_pump": 423.0,
-    "recency_bars": 47,
-    "repumps": 3,
-    "sweeps": 3
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "liquidity_sweep",
-    "trendline_pressure": {
-     "touches": 2,
-     "slope_per_bar": -0.033333,
-     "anchor": 8.0,
-     "line_price_now": 6.0667,
-     "state": "below"
-    },
-    "critical_number": {
-     "price": 4.14,
-     "type": "breakout_activation",
-     "why": "تجاوزه يفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [],
-     "inactive_targets": [
-      4.57,
-      5.03,
-      5.21
-     ],
-     "blocked_by": 4.14
-    },
-    "entry_mode": {
-     "mode": "sweep_confirmed",
-     "entry_zone": [
-      3.7,
-      3.92
-     ],
-     "stop": 3.44,
-     "reason": "مسح تحت الدعم ثم استعادة"
-    },
-    "four_hour_context": {
-     "state": "blocked_by_red_head",
-     "red_candle_head": 4.14,
-     "flip": 4.02,
-     "sweep_low": 3.2,
-     "green_cover": false
-    },
-    "risk_profile": {
-     "risk_level": "متوسط",
-     "flags": [
-      "تقسيم حديث"
-     ]
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 47,
-     "days_since_major_low": 6,
-     "window_state": "داخل النافذة الشائعة لإعادة الرفع (30-50 جلسة)"
-    },
-    "session_context": {
-     "open": 4.0358,
-     "high": 4.1299,
-     "low": 3.88,
-     "prev_close": 4.0,
-     "volume": 69272,
-     "market_cap": 27535588,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": 2.95,
-      "ask": 5.05,
-      "bid_size": 2,
-      "ask_size": 2,
-      "spread_pct": 41.6,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "صيد وقفات متكرّر",
-     "يد نشطة — حذارِ مسح الوقف قبل الانطلاق"
-    ],
-    "targets_src": [
-     {
-      "price": 4.57,
-      "source": "المقاومة الفرعية (قمة يومية)",
-      "activation": "pending",
-      "blocked_by": 4.14
-     },
-     {
-      "price": 5.03,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 4.14
-     },
-     {
-      "price": 5.21,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 4.14
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 3.7,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 4.0,
-      "role": "support",
-      "note": "دعم فرعي"
-     },
-     {
-      "price": 3.44,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 4.57,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 8.0,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 4.57,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 1",
-      "src": "المقاومة الفرعية (قمة يومية)"
-     },
-     {
-      "price": 5.03,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 2",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 5.21,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 3",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 4.14,
-      "role": "critical_number",
-      "note": "تجاوزه يفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 6,
-   "trendline": {
-    "touches": 2,
-    "slope_per_bar": -0.033333,
-    "anchor": 8.0,
-    "line_price_now": 6.0667,
-    "state": "below"
-   },
-   "sec_filings": false,
-   "recent_split": [
-    "2026-04-02",
-    0.04
-   ],
-   "session_ctx": {
-    "open": 4.0358,
-    "high": 4.1299,
-    "low": 3.88,
-    "prev_close": 4.0,
-    "volume": 69272,
-    "market_cap": 27535588,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": 2.95,
-     "ask": 5.05,
-     "bid_size": 2,
-     "ask_size": 2,
-     "spread_pct": 41.6,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
-   "liberation": 8.25,
-   "sector": "Healthcare",
-   "country": "United States",
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 60,
-   "have": [
-    "ثبات بعد القاع",
-    "تقاطع MACD",
-    "KST صاعد",
-    "مسح سيولة"
-   ],
-   "partial": [],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "قرب متوسط 30/50",
-    "جفاف بيع"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 10.5,
-   "last_price": 3.74,
-   "live_alert": {
-    "breakout": "2026-07-13",
-    "buyzone": "2026-07-17",
-    "break": "2026-07-17",
-    "sweep": "2026-07-17"
-   },
-   "borrow_hist": [
-    [
-     "2026-07-11",
-     100000
-    ],
-    [
-     "2026-07-14",
-     100000
-    ],
-    [
-     "2026-07-15",
-     80000
-    ],
-    [
-     "2026-07-16",
-     100000
-    ],
-    [
-     "2026-07-17",
-     100000
-    ]
-   ]
-  },
-  {
-   "symbol": "USGO",
-   "added": "2026-07-16",
-   "ref_bar": "2026-07-15",
-   "entry_ref": 7.85,
-   "entry": [
-    7.43,
-    7.88
-   ],
-   "tranches": [
-    7.43,
-    7.65,
-    7.88
-   ],
-   "pivot": 7.43,
-   "stop": 6.9099,
-   "stop_hi": 7.0585,
-   "t1": 9.2,
-   "t2": 9.51,
-   "t3": 9.92,
-   "score": 55,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "ثبات 4 جلسات فوق القاع",
-    "مسح سيولة (كسر قاع سابق واستعادة)",
-    "فجوة صاعدة يومي 3%",
-    "فجوات متعددة الفريمات (أسبوعي، شهري)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
-   ],
-   "rsi": 39.995561323532016,
-   "float": 2416482,
-   "short": null,
-   "short_pct": 10.0,
-   "short_interest": 366137,
-   "days_to_cover": 5.87,
-   "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 6.13,
-   "shares_available": 35000,
-   "company_name": "U.S. GoldMining Inc.",
-   "upcoming_events": [
-    {
-     "kind": "أرباح",
-     "date": "2026-08-13",
-     "note": ""
-    }
-   ],
-   "proxy_filing": null,
-   "first_trade": null,
-   "rotation_pct": 2,
-   "drop_pct": 56.340377616849516,
-   "best_spike": 149.56804998871758,
-   "rr": 2.080575286314757,
-   "tier": "B",
-   "soft_fails": [
-    "توافق الفريمات 1 من 3 (نحتاج 2 على الأقل)",
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ9% من متوسطه المتحرك (يفتح بصعود ~8% أو بثبات أسابيع)"
-   ],
-   "warnings": [
-    "سيولة منخفضة (534K/يوم)"
-   ],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     7.78,
-     7.55
-    ],
-    "resistances": [
-     8.09,
-     8.4,
-     8.69,
-     9.08,
-     9.51
-    ],
-    "flip": 7.8,
-    "sweep_low": 7.43,
-    "green_cover": false,
-    "managed_ceiling": {
-     "price": 8.4,
-     "touches": 16
-    }
-   },
-   "key_levels": {
-    "sup_major": 7.43,
-    "sup_minor": 7.59,
-    "res_major": 13.95,
-    "res_minor": 8.0
-   },
-   "h4_confirm": 3,
-   "behav": {
-    "score": 20,
-    "label": "نشاط محدود",
-    "n_pumps": 1,
-    "best_pump": 150.0,
-    "recency_bars": 429,
-    "repumps": 0,
-    "sweeps": 0
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "h4_reclaim",
-    "trendline_pressure": {
-     "touches": 2,
-     "slope_per_bar": -0.122051,
-     "anchor": 13.95,
-     "line_price_now": 8.2136,
-     "state": "below"
-    },
-    "critical_number": {
-     "price": 8.0,
-     "type": "breakout_activation",
-     "why": "تجاوزه يفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [],
-     "inactive_targets": [
-      9.2,
-      9.51,
-      9.92
-     ],
-     "blocked_by": 8.0
-    },
-    "entry_mode": {
-     "mode": "near_support",
-     "entry_zone": [
-      7.43,
-      7.88
-     ],
-     "stop": 6.91,
-     "reason": "داخل/قرب منطقة الدفعات"
-    },
-    "four_hour_context": {
-     "state": "blocked_by_red_head",
-     "red_candle_head": 8.09,
-     "flip": 7.8,
-     "sweep_low": 7.43,
-     "green_cover": false
-    },
-    "risk_profile": {
-     "risk_level": "متوسط",
-     "flags": [
-      "ملفات SEC"
-     ]
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 429,
-     "days_since_major_low": 5,
-     "window_state": "خمول أطول من النافذة الشائعة"
-    },
-    "session_context": {
-     "open": 7.86,
-     "high": 7.985,
-     "low": 7.58,
-     "prev_close": 7.95,
-     "volume": 50202,
-     "market_cap": 108936776,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": 5.69,
-      "ask": 9.86,
-      "bid_size": 1,
-      "ask_size": 1,
-      "spread_pct": 42.3,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "رفعة قديمة وخمول طويل"
-    ],
-    "targets_src": [
-     {
-      "price": 9.2,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 8.0
-     },
-     {
-      "price": 9.51,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "pending",
-      "blocked_by": 8.0
-     },
-     {
-      "price": 9.92,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 8.0
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 7.43,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 7.59,
-      "role": "support",
-      "note": "دعم فرعي"
-     },
-     {
-      "price": 6.91,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 8.0,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 13.95,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 9.2,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 1",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 9.51,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 2",
-      "src": "رأس شمعة حمرا 4س"
-     },
-     {
-      "price": 9.92,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 3",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 8.0,
-      "role": "critical_number",
-      "note": "تجاوزه يفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 5,
-   "trendline": {
-    "touches": 2,
-    "slope_per_bar": -0.122051,
-    "anchor": 13.95,
-    "line_price_now": 8.2136,
-    "state": "below"
-   },
-   "sec_filings": true,
-   "recent_split": null,
-   "session_ctx": {
-    "open": 7.86,
-    "high": 7.985,
-    "low": 7.58,
-    "prev_close": 7.95,
-    "volume": 50202,
-    "market_cap": 108936776,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": 5.69,
-     "ask": 9.86,
-     "bid_size": 1,
-     "ask_size": 1,
-     "spread_pct": 42.3,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 1,
-   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ✅",
-   "liberation": 17.98,
-   "sector": "Basic Materials",
-   "country": "Canada",
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 60,
-   "have": [
-    "ثبات بعد القاع",
-    "تقاطع MACD",
-    "KST صاعد",
-    "مسح سيولة"
-   ],
-   "partial": [],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "قرب متوسط 30/50",
-    "جفاف بيع"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 2.3,
-   "last_price": 8.13,
-   "borrow_hist": [
-    [
-     "2026-07-16",
-     30000
-    ],
-    [
-     "2026-07-17",
-     35000
-    ]
-   ],
-   "live_alert": {
-    "buyzone": "2026-07-17",
-    "breakout": "2026-07-17"
-   }
-  },
-  {
-   "symbol": "PETS",
-   "added": "2026-07-14",
-   "ref_bar": "2026-07-13",
-   "entry_ref": 1.91,
-   "entry": [
-    1.62,
-    1.72
-   ],
-   "tranches": [
-    1.62,
-    1.67,
-    1.72
-   ],
-   "pivot": 1.62,
-   "stop": 1.5066,
-   "stop_hi": 1.539,
-   "t1": 2.07,
-   "t2": 2.2,
-   "t3": 2.28,
-   "score": 70,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "جفاف بيع",
-    "يرتكز على متوسط 30/50",
-    "ثبات 24 جلسات فوق القاع",
-    "DMI: ‎+DI فوق ‎-DI",
-    "فجوة عالية يومي 27%",
-    "فجوات متعددة الفريمات (أسبوعي)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
-   ],
-   "rsi": 48.31881042943484,
-   "float": null,
-   "short": null,
-   "short_pct": null,
-   "short_interest": null,
-   "days_to_cover": null,
-   "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
-   "borrow_fee": 0.6,
-   "shares_available": 800000,
-   "company_name": null,
-   "upcoming_events": [
-    {
-     "kind": "اجتماع",
-     "date": "2026-06-25",
-     "note": "DEFA14A"
-    },
-    {
-     "kind": "أرباح",
-     "date": "2026-08-06",
-     "note": ""
-    }
-   ],
-   "proxy_filing": {
-    "form": "DEFA14A",
-    "date": "2026-06-25"
-   },
-   "first_trade": null,
-   "rotation_pct": null,
-   "drop_pct": 53.41463387686181,
-   "best_spike": 143.75000232830638,
-   "rr": 2.4479804825935063,
-   "tier": "B",
-   "soft_fails": [
-    "توافق الفريمات 0 من 3 (نحتاج 2 على الأقل)",
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "RSI الآن 48 أعلى من 40"
-   ],
-   "warnings": [],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     1.88,
-     1.8,
-     1.76,
-     1.71,
-     1.64
-    ],
-    "resistances": [
-     1.97,
-     2.03,
-     2.09,
-     2.21,
-     2.28
-    ],
-    "flip": 1.87,
-    "sweep_low": 1.62,
-    "green_cover": false,
-    "managed_ceiling": {
-     "price": 2.28,
-     "touches": 29
-    }
-   },
-   "key_levels": {
-    "sup_major": 1.62,
-    "sup_minor": 1.72,
-    "res_major": 2.23,
-    "res_minor": 2.07
-   },
-   "h4_confirm": 1,
-   "behav": {
-    "score": 35,
-    "label": "نشاط محدود",
-    "n_pumps": 1,
-    "best_pump": 144.0,
-    "recency_bars": 129,
-    "repumps": 0,
-    "sweeps": 1
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "extended_risk",
-    "trendline_pressure": {
-     "touches": 3,
-     "slope_per_bar": -0.010354,
-     "anchor": 3.52,
-     "line_price_now": 2.2258,
-     "state": "below"
-    },
-    "critical_number": {
-     "price": 2.07,
-     "type": "breakout_activation",
-     "why": "تجاوزه يفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [
-      2.07
-     ],
-     "inactive_targets": [
-      2.2,
-      2.28
-     ],
-     "blocked_by": 2.07
-    },
-    "entry_mode": {
-     "mode": "no_entry_far",
-     "entry_zone": [
-      1.62,
-      1.72
-     ],
-     "stop": 1.51,
-     "reason": "بعيد فوق منطقة الدفعات"
-    },
-    "four_hour_context": {
-     "state": "support_flipped",
-     "red_candle_head": 1.97,
-     "flip": 1.87,
-     "sweep_low": 1.62,
-     "green_cover": false
-    },
-    "risk_profile": {
-     "risk_level": "مرتفع",
-     "flags": [
-      "ملفات SEC",
-      "بعيد عن الدعم"
-     ]
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 129,
-     "days_since_major_low": 24,
-     "window_state": "خمول أطول من النافذة الشائعة"
-    },
-    "session_context": {
-     "open": null,
-     "high": null,
-     "low": null,
-     "prev_close": null,
-     "volume": null,
-     "market_cap": null,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": null,
-      "ask": null,
-      "bid_size": null,
-      "ask_size": null,
-      "spread_pct": null,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "رفعة قديمة وخمول طويل"
-    ],
-    "targets_src": [
-     {
-      "price": 2.07,
-      "source": "المقاومة الفرعية (قمة يومية)",
-      "activation": "active",
-      "blocked_by": null
-     },
-     {
-      "price": 2.2,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 2.07
-     },
-     {
-      "price": 2.28,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "pending",
-      "blocked_by": 2.07
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 1.62,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 1.72,
-      "role": "support",
-      "note": "دعم فرعي"
-     },
-     {
-      "price": 1.51,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 2.07,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 2.23,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 2.07,
-      "role": "target",
-      "state": "active",
-      "note": "الهدف 1",
-      "src": "المقاومة الفرعية (قمة يومية)"
-     },
-     {
-      "price": 2.2,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 2",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 2.28,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 3",
-      "src": "رأس شمعة حمرا 4س"
-     },
-     {
-      "price": 2.07,
-      "role": "critical_number",
-      "note": "تجاوزه يفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 24,
-   "trendline": {
-    "touches": 3,
-    "slope_per_bar": -0.010354,
-    "anchor": 3.52,
-    "line_price_now": 2.2258,
-    "state": "below"
-   },
-   "sec_filings": true,
-   "recent_split": null,
-   "session_ctx": {
-    "open": null,
-    "high": null,
-    "low": null,
-    "prev_close": null,
-    "volume": null,
-    "market_cap": null,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": null,
-     "ask": null,
-     "bid_size": null,
-     "ask_size": null,
-     "spread_pct": null,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 0,
-   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ⏳",
-   "liberation": 4.75,
-   "sector": null,
-   "country": null,
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 55,
-   "have": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "قرب متوسط 30/50",
-    "جفاف بيع"
-   ],
-   "partial": [
-    "ثبات بعد القاع"
-   ],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "مسح سيولة"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 5.8,
-   "last_price": 1.97,
-   "borrow_hist": [
-    [
-     "2026-07-14",
-     700000
-    ],
-    [
-     "2026-07-15",
-     750000
-    ],
-    [
-     "2026-07-16",
-     750000
-    ],
-    [
-     "2026-07-17",
-     800000
-    ]
-   ],
-   "live_alert": {
-    "breakout": "2026-07-15"
-   }
-  },
-  {
-   "symbol": "SY",
-   "added": "2026-07-11",
-   "entry_ref": 1.71,
-   "entry": [
-    1.28,
-    1.36
-   ],
-   "tranches": [
-    1.28,
-    1.32,
-    1.36
-   ],
-   "pivot": 1.28,
-   "stop": 1.1904,
-   "stop_hi": 1.216,
-   "t1": 1.95,
-   "t2": 2.06,
-   "t3": 2.22,
-   "score": 60,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "جفاف بيع",
-    "يرتكز على متوسط 30/50",
-    "ثبات 13 جلسات فوق القاع",
-    "DMI: ‎+DI فوق ‎-DI",
-    "استعاد MA5/MA20 (تجميع)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
-   ],
-   "rsi": 48.2432038491543,
-   "float": null,
-   "short": null,
-   "short_pct": null,
-   "short_interest": null,
-   "days_to_cover": null,
-   "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
-   "borrow_fee": 1.51,
-   "shares_available": 6900000,
-   "company_name": null,
-   "upcoming_events": [
-    {
-     "kind": "أرباح",
-     "date": "2026-08-21",
-     "note": ""
-    }
-   ],
-   "proxy_filing": null,
-   "first_trade": null,
-   "rotation_pct": null,
-   "drop_pct": 72.77070093920972,
-   "best_spike": 481.18811296886133,
-   "rr": 4.861110113101444,
-   "tier": "B",
-   "soft_fails": [
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "RSI الآن 48 أعلى من 40",
-    "السعر أقل بـ4% من متوسطه المتحرك (يفتح بصعود ~2% أو بثبات أسابيع)"
-   ],
-   "warnings": [
-    "سيولة منخفضة (807K/يوم)"
-   ],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     1.6,
-     1.52,
-     1.41
-    ],
-    "resistances": [
-     1.74,
-     1.81,
-     1.87,
-     1.93,
-     1.99
-    ],
-    "flip": 1.71,
-    "sweep_low": 1.28,
-    "green_cover": false,
-    "managed_ceiling": {
-     "price": 2.83,
-     "touches": 17
-    }
-   },
-   "key_levels": {
-    "sup_major": 1.28,
-    "sup_minor": 1.31,
-    "res_major": 3.32,
-    "res_minor": 1.79
-   },
-   "h4_confirm": 1,
-   "behav": {
-    "score": 32,
-    "label": "نشاط محدود",
-    "n_pumps": 1,
-    "best_pump": 481.0,
-    "recency_bars": 251,
-    "repumps": 0,
-    "sweeps": 1
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "extended_risk",
-    "trendline_pressure": {
-     "touches": 2,
-     "slope_per_bar": -0.01875,
-     "anchor": 2.22,
-     "line_price_now": 1.6575,
-     "state": "testing"
-    },
-    "critical_number": {
-     "price": 1.74,
-     "type": "breakout_activation",
-     "why": "تجاوزه يفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [],
-     "inactive_targets": [
-      1.95,
-      2.06,
-      2.22
-     ],
-     "blocked_by": 1.74
-    },
-    "entry_mode": {
-     "mode": "no_entry_far",
-     "entry_zone": [
-      1.28,
-      1.36
-     ],
-     "stop": 1.19,
-     "reason": "بعيد فوق منطقة الدفعات"
-    },
-    "four_hour_context": {
-     "state": "blocked_by_red_head",
-     "red_candle_head": 1.74,
-     "flip": 1.71,
-     "sweep_low": 1.28,
-     "green_cover": false
-    },
-    "risk_profile": {
-     "risk_level": "متوسط",
-     "flags": [
-      "بعيد عن الدعم"
-     ]
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 251,
-     "days_since_major_low": 17,
-     "window_state": "خمول أطول من النافذة الشائعة"
-    },
-    "session_context": {
-     "open": null,
-     "high": null,
-     "low": null,
-     "prev_close": null,
-     "volume": null,
-     "market_cap": null,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": null,
-      "ask": null,
-      "bid_size": null,
-      "ask_size": null,
-      "spread_pct": null,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "رفعة قديمة وخمول طويل"
-    ],
-    "targets_src": [
-     {
-      "price": 1.95,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 1.74
-     },
-     {
-      "price": 2.06,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 1.74
-     },
-     {
-      "price": 2.22,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 1.74
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 1.28,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 1.31,
-      "role": "support",
-      "note": "دعم فرعي"
-     },
-     {
-      "price": 1.19,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 1.79,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 3.32,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 1.95,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 1",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 2.06,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 2",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 2.22,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 3",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 1.74,
-      "role": "critical_number",
-      "note": "تجاوزه يفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 17,
-   "trendline": {
-    "touches": 2,
-    "slope_per_bar": -0.01875,
-    "anchor": 2.22,
-    "line_price_now": 1.6575,
-    "state": "testing"
-   },
-   "sec_filings": false,
-   "recent_split": null,
-   "session_ctx": {
-    "open": null,
-    "high": null,
-    "low": null,
-    "prev_close": null,
-    "volume": null,
-    "market_cap": null,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": null,
-     "ask": null,
-     "bid_size": null,
-     "ask_size": null,
-     "spread_pct": null,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
-   "liberation": 3.38,
-   "sector": null,
-   "country": null,
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 55,
-   "have": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "قرب متوسط 30/50",
-    "جفاف بيع"
-   ],
-   "partial": [
-    "ثبات بعد القاع"
-   ],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "مسح سيولة"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 8.2,
-   "last_price": 1.68,
-   "borrow_hist": [
-    [
-     "2026-07-11",
-     6500000
-    ],
-    [
-     "2026-07-14",
-     6500000
-    ],
-    [
-     "2026-07-15",
-     6500000
-    ],
-    [
-     "2026-07-16",
-     6400000
-    ],
-    [
-     "2026-07-17",
-     6900000
-    ]
-   ],
-   "live_alert": {
-    "breakout": "2026-07-15"
-   }
-  },
-  {
-   "symbol": "KLRS",
-   "added": "2026-07-15",
-   "ref_bar": "2026-07-14",
-   "entry_ref": 4.55,
-   "entry": [
-    3.9,
-    4.13
-   ],
-   "tranches": [
-    3.9,
-    4.02,
-    4.13
-   ],
-   "pivot": 3.9,
-   "stop": 3.627,
-   "stop_hi": 3.705,
-   "t1": 4.96,
-   "t2": 5.29,
-   "t3": 5.57,
-   "score": 95,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "جفاف بيع",
-    "يرتكز على متوسط 30/50",
-    "ثبات 9 جلسات فوق القاع",
-    "مسح سيولة (كسر قاع سابق واستعادة)",
-    "نمط شمعة قوي",
-    "تباعد MFI صعودي (22→26) — سيولة مخفية",
-    "انكماش حزمة كلنجر (تجميع)",
-    "استعاد MA5/MA20 (تجميع)",
-    "فجوة صاعدة يومي 7%",
-    "فجوات متعددة الفريمات (أسبوعي، شهري)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت 7,219,053 (صغير ✅)"
-   ],
-   "rsi": 49.24275549271863,
-   "float": 7219053,
-   "short": null,
-   "short_pct": 6.0,
-   "short_interest": 502578,
-   "days_to_cover": 6.12,
-   "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
-   "borrow_fee": 1.4,
-   "shares_available": 450000,
-   "company_name": "Kalaris Therapeutics, Inc.",
-   "upcoming_events": null,
-   "proxy_filing": null,
-   "first_trade": null,
-   "rotation_pct": 0,
-   "drop_pct": 61.70033546376787,
-   "best_spike": 116.44203909447724,
-   "rr": 2.4205804841812277,
-   "tier": "B",
-   "soft_fails": [
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "قاع RSI 30 (المثالي 27 أو أقل)",
-    "RSI الآن 49 أعلى من 40"
-   ],
-   "warnings": [
-    "سيولة منخفضة (314K/يوم)"
-   ],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     4.47,
-     4.29,
-     4.15,
-     4.02
-    ],
-    "resistances": [
-     4.67,
-     4.83,
-     5.06,
-     5.32,
-     5.57
-    ],
-    "flip": 4.55,
-    "sweep_low": 3.9,
-    "green_cover": true,
-    "managed_ceiling": {
-     "price": 5.32,
-     "touches": 15
-    }
-   },
-   "key_levels": {
-    "sup_major": 3.9,
-    "sup_minor": 4.5,
-    "res_major": 9.96,
-    "res_minor": 5.05
-   },
-   "h4_confirm": 1,
-   "behav": {
-    "score": 37,
-    "label": "نشاط محدود",
-    "n_pumps": 1,
-    "best_pump": 116.0,
-    "recency_bars": 202,
-    "repumps": 0,
-    "sweeps": 2
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "extended_risk",
-    "trendline_pressure": {
-     "touches": 2,
-     "slope_per_bar": -0.035887,
-     "anchor": 7.14,
-     "line_price_now": 4.6997,
-     "state": "testing"
-    },
-    "critical_number": {
-     "price": 4.67,
-     "type": "breakout_activation",
-     "why": "تجاوزه يفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [],
-     "inactive_targets": [
-      4.96,
-      5.29,
-      5.57
-     ],
-     "blocked_by": 4.67
-    },
-    "entry_mode": {
-     "mode": "no_entry_far",
-     "entry_zone": [
-      3.9,
-      4.13
-     ],
-     "stop": 3.63,
-     "reason": "بعيد فوق منطقة الدفعات"
-    },
-    "four_hour_context": {
-     "state": "blocked_by_red_head",
-     "red_candle_head": 4.67,
-     "flip": 4.55,
-     "sweep_low": 3.9,
-     "green_cover": true
-    },
-    "risk_profile": {
-     "risk_level": "مرتفع",
-     "flags": [
-      "ملفات SEC",
-      "بعيد عن الدعم"
-     ]
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 202,
-     "days_since_major_low": 11,
-     "window_state": "خمول أطول من النافذة الشائعة"
-    },
-    "session_context": {
-     "open": 4.43,
-     "high": 4.61,
-     "low": 4.3,
-     "prev_close": 4.42,
-     "volume": 35440,
-     "market_cap": 108254872,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": 3.3,
-      "ask": 5.55,
-      "bid_size": 2,
-      "ask_size": 2,
-      "spread_pct": 40.5,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "صيد وقفات متكرّر",
-     "رفعة قديمة وخمول طويل"
-    ],
-    "targets_src": [
-     {
-      "price": 4.96,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 4.67
-     },
-     {
-      "price": 5.29,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 4.67
-     },
-     {
-      "price": 5.57,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "pending",
-      "blocked_by": 4.67
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 3.9,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 4.5,
-      "role": "support",
-      "note": "دعم فرعي"
-     },
-     {
-      "price": 3.63,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 5.05,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 9.96,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 4.96,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 1",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 5.29,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 2",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 5.57,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 3",
-      "src": "رأس شمعة حمرا 4س"
-     },
-     {
-      "price": 4.67,
-      "role": "critical_number",
-      "note": "تجاوزه يفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 11,
-   "trendline": {
-    "touches": 2,
-    "slope_per_bar": -0.035887,
-    "anchor": 7.14,
-    "line_price_now": 4.6997,
-    "state": "testing"
-   },
-   "sec_filings": true,
-   "recent_split": null,
-   "session_ctx": {
-    "open": 4.43,
-    "high": 4.61,
-    "low": 4.3,
-    "prev_close": 4.42,
-    "volume": 35440,
-    "market_cap": 108254872,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": 3.3,
-     "ask": 5.55,
-     "bid_size": 2,
-     "ask_size": 2,
-     "spread_pct": 40.5,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 2,
-   "tf_display": "شهري ✅ · أسبوعي ⏳ · يومي ✅",
-   "liberation": 12.9,
-   "sector": "Healthcare",
-   "country": "United States",
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 45,
-   "have": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "قرب متوسط 30/50"
-   ],
-   "partial": [
-    "ثبات بعد القاع"
-   ],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "جفاف بيع",
-    "مسح سيولة"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 7.3,
-   "last_price": 4.38,
-   "borrow_hist": [
-    [
-     "2026-07-15",
-     450000
-    ],
-    [
-     "2026-07-16",
-     550000
-    ],
-    [
-     "2026-07-17",
-     450000
-    ]
-   ],
-   "live_alert": {
-    "breakout": "2026-07-17"
-   }
-  },
-  {
-   "symbol": "NAGE",
-   "added": "2026-07-14",
-   "ref_bar": "2026-07-13",
-   "entry_ref": 3.47,
-   "entry": [
-    3.18,
-    3.37
-   ],
-   "tranches": [
-    3.18,
-    3.28,
-    3.37
-   ],
-   "pivot": 3.18,
-   "stop": 2.9574,
-   "stop_hi": 3.021,
-   "t1": 3.89,
-   "t2": 4.04,
-   "t3": 4.22,
-   "score": 80,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "يرتكز على متوسط 30/50",
     "ثبات 8 جلسات فوق القاع",
     "مسح سيولة (كسر قاع سابق واستعادة)",
     "نمط شمعة قوي",
-    "انكماش حزمة كلنجر (تجميع)",
-    "استعاد MA5/MA20 (تجميع)",
-    "فجوة-هدف فوق السعر عند $4.39 (+26%)",
-    "قاب (فجوة) فوق السعر عند $4.39 (فراغ 10% = هدف ذهبي)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
+    "تباعد MFI صعودي (12→63) — سيولة مخفية",
+    "شورت 1,912 (مقبول)",
+    "فلوت 731,822 (صغير ✅)"
    ],
-   "rsi": 48.83211865087514,
-   "float": null,
-   "short": null,
+   "rsi": 32.08576752158919,
+   "float": 731822,
+   "short": 1912,
    "short_pct": null,
-   "short_interest": null,
-   "days_to_cover": null,
-   "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
-   "borrow_fee": 0.41,
-   "shares_available": 6500000,
-   "company_name": null,
-   "upcoming_events": [
-    {
-     "kind": "أرباح",
-     "date": "2026-08-05",
-     "note": ""
-    }
-   ],
+   "short_interest": 11883,
+   "days_to_cover": 0.0,
+   "kst4": "تحت إشارته تحت الصفر — زخم هابط",
+   "borrow_fee": 31.02,
+   "shares_available": 100000,
+   "company_name": "Jinxin Technology Holding Compa",
+   "upcoming_events": null,
    "proxy_filing": null,
    "first_trade": null,
-   "rotation_pct": null,
-   "drop_pct": 70.84033495928131,
-   "best_spike": 122.44897859883976,
-   "rr": 1.9207645450959154,
-   "tier": "B",
-   "soft_fails": [
-    "قاع RSI 30 (المثالي 27 أو أقل)",
-    "RSI الآن 49 أعلى من 40"
-   ],
-   "warnings": [],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     3.42,
-     3.34,
-     3.17,
-     3.1
-    ],
-    "resistances": [
-     3.55,
-     3.72,
-     3.9,
-     4.05,
-     4.22
-    ],
-    "flip": 3.48,
-    "sweep_low": 3.1,
-    "green_cover": false,
-    "managed_ceiling": {
-     "price": 3.55,
-     "touches": 29
-    }
-   },
-   "key_levels": {
-    "sup_major": 3.18,
-    "sup_minor": 3.39,
-    "res_major": 5.12,
-    "res_minor": 4.04
-   },
-   "h4_confirm": 1,
-   "behav": {
-    "score": 18,
-    "label": "نشاط محدود",
-    "n_pumps": 1,
-    "best_pump": 122.0,
-    "recency_bars": 406,
-    "repumps": 0,
-    "sweeps": 0
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "h4_reclaim",
-    "trendline_pressure": {
-     "touches": 3,
-     "slope_per_bar": -0.034419,
-     "anchor": 5.12,
-     "line_price_now": 3.3991,
-     "state": "testing"
-    },
-    "critical_number": {
-     "price": 3.55,
-     "type": "breakout_activation",
-     "why": "تجاوزه يفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [],
-     "inactive_targets": [
-      3.89,
-      4.04,
-      4.22
-     ],
-     "blocked_by": 3.55
-    },
-    "entry_mode": {
-     "mode": "near_support",
-     "entry_zone": [
-      3.18,
-      3.37
-     ],
-     "stop": 2.96,
-     "reason": "داخل/قرب منطقة الدفعات"
-    },
-    "four_hour_context": {
-     "state": "blocked_by_red_head",
-     "red_candle_head": 3.55,
-     "flip": 3.48,
-     "sweep_low": 3.1,
-     "green_cover": false
-    },
-    "risk_profile": {
-     "risk_level": "متوسط",
-     "flags": [
-      "ملفات SEC"
-     ]
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 406,
-     "days_since_major_low": 11,
-     "window_state": "خمول أطول من النافذة الشائعة"
-    },
-    "session_context": {
-     "open": null,
-     "high": null,
-     "low": null,
-     "prev_close": null,
-     "volume": null,
-     "market_cap": null,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": null,
-      "ask": null,
-      "bid_size": null,
-      "ask_size": null,
-      "spread_pct": null,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "رفعة قديمة وخمول طويل"
-    ],
-    "targets_src": [
-     {
-      "price": 3.89,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 3.55
-     },
-     {
-      "price": 4.04,
-      "source": "المقاومة الفرعية (قمة يومية)",
-      "activation": "pending",
-      "blocked_by": 3.55
-     },
-     {
-      "price": 4.22,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "pending",
-      "blocked_by": 3.55
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 3.18,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 3.39,
-      "role": "support",
-      "note": "دعم فرعي"
-     },
-     {
-      "price": 2.96,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 4.04,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 5.12,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 3.89,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 1",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 4.04,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 2",
-      "src": "المقاومة الفرعية (قمة يومية)"
-     },
-     {
-      "price": 4.22,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 3",
-      "src": "رأس شمعة حمرا 4س"
-     },
-     {
-      "price": 3.55,
-      "role": "critical_number",
-      "note": "تجاوزه يفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 11,
-   "trendline": {
-    "touches": 3,
-    "slope_per_bar": -0.034419,
-    "anchor": 5.12,
-    "line_price_now": 3.3991,
-    "state": "testing"
-   },
-   "sec_filings": true,
-   "recent_split": null,
-   "session_ctx": {
-    "open": null,
-    "high": null,
-    "low": null,
-    "prev_close": null,
-    "volume": null,
-    "market_cap": null,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": null,
-     "ask": null,
-     "bid_size": null,
-     "ask_size": null,
-     "spread_pct": null,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
-   "liberation": 9.18,
-   "sector": null,
-   "country": null,
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 45,
-   "have": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "قرب متوسط 30/50"
-   ],
-   "partial": [
-    "ثبات بعد القاع"
-   ],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "جفاف بيع",
-    "مسح سيولة"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 1.7,
-   "last_price": 3.28,
-   "borrow_hist": [
-    [
-     "2026-07-14",
-     6500000
-    ],
-    [
-     "2026-07-15",
-     6600000
-    ],
-    [
-     "2026-07-16",
-     6600000
-    ],
-    [
-     "2026-07-17",
-     6500000
-    ]
-   ],
-   "live_alert": {
-    "buyzone": "2026-07-17"
-   }
-  },
-  {
-   "symbol": "LI",
-   "added": "2026-07-11",
-   "entry_ref": 12.1,
-   "entry": [
-    11.65,
-    12.35
-   ],
-   "tranches": [
-    11.65,
-    12.0,
-    12.35
-   ],
-   "pivot": 11.65,
-   "stop": 10.8345,
-   "stop_hi": 11.0675,
-   "t1": 13.1,
-   "t2": 13.84,
-   "t3": 14.59,
-   "score": 80,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "ثبات 7 جلسات فوق القاع",
-    "مسح سيولة (كسر قاع سابق واستعادة)",
-    "تباعد MFI صعودي (23→41) — سيولة مخفية",
-    "Williams %R انعطاف من التشبع",
-    "فجوة صاعدة يومي 6%",
-    "فجوات متعددة الفريمات (أسبوعي، شهري)",
-    "فجوة-هدف فوق السعر عند $17.01 (+41%)",
-    "قاب (فجوة) فوق السعر عند $17.01 (فراغ 7% = هدف ذهبي)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
-   ],
-   "rsi": 34.17694038351806,
-   "float": null,
-   "short": null,
-   "short_pct": null,
-   "short_interest": null,
-   "days_to_cover": null,
-   "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": 1.3,
-   "shares_available": 3400000,
-   "company_name": null,
-   "upcoming_events": [
-    {
-     "kind": "أرباح",
-     "date": "2026-08-27",
-     "note": ""
-    }
-   ],
-   "proxy_filing": null,
-   "first_trade": null,
-   "rotation_pct": null,
-   "drop_pct": 62.21701856378709,
-   "best_spike": 63.29874653544329,
-   "rr": 0.9438006565172173,
-   "tier": "B",
-   "soft_fails": [
-    "الانفجار السابق 63% (المثالي 100% فأكثر)",
-    "السعر أقل بـ8% من متوسطه المتحرك (يفتح بصعود ~7% أو بثبات أسابيع)"
-   ],
-   "warnings": [],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     12.02,
-     11.77
-    ],
-    "resistances": [
-     12.34,
-     12.72,
-     12.99,
-     13.42,
-     13.84
-    ],
-    "flip": 12.14,
-    "sweep_low": 11.65,
-    "green_cover": true,
-    "managed_ceiling": {
-     "price": 17.97,
-     "touches": 22
-    }
-   },
-   "key_levels": {
-    "sup_major": 11.65,
-    "sup_minor": null,
-    "res_major": 20.09,
-    "res_minor": 12.39
-   },
-   "h4_confirm": 3,
-   "behav": {
-    "score": 5,
-    "label": "رفعة يتيمة / يد خاملة",
-    "n_pumps": 0,
-    "best_pump": 63.0,
-    "recency_bars": null,
-    "repumps": 0,
-    "sweeps": 0
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "pivot_reversal",
-    "trendline_pressure": {
-     "touches": 2,
-     "slope_per_bar": -0.140875,
-     "anchor": 15.72,
-     "line_price_now": 11.4938,
-     "state": "broken"
-    },
-    "critical_number": {
-     "price": 20.09,
-     "type": "breakout_activation",
-     "why": "تجاوزه يفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [
-      13.1,
-      13.84,
-      14.59
-     ],
-     "inactive_targets": [],
-     "blocked_by": null
-    },
-    "entry_mode": {
-     "mode": "near_support",
-     "entry_zone": [
-      11.65,
-      12.35
-     ],
-     "stop": 10.83,
-     "reason": "داخل/قرب منطقة الدفعات"
-    },
-    "four_hour_context": {
-     "state": "support_flipped",
-     "red_candle_head": 12.34,
-     "flip": 12.14,
-     "sweep_low": 11.65,
-     "green_cover": true
-    },
-    "risk_profile": {
-     "risk_level": "منخفض",
-     "flags": []
-    },
-    "cycle_context": {
-     "days_since_last_impulse": null,
-     "days_since_major_low": 11
-    },
-    "session_context": {
-     "open": null,
-     "high": null,
-     "low": null,
-     "prev_close": null,
-     "volume": null,
-     "market_cap": null,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": null,
-      "ask": null,
-      "bid_size": null,
-      "ask_size": null,
-      "spread_pct": null,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "targets_src": [
-     {
-      "price": 13.1,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "active",
-      "blocked_by": null
-     },
-     {
-      "price": 13.84,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "active",
-      "blocked_by": null
-     },
-     {
-      "price": 14.59,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "active",
-      "blocked_by": null
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 11.65,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 10.83,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 12.39,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 20.09,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 13.1,
-      "role": "target",
-      "state": "active",
-      "note": "الهدف 1",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 13.84,
-      "role": "target",
-      "state": "active",
-      "note": "الهدف 2",
-      "src": "رأس شمعة حمرا 4س"
-     },
-     {
-      "price": 14.59,
-      "role": "target",
-      "state": "active",
-      "note": "الهدف 3",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 20.09,
-      "role": "critical_number",
-      "note": "تجاوزه يفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 11,
-   "trendline": {
-    "touches": 2,
-    "slope_per_bar": -0.140875,
-    "anchor": 15.72,
-    "line_price_now": 11.4938,
-    "state": "broken"
-   },
-   "sec_filings": false,
-   "recent_split": null,
-   "session_ctx": {
-    "open": null,
-    "high": null,
-    "low": null,
-    "prev_close": null,
-    "volume": null,
-    "market_cap": null,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": null,
-     "ask": null,
-     "bid_size": null,
-     "ask_size": null,
-     "spread_pct": null,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
-   "liberation": 32.03,
-   "sector": null,
-   "country": null,
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 45,
-   "have": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "قرب متوسط 30/50"
-   ],
-   "partial": [
-    "ثبات بعد القاع"
-   ],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "جفاف بيع",
-    "مسح سيولة"
-   ],
-   "hit": "t1",
-   "hit_date": "2026-07-16",
-   "max_gain_pct": 8.8,
-   "last_price": 12.39,
-   "borrow_hist": [
-    [
-     "2026-07-11",
-     3000000
-    ],
-    [
-     "2026-07-14",
-     3800000
-    ],
-    [
-     "2026-07-15",
-     4200000
-    ],
-    [
-     "2026-07-16",
-     3700000
-    ],
-    [
-     "2026-07-17",
-     3400000
-    ]
-   ],
-   "live_alert": {
-    "buyzone": "2026-07-17",
-    "breakout": "2026-07-14"
-   }
-  },
-  {
-   "symbol": "CDLX",
-   "added": "2026-07-10",
-   "entry_ref": 4.32,
-   "entry": [
-    3.95,
-    4.19
-   ],
-   "tranches": [
-    3.95,
-    4.07,
-    4.19
-   ],
-   "pivot": 3.95,
-   "stop": 3.6735,
-   "stop_hi": 3.7525,
-   "t1": 5.2,
-   "t2": 5.38,
-   "t3": 5.7,
-   "score": 60,
-   "flags": [
-    "RSI تشبع وانحناء (قاع 26→34)",
-    "تقاطع MACD",
-    "KST صاعد",
-    "ثبات 2 جلسات فوق القاع",
-    "StochRSI انعطاف من التشبع",
-    "Williams %R انعطاف من التشبع",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت 5,001,325 (صغير ✅)"
-   ],
-   "rsi": 34.354226746012245,
-   "float": 5001325,
-   "short": null,
-   "short_pct": 13.1,
-   "short_interest": 728104,
-   "days_to_cover": 7.71,
-   "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 0.61,
-   "shares_available": 200000,
-   "company_name": "Cardlytics, Inc. Common Stock",
-   "upcoming_events": [
-    {
-     "kind": "أرباح",
-     "date": "2026-08-05",
-     "note": ""
-    }
-   ],
-   "proxy_filing": null,
-   "first_trade": null,
-   "rotation_pct": 1,
-   "drop_pct": 86.82926746296923,
-   "best_spike": 216.85395473754346,
-   "rr": 2.8499372670438983,
+   "rotation_pct": 2,
+   "drop_pct": 93.40487782548114,
+   "best_spike": 143.30901146618217,
+   "rr": 2.180792157853082,
    "tier": "B",
    "soft_fails": [
     "توافق الفريمات 1 من 3 (نحتاج 2 على الأقل)",
     "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ17% من متوسطه المتحرك (يفتح بصعود ~19% أو بثبات أسابيع)"
+    "السعر أقل بـ30% من متوسطه المتحرك (يفتح بصعود ~40% أو بثبات أسابيع)"
    ],
    "warnings": [
-    "سيولة منخفضة (336K/يوم)"
+    "سيولة منخفضة (482K/يوم)",
+    "بلد عالي التلاعب (الصين) — غالباً يتجاهل التحليل الفني؛ تحقق يدوياً"
    ],
    "news_risk": false,
    "h4_levels": {
     "supports": [
-     4.25,
-     4.07,
-     3.94
+     3.33,
+     3.25,
+     3.02
     ],
     "resistances": [
-     4.54,
-     4.81,
-     4.97,
-     5.15,
-     5.38
+     3.45,
+     3.69,
+     3.81,
+     3.89,
+     4.06
     ],
-    "flip": 4.29,
-    "sweep_low": 3.94,
-    "green_cover": true,
+    "flip": 3.38,
+    "sweep_low": 3.0,
+    "green_cover": false,
     "managed_ceiling": {
-     "price": 6.46,
-     "touches": 15
+     "price": 7.49,
+     "touches": 10
     }
    },
    "key_levels": {
-    "sup_major": 3.95,
+    "sup_major": 3.1,
     "sup_minor": null,
-    "res_major": 8.84,
-    "res_minor": 4.34
+    "res_major": 17.5,
+    "res_minor": 3.51
    },
-   "h4_confirm": 3,
+   "h4_confirm": 1,
    "behav": {
-    "score": 36,
-    "label": "نشاط محدود",
+    "score": 56,
+    "label": "يد فعّالة (تعيد الرفع)",
     "n_pumps": 1,
-    "best_pump": 217.0,
-    "recency_bars": 191,
+    "best_pump": 143.0,
+    "recency_bars": 65,
     "repumps": 0,
-    "sweeps": 1
+    "sweeps": 3
    },
-   "pump_scar": null,
+   "pump_scar": {
+    "found": true,
+    "jump_pct": 100.0,
+    "bars_ago": 79,
+    "broke_support": false,
+    "pre_support": 10.25
+   },
    "interp": {
     "setup_type": "liquidity_sweep",
     "trendline_pressure": {
      "touches": 2,
-     "slope_per_bar": -0.04,
-     "anchor": 5.7,
-     "line_price_now": 4.86,
+     "slope_per_bar": -0.0125,
+     "anchor": 3.87,
+     "line_price_now": 3.7575,
      "state": "below"
     },
     "critical_number": {
-     "price": 4.34,
+     "price": 3.45,
      "type": "breakout_activation",
      "why": "تجاوزه يفعّل الهدف التالي"
     },
@@ -2716,1181 +126,187 @@
      "setup": "active",
      "active_targets": [],
      "inactive_targets": [
-      5.2,
-      5.38,
-      5.7
+      3.87,
+      4.0,
+      4.83
      ],
-     "blocked_by": 4.34
+     "blocked_by": 3.45
     },
     "entry_mode": {
      "mode": "sweep_confirmed",
      "entry_zone": [
-      3.95,
-      4.19
+      3.1,
+      3.29
      ],
-     "stop": 3.67,
+     "stop": 2.88,
      "reason": "مسح تحت الدعم ثم استعادة"
     },
     "four_hour_context": {
      "state": "blocked_by_red_head",
-     "red_candle_head": 4.54,
-     "flip": 4.29,
-     "sweep_low": 3.94,
-     "green_cover": true
+     "red_candle_head": 3.45,
+     "flip": 3.38,
+     "sweep_low": 3.0,
+     "green_cover": false
     },
     "risk_profile": {
-     "risk_level": "متوسط",
+     "risk_level": "مرتفع",
      "flags": [
-      "تقسيم حديث"
+      "تقسيم حديث",
+      "صيني/هونغ كونغ"
      ]
     },
     "cycle_context": {
-     "days_since_last_impulse": 191,
-     "days_since_major_low": 6,
+     "days_since_last_impulse": 65,
+     "days_since_major_low": 8,
      "window_state": "خمول أطول من النافذة الشائعة"
     },
     "session_context": {
-     "open": 4.16,
-     "high": 4.34,
-     "low": 4.16,
-     "prev_close": 4.16,
-     "volume": 50463,
-     "market_cap": 25089970,
+     "open": 3.31,
+     "high": 3.385,
+     "low": 3.22,
+     "prev_close": 3.3,
+     "volume": 17140,
+     "market_cap": 10690454,
      "pre_after": null,
      "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
      "quote": {
-      "bid": 3.04,
-      "ask": 5.44,
-      "bid_size": 2,
-      "ask_size": 2,
-      "spread_pct": 44.1,
+      "bid": 3.2,
+      "ask": 3.3,
+      "bid_size": 9,
+      "ask_size": 12,
+      "spread_pct": 3.0,
       "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
      }
     },
     "behavior_tags": [
-     "رفعة قديمة وخمول طويل"
+     "صيد وقفات متكرّر"
     ],
     "targets_src": [
      {
-      "price": 5.2,
+      "price": 3.87,
       "source": "سلّم المقاومات اليومي",
       "activation": "pending",
-      "blocked_by": 4.34
+      "blocked_by": 3.45
      },
      {
-      "price": 5.38,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "pending",
-      "blocked_by": 4.34
-     },
-     {
-      "price": 5.7,
+      "price": 4.0,
       "source": "سلّم المقاومات اليومي",
       "activation": "pending",
-      "blocked_by": 4.34
+      "blocked_by": 3.45
+     },
+     {
+      "price": 4.83,
+      "source": "سلّم المقاومات اليومي",
+      "activation": "pending",
+      "blocked_by": 3.45
      }
     ],
     "level_roles": [
      {
-      "price": 3.95,
+      "price": 3.1,
       "role": "support",
       "note": "دعم أساسي (الأرضية)"
      },
      {
-      "price": 3.67,
+      "price": 2.88,
       "role": "stop_source",
       "note": "الوقف"
      },
      {
-      "price": 4.34,
+      "price": 3.51,
       "role": "resistance",
       "note": "مقاومة فرعية"
      },
      {
-      "price": 8.84,
+      "price": 17.5,
       "role": "resistance",
       "note": "مقاومة أساسية"
      },
      {
-      "price": 5.2,
+      "price": 3.87,
       "role": "target",
       "state": "pending",
       "note": "الهدف 1",
       "src": "سلّم المقاومات اليومي"
      },
      {
-      "price": 5.38,
+      "price": 4.0,
       "role": "target",
       "state": "pending",
       "note": "الهدف 2",
-      "src": "رأس شمعة حمرا 4س"
+      "src": "سلّم المقاومات اليومي"
      },
      {
-      "price": 5.7,
+      "price": 4.83,
       "role": "target",
       "state": "pending",
       "note": "الهدف 3",
       "src": "سلّم المقاومات اليومي"
      },
      {
-      "price": 4.34,
+      "price": 3.45,
       "role": "critical_number",
       "note": "تجاوزه يفعّل الهدف التالي"
      }
     ]
    },
-   "bars_after": 6,
+   "bars_after": 8,
    "trendline": {
     "touches": 2,
-    "slope_per_bar": -0.04,
-    "anchor": 5.7,
-    "line_price_now": 4.86,
+    "slope_per_bar": -0.0125,
+    "anchor": 3.87,
+    "line_price_now": 3.7575,
     "state": "below"
    },
    "sec_filings": false,
    "recent_split": [
-    "2026-06-08",
-    0.1
+    "2026-06-25",
+    0.04
    ],
    "session_ctx": {
-    "open": 4.16,
-    "high": 4.34,
-    "low": 4.16,
-    "prev_close": 4.16,
-    "volume": 50463,
-    "market_cap": 25089970,
+    "open": 3.31,
+    "high": 3.385,
+    "low": 3.22,
+    "prev_close": 3.3,
+    "volume": 17140,
+    "market_cap": 10690454,
     "pre_after": null,
     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
     "quote": {
-     "bid": 3.04,
-     "ask": 5.44,
-     "bid_size": 2,
-     "ask_size": 2,
-     "spread_pct": 44.1,
+     "bid": 3.2,
+     "ask": 3.3,
+     "bid_size": 9,
+     "ask_size": 12,
+     "spread_pct": 3.0,
      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
     }
    },
    "tf_count": 1,
    "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ✅",
-   "liberation": 13.6,
+   "liberation": 7.5,
    "sector": "Communication Services",
-   "country": "United States",
+   "country": "China",
    "status": "active",
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": 40,
-   "have": [
-    "ثبات بعد القاع",
-    "تقاطع MACD"
-   ],
+   "readiness": null,
+   "have": [],
    "partial": [],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "KST صاعد",
-    "قرب متوسط 30/50",
-    "جفاف بيع",
-    "مسح سيولة"
-   ],
+   "missing": [],
    "hit": null,
    "hit_date": null,
-   "max_gain_pct": 4.6,
-   "last_price": 4.18,
-   "live_alert": {
-    "buyzone": "2026-07-17",
-    "breakout": "2026-07-15"
-   },
-   "borrow_hist": [
-    [
-     "2026-07-11",
-     150000
-    ],
-    [
-     "2026-07-14",
-     200000
-    ],
-    [
-     "2026-07-15",
-     350000
-    ],
-    [
-     "2026-07-16",
-     300000
-    ],
-    [
-     "2026-07-17",
-     200000
-    ]
-   ]
-  },
-  {
-   "symbol": "SMMT",
-   "added": "2026-07-16",
-   "ref_bar": "2026-07-15",
-   "entry_ref": 15.07,
-   "entry": [
-    12.55,
-    13.3
-   ],
-   "tranches": [
-    12.55,
-    12.93,
-    13.3
-   ],
-   "pivot": 12.55,
-   "stop": 11.6715,
-   "stop_hi": 11.9225,
-   "t1": 16.8,
-   "t2": 17.97,
-   "t3": 18.53,
-   "score": 80,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "جفاف بيع",
-    "يرتكز على متوسط 30/50",
-    "معيد إجرام (3 انفجارات)",
-    "ثبات 23 جلسات فوق القاع",
-    "انكماش حزمة كلنجر (تجميع)",
-    "فجوة-هدف فوق السعر عند $16.84 (+12%)",
-    "قاب (فجوة) فوق السعر عند $16.84 (فراغ 3% = هدف ذهبي)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
-   ],
-   "rsi": 48.335263385225076,
-   "float": 130705789,
-   "short": null,
-   "short_pct": 29.5,
-   "short_interest": 39855640,
-   "days_to_cover": 5.46,
-   "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
-   "borrow_fee": 0.38,
-   "shares_available": 10000000,
-   "company_name": "Summit Therapeutics Inc.",
-   "upcoming_events": [
-    {
-     "kind": "أرباح",
-     "date": "2026-07-23",
-     "note": ""
-    }
-   ],
-   "proxy_filing": null,
-   "first_trade": null,
-   "rotation_pct": 2,
-   "drop_pct": 51.35571362976085,
-   "best_spike": 356.9037488277338,
-   "rr": 3.0858034953556266,
-   "tier": "B",
-   "soft_fails": [
-    "توافق الفريمات 0 من 3 (نحتاج 2 على الأقل)",
-    "قاع RSI 30 (المثالي 27 أو أقل)",
-    "RSI الآن 48 أعلى من 40"
-   ],
-   "warnings": [],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     14.91,
-     14.5,
-     13.97,
-     13.15,
-     12.77
-    ],
-    "resistances": [
-     15.29,
-     15.85,
-     16.24,
-     17.12,
-     17.97
-    ],
-    "flip": 15.09,
-    "sweep_low": 12.2,
-    "green_cover": false,
-    "managed_ceiling": {
-     "price": 15.85,
-     "touches": 19
-    }
-   },
-   "key_levels": {
-    "sup_major": 12.55,
-    "sup_minor": 14.59,
-    "res_major": 29.23,
-    "res_minor": 16.97
-   },
-   "h4_confirm": 1,
-   "behav": {
-    "score": 48,
-    "label": "يد فعّالة (تعيد الرفع)",
-    "n_pumps": 3,
-    "best_pump": 357.0,
-    "recency_bars": 292,
-    "repumps": 2,
-    "sweeps": 0
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "pivot_reversal",
-    "trendline_pressure": {
-     "touches": 3,
-     "slope_per_bar": -0.088553,
-     "anchor": 19.415,
-     "line_price_now": 15.4301,
-     "state": "below"
-    },
-    "critical_number": {
-     "price": 15.29,
-     "type": "breakout_activation",
-     "why": "تجاوزه يفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [],
-     "inactive_targets": [
-      16.8,
-      17.97,
-      18.53
-     ],
-     "blocked_by": 15.29
-    },
-    "entry_mode": {
-     "mode": "near_support",
-     "entry_zone": [
-      12.55,
-      13.3
-     ],
-     "stop": 11.67,
-     "reason": "داخل/قرب منطقة الدفعات"
-    },
-    "four_hour_context": {
-     "state": "blocked_by_red_head",
-     "red_candle_head": 15.29,
-     "flip": 15.09,
-     "sweep_low": 12.2,
-     "green_cover": false
-    },
-    "risk_profile": {
-     "risk_level": "منخفض",
-     "flags": []
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 292,
-     "days_since_major_low": 24,
-     "window_state": "خمول أطول من النافذة الشائعة"
-    },
-    "session_context": {
-     "open": 15.56,
-     "high": 15.58,
-     "low": 14.94,
-     "prev_close": 15.47,
-     "volume": 2301959,
-     "market_cap": 11696770048,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": 14.22,
-      "ask": 16.24,
-      "bid_size": 1,
-      "ask_size": 1,
-      "spread_pct": 12.4,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "رفعة قديمة وخمول طويل"
-    ],
-    "targets_src": [
-     {
-      "price": 16.8,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 15.29
-     },
-     {
-      "price": 17.97,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "pending",
-      "blocked_by": 15.29
-     },
-     {
-      "price": 18.53,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 15.29
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 12.55,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 14.59,
-      "role": "support",
-      "note": "دعم فرعي"
-     },
-     {
-      "price": 11.67,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 16.97,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 29.23,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 16.8,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 1",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 17.97,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 2",
-      "src": "رأس شمعة حمرا 4س"
-     },
-     {
-      "price": 18.53,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 3",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 15.29,
-      "role": "critical_number",
-      "note": "تجاوزه يفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 24,
-   "trendline": {
-    "touches": 3,
-    "slope_per_bar": -0.088553,
-    "anchor": 19.415,
-    "line_price_now": 15.4301,
-    "state": "below"
-   },
-   "sec_filings": false,
-   "recent_split": null,
-   "session_ctx": {
-    "open": 15.56,
-    "high": 15.58,
-    "low": 14.94,
-    "prev_close": 15.47,
-    "volume": 2301959,
-    "market_cap": 11696770048,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": 14.22,
-     "ask": 16.24,
-     "bid_size": 1,
-     "ask_size": 1,
-     "spread_pct": 12.4,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 0,
-   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ⏳",
-   "liberation": 33.89,
-   "sector": "Healthcare",
-   "country": "United States",
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 35,
-   "have": [
-    "تقاطع MACD",
-    "KST صاعد"
-   ],
-   "partial": [
-    "ثبات بعد القاع"
-   ],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "قرب متوسط 30/50",
-    "جفاف بيع",
-    "مسح سيولة"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": -0.3,
-   "last_price": 13.81,
-   "borrow_hist": [
-    [
-     "2026-07-16",
-     10000000
-    ],
-    [
-     "2026-07-17",
-     10000000
-    ]
-   ],
-   "live_alert": {}
-  },
-  {
-   "symbol": "TAOX",
-   "added": "2026-07-16",
-   "ref_bar": "2026-07-15",
-   "entry_ref": 3.83,
-   "entry": [
-    3.3,
-    3.5
-   ],
-   "tranches": [
-    3.3,
-    3.4,
-    3.5
-   ],
-   "pivot": 3.3,
-   "stop": 3.069,
-   "stop_hi": 3.135,
-   "t1": 4.34,
-   "t2": 4.49,
-   "t3": 4.67,
-   "score": 70,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "جفاف بيع",
-    "يرتكز على متوسط 30/50",
-    "ثبات 14 جلسات فوق القاع",
-    "نمط شمعة قوي",
-    "انكماش حزمة كلنجر (تجميع)",
-    "DMI: ‎+DI فوق ‎-DI",
-    "استعاد MA5/MA20 (تجميع)",
-    "شورت غير متاح — مُرِّر بفائدة الشك",
-    "فلوت غير متاح — مُرِّر بفائدة الشك"
-   ],
-   "rsi": 49.41811088583766,
-   "float": 7308370,
-   "short": null,
-   "short_pct": 5.2,
-   "short_interest": 379547,
-   "days_to_cover": 3.1,
-   "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": 5.32,
-   "shares_available": 300000,
-   "company_name": "Tao Synergies Inc.",
-   "upcoming_events": null,
-   "proxy_filing": null,
-   "first_trade": null,
-   "rotation_pct": 1,
-   "drop_pct": 68.03004949872393,
-   "best_spike": 252.69708287459193,
-   "rr": 2.8398787736046684,
-   "tier": "B",
-   "soft_fails": [
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "قاع RSI 30 (المثالي 27 أو أقل)",
-    "RSI الآن 49 أعلى من 40"
-   ],
-   "warnings": [
-    "سيولة منخفضة (357K/يوم)"
-   ],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     3.74,
-     3.63,
-     3.51,
-     3.34
-    ],
-    "resistances": [
-     3.9,
-     4.06,
-     4.21,
-     4.32,
-     4.49
-    ],
-    "flip": 3.84,
-    "sweep_low": 3.3,
-    "green_cover": true,
-    "managed_ceiling": {
-     "price": 3.9,
-     "touches": 13
-    }
-   },
-   "key_levels": {
-    "sup_major": 3.3,
-    "sup_minor": 3.76,
-    "res_major": 6.9,
-    "res_minor": 4.34
-   },
-   "h4_confirm": 1,
-   "behav": {
-    "score": 40,
-    "label": "نشاط محدود",
-    "n_pumps": 1,
-    "best_pump": 253.0,
-    "recency_bars": 259,
-    "repumps": 0,
-    "sweeps": 2
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "liquidity_sweep",
-    "trendline_pressure": {
-     "touches": 2,
-     "slope_per_bar": -0.025556,
-     "anchor": 4.23,
-     "line_price_now": 3.6933,
-     "state": "below"
-    },
-    "critical_number": {
-     "price": 3.69,
-     "type": "breakout_activation",
-     "why": "إغلاق فوقه يكسر خط الترند الهابط ويفعّل الهدف التالي"
-    },
-    "activation_state": {
-     "setup": "active",
-     "active_targets": [],
-     "inactive_targets": [
-      4.34,
-      4.49,
-      4.67
-     ],
-     "blocked_by": 3.69
-    },
-    "entry_mode": {
-     "mode": "sweep_confirmed",
-     "entry_zone": [
-      3.3,
-      3.5
-     ],
-     "stop": 3.07,
-     "reason": "مسح تحت الدعم ثم استعادة"
-    },
-    "four_hour_context": {
-     "state": "blocked_by_red_head",
-     "red_candle_head": 3.9,
-     "flip": 3.84,
-     "sweep_low": 3.3,
-     "green_cover": true
-    },
-    "risk_profile": {
-     "risk_level": "منخفض",
-     "flags": []
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 259,
-     "days_since_major_low": 15,
-     "window_state": "خمول أطول من النافذة الشائعة"
-    },
-    "session_context": {
-     "open": 3.8,
-     "high": 4.1894,
-     "low": 3.8,
-     "prev_close": 3.74,
-     "volume": 98445,
-     "market_cap": 28617496,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": 2.97,
-      "ask": 4.92,
-      "bid_size": 1,
-      "ask_size": 2,
-      "spread_pct": 39.6,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "صيد وقفات متكرّر",
-     "رفعة قديمة وخمول طويل"
-    ],
-    "targets_src": [
-     {
-      "price": 4.34,
-      "source": "المقاومة الفرعية (قمة يومية)",
-      "activation": "pending",
-      "blocked_by": 3.69
-     },
-     {
-      "price": 4.49,
-      "source": "رأس شمعة حمرا 4س",
-      "activation": "pending",
-      "blocked_by": 3.69
-     },
-     {
-      "price": 4.67,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "pending",
-      "blocked_by": 3.69
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 3.3,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 3.76,
-      "role": "support",
-      "note": "دعم فرعي"
-     },
-     {
-      "price": 3.07,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 4.34,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 6.9,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 4.34,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 1",
-      "src": "المقاومة الفرعية (قمة يومية)"
-     },
-     {
-      "price": 4.49,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 2",
-      "src": "رأس شمعة حمرا 4س"
-     },
-     {
-      "price": 4.67,
-      "role": "target",
-      "state": "pending",
-      "note": "الهدف 3",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 3.69,
-      "role": "critical_number",
-      "note": "إغلاق فوقه يكسر خط الترند الهابط ويفعّل الهدف التالي"
-     }
-    ]
-   },
-   "bars_after": 15,
-   "trendline": {
-    "touches": 2,
-    "slope_per_bar": -0.025556,
-    "anchor": 4.23,
-    "line_price_now": 3.6933,
-    "state": "below"
-   },
-   "sec_filings": false,
-   "recent_split": null,
-   "session_ctx": {
-    "open": 3.8,
-    "high": 4.1894,
-    "low": 3.8,
-    "prev_close": 3.74,
-    "volume": 98445,
-    "market_cap": 28617496,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": 2.97,
-     "ask": 4.92,
-     "bid_size": 1,
-     "ask_size": 2,
-     "spread_pct": 39.6,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 2,
-   "tf_display": "شهري ⏳ · أسبوعي ✅ · يومي ✅",
-   "liberation": 9.43,
-   "sector": "Technology",
-   "country": "United States",
-   "status": "active",
-   "removed_date": null,
-   "removal_reason": null,
-   "replaced": false,
-   "readiness": 35,
-   "have": [
-    "تقاطع MACD",
-    "KST صاعد"
-   ],
-   "partial": [
-    "ثبات بعد القاع"
-   ],
-   "missing": [
-    "RSI تشبع وانحناء",
-    "قرب متوسط 30/50",
-    "جفاف بيع",
-    "مسح سيولة"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": -0.0,
-   "last_price": 3.46,
-   "borrow_hist": [
-    [
-     "2026-07-16",
-     300000
-    ],
-    [
-     "2026-07-17",
-     300000
-    ]
-   ],
-   "live_alert": {
-    "sweep": "2026-07-17",
-    "buyzone": "2026-07-17"
-   }
+   "max_gain_pct": 0.0,
+   "last_price": 3.38
   }
  ],
- "removed": [
-  {
-   "symbol": "PTN",
-   "added": "2026-07-10",
-   "entry_ref": 10.0,
-   "entry": [
-    9.75,
-    10.34
-   ],
-   "tranches": [
-    9.75,
-    10.04,
-    10.34
-   ],
-   "pivot": 9.75,
-   "stop": 9.0675,
-   "stop_hi": 9.2625,
-   "t1": 11.7,
-   "t2": 12.51,
-   "t3": 13.5,
-   "score": 90,
-   "flags": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "جفاف بيع",
-    "معيد إجرام (2 انفجارات)",
-    "ثبات 6 جلسات فوق القاع",
-    "مسح سيولة (كسر قاع سابق واستعادة)",
-    "نمط شمعة قوي",
-    "تباعد MFI صعودي (13→20) — سيولة مخفية",
-    "فجوة صاعدة يومي 5%",
-    "فجوات متعددة الفريمات (أسبوعي، شهري)",
-    "شورت 800 (مقبول)",
-    "فلوت 1,384,205 (صغير ✅)"
-   ],
-   "rsi": 35.53317424676467,
-   "float": 1384205,
-   "short": 800,
-   "short_pct": 10.6,
-   "short_interest": 187156,
-   "days_to_cover": 15.61,
-   "kst4": "تحت إشارته تحت الصفر — زخم هابط",
-   "borrow_fee": 12.06,
-   "shares_available": 35000,
-   "company_name": "Palatin Technologies, Inc.",
-   "upcoming_events": [
-    {
-     "kind": "اجتماع",
-     "date": "2026-06-25",
-     "note": "DEF 14A"
-    }
-   ],
-   "proxy_filing": {
-    "form": "DEF 14A",
-    "date": "2026-06-25"
-   },
-   "first_trade": null,
-   "rotation_pct": 1,
-   "drop_pct": 67.74193548387098,
-   "best_spike": 296.86955990998644,
-   "rr": 1.6977864316458258,
-   "tier": "B",
-   "soft_fails": [
-    "توافق الفريمات 0 من 3 (نحتاج 2 على الأقل)",
-    "ما فيه فجوة سعرية فوقه (هدف)",
-    "السعر أقل بـ19% من متوسطه المتحرك (يفتح بصعود ~21% أو بثبات أسابيع)"
-   ],
-   "warnings": [
-    "سيولة منخفضة (251K/يوم)"
-   ],
-   "news_risk": false,
-   "h4_levels": {
-    "supports": [
-     9.76
-    ],
-    "resistances": [
-     10.06,
-     10.63,
-     11.07,
-     11.4,
-     11.71
-    ],
-    "flip": null,
-    "sweep_low": 9.75,
-    "green_cover": false,
-    "managed_ceiling": {
-     "price": 20.26,
-     "touches": 8
-    }
-   },
-   "key_levels": {
-    "sup_major": 9.75,
-    "sup_minor": null,
-    "res_major": 22.81,
-    "res_minor": 10.2
-   },
-   "h4_confirm": 2,
-   "behav": {
-    "score": 59,
-    "label": "يد فعّالة (تعيد الرفع)",
-    "n_pumps": 2,
-    "best_pump": 297.0,
-    "recency_bars": 148,
-    "repumps": 1,
-    "sweeps": 2
-   },
-   "pump_scar": null,
-   "interp": {
-    "setup_type": "support_reclaim",
-    "trendline_pressure": {
-     "touches": 3,
-     "slope_per_bar": -0.054194,
-     "anchor": 24.49,
-     "line_price_now": 19.6668,
-     "state": "below"
-    },
-    "critical_number": {
-     "price": 9.75,
-     "type": "reclaim_level",
-     "why": "استعادته تعيد فكرة الارتكاز"
-    },
-    "activation_state": {
-     "setup": "high_risk",
-     "active_targets": [
-      11.7,
-      12.51,
-      13.5
-     ],
-     "inactive_targets": [],
-     "blocked_by": null
-    },
-    "entry_mode": {
-     "mode": "no_entry_far",
-     "entry_zone": [
-      9.75,
-      10.34
-     ],
-     "stop": 9.07,
-     "reason": "كسر الوقف — الفكرة ملغاة/خطرة"
-    },
-    "four_hour_context": {
-     "state": "blocked_by_red_head",
-     "red_candle_head": 10.06,
-     "flip": null,
-     "sweep_low": 9.75,
-     "green_cover": false
-    },
-    "risk_profile": {
-     "risk_level": "متوسط",
-     "flags": [
-      "ملفات SEC"
-     ]
-    },
-    "cycle_context": {
-     "days_since_last_impulse": 148,
-     "days_since_major_low": 0,
-     "window_state": "خمول أطول من النافذة الشائعة"
-    },
-    "session_context": {
-     "open": 10.02,
-     "high": 10.06,
-     "low": 9.77,
-     "prev_close": 10.39,
-     "volume": 14138,
-     "market_cap": 17792750,
-     "pre_after": null,
-     "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-     "quote": {
-      "bid": 0.0,
-      "ask": 10.5,
-      "bid_size": 200,
-      "ask_size": 1,
-      "spread_pct": null,
-      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-     }
-    },
-    "behavior_tags": [
-     "صيد وقفات متكرّر",
-     "رفعة قديمة وخمول طويل"
-    ],
-    "targets_src": [
-     {
-      "price": 11.7,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "active",
-      "blocked_by": null
-     },
-     {
-      "price": 12.51,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "active",
-      "blocked_by": null
-     },
-     {
-      "price": 13.5,
-      "source": "سلّم المقاومات اليومي",
-      "activation": "active",
-      "blocked_by": null
-     }
-    ],
-    "level_roles": [
-     {
-      "price": 9.75,
-      "role": "support",
-      "note": "دعم أساسي (الأرضية)"
-     },
-     {
-      "price": 9.07,
-      "role": "stop_source",
-      "note": "الوقف"
-     },
-     {
-      "price": 10.2,
-      "role": "resistance",
-      "note": "مقاومة فرعية"
-     },
-     {
-      "price": 22.81,
-      "role": "resistance",
-      "note": "مقاومة أساسية"
-     },
-     {
-      "price": 11.7,
-      "role": "target",
-      "state": "active",
-      "note": "الهدف 1",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 12.51,
-      "role": "target",
-      "state": "active",
-      "note": "الهدف 2",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 13.5,
-      "role": "target",
-      "state": "active",
-      "note": "الهدف 3",
-      "src": "سلّم المقاومات اليومي"
-     },
-     {
-      "price": 9.75,
-      "role": "critical_number",
-      "note": "استعادته تعيد فكرة الارتكاز"
-     }
-    ]
-   },
-   "bars_after": 0,
-   "trendline": {
-    "touches": 3,
-    "slope_per_bar": -0.054194,
-    "anchor": 24.49,
-    "line_price_now": 19.6668,
-    "state": "below"
-   },
-   "sec_filings": true,
-   "recent_split": null,
-   "session_ctx": {
-    "open": 10.02,
-    "high": 10.06,
-    "low": 9.77,
-    "prev_close": 10.39,
-    "volume": 14138,
-    "market_cap": 17792750,
-    "pre_after": null,
-    "unavailable_reason": "بيانات ما قبل/بعد السوق غير متاحة بمسار البوت — لا تخمين",
-    "quote": {
-     "bid": 0.0,
-     "ask": 10.5,
-     "bid_size": 200,
-     "ask_size": 1,
-     "spread_pct": null,
-     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
-    }
-   },
-   "tf_count": 0,
-   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ⏳",
-   "liberation": 20.99,
-   "sector": "Healthcare",
-   "country": "United States",
-   "status": "stopped",
-   "removed_date": "2026-07-16",
-   "removal_reason": "ضرب الستوب $9.07 يوم 2026-07-14 (-9.3%)",
-   "replaced": false,
-   "readiness": 30,
-   "have": [
-    "تقاطع MACD",
-    "KST صاعد",
-    "جفاف بيع"
-   ],
-   "partial": [],
-   "missing": [
-    "ثبات بعد القاع",
-    "RSI تشبع وانحناء",
-    "قرب متوسط 30/50",
-    "مسح سيولة"
-   ],
-   "hit": null,
-   "hit_date": null,
-   "max_gain_pct": 1.9,
-   "last_price": 8.9,
-   "live_alert": {
-    "buyzone": "2026-07-10",
-    "break": "2026-07-15"
-   },
-   "borrow_hist": [
-    [
-     "2026-07-11",
-     35000
-    ],
-    [
-     "2026-07-14",
-     35000
-    ],
-    [
-     "2026-07-15",
-     35000
-    ]
-   ]
-  }
- ],
+ "removed": [],
  "replacements_log": [],
- "notes": [
-  {
-   "date": "2026-07-14",
-   "symbol": "PTN",
-   "text": "يتداول تحت القاع $9.75 بدون لمس الستوب",
-   "family": "تحت القاع"
-  }
- ],
+ "notes": [],
  "pullback": [
   {
    "symbol": "GVH",
-   "added": "2026-07-10",
+   "added": "2026-07-17",
    "entry": [
     2.74,
     2.9
@@ -3902,324 +318,58 @@
    ],
    "pivot": 2.74,
    "stop": 2.5482,
-   "t1": 4.9,
-   "t2": 5.11,
-   "t3": 5.3,
+   "t1": 5.3,
+   "t2": 5.47,
+   "t3": 5.65,
    "score": 100,
-   "liberation": 16.6,
+   "liberation": 138.0,
    "watch_reasons": [
     "ارتفع عن قاعدته",
     "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ51"
+    "RSI ارتفع للـ55"
    ],
    "sector": "Industrials",
    "country": "Australia",
-   "float": 1484786,
+   "float": 2350061,
    "last_price": 4.76,
    "status": "watching",
    "triggered_date": null
   },
   {
-   "symbol": "NA",
-   "added": "2026-07-10",
+   "symbol": "ATPC",
+   "added": "2026-07-17",
    "entry": [
-    1.64,
-    1.74
+    2.51,
+    2.66
    ],
    "tranches": [
-    1.64,
-    1.69,
-    1.74
+    2.51,
+    2.59,
+    2.66
    ],
-   "pivot": 1.64,
-   "stop": 1.5252,
-   "t1": 2.25,
-   "t2": 2.44,
-   "t3": 2.63,
+   "pivot": 2.51,
+   "stop": 2.3343,
+   "t1": 3.4,
+   "t2": 3.59,
+   "t3": 3.76,
    "score": 100,
-   "liberation": 5.28,
-   "watch_reasons": [
-    "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ51"
-   ],
-   "sector": "Technology",
-   "country": "China",
-   "float": 9831841,
-   "last_price": 1.77,
-   "status": "triggered",
-   "triggered_date": "2026-07-17"
-  },
-  {
-   "symbol": "VRAX",
-   "added": "2026-07-10",
-   "entry": [
-    2.57,
-    2.72
-   ],
-   "tranches": [
-    2.57,
-    2.65,
-    2.72
-   ],
-   "pivot": 2.57,
-   "stop": 2.3901,
-   "t1": 4.5,
-   "t2": 4.68,
-   "t3": 4.96,
-   "score": 100,
-   "liberation": 6.5,
+   "liberation": 5.35,
    "watch_reasons": [
     "ارتفع عن قاعدته",
     "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ50"
-   ],
-   "sector": "Healthcare",
-   "country": "United Kingdom",
-   "float": 529035,
-   "last_price": 3.79,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "CAMP",
-   "added": "2026-07-10",
-   "entry": [
-    3.74,
-    3.96
-   ],
-   "tranches": [
-    3.74,
-    3.85,
-    3.96
-   ],
-   "pivot": 3.74,
-   "stop": 3.4782,
-   "t1": 4.93,
-   "t2": 5.09,
-   "t3": 5.25,
-   "score": 100,
-   "liberation": 10.8,
-   "watch_reasons": [
-    "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ52"
-   ],
-   "sector": "Healthcare",
-   "country": "United States",
-   "float": 26497736,
-   "last_price": 4.03,
-   "status": "triggered",
-   "triggered_date": "2026-07-16"
-  },
-  {
-   "symbol": "CRVO",
-   "added": "2026-07-10",
-   "entry": [
-    2.13,
-    2.26
-   ],
-   "tranches": [
-    2.13,
-    2.19,
-    2.26
-   ],
-   "pivot": 2.13,
-   "stop": 1.9809,
-   "t1": 4.25,
-   "t2": 4.46,
-   "t3": 4.62,
-   "score": 100,
-   "liberation": 7.89,
-   "watch_reasons": [
-    "ارتفع عن قاعدته",
-    "RSI ارتفع للـ52"
-   ],
-   "sector": "Healthcare",
-   "country": "United States",
-   "float": 6060850,
-   "last_price": 3.08,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "KC",
-   "added": "2026-07-10",
-   "entry": [
-    8.35,
-    8.85
-   ],
-   "tranches": [
-    8.35,
-    8.6,
-    8.85
-   ],
-   "pivot": 8.35,
-   "stop": 7.7655,
-   "t1": 12.0,
-   "t2": 12.76,
-   "t3": 13.21,
-   "score": 100,
-   "liberation": 22.26,
-   "watch_reasons": [
-    "RSI ارتفع للـ53"
-   ],
-   "sector": "Technology",
-   "country": "China",
-   "float": 170966875,
-   "last_price": 9.54,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "ANNA",
-   "added": "2026-07-10",
-   "entry": [
-    2.58,
-    2.73
-   ],
-   "tranches": [
-    2.58,
-    2.66,
-    2.73
-   ],
-   "pivot": 2.58,
-   "stop": 2.3994,
-   "t1": 3.64,
-   "t2": 3.75,
-   "t3": 3.9,
-   "score": 100,
-   "liberation": 11.9,
-   "watch_reasons": [
-    "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ55",
+    "RSI ارتفع للـ51",
     "بعيد عن الدخول (45%)"
    ],
-   "sector": "Energy",
-   "country": "United States",
-   "float": 9752727,
-   "last_price": 3.44,
+   "sector": "Consumer Defensive",
+   "country": "Malaysia",
+   "float": 433301,
+   "last_price": 3.07,
    "status": "watching",
    "triggered_date": null
   },
   {
-   "symbol": "GEOS",
-   "added": "2026-07-10",
-   "entry": [
-    6.28,
-    6.66
-   ],
-   "tranches": [
-    6.28,
-    6.47,
-    6.66
-   ],
-   "pivot": 6.28,
-   "stop": 5.8404,
-   "t1": 8.19,
-   "t2": 8.56,
-   "t3": 8.85,
-   "score": 95,
-   "liberation": 18.99,
-   "watch_reasons": [
-    "RSI ارتفع للـ53"
-   ],
-   "sector": "Energy",
-   "country": "United States",
-   "float": 12552321,
-   "last_price": 6.74,
-   "status": "triggered",
-   "triggered_date": "2026-07-16"
-  },
-  {
-   "symbol": "RENX",
-   "added": "2026-07-10",
-   "entry": [
-    1.6,
-    1.7
-   ],
-   "tranches": [
-    1.6,
-    1.65,
-    1.7
-   ],
-   "pivot": 1.6,
-   "stop": 1.488,
-   "t1": 2.25,
-   "t2": 2.36,
-   "t3": 2.44,
-   "score": 95,
-   "liberation": 4.28,
-   "watch_reasons": [
-    "لم يصل التشبّع بعد",
-    "RSI ارتفع للـ60"
-   ],
-   "sector": "Real Estate",
-   "country": "United States",
-   "float": 2400271,
-   "last_price": 1.98,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "AEC",
-   "added": "2026-07-10",
-   "entry": [
-    3.66,
-    3.88
-   ],
-   "tranches": [
-    3.66,
-    3.77,
-    3.88
-   ],
-   "pivot": 3.66,
-   "stop": 3.4038,
-   "t1": 4.64,
-   "t2": 4.89,
-   "t3": 5.1,
-   "score": 95,
-   "liberation": 10.24,
-   "watch_reasons": [
-    "بعيد عن الدخول (45%)"
-   ],
-   "sector": "Energy",
-   "country": "Canada",
-   "float": 10357102,
-   "last_price": 4.325,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "AZ",
-   "added": "2026-07-10",
-   "entry": [
-    5.17,
-    5.48
-   ],
-   "tranches": [
-    5.17,
-    5.33,
-    5.48
-   ],
-   "pivot": 5.173,
-   "stop": 4.8109,
-   "t1": 6.53,
-   "t2": 6.88,
-   "t3": 7.37,
-   "score": 95,
-   "liberation": 12.36,
-   "watch_reasons": [
-    "بعيد عن الدخول (45%)"
-   ],
-   "sector": "Technology",
-   "country": "Canada",
-   "float": 38240999,
-   "last_price": 5.47,
-   "status": "triggered",
-   "triggered_date": "2026-07-13"
-  },
-  {
-   "symbol": "GITS",
-   "added": "2026-07-10",
+   "symbol": "CLIK",
+   "added": "2026-07-17",
    "entry": [
     1.39,
     1.47
@@ -4231,112 +381,388 @@
    ],
    "pivot": 1.39,
    "stop": 1.2927,
-   "t1": 2.44,
-   "t2": 2.64,
-   "t3": 2.73,
-   "score": 95,
-   "liberation": 4.39,
+   "t1": 1.7,
+   "t2": 1.8,
+   "t3": 1.93,
+   "score": 100,
+   "liberation": 2.4,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد",
+    "بعيد عن الدخول (45%)"
+   ],
+   "sector": "Consumer Cyclical",
+   "country": "Hong Kong",
+   "float": 783519,
+   "last_price": 1.53,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "MGRT",
+   "added": "2026-07-17",
+   "entry": [
+    70.0,
+    74.2
+   ],
+   "tranches": [
+    70.0,
+    72.1,
+    74.2
+   ],
+   "pivot": 70.0,
+   "stop": 65.1,
+   "t1": 94.5,
+   "t2": 100.0,
+   "t3": 105.0,
+   "score": 100,
+   "liberation": 157.0,
    "watch_reasons": [
     "ارتفع عن قاعدته",
     "لم يصل التشبّع بعد",
     "RSI ارتفع للـ53",
     "بعيد عن الدخول (45%)"
    ],
-   "sector": "Communication Services",
-   "country": "South Korea",
-   "float": 2307880,
-   "last_price": 2.11,
+   "sector": "Technology",
+   "country": "Hong Kong",
+   "float": 2026888,
+   "last_price": 83.99,
    "status": "watching",
    "triggered_date": null
   },
   {
-   "symbol": "ILLR",
-   "added": "2026-07-10",
+   "symbol": "SDST",
+   "added": "2026-07-17",
    "entry": [
-    0.69,
-    0.74
+    1.52,
+    1.61
    ],
    "tranches": [
-    0.69,
-    0.72,
-    0.74
+    1.52,
+    1.57,
+    1.61
    ],
-   "pivot": 0.695,
-   "stop": 0.6463,
-   "t1": 2.8,
+   "pivot": 1.52,
+   "stop": 1.4136,
+   "t1": 1.91,
+   "t2": 1.99,
+   "t3": 2.08,
+   "score": 100,
+   "liberation": 3.47,
+   "watch_reasons": [
+    "بعيد عن الدخول (45%)"
+   ],
+   "sector": "Industrials",
+   "country": "United States",
+   "float": 7777792,
+   "last_price": 1.76,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "SKYQ",
+   "added": "2026-07-17",
+   "entry": [
+    1.1,
+    1.17
+   ],
+   "tranches": [
+    1.1,
+    1.13,
+    1.17
+   ],
+   "pivot": 1.1,
+   "stop": 1.023,
+   "t1": 4.16,
+   "t2": 4.3,
+   "t3": 4.48,
+   "score": 100,
+   "liberation": 7.19,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "RSI ارتفع للـ58",
+    "بعيد عن الدخول (45%)"
+   ],
+   "sector": "Energy",
+   "country": "United States",
+   "float": 4070750,
+   "last_price": 3.8,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "DXST",
+   "added": "2026-07-17",
+   "entry": [
+    1.74,
+    1.84
+   ],
+   "tranches": [
+    1.74,
+    1.79,
+    1.84
+   ],
+   "pivot": 1.74,
+   "stop": 1.6182,
+   "t1": 2.89,
    "t2": 3.0,
-   "t3": 3.2,
+   "t3": 3.24,
+   "score": 100,
+   "liberation": 4.41,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ54",
+    "بعيد عن الدخول (35%)"
+   ],
+   "sector": "Industrials",
+   "country": "China",
+   "float": 998034,
+   "last_price": 2.65,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "APVO",
+   "added": "2026-07-17",
+   "entry": [
+    3.68,
+    3.9
+   ],
+   "tranches": [
+    3.68,
+    3.79,
+    3.9
+   ],
+   "pivot": 3.68,
+   "stop": 3.4224,
+   "t1": 5.21,
+   "t2": 5.48,
+   "t3": 5.9,
    "score": 95,
-   "liberation": 4.65,
+   "liberation": 8.81,
+   "watch_reasons": [
+    "RSI ارتفع للـ55"
+   ],
+   "sector": "Healthcare",
+   "country": "United States",
+   "float": 1093632,
+   "last_price": 4.74,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "ANNA",
+   "added": "2026-07-17",
+   "entry": [
+    2.58,
+    2.73
+   ],
+   "tranches": [
+    2.58,
+    2.66,
+    2.73
+   ],
+   "pivot": 2.58,
+   "stop": 2.3994,
+   "t1": 3.89,
+   "t2": 4.05,
+   "t3": 4.25,
+   "score": 95,
+   "liberation": 11.9,
+   "watch_reasons": [
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ60",
+    "بعيد عن الدخول (45%)"
+   ],
+   "sector": "Energy",
+   "country": "United States",
+   "float": 9752727,
+   "last_price": 3.44,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "TDTH",
+   "added": "2026-07-17",
+   "entry": [
+    1.27,
+    1.35
+   ],
+   "tranches": [
+    1.27,
+    1.31,
+    1.35
+   ],
+   "pivot": 1.27,
+   "stop": 1.1811,
+   "t1": 3.07,
+   "t2": 3.17,
+   "t3": 3.3,
+   "score": 95,
+   "liberation": 5.46,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ57",
+    "بعيد عن الدخول (45%)"
+   ],
+   "sector": "Technology",
+   "country": "Singapore",
+   "float": 35178338,
+   "last_price": 2.84,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "VRAX",
+   "added": "2026-07-17",
+   "entry": [
+    2.57,
+    2.72
+   ],
+   "tranches": [
+    2.57,
+    2.65,
+    2.72
+   ],
+   "pivot": 2.57,
+   "stop": 2.3901,
+   "t1": 4.32,
+   "t2": 4.5,
+   "t3": 4.96,
+   "score": 95,
+   "liberation": 6.5,
    "watch_reasons": [
     "ارتفع عن قاعدته",
     "لم يصل التشبّع بعد",
     "بعيد عن الدخول (45%)"
    ],
-   "sector": "Technology",
-   "country": "United States",
-   "float": 11035067,
-   "last_price": 1.46,
-   "status": "watching",
-   "triggered_date": null
-  },
-  {
-   "symbol": "NBP",
-   "added": "2026-07-10",
-   "entry": [
-    1.46,
-    1.55
-   ],
-   "tranches": [
-    1.46,
-    1.5,
-    1.55
-   ],
-   "pivot": 1.46,
-   "stop": 1.3578,
-   "t1": 2.09,
-   "t2": 2.22,
-   "t3": 2.48,
-   "score": 95,
-   "liberation": 4.31,
-   "watch_reasons": [
-    "ارتفع عن قاعدته",
-    "RSI ارتفع للـ54",
-    "بعيد عن الدخول (45%)"
-   ],
    "sector": "Healthcare",
-   "country": "United States",
-   "float": 63286331,
-   "last_price": 1.78,
+   "country": "United Kingdom",
+   "float": 529035,
+   "last_price": 3.79,
    "status": "watching",
    "triggered_date": null
   },
   {
-   "symbol": "AAPG",
-   "added": "2026-07-10",
+   "symbol": "BNR",
+   "added": "2026-07-17",
    "entry": [
-    16.36,
-    17.34
+    6.79,
+    7.2
    ],
    "tranches": [
-    16.36,
-    16.85,
-    17.34
+    6.79,
+    6.99,
+    7.2
    ],
-   "pivot": 16.36,
-   "stop": 15.2148,
-   "t1": 21.88,
-   "t2": 22.58,
-   "t3": 23.28,
+   "pivot": 6.79,
+   "stop": 6.3147,
+   "t1": 11.12,
+   "t2": 11.46,
+   "t3": 12.0,
    "score": 90,
-   "liberation": 45.9,
+   "liberation": 20.0,
    "watch_reasons": [
-    "RSI ارتفع للـ63"
+    "ارتفع عن قاعدته"
    ],
    "sector": "Healthcare",
    "country": "China",
-   "float": 71058342,
-   "last_price": 18.74,
+   "float": 3320718,
+   "last_price": 9.97,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "TONX",
+   "added": "2026-07-17",
+   "entry": [
+    2.35,
+    2.49
+   ],
+   "tranches": [
+    2.35,
+    2.42,
+    2.49
+   ],
+   "pivot": 2.35,
+   "stop": 2.1855,
+   "t1": 3.55,
+   "t2": 3.68,
+   "t3": 3.82,
+   "score": 90,
+   "liberation": 6.74,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد",
+    "RSI ارتفع للـ51"
+   ],
+   "sector": "Technology",
+   "country": "United States",
+   "float": 32306117,
+   "last_price": 3.26,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "PMAX",
+   "added": "2026-07-17",
+   "entry": [
+    1.5,
+    1.59
+   ],
+   "tranches": [
+    1.5,
+    1.54,
+    1.59
+   ],
+   "pivot": 1.5,
+   "stop": 1.395,
+   "t1": 2.27,
+   "t2": 2.4,
+   "t3": 2.6,
+   "score": 90,
+   "liberation": 3.57,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد"
+   ],
+   "sector": "Financial Services",
+   "country": "Hong Kong",
+   "float": 892196,
+   "last_price": 1.91,
+   "status": "watching",
+   "triggered_date": null
+  },
+  {
+   "symbol": "CGTL",
+   "added": "2026-07-17",
+   "entry": [
+    3.99,
+    4.23
+   ],
+   "tranches": [
+    3.99,
+    4.11,
+    4.23
+   ],
+   "pivot": 3.99,
+   "stop": 3.7107,
+   "t1": 5.2,
+   "t2": 5.39,
+   "t3": 5.89,
+   "score": 90,
+   "liberation": 9.98,
+   "watch_reasons": [
+    "ارتفع عن قاعدته",
+    "لم يصل التشبّع بعد",
+    "بعيد عن الدخول (45%)"
+   ],
+   "sector": "Consumer Cyclical",
+   "country": "Hong Kong",
+   "float": 1091667,
+   "last_price": 4.47,
    "status": "watching",
    "triggered_date": null
   }
@@ -5520,6 +1946,405 @@
      "drop_pct": 79.88165786210867,
      "best_spike": 302.3188383362419,
      "rr": 2.693677150886019
+    }
+   ]
+  },
+  {
+   "week_start": "2026-07-10",
+   "ended": "2026-07-17",
+   "stocks": [
+    {
+     "symbol": "APVO",
+     "entry_ref": 4.5,
+     "last_price": 4.74,
+     "max_gain_pct": 8.2,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-17",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Healthcare",
+     "score": 80,
+     "flags": [
+      "تقاطع MACD",
+      "جفاف بيع",
+      "يرتكز على متوسط 30/50",
+      "ثبات 5 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "نمط شمعة قوي",
+      "DMI: ‎+DI فوق ‎-DI",
+      "فجوة صاعدة يومي 4%",
+      "فجوات متعددة الفريمات (أسبوعي، شهري)",
+      "فجوة-هدف فوق السعر عند $5.90 (+31%)",
+      "قاب (فجوة) فوق السعر عند $5.90 (فراغ 7% = هدف ذهبي)",
+      "شورت 4,116 (مقبول)",
+      "فلوت 1,093,632 (صغير ✅)"
+     ],
+     "rsi": 48.98202454454311,
+     "float": 1093632,
+     "short": 4116,
+     "drop_pct": 92.42424261884997,
+     "best_spike": 151.0638190006616,
+     "rr": 2.965180043772645
+    },
+    {
+     "symbol": "PSTV",
+     "entry_ref": 4.0,
+     "last_price": 3.74,
+     "max_gain_pct": 10.5,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-10",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Healthcare",
+     "score": 70,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "جفاف بيع",
+      "معيد إجرام (4 انفجارات)",
+      "ثبات 2 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "نمط شمعة قوي",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت 6,456,422 (صغير ✅)"
+     ],
+     "rsi": 36.88082461601383,
+     "float": 6456422,
+     "short": null,
+     "drop_pct": 82.97872340425532,
+     "best_spike": 423.3333333333333,
+     "rr": 2.059620843728043
+    },
+    {
+     "symbol": "USGO",
+     "entry_ref": 7.85,
+     "last_price": 8.13,
+     "max_gain_pct": 6.8,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-16",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Basic Materials",
+     "score": 55,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "ثبات 4 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "فجوة صاعدة يومي 3%",
+      "فجوات متعددة الفريمات (أسبوعي، شهري)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 39.995561323532016,
+     "float": 2416482,
+     "short": null,
+     "drop_pct": 56.340377616849516,
+     "best_spike": 149.56804998871758,
+     "rr": 2.080575286314757
+    },
+    {
+     "symbol": "PETS",
+     "entry_ref": 1.91,
+     "last_price": 1.97,
+     "max_gain_pct": 5.8,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-14",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": null,
+     "score": 70,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "جفاف بيع",
+      "يرتكز على متوسط 30/50",
+      "ثبات 24 جلسات فوق القاع",
+      "DMI: ‎+DI فوق ‎-DI",
+      "فجوة عالية يومي 27%",
+      "فجوات متعددة الفريمات (أسبوعي)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 48.31881042943484,
+     "float": null,
+     "short": null,
+     "drop_pct": 53.41463387686181,
+     "best_spike": 143.75000232830638,
+     "rr": 2.4479804825935063
+    },
+    {
+     "symbol": "SY",
+     "entry_ref": 1.71,
+     "last_price": 1.68,
+     "max_gain_pct": 8.2,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-11",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": null,
+     "score": 60,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "جفاف بيع",
+      "يرتكز على متوسط 30/50",
+      "ثبات 13 جلسات فوق القاع",
+      "DMI: ‎+DI فوق ‎-DI",
+      "استعاد MA5/MA20 (تجميع)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 48.2432038491543,
+     "float": null,
+     "short": null,
+     "drop_pct": 72.77070093920972,
+     "best_spike": 481.18811296886133,
+     "rr": 4.861110113101444
+    },
+    {
+     "symbol": "KLRS",
+     "entry_ref": 4.55,
+     "last_price": 4.38,
+     "max_gain_pct": 37.4,
+     "status": "active",
+     "hit": "t3",
+     "hit_date": "2026-07-17",
+     "added": "2026-07-15",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Healthcare",
+     "score": 95,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "جفاف بيع",
+      "يرتكز على متوسط 30/50",
+      "ثبات 9 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "نمط شمعة قوي",
+      "تباعد MFI صعودي (22→26) — سيولة مخفية",
+      "انكماش حزمة كلنجر (تجميع)",
+      "استعاد MA5/MA20 (تجميع)",
+      "فجوة صاعدة يومي 7%",
+      "فجوات متعددة الفريمات (أسبوعي، شهري)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت 7,219,053 (صغير ✅)"
+     ],
+     "rsi": 49.24275549271863,
+     "float": 7219053,
+     "short": null,
+     "drop_pct": 61.70033546376787,
+     "best_spike": 116.44203909447724,
+     "rr": 2.4205804841812277
+    },
+    {
+     "symbol": "NAGE",
+     "entry_ref": 3.47,
+     "last_price": 3.28,
+     "max_gain_pct": 1.7,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-14",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": null,
+     "score": 80,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "يرتكز على متوسط 30/50",
+      "ثبات 8 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "نمط شمعة قوي",
+      "انكماش حزمة كلنجر (تجميع)",
+      "استعاد MA5/MA20 (تجميع)",
+      "فجوة-هدف فوق السعر عند $4.39 (+26%)",
+      "قاب (فجوة) فوق السعر عند $4.39 (فراغ 10% = هدف ذهبي)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 48.83211865087514,
+     "float": null,
+     "short": null,
+     "drop_pct": 70.84033495928131,
+     "best_spike": 122.44897859883976,
+     "rr": 1.9207645450959154
+    },
+    {
+     "symbol": "LI",
+     "entry_ref": 12.1,
+     "last_price": 12.39,
+     "max_gain_pct": 8.8,
+     "status": "active",
+     "hit": "t1",
+     "hit_date": "2026-07-16",
+     "added": "2026-07-11",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": null,
+     "score": 80,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "ثبات 7 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "تباعد MFI صعودي (23→41) — سيولة مخفية",
+      "Williams %R انعطاف من التشبع",
+      "فجوة صاعدة يومي 6%",
+      "فجوات متعددة الفريمات (أسبوعي، شهري)",
+      "فجوة-هدف فوق السعر عند $17.01 (+41%)",
+      "قاب (فجوة) فوق السعر عند $17.01 (فراغ 7% = هدف ذهبي)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 34.17694038351806,
+     "float": null,
+     "short": null,
+     "drop_pct": 62.21701856378709,
+     "best_spike": 63.29874653544329,
+     "rr": 0.9438006565172173
+    },
+    {
+     "symbol": "CDLX",
+     "entry_ref": 4.32,
+     "last_price": 4.18,
+     "max_gain_pct": 4.6,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-10",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Communication Services",
+     "score": 60,
+     "flags": [
+      "RSI تشبع وانحناء (قاع 26→34)",
+      "تقاطع MACD",
+      "KST صاعد",
+      "ثبات 2 جلسات فوق القاع",
+      "StochRSI انعطاف من التشبع",
+      "Williams %R انعطاف من التشبع",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت 5,001,325 (صغير ✅)"
+     ],
+     "rsi": 34.354226746012245,
+     "float": 5001325,
+     "short": null,
+     "drop_pct": 86.82926746296923,
+     "best_spike": 216.85395473754346,
+     "rr": 2.8499372670438983
+    },
+    {
+     "symbol": "SMMT",
+     "entry_ref": 15.07,
+     "last_price": 13.81,
+     "max_gain_pct": -0.3,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-16",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Healthcare",
+     "score": 80,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "جفاف بيع",
+      "يرتكز على متوسط 30/50",
+      "معيد إجرام (3 انفجارات)",
+      "ثبات 23 جلسات فوق القاع",
+      "انكماش حزمة كلنجر (تجميع)",
+      "فجوة-هدف فوق السعر عند $16.84 (+12%)",
+      "قاب (فجوة) فوق السعر عند $16.84 (فراغ 3% = هدف ذهبي)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 48.335263385225076,
+     "float": 130705789,
+     "short": null,
+     "drop_pct": 51.35571362976085,
+     "best_spike": 356.9037488277338,
+     "rr": 3.0858034953556266
+    },
+    {
+     "symbol": "TAOX",
+     "entry_ref": 3.83,
+     "last_price": 3.46,
+     "max_gain_pct": -0.0,
+     "status": "active",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-16",
+     "removal_reason": null,
+     "tier": "B",
+     "sector": "Technology",
+     "score": 70,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "جفاف بيع",
+      "يرتكز على متوسط 30/50",
+      "ثبات 14 جلسات فوق القاع",
+      "نمط شمعة قوي",
+      "انكماش حزمة كلنجر (تجميع)",
+      "DMI: ‎+DI فوق ‎-DI",
+      "استعاد MA5/MA20 (تجميع)",
+      "شورت غير متاح — مُرِّر بفائدة الشك",
+      "فلوت غير متاح — مُرِّر بفائدة الشك"
+     ],
+     "rsi": 49.41811088583766,
+     "float": 7308370,
+     "short": null,
+     "drop_pct": 68.03004949872393,
+     "best_spike": 252.69708287459193,
+     "rr": 2.8398787736046684
+    },
+    {
+     "symbol": "PTN",
+     "entry_ref": 10.0,
+     "last_price": 8.9,
+     "max_gain_pct": 1.9,
+     "status": "stopped",
+     "hit": null,
+     "hit_date": null,
+     "added": "2026-07-10",
+     "removal_reason": "ضرب الستوب $9.07 يوم 2026-07-14 (-9.3%)",
+     "tier": "B",
+     "sector": "Healthcare",
+     "score": 90,
+     "flags": [
+      "تقاطع MACD",
+      "KST صاعد",
+      "جفاف بيع",
+      "معيد إجرام (2 انفجارات)",
+      "ثبات 6 جلسات فوق القاع",
+      "مسح سيولة (كسر قاع سابق واستعادة)",
+      "نمط شمعة قوي",
+      "تباعد MFI صعودي (13→20) — سيولة مخفية",
+      "فجوة صاعدة يومي 5%",
+      "فجوات متعددة الفريمات (أسبوعي، شهري)",
+      "شورت 800 (مقبول)",
+      "فلوت 1,384,205 (صغير ✅)"
+     ],
+     "rsi": 35.53317424676467,
+     "float": 1384205,
+     "short": 800,
+     "drop_pct": 67.74193548387098,
+     "best_spike": 296.86955990998644,
+     "rr": 1.6977864316458258
     }
    ]
   }
@@ -11122,6 +7947,248 @@
    "base_reason": "M10_RSI_ما_تشبّع",
    "was_pivot": true,
    "suspect_split": false
+  },
+  {
+   "symbol": "GNPX",
+   "date": "2026-07-17",
+   "expl_date": "2026-07-16",
+   "gain": 1529.0,
+   "kind": "قفزة",
+   "reason": "M4_base_واسعة",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": true
+  },
+  {
+   "symbol": "NVVE",
+   "date": "2026-07-17",
+   "expl_date": "2026-07-07",
+   "gain": 341.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_فوق_97",
+   "base_reason": "M2_هبوط_فوق_97",
+   "was_pivot": false,
+   "suspect_split": true
+  },
+  {
+   "symbol": "FBRX",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 178.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M4_base_واسعة",
+   "was_pivot": true,
+   "suspect_split": false
+  },
+  {
+   "symbol": "GMM",
+   "date": "2026-07-17",
+   "expl_date": "2026-07-09",
+   "gain": 147.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_فوق_97",
+   "base_reason": "M2_هبوط_فوق_97",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "NVCT",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 127.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M2_هبوط_تحت_40",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "TOP",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 118.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "FTH",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 117.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M4_base_واسعة",
+   "was_pivot": true,
+   "suspect_split": false
+  },
+  {
+   "symbol": "JZXN",
+   "date": "2026-07-17",
+   "expl_date": "2026-07-01",
+   "gain": 109.0,
+   "kind": "تجمّع",
+   "reason": "M1_سعر",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "RGNX",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-22",
+   "gain": 101.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M4_base_واسعة",
+   "was_pivot": true,
+   "suspect_split": false
+  },
+  {
+   "symbol": "PHOE",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 100.0,
+   "kind": "تجمّع",
+   "reason": "M4_base_واسعة",
+   "base_reason": "M10_RSI_ما_تشبّع",
+   "was_pivot": true,
+   "suspect_split": false
+  },
+  {
+   "symbol": "AARD",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 99.0,
+   "kind": "تجمّع",
+   "reason": "M4_base_واسعة",
+   "base_reason": "M10_RSI_ما_تشبّع",
+   "was_pivot": true,
+   "suspect_split": false
+  },
+  {
+   "symbol": "SLS",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 99.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M2_هبوط_تحت_40",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "DFTX",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 98.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M2_هبوط_تحت_40",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "WKSP",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 97.0,
+   "kind": "تجمّع",
+   "reason": "M1_سعر",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "GALT",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 93.0,
+   "kind": "تجمّع",
+   "reason": "M10_RSI_ما_تشبّع",
+   "base_reason": "M10_RSI_ما_تشبّع",
+   "was_pivot": true,
+   "suspect_split": false
+  },
+  {
+   "symbol": "SDOT",
+   "date": "2026-07-17",
+   "expl_date": "2026-07-17",
+   "gain": 78.0,
+   "kind": "قفزة",
+   "reason": "M4_base_واسعة",
+   "base_reason": "M4_base_واسعة",
+   "was_pivot": true,
+   "suspect_split": false
+  },
+  {
+   "symbol": "LVLU",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 75.0,
+   "kind": "تجمّع",
+   "reason": "M4_base_واسعة",
+   "base_reason": "M5_سيولة",
+   "was_pivot": true,
+   "suspect_split": false
+  },
+  {
+   "symbol": "VSTM",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-26",
+   "gain": 75.0,
+   "kind": "تجمّع",
+   "reason": "M4_base_واسعة",
+   "base_reason": "نواقص_فوق_3",
+   "was_pivot": true,
+   "suspect_split": false
+  },
+  {
+   "symbol": "CJMB",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-23",
+   "gain": 74.0,
+   "kind": "تجمّع",
+   "reason": "M1_سعر",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "DYAI",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-25",
+   "gain": 73.0,
+   "kind": "تجمّع",
+   "reason": "M1_سعر",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "MNPR",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 73.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M2_هبوط_تحت_40",
+   "was_pivot": false,
+   "suspect_split": false
+  },
+  {
+   "symbol": "CDNA",
+   "date": "2026-07-17",
+   "expl_date": "2026-06-18",
+   "gain": 72.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M2_هبوط_تحت_40",
+   "was_pivot": false,
+   "suspect_split": false
   }
  ],
  "reject_stats": [
@@ -11209,22 +8276,22 @@
   {
    "date": "2026-07-17",
    "stats": {
-    "M2_هبوط_تحت_40": 1811,
-    "M1_سعر": 528,
-    "M5_سيولة": 129,
-    "M4_base_واسعة": 340,
-    "M10_RSI_فات_القطار": 15,
-    "M10_RSI_ما_تشبّع": 206,
-    "M2_هبوط_فوق_97": 70,
-    "نواقص_فوق_3": 81,
-    "M3_انفجار_تحت_60": 174,
+    "M2_هبوط_تحت_40": 1801,
+    "M1_سعر": 534,
+    "M5_سيولة": 134,
+    "M4_base_واسعة": 339,
+    "نواقص_فوق_3": 72,
+    "M10_RSI_ما_تشبّع": 210,
+    "M2_هبوط_فوق_97": 69,
+    "M3_انفجار_تحت_60": 187,
+    "M10_RSI_فات_القطار": 11,
     "بعيد_عن_الدخول(40%)": 1,
-    "بعيد_عن_الدخول(45%)": 3,
-    "بعيد_عن_الدخول(15%)": 1,
-    "بعيد_عن_الدخول(35%)": 1
+    "بعيد_عن_الدخول(30%)": 1,
+    "بعيد_عن_الدخول(20%)": 1,
+    "بعيد_عن_الدخول(45%)": 2
    },
-   "universe": 3559,
-   "valid": 3362
+   "universe": 3560,
+   "valid": 3364
   }
  ]
 }
