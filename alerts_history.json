@@ -740,8 +740,8 @@
    "drop_pct": 81.62162259689116,
    "best_spike": 143.89535476060212,
    "rr": 2.5457938558713757,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-07-16",
    "max_gain_pct": -0.4
   },
   {
@@ -883,9 +883,9 @@
    "drop_pct": 62.37314717690975,
    "best_spike": 63.29874653544329,
    "rr": 0.9438006565172173,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 7.3
+   "status": "hit_t1",
+   "result_date": "2026-07-16",
+   "max_gain_pct": 9.2
   },
   {
    "symbol": "HFFG",
@@ -953,7 +953,7 @@
    "rr": 3.0559702214923283,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 7.6
+   "max_gain_pct": 8.3
   },
   {
    "symbol": "PTN",
@@ -1201,7 +1201,7 @@
    "rr": 3.0858034953556266,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": -0.3
   },
   {
    "symbol": "TAOX",
@@ -1236,6 +1236,45 @@
    "drop_pct": 68.03004949872393,
    "best_spike": 252.69708287459193,
    "rr": 2.8398787736046684,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": -0.0
+  },
+  {
+   "symbol": "APVO",
+   "date": "2026-07-17",
+   "ref_bar": "2026-07-16",
+   "price": 4.5,
+   "stop": 3.4224,
+   "t1": 4.88,
+   "t2": 5.19,
+   "t3": 5.36,
+   "score": 80,
+   "flags": [
+    "تقاطع MACD",
+    "جفاف بيع",
+    "يرتكز على متوسط 30/50",
+    "ثبات 5 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "فجوة-هدف فوق السعر عند $5.90 (+31%)",
+    "قاب (فجوة) فوق السعر عند $5.90 (فراغ 7% = هدف ذهبي)",
+    "شورت 4,116 (مقبول)",
+    "فلوت 1,093,632 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 48.98202454454311,
+   "float": 1093632,
+   "short": 4116,
+   "short_pct": 6.4,
+   "drop_pct": 92.42424261884997,
+   "best_spike": 151.0638190006616,
+   "rr": 2.965180043772645,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
