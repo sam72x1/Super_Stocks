@@ -107,7 +107,8 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
         L.append("الحكم: 🎯 <b>سهم ارتكاز مؤهّل</b> · "
                  + ("🟢 جاهز للدخول الآن" if es["status"] == "ready_now"
                     else "👀 متابعة")
-                 + (f" — {es['reason']}" if es["reason"] else ""))
+                 + (f" — {es['reason']}" if es["reason"] else "")
+                 + bot._ready_war_suffix(r, es))   # ⚠️ تعارض «جاهز» فوق «حرب وتصريف» (كرت NAMI)
         L += bot.interp_card_lines(r["interp"])      # 🧭 الإعداد · 🎯 الرقم الحرج · 🕓 4س · ⚠️
         if r.get("tranches") and r.get("stop"):
             trs = r["tranches"]

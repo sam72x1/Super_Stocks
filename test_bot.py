@@ -1508,6 +1508,42 @@ check("جاهز-فقط: يعرض كرت الجاهز (RDY) ويُخفي المت
       "$RDY" in _dm_ro and "$WCH" not in _dm_ro)
 check("جاهز-فقط: الترويسة تُحصي المتابعة بلا عرض كروتها («تحت متابعة البوت»)",
       "تحت متابعة البوت" in _dm_ro and "متابعة — ننتظر وصولها" not in _dm_ro)
+
+# 🕵️ ① وسم تعارض الاقتراض على سطر «جاهز للدخول» (حصاد 2026-07-17، تناقض كرت NAMI:
+# «🟢 جاهز» فوق «حرب وتصريف · مستحيل يرتفع» بلا ربط) — عرض فقط، خارج الجذور.
+check("① _borrow_war: 100K/40001 حرب · 40K/None/نصّ/فارغ لا (نفس شرط borrow_line)",
+      S._borrow_war({"shares_available": 100000}) is True
+      and S._borrow_war({"shares_available": 40001}) is True
+      and S._borrow_war({"shares_available": 40000}) is False
+      and S._borrow_war({"shares_available": None}) is False
+      and S._borrow_war({"shares_available": "x"}) is False
+      and S._borrow_war({}) is False)
+check("① _ready_war_suffix: ready+حرب ⇒ وسم · متابعة/قليل/تعذّر ⇒ «»",
+      "حرب وتصريف" in S._ready_war_suffix({"shares_available": 100000}, {"status": "ready_now"})
+      and S._ready_war_suffix({"shares_available": 100000}, {"status": "watch"}) == ""
+      and S._ready_war_suffix({"shares_available": 5000}, {"status": "ready_now"}) == ""
+      and S._ready_war_suffix({"shares_available": None}, {"status": "ready_now"}) == "")
+_wl_war = {"week_start": "2026-07-01", "removed": [], "notes": [],
+           "stocks": [dict(_wl_entry("WAR", "near_support"), shares_available=100000)]}
+_wl_okb = {"week_start": "2026-07-01", "removed": [], "notes": [],
+           "stocks": [dict(_wl_entry("OKB", "near_support"), shares_available=5000)]}
+check("① سلوكي اليومي: جاهز + متاح 100K ⇒ وسم «حرب وتصريف» بالكرت",
+      "حرب وتصريف" in S.build_daily_message(_wl_war, [], [], []))
+check("① سلوكي اليومي: جاهز + متاح 5K ⇒ لا وسم (لا تعارض)",
+      "حرب وتصريف" not in S.build_daily_message(_wl_okb, [], [], []))
+check("① قفل: الدالّتان خارج rank_key/select_top/classify_tier/entry_status (لا تمسّ الاختيار)",
+      all("_borrow_war" not in _insp0.getsource(getattr(S, _f))
+          and "_ready_war_suffix" not in _insp0.getsource(getattr(S, _f))
+          for _f in ("rank_key", "select_top", "classify_tier", "entry_status")))
+check("① قفل: الوسم موصول بكل مواضع العرض الخمسة (كرت·يومي·قسم اليد·تحديث اليد·تنبيه لحظي)",
+      all("_ready_war_suffix" in _insp0.getsource(getattr(S, _fn))
+          for _fn in ("build_message", "build_daily_message", "build_hand_section",
+                      "build_hand_digest", "build_live_alert")))
+# قفل خارجي (لقطة مراجعة خصومية wl27lx5ve): hand_check.py أداة مستقلة تعرض borrow_line
+# + سطر الحكم من نفس السجل ⇒ كانت تُظهر تعارض NAMI بلا وسم. تُصلَح وتُقفَل هنا.
+_hc_src = open("hand_check.py", encoding="utf-8").read()
+check("① قفل: hand_check.py يحمل الوسم على سطر الحكم (لا تعارض «جاهز» فوق «حرب وتصريف»)",
+      "_ready_war_suffix" in _hc_src)
 _dm_ro2 = S.build_daily_message(_wl_allr, [], [], [], ready_only=True)
 check("جاهز-فقط: فاصل شرطات بين كل سهم جاهز وسهم (سهمان → فاصل)",
       S.DAILY_CARD_SEP in _dm_ro2 and "$R1" in _dm_ro2 and "$R2" in _dm_ro2)

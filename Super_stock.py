@@ -2675,6 +2675,27 @@ def short_interest_line(r: dict) -> str:
     return "📊 " + " · ".join(parts) if parts else ""
 
 
+def _borrow_war(r: dict) -> bool:
+    """🕵️ (عرض فقط) هل «المتاح للشورت» المخزَّن = ذخيرة «حرب وتصريف»؟ = **نفس شرط فرع الحرب
+    في `borrow_line` حرفيًّا**: `shares_available` رقم صالح **فوق** حدّ فيصل `SHORT_GATE_MAX`
+    (40 ألف). None/«—»/≤الحدّ/تعذّر → False (تعذّر ≠ حرب). يُستعمل لوسم تعارض «🟢 جاهز للدخول»
+    فوق «مستحيل يرتفع» الذي كان صامتًا (كرت NAMI 2026-07-17). **خارج الفرز/الاختيار مطلقًا.**"""
+    try:
+        avail = r.get("shares_available")
+        return avail is not None and float(avail) > CONFIG["SHORT_GATE_MAX"]
+    except Exception:
+        return False
+
+
+def _ready_war_suffix(s: dict, es: dict) -> str:
+    """لاحقة تحذير عرضية على سطر «جاهز للدخول»: تُرجَع **فقط** عند `ready_now` **و**`_borrow_war`
+    (وإلا «»). تربط تناقض «🟢 جاهز» فوق «حرب وتصريف» الذي كان يظهر صامتًا بنفس الكرت. عرض فقط —
+    لا تمسّ `entry_status` (جذر) ولا الحالة/الفرز/الترتيب/العضوية."""
+    if es.get("status") == "ready_now" and _borrow_war(s):
+        return " · ⚠️ لكن الاقتراض: حرب وتصريف (المتاح فوق حد فيصل) — راجع سطر 🔒"
+    return ""
+
+
 def borrow_line(r: dict) -> str:
     """سطر «🔒 اقتراض» **مفسَّر ذاتيًّا** بلغة مبتدئ — **على إطار فيصل الموثّق فقط**
     (⚖️ تصحيح 2026-07-10 بعد تشكيك المستخدم «متأكد من معلومة الوقود؟»: سردية
@@ -4145,7 +4166,7 @@ def build_hand_digest(wl: dict, history: dict) -> str:
             lp = s.get("last_price")
             es = entry_status(s)             # الأهم: جاهز للدخول أم متابعة؟
             tag = "🟢 جاهز للدخول" if es["status"] == "ready_now" else "👀 متابعة"
-            head = f"{tag} · <b>${s['symbol']}</b>"
+            head = f"{tag} · <b>${s['symbol']}</b>" + _ready_war_suffix(s, es)
             if lp:
                 head += f" · ${lp:.2f}"
             lines.append(head)
@@ -4463,7 +4484,8 @@ def build_message(results: list, splits: list,
         lines.append(f"💪 القوة العامة: {r.get('score', 0)}/100  {bar}  {slabel}")
         # 🟢👀 حالة الدخول العملية (جاهز للدخول الآن / متابعة + السبب) — من موقع السعر
         _es = entry_status(r)
-        lines.append(_es["label"] + (f" — {_es['reason']}" if _es["reason"] else ""))
+        lines.append(_es["label"] + (f" — {_es['reason']}" if _es["reason"] else "")
+                     + _ready_war_suffix(r, _es))
         # 🧬 طريقة ارتفاع اليد (سلوك المضارب — **عرض/تشخيص فقط، لا يمسّ الفرز ولا الاختيار**):
         # كيف رفع المضاربُ السهمَ تاريخيًا (كم مرّة · أكبر رفعة · بصمة المسح). فيصل: البصمة تتكرّر.
         bh = r.get("behav") or {}
@@ -6140,7 +6162,8 @@ def build_hand_section(wl: dict) -> str:
         px = f" ${lp:.2f}" if lp else ""
         es = entry_status(s)                  # الأهم: جاهز للدخول أم متابعة؟
         tag = "🟢 جاهز للدخول" if es["status"] == "ready_now" else "👀 متابعة"
-        lines.append(f"• {tag} · <b>${s['symbol']}</b>{px} — {signs}{extra}")
+        lines.append(f"• {tag} · <b>${s['symbol']}</b>{px} — {signs}{extra}"
+                     + _ready_war_suffix(s, es))
     return _rtl_join(lines)
 
 
@@ -6702,7 +6725,8 @@ def build_live_alert(rows: list, quotes: dict = None) -> str:
         tag = "🟢 جاهز" if es["status"] == "ready_now" else "👀 متابعة"
         lp = s.get("last_price")
         px = f" ${lp:.2f}" if lp else ""
-        lines.append(f"{icon} <b>${s['symbol']}</b>{px} · {tag} — {desc}")
+        lines.append(f"{icon} <b>${s['symbol']}</b>{px} · {tag} — {desc}"
+                     + _ready_war_suffix(s, es))
     return _rtl_join(lines)
 
 
@@ -7436,7 +7460,7 @@ def build_daily_message(wl: dict, splits: list,
                      f"قوة {s.get('score', '?')}")
         else:
             head += f"قوة {s.get('score', '?')}"
-        lines.append(head)
+        lines.append(head + _ready_war_suffix(s, _es))
         # سطر السبب لأسهم المتابعة فقط (ما الذي يحوّلها جاهزة) — الجاهز يكفيه عنوان القسم
         if _sec == "watch" and _es.get("reason"):
             lines.append(f"   👀 {_es['reason']}")
