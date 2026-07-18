@@ -6256,6 +6256,36 @@ _dc = S._dedup_closed([
 check("📈 P2-6: صفقتان بنفس (رمز, سعر) وتاريخَي إضافة مختلفين **لا تُدمجان** (لا فقد إحصاء)",
       len(_dc) == 2 and {r["added"] for r in _dc} == {"2026-05-04", "2026-05-18"})
 
+# 🔬 ② طيّ العدّ المزدوج (قرار المالك 2026-07-18، تقارير فقط): متعقّبَا نفس المركز (تنبيه +
+# قائمة، added مختلف، نفس النتيجة + حسم متقارب) ⇒ صفقة واحدة؛ ترشيحان مستقلّان يبقيان.
+_fold_in = [
+    {"symbol": "PTN", "added": "2026-07-08", "_win": False, "result_date": "2026-07-14", "max_gain_pct": 1.9},
+    {"symbol": "PTN", "added": "2026-07-10", "_win": False, "removed_date": "2026-07-14", "max_gain_pct": 5.9},
+    {"symbol": "INSM", "added": "2026-06-21", "_win": True, "hit_date": "2026-06-24", "max_gain_pct": 11.9},
+    {"symbol": "INSM", "added": "2026-06-25", "_win": True, "hit_date": "2026-07-07", "max_gain_pct": 10.9},
+]
+_fold_out = S._fold_same_position(_fold_in)
+check("② طيّ: PTN المكرّر (نفس الحسم) يُطوى لواحدة · INSM (نتيجتان 13ي متباعدتان) يبقى صفقتين",
+      len(_fold_out) == 3
+      and sum(1 for r in _fold_out if r["symbol"] == "PTN") == 1
+      and sum(1 for r in _fold_out if r["symbol"] == "INSM") == 2)
+check("② طيّ: الأسبق added يمثّل المركز (PTN 07-08 محفوظ)",
+      any(r["symbol"] == "PTN" and r["added"] == "2026-07-08" for r in _fold_out))
+check("② طيّ: نتيجتان مختلفتان لنفس الرمز (ربح+خسارة) ⇒ لا طيّ",
+      len(S._fold_same_position([
+          {"symbol": "Y", "added": "2026-07-01", "_win": True, "hit_date": "2026-07-03"},
+          {"symbol": "Y", "added": "2026-07-02", "_win": False, "result_date": "2026-07-03"}])) == 2)
+check("② طيّ فاشل-آمن: تواريخ تالفة → لا طيّ (الصفوف كما هي، لا انهيار)",
+      len(S._fold_same_position([
+          {"symbol": "X", "added": "bad", "_win": True, "hit_date": "bad"},
+          {"symbol": "X", "added": "worse", "_win": True, "hit_date": "nope"}])) == 2)
+check("② قفل: _fold_same_position خارج rank_key/select_top/classify_tier/entry_status/backtest_symbol",
+      all("_fold_same_position" not in _insp0.getsource(getattr(S, _f))
+          for _f in ("rank_key", "select_top", "classify_tier", "entry_status", "backtest_symbol")))
+check("② قفل: الطيّ موصول بعد _dedup_closed في مساري التقرير (مساعد التطوير + CSV)",
+      "_fold_same_position" in _insp0.getsource(S.build_dev_assistant_report)
+      and "_fold_same_position" in _insp0.getsource(S.export_weekly_csvs))
+
 # 🔬 P2-4 (بحث/قياس فقط · خارج مسار التنبيه): فشل صفحة لاحقة من Polygon كان يُرجع نصف
 # النافذة **كأنها كاملة** ⇒ نِسَب T-ACC تُحسب على عيّنة مبتورة بلا علامة. الآن None.
 # اختبار سلوكي: الصفحة 1 تنجح (بـnext_url) والصفحة 2 ترد 429 ⇒ يجب None لا بيانات جزئية.

@@ -4753,8 +4753,9 @@ def export_weekly_csvs(wl: dict, picks: list, alert_data: dict = None) -> None:
               "best_spike", "rr", "score", "max_gain_pct", "status", "hit",
               "hit_date", "added", "removal_reason")
     trades = [{k: r.get(k) for k in cols_t}
-              for r in _dedup_closed(_collect_closed(wl)
-                                     + _collect_closed_alerts(alert_data))]
+              for r in _fold_same_position(
+                  _dedup_closed(_collect_closed(wl)
+                                + _collect_closed_alerts(alert_data)))]
     def _stop0(r):
         st = r.get("stop")
         try:
@@ -7674,6 +7675,54 @@ def _dedup_closed(rows: list) -> list:
     return out
 
 
+# 🔬 طيّ العدّ المزدوج (قرار المالك 2026-07-18، طبقة تقارير فقط): عتبتان محافظتان لطيّ
+# «متعقّبَي نفس المركز» (تنبيه + عضوية قائمة بتاريخَي added مختلفين). توسيعهما = خطر طيّ
+# ترشيحين مستقلّين — لا تُغيَّرا بلا سجلّ حي.
+FOLD_ADDED_DAYS = 5        # أقصى فرق بين تاريخَي added لاعتبارهما نفس المركز
+FOLD_RESULT_DAYS = 2       # وأقصى فرق بين يومَي الحسم
+
+
+def _fold_same_position(rows: list) -> list:
+    """🔬 (تقرير/إحصاء فقط — قرار المالك 2026-07-18) يطوي «متعقّبَي نفس المركز»: صفقة واحدة
+    سُجّلت من مصدرين (تنبيه + عضوية قائمة) بتاريخَي `added` مختلفين ⇒ كانت تُحسب مرّتين فتنتفخ
+    العيّنة (حصاد 2026-07-17: 29→25 · النسبة 66%→68% · الأخطر: فواصل الثقة تبدو أضيق مما هي).
+    القاعدة **المحافظة**: نفس الرمز + |فرق added| لا يتجاوز `FOLD_ADDED_DAYS` + **نفس النتيجة**
+    (`_win`) + |فرق يوم الحسم| لا يتجاوز `FOLD_RESULT_DAYS` ⇒ صفقة واحدة (الأسبق `added` يفوز).
+    **لا تطوي ترشيحين مستقلّين** (INSM 06-21/06-25 نتيجتاه 13 يومًا متباعدتان). تعمل **بعد**
+    `_dedup_closed` فلا تمسّ مفتاحه المقصود (P2-6). **طبقة تقارير فقط — خارج الفرز/الدخول/الوقف/
+    الأهداف/الجذور · لا LOGIC_VERSION.** فاشل-آمن: أي تعذّر → الصفوف كما هي (لا طيّ، لا فقد صفقة)."""
+    try:
+        def _d(x):
+            try:
+                return dt.date.fromisoformat(str(x)[:10])
+            except Exception:
+                return None
+        used = [False] * len(rows)
+        order = sorted(range(len(rows)),
+                       key=lambda i: (str(rows[i].get("symbol")),
+                                      str(rows[i].get("added"))))
+        out = []
+        for ai in order:
+            if used[ai]:
+                continue
+            used[ai] = True
+            ra = rows[ai]
+            out.append(ra)                       # الأسبق (بـadded) يمثّل المركز
+            da, ca = _d(ra.get("added")), _d(_close_date(ra))
+            for bi in order:
+                if used[bi] or bi == ai or rows[bi].get("symbol") != ra.get("symbol"):
+                    continue
+                rb = rows[bi]
+                db, cb = _d(rb.get("added")), _d(_close_date(rb))
+                if (da and db and abs((da - db).days) <= FOLD_ADDED_DAYS
+                        and bool(ra.get("_win")) == bool(rb.get("_win"))
+                        and ca and cb and abs((ca - cb).days) <= FOLD_RESULT_DAYS):
+                    used[bi] = True              # نفس المركز — يُطوى
+        return out
+    except Exception:
+        return rows
+
+
 def _collect_closed(wl: dict) -> list:
     """يجمع كل الصفقات المحسومة (رابحة=حقّقت هدفًا · خاسرة=ضربت الستوب بلا هدف)
     من الأرشيف التراكمي + الأسبوع الحالي. كل صف يحمل سماته عند الدخول."""
@@ -7866,7 +7915,8 @@ def _honest_metrics_block(rows):
 def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     """🔬 المساعد الثالث: يحلّل الصفقات المحسومة ويطلّع تشخيص الأداء بالشرائح
     + أنماط الفشل + اقتراحات ضبط (اقتراح فقط — لا يغيّر إعدادات). يُرسل الجمعة."""
-    rows = _dedup_closed(_collect_closed(wl) + _collect_closed_alerts(alert_data))
+    rows = _fold_same_position(
+        _dedup_closed(_collect_closed(wl) + _collect_closed_alerts(alert_data)))
     n, wr, avg = _wr(rows)
     _ig_log = load_ignition_log()      # 📏 قياس حافة الرادار (مستقل عن الصفقات المحسومة)
     head = ["🔬 <b>مساعد التطوير — تحليل أداء المنهجية</b>",
