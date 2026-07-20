@@ -263,7 +263,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.65
+   "last_price": 1.65,
+   "live_alert": {
+    "buyzone": "2026-07-20"
+   }
   },
   {
    "symbol": "PONY",
@@ -547,7 +550,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 6.71
+   "last_price": 6.71,
+   "live_alert": {
+    "buyzone": "2026-07-20"
+   }
   },
   {
    "symbol": "NMRA",
@@ -845,7 +851,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.63
+   "last_price": 1.63,
+   "live_alert": {}
   }
  ],
  "removed": [],
@@ -1122,8 +1129,8 @@
    "country": "Malaysia",
    "float": 433301,
    "last_price": 2.63,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-07-20"
   },
   {
    "symbol": "TDTH",
