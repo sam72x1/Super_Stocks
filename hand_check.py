@@ -188,9 +188,10 @@ def hand_check(sym: str):
         r["order_flow"] = bot.order_snapshot(sym)
     except Exception:
         r["order_flow"] = None
-    # 🕳️ لقطة NBBO الخام لقرينة N5 «عروض شبه مُفرَّغة» (§P2 — فاشل-آمن → None)
+    # 🕳️ لقطة NBBO الخام + ملخّص الطبعات لقرائن N5/N6/N7 (§P2 + دروس 2026-07-20 —
+    # with_prints=True فحص اليد فقط، صفر نداء إضافي · فاشل-آمن → None)
     try:
-        r["flow_raw"] = bot.polygon_flow(sym)
+        r["flow_raw"] = bot.polygon_flow(sym, with_prints=True)
     except Exception:
         r["flow_raw"] = None
     # 🔁 تكرار التقسيم العكسي في آخر سنة (قرينة فيصل §P4 — فاشل-آمن → 0)

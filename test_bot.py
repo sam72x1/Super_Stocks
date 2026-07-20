@@ -1780,6 +1780,49 @@ check("🕵️N5: سبريد ضيّق (2%) ⇒ لا دليل مُفرَّغة",
           {"flow_raw": {"ask": 2.60, "ask_size": 100, "spread_pct": 2.0}})))
 check("🕵️N5·فاشل-آمن: بلا flow_raw ⇒ لا دليل (مسار الفرز لا يجلبه)",
       not any(e["sign"] == "عروض شبه مُفرَّغة" for e in S.hand_evidence(_r_hand)))
+
+# 🆕 N6/N7 (دروس صور 2026-07-20 — فحص اليد فقط · عرض/تحذير · فاشل-آمن):
+# N6 شراء الإغلاق CP (طبعات كبيرة محايدة التيك) · N7 طبعات آلية دقيقة خارج NBBO.
+# صفقات Polygon تنازلية (الأحدث أولًا) → نبنيها زمنيًّا ثم نعكسها لمدخل _flow_prints.
+_chrono = [{"price": 3.40, "size": 100} for _ in range(20)]
+_chrono += [{"price": 3.50, "size": 1500}]                    # صعود (ليس محايدًا)
+_chrono += [{"price": 3.50, "size": 1500} for _ in range(3)]  # 3 محايدة كبيرة = 4500
+_chrono += [{"price": 3.60, "size": 5} for _ in range(8)]     # 8 دقيقة فوق العرض
+_fp = S._flow_prints(_chrono[::-1], 3.45, 3.55)               # bid 3.45 · ask 3.55
+check("🆕N6·نقيّة: _flow_prints يرصد الطبعات المحايدة الكبيرة (سعر ثابت)",
+      _fp.get("neutral_block_shares") == 4500, str(_fp))
+check("🆕N7·نقيّة: _flow_prints يعدّ الطبعات الدقيقة خارج NBBO",
+      _fp.get("tiny_out_count") == 8, str(_fp))
+check("🆕_flow_prints فاشل-آمن: <20 صفقة ⇒ {}",
+      S._flow_prints([{"price": 3.5, "size": 100}], 3.4, 3.6) == {})
+check("🆕_flow_prints فاشل-آمن: مدخل فاسد ⇒ {}",
+      S._flow_prints("سيّئ", 3, 4) == {})
+# N6 في hand_evidence
+_n6 = {"flow_raw": {"prints": {"neutral_block_shares": 4500, "tiny_out_count": 0,
+                               "total": 32, "quote_age_ms": 1000}}}
+check("🕵️N6·مضارب: طبعات كبيرة محايدة ⇒ دليل «شراء إغلاق محتمل»",
+      any(e["sign"] == "طبعات كبيرة محايدة التيك" for e in S.hand_evidence(_n6)))
+check("🕵️N6·صدق: «رموز شرط الإغلاق غير متاحة» مكتوب داخل الدليل (لا تخمين)",
+      any("غير متاحة" in e["detail"] for e in S.hand_evidence(_n6)
+          if e["sign"] == "طبعات كبيرة محايدة التيك"))
+# N7 في hand_evidence — يشترط اقتباسًا طازجًا (صدق: لا مقارنة على لقطة بائتة)
+_n7f = {"flow_raw": {"prints": {"neutral_block_shares": 0, "tiny_out_count": 8,
+                                "total": 40, "quote_age_ms": 1000}}}
+check("🕵️N7·مضارب: طبعات دقيقة خارج NBBO باقتباس طازج ⇒ دليل «طبعات آلية»",
+      any(e["sign"] == "طبعات آلية دقيقة" for e in S.hand_evidence(_n7f)))
+_n7s = {"flow_raw": {"prints": {"neutral_block_shares": 0, "tiny_out_count": 8,
+                                "total": 40, "quote_age_ms": 999999}}}
+check("🕵️N7·صدق: اقتباس بائت ⇒ لا وسم (لا مقارنة على لقطة قديمة)",
+      not any(e["sign"] == "طبعات آلية دقيقة" for e in S.hand_evidence(_n7s)))
+check("🕵️N6/N7·فاشل-آمن: بلا prints ⇒ لا دليل",
+      not any(e["sign"] in ("طبعات كبيرة محايدة التيك", "طبعات آلية دقيقة")
+              for e in S.hand_evidence({"flow_raw": {}})))
+# 🔒 قفل: N6/N7 خارج جذور الفرز/الاختيار (getsource)
+for _rt in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+            S.backtest_symbol):
+    _src = _insp.getsource(_rt)
+    check(f"🔒 {_rt.__name__} لا يعتمد N6/N7 (خارج الفرز)",
+          "_flow_prints" not in _src and "neutral_block_shares" not in _src)
 # العرض بالكرت + التجديد اليومي لـpump_scar
 _card_h = {"symbol": "HND", "price": 2.0, "pivot": 1.95, "score": 60,
            "readiness": 60, "rr": 2.0, "entry": (1.9, 2.0),
