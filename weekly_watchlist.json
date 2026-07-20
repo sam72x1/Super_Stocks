@@ -297,7 +297,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.2501,
+   "last_price": 3.22,
    "live_alert": {}
   }
  ],
@@ -364,9 +364,9 @@
    "sector": "Consumer Defensive",
    "country": "Malaysia",
    "float": 433301,
-   "last_price": 2.809,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 2.63,
+   "status": "triggered",
+   "triggered_date": "2026-07-20"
   },
   {
    "symbol": "CLIK",
@@ -395,7 +395,7 @@
    "sector": "Consumer Cyclical",
    "country": "Hong Kong",
    "float": 783519,
-   "last_price": 1.535,
+   "last_price": 1.54,
    "status": "watching",
    "triggered_date": null
   },
@@ -427,7 +427,7 @@
    "sector": "Technology",
    "country": "Hong Kong",
    "float": 2026888,
-   "last_price": 83.99,
+   "last_price": 79.62,
    "status": "watching",
    "triggered_date": null
   },
@@ -456,7 +456,7 @@
    "sector": "Industrials",
    "country": "United States",
    "float": 7777792,
-   "last_price": 1.77,
+   "last_price": 1.7,
    "status": "watching",
    "triggered_date": null
   },
@@ -487,7 +487,7 @@
    "sector": "Energy",
    "country": "United States",
    "float": 4070750,
-   "last_price": 4.34,
+   "last_price": 4.74,
    "status": "watching",
    "triggered_date": null
   },
@@ -519,7 +519,7 @@
    "sector": "Industrials",
    "country": "China",
    "float": 998034,
-   "last_price": 2.245,
+   "last_price": 2.3,
    "status": "watching",
    "triggered_date": null
   },
@@ -548,7 +548,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 1093632,
-   "last_price": 4.64,
+   "last_price": 4.755,
    "status": "watching",
    "triggered_date": null
   },
@@ -611,7 +611,7 @@
    "sector": "Technology",
    "country": "Singapore",
    "float": 35178338,
-   "last_price": 2.81,
+   "last_price": 2.77,
    "status": "watching",
    "triggered_date": null
   },
@@ -642,7 +642,7 @@
    "sector": "Healthcare",
    "country": "United Kingdom",
    "float": 529035,
-   "last_price": 4.04,
+   "last_price": 3.89,
    "status": "watching",
    "triggered_date": null
   },
@@ -671,7 +671,7 @@
    "sector": "Healthcare",
    "country": "China",
    "float": 3320718,
-   "last_price": 9.845,
+   "last_price": 10.07,
    "status": "watching",
    "triggered_date": null
   },
@@ -702,7 +702,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 32306117,
-   "last_price": 3.28,
+   "last_price": 3.45,
    "status": "watching",
    "triggered_date": null
   },
@@ -732,7 +732,7 @@
    "sector": "Financial Services",
    "country": "Hong Kong",
    "float": 892196,
-   "last_price": 1.7902,
+   "last_price": 1.79,
    "status": "watching",
    "triggered_date": null
   },
@@ -763,7 +763,7 @@
    "sector": "Consumer Cyclical",
    "country": "Hong Kong",
    "float": 1091667,
-   "last_price": 4.53,
+   "last_price": 4.46,
    "status": "watching",
    "triggered_date": null
   }
