@@ -1,0 +1,34 @@
+name: Point-in-time Analysis (as-of date)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticker:
+        description: "الرمز (مثال DXST)"
+        required: true
+        type: string
+      dates:
+        description: "تواريخ مفصولة بفاصلة YYYY-MM-DD (مثال 2026-07-15,2026-07-16,2026-07-17)"
+        required: true
+        type: string
+
+jobs:
+  asof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run point-in-time analysis
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ASOF_TICKER: ${{ github.event.inputs.ticker }}
+          ASOF_DATES: ${{ github.event.inputs.dates }}
+        run: python analyze_asof.py
