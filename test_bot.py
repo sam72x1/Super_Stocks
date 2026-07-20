@@ -161,6 +161,60 @@ if r0:
           r0["pivot"] * 0.90 <= r0["stop"][0] <= r0["pivot"] * 0.95 + 1e-6,
           f"stop={r0['stop'][0]:.2f} pivot={r0['pivot']:.2f}")
 
+# ==========================================================
+# 🎯 إعادة بناء الأهداف الكبرى (2026-07-20، DXST/TRUG/SPRC) — t2/t3 على الدورة الكاملة
+#    · t1/التحرر/العضوية محفوظة byte-identical · لا سنتات (فجوة كبرى) · لا سقف 2× صلب
+# ==========================================================
+print("\n=== 🎯 الأهداف الكبرى (فيصل DXST/TRUG/SPRC) ===")
+import inspect as _insp
+_MG = S.CONFIG["TARGET_MAJOR_GAP_PCT"] / 100.0
+check("ثابت فجوة الأهداف الكبرى = 12", S.CONFIG.get("TARGET_MAJOR_GAP_PCT") == 12.0)
+check("ثابت هامش المرساة = 5", S.CONFIG.get("TARGET_ANCHOR_HEADROOM_PCT") == 5.0)
+check("LOGIC_VERSION رُفِع (cycletargets)", "cycletargets" in S.LOGIC_VERSION)
+
+_tg = S.analyze_ticker("TG", synth_pivot(seed=2))
+if _tg:
+    _t1, _t2, _t3 = _tg["t1"], _tg["t2"], _tg["t3"]
+    check("الأهداف تصاعدية t1<t2<t3", _t1 < _t2 < _t3, f"{_t1}/{_t2}/{_t3}")
+    # 🎯 الإصلاح الجوهري (شكوى «سنتات و تافهه»): t2/t3 متباعدة بفجوة معنوية لا سنتات
+    check("t2 أبعد من t1 بفجوة كبرى (لا سنتات)", _t2 >= _t1 * (1 + _MG) - 0.03,
+          f"t1={_t1} t2={_t2} ({(_t2/_t1-1)*100:.0f}%)")
+    check("t3 أبعد من t2 بفجوة كبرى (لا سنتات)", _t3 >= _t2 * (1 + _MG) - 0.03,
+          f"t2={_t2} t3={_t3} ({(_t3/_t2-1)*100:.0f}%)")
+    # التحرر «مهمة جدا» = قمة الدورة فوق كل الأهداف — محفوظ byte-identical (كتلة منفصلة)
+    check("التحرر فوق t3 (بوابة الدورة الكبرى محفوظة)",
+          _tg["liberation"] is None or _tg["liberation"] >= _t3, str(_tg["liberation"]))
+    # المرساة الحقيقية = قمة الدورة (hi52) لا 2× صلب — t3 ضمن قمة الدورة (+هامش) أو 2× أيهما أعلى
+    _cyc = float(synth_pivot(seed=2)["High"].tail(252).max())
+    check("t3 ضمن مرساة قمة الدورة (لا سقف 2× صلب)",
+          _t3 <= max(_cyc * 1.05, 2 * _tg["price"]) + 1e-6, f"t3={_t3} cyc={_cyc:.1f}")
+    # 🔒 قفل العضوية: RR يُشتقّ من t1 حصرًا (t1 محفوظ byte-identical فـRR/النواقص/التصنيف
+    # بلا تغيير) — نعيد بناء rr من t1/الدفعات/الوقف ونطابقه المخزَّن.
+    _eref = round(sum(_tg["tranches"]) / len(_tg["tranches"]), 4)
+    _rr_from_t1 = (_t1 - _eref) / max(_eref - _tg["stop"][0], 1e-9)
+    check("rr مُشتقّ من t1 حصرًا (العضوية byte-identical)",
+          abs(_tg["rr"] - _rr_from_t1) < 1e-6 and _t1 > _tg["price"],
+          f"t1={_t1} rr={_tg['rr']:.4f} من_t1={_rr_from_t1:.4f}")
+
+# 🔒 قفل بنيوي: كتلة الأهداف الجديدة تعيد بناء t2/t3 فقط — لا تمسّ t1/rr/soft_fails/العضوية
+_at_src = _insp.getsource(S.analyze_ticker)
+_blk = (_at_src.split("إعادة بناء t2/t3")[1].split("تحرر السهم")[0]
+        if "إعادة بناء t2/t3" in _at_src else "")
+check("كتلة الأهداف الجديدة موجودة", bool(_blk))
+check("كتلة الأهداف لا تمسّ t1/rr/soft_fails/العضوية (t2/t3 فقط)",
+      bool(_blk) and "soft_fails" not in _blk and "return {" not in _blk
+      and "rr =" not in _blk and "t1 =" not in _blk and "_reject" not in _blk)
+# 🔒 قفل الجذور: الأهداف الكبرى الجديدة لا تدخل جذور الاختيار
+for _rt in (S.rank_key, S.select_top, S.classify_tier, S.entry_status):
+    check(f"{_rt.__name__} لا يعتمد فجوة الأهداف الكبرى (خارج الاختيار)",
+          "TARGET_MAJOR_GAP_PCT" not in _insp.getsource(_rt))
+# 🔒 refine_targets_4h يستعمل الفجوة الكبرى فلا يسحق t2/t3 المتباعدة إلى سنتات
+_rt2, _rt3 = S.refine_targets_4h(3.88, 5.0, 7.0, 3.6,
+                                 {"resistances": [4.0, 4.2, 5.0, 7.0]})
+check("refine_4h يحفظ الأهداف المتباعدة (لا سحق لسنتات)",
+      _rt2 >= 3.88 * (1 + _MG) - 1e-6 and _rt3 >= _rt2 * (1 + _MG) - 1e-6,
+      f"{_rt2}/{_rt3}")
+
 # 🪦 تقاعد A/B (2026-07-05): القبول فئة واحدة "B" (مؤهّل) · أكثر من الحد=None (يُرفض).
 # الرفض (n>maxf) محفوظ حرفيًا؛ A لم تعد تُسنَد أبدًا (كانت ضجيجًا — سنتان دليل).
 check("0 نواقص → B (A متقاعد، القبول موحّد)", S.classify_tier([]) == "B")

@@ -318,10 +318,18 @@ CONFIG = {
     "GAP_ABOVE_USE_AS_TARGET": True,  # استخدم الفجوة كهدف في T1/T2/T3
 
     # ---- الأهداف ----
-    "TARGET_CAP_MULT": 2.0,      # سقف الأهداف: 2x السعر
+    "TARGET_CAP_MULT": 2.0,      # سقف الأهداف: 2x السعر (يُستعمل الآن كأرضية للمرساة
+                                 #   لا سقفًا — المرساة الحقيقية = قمة الدورة، انظر أدناه)
     "MIN_TARGET_GAP_PCT": 3.0,   # أقل مسافة بين هدف وآخر = تسامح التجميع (3%)
                                  #   حتى لا يُتخطّى مستوى حقيقي قريب (قاعدة فيصل:
                                  #   الأهداف = سلّم المقاومات بالترتيب، بلا تجاوز)
+                                 #   ⚠️ يبقى لحساب t1 (byte-identical) — t2/t3 يستعملان الفجوة الكبرى
+    # 🎯 آلية الأهداف الكبرى (2026-07-20، DXST/TRUG/SPRC): t2/t3 = المستويات الكبرى
+    # للدورة الكاملة السابقة (قمة→انهيار→قاع)، متباعدة بفجوات معنوية لا سنتات، بمرساة
+    # = قمة الدورة (hi52) لا سقف 2×. t1 محفوظ byte-identical (RR/العضوية بلا تغيير).
+    "TARGET_MAJOR_GAP_PCT": 12.0,      # أدنى فجوة بين الأهداف الكبرى (تطوي «المحطات» الصغيرة؛
+                                       #   تُبقي فجوة فيصل الأضيق TRUG 2→2.30 = 15%)
+    "TARGET_ANCHOR_HEADROOM_PCT": 5.0, # هامش فوق قمة الدورة لإدراج القمة نفسها كهدف
     "USE_MULTIFRAME_TARGETS": True,  # فيصل: «الأهداف ع يومي + أسبوعي» — أضف
                                  # قمم ومنشأ الشمعة الحمرا الأسبوعية لمرشّحي الأهداف
 
@@ -439,7 +447,7 @@ _BT_OVERRIDES = _apply_backtest_overrides(MODE)
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.06.22-redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.07.20-cycletargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -1506,8 +1514,10 @@ def refine_targets_4h(t1, t2, t3, price, h4l):
     يرجع (t2, t3) المنقّحة، أو الأصلية لو لا جديد من الـ4س."""
     if not h4l or not price:
         return t2, t3
-    cap = price * CONFIG["TARGET_CAP_MULT"]
-    gap = 1.0 + CONFIG["MIN_TARGET_GAP_PCT"] / 100.0
+    # 🎯 السقف = أعلى الأهداف الحالية أو 2× السعر (لا نقصّ t3 الكبير) · الفجوة =
+    # فجوة الأهداف الكبرى (2026-07-20) حتى لا يُعاد سحق t2/t3 المتباعدة إلى سنتات.
+    cap = max(price * CONFIG["TARGET_CAP_MULT"], float(t3))
+    gap = 1.0 + CONFIG["TARGET_MAJOR_GAP_PCT"] / 100.0
     extra = [round(float(x), 2) for x in (h4l.get("resistances") or [])
              if t1 * gap < x <= cap]
     if not extra:
@@ -2281,6 +2291,59 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             nxt = next((t for t in cands if t > targets[-1] * gap), None)
             targets.append(round(nxt, 2) if nxt else round(targets[-1] * 1.25, 2))
         t1, t2, t3 = targets[0], targets[1], targets[2]
+
+        # ===== إعادة بناء t2/t3 على مستويات الدورة الكاملة الكبرى (فيصل 2026-07-20) =====
+        # طلب المستخدم: «الأهداف سنتات و تافهه — كبّرها، إلا التحرر». الآلية المستخلَصة
+        # (DXST «الهدف 7 الأقرب من 5» · TRUG 2/2.30/3.50 تحت قمة 3.82 · SPRC فيب النطاق
+        # الكامل 4.30→11.84): الأهداف = المستويات الكبرى للدورة الكاملة السابقة (قمة الانفجار
+        # → الانهيار → القاع)، متباعدة بفجوات معنوية لا سنتات، بمرساة = قمة الدورة (hi52)
+        # لا سقف 2×، وفيب على النطاق الكامل (القاع pivot → قمة الدورة).
+        # 🔒 t1 محفوظ byte-identical أعلاه (RR/النواقص/العضوية بلا تغيير — rr وحده يبوّب،
+        #    وهو من t1) · التحرر أدناه محفوظ byte-identical (يقرأ resist/raw_t3 بلا مساس).
+        #    نعيد بناء t2/t3 فقط. فاشل-آمن: أي تعذّر → t2/t3 القديمة تبقى.
+        try:
+            cycle_peak = float(hi52)                 # قمة الدورة السابقة = مرساة الأهداف
+            _mg = 1.0 + CONFIG["TARGET_MAJOR_GAP_PCT"] / 100.0
+            # المرساة: قمة الدورة (+هامش) أو 2× السعر أيهما أعلى (لا نُضيّق مدى الأمس)
+            _major_cap = max(
+                cycle_peak * (1.0 + CONFIG["TARGET_ANCHOR_HEADROOM_PCT"] / 100.0),
+                price * CONFIG["TARGET_CAP_MULT"])
+            _major = list(resist) + [raw_t1, cycle_peak]
+            if CONFIG.get("USE_MULTIFRAME_TARGETS", True):
+                try:
+                    _wkm = resample_ohlc(df, "W")
+                    if _wkm is not None and len(_wkm) >= 10:
+                        _major += list(resistance_levels(
+                            _wkm, price, include_red_heads=False))
+                        _major.append(first_target(_wkm))
+                except Exception:
+                    pass
+            if CONFIG.get("GAP_ABOVE_USE_AS_TARGET", False):
+                for z in near_zones:
+                    _major.append(z["bottom"])
+            # فيب النطاق الكامل (SPRC IMG_9933: القاع 0% → قمة الدورة 100%)
+            if CONFIG.get("USE_FIB_TARGETS", False):
+                try:
+                    _fibf = fibonacci_levels(pivot, cycle_peak)
+                    for _k in ("0.382", "0.500", "0.618", "0.786", "1.000"):
+                        if _fibf.get(_k):
+                            _major.append(_fibf[_k])
+                except Exception:
+                    pass
+            # المستويات الكبرى فوق t1 وضمن المرساة، متباعدة بفجوة الأهداف الكبرى
+            # (طيّ «المحطات» الصغيرة → مستويات معنوية لا سنتات متجاورة)
+            _majors = sorted(t for t in _major if t1 < t <= _major_cap)
+            _ladder = [t1]
+            for _t in _majors:
+                if _t >= _ladder[-1] * _mg:
+                    _ladder.append(round(float(_t), 2))
+                if len(_ladder) >= 3:
+                    break
+            while len(_ladder) < 3:              # إكمال بفجوة معنوية (لا ×1.25 سنتية)
+                _ladder.append(round(_ladder[-1] * _mg, 2))
+            t2, t3 = _ladder[1], _ladder[2]
+        except Exception:
+            pass                                 # فاشل-آمن: أبقِ t2/t3 القديمة
 
         # ===== "تحرر السهم" + "قاب/الفجوة" (مفهوم فيصل الذهبي، v2.7) =====
         # تحرر = أعلى مقاومة حقيقية فوق السعر؛ تجاوزها بثبات = انطلاق لمساحة

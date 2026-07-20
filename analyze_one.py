@@ -409,6 +409,49 @@ def analyze_on_demand(sym: str):
         targets.append(round(nxt, 2) if nxt else round(targets[-1] * 1.25, 2))
     t1, t2, t3 = targets[0], targets[1], targets[2]
 
+    # ===== إعادة بناء t2/t3 على مستويات الدورة الكاملة الكبرى (فيصل 2026-07-20) =====
+    # مطابقة analyze_ticker بالحرف: t1 محفوظ · التحرر لا يُمسّ · t2/t3 كبرى متباعدة
+    # (قمة الدورة hi52 مرساةً لا سقف 2× · فيب النطاق الكامل). فاشل-آمن.
+    try:
+        cycle_peak = float(hi52)
+        _mg = 1.0 + C["TARGET_MAJOR_GAP_PCT"] / 100.0
+        _major_cap = max(
+            cycle_peak * (1.0 + C["TARGET_ANCHOR_HEADROOM_PCT"] / 100.0),
+            price * C["TARGET_CAP_MULT"])
+        _major = list(resist) + [raw_t1, cycle_peak]
+        if C.get("USE_MULTIFRAME_TARGETS", True):
+            try:
+                _wkm = bot.resample_ohlc(df, "W")
+                if _wkm is not None and len(_wkm) >= 10:
+                    _major += list(bot.resistance_levels(
+                        _wkm, price, include_red_heads=False))
+                    _major.append(bot.first_target(_wkm))
+            except Exception:
+                pass
+        if C.get("GAP_ABOVE_USE_AS_TARGET", False):
+            for z in near_zones:
+                _major.append(z["bottom"])
+        if C.get("USE_FIB_TARGETS", False):
+            try:
+                _fibf = bot.fibonacci_levels(pivot, cycle_peak)
+                for _k in ("0.382", "0.500", "0.618", "0.786", "1.000"):
+                    if _fibf.get(_k):
+                        _major.append(_fibf[_k])
+            except Exception:
+                pass
+        _majors = sorted(t for t in _major if t1 < t <= _major_cap)
+        _ladder = [t1]
+        for _t in _majors:
+            if _t >= _ladder[-1] * _mg:
+                _ladder.append(round(float(_t), 2))
+            if len(_ladder) >= 3:
+                break
+        while len(_ladder) < 3:
+            _ladder.append(round(_ladder[-1] * _mg, 2))
+        t2, t3 = _ladder[1], _ladder[2]
+    except Exception:
+        pass
+
     entry_ref = round(sum(tranches) / len(tranches), 4)  # متوسط الدفعات (فيصل يمتّع)
     risk = max(entry_ref - stop_lo, 1e-9)
     rr = (t1 - entry_ref) / risk
