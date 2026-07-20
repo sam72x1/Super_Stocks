@@ -1823,6 +1823,32 @@ for _rt in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
     _src = _insp.getsource(_rt)
     check(f"🔒 {_rt.__name__} لا يعتمد N6/N7 (خارج الفرز)",
           "_flow_prints" not in _src and "neutral_block_shares" not in _src)
+
+# 🕰️ analyze_asof: تحليل point-in-time «كما رآه البوت» بلا نظر مستقبلي (طلب المستخدم
+# 2026-07-20 — تقييم سهم فيصل في أيام تحليله لا اليوم بعد أن ركض).
+try:
+    import analyze_asof as _AA
+    _asof_df = synth_pivot(seed=2).copy()
+    _asof_df.index = pd.date_range(end="2026-07-18", periods=len(_asof_df), freq="D")
+    _seen = {}
+    _orig_at = S.analyze_ticker
+
+    def _spy_at(sym, df, *a, **k):
+        _seen["max"] = df.index.max()          # آخر شمعة مُرِّرت للتحليل
+        return _orig_at(sym, df, *a, **k)
+    try:
+        S.analyze_ticker = _spy_at             # bot هو S نفسه (وحدة مُخزَّنة)
+        _line = _AA._one("DXST", _asof_df, "2026-07-16")
+    finally:
+        S.analyze_ticker = _orig_at            # استعادة مضمونة (لا تسريب للاختبارات)
+    check("🕰️ point-in-time: بلا نظر مستقبلي (آخر شمعة مُحلَّلة ≤ التاريخ المطلوب)",
+          _seen.get("max") is not None and _seen["max"] <= pd.Timestamp("2026-07-16"),
+          str(_seen.get("max")))
+    check("🕰️ point-in-time: السطر يذكر التاريخ + حالة الدخول/الرفض",
+          "2026-07-16" in _line
+          and ("جاهز" in _line or "متابعة" in _line or "لم يُرشَّح" in _line))
+except Exception as _aae:
+    check("🕰️ analyze_asof يعمل", False, str(_aae))
 # العرض بالكرت + التجديد اليومي لـpump_scar
 _card_h = {"symbol": "HND", "price": 2.0, "pivot": 1.95, "score": 60,
            "readiness": 60, "rr": 2.0, "entry": (1.9, 2.0),
