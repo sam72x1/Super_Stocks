@@ -414,6 +414,10 @@ def analyze_on_demand(sym: str):
     targets_kind = None
     try:
         cycle_peak = float(hi52)
+        # 🛡️ حارس phantom التقسيم (مطابقة analyze_ticker): hi52 المتضخّم بتعديل تقسيم رجعي
+        _rtop = max([x for x in resist if x > price], default=0.0)
+        if _rtop > 0 and cycle_peak > _rtop * 2.0:
+            cycle_peak = _rtop * (1.0 + C["TARGET_BLUE_EXTEND_PCT"] / 100.0)
         _mg = 1.0 + C["TARGET_MAJOR_GAP_PCT"] / 100.0
         _major_cap = max(
             cycle_peak * (1.0 + C["TARGET_ANCHOR_HEADROOM_PCT"] / 100.0),

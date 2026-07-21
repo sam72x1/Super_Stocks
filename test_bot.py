@@ -206,6 +206,18 @@ if _tg:
     _cardmsg = S.build_message([dict(_tg, symbol="TG", readiness=60, score=60)], [])
     check("🎨 الكرت يعرض «🔵 نظيف» و«⚫ مقاومة» على الأهداف",
           "🔵 نظيف" in _cardmsg and "⚫ مقاومة" in _cardmsg)
+    # 🛡️ حارس phantom التقسيم: hi52 متضخّم (تعديل تقسيم رجعي، شمعة حافة معزولة بلا
+    # مقاومات حولها) لا يجعل t3 خياليًّا ($62). resistance_levels يفلتر الوهم فيُقصّ t3.
+    _ph = synth_pivot(prior_high=9.0, crash_low=3.0, current=3.6, seed=2).copy()
+    _phh = _ph["High"].values.copy()
+    _phh[0] = 62.0                          # قمة تاريخية وهمية معزولة (حافة، ليست سوينغ)
+    _ph2 = pd.DataFrame({"Open": _ph["Open"].values, "High": _phh,
+                         "Low": _ph["Low"].values, "Close": _ph["Close"].values,
+                         "Volume": _ph["Volume"].values}, index=_ph.index)
+    _phr = S.analyze_ticker("PH", _ph2)
+    check("🛡️ حارس phantom: hi52=$62 وهمي ⇒ t3 واقعي (لا خيالي)",
+          bool(_phr) and _phr["t3"] < 30.0,
+          (f"t3={_phr['t3']} hi52=62" if _phr else "rejected"))
 
 # 🔒 قفل بنيوي: كتلة الأهداف الجديدة تعيد بناء t2/t3 فقط — لا تمسّ t1/rr/soft_fails/العضوية
 _at_src = _insp.getsource(S.analyze_ticker)

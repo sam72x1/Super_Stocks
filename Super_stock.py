@@ -336,6 +336,8 @@ CONFIG = {
     "TARGET_MAJOR_GAP_PCT": 12.0,      # أدنى فجوة بين الأهداف الكبرى (تطوي «المحطات» الصغيرة؛
                                        #   تُبقي فجوة فيصل الأضيق TRUG 2→2.30 = 15%)
     "TARGET_ANCHOR_HEADROOM_PCT": 5.0, # هامش فوق قمة الدورة لإدراج القمة نفسها كهدف
+    "TARGET_BLUE_EXTEND_PCT": 25.0,    # فضاء أزرق فوق أعلى مقاومة (t3 الكبير) + حارس phantom
+                                       #   التقسيم: لو hi52 >2× أعلى مقاومة → قمة زرقاء واقعية
     "USE_MULTIFRAME_TARGETS": True,  # فيصل: «الأهداف ع يومي + أسبوعي» — أضف
                                  # قمم ومنشأ الشمعة الحمرا الأسبوعية لمرشّحي الأهداف
 
@@ -2315,6 +2317,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         targets_kind = None
         try:
             cycle_peak = float(hi52)                 # قمة الدورة السابقة = القمة الكبيرة
+            # 🛡️ حارس phantom التقسيم: hi52 قد يتضخّم بتعديل تقسيم رجعي (DXST $62 وهمي).
+            # resistance_levels يفلتر الوهم (يبقى ~5.32)، فلو hi52 أعلى بكثير (>2×) من أعلى
+            # مقاومة حقيقية → القمة الزرقاء = أعلى مقاومة + فضاء حرّ (t3 واقعي لا $62).
+            _rtop = max([x for x in resist if x > price], default=0.0)
+            if _rtop > 0 and cycle_peak > _rtop * 2.0:
+                cycle_peak = _rtop * (1.0 + CONFIG["TARGET_BLUE_EXTEND_PCT"] / 100.0)
             _mg = 1.0 + CONFIG["TARGET_MAJOR_GAP_PCT"] / 100.0
             _major_cap = max(
                 cycle_peak * (1.0 + CONFIG["TARGET_ANCHOR_HEADROOM_PCT"] / 100.0),
