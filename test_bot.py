@@ -170,7 +170,7 @@ import inspect as _insp
 _MG = S.CONFIG["TARGET_MAJOR_GAP_PCT"] / 100.0
 check("ثابت فجوة الأهداف الكبرى = 12", S.CONFIG.get("TARGET_MAJOR_GAP_PCT") == 12.0)
 check("ثابت هامش المرساة = 5", S.CONFIG.get("TARGET_ANCHOR_HEADROOM_PCT") == 5.0)
-check("LOGIC_VERSION رُفِع (cycletargets)", "cycletargets" in S.LOGIC_VERSION)
+check("LOGIC_VERSION رُفِع (bluetargets)", "bluetargets" in S.LOGIC_VERSION)
 
 _tg = S.analyze_ticker("TG", synth_pivot(seed=2))
 if _tg:
@@ -195,6 +195,17 @@ if _tg:
     check("rr مُشتقّ من t1 حصرًا (العضوية byte-identical)",
           abs(_tg["rr"] - _rr_from_t1) < 1e-6 and _t1 > _tg["price"],
           f"t1={_t1} rr={_tg['rr']:.4f} من_t1={_rr_from_t1:.4f}")
+    # 🎨 ألوان فيصل (2026-07-20، «ابي الثنتين و توضح»): كل هدف موسوم ⚫/🔵
+    _tk = _tg.get("targets_kind")
+    check("🎨 targets_kind = 3 وسوم (⚫ مقاومة / 🔵 نظيف)",
+          isinstance(_tk, list) and len(_tk) == 3
+          and all(k in ("⚫", "🔵") for k in _tk), str(_tk))
+    # t3 = القمة الكبيرة (قمة الدورة/فيب/فجوة) = 🔵 نظيف «هدف بلا مقاومة»
+    check("🎨 t3 (القمة) = 🔵 نظيف (هدف بلا مقاومة)", _tk and _tk[2] == "🔵", str(_tk))
+    # الكرت يوضّح اللونين
+    _cardmsg = S.build_message([dict(_tg, symbol="TG", readiness=60, score=60)], [])
+    check("🎨 الكرت يعرض «🔵 نظيف» و«⚫ مقاومة» على الأهداف",
+          "🔵 نظيف" in _cardmsg and "⚫ مقاومة" in _cardmsg)
 
 # 🔒 قفل بنيوي: كتلة الأهداف الجديدة تعيد بناء t2/t3 فقط — لا تمسّ t1/rr/soft_fails/العضوية
 _at_src = _insp.getsource(S.analyze_ticker)
@@ -1085,7 +1096,7 @@ try:
     check("التقرير اليومي: سطر الدخول + وقف خسارة",
           "📥 دخول:" in dm and "وقف خسارة" in dm)
     check("التقرير اليومي يعرض أهداف (أسعار بلا نسبة)",
-          "🎯 أهداف:" in dm)
+          "🎯 أهداف" in dm)
     check("التقرير اليومي يعرض الجاهزية + القوة العامة",
           "/100" in dm and "قوة" in dm)
     check("التقرير اليومي يعرض «دخول المضارب» (Williams)",

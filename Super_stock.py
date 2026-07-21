@@ -453,7 +453,7 @@ _BT_OVERRIDES = _apply_backtest_overrides(MODE)
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.07.20-cycletargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.07.20-bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -2307,49 +2307,71 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # 🔒 t1 محفوظ byte-identical أعلاه (RR/النواقص/العضوية بلا تغيير — rr وحده يبوّب،
         #    وهو من t1) · التحرر أدناه محفوظ byte-identical (يقرأ resist/raw_t3 بلا مساس).
         #    نعيد بناء t2/t3 فقط. فاشل-آمن: أي تعذّر → t2/t3 القديمة تبقى.
+        # 🎨 مفتاح ألوان فيصل (2026-07-20، طلب المستخدم «ابي الثنتين و توضح»):
+        # ⚫ أسود = مقاومة (تصدّى لها السعر — محطة) · 🔵 أزرق = «هدف بلا مقاومة»
+        # (فراغ/فجوة فوقه → يطير له السعر). فيصل PPBT: أهداف زرقا 4.30/4.56/قمة 6.09
+        # فوق المقاومات السوداء. فـ**t2 = أقرب مستوى كبير · t3 = القمة الزرقاء الكبيرة**
+        # (أعلى مستوى = قمة الدورة/فيب/فجوة)، وكل هدف يُوسَم بلونه. t1 محفوظ byte-identical.
+        targets_kind = None
         try:
-            cycle_peak = float(hi52)                 # قمة الدورة السابقة = مرساة الأهداف
+            cycle_peak = float(hi52)                 # قمة الدورة السابقة = القمة الكبيرة
             _mg = 1.0 + CONFIG["TARGET_MAJOR_GAP_PCT"] / 100.0
-            # المرساة: قمة الدورة (+هامش) أو 2× السعر أيهما أعلى (لا نُضيّق مدى الأمس)
             _major_cap = max(
                 cycle_peak * (1.0 + CONFIG["TARGET_ANCHOR_HEADROOM_PCT"] / 100.0),
                 price * CONFIG["TARGET_CAP_MULT"])
-            _major = list(resist) + [raw_t1, cycle_peak]
+            # ⚫ الأسود = المقاومات (قمم سوينغ تصدّى لها) — نجمعها لوسم اللون
+            _blk = set(round(float(x), 2) for x in resist)
+            _blk.add(round(float(raw_t1), 2))
+            _blue = {round(float(cycle_peak), 2)}    # 🔵 القمة = هدف بلا مقاومة
+            _cand = list(resist) + [raw_t1, cycle_peak]
             if CONFIG.get("USE_MULTIFRAME_TARGETS", True):
                 try:
                     _wkm = resample_ohlc(df, "W")
                     if _wkm is not None and len(_wkm) >= 10:
-                        _major += list(resistance_levels(
+                        _wr = list(resistance_levels(
                             _wkm, price, include_red_heads=False))
-                        _major.append(first_target(_wkm))
+                        _wf = first_target(_wkm)
+                        _cand += _wr + [_wf]
+                        for _x in _wr + [_wf]:
+                            _blk.add(round(float(_x), 2))
                 except Exception:
                     pass
+            # 🔵 الأزرق = «بلا مقاومة»: الفجوات (فراغ فوق السعر) + فيب النطاق الكامل +
+            # قمة الدورة (لا تُضاف لـ_blk فتُوسَم زرقاء)
             if CONFIG.get("GAP_ABOVE_USE_AS_TARGET", False):
                 for z in near_zones:
-                    _major.append(z["bottom"])
-            # فيب النطاق الكامل (SPRC IMG_9933: القاع 0% → قمة الدورة 100%)
+                    _cand.append(z["bottom"])
+                    _blue.add(round(float(z["bottom"]), 2))   # فجوة = بلا مقاومة
             if CONFIG.get("USE_FIB_TARGETS", False):
                 try:
                     _fibf = fibonacci_levels(pivot, cycle_peak)
                     for _k in ("0.382", "0.500", "0.618", "0.786", "1.000"):
                         if _fibf.get(_k):
-                            _major.append(_fibf[_k])
+                            _cand.append(_fibf[_k])
+                            _blue.add(round(float(_fibf[_k]), 2))   # فيب = نظيف
                 except Exception:
                     pass
-            # المستويات الكبرى فوق t1 وضمن المرساة، متباعدة بفجوة الأهداف الكبرى
-            # (طيّ «المحطات» الصغيرة → مستويات معنوية لا سنتات متجاورة)
-            _majors = sorted(t for t in _major if t1 < t <= _major_cap)
-            _ladder = [t1]
-            for _t in _majors:
-                if _t >= _ladder[-1] * _mg:
-                    _ladder.append(round(float(_t), 2))
-                if len(_ladder) >= 3:
-                    break
-            while len(_ladder) < 3:              # إكمال بفجوة معنوية (لا ×1.25 سنتية)
-                _ladder.append(round(_ladder[-1] * _mg, 2))
-            t2, t3 = _ladder[1], _ladder[2]
+            _majors = sorted(set(round(float(t), 2)
+                                 for t in _cand if t1 < t <= _major_cap))
+            if _majors:
+                # t2 = أقرب مستوى كبير فوق t1 · t3 = القمة الكبيرة (أعلى مستوى = أزرق كبير)
+                _t2 = next((t for t in _majors if t >= t1 * _mg), _majors[0])
+                _t3 = _majors[-1]
+                if _t3 <= _t2 * _mg:             # القمة قريبة من t2 → التالي أو توسيع
+                    _t3 = next((t for t in _majors if t >= _t2 * _mg),
+                               round(_t2 * _mg, 2))
+                t2, t3 = round(_t2, 2), round(_t3, 2)
+
+            # وسم لون كل هدف: 🔵 أولوية النظيف (فجوة/فيب/قمة الدورة = بلا مقاومة) ·
+            # ⚫ مقاومة سوينغ (تصدّى لها السعر) · افتراض 🔵 لو لم يطابق شيئًا
+            def _tkind(v):
+                if any(_b > 0 and abs(v / _b - 1.0) <= 0.015 for _b in _blue):
+                    return "🔵"
+                return ("⚫" if any(_b > 0 and abs(v / _b - 1.0) <= 0.015
+                                    for _b in _blk) else "🔵")
+            targets_kind = [_tkind(t1), _tkind(t2), _tkind(t3)]
         except Exception:
-            pass                                 # فاشل-آمن: أبقِ t2/t3 القديمة
+            targets_kind = None                  # فاشل-آمن: أبقِ t2/t3 القديمة بلا وسم
 
         # ===== "تحرر السهم" + "قاب/الفجوة" (مفهوم فيصل الذهبي، v2.7) =====
         # تحرر = أعلى مقاومة حقيقية فوق السعر؛ تجاوزها بثبات = انطلاق لمساحة
@@ -2442,6 +2464,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             "sweep": (sweep_lo, sweep_hi),  # محفوظ للمستقبل — غير معروض؛ حماية الوقف
                                             # الفعلية = الحارس الذهبي أعلاه (D2)
             "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
+            "targets_kind": targets_kind,             # 🎨 [⚫/🔵]×3 لون كل هدف (فيصل)
             "ready": ready, "readiness": readiness_pct,
             "flags": flags, "warnings": warnings,
             "tf_count": mtf["count"], "tf_display": mtf["display"],
@@ -4654,13 +4677,18 @@ def build_message(results: list, splits: list,
         _as = (r.get("interp") or {}).get("activation_state") or {}
         _blk = _as.get("blocked_by")
         _pend = {round(float(t), 2) for t in (_as.get("inactive_targets") or [])}
+        _tk = r.get("targets_kind") or []      # 🎨 لون كل هدف (فيصل): 🔵 نظيف · ⚫ مقاومة
         for i, tv in enumerate(targets, 1):
             is_minor = (res_minor is not None
                         and abs(round(tv, 2) - round(res_minor, 2)) < 0.005)
             suffix = " (مقاومة فرعية)" if is_minor else ""
             if _blk and round(tv, 2) in _pend:
                 suffix += f" (معلّق حتى ${_blk:.2f})"
-            lines.append(f"🎯 الهدف {i}{suffix}: ${tv:.2f}")
+            # 🎨 وسم لون فيصل: 🔵 هدف نظيف (بلا مقاومة، يطير له) · ⚫ مقاومة/محطة
+            _kk = _tk[i - 1] if i - 1 < len(_tk) else ""
+            _ktag = (" 🔵 نظيف" if _kk == "🔵"
+                     else (" ⚫ مقاومة" if _kk == "⚫" else ""))
+            lines.append(f"🎯 الهدف {i}{suffix}: ${tv:.2f}{_ktag}")
         # المقاومة الفرعية لو ما طابقت أي هدف معروض (لا تكرار)
         minor_shown = res_minor is not None and any(
             abs(round(tv, 2) - round(res_minor, 2)) < 0.005 for tv in targets)
@@ -5074,6 +5102,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "stop_hi": round(r["stop"][1], 4),
         "t1": round(r["t1"], 4), "t2": round(r["t2"], 4),
         "t3": round(r["t3"], 4),
+        "targets_kind": r.get("targets_kind"),    # 🎨 لون كل هدف (فيصل)
         "score": r["score"], "flags": list(r["flags"]),
         "rsi": r.get("rsi"), "float": r.get("float"),      # سمات للتعلم
         "short": r.get("finra_short"), "short_pct": r.get("short_pct"),
@@ -5128,6 +5157,7 @@ def make_pullback_entry(r: dict, today_iso: str) -> dict:
         "stop": round(r["stop"][0], 4),
         "t1": round(r["t1"], 4), "t2": round(r["t2"], 4),
         "t3": round(r["t3"], 4),
+        "targets_kind": r.get("targets_kind"),    # 🎨 لون كل هدف (فيصل)
         "score": r["score"],
         "liberation": r.get("liberation"),
         "watch_reasons": list(r.get("watch_reasons", [])),
@@ -6049,6 +6079,7 @@ def migrate_watchlist(wl: dict, history: dict) -> int:
         s["t1"] = round(fresh["t1"], 4)
         s["t2"] = round(fresh["t2"], 4)
         s["t3"] = round(fresh["t3"], 4)
+        s["targets_kind"] = fresh.get("targets_kind")   # 🎨 لون كل هدف (فيصل)
         s["key_levels"] = fresh.get("key_levels")
         s["liberation"] = fresh.get("liberation")
         # حقول مشتقّة من السعر تتغيّر مع الوقف/الأهداف → نحدّثها معها حتى لا
@@ -7655,12 +7686,16 @@ def build_daily_message(wl: dict, splits: list,
         _dpend = {round(float(t), 2)
                   for t in (_das.get("inactive_targets") or [])}
         _tparts = []
-        for _tv in (s["t1"], s["t2"], s["t3"]):
-            _seg = f"${_tv:.2f}"
+        _dtk = s.get("targets_kind") or []      # 🎨 لون فيصل: 🔵 نظيف · ⚫ مقاومة
+        for _i, _tv in enumerate((s["t1"], s["t2"], s["t3"])):
+            _kc = _dtk[_i] if _i < len(_dtk) else ""
+            _pre = (_kc + " ") if _kc in ("🔵", "⚫") else ""
+            _seg = f"{_pre}${_tv:.2f}"
             if _dblk and round(_tv, 2) in _dpend:
                 _seg += " (معلّق)"
             _tparts.append(_seg)
-        lines.append("   🎯 أهداف: " + " · ".join(_tparts))
+        _hdr = "🎯 أهداف (🔵 نظيف · ⚫ مقاومة): " if _dtk else "🎯 أهداف: "
+        lines.append("   " + _hdr + " · ".join(_tparts))
         if _dblk and _dpend:
             lines.append(f"   ⏳ المعلّق يتفعّل بتجاوز ${_dblk:.2f}")
         if s.get("liberation"):

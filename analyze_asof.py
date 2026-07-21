@@ -66,11 +66,17 @@ def _one(sym, df_full, dstr):
     zone = (f"{min(trs):.2f}-{max(trs):.2f}" if trs else "—")
     mode = "" if (r is not None) else " (وضع مراقبة ارتداد)"
     lib = card.get("liberation")
+    _tk = card.get("targets_kind") or []      # 🎨 لون فيصل: 🔵 نظيف · ⚫ مقاومة
+    _tp = []
+    for _i, _tv in enumerate((card["t1"], card["t2"], card["t3"])):
+        _kc = _tk[_i] if _i < len(_tk) else ""
+        _pre = (_kc + " ") if _kc in ("🔵", "⚫") else ""
+        _tp.append(f"{_pre}${_tv:.2f}")
     out = [
         f"{head}{mode}",
         f"   💰 ${price:.2f} · منطقة الدفعات {zone} · جاهزية {card.get('readiness', '?')}%",
         f"   {es['label']}" + (f" — {es['reason']}" if es.get("reason") else ""),
-        f"   🎯 t1 ${card['t1']:.2f} · t2 ${card['t2']:.2f} · t3 ${card['t3']:.2f}"
+        f"   🎯 {' · '.join(_tp)}"
         + (f" · 🚀 تحرر ${float(lib):.2f}" if lib else ""),
     ]
     return "\n".join(out)

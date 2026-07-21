@@ -409,48 +409,62 @@ def analyze_on_demand(sym: str):
         targets.append(round(nxt, 2) if nxt else round(targets[-1] * 1.25, 2))
     t1, t2, t3 = targets[0], targets[1], targets[2]
 
-    # ===== إعادة بناء t2/t3 على مستويات الدورة الكاملة الكبرى (فيصل 2026-07-20) =====
-    # مطابقة analyze_ticker بالحرف: t1 محفوظ · التحرر لا يُمسّ · t2/t3 كبرى متباعدة
-    # (قمة الدورة hi52 مرساةً لا سقف 2× · فيب النطاق الكامل). فاشل-آمن.
+    # ===== ألوان فيصل: t2=أقرب كبير · t3=القمة الزرقاء · وسم لون كل هدف =====
+    # مطابقة analyze_ticker بالحرف (⚫ مقاومة · 🔵 هدف بلا مقاومة). t1 محفوظ · التحرر لا يُمسّ.
+    targets_kind = None
     try:
         cycle_peak = float(hi52)
         _mg = 1.0 + C["TARGET_MAJOR_GAP_PCT"] / 100.0
         _major_cap = max(
             cycle_peak * (1.0 + C["TARGET_ANCHOR_HEADROOM_PCT"] / 100.0),
             price * C["TARGET_CAP_MULT"])
-        _major = list(resist) + [raw_t1, cycle_peak]
+        _blk = set(round(float(x), 2) for x in resist)
+        _blk.add(round(float(raw_t1), 2))
+        _blue = {round(float(cycle_peak), 2)}    # 🔵 القمة = هدف بلا مقاومة
+        _cand = list(resist) + [raw_t1, cycle_peak]
         if C.get("USE_MULTIFRAME_TARGETS", True):
             try:
                 _wkm = bot.resample_ohlc(df, "W")
                 if _wkm is not None and len(_wkm) >= 10:
-                    _major += list(bot.resistance_levels(
+                    _wr = list(bot.resistance_levels(
                         _wkm, price, include_red_heads=False))
-                    _major.append(bot.first_target(_wkm))
+                    _wf = bot.first_target(_wkm)
+                    _cand += _wr + [_wf]
+                    for _x in _wr + [_wf]:
+                        _blk.add(round(float(_x), 2))
             except Exception:
                 pass
         if C.get("GAP_ABOVE_USE_AS_TARGET", False):
             for z in near_zones:
-                _major.append(z["bottom"])
+                _cand.append(z["bottom"])
+                _blue.add(round(float(z["bottom"]), 2))
         if C.get("USE_FIB_TARGETS", False):
             try:
                 _fibf = bot.fibonacci_levels(pivot, cycle_peak)
                 for _k in ("0.382", "0.500", "0.618", "0.786", "1.000"):
                     if _fibf.get(_k):
-                        _major.append(_fibf[_k])
+                        _cand.append(_fibf[_k])
+                        _blue.add(round(float(_fibf[_k]), 2))
             except Exception:
                 pass
-        _majors = sorted(t for t in _major if t1 < t <= _major_cap)
-        _ladder = [t1]
-        for _t in _majors:
-            if _t >= _ladder[-1] * _mg:
-                _ladder.append(round(float(_t), 2))
-            if len(_ladder) >= 3:
-                break
-        while len(_ladder) < 3:
-            _ladder.append(round(_ladder[-1] * _mg, 2))
-        t2, t3 = _ladder[1], _ladder[2]
+        _majors = sorted(set(round(float(t), 2)
+                             for t in _cand if t1 < t <= _major_cap))
+        if _majors:
+            _t2 = next((t for t in _majors if t >= t1 * _mg), _majors[0])
+            _t3 = _majors[-1]
+            if _t3 <= _t2 * _mg:
+                _t3 = next((t for t in _majors if t >= _t2 * _mg),
+                           round(_t2 * _mg, 2))
+            t2, t3 = round(_t2, 2), round(_t3, 2)
+
+        def _tkind(v):
+            if any(_b > 0 and abs(v / _b - 1.0) <= 0.015 for _b in _blue):
+                return "🔵"
+            return ("⚫" if any(_b > 0 and abs(v / _b - 1.0) <= 0.015
+                                for _b in _blk) else "🔵")
+        targets_kind = [_tkind(t1), _tkind(t2), _tkind(t3)]
     except Exception:
-        pass
+        targets_kind = None
 
     entry_ref = round(sum(tranches) / len(tranches), 4)  # متوسط الدفعات (فيصل يمتّع)
     risk = max(entry_ref - stop_lo, 1e-9)
@@ -485,6 +499,7 @@ def analyze_on_demand(sym: str):
         "indicators": ind,                 # MFI/ADX/كلنجر%B/%R — يطابق البطاقة
         "sweep": (sweep_lo, sweep_hi),
         "t1": t1, "t2": t2, "t3": t3, "rr": rr, "rr2": rr2,
+        "targets_kind": targets_kind,          # 🎨 لون كل هدف (فيصل)
         "ready": ready, "flags": flags, "warnings": warnings,
         "tf_count": mtf["count"], "tf_display": mtf["display"],
         "patterns": patterns,
