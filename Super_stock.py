@@ -242,9 +242,10 @@ CONFIG = {
 
     # ---- القائمة الأسبوعية (v2.0) ----
     "WATCHLIST_SIZE": 10,        # حجم القائمة الثابتة (حد أقصى)
-    "CONTINUITY_MAX": 30,        # 🔄 سقف القائمة بعد إبقاء أسهم الأسبوع الماضي النشطة
-                                 #   (طلب المستخدم: لا يختفي سهم بصمت). تجاوزه → تُقلَّم
-                                 #   الأقدم «خرج من النموذج» أولًا مع إشعار بالمصير.
+    "CONTINUITY_MAX": 60,        # 🔄 صمّام أمان أقصى فقط (لا حدّ متابعة زمني): السهم
+                                 #   النشط يُتابَع الين يُضرب ستوبه أو يعود للترشيح (حدث
+                                 #   حقيقي، طلب المستخدم 2026-07-21). لا يُفعَّل طبيعيًّا؛
+                                 #   وإن فُعِّل يُقلّم الأقدم «خرج» أولًا مع إشعار صريح.
     # ---- قائمة مراقبة الارتداد المستقلة (v2.8): أسهم ارتكاز حقيقية ارتفعت
     # فوق دخولها؛ نتابعها يوميًا وننبّه أول ما تنزل لسعر الدعم (انهيار البورصة)
     "PULLBACK_WATCH": True,
@@ -7583,19 +7584,27 @@ def build_daily_message(wl: dict, splits: list,
     `ready_only` (طلب المستخدم 2026-07-09): يدفع **الجاهزين للدخول فقط** بفواصل شرطات ·
     المتابعة تُحصى بالترويسة لكن لا تُعرض كروتها (البوت يتكفّل بها داخليًّا)."""
     today = dt.date.today().isoformat()
-    n = len(wl["stocks"])
+    # 🔄 «متابعة لمركزك» (طلب المستخدم 2026-07-21): الأسهم المحمولة عبر التجديد
+    # (خرجت من أفضل-N لكن ما زالت متابَعة لأنك ربما داخل فيها) تُفصَل في قسم مستقل
+    # دائم أسفل التقرير — لا تُخلط مع قائمة الترشيح الطازجة ولا تُحسب معها.
+    _carried = [s for s in wl["stocks"]
+                if s.get("cont_status") in ("continues", "exited")]
+    _screen = [s for s in wl["stocks"]
+               if s.get("cont_status") not in ("continues", "exited")]
+    n = len(_screen)
     # 🟢👀 فصل «جاهز للدخول الآن» عن «متابعة» (خطة ENTRY_READY_SPLIT_PLAN — عرض فقط،
     # من موقع السعر عبر entry_status؛ الترتيب المخزّن لا يُلمس، فقط partition للعرض).
-    _st = [(s, entry_status(s)) for s in wl["stocks"]]
+    _st = [(s, entry_status(s)) for s in _screen]
     _ready = [(s, es) for s, es in _st if es["status"] == "ready_now"]
     _watch = [(s, es) for s, es in _st if es["status"] != "ready_now"]
+    _pw = f" · 🔄 {len(_carried)} متابعة لمركزك" if _carried else ""
     if ready_only:
         lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
-                 f"🟢 {len(_ready)} جاهز للدخول · 👀 {len(_watch)} تحت متابعة البوت "
-                 "(تجديد: الجمعة بعد إغلاق السوق)", ""]
+                 f"🟢 {len(_ready)} جاهز للدخول · 👀 {len(_watch)} تحت متابعة البوت"
+                 f"{_pw} (تجديد: الجمعة بعد إغلاق السوق)", ""]
     else:
         lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
-                 f"{n} سهم: {len(_ready)} جاهز للدخول · {len(_watch)} متابعة "
+                 f"{n} سهم: {len(_ready)} جاهز للدخول · {len(_watch)} متابعة{_pw} "
                  f"(تجديد القائمة: الجمعة بعد إغلاق السوق)", ""]
     # 🚀 ترقيات اليوم (B→A): إنذار مبكر — اكتمل النموذج، جاهز للدخول
     if promoted:
@@ -7653,12 +7662,8 @@ def build_daily_message(wl: dict, splits: list,
         # سطر السبب لأسهم المتابعة فقط (ما الذي يحوّلها جاهزة) — الجاهز يكفيه عنوان القسم
         if _sec == "watch" and _es.get("reason"):
             lines.append(f"   👀 {_es['reason']}")
-        # 🔄 استمرارية: وسم مصير السهم عبر التجديد (طلب المستخدم — لا يختفي بصمت)
-        _cs = s.get("cont_status")
-        if _cs == "exited":
-            lines.append("   ⚠️ خرج من نموذج الارتكاز — نتابعه لمركزك")
-        elif _cs == "continues":
-            lines.append(f"   🔄 يستمر (خارج أفضل-{CONFIG['WATCHLIST_SIZE']})")
+        # (🔄 وسم الاستمرارية انتقل لقسم «متابعة لمركزك» المستقل أسفل التقرير — الأسهم
+        #  المحمولة continues/exited مفصولة عن قائمة الترشيح هنا فلا تظهر بكرت داخلها.)
         # المعلومات الصغيرة بسطر واحد (سعر · فلوت · شورت · قطاع)
         small = [f"${lp:.2f}"]
         # فلوت/شورت: شرطة «—» عند تعذّر الجلب (تعذّر ≠ صفر) بدل الإخفاء الصامت.
@@ -7755,6 +7760,11 @@ def build_daily_message(wl: dict, splits: list,
         lines += ["", "🛑 <b>شُطب اليوم (يُستبدل غداً):</b>"]
         for s in stopped_today:
             lines.append(f"• {s['symbol']}: {s['removal_reason']}")
+    # 🔄 قسم «متابعة لمركزك» الدائم (طلب المستخدم 2026-07-21): يظهر **كل يوم** ما دام
+    # فيه أسهم محمولة — حتى بوضع الجاهز-فقط (متابعة مركزك أهمّ من اختصار الإشعار).
+    _pws = build_position_watch_section(_carried)
+    if _pws:
+        lines += ["", _pws]
     lines += ["", FOOTER]
     return _rtl_join(lines)
 
@@ -7785,6 +7795,44 @@ def build_fate_report(fate) -> str:
              "<i>(لو كنت داخل في أحدها — هذا وضعه الآن)</i>", ""]
     for sym, label in uniq:
         lines.append(f"• <b>${sym}</b> — {label}")
+    return _rtl_join(lines)
+
+
+def build_position_watch_section(carried: list) -> str:
+    """🔄 «متابعة لمركزك» (طلب المستخدم 2026-07-21): قسم يومي **دائم** يعرض أسهم
+    الارتكاز التي كانت بالقائمة وخرجت من أفضل-N لكنها **ما زالت متابَعة** (لأنك ربما
+    داخل فيها) — يبقى ظاهرًا **كل يوم** الين يُضرب ستوبها أو تعود للترشيح (حدث حقيقي).
+    عرض/تتبّع فقط (لا يمسّ الفرز). carried = قائمة سجلّات القائمة بوسم cont_status.
+    كل سطر: الرمز · الحالة (يستمر/خرج) · السعر · الستوب · تلميح إعادة الدخول."""
+    if not carried:
+        return ""
+    # الأهم أولًا: «خرج من النموذج» (يحتاج مراجعة) قبل «يستمر»
+    _rank = {"exited": 0, "continues": 1}
+    rows = sorted(carried, key=lambda s: _rank.get(s.get("cont_status"), 2))
+    lines = ["🔄 <b>متابعة لمركزك</b> — أسهم ارتكاز خرجت من أفضل-"
+             f"{CONFIG['WATCHLIST_SIZE']} ونتابعها لك",
+             "<i>(لو داخل في أحدها — تبقى هنا الين تُضرب ستوب أو تعود للترشيح)</i>", ""]
+    for s in rows:
+        sym = s.get("symbol", "?")
+        lp = s.get("last_price")
+        _stp = s.get("stop")
+        if isinstance(_stp, (list, tuple)):
+            _stp = _stp[0] if _stp else None
+        cs = s.get("cont_status")
+        tag = ("⚠️ خرج من النموذج" if cs == "exited" else "🔄 يستمر ارتكازًا")
+        parts = [f"<b>${sym}</b>", tag]
+        if isinstance(lp, (int, float)):
+            parts.append(f"${lp:.2f}")
+        if isinstance(_stp, (int, float)):
+            parts.append(f"⛔ ${_stp:.2f}")
+        line = "• " + " · ".join(parts)
+        # الرقم الحرج (فيصل) = ما الذي يعيده للترشيح/يفعّله — من طبقة التفسير إن وُجد
+        _crit = ((s.get("interp") or {}).get("critical_number") or {}).get("price")
+        if cs == "continues" and isinstance(_crit, (int, float)):
+            line += f" · فوق ${float(_crit):.2f} يعود للزخم"
+        elif cs == "exited":
+            line += " — راجع خطتك/الوقف"
+        lines.append(line)
     return _rtl_join(lines)
 
 
@@ -8629,7 +8677,13 @@ def run_weekly_renewal(wl: dict) -> None:
     for s in wl.get("removed", []):
         if s.get("status") == "stopped":
             fate.append((s["symbol"], "⛔ ضُرب الستوب (خرج من القائمة)"))
-    # القائمة النهائية = الجديدة/المُعاد تأهّلها + المُبقاة · سقف يُقلّم الأقدم «خرج» أولًا
+    # القائمة النهائية = الجديدة/المُعاد تأهّلها + المُبقاة.
+    # 🔄 المتابعة **بلا حدّ زمني** (طلب المستخدم 2026-07-21: «ما ابي على أسبوع — أبي
+    # أي ارتكاز دخلت فيه يستمر في القائمة الين يصير له شي جديد»): السهم النشط يبقى
+    # متابَعًا **الين يُضرب ستوبه أو يعود للترشيح** (حدث حقيقي)، لا يُسقَط بالسعة/الوقت —
+    # مطابقةً لقاعدة «تُشطب بالستوب فقط». `CONTINUITY_MAX` صار **صمّام أمان أقصى** ضد
+    # تضخّم شاذّ (خلل بيانات) فقط: لا يُفعَّل في التشغيل الطبيعي (الستوبات تُقلّم ذاتيًّا)،
+    # وإن فُعِّل يُقلّم الأقدم «خرج» أولًا **مع إشعار صريح** (لا محو صامت).
     final_stocks = new_entries + carried
     _cap = CONFIG["CONTINUITY_MAX"]
     if len(final_stocks) > _cap:
@@ -8640,7 +8694,8 @@ def run_weekly_renewal(wl: dict) -> None:
             if len(final_stocks) - len(_drop) <= _cap:
                 break
             _drop.add(id(x))
-            fate.append((x["symbol"], "🗑️ أُزيل من المتابعة (تجاوز السعة + خرج قديمًا)"))
+            fate.append((x["symbol"], "🗑️ أُزيل (صمّام أمان: تجاوز السعة القصوى "
+                         f"{_cap} + خرج من النموذج قديمًا)"))
         final_stocks = [x for x in final_stocks if id(x) not in _drop]
     new_wl = dict(wl)
     new_wl.update({"week_start": today_iso, "created": today_iso,

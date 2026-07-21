@@ -600,6 +600,46 @@ finally:
      S.build_dev_assistant_report, S.export_weekly_csvs,
      S.write_csv, S.run_performance_system) = _sv_cont
 
+# 4ب-3) 🔄 قسم «متابعة لمركزك» الدائم (طلب المستخدم 2026-07-21): الأسهم المحمولة
+#       (continues/exited) تظهر يوميًا في قسم مستقل الين تُضرب ستوب أو تعود للترشيح —
+#       حتى بوضع الجاهز-فقط (متابعة المركز أهمّ من اختصار الإشعار).
+def _pw_stock(sym, cs, lp, stop, crit=None):
+    _sf = stop[0] if isinstance(stop, (list, tuple)) else stop
+    return {"symbol": sym, "status": "active", "cont_status": cs,
+            "last_price": lp, "stop": stop, "pivot": round(_sf * 1.07, 2),
+            "t1": lp * 1.2, "t2": lp * 1.5, "t3": lp * 2.0,
+            "tranches": [round(_sf * 1.07, 2)], "liberation": lp * 2.1,
+            "interp": ({"critical_number": {"price": crit}} if crit else None),
+            "readiness": 40, "score": 60, "tier": "B", "float": 1e7,
+            "soft_fails": [], "flags": [], "warnings": [], "hit": None,
+            "max_gain_pct": 0.0, "sector": "Technology", "country": "US"}
+# (أ) وحدة build_position_watch_section
+_pw_sec = S.build_position_watch_section(
+    [_pw_stock("PSTV", "continues", 4.0, 3.6, crit=4.5),
+     _pw_stock("GONE", "exited", 1.9, 1.7)])
+check("🔄 متابعة-مركز: يعرض السهمين (PSTV/GONE)",
+      "PSTV" in _pw_sec and "GONE" in _pw_sec)
+check("🔄 متابعة-مركز: «خرج» أولًا (الأهم) ثم «يستمر»",
+      _pw_sec.index("GONE") < _pw_sec.index("PSTV"))
+check("🔄 متابعة-مركز: يعرض الستوب والرقم الحرج (يعود للزخم)",
+      "$1.70" in _pw_sec and "$4.50" in _pw_sec)
+check("🔄 متابعة-مركز: قائمة فارغة → نص فارغ",
+      S.build_position_watch_section([]) == "")
+check("🔄 متابعة-مركز: ستوب tuple (سجلّ قديم) لا يكسر العرض",
+      "$1.70" in S.build_position_watch_section(
+          [_pw_stock("TUP", "exited", 1.9, (1.7, 1.75))]))
+# (ب) التكامل مع build_daily_message: القسم يظهر حتى بوضع الجاهز-فقط بلا جاهزين
+_pw_wl = {"stocks": [_pw_stock("NEWP", None, 3.0, 2.5),
+                     _pw_stock("PSTV", "continues", 4.0, 3.6, crit=4.5),
+                     _pw_stock("GONE", "exited", 1.9, 1.7)]}
+_pw_msg = S.build_daily_message(_pw_wl, [], [], [], ready_only=True)
+check("🔄 متابعة-مركز·يومي: القسم يظهر بوضع الجاهز-فقط",
+      "متابعة لمركزك" in _pw_msg and "PSTV" in _pw_msg and "GONE" in _pw_msg)
+check("🔄 متابعة-مركز·يومي: المحمولة لا تُحسب ضمن الترشيح (ترويسة تفصلها)",
+      "🔄 2 متابعة لمركزك" in _pw_msg)
+check("🔄 متابعة-مركز·يومي: سهم الترشيح (NEWP بلا cont_status) لا يظهر بقسم المتابعة",
+      "NEWP" not in _pw_msg.split("متابعة لمركزك")[1])
+
 # 4ج) 🔒 قفل F-02 (إصلاح تدقيق 2026-07-10): تسوية مقياس التقسيم في الحسم —
 #     تقسيم عكسي أثناء التتبع لا يسجّل «هدفًا محققًا» زائفًا بعد الآن.
 # (1) الدالة النقية _split_scale_factor
