@@ -304,7 +304,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.49
+   "last_price": 4.5,
+   "live_alert": {}
   },
   {
    "symbol": "CMTL",
@@ -572,7 +573,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.665
+   "last_price": 1.68,
+   "live_alert": {
+    "buyzone": "2026-07-21"
+   }
   },
   {
    "symbol": "PSTV",
@@ -876,7 +880,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.08
+   "last_price": 3.93,
+   "live_alert": {}
   },
   {
    "symbol": "TRON",
@@ -1174,7 +1179,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.535
+   "last_price": 1.53,
+   "live_alert": {}
   },
   {
    "symbol": "MSTR",
@@ -1483,7 +1489,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 103.21
+   "last_price": 101.45,
+   "live_alert": {}
   },
   {
    "symbol": "PONY",
@@ -1782,7 +1789,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 5.1,
-   "last_price": 6.97,
+   "last_price": 7.005,
    "live_alert": {
     "buyzone": "2026-07-20",
     "breakout": "2026-07-21"
@@ -2107,7 +2114,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.5,
-   "last_price": 1.655,
+   "last_price": 1.635,
    "live_alert": {},
    "borrow_hist": [
     [
@@ -2152,7 +2159,7 @@
    "sector": "Healthcare",
    "country": "Hong Kong",
    "float": 56282728,
-   "last_price": 5.65,
+   "last_price": 5.9,
    "status": "watching",
    "triggered_date": null
   },
@@ -2188,7 +2195,7 @@
    "sector": "Technology",
    "country": "Singapore",
    "float": 35178369,
-   "last_price": 2.63,
+   "last_price": 2.5464,
    "status": "watching",
    "triggered_date": null
   },
@@ -2223,7 +2230,7 @@
    "sector": "Healthcare",
    "country": "United Kingdom",
    "float": 529035,
-   "last_price": 3.925,
+   "last_price": 3.8002,
    "status": "watching",
    "triggered_date": null
   },
@@ -2259,7 +2266,7 @@
    "sector": "Industrials",
    "country": "China",
    "float": 998034,
-   "last_price": 2.24,
+   "last_price": 2.2,
    "status": "watching",
    "triggered_date": null
   },
@@ -2294,7 +2301,7 @@
    "sector": "Consumer Cyclical",
    "country": "Hong Kong",
    "float": 1091667,
-   "last_price": 4.5604,
+   "last_price": 4.5595,
    "status": "watching",
    "triggered_date": null
   },
@@ -2329,7 +2336,7 @@
    "sector": "Industrials",
    "country": "Canada",
    "float": 35980288,
-   "last_price": 1.915,
+   "last_price": 1.9779,
    "status": "watching",
    "triggered_date": null
   },
@@ -2364,7 +2371,7 @@
    "sector": "Energy",
    "country": "Canada",
    "float": 10351996,
-   "last_price": 4.44,
+   "last_price": 4.73,
    "status": "watching",
    "triggered_date": null
   },
@@ -2433,7 +2440,7 @@
    "sector": "Industrials",
    "country": "Israel",
    "float": 11935883,
-   "last_price": 5.375,
+   "last_price": 5.44,
    "status": "watching",
    "triggered_date": null
   },
@@ -2467,7 +2474,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 582385,
-   "last_price": 3.26,
+   "last_price": 3.275,
    "status": "watching",
    "triggered_date": null
   },
@@ -2502,7 +2509,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 14955684,
-   "last_price": 4.92,
+   "last_price": 4.88,
    "status": "watching",
    "triggered_date": null
   },
@@ -2571,9 +2578,9 @@
    "sector": "Technology",
    "country": "Israel",
    "float": 6910213,
-   "last_price": 2.145,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 2.17,
+   "status": "triggered",
+   "triggered_date": "2026-07-21"
   },
   {
    "symbol": "MGRT",
@@ -2643,7 +2650,7 @@
    "sector": "Energy",
    "country": "United States",
    "float": 4070750,
-   "last_price": 4.5801,
+   "last_price": 4.2607,
    "status": "watching",
    "triggered_date": null
   }
