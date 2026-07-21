@@ -508,6 +508,98 @@ finally:
      S.build_dev_assistant_report, S.export_weekly_csvs,
      S.write_csv, S.run_performance_system) = _sv_f01
 
+# 4ب-2) 🔄 قفل الاستمرارية (طلب المستخدم 2026-07-21): التجديد لا يمحو أسهم
+#       الأسبوع الماضي النشطة بصمت (PSTV اختفى) — تُحمَل بوسم مصير + تقرير مصير.
+# (أ) وحدة build_fate_report: يرتّب بالأولوية · يزيل التكرار · يعرض كل رمز
+_fate_in = [("AAA", "✅ يستمر — أعاد التأهّل هذا الأسبوع"),
+            ("BBB", "⚠️ خرج من نموذج الارتكاز — نتابعه لمركزك"),
+            ("AAA", "✅ مكرر يجب أن يُزال"),
+            ("CCC", "⛔ ضُرب الستوب (خرج من القائمة)")]
+_fate_txt = S.build_fate_report(_fate_in)
+check("🔄 fate: يعرض كل الرموز الفريدة (AAA/BBB/CCC)",
+      all(sy in _fate_txt for sy in ("AAA", "BBB", "CCC")))
+check("🔄 fate: يزيل تكرار الرمز (AAA مرة واحدة)",
+      _fate_txt.count("$AAA") == 1)
+check("🔄 fate: الأهم أولًا (⚠️ خرج قبل ✅ يستمر)",
+      _fate_txt.index("BBB") < _fate_txt.index("AAA"))
+check("🔄 fate: قائمة فارغة → نص فارغ", S.build_fate_report([]) == "")
+
+# (ب) تكامل run_weekly_renewal: سهم نشط لم يُعَد اختياره لا يُمحى — يُحمَل بوسم
+_sv_cont = (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
+            S.download_history, S.build_wrapup_message, S.enrich,
+            S.scan_pullback, S.accumulate_explosions, S.load_alerts,
+            S.build_dev_assistant_report, S.export_weekly_csvs,
+            S.write_csv, S.run_performance_system)
+_cont_saved = {}
+_cont_msgs = []
+try:
+    _cont_df_ok = synth_pivot(seed=7)          # يجتاز الفارز (سهم ارتكاز حي)
+    _cont_idx = pd.date_range("2024-01-01", periods=200, freq="D")
+    _cont_flat = np.linspace(5.0, 5.3, 200)    # صاعد لطيف بلا انفجار → يفشل الفارز
+    _cont_df_bad = pd.DataFrame(
+        {"Open": _cont_flat, "High": _cont_flat * 1.01,
+         "Low": _cont_flat * 0.99, "Close": _cont_flat,
+         "Volume": np.full(200, 500_000.0)}, index=_cont_idx)
+    check("🔄 تمهيد: df المسطّح يفشل الفارز (سيصير «خرج»)",
+          S.analyze_ticker("GONE", _cont_df_bad) is None)
+    _cont_r = S.analyze_ticker("NEWPICK", _cont_df_ok)
+    check("🔄 تمهيد: السهم الجديد يجتاز الفارز", _cont_r is not None)
+
+    def _cont_scan():
+        S._SCAN_STATS.update({"universe": 10, "valid": 10,
+                              "universe_fallback": False})
+        # hist: STILLP (ارتكاز حي) · GONE (لا ارتكاز) · NEWPICK (المُختار)
+        return ([_cont_r], {"NEWPICK": _cont_df_ok,
+                            "STILLP": _cont_df_ok, "GONE": _cont_df_bad})
+    S.scan_market = _cont_scan
+    S.send_telegram = lambda m: (_cont_msgs.append(m), True)[1]
+    S.save_watchlist = lambda w: _cont_saved.update(w)
+    S.yf = None                       # يتخطّى تحديث الأسبوع المنتهي (شبكة)
+    S.download_history = lambda syms: {}
+    S.build_wrapup_message = lambda w: ""
+    S.enrich = lambda rs: None
+    S.scan_pullback = lambda h, exclude=None: []
+    S.accumulate_explosions = lambda wl_, h: None
+    S.load_alerts = lambda: {"alerts": []}
+    S.build_dev_assistant_report = lambda wl_, ad=None: ""
+    S.export_weekly_csvs = lambda *a, **k: None
+    S.write_csv = lambda *a, **k: None
+    S.run_performance_system = lambda *a, **k: None
+
+    def _cont_stock(sym):
+        return {"symbol": sym, "status": "active", "added": "2026-07-06",
+                "entry_ref": 2.0, "pivot": 2.0, "stop": (1.8, 1.85),
+                "t1": 2.4, "t2": 2.8, "t3": 3.2, "hit": None,
+                "max_gain_pct": 0.0}
+    _wl_cont = {"week_start": "2026-07-14",
+                "stocks": [_cont_stock("STILLP"), _cont_stock("GONE"),
+                           _cont_stock("NODATA")],   # NODATA غائب عن hist
+                "removed": [{"symbol": "STOPPED", "status": "stopped"}],
+                "notes": [], "pullback": [], "history": []}
+    S.run_weekly_renewal(_wl_cont)
+    _cont_by = {s["symbol"]: s for s in _cont_saved.get("stocks", [])}
+    check("🔄 استمرارية: السهم المُعاد اختياره محفوظ (NEWPICK)",
+          "NEWPICK" in _cont_by)
+    check("🔄 استمرارية: سهم نشط لم يُعَد اختياره لا يُمحى (STILLP/GONE/NODATA باقية)",
+          all(sy in _cont_by for sy in ("STILLP", "GONE", "NODATA")))
+    check("🔄 استمرارية: ما زال ارتكازًا → cont_status=continues (STILLP)",
+          _cont_by.get("STILLP", {}).get("cont_status") == "continues")
+    check("🔄 استمرارية: لم يعد ارتكازًا → cont_status=exited (GONE)",
+          _cont_by.get("GONE", {}).get("cont_status") == "exited")
+    check("🔄 استمرارية: تعذّر البيانات → continues (لا يُمحى بصمت — NODATA)",
+          _cont_by.get("NODATA", {}).get("cont_status") == "continues")
+    check("🔄 استمرارية: التتبّع محفوظ (entry_ref القديم لا يُصفَّر — GONE)",
+          _cont_by.get("GONE", {}).get("entry_ref") == 2.0)
+    _cont_fate = "".join(m for m in _cont_msgs if "مصير أسهم" in m)
+    check("🔄 استمرارية: تقرير المصير أُرسل ويذكر المشطوب والخارج",
+          "STOPPED" in _cont_fate and "GONE" in _cont_fate)
+finally:
+    (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
+     S.download_history, S.build_wrapup_message, S.enrich,
+     S.scan_pullback, S.accumulate_explosions, S.load_alerts,
+     S.build_dev_assistant_report, S.export_weekly_csvs,
+     S.write_csv, S.run_performance_system) = _sv_cont
+
 # 4ج) 🔒 قفل F-02 (إصلاح تدقيق 2026-07-10): تسوية مقياس التقسيم في الحسم —
 #     تقسيم عكسي أثناء التتبع لا يسجّل «هدفًا محققًا» زائفًا بعد الآن.
 # (1) الدالة النقية _split_scale_factor

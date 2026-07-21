@@ -242,6 +242,9 @@ CONFIG = {
 
     # ---- القائمة الأسبوعية (v2.0) ----
     "WATCHLIST_SIZE": 10,        # حجم القائمة الثابتة (حد أقصى)
+    "CONTINUITY_MAX": 30,        # 🔄 سقف القائمة بعد إبقاء أسهم الأسبوع الماضي النشطة
+                                 #   (طلب المستخدم: لا يختفي سهم بصمت). تجاوزه → تُقلَّم
+                                 #   الأقدم «خرج من النموذج» أولًا مع إشعار بالمصير.
     # ---- قائمة مراقبة الارتداد المستقلة (v2.8): أسهم ارتكاز حقيقية ارتفعت
     # فوق دخولها؛ نتابعها يوميًا وننبّه أول ما تنزل لسعر الدعم (انهيار البورصة)
     "PULLBACK_WATCH": True,
@@ -4605,6 +4608,12 @@ def build_message(results: list, splits: list,
         _es = entry_status(r)
         lines.append(_es["label"] + (f" — {_es['reason']}" if _es["reason"] else "")
                      + _ready_war_suffix(r, _es))
+        # 🔄 استمرارية: وسم مصير السهم عبر التجديد (طلب المستخدم — لا يختفي بصمت)
+        _cs = r.get("cont_status")
+        if _cs == "exited":
+            lines.append("⚠️ خرج من نموذج الارتكاز — نتابعه لمركزك (راجع خطتك/الوقف)")
+        elif _cs == "continues":
+            lines.append(f"🔄 يستمر (خارج أفضل-{CONFIG['WATCHLIST_SIZE']} — متابعة لمركزك)")
         # 🧬 طريقة ارتفاع اليد (سلوك المضارب — **عرض/تشخيص فقط، لا يمسّ الفرز ولا الاختيار**):
         # كيف رفع المضاربُ السهمَ تاريخيًا (كم مرّة · أكبر رفعة · بصمة المسح). فيصل: البصمة تتكرّر.
         bh = r.get("behav") or {}
@@ -5148,6 +5157,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "sector": r.get("sector"), "country": r.get("country"),
         "status": "active", "removed_date": None, "removal_reason": None,
         "replaced": False,
+        "cont_status": None,    # 🔄 استمرارية: None جديد · renewed/continues/exited عبر التجديد
         "readiness": None, "have": [], "partial": [], "missing": [],
         "hit": None, "hit_date": None,
         "max_gain_pct": 0.0,
@@ -7643,6 +7653,12 @@ def build_daily_message(wl: dict, splits: list,
         # سطر السبب لأسهم المتابعة فقط (ما الذي يحوّلها جاهزة) — الجاهز يكفيه عنوان القسم
         if _sec == "watch" and _es.get("reason"):
             lines.append(f"   👀 {_es['reason']}")
+        # 🔄 استمرارية: وسم مصير السهم عبر التجديد (طلب المستخدم — لا يختفي بصمت)
+        _cs = s.get("cont_status")
+        if _cs == "exited":
+            lines.append("   ⚠️ خرج من نموذج الارتكاز — نتابعه لمركزك")
+        elif _cs == "continues":
+            lines.append(f"   🔄 يستمر (خارج أفضل-{CONFIG['WATCHLIST_SIZE']})")
         # المعلومات الصغيرة بسطر واحد (سعر · فلوت · شورت · قطاع)
         small = [f"${lp:.2f}"]
         # فلوت/شورت: شرطة «—» عند تعذّر الجلب (تعذّر ≠ صفر) بدل الإخفاء الصامت.
@@ -7740,6 +7756,35 @@ def build_daily_message(wl: dict, splits: list,
         for s in stopped_today:
             lines.append(f"• {s['symbol']}: {s['removal_reason']}")
     lines += ["", FOOTER]
+    return _rtl_join(lines)
+
+
+def build_fate_report(fate) -> str:
+    """🔄 «مصير أسهم الأسبوع الماضي» (طلب المستخدم 2026-07-21): رسالة مستقلة تُرسَل عند
+    التجديد الأسبوعي — لكل سهم كان بالقائمة: هل يستمر / خرج من النموذج / ضُرب الستوب /
+    أُزيل. فلا يختفي سهم بصمت وأنت ربما داخل فيه. عرض فقط. fate = [(symbol, label)]."""
+    if not fate:
+        return ""
+    # ترتيب: الأهم أولًا (خرج/ستوب) ثم المستمر — بلا تكرار رمز. المطابقة على
+    # النقطة البرمجية الأساسية دون مُحدِّد التنويع FE0F (⚠️=U+26A0+U+FE0F فـ[:1]
+    # يقصّه ويفشل المطابقة) — نبحث الرمز في بداية النص (أول 3 محارف).
+    def _fate_rank(label):
+        head = label[:3]
+        for i, base in enumerate(("⚠", "⛔", "🗑")):   # خرج · ستوب · أُزيل
+            if base in head:
+                return i
+        return 3                                       # ✅ يستمر (الأدنى أولوية)
+    seen, uniq = set(), []
+    for sym, label in fate:
+        if sym in seen:
+            continue
+        seen.add(sym)
+        uniq.append((sym, label))
+    uniq.sort(key=lambda x: _fate_rank(x[1]))
+    lines = ["🔄 <b>مصير أسهم الأسبوع الماضي</b>",
+             "<i>(لو كنت داخل في أحدها — هذا وضعه الآن)</i>", ""]
+    for sym, label in uniq:
+        lines.append(f"• <b>${sym}</b> — {label}")
     return _rtl_join(lines)
 
 
@@ -8537,15 +8582,81 @@ def run_weekly_renewal(wl: dict) -> None:
     # (reject_stats — كان يُمسح كل جمعة فمقام «الفائتة/المقام» لا يتراكم 56 يومًا
     # أبدًا رغم وعد الدالة) **وأي مفتاح حالة مستقبلي افتراضيًا** (كانت القائمة
     # البيضاء لغمًا بنيويًا: كل مفتاح جديد يختفي بصمت أول جمعة).
+    # 🔄 استمرارية القائمة (طلب المستخدم 2026-07-21): كان التجديد يستبدل القائمة كاملةً
+    # ويصفّر removed، فسهم الأسبوع الماضي (مثل PSTV) يُمحى بصمت وأنت ربما داخل فيه. الآن:
+    # أسهمك النشطة تبقى مُتابَعة بوسم مصير (يستمر/خرج من النموذج/ضُرب الستوب) + تقرير مصير.
+    new_syms = {r["symbol"] for r in picks}
+    new_entries = [make_watch_entry(r, today_iso) for r in picks]
+    old_active = [s for s in wl.get("stocks", []) if s.get("status") == "active"]
+    old_by_sym = {s["symbol"]: s for s in old_active}
+    fate = []   # [(symbol, label)] لتقرير «مصير أسهم الأسبوع الماضي»
+    # 1) أسهم أعادت التأهّل (بالقائمتين): احفظ added/entry_ref الأصلي (استمرارية التتبّع)
+    for e in new_entries:
+        o = old_by_sym.get(e["symbol"])
+        if o:
+            e["added"] = o.get("added", e["added"])
+            e["entry_ref"] = o.get("entry_ref", e["entry_ref"])
+            e["cont_status"] = "renewed"
+            fate.append((e["symbol"], "✅ يستمر — أعاد التأهّل هذا الأسبوع"))
+    # 2) أسهم الأسبوع الماضي النشطة خارج أفضل-N: أبقِها بوسم مصير (لا تُمحَ)
+    # (تُستثنى ما تخرّجت لقائمة الارتداد — مرئية هناك، فلا ازدواج بين القائمتين)
+    pull_syms = {p["symbol"] for p in pull_entries}
+    carried = []
+    for s in old_active:
+        if s["symbol"] in new_syms or s["symbol"] in pull_syms:
+            continue
+        sym = s["symbol"]
+        df = hist.get(sym)
+        still = None
+        if df is not None and len(df) >= CONFIG["MIN_BARS"]:
+            try:
+                still = analyze_ticker(sym, df) is not None
+            except Exception:
+                still = None
+        s2 = dict(s)
+        if still is True:
+            s2["cont_status"] = "continues"
+            fate.append((sym, "✅ يستمر — ما زال ارتكازًا (خارج أفضل-"
+                         f"{CONFIG['WATCHLIST_SIZE']}، متابعة قائمة)"))
+        elif still is False:
+            s2["cont_status"] = "exited"
+            fate.append((sym, "⚠️ خرج من نموذج الارتكاز — نتابعه لمركزك (راجع خطتك/الوقف)"))
+        else:
+            s2["cont_status"] = "continues"
+            fate.append((sym, "✅ محفوظ للمتابعة (تعذّرت إعادة التقييم — بيانات)"))
+        carried.append(s2)
+    # 3) المشطوبة بالستوب هذا الأسبوع → تقرير مصير فقط (لا تُحمَل)
+    for s in wl.get("removed", []):
+        if s.get("status") == "stopped":
+            fate.append((s["symbol"], "⛔ ضُرب الستوب (خرج من القائمة)"))
+    # القائمة النهائية = الجديدة/المُعاد تأهّلها + المُبقاة · سقف يُقلّم الأقدم «خرج» أولًا
+    final_stocks = new_entries + carried
+    _cap = CONFIG["CONTINUITY_MAX"]
+    if len(final_stocks) > _cap:
+        _ex = sorted((x for x in final_stocks if x.get("cont_status") == "exited"),
+                     key=lambda x: x.get("added") or "")
+        _drop = set()
+        for x in _ex:
+            if len(final_stocks) - len(_drop) <= _cap:
+                break
+            _drop.add(id(x))
+            fate.append((x["symbol"], "🗑️ أُزيل من المتابعة (تجاوز السعة + خرج قديمًا)"))
+        final_stocks = [x for x in final_stocks if id(x) not in _drop]
     new_wl = dict(wl)
     new_wl.update({"week_start": today_iso, "created": today_iso,
                    "logic_version": LOGIC_VERSION,   # القائمة مبنية على آخر منطق
-                   "stocks": [make_watch_entry(r, today_iso) for r in picks],
+                   "stocks": final_stocks,
                    "removed": [], "replacements_log": [], "notes": [],
                    "pullback": pull_entries,
                    "history": wl.get("history", []),
                    "explosions": wl.get("explosions", [])})   # سجل الانفجارات يستمر
     save_watchlist(new_wl)
+    # 🔄 تقرير «مصير أسهم الأسبوع الماضي» (طلب المستخدم — لا يختفي سهم بصمت)
+    if fate:
+        try:
+            send_telegram(build_fate_report(fate) + "\n\n" + FOOTER)
+        except Exception as e:
+            log(f"⚠️ تقرير المصير: {e}")
     # 5) رسالة القائمة الجديدة (بطاقات كاملة)
     title = ("🔄 <b>القائمة الأسبوعية الجديدة</b>" if had_prev_list
              else "🚀 <b>القائمة التأسيسية (تُجدَّد الجمعة بعد إغلاق السوق)</b>")
