@@ -161,6 +161,83 @@ if r0:
           r0["pivot"] * 0.90 <= r0["stop"][0] <= r0["pivot"] * 0.95 + 1e-6,
           f"stop={r0['stop'][0]:.2f} pivot={r0['pivot']:.2f}")
 
+# ==========================================================
+# 🎯 إعادة بناء الأهداف الكبرى (2026-07-20، DXST/TRUG/SPRC) — t2/t3 على الدورة الكاملة
+#    · t1/التحرر/العضوية محفوظة byte-identical · لا سنتات (فجوة كبرى) · لا سقف 2× صلب
+# ==========================================================
+print("\n=== 🎯 الأهداف الكبرى (فيصل DXST/TRUG/SPRC) ===")
+import inspect as _insp
+_MG = S.CONFIG["TARGET_MAJOR_GAP_PCT"] / 100.0
+check("ثابت فجوة الأهداف الكبرى = 12", S.CONFIG.get("TARGET_MAJOR_GAP_PCT") == 12.0)
+check("ثابت هامش المرساة = 5", S.CONFIG.get("TARGET_ANCHOR_HEADROOM_PCT") == 5.0)
+check("LOGIC_VERSION رُفِع (bluetargets)", "bluetargets" in S.LOGIC_VERSION)
+
+_tg = S.analyze_ticker("TG", synth_pivot(seed=2))
+if _tg:
+    _t1, _t2, _t3 = _tg["t1"], _tg["t2"], _tg["t3"]
+    check("الأهداف تصاعدية t1<t2<t3", _t1 < _t2 < _t3, f"{_t1}/{_t2}/{_t3}")
+    # 🎯 الإصلاح الجوهري (شكوى «سنتات و تافهه»): t2/t3 متباعدة بفجوة معنوية لا سنتات
+    check("t2 أبعد من t1 بفجوة كبرى (لا سنتات)", _t2 >= _t1 * (1 + _MG) - 0.03,
+          f"t1={_t1} t2={_t2} ({(_t2/_t1-1)*100:.0f}%)")
+    check("t3 أبعد من t2 بفجوة كبرى (لا سنتات)", _t3 >= _t2 * (1 + _MG) - 0.03,
+          f"t2={_t2} t3={_t3} ({(_t3/_t2-1)*100:.0f}%)")
+    # التحرر «مهمة جدا» = قمة الدورة فوق كل الأهداف — محفوظ byte-identical (كتلة منفصلة)
+    check("التحرر فوق t3 (بوابة الدورة الكبرى محفوظة)",
+          _tg["liberation"] is None or _tg["liberation"] >= _t3, str(_tg["liberation"]))
+    # المرساة الحقيقية = قمة الدورة (hi52) لا 2× صلب — t3 ضمن قمة الدورة (+هامش) أو 2× أيهما أعلى
+    _cyc = float(synth_pivot(seed=2)["High"].tail(252).max())
+    check("t3 ضمن مرساة قمة الدورة (لا سقف 2× صلب)",
+          _t3 <= max(_cyc * 1.05, 2 * _tg["price"]) + 1e-6, f"t3={_t3} cyc={_cyc:.1f}")
+    # 🔒 قفل العضوية: RR يُشتقّ من t1 حصرًا (t1 محفوظ byte-identical فـRR/النواقص/التصنيف
+    # بلا تغيير) — نعيد بناء rr من t1/الدفعات/الوقف ونطابقه المخزَّن.
+    _eref = round(sum(_tg["tranches"]) / len(_tg["tranches"]), 4)
+    _rr_from_t1 = (_t1 - _eref) / max(_eref - _tg["stop"][0], 1e-9)
+    check("rr مُشتقّ من t1 حصرًا (العضوية byte-identical)",
+          abs(_tg["rr"] - _rr_from_t1) < 1e-6 and _t1 > _tg["price"],
+          f"t1={_t1} rr={_tg['rr']:.4f} من_t1={_rr_from_t1:.4f}")
+    # 🎨 ألوان فيصل (2026-07-20، «ابي الثنتين و توضح»): كل هدف موسوم ⚫/🔵
+    _tk = _tg.get("targets_kind")
+    check("🎨 targets_kind = 3 وسوم (⚫ مقاومة / 🔵 نظيف)",
+          isinstance(_tk, list) and len(_tk) == 3
+          and all(k in ("⚫", "🔵") for k in _tk), str(_tk))
+    # t3 = القمة الكبيرة (قمة الدورة/فيب/فجوة) = 🔵 نظيف «هدف بلا مقاومة»
+    check("🎨 t3 (القمة) = 🔵 نظيف (هدف بلا مقاومة)", _tk and _tk[2] == "🔵", str(_tk))
+    # الكرت يوضّح اللونين
+    _cardmsg = S.build_message([dict(_tg, symbol="TG", readiness=60, score=60)], [])
+    check("🎨 الكرت يعرض «🔵 نظيف» و«⚫ مقاومة» على الأهداف",
+          "🔵 نظيف" in _cardmsg and "⚫ مقاومة" in _cardmsg)
+    # 🛡️ حارس phantom التقسيم: hi52 متضخّم (تعديل تقسيم رجعي، شمعة حافة معزولة بلا
+    # مقاومات حولها) لا يجعل t3 خياليًّا ($62). resistance_levels يفلتر الوهم فيُقصّ t3.
+    _ph = synth_pivot(prior_high=9.0, crash_low=3.0, current=3.6, seed=2).copy()
+    _phh = _ph["High"].values.copy()
+    _phh[0] = 62.0                          # قمة تاريخية وهمية معزولة (حافة، ليست سوينغ)
+    _ph2 = pd.DataFrame({"Open": _ph["Open"].values, "High": _phh,
+                         "Low": _ph["Low"].values, "Close": _ph["Close"].values,
+                         "Volume": _ph["Volume"].values}, index=_ph.index)
+    _phr = S.analyze_ticker("PH", _ph2)
+    check("🛡️ حارس phantom: hi52=$62 وهمي ⇒ t3 واقعي (لا خيالي)",
+          bool(_phr) and _phr["t3"] < 30.0,
+          (f"t3={_phr['t3']} hi52=62" if _phr else "rejected"))
+
+# 🔒 قفل بنيوي: كتلة الأهداف الجديدة تعيد بناء t2/t3 فقط — لا تمسّ t1/rr/soft_fails/العضوية
+_at_src = _insp.getsource(S.analyze_ticker)
+_blk = (_at_src.split("إعادة بناء t2/t3")[1].split("تحرر السهم")[0]
+        if "إعادة بناء t2/t3" in _at_src else "")
+check("كتلة الأهداف الجديدة موجودة", bool(_blk))
+check("كتلة الأهداف لا تمسّ t1/rr/soft_fails/العضوية (t2/t3 فقط)",
+      bool(_blk) and "soft_fails" not in _blk and "return {" not in _blk
+      and "rr =" not in _blk and "t1 =" not in _blk and "_reject" not in _blk)
+# 🔒 قفل الجذور: الأهداف الكبرى الجديدة لا تدخل جذور الاختيار
+for _rt in (S.rank_key, S.select_top, S.classify_tier, S.entry_status):
+    check(f"{_rt.__name__} لا يعتمد فجوة الأهداف الكبرى (خارج الاختيار)",
+          "TARGET_MAJOR_GAP_PCT" not in _insp.getsource(_rt))
+# 🔒 refine_targets_4h يستعمل الفجوة الكبرى فلا يسحق t2/t3 المتباعدة إلى سنتات
+_rt2, _rt3 = S.refine_targets_4h(3.88, 5.0, 7.0, 3.6,
+                                 {"resistances": [4.0, 4.2, 5.0, 7.0]})
+check("refine_4h يحفظ الأهداف المتباعدة (لا سحق لسنتات)",
+      _rt2 >= 3.88 * (1 + _MG) - 1e-6 and _rt3 >= _rt2 * (1 + _MG) - 1e-6,
+      f"{_rt2}/{_rt3}")
+
 # 🪦 تقاعد A/B (2026-07-05): القبول فئة واحدة "B" (مؤهّل) · أكثر من الحد=None (يُرفض).
 # الرفض (n>maxf) محفوظ حرفيًا؛ A لم تعد تُسنَد أبدًا (كانت ضجيجًا — سنتان دليل).
 check("0 نواقص → B (A متقاعد، القبول موحّد)", S.classify_tier([]) == "B")
@@ -430,6 +507,138 @@ finally:
      S.scan_pullback, S.accumulate_explosions, S.load_alerts,
      S.build_dev_assistant_report, S.export_weekly_csvs,
      S.write_csv, S.run_performance_system) = _sv_f01
+
+# 4ب-2) 🔄 قفل الاستمرارية (طلب المستخدم 2026-07-21): التجديد لا يمحو أسهم
+#       الأسبوع الماضي النشطة بصمت (PSTV اختفى) — تُحمَل بوسم مصير + تقرير مصير.
+# (أ) وحدة build_fate_report: يرتّب بالأولوية · يزيل التكرار · يعرض كل رمز
+_fate_in = [("AAA", "✅ يستمر — أعاد التأهّل هذا الأسبوع"),
+            ("BBB", "⚠️ خرج من نموذج الارتكاز — نتابعه لمركزك"),
+            ("AAA", "✅ مكرر يجب أن يُزال"),
+            ("CCC", "⛔ ضُرب الستوب (خرج من القائمة)")]
+_fate_txt = S.build_fate_report(_fate_in)
+check("🔄 fate: يعرض كل الرموز الفريدة (AAA/BBB/CCC)",
+      all(sy in _fate_txt for sy in ("AAA", "BBB", "CCC")))
+check("🔄 fate: يزيل تكرار الرمز (AAA مرة واحدة)",
+      _fate_txt.count("$AAA") == 1)
+check("🔄 fate: الأهم أولًا (⚠️ خرج قبل ✅ يستمر)",
+      _fate_txt.index("BBB") < _fate_txt.index("AAA"))
+check("🔄 fate: قائمة فارغة → نص فارغ", S.build_fate_report([]) == "")
+
+# (ب) تكامل run_weekly_renewal: سهم نشط لم يُعَد اختياره لا يُمحى — يُحمَل بوسم
+_sv_cont = (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
+            S.download_history, S.build_wrapup_message, S.enrich,
+            S.scan_pullback, S.accumulate_explosions, S.load_alerts,
+            S.build_dev_assistant_report, S.export_weekly_csvs,
+            S.write_csv, S.run_performance_system)
+_cont_saved = {}
+_cont_msgs = []
+try:
+    _cont_df_ok = synth_pivot(seed=7)          # يجتاز الفارز (سهم ارتكاز حي)
+    _cont_idx = pd.date_range("2024-01-01", periods=200, freq="D")
+    _cont_flat = np.linspace(5.0, 5.3, 200)    # صاعد لطيف بلا انفجار → يفشل الفارز
+    _cont_df_bad = pd.DataFrame(
+        {"Open": _cont_flat, "High": _cont_flat * 1.01,
+         "Low": _cont_flat * 0.99, "Close": _cont_flat,
+         "Volume": np.full(200, 500_000.0)}, index=_cont_idx)
+    check("🔄 تمهيد: df المسطّح يفشل الفارز (سيصير «خرج»)",
+          S.analyze_ticker("GONE", _cont_df_bad) is None)
+    _cont_r = S.analyze_ticker("NEWPICK", _cont_df_ok)
+    check("🔄 تمهيد: السهم الجديد يجتاز الفارز", _cont_r is not None)
+
+    def _cont_scan():
+        S._SCAN_STATS.update({"universe": 10, "valid": 10,
+                              "universe_fallback": False})
+        # hist: STILLP (ارتكاز حي) · GONE (لا ارتكاز) · NEWPICK (المُختار)
+        return ([_cont_r], {"NEWPICK": _cont_df_ok,
+                            "STILLP": _cont_df_ok, "GONE": _cont_df_bad})
+    S.scan_market = _cont_scan
+    S.send_telegram = lambda m: (_cont_msgs.append(m), True)[1]
+    S.save_watchlist = lambda w: _cont_saved.update(w)
+    S.yf = None                       # يتخطّى تحديث الأسبوع المنتهي (شبكة)
+    S.download_history = lambda syms: {}
+    S.build_wrapup_message = lambda w: ""
+    S.enrich = lambda rs: None
+    S.scan_pullback = lambda h, exclude=None: []
+    S.accumulate_explosions = lambda wl_, h: None
+    S.load_alerts = lambda: {"alerts": []}
+    S.build_dev_assistant_report = lambda wl_, ad=None: ""
+    S.export_weekly_csvs = lambda *a, **k: None
+    S.write_csv = lambda *a, **k: None
+    S.run_performance_system = lambda *a, **k: None
+
+    def _cont_stock(sym):
+        return {"symbol": sym, "status": "active", "added": "2026-07-06",
+                "entry_ref": 2.0, "pivot": 2.0, "stop": (1.8, 1.85),
+                "t1": 2.4, "t2": 2.8, "t3": 3.2, "hit": None,
+                "max_gain_pct": 0.0}
+    _wl_cont = {"week_start": "2026-07-14",
+                "stocks": [_cont_stock("STILLP"), _cont_stock("GONE"),
+                           _cont_stock("NODATA")],   # NODATA غائب عن hist
+                "removed": [{"symbol": "STOPPED", "status": "stopped"}],
+                "notes": [], "pullback": [], "history": []}
+    S.run_weekly_renewal(_wl_cont)
+    _cont_by = {s["symbol"]: s for s in _cont_saved.get("stocks", [])}
+    check("🔄 استمرارية: السهم المُعاد اختياره محفوظ (NEWPICK)",
+          "NEWPICK" in _cont_by)
+    check("🔄 استمرارية: سهم نشط لم يُعَد اختياره لا يُمحى (STILLP/GONE/NODATA باقية)",
+          all(sy in _cont_by for sy in ("STILLP", "GONE", "NODATA")))
+    check("🔄 استمرارية: ما زال ارتكازًا → cont_status=continues (STILLP)",
+          _cont_by.get("STILLP", {}).get("cont_status") == "continues")
+    check("🔄 استمرارية: لم يعد ارتكازًا → cont_status=exited (GONE)",
+          _cont_by.get("GONE", {}).get("cont_status") == "exited")
+    check("🔄 استمرارية: تعذّر البيانات → continues (لا يُمحى بصمت — NODATA)",
+          _cont_by.get("NODATA", {}).get("cont_status") == "continues")
+    check("🔄 استمرارية: التتبّع محفوظ (entry_ref القديم لا يُصفَّر — GONE)",
+          _cont_by.get("GONE", {}).get("entry_ref") == 2.0)
+    _cont_fate = "".join(m for m in _cont_msgs if "مصير أسهم" in m)
+    check("🔄 استمرارية: تقرير المصير أُرسل ويذكر المشطوب والخارج",
+          "STOPPED" in _cont_fate and "GONE" in _cont_fate)
+finally:
+    (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
+     S.download_history, S.build_wrapup_message, S.enrich,
+     S.scan_pullback, S.accumulate_explosions, S.load_alerts,
+     S.build_dev_assistant_report, S.export_weekly_csvs,
+     S.write_csv, S.run_performance_system) = _sv_cont
+
+# 4ب-3) 🔄 قسم «متابعة لمركزك» الدائم (طلب المستخدم 2026-07-21): الأسهم المحمولة
+#       (continues/exited) تظهر يوميًا في قسم مستقل الين تُضرب ستوب أو تعود للترشيح —
+#       حتى بوضع الجاهز-فقط (متابعة المركز أهمّ من اختصار الإشعار).
+def _pw_stock(sym, cs, lp, stop, crit=None):
+    _sf = stop[0] if isinstance(stop, (list, tuple)) else stop
+    return {"symbol": sym, "status": "active", "cont_status": cs,
+            "last_price": lp, "stop": stop, "pivot": round(_sf * 1.07, 2),
+            "t1": lp * 1.2, "t2": lp * 1.5, "t3": lp * 2.0,
+            "tranches": [round(_sf * 1.07, 2)], "liberation": lp * 2.1,
+            "interp": ({"critical_number": {"price": crit}} if crit else None),
+            "readiness": 40, "score": 60, "tier": "B", "float": 1e7,
+            "soft_fails": [], "flags": [], "warnings": [], "hit": None,
+            "max_gain_pct": 0.0, "sector": "Technology", "country": "US"}
+# (أ) وحدة build_position_watch_section
+_pw_sec = S.build_position_watch_section(
+    [_pw_stock("PSTV", "continues", 4.0, 3.6, crit=4.5),
+     _pw_stock("GONE", "exited", 1.9, 1.7)])
+check("🔄 متابعة-مركز: يعرض السهمين (PSTV/GONE)",
+      "PSTV" in _pw_sec and "GONE" in _pw_sec)
+check("🔄 متابعة-مركز: «خرج» أولًا (الأهم) ثم «يستمر»",
+      _pw_sec.index("GONE") < _pw_sec.index("PSTV"))
+check("🔄 متابعة-مركز: يعرض الستوب والرقم الحرج (يعود للزخم)",
+      "$1.70" in _pw_sec and "$4.50" in _pw_sec)
+check("🔄 متابعة-مركز: قائمة فارغة → نص فارغ",
+      S.build_position_watch_section([]) == "")
+check("🔄 متابعة-مركز: ستوب tuple (سجلّ قديم) لا يكسر العرض",
+      "$1.70" in S.build_position_watch_section(
+          [_pw_stock("TUP", "exited", 1.9, (1.7, 1.75))]))
+# (ب) التكامل مع build_daily_message: القسم يظهر حتى بوضع الجاهز-فقط بلا جاهزين
+_pw_wl = {"stocks": [_pw_stock("NEWP", None, 3.0, 2.5),
+                     _pw_stock("PSTV", "continues", 4.0, 3.6, crit=4.5),
+                     _pw_stock("GONE", "exited", 1.9, 1.7)]}
+_pw_msg = S.build_daily_message(_pw_wl, [], [], [], ready_only=True)
+check("🔄 متابعة-مركز·يومي: القسم يظهر بوضع الجاهز-فقط",
+      "متابعة لمركزك" in _pw_msg and "PSTV" in _pw_msg and "GONE" in _pw_msg)
+check("🔄 متابعة-مركز·يومي: المحمولة لا تُحسب ضمن الترشيح (ترويسة تفصلها)",
+      "🔄 2 متابعة لمركزك" in _pw_msg)
+check("🔄 متابعة-مركز·يومي: سهم الترشيح (NEWP بلا cont_status) لا يظهر بقسم المتابعة",
+      "NEWP" not in _pw_msg.split("متابعة لمركزك")[1])
 
 # 4ج) 🔒 قفل F-02 (إصلاح تدقيق 2026-07-10): تسوية مقياس التقسيم في الحسم —
 #     تقسيم عكسي أثناء التتبع لا يسجّل «هدفًا محققًا» زائفًا بعد الآن.
@@ -1031,7 +1240,7 @@ try:
     check("التقرير اليومي: سطر الدخول + وقف خسارة",
           "📥 دخول:" in dm and "وقف خسارة" in dm)
     check("التقرير اليومي يعرض أهداف (أسعار بلا نسبة)",
-          "🎯 أهداف:" in dm)
+          "🎯 أهداف" in dm)
     check("التقرير اليومي يعرض الجاهزية + القوة العامة",
           "/100" in dm and "قوة" in dm)
     check("التقرير اليومي يعرض «دخول المضارب» (Williams)",
@@ -1508,6 +1717,42 @@ check("جاهز-فقط: يعرض كرت الجاهز (RDY) ويُخفي المت
       "$RDY" in _dm_ro and "$WCH" not in _dm_ro)
 check("جاهز-فقط: الترويسة تُحصي المتابعة بلا عرض كروتها («تحت متابعة البوت»)",
       "تحت متابعة البوت" in _dm_ro and "متابعة — ننتظر وصولها" not in _dm_ro)
+
+# 🕵️ ① وسم تعارض الاقتراض على سطر «جاهز للدخول» (حصاد 2026-07-17، تناقض كرت NAMI:
+# «🟢 جاهز» فوق «حرب وتصريف · مستحيل يرتفع» بلا ربط) — عرض فقط، خارج الجذور.
+check("① _borrow_war: 100K/40001 حرب · 40K/None/نصّ/فارغ لا (نفس شرط borrow_line)",
+      S._borrow_war({"shares_available": 100000}) is True
+      and S._borrow_war({"shares_available": 40001}) is True
+      and S._borrow_war({"shares_available": 40000}) is False
+      and S._borrow_war({"shares_available": None}) is False
+      and S._borrow_war({"shares_available": "x"}) is False
+      and S._borrow_war({}) is False)
+check("① _ready_war_suffix: ready+حرب ⇒ وسم · متابعة/قليل/تعذّر ⇒ «»",
+      "حرب وتصريف" in S._ready_war_suffix({"shares_available": 100000}, {"status": "ready_now"})
+      and S._ready_war_suffix({"shares_available": 100000}, {"status": "watch"}) == ""
+      and S._ready_war_suffix({"shares_available": 5000}, {"status": "ready_now"}) == ""
+      and S._ready_war_suffix({"shares_available": None}, {"status": "ready_now"}) == "")
+_wl_war = {"week_start": "2026-07-01", "removed": [], "notes": [],
+           "stocks": [dict(_wl_entry("WAR", "near_support"), shares_available=100000)]}
+_wl_okb = {"week_start": "2026-07-01", "removed": [], "notes": [],
+           "stocks": [dict(_wl_entry("OKB", "near_support"), shares_available=5000)]}
+check("① سلوكي اليومي: جاهز + متاح 100K ⇒ وسم «حرب وتصريف» بالكرت",
+      "حرب وتصريف" in S.build_daily_message(_wl_war, [], [], []))
+check("① سلوكي اليومي: جاهز + متاح 5K ⇒ لا وسم (لا تعارض)",
+      "حرب وتصريف" not in S.build_daily_message(_wl_okb, [], [], []))
+check("① قفل: الدالّتان خارج rank_key/select_top/classify_tier/entry_status (لا تمسّ الاختيار)",
+      all("_borrow_war" not in _insp0.getsource(getattr(S, _f))
+          and "_ready_war_suffix" not in _insp0.getsource(getattr(S, _f))
+          for _f in ("rank_key", "select_top", "classify_tier", "entry_status")))
+check("① قفل: الوسم موصول بكل مواضع العرض الخمسة (كرت·يومي·قسم اليد·تحديث اليد·تنبيه لحظي)",
+      all("_ready_war_suffix" in _insp0.getsource(getattr(S, _fn))
+          for _fn in ("build_message", "build_daily_message", "build_hand_section",
+                      "build_hand_digest", "build_live_alert")))
+# قفل خارجي (لقطة مراجعة خصومية wl27lx5ve): hand_check.py أداة مستقلة تعرض borrow_line
+# + سطر الحكم من نفس السجل ⇒ كانت تُظهر تعارض NAMI بلا وسم. تُصلَح وتُقفَل هنا.
+_hc_src = open("hand_check.py", encoding="utf-8").read()
+check("① قفل: hand_check.py يحمل الوسم على سطر الحكم (لا تعارض «جاهز» فوق «حرب وتصريف»)",
+      "_ready_war_suffix" in _hc_src)
 _dm_ro2 = S.build_daily_message(_wl_allr, [], [], [], ready_only=True)
 check("جاهز-فقط: فاصل شرطات بين كل سهم جاهز وسهم (سهمان → فاصل)",
       S.DAILY_CARD_SEP in _dm_ro2 and "$R1" in _dm_ro2 and "$R2" in _dm_ro2)
@@ -1690,6 +1935,75 @@ check("🕵️N5: سبريد ضيّق (2%) ⇒ لا دليل مُفرَّغة",
           {"flow_raw": {"ask": 2.60, "ask_size": 100, "spread_pct": 2.0}})))
 check("🕵️N5·فاشل-آمن: بلا flow_raw ⇒ لا دليل (مسار الفرز لا يجلبه)",
       not any(e["sign"] == "عروض شبه مُفرَّغة" for e in S.hand_evidence(_r_hand)))
+
+# 🆕 N6/N7 (دروس صور 2026-07-20 — فحص اليد فقط · عرض/تحذير · فاشل-آمن):
+# N6 شراء الإغلاق CP (طبعات كبيرة محايدة التيك) · N7 طبعات آلية دقيقة خارج NBBO.
+# صفقات Polygon تنازلية (الأحدث أولًا) → نبنيها زمنيًّا ثم نعكسها لمدخل _flow_prints.
+_chrono = [{"price": 3.40, "size": 100} for _ in range(20)]
+_chrono += [{"price": 3.50, "size": 1500}]                    # صعود (ليس محايدًا)
+_chrono += [{"price": 3.50, "size": 1500} for _ in range(3)]  # 3 محايدة كبيرة = 4500
+_chrono += [{"price": 3.60, "size": 5} for _ in range(8)]     # 8 دقيقة فوق العرض
+_fp = S._flow_prints(_chrono[::-1], 3.45, 3.55)               # bid 3.45 · ask 3.55
+check("🆕N6·نقيّة: _flow_prints يرصد الطبعات المحايدة الكبيرة (سعر ثابت)",
+      _fp.get("neutral_block_shares") == 4500, str(_fp))
+check("🆕N7·نقيّة: _flow_prints يعدّ الطبعات الدقيقة خارج NBBO",
+      _fp.get("tiny_out_count") == 8, str(_fp))
+check("🆕_flow_prints فاشل-آمن: <20 صفقة ⇒ {}",
+      S._flow_prints([{"price": 3.5, "size": 100}], 3.4, 3.6) == {})
+check("🆕_flow_prints فاشل-آمن: مدخل فاسد ⇒ {}",
+      S._flow_prints("سيّئ", 3, 4) == {})
+# N6 في hand_evidence
+_n6 = {"flow_raw": {"prints": {"neutral_block_shares": 4500, "tiny_out_count": 0,
+                               "total": 32, "quote_age_ms": 1000}}}
+check("🕵️N6·مضارب: طبعات كبيرة محايدة ⇒ دليل «شراء إغلاق محتمل»",
+      any(e["sign"] == "طبعات كبيرة محايدة التيك" for e in S.hand_evidence(_n6)))
+check("🕵️N6·صدق: «رموز شرط الإغلاق غير متاحة» مكتوب داخل الدليل (لا تخمين)",
+      any("غير متاحة" in e["detail"] for e in S.hand_evidence(_n6)
+          if e["sign"] == "طبعات كبيرة محايدة التيك"))
+# N7 في hand_evidence — يشترط اقتباسًا طازجًا (صدق: لا مقارنة على لقطة بائتة)
+_n7f = {"flow_raw": {"prints": {"neutral_block_shares": 0, "tiny_out_count": 8,
+                                "total": 40, "quote_age_ms": 1000}}}
+check("🕵️N7·مضارب: طبعات دقيقة خارج NBBO باقتباس طازج ⇒ دليل «طبعات آلية»",
+      any(e["sign"] == "طبعات آلية دقيقة" for e in S.hand_evidence(_n7f)))
+_n7s = {"flow_raw": {"prints": {"neutral_block_shares": 0, "tiny_out_count": 8,
+                                "total": 40, "quote_age_ms": 999999}}}
+check("🕵️N7·صدق: اقتباس بائت ⇒ لا وسم (لا مقارنة على لقطة قديمة)",
+      not any(e["sign"] == "طبعات آلية دقيقة" for e in S.hand_evidence(_n7s)))
+check("🕵️N6/N7·فاشل-آمن: بلا prints ⇒ لا دليل",
+      not any(e["sign"] in ("طبعات كبيرة محايدة التيك", "طبعات آلية دقيقة")
+              for e in S.hand_evidence({"flow_raw": {}})))
+# 🔒 قفل: N6/N7 خارج جذور الفرز/الاختيار (getsource)
+for _rt in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker,
+            S.backtest_symbol):
+    _src = _insp.getsource(_rt)
+    check(f"🔒 {_rt.__name__} لا يعتمد N6/N7 (خارج الفرز)",
+          "_flow_prints" not in _src and "neutral_block_shares" not in _src)
+
+# 🕰️ analyze_asof: تحليل point-in-time «كما رآه البوت» بلا نظر مستقبلي (طلب المستخدم
+# 2026-07-20 — تقييم سهم فيصل في أيام تحليله لا اليوم بعد أن ركض).
+try:
+    import analyze_asof as _AA
+    _asof_df = synth_pivot(seed=2).copy()
+    _asof_df.index = pd.date_range(end="2026-07-18", periods=len(_asof_df), freq="D")
+    _seen = {}
+    _orig_at = S.analyze_ticker
+
+    def _spy_at(sym, df, *a, **k):
+        _seen["max"] = df.index.max()          # آخر شمعة مُرِّرت للتحليل
+        return _orig_at(sym, df, *a, **k)
+    try:
+        S.analyze_ticker = _spy_at             # bot هو S نفسه (وحدة مُخزَّنة)
+        _line = _AA._one("DXST", _asof_df, "2026-07-16")
+    finally:
+        S.analyze_ticker = _orig_at            # استعادة مضمونة (لا تسريب للاختبارات)
+    check("🕰️ point-in-time: بلا نظر مستقبلي (آخر شمعة مُحلَّلة ≤ التاريخ المطلوب)",
+          _seen.get("max") is not None and _seen["max"] <= pd.Timestamp("2026-07-16"),
+          str(_seen.get("max")))
+    check("🕰️ point-in-time: السطر يذكر التاريخ + حالة الدخول/الرفض",
+          "2026-07-16" in _line
+          and ("جاهز" in _line or "متابعة" in _line or "لم يُرشَّح" in _line))
+except Exception as _aae:
+    check("🕰️ analyze_asof يعمل", False, str(_aae))
 # العرض بالكرت + التجديد اليومي لـpump_scar
 _card_h = {"symbol": "HND", "price": 2.0, "pivot": 1.95, "score": 60,
            "readiness": 60, "rr": 2.0, "entry": (1.9, 2.0),
@@ -4455,6 +4769,84 @@ try:
 finally:
     (S.CONFIG["BT_POTENTIAL"], S.CONFIG["BT_PORTFOLIO"],
      S.CONFIG["BT_PORT_SIZE"]) = _mg_sv         # لا تلوّث بقية الاختبارات
+
+
+# 🔬 BT_FEATURES: أعمدة تحليل point-in-time (قطاع + أيام لأقرب أرباح) — باكتيست/تحليل فقط
+def _bt_raise(s):
+    raise ValueError("boom")
+check("🔬 BT_FEATURES: _bt_days_to_earnings نقيّة point-in-time (أقرب أرباح بعد الإشارة)",
+      S._bt_days_to_earnings("2025-05-05", ["2025-03-01", "2025-06-10", "2025-09-01"]) == 36
+      and S._bt_days_to_earnings("2025-05-05", ["2025-01-01", "2025-02-01"]) is None
+      and S._bt_days_to_earnings("2025-05-05", []) is None)
+_bt_tr = [{"symbol": "AAA", "date": "2025-05-05"}, {"symbol": "AAA", "date": "2025-07-01"},
+          {"symbol": "BBB", "date": "2025-06-01"}]
+S._bt_feature_enrich(_bt_tr,
+    sector_fetch=lambda s: {"sector": "Technology"} if s == "AAA" else {},
+    earn_fetch=lambda s: ["2025-06-10"] if s == "AAA" else [])
+check("🔬 BT_FEATURES: enrich يضيف sector + days_to_earnings (point-in-time لكل إشارة)",
+      _bt_tr[0]["sector"] == "Technology" and _bt_tr[0]["days_to_earnings"] == 36
+      and _bt_tr[1]["days_to_earnings"] is None       # أرباح 06-10 قبل إشارة 07-01 = لا لاحق
+      and _bt_tr[2]["sector"] == "—" and _bt_tr[2]["days_to_earnings"] is None)
+_bt_fs = [{"symbol": "ZZZ", "date": "2025-05-05"}]
+S._bt_feature_enrich(_bt_fs, sector_fetch=_bt_raise, earn_fetch=_bt_raise)
+check("🔬 BT_FEATURES: فاشل-آمن (الجالب يرمي) → «—»/None بلا انهيار",
+      _bt_fs[0]["sector"] == "—" and _bt_fs[0]["days_to_earnings"] is None)
+check("🔬 BT_FEATURES: خارج الجذر backtest_symbol + مُبوَّب بعلم في run_backtest",
+      "_bt_feature_enrich" not in _insp0.getsource(S.backtest_symbol)
+      and "sector" not in _insp0.getsource(S.backtest_symbol)
+      and 'CONFIG.get("BT_FEATURES")' in _insp0.getsource(S.run_backtest))
+# 🔬 BT_FEATURES (إصلاح مراجعة Codex): المسار الافتراضي يمرّر **كائن Ticker** لـ_fetch_info لا نصًّا
+# (تمرير النصّ كان يفشل 9ث/سهم ثم «—»). نحاكي yf/_fetch_info بلا شبكة ونثبت العقد.
+_bt_yf_s, _bt_fi_s = S.yf, S._fetch_info
+_bt_seen = {}
+
+
+class _FakeTk:
+    def __init__(self, sym):
+        self.sym = sym
+
+
+class _FakeYf:
+    Ticker = staticmethod(lambda s: _FakeTk(s))
+
+
+def _fake_fi(t):
+    _bt_seen["type"] = type(t).__name__          # يجب أن يكون كائنًا لا str
+    _bt_seen["sym"] = getattr(t, "sym", None)
+    return {"sector": "Healthcare"}
+
+
+try:
+    S.yf, S._fetch_info = _FakeYf(), _fake_fi
+    _sec_def = S._bt_sector("GEOS")               # المسار الافتراضي (بلا fetch محقون)
+    check("🔬 BT_FEATURES: _bt_sector الافتراضي يمرّر Ticker (كائن) لـ_fetch_info ويرجع قطاعًا",
+          _sec_def == "Healthcare" and _bt_seen.get("type") == "_FakeTk"
+          and _bt_seen.get("sym") == "GEOS")
+    S.yf = None                                   # بلا yf ⇒ «—» فاشل-آمن (لا انهيار)
+    check("🔬 BT_FEATURES: _bt_sector بلا yf ⇒ «—» فاشل-آمن", S._bt_sector("X") == "—")
+finally:
+    S.yf, S._fetch_info = _bt_yf_s, _bt_fi_s
+
+# 🔬 نافذة التحميل الممتدّة (إصلاح حاجز الباكتيست متعدّد السنوات) — باكتيست فقط، الإنتاج بت-بت
+_dh_saved = (S.yf, S._download_chunk)
+try:
+    S.yf = object()                        # truthy (يتجاوز yf is None)
+    _dh_cap = {}
+    S._download_chunk = lambda chunk, start: _dh_cap.update({"start": start})
+    S.download_history(["AAA"], start_override="2020-10-01")
+    check("🔬 نافذة تحميل: start_override يُستعمَل حرفيًّا (باكتيست قديم يصل 2023)",
+          _dh_cap.get("start") == "2020-10-01")
+    _dh_cap.clear()
+    S.download_history(["AAA"])            # الإنتاج: بلا override
+    _dh_exp = (S.dt.date.today() - S.dt.timedelta(days=S.CONFIG["HISTORY_DAYS"])).isoformat()
+    check("🔬 نافذة تحميل: بلا override = اليوم−HISTORY_DAYS (الإنتاج حرفيًّا)",
+          _dh_cap.get("start") == _dh_exp)
+finally:
+    S.yf, S._download_chunk = _dh_saved
+check("🔬 نافذة تحميل: run_backtest يمدّ البدء من date_window ويمرّره",
+      "_bt_dl_start" in _insp0.getsource(S.run_backtest)
+      and "start_override=_bt_dl_start" in _insp0.getsource(S.run_backtest)
+      and "start_override" in _insp0.getsource(S.download_history))
 # (ط) 🔒 قفل getsource: دالة القياس خارج الفرز/الاختيار/التتبّع (باكتيست/عرض فقط —
 # لا تدخل قرار الدخول/الوقف/الأهداف/العضوية). درس C3: أي دالة قياس تلمس الاختيار = بوابة خفية.
 check("🏦 قوة البوت·قفل: _max_gain_before_stop خارج rank_key/select_top/classify_tier/"
@@ -6120,7 +6512,17 @@ check("🌍 P1-5: الكون الاحتياطي يُعلَّم `market_fallback`
       "market_fallback = True" in _bt_src
       and "منحاز اختيارًا" in _bt_src
       and _bt_src.index("market_fallback = True") < _bt_src.index(
-          "🌍 <b>باكتيست السوق الكامل (بلا انحياز اختيار)</b>"))
+          "🌍 <b>باكتيست كون ناسداك اليوم (بلا انتقاء رموز)</b>"))
+# 🔬 (مراجعة Codex) إفصاح انحياز البقاء: **لا أيّ ادّعاء «السوق الكامل» في النصوص المرئية** (عنوان +
+# لاحقة الفترة + سطر السجل) — كلها تُصرّح «كون ناسداك اليوم/ناجٍ». نجرّد أسطر التعليقات (# تشرح
+# الإصلاح فتذكر النصّ القديم) ونفحص الكود المُنفَّذ فقط. (يمسك التناقض الذي رصده Codex.)
+_bt_code = "\n".join(l for l in _bt_src.split("\n") if not l.lstrip().startswith("#"))
+check("🔬 انحياز البقاء: صفر ادّعاء «السوق الكامل» بالنصوص المرئية + إفصاح «كون ناجٍ يستبعد المشطوبة»",
+      "كون ناجٍ" in _bt_code and "المشطوبة" in _bt_code and "كون ناسداك اليوم" in _bt_code
+      and "السوق الكامل" not in _bt_code and "(السوق كامل)" not in _bt_code)
+# 🔬 (مراجعة Codex) تحذير تغطية التجميد غير الصامت (لقطة لا تصل النافذة ⇒ صراخ لا صمت)
+check("🔬 تجميد·تغطية: تحذير غير صامت عند لقطة لا تغطّي بدء النافذة",
+      "تجميد·تغطية ناقصة" in _bt_src and "_snap_earliest" in _bt_src)
 
 # 📈 P2-6 (تقارير فقط): ترشيحان مستقلّان لنفس السهم بنفس سعر الدخول (تاريخان مختلفان)
 # كانا يُدمجان في صفقة واحدة — الثانية تختفي من الإحصاء بصمت (تصادم LYEL المثبَت).
@@ -6131,6 +6533,36 @@ _dc = S._dedup_closed([
 ])
 check("📈 P2-6: صفقتان بنفس (رمز, سعر) وتاريخَي إضافة مختلفين **لا تُدمجان** (لا فقد إحصاء)",
       len(_dc) == 2 and {r["added"] for r in _dc} == {"2026-05-04", "2026-05-18"})
+
+# 🔬 ② طيّ العدّ المزدوج (قرار المالك 2026-07-18، تقارير فقط): متعقّبَا نفس المركز (تنبيه +
+# قائمة، added مختلف، نفس النتيجة + حسم متقارب) ⇒ صفقة واحدة؛ ترشيحان مستقلّان يبقيان.
+_fold_in = [
+    {"symbol": "PTN", "added": "2026-07-08", "_win": False, "result_date": "2026-07-14", "max_gain_pct": 1.9},
+    {"symbol": "PTN", "added": "2026-07-10", "_win": False, "removed_date": "2026-07-14", "max_gain_pct": 5.9},
+    {"symbol": "INSM", "added": "2026-06-21", "_win": True, "hit_date": "2026-06-24", "max_gain_pct": 11.9},
+    {"symbol": "INSM", "added": "2026-06-25", "_win": True, "hit_date": "2026-07-07", "max_gain_pct": 10.9},
+]
+_fold_out = S._fold_same_position(_fold_in)
+check("② طيّ: PTN المكرّر (نفس الحسم) يُطوى لواحدة · INSM (نتيجتان 13ي متباعدتان) يبقى صفقتين",
+      len(_fold_out) == 3
+      and sum(1 for r in _fold_out if r["symbol"] == "PTN") == 1
+      and sum(1 for r in _fold_out if r["symbol"] == "INSM") == 2)
+check("② طيّ: الأسبق added يمثّل المركز (PTN 07-08 محفوظ)",
+      any(r["symbol"] == "PTN" and r["added"] == "2026-07-08" for r in _fold_out))
+check("② طيّ: نتيجتان مختلفتان لنفس الرمز (ربح+خسارة) ⇒ لا طيّ",
+      len(S._fold_same_position([
+          {"symbol": "Y", "added": "2026-07-01", "_win": True, "hit_date": "2026-07-03"},
+          {"symbol": "Y", "added": "2026-07-02", "_win": False, "result_date": "2026-07-03"}])) == 2)
+check("② طيّ فاشل-آمن: تواريخ تالفة → لا طيّ (الصفوف كما هي، لا انهيار)",
+      len(S._fold_same_position([
+          {"symbol": "X", "added": "bad", "_win": True, "hit_date": "bad"},
+          {"symbol": "X", "added": "worse", "_win": True, "hit_date": "nope"}])) == 2)
+check("② قفل: _fold_same_position خارج rank_key/select_top/classify_tier/entry_status/backtest_symbol",
+      all("_fold_same_position" not in _insp0.getsource(getattr(S, _f))
+          for _f in ("rank_key", "select_top", "classify_tier", "entry_status", "backtest_symbol")))
+check("② قفل: الطيّ موصول بعد _dedup_closed في مساري التقرير (مساعد التطوير + CSV)",
+      "_fold_same_position" in _insp0.getsource(S.build_dev_assistant_report)
+      and "_fold_same_position" in _insp0.getsource(S.export_weekly_csvs))
 
 # 🔬 P2-4 (بحث/قياس فقط · خارج مسار التنبيه): فشل صفحة لاحقة من Polygon كان يُرجع نصف
 # النافذة **كأنها كاملة** ⇒ نِسَب T-ACC تُحسب على عيّنة مبتورة بلا علامة. الآن None.

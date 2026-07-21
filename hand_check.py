@@ -107,7 +107,8 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
         L.append("الحكم: 🎯 <b>سهم ارتكاز مؤهّل</b> · "
                  + ("🟢 جاهز للدخول الآن" if es["status"] == "ready_now"
                     else "👀 متابعة")
-                 + (f" — {es['reason']}" if es["reason"] else ""))
+                 + (f" — {es['reason']}" if es["reason"] else "")
+                 + bot._ready_war_suffix(r, es))   # ⚠️ تعارض «جاهز» فوق «حرب وتصريف» (كرت NAMI)
         L += bot.interp_card_lines(r["interp"])      # 🧭 الإعداد · 🎯 الرقم الحرج · 🕓 4س · ⚠️
         if r.get("tranches") and r.get("stop"):
             trs = r["tranches"]
@@ -187,9 +188,10 @@ def hand_check(sym: str):
         r["order_flow"] = bot.order_snapshot(sym)
     except Exception:
         r["order_flow"] = None
-    # 🕳️ لقطة NBBO الخام لقرينة N5 «عروض شبه مُفرَّغة» (§P2 — فاشل-آمن → None)
+    # 🕳️ لقطة NBBO الخام + ملخّص الطبعات لقرائن N5/N6/N7 (§P2 + دروس 2026-07-20 —
+    # with_prints=True فحص اليد فقط، صفر نداء إضافي · فاشل-آمن → None)
     try:
-        r["flow_raw"] = bot.polygon_flow(sym)
+        r["flow_raw"] = bot.polygon_flow(sym, with_prints=True)
     except Exception:
         r["flow_raw"] = None
     # 🔁 تكرار التقسيم العكسي في آخر سنة (قرينة فيصل §P4 — فاشل-آمن → 0)
