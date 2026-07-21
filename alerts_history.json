@@ -47,8 +47,8 @@
     "فلوت 17,719,818 (صغير ✅)"
    ],
    "ready": true,
-   "status": "open",
-   "result_date": null,
+   "status": "expired",
+   "result_date": "2026-07-21",
    "max_gain_pct": 8.1
   },
   {
@@ -76,8 +76,8 @@
     "فلوت غير متاح — مُرِّر بفائدة الشك"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
+   "status": "expired",
+   "result_date": "2026-07-21",
    "max_gain_pct": 5.5
   },
   {
@@ -102,8 +102,8 @@
     "فلوت غير متاح — مُرِّر بفائدة الشك"
    ],
    "ready": true,
-   "status": "open",
-   "result_date": null,
+   "status": "expired",
+   "result_date": "2026-07-21",
    "max_gain_pct": 8.0
   },
   {
@@ -128,8 +128,8 @@
     "فلوت غير متاح — مُرِّر بفائدة الشك"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
+   "status": "expired",
+   "result_date": "2026-07-21",
    "max_gain_pct": 6.6
   },
   {
@@ -179,8 +179,8 @@
     "فلوت غير متاح — مُرِّر بفائدة الشك"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
+   "status": "expired",
+   "result_date": "2026-07-21",
    "max_gain_pct": 8.8
   },
   {
@@ -1348,7 +1348,7 @@
    "rr": 1.4879110117041585,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 1.5
   },
   {
    "symbol": "PONY",
@@ -1385,7 +1385,7 @@
    "rr": 1.3076496220534477,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.7
   },
   {
    "symbol": "NMRA",
@@ -1423,7 +1423,7 @@
    "rr": 12.244469409741827,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.5
   }
  ]
 }

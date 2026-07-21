@@ -43,7 +43,7 @@
    "days_to_cover": null,
    "kst4": "تحت إشارته تحت الصفر — زخم هابط",
    "borrow_fee": 0.79,
-   "shares_available": 950000,
+   "shares_available": 700000,
    "company_name": null,
    "upcoming_events": null,
    "proxy_filing": null,
@@ -256,17 +256,33 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
-   "partial": [],
-   "missing": [],
+   "readiness": 65,
+   "have": [
+    "RSI تشبع وانحناء",
+    "تقاطع MACD",
+    "KST صاعد",
+    "جفاف بيع"
+   ],
+   "partial": [
+    "ثبات بعد القاع"
+   ],
+   "missing": [
+    "قرب متوسط 30/50",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 1.65,
    "live_alert": {
     "buyzone": "2026-07-20"
-   }
+   },
+   "borrow_hist": [
+    [
+     "2026-07-21",
+     700000
+    ]
+   ]
   },
   {
    "symbol": "PONY",
@@ -310,9 +326,15 @@
    "days_to_cover": 6.42,
    "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
    "borrow_fee": 0.53,
-   "shares_available": 8800000,
+   "shares_available": 8700000,
    "company_name": "Pony AI Inc.",
-   "upcoming_events": null,
+   "upcoming_events": [
+    {
+     "kind": "أرباح",
+     "date": "2026-08-18",
+     "note": ""
+    }
+   ],
    "proxy_filing": null,
    "first_trade": null,
    "rotation_pct": 1,
@@ -543,17 +565,32 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
+   "readiness": 60,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "KST صاعد",
+    "مسح سيولة"
+   ],
    "partial": [],
-   "missing": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 6.71,
    "live_alert": {
     "buyzone": "2026-07-20"
-   }
+   },
+   "borrow_hist": [
+    [
+     "2026-07-21",
+     8700000
+    ]
+   ]
   },
   {
    "symbol": "NMRA",
@@ -598,9 +635,15 @@
    "days_to_cover": null,
    "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
    "borrow_fee": 1.87,
-   "shares_available": 2500000,
+   "shares_available": 2300000,
    "company_name": null,
-   "upcoming_events": null,
+   "upcoming_events": [
+    {
+     "kind": "أرباح",
+     "date": "2026-08-06",
+     "note": ""
+    }
+   ],
    "proxy_filing": null,
    "first_trade": null,
    "rotation_pct": null,
@@ -844,15 +887,31 @@
    "removed_date": null,
    "removal_reason": null,
    "replaced": false,
-   "readiness": null,
-   "have": [],
-   "partial": [],
-   "missing": [],
+   "readiness": 55,
+   "have": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع"
+   ],
+   "partial": [
+    "ثبات بعد القاع"
+   ],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "مسح سيولة"
+   ],
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 1.63,
-   "live_alert": {}
+   "live_alert": {},
+   "borrow_hist": [
+    [
+     "2026-07-21",
+     2300000
+    ]
+   ]
   }
  ],
  "removed": [],
@@ -946,9 +1005,9 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 657632,
-   "last_price": 3.48,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 0.295,
+   "status": "triggered",
+   "triggered_date": "2026-07-21"
   },
   {
    "symbol": "CLIK",
@@ -4765,18 +4824,26 @@
    "suspect_split": false
   },
   {
-   "symbol": "PRFX",
-   "date": "2026-06-22",
-   "gain": 83.0,
+   "symbol": "EHGO",
+   "date": "2026-07-21",
+   "expl_date": "2026-06-22",
+   "gain": 154.0,
+   "kind": "تجمّع",
    "reason": "M4_base_واسعة",
-   "was_pivot": false
+   "base_reason": "M4_base_واسعة",
+   "was_pivot": true,
+   "suspect_split": false
   },
   {
-   "symbol": "CRVO",
-   "date": "2026-06-22",
-   "gain": 82.0,
+   "symbol": "ICCM",
+   "date": "2026-07-21",
+   "expl_date": "2026-06-22",
+   "gain": 72.0,
+   "kind": "تجمّع",
    "reason": "M4_base_واسعة",
-   "was_pivot": false
+   "base_reason": "M4_base_واسعة",
+   "was_pivot": true,
+   "suspect_split": false
   },
   {
    "symbol": "QURE",
@@ -9114,6 +9181,26 @@
    },
    "universe": 3562,
    "valid": 3367
+  },
+  {
+   "date": "2026-07-21",
+   "stats": {
+    "M2_هبوط_تحت_40": 1801,
+    "M1_سعر": 542,
+    "M5_سيولة": 136,
+    "M4_base_واسعة": 327,
+    "M10_RSI_ما_تشبّع": 207,
+    "M2_هبوط_فوق_97": 71,
+    "نواقص_فوق_3": 70,
+    "M3_انفجار_تحت_60": 187,
+    "M10_RSI_فات_القطار": 12,
+    "بعيد_عن_الدخول(45%)": 4,
+    "بعيد_عن_الدخول(10%)": 2,
+    "بعيد_عن_الدخول(15%)": 1,
+    "بعيد_عن_الدخول(35%)": 1
+   },
+   "universe": 3559,
+   "valid": 3364
   }
  ]
 }
