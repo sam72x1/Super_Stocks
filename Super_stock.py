@@ -304,6 +304,11 @@ CONFIG = {
                                          #   العكسي** (INLF 1:200 كان يُرفض بهبوط 97% وهمي).
                                          #   باكتيست/تشخيص حصريًا + يلزم سياق splits؛ الإنتاج
                                          #   byte-identical (العلم مطفأ والسياق None = لا أثر).
+    "BT_SPLIT_AWARE_M4": 0,              # 🔬 M4 يقيس مدى القاعدة من نافذة **de-inflated
+                                         #   للتقسيم العكسي** (تقسيم داخل نافذة 15ج ينفخ
+                                         #   الشموع القديمة فيصنع «قاعدة واسعة» زائفة). نفس
+                                         #   آلية M2 · باكتيست حصريًا + سياق splits؛ الإنتاج
+                                         #   byte-identical (العلم مطفأ والسياق None = لا أثر).
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -434,6 +439,7 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_MIN_DROP_FLOOR", "MIN_DROP_FLOOR", float),
             ("BT_MAX_DROP_PCT", "MAX_DROP_PCT", float),
             ("BT_SPLIT_AWARE_M2", "BT_SPLIT_AWARE_M2", int),   # 🔬 M2 واعية للتقسيم
+            ("BT_SPLIT_AWARE_M4", "BT_SPLIT_AWARE_M4", int),   # 🔬 M4 واعية للتقسيم
             ("BT_SPIKE_WINDOW", "PRIOR_SPIKE_WINDOW", int),
             ("BT_MIN_DOLLAR_VOL", "MIN_DOLLAR_VOL", float),
             # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — باكتيست حصريًا، منفصلة الدخول/الوقف
@@ -1047,6 +1053,56 @@ def _split_aware_hi52(highs, splits, cut) -> float:
             return float(highs.max())
         except Exception:
             return 0.0
+
+
+def _split_aware_base_range(highs, lows, splits, cut) -> float:
+    """🔬 مدى القاعدة M4 **بعد إلغاء تضخيم التقسيم العكسي داخل النافذة** (تجربة M4).
+    نفس آلية `_split_aware_hi52`: كل شمعة (high وlow) تُضرب بعامل نِسَب التقسيمات
+    **المعروفة حتى `cut`** والواقعة بعد تاريخها → مقياس معاصر، ثم نحسب المدى من القمة/القاع
+    المعدَّلين. تقسيم عكسي **داخل نافذة القاعدة (15ج)** ينفخ الشموع الأقدم نسبةً للأحدث
+    فيصنع «مدى قاعدة واسع» زائفًا (نفس فخّ M2). de-inflation يعيد المدى الحقيقي. بلا
+    splits/تعذّر → المدى الخام (== سلوك اليوم). نقيّة، فاشلة-آمنة. يعيد النسبة%.
+    (تقسيم قبل النافذة كلها = عامل موحّد لكل الشموع = لا فرق عن الخام؛ الأثر فقط عند
+    وقوع تقسيم بين أوّل شمعة وآخرها = بالضبط الحالة المستهدَفة.)"""
+    def _raw():
+        rh = float(highs.max()); rl = float(lows.min())
+        return (rh / rl - 1.0) * 100.0 if rl > 0 else -1.0
+    try:
+        if splits is None or (hasattr(splits, "__len__") and len(splits) == 0):
+            return _raw()
+        c = pd.Timestamp(cut)
+        c = c.tz_localize(None) if getattr(c, "tz", None) is not None else c
+        it = splits.items() if hasattr(splits, "items") else splits
+        known = []
+        for d, r in it:
+            dd = pd.Timestamp(d)
+            dd = dd.tz_localize(None) if getattr(dd, "tz", None) is not None else dd
+            if dd <= c and r and float(r) > 0:      # معروف حتى cut فقط (بلا تسريب)
+                known.append((dd, float(r)))
+        if not known:
+            return _raw()
+
+        def _adj(series):
+            out = []
+            for ts, v in series.items():
+                t = pd.Timestamp(ts)
+                t = t.tz_localize(None) if getattr(t, "tz", None) is not None else t
+                f = 1.0
+                for dd, r in known:
+                    if dd > t:                      # تقسيم بعد هذه الشمعة → إلغاء نفخها
+                        f *= r
+                out.append(float(v) * f)
+            return out
+        ah = _adj(highs); al = _adj(lows)
+        if not ah or not al:
+            return _raw()
+        hi = max(ah); lo = min(al)
+        return (hi / lo - 1.0) * 100.0 if lo > 0 else _raw()
+    except Exception:
+        try:
+            return _raw()
+        except Exception:
+            return -1.0
 
 
 def save_frozen_dataset(hist: dict, splits: dict, asof: str, path: str) -> dict:
@@ -1930,6 +1986,13 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         if base_lo <= 0:
             return _reject("M4_base_lo")
         base_range = (base_hi / base_lo - 1.0) * 100.0
+        # 🔬 تجربة M4 واعية للتقسيم (باكتيست فقط · الإنتاج byte-identical): العلم مطفأ
+        # افتراضيًّا **والسياق None** فلا يُنفَّذ الفرع أصلًا. عند تفعيلهما معًا نستبدل مدى
+        # القاعدة الخام بمدى de-inflated للتقسيم العكسي داخل النافذة (يمنع رفض «قاعدة واسعة»
+        # المصطنع لأسهم فيصل المقسّمة داخل نافذة التجميع).
+        if CONFIG.get("BT_SPLIT_AWARE_M4") and _BT_SPLITS_CTX is not None:
+            base_range = _split_aware_base_range(high.tail(bw), low.tail(bw),
+                                                 _BT_SPLITS_CTX, df.index[-1])
         if base_range > CONFIG["BASE_RANGE_MAX_PCT"]:
             if not pullback:
                 return _reject("M4_base_واسعة")
@@ -10225,10 +10288,11 @@ def run_backtest(symbols=None) -> None:
                 log(f"باكتيست·{sym}: بيانات غير كافية للمشي ({len(df)} شمعة)")
             continue
         sym_reasons = {}
-        # 🔬 سياق splits لتجربة M2 الواعية للتقسيم (باكتيست فقط، عند العلم فقط) — يُقرأ
-        # داخل analyze_ticker أثناء المشي؛ None بلا العلم = صفر أثر (الإنتاج byte-identical).
+        # 🔬 سياق splits لتجربتَي M2/M4 الواعيتين للتقسيم (باكتيست فقط، عند العلم فقط) —
+        # يُقرأ داخل analyze_ticker أثناء المشي؛ None بلا العلم = صفر أثر (الإنتاج byte-identical).
         globals()["_BT_SPLITS_CTX"] = ((splits_map or {}).get(sym)
-                                       if CONFIG.get("BT_SPLIT_AWARE_M2") else None)
+                                       if (CONFIG.get("BT_SPLIT_AWARE_M2")
+                                           or CONFIG.get("BT_SPLIT_AWARE_M4")) else None)
         all_trades += backtest_symbol(sym, df, sym_reasons, date_window=date_window,
                                       splits=(splits_map or {}).get(sym))
         globals()["_BT_SPLITS_CTX"] = None

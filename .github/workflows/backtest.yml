@@ -81,6 +81,10 @@ on:
         description: "🔬 M2 واعية للتقسيم (1=يقيس الهبوط من قمة de-inflated للتقسيم العكسي — INLF كان يُرفض بهبوط 97% وهمي). ⚠️ يلزم frozen_run_id (السياق splits من اللقطة). باكتيست فقط"
         required: false
         default: ""
+      bt_split_aware_m4:
+        description: "🔬 M4 واعية للتقسيم (1=يقيس مدى القاعدة من نافذة de-inflated — تقسيم عكسي داخل نافذة 15ج ينفخ «قاعدة واسعة» زائفة، الحاجب الأكبر لأسهم فيصل 28/47). ⚠️ يلزم frozen_run_id (السياق splits من اللقطة). باكتيست فقط"
+        required: false
+        default: ""
       frozen_run_id:
         description: "🕰️ التجميد الصحيح (موصى): run-id لتشغيلة «Freeze backtest dataset» لتحميل لقطتها المجمَّدة → باكتيست قابل لإعادة الإنتاج 100% + يرفض الوهميات (تعديل تقسيم مستقبلي). فارغ = تحميل حيّ متغيّر"
         required: false
@@ -135,6 +139,8 @@ jobs:
           BT_RAW_PRICE: ${{ github.event.inputs.bt_raw_price }}
           # 🔬 M2 واعية للتقسيم — يُقرأ في وضع BACKTEST حصريًا (يلزم frozen_run_id للسياق splits)
           BT_SPLIT_AWARE_M2: ${{ github.event.inputs.bt_split_aware_m2 }}
+          # 🔬 M4 واعية للتقسيم — يُقرأ في وضع BACKTEST حصريًا (يلزم frozen_run_id للسياق splits)
+          BT_SPLIT_AWARE_M4: ${{ github.event.inputs.bt_split_aware_m4 }}
           # 🕰️ التجميد الصحيح: لو frozen_run_id مُعطى → حُمِّلت اللقطة، فاقرأها (قابل لإعادة الإنتاج)
           BT_FROZEN_PATH: ${{ github.event.inputs.frozen_run_id != '' && 'frozen_backtest.pkl.gz' || '' }}
         run: python Super_stock.py

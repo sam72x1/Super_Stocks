@@ -2040,6 +2040,50 @@ finally:
 # قفل: العلم مطفأ افتراضيًّا (الإنتاج لا يمسّه)
 check("🔬 M2-split: العلم مطفأ افتراضيًّا (إنتاج آمن)",
       S.CONFIG.get("BT_SPLIT_AWARE_M2", 0) == 0 and S._BT_SPLITS_CTX is None)
+
+# 🔬 تجربة M4 واعية للتقسيم (باكتيست فقط · الإنتاج byte-identical): مدى القاعدة de-inflated
+# للتقسيم العكسي **داخل نافذة 15ج** (الحاجب الأكبر لأسهم فيصل — 28/47). طلب المستخدم «ابنها».
+# (أ) الدالة النقية _split_aware_base_range
+_m4i = pd.date_range("2025-06-01", periods=10, freq="D")
+_m4h = pd.Series([40.0, 40, 40, 40, 4, 4, 4, 4, 4, 4], index=_m4i)   # highs (4 شموع منفوخة)
+_m4l = pd.Series([40.0, 40, 40, 40, 4, 4, 4, 4, 4, 4], index=_m4i)   # lows
+_m4s = pd.Series([0.1], index=[pd.Timestamp("2025-06-05")])   # عكسي 1:10 داخل النافذة
+check("🔬 M4-split: مدى القاعدة يهبط بعد de-inflation (900% خام → ~0% معاصر)",
+      S._split_aware_base_range(_m4h, _m4l, _m4s, "2025-06-10") < 40.0)
+check("🔬 M4-split: بلا splits → المدى الخام كما هو (900% = سلوك اليوم)",
+      abs(S._split_aware_base_range(_m4h, _m4l, None, "2025-06-10") - 900.0) < 1.0)
+check("🔬 M4-split: تقسيم بعد cut يُتجاهَل (لا تسريب مستقبلي) → 900% خام",
+      abs(S._split_aware_base_range(_m4h, _m4l, _m4s, "2025-06-04") - 900.0) < 1.0)
+# (ب) تكامل analyze_ticker: مطفأ = byte-identical تجاه سياق splits · مفعّل = مدى de-inflated
+# قمة تنفجر (2→10 = 400%) ثم هبوط لـ4 · آخر 15ج فيها تقسيم عكسي 1:10 ينفخ القاعدة زائفًا.
+_m4c = np.concatenate([np.full(30, 2.0), np.full(20, 10.0),
+                       np.linspace(10.0, 4.0, 195),
+                       np.full(7, 40.0), np.full(8, 4.0)])   # 260 شمعة
+_m4df = pd.DataFrame({"Open": _m4c, "High": _m4c * 1.01, "Low": _m4c * 0.99,
+                      "Close": _m4c, "Volume": np.full(260, 1e6)},
+                     index=pd.date_range("2024-01-01", periods=260, freq="D"))
+try:
+    S._REJECT_STATS.clear(); S._BT_SPLITS_CTX = pd.Series([0.1], index=[_m4df.index[252]])
+    _m4_off = S.analyze_ticker("M4X", _m4df); _m4_off_rej = dict(S._REJECT_STATS)   # العلم=0
+    S._BT_SPLITS_CTX = None; S._REJECT_STATS.clear()
+    _m4_none = S.analyze_ticker("M4X", _m4df)
+    check("🔬 M4-split قفل: العلم مطفأ → نتيجة متطابقة تجاه سياق splits (إنتاج byte-identical)",
+          (_m4_off is None) == (_m4_none is None) and "M4_base_واسعة" in _m4_off_rej)
+    S.CONFIG["BT_SPLIT_AWARE_M4"] = 1
+    S._BT_SPLITS_CTX = pd.Series([0.1], index=[_m4df.index[252]])   # عكسي 1:10 داخل النافذة
+    S._REJECT_STATS.clear(); S.analyze_ticker("M4X", _m4df); _m4_on_rej = dict(S._REJECT_STATS)
+    check("🔬 M4-split: مفعّل+تقسيم عكسي → لم يعد يُرفض على M4_base_واسعة (المدى de-inflated)",
+          "M4_base_واسعة" not in _m4_on_rej)
+finally:
+    S.CONFIG["BT_SPLIT_AWARE_M4"] = 0; S._BT_SPLITS_CTX = None; S._REJECT_STATS.clear()
+# قفل: العلم مطفأ افتراضيًّا + الدالة خارج الجذور الستّة (analyze_ticker استثناء مُصرَّح)
+check("🔬 M4-split: العلم مطفأ افتراضيًّا (إنتاج آمن)",
+      S.CONFIG.get("BT_SPLIT_AWARE_M4", 0) == 0 and S._BT_SPLITS_CTX is None)
+check("🔬 M4-split قفل: _split_aware_base_range خارج الجذور (rank_key/select_top/classify_tier/"
+      "entry_status/backtest_symbol/apply_float_gate)",
+      all("_split_aware_base_range" not in _insp0.getsource(f)
+          for f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                    S.backtest_symbol, S.apply_float_gate)))
 # العرض بالكرت + التجديد اليومي لـpump_scar
 _card_h = {"symbol": "HND", "price": 2.0, "pivot": 1.95, "score": 60,
            "readiness": 60, "rr": 2.0, "entry": (1.9, 2.0),
