@@ -82,30 +82,68 @@ def _one(sym, df_full, dstr):
     return "\n".join(out)
 
 
+def _split_note(sym, dates):
+    """⚠️ يحذّر لو حدث تقسيم **بعد** أقدم تاريخ مطلوب: yfinance يعدّل الأسعار
+    رجعيًّا فالعرض التاريخي يتشوّه (RBNE «توه مقسم» مثال حيّ). فاشل-آمن → لا سطر."""
+    try:
+        sp = bot._fetch_splits(sym)
+        if sp is None or len(sp) == 0:
+            return ""
+        earliest = min(dt.date.fromisoformat(d) for d in dates)
+        rec = []
+        for ts, ratio in sp.items():
+            try:
+                d = ts.date()
+            except Exception:
+                continue
+            if d > earliest:
+                rec.append((d.isoformat(), float(ratio)))
+        if rec:
+            p = " · ".join(f"{d} ×{r:g}" for d, r in sorted(rec))
+            return ("   ⚠️ <b>تقسيم بعد التاريخ</b> (" + p + ") — الأسعار مُعدَّلة "
+                    "رجعيًّا فالتحليل التاريخي لهذا السهم مشوَّه؛ اقرأه بحذر.")
+        return ""
+    except Exception:
+        return ""
+
+
 def run():
-    sym = os.environ.get("ASOF_TICKER", "").strip().upper()
+    # ASOF_TICKER يقبل رمزًا واحدًا أو عدّة رموز مفصولة بفاصلة/مسافة (طلب المستخدم:
+    # فحص كل الأسهم المذكورة دفعة واحدة). رسالة تلغرام مستقلة لكل رمز (طول آمن).
+    raw = os.environ.get("ASOF_TICKER", "").replace(" ", ",")
+    syms, _seen = [], set()
+    for s in raw.split(","):
+        s = s.strip().upper()
+        if s and s not in _seen:
+            _seen.add(s)
+            syms.append(s)
     dates = [d.strip() for d in os.environ.get("ASOF_DATES", "").split(",")
              if d.strip()]
-    if not sym or not dates:
+    if not syms or not dates:
         bot.log("⚠️ يلزم ASOF_TICKER و ASOF_DATES (مفصولة بفاصلة).")
         return
-    bot.log(f"🕰️ تحليل تاريخي لـ {sym} عند: {', '.join(dates)}")
+    bot.log(f"🕰️ تحليل تاريخي لـ {', '.join(syms)} عند: {', '.join(dates)}")
     try:
-        data = bot.download_history([sym])
+        data = bot.download_history(syms)
     except Exception as e:
-        bot.send_telegram(f"🕰️ {sym}: تعذّر جلب البيانات ({e})\n\n{bot.FOOTER}")
+        bot.send_telegram(f"🕰️ تعذّر جلب البيانات ({e})\n\n{bot.FOOTER}")
         return
-    df_full = data.get(sym)
-    if df_full is None or len(df_full) < C["MIN_BARS"]:
-        bot.send_telegram(f"🕰️ {sym}: بيانات غير كافية.\n\n{bot.FOOTER}")
-        return
-    blocks = [_one(sym, df_full, d) for d in dates]
-    msg = (f"🕰️ <b>تحليل تاريخي (كما رآه البوت): {sym}</b>\n"
-           f"🧾 {bot.LOGIC_VERSION}\n\n" + "\n\n".join(blocks)
-           + "\n\n⚠️ الأسعار مُعدَّلة رجعيًّا لأي تقسيم لاحق (سليم بلا تقسيم حديث)."
-           + f"\n\n{bot.FOOTER}")
-    bot.send_telegram(msg)
-    bot.log(msg)
+    for sym in syms:
+        df_full = data.get(sym)
+        if df_full is None or len(df_full) < C["MIN_BARS"]:
+            bot.send_telegram(f"🕰️ <b>{sym}</b>: بيانات غير كافية حتى الآن.\n\n{bot.FOOTER}")
+            bot.log(f"🕰️ {sym}: بيانات غير كافية")
+            continue
+        blocks = [_one(sym, df_full, d) for d in dates]
+        msg = (f"🕰️ <b>تحليل تاريخي (كما رآه البوت): {sym}</b>\n"
+               f"🧾 {bot.LOGIC_VERSION}\n\n" + "\n\n".join(blocks))
+        sn = _split_note(sym, dates)
+        if sn:
+            msg += "\n\n" + sn
+        msg += ("\n\n⚠️ الأسعار مُعدَّلة رجعيًّا لأي تقسيم لاحق (سليم بلا تقسيم حديث)."
+                + f"\n\n{bot.FOOTER}")
+        bot.send_telegram(msg)
+        bot.log(msg)
 
 
 if __name__ == "__main__":
