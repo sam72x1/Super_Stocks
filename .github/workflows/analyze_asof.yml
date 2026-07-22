@@ -11,6 +11,11 @@ on:
         description: "تواريخ مفصولة بفاصلة YYYY-MM-DD (مثال 2026-07-15,2026-07-16,2026-07-17)"
         required: true
         type: string
+      split_aware:
+        description: "🔬 M2 واعية للتقسيم (1=يقيس الهبوط من قمة de-inflated للتقسيم العكسي)"
+        required: false
+        default: "0"
+        type: string
 
 jobs:
   asof:
@@ -31,4 +36,5 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           ASOF_TICKER: ${{ github.event.inputs.ticker }}
           ASOF_DATES: ${{ github.event.inputs.dates }}
+          ASOF_SPLIT_AWARE: ${{ github.event.inputs.split_aware }}
         run: python analyze_asof.py

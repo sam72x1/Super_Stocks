@@ -169,7 +169,13 @@ def run():
     if not syms or not dates:
         bot.log("⚠️ يلزم ASOF_TICKER و ASOF_DATES (مفصولة بفاصلة).")
         return
-    bot.log(f"🕰️ تحليل تاريخي لـ {', '.join(syms)} عند: {', '.join(dates)}")
+    # 🔬 وضع «M2 واعية للتقسيم» (تجربة): يستبدل قمة52أ بقمة de-inflated للتقسيم العكسي
+    # فيتغيّر حكم M2 (INLF يخرج من «هبوط 97% وهمي»). يلزم سياق splits لكل رمز.
+    split_aware = os.environ.get("ASOF_SPLIT_AWARE", "").strip() in ("1", "true", "yes")
+    if split_aware:
+        bot.CONFIG["BT_SPLIT_AWARE_M2"] = 1
+    bot.log(f"🕰️ تحليل تاريخي لـ {', '.join(syms)} عند: {', '.join(dates)}"
+            + (" [M2 واعية للتقسيم]" if split_aware else ""))
     try:
         data = bot.download_history(syms)
     except Exception as e:
@@ -181,8 +187,12 @@ def run():
             bot.send_telegram(f"🕰️ <b>{sym}</b>: بيانات غير كافية حتى الآن.\n\n{bot.FOOTER}")
             bot.log(f"🕰️ {sym}: بيانات غير كافية")
             continue
+        bot._BT_SPLITS_CTX = (bot._fetch_splits(sym) if split_aware else None)
         blocks = [_one(sym, df_full, d) for d in dates]
-        msg = (f"🕰️ <b>تحليل تاريخي (كما رآه البوت): {sym}</b>\n"
+        bot._BT_SPLITS_CTX = None
+        _hdr = ("🕰️ <b>تحليل تاريخي (M2 واعية للتقسيم): " if split_aware
+                else "🕰️ <b>تحليل تاريخي (كما رآه البوت): ")
+        msg = (f"{_hdr}{sym}</b>\n"
                f"🧾 {bot.LOGIC_VERSION}\n\n" + "\n\n".join(blocks))
         sn = _split_note(sym, dates)
         if sn:

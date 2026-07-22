@@ -2004,6 +2004,42 @@ try:
           and ("جاهز" in _line or "متابعة" in _line or "لم يُرشَّح" in _line))
 except Exception as _aae:
     check("🕰️ analyze_asof يعمل", False, str(_aae))
+
+# 🔬 تجربة M2 واعية للتقسيم (باكتيست فقط · الإنتاج byte-identical): قمة52أ de-inflated
+# للتقسيم العكسي (INLF: قمة $4598 وهمية بعد 1:16 ثم 1:200). طلب المستخدم «سوّها».
+# (أ) الدالة النقية _split_aware_hi52
+_msi = pd.date_range("2025-06-01", periods=10, freq="D")
+_msh = pd.Series([100.0, 100, 100, 100, 100, 5, 5, 5, 5, 5], index=_msi)
+_mss = pd.Series([0.1], index=[pd.Timestamp("2025-06-06")])   # عكسي 1:10 بعد القمة
+check("🔬 M2-split: القمة تُخفَّض بالتقسيم العكسي (100×0.1=10 > بقايا 5)",
+      abs(S._split_aware_hi52(_msh, _mss, "2025-06-10") - 10.0) < 1e-6)
+check("🔬 M2-split: بلا splits → القمة كما هي (100 = سلوك اليوم)",
+      abs(S._split_aware_hi52(_msh, None, "2025-06-10") - 100.0) < 1e-6)
+check("🔬 M2-split: تقسيم بعد cut يُتجاهَل (لا تسريب مستقبلي) → 100",
+      abs(S._split_aware_hi52(_msh, _mss, "2025-06-05") - 100.0) < 1e-6)
+# (ب) تكامل analyze_ticker: مطفأ = byte-identical تجاه سياق splits · مفعّل = قمة de-inflated
+# قمة 200 ثم انهيار لـ2.0 (السعر 2.0 فوق أرضية M1 $1.5 · الهبوط 99% يصطدم بـM2)
+_msc = np.concatenate([np.full(50, 200.0), np.full(210, 2.0)])
+_msdf = pd.DataFrame({"Open": _msc, "High": _msc * 1.01, "Low": _msc * 0.99,
+                      "Close": _msc, "Volume": np.full(260, 1e6)},
+                     index=pd.date_range("2024-01-01", periods=260, freq="D"))
+try:
+    S._REJECT_STATS.clear(); S._BT_SPLITS_CTX = pd.Series([0.01], index=[_msdf.index[60]])
+    _off = S.analyze_ticker("MSX", _msdf); _off_rej = dict(S._REJECT_STATS)   # العلم=0
+    S._BT_SPLITS_CTX = None; S._REJECT_STATS.clear()
+    _none = S.analyze_ticker("MSX", _msdf)
+    check("🔬 M2-split قفل: العلم مطفأ → نتيجة متطابقة تجاه سياق splits (إنتاج byte-identical)",
+          (_off is None) == (_none is None) and "M2_هبوط_فوق_97" in _off_rej)
+    S.CONFIG["BT_SPLIT_AWARE_M2"] = 1
+    S._BT_SPLITS_CTX = pd.Series([0.01], index=[_msdf.index[60]])   # عكسي 1:100 بعد القمة
+    S._REJECT_STATS.clear(); S.analyze_ticker("MSX", _msdf); _on_rej = dict(S._REJECT_STATS)
+    check("🔬 M2-split: مفعّل+تقسيم عكسي → لم يعد يُرفض على M2_فوق_97 (القمة de-inflated)",
+          "M2_هبوط_فوق_97" not in _on_rej)
+finally:
+    S.CONFIG["BT_SPLIT_AWARE_M2"] = 0; S._BT_SPLITS_CTX = None; S._REJECT_STATS.clear()
+# قفل: العلم مطفأ افتراضيًّا (الإنتاج لا يمسّه)
+check("🔬 M2-split: العلم مطفأ افتراضيًّا (إنتاج آمن)",
+      S.CONFIG.get("BT_SPLIT_AWARE_M2", 0) == 0 and S._BT_SPLITS_CTX is None)
 # العرض بالكرت + التجديد اليومي لـpump_scar
 _card_h = {"symbol": "HND", "price": 2.0, "pivot": 1.95, "score": 60,
            "readiness": 60, "rr": 2.0, "entry": (1.9, 2.0),

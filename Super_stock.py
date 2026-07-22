@@ -300,6 +300,10 @@ CONFIG = {
     "BT_RAW_PRICE": 0,                   # 🕰️ point-in-time: 1 = تحميل خام (auto_adjust=False)
                                          #   لتفادي إشارات وهمية من تعديل تقسيم مستقبلي (تدقيق
                                          #   خارجي). باكتيست حصريًا؛ الإنتاج يتجاهله (قفل B1).
+    "BT_SPLIT_AWARE_M2": 0,              # 🔬 M2 يقيس الهبوط من قمة **de-inflated للتقسيم
+                                         #   العكسي** (INLF 1:200 كان يُرفض بهبوط 97% وهمي).
+                                         #   باكتيست/تشخيص حصريًا + يلزم سياق splits؛ الإنتاج
+                                         #   byte-identical (العلم مطفأ والسياق None = لا أثر).
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -429,6 +433,7 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_BASE_RANGE_MAX", "BASE_RANGE_MAX_PCT", float),
             ("BT_MIN_DROP_FLOOR", "MIN_DROP_FLOOR", float),
             ("BT_MAX_DROP_PCT", "MAX_DROP_PCT", float),
+            ("BT_SPLIT_AWARE_M2", "BT_SPLIT_AWARE_M2", int),   # 🔬 M2 واعية للتقسيم
             ("BT_SPIKE_WINDOW", "PRIOR_SPIKE_WINDOW", int),
             ("BT_MIN_DOLLAR_VOL", "MIN_DOLLAR_VOL", float),
             # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — باكتيست حصريًا، منفصلة الدخول/الوقف
@@ -997,6 +1002,51 @@ def _pit_raw_price(adjusted_price, splits, asof) -> float:
         return float(adjusted_price) * _pit_split_factor(splits, asof)
     except Exception:
         return float(adjusted_price)
+
+
+# 🔬 سياق splits لتجربة «M2 واعية للتقسيم» (باكتيست فقط). None في الإنتاج =
+# صفر أثر حتى لو رُفِع العلم غلطًا (حارس مزدوج مع BT_SPLIT_AWARE_M2).
+_BT_SPLITS_CTX = None
+
+
+def _split_aware_hi52(highs, splits, cut) -> float:
+    """🔬 قمة 52أ **بعد إلغاء تضخيم التقسيم العكسي** (تجربة M2، باكتيست/تشخيص):
+    كل شمعة `high` تُضرب بعامل نِسَب التقسيمات **المعروفة حتى `cut`** والواقعة بعد
+    تاريخ الشمعة (بلا تسريب مستقبلي) فتعود لمقياسها المعاصر، ثم نأخذ القمة. يمنع
+    «هبوط 97% وهمي» من قمة ما-قبل-تقسيم منفوخة (INLF: قمة $4598 = $1.44 حقيقي بعد
+    1:16 ثم 1:200). بلا splits/تعذّر → القمة كما هي (== سلوك اليوم). نقيّة، فاشلة-آمنة."""
+    try:
+        base = float(highs.max())
+        if splits is None or (hasattr(splits, "__len__") and len(splits) == 0):
+            return base
+        c = pd.Timestamp(cut)
+        c = c.tz_localize(None) if getattr(c, "tz", None) is not None else c
+        it = splits.items() if hasattr(splits, "items") else splits
+        known = []
+        for d, r in it:
+            dd = pd.Timestamp(d)
+            dd = dd.tz_localize(None) if getattr(dd, "tz", None) is not None else dd
+            if dd <= c and r and float(r) > 0:      # معروف حتى cut فقط
+                known.append((dd, float(r)))
+        if not known:
+            return base
+        best = 0.0
+        for ts, h in highs.items():
+            t = pd.Timestamp(ts)
+            t = t.tz_localize(None) if getattr(t, "tz", None) is not None else t
+            f = 1.0
+            for dd, r in known:
+                if dd > t:                          # تقسيم بعد هذه الشمعة
+                    f *= r
+            v = float(h) * f
+            if v > best:
+                best = v
+        return best if best > 0 else base
+    except Exception:
+        try:
+            return float(highs.max())
+        except Exception:
+            return 0.0
 
 
 def save_frozen_dataset(hist: dict, splits: dict, asof: str, path: str) -> dict:
@@ -1850,6 +1900,11 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # أرضية صلبة (<40%) = ليس ارتكازًا → رفض. حدّي (40-50%) = نقص (B).
         # مثالي (≥50%) = بلا عقوبة. (>97% = محتضر → رفض).
         hi52 = float(high.tail(252).max())
+        # 🔬 تجربة M2 واعية للتقسيم (باكتيست فقط · الإنتاج byte-identical): العلم مطفأ
+        # افتراضيًّا **والسياق None** فلا يُنفَّذ الفرع أصلًا. عند تفعيلهما معًا نستبدل قمة52أ
+        # بقمة de-inflated للتقسيم العكسي (تمنع رفض INLF بهبوط 97% مصطنع).
+        if CONFIG.get("BT_SPLIT_AWARE_M2") and _BT_SPLITS_CTX is not None:
+            hi52 = _split_aware_hi52(high.tail(252), _BT_SPLITS_CTX, df.index[-1])
         if hi52 <= 0:
             return _reject("M2_hi52")
         drop_pct = (1.0 - price / hi52) * 100.0
@@ -10170,8 +10225,13 @@ def run_backtest(symbols=None) -> None:
                 log(f"باكتيست·{sym}: بيانات غير كافية للمشي ({len(df)} شمعة)")
             continue
         sym_reasons = {}
+        # 🔬 سياق splits لتجربة M2 الواعية للتقسيم (باكتيست فقط، عند العلم فقط) — يُقرأ
+        # داخل analyze_ticker أثناء المشي؛ None بلا العلم = صفر أثر (الإنتاج byte-identical).
+        globals()["_BT_SPLITS_CTX"] = ((splits_map or {}).get(sym)
+                                       if CONFIG.get("BT_SPLIT_AWARE_M2") else None)
         all_trades += backtest_symbol(sym, df, sym_reasons, date_window=date_window,
                                       splits=(splits_map or {}).get(sym))
+        globals()["_BT_SPLITS_CTX"] = None
         if sym_reasons and not market:   # تشخيص: أكثر بوابة رفضت هذا السهم تاريخيًا
             top = sorted(sym_reasons.items(), key=lambda x: -x[1])[:3]
             log(f"باكتيست·أسباب {sym}: "
