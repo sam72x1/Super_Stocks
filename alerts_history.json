@@ -1348,7 +1348,7 @@
    "rr": 1.4879110117041585,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 2.1
+   "max_gain_pct": 5.5
   },
   {
    "symbol": "PONY",
@@ -1385,7 +1385,7 @@
    "rr": 1.3076496220534477,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.1
+   "max_gain_pct": 5.9
   },
   {
    "symbol": "NMRA",
@@ -1463,7 +1463,7 @@
    "rr": 2.965180043772645,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.7
   },
   {
    "symbol": "TRON",
@@ -1501,7 +1501,7 @@
    "rr": 1.940352509004351,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 1.3
   },
   {
    "symbol": "MSTR",
@@ -1540,7 +1540,7 @@
    "rr": 3.9054634636448267,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 1.3
   }
  ]
 }
