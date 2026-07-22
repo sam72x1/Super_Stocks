@@ -1,0 +1,57 @@
+name: Faisal golden-combo discriminant (3yr)
+# 🥇 اختبار تمييزي مسجَّل مسبقًا لتوليفة فيصل (IMG_0076) على السوق كامل من اللقطة المجمَّدة.
+# بحث/باكتيست فقط — لا يمسّ الفرز/الإنتاج. يقرأ لقطة freeze عبر frozen_run_id.
+permissions:
+  contents: read
+  actions: read          # لتحميل لقطة التجميد من تشغيلة freeze
+on:
+  workflow_dispatch:
+    inputs:
+      frozen_run_id:
+        description: "run-id لتشغيلة «Freeze backtest dataset» (يلزم — السياق splits+OHLCV من اللقطة الممتدّة)"
+        required: true
+        default: ""
+      fc_fwd_days:
+        description: "النافذة الأمامية للانفجار (جلسات، افتراضي 60)"
+        required: false
+        default: ""
+      fc_explode_pct:
+        description: "عتبة الانفجار % (افتراضي 100)"
+        required: false
+        default: ""
+jobs:
+  faisal-combo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        if: ${{ github.event.inputs.frozen_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run Faisal combo discriminant
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SCREENER_MODE: BACKTEST
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+          FC_FWD_DAYS: ${{ github.event.inputs.fc_fwd_days }}
+          FC_EXPLODE_PCT: ${{ github.event.inputs.fc_explode_pct }}
+        run: python faisal_combo_backtest.py
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: faisal-combo-result
+          path: faisal_combo_result.md
+          if-no-files-found: warn
