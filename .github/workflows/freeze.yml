@@ -30,6 +30,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SCREENER_MODE: FREEZE
           BT_FREEZE_OUT: frozen_backtest.pkl.gz
+          FREEZE_START: ${{ github.event.inputs.freeze_start }}
         run: python Super_stock.py
       - name: Upload frozen dataset
         if: always()
