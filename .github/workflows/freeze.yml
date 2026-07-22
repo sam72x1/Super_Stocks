@@ -6,6 +6,11 @@ permissions:
   contents: read
 on:
   workflow_dispatch:
+    inputs:
+      freeze_start:
+        description: "🔬 تاريخ بدء أقدم (اختياري YYYY-MM-DD) لتغطية السنوات القديمة (مثال 2022-01-01 لاختبار 2023). فارغ = النافذة الافتراضية"
+        required: false
+        default: ""
 jobs:
   freeze:
     runs-on: ubuntu-latest

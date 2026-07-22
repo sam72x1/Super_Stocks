@@ -10383,8 +10383,11 @@ def run_freeze() -> None:
     من التدقيق الخارجي (الباكتيست الحيّ يقفز 26↔44% لمجرد إعادة التشغيل). بنية/باكتيست فقط."""
     uni = get_universe() or _default_backtest_symbols()
     asof = dt.date.today().isoformat()
-    start = (dt.date.today() - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
-    log(f"🕰️ تجميد: تحميل {len(uni)} رمز (OHLCV + تقسيمات) as-of {asof}…")
+    # 🔬 FREEZE_START (اختياري، باكتيست فقط): تاريخ بدء أقدم لتغطية السنوات القديمة
+    # (2023 يحتاج لوكباك ~2022). فارغ = اليوم−HISTORY_DAYS (سلوك التجميد الافتراضي حرفيًّا).
+    start = os.environ.get("FREEZE_START", "").strip() or (
+        dt.date.today() - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
+    log(f"🕰️ تجميد: تحميل {len(uni)} رمز (OHLCV + تقسيمات) من {start} as-of {asof}…")
     hist, splits = {}, {}
     size = CONFIG["CHUNK_SIZE"]
     for k in range(0, len(uni), size):
