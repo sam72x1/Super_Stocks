@@ -21,6 +21,48 @@ import Super_stock as bot
 C = bot.CONFIG
 
 
+def _m2_diag(sym, df):
+    """🔬 تفصيل رفض M2 (هبوط فوق 97%): القمة/الهبوط + هل السبب **تقسيم عكسي**
+    (قمة منفوخة بتجميع الأسهم = نمط فيصل «يموت في المقسّم حديثًا»، رفض تصميمي) أم
+    **تحطّم حقيقي** (سهم محتضر فعلًا). فاشل-آمن → سطر فارغ. عرض/تشخيص فقط."""
+    try:
+        high, close = df["High"], df["Close"]
+        price = float(close.iloc[-1])
+        win = high.tail(252)
+        hi52 = float(win.max())
+        if hi52 <= 0:
+            return ""
+        peak = win.idxmax().date()
+        drop = (1.0 - price / hi52) * 100.0
+        last = df.index[-1].date()
+        out = [f"   🔬 قمة 52أ ${hi52:.2f} ({peak}) · السعر ${price:.2f} · الهبوط {drop:.0f}%"]
+        sp = bot._fetch_splits(sym)
+        revs = []
+        if sp is not None and len(sp) > 0:
+            for ts, r in sp.items():
+                try:
+                    d = ts.date()
+                except Exception:
+                    continue
+                if (last - d).days <= 400 and float(r) < 1.0:   # تقسيم عكسي آخر ~سنة
+                    revs.append((d, float(r)))
+        if revs:
+            latest = max(d for d, _ in revs)
+            lst = " · ".join(f"{d}×{r:g}" for d, r in sorted(revs))
+            if peak < latest:
+                out.append(f"   🔁 تقسيم عكسي ({lst}) **بعد القمة** → القمة منفوخة "
+                           "بتجميع الأسهم (نمط فيصل «المقسّم حديثًا») — رفض M2 تصميمي "
+                           "لا بيانات خاطئة، والهبوط الحقيقي أقل.")
+            else:
+                out.append(f"   🔁 تقسيم عكسي ({lst}) لكن **قبل القمة** → القمة على "
+                           "المقياس الحالي، الهبوط 97% حقيقي.")
+        else:
+            out.append("   ✅ لا تقسيم عكسي مسجّل → الهبوط تحطّم حقيقي (رفض M2 بالتصميم C3).")
+        return "\n".join(out)
+    except Exception:
+        return ""
+
+
 def _one(sym, df_full, dstr):
     """يحلّل السهم عند نهاية يوم dstr (قصّ df) ويرجع سطر عرض مختصر."""
     try:
@@ -53,7 +95,12 @@ def _one(sym, df_full, dstr):
         reason = "?"
         if getattr(bot, "_REJECT_STATS", None):
             reason = " · ".join(f"{k}={v}" for k, v in bot._REJECT_STATS.items())
-        return f"{head}\n   ⛔ لم يُرشَّح ({reason})"
+        line = f"{head}\n   ⛔ لم يُرشَّح ({reason})"
+        if "M2_هبوط_فوق_97" in reason:   # 🔬 تفصيل الانهيار: حقيقي أم فخّ تقسيم؟
+            d = _m2_diag(sym, df)
+            if d:
+                line += "\n" + d
+        return line
 
     # طبقة التفسير (لحساب entry_mode → entry_status) — نفس مسار البطاقة
     try:
