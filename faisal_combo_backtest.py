@@ -2,7 +2,8 @@
 
 اختبار على **السوق كامل** من اللقطة المجمَّدة (بتخطّي بوابات البوت)، على العيّنة الصح
 (المنفجرون مقابل لا). المعايير القابلة للقياس point-in-time: مقسّم عكسي (بديل الفلوت) ·
-حركة 30-50% · قاعدة محفوظة 3 جلسات · انفجار سابق ≥100%. المعيار في `faisal_combo_prereg.md`.
+**المتوسط الأسّي EMA 30/50 هابط** (فيصل «متوسط الأسّي 30-50 يوم» — تصحيح 2026-07-22 من
+صور المستخدم؛ كان يُفهم خطأً كتذبذب يومي) · قاعدة محفوظة 3ج. المعيار في `faisal_combo_prereg.md`.
 
 **بحث/باكتيست فقط — صفر مسّ لـSuper_stock.py (لا جذور · لا LOGIC_VERSION).** يعيد استخدام
 `load_frozen_dataset` و`spike_info` فقط. بلا تسريب: الميزات من ≤t، الناتج من (t, t+FWD].
@@ -28,8 +29,11 @@ def _env(name, default):
 
 FWD = _env("FC_FWD_DAYS", 60)              # نافذة أمامية (جلسات)
 EXPLODE_PCT = _env("FC_EXPLODE_PCT", 100.0)  # الانفجار = صعود ≥ %
-MOVE_LO, MOVE_HI = 0.30, 0.50      # حركة 30-50%
-MOVE_WIN = 15                      # نافذة متوسط الحركة (جلسات)
+# ⚠️ تصحيح 2026-07-22 (صور IMG_0091/0094/0095/0096 — بحث المستخدم from:kisar_ 30/50):
+# «متوسط حركة 30<50» = **المتوسط الأسّي EMA 30 و 50** (فيصل: «متوسط الأسّي 30-50 يوم» ·
+# «جميع المتوسطات … 30-50» · «مقسّم هابط متوسط 20<30<50»)، **لا** متوسط الحركة اليومية.
+# السهم بعد حركته الأسّية الهابطة (السعر تحت EMA20<EMA30<EMA50 = اصطفاف هابط) عند القاع.
+EMA_FAST, EMA_MID, EMA_SLOW = 20, 30, 50   # المتوسطات الأسّية (فيصل يذكر 20/30/50)
 BASE_HOLD_WIN = 3                  # حافظ ع قاعه 3 جلسات
 BASE_HOLD_MAX = 0.15               # مدى آخر 3ج ≤15% = محفوظ
 RSPLIT_LOOKBACK = 365              # مقسّم عكسي خلال سنة (أيام تقويم)
@@ -73,16 +77,21 @@ def rsplit_recent(splits, asof, lookback=RSPLIT_LOOKBACK):
     return False
 
 
-def avg_move(high, low, close, win=MOVE_WIN):
-    """متوسط (high−low)/close لآخر `win` جلسة. None عند التعذّر."""
-    h = np.asarray(high[-win:], float)
-    l = np.asarray(low[-win:], float)
-    c = np.asarray(close[-win:], float)
-    if len(c) == 0:
-        return None
-    m = (h - l) / np.where(c > 0, c, np.nan)
-    v = np.nanmean(m)
-    return float(v) if np.isfinite(v) else None
+def ema_bear_stack(close, price):
+    """المتوسط الأسّي «30<50» (فيصل: «متوسط الأسّي 30-50 يوم» · «مقسّم هابط متوسط 20<30<50»):
+    اصطفاف أسّي هابط EMA20 ≤ EMA30 ≤ EMA50 **والسعر تحت EMA20** = السهم أنهى حركته الأسّية
+    الهابطة وعند القاع (يمهّد للمضاعفة). يرجّع (stack_bool, gap50) حيث gap50 = price/EMA50−1
+    (للتفصيل الثانوي). (False, nan) عند قصر التاريخ (<EMA_SLOW). نقيّة فاشلة-آمنة."""
+    c = np.asarray(close, float)
+    if len(c) < EMA_SLOW:
+        return False, float("nan")
+    s = pd.Series(c)
+    e20 = float(s.ewm(span=EMA_FAST, adjust=False).mean().iloc[-1])
+    e30 = float(s.ewm(span=EMA_MID, adjust=False).mean().iloc[-1])
+    e50 = float(s.ewm(span=EMA_SLOW, adjust=False).mean().iloc[-1])
+    stack = bool(price <= e20 <= e30 <= e50)
+    gap = (price / e50 - 1.0) if e50 > 0 else float("nan")
+    return stack, gap
 
 
 def base_held(high, low, win=BASE_HOLD_WIN, maxr=BASE_HOLD_MAX):
@@ -120,14 +129,15 @@ def _selftest():
     chk("rsplit: تقسيم أمامي (نسبة>1) → False",
         rsplit_recent(pd.Series([2.0], index=[pd.Timestamp("2025-03-10")]), "2025-06-01") is False)
     chk("rsplit: بلا splits → False", rsplit_recent(None, "2025-06-01") is False)
-    hi_a = np.array([1.40] * 15)
-    lo_a = np.array([1.00] * 15)
-    cl_a = np.array([1.00] * 15)
-    mv = avg_move(hi_a, lo_a, cl_a)
-    chk("avg_move: (1.40−1.00)/1.00=0.40", abs(mv - 0.40) < 1e-9)
-    chk("avg_move 0.40 ضمن البند [0.30,0.50]", MOVE_LO <= mv <= MOVE_HI)
-    chk("avg_move 0.20 خارج البند", not (MOVE_LO <= (avg_move(
-        np.array([1.20] * 15), lo_a, cl_a)) <= MOVE_HI))
+    dec = np.linspace(100.0, 10.0, 80)   # سلسلة هابطة (حركة أسّية هابطة)
+    st, gp = ema_bear_stack(dec, dec[-1])
+    chk("ema: هابطة → اصطفاف أسّي هابط EMA20≤30≤50 والسعر تحت (True)", st is True)
+    chk("ema: هابطة → السعر تحت EMA50 (gap سالب)", gp < 0)
+    inc = np.linspace(10.0, 100.0, 80)   # سلسلة صاعدة
+    chk("ema: صاعدة → ليست اصطفافًا هابطًا (False)",
+        ema_bear_stack(inc, inc[-1])[0] is False)
+    chk("ema: تاريخ قصير (<50) → False",
+        ema_bear_stack(np.arange(10.0), 5.0)[0] is False)
     chk("base_held: 3ج مدى 0% → محفوظ",
         base_held(np.array([2.0, 2.0, 2.0]), np.array([2.0, 2.0, 2.0])) is True)
     chk("base_held: 3ج مدى 50% → غير محفوظ",
@@ -150,7 +160,7 @@ def run():
     print(f"🥇 توليفة فيصل — لقطة {path} · as-of {asof} · {len(hist)} رمز · "
           f"نافذة أمامية {FWD}ج · انفجار ≥{EXPLODE_PCT:g}%")
 
-    # الأعمدة: year, is_rs, move_ok, base_ok, spike_ok, combo, exploded, move_val
+    # الأعمدة: year, is_rs, ema_ok, base_ok, spike_ok, combo3, exploded, gap50
     rows = []
     n_sym_used = 0
     for sym, df in hist.items():
@@ -179,25 +189,26 @@ def run():
             if not (c0 > 0):
                 continue
             is_rs = rsplit_recent(sp, ts)
-            mv = avg_move(high[:i + 1], low[:i + 1], close[:i + 1])
-            move_ok = (mv is not None) and (MOVE_LO <= mv <= MOVE_HI)
+            ema_ok, gap = ema_bear_stack(close[:i + 1], c0)
             base_ok = base_held(high[:i + 1], low[:i + 1])
             best_spike, _ = S.spike_info(close[:i + 1], exclude_last=0)
             spike_ok = best_spike >= PRIOR_SPIKE_MIN
-            combo = is_rs and move_ok and base_ok and spike_ok
+            # التوليفة الأساسية = معايير IMG_0076 الثلاثة القابلة للقياس (مقسّم + أسّي30/50
+            # هابط + قاعدة3ج). «انفجار سابق» يُعرَض كميزة منفصلة (ليس ضمن قائمة IMG_0076).
+            combo3 = is_rs and ema_ok and base_ok
             fwd = close[i + 1:i + 1 + FWD]
             exploded = (len(fwd) > 0 and
                         (float(np.nanmax(fwd)) / c0 - 1.0) * 100.0 >= EXPLODE_PCT)
-            rows.append((ts.year, is_rs, move_ok, base_ok, spike_ok,
-                         combo, exploded, mv if mv is not None else np.nan))
+            rows.append((ts.year, is_rs, ema_ok, base_ok, spike_ok,
+                         combo3, exploded, gap))
 
     if not rows:
         print("⚠️ صفر نقاط تقييم — تحقّق من تغطية اللقطة للسنوات.")
         return 1
     arr = np.array([(r[0], r[1], r[2], r[3], r[4], r[5], r[6]) for r in rows], float)
-    moves = np.array([r[7] for r in rows], float)
+    gaps = np.array([r[7] for r in rows], float)
     N = len(arr)
-    yr, is_rs, mv_ok, bs_ok, sp_ok, combo, expl = (arr[:, k] for k in range(7))
+    yr, is_rs, ema_ok, bs_ok, sp_ok, combo, expl = (arr[:, k] for k in range(7))
 
     def rate(mask):
         n = int(mask.sum())
@@ -217,8 +228,8 @@ def run():
     out.append("## الميزات المفردة (معدّل الانفجار | الميزة مقابل الأساس)\n")
     out.append("| الميزة | N | انفجر | المعدّل | Wilson95 | الرفع×الأساس |")
     out.append("|---|--:|--:|--:|---|--:|")
-    feats = [("مقسّم عكسي (365ي)", is_rs), ("حركة 30-50%", mv_ok),
-             ("قاعدة محفوظة 3ج", bs_ok), ("انفجار سابق ≥100%", sp_ok)]
+    feats = [("مقسّم عكسي (365ي)", is_rs), ("أسّي 30/50 هابط (السعر تحت 20≤30≤50)", ema_ok),
+             ("قاعدة محفوظة 3ج", bs_ok), ("انفجار سابق ≥100% (خارج IMG_0076)", sp_ok)]
     for name, m in feats:
         n, k, p, lo, hi = rate(m.astype(bool))
         lift = (p / bp) if bp > 0 else float("nan")
@@ -230,11 +241,17 @@ def run():
     cn, ck, cp, clo, chi = rate(cm)
     nn, nk, np_, nlo, nhi = rate(~cm)
     lift = (cp / bp) if bp > 0 else float("nan")
-    out.append("\n## 🥇 التوليفة الكاملة (الأربعة معًا)\n")
+    out.append("\n## 🥇 التوليفة (معايير IMG_0076 الثلاثة: مقسّم + أسّي30/50-هابط + قاعدة3ج)\n")
     out.append(f"- **المطابق:** {cn} نقطة · انفجر {ck} · **{cp*100:.2f}%** "
                f"Wilson [{clo*100:.2f}, {chi*100:.2f}] · رفع {lift:.2f}× الأساس")
     out.append(f"- **غير المطابق:** {nn} نقطة · {np_*100:.2f}% "
                f"Wilson [{nlo*100:.2f}, {nhi*100:.2f}]")
+    # التوليفة + انفجار سابق (معلومة ثانوية)
+    c4 = cm & sp_ok.astype(bool)
+    f4n, f4k, f4p, f4lo, f4hi = rate(c4)
+    out.append(f"- **+ انفجار سابق ≥100%:** {f4n} نقطة · {f4p*100:.2f}% "
+               f"Wilson [{f4lo*100:.2f}, {f4hi*100:.2f}] · رفع "
+               f"{(f4p/bp) if bp>0 else float('nan'):.2f}×")
 
     # لكل سنة (LOYO)
     out.append("\n## الاتّساق عبر السنوات (LOYO — التوليفة)\n")
@@ -250,16 +267,16 @@ def run():
         yr_signs.append((c_n, c_p, b_p))
         out.append(f"| {y} | {c_n} | {c_k} | {c_p*100:.2f}% | {b_p*100:.2f}% | {lf:.2f}× |")
 
-    # تفصيل عشور الحركة (secondary — نتعلّم الشكل)
-    out.append("\n## (secondary) الانفجار حسب متوسط الحركة (نتعلّم البند الصحيح)\n")
-    out.append("| شريحة الحركة | N | معدّل الانفجار |")
+    # تفصيل فجوة السعر عن EMA50 (secondary — هل الأعمق تحت الأسّي ينفجر أكثر؟)
+    out.append("\n## (secondary) الانفجار حسب فجوة السعر عن EMA50 (price/EMA50−1)\n")
+    out.append("| الفجوة عن EMA50 | N | معدّل الانفجار |")
     out.append("|---|--:|--:|")
-    fin = np.isfinite(moves)
-    for a, b in [(0, .10), (.10, .20), (.20, .30), (.30, .50), (.50, 1.0), (1.0, 99)]:
-        m = fin & (moves >= a) & (moves < b)
+    fin = np.isfinite(gaps)
+    for a, b in [(-1.0, -.5), (-.5, -.3), (-.3, -.15), (-.15, 0), (0, .2), (.2, 9)]:
+        m = fin & (gaps >= a) & (gaps < b)
         n, k, p, *_ = rate(m)
         if n:
-            out.append(f"| [{a:.0%}, {b:.0%}) | {n} | {p*100:.2f}% |")
+            out.append(f"| [{a:+.0%}, {b:+.0%}) | {n} | {p*100:.2f}% |")
 
     # الحكم المسبق
     passes = []
