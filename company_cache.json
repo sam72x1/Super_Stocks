@@ -527,17 +527,6 @@
   "short_pct": 10.3,
   "float": 14426777
  },
- "NEGG": {
-  "sector": "Consumer Cyclical",
-  "industry": "Internet Retail",
-  "business": "Newegg Commerce, Inc. operates as an electronics-focused e-retailer in the United States, Canada, and internationally. The company sells desktops, laptops, gami…",
-  "country": "United States",
-  "cash": 57050000,
-  "revenue": 1403527040,
-  "shares_out": 20973423,
-  "short_pct": 26.4,
-  "float": 1346854
- },
  "ICCM": {
   "sector": "Healthcare",
   "industry": "Medical Devices",
@@ -1511,5 +1500,19 @@
   "company_name": "Sky Quarry Inc.",
   "short_interest": 672000,
   "days_to_cover": 0.03
+ },
+ "NEGG": {
+  "sector": "Consumer Cyclical",
+  "industry": "Internet Retail",
+  "business": "Newegg Commerce, Inc. operates as an electronics-focused e-retailer in the United States, Canada, and internationally. The company sells desktops, laptops, gami…",
+  "country": "United States",
+  "cash": 57050000,
+  "revenue": 1403527040,
+  "shares_out": 20973423,
+  "short_pct": 28.2,
+  "float": 1375167,
+  "company_name": "Newegg Commerce, Inc.",
+  "short_interest": 295007,
+  "days_to_cover": 3.22
  }
 }
