@@ -36,6 +36,12 @@ STOP_PCT = _env("FC_STOP_PCT", 50.0)       # 🎯 الوقف للمقياس ال
 # السهم بعد حركته الأسّية الهابطة (السعر تحت EMA20<EMA30<EMA50 = اصطفاف هابط) عند القاع.
 EMA_FAST, EMA_MID, EMA_SLOW = 20, 30, 50   # المتوسطات الأسّية (فيصل يذكر 20/30/50)
 BASE_HOLD_WIN = 3                  # حافظ ع قاعه 3 جلسات
+# 🖐️ ميكانيكا فيصل (طلب المستخدم): دخول بعد مسح-واستعادة (لا الدعم الأول) · وقف بنيوي تحت
+# أدنى المسح (~7% تحت الدعم) · هدف +100% · القياس بالتوقّع R لا نسبة النجاح (R:R ~14:1).
+SWEEP_PCT = _env("FC_SWEEP_PCT", 5.0)       # عمق المسح المطلوب تحت الدعم %
+STOP_MARGIN = _env("FC_STOP_MARGIN", 2.0)   # الوقف تحت أدنى المسح بـ %
+ENTRY_WIN = _env("FC_ENTRY_WIN", 20)        # نافذة انتظار المسح-الاستعادة (جلسات)
+BASE_LOOK = 15                              # نافذة الدعم (أدنى قاع)
 BASE_HOLD_MAX = 0.15               # مدى آخر 3ج ≤15% = محفوظ
 RSPLIT_LOOKBACK = 365              # مقسّم عكسي خلال سنة (أيام تقويم)
 PRIOR_SPIKE_MIN = 100.0            # انفجار سابق ≥100% (M3 مثالي)
@@ -108,6 +114,59 @@ def base_held(high, low, win=BASE_HOLD_WIN, maxr=BASE_HOLD_MAX):
     return (hi / lo - 1.0) <= maxr
 
 
+def sweep_entry_outcome(high, low, close, start, fwd, entry_win=None,
+                        sweep_pct=None, stop_margin=None, tgt_pct=None,
+                        base_look=BASE_LOOK):
+    """🖐️ محاكاة ميكانيكا فيصل من نقطة start (نقيّة، بلا نظر مستقبلي):
+    - الدعم = أدنى قاع آخر `base_look` جلسة حتى start.
+    - ينتظر **مسحًا** (low < الدعم×(1−sweep_pct)) ثم **استعادة** (close > الدعم) خلال `entry_win`.
+      (فيصل: «لا تدخل الدعم الأول · مسح ثم استعادة».) لا مسح-استعادة → لا دخول (ينتظر).
+    - الدخول = إغلاق الاستعادة · الوقف = أدنى المسح ×(1−stop_margin) · الهدف = دخول×(1+tgt_pct).
+    - يمشي للأمام حتى `fwd` من الدخول: الوقف أولًا → خسارة (R=−1) · الهدف → ربح (R=+المكافأة) ·
+      لا شيء → timeout (R = تقييم آخر إغلاق ÷ المخاطرة).
+    يرجّع (entered, win, R). فاشل-آمن → (False, False, nan)."""
+    ew = ENTRY_WIN if entry_win is None else entry_win
+    sp = SWEEP_PCT if sweep_pct is None else sweep_pct
+    sm = STOP_MARGIN if stop_margin is None else stop_margin
+    tp = EXPLODE_PCT if tgt_pct is None else tgt_pct
+    try:
+        h = np.asarray(high, float); l = np.asarray(low, float); c = np.asarray(close, float)
+        n = len(c)
+        if start < base_look or start + ew + fwd >= n:
+            return (False, False, float("nan"))
+        support = float(np.min(l[start - base_look:start + 1]))
+        if support <= 0:
+            return (False, False, float("nan"))
+        sweep_lvl = support * (1.0 - sp / 100.0)
+        sweep_low = None
+        entry_idx = None
+        for j in range(start + 1, start + 1 + ew):
+            if l[j] < sweep_lvl:
+                sweep_low = l[j] if sweep_low is None else min(sweep_low, l[j])
+            if sweep_low is not None and c[j] > support:      # استعادة بعد مسح
+                entry_idx = j
+                break
+        if entry_idx is None:
+            return (False, False, float("nan"))               # لا دخول (فيصل ينتظر)
+        entry = float(c[entry_idx])
+        stop = float(sweep_low) * (1.0 - sm / 100.0)
+        risk = entry - stop
+        if risk <= 0:
+            return (False, False, float("nan"))
+        target = entry * (1.0 + tp / 100.0)
+        reward_R = (target - entry) / risk
+        end = min(entry_idx + 1 + fwd, n)
+        for k in range(entry_idx + 1, end):
+            if l[k] <= stop:                                  # الوقف أولًا (أسوأ حالة)
+                return (True, False, -1.0)
+            if h[k] >= target:                                # الهدف
+                return (True, True, reward_R)
+        last = float(c[end - 1])                              # timeout: تقييم للسوق
+        return (True, False, (last - entry) / risk)
+    except Exception:
+        return (False, False, float("nan"))
+
+
 def _selftest():
     """اختبار ذاتي للدوال النقيّة (بلا لقطة/شبكة)."""
     ok = True
@@ -143,6 +202,21 @@ def _selftest():
         base_held(np.array([2.0, 2.0, 2.0]), np.array([2.0, 2.0, 2.0])) is True)
     chk("base_held: 3ج مدى 50% → غير محفوظ",
         base_held(np.array([3.0, 2.5, 2.0]), np.array([3.0, 2.5, 2.0])) is False)
+    # 🖐️ sweep_entry_outcome: مسح-استعادة + هدف/وقف
+    _lo = np.array([10.0] * 16 + [9.0, 9.2, 10.0] + [20.0] * 11)   # مسح بار16 ثم استعادة بار17
+    _hi = np.array([10.5] * 16 + [9.8, 10.4, 21.0] + [20.5] * 11)  # بار18 يضرب الهدف
+    _cl = np.array([10.2] * 16 + [9.5, 10.3, 20.0] + [20.0] * 11)
+    _e, _w, _R = sweep_entry_outcome(_hi, _lo, _cl, 15, 5, entry_win=4,
+                                     sweep_pct=5, stop_margin=2, tgt_pct=100)
+    chk("sweep: مسح+استعادة+هدف → دخل ✓ ربح ✓ R>1", _e is True and _w is True and _R > 1)
+    _lo2 = _lo.copy(); _lo2[18] = 8.5          # الوقف يُضرب بعد الدخول
+    _hi2 = _hi.copy(); _hi2[18] = 10.5
+    _e2, _w2, _R2 = sweep_entry_outcome(_hi2, _lo2, _cl, 15, 5, entry_win=4,
+                                        sweep_pct=5, stop_margin=2, tgt_pct=100)
+    chk("sweep: مسح+استعادة ثم وقف → خسارة R=−1", _e2 is True and _w2 is False and _R2 == -1.0)
+    chk("sweep: بلا مسح → لا دخول", sweep_entry_outcome(
+        np.array([10.5] * 30), np.array([10.0] * 30), np.array([10.2] * 30),
+        15, 5, entry_win=4)[0] is False)
     print("\n" + ("✅✅ الاختبار الذاتي نجح" if ok else "❌ فشل الاختبار الذاتي"))
     return ok
 
@@ -216,14 +290,20 @@ def run():
                 if a >= tgt:          # ضرب الهدف
                     win = True
                     break
+            # 🖐️ ميكانيكا فيصل: دخول بعد مسح-واستعادة + وقف بنيوي + هدف 100% → توقّع R
+            m_ent, m_win, m_R = sweep_entry_outcome(high, low, close, i, FWD)
             rows.append((ts.year, is_rs, ema_ok, base_ok, spike_ok,
-                         combo3, exploded, win, loss, gap))
+                         combo3, exploded, win, loss, gap,
+                         float(m_ent), float(m_win), m_R))
 
     if not rows:
         print("⚠️ صفر نقاط تقييم — تحقّق من تغطية اللقطة للسنوات.")
         return 1
     arr = np.array([r[:9] for r in rows], float)
     gaps = np.array([r[9] for r in rows], float)
+    m_ent = np.array([r[10] for r in rows], float)   # 🖐️ ميكانيكا فيصل: دخل؟
+    m_win = np.array([r[11] for r in rows], float)   # ربح (هدف قبل وقف)؟
+    m_R = np.array([r[12] for r in rows], float)     # التوقّع R للصفقة
     N = len(arr)
     yr, is_rs, ema_ok, bs_ok, sp_ok, combo, expl, win, loss = (arr[:, k] for k in range(9))
 
@@ -244,6 +324,21 @@ def run():
         p, lo, hi = wilson(w, dec)
         crash = (l / n) if n else 0.0
         return n, w, l, p, lo, hi, crash
+
+    def mech_stats(mask):
+        """🖐️ ميكانيكا فيصل (دخول المسح + وقف بنيوي + هدف 100%): على الداخِلة فقط.
+        يرجّع (cands, entered, entry_rate, win_rate, wr_lo, wr_hi, expectancy_R, swept_rate)."""
+        base = mask.astype(bool)
+        cands = int(base.sum())
+        m = base & (m_ent > 0.5)
+        n = int(m.sum())
+        w = int(m_win[m].sum()) if n else 0
+        Rs = m_R[m]
+        exp = float(np.nanmean(Rs)) if n else 0.0
+        wr, wlo, whi = wilson(w, n)
+        swept = int((Rs == -1.0).sum()) if n else 0
+        return (cands, n, (n / cands if cands else 0.0), wr, wlo, whi, exp,
+                (swept / n if n else 0.0))
 
     out = []
     out.append(f"# 🥇 نتيجة توليفة فيصل «الذهبية» — اختبار تمييزي (السوق كامل)\n")
@@ -311,6 +406,28 @@ def run():
     out.append(f"\n- **رفع النجاح:** {wr_lift:.2f}× · **رفع الانهيار:** {cr_lift:.2f}× — "
                "الحافة حقيقية فقط لو رفع النجاح > رفع الانهيار (عدم تماثل صاعد؛ وإلا = تذبذب).")
 
+    # 🖐️ ميكانيكا فيصل: دخول المسح + وقف بنيوي + هدف 100% → التوقّع R (طلب المستخدم)
+    bmc = mech_stats(np.ones(N, bool))
+    cmc = mech_stats(cm)
+    out.append(f"\n## 🖐️ ميكانيكا فيصل — دخول المسح-الاستعادة + وقف ~{SWEEP_PCT+STOP_MARGIN:g}% "
+               f"تحت الدعم + هدف +{EXPLODE_PCT:g}% (القياس بالتوقّع R)\n")
+    out.append("| العيّنة | مرشّح | دخل | نسبة الدخول | نجاح | Wilson95 | **التوقّع R** | مُسِح-قبل |")
+    out.append("|---|--:|--:|--:|--:|---|--:|--:|")
+    out.append(f"| الأساس | {bmc[0]} | {bmc[1]} | {bmc[2]*100:.1f}% | {bmc[3]*100:.1f}% | "
+               f"[{bmc[4]*100:.1f}, {bmc[5]*100:.1f}] | **{bmc[6]:+.3f}R** | {bmc[7]*100:.1f}% |")
+    out.append(f"| **التوليفة** | {cmc[0]} | {cmc[1]} | {cmc[2]*100:.1f}% | {cmc[3]*100:.1f}% | "
+               f"[{cmc[4]*100:.1f}, {cmc[5]*100:.1f}] | **{cmc[6]:+.3f}R** | {cmc[7]*100:.1f}% |")
+    out.append(f"\n- التوقّع = متوسط R للصفقة (خسارة=−1R · هدف=+{((1+EXPLODE_PCT/100)-1)/((SWEEP_PCT+STOP_MARGIN)/100):.0f}R تقريبًا). "
+               "**موجب = يربح بطريقة فيصل؛ وأعلى من الأساس = التوليفة تضيف.**")
+    # لكل سنة (توقّع ميكانيكا فيصل للتوليفة)
+    out.append("\n| السنة | دخل (توليفة) | نجاح | التوقّع R |")
+    out.append("|---|--:|--:|--:|")
+    mech_yr = []
+    for y in YEARS:
+        yc = mech_stats((yr == y) & cm)
+        mech_yr.append(yc[6])
+        out.append(f"| {y} | {yc[1]} | {yc[3]*100:.1f}% | {yc[6]:+.3f}R |")
+
     # تفصيل فجوة السعر عن EMA50 (secondary — هل الأعمق تحت الأسّي ينفجر أكثر؟)
     out.append("\n## (secondary) الانفجار حسب فجوة السعر عن EMA50 (price/EMA50−1)\n")
     out.append("| الفجوة عن EMA50 | N | معدّل الانفجار |")
@@ -335,6 +452,10 @@ def run():
     # 🎯 الفحصان الحاسمان (قابلية التنفيذ + عدم التماثل — يقتلان الفضفضة والبقاء):
     passes.append(("نجاح التنفيذ (هدف قبل وقف): Wilson المطابق > نجاح الأساس", c_wlo > b_wr))
     passes.append(("عدم تماثل صاعد: رفع النجاح > رفع الانهيار", wr_lift > cr_lift))
+    # 🖐️ فحص ميكانيكا فيصل (المحور الآن — طلب المستخدم): التوقّع R موجب وأعلى من الأساس + متّسق
+    passes.append(("🖐️ توقّع ميكانيكا فيصل موجب (R>0)", cmc[6] > 0))
+    passes.append(("🖐️ توقّع التوليفة > توقّع الأساس", cmc[6] > bmc[6]))
+    passes.append(("🖐️ موجب في السنوات الثلاث", all(r > 0 for r in mech_yr)))
     verdict = all(v for _, v in passes)
     out.append("\n## ⚖️ الحكم مقابل المعيار المسجَّل مسبقًا\n")
     for name, v in passes:
