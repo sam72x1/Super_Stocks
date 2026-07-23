@@ -2041,6 +2041,46 @@ finally:
 check("🔬 M2-split: العلم مطفأ افتراضيًّا (إنتاج آمن)",
       S.CONFIG.get("BT_SPLIT_AWARE_M2", 0) == 0 and S._BT_SPLITS_CTX is None)
 
+# 🔬 تجربة M2 مرجع ما بعد التقسيم (قاعدة فيصل IMG_0143/0144، باكتيست فقط · الإنتاج byte-identical):
+# M2 يقيس الهبوط من قمة **ما بعد آخر تقسيم عكسي** (JEM 6.90، القاع المتوقّع القمة÷2) لا قمة 52أ
+# المنفوخة. طلب المستخدم «اي أبدا جرب» (تحقّق JEM: 6.90÷2=3.45، نزل 3.40 = مطابق قاعدة فيصل).
+# (أ) الدالة النقية _post_split_high
+_pri = pd.date_range("2025-06-01", periods=10, freq="D")
+_prh = pd.Series([100.0, 100, 100, 100, 100, 8, 7, 9, 6, 5], index=_pri)   # قمة ما بعد التقسيم=9
+_prs = pd.Series([0.1], index=[pd.Timestamp("2025-06-06")])   # عكسي 1:10 (نسبة<1)
+check("🔬 M2-ref: أعلى قمة بعد التقسيم العكسي (max بعد 06-06 = 9، لا القمة المنفوخة 100)",
+      abs(S._post_split_high(_prh, _prs, "2025-06-10") - 9.0) < 1e-6)
+check("🔬 M2-ref: بلا splits → None (M2 يرجع لقمة 52أ العادية = سلوك اليوم)",
+      S._post_split_high(_prh, None, "2025-06-10") is None)
+check("🔬 M2-ref: تقسيم بعد cut يُتجاهَل (لا تسريب مستقبلي) → None",
+      S._post_split_high(_prh, _prs, "2025-06-05") is None)
+check("🔬 M2-ref: تقسيم أمامي (نسبة>1) ليس عكسيًّا → None (يطبّق على العكسي فقط)",
+      S._post_split_high(_prh, pd.Series([2.0], index=[pd.Timestamp("2025-06-06")]),
+                         "2025-06-10") is None)
+# (ب) تكامل analyze_ticker: مطفأ = byte-identical · مفعّل+تقسيم عكسي → لا يُرفض على M2_فوق_97
+# (يعيد استخدام _msdf: قمة 200 ثم 2.0؛ التقسيم في منطقة القاع → قمة ما بعد التقسيم ≈2 فالهبوط ليس >97%)
+try:
+    S._REJECT_STATS.clear(); S._BT_SPLITS_CTX = pd.Series([0.01], index=[_msdf.index[60]])
+    _pr_off = S.analyze_ticker("PRX", _msdf); _pr_off_rej = dict(S._REJECT_STATS)   # العلمان=0
+    S._BT_SPLITS_CTX = None; S._REJECT_STATS.clear()
+    _pr_none = S.analyze_ticker("PRX", _msdf)
+    check("🔬 M2-ref قفل: العلم مطفأ → نتيجة متطابقة تجاه سياق splits (إنتاج byte-identical)",
+          (_pr_off is None) == (_pr_none is None) and "M2_هبوط_فوق_97" in _pr_off_rej)
+    S.CONFIG["BT_SPLIT_REF_M2"] = 1
+    S._BT_SPLITS_CTX = pd.Series([0.01], index=[_msdf.index[60]])   # عكسي في منطقة القاع
+    S._REJECT_STATS.clear(); S.analyze_ticker("PRX", _msdf); _pr_on_rej = dict(S._REJECT_STATS)
+    check("🔬 M2-ref: مفعّل+تقسيم عكسي → لم يعد يُرفض على M2_فوق_97 (المرجع = قمة ما بعد التقسيم)",
+          "M2_هبوط_فوق_97" not in _pr_on_rej)
+finally:
+    S.CONFIG["BT_SPLIT_REF_M2"] = 0; S._BT_SPLITS_CTX = None; S._REJECT_STATS.clear()
+check("🔬 M2-ref: العلم مطفأ افتراضيًّا (إنتاج آمن)",
+      S.CONFIG.get("BT_SPLIT_REF_M2", 0) == 0 and S._BT_SPLITS_CTX is None)
+check("🔬 M2-ref قفل: _post_split_high خارج الجذور (rank_key/select_top/classify_tier/"
+      "entry_status/backtest_symbol/apply_float_gate)",
+      all("_post_split_high" not in _insp0.getsource(f)
+          for f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                    S.backtest_symbol, S.apply_float_gate)))
+
 # 🔬 تجربة M4 واعية للتقسيم (باكتيست فقط · الإنتاج byte-identical): مدى القاعدة de-inflated
 # للتقسيم العكسي **داخل نافذة 15ج** (الحاجب الأكبر لأسهم فيصل — 28/47). طلب المستخدم «ابنها».
 # (أ) الدالة النقية _split_aware_base_range

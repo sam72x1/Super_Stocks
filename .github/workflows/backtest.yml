@@ -81,6 +81,10 @@ on:
         description: "🔬 M2 واعية للتقسيم (1=يقيس الهبوط من قمة de-inflated للتقسيم العكسي — INLF كان يُرفض بهبوط 97% وهمي). ⚠️ يلزم frozen_run_id (السياق splits من اللقطة). باكتيست فقط"
         required: false
         default: ""
+      bt_split_ref_m2:
+        description: "🔬 M2 مرجع ما بعد التقسيم — قاعدة فيصل (IMG_0143/0144): 1=يقيس الهبوط من قمة **ما بعد آخر تقسيم عكسي** (JEM 6.90، القاع المتوقّع القمة÷2) لا قمة 52أ المنفوخة — فيقرأ ~50% لا ~97% ويلتقط مقسّم فيصل. ⚠️ يلزم frozen_run_id (السياق splits من اللقطة). باكتيست فقط"
+        required: false
+        default: ""
       bt_split_aware_m4:
         description: "🔬 M4 واعية للتقسيم (1=يقيس مدى القاعدة من نافذة de-inflated — تقسيم عكسي داخل نافذة 15ج ينفخ «قاعدة واسعة» زائفة، الحاجب الأكبر لأسهم فيصل 28/47). ⚠️ يلزم frozen_run_id (السياق splits من اللقطة). باكتيست فقط"
         required: false
@@ -139,6 +143,8 @@ jobs:
           BT_RAW_PRICE: ${{ github.event.inputs.bt_raw_price }}
           # 🔬 M2 واعية للتقسيم — يُقرأ في وضع BACKTEST حصريًا (يلزم frozen_run_id للسياق splits)
           BT_SPLIT_AWARE_M2: ${{ github.event.inputs.bt_split_aware_m2 }}
+          # 🔬 M2 مرجع ما بعد التقسيم (قاعدة فيصل) — يُقرأ في وضع BACKTEST حصريًا (يلزم frozen_run_id)
+          BT_SPLIT_REF_M2: ${{ github.event.inputs.bt_split_ref_m2 }}
           # 🔬 M4 واعية للتقسيم — يُقرأ في وضع BACKTEST حصريًا (يلزم frozen_run_id للسياق splits)
           BT_SPLIT_AWARE_M4: ${{ github.event.inputs.bt_split_aware_m4 }}
           # 🕰️ التجميد الصحيح: لو frozen_run_id مُعطى → حُمِّلت اللقطة، فاقرأها (قابل لإعادة الإنتاج)

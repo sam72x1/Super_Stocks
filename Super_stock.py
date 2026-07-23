@@ -304,6 +304,9 @@ CONFIG = {
                                          #   العكسي** (INLF 1:200 كان يُرفض بهبوط 97% وهمي).
                                          #   باكتيست/تشخيص حصريًا + يلزم سياق splits؛ الإنتاج
                                          #   byte-identical (العلم مطفأ والسياق None = لا أثر).
+    "BT_SPLIT_REF_M2": 0,                # 🔬 قاعدة فيصل للمقسّم (IMG_0143/0144): M2 يقيس
+                                         #   الهبوط من قمة **ما بعد آخر تقسيم عكسي** (JEM 6.90)
+                                         #   لا قمة 52أ — القاع المتوقّع القمة÷2. باكتيست فقط.
     "BT_SPLIT_AWARE_M4": 0,              # 🔬 M4 يقيس مدى القاعدة من نافذة **de-inflated
                                          #   للتقسيم العكسي** (تقسيم داخل نافذة 15ج ينفخ
                                          #   الشموع القديمة فيصنع «قاعدة واسعة» زائفة). نفس
@@ -439,6 +442,7 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_MIN_DROP_FLOOR", "MIN_DROP_FLOOR", float),
             ("BT_MAX_DROP_PCT", "MAX_DROP_PCT", float),
             ("BT_SPLIT_AWARE_M2", "BT_SPLIT_AWARE_M2", int),   # 🔬 M2 واعية للتقسيم
+            ("BT_SPLIT_REF_M2", "BT_SPLIT_REF_M2", int),       # 🔬 M2 مرجع ما بعد التقسيم (فيصل)
             ("BT_SPLIT_AWARE_M4", "BT_SPLIT_AWARE_M4", int),   # 🔬 M4 واعية للتقسيم
             ("BT_SPIKE_WINDOW", "PRIOR_SPIKE_WINDOW", int),
             ("BT_MIN_DOLLAR_VOL", "MIN_DOLLAR_VOL", float),
@@ -1153,6 +1157,30 @@ def _split_aware_hi52(highs, splits, cut) -> float:
             return float(highs.max())
         except Exception:
             return 0.0
+
+
+def _post_split_high(highs, splits, cut):
+    """🔬 قاعدة فيصل للمقسّم (IMG_0143/0144): الهبوط يُقاس من **قمة ما بعد آخر تقسيم عكسي**
+    لا قمة 52أ المنفوخة (القاع المتوقّع = القمة÷2؛ JEM: 6.90÷2=3.45، نزل 3.40). يرجع أعلى
+    high بعد أحدث تقسيم عكسي (نسبة<1) معروف حتى `cut` (الشموع بعده حقيقية لا مُعدَّلة)، أو
+    None لو لا تقسيم عكسي حديث → M2 يرجع لقمة 52أ العادية. نقيّة · فاشلة-آمنة · بلا تسريب."""
+    try:
+        if splits is None or (hasattr(splits, "__len__") and len(splits) == 0):
+            return None
+
+        def _n(x):
+            t = pd.Timestamp(x)
+            return t.tz_localize(None) if getattr(t, "tz", None) is not None else t
+        c = _n(cut)
+        it = splits.items() if hasattr(splits, "items") else splits
+        rsplits = [_n(d) for d, r in it if r and 0 < float(r) < 1.0 and _n(d) <= c]
+        if not rsplits:
+            return None
+        last = max(rsplits)
+        post = [float(h) for ts, h in highs.items() if _n(ts) >= last]
+        return max(post) if post else None
+    except Exception:
+        return None
 
 
 def _split_aware_base_range(highs, lows, splits, cut) -> float:
@@ -2061,6 +2089,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # بقمة de-inflated للتقسيم العكسي (تمنع رفض INLF بهبوط 97% مصطنع).
         if CONFIG.get("BT_SPLIT_AWARE_M2") and _BT_SPLITS_CTX is not None:
             hi52 = _split_aware_hi52(high.tail(252), _BT_SPLITS_CTX, df.index[-1])
+        # 🔬 قاعدة فيصل للمقسّم (تجربة BT_SPLIT_REF_M2، باكتيست فقط): الهبوط يُقاس من قمة
+        # ما بعد آخر تقسيم عكسي (6.90 لـJEM) لا قمة 52أ المنفوخة — فيقرأ ~50% لا ~100%.
+        if CONFIG.get("BT_SPLIT_REF_M2") and _BT_SPLITS_CTX is not None:
+            _psh = _post_split_high(high.tail(252), _BT_SPLITS_CTX, df.index[-1])
+            if _psh and _psh > 0:
+                hi52 = _psh
         if hi52 <= 0:
             return _reject("M2_hi52")
         drop_pct = (1.0 - price / hi52) * 100.0
@@ -10679,6 +10713,7 @@ def run_backtest(symbols=None) -> None:
         # يُقرأ داخل analyze_ticker أثناء المشي؛ None بلا العلم = صفر أثر (الإنتاج byte-identical).
         globals()["_BT_SPLITS_CTX"] = ((splits_map or {}).get(sym)
                                        if (CONFIG.get("BT_SPLIT_AWARE_M2")
+                                           or CONFIG.get("BT_SPLIT_REF_M2")
                                            or CONFIG.get("BT_SPLIT_AWARE_M4")) else None)
         all_trades += backtest_symbol(sym, df, sym_reasons, date_window=date_window,
                                       splits=(splits_map or {}).get(sym))
