@@ -609,6 +609,57 @@ def stoch_rsi(close: pd.Series, period: int = 14, k: int = 3, d: int = 3):
     return kline.fillna(50.0), dline.fillna(50.0)
 
 
+def full_stoch(high, low, close, period: int = 14, k_smooth: int = 3,
+               d_smooth: int = 3):
+    """Full Stochastic بإعدادات فيصل (FSTO 14,3 — IMG_0091). يرجع (%K، %D) بين 0-100.
+    fast%K = (الإغلاق − أدنى قاع) / (أعلى قمة − أدنى قاع)×100 · %K = SMA(fast, k) · %D = SMA(%K, d).
+    (يختلف عن stoch_rsi: هذا على السعر مباشرة، ذاك على RSI.)"""
+    ll = low.rolling(period).min()
+    hh = high.rolling(period).max()
+    fast_k = (close - ll) / (hh - ll).replace(0, np.nan) * 100.0
+    kline = fast_k.rolling(k_smooth).mean()
+    dline = kline.rolling(d_smooth).mean()
+    return kline.fillna(50.0), dline.fillna(50.0)
+
+
+def fsto_oscillation(kline: pd.Series, window: int = 30):
+    """قوة تذبذب الـFull Stochastic — قراءة «من يشتغل على السهم» (فيصل IMG_0091:
+    «قوة التذبذب أعرف السهم اللي شغّال عليه قروب أو مضاربين»). نقيّة · فاشلة-آمنة · عرض فقط.
+    المقياس الأساسي **chop** = متوسط التغيّر المطلق اليومي في %K (عنف تأرجح المؤشّر) + k_std ثانوي.
+    (جُرّب swings عبر مناطق التشبّع فسقط — تنعيم Full Stoch يمحو الأرجحات الحادّة؛ chop يميّز نظيفًا.)
+    التصنيف (منطق فيصل: تذبذب عنيف متشنّج = هلع قروب · منضبط هادئ = تجميع مضارب):
+      chop≥12 → «قروب» · chop≤6 → «مضارب» · بينهما None (نطاق حياد واسع = لا نُطلق حكمًا إلا عند الوضوح).
+    ⚠️ العتبات **أوّلية** (تفصل نمطَي المحاكاة: قروب chop~15 · مضارب chop~2) — تُعايَر على أمثلة
+    فيصل الموثّقة (XHLD قروب · DSY مضارب) لتُقفَل. **عرض فقط — لا تدخل أي قرار فرز/دخول.**
+    يرجع dict أو None (عيّنة أقصر من النافذة/خطأ)."""
+    try:
+        k = kline.dropna().tail(window)
+        if len(k) < window:
+            return None
+        s = pd.Series([float(x) for x in k])
+        chop = float(s.diff().abs().mean())
+        k_std = float(s.std())
+        violent = chop >= 12.0
+        controlled = chop <= 6.0
+        actor = "قروب" if violent else ("مضارب" if controlled else None)
+        return {"chop": round(chop, 1), "k_std": round(k_std, 1), "actor": actor,
+                "violent": violent, "controlled": controlled, "provisional": True}
+    except Exception:
+        return None
+
+
+def oscillation_line(osc: dict) -> str:
+    """سطر عرض «قوة التذبذب» (عربي مبسّط، بلا علامات مقارنة). «» لو None/غير محدّد.
+    وسم «(أوّلي)» صريح: العتبة قيد المعايرة على أمثلة فيصل — لا يُقرأ كحكم مقفول."""
+    if not osc or not osc.get("actor"):
+        return ""
+    if osc["actor"] == "قروب":
+        return ("🌀 قوة التذبذب: عنيفة — بصمة قروب (تأرجح متشنّج · هلع منسّق؛ "
+                "الصعود هش قابل للانهيار) (أوّلي — قيد المعايرة)")
+    return ("🌀 قوة التذبذب: منضبطة — بصمة مضارب (تأرجح هادئ محكوم · تجميع؛ "
+            "أقرب لصعود مُدار) (أوّلي — قيد المعايرة)")
+
+
 def dmi_adx(high, low, close, period: int = 14):
     """DMI/ADX (14) — يرجع (+DI، -DI، ADX). +DI>-DI = اتجاه صاعد."""
     up = high.diff()
@@ -4747,6 +4798,10 @@ def build_message(results: list, splits: list,
             det += behavior_tags(bh)      # §13: وسوم وصفية (صيد وقفات/خمول طويل)
             tail = (" (" + " · ".join(det) + ")") if det else ""
             lines.append(f"🧬 طريقة الارتفاع: {bh['score']}/100 · {bh['label']}{tail}")
+        # 🌀 قوة تذبذب FSTO: من يشتغل على السهم قروب/مضارب (فيصل IMG_0091 — عرض فقط)
+        _oscl = oscillation_line(r.get("fsto_osc"))
+        if _oscl:
+            lines.append(_oscl)
         # (🔬 التجميع الصامت أُزيل من العرض — تجربة T-ACC فشلت بالسنتين، غير مميِّز)
         # 🕵️ لوحة علامات اليد (تجميع قرائن مضارب — يظهر عند دليلين فأكثر)
         _he = hand_evidence_line(r)
@@ -5263,6 +5318,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "key_levels": r.get("key_levels"),                # دعوم/مقاومات أساسي/فرعي
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
+        "fsto_osc": r.get("fsto_osc"),                    # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
         "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "bars_after": r.get("bars_after"),                # §11: جلسات منذ القاع (تفسير)
@@ -5673,6 +5729,8 @@ def scan_market():
             except Exception:
                 r["ref_bar"] = None
             r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
+            r["fsto_osc"] = fsto_oscillation(        # 🌀 قوة تذبذب FSTO: قروب/مضارب (حيّ، عرض فقط)
+                full_stoch(df["High"], df["Low"], df["Close"])[0])
             r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
             r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
             r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
@@ -6054,6 +6112,8 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
             _bh_new = behavior_rise_profile(df)
             if _bh_new.get("score") is not None:
                 s["behav"] = _bh_new
+            s["fsto_osc"] = fsto_oscillation(          # 🌀 قوة تذبذب FSTO يتجدّد يوميًا (عرض فقط)
+                full_stoch(df["High"], df["Low"], df["Close"])[0])
             _psn = pivot_stability(df["Low"].values.astype(float),
                                    df["Close"].values.astype(float))
             if _psn:
@@ -7812,6 +7872,9 @@ def build_daily_message(wl: dict, splits: list,
             _bd += behavior_tags(_bh)     # §13: وسوم وصفية (صيد وقفات/خمول طويل)
             _bt = (" (" + " · ".join(_bd) + ")") if _bd else ""
             lines.append(f"   🧬 طريقة الارتفاع: {_bh['score']}/100 · {_bh['label']}{_bt}")
+        _oscl = oscillation_line(s.get("fsto_osc"))   # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
+        if _oscl:
+            lines.append("   " + _oscl)
         # (🔬 التجميع الصامت أُزيل — تجربة T-ACC فشلت بالسنتين، غير مميِّز للمنفجر)
         # 🕵️ علامات اليد لم تعد سطرًا داخل كل كرت (طلب المستخدم: تُجمع في قسم
         # «أسهم فيها علامات يد» المستقل أسفل التقرير — قائمة نظيفة لحالها).

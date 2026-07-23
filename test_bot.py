@@ -6681,6 +6681,38 @@ finally:
 
 
 # ==========================================================
+# 🌀 FSTO قوة التذبذب: من يشتغل على السهم قروب/مضارب (فيصل IMG_0091) — عرض فقط، أوّلي
+_idx_osc = S.pd.date_range("2025-01-01", periods=70)
+_pump = ([2.0] * 20 + [2.5, 4.4, 6.0, 2.9] * 13)[:70]
+_serp = S.pd.Series(_pump, index=_idx_osc, dtype=float)
+_kp, _ = S.full_stoch(_serp * 1.03, _serp * 0.97, _serp)
+_op = S.fsto_oscillation(_kp)
+check("🌀 FSTO: نمط قروب (تأرجح عنيف) → actor=قروب",
+      _op is not None and _op["actor"] == "قروب", str(_op))
+_acc = list(S.np.linspace(2.0, 3.2, 70)
+            + S.np.random.RandomState(1).normal(0, 0.04, 70))
+_sera = S.pd.Series(_acc, index=_idx_osc, dtype=float)
+_ka, _ = S.full_stoch(_sera * 1.02, _sera * 0.98, _sera)
+_oa = S.fsto_oscillation(_ka)
+check("🌀 FSTO: نمط مضارب (تجميع هادئ) → actor=مضارب",
+      _oa is not None and _oa["actor"] == "مضارب", str(_oa))
+check("🌀 FSTO: full_stoch %K ضمن 0-100", 0.0 <= float(_kp.iloc[-1]) <= 100.0)
+check("🌀 FSTO: عيّنة قصيرة → None (صدق العيّنة)",
+      S.fsto_oscillation(S.pd.Series([50.0] * 10)) is None)
+check("🌀 FSTO: oscillation_line فارغ عند None/غير محدّد",
+      S.oscillation_line(None) == "" and S.oscillation_line({"actor": None}) == "")
+check("🌀 FSTO: سطر القروب يحمل «(أوّلي)» (صدق: العتبة غير مقفولة)",
+      "أوّلي" in S.oscillation_line(_op))
+_osc_srcs = (_insp.getsource(S.rank_key) + _insp.getsource(S.select_top)
+             + _insp.getsource(S.classify_tier) + _insp.getsource(S.entry_status)
+             + _insp.getsource(S.apply_short_gate) + _insp.getsource(S.apply_float_gate)
+             + _insp.getsource(S.backtest_symbol))
+check("🔒 FSTO: fsto_oscillation/full_stoch/oscillation_line خارج الجذور السبعة",
+      "fsto_oscillation" not in _osc_srcs and "full_stoch" not in _osc_srcs
+      and "oscillation_line" not in _osc_srcs)
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
