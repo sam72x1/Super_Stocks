@@ -705,8 +705,8 @@
    "drop_pct": 74.48046549137733,
    "best_spike": 188.97337103943806,
    "rr": 2.8094142027103057,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-07-23",
    "max_gain_pct": -0.8
   },
   {
@@ -1086,9 +1086,9 @@
    "drop_pct": 72.77070093920972,
    "best_spike": 481.18811296886133,
    "rr": 4.861110113101444,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 9.9
+   "status": "hit_t1",
+   "result_date": "2026-07-23",
+   "max_gain_pct": 16.4
   },
   {
    "symbol": "PETS",
@@ -1122,9 +1122,9 @@
    "drop_pct": 53.41463387686181,
    "best_spike": 143.75000232830638,
    "rr": 2.4479804825935063,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 5.8
+   "status": "hit_t1",
+   "result_date": "2026-07-23",
+   "max_gain_pct": 12.3
   },
   {
    "symbol": "KLRS",
@@ -1346,9 +1346,9 @@
    "drop_pct": 73.42995223796339,
    "best_spike": 109.82456909395752,
    "rr": 1.4879110117041585,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 6.1
+   "status": "hit_t1",
+   "result_date": "2026-07-23",
+   "max_gain_pct": 14.5
   },
   {
    "symbol": "PONY",
@@ -1383,9 +1383,9 @@
    "drop_pct": 73.07383620544165,
    "best_spike": 382.4519334371982,
    "rr": 1.3076496220534477,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 5.9
+   "status": "hit_t1",
+   "result_date": "2026-07-23",
+   "max_gain_pct": 10.7
   },
   {
    "symbol": "NMRA",
@@ -1501,7 +1501,7 @@
    "rr": 1.940352509004351,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 2.3
+   "max_gain_pct": 3.6
   },
   {
    "symbol": "MSTR",
@@ -1576,7 +1576,7 @@
    "rr": 3.6536710074298964,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.1
   }
  ]
 }
