@@ -10265,9 +10265,23 @@ def run_backtest(symbols=None) -> None:
     if _frozen_path and os.path.exists(_frozen_path):
         hist, splits_map, _asof = load_frozen_dataset(_frozen_path)
         if hist:
-            symbols = list(hist.keys())
-            log(f"🕰️ تجميد: حُمِّلت لقطة point-in-time ({len(hist)} رمز · as-of {_asof}) "
-                "— قابلة لإعادة الإنتاج + بوابة الوهميات مفعّلة")
+            if market:
+                # مسح السوق الكامل من اللقطة (لا رموز محدّدة)
+                symbols = list(hist.keys())
+                log(f"🕰️ تجميد: حُمِّلت لقطة point-in-time ({len(hist)} رمز · as-of {_asof}) "
+                    "— قابلة لإعادة الإنتاج + بوابة الوهميات مفعّلة")
+            else:
+                # 🔬 رموز صريحة + لقطة مجمّدة → باكتيست point-in-time **لتلك الرموز فقط**.
+                # (كان `symbols = list(hist.keys())` يدهس فلتر BACKTEST_SYMBOLS فيمسح السوق
+                #  كلّه بالغلط ويتجاهل الرموز المطلوبة — إصلاح تركيب «رموز + تجميد».)
+                _wanted = [s for s in symbols if s in hist]
+                _missing = [s for s in symbols if s not in hist]
+                symbols = _wanted
+                log(f"🕰️ تجميد: باكتيست point-in-time لـ{len(symbols)} رمز محدّد من اللقطة "
+                    f"(as-of {_asof})"
+                    + (f" · غير موجود باللقطة: {', '.join(_missing)}" if _missing else ""))
+                if not symbols:
+                    log("⚠️ تجميد: لا أحد من الرموز المطلوبة موجود باللقطة — لا شيء للباكتيست.")
             # 🔬 (مراجعة Codex) تحذير تغطية **غير صامت**: مسار التجميد لا يمدّ النافذة، فلقطة
             # حديثة (تبدأ ~اليوم−HISTORY_DAYS) لا تصل نافذة قديمة ⇒ صفر إشارة **بصمت**. لا نعيد
             # تصميم التجميد (يبقى مقيّدًا)، لكن نصرخ لو أقدم تاريخ باللقطة يتجاوز بدء النافذة.
