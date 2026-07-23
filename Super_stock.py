@@ -4519,6 +4519,22 @@ def build_interpretation(r: dict) -> dict:
             setup = "pivot_reversal"
         out["setup_type"] = setup
 
+        # ---- 📿 سلوك الحركة (فيصل IMG_0097: ثلاثة سلوكيات — **وصف للحالة لا تنبّؤ**؛
+        # نُسقِط setup_type الموجود على مفردات فيصل الثلاث، بلا حساب جديد).
+        if setup == "extended_risk":
+            out["movement_behavior"] = "① صاعد متدرّج (فوق الدفعات — يصعد عبر المناطق)"
+        elif setup == "liquidity_sweep":
+            out["movement_behavior"] = ("② حقّق ثم هبط لقاع/مسح ثم يستعيد "
+                                        "(نمط المسح-وإعادة-الإطلاق)")
+        elif setup == "support_reclaim":
+            out["movement_behavior"] = "③ يهبط تحت دعمه بلا صعود الآن (انتظر الاستعادة)"
+        # ---- 📏 حركة فيصل المتوقّعة 30-50% (IMG_0097: «متوسط حركة → صعود أقلها 30-50%
+        # عند اكتمال الشروط») — للأنماط الصالحة فقط (لا extended_risk المُلاحَق). سياق منهجي.
+        if setup in ("pivot_reversal", "liquidity_sweep", "h4_reclaim",
+                     "support_reclaim"):
+            out["faisal_move"] = ("30‑50%+ كحد أدنى عند الانطلاق "
+                                  "(متوسط الحركة — منهج فيصل)")
+
         # ---- §10 خط الترند الهابط (حاجز إضافي — عرض/تفسير، لا يمسّ الأهداف نفسها)
         tl = r.get("trendline") or {}
         tl_px = (float(tl["line_price_now"])
@@ -4696,9 +4712,9 @@ def build_interpretation(r: dict) -> dict:
 
 
 def interp_card_lines(interp: dict) -> list:
-    """أسطر التفسير المدمجة بالكرت (≤4، عربي مبسّط بلا علامات مقارنة). عرض فقط.
-    السطر الرابع = قصة شموع الـ4س من المقطع (رأس الحمرا مقاومة/الدعم المنقلب/
-    ذيل المسح) — يظهر عند وجود حالة ذات معنى فقط (weak لا يُعرض)."""
+    """أسطر التفسير المدمجة بالكرت (≤6، عربي مبسّط بلا علامات مقارنة). عرض فقط.
+    تشمل: 🧭 الإعداد · 🎯 الرقم الحرج · 📿 سلوك الحركة (فيصل IMG_0097) · 📏 حركة فيصل
+    المتوقّعة 30-50% · 🕓 قصة شموع الـ4س · ⚠️ الخطر — كلٌّ يظهر عند وجود معنى فقط."""
     if not interp:
         return []
     lines = []
@@ -4712,6 +4728,12 @@ def interp_card_lines(interp: dict) -> list:
     cr = interp.get("critical_number")
     if cr and cr.get("price"):
         lines.append(f"🎯 الرقم الحرج: ${cr['price']:.2f} ({cr.get('why', '')})")
+    mb = interp.get("movement_behavior")     # 📿 سلوك الحركة (فيصل IMG_0097 — وصف)
+    if mb:
+        lines.append(f"📿 سلوك الحركة: {mb}")
+    fm = interp.get("faisal_move")           # 📏 حركة فيصل 30-50% (فيصل IMG_0097)
+    if fm:
+        lines.append(f"📏 حركة فيصل المتوقّعة: {fm}")
     # 🕓 سياق الـ4 ساعات (قصة الشموع — فيصل: «رأس الحمرا مقاومة، تجاوزه يؤكّد»
     # و«تغطية الحمرا بخضرا تعطي تأكيد»)
     h4c = interp.get("four_hour_context") or {}
@@ -4723,7 +4745,9 @@ def interp_card_lines(interp: dict) -> list:
     elif h4s == "support_flipped" and h4c.get("flip"):
         lines.append(f"🕓 4س: مقاومة انقلبت دعمًا قرب ${h4c['flip']:.2f}")
     elif h4s == "waiting_green_cover":
-        lines.append("🕓 4س: الشمعة الحمرا الأخيرة بلا تغطية خضرا — ننتظر التأكيد")
+        # فيصل IMG_0080: «إذا فيه شمعة ساقطة ع 4 ساعات انتظر يختبرها فريم يومي»
+        lines.append("🕓 4س: شمعة هابطة بلا تغطية خضرا — انتظر الفريم اليومي "
+                     "يختبرها (فيصل: لا تدخل حتى يؤكّد اليومي)")
     elif h4s == "confirming" and h4c.get("sweep_low"):
         lines.append(f"🕓 4س: ذيل مسح عند ${h4c['sweep_low']:.2f} ثم استعادة "
                      "(تأكيد)")
