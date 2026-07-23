@@ -9711,6 +9711,12 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                  # تسريب) — لاختبار: هل البصمة العالية ترتبط بالانفجار الفعلي؟ (تحقّق قبل
                  # منحها وزن ترتيب). تُحسب على الإشارة فقط (~عشرات المرّات) = رخيصة.
                  "behav_score": behavior_rise_profile(df.iloc[:i]).get("score"),
+                 # 🌀 FSTO chop عند الإشارة (df حتى i، خلفي = لا تسريب) — لاختبار «هل
+                 # التذبذب العنيف (قروب) يرتبط بانهيار/فشل أكثر من المنضبط (مضارب)؟».
+                 # حقل تشخيصي عائد فقط (لا يمسّ الحسم filled/exploded — مثل behav_score).
+                 "fsto_chop": (fsto_oscillation(full_stoch(
+                     df["High"].iloc[:i], df["Low"].iloc[:i],
+                     df["Close"].iloc[:i])[0]) or {}).get("chop"),
                  "fwd_max_gain": round(fwd_max, 1),
                  "max_draw_pct": round(max_draw, 1),
                  "exploded": bool(filled is not None and fwd_max >= expl_thr)}
@@ -10117,6 +10123,49 @@ def backtest_behav_correlation(trades: list) -> list:
     rec = ("<b>تُمنح وزن ترتيب</b> (داخل المختارين بعد القصّ فقط): البصمة العالية "
            "ترتبط بالانفجار فعلًا" if disc else
            "<b>تبقى عرضًا فقط</b>: لا ارتباط واضح بعد — لا تُمنح وزنًا (تجنّب الضجيج)")
+    out.append(f"   ✅ التوصية بالدليل: {rec}")
+    return out
+
+
+def backtest_fsto_correlation(trades: list) -> list:
+    """🌀 تحقّق ارتباط قوة تذبذب FSTO (chop) بالنتيجة (طلب المستخدم: باكتيست لمعايرة
+    قروب/مضارب، بلا تسريب — chop يُحسب على df حتى الإشارة). **الفرضية المسجَّلة مسبقًا**
+    (`fsto_backtest_prereg.md`، اتّجاهية): التذبذب **المنضبط** (chop منخفض = مضارب) يرتبط
+    بانفجار **أعلى** من **العنيف** (chop مرتفع = قروب ينهار). يبوّب المعبّأة بشرائح chop →
+    معدل الانفجار + النجاح + Wilson، ثم يحكم. **تحليل فقط — لا يمسّ الفرز/الترتيب.**
+    ⚠️ الاحتمال الراجح: يفشل مثل A/B وT-ACC والبصمة (لا مؤشّر قاع يميّز — «الحافة=التوقيت»)."""
+    fb = [t for t in trades if t.get("fsto_chop") is not None
+          and t.get("outcome") != "no_fill"]
+    if len(fb) < 12:
+        return []
+    out = ["\n🌀 <b>تحقّق FSTO: هل قوة التذبذب (قروب/مضارب) تميّز النتيجة؟</b>"]
+    rows = []
+    for lbl, a, b in [("منضبط chop≤6 (مضارب)", 0.0, 6.0),
+                      ("وسط 6-12", 6.0001, 12.0),
+                      ("عنيف >12 (قروب)", 12.0001, 1e9)]:
+        sel = [t for t in fb if a <= t["fsto_chop"] <= b]
+        if not sel:
+            continue
+        exp = sum(1 for t in sel if t.get("exploded"))
+        dec = [t for t in sel if t["outcome"] in ("win", "loss")]
+        w = sum(1 for t in dec if t["outcome"] == "win")
+        elo, ehi = _wilson_ci(exp, len(sel))
+        wr = (w / len(dec) * 100.0) if dec else 0.0
+        rows.append((lbl, exp / len(sel) * 100.0, elo, ehi))
+        out.append(f"   {lbl}: {len(sel)} معبّأة · انفجر {exp} "
+                   f"({exp / len(sel) * 100:.0f}%، ثقة {elo:.0f}-{ehi:.0f}%) · نجاح {wr:.0f}%")
+    disc = False
+    if len(rows) >= 2:
+        # الفرضية المسجَّلة: المنضبط (rows[0]) أعلى انفجارًا من العنيف (rows[-1])
+        gap = rows[0][1] - rows[-1][1]
+        sep = rows[0][2] > rows[-1][3]     # فاصل المنضبط الأدنى فوق فاصل العنيف الأعلى
+        disc = gap >= 10 and sep
+        out.append(f"   📊 فرق الانفجار (منضبط/مضارب − عنيف/قروب): {gap:+.0f}% · فاصلان "
+                   f"{'منفصلان' if sep else 'متداخلان'}")
+    rec = ("<b>تُعاير العتبة وتُمنح دورًا</b>: التذبذب المنضبط (مضارب) يميّز النتيجة فعلًا"
+           if disc else
+           "<b>تبقى عرضًا أوّليًّا فقط</b>: لا تمييز واضح — يؤكّد «الحافة=التوقيت لا "
+           "الاختيار» (العتبة تبقى أوّلية بلا دور قرار)")
     out.append(f"   ✅ التوصية بالدليل: {rec}")
     return out
 
@@ -10674,6 +10723,11 @@ def run_backtest(symbols=None) -> None:
     lines += behav_diag
     for _bl in behav_diag:
         log("باكتيست·" + _bl.strip().replace("\n", " "))
+    # 🌀 تحقّق FSTO: هل قوة التذبذب (قروب/مضارب) تميّز النتيجة؟ (معايرة العتبة بالدليل)
+    fsto_diag = backtest_fsto_correlation(all_trades)
+    lines += fsto_diag
+    for _fl in fsto_diag:
+        log("باكتيست·" + _fl.strip().replace("\n", " "))
     # 🏦 قوة البوت (BT_POTENTIAL): الحركة المتاحة من الدخول قبل الوقف + الانتقائية
     # (المحفظة) — ترجع [] ما لم يُفعَّل BT_POTENTIAL (المحور الذي طلبه المستخدم).
     potential = backtest_potential_report(all_trades)

@@ -6707,9 +6707,26 @@ _osc_srcs = (_insp.getsource(S.rank_key) + _insp.getsource(S.select_top)
              + _insp.getsource(S.classify_tier) + _insp.getsource(S.entry_status)
              + _insp.getsource(S.apply_short_gate) + _insp.getsource(S.apply_float_gate)
              + _insp.getsource(S.backtest_symbol))
-check("🔒 FSTO: fsto_oscillation/full_stoch/oscillation_line خارج الجذور السبعة",
-      "fsto_oscillation" not in _osc_srcs and "full_stoch" not in _osc_srcs
+# 🌀 FSTO: مقياس التذبذب لا يمسّ **جذور الاختيار الستة**؛ chop حقل تشخيصي عائد في
+# backtest_symbol فقط (مثل behav_score — لا يمسّ الحسم filled/exploded) لاختبار الارتباط.
+_sel6_srcs = (_insp.getsource(S.rank_key) + _insp.getsource(S.select_top)
+              + _insp.getsource(S.classify_tier) + _insp.getsource(S.entry_status)
+              + _insp.getsource(S.apply_short_gate) + _insp.getsource(S.apply_float_gate))
+check("🔒 FSTO: fsto_oscillation/full_stoch/oscillation_line خارج جذور الاختيار الستة (لا يمسّ الفرز)",
+      "fsto_oscillation" not in _sel6_srcs and "full_stoch" not in _sel6_srcs
       and "oscillation_line" not in _osc_srcs)
+check("🌀 FSTO·تشخيص: fsto_chop حقل عائد في backtest_symbol (مثل behav_score، لمعايرة قروب/مضارب)",
+      "fsto_chop" in _insp.getsource(S.backtest_symbol)
+      and "behav_score" in _insp.getsource(S.backtest_symbol))
+# 🌀 backtest_fsto_correlation: يبوّب بشرائح chop + يحكم بالمعيار المسجَّل مسبقًا
+_ft = ([{"fsto_chop": 3.0, "outcome": "win", "exploded": True} for _ in range(10)]
+       + [{"fsto_chop": 3.0, "outcome": "loss", "exploded": False} for _ in range(2)]
+       + [{"fsto_chop": 20.0, "outcome": "loss", "exploded": False} for _ in range(11)])
+_fr = S.backtest_fsto_correlation(_ft)
+check("🌀 backtest_fsto: يبوّب شرائح chop (منضبط/عنيف) + يحكم بالدليل",
+      any("منضبط" in x for x in _fr) and any("التوصية" in x for x in _fr))
+check("🌀 backtest_fsto·عيّنة صغيرة → [] (صدق العيّنة)",
+      S.backtest_fsto_correlation([{"fsto_chop": 3, "outcome": "win"}] * 5) == [])
 
 
 # ==========================================================
