@@ -386,6 +386,12 @@ CONFIG = {
     "SHORT_DAILY_MAX": 20_000,   # "تابعه لين يبقى الشورت تحت 20 ألف"
     # قائمة يدوية إضافية (مثلاً من رسائل الغامدي): رموز تتابعها دائماً
     "SPLIT_WATCHLIST": ["WCT", "WORX", "EHGO", "FRSX", "BCAB"],
+    # 🎯 رادار أسهم التقسيم (فيصل IMG_0143/0144/0150/0151 — عرض/سياق فقط، خارج الفرز):
+    "SPLIT_RADAR_PRICE_MAX": 10.0,       # سعر منخفض (أسهم ما بعد التقسيم غالبًا $1-5)
+    "SPLIT_CLIFF_PCT": 45.0,             # هبوط يوم حادّ = بصمة كليف التقسيم المعدَّل (≥1:2)
+    "SPLIT_RADAR_FLOAT_MAX": 2_000_000,  # فيصل IMG_0151: «عدد اسهمه تحت 2 مليون»
+    "SPLIT_RADAR_PROBE_CAP": 80,         # سقف المُرشّحين لجلب التقسيمات (حدّ تكلفة الشبكة)
+    "SPLIT_RADAR_MAX": 12,               # سقف العرض
 
     # ---- تقنية ----
     "HISTORY_DAYS": 800,         # ~2.2 سنة (يكفي لفريم شهري سليم ~27 شمعة)
@@ -4014,6 +4020,163 @@ def build_split_watch_section(rows: list) -> str:
         if _fl:
             lines.append("  " + _fl)
     lines.append("<i>القاع المتوقع بعد التقسيم ≈ نصف افتتاح التقسيم (فيصل).</i>")
+    return _rtl_join(lines)
+
+
+def _split_setup_probe(df, splits, today, tol: float = 0.25):
+    """🎯 مِجَسّ setup أسهم التقسيم (فيصل IMG_0143/0144/0150/0151 — عرض/سياق فقط).
+    يكتشف من OHLCV+splits نمطَ «مقسّم عكسيًّا · وصل قاع القمة÷2 · حافظ عليه» ويرجع
+    dict وصفيًّا أو None. **مرجع فيصل الحرفي**: القاع المتوقّع = قمة ما بعد آخر تقسيم
+    عكسي ÷2 (`_post_split_high`؛ JEM 6.90÷2=3.45 · WORX 2.33÷2=1.16). نقيّ · فاشل-آمن
+    · بلا تسريب (يستعمل تقسيمات ≤ آخر شمعة). **خارج الفرز نهائيًا** (لا يمسّ الاختيار)."""
+    try:
+        if df is None or len(df) < 20 or splits is None:
+            return None
+        high, close = df["High"], df["Close"]
+        cut = df.index[-1]
+        # (1) تقسيم عكسي حديث (نسبة<1) داخل النافذة (بلا تسريب: التاريخ ≤ اليوم)
+        pairs = (list(zip(splits.index, splits.values))
+                 if hasattr(splits, "index") else list(splits or []))
+        rev = []
+        for ts, ratio in pairs:
+            try:
+                d = ts.date() if hasattr(ts, "date") else ts
+                if isinstance(d, str):
+                    d = dt.date.fromisoformat(d[:10])
+                if (float(ratio) < 1.0 and d <= today
+                        and (today - d).days <= CONFIG["SPLIT_LOOKBACK_DAYS"]):
+                    rev.append(d)
+            except Exception:
+                continue
+        if not rev:
+            return None
+        # (2) قمة ما بعد آخر تقسيم عكسي ÷2 (مرجع فيصل الحرفي)
+        post_high = _post_split_high(high, splits, cut)
+        if not post_high or post_high <= 0:
+            return None
+        half = round(post_high / 2.0, 2)
+        price = float(close.iloc[-1])
+        if price <= 0:
+            return None
+        # (3) وصل القاع: السعر قرب القمة÷2 (ضمن tol فوقها أو تحتها)
+        near_bottom = price <= half * (1.0 + tol)
+        # (4) حافظ على القاع ≥3 جلسات (ثبات: آخر 3 إغلاقات ضمن ±12% — فيصل «حافظ 3 جلسات»)
+        tail = [float(x) for x in close.tail(3)]
+        held_ok = (len(tail) >= 3 and max(tail) > 0
+                   and (max(tail) - min(tail)) / max(tail) <= 0.12)
+        return {"split_date": str(max(rev)), "post_high": round(post_high, 2),
+                "half": half, "price": round(price, 2),
+                "near_bottom": bool(near_bottom), "held_ok": bool(held_ok),
+                "freq": _split_frequency(splits, today)}
+    except Exception:
+        return None
+
+
+def scan_split_radar(history, exclude=None, fetch_splits=None, fetch_short=None,
+                     fetch_float=None, fetch_pump=None, cap=None):
+    """🎯 رادار أسهم التقسيم (فيصل — عرض/سياق فقط، **خارج الفرز نهائيًا**): يمسح السوق
+    عن مقسّمة عكسيًّا وصلت قاع «القمة÷2» وطابقت setup فيصل (IMG_0151: فلوت<2م · شورت
+    <20ألف · حافظت 3 جلسات · خالية من القروبات · هدف 100%+). لا يمسّ الاختيار/الدخول/
+    الوقف/العضوية — تنبيه «لا يفوتك مقسّم» فقط. **بوّابة تكلفة**: مُرشّح OHLCV رخيص أولًا
+    (سعر منخفض + كليف هبوط حادّ حديث = بصمة التقسيم المعدَّل) ثم جلب مقيَّد للتقسيمات/
+    الشورت/الفلوت للمُرشّحين فقط. الجالبات محقونة للاختبار · فاشل-آمن مطلق."""
+    exclude = exclude or set()
+    fs = fetch_splits or _fetch_splits
+    today = dt.date.today()
+    # 1) مُرشّح OHLCV رخيص (بلا شبكة): سعر منخفض + أعمق هبوط يوم حادّ في النافذة
+    pre = []
+    for sym, df in history.items():
+        if sym in exclude:
+            continue
+        try:
+            c = df["Close"].values.astype(float)
+            if len(c) < 20:
+                continue
+            price = float(c[-1])
+            if not (0 < price <= CONFIG["SPLIT_RADAR_PRICE_MAX"]):
+                continue
+            look = min(int(CONFIG["SPLIT_LOOKBACK_DAYS"]), len(c) - 1)
+            cliff = min((c[-k] / c[-k - 1] - 1.0)
+                        for k in range(1, look + 1) if c[-k - 1] > 0)
+            if cliff <= -CONFIG["SPLIT_CLIFF_PCT"] / 100.0:
+                pre.append((sym, cliff))
+        except Exception:
+            continue
+    if not pre:
+        return []
+    pre.sort(key=lambda x: x[1])           # الأعمق كليفًا أولًا (حدّ تكلفة الجلب)
+    pre = [s for s, _ in pre[:int(CONFIG["SPLIT_RADAR_PROBE_CAP"])]]
+    # 2) تأكيد التقسيم + المِجَسّ (جلب تقسيمات مقيَّد على المُرشّحين فقط)
+    probed = []
+    for sym in pre:
+        try:
+            pr = _split_setup_probe(history[sym], fs(sym), today)
+            if pr and pr["near_bottom"]:
+                pr["symbol"] = sym
+                probed.append(pr)
+        except Exception:
+            continue
+    if not probed:
+        return []
+    # 3) إثراء مقيَّد (شورت دفعة واحدة + فلوت + قروب) للمؤكَّدين فقط — معايير فيصل
+    syms = {p["symbol"] for p in probed}
+    shorts = {}
+    if fetch_short:
+        try:
+            shorts = fetch_short(syms) or {}
+        except Exception:
+            shorts = {}
+    for p in probed:
+        sym = p["symbol"]
+        p["short"] = shorts.get(sym)
+        p["short_ok"] = (p["short"] is not None
+                         and p["short"] < CONFIG["SHORT_DAILY_MAX"])
+        flt = None
+        if fetch_float:
+            try:
+                flt = fetch_float(sym)
+            except Exception:
+                flt = None
+        p["float"] = flt
+        p["float_ok"] = (flt is not None and flt < CONFIG["SPLIT_RADAR_FLOAT_MAX"])
+        pump = None
+        if fetch_pump:
+            try:
+                pump = fetch_pump(history[sym])
+            except Exception:
+                pump = None
+        p["pump"] = bool(pump and pump.get("found"))
+        # درجة تطابق setup فيصل (عدد المعايير المتحقّقة، عرض/ترتيب فقط — ليست بوّابة)
+        p["match"] = int(p["near_bottom"]) + int(p["held_ok"]) + int(p["short_ok"]) \
+            + int(p["float_ok"]) + int(not p["pump"])
+    probed.sort(key=lambda x: (-x["match"], x.get("freq", 0)))
+    return probed[:int(cap or CONFIG["SPLIT_RADAR_MAX"])]
+
+
+def build_split_radar_section(rows: list) -> str:
+    """قسم «🎯 رادار أسهم التقسيم» (فيصل — عرض/سياق فقط، خارج قائمة الترشيح):
+    يعرض المقسّمة التي وصلت قاع القمة÷2 وحالة معايير فيصل (فلوت/شورت/ثبات/قروب)."""
+    if not rows:
+        return ""
+
+    def chk(ok):
+        return "✅" if ok else "❌"
+
+    lines = ["🎯 <b>رادار أسهم التقسيم</b> (فيصل: القاع = قمة ما بعد التقسيم ÷2):"]
+    for r in rows:
+        flt = fmt_money(r["float"]) if r.get("float") is not None else "—"
+        srt = fmt_money(r["short"]) if r.get("short") is not None else "—"
+        lines.append(f"• <b>{esc(r['symbol'])}</b> ${r['price']:.2f} · "
+                     f"هدف القاع ÷2 = ${r['half']:.2f} (قمة {r['post_high']:.2f})")
+        lines.append(f"  {chk(r.get('float_ok'))} فلوت {flt} (تحت 2م) · "
+                     f"{chk(r.get('short_ok'))} شورت {srt} (تحت 20ألف) · "
+                     f"{chk(r.get('held_ok'))} حافظ 3ج · "
+                     f"{chk(not r.get('pump'))} خالٍ من قروب")
+        fl = _split_freq_line(r.get("freq"))
+        if fl:
+            lines.append("  " + fl)
+    lines.append("<i>عرض/سياق فقط — خارج قائمة الترشيح (فيصل IMG_0151: "
+                 "متوسط حركة 30-50 · هدف 100%+).</i>")
     return _rtl_join(lines)
 
 
@@ -9417,6 +9580,19 @@ def run_daily_watchlist(wl: dict) -> None:
     # 🕵️ رسالة أسهم اليد المستقلة (منفصلة عن التقرير الطويل — لا تُدفن)
     if hand_msg:
         send_telegram(hand_msg + "\n\n" + FOOTER)
+    # 🎯 رادار أسهم التقسيم = رسالة تلغرام مستقلة (فيصل IMG_0151 — عرض/سياق فقط، خارج
+    # الفرز): يرصد أي مقسّم عكسيًّا وصل قاع «القمة÷2» وطابق setup فيصل (فلوت<2م/شورت
+    # <20ألف/ثبات 3ج/خالٍ من قروب) فلا يفوتك (JEM/WORX) — بلا لمس الاختيار الآلي.
+    try:
+        radar_rows = scan_split_radar(hist, exclude=held_now | stopped,
+                                      fetch_short=finra_daily_short,
+                                      fetch_float=ce_float_info,
+                                      fetch_pump=group_pump_scar)
+        radar_msg = build_split_radar_section(radar_rows)
+        if radar_msg:
+            send_telegram(radar_msg + "\n\n" + FOOTER)
+    except Exception as e:
+        log(f"⚠️ رادار التقسيم: {e}")
     write_csv([{
         "symbol": s["symbol"], "readiness%": s["readiness"],
         "price": s["last_price"], "pivot": s["pivot"], "stop": s["stop"],
