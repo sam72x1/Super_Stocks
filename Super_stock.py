@@ -660,6 +660,55 @@ def oscillation_line(osc: dict) -> str:
             "أقرب لصعود مُدار) (أوّلي — قيد المعايرة)")
 
 
+def klinger(high, low, close, volume, fast: int = 34, slow: int = 55,
+            sig: int = 13):
+    """مؤشّر كلنجر (Klinger Volume Oscillator) — فيصل يذكره صراحةً (IMG_0125: «يعجبني
+    أحيانًا مؤشر كلنجر»). مؤشّر **حجم** يكشف التجميع/التصريف بالصيغة القياسية:
+    trend = +1 لو (H+L+C) فوق سابقتها وإلا −1 · dm=H−L · cm تراكمي مع استمرار الاتجاه ·
+    VF = volume × |2×(dm/cm) − 1| × trend × 100 · KVO = EMA(fast,VF) − EMA(slow,VF) ·
+    Signal = EMA(sig,KVO). يرجع (kvo, signal) سلسلتين."""
+    hlc = high + low + close
+    trend = pd.Series(np.where(hlc > hlc.shift(1), 1, -1), index=close.index)
+    dm = (high - low).astype(float)
+    cm_vals, prev_cm, prev_dm, prev_tr = [], 0.0, 0.0, 0
+    for i in range(len(close)):
+        d, t = float(dm.iloc[i]), int(trend.iloc[i])
+        c = (prev_cm + d) if t == prev_tr else (prev_dm + d)
+        cm_vals.append(c)
+        prev_cm, prev_dm, prev_tr = c, d, t
+    cm = pd.Series(cm_vals, index=close.index).replace(0, np.nan)
+    vf = volume * (2.0 * (dm / cm) - 1.0).abs() * trend * 100.0
+    kvo = vf.ewm(span=fast, adjust=False).mean() - vf.ewm(span=slow, adjust=False).mean()
+    signal = kvo.ewm(span=sig, adjust=False).mean()
+    return kvo.fillna(0.0), signal.fillna(0.0)
+
+
+def klinger_state(high, low, close, volume):
+    """حالة كلنجر (عرض/سياق فقط · فاشلة-آمنة). فيصل يستعمله مؤشّرًا مساندًا لا بوّابة.
+    KVO فوق إشارته = صاعد (تجميع) · تحتها = هابط (تصريف) · + تقاطع طازج إن وُجد.
+    None لو عيّنة أقصر من 60 شمعة أو خطأ (صدق العيّنة)."""
+    try:
+        if close is None or len(close) < 60 or volume is None:
+            return None
+        kvo, sg = klinger(high, low, close, volume)
+        k, s = float(kvo.iloc[-1]), float(sg.iloc[-1])
+        kp, sp = float(kvo.iloc[-2]), float(sg.iloc[-2])
+        cross = ("تقاطع صاعد" if (kp <= sp and k > s)
+                 else ("تقاطع هابط" if (kp >= sp and k < s) else ""))
+        return {"kvo": round(k, 1), "signal": round(s, 1),
+                "state": "صاعد (تجميع)" if k > s else "هابط (تصريف)", "cross": cross}
+    except Exception:
+        return None
+
+
+def klinger_line(kl: dict) -> str:
+    """سطر عرض كلنجر (عربي مبسّط). «» لو None."""
+    if not kl:
+        return ""
+    c = f" · {kl['cross']}" if kl.get("cross") else ""
+    return f"📊 كلنجر (حجم): {kl['state']}{c}"
+
+
 def dmi_adx(high, low, close, period: int = 14):
     """DMI/ADX (14) — يرجع (+DI، -DI، ADX). +DI>-DI = اتجاه صاعد."""
     up = high.diff()
@@ -4826,6 +4875,9 @@ def build_message(results: list, splits: list,
         _oscl = oscillation_line(r.get("fsto_osc"))
         if _oscl:
             lines.append(_oscl)
+        _kl = klinger_line(r.get("klinger"))     # 📊 كلنجر (حجم — فيصل IMG_0125)
+        if _kl:
+            lines.append(_kl)
         # (🔬 التجميع الصامت أُزيل من العرض — تجربة T-ACC فشلت بالسنتين، غير مميِّز)
         # 🕵️ لوحة علامات اليد (تجميع قرائن مضارب — يظهر عند دليلين فأكثر)
         _he = hand_evidence_line(r)
@@ -5343,6 +5395,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
         "fsto_osc": r.get("fsto_osc"),                    # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
+        "klinger": r.get("klinger"),                      # 📊 كلنجر (حجم، فيصل — عرض فقط)
         "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "bars_after": r.get("bars_after"),                # §11: جلسات منذ القاع (تفسير)
@@ -5755,6 +5808,8 @@ def scan_market():
             r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
             r["fsto_osc"] = fsto_oscillation(        # 🌀 قوة تذبذب FSTO: قروب/مضارب (حيّ، عرض فقط)
                 full_stoch(df["High"], df["Low"], df["Close"])[0])
+            r["klinger"] = klinger_state(            # 📊 كلنجر (حجم — فيصل IMG_0125؛ حيّ، عرض فقط)
+                df["High"], df["Low"], df["Close"], df["Volume"])
             r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
             r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
             r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
@@ -6138,6 +6193,8 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                 s["behav"] = _bh_new
             s["fsto_osc"] = fsto_oscillation(          # 🌀 قوة تذبذب FSTO يتجدّد يوميًا (عرض فقط)
                 full_stoch(df["High"], df["Low"], df["Close"])[0])
+            s["klinger"] = klinger_state(              # 📊 كلنجر (حجم) يتجدّد يوميًا (عرض فقط)
+                df["High"], df["Low"], df["Close"], df["Volume"])
             _psn = pivot_stability(df["Low"].values.astype(float),
                                    df["Close"].values.astype(float))
             if _psn:
@@ -8044,6 +8101,9 @@ def build_daily_message(wl: dict, splits: list,
         _oscl = oscillation_line(s.get("fsto_osc"))   # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
         if _oscl:
             lines.append("   " + _oscl)
+        _kl = klinger_line(s.get("klinger"))          # 📊 كلنجر (حجم، فيصل — عرض فقط)
+        if _kl:
+            lines.append("   " + _kl)
         # (🔬 التجميع الصامت أُزيل — تجربة T-ACC فشلت بالسنتين، غير مميِّز للمنفجر)
         # 🕵️ علامات اليد لم تعد سطرًا داخل كل كرت (طلب المستخدم: تُجمع في قسم
         # «أسهم فيها علامات يد» المستقل أسفل التقرير — قائمة نظيفة لحالها).

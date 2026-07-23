@@ -6727,6 +6727,25 @@ check("🌀 backtest_fsto: يبوّب شرائح chop (منضبط/عنيف) + ي
       any("منضبط" in x for x in _fr) and any("التوصية" in x for x in _fr))
 check("🌀 backtest_fsto·عيّنة صغيرة → [] (صدق العيّنة)",
       S.backtest_fsto_correlation([{"fsto_chop": 3, "outcome": "win"}] * 5) == [])
+# 📊 كلنجر (Klinger Volume Oscillator — فيصل IMG_0125 «يعجبني أحيانًا») — حجم · عرض/سياق فقط
+_kidx = S.pd.date_range("2025-01-01", periods=80)
+_accc = S.pd.Series(list(S.np.linspace(10, 4, 50))
+                    + list(4 + S.np.linspace(0, 0.6, 30)), index=_kidx)
+_accv = S.pd.Series([1e5] * 50 + [3e5] * 30, index=_kidx, dtype=float)
+_kacc = S.klinger_state(_accc * 1.02, _accc * 0.98, _accc, _accv)
+check("📊 كلنجر: تجميع عند القاع (حجم صاعد على الأخضر) → صاعد (تجميع)",
+      _kacc is not None and "تجميع" in _kacc["state"])
+_disc = S.pd.Series(list(S.np.linspace(4, 10, 50))
+                    + list(10 - S.np.linspace(0, 3, 30)), index=_kidx)
+_kdis = S.klinger_state(_disc * 1.02, _disc * 0.98, _disc, _accv)
+check("📊 كلنجر: تصريف → هابط (تصريف)",
+      _kdis is not None and "تصريف" in _kdis["state"])
+check("📊 كلنجر·عيّنة قصيرة → None (صدق العيّنة)",
+      S.klinger_state(_accc.head(30), _accc.head(30), _accc.head(30),
+                      _accv.head(30)) is None)
+check("📊 كلنجر: klinger_line فارغ عند None", S.klinger_line(None) == "")
+check("🔒 كلنجر (klinger/klinger_state) خارج الجذور السبعة (عرض/سياق فقط)",
+      "klinger_state" not in _osc_srcs and "klinger(" not in _osc_srcs)
 
 
 # ==========================================================
