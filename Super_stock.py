@@ -10456,6 +10456,20 @@ def _diagnose_symbol(sym, df, cutoff=0):
             f" انفجار={best_spike:.0f}%(معيد×{n_sp}) قاعدة={base_range:.0f}%"
             f" سيولة=${dvol:,.0f} RSIقاع={rsi_min:.0f}/الآن={rsi_now:.0f}"
             f" صعود5ج={gain5:+.0f}% شموع={len(c)}")
+        # 🔬 تشخيص تجربة التقسيم (باكتيست فقط، عند العلم+السياق): يُظهر المرجع البديل
+        # لهبوط M2 — قمة ما بعد آخر تقسيم عكسي (فيصل) أو القمة de-inflated — ولماذا يقلب/لا.
+        if _BT_SPLITS_CTX is not None and (CONFIG.get("BT_SPLIT_REF_M2")
+                                           or CONFIG.get("BT_SPLIT_AWARE_M2")):
+            try:
+                _cut = d.index[-1]
+                _psh = _post_split_high(high.tail(252), _BT_SPLITS_CTX, _cut)
+                _saw = _split_aware_hi52(high.tail(252), _BT_SPLITS_CTX, _cut)
+                _dref = f"(هبوط{(1.0 - price / _psh) * 100.0:.0f}%)" if _psh and _psh > 0 else ""
+                log(f"🔬{tag} تقسيم: قمة52أ={hi52:.2f}(هبوط{drop:.0f}%) · "
+                    f"مرجع-ما-بعد-التقسيم={None if _psh is None else round(_psh, 2)}{_dref} · "
+                    f"de-inflated={None if not _saw else round(_saw, 2)}")
+            except Exception as _de:
+                log(f"🔬{tag} تقسيم: تعذّر ({type(_de).__name__})")
         r = analyze_ticker(sym, d)
         rej = _REJECT_REASONS.get(sym, "—")
         rp = analyze_ticker(sym, d, pullback=True)
@@ -10699,22 +10713,24 @@ def run_backtest(symbols=None) -> None:
             if not market:
                 log(f"🔬{sym}: لا بيانات (محذوف/رمز خطأ؟)")
             continue
+        # 🔬 سياق splits لتجارب M2/M4 الواعية للتقسيم (باكتيست فقط، عند العلم فقط) —
+        # يُقرأ داخل analyze_ticker أثناء التشخيص والمشي معًا؛ None بلا العلم = صفر أثر
+        # (الإنتاج/الباكتيست العادي byte-identical). يُضبط **قبل** التشخيص ليعكسه بصدق.
+        globals()["_BT_SPLITS_CTX"] = ((splits_map or {}).get(sym)
+                                       if (CONFIG.get("BT_SPLIT_AWARE_M2")
+                                           or CONFIG.get("BT_SPLIT_REF_M2")
+                                           or CONFIG.get("BT_SPLIT_AWARE_M4")) else None)
         if not market:      # التشخيص المفصّل (8 قصّات/رمز) لعيّنة صغيرة فقط — لا للسوق
             _diagnose_symbol(sym, df)     # تشخيص الحالة الحالية (دائمًا)
             # ⏪ تشخيص «قبل الانفجار»: نقيّم السهم كأنه قبل N يوم — وقت القاع قبل الركض.
             for off in (15, 20, 25, 30, 40, 50, 60):
                 _diagnose_symbol(sym, df, cutoff=off)
         if len(df) < CONFIG["MIN_BARS"] + CONFIG["BACKTEST_FORWARD_DAYS"]:
+            globals()["_BT_SPLITS_CTX"] = None   # حارس: صفّر السياق قبل التخطّي
             if not market:
                 log(f"باكتيست·{sym}: بيانات غير كافية للمشي ({len(df)} شمعة)")
             continue
         sym_reasons = {}
-        # 🔬 سياق splits لتجربتَي M2/M4 الواعيتين للتقسيم (باكتيست فقط، عند العلم فقط) —
-        # يُقرأ داخل analyze_ticker أثناء المشي؛ None بلا العلم = صفر أثر (الإنتاج byte-identical).
-        globals()["_BT_SPLITS_CTX"] = ((splits_map or {}).get(sym)
-                                       if (CONFIG.get("BT_SPLIT_AWARE_M2")
-                                           or CONFIG.get("BT_SPLIT_REF_M2")
-                                           or CONFIG.get("BT_SPLIT_AWARE_M4")) else None)
         all_trades += backtest_symbol(sym, df, sym_reasons, date_window=date_window,
                                       splits=(splits_map or {}).get(sym))
         globals()["_BT_SPLITS_CTX"] = None
