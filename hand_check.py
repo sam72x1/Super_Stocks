@@ -73,7 +73,7 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
         L.append(_spl)
     # 🕵️ «من وراء السهم» = دمج FSTO (قوة التذبذب من الشموع) + شروط تدفق Polygon
     # (بصمة الخوارزميات من التّيب — O/OI/Ap/Dp) — طلب المستخدم «ندمج الثنتين». أوّلي/لحظي.
-    _actor = bot.flow_actor_read(r.get("fsto_osc"), _fr.get("flow_class"))
+    _actor = bot.flow_actor_read(r.get("fsto_osc"), _fr.get("operator_profile"))
     if _actor:
         L.append(_actor)
     # 🎬 KST 4س (حالة زخم مساندة — مؤشر فيصل بالفيديو)

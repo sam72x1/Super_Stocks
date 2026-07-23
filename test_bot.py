@@ -6757,6 +6757,24 @@ check("🔒 classify_flow_conditions/flow_actor_read/polygon_conditions_map خا
       "classify_flow_conditions" not in _osc_srcs
       and "flow_actor_read" not in _osc_srcs
       and "polygon_conditions_map" not in _osc_srcs)
+# 🕵️ بصمة المضارب الشاملة (طلب المستخدم: «جميع أوامر المضارب» لا الأكواد فقط)
+_op_tr = ([{"price": 2.0 - i * 0.001, "size": 1500, "conditions": [],
+            "exchange": 4} for i in range(3)]                       # كتلة على الطلب (downtick) + دارك
+          + [{"price": 1.99, "size": 2, "conditions": []}
+             for _ in range(10)]                                    # آيسبرغ ×10 عند 1.99
+          + [{"price": 1.99, "size": 50, "conditions": [2]}
+             for _ in range(10)])                                   # خوارزمي (Average Price)
+_prof = S.operator_tape_profile(_op_tr, bid=1.98, ask=2.0,
+                                cond_map={2: "Average Price Trade"})
+check("🕵️ بصمة شاملة: تلتقط الامتصاص+الآيسبرغ+الخوارزمي (كل أوامر المضارب)",
+      _prof is not None and _prof["bid_block"] >= 1000
+      and _prof["iceberg_max"] >= 8 and _prof["algo_pct"] > 0)
+check("🕵️ بصمة شاملة·فاشل-آمن: أقل من 20 صفقة → None (عيّنة غير كافية)",
+      S.operator_tape_profile([{"price": 1, "size": 1}] * 5) is None)
+check("🕵️ دمج: بصمة شاملة ⇒ سطر «من وراء السهم» فيه «تدفق» (امتصاص/آيسبرغ/خوارزمي)",
+      "تدفق" in S.flow_actor_read({"actor": "مضارب"}, _prof))
+check("🔒 operator_tape_profile خارج الجذور السبعة",
+      "operator_tape_profile" not in _osc_srcs)
 
 
 # ==========================================================

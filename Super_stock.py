@@ -6924,8 +6924,10 @@ def polygon_flow(sym: str, with_prints: bool = False):
                             age = None
                     pr["quote_age_ms"] = age
                     out["prints"] = pr
-                    out["flow_class"] = classify_flow_conditions(   # 🤖 شروط التدفق (فحص اليد فقط)
-                        trades, polygon_conditions_map())
+                    _cmap = polygon_conditions_map()                # 🤖 شروط التدفق (فحص اليد فقط)
+                    out["flow_class"] = classify_flow_conditions(trades, _cmap)
+                    out["operator_profile"] = operator_tape_profile(  # 🕵️ بصمة المضارب الشاملة
+                        trades, bid, ask, _cmap)
         except Exception:
             pass
         return out
@@ -6997,20 +6999,78 @@ def classify_flow_conditions(trades, cond_map):
             "oddlot_pct": round(oddlot / n * 100)}
 
 
-def flow_actor_read(fsto_osc, flow_class):
-    """🕵️ «من وراء السهم» — يدمج FSTO (قوة التذبذب من الشموع) + شروط تدفق Polygon
-    (بصمة الخوارزميات من التّيب). طلب المستخدم: «ندمج الثنتين». **عرض فقط · أوّلي · لحظي.**
-    يرجع سطرًا عربيًّا مختصرًا أو «» (لا إشارة كافية)."""
+def operator_tape_profile(trades, bid=None, ask=None, cond_map=None,
+                          min_block=1000, tiny=5):
+    """🕵️ بصمة المضارب **الشاملة** من التّيب — كل الطبعات اللي ممكن تخصّه (طلب المستخدم:
+    «جميع الأوامر اللي تخص المضارب» لا الأكواد وحدها). نقيّة · فاشلة-آمنة · لحظي/عرض فقط.
+    مسحة واحدة على صفقات Polygon تجمع خمسة أبعاد:
+      • كتل ≥min_block: buy_block (شراء عدواني=رفع) · bid_block (على الطلب=امتصاص/تجميع، فيصل ≥1000)
+      • iceberg_max: أكبر عدد طبعات صغيرة (≤tiny سهم) عند نفس السعر (إخفاء حجم/تقطيع آلي — IMG_0082)
+      • algo_pct: نسبة Average/Derivatively (Ap/Dp — يلزم cond_map من مرجع Polygon)
+      • dark_pct: نسبة exchange==4 (خارج البورصة FINRA TRF = مؤسسي، موثّق Polygon)
+      • aggr_pct: نسبة الشراء عند/فوق منتصف NBBO (عدوانية)
+    يرجع dict شامل أو None (أقل من 20 صفقة صالحة = عيّنة غير كافية، صدق)."""
+    if not trades or len(trades) < 20:
+        return None
+    prices = [t.get("price") for t in trades]
+    signs = _tick_classify([p if p is not None else 0.0 for p in prices])
+    mid = ((float(bid) + float(ask)) / 2.0) if (bid and ask) else None
+    buy_block = bid_block = 0
+    ice, algo, dark, aggr, valid = {}, 0, 0, 0, 0
+    for i, t in enumerate(trades):
+        px, sz = prices[i], (t.get("size") or 0)
+        if px is None:
+            continue
+        valid += 1
+        if sz >= min_block:
+            if signs[i] > 0:
+                buy_block += sz
+            elif signs[i] < 0:
+                bid_block += sz
+        if 0 < sz <= tiny:
+            k = round(float(px), 4)
+            ice[k] = ice.get(k, 0) + 1
+        if cond_map:
+            joined = " ".join(cond_map.get(int(c), "")
+                              for c in (t.get("conditions") or []) if c is not None)
+            if "Average Price" in joined or "Derivatively" in joined:
+                algo += 1
+        if t.get("exchange") == 4:
+            dark += 1
+        if mid is not None and float(px) >= mid:
+            aggr += 1
+    if valid < 20:
+        return None
+    return {"n": valid, "buy_block": int(buy_block), "bid_block": int(bid_block),
+            "iceberg_max": max(ice.values()) if ice else 0,
+            "algo_pct": round(algo / valid * 100),
+            "dark_pct": round(dark / valid * 100),
+            "aggr_pct": round(aggr / valid * 100)}
+
+
+def flow_actor_read(fsto_osc, prof):
+    """🕵️ «من وراء السهم» — يدمج FSTO (قوة التذبذب من الشموع) + بصمة المضارب الشاملة من
+    التّيب (`operator_tape_profile`). طلب المستخدم: «ندمج الثنتين» + «كل أوامر المضارب».
+    **عرض فقط · أوّلي · لحظي.** يرجع سطرًا عربيًّا أو «» (لا إشارة كافية).
+    (يقبل أيضًا مخرج `classify_flow_conditions` للتوافق — algo_pct مشترك.)"""
     bits = []
     if fsto_osc and fsto_osc.get("actor"):
         bits.append("تذبذب " + ("عنيف/قروب" if fsto_osc["actor"] == "قروب"
                                  else "منضبط/مضارب"))
-    if flow_class and flow_class.get("n"):
-        ap = flow_class["algo_pct"]
-        if ap >= 25:
-            bits.append(f"تدفق خوارزمي {ap}% (تنفيذ آلي — مضارب/مؤسسة)")
-        elif flow_class.get("regular", 0) / flow_class["n"] >= 0.7:
-            bits.append("تدفق عدواني عادي (أقرب لقروب/تجزئة)")
+    if prof and prof.get("n"):
+        sub = []
+        if prof.get("bid_block", 0) >= 1000:
+            sub.append(f"امتصاص على الطلب ~{prof['bid_block']:,} (تجميع)")
+        if prof.get("buy_block", 0) >= 1000:
+            sub.append(f"رفع بكتلة ~{prof['buy_block']:,}")
+        if prof.get("iceberg_max", 0) >= 8:
+            sub.append(f"تقطيع آيسبرغ ×{prof['iceberg_max']} (إخفاء حجم)")
+        if prof.get("algo_pct", 0) >= 25:
+            sub.append(f"خوارزمي {prof['algo_pct']}%")
+        if prof.get("dark_pct", 0) >= 30:
+            sub.append(f"دارك {prof['dark_pct']}% (مؤسسي)")
+        if sub:
+            bits.append("تدفق: " + " · ".join(sub))
     if not bits:
         return ""
     return "🕵️ من وراء السهم (أوّلي): " + " · ".join(bits)
