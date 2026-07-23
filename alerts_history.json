@@ -379,8 +379,8 @@
     "فلوت 49,644,954 (صغير ✅)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
+   "status": "expired",
+   "result_date": "2026-07-23",
    "max_gain_pct": 3.2
   },
   {
@@ -1088,7 +1088,7 @@
    "rr": 4.861110113101444,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 8.2
+   "max_gain_pct": 9.9
   },
   {
    "symbol": "PETS",
@@ -1201,7 +1201,7 @@
    "rr": 3.0858034953556266,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -0.3
+   "max_gain_pct": 4.2
   },
   {
    "symbol": "TAOX",
@@ -1238,7 +1238,7 @@
    "rr": 2.8398787736046684,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.3
+   "max_gain_pct": 2.7
   },
   {
    "symbol": "APVO",
@@ -1348,7 +1348,7 @@
    "rr": 1.4879110117041585,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.5
+   "max_gain_pct": 6.1
   },
   {
    "symbol": "PONY",
@@ -1463,7 +1463,7 @@
    "rr": 2.965180043772645,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 2.7
+   "max_gain_pct": 0.7
   },
   {
    "symbol": "TRON",
@@ -1501,7 +1501,7 @@
    "rr": 1.940352509004351,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.3
+   "max_gain_pct": 2.3
   },
   {
    "symbol": "MSTR",
@@ -1540,7 +1540,43 @@
    "rr": 3.9054634636448267,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.3
+   "max_gain_pct": -1.2
+  },
+  {
+   "symbol": "NEGG",
+   "date": "2026-07-23",
+   "ref_bar": "2026-07-22",
+   "price": 15.67,
+   "stop": 11.625,
+   "t1": 17.45,
+   "t2": 19.72,
+   "t3": 31.4,
+   "score": 85,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "يرتكز على متوسط 30/50",
+    "معيد إجرام (2 انفجارات)",
+    "ثبات 2 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (16→41) — سيولة مخفية",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 1,375,167 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Consumer Cyclical",
+   "rsi": 48.97995718006058,
+   "float": 1375167,
+   "short": null,
+   "short_pct": 28.2,
+   "drop_pct": 88.63174659560953,
+   "best_spike": 426.06841329678804,
+   "rr": 3.6536710074298964,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
   }
  ]
 }
