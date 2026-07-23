@@ -6053,6 +6053,55 @@ check("§P4·قفل: _split_frequency خارج rank_key/select_top/backtest_symb
       all("_split_frequency" not in _insp0.getsource(f)
           for f in (S.rank_key, S.select_top, S.backtest_symbol, S.analyze_ticker)))
 
+# 🎯 رادار أسهم التقسيم (فيصل IMG_0143/0144/0150/0151 — عرض/سياق فقط، خارج الفرز):
+# مقسّم عكسيًّا وصل قاع «القمة÷2» (6.90→3.45) وحافظ 3 جلسات. طلب المستخدم «رادار مقسّم».
+_sr_idx = pd.date_range(end=pd.Timestamp.today().normalize(), periods=60, freq="D")
+_sr_close = np.concatenate([np.full(30, 13.8),          # ما قبل التقسيم (يتجاهله المِجَسّ)
+                            np.linspace(6.9, 3.45, 27), np.full(3, 3.45)])  # قمة 6.9→قاع 3.45
+_sr_df = pd.DataFrame({"Open": _sr_close, "High": _sr_close, "Low": _sr_close * 0.99,
+                       "Close": _sr_close, "Volume": np.full(60, 5e5)}, index=_sr_idx)
+_sr_splits = pd.Series([0.1], index=[_sr_idx[30]])      # عكسي 1:10 يوم البار 30
+_sr_today = _sr_idx[-1].date()
+_sr_probe = S._split_setup_probe(_sr_df, _sr_splits, _sr_today)
+check("🎯 رادار·مِجَسّ: يكتشف مقسّم وصل قاع القمة÷2 (6.90→3.45 = مرجع فيصل)",
+      _sr_probe is not None and abs(_sr_probe["half"] - 3.45) < 0.05
+      and _sr_probe["near_bottom"] and _sr_probe["held_ok"])
+check("🎯 رادار·مِجَسّ: بلا splits ⇒ None (فاشل-آمن)",
+      S._split_setup_probe(_sr_df, None, _sr_today) is None)
+check("🎯 رادار·مِجَسّ: تقسيم أمامي (نسبة>1) ليس عكسيًّا ⇒ None",
+      S._split_setup_probe(_sr_df, pd.Series([2.0], index=[_sr_idx[30]]), _sr_today) is None)
+check("🎯 رادار·مِجَسّ: تقسيم أقدم من النافذة ⇒ None (بلا تسريب)",
+      S._split_setup_probe(
+          _sr_df, pd.Series([0.1], index=[_sr_idx[30] - pd.Timedelta(days=400)]),
+          _sr_today) is None)
+_sr_hist = {"SPLT": _sr_df}
+_sr_rows = S.scan_split_radar(_sr_hist, fetch_splits=lambda s: _sr_splits,
+                              fetch_short=lambda syms: {"SPLT": 12000},   # <20ألف
+                              fetch_float=lambda s: 1_500_000,            # <2م
+                              fetch_pump=lambda df: {"found": False})
+check("🎯 رادار·مسح: يلتقط المقسّم المطابق setup فيصل (فلوت<2م·شورت<20ألف·5/5)",
+      len(_sr_rows) == 1 and _sr_rows[0]["symbol"] == "SPLT"
+      and _sr_rows[0]["float_ok"] and _sr_rows[0]["short_ok"]
+      and _sr_rows[0]["match"] == 5)
+check("🎯 رادار·مسح: exclude يستبعد الرمز",
+      S.scan_split_radar(_sr_hist, exclude={"SPLT"},
+                         fetch_splits=lambda s: _sr_splits) == [])
+check("🎯 رادار·مسح·فاشل-آمن: جالب التقسيمات يرمي ⇒ يتخطّى بلا انهيار",
+      S.scan_split_radar(
+          _sr_hist,
+          fetch_splits=lambda s: (_ for _ in ()).throw(ValueError())) == [])
+_sr_sec = S.build_split_radar_section(_sr_rows)
+check("🎯 رادار·عرض: القسم يعرض الرمز + هدف ÷2 + معايير فيصل",
+      "رادار أسهم التقسيم" in _sr_sec and "SPLT" in _sr_sec
+      and "3.45" in _sr_sec and "خالٍ من قروب" in _sr_sec)
+check("🎯 رادار·عرض: فارغ بلا صفوف", S.build_split_radar_section([]) == "")
+check("🎯 رادار·قفل: الرادار (scan/probe/section) خارج الجذور السبعة (عرض/سياق فقط)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("scan_split_radar", "_split_setup_probe",
+                      "build_split_radar_section")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol)))
+
 # D10 — عرض تدوير الفلوت في الكرت (عند تجاوز 100% فقط)
 if r0:
     _d10_hi = dict(r0); _d10_hi["rotation_pct"] = 200
