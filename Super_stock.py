@@ -8623,7 +8623,22 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
 
     tail = ["", "⚠️ <i>أداة تطوير ذاتي تتعلّم من نتائج البوت — ليست توصية. "
             "الاقتراحات للمراجعة البشرية فقط.</i>"]
-    return "\n".join(head + body + sugg + tail)
+
+    # 🤖🖐️ حصّاد اليد (المرحلة 1، طلب المستخدم 2026-07-23): ملخّص أسبوعي ضمن التطوير —
+    # كم مسحًا تجمّع + هل الامتصاص يفصل الرابح عن الخاسر. فاشل-آمن مطلق (لا مكتبة/لا سجلّ =
+    # لا قسم) · طبقة تقارير فقط · خارج الفرز/الجذور · لا يعتمد عليه التقرير.
+    def _hand_flow_block():
+        try:
+            from hand_flow_recorder import HandFlowRecorder
+            rec = HandFlowRecorder()
+            if not rec.load():
+                return []
+            return ["\n🤖🖐️ <b>حصّاد اليد (بيانات الوكيل — المرحلة 1)</b>",
+                    "   " + rec.summary().replace("\n", "\n   ")]
+        except Exception:
+            return []
+
+    return "\n".join(head + body + _hand_flow_block() + sugg + tail)
 
 
 def write_csv(rows: list, prefix: str) -> None:
