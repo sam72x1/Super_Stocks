@@ -1,0 +1,32 @@
+name: Hand-flow harvester (AI-hand phase 1)
+# 🤖🖐️ المرحلة 1: يجمع بيانات التدفق الحيّة عند كل مسح (بحث/جدوى — يبني بيانات الوكيل).
+# فاشل-آمن: بلا POLYGON_API_KEY أو HAND_COLLECT!=1 = لا عمل. خارج الفرز/الإنتاج بالكامل.
+permissions:
+  contents: write          # git_save يحفظ hand_flow_log.jsonl ليتراكم عبر الجلسات
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/30 14-21 * * 1-5"   # كل 30د، ساعات السوق UTC (Mon-Fri)
+concurrency:
+  group: hand-flow
+  cancel-in-progress: false
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Harvest hand-flow
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          HAND_COLLECT: "1"
+        run: python hand_flow_collect.py
