@@ -6736,6 +6736,30 @@ check("🔒 سلوك الحركة/حركة فيصل خارج الجذور الس
 
 
 # ==========================================================
+# 🤖 تصنيف شروط تدفق Polygon (فكرة المستخدم IMG_0082-0086: O/OI/Ap/Dp) + دمج FSTO
+# — لحظي/عرض فقط · يعتمد أسماء Polygon الرسمية لا تخمين رموز التطبيق
+_cmap = {2: "Average Price Trade", 8: "Derivatively Priced",
+         37: "Odd Lot Trade", 16: "Opening Prints", 0: "Regular Sale"}
+_algo_tr = ([{"conditions": [2]}] * 4 + [{"conditions": [8]}] * 3
+            + [{"conditions": [0]}] * 3)
+_cf = S.classify_flow_conditions(_algo_tr, _cmap)
+check("🤖 شروط التدفق: Ap/Dp (Average/Derivatively) → algo_pct عالٍ (بصمة خوارزمية)",
+      _cf is not None and _cf["algo_pct"] == 70)
+check("🤖 شروط التدفق·فاشل-آمن: بلا مرجع Polygon → None (لا تصنيف مُخترَع)",
+      S.classify_flow_conditions(_algo_tr, {}) is None)
+check("🤖 شروط التدفق·فاشل-آمن: بلا صفقات → None",
+      S.classify_flow_conditions([], _cmap) is None)
+check("🕵️ دمج FSTO+التدفق: خوارزمي عالٍ ⇒ سطر «من وراء السهم» فيه «خوارزمي»",
+      "خوارزمي" in S.flow_actor_read({"actor": "مضارب"}, _cf))
+check("🕵️ دمج·فارغ: لا إشارة ⇒ «» (فاشل-آمن)",
+      S.flow_actor_read(None, None) == "")
+check("🔒 classify_flow_conditions/flow_actor_read/polygon_conditions_map خارج الجذور السبعة",
+      "classify_flow_conditions" not in _osc_srcs
+      and "flow_actor_read" not in _osc_srcs
+      and "polygon_conditions_map" not in _osc_srcs)
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

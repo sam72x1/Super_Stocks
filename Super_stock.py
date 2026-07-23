@@ -6924,11 +6924,96 @@ def polygon_flow(sym: str, with_prints: bool = False):
                             age = None
                     pr["quote_age_ms"] = age
                     out["prints"] = pr
+                    out["flow_class"] = classify_flow_conditions(   # 🤖 شروط التدفق (فحص اليد فقط)
+                        trades, polygon_conditions_map())
         except Exception:
             pass
         return out
     except Exception:
         return None
+
+
+_CONDITIONS_CACHE = {}    # {id:int → name:str} — مرجع شروط Polygon الرسمي (يُجلب مرة)
+
+
+def polygon_conditions_map():
+    """مرجع شروط الصفقات الرسمي من Polygon (/v3/reference/conditions) → {id: name}.
+    يُجلب مرة ويُخزَّن. **فاشل-آمن:** بلا مفتاح/خطأ → {} (لا تصنيف بدل تصنيف مُخترَع).
+    نعتمد أسماء Polygon الموثّقة لا تخمين رموز التطبيق (Ap/Dp = رموز عرض التطبيق)."""
+    global _CONDITIONS_CACHE
+    if _CONDITIONS_CACHE:
+        return _CONDITIONS_CACHE
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        return {}
+    try:
+        r = requests.get("https://api.polygon.io/v3/reference/conditions",
+                         headers={"Authorization": f"Bearer {key}"},
+                         params={"asset_class": "stocks", "data_type": "trade",
+                                 "limit": 1000}, timeout=12)
+        if r.status_code != 200:
+            return {}
+        m = {}
+        for c in (r.json() or {}).get("results") or []:
+            cid, nm = c.get("id"), c.get("name")
+            if cid is not None and nm:
+                m[int(cid)] = str(nm)
+        _CONDITIONS_CACHE = m
+        return m
+    except Exception:
+        return {}
+
+
+def classify_flow_conditions(trades, cond_map):
+    """🤖 تصنيف بصمة الخوارزميات من شروط صفقات Polygon (فكرة المستخدم IMG_0082-0086:
+    الأكواد O/OI/Ap/Dp = شروط الصفقة تكشف طبيعة الطبعة). نقيّة · فاشلة-آمنة · **لحظية/عرض فقط**.
+    تصنّف كل طبعة بأسماء شروط Polygon الرسمية (لا تخمين رموز التطبيق):
+      • خوارزمية = «Average Price»/«Derivatively» (Ap/Dp — تنفيذ آلي VWAP/مشتق)
+      • أودد-لوت = «Odd Lot» · افتتاح = «Opening» · مسح = «Intermarket Sweep» · وإلا عادية
+    يرجع dict {n, algo, algo_pct, oddlot_pct, opening, ...} أو None (لا صفقات/لا مرجع)."""
+    if not trades or not cond_map:
+        return None
+    n = algo = oddlot = opening = sweep = regular = 0
+    for t in trades:
+        conds = t.get("conditions") or []
+        joined = " ".join(cond_map.get(int(c), "")
+                          for c in conds if c is not None)
+        n += 1
+        if "Average Price" in joined or "Derivatively" in joined:
+            algo += 1
+        elif "Odd Lot" in joined:
+            oddlot += 1
+        elif "Opening" in joined:
+            opening += 1
+        elif "Intermarket Sweep" in joined:
+            sweep += 1
+        else:
+            regular += 1
+    if n == 0:
+        return None
+    return {"n": n, "algo": algo, "oddlot": oddlot, "opening": opening,
+            "sweep": sweep, "regular": regular,
+            "algo_pct": round(algo / n * 100),
+            "oddlot_pct": round(oddlot / n * 100)}
+
+
+def flow_actor_read(fsto_osc, flow_class):
+    """🕵️ «من وراء السهم» — يدمج FSTO (قوة التذبذب من الشموع) + شروط تدفق Polygon
+    (بصمة الخوارزميات من التّيب). طلب المستخدم: «ندمج الثنتين». **عرض فقط · أوّلي · لحظي.**
+    يرجع سطرًا عربيًّا مختصرًا أو «» (لا إشارة كافية)."""
+    bits = []
+    if fsto_osc and fsto_osc.get("actor"):
+        bits.append("تذبذب " + ("عنيف/قروب" if fsto_osc["actor"] == "قروب"
+                                 else "منضبط/مضارب"))
+    if flow_class and flow_class.get("n"):
+        ap = flow_class["algo_pct"]
+        if ap >= 25:
+            bits.append(f"تدفق خوارزمي {ap}% (تنفيذ آلي — مضارب/مؤسسة)")
+        elif flow_class.get("regular", 0) / flow_class["n"] >= 0.7:
+            bits.append("تدفق عدواني عادي (أقرب لقروب/تجزئة)")
+    if not bits:
+        return ""
+    return "🕵️ من وراء السهم (أوّلي): " + " · ".join(bits)
 
 
 def order_snapshot(sym: str):

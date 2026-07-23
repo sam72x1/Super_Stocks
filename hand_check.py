@@ -71,6 +71,11 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     _spl = bot.spread_line(_fr.get("bid"), _fr.get("ask"))
     if _spl:
         L.append(_spl)
+    # 🕵️ «من وراء السهم» = دمج FSTO (قوة التذبذب من الشموع) + شروط تدفق Polygon
+    # (بصمة الخوارزميات من التّيب — O/OI/Ap/Dp) — طلب المستخدم «ندمج الثنتين». أوّلي/لحظي.
+    _actor = bot.flow_actor_read(r.get("fsto_osc"), _fr.get("flow_class"))
+    if _actor:
+        L.append(_actor)
     # 🎬 KST 4س (حالة زخم مساندة — مؤشر فيصل بالفيديو)
     if r.get("kst4"):
         L.append(f"📈 KST (4س): {r['kst4']}")
@@ -181,6 +186,8 @@ def hand_check(sym: str):
     try:
         r["behav"] = bot.behavior_rise_profile(df)     # بصمة اليومي
         r["pump_scar"] = bot.group_pump_scar(df)       # رفعة القروب/كسر الدعوم
+        r["fsto_osc"] = bot.fsto_oscillation(          # 🌀 FSTO قوة التذبذب (للدمج مع التدفق)
+            bot.full_stoch(df["High"], df["Low"], df["Close"])[0])
     except Exception:
         pass
     # 📊 تدفق الأوامر (Polygon حي · احتياط Yahoo · فاشل-آمن → «—» لا يعيق الفحص)
