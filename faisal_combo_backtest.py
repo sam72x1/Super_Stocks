@@ -28,7 +28,8 @@ def _env(name, default):
 
 
 FWD = _env("FC_FWD_DAYS", 60)              # نافذة أمامية (جلسات)
-EXPLODE_PCT = _env("FC_EXPLODE_PCT", 100.0)  # الانفجار = صعود ≥ %
+EXPLODE_PCT = _env("FC_EXPLODE_PCT", 100.0)  # الانفجار/الهدف = صعود ≥ %
+STOP_PCT = _env("FC_STOP_PCT", 50.0)       # 🎯 الوقف للمقياس القابل للتنفيذ = هبوط ≥ %
 # ⚠️ تصحيح 2026-07-22 (صور IMG_0091/0094/0095/0096 — بحث المستخدم from:kisar_ 30/50):
 # «متوسط حركة 30<50» = **المتوسط الأسّي EMA 30 و 50** (فيصل: «متوسط الأسّي 30-50 يوم» ·
 # «جميع المتوسطات … 30-50» · «مقسّم هابط متوسط 20<30<50»)، **لا** متوسط الحركة اليومية.
@@ -199,22 +200,50 @@ def run():
             fwd = close[i + 1:i + 1 + FWD]
             exploded = (len(fwd) > 0 and
                         (float(np.nanmax(fwd)) / c0 - 1.0) * 100.0 >= EXPLODE_PCT)
+            # 🎯 المقياس القابل للتنفيذ (وقف/هدف · مسار يومي بلا نظر مستقبلي): هل ضرب
+            # +EXPLODE_PCT% (هدف) قبل −STOP_PCT% (وقف)؟ الوقف يُفحص أولًا كل يوم = أسوأ حالة
+            # (بلا تفاؤل، فلسفة باكتيست البوت). يحوّل «انفجار فضفاض» → نجاح تداولي حقيقي،
+            # ويكشف الانهيار المخفي (−50% أولًا) فيجعل انحياز البقاء ثانويًّا في الرفع النسبي.
+            fh = high[i + 1:i + 1 + FWD]
+            fl = low[i + 1:i + 1 + FWD]
+            tgt = c0 * (1.0 + EXPLODE_PCT / 100.0)
+            stp = c0 * (1.0 - STOP_PCT / 100.0)
+            win = loss = False
+            for a, b in zip(fh, fl):
+                if b <= stp:          # ضرب الوقف أولًا (أسوأ حالة)
+                    loss = True
+                    break
+                if a >= tgt:          # ضرب الهدف
+                    win = True
+                    break
             rows.append((ts.year, is_rs, ema_ok, base_ok, spike_ok,
-                         combo3, exploded, gap))
+                         combo3, exploded, win, loss, gap))
 
     if not rows:
         print("⚠️ صفر نقاط تقييم — تحقّق من تغطية اللقطة للسنوات.")
         return 1
-    arr = np.array([(r[0], r[1], r[2], r[3], r[4], r[5], r[6]) for r in rows], float)
-    gaps = np.array([r[7] for r in rows], float)
+    arr = np.array([r[:9] for r in rows], float)
+    gaps = np.array([r[9] for r in rows], float)
     N = len(arr)
-    yr, is_rs, ema_ok, bs_ok, sp_ok, combo, expl = (arr[:, k] for k in range(7))
+    yr, is_rs, ema_ok, bs_ok, sp_ok, combo, expl, win, loss = (arr[:, k] for k in range(9))
 
     def rate(mask):
         n = int(mask.sum())
         k = int(expl[mask].sum()) if n else 0
         p, lo, hi = wilson(k, n)
         return n, k, p, lo, hi
+
+    def wl_rate(mask):
+        """المقياس القابل للتنفيذ: نجاح = ضرب الهدف قبل الوقف · انهيار = الوقف أولًا.
+        يرجّع (n, w, l, win_rate, wr_lo, wr_hi, crash_rate) — win_rate على المحسومة فقط."""
+        m = mask.astype(bool)
+        n = int(m.sum())
+        w = int(win[m].sum()) if n else 0
+        l = int(loss[m].sum()) if n else 0
+        dec = w + l
+        p, lo, hi = wilson(w, dec)
+        crash = (l / n) if n else 0.0
+        return n, w, l, p, lo, hi, crash
 
     out = []
     out.append(f"# 🥇 نتيجة توليفة فيصل «الذهبية» — اختبار تمييزي (السوق كامل)\n")
@@ -267,6 +296,21 @@ def run():
         yr_signs.append((c_n, c_p, b_p))
         out.append(f"| {y} | {c_n} | {c_k} | {c_p*100:.2f}% | {b_p*100:.2f}% | {lf:.2f}× |")
 
+    # 🎯 الفيصل الحاسم: المقياس القابل للتنفيذ (هدف +100% قبل وقف −50%) + عدم التماثل
+    b_n, b_w, b_l, b_wr, b_wlo, b_whi, b_cr = wl_rate(np.ones(N, bool))
+    c_n2, c_w, c_l, c_wr, c_wlo, c_whi, c_cr = wl_rate(cm)
+    out.append(f"\n## 🎯 الفيصل الحاسم — قابل للتنفيذ (هدف +{EXPLODE_PCT:g}% قبل وقف −{STOP_PCT:g}%)\n")
+    out.append("| العيّنة | محسومة | نجاح | انهيار | نسبة النجاح | Wilson95 | معدّل الانهيار |")
+    out.append("|---|--:|--:|--:|--:|---|--:|")
+    out.append(f"| الأساس | {b_w+b_l} | {b_w} | {b_l} | {b_wr*100:.1f}% | "
+               f"[{b_wlo*100:.1f}, {b_whi*100:.1f}] | {b_cr*100:.1f}% |")
+    out.append(f"| **التوليفة** | {c_w+c_l} | {c_w} | {c_l} | **{c_wr*100:.1f}%** | "
+               f"[{c_wlo*100:.1f}, {c_whi*100:.1f}] | **{c_cr*100:.1f}%** |")
+    wr_lift = (c_wr / b_wr) if b_wr > 0 else float("nan")
+    cr_lift = (c_cr / b_cr) if b_cr > 0 else float("nan")
+    out.append(f"\n- **رفع النجاح:** {wr_lift:.2f}× · **رفع الانهيار:** {cr_lift:.2f}× — "
+               "الحافة حقيقية فقط لو رفع النجاح > رفع الانهيار (عدم تماثل صاعد؛ وإلا = تذبذب).")
+
     # تفصيل فجوة السعر عن EMA50 (secondary — هل الأعمق تحت الأسّي ينفجر أكثر؟)
     out.append("\n## (secondary) الانفجار حسب فجوة السعر عن EMA50 (price/EMA50−1)\n")
     out.append("| الفجوة عن EMA50 | N | معدّل الانفجار |")
@@ -288,6 +332,9 @@ def run():
     zb = 2.576  # ~99.5% ≈ Bonferroni لـ5 اختبارات عند 95%
     _, cblo, _ = wilson(ck, cn, z=zb)
     passes.append(("يصمد بعد Bonferroni (أرضية 99.5% > الأساس)", cblo > bp))
+    # 🎯 الفحصان الحاسمان (قابلية التنفيذ + عدم التماثل — يقتلان الفضفضة والبقاء):
+    passes.append(("نجاح التنفيذ (هدف قبل وقف): Wilson المطابق > نجاح الأساس", c_wlo > b_wr))
+    passes.append(("عدم تماثل صاعد: رفع النجاح > رفع الانهيار", wr_lift > cr_lift))
     verdict = all(v for _, v in passes)
     out.append("\n## ⚖️ الحكم مقابل المعيار المسجَّل مسبقًا\n")
     for name, v in passes:
