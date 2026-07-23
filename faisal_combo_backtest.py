@@ -66,6 +66,67 @@ def _ts(x):
     return t.tz_localize(None) if getattr(t, "tz", None) is not None else t
 
 
+def _logit_fit(X, y, iters=500, lr=0.3, l2=1e-3):
+    """انحدار لوجستي بسيط بـnumpy (بلا sklearn) — نموذج شفّاف يقاوم overfitting (قليل الميزات
+    + L2). X مِعياريّة مع عمود انحياز. يرجّع الأوزان."""
+    w = np.zeros(X.shape[1])
+    n = max(1, len(y))
+    for _ in range(iters):
+        p = 1.0 / (1.0 + np.exp(-np.clip(X @ w, -30, 30)))
+        g = X.T @ (p - y) / n + l2 * w
+        w -= lr * g
+    return w
+
+
+def _phase0_learnability(feats, labels, years, names):
+    """🤖 المرحلة 0: هل ميزة يومية تتنبّأ بنجاح دخول-المسح **خارج العيّنة**؟ تدريب 2023-2024،
+    اختبار 2025 (walk-forward، بلا تسريب). يرجّع أسطر تقرير. نموذج logistic شفّاف + سبر لكل ميزة."""
+    out = ["\n## 🤖 المرحلة 0 — قابلية تعلّم «اليد» على البيانات اليومية (OOS: تدريب 2023-24 · اختبار 2025)\n"]
+    tr = (years == 2023) | (years == 2024)
+    te = (years == 2025)
+    if int(tr.sum()) < 50 or int(te.sum()) < 50:
+        out.append(f"⚠️ عيّنة دخول-المسح غير كافية (تدريب {int(tr.sum())} · اختبار {int(te.sum())}) — لا حكم.")
+        return out
+    Xtr, ytr = feats[tr], labels[tr]
+    Xte, yte = feats[te], labels[te]
+    base_wr = float(yte.mean())
+    out.append(f"- عيّنة: تدريب {int(tr.sum())} دخول · اختبار (2025) {int(te.sum())} · "
+               f"نسبة نجاح الأساس OOS = {base_wr*100:.1f}%")
+    # سبر لكل ميزة (OOS): نسبة نجاح الثلث الأعلى (بعتبة التدريب) مقابل الأساس
+    out.append("\n| الميزة | ارتباط بالتدريب | نجاح الثلث-الأعلى OOS | الرفع |")
+    out.append("|---|--:|--:|--:|")
+    for k, nm in enumerate(names):
+        col_tr = Xtr[:, k]
+        cc = float(np.corrcoef(col_tr, ytr)[0, 1]) if np.std(col_tr) > 0 else 0.0
+        col_te = Xte[:, k]
+        thr = np.quantile(col_te, 2 / 3) if cc >= 0 else np.quantile(col_te, 1 / 3)
+        grp = (col_te >= thr) if cc >= 0 else (col_te <= thr)
+        wr = float(yte[grp].mean()) if int(grp.sum()) else 0.0
+        out.append(f"| {nm} | {cc:+.3f} | {wr*100:.1f}% | {(wr/base_wr if base_wr>0 else 0):.2f}× |")
+    # نموذج مركّب (logistic) — الربع الأعلى بالنتيجة OOS
+    mean = Xtr.mean(0); std = Xtr.std(0)
+    Xtr_s = np.column_stack([np.ones(len(Xtr)), (Xtr - mean) / np.where(std > 0, std, 1)])
+    Xte_s = np.column_stack([np.ones(len(Xte)), (Xte - mean) / np.where(std > 0, std, 1)])
+    w = _logit_fit(Xtr_s, ytr)
+    sc = Xte_s @ w
+    q = np.quantile(sc, 0.75)
+    top = sc >= q
+    top_wr = float(yte[top].mean()) if int(top.sum()) else 0.0
+    lift = (top_wr / base_wr) if base_wr > 0 else 0.0
+    # عقلنة: أداء التدريب داخل العيّنة (للكشف عن overfitting)
+    sc_tr = Xtr_s @ w
+    q_tr = np.quantile(sc_tr, 0.75)
+    in_wr = float(ytr[sc_tr >= q_tr].mean()) if int((sc_tr >= q_tr).sum()) else 0.0
+    out.append(f"\n- **النموذج المركّب (logistic):** نجاح الربع الأعلى **OOS = {top_wr*100:.1f}%** "
+               f"مقابل أساس {base_wr*100:.1f}% → **رفع {lift:.2f}×** · (داخل التدريب {in_wr*100:.1f}% — "
+               "الفجوة الكبيرة عن OOS = overfitting).")
+    verdict = lift >= 1.10 and top_wr > base_wr
+    out.append(f"- **حكم المرحلة 0:** {'✅ إشارة قابلة للتعلّم يوميًّا (يبرّر نموذجًا أغنى)' if verdict else '❌ لا إشارة يومية ذات معنى OOS — قيمة الوكيل حصريًّا في التدفق اللحظي (المرحلة 1)'}.")
+    out.append("⚠️ حدّ: ميزات **يومية-اختيارية فقط** (لا تدفق لحظي/امتصاص) — لذا هذا **سقف أدنى**؛ "
+               "جوهر يد فيصل (المسح مقابل الكسر) يحتاج بيانات التدفق الحيّة (المرحلة 1).")
+    return out
+
+
 def rsplit_recent(splits, asof, lookback=RSPLIT_LOOKBACK):
     """هل وقع تقسيم **عكسي** (نسبة <1) خلال `lookback` يومًا قبل asof؟ (بديل الفلوت الصغير).
     نقيّة فاشلة-آمنة. splits = Series(نسبة، فهرسها التاريخ) أو قائمة أزواج."""
@@ -463,6 +524,14 @@ def run():
     out.append(f"\n### النتيجة: **{'يُعتمد — إشارة اختيار حقيقية' if verdict else 'نفي — لا يبلغ العتبة'}**")
     if not verdict:
         out.append("الحافة = التوقيت لا الاختيار (اتّساقًا مع C3/الرابط-المشترك/M2/M4).")
+
+    # 🤖 المرحلة 0: برهان قابلية تعلّم «اليد» على دخول-المسح (FC_LEARN=1) — بحث/جدوى فقط
+    if (os.environ.get("FC_LEARN") or "").strip() in ("1", "true", "yes"):
+        ent = m_ent > 0.5
+        _feats = np.column_stack([is_rs[ent], ema_ok[ent], bs_ok[ent], sp_ok[ent],
+                                  np.nan_to_num(gaps[ent], nan=0.0)])
+        out += _phase0_learnability(_feats, m_win[ent], yr[ent],
+                                    ["مقسّم", "أسّي هابط", "قاعدة3ج", "انفجار سابق", "فجوة EMA50"])
 
     report = "\n".join(out)
     print("\n" + report)

@@ -47,6 +47,7 @@ jobs:
           BT_FROZEN_PATH: frozen_backtest.pkl.gz
           FC_FWD_DAYS: ${{ github.event.inputs.fc_fwd_days }}
           FC_EXPLODE_PCT: ${{ github.event.inputs.fc_explode_pct }}
+          FC_LEARN: "1"      # 🤖 المرحلة 0: برهان قابلية تعلّم «اليد» OOS (بحث/جدوى فقط)
         run: python faisal_combo_backtest.py
       - name: Upload result
         if: always()
