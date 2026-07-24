@@ -8257,6 +8257,41 @@ def _ignition_log_block(log, fetch=None, today=None) -> list:
     return out
 
 
+def _collection_health_block() -> list:
+    """🩺 لوحة حالة جمع بيانات المضارب (طلب المستخدم 2026-07-24 «اكيد بننسى»): عدّادات تظهر
+    **دائمًا حتى عند الصفر** في تقرير التطوير الأسبوعي — بخلاف البلوكات التفصيلية (`_hand_flow`/
+    `_ignition_log`) التي ترجع [] عند فراغ سجلّها فتضيع رؤية الجمع وقت توقّفه (وهو أخطر وقت:
+    نظنّه يجمع وهو واقف). module-level (لا nested) لتُستدعى في مسارَي العيّنة القليلة/الكافية معًا.
+    **عرض/تذكير فقط · فاشل-آمن مطلق لكل سطر · خارج الفرز.**"""
+    lines = ["\n🩺 <b>حالة جمع بيانات المضارب</b> (تُتراكم للأمام — لا تُنسى):"]
+    try:
+        _ig = load_ignition_log()
+        _last = max((f.get("date") or "" for f in _ig), default="")
+        lines.append(
+            f"   🔥 رادار الانطلاق: {len(_ig)} إطلاق مسجَّل"
+            + (f" · آخره {_last}" if _last else "")
+            + f" (يلزم {CONFIG['IGNITION_OUTCOME_MIN']} محسوم لنسبة الإنذار الكاذب)")
+    except Exception:
+        lines.append("   🔥 رادار الانطلاق: تعذّر قراءة السجلّ")
+    try:
+        from hand_flow_recorder import HandFlowRecorder
+        _n = len(HandFlowRecorder().load())
+        lines.append(
+            f"   🖐️ حصّاد اليد: {_n} مسح ملتقَط"
+            + ("" if _n else " — نادر (يلزم سهم القائمة قرب دعمه وقت مسح لحظي)"))
+    except Exception:
+        lines.append("   🖐️ حصّاد اليد: لا سجلّ بعد")
+    try:
+        with open("ignition_e2_session_index.json", encoding="utf-8") as _f:
+            _idx = json.load(_f)
+        _c = sum(1 for s in _idx
+                 if isinstance(s, dict) and s.get("status") == "session_complete")
+        lines.append(f"   🔬 جلسات قياس E2 المكتملة: {_c}/20")
+    except Exception:
+        lines.append("   🔬 جلسات قياس E2 المكتملة: 0/20 (تتجمّع)")
+    return lines
+
+
 # دالّتان نقيّتان للتحقّق التاريخي من الرادار (IGNITION_VERIFY_PLAN.md) — قابلتان
 # للاختبار، لا تُستعملان في المسار الحي (تحقّق/قياس فقط).
 def _find_explosion_day(fwd_highs: list, entry: float, expl_pct: float):
@@ -9127,6 +9162,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         head += _explosions_block()       # الانفجارات المفقودة (مستقلة)
         head += _denominator_block()      # A1: مقام الرفض (مستقل)
         head += _ignition_log_block(_ig_log)  # 📏 قياس حافة الرادار (مستقل)
+        head += _collection_health_block()    # 🩺 لوحة الجمع (تظهر حتى بعيّنة قليلة — أهمّ وقت)
         head.append("\n⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
         return "\n".join(head)
     wins = [r for r in rows if r["_win"]]
@@ -9312,7 +9348,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
             "تشغيل إنتاجي حيّ التغطيةَ.",
         ]
 
-    return "\n".join(head + body + _hand_flow_block()
+    return "\n".join(head + body + _collection_health_block() + _hand_flow_block()
                      + _pending_verification_block() + sugg + tail)
 
 
