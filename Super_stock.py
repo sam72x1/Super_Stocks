@@ -396,6 +396,8 @@ CONFIG = {
     "SPLIT_RADAR_FLOAT_MAX": 2_000_000,  # فيصل IMG_0151: «عدد اسهمه تحت 2 مليون»
     "SPLIT_RADAR_PROBE_CAP": 80,         # سقف المُرشّحين لجلب التقسيمات (حدّ تكلفة الشبكة)
     "SPLIT_RADAR_MAX": 12,               # سقف العرض
+    "SPLIT_ROSE_MAX_PCT": 50.0,          # فيصل IMG_0150 «قسم ما أعطى صعود»: لو صعد من قيمة
+                                         #   شمعة التقسيم للقمة أكثر من هذا = انضخّ (مو هادئًا)
 
     # ---- تقنية ----
     "HISTORY_DAYS": 800,         # ~2.2 سنة (يكفي لفريم شهري سليم ~27 شمعة)
@@ -4058,9 +4060,10 @@ def build_split_watch_section(rows: list) -> str:
 def _split_setup_probe(df, splits, today, tol: float = 0.25):
     """🎯 مِجَسّ setup أسهم التقسيم (فيصل IMG_0143/0144/0150/0151 — عرض/سياق فقط).
     يكتشف من OHLCV+splits نمطَ «مقسّم عكسيًّا · وصل قاع القمة÷2 · حافظ عليه» ويرجع
-    dict وصفيًّا أو None. **مرجع فيصل الحرفي**: القاع المتوقّع = **قيمة شمعة يوم التقسيم**
-    ÷2 (`_split_day_value`؛ WORX 2.33÷2=1.16 · JEM 6.90÷2=3.45). نقيّ · فاشل-آمن · بلا
-    تسريب (يستعمل تقسيمات ≤ آخر شمعة). **خارج الفرز نهائيًا** (لا يمسّ الاختيار)."""
+    dict وصفيًّا أو None. **مرجع فيصل الحرفي**: القاع المتوقّع = **قمة ما بعد التقسيم** ÷2
+    (`_post_split_high`؛ JEM 6.90÷2=3.45 · WORX 2.33÷2=1.16 — تحقّق حيّ على JEM أكّده) +
+    معيار «لم يصعد بعد التقسيم» (`didnt_rise`، IMG_0150 «قسم ما أعطى صعود»). نقيّ · فاشل-آمن
+    · بلا تسريب (يستعمل تقسيمات ≤ آخر شمعة). **خارج الفرز نهائيًا** (لا يمسّ الاختيار)."""
     try:
         if df is None or len(df) < 20 or splits is None:
             return None
@@ -4082,9 +4085,10 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25):
                 continue
         if not rev:
             return None
-        # (2) قيمة شمعة يوم التقسيم ÷2 (مرجع فيصل الحرفي — تصحيح 2026-07-24: لا أعلى قمة
-        # متأخّرة على High بذيولها؛ فيصل يقسم شمعة التقسيم نفسها «قيمة الشمعة ÷2»).
-        ref = _split_day_value(close, splits, cut)
+        # (2) القمة ما بعد التقسيم ÷2 (مرجع فيصل الحرفي — JEM 6.90÷2=3.45 · WORX 2.33÷2=1.16).
+        # تصحيح 2026-07-24: التحقّق على JEM أثبت أن `_post_split_high` (=6.90) يطابق فيصل،
+        # وأن «إغلاق أول شمعة» (=6.05) ابتعد عنه — فأُرجع المرجع للقمة (كان صحيحًا أصلًا).
+        ref = _post_split_high(high, splits, cut)
         if not ref or ref <= 0:
             return None
         half = round(ref / 2.0, 2)
@@ -4093,16 +4097,22 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25):
             return None
         _lo, _hi = half * CONFIG["SPLIT_RADAR_BAND_LOW"], half * (1.0 + tol)
         # (3) وصل القاع: السعر **قرب** القمة÷2 — ضمن نطاق [÷2×BAND_LOW ، ÷2×(1+tol)].
-        # الحدّ الأدنى حاسم (معايرة dry-run 2026-07-23): السعر الأقل من ÷2×0.70 = اخترق
-        # القاع لتحت = انهيار مستمرّ لا ثبات (HAO/AUUD/OIO) — ليس setup فيصل «ثباته عند ÷2».
         near_bottom = (_lo <= price <= _hi)
-        # (4) حافظ على القاع ≥3 جلسات **عند مستوى الـ÷2** (تصحيح 2026-07-24: كان «آخر 3
-        # إغلاقات ضمن ±12%» مبهمًا غير مربوط بالمستوى؛ فيصل «ضرب قاع الـ÷2 وحافظ عليه 3ج»).
+        # (4) حافظ على القاع ≥3 جلسات **عند مستوى الـ÷2** (فيصل «ضرب قاع الـ÷2 وحافظ عليه 3ج» —
+        # مربوط بالمستوى لا «±12%» مبهمًا).
         tail = [float(x) for x in close.tail(3)]
         held_ok = (len(tail) >= 3 and all(_lo <= x <= _hi for x in tail))
+        # (5) «لم يصعد بعد التقسيم» (فيصل IMG_0150: «قسم ما أعطى صعود» — الـsetup للمقسّم الهادئ):
+        # لو ارتفع من قيمة شمعة التقسيم (أول إغلاق) للقمة بأكثر من SPLIT_ROSE_MAX_PCT = انضخّ (مو
+        # هادئًا). فاشل-آمن (لا قيمة شمعة → لا حكم = didnt_rise=True احتياطًا).
+        first_val = _split_day_value(close, splits, cut)
+        didnt_rise = not (first_val and first_val > 0
+                          and (ref / first_val - 1.0) * 100.0 > CONFIG["SPLIT_ROSE_MAX_PCT"])
         return {"split_date": str(max(rev)), "ref": round(ref, 2),
                 "half": half, "price": round(price, 2),
                 "near_bottom": bool(near_bottom), "held_ok": bool(held_ok),
+                "didnt_rise": bool(didnt_rise), "first_val": round(first_val, 2)
+                if first_val else None,
                 "freq": _split_frequency(splits, today)}
     except Exception:
         return None
@@ -4211,7 +4221,7 @@ def build_split_radar_section(rows: list) -> str:
         fee = (f" · رسوم {r['borrow_fee']:.0f}%"
                if r.get("borrow_fee") is not None else "")
         lines.append(f"• <b>{esc(r['symbol'])}</b> ${r['price']:.2f} · "
-                     f"هدف القاع ÷2 = ${r['half']:.2f} (قيمة شمعة التقسيم {r['ref']:.2f})")
+                     f"هدف القاع ÷2 = ${r['half']:.2f} (قمة ما بعد التقسيم {r['ref']:.2f})")
         lines.append(f"  {chk(r.get('float_ok'))} فلوت {flt} (تحت 2م) · "
                      f"{chk(r.get('short_ok'))} شورت (متاح CE) {srt} (تحت 20ألف){fee} · "
                      f"{chk(r.get('held_ok'))} حافظ 3ج · "
@@ -4276,8 +4286,9 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
     for sym in pre:
         try:
             df = history[sym]
-            pr = _split_setup_probe(df, fs(sym), today)          # ①②③ مقسّم+÷2+حافظ3ج
-            if not pr or not pr["near_bottom"] or not pr["held_ok"]:
+            pr = _split_setup_probe(df, fs(sym), today)  # ①②③⑥ مقسّم+÷2+حافظ3ج+لم يصعد
+            if (not pr or not pr["near_bottom"] or not pr["held_ok"]
+                    or not pr["didnt_rise"]):            # ⑥ IMG_0150 «قسم ما أعطى صعود»
                 continue
             flt = ff(sym)                                        # ④ فلوت<2م (ياهو)
             if not (flt is not None and flt < CONFIG["SPLIT_RADAR_FLOAT_MAX"]):
@@ -4324,9 +4335,9 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         up = (r["ema20"] > r["ema30"] > r["ema50"])
         lines.append(f"🎯 <b>{esc(r['symbol'])}</b> ${r['price']:.2f}")
         lines.append(f"  ✅ فلوت {fmt_money(r['float'])} (تحت 2م) · ✅ حافظ 3ج "
-                     f"· ✅ خالٍ من قروب")
-        lines.append(f"  🎯 القاع = قيمة شمعة التقسيم ÷2 = ${r['half']:.2f} "
-                     f"(الشمعة {r['ref']:.2f}) · هدف +100%")
+                     f"· ✅ لم يصعد بعد التقسيم · ✅ خالٍ من قروب")
+        lines.append(f"  🎯 القاع = قمة ما بعد التقسيم ÷2 = ${r['half']:.2f} "
+                     f"(القمة {r['ref']:.2f}) · هدف +100%")
         lines.append(f"  🕵️ متاح للاقتراض: {avail} (فيصل: تحت 20ألف){fee}")
         lines.append(f"  📉 متوسطات: 20 ${r['ema20']:.2f} · 30 ${r['ema30']:.2f} "
                      f"· 50 ${r['ema50']:.2f}" + (" (مصطفّة صاعدة)" if up else ""))
