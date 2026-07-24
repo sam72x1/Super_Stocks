@@ -953,7 +953,7 @@
    "rr": 3.0559702214923283,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 8.3
+   "max_gain_pct": 9.3
   },
   {
    "symbol": "PTN",
@@ -1052,8 +1052,8 @@
    "drop_pct": 86.82926746296923,
    "best_spike": 216.85395473754346,
    "rr": 2.8499372670438983,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-07-24",
    "max_gain_pct": 4.6
   },
   {
@@ -1577,6 +1577,40 @@
    "status": "open",
    "result_date": null,
    "max_gain_pct": 3.1
+  },
+  {
+   "symbol": "TYGO",
+   "date": "2026-07-24",
+   "ref_bar": "2026-07-24",
+   "price": 1.69,
+   "stop": 1.5159,
+   "t1": 1.85,
+   "t2": 2.08,
+   "t3": 5.33,
+   "score": 50,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 4 جلسات فوق القاع",
+    "نمط شمعة قوي",
+    "فجوة صاعدة يومي 7%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 28,812,701 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Technology",
+   "rsi": 28.277342320460036,
+   "float": 28812701,
+   "short": null,
+   "short_pct": 3.9,
+   "drop_pct": 68.2748261227268,
+   "best_spike": 161.0389662665569,
+   "rr": 1.0359536587810791,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
   }
  ]
 }
