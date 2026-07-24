@@ -4077,16 +4077,20 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25):
         return None
 
 
-def scan_split_radar(history, exclude=None, fetch_splits=None, fetch_short=None,
+def scan_split_radar(history, exclude=None, fetch_splits=None, fetch_borrow=None,
                      fetch_float=None, fetch_pump=None, cap=None):
     """🎯 رادار أسهم التقسيم (فيصل — عرض/سياق فقط، **خارج الفرز نهائيًا**): يمسح السوق
     عن مقسّمة عكسيًّا وصلت قاع «القمة÷2» وطابقت setup فيصل (IMG_0151: فلوت<2م · شورت
     <20ألف · حافظت 3 جلسات · خالية من القروبات · هدف 100%+). لا يمسّ الاختيار/الدخول/
     الوقف/العضوية — تنبيه «لا يفوتك مقسّم» فقط. **بوّابة تكلفة**: مُرشّح OHLCV رخيص أولًا
     (سعر منخفض + كليف هبوط حادّ حديث = بصمة التقسيم المعدَّل) ثم جلب مقيَّد للتقسيمات/
-    الشورت/الفلوت للمُرشّحين فقط. الجالبات محقونة للاختبار · فاشل-آمن مطلق."""
+    الاقتراض/الفلوت للمُرشّحين فقط. الجالبات محقونة للاختبار · فاشل-آمن مطلق.
+    **🕵️ الشورت = عمود Available من ChartExchange** (`ce_borrow_info` — قراءة فيصل الموثّقة
+    للشورت، IMG_9504-9506/9923: XHLD 600ألف «طاخ طيخ» · SPRC 10آلاف/705% · DSY 7آلاف) لا
+    حجم FINRA اليومي (لا يغطّي هذي الأسهم المغمورة). M13 الفرزي يبقى على FINRA (قفل C3)."""
     exclude = exclude or set()
     fs = fetch_splits or _fetch_splits
+    fb = fetch_borrow or ce_borrow_info    # فيصل: «الشورت» = المتاح للاقتراض (ChartExchange)
     today = dt.date.today()
     # 1) مُرشّح OHLCV رخيص (بلا شبكة): سعر منخفض + أعمق هبوط يوم حادّ في النافذة
     pre = []
@@ -4123,19 +4127,20 @@ def scan_split_radar(history, exclude=None, fetch_splits=None, fetch_short=None,
             continue
     if not probed:
         return []
-    # 3) إثراء مقيَّد (شورت دفعة واحدة + فلوت + قروب) للمؤكَّدين فقط — معايير فيصل
-    syms = {p["symbol"] for p in probed}
-    shorts = {}
-    if fetch_short:
-        try:
-            shorts = fetch_short(syms) or {}
-        except Exception:
-            shorts = {}
+    # 3) إثراء مقيَّد (اقتراض/متاح ChartExchange + فلوت + قروب) للمؤكَّدين فقط — معايير فيصل
     for p in probed:
         sym = p["symbol"]
-        p["short"] = shorts.get(sym)
-        p["short_ok"] = (p["short"] is not None
-                         and p["short"] < CONFIG["SHORT_DAILY_MAX"])
+        # 🕵️ «الشورت» بقراءة فيصل = عمود Available من ChartExchange (المتاح للاقتراض)
+        bor = {}
+        if fb:
+            try:
+                bor = fb(sym) or {}
+            except Exception:
+                bor = {}
+        av = bor.get("shares_available")
+        p["short"] = av
+        p["borrow_fee"] = bor.get("borrow_fee")
+        p["short_ok"] = (av is not None and av < CONFIG["SHORT_DAILY_MAX"])
         flt = None
         if fetch_float:
             try:
@@ -4170,11 +4175,14 @@ def build_split_radar_section(rows: list) -> str:
     lines = ["🎯 <b>رادار أسهم التقسيم</b> (فيصل: القاع = قمة ما بعد التقسيم ÷2):"]
     for r in rows:
         flt = fmt_money(r["float"]) if r.get("float") is not None else "—"
+        # 🕵️ «الشورت» = المتاح للاقتراض من ChartExchange (قراءة فيصل) + الرسوم لو متاحة
         srt = fmt_money(r["short"]) if r.get("short") is not None else "—"
+        fee = (f" · رسوم {r['borrow_fee']:.0f}%"
+               if r.get("borrow_fee") is not None else "")
         lines.append(f"• <b>{esc(r['symbol'])}</b> ${r['price']:.2f} · "
                      f"هدف القاع ÷2 = ${r['half']:.2f} (قمة {r['post_high']:.2f})")
         lines.append(f"  {chk(r.get('float_ok'))} فلوت {flt} (تحت 2م) · "
-                     f"{chk(r.get('short_ok'))} شورت {srt} (تحت 20ألف) · "
+                     f"{chk(r.get('short_ok'))} شورت (متاح CE) {srt} (تحت 20ألف){fee} · "
                      f"{chk(r.get('held_ok'))} حافظ 3ج · "
                      f"{chk(not r.get('pump'))} خالٍ من قروب")
         fl = _split_freq_line(r.get("freq"))
@@ -9590,7 +9598,7 @@ def run_daily_watchlist(wl: dict) -> None:
     # <20ألف/ثبات 3ج/خالٍ من قروب) فلا يفوتك (JEM/WORX) — بلا لمس الاختيار الآلي.
     try:
         radar_rows = scan_split_radar(hist, exclude=held_now | stopped,
-                                      fetch_short=finra_daily_short,
+                                      fetch_borrow=ce_borrow_info,   # فيصل: الشورت=المتاح CE
                                       fetch_float=ce_float_info,
                                       fetch_pump=group_pump_scar)
         radar_msg = build_split_radar_section(radar_rows)

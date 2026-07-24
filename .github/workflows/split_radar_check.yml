@@ -11,6 +11,10 @@ on:
         description: "run-id لتشغيلة «Freeze backtest dataset» (يلزم — OHLCV+splits من اللقطة)"
         required: true
         default: ""
+      focus:
+        description: "رموز تركيز مفصولة بفاصلة (مثل JEM,PAVS) — تطبع شيك ليست فيصل الكاملة لها حتى خارج السقف. اختياري"
+        required: false
+        default: ""
 jobs:
   split-radar-check:
     runs-on: ubuntu-latest
@@ -35,4 +39,5 @@ jobs:
         env:
           SCREENER_MODE: BACKTEST
           BT_FROZEN_PATH: frozen_backtest.pkl.gz
+          SPLIT_RADAR_FOCUS: ${{ github.event.inputs.focus }}
         run: python split_radar_check.py
