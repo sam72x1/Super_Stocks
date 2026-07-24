@@ -61,17 +61,59 @@ def run():
     print(f"\nالقمع: مُرشّح OHLCV(سعر منخفض+كليف)={pre} → مؤكَّد تقسيم عكسي={confirmed}"
           f" → قرب القاع÷2={near}")
 
-    # ── التشغيل الفعلي (نفس مسار الإنتاج، بتقسيمات اللقطة · بلا شورت/فلوت/قروب حيّ) ──
-    rows = S.scan_split_radar(hist, fetch_splits=lambda s: splits_map.get(s))
+    # ── التشغيل الفعلي (نفس مسار الإنتاج): تقسيمات من اللقطة + اقتراض/فلوت/قروب حيّ من
+    #    ChartExchange (فيصل: الشورت = المتاح CE · الفلوت من CE). CE يصل من Actions. ──
+    rows = S.scan_split_radar(hist, fetch_splits=lambda s: splits_map.get(s),
+                              fetch_borrow=S.ce_borrow_info,
+                              fetch_float=S.ce_float_info,
+                              fetch_pump=S.group_pump_scar)
     print(f"\nالرادار يعرض {len(rows)} سهمًا (سقف {C['SPLIT_RADAR_MAX']}):")
+
+    def _fchk(ok):
+        return "✅" if ok else "❌"
+
     for r in rows:
+        av = f"{r['short']:,}" if r.get("short") is not None else "—"
+        fl = f"{r['float']:,}" if r.get("float") is not None else "—"
         print(f"  • {r['symbol']:>6s} ${r['price']:.2f} · هدف÷2=${r['half']:.2f} "
-              f"(قمة {r['post_high']:.2f}) · حافظ3ج={'✅' if r['held_ok'] else '❌'} "
-              f"· تقسيمات/سنة={r.get('freq', 0)} · آخر تقسيم {r['split_date']}")
+              f"(قمة {r['post_high']:.2f}) · تطابق {r.get('match', 0)}/5 · "
+              f"{_fchk(r.get('float_ok'))}فلوت {fl} · {_fchk(r.get('short_ok'))}متاح {av} · "
+              f"{_fchk(r['held_ok'])}حافظ3ج · {_fchk(not r.get('pump'))}لا-قروب · "
+              f"تقسيمات/سنة={r.get('freq', 0)}")
     if not rows:
         print("  (لا شيء — قد تكون العتبات ضيّقة أو اللقطة بلا مقسّم وصل ÷2)")
-    print("\nℹ️ فحص نمط السعر/التقسيم فقط (بلا شورت/فلوت حيّ). الإنتاج يضيف "
-          "فلوت<2م/شورت<20ألف/خالٍ-من-قروب حيًّا. عرض/تشخيص — صفر مسّ حالة.")
+
+    # ── 🔍 رموز تركيز (SPLIT_RADAR_FOCUS=JEM,PAVS): تطبع الشيك ليست الكاملة حتى لو خارج
+    #    السقف أو لم تمرّ المِجَسّ — للإجابة الحاسمة «هل يطابق معايير فيصل؟» ──
+    focus = [s.strip().upper() for s in os.environ.get("SPLIT_RADAR_FOCUS", "").split(",")
+             if s.strip()]
+    if focus:
+        print("\n🔍 رموز التركيز (شيك ليست فيصل الكاملة):")
+        for sym in focus:
+            df = hist.get(sym)
+            if df is None:
+                print(f"  • {sym}: غير موجود في اللقطة")
+                continue
+            pr = S._split_setup_probe(df, splits_map.get(sym), today) or {}
+            bor = S.ce_borrow_info(sym) or {}
+            av = bor.get("shares_available")
+            flt = S.ce_float_info(sym)
+            pump = S.group_pump_scar(df) or {}
+            price = float(df["Close"].iloc[-1])
+            print(f"  • {sym}: سعر ${price:.2f}")
+            if pr:
+                print(f"      قمة ما بعد التقسيم={pr['post_high']:.2f} · هدف÷2=${pr['half']:.2f}"
+                      f" · قرب القاع={_fchk(pr['near_bottom'])} · حافظ3ج={_fchk(pr['held_ok'])}"
+                      f" · تقسيمات/سنة={pr.get('freq', 0)}")
+            else:
+                print("      (المِجَسّ: مو مقسّمًا عكسيًّا حديثًا أو بيانات ناقصة)")
+            print(f"      فلوت CE={flt if flt is not None else '—'} "
+                  f"(<2م {_fchk(flt is not None and flt < C['SPLIT_RADAR_FLOAT_MAX'])}) · "
+                  f"متاح CE={av if av is not None else '—'} "
+                  f"(<20ألف {_fchk(av is not None and av < C['SHORT_DAILY_MAX'])}) · "
+                  f"رسوم={bor.get('borrow_fee', '—')}% · قروب={_fchk(pump.get('found'))}")
+
+    print("\nℹ️ الشورت = عمود Available من ChartExchange (قراءة فيصل). عرض/تشخيص — صفر مسّ حالة.")
     return 0
 
 
