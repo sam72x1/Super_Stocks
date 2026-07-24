@@ -389,6 +389,8 @@ CONFIG = {
     # 🎯 رادار أسهم التقسيم (فيصل IMG_0143/0144/0150/0151 — عرض/سياق فقط، خارج الفرز):
     "SPLIT_RADAR_PRICE_MAX": 10.0,       # سعر منخفض (أسهم ما بعد التقسيم غالبًا $1-5)
     "SPLIT_CLIFF_PCT": 45.0,             # هبوط يوم حادّ = بصمة كليف التقسيم المعدَّل (≥1:2)
+    "SPLIT_RADAR_BAND_LOW": 0.70,        # حدّ أدنى للنطاق حول القمة÷2 (تحته = اخترق القاع
+                                         #   لتحت = انهيار لا ثبات — فيصل «ثباته عند ÷2»)
     "SPLIT_RADAR_FLOAT_MAX": 2_000_000,  # فيصل IMG_0151: «عدد اسهمه تحت 2 مليون»
     "SPLIT_RADAR_PROBE_CAP": 80,         # سقف المُرشّحين لجلب التقسيمات (حدّ تكلفة الشبكة)
     "SPLIT_RADAR_MAX": 12,               # سقف العرض
@@ -4058,8 +4060,11 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25):
         price = float(close.iloc[-1])
         if price <= 0:
             return None
-        # (3) وصل القاع: السعر قرب القمة÷2 (ضمن tol فوقها أو تحتها)
-        near_bottom = price <= half * (1.0 + tol)
+        # (3) وصل القاع: السعر **قرب** القمة÷2 — ضمن نطاق [÷2×BAND_LOW ، ÷2×(1+tol)].
+        # الحدّ الأدنى حاسم (معايرة dry-run 2026-07-23): السعر الأقل من ÷2×0.70 = اخترق
+        # القاع لتحت = انهيار مستمرّ لا ثبات (HAO/AUUD/OIO) — ليس setup فيصل «ثباته عند ÷2».
+        near_bottom = (half * CONFIG["SPLIT_RADAR_BAND_LOW"] <= price
+                       <= half * (1.0 + tol))
         # (4) حافظ على القاع ≥3 جلسات (ثبات: آخر 3 إغلاقات ضمن ±12% — فيصل «حافظ 3 جلسات»)
         tail = [float(x) for x in close.tail(3)]
         held_ok = (len(tail) >= 3 and max(tail) > 0
