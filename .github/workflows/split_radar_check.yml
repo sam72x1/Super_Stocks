@@ -1,0 +1,38 @@
+name: Split-radar dry-run (calibration)
+# 🎯 فحص «رادار أسهم التقسيم» على اللقطة المجمَّدة — بلا تلغرام · بلا حفظ حالة · بلا Yahoo حيّ.
+# عرض/تشخيص فقط لمعايرة العتبات (كم سهمًا يرصد وهل منطقي). خارج الفرز/الإنتاج.
+permissions:
+  contents: read
+  actions: read          # لتحميل لقطة التجميد من تشغيلة freeze
+on:
+  workflow_dispatch:
+    inputs:
+      frozen_run_id:
+        description: "run-id لتشغيلة «Freeze backtest dataset» (يلزم — OHLCV+splits من اللقطة)"
+        required: true
+        default: ""
+jobs:
+  split-radar-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        if: ${{ github.event.inputs.frozen_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run split-radar dry-run
+        env:
+          SCREENER_MODE: BACKTEST
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python split_radar_check.py
