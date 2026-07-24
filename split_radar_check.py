@@ -76,7 +76,7 @@ def run():
         av = f"{r['short']:,}" if r.get("short") is not None else "—"
         fl = f"{r['float']:,}" if r.get("float") is not None else "—"
         print(f"  • {r['symbol']:>6s} ${r['price']:.2f} · هدف÷2=${r['half']:.2f} "
-              f"(قمة {r['post_high']:.2f}) · تطابق {r.get('match', 0)}/5 · "
+              f"(شمعة التقسيم {r['ref']:.2f}) · تطابق {r.get('match', 0)}/5 · "
               f"{_fchk(r.get('float_ok'))}فلوت {fl} · {_fchk(r.get('short_ok'))}متاح {av} · "
               f"{_fchk(r['held_ok'])}حافظ3ج · {_fchk(not r.get('pump'))}لا-قروب · "
               f"تقسيمات/سنة={r.get('freq', 0)}")
@@ -102,7 +102,7 @@ def run():
             price = float(df["Close"].iloc[-1])
             print(f"  • {sym}: سعر ${price:.2f}")
             if pr:
-                print(f"      قمة ما بعد التقسيم={pr['post_high']:.2f} · هدف÷2=${pr['half']:.2f}"
+                print(f"      قيمة شمعة التقسيم={pr['ref']:.2f} · هدف÷2=${pr['half']:.2f}"
                       f" · قرب القاع={_fchk(pr['near_bottom'])} · حافظ3ج={_fchk(pr['held_ok'])}"
                       f" · تقسيمات/سنة={pr.get('freq', 0)}")
             else:

@@ -6062,10 +6062,35 @@ _sr_df = pd.DataFrame({"Open": _sr_close, "High": _sr_close, "Low": _sr_close * 
                        "Close": _sr_close, "Volume": np.full(60, 5e5)}, index=_sr_idx)
 _sr_splits = pd.Series([0.1], index=[_sr_idx[30]])      # عكسي 1:10 يوم البار 30
 _sr_today = _sr_idx[-1].date()
+# 🎯 تصحيح مرجع ÷2 (2026-07-24): قيمة شمعة يوم التقسيم (لا أعلى قمة متأخّرة) — فيصل IMG_0150.
+# الغلط القديم: `_post_split_high` يستعمل ذروة الرفعة بعد التقسيم؛ فيصل يقسم شمعة التقسيم نفسها.
+_sdv_idx = pd.date_range("2025-06-01", periods=12, freq="D")
+_sdv_close = pd.Series([100, 100, 100, 100, 100, 5.0, 6, 8, 10, 9, 8, 7], index=_sdv_idx)
+_sdv_splits = pd.Series([0.1], index=[_sdv_idx[5]])    # قسم عند البار5: الشمعة=5 ثم ارتفع لـ10
+check("🎯 مرجع ÷2 = قيمة شمعة التقسيم (5.0 = أول إغلاق بعده) لا الذروة المتأخّرة",
+      abs(S._split_day_value(_sdv_close, _sdv_splits, "2025-06-12") - 5.0) < 1e-6)
+check("🎯 (يوضّح الغلط القديم) _post_split_high يرجع الذروة 10 — المرجع الخطأ",
+      abs(S._post_split_high(_sdv_close, _sdv_splits, "2025-06-12") - 10.0) < 1e-6)
+check("🎯 مرجع ÷2·بلا splits/أمامي ⇒ None",
+      S._split_day_value(_sdv_close, None, "2025-06-12") is None
+      and S._split_day_value(_sdv_close, pd.Series([2.0], index=[_sdv_idx[5]]),
+                             "2025-06-12") is None)
 _sr_probe = S._split_setup_probe(_sr_df, _sr_splits, _sr_today)
-check("🎯 رادار·مِجَسّ: يكتشف مقسّم وصل قاع القمة÷2 (6.90→3.45 = مرجع فيصل)",
+check("🎯 رادار·مِجَسّ: يكتشف مقسّم وصل قاع الشمعة÷2 (6.90→3.45 = مرجع فيصل) + المرجع من الإغلاق",
       _sr_probe is not None and abs(_sr_probe["half"] - 3.45) < 0.05
+      and abs(_sr_probe["ref"] - 6.9) < 0.05
       and _sr_probe["near_bottom"] and _sr_probe["held_ok"])
+check("🎯 رادار·مِجَسّ: «حافظ 3ج» مربوط بمستوى الـ÷2 (سعر خارج النطاق ⇒ held_ok=False)",
+      not (S._split_setup_probe(
+          pd.DataFrame({"Open": np.r_[np.full(30, 13.8), np.linspace(6.9, 3.45, 24),
+                                      np.full(6, 8.0)],   # آخر 3 عند 8 = خارج نطاق ÷2 (3.45)
+                        "High": np.r_[np.full(30, 13.8), np.linspace(6.9, 3.45, 24),
+                                      np.full(6, 8.0)],
+                        "Low": np.r_[np.full(30, 13.8), np.linspace(6.9, 3.45, 24),
+                                     np.full(6, 8.0)] * 0.99,
+                        "Close": np.r_[np.full(30, 13.8), np.linspace(6.9, 3.45, 24),
+                                       np.full(6, 8.0)], "Volume": np.full(60, 5e5)},
+          index=_sr_idx), _sr_splits, _sr_today) or {"held_ok": True})["held_ok"])
 check("🎯 رادار·مِجَسّ: بلا splits ⇒ None (فاشل-آمن)",
       S._split_setup_probe(_sr_df, None, _sr_today) is None)
 check("🎯 رادار·مِجَسّ: تقسيم أمامي (نسبة>1) ليس عكسيًّا ⇒ None",

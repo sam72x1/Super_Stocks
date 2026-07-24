@@ -388,7 +388,9 @@ CONFIG = {
     "SPLIT_WATCHLIST": ["WCT", "WORX", "EHGO", "FRSX", "BCAB"],
     # 🎯 رادار أسهم التقسيم (فيصل IMG_0143/0144/0150/0151 — عرض/سياق فقط، خارج الفرز):
     "SPLIT_RADAR_PRICE_MAX": 10.0,       # سعر منخفض (أسهم ما بعد التقسيم غالبًا $1-5)
-    "SPLIT_CLIFF_PCT": 45.0,             # هبوط يوم حادّ = بصمة كليف التقسيم المعدَّل (≥1:2)
+    "SPLIT_CLIFF_PCT": 30.0,             # هبوط يوم حادّ = بصمة كليف التقسيم المعدَّل (خُفّض
+                                         #   45→30 لالتقاط التقسيمات المعتدلة ≥~1:1.4 — كان
+                                         #   45 يُسقط 1:1.5 بصمت؛ التقسيم الفعلي يُؤكَّد بالمِجَسّ)
     "SPLIT_RADAR_BAND_LOW": 0.70,        # حدّ أدنى للنطاق حول القمة÷2 (تحته = اخترق القاع
                                          #   لتحت = انهيار لا ثبات — فيصل «ثباته عند ÷2»)
     "SPLIT_RADAR_FLOAT_MAX": 2_000_000,  # فيصل IMG_0151: «عدد اسهمه تحت 2 مليون»
@@ -1187,6 +1189,34 @@ def _post_split_high(highs, splits, cut):
         last = max(rsplits)
         post = [float(h) for ts, h in highs.items() if _n(ts) >= last]
         return max(post) if post else None
+    except Exception:
+        return None
+
+
+def _split_day_value(closes, splits, cut):
+    """🎯 **قيمة شمعة يوم التقسيم** — مرجع فيصل الحرفي للـ÷2 (IMG_0150: «اقسم قيمة الشمعة
+    ÷2»؛ WORX 2.33÷2=1.16). = إغلاق **أول شمعة بعد آخر تقسيم عكسي** (نسبة<1، ≤cut)، لا
+    أعلى قمة متأخّرة. **تصحيح 2026-07-24 (غلط تطبيقنا):** كان الصيّاد يستعمل `_post_split_high`
+    (ذروة الرفعة بعد التقسيم على High بذيولها) — فيخطئ الأسهم التي رفعها المضارب بعد التقسيم.
+    فيصل يقسم شمعة يوم التقسيم نفسها. None لو لا تقسيم عكسي حديث. نقيّة · فاشلة-آمنة · بلا تسريب."""
+    try:
+        if closes is None or splits is None:
+            return None
+        if hasattr(splits, "__len__") and len(splits) == 0:
+            return None
+
+        def _n(x):
+            t = pd.Timestamp(x)
+            return t.tz_localize(None) if getattr(t, "tz", None) is not None else t
+        c = _n(cut)
+        it = splits.items() if hasattr(splits, "items") else splits
+        rsplits = [_n(d) for d, r in it if r and 0 < float(r) < 1.0 and _n(d) <= c]
+        if not rsplits:
+            return None
+        last = max(rsplits)
+        post = sorted(((_n(ts), float(v)) for ts, v in closes.items()
+                       if _n(ts) >= last), key=lambda x: x[0])
+        return post[0][1] if post else None   # إغلاق أول شمعة بعد التقسيم = قيمة الشمعة
     except Exception:
         return None
 
@@ -4028,9 +4058,9 @@ def build_split_watch_section(rows: list) -> str:
 def _split_setup_probe(df, splits, today, tol: float = 0.25):
     """🎯 مِجَسّ setup أسهم التقسيم (فيصل IMG_0143/0144/0150/0151 — عرض/سياق فقط).
     يكتشف من OHLCV+splits نمطَ «مقسّم عكسيًّا · وصل قاع القمة÷2 · حافظ عليه» ويرجع
-    dict وصفيًّا أو None. **مرجع فيصل الحرفي**: القاع المتوقّع = قمة ما بعد آخر تقسيم
-    عكسي ÷2 (`_post_split_high`؛ JEM 6.90÷2=3.45 · WORX 2.33÷2=1.16). نقيّ · فاشل-آمن
-    · بلا تسريب (يستعمل تقسيمات ≤ آخر شمعة). **خارج الفرز نهائيًا** (لا يمسّ الاختيار)."""
+    dict وصفيًّا أو None. **مرجع فيصل الحرفي**: القاع المتوقّع = **قيمة شمعة يوم التقسيم**
+    ÷2 (`_split_day_value`؛ WORX 2.33÷2=1.16 · JEM 6.90÷2=3.45). نقيّ · فاشل-آمن · بلا
+    تسريب (يستعمل تقسيمات ≤ آخر شمعة). **خارج الفرز نهائيًا** (لا يمسّ الاختيار)."""
     try:
         if df is None or len(df) < 20 or splits is None:
             return None
@@ -4052,24 +4082,25 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25):
                 continue
         if not rev:
             return None
-        # (2) قمة ما بعد آخر تقسيم عكسي ÷2 (مرجع فيصل الحرفي)
-        post_high = _post_split_high(high, splits, cut)
-        if not post_high or post_high <= 0:
+        # (2) قيمة شمعة يوم التقسيم ÷2 (مرجع فيصل الحرفي — تصحيح 2026-07-24: لا أعلى قمة
+        # متأخّرة على High بذيولها؛ فيصل يقسم شمعة التقسيم نفسها «قيمة الشمعة ÷2»).
+        ref = _split_day_value(close, splits, cut)
+        if not ref or ref <= 0:
             return None
-        half = round(post_high / 2.0, 2)
+        half = round(ref / 2.0, 2)
         price = float(close.iloc[-1])
         if price <= 0:
             return None
+        _lo, _hi = half * CONFIG["SPLIT_RADAR_BAND_LOW"], half * (1.0 + tol)
         # (3) وصل القاع: السعر **قرب** القمة÷2 — ضمن نطاق [÷2×BAND_LOW ، ÷2×(1+tol)].
         # الحدّ الأدنى حاسم (معايرة dry-run 2026-07-23): السعر الأقل من ÷2×0.70 = اخترق
         # القاع لتحت = انهيار مستمرّ لا ثبات (HAO/AUUD/OIO) — ليس setup فيصل «ثباته عند ÷2».
-        near_bottom = (half * CONFIG["SPLIT_RADAR_BAND_LOW"] <= price
-                       <= half * (1.0 + tol))
-        # (4) حافظ على القاع ≥3 جلسات (ثبات: آخر 3 إغلاقات ضمن ±12% — فيصل «حافظ 3 جلسات»)
+        near_bottom = (_lo <= price <= _hi)
+        # (4) حافظ على القاع ≥3 جلسات **عند مستوى الـ÷2** (تصحيح 2026-07-24: كان «آخر 3
+        # إغلاقات ضمن ±12%» مبهمًا غير مربوط بالمستوى؛ فيصل «ضرب قاع الـ÷2 وحافظ عليه 3ج»).
         tail = [float(x) for x in close.tail(3)]
-        held_ok = (len(tail) >= 3 and max(tail) > 0
-                   and (max(tail) - min(tail)) / max(tail) <= 0.12)
-        return {"split_date": str(max(rev)), "post_high": round(post_high, 2),
+        held_ok = (len(tail) >= 3 and all(_lo <= x <= _hi for x in tail))
+        return {"split_date": str(max(rev)), "ref": round(ref, 2),
                 "half": half, "price": round(price, 2),
                 "near_bottom": bool(near_bottom), "held_ok": bool(held_ok),
                 "freq": _split_frequency(splits, today)}
@@ -4180,7 +4211,7 @@ def build_split_radar_section(rows: list) -> str:
         fee = (f" · رسوم {r['borrow_fee']:.0f}%"
                if r.get("borrow_fee") is not None else "")
         lines.append(f"• <b>{esc(r['symbol'])}</b> ${r['price']:.2f} · "
-                     f"هدف القاع ÷2 = ${r['half']:.2f} (قمة {r['post_high']:.2f})")
+                     f"هدف القاع ÷2 = ${r['half']:.2f} (قيمة شمعة التقسيم {r['ref']:.2f})")
         lines.append(f"  {chk(r.get('float_ok'))} فلوت {flt} (تحت 2م) · "
                      f"{chk(r.get('short_ok'))} شورت (متاح CE) {srt} (تحت 20ألف){fee} · "
                      f"{chk(r.get('held_ok'))} حافظ 3ج · "
@@ -4262,7 +4293,7 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
             close = df["Close"]
             out.append({
                 "symbol": sym, "price": pr["price"], "half": pr["half"],
-                "post_high": pr["post_high"], "split_date": pr["split_date"],
+                "ref": pr["ref"], "split_date": pr["split_date"],
                 "freq": pr.get("freq"), "float": flt,
                 "avail": bor.get("shares_available"),
                 "borrow_fee": bor.get("borrow_fee"),
@@ -4294,8 +4325,8 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         lines.append(f"🎯 <b>{esc(r['symbol'])}</b> ${r['price']:.2f}")
         lines.append(f"  ✅ فلوت {fmt_money(r['float'])} (تحت 2م) · ✅ حافظ 3ج "
                      f"· ✅ خالٍ من قروب")
-        lines.append(f"  🎯 القاع = قمة ما بعد التقسيم ÷2 = ${r['half']:.2f} "
-                     f"(قمة {r['post_high']:.2f}) · هدف +100%")
+        lines.append(f"  🎯 القاع = قيمة شمعة التقسيم ÷2 = ${r['half']:.2f} "
+                     f"(الشمعة {r['ref']:.2f}) · هدف +100%")
         lines.append(f"  🕵️ متاح للاقتراض: {avail} (فيصل: تحت 20ألف){fee}")
         lines.append(f"  📉 متوسطات: 20 ${r['ema20']:.2f} · 30 ${r['ema30']:.2f} "
                      f"· 50 ${r['ema50']:.2f}" + (" (مصطفّة صاعدة)" if up else ""))
