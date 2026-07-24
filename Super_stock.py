@@ -4193,6 +4193,120 @@ def build_split_radar_section(rows: list) -> str:
     return _rtl_join(lines)
 
 
+def _yahoo_float(sym: str):
+    """فلوت ياهو (المصدر الأساسي للفلوت — صفحة CE overview صارت قِشرة JS 2026-07-24
+    فماتت `ce_float_info`؛ مُجسّ Actions أثبت ياهو يعطي الفلوت للميكروكاب المغمورة:
+    JEM 93,759). يرجّع `floatShares` (المفضّل) وإلا `sharesOutstanding`، أو None.
+    فاشل-آمن · عرض/سياق فقط — خارج الفرز (M14 لا تُمسّ)."""
+    try:
+        if yf is None:
+            return None
+        info = yf.Ticker(sym).info or {}
+        return info.get("floatShares") or info.get("sharesOutstanding")
+    except Exception:
+        return None
+
+
+def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
+                      fetch_borrow=None, fetch_pump=None):
+    """🪝 صيّاد أسهم التقسيم (فيصل — **أداة مستقلة تمامًا عن فارز الارتكاز 14 بوابة**).
+    يمسح السوق عن مقسّم عكسي يطابق setup فيصل **الصارم** ويرجع المطابقين الكاملين فقط.
+    **الشروط الصارمة (تُشترط كلها — قرار المستخدم «أساسي موثوق»):** ① مقسّم عكسي حديث
+    ② وصل قمة-ما-بعد-التقسيم÷2 ③ حافظ القاع 3 جلسات ④ فلوت<2مليون (ياهو، مثبَت) ⑤
+    خالٍ من رفعة قروب. **السياق (عرض فقط، أفضل-جهد):** المتاح<20ألف + رسوم الاقتراض
+    (ChartExchange، قد يتقطّع/يغيب) + متوسطات 20/30/50 + تكرار التقسيم. **لا يمسّ
+    الاختيار/الدخول/الوقف/العضوية — تنبيه صيد فقط.** الجالبات محقونة للاختبار · فاشل-آمن."""
+    fs = fetch_splits or _fetch_splits
+    ff = fetch_float or _yahoo_float
+    fb = fetch_borrow or ce_borrow_info
+    fp = fetch_pump or group_pump_scar
+    today = today or dt.date.today()
+    # 1) مُرشّح OHLCV رخيص (نفس رادار المقسّم): سعر منخفض + كليف هبوط حادّ حديث
+    pre = []
+    for sym, df in history.items():
+        try:
+            c = df["Close"].values.astype(float)
+            if len(c) < 20:
+                continue
+            price = float(c[-1])
+            if not (0 < price <= CONFIG["SPLIT_RADAR_PRICE_MAX"]):
+                continue
+            look = min(int(CONFIG["SPLIT_LOOKBACK_DAYS"]), len(c) - 1)
+            cliff = min((c[-k] / c[-k - 1] - 1.0)
+                        for k in range(1, look + 1) if c[-k - 1] > 0)
+            if cliff <= -CONFIG["SPLIT_CLIFF_PCT"] / 100.0:
+                pre.append((sym, cliff))
+        except Exception:
+            continue
+    pre.sort(key=lambda x: x[1])
+    pre = [s for s, _ in pre[:int(CONFIG["SPLIT_RADAR_PROBE_CAP"])]]
+    # 2) الشروط الصارمة الخمسة على المُرشّحين
+    out = []
+    for sym in pre:
+        try:
+            df = history[sym]
+            pr = _split_setup_probe(df, fs(sym), today)          # ①②③ مقسّم+÷2+حافظ3ج
+            if not pr or not pr["near_bottom"] or not pr["held_ok"]:
+                continue
+            flt = ff(sym)                                        # ④ فلوت<2م (ياهو)
+            if not (flt is not None and flt < CONFIG["SPLIT_RADAR_FLOAT_MAX"]):
+                continue
+            pump = fp(df) or {}                                  # ⑤ خالٍ من قروب
+            if pump.get("found"):
+                continue
+            bor = {}                                             # السياق (أفضل-جهد)
+            try:
+                bor = fb(sym) or {}
+            except Exception:
+                bor = {}
+            close = df["Close"]
+            out.append({
+                "symbol": sym, "price": pr["price"], "half": pr["half"],
+                "post_high": pr["post_high"], "split_date": pr["split_date"],
+                "freq": pr.get("freq"), "float": flt,
+                "avail": bor.get("shares_available"),
+                "borrow_fee": bor.get("borrow_fee"),
+                "ema20": round(ema(close, 20), 3),
+                "ema30": round(ema(close, 30), 3),
+                "ema50": round(ema(close, 50), 3),
+            })
+        except Exception:
+            continue
+    out.sort(key=lambda x: x.get("float") or 0)   # الأصغر فلوتًا أولًا (أندر = أقوى)
+    return out
+
+
+def build_split_hunter_alert(rows: list, today=None) -> str:
+    """🪝 تنبيه صيّاد المقسّم (فيصل) — يُرسَل **فقط عند وجود مطابق كامل** (صامت غير ذلك).
+    عرض/تنبيه فقط. المتاح «غير مؤكّد» لو تعذّر ChartExchange (لا يُسقط المطابق)."""
+    if not rows:
+        return ""
+    d = today or dt.date.today()
+    lines = [f"🪝 <b>صيّاد أسهم التقسيم</b> (منهج فيصل · {len(rows)} مطابق) — {d}",
+             "<i>مقسّم عكسي وصل قمته÷2 · حافظ القاع 3ج · فلوت تحت 2م · خالٍ من قروب</i>",
+             ""]
+    for r in rows:
+        avail = (fmt_money(r["avail"]) if r.get("avail") is not None
+                 else "— (غير مؤكّد من CE)")
+        fee = (f" · رسوم {r['borrow_fee']:.0f}%"
+               if r.get("borrow_fee") is not None else "")
+        up = (r["ema20"] > r["ema30"] > r["ema50"])
+        lines.append(f"🎯 <b>{esc(r['symbol'])}</b> ${r['price']:.2f}")
+        lines.append(f"  ✅ فلوت {fmt_money(r['float'])} (تحت 2م) · ✅ حافظ 3ج "
+                     f"· ✅ خالٍ من قروب")
+        lines.append(f"  🎯 القاع = قمة ما بعد التقسيم ÷2 = ${r['half']:.2f} "
+                     f"(قمة {r['post_high']:.2f}) · هدف +100%")
+        lines.append(f"  🕵️ متاح للاقتراض: {avail} (فيصل: تحت 20ألف){fee}")
+        lines.append(f"  📉 متوسطات: 20 ${r['ema20']:.2f} · 30 ${r['ema30']:.2f} "
+                     f"· 50 ${r['ema50']:.2f}" + (" (مصطفّة صاعدة)" if up else ""))
+        _fl = _split_freq_line(r.get("freq"))
+        if _fl:
+            lines.append("  " + _fl)
+        lines.append("")
+    lines.append("<i>أداة مستقلة عن فارز الارتكاز — صيد المقسّم بمنهج فيصل (عرض/تنبيه).</i>")
+    return _rtl_join(lines)
+
+
 # ==========================================================
 # 8) أدوات الرسائل المشتركة
 # ==========================================================

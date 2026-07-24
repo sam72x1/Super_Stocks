@@ -1,0 +1,28 @@
+name: Split Hunter (صيّاد المقسّم)
+# 🪝 أداة مستقلة عن فارز الارتكاز: تمسح ناسداك بعد الإغلاق عن مقسّم عكسي يطابق setup
+# فيصل الصارم (مقسّم + وصل القمة÷2 + حافظ 3ج + فلوت<2م + خالٍ من قروب) وترسله لتلغرام.
+# صامتة لو لا مطابق. عرض/تنبيه فقط — لا تمسّ حالة/فرز/LOGIC_VERSION.
+on:
+  schedule:
+    # ~بعد إغلاق ناسداك (20:00 صيفًا/21:00 شتاءً UTC فـ22:17 آمن بالفصلين). دقيقة غير
+    # مستديرة (17) تقلّل تأخّر GitHub الموثّق. اثنين→جمعة (أيام التداول).
+    - cron: "17 22 * * 1-5"
+  workflow_dispatch: {}
+jobs:
+  split-hunter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run split hunter
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python split_hunter.py
