@@ -112,18 +112,22 @@ def run():
                   f"متاح CE={av if av is not None else '—'} "
                   f"(<20ألف {_fchk(av is not None and av < C['SHORT_DAILY_MAX'])}) · "
                   f"رسوم={bor.get('borrow_fee', '—')}% · قروب={_fchk(pump.get('found'))}")
-            # 🔬 تشخيص الفلوت: افحص صفحة النظرة العامة الخام (ليش الفلوت «—»؟)
+            # 🔬 تشخيص الفلوت: صفحة CE الخام + مصدر ياهو (المصدر الأساسي بالبوت)
             try:
                 _u = f"https://chartexchange.com/symbol/nasdaq-{sym.lower()}/"
                 _rp = S.requests.get(_u, headers=S.BROWSER_UA, timeout=8)
                 _h = _rp.text or ""
                 _fi = _h.find("Float")
-                _snip = (_h[max(0, _fi - 30):_fi + 130].replace("\n", " ")
-                         if _fi >= 0 else "(لا كلمة Float بالصفحة)")
-                print(f"      🔬 صفحة CE: HTTP {_rp.status_code} · طول={len(_h)} · "
-                      f"«Float» {'موجودة' if _fi >= 0 else 'غائبة'} · مقتطف: {_snip}")
+                print(f"      🔬 CE overview: HTTP {_rp.status_code} · طول={len(_h)} · "
+                      f"«Float» {'موجودة' if _fi >= 0 else 'غائبة'}")
             except Exception as _e:
-                print(f"      🔬 صفحة CE: تعذّر ({type(_e).__name__}: {_e})")
+                print(f"      🔬 CE overview: تعذّر ({type(_e).__name__})")
+            try:
+                _info = S.yf.Ticker(sym).info if S.yf is not None else {}
+                print(f"      🔬 ياهو: floatShares={_info.get('floatShares')} · "
+                      f"sharesOutstanding={_info.get('sharesOutstanding')}")
+            except Exception as _e:
+                print(f"      🔬 ياهو: تعذّر ({type(_e).__name__})")
 
     print("\nℹ️ الشورت = عمود Available من ChartExchange (قراءة فيصل). عرض/تشخيص — صفر مسّ حالة.")
     return 0
