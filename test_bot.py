@@ -6845,6 +6845,52 @@ check("📄 Form 4·ميتا تالفة (cik غير رقمي) ⇒ تخطٍّ ب�
                 S.form4_insider_buys("ZZ6", fetch=lambda u: _F4_BUY) == [])[1])())
 check("🔒 عدّادات SEC مستقلّة (الطرح ≠ Form 4) وسقف مستندات للتشغيلة موجود",
       S._OFF_FAILS is not S._F4_FAILS and "FORM4_BUDGET" in S.CONFIG)
+# ═══ 🎯 تجربة T-EXIT (exit_policy_prereg.md): سياسات الخروج على نفس الصفقات ═══
+# دخول 100 · وقف 90 (مخاطرة 10 = 10%) · t1 110 (+10% = 1R) · t2 130 (3R) · t3 160 (6R)
+def _xt(mg, oc="win"):
+    return {"entry": 100.0, "stop": 90.0, "t1": 110.0, "t2": 130.0, "t3": 160.0,
+            "outcome": oc, "mg_pre_stop": mg}
+check("🎯 T-EXIT·R لكل سياسة يُشتقّ من «أقصى صعود قبل الوقف» بلا مسّ الجذر",
+      abs(S._exit_policy_r(_xt(35.0), "t1") - 1.0) < 1e-9
+      and abs(S._exit_policy_r(_xt(35.0), "t2") - 3.0) < 1e-9
+      and S._exit_policy_r(_xt(35.0), "t3") == -1.0          # 35% أقل من +60%
+      and S._exit_policy_r(_xt(5.0), "t1") == -1.0)          # لم يبلغ t1 ⇒ الوقف
+check("🎯 T-EXIT·تقريب التتبّع: حصّة من القمة ÷ المخاطرة% (وسالب واحد لو لا صعود)",
+      abs(S._exit_policy_r(_xt(40.0), trail=0.5) - 2.0) < 1e-9
+      and S._exit_policy_r(_xt(0.0), trail=0.5) == -1.0)
+check("🎯 T-EXIT·فاشلة-آمنة: بلا mg_pre_stop أو وقف فوق الدخول ⇒ None",
+      S._exit_policy_r({"entry": 100.0, "stop": 90.0, "t1": 110.0,
+                        "outcome": "win"}, "t1") is None
+      and S._exit_policy_r(dict(_xt(35.0), stop=120.0), "t1") is None)
+_xrep = S.backtest_exit_policies([_xt(35.0) for _ in range(15)]
+                                 + [_xt(3.0, "loss") for _ in range(15)])
+check("🎯 T-EXIT·الكتلة: تبوّب السياسات الأربع وتصدر حكمًا بالمعيار المسجَّل",
+      any("الهدف 1 (الحالية)" in x for x in _xrep)
+      and any("الهدف 3" in x for x in _xrep)
+      and any("تتبّع" in x for x in _xrep)
+      and any("الحكم بالمعيار المسجَّل" in x for x in _xrep))
+check("🎯 T-EXIT·يُعلن تفوّق الهدف 1 بالوضوح نفسه (لا تحيّز للحمل)",
+      any("الهدف 1 هو الأفضل" in x for x in S.backtest_exit_policies(
+          [_xt(12.0) for _ in range(25)] + [_xt(2.0, "loss") for _ in range(5)])))
+check("🎯 T-EXIT·مطفأة بلا BT_POTENTIAL (لا mg_pre_stop ⇒ [] بلا ضجيج)",
+      S.backtest_exit_policies(
+          [{"entry": 100.0, "stop": 90.0, "t1": 110.0, "outcome": "win"}
+           for _ in range(30)]) == []
+      and S.backtest_exit_policies([_xt(35.0)]) == [])
+check("🎯 T-EXIT·حدود الصدق مُعلَنة داخل المخرَج (لمسة/أرضية/تقريب)",
+      any("أرضية" in x and "تقريب" in x for x in _xrep))
+check("🔒 T-EXIT·قفل: خارج الجذور السبعة و analyze_ticker (تحليل فقط)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("_exit_policy_r", "backtest_exit_policies")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
+# 📄 تجديد شراء الداخليين يوميًّا (سدّ ثغرة التجميد حتى جمعة التجديد)
+check("📄 تجديد يومي: المسار اليومي يجلب Form 4 والطرح المؤسِّس (لا تجميد أسبوعيًّا)",
+      all(_k in _insp0.getsource(S.run_daily_watchlist)
+          for _k in ("form4_insider_buys", "_SEC_FOUNDING", "_F4_BUDGET")))
+check("📄 تجديد يومي·دمج لا استبدال: جلبٌ فارغ يُبقي المخزَّن (تعذّر ≠ لا شراء)",
+      "if _nb:" in _insp0.getsource(S.run_daily_watchlist))
 check("🔒 FINRA·حارسا الميزانية وقاطع الدائرة موجودان (كانا غائبين)",
       "FINRA_BUDGET" in S.CONFIG
       and (lambda: (S._FINRA_DAY_CACHE.clear(), S._FINRA_BUDGET.__setitem__(0, 0),
