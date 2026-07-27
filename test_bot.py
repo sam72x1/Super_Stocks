@@ -6680,6 +6680,11 @@ check("📉 ÷2·قاع طازج لم يستقرّ (أقل من 3 جلسات) �
 check("📉 ÷2·فاشلة-آمنة: بلا إطار/إطار قصير ⇒ None · السطر فارغ",
       S.half_down_target(None) is None and S.half_down_line(None) == ""
       and "2.35" in S.half_down_line(_hd))
+check("🪦 ÷2·متقاعدة من العرض: لا تُستدعى في اليومي/الصيّاد/الكرت (كانت تظهر لكل ارتكاز)",
+      all("half_down" not in _insp0.getsource(_f)
+          for _f in (S.build_daily_message, S.build_message,
+                     S.scan_split_hunter, S.build_split_hunter_alert,
+                     S.update_watchlist_status, S.make_watch_entry)))
 # ③ Form 4 — شراء الداخليين (فيصل: «ارتفعت بسبب المدير اشترى 1.7 مليون سهم»)
 _F4_BUY = """<ownershipDocument><reportingOwner><reportingOwnerId>
  <rptOwnerName>John Doe</rptOwnerName></reportingOwnerId>
@@ -6713,6 +6718,20 @@ _buys = S.form4_insider_buys("ZZ4", fetch=lambda u: _F4_BUY)
 check("📄 Form 4·الغلاف: يبني الرابط ويحلّل ويستهلك الميتا مرة واحدة",
       len(_buys) == 1 and _buys[0]["date"] == "2025-06-17"
       and S.form4_insider_buys("ZZ4", fetch=lambda u: _F4_BUY) == [])
+check("📄 Form 4·⚠️ الرابط يُجرَّد من سابقة XSL (كانت الميزة ميتة 100%)",
+      (lambda urls: (S._SEC_FORM4.update(
+          {"ZZX": [{"date": "2025-06-17", "cik": 320193,
+                    "acc": "0000320193-23-000023",
+                    "doc": "xslF345X03/wf-form4_1678833327.xml"}]}),
+          S.form4_insider_buys("ZZX", fetch=lambda u: (urls.append(u), _F4_BUY)[1]),
+          urls and urls[0].endswith("/000032019323000023/wf-form4_1678833327.xml")
+          and "xsl" not in urls[0])[-1])([]))
+check("📄 Form 4·مستند وصل لكنه HTML مُصيَّر ⇒ يُحسب إخفاقًا (لا موت صامت)",
+      (lambda: (S._F4_FAILS.__setitem__(0, 0),
+                S._SEC_FORM4.update({"ZZH": [{"date": "2025-06-17", "cik": 1,
+                                              "acc": "a", "doc": "d.xml"}]}),
+                S.form4_insider_buys("ZZH", fetch=lambda u: "<html>SEC FORM 4</html>"),
+                S._F4_FAILS[0] >= 1)[-1])())
 check("📄 Form 4·السطر بلغة فيصل + فارغ عند لا شراء",
       "اشترى" in S.insider_buy_line({"insider_buys": _buys})
       and S.insider_buy_line({}) == "" and S.insider_buy_line(None) == "")
@@ -6726,26 +6745,29 @@ _na_df = pd.DataFrame({"Open": [3.00, 3.10], "High": [3.30, 3.20],
                        "Low": [2.90, 2.95], "Close": [3.05, 3.00],
                        "Volume": [1e6, 9e5]},
                       index=pd.to_datetime(["2025-06-10", "2025-06-11"]))
-check("📉 خبر بلا قبول: أغلق 3.05 تحت الرقم الحرج 3.15 ⇒ لم يُقبَل (MBRX حرفيًّا)",
-      (S.news_acceptance(_na_df, "2025-06-10", 3.15) or {}).get("accepted") is False)
-check("📉 خبر مقبول: إغلاق فوق الرقم الحرج ⇒ لا تحذير",
-      (S.news_acceptance(_na_df, "2025-06-10", 2.50) or {}).get("accepted") is True
-      and S.news_rejected_line(S.news_acceptance(_na_df, "2025-06-10", 2.50)) == "")
-check("📉 خبر بلا رقم حرج: المعيار الأضعف = إغلاق فوق افتتاح يوم الخبر (مُصرَّح به)",
-      (S.news_acceptance(_na_df, "2025-06-10") or {})["kind"] == "افتتاح يوم الخبر"
-      and (S.news_acceptance(_na_df, "2025-06-10") or {}).get("accepted") is True)
+check("📉 إعلان لم يُقبَل: أغلق تحت افتتاحه ⇒ رفض (المرجع من الشمعة نفسها)",
+      (S.news_acceptance(_na_df, "2025-06-11") or {}).get("accepted") is False)
+check("📉 إعلان مقبول: أغلق فوق افتتاحه وفوق إغلاق ما قبله ⇒ لا تحذير",
+      (S.news_acceptance(_na_df, "2025-06-10") or {}).get("accepted") is True
+      and S.news_rejected_line(S.news_acceptance(_na_df, "2025-06-10")) == "")
+check("📉 ⚖️ لا فارق زمني: الحكم لا يعتمد الرقم الحرج المتحرّك (كان يقلب الإشارة)",
+      "critical" not in _insp0.getsource(S.news_acceptance)
+      and "critical_number" not in _insp0.getsource(S.update_watchlist_status).split(
+          "news_acc")[1][:200])
 check("📉 خبر·تاريخ بعد آخر شمعة أو إطار فارغ ⇒ None (لا نظر مستقبلي)",
       S.news_acceptance(_na_df, "2025-12-31") is None
       and S.news_acceptance(None, "2025-06-10") is None
       and S.news_acceptance(_na_df, None) is None)
-check("📉 خبر·السطر يظهر عند الرفض فقط وبعبارة فيصل",
-      "عدم قبوله" in S.news_rejected_line(S.news_acceptance(_na_df, "2025-06-10", 3.15))
+check("📉 إعلان·السطر يظهر عند الرفض فقط وبعبارة فيصل",
+      "عدم قبوله" in S.news_rejected_line(S.news_acceptance(_na_df, "2025-06-11"))
       and S.news_rejected_line(None) == "" and S.news_rejected_line({}) == "")
 _ev_r = {"insider_buys": [{"date": "2025-06-01"}],
          "offering_event": {"date": "2025-06-20"},
          "proxy_filing": {"date": "2025-05-01"}}
 check("📉 أحدث حدث معلوم: يختار الأحدث بين الشراء الداخلي والطرح والوكالة",
       S._latest_event_date(_ev_r, today=_dt0.date(2025, 6, 25)) == "2025-06-20"
+      and S._latest_event_date({"proxy_filing": {"date": "2025-06-20"}},
+                               today=_dt0.date(2025, 6, 25)) is None
       and S._latest_event_date({}) is None and S._latest_event_date(None) is None)
 check("📉 حدّ الحداثة إلزامي: حدث عمره شهران يُهمَل (لا تحذير كاذب دائم)",
       S._latest_event_date(_ev_r, today=_dt0.date(2025, 8, 25)) is None
@@ -6760,14 +6782,29 @@ check("⚠️ NaN·افتتاح مفقود لا يفشل مفتوحًا: الم�
       (S._split_setup_probe(_nan_df, _fc_splits, _fc_today) or {}).get("didnt_rise")
       is False)
 check("⚖️ الطرح·تسجيل رفّي روتيني (S-3/424B3/EFFECT) ليس حدثًا مؤسِّسًا",
-      (lambda: all((S._SEC_OFFERING.update({"ZZR": {"form": _f,
+      (lambda: all((S._SEC_FOUNDING.update({"ZZR": {"form": _f,
                                                     "date": str(_fc_today)}}),
                     S._offering_event("ZZR", today=_fc_today) is None)[1]
                    for _f in ("S-3", "424B3", "EFFECT", "S-1"))
-       and (S._SEC_OFFERING.update({"ZZR": {"form": "424B5",
+       and (S._SEC_FOUNDING.update({"ZZR": {"form": "424B5",
                                             "date": str(_fc_today)}}),
             S._offering_event("ZZR", today=_fc_today) is not None,
-            S._SEC_OFFERING.pop("ZZR", None))[1])())
+            S._SEC_FOUNDING.pop("ZZR", None))[1])())
+def _off_mask_probe():
+    S._SEC_FOUNDING.pop("ZZM", None)
+    S._SEC_OFFERING.pop("ZZM", None)
+    payload = {"filings": {"recent": {
+        "form": ["S-3", "8-K", "424B5"],
+        "filingDate": [str(_fc_today)] * 3}}}
+    _orig = S.sec_cik_map
+    S.sec_cik_map = lambda: {"ZZM": 123}
+    try:
+        return (S._offering_event("ZZM", today=_fc_today,
+                                  fetch=lambda u: payload) or {}).get("form")
+    finally:
+        S.sec_cik_map = _orig
+check("⚖️ الطرح·أحدث S-3 روتيني لا يحجب النشرة النهائية الأقدم (كان يقتل الميزة)",
+      _off_mask_probe() == "424B5")
 check("⚖️ ÷2·مربوط بالسعر: سهم صعد بعيدًا عن قاعه القديم لا يُسقَط عليه مستهدف هبوط",
       S.half_down_target(_mw, price=9.0) is None
       and S.half_down_target(_mw, price=5.0) is not None)
@@ -6825,8 +6862,7 @@ check("⚖️ فحص اليد يحمل حقول بطاقة فيصل فعلًا (
       all(_k in open("hand_check.py", encoding="utf-8").read()
           for _k in ('"insider_buys": diag.get("insider_buys")',
                      '"offering_event": diag.get("offering_event")',
-                     'r["news_acc"] = bot.news_acceptance',
-                     'r["half_down"] = bot.half_down_target')))
+                     'r["news_acc"] = bot.news_acceptance')))
 check("🔒 قفل: كل إضافات بطاقة فيصل خارج الجذور السبعة و analyze_ticker",
       all(_fn not in _insp0.getsource(_f)
           for _fn in ("_post_event_high", "_event_day_open", "half_down_target",
