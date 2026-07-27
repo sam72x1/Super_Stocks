@@ -76,6 +76,15 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     _actor = bot.flow_actor_read(r.get("fsto_osc"), _fr.get("operator_profile"))
     if _actor:
         L.append(_actor)
+    # ⭐ «اتفاق الفريمات» وصيد الارتداد (فيصل IMG_0305/0306): 5د+15د+30د على نفس الدعم +
+    # «الارتداد الأول لا دخول · الثاني تأكيد». يعيد استخدام دقائق Polygon (فاشل-آمن → لا سطر).
+    try:
+        _rbe = bot.rebound_entry_state(bot.polygon_minute_bars(sym, minutes=240))
+        _rbl = bot.rebound_entry_line(_rbe)
+        if _rbl:
+            L.append(_rbl)
+    except Exception:
+        pass
     # 🎬 KST 4س (حالة زخم مساندة — مؤشر فيصل بالفيديو)
     if r.get("kst4"):
         L.append(f"📈 KST (4س): {r['kst4']}")

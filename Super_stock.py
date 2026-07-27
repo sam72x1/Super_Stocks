@@ -4341,6 +4341,104 @@ def operator_sustain(bars, break_level, min_minutes=None):
         return None
 
 
+def _resample_minute_bars(bars, k: int):
+    """يجمّع شموع الدقيقة إلى شموع k-دقيقة (تجميع متتالٍ بسيط). نقيّ · فاشل-آمن → []."""
+    out = []
+    try:
+        k = max(1, int(k))
+        for i in range(0, len(bars) - k + 1, k):
+            g = bars[i:i + k]
+            los = [float(b.get("l", b.get("low"))) for b in g
+                   if b.get("l", b.get("low")) is not None]
+            his = [float(b.get("h", b.get("high"))) for b in g
+                   if b.get("h", b.get("high")) is not None]
+            cs = [float(b.get("c", b.get("close"))) for b in g
+                  if b.get("c", b.get("close")) is not None]
+            if not los or not his or not cs:
+                continue
+            out.append({"l": min(los), "h": max(his), "c": cs[-1]})
+    except Exception:
+        return []
+    return out
+
+
+def rebound_entry_state(bars, frames=(5, 15, 30), tol_pct=1.5, look_minutes=180,
+                        touch_tol_pct=1.0, sep=2):
+    """⭐ **استراتيجية «اتفاق الفريمات» وصيد الارتداد** (فيصل — قناته التعليمية IMG_0305/0306،
+    2026-07-27؛ **نظام دخول لحظي كامل مُكمَّم**):
+
+      «فكرة الحركة: السهم بعد كل صعود قوي لازم يجني ربحه وينزل… تنتظر السهم يهدأ ويثبت على دعومه.
+       **السر (اتفاق الفريمات): تفتح الشارت على 5 دقائق و15 و30 — إذا الثلاثة متفقة وثابتة على نفس
+       الدعم، اعرف إن الارتداد قريب وقوي.** … ارتد منه صعودًا لـ11.46 ورجع **مرة ثانية** يختبر نفس
+       الدعم 10.21 وثبت فوقه. **هنا مكان الدخول: فورًا مع الارتداد الثاني والثبات** (بعدها 14.70 =
+       ربح 45%). **الخروج: إذا كسر السعر منطقة الدعم وقفل تحتها اطلع فورًا.**»
+
+    وعلى الشارت: «**ارتداد أول عدم دخول**» · «**ارتداد 2 تأكيد دخول عدم كسر**» · «فريم 5 دقايق
+    **شرط السهم محقق ارتفاع + سيوله عاليه**» · «**رأس شمعة الهبوط جني الربح عند ارتداده لها**».
+
+    ⇒ يُكمِّم قاعدتنا الموثّقة «لا تدخل الدعم الأول» برقم صريح: **الأول لا · الثاني نعم**. ويضيف
+    بُعدًا مفقودًا: **فريمات لحظية (5/15/30د)** — فريماتنا كانت شهري/أسبوعي/يومي فقط.
+
+    يأخذ شموع الدقيقة ويرجّع:
+    `{support, agree, frames, bounces, holding, entry}` — `agree` = الفريمات الثلاثة على نفس الدعم
+    ضمن `tol_pct`% · `bounces` = عدد لمسات الدعم المستقلّة · `holding` = آخر إغلاق فوقه ·
+    `entry` = **الاتفاق + ارتدادان فأكثر + ثبات** (شرط فيصل الكامل). None لو العيّنة قصيرة.
+
+    نقيّ · فاشل-آمن · **عرض/تشخيص فقط** — لا يفتح صفقة ولا يمسّ الفرز ولا التنبيه."""
+    try:
+        if not bars or len(bars) < max(frames) * 3:
+            return None
+        # ⚠️ النافذة **زمنية موحّدة** لا «عدد شموع»: 12 شمعة على 5د = ساعة بينما على 30د = 6
+        # ساعات، فتنظر الفريمات لمناطق مختلفة ويسقط الاتفاق زورًا. «اتفاق الفريمات» عند فيصل =
+        # نفس منطقة الشارت بثلاث دقّات (اكتشفه اختبار سيناريو 10.21 الحقيقي).
+        sups, frames_used = [], []
+        for k in frames:
+            rb = _resample_minute_bars(bars, k)
+            if len(rb) < 4:
+                return None
+            seg = rb[-max(4, int(look_minutes) // int(k)):]
+            sups.append(min(b["l"] for b in seg))
+            frames_used.append(k)
+        lo_s, hi_s = min(sups), max(sups)
+        if lo_s <= 0:
+            return None
+        agree = ((hi_s / lo_s - 1.0) * 100.0) <= float(tol_pct)
+        support = round(lo_s, 2)
+        # عدّ الارتدادات المستقلّة عن الدعم على فريم 5د (لمسة ثم ابتعاد)
+        five = _resample_minute_bars(bars, frames[0])
+        band = lo_s * (1.0 + touch_tol_pct / 100.0)
+        bounces, last = 0, -10_000
+        for i, b in enumerate(five):
+            if b["l"] <= band:
+                if i - last >= sep:
+                    bounces += 1
+                last = i
+        holding = bool(five and five[-1]["c"] > lo_s)
+        return {"support": support, "agree": bool(agree), "frames": frames_used,
+                "bounces": bounces, "holding": holding,
+                "entry": bool(agree and bounces >= 2 and holding)}
+    except Exception:
+        return None
+
+
+def rebound_entry_line(st) -> str:
+    """سطر «اتفاق الفريمات / صيد الارتداد» (عرض فقط). «» لو None."""
+    if not st:
+        return ""
+    fr = "+".join(f"{f}د" for f in st.get("frames", []))
+    if st.get("entry"):
+        return (f"🎯 <b>ارتداد 2 مؤكَّد</b> عند ${st['support']:.2f} — الفريمات ({fr}) "
+                "متفقة وثابتة · فيصل: <b>الدخول هنا</b> (الوقف: إغلاق تحته)")
+    # ⚠️ الكسر **أولًا**: هو الحدث الأخطر (خروج فوري)، وكان يُحجب خلف فرع «الارتداد الأول».
+    if not st.get("holding"):
+        return f"⛔ كسر الدعم ${st['support']:.2f} — فيصل: «كسر وقفل تحتها اطلع فورًا»"
+    if st.get("agree") and st.get("bounces", 0) <= 1:
+        return (f"⏳ الفريمات ({fr}) متفقة على ${st['support']:.2f} — "
+                "لكنه <b>الارتداد الأول: لا دخول</b> (فيصل: انتظر الثاني)")
+    return (f"👀 الفريمات ({fr}) غير متفقة بعد (دعم ${st['support']:.2f} · "
+            f"ارتدادات {st.get('bounces', 0)}) — لا إشارة ارتداد")
+
+
 def bottom_test_state(df, lookback=60, tol_pct=3.0, sep=3):
     """🔁 **حالة «القاع 2»** (فيصل، EDBL IMG_0298: «تم التلاعب بالشموع أكثر من مرة — **القاع 2 =
     ثبات أو سحب سيوله** — متابعه فقط» · EZRA IMG_0295: «قاع جديد بعد تلاعب بالشموع · **متابعة 2
