@@ -6296,6 +6296,84 @@ check("🌏 الإثراء يُلحق عمودَي الدولة والقطاع �
                                sector_fetch=lambda s: {"country": "China",
                                                        "sector": "China"},
                                earn_fetch=lambda s: [])))
+# 🕵️ تجربة T-SHORT (short_thread_prereg.md): شورت FINRA **المؤرَّخ بيوم الإشارة**
+_FIN_HDR = "Date|Symbol|ShortVolume|ShortExemptVolume|TotalVolume|Market\n"
+_FIN_DAY = {
+    "20250611": _FIN_HDR + "20250611|AAA|5000|0|40000|Q\n20250611|BBB|30000|0|90000|Q\n",
+    "20250610": _FIN_HDR + "20250610|CCC|15000|0|60000|Q\n",
+}
+def _fin_fetch(url):
+    for _k, _v in _FIN_DAY.items():
+        if _k in url:
+            return _v
+    return ""                                  # يوم بلا ملف (عطلة/ناقص)
+S._FINRA_DAY_CACHE.clear()
+check("🕵️ T-SHORT·المحلّل النقي: يقرأ عمود ShortVolume ويتخطّى الترويسة",
+      S._parse_finra_short(_FIN_DAY["20250611"]) == {"AAA": 5000, "BBB": 30000})
+check("🕵️ T-SHORT·المحلّل فاشل-آمن: نص فارغ/صفحة خطأ/بلا أعمدة ⇒ {}",
+      S._parse_finra_short("") == {} and S._parse_finra_short(None) == {}
+      and S._parse_finra_short("<html>404 not found</html>") == {})
+check("🕵️ T-SHORT: يقرأ شورت يوم الإشارة نفسه",
+      S._bt_short_at_signal("AAA", "2025-06-11", fetch=_fin_fetch) == 5000)
+check("🕵️ T-SHORT·بلا تسريب: يرجع للخلف فقط (يوم 12 يقرأ ملف 11) ولا ينظر للأمام",
+      S._bt_short_at_signal("AAA", "2025-06-12", fetch=_fin_fetch) == 5000
+      and S._bt_short_at_signal("CCC", "2025-06-09", fetch=_fin_fetch) is None)
+check("🕵️ T-SHORT: رمز غائب عن كل الملفات ⇒ مجهول (None) لا صفر",
+      S._bt_short_at_signal("ZZZ", "2025-06-11", fetch=_fin_fetch) is None)
+check("🕵️ T-SHORT·فاشلة-آمنة: تاريخ تالف/عطل شبكة ⇒ None بلا استثناء",
+      S._bt_short_at_signal("AAA", "بلا-تاريخ", fetch=_fin_fetch) is None
+      and (S._FINRA_DAY_CACHE.clear() or True)   # الكاش يمنع إعادة النداء — نفرّغه
+      and S._bt_short_at_signal("AAA", "2025-06-11",
+                                fetch=lambda u: (_ for _ in ()).throw(IOError()))
+      is None)
+check("🕵️ T-SHORT·الكاش: نداء واحد لكل تاريخ مهما تكرّرت الرموز (توفير النداءات)",
+      (lambda calls: (S._FINRA_DAY_CACHE.clear(),
+                      [S._bt_short_at_signal(s, "2025-06-11",
+                                             fetch=lambda u: (calls.append(u),
+                                                              _FIN_DAY["20250611"])[1])
+                       for s in ("AAA", "BBB", "AAA")],
+                      len(calls) == 1)[-1])([]))
+S._FINRA_DAY_CACHE.clear()
+_tsh_rows = ([{"symbol": "AAA", "date": "2025-06-11", "outcome": "win",
+              "exploded": True} for _ in range(22)]
+            + [{"symbol": "BBB", "date": "2025-06-11", "outcome": "loss",
+                "exploded": False} for _ in range(22)])
+S._bt_short_enrich(_tsh_rows, fetch=_fin_fetch)
+_tshr = S.backtest_short_thread(_tsh_rows)
+check("🕵️ T-SHORT·الإثراء: يُلحق short_at_signal لكل صفقة من ملف يومها",
+      _tsh_rows[0]["short_at_signal"] == 5000
+      and _tsh_rows[-1]["short_at_signal"] == 30000)
+check("🕵️ T-SHORT·الكتلة: تبوّب شرائح فيصل وتصدر حكمًا بالمعيار المسجَّل",
+      any("10 آلاف سهم أو أقل" in x for x in _tshr)
+      and any("من 20 إلى 40 ألف سهم" in x for x in _tshr)
+      and any("الحكم بالمعيار المسجَّل" in x for x in _tshr))
+check("🕵️ T-SHORT·حدّ الصدق مُعلَن داخل المخرَج (FINRA ليس «المتاح للاقتراض»)",
+      any("المتاح للاقتراض" in x for x in _tshr))
+check("🕵️ T-SHORT·إشارة معاكسة تُعلَن لا تُخفى",
+      any("إشارة معاكسة" in x for x in S.backtest_short_thread(
+          [{"short_at_signal": 5000, "outcome": "loss", "exploded": False}
+           for _ in range(22)]
+          + [{"short_at_signal": 30000, "outcome": "win", "exploded": True}
+             for _ in range(22)])))
+check("🕵️ T-SHORT·بلا بيانات مؤرَّخة ⇒ يُصرَّح «لا حكم» (غياب ≠ نتيجة سالبة)",
+      any("لا حكم" in x for x in S.backtest_short_thread(
+          [{"outcome": "win", "exploded": True} for _ in range(20)])))
+check("🕵️ T-SHORT·عيّنة صغيرة ⇒ [] (لا حكم على 5 صفقات)",
+      S.backtest_short_thread(_tsh_rows[:5]) == [])
+check("🕵️ T-SHORT·شورت صفر يقع في الشريحة الأولى لا خارج الشرائح",
+      any("1 معبّأة" in x for x in S.backtest_short_thread(
+          [{"short_at_signal": 0, "outcome": "win", "exploded": True}]
+          + [{"short_at_signal": 30000, "outcome": "loss", "exploded": False}
+             for _ in range(12)])))
+check("🕵️ T-SHORT·قفل: كل دوال التجربة خارج الجذور السبعة و analyze_ticker",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("_parse_finra_short", "_finra_day_map", "_bt_short_at_signal",
+                      "_bt_short_enrich", "backtest_short_thread")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
+check("🕵️ T-SHORT·مطفأة افتراضيًّا (لا نداء FINRA بلا علم صريح)",
+      S.CONFIG.get("BT_SHORT") == 0)
 check("🌏 قفل: _bt_country خارج الجذور (تحليل CSV فقط، لا بوّابة)",
       all("_bt_country" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,

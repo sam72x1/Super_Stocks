@@ -295,6 +295,7 @@ CONFIG = {
                                          # اليوم؛ نصفها يرفع الدخول ويخفض الخروج (حساسية 1/3/5%)
     "BT_POTENTIAL": 0,                   # 🏦 قوة البوت: قِس أقصى صعود من الدخول قبل الوقف
     "BT_FEATURES": 0,                    # 🔬 أعمدة تحليل point-in-time (قطاع + أيام أرباح) — باكتيست فقط
+    "BT_SHORT": 0,                       # 🕵️ T-SHORT: شورت FINRA المؤرَّخ عند الإشارة — باكتيست فقط
     "BT_PORTFOLIO": 0,                   # 🏦 محاكاة الانتقائية (أفضل N بالترتيب)
     "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE)
     "BT_RAW_PRICE": 0,                   # 🕰️ point-in-time: 1 = تحميل خام (auto_adjust=False)
@@ -483,6 +484,7 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_SPREAD_PCT", "BT_SPREAD_PCT", float),    # 🔬 F-COST
             ("BT_POTENTIAL", "BT_POTENTIAL", int),        # 🏦 قوة البوت
             ("BT_FEATURES", "BT_FEATURES", int),          # 🔬 أعمدة تحليل point-in-time
+            ("BT_SHORT", "BT_SHORT", int),                # 🕵️ T-SHORT: شورت FINRA المؤرَّخ
             ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
             ("BT_PORT_SIZE", "BT_PORT_SIZE", int),
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
@@ -11187,6 +11189,76 @@ def backtest_country_thread(trades: list) -> list:
     return out
 
 
+_SHORT_BANDS = ((0, 10_000, "10 آلاف سهم أو أقل"),
+                (10_000, 20_000, "من 10 إلى 20 ألف سهم"),
+                (20_000, 40_000, "من 20 إلى 40 ألف سهم"),
+                (40_000, float("inf"), "أكثر من 40 ألف سهم"))
+
+
+def backtest_short_thread(trades: list) -> list:
+    """🕵️ **تجربة T-SHORT المسجَّلة مسبقًا** (`short_thread_prereg.md`): هل **حجم الشورت
+    اليومي عند يوم الإشارة** (FINRA، point-in-time بلا تسريب) يميّز المنفجر **داخل
+    المؤهَّلين**؟ ملاحظة المستخدم: أسهم فيصل شورتها تحت 20 ألفًا وكثير منها **تحت 10 آلاف**.
+
+    ⚠️ **حدّ صدق مسجَّل قبل النتيجة:** «شورت» فيصل في صور CTB = **المتاح للاقتراض**
+    (ChartExchange) و**لا تاريخ له إطلاقًا** — فهذه التجربة تقيس **الوكيل** المتاح
+    تاريخيًّا (حجم FINRA اليومي، وهو مقياس بوابة M13 نفسه)، **ولا تُعمَّم على «المتاح»**
+    إثباتًا ولا نفيًا. الشريحة «مجهول» تُعرَض ولا تدخل المقارنة (تعذّر ≠ صفر).
+    **تحليل/طباعة فقط — لا وزن ولا بوّابة** (الاعتماد يلزمه المعيار + سنة ثانية + موافقة)."""
+    fb = [t for t in trades if t.get("outcome") != "no_fill"]
+    if len(fb) < 12:
+        return []
+    known = [t for t in fb if t.get("short_at_signal") is not None]
+    if not known:
+        return ["\n🕵️ <b>تجربة T-SHORT (الشورت عند الإشارة)</b>",
+                "   ⚠️ تعذّر جلب ملفات FINRA المؤرَّخة — لا حكم (البيانات غائبة، "
+                "لا نتيجة سالبة)."]
+    out = ["\n🕵️ <b>تجربة T-SHORT: هل الشورت المنخفض عند الإشارة يميّز المنفجر؟</b>",
+           f"   العيّنة: {len(known)} من {len(fb)} صفقة معبّأة عندها شورت مؤرَّخ "
+           f"({len(fb) - len(known)} مجهول — يُعرَض ولا يدخل المقارنة)."]
+    cells = {}
+    for lo, hi, lbl in _SHORT_BANDS:
+        # الحدّ الأدنى شامل للشريحة الأولى فقط (شورت صفر = «10 آلاف أو أقل» لا خارج الشرائح)
+        sel = [t for t in known
+               if (int(t["short_at_signal"]) >= lo if lo == 0
+                   else int(t["short_at_signal"]) > lo)
+               and int(t["short_at_signal"]) <= hi]
+        if not sel:
+            continue
+        exp = sum(1 for t in sel if t.get("exploded"))
+        dec = [t for t in sel if t["outcome"] in ("win", "loss")]
+        w = sum(1 for t in dec if t["outcome"] == "win")
+        elo, ehi = _wilson_ci(exp, len(sel))
+        cells[lbl] = (exp / len(sel) * 100.0, elo, ehi, len(sel))
+        out.append(f"   {lbl}: {len(sel)} معبّأة · انفجر {exp} "
+                   f"({exp / len(sel) * 100:.0f}%، ثقة {elo:.0f}-{ehi:.0f}%) · "
+                   f"نجاح {(w / len(dec) * 100.0) if dec else 0:.0f}% "
+                   f"(محسومة {len(dec)})")
+    # المقارنة المسجَّلة مسبقًا: شريحة المستخدم (10 آلاف أو أقل) مقابل سقف M13 (20-40 ألفًا)
+    a, b = cells.get(_SHORT_BANDS[0][2]), cells.get(_SHORT_BANDS[2][2])
+    if not (a and b):
+        out.append("   ⚠️ إحدى شريحتَي المقارنة المسجَّلة فارغة — لا حكم هذه السنة.")
+        return out
+    disc, gap = _slice_verdict(out, [a[:3], b[:3]],
+                               "10 آلاف أو أقل − من 20 إلى 40 ألفًا")
+    enough = a[3] >= 20 and b[3] >= 20
+    if not enough:
+        out.append("   ⚠️ إحدى الشريحتين أقل من 20 صفقة — المعيار المسجَّل يمنع الاعتماد")
+    if disc and enough and gap < 0:
+        rec = ("<b>إشارة معاكسة</b>: الشورت المنخفض <b>أسوأ</b> بالمعيار نفسه — "
+               "يُعلَن كما هو (لا نُخفي المعاكس)، ولا يُبنى عليه قرار بسنة واحدة")
+    elif disc and enough:
+        rec = ("<b>الفرضية صمدت على هذه السنة</b> — تلزم سنة ثانية بنفس الاتجاه + "
+               "موافقتك قبل أي دور قرار (لا تُمسّ M13 آليًّا)")
+    else:
+        rec = ("<b>لم تستوفِ المعيار</b>: يبقى الشورت عمود تحليل/عرض بلا دور قرار "
+               "جديد (كما T-ACC والقطاع والدولة والقروب)")
+    out.append(f"   ✅ الحكم بالمعيار المسجَّل مسبقًا: {rec}")
+    out.append("   ℹ️ <i>المقياس هنا حجم الشورت اليومي (FINRA) لا «المتاح للاقتراض» "
+               "الذي يقصده فيصل — المتاح بلا تاريخ فلا يُباكتَست.</i>")
+    return out
+
+
 def backtest_behav_correlation(trades: list) -> list:
     """🧬 تحقّق ارتباط بصمة «طريقة الارتفاع» بالانفجار (طلب المستخدم: امنحها وزنًا في
     الترتيب **فقط بعد** إثبات أن الدرجة العالية ترتبط بالانفجار فعلًا، بلا تسريب —
@@ -11587,6 +11659,81 @@ def _bt_pump_features(df, date_str):
         return {}
 
 
+_FINRA_DAY_CACHE: dict = {}      # {YYYY-MM-DD: {رمز: حجم الشورت}} — كاش تشغيلة واحدة
+
+
+def _parse_finra_short(text):
+    """يحلّل ملف FINRA اليومي (`CNMSshvol<YYYYMMDD>.txt`) → {رمز: حجم الشورت}.
+    **نقيّة** (بلا شبكة) وفاشلة-آمنة. الشكل الموثّق:
+    `Date|Symbol|ShortVolume|ShortExemptVolume|TotalVolume|Market` — نفس الأعمدة التي
+    يقرأها `finra_daily_short` الحيّ (العمود 3 = حجم الشورت). الترويسة والسطور الناقصة
+    أو غير الرقمية تُتخطّى · نص فارغ/صفحة خطأ (بلا فواصل عمودية) → {}."""
+    out = {}
+    if not text or "|" not in text[:400]:
+        return out
+    for ln in text.splitlines():
+        p = ln.split("|")
+        if len(p) < 5 or p[1].strip() in ("Symbol", ""):
+            continue
+        try:
+            out[p[1].strip().upper()] = int(p[2])
+        except (ValueError, IndexError):
+            continue
+    return out
+
+
+def _finra_day_map(date_iso, fetch=None):
+    """خريطة شورت **يوم مؤرَّخ واحد** من أرشيف FINRA المجاني = point-in-time بلا تسريب.
+    كاش لكل تاريخ ⇒ نداء شبكة واحد للتاريخ مهما كثرت الرموز (وحتى للتاريخ الفاشل، فلا
+    يُعاد). `fetch(url)` قابل للحقن للاختبار. فاشل-آمن → {}. **تحليل باكتيست فقط.**"""
+    key = str(date_iso)[:10]
+    if key in _FINRA_DAY_CACHE:
+        return _FINRA_DAY_CACHE[key]
+    url = ("https://cdn.finra.org/equity/regsho/daily/"
+           f"CNMSshvol{key.replace('-', '')}.txt")
+    txt = ""
+    try:
+        if fetch is not None:
+            txt = fetch(url) or ""
+        else:
+            r = requests.get(url, headers=UA, timeout=40)
+            txt = r.text if r.status_code == 200 else ""
+    except Exception:
+        txt = ""
+    m = _parse_finra_short(txt)
+    _FINRA_DAY_CACHE[key] = m
+    return m
+
+
+def _bt_short_at_signal(sym, date_iso, fetch=None, max_back=3):
+    """حجم الشورت اليومي (FINRA) **عند يوم الإشارة أو قبله حصرًا** — حتى `max_back`
+    أيام تقويمية للخلف (عطلة/ملف ناقص)، **بلا نظر للأمام إطلاقًا**.
+    رمز غائب عن كل الملفات = **مجهول (`None`) لا صفر** (تعذّر ≠ صفر — تسجيل مسبق
+    `short_thread_prereg.md`). عطل الشبكة → None. تحليل فقط."""
+    try:
+        d0 = dt.date.fromisoformat(str(date_iso)[:10])
+    except (ValueError, TypeError):
+        return None
+    for back in range(0, max(0, int(max_back)) + 1):
+        d = d0 - dt.timedelta(days=back)
+        if d.weekday() >= 5:                    # السبت/الأحد بلا ملف
+            continue
+        v = _finra_day_map(d.isoformat(), fetch=fetch).get(str(sym).upper())
+        if v is not None:
+            return v
+    return None
+
+
+def _bt_short_enrich(all_trades, fetch=None):
+    """يُلحق `short_at_signal` بكل صفقة (تجربة T-SHORT). **إلحاق فقط** — لا يمسّ أي
+    حكم باكتيست (`fwd_max_gain`/`exploded` محسوبة في `backtest_symbol` الجذر).
+    نداء واحد لكل **تاريخ** لا لكل صفقة (الكاش أعلاه)."""
+    for t in all_trades:
+        t["short_at_signal"] = _bt_short_at_signal(
+            t.get("symbol"), t.get("date", ""), fetch=fetch)
+    return all_trades
+
+
 def _bt_feature_enrich(all_trades, sector_fetch=None, earn_fetch=None, hist=None):
     """يُثري صفقات الباكتيست بعمودَي تحليل (قطاع + أيام لأقرب أرباح) **قبل** كتابة الـCSV.
     **إلحاق فقط, لا يمسّ أي حكم باكتيست** (fwd_max_gain/exploded محسوبة في backtest_symbol الجذر).
@@ -11919,6 +12066,16 @@ def run_backtest(symbols=None) -> None:
             send_telegram("\n".join(_hyp))
             for _hl in _hyp:
                 log("باكتيست·" + _hl.strip().replace("\n", " "))
+    # 🕵️ (BT_SHORT) تجربة T-SHORT المسجَّلة مسبقًا (`short_thread_prereg.md`): شورت FINRA
+    # **المؤرَّخ بيوم الإشارة** (point-in-time بلا تسريب) → شرائح فيصل. مطفأ = صفر نداء
+    # وصفر تغيير. مستقلّ عن BT_FEATURES. تحليل/إلحاق فقط — خارج backtest_symbol (الجذر).
+    if CONFIG.get("BT_SHORT"):
+        _bt_short_enrich(all_trades)
+        _sh = backtest_short_thread(all_trades)
+        if _sh:
+            send_telegram("\n".join(_sh))
+            for _shl in _sh:
+                log("باكتيست·" + _shl.strip().replace("\n", " "))
     fn = _write_csv_file(all_trades, "backtest")
     if fn:
         send_telegram_document(fn, f"🧪 تفاصيل الباكتيست — {dt.date.today()}")
