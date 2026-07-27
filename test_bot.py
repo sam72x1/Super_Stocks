@@ -6262,6 +6262,21 @@ check("🔬 بصمة القروب·فاشلة-آمنة: بلا إطار/تاري
       S._bt_pump_features(None, "2026-03-01") == {}
       and S._bt_pump_features(_pf_df, "") == {}
       and S._bt_pump_features(_pf_df, "2026-01-05") == {})
+check("🌏 عمود الدولة: يُجلب من info · «—» عند التعذّر (لم يُختبر قط — أسهم فيصل صينية)",
+      S._bt_country("X", fetch=lambda s: {"country": "China"}) == "China"
+      and S._bt_country("X", fetch=lambda s: {}) == "—"
+      and S._bt_country("X", fetch=lambda s: (_ for _ in ()).throw(IOError())) == "—")
+check("🌏 الإثراء يُلحق عمودَي الدولة والقطاع معًا",
+      (lambda rows: rows[0].get("country") == "China" and rows[0].get("sector") == "China")(
+          S._bt_feature_enrich([{"symbol": "ZZ", "date": "2025-06-01"}],
+                               sector_fetch=lambda s: {"country": "China",
+                                                       "sector": "China"},
+                               earn_fetch=lambda s: [])))
+check("🌏 قفل: _bt_country خارج الجذور (تحليل CSV فقط، لا بوّابة)",
+      all("_bt_country" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
 check("🔬 قفل: _bt_pump_features خارج backtest_symbol والجذور (تحليل CSV فقط)",
       all("_bt_pump_features" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
