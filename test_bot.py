@@ -6448,6 +6448,27 @@ check("🔔 المسح الثاني·العتبة 20% لم تُمَسّ · و«�
       and "SPLIT_ROSE_MAX_PCT" in _insp0.getsource(S._split_setup_probe))
 # ⛔ T-STOP (`stop_sweep_prereg.md`): مفتاح عمق الوقف **باكتيست حصريًّا** — الإنتاج
 # يبقى (5,7) مهما كانت البيئة (فيصل ENPH: «الوقف عند المتداولين من 5-7%»).
+# 🎯 «أهداف الشورت» (منظومة فيصل TG_1813 + TG_2041) — مُخرَج واحد باسمه.
+check("🎯 أهداف الشورت·الهدف الأول = القمة÷2 · والقاع التالي بنسبة السهم · والمسح",
+      (lambda L: any("3.45" in x for x in L) and any("2.94" in x for x in L)
+       and any("سحب السيولة" in x for x in L))(
+          S.short_targets_report(post_split_high=6.90, price=3.60, avail=900,
+                                 next_bottom={"next_bottom": 2.94, "drop_pct": 30.0},
+                                 sweep=3.10)))
+check("🎯 أهداف الشورت·سلّم المتاح بنصّ فيصل: 900 إيجابي · 600 ألفًا ذخيرة هبوط",
+      any("إيجابي" in x for x in S.short_targets_report(avail=900))
+      and any("ذخيرة هبوط" in x for x in S.short_targets_report(avail=600000))
+      and any("ممتاز" in x for x in S.short_targets_report(avail=8000)))
+check("🎯 أهداف الشورت·صدق: تعذّر المتاح يُصرَّح به ولا يُخمَّن · والقروب «هجّ عنه»",
+      any("تعذّر" in x for x in S.short_targets_report(price=2.0))
+      and any("هجّ عنه" in x for x in S.short_targets_report(avail=100, pump=True))
+      and any("لا طرح" in x for x in S.short_targets_report(avail=100,
+                                                            offering=False)))
+check("🔒 أهداف الشورت خارج الجذور (عرض/سياق فقط)",
+      all("short_targets_report" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker, S.scan_market)))
 check("⛔ T-STOP·الإنتاج محصّن: الافتراضي (5,7) ولا يتأثّر بـBT_STOP_PCT خارج الباكتيست",
       S.CONFIG["STOP_BELOW_LOW_PCT"] == (5.0, 7.0)
       and S._apply_backtest_overrides("DAILY", {"BT_STOP_PCT": "13,15"}) == []

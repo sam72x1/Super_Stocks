@@ -4423,6 +4423,74 @@ def _split_freq_line(freq) -> str:
     return ""
 
 
+def short_targets_report(post_split_high=None, price=None, avail=None,
+                         float_shares=None, pump=None, offering=None,
+                         next_bottom=None, sweep=None, rose_pct=None):
+    """🎯 **«تحديد أهداف الشورت»** — منظومة فيصل كاملةً في مُخرَج واحد (TG_1813 + TG_2041).
+
+    نصّه (TG_1813): «تحديد أهداف الشورت · برنامج اشتراكه ألف دولار شهري ما يصلح إلا
+    للمحللين · **انت عليك فقط تابع الشورت — إذا صفر أو قريب من الصفر يكون إيجابي
+    السهم** · الشروط: ① سهم مقسم هابط متوسط 20<30<50 شرط ما صعد أول ما قسم أكثر من
+    20% ② خلال متوسط الحركة 20 يتضح لك وجهة السهم · هل عليه قروبات · **هل ضرب قيعان
+    جديدة وهذا الأصل** · كم القاع؟ **غالبًا يهبط النص** · فتح 5 يهبط بين 2 ← 2.50 ·
+    **يكون تحت عينك هدفه شمعة الهبوط 5 = 100%** ③ سهم عليه قروبات **هجّ عنه** ④ سهم
+    شورته حلو وهابط بعد صعود عالٍ خلال متوسط 10<20 = **ردة فعل** مع جني ربح ⑤ ابحث عن
+    **عدد أسهم الشركة + أخبارها · ما يكون عليه طرح**».
+
+    وعدديًّا (TG_2041): «6 كان دعم ارتفع هبوط لقاع 4.21 · **إذا الهبوط الأول 30% من
+    القاع نحسب قاع جديد من 4.21** · 4.21−30%=2.94» ⇒ `next_bottom`.
+
+    كل الوسائط اختيارية ⇒ ما تعذّر **يُصرَّح به** ولا يُخمَّن. يرجّع قائمة أسطر (أو []).
+    نقيّة · فاشلة-آمنة · **عرض/سياق فقط — خارج الفرز والدخول والوقف والأهداف.**"""
+    try:
+        L = ["🎯 <b>أهداف الشورت</b> (منظومة فيصل — أين يتّجه هبوطًا وأين تنتظره)"]
+        half = (float(post_split_high) / 2.0
+                if post_split_high and float(post_split_high) > 0 else None)
+        if half:
+            L.append(f"  ⬇️ الهدف الأول = القمة ÷2 = <b>${half:.2f}</b>"
+                     + (f" (القمة ${float(post_split_high):.2f})"))
+            if price and float(price) > 0:
+                _d = (float(price) / half - 1.0) * 100.0
+                L.append("  📍 السعر الآن " + (f"فوقه بـ{_d:.0f}%" if _d >= 0
+                                              else f"تحته بـ{abs(_d):.0f}%"))
+        else:
+            L.append("  ⬇️ الهدف الأول (القمة ÷2): — (لا قمة ما بعد حدث مؤسِّس)")
+        if next_bottom and next_bottom.get("next_bottom"):
+            L.append(f"  ⬇️ لو كسر القاع: <b>${next_bottom['next_bottom']:.2f}</b> "
+                     f"(بنسبة هبوطه الأولى {next_bottom['drop_pct']:.0f}%)")
+        if sweep:
+            L.append(f"  🩸 سحب السيولة المتوقَّع: <b>${float(sweep):.2f}</b>")
+        # ⑤ «انت عليك فقط تابع الشورت — صفر أو قريب من الصفر = إيجابي»
+        if avail is None:
+            L.append("  🕵️ الشورت المتاح: — (تعذّر · وهو **الرقم الذي يقول فيصل إنه "
+                     "كل ما تحتاجه**)")
+        else:
+            a = float(avail)
+            tag = ("✅ <b>صفر أو قريب منه = إيجابي</b> (نصّ فيصل)" if a <= 1000
+                   else "✅ ممتاز (تحت 10 آلاف)" if a <= 10000
+                   else "🟢 جيّد (تحت 20 ألفًا)" if a <= 20000
+                   else "🟡 مرتفع" if a <= 50000
+                   else "⛔ <b>ذخيرة هبوط</b> (حرب وتصريف)")
+            L.append(f"  🕵️ الشورت المتاح: <b>{fmt_money(a)}</b> — {tag}")
+        if float_shares:
+            L.append(f"  🏢 عدد أسهم الشركة: {fmt_money(float(float_shares))}")
+        if pump is not None:
+            L.append("  ⛔ <b>عليه قروبات — «هجّ عنه»</b> (نصّ فيصل)" if pump
+                     else "  ✅ خالٍ من رفعات القروبات")
+        if offering is not None:
+            L.append("  ⛔ <b>عليه طرح</b> (فيصل: «ما يكون عليه طرح»)" if offering
+                     else "  ✅ لا طرح جديد مرصود")
+        if rose_pct is not None:
+            L.append(f"  {'✅' if float(rose_pct) <= CONFIG['SPLIT_ROSE_MAX_PCT'] else '⛔'}"
+                     f" صعوده بعد الحدث {float(rose_pct):.0f}% "
+                     f"(شرط فيصل: لا يتجاوز {CONFIG['SPLIT_ROSE_MAX_PCT']:.0f}%)")
+        L.append("  ℹ️ فيصل: «<b>انت عليك فقط تابع الشورت</b>» — الهدف الصاعد بعدها "
+                 "= الشمعة الساقطة الأولى (+100%)")
+        return L if len(L) > 2 else []
+    except Exception:                                    # noqa: BLE001
+        return []
+
+
 def _split_row(sym, split_date, day_open, price, short, freq=None):
     """صفّ تقرير التقسيم العكسي (D9): هدف الهبوط = افتتاح التقسيم ÷ 2 (فيصل
     EHGO 2.80÷2=1.40)؛ والشورت «مقبول» لو أقل من SHORT_DAILY_MAX («تابعه لين
@@ -5265,6 +5333,8 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                 "split_ma": split_ma_maturity(df, pr.get("split_date")),
                 # 📏 مجموعة فيصل 20/30/50 من تاريخ التقسيم (30 LABT · 40 JEM · 50)
                 "split_ma_set": split_ma_lines(df, pr.get("split_date")),
+                # 🎯 «أهداف الشورت»: القاع التالي بنسبة السهم نفسه (فيصل TG_2041)
+                "next_bottom": next_bottom_by_own_drop(df),
                 "ref": pr["ref"], "split_date": pr["split_date"],
                 # 🆕 نوع الحدث المؤسِّس (قسم/طرح جديد) + نموذجه — عرض/سياق
                 "event_kind": pr.get("event_kind", "split"),
@@ -5366,6 +5436,14 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         _fl = _split_freq_line(r.get("freq"))
         if _fl:
             lines.append("  " + _fl)
+        # 🎯 «أهداف الشورت» (منظومة فيصل TG_1813 + TG_2041) — مُجمَّعة باسمها
+        for _stl in short_targets_report(
+                post_split_high=r.get("ref"), price=r.get("price"),
+                avail=r.get("avail"), float_shares=r.get("float"),
+                pump=False, offering=(r.get("event_kind") == "offering"),
+                next_bottom=r.get("next_bottom"),
+                sweep=(r.get("plan") or {}).get("sweep")):
+            lines.append("  " + _stl)
         lines.append("")
     # 🔔 ذيل «قريبون من الشرط»: استوفوا كل شيء وسقطوا على «لم يصعد» بفارق قريب.
     # (فيصل عرض HTCR وقد صعد **+23%** والحدّ المنصوص **20%** — فلا يُسقَط بصمت.

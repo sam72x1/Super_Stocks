@@ -82,11 +82,23 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     if _up.get("uniform_size"):
         L.append(f"🔣 مشتريات موحّدة: الحجم <b>{_up['uniform_size']}</b> تكرّر "
                  f"{_up['uniform_count']} مرة — {_up['uniform_meaning']}")
-    # 🆕 «القاع التالي بنسبة السهم نفسه» (TG_2041) — سياق مخاطرة، عرض فقط
+    # 🎯 «أهداف الشورت» — منظومة فيصل كاملةً (TG_1813 + TG_2041). عند الطلب فقط
+    # (فحص اليد) فلا تُضاف رسالة ثالثة للتقرير اليومي — عقد المستخدم: رسالتان.
     try:
-        _nbl = bot.next_bottom_line(bot.next_bottom_by_own_drop(r.get("df")))
-        if _nbl:
-            L.append(_nbl)
+        _df = r.get("df")
+        _nb = bot.next_bottom_by_own_drop(_df)
+        _pl = r.get("plan") or bot.faisal_split_plan(_df, r.get("price"))
+        L.append("")
+        L += bot.short_targets_report(
+            post_split_high=(r.get("split_ref") or r.get("ref")),
+            price=r.get("price"),
+            avail=(r.get("shares_available") if r.get("shares_available")
+                   is not None else (r.get("borrow") or {}).get("shares_available")),
+            float_shares=r.get("float"),
+            pump=bool((r.get("pump_scar") or {}).get("found")),
+            offering=None,
+            next_bottom=_nb,
+            sweep=(_pl or {}).get("sweep"))
     except Exception:
         pass
     # ⭐ «اتفاق الفريمات» وصيد الارتداد (فيصل IMG_0305/0306): 5د+15د+30د على نفس الدعم +
