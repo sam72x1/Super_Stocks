@@ -6244,6 +6244,25 @@ check("⚠️ JZ·بلا قروب (أو حقل مفقود/تالف) ⇒ لا س�
       S.pump_voids_targets_line({"pump_scar": {"found": False}}) == ""
       and S.pump_voids_targets_line({}) == ""
       and S.pump_voids_targets_line({"pump_scar": "تالف"}) == "")
+# ⏱️ قاعدة «ربع الساعة» (JZ فريم الساعة IMG_0294): «لو كان مضارب يعطيك مجال تبيع وتذبذب
+# يصل مداه أكثر من ربع ساعه — طلع السهم بدون اذن مضارب ضغطه المضارب للهاويه».
+_sus_ok = S.operator_sustain([{"c": 2.55}] * 18, 2.50)          # صمد 18 دقيقة فوق الكسر
+_sus_no = S.operator_sustain([{"c": 2.55}] * 6 + [{"c": 2.30}] * 20, 2.50)  # سُحق بعد 6د
+check("⏱️ ربع الساعة: صمود 18 دقيقة فوق الكسر ⇒ رفعة مضارب (ok)",
+      _sus_ok == {"minutes": 18, "ok": True})
+check("⏱️ ربع الساعة: سُحق بعد 6 دقائق ⇒ رفعة بلا إذن المضارب (ok=False)",
+      _sus_no == {"minutes": 6, "ok": False})
+check("⏱️ ربع الساعة: الحدّ 15 دقيقة بالضبط ⇒ مقبول (≥ لا >)",
+      S.operator_sustain([{"c": 3.0}] * 15, 2.9)["ok"] is True
+      and S.operator_sustain([{"c": 3.0}] * 14, 2.9)["ok"] is False)
+check("⏱️ ربع الساعة·فاشلة-آمنة: بلا شموع/مستوى ⇒ None",
+      S.operator_sustain([], 2.5) is None and S.operator_sustain([{"c": 1}], 0) is None
+      and S.operator_sustain(None, None) is None)
+check("⏱️ ربع الساعة·قفل: operator_sustain خارج الجذور (قياس/تشخيص لا كبت تنبيه)",
+      all("operator_sustain" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker, S.scan_ignition)))
 # 📉 CCI(14) — مؤشّر فيصل الظاهر في كل شوارته (JZ −56.5 · CCHH +105.8 · DRCT −43.0)
 _cci_idx = pd.date_range("2026-01-01", periods=60, freq="D")
 _cci_up = pd.Series(np.linspace(1.0, 3.0, 60), index=_cci_idx)      # صعود قوي
