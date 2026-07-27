@@ -14,48 +14,75 @@
 التشغيل: python split_hunter.py (يلزم TELEGRAM_BOT_TOKEN/CHAT_ID · ياهو للفلوت)."""
 
 
+MIN_COVERAGE_PCT = 60.0        # 🩺 أرضية تغطية المسح (أقلّ منها = لم نفحص السوق)
+
+
+def _fail(S, why: str) -> int:
+    """🚨 **عطل صريح لا صمت.** عقد الأداة أن الصمت محجوز لـ«لا مرشّح كامل اليوم»؛
+    فأي مسار فشل يجب أن **يُبلَّغ** وإلا قرأه المالك «لا سهم مقسّم اليوم» وهو غلط.
+    (هذا بعينه الناقل الموثّق في CLAUDE.md: «أخطر ناقل — تفويت بصمت».)
+    يرجع 1 ⇒ الوظيفة **حمراء** في Actions أيضًا فلا يضيع العطل لو تعذّر تلغرام."""
+    S.log(f"🪝 صيّاد المقسّم: {why}")
+    try:
+        S.send_telegram("🪝 <b>صيّاد أسهم التقسيم</b>\n\n"
+                        f"⚠️ تعذّر المسح اليوم: {S.esc(why[:200])}\n"
+                        "<i>الصمت اليوم عطل لا «لا مرشّح» — يُعاد غدًا آليًّا.</i>"
+                        f"\n\n{S.FOOTER}")
+    except Exception:                                            # noqa: BLE001
+        pass
+    return 1
+
+
 def run():
     import Super_stock as S
+    # ⚠️ **كل مسارات الفشل كانت ترجع 0 بصمت** (تدقيق 2026-07-27): وظيفة خضراء بلا
+    # رسالة = مطابقٌ تمامًا ليوم «لا مرشّح» ⇒ العطل غير مرئي. صارت كلها تمرّ بـ`_fail`.
     if S.yf is None:
-        S.log("🪝 صيّاد المقسّم: yfinance غير متاح — تخطّي.")
-        return 0
+        return _fail(S, "yfinance غير متاح على الرنر.")
     try:
         uni = S.get_universe()
-    except Exception as e:
-        S.log(f"🪝 صيّاد المقسّم: تعذّر جلب كون ناسداك ({e}) — تخطّي (لا إرسال).")
-        return 0
+    except Exception as e:                                       # noqa: BLE001
+        return _fail(S, f"تعذّر جلب كون ناسداك ({e}).")
     if not uni:
-        S.log("🪝 صيّاد المقسّم: كون ناسداك فارغ — تخطّي (لا إرسال).")
-        return 0
+        return _fail(S, "كون ناسداك رجع فارغًا (تعذّر تحميل قائمة الرموز).")
     try:
         hist = S.download_history(uni)
-    except Exception as e:
-        S.log(f"🪝 صيّاد المقسّم: تحميل البيانات فشل ({e}) — تخطّي.")
-        return 0
+    except Exception as e:                                       # noqa: BLE001
+        return _fail(S, f"تحميل البيانات فشل ({e}).")
     if not hist:
-        S.log("🪝 صيّاد المقسّم: لا بيانات — تخطّي.")
-        return 0
-    # ⚠️ **المسح كان بلا حارس** (تدقيق 2026-07-27): انهياره يقتل الجوب فلا يصل شيء —
-    # والمالك يقرأ الصمت «لا مرشّح اليوم» بينما الحقيقة **عطل**. الفرق جوهري لأن عقد
-    # الأداة هو الصمت عند عدم وجود مطابق، فلا بد أن يكون العطل **مسمومًا صريحًا**.
+        return _fail(S, "لا بيانات مُحمَّلة إطلاقًا.")
+    # 🩺 **حارس التغطية** — الناقل الأخطر: خنق ياهو يُنزل التغطية من ~3400 رمز إلى
+    # بضع مئات، فيمشي المسح ويطبع «0 مطابق» ويصمت، والمالك يقرأ الصمت «لا سهم مقسّم».
+    # الحقيقة أننا **لم نفحص السوق**. (نفس حارس المسار اليومي الموثّق بـCLAUDE.md.)
+    cov = 100.0 * len(hist) / max(1, len(uni))
+    if cov < MIN_COVERAGE_PCT:
+        return _fail(S, f"تغطية ناقصة: {len(hist)} من {len(uni)} رمزًا ({cov:.0f}%) — "
+                        f"أقل من الأرضية {MIN_COVERAGE_PCT:.0f}%، فلم يُفحَص السوق.")
     try:
         rows = S.scan_split_hunter(hist)
     except Exception as e:                                       # noqa: BLE001
-        S.log(f"🪝 صيّاد المقسّم: انهار المسح ({e}).")
-        try:
-            S.send_telegram("🪝 <b>صيّاد أسهم التقسيم</b>\n\n"
-                            f"⚠️ تعذّر المسح اليوم: {S.esc(str(e)[:180])}\n"
-                            "<i>الصمت اليوم عطل لا «لا مرشّح» — يُعاد غدًا آليًّا.</i>"
-                            f"\n\n{S.FOOTER}")
-        except Exception:
-            pass
-        return 0
-    S.log(f"🪝 صيّاد المقسّم: فحص {len(hist)} رمز → {len(rows)} مطابق كامل.")
-    if rows:
-        S.send_telegram(S.build_split_hunter_alert(rows) + "\n\n" + S.FOOTER)
-        S.log("✅ أُرسل تنبيه صيّاد المقسّم لتلغرام.")
-    else:
+        return _fail(S, f"انهار المسح ({e}).")
+    S.log(f"🪝 صيّاد المقسّم: فحص {len(hist)} من {len(uni)} رمزًا ({cov:.0f}%) "
+          f"→ {len(rows)} مطابق كامل.")
+    if not rows:
         S.log("🪝 صيّاد المقسّم: لا مطابق كامل اليوم — صمت (لا إرسال).")
+        return 0
+    # 📅 تاريخ **الجلسة** من البيانات لا `date.today()` على الرنر: الكرون صار فجر UTC
+    # فتاريخ اليوم هناك = **اليوم التالي** للجلسة (جلسة الجمعة تُوسَم سبتًا).
+    try:
+        sess = max(df.index[-1] for df in hist.values() if len(df)).date()
+    except Exception:                                            # noqa: BLE001
+        sess = None
+    try:
+        msg = S.build_split_hunter_alert(rows, today=sess) + "\n\n" + S.FOOTER
+    except Exception as e:                                       # noqa: BLE001
+        return _fail(S, f"تعذّر بناء التنبيه رغم وجود {len(rows)} مطابق ({e}).")
+    # ⚠️ **نتيجة الإرسال كانت مُهمَلة** والسجلّ يطبع «✅ أُرسل» بلا شرط: رفضُ تلغرام
+    # (400 على HTML) كان يُضيّع **المطابق** والوظيفة خضراء والسجلّ يكذب.
+    if not S.send_telegram(msg):
+        S.log("⛔ صيّاد المقسّم: تلغرام رفض التنبيه — المطابق لم يصل.")
+        return 1
+    S.log("✅ أُرسل تنبيه صيّاد المقسّم لتلغرام.")
     return 0
 
 

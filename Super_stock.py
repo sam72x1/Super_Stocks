@@ -4478,7 +4478,10 @@ def short_targets_report(post_split_high=None, price=None, avail=None,
                    else "⛔ <b>ذخيرة هبوط</b> (حرب وتصريف)")
             L.append(f"  🕵️ الشورت المتاح: <b>{fmt_money(a)}</b> — {tag}")
         if float_shares:
-            L.append(f"  🏢 عدد أسهم الشركة: {fmt_money(float(float_shares))}")
+            # ⚠️ شرط فيصل ⑤ نصّه «عدد أسهم الشركة»، والمتاح عندنا هو **الفلوت**
+            # (المتداوَل حرًّا) وهو أقلّ من الأسهم القائمة — يُسمّى باسمه لا باسم فيصل.
+            L.append(f"  🏢 الفلوت (المتداوَل حرًّا): {fmt_money(float(float_shares))}"
+                     " — الأسهم القائمة غير متاحة عندنا")
         if pump is not None:
             L.append("  ⛔ <b>عليه قروبات — «هجّ عنه»</b> (نصّ فيصل)" if pump
                      else "  ✅ خالٍ من رفعات القروبات")
@@ -4489,9 +4492,14 @@ def short_targets_report(post_split_high=None, price=None, avail=None,
             L.append(f"  {'✅' if float(rose_pct) <= CONFIG['SPLIT_ROSE_MAX_PCT'] else '⛔'}"
                      f" صعوده بعد الحدث {float(rose_pct):.0f}% "
                      f"(شرط فيصل: لا يتجاوز {CONFIG['SPLIT_ROSE_MAX_PCT']:.0f}%)")
-        L.append("  ℹ️ فيصل: «<b>انت عليك فقط تابع الشورت</b>» — الهدف الصاعد بعدها "
-                 "= الشمعة الساقطة الأولى (+100%)")
-        return L if len(L) > 2 else []
+        # ⚠️ السطر الختامي يصف **هدف وصفة الـ÷2**؛ فطبعه بعد إعلان «لا تنطبق هنا»
+        # تناقضٌ صريح (تدقيق 2026-07-27) ⇒ يُقصَر على وجود الحدث المؤسِّس.
+        if half:
+            L.append("  ℹ️ فيصل: «<b>انت عليك فقط تابع الشورت</b>» — الهدف الصاعد "
+                     "بعدها = الشمعة الساقطة الأولى (+100%)")
+        else:
+            L.append("  ℹ️ فيصل: «<b>انت عليك فقط تابع الشورت</b>»")
+        return L
     except Exception:                                    # noqa: BLE001
         return []
 
@@ -4716,10 +4724,15 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25, offering=None):
             first_val = _split_day_value(close, splits, cut)
         if first_val is not None and first_val != first_val:
             first_val = None                     # الإغلاق نفسه تالف ⇒ لا قاعدة
-        rose_pct = (round((ref / first_val - 1.0) * 100.0, 1)
+        # ⚠️ **القرار على القيمة الخام، والتدوير للعرض فقط** (تدقيق 2026-07-27):
+        # كنت أدوّر **قبل** المقارنة، فصعودٌ خام في (20.00%، 20.05%] يُدوَّر إلى 20.0
+        # فلا يتجاوز الحدّ ⇒ **ينقلب من مرفوض إلى مقبول** = توسيعٌ صامت لعتبة فيصل
+        # خلافًا لتوثيقي نفسه («العتبة لا تُمَسّ، والإبلاغ يكفي»).
+        rose_raw = ((ref / first_val - 1.0) * 100.0
                     if first_val and first_val > 0 else None)
-        didnt_rise = not (rose_pct is not None
-                          and rose_pct > CONFIG["SPLIT_ROSE_MAX_PCT"])
+        didnt_rise = not (rose_raw is not None
+                          and rose_raw > CONFIG["SPLIT_ROSE_MAX_PCT"])
+        rose_pct = round(rose_raw, 1) if rose_raw is not None else None
         return {"event_kind": ev_kind, "event_date": str(ev_date),
                 "split_date": str(ev_date), "ref": round(ref, 2),
                 "half": half, "price": round(price, 2),
@@ -5441,14 +5454,14 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         _fl = _split_freq_line(r.get("freq"))
         if _fl:
             lines.append("  " + _fl)
-        # 🎯 «أهداف الشورت» (منظومة فيصل TG_1813 + TG_2041) — مُجمَّعة باسمها
-        for _stl in short_targets_report(
-                post_split_high=r.get("ref"), price=r.get("price"),
-                avail=r.get("avail"), float_shares=r.get("float"),
-                pump=False, offering=(r.get("event_kind") == "offering"),
-                next_bottom=r.get("next_bottom"),
-                sweep=(r.get("plan") or {}).get("sweep")):
-            lines.append("  " + _stl)
+        # 🎯 من «أهداف الشورت» (TG_1813 + TG_2041) نضيف هنا **الجديد فقط**.
+        # ⚠️ تدقيق 2026-07-27: إدراج التقرير كاملًا كان يكرّر **ستّة** من ثمانية أسطر
+        # داخل الكرت نفسه (الـ÷2 · سحب السيولة · المتاح · الفلوت · القروب) — والكرت
+        # رسالة صيد قصيرة مقصودة («لا أضيع من كثر البيانات»). التقرير الكامل يبقى في
+        # **فحص اليد** حيث لا يكرّره شيء.
+        _nbl = next_bottom_line(r.get("next_bottom"))
+        if _nbl:
+            lines.append("  " + _nbl)
         lines.append("")
     # 🔔 ذيل «قريبون من الشرط»: استوفوا كل شيء وسقطوا على «لم يصعد» بفارق قريب.
     # (فيصل عرض HTCR وقد صعد **+23%** والحدّ المنصوص **20%** — فلا يُسقَط بصمت.
@@ -8470,7 +8483,23 @@ def uniform_prints(rows, min_rep: int = 4):
                 cand[s] = cand.get(s, 0) + 1
         if not cand:
             return {}
-        size, cnt = max(cand.items(), key=lambda kv: (kv[1], -kv[0]))
+        # ⚠️ **اللوت القياسي 100 هو الحجم الأشيع في السوق الأمريكي** (تدقيق 2026-07-27):
+        # بترجيح «الأكثر تكرارًا» كان يفوز دائمًا تقريبًا فيصير N8 **سطرًا دائمًا لا
+        # إشارة**، ويحجب الأحجام الخوارزمية النادرة (3/5/7) التي تقصدها صورة فيصل.
+        # فالأولوية للنادر، والمستدير (100/500) لا يُعلَن إلا إذا **طغى** فعلًا.
+        algo = {s: c for s, c in cand.items()
+                if s in (1, 3, 5, 7, 10) and c >= int(min_rep)}
+        if algo:
+            size, cnt = max(algo.items(), key=lambda kv: (kv[1], -kv[0]))
+        else:
+            # المستدير يُعلَن فقط إذا **طغى** على العيّنة (نصف الطبعات فأكثر) = تدفّق
+            # موحَّد فعلًا، لا مجرّد «اللوت القياسي حاضر كعادته».
+            rnd = {s: c for s, c in cand.items()
+                   if s in (100, 500) and c >= int(min_rep)
+                   and c >= 0.5 * len(sizes)}
+            if not rnd:
+                return {}
+            size, cnt = max(rnd.items(), key=lambda kv: (kv[1], -kv[0]))
         if cnt < int(min_rep):
             return {}
         meaning = ("انفجار (نادر — فيصل)" if size == 500
@@ -8506,8 +8535,18 @@ def next_bottom_by_own_drop(df, lookback: int = 120):
         j = min(range(len(lo)), key=lambda i: lo[i])      # القاع الحالي
         if j < 5:
             return None
-        ref = max(hi[:j])                                 # القمة التي سبقته
         bottom = lo[j]
+        # ⚠️ **تصحيح 2026-07-27 (تدقيق):** كان `ref = max(hi[:j])` = أعلى قمة في
+        # النافذة كلها ⇒ النسبة المطبوعة **أقصى تراجع (max drawdown)** لا «الساق
+        # الأولى» التي يصفها فيصل. أُثبت بالمحاكاة: نفس مثاله (6→4.21 = 30%) لو سبقته
+        # قمة أقدم 12 يعطي 65% ⇒ قاع تالٍ 1.47 بدل 2.95 = **رقم مُختلَق**.
+        # الصحيح: مرجع فيصل «6 **كان دعم**» = آخر مستوى ارتكز عنده السعر قبل الساق
+        # الأخيرة، لا أعلى قمة تاريخية. نلتقطه كآخر «قمة سوينغ» قبل القاع (مقارنة غير
+        # صارمة فتشمل الهضبة/الدعم، وبفارق 5% فأكثر فوق القاع كي لا نلتقط نقطة ملاصقة).
+        w = 3
+        cands = [i for i in range(w, j - w + 1)
+                 if hi[i] >= max(hi[i - w:i + w + 1]) and hi[i] >= bottom * 1.05]
+        ref = hi[cands[-1]] if cands else max(hi[:j])
         if not (ref > 0 and bottom > 0 and ref > bottom):
             return None
         drop = (1.0 - bottom / ref) * 100.0
@@ -8522,11 +8561,14 @@ def next_bottom_by_own_drop(df, lookback: int = 120):
 
 def next_bottom_line(nb) -> str:
     """سطر «القاع التالي المتوقّع» (عرض فقط). «» لو None."""
-    if not nb:
+    # فاشل-آمن أمام dict ناقص/تالف (سطر عرض يجب ألّا يكسر رسالة كاملة).
+    try:
+        return (f"📉 لو كسر القاع: القاع التالي المتوقّع "
+                f"<b>${nb['next_bottom']:.2f}</b> (نسبة هبوطه الأولى "
+                f"{nb['drop_pct']:.0f}% من ${nb['ref_high']:.2f} "
+                f"إلى ${nb['first_bottom']:.2f} — فيصل يُسقطها مرّة أخرى)")
+    except Exception:                                     # noqa: BLE001
         return ""
-    return (f"📉 لو كسر القاع: القاع التالي المتوقّع <b>${nb['next_bottom']:.2f}</b> "
-            f"(نسبة هبوطه الأولى {nb['drop_pct']:.0f}% من ${nb['ref_high']:.2f} "
-            f"إلى ${nb['first_bottom']:.2f} — فيصل يُسقطها مرّة أخرى)")
 
 
 def polygon_flow(sym: str, with_prints: bool = False):

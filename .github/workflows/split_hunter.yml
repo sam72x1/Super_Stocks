@@ -32,4 +32,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 📄 SEC تطلب بريد تواصل حقيقي بالـUser-Agent. الشرط ① صار يقبل «طرح جديد»
+          # حدثًا مؤسِّسًا (`_offering_event`) وهو يضرب data.sec.gov — وبلا هذا السرّ
+          # يرتدّ الـUA إلى contact@example.com فقد يُبطَّأ/يُحجَب بسياسة الوصول العادل.
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
         run: python split_hunter.py

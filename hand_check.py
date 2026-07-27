@@ -99,7 +99,12 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
             avail=(r.get("shares_available") if r.get("shares_available")
                    is not None else (r.get("borrow") or {}).get("shares_available")),
             float_shares=r.get("float"),
-            pump=bool((r.get("pump_scar") or {}).get("found")),
+            # ⚠️ **المجهول ليس نفيًا** (تدقيق 2026-07-27): `pump_scar` يُحسب في كتلة
+            # try مشتركة، فأي استثناء يُسقط المفتاح — و`bool(None)` كان يطبع «✅ خالٍ
+            # من رفعات القروبات» كأنه فحصٌ متحقَّق. الغياب الآن = None = لا سطر.
+            pump=((bool((r.get("pump_scar") or {}).get("found")))
+                  if isinstance(r.get("pump_scar"), dict)
+                  and "found" in r["pump_scar"] else None),
             offering=bool(r.get("offering_event")) if r.get("offering_event") else None,
             next_bottom=_nb,
             sweep=(_pl or {}).get("sweep"))
