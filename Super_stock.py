@@ -399,7 +399,13 @@ CONFIG = {
     "SPLIT_ROSE_MAX_PCT": 50.0,          # فيصل IMG_0150 «قسم ما أعطى صعود»: لو صعد من قيمة
                                          #   شمعة التقسيم للقمة أكثر من هذا = انضخّ (مو هادئًا)
     # 🥇 خطة فيصل التنفيذية (من رسالته الحيّة على ONCO 2026-07-24 — عرض/سياق فقط):
-    "SPLIT_SWEEP_PCT": 5.0,              # «0.71-5٪=0.675» = سحب السيولة تحت القاع الفعلي
+    # 🩸 نطاق سحب السيولة — **قاعدة فيصل الصريحة** (CCHH IMG_0297): «من القاع 1.30 سحب
+    #   السيوله **متعارف عليه من 7٪ ل 13٪** · 1.30−10٪=1.17 · اذا الهبوط المتوقع 1.10».
+    #   كانت 5% (مأخوذة من حالة ONCO وحدها «0.71−5٪=0.675») = أضيق من قاعدته المعلنة.
+    "SPLIT_SWEEP_MIN_PCT": 7.0,          # حافة النطاق الضحلة
+    "SPLIT_SWEEP_MID_PCT": 10.0,         # الأرجح (حسابه الحرفي على CCHH)
+    "SPLIT_SWEEP_MAX_PCT": 13.0,         # حافة النطاق العميقة
+    "SPLIT_SWEEP_PCT": 5.0,              # حالة ONCO الضحلة (تُمرَّر صراحةً عند الحاجة)
     "SPLIT_BOTTOM_LOOKBACK": 30,         # نافذة القاع المُحقَّق (فيصل استعمل 0.71 لا الـ÷2)
 
     # ---- تقنية ----
@@ -726,6 +732,41 @@ def klinger_line(kl: dict) -> str:
         return ""
     c = f" · {kl['cross']}" if kl.get("cross") else ""
     return f"📊 كلنجر (حجم): {kl['state']}{c}"
+
+
+def cci(high, low, close, period: int = 14):
+    """📉 **CCI(14)** — مؤشّر فيصل الظاهر في **كل** شوارته (JZ −56.5 · CCHH +105.8 ·
+    DRCT −43.0 · JZ-4س +26.5، صور 2026-07-27) وكان ناقصًا عندنا. الصيغة القياسية:
+    (السعر النموذجي − متوسطه المتحرك) ÷ (0.015 × متوسط الانحراف المطلق).
+    يرجّع سلسلة. نقيّ."""
+    tp = (high + low + close) / 3.0
+    ma = tp.rolling(period).mean()
+    md = tp.rolling(period).apply(lambda x: abs(x - x.mean()).mean(), raw=True)
+    return (tp - ma) / (0.015 * md.replace(0, float("nan")))
+
+
+def cci_state(high, low, close, period: int = 14):
+    """حالة CCI(14) (عرض/سياق فقط · فاشلة-آمنة · **ليست بوّابة**). فوق +100 = زخم
+    شرائي/تشبّع · تحت −100 = تشبّع بيعي (منطقة القاع التي يعمل فيها فيصل) · بينهما محايد.
+    None لو عيّنة أقصر من period+5 أو خطأ (صدق العيّنة)."""
+    try:
+        if close is None or len(close) < period + 5:
+            return None
+        v = float(cci(high, low, close, period).iloc[-1])
+        if v != v:                                   # NaN
+            return None
+        st = ("تشبّع شرائي" if v > 100 else
+              ("تشبّع بيعي" if v < -100 else "محايد"))
+        return {"cci": round(v, 1), "state": st}
+    except Exception:
+        return None
+
+
+def cci_line(cs: dict) -> str:
+    """سطر عرض CCI (عربي مبسّط). «» لو None."""
+    if not cs:
+        return ""
+    return f"📉 CCI(14): {cs['cci']:.0f} ({cs['state']})"
 
 
 def dmi_adx(high, low, close, period: int = 14):
@@ -4251,6 +4292,21 @@ def _yahoo_float(sym: str):
         return None
 
 
+def pump_voids_targets_line(r) -> str:
+    """⚠️ **قاعدة فيصل: القروب يُلغي الأهداف** (JZ IMG_0289، 2026-07-27): «الاصل هذي اهداف
+    السهم 12 شمعه ساقطه — **لما يحصل قروب يرفع السهم المضارب يلغي الاهداف ويهبط فيه**».
+    فرفعة القروب المرصودة (`group_pump_scar`, القرينة N1) **تُبطل سلّم الأهداف** لا تُضعفه
+    فقط — وكنّا نعرض الأهداف كما هي بلا هذا التحفّظ. سطر **عرض/تحذير فقط**: لا يغيّر الأهداف
+    ولا الوقف ولا الاختيار. فارغ لو لا رفعة قروب · نقيّ · فاشل-آمن."""
+    try:
+        if (r.get("pump_scar") or {}).get("found"):
+            return ("⚠️ رفعة قروب سابقة — فيصل: المضارب <b>يُلغي الأهداف</b> ويهبط فيه "
+                    "(سلّم الأهداف أعلاه غير معتمد)")
+    except Exception:
+        pass
+    return ""
+
+
 def faisal_split_plan(df, price, bottom=None, resist=None, heads=None, gap=None,
                       sweep_pct=None):
     """🥇 **خطة فيصل لسهم التقسيم** — مستخلَصة من رسالته الحيّة على $ONCO (2026-07-24،
@@ -4264,13 +4320,15 @@ def faisal_split_plan(df, price, bottom=None, resist=None, heads=None, gap=None,
       ② **الأهداف البنيوية** «1.19 راس الشمعه الساقطه هدف · 1.43 هدف» — رؤوس الشموع الحمرا
          (`_red_candle_heads`، قاعدة فيصل الموثّقة) ثم المقاومات، بدل «+100%» المجرّد.
       ③ **الفجوة السعرية** «فجوه سعريه من 1.88 ل 3» = أقرب فجوة غير مملوءة فوق السعر.
-      ④ **سحب السيولة** «0.71-5٪=0.675» = القاع الفعلي ناقص `SPLIT_SWEEP_PCT`% (سيناريو
-         عدم المحافظة على القاع؛ فيصل يربطه بارتفاع الشورت).
+      ④ **سحب السيولة نطاقًا** — قاعدة فيصل الصريحة على CCHH (IMG_0297): «من القاع 1.30 سحب
+         السيوله **متعارف عليه من 7٪ ل 13٪** · 1.30−10٪=1.17». فيُعرض **نطاق** [−7%، −13%]
+         مع الأرجح −10% بدل رقم واحد (كانت 5% من حالة ONCO وحدها = أضيق من قاعدته المعلنة).
+         `sweep_pct` صراحةً يعطي رقمًا مفردًا (لحالة ONCO الضحلة). فيصل يربط العمق بارتفاع الشورت.
 
     نقيّة · فاشلة-آمنة (أي عطل → مفاتيح None) · الحاقنات (`resist`/`heads`/`gap`/`bottom`)
     للاختبار فقط، والإنتاج يحسبها من `df`. **عرض/سياق فقط — خارج الفرز والجذور نهائيًّا.**"""
     out = {"liberation": None, "targets": [], "gap": None, "sweep": None,
-           "bottom": None}
+           "sweep_zone": None, "bottom": None}
     try:
         price = float(price)
         if price <= 0:
@@ -4280,10 +4338,15 @@ def faisal_split_plan(df, price, bottom=None, resist=None, heads=None, gap=None,
             low = df["Low"].tail(CONFIG["SPLIT_BOTTOM_LOOKBACK"]).values.astype(float)
             bottom = float(min(low)) if len(low) else None
         out["bottom"] = round(float(bottom), 2) if bottom else None
-        # ② سحب السيولة = القاع − 5% (قاعدة فيصل الحرفية على ONCO)
-        pct = float(sweep_pct if sweep_pct is not None else CONFIG["SPLIT_SWEEP_PCT"])
+        # ② سحب السيولة: **نطاق** −7%..−13% والأرجح −10% (قاعدة فيصل المعلنة على CCHH)
         if bottom and float(bottom) > 0:
-            out["sweep"] = round(float(bottom) * (1.0 - pct / 100.0), 2)
+            _b = float(bottom)
+            pct = float(sweep_pct if sweep_pct is not None
+                        else CONFIG["SPLIT_SWEEP_MID_PCT"])
+            out["sweep"] = round(_b * (1.0 - pct / 100.0), 2)
+            out["sweep_zone"] = {
+                "shallow": round(_b * (1.0 - CONFIG["SPLIT_SWEEP_MIN_PCT"] / 100.0), 2),
+                "deep": round(_b * (1.0 - CONFIG["SPLIT_SWEEP_MAX_PCT"] / 100.0), 2)}
         # ③ المقاومات فوق السعر (أقربها = التحرر · ما فوقه = الأهداف)
         lv = sorted({round(float(x), 2) for x in
                      (resist if resist is not None else resistance_levels(df, price))
@@ -4414,9 +4477,13 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
             lines.append(f"  ⛽ فجوة سعرية فوقه: ${_p['gap']['bottom']:.2f} "
                          f"→ ${_p['gap']['top']:.2f} (فراغ = هدف)")
         if _p.get("sweep") and _p.get("bottom"):
-            lines.append(f"  🩸 لو ما حافظ على القاع ${_p['bottom']:.2f}: "
-                         f"سحب سيولة عند <b>${_p['sweep']:.2f}</b> "
-                         f"(−{CONFIG['SPLIT_SWEEP_PCT']:.0f}%) — يعمق مع ارتفاع الشورت")
+            _z = _p.get("sweep_zone") or {}
+            _rng = (f"${_z['shallow']:.2f} → ${_z['deep']:.2f} "
+                    f"(−{CONFIG['SPLIT_SWEEP_MIN_PCT']:.0f}% إلى "
+                    f"−{CONFIG['SPLIT_SWEEP_MAX_PCT']:.0f}%، المتعارف عليه) · الأرجح "
+                    if _z.get("shallow") and _z.get("deep") else "")
+            lines.append(f"  🩸 لو ما حافظ على القاع ${_p['bottom']:.2f}: سحب سيولة "
+                         f"{_rng}<b>${_p['sweep']:.2f}</b> — يعمق مع ارتفاع الشورت")
         lines.append("  ⏳ الدخول: <b>مع المضارب</b> — "
                      + ("انتظار الثبات فوق التحرر" if _p.get("liberation")
                         else "انتظار"))
@@ -5320,6 +5387,9 @@ def build_message(results: list, splits: list,
         _oscl = oscillation_line(r.get("fsto_osc"))
         if _oscl:
             lines.append(_oscl)
+        _cc = cci_line(r.get("cci"))             # 📉 CCI(14) — بكل شوارت فيصل
+        if _cc:
+            lines.append(_cc)
         _kl = klinger_line(r.get("klinger"))     # 📊 كلنجر (حجم — فيصل IMG_0125)
         if _kl:
             lines.append(_kl)
@@ -5442,6 +5512,9 @@ def build_message(results: list, splits: list,
             lines.append("📋 " + esc(red[0]))
         if r.get("warnings"):
             lines.append("⚠️ " + "؛ ".join(esc(w) for w in r["warnings"]))
+        _pv = pump_voids_targets_line(r)      # قاعدة فيصل JZ: القروب يُلغي الأهداف
+        if _pv:
+            lines.append(_pv)
         lines.append(news_links_compact(r["symbol"]))
     lines += ["", FOOTER]
     return _rtl_join(lines)
@@ -5841,6 +5914,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
         "fsto_osc": r.get("fsto_osc"),                    # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
         "klinger": r.get("klinger"),                      # 📊 كلنجر (حجم، فيصل — عرض فقط)
+        "cci": r.get("cci"),                              # 📉 CCI(14) (فيصل — عرض فقط)
         "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "bars_after": r.get("bars_after"),                # §11: جلسات منذ القاع (تفسير)
@@ -6255,6 +6329,8 @@ def scan_market():
                 full_stoch(df["High"], df["Low"], df["Close"])[0])
             r["klinger"] = klinger_state(            # 📊 كلنجر (حجم — فيصل IMG_0125؛ حيّ، عرض فقط)
                 df["High"], df["Low"], df["Close"], df["Volume"])
+            r["cci"] = cci_state(                    # 📉 CCI(14) — بكل شوارت فيصل (حيّ، عرض فقط)
+                df["High"], df["Low"], df["Close"])
             r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
             r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
             r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
@@ -6640,6 +6716,8 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                 full_stoch(df["High"], df["Low"], df["Close"])[0])
             s["klinger"] = klinger_state(              # 📊 كلنجر (حجم) يتجدّد يوميًا (عرض فقط)
                 df["High"], df["Low"], df["Close"], df["Volume"])
+            s["cci"] = cci_state(                      # 📉 CCI(14) يتجدّد يوميًا (عرض فقط)
+                df["High"], df["Low"], df["Close"])
             _psn = pivot_stability(df["Low"].values.astype(float),
                                    df["Close"].values.astype(float))
             if _psn:
@@ -8597,6 +8675,9 @@ def build_daily_message(wl: dict, splits: list,
         _oscl = oscillation_line(s.get("fsto_osc"))   # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
         if _oscl:
             lines.append("   " + _oscl)
+        _cc = cci_line(s.get("cci"))                  # 📉 CCI(14) — بكل شوارت فيصل
+        if _cc:
+            lines.append("   " + _cc)
         _kl = klinger_line(s.get("klinger"))          # 📊 كلنجر (حجم، فيصل — عرض فقط)
         if _kl:
             lines.append("   " + _kl)
@@ -8653,6 +8734,9 @@ def build_daily_message(wl: dict, splits: list,
                          f"| أقصى {s['max_gain_pct']:+.0f}%")
         for w in (s.get("warnings") or []):
             lines.append(f"   ⚠️ {esc(w)}")
+        _pv = pump_voids_targets_line(s)   # قاعدة فيصل JZ: القروب يُلغي الأهداف
+        if _pv:
+            lines.append("   " + _pv)
     # بدلاء اليوم: قائمة الإضافات — تُخفى بوضع الجاهز-فقط (الجديد يظهر كرته لو جاهز؛
     # وإلا فهو «تحت المتابعة» يتكفّل بها البوت — طلب المستخدم «ما يوصلني إلا الجاهز»).
     if replaced and not ready_only:

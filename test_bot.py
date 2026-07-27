@@ -6208,7 +6208,8 @@ check("🪝 صيّاد·تنبيه: فارغ بلا مطابق (صامت)", S.bu
 _onco = S.faisal_split_plan(None, 0.82, bottom=0.71,
                             resist=[0.92, 1.19, 1.43, 1.88],
                             heads=[1.19],                    # رأس الشمعة الساقطة
-                            gap={"bottom": 1.88, "top": 3.00})
+                            gap={"bottom": 1.88, "top": 3.00},
+                            sweep_pct=5)                     # فيصل استعمل −5% في ONCO
 check("🥇 خطة فيصل·ONCO: التحرر = أقرب مقاومة فوق السعر = 0.92 (فيصل «ثبات فوق 92»)",
       _onco["liberation"] == 0.92)
 check("🥇 خطة فيصل·ONCO: الأهداف البنيوية 1.19 (رأس شمعة حمراء) ثم 1.43 (مقاومة)",
@@ -6222,8 +6223,53 @@ check("🥇 خطة فيصل·ONCO: سحب السيولة = القاع 0.71 −5%
 check("🥇 خطة فيصل·فاشلة-آمنة: بلا df/مقاومات ⇒ مفاتيح None بلا انهيار",
       S.faisal_split_plan(None, 0.82, bottom=None, resist=[], heads=[], gap=None)
       == {"liberation": None, "targets": [], "gap": None, "sweep": None,
-          "bottom": None}
+          "sweep_zone": None, "bottom": None}
       and S.faisal_split_plan(None, 0)["liberation"] is None)
+# 🩸 نطاق سحب السيولة — قفل على قاعدة فيصل الصريحة في $CCHH (IMG_0297، 2026-07-27):
+# «من القاع 1.30 سحب السيوله متعارف عليه من 7٪ ل 13٪ · 1.30-10٪=1.17». كانت العتبة 5%
+# (من حالة ONCO وحدها) = أضيق من قاعدته المعلنة.
+_cchh = S.faisal_split_plan(None, 1.37, bottom=1.30, resist=[1.70], heads=[], gap=None)
+check("🩸 CCHH·سحب السيولة: الأرجح = القاع 1.30 −10% = 1.17 (رقم فيصل الحرفي)",
+      _cchh["sweep"] == 1.17)
+check("🩸 CCHH·النطاق المتعارف عليه −7%..−13% = 1.21 → 1.13 (فيصل «من 7٪ ل 13٪»)",
+      _cchh["sweep_zone"] == {"shallow": 1.21, "deep": 1.13})
+check("🩸 التنبيه يعرض النطاق + الأرجح (لا رقمًا واحدًا)",
+      all(x in S.build_split_hunter_alert(
+          [dict(_sh_rows[0], symbol="CCHH", plan=_cchh)], today=_sr_today)
+          for x in ("1.21", "1.13", "1.17", "المتعارف عليه")))
+# ⚠️ قاعدة JZ (IMG_0289): «لما يحصل قروب يرفع السهم المضارب يلغي الاهداف ويهبط فيه»
+check("⚠️ JZ·القروب يُلغي الأهداف: سطر تحذير عند رفعة قروب مرصودة",
+      "يُلغي الأهداف" in S.pump_voids_targets_line({"pump_scar": {"found": True}}))
+check("⚠️ JZ·بلا قروب (أو حقل مفقود/تالف) ⇒ لا سطر (فاشل-آمن)",
+      S.pump_voids_targets_line({"pump_scar": {"found": False}}) == ""
+      and S.pump_voids_targets_line({}) == ""
+      and S.pump_voids_targets_line({"pump_scar": "تالف"}) == "")
+# 📉 CCI(14) — مؤشّر فيصل الظاهر في كل شوارته (JZ −56.5 · CCHH +105.8 · DRCT −43.0)
+_cci_idx = pd.date_range("2026-01-01", periods=60, freq="D")
+_cci_up = pd.Series(np.linspace(1.0, 3.0, 60), index=_cci_idx)      # صعود قوي
+_cci_dn = pd.Series(np.linspace(3.0, 1.0, 60), index=_cci_idx)      # هبوط قوي
+_cs_up = S.cci_state(_cci_up * 1.01, _cci_up * 0.99, _cci_up)
+_cs_dn = S.cci_state(_cci_dn * 1.01, _cci_dn * 0.99, _cci_dn)
+check("📉 CCI: صعود قوي ⇒ فوق +100 (تشبّع شرائي)",
+      _cs_up is not None and _cs_up["cci"] > 100 and _cs_up["state"] == "تشبّع شرائي")
+check("📉 CCI: هبوط قوي ⇒ تحت −100 (تشبّع بيعي — منطقة قاع فيصل)",
+      _cs_dn is not None and _cs_dn["cci"] < -100 and _cs_dn["state"] == "تشبّع بيعي")
+check("📉 CCI·صدق العيّنة: أقصر من 19 شمعة ⇒ None (لا رقم مُخترَع)",
+      S.cci_state(_cci_up[:10] * 1.01, _cci_up[:10] * 0.99, _cci_up[:10]) is None
+      and S.cci_state(None, None, None) is None)
+check("📉 CCI·عرض: السطر يظهر بالرقم والحالة · فارغ عند None",
+      "CCI(14)" in S.cci_line(_cs_up) and S.cci_line(None) == "")
+check("📉 CCI·قفل: خارج الجذور السبعة و analyze_ticker (مؤشّر عرض/سياق لا بوّابة)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("cci_state", "cci_line")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
+check("⚠️ JZ·قفل: pump_voids_targets_line خارج الجذور (تحذير عرض فقط لا يمسّ الأهداف)",
+      all("pump_voids_targets_line" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
 _onco_alert = S.build_split_hunter_alert(
     [dict(_sh_rows[0], symbol="ONCO", plan=_onco)], today=_sr_today)
 check("🥇 صيّاد·تنبيه: يعرض خطة فيصل الأربعة (تحرر/أهداف/فجوة/سحب سيولة) + الدخول مع المضارب",
