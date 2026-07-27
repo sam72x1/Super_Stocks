@@ -6446,6 +6446,45 @@ check("🔔 المسح الثاني·العتبة 20% لم تُمَسّ · و«�
       S.CONFIG["SPLIT_ROSE_MAX_PCT"] == 20.0
       and S.CONFIG["SPLIT_ROSE_NEAR_MULT"] == 2.0
       and "SPLIT_ROSE_MAX_PCT" in _insp0.getsource(S._split_setup_probe))
+# 🆕 المسح الثاني للصور (308 صورة، 2026-07-27) — بندان صمدا للتحقّق الخصومي:
+# N8 «المشتريات الموحّدة» (TG_2113) · «القاع التالي بنسبة السهم نفسه» (TG_2041).
+check("🔣 N8·المشتريات الموحّدة: الحجم 3 المتكرّر = رمز خوارزمي (لقطة ADIL)",
+      (lambda u: u.get("uniform_size") == 3 and u.get("uniform_count") == 9
+       and "خوارزمي" in u.get("uniform_meaning", ""))(
+          S.uniform_prints([(1.77, 3)] * 7 + [(1.70, 3)] * 2 + [(1.75, 250)])))
+check("🔣 N8·دلالات فيصل المنصوصة: 100 = نطاق سعري · 500 = انفجار نادر",
+      "نطاق" in S.uniform_prints([(2.0, 100)] * 6)["uniform_meaning"]
+      and "انفجار" in S.uniform_prints([(2.0, 500)] * 5)["uniform_meaning"])
+check("🔣 N8·لا نمط ⇒ {} (أحجام عشوائية لا تُوسَم) · وفاشلة-آمنة",
+      S.uniform_prints([(1.0, 37), (1.0, 412), (1.0, 88), (1.0, 91)]) == {}
+      and S.uniform_prints([]) == {} and S.uniform_prints(None) == {}
+      and S.uniform_prints([(1.0, 3)] * 2) == {})       # تكرار أقلّ من الحدّ
+check("📉 «القاع التالي بنسبة السهم نفسه» يُعيد مثال فيصل (6←4.21 ⇒ ~2.95)",
+      (lambda n: n and abs(n["drop_pct"] - 30.0) < 1.0
+       and abs(n["next_bottom"] - 2.95) < 0.05
+       and abs(n["first_bottom"] - 4.21) < 0.01)(
+          S.next_bottom_by_own_drop(pd.DataFrame(
+              {"High": np.r_[np.full(10, 6.0), np.linspace(6.0, 4.3, 20),
+                             np.full(10, 4.6)],
+               "Low": np.r_[np.full(10, 5.8), np.linspace(5.8, 4.21, 20),
+                            np.full(10, 4.3)],
+               "Close": np.r_[np.full(10, 5.8), np.linspace(5.8, 4.21, 20),
+                              np.full(10, 4.3)],
+               "Open": np.r_[np.full(10, 5.8), np.linspace(5.8, 4.21, 20),
+                             np.full(10, 4.3)],
+               "Volume": np.full(40, 1e5)},
+              index=pd.date_range("2026-05-01", periods=40, freq="D")))))
+check("📉 القاع التالي·فاشلة-آمنة (بلا إطار/قصير/بلا ساق أول) ⇒ None · والسطر «»",
+      S.next_bottom_by_own_drop(None) is None
+      and S.next_bottom_line(None) == ""
+      and S.next_bottom_by_own_drop(pd.DataFrame({"High": [1.0], "Low": [1.0]}))
+      is None)
+check("🔒 بندا المسح الثاني خارج الجذور (عرض/سياق فقط)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("uniform_prints", "next_bottom_by_own_drop")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker, S.scan_market)))
 check("📉 المسح الثاني·شرط فيصل ① «20 تحت 30 تحت 50» يُعرَض (كنّا نعرض المقلوب فقط)",
       (lambda mk: ("20 تحت 30 تحت 50" in S.build_split_hunter_alert([mk(1.0, 2.0, 3.0)])
                    and "20 تحت 30 تحت 50" not in

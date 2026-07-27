@@ -76,6 +76,19 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     _actor = bot.flow_actor_read(r.get("fsto_osc"), _fr.get("operator_profile"))
     if _actor:
         L.append(_actor)
+    # 🆕 N8 «المشتريات الموحّدة» (المسح الثاني 2026-07-27، TG_2113): تكرار حجمٍ بعينه
+    # (1·3·5·7·10 رموز خوارزمية بين مضاربين · 100 حفاظ على نطاق · 500 انفجار نادر).
+    _up = (_fr.get("prints") or {})
+    if _up.get("uniform_size"):
+        L.append(f"🔣 مشتريات موحّدة: الحجم <b>{_up['uniform_size']}</b> تكرّر "
+                 f"{_up['uniform_count']} مرة — {_up['uniform_meaning']}")
+    # 🆕 «القاع التالي بنسبة السهم نفسه» (TG_2041) — سياق مخاطرة، عرض فقط
+    try:
+        _nbl = bot.next_bottom_line(bot.next_bottom_by_own_drop(r.get("df")))
+        if _nbl:
+            L.append(_nbl)
+    except Exception:
+        pass
     # ⭐ «اتفاق الفريمات» وصيد الارتداد (فيصل IMG_0305/0306): 5د+15د+30د على نفس الدعم +
     # «الارتداد الأول لا دخول · الثاني تأكيد». يعيد استخدام دقائق Polygon (فاشل-آمن → لا سطر).
     try:

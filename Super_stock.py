@@ -8346,9 +8346,92 @@ def _flow_prints(trades, bid, ask):
             tiny_out = sum(1 for p, sz in rows
                            if sz <= mn and (p > float(ask) or p < float(bid)))
         return {"neutral_block_shares": int(neutral),
-                "tiny_out_count": int(tiny_out), "total": len(rows)}
+                "tiny_out_count": int(tiny_out), "total": len(rows),
+                # 🆕 N8 «المشتريات الموحّدة» (المسح الثاني للصور 2026-07-27، TG_2113)
+                **(uniform_prints(rows) or {})}
     except Exception:
         return {}
+
+
+def uniform_prints(rows, min_rep: int = 4):
+    """🆕 **N8 «المشتريات الموحّدة»** (فيصل TG_2113 حرفيًّا): «كيف تتنبّأ بصعود السهم
+    وماذا تعني **مشتريات موحّدة** … مستوى 1 · 3 · 5 · 7 · 10 · 100 · 500 · **من 1 إلى
+    10 رموز خوارزميات بين مضاربين** · لكل مستوى دلالة معيّنة · **100 حفاظ ع نطاق سعري
+    معيّن** · **500 نادر تُستخدم انفجار**» — ومعها لقطة تِيب ADIL: الحجم **3** يتكرّر
+    عند 1.77 برمز OI.
+
+    الفرق عن N7: تلك تعدّ «طبعات دقيقة خارج NBBO» بلا نظر لقيمة الحجم؛ وهذي تلتقط
+    **تكرار حجمٍ واحد بعينه** ودلالته المنصوصة. `rows` = [(price, size)…] زمنيًّا.
+
+    يرجّع `{uniform_size, uniform_count, uniform_meaning}` أو {} لو لا نمط.
+    نقيّة · فاشلة-آمنة · **فحص اليد فقط — خارج الفرز والتنبيه** (عرض/تفسير)."""
+    try:
+        sizes = [int(sz) for _p, sz in rows if sz and int(sz) == sz]
+        if len(sizes) < min_rep:
+            return {}
+        cand = {}
+        for s in sizes:
+            if s in (1, 3, 5, 7, 10, 100, 500):
+                cand[s] = cand.get(s, 0) + 1
+        if not cand:
+            return {}
+        size, cnt = max(cand.items(), key=lambda kv: (kv[1], -kv[0]))
+        if cnt < int(min_rep):
+            return {}
+        meaning = ("انفجار (نادر — فيصل)" if size == 500
+                   else "حفاظ على نطاق سعري معيّن (فيصل)" if size == 100
+                   else "رمز خوارزمي بين مضاربين (فيصل: من 1 إلى 10)")
+        return {"uniform_size": size, "uniform_count": int(cnt),
+                "uniform_meaning": meaning}
+    except Exception:                                    # noqa: BLE001
+        return {}
+
+
+def next_bottom_by_own_drop(df, lookback: int = 120):
+    """🆕 **«القاع التالي بنسبة السهم نفسه»** (فيصل TG_2041 حرفيًّا): «6 كان دعم ارتفع
+    هبوط لقاع 4.21 · 6−30%=4.2 · **إذا الهبوط الأول 30% من القاع نحسب قاع جديد من
+    4.21** · 4.21−30%=2.94 · هدف 4 ساعات بيكون 3 أو 2.90».
+
+    أي: نقيس **نسبة الهبوط الأولى للسهم نفسه** (من قمة سوينغ سابقة إلى القاع الذي
+    تلاها)، ثم نُسقطها على القاع الحالي لتوقّع القاع التالي.
+
+    ⚠️ **هذي هي التصحيح الذي كانت تحتاجه `half_down_target` المتقاعدة**: تلك كانت
+    تطبّق **50% ثابتة** على أي مستوى فتطبع «مستهدف هبوط −50%» على كل ارتكاز؛ وهذي
+    نسبتها **مقيسة من السهم** فتختلف من سهم لآخر ولا تنطبق إلا حيث وُجد ساقٌ أول.
+
+    يرجّع `{ref_high, first_bottom, drop_pct, next_bottom}` أو None.
+    نقيّة · فاشلة-آمنة · **عرض/سياق فقط — خارج الفرز والدخول والوقف والأهداف.**"""
+    try:
+        if df is None or len(df) < 20:
+            return None
+        hi = [float(x) for x in df["High"].tail(int(lookback))]
+        lo = [float(x) for x in df["Low"].tail(int(lookback))]
+        if len(lo) < 20:
+            return None
+        j = min(range(len(lo)), key=lambda i: lo[i])      # القاع الحالي
+        if j < 5:
+            return None
+        ref = max(hi[:j])                                 # القمة التي سبقته
+        bottom = lo[j]
+        if not (ref > 0 and bottom > 0 and ref > bottom):
+            return None
+        drop = (1.0 - bottom / ref) * 100.0
+        if not (5.0 <= drop <= 95.0):
+            return None
+        return {"ref_high": round(ref, 3), "first_bottom": round(bottom, 3),
+                "drop_pct": round(drop, 1),
+                "next_bottom": round(bottom * (1.0 - drop / 100.0), 3)}
+    except Exception:                                     # noqa: BLE001
+        return None
+
+
+def next_bottom_line(nb) -> str:
+    """سطر «القاع التالي المتوقّع» (عرض فقط). «» لو None."""
+    if not nb:
+        return ""
+    return (f"📉 لو كسر القاع: القاع التالي المتوقّع <b>${nb['next_bottom']:.2f}</b> "
+            f"(نسبة هبوطه الأولى {nb['drop_pct']:.0f}% من ${nb['ref_high']:.2f} "
+            f"إلى ${nb['first_bottom']:.2f} — فيصل يُسقطها مرّة أخرى)")
 
 
 def polygon_flow(sym: str, with_prints: bool = False):
