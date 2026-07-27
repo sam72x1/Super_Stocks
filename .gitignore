@@ -8,3 +8,8 @@ make_pdf.py
 
 # 🔬 E2-A: بيانات القياس الخام (تُرفع artifact لا للريبو — SPEC §5/§12)
 e2_measurement/
+
+# 📸 صور المراجعة: تُستخرَج محليًّا من ZIP على Release ولا تدخل تاريخ git
+# (300 صورة ≈ 123 ميغا تبقى بالتاريخ للأبد لو دخلت). README فقط يُتابَع.
+faisal_images/*
+!faisal_images/README.md
