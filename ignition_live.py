@@ -564,6 +564,9 @@ def main():
                     for r in rows:             # جمع فريد **فقط عند الوصول** (دِدوب مرة/سهم/جلسة)
                         if r[0]["symbol"] not in seen:
                             seen.add(r[0]["symbol"])
+                            # ⏱️ ختم لحظة الاشتعال (ms) — يلزم قياس «ربع الساعة» عند نهاية
+                            # الجلسة. ختم محلي رخيص، بلا شبكة، فلا يمسّ زمن التنبيه.
+                            r[0]["fired_ts_ms"] = int(time.time() * 1000)
                             session_fires.append(r)
                 else:
                     # ①أ (قرار المالك 2026-07-15، مراجعة Codex): لم يصل التنبيه ⇒ ألغِ ختم
@@ -633,7 +636,10 @@ def main():
             if bot.record_ignition_universe(_uni_syms, session_day):
                 _save_files.append(bot.IGNITION_UNI_FILE)
             if session_fires:
-                n_rec = bot.record_ignition_fires(session_fires, session_day)
+                # ⏱️ يمرَّر جالب الدقائق ليقيس «ربع الساعة» (فيصل JZ) لكل إطلاق —
+                # **عند نهاية الجلسة فقط**، خارج مسار التنبيه (درس Codex P0-1).
+                n_rec = bot.record_ignition_fires(
+                    session_fires, session_day, fetch_bars=bot.polygon_minute_bars)
                 if n_rec:
                     _save_files.append(bot.IGNITION_LOG_FILE)
                     bot.log(f"📝 سُجِّل {n_rec} إطلاق في سجلّ القياس.")

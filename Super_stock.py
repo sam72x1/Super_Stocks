@@ -1494,6 +1494,7 @@ def group_pump_scar(df, scan_bars=90, rise_window=5, break_window=15):
         vmult = CONFIG["VOL_SPIKE_MULT"]
         start = max(21, n - scan_bars)
         found = None
+        hits = []                                           # فهارس كل الرفعات المطابقة
         for i in range(start, n):
             base = float(np.min(c[max(0, i - rise_window):i]))
             vavg = float(np.mean(v[i - 20:i]))
@@ -1507,9 +1508,20 @@ def group_pump_scar(df, scan_bars=90, rise_window=5, break_window=15):
             end = min(n, i + 1 + break_window)
             broke = bool(pre_sup > 0 and end > i + 1
                          and float(np.min(c[i + 1:end])) < pre_sup)
+            hits.append(i)
             found = {"found": True, "jump_pct": round(rise * 100, 0),
                      "bars_ago": int(n - 1 - i), "broke_support": broke,
                      "pre_support": round(pre_sup, 2)}
+        # 🔁 عدّ **الرفعات المستقلّة** (فاصل 20ج = حدث مستقل، نفس عرف `behavior_rise_profile`)
+        # — شرطٌ لازم لقاعدة فيصل «رُفِع أكثر من مرة بدون مضارب ⇒ متابعة فقط» (EZRA/EDBL
+        # IMG_0295/0298). كان يُعاد **آخر** نمط فقط بلا عدّ فيتعذّر تطبيق القاعدة.
+        if found:
+            episodes, last = 0, -10_000
+            for i in hits:
+                if i - last >= 20:
+                    episodes += 1
+                last = i
+            found["n_pumps"] = episodes
         return found
     except Exception:
         return None
@@ -4329,6 +4341,65 @@ def operator_sustain(bars, break_level, min_minutes=None):
         return None
 
 
+def bottom_test_state(df, lookback=60, tol_pct=3.0, sep=3):
+    """🔁 **حالة «القاع 2»** (فيصل، EDBL IMG_0298: «تم التلاعب بالشموع أكثر من مرة — **القاع 2 =
+    ثبات أو سحب سيوله** — متابعه فقط» · EZRA IMG_0295: «قاع جديد بعد تلاعب بالشموع · **متابعة 2
+    هل يثبت أو يكون قاع جديد**»).
+
+    يعدّ كم مرّة اختبر السعرُ القاعَ (لمسات ضمن `tol_pct`% منه، يفصلها `sep` جلسات = لمسة مستقلة).
+    الاختبار **الثاني فأكثر** = مفترق ثنائي معلن: **ثبات** أو **سحب سيولة** (نطاق −7%..−13%).
+    يرجّع {bottom, tests, second} أو None. نقيّ · فاشل-آمن · **عرض/سياق فقط**."""
+    try:
+        lows = df["Low"].tail(lookback).values.astype(float)
+        if len(lows) < 10:
+            return None
+        bot = float(np.min(lows))
+        if bot <= 0:
+            return None
+        band = bot * (1.0 + tol_pct / 100.0)
+        tests, last = 0, -10_000
+        for i, x in enumerate(lows):
+            if float(x) <= band:
+                if i - last >= sep:
+                    tests += 1
+                last = i
+        return {"bottom": round(bot, 2), "tests": tests, "second": tests >= 2}
+    except Exception:
+        return None
+
+
+def bottom_test_line(bt, sweep_zone=None) -> str:
+    """سطر «القاع 2» (عرض فقط). «» لو لا اختبار ثانٍ."""
+    if not bt or not bt.get("second"):
+        return ""
+    z = ""
+    if sweep_zone and sweep_zone.get("shallow") and sweep_zone.get("deep"):
+        z = (f" (سحب السيولة ${sweep_zone['shallow']:.2f} → "
+             f"${sweep_zone['deep']:.2f})")
+    return (f"🔁 القاع اختُبر {bt['tests']} مرات عند ${bt['bottom']:.2f} — "
+            f"فيصل: «القاع 2 = ثبات أو سحب سيولة»{z}")
+
+
+def pump_repeat_watch_only(r) -> str:
+    """🚫 **قاعدة «رُفِع أكثر من مرة بدون مضارب ⇒ متابعة فقط»** (فيصل — EZRA IMG_0295: «معروف عند
+    الجميع و**تم رفعه أكثر من مرة بدون مضارب** … **متابعه فقط**» · EDBL IMG_0298: «**تم التلاعب
+    بالشموع أكثر من مرة** … متابعه فقط»).
+
+    القرينة المرصودة لـ«رفعة بلا مضارب» = **بصمة رفعة القروب المتكرّرة** (`group_pump_scar`:
+    قفزة + سيولة عالية ثم كسر الدعم) — فتكرارها **مرّتين فأكثر** يُنزِّل السهم إلى «متابعة فقط».
+    ⚠️ **حدّ صدق مصرَّح به:** «بدون مضارب» استدلال من البصمة المتكرّرة لا قياس مباشر لهوية المشتري.
+    سطر **عرض/تحذير فقط** — لا يُسقط سهمًا من الفرز ولا يغيّر أهدافًا. فارغ لو أقل من رفعتين."""
+    try:
+        ps = r.get("pump_scar") or {}
+        n = int(ps.get("n_pumps") or 0)
+        if ps.get("found") and n >= 2:
+            return (f"🚫 رُفِع {n} مرات بلا بصمة مضارب — فيصل: <b>متابعة فقط</b> "
+                    "(مرفوع بالقروب، لا دخول)")
+    except Exception:
+        pass
+    return ""
+
+
 def pump_voids_targets_line(r) -> str:
     """⚠️ **قاعدة فيصل: القروب يُلغي الأهداف** (JZ IMG_0289، 2026-07-27): «الاصل هذي اهداف
     السهم 12 شمعه ساقطه — **لما يحصل قروب يرفع السهم المضارب يلغي الاهداف ويهبط فيه**».
@@ -4465,6 +4536,7 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                 "symbol": sym, "price": pr["price"], "half": pr["half"],
                 # 🥇 خطة فيصل التنفيذية (تحرر/أهداف بنيوية/فجوة/سحب سيولة) — عرض فقط
                 "plan": faisal_split_plan(df, pr["price"]),
+                "bottom_test": bottom_test_state(df),   # 🔁 «القاع 2» (فيصل EDBL)
                 "ref": pr["ref"], "split_date": pr["split_date"],
                 "freq": pr.get("freq"), "float": flt,
                 "avail": bor.get("shares_available"),
@@ -4521,6 +4593,9 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
                     if _z.get("shallow") and _z.get("deep") else "")
             lines.append(f"  🩸 لو ما حافظ على القاع ${_p['bottom']:.2f}: سحب سيولة "
                          f"{_rng}<b>${_p['sweep']:.2f}</b> — يعمق مع ارتفاع الشورت")
+        _bt = bottom_test_line(r.get("bottom_test"), _p.get("sweep_zone"))
+        if _bt:
+            lines.append("  " + _bt)
         lines.append("  ⏳ الدخول: <b>مع المضارب</b> — "
                      + ("انتظار الثبات فوق التحرر" if _p.get("liberation")
                         else "انتظار"))
@@ -5552,6 +5627,12 @@ def build_message(results: list, splits: list,
         _pv = pump_voids_targets_line(r)      # قاعدة فيصل JZ: القروب يُلغي الأهداف
         if _pv:
             lines.append(_pv)
+        _pw = pump_repeat_watch_only(r)       # فيصل EZRA/EDBL: رُفِع مرّات ⇒ متابعة فقط
+        if _pw:
+            lines.append(_pw)
+        _bt = bottom_test_line(r.get("bottom_test"))   # فيصل EDBL: «القاع 2»
+        if _bt:
+            lines.append(_bt)
         lines.append(news_links_compact(r["symbol"]))
     lines += ["", FOOTER]
     return _rtl_join(lines)
@@ -5952,6 +6033,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "fsto_osc": r.get("fsto_osc"),                    # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
         "klinger": r.get("klinger"),                      # 📊 كلنجر (حجم، فيصل — عرض فقط)
         "cci": r.get("cci"),                              # 📉 CCI(14) (فيصل — عرض فقط)
+        "bottom_test": r.get("bottom_test"),              # 🔁 «القاع 2» (فيصل — عرض فقط)
         "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "bars_after": r.get("bars_after"),                # §11: جلسات منذ القاع (تفسير)
@@ -6368,6 +6450,7 @@ def scan_market():
                 df["High"], df["Low"], df["Close"], df["Volume"])
             r["cci"] = cci_state(                    # 📉 CCI(14) — بكل شوارت فيصل (حيّ، عرض فقط)
                 df["High"], df["Low"], df["Close"])
+            r["bottom_test"] = bottom_test_state(df)  # 🔁 «القاع 2» (فيصل EDBL — عرض فقط)
             r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
             r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
             r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
@@ -6755,6 +6838,7 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                 df["High"], df["Low"], df["Close"], df["Volume"])
             s["cci"] = cci_state(                      # 📉 CCI(14) يتجدّد يوميًا (عرض فقط)
                 df["High"], df["Low"], df["Close"])
+            s["bottom_test"] = bottom_test_state(df)   # 🔁 «القاع 2» يتجدّد يوميًا (عرض فقط)
             _psn = pivot_stability(df["Low"].values.astype(float),
                                    df["Close"].values.astype(float))
             if _psn:
@@ -8290,7 +8374,29 @@ def load_ignition_log() -> list:
     return []
 
 
-def record_ignition_fires(rows, today_iso) -> int:
+def _fire_sustain(s, sig, fetch_bars, need_min):
+    """⏱️ قياس «ربع الساعة» لإطلاق واحد (فيصل JZ IMG_0294) — يجلب دقائق ما بعد الاشتعال
+    ويقيس صمود السعر فوق مستوى الكسر. يرجّع dict أو {} (فاشل-آمن مطلق).
+    **يُستدعى عند نهاية الجلسة حصرًا** (خارج خيط التنبيه — درس مراجعة Codex P0-1: أي جلب
+    على مسار التنبيه يؤخّره)."""
+    try:
+        lvl = _ignition_break_level(s)
+        t0 = s.get("fired_ts_ms")
+        if not fetch_bars or not lvl or not t0:
+            return {}
+        bars = fetch_bars(s.get("symbol"), minutes=int(need_min) * 30)
+        if not bars:
+            return {}
+        after = [b for b in bars if (b.get("t") or 0) >= float(t0)]
+        su = operator_sustain(after, lvl, min_minutes=need_min)
+        if not su:
+            return {}
+        return {"sustain_min": su["minutes"], "operator_ok": su["ok"]}
+    except Exception:
+        return {}
+
+
+def record_ignition_fires(rows, today_iso, fetch_bars=None) -> int:
     """يسجّل إطلاقات الرادار في سجلّ دائم لقياس الحافة (الالتقاط/الإنذار الكاذب لاحقًا
     بأداة التطوير). كل سجلّ: رمز·تاريخ·مستوى الكسر·سعر الاشتعال·مضاعف الحجم·سيولة الشمعة
     وتصنيفها. **قياس فقط — خارج الفرز/الاختيار.** دِدوب مرة/سهم/يوم. فاشل-آمن → 0.
@@ -8306,7 +8412,10 @@ def record_ignition_fires(rows, today_iso) -> int:
             if not sym or (sym, today_iso) in seen:
                 continue
             usd = sig.get("usd")
-            log_data.append({"symbol": sym, "date": today_iso,
+            # ⏱️ قاعدة «ربع الساعة» (فيصل JZ): صنّف الإطلاق مضارب/قروب من صمود الدقائق.
+            # اختياري وفاشل-آمن: بلا جالب (أو بلا مفتاح) لا حقول = السلوك السابق حرفيًّا.
+            _su = _fire_sustain(s, sig, fetch_bars, CONFIG["OPERATOR_SUSTAIN_MIN"])
+            log_data.append({"symbol": sym, "date": today_iso, **_su,
                              # ⑩ (إصلاح تدقيق 2026-07-12): طابع وقت الإطلاق —
                              # بدونه مقياس «الأبكرية» (كم دقيقة سبقنا المسار
                              # اليومي) مستحيل بنيويًا. إلحاق فقط، توافق خلفي
@@ -8448,6 +8557,14 @@ def _ignition_log_block(log, fetch=None, today=None) -> list:
     if parts:
         out.append("   حسب تصنيف الشمعة: " + " · ".join(parts))
     out.append("   <i>قياس تقريبي (نتيجة الشمعة اليومية) — كلّما تراكم السجلّ زادت الثقة.</i>")
+    # ⏱️ قاعدة «ربع الساعة» (فيصل JZ IMG_0294): كم إطلاق صمد ≥15د فوق الكسر (= رفعة مضارب)
+    # مقابل ما سُحق فورًا (= رفعة بلا إذن). يظهر فقط عند وجود قياسات (فاشل-آمن).
+    _m = [f for f in measured if f.get("operator_ok") is not None]
+    if _m:
+        _ok = sum(1 for f in _m if f.get("operator_ok"))
+        out.append(f"   ⏱️ ربع الساعة (فيصل): صمد ≥{CONFIG['OPERATOR_SUSTAIN_MIN']}د "
+                   f"<b>{_ok}</b> من {len(_m)} (= رفعة مضارب) · "
+                   f"{len(_m) - _ok} سُحق فورًا (رفعة بلا إذن المضارب)")
     return out
 
 
@@ -8774,6 +8891,12 @@ def build_daily_message(wl: dict, splits: list,
         _pv = pump_voids_targets_line(s)   # قاعدة فيصل JZ: القروب يُلغي الأهداف
         if _pv:
             lines.append("   " + _pv)
+        _pw = pump_repeat_watch_only(s)    # فيصل EZRA/EDBL: رُفِع مرّات ⇒ متابعة فقط
+        if _pw:
+            lines.append("   " + _pw)
+        _bt = bottom_test_line(s.get("bottom_test"))    # فيصل EDBL: «القاع 2»
+        if _bt:
+            lines.append("   " + _bt)
     # بدلاء اليوم: قائمة الإضافات — تُخفى بوضع الجاهز-فقط (الجديد يظهر كرته لو جاهز؛
     # وإلا فهو «تحت المتابعة» يتكفّل بها البوت — طلب المستخدم «ما يوصلني إلا الجاهز»).
     if replaced and not ready_only:
