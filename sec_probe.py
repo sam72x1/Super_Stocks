@@ -84,6 +84,20 @@ def main():
         # ملاحظة تشخيصية: ماذا كانت القناة الواسعة ستقول (لبيان الحجب المُصلَح)
         _, _ = bot.sec_recent_filings(sym)
         print(f"  (القناة الواسعة للسياق: {bot._SEC_OFFERING.get(sym) or '—'})")
+        # 🔎 يفرّق «لا إيداع أصلًا» عن «إيداع موجود ورُفِض»: نطبع كل نماذج الطرح
+        # الموجودة فعلًا في آخر الإيداعات بتواريخها (تشخيص فقط).
+        st, txt = _get(f"https://data.sec.gov/submissions/CIK{cik:010d}.json")
+        if st == 200:
+            import json as _j
+            rec = ((_j.loads(txt).get("filings") or {}).get("recent")) or {}
+            fs = rec.get("form", []) or []
+            ds = rec.get("filingDate", []) or []
+            found = [(f, ds[i] if i < len(ds) else "")
+                     for i, f in enumerate(fs)
+                     if (f or "").strip() in bot._OFFERING_FORMS][:6]
+            fnd = [x for x in found if x[0] in bot._FOUNDING_OFFERING_FORMS]
+            print(f"  🔎 نماذج طرح موجودة فعلًا (أحدث 6): {found or 'لا شيء'}")
+            print(f"     منها نشرة نهائية: {fnd or 'لا شيء'}")
         time.sleep(0.3)
     print("\n🩺 انتهى المِجَسّ")
 
