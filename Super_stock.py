@@ -11456,7 +11456,30 @@ def _bt_days_to_earnings(signal_iso, dates):
         return None
 
 
-def _bt_feature_enrich(all_trades, sector_fetch=None, earn_fetch=None):
+def _bt_pump_features(df, date_str):
+    """🔬 بصمة «رفعة القروب» **عند يوم الإشارة حصرًا** (بلا نظر مستقبلي) — لاختبار فرضية
+    «الرابط المشترك = غياب رفعة القروب» (`pump_filter_prereg.md`، تسجيل مسبق 2026-07-27).
+    يقصّ الإطار حتى `date_str` ثم يشغّل `group_pump_scar`. يرجّع dict أعمدةٍ أو {} (فاشل-آمن).
+    **تحليل فقط** — خارج `backtest_symbol` (الجذر) ولا يمسّ أي حكم."""
+    try:
+        if df is None or not date_str:
+            return {}
+        cut = str(date_str)[:10]
+        days = [(t.date().isoformat() if hasattr(t, "date") else str(t)[:10])
+                for t in df.index]
+        upto = [i for i, x in enumerate(days) if x <= cut]
+        if len(upto) < 40:
+            return {}
+        seg = df.iloc[:upto[-1] + 1]           # حتى يوم الإشارة **ضمنًا**، لا بعده
+        ps = group_pump_scar(seg) or {}
+        return {"pump_found": bool(ps.get("found")),
+                "pump_n": int(ps.get("n_pumps") or 0),
+                "pump_ago": ps.get("bars_ago")}
+    except Exception:
+        return {}
+
+
+def _bt_feature_enrich(all_trades, sector_fetch=None, earn_fetch=None, hist=None):
     """يُثري صفقات الباكتيست بعمودَي تحليل (قطاع + أيام لأقرب أرباح) **قبل** كتابة الـCSV.
     **إلحاق فقط, لا يمسّ أي حكم باكتيست** (fwd_max_gain/exploded محسوبة في backtest_symbol الجذر).
     قطاع/أرباح مرة/سهم (كاش). ⚠️ float و cost-to-borrow **مُستبعَدان عمدًا** (نظر مستقبلي/بلا
@@ -11475,6 +11498,8 @@ def _bt_feature_enrich(all_trades, sector_fetch=None, earn_fetch=None):
             _earn[sym] = _bt_earnings_dates(sym, fetch=earn_fetch)
         t["sector"] = _sec[sym]
         t["days_to_earnings"] = _bt_days_to_earnings(t.get("date", ""), _earn[sym])
+        # 🔬 فرضية الفلتر السلبي (pump_filter_prereg.md): بصمة رفعة القروب point-in-time
+        t.update(_bt_pump_features((hist or {}).get(sym), t.get("date", "")))
     return all_trades
 
 
@@ -11775,7 +11800,7 @@ def run_backtest(symbols=None) -> None:
     # 🔬 (BT_FEATURES) إثراء تحليلي point-in-time قبل الـCSV — إلحاق فقط، مطفأ = CSV بلا تغيير.
     # float/CTB مُستبعَدان (نظر مستقبلي/بلا تاريخ). خارج backtest_symbol (الجذر) — تحليل فقط.
     if CONFIG.get("BT_FEATURES"):
-        _bt_feature_enrich(all_trades)
+        _bt_feature_enrich(all_trades, hist=hist)
     fn = _write_csv_file(all_trades, "backtest")
     if fn:
         send_telegram_document(fn, f"🧪 تفاصيل الباكتيست — {dt.date.today()}")
