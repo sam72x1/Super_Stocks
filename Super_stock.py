@@ -10729,6 +10729,10 @@ def run_daily_watchlist(wl: dict) -> None:
     except Exception as e:
         log(f"⚠️ فحص الترقيات: {e}")
     compute_readiness(wl, hist)
+    # 📄 تهيئة عدّادات SEC للمسار اليومي (الإثراء لا يُنفَّذ هنا فيُصفّرها بنفسه).
+    _F4_FAILS[0] = 0
+    _OFF_FAILS[0] = 0
+    _F4_BUDGET[0] = int(CONFIG["FORM4_BUDGET"])
     # 📅 تحديث الأحداث المعلنة يوميًّا لكل النشطين («يوم الانفجار الذي ينتظره المضارب»
     # — فيصل 9428): فاشل-آمن لكل رمز على حدة، والقيمة القديمة تبقى لو تعذّر الجلب
     # (تاريخ معلوم لا يختفي بعطل شبكي؛ الماضي يُخفيه العرض ذاتيًّا).
@@ -10756,6 +10760,32 @@ def run_daily_watchlist(wl: dict) -> None:
                     s["float"] = _cf
             except Exception:
                 pass
+        # 📄🆕 **تجديد شراء الداخليين والطرح المؤسِّس يوميًّا** (سدّ ثغرة توقيت: كانا
+        # يُجلبان بالإثراء ويُجمَّدان، فشراءُ الرئيس يوم الثلاثاء لا يصل قبل جمعة
+        # التجديد — وفيصل يعدّه **سببًا لحظيًّا للارتفاع**). نداء SEC واحد يملأ
+        # القناتين مجانًا، ثم مستندات Form 4 بسقف `FORM4_BUDGET` المشترك.
+        # **الدمج لا الاستبدال:** جلبٌ فارغ (تعذّر أو لا شيء جديد) **يُبقي المخزَّن**
+        # (تعذّر ≠ لا شراء) — والأحدث أولًا بسقف 3.
+        try:
+            sec_recent_filings(s["symbol"])          # يملأ _SEC_FOUNDING/_SEC_FORM4
+            _nb = form4_insider_buys(s["symbol"],
+                                     cap=int(CONFIG["FORM4_MAX_FETCH"]))
+            if _nb:
+                _seen, _merged = set(), []
+                for b in (_nb + list(s.get("insider_buys") or [])):
+                    k = (b.get("date"), b.get("shares"))
+                    if k not in _seen:
+                        _seen.add(k)
+                        _merged.append(b)
+                s["insider_buys"] = sorted(
+                    _merged, key=lambda x: str(x.get("date") or ""),
+                    reverse=True)[:3]
+            _of = _SEC_FOUNDING.pop(s["symbol"].upper(), None)
+            _SEC_OFFERING.pop(s["symbol"].upper(), None)
+            if _of:
+                s["offering_event"] = _of
+        except Exception:
+            pass
     # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم.
     #    نمرّر القائمة الأساسية الحالية (تشمل ما أُضيف توًّا) كاستبعاد، ثم
     #    نشيل أي سهم تخرّج للأساسية من المراقبة (لا ازدواج بين القائمتين).
@@ -11117,6 +11147,87 @@ def _sweep_augment(trade, r, hi, lo, cl, op, stop, t1):
         trade["mg_sweep_outcome"] = _smo
         trade["mg_sweep_pre_stop"] = _smg
         trade["mg_sweep_peak_day"] = _smd
+
+
+_EXIT_TRAIL_CAPTURE = 0.5      # حصّة القمة في تقريب التتبّع — مثبَّتة قبل النتائج
+
+
+def _exit_policy_r(t, level_key=None, trail=None):
+    """R لصفقة واحدة تحت سياسة خروج واحدة (نقيّة). المصدر `mg_pre_stop` = أقصى صعود
+    من الدخول **قبل ضرب الوقف**: لو بلغ نسبة الهدف ⇒ خروج عنده، وإلا ⇒ الوقف (−1R).
+    `trail` = حصّة من القمة (تقريب تتبّع مُصرَّح به). None لو نقص حقل. تحليل فقط."""
+    try:
+        e, s0 = float(t["entry"]), float(t["stop"])
+        risk = e - s0
+        if risk <= 0 or e <= 0:
+            return None
+        mg = t.get("mg_pre_stop")
+        if mg is None:
+            return None
+        mg = float(mg)
+        risk_pct = risk / e * 100.0
+        if trail is not None:
+            return (mg * float(trail) / risk_pct) if mg > 0 else -1.0
+        lvl = float(t[level_key])
+        need = (lvl / e - 1.0) * 100.0
+        return ((lvl - e) / risk) if mg >= need else -1.0
+    except (TypeError, ValueError, KeyError, ZeroDivisionError):
+        return None
+
+
+def backtest_exit_policies(trades: list) -> list:
+    """🎯 **تجربة T-EXIT المسجَّلة مسبقًا** (`exit_policy_prereg.md`): على **نفس الصفقات
+    المُعبَّأة**، أيّ سياسة خروج تعطي أعلى توقّع R — `t1` (الحالية) · `t2` · `t3` ·
+    تقريب تتبّع (حصّة `_EXIT_TRAIL_CAPTURE` من القمة)؟
+
+    السؤال جاء من قياس 2026-07-27: التوقّع ~0R **لكنه يقيس بيعًا عند t1 حصرًا** وفيصل
+    **يمتّع**. ⚠️ حدود مُعلَنة: «بُلغ الهدف» = لمسة داخل الشمعة · الوقف يُفحَص قبل
+    الهدف في الشمعة نفسها (فالأرقام **أرضية**) · التتبّع **تقريب** لا وقف متحرّك.
+    يلزمها `BT_POTENTIAL=1` (مصدر `mg_pre_stop`). **تحليل/طباعة فقط — لا تغيّر هدفًا
+    ولا وقفًا؛ الاعتماد يلزمه المعيار المسجَّل + ثلاث سنوات + موافقة المستخدم.**"""
+    dec = [t for t in trades if t.get("outcome") in ("win", "loss")
+           and t.get("mg_pre_stop") is not None]
+    if len(dec) < 20:
+        return []
+    out = ["\n🎯 <b>تجربة T-EXIT: أيّ سياسة خروج تعطي أعلى توقّع؟</b>",
+           f"   العيّنة: {len(dec)} صفقة محسومة عندها «أقصى صعود قبل الوقف»."]
+    rows = {}
+    for lbl, key, tr in (("الهدف 1 (الحالية)", "t1", None),
+                         ("الهدف 2", "t2", None),
+                         ("الهدف 3", "t3", None),
+                         (f"تتبّع (تقريب {_EXIT_TRAIL_CAPTURE:g} من القمة)",
+                          None, _EXIT_TRAIL_CAPTURE)):
+        rs = [x for x in (_exit_policy_r(t, key, tr) for t in dec) if x is not None]
+        if len(rs) < 20:
+            continue
+        hit = sum(1 for x in rs if x > 0)
+        lo, hi = _wilson_ci(hit, len(rs))
+        exp = sum(rs) / len(rs)
+        rows[lbl] = exp
+        out.append(f"   {lbl}: توقّع <b>{exp:+.2f}R</b> · وسيط {_median(rs):+.2f}R · "
+                   f"وصل {hit}/{len(rs)} ({hit / len(rs) * 100:.0f}%، "
+                   f"ثقة {lo:.0f}-{hi:.0f}%)")
+    base = rows.get("الهدف 1 (الحالية)")
+    if base is None or len(rows) < 2:
+        out.append("   ⚠️ عيّنة غير كافية للمقارنة — لا حكم هذه السنة.")
+        return out
+    best = max((v, k) for k, v in rows.items() if k != "الهدف 1 (الحالية)")
+    gap = best[0] - base
+    out.append(f"   📊 أفضل بديل: <b>{best[1]}</b> بفرق {gap:+.2f}R عن الهدف 1 "
+               f"(العتبة المسجَّلة 0.15R)")
+    if gap >= 0.15:
+        rec = (f"<b>{best[1]} متفوّقة هذه السنة</b> — تلزم **ثلاث سنوات** بنفس "
+               "الاتجاه + موافقتك قبل أي تغيير على الأهداف")
+    elif gap <= -0.15:
+        rec = ("<b>الهدف 1 هو الأفضل</b> — الحمل لـt2/t3 يُضعِف التوقّع على هذه "
+               "السنة (نتيجة ذات قيمة: تُغلق سؤال «فيصل يمتّع» آليًّا)")
+    else:
+        rec = ("<b>لا فرق دالّ</b>: سياسة الخروج ليست الرافعة على هذه السنة — "
+               "يبقى الهدف 1 كما هو")
+    out.append(f"   ✅ الحكم بالمعيار المسجَّل مسبقًا: {rec}")
+    out.append("   ℹ️ <i>«بُلغ الهدف» = لمسة داخل الشمعة · الوقف يُفحَص قبله في الشمعة "
+               "نفسها ⇒ الأرقام أرضية · التتبّع تقريب لا وقف متحرّك.</i>")
+    return out
 
 
 def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
@@ -12561,6 +12672,12 @@ def run_backtest(symbols=None) -> None:
     lines += potential
     for _pl in potential:
         log("باكتيست·" + _pl.strip().replace("\n", " "))
+    # 🎯 T-EXIT (exit_policy_prereg.md): سياسات الخروج على **نفس** الصفقات — تظهر فقط
+    # مع BT_POTENTIAL (مصدر mg_pre_stop). تحليل/طباعة فقط، لا تمسّ هدفًا ولا وقفًا.
+    exitp = backtest_exit_policies(all_trades)
+    lines += exitp
+    for _el in exitp:
+        log("باكتيست·" + _el.strip().replace("\n", " "))
     if st["decided"] < 20:
         lines.append("⏳ عيّنة صغيرة — وسّع الرموز لحُكم موثوق.")
     # 📋 معيار القرار المسجَّل مسبقًا (يمنع p-hacking) — التجربة الزوجية لا تناسب
