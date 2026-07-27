@@ -65,6 +65,10 @@ on:
         description: "🔬 أعمدة تحليل (اختياري): 1 = أضِف للـCSV قطاع + أيام لأقرب أرباح لاختبار «الرابط المشترك». ⚠️ الأرباح best-effort لا point-in-time مضمون تاريخيًّا (بلا known_at). float/CTB مُستبعَدان (نظر مستقبلي/لا تاريخ). باكتيست فقط"
         required: false
         default: ""
+      bt_short:
+        description: "🕵️ تجربة T-SHORT (اختياري): 1 = اجلب **حجم الشورت اليومي من FINRA بتاريخ الإشارة** (point-in-time، بلا تسريب) وقارن شرائح فيصل (10 آلاف أو أقل · 10-20 · 20-40 · أكثر) بمعيار `short_thread_prereg.md`. ⚠️ المقياس حجم FINRA لا «المتاح للاقتراض» (المتاح بلا تاريخ). باكتيست فقط"
+        required: false
+        default: ""
       bt_portfolio:
         description: "🏦 محاكاة الانتقائية (اختياري): 1 = محفظة top-N بالترتيب (readiness→score) بجانب «كل المُعبَّئين» — هل الانتقائية تضيف؟ يلزم bt_potential=1. باكتيست فقط"
         required: false
@@ -137,6 +141,8 @@ jobs:
           # 🏦 قوة البوت + الانتقائية — تُقرأ في وضع BACKTEST حصريًا (الإنتاج محصّن بقفل B1)
           BT_POTENTIAL: ${{ github.event.inputs.bt_potential }}
           BT_FEATURES: ${{ github.event.inputs.bt_features }}
+          # 🕵️ T-SHORT: شورت FINRA المؤرَّخ عند الإشارة — يُقرأ في وضع BACKTEST حصريًا
+          BT_SHORT: ${{ github.event.inputs.bt_short }}
           BT_PORTFOLIO: ${{ github.event.inputs.bt_portfolio }}
           BT_PORT_SIZE: ${{ github.event.inputs.bt_port_size }}
           # 🕰️ point-in-time (تدقيق خارجي) — يُقرأ في وضع BACKTEST حصريًا
