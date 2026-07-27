@@ -6262,6 +6262,30 @@ check("🔬 بصمة القروب·فاشلة-آمنة: بلا إطار/تاري
       S._bt_pump_features(None, "2026-03-01") == {}
       and S._bt_pump_features(_pf_df, "") == {}
       and S._bt_pump_features(_pf_df, "2026-01-05") == {})
+# 🔬🌏 كتلتا اختبار الفرضيتين (تحليل/طباعة فقط — لا وزن ولا بوّابة)
+_hyp_rows = ([{"pump_found": False, "country": "China", "exploded": True,
+               "outcome": "win"} for _ in range(25)]
+             + [{"pump_found": True, "pump_n": 2, "country": "United States",
+                 "exploded": False, "outcome": "loss"} for _ in range(25)])
+_hp = S.backtest_pump_filter(_hyp_rows)
+_hc = S.backtest_country_thread(_hyp_rows)
+check("🔬 كتلة الفلتر السلبي: تبوّب الشرائح وتصدر حكمًا بالمعيار المسجَّل",
+      any("بلا رفعة قروب" in x for x in _hp)
+      and any("رُفِع مرّتين فأكثر" in x for x in _hp)
+      and any("الحكم بالمعيار المسجَّل" in x for x in _hp))
+check("🌏 كتلة الدولة: تبوّب الصين مقابل بقية الدول + حكم مسجَّل",
+      any("الصين/هونغ كونغ" in x for x in _hc)
+      and any("بقية الدول" in x for x in _hc)
+      and any("الحكم بالمعيار المسجَّل" in x for x in _hc))
+check("🔬🌏 عيّنة صغيرة ⇒ [] (صدق العيّنة، لا حكم على 5 صفقات)",
+      S.backtest_pump_filter(_hyp_rows[:5]) == []
+      and S.backtest_country_thread(_hyp_rows[:5]) == [])
+check("🔬🌏 قفل: كتلتا الفرضية خارج الجذور (تحليل فقط)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("backtest_pump_filter", "backtest_country_thread")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
 check("🌏 عمود الدولة: يُجلب من info · «—» عند التعذّر (لم يُختبر قط — أسهم فيصل صينية)",
       S._bt_country("X", fetch=lambda s: {"country": "China"}) == "China"
       and S._bt_country("X", fetch=lambda s: {}) == "—"
