@@ -104,12 +104,10 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     if _ofe.get("date"):
         L.append(f"🆕 طرح جديد: {_ofe.get('form', '')} — {_ofe['date']} "
                  "(حدث مؤسِّس يعامله فيصل كالتقسيم)")
-    # 📉 «خبره عدم قبوله = هبوط» (فيصل MBRX) + مستهدف ÷2 من المستوى السائد (MWC)
-    for _fn, _val in ((bot.news_rejected_line, r.get("news_acc")),
-                      (bot.half_down_line, r.get("half_down"))):
-        _ln = _fn(_val)
-        if _ln:
-            L.append(_ln)
+    # 📉 «خبره عدم قبوله = هبوط» (فيصل MBRX) — مرجعه من شمعة الحدث نفسها
+    _ln = bot.news_rejected_line(r.get("news_acc"))
+    if _ln:
+        L.append(_ln)
     # 🔁 تقسيمات متكررة = نَفَس قصير (قرينة فيصل §P4 — عرض/تحذير فقط)
     _sf = bot._split_freq_line(r.get("split_freq"))
     if _sf:
@@ -216,10 +214,7 @@ def hand_check(sym: str):
     try:
         # 📉 «خبره عدم قبوله» + «÷2 على المستوى السائد» — يلزمهما الإطار اليومي وهو
         # متاح هنا (مسار الفرز يحسبهما في التحديث اليومي حيث الشمعة متوفّرة).
-        r["news_acc"] = bot.news_acceptance(
-            df, bot._latest_event_date(r),
-            ((diag.get("interp") or {}).get("critical_number") or {}).get("price"))
-        r["half_down"] = bot.half_down_target(df, price=price)
+        r["news_acc"] = bot.news_acceptance(df, bot._latest_event_date(r))
     except Exception:
         pass
     try:
