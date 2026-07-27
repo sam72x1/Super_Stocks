@@ -6469,6 +6469,42 @@ check("🔒 أهداف الشورت خارج الجذور (عرض/سياق فق�
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
                      S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
                      S.analyze_ticker, S.scan_market)))
+# 🚧 **أقفال «عدم الخلط»** (تدقيق 2026-07-27، سؤال المستخدم «متأكد ما خلطت بين ميزة
+# التقسيم وأساس البوت؟») — لُقِّي بها عيبان حقيقيان في وصلي: مفتاح إطار غير موجود،
+# ومرجع ÷2 يقبل مفتاحًا **عامًّا** (`ref`) كان بابَ اختلاق هدف هبوط على ارتكاز عادي.
+check("🚧 عدم الخلط·بلا حدث مؤسِّس: لا هدف ÷2 مُختلَق + تصريح «لا تنطبق» صريح",
+      (lambda L: not any("الهدف الأول = القمة ÷2" in x for x in L)
+       and any("لا تنطبق هنا" in x for x in L))(
+          S.short_targets_report(price=2.0, avail=900)))
+check("🚧 عدم الخلط·مرجع الـ÷2 خاصّ بالمقسّم: `split_ref` وحده لا مفتاح عامّ `ref`",
+      (lambda _code: 'post_split_high=r.get("split_ref")' in _code
+       and 'r.get("ref")' not in _code)(
+          "\n".join(_ln for _ln in _insp0.getsource(HC.render_hand_check).split("\n")
+                    if not _ln.lstrip().startswith("#"))))
+check("🚧 عدم الخلط·فحص اليد يستعمل إطار الوسيط `df` لا مفتاحًا غير موجود",
+      (lambda _d: (lambda L: any("لو كسر القاع" in x for x in L.split("\n"))
+                   and any("لا تنطبق هنا" in x for x in L.split("\n"))
+                   and not any("القمة ÷2 = " in x for x in L.split("\n")))(
+          HC.render_hand_check("NOSPLIT", {"symbol": "NOSPLIT", "price": 2.0},
+                               _d)))(
+          S.pd.DataFrame({"Open": [6 - i * 0.03 for i in range(140)],
+                          "High": [6.2 - i * 0.03 for i in range(140)],
+                          "Low": [5.8 - i * 0.03 for i in range(140)],
+                          "Close": [6 - i * 0.03 for i in range(140)],
+                          "Volume": [5e5] * 140},
+                         index=S.pd.date_range("2025-01-01", periods=140))))
+check("🚧 عدم الخلط·مع حدث مؤسِّس يظهر ÷2 الصحيح (JEM 6.90÷2=3.45) بلا تصريح النفي",
+      (lambda L: any("3.45" in x for x in L)
+       and not any("لا تنطبق هنا" in x for x in L))(
+          S.short_targets_report(post_split_high=6.90, price=2.0)))
+check("🚧 عدم الخلط·دوال التقسيم/الشورت الجديدة لا تُذكر في أي بانٍ للفرز أو للتقارير",
+      all(_n not in _insp0.getsource(_f)
+          for _f in (S.build_message, S.build_daily_message, S.enrich,
+                     S.make_watch_entry, S.run_daily_watchlist,
+                     S.update_watchlist_status, S.build_interpretation)
+          for _n in ("short_targets_report", "next_bottom_by_own_drop",
+                     "split_ma_lines", "faisal_split_plan", "_split_setup_probe",
+                     "_SPLIT_NEAR_MISS")))
 check("⛔ T-STOP·الإنتاج محصّن: الافتراضي (5,7) ولا يتأثّر بـBT_STOP_PCT خارج الباكتيست",
       S.CONFIG["STOP_BELOW_LOW_PCT"] == (5.0, 7.0)
       and S._apply_backtest_overrides("DAILY", {"BT_STOP_PCT": "13,15"}) == []
