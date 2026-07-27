@@ -11675,8 +11675,11 @@ def _parse_finra_short(text):
         p = ln.split("|")
         if len(p) < 5 or p[1].strip() in ("Symbol", ""):
             continue
+        sym = p[1].strip().upper()
+        if sym in out:          # ⚖️ أول ظهور يفوز — **مطابقة `finra_daily_short` الحيّة**
+            continue            # (لو تكرّر الرمز بصفوف بورصات، المقياسان يقرآن نفس الرقم)
         try:
-            out[p[1].strip().upper()] = int(p[2])
+            out[sym] = int(p[2])
         except (ValueError, IndexError):
             continue
     return out
@@ -11691,15 +11694,22 @@ def _finra_day_map(date_iso, fetch=None):
         return _FINRA_DAY_CACHE[key]
     url = ("https://cdn.finra.org/equity/regsho/daily/"
            f"CNMSshvol{key.replace('-', '')}.txt")
+    # ⚠️ محاولتان قبل التخزين: العطل الشبكي العابر يُخزَّن {} فيبدو كعطلة رسمية ويُحوّل
+    # كل إشارات ذلك اليوم إلى «مجهول» صامتًا (ثغرة لقّاها التدقيق). المحاولة الثانية
+    # تفصل العابر عن «لا ملف»، والنتيجة النهائية تُخزَّن مرة واحدة.
     txt = ""
-    try:
-        if fetch is not None:
-            txt = fetch(url) or ""
-        else:
-            r = requests.get(url, headers=UA, timeout=40)
-            txt = r.text if r.status_code == 200 else ""
-    except Exception:
-        txt = ""
+    for _try in range(2):
+        try:
+            if fetch is not None:
+                txt = fetch(url) or ""
+            else:
+                r = requests.get(url, headers=UA, timeout=40)
+                txt = r.text if r.status_code == 200 else ""
+            break
+        except Exception:
+            txt = ""
+            if _try == 0:
+                time.sleep(1.0)
     m = _parse_finra_short(txt)
     _FINRA_DAY_CACHE[key] = m
     return m
