@@ -402,6 +402,9 @@ CONFIG = {
     # 🩸 نطاق سحب السيولة — **قاعدة فيصل الصريحة** (CCHH IMG_0297): «من القاع 1.30 سحب
     #   السيوله **متعارف عليه من 7٪ ل 13٪** · 1.30−10٪=1.17 · اذا الهبوط المتوقع 1.10».
     #   كانت 5% (مأخوذة من حالة ONCO وحدها «0.71−5٪=0.675») = أضيق من قاعدته المعلنة.
+    # ⏱️ قاعدة «ربع الساعة» (JZ IMG_0294): المضارب «يعطيك مجال تبيع وتذبذب يصل مداه أكثر
+    #   من ربع ساعه»؛ وما طلع «بدون اذن مضارب» يُسحق فورًا. معيار تصنيف الإطلاق (قياس فقط).
+    "OPERATOR_SUSTAIN_MIN": 15,
     "SPLIT_SWEEP_MIN_PCT": 7.0,          # حافة النطاق الضحلة
     "SPLIT_SWEEP_MID_PCT": 10.0,         # الأرجح (حسابه الحرفي على CCHH)
     "SPLIT_SWEEP_MAX_PCT": 13.0,         # حافة النطاق العميقة
@@ -4288,6 +4291,40 @@ def _yahoo_float(sym: str):
             return None
         info = yf.Ticker(sym).info or {}
         return info.get("floatShares") or info.get("sharesOutstanding")
+    except Exception:
+        return None
+
+
+def operator_sustain(bars, break_level, min_minutes=None):
+    """⏱️ **قاعدة «ربع الساعة»** (فيصل، JZ فريم الساعة IMG_0294، 2026-07-27): «هذي شمعة الهمل
+    اللي خربت السهم ضغطه المضارب — **لو كان مضارب يعطيك مجال تبيع وتذبذب يصل مداه أكثر من ربع
+    ساعه** — طلع السهم **بدون اذن مضارب** ضغطه المضارب للهاويه».
+
+    ⇒ **معيار زمني يميّز الرفعة المأذونة (مضارب) عن غير المأذونة (قروب):** المضارب يترك مجالًا
+    للبيع فيصمد التذبذب **≥15 دقيقة**؛ والرفعة بلا إذنه تُسحق فورًا. وهو **الميكانيكا** خلف
+    قاعدة JZ اليومية «لما يحصل قروب يرفع السهم المضارب يلغي الاهداف ويهبط فيه» (`pump_voids_targets_line`).
+
+    يأخذ شموع الدقيقة **بعد** الاشتعال ومستوى الكسر، ويرجّع:
+    `{minutes, ok}` — `minutes` = عدد دقائق الصمود المتصل فوق مستوى الكسر من البداية،
+    `ok` = بلغ `OPERATOR_SUSTAIN_MIN` (15) فأكثر. None لو مدخلات غير صالحة.
+
+    نقيّة · فاشلة-آمنة · **قياس/تشخيص فقط**: لا تكبت تنبيهًا ولا تدخل الفرز — تُستهلك في طبقة
+    قياس الرادار (مسار الدقيقة المردوم بعد التنبيه) لتصنيف الإطلاق «مضارب» مقابل «قروب»."""
+    try:
+        if not bars or not break_level or float(break_level) <= 0:
+            return None
+        lvl = float(break_level)
+        n = 0
+        for b in bars:
+            c = b.get("c", b.get("close")) if isinstance(b, dict) else b
+            if c is None:
+                break
+            if float(c) < lvl:          # كُسر لتحت = انتهى الصمود
+                break
+            n += 1
+        need = int(min_minutes if min_minutes is not None
+                   else CONFIG["OPERATOR_SUSTAIN_MIN"])
+        return {"minutes": n, "ok": n >= need}
     except Exception:
         return None
 
