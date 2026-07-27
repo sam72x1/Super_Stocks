@@ -8257,6 +8257,21 @@ def _ignition_log_block(log, fetch=None, today=None) -> list:
     return out
 
 
+def _e2_index_counts(idx):
+    """عدّ جلسات فهرس قياس E2 — نقيّة (إصلاح 2026-07-24 بعد فحص الملف الحقيقي).
+    **الفهرس الحقيقي قاموس مفتاحه التاريخ** `{"2026-07-24": {...}}` لا قائمة؛ والتكرار على
+    القاموس يعطي مفاتيح نصّية فكان العدّاد يقرأ **صفرًا للأبد** (كذب صامت = نفس العلّة التي
+    بُنيت اللوحة لمنعها). كما أنه **لا يحمل مفتاح `status`** — حكم الاكتمال (`session_complete`)
+    يصدر عن المدقّق `ignition_e2_analyze` من مجلد القياس لا عن الفهرس. يدعم الشكلين (قاموس/قائمة)
+    ويرجّع (المجموع، المنتهية طبيعيًّا). فاشل-آمن → (0, 0)."""
+    try:
+        rows = list(idx.values()) if isinstance(idx, dict) else list(idx or [])
+        rows = [r for r in rows if isinstance(r, dict)]
+        return len(rows), sum(1 for r in rows if r.get("termination") == "normal")
+    except Exception:
+        return 0, 0
+
+
 def _collection_health_block() -> list:
     """🩺 لوحة حالة جمع بيانات المضارب (طلب المستخدم 2026-07-24 «اكيد بننسى»): عدّادات تظهر
     **دائمًا حتى عند الصفر** في تقرير التطوير الأسبوعي — بخلاف البلوكات التفصيلية (`_hand_flow`/
@@ -8284,11 +8299,12 @@ def _collection_health_block() -> list:
     try:
         with open("ignition_e2_session_index.json", encoding="utf-8") as _f:
             _idx = json.load(_f)
-        _c = sum(1 for s in _idx
-                 if isinstance(s, dict) and s.get("status") == "session_complete")
-        lines.append(f"   🔬 جلسات قياس E2 المكتملة: {_c}/20")
+        _tot, _norm = _e2_index_counts(_idx)
+        lines.append(
+            f"   🔬 جلسات قياس E2 المسجَّلة: {_tot} (منها {_norm} انتهت طبيعيًّا) — "
+            "المطلوب 5 مكتملة · حكم الاكتمال من المدقّق `ignition_e2_analyze` لا من الفهرس")
     except Exception:
-        lines.append("   🔬 جلسات قياس E2 المكتملة: 0/20 (تتجمّع)")
+        lines.append("   🔬 جلسات قياس E2: 0 مسجَّلة (تتجمّع)")
     return lines
 
 
