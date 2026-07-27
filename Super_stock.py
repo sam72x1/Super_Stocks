@@ -11456,6 +11456,24 @@ def _bt_days_to_earnings(signal_iso, dates):
         return None
 
 
+def _bt_country(sym, fetch=None):
+    """🌏 دولة السهم — عمود تحليل **لم يُختبر قط** (اختُبر `sector` وحده). سببه: أسهم فيصل
+    الخمس المرجعية (AZI · DSY · EHGO · ZCMD · JZ) **كلها صينية**، وفيصل يجمعها بنفسه صراحةً:
+    «صيني مثل خوياه: Azi · DSY · EHGO» و«**صيني نقيسه مع الاسهم السابقه**» (قياس بالأقران).
+    ⚠️ والبوت اليوم يعامل الصين **تحذيرَ مخاطرة** (`HIGH_RISK_COUNTRIES`) — فقد نكون معكوسين.
+    شبه ثابت (خطر نظر مستقبلي أدنى، كالقطاع). فاشل-آمن → «—». **تحليل فقط، خارج الفرز.**"""
+    try:
+        if fetch is not None:
+            info = fetch(sym)
+        elif yf is not None:
+            info = _fetch_info(yf.Ticker(sym)) or {}
+        else:
+            return "—"
+        return (info.get("country") if isinstance(info, dict) else info) or "—"
+    except Exception:
+        return "—"
+
+
 def _bt_pump_features(df, date_str):
     """🔬 بصمة «رفعة القروب» **عند يوم الإشارة حصرًا** (بلا نظر مستقبلي) — لاختبار فرضية
     «الرابط المشترك = غياب رفعة القروب» (`pump_filter_prereg.md`، تسجيل مسبق 2026-07-27).
@@ -11487,7 +11505,7 @@ def _bt_feature_enrich(all_trades, sector_fetch=None, earn_fetch=None, hist=None
     ⚠️ **حدّ صدق (مراجعة Codex):** `days_to_earnings` **best-effort لا point-in-time مضمون تاريخيًّا**
     (`earnings_dates` بلا known_at — تفصيل في `_bt_earnings_dates`). `sector` شبه ثابت فخطر النظر
     المستقبلي فيه أدنى. الاستدلال الصارم على الأرباح يلزمه مصدر as-of/لقطات prospective."""
-    _sec, _earn = {}, {}
+    _sec, _earn, _cty = {}, {}, {}
     for t in all_trades:
         sym = t.get("symbol")
         if not sym:
@@ -11496,6 +11514,9 @@ def _bt_feature_enrich(all_trades, sector_fetch=None, earn_fetch=None, hist=None
             _sec[sym] = _bt_sector(sym, fetch=sector_fetch)
         if sym not in _earn:
             _earn[sym] = _bt_earnings_dates(sym, fetch=earn_fetch)
+        if sym not in _cty:                       # 🌏 الدولة (لم تُختبر قط — أسهم فيصل صينية)
+            _cty[sym] = _bt_country(sym, fetch=sector_fetch)
+        t["country"] = _cty[sym]
         t["sector"] = _sec[sym]
         t["days_to_earnings"] = _bt_days_to_earnings(t.get("date", ""), _earn[sym])
         # 🔬 فرضية الفلتر السلبي (pump_filter_prereg.md): بصمة رفعة القروب point-in-time
