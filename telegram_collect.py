@@ -17,6 +17,7 @@ import hashlib
 import json
 import os
 import re
+import time
 import sys
 
 import requests
@@ -67,6 +68,22 @@ def pick_file(msg):
     return None
 
 
+def safe_offset(items, current=0):
+    """🛡️ **العَقد الحاسم ضد «أرجع أرسل الصور»:** تلغرام يحذف التحديثات التي نُقِرّها
+    بـ`offset`. فلا نُقِرّ إلا **البادئة الناجحة** — ونتوقّف عند **أول إخفاق** فيبقى
+    محفوظًا عند تلغرام ويسحبه التشغيل التالي وحده. `items` = [(update_id, نجح؟)]
+    بالترتيب. نقيّة · بلا شبكة.
+
+    (الخلل الذي أصلحته: الكود السابق كان يرفع `offset` **قبل** التنزيل، فأي فشل شبكي
+    يعني **صورة تُحذف من تلغرام ولا تُحفَظ عندنا** ⇒ إعادة إرسال الدفعة كلها.)"""
+    off = int(current or 0)
+    for uid, ok in items:
+        if not ok:
+            break
+        off = max(off, int(uid) + 1)
+    return off
+
+
 def _sha(path):
     h = hashlib.sha256()
     with open(path, "rb") as fh:
@@ -105,6 +122,7 @@ def main():
     seen_uid = set(state.get("seen_file_ids") or [])
     shas = _existing_shas(OUT_DIR)
     saved, skipped, photos, docs, pages = 0, 0, 0, 0, 0
+    failed = []
 
     while saved + skipped < MAX_FILES and pages < 40:
         pages += 1
@@ -127,28 +145,44 @@ def main():
         ups = data.get("result") or []
         if not ups:
             break
+        marks = []
         for u in ups:
-            offset = max(offset, int(u.get("update_id") or 0) + 1)
+            uid = int(u.get("update_id") or 0)
             msg = u.get("message") or u.get("channel_post") or {}
             f = pick_file(msg)
-            if not f or f["file_id"] in seen_uid:
+            if not f:
+                marks.append((uid, True))            # لا صورة ⇒ لا شيء يُفقَد
                 continue
-            try:
-                fr = requests.get(f"{API}/bot{tok}/getFile", timeout=60,
-                                  params={"file_id": f["file_id"]}).json()
-                fp = ((fr.get("result") or {}).get("file_path")) if fr.get("ok") else None
-                if not fp:
-                    continue
-                blob = requests.get(f"{API}/file/bot{tok}/{fp}", timeout=120)
-                if blob.status_code != 200 or not blob.content:
-                    continue
-            except Exception as e:                   # noqa: BLE001
-                print(f"⚠️ تنزيل {f['name']}: {_mask(e)}")
+            if f["file_id"] in seen_uid:
+                marks.append((uid, True))            # نُزِّلت سابقًا
+                continue
+            blob = None
+            for attempt in range(3):                 # ثلاث محاولات قبل الاستسلام
+                try:
+                    fr = requests.get(f"{API}/bot{tok}/getFile", timeout=60,
+                                      params={"file_id": f["file_id"]}).json()
+                    fp = (((fr.get("result") or {}).get("file_path"))
+                          if fr.get("ok") else None)
+                    if not fp:
+                        break                        # ملف منتهٍ عند تلغرام
+                    resp = requests.get(f"{API}/file/bot{tok}/{fp}", timeout=180)
+                    if resp.status_code == 200 and resp.content:
+                        blob = resp
+                        break
+                except Exception as e:               # noqa: BLE001
+                    if attempt == 2:
+                        print(f"⚠️ تنزيل {f['name']}: {_mask(e)}")
+                if attempt < 2:
+                    time.sleep(1.5 * (attempt + 1))
+            if blob is None:
+                failed.append(f"{f['name']} (رسالة {msg.get('message_id')})")
+                marks.append((uid, False))           # ⛔ لا نُقِرّه ⇒ يُعاد سحبه
                 continue
             digest = hashlib.sha256(blob.content).hexdigest()
             if digest in shas:                       # مكرّرة بالمحتوى ⇒ تُتخطّى
                 skipped += 1
                 seen_uid.add(f["file_id"])
+                marks.append((uid, True))
                 continue
             path = os.path.join(OUT_DIR, f["name"])
             n = 1
@@ -163,6 +197,13 @@ def main():
             saved += 1
             docs += 1 if f["kind"] == "document" else 0
             photos += 1 if f["kind"] == "photo" else 0
+            marks.append((uid, True))
+        new_off = safe_offset(marks, offset)
+        if new_off == offset and failed:
+            break            # أول تحديث نفسه فاشل ⇒ لا تقدّم، خلّه للتشغيل التالي
+        offset = new_off
+        if failed:
+            break            # لا نتجاوز الإخفاق: التشغيل التالي يستأنف منه
 
     state["offset"] = offset
     state["seen_file_ids"] = sorted(seen_uid)[-4000:]
@@ -173,7 +214,11 @@ def main():
     if photos and not docs:
         print("ℹ️ كلها وصلت **صورًا مضغوطة**: تُقرأ عادةً، لكن الإرسال «كملف/Document» "
               "يحفظ حدّة النص لو صعبت قراءة صورة.")
-    if saved == 0:
+    if failed:
+        print(f"⛔ تعذّر تنزيل {len(failed)}: " + " · ".join(failed[:8]))
+        print("   ↳ **لم تُقَرّ عند تلغرام** ⇒ أعِد تشغيل هذا الـworkflow وحده "
+              "يستأنف منها — **لا تُعِد إرسال أي صورة**.")
+    if saved == 0 and not failed:
         print("ℹ️ لا جديد. تأكّد أنك أرسلت الصور للبوت **بعد** آخر تشغيل، وأن "
               "التحديثات لم تُستهلَك (تلغرام يحفظها ~24 ساعة).")
     return 0

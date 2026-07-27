@@ -6937,6 +6937,20 @@ check("📥 التلغرام·لا يطبع السرّ إطلاقًا (إخفا�
 check("📥 التلغرام·بلا توكن ⇒ لا عمل بلا استثناء (فاشل-آمن)",
       (lambda: (_os0.environ.pop("TELEGRAM_BOT_TOKEN", None),
                 TC.main() == 0)[1])())
+check("🛡️ التلغرام·العَقد ضد إعادة الإرسال: لا نُقِرّ إلا البادئة الناجحة",
+      TC.safe_offset([(10, True), (11, True), (12, True)]) == 13
+      and TC.safe_offset([(10, True), (11, False), (12, True)]) == 11
+      and TC.safe_offset([(10, False), (11, True)], current=7) == 7
+      and TC.safe_offset([], current=5) == 5)
+check("🛡️ التلغرام·لا يُقِرّ التحديث قبل نجاح التنزيل (كان يفقد الصورة نهائيًّا)",
+      "marks.append((uid, False))" in open("telegram_collect.py",
+                                          encoding="utf-8").read()
+      and "safe_offset(marks, offset)" in open("telegram_collect.py",
+                                               encoding="utf-8").read())
+check("🛡️ التلغرام·يعيد المحاولة ثلاثًا ويسرد المتعذّر بلا طلب إعادة إرسال",
+      "range(3)" in open("telegram_collect.py", encoding="utf-8").read()
+      and "لا تُعِد إرسال أي صورة" in open("telegram_collect.py",
+                                          encoding="utf-8").read())
 check("📥 التلغرام·أداة مستقلة: لا تستورد البوت ولا تمسّ الفرز",
       "Super_stock" not in open("telegram_collect.py", encoding="utf-8").read())
 # ═══ 📸 سجلّ تغطية الصور (أداة مستقلة — تتبّع 300+ صورة بلا نسيان) ═══
