@@ -6906,6 +6906,39 @@ check("🔒 T-EXIT·قفل: خارج الجذور السبعة و analyze_ticker
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
                      S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
                      S.analyze_ticker)))
+# ═══ 📥 مُجمِّع صور التلغرام (أداة مستقلة — «أرفعها دفعة واحدة وتوصلك») ═══
+import os as _os0
+import telegram_collect as TC
+check("📥 التلغرام·المستند صورة يُفضَّل ويحفظ الاسم الأصلي (الرقم لا يضيع)",
+      TC.pick_file({"message_id": 7, "document": {"file_id": "F1",
+                                                 "mime_type": "image/jpeg",
+                                                 "file_name": "IMG_0153.jpeg"}})
+      == {"file_id": "F1", "name": "IMG_0153.jpeg", "kind": "document"})
+check("📥 التلغرام·الصورة المضغوطة: يختار **أكبر مقاس** ويسمّيها برقم الرسالة",
+      TC.pick_file({"message_id": 9, "photo": [
+          {"file_id": "s", "file_size": 10}, {"file_id": "L", "file_size": 900}]})
+      == {"file_id": "L", "name": "TG_9.jpg", "kind": "photo"})
+check("📥 التلغرام·غير الصور تُهمَل (PDF/نص/رسالة فارغة) ⇒ None",
+      TC.pick_file({"message_id": 1, "document": {"file_id": "d",
+                                                  "mime_type": "application/pdf",
+                                                  "file_name": "a.pdf"}}) is None
+      and TC.pick_file({"message_id": 2, "text": "مرحبا"}) is None
+      and TC.pick_file({}) is None and TC.pick_file(None) is None)
+check("📥 التلغرام·اسم آمن: يحفظ العربي والامتداد ويستبدل الخطر · وبلا امتداد يرتدّ",
+      TC.safe_name("IMG_0153.jpeg", "X") == "IMG_0153.jpeg"
+      and TC.safe_name("../../etc/passwd", "X") == "X.jpg"
+      and TC.safe_name("", "TG_5") == "TG_5.jpg"
+      and TC.safe_name("صورة فيصل.png", "X") == "صورة_فيصل.png")
+check("📥 التلغرام·لا يطبع السرّ إطلاقًا (إخفاء التوكن من أي نص)",
+      (lambda: (_os0.environ.__setitem__("TELEGRAM_BOT_TOKEN", "SECRET123"),
+                TC._mask("خطأ في bot SECRET123/getFile") ==
+                "خطأ في bot ***/getFile",
+                _os0.environ.pop("TELEGRAM_BOT_TOKEN", None))[1])())
+check("📥 التلغرام·بلا توكن ⇒ لا عمل بلا استثناء (فاشل-آمن)",
+      (lambda: (_os0.environ.pop("TELEGRAM_BOT_TOKEN", None),
+                TC.main() == 0)[1])())
+check("📥 التلغرام·أداة مستقلة: لا تستورد البوت ولا تمسّ الفرز",
+      "Super_stock" not in open("telegram_collect.py", encoding="utf-8").read())
 # ═══ 📸 سجلّ تغطية الصور (أداة مستقلة — تتبّع 300+ صورة بلا نسيان) ═══
 import image_audit as IA
 check("📸 السجلّ·المعرّف من اسم الملف (IMG_0153.jpeg → IMG_0153) وبلا رقم يبقى الاسم",

@@ -1,0 +1,46 @@
+name: 📥 اسحب صور التلغرام إلى المستودع
+permissions:
+  contents: write
+on:
+  workflow_dispatch:
+    inputs:
+      max_files:
+        description: "سقف عدد الصور لهذا التشغيل (افتراضي 600)"
+        required: false
+        default: ""
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Pull images from the Telegram bot
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_MAX_FILES: ${{ github.event.inputs.max_files }}
+        run: python telegram_collect.py
+      - name: Update the coverage ledger
+        run: python image_audit.py
+      - name: Commit what arrived
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # -f لأن faisal_images/* مُستثنى بـ.gitignore حمايةً من الإضافة العابرة
+          git add -f faisal_images/ FAISAL_IMAGE_AUDIT.md faisal_image_audit.json \
+                     telegram_collect_state.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "لا جديد — لا commit"
+          else
+            n=$(git diff --cached --name-only -- faisal_images/ | wc -l)
+            git commit -q -m "📥 صور التلغرام: $n ملفًا + تحديث سجلّ التغطية"
+            for i in 1 2 3 4; do git push && break || sleep $((2**i)); done
+          fi
+      - name: Summary
+        if: always()
+        run: |
+          echo "### 📥 نتيجة السحب" >> $GITHUB_STEP_SUMMARY
+          head -6 FAISAL_IMAGE_AUDIT.md >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
