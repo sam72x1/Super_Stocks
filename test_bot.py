@@ -6613,7 +6613,7 @@ check("🥇 صيّاد·تنبيه: صفّ بلا خطة (توافق خلفي) �
 # ═══ 🧾 بطاقة فيصل الفرزية (2026-07-27، 5 صور: HTCR·BNKK·MWC·SVRE·MBRX) ═══
 # ① «طرح جديد» حدثًا مؤسِّسًا · ② مرجع ÷2 = **افتتاح** يوم الحدث · ③ Form 4 + «خبر بلا قبول»
 _fc_idx = pd.date_range("2025-06-02", periods=40, freq="B")
-# HTCR الحرفي: قسم · افتتاح 3.72 · أعلى 4.58 (صعود 23% = هادئ ⇒ didnt_rise) · قاع ≈ 4.58÷2
+# HTCR الحرفي: قسم · افتتاح 3.72 · أعلى 4.58 (صعود 23% ⇒ **فوق** عتبة فيصل 20% ⇒ صعد)
 _fc_open = np.concatenate([np.full(1, 3.72), np.full(39, 2.4)])
 _fc_high = np.concatenate([np.full(1, 3.80), np.full(4, 4.58), np.full(35, 2.45)])
 _fc_close = np.concatenate([np.full(5, 3.9), np.full(35, 2.32)])
@@ -6627,9 +6627,25 @@ check("🧾 بطاقة فيصل·افتتاح يوم الحدث = مرجع «ل�
 check("🧾 بطاقة فيصل·أعلى بعد الحدث (HTCR 4.58 حرفيًّا) — تعميم على تاريخ صريح",
       abs(S._post_event_high(_fc_df["High"], _fc_idx[0]) - 4.58) < 1e-6)
 _fc_pr = S._split_setup_probe(_fc_df, _fc_splits, _fc_today)
-check("🧾 بطاقة فيصل·HTCR هادئ: صعود 23% من الافتتاح ⇒ didnt_rise=True",
-      _fc_pr is not None and _fc_pr["didnt_rise"] is True
+check("🧾 بطاقة فيصل·HTCR: صعود 23% من الافتتاح فوق عتبة 20% ⇒ didnt_rise=False",
+      _fc_pr is not None and _fc_pr["didnt_rise"] is False
       and abs(_fc_pr["first_val"] - 3.72) < 0.01 and _fc_pr["event_kind"] == "split")
+# 🥇 مثال فيصل الحرفي (IMG_0153): «فتح ع 5 وصل 5.50» = +10% ⇒ هادئ · و÷2 = 2.50
+_f53_o = np.concatenate([np.full(1, 5.00), np.full(39, 2.6)])
+_f53_h = np.concatenate([np.full(1, 5.50), np.full(39, 2.65)])
+_f53_c = np.concatenate([np.full(1, 5.20), np.full(39, 2.55)])
+_f53 = pd.DataFrame({"Open": _f53_o, "High": _f53_h, "Low": _f53_c * 0.98,
+                     "Close": _f53_c, "Volume": np.full(40, 5e5)}, index=_fc_idx)
+_f53_pr = S._split_setup_probe(_f53, _fc_splits, _fc_today)
+check("🥇 IMG_0153 حرفيًّا: فتح 5 · وصل 5.50 (+10%) ⇒ هادئ · و÷2 = 2.50",
+      _f53_pr is not None and _f53_pr["didnt_rise"] is True
+      and abs(_f53_pr["half"] - 2.75) < 0.01 and abs(_f53_pr["ref"] - 5.50) < 0.01)
+check("🚫 IMG_0153 «السنتات خارج الشرح»: أرضية سعر لوصفة المقسّم موجودة",
+      S.CONFIG["SPLIT_RADAR_PRICE_MIN"] >= 1.0
+      and "SPLIT_RADAR_PRICE_MIN" in _insp0.getsource(S.scan_split_hunter)
+      and "SPLIT_RADAR_PRICE_MIN" in _insp0.getsource(S.scan_split_radar))
+check("🥇 IMG_0153: عتبة «لم يصعد» = 20% حرفيًّا (كانت 50 اجتهادًا)",
+      S.CONFIG["SPLIT_ROSE_MAX_PCT"] == 20.0)
 # BNKK الحرفي: افتتاح 3.69 · أعلى 7.19 = +95% ⇒ انضخّ (didnt_rise=False)
 _bk_df = _fc_df.copy()
 _bk_df.iloc[0, _bk_df.columns.get_loc("Open")] = 3.69

@@ -388,6 +388,7 @@ CONFIG = {
     # قائمة يدوية إضافية (مثلاً من رسائل الغامدي): رموز تتابعها دائماً
     "SPLIT_WATCHLIST": ["WCT", "WORX", "EHGO", "FRSX", "BCAB"],
     # 🎯 رادار أسهم التقسيم (فيصل IMG_0143/0144/0150/0151 — عرض/سياق فقط، خارج الفرز):
+    "SPLIT_RADAR_PRICE_MIN": 1.0,        # 🚫 «**السنتات خارج الشرح أعلاه**» (فيصل IMG_0153)
     "SPLIT_RADAR_PRICE_MAX": 10.0,       # سعر منخفض (أسهم ما بعد التقسيم غالبًا $1-5)
     "SPLIT_CLIFF_PCT": 30.0,             # هبوط يوم حادّ = بصمة كليف التقسيم المعدَّل (خُفّض
                                          #   45→30 لالتقاط التقسيمات المعتدلة ≥~1:1.4 — كان
@@ -401,7 +402,13 @@ CONFIG = {
     "FINRA_BUDGET": 400,                 # 🕵️ سقف تنزيلات FINRA لتشغيلة T-SHORT
     "FORM4_BUDGET": 48,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
     "FORM4_MAX_FETCH": 3,                # 📄 سقف مستندات Form 4 لكل سهم (شراء الداخليين)
-    "SPLIT_ROSE_MAX_PCT": 50.0,          # فيصل IMG_0150 «قسم ما أعطى صعود»: لو صعد من قيمة
+    "SPLIT_ROSE_MAX_PCT": 20.0,          # ⚖️ **تصحيح 2026-07-27 من IMG_0153 (نصّ فيصل**
+                                         # **الحرفي):** «قسمة قيمة أعلى شمعة صعد أول افتتاح
+                                         # بعد التقسيم على 2 · **شرط ما تجاوز 20٪ أثناء
+                                         # الصعود**» ومثاله «فتح ع 5 وصل 5.50» = +10% ✅.
+                                         # كانت 50 (اجتهادًا من IMG_0150 «قسم ما أعطى صعود»)
+                                         # — و20 تجعل مرجع الـ÷2 (قمة ما بعد التقسيم) يطابق
+                                         # «أعلى شمعة أول افتتاح» عمليًّا، فلا يتباعدان.
                                          #   شمعة التقسيم للقمة أكثر من هذا = انضخّ (مو هادئًا)
     # 🥇 خطة فيصل التنفيذية (من رسالته الحيّة على ONCO 2026-07-24 — عرض/سياق فقط):
     # 🩸 نطاق سحب السيولة — **قاعدة فيصل الصريحة** (CCHH IMG_0297): «من القاع 1.30 سحب
@@ -4651,7 +4658,8 @@ def scan_split_radar(history, exclude=None, fetch_splits=None, fetch_borrow=None
             if len(c) < 20:
                 continue
             price = float(c[-1])
-            if not (0 < price <= CONFIG["SPLIT_RADAR_PRICE_MAX"]):
+            if not (CONFIG["SPLIT_RADAR_PRICE_MIN"] <= price
+                    <= CONFIG["SPLIT_RADAR_PRICE_MAX"]):
                 continue
             look = min(int(CONFIG["SPLIT_LOOKBACK_DAYS"]), len(c) - 1)
             cliff = min((c[-k] / c[-k - 1] - 1.0)
@@ -5125,7 +5133,8 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
             if len(c) < 20:
                 continue
             price = float(c[-1])
-            if not (0 < price <= CONFIG["SPLIT_RADAR_PRICE_MAX"]):
+            if not (CONFIG["SPLIT_RADAR_PRICE_MIN"] <= price
+                    <= CONFIG["SPLIT_RADAR_PRICE_MAX"]):
                 continue
             look = min(int(CONFIG["SPLIT_LOOKBACK_DAYS"]), len(c) - 1)
             cliff = min((c[-k] / c[-k - 1] - 1.0)
@@ -5219,7 +5228,16 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
                      f"· ✅ لم يصعد بعد {_evn} · ✅ خالٍ من قروب")
         lines.append(f"  🎯 القاع = قمة ما بعد {_evn} ÷2 = ${r['half']:.2f} "
                      f"(القمة {r['ref']:.2f}) · هدف +100%")
-        lines.append(f"  🕵️ متاح للاقتراض: {avail} (فيصل: تحت 20ألف){fee}")
+        # 🥇 نصّ فيصل الحرفي (IMG_0153 «نماذج الهبوط الإيجابية»): الهدف **هو** الشمعة
+        # الساقطة الأولى (= المرجع) · والوقف **القاع نفسه** لهذي الوصفة (لا 7% تحته —
+        # منهجية الارتكاز العامة منفصلة) · والدخول **بالطلبات** لا شراءً من العرض.
+        lines.append(f"  🎯 الهدف = الشمعة الساقطة الأولى ${r['ref']:.2f} (=+100%) · "
+                     "تجاوزها يحقّق نسبة أعلى")
+        lines.append(f"  ⛔ وقف هذي الوصفة = <b>القاع ${r['half']:.2f}</b> "
+                     "(فيصل: «الوقف القاع») · الدخول بالطلبات لا شراءً من العرض")
+        lines.append("  ⚠️ دخول قروبات = هبوط أعمق من الـ÷2 (فيصل: «دخول قروبات = "
+                     "هبوط أكثر») — لذلك يُشترط خلوّه منها")
+        lines.append(f"  🕵️ متاح للاقتراض: {avail} (فيصل: تحت 20 ألف · وسقفه بنماذج الهبوط 50 ألفًا){fee}")
         lines.append(f"  📉 متوسطات: 20 ${r['ema20']:.2f} · 30 ${r['ema30']:.2f} "
                      f"· 50 ${r['ema50']:.2f}" + (" (مصطفّة صاعدة)" if up else ""))
         # 🥇 خطة فيصل التنفيذية (بنيتها من رسالته الحيّة على ONCO) — عرض/سياق فقط
