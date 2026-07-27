@@ -81,21 +81,30 @@ def main():
     existing = rec.load()
     now = _time.time()
     logged = 0
+    # 🩺 عدّادات تشخيصية (2026-07-24، طلب المستخدم «تأكد انهم يجمعون»): تفرّق بين «فحصنا ولم
+    # نجد مسحًا» (جمع سليم · الحدث نادر) و«لم نفحص شيئًا» (عطل صامت: بلا شموع/كلها بعيدة عن
+    # الدعم/مكرّرة). بلا هذي الأعداد يبدو الوضعان متطابقين في السجلّ = «0 مسح» مبهم.
+    stat = {"no_support": 0, "dedup": 0, "no_bars": 0, "far": 0, "near": 0}
     for s in active:
         try:
             sym = s.get("symbol")
             support = s.get("pivot")
             if not sym or not support or float(support) <= 0:
+                stat["no_support"] += 1
                 continue
             if _already_today(existing, sym, now):
+                stat["dedup"] += 1
                 continue
             bars = bot.polygon_minute_bars(sym, minutes=90)   # فاشل-آمن → None
             if not bars:
+                stat["no_bars"] += 1
                 continue
             # قرب الدعم فقط (يحمي الميزانية) — آخر سعر ضمن SWEEP_NEAR_PCT فوق الدعم
             last_close = float(bars[-1].get("c") or bars[-1].get("close") or 0)
             if last_close <= 0 or last_close > float(support) * (1 + SWEEP_NEAR_PCT / 100.0):
+                stat["far"] += 1
                 continue
+            stat["near"] += 1
             if not bot._minute_sweep(bars, float(support)):
                 continue
             # مسح مؤكَّد → التقط بصمة التدفق (الامتصاص عند القاع)
@@ -113,6 +122,11 @@ def main():
         except Exception:
             continue
     bot.log(f"🖐️ حصّاد التدفق: سجّل {logged} مسحًا جديدًا · {rec.summary().splitlines()[0]}")
+    bot.log(f"🩺 تغطية الفحص: {len(active)} سهم نشط · قرب الدعم {stat['near']} "
+            f"(بعيد {stat['far']}) · بلا شموع {stat['no_bars']} · مكرّر {stat['dedup']} "
+            f"· بلا دعم {stat['no_support']}"
+            + ("  ⚠️ لم يُفحَص أي سهم قرب دعمه — لا فرصة لالتقاط مسح هذه الجولة"
+               if not stat["near"] else ""))
     # ③ حفظ السجل (git) ليتراكم عبر الجلسات
     try:
         bot.git_save([LOG_PATH])
