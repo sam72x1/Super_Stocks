@@ -6244,6 +6244,33 @@ check("⚠️ JZ·بلا قروب (أو حقل مفقود/تالف) ⇒ لا س�
       S.pump_voids_targets_line({"pump_scar": {"found": False}}) == ""
       and S.pump_voids_targets_line({}) == ""
       and S.pump_voids_targets_line({"pump_scar": "تالف"}) == "")
+# 📏 «حقق متوسط 30 يوم من تاريخ التقسيم» (فيصل LABT IMG_0303): المتوسط لا ينضج إلا بعد مرور
+# 30 جلسة **منذ التقسيم** (قبلها نافذته تخلط ما قبل/بعد التقسيم).
+_sm_idx = pd.date_range("2026-06-01", periods=70, freq="D")
+_sm_c = np.concatenate([np.full(20, 9.0), np.full(50, 2.0)])   # التقسيم عند البار 20
+_sm_df = pd.DataFrame({"Open": _sm_c, "High": _sm_c, "Low": _sm_c, "Close": _sm_c,
+                       "Volume": np.full(70, 1e5)}, index=_sm_idx)
+_sm_mature = S.split_ma_maturity(_sm_df, "2026-06-21", period=30)
+check("📏 متوسط التقسيم: 50 جلسة بعد التقسيم ⇒ ناضج + المتوسط من شموع ما بعده حصرًا (2.0)",
+      _sm_mature is not None and _sm_mature["mature"] is True
+      and _sm_mature["sessions"] == 50 and abs(_sm_mature["ma"] - 2.0) < 0.01
+      and _sm_mature["reclaimed"] is True)
+check("📏 متوسط التقسيم: تقسيم حديث (أقل من 30 جلسة) ⇒ لم ينضج + ma=None (لا رقم مضلِّل)",
+      (lambda m: m["mature"] is False and m["ma"] is None and m["sessions"] == 10)(
+          S.split_ma_maturity(_sm_df, "2026-07-31", period=30)))
+check("📏 متوسط التقسيم·عرض: «لم ينضج» مقابل «حقّقه» · «» عند None",
+      "لم ينضج" in S.split_ma_line(S.split_ma_maturity(_sm_df, "2026-07-31"))
+      and "حقّقه" in S.split_ma_line(_sm_mature)
+      and S.split_ma_line(None) == "")
+check("📏 متوسط التقسيم·فاشل-آمن: بلا تاريخ/إطار ⇒ None",
+      S.split_ma_maturity(_sm_df, None) is None
+      and S.split_ma_maturity(None, "2026-06-21") is None
+      and S.split_ma_maturity(_sm_df, "غلط") is None)
+check("📏 قفل: split_ma_maturity خارج الجذور (عرض/سياق لا بوّابة فرز)",
+      all("split_ma_maturity" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
 # ⭐ «اتفاق الفريمات» وصيد الارتداد (فيصل IMG_0305/0306): 5د+15د+30د على نفس الدعم +
 # «الارتداد الأول لا دخول · الثاني تأكيد دخول مع عدم الكسر». مثاله: دعم 10.21 → 14.70 (+45%).
 def _mk_min_bars(seq):
@@ -6273,6 +6300,18 @@ _rbb = S.rebound_entry_state(_mk_min_bars([12.0] * 120 + [10.2] * 90 + [9.0] * 5
 check("⭐ كسر الدعم ⇒ holding=False + سطر «اطلع فورًا»",
       _rbb is not None and _rbb["holding"] is False
       and "اطلع فورًا" in S.rebound_entry_line(_rbb))
+# 🚧 بوّابة السياق (تدقيق التعارض): الاستراتيجية **مضاربة زخم** لسهم صعد بقوة — لا تنطبق على
+# سهم ارتكاز راكد عند قاعه. بلا صعود سابق ⇒ context_ok=False و entry=False مهما اتفقت الفريمات.
+_rb_flat = S.rebound_entry_state(_mk_min_bars(
+    [10.0] * 120 + [10.05] * 30 + [10.1] * 60 + [10.04] * 30 + [10.08] * 60))
+check("🚧 سياق: قاع راكد (بلا صعود) ⇒ context_ok=False و entry=False",
+      _rb_flat is not None and _rb_flat["context_ok"] is False
+      and _rb_flat["entry"] is False and _rb_flat["rise_pct"] < 20)
+check("🚧 سياق: السطر يقول «لا ينطبق» ويفصل منهجية الارتكاز صراحةً",
+      "لا ينطبق" in S.rebound_entry_line(_rb_flat)
+      and "الارتكاز" in S.rebound_entry_line(_rb_flat))
+check("🚧 سياق: سيناريو فيصل (صعد ثم ارتدّ) ⇒ context_ok=True",
+      _rb["context_ok"] is True and _rb["rise_pct"] >= 20)
 check("⭐ فاشل-آمن: عيّنة قصيرة/فارغة ⇒ None · السطر «» عند None",
       S.rebound_entry_state([]) is None and S.rebound_entry_state(None) is None
       and S.rebound_entry_state(_mk_min_bars([1.0] * 20)) is None

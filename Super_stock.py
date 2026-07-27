@@ -405,6 +405,10 @@ CONFIG = {
     # ⏱️ قاعدة «ربع الساعة» (JZ IMG_0294): المضارب «يعطيك مجال تبيع وتذبذب يصل مداه أكثر
     #   من ربع ساعه»؛ وما طلع «بدون اذن مضارب» يُسحق فورًا. معيار تصنيف الإطلاق (قياس فقط).
     "OPERATOR_SUSTAIN_MIN": 15,
+    # 🚧 بوّابة سياق «صيد الارتداد» (IMG_0305/0306): الاستراتيجية **لسهم صعد بقوة ثم ارتدّ**
+    #   («شرط السهم محقق ارتفاع + سيوله عاليه») لا لسهم ارتكاز راكد عند قاعه. العتبة **أوّلية**
+    #   (مثال المنشور 8.30→13.54 = +63%؛ أخذنا أرضية متحفّظة) — تُعاير بالاستعمال الحيّ.
+    "REBOUND_MIN_RISE_PCT": 20.0,
     "SPLIT_SWEEP_MIN_PCT": 7.0,          # حافة النطاق الضحلة
     "SPLIT_SWEEP_MID_PCT": 10.0,         # الأرجح (حسابه الحرفي على CCHH)
     "SPLIT_SWEEP_MAX_PCT": 13.0,         # حافة النطاق العميقة
@@ -4341,6 +4345,53 @@ def operator_sustain(bars, break_level, min_minutes=None):
         return None
 
 
+def split_ma_maturity(df, split_date, period=30):
+    """📏 **«حقق متوسط 30 يوم من تاريخ التقسيم»** (فيصل — LABT IMG_0303، 2026-07-27): «السهم هذا
+    **مقسم في 22-6** … امس التاريخ 22-7 … **حقق متوسط 30 يوم من تاريخ التقسيم**».
+
+    الفكرة: بعد التقسيم العكسي يبقى المتوسط **غير ناضج** حتى تمرّ `period` جلسة **منذ التقسيم**
+    (قبلها نافذته تخلط ما قبل التقسيم وما بعده)، وبلوغ السعر لهذا المتوسط الناضج = إشارة فيصل.
+
+    يرجّع `{sessions, mature, ma, reclaimed}`: عدد الجلسات منذ التقسيم · هل نضج (≥period) ·
+    قيمة المتوسط على شموع **ما بعد التقسيم حصرًا** (None قبل النضج) · هل السعر بلغه/تجاوزه.
+    None لو تعذّر. نقيّ · فاشل-آمن · **عرض/سياق فقط — خارج الفرز** (لا يُسقط سهمًا ولا يرشّحه)."""
+    try:
+        if df is None or split_date is None or len(df) < 5:
+            return None
+        d = split_date
+        if hasattr(d, "date"):
+            d = d.date()
+        if isinstance(d, str):
+            d = dt.date.fromisoformat(d[:10])
+        idx = df.index
+        days = [(t.date() if hasattr(t, "date") else t) for t in idx]
+        after = [i for i, x in enumerate(days) if x >= d]
+        if not after:
+            return None
+        seg = df["Close"].iloc[after[0]:].values.astype(float)
+        n = len(seg)
+        out = {"sessions": n, "mature": n >= int(period), "ma": None,
+               "reclaimed": None}
+        if out["mature"]:
+            ma = float(np.mean(seg[-int(period):]))
+            out["ma"] = round(ma, 2)
+            out["reclaimed"] = bool(seg[-1] >= ma)
+        return out
+    except Exception:
+        return None
+
+
+def split_ma_line(m) -> str:
+    """سطر «متوسط 30 يوم من التقسيم» (عرض فقط). «» لو None."""
+    if not m:
+        return ""
+    if not m.get("mature"):
+        return (f"📏 متوسط 30ي من التقسيم: <b>لم ينضج</b> "
+                f"({m['sessions']} جلسة من 30 — فيصل يقيسه من تاريخ التقسيم)")
+    tag = "✅ حقّقه" if m.get("reclaimed") else "⏳ تحته"
+    return f"📏 متوسط 30ي من التقسيم: ${m['ma']:.2f} — {tag} (فيصل LABT)"
+
+
 def _resample_minute_bars(bars, k: int):
     """يجمّع شموع الدقيقة إلى شموع k-دقيقة (تجميع متتالٍ بسيط). نقيّ · فاشل-آمن → []."""
     out = []
@@ -4363,9 +4414,20 @@ def _resample_minute_bars(bars, k: int):
 
 
 def rebound_entry_state(bars, frames=(5, 15, 30), tol_pct=1.5, look_minutes=180,
-                        touch_tol_pct=1.0, sep=2):
-    """⭐ **استراتيجية «اتفاق الفريمات» وصيد الارتداد** (فيصل — قناته التعليمية IMG_0305/0306،
-    2026-07-27؛ **نظام دخول لحظي كامل مُكمَّم**):
+                        touch_tol_pct=1.0, sep=2, min_rise_pct=None):
+    """⭐ **استراتيجية «اتفاق الفريمات» وصيد الارتداد** (IMG_0305/0306، 2026-07-27):
+
+    ⚠️ **حدّ مصدر (تدقيق تعارض 2026-07-27):** رأس المنشور: «شرح سابق للدكتور فيصل لسهم سابق
+    **(مع بعض الاضافات من باب النصح لكم)**» — أي **قناة تعليمية تعيد شرحه بإضافاتها**، لا نصّ فيصل
+    الحرفي. فتُعامَل **أدنى ثقة** من تغريداته المباشرة.
+
+    ⚠️ **نظامٌ مختلف عن الارتكاز — لا يُخلط:** شرطها المكتوب على الشارت «**شرط السهم محقق ارتفاع +
+    سيوله عاليه**» = **مضاربة زخم على سهم صعد بقوة ثم ارتدّ** (8.30→13.54→ارتداد 10.21→14.70)،
+    بينما **سهم الارتكاز عند قاعه لم يصعد أصلًا**. لذلك:
+      • `min_rise_pct` (افتراضه `REBOUND_MIN_RISE_PCT`) **بوّابة سياق إلزامية**: بلا صعود سابق
+        داخل النافذة لا تُعطى إشارة دخول (`context_ok=False`) — منعًا لتطبيقها على قاع راكد.
+      • **لا تُستعمل للاختيار ولا تلغي منهجية الارتكاز** — طبقة توقيت/خروج مساندة فقط.
+      • علاقتها بقاعدة فيصل الموثّقة «لا تدخل الدعم الأول» = **تشابه لا تطابق** (سياق مختلف).
 
       «فكرة الحركة: السهم بعد كل صعود قوي لازم يجني ربحه وينزل… تنتظر السهم يهدأ ويثبت على دعومه.
        **السر (اتفاق الفريمات): تفتح الشارت على 5 دقائق و15 و30 — إذا الثلاثة متفقة وثابتة على نفس
@@ -4380,9 +4442,10 @@ def rebound_entry_state(bars, frames=(5, 15, 30), tol_pct=1.5, look_minutes=180,
     بُعدًا مفقودًا: **فريمات لحظية (5/15/30د)** — فريماتنا كانت شهري/أسبوعي/يومي فقط.
 
     يأخذ شموع الدقيقة ويرجّع:
-    `{support, agree, frames, bounces, holding, entry}` — `agree` = الفريمات الثلاثة على نفس الدعم
-    ضمن `tol_pct`% · `bounces` = عدد لمسات الدعم المستقلّة · `holding` = آخر إغلاق فوقه ·
-    `entry` = **الاتفاق + ارتدادان فأكثر + ثبات** (شرط فيصل الكامل). None لو العيّنة قصيرة.
+    `{support, agree, frames, bounces, holding, rise_pct, context_ok, entry}` — `agree` = الفريمات
+    الثلاثة على نفس الدعم ضمن `tol_pct`% · `bounces` = لمسات الدعم المستقلّة · `holding` = آخر إغلاق
+    فوقه · `rise_pct` = الصعود داخل النافذة · `context_ok` = تحقّق شرط «محقق ارتفاع» ·
+    `entry` = **السياق + الاتفاق + ارتدادان فأكثر + ثبات**. None لو العيّنة قصيرة.
 
     نقيّ · فاشل-آمن · **عرض/تشخيص فقط** — لا يفتح صفقة ولا يمسّ الفرز ولا التنبيه."""
     try:
@@ -4414,9 +4477,17 @@ def rebound_entry_state(bars, frames=(5, 15, 30), tol_pct=1.5, look_minutes=180,
                     bounces += 1
                 last = i
         holding = bool(five and five[-1]["c"] > lo_s)
+        # 🚧 بوّابة السياق: «شرط السهم محقق ارتفاع» — الاستراتيجية لسهم صعد بقوة ثم ارتدّ،
+        # لا لسهم ارتكاز راكد عند قاعه (تدقيق التعارض 2026-07-27).
+        hi_w = max((b["h"] for b in five), default=0.0)
+        rise_pct = round((hi_w / lo_s - 1.0) * 100.0, 1) if lo_s > 0 else 0.0
+        need_rise = float(min_rise_pct if min_rise_pct is not None
+                          else CONFIG["REBOUND_MIN_RISE_PCT"])
+        context_ok = rise_pct >= need_rise
         return {"support": support, "agree": bool(agree), "frames": frames_used,
-                "bounces": bounces, "holding": holding,
-                "entry": bool(agree and bounces >= 2 and holding)}
+                "bounces": bounces, "holding": holding, "rise_pct": rise_pct,
+                "context_ok": bool(context_ok),
+                "entry": bool(context_ok and agree and bounces >= 2 and holding)}
     except Exception:
         return None
 
@@ -4426,6 +4497,11 @@ def rebound_entry_line(st) -> str:
     if not st:
         return ""
     fr = "+".join(f"{f}د" for f in st.get("frames", []))
+    # 🚧 خارج السياق: استراتيجية زخم لسهم صعد بقوة — لا تُطبَّق على قاع ارتكاز راكد.
+    if not st.get("context_ok", True):
+        return ("ℹ️ صيد الارتداد (5/15/30د) <b>لا ينطبق</b>: استراتيجية زخم تشترط سهمًا "
+                f"«محقق ارتفاع» (الصعود بالنافذة {st.get('rise_pct', 0):.0f}% فقط) — "
+                "منهجية الارتكاز عند القاع منفصلة")
     if st.get("entry"):
         return (f"🎯 <b>ارتداد 2 مؤكَّد</b> عند ${st['support']:.2f} — الفريمات ({fr}) "
                 "متفقة وثابتة · فيصل: <b>الدخول هنا</b> (الوقف: إغلاق تحته)")
@@ -4635,6 +4711,8 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                 # 🥇 خطة فيصل التنفيذية (تحرر/أهداف بنيوية/فجوة/سحب سيولة) — عرض فقط
                 "plan": faisal_split_plan(df, pr["price"]),
                 "bottom_test": bottom_test_state(df),   # 🔁 «القاع 2» (فيصل EDBL)
+                # 📏 متوسط 30ي من **تاريخ التقسيم** (فيصل LABT IMG_0303) — عرض/سياق
+                "split_ma": split_ma_maturity(df, pr.get("split_date")),
                 "ref": pr["ref"], "split_date": pr["split_date"],
                 "freq": pr.get("freq"), "float": flt,
                 "avail": bor.get("shares_available"),
@@ -4694,6 +4772,9 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         _bt = bottom_test_line(r.get("bottom_test"), _p.get("sweep_zone"))
         if _bt:
             lines.append("  " + _bt)
+        _sm = split_ma_line(r.get("split_ma"))    # 📏 متوسط 30ي من التقسيم (فيصل LABT)
+        if _sm:
+            lines.append("  " + _sm)
         lines.append("  ⏳ الدخول: <b>مع المضارب</b> — "
                      + ("انتظار الثبات فوق التحرر" if _p.get("liberation")
                         else "انتظار"))
