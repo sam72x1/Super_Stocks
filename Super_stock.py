@@ -410,6 +410,13 @@ CONFIG = {
                                          # — و20 تجعل مرجع الـ÷2 (قمة ما بعد التقسيم) يطابق
                                          # «أعلى شمعة أول افتتاح» عمليًّا، فلا يتباعدان.
                                          #   شمعة التقسيم للقمة أكثر من هذا = انضخّ (مو هادئًا)
+    "SPLIT_ROSE_NEAR_MULT": 2.0,         # 🔔 «قريب من الشرط» = صعد حتى ضعف الحدّ (≤40%)
+                                         # ⇒ يُذكَر بذيل التنبيه بدل الإسقاط الصامت.
+                                         # السبب: HTCR عند فيصل **+23%** (المسح الثاني
+                                         # IMG_8242) — العتبة لا تُمَسّ، والإبلاغ يكفي.
+    "SPLIT_MA_PERIODS": (20, 30, 50),    # 📏 متوسطات فيصل من **تاريخ التقسيم**: يذكر 30
+                                         # (LABT) · 40 (JEM IMG_0141) · 50 ⇒ فالمقصود
+                                         # مجموعته الموثّقة 20<30<50 لا رقمًا مفردًا.
     # 🥇 خطة فيصل التنفيذية (من رسالته الحيّة على ONCO 2026-07-24 — عرض/سياق فقط):
     # 🩸 نطاق سحب السيولة — **قاعدة فيصل الصريحة** (CCHH IMG_0297): «من القاع 1.30 سحب
     #   السيوله **متعارف عليه من 7٪ ل 13٪** · 1.30−10٪=1.17 · اذا الهبوط المتوقع 1.10».
@@ -4559,8 +4566,12 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25, offering=None):
         high, close = df["High"], df["Close"]
         cut = df.index[-1]
         # (1) تقسيم عكسي حديث (نسبة<1) داخل النافذة (بلا تسريب: التاريخ ≤ اليوم)
+        # ⚠️ **`hasattr(x, "index")` صحيح للقوائم أيضًا** (`list.index` دالّة!) فالفحص
+        # القديم كان يسقط على `.values` ⇒ **None صامتة لأي إدخال قائمة** خلافًا للتوثيق.
+        # (الإنتاج يمرّر Series من `_fetch_splits` فسلوكه لم يتغيّر — لُقِّي ببناء اختبار.)
         pairs = (list(zip(splits.index, splits.values))
-                 if hasattr(splits, "index") else list(splits or []))
+                 if hasattr(splits, "values") and hasattr(splits, "index")
+                 else list(splits or []))
         rev = []
         for ts, ratio in pairs:
             try:
@@ -4620,12 +4631,17 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25, offering=None):
             first_val = _split_day_value(close, splits, cut)
         if first_val is not None and first_val != first_val:
             first_val = None                     # الإغلاق نفسه تالف ⇒ لا قاعدة
-        didnt_rise = not (first_val and first_val > 0
-                          and (ref / first_val - 1.0) * 100.0 > CONFIG["SPLIT_ROSE_MAX_PCT"])
+        rose_pct = (round((ref / first_val - 1.0) * 100.0, 1)
+                    if first_val and first_val > 0 else None)
+        didnt_rise = not (rose_pct is not None
+                          and rose_pct > CONFIG["SPLIT_ROSE_MAX_PCT"])
         return {"event_kind": ev_kind, "event_date": str(ev_date),
                 "split_date": str(ev_date), "ref": round(ref, 2),
                 "half": half, "price": round(price, 2),
                 "near_bottom": bool(near_bottom), "held_ok": bool(held_ok),
+                # `rose_pct` **تشخيصي فقط** (لا يدخل أي قرار): يسمح بالإبلاغ عن
+                # «قريب من الشرط» بدل الإسقاط الصامت — HTCR ‏+23% مقابل حدّ 20%.
+                "rose_pct": rose_pct,
                 "didnt_rise": bool(didnt_rise), "first_val": round(first_val, 2)
                 if first_val else None,
                 "freq": _split_frequency(splits, today)}
@@ -4799,8 +4815,13 @@ def operator_sustain(bars, break_level, min_minutes=None):
 
 
 def split_ma_maturity(df, split_date, period=30):
-    """📏 **«حقق متوسط 30 يوم من تاريخ التقسيم»** (فيصل — LABT IMG_0303، 2026-07-27): «السهم هذا
+    """📏 **«حقق متوسط N يوم من تاريخ التقسيم»** (فيصل — LABT IMG_0303، 2026-07-27): «السهم هذا
     **مقسم في 22-6** … امس التاريخ 22-7 … **حقق متوسط 30 يوم من تاريخ التقسيم**».
+
+    ⚠️ **الرقم ليس واحدًا** (مسح الصور الثاني 2026-07-27): فيصل يذكر **30** (LABT) و**40**
+    (JEM IMG_0141 «إذا حقق متوسط 40 يوم ✅») و**50** — وهي مجموعته الموثّقة نفسها
+    (IMG_0151: «متوسطات 20<30<50»). فالدالّة تبقى عامّة بـ`period`، و`split_ma_lines`
+    تعرض **المجموعة** (`SPLIT_MA_PERIODS`) بدل رقم مُفرَد يُوهم أنه الرقم الوحيد.
 
     الفكرة: بعد التقسيم العكسي يبقى المتوسط **غير ناضج** حتى تمرّ `period` جلسة **منذ التقسيم**
     (قبلها نافذته تخلط ما قبل التقسيم وما بعده)، وبلوغ السعر لهذا المتوسط الناضج = إشارة فيصل.
@@ -4834,15 +4855,45 @@ def split_ma_maturity(df, split_date, period=30):
         return None
 
 
-def split_ma_line(m) -> str:
-    """سطر «متوسط 30 يوم من التقسيم» (عرض فقط). «» لو None."""
+def split_ma_line(m, period: int = 30) -> str:
+    """سطر «متوسط N يوم من التقسيم» (عرض فقط). «» لو None."""
     if not m:
         return ""
+    p = int(period)
     if not m.get("mature"):
-        return (f"📏 متوسط 30ي من التقسيم: <b>لم ينضج</b> "
-                f"({m['sessions']} جلسة من 30 — فيصل يقيسه من تاريخ التقسيم)")
+        return (f"📏 متوسط {p}ي من التقسيم: <b>لم ينضج</b> "
+                f"({m['sessions']} جلسة من {p} — فيصل يقيسه من تاريخ التقسيم)")
     tag = "✅ حقّقه" if m.get("reclaimed") else "⏳ تحته"
-    return f"📏 متوسط 30ي من التقسيم: ${m['ma']:.2f} — {tag} (فيصل LABT)"
+    return f"📏 متوسط {p}ي من التقسيم: ${m['ma']:.2f} — {tag}"
+
+
+def split_ma_lines(df, split_date, periods=None) -> str:
+    """📏 **مجموعة متوسطات فيصل من تاريخ التقسيم** (سطر واحد مُجمَّع، عرض فقط).
+
+    فيصل يذكر أرقامًا مختلفة بحسب السهم — **30** (LABT) · **40** (JEM) · **50** — وهي
+    مجموعته الموثّقة `20<30<50` (IMG_0151). فبدل انتقاء رقم واحد يُوهم أنه «القاعدة»،
+    نعرضها كلها بنضجها: «📏 متوسطات من التقسيم (N جلسة): 20 ✅ $1.20 · 30 ⏳ $1.35 · 50 لم ينضج».
+
+    نقيّ · فاشل-آمن → «». **عرض/سياق فقط — خارج الفرز.**"""
+    try:
+        ps = list(periods or CONFIG.get("SPLIT_MA_PERIODS") or (20, 30, 50))
+        parts, sess = [], None
+        for p in ps:
+            m = split_ma_maturity(df, split_date, period=p)
+            if not m:
+                continue
+            sess = m["sessions"]
+            if not m.get("mature"):
+                parts.append(f"{p} <b>لم ينضج</b>")
+            else:
+                parts.append(f"{p} {'✅' if m.get('reclaimed') else '⏳'} "
+                             f"${m['ma']:.2f}")
+        if not parts:
+            return ""
+        return (f"📏 متوسطات من التقسيم ({sess} جلسة): " + " · ".join(parts)
+                + " — فيصل يقيسها من تاريخ التقسيم (30 LABT · 40 JEM · 50)")
+    except Exception:                                    # noqa: BLE001
+        return ""
 
 
 def _resample_minute_bars(bars, k: int):
@@ -5105,6 +5156,9 @@ def faisal_split_plan(df, price, bottom=None, resist=None, heads=None, gap=None,
     return out
 
 
+_SPLIT_NEAR_MISS: list = []      # 🔔 آخر «قريبين من شرط لم يصعد» (تشخيص/ذيل تنبيه)
+
+
 def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                       fetch_borrow=None, fetch_pump=None, fetch_offering=None):
     """🪝 صيّاد أسهم التقسيم (فيصل — **أداة مستقلة تمامًا عن فارز الارتكاز 14 بوابة**).
@@ -5125,6 +5179,7 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
     fo = fetch_offering or _offering_event      # 🆕 الحدث المؤسِّس البديل: طرح جديد
     today = today or dt.date.today()
     off_budget = [int(CONFIG["OFFERING_PROBE_CAP"])]
+    near_miss = []          # 🔔 استوفى كل شيء وسقط على «لم يصعد» **بفارق قريب** فقط
     # 1) مُرشّح OHLCV رخيص (نفس رادار المقسّم): سعر منخفض + كليف هبوط حادّ حديث
     pre = []
     for sym, df in history.items():
@@ -5161,8 +5216,21 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                     pr = _split_setup_probe(df, sp, today, offering=ov)
                     if pr:
                         pr["event_form"] = ov.get("form")
-            if (not pr or not pr["near_bottom"] or not pr["held_ok"]
-                    or not pr["didnt_rise"]):            # ⑥ IMG_0150 «قسم ما أعطى صعود»
+            if not pr or not pr["near_bottom"] or not pr["held_ok"]:
+                continue
+            if not pr["didnt_rise"]:                     # ⑥ IMG_0150 «قسم ما أعطى صعود»
+                # 🔔 **لا إسقاط صامت** (مبدأ «لا قصّ صامت»): من استوفى كل شيء وسقط
+                # على هذي وحدها **بفارق قريب** يُذكَر في ذيل التنبيه بلا أن يُعَدّ مطابقًا.
+                # (السبب: HTCR عند فيصل صعد **+23%** والحدّ المنصوص **20%** — فكان
+                # يُرفَض بصمت وهو سهمٌ يعرضه فيصل إيجابيًّا. العتبة **لا تُمَسّ**.)
+                _rp = pr.get("rose_pct")
+                if (_rp is not None
+                        and _rp <= CONFIG["SPLIT_ROSE_MAX_PCT"]
+                        * float(CONFIG["SPLIT_ROSE_NEAR_MULT"])):
+                    near_miss.append({"symbol": sym, "rose_pct": _rp,
+                                      "half": pr["half"], "ref": pr["ref"],
+                                      "price": pr["price"],
+                                      "event_kind": pr.get("event_kind", "split")})
                 continue
             flt = ff(sym)                                        # ④ فلوت<2م (ياهو)
             if not (flt is not None and flt < CONFIG["SPLIT_RADAR_FLOAT_MAX"]):
@@ -5183,6 +5251,8 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                 "bottom_test": bottom_test_state(df),   # 🔁 «القاع 2» (فيصل EDBL)
                 # 📏 متوسط 30ي من **تاريخ التقسيم** (فيصل LABT IMG_0303) — عرض/سياق
                 "split_ma": split_ma_maturity(df, pr.get("split_date")),
+                # 📏 مجموعة فيصل 20/30/50 من تاريخ التقسيم (30 LABT · 40 JEM · 50)
+                "split_ma_set": split_ma_lines(df, pr.get("split_date")),
                 "ref": pr["ref"], "split_date": pr["split_date"],
                 # 🆕 نوع الحدث المؤسِّس (قسم/طرح جديد) + نموذجه — عرض/سياق
                 "event_kind": pr.get("event_kind", "split"),
@@ -5197,6 +5267,12 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
         except Exception:
             continue
     out.sort(key=lambda x: x.get("float") or 0)   # الأصغر فلوتًا أولًا (أندر = أقوى)
+    # 🔔 القريبون من شرط «لم يصعد»: **يُسجَّلون دائمًا** (لا قصّ صامت) ويُذكرون في ذيل
+    # التنبيه لو أُرسِل — ولا يُنشئون رسالة وحدهم (عقد المستخدم: «المطابق الكامل فقط»).
+    _SPLIT_NEAR_MISS[:] = sorted(near_miss, key=lambda x: x["rose_pct"])[:6]
+    if _SPLIT_NEAR_MISS:
+        log("🔔 قريبون من شرط «لم يصعد» (لم يُعَدّوا مطابقين): " + " · ".join(
+            f"{n['symbol']} صعد {n['rose_pct']:.0f}%" for n in _SPLIT_NEAR_MISS))
     return out
 
 
@@ -5262,7 +5338,8 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         _bt = bottom_test_line(r.get("bottom_test"), _p.get("sweep_zone"))
         if _bt:
             lines.append("  " + _bt)
-        _sm = split_ma_line(r.get("split_ma"))    # 📏 متوسط 30ي من التقسيم (فيصل LABT)
+        # 📏 مجموعة 20/30/50 من التقسيم (فيصل يذكر 30 LABT · 40 JEM · 50) — وإلا المُفرَد
+        _sm = r.get("split_ma_set") or split_ma_line(r.get("split_ma"))
         if _sm:
             lines.append("  " + _sm)
         lines.append("  ⏳ الدخول: <b>مع المضارب</b> — "
@@ -5271,6 +5348,17 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         _fl = _split_freq_line(r.get("freq"))
         if _fl:
             lines.append("  " + _fl)
+        lines.append("")
+    # 🔔 ذيل «قريبون من الشرط»: استوفوا كل شيء وسقطوا على «لم يصعد» بفارق قريب.
+    # (فيصل عرض HTCR وقد صعد **+23%** والحدّ المنصوص **20%** — فلا يُسقَط بصمت.
+    # العتبة نفسها **لا تُمَسّ**: نصّ IMG_0153 حرفيّ ومثاله +10%.)
+    if _SPLIT_NEAR_MISS:
+        lines.append(f"🔔 <b>قريبون من شرط «لم يصعد»</b> (لم يُعَدّوا مطابقين — "
+                     f"الحدّ {CONFIG['SPLIT_ROSE_MAX_PCT']:.0f}%):")
+        for n in _SPLIT_NEAR_MISS:
+            _e = "الطرح" if n.get("event_kind") == "offering" else "التقسيم"
+            lines.append(f"  • {esc(n['symbol'])} ${n['price']:.2f} — صعد بعد {_e} "
+                         f"<b>{n['rose_pct']:.0f}%</b> · قمته÷2 = ${n['half']:.2f}")
         lines.append("")
     lines.append("<i>أداة مستقلة عن فارز الارتكاز — صيد المقسّم بمنهج فيصل (عرض/تنبيه).</i>")
     return _rtl_join(lines)

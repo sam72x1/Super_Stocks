@@ -6413,6 +6413,51 @@ check("📏 متوسط التقسيم·عرض: «لم ينضج» مقابل «ح
       "لم ينضج" in S.split_ma_line(S.split_ma_maturity(_sm_df, "2026-07-31"))
       and "حقّقه" in S.split_ma_line(_sm_mature)
       and S.split_ma_line(None) == "")
+# 📏 **مجموعة 20/30/50** (المسح الثاني للصور 2026-07-27): فيصل يذكر 30 (LABT) · 40 (JEM
+# IMG_0141 «إذا حقق متوسط 40 يوم») · 50 ⇒ رقم واحد يُوهم أنه «القاعدة». نعرض المجموعة.
+check("📏 مجموعة متوسطات التقسيم: تعرض 20/30/50 كلها بنضج كلٍّ منها (لا رقمًا مفردًا)",
+      (lambda s: all(f"{p}" in s for p in (20, 30, 50)) and "من التقسيم" in s
+       and "جلسة" in s)(S.split_ma_lines(_sm_df, "2026-06-21")))
+check("📏 مجموعة المتوسطات·غير الناضج يُصرَّح به لا يُخفى · وفاشلة-آمنة ⇒ «»",
+      "لم ينضج" in S.split_ma_lines(_sm_df, "2026-07-31")
+      and S.split_ma_lines(_sm_df, None) == ""
+      and S.split_ma_lines(None, "2026-06-21") == "")
+check("📏 مجموعة المتوسطات·المصدر موثّق بالسطر (30 LABT · 40 JEM · 50)",
+      "30 LABT" in S.split_ma_lines(_sm_df, "2026-06-21")
+      and "40 JEM" in S.split_ma_lines(_sm_df, "2026-06-21"))
+# 🔔 «قريب من شرط لم يصعد»: العتبة **لا تُمَسّ** (نصّ IMG_0153)، لكن لا إسقاط صامت —
+# HTCR عند فيصل صعد +23% والحدّ 20% (IMG_8242، المسح الثاني).
+check("🔔 المسح الثاني·`rose_pct` تشخيصي يُحسب ولا يغيّر حكم «لم يصعد»",
+      (lambda p: p is not None and abs(p["rose_pct"] - 23.0) < 1.5
+       and p["didnt_rise"] is False)(
+          (lambda n: S._split_setup_probe(
+              pd.DataFrame({"Open": np.r_[3.72, np.full(n - 1, 3.0)],
+                            "High": np.r_[4.58, np.full(n - 1, 4.0)],
+                            "Low": np.full(n, 2.2),
+                            "Close": np.r_[3.72, np.full(n - 1, 2.29)],
+                            "Volume": np.full(n, 1e5)},
+                           index=pd.date_range("2026-06-01", periods=n, freq="D")),
+              [(S.dt.date(2026, 6, 1), 0.1)], S.dt.date(2026, 6, 1)
+              + S.dt.timedelta(days=n - 1)))(40)))
+check("🐞 المِجَسّ يقبل **قائمة** تقسيمات كما يوثّق (كان hasattr('index') يصدق على list "
+      "⇒ None صامتة)",
+      "hasattr(splits, \"values\")" in _insp0.getsource(S._split_setup_probe))
+check("🔔 المسح الثاني·العتبة 20% لم تُمَسّ · و«القريب» سقفه ضعفها (تشخيص لا تخفيف)",
+      S.CONFIG["SPLIT_ROSE_MAX_PCT"] == 20.0
+      and S.CONFIG["SPLIT_ROSE_NEAR_MULT"] == 2.0
+      and "SPLIT_ROSE_MAX_PCT" in _insp0.getsource(S._split_setup_probe))
+check("🔔 المسح الثاني·ذيل «قريبون» يظهر بالتنبيه ولا يُنشئ رسالة وحده (عقد الصمت)",
+      (lambda _sv: (S._SPLIT_NEAR_MISS.__setitem__(
+          slice(None), [{"symbol": "HTCR", "rose_pct": 23.0, "half": 2.29,
+                         "ref": 4.58, "price": 2.50, "event_kind": "split"}]),
+          "قريبون من شرط" in S.build_split_hunter_alert(
+              [{"symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0, "float": 1e6,
+                "avail": None, "borrow_fee": None, "ema20": 1.0, "ema30": 1.0,
+                "ema50": 1.0, "split_date": "2026-06-01", "freq": 0,
+                "plan": {}, "bottom_test": None, "split_ma": None}]),
+          S.build_split_hunter_alert([]) == "",          # صفر مطابق ⇒ صامت
+          S._SPLIT_NEAR_MISS.__setitem__(slice(None), _sv))[1:3])(
+          list(S._SPLIT_NEAR_MISS)) == (True, True))
 check("📏 متوسط التقسيم·فاشل-آمن: بلا تاريخ/إطار ⇒ None",
       S.split_ma_maturity(_sm_df, None) is None
       and S.split_ma_maturity(None, "2026-06-21") is None
