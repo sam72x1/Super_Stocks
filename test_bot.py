@@ -7330,11 +7330,70 @@ check("📥 التلغرام·النجاح يرجّع المحتوى بلا وس
                                            "result": {"file_path": "p/a.jpg"}},
                         "status_code": 200, "content": b"JPEGDATA"})())
       == (b"JPEGDATA", False, ""))
-check("🛡️ التلغرام·طابور دائم بـfile_id: العابر لا يُعلّق الطابور ولا يُفقَد",
-      (lambda t: 'pending[f["file_id"]]' in t and 'state["pending"] = pending' in t
-       and "إعادة محاولة" in t and "PENDING_TRIES" in t
-       and "perm_failed" in t)(open("telegram_collect.py",
-                                    encoding="utf-8").read()))
+def _tc_run(fail_download):
+    """يشغّل `TC.main()` ببيئة معزولة تمامًا (توكن وهمي · STATE وOUT_DIR مؤقّتان ·
+    `requests` محقون) ويرجع (عدد الصور المحفوظة، مفاتيح الطابور المُخزَّن).
+
+    ⚠️ **القفل السابق كان grep نصّيًّا** فلم يُنفِّذ الطابور إطلاقًا: طفرتان واقعيتان
+    (`pending.clear()` قبل الحفظ · `PENDING_TRIES = 0`) كانتا **تمرّان** — وهما بعينهما
+    فقدُ الصور الذي كُتب هذا الطابور لمنعه. صار القفل يقود `main()` **تشغيلين**."""
+    class _R:
+        def __init__(self, js=None, content=None):
+            self._js, self.content, self.status_code = js, content, 200
+
+        def json(self):
+            return self._js
+
+    def _get(url, **kw):
+        if "getUpdates" in url:
+            if kw.get("params", {}).get("offset", 0) > 0:
+                return _R({"ok": True, "result": []})     # لا جديد بعد الإقرار
+            return _R({"ok": True, "result": [{
+                "update_id": 1,
+                "message": {"message_id": 9, "photo": [
+                    {"file_id": "FID1", "file_unique_id": "U1",
+                     "width": 900, "height": 900, "file_size": 5000}]}}]})
+        if "getFile" in url:
+            if fail_download[0]:
+                raise OSError("net")                      # إخفاق **عابر**
+            return _R({"ok": True, "result": {"file_path": "photos/a.jpg"}})
+        return _R(content=b"\xff\xd8\xff" + b"z" * 64)     # تنزيل ناجح
+
+    _sv = (TC.STATE, TC.OUT_DIR, TC.requests, _os_hc.environ.get("TELEGRAM_BOT_TOKEN"))
+    try:
+        TC.requests = _ty0.SimpleNamespace(get=_get)
+        _os_hc.environ["TELEGRAM_BOT_TOKEN"] = "T"
+        TC.main()
+        _st = _json0.load(open(TC.STATE, encoding="utf-8"))
+        return (len([x for x in _os0.listdir(TC.OUT_DIR)]),
+                sorted((_st.get("pending") or {}).keys()))
+    finally:
+        TC.STATE, TC.OUT_DIR, TC.requests = _sv[0], _sv[1], _sv[2]
+        if _sv[3] is None:
+            _os_hc.environ.pop("TELEGRAM_BOT_TOKEN", None)
+        else:
+            _os_hc.environ["TELEGRAM_BOT_TOKEN"] = _sv[3]
+
+
+check("🛡️ التلغرام·طابور دائم بـfile_id: العابر يُحفَظ ثم **يُنزَّل** بالتشغيل التالي",
+      (lambda _d: (lambda _flag: (
+          TC.__dict__.__setitem__("STATE", _os0.path.join(_d, "s.json")),
+          TC.__dict__.__setitem__("OUT_DIR", _os0.path.join(_d, "img")),
+          # ① تشغيل يخفق تنزيله عابرًا ⇒ الصورة **في الطابور** لا مفقودة
+          _tc_run(_flag),
+          _flag.__setitem__(0, False),
+          # ② تشغيل تالٍ: getUpdates فارغ (أُقِرّ) لكن الطابور يستردّها
+          _tc_run(_flag))[2:])([True]))(
+          _tf.mkdtemp()) == (((0, ["FID1"])), None, (1, [])))
+# ⚠️ الطفرة `PENDING_TRIES = 0` لا يلتقطها القفل أعلاه: العدّاد لا يُفحَص إلا عند
+# **إخفاق الإعادة**. فالقفل الثاني يُخفق تشغيلين متتاليين ويؤكّد أن الصورة ما زالت
+# بالطابور (الاستسلام بعد محاولة واحدة = فقدٌ صامت لصورة قابلة للاسترجاع).
+check("🛡️ التلغرام·إخفاق الإعادة لا يُسقط الصورة (العدّاد يسمح بمحاولات لا بواحدة)",
+      (lambda _d: (lambda _flag: (
+          TC.__dict__.__setitem__("STATE", _os0.path.join(_d, "s.json")),
+          TC.__dict__.__setitem__("OUT_DIR", _os0.path.join(_d, "img")),
+          _tc_run(_flag), _tc_run(_flag))[2:])([True]))(
+          _tf.mkdtemp()) == ((0, ["FID1"]), (0, ["FID1"])))
 check("🛡️ التلغرام·يحفظ باسم غير مُصادِم ويتخطّى المكرّرة بالمحتوى",
       (lambda d: (_os0.makedirs(d, exist_ok=True),
                   TC.__dict__.__setitem__("OUT_DIR", d),
