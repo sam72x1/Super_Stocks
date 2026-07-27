@@ -6310,6 +6310,17 @@ def _fin_fetch(url):
 S._FINRA_DAY_CACHE.clear()
 check("🕵️ T-SHORT·المحلّل النقي: يقرأ عمود ShortVolume ويتخطّى الترويسة",
       S._parse_finra_short(_FIN_DAY["20250611"]) == {"AAA": 5000, "BBB": 30000})
+check("🕵️ T-SHORT·تكرار الرمز: أول ظهور يفوز = مطابقة finra_daily_short الحيّة",
+      S._parse_finra_short(_FIN_HDR + "20250611|AAA|5000|0|40000|Q\n"
+                           "20250611|AAA|9999|0|50000|N\n") == {"AAA": 5000})
+check("🕵️ T-SHORT·العطل العابر: محاولة ثانية قبل تخزين «لا ملف» (لا تدهور صامت)",
+      (lambda tries: (S._FINRA_DAY_CACHE.clear(),
+                      S._bt_short_at_signal(
+                          "AAA", "2025-06-11",
+                          fetch=lambda u: (tries.append(1),
+                                           (_ for _ in ()).throw(IOError())
+                                           if len(tries) < 2 else _FIN_DAY["20250611"]
+                                           )[1]) == 5000)[-1])([]))
 check("🕵️ T-SHORT·المحلّل فاشل-آمن: نص فارغ/صفحة خطأ/بلا أعمدة ⇒ {}",
       S._parse_finra_short("") == {} and S._parse_finra_short(None) == {}
       and S._parse_finra_short("<html>404 not found</html>") == {})
@@ -6574,7 +6585,7 @@ check("📉 CCI·عرض: السطر يظهر بالرقم والحالة · فا
       "CCI(14)" in S.cci_line(_cs_up) and S.cci_line(None) == "")
 check("📉 CCI·قفل: خارج الجذور السبعة و analyze_ticker (مؤشّر عرض/سياق لا بوّابة)",
       all(_fn not in _insp0.getsource(_f)
-          for _fn in ("cci_state", "cci_line")
+          for _fn in ("cci_state", "cci_line", "cci(")   # «cci(» = المؤشّر الخام نفسه
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
                      S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
                      S.analyze_ticker)))
@@ -6599,10 +6610,17 @@ check("🥇 صيّاد·تنبيه: صفّ بلا خطة (توافق خلفي) �
       # سطر الدخول يبقى لكن بصياغة لا تشير لمستوى مجهول
       and "مع المضارب</b> — انتظار" in _no_plan_alert
       and "فوق التحرر" not in _no_plan_alert)
-check("🥇 قفل: faisal_split_plan خارج الجذور السبعة (عرض/سياق فقط)",
+check("🥇 قفل: faisal_split_plan خارج الجذور السبعة و analyze_ticker (عرض/سياق فقط)",
       all("faisal_split_plan" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
-                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol)))
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
+# 🩺 لوحة حالة الجمع: كانت الوحيدة بلا أي قفل (ثغرة لقّاها التدقيق الخصومي 2026-07-27)
+check("🩺 قفل: _collection_health_block خارج الجذور السبعة و analyze_ticker (تقرير فقط)",
+      all("_collection_health_block" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
 check("🪝 صيّاد·قفل: (scan_split_hunter/build_split_hunter_alert/_yahoo_float) خارج الجذور السبعة",
       all(_fn not in _insp0.getsource(_f)
           for _fn in ("scan_split_hunter", "build_split_hunter_alert", "_yahoo_float")
