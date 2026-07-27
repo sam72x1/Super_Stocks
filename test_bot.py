@@ -6861,46 +6861,85 @@ check("📄 Form 4·ميتا تالفة (cik غير رقمي) ⇒ تخطٍّ ب�
                 S.form4_insider_buys("ZZ6", fetch=lambda u: _F4_BUY) == [])[1])())
 check("🔒 عدّادات SEC مستقلّة (الطرح ≠ Form 4) وسقف مستندات للتشغيلة موجود",
       S._OFF_FAILS is not S._F4_FAILS and "FORM4_BUDGET" in S.CONFIG)
-# ═══ 🎯 تجربة T-EXIT (exit_policy_prereg.md): سياسات الخروج على نفس الصفقات ═══
-# دخول 100 · وقف 90 (مخاطرة 10 = 10%) · t1 110 (+10% = 1R) · t2 130 (3R) · t3 160 (6R)
+# ═══ 🎯 تجربة T-EXIT (exit_policy_prereg.md): سلّم أهداف ثابتة النسبة ═══
+# دخول 100 · وقف 90 (مخاطرة 10%) ⇒ هدف +20% = 2R · +50% = 5R · +100% = 10R
 def _xt(mg, oc="win"):
-    return {"entry": 100.0, "stop": 90.0, "t1": 110.0, "t2": 130.0, "t3": 160.0,
-            "outcome": oc, "mg_pre_stop": mg}
-check("🎯 T-EXIT·R لكل سياسة يُشتقّ من «أقصى صعود قبل الوقف» بلا مسّ الجذر",
-      abs(S._exit_policy_r(_xt(35.0), "t1") - 1.0) < 1e-9
-      and abs(S._exit_policy_r(_xt(35.0), "t2") - 3.0) < 1e-9
-      and S._exit_policy_r(_xt(35.0), "t3") == -1.0          # 35% أقل من +60%
-      and S._exit_policy_r(_xt(5.0), "t1") == -1.0)          # لم يبلغ t1 ⇒ الوقف
-check("🎯 T-EXIT·تقريب التتبّع: حصّة من القمة ÷ المخاطرة% (وسالب واحد لو لا صعود)",
-      abs(S._exit_policy_r(_xt(40.0), trail=0.5) - 2.0) < 1e-9
-      and S._exit_policy_r(_xt(0.0), trail=0.5) == -1.0)
-check("🎯 T-EXIT·فاشلة-آمنة: بلا mg_pre_stop أو وقف فوق الدخول ⇒ None",
-      S._exit_policy_r({"entry": 100.0, "stop": 90.0, "t1": 110.0,
-                        "outcome": "win"}, "t1") is None
-      and S._exit_policy_r(dict(_xt(35.0), stop=120.0), "t1") is None)
+    return {"entry": 100.0, "stop": 90.0, "t1": 110.0, "outcome": oc,
+            "mg_pre_stop": mg}
+check("🎯 T-EXIT·R يُشتقّ من «أقصى صعود قبل الوقف» بلا مسّ الجذر",
+      abs(S._exit_policy_r(_xt(35.0), 20.0) - 2.0) < 1e-9
+      and abs(S._exit_policy_r(_xt(35.0), 30.0) - 3.0) < 1e-9
+      and S._exit_policy_r(_xt(35.0), 50.0) == -1.0        # 35% أقل من 50%
+      and S._exit_policy_r(_xt(5.0), 10.0) == -1.0)
+check("🎯 T-EXIT·فاشلة-آمنة: بلا mg_pre_stop / بلا نسبة / وقف فوق الدخول ⇒ None",
+      S._exit_policy_r({"entry": 100.0, "stop": 90.0}, 20.0) is None
+      and S._exit_policy_r(_xt(35.0), None) is None
+      and S._exit_policy_r(dict(_xt(35.0), stop=120.0), 20.0) is None)
+# 🔴 قفل ضدّ الخللين الذين أسقطتهما المراجعة الذاتية قبل الاعتماد
+check("🔴 T-EXIT·قفل: لا ذراع «تتبّع» (كانت متحيّزة: تربح على أي قمة موجبة)",
+      "trail" not in _insp0.getsource(S._exit_policy_r)
+      and "TRAIL" not in _insp0.getsource(S.backtest_exit_policies)
+      and not hasattr(S, "_EXIT_TRAIL_CAPTURE"))
+check("🔴 T-EXIT·قفل: لا ذراع t2/t3 صامتة (الجذر يحمل t1 فقط) + التصريح بذلك",
+      't["t2"]' not in _insp0.getsource(S._exit_policy_r)
+      and 't["t3"]' not in _insp0.getsource(S._exit_policy_r)
+      and any("t1 فقط" in x for x in S.backtest_exit_policies(
+          [_xt(35.0) for _ in range(15)] + [_xt(3.0, "loss") for _ in range(15)])))
 _xrep = S.backtest_exit_policies([_xt(35.0) for _ in range(15)]
                                  + [_xt(3.0, "loss") for _ in range(15)])
-check("🎯 T-EXIT·الكتلة: تبوّب السياسات الأربع وتصدر حكمًا بالمعيار المسجَّل",
-      any("الهدف 1 (الحالية)" in x for x in _xrep)
-      and any("الهدف 3" in x for x in _xrep)
-      and any("تتبّع" in x for x in _xrep)
+check("🎯 T-EXIT·الكتلة: تبوّب السلّم كاملًا وتصدر حكمًا بالمعيار المسجَّل",
+      any("هدف +10%" in x for x in _xrep) and any("هدف +100%" in x for x in _xrep)
       and any("الحكم بالمعيار المسجَّل" in x for x in _xrep))
-check("🎯 T-EXIT·يُعلن تفوّق الهدف 1 بالوضوح نفسه (لا تحيّز للحمل)",
-      any("الهدف 1 هو الأفضل" in x for x in S.backtest_exit_policies(
-          [_xt(12.0) for _ in range(25)] + [_xt(2.0, "loss") for _ in range(5)])))
+check("🎯 T-EXIT·يُعلن أن الهدف الأقرب أفضل بالوضوح نفسه (لا تحيّز للطمع)",
+      any("الهدف الأقرب أفضل" in x for x in S.backtest_exit_policies(
+          [_xt(15.0) for _ in range(28)] + [_xt(1.0, "loss") for _ in range(2)])))
 check("🎯 T-EXIT·مطفأة بلا BT_POTENTIAL (لا mg_pre_stop ⇒ [] بلا ضجيج)",
       S.backtest_exit_policies(
           [{"entry": 100.0, "stop": 90.0, "t1": 110.0, "outcome": "win"}
            for _ in range(30)]) == []
       and S.backtest_exit_policies([_xt(35.0)]) == [])
-check("🎯 T-EXIT·حدود الصدق مُعلَنة داخل المخرَج (لمسة/أرضية/تقريب)",
-      any("أرضية" in x and "تقريب" in x for x in _xrep))
+check("🎯 T-EXIT·حدود الصدق مُعلَنة داخل المخرَج (أرضية/لا وقف متحرّك)",
+      any("أرضية" in x and "وقف متحرّك" in x for x in _xrep))
 check("🔒 T-EXIT·قفل: خارج الجذور السبعة و analyze_ticker (تحليل فقط)",
       all(_fn not in _insp0.getsource(_f)
           for _fn in ("_exit_policy_r", "backtest_exit_policies")
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
                      S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
                      S.analyze_ticker)))
+# ═══ 📸 سجلّ تغطية الصور (أداة مستقلة — تتبّع 300+ صورة بلا نسيان) ═══
+import image_audit as IA
+check("📸 السجلّ·المعرّف من اسم الملف (IMG_0153.jpeg → IMG_0153) وبلا رقم يبقى الاسم",
+      IA.image_id("IMG_0153.jpeg") == "IMG_0153"
+      and IA.image_id("img-9504.PNG") == "IMG_9504"
+      and IA.image_id("faisal_images/IMG_0320.png") == "IMG_0320"
+      and IA.image_id("NEW شرح الوقف.jpeg") == "NEW_شرح_الوقف")
+check("📸 السجلّ·يمسح التوثيق فيعرف ما قُرئ (نقيّة، تقبل نصوصًا محقونة)",
+      IA.scan_docs(["راجع IMG_0153 و IMG-0177 معًا"]) == {"IMG_0153", "IMG_0177"}
+      and IA.scan_docs([None, ""]) == set())
+_ia_rows = IA.build(state={}, docs=["نصّ فيه IMG_0153"],
+                    files=["faisal_images/IMG_0153.jpeg",
+                           "faisal_images/IMG_9999.jpeg"])
+check("📸 السجلّ·يفرّق الموثّقة عن غير المقروءة (جوهر «ما نسينا شي»)",
+      {r["id"]: r["documented"] for r in _ia_rows}["IMG_0153"] is True
+      and {r["id"]: r["documented"] for r in _ia_rows}["IMG_9999"] is False
+      and {r["id"]: r["status"] for r in _ia_rows}["IMG_9999"] == "unread")
+check("📸 السجلّ·الحالة اليدوية لا تُفقَد بين التشغيلات (استئناف)",
+      [r for r in IA.build(state={"IMG_9999": {"status": "rejected",
+                                               "note": "سبب"}},
+                           docs=[], files=["faisal_images/IMG_9999.jpeg"])
+       ][0]["status"] == "rejected")
+check("📸 السجلّ·يُدرج الموثّقة بلا ملف مرفوع (لا تسقط من العدّ)",
+      any(r["id"] == "IMG_0177" and not r["file"]
+          for r in IA.build(state={}, docs=["IMG_0177"], files=[])))
+_ia_sm = IA.summarize(_ia_rows)
+check("📸 السجلّ·الملخّص يعطي الدفعة التالية (غير الموثّقة فقط)",
+      _ia_sm["unread"] == 1 and _ia_sm["next_batch"] == ["IMG_9999"]
+      and _ia_sm["documented"] == 1)
+check("📸 السجلّ·التقرير يطبع الجدول والأرقام بلا استثناء",
+      "IMG_9999" in IA.render(_ia_rows, _ia_sm, today="2026-07-27")
+      and "لم تُقرأ بعد" in IA.render(_ia_rows, _ia_sm, today="2026-07-27"))
+check("📸 السجلّ·أداة مستقلة: لا تستورد البوت ولا تمسّ الفرز",
+      "Super_stock" not in open("image_audit.py", encoding="utf-8").read())
 # 📄 تجديد شراء الداخليين يوميًّا (سدّ ثغرة التجميد حتى جمعة التجديد)
 check("📄 تجديد يومي: المسار اليومي يجلب Form 4 والطرح المؤسِّس (لا تجميد أسبوعيًّا)",
       all(_k in _insp0.getsource(S.run_daily_watchlist)
