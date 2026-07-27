@@ -6953,6 +6953,62 @@ check("🛡️ التلغرام·يعيد المحاولة ثلاثًا ويسر
                                           encoding="utf-8").read())
 check("📥 التلغرام·أداة مستقلة: لا تستورد البوت ولا تمسّ الفرز",
       "Super_stock" not in open("telegram_collect.py", encoding="utf-8").read())
+check("🔴 التلغرام·input فارغ لا يُسقط الأداة (كان int('') يرمي قبل main)",
+      (lambda: (_os0.environ.__setitem__("TG_MAX_FILES", ""),
+                TC._int_env("TG_MAX_FILES", 600) == 600,
+                _os0.environ.__setitem__("TG_MAX_FILES", "abc"),
+                TC._int_env("TG_MAX_FILES", 600) == 600,
+                _os0.environ.__setitem__("TG_MAX_FILES", "0"),
+                TC._int_env("TG_MAX_FILES", 600) == 600,
+                _os0.environ.__setitem__("TG_MAX_FILES", "250"),
+                TC._int_env("TG_MAX_FILES", 600) == 250,
+                _os0.environ.pop("TG_MAX_FILES", None))[1:8:2] ==
+               (True, True, True, True))())
+check("🔴 التلغرام·رفض تلغرام = إخفاق **دائم** (لا يُعاد ثلاثًا ولا يُعلّق الطابور)",
+      (lambda: (lambda calls: (
+          TC.fetch_blob("T", "F", get=lambda u, **k: type(
+              "R", (), {"json": lambda s: (calls.append(1), {
+                  "ok": False, "description": "file is too big"})[1],
+                  "status_code": 200, "content": b""})(),
+              sleep=lambda s: None),
+          len(calls))) ([]))()[0][1:] == (True, "file is too big")
+      and (lambda: (lambda calls: (TC.fetch_blob(
+          "T", "F", get=lambda u, **k: type("R", (), {
+              "json": lambda s: (calls.append(1), {"ok": False,
+                                                   "description": "x"})[1],
+              "status_code": 200, "content": b""})(),
+          sleep=lambda s: None), len(calls))[1]) ([]))() == 1)
+check("🔴 التلغرام·عطل شبكي = **عابر** (ثلاث محاولات ثم لا يُقَرّ ⇒ يُستأنَف)",
+      (lambda: (lambda calls: (TC.fetch_blob(
+          "T", "F", get=lambda u, **k: (calls.append(1),
+                                        (_ for _ in ()).throw(OSError("net")))[0],
+          sleep=lambda s: None), len(calls)))([]))() [0][:2] == (None, False)
+      and (lambda: (lambda calls: (TC.fetch_blob(
+          "T", "F", get=lambda u, **k: (calls.append(1),
+                                        (_ for _ in ()).throw(OSError("net")))[0],
+          sleep=lambda s: None), len(calls))[1])([]))() == 3)
+check("📥 التلغرام·النجاح يرجّع المحتوى بلا وسم إخفاق",
+      TC.fetch_blob("T", "F", sleep=lambda s: None,
+                    get=lambda u, **k: type("R", (), {
+                        "json": lambda s: {"ok": True,
+                                           "result": {"file_path": "p/a.jpg"}},
+                        "status_code": 200, "content": b"JPEGDATA"})())
+      == (b"JPEGDATA", False, ""))
+check("🛡️ التلغرام·طابور دائم بـfile_id: العابر لا يُعلّق الطابور ولا يُفقَد",
+      (lambda t: 'pending[f["file_id"]]' in t and 'state["pending"] = pending' in t
+       and "إعادة محاولة" in t and "PENDING_TRIES" in t
+       and "perm_failed" in t)(open("telegram_collect.py",
+                                    encoding="utf-8").read()))
+check("🛡️ التلغرام·يحفظ باسم غير مُصادِم ويتخطّى المكرّرة بالمحتوى",
+      (lambda d: (_os0.makedirs(d, exist_ok=True),
+                  TC.__dict__.__setitem__("OUT_DIR", d),
+                  TC._store(b"A", "x.jpg", set(), {}) == "saved",
+                  TC._store(b"A", "x.jpg", {__import__("hashlib").sha256(b"A")
+                                            .hexdigest()}, {}) == "dup",
+                  TC._store(b"B", "x.jpg", set(), {}) == "saved",
+                  sorted(_os0.listdir(d)) == ["x.jpg", "x_1.jpg"],
+                  TC.__dict__.__setitem__("OUT_DIR", "faisal_images"))[2:6])(
+          _os0.path.join(_tf.mkdtemp(), "imgs")) == (True,) * 4)
 # ═══ 📸 سجلّ تغطية الصور (أداة مستقلة — تتبّع 300+ صورة بلا نسيان) ═══
 import image_audit as IA
 check("📸 السجلّ·المعرّف من اسم الملف (IMG_0153.jpeg → IMG_0153) وبلا رقم يبقى الاسم",
