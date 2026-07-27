@@ -5293,6 +5293,10 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
                  else "— (غير مؤكّد من CE)")
         fee = (f" · رسوم {r['borrow_fee']:.0f}%"
                if r.get("borrow_fee") is not None else "")
+        # 📉 **شرط فيصل ① بنماذج الهبوط الإيجابية** (IMG_0153 نصًّا: «سهم مقسم **متوسط
+        # 20 < 30 < 50**») = الترتيب **الهابط** (القصير تحت الطويل) — كنّا نعرض المقلوب
+        # («مصطفّة صاعدة») فقط، فيغيب شرطه الأول عن العين. عرض فقط، ليس بوّابة.
+        down_al = (r["ema20"] < r["ema30"] < r["ema50"])
         up = (r["ema20"] > r["ema30"] > r["ema50"])
         lines.append(f"🎯 <b>{esc(r['symbol'])}</b> ${r['price']:.2f}")
         if _off:
@@ -5315,7 +5319,9 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
                      "هبوط أكثر») — لذلك يُشترط خلوّه منها")
         lines.append(f"  🕵️ متاح للاقتراض: {avail} (فيصل: تحت 20 ألف · وسقفه بنماذج الهبوط 50 ألفًا){fee}")
         lines.append(f"  📉 متوسطات: 20 ${r['ema20']:.2f} · 30 ${r['ema30']:.2f} "
-                     f"· 50 ${r['ema50']:.2f}" + (" (مصطفّة صاعدة)" if up else ""))
+                     f"· 50 ${r['ema50']:.2f}"
+                     + (" — ✅ <b>20 تحت 30 تحت 50</b> (شرط فيصل ① بنماذج الهبوط)"
+                        if down_al else " (مصطفّة صاعدة)" if up else ""))
         # 🥇 خطة فيصل التنفيذية (بنيتها من رسالته الحيّة على ONCO) — عرض/سياق فقط
         _p = r.get("plan") or {}
         if _p.get("liberation"):

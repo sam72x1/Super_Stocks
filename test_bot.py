@@ -6446,6 +6446,17 @@ check("🔔 المسح الثاني·العتبة 20% لم تُمَسّ · و«�
       S.CONFIG["SPLIT_ROSE_MAX_PCT"] == 20.0
       and S.CONFIG["SPLIT_ROSE_NEAR_MULT"] == 2.0
       and "SPLIT_ROSE_MAX_PCT" in _insp0.getsource(S._split_setup_probe))
+check("📉 المسح الثاني·شرط فيصل ① «20 تحت 30 تحت 50» يُعرَض (كنّا نعرض المقلوب فقط)",
+      (lambda mk: ("20 تحت 30 تحت 50" in S.build_split_hunter_alert([mk(1.0, 2.0, 3.0)])
+                   and "20 تحت 30 تحت 50" not in
+                   S.build_split_hunter_alert([mk(3.0, 2.0, 1.0)])
+                   and "مصطفّة صاعدة" in S.build_split_hunter_alert(
+                       [mk(3.0, 2.0, 1.0)])))(
+          lambda a, b, c: {"symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0,
+                           "float": 1e6, "avail": None, "borrow_fee": None,
+                           "ema20": a, "ema30": b, "ema50": c,
+                           "split_date": "2026-06-01", "freq": 0, "plan": {},
+                           "bottom_test": None, "split_ma": None}))
 check("🔔 المسح الثاني·ذيل «قريبون» يظهر بالتنبيه ولا يُنشئ رسالة وحده (عقد الصمت)",
       (lambda _sv: (S._SPLIT_NEAR_MISS.__setitem__(
           slice(None), [{"symbol": "HTCR", "rose_pct": 23.0, "half": 2.29,
