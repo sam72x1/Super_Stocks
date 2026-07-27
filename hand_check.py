@@ -76,6 +76,40 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     _actor = bot.flow_actor_read(r.get("fsto_osc"), _fr.get("operator_profile"))
     if _actor:
         L.append(_actor)
+    # 🆕 N8 «المشتريات الموحّدة» (المسح الثاني 2026-07-27، TG_2113): تكرار حجمٍ بعينه
+    # (1·3·5·7·10 رموز خوارزمية بين مضاربين · 100 حفاظ على نطاق · 500 انفجار نادر).
+    _up = (_fr.get("prints") or {})
+    if _up.get("uniform_size"):
+        L.append(f"🔣 مشتريات موحّدة: الحجم <b>{_up['uniform_size']}</b> تكرّر "
+                 f"{_up['uniform_count']} مرة — {_up['uniform_meaning']}")
+    # 🎯 «أهداف الشورت» — منظومة فيصل كاملةً (TG_1813 + TG_2041). عند الطلب فقط
+    # (فحص اليد) فلا تُضاف رسالة ثالثة للتقرير اليومي — عقد المستخدم: رسالتان.
+    # ⚠️ **تصحيحان (تدقيق الخلط 2026-07-27):** (1) كنت أقرأ `r.get("df")` وهو مفتاح
+    # **غير موجود** — الإطار يصل وسيطًا `df`، فكانت سطور «القاع التالي/سحب السيولة»
+    # ميتة دائمًا. (2) مرجع الـ÷2 كان `r.get("split_ref") or r.get("ref")` والمفتاح
+    # العامّ `ref` **بابُ خلط**: لو حمله سجلٌّ يومًا لطُبع «هدف هبوط» مُختلَق على
+    # ارتكاز غير مقسّم. صار المفتاح **خاصًّا بالحدث المؤسِّس** حصرًا (`split_ref`).
+    try:
+        _nb = bot.next_bottom_by_own_drop(df)
+        _pl = r.get("plan") or bot.faisal_split_plan(df, r.get("price"))
+        L.append("")
+        L += bot.short_targets_report(
+            post_split_high=r.get("split_ref"),
+            price=r.get("price"),
+            avail=(r.get("shares_available") if r.get("shares_available")
+                   is not None else (r.get("borrow") or {}).get("shares_available")),
+            float_shares=r.get("float"),
+            # ⚠️ **المجهول ليس نفيًا** (تدقيق 2026-07-27): `pump_scar` يُحسب في كتلة
+            # try مشتركة، فأي استثناء يُسقط المفتاح — و`bool(None)` كان يطبع «✅ خالٍ
+            # من رفعات القروبات» كأنه فحصٌ متحقَّق. الغياب الآن = None = لا سطر.
+            pump=((bool((r.get("pump_scar") or {}).get("found")))
+                  if isinstance(r.get("pump_scar"), dict)
+                  and "found" in r["pump_scar"] else None),
+            offering=bool(r.get("offering_event")) if r.get("offering_event") else None,
+            next_bottom=_nb,
+            sweep=(_pl or {}).get("sweep"))
+    except Exception:
+        pass
     # ⭐ «اتفاق الفريمات» وصيد الارتداد (فيصل IMG_0305/0306): 5د+15د+30د على نفس الدعم +
     # «الارتداد الأول لا دخول · الثاني تأكيد». يعيد استخدام دقائق Polygon (فاشل-آمن → لا سطر).
     try:
@@ -236,12 +270,21 @@ def hand_check(sym: str):
     except Exception:
         r["flow_raw"] = None
     # 🔁 تكرار التقسيم العكسي في آخر سنة (قرينة فيصل §P4 — فاشل-آمن → 0)
+    sp = None
     try:
         sp = bot.yf.Ticker(sym).splits if bot.yf is not None else None
         r["split_freq"] = (bot._split_frequency(sp, dt.date.today())
                            if sp is not None and len(sp) else 0)
     except Exception:
         r["split_freq"] = 0
+    # 🎯 مرجع الـ÷2 لـ«أهداف الشورت» = **قمة ما بعد آخر تقسيم عكسي** (`_post_split_high`،
+    # مرجع فيصل الحرفي: JEM 6.90÷2=3.45). مفتاح **خاصّ بالمقسّم** لا عامّ: سهم غير مقسّم
+    # ⇒ None ⇒ يُطبع «—» ولا يُختلق هدف هبوط على ارتكاز عادي (تدقيق الخلط 2026-07-27).
+    try:
+        r["split_ref"] = (bot._post_split_high(df["High"], sp, df.index[-1])
+                          if sp is not None and len(sp) else None)
+    except Exception:
+        r["split_ref"] = None
     # (🔬 التجميع الصامت أُزيل — تجربة T-ACC فشلت بالسنتين؛ لا نجلبه ولا نعرضه)
     # مؤهّل ارتكاز؟ (interp + دخول/أهداف لو مرّ) · وإلا السبب الأول
     try:

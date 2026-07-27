@@ -410,6 +410,13 @@ CONFIG = {
                                          # — و20 تجعل مرجع الـ÷2 (قمة ما بعد التقسيم) يطابق
                                          # «أعلى شمعة أول افتتاح» عمليًّا، فلا يتباعدان.
                                          #   شمعة التقسيم للقمة أكثر من هذا = انضخّ (مو هادئًا)
+    "SPLIT_ROSE_NEAR_MULT": 2.0,         # 🔔 «قريب من الشرط» = صعد حتى ضعف الحدّ (≤40%)
+                                         # ⇒ يُذكَر بذيل التنبيه بدل الإسقاط الصامت.
+                                         # السبب: HTCR عند فيصل **+23%** (المسح الثاني
+                                         # IMG_8242) — العتبة لا تُمَسّ، والإبلاغ يكفي.
+    "SPLIT_MA_PERIODS": (20, 30, 50),    # 📏 متوسطات فيصل من **تاريخ التقسيم**: يذكر 30
+                                         # (LABT) · 40 (JEM IMG_0141) · 50 ⇒ فالمقصود
+                                         # مجموعته الموثّقة 20<30<50 لا رقمًا مفردًا.
     # 🥇 خطة فيصل التنفيذية (من رسالته الحيّة على ONCO 2026-07-24 — عرض/سياق فقط):
     # 🩸 نطاق سحب السيولة — **قاعدة فيصل الصريحة** (CCHH IMG_0297): «من القاع 1.30 سحب
     #   السيوله **متعارف عليه من 7٪ ل 13٪** · 1.30−10٪=1.17 · اذا الهبوط المتوقع 1.10».
@@ -496,6 +503,11 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_POTENTIAL", "BT_POTENTIAL", int),        # 🏦 قوة البوت
             ("BT_FEATURES", "BT_FEATURES", int),          # 🔬 أعمدة تحليل point-in-time
             ("BT_SHORT", "BT_SHORT", int),                # 🕵️ T-SHORT: شورت FINRA المؤرَّخ
+            # ⛔ T-STOP (`stop_sweep_prereg.md`): عمق الوقف تحت الدعم — «lo,hi» مثل
+            # «13,15». الغرض: اختبار وقفٍ **خارج منطقة مسح السيولة** (فيصل ENPH:
+            # «جميع أوامر الوقف تحت الدعم · الوقف عند المتداولين من 5-7%»). باكتيست
+            # حصريًّا · الإنتاج يبقى (5,7) بقفل اختبار · لا يمسّ أي جذر.
+            ("BT_STOP_PCT", "STOP_BELOW_LOW_PCT", "pair"),
             ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
             ("BT_PORT_SIZE", "BT_PORT_SIZE", int),
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
@@ -503,6 +515,13 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
         if not v:
             continue
         try:
+            if cast == "pair":          # ⛔ T-STOP: «lo,hi» ⇒ tuple(float, float)
+                a, b = (float(x) for x in v.replace(" ", "").split(",")[:2])
+                if not (0 < a <= b < 100):
+                    continue            # قيمة غير معقولة ⇒ تُتجاهَل (فاشل-آمن)
+                CONFIG[cfg_key] = (a, b)
+                applied.append(f"{cfg_key}=({a:g},{b:g})")
+                continue
             CONFIG[cfg_key] = cast(float(v))
             applied.append(f"{cfg_key}={CONFIG[cfg_key]:g}")
         except ValueError:
@@ -4404,6 +4423,87 @@ def _split_freq_line(freq) -> str:
     return ""
 
 
+def short_targets_report(post_split_high=None, price=None, avail=None,
+                         float_shares=None, pump=None, offering=None,
+                         next_bottom=None, sweep=None, rose_pct=None):
+    """🎯 **«تحديد أهداف الشورت»** — منظومة فيصل كاملةً في مُخرَج واحد (TG_1813 + TG_2041).
+
+    نصّه (TG_1813): «تحديد أهداف الشورت · برنامج اشتراكه ألف دولار شهري ما يصلح إلا
+    للمحللين · **انت عليك فقط تابع الشورت — إذا صفر أو قريب من الصفر يكون إيجابي
+    السهم** · الشروط: ① سهم مقسم هابط متوسط 20<30<50 شرط ما صعد أول ما قسم أكثر من
+    20% ② خلال متوسط الحركة 20 يتضح لك وجهة السهم · هل عليه قروبات · **هل ضرب قيعان
+    جديدة وهذا الأصل** · كم القاع؟ **غالبًا يهبط النص** · فتح 5 يهبط بين 2 ← 2.50 ·
+    **يكون تحت عينك هدفه شمعة الهبوط 5 = 100%** ③ سهم عليه قروبات **هجّ عنه** ④ سهم
+    شورته حلو وهابط بعد صعود عالٍ خلال متوسط 10<20 = **ردة فعل** مع جني ربح ⑤ ابحث عن
+    **عدد أسهم الشركة + أخبارها · ما يكون عليه طرح**».
+
+    وعدديًّا (TG_2041): «6 كان دعم ارتفع هبوط لقاع 4.21 · **إذا الهبوط الأول 30% من
+    القاع نحسب قاع جديد من 4.21** · 4.21−30%=2.94» ⇒ `next_bottom`.
+
+    كل الوسائط اختيارية ⇒ ما تعذّر **يُصرَّح به** ولا يُخمَّن. يرجّع قائمة أسطر (أو []).
+    نقيّة · فاشلة-آمنة · **عرض/سياق فقط — خارج الفرز والدخول والوقف والأهداف.**"""
+    try:
+        L = ["🎯 <b>أهداف الشورت</b> (منظومة فيصل — أين يتّجه هبوطًا وأين تنتظره)"]
+        half = (float(post_split_high) / 2.0
+                if post_split_high and float(post_split_high) > 0 else None)
+        if half:
+            L.append(f"  ⬇️ الهدف الأول = القمة ÷2 = <b>${half:.2f}</b>"
+                     + (f" (القمة ${float(post_split_high):.2f})"))
+            if price and float(price) > 0:
+                _d = (float(price) / half - 1.0) * 100.0
+                L.append("  📍 السعر الآن " + (f"فوقه بـ{_d:.0f}%" if _d >= 0
+                                              else f"تحته بـ{abs(_d):.0f}%"))
+        else:
+            L.append("  ⬇️ الهدف الأول (القمة ÷2): — (لا قمة ما بعد حدث مؤسِّس)")
+            # 🚧 **حاجز خلط صريح** (تدقيق 2026-07-27): منظومة «أهداف الشورت» مبنيّة على
+            # **سهم مقسّم/مطروح هابط** (شرط فيصل ①). بلا حدث مؤسِّس لا ينطبق الـ÷2،
+            # فيُقال ذلك في المُخرَج نفسه بدل ترك القارئ يظنّ أن الباقي حكمٌ بهبوطه.
+            L.append("  ℹ️ لا تقسيم/طرح مؤسِّس ⇒ <b>منظومة الـ÷2 لا تنطبق هنا</b>؛ "
+                     "الأسطر أدناه سياق عامّ (شورت/قروبات) لا حكم هبوط.")
+        if next_bottom and next_bottom.get("next_bottom"):
+            L.append(f"  ⬇️ لو كسر القاع: <b>${next_bottom['next_bottom']:.2f}</b> "
+                     f"(بنسبة هبوطه الأولى {next_bottom['drop_pct']:.0f}%)")
+        if sweep:
+            L.append(f"  🩸 سحب السيولة المتوقَّع: <b>${float(sweep):.2f}</b>")
+        # ⑤ «انت عليك فقط تابع الشورت — صفر أو قريب من الصفر = إيجابي»
+        if avail is None:
+            L.append("  🕵️ الشورت المتاح: — (تعذّر · وهو **الرقم الذي يقول فيصل إنه "
+                     "كل ما تحتاجه**)")
+        else:
+            a = float(avail)
+            tag = ("✅ <b>صفر أو قريب منه = إيجابي</b> (نصّ فيصل)" if a <= 1000
+                   else "✅ ممتاز (تحت 10 آلاف)" if a <= 10000
+                   else "🟢 جيّد (تحت 20 ألفًا)" if a <= 20000
+                   else "🟡 مرتفع" if a <= 50000
+                   else "⛔ <b>ذخيرة هبوط</b> (حرب وتصريف)")
+            L.append(f"  🕵️ الشورت المتاح: <b>{fmt_money(a)}</b> — {tag}")
+        if float_shares:
+            # ⚠️ شرط فيصل ⑤ نصّه «عدد أسهم الشركة»، والمتاح عندنا هو **الفلوت**
+            # (المتداوَل حرًّا) وهو أقلّ من الأسهم القائمة — يُسمّى باسمه لا باسم فيصل.
+            L.append(f"  🏢 الفلوت (المتداوَل حرًّا): {fmt_money(float(float_shares))}"
+                     " — الأسهم القائمة غير متاحة عندنا")
+        if pump is not None:
+            L.append("  ⛔ <b>عليه قروبات — «هجّ عنه»</b> (نصّ فيصل)" if pump
+                     else "  ✅ خالٍ من رفعات القروبات")
+        if offering is not None:
+            L.append("  ⛔ <b>عليه طرح</b> (فيصل: «ما يكون عليه طرح»)" if offering
+                     else "  ✅ لا طرح جديد مرصود")
+        if rose_pct is not None:
+            L.append(f"  {'✅' if float(rose_pct) <= CONFIG['SPLIT_ROSE_MAX_PCT'] else '⛔'}"
+                     f" صعوده بعد الحدث {float(rose_pct):.0f}% "
+                     f"(شرط فيصل: لا يتجاوز {CONFIG['SPLIT_ROSE_MAX_PCT']:.0f}%)")
+        # ⚠️ السطر الختامي يصف **هدف وصفة الـ÷2**؛ فطبعه بعد إعلان «لا تنطبق هنا»
+        # تناقضٌ صريح (تدقيق 2026-07-27) ⇒ يُقصَر على وجود الحدث المؤسِّس.
+        if half:
+            L.append("  ℹ️ فيصل: «<b>انت عليك فقط تابع الشورت</b>» — الهدف الصاعد "
+                     "بعدها = الشمعة الساقطة الأولى (+100%)")
+        else:
+            L.append("  ℹ️ فيصل: «<b>انت عليك فقط تابع الشورت</b>»")
+        return L
+    except Exception:                                    # noqa: BLE001
+        return []
+
+
 def _split_row(sym, split_date, day_open, price, short, freq=None):
     """صفّ تقرير التقسيم العكسي (D9): هدف الهبوط = افتتاح التقسيم ÷ 2 (فيصل
     EHGO 2.80÷2=1.40)؛ والشورت «مقبول» لو أقل من SHORT_DAILY_MAX («تابعه لين
@@ -4559,8 +4659,12 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25, offering=None):
         high, close = df["High"], df["Close"]
         cut = df.index[-1]
         # (1) تقسيم عكسي حديث (نسبة<1) داخل النافذة (بلا تسريب: التاريخ ≤ اليوم)
+        # ⚠️ **`hasattr(x, "index")` صحيح للقوائم أيضًا** (`list.index` دالّة!) فالفحص
+        # القديم كان يسقط على `.values` ⇒ **None صامتة لأي إدخال قائمة** خلافًا للتوثيق.
+        # (الإنتاج يمرّر Series من `_fetch_splits` فسلوكه لم يتغيّر — لُقِّي ببناء اختبار.)
         pairs = (list(zip(splits.index, splits.values))
-                 if hasattr(splits, "index") else list(splits or []))
+                 if hasattr(splits, "values") and hasattr(splits, "index")
+                 else list(splits or []))
         rev = []
         for ts, ratio in pairs:
             try:
@@ -4620,12 +4724,22 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25, offering=None):
             first_val = _split_day_value(close, splits, cut)
         if first_val is not None and first_val != first_val:
             first_val = None                     # الإغلاق نفسه تالف ⇒ لا قاعدة
-        didnt_rise = not (first_val and first_val > 0
-                          and (ref / first_val - 1.0) * 100.0 > CONFIG["SPLIT_ROSE_MAX_PCT"])
+        # ⚠️ **القرار على القيمة الخام، والتدوير للعرض فقط** (تدقيق 2026-07-27):
+        # كنت أدوّر **قبل** المقارنة، فصعودٌ خام في (20.00%، 20.05%] يُدوَّر إلى 20.0
+        # فلا يتجاوز الحدّ ⇒ **ينقلب من مرفوض إلى مقبول** = توسيعٌ صامت لعتبة فيصل
+        # خلافًا لتوثيقي نفسه («العتبة لا تُمَسّ، والإبلاغ يكفي»).
+        rose_raw = ((ref / first_val - 1.0) * 100.0
+                    if first_val and first_val > 0 else None)
+        didnt_rise = not (rose_raw is not None
+                          and rose_raw > CONFIG["SPLIT_ROSE_MAX_PCT"])
+        rose_pct = round(rose_raw, 1) if rose_raw is not None else None
         return {"event_kind": ev_kind, "event_date": str(ev_date),
                 "split_date": str(ev_date), "ref": round(ref, 2),
                 "half": half, "price": round(price, 2),
                 "near_bottom": bool(near_bottom), "held_ok": bool(held_ok),
+                # `rose_pct` **تشخيصي فقط** (لا يدخل أي قرار): يسمح بالإبلاغ عن
+                # «قريب من الشرط» بدل الإسقاط الصامت — HTCR ‏+23% مقابل حدّ 20%.
+                "rose_pct": rose_pct,
                 "didnt_rise": bool(didnt_rise), "first_val": round(first_val, 2)
                 if first_val else None,
                 "freq": _split_frequency(splits, today)}
@@ -4799,8 +4913,13 @@ def operator_sustain(bars, break_level, min_minutes=None):
 
 
 def split_ma_maturity(df, split_date, period=30):
-    """📏 **«حقق متوسط 30 يوم من تاريخ التقسيم»** (فيصل — LABT IMG_0303، 2026-07-27): «السهم هذا
+    """📏 **«حقق متوسط N يوم من تاريخ التقسيم»** (فيصل — LABT IMG_0303، 2026-07-27): «السهم هذا
     **مقسم في 22-6** … امس التاريخ 22-7 … **حقق متوسط 30 يوم من تاريخ التقسيم**».
+
+    ⚠️ **الرقم ليس واحدًا** (مسح الصور الثاني 2026-07-27): فيصل يذكر **30** (LABT) و**40**
+    (JEM IMG_0141 «إذا حقق متوسط 40 يوم ✅») و**50** — وهي مجموعته الموثّقة نفسها
+    (IMG_0151: «متوسطات 20<30<50»). فالدالّة تبقى عامّة بـ`period`، و`split_ma_lines`
+    تعرض **المجموعة** (`SPLIT_MA_PERIODS`) بدل رقم مُفرَد يُوهم أنه الرقم الوحيد.
 
     الفكرة: بعد التقسيم العكسي يبقى المتوسط **غير ناضج** حتى تمرّ `period` جلسة **منذ التقسيم**
     (قبلها نافذته تخلط ما قبل التقسيم وما بعده)، وبلوغ السعر لهذا المتوسط الناضج = إشارة فيصل.
@@ -4834,15 +4953,45 @@ def split_ma_maturity(df, split_date, period=30):
         return None
 
 
-def split_ma_line(m) -> str:
-    """سطر «متوسط 30 يوم من التقسيم» (عرض فقط). «» لو None."""
+def split_ma_line(m, period: int = 30) -> str:
+    """سطر «متوسط N يوم من التقسيم» (عرض فقط). «» لو None."""
     if not m:
         return ""
+    p = int(period)
     if not m.get("mature"):
-        return (f"📏 متوسط 30ي من التقسيم: <b>لم ينضج</b> "
-                f"({m['sessions']} جلسة من 30 — فيصل يقيسه من تاريخ التقسيم)")
+        return (f"📏 متوسط {p}ي من التقسيم: <b>لم ينضج</b> "
+                f"({m['sessions']} جلسة من {p} — فيصل يقيسه من تاريخ التقسيم)")
     tag = "✅ حقّقه" if m.get("reclaimed") else "⏳ تحته"
-    return f"📏 متوسط 30ي من التقسيم: ${m['ma']:.2f} — {tag} (فيصل LABT)"
+    return f"📏 متوسط {p}ي من التقسيم: ${m['ma']:.2f} — {tag}"
+
+
+def split_ma_lines(df, split_date, periods=None) -> str:
+    """📏 **مجموعة متوسطات فيصل من تاريخ التقسيم** (سطر واحد مُجمَّع، عرض فقط).
+
+    فيصل يذكر أرقامًا مختلفة بحسب السهم — **30** (LABT) · **40** (JEM) · **50** — وهي
+    مجموعته الموثّقة `20<30<50` (IMG_0151). فبدل انتقاء رقم واحد يُوهم أنه «القاعدة»،
+    نعرضها كلها بنضجها: «📏 متوسطات من التقسيم (N جلسة): 20 ✅ $1.20 · 30 ⏳ $1.35 · 50 لم ينضج».
+
+    نقيّ · فاشل-آمن → «». **عرض/سياق فقط — خارج الفرز.**"""
+    try:
+        ps = list(periods or CONFIG.get("SPLIT_MA_PERIODS") or (20, 30, 50))
+        parts, sess = [], None
+        for p in ps:
+            m = split_ma_maturity(df, split_date, period=p)
+            if not m:
+                continue
+            sess = m["sessions"]
+            if not m.get("mature"):
+                parts.append(f"{p} <b>لم ينضج</b>")
+            else:
+                parts.append(f"{p} {'✅' if m.get('reclaimed') else '⏳'} "
+                             f"${m['ma']:.2f}")
+        if not parts:
+            return ""
+        return (f"📏 متوسطات من التقسيم ({sess} جلسة): " + " · ".join(parts)
+                + " — فيصل يقيسها من تاريخ التقسيم (30 LABT · 40 JEM · 50)")
+    except Exception:                                    # noqa: BLE001
+        return ""
 
 
 def _resample_minute_bars(bars, k: int):
@@ -5105,6 +5254,9 @@ def faisal_split_plan(df, price, bottom=None, resist=None, heads=None, gap=None,
     return out
 
 
+_SPLIT_NEAR_MISS: list = []      # 🔔 آخر «قريبين من شرط لم يصعد» (تشخيص/ذيل تنبيه)
+
+
 def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                       fetch_borrow=None, fetch_pump=None, fetch_offering=None):
     """🪝 صيّاد أسهم التقسيم (فيصل — **أداة مستقلة تمامًا عن فارز الارتكاز 14 بوابة**).
@@ -5125,6 +5277,7 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
     fo = fetch_offering or _offering_event      # 🆕 الحدث المؤسِّس البديل: طرح جديد
     today = today or dt.date.today()
     off_budget = [int(CONFIG["OFFERING_PROBE_CAP"])]
+    near_miss = []          # 🔔 استوفى كل شيء وسقط على «لم يصعد» **بفارق قريب** فقط
     # 1) مُرشّح OHLCV رخيص (نفس رادار المقسّم): سعر منخفض + كليف هبوط حادّ حديث
     pre = []
     for sym, df in history.items():
@@ -5161,8 +5314,21 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                     pr = _split_setup_probe(df, sp, today, offering=ov)
                     if pr:
                         pr["event_form"] = ov.get("form")
-            if (not pr or not pr["near_bottom"] or not pr["held_ok"]
-                    or not pr["didnt_rise"]):            # ⑥ IMG_0150 «قسم ما أعطى صعود»
+            if not pr or not pr["near_bottom"] or not pr["held_ok"]:
+                continue
+            if not pr["didnt_rise"]:                     # ⑥ IMG_0150 «قسم ما أعطى صعود»
+                # 🔔 **لا إسقاط صامت** (مبدأ «لا قصّ صامت»): من استوفى كل شيء وسقط
+                # على هذي وحدها **بفارق قريب** يُذكَر في ذيل التنبيه بلا أن يُعَدّ مطابقًا.
+                # (السبب: HTCR عند فيصل صعد **+23%** والحدّ المنصوص **20%** — فكان
+                # يُرفَض بصمت وهو سهمٌ يعرضه فيصل إيجابيًّا. العتبة **لا تُمَسّ**.)
+                _rp = pr.get("rose_pct")
+                if (_rp is not None
+                        and _rp <= CONFIG["SPLIT_ROSE_MAX_PCT"]
+                        * float(CONFIG["SPLIT_ROSE_NEAR_MULT"])):
+                    near_miss.append({"symbol": sym, "rose_pct": _rp,
+                                      "half": pr["half"], "ref": pr["ref"],
+                                      "price": pr["price"],
+                                      "event_kind": pr.get("event_kind", "split")})
                 continue
             flt = ff(sym)                                        # ④ فلوت<2م (ياهو)
             if not (flt is not None and flt < CONFIG["SPLIT_RADAR_FLOAT_MAX"]):
@@ -5183,6 +5349,10 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                 "bottom_test": bottom_test_state(df),   # 🔁 «القاع 2» (فيصل EDBL)
                 # 📏 متوسط 30ي من **تاريخ التقسيم** (فيصل LABT IMG_0303) — عرض/سياق
                 "split_ma": split_ma_maturity(df, pr.get("split_date")),
+                # 📏 مجموعة فيصل 20/30/50 من تاريخ التقسيم (30 LABT · 40 JEM · 50)
+                "split_ma_set": split_ma_lines(df, pr.get("split_date")),
+                # 🎯 «أهداف الشورت»: القاع التالي بنسبة السهم نفسه (فيصل TG_2041)
+                "next_bottom": next_bottom_by_own_drop(df),
                 "ref": pr["ref"], "split_date": pr["split_date"],
                 # 🆕 نوع الحدث المؤسِّس (قسم/طرح جديد) + نموذجه — عرض/سياق
                 "event_kind": pr.get("event_kind", "split"),
@@ -5197,6 +5367,12 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
         except Exception:
             continue
     out.sort(key=lambda x: x.get("float") or 0)   # الأصغر فلوتًا أولًا (أندر = أقوى)
+    # 🔔 القريبون من شرط «لم يصعد»: **يُسجَّلون دائمًا** (لا قصّ صامت) ويُذكرون في ذيل
+    # التنبيه لو أُرسِل — ولا يُنشئون رسالة وحدهم (عقد المستخدم: «المطابق الكامل فقط»).
+    _SPLIT_NEAR_MISS[:] = sorted(near_miss, key=lambda x: x["rose_pct"])[:6]
+    if _SPLIT_NEAR_MISS:
+        log("🔔 قريبون من شرط «لم يصعد» (لم يُعَدّوا مطابقين): " + " · ".join(
+            f"{n['symbol']} صعد {n['rose_pct']:.0f}%" for n in _SPLIT_NEAR_MISS))
     return out
 
 
@@ -5217,6 +5393,10 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
                  else "— (غير مؤكّد من CE)")
         fee = (f" · رسوم {r['borrow_fee']:.0f}%"
                if r.get("borrow_fee") is not None else "")
+        # 📉 **شرط فيصل ① بنماذج الهبوط الإيجابية** (IMG_0153 نصًّا: «سهم مقسم **متوسط
+        # 20 < 30 < 50**») = الترتيب **الهابط** (القصير تحت الطويل) — كنّا نعرض المقلوب
+        # («مصطفّة صاعدة») فقط، فيغيب شرطه الأول عن العين. عرض فقط، ليس بوّابة.
+        down_al = (r["ema20"] < r["ema30"] < r["ema50"])
         up = (r["ema20"] > r["ema30"] > r["ema50"])
         lines.append(f"🎯 <b>{esc(r['symbol'])}</b> ${r['price']:.2f}")
         if _off:
@@ -5239,7 +5419,9 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
                      "هبوط أكثر») — لذلك يُشترط خلوّه منها")
         lines.append(f"  🕵️ متاح للاقتراض: {avail} (فيصل: تحت 20 ألف · وسقفه بنماذج الهبوط 50 ألفًا){fee}")
         lines.append(f"  📉 متوسطات: 20 ${r['ema20']:.2f} · 30 ${r['ema30']:.2f} "
-                     f"· 50 ${r['ema50']:.2f}" + (" (مصطفّة صاعدة)" if up else ""))
+                     f"· 50 ${r['ema50']:.2f}"
+                     + (" — ✅ <b>20 تحت 30 تحت 50</b> (شرط فيصل ① بنماذج الهبوط)"
+                        if down_al else " (مصطفّة صاعدة)" if up else ""))
         # 🥇 خطة فيصل التنفيذية (بنيتها من رسالته الحيّة على ONCO) — عرض/سياق فقط
         _p = r.get("plan") or {}
         if _p.get("liberation"):
@@ -5262,7 +5444,8 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         _bt = bottom_test_line(r.get("bottom_test"), _p.get("sweep_zone"))
         if _bt:
             lines.append("  " + _bt)
-        _sm = split_ma_line(r.get("split_ma"))    # 📏 متوسط 30ي من التقسيم (فيصل LABT)
+        # 📏 مجموعة 20/30/50 من التقسيم (فيصل يذكر 30 LABT · 40 JEM · 50) — وإلا المُفرَد
+        _sm = r.get("split_ma_set") or split_ma_line(r.get("split_ma"))
         if _sm:
             lines.append("  " + _sm)
         lines.append("  ⏳ الدخول: <b>مع المضارب</b> — "
@@ -5271,6 +5454,25 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         _fl = _split_freq_line(r.get("freq"))
         if _fl:
             lines.append("  " + _fl)
+        # 🎯 من «أهداف الشورت» (TG_1813 + TG_2041) نضيف هنا **الجديد فقط**.
+        # ⚠️ تدقيق 2026-07-27: إدراج التقرير كاملًا كان يكرّر **ستّة** من ثمانية أسطر
+        # داخل الكرت نفسه (الـ÷2 · سحب السيولة · المتاح · الفلوت · القروب) — والكرت
+        # رسالة صيد قصيرة مقصودة («لا أضيع من كثر البيانات»). التقرير الكامل يبقى في
+        # **فحص اليد** حيث لا يكرّره شيء.
+        _nbl = next_bottom_line(r.get("next_bottom"))
+        if _nbl:
+            lines.append("  " + _nbl)
+        lines.append("")
+    # 🔔 ذيل «قريبون من الشرط»: استوفوا كل شيء وسقطوا على «لم يصعد» بفارق قريب.
+    # (فيصل عرض HTCR وقد صعد **+23%** والحدّ المنصوص **20%** — فلا يُسقَط بصمت.
+    # العتبة نفسها **لا تُمَسّ**: نصّ IMG_0153 حرفيّ ومثاله +10%.)
+    if _SPLIT_NEAR_MISS:
+        lines.append(f"🔔 <b>قريبون من شرط «لم يصعد»</b> (لم يُعَدّوا مطابقين — "
+                     f"الحدّ {CONFIG['SPLIT_ROSE_MAX_PCT']:.0f}%):")
+        for n in _SPLIT_NEAR_MISS:
+            _e = "الطرح" if n.get("event_kind") == "offering" else "التقسيم"
+            lines.append(f"  • {esc(n['symbol'])} ${n['price']:.2f} — صعد بعد {_e} "
+                         f"<b>{n['rose_pct']:.0f}%</b> · قمته÷2 = ${n['half']:.2f}")
         lines.append("")
     lines.append("<i>أداة مستقلة عن فارز الارتكاز — صيد المقسّم بمنهج فيصل (عرض/تنبيه).</i>")
     return _rtl_join(lines)
@@ -8252,9 +8454,121 @@ def _flow_prints(trades, bid, ask):
             tiny_out = sum(1 for p, sz in rows
                            if sz <= mn and (p > float(ask) or p < float(bid)))
         return {"neutral_block_shares": int(neutral),
-                "tiny_out_count": int(tiny_out), "total": len(rows)}
+                "tiny_out_count": int(tiny_out), "total": len(rows),
+                # 🆕 N8 «المشتريات الموحّدة» (المسح الثاني للصور 2026-07-27، TG_2113)
+                **(uniform_prints(rows) or {})}
     except Exception:
         return {}
+
+
+def uniform_prints(rows, min_rep: int = 4):
+    """🆕 **N8 «المشتريات الموحّدة»** (فيصل TG_2113 حرفيًّا): «كيف تتنبّأ بصعود السهم
+    وماذا تعني **مشتريات موحّدة** … مستوى 1 · 3 · 5 · 7 · 10 · 100 · 500 · **من 1 إلى
+    10 رموز خوارزميات بين مضاربين** · لكل مستوى دلالة معيّنة · **100 حفاظ ع نطاق سعري
+    معيّن** · **500 نادر تُستخدم انفجار**» — ومعها لقطة تِيب ADIL: الحجم **3** يتكرّر
+    عند 1.77 برمز OI.
+
+    الفرق عن N7: تلك تعدّ «طبعات دقيقة خارج NBBO» بلا نظر لقيمة الحجم؛ وهذي تلتقط
+    **تكرار حجمٍ واحد بعينه** ودلالته المنصوصة. `rows` = [(price, size)…] زمنيًّا.
+
+    يرجّع `{uniform_size, uniform_count, uniform_meaning}` أو {} لو لا نمط.
+    نقيّة · فاشلة-آمنة · **فحص اليد فقط — خارج الفرز والتنبيه** (عرض/تفسير)."""
+    try:
+        sizes = [int(sz) for _p, sz in rows if sz and int(sz) == sz]
+        if len(sizes) < min_rep:
+            return {}
+        cand = {}
+        for s in sizes:
+            if s in (1, 3, 5, 7, 10, 100, 500):
+                cand[s] = cand.get(s, 0) + 1
+        if not cand:
+            return {}
+        # ⚠️ **اللوت القياسي 100 هو الحجم الأشيع في السوق الأمريكي** (تدقيق 2026-07-27):
+        # بترجيح «الأكثر تكرارًا» كان يفوز دائمًا تقريبًا فيصير N8 **سطرًا دائمًا لا
+        # إشارة**، ويحجب الأحجام الخوارزمية النادرة (3/5/7) التي تقصدها صورة فيصل.
+        # فالأولوية للنادر، والمستدير (100/500) لا يُعلَن إلا إذا **طغى** فعلًا.
+        algo = {s: c for s, c in cand.items()
+                if s in (1, 3, 5, 7, 10) and c >= int(min_rep)}
+        if algo:
+            size, cnt = max(algo.items(), key=lambda kv: (kv[1], -kv[0]))
+        else:
+            # المستدير يُعلَن فقط إذا **طغى** على العيّنة (نصف الطبعات فأكثر) = تدفّق
+            # موحَّد فعلًا، لا مجرّد «اللوت القياسي حاضر كعادته».
+            rnd = {s: c for s, c in cand.items()
+                   if s in (100, 500) and c >= int(min_rep)
+                   and c >= 0.5 * len(sizes)}
+            if not rnd:
+                return {}
+            size, cnt = max(rnd.items(), key=lambda kv: (kv[1], -kv[0]))
+        if cnt < int(min_rep):
+            return {}
+        meaning = ("انفجار (نادر — فيصل)" if size == 500
+                   else "حفاظ على نطاق سعري معيّن (فيصل)" if size == 100
+                   else "رمز خوارزمي بين مضاربين (فيصل: من 1 إلى 10)")
+        return {"uniform_size": size, "uniform_count": int(cnt),
+                "uniform_meaning": meaning}
+    except Exception:                                    # noqa: BLE001
+        return {}
+
+
+def next_bottom_by_own_drop(df, lookback: int = 120):
+    """🆕 **«القاع التالي بنسبة السهم نفسه»** (فيصل TG_2041 حرفيًّا): «6 كان دعم ارتفع
+    هبوط لقاع 4.21 · 6−30%=4.2 · **إذا الهبوط الأول 30% من القاع نحسب قاع جديد من
+    4.21** · 4.21−30%=2.94 · هدف 4 ساعات بيكون 3 أو 2.90».
+
+    أي: نقيس **نسبة الهبوط الأولى للسهم نفسه** (من قمة سوينغ سابقة إلى القاع الذي
+    تلاها)، ثم نُسقطها على القاع الحالي لتوقّع القاع التالي.
+
+    ⚠️ **هذي هي التصحيح الذي كانت تحتاجه `half_down_target` المتقاعدة**: تلك كانت
+    تطبّق **50% ثابتة** على أي مستوى فتطبع «مستهدف هبوط −50%» على كل ارتكاز؛ وهذي
+    نسبتها **مقيسة من السهم** فتختلف من سهم لآخر ولا تنطبق إلا حيث وُجد ساقٌ أول.
+
+    يرجّع `{ref_high, first_bottom, drop_pct, next_bottom}` أو None.
+    نقيّة · فاشلة-آمنة · **عرض/سياق فقط — خارج الفرز والدخول والوقف والأهداف.**"""
+    try:
+        if df is None or len(df) < 20:
+            return None
+        hi = [float(x) for x in df["High"].tail(int(lookback))]
+        lo = [float(x) for x in df["Low"].tail(int(lookback))]
+        if len(lo) < 20:
+            return None
+        j = min(range(len(lo)), key=lambda i: lo[i])      # القاع الحالي
+        if j < 5:
+            return None
+        bottom = lo[j]
+        # ⚠️ **تصحيح 2026-07-27 (تدقيق):** كان `ref = max(hi[:j])` = أعلى قمة في
+        # النافذة كلها ⇒ النسبة المطبوعة **أقصى تراجع (max drawdown)** لا «الساق
+        # الأولى» التي يصفها فيصل. أُثبت بالمحاكاة: نفس مثاله (6→4.21 = 30%) لو سبقته
+        # قمة أقدم 12 يعطي 65% ⇒ قاع تالٍ 1.47 بدل 2.95 = **رقم مُختلَق**.
+        # الصحيح: مرجع فيصل «6 **كان دعم**» = آخر مستوى ارتكز عنده السعر قبل الساق
+        # الأخيرة، لا أعلى قمة تاريخية. نلتقطه كآخر «قمة سوينغ» قبل القاع (مقارنة غير
+        # صارمة فتشمل الهضبة/الدعم، وبفارق 5% فأكثر فوق القاع كي لا نلتقط نقطة ملاصقة).
+        w = 3
+        cands = [i for i in range(w, j - w + 1)
+                 if hi[i] >= max(hi[i - w:i + w + 1]) and hi[i] >= bottom * 1.05]
+        ref = hi[cands[-1]] if cands else max(hi[:j])
+        if not (ref > 0 and bottom > 0 and ref > bottom):
+            return None
+        drop = (1.0 - bottom / ref) * 100.0
+        if not (5.0 <= drop <= 95.0):
+            return None
+        return {"ref_high": round(ref, 3), "first_bottom": round(bottom, 3),
+                "drop_pct": round(drop, 1),
+                "next_bottom": round(bottom * (1.0 - drop / 100.0), 3)}
+    except Exception:                                     # noqa: BLE001
+        return None
+
+
+def next_bottom_line(nb) -> str:
+    """سطر «القاع التالي المتوقّع» (عرض فقط). «» لو None."""
+    # فاشل-آمن أمام dict ناقص/تالف (سطر عرض يجب ألّا يكسر رسالة كاملة).
+    try:
+        return (f"📉 لو كسر القاع: القاع التالي المتوقّع "
+                f"<b>${nb['next_bottom']:.2f}</b> (نسبة هبوطه الأولى "
+                f"{nb['drop_pct']:.0f}% من ${nb['ref_high']:.2f} "
+                f"إلى ${nb['first_bottom']:.2f} — فيصل يُسقطها مرّة أخرى)")
+    except Exception:                                     # noqa: BLE001
+        return ""
 
 
 def polygon_flow(sym: str, with_prints: bool = False):

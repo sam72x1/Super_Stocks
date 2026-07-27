@@ -8,6 +8,9 @@ on:
         description: "سقف عدد الصور لهذا التشغيل (افتراضي 600)"
         required: false
         default: ""
+concurrency:                 # لا تشغيلان متزامنان يتنافسان على نفس الفرع
+  group: telegram-collect
+  cancel-in-progress: false
 jobs:
   collect:
     runs-on: ubuntu-latest
@@ -25,6 +28,18 @@ jobs:
         run: python telegram_collect.py
       - name: Update the coverage ledger
         run: python image_audit.py
+      # 🛡️ نسخة ثانية **قبل** الدفع: لو أخفق الدفع لأي سبب لا تضيع الصور
+      # (درس 2026-07-27: دفعٌ على نفس الفرع أثناء التشغيل رفض دفع 367 صورة فضاعت).
+      - name: Safety copy as an artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: faisal-images
+          path: |
+            faisal_images/
+            telegram_collect_state.json
+          retention-days: 7
+          if-no-files-found: ignore
       - name: Commit what arrived
         run: |
           git config user.name "github-actions[bot]"
@@ -33,11 +48,21 @@ jobs:
           git add -f faisal_images/ FAISAL_IMAGE_AUDIT.md faisal_image_audit.json \
                      telegram_collect_state.json 2>/dev/null || true
           if git diff --cached --quiet; then
-            echo "لا جديد — لا commit"
-          else
-            n=$(git diff --cached --name-only -- faisal_images/ | wc -l)
-            git commit -q -m "📥 صور التلغرام: $n ملفًا + تحديث سجلّ التغطية"
-            for i in 1 2 3 4; do git push && break || sleep $((2**i)); done
+            echo "لا جديد — لا commit"; exit 0
+          fi
+          n=$(git diff --cached --name-only -- faisal_images/ | wc -l)
+          git commit -q -m "📥 صور التلغرام: $n ملفًا + تحديث سجلّ التغطية"
+          ok=0
+          for i in 1 2 3 4 5; do
+            if git push; then ok=1; break; fi
+            # الرفض غالبًا لأن الفرع تحرّك ⇒ أعِد الأساس ثم أعِد المحاولة
+            git fetch origin "$GITHUB_REF_NAME" \
+              && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep $((2**i))
+          done
+          if [ "$ok" != 1 ]; then
+            echo "::error::⛔ فشل دفع الصور بعد 5 محاولات — الصور محفوظة في artifact"
+            exit 1        # ⚠️ فشل صريح: لا نُعلن نجاحًا كذبًا (درس 2026-07-27)
           fi
       - name: Summary
         if: always()

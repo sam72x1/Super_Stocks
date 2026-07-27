@@ -6413,10 +6413,346 @@ check("📏 متوسط التقسيم·عرض: «لم ينضج» مقابل «ح
       "لم ينضج" in S.split_ma_line(S.split_ma_maturity(_sm_df, "2026-07-31"))
       and "حقّقه" in S.split_ma_line(_sm_mature)
       and S.split_ma_line(None) == "")
+# 📏 **مجموعة 20/30/50** (المسح الثاني للصور 2026-07-27): فيصل يذكر 30 (LABT) · 40 (JEM
+# IMG_0141 «إذا حقق متوسط 40 يوم») · 50 ⇒ رقم واحد يُوهم أنه «القاعدة». نعرض المجموعة.
+check("📏 مجموعة متوسطات التقسيم: تعرض 20/30/50 كلها بنضج كلٍّ منها (لا رقمًا مفردًا)",
+      (lambda s: all(f"{p}" in s for p in (20, 30, 50)) and "من التقسيم" in s
+       and "جلسة" in s)(S.split_ma_lines(_sm_df, "2026-06-21")))
+check("📏 مجموعة المتوسطات·غير الناضج يُصرَّح به لا يُخفى · وفاشلة-آمنة ⇒ «»",
+      "لم ينضج" in S.split_ma_lines(_sm_df, "2026-07-31")
+      and S.split_ma_lines(_sm_df, None) == ""
+      and S.split_ma_lines(None, "2026-06-21") == "")
+check("📏 مجموعة المتوسطات·المصدر موثّق بالسطر (30 LABT · 40 JEM · 50)",
+      "30 LABT" in S.split_ma_lines(_sm_df, "2026-06-21")
+      and "40 JEM" in S.split_ma_lines(_sm_df, "2026-06-21"))
+# 🔔 «قريب من شرط لم يصعد»: العتبة **لا تُمَسّ** (نصّ IMG_0153)، لكن لا إسقاط صامت —
+# HTCR عند فيصل صعد +23% والحدّ 20% (IMG_8242، المسح الثاني).
+check("🔔 المسح الثاني·`rose_pct` تشخيصي يُحسب ولا يغيّر حكم «لم يصعد»",
+      (lambda p: p is not None and abs(p["rose_pct"] - 23.0) < 1.5
+       and p["didnt_rise"] is False)(
+          (lambda n: S._split_setup_probe(
+              pd.DataFrame({"Open": np.r_[3.72, np.full(n - 1, 3.0)],
+                            "High": np.r_[4.58, np.full(n - 1, 4.0)],
+                            "Low": np.full(n, 2.2),
+                            "Close": np.r_[3.72, np.full(n - 1, 2.29)],
+                            "Volume": np.full(n, 1e5)},
+                           index=pd.date_range("2026-06-01", periods=n, freq="D")),
+              [(S.dt.date(2026, 6, 1), 0.1)], S.dt.date(2026, 6, 1)
+              + S.dt.timedelta(days=n - 1)))(40)))
+check("🐞 المِجَسّ يقبل **قائمة** تقسيمات كما يوثّق (كان hasattr('index') يصدق على list "
+      "⇒ None صامتة)",
+      "hasattr(splits, \"values\")" in _insp0.getsource(S._split_setup_probe))
+check("🔔 المسح الثاني·العتبة 20% لم تُمَسّ · و«القريب» سقفه ضعفها (تشخيص لا تخفيف)",
+      S.CONFIG["SPLIT_ROSE_MAX_PCT"] == 20.0
+      and S.CONFIG["SPLIT_ROSE_NEAR_MULT"] == 2.0
+      and "SPLIT_ROSE_MAX_PCT" in _insp0.getsource(S._split_setup_probe))
+# ⛔ T-STOP (`stop_sweep_prereg.md`): مفتاح عمق الوقف **باكتيست حصريًّا** — الإنتاج
+# يبقى (5,7) مهما كانت البيئة (فيصل ENPH: «الوقف عند المتداولين من 5-7%»).
+# 🎯 «أهداف الشورت» (منظومة فيصل TG_1813 + TG_2041) — مُخرَج واحد باسمه.
+check("🎯 أهداف الشورت·الهدف الأول = القمة÷2 · والقاع التالي بنسبة السهم · والمسح",
+      (lambda L: any("3.45" in x for x in L) and any("2.94" in x for x in L)
+       and any("سحب السيولة" in x for x in L))(
+          S.short_targets_report(post_split_high=6.90, price=3.60, avail=900,
+                                 next_bottom={"next_bottom": 2.94, "drop_pct": 30.0},
+                                 sweep=3.10)))
+check("🎯 أهداف الشورت·سلّم المتاح بنصّ فيصل: 900 إيجابي · 600 ألفًا ذخيرة هبوط",
+      any("إيجابي" in x for x in S.short_targets_report(avail=900))
+      and any("ذخيرة هبوط" in x for x in S.short_targets_report(avail=600000))
+      and any("ممتاز" in x for x in S.short_targets_report(avail=8000)))
+check("🎯 أهداف الشورت·صدق: تعذّر المتاح يُصرَّح به ولا يُخمَّن · والقروب «هجّ عنه»",
+      any("تعذّر" in x for x in S.short_targets_report(price=2.0))
+      and any("هجّ عنه" in x for x in S.short_targets_report(avail=100, pump=True))
+      and any("لا طرح" in x for x in S.short_targets_report(avail=100,
+                                                            offering=False)))
+check("🔒 أهداف الشورت خارج الجذور (عرض/سياق فقط)",
+      all("short_targets_report" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker, S.scan_market)))
+# 🚧 **أقفال «عدم الخلط»** (تدقيق 2026-07-27، سؤال المستخدم «متأكد ما خلطت بين ميزة
+# التقسيم وأساس البوت؟») — لُقِّي بها عيبان حقيقيان في وصلي: مفتاح إطار غير موجود،
+# ومرجع ÷2 يقبل مفتاحًا **عامًّا** (`ref`) كان بابَ اختلاق هدف هبوط على ارتكاز عادي.
+check("🚧 عدم الخلط·بلا حدث مؤسِّس: لا هدف ÷2 مُختلَق + تصريح «لا تنطبق» صريح",
+      (lambda L: not any("الهدف الأول = القمة ÷2" in x for x in L)
+       and any("لا تنطبق هنا" in x for x in L))(
+          S.short_targets_report(price=2.0, avail=900)))
+check("🚧 عدم الخلط·مرجع الـ÷2 خاصّ بالمقسّم: `split_ref` وحده لا مفتاح عامّ `ref`",
+      (lambda _code: 'post_split_high=r.get("split_ref")' in _code
+       and 'r.get("ref")' not in _code)(
+          "\n".join(_ln for _ln in _insp0.getsource(HC.render_hand_check).split("\n")
+                    if not _ln.lstrip().startswith("#"))))
+check("🚧 عدم الخلط·فحص اليد يستعمل إطار الوسيط `df` لا مفتاحًا غير موجود",
+      (lambda _d: (lambda L: any("لو كسر القاع" in x for x in L.split("\n"))
+                   and any("لا تنطبق هنا" in x for x in L.split("\n"))
+                   and not any("القمة ÷2 = " in x for x in L.split("\n")))(
+          HC.render_hand_check("NOSPLIT", {"symbol": "NOSPLIT", "price": 2.0},
+                               _d)))(
+          S.pd.DataFrame({"Open": [6 - i * 0.03 for i in range(140)],
+                          "High": [6.2 - i * 0.03 for i in range(140)],
+                          "Low": [5.8 - i * 0.03 for i in range(140)],
+                          "Close": [6 - i * 0.03 for i in range(140)],
+                          "Volume": [5e5] * 140},
+                         index=S.pd.date_range("2025-01-01", periods=140))))
+check("🚧 عدم الخلط·مع حدث مؤسِّس يظهر ÷2 الصحيح (JEM 6.90÷2=3.45) بلا تصريح النفي",
+      (lambda L: any("3.45" in x for x in L)
+       and not any("لا تنطبق هنا" in x for x in L))(
+          S.short_targets_report(post_split_high=6.90, price=2.0)))
+check("🚧 عدم الخلط·دوال التقسيم/الشورت الجديدة لا تُذكر في أي بانٍ للفرز أو للتقارير",
+      all(_n not in _insp0.getsource(_f)
+          for _f in (S.build_message, S.build_daily_message, S.enrich,
+                     S.make_watch_entry, S.run_daily_watchlist,
+                     S.update_watchlist_status, S.build_interpretation)
+          for _n in ("short_targets_report", "next_bottom_by_own_drop",
+                     "split_ma_lines", "faisal_split_plan", "_split_setup_probe",
+                     "_SPLIT_NEAR_MISS")))
+check("⛔ T-STOP·الإنتاج محصّن: الافتراضي (5,7) ولا يتأثّر بـBT_STOP_PCT خارج الباكتيست",
+      S.CONFIG["STOP_BELOW_LOW_PCT"] == (5.0, 7.0)
+      and S._apply_backtest_overrides("DAILY", {"BT_STOP_PCT": "13,15"}) == []
+      and S.CONFIG["STOP_BELOW_LOW_PCT"] == (5.0, 7.0))
+check("⛔ T-STOP·بوضع الباكتيست يُطبَّق زوجًا · والقيمة غير المعقولة تُتجاهَل",
+      (lambda _sv: (S._apply_backtest_overrides("BACKTEST", {"BT_STOP_PCT": "13,15"}),
+                    S.CONFIG["STOP_BELOW_LOW_PCT"] == (13.0, 15.0),
+                    S.CONFIG.__setitem__("STOP_BELOW_LOW_PCT", _sv),
+                    S._apply_backtest_overrides("BACKTEST", {"BT_STOP_PCT": "99,1"}),
+                    S.CONFIG["STOP_BELOW_LOW_PCT"] == _sv,
+                    S.CONFIG.__setitem__("STOP_BELOW_LOW_PCT", _sv))[1::3]
+       == (True, True))(S.CONFIG["STOP_BELOW_LOW_PCT"]))
+# 🆕 المسح الثاني للصور (308 صورة، 2026-07-27) — بندان صمدا للتحقّق الخصومي:
+# N8 «المشتريات الموحّدة» (TG_2113) · «القاع التالي بنسبة السهم نفسه» (TG_2041).
+check("🔣 N8·المشتريات الموحّدة: الحجم 3 المتكرّر = رمز خوارزمي (لقطة ADIL)",
+      (lambda u: u.get("uniform_size") == 3 and u.get("uniform_count") == 9
+       and "خوارزمي" in u.get("uniform_meaning", ""))(
+          S.uniform_prints([(1.77, 3)] * 7 + [(1.70, 3)] * 2 + [(1.75, 250)])))
+check("🔣 N8·دلالات فيصل المنصوصة: 100 = نطاق سعري · 500 = انفجار نادر",
+      "نطاق" in S.uniform_prints([(2.0, 100)] * 6)["uniform_meaning"]
+      and "انفجار" in S.uniform_prints([(2.0, 500)] * 5)["uniform_meaning"])
+check("🔣 N8·لا نمط ⇒ {} (أحجام عشوائية لا تُوسَم) · وفاشلة-آمنة",
+      S.uniform_prints([(1.0, 37), (1.0, 412), (1.0, 88), (1.0, 91)]) == {}
+      and S.uniform_prints([]) == {} and S.uniform_prints(None) == {}
+      and S.uniform_prints([(1.0, 3)] * 2) == {})       # تكرار أقلّ من الحدّ
+check("📉 «القاع التالي بنسبة السهم نفسه» يُعيد مثال فيصل (6←4.21 ⇒ ~2.95)",
+      (lambda n: n and abs(n["drop_pct"] - 30.0) < 1.0
+       and abs(n["next_bottom"] - 2.95) < 0.05
+       and abs(n["first_bottom"] - 4.21) < 0.01)(
+          S.next_bottom_by_own_drop(pd.DataFrame(
+              {"High": np.r_[np.full(10, 6.0), np.linspace(6.0, 4.3, 20),
+                             np.full(10, 4.6)],
+               "Low": np.r_[np.full(10, 5.8), np.linspace(5.8, 4.21, 20),
+                            np.full(10, 4.3)],
+               "Close": np.r_[np.full(10, 5.8), np.linspace(5.8, 4.21, 20),
+                              np.full(10, 4.3)],
+               "Open": np.r_[np.full(10, 5.8), np.linspace(5.8, 4.21, 20),
+                             np.full(10, 4.3)],
+               "Volume": np.full(40, 1e5)},
+              index=pd.date_range("2026-05-01", periods=40, freq="D")))))
+check("📉 القاع التالي·فاشلة-آمنة (بلا إطار/قصير/بلا ساق أول) ⇒ None · والسطر «»",
+      S.next_bottom_by_own_drop(None) is None
+      and S.next_bottom_line(None) == ""
+      and S.next_bottom_by_own_drop(pd.DataFrame({"High": [1.0], "Low": [1.0]}))
+      is None)
+check("🔒 بندا المسح الثاني خارج الجذور (عرض/سياق فقط)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("uniform_prints", "next_bottom_by_own_drop")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker, S.scan_market)))
+check("📉 المسح الثاني·شرط فيصل ① «20 تحت 30 تحت 50» يُعرَض (كنّا نعرض المقلوب فقط)",
+      (lambda mk: ("20 تحت 30 تحت 50" in S.build_split_hunter_alert([mk(1.0, 2.0, 3.0)])
+                   and "20 تحت 30 تحت 50" not in
+                   S.build_split_hunter_alert([mk(3.0, 2.0, 1.0)])
+                   and "مصطفّة صاعدة" in S.build_split_hunter_alert(
+                       [mk(3.0, 2.0, 1.0)])))(
+          lambda a, b, c: {"symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0,
+                           "float": 1e6, "avail": None, "borrow_fee": None,
+                           "ema20": a, "ema30": b, "ema50": c,
+                           "split_date": "2026-06-01", "freq": 0, "plan": {},
+                           "bottom_test": None, "split_ma": None}))
+check("🔔 المسح الثاني·ذيل «قريبون» يظهر بالتنبيه ولا يُنشئ رسالة وحده (عقد الصمت)",
+      (lambda _sv: (S._SPLIT_NEAR_MISS.__setitem__(
+          slice(None), [{"symbol": "HTCR", "rose_pct": 23.0, "half": 2.29,
+                         "ref": 4.58, "price": 2.50, "event_kind": "split"}]),
+          "قريبون من شرط" in S.build_split_hunter_alert(
+              [{"symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0, "float": 1e6,
+                "avail": None, "borrow_fee": None, "ema20": 1.0, "ema30": 1.0,
+                "ema50": 1.0, "split_date": "2026-06-01", "freq": 0,
+                "plan": {}, "bottom_test": None, "split_ma": None}]),
+          S.build_split_hunter_alert([]) == "",          # صفر مطابق ⇒ صامت
+          S._SPLIT_NEAR_MISS.__setitem__(slice(None), _sv))[1:3])(
+          list(S._SPLIT_NEAR_MISS)) == (True, True))
 check("📏 متوسط التقسيم·فاشل-آمن: بلا تاريخ/إطار ⇒ None",
       S.split_ma_maturity(_sm_df, None) is None
       and S.split_ma_maturity(None, "2026-06-21") is None
       and S.split_ma_maturity(_sm_df, "غلط") is None)
+import split_hunter as _SHmod
+from zoneinfo import ZoneInfo as _ZI
+
+
+def _tf_open(p):
+    with open(p, encoding="utf-8") as _fh:
+        return _fh.read()
+
+
+# ⏰ **بعد إغلاق الافتر** (طلب المالك 2026-07-27): الافتر 16:00→20:00 ET، و20:00 ET =
+# 00:00 UTC صيفًا / 01:00 UTC شتاءً **في اليوم التالي UTC** ⇒ الكرون بعد 01:00 UTC،
+# وخانة الأيام تنزاح ليومٍ لاحق (ثلاثاء→سبت) لتغطية جلسات الاثنين→الجمعة.
+_sh_cron = __import__("re").search(
+    r'cron:\s*"(\d+)\s+(\d+)\s+\*\s+\*\s+([\d,-]+)"',
+    _tf_open(".github/workflows/split_hunter.yml"))
+
+
+def _sh_after_ah(minute, hour):
+    """هل ساعة الكرون (UTC) تقع **بعد** إغلاق الافتر 20:00 ET في الفصلين؟
+    تُقاس على تاريخين حقيقيين (صيف EDT · شتاء EST) بـzoneinfo لا بحساب يدوي."""
+    ny = _ZI("America/New_York")
+    for _d in (S.dt.date(2026, 7, 28), S.dt.date(2026, 1, 13)):
+        e = S.dt.datetime.combine(_d, S.dt.time(hour, minute),
+                                  tzinfo=S.dt.timezone.utc).astimezone(ny)
+        if e < S.dt.datetime.combine(e.date(), S.dt.time(20, 0), tzinfo=ny):
+            return False
+    return True
+
+
+# ⚠️ القفل يبرهن على **القيمة المقروءة من الملف** لا على رقم مكتوب يدويًّا، وإلا بقي
+# أخضر لو رجع أحدهم لكرون داخل الافتر (22:17 = العلّة المُصلَحة).
+check("⏰ صيّاد المقسّم·الكرون المقروء من الملف يقع بعد إغلاق الافتر بالفصلين",
+      _sh_cron is not None
+      and _sh_after_ah(int(_sh_cron.group(1)), int(_sh_cron.group(2))))
+check("⏰ صيّاد المقسّم·انحدار: كرون 22:17 UTC (داخل الافتر) يسقط بالقفل نفسه",
+      not _sh_after_ah(17, 22) and not _sh_after_ah(0, 23))
+check("⏰ صيّاد المقسّم·خانة الأيام مُنزاحة (2-6) لأن الافتر ينتهي فجر اليوم التالي UTC",
+      _sh_cron is not None and _sh_cron.group(3) == "2-6")
+check("🚨 صيّاد المقسّم·كل مسار فشل يُبلَّغ ويرجع 1 (الصمت محجوز لـ«لا مرشّح» وحده)",
+      (lambda _src: _src.count("_fail(S,") >= 6
+       and "send_telegram" in _insp0.getsource(_SHmod._fail)
+       and "عطل لا" in _insp0.getsource(_SHmod._fail)
+       and _SHmod._fail.__doc__ is not None)(_insp0.getsource(_SHmod.run)))
+
+
+def _sh_run(scan, *, uni=("X",), hist=None, send=None, yf=object()):
+    """يشغّل split_hunter.run() ببيئة محقونة ويُرجع (rc, عدد الإرسالات).
+    **try/finally إلزامي** — الاستعادة داخل tuple شَرِه تُترَك مُرقَّعة لو رمى run()."""
+    sent, _sv = [], (S.yf, S.send_telegram, S.get_universe, S.download_history,
+                     S.scan_split_hunter)
+    try:
+        S.yf = yf
+        S.send_telegram = (send or (lambda *a, **k: sent.append(1) or True))
+        S.get_universe = lambda: list(uni)
+        S.download_history = lambda u, **k: (hist if hist is not None
+                                             else {s: _sm_df for s in uni})
+        S.scan_split_hunter = scan
+        return _SHmod.run(), len(sent)
+    finally:
+        (S.yf, S.send_telegram, S.get_universe, S.download_history,
+         S.scan_split_hunter) = _sv
+
+
+# 🧪 القفل السابق كان **فارغًا**: `S.yf = None` على مستوى الوحدة جعل run() ترجع من
+# بوّابة yf قبل لمس أي محاكاة، فنجح تلقائيًّا. أُثبت بالطفرة (جعل الإرسال بلا شرط
+# لم يُسقطه) ⇒ صار يحقن yf ويؤكّد **الاتجاهين**.
+check("🤫 صيّاد المقسّم·عقد الصمت: لا مطابق ⇒ صفر إرسال (والقفل غير فارغ)",
+      _sh_run(lambda *a, **k: []) == (0, 0))
+check("📨 صيّاد المقسّم·الاتجاه المقابل: وجود مطابق ⇒ إرسال فعليّ واحد",
+      _sh_run(lambda *a, **k: [{
+          "symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0, "float": 1e6,
+          "avail": None, "borrow_fee": None, "ema20": 1.0, "ema30": 1.0,
+          "ema50": 1.0, "split_date": "2026-06-01", "freq": 0, "plan": {},
+          "bottom_test": None, "split_ma": None}]) == (0, 1))
+check("🩺 صيّاد المقسّم·حارس التغطية: خنق ياهو ⇒ إبلاغ لا صمت (rc=1)",
+      _sh_run(lambda *a, **k: [], uni=tuple(f"S{i}" for i in range(100)),
+              hist={"S1": _sm_df}) == (1, 1))
+check("🚨 صيّاد المقسّم·انهيار المسح + غياب yfinance + كون فارغ ⇒ إبلاغ لا صمت",
+      _sh_run(lambda *a, **k: (_ for _ in ()).throw(RuntimeError("خنق")))
+      == (1, 1)
+      and _sh_run(lambda *a, **k: [], yf=None) == (1, 1)
+      and _sh_run(lambda *a, **k: [], uni=()) == (1, 1))
+check("⛔ صيّاد المقسّم·رفض تلغرام لا يُبتلَع: المطابق لم يصل ⇒ rc=1 (لا سجلّ كاذب)",
+      _sh_run(lambda *a, **k: [{
+          "symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0, "float": 1e6,
+          "avail": None, "borrow_fee": None, "ema20": 1.0, "ema30": 1.0,
+          "ema50": 1.0, "split_date": "2026-06-01", "freq": 0, "plan": {},
+          "bottom_test": None, "split_ma": None}],
+          send=lambda *a, **k: False)[0] == 1)
+check("📅 صيّاد المقسّم·تاريخ الترويسة من الجلسة لا من يوم الرنر (الكرون فجر UTC)",
+      "today=sess" in _insp0.getsource(_SHmod.run)
+      and "max(df.index[-1]" in _insp0.getsource(_SHmod.run))
+def _rose_probe(rise_pct):
+    """يبني حالة حدث مؤسِّس بصعودٍ **خام** محدَّد ويُرجع مُخرَج المِجَسّ.
+    ⚠️ القفل **سلوكيّ لا نصّي**: النسخة الأولى قارنت ترتيب السلاسل في `getsource`
+    فالتقطت `didnt_rise` من **الـdocstring** ⇒ قفل شبه فارغ (نفس فخّ التِبْر)."""
+    _n, _i = 60, pd.date_range("2026-03-02", periods=60, freq="B")
+    _o = np.array(([100.0] * 4 + [100.0 * (1 + rise_pct / 100)] * 2
+                   + list(np.linspace(120, 50, _n - 6)))[:_n], dtype=float)
+    return S._split_setup_probe(
+        pd.DataFrame({"Open": _o, "High": _o, "Low": _o * 0.99, "Close": _o,
+                      "Volume": [1e5] * _n}, index=_i),
+        pd.Series([0.1], index=[_i[3]]), _i[-1].date())
+
+
+# 📏 الحدّ 20% لفيصل: صعودٌ خام 20.03% **يُدوَّر عرضًا إلى 20.0** — فلو قورن المدوَّر
+# لمرّ خطأً. القفل يثبت أن القرار على الخام (مرفوض) والعرض على المدوَّر (20.0).
+check("📏 عتبة «لم يصعد» على القيمة الخام لا المدوَّرة (لا توسيع صامت لحدّ فيصل)",
+      (lambda _a, _b, _c: _a["didnt_rise"] is True and _b["didnt_rise"] is False
+       and _b["rose_pct"] == 20.0 and _c["didnt_rise"] is False)(
+          _rose_probe(19.99), _rose_probe(20.03), _rose_probe(21.0)))
+
+
+def _nb_df(p):
+    _p = np.array(p, dtype=float)
+    return pd.DataFrame({"Open": _p, "High": _p * 1.001, "Low": _p * 0.999,
+                         "Close": _p, "Volume": [1e5] * len(_p)},
+                        index=pd.date_range("2025-01-01", periods=len(_p), freq="B"))
+
+
+_nb_base = [6.0] * 10 + list(np.linspace(6.0, 4.21, 15)) + [4.21] * 8
+# 🎯 «الساق الأولى» لا «أقصى تراجع»: كان `ref = max(hi[:j])` يأخذ أعلى قمة في النافذة
+# كلها، فقمّة أقدم تقلب 30% إلى 65% ⇒ قاع تالٍ **مُختلَق** (1.47 بدل 2.95).
+check("🎯 القاع التالي·مثال فيصل الحرفي (6→4.21 = 30% ⇒ 2.95)",
+      (lambda _r: _r and abs(_r["drop_pct"] - 30.0) < 0.5
+       and abs(_r["next_bottom"] - 2.95) < 0.05)(
+          S.next_bottom_by_own_drop(_nb_df(_nb_base))))
+check("🎯 القاع التالي·انحدار: قمّة أقدم لا تقلبه لأقصى تراجع (الرقم يبقى 30%)",
+      all((lambda _r: _r and abs(_r["drop_pct"] - 30.0) < 0.5)(
+          S.next_bottom_by_own_drop(_nb_df(_pre + _nb_base)))
+          for _pre in ([12.0] * 8 + list(np.linspace(12.0, 6.0, 12)),
+                       [20.0] * 6 + list(np.linspace(20.0, 12.0, 8)) + [12.0] * 8
+                       + list(np.linspace(12.0, 6.0, 12)))))
+check("🔣 N8·اللوت القياسي 100 لا يُعلَن إلا إذا طغى (نصف الطبعات فأكثر)",
+      not S.uniform_prints([(2.0, 100)] * 5 + [(2.0, s) for s in
+                                               (137, 250, 1500, 320, 480, 90)])
+      and S.uniform_prints([(2.0, 100)] * 6).get("uniform_size") == 100)
+check("🔣 N8·النادر الخوارزمي يفوز على اللوت القياسي ولو كان أقلّ تكرارًا",
+      S.uniform_prints([(2.0, 100)] * 9 + [(2.0, 3)] * 4).get("uniform_size") == 3)
+check("🚧 صدق العرض·«لا طرح جديد» لا تُطبع بلا فحص (مجهول ⇒ لا سطر)",
+      not any("لا طرح جديد مرصود" in x or "عليه طرح" in x
+              for x in S.short_targets_report(avail=100))
+      and any("لا طرح جديد مرصود" in x
+              for x in S.short_targets_report(avail=100, offering=False))
+      and "short_targets_report" not in _insp0.getsource(
+          S.build_split_hunter_alert))
+check("🚧 صدق العرض·غياب pump_scar = مجهول لا «✅ خالٍ من القروبات»",
+      not any("خالٍ من رفعات" in x or "هجّ عنه" in x
+              for x in S.short_targets_report(avail=100))
+      and any("خالٍ من رفعات" in x
+              for x in S.short_targets_report(avail=100, pump=False))
+      and "isinstance" in _insp0.getsource(HC.render_hand_check))
+check("🚧 صدق العرض·الفلوت يُسمّى فلوتًا لا «عدد أسهم الشركة»",
+      any("الفلوت (المتداوَل حرًّا)" in x
+          for x in S.short_targets_report(float_shares=9e5)))
+check("🚧 صدق العرض·السطر الختامي «+100%» لا يُطبع بعد إعلان «لا تنطبق هنا»",
+      not any("+100%" in x for x in S.short_targets_report(price=2.0))
+      and any("+100%" in x
+              for x in S.short_targets_report(post_split_high=6.9, price=2.0)))
+check("🧹 كرت الصيّاد لا يكرّر الـ÷2/سحب السيولة/المتاح (التقرير الكامل بفحص اليد)",
+      (lambda _m: _m.count("القمة ÷2") == 0 and _m.count("الشورت المتاح") == 0
+       and _m.count("سحب السيولة المتوقَّع") == 0 and "أهداف الشورت" not in _m
+       and "القاع التالي المتوقّع" in _m)(
+          S.build_split_hunter_alert([{
+              "symbol": "X", "price": 3.5, "half": 3.5, "ref": 7.0, "float": 9e5,
+              "avail": 4000, "borrow_fee": 30.0, "ema20": 1.0, "ema30": 2.0,
+              "ema50": 3.0, "split_date": "2026-06-01", "freq": 0, "plan": {},
+              "bottom_test": None, "split_ma": None,
+              "next_bottom": {"next_bottom": 2.9, "drop_pct": 30.0,
+                              "ref_high": 6.0, "first_bottom": 4.2}}])))
 check("📏 قفل: split_ma_maturity خارج الجذور (عرض/سياق لا بوّابة فرز)",
       all("split_ma_maturity" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
@@ -6953,6 +7289,62 @@ check("🛡️ التلغرام·يعيد المحاولة ثلاثًا ويسر
                                           encoding="utf-8").read())
 check("📥 التلغرام·أداة مستقلة: لا تستورد البوت ولا تمسّ الفرز",
       "Super_stock" not in open("telegram_collect.py", encoding="utf-8").read())
+check("🔴 التلغرام·input فارغ لا يُسقط الأداة (كان int('') يرمي قبل main)",
+      (lambda: (_os0.environ.__setitem__("TG_MAX_FILES", ""),
+                TC._int_env("TG_MAX_FILES", 600) == 600,
+                _os0.environ.__setitem__("TG_MAX_FILES", "abc"),
+                TC._int_env("TG_MAX_FILES", 600) == 600,
+                _os0.environ.__setitem__("TG_MAX_FILES", "0"),
+                TC._int_env("TG_MAX_FILES", 600) == 600,
+                _os0.environ.__setitem__("TG_MAX_FILES", "250"),
+                TC._int_env("TG_MAX_FILES", 600) == 250,
+                _os0.environ.pop("TG_MAX_FILES", None))[1:8:2] ==
+               (True, True, True, True))())
+check("🔴 التلغرام·رفض تلغرام = إخفاق **دائم** (لا يُعاد ثلاثًا ولا يُعلّق الطابور)",
+      (lambda: (lambda calls: (
+          TC.fetch_blob("T", "F", get=lambda u, **k: type(
+              "R", (), {"json": lambda s: (calls.append(1), {
+                  "ok": False, "description": "file is too big"})[1],
+                  "status_code": 200, "content": b""})(),
+              sleep=lambda s: None),
+          len(calls))) ([]))()[0][1:] == (True, "file is too big")
+      and (lambda: (lambda calls: (TC.fetch_blob(
+          "T", "F", get=lambda u, **k: type("R", (), {
+              "json": lambda s: (calls.append(1), {"ok": False,
+                                                   "description": "x"})[1],
+              "status_code": 200, "content": b""})(),
+          sleep=lambda s: None), len(calls))[1]) ([]))() == 1)
+check("🔴 التلغرام·عطل شبكي = **عابر** (ثلاث محاولات ثم لا يُقَرّ ⇒ يُستأنَف)",
+      (lambda: (lambda calls: (TC.fetch_blob(
+          "T", "F", get=lambda u, **k: (calls.append(1),
+                                        (_ for _ in ()).throw(OSError("net")))[0],
+          sleep=lambda s: None), len(calls)))([]))() [0][:2] == (None, False)
+      and (lambda: (lambda calls: (TC.fetch_blob(
+          "T", "F", get=lambda u, **k: (calls.append(1),
+                                        (_ for _ in ()).throw(OSError("net")))[0],
+          sleep=lambda s: None), len(calls))[1])([]))() == 3)
+check("📥 التلغرام·النجاح يرجّع المحتوى بلا وسم إخفاق",
+      TC.fetch_blob("T", "F", sleep=lambda s: None,
+                    get=lambda u, **k: type("R", (), {
+                        "json": lambda s: {"ok": True,
+                                           "result": {"file_path": "p/a.jpg"}},
+                        "status_code": 200, "content": b"JPEGDATA"})())
+      == (b"JPEGDATA", False, ""))
+check("🛡️ التلغرام·طابور دائم بـfile_id: العابر لا يُعلّق الطابور ولا يُفقَد",
+      (lambda t: 'pending[f["file_id"]]' in t and 'state["pending"] = pending' in t
+       and "إعادة محاولة" in t and "PENDING_TRIES" in t
+       and "perm_failed" in t)(open("telegram_collect.py",
+                                    encoding="utf-8").read()))
+check("🛡️ التلغرام·يحفظ باسم غير مُصادِم ويتخطّى المكرّرة بالمحتوى",
+      (lambda d: (_os0.makedirs(d, exist_ok=True),
+                  TC.__dict__.__setitem__("OUT_DIR", d),
+                  TC._store(b"A", "x.jpg", set(), {}) == "saved",
+                  TC._store(b"A", "x.jpg", {__import__("hashlib").sha256(b"A")
+                                            .hexdigest()}, {}) == "dup",
+                  TC._store(b"B", "x.jpg", set(), {}) == "saved",
+                  sorted(_os0.listdir(d)) == ["x.jpg", "x_1.jpg"],
+                  TC.__dict__.__setitem__("OUT_DIR", "faisal_images"))[2:6])(
+          _os0.path.join(_tf.mkdtemp(), "imgs")) == (True,) * 4)
 # ═══ 📸 سجلّ تغطية الصور (أداة مستقلة — تتبّع 300+ صورة بلا نسيان) ═══
 import image_audit as IA
 check("📸 السجلّ·المعرّف من اسم الملف (IMG_0153.jpeg → IMG_0153) وبلا رقم يبقى الاسم",

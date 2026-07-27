@@ -69,6 +69,10 @@ on:
         description: "🕵️ تجربة T-SHORT (اختياري): 1 = اجلب **حجم الشورت اليومي من FINRA بتاريخ الإشارة** (point-in-time، بلا تسريب) وقارن شرائح فيصل (10 آلاف أو أقل · 10-20 · 20-40 · أكثر) بمعيار `short_thread_prereg.md`. ⚠️ المقياس حجم FINRA لا «المتاح للاقتراض» (المتاح بلا تاريخ). باكتيست فقط"
         required: false
         default: ""
+      bt_stop_pct:
+        description: "⛔ تجربة T-STOP (اختياري): عمق الوقف تحت الدعم بصيغة «lo,hi» مثل «13,15» — لاختبار وقفٍ **خارج منطقة مسح السيولة** (فيصل ENPH: «جميع أوامر الوقف تحت الدعم · الوقف عند المتداولين من 5-7%»). فارغ = الإنتاج (5,7). المعيار: `stop_sweep_prereg.md`. باكتيست فقط"
+        required: false
+        default: ""
       bt_portfolio:
         description: "🏦 محاكاة الانتقائية (اختياري): 1 = محفظة top-N بالترتيب (readiness→score) بجانب «كل المُعبَّئين» — هل الانتقائية تضيف؟ يلزم bt_potential=1. باكتيست فقط"
         required: false
@@ -143,6 +147,8 @@ jobs:
           BT_FEATURES: ${{ github.event.inputs.bt_features }}
           # 🕵️ T-SHORT: شورت FINRA المؤرَّخ عند الإشارة — يُقرأ في وضع BACKTEST حصريًا
           BT_SHORT: ${{ github.event.inputs.bt_short }}
+          # ⛔ T-STOP: عمق الوقف تحت الدعم — يُقرأ في وضع BACKTEST حصريًا
+          BT_STOP_PCT: ${{ github.event.inputs.bt_stop_pct }}
           BT_PORTFOLIO: ${{ github.event.inputs.bt_portfolio }}
           BT_PORT_SIZE: ${{ github.event.inputs.bt_port_size }}
           # 🕰️ point-in-time (تدقيق خارجي) — يُقرأ في وضع BACKTEST حصريًا
