@@ -6583,6 +6583,45 @@ check("📏 متوسط التقسيم·فاشل-آمن: بلا تاريخ/إطا
       S.split_ma_maturity(_sm_df, None) is None
       and S.split_ma_maturity(None, "2026-06-21") is None
       and S.split_ma_maturity(_sm_df, "غلط") is None)
+import split_hunter as _SHmod
+from zoneinfo import ZoneInfo as _ZI
+
+
+def _tf_open(p):
+    with open(p, encoding="utf-8") as _fh:
+        return _fh.read()
+
+
+# ⏰ **بعد إغلاق الافتر** (طلب المالك 2026-07-27): الافتر 16:00→20:00 ET، و20:00 ET =
+# 00:00 UTC صيفًا / 01:00 UTC شتاءً **في اليوم التالي UTC** ⇒ الكرون بعد 01:00 UTC،
+# وخانة الأيام تنزاح ليومٍ لاحق (ثلاثاء→سبت) لتغطية جلسات الاثنين→الجمعة.
+check("⏰ صيّاد المقسّم·الكرون بعد إغلاق الافتر بالفصلين + أيام مُنزاحة (2-6)",
+      (lambda _y: (lambda _c: _c is not None
+                   and (lambda m: int(m.group(2)) >= 1 and m.group(3) == "2-6")(_c))(
+          __import__("re").search(r'cron:\s*"(\d+)\s+(\d+)\s+\*\s+\*\s+([\d-]+)"', _y)))(
+          _tf_open(".github/workflows/split_hunter.yml")))
+check("⏰ صيّاد المقسّم·برهان زمني: 01:13 UTC بعد 20:00 ET صيفًا وشتاءً",
+      all((lambda _e: _e >= S.dt.datetime.combine(
+          _e.date(), S.dt.time(20, 0), tzinfo=_ZI("America/New_York")))(
+          S.dt.datetime.combine(_d, S.dt.time(1, 13),
+                                tzinfo=S.dt.timezone.utc).astimezone(
+              _ZI("America/New_York")))
+          for _d in (S.dt.date(2026, 7, 28), S.dt.date(2026, 1, 13))))
+check("🚨 صيّاد المقسّم·انهيار المسح يُبلَّغ صريحًا (الصمت محجوز لـ«لا مرشّح» وحده)",
+      (lambda _src: "except Exception" in _src and "send_telegram" in _src
+       and "عطل لا" in _src)(_insp0.getsource(_SHmod.run)))
+check("🤫 صيّاد المقسّم·عقد الصمت باقٍ: لا مطابق ⇒ ولا نداء إرسال واحد",
+      (lambda _sent: (lambda _o, _sc, _gu, _dh: (
+          setattr(S, "send_telegram", lambda *a, **k: _sent.append(1) or True),
+          setattr(S, "get_universe", lambda: ["X"]),
+          setattr(S, "download_history", lambda u, **k: {"X": _sm_df}),
+          setattr(S, "scan_split_hunter", lambda *a, **k: []),
+          _SHmod.run(),
+          setattr(S, "send_telegram", _o), setattr(S, "get_universe", _gu),
+          setattr(S, "download_history", _dh),
+          setattr(S, "scan_split_hunter", _sc))[4] == 0 and not _sent)(
+          S.send_telegram, S.scan_split_hunter, S.get_universe,
+          S.download_history))([]))
 check("📏 قفل: split_ma_maturity خارج الجذور (عرض/سياق لا بوّابة فرز)",
       all("split_ma_maturity" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,

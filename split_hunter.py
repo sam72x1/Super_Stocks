@@ -35,7 +35,21 @@ def run():
     if not hist:
         S.log("🪝 صيّاد المقسّم: لا بيانات — تخطّي.")
         return 0
-    rows = S.scan_split_hunter(hist)
+    # ⚠️ **المسح كان بلا حارس** (تدقيق 2026-07-27): انهياره يقتل الجوب فلا يصل شيء —
+    # والمالك يقرأ الصمت «لا مرشّح اليوم» بينما الحقيقة **عطل**. الفرق جوهري لأن عقد
+    # الأداة هو الصمت عند عدم وجود مطابق، فلا بد أن يكون العطل **مسمومًا صريحًا**.
+    try:
+        rows = S.scan_split_hunter(hist)
+    except Exception as e:                                       # noqa: BLE001
+        S.log(f"🪝 صيّاد المقسّم: انهار المسح ({e}).")
+        try:
+            S.send_telegram("🪝 <b>صيّاد أسهم التقسيم</b>\n\n"
+                            f"⚠️ تعذّر المسح اليوم: {S.esc(str(e)[:180])}\n"
+                            "<i>الصمت اليوم عطل لا «لا مرشّح» — يُعاد غدًا آليًّا.</i>"
+                            f"\n\n{S.FOOTER}")
+        except Exception:
+            pass
+        return 0
     S.log(f"🪝 صيّاد المقسّم: فحص {len(hist)} رمز → {len(rows)} مطابق كامل.")
     if rows:
         S.send_telegram(S.build_split_hunter_alert(rows) + "\n\n" + S.FOOTER)
