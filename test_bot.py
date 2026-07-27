@@ -6741,11 +6741,73 @@ check("📉 خبر·تاريخ بعد آخر شمعة أو إطار فارغ ⇒
 check("📉 خبر·السطر يظهر عند الرفض فقط وبعبارة فيصل",
       "عدم قبوله" in S.news_rejected_line(S.news_acceptance(_na_df, "2025-06-10", 3.15))
       and S.news_rejected_line(None) == "" and S.news_rejected_line({}) == "")
+_ev_r = {"insider_buys": [{"date": "2025-06-01"}],
+         "offering_event": {"date": "2025-06-20"},
+         "proxy_filing": {"date": "2025-05-01"}}
 check("📉 أحدث حدث معلوم: يختار الأحدث بين الشراء الداخلي والطرح والوكالة",
-      S._latest_event_date({"insider_buys": [{"date": "2025-06-01"}],
-                            "offering_event": {"date": "2025-06-20"},
-                            "proxy_filing": {"date": "2025-05-01"}}) == "2025-06-20"
+      S._latest_event_date(_ev_r, today=_dt0.date(2025, 6, 25)) == "2025-06-20"
       and S._latest_event_date({}) is None and S._latest_event_date(None) is None)
+check("📉 حدّ الحداثة إلزامي: حدث عمره شهران يُهمَل (لا تحذير كاذب دائم)",
+      S._latest_event_date(_ev_r, today=_dt0.date(2025, 8, 25)) is None
+      and S._latest_event_date(_ev_r, today=_dt0.date(2025, 6, 25),
+                               max_age_days=3) is None)
+check("📉 حدث بتاريخ مستقبلي يُهمَل (حارس بلا نظر أمامي)",
+      S._latest_event_date({"offering_event": {"date": "2099-01-01"}}) is None)
+# ═══ إصلاحات التدقيق الخصومي على بطاقة فيصل (2026-07-27) — اختبار انحدار لكل ملاحظة ═══
+_nan_df = _bk_df.copy()                      # BNKK المنضخّ (+95%) لكن بافتتاح NaN
+_nan_df.iloc[0, _nan_df.columns.get_loc("Open")] = np.nan
+check("⚠️ NaN·افتتاح مفقود لا يفشل مفتوحًا: المنضخّ يبقى مرفوضًا (يرتدّ للإغلاق)",
+      (S._split_setup_probe(_nan_df, _fc_splits, _fc_today) or {}).get("didnt_rise")
+      is False)
+check("⚖️ الطرح·تسجيل رفّي روتيني (S-3/424B3/EFFECT) ليس حدثًا مؤسِّسًا",
+      (lambda: all((S._SEC_OFFERING.update({"ZZR": {"form": _f,
+                                                    "date": str(_fc_today)}}),
+                    S._offering_event("ZZR", today=_fc_today) is None)[1]
+                   for _f in ("S-3", "424B3", "EFFECT", "S-1"))
+       and (S._SEC_OFFERING.update({"ZZR": {"form": "424B5",
+                                            "date": str(_fc_today)}}),
+            S._offering_event("ZZR", today=_fc_today) is not None,
+            S._SEC_OFFERING.pop("ZZR", None))[1])())
+check("⚖️ ÷2·مربوط بالسعر: سهم صعد بعيدًا عن قاعه القديم لا يُسقَط عليه مستهدف هبوط",
+      S.half_down_target(_mw, price=9.0) is None
+      and S.half_down_target(_mw, price=5.0) is not None)
+check("📄 Form 4·لا تسرّب regex: كتلة بلا سعر لا تلتقط رقم حاشية لاحقة",
+      (lambda p: p is not None and p["shares"] == 12000 and p["price"] is None)(
+          S._parse_form4(_F4_BUY.replace(
+              "<transactionPricePerShare><value>1.37</value>"
+              "</transactionPricePerShare>", "")
+              + "<footnotes><footnote>2891000</footnote></footnotes>"))
+      )
+check("📄 Form 4·متوسط السعر **مرجَّح** بالكمية لا حسابيًّا",
+      (lambda p: p is not None and p["shares"] == 11000
+       and abs(p["price"] - (10000 * 1.0 + 1000 * 2.0) / 11000) < 1e-3)(
+          S._parse_form4(_F4_BUY.replace("<value>12000</value>", "<value>10000</value>")
+                         .replace("<value>1.37</value>", "<value>1.0</value>")
+                         .replace("</nonDerivativeTable>",
+                                  """<nonDerivativeTransaction>
+  <transactionCoding><transactionCode>P</transactionCode></transactionCoding>
+  <transactionAmounts>
+   <transactionShares><value>1000</value></transactionShares>
+   <transactionPricePerShare><value>2.0</value></transactionPricePerShare>
+   <transactionAcquiredDisposedCode><value>A</value></transactionAcquiredDisposedCode>
+  </transactionAmounts></nonDerivativeTransaction></nonDerivativeTable>"""))))
+check("📄 Form 4·إفصاح فيه شراء وبيع معًا يُصرَّح ببيعه لا يُخفى",
+      (lambda p: p is not None and p.get("has_sales") is True
+       and "ومعه بيع" in S.insider_buy_line({"insider_buys": [p]}))(
+          S._parse_form4(_F4_BUY.replace(
+              "</nonDerivativeTable>",
+              """<nonDerivativeTransaction>
+  <transactionCoding><transactionCode>S</transactionCode></transactionCoding>
+  <transactionAmounts>
+   <transactionShares><value>5000</value></transactionShares>
+   <transactionAcquiredDisposedCode><value>D</value></transactionAcquiredDisposedCode>
+  </transactionAmounts></nonDerivativeTransaction></nonDerivativeTable>"""))))
+check("📄 Form 4·ميتا تالفة (cik غير رقمي) ⇒ تخطٍّ بلا استثناء",
+      (lambda: (S._SEC_FORM4.update({"ZZ6": [{"date": "2025-06-17", "cik": "x",
+                                              "acc": "a", "doc": "d.xml"}]}),
+                S.form4_insider_buys("ZZ6", fetch=lambda u: _F4_BUY) == [])[1])())
+check("🔒 عدّادات SEC مستقلّة (الطرح ≠ Form 4) وسقف مستندات للتشغيلة موجود",
+      S._OFF_FAILS is not S._F4_FAILS and "FORM4_BUDGET" in S.CONFIG)
 check("🔒 قفل: كل إضافات بطاقة فيصل خارج الجذور السبعة و analyze_ticker",
       all(_fn not in _insp0.getsource(_f)
           for _fn in ("_post_event_high", "_event_day_open", "half_down_target",

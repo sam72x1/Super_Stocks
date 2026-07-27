@@ -398,6 +398,7 @@ CONFIG = {
     "SPLIT_RADAR_PROBE_CAP": 80,         # سقف المُرشّحين لجلب التقسيمات (حدّ تكلفة الشبكة)
     "SPLIT_RADAR_MAX": 12,               # سقف العرض
     "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
+    "FORM4_BUDGET": 12,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
     "FORM4_MAX_FETCH": 2,                # 📄 سقف مستندات Form 4 لكل سهم (شراء الداخليين)
     "SPLIT_ROSE_MAX_PCT": 50.0,          # فيصل IMG_0150 «قسم ما أعطى صعود»: لو صعد من قيمة
                                          #   شمعة التقسيم للقمة أكثر من هذا = انضخّ (مو هادئًا)
@@ -1315,7 +1316,8 @@ def _event_day_open(opens, event_date):
         return None
 
 
-def half_down_target(df, lookback: int = 60, hold: int = 3):
+def half_down_target(df, lookback: int = 60, hold: int = 3, price=None,
+                     max_above_pct: float = 25.0):
     """📉 **قاعدة فيصل «÷2 على المستوى السائد»** (بطاقة MWC): «هبوط **4.70** · صعود
     تاريخي 26 · **مستهدف هبوط 2.35**» — أي 4.70÷2 بالضبط. فالـ÷2 عنده لا يقتصر على
     «قمة ما بعد التقسيم»؛ يُسقطه على **المستوى المستقرّ الحالي** حين يكون السهم ما زال
@@ -1339,6 +1341,13 @@ def half_down_target(df, lookback: int = 60, hold: int = 3):
         i = next(k for k, v in enumerate(c) if v <= lvl * 1.001)
         bars_since = len(c) - 1 - i
         if bars_since < int(hold):               # قاع طازج لم يستقرّ بعد
+            return None
+        # ⚖️ **ربط بالسعر الحالي** (تدقيق خصومي): بلا هذا الشرط يُسقَط «مستهدف هبوط»
+        # على سهم صعد بعيدًا عن قاعه القديم — والقاعدة عند فيصل تخصّ سهمًا **ما زال
+        # عند مستواه الهابط** (MWC: السعر عند 4.70 نفسها). فنشترط ألّا يعلو السعر عن
+        # المستوى بأكثر من `max_above_pct`، وإلا فالمستوى لم يعد «سائدًا».
+        px = float(price) if price else float(df["Close"].iloc[-1])
+        if px <= 0 or (px / lvl - 1.0) * 100.0 > float(max_above_pct):
             return None
         return {"level": round(lvl, 2), "target": round(lvl / 2.0, 2),
                 "bars_since": int(bars_since)}
@@ -3595,6 +3604,12 @@ _SEC_OFFERING = {}
 _OFFERING_FORMS = ("424B1", "424B2", "424B3", "424B4", "424B5", "424B7",
                    "S-1", "S-1/A", "S-3", "S-3/A", "F-1", "F-1/A", "F-3",
                    "EFFECT")
+# ⚖️ **تضييق حاسم (تدقيق خصومي 2026-07-27):** الحدث المؤسِّس = **نشرة نهائية لطرح
+# سُعِّر فعلًا** فقط. `S-1/S-3/F-3/EFFECT/424B3` تسجيلات رفّية/تحديثات **روتينية** —
+# لو عاملناها «حدثًا مؤسِّسًا» لأعادت ضبط مرجع الـ÷2 لتاريخ اعتباطي وأسقطت بوّابة «لم
+# يصعد». تُلتقط للعرض/السياق فقط (`_SEC_OFFERING`) ولا تُنشئ setup.
+_FOUNDING_OFFERING_FORMS = ("424B1", "424B4", "424B5")
+_SEC_OFFERING_MAX = 400          # سقف حجم القناة (لا تضخّم غير محدود عبر التشغيلة)
 
 # 📄 قناة جانبية ثالثة: إفصاحات Form 4 (تداول الداخليين) — فيصل يذكر شراء الداخليين
 # **سببًا مباشرًا** للارتفاع («ارتفعت بسبب المدير اشتري كمية اسهم 1.7 مليون سهم» SVRE ·
@@ -3654,7 +3669,8 @@ def sec_recent_filings(sym: str):
             if form in _PROXY_FORMS and sym.upper() not in _SEC_PROXY:
                 _SEC_PROXY[sym.upper()] = {"form": form, "date": fdate}
             # 🆕 الطرح الجديد (حدث مؤسِّس عند فيصل) — أحدث نموذج طرح فقط
-            if form in _OFFERING_FORMS and sym.upper() not in _SEC_OFFERING:
+            if (form in _OFFERING_FORMS and sym.upper() not in _SEC_OFFERING
+                    and len(_SEC_OFFERING) < _SEC_OFFERING_MAX):
                 _SEC_OFFERING[sym.upper()] = {"form": form, "date": fdate}
             # 📄 Form 4 (تداول داخليين): نخزّن الميتا فقط (صفر نداء إضافي هنا)
             if form == "4":
@@ -3684,7 +3700,9 @@ def sec_recent_filings(sym: str):
         return out, "error"
 
 
-_F4_FAILS = [0]                 # قاطع دائرة مستقل لمستندات Form 4
+_F4_FAILS = [0]                 # قاطع دائرة مستندات Form 4 (يُصفَّر كل enrich)
+_OFF_FAILS = [0]                # قاطع دائرة مستقل لكشف الطرح الجديد
+_F4_BUDGET = [0]                # سقف مستندات Form 4 لكل تشغيلة إثراء
 
 
 def _parse_form4(xml: str):
@@ -3704,33 +3722,45 @@ def _parse_form4(xml: str):
         codes = re.findall(r"<transactionCode>\s*([A-Z])\s*</transactionCode>", low)
         if "P" not in codes:
             return None
-        shares = 0.0
-        prices = []
+        shares, notional, sold = 0.0, 0.0, False
+
+        def _inner(tag, blk):
+            """قيمة عنصر **داخل حدوده هو** — يمنع تسرّب regex لعنصر لاحق (ثغرة تدقيق:
+            كتلة بلا سعر كانت تلتقط رقم الحاشية التالية). None لو غاب أو تعذّر."""
+            e = re.search(rf"<{tag}>(.*?)</{tag}>", blk, re.S)
+            if not e:
+                return None
+            v = re.search(r"<value>\s*([0-9]*\.?[0-9]+)\s*</value>", e.group(1))
+            return float(v.group(1)) if v else None
         # كل كتلة صفقة على حدة حتى لا نخلط كميات البيع بالشراء
         for blk in re.findall(r"<nonDerivativeTransaction>(.*?)</nonDerivativeTransaction>",
                               low, re.S):
-            if not re.search(r"<transactionCode>\s*P\s*</transactionCode>", blk):
+            cd = re.search(r"<transactionCode>\s*([A-Z])\s*</transactionCode>", blk)
+            code = cd.group(1) if cd else ""
+            if code in ("S", "D"):
+                sold = True
+            if code != "P":
                 continue
             if not re.search(r"<transactionAcquiredDisposedCode>.*?<value>\s*A\s*</value>",
                              blk, re.S):
                 continue
-            m = re.search(r"<transactionShares>.*?<value>\s*([0-9.]+)\s*</value>", blk, re.S)
-            p = re.search(r"<transactionPricePerShare>.*?<value>\s*([0-9.]+)\s*</value>",
-                          blk, re.S)
-            if m:
-                shares += float(m.group(1))
-            if p:
-                prices.append(float(p.group(1)))
+            q = _inner("transactionShares", blk)
+            px = _inner("transactionPricePerShare", blk)
+            if q and q > 0:
+                shares += q
+                if px and px > 0:
+                    notional += q * px      # متوسط **مرجَّح** لا حسابي
         if shares <= 0:
             return None
+        prices = [notional / shares] if notional > 0 else []
         own = re.search(r"<rptOwnerName>\s*(.*?)\s*</rptOwnerName>", low, re.S)
         ttl = re.search(r"<officerTitle>\s*(.*?)\s*</officerTitle>", low, re.S)
         is_dir = re.search(r"<isDirector>\s*(1|true)\s*</isDirector>", low)
         title = (ttl.group(1).strip() if ttl else ("عضو مجلس إدارة" if is_dir else ""))
         return {"owner": _sanitize_name(own.group(1)) if own else "",
                 "title": _sanitize_name(title), "shares": int(shares),
-                "price": (round(sum(prices) / len(prices), 4) if prices else None),
-                "is_buy": True}
+                "price": (round(prices[0], 4) if prices else None),
+                "has_sales": bool(sold), "is_buy": True}
     except Exception:
         return None
 
@@ -3741,16 +3771,23 @@ def form4_insider_buys(sym: str, cap: int = 2, fetch=None):
     فاشل-آمن مطلق (لا ميتا/شبكة/قاطع دائرة → []) · `fetch(url)` محقون للاختبار ·
     **لا يُنادى في مسار الفرز** (enrich بعد select_top فقط). عرض/سياق — لا بوّابة."""
     meta = _SEC_FORM4.pop(str(sym).upper(), None) or []
-    if not meta or (_F4_FAILS[0] >= 3 and fetch is None):
+    if not meta or (fetch is None and (_F4_FAILS[0] >= 3 or _F4_BUDGET[0] <= 0)):
         return []
     out = []
     for m in meta[:max(0, int(cap))]:
-        acc = str(m.get("acc") or "").replace("-", "")
-        doc = str(m.get("doc") or "")
+        if fetch is None:
+            if _F4_BUDGET[0] <= 0:      # 🔒 سقف مشترك للتشغيلة (نمط `_bor_budget`)
+                break
+            _F4_BUDGET[0] -= 1
+        try:
+            acc = str(m.get("acc") or "").replace("-", "")
+            doc = str(m.get("doc") or "")
+            cik = int(m.get("cik"))
+        except (TypeError, ValueError):
+            continue                     # ميتا تالفة ⇒ تخطَّ (فاشل-آمن مطلق)
         if not acc or not doc:
             continue
-        url = (f"https://www.sec.gov/Archives/edgar/data/{int(m['cik'])}/"
-               f"{acc}/{doc}")
+        url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{acc}/{doc}"
         try:
             if fetch is not None:
                 txt = fetch(url) or ""
@@ -3780,14 +3817,20 @@ def insider_buy_line(r) -> str:
     who = " ".join(x for x in (b.get("title"), b.get("owner")) if x) or "داخلي"
     px = f" بسعر ${b['price']:g}" if b.get("price") else ""
     more = f" (و{len(buys) - 1} إفصاح آخر)" if len(buys) > 1 else ""
+    mixed = " ⚠️ ومعه بيع بنفس الإفصاح" if b.get("has_sales") else ""
     return (f"📄 شراء داخلي: {esc(who)} اشترى {fmt_money(b.get('shares'))} سهم"
-            f"{px} — {b.get('date') or ''}{more}")
+            f"{px} — {b.get('date') or ''}{more}{mixed}")
 
 
-def _latest_event_date(r):
+def _latest_event_date(r, today=None, max_age_days: int = 21):
     """أحدث **تاريخ حدث معلوم** للسهم (شراء داخلي · طرح جديد · دعوة اجتماع) — يغذّي
-    قاعدة «خبره عدم قبوله». التواريخ نصّية ISO فالمقارنة النصّية كافية. نقيّة · فاشلة-آمنة."""
+    قاعدة «خبره عدم قبوله». التواريخ نصّية ISO فالمقارنة النصّية كافية.
+    ⚖️ **حدّ الحداثة إلزامي (تدقيق خصومي 2026-07-27):** بلا سقف عمر كان حدثٌ عمره
+    شهران يُقارَن بالرقم الحرج **اليوم** فينتج تحذير «لم يُقبَل» دائمًا وكاذبًا. الحدث
+    الأقدم من `max_age_days` يُهمَل. نقيّة · فاشلة-آمنة."""
     try:
+        today = today or dt.date.today()
+        floor = (today - dt.timedelta(days=int(max_age_days))).isoformat()
         cand = []
         for b in ((r or {}).get("insider_buys") or []):
             if b.get("date"):
@@ -3796,6 +3839,7 @@ def _latest_event_date(r):
             ev = (r or {}).get(k) or {}
             if isinstance(ev, dict) and ev.get("date"):
                 cand.append(str(ev["date"])[:10])
+        cand = [d for d in cand if floor <= d <= today.isoformat()]
         return max(cand) if cand else None
     except Exception:
         return None
@@ -3976,6 +4020,11 @@ def enrich(results: list) -> None:
     _ce_fails = [0]          # قاطع دائرة اقتراض ChartExchange: يتوقف بعد 3 إخفاقات
     _bor_fails = [0]         # قاطع دائرة iBorrowDesk: يتوقف بعد 3 إخفاقات متتالية
     _flt_fails = [0]         # 🏢 قاطع دائرة فلوت ChartExchange: يتوقف بعد 3 إخفاقات
+    # 📄🆕 عدّادات SEC للتشغيلة الواحدة (تُصفَّر هنا كنمط `_bor_budget` — التدقيق لقّى
+    # أنها كانت تراكمية تعيش عبر التشغيلات فتُطفئ الميزة صامتةً بعد 3 إخفاقات قديمة).
+    _F4_FAILS[0] = 0
+    _OFF_FAILS[0] = 0
+    _F4_BUDGET[0] = int(CONFIG["FORM4_BUDGET"])
     fintel = {}
     try:
         fintel = fintel_short(sorted(syms))
@@ -4399,7 +4448,10 @@ def _offering_event(sym, today=None, fetch=None, lookback=None):
     lb = int(lookback or CONFIG["SPLIT_LOOKBACK_DAYS"])
 
     def _fresh(ev):
+        """حدث مؤسِّس صالح = **نشرة نهائية** حديثة (لا تسجيل رفّي روتيني)."""
         try:
+            if (ev.get("form") or "").strip() not in _FOUNDING_OFFERING_FORMS:
+                return None
             d = dt.date.fromisoformat(str(ev["date"])[:10])
             return ev if (0 <= (today - d).days <= lb) else None
         except Exception:
@@ -4407,7 +4459,7 @@ def _offering_event(sym, today=None, fetch=None, lookback=None):
     got = _SEC_OFFERING.get(s)
     if got:
         return _fresh(got)
-    if fetch is None and _F4_FAILS[0] >= 3:        # نفس قاطع دائرة مستندات SEC
+    if fetch is None and _OFF_FAILS[0] >= 3:       # قاطع دائرة مستقلّ للطرح
         return None
     try:
         cik = sec_cik_map().get(s)
@@ -4419,7 +4471,7 @@ def _offering_event(sym, today=None, fetch=None, lookback=None):
         else:
             rr = requests.get(url, headers=SEC_UA, timeout=30)
             if rr.status_code != 200:
-                _F4_FAILS[0] += 1
+                _OFF_FAILS[0] += 1
                 return None
             data = rr.json()
             time.sleep(0.15)
@@ -4433,7 +4485,7 @@ def _offering_event(sym, today=None, fetch=None, lookback=None):
                 return _fresh(ev)
         return None
     except Exception:
-        _F4_FAILS[0] += 1
+        _OFF_FAILS[0] += 1
         return None
 
 
@@ -4508,9 +4560,15 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25, offering=None):
         # ⚖️ تصحيح 2026-07-27 من **بطاقة فيصل الفرزية**: القاعدة = **افتتاح يوم الحدث**
         # لا إغلاق أول شمعة («قسم 6/4 **افتتاح 3.72** — اعلى 4.58» HTCR ⇒ صعود 23% =
         # هادئ · «قسم 11/12 **افتتاح 3.69** — اعلى 7.19» BNKK ⇒ 95% = انضخّ).
-        first_val = _event_day_open(df["Open"], ev_date)
-        if first_val is None:                    # احتياط: الإغلاق (السلوك السابق)
+        first_val = _event_day_open(df.get("Open"), ev_date)
+        # ⚠️ **NaN ليس None** (ثغرة لقّاها التدقيق الخصومي 2026-07-27): تنظيف البيانات
+        # يُسقط الشموع بإغلاق مفقود فقط، فقد ينجو افتتاح NaN. و`not (nan and nan>0 …)`
+        # يعطي True ⇒ **بوّابة «لم يصعد» تفشل مفتوحةً** فيمرّ مقسّم انضخّ +95%. نعامل
+        # NaN معاملة الغياب ونرتدّ للإغلاق (السلوك السابق).
+        if first_val is None or first_val != first_val:
             first_val = _split_day_value(close, splits, cut)
+        if first_val is not None and first_val != first_val:
+            first_val = None                     # الإغلاق نفسه تالف ⇒ لا قاعدة
         didnt_rise = not (first_val and first_val > 0
                           and (ref / first_val - 1.0) * 100.0 > CONFIG["SPLIT_ROSE_MAX_PCT"])
         return {"event_kind": ev_kind, "event_date": str(ev_date),
@@ -5077,7 +5135,7 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                 "event_kind": pr.get("event_kind", "split"),
                 "event_form": pr.get("event_form"),
                 # 📉 «÷2 على المستوى السائد» (بطاقة MWC) — إسقاط وصفي لا تنبّؤ
-                "half_down": half_down_target(df),
+                "half_down": half_down_target(df, price=pr["price"]),
                 "freq": pr.get("freq"), "float": flt,
                 "avail": bor.get("shares_available"),
                 "borrow_fee": bor.get("borrow_fee"),
@@ -6595,6 +6653,8 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "cci": r.get("cci"),                              # 📉 CCI(14) (فيصل — عرض فقط)
         "insider_buys": r.get("insider_buys"),            # 📄 شراء داخلي (Form 4)
         "offering_event": r.get("offering_event"),        # 🆕 طرح جديد (حدث مؤسِّس)
+        "news_acc": r.get("news_acc"),                    # 📉 قبول الخبر
+        "half_down": r.get("half_down"),                  # 📉 مستهدف ÷2
         "bottom_test": r.get("bottom_test"),              # 🔁 «القاع 2» (فيصل — عرض فقط)
         "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
@@ -7424,7 +7484,7 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
             s["news_acc"] = news_acceptance(
                 df, _latest_event_date(s),
                 ((s.get("interp") or {}).get("critical_number") or {}).get("price"))
-            s["half_down"] = half_down_target(df)
+            s["half_down"] = half_down_target(df, price=s.get("last_price"))
         except Exception:
             pass
         # ⚖️ F-02 (إصلاح تدقيق 2026-07-10): تسوية مقياس التقسيم قبل الحسم —
@@ -9413,6 +9473,9 @@ def build_daily_message(wl: dict, splits: list,
         _nr = news_rejected_line(s.get("news_acc"))   # ⚠️ خبر لم يُقبَل = هبوط
         if _nr:
             lines.append("   " + _nr)
+        _hdl = half_down_line(s.get("half_down"))     # 📉 ÷2 على المستوى السائد
+        if _hdl:
+            lines.append("   " + _hdl)
         # (🔬 التجميع الصامت أُزيل — تجربة T-ACC فشلت بالسنتين، غير مميِّز للمنفجر)
         # 🕵️ علامات اليد لم تعد سطرًا داخل كل كرت (طلب المستخدم: تُجمع في قسم
         # «أسهم فيها علامات يد» المستقل أسفل التقرير — قائمة نظيفة لحالها).
@@ -12102,7 +12165,9 @@ def _finra_day_map(date_iso, fetch=None):
             else:
                 r = requests.get(url, headers=UA, timeout=40)
                 txt = r.text if r.status_code == 200 else ""
-            break
+            if txt or _try == 1:
+                break                    # ردّ غير 200 يستحق محاولة ثانية أيضًا
+            time.sleep(1.0)
         except Exception:
             txt = ""
             if _try == 0:
