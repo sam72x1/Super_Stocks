@@ -207,7 +207,7 @@ def main():
     pending = dict(state.get("pending") or {})
     shas = _existing_shas(OUT_DIR)
     saved, skipped, photos, docs, pages = 0, 0, 0, 0, 0
-    failed, perm_failed, exts, deferred = [], [], {}, []
+    failed, perm_failed, exts, deferred, got_ids = [], [], {}, [], []
 
     if pending:                                      # الطابور أولًا قبل أي جديد
         print(f"🔁 إعادة محاولة {len(pending)} صورة مؤجَّلة من تشغيل سابق…")
@@ -286,6 +286,7 @@ def main():
                 continue
             seen_uid.add(f["file_id"])
             saved += 1
+            got_ids.append(int(msg.get("message_id") or 0))
             docs += 1 if f["kind"] == "document" else 0
             photos += 1 if f["kind"] == "photo" else 0
             marks.append((uid, True))
@@ -307,6 +308,12 @@ def main():
     print(f"📥 حُفِظت {saved} صورة جديدة · مكرّرة متخطّاة {skipped} "
           f"· (مستندات {docs} · صور مضغوطة {photos})")
     print(f"📁 مجموع الصور في {OUT_DIR}/ الآن: {total}")
+    if got_ids:
+        # 🛡️ السجلّ نفسه وسيلة إنقاذ: `forwardMessage` بأرقام الرسائل يُرجع
+        # `file_id` جديدًا لكل صورة، فلو ضاع الدفع تُستعاد بلا إعادة إرسال.
+        print(f"🆔 أرقام الرسائل المحفوظة ({len(got_ids)}) من "
+              f"{min(got_ids)} إلى {max(got_ids)}:")
+        print("   " + ",".join(str(i) for i in got_ids))
     if exts:
         print("🧩 الامتدادات: " + " · ".join(f"{k} × {v}" for k, v in
                                             sorted(exts.items())))
