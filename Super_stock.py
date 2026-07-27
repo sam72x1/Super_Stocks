@@ -398,6 +398,7 @@ CONFIG = {
     "SPLIT_RADAR_PROBE_CAP": 80,         # سقف المُرشّحين لجلب التقسيمات (حدّ تكلفة الشبكة)
     "SPLIT_RADAR_MAX": 12,               # سقف العرض
     "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
+    "FINRA_BUDGET": 400,                 # 🕵️ سقف تنزيلات FINRA لتشغيلة T-SHORT
     "FORM4_BUDGET": 12,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
     "FORM4_MAX_FETCH": 2,                # 📄 سقف مستندات Form 4 لكل سهم (شراء الداخليين)
     "SPLIT_ROSE_MAX_PCT": 50.0,          # فيصل IMG_0150 «قسم ما أعطى صعود»: لو صعد من قيمة
@@ -3617,6 +3618,7 @@ _SEC_OFFERING_MAX = 400          # سقف حجم القناة (لا تضخّم �
 # (شراء/بيع) يحتاج المستند فيُجلب لاحقًا بسقف صارم في `enrich` فقط.
 _SEC_FORM4 = {}
 _FORM4_MAX_KEEP = 4
+_SEC_FORM4_MAX = 400             # سقف حجم القناة (لا تضخّم عبر التشغيلة)
 
 _RANK = {"🔴": 0, "🟢": 1, "🟡": 2, "⚪": 3}
 
@@ -3673,7 +3675,8 @@ def sec_recent_filings(sym: str):
                     and len(_SEC_OFFERING) < _SEC_OFFERING_MAX):
                 _SEC_OFFERING[sym.upper()] = {"form": form, "date": fdate}
             # 📄 Form 4 (تداول داخليين): نخزّن الميتا فقط (صفر نداء إضافي هنا)
-            if form == "4":
+            if form == "4" and (sym.upper() in _SEC_FORM4
+                                or len(_SEC_FORM4) < _SEC_FORM4_MAX):
                 _f4 = _SEC_FORM4.setdefault(sym.upper(), [])
                 if len(_f4) < _FORM4_MAX_KEEP:
                     _f4.append({"date": fdate, "cik": cik,
@@ -6120,9 +6123,9 @@ def build_message(results: list, splits: list,
         _ib = insider_buy_line(r)                # 📄 شراء داخلي (فيصل: سبب ارتفاع)
         if _ib:
             lines.append(_ib)
-        _nr = news_rejected_line(r.get("news_acc"))   # ⚠️ خبر لم يُقبَل = هبوط
-        if _nr:
-            lines.append(_nr)
+        # (📉 «خبره عدم قبوله» ليس هنا عمدًا: هذا الكرت يُبنى من نتيجة التحليل ولا
+        # يحمل شمعة الحدث، فالحقل غير موجود في هذا المسار — يظهر في التقرير اليومي
+        # وفحص اليد حيث الإطار اليومي متوفّر. لا سطر يَعِد بما لا يُحسب هنا.)
         # (🔬 التجميع الصامت أُزيل من العرض — تجربة T-ACC فشلت بالسنتين، غير مميِّز)
         # 🕵️ لوحة علامات اليد (تجميع قرائن مضارب — يظهر عند دليلين فأكثر)
         _he = hand_evidence_line(r)
@@ -12120,6 +12123,9 @@ def _bt_pump_features(df, date_str):
 
 
 _FINRA_DAY_CACHE: dict = {}      # {YYYY-MM-DD: {رمز: حجم الشورت}} — كاش تشغيلة واحدة
+_FINRA_FAILS = [0]               # قاطع دائرة: يتوقّف بعد إخفاقات متتالية
+_FINRA_BUDGET = [0]              # سقف تنزيلات FINRA للتشغيلة (0 = لم يُهيَّأ)
+_FINRA_CACHE_MAX = 400           # سقف عدد الأيام المخزَّنة (كل ملف مئات الكيلوبايت)
 
 
 def _parse_finra_short(text):
@@ -12152,6 +12158,10 @@ def _finra_day_map(date_iso, fetch=None):
     key = str(date_iso)[:10]
     if key in _FINRA_DAY_CACHE:
         return _FINRA_DAY_CACHE[key]
+    # 🔒 حارسان أضافهما التدقيق: قاطع دائرة (شبكة/حظر متواصل) + سقف تنزيلات للتشغيلة
+    # (كل ملف مئات الكيلوبايت). التجاوز ⇒ {} = «مجهول» صادق لا صفر.
+    if fetch is None and (_FINRA_FAILS[0] >= 5 or _FINRA_BUDGET[0] <= 0):
+        return {}
     url = ("https://cdn.finra.org/equity/regsho/daily/"
            f"CNMSshvol{key.replace('-', '')}.txt")
     # ⚠️ محاولتان قبل التخزين: العطل الشبكي العابر يُخزَّن {} فيبدو كعطلة رسمية ويُحوّل
@@ -12172,8 +12182,12 @@ def _finra_day_map(date_iso, fetch=None):
             txt = ""
             if _try == 0:
                 time.sleep(1.0)
+    if fetch is None:
+        _FINRA_BUDGET[0] -= 1
+        _FINRA_FAILS[0] = 0 if txt else _FINRA_FAILS[0] + 1
     m = _parse_finra_short(txt)
-    _FINRA_DAY_CACHE[key] = m
+    if len(_FINRA_DAY_CACHE) < _FINRA_CACHE_MAX:
+        _FINRA_DAY_CACHE[key] = m
     return m
 
 
@@ -12200,6 +12214,8 @@ def _bt_short_enrich(all_trades, fetch=None):
     """يُلحق `short_at_signal` بكل صفقة (تجربة T-SHORT). **إلحاق فقط** — لا يمسّ أي
     حكم باكتيست (`fwd_max_gain`/`exploded` محسوبة في `backtest_symbol` الجذر).
     نداء واحد لكل **تاريخ** لا لكل صفقة (الكاش أعلاه)."""
+    _FINRA_BUDGET[0] = int(CONFIG["FINRA_BUDGET"])     # ميزانية التشغيلة الواحدة
+    _FINRA_FAILS[0] = 0
     for t in all_trades:
         t["short_at_signal"] = _bt_short_at_signal(
             t.get("symbol"), t.get("date", ""), fetch=fetch)

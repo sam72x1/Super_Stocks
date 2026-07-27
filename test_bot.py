@@ -6808,6 +6808,25 @@ check("📄 Form 4·ميتا تالفة (cik غير رقمي) ⇒ تخطٍّ ب�
                 S.form4_insider_buys("ZZ6", fetch=lambda u: _F4_BUY) == [])[1])())
 check("🔒 عدّادات SEC مستقلّة (الطرح ≠ Form 4) وسقف مستندات للتشغيلة موجود",
       S._OFF_FAILS is not S._F4_FAILS and "FORM4_BUDGET" in S.CONFIG)
+check("🔒 FINRA·حارسا الميزانية وقاطع الدائرة موجودان (كانا غائبين)",
+      "FINRA_BUDGET" in S.CONFIG
+      and (lambda: (S._FINRA_DAY_CACHE.clear(), S._FINRA_BUDGET.__setitem__(0, 0),
+                    S._finra_day_map("2025-06-11") == {},
+                    S._FINRA_BUDGET.__setitem__(0, 400))[2])())
+check("🔒 قنوات SEC الجانبية مسقوفة الحجم (لا تضخّم عبر التشغيلة)",
+      isinstance(S._SEC_OFFERING_MAX, int) and isinstance(S._SEC_FORM4_MAX, int)
+      and isinstance(S._FINRA_CACHE_MAX, int))
+check("⚖️ صدق العرض: لا سطر «خبر لم يُقبَل» في كرت التحليل (الحقل غير محسوب هناك)",
+      "news_rejected_line" not in _insp0.getsource(S.build_message)
+      and "news_rejected_line" in _insp0.getsource(S.build_daily_message))
+check("⚖️ صدق العرض: فحص اليد لا ينفي الشراء الداخلي قطعًا عند الفراغ",
+      "ليس نفيًا قاطعًا" in open("hand_check.py", encoding="utf-8").read())
+check("⚖️ فحص اليد يحمل حقول بطاقة فيصل فعلًا (لا أسطر ميتة)",
+      all(_k in open("hand_check.py", encoding="utf-8").read()
+          for _k in ('"insider_buys": diag.get("insider_buys")',
+                     '"offering_event": diag.get("offering_event")',
+                     'r["news_acc"] = bot.news_acceptance',
+                     'r["half_down"] = bot.half_down_target')))
 check("🔒 قفل: كل إضافات بطاقة فيصل خارج الجذور السبعة و analyze_ticker",
       all(_fn not in _insp0.getsource(_f)
           for _fn in ("_post_event_high", "_event_day_open", "half_down_target",
