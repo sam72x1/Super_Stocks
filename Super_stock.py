@@ -397,6 +397,9 @@ CONFIG = {
     "SPLIT_RADAR_FLOAT_MAX": 2_000_000,  # فيصل IMG_0151: «عدد اسهمه تحت 2 مليون»
     "SPLIT_RADAR_PROBE_CAP": 80,         # سقف المُرشّحين لجلب التقسيمات (حدّ تكلفة الشبكة)
     "SPLIT_RADAR_MAX": 12,               # سقف العرض
+    "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
+    "FORM4_BUDGET": 12,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
+    "FORM4_MAX_FETCH": 2,                # 📄 سقف مستندات Form 4 لكل سهم (شراء الداخليين)
     "SPLIT_ROSE_MAX_PCT": 50.0,          # فيصل IMG_0150 «قسم ما أعطى صعود»: لو صعد من قيمة
                                          #   شمعة التقسيم للقمة أكثر من هذا = انضخّ (مو هادئًا)
     # 🥇 خطة فيصل التنفيذية (من رسالته الحيّة على ONCO 2026-07-24 — عرض/سياق فقط):
@@ -1274,6 +1277,90 @@ def _split_day_value(closes, splits, cut):
         return post[0][1] if post else None   # إغلاق أول شمعة بعد التقسيم = قيمة الشمعة
     except Exception:
         return None
+
+
+def _norm_ts(x):
+    """طابع زمني بلا منطقة زمنية (مساعد مشترك للمقارنات) — نقيّ · يرمي عند الفساد."""
+    t = pd.Timestamp(x)
+    return t.tz_localize(None) if getattr(t, "tz", None) is not None else t
+
+
+def _post_event_high(highs, event_date):
+    """🆕 أعلى قمة **عند/بعد تاريخ حدث مؤسِّس** (تقسيم عكسي **أو طرح جديد**) — تعميم
+    `_post_split_high` على مرجع تاريخي صريح. فيصل يعامل «طرح جديد» تمامًا كـ«قسم»:
+    يذكر تاريخه · افتتاحه · **أعلى** بعده (MWC: طرح 14/5 · افتتاح 8.10 · **أعلى 26.38**).
+    نقيّة · فاشلة-آمنة → None. بلا تسريب (التاريخ يُمرَّر مقصوصًا من النداء)."""
+    try:
+        if highs is None or event_date is None:
+            return None
+        d = _norm_ts(event_date)
+        post = [float(h) for ts, h in highs.items() if _norm_ts(ts) >= d]
+        return max(post) if post else None
+    except Exception:
+        return None
+
+
+def _event_day_open(opens, event_date):
+    """🆕 **افتتاح يوم الحدث** — مرجع فيصل الحرفي في بطاقته الفرزية: «قسم 6/4 **افتتاح
+    3.72**» (HTCR) · «قسم 11/12 **افتتاح 3.69**» (BNKK) · «طرح جديد 14/5 **افتتاح 8.10**»
+    (MWC). يُستعمل قاعدةً لمعيار «لم يصعد بعد الحدث» (لا الإغلاق — تصحيح 2026-07-27 من
+    بطاقة فيصل). = افتتاح أول شمعة عند/بعد التاريخ. نقيّة · فاشلة-آمنة → None."""
+    try:
+        if opens is None or event_date is None:
+            return None
+        d = _norm_ts(event_date)
+        post = sorted(((_norm_ts(ts), float(v)) for ts, v in opens.items()
+                       if _norm_ts(ts) >= d), key=lambda x: x[0])
+        return post[0][1] if post else None
+    except Exception:
+        return None
+
+
+def half_down_target(df, lookback: int = 60, hold: int = 3, price=None,
+                     max_above_pct: float = 25.0):
+    """📉 **قاعدة فيصل «÷2 على المستوى السائد»** (بطاقة MWC): «هبوط **4.70** · صعود
+    تاريخي 26 · **مستهدف هبوط 2.35**» — أي 4.70÷2 بالضبط. فالـ÷2 عنده لا يقتصر على
+    «قمة ما بعد التقسيم»؛ يُسقطه على **المستوى المستقرّ الحالي** حين يكون السهم ما زال
+    هابطًا (وهنا الحدث «طرح جديد» أصلًا فلا قمة تقسيم تُقسَم).
+
+    المستوى السائد = **أدنى إغلاق** في آخر `lookback` جلسة، **بشرط أن يكون مستقرًّا**:
+    مضى عليه `hold` جلسات على الأقل (ليس قاع أمس). المستهدف = المستوى ÷2.
+    يرجع {"level", "target", "bars_since"} أو None. **إسقاط وصفي لا تنبّؤ ولا بوّابة** —
+    نقيّ · فاشل-آمن · بلا نظر مستقبلي (يقرأ الماضي حتى آخر شمعة فقط)."""
+    try:
+        if df is None or len(df) < max(10, hold + 2):
+            return None
+        c = [float(x) for x in df["Close"].tail(int(lookback))]
+        if not c:
+            return None
+        lvl = min(c)
+        if lvl <= 0:
+            return None
+        # **أول** ظهور للمستوى (بتسامح كسري) — «استقرّ» يعني مضى عليه لا أن آخر لمسة
+        # له كانت أمس؛ المستوى المتكرّر (MWC 4.70 لعشر جلسات) أوّلُ ظهوره هو مولده.
+        i = next(k for k, v in enumerate(c) if v <= lvl * 1.001)
+        bars_since = len(c) - 1 - i
+        if bars_since < int(hold):               # قاع طازج لم يستقرّ بعد
+            return None
+        # ⚖️ **ربط بالسعر الحالي** (تدقيق خصومي): بلا هذا الشرط يُسقَط «مستهدف هبوط»
+        # على سهم صعد بعيدًا عن قاعه القديم — والقاعدة عند فيصل تخصّ سهمًا **ما زال
+        # عند مستواه الهابط** (MWC: السعر عند 4.70 نفسها). فنشترط ألّا يعلو السعر عن
+        # المستوى بأكثر من `max_above_pct`، وإلا فالمستوى لم يعد «سائدًا».
+        px = float(price) if price else float(df["Close"].iloc[-1])
+        if px <= 0 or (px / lvl - 1.0) * 100.0 > float(max_above_pct):
+            return None
+        return {"level": round(lvl, 2), "target": round(lvl / 2.0, 2),
+                "bars_since": int(bars_since)}
+    except Exception:
+        return None
+
+
+def half_down_line(hd) -> str:
+    """سطر «مستهدف الهبوط التالي» (عرض فقط، بلا علامات مقارنة)."""
+    if not isinstance(hd, dict) or not hd.get("target"):
+        return ""
+    return (f"📉 مستهدف الهبوط التالي: ${hd['target']:g} "
+            f"(نصف المستوى السائد ${hd['level']:g} — قاعدة فيصل ÷2)")
 
 
 def _split_aware_base_range(highs, lows, splits, cut) -> float:
@@ -3510,6 +3597,27 @@ _SEC_PROXY = {}
 _PROXY_FORMS = ("DEF 14A", "DEFA14A", "DEFR14A", "PRE 14A", "PRER14A",
                 "DEF 14C", "PRE 14C")
 
+# 🆕 قناة جانبية ثانية: آخر **طرح جديد** لكل رمز — الحدث المؤسِّس الموازي للتقسيم عند
+# فيصل (بطاقته: «MWC — **طرح جديد** تاريخ 14/5 · افتتاح 8.10 · أعلى 26.38»). نفس نمط
+# `_SEC_PROXY`: يُلتقط داخل نداء `sec_recent_filings` القائم = **صفر نداء إضافي**.
+_SEC_OFFERING = {}
+_OFFERING_FORMS = ("424B1", "424B2", "424B3", "424B4", "424B5", "424B7",
+                   "S-1", "S-1/A", "S-3", "S-3/A", "F-1", "F-1/A", "F-3",
+                   "EFFECT")
+# ⚖️ **تضييق حاسم (تدقيق خصومي 2026-07-27):** الحدث المؤسِّس = **نشرة نهائية لطرح
+# سُعِّر فعلًا** فقط. `S-1/S-3/F-3/EFFECT/424B3` تسجيلات رفّية/تحديثات **روتينية** —
+# لو عاملناها «حدثًا مؤسِّسًا» لأعادت ضبط مرجع الـ÷2 لتاريخ اعتباطي وأسقطت بوّابة «لم
+# يصعد». تُلتقط للعرض/السياق فقط (`_SEC_OFFERING`) ولا تُنشئ setup.
+_FOUNDING_OFFERING_FORMS = ("424B1", "424B4", "424B5")
+_SEC_OFFERING_MAX = 400          # سقف حجم القناة (لا تضخّم غير محدود عبر التشغيلة)
+
+# 📄 قناة جانبية ثالثة: إفصاحات Form 4 (تداول الداخليين) — فيصل يذكر شراء الداخليين
+# **سببًا مباشرًا** للارتفاع («ارتفعت بسبب المدير اشتري كمية اسهم 1.7 مليون سهم» SVRE ·
+# «اشترى الرئيس 12 الف سهم بسعر 1.37 دولار» BNKK). نلتقط الميتا مجانًا هنا، والتصنيف
+# (شراء/بيع) يحتاج المستند فيُجلب لاحقًا بسقف صارم في `enrich` فقط.
+_SEC_FORM4 = {}
+_FORM4_MAX_KEEP = 4
+
 _RANK = {"🔴": 0, "🟢": 1, "🟡": 2, "⚪": 3}
 
 
@@ -3544,6 +3652,8 @@ def sec_recent_filings(sym: str):
         forms = recent.get("form", []) or []
         dates = recent.get("filingDate", []) or []
         items_l = recent.get("items", []) or []
+        accs = recent.get("accessionNumber", []) or []
+        pdocs = recent.get("primaryDocument", []) or []
         cutoff = (dt.date.today()
                   - dt.timedelta(days=CONFIG["SEC_FILING_DAYS"])).isoformat()
         # 📅 نافذة أطول لالتقاط دعوة اجتماع المساهمين (الاجتماع يُعقد عادة بعد
@@ -3558,6 +3668,17 @@ def sec_recent_filings(sym: str):
             form = (forms[i] or "").strip()
             if form in _PROXY_FORMS and sym.upper() not in _SEC_PROXY:
                 _SEC_PROXY[sym.upper()] = {"form": form, "date": fdate}
+            # 🆕 الطرح الجديد (حدث مؤسِّس عند فيصل) — أحدث نموذج طرح فقط
+            if (form in _OFFERING_FORMS and sym.upper() not in _SEC_OFFERING
+                    and len(_SEC_OFFERING) < _SEC_OFFERING_MAX):
+                _SEC_OFFERING[sym.upper()] = {"form": form, "date": fdate}
+            # 📄 Form 4 (تداول داخليين): نخزّن الميتا فقط (صفر نداء إضافي هنا)
+            if form == "4":
+                _f4 = _SEC_FORM4.setdefault(sym.upper(), [])
+                if len(_f4) < _FORM4_MAX_KEEP:
+                    _f4.append({"date": fdate, "cik": cik,
+                                "acc": (accs[i] if i < len(accs) else ""),
+                                "doc": (pdocs[i] if i < len(pdocs) else "")})
             if fdate < cutoff or full:
                 continue           # خارج نافذة العرض — نكمل لالتقاط الوكالة فقط
             line = None
@@ -3577,6 +3698,188 @@ def sec_recent_filings(sym: str):
     except Exception as e:
         log(f"⚠️ SEC {sym}: {e}")
         return out, "error"
+
+
+_F4_FAILS = [0]                 # قاطع دائرة مستندات Form 4 (يُصفَّر كل enrich)
+_OFF_FAILS = [0]                # قاطع دائرة مستقل لكشف الطرح الجديد
+_F4_BUDGET = [0]                # سقف مستندات Form 4 لكل تشغيلة إثراء
+
+
+def _parse_form4(xml: str):
+    """📄 **محلّل Form 4 نقيّ** (بلا شبكة): يستخرج من XML الإفصاح مَن اشترى وكم وبأي سعر.
+    فيصل يعامل شراء الداخليين **سببًا مباشرًا للارتفاع** («ارتفعت بسبب المدير اشترى 1.7
+    مليون سهم» SVRE · «اشترى الرئيس 12 ألف سهم بسعر 1.37 دولار» BNKK).
+
+    القراءة: `transactionCode` = **P** (شراء بالسوق المفتوح) مع
+    `transactionAcquiredDisposedCode` = **A** ⇒ شراء حقيقي. نجمع كل صفقات الشراء.
+    ⚠️ **حدّ صدق:** الرمز **A** وحده لا يكفي (المنح `A` والممارسة `M` تظهر «مكتسبة» بلا
+    شراء نقدي) — فنشترط `P` صراحةً، وهو ما يقصده فيصل. غير ذلك يُهمَل.
+    يرجّع {"owner","title","shares","price","is_buy"} أو None. فاشل-آمن مطلق."""
+    try:
+        if not xml or "<" not in xml:
+            return None
+        low = xml
+        codes = re.findall(r"<transactionCode>\s*([A-Z])\s*</transactionCode>", low)
+        if "P" not in codes:
+            return None
+        shares, notional, sold = 0.0, 0.0, False
+
+        def _inner(tag, blk):
+            """قيمة عنصر **داخل حدوده هو** — يمنع تسرّب regex لعنصر لاحق (ثغرة تدقيق:
+            كتلة بلا سعر كانت تلتقط رقم الحاشية التالية). None لو غاب أو تعذّر."""
+            e = re.search(rf"<{tag}>(.*?)</{tag}>", blk, re.S)
+            if not e:
+                return None
+            v = re.search(r"<value>\s*([0-9]*\.?[0-9]+)\s*</value>", e.group(1))
+            return float(v.group(1)) if v else None
+        # كل كتلة صفقة على حدة حتى لا نخلط كميات البيع بالشراء
+        for blk in re.findall(r"<nonDerivativeTransaction>(.*?)</nonDerivativeTransaction>",
+                              low, re.S):
+            cd = re.search(r"<transactionCode>\s*([A-Z])\s*</transactionCode>", blk)
+            code = cd.group(1) if cd else ""
+            if code in ("S", "D"):
+                sold = True
+            if code != "P":
+                continue
+            if not re.search(r"<transactionAcquiredDisposedCode>.*?<value>\s*A\s*</value>",
+                             blk, re.S):
+                continue
+            q = _inner("transactionShares", blk)
+            px = _inner("transactionPricePerShare", blk)
+            if q and q > 0:
+                shares += q
+                if px and px > 0:
+                    notional += q * px      # متوسط **مرجَّح** لا حسابي
+        if shares <= 0:
+            return None
+        prices = [notional / shares] if notional > 0 else []
+        own = re.search(r"<rptOwnerName>\s*(.*?)\s*</rptOwnerName>", low, re.S)
+        ttl = re.search(r"<officerTitle>\s*(.*?)\s*</officerTitle>", low, re.S)
+        is_dir = re.search(r"<isDirector>\s*(1|true)\s*</isDirector>", low)
+        title = (ttl.group(1).strip() if ttl else ("عضو مجلس إدارة" if is_dir else ""))
+        return {"owner": _sanitize_name(own.group(1)) if own else "",
+                "title": _sanitize_name(title), "shares": int(shares),
+                "price": (round(prices[0], 4) if prices else None),
+                "has_sales": bool(sold), "is_buy": True}
+    except Exception:
+        return None
+
+
+def form4_insider_buys(sym: str, cap: int = 2, fetch=None):
+    """📄 شراء الداخليين حديثًا (Form 4). يقرأ الميتا المُلتقطة مجانًا في
+    `sec_recent_filings` (`_SEC_FORM4`) ثم يجلب **مستندَين على الأكثر** ويحلّلهما.
+    فاشل-آمن مطلق (لا ميتا/شبكة/قاطع دائرة → []) · `fetch(url)` محقون للاختبار ·
+    **لا يُنادى في مسار الفرز** (enrich بعد select_top فقط). عرض/سياق — لا بوّابة."""
+    meta = _SEC_FORM4.pop(str(sym).upper(), None) or []
+    if not meta or (fetch is None and (_F4_FAILS[0] >= 3 or _F4_BUDGET[0] <= 0)):
+        return []
+    out = []
+    for m in meta[:max(0, int(cap))]:
+        if fetch is None:
+            if _F4_BUDGET[0] <= 0:      # 🔒 سقف مشترك للتشغيلة (نمط `_bor_budget`)
+                break
+            _F4_BUDGET[0] -= 1
+        try:
+            acc = str(m.get("acc") or "").replace("-", "")
+            doc = str(m.get("doc") or "")
+            cik = int(m.get("cik"))
+        except (TypeError, ValueError):
+            continue                     # ميتا تالفة ⇒ تخطَّ (فاشل-آمن مطلق)
+        if not acc or not doc:
+            continue
+        url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{acc}/{doc}"
+        try:
+            if fetch is not None:
+                txt = fetch(url) or ""
+            else:
+                rr = requests.get(url, headers=SEC_UA, timeout=20)
+                txt = rr.text if rr.status_code == 200 else ""
+                time.sleep(0.15)               # احترام حد SEC
+            if not txt:
+                _F4_FAILS[0] += 1
+                continue
+        except Exception:
+            _F4_FAILS[0] += 1
+            continue
+        p = _parse_form4(txt)
+        if p:
+            p["date"] = m.get("date")
+            out.append(p)
+    return out
+
+
+def insider_buy_line(r) -> str:
+    """📄 سطر «شراء داخلي» (عرض فقط، بلا علامات مقارنة). فارغ لو لا شراء."""
+    buys = (r or {}).get("insider_buys") or []
+    if not buys:
+        return ""
+    b = buys[0]
+    who = " ".join(x for x in (b.get("title"), b.get("owner")) if x) or "داخلي"
+    px = f" بسعر ${b['price']:g}" if b.get("price") else ""
+    more = f" (و{len(buys) - 1} إفصاح آخر)" if len(buys) > 1 else ""
+    mixed = " ⚠️ ومعه بيع بنفس الإفصاح" if b.get("has_sales") else ""
+    return (f"📄 شراء داخلي: {esc(who)} اشترى {fmt_money(b.get('shares'))} سهم"
+            f"{px} — {b.get('date') or ''}{more}{mixed}")
+
+
+def _latest_event_date(r, today=None, max_age_days: int = 21):
+    """أحدث **تاريخ حدث معلوم** للسهم (شراء داخلي · طرح جديد · دعوة اجتماع) — يغذّي
+    قاعدة «خبره عدم قبوله». التواريخ نصّية ISO فالمقارنة النصّية كافية.
+    ⚖️ **حدّ الحداثة إلزامي (تدقيق خصومي 2026-07-27):** بلا سقف عمر كان حدثٌ عمره
+    شهران يُقارَن بالرقم الحرج **اليوم** فينتج تحذير «لم يُقبَل» دائمًا وكاذبًا. الحدث
+    الأقدم من `max_age_days` يُهمَل. نقيّة · فاشلة-آمنة."""
+    try:
+        today = today or dt.date.today()
+        floor = (today - dt.timedelta(days=int(max_age_days))).isoformat()
+        cand = []
+        for b in ((r or {}).get("insider_buys") or []):
+            if b.get("date"):
+                cand.append(str(b["date"])[:10])
+        for k in ("offering_event", "proxy_filing"):
+            ev = (r or {}).get(k) or {}
+            if isinstance(ev, dict) and ev.get("date"):
+                cand.append(str(ev["date"])[:10])
+        cand = [d for d in cand if floor <= d <= today.isoformat()]
+        return max(cand) if cand else None
+    except Exception:
+        return None
+
+
+def news_acceptance(df, event_date, critical=None):
+    """📉 **قاعدة فيصل «خبره عدم قبوله = هبوط»** (بطاقة MBRX: «عدم ثبات فوق 3.15 يرجع
+    يختبر الدعوم · **خبره عدم قبوله = هبوط**»). تقرأ شمعة **يوم الخبر** (أو أول جلسة
+    بعده) وتحكم: هل ثبت السهم فوق الرقم الحرج؟
+    - `critical` موجود ⇒ القبول = **إغلاق يوم الخبر فوقه**.
+    - لا رقم حرج ⇒ القبول = إغلاق الشمعة **فوق افتتاحها** (خضراء) — معيار أضعف يُصرَّح به.
+    يرجّع {"accepted","close","ref","kind","date"} أو None (لا شمعة/تاريخ تالف).
+    نقيّة · فاشلة-آمنة · **بلا نظر مستقبلي** (لا تنظر أبعد من شمعة الحدث)."""
+    try:
+        if df is None or not len(df) or not event_date:
+            return None
+        d = _norm_ts(event_date)
+        rows = sorted(((_norm_ts(ts), i) for i, ts in enumerate(df.index)),
+                      key=lambda x: x[0])
+        hit = next((i for ts, i in rows if ts >= d), None)
+        if hit is None:
+            return None
+        cl = float(df["Close"].iloc[hit])
+        if critical and float(critical) > 0:
+            ref, kind = float(critical), "الرقم الحرج"
+        else:
+            ref, kind = float(df["Open"].iloc[hit]), "افتتاح يوم الخبر"
+        return {"accepted": bool(cl > ref), "close": round(cl, 2),
+                "ref": round(ref, 2), "kind": kind,
+                "date": str(df.index[hit])[:10]}
+    except Exception:
+        return None
+
+
+def news_rejected_line(na) -> str:
+    """⚠️ سطر «الخبر لم يُقبَل» — يظهر **فقط عند عدم القبول** (تحذير لا ضجيج)."""
+    if not isinstance(na, dict) or na.get("accepted") is not False:
+        return ""
+    return (f"⚠️ خبر {na.get('date', '')} لم يُقبَل: أغلق ${na['close']:g} تحت "
+            f"{na['kind']} ${na['ref']:g} — فيصل: «خبره عدم قبوله = هبوط»")
 
 
 def parse_yahoo_news(items, max_items: int, days: int) -> list:
@@ -3717,6 +4020,11 @@ def enrich(results: list) -> None:
     _ce_fails = [0]          # قاطع دائرة اقتراض ChartExchange: يتوقف بعد 3 إخفاقات
     _bor_fails = [0]         # قاطع دائرة iBorrowDesk: يتوقف بعد 3 إخفاقات متتالية
     _flt_fails = [0]         # 🏢 قاطع دائرة فلوت ChartExchange: يتوقف بعد 3 إخفاقات
+    # 📄🆕 عدّادات SEC للتشغيلة الواحدة (تُصفَّر هنا كنمط `_bor_budget` — التدقيق لقّى
+    # أنها كانت تراكمية تعيش عبر التشغيلات فتُطفئ الميزة صامتةً بعد 3 إخفاقات قديمة).
+    _F4_FAILS[0] = 0
+    _OFF_FAILS[0] = 0
+    _F4_BUDGET[0] = int(CONFIG["FORM4_BUDGET"])
     fintel = {}
     try:
         fintel = fintel_short(sorted(syms))
@@ -3783,6 +4091,12 @@ def enrich(results: list) -> None:
         r["sec_filings"], r["sec_status"] = sec_recent_filings(r["symbol"])
         # 📅 دعوة اجتماع مساهمين (قناة _SEC_PROXY من النداء أعلاه — حدث قادم)
         r["proxy_filing"] = _SEC_PROXY.pop(r["symbol"].upper(), None)
+        # 🆕 الطرح الجديد (حدث مؤسِّس عند فيصل) — من نفس النداء، صفر تكلفة
+        r["offering_event"] = _SEC_OFFERING.pop(r["symbol"].upper(), None)
+        # 📄 شراء الداخليين (Form 4): الميتا مجانية أعلاه · المستند بسقف صارم هنا
+        # (بعد select_top ⇒ ≤ سعة القائمة). فاشل-آمن: [] عند أي تعذّر.
+        r["insider_buys"] = form4_insider_buys(
+            r["symbol"], cap=int(CONFIG["FORM4_MAX_FETCH"]))
         time.sleep(0.15)  # احترام حد SEC (10 طلبات/ثانية)
         if yf is None:
             continue
@@ -4122,12 +4436,71 @@ def build_split_watch_section(rows: list) -> str:
     return _rtl_join(lines)
 
 
-def _split_setup_probe(df, splits, today, tol: float = 0.25):
+def _offering_event(sym, today=None, fetch=None, lookback=None):
+    """🆕 **الطرح الجديد كحدث مؤسِّس** (بطاقة فيصل MWC: «طرح جديد تاريخ 14/5 · افتتاح
+    8.10 · أعلى 26.38» — نفس بنية بطاقة «قسم» حرفيًّا). يبحث عن أحدث نموذج طرح/تسجيل
+    (`_OFFERING_FORMS`) خلال نافذة `SPLIT_LOOKBACK_DAYS`.
+    يقرأ أولًا القناة المجانية `_SEC_OFFERING` (لو مُلئت من `sec_recent_filings`)، وإلا
+    يجلب ملخّص SEC مباشرةً بسقف نداءات وقاطع دائرة. `fetch(url)` محقون للاختبار.
+    يرجّع {"date","form"} أو None. فاشل-آمن مطلق · **خارج الفرز** (أداة الصيّاد فقط)."""
+    s = str(sym).upper()
+    today = today or dt.date.today()
+    lb = int(lookback or CONFIG["SPLIT_LOOKBACK_DAYS"])
+
+    def _fresh(ev):
+        """حدث مؤسِّس صالح = **نشرة نهائية** حديثة (لا تسجيل رفّي روتيني)."""
+        try:
+            if (ev.get("form") or "").strip() not in _FOUNDING_OFFERING_FORMS:
+                return None
+            d = dt.date.fromisoformat(str(ev["date"])[:10])
+            return ev if (0 <= (today - d).days <= lb) else None
+        except Exception:
+            return None
+    got = _SEC_OFFERING.get(s)
+    if got:
+        return _fresh(got)
+    if fetch is None and _OFF_FAILS[0] >= 3:       # قاطع دائرة مستقلّ للطرح
+        return None
+    try:
+        cik = sec_cik_map().get(s)
+        if not cik:
+            return None
+        url = f"https://data.sec.gov/submissions/CIK{cik:010d}.json"
+        if fetch is not None:
+            data = fetch(url)
+        else:
+            rr = requests.get(url, headers=SEC_UA, timeout=30)
+            if rr.status_code != 200:
+                _OFF_FAILS[0] += 1
+                return None
+            data = rr.json()
+            time.sleep(0.15)
+        recent = ((data.get("filings") or {}).get("recent")) or {}
+        forms = recent.get("form", []) or []
+        dates = recent.get("filingDate", []) or []
+        for i, f in enumerate(forms):
+            if (f or "").strip() in _OFFERING_FORMS:
+                ev = {"form": (f or "").strip(),
+                      "date": dates[i] if i < len(dates) else ""}
+                return _fresh(ev)
+        return None
+    except Exception:
+        _OFF_FAILS[0] += 1
+        return None
+
+
+def _split_setup_probe(df, splits, today, tol: float = 0.25, offering=None):
     """🎯 مِجَسّ setup أسهم التقسيم (فيصل IMG_0143/0144/0150/0151 — عرض/سياق فقط).
     يكتشف من OHLCV+splits نمطَ «مقسّم عكسيًّا · وصل قاع القمة÷2 · حافظ عليه» ويرجع
     dict وصفيًّا أو None. **مرجع فيصل الحرفي**: القاع المتوقّع = **قمة ما بعد التقسيم** ÷2
     (`_post_split_high`؛ JEM 6.90÷2=3.45 · WORX 2.33÷2=1.16 — تحقّق حيّ على JEM أكّده) +
-    معيار «لم يصعد بعد التقسيم» (`didnt_rise`، IMG_0150 «قسم ما أعطى صعود»). نقيّ · فاشل-آمن
+    معيار «لم يصعد بعد التقسيم» (`didnt_rise`، IMG_0150 «قسم ما أعطى صعود»).
+    🆕 **2026-07-27 (بطاقة فيصل الفرزية):** (أ) الحدث المؤسِّس قد يكون **طرحًا جديدًا**
+    لا تقسيمًا (MWC: «طرح جديد 14/5 · افتتاح 8.10 · أعلى 26.38» — نفس البنية حرفيًّا)
+    فيُقبل عبر `offering` **فقط عند غياب تقسيم عكسي حديث** (`offering=None` ⇒ السلوك
+    السابق بت-بت). (ب) قاعدة «لم يصعد» صارت من **افتتاح يوم الحدث** لا إغلاق أول شمعة
+    (HTCR افتتاح 3.72 → أعلى 4.58 = +23% هادئ · BNKK 3.69 → 7.19 = +95% انضخّ)، مع
+    ارتداد للإغلاق لو تعذّر الافتتاح. نقيّ · فاشل-آمن
     · بلا تسريب (يستعمل تقسيمات ≤ آخر شمعة). **خارج الفرز نهائيًا** (لا يمسّ الاختيار)."""
     try:
         if df is None or len(df) < 20 or splits is None:
@@ -4148,12 +4521,26 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25):
                     rev.append(d)
             except Exception:
                 continue
+        # 🆕 حدث مؤسِّس بديل: **طرح جديد** (بطاقة فيصل MWC) — يعامله تمامًا كـ«قسم»
+        # (تاريخ · افتتاح · أعلى بعده). يُستعمل فقط عند غياب تقسيم عكسي حديث، فلا
+        # يغيّر سلوك المقسّم إطلاقًا. `offering=None` ⇒ السلوك السابق حرفيًّا.
+        ev_kind, ev_date = "split", (max(rev) if rev else None)
         if not rev:
-            return None
-        # (2) القمة ما بعد التقسيم ÷2 (مرجع فيصل الحرفي — JEM 6.90÷2=3.45 · WORX 2.33÷2=1.16).
+            od = None
+            try:
+                od = (dt.date.fromisoformat(str(offering["date"])[:10])
+                      if offering and offering.get("date") else None)
+            except Exception:
+                od = None
+            if not (od and od <= today
+                    and (today - od).days <= CONFIG["SPLIT_LOOKBACK_DAYS"]):
+                return None
+            ev_kind, ev_date = "offering", od
+        # (2) قمة ما بعد الحدث ÷2 (مرجع فيصل الحرفي — JEM 6.90÷2=3.45 · WORX 2.33÷2=1.16).
         # تصحيح 2026-07-24: التحقّق على JEM أثبت أن `_post_split_high` (=6.90) يطابق فيصل،
         # وأن «إغلاق أول شمعة» (=6.05) ابتعد عنه — فأُرجع المرجع للقمة (كان صحيحًا أصلًا).
-        ref = _post_split_high(high, splits, cut)
+        ref = (_post_split_high(high, splits, cut) if ev_kind == "split"
+               else _post_event_high(high, ev_date))
         if not ref or ref <= 0:
             return None
         half = round(ref / 2.0, 2)
@@ -4170,10 +4557,22 @@ def _split_setup_probe(df, splits, today, tol: float = 0.25):
         # (5) «لم يصعد بعد التقسيم» (فيصل IMG_0150: «قسم ما أعطى صعود» — الـsetup للمقسّم الهادئ):
         # لو ارتفع من قيمة شمعة التقسيم (أول إغلاق) للقمة بأكثر من SPLIT_ROSE_MAX_PCT = انضخّ (مو
         # هادئًا). فاشل-آمن (لا قيمة شمعة → لا حكم = didnt_rise=True احتياطًا).
-        first_val = _split_day_value(close, splits, cut)
+        # ⚖️ تصحيح 2026-07-27 من **بطاقة فيصل الفرزية**: القاعدة = **افتتاح يوم الحدث**
+        # لا إغلاق أول شمعة («قسم 6/4 **افتتاح 3.72** — اعلى 4.58» HTCR ⇒ صعود 23% =
+        # هادئ · «قسم 11/12 **افتتاح 3.69** — اعلى 7.19» BNKK ⇒ 95% = انضخّ).
+        first_val = _event_day_open(df.get("Open"), ev_date)
+        # ⚠️ **NaN ليس None** (ثغرة لقّاها التدقيق الخصومي 2026-07-27): تنظيف البيانات
+        # يُسقط الشموع بإغلاق مفقود فقط، فقد ينجو افتتاح NaN. و`not (nan and nan>0 …)`
+        # يعطي True ⇒ **بوّابة «لم يصعد» تفشل مفتوحةً** فيمرّ مقسّم انضخّ +95%. نعامل
+        # NaN معاملة الغياب ونرتدّ للإغلاق (السلوك السابق).
+        if first_val is None or first_val != first_val:
+            first_val = _split_day_value(close, splits, cut)
+        if first_val is not None and first_val != first_val:
+            first_val = None                     # الإغلاق نفسه تالف ⇒ لا قاعدة
         didnt_rise = not (first_val and first_val > 0
                           and (ref / first_val - 1.0) * 100.0 > CONFIG["SPLIT_ROSE_MAX_PCT"])
-        return {"split_date": str(max(rev)), "ref": round(ref, 2),
+        return {"event_kind": ev_kind, "event_date": str(ev_date),
+                "split_date": str(ev_date), "ref": round(ref, 2),
                 "half": half, "price": round(price, 2),
                 "near_bottom": bool(near_bottom), "held_ok": bool(held_ok),
                 "didnt_rise": bool(didnt_rise), "first_val": round(first_val, 2)
@@ -4655,9 +5054,13 @@ def faisal_split_plan(df, price, bottom=None, resist=None, heads=None, gap=None,
 
 
 def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
-                      fetch_borrow=None, fetch_pump=None):
+                      fetch_borrow=None, fetch_pump=None, fetch_offering=None):
     """🪝 صيّاد أسهم التقسيم (فيصل — **أداة مستقلة تمامًا عن فارز الارتكاز 14 بوابة**).
     يمسح السوق عن مقسّم عكسي يطابق setup فيصل **الصارم** ويرجع المطابقين الكاملين فقط.
+    🆕 **2026-07-27:** الشرط ① صار «**حدث مؤسِّس** حديث» = تقسيم عكسي **أو طرح جديد**
+    (بطاقة فيصل MWC تعامل الطرح كالقسم حرفيًّا). **الشروط الخمسة الأخرى لم تُمَسّ** —
+    توسيع نوع الحدث لا تخفيف معيار. نداء SEC للطرح مقيَّد بـ`OFFERING_PROBE_CAP` ولا
+    يقع إلا على مُرشّح OHLCV **بلا** تقسيم عكسي حديث (فصفر تكلفة على المقسّمين).
     **الشروط الصارمة (تُشترط كلها — قرار المستخدم «أساسي موثوق»):** ① مقسّم عكسي حديث
     ② وصل قمة-ما-بعد-التقسيم÷2 ③ حافظ القاع 3 جلسات ④ فلوت<2مليون (ياهو، مثبَت) ⑤
     خالٍ من رفعة قروب. **السياق (عرض فقط، أفضل-جهد):** المتاح<20ألف + رسوم الاقتراض
@@ -4667,7 +5070,9 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
     ff = fetch_float or _yahoo_float
     fb = fetch_borrow or ce_borrow_info
     fp = fetch_pump or group_pump_scar
+    fo = fetch_offering or _offering_event      # 🆕 الحدث المؤسِّس البديل: طرح جديد
     today = today or dt.date.today()
+    off_budget = [int(CONFIG["OFFERING_PROBE_CAP"])]
     # 1) مُرشّح OHLCV رخيص (نفس رادار المقسّم): سعر منخفض + كليف هبوط حادّ حديث
     pre = []
     for sym, df in history.items():
@@ -4692,7 +5097,17 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
     for sym in pre:
         try:
             df = history[sym]
-            pr = _split_setup_probe(df, fs(sym), today)  # ①②③⑥ مقسّم+÷2+حافظ3ج+لم يصعد
+            sp = fs(sym)
+            pr = _split_setup_probe(df, sp, today)   # ①②③⑥ مقسّم+÷2+حافظ3ج+لم يصعد
+            # 🆕 لا تقسيم عكسي حديث ⇒ جرّب **الطرح الجديد** حدثًا مؤسِّسًا (بطاقة MWC).
+            # نداء SEC مقيَّد بسقف صارم ولا يقع إلا على مُرشّح OHLCV اجتاز الكليف.
+            if pr is None and off_budget[0] > 0:
+                off_budget[0] -= 1
+                ov = fo(sym, today=today)
+                if ov:
+                    pr = _split_setup_probe(df, sp, today, offering=ov)
+                    if pr:
+                        pr["event_form"] = ov.get("form")
             if (not pr or not pr["near_bottom"] or not pr["held_ok"]
                     or not pr["didnt_rise"]):            # ⑥ IMG_0150 «قسم ما أعطى صعود»
                 continue
@@ -4716,6 +5131,11 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                 # 📏 متوسط 30ي من **تاريخ التقسيم** (فيصل LABT IMG_0303) — عرض/سياق
                 "split_ma": split_ma_maturity(df, pr.get("split_date")),
                 "ref": pr["ref"], "split_date": pr["split_date"],
+                # 🆕 نوع الحدث المؤسِّس (قسم/طرح جديد) + نموذجه — عرض/سياق
+                "event_kind": pr.get("event_kind", "split"),
+                "event_form": pr.get("event_form"),
+                # 📉 «÷2 على المستوى السائد» (بطاقة MWC) — إسقاط وصفي لا تنبّؤ
+                "half_down": half_down_target(df, price=pr["price"]),
                 "freq": pr.get("freq"), "float": flt,
                 "avail": bor.get("shares_available"),
                 "borrow_fee": bor.get("borrow_fee"),
@@ -4736,19 +5156,30 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         return ""
     d = today or dt.date.today()
     lines = [f"🪝 <b>صيّاد أسهم التقسيم</b> (منهج فيصل · {len(rows)} مطابق) — {d}",
-             "<i>مقسّم عكسي وصل قمته÷2 · حافظ القاع 3ج · فلوت تحت 2م · خالٍ من قروب</i>",
+             "<i>حدث مؤسِّس (قسم أو طرح جديد) وصل قمته÷2 · حافظ القاع 3ج · "
+             "فلوت تحت 2م · خالٍ من قروب</i>",
              ""]
     for r in rows:
+        _off = r.get("event_kind") == "offering"
+        _evn = "الطرح الجديد" if _off else "التقسيم"
         avail = (fmt_money(r["avail"]) if r.get("avail") is not None
                  else "— (غير مؤكّد من CE)")
         fee = (f" · رسوم {r['borrow_fee']:.0f}%"
                if r.get("borrow_fee") is not None else "")
         up = (r["ema20"] > r["ema30"] > r["ema50"])
         lines.append(f"🎯 <b>{esc(r['symbol'])}</b> ${r['price']:.2f}")
+        if _off:
+            lines.append(f"  🆕 الحدث المؤسِّس: <b>طرح جديد</b> "
+                         f"({esc(str(r.get('event_form') or ''))} "
+                         f"{esc(str(r.get('split_date') or ''))}) — "
+                         "يعامله فيصل كالتقسيم تمامًا")
         lines.append(f"  ✅ فلوت {fmt_money(r['float'])} (تحت 2م) · ✅ حافظ 3ج "
-                     f"· ✅ لم يصعد بعد التقسيم · ✅ خالٍ من قروب")
-        lines.append(f"  🎯 القاع = قمة ما بعد التقسيم ÷2 = ${r['half']:.2f} "
+                     f"· ✅ لم يصعد بعد {_evn} · ✅ خالٍ من قروب")
+        lines.append(f"  🎯 القاع = قمة ما بعد {_evn} ÷2 = ${r['half']:.2f} "
                      f"(القمة {r['ref']:.2f}) · هدف +100%")
+        _hd = half_down_line(r.get("half_down"))   # 📉 ÷2 على المستوى السائد (MWC)
+        if _hd:
+            lines.append("  " + _hd)
         lines.append(f"  🕵️ متاح للاقتراض: {avail} (فيصل: تحت 20ألف){fee}")
         lines.append(f"  📉 متوسطات: 20 ${r['ema20']:.2f} · 30 ${r['ema30']:.2f} "
                      f"· 50 ${r['ema50']:.2f}" + (" (مصطفّة صاعدة)" if up else ""))
@@ -5686,6 +6117,12 @@ def build_message(results: list, splits: list,
         _kl = klinger_line(r.get("klinger"))     # 📊 كلنجر (حجم — فيصل IMG_0125)
         if _kl:
             lines.append(_kl)
+        _ib = insider_buy_line(r)                # 📄 شراء داخلي (فيصل: سبب ارتفاع)
+        if _ib:
+            lines.append(_ib)
+        _nr = news_rejected_line(r.get("news_acc"))   # ⚠️ خبر لم يُقبَل = هبوط
+        if _nr:
+            lines.append(_nr)
         # (🔬 التجميع الصامت أُزيل من العرض — تجربة T-ACC فشلت بالسنتين، غير مميِّز)
         # 🕵️ لوحة علامات اليد (تجميع قرائن مضارب — يظهر عند دليلين فأكثر)
         _he = hand_evidence_line(r)
@@ -6214,6 +6651,10 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "fsto_osc": r.get("fsto_osc"),                    # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
         "klinger": r.get("klinger"),                      # 📊 كلنجر (حجم، فيصل — عرض فقط)
         "cci": r.get("cci"),                              # 📉 CCI(14) (فيصل — عرض فقط)
+        "insider_buys": r.get("insider_buys"),            # 📄 شراء داخلي (Form 4)
+        "offering_event": r.get("offering_event"),        # 🆕 طرح جديد (حدث مؤسِّس)
+        "news_acc": r.get("news_acc"),                    # 📉 قبول الخبر
+        "half_down": r.get("half_down"),                  # 📉 مستهدف ÷2
         "bottom_test": r.get("bottom_test"),              # 🔁 «القاع 2» (فيصل — عرض فقط)
         "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
@@ -7034,6 +7475,16 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
             _ip = build_interpretation(s)
             if _ip:
                 s["interp"] = _ip
+        except Exception:
+            pass
+        # 📉 «خبره عدم قبوله = هبوط» (فيصل MBRX) + 📉 «÷2 على المستوى السائد» (MWC).
+        # هنا تحديدًا لأن الشمعة اليومية والرقم الحرج المُجدَّد متوفّران معًا. عرض/تحذير
+        # فقط · فاشل-آمن (لا حدث/لا شمعة ⇒ None فلا يظهر سطر).
+        try:
+            s["news_acc"] = news_acceptance(
+                df, _latest_event_date(s),
+                ((s.get("interp") or {}).get("critical_number") or {}).get("price"))
+            s["half_down"] = half_down_target(df, price=s.get("last_price"))
         except Exception:
             pass
         # ⚖️ F-02 (إصلاح تدقيق 2026-07-10): تسوية مقياس التقسيم قبل الحسم —
@@ -9016,6 +9467,15 @@ def build_daily_message(wl: dict, splits: list,
         _kl = klinger_line(s.get("klinger"))          # 📊 كلنجر (حجم، فيصل — عرض فقط)
         if _kl:
             lines.append("   " + _kl)
+        _ib = insider_buy_line(s)                     # 📄 شراء داخلي (Form 4)
+        if _ib:
+            lines.append("   " + _ib)
+        _nr = news_rejected_line(s.get("news_acc"))   # ⚠️ خبر لم يُقبَل = هبوط
+        if _nr:
+            lines.append("   " + _nr)
+        _hdl = half_down_line(s.get("half_down"))     # 📉 ÷2 على المستوى السائد
+        if _hdl:
+            lines.append("   " + _hdl)
         # (🔬 التجميع الصامت أُزيل — تجربة T-ACC فشلت بالسنتين، غير مميِّز للمنفجر)
         # 🕵️ علامات اليد لم تعد سطرًا داخل كل كرت (طلب المستخدم: تُجمع في قسم
         # «أسهم فيها علامات يد» المستقل أسفل التقرير — قائمة نظيفة لحالها).
@@ -11705,7 +12165,9 @@ def _finra_day_map(date_iso, fetch=None):
             else:
                 r = requests.get(url, headers=UA, timeout=40)
                 txt = r.text if r.status_code == 200 else ""
-            break
+            if txt or _try == 1:
+                break                    # ردّ غير 200 يستحق محاولة ثانية أيضًا
+            time.sleep(1.0)
         except Exception:
             txt = ""
             if _try == 0:

@@ -93,6 +93,20 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
     _evls = bot.events_lines(r.get("upcoming_events"))
     L += _evls if _evls else ["📅 أحداث معلنة قادمة: — (لا أرباح/تجارب معلنة بالأفق)"]
+    # 📄 شراء الداخليين (Form 4) — فيصل يعدّه سببًا مباشرًا للارتفاع (SVRE/BNKK)
+    _ibl = bot.insider_buy_line(r)
+    L.append(_ibl or "📄 شراء داخلي: — (لا إفصاح Form 4 شراءً بالنافذة)")
+    # 🆕 الطرح الجديد حدثًا مؤسِّسًا (بطاقة فيصل MWC) — سياق
+    _ofe = r.get("offering_event") or {}
+    if _ofe.get("date"):
+        L.append(f"🆕 طرح جديد: {_ofe.get('form', '')} — {_ofe['date']} "
+                 "(حدث مؤسِّس يعامله فيصل كالتقسيم)")
+    # 📉 «خبره عدم قبوله = هبوط» (فيصل MBRX) + مستهدف ÷2 من المستوى السائد (MWC)
+    for _fn, _val in ((bot.news_rejected_line, r.get("news_acc")),
+                      (bot.half_down_line, r.get("half_down"))):
+        _ln = _fn(_val)
+        if _ln:
+            L.append(_ln)
     # 🔁 تقسيمات متكررة = نَفَس قصير (قرينة فيصل §P4 — عرض/تحذير فقط)
     _sf = bot._split_freq_line(r.get("split_freq"))
     if _sf:
@@ -191,7 +205,20 @@ def hand_check(sym: str):
          "short_interest": diag.get("short_interest"),      # 📊 SI الرسمي (🎬 فيديو DSY)
          "days_to_cover": diag.get("days_to_cover"),        # 📊 أيام التغطية (🎬 DSY)
          "kst4": diag.get("kst4"),                          # 🎬 KST 4س (حالة زخم)
-         "upcoming_events": diag.get("upcoming_events")}    # 📅 أحداث معلنة قادمة
+         "upcoming_events": diag.get("upcoming_events"),    # 📅 أحداث معلنة قادمة
+         # 🧾 بطاقة فيصل الفرزية (2026-07-27): بدونها كانت أسطر العرض ميتة وتقول
+         # «لا إفصاح شراء» كأنها حقيقة (لقّاها التدقيق الخصومي).
+         "insider_buys": diag.get("insider_buys"),          # 📄 Form 4 (شراء داخلي)
+         "offering_event": diag.get("offering_event")}      # 🆕 طرح جديد (حدث مؤسِّس)
+    try:
+        # 📉 «خبره عدم قبوله» + «÷2 على المستوى السائد» — يلزمهما الإطار اليومي وهو
+        # متاح هنا (مسار الفرز يحسبهما في التحديث اليومي حيث الشمعة متوفّرة).
+        r["news_acc"] = bot.news_acceptance(
+            df, bot._latest_event_date(r),
+            ((diag.get("interp") or {}).get("critical_number") or {}).get("price"))
+        r["half_down"] = bot.half_down_target(df, price=price)
+    except Exception:
+        pass
     try:
         r["behav"] = bot.behavior_rise_profile(df)     # بصمة اليومي
         r["pump_scar"] = bot.group_pump_scar(df)       # رفعة القروب/كسر الدعوم
