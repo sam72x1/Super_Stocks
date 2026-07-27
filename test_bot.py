@@ -6244,6 +6244,53 @@ check("⚠️ JZ·بلا قروب (أو حقل مفقود/تالف) ⇒ لا س�
       S.pump_voids_targets_line({"pump_scar": {"found": False}}) == ""
       and S.pump_voids_targets_line({}) == ""
       and S.pump_voids_targets_line({"pump_scar": "تالف"}) == "")
+# 🚫 قاعدة «رُفِع أكثر من مرة بدون مضارب ⇒ متابعة فقط» (EZRA IMG_0295 · EDBL IMG_0298)
+check("🚫 متابعة فقط: رفعتان فأكثر ⇒ سطر «متابعة فقط»",
+      "متابعة فقط" in S.pump_repeat_watch_only(
+          {"pump_scar": {"found": True, "n_pumps": 3}}))
+check("🚫 متابعة فقط: رفعة واحدة ⇒ لا سطر (القاعدة للتكرار فقط)",
+      S.pump_repeat_watch_only({"pump_scar": {"found": True, "n_pumps": 1}}) == "")
+check("🚫 متابعة فقط·فاشلة-آمنة: بلا حقل/تالف ⇒ «»",
+      S.pump_repeat_watch_only({}) == ""
+      and S.pump_repeat_watch_only({"pump_scar": "تالف"}) == "")
+# 🔁 عدّاد الرفعات المستقلّة داخل group_pump_scar (الشرط اللازم للقاعدة أعلاه)
+_gp_idx = pd.date_range("2026-01-01", periods=120, freq="D")
+_gp_c = np.full(120, 1.0)
+for _i in (40, 90):                       # رفعتان مفصولتان 50 جلسة = حدثان مستقلّان
+    _gp_c[_i] = 2.2                       # قفزة 120% (فوق EXPLOSION_PCT)
+_gp_v = np.full(120, 1e5); _gp_v[[40, 90]] = 3e6
+_gp_df = pd.DataFrame({"Open": _gp_c, "High": _gp_c, "Low": _gp_c * 0.9,
+                       "Close": _gp_c, "Volume": _gp_v}, index=_gp_idx)
+_gp = S.group_pump_scar(_gp_df)
+check("🔁 group_pump_scar: يعدّ الرفعات المستقلّة (n_pumps=2) مع حفظ المفاتيح القديمة",
+      _gp is not None and _gp.get("n_pumps") == 2
+      and _gp.get("found") is True and "jump_pct" in _gp and "bars_ago" in _gp)
+# 🔁 حالة «القاع 2» (فيصل EDBL: «القاع 2 = ثبات أو سحب سيوله»)
+_bt_lows = np.concatenate([np.full(20, 3.0), [1.00], np.full(15, 1.60),
+                           [1.02], np.full(23, 1.50)])     # القاع اختُبر مرتين
+_bt_df = pd.DataFrame({"Open": _bt_lows, "High": _bt_lows * 1.05, "Low": _bt_lows,
+                       "Close": _bt_lows, "Volume": np.full(60, 1e5)},
+                      index=pd.date_range("2026-01-01", periods=60, freq="D"))
+_bt = S.bottom_test_state(_bt_df)
+check("🔁 القاع 2: اختباران للقاع ⇒ second=True + القاع الصحيح",
+      _bt is not None and _bt["second"] and _bt["tests"] == 2
+      and abs(_bt["bottom"] - 1.00) < 0.01)
+check("🔁 القاع 2: قاع اختُبر مرة واحدة ⇒ second=False",
+      S.bottom_test_state(pd.DataFrame(
+          {"Open": [3.0]*40, "High": [3.1]*40, "Low": [3.0]*39 + [1.0],
+           "Close": [3.0]*40, "Volume": [1e5]*40},
+          index=pd.date_range("2026-01-01", periods=40, freq="D")))["second"] is False)
+check("🔁 القاع 2·عرض: السطر يذكر «ثبات أو سحب سيولة» + نطاق السحب لو مُرِّر",
+      "ثبات أو سحب سيولة" in S.bottom_test_line(_bt)
+      and "1.21" in S.bottom_test_line(_bt, {"shallow": 1.21, "deep": 1.13})
+      and S.bottom_test_line(None) == ""
+      and S.bottom_test_line({"second": False}) == "")
+check("🔁 قفل: (bottom_test_state/pump_repeat_watch_only) خارج الجذور",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("bottom_test_state", "pump_repeat_watch_only")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
 # ⏱️ قاعدة «ربع الساعة» (JZ فريم الساعة IMG_0294): «لو كان مضارب يعطيك مجال تبيع وتذبذب
 # يصل مداه أكثر من ربع ساعه — طلع السهم بدون اذن مضارب ضغطه المضارب للهاويه».
 _sus_ok = S.operator_sustain([{"c": 2.55}] * 18, 2.50)          # صمد 18 دقيقة فوق الكسر
@@ -6258,6 +6305,30 @@ check("⏱️ ربع الساعة: الحدّ 15 دقيقة بالضبط ⇒ م�
 check("⏱️ ربع الساعة·فاشلة-آمنة: بلا شموع/مستوى ⇒ None",
       S.operator_sustain([], 2.5) is None and S.operator_sustain([{"c": 1}], 0) is None
       and S.operator_sustain(None, None) is None)
+# ⏱️ توصيل القياس بسجلّ الرادار (عند نهاية الجلسة فقط — خارج مسار التنبيه)
+_fs_stock = {"symbol": "SUS", "pivot": 2.0, "liberation": None,
+             "interp": {"critical_number": {"price": 2.50}},
+             "fired_ts_ms": 1_000_000}
+_fs_sig = {"price": 2.55, "vol_x": 5.0, "usd": 250_000}
+_fs_bars_ok = [{"t": 1_000_000 + i * 60_000, "c": 3.0} for i in range(25)]
+_fs_bars_no = ([{"t": 1_000_000 + i * 60_000, "c": 3.0} for i in range(5)]
+               + [{"t": 1_000_000 + (5 + i) * 60_000, "c": 1.0} for i in range(20)])
+_fs1 = S._fire_sustain(_fs_stock, _fs_sig, lambda s, minutes=0: _fs_bars_ok, 15)
+_fs2 = S._fire_sustain(_fs_stock, _fs_sig, lambda s, minutes=0: _fs_bars_no, 15)
+check("⏱️ قياس الإطلاق: صمد ≥15د ⇒ operator_ok=True (رفعة مضارب)",
+      _fs1.get("operator_ok") is True and _fs1.get("sustain_min", 0) >= 15)
+check("⏱️ قياس الإطلاق: سُحق بعد 5د ⇒ operator_ok=False (رفعة بلا إذن)",
+      _fs2.get("operator_ok") is False and _fs2.get("sustain_min") == 5)
+check("⏱️ قياس الإطلاق·فاشل-آمن: بلا جالب/بلا ختم وقت ⇒ {} (السلوك السابق حرفيًّا)",
+      S._fire_sustain(_fs_stock, _fs_sig, None, 15) == {}
+      and S._fire_sustain({"symbol": "X", "pivot": 2.0}, _fs_sig,
+                          lambda s, minutes=0: _fs_bars_ok, 15) == {}
+      and S._fire_sustain(_fs_stock, _fs_sig,
+                          lambda s, minutes=0: (_ for _ in ()).throw(IOError()), 15) == {})
+check("⏱️ توصيل: record_ignition_fires يقبل fetch_bars (اختياري، توافق خلفي)",
+      "fetch_bars" in _insp0.signature(S.record_ignition_fires).parameters
+      and _insp0.signature(S.record_ignition_fires)
+      .parameters["fetch_bars"].default is None)
 check("⏱️ ربع الساعة·قفل: operator_sustain خارج الجذور (قياس/تشخيص لا كبت تنبيه)",
       all("operator_sustain" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
