@@ -11097,6 +11097,96 @@ def backtest_tier_analysis(trades: list) -> list:
     return out
 
 
+def _slice_verdict(out, rows, label, need_gap=10.0):
+    """حكم مشترك لشرائح الفرضيات: فرق ≥`need_gap` نقطة **و** فاصلا Wilson منفصلان.
+    `rows` = [(معدّل%, wilson_lo, wilson_hi)…] بترتيب الشرائح. يرجّع (disc, gap)."""
+    if len(rows) < 2:
+        out.append(f"   ⚠️ عيّنة غير كافية للحكم على {label}")
+        return False, 0.0
+    gap = rows[0][0] - rows[-1][0]
+    sep = rows[0][1] > rows[-1][2] or rows[-1][1] > rows[0][2]
+    disc = abs(gap) >= need_gap and sep
+    out.append(f"   📊 الفرق ({label}): {gap:+.0f} نقطة · فاصلان "
+               f"{'منفصلان' if sep else 'متداخلان'}")
+    return disc, gap
+
+
+def backtest_pump_filter(trades: list) -> list:
+    """🔬 **اختبار فرضية «الفلتر السلبي»** (`pump_filter_prereg.md`، مسجَّلة مسبقًا):
+    هل وجود بصمة **رفعة القروب** يخفض معدّل الانفجار داخل المؤهَّلين؟
+    (فيصل: «لما يحصل قروب يرفع السهم المضارب **يلغي الاهداف** ويهبط فيه» · «رُفِع أكثر من
+    مرة بدون مضارب ⇒ **متابعه فقط**» · «القروبات **غفلوا عنه**» ← ثم نجح.)
+    **تحليل فقط** — لا يمنح أي وزن؛ الاعتماد يلزمه المعيار المسجَّل + سنة ثانية + موافقة."""
+    fb = [t for t in trades if t.get("pump_found") is not None
+          and t.get("outcome") != "no_fill"]
+    if len(fb) < 12:
+        return []
+    out = ["\n🔬 <b>فرضية الفلتر السلبي: هل رفعة القروب تُخفض الانفجار؟</b>"]
+    rows = []
+    for lbl, sel in [("بلا رفعة قروب", [t for t in fb if not t.get("pump_found")]),
+                     ("رفعة واحدة", [t for t in fb if t.get("pump_found")
+                                     and int(t.get("pump_n") or 0) == 1]),
+                     ("رُفِع مرّتين فأكثر", [t for t in fb if t.get("pump_found")
+                                            and int(t.get("pump_n") or 0) >= 2])]:
+        if not sel:
+            continue
+        exp = sum(1 for t in sel if t.get("exploded"))
+        dec = [t for t in sel if t["outcome"] in ("win", "loss")]
+        w = sum(1 for t in dec if t["outcome"] == "win")
+        elo, ehi = _wilson_ci(exp, len(sel))
+        rows.append((exp / len(sel) * 100.0, elo, ehi))
+        out.append(f"   {lbl}: {len(sel)} معبّأة · انفجر {exp} "
+                   f"({exp / len(sel) * 100:.0f}%، ثقة {elo:.0f}-{ehi:.0f}%) · "
+                   f"نجاح {(w / len(dec) * 100.0) if dec else 0:.0f}% "
+                   f"(محسومة {len(dec)})")
+    disc, gap = _slice_verdict(out, rows, "بلا قروب − مرّتين فأكثر")
+    small = any(r for r in rows) and min(len(fb), 999) < 20
+    rec = ("<b>الفرضية صمدت على هذه السنة</b> — تحتاج سنة ثانية + موافقة قبل أي دور قرار"
+           if disc and not small else
+           "<b>فشلت الفرضية</b>: لا فرق دالّ — يبقى القروب تحذير عرض بلا أي وزن (كما T-ACC)")
+    out.append(f"   ✅ الحكم بالمعيار المسجَّل مسبقًا: {rec}")
+    return out
+
+
+def backtest_country_thread(trades: list) -> list:
+    """🌏 **اختبار «الرابط المشترك لأسهم فيصل الخمس = الدولة»** (مسجَّل مسبقًا):
+    AZI · DSY · EHGO · ZCMD · JZ **كلها صينية**، وفيصل يجمعها بنفسه («صيني مثل خوياه» ·
+    «صيني نقيسه مع الاسهم السابقه»). والبوت يضع الصين في `HIGH_RISK_COUNTRIES` (تحذير) —
+    فقد نكون معكوسين. **الدولة لم تُختبر قط** (اختُبر القطاع وحده).
+    ⚠️ **فخّ مُصرَّح:** فيصل عرض رابحيه فقط — لذا نقارن **داخل المؤهَّلين** بمعدّل الأساس.
+    **تحليل فقط** — لا دور قرار للدولة إلا بالمعيار + سنة ثانية + موافقة."""
+    fb = [t for t in trades if t.get("country") and t.get("country") != "—"
+          and t.get("outcome") != "no_fill"]
+    if len(fb) < 12:
+        return []
+    cn = CONFIG.get("HIGH_RISK_COUNTRIES", [])
+    out = ["\n🌏 <b>الرابط المشترك: هل الدولة (الصين/هونغ كونغ) تميّز الانفجار؟</b>"]
+    rows = []
+    for lbl, sel in [("الصين/هونغ كونغ", [t for t in fb if t["country"] in cn]),
+                     ("بقية الدول", [t for t in fb if t["country"] not in cn])]:
+        if not sel:
+            continue
+        exp = sum(1 for t in sel if t.get("exploded"))
+        dec = [t for t in sel if t["outcome"] in ("win", "loss")]
+        w = sum(1 for t in dec if t["outcome"] == "win")
+        elo, ehi = _wilson_ci(exp, len(sel))
+        rows.append((exp / len(sel) * 100.0, elo, ehi))
+        out.append(f"   {lbl}: {len(sel)} معبّأة · انفجر {exp} "
+                   f"({exp / len(sel) * 100:.0f}%، ثقة {elo:.0f}-{ehi:.0f}%) · "
+                   f"نجاح {(w / len(dec) * 100.0) if dec else 0:.0f}% "
+                   f"(محسومة {len(dec)})")
+    enough = all(len([t for t in fb if (t["country"] in cn) == k]) >= 20
+                 for k in (True, False))
+    disc, gap = _slice_verdict(out, rows, "الصين − بقية الدول")
+    if not enough:
+        out.append("   ⚠️ إحدى الشريحتين أقل من 20 صفقة — المعيار المسجَّل يمنع الاعتماد")
+    rec = ("<b>الفرضية صمدت على هذه السنة</b> — تلزم سنة ثانية + موافقة قبل أي دور قرار"
+           if disc and enough else
+           "<b>لم تستوفِ المعيار</b>: تبقى الدولة عمود تحليل بلا دور قرار")
+    out.append(f"   ✅ الحكم بالمعيار المسجَّل مسبقًا: {rec}")
+    return out
+
+
 def backtest_behav_correlation(trades: list) -> list:
     """🧬 تحقّق ارتباط بصمة «طريقة الارتفاع» بالانفجار (طلب المستخدم: امنحها وزنًا في
     الترتيب **فقط بعد** إثبات أن الدرجة العالية ترتبط بالانفجار فعلًا، بلا تسريب —
@@ -11822,6 +11912,13 @@ def run_backtest(symbols=None) -> None:
     # float/CTB مُستبعَدان (نظر مستقبلي/بلا تاريخ). خارج backtest_symbol (الجذر) — تحليل فقط.
     if CONFIG.get("BT_FEATURES"):
         _bt_feature_enrich(all_trades, hist=hist)
+        # 🔬🌏 اختبارا الفرضيتين المسجَّلتين مسبقًا (pump_filter_prereg.md) — **بعد** التخصيب
+        # لأن العمودين يُضافان فيه. تحليل/طباعة فقط: لا وزن ولا بوّابة.
+        _hyp = backtest_pump_filter(all_trades) + backtest_country_thread(all_trades)
+        if _hyp:
+            send_telegram("\n".join(_hyp))
+            for _hl in _hyp:
+                log("باكتيست·" + _hl.strip().replace("\n", " "))
     fn = _write_csv_file(all_trades, "backtest")
     if fn:
         send_telegram_document(fn, f"🧪 تفاصيل الباكتيست — {dt.date.today()}")
