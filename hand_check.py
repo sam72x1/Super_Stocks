@@ -93,6 +93,20 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
     _evls = bot.events_lines(r.get("upcoming_events"))
     L += _evls if _evls else ["📅 أحداث معلنة قادمة: — (لا أرباح/تجارب معلنة بالأفق)"]
+    # 📄 شراء الداخليين (Form 4) — فيصل يعدّه سببًا مباشرًا للارتفاع (SVRE/BNKK)
+    _ibl = bot.insider_buy_line(r)
+    L.append(_ibl or "📄 شراء داخلي: — (لا إفصاح Form 4 شراءً بالنافذة)")
+    # 🆕 الطرح الجديد حدثًا مؤسِّسًا (بطاقة فيصل MWC) — سياق
+    _ofe = r.get("offering_event") or {}
+    if _ofe.get("date"):
+        L.append(f"🆕 طرح جديد: {_ofe.get('form', '')} — {_ofe['date']} "
+                 "(حدث مؤسِّس يعامله فيصل كالتقسيم)")
+    # 📉 «خبره عدم قبوله = هبوط» (فيصل MBRX) + مستهدف ÷2 من المستوى السائد (MWC)
+    for _fn, _val in ((bot.news_rejected_line, r.get("news_acc")),
+                      (bot.half_down_line, r.get("half_down"))):
+        _ln = _fn(_val)
+        if _ln:
+            L.append(_ln)
     # 🔁 تقسيمات متكررة = نَفَس قصير (قرينة فيصل §P4 — عرض/تحذير فقط)
     _sf = bot._split_freq_line(r.get("split_freq"))
     if _sf:

@@ -6610,6 +6610,151 @@ check("🥇 صيّاد·تنبيه: صفّ بلا خطة (توافق خلفي) �
       # سطر الدخول يبقى لكن بصياغة لا تشير لمستوى مجهول
       and "مع المضارب</b> — انتظار" in _no_plan_alert
       and "فوق التحرر" not in _no_plan_alert)
+# ═══ 🧾 بطاقة فيصل الفرزية (2026-07-27، 5 صور: HTCR·BNKK·MWC·SVRE·MBRX) ═══
+# ① «طرح جديد» حدثًا مؤسِّسًا · ② مرجع ÷2 = **افتتاح** يوم الحدث · ③ Form 4 + «خبر بلا قبول»
+_fc_idx = pd.date_range("2025-06-02", periods=40, freq="B")
+# HTCR الحرفي: قسم · افتتاح 3.72 · أعلى 4.58 (صعود 23% = هادئ ⇒ didnt_rise) · قاع ≈ 4.58÷2
+_fc_open = np.concatenate([np.full(1, 3.72), np.full(39, 2.4)])
+_fc_high = np.concatenate([np.full(1, 3.80), np.full(4, 4.58), np.full(35, 2.45)])
+_fc_close = np.concatenate([np.full(5, 3.9), np.full(35, 2.32)])
+_fc_df = pd.DataFrame({"Open": _fc_open, "High": _fc_high,
+                       "Low": _fc_close * 0.98, "Close": _fc_close,
+                       "Volume": np.full(40, 5e5)}, index=_fc_idx)
+_fc_splits = pd.Series([0.1], index=[_fc_idx[0]])
+_fc_today = _fc_idx[-1].date()
+check("🧾 بطاقة فيصل·افتتاح يوم الحدث = مرجع «لم يصعد» (HTCR 3.72 حرفيًّا)",
+      abs(S._event_day_open(_fc_df["Open"], _fc_idx[0]) - 3.72) < 1e-6)
+check("🧾 بطاقة فيصل·أعلى بعد الحدث (HTCR 4.58 حرفيًّا) — تعميم على تاريخ صريح",
+      abs(S._post_event_high(_fc_df["High"], _fc_idx[0]) - 4.58) < 1e-6)
+_fc_pr = S._split_setup_probe(_fc_df, _fc_splits, _fc_today)
+check("🧾 بطاقة فيصل·HTCR هادئ: صعود 23% من الافتتاح ⇒ didnt_rise=True",
+      _fc_pr is not None and _fc_pr["didnt_rise"] is True
+      and abs(_fc_pr["first_val"] - 3.72) < 0.01 and _fc_pr["event_kind"] == "split")
+# BNKK الحرفي: افتتاح 3.69 · أعلى 7.19 = +95% ⇒ انضخّ (didnt_rise=False)
+_bk_df = _fc_df.copy()
+_bk_df.iloc[0, _bk_df.columns.get_loc("Open")] = 3.69
+_bk_df.iloc[1:5, _bk_df.columns.get_loc("High")] = 7.19
+check("🧾 بطاقة فيصل·BNKK انضخّ: افتتاح 3.69 → أعلى 7.19 (+95%) ⇒ didnt_rise=False",
+      (S._split_setup_probe(_bk_df, _fc_splits, _fc_today) or {}).get("didnt_rise")
+      is False)
+check("🧾 بطاقة فيصل·احتياط: بلا عمود افتتاح صالح يرجع لإغلاق أول شمعة (توافق خلفي)",
+      S._event_day_open(None, _fc_idx[0]) is None
+      and S._post_event_high(None, _fc_idx[0]) is None)
+# ① الطرح الجديد حدثًا مؤسِّسًا — بلا تقسيم عكسي إطلاقًا
+_of_splits = pd.Series(dtype=float)
+check("🆕 طرح جديد·بلا تقسيم وبلا طرح ⇒ None (السلوك السابق حرفيًّا)",
+      S._split_setup_probe(_fc_df, _of_splits, _fc_today) is None)
+_of_pr = S._split_setup_probe(_fc_df, _of_splits, _fc_today,
+                              offering={"date": str(_fc_idx[0].date()),
+                                        "form": "424B5"})
+check("🆕 طرح جديد·يُعامَل كالتقسيم: نفس المرجع (أعلى بعده) ونفس الـ÷2",
+      _of_pr is not None and _of_pr["event_kind"] == "offering"
+      and abs(_of_pr["ref"] - 4.58) < 0.01 and abs(_of_pr["half"] - 2.29) < 0.01)
+check("🆕 طرح جديد·قديم خارج النافذة يُهمَل (بلا تسريب زمني)",
+      S._split_setup_probe(_fc_df, _of_splits, _fc_today,
+                           offering={"date": "2020-01-02"}) is None)
+check("🆕 طرح جديد·الكشف: يقرأ القناة المجانية ويحترم النافذة",
+      (lambda: (S._SEC_OFFERING.update(
+          {"ZZO": {"form": "424B5", "date": str(_fc_today)}}),
+          S._offering_event("ZZO", today=_fc_today) is not None,
+          S._SEC_OFFERING.update({"ZZO": {"form": "424B5", "date": "2019-01-01"}}),
+          S._offering_event("ZZO", today=_fc_today) is None,
+          S._SEC_OFFERING.pop("ZZO", None))[3])())
+# ② «÷2 على المستوى السائد» (بطاقة MWC: هبوط 4.70 ⇒ مستهدف 2.35)
+_mw = pd.DataFrame({"Open": np.full(30, 5.0), "High": np.full(30, 5.2),
+                    "Low": np.full(30, 4.6),
+                    "Close": np.concatenate([np.full(20, 6.0), np.full(10, 4.70)]),
+                    "Volume": np.full(30, 1e5)},
+                   index=pd.date_range("2025-06-02", periods=30, freq="B"))
+_hd = S.half_down_target(_mw)
+check("📉 MWC حرفيًّا: المستوى السائد 4.70 ⇒ مستهدف الهبوط 2.35 (÷2)",
+      _hd is not None and abs(_hd["level"] - 4.70) < 1e-6
+      and abs(_hd["target"] - 2.35) < 1e-6)
+check("📉 ÷2·قاع طازج لم يستقرّ (أقل من 3 جلسات) ⇒ None (لا إسقاط على ضجيج)",
+      S.half_down_target(pd.DataFrame(
+          {"Open": np.full(30, 5.0), "High": np.full(30, 5.2),
+           "Low": np.full(30, 4.0),
+           "Close": np.concatenate([np.full(29, 6.0), np.full(1, 4.0)]),
+           "Volume": np.full(30, 1e5)},
+          index=pd.date_range("2025-06-02", periods=30, freq="B"))) is None)
+check("📉 ÷2·فاشلة-آمنة: بلا إطار/إطار قصير ⇒ None · السطر فارغ",
+      S.half_down_target(None) is None and S.half_down_line(None) == ""
+      and "2.35" in S.half_down_line(_hd))
+# ③ Form 4 — شراء الداخليين (فيصل: «ارتفعت بسبب المدير اشترى 1.7 مليون سهم»)
+_F4_BUY = """<ownershipDocument><reportingOwner><reportingOwnerId>
+ <rptOwnerName>John Doe</rptOwnerName></reportingOwnerId>
+ <reportingOwnerRelationship><officerTitle>CEO</officerTitle>
+ </reportingOwnerRelationship></reportingOwner>
+ <nonDerivativeTable><nonDerivativeTransaction>
+  <transactionCoding><transactionCode>P</transactionCode></transactionCoding>
+  <transactionAmounts>
+   <transactionShares><value>12000</value></transactionShares>
+   <transactionPricePerShare><value>1.37</value></transactionPricePerShare>
+   <transactionAcquiredDisposedCode><value>A</value></transactionAcquiredDisposedCode>
+  </transactionAmounts></nonDerivativeTransaction></nonDerivativeTable>
+</ownershipDocument>"""
+_F4_SELL = _F4_BUY.replace("<transactionCode>P<", "<transactionCode>S<").replace(
+    "<value>A</value>", "<value>D</value>")
+_F4_GRANT = _F4_BUY.replace("<transactionCode>P<", "<transactionCode>A<")
+_p4 = S._parse_form4(_F4_BUY)
+check("📄 Form 4·شراء BNKK الحرفي: الرئيس اشترى 12 ألف سهم بسعر 1.37",
+      _p4 is not None and _p4["shares"] == 12000 and abs(_p4["price"] - 1.37) < 1e-9
+      and _p4["title"] == "CEO" and _p4["is_buy"] is True)
+check("📄 Form 4·البيع (S/D) لا يُحسب شراءً",
+      S._parse_form4(_F4_SELL) is None)
+check("📄 Form 4·المنح (A) ليس شراءً نقديًّا ⇒ يُهمَل (حدّ صدق مُعلَن)",
+      S._parse_form4(_F4_GRANT) is None)
+check("📄 Form 4·فاشل-آمن: فارغ/HTML/تالف ⇒ None بلا استثناء",
+      S._parse_form4("") is None and S._parse_form4(None) is None
+      and S._parse_form4("<html>error</html>") is None)
+S._SEC_FORM4["ZZ4"] = [{"date": "2025-06-17", "cik": 123, "acc": "0001-25-000001",
+                        "doc": "f4.xml"}]
+_buys = S.form4_insider_buys("ZZ4", fetch=lambda u: _F4_BUY)
+check("📄 Form 4·الغلاف: يبني الرابط ويحلّل ويستهلك الميتا مرة واحدة",
+      len(_buys) == 1 and _buys[0]["date"] == "2025-06-17"
+      and S.form4_insider_buys("ZZ4", fetch=lambda u: _F4_BUY) == [])
+check("📄 Form 4·السطر بلغة فيصل + فارغ عند لا شراء",
+      "اشترى" in S.insider_buy_line({"insider_buys": _buys})
+      and S.insider_buy_line({}) == "" and S.insider_buy_line(None) == "")
+check("📄 Form 4·عطل الشبكة ⇒ [] بلا استثناء (فاشل-آمن)",
+      (lambda: (S._SEC_FORM4.update({"ZZ5": [{"date": "2025-06-17", "cik": 1,
+                                              "acc": "a", "doc": "d.xml"}]}),
+                S.form4_insider_buys(
+                    "ZZ5", fetch=lambda u: (_ for _ in ()).throw(IOError())) == [])[1])())
+# ④ «خبره عدم قبوله = هبوط» (فيصل MBRX)
+_na_df = pd.DataFrame({"Open": [3.00, 3.10], "High": [3.30, 3.20],
+                       "Low": [2.90, 2.95], "Close": [3.05, 3.00],
+                       "Volume": [1e6, 9e5]},
+                      index=pd.to_datetime(["2025-06-10", "2025-06-11"]))
+check("📉 خبر بلا قبول: أغلق 3.05 تحت الرقم الحرج 3.15 ⇒ لم يُقبَل (MBRX حرفيًّا)",
+      (S.news_acceptance(_na_df, "2025-06-10", 3.15) or {}).get("accepted") is False)
+check("📉 خبر مقبول: إغلاق فوق الرقم الحرج ⇒ لا تحذير",
+      (S.news_acceptance(_na_df, "2025-06-10", 2.50) or {}).get("accepted") is True
+      and S.news_rejected_line(S.news_acceptance(_na_df, "2025-06-10", 2.50)) == "")
+check("📉 خبر بلا رقم حرج: المعيار الأضعف = إغلاق فوق افتتاح يوم الخبر (مُصرَّح به)",
+      (S.news_acceptance(_na_df, "2025-06-10") or {})["kind"] == "افتتاح يوم الخبر"
+      and (S.news_acceptance(_na_df, "2025-06-10") or {}).get("accepted") is True)
+check("📉 خبر·تاريخ بعد آخر شمعة أو إطار فارغ ⇒ None (لا نظر مستقبلي)",
+      S.news_acceptance(_na_df, "2025-12-31") is None
+      and S.news_acceptance(None, "2025-06-10") is None
+      and S.news_acceptance(_na_df, None) is None)
+check("📉 خبر·السطر يظهر عند الرفض فقط وبعبارة فيصل",
+      "عدم قبوله" in S.news_rejected_line(S.news_acceptance(_na_df, "2025-06-10", 3.15))
+      and S.news_rejected_line(None) == "" and S.news_rejected_line({}) == "")
+check("📉 أحدث حدث معلوم: يختار الأحدث بين الشراء الداخلي والطرح والوكالة",
+      S._latest_event_date({"insider_buys": [{"date": "2025-06-01"}],
+                            "offering_event": {"date": "2025-06-20"},
+                            "proxy_filing": {"date": "2025-05-01"}}) == "2025-06-20"
+      and S._latest_event_date({}) is None and S._latest_event_date(None) is None)
+check("🔒 قفل: كل إضافات بطاقة فيصل خارج الجذور السبعة و analyze_ticker",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("_post_event_high", "_event_day_open", "half_down_target",
+                      "half_down_line", "_parse_form4", "form4_insider_buys",
+                      "insider_buy_line", "news_acceptance", "news_rejected_line",
+                      "_latest_event_date", "_offering_event", "_split_setup_probe")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
 check("🥇 قفل: faisal_split_plan خارج الجذور السبعة و analyze_ticker (عرض/سياق فقط)",
       all("faisal_split_plan" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
