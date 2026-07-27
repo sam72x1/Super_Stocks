@@ -6446,6 +6446,20 @@ check("🔔 المسح الثاني·العتبة 20% لم تُمَسّ · و«�
       S.CONFIG["SPLIT_ROSE_MAX_PCT"] == 20.0
       and S.CONFIG["SPLIT_ROSE_NEAR_MULT"] == 2.0
       and "SPLIT_ROSE_MAX_PCT" in _insp0.getsource(S._split_setup_probe))
+# ⛔ T-STOP (`stop_sweep_prereg.md`): مفتاح عمق الوقف **باكتيست حصريًّا** — الإنتاج
+# يبقى (5,7) مهما كانت البيئة (فيصل ENPH: «الوقف عند المتداولين من 5-7%»).
+check("⛔ T-STOP·الإنتاج محصّن: الافتراضي (5,7) ولا يتأثّر بـBT_STOP_PCT خارج الباكتيست",
+      S.CONFIG["STOP_BELOW_LOW_PCT"] == (5.0, 7.0)
+      and S._apply_backtest_overrides("DAILY", {"BT_STOP_PCT": "13,15"}) == []
+      and S.CONFIG["STOP_BELOW_LOW_PCT"] == (5.0, 7.0))
+check("⛔ T-STOP·بوضع الباكتيست يُطبَّق زوجًا · والقيمة غير المعقولة تُتجاهَل",
+      (lambda _sv: (S._apply_backtest_overrides("BACKTEST", {"BT_STOP_PCT": "13,15"}),
+                    S.CONFIG["STOP_BELOW_LOW_PCT"] == (13.0, 15.0),
+                    S.CONFIG.__setitem__("STOP_BELOW_LOW_PCT", _sv),
+                    S._apply_backtest_overrides("BACKTEST", {"BT_STOP_PCT": "99,1"}),
+                    S.CONFIG["STOP_BELOW_LOW_PCT"] == _sv,
+                    S.CONFIG.__setitem__("STOP_BELOW_LOW_PCT", _sv))[1::3]
+       == (True, True))(S.CONFIG["STOP_BELOW_LOW_PCT"]))
 # 🆕 المسح الثاني للصور (308 صورة، 2026-07-27) — بندان صمدا للتحقّق الخصومي:
 # N8 «المشتريات الموحّدة» (TG_2113) · «القاع التالي بنسبة السهم نفسه» (TG_2041).
 check("🔣 N8·المشتريات الموحّدة: الحجم 3 المتكرّر = رمز خوارزمي (لقطة ADIL)",

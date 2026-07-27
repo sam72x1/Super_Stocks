@@ -503,6 +503,11 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_POTENTIAL", "BT_POTENTIAL", int),        # 🏦 قوة البوت
             ("BT_FEATURES", "BT_FEATURES", int),          # 🔬 أعمدة تحليل point-in-time
             ("BT_SHORT", "BT_SHORT", int),                # 🕵️ T-SHORT: شورت FINRA المؤرَّخ
+            # ⛔ T-STOP (`stop_sweep_prereg.md`): عمق الوقف تحت الدعم — «lo,hi» مثل
+            # «13,15». الغرض: اختبار وقفٍ **خارج منطقة مسح السيولة** (فيصل ENPH:
+            # «جميع أوامر الوقف تحت الدعم · الوقف عند المتداولين من 5-7%»). باكتيست
+            # حصريًّا · الإنتاج يبقى (5,7) بقفل اختبار · لا يمسّ أي جذر.
+            ("BT_STOP_PCT", "STOP_BELOW_LOW_PCT", "pair"),
             ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
             ("BT_PORT_SIZE", "BT_PORT_SIZE", int),
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
@@ -510,6 +515,13 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
         if not v:
             continue
         try:
+            if cast == "pair":          # ⛔ T-STOP: «lo,hi» ⇒ tuple(float, float)
+                a, b = (float(x) for x in v.replace(" ", "").split(",")[:2])
+                if not (0 < a <= b < 100):
+                    continue            # قيمة غير معقولة ⇒ تُتجاهَل (فاشل-آمن)
+                CONFIG[cfg_key] = (a, b)
+                applied.append(f"{cfg_key}=({a:g},{b:g})")
+                continue
             CONFIG[cfg_key] = cast(float(v))
             applied.append(f"{cfg_key}={CONFIG[cfg_key]:g}")
         except ValueError:
