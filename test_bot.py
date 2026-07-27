@@ -6244,6 +6244,29 @@ check("⚠️ JZ·بلا قروب (أو حقل مفقود/تالف) ⇒ لا س�
       S.pump_voids_targets_line({"pump_scar": {"found": False}}) == ""
       and S.pump_voids_targets_line({}) == ""
       and S.pump_voids_targets_line({"pump_scar": "تالف"}) == "")
+# 🔬 فرضية الفلتر السلبي (pump_filter_prereg.md): بصمة رفعة القروب **عند يوم الإشارة حصرًا**
+_pf_idx = pd.date_range("2026-01-01", periods=140, freq="D")
+_pf_c = np.full(140, 1.0)
+_pf_c[55] = 2.2                       # رفعة قروب أولى (داخل نافذة المسح للتاريخين)
+_pf_c[100] = 2.4                      # رفعة ثانية (**بعد** يوم الإشارة المبكّر — لا تُرى)
+_pf_v = np.full(140, 1e5); _pf_v[[55, 100]] = 3e6
+_pf_df = pd.DataFrame({"Open": _pf_c, "High": _pf_c, "Low": _pf_c * 0.9,
+                       "Close": _pf_c, "Volume": _pf_v}, index=_pf_idx)
+_pf_early = S._bt_pump_features(_pf_df, "2026-03-12")   # البار 70: بعد الأولى فقط
+_pf_late = S._bt_pump_features(_pf_df, "2026-05-16")    # البار 135: بعد الاثنتين
+check("🔬 بصمة القروب·بلا تسريب: عند يوم إشارة مبكّر لا تُحتسب الرفعة اللاحقة",
+      _pf_early.get("pump_found") is True and _pf_early.get("pump_n") == 1)
+check("🔬 بصمة القروب: بعد رفعتين مستقلّتين ⇒ pump_n=2",
+      _pf_late.get("pump_n") == 2)
+check("🔬 بصمة القروب·فاشلة-آمنة: بلا إطار/تاريخ/عيّنة قصيرة ⇒ {}",
+      S._bt_pump_features(None, "2026-03-01") == {}
+      and S._bt_pump_features(_pf_df, "") == {}
+      and S._bt_pump_features(_pf_df, "2026-01-05") == {})
+check("🔬 قفل: _bt_pump_features خارج backtest_symbol والجذور (تحليل CSV فقط)",
+      all("_bt_pump_features" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker)))
 # 📏 «حقق متوسط 30 يوم من تاريخ التقسيم» (فيصل LABT IMG_0303): المتوسط لا ينضج إلا بعد مرور
 # 30 جلسة **منذ التقسيم** (قبلها نافذته تخلط ما قبل/بعد التقسيم).
 _sm_idx = pd.date_range("2026-06-01", periods=70, freq="D")
