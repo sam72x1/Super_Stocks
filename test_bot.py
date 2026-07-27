@@ -6244,6 +6244,50 @@ check("⚠️ JZ·بلا قروب (أو حقل مفقود/تالف) ⇒ لا س�
       S.pump_voids_targets_line({"pump_scar": {"found": False}}) == ""
       and S.pump_voids_targets_line({}) == ""
       and S.pump_voids_targets_line({"pump_scar": "تالف"}) == "")
+# ⭐ «اتفاق الفريمات» وصيد الارتداد (فيصل IMG_0305/0306): 5د+15د+30د على نفس الدعم +
+# «الارتداد الأول لا دخول · الثاني تأكيد دخول مع عدم الكسر». مثاله: دعم 10.21 → 14.70 (+45%).
+def _mk_min_bars(seq):
+    """شموع دقيقة من متتالية إغلاقات (low=close، تكفي لاختبار الدعم/الارتداد)."""
+    return [{"o": x, "h": x * 1.005, "l": x, "c": x, "v": 1e4, "t": i * 60_000}
+            for i, x in enumerate(seq)]
+
+
+# سيناريو فيصل: هبوط للدعم 10.21 → ارتداد 11.46 → عودة ثانية للدعم → ثبات فوقه
+_rb_seq = ([13.5] * 90 + [10.25] * 30 + [11.4] * 60 + [10.23] * 30 + [10.9] * 60)
+_rb = S.rebound_entry_state(_mk_min_bars(_rb_seq))
+check("⭐ اتفاق الفريمات: الفريمات الثلاثة على نفس الدعم ⇒ agree=True + الدعم ≈10.2",
+      _rb is not None and _rb["agree"] and abs(_rb["support"] - 10.23) < 0.10
+      and _rb["frames"] == [5, 15, 30])
+check("⭐ صيد الارتداد: ارتدادان + ثبات ⇒ entry=True (فيصل: «الدخول هنا»)",
+      _rb["bounces"] >= 2 and _rb["holding"] and _rb["entry"] is True)
+check("⭐ عرض: سطر «ارتداد 2 مؤكَّد» + الدعم + تحذير الوقف",
+      "ارتداد 2 مؤكَّد" in S.rebound_entry_line(_rb)
+      and "الدخول هنا" in S.rebound_entry_line(_rb))
+# الارتداد الأول فقط ⇒ لا دخول (قاعدة فيصل الصريحة)
+_rb1 = S.rebound_entry_state(_mk_min_bars([13.5] * 120 + [10.25] * 30 + [10.9] * 120))
+check("⭐ الارتداد الأول: لا دخول (entry=False) مع أن الفريمات متفقة",
+      _rb1 is not None and _rb1["bounces"] == 1 and _rb1["entry"] is False
+      and "الارتداد الأول: لا دخول" in S.rebound_entry_line(_rb1))
+# كسر الدعم ⇒ «اطلع فورًا»
+_rbb = S.rebound_entry_state(_mk_min_bars([12.0] * 120 + [10.2] * 90 + [9.0] * 5))
+check("⭐ كسر الدعم ⇒ holding=False + سطر «اطلع فورًا»",
+      _rbb is not None and _rbb["holding"] is False
+      and "اطلع فورًا" in S.rebound_entry_line(_rbb))
+check("⭐ فاشل-آمن: عيّنة قصيرة/فارغة ⇒ None · السطر «» عند None",
+      S.rebound_entry_state([]) is None and S.rebound_entry_state(None) is None
+      and S.rebound_entry_state(_mk_min_bars([1.0] * 20)) is None
+      and S.rebound_entry_line(None) == "")
+check("⭐ _resample_minute_bars: 10 شموع دقيقة → فريم 5د = شمعتان (h/l/c صحيحة)",
+      len(S._resample_minute_bars(_mk_min_bars([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), 5)) == 2
+      and S._resample_minute_bars(
+          _mk_min_bars([1, 2, 3, 4, 5]), 5)[0]["l"] == 1
+      and S._resample_minute_bars(_mk_min_bars([1, 2, 3, 4, 5]), 5)[0]["c"] == 5)
+check("⭐ قفل: (rebound_entry_state/_resample_minute_bars) خارج الجذور ومسار التنبيه",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("rebound_entry_state", "_resample_minute_bars")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker, S.scan_ignition)))
 # 🚫 قاعدة «رُفِع أكثر من مرة بدون مضارب ⇒ متابعة فقط» (EZRA IMG_0295 · EDBL IMG_0298)
 check("🚫 متابعة فقط: رفعتان فأكثر ⇒ سطر «متابعة فقط»",
       "متابعة فقط" in S.pump_repeat_watch_only(
