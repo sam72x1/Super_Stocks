@@ -398,6 +398,9 @@ CONFIG = {
     "SPLIT_RADAR_MAX": 12,               # سقف العرض
     "SPLIT_ROSE_MAX_PCT": 50.0,          # فيصل IMG_0150 «قسم ما أعطى صعود»: لو صعد من قيمة
                                          #   شمعة التقسيم للقمة أكثر من هذا = انضخّ (مو هادئًا)
+    # 🥇 خطة فيصل التنفيذية (من رسالته الحيّة على ONCO 2026-07-24 — عرض/سياق فقط):
+    "SPLIT_SWEEP_PCT": 5.0,              # «0.71-5٪=0.675» = سحب السيولة تحت القاع الفعلي
+    "SPLIT_BOTTOM_LOOKBACK": 30,         # نافذة القاع المُحقَّق (فيصل استعمل 0.71 لا الـ÷2)
 
     # ---- تقنية ----
     "HISTORY_DAYS": 800,         # ~2.2 سنة (يكفي لفريم شهري سليم ~27 شمعة)
@@ -4248,6 +4251,62 @@ def _yahoo_float(sym: str):
         return None
 
 
+def faisal_split_plan(df, price, bottom=None, resist=None, heads=None, gap=None,
+                      sweep_pct=None):
+    """🥇 **خطة فيصل لسهم التقسيم** — مستخلَصة من رسالته الحيّة على $ONCO (2026-07-24،
+    السهم الذي رشّحه صيّادنا فحلّله فيصل ودخله؛ أرقامه طابقت مِجَسّنا حرفيًّا: «1.44 أعلى
+    شمعة بعد التقسيم ÷2 = 72» = `_post_split_high`، و«شورت 150 ألف» = المتاح CE).
+
+    كان الصيّاد يعرض القاع÷2 و«هدف +100%» المجرّد فقط، بينما خطة فيصل التنفيذية أربعة أرقام:
+      ① **التحرر** «ثبات فوق 92 سنت تحرر السهم» = **أقرب** مقاومة حقيقية فوق السعر (0.82).
+         ⚠️ غير `liberation` بالفارز (=أعلى مقاومة، بوابة الانطلاق النهائية) — هذا حاجز
+         الاستعادة القريب الذي يفكّ الأسر، ومن فوقه تأتي الأهداف.
+      ② **الأهداف البنيوية** «1.19 راس الشمعه الساقطه هدف · 1.43 هدف» — رؤوس الشموع الحمرا
+         (`_red_candle_heads`، قاعدة فيصل الموثّقة) ثم المقاومات، بدل «+100%» المجرّد.
+      ③ **الفجوة السعرية** «فجوه سعريه من 1.88 ل 3» = أقرب فجوة غير مملوءة فوق السعر.
+      ④ **سحب السيولة** «0.71-5٪=0.675» = القاع الفعلي ناقص `SPLIT_SWEEP_PCT`% (سيناريو
+         عدم المحافظة على القاع؛ فيصل يربطه بارتفاع الشورت).
+
+    نقيّة · فاشلة-آمنة (أي عطل → مفاتيح None) · الحاقنات (`resist`/`heads`/`gap`/`bottom`)
+    للاختبار فقط، والإنتاج يحسبها من `df`. **عرض/سياق فقط — خارج الفرز والجذور نهائيًّا.**"""
+    out = {"liberation": None, "targets": [], "gap": None, "sweep": None,
+           "bottom": None}
+    try:
+        price = float(price)
+        if price <= 0:
+            return out
+        # ① القاع الفعلي (فيصل استعمل 0.71 = القاع المُحقَّق لا الـ÷2 النظري 0.72)
+        if bottom is None and df is not None:
+            low = df["Low"].tail(CONFIG["SPLIT_BOTTOM_LOOKBACK"]).values.astype(float)
+            bottom = float(min(low)) if len(low) else None
+        out["bottom"] = round(float(bottom), 2) if bottom else None
+        # ② سحب السيولة = القاع − 5% (قاعدة فيصل الحرفية على ONCO)
+        pct = float(sweep_pct if sweep_pct is not None else CONFIG["SPLIT_SWEEP_PCT"])
+        if bottom and float(bottom) > 0:
+            out["sweep"] = round(float(bottom) * (1.0 - pct / 100.0), 2)
+        # ③ المقاومات فوق السعر (أقربها = التحرر · ما فوقه = الأهداف)
+        lv = sorted({round(float(x), 2) for x in
+                     (resist if resist is not None else resistance_levels(df, price))
+                     if float(x) > price})
+        hd = {round(float(x), 2) for x in
+              (heads if heads is not None
+               else (_red_candle_heads(df, price) if df is not None else []))}
+        if lv:
+            out["liberation"] = lv[0]
+            for t in lv[1:3]:                     # هدفان (فيصل: 1.19 ثم 1.43)
+                out["targets"].append(
+                    {"price": t,
+                     "src": "رأس شمعة حمراء" if t in hd else "مقاومة"})
+        # ④ أقرب فجوة غير مملوءة فوق السعر (فيصل: 1.88 → 3)
+        z = gap if gap is not None else (all_unfilled_gaps_above(df) or {}).get("nearest")
+        if z and z.get("bottom") and z.get("top"):
+            out["gap"] = {"bottom": round(float(z["bottom"]), 2),
+                          "top": round(float(z["top"]), 2)}
+    except Exception:
+        pass
+    return out
+
+
 def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
                       fetch_borrow=None, fetch_pump=None):
     """🪝 صيّاد أسهم التقسيم (فيصل — **أداة مستقلة تمامًا عن فارز الارتكاز 14 بوابة**).
@@ -4304,6 +4363,8 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
             close = df["Close"]
             out.append({
                 "symbol": sym, "price": pr["price"], "half": pr["half"],
+                # 🥇 خطة فيصل التنفيذية (تحرر/أهداف بنيوية/فجوة/سحب سيولة) — عرض فقط
+                "plan": faisal_split_plan(df, pr["price"]),
                 "ref": pr["ref"], "split_date": pr["split_date"],
                 "freq": pr.get("freq"), "float": flt,
                 "avail": bor.get("shares_available"),
@@ -4341,6 +4402,24 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
         lines.append(f"  🕵️ متاح للاقتراض: {avail} (فيصل: تحت 20ألف){fee}")
         lines.append(f"  📉 متوسطات: 20 ${r['ema20']:.2f} · 30 ${r['ema30']:.2f} "
                      f"· 50 ${r['ema50']:.2f}" + (" (مصطفّة صاعدة)" if up else ""))
+        # 🥇 خطة فيصل التنفيذية (بنيتها من رسالته الحيّة على ONCO) — عرض/سياق فقط
+        _p = r.get("plan") or {}
+        if _p.get("liberation"):
+            lines.append(f"  🔓 التحرر: ثبات فوق <b>${_p['liberation']:.2f}</b> "
+                         "= تحرر السهم (الأمان)")
+        if _p.get("targets"):
+            _t = " · ".join(f"${t['price']:.2f} ({t['src']})" for t in _p["targets"])
+            lines.append(f"  🎯 أهداف بنيوية: {_t}")
+        if _p.get("gap"):
+            lines.append(f"  ⛽ فجوة سعرية فوقه: ${_p['gap']['bottom']:.2f} "
+                         f"→ ${_p['gap']['top']:.2f} (فراغ = هدف)")
+        if _p.get("sweep") and _p.get("bottom"):
+            lines.append(f"  🩸 لو ما حافظ على القاع ${_p['bottom']:.2f}: "
+                         f"سحب سيولة عند <b>${_p['sweep']:.2f}</b> "
+                         f"(−{CONFIG['SPLIT_SWEEP_PCT']:.0f}%) — يعمق مع ارتفاع الشورت")
+        lines.append("  ⏳ الدخول: <b>مع المضارب</b> — "
+                     + ("انتظار الثبات فوق التحرر" if _p.get("liberation")
+                        else "انتظار"))
         _fl = _split_freq_line(r.get("freq"))
         if _fl:
             lines.append("  " + _fl)

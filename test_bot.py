@@ -6202,6 +6202,48 @@ check("🪝 صيّاد·تنبيه: المتاح غير المؤكّد يُعر�
       "غير مؤكّد" in S.build_split_hunter_alert(
           [dict(_sh_rows[0], avail=None, borrow_fee=None)], today=_sr_today))
 check("🪝 صيّاد·تنبيه: فارغ بلا مطابق (صامت)", S.build_split_hunter_alert([]) == "")
+# 🥇 خطة فيصل — قفل على أرقامه الحرفية في $ONCO (2026-07-24): السهم رشّحه صيّادنا فحلّله
+# فيصل ودخله. رسالته: «ثبات فوق 92 سنت تحرر السهم · 1.19 راس الشمعه الساقطه هدف · 1.43 هدف
+# · فجوه سعريه من 1.88 ل 3 · 0.71-5٪=0.675». السعر وقتها 0.82 والقاع المُحقَّق 0.71.
+_onco = S.faisal_split_plan(None, 0.82, bottom=0.71,
+                            resist=[0.92, 1.19, 1.43, 1.88],
+                            heads=[1.19],                    # رأس الشمعة الساقطة
+                            gap={"bottom": 1.88, "top": 3.00})
+check("🥇 خطة فيصل·ONCO: التحرر = أقرب مقاومة فوق السعر = 0.92 (فيصل «ثبات فوق 92»)",
+      _onco["liberation"] == 0.92)
+check("🥇 خطة فيصل·ONCO: الأهداف البنيوية 1.19 (رأس شمعة حمراء) ثم 1.43 (مقاومة)",
+      [t["price"] for t in _onco["targets"]] == [1.19, 1.43]
+      and _onco["targets"][0]["src"] == "رأس شمعة حمراء"
+      and _onco["targets"][1]["src"] == "مقاومة")
+check("🥇 خطة فيصل·ONCO: الفجوة 1.88 → 3.00 (فيصل «فجوه سعريه من 1.88 ل 3»)",
+      _onco["gap"] == {"bottom": 1.88, "top": 3.00})
+check("🥇 خطة فيصل·ONCO: سحب السيولة = القاع 0.71 −5% = 0.67 (فيصل 0.675)",
+      _onco["bottom"] == 0.71 and _onco["sweep"] == 0.67)
+check("🥇 خطة فيصل·فاشلة-آمنة: بلا df/مقاومات ⇒ مفاتيح None بلا انهيار",
+      S.faisal_split_plan(None, 0.82, bottom=None, resist=[], heads=[], gap=None)
+      == {"liberation": None, "targets": [], "gap": None, "sweep": None,
+          "bottom": None}
+      and S.faisal_split_plan(None, 0)["liberation"] is None)
+_onco_alert = S.build_split_hunter_alert(
+    [dict(_sh_rows[0], symbol="ONCO", plan=_onco)], today=_sr_today)
+check("🥇 صيّاد·تنبيه: يعرض خطة فيصل الأربعة (تحرر/أهداف/فجوة/سحب سيولة) + الدخول مع المضارب",
+      "التحرر" in _onco_alert and "0.92" in _onco_alert
+      and "1.19" in _onco_alert and "رأس شمعة حمراء" in _onco_alert
+      and "1.88" in _onco_alert and "3.00" in _onco_alert
+      and "0.67" in _onco_alert and "سحب سيولة" in _onco_alert
+      and "مع المضارب" in _onco_alert)
+_no_plan_alert = S.build_split_hunter_alert(
+    [{k: v for k, v in _sh_rows[0].items() if k != "plan"}], today=_sr_today)
+check("🥇 صيّاد·تنبيه: صفّ بلا خطة (توافق خلفي) لا ينهار ولا يطبع أسطر الخطة",
+      "🔓 التحرر" not in _no_plan_alert and "سحب سيولة" not in _no_plan_alert
+      and "أهداف بنيوية" not in _no_plan_alert and "SPLT" in _no_plan_alert
+      # سطر الدخول يبقى لكن بصياغة لا تشير لمستوى مجهول
+      and "مع المضارب</b> — انتظار" in _no_plan_alert
+      and "فوق التحرر" not in _no_plan_alert)
+check("🥇 قفل: faisal_split_plan خارج الجذور السبعة (عرض/سياق فقط)",
+      all("faisal_split_plan" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol)))
 check("🪝 صيّاد·قفل: (scan_split_hunter/build_split_hunter_alert/_yahoo_float) خارج الجذور السبعة",
       all(_fn not in _insp0.getsource(_f)
           for _fn in ("scan_split_hunter", "build_split_hunter_alert", "_yahoo_float")
