@@ -13,6 +13,10 @@ on:
         description: "نافذة «تسجيل حديث» بالسنوات (افتراضي 3)"
         required: false
         default: ""
+      stage:
+        description: "2 = الخطوة الحاسمة (بوّابات الهوية)"
+        required: false
+        default: ""
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -28,7 +32,12 @@ jobs:
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
           OTC_SAMPLE: ${{ github.event.inputs.sample }}
           OTC_YEARS: ${{ github.event.inputs.years }}
-        run: python otc_probe.py 2>&1 | tee otc_probe_result.md
+        run: |
+          if [ "${{ github.event.inputs.stage }}" = "2" ]; then
+            python otc_probe2.py 2>&1 | tee otc_probe_result.md
+          else
+            python otc_probe.py 2>&1 | tee otc_probe_result.md
+          fi
       - name: Publish result
         if: always()
         uses: actions/upload-artifact@v4
