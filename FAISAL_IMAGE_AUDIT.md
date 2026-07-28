@@ -1,7 +1,7 @@
-# 📸 سجلّ تغطية صور منهجية فيصل — 2026-07-27
+# 📸 سجلّ تغطية صور منهجية فيصل — 2026-07-28
 
-- **المجموع المُدرَج:** 451  ·  **بملف مرفوع:** 308
-- **📗 موثّقة:** 143  ·  **📕 لم تُقرأ بعد:** 308  ·  **مكرّرة:** 0
+- **المجموع المُدرَج:** 502  ·  **بملف مرفوع:** 359
+- **📗 موثّقة:** 143  ·  **📕 لم تُقرأ بعد:** 359  ·  **مكرّرة:** 0
 
 **الدفعة التالية المقترحة (8):** TG_1806 · TG_1807 · TG_1808 · TG_1809 · TG_1810 · TG_1811 · TG_1812 · TG_1813
 
@@ -458,6 +458,57 @@
 | TG_2126 | TG_2126.jpg | ❌ | unread | — |
 | TG_2127 | TG_2127.jpg | ❌ | unread | — |
 | TG_2128 | TG_2128.jpg | ❌ | unread | — |
+| TG_2169 | TG_2169.jpg | ❌ | unread | — |
+| TG_2170 | TG_2170.jpg | ❌ | unread | — |
+| TG_2171 | TG_2171.jpg | ❌ | unread | — |
+| TG_2172 | TG_2172.jpg | ❌ | unread | — |
+| TG_2173 | TG_2173.jpg | ❌ | unread | — |
+| TG_2174 | TG_2174.jpg | ❌ | unread | — |
+| TG_2175 | TG_2175.jpg | ❌ | unread | — |
+| TG_2176 | TG_2176.jpg | ❌ | unread | — |
+| TG_2177 | TG_2177.jpg | ❌ | unread | — |
+| TG_2178 | TG_2178.jpg | ❌ | unread | — |
+| TG_2179 | TG_2179.jpg | ❌ | unread | — |
+| TG_2180 | TG_2180.jpg | ❌ | unread | — |
+| TG_2181 | TG_2181.jpg | ❌ | unread | — |
+| TG_2182 | TG_2182.jpg | ❌ | unread | — |
+| TG_2183 | TG_2183.jpg | ❌ | unread | — |
+| TG_2184 | TG_2184.jpg | ❌ | unread | — |
+| TG_2185 | TG_2185.jpg | ❌ | unread | — |
+| TG_2186 | TG_2186.jpg | ❌ | unread | — |
+| TG_2187 | TG_2187.jpg | ❌ | unread | — |
+| TG_2188 | TG_2188.jpg | ❌ | unread | — |
+| TG_2189 | TG_2189.jpg | ❌ | unread | — |
+| TG_2190 | TG_2190.jpg | ❌ | unread | — |
+| TG_2191 | TG_2191.jpg | ❌ | unread | — |
+| TG_2192 | TG_2192.jpg | ❌ | unread | — |
+| TG_2193 | TG_2193.jpg | ❌ | unread | — |
+| TG_2194 | TG_2194.jpg | ❌ | unread | — |
+| TG_2195 | TG_2195.jpg | ❌ | unread | — |
+| TG_2196 | TG_2196.jpg | ❌ | unread | — |
+| TG_2197 | TG_2197.jpg | ❌ | unread | — |
+| TG_2198 | TG_2198.jpg | ❌ | unread | — |
+| TG_2199 | TG_2199.jpg | ❌ | unread | — |
+| TG_2200 | TG_2200.jpg | ❌ | unread | — |
+| TG_2201 | TG_2201.jpg | ❌ | unread | — |
+| TG_2202 | TG_2202.jpg | ❌ | unread | — |
+| TG_2203 | TG_2203.jpg | ❌ | unread | — |
+| TG_2204 | TG_2204.jpg | ❌ | unread | — |
+| TG_2205 | TG_2205.jpg | ❌ | unread | — |
+| TG_2206 | TG_2206.jpg | ❌ | unread | — |
+| TG_2207 | TG_2207.jpg | ❌ | unread | — |
+| TG_2208 | TG_2208.jpg | ❌ | unread | — |
+| TG_2209 | TG_2209.jpg | ❌ | unread | — |
+| TG_2210 | TG_2210.jpg | ❌ | unread | — |
+| TG_2211 | TG_2211.jpg | ❌ | unread | — |
+| TG_2212 | TG_2212.jpg | ❌ | unread | — |
+| TG_2213 | TG_2213.jpg | ❌ | unread | — |
+| TG_2214 | TG_2214.jpg | ❌ | unread | — |
+| TG_2215 | TG_2215.jpg | ❌ | unread | — |
+| TG_2216 | TG_2216.jpg | ❌ | unread | — |
+| TG_2217 | TG_2217.jpg | ❌ | unread | — |
+| TG_2218 | TG_2218.jpg | ❌ | unread | — |
+| TG_2249 | TG_2249.jpg | ❌ | unread | — |
 
 > **الحالات:** `implemented` نُفِّذت بالكود · `confirmed` تأكيد لما هو منفَّذ · `rejected` رُفضت بدليل (يُذكر) · `open` فرضية مفتوحة تحتاج تسجيلًا مسبقًا · `unread` لم تُقرأ بعد.
 > تُحدَّث بـ`python3 image_audit.py` بعد كل رفع، وبـ`--set` بعد قراءة كل دفعة.
