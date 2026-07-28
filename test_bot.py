@@ -8773,6 +8773,215 @@ check("🔒 operator_tape_profile خارج الجذور السبعة",
 
 
 # ==========================================================
+# 🧪 توصيف (Characterization) — خطة 001 (تدقيق عميق 2026-07-28)
+# ==========================================================
+# الغرض: تثبيت **سلوك اليوم حرفيًّا** قبل إصلاحات الخطط 002-006/008، فكلّها تلمس
+# مسارات حيّة حسّاسة (بوّابة الفلوت M14 · كتلة إثراء scan_market · تحميل مراقب
+# الارتداد · قرار التجديد الأسبوعي). قاعدة CLAUDE.md: «اختبارات Characterization
+# تسبق أي إصلاح لسلوك حسّاس»، و«**القفل الذي لم يسقط مرّة واحدة عمدًا ليس قفلًا**».
+#
+# ⚠️ **اختباران هنا سيُقلَبان عمدًا** (مُعلَّمان بتعليق صريح فوق كلٍّ منهما): واحد في
+#    خطة 004 وآخر في خطة 005. **أي توصيف آخر يتغيّر بلا خطة = انحدار.**
+#
+# 🔒 صفر تعديل على Super_stock.py — هذي إضافة اختبارات فقط.
+print("\n=== 🧪 توصيف المسار الحيّ (خطة 001) ===")
+
+# ---------- أ) بوّابة الفلوت M14: الثغرات غير المغطّاة ----------
+# (المغطّى أصلًا في «3) الشورت/الفلوت»: فلوت كبير/صغير. الجديد هنا: المجهول ووسمه ·
+#  البوّابة المطفأة · حدّ التخوم بالضبط · والقيم غير الرقمية.)
+_c1_lim = S.CONFIG["FLOAT_GATE_MAX"]
+
+
+def _c1_row(fl):
+    """سجلّ نتيجة أدنى لبوّابة M14 (نسخة جديدة كل نداء — لا تلوّث بين الاختبارات)."""
+    return {"symbol": "C1T", "soft_fails": [], "flags": [], "float": fl,
+            "tier": "B", "score": 60, "rr": 2.0}
+
+
+_c1_sv_yf = S.yf
+try:
+    S.yf = object()          # موجود لكن Ticker يرمي ⇒ fl=None (مسار «تعذّر الجلب»)
+    _c1_none = S.apply_float_gate([_c1_row(None)])
+    check("🧪 توصيف·M14: فلوت مجهول يمرّ بفائدة الشك ويُوسَم «غير متاح» بلا نقص",
+          len(_c1_none) == 1
+          and "فلوت كبير" not in _c1_none[0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c1_none[0]["flags"]))
+
+    # حدّ التخوم بالضبط: الحدّ نفسه = «كبير» · أقلّ منه بواحد = «صغير» (قفل تخوم)
+    _c1_at = S.apply_float_gate([_c1_row(_c1_lim)])
+    _c1_below = S.apply_float_gate([_c1_row(_c1_lim - 1)])
+    check("🧪 توصيف·M14: الحدّ نفسه = «فلوت كبير» · وأقلّ منه بواحد = صغير (تخوم)",
+          "فلوت كبير" in _c1_at[0]["soft_fails"]
+          and "فلوت كبير" not in _c1_below[0]["soft_fails"]
+          and any("صغير" in str(f) for f in _c1_below[0]["flags"]))
+
+    # البوّابة مطفأة ⇒ القائمة تعود **كما هي** (نفس الكائن، بلا أي وسم)
+    _c1_off_in = [_c1_row(9e12)]
+    _c1_sv_req = S.CONFIG["FLOAT_GATE_REQUIRED"]
+    try:
+        S.CONFIG["FLOAT_GATE_REQUIRED"] = False
+        _c1_off = S.apply_float_gate(_c1_off_in)
+    finally:
+        S.CONFIG["FLOAT_GATE_REQUIRED"] = _c1_sv_req
+    check("🧪 توصيف·M14: البوّابة مطفأة ⇒ القائمة تعود كما هي بلا وسم ولا نقص",
+          _c1_off is _c1_off_in and _c1_off_in[0]["soft_fails"] == []
+          and _c1_off_in[0]["flags"] == [])
+
+    # ⚠️⚠️ خطة 004 ستقلب التوقّعين التاليين بعد إضافة حارس النوع — **لا تحذفهما،
+    #      عدّلهما** (المتوقّع بعد الإصلاح: لا رمي + وسم «غير متاح»).
+    # التناقض المُوثَّق: refloat_gate_recheck (الطبقة التالية) تحرس نفس القيم
+    # (`except (TypeError, ValueError)`) بينما البوّابة نفسها — وهي على مسار
+    # scan_market → run_daily_watchlist → main → exit(1) قبل git_save — لا تحرسها.
+    def _c1_raises(fl):
+        try:
+            S.apply_float_gate([_c1_row(fl)])
+            return None
+        except Exception as _e:                       # noqa: BLE001
+            return type(_e).__name__
+
+    check("🧪 توصيف·M14: فلوت نصّي يرمي TypeError اليوم (يُغيَّر في خطة 004)",
+          _c1_raises("12.5M") == "TypeError")
+    check("🧪 توصيف·M14: فلوت NaN يرمي ValueError اليوم (يُغيَّر في خطة 004)",
+          _c1_raises(float("nan")) == "ValueError")
+    check("🧪 توصيف·التناقض: refloat_gate_recheck تحرس نفس القيم والبوّابة لا",
+          S.refloat_gate_recheck([_c1_row("12.5M")])[1] == []
+          and _c1_raises("12.5M") is not None)
+finally:
+    S.yf = _c1_sv_yf
+
+# ---------- أ-2) بوّابة الشورت M13: نفس الانكشاف بالضبط ----------
+# ⚠️⚠️ خطة 004 ستقلب التوقّع التالي أيضًا (الخطوة 3 فيها تعالج M13 بنفس النمط) —
+#      **لا تحذفه، عدّله.** مصادر الشورت اليوم (FINRA `int` · Fintel dict) أقلّ خطرًا
+#      من الفلوت، لكن الانكشاف **قائم ومطابق** وعلى نفس المسار الحرج.
+_c2_sv = (S.fintel_short, S.finra_daily_short)
+
+
+def _c2_raises(val):
+    try:
+        S.fintel_short = lambda q, _v=val: {"C2T": _v}
+        S.finra_daily_short = lambda q: {}
+        S.apply_short_gate([{"symbol": "C2T", "soft_fails": [], "flags": []}])
+        return None
+    except Exception as _e:                           # noqa: BLE001
+        return type(_e).__name__
+
+
+try:
+    check("🧪 توصيف·M13: شورت نصّي يرمي TypeError اليوم (يُغيَّر في خطة 004)",
+          _c2_raises("12K") == "TypeError")
+    check("🧪 توصيف·M13: شورت NaN يرمي ValueError اليوم (يُغيَّر في خطة 004)",
+          _c2_raises(float("nan")) == "ValueError")
+finally:
+    (S.fintel_short, S.finra_daily_short) = _c2_sv
+
+# ---------- ب) should_renew: الحالة غير المغطّاة ----------
+# (المغطّى أصلًا: force · إشارة · بلا إشارة · قائمة فارغة تمامًا. الجديد: قائمة
+#  أسهمها فارغة **لكن فيها مشطوبون** ⇒ ليست «أول تشغيل» فلا تُجدَّد بلا إشارة.)
+check("🧪 توصيف·التجديد: stocks فارغة مع removed غير فارغة ⇒ ليست تأسيسًا (لا تجديد)",
+      S.should_renew({"stocks": [], "removed": [{"symbol": "OLD"}]},
+                     False, False) is False)
+
+# ---------- ج) monitor_pullback: عدد النداءات وسلوك الحالات ----------
+# 🔴 عدّاد النداءات هو **المقياس الذي تقيسه خطة 006** (تحميل مجمَّع بدل نداء لكل
+#    رمز): اليوم = نداء مستقلّ لكل سهم غير مُطلَق. تثبيته الآن يجعل التحسّن مقيسًا.
+_c3_calls = []
+
+
+def _c3_df(px):
+    return pd.DataFrame({"Open": [px], "High": [px], "Low": [px],
+                         "Close": [px], "Volume": [1e6]},
+                        index=pd.date_range("2024-06-03", periods=1))
+
+
+def _c3_fetch(syms):
+    _c3_calls.append(list(syms))
+    _s = syms[0]
+    if _s == "DDD":
+        raise RuntimeError("خنق مُحاكى")
+    # AAA عند العتبة بالضبط (2.5 × 1.02) · BBB فوقها
+    return {_s: _c3_df({"AAA": 2.55, "BBB": 2.60}.get(_s, 3.0))}
+
+
+def _c3_entry(sym, status="watching", lp=3.0):
+    return {"symbol": sym, "entry": [2.4, 2.5], "pivot": 2.5, "stop": 1.9,
+            "t1": 3.6, "t2": 4.0, "t3": 5.0, "last_price": lp,
+            "status": status, "triggered_date": None}
+
+
+_c3_entries = [_c3_entry("AAA"), _c3_entry("BBB"),
+               _c3_entry("CCC", status="triggered", lp=9.99), _c3_entry("DDD")]
+_c3_sv = (S.download_history, S.yf)
+try:
+    S.download_history, S.yf = _c3_fetch, object()
+    _c3_trig = S.monitor_pullback({"pullback": _c3_entries})
+finally:
+    S.download_history, S.yf = _c3_sv
+_c3_syms = [x for c in _c3_calls for x in c]
+check("🧪 توصيف·الارتداد: نداء تحميل **مستقلّ لكل** سهم غير مُطلَق (يقيسه خطة 006)",
+      len(_c3_calls) == 3 and all(len(c) == 1 for c in _c3_calls)
+      and _c3_syms == ["AAA", "BBB", "DDD"])
+check("🧪 توصيف·الارتداد: المُطلَق مسبقًا لا يُجلب له شيء ولا يُمسّ",
+      "CCC" not in _c3_syms and _c3_entries[2]["last_price"] == 9.99
+      and _c3_entries[2]["status"] == "triggered")
+check("🧪 توصيف·الارتداد: السعر عند العتبة بالضبط (‎+2%‎ فوق أعلى دفعة) يُطلق",
+      _c3_entries[0]["status"] == "triggered"
+      and _c3_entries[0]["triggered_date"] is not None)
+check("🧪 توصيف·الارتداد: فوق العتبة يبقى «watching» ويُحدَّث سعره فقط",
+      _c3_entries[1]["status"] == "watching"
+      and _c3_entries[1]["last_price"] == 2.60)
+check("🧪 توصيف·الارتداد: جالب يرمي ⇒ يُتخطّى السهم بلا كسر البقيّة",
+      _c3_entries[3]["status"] == "watching"
+      and [e["symbol"] for e in _c3_trig] == ["AAA"])
+
+# البوّابتان المبكّرتان (Super_stock.py:9762) — **يجب أن تبقيا بعد تجميع خطة 006**:
+# غيابهما يعني نداء شبكة على قائمة فارغة أو بلا yfinance.
+_c3_calls2 = []
+_c3_sv2 = (S.download_history, S.yf)
+try:
+    S.download_history = lambda syms: (_c3_calls2.append(syms) or {})
+    S.yf = None
+    _c3_nyf = S.monitor_pullback({"pullback": [_c3_entry("EEE")]})
+    S.yf = object()
+    _c3_empty = (S.monitor_pullback({}), S.monitor_pullback({"pullback": []}))
+finally:
+    (S.download_history, S.yf) = _c3_sv2
+check("🧪 توصيف·الارتداد: بلا yfinance ⇒ [] فورًا بصفر نداء تحميل",
+      _c3_nyf == [] and _c3_calls2 == [])
+check("🧪 توصيف·الارتداد: قائمة ارتداد فارغة/غائبة ⇒ [] بصفر نداء تحميل",
+      _c3_empty == ([], []) and _c3_calls2 == [])
+
+# ---------- د) حصانة scan_market تجاه استثناء رمز واحد ----------
+# ⚠️⚠️ خطة 005 ستقلب التوقّع الثاني بعد إضافة الحارس لكل رمز — **لا تحذفه، عدّله**
+#      (المتوقّع بعد الإصلاح: scan_market تكمل والسهم يبقى في النتائج بلا interp).
+_c4_df = synth_pivot()
+_c4_sv = (S.MODE, S.download_history, S.fintel_short, S.finra_daily_short,
+          S.yf, S.build_interpretation)
+try:
+    S.MODE = "TEST"                       # عيّنة TEST_TICKERS — بلا نداء كون
+    S.download_history = lambda syms: {"C4T": _c4_df}
+    S.fintel_short = lambda q: {}
+    S.finra_daily_short = lambda q: {}
+    S.yf = None                           # apply_float_gate ترجع مبكرًا (بلا شبكة)
+    _c4_ok, _ = S.scan_market()
+    check("🧪 توصيف·الفرز: المسار السليم يملأ حقول الإثراء (behav/fsto/interp)",
+          len(_c4_ok) == 1 and _c4_ok[0].get("interp")
+          and _c4_ok[0].get("behav") and "fsto_osc" in _c4_ok[0])
+
+    S.build_interpretation = lambda r: (_ for _ in ()).throw(
+        RuntimeError("عطل مُحاكى في رمز واحد"))
+    try:
+        S.scan_market()
+        _c4_raised = None
+    except Exception as _e:                                    # noqa: BLE001
+        _c4_raised = type(_e).__name__
+    check("🧪 توصيف·الفرز: استثناء في كتلة الإثراء يُسقط scan_market كلّها "
+          "(يُغيَّر في خطة 005)", _c4_raised == "RuntimeError")
+finally:
+    (S.MODE, S.download_history, S.fintel_short, S.finra_daily_short,
+     S.yf, S.build_interpretation) = _c4_sv
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
