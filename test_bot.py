@@ -6540,11 +6540,21 @@ check("🔁 الجامع·المكرّرة تُسمّي **الملفّ الذي 
       (lambda _d, _m: (TC._store(b"IMG-A", "new.jpg", _d, {}, _m) == "dup"
                        and _m == [("new.jpg", "old.jpg")]))(
           {__import__("hashlib").sha256(b"IMG-A").hexdigest(): "old.jpg"}, []))
+# 🔴 **خطأ مني كُشف 2026-07-28:** هذا الاختبار كان ينادي `_store` بلا تحويل `OUT_DIR`،
+# و`_store` يكتب في `OUT_DIR` = `faisal_images/` **الإنتاجي** ⇒ خلّف ملفًا زائفًا
+# (`z.jpg`، 5 بايتات) داخل مجلّد المرجع الدائم. لم يتسرّب لـgit (غير متتبَّع) لكن
+# لوّث العدّ. **الدرس: أي اختبار يكتب ملفًا يجب أن يحوّل مجلّد المُخرَج أولًا.**
 check("🔁 الجامع·الحفظ يسجّل اسم الملف ببصمته · و`_existing_shas` قاموس لا مجموعة",
-      (lambda _d: (TC._store(b"IMG-Z", "z.jpg", _d, {}),
-                   _d.get(__import__("hashlib").sha256(b"IMG-Z").hexdigest()))[1]
-       is not None)(dict())
+      (lambda _tmp: (lambda _sv: (
+          TC.__dict__.__setitem__("OUT_DIR", _tmp),
+          (lambda _d: (TC._store(b"IMG-Z", "z.jpg", _d, {}),
+                       _d.get(__import__("hashlib").sha256(b"IMG-Z").hexdigest()))[1]
+           is not None)(dict()),
+          TC.__dict__.__setitem__("OUT_DIR", _sv))[1])(TC.OUT_DIR))(_tf.mkdtemp())
       and isinstance(TC._existing_shas("faisal_images"), dict))
+check("🧼 قفل·لا اختبار يكتب داخل مجلّد الصور الإنتاجي (`faisal_images/`)",
+      not [_f for _f in __import__("os").listdir("faisal_images")
+           if not (_f.endswith(".jpg") or _f == "README.md")])
 check("🔍 الجامع·يفصل «وسائط لم نقبلها» عن «رسالة بلا وسائط» (الصمت غير ملتبس)",
       (lambda _s: "وسائط لم نقبلها" in _s and "بلا وسائط" in _s
        and "dropped.append" in _s and "no_media.append" in _s)(
