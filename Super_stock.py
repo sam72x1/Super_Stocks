@@ -246,6 +246,10 @@ CONFIG = {
                                  #   النشط يُتابَع الين يُضرب ستوبه أو يعود للترشيح (حدث
                                  #   حقيقي، طلب المستخدم 2026-07-21). لا يُفعَّل طبيعيًّا؛
                                  #   وإن فُعِّل يُقلّم الأقدم «خرج» أولًا مع إشعار صريح.
+    "RENEWAL_STALE_DAYS": 8,     # 🔔 تقادم التجديد: مضى أكثر من 8 أيام على آخر تجديد
+                                 #   ناجح = جمعة كاملة سقطت (GitHub قد يُسقط تشغيلة كرون،
+                                 #   والمستودع قاس تأخّرات 95-159د). **إشعار فقط** —
+                                 #   القرار للمالك (force_renew=1). لا يُشتَقّ منه تجديد.
     # ---- قائمة مراقبة الارتداد المستقلة (v2.8): أسهم ارتكاز حقيقية ارتفعت
     # فوق دخولها؛ نتابعها يوميًا وننبّه أول ما تنزل لسعر الدعم (انهيار البورصة)
     "PULLBACK_WATCH": True,
@@ -6913,6 +6917,61 @@ def should_renew(wl: dict, force: bool = False,
     return renew_signal
 
 
+def renewal_staleness(wl: dict, today=None, max_days=None):
+    """🔔 هل تأخّر التجديد الأسبوعي؟ **نقيّة · فاشلة-آمنة · إشعار فقط.**
+
+    ⚠️ **لا تؤثّر على `should_renew` إطلاقًا** — قرار التجديد يبقى مدفوعًا بإشارة
+    الجدولة (`RENEW_ON_CLOSE`) لا بيوم الأسبوع ولا بالتقادم (قرار موثّق: أُزيل
+    `WEEKLY_RENEW_DAY` عمدًا). هذي **ترصد فقط** أن جمعةً سقطت: GitHub قد يُسقط تشغيلة
+    كرون كليًّا، والمستودع نفسه قاس تأخّرات 95-159 دقيقة. وبلا رصد يسقط بصمت **كل** ما
+    يحدث داخل `run_weekly_renewal`: بناء القائمة · تقرير المصير · رسالة الحصاد ·
+    التقرير الأسبوعي · مساعد التطوير · تصدير CSV · أرشفة `history` · قائمة الارتداد.
+
+    المرجع = `wl["week_start"]` (يُكتَب عند كل تجديد **ناجح** فقط؛ ومسارا التأجيل عند
+    ضعف التغطية لا يحدّثانه — فيُرصَد التأجيل المتكرّر أيضًا، وهو مقصود).
+
+    يرجّع None (لا تقادم / تعذّرت القراءة) أو dict:
+      {"last": "YYYY-MM-DD", "days": int, "max_days": int}
+    """
+    try:
+        ref = wl.get("week_start") if isinstance(wl, dict) else None
+        if not ref or not isinstance(ref, str):
+            return None                      # قائمة تأسيسية/ملفّ قديم ⇒ لا إنذار
+        last = dt.date.fromisoformat(str(ref)[:10])
+        if today is None:
+            today = dt.date.today()
+        elif isinstance(today, str):
+            today = dt.date.fromisoformat(str(today)[:10])
+        cap = int(CONFIG["RENEWAL_STALE_DAYS"] if max_days is None else max_days)
+        days = (today - last).days
+        if days <= cap:                      # يشمل السالب (ساعة رنر مغلوطة) ⇒ لا إنذار
+            return None
+        return {"last": last.isoformat(), "days": days, "max_days": cap}
+    except Exception:
+        return None
+
+
+def renewal_stale_message(st: dict) -> str:
+    """🔔 نصّ تحذير تقادم التجديد (عربي مبسّط، **بلا علامات مقارنة** — قاعدة CLAUDE.md).
+    نقيّة. «» لو لا تقادم."""
+    if not st:
+        return ""
+    return _rtl_join([
+        "🔔 <b>تنبيه: تجديد القائمة الأسبوعي لم يحدث</b>",
+        f"آخر تجديد ناجح: {esc(str(st.get('last')))} — مضى عليه "
+        f"{int(st.get('days', 0))} يومًا، والمتوقّع تجديد كل أسبوع "
+        "(الجمعة بعد إغلاق السوق).",
+        "",
+        "الأسباب المحتملة:",
+        "• أسقط GitHub تشغيلة الكرون (يحدث عند الحمل).",
+        "• أو تأجّل التجديد لضعف تغطية البيانات (خنق مصدر البيانات).",
+        "",
+        "🔧 <b>الإجراء:</b> شغّل «Daily Pivot Screener» بـ<code>force_renew=1</code> "
+        "من Actions.",
+        "ℹ️ القائمة النشطة محفوظة والمتابعة اليومية مستمرّة — هذا تنبيه حالة لا خطر سوق.",
+    ])
+
+
 def make_watch_entry(r: dict, today_iso: str) -> dict:
     """تحويل نتيجة تحليل إلى سجل سهم في القائمة الأسبوعية"""
     return {
@@ -13428,6 +13487,18 @@ def main():
         run_weekly_renewal(wl)
     else:
         log("وضع اليوم: متابعة يومية للقائمة الثابتة")
+        # 🔔 رصد سقوط جمعة التجديد (خطة `plans/008`) — **إشعار فقط، لا يغيّر قرار
+        # التجديد إطلاقًا** (`should_renew` مدفوعة بالإشارة وحدها، قرار موثّق).
+        # قبل `run_daily_watchlist` عمدًا: يصل التحذير حتى لو سقطت التشغيلة بعده.
+        # `try/except` مطلق: الرصد لا يجوز أن يُسقط المتابعة اليومية أبدًا.
+        try:
+            _st = renewal_staleness(wl)
+            if _st:
+                _m = renewal_stale_message(_st)
+                log(_m)
+                send_telegram(_m + "\n\n" + FOOTER)
+        except Exception as _e:                                  # noqa: BLE001
+            log(f"⚠️ رصد تقادم التجديد: {_e}")
         run_daily_watchlist(wl)
     log("انتهى الفحص ✅")
 

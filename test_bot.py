@@ -9214,6 +9214,86 @@ check("🏢 003·صون: ce_borrow_info (صفحة borrow-fee الحيّة) لم 
 
 
 # ==========================================================
+# 🔔 خطة 008: رصد سقوط كرون التجديد الأسبوعي (إشعار فقط)
+# ==========================================================
+# القرار يبقى مدفوعًا بإشارة الجدولة وحدها (RENEW_ON_CLOSE) — قرار موثّق. المضاف
+# **رصد** فقط: GitHub قد يُسقط تشغيلة كرون كليًّا، وبلا رصد يسقط بصمت كل ما داخل
+# run_weekly_renewal (القائمة · المصير · الحصاد · التقرير الأسبوعي · مساعد التطوير
+# · CSV · أرشفة history · قائمة الارتداد).
+print("\n=== 🔔 خطة 008: رصد تقادم التجديد ===")
+
+_c8_cap = S.CONFIG["RENEWAL_STALE_DAYS"]
+
+
+def _c8(days_ago, **kw):
+    ws = (_dt0.date(2026, 7, 20) - _dt0.timedelta(days=0)).isoformat()
+    return S.renewal_staleness({"week_start": ws}, today=(
+        _dt0.date(2026, 7, 20) + _dt0.timedelta(days=days_ago)).isoformat(), **kw)
+
+
+import datetime as _dt0
+
+check("🔔 008·اليوم نفسه ⇒ لا تقادم",
+      _c8(0) is None)
+check("🔔 008·أسبوع طبيعي (7 أيام) ⇒ لا إنذار (قفل ضد الإزعاج)",
+      _c8(7) is None)
+check(f"🔔 008·الحدّ نفسه ({_c8_cap} أيام) ⇒ لا إنذار (تخوم: days > max_days)",
+      _c8(_c8_cap) is None)
+_c8_over = _c8(_c8_cap + 1)
+check(f"🔔 008·تجاوز الحدّ ({_c8_cap + 1} أيام) ⇒ dict فيه days والمرجع",
+      isinstance(_c8_over, dict) and _c8_over["days"] == _c8_cap + 1
+      and _c8_over["last"] == "2026-07-20" and _c8_over["max_days"] == _c8_cap)
+check("🔔 008·week_start غائب/غير نصّ ⇒ None (قائمة تأسيسية لا تُنذر)",
+      S.renewal_staleness({}) is None
+      and S.renewal_staleness({"week_start": None}) is None
+      and S.renewal_staleness({"week_start": 20260720}) is None)
+check("🔔 008·تاريخ تالف ⇒ None بلا رمي (فاشل-آمن)",
+      S.renewal_staleness({"week_start": "غير-تاريخ"}) is None
+      and S.renewal_staleness(None) is None)
+check("🔔 008·week_start في المستقبل ⇒ None (ساعة رنر مغلوطة لا تُنذر)",
+      _c8(-3) is None)
+check("🔔 008·max_days محقون يتجاوز CONFIG",
+      _c8(4, max_days=3) is not None and _c8(3, max_days=3) is None)
+# العرض
+_c8_msg = S.renewal_stale_message(_c8_over)
+check("🔔 008·الرسالة تحوي التاريخ وعدد الأيام وطريقة الإجراء",
+      "2026-07-20" in _c8_msg and str(_c8_cap + 1) in _c8_msg
+      and "force_renew=1" in _c8_msg and S.renewal_stale_message(None) == "")
+check("🔔 008·قفل اللغة: بلا علامات مقارنة (قاعدة CLAUDE.md المُلزِمة)",
+      not any(_ch in _c8_msg for _ch in ("≥", "≤", ">", "<"))
+      or "<b>" in _c8_msg and not any(
+          _ch in _c8_msg.replace("<b>", "").replace("</b>", "")
+          .replace("<code>", "").replace("</code>", "") for _ch in ("≥", "≤", ">", "<")))
+# 🔒 قفل الصون الحاسم: قرار التجديد لم يُمَسّ
+check("🔒 008·should_renew byte-identical (لا تقادم ولا weekday داخلها)",
+      all(_n not in _insp0.getsource(S.should_renew)
+          for _n in ("renewal_staleness", "RENEWAL_STALE_DAYS", "weekday")))
+check("🔒 008·الرصد داخل try في main ولا يُطلق تجديدًا",
+      "renewal_staleness" in _insp0.getsource(S.main)
+      and "run_daily_watchlist(wl)" in _insp0.getsource(S.main)
+      and "renewal_staleness" not in _insp0.getsource(S.run_weekly_renewal))
+# 🔒 main لا ترمي لو انهار الرصد (فاشل-آمن مُثبَت لا موصوف)
+_c8_sv = (S.renewal_staleness, S.load_watchlist, S.run_daily_watchlist,
+          S.send_telegram, S.should_renew)
+try:
+    S.renewal_staleness = lambda w: (_ for _ in ()).throw(RuntimeError("عطل رصد"))
+    S.load_watchlist = lambda: {"stocks": [{"symbol": "X"}], "removed": []}
+    S.should_renew = lambda w, f=False, s=False: False
+    _c8_ran = []
+    S.run_daily_watchlist = lambda w: _c8_ran.append(True)
+    S.send_telegram = lambda m: True
+    S.main()
+    _c8_raised = None
+except Exception as _e:                                        # noqa: BLE001
+    _c8_raised = type(_e).__name__
+finally:
+    (S.renewal_staleness, S.load_watchlist, S.run_daily_watchlist,
+     S.send_telegram, S.should_renew) = _c8_sv
+check("🔒 008·انهيار الرصد لا يُسقط المتابعة اليومية (فاشل-آمن مُثبَت)",
+      _c8_raised is None and _c8_ran == [True])
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
