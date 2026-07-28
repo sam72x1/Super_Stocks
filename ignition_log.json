@@ -27,5 +27,104 @@
   "vol_x": 6.0,
   "usd": 203680,
   "candle_class": "operator"
+ },
+ {
+  "symbol": "PETS",
+  "date": "2026-07-15",
+  "fired_at": "2026-07-15T15:45:24Z",
+  "break_level": 1.97,
+  "price": 2.01,
+  "vol_x": 5.5,
+  "usd": 13853,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "SY",
+  "date": "2026-07-15",
+  "fired_at": "2026-07-15T16:21:39Z",
+  "break_level": 1.7,
+  "price": 1.8,
+  "vol_x": 7.9,
+  "usd": 12650,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "KLRS",
+  "date": "2026-07-15",
+  "fired_at": "2026-07-15T18:24:37Z",
+  "break_level": 4.64,
+  "price": 4.6499,
+  "vol_x": 3.2,
+  "usd": 2525,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "KLRS",
+  "date": "2026-07-17",
+  "fired_at": "2026-07-17T15:16:31Z",
+  "break_level": 4.67,
+  "price": 5.4222,
+  "vol_x": 3.9,
+  "usd": 220320,
+  "candle_class": "operator",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "APVO",
+  "date": "2026-07-17",
+  "fired_at": "2026-07-17T17:47:24Z",
+  "break_level": 4.59,
+  "price": 4.84,
+  "vol_x": 7.0,
+  "usd": 17458,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "PSTV",
+  "date": "2026-07-24",
+  "fired_at": "2026-07-24T15:26:14Z",
+  "break_level": 3.84,
+  "price": 3.96,
+  "vol_x": 4.0,
+  "usd": 4839,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "TRON",
+  "date": "2026-07-27",
+  "fired_at": "2026-07-27T16:27:42Z",
+  "break_level": 1.55,
+  "price": 1.575,
+  "vol_x": 17.9,
+  "usd": 28060,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "PONY",
+  "date": "2026-07-27",
+  "fired_at": "2026-07-27T16:40:23Z",
+  "break_level": 7.39,
+  "price": 7.4,
+  "vol_x": 3.3,
+  "usd": 151966,
+  "candle_class": "operator",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "NMRA",
+  "date": "2026-07-27",
+  "fired_at": "2026-07-27T17:48:29Z",
+  "break_level": 1.62,
+  "price": 1.64,
+  "vol_x": 10.0,
+  "usd": 22225,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
  }
 ]
