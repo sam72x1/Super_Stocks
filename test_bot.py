@@ -6344,6 +6344,81 @@ check("🌏 الإثراء يُلحق عمودَي الدولة والقطاع �
                                sector_fetch=lambda s: {"country": "China",
                                                        "sector": "China"},
                                earn_fetch=lambda s: [])))
+# 🌏📏 تجربة T-CMAG (country_magnitude_prereg.md): **المقدار** لا الاحتمال.
+# اختبارات سلوكية (تُبنى الصفقات ويُقرأ المخرَج) لا نصّية — قفلٌ لا يسقط بالطفرة ليس قفلًا.
+def _cmag(china, rest, unknown=0, nofill=0):
+    """يبني صفقات باكتيست وهمية ويرجّع أسطر T-CMAG. `china`/`rest` قوائم mg_pre_stop."""
+    rows = [{"mg_pre_stop": g, "country": "China", "outcome": "win"} for g in china]
+    rows += [{"mg_pre_stop": g, "country": "United States", "outcome": "loss"}
+             for g in rest]
+    rows += [{"mg_pre_stop": 7.0, "country": "—", "outcome": "win"}
+             for _ in range(unknown)]
+    rows += [{"mg_pre_stop": 999.0, "country": "China", "outcome": "no_fill"}
+             for _ in range(nofill)]
+    return S.backtest_country_magnitude(rows)
+def _cmag_line(lines, key):
+    return next((x for x in lines if key in x), "")
+# ① الوسيط لا المتوسط: 24 صفقة بـ2% وواحدة بـ1000% ⇒ وسيط 2 · متوسط 42
+_cm_skew = _cmag([2.0] * 24 + [1000.0], [2.0] * 25)
+check("🌏📏 T-CMAG·الوسيط لا المتوسط: ذيلٌ واحد 1000% لا يحرّك حكم الشريحة",
+      "وسيط الصعود 2%" in _cmag_line(_cm_skew, "الصين/هونغ كونغ")
+      and "متوسط 42%" in _cmag_line(_cm_skew, "الصين/هونغ كونغ"))
+check("🌏📏 T-CMAG·شرط الحجم يسقط عند تساوي الوسيطين (رغم ذيل ضخم)",
+      "غير مستوفٍ" in _cmag_line(_cm_skew, "فرق الوسيطين"))
+# ② فرق حقيقي: وسيط 60 مقابل 10 ⇒ 50 نقطة و6× ⇒ الحجم مستوفًى + Wilson منفصلان
+_cm_big = _cmag([60.0] * 25, [10.0] * 25)
+check("🌏📏 T-CMAG·فرق حقيقي: 50 نقطة و6× ⇒ شرط الحجم مستوفًى",
+      "+50 نقطة" in _cmag_line(_cm_big, "فرق الوسيطين")
+      and "6.00×" in _cmag_line(_cm_big, "فرق الوسيطين")
+      and "مستوفًى" in _cmag_line(_cm_big, "فرق الوسيطين")
+      and "غير مستوفٍ" not in _cmag_line(_cm_big, "فرق الوسيطين"))
+check("🌏📏 T-CMAG·الدلالة على المقياس المساند: فاصلا Wilson منفصلان",
+      "منفصلان" in _cmag_line(_cm_big, "بلوغ 30%"))
+# حدّا الحجم **مستقلّان**: كلٌّ يُسقط وحده — وإلا سترَ أحدُهما الآخر ولم يكن مقفولًا
+check("🌏📏 T-CMAG·حدّ الفرق 5 نقاط: 4% مقابل 1% (النسبة 4× والفرق 3) ⇒ غير مستوفٍ",
+      "غير مستوفٍ" in _cmag_line(_cmag([4.0] * 25, [1.0] * 25), "فرق الوسيطين"))
+check("🌏📏 T-CMAG·حدّ النسبة 1.5×: 100% مقابل 90% (الفرق 10 والنسبة 1.11) ⇒ غير مستوفٍ",
+      "غير مستوفٍ" in _cmag_line(_cmag([100.0] * 25, [90.0] * 25), "فرق الوسيطين"))
+check("🌏📏 T-CMAG·التخوم بالضبط: 15% مقابل 10% (فرق 5 · نسبة 1.50×) ⇒ مستوفًى",
+      "مستوفًى" in _cmag_line(_cmag([15.0] * 25, [10.0] * 25), "فرق الوسيطين")
+      and "غير مستوفٍ" not in _cmag_line(_cmag([15.0] * 25, [10.0] * 25),
+                                          "فرق الوسيطين"))
+check("🌏📏 T-CMAG·حدّ 30% (حركة فيصل) هو المُطبَّق: 29% لا تُحتسب و31% تُحتسب",
+      "بلغ 30% فأكثر 0 " in _cmag_line(_cmag([29.0] * 25, [1.0] * 25), "الصين")
+      and "بلغ 30% فأكثر 25 " in _cmag_line(_cmag([31.0] * 25, [1.0] * 25), "الصين"))
+# ③ أرضية العيّنة (20/شريحة/سنة) — سلوكية: 19 تُحذَّر و20 لا
+check("🌏📏 T-CMAG·أرضية العيّنة 20: 19 صفقة تُحذَّر · 20 تمرّ",
+      any("أقل من 20 صفقة" in x for x in _cmag([60.0] * 19, [10.0] * 25))
+      and not any("أقل من 20 صفقة" in x for x in _cmag([60.0] * 20, [10.0] * 25)))
+# ④ صدق المجتمع: no_fill تُستبعَد · مجهولة الدولة تُعرَض ولا تُقارَن
+_cm_pop = _cmag([60.0] * 25, [10.0] * 25, unknown=7, nofill=5)
+check("🌏📏 T-CMAG·المجتمع: 50 معلومة الدولة · 7 مجهولة تُعرَض · no_fill مستبعَدة",
+      "50 صفقة معبّأة معلومة الدولة" in _cm_pop[1]
+      and "7 مجهولة الدولة" in _cm_pop[1]
+      and "25 معبّأة" in _cmag_line(_cm_pop, "الصين/هونغ كونغ"))
+check("🌏📏 T-CMAG·بلا BT_POTENTIAL (لا mg_pre_stop) ⇒ صامتة تمامًا",
+      S.backtest_country_magnitude(
+          [{"country": "China", "outcome": "win", "exploded": True}] * 40) == []
+      and S.backtest_country_magnitude([]) == [])
+check("🌏📏 T-CMAG·عيّنة صغيرة ⇒ [] (لا حكم على 5 صفقات)",
+      _cmag([60.0] * 3, [10.0] * 2) == [])
+check("🌏📏 T-CMAG·لا حكم نهائي من سنة واحدة (شرط الثلاث سنوات مطبوع دائمًا)",
+      any("ثلاث سنوات" in x for x in _cm_big)
+      and any("سطر عرض فقط" in x for x in _cm_big))
+# ⑤ التفصيل دولةً-دولةً وصفي: أقل من 10 صفقات تُدمَج في «أخرى» (فخّ المقارنات المتعدّدة)
+_cm_desc = S._cmag_by_country(
+    [{"country": "China", "mg_pre_stop": 40.0} for _ in range(12)]
+    + [{"country": "Israel", "mg_pre_stop": 90.0} for _ in range(3)])
+check("🌏📏 T-CMAG·الوصفي: دولة بـ3 صفقات لا تظهر باسمها بل ضمن «أخرى»",
+      any("China: 12" in x for x in _cm_desc)
+      and not any("Israel" in x for x in _cm_desc)
+      and any("أخرى" in x and "3 · وسيط 90%" in x for x in _cm_desc))
+check("🌏📏 T-CMAG·قفل: خارج الجذور (تحليل/طباعة فقط)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("backtest_country_magnitude", "_cmag_by_country")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker, S.scan_market)))
 # 🕵️ تجربة T-SHORT (short_thread_prereg.md): شورت FINRA **المؤرَّخ بيوم الإشارة**
 _FIN_HDR = "Date|Symbol|ShortVolume|ShortExemptVolume|TotalVolume|Market\n"
 _FIN_DAY = {

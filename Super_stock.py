@@ -12170,6 +12170,115 @@ def backtest_country_thread(trades: list) -> list:
     return out
 
 
+CMAG_MOVE_PCT = 30.0        # «حركة فيصل 30-50%» — عتبة المقياس المساند (مسجَّلة مسبقًا)
+CMAG_MIN_SLICE = 20         # أقل عيّنة معتمَدة لكل شريحة/سنة (نفس أرضية T-SHORT)
+CMAG_MIN_GAP = 5.0          # فرق الوسيطين المطلوب (نقاط مئوية)
+CMAG_MIN_RATIO = 1.5        # نسبة الوسيطين المطلوبة
+
+
+def backtest_country_magnitude(trades: list) -> list:
+    """🌏📏 **تجربة T-CMAG المسجَّلة مسبقًا** (`country_magnitude_prereg.md`، 2026-07-28):
+    هل الدولة تحدّد **مقدار** الصعود لا **احتماله**؟
+
+    الفرق جوهري لا تجميلي: `backtest_country_thread` (الموجودة) تقيس الدولة مقابل
+    `exploded` = **ثنائي** «هل انفجر؟» — وهي من عائلة سقطت كاملةً. هذه تقيس
+    `mg_pre_stop` = **مستمرّ** «كم أعطانا السهم من دخولنا قبل أن يضرب وقفه».
+    سند فيصل الحرفي: «صيني **نقيسه مع الاسهم السابقه**» = قياس مقدار **بالأقران**
+    لا انتقاء، وأسهمه الخمس المرجعية (AZI · DSY · EHGO · ZCMD · JZ) كلها صينية.
+
+    **المقياسان (مسجَّلان قبل الأرقام):** الأساسي **وسيط** `mg_pre_stop` — لا المتوسط،
+    لأن الحافة عندنا يحملها ذيل قِلّة (درس `_honest_metrics_block`)؛ والمساند نسبة
+    بلوغ `CMAG_MOVE_PCT` بفاصل Wilson = آلة الدلالة نفسها في كل التجارب السابقة
+    (فلا نخترع اختبارًا لهذه وحدها).
+
+    **شريحتان فقط** (الصين/هونغ كونغ مقابل البقية). التفصيل دولةً-دولةً يُطبَع
+    **للوصف ولا يدخل الحكم إطلاقًا** — عشرون دولة = عشرون مقارنة، وأيّ «فائز» بينها
+    ضجيج (فخّ شريحة Technology 2025 التي تبخّرت). «مجهول» يُعرَض ولا يُقارَن
+    (تعذّر ≠ صفر). تُستبعَد `no_fill` لأن «كم صعد من دخولنا» بلا دخول غير معرَّف.
+
+    يلزمها `BT_FEATURES=1` (عمود `country`) **و**`BT_POTENTIAL=1` (مصدر `mg_pre_stop`)؛
+    وبدونهما ترجّع [] بلا ضجيج. **الحكم النهائي يلزمه ثلاث سنوات** — هذه الدالّة تحكم
+    على سنة التشغيل وحدها وتقول ذلك صراحةً.
+
+    **تحليل/طباعة فقط** — خارج الجذور، بلا وزن ولا بوّابة؛ وسقف النجاح محدَّد سلفًا في
+    التسجيل المسبق: **سطر عرض فقط** لا بوّابة ولا مسّ بالأهداف (بنيوية، قرار D5)."""
+    fb = [t for t in trades
+          if t.get("mg_pre_stop") is not None and t.get("outcome") != "no_fill"
+          and t.get("country") and t.get("country") != "—"]
+    if len(fb) < 12:
+        return []
+    unknown = sum(1 for t in trades
+                  if t.get("mg_pre_stop") is not None
+                  and t.get("outcome") != "no_fill"
+                  and (not t.get("country") or t.get("country") == "—"))
+    cn = CONFIG.get("HIGH_RISK_COUNTRIES", [])
+    out = ["\n🌏📏 <b>تجربة T-CMAG: هل الدولة تحدّد مقدار الصعود؟</b>",
+           f"   العيّنة: {len(fb)} صفقة معبّأة معلومة الدولة"
+           + (f" · {unknown} مجهولة الدولة (تُعرَض ولا تُقارَن)" if unknown else "")]
+    cells, rows = {}, []
+    for lbl, sel in [("الصين/هونغ كونغ", [t for t in fb if t["country"] in cn]),
+                     ("بقية الدول", [t for t in fb if t["country"] not in cn])]:
+        if not sel:
+            out.append(f"   {lbl}: صفر صفقة — لا مقارنة هذه السنة")
+            continue
+        gains = [float(t["mg_pre_stop"]) for t in sel]
+        med = _median(gains)
+        big = sum(1 for g in gains if g >= CMAG_MOVE_PCT)
+        blo, bhi = _wilson_ci(big, len(sel))
+        cells[lbl] = (med, big / len(sel) * 100.0, blo, bhi, len(sel))
+        rows.append((big / len(sel) * 100.0, blo, bhi))
+        out.append(f"   {lbl}: {len(sel)} معبّأة · <b>وسيط الصعود {med:.0f}%</b> "
+                   f"(متوسط {sum(gains) / len(sel):.0f}%) · بلغ "
+                   f"{CMAG_MOVE_PCT:.0f}% فأكثر {big} ({big / len(sel) * 100:.0f}%، "
+                   f"ثقة {blo:.0f}-{bhi:.0f}%)")
+    a, b = cells.get("الصين/هونغ كونغ"), cells.get("بقية الدول")
+    if not (a and b):
+        out.append("   ⚠️ إحدى شريحتَي المقارنة المسجَّلة فارغة — لا حكم هذه السنة.")
+        return out + _cmag_by_country(fb)
+    gap = a[0] - b[0]
+    ratio = (max(a[0], b[0]) / min(a[0], b[0])) if min(a[0], b[0]) > 0 else float("inf")
+    size_ok = abs(gap) >= CMAG_MIN_GAP and ratio >= CMAG_MIN_RATIO
+    enough = a[4] >= CMAG_MIN_SLICE and b[4] >= CMAG_MIN_SLICE
+    out.append(f"   📊 فرق الوسيطين (الصين − البقية): {gap:+.0f} نقطة · النسبة "
+               f"{ratio:.2f}× ⇒ شرط الحجم "
+               f"({CMAG_MIN_GAP:.0f} نقاط و{CMAG_MIN_RATIO}×): "
+               f"{'مستوفًى' if size_ok else '<b>غير مستوفٍ</b>'}")
+    # الدلالة على المقياس المساند (الثنائي) — الفاصلان المنفصلان هما الشرط المسجَّل
+    _, _ = _slice_verdict(out, rows, f"بلوغ {CMAG_MOVE_PCT:.0f}% (الصين − البقية)",
+                          need_gap=0.0)
+    if not enough:
+        out.append(f"   ⚠️ إحدى الشريحتين أقل من {CMAG_MIN_SLICE} صفقة — المعيار "
+                   f"المسجَّل يمنع الاعتماد على هذه السنة")
+    out.append("   ⏳ <b>هذه سنة واحدة</b>: المعيار المسجَّل يشترط ثبات الاتجاه وحجم "
+               "الفرق في <b>ثلاث سنوات</b> + فاصلَي Wilson منفصلين مجمَّعًا — لا حكم "
+               "نهائي من تشغيلة واحدة.")
+    out.append("   🔒 وسقف النجاح مُحدَّد سلفًا: <b>سطر عرض فقط</b> — لا بوّابة ولا وزن "
+               "ترتيب ولا مسّ بالأهداف (بنيوية).")
+    return out + _cmag_by_country(fb)
+
+
+def _cmag_by_country(fb, min_n=10, top=8):
+    """🌏 تفصيل T-CMAG دولةً-دولةً — **وصف فقط، خارج الحكم** (التسجيل المسبق §②:
+    عشرون دولة = عشرون مقارنة وأيّ فائز بينها ضجيج). يُطبع للقارئ لا للقرار.
+    الدول التي تقلّ عن `min_n` تُدمَج في «أخرى» بدل إظهار وسيط من صفقتين."""
+    if not fb:
+        return []
+    by = {}
+    for t in fb:
+        by.setdefault(t["country"], []).append(float(t["mg_pre_stop"]))
+    big = {k: v for k, v in by.items() if len(v) >= min_n}
+    rest = sum((v for k, v in by.items() if len(v) < min_n), [])
+    if not big and not rest:
+        return []
+    out = [f"   🌍 <i>وصفي فقط (خارج الحكم) — الدول التي لها {min_n} صفقة فأكثر:</i>"]
+    for k, v in sorted(big.items(), key=lambda kv: -len(kv[1]))[:top]:
+        out.append(f"      {esc(str(k))}: {len(v)} · وسيط {_median(v):.0f}%")
+    if rest:
+        out.append(f"      أخرى (كل دولة أقل من {min_n} صفقة، مدموجة): "
+                   f"{len(rest)} · وسيط {_median(rest):.0f}%")
+    return out
+
+
 _SHORT_BANDS = ((0, 10_000, "10 آلاف سهم أو أقل"),
                 (10_000, 20_000, "من 10 إلى 20 ألف سهم"),
                 (20_000, 40_000, "من 20 إلى 40 ألف سهم"),
@@ -13071,9 +13180,13 @@ def run_backtest(symbols=None) -> None:
     # float/CTB مُستبعَدان (نظر مستقبلي/بلا تاريخ). خارج backtest_symbol (الجذر) — تحليل فقط.
     if CONFIG.get("BT_FEATURES"):
         _bt_feature_enrich(all_trades, hist=hist)
-        # 🔬🌏 اختبارا الفرضيتين المسجَّلتين مسبقًا (pump_filter_prereg.md) — **بعد** التخصيب
-        # لأن العمودين يُضافان فيه. تحليل/طباعة فقط: لا وزن ولا بوّابة.
-        _hyp = backtest_pump_filter(all_trades) + backtest_country_thread(all_trades)
+        # 🔬🌏 اختبارات الفرضيات المسجَّلة مسبقًا (`pump_filter_prereg.md` +
+        # `country_magnitude_prereg.md`) — **بعد** التخصيب لأن الأعمدة تُضاف فيه.
+        # T-CMAG (المقدار) تلزمها `BT_POTENTIAL=1` أيضًا وإلا رجعت [] صامتة.
+        # تحليل/طباعة فقط: لا وزن ولا بوّابة.
+        _hyp = (backtest_pump_filter(all_trades)
+                + backtest_country_thread(all_trades)
+                + backtest_country_magnitude(all_trades))
         if _hyp:
             send_telegram("\n".join(_hyp))
             for _hl in _hyp:
