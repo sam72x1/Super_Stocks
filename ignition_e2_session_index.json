@@ -1,9 +1,65 @@
 {
-  "2026-07-24": {
+  "2026-07-15": {
+    "n_delivered": 3,
+    "n_emitted": 3,
+    "n_raw_candidates": 3,
+    "n_symbols": 8,
+    "termination": "normal"
+  },
+  "2026-07-16": {
     "n_delivered": 0,
     "n_emitted": 0,
     "n_raw_candidates": 0,
+    "n_symbols": 10,
+    "termination": "normal"
+  },
+  "2026-07-17": {
+    "n_delivered": 2,
+    "n_emitted": 2,
+    "n_raw_candidates": 5,
+    "n_symbols": 11,
+    "termination": "normal"
+  },
+  "2026-07-20": {
+    "n_delivered": 0,
+    "n_emitted": 0,
+    "n_raw_candidates": 0,
+    "n_symbols": 1,
+    "termination": "normal"
+  },
+  "2026-07-21": {
+    "n_delivered": 0,
+    "n_emitted": 0,
+    "n_raw_candidates": 0,
+    "n_symbols": 7,
+    "termination": "normal"
+  },
+  "2026-07-22": {
+    "n_delivered": 0,
+    "n_emitted": 0,
+    "n_raw_candidates": 0,
+    "n_symbols": 7,
+    "termination": "normal"
+  },
+  "2026-07-23": {
+    "n_delivered": 0,
+    "n_emitted": 0,
+    "n_raw_candidates": 1,
     "n_symbols": 8,
+    "termination": "normal"
+  },
+  "2026-07-24": {
+    "n_delivered": 1,
+    "n_emitted": 1,
+    "n_raw_candidates": 1,
+    "n_symbols": 8,
+    "termination": "normal"
+  },
+  "2026-07-27": {
+    "n_delivered": 3,
+    "n_emitted": 3,
+    "n_raw_candidates": 3,
+    "n_symbols": 9,
     "termination": "normal"
   }
 }
