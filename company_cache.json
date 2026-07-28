@@ -772,17 +772,6 @@
   "finra_short": 1782
  },
  "SBET": {},
- "LENZ": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "LENZ Therapeutics, Inc. operates as a commercial pharmaceutical company that focuses on the development and commercialization of therapies to improve vision in…",
-  "country": "United States",
-  "cash": 258384992,
-  "revenue": 20989000,
-  "shares_out": 31354394,
-  "short_pct": 54.5,
-  "float": 18481220
- },
  "HFFG": {
   "sector": "Consumer Defensive",
   "industry": "Food Distribution",
@@ -1646,5 +1635,47 @@
   "company_name": "WF International Limited",
   "short_interest": 44855,
   "days_to_cover": 0.3
+ },
+ "HTZ": {
+  "sector": "Industrials",
+  "industry": "Rental & Leasing Services",
+  "business": "Hertz Global Holdings, Inc. operates as a vehicle rental company. It operates through two segments: Americas RAC and International RAC. The company offers vehic…",
+  "country": "United States",
+  "cash": 586000000,
+  "revenue": 8695000064,
+  "shares_out": 315764523,
+  "short_pct": 73.9,
+  "float": 129280311,
+  "company_name": "Hertz Global Holdings, Inc",
+  "short_interest": 97539992,
+  "days_to_cover": 3.33
+ },
+ "LENZ": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "LENZ Therapeutics, Inc. operates as a commercial pharmaceutical company that focuses on the development and commercialization of therapies to improve vision in…",
+  "country": "United States",
+  "cash": 258384992,
+  "revenue": 20989000,
+  "shares_out": 31354394,
+  "short_pct": 62.3,
+  "float": 16877757,
+  "company_name": "LENZ Therapeutics, Inc.",
+  "short_interest": 11861316,
+  "days_to_cover": 11.56
+ },
+ "KLXE": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services",
+  "business": "KLX Energy Services Holdings, Inc. provides drilling, completions, production, and well intervention services and products to the onshore oil and gas producing…",
+  "country": "United States",
+  "cash": 5600000,
+  "revenue": 627299968,
+  "shares_out": 20539280,
+  "short_pct": 7.4,
+  "float": 14833066,
+  "company_name": "KLX Energy Services Holdings, I",
+  "short_interest": 1434494,
+  "days_to_cover": 5.95
  }
 }
