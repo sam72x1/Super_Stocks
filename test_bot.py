@@ -221,12 +221,29 @@ if _tg:
 
 # 🔒 قفل بنيوي: كتلة الأهداف الجديدة تعيد بناء t2/t3 فقط — لا تمسّ t1/rr/soft_fails/العضوية
 _at_src = _insp.getsource(S.analyze_ticker)
-_blk = (_at_src.split("إعادة بناء t2/t3")[1].split("تحرر السهم")[0]
-        if "إعادة بناء t2/t3" in _at_src else "")
-check("كتلة الأهداف الجديدة موجودة", bool(_blk))
+# ⚠️ **إصلاح 2026-07-28:** كان القطع بين **تعليقين** («إعادة بناء t2/t3» و«تحرر
+# السهم») ⇒ يكفي بقاء التعليقين ليمرّ القفل وإن حُذف الكود كلّه. صار القطع بين
+# **سطرين تنفيذيين**، والإثبات إيجابيًّا على رموز حقيقية داخل الكتلة.
+_blk = (_at_src.split("targets_kind = None")[1].split("liberation = None")[0]
+        if "targets_kind = None" in _at_src else "")
+check("كتلة الأهداف الجديدة موجودة (رموز تنفيذية لا تعليقات)",
+      all(_t in _blk for _t in ("cycle_peak", "_major_cap", "_majors", "def _tkind")))
+# ⚠️ ومقارنة النصّ بعد **حذف المسافات**: `t1 =` وحدها كانت تُراوغ بـ`t1=`.
+_blkn = _blk.replace(" ", "")
 check("كتلة الأهداف لا تمسّ t1/rr/soft_fails/العضوية (t2/t3 فقط)",
-      bool(_blk) and "soft_fails" not in _blk and "return {" not in _blk
-      and "rr =" not in _blk and "t1 =" not in _blk and "_reject" not in _blk)
+      bool(_blk) and all(_x not in _blkn for _x in
+                         ("soft_fails", "return{", "rr=", "t1=", "_reject")))
+# 🔒🔒 **الدبّوس السلوكي على الجذر** — أهمّ قفل أُضيف اليوم. القفل النصّي أعلاه يمكن
+# مراوغته بأي صياغة؛ وهذا يقيس **المُخرَج نفسه**: مدقّق خصومي أثبت أن حقن
+# `t1=round(t1*1.30,2)` داخل الكتلة (ومرآتها بـanalyze_one) يضخّم rr من 1.7809 إلى
+# 5.4032 — و`rr` يحكم العضوية عبر `MIN_RR_T1` — **ومرّ على السويّة كاملةً 1261/0**.
+# القيم مقيسة على الشجرة النقيّة؛ أي انزياح في جذر الاختيار = فشل صريح.
+check("🔒 جذر: t1/rr/الوقف/الدفعات مثبَّتة للبذرة 2 (أي انزياح = فشل)",
+      r0["t1"] == 3.99 and round(r0["rr"], 4) == 1.7809
+      and r0["tranches"] == [3.3, 3.4, 3.5]
+      and round(r0["pivot"], 6) == 3.299692
+      and tuple(round(_s, 4) for _s in r0["stop"]) == (3.0687, 3.1347),
+      f"t1={r0['t1']} rr={round(r0['rr'], 4)} pivot={round(r0['pivot'], 6)}")
 # 🔒 قفل الجذور: الأهداف الكبرى الجديدة لا تدخل جذور الاختيار
 for _rt in (S.rank_key, S.select_top, S.classify_tier, S.entry_status):
     check(f"{_rt.__name__} لا يعتمد فجوة الأهداف الكبرى (خارج الاختيار)",
