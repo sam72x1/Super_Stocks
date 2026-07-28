@@ -9821,20 +9821,38 @@ def build_pullback_section(entries: list, triggered: list = None) -> str:
     return _rtl_join(lines)
 
 
-def monitor_pullback(wl: dict) -> list:
+def monitor_pullback(wl: dict, fetch_hist=None) -> list:
     """متابعة يومية لقائمة الارتداد: يحدّث السعر، ويُطلق تنبيهًا عند نزول
-    السهم لسعر الدعم (ضمن PULLBACK_TRIGGER_PCT). يعيد قائمة المُنبَّه عنها."""
+    السهم لسعر الدعم (ضمن PULLBACK_TRIGGER_PCT). يعيد قائمة المُنبَّه عنها.
+
+    ⚡ **تحميل مجمَّع (إصلاح 2026-07-28، خطة `plans/006`):** كان ينادي
+    `download_history([sym])` **مرة لكل سهم**، وهي ليست نداءً خفيفًا: تقسيم + 3 محاولات
+    بتراجع أُسّي (3ث ثم 6ث) + `CHUNK_SLEEP`=2ث + **تمريرة ثانية كاملة** لما لم يُحمَّل
+    ⇒ ~3-4ث للسهم عند النجاح و**~22ث عند خنق ياهو**. وبحدّ `PULLBACK_SIZE`=15 يصير
+    ~50ث إلى **~5.5 دقائق** تُستهلَك **قبل** `monitor_live_events` (pullback_live.py:50
+    مقابل 72) — وهو مصدر **تنبيه كسر الوقف**، التنبيه الوحيد المصنَّف «خطر» ولا يُبوَّب
+    بالمضارب — داخل مهلة جوب **15 دقيقة**. فعند الخنق يُقتَل الجوب قبل التنبيه وقبل
+    `save_watchlist`/`git_save`. الآن **نداء واحد مجمَّع** لكل غير المُطلَقين.
+    🔒 قرار الإطلاق byte-identical (نفس `buf` ونفس المقارنة ونفس ترتيب الإسنادات)
+    وترتيب المُرجَع يطابق ترتيب المدخلات (يُعرَض في `build_pullback_section`).
+    `fetch_hist` محقون للاختبار (يأخذ قائمة رموز ويرجّع dict) — الافتراضي
+    `download_history` فكل المستدعين القائمين يعملون بلا تغيير."""
     entries = wl.get("pullback") or []
     if not entries or yf is None:
         return []
+    pend = [e for e in entries if e.get("status") != "triggered"]
+    if not pend:
+        return []
     triggered = []
     buf = 1.0 + CONFIG.get("PULLBACK_TRIGGER_PCT", 2.0) / 100.0
-    for e in entries:
-        if e.get("status") == "triggered":
-            continue
+    try:
+        hist = (fetch_hist or download_history)([e["symbol"] for e in pend]) or {}
+    except Exception as exc:                      # فاشل-آمن: لا تنبيه أهون من انهيار
+        log(f"⚠️ مراقبة الارتداد: تعذّر التحميل المجمَّع ({exc}) — لا تنبيه هذه الدورة.")
+        return []
+    for e in pend:
         try:
-            d = download_history([e["symbol"]])
-            df = d.get(e["symbol"])
+            df = hist.get(e["symbol"])
             if df is None or df.empty:
                 continue
             lp = float(df["Close"].iloc[-1])

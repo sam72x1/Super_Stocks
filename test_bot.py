@@ -8936,12 +8936,12 @@ def _c3_df(px):
 
 
 def _c3_fetch(syms):
+    """جالب مجمَّع (عقد `download_history`): يأخذ **قائمة** ويرجّع dict، ويُسقط ما
+    تعذّر تحميله — نفس ما يفعله المسار الحيّ عند خنق ياهو (DDD غائب هنا)."""
     _c3_calls.append(list(syms))
-    _s = syms[0]
-    if _s == "DDD":
-        raise RuntimeError("خنق مُحاكى")
-    # AAA عند العتبة بالضبط (2.5 × 1.02) · BBB فوقها
-    return {_s: _c3_df({"AAA": 2.55, "BBB": 2.60}.get(_s, 3.0))}
+    # AAA عند العتبة بالضبط (2.5 × 1.02) · BBB فوقها · DDD يتعذّر فيغيب
+    px = {"AAA": 2.55, "BBB": 2.60}
+    return {s: _c3_df(px[s]) for s in syms if s in px}
 
 
 def _c3_entry(sym, status="watching", lp=3.0):
@@ -8959,10 +8959,10 @@ try:
 finally:
     S.download_history, S.yf = _c3_sv
 _c3_syms = [x for c in _c3_calls for x in c]
-check("🧪 توصيف·الارتداد: نداء تحميل **مستقلّ لكل** سهم غير مُطلَق (يقيسه خطة 006)",
-      len(_c3_calls) == 3 and all(len(c) == 1 for c in _c3_calls)
-      and _c3_syms == ["AAA", "BBB", "DDD"])
-check("🧪 توصيف·الارتداد: المُطلَق مسبقًا لا يُجلب له شيء ولا يُمسّ",
+# ✅ **قُلبت بخطة 006**: صار **نداء مجمَّع واحد** بكل غير المُطلَقين بدل نداء لكل رمز.
+check("⚡ 006·الارتداد: نداء تحميل **واحد مجمَّع** بكل غير المُطلَقين",
+      len(_c3_calls) == 1 and _c3_syms == ["AAA", "BBB", "DDD"])
+check("🧪 توصيف·الارتداد: المُطلَق مسبقًا لا يدخل الوسيط ولا يُمسّ",
       "CCC" not in _c3_syms and _c3_entries[2]["last_price"] == 9.99
       and _c3_entries[2]["status"] == "triggered")
 check("🧪 توصيف·الارتداد: السعر عند العتبة بالضبط (‎+2%‎ فوق أعلى دفعة) يُطلق",
@@ -8971,9 +8971,42 @@ check("🧪 توصيف·الارتداد: السعر عند العتبة بال�
 check("🧪 توصيف·الارتداد: فوق العتبة يبقى «watching» ويُحدَّث سعره فقط",
       _c3_entries[1]["status"] == "watching"
       and _c3_entries[1]["last_price"] == 2.60)
-check("🧪 توصيف·الارتداد: جالب يرمي ⇒ يُتخطّى السهم بلا كسر البقيّة",
+check("🧪 توصيف·الارتداد: رمز غائب من المُخرَج المجمَّع يُتخطّى بلا كسر البقيّة",
       _c3_entries[3]["status"] == "watching"
       and [e["symbol"] for e in _c3_trig] == ["AAA"])
+# 🔒 ترتيب المُرجَع يطابق ترتيب المدخلات (يُعرَض في build_pullback_section)
+_c3_ord = [_c3_entry("Z1"), _c3_entry("Z2"), _c3_entry("Z3")]
+_c3_sv3 = (S.download_history, S.yf)
+try:
+    S.download_history = lambda syms: {s: _c3_df(2.0) for s in syms}   # الكلّ يُطلق
+    S.yf = object()
+    _c3_all = S.monitor_pullback({"pullback": _c3_ord})
+finally:
+    (S.download_history, S.yf) = _c3_sv3
+check("🔒 006·الارتداد: ترتيب المُرجَع يطابق ترتيب المدخلات",
+      [e["symbol"] for e in _c3_all] == ["Z1", "Z2", "Z3"])
+# 🔒 فشل التحميل المجمَّع كلّه ⇒ [] بلا رمي (فاشل-آمن، لا يُسقط pullback_live)
+_c3_sv4 = (S.download_history, S.yf)
+try:
+    def _c3_boom(syms):
+        raise RuntimeError("خنق تامّ مُحاكى")
+    S.download_history, S.yf = _c3_boom, object()
+    _c3_fail = S.monitor_pullback({"pullback": [_c3_entry("Q1")]})
+    _c3_fail_raised = None
+except Exception as _e:                                        # noqa: BLE001
+    _c3_fail_raised, _c3_fail = type(_e).__name__, None
+finally:
+    (S.download_history, S.yf) = _c3_sv4
+check("🔒 006·الارتداد: انهيار التحميل المجمَّع ⇒ [] بلا رمي (فاشل-آمن)",
+      _c3_fail_raised is None and _c3_fail == [])
+# 🔒 قفل بنيوي: نداء تحميل واحد فقط داخل الدالّة + وسيط الحقن موجود
+_c3_src = _insp0.getsource(S.monitor_pullback)
+# ⚠️ يعدّ **نداءً** لا ذِكرًا: الـdocstring يشرح النمط القديم `download_history([sym])`
+#    عمدًا، وgetsource يشمله. النداء الوحيد هو `(fetch_hist or download_history)(...)`.
+check("🔒 006·قفل: نداء تحميل واحد داخل monitor_pullback + وسيط fetch_hist محقون",
+      _c3_src.count("(fetch_hist or download_history)(") == 1
+      and _c3_src.count("download_history([") == 1     # في الـdocstring فقط (شرح تاريخي)
+      and "for e in pend:" in _c3_src)
 
 # البوّابتان المبكّرتان (Super_stock.py:9762) — **يجب أن تبقيا بعد تجميع خطة 006**:
 # غيابهما يعني نداء شبكة على قائمة فارغة أو بلا yfinance.
