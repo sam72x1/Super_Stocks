@@ -1501,7 +1501,7 @@
    "rr": 1.940352509004351,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.6
+   "max_gain_pct": 3.9
   },
   {
    "symbol": "MSTR",
@@ -1648,7 +1648,7 @@
    "rr": 2.8677953223822965,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 1.5
   },
   {
    "symbol": "LENZ",
@@ -1686,7 +1686,7 @@
    "rr": 2.972625161323812,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 7.4
   },
   {
    "symbol": "KLXE",
@@ -1724,7 +1724,7 @@
    "rr": 1.9860971438427446,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.8
   }
  ]
 }
