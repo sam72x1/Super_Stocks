@@ -1041,16 +1041,6 @@ def fetch_4h(sym: str):
         return None
 
 
-def fetch_4h_signal(sym: str):
-    """تأكيد انعكاس فريم 4 ساعات. يرجع (إشارة bool/None، وصف)."""
-    if yf is None or not CONFIG.get("ENABLE_4H", True):
-        return None, "غير مفعّل"
-    h4 = fetch_4h(sym)
-    if h4 is None:
-        return None, "غير متوفر"
-    ok = timeframe_reversal(h4, 60, 20)
-    return ok, ("✅ مؤكِّد" if ok else "⏳ غير مؤكِّد بعد")
-
 
 # ==========================================================
 # 3) كون الأسهم (Universe) — ناسداك فقط (v2.0)
@@ -5689,46 +5679,6 @@ def country_label(c):
     return f"{flag} {esc(ar_country(c))}".strip()
 
 
-def short_line(r) -> str:
-    """سطر الشورت (v2.0): بلا إيموجي، مع اسم المصدر،
-    والتفريق الصريح بين الرقم الفعلي وتعذّر الجلب."""
-    fd = r.get("fintel") or {}
-    vol_part = None
-    if fd.get("short_volume") is not None:
-        vol_part = f"{fmt_money(fd['short_volume'])} (Fintel)"
-    elif r.get("finra_short") is not None:
-        vol_part = f"{fmt_money(r['finra_short'])} (FINRA)"
-    pct_part = None
-    if fd.get("si_pct_float") is not None:
-        pct_part = f"{fd['si_pct_float']}% من الفلوت (Fintel)"
-    elif r.get("short_pct") is not None:
-        pct_part = f"{r['short_pct']}% من الفلوت (Yahoo)"
-    if vol_part and pct_part:
-        return f"شورت يومي: {vol_part} | فائدة الشورت: {pct_part}"
-    if vol_part:
-        return f"شورت يومي: {vol_part}"
-    if pct_part:
-        return f"فائدة الشورت: {pct_part}"
-    return "شورت: تعذّر الجلب من كل المصادر (ليس صفراً)"
-
-
-def risk_lines(price, stop_lo, t1, t2, rr):
-    """عرض المخاطرة بالدولار الفعلي (v2.0) بدل نسبة 1:X الغامضة"""
-    risk = price - stop_lo
-    g1 = t1 - price
-    g2 = t2 - price
-    if rr >= 3:
-        q = "ممتازة جداً"
-    elif rr >= 2:
-        q = "ممتازة"
-    else:
-        q = "جيدة"
-    return [
-        f"🛡️ تخاطر بـ${risk:.2f} للسهم ← ربح هدف1: ${g1:.2f} | "
-        f"هدف2: ${g2:.2f}",
-        f"⚖️ جودة الصفقة: {q} (الربح {rr:.1f}× المخاطرة)",
-    ]
-
 
 def news_links(sym: str) -> str:
     """روابط أخبار قابلة للضغط لكل سهم (موثوقة 100% — لا سحب آلي).
@@ -5742,48 +5692,6 @@ def news_links(sym: str) -> str:
     return (f'🔗 تابع أخباره — <a href="{tr}">⭐ TipRanks</a> (الأفضل) | '
             f'<a href="{yh}">Yahoo</a> | <a href="{fv}">Finviz</a>')
 
-
-def news_block(r) -> list:
-    """قسم الأخبار في البطاقة: عناوين ياهو التلقائية + روابط المتابعة"""
-    lines = []
-    news = r.get("news") or []
-    if news:
-        lines.append("📰 <b>آخر الأخبار (Yahoo):</b>")
-        for it in news:
-            # 14أ: القصّ **قبل** التهريب — القصّ بعده كان قد يشطر كيان HTML
-            # (مثل &amp; → &am) فيكسر رسالة تلغرام كاملة.
-            head = esc(it.get("title", "")[:140])
-            src = esc(it.get("publisher", ""))
-            day = it.get("date", "")
-            meta = " — ".join(x for x in (src, day) if x)
-            link = it.get("link", "")
-            if link:
-                lines.append(f'  • <a href="{esc(link)}">{head}</a>'
-                             + (f" ({meta})" if meta else ""))
-            else:
-                lines.append(f"  • {head}" + (f" ({meta})" if meta else ""))
-    lines.append(news_links(r["symbol"]))
-    return lines
-
-
-def splits_block(splits) -> list:
-    """قسم مراقبة التقسيم العكسي (مشترك بين الرسائل)"""
-    if not splits:
-        return []
-    lines = ["", "✂️ <b>مراقبة أسهم التقسيم العكسي</b>"]
-    for s in splits:
-        half = f"${s['half']:.2f}" if s["half"] else "غير محسوب"
-        if s["short"] is None:
-            srt = "تعذّر الجلب"
-        elif s["short_ok"]:
-            srt = f"{fmt_money(s['short'])} ✅ تحت 20 ألف"
-        else:
-            srt = f"{fmt_money(s['short'])} ⏳ فوق 20 ألف"
-        lines.append(
-            f"• {s['symbol']} | قسم {s['split_date']} | "
-            f"القاع المتوقع (الافتتاح÷2): {half} | "
-            f"السعر: ${s['price']:.2f} | شورت: {srt}")
-    return lines
 
 
 FOOTER = ("⚠️ <i>فارز آلي حسب منهجية موثقة — ليست توصية. "
@@ -6712,7 +6620,7 @@ def export_weekly_csvs(wl: dict, picks: list, alert_data: dict = None) -> None:
     signals = [{"symbol": r["symbol"], "tier": r.get("tier"),
                 "sector": r.get("sector"), "rsi": r.get("rsi"),
                 "float": r.get("float"),
-                # تدرّج الشورت مثل short_line: حجم Fintel ← FINRA ← (نسبة Yahoo
+                # تدرّج الشورت مثل _short_headline: حجم Fintel ← FINRA ← (نسبة Yahoo
                 # بعمود منفصل). كان يكتب finra_short فقط فيظهر فارغًا رغم توفّر
                 # short_pct (مثل UPB). إصلاح فحص 2026-06-26 — تصدير فقط.
                 "short": ((r.get("fintel") or {}).get("short_volume")

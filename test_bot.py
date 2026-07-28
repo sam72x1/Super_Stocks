@@ -9426,6 +9426,36 @@ check("🔒 010·العشرة المُصلَحة تعلن contents: read (لا w
 
 
 # ==========================================================
+# 🧹 خطة 011: تنظيف الدوال الميتة + صون المحفوظة بقرار مالك
+# ==========================================================
+# 🔴 القاعدة المستخلَصة: **«غير مستعمَلة» ≠ «ميتة»** في هذا المستودع. قبل أي حذف
+#    ابحث عن الاسم في CLAUDE.md؛ وجود «محفوظة» = قرار مالك. وهذا القفل يُشفّر القاعدة
+#    كي لا تعتمد على القراءة في أي جولة تنظيف قادمة.
+print("\n=== 🧹 خطة 011: تنظيف + صون ===")
+
+_C11_KEEP = ("key_levels_block", "h4_levels_block", "position_size_line",
+             "acc_line", "silent_accumulation", "half_down_target", "half_down_line",
+             "ce_float_info", "_parse_ce_float",
+             # D9: لها اختبارات وظيفية (لا مجرّد قفل) ⇒ ميزة نائمة لا ميتة
+             "split_watch_report", "build_split_watch_section", "_split_row",
+             # صارت بلا مستدعٍ بحذفٍ متسلسل — تُراجَع مستقلّةً لا تُحذف بالتبعية
+             "news_links")
+check("🔒 011·صون: الدوال المحفوظة بقرار المالك موجودة (لا تُحذف في أي تنظيف)",
+      all(callable(getattr(S, _n, None)) for _n in _C11_KEEP))
+_C11_GONE = ("fetch_4h_signal", "short_line", "risk_lines", "news_block",
+             "splits_block")
+check("🧹 011·الخمس الميتة حُذفت فعلًا (لا بقايا تضلّل القارئ)",
+      not any(hasattr(S, _n) for _n in _C11_GONE))
+_c11_src = open("Super_stock.py", encoding="utf-8").read()
+check("🧹 011·لا مرجع متبقٍّ لأي محذوفة (حتى في التعليقات)",
+      not any(_n in _c11_src for _n in _C11_GONE))
+check("📝 011·CLAUDE.md لم يعد يصف D9 كوصلٍ حيّ بالتقرير اليومي",
+      "لم يعد يُدفَع بالتقرير اليومي"
+      in _insp0.getsource(S.run_daily_watchlist)
+      and "تصحيح 2026-07-28" in open("CLAUDE.md", encoding="utf-8").read())
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
