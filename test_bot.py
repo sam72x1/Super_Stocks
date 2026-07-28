@@ -2821,6 +2821,41 @@ with open(_os.path.join(_rc_root, "recovered", "111", "e2_measurement",
 _rc_f = _RC.recover(_os.path.join(_rc_root, "recovered"), repo_root=_rc_root)["fires"]
 check("🔬♻️🔥 التنبيهات المُسلَّمة: المُسلَّم فقط · بلا تكرار · الفاشل لا يُحسب",
       _rc_f == [("2026-07-15", ["AAA", "CCC"])])
+# 🔥 إعادة بناء سجلّ الإطلاقات: المُطلَق فقط · حقول منسوخة من مصدرها · موسوم مُسترجَعًا
+with open(_os.path.join(_rc_root, "recovered", "222", "e2_measurement",
+                        "session_2026-07-16", "candidates.jsonl"), "w",
+          encoding="utf-8") as _fh:
+    for _c in ({"symbol": "XYZ", "session_date": "2026-07-16", "alert_emitted": True,
+                "telegram_sent_at": "2026-07-16T14:02:11Z", "break_level": 3.0,
+                "signal_price": 3.15, "vol_x": 8.0, "signal_usd": 120000,
+                "candle_class": "operator"},
+               {"symbol": "XYZ", "session_date": "2026-07-16", "alert_emitted": True,
+                "telegram_sent_at": "2026-07-16T15:00:00Z", "break_level": 3.0,
+                "signal_price": 3.9, "vol_x": 4.0, "signal_usd": 9,
+                "candle_class": "group"},                 # مكرّر نفس اليوم ⇒ يُتخطّى
+               {"symbol": "QQQ", "session_date": "2026-07-16", "alert_emitted": False,
+                "signal_price": 9.9}):                    # لم يُطلَق ⇒ لا يدخل
+        _fh.write(_json.dumps(_c) + "\n")
+with open(_os.path.join(_rc_root, "ignition_log.json"), "w", encoding="utf-8") as _fh:
+    _json.dump([{"symbol": "OLD", "date": "2026-07-14", "price": 1.0}], _fh)
+_rc_r = _RC.recover(_os.path.join(_rc_root, "recovered"), repo_root=_rc_root)["rebuilt"]
+_rc_log = _json.load(open(_os.path.join(_rc_root, "ignition_log.json"), encoding="utf-8"))
+_rc_new = [r for r in _rc_log if r.get("symbol") == "XYZ"]
+check("🔥 إعادة سجلّ الإطلاقات: المُطلَق فقط · مرّة/سهم/يوم · والقديم لا يُمسّ",
+      _rc_r == ["2026-07-16 XYZ"] and len(_rc_new) == 1
+      and any(r.get("symbol") == "OLD" for r in _rc_log)
+      and not any(r.get("symbol") == "QQQ" for r in _rc_log))
+check("🔥 كل حقل منسوخ من مصدره المسجَّل (لا اشتقاق) + وسم «مُسترجَع» لا يُخلَط بالأصلي",
+      _rc_new[0] == {"symbol": "XYZ", "date": "2026-07-16",
+                     "fired_at": "2026-07-16T14:02:11Z", "break_level": 3.0,
+                     "price": 3.15, "vol_x": 8.0, "usd": 120000,
+                     "candle_class": "operator", "source": "e2_reconstructed"}
+      and "source" not in [r for r in _rc_log if r.get("symbol") == "OLD"][0])
+check("🔥 إعادة التشغيل لا تضاعف السجلّ (idempotent)",
+      _RC.recover(_os.path.join(_rc_root, "recovered"),
+                  repo_root=_rc_root)["rebuilt"] == []
+      and len(_json.load(open(_os.path.join(_rc_root, "ignition_log.json"),
+                              encoding="utf-8"))) == len(_rc_log))
 # لا يدهس مجلّدًا خامًا موجودًا سلفًا (إعادة التشغيل آمنة — idempotent)
 _rc_res2 = _RC.recover(_os.path.join(_rc_root, "recovered"), repo_root=_rc_root)
 check("🔬♻️ إعادة التشغيل آمنة: صفر جلسة جديدة وصفر نسخ (idempotent)",

@@ -105,6 +105,7 @@ def recover(download_root, repo_root="."):
     print("   🧮 بالفهرس %d جلسة · منها %d بإنهاء طبيعي." % (len(idx), len(normal)))
     print("   ⚠️ الفهرس عدّاد لا شهادة اكتمال — شغّل "
           "`ignition_e2_analyze.py e2_measurement --strict` للحكم.")
+    rebuilt = rebuild_fire_log(best, repo_root=repo_root)
     fires = _delivered_fires(best)
     if fires:
         # ⚠️ **قراءة لا توليد:** هذي تنبيهات **وصلت تلغرام فعلًا** (`delivered=true`)
@@ -115,7 +116,57 @@ def recover(download_root, repo_root="."):
         for date, syms in fires:
             print("      %s: %s" % (date, " · ".join(syms)))
     return {"index": len(idx), "new": merged, "copied": copied, "fires": fires,
+            "rebuilt": rebuilt,
             "conflicts": conflicts, "no_summary": [d for d, _ in no_summary]}
+
+
+FIRE_LOG = "ignition_log.json"
+# خريطة الحقول: كل حقل في سجلّ الإطلاقات له **مصدر مباشر مسجَّل** في candidates.jsonl.
+# لا حقل يُشتقّ ولا يُخمَّن — ولذلك الإعادة **استرجاع** لا توليد.
+_FIRE_MAP = (("symbol", "symbol"), ("date", "session_date"), ("fired_at", "telegram_sent_at"),
+             ("break_level", "break_level"), ("price", "signal_price"),
+             ("vol_x", "vol_x"), ("usd", "signal_usd"), ("candle_class", "candle_class"))
+
+
+def rebuild_fire_log(best, repo_root=".", log_name=FIRE_LOG):
+    """🔥 يُعيد بناء إدخالات `ignition_log.json` الضائعة من `candidates.jsonl`.
+
+    ضاعت مع نفس الدفع الفاشل الذي أضاع ملخّصات الجلسات، فقياس «الإنذار الكاذب» في
+    أداة التطوير كان أعمى عن معظم إطلاقات الرادار. تُعاد **المُطلَقة فقط**
+    (`alert_emitted=true`)، بالدِدوب القائم (رمز+تاريخ)، وكل حقل منسوخ من مصدره
+    المسجَّل بلا اشتقاق. **كل إدخال مُعاد يحمل `source="e2_reconstructed"`** فلا
+    يختلط بسجلّ أصليّ أبدًا — مُسترجَع ≠ مُختلَق، والتمييز يبقى ظاهرًا للأبد.
+    فاشلة-آمنة: أي جلسة بلا ملفّ/بصيغة تالفة تُتخطّى بلا مساس بالسجلّ."""
+    path = os.path.join(repo_root, log_name)
+    log = _read_json(path)
+    if not isinstance(log, list):
+        log = []
+    seen = {(r.get("symbol"), r.get("date")) for r in log}
+    added = []
+    for _date, (_loops, sdir, _s) in sorted(best.items()):
+        try:
+            with open(os.path.join(sdir, "candidates.jsonl"), encoding="utf-8") as fh:
+                rows = [json.loads(x) for x in fh if x.strip()]
+        except Exception:
+            continue
+        for c in rows:
+            if not c.get("alert_emitted"):
+                continue
+            rec = {k: c.get(src) for k, src in _FIRE_MAP}
+            key = (rec.get("symbol"), rec.get("date"))
+            if not rec.get("symbol") or key in seen:
+                continue
+            rec["source"] = "e2_reconstructed"
+            seen.add(key)
+            log.append(rec)
+            added.append("%s %s" % (rec["date"], rec["symbol"]))
+    if added:
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(log, fh, ensure_ascii=False, indent=1)
+            fh.write("\n")
+    print("   🔥 سجلّ الإطلاقات: أُعيد %d إدخالًا (صار %d) — %s"
+          % (len(added), len(log), ", ".join(added) or "لا جديد"))
+    return added
 
 
 def _delivered_fires(best):
