@@ -2875,6 +2875,37 @@ check("⏳ رادار: الكرون + سقف الانتظار يغطّيان ا�
           for _open in (810, 870) for _lag in (95, 119, 152))
       # وبأسوأ تأخّر لا يتجاوز البدء الافتتاح الصيفي بأكثر من نصف ساعة
       and (_ig_cron_min + 152) - 810 <= 30)
+# 🔁 M14 بعد الإثراء (مسكة PONY الحيّة 2026-07-28): الفلوت الذي تعذّر لحظة البوّابة
+# صار متاحًا ⇒ يُعاد الحكم بالمعيار القائم نفسه. اختبارات سلوكية على أرقام حقيقية.
+_M14_LIM = S.CONFIG["FLOAT_GATE_MAX"]
+def _m14(fl, soft, flags=("فلوت غير متاح — مُرِّر بفائدة الشك",)):
+    return {"symbol": "ZZ", "float": fl, "soft_fails": list(soft), "flags": list(flags)}
+# PONY الحقيقي: 277م بثلاثة نواقص ⇒ يصير 4 ⇒ يُرفض (الحدّ WATCH_MAX_FAILS=3)
+_k, _e = S.refloat_gate_recheck([_m14(277_657_352, ["أ", "ب", "ج"])])
+check("🔁 M14·فلوت كبير ظهر بعد الإثراء يرفع النواقص فوق الحدّ ⇒ يخرج",
+      _k == [] and _e == [("ZZ", 277_657_352)])
+# نفس الفلوت لكن بنقص واحد ⇒ يبقى، مع الوسم مُصحَّحًا لا متناقضًا
+_r = _m14(277_657_352, ["أ"])
+_k2, _e2 = S.refloat_gate_recheck([_r])
+check("🔁 M14·يبقى لو النواقص تحت الحدّ — لكن يُوسَم «فلوت كبير» ويُزال «غير متاح»",
+      len(_k2) == 1 and _e2 == [] and "فلوت كبير" in _r["soft_fails"]
+      and not any(str(f).startswith("فلوت غير متاح") for f in _r["flags"])
+      and any("فوق" in str(f) for f in _r["flags"]))
+check("🔁 M14·المجهول يبقى ممرَّرًا بفائدة الشك (لا تغيير) · والصغير لا يُمسّ",
+      S.refloat_gate_recheck([_m14(None, ["أ", "ب", "ج"])])[1] == []
+      and S.refloat_gate_recheck([_m14(_M14_LIM - 1, ["أ", "ب", "ج"])])[1] == []
+      and S.refloat_gate_recheck([_m14(_M14_LIM, ["أ", "ب", "ج"])])[1] != [])
+check("🔁 M14·فاشل-آمن: فلوت بقيمة تالفة لا يكسر الفرز ولا يُسقط السهم",
+      S.refloat_gate_recheck([_m14("غير رقمي", ["أ", "ب", "ج"])])[1] == []
+      and len(S.refloat_gate_recheck([_m14({}, ["أ"])])[0]) == 1)
+check("🔁 M14·لا يُضاعف الوسم لو أُعيد التقييم مرّتين (idempotent)",
+      (lambda r: (S.refloat_gate_recheck([r]), S.refloat_gate_recheck([r]),
+                  r["soft_fails"].count("فلوت كبير"))[2] == 1)(_m14(9e9, ["أ"])))
+check("🔒 M14·إعادة التقييم لا تُستدعى داخل أي جذر (طبقة تالية للإثراء)",
+      all("refloat_gate_recheck" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.apply_float_gate,
+                     S.apply_short_gate, S.scan_market, S.analyze_ticker,
+                     S.backtest_symbol, S.entry_status)))
 # ⏰ الفارز اليومي: الكرون مقدَّم بمقدار التأخّر المقيس (138-159د) ليصل التقرير ~10ص
 # السعودية (07:00-07:30 UTC). قفل حسابي — أي عودة لـ«23 7» أو تقديم مفرط يُسقطه.
 _ds_cron = next((x.split('"')[1] for x in

@@ -534,7 +534,7 @@ _BT_OVERRIDES = _apply_backtest_overrides(MODE)
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.07.20-bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.07.28-m14recheck+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -7087,6 +7087,49 @@ def apply_float_gate(results: list) -> list:
     return kept
 
 
+def refloat_gate_recheck(picks):
+    """🔁 **إعادة تقييم M14 بعد الإثراء** (قرار المالك 2026-07-28، بعد مسكة حيّة).
+
+    **العلّة:** `apply_float_gate` (M14) تُطبَّق **قبل** `enrich`، فلو تعذّر جلب الفلوت
+    لحظتها مرّ السهم **بفائدة الشك** (سلوك مقصود وسليم). لكن `enrich` (أو ردم الفلوت
+    اليومي) يملأ القيمة **بعدها**، و**لا شيء كان يُعيد الحكم** ⇒ سهمٌ فلوته 277 مليونًا
+    (‏5.5× الحدّ 50م) يجلس في القائمة موسومًا «فلوت غير متاح» — والأخطر أن نقص «فلوت
+    كبير» لا يُسجَّل، فيبقى عند 3 نواقص بينما الحدّ `WATCH_MAX_FAILS`=3؛ ولو كانت القيمة
+    حاضرة لحظة البوّابة لصارت 4 ⇒ **`classify_tier` يرفضه** (PONY، 2026-07-28).
+
+    **ما تفعله:** للمُختار الذي ظهر فلوته كبيرًا بعد الإثراء ولم يُوسَم بعد: تُضيف نقص
+    «فلوت كبير» · تُزيل وسم «غير متاح» المتناقض · ثم **تُعيد الحكم بـ`classify_tier`
+    نفسها** (لا معيار جديد) فتُخرجه إن تجاوز الحدّ. ترجّع `(kept, ejected)`.
+
+    🔒 **لا تمسّ جذرًا:** `apply_float_gate`/`classify_tier`/`select_top` byte-identical —
+    هذي طبقة تالية تستدعي المعيار القائم على بيانات صارت متاحة. مطفأة تلقائيًّا لو
+    `FLOAT_GATE_REQUIRED=False`. المجهول يبقى ممرَّرًا بفائدة الشك (لا تغيير)."""
+    if not CONFIG.get("FLOAT_GATE_REQUIRED", False):
+        return list(picks or []), []
+    limit = CONFIG["FLOAT_GATE_MAX"]
+    kept, ejected = [], []
+    for r in (picks or []):
+        # ⚠️ فاشل-آمن **إلزامي**: هذي الدالّة صارت في مسار الاختيار الحيّ، فاستثناء فيها
+        # (فلوت بقيمة غير رقمية مثلًا) كان يكسر الفرز اليومي كلّه. أي خلل ⇒ نُبقي السهم
+        # كما هو = سلوك ما قبل الإصلاح حرفيًّا، ولا نُسقط أحدًا بسبب عطل قراءة.
+        try:
+            fl = r.get("float")
+            big = fl is not None and float(fl) >= limit
+        except (TypeError, ValueError):
+            big = False
+        if big and "فلوت كبير" not in (r.get("soft_fails") or []):
+            r.setdefault("soft_fails", []).append("فلوت كبير")
+            # الوسم القديم «غير متاح» صار كذبًا بعد أن عُرفت القيمة — يُستبدَل لا يُترَك.
+            r["flags"] = [f for f in (r.get("flags") or [])
+                          if not str(f).startswith("فلوت غير متاح")]
+            r["flags"].append(f"⚠️ فلوت كبير {int(float(r['float'])):,} (فوق {limit:,})")
+            if classify_tier(r["soft_fails"]) is None:
+                ejected.append((r.get("symbol"), r.get("float")))
+                continue
+        kept.append(r)
+    return kept, ejected
+
+
 def classify_tier(soft_fails, two_tier=None, maxf=None):
     """قبول/رفض السهم حسب عدد بوابات التأكيد الناقصة: 0..maxf → 'B' (مؤهّل) | أكثر → None
     (يُرفض). دالة نقية (تستخدمها scan_market).
@@ -10833,6 +10876,11 @@ def run_weekly_renewal(wl: dict) -> None:
         enrich(picks)  # SEC + شورت للقائمة الجديدة
     except Exception as e:
         log(f"⚠️ الإثراء: {e}")
+    # 🔁 M14 بعد الإثراء: الفلوت الذي تعذّر لحظة البوّابة صار متاحًا ⇒ أعِد الحكم.
+    picks, _fl_out = refloat_gate_recheck(picks)
+    if _fl_out:
+        log("🔁 أُخرِج بفلوت كبير ظهر بعد الإثراء: "
+            + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
     splits = []   # (أُلغي عرض التقسيم العكسي — يهمّنا A وB فقط)
     # 3ب) قائمة مراقبة الارتداد المستقلة (تعيد استخدام نفس البيانات)
     pull_entries = []
@@ -11080,6 +11128,11 @@ def run_daily_watchlist(wl: dict) -> None:
                 enrich(picks)
             except Exception as e:
                 log(f"⚠️ الإثراء: {e}")
+            # 🔁 M14 بعد الإثراء (نفس منطق التجديد) — لا يُضاف من ظهر فلوته كبيرًا.
+            picks, _fl_out = refloat_gate_recheck(picks)
+            if _fl_out:
+                log("🔁 لم يُضَف (فلوت كبير ظهر بعد الإثراء): "
+                    + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
             for r in picks:
                 wl["stocks"].append(make_watch_entry(r, today_iso))
                 added.append(r)
