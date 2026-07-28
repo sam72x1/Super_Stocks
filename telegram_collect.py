@@ -264,6 +264,10 @@ def main():
     shas = _existing_shas(OUT_DIR)
     saved, skipped, photos, docs, pages = 0, 0, 0, 0, 0
     failed, perm_failed, exts, deferred, got_ids = [], [], {}, [], []
+    # 🧾 **أرقام الرسائل المحسوبة** (محفوظة أو مكرّرة أو مرفوضة نهائيًّا) — بدونها
+    # كان تقرير الفجوات يعدّ **المكرّرة** فجوةً وهميّة فلا يُميَّز «مكرّر» من «ضائع»
+    # (سؤال المالك 2026-07-28: «هل وصلت الـ100 كلها؟» لم يكن قابلًا للإثبات).
+    acct = set(int(x) for x in (state.get("seen_msg_ids") or []))
 
     if pending:                                      # الطابور أولًا قبل أي جديد
         print(f"🔁 إعادة محاولة {len(pending)} صورة مؤجَّلة من تشغيل سابق…")
@@ -276,6 +280,8 @@ def main():
                 else:
                     skipped += 1
                 seen_uid.add(fid)
+                if (meta or {}).get("msg"):
+                    acct.add(int(meta["msg"]))
                 pending.pop(fid, None)
                 continue
             tries = int((meta or {}).get("tries") or 1) + 1
@@ -324,6 +330,7 @@ def main():
                     perm_failed.append(f"{f['name']} — {why} "
                                        f"(رسالة {msg.get('message_id')})")
                     seen_uid.add(f["file_id"])
+                    acct.add(int(msg.get("message_id") or 0))
                     marks.append((uid, True))
                 elif len(pending) < PENDING_MAX:      # عابر ⇒ للطابور الدائم
                     pending[f["file_id"]] = {"name": f["name"],
@@ -338,11 +345,13 @@ def main():
             if _store(body, f["name"], shas, exts) == "dup":
                 skipped += 1                         # مكرّرة بالمحتوى ⇒ تُتخطّى
                 seen_uid.add(f["file_id"])
+                acct.add(int(msg.get("message_id") or 0))
                 marks.append((uid, True))
                 continue
             seen_uid.add(f["file_id"])
             saved += 1
             got_ids.append(int(msg.get("message_id") or 0))
+            acct.add(int(msg.get("message_id") or 0))
             docs += 1 if f["kind"] == "document" else 0
             photos += 1 if f["kind"] == "photo" else 0
             marks.append((uid, True))
@@ -355,6 +364,7 @@ def main():
 
     state["offset"] = offset
     state["seen_file_ids"] = sorted(seen_uid)[-4000:]
+    state["seen_msg_ids"] = sorted(x for x in acct if x)[-6000:]
     state["pending"] = pending
     state.pop("stalled", None)                       # حُلَّ بالطابور الدائم
     json.dump(state, open(STATE, "w", encoding="utf-8"),
@@ -371,7 +381,9 @@ def main():
         print(f"⚠️ **بلغنا سقف هذا التشغيل ({MAX_FILES})** — قد تكون بقيت صور لم "
               "تُسحَب بعد. أعِد تشغيل الـworkflow (يستأنف من حيث وقف)، أو ارفع "
               "`max_files`. ⚠️ المكرّرة تُحسب ضمن السقف.")
-    for _ln in gap_report(_saved_msg_ids(OUT_DIR)):    # 🔍 تقرير الفجوات
+    # 🔍 تقرير الفجوات على **كل** ما حُوسب (محفوظ ∪ مكرّر ∪ مرفوض) لا المحفوظ وحده —
+    # وإلا عُدَّت المكرّرة فجوةً وهميّة (بعد إعادة إرسالٍ تُخطّى 47 صورة فتظهر «ناقصة»).
+    for _ln in gap_report(set(_saved_msg_ids(OUT_DIR)) | acct):
         print(_ln)
     if got_ids:
         # 🛡️ السجلّ نفسه وسيلة إنقاذ: `forwardMessage` بأرقام الرسائل يُرجع

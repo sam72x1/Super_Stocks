@@ -6536,6 +6536,10 @@ check("📥 الجامع·429 و502 عابران (للطابور) لا دائم�
                                 "description": "x"},
                   status_code=200, content=b""),
               sleep=lambda s: None)))
+check("🧾 الجامع·يسجّل أرقام رسائل **المكرّرة والمرفوضة** لا المحفوظة وحدها",
+      (lambda _s: _s.count("acct.add(") >= 4
+       and 'state["seen_msg_ids"]' in _s
+       and "| acct" in _s)(_insp0.getsource(TC.main)))
 check("📥 الجامع·بلوغ السقف يُصرَّح به (لا «لا جديد» مضلِّلة على قطعٍ صامت)",
       "بلغنا سقف هذا التشغيل" in _insp0.getsource(TC.main)
       and "المكرّرة تُحسب ضمن السقف" in _insp0.getsource(TC.main))
