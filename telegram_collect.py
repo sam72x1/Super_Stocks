@@ -165,11 +165,18 @@ def fetch_blob(tok, file_id, get=None, sleep=None):
     return None, False, why or "تعذّر التنزيل"
 
 
-def _store(body, name, shas, exts):
+def _store(body, name, shas, exts, matched=None):
     """يحفظ المحتوى باسم غير مُصادِم ⇒ `"saved"` أو `"dup"` (مكرّرة بالمحتوى).
-    يحدّث `shas`/`exts` في المكان."""
+    يحدّث `shas`/`exts` في المكان.
+
+    🔍 **`matched` (قائمة اختيارية)**: عند التكرار يُلحَق بها `(الاسم، الملفّ المطابق)`
+    — فبدل ادّعاء «93 مكرّرة» يصير بالإمكان **إثبات** أيّ ملفٍّ طابق أيًّا (سؤال المالك
+    2026-07-28: «مب ملفات — صور خام»). يعمل مع `shas` قاموسًا (بصمة→اسم) أو مجموعةً."""
     digest = hashlib.sha256(body).hexdigest()
     if digest in shas:
+        if matched is not None:
+            _prev = shas.get(digest) if isinstance(shas, dict) else None
+            matched.append((name, _prev or "؟"))
         return "dup"
     path = os.path.join(OUT_DIR, name)
     n = 1
@@ -179,7 +186,10 @@ def _store(body, name, shas, exts):
         n += 1
     with open(path, "wb") as fh:
         fh.write(body)
-    shas.add(digest)
+    if isinstance(shas, dict):
+        shas[digest] = os.path.basename(path)
+    else:
+        shas.add(digest)
     e = os.path.splitext(path)[1].lower() or "?"
     exts[e] = exts.get(e, 0) + 1
     return "saved"
@@ -194,14 +204,16 @@ def _sha(path):
 
 
 def _existing_shas(d):
-    out = set()
+    """بصمة المحتوى ⇒ اسم الملف (قاموس، لا مجموعة) — ليُذكَر **الملفّ المطابق** عند
+    الإبلاغ عن مكرّرة بدل رقم مجرَّد لا يُتحقَّق منه."""
+    out = {}
     if not os.path.isdir(d):
         return out
     for f in os.listdir(d):
         p = os.path.join(d, f)
         if os.path.isfile(p) and f.lower().endswith(IMG_EXT):
             try:
-                out.add(_sha(p))
+                out[_sha(p)] = f
             except Exception:
                 continue
     return out
@@ -269,6 +281,7 @@ def main():
     # (سؤال المالك 2026-07-28: «هل وصلت الـ100 كلها؟» لم يكن قابلًا للإثبات).
     acct = set(int(x) for x in (state.get("seen_msg_ids") or []))
     dropped, no_media = [], []   # 🔍 وسائط غير مقبولة · ورسائل بلا وسائط
+    matched = []                 # 🔍 (اسم الواردة، الملفّ الذي طابقته)
 
     if pending:                                      # الطابور أولًا قبل أي جديد
         print(f"🔁 إعادة محاولة {len(pending)} صورة مؤجَّلة من تشغيل سابق…")
@@ -276,7 +289,7 @@ def main():
             nm = str((meta or {}).get("name") or f"TG_{fid[:8]}.jpg")
             body, perm, why = fetch_blob(tok, fid)
             if body is not None:
-                if _store(body, nm, shas, exts) == "saved":
+                if _store(body, nm, shas, exts, matched) == "saved":
                     saved += 1
                 else:
                     skipped += 1
@@ -355,7 +368,7 @@ def main():
                     failed.append(f"{f['name']} ({why})")
                     marks.append((uid, False))
                 continue
-            if _store(body, f["name"], shas, exts) == "dup":
+            if _store(body, f["name"], shas, exts, matched) == "dup":
                 skipped += 1                         # مكرّرة بالمحتوى ⇒ تُتخطّى
                 seen_uid.add(f["file_id"])
                 acct.add(int(msg.get("message_id") or 0))
@@ -396,6 +409,13 @@ def main():
               "`max_files`. ⚠️ المكرّرة تُحسب ضمن السقف.")
     # 🔍 تقرير الفجوات على **كل** ما حُوسب (محفوظ ∪ مكرّر ∪ مرفوض) لا المحفوظ وحده —
     # وإلا عُدَّت المكرّرة فجوةً وهميّة (بعد إعادة إرسالٍ تُخطّى 47 صورة فتظهر «ناقصة»).
+    if matched:
+        print(f"🔁 **المكرّرة ({len(matched)}) وما طابقته** — بصمة SHA-256 على "
+              "المحتوى، فالتطابق يعني **نفس الملف حرفيًّا**:")
+        for _a, _b in matched[:25]:
+            print(f"     {_a} = {_b}")
+        if len(matched) > 25:
+            print(f"     … (+{len(matched) - 25})")
     if dropped:
         print(f"⛔ **وسائط لم نقبلها ({len(dropped)}) — قد تكون صورًا "
               f"بشكل غير مدعوم:** " + " · ".join(dropped[:20]))

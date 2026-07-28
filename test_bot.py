@@ -6536,6 +6536,19 @@ check("📥 الجامع·429 و502 عابران (للطابور) لا دائم�
                                 "description": "x"},
                   status_code=200, content=b""),
               sleep=lambda s: None)))
+check("🔁 الجامع·المكرّرة تُسمّي **الملفّ الذي طابقته** (إثبات لا ادّعاء)",
+      (lambda _d, _m: (TC._store(b"IMG-A", "new.jpg", _d, {}, _m) == "dup"
+                       and _m == [("new.jpg", "old.jpg")]))(
+          {__import__("hashlib").sha256(b"IMG-A").hexdigest(): "old.jpg"}, []))
+check("🔁 الجامع·الحفظ يسجّل اسم الملف ببصمته · و`_existing_shas` قاموس لا مجموعة",
+      (lambda _d: (TC._store(b"IMG-Z", "z.jpg", _d, {}),
+                   _d.get(__import__("hashlib").sha256(b"IMG-Z").hexdigest()))[1]
+       is not None)(dict())
+      and isinstance(TC._existing_shas("faisal_images"), dict))
+check("🔍 الجامع·يفصل «وسائط لم نقبلها» عن «رسالة بلا وسائط» (الصمت غير ملتبس)",
+      (lambda _s: "وسائط لم نقبلها" in _s and "بلا وسائط" in _s
+       and "dropped.append" in _s and "no_media.append" in _s)(
+          _insp0.getsource(TC.main)))
 check("🧾 الجامع·يسجّل أرقام رسائل **المكرّرة والمرفوضة** لا المحفوظة وحدها",
       (lambda _s: _s.count("acct.add(") >= 4
        and 'state["seen_msg_ids"]' in _s
