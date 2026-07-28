@@ -8993,11 +8993,11 @@ check("🧪 توصيف·الارتداد: قائمة ارتداد فارغة/غ�
       _c3_empty == ([], []) and _c3_calls2 == [])
 
 # ---------- د) حصانة scan_market تجاه استثناء رمز واحد ----------
-# ⚠️⚠️ خطة 005 ستقلب التوقّع الثاني بعد إضافة الحارس لكل رمز — **لا تحذفه، عدّله**
-#      (المتوقّع بعد الإصلاح: scan_market تكمل والسهم يبقى في النتائج بلا interp).
+# ✅ **قُلبت بخطة 005**: كتلة الإثراء صارت محروسة لكل رمز، فاستثناء واحد لم يعد
+#    يُسقط التشغيلة كلّها قبل git_save. العضوية والترتيب byte-identical (قفل أدناه).
 _c4_df = synth_pivot()
 _c4_sv = (S.MODE, S.download_history, S.fintel_short, S.finra_daily_short,
-          S.yf, S.build_interpretation)
+          S.yf, S.build_interpretation, S.descending_trendline)
 try:
     S.MODE = "TEST"                       # عيّنة TEST_TICKERS — بلا نداء كون
     S.download_history = lambda syms: {"C4T": _c4_df}
@@ -9009,18 +9009,45 @@ try:
           len(_c4_ok) == 1 and _c4_ok[0].get("interp")
           and _c4_ok[0].get("behav") and "fsto_osc" in _c4_ok[0])
 
+    # ① سقوط التفسير وحده ⇒ الفرز يكمل والسهم يبقى بلا interp
     S.build_interpretation = lambda r: (_ for _ in ()).throw(
         RuntimeError("عطل مُحاكى في رمز واحد"))
     try:
-        S.scan_market()
+        _c4_broken, _ = S.scan_market()
         _c4_raised = None
     except Exception as _e:                                    # noqa: BLE001
-        _c4_raised = type(_e).__name__
-    check("🧪 توصيف·الفرز: استثناء في كتلة الإثراء يُسقط scan_market كلّها "
-          "(يُغيَّر في خطة 005)", _c4_raised == "RuntimeError")
+        _c4_raised, _c4_broken = type(_e).__name__, None
+    check("🛡️ 005·الفرز: سقوط التفسير لا يُسقط scan_market — السهم يبقى بلا interp",
+          _c4_raised is None and _c4_broken is not None
+          and len(_c4_broken) == 1 and _c4_broken[0].get("interp") is None
+          and _c4_broken[0].get("behav"))
+    # 🔒 **قفل العضوية والترتيب** (الأهمّ): مجموعة الرموز وترتيبها لا يتأثّران بسقوط
+    #    الإثراء — لأن rank_key يقرأ readiness/score/rr من analyze_ticker لا من الإثراء.
+    check("🔒 005·العضوية والترتيب byte-identical رغم سقوط الإثراء",
+          [x["symbol"] for x in _c4_ok] == [x["symbol"] for x in _c4_broken])
+    # ② سقوط دالّة مبكّرة في الكتلة (descending_trendline) ⇒ الفرز يكمل كذلك
+    S.build_interpretation = _c4_sv[5]
+    S.descending_trendline = lambda df, px: (_ for _ in ()).throw(
+        RuntimeError("عطل مُحاكى مبكّر"))
+    try:
+        _c4_early, _ = S.scan_market()
+        _c4_early_raised = None
+    except Exception as _e:                                    # noqa: BLE001
+        _c4_early_raised, _c4_early = type(_e).__name__, None
+    check("🛡️ 005·الفرز: سقوط دالّة داخل الكتلة لا يُسقط الفرز (والتفسير يُحسب بعدها)",
+          _c4_early_raised is None and _c4_early is not None
+          and len(_c4_early) == 1 and _c4_early[0].get("trendline") is None
+          and _c4_early[0].get("interp"))
 finally:
     (S.MODE, S.download_history, S.fintel_short, S.finra_daily_short,
-     S.yf, S.build_interpretation) = _c4_sv
+     S.yf, S.build_interpretation, S.descending_trendline) = _c4_sv
+# 🔒 قفل بنيوي: `results.append(r)` خارج الحارس (وإلا سقط الإثراء = سقوط عضوية)
+_c4_src = _insp0.getsource(S.scan_market)
+check("🔒 005·results.append خارج try الإثراء (الحارس لا يبتلع العضوية)",
+      "\n            results.append(r)" in _c4_src
+      and _c4_src.count("except Exception as _e:") == 2)
+check("🔒 005·الحارس يسجّل ولا يصمت (لا pass صامتة في مساري الفشل)",
+      _c4_src.count('log(f"⚠️ إثراء عرض') == 1 and _c4_src.count('log(f"⚠️ تفسير') == 1)
 
 
 # ==========================================================

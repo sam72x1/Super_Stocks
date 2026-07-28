@@ -7443,17 +7443,37 @@ def scan_market():
                 r["ref_bar"] = df.index[-1].date().isoformat()
             except Exception:
                 r["ref_bar"] = None
-            r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
-            r["fsto_osc"] = fsto_oscillation(        # 🌀 قوة تذبذب FSTO: قروب/مضارب (حيّ، عرض فقط)
-                full_stoch(df["High"], df["Low"], df["Close"])[0])
-            r["klinger"] = klinger_state(            # 📊 كلنجر (حجم — فيصل IMG_0125؛ حيّ، عرض فقط)
-                df["High"], df["Low"], df["Close"], df["Volume"])
-            r["cci"] = cci_state(                    # 📉 CCI(14) — بكل شوارت فيصل (حيّ، عرض فقط)
-                df["High"], df["Low"], df["Close"])
-            r["bottom_test"] = bottom_test_state(df)  # 🔁 «القاع 2» (فيصل EDBL — عرض فقط)
-            r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
-            r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
-            r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
+            # 🛡️ حارس لكل رمز (تدقيق 2026-07-28، خطة `plans/005`): هذي **حقول عرض/تفسير
+            # فقط** (خارج rank_key/select_top/classify_tier بقرار موثّق)، وكانت **بلا أي
+            # حارس** — فاستثناء على رمز واحد يخرج من scan_market ⇒ يُسقط
+            # run_daily_watchlist/run_weekly_renewal ⇒ **التشغيلة كلّها تموت قبل git_save**
+            # (تضيع ستوبات اليوم وأختام الدِدوب والجاهزية بلا تقرير). مُستنسَخ محليًّا.
+            # التطبيق كان **غير متّسق**: النداءات نفسها محروسة في `update_watchlist_status`
+            # (التجديد اليومي) والفرزُ لا — والجهة غير المحروسة هي التي تُسقط كل شيء.
+            # 🔒 `results.append(r)` **خارج الحارس عمدًا**: السهم يدخل النتائج ما دام
+            # `analyze_ticker` أجازه ⇒ **العضوية والترتيب byte-identical** (مقفول باختبار).
+            # فاشل-آمن: الحقل الغائب = None عند كل المستهلكين = سلوك سجلّ قديم بلا الحقل.
+            # (`full_stoch` بلا حماية داخلية — حمايتها من هنا.) ولا `pass` صامتة: يُسجَّل.
+            try:
+                r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
+                r["fsto_osc"] = fsto_oscillation(        # 🌀 قوة تذبذب FSTO: قروب/مضارب (حيّ، عرض فقط)
+                    full_stoch(df["High"], df["Low"], df["Close"])[0])
+                r["klinger"] = klinger_state(            # 📊 كلنجر (حجم — فيصل IMG_0125؛ حيّ، عرض فقط)
+                    df["High"], df["Low"], df["Close"], df["Volume"])
+                r["cci"] = cci_state(                    # 📉 CCI(14) — بكل شوارت فيصل (حيّ، عرض فقط)
+                    df["High"], df["Low"], df["Close"])
+                r["bottom_test"] = bottom_test_state(df)  # 🔁 «القاع 2» (فيصل EDBL — عرض فقط)
+                r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
+                r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
+            except Exception as _e:
+                log(f"⚠️ إثراء عرض {sym}: {type(_e).__name__}: {_e} — تُخطّى حقول "
+                    "العرض · السهم يبقى في نتائج الفرز (العضوية غير متأثّرة).")
+            # حارس مستقلّ للتفسير: يقرأ الحقول أعلاه فقد يسقط وحده (نفس نمط
+            # `update_watchlist_status` الذي يفصل interp في try خاصّ به).
+            try:
+                r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
+            except Exception as _e:
+                log(f"⚠️ تفسير {sym}: {type(_e).__name__}: {_e} — السهم يبقى بلا interp.")
             results.append(r)
     # تشخيص: أين تُرفض الأسهم؟ (يظهر بسجل الأكشن لمعرفة البوابة الخانقة)
     if _REJECT_STATS:
