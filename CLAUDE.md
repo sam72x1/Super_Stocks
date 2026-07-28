@@ -22,6 +22,12 @@
   (الأعداد تتقادم — درس تدقيق 2026-07-12). **شغّله قبل أي دفع:** `python3 test_bot.py` · وworkflow
   `tests.yml` يشغّلها آليًّا على كل دفع/PR.
 - `FAISAL_METHODOLOGY_NOTES.md` / `FAISAL_IMAGES_CATALOG.md` — توثيق منهجية فيصل من الصور.
+- `faisal_images/` — **📸 مرجع الصور الدائم (308 صورة، قرار المالك 2026-07-27: لا يُحذف).**
+  التوثيق النصّي يحفظ **الكلام** لا **الشارت**، وقواعد فيصل كثيرٌ منها بصريّ (ألوان
+  المستويات · شكل الشمعة · موضع الفجوة · لقطة التِّيب) ⇒ **لا تقترح حذفها/تقليمها**
+  (وحذفها لا يسترجع مساحة أصلًا: الصور في تاريخ git). فهرسها + **تحذير «لا تبنِ على
+  هذي»** (4 خارج المنهجية · 8 نظام آخر) في `faisal_images/README.md`، والتفصيل صورةً
+  صورةً في `FAISAL_IMAGE_PASS2.md` (308/308).
 - `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · scan_earnings.yml (أداة الأرباح، يومي 06:00 UTC) · **hand_digest.yml (🕵️ تحديث نهاية اليوم، 22:00 UTC اثنين→جمعة — `SCREENER_MODE=DIGEST`)** · **acc_verify.yml (🔬 تجربة T-ACC، يدوي input=year — يلزم سرّ `POLYGON_API_KEY`)** · **ignition.yml (🔥 رادار الانطلاق، cron 13:35 UTC من الافتتاح — عامل جلسة، يلزم `POLYGON_API_KEY`)** · backtest.yml · analyze.yml/technical.yml (يدوي).
 
 ## الفروع (مهم)
