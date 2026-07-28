@@ -1,5 +1,9 @@
 name: Point-in-time Analysis (as-of date)
 
+# 🔐 أقلّ صلاحية (تدقيق 2026-07-28، خطة `plans/010`): تحليل عند تاريخ: analyze_asof.py عرض/تشخيص فقط.
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
     inputs:

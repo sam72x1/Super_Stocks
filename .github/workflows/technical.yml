@@ -1,5 +1,9 @@
 name: تقرير فني كلاسيكي (يدوي)
 
+# 🔐 أقلّ صلاحية (تدقيق 2026-07-28، خطة `plans/010`): تقرير فني: technical_report.py عرض فقط.
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
     inputs:

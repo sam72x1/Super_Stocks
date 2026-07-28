@@ -9357,6 +9357,75 @@ check("🔒 009·صون: كرونا الفارز ومطابقة RENEW_ON_CLOSE �
 
 
 # ==========================================================
+# 🔐 خطة 010: صلاحيات صريحة لكل workflow + منع حقن مدخلات الـdispatch
+# ==========================================================
+print("\n=== 🔐 خطة 010: صلاحيات الـworkflows ===")
+
+import glob as _glob10
+import re as _re10
+
+_c10_files = sorted(_glob10.glob(".github/workflows/*.yml"))
+_c10_no_perm = [_f for _f in _c10_files
+                if "permissions:" not in open(_f, encoding="utf-8").read()]
+check("🔐 010·كل workflow يعلن permissions صراحةً (لا وراثة الافتراضي)",
+      len(_c10_files) >= 20 and _c10_no_perm == [])
+
+# ⚠️ الممنوع = مدخل dispatch داخل **نصّ صدفة** (run:). داخل env:/with:/if: مسموح
+#    (GitHub يقيّمها بلا صدفة) وهو النمط المتّبع في بقيّة المستودع.
+def _c10_inputs_in_run(path):
+    out, in_run, ind = [], False, 0
+    for i, l in enumerate(open(path, encoding="utf-8").read().splitlines(), 1):
+        st = l.lstrip()
+        if st.startswith("#"):
+            continue
+        if _re10.match(r"^run:\s*\|?\s*$", st) or st.startswith("run: "):
+            in_run, ind = True, len(l) - len(st)
+            continue
+        if in_run:
+            if st and (len(l) - len(st)) <= ind:
+                in_run = False
+            elif "github.event.inputs" in l:
+                out.append(f"{path}:{i}")
+    return out
+
+
+_c10_inj = [x for _f in _c10_files for x in _c10_inputs_in_run(_f)]
+check("🔐 010·لا مدخل workflow_dispatch داخل أي كتلة run: (منع script injection)",
+      _c10_inj == [])
+check("🔐 010·acc_verify يمرّر السنة عبر env لا الصدفة",
+      "YEAR: ${{ github.event.inputs.year }}"
+      in open(".github/workflows/acc_verify.yml", encoding="utf-8").read()
+      and 'NAME="acc-verify-${YEAR}"'
+      in open(".github/workflows/acc_verify.yml", encoding="utf-8").read())
+# 🔒 صون: الملفّات التي **تدفع** للريبو ما زالت contents: write (تضييقها = كسر صامت)
+_c10_writers = ("daily_screener.yml", "pullback_monitor.yml", "ignition.yml",
+                "hand_flow.yml", "e2_recover.yml", "cline_weekly_review.yml")
+def _c10_perm(fname, key):
+    """قيمة صلاحية معلَنة فعلًا (سطر إعلان، لا ذِكر في تعليق) — ignition.yml يشرح
+    `contents: write` في تعليق فوق الكتلة، فالمطابقة النصّية كانت تمرّ على تعليق."""
+    for _l in open(f".github/workflows/{fname}", encoding="utf-8").read().splitlines():
+        if _l.startswith("#") or _l.lstrip().startswith("#"):
+            continue
+        _m = _re10.match(r"^\s+%s:\s*(\w+)" % key, _l)
+        if _m:
+            return _m.group(1)
+    return None
+
+
+check("🔒 010·صون: كل workflow يدفع للريبو ما زال contents: write (إعلانًا لا تعليقًا)",
+      all(_c10_perm(_f, "contents") == "write" for _f in _c10_writers))
+# 🔒 صون: الملفّات التي تُنزّل artifacts عبر run-id تحتاج actions: read
+check("🔒 010·صون: منزّلات artifacts عبر run-id تعلن actions: read",
+      all(_c10_perm(_f, "actions") == "read"
+          for _f in ("backtest.yml", "acc_report.yml", "acc_verify.yml")))
+check("🔒 010·العشرة المُصلَحة تعلن contents: read (لا write زائد)",
+      all(_c10_perm(_f, "contents") == "read" for _f in (
+          "acc_report.yml", "acc_verify.yml", "analyze_asof.yml", "analyze.yml",
+          "hand_check.yml", "ignition_verify.yml", "polygon_health.yml",
+          "scan_earnings.yml", "split_hunter.yml", "technical.yml")))
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
