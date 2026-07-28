@@ -9054,6 +9054,64 @@ check("⏱️ 002·قفل: الـassembler يمرّر الجالب والطاب�
 
 
 # ==========================================================
+# 🏢 خطة 003: ردم الفلوت من المصدر المُثبَت (CE ماتت 2026-07-24)
+# ==========================================================
+print("\n=== 🏢 خطة 003: ردم الفلوت ===")
+
+# ① المصدر القديم ميت فعلًا: المحلّل يرجع None على قِشرة JS (شكل الصفحة اليوم)
+check("🏢 003·CE ميتة: المحلّل يرجع None على قِشرة JS (وينجح على الشكل القديم)",
+      S._parse_ce_float('<html><body><div id="root"></div>'
+                        '<script src="/app.js"></script></body></html>') is None
+      and S._parse_ce_float('x stat-flow-label">Float</div>'
+                            '<div class="stat-flow-value">12.55M</div>') == 12_550_000)
+
+# ② `strict` يمنع تلوّث حقلٍ تقرأه بوّابة M14 بـsharesOutstanding
+_c3_sv_yf = S.yf
+try:
+    S.yf = _ty0.SimpleNamespace(Ticker=lambda s: _ty0.SimpleNamespace(
+        info={"sharesOutstanding": 277_000_000}))          # بلا floatShares
+    _c3_lax, _c3_str = S._yahoo_float("X"), S._yahoo_float("X", strict=True)
+    S.yf = _ty0.SimpleNamespace(Ticker=lambda s: _ty0.SimpleNamespace(
+        info={"floatShares": 1_234_567, "sharesOutstanding": 9_999_999}))
+    _c3_both = (S._yahoo_float("X"), S._yahoo_float("X", strict=True))
+    S.yf = None
+    _c3_noyf = S._yahoo_float("X", strict=True)
+finally:
+    S.yf = _c3_sv_yf
+check("🏢 003·strict: بلا floatShares ⇒ None (لا يسقط لـsharesOutstanding)",
+      _c3_lax == 277_000_000 and _c3_str is None)
+check("🏢 003·strict: مع floatShares ⇒ نفس القيمة في الوضعين (توافق خلفي)",
+      _c3_both == (1_234_567, 1_234_567))
+check("🏢 003·strict فاشل-آمن: بلا yfinance ⇒ None بلا رمي",
+      _c3_noyf is None)
+# 🔴 الخطر المُستنسَخ الذي فرض strict: التقريب يصل بوّابة M14 ويوسم «فلوت كبير»
+_c3_contam = {"symbol": "X", "float": 277_000_000, "soft_fails": ["أ"], "flags": []}
+S.refloat_gate_recheck([_c3_contam])
+check("🏢 003·سبب strict: قيمة sharesOutstanding تصل M14 وتُوسَم «فلوت كبير»",
+      "فلوت كبير" in _c3_contam["soft_fails"])
+
+# ③ أقفال المصدر عند نقطتَي الاستعمال الحيّتين + صون البوّابة والدوال
+_c3_daily = _insp0.getsource(S.run_daily_watchlist)
+_c3_enrich = _insp0.getsource(S.enrich)
+# ⚠️ القفل يكشف **نداءً** (`name(`) لا ذِكرًا: getsource يشمل التعليقات، والتعليق
+#    التوثيقي يسمّي المصدر الميت عمدًا لشرح سبب الاستبدال.
+check("🏢 003·قفل: الردم اليومي ينادي _yahoo_float(strict) لا ce_float_info",
+      "ce_float_info(" not in _c3_daily
+      and "_yahoo_float(s[\"symbol\"], strict=True)" in _c3_daily)
+check("🏢 003·قفل: آخر ملاذ enrich كذلك",
+      "ce_float_info(" not in _c3_enrich
+      and "_yahoo_float(sym, strict=True)" in _c3_enrich)
+check("🏢 003·صون: البوّابة M14 نفسها لم تُمَسّ (لا CE ولا ياهو داخلها)",
+      all(_n not in _insp0.getsource(S.apply_float_gate)
+          for _n in ("ce_float_info", "_yahoo_float")))
+check("🏢 003·صون: ce_float_info/_parse_ce_float لم تُحذفا (محلّل محفوظ لو عادت CE)",
+      callable(getattr(S, "ce_float_info", None))
+      and callable(getattr(S, "_parse_ce_float", None)))
+check("🏢 003·صون: ce_borrow_info (صفحة borrow-fee الحيّة) لم تُمَسّ",
+      "ce_borrow_info" in _insp0.getsource(S.refresh_borrow))
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
