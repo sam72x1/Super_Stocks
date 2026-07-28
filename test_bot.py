@@ -1557,6 +1557,33 @@ check("⚖️ P1-3: update_tracking لا يشطب بعد الهدف (ربح) · 
       and _src_uws_p13.count("<= _stop_c") >= 2
       and "خروج رابح مفترض" in _src_uws_p13
       and "خروج رابح مفترض" not in _src_ut_p13)
+# 🔒🔒 **دبّوس سلوكي على P1-3** (تصعيد المدقّق 2026-07-28): العدّاد البنيويّ أعلاه
+# **لا يلتقط** الطفرة الحقيقية — حذف `and best == 0` من `update_tracking` يجعل الوقف
+# يشطب **بعد تحقيق الهدف** فتُسجَّل الصفقة الرابحة **خسارةً** في `alerts_history`،
+# ومع ذلك مرّت السويّة 1266/0. سجلّ التنبيهات يغذّي نسبة النجاح بتقرير التطوير،
+# فالتشويه يفسد **قياس أداء البوت** لا اختياره. القفل يقود الدالّتين فعليًّا.
+_p13_saved = (S.yf, S._fetch_splits)
+try:
+    S.yf = _YFStub()
+    S._fetch_splits = lambda sym: []
+    # شمعة تبلغ t1 ثم شمعة تنزل للوقف — نفس البيانات للدالّتين
+    _p13_df = pd.DataFrame(
+        {"Open": [2.0, 2.2, 1.9], "High": [2.05, 2.30, 1.95],
+         "Low": [1.95, 2.15, 1.70], "Close": [2.0, 2.25, 1.75],
+         "Volume": [1e5] * 3},
+        index=pd.date_range("2026-06-01", periods=3, freq="D"))
+    S.yf.download = lambda *a, **k: _p13_df
+    _p13_a = {"alerts": [{"symbol": "PXX", "date": "2026-05-01",
+                          "ref_bar": "2026-05-01", "price": 2.0, "stop": 1.8,
+                          "t1": 2.2, "t2": 2.6, "t3": 3.0,
+                          "status": "open", "hit": None}]}
+    S.update_tracking(_p13_a)
+    _p13_r = _p13_a["alerts"][0]
+    check("⚖️ P1-3 سلوكي: بلوغ الهدف ثم الوقف ⇒ `update_tracking` **لا يسجّلها خسارة**",
+          _p13_r.get("status") == "hit_t1" and _p13_r.get("status") != "stopped",
+          f"status={_p13_r.get('status')}")
+finally:
+    S.yf, S._fetch_splits = _p13_saved
 
 # 🔬 P0-2 (update_watchlist_status الحيّ — نفس حارس update_tracking): قفزة ≥3× + فشل جلب ⇒ تأجيل.
 _uws_saved_fs = S._fetch_splits
