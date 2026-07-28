@@ -8827,25 +8827,57 @@ try:
           _c1_off is _c1_off_in and _c1_off_in[0]["soft_fails"] == []
           and _c1_off_in[0]["flags"] == [])
 
-    # ⚠️⚠️ خطة 004 ستقلب التوقّعين التاليين بعد إضافة حارس النوع — **لا تحذفهما،
-    #      عدّلهما** (المتوقّع بعد الإصلاح: لا رمي + وسم «غير متاح»).
-    # التناقض المُوثَّق: refloat_gate_recheck (الطبقة التالية) تحرس نفس القيم
-    # (`except (TypeError, ValueError)`) بينما البوّابة نفسها — وهي على مسار
-    # scan_market → run_daily_watchlist → main → exit(1) قبل git_save — لا تحرسها.
+    # ✅ **قُلبت بخطة 004** (كانت توصّف الانهيار): البوّابة صارت محروسة بنفس حارس
+    #    `refloat_gate_recheck`، فغير الرقمي = **مجهول يمرّ بفائدة الشك** لا استثناء
+    #    يُسقط الفرز كلّه قبل git_save. القرار للمدخلات الرقمية byte-identical.
     def _c1_raises(fl):
         try:
-            S.apply_float_gate([_c1_row(fl)])
-            return None
+            return (None, S.apply_float_gate([_c1_row(fl)]))
         except Exception as _e:                       # noqa: BLE001
-            return type(_e).__name__
+            return (type(_e).__name__, None)
 
-    check("🧪 توصيف·M14: فلوت نصّي يرمي TypeError اليوم (يُغيَّر في خطة 004)",
-          _c1_raises("12.5M") == "TypeError")
-    check("🧪 توصيف·M14: فلوت NaN يرمي ValueError اليوم (يُغيَّر في خطة 004)",
-          _c1_raises(float("nan")) == "ValueError")
-    check("🧪 توصيف·التناقض: refloat_gate_recheck تحرس نفس القيم والبوّابة لا",
+    def _c1_raises_many(rows):
+        try:
+            return (None, S.apply_float_gate(rows))
+        except Exception as _e:                       # noqa: BLE001
+            return (type(_e).__name__, None)
+
+    _c1_str, _c1_nan = _c1_raises("12.5M"), _c1_raises(float("nan"))
+    check("🛡️ 004·M14: فلوت نصّي لا يرمي ⇒ يمرّ بفائدة الشك موسومًا «غير متاح»",
+          _c1_str[0] is None and len(_c1_str[1]) == 1
+          and "فلوت كبير" not in _c1_str[1][0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c1_str[1][0]["flags"]))
+    check("🛡️ 004·M14: فلوت NaN كذلك (NaN ليس None — درس CLAUDE.md)",
+          _c1_nan[0] is None and "فلوت كبير" not in _c1_nan[1][0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c1_nan[1][0]["flags"]))
+    check("🛡️ 004·التناقض زال: الطبقتان تحرسان القيم غير الرقمية بنفس الدلالة",
           S.refloat_gate_recheck([_c1_row("12.5M")])[1] == []
-          and _c1_raises("12.5M") is not None)
+          and _c1_raises("12.5M")[0] is None
+          and _c1_raises({})[0] is None)
+    # 🔒 قفل: سهم بقيمة سامّة لا يمنع معالجة ما بعده (البوّابة تُكمل القائمة).
+    #    ⚠️ عبر الغلاف عمدًا: نداءٌ عارٍ هنا يجعل **طفرةَ إزالة الحارس تُسقط السويّة
+    #    كلّها قبل سطر النتيجة** فيصير مقياس الطفرة غير مقروء (درس خطة 001).
+    _c1_mixed = _c1_raises_many([_c1_row("سامّ"), _c1_row(_c1_lim + 1)])
+    check("🛡️ 004·M14: سهم بقيمة سامّة لا يمنع من بعده (كلاهما يعود ويُحكَم)",
+          _c1_mixed[0] is None and len(_c1_mixed[1]) == 2
+          and "فلوت كبير" not in _c1_mixed[1][0]["soft_fails"]
+          and "فلوت كبير" in _c1_mixed[1][1]["soft_fails"])
+    # 🔒 قفل: نصّ **رقمي** يُقبَل رقمًا (قرار صريح: التحويل لا الرفض)
+    _c1_numstr = _c1_raises(str(_c1_lim + 1))
+    check("🛡️ 004·M14: نصّ رقمي فوق الحدّ يُعامَل رقمًا ⇒ «فلوت كبير»",
+          _c1_numstr[0] is None
+          and "فلوت كبير" in _c1_numstr[1][0]["soft_fails"])
+    # 🔒 قفل: الالتقاط **ضيّق** (TypeError/ValueError) لا Exception عريض يخفي عيوبًا
+    # ⚠️ الشرط على **حارس النوع الجديد** فقط: `apply_float_gate` فيها `except Exception`
+    #    قديم ومشروع حول جلب yf.Ticker (لا يُمَسّ). المطلوب ألّا يكون الحارس عريضًا.
+    # ⚠️ الأعداد الدقيقة = قفل انحدار: حارس نوع **ضيّق واحد** في كل بوّابة، وأعداد
+    #    `except Exception` القديمة المشروعة (جلب yf.Ticker · جلب Fintel/FINRA) **كما
+    #    هي** — فلا حارس عريض أُضيف يخفي عيوبًا أخرى داخل الحلقة.
+    check("🔒 004·حارس النوع ضيّق (1 لكل بوّابة) والالتقاط العريض القديم لم يتغيّر",
+          (_insp0.getsource(S.apply_float_gate).count("except (TypeError, ValueError)"),
+           _insp0.getsource(S.apply_float_gate).count("except Exception"),
+           _insp0.getsource(S.apply_short_gate).count("except (TypeError, ValueError)"),
+           _insp0.getsource(S.apply_short_gate).count("except Exception")) == (1, 1, 1, 2))
 finally:
     S.yf = _c1_sv_yf
 
@@ -8860,17 +8892,27 @@ def _c2_raises(val):
     try:
         S.fintel_short = lambda q, _v=val: {"C2T": _v}
         S.finra_daily_short = lambda q: {}
-        S.apply_short_gate([{"symbol": "C2T", "soft_fails": [], "flags": []}])
-        return None
+        return (None, S.apply_short_gate(
+            [{"symbol": "C2T", "soft_fails": [], "flags": []}]))
     except Exception as _e:                           # noqa: BLE001
-        return type(_e).__name__
+        return (type(_e).__name__, None)
 
 
+# ✅ **قُلبت بخطة 004**: نفس الحارس طُبِّق على M13 (مصدرها Fintel/FINRA خارجي أيضًا).
 try:
-    check("🧪 توصيف·M13: شورت نصّي يرمي TypeError اليوم (يُغيَّر في خطة 004)",
-          _c2_raises("12K") == "TypeError")
-    check("🧪 توصيف·M13: شورت NaN يرمي ValueError اليوم (يُغيَّر في خطة 004)",
-          _c2_raises(float("nan")) == "ValueError")
+    _c2_str, _c2_nan = _c2_raises("12K"), _c2_raises(float("nan"))
+    check("🛡️ 004·M13: شورت نصّي لا يرمي ⇒ يمرّ بفائدة الشك موسومًا «غير متاح»",
+          _c2_str[0] is None and "شورت عالٍ" not in _c2_str[1][0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c2_str[1][0]["flags"]))
+    check("🛡️ 004·M13: شورت NaN كذلك",
+          _c2_nan[0] is None and "شورت عالٍ" not in _c2_nan[1][0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c2_nan[1][0]["flags"]))
+    # 🔒 المخزَّن للعرض/الذاكرة لا يُمَسّ بالحارس (finra_short يبقى كما وصل).
+    #    ⚠️ قراءة محروسة: بلا حارس النوع يرمي النداء فينهار الملفّ قبل سطر النتيجة
+    #    ويصير مقياس الطفرة غير مقروء (درس خطة 001).
+    _c2_keep = (_c2_raises("12K")[1] or [{}])[0]
+    check("🔒 004·M13: الحارس لا يمسّ المخزَّن finra_short (عرض/ذاكرة)",
+          _c2_keep.get("finra_short") == "12K")
 finally:
     (S.fintel_short, S.finra_daily_short) = _c2_sv
 

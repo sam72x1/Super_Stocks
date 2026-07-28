@@ -7034,16 +7034,31 @@ def apply_short_gate(results: list) -> list:
         # قرار البوابة: القرار أدناه يعتمد srt المحلي لا finra_short).
         if srt is not None and r.get("finra_short") is None:
             r["finra_short"] = srt
-        if srt is not None and srt >= limit:
+        # 🛡️ حارس نوع (تدقيق 2026-07-28، خطة `plans/004`) — نفس دلالة حارس طبقة
+        # إعادة تقييم M14 بعد الإثراء. القيمة قادمة من مصدر خارجي (Fintel/FINRA)
+        # وقد تصل نصًّا أو NaN؛ المقارنة/التنسيق كانا يرميان **بلا حارس** على مسار
+        # `scan_market → run_daily_watchlist/run_weekly_renewal → main → exit(1)`
+        # ⇒ سقوط التشغيلة كلّها **قبل `git_save`** (تضيع ستوبات اليوم وأختام الدِدوب
+        # بلا تقرير). مُستنسَخ: نصّ ⇒ TypeError · NaN ⇒ ValueError · dict ⇒ TypeError.
+        # 🔒 **القرار للمدخلات الرقمية byte-identical** (بصمة قبل/بعد): غير الرقمي
+        # يُعامَل **مجهولًا** ⇒ يمرّ بفائدة الشك (القاعدة المحسومة)، لا يُرفَض ولا يُسقِط.
+        # المخزَّن `r["finra_short"]` أعلاه **لا يُمَسّ** (العرض/الذاكرة يعتمدانه).
+        try:
+            srt_num = float(srt) if srt is not None else None
+            if srt_num is not None and srt_num != srt_num:      # NaN
+                srt_num = None
+        except (TypeError, ValueError):
+            srt_num = None
+        if srt_num is not None and srt_num >= limit:
             # v2.7: لا يُحذف — يُسجّل نقصًا وينزل لقائمة المراقبة B
             r.setdefault("soft_fails", []).append("شورت عالٍ")
             r.setdefault("flags", []).append(
-                f"⚠️ شورت عالٍ {int(srt):,} (فوق {limit:,})")
-            rejected.append((r["symbol"], srt))
+                f"⚠️ شورت عالٍ {int(srt_num):,} (فوق {limit:,})")
+            rejected.append((r["symbol"], srt_num))
             kept.append(r)
         else:
-            if srt is not None:
-                r.setdefault("flags", []).append(f"شورت {int(srt):,} (مقبول)")
+            if srt_num is not None:
+                r.setdefault("flags", []).append(f"شورت {int(srt_num):,} (مقبول)")
             else:
                 r.setdefault("flags", []).append("شورت غير متاح — مُرِّر بفائدة الشك")
             kept.append(r)
@@ -7080,17 +7095,34 @@ def apply_float_gate(results: list) -> list:
             except Exception:
                 fl = None
             time.sleep(0.10)         # احترام حدود الطلبات
-        if fl is not None and fl >= limit:
+        # 🛡️ حارس نوع (تدقيق 2026-07-28، خطة `plans/004`) — نفس دلالة حارس طبقة
+        # إعادة تقييم M14 بعد الإثراء (أُضيفت 07-28). `floatShares`
+        # قيمة خارجية قد تصل NaN (pandas/yfinance) أو نصًّا؛ المقارنة/التنسيق كانا
+        # يرميان **بلا حارس** على مسار `scan_market → run_daily_watchlist/
+        # run_weekly_renewal → main → exit(1)` ⇒ سقوط التشغيلة كلّها **قبل `git_save`**
+        # (تضيع ستوبات اليوم وأختام الدِدوب والجاهزية بلا تقرير).
+        # مُستنسَخ: نصّ ⇒ TypeError · NaN ⇒ ValueError · dict ⇒ TypeError.
+        # درس `CLAUDE.md`: «**NaN ليس None**» — احتياط `is None` لا يلتقطه.
+        # 🔒 **القرار للمدخلات الرقمية byte-identical** (بصمة قبل/بعد على 12 قيمة):
+        # غير الرقمي = **مجهول** ⇒ يمرّ بفائدة الشك (القاعدة المحسومة) لا يُرفَض.
+        # المخزَّن `r["float"]` أعلاه **لا يُمَسّ** (طبقات العرض وخطة 003 تعتمده).
+        try:
+            fl_num = float(fl) if fl is not None else None
+            if fl_num is not None and fl_num != fl_num:         # NaN
+                fl_num = None
+        except (TypeError, ValueError):
+            fl_num = None
+        if fl_num is not None and fl_num >= limit:
             # v2.7: لا يُحذف — يُسجّل نقصًا وينزل لقائمة المراقبة B
             r.setdefault("soft_fails", []).append("فلوت كبير")
             r.setdefault("flags", []).append(
-                f"⚠️ فلوت كبير {int(fl):,} (فوق {limit:,})")
-            rejected.append((r["symbol"], fl))
+                f"⚠️ فلوت كبير {int(fl_num):,} (فوق {limit:,})")
+            rejected.append((r["symbol"], fl_num))
             kept.append(r)
         else:
-            if fl is not None:
+            if fl_num is not None:
                 r.setdefault("flags", []).append(
-                    f"فلوت {int(fl):,} (صغير ✅)")
+                    f"فلوت {int(fl_num):,} (صغير ✅)")
             else:
                 r.setdefault("flags", []).append(
                     "فلوت غير متاح — مُرِّر بفائدة الشك")
