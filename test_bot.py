@@ -2875,6 +2875,15 @@ check("⏳ رادار: الكرون + سقف الانتظار يغطّيان ا�
           for _open in (810, 870) for _lag in (95, 119, 152))
       # وبأسوأ تأخّر لا يتجاوز البدء الافتتاح الصيفي بأكثر من نصف ساعة
       and (_ig_cron_min + 152) - 810 <= 30)
+# ⏰ الفارز اليومي: الكرون مقدَّم بمقدار التأخّر المقيس (138-159د) ليصل التقرير ~10ص
+# السعودية (07:00-07:30 UTC). قفل حسابي — أي عودة لـ«23 7» أو تقديم مفرط يُسقطه.
+_ds_cron = next((x.split('"')[1] for x in
+                 open(".github/workflows/daily_screener.yml",
+                      encoding="utf-8").read().splitlines()
+                 if "- cron:" in x and "* * 2-5" in x), "")
+_ds_min = int(_ds_cron.split()[1]) * 60 + int(_ds_cron.split()[0])
+check("⏰ الفارز اليومي: بأي تأخّر مرصود (138-159د) يصل التقرير 10:00-11:00 السعودية",
+      all(600 <= (_ds_min + _lag + 180) <= 660 for _lag in (138, 141, 159)))
 check("🔬♻️ قفل: لا workflow يُضيف مسارًا مُستثنى بـ.gitignore (يُتخطّى صامتًا فيوهم بالدفع)",
       (lambda ign, wfs: all(
           not any(("git add" in ln and p.rstrip("/") in ln) for ln in wf.splitlines())
