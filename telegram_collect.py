@@ -187,6 +187,42 @@ def _existing_shas(d):
     return out
 
 
+def _saved_msg_ids(out_dir):
+    """أرقام رسائل تلغرام المحفوظة فعلًا (من أسماء `TG_<id>.jpg`). فاشلة-آمنة → []."""
+    try:
+        return sorted(int(m.group(1)) for f in os.listdir(out_dir)
+                      if (m := re.fullmatch(r"TG_(\d+)\.[A-Za-z0-9]+", f)))
+    except Exception:                                # noqa: BLE001
+        return []
+
+
+def gap_report(ids, max_show: int = 12):
+    """🔍 **تقرير الفجوات** — `message_id` في تلغرام متسلسل داخل المحادثة، فكل رقم
+    غائب داخل المدى المحفوظ يعني **شيئًا لم يصلنا صورةً**: إمّا رسالة نصّية أو ردّ
+    البوت (يستهلكان رقمًا أيضًا) وإمّا **صورة ضاعت فعلًا**.
+
+    يجيب سؤال «هل وصل كل شي؟» **بدليل** بدل التخمين بفارق العدّ (المستخدم أرسل ~333
+    ووصل 308 — والفارق وحده لا يميّز «ضاعت» من «رقم استهلكه نصّ»).
+
+    دالّة نقيّة (تأخذ قائمة أرقام) · تُرجع أسطرًا جاهزة للطباعة أو [] لو لا فجوة."""
+    ids = sorted(set(int(i) for i in (ids or [])))
+    if len(ids) < 2:
+        return []
+    gaps = [(a + 1, b - 1) for a, b in zip(ids, ids[1:]) if b - a > 1]
+    miss = sum(e - s + 1 for s, e in gaps)
+    if not gaps:
+        return [f"🔍 الترقيم متّصل {ids[0]}…{ids[-1]} بلا فجوة — لم يُفقَد شيء."]
+        # (لا فجوة = يقين؛ ووجودها لا يعني الفقد حتمًا — انظر أدناه.)
+    out = [f"🔍 الترقيم {ids[0]}…{ids[-1]} · **{miss} رقمًا غائبًا** في "
+           f"{len(gaps)} فجوة (قد تكون رسائل نصّية أو ردود البوت — لا صورًا):"]
+    out.append("   " + " · ".join(f"{s}" if s == e else f"{s}–{e}"
+                                  for s, e in gaps[:max_show])
+               + (f" … (+{len(gaps) - max_show})" if len(gaps) > max_show else ""))
+    out.append("   ↳ للتأكّد من رقمٍ بعينه: مرّره لتلغرام بـ`forwardMessage` — "
+               "إن رجع صورةً فهي ضائعة فعلًا، وإن رجع نصًّا فلا شيء فُقِد.")
+    return out
+
+
 def main():
     tok = (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip()
     if not tok:
@@ -308,6 +344,8 @@ def main():
     print(f"📥 حُفِظت {saved} صورة جديدة · مكرّرة متخطّاة {skipped} "
           f"· (مستندات {docs} · صور مضغوطة {photos})")
     print(f"📁 مجموع الصور في {OUT_DIR}/ الآن: {total}")
+    for _ln in gap_report(_saved_msg_ids(OUT_DIR)):    # 🔍 تقرير الفجوات
+        print(_ln)
     if got_ids:
         # 🛡️ السجلّ نفسه وسيلة إنقاذ: `forwardMessage` بأرقام الرسائل يُرجع
         # `file_id` جديدًا لكل صورة، فلو ضاع الدفع تُستعاد بلا إعادة إرسال.

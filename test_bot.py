@@ -7375,6 +7375,22 @@ def _tc_run(fail_download):
             _os_hc.environ["TELEGRAM_BOT_TOKEN"] = _sv[3]
 
 
+check("🔍 التلغرام·تقرير الفجوات: يكشف الأرقام الغائبة ولا يدّعي أنها صور ضائعة",
+      (lambda _r: len(_r) == 3 and "**3 رقمًا غائبًا**" in _r[0]
+       and "5" in _r[1] and "8–9" in _r[1]
+       and "رسائل نصّية أو ردود البوت" in _r[0])(
+          TC.gap_report([3, 4, 6, 7, 10])))
+check("🔍 التلغرام·الترقيم المتّصل ⇒ يقين «لم يُفقَد شيء» · والفارغ ⇒ لا ادّعاء",
+      "بلا فجوة" in TC.gap_report([1, 2, 3])[0]
+      and TC.gap_report([]) == [] and TC.gap_report(None) == []
+      and TC.gap_report([7]) == [])
+check("🔍 التلغرام·يقرأ أرقام الرسائل من أسماء الملفات · فاشل-آمن لمجلّد غائب",
+      (lambda _d: (_os0.makedirs(_d, exist_ok=True),
+                   open(_os0.path.join(_d, "TG_12.jpg"), "w").close(),
+                   open(_os0.path.join(_d, "TG_9.png"), "w").close(),
+                   open(_os0.path.join(_d, "ملف_بلا_رقم.jpg"), "w").close(),
+                   TC._saved_msg_ids(_d))[-1])(_tf.mkdtemp()) == [9, 12]
+      and TC._saved_msg_ids("/no/such/dir/xyz") == [])
 check("🛡️ التلغرام·طابور دائم بـfile_id: العابر يُحفَظ ثم **يُنزَّل** بالتشغيل التالي",
       (lambda _d: (lambda _flag: (
           TC.__dict__.__setitem__("STATE", _os0.path.join(_d, "s.json")),
