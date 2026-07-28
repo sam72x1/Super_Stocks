@@ -124,6 +124,26 @@ def fetch_blob(tok, file_id, get=None, sleep=None):
                      params={"file_id": file_id}).json()
             if not fr.get("ok"):
                 d = str(fr.get("description") or "getFile رفض الطلب")
+                # ⚠️ **إصلاح 2026-07-27:** كان **كل** `ok:false` يُصنَّف دائمًا —
+                # لكن تلغرام يردّ بنفس الشكل على أخطاء **عابرة** تمامًا: 429
+                # «Too Many Requests: retry after N» و5xx «Bad Gateway». ودفعةُ
+                # 300+ صورة هي **بالضبط** ما يستدعي 429 ⇒ كانت الصور تُسقَط
+                # نهائيًّا ويُقَرّ تحديثها = فقدٌ لا يُسترجَع إلا بإعادة إرسال.
+                _code = int(fr.get("error_code") or 0)
+                if _code == 429 or 500 <= _code < 600:
+                    why = _mask(d)
+                    if attempt < 2:
+                        try:                      # احترم retry_after لو أرسله
+                            _ra = float((fr.get("parameters") or {})
+                                        .get("retry_after") or 0)
+                        except Exception:         # noqa: BLE001
+                            _ra = 0
+                        try:
+                            sleep(max(_ra, 1.5 * (attempt + 1)))
+                        except Exception:         # noqa: BLE001
+                            pass
+                        continue
+                    return None, False, why       # عابر ⇒ للطابور الدائم
                 return None, True, _mask(d)       # ⛔ رفض تلغرام لا يشفيه التكرار
             fp = (fr.get("result") or {}).get("file_path")
             if not fp:
@@ -344,6 +364,13 @@ def main():
     print(f"📥 حُفِظت {saved} صورة جديدة · مكرّرة متخطّاة {skipped} "
           f"· (مستندات {docs} · صور مضغوطة {photos})")
     print(f"📁 مجموع الصور في {OUT_DIR}/ الآن: {total}")
+    # ⚠️ **إصلاح 2026-07-27:** بلوغ السقف كان يقطع السحب **صامتًا**، وبما أن المكرّرة
+    # تُحسب ضمنه (`saved + skipped`) والصور الجديدة تأتي غالبًا **آخر** الدفعة، كان
+    # القطع يقع عليها بالضبط — ثم يُطبع «لا جديد» فيُقرأ «وصل كل شي». الآن يُصرَّح.
+    if saved + skipped >= MAX_FILES:
+        print(f"⚠️ **بلغنا سقف هذا التشغيل ({MAX_FILES})** — قد تكون بقيت صور لم "
+              "تُسحَب بعد. أعِد تشغيل الـworkflow (يستأنف من حيث وقف)، أو ارفع "
+              "`max_files`. ⚠️ المكرّرة تُحسب ضمن السقف.")
     for _ln in gap_report(_saved_msg_ids(OUT_DIR)):    # 🔍 تقرير الفجوات
         print(_ln)
     if got_ids:

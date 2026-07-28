@@ -291,11 +291,25 @@ def hand_check(sym: str):
         bot._REJECT_STATS.clear()
         official = bot.analyze_ticker(sym, df)
         if official:
+            # ⚠️ **إصلاح 2026-07-27 (تدقيق «أعلى مستوى»):** كنّا ننسخ تسعة مفاتيح فقط
+            # ثم نبني التفسير — و`build_interpretation` تقرأ **ستّة أخرى** غائبة عن `r`
+            # (bars_after · gaps_above · liberation · recent_split · sec_filings ·
+            # trendline). النتيجة **مُثبَتة بالتشغيل**: «الرقم الحرج» يخرج مختلفًا عن
+            # الكرت، وسطر «⚠️ الخطر» يختفي كليًّا — وهذا يخالف قفل «الفحص اليدوي =
+            # الأساسي». (المسار اليومي و`analyze_one` سالمان: `enrich` تعيد بناء
+            # التفسير على سجلٍّ كامل — وحدَه فحص اليد كان يناديها مباشرةً.)
             for k in ("pivot", "tranches", "stop", "key_levels",
-                      "t1", "t2", "t3", "warnings", "soft_fails"):
+                      "t1", "t2", "t3", "warnings", "soft_fails",
+                      "bars_after", "gaps_above", "liberation"):
                 r[k] = official.get(k)
-            if r.get("h4_levels"):
-                official["h4_levels"] = r["h4_levels"]
+            for k in ("recent_split", "sec_filings"):     # من enrich على diag
+                r[k] = diag.get(k)
+            try:                                          # §10 — كما يفعل analyze_one
+                r["trendline"] = bot.descending_trendline(df, r.get("price") or 0)
+            except Exception:
+                r["trendline"] = None
+            # (أُزيل سطران ميّتان كانا يكتبان h4_levels على `official` بينما التفسير
+            #  يُبنى من `r`، و`official` لا يُقرأ بعدها إطلاقًا.)
             r["interp"] = bot.build_interpretation(r)
         elif getattr(bot, "_REJECT_STATS", None):
             r["reject_reason"] = " · ".join(f"{k}={v}"

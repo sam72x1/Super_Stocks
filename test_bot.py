@@ -6481,6 +6481,131 @@ check("🚧 عدم الخلط·مرجع الـ÷2 خاصّ بالمقسّم: `sp
        and 'r.get("ref")' not in _code)(
           "\n".join(_ln for _ln in _insp0.getsource(HC.render_hand_check).split("\n")
                     if not _ln.lstrip().startswith("#"))))
+import pullback_live as _PLmod
+import telegram_collect as TC
+
+
+# 📚 **حارس انحراف التوثيق** (تدقيق 2026-07-27): CLAUDE.md أوّل ما تقرأه كل جلسة، فخطؤه
+# **يتكاثر**. وُجد أربعة كرونات عتيقة فيه — منها كرون أُصلح في اليوم نفسه. الحارس يقارن
+# كل كرون مذكور في الوثيقة بملفّات الـyml فعليًّا.
+def _doc_crons():
+    """يستخرج كل كرون داخل backticks بـCLAUDE.md، والكرونات الفعلية من الـyml."""
+    import glob as _g
+    _re = __import__("re")
+
+    def _rd(p):
+        with open(p, encoding="utf-8") as _fh:
+            return _fh.read()
+
+    doc = set(_re.findall(r'`(\d[\d,*/ -]*(?: [\d,*/A-Za-z-]+){4})`', _rd("CLAUDE.md")))
+    real = set()
+    for _f in _g.glob(".github/workflows/*.yml"):
+        real |= set(_re.findall(r'cron:\s*"([^"]+)"', _rd(_f)))
+    return doc, real
+
+
+check("📚 لا كرون عتيق في CLAUDE.md (كل كرون موثّق موجود فعلًا في workflow)",
+      (lambda _d, _r: not (_d - _r))(*_doc_crons()))
+# 📨 **عقد «القيمة المرجَعة = دليل الوصول»**: بُني عليه فحص الإرسال في صيّاد المقسّم
+# ورادار الانطلاق ومراقب الارتداد — وكان مثقوبًا: نصّ فارغ يُرجع True بلا إرسال.
+check("📨 send_telegram·الرسالة الفارغة ⇒ False (لا نجاح كاذب لرسالة لم تُرسَل)",
+      S.send_telegram("") is False and S.send_telegram("   ") is False)
+# 🚨 **تنبيه الخطر لا يُفقَد**: pullback_live يحفظ ختم الدِدوب ويدفعه **قبل** الإرسال
+# (منعًا للتكرار)؛ فإخفاق الإرسال كان يستهلك «كسر الوقف» بلا وصول **أبدًا**.
+check("🚨 مراقب الارتداد·إخفاق الإرسال يُعيد أختام الدِدوب ويخرج بغير صفر",
+      (lambda _s: all(x in _s for x in ("_stamp_restore", "return 1"))
+       and "if not bot.send_telegram(" in _s)(_insp0.getsource(_PLmod.main)))
+check("🚨 مراقب الارتداد·الاسترجاع يُرجع الأختام حرفيًّا (حذف المُستحدَث وإبقاء القديم)",
+      (lambda _wl, _snap: (_PLmod._stamp_restore(_wl, _snap),
+                           _wl["stocks"][0].get("live_alert"),
+                           _wl["stocks"][1].get("live_alert"),
+                           _wl["pullback"][0]["status"])[1:]
+       == ({"buyzone": "2026-07-01"}, None, "watch"))(
+          {"stocks": [{"symbol": "A", "live_alert": {"break": "2026-07-27"}},
+                      {"symbol": "B", "live_alert": {"buyzone": "2026-07-27"}}],
+           "pullback": [{"symbol": "C", "status": "triggered"}]},
+          ({"A": {"buyzone": "2026-07-01"}, "B": {}}, {"C": "watch"})))
+# 📥 **الجامع**: 429/5xx من تلغرام أخطاء **عابرة** — ودفعةُ 300+ صورة هي ما يستدعيها.
+check("📥 الجامع·429 و502 عابران (للطابور) لا دائمَين (إسقاط الصورة)",
+      (lambda _mk: all(_mk(_c)[1] is False for _c in (429, 502, 503))
+       and _mk(400)[1] is True)(
+          lambda code: TC.fetch_blob(
+              "T", "F",
+              get=lambda u, **k: _ty0.SimpleNamespace(
+                  json=lambda: {"ok": False, "error_code": code,
+                                "description": "x"},
+                  status_code=200, content=b""),
+              sleep=lambda s: None)))
+check("📥 الجامع·بلوغ السقف يُصرَّح به (لا «لا جديد» مضلِّلة على قطعٍ صامت)",
+      "بلغنا سقف هذا التشغيل" in _insp0.getsource(TC.main)
+      and "المكرّرة تُحسب ضمن السقف" in _insp0.getsource(TC.main))
+
+
+def _run_daily(stocks, results=None, hist=None):
+    """يقود `run_daily_watchlist` فعليًّا ببيئة معزولة ⇒ (رسائل مُرسَلة، القائمة).
+
+    ⚠️ **أكبر ثغرة تغطية وُجدت في تدقيق 2026-07-27:** الدالّة — وهي التي تُنتج
+    **التقرير اليومي، المُخرَج الرئيسي للبوت** — لم تكن تُنفَّذ في السويّة ولا مرة؛
+    يحرسها 15 قفلًا **نصّيًّا** فقط. أُثبت بالطفرة: حذف `send_telegram(msg)` كليًّا
+    يُبقي السويّة خضراء. فصار القفل يشغّلها ويؤكّد وصول الرسالة."""
+    sent, saved, _sv = [], [], {}
+    names = ("scan_market", "download_history", "send_telegram", "save_watchlist",
+             "write_csv", "record_reject_stats", "accumulate_explosions")
+    for _n in names:
+        _sv[_n] = getattr(S, _n)
+    try:
+        S.scan_market = lambda *a, **k: (results or [], hist or {})
+        S.download_history = lambda u, **k: {}
+        S.send_telegram = lambda m, *a, **k: sent.append(m) or True
+        S.save_watchlist = lambda w, *a, **k: saved.append(w) or True
+        S.write_csv = lambda *a, **k: None
+        S.record_reject_stats = lambda *a, **k: None
+        S.accumulate_explosions = lambda *a, **k: None
+        # الشكل القانوني للقائمة (نفس `load_watchlist` الافتراضية) لا شكلًا مُختلَقًا
+        wl = {"week_start": "2026-07-20", "created": "2026-07-20",
+              "stocks": list(stocks), "removed": [], "replacements_log": [],
+              "notes": [], "history": [], "logic_version": S.LOGIC_VERSION}
+        S.run_daily_watchlist(wl)
+        return sent, wl
+    finally:
+        for _n in names:
+            setattr(S, _n, _sv[_n])
+
+
+check("📩 التقرير اليومي·يُرسَل فعلًا (تشغيل حقيقي لا قفل نصّي)",
+      (lambda _s: len(_s) >= 1 and isinstance(_s[0], str) and len(_s[0]) > 40)(
+          _run_daily([])[0]))
+check("📩 التقرير اليومي·قائمة فارغة ⇒ رسالة واحدة صادقة بلا انهيار",
+      (lambda _s: len(_s) == 1)(_run_daily([])[0]))
+# 🧭 **قفل «الفحص اليدوي = الأساسي» على طبقة التفسير** (تدقيق 2026-07-27): كان
+# `hand_check` ينسخ تسعة مفاتيح ثم يبني التفسير مباشرةً، و`build_interpretation` تقرأ
+# **ستّة أخرى** — فيخرج «الرقم الحرج» مختلفًا عن الكرت و**تختفي أعلام الخطر كليًّا**
+# (risk «منخفض» بلا أي علم على سهمٍ عليه تقسيم حديث وملفات SEC = نفي غير مفحوص).
+# المسار اليومي و`analyze_one` سالمان لأن `enrich` تعيد البناء على سجلٍّ كامل.
+_ip_base = {"symbol": "X", "price": 1.0, "last_price": 1.0, "pivot": 0.95,
+            "stop": 0.88, "tranches": [0.95, 0.98, 1.01], "t1": 1.3, "t2": 1.6,
+            "t3": 2.0, "key_levels": {"sup_main": 0.95, "res_main": 1.3},
+            "warnings": [], "soft_fails": []}
+check("🧭 التفسير·المفاتيح الناقصة تُخفي أعلام الخطر فعلًا (أثر مُثبَت لا افتراض)",
+      (lambda _t, _f: (_t["risk_profile"]["flags"] == []
+                       and set(_f["risk_profile"]["flags"])
+                       >= {"تقسيم حديث", "ملفات SEC"}
+                       and _t.get("trendline_pressure") is None
+                       and _f.get("trendline_pressure") is not None))(
+          S.build_interpretation(dict(_ip_base)),
+          S.build_interpretation(dict(
+              _ip_base, liberation=1.05, gaps_above=[(1.05, 1.20)], bars_after=6,
+              trendline={"level": 1.06, "broken": False},
+              recent_split=("2026-06-01", 0.1),
+              sec_filings=[{"form": "424B5", "date": "2026-07-01"}]))))
+check("🧭 فحص اليد يزوّد **كل** ما تقرؤه build_interpretation (لا سجلّ نحيف)",
+      (lambda _hc, _need: not (_need - {_k for _k in _need if f'"{_k}"' in _hc}))(
+          _insp0.getsource(HC.hand_check),
+          set(__import__("re").findall(r'r\.get\("([a-z_0-9]+)"',
+                                       _insp0.getsource(S.build_interpretation)))
+          - {"price", "last_price"}))
+check("🧹 فحص اليد·لا سطر ميت يكتب على `official` بعد آخر قراءة له",
+      _insp0.getsource(HC.hand_check).count("official[") == 0)
 check("🚧 عدم الخلط·فحص اليد يستعمل إطار الوسيط `df` لا مفتاحًا غير موجود",
       (lambda _d: (lambda L: any("لو كسر القاع" in x for x in L.split("\n"))
                    and any("لا تنطبق هنا" in x for x in L.split("\n"))

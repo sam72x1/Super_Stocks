@@ -6578,6 +6578,13 @@ def send_telegram(text: str) -> bool:
     recipients = [c.strip() for c in TELEGRAM_CHAT.replace(";", ",").split(",")
                   if c.strip()]
     chunks = _chunk_message(text)
+    # ⚠️ **إصلاح 2026-07-27:** نصّ فارغ ⇒ `_chunk_message` يرجع [] ⇒ الحلقة لا تدور
+    # و`ok` يبقى True ⇒ الدالّة **تُعلن نجاحًا لرسالة لم تُرسَل**. وهذا يهدم العقد
+    # الذي بُني عليه فحص الإرسال اليوم (`if not send_telegram(...)`) في صيّاد المقسّم
+    # ورادار الانطلاق ومراقب الارتداد. لا شيء يُرسَل ⇒ **False** صراحةً.
+    if not chunks:
+        log("⚠️ تيليجرام: رسالة فارغة — لم يُرسَل شيء.")
+        return False
     # ختم الإصدار في كل رسالة (تعريف النسخة فورًا — ضمان ضد لبس الرسائل القديمة)
     stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}"
     chunks = [c + stamp for c in chunks]
@@ -11165,7 +11172,14 @@ def run_daily_watchlist(wl: dict) -> None:
     try:
         radar_rows = scan_split_radar(hist, exclude=held_now | stopped,
                                       fetch_borrow=ce_borrow_info,   # فيصل: الشورت=المتاح CE
-                                      fetch_float=ce_float_info,
+                                      # ⚠️ **إصلاح 2026-07-27:** كان `ce_float_info`
+                                      # وهو **ميت** منذ 07-24 (صفحة CE صارت قِشرة JS —
+                                      # موثّق بمِجَسّ Actions). فكان الفلوت None دائمًا
+                                      # ⇒ `float_ok` **False أبدًا** ⇒ معيار «فلوت<2م»
+                                      # لا يتحقّق ولو مرّة والدرجة تنقص لكل مرشّح.
+                                      # `_yahoo_float` هو البديل المُثبَت (وهو افتراض
+                                      # `scan_split_hunter` أصلًا — فاختلفت الأداتان).
+                                      fetch_float=_yahoo_float,
                                       fetch_pump=group_pump_scar)
         radar_msg = build_split_radar_section(radar_rows)
         if radar_msg:
