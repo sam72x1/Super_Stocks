@@ -1,0 +1,81 @@
+name: E2 Recover (استرجاع جلسات الرادار الضائعة)
+# 🔬♻️ يدويّ فقط. يُنزّل artifacts تشغيلات الرادار السابقة (`ign-assembled-<run_id>`)
+# ويُعيد ملخّصاتها إلى الريبو — بعد أن اكتُشف (2026-07-28) أن دفع الassembler كان
+# **عاريًا بلا rebase** فضاعت ملخّصات ~9 جلسات رغم نجاح القياس نفسه.
+# استرجاع/دمج فقط: لا يمسّ الرادار ولا الفرز ولا أي جذر.
+permissions:
+  contents: write
+  actions: read           # لتنزيل artifacts تشغيلات أخرى
+on:
+  workflow_dispatch:
+    inputs:
+      run_ids:
+        description: "أرقام تشغيلات الرادار مفصولة بفاصلة (فارغ = القائمة المعروفة للجلسات الضائعة)"
+        required: false
+        default: ""
+concurrency:
+  group: e2-recover
+  cancel-in-progress: false
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download assembled artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IDS: ${{ github.event.inputs.run_ids }}
+        run: |
+          set -u
+          # القائمة الافتراضية = تشغيلات الرادار التي فشل دفعها (2026-07-15 → 07-28)
+          DEFAULT="29426221786 29510125042 29589822136 29754697055 29843253178 \
+                   29932599269 30020349180 30080351526 30103785964 30281846097 30373946402"
+          LIST="${IDS//,/ }"
+          [ -z "${LIST// /}" ] && LIST="$DEFAULT"
+          mkdir -p recovered
+          got=0; miss=""
+          for id in $LIST; do
+            if gh run download "$id" -n "ign-assembled-$id" -D "recovered/$id" 2>/dev/null; then
+              echo "✅ $id"; got=$((got+1))
+            else
+              echo "⚠️ $id — لا artifact (تشغيلة أقدم أو انتهت مدّة الاحتفاظ)"; miss="$miss $id"
+            fi
+          done
+          echo "نُزِّل $got · مفقود:${miss:- لا شيء}"
+          # صفر تنزيلات = لا فائدة، أبلغ صراحةً ولا تُعلن نجاحًا كذبًا
+          if [ "$got" = 0 ]; then echo "::error::⛔ لم يُنزَّل أي artifact"; exit 1; fi
+      - name: Merge recovered sessions into repo index
+        run: python e2_recover.py recovered | tee recover_report.txt
+      - name: Strict validator over all recovered sessions (تقرير لا بوّابة)
+        continue-on-error: true
+        run: python ignition_e2_analyze.py e2_measurement --strict | tee -a recover_report.txt
+      - name: Push recovered index + sessions
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ignition_e2_session_index.json e2_measurement/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "لا جديد — كل الجلسات موجودة سلفًا"; exit 0
+          fi
+          git commit -q -m "🔬♻️ E2: استرجاع ملخّصات الجلسات الضائعة من artifacts"
+          ok=0
+          for i in 1 2 3 4 5; do
+            if git push; then ok=1; break; fi
+            git fetch origin "$GITHUB_REF_NAME" \
+              && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep $((2**i))
+          done
+          if [ "$ok" != 1 ]; then
+            echo "::error::⛔ فشل دفع الجلسات المسترجَعة بعد 5 محاولات"; exit 1
+          fi
+      - name: Summary
+        if: always()
+        run: |
+          echo '### 🔬♻️ استرجاع جلسات E2' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat recover_report.txt >> $GITHUB_STEP_SUMMARY 2>/dev/null || true
+          echo '```' >> $GITHUB_STEP_SUMMARY

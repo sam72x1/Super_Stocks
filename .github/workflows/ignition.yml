@@ -143,6 +143,12 @@ jobs:
         run: python ignition_e2_assemble.py
       # 🔬 P1-7: دفع واحد فقط من الـassembler (summary/index + السجلّ القديم) — بلا || true على
       # الدفع (لا نخفي فشله). المقاطع لا تدفع شيئًا.
+      # 🔴 **إصلاح 2026-07-28 (عطل حقيقي دام 13 يومًا):** كان الدفع **عاريًا بلا rebase**،
+      # والجلسة تمتدّ ~4.5 ساعة فيتحرّك `main` أثناءها ⇒ `! [rejected] (fetch first)` ⇒
+      # **كل ملخّص جلسة يضيع ومعه `ignition_log.json`** (جلسة واحدة فقط نجحت من 10).
+      # وهو سبب «0/20 جلسة» الحقيقي — لا البوّابة الصارمة كما كان موثّقًا خطأً.
+      # النمط أدناه = نفس المُثبَت في `telegram_collect.yml`: fetch+rebase وإعادة محاولة
+      # بتراجع أُسّي، و`exit 1` صريح عند الفشل النهائي (لا نُعلن نجاحًا كذبًا).
       - name: Push E2 summary/index + legacy log (single push)
         run: |
           git config user.name  "github-actions[bot]"
@@ -150,13 +156,27 @@ jobs:
           git add ignition_e2_summary.json ignition_e2_session_index.json \
                   ignition_log.json ignition_universe.json 2>/dev/null || true
           if git diff --cached --quiet; then
-            echo "لا تغييرات للدفع."
-          else
-            git commit -m "🔬 E2: ملخّص + سجلّ جلسة الرادار المدموجة (assembler)"
-            git push
+            echo "لا تغييرات للدفع."; exit 0
+          fi
+          git commit -q -m "🔬 E2: ملخّص + سجلّ جلسة الرادار المدموجة (assembler)"
+          ok=0
+          for i in 1 2 3 4 5; do
+            if git push; then ok=1; break; fi
+            # الرفض غالبًا لأن الفرع تحرّك أثناء الجلسة ⇒ أعِد الأساس ثم أعِد المحاولة
+            git fetch origin "$GITHUB_REF_NAME" \
+              && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep $((2**i))
+          done
+          if [ "$ok" != 1 ]; then
+            echo "::error::⛔ فشل دفع ملخّص جلسة E2 بعد 5 محاولات — البيانات محفوظة في artifact"
+            exit 1
           fi
       # 🔬 P0-6: بوّابة صارمة — تفشل الـjob لو الجلسة المدموجة غير مكتملة (بعد رفع artifact).
+      # ⚠️ `if: always()` (إصلاح 2026-07-28): بدونها كانت البوّابة **تُتخطّى** كلّما فشل الدفع،
+      # فيظهر الـjob أحمر ويُقرأ خطأً «البوّابة الصارمة» بينما هي لم تُشغَّل أصلًا — وهذا
+      # بعينه ما أخفى العطل 13 يومًا. الآن يُبلَّغ السببان مستقلَّين.
       - name: Analyzer strict gate
+        if: always()
         run: python ignition_e2_analyze.py e2_measurement --strict
       - name: Upload assembled session
         if: always()

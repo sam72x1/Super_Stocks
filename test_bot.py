@@ -2766,6 +2766,64 @@ import os as _os
 import shutil as _shutil
 _e2_out = _tmp.mkdtemp(prefix="e2test_")
 
+# ===== 🔬♻️ استرجاع جلسات E2 الضائعة (e2_recover) — دمج/استرجاع فقط =====
+# الخلفية: دفع الassembler كان عاريًا بلا rebase ⇒ ضاعت ملخّصات ~9 جلسات رغم نجاح
+# القياس. الاختبارات **سلوكية** (تُبنى artifacts وهمية ويُقرأ الناتج) وكلّها في مجلّد
+# مؤقّت — لا تلمس الريبو (درس تلوّث `faisal_images/` بـz.jpg).
+import e2_recover as _RC
+
+
+def _rc_mk(root, run, date, loops, summary=True, index=True):
+    d = _os.path.join(root, "recovered", run, "e2_measurement", "session_" + date)
+    _os.makedirs(d, exist_ok=True)
+    s = {"schema_version": 3, "session_date": date, "termination": "normal",
+         "loops_completed": loops, "loops_started": loops, "n_symbols": 8,
+         "n_raw_candidates": 0, "n_emitted": 0, "n_delivered": 0}
+    if summary:
+        with open(_os.path.join(d, "summary.json"), "w", encoding="utf-8") as fh:
+            _json.dump(s, fh)
+    if index:
+        with open(_os.path.join(root, "recovered", run,
+                                "ignition_e2_summary.json"), "w", encoding="utf-8") as fh:
+            _json.dump(s, fh)
+    return d
+
+
+_rc_root = _tmp.mkdtemp(prefix="e2rec_")
+with open(_os.path.join(_rc_root, "ignition_e2_session_index.json"), "w",
+          encoding="utf-8") as _fh:            # الحالة الحقيقية: جلسة واحدة فقط
+    _json.dump({"2026-07-24": {"n_symbols": 8, "termination": "normal"}}, _fh)
+_rc_mk(_rc_root, "111", "2026-07-15", 500)
+_rc_mk(_rc_root, "222", "2026-07-16", 480)
+_rc_mk(_rc_root, "333", "2026-07-24", 111)     # نفس يوم الموجود
+_rc_mk(_rc_root, "444", "2026-07-24", 520)     # تعارض: أطول ⇒ يفوز
+_rc_mk(_rc_root, "555", "2026-07-17", 0, summary=False, index=False)   # بلا ملخّص
+_rc_res = _RC.recover(_os.path.join(_rc_root, "recovered"), repo_root=_rc_root)
+_rc_idx = _json.load(open(_os.path.join(_rc_root, "ignition_e2_session_index.json"),
+                          encoding="utf-8"))
+check("🔬♻️ الاسترجاع يدمج ولا يدهس: الجلسة القديمة باقية + الجديدتان أُضيفتا",
+      set(_rc_idx) == {"2026-07-15", "2026-07-16", "2026-07-24"}
+      and _rc_res["new"] == ["2026-07-15", "2026-07-16"])
+check("🔬♻️ تعارض تاريخ من تشغيلتين: تفوز الأكثر دورات (حتميّ) ويُبلَّغ",
+      _json.load(open(_os.path.join(_rc_root, "e2_measurement",
+                                    "session_2026-07-24", "summary.json"),
+                      encoding="utf-8"))["loops_completed"] == 520
+      and _rc_res["conflicts"] == [("2026-07-24", 111, 520)])
+check("🔬♻️ مجلّد بلا ملخّص يُتخطّى ولا يُخمَّن (لا يدخل الفهرس)",
+      "2026-07-17" not in _rc_idx and _rc_res["no_summary"] == ["2026-07-17"])
+# لا يدهس مجلّدًا خامًا موجودًا سلفًا (إعادة التشغيل آمنة — idempotent)
+_rc_res2 = _RC.recover(_os.path.join(_rc_root, "recovered"), repo_root=_rc_root)
+check("🔬♻️ إعادة التشغيل آمنة: صفر جلسة جديدة وصفر نسخ (idempotent)",
+      _rc_res2["new"] == [] and _rc_res2["copied"] == []
+      and set(_json.load(open(_os.path.join(_rc_root, INDEX_RC := "ignition_e2_session_index.json"),
+                              encoding="utf-8"))) == set(_rc_idx))
+check("🔬♻️ قفل: الاسترجاع خارج الفرز/الرادار (لا يستورده أي جذر)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("e2_recover", "recover(")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.scan_ignition, S.analyze_ticker, S.backtest_symbol)))
+_shutil.rmtree(_rc_root, ignore_errors=True)
+
 
 def _e2_read_jsonl(sub, name):
     p = _os.path.join(_e2_out, sub, "session_2026-07-20", name)
