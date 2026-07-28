@@ -105,8 +105,39 @@ def recover(download_root, repo_root="."):
     print("   🧮 بالفهرس %d جلسة · منها %d بإنهاء طبيعي." % (len(idx), len(normal)))
     print("   ⚠️ الفهرس عدّاد لا شهادة اكتمال — شغّل "
           "`ignition_e2_analyze.py e2_measurement --strict` للحكم.")
-    return {"index": len(idx), "new": merged, "copied": copied,
+    fires = _delivered_fires(best)
+    if fires:
+        # ⚠️ **قراءة لا توليد:** هذي تنبيهات **وصلت تلغرام فعلًا** (`delivered=true`)
+        # وضاعت من `ignition_log.json` مع نفس الدفع الفاشل. تُعرَض للمقارنة **ولا
+        # تُكتب في سجلّ الإطلاقات** — إعادة بناء ذلك السجلّ تلمس بيانات قياس فتحتاج
+        # قرار المالك (`candidates.jsonl` يحمل السعر والرقم الحرج اللازمين).
+        print("   🔥 تنبيهات وصلت تلغرام في الجلسات المسترجَعة (عرض فقط، لا تُكتب):")
+        for date, syms in fires:
+            print("      %s: %s" % (date, " · ".join(syms)))
+    return {"index": len(idx), "new": merged, "copied": copied, "fires": fires,
             "conflicts": conflicts, "no_summary": [d for d, _ in no_summary]}
+
+
+def _delivered_fires(best):
+    """🔥 الرموز التي **سُلِّمت** فعلًا لتلغرام في كل جلسة (`deliveries.jsonl`،
+    `delivered=true`). قراءة صرفة — لا تكتب شيئًا ولا تخمّن ما ليس مسجَّلًا."""
+    out = []
+    for date, (_loops, sdir, _s) in sorted(best.items()):
+        syms = []
+        try:
+            with open(os.path.join(sdir, "deliveries.jsonl"), encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if not ln:
+                        continue
+                    r = json.loads(ln)
+                    if r.get("delivered") and r.get("symbol") not in syms:
+                        syms.append(r["symbol"])
+        except Exception:
+            continue
+        if syms:
+            out.append((date, syms))
+    return out
 
 
 if __name__ == "__main__":

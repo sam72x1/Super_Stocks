@@ -2811,6 +2811,16 @@ check("🔬♻️ تعارض تاريخ من تشغيلتين: تفوز الأك
       and _rc_res["conflicts"] == [("2026-07-24", 111, 520)])
 check("🔬♻️ مجلّد بلا ملخّص يُتخطّى ولا يُخمَّن (لا يدخل الفهرس)",
       "2026-07-17" not in _rc_idx and _rc_res["no_summary"] == ["2026-07-17"])
+# 🔥 قراءة التنبيهات المُسلَّمة: delivered=true فقط · بلا تكرار · والفاشل لا يُحسب
+with open(_os.path.join(_rc_root, "recovered", "111", "e2_measurement",
+                        "session_2026-07-15", "deliveries.jsonl"), "w",
+          encoding="utf-8") as _fh:
+    for _r in ({"symbol": "AAA", "delivered": True}, {"symbol": "AAA", "delivered": True},
+               {"symbol": "BBB", "delivered": False}, {"symbol": "CCC", "delivered": True}):
+        _fh.write(_json.dumps(_r) + "\n")
+_rc_f = _RC.recover(_os.path.join(_rc_root, "recovered"), repo_root=_rc_root)["fires"]
+check("🔬♻️🔥 التنبيهات المُسلَّمة: المُسلَّم فقط · بلا تكرار · الفاشل لا يُحسب",
+      _rc_f == [("2026-07-15", ["AAA", "CCC"])])
 # لا يدهس مجلّدًا خامًا موجودًا سلفًا (إعادة التشغيل آمنة — idempotent)
 _rc_res2 = _RC.recover(_os.path.join(_rc_root, "recovered"), repo_root=_rc_root)
 check("🔬♻️ إعادة التشغيل آمنة: صفر جلسة جديدة وصفر نسخ (idempotent)",
