@@ -2827,6 +2827,19 @@ check("🔬♻️ إعادة التشغيل آمنة: صفر جلسة جديدة
       _rc_res2["new"] == [] and _rc_res2["copied"] == []
       and set(_json.load(open(_os.path.join(_rc_root, INDEX_RC := "ignition_e2_session_index.json"),
                               encoding="utf-8"))) == set(_rc_idx))
+# ⏳ تغطية الافتتاح: الكرون مقدَّم لتعويض تأخّر GitHub المرصود، وسقف الانتظار يغطّي
+# الفصلين. اختبار حسابي على الأرقام الفعلية (لا نصّي) — أي عودة لقيمة تكسر التغطية تُسقطه.
+_ig_yml = open(".github/workflows/ignition.yml", encoding="utf-8").read()
+_ig_cron_min = next((int(x.split('"')[1].split()[1]) * 60 + int(x.split('"')[1].split()[0])
+                     for x in _ig_yml.splitlines() if "- cron:" in x), None)
+import ignition_live as _IGL
+check("⏳ رادار: الكرون + سقف الانتظار يغطّيان الافتتاح في الفصلين رغم تأخّر GitHub",
+      # تأخّر مرصود 95-152د · افتتاح صيفي 13:30 (810د) وشتوي 14:30 (870د)
+      all(0 < (_open - (_ig_cron_min + _lag)) <= _IGL.PRE_OPEN_WAIT_MAX_MIN
+          or (_ig_cron_min + _lag) >= _open
+          for _open in (810, 870) for _lag in (95, 119, 152))
+      # وبأسوأ تأخّر لا يتجاوز البدء الافتتاح الصيفي بأكثر من نصف ساعة
+      and (_ig_cron_min + 152) - 810 <= 30)
 check("🔬♻️ قفل: لا workflow يُضيف مسارًا مُستثنى بـ.gitignore (يُتخطّى صامتًا فيوهم بالدفع)",
       (lambda ign, wfs: all(
           not any(("git add" in ln and p.rstrip("/") in ln) for ln in wf.splitlines())
