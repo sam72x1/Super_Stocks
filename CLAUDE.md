@@ -27,7 +27,10 @@
   المستويات · شكل الشمعة · موضع الفجوة · لقطة التِّيب) ⇒ **لا تقترح حذفها/تقليمها**
   (وحذفها لا يسترجع مساحة أصلًا: الصور في تاريخ git). فهرسها + **تحذير «لا تبنِ على
   هذي»** (4 خارج المنهجية · 8 نظام آخر) في `faisal_images/README.md`، والتفصيل صورةً
-  صورةً في `FAISAL_IMAGE_PASS2.md` (308/308).
+  صورةً في `FAISAL_IMAGE_PASS2.md` (308/308) و**`FAISAL_IMAGE_PASS3.md` (63/63 —
+  الدفعات الجديدة 2026-07-28: **صفر قاعدة جديدة**؛ 42 نسخة حرفية لصور موثّقة، والادّعاء
+  الوحيد «رأس وكتفين» `TG_2197` **سقط بالطعن** لأن كل عنصر فيه منفَّذ سلفًا — والتغطية
+  أشبعت).**
 - `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · scan_earnings.yml (أداة الأرباح، يومي 06:00 UTC) · **hand_digest.yml (🕵️ تحديث نهاية اليوم، 22:00 UTC اثنين→جمعة — `SCREENER_MODE=DIGEST`)** · **acc_verify.yml (🔬 تجربة T-ACC، يدوي input=year — يلزم سرّ `POLYGON_API_KEY`)** · **ignition.yml (🔥 رادار الانطلاق، cron 13:35 UTC من الافتتاح — عامل جلسة، يلزم `POLYGON_API_KEY`)** · backtest.yml · analyze.yml/technical.yml (يدوي).
 
 ## الفروع (مهم)
