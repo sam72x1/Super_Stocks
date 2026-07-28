@@ -63,10 +63,25 @@ jobs:
           #    ⚠️ النص هنا يطابق سطر الكرون أعلاه حرفيًّا — غيّرهما معًا.
           RENEW_ON_CLOSE: ${{ github.event.schedule == '7 22 * * 5' && '1' || '0' }}
         run: python Super_stock.py
+      # 📎 **إصلاح 2026-07-28 (خطة `plans/009`):** كان النمط `screener_report_*.csv`
+      #    و**لا شيء في المستودع كلّه ينتجه** (المطابقة الوحيدة كانت هذا السطر نفسه).
+      #    البادئات الفعلية من `write_csv`/`_write_csv_file`: daily_watch · weekly_list ·
+      #    trades · signals · missed. فكانت الخطوة تنجح **فارغة دائمًا** وتقارير التشغيلة
+      #    تضيع مع الرنر (و`*.csv` في .gitignore فلا بديل).
+      #    ⚠️ `if-no-files-found: ignore` يبقى: المسار اليومي لا يُنتج weekly_list والعكس،
+      #    فالغياب الجزئي طبيعي. و`run_id` في الاسم يمنع تعارض الأسماء بين التشغيلات
+      #    (نفس نمط ignition.yml).
+      #    🧭 قاعدة: أي بادئة CSV جديدة تُضاف للكود يجب أن تُضاف هنا وإلا ضاع الملفّ بصمت.
       - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: screener-report
-          path: screener_report_*.csv
+          name: screener-report-${{ github.run_id }}
+          path: |
+            daily_watch_*.csv
+            weekly_list_*.csv
+            trades_*.csv
+            signals_*.csv
+            missed_*.csv
+          retention-days: 30
           if-no-files-found: ignore

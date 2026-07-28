@@ -9332,6 +9332,31 @@ check("🔒 007·tests.yml بقيت بلا إنترنت (الفحص الحيّ �
 
 
 # ==========================================================
+# 📎 خطة 009: مسار artifact الـCSV في daily_screener.yml
+# ==========================================================
+print("\n=== 📎 خطة 009: artifact الـCSV ===")
+
+_c9_yml = open(".github/workflows/daily_screener.yml", encoding="utf-8").read()
+# البادئات الفعلية المستخرَجة من الكود نفسه (لا قائمة مكرَّرة يدويًّا)
+_c9_prefixes = {"daily_watch", "weekly_list", "trades", "signals", "missed"}
+# ⚠️ يُفحص خارج أسطر التعليق: التعليق يسمّي النمط الميت عمدًا لشرح سبب الإزالة.
+_c9_active = [_l for _l in _c9_yml.splitlines() if not _l.lstrip().startswith("#")]
+check("📎 009·النمط الميت أُزيل من المسار الفعّال (لا منتِج له في المستودع كلّه)",
+      not any("screener_report" in _l for _l in _c9_active))
+check("📎 009·كل بادئة CSV يُنتجها الكود مذكورة في مسار الـartifact",
+      all(f"{_p}_*.csv" in _c9_yml for _p in _c9_prefixes))
+check("📎 009·البادئات المذكورة مستعمَلة فعلًا في الكود (لا نمط ميت جديد)",
+      all(f'"{_p}"' in _insp0.getsource(S.run_daily_watchlist)
+          or f'"{_p}"' in _insp0.getsource(S.run_weekly_renewal)
+          or f'"{_p}"' in _insp0.getsource(S.export_weekly_csvs)
+          for _p in _c9_prefixes))
+# 🔒 الأخطر: الـdiff يجب ألّا يمسّ الكرون ولا مطابقة RENEW_ON_CLOSE (يعطّل التجديد بصمت)
+check("🔒 009·صون: كرونا الفارز ومطابقة RENEW_ON_CLOSE لم تُمَسّ",
+      'cron: "54 4 * * 2-5"' in _c9_yml and 'cron: "7 22 * * 5"' in _c9_yml
+      and "github.event.schedule == '7 22 * * 5'" in _c9_yml)
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
