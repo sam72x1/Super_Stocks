@@ -25,6 +25,13 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # ⚠️ **إصلاح 2026-07-27:** كان يمرّر ALPHAVANTAGE_KEY وحده بينما
+          # `technical.yml` — **نفس السكربت** — يمرّر الثلاثة. فسلسلة مصادر الأرباح
+          # (AV → FMP → Finnhub → yfinance) كانت تفقد حلقتين في **المسار المجدوَل**
+          # وتتدهور لياهو بصمت. وهو حرفيًّا العيب الموثّق في technical.yml:32-34
+          # («كانت غائبة هنا … فالتقرير يتدهور بصمت») وقد أُصلح هناك ولم يُصلَح هنا.
           ALPHAVANTAGE_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
           SCAN_EARNINGS: "1"
         run: python technical_report.py
