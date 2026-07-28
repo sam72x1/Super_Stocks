@@ -8982,6 +8982,78 @@ finally:
 
 
 # ==========================================================
+# ⏱️ خطة 002: إحياء قياس «ربع الساعة» في الـassembler (كان ميتًا في الإنتاج)
+# ==========================================================
+# العطل كان بسببين **مستقلَّين** عند نقطة النداء لا في الدالّة: (1) المقاطع
+# (ignition_live.py:624 `if role:`) لا تنادي record_ignition_fires إطلاقًا — النداء
+# الحيّ الوحيد هو الـassembler · (2) والـassembler كان ينادي بلا `fetch_bars` وبلا
+# `fired_ts_ms` فتخرج _fire_sustain بقاموس فارغ (Super_stock.py:9457-9459).
+# ⇒ الحقلان sustain_min/operator_ok لا يُكتبان أبدًا وسطر «⏱️ ربع الساعة» في تقرير
+# التطوير (Super_stock.py:9635-9641) لا يظهر. واختبارات الوحدة خضراء لأنها تحقن
+# الاثنين — صنف «اختبار ينجح ونقطة الاستعمال الحية مكسورة».
+import ignition_e2_assemble as _A2
+import tempfile as _tf2
+
+print("\n=== ⏱️ خطة 002: ربع الساعة في الـassembler ===")
+
+
+def _c002_cand(**kw):
+    base = {"symbol": "AAA", "signal_price": 2.0, "vol_x": 4.0,
+            "signal_usd": 150_000, "break_level": 1.9, "stop": 1.5, "t1": 3.0,
+            "pivot": 1.8, "alert_emitted": True,
+            "telegram_sent_at_ms": 1_000_000, "trigger_bar_start": 999_000}
+    base.update(kw)
+    return base
+
+
+_c002_f1 = _A2._fires_from_candidates([_c002_cand()])
+check("⏱️ 002·الطابع: telegram_sent_at_ms هو المصدر الأول (لحظة الإرسال الفعلي)",
+      len(_c002_f1) == 1 and _c002_f1[0][0]["fired_ts_ms"] == 1_000_000)
+_c002_f2 = _A2._fires_from_candidates([_c002_cand(telegram_sent_at_ms=None)])
+check("⏱️ 002·الطابع: بلا telegram_sent_at_ms ⇒ احتياط trigger_bar_start",
+      _c002_f2[0][0]["fired_ts_ms"] == 999_000)
+_c002_f3 = _A2._fires_from_candidates(
+    [_c002_cand(telegram_sent_at_ms=None, trigger_bar_start=None)])
+check("⏱️ 002·الطابع: بلا الاثنين ⇒ None بلا رمي (فاشل-آمن)",
+      _c002_f3[0][0]["fired_ts_ms"] is None)
+check("⏱️ 002·الأساس alert_emitted محفوظ (لا delivered — قرار موثّق)",
+      _A2._fires_from_candidates([_c002_cand(alert_emitted=False)]) == []
+      and _A2._fires_from_candidates([]) == []
+      and _A2._fires_from_candidates(None) == [])
+check("⏱️ 002·الحقول المنقولة تطابق عقد record_ignition_fires",
+      _c002_f1[0][0]["symbol"] == "AAA" and _c002_f1[0][0]["stop"] == [1.5]
+      and _c002_f1[0][0]["interp"]["critical_number"]["price"] == 1.9
+      and _c002_f1[0][1] == {"price": 2.0, "vol_x": 4.0, "usd": 150_000})
+
+# 🔴 الاختبار الحاسم (طرف-لطرف): مُخرَج الـassembler + جالب محقون ⇒ الحقلان يُكتبان.
+# سجلّ مؤقّت — **ممنوع الكتابة على ignition_log.json الحقيقي**.
+_c002_dir = _tf2.mkdtemp()
+_c002_sv_log = S.IGNITION_LOG_FILE
+try:
+    S.IGNITION_LOG_FILE = _os_hc.path.join(_c002_dir, "ign_log.json")
+    _c002_bars = [{"t": 1_000_000 + i * 60_000, "c": 2.5} for i in range(20)]
+    _c002_n = S.record_ignition_fires(
+        _A2._fires_from_candidates([_c002_cand()]), "2026-07-28",
+        fetch_bars=lambda sym, minutes=0: _c002_bars)
+    _c002_rec = json.load(open(S.IGNITION_LOG_FILE, encoding="utf-8"))[0]
+    # ونفس المدخل بلا جالب = السلوك المكسور (حارس ضد «الاختبار يمرّ في الحالتين»)
+    _os_hc.remove(S.IGNITION_LOG_FILE)
+    S.record_ignition_fires(_A2._fires_from_candidates([_c002_cand()]), "2026-07-28")
+    _c002_nofetch = json.load(open(S.IGNITION_LOG_FILE, encoding="utf-8"))[0]
+finally:
+    S.IGNITION_LOG_FILE = _c002_sv_log
+check("⏱️ 002·طرف-لطرف: مُخرَج الـassembler + جالب ⇒ operator_ok/sustain_min يُكتبان",
+      _c002_n == 1 and _c002_rec.get("operator_ok") is True
+      and _c002_rec.get("sustain_min", 0) >= S.CONFIG["OPERATOR_SUSTAIN_MIN"])
+check("⏱️ 002·حارس: بلا جالب تبقى الحقول غائبة (فالاختبار أعلاه يقيس شيئًا فعليًّا)",
+      _c002_nofetch.get("operator_ok") is None
+      and _c002_nofetch.get("sustain_min") is None)
+check("⏱️ 002·قفل: الـassembler يمرّر الجالب والطابع (لا يعود للنداء الأعمى)",
+      "fetch_bars=bot.polygon_minute_bars" in _insp0.getsource(_A2.main)
+      and "fired_ts_ms" in _insp0.getsource(_A2._fires_from_candidates))
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

@@ -245,6 +245,34 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
     return summ or {"session_date": session_date, "assembled": True}
 
 
+def _fires_from_candidates(cands):
+    """🔥 يبني وسائط `record_ignition_fires` من `candidates.jsonl`. **نقيّة وقابلة للاختبار.**
+
+    ⏱️ **`fired_ts_ms` إلزامي** (إصلاح 2026-07-28): `_fire_sustain` تخرج فورًا بقاموس
+    فارغ عند غيابه (`Super_stock.py:9457-9459`)، فقياس «ربع الساعة» (قاعدة فيصل JZ) كان
+    **ميتًا في الإنتاج** — لا لأن الدالّة معطوبة بل لأن نقطة النداء لا تمرّر ما تحتاجه.
+    المصدر: `telegram_sent_at_ms` (لحظة الإرسال الفعلي = الأصدق) ثم `trigger_bar_start`
+    احتياطًا (بداية شمعة الزناد). كلاهما يسجّلهما المسجّل أصلًا — صفر جلب إضافي.
+
+    ⚠️ الأساس يبقى `alert_emitted` (لا `delivered`) — قرار موثّق: المقياس جودة **إشارة
+    الرادار** لا موثوقية تلغرام (انظر `e2_recover.py:131-139`)."""
+    out = []
+    for c in (cands or []):
+        if not c.get("alert_emitted"):
+            continue
+        _ts = c.get("telegram_sent_at_ms")
+        if _ts is None:
+            _ts = c.get("trigger_bar_start")
+        out.append(({"symbol": c.get("symbol"), "stop": [c.get("stop")], "t1": c.get("t1"),
+                     "pivot": c.get("pivot"), "last_price": c.get("signal_price"),
+                     "fired_ts_ms": _ts,
+                     "interp": {"critical_number": {"price": c.get("break_level")}}},
+                    {"price": c.get("signal_price"), "vol_x": c.get("vol_x"),
+                     "usd": c.get("signal_usd")},
+                    None))
+    return out
+
+
 def main():
     session_date = sys.argv[1] if len(sys.argv) > 1 else None
     root = sys.argv[2] if len(sys.argv) > 2 else "e2_measurement"
@@ -287,13 +315,17 @@ def main():
         session_dir = os.path.join(root, "session_%s" % session_date)
         cands = _read_jsonl(os.path.join(session_dir, "candidates.jsonl"))
         ss = _read_jsonl(os.path.join(session_dir, "symbol_sessions.jsonl"))
-        fires = [({"symbol": c.get("symbol"), "stop": [c.get("stop")], "t1": c.get("t1"),
-                   "pivot": c.get("pivot"), "last_price": c.get("signal_price"),
-                   "interp": {"critical_number": {"price": c.get("break_level")}}},
-                  {"price": c.get("signal_price"), "vol_x": c.get("vol_x"), "usd": c.get("signal_usd")},
-                  None) for c in cands if c.get("alert_emitted")]
+        fires = _fires_from_candidates(cands)
         if fires:
-            bot.record_ignition_fires(fires, session_date)
+            # ⏱️ **إصلاح 2026-07-28:** يُمرَّر جالب الدقائق ليُحسَب «ربع الساعة» (فيصل JZ).
+            # هذا **النداء الحيّ الوحيد** لـrecord_ignition_fires في الإنتاج: المقاطع
+            # (`ignition_live.py:624`) لا تسجّل إطلاقًا — فرعها يكتب `segment_fires.json`
+            # (بلا قارئ) والفرع الذي يمرّر الجالب هو «الجلسة الواحدة» غير المستعملة.
+            # آمن هنا: الـassembler جوب منفصل **بعد الإغلاق** (فالدقائق اللاحقة موجودة،
+            # بخلاف لحظة الإطلاق) و`POLYGON_API_KEY` متوفّر له (`ignition.yml:148`)،
+            # وكل هذي الكتلة داخل try/except فأي عطل شبكة لا يُسقط الـassembler.
+            bot.record_ignition_fires(fires, session_date,
+                                      fetch_bars=bot.polygon_minute_bars)
         bot.record_ignition_universe(sorted({r.get("symbol") for r in ss if r.get("symbol")}), session_date)
     except Exception as e:
         print(f"⚠️ توليد السجلّ القديم: {e}")
