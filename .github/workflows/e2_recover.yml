@@ -53,11 +53,15 @@ jobs:
       - name: Strict validator over all recovered sessions (تقرير لا بوّابة)
         continue-on-error: true
         run: python ignition_e2_analyze.py e2_measurement --strict | tee -a recover_report.txt
-      - name: Push recovered index + sessions
+      # ⚠️ **الفهرس وحده يُدفَع.** `e2_measurement/` مُستثنى بـ`.gitignore` **عمدًا**
+      # (مواصفة E2 §5/§12: الخام يعيش في artifacts لا في الريبو) — والمجلّدات المسترجَعة
+      # تبقى في مساحة العمل ليقرأها المدقّق أعلاه ثم تُرمى مع الرنر. لا تُضِفه هنا:
+      # `git add` على مسار مُستثنى **يتخطّاه صامتًا** فيوهم أنه دُفِع.
+      - name: Push recovered index
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ignition_e2_session_index.json e2_measurement/ 2>/dev/null || true
+          git add ignition_e2_session_index.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "لا جديد — كل الجلسات موجودة سلفًا"; exit 0
           fi

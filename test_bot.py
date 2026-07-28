@@ -2817,6 +2817,14 @@ check("🔬♻️ إعادة التشغيل آمنة: صفر جلسة جديدة
       _rc_res2["new"] == [] and _rc_res2["copied"] == []
       and set(_json.load(open(_os.path.join(_rc_root, INDEX_RC := "ignition_e2_session_index.json"),
                               encoding="utf-8"))) == set(_rc_idx))
+check("🔬♻️ قفل: لا workflow يُضيف مسارًا مُستثنى بـ.gitignore (يُتخطّى صامتًا فيوهم بالدفع)",
+      (lambda ign, wfs: all(
+          not any(("git add" in ln and p.rstrip("/") in ln) for ln in wf.splitlines())
+          for wf in wfs for p in ign))(
+          [ln.strip() for ln in open(".gitignore", encoding="utf-8")
+           if ln.strip().endswith("/") and not ln.startswith("#")],
+          [open(_os.path.join(".github/workflows", f), encoding="utf-8").read()
+           for f in _os.listdir(".github/workflows") if f.endswith(".yml")]))
 check("🔬♻️ قفل: الاسترجاع خارج الفرز/الرادار (لا يستورده أي جذر)",
       all(_fn not in _insp0.getsource(_f)
           for _fn in ("e2_recover", "recover(")
