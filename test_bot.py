@@ -9294,6 +9294,44 @@ check("🔒 008·انهيار الرصد لا يُسقط المتابعة الي
 
 
 # ==========================================================
+# 📌 خطة 007: تثبيت الاعتماديات + فحص الدخان الحيّ
+# ==========================================================
+# `tests.yml` تعمل بلا إنترنت بتصميمها ⇒ كسرُ yfinance لا يُسقط أي اختبار (CI خضراء
+# والإنتاج يقرأ صفرًا). فالفحص الحيّ مكانه workflow **منفصل**، وهنا نقفل الضمانات
+# الثابتة عليه: أنه لا يكتب حالة ولا يأخذ مفتاح Polygon، وأن الاعتماديات مثبَّتة.
+print("\n=== 📌 خطة 007: تثبيت الاعتماديات + فحص الدخان ===")
+
+_c7_req = open("requirements.txt", encoding="utf-8").read()
+_c7_pins = [_l.strip() for _l in _c7_req.splitlines()
+            if _l.strip() and not _l.strip().startswith("#")]
+check("📌 007·الاعتماديات الأربع مثبَّتة بـ== (لا >= يسمح بترقية صامتة)",
+      len(_c7_pins) == 4 and all("==" in _l for _l in _c7_pins)
+      and all(any(_l.startswith(_p) for _l in _c7_pins)
+              for _p in ("yfinance", "pandas", "numpy", "requests")))
+check("📌 007·بروتوكول الترقية موثّق داخل الملفّ (لا ترقية بلا فحص دخان)",
+      "deps_smoke" in _c7_req and "test_bot.py" in _c7_req)
+
+# 🔒 أداة الفحص لا تكتب حالة إطلاقًا — قفل AST (نداءات فعلية لا ذِكر في docstring)
+import ast as _ast7
+_c7_tree = _ast7.parse(open("deps_smoke.py", encoding="utf-8").read())
+_c7_bad = {"git_save", "save_watchlist", "_atomic_write_json", "save_alerts_file",
+           "record_ignition_fires", "record_ignition_universe", "record_new_alerts",
+           "load_watchlist", "run_daily_watchlist", "run_weekly_renewal"}
+_c7_calls = {(_n.func.attr if isinstance(_n.func, _ast7.Attribute)
+              else getattr(_n.func, "id", None))
+             for _n in _ast7.walk(_c7_tree) if isinstance(_n, _ast7.Call)}
+check("🔒 007·deps_smoke لا ينادي أي دالّة تكتب حالة (قفل AST)",
+      not (_c7_calls & _c7_bad))
+_c7_yml = open(".github/workflows/deps_smoke.yml", encoding="utf-8").read()
+check("🔒 007·workflow الفحص: permissions=read · بلا مفتاح Polygon · كرون غير مستدير",
+      "contents: read" in _c7_yml
+      and "POLYGON_API_KEY: ${{" not in _c7_yml
+      and 'cron: "37 6 * * 1"' in _c7_yml)
+check("🔒 007·tests.yml بقيت بلا إنترنت (الفحص الحيّ منفصل عنها عمدًا)",
+      "deps_smoke" not in open(".github/workflows/tests.yml", encoding="utf-8").read())
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
