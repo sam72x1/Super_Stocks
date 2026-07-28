@@ -1,5 +1,7 @@
 name: 🔬 مِجَسّ النقل من OTC (مؤقّت)
 # يُحذف هو والسكربت بعد قراءة النتيجة (سابقة: مِجَسّ Form 4 وChartExchange).
+permissions:
+  contents: write        # ⚠️ نسيتها أول مرة ⇒ نجح المِجَسّ وفشل دفع نتيجته (403)
 on:
   workflow_dispatch:
     inputs:
