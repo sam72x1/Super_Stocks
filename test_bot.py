@@ -6621,6 +6621,9 @@ check("💧 وسم الجلسة بدقائق UTC (نوافذ market_session_now)
 check("📋 الفحص اليدوي يحمل تفصيل الجاهزية للبطاقة (لا كتلة ميتة عند التأهّل)",
       (lambda _s: "readiness_have" in _s and "setdefault" in _s
        and "card_result" in _s)(_insp0.getsource(_AO.main)))
+check("♻️ الجامع·«وصلت بمعرّف سبق تنزيله» تُحسَب وتُعرَض (كانت صامتة تمامًا)",
+      (lambda _s: "seen_skip" in _s and _s.count("seen_skip.append") == 1
+       and "سبق تنزيلها" in _s)(_insp0.getsource(TC.main)))
 check("🧾 الجامع·يكتب تقريرًا **مقروءًا** (سجلّ Actions يُقصّ فلا يُقرأ آليًّا)",
       (lambda _s: "REPORT" in _s and "المكرّرة وما طابقته" in _s
        and "وسائط لم نقبلها" in _s)(_insp0.getsource(TC.main))
