@@ -126,5 +126,16 @@
   "usd": 22225,
   "candle_class": "group",
   "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "LENZ",
+  "date": "2026-07-28",
+  "fired_at": "2026-07-28T19:32:43Z",
+  "break_level": 5.85,
+  "price": 5.8724,
+  "vol_x": 3.9,
+  "usd": 30796,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
  }
 ]
