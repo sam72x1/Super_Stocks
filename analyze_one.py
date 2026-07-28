@@ -641,6 +641,13 @@ def main():
 
     # البطاقة: الرسمية إن اجتاز، وإلا الارتداد إن وُجد، وإلا التشخيصية
     card_result = official or pull or result
+    # ⚠️ **إصلاح 2026-07-28:** تفصيل الجاهزية (متوفر/جزئي/ناقص) يُكتَب على سجلّ
+    # **التشخيص** (`result`) وحده، والبطاقة تُبنى من `official` عند التأهّل ⇒ كتلة
+    # «تفصيل نسبة الجاهزية» في `render_ondemand` **ميتة تمامًا للسهم المؤهّل** (وهو
+    # الحالة التي يهمّ فيها «لماذا الجاهزية 60/100؟»). نحملها للبطاقة بلا دهس.
+    for _k in ("readiness_have", "readiness_partial", "readiness_missing"):
+        if result.get(_k) is not None:
+            card_result.setdefault(_k, result[_k])
     if official is None and pull is None:
         card_result["tier"] = "B"   # عرض فقط — الحكم بالأعلى يوضّح الرفض
 

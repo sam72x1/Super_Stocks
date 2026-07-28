@@ -3183,6 +3183,25 @@ def refresh_borrow(s: dict, today_iso: str, fetch=None) -> None:
         pass
 
 
+def _session_label(now=None):
+    """وسم الجلسة الحالية بتوقيت نيويورك: «بريماركت» · «السوق» · «أفتر/مغلق».
+    يُستعمل لوسم السبريد بصدق (سبريد خارج الجلسة واسع طبيعيًّا — لقطة فيديو DSY 21%
+    كانت مغلقة). فاشل-آمن → None فلا يُوسَم. نقيّة عمليًّا (تقرأ الوقت فقط)."""
+    try:
+        # ⚠️ `market_session_now` يرجع النوافذ **بالدقائق-UTC** (مشتقّة من نيويورك
+        # فتتصيّف آليًّا) ⇒ المقارنة يجب أن تكون بدقائق UTC لا بتوقيت نيويورك.
+        w = market_session_now(now)
+        m = (now or dt.datetime.now(dt.timezone.utc)).astimezone(dt.timezone.utc)
+        cur = m.hour * 60 + m.minute
+        if cur < w["pre_start"]:
+            return "مغلق"
+        if cur < w["open"]:
+            return "بريماركت"
+        return "السوق" if cur < w["close"] else "أفتر"
+    except Exception:                                     # noqa: BLE001
+        return None
+
+
 def spread_line(bid, ask, session=None, brief=False) -> str:
     """💧 سطر السبريد وتحذير السيولة (🎬 فيصل يبدأ فيديو DSY بدفتر الأوامر — الحالة
     المرئية Bid 2.52 / Ask 3.12 = سبريد ~21%). السبريد نسبةً لمنتصف السعر (صيغة
@@ -6412,7 +6431,12 @@ def build_message(results: list, splits: list,
         if r.get("kst4"):
             lines.append(f"📈 KST (4س): {r['kst4']}")
         # 💧 سبريد/سيولة (🎬 فيصل يبدأ بدفتر الأوامر) — يظهر فقط لو NBBO حاضر (نادر بالكرت)
-        _spl = spread_line(r.get("bid"), r.get("ask"), r.get("session"))
+        # ⚠️ **إصلاح 2026-07-28:** كان يقرأ `r["bid"]`/`r["ask"]`/`r["session"]` —
+        # ولا أحد يكتبها على المستوى الأول لسجلّ فرز إطلاقًا (و`"session"` **لا كاتب
+        # لها في المستودع كلّه**) ⇒ السطر **ميت دائمًا** لا يُخطئ ولا يظهر. `enrich`
+        # تكتب الاقتباس في `session_ctx["quote"]`، والجلسة تُشتقّ من `market_session_now`.
+        _q = ((r.get("session_ctx") or {}).get("quote") or {})
+        _spl = spread_line(_q.get("bid"), _q.get("ask"), _session_label())
         if _spl:
             lines.append(_spl)
         # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)

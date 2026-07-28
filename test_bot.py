@@ -1548,11 +1548,15 @@ check("🔬 P0-2: التأجيل يقرأ فشل الجلب صراحةً (_raw_s
 # ⚖️ P1-3 (تدقيق Codex): الاختلاف بين الدالّتين **مقصود** — قفل ضد إعادة التوحيد الخاطئ.
 _src_ut_p13 = _insp0.getsource(S.update_tracking)
 _src_uws_p13 = _insp0.getsource(S.update_watchlist_status)
+# ⚠️ **إصلاح 2026-07-28:** كان التأكيد يشترط `"P1-3" in _src` في الدالّتين — وهي سلسلة
+# لا وجود لها إلا في **تعليقَي** 7840/13399 ⇒ شرطان يحرسان **نصّ التوثيق** لا السلوك:
+# حذف التعليق يُحمِّر السويّة، وتغيير المنطق مع إبقائه لا يُحمِّرها = ثقة زائفة.
+# أُسقطا، وبقي ما هو **بنيويّ فعلًا** (عدد فحوص الوقف + وسم الخروج الرابح).
 check("⚖️ P1-3: update_tracking لا يشطب بعد الهدف (ربح) · update_watchlist_status يشطب (انتهى)",
       _src_ut_p13.count("<= _stop_c") == 1
       and _src_uws_p13.count("<= _stop_c") >= 2
       and "خروج رابح مفترض" in _src_uws_p13
-      and "P1-3" in _src_ut_p13 and "P1-3" in _src_uws_p13)
+      and "خروج رابح مفترض" not in _src_ut_p13)
 
 # 🔬 P0-2 (update_watchlist_status الحيّ — نفس حارس update_tracking): قفزة ≥3× + فشل جلب ⇒ تأجيل.
 _uws_saved_fs = S._fetch_splits
@@ -6499,6 +6503,7 @@ check("🚧 عدم الخلط·مرجع الـ÷2 خاصّ بالمقسّم: `sp
           "\n".join(_ln for _ln in _insp0.getsource(HC.render_hand_check).split("\n")
                     if not _ln.lstrip().startswith("#"))))
 import pullback_live as _PLmod
+import analyze_one as _AO
 import telegram_collect as TC
 
 
@@ -6569,6 +6574,26 @@ check("🔁 الجامع·الحفظ يسجّل اسم الملف ببصمته �
            is not None)(dict()),
           TC.__dict__.__setitem__("OUT_DIR", _sv))[1])(TC.OUT_DIR))(_tf.mkdtemp())
       and isinstance(TC._existing_shas("faisal_images"), dict))
+# 💧 **سطر السبريد كان ميتًا**: `build_message` كانت تقرأ `r["bid"]/["ask"]/["session"]`
+# ولا كاتب لها على المستوى الأول (و`session` بلا كاتب في المستودع كلّه) ⇒ لا يظهر أبدًا.
+check("💧 الكرت يقرأ الاقتباس من مسار `enrich` الفعلي (session_ctx.quote) لا مفاتيح ميتة",
+      (lambda _s: "session_ctx" in _s and "quote" in _s
+       and 'r.get("bid")' not in _s and 'r.get("session")' not in _s)(
+          _insp0.getsource(S.build_message)))
+check("💧 وسم الجلسة بدقائق UTC (نوافذ market_session_now) وصحيح بالفصلين",
+      (lambda _Z: all(
+          S._session_label(S.dt.datetime(_y, _m, _h_d, _h, 0, tzinfo=_Z(
+              "America/New_York")).astimezone(S.dt.timezone.utc)) == _exp
+          for _y, _m, _h_d, _h, _exp in (
+              (2026, 7, 28, 5, "بريماركت"), (2026, 7, 28, 11, "السوق"),
+              (2026, 7, 28, 17, "أفتر"), (2026, 7, 28, 3, "مغلق"),
+              (2026, 1, 13, 5, "بريماركت"), (2026, 1, 13, 11, "السوق"),
+              (2026, 1, 13, 17, "أفتر"))))(
+          __import__("zoneinfo").ZoneInfo))
+# 📋 تفصيل الجاهزية كان ميتًا **للسهم المؤهّل** (يُكتَب على سجلّ التشخيص والبطاقة من official)
+check("📋 الفحص اليدوي يحمل تفصيل الجاهزية للبطاقة (لا كتلة ميتة عند التأهّل)",
+      (lambda _s: "readiness_have" in _s and "setdefault" in _s
+       and "card_result" in _s)(_insp0.getsource(_AO.main)))
 check("🧼 قفل·لا اختبار يكتب داخل مجلّد الصور الإنتاجي (`faisal_images/`)",
       not [_f for _f in __import__("os").listdir("faisal_images")
            if not (_f.endswith(".jpg") or _f == "README.md")])
