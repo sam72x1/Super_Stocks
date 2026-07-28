@@ -23,6 +23,7 @@ import sys
 import requests
 
 API = "https://api.telegram.org"
+REPORT = "telegram_collect_report.md"   # 🧾 تقرير كل سحبة (يُدفَع ليُقرأ)
 OUT_DIR = "faisal_images"
 STATE = "telegram_collect_state.json"
 IMG_EXT = (".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif")
@@ -423,8 +424,38 @@ def main():
     if no_media:
         print(f"ℹ️ رسائل بلا وسائط (نصّ/ردود) — لا شيء فُقِد: {len(no_media)}"
               + (f" · أرقامها: {no_media[:20]}" if len(no_media) <= 20 else ""))
-    for _ln in gap_report(set(_saved_msg_ids(OUT_DIR)) | acct | set(no_media)):
+    _gaps = gap_report(set(_saved_msg_ids(OUT_DIR)) | acct | set(no_media))
+    for _ln in _gaps:
         print(_ln)
+    # 🧾 **تقرير مكتوب** (إصلاح 2026-07-28): كل ما سبق يُطبَع في سجلّ Actions — وسجلّ
+    # الوظيفة **لا يمكن قراءته آليًّا بالكامل** (الواجهة تقصّه من الذيل)، فبنيتُ تشخيصًا
+    # لا أستطيع قراءته. الآن يُكتَب ملفًّا **يُدفَع مع الصور** فيُقرأ من المستودع مباشرةً.
+    try:
+        _R = [f"# 🧾 تقرير سحب صور التلغرام", "",
+              f"- حُفِظت جديدة: **{saved}** · مكرّرة متخطّاة: **{skipped}**",
+              f"- مجموع الصور الآن: **{total}**",
+              f"- عالق بالطابور: **{len(pending)}**", ""]
+        if matched:
+            _R += ["## 🔁 المكرّرة وما طابقته (SHA-256 على المحتوى = نفس الملف حرفيًّا)",
+                   "", "| الواردة | طابقت |", "|---|---|"]
+            _R += [f"| {_a} | {_b} |" for _a, _b in matched]
+            _R.append("")
+        if dropped:
+            _R += ["## ⛔ وسائط لم نقبلها (قد تكون صورًا بشكل غير مدعوم)", "",
+                   "`" + "` · `".join(dropped) + "`", "",
+                   "أعِد إرسالها **كصورة عادية أو ملف JPG/PNG**.", ""]
+        if no_media:
+            _R += ["## ℹ️ رسائل بلا وسائط (نصّ/ردود البوت) — لا شيء فُقِد", "",
+                   f"العدد: **{len(no_media)}** · الأرقام: `{no_media}`", ""]
+        if perm_failed:
+            _R += ["## 🛑 رفضها تلغرام نهائيًّا", ""] + [f"- {_x}" for _x in perm_failed] + [""]
+        if _gaps:
+            _R += ["## 🔍 فجوات الترقيم", ""] + [f"- {_g}" for _g in _gaps] + [""]
+        with open(REPORT, "w", encoding="utf-8") as _fh:
+            _fh.write("\n".join(_R) + "\n")
+        print(f"🧾 كُتب التقرير: {REPORT}")
+    except Exception as _e:                                  # noqa: BLE001
+        print(f"⚠️ تعذّر كتابة التقرير: {_mask(_e)}")
     if got_ids:
         # 🛡️ السجلّ نفسه وسيلة إنقاذ: `forwardMessage` بأرقام الرسائل يُرجع
         # `file_id` جديدًا لكل صورة، فلو ضاع الدفع تُستعاد بلا إعادة إرسال.

@@ -6621,6 +6621,11 @@ check("💧 وسم الجلسة بدقائق UTC (نوافذ market_session_now)
 check("📋 الفحص اليدوي يحمل تفصيل الجاهزية للبطاقة (لا كتلة ميتة عند التأهّل)",
       (lambda _s: "readiness_have" in _s and "setdefault" in _s
        and "card_result" in _s)(_insp0.getsource(_AO.main)))
+check("🧾 الجامع·يكتب تقريرًا **مقروءًا** (سجلّ Actions يُقصّ فلا يُقرأ آليًّا)",
+      (lambda _s: "REPORT" in _s and "المكرّرة وما طابقته" in _s
+       and "وسائط لم نقبلها" in _s)(_insp0.getsource(TC.main))
+      and "telegram_collect_report.md" in open(
+          ".github/workflows/telegram_collect.yml", encoding="utf-8").read())
 check("🧼 قفل·لا اختبار يكتب داخل مجلّد الصور الإنتاجي (`faisal_images/`)",
       not [_f for _f in __import__("os").listdir("faisal_images")
            if not (_f.endswith(".jpg") or _f == "README.md")])

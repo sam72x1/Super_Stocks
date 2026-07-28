@@ -46,7 +46,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # -f لأن faisal_images/* مُستثنى بـ.gitignore حمايةً من الإضافة العابرة
           git add -f faisal_images/ FAISAL_IMAGE_AUDIT.md faisal_image_audit.json \
-                     telegram_collect_state.json 2>/dev/null || true
+                     telegram_collect_state.json telegram_collect_report.md \
+                     2>/dev/null || true
           if git diff --cached --quiet; then
             echo "لا جديد — لا commit"; exit 0
           fi
