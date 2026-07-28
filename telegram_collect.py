@@ -268,6 +268,7 @@ def main():
     # كان تقرير الفجوات يعدّ **المكرّرة** فجوةً وهميّة فلا يُميَّز «مكرّر» من «ضائع»
     # (سؤال المالك 2026-07-28: «هل وصلت الـ100 كلها؟» لم يكن قابلًا للإثبات).
     acct = set(int(x) for x in (state.get("seen_msg_ids") or []))
+    dropped, no_media = [], []   # 🔍 وسائط غير مقبولة · ورسائل بلا وسائط
 
     if pending:                                      # الطابور أولًا قبل أي جديد
         print(f"🔁 إعادة محاولة {len(pending)} صورة مؤجَّلة من تشغيل سابق…")
@@ -319,7 +320,19 @@ def main():
             msg = u.get("message") or u.get("channel_post") or {}
             f = pick_file(msg)
             if not f:
-                marks.append((uid, True))            # لا صورة ⇒ لا شيء يُفقَد
+                # ⚠️ **تشخيص 2026-07-28:** «لا صورة ⇒ لا شيء يُفقَد» صحيحة **فقط** لو
+                # كانت الرسالة نصًّا. أما وسائط بشكل لا نقبله (فيديو/ملصق/مستند بـmime
+                # غريب) فتُقَرّ وتضيع **بلا أثر**. نُميّز الحالتين ونُبلّغ بالأرقام —
+                # سؤال المالك «هل وصلت الـ100؟» يحتاج هذا التمييز بالذات.
+                _media = next((k for k in ("document", "video", "animation",
+                                           "sticker", "audio", "voice",
+                                           "video_note")
+                               if msg.get(k)), None)
+                if _media:
+                    dropped.append(f"{msg.get('message_id')}:{_media}")
+                else:
+                    no_media.append(int(msg.get("message_id") or 0))
+                marks.append((uid, True))            # نصّ ⇒ لا شيء يُفقَد
                 continue
             if f["file_id"] in seen_uid:
                 marks.append((uid, True))            # نُزِّلت سابقًا
@@ -383,7 +396,14 @@ def main():
               "`max_files`. ⚠️ المكرّرة تُحسب ضمن السقف.")
     # 🔍 تقرير الفجوات على **كل** ما حُوسب (محفوظ ∪ مكرّر ∪ مرفوض) لا المحفوظ وحده —
     # وإلا عُدَّت المكرّرة فجوةً وهميّة (بعد إعادة إرسالٍ تُخطّى 47 صورة فتظهر «ناقصة»).
-    for _ln in gap_report(set(_saved_msg_ids(OUT_DIR)) | acct):
+    if dropped:
+        print(f"⛔ **وسائط لم نقبلها ({len(dropped)}) — قد تكون صورًا "
+              f"بشكل غير مدعوم:** " + " · ".join(dropped[:20]))
+        print("   ↳ أعِد إرسالها **كصورة عادية أو ملف JPG/PNG**.")
+    if no_media:
+        print(f"ℹ️ رسائل بلا وسائط (نصّ/ردود) — لا شيء فُقِد: {len(no_media)}"
+              + (f" · أرقامها: {no_media[:20]}" if len(no_media) <= 20 else ""))
+    for _ln in gap_report(set(_saved_msg_ids(OUT_DIR)) | acct | set(no_media)):
         print(_ln)
     if got_ids:
         # 🛡️ السجلّ نفسه وسيلة إنقاذ: `forwardMessage` بأرقام الرسائل يُرجع
