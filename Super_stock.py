@@ -4856,16 +4856,31 @@ def scan_split_radar(history, exclude=None, fetch_splits=None, fetch_borrow=None
     return probed[:int(cap or CONFIG["SPLIT_RADAR_MAX"])]
 
 
+def split_radar_ready(rows: list) -> list:
+    """✅ **المطابق الكامل فقط** (قرار المالك 2026-07-29: «ما ابي يجيني اشعار نهائيًّا
+    إلا بالأسهم الجاهزة فقط»). كان الرادار يُرسل 12 سهمًا أغلبها بـ❌ — ضجيج يدفن
+    الجاهز. الجاهز = **معايير فيصل الخمسة كلها**: قرب القاع÷2 · حافظ 3ج · شورت (متاح
+    CE) تحت الحدّ · فلوت تحت 2م · خالٍ من رفعة قروب. دالّة نقيّة، لا تُسقط أي معيار
+    ولا تخترع واحدًا — نفس الخمسة التي تُحسب في `scan_split_radar`."""
+    return [r for r in (rows or [])
+            if r.get("near_bottom") and r.get("held_ok") and r.get("short_ok")
+            and r.get("float_ok") and not r.get("pump")]
+
+
 def build_split_radar_section(rows: list) -> str:
     """قسم «🎯 رادار أسهم التقسيم» (فيصل — عرض/سياق فقط، خارج قائمة الترشيح):
-    يعرض المقسّمة التي وصلت قاع القمة÷2 وحالة معايير فيصل (فلوت/شورت/ثبات/قروب)."""
+    يعرض المقسّمة التي وصلت قاع القمة÷2 وحالة معايير فيصل (فلوت/شورت/ثبات/قروب).
+    🔴 **لا يُرسَل إلا المطابق الكامل** (قرار المالك 2026-07-29) — وغيابُه صمتٌ تامّ
+    (رسالة فارغة ⇒ `send_telegram` لا يُنادى أصلًا في مسار الإرسال)."""
+    rows = split_radar_ready(rows)
     if not rows:
         return ""
 
     def chk(ok):
         return "✅" if ok else "❌"
 
-    lines = ["🎯 <b>رادار أسهم التقسيم</b> (فيصل: القاع = قمة ما بعد التقسيم ÷2):"]
+    lines = ["🎯 <b>رادار أسهم التقسيم</b> (فيصل: القاع = قمة ما بعد التقسيم ÷2) — "
+             "<b>المطابق الكامل فقط</b>:"]
     for r in rows:
         flt = fmt_money(r["float"]) if r.get("float") is not None else "—"
         # 🕵️ «الشورت» = المتاح للاقتراض من ChartExchange (قراءة فيصل) + الرسوم لو متاحة

@@ -2878,6 +2878,27 @@ check("⏳ رادار: الكرون + سقف الانتظار يغطّيان ا�
           for _open in (810, 870) for _lag in (95, 119, 152))
       # وبأسوأ تأخّر لا يتجاوز البدء الافتتاح الصيفي بأكثر من نصف ساعة
       and (_ig_cron_min + 152) - 810 <= 30)
+# 🔕 رادار التقسيم: لا إشعار إلا بالمطابق الكامل (قرار المالك 2026-07-29)
+def _sr_row(sym, **kw):
+    r = {"symbol": sym, "price": 2.0, "half": 1.8, "ref": 3.6, "float": 60_000,
+         "short": 0, "near_bottom": True, "held_ok": True, "short_ok": True,
+         "float_ok": True, "pump": False}
+    r.update(kw)
+    return r
+_sr_all = [_sr_row("NUWE"), _sr_row("NTCL", pump=True), _sr_row("RDGT", short_ok=False),
+           _sr_row("CTNT", float_ok=False), _sr_row("LZMH", held_ok=False),
+           _sr_row("FAR", near_bottom=False)]
+check("🔕 رادار التقسيم·الجاهز = الخمسة كلها (أي ❌ يُسقط السهم)",
+      [r["symbol"] for r in S.split_radar_ready(_sr_all)] == ["NUWE"])
+_sr_msg = S.build_split_radar_section(_sr_all)
+check("🔕 رادار التقسيم·الرسالة تحمل المطابق وحده — لا ذكر لأي ساقط",
+      "NUWE" in _sr_msg and not any(x in _sr_msg
+                                    for x in ("NTCL", "RDGT", "CTNT", "LZMH", "FAR")))
+check("🔕 رادار التقسيم·صفر مطابق ⇒ رسالة فارغة (صمت تامّ، لا إشعار)",
+      S.build_split_radar_section([_sr_row("X", pump=True)]) == ""
+      and S.build_split_radar_section([]) == "")
+check("🔕 رادار التقسيم·الرسالة نفسها لا تحمل ❌ إطلاقًا (كل المعروض ✅)",
+      "❌" not in _sr_msg)
 # 🔴 M14 بوّابة صلبة (قرار المالك 2026-07-29 «يكون مستبعد تماما»)
 _S_yf = S.yf
 S.yf = S.yf or type("Y", (), {"Ticker": staticmethod(lambda s: type("T", (), {"info": {}})())})
