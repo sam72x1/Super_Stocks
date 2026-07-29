@@ -2889,6 +2889,23 @@ check("⏳ رادار: الكرون + سقف الانتظار يغطّيان ا�
           for _open in (810, 870) for _lag in (95, 119, 152))
       # وبأسوأ تأخّر لا يتجاوز البدء الافتتاح الصيفي بأكثر من نصف ساعة
       and (_ig_cron_min + 152) - 810 <= 30)
+# 🔴 معيار الفلوت الكبير موحَّد (_float_too_big) — مرجع واحد لا ثلاثة
+check("🔴 _float_too_big: الحدّ فأكثر = كبير · أقلّ = لا · والمجهول/التالف يمرّ",
+      S._float_too_big(S.CONFIG["FLOAT_GATE_MAX"])
+      and S._float_too_big(S.CONFIG["FLOAT_GATE_MAX"] + 1)
+      and not S._float_too_big(S.CONFIG["FLOAT_GATE_MAX"] - 1)
+      and not S._float_too_big(None) and not S._float_too_big("نصّ")
+      and not S._float_too_big({}) and not S._float_too_big(float("nan")))
+check("🔴 _float_too_big: النصّ الرقمي يُحوَّل (لا يمرّ مجهولًا)",
+      S._float_too_big(str(S.CONFIG["FLOAT_GATE_MAX"] + 1)))
+# 🔴 المحمول بفلوت كبير لا يُعرَض أصلًا بعد التقليم — والمجهول يبقى
+_bfw = {"stocks": [
+    {"symbol": "BIGC", "status": "active", "float": 3e8, "cont_status": "exited"},
+    {"symbol": "OKC", "status": "active", "float": 1e6, "cont_status": "exited"},
+    {"symbol": "UNKC", "status": "active", "float": None, "cont_status": "exited"}]}
+_bfw_out = [s for s in _bfw["stocks"] if not S._float_too_big(s.get("float"))]
+check("🔴 تقليم المحمولين: الكبير يُشطب · الصغير والمجهول يبقيان",
+      [s["symbol"] for s in _bfw_out] == ["OKC", "UNKC"])
 # 🔕 رادار التقسيم: لا إشعار إلا بالمطابق الكامل (قرار المالك 2026-07-29)
 def _sr_row(sym, **kw):
     r = {"symbol": sym, "price": 2.0, "half": 1.8, "ref": 3.6, "float": 60_000,

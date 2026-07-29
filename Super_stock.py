@@ -4856,6 +4856,20 @@ def scan_split_radar(history, exclude=None, fetch_splits=None, fetch_borrow=None
     return probed[:int(cap or CONFIG["SPLIT_RADAR_MAX"])]
 
 
+def _float_too_big(fl) -> bool:
+    """🔴 هل الفلوت **معلوم وكبير**؟ (حدّ M14). المرجع الوحيد لقرار «مستبعد تماما»
+    (المالك 2026-07-29) خارج البوّابة نفسها — يستعمله مسار الحمل وطبقة العرض فلا
+    يتفرّق المعيار في ثلاثة أماكن. **فاشل-آمن:** مجهول/تالف/NaN ⇒ False (يمرّ
+    بفائدة الشك، القاعدة المحسومة: تعذّر ≠ كبير)."""
+    try:
+        if fl is None:
+            return False
+        v = float(fl)
+        return v == v and v >= CONFIG["FLOAT_GATE_MAX"]      # v==v يستبعد NaN
+    except (TypeError, ValueError):
+        return False
+
+
 def split_radar_ready(rows: list) -> list:
     """✅ **المطابق الكامل فقط** (قرار المالك 2026-07-29: «ما ابي يجيني اشعار نهائيًّا
     إلا بالأسهم الجاهزة فقط»). كان الرادار يُرسل 12 سهمًا أغلبها بـ❌ — ضجيج يدفن
@@ -10163,12 +10177,8 @@ def build_position_watch_section(carried: list) -> str:
         # بالإثراء (يُنقَل ببياناته المخزَّنة) فبقي PONY بفلوت 277م بلا وسم. يُوسَم هنا
         # **ولا يُخرَج**: هذا قسم «متابعة لمركزك» لا ترشيح — ومن يحمل السهم يحتاج أن
         # يظلّ يراه. الاستبعاد التام يخصّ **الترشيح** (بوّابة M14) لا متابعة مركز قائم.
-        _fl = s.get("float")
-        try:
-            if _fl is not None and float(_fl) >= CONFIG["FLOAT_GATE_MAX"]:
-                parts.append(f"⚠️ فلوت كبير {int(float(_fl)):,} — لا يُرشَّح ثانيةً")
-        except (TypeError, ValueError):
-            pass
+        if _float_too_big(s.get("float")):
+            parts.append(f"⚠️ فلوت كبير {int(float(s['float'])):,} — لا يُرشَّح ثانيةً")
         line = "• " + " · ".join(parts)
         # الرقم الحرج (فيصل) = ما الذي يعيده للترشيح/يفعّله — من طبقة التفسير إن وُجد
         _crit = ((s.get("interp") or {}).get("critical_number") or {}).get("price")
@@ -11036,6 +11046,15 @@ def run_weekly_renewal(wl: dict) -> None:
         if s["symbol"] in new_syms or s["symbol"] in pull_syms:
             continue
         sym = s["symbol"]
+        # 🔴 **الفلوت الكبير لا يُحمَل أصلًا** (قرار المالك 2026-07-29، بعد تأكيده «لا
+        # ما دخلت ولا شي منها»). المبرّر الوحيد للحمل كان «قد تكون داخلًا فيه» —
+        # وقد سقط. وهو **عديم الفائدة بنيويًّا**: بعد أن صارت M14 بوّابة صلبة لا يمكن
+        # لهذا السهم أن يعود للترشيح أبدًا، فحملُه ضجيجٌ دائم في «متابعة لمركزك».
+        # ⚠️ المجهول يبقى محمولًا (تعذّر ≠ كبير) · وفاشل-آمن: قيمة تالفة ⇒ يُحمَل.
+        if _float_too_big(s.get("float")):
+            fate.append((sym, f"⛔ أُخرِج — فلوت كبير {int(float(s['float'])):,} "
+                         f"(فوق {CONFIG['FLOAT_GATE_MAX']:,}) لا يعود للترشيح"))
+            continue
         df = hist.get(sym)
         still = None
         if df is not None and len(df) >= CONFIG["MIN_BARS"]:
@@ -11194,6 +11213,23 @@ def run_daily_watchlist(wl: dict) -> None:
         migrate_watchlist(wl, hist)
     except Exception as e:
         log(f"⚠️ ترحيل القائمة: {e}")
+    # 2.55) 🔴 تقليم الفلوت الكبير (قرار المالك 2026-07-29 «مستبعد تماما» + تأكيده
+    #       «لا ما دخلت ولا شي منها»): سهمٌ فلوته معلوم وكبير **لا يعود للترشيح أبدًا**
+    #       بعد أن صارت M14 صلبة، فبقاؤه في القائمة ضجيجٌ دائم بلا فائدة. يُشطب هنا
+    #       يوميًّا فلا ينتظر التجديد الأسبوعي. **يُبلَّغ ولا يُحذف بصمت.**
+    #       ⚠️ المجهول يبقى (تعذّر ≠ كبير) · فاشل-آمن (قيمة تالفة ⇒ يبقى).
+    try:
+        _bigf = [s for s in wl["stocks"] if _float_too_big(s.get("float"))]
+        if _bigf:
+            _keep = {s["symbol"] for s in _bigf}
+            wl["stocks"] = [s for s in wl["stocks"] if s["symbol"] not in _keep]
+            for s in _bigf:
+                s["removal_reason"] = "فلوت كبير (M14 صلبة)"
+                wl.setdefault("removed", []).append(s)
+            log("🔴 شُطب لفلوت كبير: "
+                + "، ".join(f"{s['symbol']}({int(float(s['float'])):,})" for s in _bigf))
+    except Exception as e:
+        log(f"⚠️ تقليم الفلوت الكبير: {e}")
     # 2.6) كاشف الانفجارات اليومية (للتعلّم) — يتراكم ويُعرض بتقرير الجمعة
     try:
         accumulate_explosions(wl, hist)
