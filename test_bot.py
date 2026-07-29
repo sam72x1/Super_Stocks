@@ -8773,6 +8773,706 @@ check("🔒 operator_tape_profile خارج الجذور السبعة",
 
 
 # ==========================================================
+# 🧪 توصيف (Characterization) — خطة 001 (تدقيق عميق 2026-07-28)
+# ==========================================================
+# الغرض: تثبيت **سلوك اليوم حرفيًّا** قبل إصلاحات الخطط 002-006/008، فكلّها تلمس
+# مسارات حيّة حسّاسة (بوّابة الفلوت M14 · كتلة إثراء scan_market · تحميل مراقب
+# الارتداد · قرار التجديد الأسبوعي). قاعدة CLAUDE.md: «اختبارات Characterization
+# تسبق أي إصلاح لسلوك حسّاس»، و«**القفل الذي لم يسقط مرّة واحدة عمدًا ليس قفلًا**».
+#
+# ⚠️ **اختباران هنا سيُقلَبان عمدًا** (مُعلَّمان بتعليق صريح فوق كلٍّ منهما): واحد في
+#    خطة 004 وآخر في خطة 005. **أي توصيف آخر يتغيّر بلا خطة = انحدار.**
+#
+# 🔒 صفر تعديل على Super_stock.py — هذي إضافة اختبارات فقط.
+print("\n=== 🧪 توصيف المسار الحيّ (خطة 001) ===")
+
+# ---------- أ) بوّابة الفلوت M14: الثغرات غير المغطّاة ----------
+# (المغطّى أصلًا في «3) الشورت/الفلوت»: فلوت كبير/صغير. الجديد هنا: المجهول ووسمه ·
+#  البوّابة المطفأة · حدّ التخوم بالضبط · والقيم غير الرقمية.)
+_c1_lim = S.CONFIG["FLOAT_GATE_MAX"]
+
+
+def _c1_row(fl):
+    """سجلّ نتيجة أدنى لبوّابة M14 (نسخة جديدة كل نداء — لا تلوّث بين الاختبارات)."""
+    return {"symbol": "C1T", "soft_fails": [], "flags": [], "float": fl,
+            "tier": "B", "score": 60, "rr": 2.0}
+
+
+_c1_sv_yf = S.yf
+try:
+    S.yf = object()          # موجود لكن Ticker يرمي ⇒ fl=None (مسار «تعذّر الجلب»)
+    _c1_none = S.apply_float_gate([_c1_row(None)])
+    check("🧪 توصيف·M14: فلوت مجهول يمرّ بفائدة الشك ويُوسَم «غير متاح» بلا نقص",
+          len(_c1_none) == 1
+          and "فلوت كبير" not in _c1_none[0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c1_none[0]["flags"]))
+
+    # حدّ التخوم بالضبط: الحدّ نفسه = «كبير» · أقلّ منه بواحد = «صغير» (قفل تخوم)
+    _c1_at = S.apply_float_gate([_c1_row(_c1_lim)])
+    _c1_below = S.apply_float_gate([_c1_row(_c1_lim - 1)])
+    check("🧪 توصيف·M14: الحدّ نفسه = «فلوت كبير» · وأقلّ منه بواحد = صغير (تخوم)",
+          "فلوت كبير" in _c1_at[0]["soft_fails"]
+          and "فلوت كبير" not in _c1_below[0]["soft_fails"]
+          and any("صغير" in str(f) for f in _c1_below[0]["flags"]))
+
+    # البوّابة مطفأة ⇒ القائمة تعود **كما هي** (نفس الكائن، بلا أي وسم)
+    _c1_off_in = [_c1_row(9e12)]
+    _c1_sv_req = S.CONFIG["FLOAT_GATE_REQUIRED"]
+    try:
+        S.CONFIG["FLOAT_GATE_REQUIRED"] = False
+        _c1_off = S.apply_float_gate(_c1_off_in)
+    finally:
+        S.CONFIG["FLOAT_GATE_REQUIRED"] = _c1_sv_req
+    check("🧪 توصيف·M14: البوّابة مطفأة ⇒ القائمة تعود كما هي بلا وسم ولا نقص",
+          _c1_off is _c1_off_in and _c1_off_in[0]["soft_fails"] == []
+          and _c1_off_in[0]["flags"] == [])
+
+    # ✅ **قُلبت بخطة 004** (كانت توصّف الانهيار): البوّابة صارت محروسة بنفس حارس
+    #    `refloat_gate_recheck`، فغير الرقمي = **مجهول يمرّ بفائدة الشك** لا استثناء
+    #    يُسقط الفرز كلّه قبل git_save. القرار للمدخلات الرقمية byte-identical.
+    def _c1_raises(fl):
+        try:
+            return (None, S.apply_float_gate([_c1_row(fl)]))
+        except Exception as _e:                       # noqa: BLE001
+            return (type(_e).__name__, None)
+
+    def _c1_raises_many(rows):
+        try:
+            return (None, S.apply_float_gate(rows))
+        except Exception as _e:                       # noqa: BLE001
+            return (type(_e).__name__, None)
+
+    _c1_str, _c1_nan = _c1_raises("12.5M"), _c1_raises(float("nan"))
+    check("🛡️ 004·M14: فلوت نصّي لا يرمي ⇒ يمرّ بفائدة الشك موسومًا «غير متاح»",
+          _c1_str[0] is None and len(_c1_str[1]) == 1
+          and "فلوت كبير" not in _c1_str[1][0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c1_str[1][0]["flags"]))
+    check("🛡️ 004·M14: فلوت NaN كذلك (NaN ليس None — درس CLAUDE.md)",
+          _c1_nan[0] is None and "فلوت كبير" not in _c1_nan[1][0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c1_nan[1][0]["flags"]))
+    check("🛡️ 004·التناقض زال: الطبقتان تحرسان القيم غير الرقمية بنفس الدلالة",
+          S.refloat_gate_recheck([_c1_row("12.5M")])[1] == []
+          and _c1_raises("12.5M")[0] is None
+          and _c1_raises({})[0] is None)
+    # 🔒 قفل: سهم بقيمة سامّة لا يمنع معالجة ما بعده (البوّابة تُكمل القائمة).
+    #    ⚠️ عبر الغلاف عمدًا: نداءٌ عارٍ هنا يجعل **طفرةَ إزالة الحارس تُسقط السويّة
+    #    كلّها قبل سطر النتيجة** فيصير مقياس الطفرة غير مقروء (درس خطة 001).
+    _c1_mixed = _c1_raises_many([_c1_row("سامّ"), _c1_row(_c1_lim + 1)])
+    check("🛡️ 004·M14: سهم بقيمة سامّة لا يمنع من بعده (كلاهما يعود ويُحكَم)",
+          _c1_mixed[0] is None and len(_c1_mixed[1]) == 2
+          and "فلوت كبير" not in _c1_mixed[1][0]["soft_fails"]
+          and "فلوت كبير" in _c1_mixed[1][1]["soft_fails"])
+    # 🔒 قفل: نصّ **رقمي** يُقبَل رقمًا (قرار صريح: التحويل لا الرفض)
+    _c1_numstr = _c1_raises(str(_c1_lim + 1))
+    check("🛡️ 004·M14: نصّ رقمي فوق الحدّ يُعامَل رقمًا ⇒ «فلوت كبير»",
+          _c1_numstr[0] is None
+          and "فلوت كبير" in _c1_numstr[1][0]["soft_fails"])
+    # 🔒 قفل: الالتقاط **ضيّق** (TypeError/ValueError) لا Exception عريض يخفي عيوبًا
+    # ⚠️ الشرط على **حارس النوع الجديد** فقط: `apply_float_gate` فيها `except Exception`
+    #    قديم ومشروع حول جلب yf.Ticker (لا يُمَسّ). المطلوب ألّا يكون الحارس عريضًا.
+    # ⚠️ الأعداد الدقيقة = قفل انحدار: حارس نوع **ضيّق واحد** في كل بوّابة، وأعداد
+    #    `except Exception` القديمة المشروعة (جلب yf.Ticker · جلب Fintel/FINRA) **كما
+    #    هي** — فلا حارس عريض أُضيف يخفي عيوبًا أخرى داخل الحلقة.
+    check("🔒 004·حارس النوع ضيّق (1 لكل بوّابة) والالتقاط العريض القديم لم يتغيّر",
+          (_insp0.getsource(S.apply_float_gate).count("except (TypeError, ValueError)"),
+           _insp0.getsource(S.apply_float_gate).count("except Exception"),
+           _insp0.getsource(S.apply_short_gate).count("except (TypeError, ValueError)"),
+           _insp0.getsource(S.apply_short_gate).count("except Exception")) == (1, 1, 1, 2))
+finally:
+    S.yf = _c1_sv_yf
+
+# ---------- أ-2) بوّابة الشورت M13: نفس الانكشاف بالضبط ----------
+# ⚠️⚠️ خطة 004 ستقلب التوقّع التالي أيضًا (الخطوة 3 فيها تعالج M13 بنفس النمط) —
+#      **لا تحذفه، عدّله.** مصادر الشورت اليوم (FINRA `int` · Fintel dict) أقلّ خطرًا
+#      من الفلوت، لكن الانكشاف **قائم ومطابق** وعلى نفس المسار الحرج.
+_c2_sv = (S.fintel_short, S.finra_daily_short)
+
+
+def _c2_raises(val):
+    try:
+        S.fintel_short = lambda q, _v=val: {"C2T": _v}
+        S.finra_daily_short = lambda q: {}
+        return (None, S.apply_short_gate(
+            [{"symbol": "C2T", "soft_fails": [], "flags": []}]))
+    except Exception as _e:                           # noqa: BLE001
+        return (type(_e).__name__, None)
+
+
+# ✅ **قُلبت بخطة 004**: نفس الحارس طُبِّق على M13 (مصدرها Fintel/FINRA خارجي أيضًا).
+try:
+    _c2_str, _c2_nan = _c2_raises("12K"), _c2_raises(float("nan"))
+    check("🛡️ 004·M13: شورت نصّي لا يرمي ⇒ يمرّ بفائدة الشك موسومًا «غير متاح»",
+          _c2_str[0] is None and "شورت عالٍ" not in _c2_str[1][0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c2_str[1][0]["flags"]))
+    check("🛡️ 004·M13: شورت NaN كذلك",
+          _c2_nan[0] is None and "شورت عالٍ" not in _c2_nan[1][0]["soft_fails"]
+          and any("غير متاح" in str(f) for f in _c2_nan[1][0]["flags"]))
+    # 🔒 المخزَّن للعرض/الذاكرة لا يُمَسّ بالحارس (finra_short يبقى كما وصل).
+    #    ⚠️ قراءة محروسة: بلا حارس النوع يرمي النداء فينهار الملفّ قبل سطر النتيجة
+    #    ويصير مقياس الطفرة غير مقروء (درس خطة 001).
+    _c2_keep = (_c2_raises("12K")[1] or [{}])[0]
+    check("🔒 004·M13: الحارس لا يمسّ المخزَّن finra_short (عرض/ذاكرة)",
+          _c2_keep.get("finra_short") == "12K")
+finally:
+    (S.fintel_short, S.finra_daily_short) = _c2_sv
+
+# ---------- ب) should_renew: الحالة غير المغطّاة ----------
+# (المغطّى أصلًا: force · إشارة · بلا إشارة · قائمة فارغة تمامًا. الجديد: قائمة
+#  أسهمها فارغة **لكن فيها مشطوبون** ⇒ ليست «أول تشغيل» فلا تُجدَّد بلا إشارة.)
+check("🧪 توصيف·التجديد: stocks فارغة مع removed غير فارغة ⇒ ليست تأسيسًا (لا تجديد)",
+      S.should_renew({"stocks": [], "removed": [{"symbol": "OLD"}]},
+                     False, False) is False)
+
+# ---------- ج) monitor_pullback: عدد النداءات وسلوك الحالات ----------
+# 🔴 عدّاد النداءات هو **المقياس الذي تقيسه خطة 006** (تحميل مجمَّع بدل نداء لكل
+#    رمز): اليوم = نداء مستقلّ لكل سهم غير مُطلَق. تثبيته الآن يجعل التحسّن مقيسًا.
+_c3_calls = []
+
+
+def _c3_df(px):
+    return pd.DataFrame({"Open": [px], "High": [px], "Low": [px],
+                         "Close": [px], "Volume": [1e6]},
+                        index=pd.date_range("2024-06-03", periods=1))
+
+
+def _c3_fetch(syms):
+    """جالب مجمَّع (عقد `download_history`): يأخذ **قائمة** ويرجّع dict، ويُسقط ما
+    تعذّر تحميله — نفس ما يفعله المسار الحيّ عند خنق ياهو (DDD غائب هنا)."""
+    _c3_calls.append(list(syms))
+    # AAA عند العتبة بالضبط (2.5 × 1.02) · BBB فوقها · DDD يتعذّر فيغيب
+    px = {"AAA": 2.55, "BBB": 2.60}
+    return {s: _c3_df(px[s]) for s in syms if s in px}
+
+
+def _c3_entry(sym, status="watching", lp=3.0):
+    return {"symbol": sym, "entry": [2.4, 2.5], "pivot": 2.5, "stop": 1.9,
+            "t1": 3.6, "t2": 4.0, "t3": 5.0, "last_price": lp,
+            "status": status, "triggered_date": None}
+
+
+_c3_entries = [_c3_entry("AAA"), _c3_entry("BBB"),
+               _c3_entry("CCC", status="triggered", lp=9.99), _c3_entry("DDD")]
+_c3_sv = (S.download_history, S.yf)
+try:
+    S.download_history, S.yf = _c3_fetch, object()
+    _c3_trig = S.monitor_pullback({"pullback": _c3_entries})
+finally:
+    S.download_history, S.yf = _c3_sv
+_c3_syms = [x for c in _c3_calls for x in c]
+# ✅ **قُلبت بخطة 006**: صار **نداء مجمَّع واحد** بكل غير المُطلَقين بدل نداء لكل رمز.
+check("⚡ 006·الارتداد: نداء تحميل **واحد مجمَّع** بكل غير المُطلَقين",
+      len(_c3_calls) == 1 and _c3_syms == ["AAA", "BBB", "DDD"])
+check("🧪 توصيف·الارتداد: المُطلَق مسبقًا لا يدخل الوسيط ولا يُمسّ",
+      "CCC" not in _c3_syms and _c3_entries[2]["last_price"] == 9.99
+      and _c3_entries[2]["status"] == "triggered")
+check("🧪 توصيف·الارتداد: السعر عند العتبة بالضبط (‎+2%‎ فوق أعلى دفعة) يُطلق",
+      _c3_entries[0]["status"] == "triggered"
+      and _c3_entries[0]["triggered_date"] is not None)
+check("🧪 توصيف·الارتداد: فوق العتبة يبقى «watching» ويُحدَّث سعره فقط",
+      _c3_entries[1]["status"] == "watching"
+      and _c3_entries[1]["last_price"] == 2.60)
+check("🧪 توصيف·الارتداد: رمز غائب من المُخرَج المجمَّع يُتخطّى بلا كسر البقيّة",
+      _c3_entries[3]["status"] == "watching"
+      and [e["symbol"] for e in _c3_trig] == ["AAA"])
+# 🔒 ترتيب المُرجَع يطابق ترتيب المدخلات (يُعرَض في build_pullback_section)
+_c3_ord = [_c3_entry("Z1"), _c3_entry("Z2"), _c3_entry("Z3")]
+_c3_sv3 = (S.download_history, S.yf)
+try:
+    S.download_history = lambda syms: {s: _c3_df(2.0) for s in syms}   # الكلّ يُطلق
+    S.yf = object()
+    _c3_all = S.monitor_pullback({"pullback": _c3_ord})
+finally:
+    (S.download_history, S.yf) = _c3_sv3
+check("🔒 006·الارتداد: ترتيب المُرجَع يطابق ترتيب المدخلات",
+      [e["symbol"] for e in _c3_all] == ["Z1", "Z2", "Z3"])
+# 🔒 فشل التحميل المجمَّع كلّه ⇒ [] بلا رمي (فاشل-آمن، لا يُسقط pullback_live)
+_c3_sv4 = (S.download_history, S.yf)
+try:
+    def _c3_boom(syms):
+        raise RuntimeError("خنق تامّ مُحاكى")
+    S.download_history, S.yf = _c3_boom, object()
+    _c3_fail = S.monitor_pullback({"pullback": [_c3_entry("Q1")]})
+    _c3_fail_raised = None
+except Exception as _e:                                        # noqa: BLE001
+    _c3_fail_raised, _c3_fail = type(_e).__name__, None
+finally:
+    (S.download_history, S.yf) = _c3_sv4
+check("🔒 006·الارتداد: انهيار التحميل المجمَّع ⇒ [] بلا رمي (فاشل-آمن)",
+      _c3_fail_raised is None and _c3_fail == [])
+# 🔒 قفل بنيوي: نداء تحميل واحد فقط داخل الدالّة + وسيط الحقن موجود
+_c3_src = _insp0.getsource(S.monitor_pullback)
+# ⚠️ يعدّ **نداءً** لا ذِكرًا: الـdocstring يشرح النمط القديم `download_history([sym])`
+#    عمدًا، وgetsource يشمله. النداء الوحيد هو `(fetch_hist or download_history)(...)`.
+check("🔒 006·قفل: نداء تحميل واحد داخل monitor_pullback + وسيط fetch_hist محقون",
+      _c3_src.count("(fetch_hist or download_history)(") == 1
+      and _c3_src.count("download_history([") == 1     # في الـdocstring فقط (شرح تاريخي)
+      and "for e in pend:" in _c3_src)
+
+# البوّابتان المبكّرتان (Super_stock.py:9762) — **يجب أن تبقيا بعد تجميع خطة 006**:
+# غيابهما يعني نداء شبكة على قائمة فارغة أو بلا yfinance.
+_c3_calls2 = []
+_c3_sv2 = (S.download_history, S.yf)
+try:
+    S.download_history = lambda syms: (_c3_calls2.append(syms) or {})
+    S.yf = None
+    _c3_nyf = S.monitor_pullback({"pullback": [_c3_entry("EEE")]})
+    S.yf = object()
+    _c3_empty = (S.monitor_pullback({}), S.monitor_pullback({"pullback": []}))
+finally:
+    (S.download_history, S.yf) = _c3_sv2
+check("🧪 توصيف·الارتداد: بلا yfinance ⇒ [] فورًا بصفر نداء تحميل",
+      _c3_nyf == [] and _c3_calls2 == [])
+check("🧪 توصيف·الارتداد: قائمة ارتداد فارغة/غائبة ⇒ [] بصفر نداء تحميل",
+      _c3_empty == ([], []) and _c3_calls2 == [])
+
+# ---------- د) حصانة scan_market تجاه استثناء رمز واحد ----------
+# ✅ **قُلبت بخطة 005**: كتلة الإثراء صارت محروسة لكل رمز، فاستثناء واحد لم يعد
+#    يُسقط التشغيلة كلّها قبل git_save. العضوية والترتيب byte-identical (قفل أدناه).
+_c4_df = synth_pivot()
+_c4_sv = (S.MODE, S.download_history, S.fintel_short, S.finra_daily_short,
+          S.yf, S.build_interpretation, S.descending_trendline)
+try:
+    S.MODE = "TEST"                       # عيّنة TEST_TICKERS — بلا نداء كون
+    S.download_history = lambda syms: {"C4T": _c4_df}
+    S.fintel_short = lambda q: {}
+    S.finra_daily_short = lambda q: {}
+    S.yf = None                           # apply_float_gate ترجع مبكرًا (بلا شبكة)
+    _c4_ok, _ = S.scan_market()
+    check("🧪 توصيف·الفرز: المسار السليم يملأ حقول الإثراء (behav/fsto/interp)",
+          len(_c4_ok) == 1 and _c4_ok[0].get("interp")
+          and _c4_ok[0].get("behav") and "fsto_osc" in _c4_ok[0])
+
+    # ① سقوط التفسير وحده ⇒ الفرز يكمل والسهم يبقى بلا interp
+    S.build_interpretation = lambda r: (_ for _ in ()).throw(
+        RuntimeError("عطل مُحاكى في رمز واحد"))
+    try:
+        _c4_broken, _ = S.scan_market()
+        _c4_raised = None
+    except Exception as _e:                                    # noqa: BLE001
+        _c4_raised, _c4_broken = type(_e).__name__, None
+    check("🛡️ 005·الفرز: سقوط التفسير لا يُسقط scan_market — السهم يبقى بلا interp",
+          _c4_raised is None and _c4_broken is not None
+          and len(_c4_broken) == 1 and _c4_broken[0].get("interp") is None
+          and _c4_broken[0].get("behav"))
+    # 🔒 **قفل العضوية والترتيب** (الأهمّ): مجموعة الرموز وترتيبها لا يتأثّران بسقوط
+    #    الإثراء — لأن rank_key يقرأ readiness/score/rr من analyze_ticker لا من الإثراء.
+    check("🔒 005·العضوية والترتيب byte-identical رغم سقوط الإثراء",
+          [x["symbol"] for x in _c4_ok] == [x["symbol"] for x in _c4_broken])
+    # ② سقوط دالّة مبكّرة في الكتلة (descending_trendline) ⇒ الفرز يكمل كذلك
+    S.build_interpretation = _c4_sv[5]
+    S.descending_trendline = lambda df, px: (_ for _ in ()).throw(
+        RuntimeError("عطل مُحاكى مبكّر"))
+    try:
+        _c4_early, _ = S.scan_market()
+        _c4_early_raised = None
+    except Exception as _e:                                    # noqa: BLE001
+        _c4_early_raised, _c4_early = type(_e).__name__, None
+    check("🛡️ 005·الفرز: سقوط دالّة داخل الكتلة لا يُسقط الفرز (والتفسير يُحسب بعدها)",
+          _c4_early_raised is None and _c4_early is not None
+          and len(_c4_early) == 1 and _c4_early[0].get("trendline") is None
+          and _c4_early[0].get("interp"))
+finally:
+    (S.MODE, S.download_history, S.fintel_short, S.finra_daily_short,
+     S.yf, S.build_interpretation, S.descending_trendline) = _c4_sv
+# 🔒 قفل بنيوي: `results.append(r)` خارج الحارس (وإلا سقط الإثراء = سقوط عضوية)
+_c4_src = _insp0.getsource(S.scan_market)
+check("🔒 005·results.append خارج try الإثراء (الحارس لا يبتلع العضوية)",
+      "\n            results.append(r)" in _c4_src
+      and _c4_src.count("except Exception as _e:") == 2)
+check("🔒 005·الحارس يسجّل ولا يصمت (لا pass صامتة في مساري الفشل)",
+      _c4_src.count('log(f"⚠️ إثراء عرض') == 1 and _c4_src.count('log(f"⚠️ تفسير') == 1)
+
+
+# ==========================================================
+# ⏱️ خطة 002: إحياء قياس «ربع الساعة» في الـassembler (كان ميتًا في الإنتاج)
+# ==========================================================
+# العطل كان بسببين **مستقلَّين** عند نقطة النداء لا في الدالّة: (1) المقاطع
+# (ignition_live.py:624 `if role:`) لا تنادي record_ignition_fires إطلاقًا — النداء
+# الحيّ الوحيد هو الـassembler · (2) والـassembler كان ينادي بلا `fetch_bars` وبلا
+# `fired_ts_ms` فتخرج _fire_sustain بقاموس فارغ (Super_stock.py:9457-9459).
+# ⇒ الحقلان sustain_min/operator_ok لا يُكتبان أبدًا وسطر «⏱️ ربع الساعة» في تقرير
+# التطوير (Super_stock.py:9635-9641) لا يظهر. واختبارات الوحدة خضراء لأنها تحقن
+# الاثنين — صنف «اختبار ينجح ونقطة الاستعمال الحية مكسورة».
+import ignition_e2_assemble as _A2
+import tempfile as _tf2
+
+print("\n=== ⏱️ خطة 002: ربع الساعة في الـassembler ===")
+
+
+def _c002_cand(**kw):
+    base = {"symbol": "AAA", "signal_price": 2.0, "vol_x": 4.0,
+            "signal_usd": 150_000, "break_level": 1.9, "stop": 1.5, "t1": 3.0,
+            "pivot": 1.8, "alert_emitted": True,
+            "telegram_sent_at_ms": 1_000_000, "trigger_bar_start": 999_000}
+    base.update(kw)
+    return base
+
+
+_c002_f1 = _A2._fires_from_candidates([_c002_cand()])
+check("⏱️ 002·الطابع: telegram_sent_at_ms هو المصدر الأول (لحظة الإرسال الفعلي)",
+      len(_c002_f1) == 1 and _c002_f1[0][0]["fired_ts_ms"] == 1_000_000)
+_c002_f2 = _A2._fires_from_candidates([_c002_cand(telegram_sent_at_ms=None)])
+check("⏱️ 002·الطابع: بلا telegram_sent_at_ms ⇒ احتياط trigger_bar_start",
+      _c002_f2[0][0]["fired_ts_ms"] == 999_000)
+_c002_f3 = _A2._fires_from_candidates(
+    [_c002_cand(telegram_sent_at_ms=None, trigger_bar_start=None)])
+check("⏱️ 002·الطابع: بلا الاثنين ⇒ None بلا رمي (فاشل-آمن)",
+      _c002_f3[0][0]["fired_ts_ms"] is None)
+check("⏱️ 002·الأساس alert_emitted محفوظ (لا delivered — قرار موثّق)",
+      _A2._fires_from_candidates([_c002_cand(alert_emitted=False)]) == []
+      and _A2._fires_from_candidates([]) == []
+      and _A2._fires_from_candidates(None) == [])
+check("⏱️ 002·الحقول المنقولة تطابق عقد record_ignition_fires",
+      _c002_f1[0][0]["symbol"] == "AAA" and _c002_f1[0][0]["stop"] == [1.5]
+      and _c002_f1[0][0]["interp"]["critical_number"]["price"] == 1.9
+      and _c002_f1[0][1] == {"price": 2.0, "vol_x": 4.0, "usd": 150_000})
+
+# 🔴 الاختبار الحاسم (طرف-لطرف): مُخرَج الـassembler + جالب محقون ⇒ الحقلان يُكتبان.
+# سجلّ مؤقّت — **ممنوع الكتابة على ignition_log.json الحقيقي**.
+_c002_dir = _tf2.mkdtemp()
+_c002_sv_log = S.IGNITION_LOG_FILE
+try:
+    S.IGNITION_LOG_FILE = _os_hc.path.join(_c002_dir, "ign_log.json")
+    _c002_bars = [{"t": 1_000_000 + i * 60_000, "c": 2.5} for i in range(20)]
+    _c002_n = S.record_ignition_fires(
+        _A2._fires_from_candidates([_c002_cand()]), "2026-07-28",
+        fetch_bars=lambda sym, minutes=0: _c002_bars)
+    _c002_rec = json.load(open(S.IGNITION_LOG_FILE, encoding="utf-8"))[0]
+    # ونفس المدخل بلا جالب = السلوك المكسور (حارس ضد «الاختبار يمرّ في الحالتين»)
+    _os_hc.remove(S.IGNITION_LOG_FILE)
+    S.record_ignition_fires(_A2._fires_from_candidates([_c002_cand()]), "2026-07-28")
+    _c002_nofetch = json.load(open(S.IGNITION_LOG_FILE, encoding="utf-8"))[0]
+finally:
+    S.IGNITION_LOG_FILE = _c002_sv_log
+check("⏱️ 002·طرف-لطرف: مُخرَج الـassembler + جالب ⇒ operator_ok/sustain_min يُكتبان",
+      _c002_n == 1 and _c002_rec.get("operator_ok") is True
+      and _c002_rec.get("sustain_min", 0) >= S.CONFIG["OPERATOR_SUSTAIN_MIN"])
+check("⏱️ 002·حارس: بلا جالب تبقى الحقول غائبة (فالاختبار أعلاه يقيس شيئًا فعليًّا)",
+      _c002_nofetch.get("operator_ok") is None
+      and _c002_nofetch.get("sustain_min") is None)
+check("⏱️ 002·قفل: الـassembler يمرّر الجالب والطابع (لا يعود للنداء الأعمى)",
+      "fetch_bars=bot.polygon_minute_bars" in _insp0.getsource(_A2.main)
+      and "fired_ts_ms" in _insp0.getsource(_A2._fires_from_candidates))
+
+
+# ==========================================================
+# 🏢 خطة 003: ردم الفلوت من المصدر المُثبَت (CE ماتت 2026-07-24)
+# ==========================================================
+print("\n=== 🏢 خطة 003: ردم الفلوت ===")
+
+# ① المصدر القديم ميت فعلًا: المحلّل يرجع None على قِشرة JS (شكل الصفحة اليوم)
+check("🏢 003·CE ميتة: المحلّل يرجع None على قِشرة JS (وينجح على الشكل القديم)",
+      S._parse_ce_float('<html><body><div id="root"></div>'
+                        '<script src="/app.js"></script></body></html>') is None
+      and S._parse_ce_float('x stat-flow-label">Float</div>'
+                            '<div class="stat-flow-value">12.55M</div>') == 12_550_000)
+
+# ② `strict` يمنع تلوّث حقلٍ تقرأه بوّابة M14 بـsharesOutstanding
+_c3_sv_yf = S.yf
+try:
+    S.yf = _ty0.SimpleNamespace(Ticker=lambda s: _ty0.SimpleNamespace(
+        info={"sharesOutstanding": 277_000_000}))          # بلا floatShares
+    _c3_lax, _c3_str = S._yahoo_float("X"), S._yahoo_float("X", strict=True)
+    S.yf = _ty0.SimpleNamespace(Ticker=lambda s: _ty0.SimpleNamespace(
+        info={"floatShares": 1_234_567, "sharesOutstanding": 9_999_999}))
+    _c3_both = (S._yahoo_float("X"), S._yahoo_float("X", strict=True))
+    S.yf = None
+    _c3_noyf = S._yahoo_float("X", strict=True)
+finally:
+    S.yf = _c3_sv_yf
+check("🏢 003·strict: بلا floatShares ⇒ None (لا يسقط لـsharesOutstanding)",
+      _c3_lax == 277_000_000 and _c3_str is None)
+check("🏢 003·strict: مع floatShares ⇒ نفس القيمة في الوضعين (توافق خلفي)",
+      _c3_both == (1_234_567, 1_234_567))
+check("🏢 003·strict فاشل-آمن: بلا yfinance ⇒ None بلا رمي",
+      _c3_noyf is None)
+# 🔴 الخطر المُستنسَخ الذي فرض strict: التقريب يصل بوّابة M14 ويوسم «فلوت كبير»
+_c3_contam = {"symbol": "X", "float": 277_000_000, "soft_fails": ["أ"], "flags": []}
+S.refloat_gate_recheck([_c3_contam])
+check("🏢 003·سبب strict: قيمة sharesOutstanding تصل M14 وتُوسَم «فلوت كبير»",
+      "فلوت كبير" in _c3_contam["soft_fails"])
+
+# ③ أقفال المصدر عند نقطتَي الاستعمال الحيّتين + صون البوّابة والدوال
+_c3_daily = _insp0.getsource(S.run_daily_watchlist)
+_c3_enrich = _insp0.getsource(S.enrich)
+# ⚠️ القفل يكشف **نداءً** (`name(`) لا ذِكرًا: getsource يشمل التعليقات، والتعليق
+#    التوثيقي يسمّي المصدر الميت عمدًا لشرح سبب الاستبدال.
+check("🏢 003·قفل: الردم اليومي ينادي _yahoo_float(strict) لا ce_float_info",
+      "ce_float_info(" not in _c3_daily
+      and "_yahoo_float(s[\"symbol\"], strict=True)" in _c3_daily)
+check("🏢 003·قفل: آخر ملاذ enrich كذلك",
+      "ce_float_info(" not in _c3_enrich
+      and "_yahoo_float(sym, strict=True)" in _c3_enrich)
+check("🏢 003·صون: البوّابة M14 نفسها لم تُمَسّ (لا CE ولا ياهو داخلها)",
+      all(_n not in _insp0.getsource(S.apply_float_gate)
+          for _n in ("ce_float_info", "_yahoo_float")))
+check("🏢 003·صون: ce_float_info/_parse_ce_float لم تُحذفا (محلّل محفوظ لو عادت CE)",
+      callable(getattr(S, "ce_float_info", None))
+      and callable(getattr(S, "_parse_ce_float", None)))
+check("🏢 003·صون: ce_borrow_info (صفحة borrow-fee الحيّة) لم تُمَسّ",
+      "ce_borrow_info" in _insp0.getsource(S.refresh_borrow))
+
+
+# ==========================================================
+# 🔔 خطة 008: رصد سقوط كرون التجديد الأسبوعي (إشعار فقط)
+# ==========================================================
+# القرار يبقى مدفوعًا بإشارة الجدولة وحدها (RENEW_ON_CLOSE) — قرار موثّق. المضاف
+# **رصد** فقط: GitHub قد يُسقط تشغيلة كرون كليًّا، وبلا رصد يسقط بصمت كل ما داخل
+# run_weekly_renewal (القائمة · المصير · الحصاد · التقرير الأسبوعي · مساعد التطوير
+# · CSV · أرشفة history · قائمة الارتداد).
+print("\n=== 🔔 خطة 008: رصد تقادم التجديد ===")
+
+_c8_cap = S.CONFIG["RENEWAL_STALE_DAYS"]
+
+
+def _c8(days_ago, **kw):
+    ws = (_dt0.date(2026, 7, 20) - _dt0.timedelta(days=0)).isoformat()
+    return S.renewal_staleness({"week_start": ws}, today=(
+        _dt0.date(2026, 7, 20) + _dt0.timedelta(days=days_ago)).isoformat(), **kw)
+
+
+import datetime as _dt0
+
+check("🔔 008·اليوم نفسه ⇒ لا تقادم",
+      _c8(0) is None)
+check("🔔 008·أسبوع طبيعي (7 أيام) ⇒ لا إنذار (قفل ضد الإزعاج)",
+      _c8(7) is None)
+check(f"🔔 008·الحدّ نفسه ({_c8_cap} أيام) ⇒ لا إنذار (تخوم: days > max_days)",
+      _c8(_c8_cap) is None)
+_c8_over = _c8(_c8_cap + 1)
+check(f"🔔 008·تجاوز الحدّ ({_c8_cap + 1} أيام) ⇒ dict فيه days والمرجع",
+      isinstance(_c8_over, dict) and _c8_over["days"] == _c8_cap + 1
+      and _c8_over["last"] == "2026-07-20" and _c8_over["max_days"] == _c8_cap)
+check("🔔 008·week_start غائب/غير نصّ ⇒ None (قائمة تأسيسية لا تُنذر)",
+      S.renewal_staleness({}) is None
+      and S.renewal_staleness({"week_start": None}) is None
+      and S.renewal_staleness({"week_start": 20260720}) is None)
+check("🔔 008·تاريخ تالف ⇒ None بلا رمي (فاشل-آمن)",
+      S.renewal_staleness({"week_start": "غير-تاريخ"}) is None
+      and S.renewal_staleness(None) is None)
+check("🔔 008·week_start في المستقبل ⇒ None (ساعة رنر مغلوطة لا تُنذر)",
+      _c8(-3) is None)
+check("🔔 008·max_days محقون يتجاوز CONFIG",
+      _c8(4, max_days=3) is not None and _c8(3, max_days=3) is None)
+# العرض
+_c8_msg = S.renewal_stale_message(_c8_over)
+check("🔔 008·الرسالة تحوي التاريخ وعدد الأيام وطريقة الإجراء",
+      "2026-07-20" in _c8_msg and str(_c8_cap + 1) in _c8_msg
+      and "force_renew=1" in _c8_msg and S.renewal_stale_message(None) == "")
+check("🔔 008·قفل اللغة: بلا علامات مقارنة (قاعدة CLAUDE.md المُلزِمة)",
+      not any(_ch in _c8_msg for _ch in ("≥", "≤", ">", "<"))
+      or "<b>" in _c8_msg and not any(
+          _ch in _c8_msg.replace("<b>", "").replace("</b>", "")
+          .replace("<code>", "").replace("</code>", "") for _ch in ("≥", "≤", ">", "<")))
+# 🔒 قفل الصون الحاسم: قرار التجديد لم يُمَسّ
+check("🔒 008·should_renew byte-identical (لا تقادم ولا weekday داخلها)",
+      all(_n not in _insp0.getsource(S.should_renew)
+          for _n in ("renewal_staleness", "RENEWAL_STALE_DAYS", "weekday")))
+check("🔒 008·الرصد داخل try في main ولا يُطلق تجديدًا",
+      "renewal_staleness" in _insp0.getsource(S.main)
+      and "run_daily_watchlist(wl)" in _insp0.getsource(S.main)
+      and "renewal_staleness" not in _insp0.getsource(S.run_weekly_renewal))
+# 🔒 main لا ترمي لو انهار الرصد (فاشل-آمن مُثبَت لا موصوف)
+_c8_sv = (S.renewal_staleness, S.load_watchlist, S.run_daily_watchlist,
+          S.send_telegram, S.should_renew)
+try:
+    S.renewal_staleness = lambda w: (_ for _ in ()).throw(RuntimeError("عطل رصد"))
+    S.load_watchlist = lambda: {"stocks": [{"symbol": "X"}], "removed": []}
+    S.should_renew = lambda w, f=False, s=False: False
+    _c8_ran = []
+    S.run_daily_watchlist = lambda w: _c8_ran.append(True)
+    S.send_telegram = lambda m: True
+    S.main()
+    _c8_raised = None
+except Exception as _e:                                        # noqa: BLE001
+    _c8_raised = type(_e).__name__
+finally:
+    (S.renewal_staleness, S.load_watchlist, S.run_daily_watchlist,
+     S.send_telegram, S.should_renew) = _c8_sv
+check("🔒 008·انهيار الرصد لا يُسقط المتابعة اليومية (فاشل-آمن مُثبَت)",
+      _c8_raised is None and _c8_ran == [True])
+
+
+# ==========================================================
+# 📌 خطة 007: تثبيت الاعتماديات + فحص الدخان الحيّ
+# ==========================================================
+# `tests.yml` تعمل بلا إنترنت بتصميمها ⇒ كسرُ yfinance لا يُسقط أي اختبار (CI خضراء
+# والإنتاج يقرأ صفرًا). فالفحص الحيّ مكانه workflow **منفصل**، وهنا نقفل الضمانات
+# الثابتة عليه: أنه لا يكتب حالة ولا يأخذ مفتاح Polygon، وأن الاعتماديات مثبَّتة.
+print("\n=== 📌 خطة 007: تثبيت الاعتماديات + فحص الدخان ===")
+
+_c7_req = open("requirements.txt", encoding="utf-8").read()
+_c7_pins = [_l.strip() for _l in _c7_req.splitlines()
+            if _l.strip() and not _l.strip().startswith("#")]
+check("📌 007·الاعتماديات الأربع مثبَّتة بـ== (لا >= يسمح بترقية صامتة)",
+      len(_c7_pins) == 4 and all("==" in _l for _l in _c7_pins)
+      and all(any(_l.startswith(_p) for _l in _c7_pins)
+              for _p in ("yfinance", "pandas", "numpy", "requests")))
+check("📌 007·بروتوكول الترقية موثّق داخل الملفّ (لا ترقية بلا فحص دخان)",
+      "deps_smoke" in _c7_req and "test_bot.py" in _c7_req)
+
+# 🔒 أداة الفحص لا تكتب حالة إطلاقًا — قفل AST (نداءات فعلية لا ذِكر في docstring)
+import ast as _ast7
+_c7_tree = _ast7.parse(open("deps_smoke.py", encoding="utf-8").read())
+_c7_bad = {"git_save", "save_watchlist", "_atomic_write_json", "save_alerts_file",
+           "record_ignition_fires", "record_ignition_universe", "record_new_alerts",
+           "load_watchlist", "run_daily_watchlist", "run_weekly_renewal"}
+_c7_calls = {(_n.func.attr if isinstance(_n.func, _ast7.Attribute)
+              else getattr(_n.func, "id", None))
+             for _n in _ast7.walk(_c7_tree) if isinstance(_n, _ast7.Call)}
+check("🔒 007·deps_smoke لا ينادي أي دالّة تكتب حالة (قفل AST)",
+      not (_c7_calls & _c7_bad))
+_c7_yml = open(".github/workflows/deps_smoke.yml", encoding="utf-8").read()
+check("🔒 007·workflow الفحص: permissions=read · بلا مفتاح Polygon · كرون غير مستدير",
+      "contents: read" in _c7_yml
+      and "POLYGON_API_KEY: ${{" not in _c7_yml
+      and 'cron: "37 6 * * 1"' in _c7_yml)
+check("🔒 007·tests.yml بقيت بلا إنترنت (الفحص الحيّ منفصل عنها عمدًا)",
+      "deps_smoke" not in open(".github/workflows/tests.yml", encoding="utf-8").read())
+
+
+# ==========================================================
+# 📎 خطة 009: مسار artifact الـCSV في daily_screener.yml
+# ==========================================================
+print("\n=== 📎 خطة 009: artifact الـCSV ===")
+
+_c9_yml = open(".github/workflows/daily_screener.yml", encoding="utf-8").read()
+# البادئات الفعلية المستخرَجة من الكود نفسه (لا قائمة مكرَّرة يدويًّا)
+_c9_prefixes = {"daily_watch", "weekly_list", "trades", "signals", "missed"}
+# ⚠️ يُفحص خارج أسطر التعليق: التعليق يسمّي النمط الميت عمدًا لشرح سبب الإزالة.
+_c9_active = [_l for _l in _c9_yml.splitlines() if not _l.lstrip().startswith("#")]
+check("📎 009·النمط الميت أُزيل من المسار الفعّال (لا منتِج له في المستودع كلّه)",
+      not any("screener_report" in _l for _l in _c9_active))
+check("📎 009·كل بادئة CSV يُنتجها الكود مذكورة في مسار الـartifact",
+      all(f"{_p}_*.csv" in _c9_yml for _p in _c9_prefixes))
+check("📎 009·البادئات المذكورة مستعمَلة فعلًا في الكود (لا نمط ميت جديد)",
+      all(f'"{_p}"' in _insp0.getsource(S.run_daily_watchlist)
+          or f'"{_p}"' in _insp0.getsource(S.run_weekly_renewal)
+          or f'"{_p}"' in _insp0.getsource(S.export_weekly_csvs)
+          for _p in _c9_prefixes))
+# 🔒 الأخطر: الـdiff يجب ألّا يمسّ الكرون ولا مطابقة RENEW_ON_CLOSE (يعطّل التجديد بصمت)
+check("🔒 009·صون: كرونا الفارز ومطابقة RENEW_ON_CLOSE لم تُمَسّ",
+      'cron: "54 4 * * 2-5"' in _c9_yml and 'cron: "7 22 * * 5"' in _c9_yml
+      and "github.event.schedule == '7 22 * * 5'" in _c9_yml)
+
+
+# ==========================================================
+# 🔐 خطة 010: صلاحيات صريحة لكل workflow + منع حقن مدخلات الـdispatch
+# ==========================================================
+print("\n=== 🔐 خطة 010: صلاحيات الـworkflows ===")
+
+import glob as _glob10
+import re as _re10
+
+_c10_files = sorted(_glob10.glob(".github/workflows/*.yml"))
+_c10_no_perm = [_f for _f in _c10_files
+                if "permissions:" not in open(_f, encoding="utf-8").read()]
+check("🔐 010·كل workflow يعلن permissions صراحةً (لا وراثة الافتراضي)",
+      len(_c10_files) >= 20 and _c10_no_perm == [])
+
+# ⚠️ الممنوع = مدخل dispatch داخل **نصّ صدفة** (run:). داخل env:/with:/if: مسموح
+#    (GitHub يقيّمها بلا صدفة) وهو النمط المتّبع في بقيّة المستودع.
+def _c10_inputs_in_run(path):
+    out, in_run, ind = [], False, 0
+    for i, l in enumerate(open(path, encoding="utf-8").read().splitlines(), 1):
+        st = l.lstrip()
+        if st.startswith("#"):
+            continue
+        if _re10.match(r"^run:\s*\|?\s*$", st) or st.startswith("run: "):
+            in_run, ind = True, len(l) - len(st)
+            continue
+        if in_run:
+            if st and (len(l) - len(st)) <= ind:
+                in_run = False
+            elif "github.event.inputs" in l:
+                out.append(f"{path}:{i}")
+    return out
+
+
+_c10_inj = [x for _f in _c10_files for x in _c10_inputs_in_run(_f)]
+check("🔐 010·لا مدخل workflow_dispatch داخل أي كتلة run: (منع script injection)",
+      _c10_inj == [])
+check("🔐 010·acc_verify يمرّر السنة عبر env لا الصدفة",
+      "YEAR: ${{ github.event.inputs.year }}"
+      in open(".github/workflows/acc_verify.yml", encoding="utf-8").read()
+      and 'NAME="acc-verify-${YEAR}"'
+      in open(".github/workflows/acc_verify.yml", encoding="utf-8").read())
+# 🔒 صون: الملفّات التي **تدفع** للريبو ما زالت contents: write (تضييقها = كسر صامت)
+_c10_writers = ("daily_screener.yml", "pullback_monitor.yml", "ignition.yml",
+                "hand_flow.yml", "e2_recover.yml", "cline_weekly_review.yml")
+def _c10_perm(fname, key):
+    """قيمة صلاحية معلَنة فعلًا (سطر إعلان، لا ذِكر في تعليق) — ignition.yml يشرح
+    `contents: write` في تعليق فوق الكتلة، فالمطابقة النصّية كانت تمرّ على تعليق."""
+    for _l in open(f".github/workflows/{fname}", encoding="utf-8").read().splitlines():
+        if _l.startswith("#") or _l.lstrip().startswith("#"):
+            continue
+        _m = _re10.match(r"^\s+%s:\s*(\w+)" % key, _l)
+        if _m:
+            return _m.group(1)
+    return None
+
+
+check("🔒 010·صون: كل workflow يدفع للريبو ما زال contents: write (إعلانًا لا تعليقًا)",
+      all(_c10_perm(_f, "contents") == "write" for _f in _c10_writers))
+# 🔒 صون: الملفّات التي تُنزّل artifacts عبر run-id تحتاج actions: read
+check("🔒 010·صون: منزّلات artifacts عبر run-id تعلن actions: read",
+      all(_c10_perm(_f, "actions") == "read"
+          for _f in ("backtest.yml", "acc_report.yml", "acc_verify.yml")))
+check("🔒 010·العشرة المُصلَحة تعلن contents: read (لا write زائد)",
+      all(_c10_perm(_f, "contents") == "read" for _f in (
+          "acc_report.yml", "acc_verify.yml", "analyze_asof.yml", "analyze.yml",
+          "hand_check.yml", "ignition_verify.yml", "polygon_health.yml",
+          "scan_earnings.yml", "split_hunter.yml", "technical.yml")))
+
+
+# ==========================================================
+# 🧹 خطة 011: تنظيف الدوال الميتة + صون المحفوظة بقرار مالك
+# ==========================================================
+# 🔴 القاعدة المستخلَصة: **«غير مستعمَلة» ≠ «ميتة»** في هذا المستودع. قبل أي حذف
+#    ابحث عن الاسم في CLAUDE.md؛ وجود «محفوظة» = قرار مالك. وهذا القفل يُشفّر القاعدة
+#    كي لا تعتمد على القراءة في أي جولة تنظيف قادمة.
+print("\n=== 🧹 خطة 011: تنظيف + صون ===")
+
+_C11_KEEP = ("key_levels_block", "h4_levels_block", "position_size_line",
+             "acc_line", "silent_accumulation", "half_down_target", "half_down_line",
+             "ce_float_info", "_parse_ce_float",
+             # D9: لها اختبارات وظيفية (لا مجرّد قفل) ⇒ ميزة نائمة لا ميتة
+             "split_watch_report", "build_split_watch_section", "_split_row",
+             # صارت بلا مستدعٍ بحذفٍ متسلسل — تُراجَع مستقلّةً لا تُحذف بالتبعية
+             "news_links")
+check("🔒 011·صون: الدوال المحفوظة بقرار المالك موجودة (لا تُحذف في أي تنظيف)",
+      all(callable(getattr(S, _n, None)) for _n in _C11_KEEP))
+_C11_GONE = ("fetch_4h_signal", "short_line", "risk_lines", "news_block",
+             "splits_block")
+check("🧹 011·الخمس الميتة حُذفت فعلًا (لا بقايا تضلّل القارئ)",
+      not any(hasattr(S, _n) for _n in _C11_GONE))
+_c11_src = open("Super_stock.py", encoding="utf-8").read()
+check("🧹 011·لا مرجع متبقٍّ لأي محذوفة (حتى في التعليقات)",
+      not any(_n in _c11_src for _n in _C11_GONE))
+# 🔴 **إصلاح قفل (مراجعة مستقلّة 2026-07-29):** القفل السابق هنا كان **وهميًّا** — شرطاه
+#    يطابقان نصًّا **عامًّا**: (أ) تعليق `«لم يعد يُدفَع بالتقرير اليومي»` موجود في
+#    `run_daily_watchlist` **منذ ما قبل الخطة 011** (على `origin/main` أيضًا) فيمرّ دائمًا ·
+#    (ب) و«تصحيح 2026-07-28» يظهر **مرّتين** في CLAUDE.md (الأخرى من الخطة 003). فحذفُ فقرة
+#    D9 كاملةً كان يُبقي السويّة خضراء (مُثبَت بطفرة). القفل الآن:
+#    ① يقتطع **فقرة D9 وحدها** (بين ترويسة D9 وبداية D10) فلا يمرّ نصّ من موضع آخر،
+#       ويشترط علامة **فريدة في الملفّ كلّه**؛
+#    ② ويتحقّق أن **ادّعاء الفقرة صحيح في الكود** — فلو أُعيد وصل D9 باليومي لصار
+#       التوثيق كاذبًا ويسقط القفل. (تقاطع توثيق↔كود بدل مطابقة نصّ.)
+_c11_claude = open("CLAUDE.md", encoding="utf-8").read()
+_C11_D9_MARK = "هذا الوصل مقطوع منذ 2026-07-09"
+_c11_i = _c11_claude.find("D9 **قسم «مراقبة التقسيم العكسي»**")
+_c11_j = _c11_claude.find("D10 **«تدوير", _c11_i + 1)
+_c11_d9 = _c11_claude[_c11_i:_c11_j] if 0 <= _c11_i < _c11_j else ""
+check("📝 011·فقرة D9 نفسها تحمل تصحيح «الوصل مقطوع» (علامة فريدة لا نصّ عامّ)",
+      bool(_c11_d9) and _C11_D9_MARK in _c11_d9
+      and _c11_claude.count(_C11_D9_MARK) == 1)
+check("📝 011·وادّعاء فقرة D9 صحيح في الكود (splits=[] والقسم غير مدفوع باليومي)",
+      "splits = []" in _insp0.getsource(S.run_daily_watchlist)
+      and "لم يعد يُدفَع بالتقرير اليومي"
+      in _insp0.getsource(S.run_daily_watchlist))
+
+
+# ==========================================================
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

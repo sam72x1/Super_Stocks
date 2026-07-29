@@ -246,6 +246,10 @@ CONFIG = {
                                  #   النشط يُتابَع الين يُضرب ستوبه أو يعود للترشيح (حدث
                                  #   حقيقي، طلب المستخدم 2026-07-21). لا يُفعَّل طبيعيًّا؛
                                  #   وإن فُعِّل يُقلّم الأقدم «خرج» أولًا مع إشعار صريح.
+    "RENEWAL_STALE_DAYS": 8,     # 🔔 تقادم التجديد: مضى أكثر من 8 أيام على آخر تجديد
+                                 #   ناجح = جمعة كاملة سقطت (GitHub قد يُسقط تشغيلة كرون،
+                                 #   والمستودع قاس تأخّرات 95-159د). **إشعار فقط** —
+                                 #   القرار للمالك (force_renew=1). لا يُشتَقّ منه تجديد.
     # ---- قائمة مراقبة الارتداد المستقلة (v2.8): أسهم ارتكاز حقيقية ارتفعت
     # فوق دخولها؛ نتابعها يوميًا وننبّه أول ما تنزل لسعر الدعم (انهيار البورصة)
     "PULLBACK_WATCH": True,
@@ -1036,16 +1040,6 @@ def fetch_4h(sym: str):
     except Exception:
         return None
 
-
-def fetch_4h_signal(sym: str):
-    """تأكيد انعكاس فريم 4 ساعات. يرجع (إشارة bool/None، وصف)."""
-    if yf is None or not CONFIG.get("ENABLE_4H", True):
-        return None, "غير مفعّل"
-    h4 = fetch_4h(sym)
-    if h4 is None:
-        return None, "غير متوفر"
-    ok = timeframe_reversal(h4, 60, 20)
-    return ok, ("✅ مؤكِّد" if ok else "⏳ غير مؤكِّد بعد")
 
 
 # ==========================================================
@@ -4211,15 +4205,19 @@ def enrich(results: list) -> None:
                 # القيمة المجلوبة إن وُجدت، وإلا آخر قيمة معروفة (لا يختفي 🏢)
                 r["float"] = (_or_cache(info.get("floatShares"), cached, "float")
                               or _prev_float)
-                # 🏢 احتياط ChartExchange للفلوت (اقتراح المستخدم 2026-07-10: «كثير
-                # أسهم يجيني الفلوت مجهول» — ياهو مخنوق). آخر ملاذ لو غاب من ياهو
-                # والذاكرة. **عرض فقط: بعد select_top، وM14 مرّت أثناء الفرز فلا
-                # تتأثر إطلاقًا.** بودجت + قاطع دائرة مستقل، فاشل-آمن.
+                # 🏢 آخر ملاذ للفلوت لو غاب من ياهو (`_fetch_info` مخنوق) والذاكرة.
+                # بودجت + قاطع دائرة مستقل، فاشل-آمن.
+                # 🔴 **إصلاح 2026-07-28 (`plans/003`):** كان `ce_float_info` وهي ميتة
+                # منذ 07-24 ⇒ يحرق الميزانية والقاطع بلا أي فائدة. البديل = ياهو
+                # بمحاولة طازجة (`_fetch_info` أعلاه استنفد محاولاته الثلاث).
+                # ⚠️ `strict=True`: `refloat_gate_recheck` تقرأ `r["float"]` **بعد**
+                # هذي الكتلة مباشرةً في مسارَي الاختيار (التجديد + الإضافة اليومية)،
+                # فسقوطٌ لـ`sharesOutstanding` هنا = بوّابة M14 أشدّ صامتةً.
                 if (r["float"] is None
                         and _bor_budget[0] < 25 and _flt_fails[0] < 3):
                     _bor_budget[0] += 1
                     try:
-                        _cf = ce_float_info(sym)
+                        _cf = _yahoo_float(sym, strict=True)
                     except Exception:
                         _cf = None
                     if _cf:
@@ -4883,15 +4881,25 @@ def build_split_radar_section(rows: list) -> str:
     return _rtl_join(lines)
 
 
-def _yahoo_float(sym: str):
+def _yahoo_float(sym: str, strict: bool = False):
     """فلوت ياهو (المصدر الأساسي للفلوت — صفحة CE overview صارت قِشرة JS 2026-07-24
     فماتت `ce_float_info`؛ مُجسّ Actions أثبت ياهو يعطي الفلوت للميكروكاب المغمورة:
     JEM 93,759). يرجّع `floatShares` (المفضّل) وإلا `sharesOutstanding`، أو None.
-    فاشل-آمن · عرض/سياق فقط — خارج الفرز (M14 لا تُمسّ)."""
+    فاشل-آمن · عرض/سياق فقط — خارج الفرز (M14 لا تُمسّ).
+
+    ⚠️ **`strict=True` (أُضيف 2026-07-28، خطة `plans/003`): `floatShares` حصرًا.**
+    السقوط لـ`sharesOutstanding` **تقريب** (وهو دائمًا ≥ الفلوت لأنه يشمل المقيَّد)،
+    ومقبول لأدوات العرض (صيّاد/رادار التقسيم: يجعلها أشدّ لا أرخى). لكنه **ممنوع**
+    في أي حقل يصل `refloat_gate_recheck` — فهي تُعيد حكم M14 على `r["float"]` في
+    **مسار الاختيار**، فتقريبٌ أعلى من الحقيقة = تشديد صامت للبوّابة (مُستنسَخ: قيمة
+    277م من `sharesOutstanding` وحده وُسمت «فلوت كبير»). ⇒ **كل نقطة يصل مخرجُها
+    إلى الاختيار تستعمل `strict=True`.**"""
     try:
         if yf is None:
             return None
         info = yf.Ticker(sym).info or {}
+        if strict:
+            return info.get("floatShares")
         return info.get("floatShares") or info.get("sharesOutstanding")
     except Exception:
         return None
@@ -5671,46 +5679,6 @@ def country_label(c):
     return f"{flag} {esc(ar_country(c))}".strip()
 
 
-def short_line(r) -> str:
-    """سطر الشورت (v2.0): بلا إيموجي، مع اسم المصدر،
-    والتفريق الصريح بين الرقم الفعلي وتعذّر الجلب."""
-    fd = r.get("fintel") or {}
-    vol_part = None
-    if fd.get("short_volume") is not None:
-        vol_part = f"{fmt_money(fd['short_volume'])} (Fintel)"
-    elif r.get("finra_short") is not None:
-        vol_part = f"{fmt_money(r['finra_short'])} (FINRA)"
-    pct_part = None
-    if fd.get("si_pct_float") is not None:
-        pct_part = f"{fd['si_pct_float']}% من الفلوت (Fintel)"
-    elif r.get("short_pct") is not None:
-        pct_part = f"{r['short_pct']}% من الفلوت (Yahoo)"
-    if vol_part and pct_part:
-        return f"شورت يومي: {vol_part} | فائدة الشورت: {pct_part}"
-    if vol_part:
-        return f"شورت يومي: {vol_part}"
-    if pct_part:
-        return f"فائدة الشورت: {pct_part}"
-    return "شورت: تعذّر الجلب من كل المصادر (ليس صفراً)"
-
-
-def risk_lines(price, stop_lo, t1, t2, rr):
-    """عرض المخاطرة بالدولار الفعلي (v2.0) بدل نسبة 1:X الغامضة"""
-    risk = price - stop_lo
-    g1 = t1 - price
-    g2 = t2 - price
-    if rr >= 3:
-        q = "ممتازة جداً"
-    elif rr >= 2:
-        q = "ممتازة"
-    else:
-        q = "جيدة"
-    return [
-        f"🛡️ تخاطر بـ${risk:.2f} للسهم ← ربح هدف1: ${g1:.2f} | "
-        f"هدف2: ${g2:.2f}",
-        f"⚖️ جودة الصفقة: {q} (الربح {rr:.1f}× المخاطرة)",
-    ]
-
 
 def news_links(sym: str) -> str:
     """روابط أخبار قابلة للضغط لكل سهم (موثوقة 100% — لا سحب آلي).
@@ -5724,48 +5692,6 @@ def news_links(sym: str) -> str:
     return (f'🔗 تابع أخباره — <a href="{tr}">⭐ TipRanks</a> (الأفضل) | '
             f'<a href="{yh}">Yahoo</a> | <a href="{fv}">Finviz</a>')
 
-
-def news_block(r) -> list:
-    """قسم الأخبار في البطاقة: عناوين ياهو التلقائية + روابط المتابعة"""
-    lines = []
-    news = r.get("news") or []
-    if news:
-        lines.append("📰 <b>آخر الأخبار (Yahoo):</b>")
-        for it in news:
-            # 14أ: القصّ **قبل** التهريب — القصّ بعده كان قد يشطر كيان HTML
-            # (مثل &amp; → &am) فيكسر رسالة تلغرام كاملة.
-            head = esc(it.get("title", "")[:140])
-            src = esc(it.get("publisher", ""))
-            day = it.get("date", "")
-            meta = " — ".join(x for x in (src, day) if x)
-            link = it.get("link", "")
-            if link:
-                lines.append(f'  • <a href="{esc(link)}">{head}</a>'
-                             + (f" ({meta})" if meta else ""))
-            else:
-                lines.append(f"  • {head}" + (f" ({meta})" if meta else ""))
-    lines.append(news_links(r["symbol"]))
-    return lines
-
-
-def splits_block(splits) -> list:
-    """قسم مراقبة التقسيم العكسي (مشترك بين الرسائل)"""
-    if not splits:
-        return []
-    lines = ["", "✂️ <b>مراقبة أسهم التقسيم العكسي</b>"]
-    for s in splits:
-        half = f"${s['half']:.2f}" if s["half"] else "غير محسوب"
-        if s["short"] is None:
-            srt = "تعذّر الجلب"
-        elif s["short_ok"]:
-            srt = f"{fmt_money(s['short'])} ✅ تحت 20 ألف"
-        else:
-            srt = f"{fmt_money(s['short'])} ⏳ فوق 20 ألف"
-        lines.append(
-            f"• {s['symbol']} | قسم {s['split_date']} | "
-            f"القاع المتوقع (الافتتاح÷2): {half} | "
-            f"السعر: ${s['price']:.2f} | شورت: {srt}")
-    return lines
 
 
 FOOTER = ("⚠️ <i>فارز آلي حسب منهجية موثقة — ليست توصية. "
@@ -6694,7 +6620,7 @@ def export_weekly_csvs(wl: dict, picks: list, alert_data: dict = None) -> None:
     signals = [{"symbol": r["symbol"], "tier": r.get("tier"),
                 "sector": r.get("sector"), "rsi": r.get("rsi"),
                 "float": r.get("float"),
-                # تدرّج الشورت مثل short_line: حجم Fintel ← FINRA ← (نسبة Yahoo
+                # تدرّج الشورت مثل _short_headline: حجم Fintel ← FINRA ← (نسبة Yahoo
                 # بعمود منفصل). كان يكتب finra_short فقط فيظهر فارغًا رغم توفّر
                 # short_pct (مثل UPB). إصلاح فحص 2026-06-26 — تصدير فقط.
                 "short": ((r.get("fintel") or {}).get("short_volume")
@@ -6899,6 +6825,61 @@ def should_renew(wl: dict, force: bool = False,
     return renew_signal
 
 
+def renewal_staleness(wl: dict, today=None, max_days=None):
+    """🔔 هل تأخّر التجديد الأسبوعي؟ **نقيّة · فاشلة-آمنة · إشعار فقط.**
+
+    ⚠️ **لا تؤثّر على `should_renew` إطلاقًا** — قرار التجديد يبقى مدفوعًا بإشارة
+    الجدولة (`RENEW_ON_CLOSE`) لا بيوم الأسبوع ولا بالتقادم (قرار موثّق: أُزيل
+    `WEEKLY_RENEW_DAY` عمدًا). هذي **ترصد فقط** أن جمعةً سقطت: GitHub قد يُسقط تشغيلة
+    كرون كليًّا، والمستودع نفسه قاس تأخّرات 95-159 دقيقة. وبلا رصد يسقط بصمت **كل** ما
+    يحدث داخل `run_weekly_renewal`: بناء القائمة · تقرير المصير · رسالة الحصاد ·
+    التقرير الأسبوعي · مساعد التطوير · تصدير CSV · أرشفة `history` · قائمة الارتداد.
+
+    المرجع = `wl["week_start"]` (يُكتَب عند كل تجديد **ناجح** فقط؛ ومسارا التأجيل عند
+    ضعف التغطية لا يحدّثانه — فيُرصَد التأجيل المتكرّر أيضًا، وهو مقصود).
+
+    يرجّع None (لا تقادم / تعذّرت القراءة) أو dict:
+      {"last": "YYYY-MM-DD", "days": int, "max_days": int}
+    """
+    try:
+        ref = wl.get("week_start") if isinstance(wl, dict) else None
+        if not ref or not isinstance(ref, str):
+            return None                      # قائمة تأسيسية/ملفّ قديم ⇒ لا إنذار
+        last = dt.date.fromisoformat(str(ref)[:10])
+        if today is None:
+            today = dt.date.today()
+        elif isinstance(today, str):
+            today = dt.date.fromisoformat(str(today)[:10])
+        cap = int(CONFIG["RENEWAL_STALE_DAYS"] if max_days is None else max_days)
+        days = (today - last).days
+        if days <= cap:                      # يشمل السالب (ساعة رنر مغلوطة) ⇒ لا إنذار
+            return None
+        return {"last": last.isoformat(), "days": days, "max_days": cap}
+    except Exception:
+        return None
+
+
+def renewal_stale_message(st: dict) -> str:
+    """🔔 نصّ تحذير تقادم التجديد (عربي مبسّط، **بلا علامات مقارنة** — قاعدة CLAUDE.md).
+    نقيّة. «» لو لا تقادم."""
+    if not st:
+        return ""
+    return _rtl_join([
+        "🔔 <b>تنبيه: تجديد القائمة الأسبوعي لم يحدث</b>",
+        f"آخر تجديد ناجح: {esc(str(st.get('last')))} — مضى عليه "
+        f"{int(st.get('days', 0))} يومًا، والمتوقّع تجديد كل أسبوع "
+        "(الجمعة بعد إغلاق السوق).",
+        "",
+        "الأسباب المحتملة:",
+        "• أسقط GitHub تشغيلة الكرون (يحدث عند الحمل).",
+        "• أو تأجّل التجديد لضعف تغطية البيانات (خنق مصدر البيانات).",
+        "",
+        "🔧 <b>الإجراء:</b> شغّل «Daily Pivot Screener» بـ<code>force_renew=1</code> "
+        "من Actions.",
+        "ℹ️ القائمة النشطة محفوظة والمتابعة اليومية مستمرّة — هذا تنبيه حالة لا خطر سوق.",
+    ])
+
+
 def make_watch_entry(r: dict, today_iso: str) -> dict:
     """تحويل نتيجة تحليل إلى سجل سهم في القائمة الأسبوعية"""
     return {
@@ -7020,16 +7001,31 @@ def apply_short_gate(results: list) -> list:
         # قرار البوابة: القرار أدناه يعتمد srt المحلي لا finra_short).
         if srt is not None and r.get("finra_short") is None:
             r["finra_short"] = srt
-        if srt is not None and srt >= limit:
+        # 🛡️ حارس نوع (تدقيق 2026-07-28، خطة `plans/004`) — نفس دلالة حارس طبقة
+        # إعادة تقييم M14 بعد الإثراء. القيمة قادمة من مصدر خارجي (Fintel/FINRA)
+        # وقد تصل نصًّا أو NaN؛ المقارنة/التنسيق كانا يرميان **بلا حارس** على مسار
+        # `scan_market → run_daily_watchlist/run_weekly_renewal → main → exit(1)`
+        # ⇒ سقوط التشغيلة كلّها **قبل `git_save`** (تضيع ستوبات اليوم وأختام الدِدوب
+        # بلا تقرير). مُستنسَخ: نصّ ⇒ TypeError · NaN ⇒ ValueError · dict ⇒ TypeError.
+        # 🔒 **القرار للمدخلات الرقمية byte-identical** (بصمة قبل/بعد): غير الرقمي
+        # يُعامَل **مجهولًا** ⇒ يمرّ بفائدة الشك (القاعدة المحسومة)، لا يُرفَض ولا يُسقِط.
+        # المخزَّن `r["finra_short"]` أعلاه **لا يُمَسّ** (العرض/الذاكرة يعتمدانه).
+        try:
+            srt_num = float(srt) if srt is not None else None
+            if srt_num is not None and srt_num != srt_num:      # NaN
+                srt_num = None
+        except (TypeError, ValueError):
+            srt_num = None
+        if srt_num is not None and srt_num >= limit:
             # v2.7: لا يُحذف — يُسجّل نقصًا وينزل لقائمة المراقبة B
             r.setdefault("soft_fails", []).append("شورت عالٍ")
             r.setdefault("flags", []).append(
-                f"⚠️ شورت عالٍ {int(srt):,} (فوق {limit:,})")
-            rejected.append((r["symbol"], srt))
+                f"⚠️ شورت عالٍ {int(srt_num):,} (فوق {limit:,})")
+            rejected.append((r["symbol"], srt_num))
             kept.append(r)
         else:
-            if srt is not None:
-                r.setdefault("flags", []).append(f"شورت {int(srt):,} (مقبول)")
+            if srt_num is not None:
+                r.setdefault("flags", []).append(f"شورت {int(srt_num):,} (مقبول)")
             else:
                 r.setdefault("flags", []).append("شورت غير متاح — مُرِّر بفائدة الشك")
             kept.append(r)
@@ -7066,17 +7062,34 @@ def apply_float_gate(results: list) -> list:
             except Exception:
                 fl = None
             time.sleep(0.10)         # احترام حدود الطلبات
-        if fl is not None and fl >= limit:
+        # 🛡️ حارس نوع (تدقيق 2026-07-28، خطة `plans/004`) — نفس دلالة حارس طبقة
+        # إعادة تقييم M14 بعد الإثراء (أُضيفت 07-28). `floatShares`
+        # قيمة خارجية قد تصل NaN (pandas/yfinance) أو نصًّا؛ المقارنة/التنسيق كانا
+        # يرميان **بلا حارس** على مسار `scan_market → run_daily_watchlist/
+        # run_weekly_renewal → main → exit(1)` ⇒ سقوط التشغيلة كلّها **قبل `git_save`**
+        # (تضيع ستوبات اليوم وأختام الدِدوب والجاهزية بلا تقرير).
+        # مُستنسَخ: نصّ ⇒ TypeError · NaN ⇒ ValueError · dict ⇒ TypeError.
+        # درس `CLAUDE.md`: «**NaN ليس None**» — احتياط `is None` لا يلتقطه.
+        # 🔒 **القرار للمدخلات الرقمية byte-identical** (بصمة قبل/بعد على 12 قيمة):
+        # غير الرقمي = **مجهول** ⇒ يمرّ بفائدة الشك (القاعدة المحسومة) لا يُرفَض.
+        # المخزَّن `r["float"]` أعلاه **لا يُمَسّ** (طبقات العرض وخطة 003 تعتمده).
+        try:
+            fl_num = float(fl) if fl is not None else None
+            if fl_num is not None and fl_num != fl_num:         # NaN
+                fl_num = None
+        except (TypeError, ValueError):
+            fl_num = None
+        if fl_num is not None and fl_num >= limit:
             # v2.7: لا يُحذف — يُسجّل نقصًا وينزل لقائمة المراقبة B
             r.setdefault("soft_fails", []).append("فلوت كبير")
             r.setdefault("flags", []).append(
-                f"⚠️ فلوت كبير {int(fl):,} (فوق {limit:,})")
-            rejected.append((r["symbol"], fl))
+                f"⚠️ فلوت كبير {int(fl_num):,} (فوق {limit:,})")
+            rejected.append((r["symbol"], fl_num))
             kept.append(r)
         else:
-            if fl is not None:
+            if fl_num is not None:
                 r.setdefault("flags", []).append(
-                    f"فلوت {int(fl):,} (صغير ✅)")
+                    f"فلوت {int(fl_num):,} (صغير ✅)")
             else:
                 r.setdefault("flags", []).append(
                     "فلوت غير متاح — مُرِّر بفائدة الشك")
@@ -7397,17 +7410,37 @@ def scan_market():
                 r["ref_bar"] = df.index[-1].date().isoformat()
             except Exception:
                 r["ref_bar"] = None
-            r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
-            r["fsto_osc"] = fsto_oscillation(        # 🌀 قوة تذبذب FSTO: قروب/مضارب (حيّ، عرض فقط)
-                full_stoch(df["High"], df["Low"], df["Close"])[0])
-            r["klinger"] = klinger_state(            # 📊 كلنجر (حجم — فيصل IMG_0125؛ حيّ، عرض فقط)
-                df["High"], df["Low"], df["Close"], df["Volume"])
-            r["cci"] = cci_state(                    # 📉 CCI(14) — بكل شوارت فيصل (حيّ، عرض فقط)
-                df["High"], df["Low"], df["Close"])
-            r["bottom_test"] = bottom_test_state(df)  # 🔁 «القاع 2» (فيصل EDBL — عرض فقط)
-            r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
-            r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
-            r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
+            # 🛡️ حارس لكل رمز (تدقيق 2026-07-28، خطة `plans/005`): هذي **حقول عرض/تفسير
+            # فقط** (خارج rank_key/select_top/classify_tier بقرار موثّق)، وكانت **بلا أي
+            # حارس** — فاستثناء على رمز واحد يخرج من scan_market ⇒ يُسقط
+            # run_daily_watchlist/run_weekly_renewal ⇒ **التشغيلة كلّها تموت قبل git_save**
+            # (تضيع ستوبات اليوم وأختام الدِدوب والجاهزية بلا تقرير). مُستنسَخ محليًّا.
+            # التطبيق كان **غير متّسق**: النداءات نفسها محروسة في `update_watchlist_status`
+            # (التجديد اليومي) والفرزُ لا — والجهة غير المحروسة هي التي تُسقط كل شيء.
+            # 🔒 `results.append(r)` **خارج الحارس عمدًا**: السهم يدخل النتائج ما دام
+            # `analyze_ticker` أجازه ⇒ **العضوية والترتيب byte-identical** (مقفول باختبار).
+            # فاشل-آمن: الحقل الغائب = None عند كل المستهلكين = سلوك سجلّ قديم بلا الحقل.
+            # (`full_stoch` بلا حماية داخلية — حمايتها من هنا.) ولا `pass` صامتة: يُسجَّل.
+            try:
+                r["behav"] = behavior_rise_profile(df)   # 🧬 بصمة طريقة الارتفاع (حيّ، عرض فقط)
+                r["fsto_osc"] = fsto_oscillation(        # 🌀 قوة تذبذب FSTO: قروب/مضارب (حيّ، عرض فقط)
+                    full_stoch(df["High"], df["Low"], df["Close"])[0])
+                r["klinger"] = klinger_state(            # 📊 كلنجر (حجم — فيصل IMG_0125؛ حيّ، عرض فقط)
+                    df["High"], df["Low"], df["Close"], df["Volume"])
+                r["cci"] = cci_state(                    # 📉 CCI(14) — بكل شوارت فيصل (حيّ، عرض فقط)
+                    df["High"], df["Low"], df["Close"])
+                r["bottom_test"] = bottom_test_state(df)  # 🔁 «القاع 2» (فيصل EDBL — عرض فقط)
+                r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
+                r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
+            except Exception as _e:
+                log(f"⚠️ إثراء عرض {sym}: {type(_e).__name__}: {_e} — تُخطّى حقول "
+                    "العرض · السهم يبقى في نتائج الفرز (العضوية غير متأثّرة).")
+            # حارس مستقلّ للتفسير: يقرأ الحقول أعلاه فقد يسقط وحده (نفس نمط
+            # `update_watchlist_status` الذي يفصل interp في try خاصّ به).
+            try:
+                r["interp"] = build_interpretation(r)    # 🧭 طبقة التفسير/القرار (حيّ، عرض فقط)
+            except Exception as _e:
+                log(f"⚠️ تفسير {sym}: {type(_e).__name__}: {_e} — السهم يبقى بلا interp.")
             results.append(r)
     # تشخيص: أين تُرفض الأسهم؟ (يظهر بسجل الأكشن لمعرفة البوابة الخانقة)
     if _REJECT_STATS:
@@ -9755,20 +9788,38 @@ def build_pullback_section(entries: list, triggered: list = None) -> str:
     return _rtl_join(lines)
 
 
-def monitor_pullback(wl: dict) -> list:
+def monitor_pullback(wl: dict, fetch_hist=None) -> list:
     """متابعة يومية لقائمة الارتداد: يحدّث السعر، ويُطلق تنبيهًا عند نزول
-    السهم لسعر الدعم (ضمن PULLBACK_TRIGGER_PCT). يعيد قائمة المُنبَّه عنها."""
+    السهم لسعر الدعم (ضمن PULLBACK_TRIGGER_PCT). يعيد قائمة المُنبَّه عنها.
+
+    ⚡ **تحميل مجمَّع (إصلاح 2026-07-28، خطة `plans/006`):** كان ينادي
+    `download_history([sym])` **مرة لكل سهم**، وهي ليست نداءً خفيفًا: تقسيم + 3 محاولات
+    بتراجع أُسّي (3ث ثم 6ث) + `CHUNK_SLEEP`=2ث + **تمريرة ثانية كاملة** لما لم يُحمَّل
+    ⇒ ~3-4ث للسهم عند النجاح و**~22ث عند خنق ياهو**. وبحدّ `PULLBACK_SIZE`=15 يصير
+    ~50ث إلى **~5.5 دقائق** تُستهلَك **قبل** `monitor_live_events` (pullback_live.py:50
+    مقابل 72) — وهو مصدر **تنبيه كسر الوقف**، التنبيه الوحيد المصنَّف «خطر» ولا يُبوَّب
+    بالمضارب — داخل مهلة جوب **15 دقيقة**. فعند الخنق يُقتَل الجوب قبل التنبيه وقبل
+    `save_watchlist`/`git_save`. الآن **نداء واحد مجمَّع** لكل غير المُطلَقين.
+    🔒 قرار الإطلاق byte-identical (نفس `buf` ونفس المقارنة ونفس ترتيب الإسنادات)
+    وترتيب المُرجَع يطابق ترتيب المدخلات (يُعرَض في `build_pullback_section`).
+    `fetch_hist` محقون للاختبار (يأخذ قائمة رموز ويرجّع dict) — الافتراضي
+    `download_history` فكل المستدعين القائمين يعملون بلا تغيير."""
     entries = wl.get("pullback") or []
     if not entries or yf is None:
         return []
+    pend = [e for e in entries if e.get("status") != "triggered"]
+    if not pend:
+        return []
     triggered = []
     buf = 1.0 + CONFIG.get("PULLBACK_TRIGGER_PCT", 2.0) / 100.0
-    for e in entries:
-        if e.get("status") == "triggered":
-            continue
+    try:
+        hist = (fetch_hist or download_history)([e["symbol"] for e in pend]) or {}
+    except Exception as exc:                      # فاشل-آمن: لا تنبيه أهون من انهيار
+        log(f"⚠️ مراقبة الارتداد: تعذّر التحميل المجمَّع ({exc}) — لا تنبيه هذه الدورة.")
+        return []
+    for e in pend:
         try:
-            d = download_history([e["symbol"]])
-            df = d.get(e["symbol"])
+            df = hist.get(e["symbol"])
             if df is None or df.empty:
                 continue
             lp = float(df["Close"].iloc[-1])
@@ -11166,12 +11217,20 @@ def run_daily_watchlist(wl: dict) -> None:
         # 🔒 تحديث الاقتراض يوميًّا + مسار «المتاح» (فيصل يتابعه يوميًّا — IMG_9505:
         # قفز 30 ألف→600 ألف في 3 أيام قبيل «طاخ طيخ»). فاشل-آمن: القديم يبقى.
         refresh_borrow(s, today_iso)
-        # 🏢 ردم الفلوت المجهول من ChartExchange (اقتراح المستخدم 2026-07-10):
-        # الأسهم القديمة التي غاب فلوتها (ياهو مخنوق) تُملأ مرة واحدة (الفلوت
-        # ثابت فيُخزَّن ويبقى). فاشل-آمن، وفقط عند الغياب (نداء واحد/سهم مرّة).
+        # 🏢 ردم الفلوت المجهول (اقتراح المستخدم 2026-07-10): الأسهم القديمة التي غاب
+        # فلوتها (ياهو مخنوق لحظتها) تُملأ مرة واحدة — الفلوت ثابت فيُخزَّن ويبقى.
+        # فاشل-آمن، وفقط عند الغياب (نداء واحد/سهم مرّة).
+        # 🔴 **إصلاح 2026-07-28 (خطة `plans/003`):** كان المصدر `ce_float_info` وهي
+        # **ميتة منذ 07-24** (صفحة CE overview صارت قِشرة JS — موثّق بمِجَسّ Actions
+        # ومُستنسَخ محليًّا: المحلّل يرجع None على القِشرة). فالردم لم يكن يملأ شيئًا
+        # **أبدًا**، والأخطر أن هذي القناة هي التي تُغذّي `refloat_gate_recheck`
+        # (إصلاح PONY) — فالأسهم التي خُنق ياهو عنها تبقى «فلوت غير متاح» للأبد
+        # ولا يُعاد حكم M14 عليها. البديل المُثبَت = ياهو.
+        # ⚠️ `strict=True` إلزامي: بلاها يسقط لـ`sharesOutstanding` (≥ الفلوت دائمًا)
+        # فتصير قيمةٌ تقريبية أعلى في حقلٍ تقرأه بوّابة M14 = تشديد صامت.
         if s.get("float") is None:
             try:
-                _cf = ce_float_info(s["symbol"])
+                _cf = _yahoo_float(s["symbol"], strict=True)
                 if _cf:
                     s["float"] = _cf
             except Exception:
@@ -13336,6 +13395,18 @@ def main():
         run_weekly_renewal(wl)
     else:
         log("وضع اليوم: متابعة يومية للقائمة الثابتة")
+        # 🔔 رصد سقوط جمعة التجديد (خطة `plans/008`) — **إشعار فقط، لا يغيّر قرار
+        # التجديد إطلاقًا** (`should_renew` مدفوعة بالإشارة وحدها، قرار موثّق).
+        # قبل `run_daily_watchlist` عمدًا: يصل التحذير حتى لو سقطت التشغيلة بعده.
+        # `try/except` مطلق: الرصد لا يجوز أن يُسقط المتابعة اليومية أبدًا.
+        try:
+            _st = renewal_staleness(wl)
+            if _st:
+                _m = renewal_stale_message(_st)
+                log(_m)
+                send_telegram(_m + "\n\n" + FOOTER)
+        except Exception as _e:                                  # noqa: BLE001
+            log(f"⚠️ رصد تقادم التجديد: {_e}")
         run_daily_watchlist(wl)
     log("انتهى الفحص ✅")
 

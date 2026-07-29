@@ -1,5 +1,9 @@
 name: مسح ناسداك (قوي فنياً + أرباح)
 
+# 🔐 أقلّ صلاحية (تدقيق 2026-07-28، خطة `plans/010`): أداة الأرباح: technical_report.py عرض فقط.
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
   schedule:

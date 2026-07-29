@@ -1,0 +1,41 @@
+name: Deps Smoke (فحص دخان الاعتماديات)
+
+# 🧪 **الكاشف الوحيد لكسر التوافق مع مصادر البيانات.**
+# `tests.yml` تعمل **بلا إنترنت بتصميمها** (كل الجالبات محقونة/مقلَّدة) ⇒ ترقيةُ
+# `yfinance` التي تكسر شكل `download`/`Ticker().info` **لا تُسقط أي اختبار**: تبقى CI
+# خضراء بينما الإنتاج يقرأ صفر بيانات، وحراس التغطية تمنع الضرر لكن **لا تشخّص السبب**.
+# هذا الجوب يفحص **العقود الحقيقية** التي يعتمدها البوت ويُبلّغ تلغرام.
+# 🔒 قراءة/تشخيص فقط — لا يكتب حالة ولا يدفع للريبو ولا يأخذ مفتاح Polygon.
+
+permissions:
+  contents: read          # لا يدفع شيئًا — قراءة فقط
+
+concurrency:
+  group: deps-smoke       # مستقلّة عن super-stocks-state (لا يحجز مجموعة الحالة)
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # أسبوعيًّا (الاثنين). دقيقة غير مستديرة — درس الكرون الموثّق في هذا المستودع
+    # (الدقائق 0/30 أزحم عند GitHub). التوقيت غير حرج: تشخيص لا تنبيه سوق.
+    - cron: "37 6 * * 1"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"   # نفس نسخة الإنتاج (daily_screener.yml)
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run deps smoke
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # ⚠️ **بلا POLYGON_API_KEY عمدًا**: الفحص يخصّ عقود ياهو/الرموز فقط.
+          # صحّة Polygon لها أداتها المستقلّة (`polygon_health.yml`).
+        run: python deps_smoke.py

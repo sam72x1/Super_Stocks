@@ -1,5 +1,10 @@
 name: T-ACC Verify (تحقّق التجميع الصامت)
 
+# 🔐 أقلّ صلاحية (تدقيق 2026-07-28، خطة `plans/010`): بحث/تجربة: acc_verify.py قراءة فقط (AST: صفر نداء يكتب حالة أو يدفع).
+permissions:
+  contents: read
+  actions: read           # 📥 استئناف CSV من artifact سابق عبر gh api
+
 # 🔬 تجربة التحقّق المسجَّلة مسبقًا (POLYGON_EDGE_PLAN §أ-4): هل «التجميع الصامت»
 # عند القاع يرتبط بالانفجار فعلًا؟ يدوي فقط — يُشغَّل لكل سنة (2025 ثم 2026).
 # يحتاج POLYGON_API_KEY (بلا مفتاح ⇒ رسالة تلغرام تطلب إضافته، بلا انهيار).
@@ -35,12 +40,19 @@ jobs:
       # الصفر في جوب 340 دقيقة. (download-artifact@v4 لا يجلب عبر التشغيلات بلا
       # run-id — نجلب أحدث artifact بالاسم عبر gh api.) فاشل-آمن: لا artifact
       # سابق = بداية جديدة عادية.
+      # 🔐 **إصلاح 2026-07-28 (خطة `plans/010`):** كان مدخل الـdispatch يُدرَج **داخل نصّ
+      #    الصدفة** مباشرةً (`NAME="acc-verify-${{ ... }}"`) — النمط المضاد المعروف
+      #    (script injection). التعرّض محدود (الـdispatch لمن يملك صلاحية الكتابة) لكن
+      #    الإصلاح بلا تكلفة، **وبقيّة المستودع تمرّر مدخلاتها عبر `env:` أصلًا**
+      #    (daily_screener:FORCE_RENEW · analyze:ANALYZE · backtest:BACKTEST_*) فهذا كان
+      #    الاستثناء الشاذّ. القيمة الآن تصل متغيّرَ بيئة والصدفة تقرؤه (`${YEAR}`).
       - name: Download previous CSV (استئناف)
         continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
+          YEAR: ${{ github.event.inputs.year }}
         run: |
-          NAME="acc-verify-${{ github.event.inputs.year }}"
+          NAME="acc-verify-${YEAR}"
           URL=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
             --jq "[.artifacts[] | select(.name==\"$NAME\" and .expired==false)][0].archive_download_url" 2>/dev/null)
           if [ -n "$URL" ] && [ "$URL" != "null" ]; then

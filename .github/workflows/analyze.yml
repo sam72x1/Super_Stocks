@@ -1,5 +1,9 @@
 name: Manual Stock Analysis
 
+# 🔐 أقلّ صلاحية (تدقيق 2026-07-28، خطة `plans/010`): تحليل سهم واحد: analyze_one.py عرض فقط.
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
     inputs:

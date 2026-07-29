@@ -1,5 +1,9 @@
 name: Hand Check (فحص اليد)
 
+# 🔐 أقلّ صلاحية (تدقيق 2026-07-28، خطة `plans/010`): 🕵️ فحص اليد: hand_check.py عرض/تشخيص فقط (موثّق: لا يحفظ حالة).
+permissions:
+  contents: read
+
 on:
   workflow_dispatch:
     inputs:
