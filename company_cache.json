@@ -1499,20 +1499,6 @@
   "short_interest": 1434494,
   "days_to_cover": 5.95
  },
- "HTZ": {
-  "sector": "Industrials",
-  "industry": "Rental & Leasing Services",
-  "business": "Hertz Global Holdings, Inc. operates as a vehicle rental company. It operates through two segments: Americas RAC and International RAC. The company offers vehic…",
-  "country": "United States",
-  "cash": 586000000,
-  "revenue": 8695000064,
-  "shares_out": 315764523,
-  "short_pct": 73.9,
-  "float": 129280311,
-  "company_name": "Hertz Global Holdings, Inc",
-  "short_interest": 97539992,
-  "days_to_cover": 3.33
- },
  "DXST": {
   "sector": "Industrials",
   "industry": "Waste Management",
@@ -1613,6 +1599,20 @@
   "short_interest": 709382,
   "days_to_cover": 2.97
  },
+ "HTZ": {
+  "sector": "Industrials",
+  "industry": "Rental & Leasing Services",
+  "business": "Hertz Global Holdings, Inc. operates as a vehicle rental company. It operates through two segments: Americas RAC and International RAC. The company offers vehic…",
+  "country": "United States",
+  "cash": 586000000,
+  "revenue": 8695000064,
+  "shares_out": 315764523,
+  "short_pct": 73.9,
+  "float": 129280311,
+  "company_name": "Hertz Global Holdings, Inc",
+  "short_interest": 97539992,
+  "days_to_cover": 3.33
+ },
  "QNTM": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -1649,7 +1649,6 @@
   "cash": 1301867,
   "revenue": 13464102,
   "shares_out": 7435986,
-  "short_pct": 0.0,
   "float": 258171,
   "finra_short": 1956,
   "company_name": "CLICK HOLDINGS LIMITED",
