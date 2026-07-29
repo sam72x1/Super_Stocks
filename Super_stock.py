@@ -538,7 +538,7 @@ _BT_OVERRIDES = _apply_backtest_overrides(MODE)
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.07.28-m14recheck+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.07.29-m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -3522,8 +3522,13 @@ def events_lines(events, today=None) -> list:
             when = ("اليوم!" if days == 0 else
                     ("غدًا" if days == 1 else f"بعد {days} يوم"))
             if e.get("kind") == "أرباح":
+                # ⚖️ **تحفّظ YYAI (2026-07-29):** كانت الصياغة إيجابية وحدها «يوم انفجار
+                # محتمل». وفيصل وثّق الحالة المضادّة صراحةً: «**اعلان استحواذ + هبوط**»
+                # — سهم انهار ‏−68% يوم إعلانه لأن المضارب استعمل الخبر **باب خروج**.
+                # فالإعلان **حدث ذو اتجاهين**، ولا يُقدَّم للقارئ كإشارة صعود ضمنية.
                 out.append(f"📅 أرباح معلنة: {d.isoformat()} ({when}) — "
-                           "يوم انفجار محتمل (المضارب يجهّز قبل الإعلان)")
+                           "يوم تحرّك محتمل: المضارب يجهّز قبل الإعلان، "
+                           "⚠️ وقد يستعمله باب خروج (فيصل: «اعلان + هبوط»)")
             elif e.get("kind") == "حظر":
                 out.append(f"📅 انتهاء حظر بيع المؤسسين (تقديري): {d.isoformat()} "
                            f"({when}) — نحو {int(CONFIG['LOCKUP_DAYS'])} يومًا من "
@@ -7041,8 +7046,10 @@ def apply_float_gate(results: list) -> list:
     GWAV 778ألف، BJDX 918ألف، EHGO 1.62م... كلها صغيرة). الفلوت الصغير
     ينفجر بسهولة (أسهم قليلة، الطلب يرفعه بقوة). الفلوت يُجلب من
     yf.Ticker().info['floatShares'] — بطيء، فيُجلب للناجحين فقط.
-    يرفض السهم لو فلوته معروف وكبير (≥ الحد). لو البيانة مفقودة →
-    يعدّي (فائدة الشك، نفس منطق الشورت)."""
+    🔴 **قرار المالك 2026-07-29: بوّابة صلبة — «يكون مستبعد تماما».** كانت منذ v2.7
+    نقصًا يُسجَّل والسهم يبقى، فظهر HTZ (129م) وPONY (277م) في القائمة الحيّة. الآن
+    فلوت **معلوم وكبير (≥ الحد) ⇒ يُحذف** كبوّابات الهوية M1-M5.
+    ⚠️ والمفقود يبقى ممرَّرًا **بفائدة الشك** (تعذّر ≠ كبير، نفس منطق الشورت)."""
     if not CONFIG.get("FLOAT_GATE_REQUIRED", False) or not results:
         return results
     if yf is None:
@@ -7080,12 +7087,14 @@ def apply_float_gate(results: list) -> list:
         except (TypeError, ValueError):
             fl_num = None
         if fl_num is not None and fl_num >= limit:
-            # v2.7: لا يُحذف — يُسجّل نقصًا وينزل لقائمة المراقبة B
-            r.setdefault("soft_fails", []).append("فلوت كبير")
-            r.setdefault("flags", []).append(
-                f"⚠️ فلوت كبير {int(fl_num):,} (فوق {limit:,})")
+            # 🔴 **قرار المالك 2026-07-29: «يكون مستبعد تماما».** كان منذ v2.7 نقصًا
+            # يُسجَّل والسهم يبقى — فظهر HTZ بفلوت 129م وPONY بـ277م في القائمة الحيّة.
+            # صارت M14 **بوّابة صلبة** كـM1-M5: فلوت معلوم وكبير ⇒ **يُحذف**، لا يُنقَل.
+            # ⚠️ والمجهول يبقى ممرَّرًا بفائدة الشك (تعذّر ≠ كبير) — لم يُطلَب تغييره،
+            # ورفضه كان سيحذف أسهمًا سليمة لمجرّد عطل جلب. وحارس النوع أعلاه (تدقيق
+            # `plans/004`) **مُبقًى كما هو**: غير الرقمي/NaN = مجهول ⇒ يمرّ لا يُحذف.
             rejected.append((r["symbol"], fl_num))
-            kept.append(r)
+            continue
         else:
             if fl_num is not None:
                 r.setdefault("flags", []).append(
@@ -7096,8 +7105,36 @@ def apply_float_gate(results: list) -> list:
             kept.append(r)
     if rejected:
         names = "، ".join(f"{s}({int(v):,})" for s, v in rejected)
-        log(f"بوابة الفلوت (M14) نقلت لقائمة B: {len(rejected)}: {names}")
+        log(f"بوابة الفلوت (M14) حذفت (فلوت كبير): {len(rejected)}: {names}")
     return kept
+
+
+def _dump_actor(s, thin=10_000):
+    """📉🕵️ **مَن أهبط السهم؟** (فيصل YYAI، 2026-07-29 — تغريدة صريحة):
+    «**لايوجد شورت لهبوط السهم · مضارب هبط بالسهم · اعلان استحواذ + هبوط**».
+
+    القاعدة: انهيارٌ حادّ **بلا شورت يفسّره** ⇒ الفاعل هو **المضارب يخرج** لا هجوم
+    شورت — وهذا يقلب قراءة الهبوط رأسًا على عقب: ليس تصفية مؤقّتة تُشترى، بل **باب
+    خروج**. كل تنبيهات المضارب عندنا تقرأ **دخوله** (امتصاص/كتل/آيسبرغ/إشعال)، وهذا
+    أوّل ما يقرأ **خروجه** — من بيانات نملكها أصلًا (الشورت + الهبوط).
+
+    يقرأ الشورت بسلسلة العرض نفسها: المتاح (CE) ← الحجم اليومي (Fintel/FINRA).
+    يرجّع لاحقةً نصّية أو "" (لا شورت معلوم ⇒ لا ادّعاء). **تحذير/عرض فقط.**"""
+    try:
+        srt = None
+        for k in ("shares_available", "fintel_short", "finra_short", "short"):
+            v = (s or {}).get(k)
+            if v is not None:
+                srt = float(v)
+                break
+        if srt is None:
+            return ""
+        if srt <= thin:
+            return (f" · ⚠️ الشورت لا يفسّره ({int(srt):,} فقط) ⇒ "
+                    "**المضارب يصرّف** — ليس تصفية شورت تُشترى (فيصل: YYAI)")
+        return f" · الشورت {int(srt):,} (قد يفسّر جزءًا من الهبوط)"
+    except Exception:
+        return ""
 
 
 def refloat_gate_recheck(picks):
@@ -7136,9 +7173,10 @@ def refloat_gate_recheck(picks):
             r["flags"] = [f for f in (r.get("flags") or [])
                           if not str(f).startswith("فلوت غير متاح")]
             r["flags"].append(f"⚠️ فلوت كبير {int(float(r['float'])):,} (فوق {limit:,})")
-            if classify_tier(r["soft_fails"]) is None:
-                ejected.append((r.get("symbol"), r.get("float")))
-                continue
+            # 🔴 قرار المالك 2026-07-29: الاستبعاد **تام** — لا يتوقّف على عدد النواقص
+            # (كان يمرّ لو بقي عند الحدّ 3). الفلوت الكبير وحده يكفي للإخراج.
+            ejected.append((r.get("symbol"), r.get("float")))
+            continue
         kept.append(r)
     return kept, ejected
 
@@ -8453,7 +8491,8 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
                 if _pc > 0 and lp <= _pc * (1 - CONFIG["PRESS_DROP_PCT"] / 100.0):
                     events.append(("dump", f"ضغط المضارب: هبوط "
                                    f"{(lp / _pc - 1) * 100:.0f}% عن إغلاق الأمس "
-                                   f"${_pc:.2f} — تصريف (نمط LABT)"))
+                                   f"${_pc:.2f} — تصريف (نمط LABT)"
+                                   + _dump_actor(s)))
             except Exception:
                 pass
         # 🌙 تحرّك بريماركت (POLYGON_EDGE_PLAN §ج): فقط بوجود المفتاح وداخل نافذة
@@ -10105,6 +10144,16 @@ def build_position_watch_section(carried: list) -> str:
             parts.append(f"${lp:.2f}")
         if isinstance(_stp, (int, float)):
             parts.append(f"⛔ ${_stp:.2f}")
+        # 🔴 وسم الفلوت الكبير للمحمولين (2026-07-29): المحمول **لا يمرّ** بـM14 ولا
+        # بالإثراء (يُنقَل ببياناته المخزَّنة) فبقي PONY بفلوت 277م بلا وسم. يُوسَم هنا
+        # **ولا يُخرَج**: هذا قسم «متابعة لمركزك» لا ترشيح — ومن يحمل السهم يحتاج أن
+        # يظلّ يراه. الاستبعاد التام يخصّ **الترشيح** (بوّابة M14) لا متابعة مركز قائم.
+        _fl = s.get("float")
+        try:
+            if _fl is not None and float(_fl) >= CONFIG["FLOAT_GATE_MAX"]:
+                parts.append(f"⚠️ فلوت كبير {int(float(_fl)):,} — لا يُرشَّح ثانيةً")
+        except (TypeError, ValueError):
+            pass
         line = "• " + " · ".join(parts)
         # الرقم الحرج (فيصل) = ما الذي يعيده للترشيح/يفعّله — من طبقة التفسير إن وُجد
         _crit = ((s.get("interp") or {}).get("critical_number") or {}).get("price")
