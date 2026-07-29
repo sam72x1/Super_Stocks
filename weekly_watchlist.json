@@ -328,7 +328,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.76
+   "last_price": 3.73,
+   "live_alert": {}
   },
   {
    "symbol": "QNTM",
@@ -655,7 +656,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.0
+   "last_price": 2.97,
+   "live_alert": {}
   },
   {
    "symbol": "LENZ",
@@ -1007,7 +1009,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 7.7,
-   "last_price": 5.88,
+   "last_price": 5.7,
    "borrow_hist": [
     [
      "2026-07-28",
@@ -1352,9 +1354,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.765,
+   "last_price": 2.0,
    "live_alert": {
-    "buyzone": "2026-07-28"
+    "buyzone": "2026-07-28",
+    "premarket": "2026-07-29"
    },
    "borrow_hist": [
     [
@@ -1666,7 +1669,7 @@
    "hit": "t1",
    "hit_date": "2026-07-23",
    "max_gain_pct": 14.5,
-   "last_price": 1.72,
+   "last_price": 1.82,
    "live_alert": {
     "buyzone": "2026-07-28",
     "breakout": "2026-07-23"
@@ -2038,7 +2041,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.1,
-   "last_price": 14.08,
+   "last_price": 14.33,
    "borrow_hist": [
     [
      "2026-07-23",
@@ -2386,7 +2389,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.2,
-   "last_price": 1.57,
+   "last_price": 1.56,
    "live_alert": {
     "breakout": "2026-07-27"
    },
@@ -2742,7 +2745,7 @@
    "hit": "t1",
    "hit_date": "2026-07-23",
    "max_gain_pct": 13.3,
-   "last_price": 7.58,
+   "last_price": 7.38,
    "live_alert": {
     "buyzone": "2026-07-22",
     "breakout": "2026-07-27"
@@ -3113,7 +3116,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.9,
-   "last_price": 1.68,
+   "last_price": 1.66,
    "live_alert": {
     "breakout": "2026-07-27"
    },
@@ -3492,7 +3495,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -1.2,
-   "last_price": 96.16,
+   "last_price": 98.65,
    "live_alert": {},
    "borrow_hist": [
     [
@@ -4226,7 +4229,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.1,
-   "last_price": 1.59,
+   "last_price": 1.68,
    "live_alert": {
     "buyzone": "2026-07-27",
     "breakout": "2026-07-27",
@@ -4587,7 +4590,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.8,
-   "last_price": 2.03,
+   "last_price": 2.13,
    "borrow_hist": [
     [
      "2026-07-28",
@@ -4638,7 +4641,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 657632,
-   "last_price": 3.76,
+   "last_price": 3.54,
    "status": "watching",
    "triggered_date": null
   },
@@ -4673,7 +4676,7 @@
    "sector": "Consumer Cyclical",
    "country": "Hong Kong",
    "float": 258171,
-   "last_price": 1.56,
+   "last_price": 1.64,
    "status": "watching",
    "triggered_date": null
   },
@@ -4707,7 +4710,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 4186689,
-   "last_price": 3.81,
+   "last_price": 3.85,
    "status": "watching",
    "triggered_date": null
   },
@@ -4741,7 +4744,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 2924044,
-   "last_price": 1.74,
+   "last_price": 1.75,
    "status": "watching",
    "triggered_date": null
   },
@@ -4777,7 +4780,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 535932,
-   "last_price": 8.93,
+   "last_price": 8.41,
    "status": "watching",
    "triggered_date": null
   },
@@ -4812,7 +4815,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 3524362,
-   "last_price": 13.0,
+   "last_price": 12.18,
    "status": "watching",
    "triggered_date": null
   },
@@ -4848,7 +4851,7 @@
    "sector": "Communication Services",
    "country": "Hong Kong",
    "float": 366021800,
-   "last_price": 29.68,
+   "last_price": 30.68,
    "status": "watching",
    "triggered_date": null
   },
@@ -4884,7 +4887,7 @@
    "sector": "Consumer Cyclical",
    "country": "China",
    "float": 2689266,
-   "last_price": 2.79,
+   "last_price": 2.67,
    "status": "watching",
    "triggered_date": null
   },
@@ -4920,7 +4923,7 @@
    "sector": "Financial Services",
    "country": "United States",
    "float": 2683029,
-   "last_price": 2.2,
+   "last_price": 1.95,
    "status": "watching",
    "triggered_date": null
   },
@@ -4955,7 +4958,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 22304724,
-   "last_price": 1.62,
+   "last_price": 1.65,
    "status": "watching",
    "triggered_date": null
   },
@@ -4989,7 +4992,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 170988133,
-   "last_price": 10.11,
+   "last_price": 9.93,
    "status": "watching",
    "triggered_date": null
   },
@@ -5024,7 +5027,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 11444922,
-   "last_price": 1.96,
+   "last_price": 2.0,
    "status": "watching",
    "triggered_date": null
   },
@@ -5061,7 +5064,7 @@
    "sector": "Technology",
    "country": "Singapore",
    "float": 35178369,
-   "last_price": 2.89,
+   "last_price": 3.01,
    "status": "watching",
    "triggered_date": null
   },
@@ -5096,7 +5099,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 14955684,
-   "last_price": 4.66,
+   "last_price": 4.69,
    "status": "watching",
    "triggered_date": null
   },
@@ -5131,7 +5134,7 @@
    "sector": "Consumer Cyclical",
    "country": "Hong Kong",
    "float": 1249988,
-   "last_price": 1.63,
+   "last_price": 1.7,
    "status": "watching",
    "triggered_date": null
   }
