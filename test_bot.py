@@ -9579,6 +9579,41 @@ def _c10_inputs_in_run(path):
 _c10_inj = [x for _f in _c10_files for x in _c10_inputs_in_run(_f)]
 check("🔐 010·لا مدخل workflow_dispatch داخل أي كتلة run: (منع script injection)",
       _c10_inj == [])
+# 🚧 سقف GitHub الصلب: **25 مدخلًا لكل `workflow_dispatch`** — تجاوزُه لا يُكتشَف
+#    بالـlint ولا بالتحليل الساكن، بل بـ422 عند **أول محاولة تشغيل** («you may only
+#    define up to 25 inputs»)، أي بعد الدمج والدفع. حدث فعلًا مع `backtest.yml` (26).
+#    فالقفل يمنع تكراره على أي workflow.
+def _wf_dispatch_inputs(path):
+    """يعدّ مداخل `workflow_dispatch` بمحاذاة الإزاحة (لا تجميعًا أعمى للنقطتين)."""
+    ls = open(path, encoding="utf-8").read().splitlines()
+    n, ind = 0, None
+    for i, l in enumerate(ls):
+        if l.strip() == "inputs:" and any(
+                x.strip() == "workflow_dispatch:" for x in ls[max(0, i - 6):i]):
+            ind = len(l) - len(l.lstrip())
+            continue
+        if ind is None:
+            continue
+        st = l.strip()
+        if st and not st.startswith("#"):
+            cur = len(l) - len(l.lstrip())
+            if cur <= ind:                     # خرجنا من كتلة inputs
+                break
+            if cur == ind + 2 and st.endswith(":"):
+                n += 1
+    return n
+
+
+_wf_over = {f: _wf_dispatch_inputs(f) for f in _c10_files
+            if _wf_dispatch_inputs(f) > 25}
+check("🚧 كل workflow تحت سقف GitHub الصلب 25 مدخلًا (وإلا 422 عند أول تشغيل)",
+      _wf_over == {})
+check("🔒 العدّاد صادق: backtest.yml (الأكبر) يُقرأ فعلًا بعدد موجب لا صفرًا",
+      _wf_dispatch_inputs(".github/workflows/backtest.yml") >= 20)
+check("🔓 T-LIB·نافذة الانتظار غير معروضة مدخلًا (مُثبَّتة بالتسجيل المسبق، لا دِيال ضبط)",
+      "bt_liberation" in open(".github/workflows/backtest.yml", encoding="utf-8").read()
+      and "bt_lib_wait" not in open(".github/workflows/backtest.yml",
+                                   encoding="utf-8").read())
 check("🔐 010·acc_verify يمرّر السنة عبر env لا الصدفة",
       "YEAR: ${{ github.event.inputs.year }}"
       in open(".github/workflows/acc_verify.yml", encoding="utf-8").read()

@@ -41,10 +41,6 @@ on:
         description: "🔓 تجربة T-LIBERATION (اختياري): 1 = ذراعا دخول «بعد كسر التحرر» على نفس الإشارة (L1 الرقم الحرج · L2 أعلى مقاومة) بوقف الأساس ومحرّك الحسم نفسه، مع **مقارنة مقترنة** تُسقط فخّ الامتناع. المعيار: `liberation_prereg.md`. باكتيست فقط، مطفأ = صفقة الأساس بت-بت"
         required: false
         default: ""
-      bt_lib_wait:
-        description: "🔓 T-LIBERATION (اختياري): نافذة انتظار كسر التحرر بالجلسات (افتراضي 20 — مُثبَّتة بالتسجيل المسبق)"
-        required: false
-        default: ""
       bt_sweep_entry:
         description: "تجربة T1 «الدخول المؤكَّد بالمسح» (اختياري): 1 = فعّلها (دخول بعد مسح تحت الدعم ثم استعادة، بدل التعبئة الفورية). يقارن على نفس الإشارة ويحكم على المُعبَّأة فقط. باكتيست فقط، لا يمسّ الإنتاج"
         required: false
@@ -144,9 +140,11 @@ jobs:
           BT_SPIKE_WINDOW: ${{ github.event.inputs.bt_spike_window }}
           BT_MIN_DOLLAR_VOL: ${{ github.event.inputs.bt_min_dollar_vol }}
           # T1: تجربة الدخول المؤكَّد بالمسح — تُقرأ في وضع BACKTEST حصريًا
-          # 🔓 T-LIBERATION — تُقرأ في وضع BACKTEST حصريًا
+          # 🔓 T-LIBERATION — تُقرأ في وضع BACKTEST حصريًا. ⚠️ **نافذة الانتظار
+          # (`BT_LIB_WAIT`=20) مُثبَّتة بالتسجيل المسبق فلا تُعرَض مدخلًا هنا** — كشفُها
+          # دِيالًا في الواجهة يدعو لضبطها بعد رؤية النتائج (p-hacking)، وسقف GitHub
+          # 25 مدخلًا فرض الاختيار فوقعنا على الأصوب. المفتاح باقٍ بالكود لو لزم.
           BT_LIBERATION: ${{ github.event.inputs.bt_liberation }}
-          BT_LIB_WAIT: ${{ github.event.inputs.bt_lib_wait }}
           BT_SWEEP_ENTRY: ${{ github.event.inputs.bt_sweep_entry }}
           BT_SWEEP_STOP: ${{ github.event.inputs.bt_sweep_stop }}
           BT_SWEEP_PCT: ${{ github.event.inputs.bt_sweep_pct }}
