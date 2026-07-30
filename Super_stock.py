@@ -11805,10 +11805,17 @@ def _candle_augment(trade, df_prior, hi, lo, cl, entry, stop, filled):
         tgt = float(entry) * 1.5
         horizon = min(len(cl) - 1, int(filled) + int(CONFIG["CANDLE_SOON_BARS"]))
         hit = None
+        # 🔴 **اتفاقية F-L1 نفسها** (وقعتُ في خلافها مرّةً في T-LIBERATION فأُصلحت،
+        # ثم **أعدتُها هنا** فكشفها الطعن): التعبئة في الأساس **داخل الشمعة**
+        # (‏`lo[k] <= entry`) فترتيبُ اللمس داخلها **مجهول** — فقد يُلمَس الهدف قبل أن
+        # ينزل السعر لدخولنا = **فوزٌ وهميّ**. ⇒ الهدف يُحسَب من `filled+1` حصرًا
+        # (فـ`bars_to_50 == 0` **مستحيلٌ** بنيويًّا)، **والوقف يبقى محفوظًا من `filled`**
+        # (محافظ). نفس `_max_gain_before_stop` حرفيًّا — محرّكٌ واحد لا اتفاقيّتان.
+        t_from = int(filled) + 1
         for k in range(int(filled), horizon + 1):
             if float(lo[k]) <= float(stop):       # الوقف أولًا — محافظ
                 break
-            if float(hi[k]) >= tgt:
+            if k >= t_from and float(hi[k]) >= tgt:
                 hit = k - int(filled)
                 break
         trade["soon_50"] = bool(hit is not None)
