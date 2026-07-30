@@ -353,7 +353,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 7.7,
-   "last_price": 5.74,
+   "last_price": 5.705,
    "borrow_hist": [
     [
      "2026-07-28",
@@ -704,7 +704,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -0.7,
-   "last_price": 2.9,
+   "last_price": 2.93,
    "live_alert": {
     "buyzone": "2026-07-29",
     "breakout": "2026-07-30"
@@ -1019,7 +1019,7 @@
    "hit": "t1",
    "hit_date": "2026-07-23",
    "max_gain_pct": 14.5,
-   "last_price": 1.675,
+   "last_price": 1.695,
    "live_alert": {
     "buyzone": "2026-07-30",
     "breakout": "2026-07-30"
@@ -1391,7 +1391,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.1,
-   "last_price": 12.96,
+   "last_price": 13.33,
    "borrow_hist": [
     [
      "2026-07-23",
@@ -1415,7 +1415,8 @@
     ]
    ],
    "live_alert": {
-    "buyzone": "2026-07-30"
+    "buyzone": "2026-07-30",
+    "breakout": "2026-07-30"
    },
    "klinger": {
     "kvo": -44123.9,
@@ -2106,7 +2107,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.1,
-   "last_price": 1.715,
+   "last_price": 1.705,
    "live_alert": {
     "buyzone": "2026-07-30",
     "breakout": "2026-07-27",
@@ -2471,7 +2472,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -7.6,
-   "last_price": 3.58,
+   "last_price": 3.6,
    "live_alert": {
     "buyzone": "2026-07-30"
    },
@@ -3184,7 +3185,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.8,
-   "last_price": 2.13,
+   "last_price": 2.12,
    "borrow_hist": [
     [
      "2026-07-28",
@@ -4718,7 +4719,7 @@
    "sector": "Industrials",
    "country": "Hong Kong",
    "float": 657632,
-   "last_price": 3.443,
+   "last_price": 3.455,
    "status": "watching",
    "triggered_date": null
   },
@@ -4787,7 +4788,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 4186689,
-   "last_price": 3.8254,
+   "last_price": 3.87,
    "status": "watching",
    "triggered_date": null
   },
@@ -4821,7 +4822,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 2924044,
-   "last_price": 1.715,
+   "last_price": 1.69,
    "status": "watching",
    "triggered_date": null
   },
@@ -4857,7 +4858,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 535932,
-   "last_price": 9.5,
+   "last_price": 9.61,
    "status": "watching",
    "triggered_date": null
   },
@@ -4892,7 +4893,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 3524362,
-   "last_price": 13.205,
+   "last_price": 13.0001,
    "status": "watching",
    "triggered_date": null
   },
@@ -4964,7 +4965,7 @@
    "sector": "Consumer Cyclical",
    "country": "China",
    "float": 2689266,
-   "last_price": 2.95,
+   "last_price": 3.02,
    "status": "watching",
    "triggered_date": null
   },
@@ -5000,7 +5001,7 @@
    "sector": "Financial Services",
    "country": "United States",
    "float": 2683029,
-   "last_price": 2.1401,
+   "last_price": 2.14,
    "status": "watching",
    "triggered_date": null
   },
@@ -5069,7 +5070,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 170988133,
-   "last_price": 10.02,
+   "last_price": 9.97,
    "status": "watching",
    "triggered_date": null
   },
@@ -5141,7 +5142,7 @@
    "sector": "Technology",
    "country": "Singapore",
    "float": 35178369,
-   "last_price": 2.599,
+   "last_price": 2.43,
    "status": "watching",
    "triggered_date": null
   },
@@ -5176,7 +5177,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 14955684,
-   "last_price": 4.895,
+   "last_price": 4.84,
    "status": "watching",
    "triggered_date": null
   },
@@ -5211,7 +5212,7 @@
    "sector": "Consumer Cyclical",
    "country": "Hong Kong",
    "float": 1249988,
-   "last_price": 1.58,
+   "last_price": 1.55,
    "status": "watching",
    "triggered_date": null
   }
