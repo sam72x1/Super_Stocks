@@ -9579,6 +9579,126 @@ def _c10_inputs_in_run(path):
 _c10_inj = [x for _f in _c10_files for x in _c10_inputs_in_run(_f)]
 check("🔐 010·لا مدخل workflow_dispatch داخل أي كتلة run: (منع script injection)",
       _c10_inj == [])
+# 🕯️ T-CANDLE (`candle_readiness_prereg.md`): «حالة الزناد» + مقياس **الوشوك**.
+#    السند الحرفيّ: TG_1870 «قاع ⟶ اختبار مقاومة ⟶ رجوعٌ يختبر القاع مع سحب سيولة ⟶
+#    هنا يكون rsi جاهز للانفجار» · TG_2037 «RSI عند 27».
+def _cd(rows):
+    _i = pd.date_range("2026-01-01", periods=len(rows), freq="D")
+    _d = pd.DataFrame(rows, columns=["High", "Low", "Close"], index=_i)
+    _d["Open"] = _d["Close"]
+    return _d
+
+
+# تسلسلٌ كامل: قاع 1.00 · قمّة 1.12 (رُدَّ) · مسح 0.91 (‏−9% داخل نطاق فيصل) · استعادة
+_cd_seq = [[1.06, 1.00, 1.01], [1.12, 1.02, 1.10], [1.11, 1.05, 1.06],
+           [1.07, 0.91, 0.95], [1.04, 0.94, 1.02], [1.03, 0.99, 1.00],
+           [1.02, 0.98, 0.99], [1.02, 0.99, 1.00]]
+_cd_pre = [[1.30 - i * 0.002, 1.26 - i * 0.002, 1.28 - i * 0.002] for i in range(17)]
+_cd_ok = S.trigger_state(_cd(_cd_pre + _cd_seq))
+check("🕯️ حالة الزناد: التسلسل الكامل يُرصَد (ok=True فعلًا — ليست قفلًا ميتًا)",
+      _cd_ok is not None and _cd_ok["ok"] is True and _cd_ok["swept_pct"] == 9.0
+      and all(_cd_ok["steps"].values()) and 20 <= _cd_ok["rsi"] <= 30)
+# 🔴 القفل الحاسم: القاع المطلوب **ليس أدنى النافذة** — قاعُ المسح أدنى منه بالتعريف،
+#    فلو أُخذ `argmin` استحال التسلسل. القاع المرصود يجب أن يكون 1.00 لا 0.91.
+check("🔴 حالة الزناد: القاع = المُمسوح (1.00) لا أدنى النافذة (0.91)",
+      _cd_ok["bottom"] == 1.0)
+_cd_nosweep = _cd_seq[:3] + [[1.07, 1.01, 1.03]] + _cd_seq[4:]
+check("🕯️ بلا مسح ⇒ التسلسل لا يكتمل",
+      S.trigger_state(_cd(_cd_pre + _cd_nosweep))["ok"] is False)
+_cd_deep = _cd_seq[:3] + [[1.07, 0.70, 0.75]] + _cd_seq[4:]
+check("🕯️ مسحٌ خارج نطاق فيصل (‏−30%) لا يُحتسب مسحًا (7-13% حصرًا)",
+      S.trigger_state(_cd(_cd_pre + _cd_deep))["swept_pct"] is None)
+_cd_up = [[1.0 + i * 0.06, 0.96 + i * 0.06, 1.0 + i * 0.06] for i in range(25)]
+check("🕯️ سلسلة صاعدة: RSI خارج النطاق ⇒ ok=False (الشرط الرابع فعّال)",
+      S.trigger_state(_cd(_cd_up))["ok"] is False
+      and S.trigger_state(_cd(_cd_up))["rsi"] > 30)
+check("🕯️ فاشلة-آمنة: None/تاريخ أقصر من النافذة ⇒ None بلا استثناء",
+      S.trigger_state(None) is None and S.trigger_state(_cd(_cd_seq)) is None)
+# 🔴 حالاتٌ **تمييزية**: البنية تكتمل ومع ذلك يجب أن يسقط `ok` — وإلّا فالشرط زائد.
+# ① RSI خارج النطاق **مع بنيةٍ مكتملة** (ميلٌ أهدأ يرفع RSI إلى 30.2 فوق السقف 30)
+_cd_r = S.trigger_state(_cd(
+    [[1.30 - i * 0.006, 1.26 - i * 0.006, 1.28 - i * 0.006] for i in range(17)] + _cd_seq))
+check("🔴 حالة الزناد: بنيةٌ مكتملة و RSI فوق السقف ⇒ ok=False (الشرط الرابع فعّال حقًّا)",
+      all(_cd_r["steps"][k] for k in ("bottom_formed", "tested_res", "swept_reclaimed"))
+      and _cd_r["steps"]["rsi_zone"] is False and _cd_r["ok"] is False
+      and _cd_r["rsi"] > S.CONFIG["CANDLE_RSI_HI"])
+# ② ارتدادٌ ضحيل (‏+3% فقط) ⇒ «اختبار المقاومة» لم يحدث، فلا يكتمل التسلسل.
+#    ⚠️ ورأسُ شمعة المسح يجب أن يبقى **تحت** القمّة، وإلّا صارت هي القمّة فاختلّ القياس
+#    (وهذا ما كشفته الطفرة: صيغتي الأولى لم تكن تعزل الشرط أصلًا).
+_cd_weak = ([[1.06, 1.00, 1.01], [1.03, 1.01, 1.02], [1.02, 0.91, 0.95],
+             [1.02, 0.94, 1.01], [1.01, 0.99, 1.00], [1.01, 0.98, 0.99],
+             [1.01, 0.99, 1.00], [1.01, 0.99, 1.00]])
+_cd_w = S.trigger_state(_cd(_cd_pre + _cd_weak))
+check("🔴 حالة الزناد: ارتدادٌ ضحيل (+3%) ⇒ لا «اختبار مقاومة» ⇒ ok=False",
+      _cd_w["ok"] is False and _cd_w["steps"]["tested_res"] is False)
+# ②-ب 🔴 **قفلُ بارسيمونيا**: «الإغلاق دون القمّة» **حُذف بقياس** — عزلُه مستحيل (يستلزم
+#      هبوطًا حادًّا يُبقي RSI منخفضًا، وذاك يُسقط الشرط ① «الأدنى حتى لحظته») ⇒ الشرط
+#      زائدٌ يحمله بند RSI. فيُقفَل **غيابُه** لئلّا يُعاد في جلسةٍ قادمة بحسن نيّة.
+_cd_src = _insp0.getsource(S.trigger_state)
+check("🔴 حالة الزناد: لا شرطَ «الإغلاق دون القمّة» (حُذف بقياسٍ — زائدٌ يحمله RSI)",
+      "cl[-1]) >= peak" not in _cd_src and "زائدٌ يحمله" in _cd_src)
+# والقمّة إن كانت آخر بار ⇒ لا مجال للمسح بعدها ⇒ لا يكتمل التسلسل. ⚠️ وحارسُ
+# `pk >= len(cl)-1` **دفاعيّ بلا أثر سلوكيّ** (‏`range(pk+1, …)` فارغٌ أصلًا) — يُوثَّق
+# ولا يُدَّعى قفلُه، فلا يُكتَب اختبارٌ يبدو مانعًا وهو لا يمنع شيئًا.
+check("🔴 حالة الزناد: القمّة آخر بارٍ ⇒ لا مسحَ بعدها ⇒ ok=False",
+      S.trigger_state(_cd(_cd_pre + _cd_seq[:-1] + [[1.40, 1.20, 1.35]]))["ok"]
+      is False)
+# ③ **الترتيب الزمنيّ**: مسحٌ **قبل** اختبار المقاومة لا يُحتسب (التسلسل لا مجرّد الوجود)
+_cd_order = ([[1.06, 1.00, 1.01], [1.02, 0.91, 0.95], [1.12, 1.00, 1.10],
+              [1.11, 1.05, 1.08], [1.09, 1.03, 1.05], [1.06, 1.02, 1.03],
+              [1.05, 1.01, 1.02], [1.04, 1.01, 1.02]])
+check("🔴 حالة الزناد: مسحٌ **قبل** القمّة لا يكتمل به التسلسل (ترتيبٌ لا وجود)",
+      S.trigger_state(_cd(_cd_pre + _cd_order))["ok"] is False)
+# ⏱️ مقياس الوشوك: +50% خلال CANDLE_SOON_BARS **وقبل الوقف**
+_cs_hi = [1.0, 1.1, 1.6, 1.7]          # يبلغ 1.5 عند البار 2 (بعد بارَين من التعبئة)
+_cs_lo = [0.98, 1.05, 1.5, 1.6]
+_cs_cl = [1.0, 1.08, 1.55, 1.65]
+_cs = S._candle_augment({}, None, _cs_hi, _cs_lo, _cs_cl, 1.00, 0.93, 0)
+check("⏱️ الوشوك: بلغ +50% خلال النافذة ⇒ soon_50 وعدد الجلسات",
+      _cs["soon_50"] is True and _cs["bars_to_50"] == 2)
+_cst = S._candle_augment({}, None, [1.0, 1.6], [0.90, 1.5], [0.92, 1.55],
+                         1.00, 0.93, 0)
+check("⏱️ الوقف يُفحَص أولًا: وقفٌ قبل الهدف ⇒ لا يُحتسب وشيكًا (محافظ)",
+      _cst["soon_50"] is False)
+_csl = S._candle_augment({}, None, [1.0] * 12 + [1.6], [0.98] * 13, [1.0] * 13,
+                         1.00, 0.93, 0)
+check("⏱️ حدّ النافذة: بلوغٌ بعد CANDLE_SOON_BARS لا يُحتسب وشيكًا",
+      S.CONFIG["CANDLE_SOON_BARS"] == 10 and _csl["soon_50"] is False)
+# 🔒 مطفأ ⇒ صفقة الأساس بت-بت (نفس نمط قفل BT_LIBERATION)
+_cdsv = dict(S.CONFIG)
+S.CONFIG["BT_CANDLE"] = 1
+_cd_on = S.backtest_symbol("CDON", synth_pivot(seed=3))
+S.CONFIG["BT_CANDLE"] = 0
+_cd_off = S.backtest_symbol("CDOFF", synth_pivot(seed=3))
+_cdk = lambda t: {k: v for k, v in t.items() if k != "symbol"}
+_CDF = ("trig_ok", "trig_steps", "trig_rsi", "soon_50", "bars_to_50")
+check("🕯️ وصل: مفعّلة ⇒ كل صفقة تحمل حقول الحالة والوشوك",
+      len(_cd_on) >= 1 and all(set(_CDF) <= set(t) for t in _cd_on))
+check("🔒 T-CANDLE·مطفأة ⇒ صفقة الأساس بت-بت (صفر حقل جديد وقاموس مطابق)",
+      len(_cd_off) == len(_cd_on)
+      and all(not any(k in _CDF for k in t) for t in _cd_off)
+      and [_cdk(t) for t in _cd_off]
+      == [{k: v for k, v in _cdk(t).items() if k not in _CDF} for t in _cd_on])
+check("🕯️ المخرَج: يحمل الوشوك + «بلا حدٍّ زمنيّ» + سقف النجاح + قيد فيصل",
+      (lambda m: "وشيك" in m and "بلا حدٍّ زمنيّ" in m and "وسمُ توقيتٍ" in m
+       and "TG_2089" in m and "ثلاث سنوات" in m)(
+          "\n".join((lambda: (S.CONFIG.__setitem__("BT_CANDLE", 1),
+                              S.backtest_candle_compare(
+                                  [dict(outcome="win", trig_ok=True, entry=1.0,
+                                        stop=0.9, t1=1.3, soon_50=True,
+                                        bars_to_50=3, mg_pre_stop=60.0)] * 3
+                                  + [dict(outcome="loss", trig_ok=False, entry=1.0,
+                                          stop=0.9, t1=1.3, soon_50=False,
+                                          mg_pre_stop=5.0)] * 3))[1])())))
+S.CONFIG.update(_cdsv)
+check("🕯️ مطفأة ⇒ [] (صفر أثر على التقرير العادي)",
+      S.backtest_candle_compare([{"outcome": "win", "trig_ok": True}]) == [])
+check("🔒 T-CANDLE قفل: خارج الفرز والاختيار (باكتيست/تحليل فقط)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("trigger_state", "_candle_augment", "backtest_candle_compare")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.analyze_ticker, S.scan_market, S.apply_float_gate)))
+
 # 📏 مراقبة ما بعد الخروج (‏`observe_closed_alerts`) — سدُّ قياسٍ مقصوص كُشف 2026-07-30:
 #    `update_tracking` يعالج المفتوحة فقط ⇒ لمسُ t1 (هدف قريب) يجمّد `max_gain_pct`،
 #    فقراءة السجلّ «صفرٌ بلغ +50%» كانت **حقيقةً عن تتبّعنا لا عن الأسهم**.

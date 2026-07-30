@@ -292,6 +292,16 @@ CONFIG = {
     # الفاشل حيًّا تحت لافتة الدخول) — BT_SWEEP_ENTRY يعزل أثر الدخول ووقفه = الأساس.
     # 🔓 T-LIBERATION (`liberation_prereg.md`، 2026-07-29): ذراع دخول «بعد كسر التحرر»
     # بدل التعبئة الفورية. **باكتيست حصريًّا · مطفأ افتراضيًّا ⇒ صفقة الأساس بت-بت.**
+    # 🕯️ T-CANDLE (`candle_readiness_prereg.md`، 2026-07-30): «حالة الزناد» في آخر
+    # الشموع — هل تميّز **الانفجار الوشيك**؟ **باكتيست حصريًّا · مطفأ ⇒ الصفقة بت-بت.**
+    "BT_CANDLE": 0,                       # 1 = احسب trigger_state وسجّله مع كل إشارة
+    "CANDLE_SOON_BARS": 10,               # نافذة «فترة وجيزة جدًّا» (مُثبَّتة بالتسجيل)
+    "CANDLE_RSI_LO": 20.0,                # أرضية نطاق «rsi جاهز للانفجار» (TG_1870)
+    "CANDLE_RSI_HI": 30.0,                # سقفه («RSI عند 27» TG_2037)
+    # أفق «آخر الشموع» — **مشتقٌّ من طول التسلسل نفسه لا مُجرَّب**: ثبات القاع (حتى 8
+    # جلسات، بوّابة D4) + ساق اختبار المقاومة + ساق الرجوع + المسح + الاستعادة ≈ 25.
+    # وهو حالةُ آخر الشموع (‏25) مقابل سجلّ `behavior_rise_profile` (‏~800) = 32× أقصر.
+    "CANDLE_WIN_BARS": 25,
     "BT_LIBERATION": 0,                   # 1 = فعّل ذراعَي التحرر (L1 أقرب حاجز · L2 أعلى مقاومة)
     "BT_LIB_WAIT": 20,                    # نافذة انتظار الكسر بالجلسات (مُثبَّتة بالتسجيل المسبق)
     "BT_SWEEP_ENTRY": 0,                  # 1 = دخول بعد مسح+استعادة (بدل التعبئة الفورية)
@@ -11687,6 +11697,127 @@ def _sweep_confirmed_fill(lo, cl, support, sweep_pct):
             (run_low if run_low != float("inf") else None))
 
 
+def trigger_state(df, win=None, rsi_lo=None, rsi_hi=None,
+                  sweep_min=None, sweep_max=None):
+    """🕯️ **«حالة الزناد»** — السمة الواحدة المُختبَرة في `candle_readiness_prereg.md`.
+
+    **سندها الحرفيّ (لا ابتكار):** `TG_1870` «قاع ⟶ اختبار أوّل مقاومة فوقه ⟶ رجوعٌ يختبر
+    القاع **مع سحب سيولة** ⟶ **هنا يكون rsi جاهز للانفجار**» · و`TG_2037` «**ننتظر RSI
+    عند 27**». وتُقرأ **تسلسلًا بترتيبٍ زمنيّ** — وهذا فرقُها الجوهريّ عن `fsto_oscillation`
+    (تباينٌ إحصائيّ `chop`) وعن `behavior_rise_profile` (سجلٌّ تاريخيّ ~800 بار وعدّ أحداث).
+
+    الشروط على **آخر `win` بارًا** من الإطار المُمرَّر (‏حالةٌ لا تاريخ):
+      ① قاعٌ مكوَّن = أدنى قاعٍ داخل النافذة.
+      ② **اختُبرت مقاومةٌ فوقه ورُدَّ السعر** = بعد بار القاع ارتفع أعلى ≥`bounce` ثم عاد.
+      ③ **مسحٌ ثم استعادة**: قاعٌ لاحق يخرق القاع الأول بـ[`sweep_min`..`sweep_max`]%
+         **ثم إغلاقٌ يستعيده** (نفس نطاق فيصل 7-13%).
+      ④ RSI آخر بارٍ في [`rsi_lo`, `rsi_hi`].
+    يرجّع dict: `{ok, bottom, swept_pct, rsi, steps}` — و`ok=True` فقط باكتمال الأربعة.
+
+    🔒 **بلا نظر مستقبليّ بنيويًّا:** لا تقرأ إلا `df` المُمرَّر، ويُمرَّر في الباكتيست
+    `df.iloc[:i]` (ما قبل شمعة الإشارة حصرًا). نقيّة · فاشلة-آمنة → None.
+    ⚠️ الشرط ⑤ (‏[4س] الشمعة الساقطة لم يغطّها اليوميّ) **خارج هذه الدالّة** — 4س غير
+    متاح في الباكتيست، ويُصرَّح بذلك في التسجيل بدل تزييفه من اليوميّ."""
+    try:
+        win = int(win or CONFIG["CANDLE_WIN_BARS"])
+        rsi_lo = float(rsi_lo if rsi_lo is not None else CONFIG["CANDLE_RSI_LO"])
+        rsi_hi = float(rsi_hi if rsi_hi is not None else CONFIG["CANDLE_RSI_HI"])
+        smin = float(sweep_min if sweep_min is not None
+                     else CONFIG["SPLIT_SWEEP_MIN_PCT"]) / 100.0
+        smax = float(sweep_max if sweep_max is not None
+                     else CONFIG["SPLIT_SWEEP_MAX_PCT"]) / 100.0
+        if df is None or len(df) < max(win, 15):
+            return None
+        w = df.tail(win)
+        lo = w["Low"].astype(float).values
+        hi = w["High"].astype(float).values
+        cl = w["Close"].astype(float).values
+        if len(lo) < 5:
+            return None
+        # ④ RSI أوّلًا (لا يعتمد على القاع) — «rsi جاهز للانفجار»
+        rv = None
+        try:
+            rv = float(rsi(df["Close"].astype(float)).iloc[-1])
+        except Exception:
+            rv = None
+        rsi_ok = bool(rv is not None and rsi_lo <= rv <= rsi_hi)
+        # 🔴 **القاعُ المطلوب ليس أدنى النافذة**: قاعُ المسح أدنى من القاع الذي مسحه
+        # **بالتعريف**، فـ`argmin` يقع عليه ويستحيل التسلسل. فنبحث عن قاعٍ ①**يُمسَح
+        # لاحقًا** ويستوفي الترتيب كاملًا، ونأخذ **أوّل** مطابقٍ (حتميّ لا «أفضل»).
+        best = None
+        for b in range(0, len(lo) - 3):
+            bot = float(lo[b])
+            if bot <= 0 or float(np.min(lo[:b + 1])) < bot:
+                continue                          # ① قاعٌ مكوَّن = الأدنى حتى لحظته
+            after_hi = hi[b + 1:]
+            if not len(after_hi):
+                continue
+            pk = b + 1 + int(np.argmax(after_hi))
+            peak = float(after_hi.max())
+            # ② اختُبرت مقاومةٌ فوقه: ارتفاعٌ ≥ حدّ المسح الأدنى، والقمّة ليست آخر بار
+            # (شرطٌ **دفاعيّ بلا أثر سلوكيّ** — `range(pk+1, …)` فارغٌ أصلًا وقتها؛ يُبقى
+            # لتوضيح النيّة ولا يُدَّعى قفله).
+            # 🔴 **وحُذف شرطُ «الإغلاق دون القمّة» بقياسٍ لا
+            # بحدس:** عزلُه مستحيلٌ عمليًّا — إغلاقٌ عند قمّة ما بعد القاع مع RSI ≤ 30
+            # يستلزم هبوطًا سابقًا حادًّا، وذاك يجعل قيعانًا سابقة **أدنى** من القاع فيسقط
+            # الشرط ①. فالشرطان متعارضان ⇒ الشرط زائدٌ يحمله **بند RSI** أصلًا، وإبقاءُ
+            # كودٍ لا يُحقَّق منه بطفرةٍ مخالفٌ لانضباطنا. (طفرةُ حذفه نجت فكشفت التكرار.)
+            if (peak / bot - 1.0) < smin or pk >= len(cl) - 1:
+                continue
+            # ③ مسحٌ ثم استعادة — **بعد** بار القمّة حصرًا (ترتيبٌ زمنيّ لا مجرّد وجود)
+            for k in range(pk + 1, len(lo)):
+                d = 1.0 - float(lo[k]) / bot
+                if smin <= d <= smax:
+                    if any(float(cl[j]) >= bot for j in range(k, len(cl))):
+                        best = (bot, round(d * 100.0, 1))
+                    break
+            if best:
+                break
+        steps = {"bottom_formed": bool(best), "tested_res": bool(best),
+                 "swept_reclaimed": bool(best), "rsi_zone": rsi_ok}
+        return {"ok": bool(best) and rsi_ok,
+                "bottom": (round(best[0], 4) if best else None),
+                "swept_pct": (best[1] if best else None),
+                "rsi": (round(rv, 1) if rv is not None else None),
+                "steps": steps}
+    except Exception:
+        return None
+
+
+def _candle_augment(trade, df_prior, hi, lo, cl, entry, stop, filled):
+    """🕯️ يُلحِق حقول T-CANDLE بصفقة الأساس: الحالة + **مقياس الوشوك**.
+
+    `soon_50` = بلغ ‏+50% من الدخول **خلال `CANDLE_SOON_BARS` جلسة** من التعبئة **وقبل
+    ضرب الوقف** — وهو الجواب المباشر لسؤال المالك «ليه ينفجر خلال فترة وجيزة جدًّا؟».
+    و`bars_to_50` عدد الجلسات حتى بلوغه (‏None لمن لم يبلغه). **الوقف يُفحَص أولًا** (محافظ،
+    نفس اتفاقية `_max_gain_before_stop`) والقياس يبدأ من `filled` (‏الشمعة المملوكة).
+    **إلحاق فقط — لا يمسّ حسم الأساس ولا حقوله.** مطفأ ⇒ لا يُنادى ⇒ الصفقة بت-بت."""
+    ts = trigger_state(df_prior)
+    trade["trig_ok"] = (bool(ts["ok"]) if ts else None)
+    trade["trig_steps"] = ((",".join(k for k, v in ts["steps"].items() if v))
+                           if ts else None)
+    trade["trig_rsi"] = (ts.get("rsi") if ts else None)
+    trade["soon_50"] = None
+    trade["bars_to_50"] = None
+    if filled is None or entry is None or float(entry) <= 0:
+        return trade
+    try:
+        tgt = float(entry) * 1.5
+        horizon = min(len(cl) - 1, int(filled) + int(CONFIG["CANDLE_SOON_BARS"]))
+        hit = None
+        for k in range(int(filled), horizon + 1):
+            if float(lo[k]) <= float(stop):       # الوقف أولًا — محافظ
+                break
+            if float(hi[k]) >= tgt:
+                hit = k - int(filled)
+                break
+        trade["soon_50"] = bool(hit is not None)
+        trade["bars_to_50"] = hit
+    except Exception:
+        pass
+    return trade
+
+
 def _liberation_levels(r):
     """🔓 مستويا «التحرر» المُثبَّتان في `liberation_prereg.md` §① — **من حساب البوت
     نفسه** على بيانات ما قبل الإشارة (‏`r` مُحتسَب على `df.iloc[:i]`) ⇒ صفر تسريب.
@@ -12014,6 +12145,11 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         # الإشارة — إلحاق حقول فقط بوقف الأساس ومحرّك الحسم نفسه. مطفأ = بت-بت.
         if CONFIG.get("BT_LIBERATION"):
             _liberation_augment(trade, r, hi, lo, cl, op, stop, t1)
+        # 🕯️ T-CANDLE (`candle_readiness_prereg.md`): «حالة الزناد» في آخر الشموع +
+        # مقياس **الوشوك** (‏+50% خلال 10 جلسات). الحالة تُحسب على `df.iloc[:i]` حصرًا
+        # (ما قبل شمعة الإشارة) = صفر تسريب بنيويًّا. إلحاق فقط · مطفأ = بت-بت.
+        if CONFIG.get("BT_CANDLE"):
+            _candle_augment(trade, df.iloc[:i], hi, lo, cl, entry, stop, filled)
         # 🏦 قوة البوت (BT_POTENTIAL): أقصى صعود من الدخول **قبل الوقف** + يوم الذروة.
         # إلحاق فقط (كنمط المسح) — صفقة الأساس بلا تغيير. مطفأ = صفر حقول.
         if CONFIG.get("BT_POTENTIAL"):
@@ -12201,6 +12337,68 @@ def _mean_lo95(xs):
     var = sum((x - m) ** 2 for x in xs) / (n - 1)
     se = (var ** 0.5) / (n ** 0.5)
     return (m, m - 1.96 * se, n)
+
+
+def backtest_candle_compare(trades: list) -> list:
+    """🕯️ مُخرَج T-CANDLE بمعيار `candle_readiness_prereg.md` — يرجّع [] إن كان العلم مطفأً.
+
+    يقسم المُعبَّأة شريحتين (‏حالة الزناد ✅ / ❌) ويطبع: **توقّع R** (الأساسي) ·
+    **نسبة الانفجار الوشيك** (‏+50% خلال `CANDLE_SOON_BARS`، وهو الجواب المباشر لسؤال
+    المالك) · ونسبة +50% **بلا حدٍّ زمنيّ** بجانبها (فيُقرأ الفرقُ = أثر الوشوك) ·
+    ووسيط الجلسات حتى البلوغ · وأعداد الشرائح · وشرطَي الحكم لهذه السنة.
+    **و«لا حكم: العيّنة لا تكفي» تُقال صراحةً** ولا تُخلَط بـ«فشل» (درس T-SHORT)."""
+    if not CONFIG.get("BT_CANDLE"):
+        return []
+    fl = [t for t in (trades or [])
+          if t.get("outcome") in ("win", "loss") and t.get("trig_ok") is not None]
+    if not fl:
+        return ["🕯️ <b>T-CANDLE</b>: لا صفقة محسومة تحمل الحالة — لا حكم."]
+    on = [t for t in fl if t.get("trig_ok")]
+    off = [t for t in fl if not t.get("trig_ok")]
+    L = ["🕯️ <b>تجربة T-CANDLE: هل «حالة الزناد» تميّز الانفجار الوشيك؟</b>",
+         f"المعيار: `candle_readiness_prereg.md` · نافذة الوشوك "
+         f"{CONFIG['CANDLE_SOON_BARS']} جلسة · RSI "
+         f"{CONFIG['CANDLE_RSI_LO']:g}-{CONFIG['CANDLE_RSI_HI']:g}"]
+
+    def _blk(name, g):
+        rs = [x for x in (_bt_realized_r(t) for t in g) if x is not None]
+        exp = (sum(rs) / len(rs)) if rs else None
+        soon = [t for t in g if t.get("soon_50")]
+        anyt = [t for t in g if isinstance(t.get("mg_pre_stop"), (int, float))
+                and float(t["mg_pre_stop"]) >= 50.0]
+        bars = sorted(t["bars_to_50"] for t in soon
+                      if isinstance(t.get("bars_to_50"), int))
+        med = (bars[len(bars) // 2] if bars else None)
+        L.append(f"▸ <b>{name}</b>: {len(g)} محسومة · توقّع "
+                 + (f"{exp:+.2f}R" if exp is not None else "—")
+                 + f" · انفجار وشيك {len(soon)} ({100 * len(soon) / len(g):.0f}%)"
+                 + f" · +50% بلا حدٍّ زمنيّ {len(anyt)}"
+                 f" ({100 * len(anyt) / len(g):.0f}%)"
+                 + (f" · وسيط الجلسات حتى +50% = {med}" if med is not None else ""))
+        return exp, (len(soon) / len(g) if g else 0.0)
+
+    e_on, s_on = _blk("حالة الزناد ✅", on) if on else (None, 0.0)
+    e_off, s_off = _blk("حالة الزناد ❌", off) if off else (None, 0.0)
+    if not on or not off:
+        L.append("⚠️ <b>لا حكم</b>: إحدى الشريحتين فارغة — العيّنة لا تكفي (لا «فشل»).")
+        return L
+    gap = (e_on - e_off) if (e_on is not None and e_off is not None) else None
+    L.append("🔴 الفارق بالتوقّع (‏✅ − ❌): "
+             + (f"{gap:+.2f}R" if gap is not None else "—")
+             + f" · وبالانفجار الوشيك {100 * (s_on - s_off):+.0f} نقطة")
+    small = min(len(on), len(off)) < 30
+    L.append("الحكم لهذه السنة: حجم الفرق (‏≥+0.15R) "
+             + ("✅" if (gap is not None and gap >= 0.15) else "❌")
+             + " · العيّنة (‏≥30 لكل شريحة) " + ("❌" if small else "✅"))
+    if small:
+        L.append("⚠️ <b>لا حكم: العيّنة لا تكفي</b> — لا يُقرأ هذا «فشلًا» (درس T-SHORT).")
+    L.append("⏳ <b>هذه سنة واحدة</b>: المعيار يشترط ثبات الاتجاه في <b>ثلاث سنوات</b> "
+             "+ مقارنةً مقترنة + لا انقلاب مجمَّعًا — لا حكم من تشغيلة واحدة.")
+    L.append("🔒 وسقف النجاح مُحدَّد سلفًا: <b>وسمُ توقيتٍ/سطرُ عرض + اقتراح للمالك</b> — "
+             "لا بوّابة M ولا وزن ترتيب ولا مسٌّ بالدخول/الوقف/الأهداف.")
+    L.append("⚖️ وقيدٌ بلسان فيصل (‏TG_2089): «السهم جاهز ع جميع المؤشرات والشموع · "
+             "بانتظار فقط دخول المضارب» ⇒ الشموع شرطٌ لازمٌ غير كافٍ، والكافي خارج OHLCV.")
+    return L
 
 
 def backtest_liberation_compare(trades: list) -> list:
@@ -13507,6 +13705,11 @@ def run_backtest(symbols=None) -> None:
     lines += liber
     for _ll in liber:
         log("باكتيست·" + _ll.strip().replace("\n", " "))
+    # 🕯️ T-CANDLE (`candle_readiness_prereg.md`): ترجّع [] ما لم يُفعَّل BT_CANDLE
+    cand = backtest_candle_compare(all_trades)
+    lines += cand
+    for _cl in cand:
+        log("باكتيست·" + _cl.strip().replace("\n", " "))
     sweep = backtest_sweep_compare(all_trades)
     lines += sweep
     for _sl in sweep:

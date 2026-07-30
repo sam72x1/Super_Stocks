@@ -85,8 +85,8 @@ on:
         description: "🏦 سعة المحفظة المحاكاة (اختياري): افتراضي 15 (= WATCHLIST_SIZE). باكتيست فقط"
         required: false
         default: ""
-      bt_raw_price:
-        description: "🕰️ (متقادم — لا يُلغي التقسيمات) point-in-time خام: auto_adjust=False. استخدم frozen_run_id بدلًا منه للتجميد الصحيح"
+      bt_candle:
+        description: "🕯️ تجربة T-CANDLE (اختياري): 1 = احسب «حالة الزناد» في آخر الشموع (قاع ⟶ اختبار مقاومة ⟶ مسح 7-13% ⟶ استعادة + RSI 20-30) وقِس **الانفجار الوشيك** (+50% خلال 10 جلسات). المعيار: `candle_readiness_prereg.md`. باكتيست فقط، مطفأ = صفقة الأساس بت-بت"
         required: false
         default: ""
       bt_split_aware_m2:
@@ -161,8 +161,8 @@ jobs:
           BT_PORTFOLIO: ${{ github.event.inputs.bt_portfolio }}
           BT_PORT_SIZE: ${{ github.event.inputs.bt_port_size }}
           # 🕰️ point-in-time (تدقيق خارجي) — يُقرأ في وضع BACKTEST حصريًا
-          BT_RAW_PRICE: ${{ github.event.inputs.bt_raw_price }}
           # 🔬 M2 واعية للتقسيم — يُقرأ في وضع BACKTEST حصريًا (يلزم frozen_run_id للسياق splits)
+          BT_CANDLE: ${{ github.event.inputs.bt_candle }}
           BT_SPLIT_AWARE_M2: ${{ github.event.inputs.bt_split_aware_m2 }}
           # 🔬 M2 مرجع ما بعد التقسيم (قاعدة فيصل) — يُقرأ في وضع BACKTEST حصريًا (يلزم frozen_run_id)
           BT_SPLIT_REF_M2: ${{ github.event.inputs.bt_split_ref_m2 }}
