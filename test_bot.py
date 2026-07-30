@@ -9579,6 +9579,88 @@ def _c10_inputs_in_run(path):
 _c10_inj = [x for _f in _c10_files for x in _c10_inputs_in_run(_f)]
 check("🔐 010·لا مدخل workflow_dispatch داخل أي كتلة run: (منع script injection)",
       _c10_inj == [])
+# 📏 مراقبة ما بعد الخروج (‏`observe_closed_alerts`) — سدُّ قياسٍ مقصوص كُشف 2026-07-30:
+#    `update_tracking` يعالج المفتوحة فقط ⇒ لمسُ t1 (هدف قريب) يجمّد `max_gain_pct`،
+#    فقراءة السجلّ «صفرٌ بلغ +50%» كانت **حقيقةً عن تتبّعنا لا عن الأسهم**.
+def _obs_df(highs, start_iso="2026-01-02"):
+    """إطار شموع تخييليّ (High فقط ما يهمّ) لاختبار المراقبة بلا شبكة."""
+    idx = pd.date_range(start_iso, periods=len(highs), freq="D")
+    return pd.DataFrame({"High": highs, "Low": [h * 0.9 for h in highs],
+                         "Close": [h * 0.95 for h in highs]}, index=idx)
+
+
+# سهمٌ لمس t1 عند +6% ثم **انفجر +150%** بعده: التتبّع القديم يقرأ 6% والمراقبة تقرأ الحقيقة
+_obs_alert = {"symbol": "OBS", "date": "2026-01-01", "ref_bar": "2026-01-01",
+              "price": 1.00, "stop": 0.93, "t1": 1.06, "t2": 1.5, "t3": 2.0,
+              "status": "hit_t1", "result_date": "2026-01-05", "max_gain_pct": 6.0}
+_obs_data = {"alerts": [dict(_obs_alert)]}
+_obs_hi = [1.02, 1.06, 1.10, 1.40, 2.50] + [2.0] * 10       # القمّة 2.50 = +150%
+_obs_done, _obs_left = S.observe_closed_alerts(
+    _obs_data, fetch=lambda sym, start: _obs_df(_obs_hi),
+    today=_dt.date(2026, 6, 1))
+_obs_a = _obs_data["alerts"][0]
+check("📏 المراقبة تقيس ما بعد الخروج: +150% بينما التتبّع المقصوص يقول +6%",
+      _obs_done == 1 and _obs_a["mg_obs_pct"] == 150.0 and _obs_a["mg_obs_days"] == 15)
+# 🔒 **القفل الحاسم**: الحكم (status/result_date/max_gain_pct) **لا يُمَسّ إطلاقًا** —
+#    فسجلّ الربح/الخسارة يبقى حرفيًّا كما هو، ويُضاف المقدار الصادق إلى جانبه.
+check("🔒 المراقبة لا تمسّ الحكم: status · result_date · max_gain_pct كما هي بت-بت",
+      all(_obs_a[k] == _obs_alert[k]
+          for k in ("status", "result_date", "max_gain_pct", "price", "t1")))
+check("📏 المفتوحة شأنُ update_tracking وحده (المراقبة تتخطّاها)",
+      S.observe_closed_alerts({"alerts": [dict(_obs_alert, status="open")]},
+                              fetch=lambda s, t: _obs_df(_obs_hi),
+                              today=_dt.date(2026, 6, 1))[0] == 0)
+# حدّ النافذة: القمّة **بعد** الجلسة 60 يجب أن تُستبعَد — نفحص القيمة المكتوبة فعلًا
+_obs_win = {"alerts": [dict(_obs_alert, symbol="WIN")]}
+S.observe_closed_alerts(_obs_win,
+                        fetch=lambda s, t: _obs_df([1.0] * 60 + [99.0]),
+                        today=_dt.date(2026, 6, 1))
+check("📏 النافذة محدودة بـTRACK_OBSERVE_DAYS: قمّةُ الجلسة 61 لا تُحتسب",
+      S.TRACK_OBSERVE_DAYS == 60
+      and _obs_win["alerts"][0].get("mg_obs_pct") == 0.0     # 1.00 → 1.00 = صفر
+      and _obs_win["alerts"][0].get("mg_obs_days") == 60)
+# مُنتهية النافذة لا تُجلَب مرّتين — يُقاس بـ**عدد النداءات** لا بالنتيجة
+_obs_calls = []
+
+
+def _obs_counting(sym, start):
+    _obs_calls.append(sym)
+    return _obs_df(_obs_hi)
+
+
+check("📏 المُنتهية لا تُجلَب مرّةً أخرى (صفر نداء، لا مجرّد صفر نتيجة)",
+      _obs_a.get("mg_obs_done") is True
+      and S.observe_closed_alerts(_obs_data, fetch=_obs_counting,
+                                  today=_dt.date(2026, 6, 1))[0] == 0
+      and _obs_calls == [])
+check("📏 فاشلة-آمنة: استثناء الجالب لا يرمي · وبلا شبكة لا عمل",
+      S.observe_closed_alerts({"alerts": [dict(_obs_alert)]},
+                              fetch=lambda s, t: 1 / 0,
+                              today=_dt.date(2026, 6, 1)) == (0, 0))
+check("📏 السقف يُعلَن: المؤجَّل يُرجَع عددًا لا يُصمت",
+      S.observe_closed_alerts(
+          {"alerts": [dict(_obs_alert, symbol="A%d" % i) for i in range(5)]},
+          fetch=lambda s, t: _obs_df(_obs_hi), today=_dt.date(2026, 6, 1),
+          cap=2) == (2, 3))
+# 📊 الملخّص الصادق يقرأ mg_obs_pct لا max_gain_pct المقصوص
+_obs_sum = S.observed_explosion_summary(
+    {"alerts": [{"mg_obs_pct": 5.0, "max_gain_pct": 99.0},
+                {"mg_obs_pct": 150.0}, {"mg_obs_pct": 60.0},
+                # 🔴 غير مُراقَب بعد: عنده المقصوص وحده ⇒ **يُستبعَد كليًّا** ولا
+                #    يُحسَب بقيمته المقصوصة (وإلّا خُلط المقياسان في رقمٍ واحد).
+                {"max_gain_pct": 200.0}]})
+check("📊 ملخّص الانفجار يقرأ المُراقَب **حصرًا** ويستبعد غير المُراقَب",
+      _obs_sum["n"] == 3 and _obs_sum["median"] == 60.0 and _obs_sum["max"] == 150.0
+      and _obs_sum["counts"][50] == 2 and _obs_sum["counts"][100] == 1
+      and S.observed_explosion_summary({"alerts": []})["n"] == 0
+      and S.observed_explosion_summary({"alerts": []})["median"] is None)
+check("🔒 المراقبة خارج الفرز والاختيار (قياس/تقارير فقط)",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("observe_closed_alerts", "observed_explosion_summary")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.analyze_ticker, S.scan_market, S.backtest_symbol,
+                     S.update_tracking)))
+
 # 🔒📈 حصّاد الاقتراض بشاهد ضبط سالب (`ctb_harvest.py` · `borrow_labelled_set.md`)
 import ctb_harvest as _CTB                                     # noqa: E402
 

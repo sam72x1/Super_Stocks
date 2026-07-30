@@ -14028,9 +14028,114 @@ def _prune_alerts(data):
     data["alerts"] = kept
 
 
+TRACK_OBSERVE_DAYS = 60              # نافذة **المراقبة بعد الخروج** (قياس المقدار فقط)
+OBSERVE_CAP = 25                     # سقف نداءات المراقبة لكل تشغيلة (يُعلَن ولا يُصمت)
+
+
+def observe_closed_alerts(data, fetch=None, today=None, cap=None):
+    """📏 **يقيس ما فعله السهم بعد خروجنا** — سدًّا لقياسٍ مقصوص كُشف 2026-07-30.
+
+    **العلّة:** `update_tracking` يعالج `status == "open"` حصرًا، فأوّل ما يُلمَس **t1**
+    (وهو أقرب مقاومة = هدفٌ صغير) يتجمّد `max_gain_pct` عند لحظة الخروج. فقراءة السجلّ
+    تعطي «وسيط أقصى صعود 7.7% · صفرٌ بلغ +50%» — وهي **حقيقةٌ عن تتبّعنا لا عن الأسهم**.
+    ولمّا كان سؤال المالك الجوهريّ «هل أسهم الارتكاز تنفجر فعلًا؟» فالقياس المقصوص
+    **يمنع الجواب** ويُضلّل تقرير التطوير الذي يقرأ `max_gain_pct`.
+
+    **العلاج (قياسٌ لا حكم):** لكل تنبيهٍ **محسوم** تُقاس قمّتُه على نافذة
+    `TRACK_OBSERVE_DAYS` جلسة من شمعة الترشيح **بصرف النظر عن خروجنا**، وتُكتب في حقولٍ
+    **جديدة مستقلّة**: `mg_obs_pct` · `mg_obs_days` · `mg_obs_done`.
+
+    🔒 **والحكم لا يُمَسّ إطلاقًا:** `status` · `result_date` · `max_gain_pct` **لا
+    تُكتَب هنا أبدًا** (مقفول باختبار). فسجلّ الربح/الخسارة يبقى كما هو حرفيًّا، ويُضاف
+    **المقدار الصادق** إلى جانبه. لا `LOGIC_VERSION` (طبقة قياس/تقارير خارج الفرز).
+
+    ⚠️ فاشل-آمن مطلق · سقفٌ معلَن · والتقسيم يُسوّى بنفس `_split_scale_factor` المستعملة
+    في الحسم (وإلّا قرأ تقسيمٌ عكسيّ «انفجارًا» وهميًّا). `fetch` مُحقَن للاختبار."""
+    today = today or dt.date.today()
+    cap = OBSERVE_CAP if cap is None else cap
+    dl = fetch if fetch is not None else (
+        (lambda sym, start: yf.download(sym, start=start, interval="1d",
+                                        auto_adjust=True, progress=False))
+        if yf is not None else None)
+    if dl is None:
+        return (0, 0)
+    todo = []
+    for a in (data.get("alerts") or []):
+        if a.get("status") in (None, "", "open"):
+            continue                          # المفتوحة شأنُ `update_tracking`
+        if a.get("mg_obs_done"):
+            continue                          # نافذتُها انتهت — لا نعيد الجلب أبدًا
+        try:
+            ref = str(a.get("ref_bar") or a.get("date"))[:10]
+            dt.date.fromisoformat(ref)
+        except Exception:
+            continue
+        todo.append((ref, a))
+    todo.sort(key=lambda t: t[0])              # الأقدم أولًا (نافذته تُغلَق قريبًا)
+    done = 0
+    for ref, a in todo[:max(0, int(cap))]:
+        try:
+            age = (today - dt.date.fromisoformat(ref)).days
+            if age < 1:
+                continue
+            start = (dt.date.fromisoformat(ref) + dt.timedelta(days=1)).isoformat()
+            df = dl(a["symbol"], start)
+            if df is None or getattr(df, "empty", True):
+                if age >= TRACK_OBSERVE_DAYS:
+                    a["mg_obs_done"] = True    # النافذة انقضت ولا بيانات — نتوقّف بصدق
+                continue
+            if isinstance(df.columns, pd.MultiIndex):
+                df.columns = df.columns.get_level_values(0)
+            df = df.dropna(subset=["Close"])
+            if not len(df):
+                continue
+            _spf = _split_scale_factor(_fetch_splits(a["symbol"]), a["date"])
+            entry = float(a["price"]) / (_spf or 1.0)
+            if entry <= 0:
+                continue
+            win = df.iloc[:TRACK_OBSERVE_DAYS]
+            a["mg_obs_pct"] = round(
+                (float(win["High"].astype(float).max()) / entry - 1.0) * 100.0, 1)
+            a["mg_obs_days"] = int(len(win))
+            if age >= TRACK_OBSERVE_DAYS or len(df) >= TRACK_OBSERVE_DAYS:
+                a["mg_obs_done"] = True
+            done += 1
+        except Exception:
+            continue                           # رمزٌ واحد لا يُسقط القياس كلّه
+    left = max(0, len(todo) - max(0, int(cap)))
+    if todo:
+        log(f"📏 مراقبة ما بعد الخروج: {done} من {len(todo)} محسومًا"
+            + (f" · مؤجَّل بالسقف {left}" if left else ""))
+    return (done, left)
+
+
+def observed_explosion_summary(data, thresholds=(30, 50, 100)):
+    """📊 الجواب الصادق عن «هل تنفجر أسهم الارتكاز؟» من الحقول المُراقَبة.
+    يرجّع dict (‏n · median · max · counts لكل عتبة). **لا يقرأ `max_gain_pct` المقصوص.**
+    نقيّة. تُرجع n=0 عند غياب المراقبة — و«لا بيانات» **يُقال** لا يُخمَّن."""
+    vals = [float(a["mg_obs_pct"]) for a in (data.get("alerts") or [])
+            if isinstance(a.get("mg_obs_pct"), (int, float))]
+    out = {"n": len(vals), "median": None, "max": None,
+           "counts": {t: 0 for t in thresholds},
+           "done": sum(1 for a in (data.get("alerts") or []) if a.get("mg_obs_done"))}
+    if not vals:
+        return out
+    sv = sorted(vals)
+    m = len(sv) // 2
+    out["median"] = sv[m] if len(sv) % 2 else round((sv[m - 1] + sv[m]) / 2.0, 1)
+    out["max"] = max(sv)
+    for t in thresholds:
+        out["counts"][t] = sum(1 for v in vals if v >= t)
+    return out
+
+
 def run_performance_system(results, weekly_report_now=False):
     data = load_alerts()
     updates = update_tracking(data)      # 1) تابع التنبيهات القديمة
+    try:                                 # 1.5) 📏 مقدار ما بعد الخروج (قياس، لا حكم)
+        observe_closed_alerts(data)
+    except Exception as e:
+        log(f"⚠️ مراقبة ما بعد الخروج: {e}")
     record_new_alerts(data, results)     # 2) سجّل تنبيهات اليوم
     _prune_alerts(data)                  # 2.5) قلّم القديم (نمو محدود)
     save_alerts_file(data)               # 3) احفظ السجل محلياً
