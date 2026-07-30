@@ -1,0 +1,32 @@
+name: NBBO History Probe (مِجَسّ مؤقّت — يُحذف بعد القراءة)
+
+# 🔎 مِجَسّ **مؤقّت** يجيب سؤالًا واحدًا: هل لدينا تاريخ NBBO عبر `/v3/quotes`؟
+# (البند 3 من `COMMON_LINK_REPORT_FOR_OPUS.md` §⑥-مكرر — الاعتقاد الموثّق «بلا تاريخ»
+# يخصّ L2 ولم يُفحص NBBO قطّ.) عرض/تشخيص فقط: لا يكتب حالة ولا يمسّ الفرز.
+# 🔐 أقلّ صلاحية: قراءة فقط — لا يدفع شيئًا للمستودع.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Probe NBBO history
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        run: python3 nbbo_probe.py
