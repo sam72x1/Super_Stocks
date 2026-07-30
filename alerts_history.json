@@ -24,7 +24,9 @@
    "ready": true,
    "status": "stopped",
    "result_date": "2026-07-06",
-   "max_gain_pct": 0.3
+   "max_gain_pct": 0.3,
+   "mg_obs_pct": 6.2,
+   "mg_obs_days": 27
   },
   {
    "symbol": "IDN",
@@ -49,7 +51,9 @@
    "ready": true,
    "status": "expired",
    "result_date": "2026-07-21",
-   "max_gain_pct": 8.1
+   "max_gain_pct": 8.1,
+   "mg_obs_pct": 8.1,
+   "mg_obs_days": 27
   },
   {
    "symbol": "SEV",
@@ -78,7 +82,9 @@
    "ready": false,
    "status": "expired",
    "result_date": "2026-07-21",
-   "max_gain_pct": 5.5
+   "max_gain_pct": 5.5,
+   "mg_obs_pct": 5.5,
+   "mg_obs_days": 27
   },
   {
    "symbol": "NAGE",
@@ -104,7 +110,9 @@
    "ready": true,
    "status": "expired",
    "result_date": "2026-07-21",
-   "max_gain_pct": 8.0
+   "max_gain_pct": 8.0,
+   "mg_obs_pct": 8.0,
+   "mg_obs_days": 27
   },
   {
    "symbol": "NGEN",
@@ -130,7 +138,9 @@
    "ready": false,
    "status": "expired",
    "result_date": "2026-07-21",
-   "max_gain_pct": 6.6
+   "max_gain_pct": 6.6,
+   "mg_obs_pct": 6.6,
+   "mg_obs_days": 27
   },
   {
    "symbol": "DJT",
@@ -158,7 +168,9 @@
    "ready": false,
    "status": "stopped",
    "result_date": "2026-06-26",
-   "max_gain_pct": 0.8
+   "max_gain_pct": 0.8,
+   "mg_obs_pct": 19.5,
+   "mg_obs_days": 27
   },
   {
    "symbol": "USGO",
@@ -181,7 +193,9 @@
    "ready": false,
    "status": "expired",
    "result_date": "2026-07-21",
-   "max_gain_pct": 8.8
+   "max_gain_pct": 8.8,
+   "mg_obs_pct": 8.8,
+   "mg_obs_days": 27
   },
   {
    "symbol": "INSM",
@@ -205,7 +219,9 @@
    "ready": false,
    "status": "hit_t1",
    "result_date": "2026-06-24",
-   "max_gain_pct": 11.9
+   "max_gain_pct": 11.9,
+   "mg_obs_pct": 24.8,
+   "mg_obs_days": 27
   },
   {
    "symbol": "EZRA",
@@ -231,7 +247,9 @@
    "ready": false,
    "status": "stopped",
    "result_date": "2026-07-06",
-   "max_gain_pct": 3.0
+   "max_gain_pct": 3.0,
+   "mg_obs_pct": 3.0,
+   "mg_obs_days": 26
   },
   {
    "symbol": "TAOX",
@@ -257,7 +275,9 @@
    "ready": false,
    "status": "hit_t1",
    "result_date": "2026-07-15",
-   "max_gain_pct": 12.6
+   "max_gain_pct": 12.6,
+   "mg_obs_pct": 12.6,
+   "mg_obs_days": 26
   },
   {
    "symbol": "NBP",
@@ -283,7 +303,9 @@
    "ready": false,
    "status": "hit_t3",
    "result_date": "2026-06-29",
-   "max_gain_pct": 38.4
+   "max_gain_pct": 38.4,
+   "mg_obs_pct": 48.9,
+   "mg_obs_days": 26
   },
   {
    "symbol": "CTMX",
@@ -307,7 +329,9 @@
    "ready": false,
    "status": "hit_t2",
    "result_date": "2026-06-29",
-   "max_gain_pct": 24.3
+   "max_gain_pct": 24.3,
+   "mg_obs_pct": 31.2,
+   "mg_obs_days": 26
   },
   {
    "symbol": "VSTM",
@@ -335,7 +359,9 @@
    "ready": false,
    "status": "hit_t2",
    "result_date": "2026-07-07",
-   "max_gain_pct": 17.4
+   "max_gain_pct": 17.4,
+   "mg_obs_pct": 52.0,
+   "mg_obs_days": 25
   },
   {
    "symbol": "UPB",
@@ -358,7 +384,9 @@
    "ready": false,
    "status": "hit_t1",
    "result_date": "2026-06-29",
-   "max_gain_pct": 11.0
+   "max_gain_pct": 11.0,
+   "mg_obs_pct": 26.9,
+   "mg_obs_days": 25
   },
   {
    "symbol": "VFS",
@@ -381,7 +409,9 @@
    "ready": false,
    "status": "expired",
    "result_date": "2026-07-23",
-   "max_gain_pct": 3.2
+   "max_gain_pct": 3.2,
+   "mg_obs_pct": 3.2,
+   "mg_obs_days": 25
   },
   {
    "symbol": "NERV",
@@ -406,7 +436,9 @@
    "ready": false,
    "status": "hit_t3",
    "result_date": "2026-06-29",
-   "max_gain_pct": 26.0
+   "max_gain_pct": 26.0,
+   "mg_obs_pct": 33.0,
+   "mg_obs_days": 24
   },
   {
    "symbol": "OLMA",
@@ -431,7 +463,9 @@
    "ready": false,
    "status": "hit_t1",
    "result_date": "2026-06-30",
-   "max_gain_pct": 12.7
+   "max_gain_pct": 12.7,
+   "mg_obs_pct": 17.5,
+   "mg_obs_days": 23
   },
   {
    "symbol": "INSM",
@@ -459,7 +493,9 @@
    "ready": false,
    "status": "hit_t1",
    "result_date": "2026-07-07",
-   "max_gain_pct": 10.9
+   "max_gain_pct": 10.9,
+   "mg_obs_pct": 15.5,
+   "mg_obs_days": 23
   },
   {
    "symbol": "OPRX",
@@ -485,7 +521,9 @@
    "ready": false,
    "status": "hit_t1",
    "result_date": "2026-06-30",
-   "max_gain_pct": 15.4
+   "max_gain_pct": 15.4,
+   "mg_obs_pct": 37.1,
+   "mg_obs_days": 22
   },
   {
    "symbol": "NEGG",
@@ -512,7 +550,9 @@
    "ready": false,
    "status": "stopped",
    "result_date": "2026-07-02",
-   "max_gain_pct": 4.4
+   "max_gain_pct": 4.4,
+   "mg_obs_pct": 4.4,
+   "mg_obs_days": 22
   },
   {
    "symbol": "KSCP",
@@ -538,7 +578,9 @@
    "ready": false,
    "status": "stopped",
    "result_date": "2026-07-10",
-   "max_gain_pct": 7.4
+   "max_gain_pct": 7.4,
+   "mg_obs_pct": 13.4,
+   "mg_obs_days": 20
   },
   {
    "symbol": "EVTV",
@@ -565,7 +607,9 @@
    "ready": false,
    "status": "hit_t2",
    "result_date": "2026-07-06",
-   "max_gain_pct": 16.5
+   "max_gain_pct": 16.5,
+   "mg_obs_pct": 6.5,
+   "mg_obs_days": 2
   },
   {
    "symbol": "LYEL",
@@ -591,7 +635,9 @@
    "ready": false,
    "status": "hit_t1",
    "result_date": "2026-07-07",
-   "max_gain_pct": 14.9
+   "max_gain_pct": 14.9,
+   "mg_obs_pct": 19.6,
+   "mg_obs_days": 19
   },
   {
    "symbol": "PRTS",
@@ -618,7 +664,9 @@
    "ready": false,
    "status": "stopped",
    "result_date": "2026-07-20",
-   "max_gain_pct": 1.2
+   "max_gain_pct": 1.2,
+   "mg_obs_pct": 1.2,
+   "mg_obs_days": 19
   },
   {
    "symbol": "SCYX",
@@ -643,7 +691,9 @@
    "ready": false,
    "status": "hit_t1",
    "result_date": "2026-07-02",
-   "max_gain_pct": 16.5
+   "max_gain_pct": 16.5,
+   "mg_obs_pct": 25.3,
+   "mg_obs_days": 19
   },
   {
    "symbol": "VFF",
@@ -1501,7 +1551,7 @@
    "rr": 1.940352509004351,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.2
+   "max_gain_pct": 4.9
   },
   {
    "symbol": "MSTR",
@@ -1646,8 +1696,8 @@
    "drop_pct": 75.55012316155383,
    "best_spike": 158.18183578407167,
    "rr": 2.8677953223822965,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-07-29",
    "max_gain_pct": 1.5
   },
   {
@@ -1758,7 +1808,7 @@
    "rr": 2.712409216209536,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.5
+   "max_gain_pct": -0.7
   }
  ]
 }
