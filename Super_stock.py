@@ -514,6 +514,11 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — باكتيست حصريًا، منفصلة الدخول/الوقف
             ("BT_LIBERATION", "BT_LIBERATION", int),       # 🔓 T-LIBERATION
             ("BT_LIB_WAIT", "BT_LIB_WAIT", int),
+            # 🕯️ T-CANDLE (`candle_readiness_prereg.md`) — **كان غائبًا من هذا الجدول**
+            # بينما `backtest.yml` يمرّره في البيئة ⇒ لا يصل CONFIG أبدًا ⇒ التشغيلة
+            # تخرج خضراء بمُخرَجٍ فارغ (بصمة الـno-op). مقفول باختبار «كل مفتاح BT_*
+            # في backtest.yml له صفّ في هذا الجدول» (P1-① 2026-07-30).
+            ("BT_CANDLE", "BT_CANDLE", int),               # 🕯️ T-CANDLE
             ("BT_SWEEP_ENTRY", "BT_SWEEP_ENTRY", int),
             ("BT_SWEEP_STOP", "BT_SWEEP_STOP", int),
             ("BT_SWEEP_PCT", "BT_SWEEP_PCT", float),
@@ -2257,13 +2262,75 @@ _SCAN_STATS = {}        # صحة الفرز: حجم الكون مقابل الب
 _REJECT_REASONS = {}    # سبب رفض كل سهم (رمز→سبب) — لتتبّع الفرص الفائتة
 _MISSED = []            # فرص فائتة: مرفوض صعد فعلاً (symbol/reason/gain)
 _CUR_SYM = None         # السهم قيد التحليل (لربط سبب الرفض به)
+# ③ P1 (2026-07-30): عدّاد **أسماء** النواقص التي أسقطت السهم على بوّابة «نواقص فوق
+# الحدّ» — الجدار الخلفي الأقسى مقيسًا (‏968 من 1,137 = 85% ممّن يصله) كان يُسجَّل
+# **عددًا** فلا يُعرف **أيّ** نقصٍ قتَل الذراع. قياس/طباعة فقط · **مفتاح الرفض نفسه
+# لم يُمَسّ** (يبقى قابلًا للتجميع، فلا تشظٍّ جديد — وهو عين ما يعالجه ② أعلاه).
+_REJECT_SOFT_FAILS = {}
+
+
+# ③ خريطة تسمية النواقص: نصّ النقص المعروض ⟶ اسم قانونيّ **بلا أرقام** (فالنصوص
+# مُنسَّقة بـf-string وتحمل قِيَمًا متغيّرة ⇒ لو جُمِعت خامًا لتشظّت آلافًا).
+# ⚠️ المجهول **لا يُسقَط صامتًا** — يُوسَم «؟·» بنصّه منزوع الأرقام (دستور «لا سقوف
+# صامتة»)، ويُسقِط اختبارُ السويّة أي نقصٍ جديد يُضاف للكود بلا صفٍّ هنا.
+_SOFT_FAIL_NAMES = (
+    ("الهبوط ", "M2·هبوط_دون_المثالي"),
+    ("الانفجار السابق ", "M3·انفجار_دون_المثالي"),
+    ("توافق الفريمات ", "M6·توافق_الفريمات"),
+    ("لا نمط شمعة انعكاسي", "M7·لا_نمط_انعكاسي"),
+    ("ما فيه فجوة سعرية فوقه", "M8·لا_فجوة_فوقه"),
+    ("قاع RSI ", "M10·قاع_RSI_ما_تشبّع"),
+    ("RSI الآن ", "M10·RSI_الآن_مرتفع"),
+    ("MACD لسّا ما أعطى", "M11·MACD_بلا_إشارة"),
+    ("السعر أقل بـ", "M12·تحت_المتوسط"),
+    ("السعر أعلى بـ", "M12·فوق_المتوسط"),
+    ("العائد مقابل المخاطرة", "RR·منخفض"),
+    # M13/M14 يُلحقان بـ`r["soft_fails"]` **بعد** عودة analyze_ticker فلا يبلغان
+    # بوّابة «نواقص فوق الحدّ» — مُدرجان للاكتمال ولئلّا يسقط قفلُ التسمية لو تغيّر
+    # المسار يومًا (تسمية بلا أثر على أي قرار).
+    ("شورت عالٍ", "M13·شورت_عالٍ"),
+    ("فلوت كبير", "M14·فلوت_كبير"),
+)
+
+
+def _soft_fail_name(text) -> str:
+    """③ اسم قانونيّ لنقصٍ واحد (نقيّة، بلا حالة). المجهول يُعاد منزوع الأرقام
+    بوسم «؟·» صريح — تعذّرُ التسمية ≠ إسقاطُ العيّنة."""
+    t = str(text or "").strip()
+    if not t:
+        return "؟·(فارغ)"
+    for needle, name in _SOFT_FAIL_NAMES:
+        if t.startswith(needle) or needle in t:
+            return name
+    return "؟·" + re.sub(r"[\d.,]+", "#", t)[:60]
+
+
+def _reject_key_base(key) -> str:
+    """② مفتاح التجميع: يقصّ ما بين القوسين **عند العدّ فقط** فيلتئم التشظّي
+    (`بعيد_عن_الدخول(43%)` و`(47%)` مفتاحٌ واحد). التفصيل يُحفَظ جانبًا ويُطبع."""
+    k = str(key or "؟")
+    i = k.find("(")
+    return (k[:i].strip() or k) if i > 0 else k
 
 
 def _reject(code):
-    """يسجّل سبب رفض السهم (عدّاد + لكل سهم لتتبّع الفرص الفائتة) ويرجع None."""
+    """يسجّل سبب رفض السهم (عدّاد + لكل سهم لتتبّع الفرص الفائتة) ويرجع None.
+
+    ③ P1: عند الرفض على «نواقص فوق الحدّ» يلتقط **أسماء** النواقص من إطار المُنادي
+    (`soft_fails` المحلّية) — **بلا لمس `analyze_ticker`** (جذرٌ مقفول) وبلا تغيير
+    المفتاح المسجَّل ولا القيمة المُعادة. فاشل-آمن مطلق: أي خطأ ⇒ تخطٍّ صامتٌ
+    للالتقاط وحده، والرفض يمضي كما كان."""
     _REJECT_STATS[code] = _REJECT_STATS.get(code, 0) + 1
     if _CUR_SYM:
         _REJECT_REASONS[_CUR_SYM] = code
+    if "نواقص_فوق" in str(code):
+        try:
+            sf = sys._getframe(1).f_locals.get("soft_fails")
+            for one in (sf or ()):
+                nm = _soft_fail_name(one)
+                _REJECT_SOFT_FAILS[nm] = _REJECT_SOFT_FAILS.get(nm, 0) + 1
+        except Exception:
+            pass          # التقاطٌ تشخيصيّ فقط — لا يغيّر قرارًا ولا مفتاحًا
     return None
 
 
@@ -8444,6 +8511,92 @@ def polygon_after_hours(sym: str, regular_close=None):
         return None
 
 
+def extended_last_price(sym: str, session_date, fetch_bars=None):
+    """🌙⛔ **حارس الافتر (AH-GUARD)** — آخر إغلاق دقيقة في الجلسة **الممتدة** ليومِ
+    جلسةٍ **صريح**. سببها (المصيبة 8، مُثبَتة حيًّا 2026-07-30): صيّاد المقسّم يعمل
+    **بعد** إغلاق الافتر بالتصميم، لكن شمعة ياهو اليومية **لا تشمل الافتر** ⇒ رشّح
+    NUWE بعد أن انفجر ‏+100% في الافتر = تنبيهٌ بائت.
+
+    ⚠️ **`polygon_after_hours` لا تصلح لهذا** (مقيس، لا مفترض): (أ) بوّابتها الزمنية
+    `now < close ⇒ None` تُرجع None في وقت الصيّاد (‏01-05 UTC) · (ب) وتستعمل
+    `date.today()` وهو على الرنر **اليوم التالي** لا يوم الجلسة. فهذي تأخذ التاريخ
+    **وسيطًا** وتبني نافذتها منه.
+
+    الحدّ = **16:00 نيويورك لذلك التاريخ** محوَّلًا (لا 20:00 UTC ثابتة — تنكسر شتاءً)،
+    بنفس نمط `market_session_now`، ومع `market_calendar.session_info` لالتقاط الإغلاق
+    المبكّر (13:00). يرجع آخر إغلاق دقيقة **طابعُها الزمني عند الحدّ أو بعده**، أو None.
+
+    🔒 عرض/تنبيه فقط — خارج الفرز والجذور. **فاشلة-آمنة مطلقًا → None** (بلا مفتاح ·
+    401/403/429 · شبكة · صفر شموع · تاريخ تالف). `fetch_bars(sym, date)` محقون للاختبار
+    بلا شبكة (نمط `fetch_*` القائم)."""
+    # (1) يوم الجلسة **كما مُرِّر** (لا `date.today()` — هذي علّة `polygon_after_hours`)
+    try:
+        d = session_date
+        if isinstance(d, str):
+            d = dt.date.fromisoformat(d[:10])
+        elif not isinstance(d, dt.date) and hasattr(d, "date"):
+            d = d.date()
+        if isinstance(d, dt.datetime):
+            d = d.date()
+        if not isinstance(d, dt.date):
+            return None
+        iso = d.isoformat()
+    except Exception:
+        return None
+    # (2) حدّ الإغلاق النظامي **لذلك التاريخ** بتوقيت نيويورك (يتصيّف/يتشتّى آليًّا)
+    try:
+        from zoneinfo import ZoneInfo
+        ny = ZoneInfo("America/New_York")
+        close_min = 16 * 60
+        try:                                  # إغلاق مبكّر (13:00) لو التقويم يعرفه
+            import market_calendar as _mcal
+            _cm = _mcal.session_info(iso).get("close_ny_min")
+            if isinstance(_cm, int) and 0 < _cm < 24 * 60:
+                close_min = _cm
+        except Exception:
+            pass
+        cut_ms = int(dt.datetime(d.year, d.month, d.day, close_min // 60,
+                                 close_min % 60, tzinfo=ny).timestamp() * 1000)
+    except Exception:
+        return None
+    # (3) شموع الدقيقة لذلك اليوم (نطاق التاريخ الصريح) — أو الجالب المحقون
+    if fetch_bars is not None:
+        try:
+            bars = fetch_bars(sym, d)
+        except Exception:
+            return None
+    else:
+        key = os.environ.get("POLYGON_API_KEY", "").strip()
+        if not key:
+            return None
+        try:
+            url = (f"https://api.polygon.io/v2/aggs/ticker/{str(sym).upper()}"
+                   f"/range/1/minute/{iso}/{iso}"
+                   "?adjusted=true&sort=asc&limit=50000")
+            r = requests.get(url, headers={"Authorization": f"Bearer {key}"},
+                             timeout=10)
+            if r.status_code != 200:
+                return None
+            bars = (r.json() or {}).get("results") or []
+        except Exception:
+            return None
+    # (4) آخر إغلاق بعد الحدّ — **بأكبر طابع زمني** لا بترتيب الورود (لا نثق بالفرز)
+    try:
+        best_t, best_c = None, None
+        for b in bars or []:
+            try:
+                t, c = float(b.get("t")), float(b.get("c"))
+            except (TypeError, ValueError):
+                continue
+            if t != t or c != c or c <= 0:        # ⚠️ NaN ليس None
+                continue
+            if t >= cut_ms and (best_t is None or t > best_t):
+                best_t, best_c = t, c
+        return round(best_c, 4) if best_c is not None else None
+    except Exception:
+        return None
+
+
 def monitor_live_events(wl: dict, history: dict, today_iso: str,
                         premarket_only: bool = False,
                         fetch_operator=None, fetch_afterhours=None) -> list:
@@ -13449,6 +13602,68 @@ def _bt_feature_enrich(all_trades, sector_fetch=None, earn_fetch=None, hist=None
     return all_trades
 
 
+# ==========================================================
+# ② P1 (2026-07-30) — توزيع أسباب الرفض بلا قصّ
+# ==========================================================
+# كان القصّ **مزدوجًا**: `and not market` (⇒ باكتيست السوق الكامل لا يُصدر توزيع رفضٍ
+# **إطلاقًا**) و`[:3]` (⇒ أعلى ثلاثة لكل رمز). فتفسيرُ أي دلتا ذراعٍ كان تخمينًا.
+# هذي **طباعة محضة**: لا تلمس `signals`/`decided`/`win_rate` ولا أي قرار (مقفول باختبار).
+REJECT_VARIANTS_SHOW = 20     # سقف صيغ المفتاح المتشظّي المعروضة — **يُعلَن عند تجاوزه**
+REJECT_SOFT_SHOW = 30         # سقف أسماء النواقص المعروضة — يُعلَن عند تجاوزه
+
+
+def reject_distribution_lines(reasons: dict, soft_fails: dict = None,
+                              n_symbols: int = None, title: str = "تجميع عالميّ") -> list:
+    """② + ③ (نقيّة): أسطر توزيع أسباب الرفض مرتَّبةً تنازليًّا **بلا بتر**، بمفاتيح
+    **مجمَّعة** (`_reject_key_base` يقصّ ما بين القوسين عند العدّ فقط) وسطرٍ ثانٍ
+    يحفظ تفصيل الصيغ المتشظّية، وسطر ③ بأسماء النواقص لا عددها.
+    كل سقفٍ **مُعلَن** (دستور «لا سقوف صامتة»). لا شبكة ولا حالة — طباعة فقط."""
+    if not reasons:
+        return []
+    merged, detail = {}, {}
+    for k, v in reasons.items():
+        try:
+            v = int(v)
+        except (TypeError, ValueError):
+            continue
+        base = _reject_key_base(k)
+        merged[base] = merged.get(base, 0) + v
+        detail.setdefault(base, {})[str(k)] = detail.get(base, {}).get(str(k), 0) + v
+    total = sum(merged.values())
+    if not total:
+        return []
+    head = f"📉 توزيع أسباب الرفض ({title}"
+    if n_symbols is not None:
+        head += f" · {n_symbols} رمزًا"
+    head += f" · {total} رفضة · {len(merged)} مفتاحًا مجمَّعًا):"
+    out = [head]
+    for i, (k, v) in enumerate(sorted(merged.items(), key=lambda x: (-x[1], x[0])), 1):
+        out.append(f"   {i}. {k} = {v} ({100.0 * v / total:.1f}%)")
+    # التفصيل: الصيغ الخام للمفاتيح التي التأمت من أكثر من صيغة (لا يضيع شيء)
+    for k in sorted(merged, key=lambda x: -merged[x]):
+        var = detail.get(k, {})
+        if len(var) <= 1:
+            continue
+        items = sorted(var.items(), key=lambda x: (-x[1], x[0]))
+        shown = items[:REJECT_VARIANTS_SHOW]
+        line = (f"   ↳ تفصيل «{k}» ({len(var)} صيغة): "
+                + " · ".join(f"{a}={b}" for a, b in shown))
+        if len(items) > len(shown):
+            line += f" … و{len(items) - len(shown)} صيغة أخرى (مقصوصة بالعرض لا بالعدّ)"
+        out.append(line)
+    # ③ أسماء النواقص التي أسقطت «نواقص فوق الحدّ» — العدد وحده كان يخفي أيَّها
+    if soft_fails:
+        items = sorted(soft_fails.items(), key=lambda x: (-x[1], x[0]))
+        shown = items[:REJECT_SOFT_SHOW]
+        line = ("   🧩 أسماء النواقص التي أسقطت «نواقص فوق الحدّ» "
+                f"({sum(soft_fails.values())} نقصًا · {len(items)} اسمًا): "
+                + " · ".join(f"{a}={b}" for a, b in shown))
+        if len(items) > len(shown):
+            line += f" … و{len(items) - len(shown)} اسمًا آخر (مقصوصة بالعرض لا بالعدّ)"
+        out.append(line)
+    return out
+
+
 def run_backtest(symbols=None) -> None:
     """يشغّل الباكتيست على قائمة رموز (env BACKTEST_SYMBOLS أو وسيط) ويرسل
     تقريرًا + CSV. عند عدم تحديد رموز → **كون البوت الافتراضي** (القائمة + التنبيهات)
@@ -13577,6 +13792,14 @@ def run_backtest(symbols=None) -> None:
     else:
         hist = download_history(symbols, start_override=_bt_dl_start)
     all_trades = []
+    # ② P1: تجميع عالميّ لأسباب الرفض عبر كل الرموز (كان يُهدَر مع `sym_reasons`)
+    bt_reasons_all = {}
+    # ④-ج «العلم فعّال»: كم رمزًا قرأ فعلًا لقطة splits — تشغيلة بلا لقطة = العلم خامل
+    _split_flag_on = bool(CONFIG.get("BT_SPLIT_AWARE_M2") or CONFIG.get("BT_SPLIT_REF_M2")
+                          or CONFIG.get("BT_SPLIT_AWARE_M4"))
+    _split_ctx_syms = 0
+    # ③ عدّاد أسماء النواقص خاصّ بهذي التشغيلة (لا يرث تلوّثًا سابقًا)
+    _REJECT_SOFT_FAILS.clear()
     for sym in symbols:
         df = hist.get(sym)
         if df is None or df.empty:
@@ -13590,11 +13813,18 @@ def run_backtest(symbols=None) -> None:
                                        if (CONFIG.get("BT_SPLIT_AWARE_M2")
                                            or CONFIG.get("BT_SPLIT_REF_M2")
                                            or CONFIG.get("BT_SPLIT_AWARE_M4")) else None)
+        if _split_flag_on and _BT_SPLITS_CTX is not None:
+            _split_ctx_syms += 1          # ④-ج: عدّاد «العلم فعّال»
         if not market:      # التشخيص المفصّل (8 قصّات/رمز) لعيّنة صغيرة فقط — لا للسوق
+            # ③ حارس: التشخيص يستدعي analyze_ticker على شرائح تاريخية فيلوّث عدّاد
+            # أسماء النواقص — نلتقط نسخة ونستعيدها (نفس نمط حارس `_REJECT_STATS`).
+            _sf_snap = dict(_REJECT_SOFT_FAILS)
             _diagnose_symbol(sym, df)     # تشخيص الحالة الحالية (دائمًا)
             # ⏪ تشخيص «قبل الانفجار»: نقيّم السهم كأنه قبل N يوم — وقت القاع قبل الركض.
             for off in (15, 20, 25, 30, 40, 50, 60):
                 _diagnose_symbol(sym, df, cutoff=off)
+            _REJECT_SOFT_FAILS.clear()
+            _REJECT_SOFT_FAILS.update(_sf_snap)
         if len(df) < CONFIG["MIN_BARS"] + CONFIG["BACKTEST_FORWARD_DAYS"]:
             globals()["_BT_SPLITS_CTX"] = None   # حارس: صفّر السياق قبل التخطّي
             if not market:
@@ -13604,10 +13834,18 @@ def run_backtest(symbols=None) -> None:
         all_trades += backtest_symbol(sym, df, sym_reasons, date_window=date_window,
                                       splits=(splits_map or {}).get(sym))
         globals()["_BT_SPLITS_CTX"] = None
-        if sym_reasons and not market:   # تشخيص: أكثر بوابة رفضت هذا السهم تاريخيًا
-            top = sorted(sym_reasons.items(), key=lambda x: -x[1])[:3]
-            log(f"باكتيست·أسباب {sym}: "
-                + " · ".join(f"{k}={v}" for k, v in top))
+        # ② P1: التوزيع يُطبع في **الحالتين** (سوق كامل ورموز محدّدة) و**بلا بتر**
+        # (كان `and not market` يُصمِت السوق الكامل كليًّا و`[:3]` يبتر الذيل).
+        if sym_reasons:
+            for _k, _v in sym_reasons.items():
+                bt_reasons_all[_k] = bt_reasons_all.get(_k, 0) + _v
+            _srt = sorted(sym_reasons.items(), key=lambda x: (-x[1], x[0]))
+            # العدّ المُعلَن يُشتقّ من **المصدر** `sym_reasons` لا من قائمة العرض `_srt`،
+            # فلو عاد بترٌ يومًا لاختلف «المُعلَن» عن «المطبوع» وسقط قفل السويّة
+            # (بترٌ يشتقّ عدّاده من نفسه = قفلٌ أعمى — كشفته الطفرة M3).
+            log(f"باكتيست·أسباب {sym} ({sum(sym_reasons.values())} رفضة · "
+                f"{len(sym_reasons)} سببًا): "
+                + " · ".join(f"{k}={v}" for k, v in _srt))
     # 📅 قصر على شهر تقويمي محدّد (طلب المستخدم): BACKTEST_MONTH=1..12 → إشارات ذلك
     # الشهر فقط (آخر سنة متوفّرة). فارغ = كل التاريخ. باكتيست فقط، لا يمسّ الفرز.
     period_tag = None
@@ -13632,6 +13870,21 @@ def run_backtest(symbols=None) -> None:
     log(f"باكتيست — {settings} | إشارات={st['signals']} "
         f"محسومة={st['decided']} نجاح={st['win_rate']:.0f}% "
         f"({st['wins']}✅/{st['losses']}🛑) غير_مُعبّأة={st['no_fill']}")
+    # ④-ج «العلم فعّال» (درس الـno-op رقم 7): علمٌ تقسيميّ مرفوع بلا لقطة مجمّدة =
+    # `_BT_SPLITS_CTX` يبقى None ⇒ التجربة **لم تشتغل** والعدّادات تخرج متطابقة بت-بت.
+    # يُعلَن صراحةً قبل قراءة أي نتيجة، ولا يُستنتج من خضرة التشغيلة.
+    if _split_flag_on:
+        if _split_ctx_syms:
+            log(f"🔬 العلم فعّال: قرأ لقطة splits لـ{_split_ctx_syms} رمزًا "
+                f"(من {len(symbols)}).")
+        else:
+            log("⛔ العلم التقسيميّ مرفوع لكنه **خامل**: قرأ لقطة splits لـ0 رمز "
+                "(لا `frozen_run_id`/لقطة) ⇒ التجربة no-op — لا تُفسَّر نتيجتها.")
+    # ② P1: التجميع العالميّ لأسباب الرفض — بلا بتر، بمفاتيح مجمَّعة + تفصيل الصيغ
+    # + ③ أسماء النواقص. **طباعة محضة**: لا تمسّ `st` ولا أي صفقة (مقفول باختبار).
+    for _rl in reject_distribution_lines(bt_reasons_all, dict(_REJECT_SOFT_FAILS),
+                                         n_symbols=len(symbols)):
+        log("باكتيست·" + _rl)
     # P1-5: العنوان يصدق عن مصدر الكون — الاحتياطي **ليس** مسح سوق ولا هو بلا انحياز.
     if market and market_fallback:
         head0 = ("⚠️ <b>باكتيست كون البوت الاحتياطي — منحاز اختيارًا</b>\n"
