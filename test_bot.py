@@ -7052,9 +7052,15 @@ check("🧾 الجامع·يكتب تقريرًا **مقروءًا** (سجلّ A
        and "وسائط لم نقبلها" in _s)(_insp0.getsource(TC.main))
       and "telegram_collect_report.md" in open(
           ".github/workflows/telegram_collect.yml", encoding="utf-8").read())
-check("🧼 قفل·لا اختبار يكتب داخل مجلّد الصور الإنتاجي (`faisal_images/`)",
+# (شُدّد 2026-07-30 بعد إنقاذ 63 صورة IMG_* أصلية من قرص الحاوية: كان يسمح بأي
+#  `.jpg` — فملفُ تلوّثٍ مثل z.jpg **كان يمرّ**. الآن بادئتان شرعيتان حصرًا:
+#  TG_*.jpg الدفعة المؤرشفة · IMG_*.{jpg,jpeg,png} الأصلية — وأي اسم آخر يسقط.)
+check("🧼 قفل·لا ملفّ دخيل داخل مجلّد الصور الإنتاجي (`faisal_images/`)",
       not [_f for _f in __import__("os").listdir("faisal_images")
-           if not (_f.endswith(".jpg") or _f == "README.md")])
+           if not (_f == "README.md"
+                   or (_f.startswith("TG_") and _f.endswith(".jpg"))
+                   or (_f.startswith("IMG_")
+                       and _f.lower().endswith((".jpg", ".jpeg", ".png"))))])
 check("🔍 الجامع·يفصل «وسائط لم نقبلها» عن «رسالة بلا وسائط» (الصمت غير ملتبس)",
       (lambda _s: "وسائط لم نقبلها" in _s and "بلا وسائط" in _s
        and "dropped.append" in _s and "no_media.append" in _s)(
