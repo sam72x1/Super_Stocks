@@ -1,0 +1,56 @@
+name: CTB Harvest (حصّاد الاقتراض بشاهد ضبط)
+
+# 🔒📈 يحصد **سياق الاقتراض** (المتاح + الرسوم) لأسهم القائمة **ومعها شاهد ضبط سالب**
+# (أسهم وسمها فيصل «متابعه فقط») — علاجًا لدائرية «نقيس على ناجين اختارهم البوت».
+# بحث/جمع فقط: لا يمسّ الفرز ولا القائمة ولا يُرسل تلغرام. التفصيل: `borrow_labelled_set.md`.
+# ⏰ بعد إغلاق الافتر (20:00 ET) بالفصلين — نفس منطق كرون صيّاد المقسّم:
+#    21:20 EDT / 20:20 EST ⇒ خانة الأيام تنزاح إلزاميًّا 1-5 → 2-6.
+permissions:
+  contents: write          # يدفع سجلّ الحصاد فقط (`ctb_log.jsonl`)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "20 1 * * 2-6"
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Harvest borrow context
+        run: python3 ctb_harvest.py
+
+      - name: Commit harvest log
+        run: |
+          set -e
+          git config user.name "Claude"
+          git config user.email "noreply@anthropic.com"
+          if git diff --quiet -- ctb_log.jsonl 2>/dev/null \
+             && [ -z "$(git status --porcelain -- ctb_log.jsonl)" ]; then
+            echo "لا قياس جديد — لا كوميت."; exit 0
+          fi
+          git add ctb_log.jsonl
+          git commit -q -m "🔒 حصّاد الاقتراض: قياس يوميّ (قائمة + شاهد ضبط سالب)"
+          # ⚠️ نمط الدفع المحمي (درس `ignition.yml`: دفعٌ عارٍ ضيّع بيانات 13 يومًا)
+          ok=0
+          for i in 1 2 3 4 5; do
+            if git push; then ok=1; break; fi
+            git fetch origin "$GITHUB_REF_NAME" \
+              && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep $((2**i))
+          done
+          if [ "$ok" != 1 ]; then
+            echo "::error::⛔ فشل دفع سجلّ حصاد الاقتراض بعد 5 محاولات"; exit 1
+          fi

@@ -9579,6 +9579,40 @@ def _c10_inputs_in_run(path):
 _c10_inj = [x for _f in _c10_files for x in _c10_inputs_in_run(_f)]
 check("🔐 010·لا مدخل workflow_dispatch داخل أي كتلة run: (منع script injection)",
       _c10_inj == [])
+# 🔒📈 حصّاد الاقتراض بشاهد ضبط سالب (`ctb_harvest.py` · `borrow_labelled_set.md`)
+import ctb_harvest as _CTB                                     # noqa: E402
+
+_ctb_plan = _CTB.build_cohorts(["AAA", "ELAB"])
+check("🔒 CTB·الوسم يسبق العضوية: سهمٌ وسمه فيصل «متابعه فقط» يبقى شاهدًا سالبًا",
+      _ctb_plan["ELAB"] == "faisal_watch_only" and _ctb_plan["AAA"] == "bot_watchlist"
+      and _ctb_plan["DSY"] == "faisal_entered")
+check("🔒 CTB·شاهد الضبط السالب موجود فعلًا (وإلا فالتحليل دائريّ)",
+      {"ELAB", "EZRA", "EDBL", "CCHH"} <= set(_CTB.FAISAL_WATCH_ONLY)
+      and all(_CTB.FAISAL_WATCH_ONLY.values()))     # لكلٍّ مصدره الموثّق، لا رمزًا عاريًا
+def _ctb_selftest_ok():
+    """يحوّل سقوط الاختبار الذاتي إلى **فحصٍ فاشل مقروء** لا انهيارَ سويّة.
+    (درس مسجَّل: السويّة المنهارة تُقرأ خطأً «صفر فشل» — فالتشخيص جزءٌ من القفل.)"""
+    try:
+        return _CTB._selftest() == 0
+    except BaseException as e:                       # AssertionError وغيره
+        print(f"   ↳ سبب سقوط الاختبار الذاتي: {type(e).__name__}: {e}")
+        return False
+
+
+check("🔒 CTB·الاختبار الذاتي بلا شبكة يمرّ (سقف/تعذّر/استثناء كلها فاشلة-آمنة)",
+      _ctb_selftest_ok())
+_ctb_src = open("ctb_harvest.py", encoding="utf-8").read()
+check("🔒 CTB·خارج الفرز: لا مسار إنتاج يستورده",
+      "ctb_harvest" not in open("Super_stock.py", encoding="utf-8").read())
+check("🔒 CTB·لا يكتب حالةً إطلاقًا: كل فتحٍ للكتابة بوضع إلحاق وعلى سجلّه وحده",
+      # القائمة تُقرأ فقط (`json.load`) ولا تُكتب أبدًا (`json.dump` غائب كليًّا)،
+      # والفتح الكتابيّ الوحيد `open(path or LOG_PATH, "a")` — فلا وضع "w" في الوحدة.
+      "json.dump(" not in _ctb_src.replace("json.dumps(", "")
+      and '"w"' not in _ctb_src and "'w'" not in _ctb_src
+      and _ctb_src.count('"a"') == 1)
+check("🔒 CTB·workflow الحصاد يستعمل نمط الدفع المحمي (درس ignition: دفعٌ عارٍ ضيّع بيانات)",
+      all(t in open(".github/workflows/ctb_harvest.yml", encoding="utf-8").read()
+          for t in ("git rebase", "for i in 1 2 3 4 5", "::error::")))
 # 🚧 سقف GitHub الصلب: **25 مدخلًا لكل `workflow_dispatch`** — تجاوزُه لا يُكتشَف
 #    بالـlint ولا بالتحليل الساكن، بل بـ422 عند **أول محاولة تشغيل** («you may only
 #    define up to 25 inputs»)، أي بعد الدمج والدفع. حدث فعلًا مع `backtest.yml` (26).
