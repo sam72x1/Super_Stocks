@@ -1,0 +1,11 @@
+{"schema": 1, "date": "2026-07-30", "symbol": "CCHH", "cohort": "faisal_watch_only", "shares_available": 9000, "borrow_fee": 419.34, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "EDBL", "cohort": "faisal_watch_only", "shares_available": 7000, "borrow_fee": 714.69, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "ELAB", "cohort": "faisal_watch_only", "shares_available": 350000, "borrow_fee": 181.61, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "EZRA", "cohort": "faisal_watch_only", "shares_available": 10000, "borrow_fee": 43.3, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "AZI", "cohort": "faisal_entered", "shares_available": 300000, "borrow_fee": 205.55, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "DSY", "cohort": "faisal_entered", "shares_available": 10000, "borrow_fee": 608.05, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "ONCO", "cohort": "faisal_entered", "shares_available": 150000, "borrow_fee": 80.97, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "APVO", "cohort": "bot_watchlist", "shares_available": 45000, "borrow_fee": 19.34, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "CMTL", "cohort": "bot_watchlist", "shares_available": 700000, "borrow_fee": 0.85, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "HTZ", "cohort": "bot_watchlist", "shares_available": 0, "borrow_fee": 1.02, "source": "chartexchange"}
+{"schema": 1, "date": "2026-07-30", "symbol": "KLXE", "cohort": "bot_watchlist", "shares_available": 1300000, "borrow_fee": 0.51, "source": "chartexchange"}
