@@ -9582,13 +9582,70 @@ check("🔐 010·لا مدخل workflow_dispatch داخل أي كتلة run: (م
 # 🔒📈 حصّاد الاقتراض بشاهد ضبط سالب (`ctb_harvest.py` · `borrow_labelled_set.md`)
 import ctb_harvest as _CTB                                     # noqa: E402
 
-_ctb_plan = _CTB.build_cohorts(["AAA", "ELAB"])
-check("🔒 CTB·الوسم يسبق العضوية: سهمٌ وسمه فيصل «متابعه فقط» يبقى شاهدًا سالبًا",
-      _ctb_plan["ELAB"] == "faisal_watch_only" and _ctb_plan["AAA"] == "bot_watchlist"
-      and _ctb_plan["DSY"] == "faisal_entered")
-check("🔒 CTB·شاهد الضبط السالب موجود فعلًا (وإلا فالتحليل دائريّ)",
-      {"ELAB", "EZRA", "EDBL", "CCHH"} <= set(_CTB.FAISAL_WATCH_ONLY)
-      and all(_CTB.FAISAL_WATCH_ONLY.values()))     # لكلٍّ مصدره الموثّق، لا رمزًا عاريًا
+_ctb_uni = ["S%03d" % i for i in range(400)]
+_ctb_plan = _CTB.build_cohorts(["AAA", "ELAB", "YYAI"], ["BBB", "DSY"])
+check("🔒 CTB·الوسم يسبق العضوية · والسالب يسبق الجميع",
+      _ctb_plan["YYAI"] == "faisal_negative" and _ctb_plan["ELAB"] == "faisal_wait"
+      and _ctb_plan["DSY"] == "faisal_exec" and _ctb_plan["AAA"] == "bot_selected"
+      and _ctb_plan["BBB"] == "control_market")
+# 🔴 قفل التصحيح: «متابعه فقط» **تنصّل لا رفض** ⇒ لا فئة باسم watch_only، وONCO
+#    رفض الدخول بنصّه («لا طبعا … تنتظر») فلا يُوسَم exec. (`borrow_labelled_set.md`)
+check("🔴 CTB·لا فئة حيّة «watch_only» بعد التصحيح · والخَرْط موثَّق للقارئ بعدي",
+      # الاسم القديم يجب أن **يبقى** في الـdocstring (خَرْط schema 1→2 للسجلّ الإلحاقيّ)
+      # لكن **لا يكون فئةً حيّة** ولا ثابتًا مُصدَّرًا.
+      not hasattr(_CTB, "FAISAL_WATCH_ONLY") and not hasattr(_CTB, "FAISAL_ENTERED")
+      and "faisal_watch_only" not in set(_ctb_plan.values())
+      and "faisal_watch_only" not in set(_CTB._KIND)
+      and "faisal_watch_only" in (_CTB.__doc__ or "")
+      and _CTB.SCHEMA == 2)
+check("🔴 CTB·ONCO في wait لا exec (نصّه: «لا طبعا … تنتظر 60 سنت ل 70»)",
+      _ctb_plan.get("ONCO") == "faisal_wait" and "ONCO" not in _CTB.FAISAL_EXEC)
+check("🔒 CTB·الفئة السالبة الحقيقية موجودة بمصدرها (YYAI «علميا لا»)",
+      "YYAI" in _CTB.FAISAL_NEGATIVE and "علميا لا" in _CTB.FAISAL_NEGATIVE["YYAI"]
+      and all(_CTB.FAISAL_NEGATIVE.values()) and all(_CTB.FAISAL_EXEC.values())
+      and all(_CTB.FAISAL_WAIT.values()))       # لكلٍّ مصدره، لا رمزًا عاريًا
+check("🎯 CTB·لوحة الشاهد حتميّة: نفس الشهر ⇒ نفس اللوحة · شهر آخر ⇒ لوحة مختلفة",
+      _CTB.control_panel(_ctb_uni, "2026-07", 20)
+      == _CTB.control_panel(list(reversed(_ctb_uni)), "2026-07", 20)
+      and _CTB.control_panel(_ctb_uni, "2026-07", 20)
+      != _CTB.control_panel(_ctb_uni, "2026-08", 20)
+      and len(_CTB.control_panel(_ctb_uni, "2026-07", 20)) == 20)
+# 🔒 وتطبيعُ المدخل جزءٌ من الحتميّة: مدخلٌ فيه مكرّرٌ وحالةُ حرفٍ مختلفة **يجب** أن
+#    يعطي نفس لوحة المدخل النظيف (وإلا صارت اللوحة تتبدّل بتبدّل شكل ملفّ الكون).
+_ctb_dirty = ([s.lower() for s in _ctb_uni] + _ctb_uni + ["s001", "S001"])
+check("🔒 CTB·اللوحة تُطبِّع المدخل (تكرار + حالة حرف ⇒ نفس اللوحة، بلا مكرّر)",
+      _CTB.control_panel(_ctb_dirty, "2026-07", 20)
+      == _CTB.control_panel(_ctb_uni, "2026-07", 20)
+      and len(set(_CTB.control_panel(_ctb_dirty, "2026-07", 20))) == 20)
+check("🎯 CTB·السقف يوزّع بحصص: لا فئة تُقصّ كاملةً بصمت",
+      len({_ctb_plan[s] for s in
+           _CTB._select_within_cap(_ctb_plan, 5)[0]}) == 5
+      and sum(_CTB._select_within_cap(_ctb_plan, 5)[1].values()) > 0)
+# 🔒 «يُعلَن ولا يُصمت»: غياب لوحة الشاهد **يجب أن يُطبَع**، فلا يُقرأ السجلّ الناقص
+#    لاحقًا كأنه كاملٌ. (طفرةٌ أسقطت الإعلانَ وحده نجت من الأقفال الأولى — فهذا قفلُها.)
+def _ctb_no_control_announced():
+    import io as _io2
+    import contextlib as _cx2
+    import tempfile as _tf2
+    buf = _io2.StringIO()
+    with _tf2.TemporaryDirectory() as _td2:
+        try:
+            with _cx2.redirect_stdout(buf):
+                _CTB.harvest(fetch=lambda s: {"shares_available": 1}, watch_syms=[],
+                             today_iso="2026-07-30", universe=[],
+                             path=_os_ctb.path.join(_td2, "x.jsonl"))
+        except BaseException:
+            return False
+    return "غائبة" in buf.getvalue()
+
+
+import os as _os_ctb                                            # noqa: E402
+check("🔒 CTB·غياب لوحة الشاهد يُعلَن صريحًا (لا يُستبدَل ولا يُصمت)",
+      _ctb_no_control_announced())
+check("🎯 CTB·كل صفّ يحمل label_kind/label_source ⇒ الدائرية تُقرأ من السجلّ",
+      _CTB._KIND["faisal_exec"] == "decision"
+      and _CTB._KIND["control_market"] == "membership"
+      and _CTB._SOURCE["control_market"] == "universe_sample")
 def _ctb_selftest_ok():
     """يحوّل سقوط الاختبار الذاتي إلى **فحصٍ فاشل مقروء** لا انهيارَ سويّة.
     (درس مسجَّل: السويّة المنهارة تُقرأ خطأً «صفر فشل» — فالتشخيص جزءٌ من القفل.)"""
