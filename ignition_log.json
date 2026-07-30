@@ -137,5 +137,41 @@
   "usd": 30796,
   "candle_class": "group",
   "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "TYGO",
+  "date": "2026-07-30",
+  "sustain_min": 11,
+  "operator_ok": false,
+  "fired_at": "2026-07-30T20:01:11Z",
+  "break_level": 1.63,
+  "price": 1.6303,
+  "vol_x": 4.8,
+  "usd": 15264,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "CMTL",
+  "date": "2026-07-30",
+  "sustain_min": 3,
+  "operator_ok": false,
+  "fired_at": "2026-07-30T20:01:11Z",
+  "break_level": 1.68,
+  "price": 1.71,
+  "vol_x": 9.1,
+  "usd": 8550,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "NEGG",
+  "date": "2026-07-30",
+  "sustain_min": 12,
+  "operator_ok": false,
+  "fired_at": "2026-07-30T20:01:13Z",
+  "break_level": 13.2,
+  "price": 13.88,
+  "vol_x": 4.5,
+  "usd": 7467,
+  "candle_class": "group"
  }
 ]
