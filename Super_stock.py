@@ -290,6 +290,10 @@ CONFIG = {
     # ثم استعادة · لا تدخل الدعم الأول». تُحقن عبر BT_SWEEP_* في وضع BACKTEST فقط.
     # ⚠️ الدخول والوقف **منفصلان** (مراجعة خصومية: خلطهما يعيد استيراد «الوقف الأعمق»
     # الفاشل حيًّا تحت لافتة الدخول) — BT_SWEEP_ENTRY يعزل أثر الدخول ووقفه = الأساس.
+    # 🔓 T-LIBERATION (`liberation_prereg.md`، 2026-07-29): ذراع دخول «بعد كسر التحرر»
+    # بدل التعبئة الفورية. **باكتيست حصريًّا · مطفأ افتراضيًّا ⇒ صفقة الأساس بت-بت.**
+    "BT_LIBERATION": 0,                   # 1 = فعّل ذراعَي التحرر (L1 أقرب حاجز · L2 أعلى مقاومة)
+    "BT_LIB_WAIT": 20,                    # نافذة انتظار الكسر بالجلسات (مُثبَّتة بالتسجيل المسبق)
     "BT_SWEEP_ENTRY": 0,                  # 1 = دخول بعد مسح+استعادة (بدل التعبئة الفورية)
     "BT_SWEEP_STOP": 0,                   # 1 = وقف تحت ذيل المسح (0 = وقف الأساس، لعزل الدخول)
     "BT_SWEEP_PCT": 0.10,                # عمق المسح المطلوب تحت الدعم (مفتاح، لا قاعدة فيصل)
@@ -498,6 +502,8 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_SPIKE_WINDOW", "PRIOR_SPIKE_WINDOW", int),
             ("BT_MIN_DOLLAR_VOL", "MIN_DOLLAR_VOL", float),
             # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — باكتيست حصريًا، منفصلة الدخول/الوقف
+            ("BT_LIBERATION", "BT_LIBERATION", int),       # 🔓 T-LIBERATION
+            ("BT_LIB_WAIT", "BT_LIB_WAIT", int),
             ("BT_SWEEP_ENTRY", "BT_SWEEP_ENTRY", int),
             ("BT_SWEEP_STOP", "BT_SWEEP_STOP", int),
             ("BT_SWEEP_PCT", "BT_SWEEP_PCT", float),
@@ -11681,6 +11687,79 @@ def _sweep_confirmed_fill(lo, cl, support, sweep_pct):
             (run_low if run_low != float("inf") else None))
 
 
+def _liberation_levels(r):
+    """🔓 مستويا «التحرر» المُثبَّتان في `liberation_prereg.md` §① — **من حساب البوت
+    نفسه** على بيانات ما قبل الإشارة (‏`r` مُحتسَب على `df.iloc[:i]`) ⇒ صفر تسريب.
+
+    **L1 «أقرب حاجز»** = الرقم الحرج (`build_interpretation`) — القراءة الموثّقة لتحرر
+    فيصل في سياق ONCO · **L2 «أعلى مقاومة»** = حقل `liberation` بالفارز، وهو الأقرب
+    عدديًّا لأمثلة DSY (‏3.20 من دخول 1.85 = 1.73×) وJZ (‏4 من 2.56 = 1.56×).
+    لا مستوى ثالث ولا معدَّل — الاختيار البعدي p-hacking (التسجيل المسبق).
+    دالّة نقيّة فاشلة-آمنة: تُرجع (L1, L2) وأيٌّ منهما None إن تعذّر."""
+    l1 = l2 = None
+    try:
+        crit = (build_interpretation(r) or {}).get("critical_number") or {}
+        if crit.get("type") == "breakout_activation" and crit.get("price"):
+            l1 = float(crit["price"])
+    except Exception:
+        l1 = None
+    try:
+        lib = r.get("liberation")
+        if lib:
+            l2 = float(lib)
+    except (TypeError, ValueError):
+        l2 = None
+    return (l1, l2)
+
+
+def _liberation_fill(cl, level, wait):
+    """🔓 أول **إغلاق** فوق مستوى التحرر داخل نافذة `wait` جلسة من شمعة الإشارة.
+    **إغلاق لا ذيل** — فيصل: «**ثبات** فوق» و«عدم ثبات ⇒ اختبار أدنى» (§②-1).
+    يرجّع (reason, idx, entry_price): `filled` أو `no_break` (لم يُكسَر داخل النافذة)
+    أو `break_at_end` (كُسر بآخر شمعة فلا حسم أمامي). نقيّة."""
+    if level is None or level <= 0:
+        return ("no_level", None, None)
+    horizon = min(int(wait), len(cl) - 1)
+    for k in range(0, max(horizon, 0) + 1):
+        if float(cl[k]) > level:
+            if k + 1 >= len(cl):
+                return ("break_at_end", None, None)
+            return ("filled", k, float(cl[k]))
+    return ("no_break", None, None)
+
+
+def _liberation_augment(trade, r, hi, lo, cl, op, stop, t1):
+    """🔓 يُلحِق حقول تجربة T-LIBERATION بصفقة الأساس (`liberation_prereg.md`).
+    على **نفس الإشارة** ذراعان بديلان للدخول: كسر L1 أو كسر L2 — بـ**وقف الأساس بلا
+    تغيير** (عزل أثر الدخول عن أثر الوقف؛ درس T1b/T-STOP) و**بـ`_resolve_arm` نفسها**
+    التي تحسم الأساس ⇒ مقارنة عادلة بمحرّك واحد. الدخول بإغلاق الكسر
+    (`entry_intrabar=False`) فنملك من الفتح التالي — لا لبس داخل الشمعة.
+
+    🔬 **لا نظر مستقبليّ على شمعة الكسر (نفس اتفاقية ذراع المسح):** الدخول بإغلاق
+    الشمعة `idx` فنملك من فتح `idx+1` ⇒ يُمرَّر `idx+1` فهرسَ التعبئة، فلا يُحسَب رأس
+    شمعة الكسر نفسها هدفًا (رأسها قد يكون سبق إغلاقها = فوز وهمي). و`_liberation_fill`
+    تضمن `idx+1` صالحًا (الكسر بآخر شمعة ⇒ `break_at_end` لا `filled`).
+
+    الحقول لكل ذراع a∈{l1,l2}: `lib_<a>_level` · `lib_<a>_fill` · `entry_lib_<a>` ·
+    `outcome_lib_<a>` · `ret_lib_<a>`. **إلحاق فقط — لا يمسّ حسم الأساس ولا حقوله.**
+    مطفأ (`BT_LIBERATION=0`) ⇒ لا يُنادى ⇒ صفقة الأساس بت-بت. فاشل-آمن."""
+    lv = _liberation_levels(r)
+    for name, level in (("l1", lv[0]), ("l2", lv[1])):
+        trade[f"lib_{name}_level"] = (round(level, 4) if level else None)
+        fr, idx, e_lib = _liberation_fill(cl, level, CONFIG["BT_LIB_WAIT"])
+        trade[f"lib_{name}_fill"] = fr
+        trade[f"entry_lib_{name}"] = (round(e_lib, 2) if e_lib else None)
+        if fr != "filled":
+            trade[f"outcome_lib_{name}"] = "no_fill"
+            trade[f"ret_lib_{name}"] = None
+            continue
+        ow, rw, _oc, _rc = _resolve_arm(hi, lo, cl, op, e_lib, stop, t1,
+                                        idx + 1, entry_intrabar=False)
+        trade[f"outcome_lib_{name}"] = ow
+        trade[f"ret_lib_{name}"] = (round(rw, 1) if rw is not None else None)
+    return trade
+
+
 def _sweep_augment(trade, r, hi, lo, cl, op, stop, t1):
     """🔬 يُلحِق حقول تجربة «الدخول المؤكَّد بالمسح» بصفقة الأساس (باكتيست حصريًا،
     مطفأة افتراضيًا). على **نفس الإشارة**: نموذج دخول بديل = مسح تحت الدعم ثم استعادة
@@ -11931,6 +12010,10 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         # backtest_sweep_compare. مطفأة افتراضيًا = صفقة الأساس بلا تغيير (صفر أثر).
         if CONFIG.get("BT_SWEEP_ENTRY"):
             _sweep_augment(trade, r, hi, lo, cl, op, stop, t1)
+        # 🔓 T-LIBERATION (`liberation_prereg.md`): ذراعا دخول «بعد كسر التحرر» على نفس
+        # الإشارة — إلحاق حقول فقط بوقف الأساس ومحرّك الحسم نفسه. مطفأ = بت-بت.
+        if CONFIG.get("BT_LIBERATION"):
+            _liberation_augment(trade, r, hi, lo, cl, op, stop, t1)
         # 🏦 قوة البوت (BT_POTENTIAL): أقصى صعود من الدخول **قبل الوقف** + يوم الذروة.
         # إلحاق فقط (كنمط المسح) — صفقة الأساس بلا تغيير. مطفأ = صفر حقول.
         if CONFIG.get("BT_POTENTIAL"):
@@ -12118,6 +12201,79 @@ def _mean_lo95(xs):
     var = sum((x - m) ** 2 for x in xs) / (n - 1)
     se = (var ** 0.5) / (n ** 0.5)
     return (m, m - 1.96 * se, n)
+
+
+def backtest_liberation_compare(trades: list) -> list:
+    """🔓 **حكم T-LIBERATION بالمعيار المسجَّل مسبقًا** (`liberation_prereg.md` §③/§④):
+    هل الدخول **بعد كسر التحرر** أفضل — بتوقّع R — من التعبئة الفورية؟
+
+    المقياس الأساسي **توقّع R** (`_bt_realized_r`) لا نسبة النجاح (درس T-STOP: النجاح
+    قفز 34%→54% والتوقّع لم يتحرّك). ذراعان مستقلّان يُحكَم كلٌّ وحده: **L1** أقرب حاجز
+    (الرقم الحرج) · **L2** أعلى مقاومة (`liberation`).
+
+    🔴 **المقارنة مزدوجة إلزاميًّا (§④-4، درس فخّ الامتناع من مراجعة T1b الخصومية):**
+    لا يكفي مقابلة توقّع الذراع بتوقّع الأساس على كل الصفقات — يُحسَب توقّع الأساس
+    **مقصورًا على نفس الإشارات التي عُبِّئت في الذراع** (مقارنة مقترنة)، فحافةٌ ناتجة
+    عن مجرّد **تفادي** خاسرٍ بالامتناع لا تُحتسب حافةً. ويُطبَع عدد غير المُعبَّأة صريحًا.
+
+    ترجّع [] ما لم يُفعَّل `BT_LIBERATION` (لا صفقة تحمل حقول التحرر) ⇒ صفر أثر على
+    التقرير العادي. **تحليل/طباعة فقط** — خارج الجذور، لا وزن ولا بوّابة."""
+    if not CONFIG.get("BT_LIBERATION"):
+        return []
+    base = [t for t in trades if t.get("outcome") in ("win", "loss")]
+    if not base:
+        return []
+
+    def _exp(rows, key_out, key_ent):
+        """توقّع R لمجموعة صفقات بذراعٍ محدّد (دخوله ونتيجته)، مع عدد المحسومة."""
+        vals = []
+        for t in rows:
+            o = t.get(key_out)
+            if o not in ("win", "loss"):
+                continue
+            e = t.get(key_ent)
+            r_ = _bt_realized_r({**t, "entry": e, "outcome": o}) if e else None
+            if r_ is not None:
+                vals.append(r_)
+        return ((sum(vals) / len(vals)) if vals else None), len(vals)
+
+    out = ["\n🔓 <b>تجربة T-LIBERATION: هل الدخول بعد كسر «التحرر» أفضل؟</b>",
+           f"   المعيار: `liberation_prereg.md` · نافذة الانتظار "
+           f"{CONFIG['BT_LIB_WAIT']} جلسة · الوقف = وقف الأساس (معزول)"]
+    b_all, b_n = _exp(base, "outcome", "entry")
+    out.append(f"   الأساس (تعبئة فورية): {b_n} محسومة · توقّع "
+               f"{(f'{b_all:+.2f}R' if b_all is not None else '—')}")
+    for name, label in (("l1", "L1 أقرب حاجز (الرقم الحرج)"),
+                        ("l2", "L2 أعلى مقاومة (liberation)")):
+        ko, ke = f"outcome_lib_{name}", f"entry_lib_{name}"
+        has_level = [t for t in base if t.get(f"lib_{name}_level")]
+        filled = [t for t in base if t.get(ko) in ("win", "loss")]
+        no_break = sum(1 for t in base if t.get(f"lib_{name}_fill") == "no_break")
+        no_level = sum(1 for t in base if t.get(f"lib_{name}_fill") == "no_level")
+        a_exp, a_n = _exp(filled, ko, ke)
+        # 🔴 المقارنة المقترنة: الأساس على **نفس** الإشارات المُعبَّأة بالذراع
+        p_exp, p_n = _exp(filled, "outcome", "entry")
+        w = sum(1 for t in filled if t.get(ko) == "win")
+        out.append(f"   ▸ <b>{label}</b>: مستوى متاح لـ{len(has_level)} · "
+                   f"مُعبَّأة {a_n} · لم يُكسَر {no_break} · بلا مستوى {no_level}")
+        out.append(f"      توقّع الذراع "
+                   f"{(f'{a_exp:+.2f}R' if a_exp is not None else '—')} · "
+                   f"نجاح {((w / a_n * 100) if a_n else 0):.0f}%")
+        out.append(f"      🔴 مقترنة (الأساس على نفس الـ{p_n}): "
+                   f"{(f'{p_exp:+.2f}R' if p_exp is not None else '—')} · "
+                   f"الفارق "
+                   f"{(f'{a_exp - p_exp:+.2f}R' if (a_exp is not None and p_exp is not None) else '—')}")
+        gap = ((a_exp - p_exp) if (a_exp is not None and p_exp is not None) else None)
+        ok_size = (gap is not None and gap >= 0.15)
+        ok_n = a_n >= 30
+        out.append(f"      الحكم لهذه السنة: حجم الفرق (‏≥+0.15R) "
+                   f"{'✅' if ok_size else '❌'} · العيّنة (‏≥30) "
+                   f"{'✅' if ok_n else '❌'}")
+    out.append("   ⏳ <b>هذه سنة واحدة</b>: المعيار يشترط ثبات الاتجاه وحجم الفرق في "
+               "<b>ثلاث سنوات</b> + لا انقلاب مجمَّعًا — لا حكم من تشغيلة واحدة.")
+    out.append("   🔒 وسقف النجاح مُحدَّد سلفًا: <b>اقتراح للمالك + سطر عرض</b> — "
+               "لا مسّ ببوّابة ولا بوقف ولا بأهداف.")
+    return out
 
 
 def backtest_sweep_compare(trades: list) -> list:
@@ -13346,6 +13502,11 @@ def run_backtest(symbols=None) -> None:
     for _vl in variant:
         log("باكتيست·" + _vl.strip().replace("\n", " "))
     # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — ترجع [] ما لم يُفعَّل BT_SWEEP_ENTRY
+    # 🔓 T-LIBERATION (`liberation_prereg.md`): ترجّع [] ما لم يُفعَّل BT_LIBERATION
+    liber = backtest_liberation_compare(all_trades)
+    lines += liber
+    for _ll in liber:
+        log("باكتيست·" + _ll.strip().replace("\n", " "))
     sweep = backtest_sweep_compare(all_trades)
     lines += sweep
     for _sl in sweep:

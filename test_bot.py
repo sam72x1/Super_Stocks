@@ -2889,6 +2889,108 @@ check("⏳ رادار: الكرون + سقف الانتظار يغطّيان ا�
           for _open in (810, 870) for _lag in (95, 119, 152))
       # وبأسوأ تأخّر لا يتجاوز البدء الافتتاح الصيفي بأكثر من نصف ساعة
       and (_ig_cron_min + 152) - 810 <= 30)
+# 🔓 T-LIBERATION (liberation_prereg.md): ذراع الدخول بعد كسر التحرر
+# اختبارات سلوكية على أرقام فيصل الحقيقية (DSY 1.85→3.20 · JZ 2.56→4).
+_lib_sv = dict(S.CONFIG)
+# ① المستويان: L1 من الرقم الحرج (breakout_activation فقط) · L2 من liberation
+check("🔓 T-LIB·المستويان من حساب البوت: L1 الرقم الحرج · L2 أعلى مقاومة",
+      S._liberation_levels({"liberation": 3.20, "interp_none": 1}) == (None, 3.2))
+check("🔓 T-LIB·فاشلة-آمنة: بلا حقول ⇒ (None, None) بلا استثناء",
+      S._liberation_levels({}) == (None, None)
+      and S._liberation_levels({"liberation": "سيء"}) == (None, None))
+# ② التعبئة: **إغلاق** فوق المستوى لا ذيل · النافذة تُحترم · الكسر بآخر شمعة لا يُحسم
+_lib_cl = [1.90, 2.00, 3.30, 3.40, 3.50]      # كسر 3.20 عند الفهرس 2
+check("🔓 T-LIB·التعبئة بأول إغلاق فوق المستوى (فهرس 2) لا قبله",
+      S._liberation_fill(_lib_cl, 3.20, 20) == ("filled", 2, 3.30))
+check("🔓 T-LIB·إغلاق مساوٍ للمستوى لا يُعبّئ (ثبات «فوق» حصرًا)",
+      S._liberation_fill([3.20, 3.20], 3.20, 20)[0] == "no_break")
+check("🔓 T-LIB·نافذة الانتظار تُحترم: كسر بعدها ⇒ no_break",
+      S._liberation_fill([1.0, 1.0, 1.0, 9.0], 3.20, 2)[0] == "no_break")
+check("🔓 T-LIB·كسر بآخر شمعة ⇒ break_at_end (لا حسم أمامي)",
+      S._liberation_fill([1.0, 9.0], 3.20, 20)[0] == "break_at_end")
+check("🔓 T-LIB·بلا مستوى ⇒ no_level (لا ادّعاء)",
+      S._liberation_fill(_lib_cl, None, 20)[0] == "no_level")
+# ③ الإلحاق: وقف الأساس يُستعمل كما هو · حقول الأساس لا تُمَسّ
+S.CONFIG["BT_LIBERATION"] = 1
+_lb_hi = [2.0, 2.1, 3.4, 4.2, 4.6]; _lb_lo = [1.8, 1.9, 3.1, 3.3, 3.6]
+_lb_cl = [1.90, 2.00, 3.30, 3.60, 4.50]; _lb_op = [1.85, 1.95, 3.20, 3.40, 3.70]
+_lb_tr = {"entry": 1.85, "stop": 1.60, "t1": 4.00, "outcome": "win", "ret_a": 116.0}
+_lb_r = {"liberation": 3.20, "pivot": 1.80}
+_lb_out = S._liberation_augment(dict(_lb_tr), _lb_r, _lb_hi, _lb_lo, _lb_cl, _lb_op,
+                                1.60, 4.00)
+check("🔓 T-LIB·الإلحاق لا يمسّ حقول الأساس إطلاقًا",
+      all(_lb_out[k] == v for k, v in _lb_tr.items()))
+check("🔓 T-LIB·ذراع L2 عُبِّئ بإغلاق الكسر 3.30 وحُسم بمحرّك الأساس",
+      _lb_out["entry_lib_l2"] == 3.30 and _lb_out["lib_l2_fill"] == "filled"
+      and _lb_out["outcome_lib_l2"] in ("win", "loss", "open"))
+check("🔓 T-LIB·بلا مستوى L1 ⇒ ذراعه no_fill بلا عائد (لا تلفيق)",
+      _lb_out["outcome_lib_l1"] == "no_fill" and _lb_out["ret_lib_l1"] is None)
+# ③-ب 🔒 **قفل عزل الوقف** (§②-3): الذراع يستعمل **وقف الأساس** لا وقفًا مشتقًّا من
+#     سعر الكسر. حالة تمييزية: بعد التعبئة عند 3.30 يهبط الأدنى إلى 3.05 ثم يبلغ t1:
+#     · بوقف الأساس (1.60) لا يُضرب ⇒ **win**
+#     · بأي وقف مشتقّ قريب (مثل 3.30×0.93=3.07) يُضرب ⇒ loss
+#     فنجاح الذراع هنا برهانٌ سلوكيّ أن الوقف لم يُستبدَل (درس T1b: خلط الدخول بالوقف).
+_iso_hi = [2.0, 2.1, 3.4, 3.5, 4.2]
+_iso_lo = [1.8, 1.9, 3.1, 3.05, 3.6]
+_iso_cl = [1.90, 2.00, 3.30, 3.20, 4.10]
+_iso_op = [1.85, 1.95, 3.20, 3.30, 3.70]
+S.CONFIG["BT_LIBERATION"] = 1
+_iso = S._liberation_augment({"entry": 1.85, "stop": 1.60, "t1": 4.00},
+                             {"liberation": 3.20}, _iso_hi, _iso_lo, _iso_cl,
+                             _iso_op, 1.60, 4.00)
+check("🔓 T-LIB·🔒 عزل الوقف: يستعمل وقف الأساس (win) لا وقفًا مشتقًّا من سعر الكسر (loss)",
+      _iso["entry_lib_l2"] == 3.30 and _iso["outcome_lib_l2"] == "win")
+# ③-ج 🔒 **قفل «لا نظر مستقبليّ على شمعة الكسر»** (§②-2: ندخل بإغلاقها فنملك من الفتح
+#     التالي). حالة تمييزية: شمعة الكسر رأسها 5.0 يتجاوز الهدف 4.60 **قبل** إغلاقها
+#     عند 4.50 (ترتيب اللمس داخلها مجهول)، والشمعة التالية تضرب الوقف:
+#     · بالاتفاقية الصحيحة (نملك من idx+1) ⇒ **loss**
+#     · بحسم شمعة الكسر نفسها ⇒ win وهميّ
+_la_cl = [1.90, 4.50, 2.00, 2.00]; _la_hi = [2.0, 5.0, 2.1, 2.1]
+_la_lo = [1.80, 1.90, 1.50, 1.50]; _la_op = [1.85, 2.00, 2.05, 2.05]
+_la = S._liberation_augment({"entry": 1.85, "stop": 1.60, "t1": 4.60},
+                            {"liberation": 3.20}, _la_hi, _la_lo, _la_cl,
+                            _la_op, 1.60, 4.60)
+check("🔓 T-LIB·🔒 لا نظر مستقبليّ: رأس شمعة الكسر لا يُحسَب هدفًا (loss لا win وهميًّا)",
+      _la["entry_lib_l2"] == 4.50 and _la["outcome_lib_l2"] == "loss")
+# ④ المقارنة المقترنة إلزامية: تظهر بالمخرَج ويُطبع عدد غير المُعبَّأة
+#    (العلم يبقى مفعّلًا هنا — `backtest_liberation_compare` تُرجع [] وهو مطفأ)
+_lib_rows = [dict(_lb_tr, symbol="A", **{k: v for k, v in _lb_out.items()
+                                         if k.startswith(("lib_", "entry_lib_",
+                                                          "outcome_lib_", "ret_lib_"))})
+             for _ in range(3)]
+_lib_msg = "\n".join(S.backtest_liberation_compare(_lib_rows))
+check("🔓 T-LIB·المخرَج يحمل المقارنة المقترنة + غير المُعبَّأة + سقف النجاح",
+      "مقترنة" in _lib_msg and "لم يُكسَر" in _lib_msg
+      and "ثلاث سنوات" in _lib_msg and "اقتراح للمالك" in _lib_msg)
+S.CONFIG["BT_LIBERATION"] = 0
+check("🔓 T-LIB·مطفأة ⇒ [] (صفر أثر على التقرير العادي)",
+      S.backtest_liberation_compare(_lib_rows) == [])
+S.CONFIG.update(_lib_sv)
+# ⑤ 🔒 **القفل الحاسم**: مطفأة ⇒ صفقة الأساس **بت-بت** (نفس نمط قفل BT_POTENTIAL).
+#    يُشغَّل الجذر نفسه على نفس البذرة مع/بدون العلم ويُقارَن قاموس الصفقة كاملًا.
+S.CONFIG["BT_LIBERATION"] = 1
+_lb_on = S.backtest_symbol("LBON", synth_pivot(seed=2))
+S.CONFIG["BT_LIBERATION"] = 0
+_lb_off = S.backtest_symbol("LBOFF", synth_pivot(seed=2))
+_lbk = lambda t: {k: v for k, v in t.items() if k != "symbol"}
+check("🔓 T-LIB·وصل: مفعّلة ⇒ كل صفقة تحمل حقول ذراعَي L1/L2",
+      len(_lb_on) >= 1 and all({"lib_l1_level", "lib_l2_level", "outcome_lib_l1",
+                                "outcome_lib_l2"} <= set(t) for t in _lb_on))
+check("🔓 T-LIB·🔒 مطفأة ⇒ صفقة الأساس بت-بت (صفر حقل lib_ وقاموس مطابق)",
+      len(_lb_off) == len(_lb_on)
+      and all(not any(k.startswith(("lib_", "entry_lib_", "outcome_lib_", "ret_lib_"))
+                      for k in t) for t in _lb_off)
+      and [_lbk(t) for t in _lb_off]
+      == [{k: v for k, v in _lbk(t).items()
+           if not k.startswith(("lib_", "entry_lib_", "outcome_lib_", "ret_lib_"))}
+          for t in _lb_on])
+S.CONFIG.update(_lib_sv)
+check("🔒 T-LIB قفل: دوال التجربة خارج مسار الفرز الحيّ",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("_liberation_augment", "backtest_liberation_compare",
+                      "_liberation_fill")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.analyze_ticker, S.scan_market, S.apply_float_gate)))
 # 🔴 معيار الفلوت الكبير موحَّد (_float_too_big) — مرجع واحد لا ثلاثة
 check("🔴 _float_too_big: الحدّ فأكثر = كبير · أقلّ = لا · والمجهول/التالف يمرّ",
       S._float_too_big(S.CONFIG["FLOAT_GATE_MAX"])
