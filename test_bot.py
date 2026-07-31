@@ -11450,6 +11450,110 @@ check("🎯 C5🔒 مطفأ ⇒ CONFIG بت-بت",
       _c5_off == [] and all(S.CONFIG[k] == _c5_before[k] for k in _c5_before))
 
 
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 🔁 T-REPLAY10 — أقفال آلة الحالة الأمينة (`replay10.py`)
+#    السبب: المراجعة الخصومية أثبتت نظرًا مستقبليًّا في `backtest_portfolio`
+#    (استبعاد `no_fill` قبل السعة) وسعةً 15 بدل 10 وتحريرًا بأيام تقويمية.
+#    هذي الأقفال تحرس **الإصلاحات الثلاثة** — مواصفاتها في `replay10_prereg.md` §②.
+# ═══════════════════════════════════════════════════════════════════════════
+import replay10 as RP
+
+def _cand(sess, sym, seq, rdy=50.0, score=50.0, rr=1.0):
+    return RP.Candidate(session=sess, symbol=sym, readiness=rdy, score=score, rr=rr, seq=seq)
+
+# ① 🔴 القفل الحاسم: **الخاسر غير المُعبَّأ يحجز خانةً** (إصلاح P0-01)
+#    سعة 1 · A بالجلسة 0 نتيجته `window` بعد 5 جلسات · B بالجلسة 2.
+#    السلوك القديم كان يُسقط A فيأخذ B الخانة — والصحيح أن B يُرفض بالسعة.
+_r1 = RP.replay([_cand(0, "A", 0), _cand(2, "B", 1)],
+                outcome_of=lambda c: (RP.R_WINDOW, 5), capacity=1)
+check("🔁 REPLAY10🔒 غير المُعبَّأ يحجز خانةً (لا نظر مستقبليّ)",
+      [c.symbol for c in _r1["taken"]] == ["A"] and _r1["rejected_cap"] == 1)
+
+# ② بعد انتهاء نافذة A تُحرَّر الخانة فعلًا (لا حجزٌ أبديّ)
+_r2 = RP.replay([_cand(0, "A", 0), _cand(5, "B", 1)],
+                outcome_of=lambda c: (RP.R_WINDOW, 5), capacity=1)
+check("🔁 REPLAY10🔒 الخانة تُحرَّر بانتهاء النافذة",
+      [c.symbol for c in _r2["taken"]] == ["A", "B"] and _r2["rejected_cap"] == 0)
+
+# ③ **الهدف يحرّر الخانة ويُبقي الاسم محمولًا** (قاعدة الإنتاج المنصوصة)
+_r3 = RP.replay([_cand(0, "A", 0), _cand(3, "B", 1)],
+                outcome_of=lambda c: (RP.R_HIT_HELD, 2), capacity=1)
+_last3 = _r3["daily"][max(_r3["daily"])]
+check("🔁 REPLAY10🔒 الهدف يحرّر الخانة والاسم يبقى محمولًا",
+      [c.symbol for c in _r3["taken"]] == ["A", "B"] and set(_last3) == {"A", "B"})
+
+# ④ 🔴 المحمول لا يُحتسب ضدّ السعة ⇒ القائمة تتجاوز السقف (كما رُصد حيًّا: 13 > 10)
+check("🔁 REPLAY10🔒 المحمول لا يُحتسب ضدّ السعة (الحجم يتجاوز السقف)",
+      _r3["max_size"] == 2 and _r3["capacity"] == 1)
+
+# ⑤ الوقف **يُزيل** الاسم بينما الهدف **يُبقيه** — يُقاس على جلساتٍ لاحقة صريحة.
+#    ⚠️ الصيغة الأولى كانت **قفلًا فارغًا**: بمرشّحٍ واحدٍ في الجلسة 0 لا توجد جلسةٌ
+#    لاحقة تُرى فيها الإزالة، فنجت طفرةُ «الوقف يحرّر ولا يُزيل». أمسكها اختبار الطفرة.
+_r5s = RP.replay([_cand(0, "A", 0)], outcome_of=lambda c: (RP.R_STOP, 2),
+                 capacity=1, sessions=range(0, 4))
+_r5h = RP.replay([_cand(0, "A", 0)], outcome_of=lambda c: (RP.R_HIT_HELD, 2),
+                 capacity=1, sessions=range(0, 4))
+check("🔁 REPLAY10🔒 الوقف يُزيل الاسم فعلًا من الجلسات اللاحقة",
+      _r5s["daily"][1] == ("A",) and _r5s["daily"][2] == () and _r5s["daily"][3] == ())
+check("🔁 REPLAY10🔒 والهدف يُبقيه محمولًا في الجلسات نفسها (تمييزٌ حقيقيّ)",
+      _r5h["daily"][2] == ("A",) and _r5h["daily"][3] == ("A",))
+
+# ⑥ الزمن **بالجلسات**: فجوةٌ في فهارس الجلسات لا تُقصّر الحجز
+#    A يدخل الجلسة 0 ويُحجز 3 جلسات ⇒ B بالجلسة 2 يُرفض، وبالجلسة 3 يُقبل.
+_r6a = RP.replay([_cand(0, "A", 0), _cand(2, "B", 1)],
+                 outcome_of=lambda c: (RP.R_WINDOW, 3), capacity=1)
+_r6b = RP.replay([_cand(0, "A", 0), _cand(3, "B", 1)],
+                 outcome_of=lambda c: (RP.R_WINDOW, 3), capacity=1)
+check("🔁 REPLAY10🔒 الحجز يُقاس بالجلسات لا بأيامٍ تقويمية",
+      _r6a["rejected_cap"] == 1 and _r6b["rejected_cap"] == 0)
+
+# ⑦ لا خانتان لرمزٍ واحد متزامنًا
+_r7 = RP.replay([_cand(0, "A", 0), _cand(1, "A", 1)],
+                outcome_of=lambda c: (RP.R_WINDOW, 9), capacity=5)
+check("🔁 REPLAY10🔒 لا تكرار لرمزٍ متزامن", _r7["rejected_dup"] == 1)
+
+# ⑧ المُرتِّب الفعليّ يُقدّم الأعلى جاهزيةً (لا الأقدم)
+_r8 = RP.replay([_cand(0, "LOW", 0, rdy=10.0), _cand(0, "HIGH", 1, rdy=90.0)],
+                outcome_of=lambda c: (RP.R_WINDOW, 9), capacity=1)
+check("🔁 REPLAY10🔒 R0 يرتّب بالجاهزية", [c.symbol for c in _r8["taken"]] == ["HIGH"])
+
+# ⑨ FIFO شاهد ضبط: يأخذ الأقدم رغم انخفاض جاهزيته
+_r9 = RP.replay([_cand(0, "LOW", 0, rdy=10.0), _cand(0, "HIGH", 1, rdy=90.0)],
+                outcome_of=lambda c: (RP.R_WINDOW, 9), ranker=RP.rank_fifo, capacity=1)
+check("🔁 REPLAY10🔒 R1 (FIFO) شاهد ضبط مستقلّ",
+      [c.symbol for c in _r9["taken"]] == ["LOW"])
+
+# ⑩ العشوائيّ **حتميّ**: نفس البذرة ⇒ نفس النتيجة · ومستقلّ عن ترتيب الإدخال
+_cs = [_cand(0, "A", 0), _cand(0, "B", 1), _cand(0, "C", 2)]
+_r10a = RP.replay(_cs, outcome_of=lambda c: (RP.R_WINDOW, 9),
+                  ranker=RP.make_rank_random(7), capacity=1)
+_r10b = RP.replay(list(reversed(_cs)), outcome_of=lambda c: (RP.R_WINDOW, 9),
+                  ranker=RP.make_rank_random(7), capacity=1)
+_r10c = RP.replay(_cs, outcome_of=lambda c: (RP.R_WINDOW, 9),
+                  ranker=RP.make_rank_random(8), capacity=1)
+check("🔁 REPLAY10🔒 R2 حتميّ بالبذرة ومستقلّ عن ترتيب الإدخال",
+      [c.symbol for c in _r10a["taken"]] == [c.symbol for c in _r10b["taken"]])
+# البذرة تُغيّر الترتيب فعلًا — يُقاس على **الترتيب الكامل** لا على مأخوذٍ واحد
+# (مقارنة رمزٍ واحد قد تتصادف؛ هذا حتميّ لا احتماليّ)
+_perm = {tuple(sorted((c.symbol for c in _cs), key=lambda s2, sd=sd: RP.make_rank_random(sd)(
+             next(c for c in _cs if c.symbol == s2))))
+         for sd in (1, 2, 3, 4, 5)}
+check("🔁 REPLAY10🔒 R2 البذرة تُغيّر الترتيب (لا ثابتٌ متنكّر)", len(_perm) >= 2)
+
+# ⑪ بوّابة الصلاحية أ: العتبة 0.95 · والفراغان يتفقان
+check("🔁 REPLAY10🔒 gate_a: تطابقٌ تامّ يعبر",
+      RP.gate_a({0: ("A", "B")}, {0: ("A", "B")})["passed"] is True)
+check("🔁 REPLAY10🔒 gate_a: اختلافٌ جوهريّ يسقط",
+      RP.gate_a({0: ("A", "B")}, {0: ("C",)})["passed"] is False)
+check("🔁 REPLAY10🔒 gate_a: يومان فارغان = اتفاق (لا قسمةٌ على صفر)",
+      RP.jaccard((), ()) == 1.0)
+
+# ⑫ 🔒 قفل عزل: `replay10` **لا يُستورَد في مسار الإنتاج**
+_rp_src = open("Super_stock.py", encoding="utf-8").read()
+check("🔁 REPLAY10🔒 معزولة عن الإنتاج (لا تُستورَد في Super_stock)",
+      "replay10" not in _rp_src)
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
