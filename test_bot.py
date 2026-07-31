@@ -11390,6 +11390,24 @@ check("🧱 WS🔒 «الجدار الوحيد» لا يعدّ يومًا فيه
       _ws_agg["sole_blocker"] == {"M5_سيولة": 1}
       and _ws_agg["total_blocks"]["M5_سيولة"] == 2)
 
+# ⑧ 📒 وسم المصدر: **كل جدارٍ قابلٍ للإرخاء موسوم** (لا «غير_موسوم» صامت)
+_ws_unlabeled = [r for r in list(_WS.RELAX) +
+                 [p for p, _k, _v in _WS.RELAX_PREFIX]
+                 if _WS.wall_source(r) == "غير_موسوم"]
+check("🧱 WS🔒 كل جدارٍ قابلٍ للإرخاء له وسمُ مصدر", not _ws_unlabeled,
+      f"بلا وسم: {_ws_unlabeled}")
+
+# ⑨ 🔴 **نتيجة الدفتر مقفولة**: ولا واحدة من بوّابات M1-M5 وسمُها `verbatim`
+#    (‏`FAISAL_SOURCE_LEDGER.md`: 8 engineering · 3 inferred · صفر verbatim).
+#    لو خُفّف هذا يومًا صار «الحاجب من فيصل» — وهو ادّعاءٌ يجب أن يسقط بالاختبار.
+_ws_m15 = ["M1_سعر", "M2_هبوط_فوق_97", "M2_هبوط_تحت_40", "M3_انفجار_تحت_60",
+           "M4_base_واسعة", "M5_سيولة"]
+check("🧱 WS🔒 ولا بوّابة من M1-M5 موسومة `verbatim` (نتيجة دفتر المصادر)",
+      all(_WS.wall_source(r) != "verbatim" for r in _ws_m15))
+check("🧱 WS🔒 وM10 موسومة `verbatim` فعلًا (شاهد ضبط — الوسم ليس ثابتًا أعمى)",
+      _WS.wall_source("M10_RSI_ما_تشبّع") == "verbatim"
+      and _WS.wall_source("M10_RSI_فات_القطار") == "verbatim")
+
 # ⑦ 🔒 **خارج الإنتاج**: لا يُستورَد في أي مسار فرز/تنبيه
 check("🧱 WS🔒 خارج الجذور: `Super_stock` لا يستورد wall_stack",
       "import wall_stack" not in _insp0.getsource(S))

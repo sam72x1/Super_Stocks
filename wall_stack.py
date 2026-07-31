@@ -55,6 +55,34 @@ TERMINAL = {"M2_hi52", "M4_base_lo", "M4_انفجر_فعلاً", "RR+نواقص_
 
 MAX_PEEL = 16          # سقف أمان: أكثر من عدد البوّابات، فلا حلقة لا نهائية
 
+# ── 📒 وسم مصدر كل جدار — من `FAISAL_SOURCE_LEDGER.md` (سؤال المالك 2026-07-31:
+#     «هل المشكلة في إضافاتنا والفلسفة الزائدة؟») ──────────────────────────────
+# 🔴 **الأوسمة منقولةٌ من الدفتر لا مخترَعة هنا**، ومقفولةٌ باختبارٍ يقارنها به.
+#     `engineering` = رقمٌ من عندنا · `inferred` = استنتاجنا من كلامه ·
+#     `verbatim` = قاله فيصل بلفظه (‏ولا واحدة منها في M1-M5 — نتيجة الدفتر).
+WALL_SOURCE = {
+    "M1_سعر":              "engineering",   # MIN_PRICE=1.5
+    "M2_هبوط_فوق_97":      "engineering",   # MAX_DROP_PCT=97
+    "M2_هبوط_تحت_40":      "engineering",   # MIN_DROP_FLOOR=40
+    "M3_انفجار_تحت_60":    "engineering",   # PRIOR_SPIKE_FLOOR=60
+    "M4_base_واسعة":       "engineering",   # BASE_RANGE_MAX_PCT=40  ← حاجب SPRC
+    "M5_سيولة":            "engineering",   # MIN_DOLLAR_VOL=200K (له شاهد حماية C3)
+    "M4_انفجر_فعلاً":       "inferred",      # RECENT_RISE_BLOCK_PCT=35
+    "M10_RSI_ما_تشبّع":     "verbatim",      # RSI 23-27 (TG_2043)
+    "M10_RSI_فات_القطار":  "verbatim",      # RSI≤40 (TG_2043)
+    "نواقص_فوق":           "engineering",   # WATCH_MAX_FAILS=3
+    "بعيد_عن_الدخول":      "engineering",   # NEAR_PCT=50
+    "نقاط_تحت":            "engineering",   # SCORE_MIN=45
+    "RR+نواقص_فوق_الحد":   "engineering",   # MIN_RR_T1
+    "M2_hi52":             "بنيويّ",         # بيانات ناقصة لا عتبة
+    "M4_base_lo":          "بنيويّ",
+}
+
+
+def wall_source(reason):
+    """وسمُ مصدر الجدار، أو «غير موسوم» — ولا يُخمَّن."""
+    return WALL_SOURCE.get(_base_name(reason), "غير_موسوم")
+
 
 def _relax_for(reason):
     """يرجّع (مفتاح CONFIG، القيمة المتساهلة) للسبب، أو None لو غير قابل للإرخاء."""
@@ -147,8 +175,19 @@ def aggregate(rows):
         if len(w) == 1:
             n = _base_name(w[0])
             sole[n] = sole.get(n, 0) + 1
+    # 📒 التجميع بالمصدر: كم يومًا **جدارُه الأول** من هندستنا مقابل كلام فيصل؟
+    by_src, sole_src = {}, {}
+    for r in rows:
+        w = r.get("walls") or []
+        if not w:
+            continue
+        s = wall_source(w[0])
+        by_src[s] = by_src.get(s, 0) + 1
+        if len(w) == 1:
+            sole_src[s] = sole_src.get(s, 0) + 1
     return {"n": len(rows), "passed_after_relax": passed, "walls_hist": hist,
-            "total_blocks": total, "sole_blocker": sole, "first_blocks": first}
+            "total_blocks": total, "sole_blocker": sole, "first_blocks": first,
+            "first_by_source": by_src, "sole_by_source": sole_src}
 
 
 def format_report(agg):
@@ -171,4 +210,12 @@ def format_report(agg):
         items = sorted(d.items(), key=lambda kv: -kv[1])
         body = " · ".join(f"{k}={v}" for k, v in items)
         out.append(f"   {title}: {body}")
+    for title, key in (("📒 مصدر الجدار الأول", "first_by_source"),
+                       ("📒 مصدر الجدار الوحيد", "sole_by_source")):
+        d = agg.get(key) or {}
+        if d:
+            tot = sum(d.values()) or 1
+            body = " · ".join(f"{k}={v} ({100*v/tot:.0f}%)"
+                              for k, v in sorted(d.items(), key=lambda kv: -kv[1]))
+            out.append(f"   {title}: {body}")
     return out
