@@ -883,20 +883,6 @@
   "short_interest": 107524,
   "days_to_cover": 0.34
  },
- "AZ": {
-  "sector": "Technology",
-  "industry": "Software - Application",
-  "business": "A2Z Cust2Mate Solutions Corp., a technology company, focuses on the development and commercialization of retail smart cart solutions for grocery stores and supe…",
-  "country": "Canada",
-  "cash": 57345000,
-  "revenue": 9671000,
-  "shares_out": 44532164,
-  "short_pct": 10.6,
-  "float": 38240999,
-  "company_name": "A2Z Cust2Mate Solutions Corp.",
-  "short_interest": 4606270,
-  "days_to_cover": 8.9
- },
  "GITS": {
   "sector": "Communication Services",
   "industry": "Internet Content & Information",
@@ -1143,21 +1129,6 @@
   "short_interest": 124038,
   "days_to_cover": 0.1
  },
- "PMAX": {
-  "sector": "Financial Services",
-  "industry": "Capital Markets",
-  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
-  "country": "Hong Kong",
-  "cash": 7774304,
-  "revenue": 47647540,
-  "shares_out": 1037171,
-  "short_pct": 4.6,
-  "float": 892196,
-  "finra_short": 15257,
-  "company_name": "Powell Max Limited",
-  "short_interest": 48021,
-  "days_to_cover": 0.07
- },
  "APVO": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -1285,21 +1256,6 @@
   "short_interest": 137273,
   "days_to_cover": 0.06
  },
- "ALAR": {
-  "sector": "Technology",
-  "industry": "Software - Infrastructure",
-  "business": "Alarum Technologies Ltd. provides web data collection solutions in North, South, and Central America, Europe, Southeast Asia, the Middle East, China, Hong Kong,…",
-  "country": "Israel",
-  "cash": 14060000,
-  "revenue": 45333000,
-  "shares_out": 7348826,
-  "short_pct": 0.3,
-  "float": 6910213,
-  "finra_short": 13795,
-  "company_name": "Alarum Technologies Ltd.",
-  "short_interest": 24500,
-  "days_to_cover": 0.24
- },
  "MGRT": {
   "sector": "Technology",
   "industry": "Information Technology Services",
@@ -1342,20 +1298,6 @@
   "short_interest": 295007,
   "days_to_cover": 3.22
  },
- "TYGO": {
-  "sector": "Technology",
-  "industry": "Solar",
-  "business": "Tigo Energy, Inc., together with its subsidiaries, provides solar and energy storage solutions worldwide. It offers module level power electronics (MLPEs) to ma…",
-  "country": "United States",
-  "cash": 11574000,
-  "revenue": 109894000,
-  "shares_out": 75910794,
-  "short_pct": 3.9,
-  "float": 28812701,
-  "company_name": "Tigo Energy, Inc.",
-  "short_interest": 1880423,
-  "days_to_cover": 1.28
- },
  "SMCI": {
   "sector": "Technology",
   "industry": "Computer Hardware",
@@ -1384,21 +1326,6 @@
   "company_name": "SciSparc Ltd.",
   "short_interest": 26064,
   "days_to_cover": 0.05
- },
- "NCSM": {
-  "sector": "Energy",
-  "industry": "Oil & Gas Equipment & Services",
-  "business": "NCS Multistage Holdings, Inc. provides engineered products and support services for oil and natural gas well completions and construction, and field development…",
-  "country": "United States",
-  "cash": 34458000,
-  "revenue": 179259008,
-  "shares_out": 2624523,
-  "short_pct": 7.5,
-  "float": 830793,
-  "finra_short": 1155,
-  "company_name": "NCS Multistage Holdings, Inc.",
-  "short_interest": 62407,
-  "days_to_cover": 1.76
  },
  "NUAI": {
   "sector": "Technology",
@@ -1499,21 +1426,6 @@
   "short_interest": 1434494,
   "days_to_cover": 5.95
  },
- "DXST": {
-  "sector": "Industrials",
-  "industry": "Waste Management",
-  "business": "Decent Holding Inc., through its subsidiaries, provides industrial wastewater treatment services in the People's Republic of China. The company offers ecologica…",
-  "country": "China",
-  "cash": 572807,
-  "revenue": 12949345,
-  "shares_out": 1615103,
-  "short_pct": 1.9,
-  "float": 998034,
-  "finra_short": 1656,
-  "company_name": "Decent Holding Inc.",
-  "short_interest": 17477,
-  "days_to_cover": 0.03
- },
  "UONEK": {
   "sector": "Communication Services",
   "industry": "Broadcasting",
@@ -1612,21 +1524,6 @@
   "short_interest": 339053,
   "days_to_cover": 2.58
  },
- "CIIT": {
-  "sector": "Industrials",
-  "industry": "Integrated Freight & Logistics",
-  "business": "Tianci International, Inc., through its subsidiary, Roshing International Co., Limited, provides logistics services in Hong Kong, Vietnam, Japan, Zimbabwe, and…",
-  "country": "Hong Kong",
-  "cash": 718203,
-  "revenue": 14288071,
-  "shares_out": 967390,
-  "short_pct": 1.5,
-  "float": 657632,
-  "finra_short": 185782,
-  "company_name": "Tianci International, Inc.",
-  "short_interest": 11552,
-  "days_to_cover": 0.01
- },
  "CLIK": {
   "sector": "Consumer Cyclical",
   "industry": "Personal Services",
@@ -1640,21 +1537,6 @@
   "company_name": "CLICK HOLDINGS LIMITED",
   "short_interest": 1939,
   "days_to_cover": 0.02
- },
- "NEUP": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Neuphoria Therapeutics Inc., a clinical stage biopharmaceutical company, discovers and develops novel allosteric ion channel modulators for the treatment of cen…",
-  "country": "United States",
-  "cash": 19440656,
-  "revenue": -13267,
-  "shares_out": 5404551,
-  "short_pct": 0.3,
-  "float": 4186689,
-  "finra_short": 6200,
-  "company_name": "Neuphoria Therapeutics Inc.",
-  "short_interest": 15334,
-  "days_to_cover": 0.16
  },
  "XCUR": {
   "sector": "Healthcare",
@@ -1725,20 +1607,6 @@
   "company_name": "Texxon Holding Limited",
   "short_interest": 25679,
   "days_to_cover": 0.14
- },
- "ANY": {
-  "sector": "Financial Services",
-  "industry": "Capital Markets",
-  "business": "Sphere 3D Corp. engages in the bitcoin mining business. The company is involved with bitcoin mining pool operators as its customers to provide a service to perf…",
-  "country": "United States",
-  "cash": 3145000,
-  "revenue": 10280000,
-  "shares_out": 7641767,
-  "short_pct": 0.2,
-  "float": 2683029,
-  "company_name": "Sphere 3D Corp.",
-  "short_interest": 12885,
-  "days_to_cover": 0.03
  },
  "HOLO": {
   "sector": "Technology",
@@ -1823,6 +1691,20 @@
   "short_interest": 22351,
   "days_to_cover": 0.19
  },
+ "TYGO": {
+  "sector": "Technology",
+  "industry": "Solar",
+  "business": "Tigo Energy, Inc., together with its subsidiaries, provides solar and energy storage solutions worldwide. It offers module level power electronics (MLPEs) to ma…",
+  "country": "United States",
+  "cash": 11574000,
+  "revenue": 109894000,
+  "shares_out": 75910794,
+  "short_pct": 3.9,
+  "float": 28812701,
+  "company_name": "Tigo Energy, Inc.",
+  "short_interest": 1880423,
+  "days_to_cover": 1.28
+ },
  "AFJK": {
   "sector": "Financial Services",
   "industry": "Shell Companies",
@@ -1832,9 +1714,152 @@
   "shares_out": 3166332,
   "short_pct": 0.4,
   "float": 1441346,
-  "finra_short": 55,
+  "finra_short": 282,
   "company_name": "Aimei Health Technology Co., Lt",
   "short_interest": 4398,
   "days_to_cover": 0.18
+ },
+ "FFAI": {
+  "float": 1988231
+ },
+ "XRX": {},
+ "NCSM": {
+  "sector": "Energy",
+  "industry": "Oil & Gas Equipment & Services",
+  "business": "NCS Multistage Holdings, Inc. provides engineered products and support services for oil and natural gas well completions and construction, and field development…",
+  "country": "United States",
+  "cash": 34458000,
+  "revenue": 179259008,
+  "shares_out": 2624523,
+  "short_pct": 7.5,
+  "float": 830793,
+  "finra_short": 1884,
+  "company_name": "NCS Multistage Holdings, Inc.",
+  "short_interest": 62407,
+  "days_to_cover": 1.76
+ },
+ "ANY": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets",
+  "business": "Sphere 3D Corp. engages in the bitcoin mining business. The company is involved with bitcoin mining pool operators as its customers to provide a service to perf…",
+  "country": "United States",
+  "cash": 3145000,
+  "revenue": 10280000,
+  "shares_out": 7641767,
+  "short_pct": 0.2,
+  "float": 2683029,
+  "company_name": "Sphere 3D Corp.",
+  "short_interest": 12885,
+  "days_to_cover": 0.03
+ },
+ "BYRN": {},
+ "NEUP": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Neuphoria Therapeutics Inc., a clinical stage biopharmaceutical company, discovers and develops novel allosteric ion channel modulators for the treatment of cen…",
+  "country": "United States",
+  "cash": 19440656,
+  "revenue": -13267,
+  "shares_out": 5404551,
+  "short_pct": 0.3,
+  "float": 4186689,
+  "finra_short": 1601,
+  "company_name": "Neuphoria Therapeutics Inc.",
+  "short_interest": 15334,
+  "days_to_cover": 0.16
+ },
+ "PMAX": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets",
+  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
+  "country": "Hong Kong",
+  "cash": 7774304,
+  "revenue": 47647540,
+  "shares_out": 1037171,
+  "short_pct": 4.6,
+  "float": 892196,
+  "finra_short": 29626,
+  "company_name": "Powell Max Limited",
+  "short_interest": 48021,
+  "days_to_cover": 0.07
+ },
+ "DXST": {
+  "sector": "Industrials",
+  "industry": "Waste Management",
+  "business": "Decent Holding Inc., through its subsidiaries, provides industrial wastewater treatment services in the People's Republic of China. The company offers ecologica…",
+  "country": "China",
+  "cash": 572807,
+  "revenue": 12949345,
+  "shares_out": 1615103,
+  "short_pct": 1.9,
+  "float": 998034,
+  "finra_short": 2805,
+  "company_name": "Decent Holding Inc.",
+  "short_interest": 17477,
+  "days_to_cover": 0.03
+ },
+ "GWAV": {
+  "finra_short": 16193
+ },
+ "ALAR": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "business": "Alarum Technologies Ltd. provides web data collection solutions in North, South, and Central America, Europe, Southeast Asia, the Middle East, China, Hong Kong,…",
+  "country": "Israel",
+  "cash": 14060000,
+  "revenue": 45333000,
+  "shares_out": 7348826,
+  "short_pct": 0.3,
+  "float": 6910213,
+  "finra_short": 14232,
+  "company_name": "Alarum Technologies Ltd.",
+  "short_interest": 24500,
+  "days_to_cover": 0.24
+ },
+ "AXTI": {},
+ "POLA": {},
+ "CIIT": {
+  "sector": "Industrials",
+  "industry": "Integrated Freight & Logistics",
+  "business": "Tianci International, Inc., through its subsidiary, Roshing International Co., Limited, provides logistics services in Hong Kong, Vietnam, Japan, Zimbabwe, and…",
+  "country": "Hong Kong",
+  "cash": 718203,
+  "revenue": 14288071,
+  "shares_out": 967390,
+  "short_pct": 1.5,
+  "float": 657632,
+  "finra_short": 10133,
+  "company_name": "Tianci International, Inc.",
+  "short_interest": 11552,
+  "days_to_cover": 0.01
+ },
+ "AZ": {
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "business": "A2Z Cust2Mate Solutions Corp., a technology company, focuses on the development and commercialization of retail smart cart solutions for grocery stores and supe…",
+  "country": "Canada",
+  "cash": 57345000,
+  "revenue": 9671000,
+  "shares_out": 44532164,
+  "short_pct": 11.2,
+  "float": 38220954,
+  "company_name": "A2Z Cust2Mate Solutions Corp.",
+  "short_interest": 4880558,
+  "days_to_cover": 16.88
+ },
+ "AIFU": {
+  "sector": "Financial Services",
+  "industry": "Insurance Brokers",
+  "business": "AIFU Inc., through its subsidiary, distributes insurance products in China. The company provides life and health insurance products, such as individual whole li…",
+  "country": "China",
+  "cash": 36291000,
+  "revenue": 556566976,
+  "shares_out": 5925706,
+  "short_pct": 0.1,
+  "float": 605960,
+  "finra_short": 735,
+  "company_name": "AIFU Inc.",
+  "short_interest": 878,
+  "days_to_cover": 0.04
  }
 }
