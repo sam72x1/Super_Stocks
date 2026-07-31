@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import hashlib
+import random
 from dataclasses import dataclass, field
 from typing import Callable, Iterable, Sequence
 
@@ -177,3 +178,149 @@ def gate_a(observed: dict[int, Sequence[str]], produced: dict[int, Sequence[str]
         "passed": bool(per) and mean >= 0.95,
         "threshold": 0.95,
     }
+
+
+# ─────────────────────── جسر صفقات المحرّك → مرشّحي الإعادة ───────────────────────
+def session_index(dates: Iterable[str]) -> dict[str, int]:
+    """تاريخ ISO → **فهرس جلسة**. الفهرس = موضع التاريخ في **اتّحاد تواريخ الدخول
+    والخروج مرتَّبةً تصاعديًّا**.
+
+    ⚖️ **ولماذا يكفي هذا بدل تقويم تداولٍ كامل:** آلة الحالة لا تسأل إلا «في هذي
+    اللحظة، مَن ما زال حيًّا؟» — والاسم حيٌّ من تاريخ دخوله حتى تاريخ خروجه. فما دام
+    **كل** تاريخ دخولٍ وخروجٍ ممثَّلًا بنقطةٍ في الفهرس، فترتيب الأحداث — وبالتالي
+    المزاحمة على السعة — **يُحفَظ بدقّة**. الأيام الخالية من أيّ حدثٍ لا تغيّر شيئًا،
+    فطيّها لا يُفقد معلومة. (والمدد المطبوعة «جلسات فهرسية» لا أيامَ تقويم.)"""
+    return {d: i for i, d in enumerate(sorted({str(d) for d in dates if d}))}
+
+
+def r_unit(trade: dict) -> float | None:
+    """عائد الصفقة **بوحدة المخاطرة** من عائد التنفيذ الفعليّ (`ret_a`) — لا إعادة
+    بناءٍ اسمية (إصلاح `P0-05`). المخاطرة = `(دخول − وقف)/دخول`، فالوقف يساوي −1R
+    بالضبط، ويصير «صافي R» قابلًا للجمع عند حجمٍ ثابت المخاطرة.
+
+    **غير المُعبَّأة ⇒ 0.0** (لا تنفيذ **لكنها استهلكت خانة** — والكلفة تظهر في
+    المقام وفي إزاحتها لغيرها، وهذا بعينه ما يقيسه إصلاح `P0-01`)."""
+    try:
+        e, s = float(trade["entry"]), float(trade["stop"])
+    except (TypeError, ValueError, KeyError):
+        return None
+    if e <= 0 or e - s <= 0:
+        return None
+    ret = trade.get("ret_a")
+    if ret is None:
+        return 0.0
+    try:
+        return float(ret) / ((e - s) / e * 100.0)
+    except (TypeError, ValueError):
+        return None
+
+
+def candidates_from_trades(trades: Sequence[dict]) -> tuple[list, dict, Callable]:
+    """يبني `(مرشّحون، فهرس الجلسات، outcome_of)` من صفقات محرّك الباكتيست.
+
+    **تُشترط الحقول** `date` و`exit_date` (يضيفهما `BT_REPLAY10`) — وغيابُها يعني أن
+    العلم كان **خاملًا**، فتُرجَع قائمةٌ فارغة ويُكتشَف ذلك صراحةً بدل تفسير صفرٍ
+    مفبرك (قاعدة «أثبت أن التجربة اشتغلت» قبل تفسير أيّ نتيجة).
+
+    **الترتيب الأصليّ `seq`** يُبنى من `(التاريخ، الرمز)` فيكون **حتميًّا** مستقلًّا عن
+    ترتيب ورود الصفقات ⇒ FIFO وكسر التعادل قابلان لإعادة الإنتاج."""
+    rows = [t for t in trades if t.get("date") and t.get("exit_date")]
+    idx = session_index([t["date"] for t in rows] + [t["exit_date"] for t in rows])
+    rows = sorted(rows, key=lambda t: (str(t["date"]), str(t.get("symbol") or "")))
+    cands = [
+        Candidate(session=idx[str(t["date"])], symbol=str(t.get("symbol") or ""),
+                  readiness=t.get("readiness"), score=float(t.get("score") or 0.0),
+                  rr=float(t.get("rr") or 0.0), seq=i, payload=t)
+        for i, t in enumerate(rows)
+    ]
+
+    def outcome_of(c: Candidate):
+        t = c.payload
+        held = max(idx[str(t["exit_date"])] - idx[str(t["date"])], 0)
+        oc = t.get("outcome")
+        if oc == "win":
+            return (R_HIT_HELD, held)      # بلغ هدفًا: يحرّر الخانة ويبقى متابَعًا
+        if oc == "loss":
+            return (R_STOP, held)
+        return (R_WINDOW, held)            # `open`/`no_fill`: يُزال بانتهاء النافذة
+
+    return cands, idx, outcome_of
+
+
+def net_r_per_day(taken: Sequence[Candidate], n_sessions: int) -> float:
+    """**المقياس الأساسيّ المسجَّل:** صافي R لليوم عند إجمالي مخاطرةٍ ثابت."""
+    if n_sessions <= 0:
+        return 0.0
+    tot = sum(v for v in (r_unit(c.payload) for c in taken) if v is not None)
+    return tot / float(n_sessions)
+
+
+# ─────────────────────── الاستدلال المسجَّل ───────────────────────
+def _pct(vals: Sequence[float], q: float) -> float:
+    if not vals:
+        return 0.0
+    xs = sorted(vals)
+    k = min(max(int(round(q * (len(xs) - 1))), 0), len(xs) - 1)
+    return xs[k]
+
+
+def block_bootstrap_ci(taken: Sequence[Candidate], sess_of_month: dict,
+                       n: int = 10000, seed: int = 12345,
+                       level: float = 0.95) -> dict:
+    """**‏`block bootstrap` بالكتلة الشهرية:** تُعاد معاينة **الأشهر** بالإحلال (لا
+    الصفقات) — فيُحترَم ارتباط صفقات الشهر الواحد. الإحصاء = `مجموع R ÷ مجموع
+    الجلسات` على الأشهر المعادة، فيبقى «صافي R/يوم» بلا انحياز مقام."""
+    by_month: dict[str, float] = {m: 0.0 for m in sess_of_month}
+    for c in taken:
+        m = str(c.payload.get("date"))[:7]
+        v = r_unit(c.payload)
+        if v is not None and m in by_month:
+            by_month[m] += v
+    months = sorted(sess_of_month)
+    if not months:
+        return {"lo": 0.0, "hi": 0.0, "n": 0}
+    rng = random.Random(seed)
+    out = []
+    for _ in range(n):
+        pick = [months[rng.randrange(len(months))] for _ in months]
+        den = sum(sess_of_month[m] for m in pick)
+        out.append((sum(by_month[m] for m in pick) / den) if den else 0.0)
+    a = (1.0 - level) / 2.0
+    return {"lo": _pct(out, a), "hi": _pct(out, 1.0 - a), "n": len(months)}
+
+
+def cluster_bootstrap_ci(taken: Sequence[Candidate], n_sessions: int,
+                         n: int = 10000, seed: int = 54321,
+                         level: float = 0.95) -> dict:
+    """**‏`cluster` بالرمز:** تُعاد معاينة **الرموز** بالإحلال (صفقات الرمز الواحد
+    مرتبطة). المقام يبقى عدد الجلسات الفعليّ."""
+    by_sym: dict[str, float] = {}
+    for c in taken:
+        v = r_unit(c.payload)
+        if v is not None:
+            by_sym[c.symbol] = by_sym.get(c.symbol, 0.0) + v
+    syms = sorted(by_sym)
+    if not syms or n_sessions <= 0:
+        return {"lo": 0.0, "hi": 0.0, "n": 0}
+    rng = random.Random(seed)
+    out = [sum(by_sym[syms[rng.randrange(len(syms))]] for _ in syms) / n_sessions
+           for _ in range(n)]
+    a = (1.0 - level) / 2.0
+    return {"lo": _pct(out, a), "hi": _pct(out, 1.0 - a), "n": len(syms)}
+
+
+def randomization_test(observed: float, null_draws: Sequence[float]) -> dict:
+    """**‏`randomization inference`:** توزيعُ العدم = أذرع R2 (ترتيبٌ عشوائيّ داخل
+    متنافسي اليوم نفسه). يرجّع `p` أحادية (كسر العيّنات التي بلغت المرصود فأكثر)
+    و`p` ثنائية، وفاصل ‏90% لفرق `(المرصود − العشوائيّ)` — وهو الفاصل الذي يُقارَن
+    بهامش التكافؤ المسجَّل ‏±0.05R/يوم."""
+    if not null_draws:
+        return {"p_one": 1.0, "p_two": 1.0, "d_lo": 0.0, "d_hi": 0.0, "n": 0}
+    ge = sum(1 for v in null_draws if v >= observed)
+    le = sum(1 for v in null_draws if v <= observed)
+    n = len(null_draws)
+    p_one = (ge + 1) / (n + 1)
+    diffs = [observed - v for v in null_draws]
+    return {"p_one": p_one, "p_two": min(1.0, 2.0 * min(ge + 1, le + 1) / (n + 1)),
+            "d_lo": _pct(diffs, 0.05), "d_hi": _pct(diffs, 0.95),
+            "d_mean": sum(diffs) / n, "n": n}

@@ -330,6 +330,11 @@ CONFIG = {
     "BT_SHORT": 0,                       # 🕵️ T-SHORT: شورت FINRA المؤرَّخ عند الإشارة — باكتيست فقط
     "BT_PORTFOLIO": 0,                   # 🏦 محاكاة الانتقائية (أفضل N بالترتيب)
     "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE)
+    "BT_REPLAY10": 0,                    # 🔁 T-REPLAY10: ألحِق بكل صفقة **تاريخ الخروج
+                                         #   الفعليّ** (تحرير الخانة بجلسات لا تقويم) و`rr`
+                                         #   و`score` — تُقرأها أداة الإعادة الأمينة
+                                         #   (أداة T-REPLAY10). باكتيست حصريًّا · إلحاق
+                                         #   فقط · مطفأ = قاموس الصفقة بت-بت.
     "BT_RAW_PRICE": 0,                   # 🕰️ point-in-time: 1 = تحميل خام (auto_adjust=False)
                                          #   لتفادي إشارات وهمية من تعديل تقسيم مستقبلي (تدقيق
                                          #   خارجي). باكتيست حصريًا؛ الإنتاج يتجاهله (قفل B1).
@@ -571,6 +576,10 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_STOP_PCT", "STOP_BELOW_LOW_PCT", "pair"),
             ("BT_PORTFOLIO", "BT_PORTFOLIO", int),
             ("BT_PORT_SIZE", "BT_PORT_SIZE", int),
+            # 🔁 T-REPLAY10 (تسجيلها المسبق): حقول إعادة التشغيل الأمينة —
+            # **تاريخ الخروج الفعليّ** (‏`P0-02`: تحرير الخانة بجلسات لا `ordinals`)
+            # و`rr` (المحور الرابع في `rank_key`، لم يكن يُخزَّن قطّ). باكتيست حصريًّا.
+            ("BT_REPLAY10", "BT_REPLAY10", int),
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
         v = (env.get(bt_env) or "").strip()
         if not v:
@@ -12321,6 +12330,32 @@ def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled, entry_intrabar=True,
             oc, (exit_c * sell_f / buy - 1.0) * 100.0)
 
 
+def _arm_a_exit_bar(hi, lo, cl, entry, stop, t1, filled, entry_intrabar=True):
+    """🔁 T-REPLAY10: **متى** تُحسم صفقة ذراع الوقف A — لا كيف.
+
+    `_resolve_arm` يعيد النتيجة والعائد **بلا فهرس الشمعة**، والإعادة الأمينة تحتاج
+    الفهرس لتحرير الخانة **بجلسات** (إصلاح `P0-02`). فهذي تُعيد `(outcome, k)` بنفس
+    منطق الذراع A حرفيًّا: الوقف يُفحَص أوّلًا كل شمعة · والهدف من `filled+1` (درس
+    ‏F-L1: رأس شمعة التعبئة الداخلية لا يحسم).
+
+    `k` = فهرس شمعة الحسم داخل النافذة الأمامية · وغير المحسوم (‏`open`) أو غير
+    المُعبَّأ (‏`no_fill`) ⇒ **آخر شمعة بالنافذة** (الاسم يشغل خانةً حتى انتهائها،
+    وهو بالضبط ما يقيسه إصلاح `P0-01`).
+
+    🔒 **مقفولة بتطابقٍ خاصّيّ مع `_resolve_arm`** (‏`outcome` متطابق على مدخلاتٍ
+    عشوائية) — فلو تفرّق المنطقان يومًا سقط الاختبار. باكتيست/تحليل فقط."""
+    last = max(len(cl) - 1, 0)
+    if filled is None or entry <= 0:
+        return ("no_fill", last)
+    t1_from = (filled + 1) if entry_intrabar else filled
+    for k in range(filled, len(cl)):
+        if lo[k] <= stop:                       # الوقف أولًا (محافظ) — كـ_resolve_arm
+            return ("loss", k)
+        if k >= t1_from and hi[k] >= t1:
+            return ("win", k)
+    return ("open", last)
+
+
 def _max_gain_before_stop(hi, lo, op, entry, stop, filled, entry_intrabar=True):
     """🏦 «قوة البوت» (خطة BT_LADDER_PLAN، تصحيح المستخدم 2026-07-12): الحكم الحقيقي
     ليس أهداف البوت (تمهيدية = سلّم مقاومات) بل **كم انفجر السهم من نقطة الدخول قبل
@@ -12963,6 +12998,16 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         # 🏦 محاكاة الانتقائية (BT_PORTFOLIO): خزّن `score` (المحور الثاني لترتيب المحفظة
         # بعد readiness المخزَّن أصلًا) — إلحاق فقط، مطفأ = صفقة الأساس بت-بت.
         if CONFIG.get("BT_PORTFOLIO"):
+            trade["score"] = r.get("score")
+        # 🔁 T-REPLAY10 (تسجيلها المسبق): حقول الإعادة الأمينة — **تاريخ الخروج
+        # الفعليّ** (‏`P0-02`: الخانة تُحرَّر بجلسةٍ حقيقية لا بـ`ordinals` تقويمية)
+        # و`rr` و`score` (محورا `rank_key` الثالث والرابع؛ `rr` لم يكن يُخزَّن قطّ).
+        # إلحاق فقط · مطفأ = صفقة الأساس بت-بت.
+        if CONFIG.get("BT_REPLAY10"):
+            _xk, _xi = _arm_a_exit_bar(hi, lo, cl, entry, stop, t1, filled)
+            trade["exit_kind"] = _xk
+            trade["exit_date"] = (str(fut.index[_xi].date()) if len(fut) else None)
+            trade["rr"] = r.get("rr")
             trade["score"] = r.get("score")
         trades.append(trade)
         i += fwd                                # تخطَّ نافذة كاملة (لا تكرار)
@@ -14307,11 +14352,16 @@ def reject_distribution_lines(reasons: dict, soft_fails: dict = None,
     return out
 
 
-def run_backtest(symbols=None) -> None:
+def run_backtest(symbols=None) -> list:
     """يشغّل الباكتيست على قائمة رموز (env BACKTEST_SYMBOLS أو وسيط) ويرسل
     تقريرًا + CSV. عند عدم تحديد رموز → **كون البوت الافتراضي** (القائمة + التنبيهات)
     فيكفي تحديد الشهر وحده. **تنبيه انحياز الناجين:** لو جرّبت رموز رابحة معروفة فقط
-    تطلع النسبة متضخّمة — للحُكم الحقيقي جرّب عيّنة عشوائية واسعة من السوق."""
+    تطلع النسبة متضخّمة — للحُكم الحقيقي جرّب عيّنة عشوائية واسعة من السوق.
+
+    🔁 **ويرجّع الصفقات** (كان `None`): أداة الإعادة الأمينة (T-REPLAY10) تشغّل
+    **نفس هذا المسار** (الكون · اللقطة المجمَّدة · النافذة · القصر على السنة) بدل
+    استنساخه — فلا يتفرّق «ما قِيس» عن «ما يُشغَّل». إضافةٌ محضة: كل النداءات القائمة
+    تتجاهل القيمة، والسلوك بلا تغيير."""
     if symbols is None:
         env = os.environ.get("BACKTEST_SYMBOLS", "").strip()
         symbols = [s.strip().upper() for s in env.replace(";", ",").split(",")
@@ -14379,7 +14429,7 @@ def run_backtest(symbols=None) -> None:
     if not symbols:
         log("⚠️ باكتيست: تعذّر تحديد رموز (لا ناسداك ولا كون احتياطي)")
         send_telegram("🧪 الباكتيست: تعذّر تحديد رموز (لا ناسداك ولا كون احتياطي).")
-        return
+        return []
     log(f"باكتيست {len(symbols)} رمز…"
         + (f" · نافذة {date_window[0]}..{date_window[1]}" if date_window else ""))
     # 🔬 نافذة تحميل ممتدّة (إصلاح حاجز السنوات القديمة): الافتراضية (اليوم−HISTORY_DAYS) لا تصل
@@ -14682,6 +14732,7 @@ def run_backtest(symbols=None) -> None:
     if fn:
         send_telegram_document(fn, f"🧪 تفاصيل الباكتيست — {dt.date.today()}")
     log(f"باكتيست: {st}")
+    return all_trades          # 🔁 T-REPLAY10: إضافةٌ محضة — النداءات القائمة تتجاهلها
 
 
 def run_freeze() -> None:

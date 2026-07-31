@@ -11554,6 +11554,177 @@ _rp_src = open("Super_stock.py", encoding="utf-8").read()
 check("🔁 REPLAY10🔒 معزولة عن الإنتاج (لا تُستورَد في Super_stock)",
       "replay10" not in _rp_src)
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 🔁 T-REPLAY10 · المرحلة 2 — أقفال جسر «صفقات المحرّك ← مرشّحو الإعادة»
+#    الحقول الثلاثة الجديدة (`exit_date`/`exit_kind`/`rr`) خلف علمٍ مطفأ،
+#    والمقياس (صافي R/يوم) والاستدلال المسجَّل. مواصفاتها في التسجيل المسبق §②/§⑤.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⑬ 🔴 القفل الحاسم: **محرّك الخروج يطابق محرّك الحسم** على مدخلاتٍ عشوائية.
+#    `_arm_a_exit_bar` نسخةٌ ثانية من منطق الذراع A (تعيد الفهرس لا العائد)، فلولا
+#    هذا القفل لتفرّق المنطقان بصمتٍ ⇒ توقيت تحرير الخانة يصير كذبًا.
+_rnd_ex = __import__("random").Random(20260731)
+_ex_bad = []
+for _ in range(400):
+    _n = _rnd_ex.randint(1, 12)
+    _base = [round(_rnd_ex.uniform(1.0, 4.0), 2) for _ in range(_n)]
+    _hi = [b + round(_rnd_ex.uniform(0, 1.2), 2) for b in _base]
+    _lo = [b - round(_rnd_ex.uniform(0, 1.2), 2) for b in _base]
+    _cl = _base
+    _op = _base
+    _entry = round(_rnd_ex.uniform(1.0, 4.0), 2)
+    _stop = round(_entry * _rnd_ex.uniform(0.80, 0.99), 2)
+    _t1 = round(_entry * _rnd_ex.uniform(1.01, 1.60), 2)
+    _fil = _rnd_ex.choice([None] + list(range(_n)))
+    _a = S._resolve_arm(_hi, _lo, _cl, _op, _entry, _stop, _t1, _fil)[0]
+    _b, _k = S._arm_a_exit_bar(_hi, _lo, _cl, _entry, _stop, _t1, _fil)
+    if _a != _b or not (0 <= _k < max(_n, 1)):
+        _ex_bad.append((_a, _b, _k, _n))
+check("🔁 REPLAY10🔒 محرّك الخروج ≡ محرّك الحسم (400 حالة عشوائية · لا تفرّق صامت)",
+      not _ex_bad, f"مخالفات={_ex_bad[:3]}")
+
+# ⑭ فهرس شمعة الخروج **دقيق** لا مجرّد متّسق: الوقف يُفحَص أوّلًا · والهدف من
+#    `filled+1` (درس F-L1) · وغير المحسوم/غير المُعبَّأ ⇒ آخر شمعة (يشغل الخانة كاملة).
+check("🔁 REPLAY10🔒 الوقف يُحسم بشمعته بالضبط",
+      S._arm_a_exit_bar([2.0, 2.0, 2.0], [2.0, 2.0, 0.5], [2.0, 2.0, 1.0],
+                        2.0, 1.0, 3.0, 0) == ("loss", 2))
+check("🔁 REPLAY10🔒 الهدف لا يُحسم على شمعة التعبئة (F-L1) بل على التالية",
+      S._arm_a_exit_bar([9.0, 9.0], [2.0, 2.0], [2.0, 2.0],
+                        2.0, 1.0, 3.0, 0) == ("win", 1))
+check("🔁 REPLAY10🔒 غير المحسوم يشغل النافذة كاملة (آخر شمعة)",
+      S._arm_a_exit_bar([2.1, 2.1, 2.1], [1.9, 1.9, 1.9], [2.0, 2.0, 2.0],
+                        2.0, 1.0, 9.0, 0) == ("open", 2))
+check("🔁 REPLAY10🔒 غير المُعبَّأ يشغل النافذة كاملة أيضًا (إصلاح P0-01)",
+      S._arm_a_exit_bar([2.1, 2.1], [1.9, 1.9], [2.0, 2.0],
+                        2.0, 1.0, 9.0, None) == ("no_fill", 1))
+
+# ⑮ 🔒 العلم مطفأ ⇒ **قاموس الصفقة بت-بت** (لا حقل يتسرّب للإنتاج/الباكتيست العاديّ)
+_rp_flag_src = _insp0.getsource(S.backtest_symbol)
+check("🔁 REPLAY10🔒 الحقول الثلاثة **خلف العلم** حصرًا (مطفأ = صفقة الأساس)",
+      'CONFIG.get("BT_REPLAY10")' in _rp_flag_src
+      and _rp_flag_src.count('trade["exit_date"]') == 1
+      and 'trade["rr"]' in _rp_flag_src)
+check("🔁 REPLAY10🔒 `BT_REPLAY10` مطفأ افتراضيًّا في CONFIG",
+      S.CONFIG.get("BT_REPLAY10") == 0)
+# 🔴 السعة **مربوطة بالحيّ لا مكتوبةً يدويًّا**: عيبُ `P0-02` كان بالضبط أن المحاكي
+#    القديم يستعمل 15 بينما الإنتاج 10. وكل اختبارات الآلة تمرّر `capacity=` صراحةً
+#    ⇒ الثابت نفسه كان **بلا قفل** (نجت طفرة «‏CAPACITY=15» فعلًا). فيُقفَل بالمصدر:
+check("🔁 REPLAY10🔒 سعة الإعادة = `WATCHLIST_SIZE` الحيّ (إصلاح P0-02 لا رقمٌ يدويّ)",
+      RP.CAPACITY == S.CONFIG["WATCHLIST_SIZE"],
+      f"RP={RP.CAPACITY} · حيّ={S.CONFIG['WATCHLIST_SIZE']}")
+check("🔁 REPLAY10🔒 `BT_REPLAY10` له صفٌّ في جدول التعيين (لا علم ميّت)",
+      '("BT_REPLAY10"' in _insp0.getsource(S._apply_backtest_overrides))
+check("🔁 REPLAY10🔒 الإنتاج محصّن — العلم لا يُطبَّق خارج وضع BACKTEST",
+      S._apply_backtest_overrides("DAILY", {"BT_REPLAY10": "1"}) == []
+      and S._apply_backtest_overrides("BACKTEST", {"BT_REPLAY10": "1"}) != [])
+
+# ⑯ `run_backtest` **يرجّع** الصفقات (كان None) — وإلا فلا سبيل لتشغيل الأذرع
+#    على نفس المسار الإنتاجيّ، ويُستنسَخ فيتفرّق «ما قِيس» عن «ما يُشغَّل».
+check("🔁 REPLAY10🔒 run_backtest يرجّع الصفقات لا None",
+      "return all_trades" in _insp0.getsource(S.run_backtest))
+
+# ⑰ الجسر: فهرس الجلسات · تحويل R · المقياس
+_bt = [{"symbol": "A", "date": "2025-01-02", "exit_date": "2025-01-10",
+        "outcome": "win", "exit_kind": "win", "entry": 2.0, "stop": 1.8,
+        "t1": 2.6, "ret_a": 30.0, "readiness": 70, "score": 50, "rr": 3.0},
+       {"symbol": "B", "date": "2025-01-02", "exit_date": "2025-01-06",
+        "outcome": "loss", "exit_kind": "loss", "entry": 2.0, "stop": 1.8,
+        "t1": 2.6, "ret_a": -10.0, "readiness": 90, "score": 50, "rr": 1.0},
+       {"symbol": "C", "date": "2025-01-06", "exit_date": "2025-01-10",
+        "outcome": "no_fill", "exit_kind": "no_fill", "entry": 2.0, "stop": 1.8,
+        "t1": 2.6, "ret_a": None, "readiness": 80, "score": 50, "rr": 1.0}]
+check("🔁 REPLAY10🔒 R من عائد التنفيذ: الوقف = −1R بالضبط",
+      abs(RP.r_unit(_bt[1]) - (-1.0)) < 1e-9)
+check("🔁 REPLAY10🔒 R للرابح = العائد ÷ المخاطرة (30% ÷ 10% = 3R)",
+      abs(RP.r_unit(_bt[0]) - 3.0) < 1e-9)
+check("🔁 REPLAY10🔒 غير المُعبَّأ صفر R (لا تنفيذ) لكنه أخذ خانة",
+      RP.r_unit(_bt[2]) == 0.0)
+_bc, _bidx, _bof = RP.candidates_from_trades(_bt)
+check("🔁 REPLAY10🔒 فهرس الجلسات = اتّحاد تواريخ الدخول والخروج مرتَّبةً",
+      sorted(_bidx) == ["2025-01-02", "2025-01-06", "2025-01-10"]
+      and [_bidx[d] for d in sorted(_bidx)] == [0, 1, 2])
+check("🔁 REPLAY10🔒 الرابح ⇒ يحرّر الخانة ويبقى · الخاسر ⇒ يُزال",
+      _bof(next(c for c in _bc if c.symbol == "A"))[0] == RP.R_HIT_HELD
+      and _bof(next(c for c in _bc if c.symbol == "B"))[0] == RP.R_STOP
+      and _bof(next(c for c in _bc if c.symbol == "C"))[0] == RP.R_WINDOW)
+check("🔁 REPLAY10🔒 `seq` حتميّ بالتاريخ ثم الرمز (لا يتبع ترتيب الورود)",
+      [c.symbol for c in RP.candidates_from_trades(list(reversed(_bt)))[0]]
+      == [c.symbol for c in _bc])
+check("🔁 REPLAY10🔒 صفقةٌ بلا `exit_date` تُسقَط (كشف العلم الخامل لا تفسيرُ صفره)",
+      RP.candidates_from_trades([{"symbol": "Z", "date": "2025-01-02"}])[0] == [])
+# 🔴 المقام **جلسات لا صفقات**: العيّنة أعلاه فيها 3 صفقات، فلو قِيس بـ3 جلسات لكان
+#    القفل **أعمى** (‏`len(taken)` يساوي `n_sessions` صدفةً — نجت الطفرة M7 فعلًا).
+#    فيُقاس بمقامٍ **مميِّز** (‏10) ويُثبَت التناسب العكسيّ مع مقامٍ ثانٍ.
+check("🔁 REPLAY10🔒 صافي R/يوم = مجموع R ÷ **عدد الجلسات** (لا عدد الصفقات)",
+      abs(RP.net_r_per_day(_bc, 10) - (2.0 / 10.0)) < 1e-9
+      and abs(RP.net_r_per_day(_bc, 20) - RP.net_r_per_day(_bc, 10) / 2.0) < 1e-12)
+check("🔁 REPLAY10🔒 صفر جلسات ⇒ صفر (لا قسمةٌ على صفر)",
+      RP.net_r_per_day(_bc, 0) == 0.0)
+
+# ⑱ الاستدلال: الفواصل تحيط بالمرصود · والبذرة تجعله قابلًا لإعادة الإنتاج
+_bb1 = RP.block_bootstrap_ci(_bc, {"2025-01": 3}, n=200)
+_bb2 = RP.block_bootstrap_ci(_bc, {"2025-01": 3}, n=200)
+check("🔁 REPLAY10🔒 block bootstrap حتميّ بالبذرة (قابل لإعادة الإنتاج)", _bb1 == _bb2)
+check("🔁 REPLAY10🔒 الفاصل يحيط بالمرصود عند كتلةٍ واحدة",
+      _bb1["lo"] <= RP.net_r_per_day(_bc, 3) <= _bb1["hi"])
+_cb1 = RP.cluster_bootstrap_ci(_bc, 3, n=200)
+check("🔁 REPLAY10🔒 cluster بالرمز يعدّ الرموز لا الصفقات", _cb1["n"] == 3)
+_rt_hi = RP.randomization_test(1.0, [0.0] * 100)
+_rt_lo = RP.randomization_test(0.0, [1.0] * 100)
+check("🔁 REPLAY10🔒 randomization: المرصود فوق العدم ⇒ p صغيرة وفرقٌ موجب",
+      _rt_hi["p_one"] < 0.02 and _rt_hi["d_lo"] > 0)
+check("🔁 REPLAY10🔒 randomization: المرصود تحت العدم ⇒ p كبيرة وفرقٌ سالب",
+      _rt_lo["p_one"] > 0.98 and _rt_lo["d_hi"] < 0)
+check("🔁 REPLAY10🔒 randomization: توزيعٌ متطابق ⇒ الفرق صفر (شاهد ضبط)",
+      RP.randomization_test(0.5, [0.5] * 100)["d_mean"] == 0.0)
+
+# ⑲ 🔒 تعميم قفل P1 على **كل** الـworkflows لا `backtest.yml` وحده — فعلمٌ جديد
+#    في ملفٍ جديد لا يمرّ ميّتًا (وهو بالضبط ما كان سيحدث بـ`BT_REPLAY10`).
+_p1_all_dead = []
+for _wf in sorted(__import__("glob").glob(".github/workflows/*.yml")):
+    _txt = open(_wf, encoding="utf-8").read()
+    for _k in set(__import__("re").findall(r"^\s+(BT_[A-Z0-9_]+):\s*\$\{\{",
+                                           _txt, __import__("re").M)):
+        if _k not in _p1_tbl_keys and _k not in _P1_DIRECT_ENV \
+                and _k not in _p1_composite:
+            _p1_all_dead.append((_wf.split("/")[-1], _k))
+check("🔁 REPLAY10🔒 قفل P1 مُعمَّم: كل مفتاح BT_* في **أي** workflow له صفّ بالجدول",
+      not _p1_all_dead, f"ميّت={_p1_all_dead}")
+
+# ⑳ دخانُ أداة الأذرع نفسها — الحلقة كاملةً بصفقاتٍ محقونة (بلا شبكة).
+#    الغرض: أن **الحارسَين الصريحَين** فيها ليسا زينةً — «العلم الخامل» و«تفرّق
+#    المحرّكَين» يجب أن يُوقفا القراءة برمز خروجٍ مميّز، لا أن يمرّا بصمت.
+_ra_env = dict(__import__("os").environ)
+_ra_orig = S.run_backtest
+try:
+    _io0, _ctx0 = __import__("io"), __import__("contextlib")
+
+    def _ra_run(fake):
+        S.run_backtest = lambda *a, **k: fake
+        buf = _io0.StringIO()
+        with _ctx0.redirect_stdout(buf):
+            rc = RA.run()
+        return rc, buf.getvalue()
+
+    S.run_backtest = lambda *a, **k: list(_bt)
+    import replay10_arms as RA
+    RA.SEEDS, RA.BOOT = 25, 50
+    _rc_ok, _out_ok = _ra_run(list(_bt))
+    check("🔁 REPLAY10🔒 أداة الأذرع تُكمل الحلقة وتطبع الثلاثة (‏R0·R1·R2)",
+          _rc_ok == 0 and "R0 (المُرتِّب الفعليّ)" in _out_ok
+          and "R1 (‏FIFO)" in _out_ok and "R2 (عشوائيّ" in _out_ok
+          and "randomization" in _out_ok, _out_ok[-160:])
+    _rc_dead, _out_dead = _ra_run([{"symbol": "Z", "date": "2025-01-02"}])
+    check("🔁 REPLAY10🔒 العلم الخامل يوقف القراءة صراحةً (لا تفسيرُ صفرٍ مفبرك)",
+          _rc_dead == 2 and "خامل" in _out_dead)
+    _rc_div, _out_div = _ra_run([dict(_bt[0], exit_kind="loss")])
+    check("🔁 REPLAY10🔒 تفرّق محرّكَي الخروج/الحسم يوقف القراءة (توقيت غير موثوق)",
+          _rc_div == 3 and "تفرّق" in _out_div)
+finally:
+    S.run_backtest = _ra_orig
+    __import__("os").environ.clear()
+    __import__("os").environ.update(_ra_env)
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
