@@ -587,6 +587,17 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             applied.append(f"{cfg_key}={CONFIG[cfg_key]:g}")
         except ValueError:
             pass
+    # 🎯 T-CORE5 (`core5_prereg.md`): علمٌ **مركَّب** يختبر فرضية المالك «الأربع عشرة
+    # تطلب الكمال — وقد تكفي الخمس». يُسقط **الحواجز المشتقّة وM13/M14 فقط**، ويُبقي
+    # بوّابات الهوية صارمة: MIN_PRICE · MIN_DROP_FLOOR · MAX_DROP_PCT ·
+    # PRIOR_SPIKE_FLOOR · MIN_DOLLAR_VOL · RSI_OS_HARD (= «الخمس + أرضية RSI»).
+    # ⚠️ يمسّ العضوية ⇒ باكتيست حصريًّا (هذي الدالّة لا تعمل إلا بوضع BACKTEST).
+    if str((env.get("BT_CORE5") or "")).strip() not in ("", "0"):
+        for _k, _v in (("WATCH_MAX_FAILS", 99), ("NEAR_PCT", 0.0), ("SCORE_MIN", 0.0),
+                       ("MIN_RR_T1", 0.0), ("RSI_NOW_HARD", 100.0),
+                       ("SHORT_GATE_MAX", 10 ** 12), ("FLOAT_GATE_MAX", 10 ** 15)):
+            CONFIG[_k] = _v
+        applied.append("CORE5=1")
     return applied
 
 

@@ -10664,9 +10664,17 @@ _p1_env_keys = set(__import__("re").findall(r"^\s+(BT_[A-Z0-9_]+):\s*\$\{\{",
                                             _p1_yml, __import__("re").M))
 _p1_tbl_keys = set(__import__("re").findall(
     r'\("(BT_[A-Z0-9_]+)"\s*,', _insp0.getsource(S._apply_backtest_overrides)))
-_p1_dead = sorted(_p1_env_keys - _p1_tbl_keys - _P1_DIRECT_ENV)
+# 🎯 وتمديدٌ مُشدَّد (لا مُرخٍّ) لعلمٍ **مركَّب** كـ`BT_CORE5`: لا صفَّ له في الجدول
+# لأنه يضبط **عدّة** مفاتيح دفعةً واحدة. فالشرط البديل **أقوى لا أضعف**: يجب أن يظهر
+# نصًّا داخل مصدر `_apply_backtest_overrides` نفسها بصيغة القراءة `env.get("BT_X")`
+# ⇒ **مُبرهَنٌ أن نفس الدالّة تعالجه**، فلا يمرّ علمٌ ميّتٌ باسم «مركَّب».
+_p1_src = _insp0.getsource(S._apply_backtest_overrides)
+_p1_composite = {k for k in _p1_env_keys if f'env.get("{k}")' in _p1_src}
+_p1_dead = sorted(_p1_env_keys - _p1_tbl_keys - _P1_DIRECT_ENV - _p1_composite)
 check("P1-①🔒: كل مفتاح BT_* في backtest.yml له صفّ في جدول التعيين (لا علم ميّت)",
       _p1_env_keys and not _p1_dead, f"ميّت={_p1_dead}")
+check("P1-①🔒: العلم المركَّب مُبرهَنٌ أن الدالّة تقرأه (لا «مركَّب» اسمًا فقط)",
+      "BT_CORE5" in _p1_composite)
 check("P1-①🔒: استثناء BT_FROZEN_PATH مُبرهَن (يُقرأ فعلًا من os.environ في run_backtest)",
       all(f'os.environ.get("{k}"' in _insp0.getsource(S.run_backtest)
           for k in _P1_DIRECT_ENV))
@@ -11385,6 +11393,43 @@ check("🧱 WS🔒 «الجدار الوحيد» لا يعدّ يومًا فيه
 # ⑦ 🔒 **خارج الإنتاج**: لا يُستورَد في أي مسار فرز/تنبيه
 check("🧱 WS🔒 خارج الجذور: `Super_stock` لا يستورد wall_stack",
       "import wall_stack" not in _insp0.getsource(S))
+
+
+
+# ══════════════════════════════════════════════════════════
+# 🎯 T-CORE5 — علمٌ مركَّب: الهوية وحدها (فرضية المالك «قد تكفي 5 لا 14»)
+# ══════════════════════════════════════════════════════════
+_c5_env = {"BT_CORE5": "1"}
+_c5_before = dict(S.CONFIG)
+try:
+    _c5_applied = S._apply_backtest_overrides("BACKTEST", env=_c5_env)
+    # ① يُسقط الحواجز المشتقّة وM13/M14
+    check("🎯 C5🔒 يُرخي الحواجز المشتقّة وM13/M14 دفعةً واحدة",
+          S.CONFIG["WATCH_MAX_FAILS"] == 99 and S.CONFIG["NEAR_PCT"] == 0.0
+          and S.CONFIG["SCORE_MIN"] == 0.0 and S.CONFIG["MIN_RR_T1"] == 0.0
+          and S.CONFIG["RSI_NOW_HARD"] == 100.0
+          and S.CONFIG["SHORT_GATE_MAX"] >= 10 ** 12
+          and S.CONFIG["FLOAT_GATE_MAX"] >= 10 ** 15)
+    # ② 🔒 **الهوية لا تُمَسّ** — هي «الخمس» موضع سؤال المالك، والتجربة تُسقط ما عداها
+    check("🎯 C5🔒 بوّابات الهوية byte-identical (M1-M5 + أرضية RSI)",
+          all(S.CONFIG[k] == _c5_before[k] for k in
+              ("MIN_PRICE", "MIN_DROP_FLOOR", "MAX_DROP_PCT", "PRIOR_SPIKE_FLOOR",
+               "MIN_DOLLAR_VOL", "RSI_OS_HARD")))
+    check("🎯 C5🔒 يُعلن نفسه في وسم التجربة (لا ذراع صامتة)",
+          "CORE5=1" in _c5_applied)
+finally:
+    S.CONFIG.clear(); S.CONFIG.update(_c5_before)
+
+# ③ 🔒 **الإنتاج معزول** — الوضع اليوميّ يتجاهل العلم تمامًا
+_c5_prod = S._apply_backtest_overrides("DAILY", env=_c5_env)
+check("🎯 C5🔒 الإنتاج معزول: الوضع اليوميّ يتجاهل BT_CORE5",
+      _c5_prod == [] and S.CONFIG["WATCH_MAX_FAILS"] == _c5_before["WATCH_MAX_FAILS"]
+      and S.CONFIG["FLOAT_GATE_MAX"] == _c5_before["FLOAT_GATE_MAX"])
+
+# ④ مطفأ ⇒ صفر أثر
+_c5_off = S._apply_backtest_overrides("BACKTEST", env={})
+check("🎯 C5🔒 مطفأ ⇒ CONFIG بت-بت",
+      _c5_off == [] and all(S.CONFIG[k] == _c5_before[k] for k in _c5_before))
 
 
 print("\n" + "=" * 50)
