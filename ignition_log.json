@@ -173,5 +173,29 @@
   "vol_x": 4.5,
   "usd": 7467,
   "candle_class": "group"
+ },
+ {
+  "symbol": "TYGO",
+  "date": "2026-07-31",
+  "sustain_min": 151,
+  "operator_ok": true,
+  "fired_at": "2026-07-31T20:00:50Z",
+  "break_level": 1.85,
+  "price": 1.92,
+  "vol_x": 3.6,
+  "usd": 105738,
+  "candle_class": "operator"
+ },
+ {
+  "symbol": "PSTV",
+  "date": "2026-07-31",
+  "sustain_min": 1,
+  "operator_ok": false,
+  "fired_at": "2026-07-31T20:00:50Z",
+  "break_level": 3.84,
+  "price": 3.8972,
+  "vol_x": 3.4,
+  "usd": 6002,
+  "candle_class": "group"
  }
 ]
