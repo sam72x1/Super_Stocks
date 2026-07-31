@@ -1,0 +1,50 @@
+name: Wall stack (diagnostic)
+permissions:
+  contents: read
+  actions: read          # لتحميل اللقطة المجمَّدة من تشغيلة freeze
+on:
+  workflow_dispatch:
+    inputs:
+      frozen_run_id:
+        description: "🕰️ run-id لتشغيلة «Freeze backtest dataset» (إلزاميّ — لا تحميل حيّ)"
+        required: true
+        default: ""
+      symbols:
+        description: "رموز محدّدة بفاصلة (فارغ = عيّنة حتميّة من الكون بحدّ max_symbols)"
+        required: false
+        default: ""
+      max_symbols:
+        description: "سقف الرموز عند عدم التحديد (افتراضي 60)"
+        required: false
+        default: "60"
+      step:
+        description: "خطوة المشي بالجلسات (افتراضي 5 — أقلّ = أدقّ وأغلى)"
+        required: false
+        default: "5"
+jobs:
+  wall-stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run wall stack
+        env:
+          # الاسم الثابت الذي يرفعه `freeze.yml` — نفسه المستعمل في backtest/hunter_six/cliff
+          WS_FROZEN: frozen_backtest.pkl.gz
+          WS_SYMBOLS: ${{ github.event.inputs.symbols }}
+          WS_MAX_SYMBOLS: ${{ github.event.inputs.max_symbols }}
+          WS_STEP: ${{ github.event.inputs.step }}
+        run: python3 wall_stack_check.py
