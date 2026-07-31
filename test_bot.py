@@ -11725,6 +11725,178 @@ finally:
     __import__("os").environ.clear()
     __import__("os").environ.update(_ra_env)
 
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚡ T-EVENT-EXEC — أقفال التوقيت والتنفيذ (`event_exec_prereg.md`)
+#    أوّل اختبارٍ **مباشر** لدعوى «الحافة = التوقيت». الأقفال تحرس ثلاثة أشياء:
+#    ① الزناد **دوالّ الإنتاج نفسها** لا نسخةً منها · ② قواعد التنفيذ المسجَّلة
+#    (ask ≤5ث · لا بديلَ مريحًا · كلُّ حدثٍ في المقام) · ③ الحوارس ليست ميتة.
+# ═══════════════════════════════════════════════════════════════════════════
+import event_exec as EX
+import event_exec_run as EXR
+
+# ① 🔴 القفل الحاسم: الزناد **غير منسوخ** — `replay_trigger` تُحقَن بدالّة الإنتاج،
+#    ولا تحوي وحدةُ البحث أيَّ إعادة تطبيقٍ لشرط الحجم/الكسر.
+_ex_src = _insp0.getsource(EX)
+check("⚡ EVENT🔒 الزناد يُحقَن (لا إعادة تطبيقٍ لشرط 3× في وحدة البحث)",
+      "signal_fn(win, break_level" in _ex_src
+      and "vol_x" not in _ex_src and "IGNITION_VOL_MULT" not in _ex_src)
+check("⚡ EVENT🔒 المُشغِّل يمرّر `_ignition_signal` الإنتاجيّ وعتبته الإنتاجية",
+      "S._ignition_signal" in _insp0.getsource(EXR.run)
+      and 'S.CONFIG["IGNITION_VOL_MULT"]' in _insp0.getsource(EXR.run))
+
+# ② نافذة الرادار المتدحرجة = 30 دقيقة (نظير `polygon_minute_bars(minutes=30)` الحيّ)
+check("⚡ EVENT🔒 نافذة الإعادة تطابق نافذة الرادار الحيّ (30 دقيقة)",
+      EX.RADAR_WINDOW == 30 and EX.MIN_BARS == 6
+      and "minutes=30" in _insp0.getsource(S.scan_ignition))
+
+_mk = lambda t, c, v, h=None, l=None: {  # noqa: E731
+    "t": t, "c": c, "v": v, "h": (h if h is not None else c),
+    "l": (l if l is not None else c), "o": c}
+# جلسةٌ اصطناعية: 2026-06-01 (اثنين) 09:30 نيويورك = 13:30 UTC صيفًا
+_t0 = int(__import__("datetime").datetime(2026, 6, 1, 13, 30,
+          tzinfo=__import__("datetime").timezone.utc).timestamp() * 1000)
+_sess = [_mk(_t0 + i * 60000, 1.00, 100) for i in range(10)]
+_sess.append(_mk(_t0 + 10 * 60000, 1.20, 900))     # كسر + حجم 9×
+
+check("⚡ EVENT🔒 `replay_trigger` يلتقط الاشتعال بدالّة الإنتاج نفسها",
+      (EX.replay_trigger(_sess, 1.10, S._ignition_signal) or (None,))[0] == 10)
+check("⚡ EVENT🔒 بلا كسرٍ للمستوى لا اشتعال (المستوى فوق السعر)",
+      EX.replay_trigger(_sess, 1.50, S._ignition_signal) is None)
+check("⚡ EVENT🔒 **أوّل** حدثٍ لكل جلسة هو المأخوذ (لا أفضلُه ولا آخرُه)",
+      (EX.replay_trigger(_sess + [_mk(_t0 + 11 * 60000, 1.30, 5000)],
+                         1.10, S._ignition_signal) or (None,))[0] == 10)
+
+# ③ الجلسة النظامية فقط — الرادار الحيّ يعمل داخلها
+check("⚡ EVENT🔒 ما قبل الافتتاح يُستبعَد من الجلسة",
+      EX.ny_session_key(_t0 - 60 * 60000) is None
+      and EX.ny_session_key(_t0) == ("2026-06-01", 570))
+check("⚡ EVENT🔒 ما بعد الإغلاق يُستبعَد (الافتر خارج نطاق الرادار)",
+      EX.ny_session_key(_t0 + 7 * 3600 * 1000) is None)
+check("⚡ EVENT🔒 `group_sessions` يقسّم باليوم النيويوركيّ ويرتّب زمنيًّا",
+      list(EX.group_sessions(_sess)) == ["2026-06-01"]
+      and len(EX.group_sessions(list(reversed(_sess)))["2026-06-01"]) == 11)
+
+# ④ 🔴 قاعدة الدخول المسجَّلة: ask عمره ≤5ث — **ولا بديلَ مريحًا**
+_qs = [{"t": 1000, "ask": 1.0, "bid": 0.9}, {"t": 2000, "ask": 1.1, "bid": 1.0}]
+check("⚡ EVENT🔒 يُؤخَذ أوّل ask **بعد** إغلاق شمعة الزناد",
+      (EX.pick_entry_quote(_qs, 1500) or {}).get("ask") == 1.1)
+check("⚡ EVENT🔒 اقتباسٌ أقدم من الزناد لا يُستعمل",
+      (EX.pick_entry_quote(_qs, 0) or {}).get("ask") == 1.0)
+check("⚡ EVENT🔒 تجاوز 5 ثوانٍ ⇒ **None** (غير قابل للتنفيذ، لا سعرَ بديلًا)",
+      EX.pick_entry_quote([{"t": 20000, "ask": 1.1, "bid": 1.0}], 1000) is None)
+check("⚡ EVENT🔒 اقتباسٌ بلا ask صالح يُتخطّى",
+      EX.pick_entry_quote([{"t": 1100, "ask": None, "bid": 1.0},
+                           {"t": 1200, "ask": 2.0, "bid": 1.9}], 1000)["ask"] == 2.0)
+check("⚡ EVENT🔒 المُشغِّل يُبقي غيرَ المنفَّذ **في المقام** (لا يُحذف)",
+      'row["reason"] = "non_executable"' in _insp0.getsource(EXR._one_event)
+      and "len(ex) / len(rows)" in _insp0.getsource(EXR.run))
+
+# ⑤ التكاليف: الدخول عند ask حقيقيّ (لا يُحتسب مرّتين) + نصف السبريد على الخروج
+check("⚡ EVENT🔒 الوقف = −1R بالضبط قبل التكاليف",
+      abs(EX.net_r(-10.0, 2.0, 1.8, 0.0) - (-1.0)) < 1e-9)
+check("⚡ EVENT🔒 السبريد يُخصَم من الخروج فقط (نصفُه) — لا مرّتين",
+      abs(EX.net_r(0.0, 2.0, 1.8, 0.02) - (((1.0) * 0.99 - 1) * 100 / 10.0)) < 1e-9)
+check("⚡ EVENT🔒 مخاطرةٌ غير موجبة ⇒ None (لا قسمةٌ على صفر)",
+      EX.net_r(5.0, 2.0, 2.0, 0.0) is None)
+check("⚡ EVENT🔒 كسر السبريد يُرفَض عند bid فاسد (لا يُخمَّن)",
+      EX.spread_frac({"ask": 1.0, "bid": 1.2}) is None
+      and EX.spread_frac({"ask": 1.0, "bid": None}) is None
+      and abs(EX.spread_frac({"ask": 1.0, "bid": 0.98}) - 0.02) < 1e-9)
+
+# ⑥ 🔴 الحسم بمحرّك الإنتاج نفسه — و`spread=0` عمدًا (الدخول مدفوعٌ عند ask)
+#    🔴 **وقفلٌ سلوكيّ لا نصّيّ:** كان هنا فحصُ `"entry_intrabar=False" in getsource`،
+#    **ونجت طفرتُه** — لأن العبارة موجودة في **الـdocstring** فيبقى الفحص صادقًا مهما
+#    تغيّر الكود. وهو الفخّ الموثّق حرفيًّا في `CLAUDE.md`. فاستُبدل بحالةٍ **تُميّز**:
+#    شمعة الدخول رأسُها يبلغ الهدف وذيلُها فوق الوقف، والتالية تضرب الوقف ⇒
+#    `entry_intrabar=False` ⇒ **ربح**، و`True` ⇒ **خسارة**. والعائد ‏+20.0 بالضبط
+#    يقفل `spread=0.0` معه (أيّ سبريدٍ يُنقصه).
+_eb = [{"o": 1.00, "h": 1.25, "l": 0.95, "c": 1.10},
+       {"o": 1.05, "h": 1.06, "l": 0.80, "c": 0.85}]
+_ev_res = EXR._resolve_from(_eb, 0, 1.00, 0.90, 1.20)
+check("⚡ EVENT🔒 نملك من شمعة الدخول (سلوكيًّا) — والسبريد صفرٌ هنا",
+      _ev_res is not None and _ev_res[0] == "win" and abs(_ev_res[1] - 20.0) < 1e-9,
+      f"{_ev_res}")
+check("⚡ EVENT🔒 الحسم = `_resolve_arm` الإنتاجيّ حرفيًّا (تطابق سلوكيّ)",
+      _ev_res == S._resolve_arm([b["h"] for b in _eb], [b["l"] for b in _eb],
+                                [b["c"] for b in _eb], [b["o"] for b in _eb],
+                                1.00, 0.90, 1.20, 0, entry_intrabar=False,
+                                spread=0.0)[:2]
+      and "S._resolve_arm(" in _insp0.getsource(EXR._resolve_from))
+
+# ⑦ E-CROSS يعزل شرط الحجم: يعبر حيث لا يشتعل الزناد
+_flat = [_mk(_t0 + i * 60000, 1.00, 100) for i in range(10)]
+_flat.append(_mk(_t0 + 10 * 60000, 1.20, 100))      # كسرٌ **بلا** قفزة حجم
+check("⚡ EVENT🔒 E-CROSS يعبر حيث لا يشتعل الزناد (يعزل شرط الـ3×)",
+      EX.replay_trigger(_flat, 1.10, S._ignition_signal) is None
+      and (EX.cross_trigger(_flat, 1.10) or (None,))[0] == 10)
+
+# ⑧ E-PSEUDO: أقرب يومٍ هادئ · وعند التساوي **الأسبق** (حتميّ)
+check("⚡ EVENT🔒 الحدث الزائف = أقرب يومٍ هادئ لنفس الرمز",
+      EX.match_pseudo("2026-06-10", ["2026-06-01", "2026-06-09"]) == "2026-06-09")
+check("⚡ EVENT🔒 وعند تساوي البعد يفوز **الأسبق** (حتميّ لا عشوائيّ)",
+      EX.match_pseudo("2026-06-10", ["2026-06-11", "2026-06-09"]) == "2026-06-09"
+      and EX.match_pseudo("2026-06-10", ["2026-06-09", "2026-06-11"]) == "2026-06-09")
+check("⚡ EVENT🔒 بلا يومٍ هادئ ⇒ None (يُستبعَد من المزاوجة ويُعدّ)",
+      EX.match_pseudo("2026-06-10", []) is None)
+
+# ⑨ 🔴 حارس المقياس **حيّ لا ميّت** (درس «السطر الميت»): يمرّر السليم ويُسقط التقسيم
+check("⚡ EVENT🔒 حارس المقياس يمرّر السعر المطابق",
+      EX.scale_mismatch([_mk(0, 1.00, 1), _mk(1, 1.05, 1)], 1.00) is False)
+check("⚡ EVENT🔒 وحارس المقياس **يُسقط** فارق تقسيمٍ 10×",
+      EX.scale_mismatch([_mk(0, 10.0, 1), _mk(1, 10.5, 1)], 1.00) is True)
+check("⚡ EVENT🔒 وبيانات ناقصة ⇒ لا إسقاط بالشكّ وحده",
+      EX.scale_mismatch([], 1.0) is False and EX.scale_mismatch([_mk(0, 1, 1)], 0) is False)
+check("⚡ EVENT🔒 الحارس يُطبَّق على **أوّل** جلسةٍ فقط (وإلّا أُقصي الرابح لارتفاعه)",
+      "sess[_days[0]]" in _insp0.getsource(EXR.run))
+
+# ⑩ استعادة الأرضية من الوقف — **باشتقاقين متقاطعين** لا افتراضٍ صامت
+_piv = 2.00
+_st = round(_piv * (1 - S.CONFIG["STOP_BELOW_LOW_PCT"][1] / 100.0), 4)
+_n, _stp = S.CONFIG["ENTRY_TRANCHES"], S.CONFIG["ENTRY_STEP_PCT"] / 100.0
+_ent = round(_piv * (1 + _stp * (_n - 1) / 2.0), 4)
+_lv = EXR.plan_levels({"entry": _ent, "stop": _st, "t1": _piv * 1.5})
+check("⚡ EVENT🔒 الأرضية تُستعاد من الوقف بمعادلة الإنتاج (خطأ أقل من 1%)",
+      _lv is not None and abs(_lv["pivot"] / _piv - 1.0) < 0.01)
+check("⚡ EVENT🔒 مستوى الكسر = الأرضية ×1.05 (مرجع `_ignition_break_level` الاحتياطيّ)",
+      _lv is not None and abs(_lv["break"] / (_piv * 1.05) - 1.0) < 0.01
+      and "* 1.05" in _insp0.getsource(S._ignition_break_level))
+check("⚡ EVENT🔒 اشتقاقان متعارضان ⇒ **يُرفَض** (لا يُبنى على أرضيةٍ مظنونة)",
+      EXR.plan_levels({"entry": _ent * 1.5, "stop": _st, "t1": _piv * 1.5}) is None)
+
+# ⑪ التركيز (بوّابة ⑤): حصّة أكبر رمزٍ من **الربح**
+_rows = [{"symbol": "A", "net_r": 3.0}, {"symbol": "B", "net_r": 1.0},
+         {"symbol": "C", "net_r": -5.0}]
+check("⚡ EVENT🔒 التركيز = حصّة أكبر رمزٍ من الربح (الخسائر لا تقلب المقام)",
+      abs(EX.concentration(_rows, "symbol") - 0.75) < 1e-9)
+check("⚡ EVENT🔒 بلا ربحٍ موجب ⇒ صفر (لا قسمةٌ على صفر)",
+      EX.concentration([{"symbol": "A", "net_r": -1.0}], "symbol") == 0.0)
+
+# ⑫ الاستدلال: cluster بالرمز · والفرق المزدوج يزاوج بـ(رمز، مفتاح الحدث)
+_cb = EX.cluster_bootstrap_mean([{"symbol": "A", "net_r": 1.0},
+                                 {"symbol": "B", "net_r": 1.0}], n=200)
+check("⚡ EVENT🔒 cluster بالرمز: يعدّ الرموز ويحيط بالمتوسط",
+      _cb["k"] == 2 and _cb["lo"] <= _cb["mean"] <= _cb["hi"])
+_pdf = EX.paired_diff([{"symbol": "A", "pair_key": "k", "net_r": 2.0}],
+                      [{"symbol": "A", "pair_key": "k", "net_r": 0.5}], n=200)
+check("⚡ EVENT🔒 الفرق المزدوج يزاوج بـ(رمز، مفتاح الحدث)",
+      _pdf["n"] == 1 and abs(_pdf["mean"] - 1.5) < 1e-9)
+check("⚡ EVENT🔒 حدثٌ بلا نظيرٍ لا يُزاوَج (لا يُقارَن بغير مثيله)",
+      EX.paired_diff([{"symbol": "A", "pair_key": "k", "net_r": 2.0}],
+                     [{"symbol": "A", "pair_key": "OTHER", "net_r": 0.5}],
+                     n=50)["n"] == 0)
+
+# ⑬ 🔒 عزل: أدوات البحث **لا تُستورَد في الإنتاج**، والمفتاح يُقرأ وقت النداء
+check("⚡ EVENT🔒 معزولة عن الإنتاج (لا تُستورَد في Super_stock)",
+      "event_exec" not in _rp_src)
+check("⚡ EVENT🔒 فاشلة-آمنة بلا مفتاح (لا نتيجةَ مفبركة)",
+      (lambda: (__import__("os").environ.pop("POLYGON_API_KEY", None),
+                EX.has_key() is False)[1])())
+check("⚡ EVENT🔒 المُشغِّل يتوقّف صراحةً بلا مفتاح (خروج غير صفريّ)",
+      'EX.has_key()' in _insp0.getsource(EXR.run) and "return 2" in _insp0.getsource(EXR.run))
+check("⚡ EVENT🔒 ذراع المضارب **ثانويّة** بالتسمية (عتبتها ولّدت الفرضية)",
+      "E-OPERATOR" in _insp0.getsource(EXR.run)
+      and "ثانويّة" in _insp0.getsource(EXR.run))
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

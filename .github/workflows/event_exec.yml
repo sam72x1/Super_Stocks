@@ -1,0 +1,55 @@
+name: T-EVENT-EXEC (timing & execution)
+permissions:
+  contents: read
+  actions: read          # 🕰️ لتحميل لقطة التجميد من تشغيلة freeze (frozen_run_id)
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (مثال 2025) — الحكم يلزمه ثلاث سنوات (2023 · 2024 · 2025)"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "🕰️ معرّف تشغيلة التجميد (كون ARMED point-in-time). التسجيل المسبق ثبّت اللقطة 30598885456"
+        required: false
+        default: ""
+      probe:
+        description: "1 = مِجَسّ تغطيةٍ فقط (يطبع التغطية ولا يقرأ أذرعًا). استعمله أوّلًا — عمق تاريخ شموع الدقيقة لم يُفحَص قطّ"
+        required: false
+        default: ""
+      max_symbols:
+        description: "سقف نوافذ ARMED (0 = بلا حدّ). استعمل ~8 مع المِجَسّ لتوفير النداءات"
+        required: false
+        default: "0"
+jobs:
+  event_exec:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset (point-in-time ARMED universe)
+        if: ${{ github.event.inputs.frozen_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run event/execution arms
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # ⚡ يلزم مفتاح Polygon: شموع الدقيقة التاريخية + NBBO التاريخيّ + الصفقات.
+          #    بلا مفتاح يتوقّف المُشغِّل صراحةً بخروجٍ غير صفريّ (لا نتيجةَ مفبركة).
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          EVENT_EXEC_PROBE: ${{ github.event.inputs.probe }}
+          EVENT_EXEC_MAX_SYMBOLS: ${{ github.event.inputs.max_symbols }}
+          BT_FROZEN_PATH: ${{ github.event.inputs.frozen_run_id != '' && 'frozen_backtest.pkl.gz' || '' }}
+        run: python event_exec_run.py
