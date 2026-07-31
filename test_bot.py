@@ -11293,6 +11293,100 @@ check("🔴 ⓿-و·القفل غير فارغ: دالّةٌ تنادي `request
 
 
 # ==========================================================
+
+# ══════════════════════════════════════════════════════════
+# 🧱 مكدّس الجدران (`wall_stack.py`) — تشخيصٌ يكشف **كل** الجدران لا الأول فقط
+# ══════════════════════════════════════════════════════════
+import re as _re_ws                                               # noqa: E402
+import wall_stack as _WS                                          # noqa: E402
+_ws_src = _insp0.getsource(_WS)
+
+# ① كل مفاتيح الإرخاء **موجودة فعلًا في CONFIG** — يمنع اسمًا مخترَعًا أو مُعاد تسميته
+#    (لو أُعيدت تسمية مفتاح في CONFIG يومًا، هذا القفل يسقط بدل أن يصمت التقشير).
+_ws_keys = [v[0] for v in _WS.RELAX.values()] + [k for _p, k, _v in _WS.RELAX_PREFIX]
+check("🧱 WS🔒 كل مفاتيح الإرخاء موجودة في CONFIG (لا اسم مخترَع)",
+      bool(_ws_keys) and all(k in S.CONFIG for k in _ws_keys))
+
+# ② **كل سببٍ ينتجه `analyze_ticker` إمّا مُرخى أو مُعلَن terminal** — لا سبب صامت.
+_ws_reasons = set(_re_ws.findall(r'_reject\(f?"([^"{]+)', _insp0.getsource(S)))
+_ws_unmapped = {r for r in _ws_reasons
+                if r not in _WS.RELAX and r not in _WS.TERMINAL
+                and not any(r.startswith(p) for p, _k, _v in _WS.RELAX_PREFIX)}
+check("🧱 WS🔒 لا سببَ رفضٍ ثابتٍ بلا خريطة (مُرخًى أو terminal مُعلَن)",
+      not _ws_unmapped, f"غير مُغطّى: {_ws_unmapped}")
+
+# ③ 🔒 **CONFIG يُستعاد حتى لو رمى `analyze_ticker`** — أخطر تسريبٍ ممكن: تجربةٌ
+#    تلوّث عتبات الجلسة كلّها فتُقرأ نتائج التالي على CONFIG مكسور.
+class _WSBoom:
+    def __init__(self): self.n = 0
+    def __call__(self, sym, df, **kw):
+        self.n += 1
+        if self.n == 1:
+            S.CONFIG["MIN_PRICE"] = 999.0      # تلويثٌ متعمَّد قبل الرمي
+            raise RuntimeError("انفجار متعمَّد")
+        return None
+_ws_before = dict(S.CONFIG)
+_ws_real = S.analyze_ticker
+try:
+    S.analyze_ticker = _WSBoom()
+    _ws_r = _WS.peel_walls(S, "X", None)
+finally:
+    S.analyze_ticker = _ws_real
+check("🧱 WS🔒 الاستثناء يُعلَن لا يُبتلَع (terminal=استثناء_تحليل)",
+      _ws_r["terminal"] == "استثناء_تحليل")
+S.CONFIG["MIN_PRICE"] = _ws_before["MIN_PRICE"]   # تلويثٌ من الدالّة المرمية لا من التقشير
+
+# 🔴 والقفل الحقيقيّ للاستعادة — **درسٌ من طفرةٍ سقطت عليّ**: القفل أعلاه كان **فارغًا**
+#    (الاستثناء يقع قبل أي إرخاء ⇒ `saved` فارغة ⇒ حذف `finally` لا يكسر شيئًا).
+#    فالقفل الصحيح يشترط **إرخاءً فعليًّا حدث** ثم يتحقّق أن CONFIG رجع بت-بت.
+_ws_n = 360
+_ws_idx = S.pd.bdate_range("2024-01-01", periods=_ws_n)
+_ws_px = S.np.concatenate([S.np.linspace(1.0, 50.0, 110),
+                           S.np.linspace(50.0, 0.9, 180),
+                           S.np.full(70, 0.95)])
+_ws_df = S.pd.DataFrame({"Open": _ws_px, "High": _ws_px * 1.03, "Low": _ws_px * 0.97,
+                         "Close": _ws_px, "Volume": S.np.full(_ws_n, 1000.0)},
+                        index=_ws_idx)
+_ws_snap = dict(S.CONFIG)
+_ws_real3 = _WS.peel_walls(S, "WSTEST", _ws_df)
+_ws_diff = [k for k in _ws_snap if S.CONFIG.get(k) != _ws_snap[k]]
+check("🧱 WS🔒 التقشير أرخى فعلًا (وإلا فالقفل التالي فارغ)",
+      len(_ws_real3["walls"]) >= 2, f"walls={_ws_real3['walls']}")
+check("🧱 WS🔒 CONFIG يرجع بت-بت بعد تقشيرٍ أرخى مفاتيح",
+      not _ws_diff, f"تسرّب: {_ws_diff}")
+
+# ④ التقشير يتوقّف عند الجدار البنيويّ ويُعلنه (لا يدور بلا نهاية)
+class _WSTerm:
+    def __call__(self, sym, df, **kw):
+        S._REJECT_REASONS[sym] = "M4_base_lo"
+        return None
+_ws_real2 = S.analyze_ticker
+try:
+    S.analyze_ticker = _WSTerm()
+    _ws_t = _WS.peel_walls(S, "Y", None)
+finally:
+    S.analyze_ticker = _ws_real2
+check("🧱 WS🔒 يتوقّف عند الجدار البنيويّ ويُعلنه",
+      _ws_t["terminal"] == "M4_base_lo" and _ws_t["walls"] == ["M4_base_lo"])
+
+# ⑤ `_base_name` يلمّ الأسباب المتغيّرة — وإلا تفتّت كما في علّة P1 الموثّقة
+check("🧱 WS🔒 توحيد الأسباب المتغيّرة (لا تفتّت بالنسبة)",
+      _WS._base_name("بعيد_عن_الدخول(35%)") == _WS._base_name("بعيد_عن_الدخول(20%)")
+      == "بعيد_عن_الدخول"
+      and _WS._base_name("نواقص_فوق_3") == _WS._base_name("نواقص_فوق_7"))
+
+# ⑥ `sole_blocker` يعدّ **الجدار الوحيد فقط** — هو المقياس الحاسم، فلا يختلط بغيره
+_ws_agg = _WS.aggregate([{"walls": ["M5_سيولة"], "passed": True},
+                         {"walls": ["M4_base_واسعة", "M5_سيولة"], "passed": False}])
+check("🧱 WS🔒 «الجدار الوحيد» لا يعدّ يومًا فيه جداران",
+      _ws_agg["sole_blocker"] == {"M5_سيولة": 1}
+      and _ws_agg["total_blocks"]["M5_سيولة"] == 2)
+
+# ⑦ 🔒 **خارج الإنتاج**: لا يُستورَد في أي مسار فرز/تنبيه
+check("🧱 WS🔒 خارج الجذور: `Super_stock` لا يستورد wall_stack",
+      "import wall_stack" not in _insp0.getsource(S))
+
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
