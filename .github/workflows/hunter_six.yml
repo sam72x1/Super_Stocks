@@ -37,6 +37,10 @@ on:
         description: "1 = ذراع تشخيصية: إعادة نداء المِجَسّ بنافذة عمرٍ موسَّعة (تفصل «سقط على عمر التقسيم وحده»)"
         required: false
         default: "0"
+      cliff_arm:
+        description: "⛰️ ذراع T-CLIFF (cliff_prereg.md): c0 الأساس · c1=25% · c2=20% · c3=تراكميّ≥40%/≤20ج · c4=بلا مُرشّح"
+        required: false
+        default: "c0"
 jobs:
   hunter-six:
     runs-on: ubuntu-latest
@@ -66,6 +70,7 @@ jobs:
           HUNTER_SIX_MOMENTS: ${{ github.event.inputs.moments }}
           HUNTER_SIX_FLOAT: ${{ github.event.inputs.floats }}
           HUNTER_SIX_COUNTER: ${{ github.event.inputs.counter }}
+          HUNTER_SIX_CLIFF: ${{ github.event.inputs.cliff_arm }}
           HUNTER_SIX_CSV: hunter_six_walk.csv
         run: python hunter_six_check.py
       - name: Upload walk CSV (أرشيف — الحكم من اللوج)

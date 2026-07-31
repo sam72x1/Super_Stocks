@@ -153,8 +153,18 @@ CONFIG = {
     "MA_GATE_REQUIRED": True,    # M12: السعر على المتوسط الأسي 30/50
     "MA_GATE_MAX_ABOVE_PCT": 15.0,  # أقصى ارتفاع فوق المتوسط الأسي (مرتكز لا طائر)
     "SHORT_GATE_REQUIRED": True, # M13: رفض الشورت العالي (ذكي: يعدّي لو مفقود)
-    "SHORT_GATE_MAX": 40_000,    # حد "الشورت العالي" (≤20ألف مثالي · حتى 40ألف
-                                 # مقبول: فيصل اختار SPPL بـ35ألف · فوقها = نقص B)
+    "SHORT_GATE_MAX": 40_000,    # حد "الشورت العالي" (فوقها = نقص B)
+    # 🔴 **تصحيح سندٍ لا تصحيح رقم (2026-07-31، دفتر المصادر):** كان مكتوبًا هنا
+    # «فيصل اختار **SPPL** بـ35ألف» — **وسندان مزعومان سقطا كلاهما بالتحقّق البصريّ**:
+    # ① `TG_1818` تبيّن أنه **لقطة محادثة مع طرفٍ ثالث** لا كلام فيصل (سقط 2026-07-30).
+    # ② و«SPPL 35ألف» **لا وجود له في الأرشيف**: الرقم في `TG_1963` وسهمُه **`$ERNA`**
+    #    لا SPPL، **ونصّه مقلوب المعنى**: «الشورت **صفر الان من** 35 الف سهم» — أي أن
+    #    35 ألفًا هي الحالة **السيّئة السابقة** وفيصل يمتدح بلوغه **صفرًا**، لا أنها
+    #    حدٌّ مقبول. (فُتحت الصورة بالعين 2026-07-31.)
+    # ⇒ **الرقم 40,000 قرارٌ هندسيّ عندنا بلا سندٍ فيصليّ — يبقى كما هو بقفل C3،
+    #    ويُوسَم `unsourced` في `FAISAL_SOURCE_LEDGER.md`.** وتغييرُه قرارُ مالك.
+    # ⚠️ والعتبة الوحيدة بلسان فيصل «تحت 20 ألف» وهي على **المتاح للاقتراض** لا على
+    #    **حجم FINRA اليومي** الذي تقيسه M13 — **مقياسان مختلفان** (مُدوَّن سلفًا).
     "FLOAT_GATE_REQUIRED": True,  # M14: رفض الفلوت الكبير (أقوى رابط في أسهم فيصل)
     "FLOAT_GATE_MAX": 50_000_000, # حد الفلوت: كل أسهم فيصل تحته (HCAI 163ألف ←
                                   # MWC 26.68م). الفلوت الصغير = ينفجر بسهولة.
@@ -5520,12 +5530,343 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
     return out
 
 
-def build_split_hunter_alert(rows: list, today=None) -> str:
+# ══════════════════════════════════════════════════════════════════════════
+# ⓿-د خطة فيصل **النموذجية** لسهم المقسّم (صورتا $NUWE: IMG_0413 + IMG_0414)
+# ══════════════════════════════════════════════════════════════════════════
+# **المصدر (فُتحت الصورتان بالعين):** خطة فيصل الحيّة على NUWE **قبل انفجاره** والسعر
+# 1.80-1.95 — وهدفُها الأول تحقّق بالحرف (الانفجار بلغ ~3.8 = +100%). نصّه:
+#   IMG_0414: «دق القاع الجمعه **1.80** · عنده فجوه من … · الهدف الاول **شمعه التقسيم
+#              3.81** · هدف ثاني … **شمعة الفجوه الساقطه** · الهدف الثالث … **راس شمعة
+#              الفجوه الساقطه** · اما **يشده جميع** ل … او **يلعب موجات**»
+#   IMG_0413: «هذي اهداف السهم · **الشرط الان ثبات 1.95 · عدم كسر 1.83**»
+#   ومستويات شارته: 3.812 🔵 · 5.216 · 7.368 ⚫ · 2.050 🔴 · 14.010.
+# **الفجوة بين كرتنا وخطّته** كانت: القيمة `_split_day_value` محسوبة عندنا وتُستعمل
+# لشرط «لم يصعد» فقط (لا تُعرض هدفًا) · والفجوة تُعرض **مدًى** لا **شمعةً** · ولا شرط
+# تنفيذيّ مزدوج ولا حدث قاعٍ بتاريخه ولا سيناريوهات.
+# 🔒 **عرضٌ حصرًا**: الشروط الستّة والعضوية والترتيب **بتٌّ بتّ** (قفل توصيف يثبته:
+# نفس المطابقين مجموعةً وترتيبًا مع الإثراء وبدونه) · كل الدوال نقيّة/فاشلة-آمنة →
+# غياب البيانات يُسقط الأسطر **بصمتٍ لا بكذب** · خارج الفرز والجذور نهائيًّا.
+def _plan_px(v) -> str:
+    """صيغة سعر خطة فيصل **بحرفيّة أرقامه**: منزلتان عادةً، وثالثة لو كانت غير صفرية
+    (‏3.81 · 5.216 · 7.368 · 1.95 · 1.83 — كما كتبها ورسمتها شارته). بقية الكرت تبقى
+    على منزلتين كما هي. نقيّة · فاشلة-آمنة → "" (**تعذّر ≠ صفر** · **NaN ليس None**)."""
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return ""
+    if f != f or f in (float("inf"), float("-inf")):     # ⚠️ NaN/لانهاية ليست None
+        return ""
+    s = f"{f:.3f}"
+    return s[:-1] if s.endswith("0") else s
+
+
+def falling_gap_candle(df, price=None, lookback=None):
+    """🕳️ **شمعة الفجوة الساقطة** (فيصل، خطة NUWE `IMG_0414`): «هدف ثاني **شمعة الفجوه
+    الساقطه** · الهدف الثالث **راس شمعة الفجوه الساقطه**» = الشمعة التي **خلّفت** أقرب
+    فجوة هابطة غير مملوءة فوق السعر. **قيمتها** (الإغلاق — «قيمة الشمعة» بمفردات فيصل
+    الموثّقة في `_split_day_value`) هدفٌ، و**رأسها** (High) هدفٌ أعلى وهو حافة الفراغ.
+
+    الكشف **مُفوَّض** لتعريف البيت الواحد `unfilled_gaps_above` (فجوة **هابطة** حصرًا:
+    قمة الشمعة تحت قاع سابقتها · حجمها ≥ `GAP_MIN_PCT` · فوق السعر · غير مملوءة) فلا
+    يتفرّق التعريف بين موضعين؛ ثم نستعيد **الشمعة نفسها** من `ago` **ونُعيد فحص اتجاه
+    الفجوة بأنفسنا** — حارسٌ ضدّ انزياح الفهرس أو تبدّل التعريف: **فجوة صاعدة ⇒ None**.
+
+    يرجع {value, head, gap_bottom, gap_top, date, ago} أو **None**. نقيّة · فاشلة-آمنة
+    · بلا نظر مستقبلي (الفجوة من شموعٍ مضت). عرض/سياق فقط — خارج الفرز والجذور."""
+    try:
+        if df is None or len(df) < 2:
+            return None
+        lb = int(lookback if lookback is not None
+                 else CONFIG["GAP_ABOVE_LOOKBACK_D"])
+        z = (unfilled_gaps_above(df, lb) or {}).get("nearest")
+        if not z:
+            return None
+        n = len(df)
+        i = n - 1 - int(z.get("ago", -1))
+        if not (1 <= i < n):
+            return None
+        h = df["High"].values.astype(float)
+        lo = df["Low"].values.astype(float)
+        c = df["Close"].values.astype(float)
+        head, val, prev_low = float(h[i]), float(c[i]), float(lo[i - 1])
+        # 🔒 اتجاه الفجوة **هابط حصرًا** (رأس الشمعة تحت قاع سابقتها). الصاعدة ليست
+        # «شمعة فجوة ساقطة» فلا تُقبل — وهذا الفحص يملكه هذا الموضع لا المُفوَّض إليه.
+        if not (head > 0 and prev_low > 0 and head < prev_low):
+            return None
+        p = float(price) if price is not None else float(c[-1])
+        if p != p or head <= p:            # لا بدّ أن تكون فوق السعر (هدفًا لا تاريخًا)
+            return None
+        if val != val or head != head or val <= 0:      # ⚠️ NaN ليس None
+            return None
+        try:
+            d = str(pd.Timestamp(df.index[i]).date())
+        except Exception:
+            d = None
+        return {"value": val, "head": head, "gap_bottom": head,
+                "gap_top": prev_low, "date": d, "ago": int(n - 1 - i)}
+    except Exception:
+        return None
+
+
+def bottom_strike(df, lookback=None):
+    """🕳️ **حدث «دقّ القاع» بتاريخه** (فيصل NUWE: «دقّ القاع **الجمعه 1.80**») — كان
+    عندنا شرطًا داخليًّا صامتًا («حافظ 3ج») بلا إعلانٍ للقارئ. = أدنى `Low` داخل **نفس
+    نافذة** `SPLIT_BOTTOM_LOOKBACK` التي يبني عليها `faisal_split_plan` حقلَ `bottom`
+    (فلا يتناقض رقمان في كرتٍ واحد) **مع تاريخه**. يرجع {price, date} أو None.
+    نقيّة · فاشلة-آمنة · عرض/سياق فقط."""
+    try:
+        if df is None or len(df) < 1:
+            return None
+        lb = int(lookback if lookback is not None
+                 else CONFIG["SPLIT_BOTTOM_LOOKBACK"])
+        tail = df["Low"].tail(max(1, lb)).dropna()
+        if len(tail) == 0:
+            return None
+        v = float(tail.min())
+        if v != v or v <= 0:                             # ⚠️ NaN ليس None
+            return None
+        try:
+            d = str(pd.Timestamp(tail.idxmin()).date())
+        except Exception:
+            d = None
+        return {"price": v, "date": d}
+    except Exception:
+        return None
+
+
+def split_target_kind(price, resist=None, clean=None, tol: float = 0.015) -> str:
+    """🎨 لون الهدف بمفتاح فيصل الموثّق (‏⚫ مقاومة تصدّى لها السعر · 🔵 هدفٌ بلا
+    مقاومة = فراغ فوقه يطير له) — **نفس قاعدة `targets_kind` بالفارز حرفيًّا**
+    (`analyze_ticker`: أولوية «النظيف» أولًا، ثم المقاومة، والافتراض 🔵 عند عدم
+    المطابقة، بتسامح 1.5%). أُعيد استعمال القاعدة لا كتابتها من جديد.
+    نقيّة · فاشلة-آمنة → "" عند سعرٍ تالف."""
+    try:
+        v = float(price)
+    except (TypeError, ValueError):
+        return ""
+    if v != v or v <= 0:                                 # ⚠️ NaN ليس None
+        return ""
+
+    def _near(pool):
+        for x in (pool or []):
+            try:
+                b = float(x)
+            except (TypeError, ValueError):
+                continue
+            if b > 0 and abs(v / b - 1.0) <= tol:
+                return True
+        return False
+
+    if _near(clean):
+        return "🔵"
+    return "⚫" if _near(resist) else "🔵"
+
+
+def _model_levels(row, df, price, skip_clean=None):
+    """مجموعتا اللون لخطة النموذج — **من نفس مصادر الفارز**: ⚫ = مقاومات سوينغ
+    ورؤوس الشموع الحمرا (+ تحرر/أهداف الخطة البنيوية المحسوبة سلفًا) · 🔵 = قيعان
+    الفجوات غير المملوءة (فراغ فوقها). ترجع (resist, clean). فاشلة-آمنة → قوائم.
+
+    ⚠️ `skip_clean`: **منعُ دائرية**. رأس شمعة الفجوة الساقطة **هو نفسه** قاع تلك
+    الفجوة، فلو تُرك في مجموعة «النظيف» لصار 🔵 **بحكم التعريف دائمًا** = لونٌ بلا
+    معلومة. وهو في الحقيقة **حافّة** الفراغ لا فراغٌ: السعر تداول عنده وسقط منه
+    (رأس شمعة حمراء = مقاومة بقاعدة فيصل) — ولهذا رسمه فيصل نفسه **أسود** في
+    شارت NUWE (‏7.368 ⚫) بينما رسم شمعة التقسيم **أزرق** (‏3.812 🔵)."""
+    resist, clean = [], []
+    # ⚠️ خطةٌ تالفة (نصّ) ⇒ `.get` = AttributeError **لا يلتقطه** `except (TypeError,
+    # ValueError)` أدناه ⇒ ينهار التنبيه كلّه. نوعٌ غير قاموس = غياب لا انهيار.
+    p = row.get("plan") if isinstance(row, dict) else None
+    p = p if isinstance(p, dict) else {}
+    try:
+        if p.get("liberation"):
+            resist.append(float(p["liberation"]))
+        for t in (p.get("targets") or []):
+            resist.append(float(t.get("price")))
+        if (p.get("gap") or {}).get("bottom"):
+            clean.append(float(p["gap"]["bottom"]))
+    except (TypeError, ValueError):
+        pass
+    if df is not None:
+        try:
+            resist += [float(x) for x in resistance_levels(df, price)]
+        except Exception:
+            pass
+        try:
+            resist += [float(x) for x in _red_candle_heads(df, price)]
+        except Exception:
+            pass
+        try:
+            for z in (unfilled_gaps_above(
+                    df, int(CONFIG["GAP_ABOVE_LOOKBACK_D"])) or {}).get("zones") or []:
+                clean.append(float(z["bottom"]))
+        except Exception:
+            pass
+    if skip_clean:
+        try:
+            k = float(skip_clean)
+            clean = [x for x in clean if not (k > 0 and abs(x / k - 1.0) <= 0.005)]
+        except (TypeError, ValueError):
+            pass
+    return resist, clean
+
+
+def faisal_model_plan(row, df=None, splits=None, resist=None, clean=None):
+    """🥇 **خطة فيصل النموذجية** لصفّ صيّاد المقسّم (تركيبُ عرضٍ من حقولٍ محسوبة سلفًا
+    — صفر معيارٍ جديد وصفر عتبةٍ مخترعة). ترجع:
+      `targets` [{price,label,kind}] — ① **شمعة التقسيم** (`_split_day_value` **حصرًا**:
+        هي مرجع فيصل «اقسم قيمة الشمعة» وتُحسب عندنا سلفًا لشرط «لم يصعد») ② **شمعة
+        الفجوة الساقطة** (قيمتها) ③ **رأسها** — كلّها **فوق السعر** ومرتّبة تصاعديًّا.
+      `hold_above` (=`liberation` الخطة: «ثبات فوق») · `no_break`/`bottom_date`
+      (=`bottom_strike`: «عدم كسر» + «دقّ القاع يوم…») · `top` (أعلى مستوى معروف).
+
+    ⚠️ الهدف ① **لأحداث التقسيم فقط**: صفّ «طرح جديد» لا شمعة تقسيمٍ له، فيُسقَط بدل
+    أن يُلفَّق من تقسيمٍ قديمٍ غير ذي صلة. `resist`/`clean` حاقنان **للاختبار** فقط
+    (نمط `faisal_split_plan` القائم) والإنتاج يشتقّهما من `df`.
+    نقيّة · فاشلة-آمنة (أي عطل ⇒ مفاتيح فارغة) · عرض فقط — خارج الفرز والجذور."""
+    out = {"targets": [], "hold_above": None, "no_break": None,
+           "bottom_date": None, "top": None}
+    try:
+        r = row or {}
+        price = float(r.get("price"))
+        if price != price or price <= 0:                 # ⚠️ NaN ليس None
+            return out
+        # ⚠️ خطةٌ تالفة (نصّ/None) ⇒ `.get` عليها **AttributeError** يهدم التنبيه كلّه
+        # ويضيّع المطابق. نوعٌ غير قاموس = غياب، لا انهيار.
+        p = r.get("plan")
+        p = p if isinstance(p, dict) else {}
+        cand = []
+        # ① شمعة التقسيم — **المصدر الوحيد** `_split_day_value` (قفل مصدر باختبار)
+        if str(r.get("event_kind") or "split") == "split" and df is not None:
+            try:
+                v1 = _split_day_value(df["Close"], splits, df.index[-1])
+            except Exception:
+                v1 = None
+            if v1 is not None and float(v1) == float(v1) and float(v1) > price:
+                cand.append((float(v1), "شمعة التقسيم"))
+        # ②③ شمعة الفجوة الساقطة: قيمتها ثم رأسها
+        gc = falling_gap_candle(df, price) if df is not None else None
+        if gc:
+            if gc["value"] > price:
+                cand.append((gc["value"], "شمعة الفجوة الساقطة"))
+            if gc["head"] > price:
+                cand.append((gc["head"], "رأس شمعة الفجوة الساقطة"))
+        if resist is None or clean is None:
+            _r, _c = _model_levels(r, df, price,
+                                   skip_clean=(gc or {}).get("head"))
+            resist = _r if resist is None else resist
+            clean = _c if clean is None else clean
+        seen = []
+        for v, label in sorted(cand, key=lambda x: x[0]):
+            if any(abs(v / s - 1.0) <= 0.005 for s in seen if s > 0):
+                continue                     # لا تكرار لنفس المستوى بمسمّيين
+            seen.append(v)
+            out["targets"].append({"price": v, "label": label,
+                                   "kind": split_target_kind(v, resist, clean)})
+        out["hold_above"] = (float(p["liberation"])
+                             if p.get("liberation") else None)
+        bs = bottom_strike(df) if df is not None else None
+        if bs:
+            out["no_break"], out["bottom_date"] = bs["price"], bs["date"]
+        elif p.get("bottom"):
+            out["no_break"] = float(p["bottom"])
+        # «القمة الكبرى» = أعلى مستوى معروف — **وتُحسب فقط إذا قام السلّم فعلًا**:
+        # بلا سلّمٍ تصير سطرًا يعيد `ref` المعروض سلفًا مرّتين = ضجيجٌ لا معلومة.
+        tops = [t["price"] for t in out["targets"]]
+        if tops:
+            try:
+                if r.get("ref"):
+                    tops.append(float(r["ref"]))
+            except (TypeError, ValueError):
+                pass
+        out["top"] = max(tops) if tops else None
+    except (TypeError, ValueError, KeyError):
+        return out
+    return out
+
+
+def faisal_model_lines(mp) -> list:
+    """أسطر خطة فيصل النموذجية للكرت (بلا بادئة مسافات — يضيفها المُنادي).
+    ترتيبها ترتيبُ رسالته: **دقّ القاع** ← **الأهداف المسمّاة** ← **السيناريوهان**.
+    غياب أي حقل ⇒ يسقط سطره وحده (فاشل-آمن، لا كذب ولا انهيار)."""
+    out = []
+    try:
+        m = mp or {}
+        if m.get("no_break") and m.get("bottom_date"):
+            out.append(f"🕳️ دقّ القاع يوم {esc(m['bottom_date'])} عند "
+                       f"<b>${_plan_px(m['no_break'])}</b>")
+        for i, t in enumerate(m.get("targets") or [], 1):
+            out.append(f"🎯 الهدف {i} — {esc(t['label'])}: {t.get('kind') or ''} "
+                       f"<b>${_plan_px(t['price'])}</b>")
+        if m.get("top"):
+            out.append(f"🌊 إمّا يشدّه إلى القمة الكبرى <b>${_plan_px(m['top'])}</b> "
+                       "أو يلعب موجات (فيصل: «اما يشده جميع … او يلعب موجات»)")
+        if m.get("targets"):
+            # 🕵️ المايكرو في شارت فيصل (لقطة الطلب/العرض + FSTO(14,3)) **موجود عندنا
+            # بفحص اليد** — ولا يُنقَل للكرت (قرار حجم الرسالة)، فتكفي الإحالة.
+            out.append("🕵️ المايكرو (لقطة الطلب/العرض · FSTO): بأداة فحص اليد")
+    except Exception:
+        return out
+    return out
+
+
+def _hunter_history(syms):
+    """جالب إطارات المطابقين **للعرض** — **نداء دفعة واحد** لكل الرموز (درس
+    `plans/006`: النداء لكل رمز على حدة يخنق). المطابق الكامل نادرٌ بحكم التعريف
+    (صفٌّ أو صفّان) فالتكلفة مهملة. أفضل-جهد: أي عطل ⇒ {} فتسقط أسطر الخطة
+    **بصمتٍ لا بكذب**، ومعها سطر سجلٍّ صريح من المُنادي (يُعلَن ولا يُصمت)."""
+    try:
+        if yf is None or not syms:
+            return {}
+        return download_history(sorted(set(syms))) or {}
+    except Exception:
+        return {}
+
+
+def _hunter_models(rows: list, fetch_hist=None, fetch_splits=None) -> dict:
+    """يبني خطة النموذج لكل صفّ (رمز → خطة). الإطارات بنداءٍ **واحد** والتقسيمات
+    لأصحاب الإطارات فقط. فاشل-آمن مطلق + **إعلانٌ عند النقص** (لا سقف صامت)."""
+    syms = [str(r.get("symbol") or "") for r in (rows or []) if r.get("symbol")]
+    try:
+        fh = fetch_hist if fetch_hist is not None else _hunter_history
+        hist = fh(syms) or {}
+    except Exception:
+        hist = {}
+    if not isinstance(hist, dict):     # جالبٌ يرجع نوعًا آخر ⇒ غياب لا انهيار
+        hist = {}
+    fs = fetch_splits if fetch_splits is not None else _fetch_splits
+    out, missing = {}, []
+    for r in (rows or []):
+        sym = str(r.get("symbol") or "")
+        df = hist.get(sym)
+        if df is None:
+            missing.append(sym)
+        sp = None
+        if df is not None:
+            try:
+                sp = fs(sym)
+            except Exception:
+                sp = None
+        out[sym] = faisal_model_plan(r, df=df, splits=sp)
+    if missing:
+        log("🥇 خطة فيصل النموذجية: تعذّر جلب إطار لـ"
+            f"{len(missing)} رمز ({' · '.join(missing[:6])}) — "
+            "تُعرض الأسطر المتاحة فقط (لا تخمين).")
+    return out
+
+
+def build_split_hunter_alert(rows: list, today=None, fetch_hist=None,
+                             fetch_splits=None) -> str:
     """🪝 تنبيه صيّاد المقسّم (فيصل) — يُرسَل **فقط عند وجود مطابق كامل** (صامت غير ذلك).
-    عرض/تنبيه فقط. المتاح «غير مؤكّد» لو تعذّر ChartExchange (لا يُسقط المطابق)."""
+    عرض/تنبيه فقط. المتاح «غير مؤكّد» لو تعذّر ChartExchange (لا يُسقط المطابق).
+    🥇 **⓿-د:** يضيف **خطة فيصل النموذجية** (سلّم NUWE المسمّى + الشرط المزدوج + حدث
+    القاع + السيناريوهان) من `_hunter_models`. الجالبان محقونان للاختبار بلا شبكة،
+    وغيابُ البيانات يُسقط أسطرها وحدها — **العضوية والترتيب لا يتأثّران بتًّا**."""
     if not rows:
         return ""
     d = today or dt.date.today()
+    # 🥇 ⓿-د: خطة فيصل النموذجية لكل مطابق (إثراء **عرضٍ** بعد الاختيار — لا يمسّ
+    # الصفوف ولا ترتيبها؛ `rows` تُقرأ ولا تُكتب).
+    models = _hunter_models(rows, fetch_hist=fetch_hist, fetch_splits=fetch_splits)
     lines = [f"🪝 <b>صيّاد أسهم التقسيم</b> (منهج فيصل · {len(rows)} مطابق) — {d}",
              "<i>حدث مؤسِّس (قسم أو طرح جديد) وصل قمته÷2 · حافظ القاع 3ج · "
              "فلوت تحت 2م · خالٍ من قروب</i>",
@@ -5567,16 +5908,36 @@ def build_split_hunter_alert(rows: list, today=None) -> str:
                      + (" — ✅ <b>20 تحت 30 تحت 50</b> (شرط فيصل ① بنماذج الهبوط)"
                         if down_al else " (مصطفّة صاعدة)" if up else ""))
         # 🥇 خطة فيصل التنفيذية (بنيتها من رسالته الحيّة على ONCO) — عرض/سياق فقط
-        _p = r.get("plan") or {}
+        _p = r.get("plan")
+        _p = _p if isinstance(_p, dict) else {}      # تالفة ⇒ غياب لا انهيار
+        _mp = models.get(str(r.get("symbol") or "")) or {}
+        _mt = _mp.get("targets") or []
+        # 🔓 **الشرط المزدوج بصيغة فيصل الحرفية** (IMG_0413: «الشرط الان ثبات 1.95 ·
+        # عدم كسر 1.83») — تفعيلٌ وإبطالٌ في سطرٍ واحد بدل «التحرر» وحده. الرقمان
+        # محسوبان سلفًا (تحرّر الخطة + القاع المدقوق) — صفر عتبةٍ جديدة.
         if _p.get("liberation"):
-            lines.append(f"  🔓 التحرر: ثبات فوق <b>${_p['liberation']:.2f}</b> "
-                         "= تحرر السهم (الأمان)")
+            _nb = _mp.get("no_break")
+            _nbt = (f" · عدم كسر <b>${_plan_px(_nb)}</b> (القاع المدقوق)"
+                    if _nb else "")
+            lines.append(f"  🔓 الشرط: ثبات فوق <b>${_plan_px(_p['liberation'])}</b> "
+                         f"(التحرر = الأمان){_nbt}")
         if _p.get("targets"):
-            _t = " · ".join(f"${t['price']:.2f} ({t['src']})" for t in _p["targets"])
-            lines.append(f"  🎯 أهداف بنيوية: {_t}")
+            # 🧹 لا تكرار (درس تدقيق 2026-07-27): مستوًى بنيويٌّ يطابق هدفًا نموذجيًّا
+            # (±1.5%) يُطوى في مسمّاه أدناه بدل أن يُطبَع رقمُه مرّتين.
+            _mtp = [t["price"] for t in _mt]
+            _st = [t for t in _p["targets"]
+                   if not any(m > 0 and abs(t["price"] / m - 1.0) <= 0.015
+                              for m in _mtp)]
+            if _st:
+                _t = " · ".join(f"${t['price']:.2f} ({t['src']})" for t in _st)
+                lines.append(f"  🎯 أهداف بنيوية: {_t}")
         if _p.get("gap"):
             lines.append(f"  ⛽ فجوة سعرية فوقه: ${_p['gap']['bottom']:.2f} "
                          f"→ ${_p['gap']['top']:.2f} (فراغ = هدف)")
+        # 🥇 سلّم فيصل النموذجي المسمّى (شمعة التقسيم ← شمعة الفجوة الساقطة ← رأسها)
+        # + حدث «دقّ القاع» بتاريخه + السيناريوهان — بترتيب رسالته على NUWE.
+        for _ln in faisal_model_lines(_mp):
+            lines.append("  " + _ln)
         if _p.get("sweep") and _p.get("bottom"):
             _z = _p.get("sweep_zone") or {}
             _rng = (f"${_z['shallow']:.2f} → ${_z['deep']:.2f} "

@@ -6561,6 +6561,17 @@ check("🎯 رادار·قفل: الرادار (scan/probe/section) خارج ا�
 
 # 🪝 صيّاد أسهم التقسيم (أداة مستقلة — 5 شروط صارمة + سياق · قرار المستخدم «أساسي موثوق»):
 # الفلوت من ياهو (CE overview مات) · المتاح من CE سياق · الإرسال فقط عند مطابق كامل.
+
+
+def _HUNT_OFF(_syms):
+    """🧪 جالب إطارات معطَّل لتنبيه الصيّاد — **السويّة بلا إنترنت بتصميمها**.
+    ⓿-د أضاف إثراء عرضٍ يجلب إطار كل مطابق (نداء دفعة واحد)؛ فحقنُ هذا الجالب
+    يُبقي الاختبارات القائمة **بلا شبكة** وبنفس أحكامها حرفيًّا، والمسار الحيّ
+    الافتراضي مقفولٌ باختبارٍ **سلوكيّ** مستقلّ أدناه (يثبت أنه ينادي
+    `download_history` فعلًا — لا بقراءة النصّ)."""
+    return {}
+
+
 _sh_rows = S.scan_split_hunter(
     {"SPLT": _sr_df}, today=_sr_today, fetch_splits=lambda s: _sr_splits,
     fetch_float=lambda s: 500_000,                                   # <2م ✅
@@ -6622,14 +6633,16 @@ check("⓿-أ توصيف NUWE (الرابح الحيّ): الشروط الستة
 check("⓿-أ توصيف NUWE: قاعدة «لم يصعد» = افتتاح يوم الحدث 3.81 (رقم فيصل الحرفي)",
       abs(S._event_day_open(_nuwe_df["Open"], _sr_idx[30]) - 3.81) < 0.011
       and S._split_setup_probe(_nuwe_df, _sr_splits, _sr_today)["didnt_rise"] is True)
-_sh_alert = S.build_split_hunter_alert(_sh_rows, today=_sr_today)
+_sh_alert = S.build_split_hunter_alert(_sh_rows, today=_sr_today,
+                                       fetch_hist=_HUNT_OFF)
 check("🪝 صيّاد·تنبيه: يعرض الرمز + ÷2 + المتاح + المتوسطات",
       "صيّاد أسهم التقسيم" in _sh_alert and "SPLT" in _sh_alert
       and "3.45" in _sh_alert and "متاح للاقتراض" in _sh_alert
       and "متوسطات" in _sh_alert)
 check("🪝 صيّاد·تنبيه: المتاح غير المؤكّد يُعرض «غير مؤكّد» (لا يُسقط المطابق)",
       "غير مؤكّد" in S.build_split_hunter_alert(
-          [dict(_sh_rows[0], avail=None, borrow_fee=None)], today=_sr_today))
+          [dict(_sh_rows[0], avail=None, borrow_fee=None)], today=_sr_today,
+          fetch_hist=_HUNT_OFF))
 check("🪝 صيّاد·تنبيه: فارغ بلا مطابق (صامت)", S.build_split_hunter_alert([]) == "")
 # 🥇 خطة فيصل — قفل على أرقامه الحرفية في $ONCO (2026-07-24): السهم رشّحه صيّادنا فحلّله
 # فيصل ودخله. رسالته: «ثبات فوق 92 سنت تحرر السهم · 1.19 راس الشمعه الساقطه هدف · 1.43 هدف
@@ -6664,7 +6677,8 @@ check("🩸 CCHH·النطاق المتعارف عليه −7%..−13% = 1.21 �
       _cchh["sweep_zone"] == {"shallow": 1.21, "deep": 1.13})
 check("🩸 التنبيه يعرض النطاق + الأرجح (لا رقمًا واحدًا)",
       all(x in S.build_split_hunter_alert(
-          [dict(_sh_rows[0], symbol="CCHH", plan=_cchh)], today=_sr_today)
+          [dict(_sh_rows[0], symbol="CCHH", plan=_cchh)], today=_sr_today,
+          fetch_hist=_HUNT_OFF)
           for x in ("1.21", "1.13", "1.17", "المتعارف عليه")))
 # ⚠️ قاعدة JZ (IMG_0289): «لما يحصل قروب يرفع السهم المضارب يلغي الاهداف ويهبط فيه»
 check("⚠️ JZ·القروب يُلغي الأهداف: سطر تحذير عند رفعة قروب مرصودة",
@@ -7248,11 +7262,13 @@ check("🔒 بندا المسح الثاني خارج الجذور (عرض/سي�
                      S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
                      S.analyze_ticker, S.scan_market)))
 check("📉 المسح الثاني·شرط فيصل ① «20 تحت 30 تحت 50» يُعرَض (كنّا نعرض المقلوب فقط)",
-      (lambda mk: ("20 تحت 30 تحت 50" in S.build_split_hunter_alert([mk(1.0, 2.0, 3.0)])
+      (lambda mk: ("20 تحت 30 تحت 50" in S.build_split_hunter_alert(
+                       [mk(1.0, 2.0, 3.0)], fetch_hist=_HUNT_OFF)
                    and "20 تحت 30 تحت 50" not in
-                   S.build_split_hunter_alert([mk(3.0, 2.0, 1.0)])
+                   S.build_split_hunter_alert([mk(3.0, 2.0, 1.0)],
+                                              fetch_hist=_HUNT_OFF)
                    and "مصطفّة صاعدة" in S.build_split_hunter_alert(
-                       [mk(3.0, 2.0, 1.0)])))(
+                       [mk(3.0, 2.0, 1.0)], fetch_hist=_HUNT_OFF)))(
           lambda a, b, c: {"symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0,
                            "float": 1e6, "avail": None, "borrow_fee": None,
                            "ema20": a, "ema30": b, "ema50": c,
@@ -7266,7 +7282,8 @@ check("🔔 المسح الثاني·ذيل «قريبون» يظهر بالتن
               [{"symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0, "float": 1e6,
                 "avail": None, "borrow_fee": None, "ema20": 1.0, "ema30": 1.0,
                 "ema50": 1.0, "split_date": "2026-06-01", "freq": 0,
-                "plan": {}, "bottom_test": None, "split_ma": None}]),
+                "plan": {}, "bottom_test": None, "split_ma": None}],
+              fetch_hist=_HUNT_OFF),
           S.build_split_hunter_alert([]) == "",          # صفر مطابق ⇒ صامت
           S._SPLIT_NEAR_MISS.__setitem__(slice(None), _sv))[1:3])(
           list(S._SPLIT_NEAR_MISS)) == (True, True))
@@ -7591,7 +7608,8 @@ check("🧹 كرت الصيّاد لا يكرّر الـ÷2/سحب السيول�
               "ema50": 3.0, "split_date": "2026-06-01", "freq": 0, "plan": {},
               "bottom_test": None, "split_ma": None,
               "next_bottom": {"next_bottom": 2.9, "drop_pct": 30.0,
-                              "ref_high": 6.0, "first_bottom": 4.2}}])))
+                              "ref_high": 6.0, "first_bottom": 4.2}}],
+              fetch_hist=_HUNT_OFF)))
 check("📏 قفل: split_ma_maturity خارج الجذور (عرض/سياق لا بوّابة فرز)",
       all("split_ma_maturity" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
@@ -7770,7 +7788,8 @@ check("⚠️ JZ·قفل: pump_voids_targets_line خارج الجذور (تحذ�
                      S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
                      S.analyze_ticker)))
 _onco_alert = S.build_split_hunter_alert(
-    [dict(_sh_rows[0], symbol="ONCO", plan=_onco)], today=_sr_today)
+    [dict(_sh_rows[0], symbol="ONCO", plan=_onco)], today=_sr_today,
+    fetch_hist=_HUNT_OFF)
 check("🥇 صيّاد·تنبيه: يعرض خطة فيصل الأربعة (تحرر/أهداف/فجوة/سحب سيولة) + الدخول مع المضارب",
       "التحرر" in _onco_alert and "0.92" in _onco_alert
       and "1.19" in _onco_alert and "رأس شمعة حمراء" in _onco_alert
@@ -7778,13 +7797,234 @@ check("🥇 صيّاد·تنبيه: يعرض خطة فيصل الأربعة (ت�
       and "0.67" in _onco_alert and "سحب سيولة" in _onco_alert
       and "مع المضارب" in _onco_alert)
 _no_plan_alert = S.build_split_hunter_alert(
-    [{k: v for k, v in _sh_rows[0].items() if k != "plan"}], today=_sr_today)
+    [{k: v for k, v in _sh_rows[0].items() if k != "plan"}], today=_sr_today,
+    fetch_hist=_HUNT_OFF)
 check("🥇 صيّاد·تنبيه: صفّ بلا خطة (توافق خلفي) لا ينهار ولا يطبع أسطر الخطة",
-      "🔓 التحرر" not in _no_plan_alert and "سحب سيولة" not in _no_plan_alert
+      # ⚠️ ⓿-د بدّل مسمّى السطر إلى «🔓 الشرط» (شرط فيصل المزدوج) — فحُدِّث الفحص
+      # حتى لا يصير **أعمى** (شرط ينجح بلا معنى)؛ الحكم نفسه لم يُخفَّف.
+      "🔓 الشرط" not in _no_plan_alert and "التحرر" not in _no_plan_alert
+      and "سحب سيولة" not in _no_plan_alert
       and "أهداف بنيوية" not in _no_plan_alert and "SPLT" in _no_plan_alert
       # سطر الدخول يبقى لكن بصياغة لا تشير لمستوى مجهول
       and "مع المضارب</b> — انتظار" in _no_plan_alert
       and "فوق التحرر" not in _no_plan_alert)
+# ══════════════════════════════════════════════════════════════════════════
+# ⓿-د كرت الصيّاد = **خطة فيصل النموذجية** (صورتا $NUWE: IMG_0413 + IMG_0414)
+# ══════════════════════════════════════════════════════════════════════════
+# **تثبيتة توصيفٍ بأرقام فيصل الحرفية** على السهم الذي انفجر فعلًا بعدها بيومين:
+#   «الهدف الاول **شمعه التقسيم 3.81**» · «هدف ثاني … **شمعة الفجوه الساقطه**»
+#   (‏5.216 بشارته) · «الهدف الثالث … **راس شمعة الفجوه الساقطه**» (‏7.368) ·
+#   «**الشرط الان ثبات 1.95 · عدم كسر 1.83**» · «دق القاع الجمعه» · «**اما يشده
+#   جميع** ل … **او يلعب موجات**». وألوان شارته: 3.812 🔵 · 7.368 ⚫.
+# إطارٌ اصطناعي مبنيّ على هندسته: فجوة هابطة غير مملوءة خلّفتها شمعة (رأس 7.368 ·
+# إغلاق 5.216) · تقسيمٌ عكسي بشمعةٍ إغلاقها 3.81 و**افتتاحها 4.20** (مختلفان عمدًا
+# ليكشف الاختبارُ أيَّ مصدرٍ غير `_split_day_value`) · قاعٌ مدقوق 1.83 · تحرّر 1.95.
+_fm_idx = pd.date_range("2026-05-04", periods=60, freq="B")
+_fm_o, _fm_h, _fm_l, _fm_c = (np.zeros(60), np.zeros(60), np.zeros(60), np.zeros(60))
+for _i in range(5):                                   # قمّة ما قبل الفجوة
+    _fm_o[_i], _fm_h[_i], _fm_l[_i], _fm_c[_i] = 9.50, 9.80, 8.20, 8.60
+_fm_o[5], _fm_h[5], _fm_l[5], _fm_c[5] = 7.30, 7.368, 5.10, 5.216   # شمعة الفجوة
+for _i in range(6, 12):
+    _fm_o[_i], _fm_h[_i], _fm_l[_i], _fm_c[_i] = 5.20, 5.30, 4.80, 5.00
+_fm_o[12], _fm_h[12], _fm_l[12], _fm_c[12] = 5.20, 5.22, 4.90, 4.95  # مقاومة 5.22
+for _i in range(13, 30):
+    _fm_o[_i], _fm_h[_i], _fm_l[_i], _fm_c[_i] = 4.70, 4.90, 4.30, 4.50
+_fm_o[30], _fm_h[30], _fm_l[30], _fm_c[30] = 4.20, 4.26, 3.75, 3.81  # يوم التقسيم
+for _k, _v in enumerate([3.70, 3.50, 3.30, 3.10, 2.95, 2.85, 2.75, 2.65, 2.55,
+                         2.45, 2.35, 2.28, 2.22, 2.16, 2.10, 2.06, 2.02, 1.99,
+                         1.96, 1.93, 1.90, 1.88, 1.91, 1.93, 1.90, 1.90, 1.90,
+                         1.90, 1.90]):
+    _i = 31 + _k
+    (_fm_o[_i], _fm_h[_i], _fm_l[_i],
+     _fm_c[_i]) = _v * 1.01, _v * 1.02, _v * 0.985, _v
+_fm_l[20] = 1.50            # قاعٌ **خارج** نافذة `SPLIT_BOTTOM_LOOKBACK` (يكشف النافذة)
+_fm_l[55] = 1.83                                      # 🕳️ «دقّ القاع»
+_fm_h[53] = 1.95                                      # 🔓 التحرر (أقرب مقاومة)
+_fm_df = pd.DataFrame({"Open": _fm_o, "High": _fm_h, "Low": _fm_l, "Close": _fm_c,
+                       "Volume": np.full(60, 5e5)}, index=_fm_idx)
+_fm_splits = pd.Series([0.1], index=[_fm_idx[30]])
+_fm_today = _fm_idx[-1].date()
+_fm_row = {"symbol": "NUWE", "price": 1.90, "half": 2.13, "ref": 4.26,
+           "float": 900_000, "avail": 150_000, "borrow_fee": None,
+           "ema20": 2.0, "ema30": 2.5, "ema50": 3.0, "freq": 1,
+           "split_date": str(_fm_idx[30].date()), "bottom_test": None,
+           "split_ma": None, "next_bottom": None,
+           "plan": {"liberation": 1.95, "bottom": 1.83, "sweep": 1.65,
+                    "sweep_zone": {"shallow": 1.70, "deep": 1.59},
+                    "targets": [{"price": 5.22, "src": "رأس شمعة حمراء"}],
+                    "gap": {"bottom": 7.368, "top": 8.20}}}
+
+
+def _fm_hist(_syms):
+    return {"NUWE": _fm_df}
+
+
+_fm_plan = S.faisal_model_plan(_fm_row, df=_fm_df, splits=_fm_splits)
+check("⓿-د NUWE حرفيًّا: السلّم الثلاثي 3.81 (شمعة التقسيم) · 5.216 · 7.368 (رأسها)",
+      [(round(t["price"], 3), t["label"]) for t in _fm_plan["targets"]]
+      == [(3.81, "شمعة التقسيم"), (5.216, "شمعة الفجوة الساقطة"),
+          (7.368, "رأس شمعة الفجوة الساقطة")])
+check("⓿-د NUWE حرفيًّا: الشرط المزدوج — ثبات 1.95 · عدم كسر 1.83 (بتاريخ دقّ القاع)",
+      _fm_plan["hold_above"] == 1.95 and abs(_fm_plan["no_break"] - 1.83) < 1e-9
+      and _fm_plan["bottom_date"] == str(_fm_idx[55].date())
+      and abs(_fm_plan["top"] - 7.368) < 1e-9)
+# 🔒 **قفل المصدر:** الهدف ① من `_split_day_value` **حصرًا** — لا من افتتاح يوم الحدث
+# (‏4.20 في الإطار) ولا من `half`/`ref`. مصدرٌ آخر ⇒ رقمٌ آخر ⇒ يسقط هذا الفحص.
+check("⓿-د 🔒 قفل المصدر: الهدف ① = `_split_day_value` (3.81) لا الافتتاح (4.20) ولا ÷2",
+      abs(_fm_plan["targets"][0]["price"]
+          - S._split_day_value(_fm_df["Close"], _fm_splits, _fm_df.index[-1])) < 1e-9
+      and not any(abs(t["price"] - v) < 0.01 for t in _fm_plan["targets"]
+                  for v in (4.20, 2.13, 4.26)))
+check("⓿-د 🔒 بلا تقسيمات ⇒ يسقط الهدف ① وحده (لا يُلفَّق) والفجوة الساقطة تبقى",
+      [t["label"] for t in S.faisal_model_plan(
+          _fm_row, df=_fm_df, splits=None)["targets"]]
+      == ["شمعة الفجوة الساقطة", "رأس شمعة الفجوة الساقطة"])
+check("⓿-د 🔒 «طرح جديد» لا شمعة تقسيم له ⇒ الهدف ① يُسقَط (لا تقسيمٌ قديمٌ ملفَّق)",
+      all(t["label"] != "شمعة التقسيم" for t in S.faisal_model_plan(
+          dict(_fm_row, event_kind="offering"), df=_fm_df,
+          splits=_fm_splits)["targets"]))
+# 🎨 التلوين = **قاعدة `targets_kind` بالفارز نفسها** (أولوية النظيف · ثم المقاومة ·
+# والافتراض 🔵). ونتيجتها على NUWE تطابق شارة فيصل: 3.812 🔵 · 7.368 ⚫.
+check("⓿-د 🎨 لون فيصل: شمعة التقسيم 🔵 (نظيفة) · الفجوة الساقطة ورأسها ⚫ (مقاومة)",
+      [t["kind"] for t in _fm_plan["targets"]] == ["🔵", "⚫", "⚫"])
+check("⓿-د 🎨 القاعدة نقيّة: نظيفٌ يسبق المقاومة · وبلا مطابقة 🔵 · وسعرٌ تالف ⇒ ''",
+      S.split_target_kind(5.0, resist=[5.0], clean=[]) == "⚫"
+      and S.split_target_kind(5.0, resist=[5.0], clean=[5.0]) == "🔵"
+      and S.split_target_kind(5.0, resist=[9.0], clean=[]) == "🔵"
+      and S.split_target_kind(5.0, resist=[5.09], clean=[]) == "🔵"   # خارج 1.5%
+      and S.split_target_kind(5.0, resist=[5.07], clean=[]) == "⚫"   # داخلها
+      and S.split_target_kind(None) == "" and S.split_target_kind(float("nan")) == ""
+      and S.split_target_kind(0) == "")
+# 🔒 **منع الدائرية:** رأس شمعة الفجوة **هو نفسه** قاع تلك الفجوة، فلولا استبعاده من
+# مجموعة «النظيف» لصار 🔵 **بحكم التعريف دائمًا** = لونٌ بلا معلومة (وفيصل رسمه ⚫).
+check("⓿-د 🔒 لا دائرية: رأس شمعة الفجوة لا يُلوَّن نظيفًا بفجوته هو",
+      _fm_plan["targets"][2]["kind"] == "⚫"
+      and S._model_levels(_fm_row, _fm_df, 1.90, skip_clean=7.368)[1] == []
+      and 7.368 in S._model_levels(_fm_row, _fm_df, 1.90)[1])
+# 🕳️ شمعة الفجوة الساقطة — نقيّة · فاشلة-آمنة · **هابطة حصرًا**
+_fm_gc = S.falling_gap_candle(_fm_df, 1.90)
+check("⓿-د 🕳️ شمعة الفجوة الساقطة: قيمتها 5.216 · رأسها 7.368 · وتاريخها",
+      _fm_gc["value"] == 5.216 and _fm_gc["head"] == 7.368
+      and _fm_gc["gap_top"] == 8.20 and _fm_gc["date"] == str(_fm_idx[5].date()))
+check("⓿-د 🕳️ متّسقة مع تعريف البيت الواحد (`unfilled_gaps_above`) — لا تعريف موازٍ",
+      (lambda z: abs(_fm_gc["head"] - z["bottom"]) < 0.005
+       and abs(_fm_gc["gap_top"] - z["top"]) < 0.005)(
+          S.unfilled_gaps_above(_fm_df, int(S.CONFIG["GAP_ABOVE_LOOKBACK_D"]))
+          ["nearest"]))
+# ⛔ **طفرة موصوفة:** فجوة **صاعدة** (قاع الشمعة فوق قمة سابقتها) ليست «ساقطة» ⇒ None.
+_fm_up = _fm_df.copy()
+_fm_up.iloc[:, :] = np.column_stack([np.full(60, 1.0), np.full(60, 1.05),
+                                     np.full(60, 0.95), np.full(60, 1.0),
+                                     np.full(60, 5e5)])
+_fm_up.iloc[7, _fm_up.columns.get_loc("Low")] = 3.00      # قفزة فوق (فجوة صاعدة)
+_fm_up.iloc[7, _fm_up.columns.get_loc("High")] = 3.40
+_fm_up.iloc[7, _fm_up.columns.get_loc("Close")] = 3.20
+check("⓿-د ⛔ فجوة **صاعدة** فوق السعر لا تُقبل شمعةَ فجوةٍ ساقطة ⇒ None",
+      S.falling_gap_candle(_fm_up, 1.0) is None)
+# 🔒 حارس الاتجاه **ملكُ هذي الدالّة** لا المُفوَّض إليه: نُزوّدها قسرًا بمنطقة
+# «فجوة» صاعدة (قاعُ الشمعة فوق قمة سابقتها) ⇒ يجب أن ترفضها. حذفُ الحارس يُنجح
+# الفجوة الصاعدة ⇒ يسقط هذا الفحص (طفرة موصوفة في الحزمة).
+_fm_sv_gap = S.unfilled_gaps_above
+try:
+    S.unfilled_gaps_above = (lambda _df, _lb:
+                             {"nearest": {"bottom": 3.40, "top": 3.00, "ago": 52}})
+    _fm_guard = S.falling_gap_candle(_fm_up, 1.0)
+finally:
+    S.unfilled_gaps_above = _fm_sv_gap
+check("⓿-د ⛔ حارس الاتجاه: منطقةٌ صاعدة مُقحَمة قسرًا تُرفَض (لا ثقة عمياء بالمُفوَّض)",
+      _fm_guard is None and S.falling_gap_candle(_fm_df, 1.90) is not None)
+check("⓿-د 🕳️ فاشلة-آمنة: None/إطار قصير/بلا فجوة ⇒ None (لا انهيار)",
+      S.falling_gap_candle(None) is None
+      and S.falling_gap_candle(_fm_df.head(1), 1.0) is None
+      and S.falling_gap_candle(_fm_df, 99.0) is None)      # السعر فوق كل فجوة
+check("⓿-د 🕳️ دقّ القاع: أدنى قاعٍ بنافذة `SPLIT_BOTTOM_LOOKBACK` نفسها + تاريخه",
+      (lambda b: b["price"] == 1.83 and b["date"] == str(_fm_idx[55].date()))(
+          S.bottom_strike(_fm_df))
+      # النافذة **محكومة فعلًا**: قاعٌ أعمق (1.50) خارجها لا يُختطَف، ويظهر بتوسيعها
+      and S.bottom_strike(_fm_df, lookback=60)["price"] == 1.50
+      and abs(S.bottom_strike(_fm_df)["price"]
+              - S.faisal_split_plan(_fm_df, 1.90)["bottom"]) < 0.005
+      and S.bottom_strike(None) is None)
+check("⓿-د 🔢 صيغة أرقام فيصل: منزلتان وثالثة لو غير صفرية · وتعذّر ⇒ '' لا صفر",
+      S._plan_px(3.81) == "3.81" and S._plan_px(5.216) == "5.216"
+      and S._plan_px(7.368) == "7.368" and S._plan_px(1.95) == "1.95"
+      and S._plan_px(100) == "100.00"
+      and S._plan_px(None) == "" and S._plan_px(float("nan")) == ""
+      and S._plan_px("x") == "")
+# 🃏 الكرت الكامل — أرقام فيصل الحرفية كلها + مسمّياته + سيناريوهاه
+_fm_card = S.build_split_hunter_alert([_fm_row], today=_fm_today,
+                                      fetch_hist=_fm_hist,
+                                      fetch_splits=lambda s: _fm_splits)
+check("⓿-د 🃏 الكرت يحمل خطة فيصل بحرفيّتها (3.81 · 5.216 · 7.368 · 1.95 · 1.83)",
+      all(x in _fm_card for x in
+          ("$3.81", "$5.216", "$7.368", "$1.95", "$1.83",
+           "شمعة التقسيم", "شمعة الفجوة الساقطة", "رأس شمعة الفجوة الساقطة",
+           "دقّ القاع يوم", "عدم كسر", "يلعب موجات", "القمة الكبرى")))
+check("⓿-د 🕵️ المايكرو (طلب/عرض · FSTO) **إحالةٌ** لفحص اليد لا نقلٌ للكرت",
+      "بأداة فحص اليد" in _fm_card and "FSTO" in _fm_card
+      and "Bid" not in _fm_card and "K:" not in _fm_card)
+check("⓿-د 🔒 فاشل-آمن صلب: خطةٌ تالفة (نصّ) وجالبٌ يرجع غير قاموس ⇒ لا انهيار",
+      "NUWE" in S.build_split_hunter_alert(
+          [dict(_fm_row, plan="تالف")], today=_fm_today,
+          fetch_hist=lambda s: ["ليست قاموسًا"])
+      and S.faisal_model_plan(dict(_fm_row, plan="تالف"), df=_fm_df,
+                              splits=_fm_splits)["targets"])
+check("⓿-د 🧹 لا تكرار: مستوًى بنيويّ يطابق هدفًا نموذجيًّا (5.22≈5.216) يُطوى بمسمّاه",
+      "أهداف بنيوية" not in _fm_card
+      and "5.22 (رأس شمعة حمراء)" not in _fm_card)
+# 🔒 **قفل التوصيف الحاسم:** الترقية **عرضٌ محض** — المطابقون أنفسهم مجموعةً وترتيبًا.
+def _fm_syms(m):
+    """رموز المطابقين بترتيب ظهورها في التنبيه (ترويسة كل كرت)."""
+    return __import__("re").findall(r"🎯 <b>([A-Z]+)</b>", m)
+
+
+_fm_two = [_fm_row, dict(_fm_row, symbol="ZZZ")]
+check("⓿-د 🔒 قفل العضوية والترتيب: نفس المطابقين مع الإثراء وبدونه (عرضٌ لا اختيار)",
+      _fm_syms(S.build_split_hunter_alert(_fm_two, today=_fm_today,
+                                          fetch_hist=_fm_hist,
+                                          fetch_splits=lambda s: _fm_splits))
+      == _fm_syms(S.build_split_hunter_alert(_fm_two, today=_fm_today,
+                                             fetch_hist=_HUNT_OFF))
+      == ["NUWE", "ZZZ"]
+      and [r["symbol"] for r in _nuwe_scan()] == ["NUWE"]
+      and [r["symbol"] for r in _sh_rows] == ["SPLT"])
+check("⓿-د 🔒 الصفوف تُقرأ ولا تُكتب (الإثراء لا يمسّ صفّ الاختيار)",
+      (lambda before: (S.build_split_hunter_alert(
+          [_fm_row], today=_fm_today, fetch_hist=_fm_hist,
+          fetch_splits=lambda s: _fm_splits),
+          sorted(_fm_row.keys()) == before)[1])(sorted(_fm_row.keys())))
+_fm_blind = S.build_split_hunter_alert([_fm_row], today=_fm_today,
+                                       fetch_hist=_HUNT_OFF)
+check("⓿-د 🔒 فاشل-آمن: تعذّر الإطار ⇒ تسقط أسطر السلّم **بصمت لا بكذب**، والكرت يبقى",
+      "NUWE" in _fm_blind and "شمعة التقسيم" not in _fm_blind
+      and "شمعة الفجوة الساقطة" not in _fm_blind and "5.216" not in _fm_blind
+      and "يلعب موجات" not in _fm_blind
+      # حدث القاع يسقط (تاريخه من الإطار) بينما شقّا الشرط يبقيان من حقول الصفّ
+      # نفسِه (تحرّر الخطة + قاعها) — **الموجود يُعرض والمفقود لا يُخترَع**.
+      and "دقّ القاع يوم" not in _fm_blind
+      and "🔓 الشرط: ثبات فوق <b>$1.95</b>" in _fm_blind
+      and "عدم كسر <b>$1.83</b>" in _fm_blind)
+# 🔌 **قفل «الميزة موصولة» — سلوكيّ لا نصّيّ**: المسار الافتراضي (بلا حقن) ينادي
+# `download_history` فعلًا (درس: القفل النصّي ينجو لو كانت الكلمة في تعليق).
+_fm_sv = (S.download_history, S.yf)
+try:
+    S.download_history = lambda tickers, start_override=None: {"NUWE": _fm_df}
+    S.yf = S.yf or object()
+    _fm_live = S.build_split_hunter_alert([_fm_row], today=_fm_today,
+                                          fetch_splits=lambda s: _fm_splits)
+finally:
+    S.download_history, S.yf = _fm_sv
+check("⓿-د 🔌 المسار الحيّ موصول: الافتراضي يجلب بـ`download_history` (قفل سلوكيّ)",
+      "$5.216" in _fm_live and "شمعة التقسيم" in _fm_live)
+check("⓿-د 🔒 قفل الجذور: كل دوال الخطة النموذجية خارج الاختيار/الفرز/الباكتيست",
+      all(_fn not in _insp0.getsource(_f)
+          for _fn in ("falling_gap_candle", "bottom_strike", "split_target_kind",
+                      "faisal_model_plan", "faisal_model_lines", "_model_levels",
+                      "_hunter_models", "_hunter_history", "_plan_px")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.apply_short_gate, S.apply_float_gate, S.backtest_symbol,
+                     S.analyze_ticker, S.scan_market, S.scan_split_hunter,
+                     S._split_setup_probe, S.faisal_split_plan)))
 # ═══ 🧾 بطاقة فيصل الفرزية (2026-07-27، 5 صور: HTCR·BNKK·MWC·SVRE·MBRX) ═══
 # ① «طرح جديد» حدثًا مؤسِّسًا · ② مرجع ÷2 = **افتتاح** يوم الحدث · ③ Form 4 + «خبر بلا قبول»
 _fc_idx = pd.date_range("2025-06-02", periods=40, freq="B")
@@ -10543,6 +10783,64 @@ check("🔬 SRC🔒 يُصرّح بحدّ الـcutoff الجزئي (`scan_split
 check("🔬 H6/SRC🔒 خارج الجذور: لا تُستورَدان في أي مسار فرز/تنبيه إنتاجي",
       not any(_n in _insp0.getsource(S).replace("hunter_six_check", "")
               for _n in ("import hunter_six_check", "import split_radar_check")))
+
+
+# ══════════════════════════════════════════════════════════
+# 📒 قفل «صفر صفٍّ بلا وسم» — دفتر مصادر القواعد `FAISAL_SOURCE_LEDGER.md`
+# (البند ③ من `OPUS_EXECUTION_PACKAGE.md`)
+#
+# **اللماذا:** سبعُ مصايب خرجت من نسبة رقمٍ لغير مصدره. فالدفتر يحاكم كل عتبة —
+# وقيمتُه كلُّها في أن **لا يمرّ صفٌّ بلا حكم**. صفٌّ بلا وسم = عتبةٌ عادت مجهولةَ
+# السند بصمت، وهو بالضبط الوضع الذي وُلد الدفتر ليمنعه.
+#
+# **نطاق القفل:** أيّ جدولٍ في الملف ترويستُه فيها عمودٌ اسمه «الوسم» — تُفحَص كل
+# صفوفه. غيرها يُتجاهَل (جداول الغائب/حدود الصدق ليست دفترًا).
+# **وحارس التفاهة (anti-tautology):** يشترط عددًا أدنى من الصفوف، وإلا لمرّ القفل
+# على ملفٍ محذوفٍ أو جدولٍ مفرَّغ = «قفلٌ لم يسقط مرّة واحدة» (دستور §5).
+# ══════════════════════════════════════════════════════════
+_LEDGER_TAGS = ("faisal_verbatim", "faisal_inferred", "faisal_adopted",
+                "engineering", "third_party", "unsourced")
+_LEDGER_MIN_ROWS = 90          # §② وحدها 94 صفًّا — الأرضية تكشف الملف المفرَّغ
+
+
+def _ledger_audit(path):
+    """يرجع (عدد الصفوف المفحوصة، قائمة الصفوف المخالفة). فاشل-آمن **مغلق**:
+    ملفٌ غائب/تالف ⇒ (0, []) ⇒ يسقط بحارس العدد لا يمرّ بصمت."""
+    rows, bad, tag_col = 0, [], None
+    try:
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.read().split("\n")
+    except Exception as exc:
+        return 0, [f"تعذّرت القراءة: {exc}"]
+    for ln, raw in enumerate(lines, 1):
+        line = raw.strip()
+        if not line.startswith("|"):
+            tag_col = None                       # خرجنا من الجدول
+            continue
+        cs = [c.strip() for c in line.strip("|").split("|")]
+        if tag_col is None:                      # هذي ترويسة الجدول
+            tag_col = cs.index("الوسم") if "الوسم" in cs else -1
+            continue
+        if tag_col < 0:                          # جدولٌ خارج نطاق الدفتر
+            continue
+        if set("".join(cs)) <= set("-: "):       # فاصل |---|
+            continue
+        rows += 1
+        cell = cs[tag_col] if tag_col < len(cs) else ""
+        hit = [t for t in _LEDGER_TAGS if t in cell]
+        if len(hit) != 1:                        # صفر وسم **أو** أكثر من واحد
+            bad.append(f"سطر {ln}: أوسام={hit} | {line[:80]}")
+    return rows, bad
+
+
+_led_path = _os_hc.path.join(_os_hc.path.dirname(_os_hc.path.abspath(__file__)),
+                             "FAISAL_SOURCE_LEDGER.md")
+_led_rows, _led_bad = _ledger_audit(_led_path)
+check("📒🔒 دفتر المصادر: صفر صفٍّ بلا وسم من الستة "
+      "(وحارس تفاهة: الجدول ليس فارغًا)",
+      not _led_bad and _led_rows >= _LEDGER_MIN_ROWS,
+      f"صفوف={_led_rows} · مخالف={len(_led_bad)}"
+      + (" · " + " ؛ ".join(_led_bad[:3]) if _led_bad else ""))
 
 
 # ==========================================================

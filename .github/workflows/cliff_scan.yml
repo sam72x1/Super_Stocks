@@ -1,0 +1,92 @@
+name: T-CLIFF cost scan (full market, per arm)
+# ⛰️ **المقياس الثاني الإلزاميّ** من `cliff_prereg.md` §③-2: كم مطابقًا كاملًا في اليوم
+# على السوق الكامل لكل ذراعٍ من أذرع مُرشّح الكليف، وكم رمزًا يدخل مرحلة `probe`
+# (كلفة الشبكة التي وُضع الكليف لأجلها). والمقياس الأول (الاسترجاع) في `hunter_six.yml`
+# بنفس الذراع — **ولا يصدر حكمٌ بأحدهما وحده** (‏§③).
+#
+# 🔒 بحث/قياس فقط: بلا تلغرام · بلا حفظ حالة · بلا تغيير عتبةٍ دائم (كل ضبطٍ داخل
+#    `try/finally` ومُتحقَّقٌ منه) · بلا Yahoo للأسعار (لقطة مجمّدة إلزامية؛ Yahoo
+#    للفلوت فقط وهو **مصدر الإنتاج نفسه** وحدُّه «ليس point-in-time» مُعلَن).
+# ⚠️ الجدول يُطبع **في اللوج** (سياسة الشبكة تمنع تنزيل الـartifacts) — الـCSV أرشيف.
+permissions:
+  contents: read
+  actions: read          # لتحميل لقطة التجميد من تشغيلة freeze
+on:
+  workflow_dispatch:
+    inputs:
+      frozen_run_id:
+        description: "run-id لتشغيلة «Freeze backtest dataset» (إلزامي — OHLCV+splits من اللقطة)"
+        required: true
+        default: ""
+      arms:
+        description: "أذرع مفصولة بفاصلة (فارغ = c0,c1,c2,c3,c4) — c0 تُضاف إلزاميًّا كخط أساس"
+        required: false
+        default: ""
+      days:
+        description: "عدد أيام العيّنة (0/فارغ = كل الأيام القابلة للمشي) — أي تخفيف يُعلَن في المُخرَج"
+        required: false
+        default: "0"
+      float_mode:
+        description: "مصدر الفلوت: yahoo (ذاكرة ثم `_yahoo_float` = مصدر الإنتاج) أو cache (بلا شبكة)"
+        required: false
+        default: "yahoo"
+      float_budget:
+        description: "سقف نداءات ياهو الفريدة (نفادُه يُعلَن ويجعل أعداد المطابقين أرضية لا سقفًا)"
+        required: false
+        default: "1500"
+      probe_cap:
+        description: "⚠️ تجاوزٌ بحثيّ مُعلَن لسقف probe (فارغ = سقف الإنتاج 80). يلزم لقياس «حدّ الالتقاط الأعلى» في c4"
+        required: false
+        default: ""
+      equiv_days:
+        description: "أيام قفل تكافؤ الميكانيكا (c0 بالعتبة ⟷ c0 بالتعطيل+الترشيح) — 0 يعطّله ويُعلن"
+        required: false
+        default: "5"
+      warmup:
+        description: "أقلّ عدد شموع ليُقاس الرمز في اليوم (20 = حدّ الإنتاج نفسه؛ أكبر = تشديدٌ مُعلَن)"
+        required: false
+        default: "20"
+jobs:
+  cliff-scan:
+    runs-on: ubuntu-latest
+    # قياسٌ حسابيّ ~5-15د على 3500 رمز × ~141 يومًا × 5 أذرع (مُقاسٌ بمِعيارٍ اصطناعيّ
+    # لا مُخمَّن)، ويُضاف إليه جلبُ الفلوت المذكَّر. 120 هامشٌ لا توقّع.
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Self-test (offline, synthetic) — بوّابة قبل أي رقم حقيقيّ
+        run: python cliff_scan.py --selftest
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run T-CLIFF cost scan
+        env:
+          SCREENER_MODE: BACKTEST
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+          CLIFF_ARMS: ${{ github.event.inputs.arms }}
+          CLIFF_DAYS: ${{ github.event.inputs.days }}
+          CLIFF_FLOAT_MODE: ${{ github.event.inputs.float_mode }}
+          CLIFF_FLOAT_BUDGET: ${{ github.event.inputs.float_budget }}
+          CLIFF_PROBE_CAP: ${{ github.event.inputs.probe_cap }}
+          CLIFF_EQUIV_DAYS: ${{ github.event.inputs.equiv_days }}
+          CLIFF_WARMUP: ${{ github.event.inputs.warmup }}
+          CLIFF_CSV: cliff_scan_cost.csv
+        run: python cliff_scan.py
+      - name: Upload cost CSV (أرشيف — الحكم من اللوج)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cliff-scan-cost
+          path: cliff_scan_cost.csv
+          if-no-files-found: warn
+          retention-days: 90

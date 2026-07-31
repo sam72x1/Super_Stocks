@@ -25,7 +25,19 @@
 
 التشغيل:
   BT_FROZEN_PATH=frozen_backtest.pkl.gz python hunter_six_check.py
+
+⛰️ **أذرع T-CLIFF** (‏2026-07-31، العقد `cliff_prereg.md`): `HUNTER_SIX_CLIFF` يبدّل
+   **مُرشّح الدخول وحده** — c0 الأساس · c1 = 25% · c2 = 20% · c3 = تراكميّ ≥40% خلال
+   ≤20 جلسة · c4 = بلا مُرشّح. **تعريف الأذرع وميكانيكاها في `cliff_scan.py`: مصدرٌ
+   واحدٌ تستورده الأداتان** فلا تتفرّق نسختان (ولو تفرّقتا لصار «الاسترجاع» هنا
+   و«الكلفة» هناك عن ذراعين مختلفتين — أسوأ أنواع البطلان: تجربةٌ تبدو متّسقة وليست).
+   والحكم يبقى من `scan_split_hunter` **نفسها**: `cliff_scan.arm_context` يضبط عتبة
+   الإنتاج داخل `try/finally` (أو يعطّلها **ويقيّد القاموس** في c3/c4) ويُنتج القاموس،
+   **ونداء دالّة الإنتاج يبقى صريحًا في موضعه أدناه** — **والشروط الستة لا تُمَسّ**.
+   وهذي الأداة تقيس **المقياس الأول** (الاسترجاع) فقط، و**لا يصدر حكمٌ بأحد المقياسين
+   وحده** (‏`cliff_prereg.md` §③).
 متغيّرات اختيارية:
+  HUNTER_SIX_CLIFF     ذراع مُرشّح الكليف: c0|c1|c2|c3|c4 (افتراضي c0 = الأساس)
   HUNTER_SIX_SYMBOLS   رموز مفصولة بفاصلة (افتراضي: الثمانية)
   HUNTER_SIX_MOMENTS   "SYM=YYYY-MM-DD,…" لتحديد/تصحيح لحظة فيصل
   HUNTER_SIX_PRE       جلسات قبل اللحظة (افتراضي 40)
@@ -41,6 +53,13 @@ import csv
 import datetime as dt
 import json
 import os
+
+# ⛰️ أذرع T-CLIFF — **مصدر الحقيقة الوحيد** (يحمل التعريف والميكانيكا والمُشغِّل).
+# الاستيراد آمنٌ بلا آثار جانبية: `cliff_scan` يستورد `Super_stock` **داخل الدوال** لا
+# على مستوى الوحدة.
+from cliff_scan import (ARMS, ARM_SPEC, Counters, arm_context, arm_gate,
+                        arm_label, arm_needs_prefilter, make_fetchers)
+from cliff_scan import cfg_override as _cfg
 
 # ── الرموز والثمانية ───────────────────────────────────────────────────────────
 DEFAULT_SYMBOLS = ["AZI", "DSY", "EHGO", "ZCMD", "JZ", "SPRC", "JEM", "NUWE"]
@@ -206,6 +225,13 @@ def run():
     pre_n = int(os.environ.get("HUNTER_SIX_PRE", "40") or 40)
     post_n = int(os.environ.get("HUNTER_SIX_POST", "10") or 10)
     counter = os.environ.get("HUNTER_SIX_COUNTER", "").strip() == "1"
+    # ⛰️ ذراع الكليف — **لا سقوط صامت لذراعٍ افتراضية** عند خطأ الكتابة (لأن التجربة
+    # كلها تُقرأ حينها على ذراعٍ غير التي طُلبت وهي بطلانٌ لا يُلاحَظ).
+    arm = (os.environ.get("HUNTER_SIX_CLIFF", "") or "c0").strip().lower()
+    if arm not in ARM_SPEC:
+        print(f"⛔ HUNTER_SIX_CLIFF غير معروف: {arm!r} — المتاح: {', '.join(ARMS)}")
+        return 2
+    prod_pct = float(C["SPLIT_CLIFF_PCT"])   # 🔒 القيمة الإنتاجية **قبل** أي ضبط
     order = [t.strip() for t in (os.environ.get("HUNTER_SIX_FLOAT_ORDER")
                                  or "yahoo,cache,card").split(",") if t.strip()]
     mom_override = _pairs_env("HUNTER_SIX_MOMENTS")
@@ -238,6 +264,13 @@ def run():
     print(f"النافذة: لحظة فيصل −{pre_n} جلسة … +{post_n} جلسة · "
           f"ترتيب مصادر الفلوت: {order}"
           + (" · ذراع العدّاد مُفعَّلة (عمود موسوم، خارج الحكم)" if counter else ""))
+    print(f"⛰️ ذراع الكليف: **{arm_label(arm, prod_pct)}**"
+          + ("" if arm == "c0" else "  ← ليست الأساس")
+          + f"\n   ↳ ميكانيكا: {ARM_SPEC[arm]['mech']} · الحكم يبقى من "
+          "`scan_split_hunter` نفسها · الشروط الستة بلا مسّ (‏`cliff_prereg.md` §②).")
+    if arm != "c0":
+        print("   ⚠️ **هذا المقياس الأول (الاسترجاع) وحده** — ولا يصدر حكمٌ بلا "
+              "المقياس الثاني (الكلفة على السوق الكامل، `cliff_scan.py`) §③.")
 
     rows_csv = []
     summary = []
@@ -305,41 +338,51 @@ def run():
 
         # ── الجدول ───────────────────────────────────────────────────────────
         print("   " + "-" * 114)
-        print(f"   التاريخ    شموع/{C['MIN_BARS']} السعر ⓿سعر ⓿كليف   ①عمر-التقسيم  "
+        print(f"   التاريخ    شموع/{C['MIN_BARS']} السعر ⓿سعر ⓿كليف[{arm}] ①عمر-التقسيم  "
               "②النطاق/الموقع            ③ثبات ④صعد%      ⑤فلوت ⑥قروب  الحكم")
         logs = {}
         _orig_log = S.log
         first_match, blockers = None, {}
+        cnt = Counters().reset()
         for i in range(start, end + 1):
             D = sess[i]
             dfc = df.iloc[:i + 1]
             sp = _slice_splits(sp_full, D)
-            # (أ) الحكم المرجعيّ = دالّة الإنتاج نفسها (بلا شبكة: جالبات محقونة)
-            S.log = lambda m, _b=logs: _b.__setitem__(str(m), _b.get(str(m), 0) + 1)
-            try:
-                auth_rows = S.scan_split_hunter(
-                    {sym: dfc}, today=D,
-                    fetch_splits=lambda s, _sp=sp: _sp,
-                    fetch_float=lambda s, _f=flt: _f,
-                    fetch_borrow=lambda s: None,
-                    fetch_pump=S.group_pump_scar,
-                    fetch_offering=lambda s, today=None: None)
-            except Exception as e:
-                auth_rows = None
-                logs[f"استثناء scan_split_hunter: {type(e).__name__}"] = 1
-            finally:
-                S.log = _orig_log
-            auth = bool(auth_rows)
-
-            # (ب) التشخيص — من دوال الإنتاج نفسها + هوامش (بيانات لا قرار)
+            # (أ) بوّابة الذراع — تُحسب **قبل** النداء لأن أذرع الترشيح الخارجيّ (c3)
+            #     تحتاجها لبناء `prefilter`. المقياس نفسه المستعمَل في `cliff_scan.py`.
             c = dfc["Close"].values.astype(float)
             price = float(c[-1])
             px_ok = C["SPLIT_RADAR_PRICE_MIN"] <= price <= C["SPLIT_RADAR_PRICE_MAX"]
             look = min(int(C["SPLIT_LOOKBACK_DAYS"]), len(c) - 1)
-            _ratios = [c[-k] / c[-k - 1] - 1.0
-                       for k in range(1, look + 1) if c[-k - 1] > 0]
-            cliff = min(_ratios) if _ratios else 0.0
-            cliff_ok = cliff <= -C["SPLIT_CLIFF_PCT"] / 100.0
+            g = arm_gate(arm, list(c), look, prod_pct)
+            cliff, cliff_ok = g["metric"], bool(g["ok"])
+
+            # (ب) الحكم المرجعيّ = دالّة الإنتاج نفسها داخل سياق الذراع
+            #     (‏`arm_context` يضبط العتبة ويعيدها · بلا شبكة: جالبات محقونة)
+            S.log = lambda m, _b=logs: _b.__setitem__(str(m), _b.get(str(m), 0) + 1)
+            cnt.reset()
+            fx = make_fetchers(lambda s, _sp=sp: _sp, lambda s, _f=flt: _f, cnt,
+                               S.group_pump_scar)
+            try:
+                # `arm_context` يضبط عتبة الإنتاج (ويقيّد القاموس في c3/c4) ثم يعيدها؛
+                # **والنداء صريحٌ هنا** لا مخبَّأ خلف طبقة — فالحكم يُقرأ من موضعه.
+                with arm_context(S, arm, {sym: dfc}, prod_pct,
+                                 prefilter=(({sym} if cliff_ok else set())
+                                            if arm_needs_prefilter(arm) else None)) as _h:
+                    auth_rows = S.scan_split_hunter(_h, today=D, **fx)
+            except Exception as e:
+                auth_rows = None
+                logs[f"استثناء الذراع[{arm}]: {type(e).__name__}: {e}"] = 1
+            finally:
+                S.log = _orig_log
+            auth = bool(auth_rows)
+            # 🔒 قفل الذراع من **داخل** الإنتاج: `fetch_splits` تُنادى مرّة لكل رمزٍ
+            #    اجتاز مُرشّح الدخول ⇒ `probe==1` ⟺ (السعر ✅ و الذراع ✅). أي انزلاقٍ
+            #    في الميكانيكا (عتبة لم تُضبَط · قاموس لم يُقيَّد) يظهر هنا فورًا.
+            gate_seen = cnt.get("probe", 0) > 0
+            gate_conflict = gate_seen != bool(px_ok and cliff_ok and len(c) >= 20)
+
+            # (ج) التشخيص — من دوال الإنتاج نفسها + هوامش (بيانات لا قرار)
             pr = S._split_setup_probe(dfc, sp, D)
             revs = _rev_splits(sp, D)
             age = (D - revs[-1][0]).days if revs else None
@@ -398,22 +441,22 @@ def run():
             # `MIN_BARS` ليست بوّابة في الصيّاد (يكتفي بـ20) — تُطبع للمقارنة مع
             # مسار التحليل الذي يشترطها، ويُوسَم ما دونها بدل أن يمرّ بلا ملاحظة.
             bars_s = f"{len(dfc)}" + ("" if len(dfc) >= C["MIN_BARS"] else "⚠")
+            # «تعذّر القياس» يُطبع «—» لا صفرًا (تعذّر ≠ صفر)
+            cliff_s = f"{cliff*100:6.1f}%" if cliff is not None else "     —"
             print(f"   {D}  {bars_s:>5s}  {price:6.2f}  {_fchk(px_ok)}   "
-                  f"{cliff*100:6.1f}%{_fchk(cliff_ok)}  {age_s:>13s}  {band_s:<26s} "
+                  f"{cliff_s}{_fchk(cliff_ok)}  {age_s:>13s}  {band_s:<26s} "
                   f"{_fchk(held_ok2) if held_ok2 is not None else UNK}    "
                   f"{rose_s:>9s}{_fchk(rise_ok) if rise_ok is not None else UNK} "
                   f"{_fchk(flt_ok)}    {pump_s:<12s} "
                   f"{'🟢مطابق-كامل' if auth else NO + (' [' + blk + ']' if blk else '')}"
-                  f"{conflict}")
+                  f"{conflict}{'  ⚠️بوّابة-الذراع' if gate_conflict else ''}")
 
             ctr = ""
             if counter and pr is None and revs:
-                old = C["SPLIT_LOOKBACK_DAYS"]
-                try:
-                    C["SPLIT_LOOKBACK_DAYS"] = 100000
+                # الاستعادة عبر `cfg_override` (تتحقّق منها لا تفترضها) — نفس المدير
+                # المستعمَل لأذرع الكليف، فلا يبقى ضبطٌ يدويّ بلا حارس.
+                with _cfg(C, "SPLIT_LOOKBACK_DAYS", 100000):
                     pr2 = S._split_setup_probe(dfc, sp, D)
-                finally:
-                    C["SPLIT_LOOKBACK_DAYS"] = old
                 if pr2:
                     lo2, hi2 = _band(S, pr2["half"])
                     ctr = (f"عدّاد(نافذة∞): ①يمرّ · ÷2={pr2['half']:.2f} "
@@ -427,7 +470,12 @@ def run():
             rows_csv.append({
                 "symbol": sym, "date": D.isoformat(), "bars": len(dfc),
                 "price": round(price, 4), "price_ok": px_ok,
-                "cliff_pct": round(cliff * 100, 2), "cliff_ok": cliff_ok,
+                # ⛰️ الذراع + مقياسها (‏«—» = تعذّر القياس لا صفر)
+                "cliff_arm": arm, "cliff_unit": g["unit"],
+                "cliff_thr_pct": (round(-g["thr"] * 100, 2)
+                                  if g["thr"] is not None else ""),
+                "cliff_pct": (round(cliff * 100, 2) if cliff is not None else ""),
+                "cliff_ok": cliff_ok, "arm_gate_conflict": gate_conflict,
                 "split_date": revs[-1][0].isoformat() if revs else "",
                 "split_age_days": age, "lookback": C["SPLIT_LOOKBACK_DAYS"],
                 # `freq` عرضيّ فقط، ويُطبع لأنه **شاهد قصّ التقسيمات**: `_split_frequency`
@@ -476,6 +524,15 @@ def run():
     print(f"\n🔒 قفل «لا إعادة تنفيذ»: تعارض التشخيص مع الحكم المرجعيّ في "
           f"{n_conf} من {len(rows_csv)} صفًّا"
           + ("  ✅" if n_conf == 0 else "  ⚠️ **راجع** — التشخيص لا يطابق الإنتاج"))
+    n_gate = sum(1 for r in rows_csv if r.get("arm_gate_conflict"))
+    print(f"🔒 قفل بوّابة الذراع ({arm}) من **داخل** الإنتاج (عدّاد `fetch_splits`): "
+          f"اختلاف في {n_gate} من {len(rows_csv)} صفًّا"
+          + ("  ✅ ⇒ الذراع مُطبَّقة فعلًا" if n_gate == 0
+             else "  ⚠️ **راجع** — الميكانيكا لم تُطبَّق كما يُظنّ"))
+    still = float(C["SPLIT_CLIFF_PCT"])
+    print(f"🔒 CONFIG['SPLIT_CLIFF_PCT'] بعد المشي = {still:g} "
+          + ("(= الإنتاجية ✅ لا تلوّث)" if still == prod_pct
+             else f"⚠️ **تلوّث!** المتوقّع {prod_pct:g}"))
     out = os.environ.get("HUNTER_SIX_CSV", "").strip()
     if out and rows_csv:
         try:
@@ -486,10 +543,14 @@ def run():
             print(f"💾 CSV: {out} ({len(rows_csv)} صف)")
         except Exception as e:
             print(f"⚠️ تعذّر كتابة CSV: {e}")
+    print(f"\n⛰️ الذراع المُشغَّلة: {arm_label(arm, prod_pct)}"
+          + ("" if arm == "c0" else
+             "\n   ⚠️ نتيجةٌ **بذراعٍ غير الأساس** — تُقرأ مع كلفة `cliff_scan.py` "
+             "لنفس الذراع، ولا تُقتبَس وحدها (‏`cliff_prereg.md` §③/§④)."))
     print("\nℹ️ حدود الصدق (من التسجيل المسبق §⑥): الفلوت **ليس point-in-time** "
           "ومصدره مطبوع · قناة الطرح الجديد معطَّلة · الشمعة اليومية لا تشمل الافتر · "
           "رمزٌ خارج تغطية اللقطة مُعلَن. عرض/تشخيص — صفر مسّ حالة.")
-    return 0
+    return 0 if (n_gate == 0 and still == prod_pct) else 1
 
 
 if __name__ == "__main__":
