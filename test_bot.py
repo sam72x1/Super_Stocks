@@ -12067,6 +12067,59 @@ check("🩺 PROBE🔒 بلا مفتاح ⇒ خروجٌ غير صفريّ ولا 
 check("🩺 PROBE🔒 يُعلن أنه مسقوفٌ بالصفحات (حدٌّ أدنى لا إحصاء)",
       "حدٌّ أدنى" in _insp0.getsource(DP.run))
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 🛡️ درع صيّاد المقسّم — **بصماتٌ مثبَّتة، لا فحصٌ يدويّ**
+#    السبب (قلق المالك 2026-07-31): الصيّاد هو **الشيء الوحيد الذي أصاب** (‏NUWE قبل
+#    انفجاره بيومين)، وكلُّ تجاربنا الأخرى تدور حوله دون أن تمسّه. وكان التحقّق من
+#    سلامته يجري **يدويًّا بعد كلّ عمل** — أي أنه قد يُكسَر **بصمت** بين فحصَين.
+#    الآن: بصمة AST لكلّ دالّة قرار مثبَّتةٌ رقمًا؛ أيّ تغيير — ولو حرفًا — **يُسقط
+#    السويّة** ويُجبر على قرارٍ صريح بدل انحرافٍ صامت.
+#    ⚠️ **وتغييرُ الرقم هنا ليس إصلاحًا للفشل** — هو **إقرارٌ بأنك غيّرت الصيّاد عمدًا**.
+# ═══════════════════════════════════════════════════════════════════════════
+_HUNTER_PINS = {
+    "_post_split_high": "353d5aa6565d37ce",
+    "_split_day_value": "b5f53cfc6693f26c",
+    "_split_frequency": "6e8590474f4cb291",
+    "_split_setup_probe": "117eaf66511c12cf",
+    "_yahoo_float": "ff6e63f2f6198ad1",
+    "bottom_strike": "726f94595be226f1",
+    "build_split_hunter_alert": "775d2241a2f63e5f",
+    "build_split_radar_section": "e8a02f05df9511ef",
+    "faisal_model_plan": "dee70734cacfaa67",
+    "faisal_split_plan": "350f26d48509f57d",
+    "falling_gap_candle": "f4074bb2c193e4d9",
+    "group_pump_scar": "604d154f1be734f3",
+    "half_down_target": "cc65a9195e10cfe0",
+    "next_bottom_by_own_drop": "c96d632018d5b8ed",
+    "scan_split_hunter": "caad69f25763d7b7",
+    "scan_split_radar": "83d07c387db55820",
+    "short_targets_report": "ef12710917c8cbd0",
+    "split_ma_maturity": "3678007d018c99f5",
+    "split_radar_ready": "709553816d0487fb",
+}
+_h_ast, _h_hash = __import__("ast"), __import__("hashlib")
+_h_src = open("Super_stock.py", encoding="utf-8").read()
+_h_now = {n.name: _h_hash.sha256(_h_ast.dump(n).encode()).hexdigest()[:16]
+          for n in _h_ast.walk(_h_ast.parse(_h_src))
+          if isinstance(n, (_h_ast.FunctionDef, _h_ast.AsyncFunctionDef))
+          and n.name in _HUNTER_PINS}
+_h_missing = sorted(set(_HUNTER_PINS) - set(_h_now))
+_h_changed = sorted(k for k, v in _HUNTER_PINS.items()
+                    if k in _h_now and _h_now[k] != v)
+check("🛡️ الدرع: كلُّ دوالّ الصيّاد **موجودة** (لا حذف صامت)",
+      not _h_missing, f"مفقودة={_h_missing}")
+check("🛡️ الدرع: كلُّ دوالّ الصيّاد **مطابقة لبصمتها المثبَّتة** (لا تغيير صامت)",
+      not _h_changed, f"تغيّرت={_h_changed}")
+check("🛡️ الدرع يغطّي 19 دالّة (لا يتقلّص بصمت)", len(_HUNTER_PINS) == 19)
+# 🔴 والدرعُ نفسه يجب أن يكون قادرًا على السقوط — وإلّا فهو زينة:
+check("🛡️ الدرع **يسقط فعلًا** لو تغيّرت بصمة (شاهد ضبط: بصمةٌ مزيّفة تُكشَف)",
+      "scan_split_hunter" in _h_now
+      and _h_now["scan_split_hunter"] != "0" * 16)
+# 🔒 وعزلٌ بنيويّ: الصيّاد **لا يستورد** أدوات البحث إطلاقًا
+_sh_src = open("split_hunter.py", encoding="utf-8").read()
+check("🛡️ الصيّاد معزولٌ عن أدوات البحث (لا replay10 ولا event_exec)",
+      "replay10" not in _sh_src and "event_exec" not in _sh_src)
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
