@@ -11996,6 +11996,77 @@ check("🎚️ MANAGE🔒 المعيار الرباعيّ يُطبع بحدود�
       "0.15" in _insp0.getsource(EXR.run) and "-0.10" in _insp0.getsource(EXR.run)
       and "CVaR5%" in _insp0.getsource(EXR.run))
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 🔬 T-NEARMISS + T-LABEL-AUDIT — أقفال (`nearmiss_label_prereg.md`)
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ① 🔴 الذراعان لا يفترقان إلا في **جانب الخطّ** — وشرطُ الحجم من دالّة الإنتاج
+#    ⚠️ الشموع السابقة **أخفض** عمدًا: زنادُ الإنتاج يشترط **اتجاهًا صاعدًا** داخل
+#    النافذة (آخر إغلاق > أوّلها)، والذراعان يرثانه كما سُجِّل («نفس شروط الحجم
+#    والاتجاه»). وعيّنةٌ مسطّحة كانت تُسقط الذراعين معًا — عيبُ عيّنةٍ لا عيبُ كود.
+_nb = [_mk(_t0 + i * 60000, 0.95, 100) for i in range(10)]
+_cr = EX.band_triggers(_nb + [_mk(_t0 + 10 * 60000, 1.005, 900)], 1.00,
+                       S._ignition_signal)
+_ms = EX.band_triggers(_nb + [_mk(_t0 + 10 * 60000, 0.995, 900)], 1.00,
+                       S._ignition_signal)
+check("🔬 NEAR🔒 العابر بشعرة يُصنَّف `cross` لا `miss`",
+      "cross" in _cr and "miss" not in _cr and _cr["cross"][0] == 10, f"{_cr}")
+check("🔬 NEAR🔒 والواقف تحته بشعرة يُصنَّف `miss` لا `cross`",
+      "miss" in _ms and "cross" not in _ms and _ms["miss"][0] == 10, f"{_ms}")
+check("🔬 NEAR🔒 خارج النطاق ‏±1% لا يُصنَّف في أيّ ذراع (لا توسيعَ صامت)",
+      EX.band_triggers(_nb + [_mk(_t0 + 10 * 60000, 1.20, 900)], 1.00,
+                       S._ignition_signal) == {}
+      and EX.band_triggers(_nb + [_mk(_t0 + 10 * 60000, 0.80, 900)], 1.00,
+                           S._ignition_signal) == {})
+check("🔬 NEAR🔒 بلا قفزة حجمٍ لا ذراع (شرط الإنتاج يحكم الاثنين)",
+      EX.band_triggers(_nb + [_mk(_t0 + 10 * 60000, 1.005, 100)], 1.00,
+                       S._ignition_signal) == {})
+check("🔬 NEAR🔒 لا إعادةَ تطبيقٍ للشرط: تُنادى `signal_fn` بمستوًى مخفَّض",
+      "signal_fn(win, probe" in _insp0.getsource(EX.band_triggers)
+      and "probe = float(break_level) * float(lo)" in _insp0.getsource(EX.band_triggers))
+check("🔬 NEAR🔒 المُشغِّل يمرّر دالّة الإنتاج وعتبتها للذراعين",
+      "EX.band_triggers(sb, brk, S._ignition_signal" in _insp0.getsource(EXR.run))
+
+# ② 🔬 تدقيق الوسم — الظهور والاختفاء **في الاتجاهين** (لا أحاديّ)
+_rg = [{"h": 1.20, "l": 0.99, "v": 10}]                    # نظاميّ: +20%
+_ex = _rg + [{"h": 1.60, "l": 1.10, "v": 5}]               # ممتدّ: +60%
+_L = EX.relabel(_ex, _rg, 1.00, 0.90)
+check("🔬 LABEL🔒 عتبةٌ تُبلَغ بالممتدّ وحده تُوسَم «ظهرت»",
+      _L["flips"][50.0]["appeared"] is True
+      and _L["flips"][50.0]["vanished"] is False
+      and abs(_L["ext"]["pre"] - 60.0) < 1e-9 and abs(_L["reg"]["pre"] - 20.0) < 1e-9)
+# اختفاء: الوقف يُضرَب بالممتدّ **قبل** بلوغ العتبة، ولا يُضرَب نظاميًّا
+_rg2 = [{"h": 1.60, "l": 0.95, "v": 10}]
+_ex2 = [{"h": 1.00, "l": 0.80, "v": 5}] + _rg2
+_L2 = EX.relabel(_ex2, _rg2, 1.00, 0.90)
+check("🔬 LABEL🔒 والوقف الأبكر بالممتدّ يُوسَم «اختفت» (الأثر ذو اتجاهين)",
+      _L2["flips"][50.0]["vanished"] is True
+      and _L2["flips"][50.0]["appeared"] is False
+      and _L2["stop_earlier"] is True, f"{_L2}")
+check("🔬 LABEL🔒 «خرجنا ثم انفجر» يُقاس **بعد** الوقف لا قبله",
+      EX.relabel([{"h": 1.05, "l": 0.85, "v": 1}, {"h": 3.00, "l": 1.00, "v": 1}],
+                 [{"h": 1.05, "l": 0.85, "v": 1}], 1.00, 0.90)["ext"]["post"] == 200.0)
+check("🔬 LABEL🔒 حجمُ الدقيقة التي بلغت الذروة يُرجَع (الوسم ليس ربحًا)",
+      _L["ext"]["peak_vol"] == 5 and "peak_vol" in _insp0.getsource(EX.relabel))
+check("🔬 LABEL🔒 بيانات ناقصة ⇒ None (لا وسمَ مفبرك)",
+      EX.relabel([], [], 1.0, 0.9) is None and EX.relabel([{"h": 1}], [], 0, 0.9) is None)
+check("🔬 LABEL🔒 المُشغِّل يقارن **كلّ** الدقائق بالنظامية (لا نفسها مرّتين)",
+      "EX.relabel(bars, flat," in _insp0.getsource(EXR.run))
+check("🔬 LABEL🔒 المعيار الثنائيّ يُطبع بحدوده المسجَّلة (10% · 3%)",
+      "ماديّ (≥10%)" in _insp0.getsource(EXR.run)
+      and "هامشيّ (<3%)" in _insp0.getsource(EXR.run))
+
+# ③ 🩺 مِجَسّ الكون المشطوب — فاشلٌ آمن، ولا يدّعي جوابًا بلا مفتاح
+import delisted_probe as DP
+check("🩺 PROBE🔒 يسأل عن `active=false` صراحةً (وهو محلّ المشطوبة)",
+      'active="false"' in _insp0.getsource(DP.run)
+      and 'active="true"' in _insp0.getsource(DP.run))
+check("🩺 PROBE🔒 بلا مفتاح ⇒ خروجٌ غير صفريّ ولا جواب مفبرك",
+      (lambda: (__import__("os").environ.pop("POLYGON_API_KEY", None),
+                DP.run())[1])() == 2)
+check("🩺 PROBE🔒 يُعلن أنه مسقوفٌ بالصفحات (حدٌّ أدنى لا إحصاء)",
+      "حدٌّ أدنى" in _insp0.getsource(DP.run))
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

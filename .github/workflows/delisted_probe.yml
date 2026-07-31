@@ -1,0 +1,24 @@
+name: Delisted-universe probe (survivorship)
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Probe historical universe (does it include delisted?)
+        env:
+          # 🩺 مِجَسّ جدوى: هل نستطيع بناء كونٍ point-in-time يشمل المشطوبة؟
+          #    انحياز البقاء أعرضُ حدود الصدق عندنا — وهذا يفحص إمكان رفعه.
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        run: python delisted_probe.py

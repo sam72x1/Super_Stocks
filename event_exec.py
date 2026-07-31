@@ -102,6 +102,82 @@ def cross_trigger(session_bars, break_level, window=RADAR_WINDOW,
     return None
 
 
+def band_triggers(session_bars, break_level, signal_fn, vol_mult=3.0,
+                  lo=0.99, hi=1.01, window=RADAR_WINDOW, min_bars=MIN_BARS):
+    """🔬 **‏T-NEARMISS** — أوّل دقيقةٍ في **كلّ** من الذراعين داخل الجلسة.
+
+    الذراعان لا يفترقان إلا في **أيّ جانبٍ من الخطّ** وقع الإغلاق:
+      • **`cross`** ⇒ الإغلاق في `(break, break×hi]` — **عبر بشعرة**.
+      • **`miss`**  ⇒ الإغلاق في `[break×lo, break]` — **وقف تحته بشعرة**.
+
+    🔑 **وشرطا الحجم والاتجاه يُقيَّمان بدالّة الإنتاج نفسها** (`signal_fn` مُحقَنة)
+    بمستوًى **مُخفَّض** `break×lo` — فتشترك الذراعان في الحجم والاتجاه والوقت والسهم
+    واليوم، **ولا نُعيد تطبيق أيّ شرطٍ يدويًّا**.
+
+    يرجّع `{"cross": (فهرس، إشارة)، "miss": (…)}` بما وُجد. دالّة **نقيّة**."""
+    out = {}
+    if not session_bars or not break_level or break_level <= 0:
+        return out
+    probe = float(break_level) * float(lo)
+    for i in range(len(session_bars)):
+        if len(out) == 2:
+            break
+        win = session_bars[max(0, i - window + 1): i + 1]
+        if len(win) < min_bars:
+            continue
+        sig = signal_fn(win, probe, vol_mult=vol_mult)
+        if not sig:
+            continue
+        try:
+            c = float(session_bars[i]["c"])
+        except (TypeError, ValueError, KeyError):
+            continue
+        if break_level < c <= float(break_level) * float(hi):
+            out.setdefault("cross", (i, sig))
+        elif float(break_level) * float(lo) <= c <= break_level:
+            out.setdefault("miss", (i, sig))
+    return out
+
+
+def relabel(bars_all, bars_reg, entry, stop, thresholds=(30.0, 50.0, 100.0)):
+    """🔬 **‏T-LABEL-AUDIT** — الوسم على **الجلسة النظامية** مقابل **كلّ الدقائق**.
+
+    لكلّ مجموعةٍ يُحسب: أقصى صعودٍ **قبل** ضرب الوقف · وأقصى صعود **بعده** (‏«خرجنا
+    ثم انفجر») · وفهرسُ الوقف (ليُقارَن تقديمُه). ثم تُقارَن العتبات.
+
+    ⚠️ **الوسم ليس ربحًا:** بلوغُ عتبةٍ في الافتر لا يعني إمكان البيع عندها — ولذلك
+    يُرجَع **حجمُ الدقيقة** التي بلغت العتبة ليُنشَر معها. دالّة **نقيّة**."""
+    def _scan(bars):
+        if not bars or not entry or entry <= 0:
+            return None
+        pre, post, hit_v, stopped = 0.0, 0.0, None, False
+        for b in bars:
+            try:
+                h, lo_ = float(b["h"]), float(b["l"])
+            except (TypeError, ValueError, KeyError):
+                continue
+            g = (h / float(entry) - 1.0) * 100.0
+            if stopped:
+                post = max(post, g)
+                continue
+            if lo_ <= float(stop):
+                stopped = True
+                continue
+            if g > pre:
+                pre, hit_v = g, b.get("v")
+        return {"pre": round(pre, 2), "post": round(post, 2),
+                "stopped": stopped, "peak_vol": hit_v}
+    reg, ext = _scan(bars_reg), _scan(bars_all)
+    if reg is None or ext is None:
+        return None
+    flips = {}
+    for t in thresholds:
+        flips[t] = {"appeared": (ext["pre"] >= t > reg["pre"]),
+                    "vanished": (reg["pre"] >= t > ext["pre"])}
+    return {"reg": reg, "ext": ext, "flips": flips,
+            "stop_earlier": bool(ext["stopped"] and not reg["stopped"])}
+
+
 def pick_entry_quote(quotes, trigger_end_ms, max_age_ms=MAX_QUOTE_AGE_MS):
     """§④ **قاعدة الدخول المسجَّلة:** أوّل اقتباسٍ بعد إغلاق شمعة الزناد له `ask`
     صالح **وعمرُه ‏≤5 ثوانٍ** عن لحظة القرار.

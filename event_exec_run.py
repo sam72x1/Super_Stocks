@@ -206,6 +206,7 @@ def run() -> int:
         return 2
 
     real, pseudo, cross, oper = [], [], [], []
+    ncross, nmiss, labels = [], [], []          # 🔬 T-NEARMISS · T-LABEL-AUDIT
     cov = {"windows": 0, "no_bars": 0, "sessions": 0, "scale_bad": 0,
            "trig": 0, "quiet": 0, "no_levels": 0, "crit": 0, "lifted": 0}
     for a in armed:
@@ -237,12 +238,27 @@ def run() -> int:
         for day in _days:
             base[day] = len(flat)
             flat.extend(sess[day])
+        # 🔬 T-LABEL-AUDIT: الوسم على الجلسة النظامية (‏`flat`) مقابل **كلّ** الدقائق
+        #    (‏`bars` كما وردت من Polygon = تشمل ما قبل الافتتاح وما بعد الإغلاق).
+        _lab = EX.relabel(bars, flat, a["trade"].get("entry"), lv["stop"])
+        if _lab:
+            labels.append(dict(_lab, symbol=a["symbol"]))
         for day in _days:
             sb = sess[day]
             cov["sessions"] += 1
             brk = lvl_of[day]
             if brk > lv["break"]:
                 cov["lifted"] += 1
+            # 🔬 T-NEARMISS: الذراعان لا يفترقان إلا في **جانب الخطّ** — وشرطُ الحجم
+            #    يُقيَّم بدالّة الإنتاج نفسها بمستوًى مخفَّض (لا إعادةَ تطبيقٍ يدويّ).
+            _bt = EX.band_triggers(sb, brk, S._ignition_signal,
+                                   vol_mult=S.CONFIG["IGNITION_VOL_MULT"])
+            for _arm, _bucket in (("cross", ncross), ("miss", nmiss)):
+                if _arm in _bt:
+                    _j, _s = _bt[_arm]
+                    _bucket.append(_one_event(
+                        a["symbol"], day, sb, _j, _s, lv, f"N-{_arm.upper()}",
+                        f"{day}|n", fwd=flat[base[day] + _j + 1:]))
             hit = EX.replay_trigger(sb, brk, S._ignition_signal,
                                     vol_mult=S.CONFIG["IGNITION_VOL_MULT"])
             if hit:
@@ -378,6 +394,52 @@ def run() -> int:
               f"{'✅' if cb['lo'] > 0 else '🔴'} · ③موجب هذي السنة ⇒ "
               f"{'✅' if cb['mean'] > 0 else '🔴'} · ④CVaR لا يسوء >0.10 ⇒ "
               f"{'✅' if (cv_b - cv_a) >= -0.10 else '🔴'}")
+
+    # ══════════ 🔬 T-NEARMISS — هل العبور نفسه يحمل معلومة؟ ══════════
+    NC = _report("N-CROSS    (عبر بشعرة)    ", ncross)
+    NM = _report("N-MISS     (وقف تحته بشعرة)", nmiss)
+    if NC and NM:
+        d = NC["cb"]["mean"] - NM["cb"]["mean"]
+        pd2 = EX.paired_diff(NC["dec"], NM["dec"])
+        print(f"\n🔬 T-NEARMISS: الفرق (‏N-CROSS − N-MISS) = {d:+.3f}R "
+              f"· مزدوجًا داخل الرمز = {pd2['mean']:+.3f} "
+              f"[{pd2['lo']:+.3f}, {pd2['hi']:+.3f}] · أزواج={pd2['n']}")
+        n_ok = min(len(NC["dec"]), len(NM["dec"])) >= 30
+        print(f"  🧭 المعيار (‏§①-ج): ①يحمل معلومة (‏≥+0.15R وحدٌّ سفليّ >0) ⇒ "
+              f"{'✅' if (d >= 0.15 and pd2['lo'] > 0) else '🔴'} · "
+              f"②لا يحمل شيئًا (فاصل داخل ±0.10R) ⇒ "
+              f"{'✅' if (pd2['lo'] >= -0.10 and pd2['hi'] <= 0.10) else '🔴'} · "
+              f"③غير ذلك ⇒ غير حاسم"
+              + ("" if n_ok else "  ⚠️ **العيّنة دون 30 لذراع ⇒ يُعلَن «لا حكم»**"))
+
+    # ══════════ 🔬 T-LABEL-AUDIT — هل عمانا عن الافتر يغيّر الوسم؟ ══════════
+    if labels:
+        n = len(labels)
+        print(f"\n🔬 T-LABEL-AUDIT (‏{n} نافذة):")
+        for t in (30.0, 50.0, 100.0):
+            ap = sum(1 for x in labels if x["flips"][t]["appeared"])
+            va = sum(1 for x in labels if x["flips"][t]["vanished"])
+            print(f"  عتبة +{t:g}%: **ظهرت بالممتدّ {ap}** · اختفت {va} "
+                  f"· صافي التغيّر {(ap + va) / n * 100:.1f}% من النوافذ")
+        _pr = sum(x["reg"]["pre"] for x in labels) / n
+        _pe = sum(x["ext"]["pre"] for x in labels) / n
+        _sr = sum(x["reg"]["post"] for x in labels) / n
+        _se = sum(x["ext"]["post"] for x in labels) / n
+        _st = sum(1 for x in labels if x["stop_earlier"])
+        print(f"  متوسط أقصى صعودٍ قبل الوقف: نظاميّ {_pr:.1f}% · ممتدّ {_pe:.1f}%")
+        print(f"  «خرجنا ثم انفجر» (بعد الوقف): نظاميّ {_sr:.1f}% · ممتدّ {_se:.1f}%")
+        print(f"  الوقف يُضرَب بالممتدّ ولا يُضرَب نظاميًّا: {_st} نافذة "
+              f"({_st / n * 100:.1f}%)")
+        _mx = max(((ap0 + va0) / n * 100) for ap0, va0 in
+                  [(sum(1 for x in labels if x["flips"][t]["appeared"]),
+                    sum(1 for x in labels if x["flips"][t]["vanished"]))
+                   for t in (30.0, 50.0, 100.0)])
+        print(f"  🧭 المعيار (‏§②-ب): أقصى تغيّرٍ عند عتبة = {_mx:.1f}% ⇒ "
+              + ("🔴 **ماديّ (≥10%)** — الوسم السابق ناقص" if _mx >= 10 else
+                 ("✅ هامشيّ (<3%) — المحور يُغلَق" if _mx < 3 else
+                  "🟡 بين الاثنين — قرار المالك")))
+        print("  ⚠️ **الوسم ليس ربحًا**: بلوغُ عتبةٍ بالافتر لا يعني إمكان البيع عندها "
+              "(سيولة الممتدّ رقيقة).")
 
     print("\n🧭 بوّابة القرار الخماسية (‏§⑧ — الخمسة معًا، وتُقرأ عبر السنوات الثلاث):")
     if R:
