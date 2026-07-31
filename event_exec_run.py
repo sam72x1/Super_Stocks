@@ -376,8 +376,8 @@ def run() -> int:
     print("\n📊 الأذرع:")
     R = _report("E-REAL     (اشتعال حقيقيّ)", real, primary=True)
     P = _report("E-PSEUDO   (زائف مُطابَق)  ", pseudo)
-    C = _report("E-CROSS    (عبور بلا حجم) ", cross)
-    O = _report("E-OPERATOR (ثانويّة)      ", oper)
+    _report("E-CROSS    (عبور بلا حجم) ", cross)      # يطبع؛ لا يُستعمل مُرجَعُه
+    _report("E-OPERATOR (ثانويّة)      ", oper)
 
     if R and P:
         pd_ = EX.paired_diff(R["dec"], P["dec"])
