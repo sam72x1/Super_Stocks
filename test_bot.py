@@ -2176,6 +2176,191 @@ check("🔬 M4-split قفل: _split_aware_base_range خارج الجذور (rank
       all("_split_aware_base_range" not in _insp0.getsource(f)
           for f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
                     S.backtest_symbol, S.apply_float_gate)))
+
+# ==========================================================
+# 🚪 T-GATES — علما الذراعين الناقصين (`gates_prereg.md`، 2026-07-31)
+#   · G5 `BT_MIN_PRICE`  : أرضية M1 ($1.5 هندسية ⇒ أرضية فيصل $1) — صفّ جدول فقط
+#   · G6 `BT_M4_POST_SPLIT`: M4 على **شموع ما بعد آخر تقسيم عكسي حصرًا**
+# كلاهما **باكتيست حصريًّا** · مطفأ ⇒ سلوك الأساس بت-بت · لا يمسّان أي عتبة إنتاجية.
+# ==========================================================
+print("\n=== 🚪 T-GATES: ذراعا G5 (أرضية M1) وG6 (M4 ما بعد التقسيم) ===")
+
+# --- (أ) الدالّة النقيّة `_post_split_base_range` ---
+_g6i = pd.date_range("2025-06-01", periods=15, freq="D")
+# 7 شموع منفوخة (ما قبل عكسي 1:10) ثم 8 شموع معاصرة ضيّقة
+_g6h = pd.Series([40.0] * 7 + [4.04] * 8, index=_g6i)
+_g6l = pd.Series([40.0] * 7 + [3.96] * 8, index=_g6i)
+_g6s = pd.Series([0.1], index=[_g6i[7]])          # تقسيم عكسي عند الشمعة الثامنة
+check("🚪 G6·الحالة ok: المدى من شموع ما بعد التقسيم وحدها (‏~2% لا 900% الخام)",
+      S._post_split_base_range(_g6h, _g6l, _g6s, _g6i[-1])[0] == "ok"
+      and abs(S._post_split_base_range(_g6h, _g6l, _g6s, _g6i[-1])[1] - 2.02) < 0.05)
+check("🚪 G6·بلا تقسيم ⇒ ('no_split', None) = السلوك الأساس حرفيًّا (المُنادي لا يغيّر شيئًا)",
+      S._post_split_base_range(_g6h, _g6l, None, _g6i[-1]) == ("no_split", None)
+      and S._post_split_base_range(_g6h, _g6l, pd.Series([], dtype=float),
+                                   _g6i[-1]) == ("no_split", None))
+check("🚪 G6·تقسيم أمامي (نسبة فوق 1) ليس عكسيًّا ⇒ no_split",
+      S._post_split_base_range(_g6h, _g6l, pd.Series([2.0], index=[_g6i[7]]),
+                               _g6i[-1]) == ("no_split", None))
+check("🚪 G6·بلا تسريب مستقبليّ: تقسيم بعد cut يُتجاهَل ⇒ no_split",
+      S._post_split_base_range(_g6h, _g6l, _g6s, _g6i[6]) == ("no_split", None))
+# 🔒 **اختبار تخوم** (درس M6: الحدّ الذي يستره شرطٌ آخر ليس مقفولًا) — الحدّان يُفصلان:
+#    5 شموع بعد التقسيم = آخر ما يُحكَم عليه · 4 = «قاعدة لم تتكوّن» ⇒ M4 مجتازة.
+_g6b5 = pd.Series([40.0] * 10 + [4.04] * 5, index=_g6i)
+_g6b5l = pd.Series([40.0] * 10 + [3.96] * 5, index=_g6i)
+_g6b4 = pd.Series([40.0] * 11 + [4.04] * 4, index=_g6i)
+_g6b4l = pd.Series([40.0] * 11 + [3.96] * 4, index=_g6i)
+check("🚪 G6·تخوم الحدّ الأدنى: 5 شموع بعد التقسيم ⇒ ok (يُحكَم عليها)",
+      S._post_split_base_range(_g6b5, _g6b5l, pd.Series([0.1], index=[_g6i[10]]),
+                               _g6i[-1])[0] == "ok")
+check("🚪 G6·تخوم الحدّ الأدنى: 4 شموع ⇒ too_few (قاعدة لم تتكوّن ⇒ M4 مجتازة)",
+      S._post_split_base_range(_g6b4, _g6b4l, pd.Series([0.1], index=[_g6i[11]]),
+                               _g6i[-1]) == ("too_few", None))
+check("🚪 G6·min_bars مُثبَّتة بالتسجيل المسبق (‏5) ولا تُقرأ من env/CONFIG",
+      _insp0.signature(S._post_split_base_range).parameters["min_bars"].default == 5
+      and "BT_M4_POST_SPLIT_MIN" not in open("Super_stock.py", encoding="utf-8").read())
+check("🚪 G6·تقسيم **قبل** النافذة كلّها ⇒ المدى = الخام (لا فرق عن الأساس)",
+      abs(S._post_split_base_range(_g6h, _g6l,
+                                   pd.Series([0.1], index=[_g6i[0] - pd.Timedelta(days=5)]),
+                                   _g6i[-1])[1] - (40.0 / 3.96 - 1.0) * 100.0) < 1e-6)
+check("🚪 G6·فاشلة-آمنة: مدخل تالف/قاع صفر ⇒ ('no_split', None) بلا استثناء (تعذّر ≠ صفر)",
+      S._post_split_base_range(None, None, _g6s, _g6i[-1]) == ("no_split", None)
+      and S._post_split_base_range(_g6h, pd.Series([0.0] * 15, index=_g6i), _g6s,
+                                   _g6i[-1]) == ("no_split", None)
+      and S._post_split_base_range(_g6h, _g6l, "سيء", _g6i[-1]) == ("no_split", None))
+# 🔒 **قفل «G6 ليست G2» سلوكيّ لا نصّيّ** (فخّ getsource الموثّق: كلمةٌ في تعليق تُنجي
+#    قفلًا ميتًا). حالة تمييزية واحدة **يختلف فيها حكم البوّابة نفسه**:
+#    de-inflation يُبقي الشموع القديمة (‏80×0.1=8 مقابل قاع 4 ⇒ 100% ⇒ M4 ترفض)
+#    بينما قصر النافذة يُسقطها (‏5/4 ⇒ 25% ⇒ M4 تمرّ).
+_g2h = pd.Series([80.0] * 7 + [5.0] * 8, index=_g6i)
+_g2l = pd.Series([80.0] * 7 + [4.0] * 8, index=_g6i)
+_g6_val = S._post_split_base_range(_g2h, _g2l, _g6s, _g6i[-1])[1]
+_g2_val = S._split_aware_base_range(_g2h, _g2l, _g6s, _g6i[-1])
+check("🚪 G6 ≠ G2 سلوكيًّا: القصر (‏25%) يمرّ بينما de-inflation (‏100%) يرفض — حكمان مختلفان",
+      abs(_g6_val - 25.0) < 0.5 and abs(_g2_val - 100.0) < 0.5
+      and _g6_val <= S.CONFIG["BASE_RANGE_MAX_PCT"] < _g2_val)
+
+
+def _g6_frame(pre_n, post_n):
+    """إطار 260 شمعة: انفجار ثم انهيار ثم `pre_n` شمعة منفوخة (ما قبل عكسي 1:10)
+    و`post_n` شمعة معاصرة — المدى الخام لآخر 15ج ‏900% ⇒ M4 الأساس ترفض."""
+    _c = np.concatenate([np.full(30, 2.0), np.full(20, 10.0),
+                         np.linspace(10.0, 4.0, 260 - 50 - pre_n - post_n),
+                         np.full(pre_n, 40.0), np.full(post_n, 4.0)])
+    return pd.DataFrame({"Open": _c, "High": _c * 1.01, "Low": _c * 0.99,
+                         "Close": _c, "Volume": np.full(260, 1e6)},
+                        index=pd.date_range("2024-01-01", periods=260, freq="D"))
+
+
+# --- (ب) تكامل analyze_ticker: مطفأ ⇒ متطابق تجاه السياق · مفعّل ⇒ M4 تمرّ ---
+_g6_ok, _g6_few = _g6_frame(7, 8), _g6_frame(11, 4)
+try:
+    S._REJECT_STATS.clear(); S._BT_SPLITS_CTX = pd.Series([0.1], index=[_g6_ok.index[252]])
+    S.analyze_ticker("G6X", _g6_ok); _g6_off = dict(S._REJECT_STATS)      # العلم=0 + سياق
+    S._BT_SPLITS_CTX = None; S._REJECT_STATS.clear()
+    S.analyze_ticker("G6X", _g6_ok); _g6_noctx = dict(S._REJECT_STATS)    # العلم=0 بلا سياق
+    check("🚪 G6 قفل: العلم مطفأ ⇒ الحكم متطابق تجاه سياق splits (إنتاج byte-identical)",
+          _g6_off == _g6_noctx and "M4_base_واسعة" in _g6_off)
+    S.CONFIG["BT_M4_POST_SPLIT"] = 1
+    S._BT_SPLITS_CTX = pd.Series([0.1], index=[_g6_ok.index[252]])        # 8 شموع بعده
+    S._REJECT_STATS.clear(); S.analyze_ticker("G6X", _g6_ok)
+    check("🚪 G6·مفعّل + 8 شموع بعد التقسيم ⇒ لم يعد يُرفض على M4_base_واسعة (المدى المعاصر)",
+          "M4_base_واسعة" not in dict(S._REJECT_STATS))
+    S._BT_SPLITS_CTX = pd.Series([0.1], index=[_g6_few.index[256]])       # 4 شموع بعده
+    S._REJECT_STATS.clear(); S.analyze_ticker("G6F", _g6_few)
+    check("🚪 G6·الاختيار المُسجَّل: أقلّ من 5 شموع بعد التقسيم ⇒ M4 **مجتازة** (لا حكم على "
+          "قاعدة لم تتكوّن)",
+          "M4_base_واسعة" not in dict(S._REJECT_STATS))
+finally:
+    S.CONFIG["BT_M4_POST_SPLIT"] = 0; S._BT_SPLITS_CTX = None; S._REJECT_STATS.clear()
+check("🚪 G6·العلم مطفأ افتراضيًّا (إنتاج آمن)",
+      S.CONFIG.get("BT_M4_POST_SPLIT", 0) == 0 and S._BT_SPLITS_CTX is None)
+
+
+def _g6_walk_frame(seed=0, si=242, span=7, mult=10.0, fwd=45):
+    """سهم ارتكاز مؤهَّل بالكامل زُرِع في نافذة قاعدته **نفخُ ما قبل تقسيم عكسي**:
+    · بالأساس ⇒ يُرفض على `M4_base_واسعة` (المدى الخام منفوخ)
+    · بذراع G6 ⇒ يمرّ (‏8 شموع معاصرة بعد التقسيم، مداها ضيّق) فتظهر صفقة إضافية.
+    وهذي هي **الحالة التمييزية** التي تجعل قفل «مطفأ ⇒ بت-بت» غير أعمى."""
+    _d = synth_pivot(n=250, seed=seed).copy()
+    for _col in ("Open", "High", "Low", "Close"):
+        _d.iloc[si - span:si, _d.columns.get_loc(_col)] *= mult
+    _up = np.linspace(float(_d["Close"].iloc[-1]), float(_d["Close"].iloc[-1]) * 1.35, fwd)
+    _ext = pd.DataFrame({"Open": _up * 0.998, "High": _up * 1.01, "Low": _up * 0.985,
+                         "Close": _up, "Volume": np.full(fwd, 8e5)},
+                        index=pd.date_range(_d.index[-1] + pd.Timedelta(days=1),
+                                            periods=fwd, freq="D"))
+    _d = pd.concat([_d, _ext])
+    return _d, pd.Series([1.0 / mult], index=[_d.index[si]])
+
+
+# --- (ج) 🔒 القفل الحاسم: مطفأ ⇒ **قاموس الصفقة كاملًا** بت-بت (نمط BT_LIBERATION) ---
+_g6wdf, _g6wctx = _g6_walk_frame()
+try:
+    S._BT_SPLITS_CTX = _g6wctx
+    _g6_t_off_ctx = S.backtest_symbol("G6W", _g6wdf)      # مطفأ + سياق
+    S._BT_SPLITS_CTX = None
+    _g6_t_off = S.backtest_symbol("G6W", _g6wdf)          # مطفأ بلا سياق
+    S._BT_SPLITS_CTX = _g6wctx; S.CONFIG["BT_M4_POST_SPLIT"] = 1
+    _g6_t_on = S.backtest_symbol("G6W", _g6wdf)           # مفعّل + سياق
+finally:
+    S.CONFIG["BT_M4_POST_SPLIT"] = 0; S._BT_SPLITS_CTX = None
+_g6k = (lambda t: {k: v for k, v in t.items() if k != "symbol"})
+check("🚪 G6·🔒 مطفأ ⇒ قاموس الصفقة كاملًا بت-بت (السياق لا يغيّر حرفًا)",
+      len(_g6_t_off_ctx) == len(_g6_t_off) >= 1
+      and [_g6k(t) for t in _g6_t_off_ctx] == [_g6k(t) for t in _g6_t_off])
+check("🚪 G6·🔒 شاهد ضبطٍ للقفل نفسه: مفعّلًا **يختلف** فعلًا (وإلّا فالقفل أعمى)",
+      len(_g6_t_on) > len(_g6_t_off)
+      and [_g6k(t) for t in _g6_t_on] != [_g6k(t) for t in _g6_t_off])
+
+# --- (د) 🔒 مرجعٌ واحد لأعلام السياق: موضع الرفع = موضع القراءة (لا علم ميّت) ---
+_g6_src = _insp0.getsource(S.analyze_ticker)
+_g6_read = set()
+for _ln in _g6_src.splitlines():
+    if "_BT_SPLITS_CTX" in _ln:
+        _g6_read |= set(__import__("re").findall(
+            r'CONFIG\.get\("(BT_[A-Z0-9_]+)"\)', _ln))
+# **تطابقٌ تامّ لا احتواء** (اتّجاهان لا واحد): «يقرأ ⊄ القائمة» = علمٌ ميّت (السياق لا
+# يُرفع له)، و«القائمة ⊄ يقرأ» = اسمٌ في القائمة بلا قارئ — أو شرطٌ كُتب على **سطرين**
+# فأفلت من المسح، وحينها يجب أن يصرخ القفل لا أن يمرّ صامتًا (فخّ القفل الأعمى).
+check("🚪 🔒 أعلام `_BT_SPLITS_CTX` المقروءة في analyze_ticker = `_BT_SPLIT_CTX_FLAGS` تمامًا",
+      _g6_read == set(S._BT_SPLIT_CTX_FLAGS),
+      f"يقرأ={sorted(_g6_read)} · القائمة={sorted(S._BT_SPLIT_CTX_FLAGS)}")
+check("🚪 🔒 والعكس مسنود: العلم الجديد داخل القائمة، وrun_backtest يرفع السياق بها وحدها",
+      "BT_M4_POST_SPLIT" in S._BT_SPLIT_CTX_FLAGS
+      and _insp0.getsource(S.run_backtest).count("_BT_SPLIT_CTX_FLAGS") >= 1
+      and 'CONFIG.get("BT_SPLIT_AWARE_M2")' not in _insp0.getsource(S.run_backtest))
+check("🚪 G6 قفل: _post_split_base_range خارج الجذور (rank_key/select_top/classify_tier/"
+      "entry_status/backtest_symbol/apply_float_gate/scan_market)",
+      all("_post_split_base_range" not in _insp0.getsource(f)
+          for f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                    S.backtest_symbol, S.apply_float_gate, S.scan_market)))
+
+# --- (هـ) ذراع G5 `BT_MIN_PRICE`: صفّ جدول فقط — الإنتاج محصّن بقفل B1 ---
+_g5_before = S.CONFIG["MIN_PRICE"]
+check("🚪 G5·قفل B1: الإنتاج يتجاهل BT_MIN_PRICE تمامًا (باكتيست حصريًّا)",
+      S._apply_backtest_overrides("FULL", {"BT_MIN_PRICE": "1.0"}) == []
+      and S._apply_backtest_overrides("DAILY", {"BT_MIN_PRICE": "1.0"}) == []
+      and S.CONFIG["MIN_PRICE"] == _g5_before)
+_g5_lowdf = synth_pivot(prior_high=6.0, crash_low=0.9, current=1.08, seed=4)
+try:
+    S._REJECT_STATS.clear(); S.analyze_ticker("G5X", _g5_lowdf)
+    _g5_base_rej = dict(S._REJECT_STATS)
+    _g5_ap = S._apply_backtest_overrides("BACKTEST", {"BT_MIN_PRICE": "1.0"})
+    check("🚪 G5·وضع BACKTEST يطبّقه فعلًا (يصل CONFIG — لا علمٌ ميّت)",
+          S.CONFIG["MIN_PRICE"] == 1.0 and "MIN_PRICE=1" in _g5_ap)
+    S._REJECT_STATS.clear(); S.analyze_ticker("G5X", _g5_lowdf)
+    check("🚪 G5·سلوكيّ: سهم بسعر $1.08 يُرفض على M1_سعر بأرضية 1.5 ويتجاوزها بأرضية فيصل $1",
+          "M1_سعر" in _g5_base_rej and "M1_سعر" not in dict(S._REJECT_STATS))
+finally:
+    S.CONFIG["MIN_PRICE"] = _g5_before; S._REJECT_STATS.clear()
+check("🚪 G5·الأرضية الإنتاجية سليمة بعد التجربة (‏$1.5) وقيمة فاسدة تُتجاهَل بأمان",
+      S.CONFIG["MIN_PRICE"] == 1.5
+      and S._apply_backtest_overrides("BACKTEST", {"BT_MIN_PRICE": "سيء"}) == []
+      and S.CONFIG["MIN_PRICE"] == 1.5)
+
+# (وأقفال مداخل الـworkflow لهذين العلمين مع بقيّة أقفال الـworkflows — قسم 010 أدناه،
+#  حيث تُعرَّف `_wf_dispatch_inputs` التي تعدّ المداخل بمحاذاة الإزاحة.)
+
 # العرض بالكرت + التجديد اليومي لـpump_scar
 _card_h = {"symbol": "HND", "price": 2.0, "pivot": 1.95, "score": 60,
            "readiness": 60, "rr": 2.0, "entry": (1.9, 2.0),
@@ -7337,14 +7522,19 @@ check("🚨 صيّاد المقسّم·كل مسار فشل يُبلَّغ وي�
 
 
 def _sh_run(scan, *, uni=("X",), hist=None, send=None, yf=object(),
-            ext=(lambda _s, _d: None), msgs=None, logs=None):
+            ext=(lambda _s, _d: None), msgs=None, logs=None, stamp=None):
     """يشغّل split_hunter.run() ببيئة محقونة ويُرجع (rc, عدد الإرسالات).
     **try/finally إلزامي** — الاستعادة داخل tuple شَرِه تُترَك مُرقَّعة لو رمى run().
     🌙 `ext` = جالب سعر الافتر المحقون (افتراضه None = **فاشل-آمن مفتوح** حتميّ بلا
-    شبكة ولا اعتماد على وجود `POLYGON_API_KEY` في بيئة الاختبار)."""
+    شبكة ولا اعتماد على وجود `POLYGON_API_KEY` في بيئة الاختبار).
+    🔔 ⓿-و: `run()` صارت تكتب **ختم آخر مسحٍ ناجح** — فيُحوَّل مساره إلى ملفٍّ مؤقت
+    (`stamp`) حتى لا تكتب السويّة في ملفّ حالة الريبو. (`git_save` نفسها خاملة تحت
+    `SUPER_STOCKS_TESTING` بلا runner محقون — حارسها الموثّق.)"""
     sent, _sv = [], (S.yf, S.send_telegram, S.get_universe, S.download_history,
-                     S.scan_split_hunter, S.log)
+                     S.scan_split_hunter, S.log, S.HUNTER_STAMP_FILE)
     try:
+        S.HUNTER_STAMP_FILE = stamp or _os_hc.path.join(
+            __import__("tempfile").mkdtemp(), "stamp.json")
         S.yf = yf
         S.send_telegram = (send or (lambda m="", *a, **k: (
             sent.append(1), msgs.append(str(m)) if msgs is not None else None,
@@ -7358,7 +7548,7 @@ def _sh_run(scan, *, uni=("X",), hist=None, send=None, yf=object(),
         return _SHmod.run(fetch_ext=ext), len(sent)
     finally:
         (S.yf, S.send_telegram, S.get_universe, S.download_history,
-         S.scan_split_hunter, S.log) = _sv
+         S.scan_split_hunter, S.log, S.HUNTER_STAMP_FILE) = _sv
 
 
 # 🧪 القفل السابق كان **فارغًا**: `S.yf = None` على مستوى الوحدة جعل run() ترجع من
@@ -10344,14 +10534,35 @@ check("🔓 T-LIB·نافذة الانتظار غير معروضة مدخلًا 
       "bt_liberation" in open(".github/workflows/backtest.yml", encoding="utf-8").read()
       and "bt_lib_wait" not in open(".github/workflows/backtest.yml",
                                    encoding="utf-8").read())
+# 🚪 T-GATES: مدخلا G5/G6 + الإسقاط المُبرَّر الذي أفسح لهما (سقف 25 مبلوغ بالضبط)
+_g6_yml = open(".github/workflows/backtest.yml", encoding="utf-8").read()
+check("🚪 مدخلا الذراعين موصولان في backtest.yml (input + env معًا — لا ميزة معلّقة)",
+      all(t in _g6_yml for t in ("bt_min_price:", "bt_m4_post_split:",
+                                 "BT_MIN_PRICE: ${{", "BT_M4_POST_SPLIT: ${{")))
+check("🚪 backtest.yml عند سقف GitHub بالضبط (‏25) — أي إضافة لاحقة تستلزم إسقاطًا مُبرَّرًا",
+      _wf_dispatch_inputs(".github/workflows/backtest.yml") == 25)
+check("🚪 المُسقَطان (T-SHORT/T-STOP — حكمٌ نهائيّ) خرجا من المدخلات والـenv معًا",
+      not any(t in _g6_yml for t in ("bt_short:", "bt_stop_pct:",
+                                     "BT_SHORT: ${{", "BT_STOP_PCT: ${{")))
+check("🚪 وإسقاطهما **قابل للنقض**: صفّاهما في جدول التعيين وعلماهما في CONFIG باقيان",
+      all(f'("{_k}"' in _insp0.getsource(S._apply_backtest_overrides)
+          for _k in ("BT_SHORT", "BT_STOP_PCT"))
+      and S.CONFIG.get("BT_SHORT") == 0 and S.CONFIG["STOP_BELOW_LOW_PCT"] == (5, 7))
+check("🚪 وسببُ الإسقاط مكتوبٌ في الملفّ نفسه (لا قرار صامت)",
+      "T-SHORT" in _g6_yml and "T-STOP" in _g6_yml and "25 مدخلًا" in _g6_yml)
 check("🔐 010·acc_verify يمرّر السنة عبر env لا الصدفة",
       "YEAR: ${{ github.event.inputs.year }}"
       in open(".github/workflows/acc_verify.yml", encoding="utf-8").read()
       and 'NAME="acc-verify-${YEAR}"'
       in open(".github/workflows/acc_verify.yml", encoding="utf-8").read())
 # 🔒 صون: الملفّات التي **تدفع** للريبو ما زالت contents: write (تضييقها = كسر صامت)
+# 🔴 `split_hunter.yml` **انتقل من القراءة إلى الكتابة** بالبند ⓿-و (2026-07-31): صار
+#    يدفع ختم آخر مسحٍ ناجح (`split_hunter_stamp.json`) ليَكشف المسارُ اليومي سقوطَ
+#    كرونه. وتضييقه إلى `read` يُفشِل الدفع صامتًا ⇒ ختمٌ متجمّد ⇒ **تحذيرٌ يوميّ كاذب**
+#    يُدرَّب المالك على تجاهله = موت الحارس. فنُقل هنا لا حُذف من الفحص.
 _c10_writers = ("daily_screener.yml", "pullback_monitor.yml", "ignition.yml",
-                "hand_flow.yml", "e2_recover.yml", "cline_weekly_review.yml")
+                "hand_flow.yml", "e2_recover.yml", "cline_weekly_review.yml",
+                "split_hunter.yml")
 def _c10_perm(fname, key):
     """قيمة صلاحية معلَنة فعلًا (سطر إعلان، لا ذِكر في تعليق) — ignition.yml يشرح
     `contents: write` في تعليق فوق الكتلة، فالمطابقة النصّية كانت تمرّ على تعليق."""
@@ -10370,11 +10581,11 @@ check("🔒 010·صون: كل workflow يدفع للريبو ما زال content
 check("🔒 010·صون: منزّلات artifacts عبر run-id تعلن actions: read",
       all(_c10_perm(_f, "actions") == "read"
           for _f in ("backtest.yml", "acc_report.yml", "acc_verify.yml")))
-check("🔒 010·العشرة المُصلَحة تعلن contents: read (لا write زائد)",
+check("🔒 010·التسعة الباقية تعلن contents: read (لا write زائد)",
       all(_c10_perm(_f, "contents") == "read" for _f in (
           "acc_report.yml", "acc_verify.yml", "analyze_asof.yml", "analyze.yml",
           "hand_check.yml", "ignition_verify.yml", "polygon_health.yml",
-          "scan_earnings.yml", "split_hunter.yml", "technical.yml")))
+          "scan_earnings.yml", "technical.yml")))
 
 
 # ==========================================================
@@ -10841,6 +11052,244 @@ check("📒🔒 دفتر المصادر: صفر صفٍّ بلا وسم من ال
       not _led_bad and _led_rows >= _LEDGER_MIN_ROWS,
       f"صفوف={_led_rows} · مخالف={len(_led_bad)}"
       + (" · " + " ؛ ".join(_led_bad[:3]) if _led_bad else ""))
+
+
+# ==========================================================
+# 🔔 ⓿-و حارس سقوط كرون **صيّاد المقسّم** (وقائيّ — إشعار فقط)
+# ==========================================================
+# الصيّاد هو الرابح الحيّ الوحيد (رشّح NUWE قبل انفجاره ‏+100% بيومين) وكان — بخلاف
+# التجديد الأسبوعي الذي له `renewal_staleness` — **بلا أي حارس سقوط**: تشغيلةٌ يُسقطها
+# GitHub تصمت صمتًا تامًّا، وصمتُه يُقرأ «لا مقسّم اليوم» وهو غلط.
+print("\n=== 🔔 ⓿-و حارس سقوط كرون صيّاد المقسّم ===")
+
+_hg_dir = __import__("tempfile").mkdtemp()   # ملفّات ختمٍ مؤقتة (لا تُكتب بالريبو)
+
+
+def _hg_path(tag):
+    return _os_hc.path.join(_hg_dir, f"stamp_{tag}.json")
+
+
+def _hg(last, today, tag="t", **kw):
+    """يكتب ختمًا بتاريخ `last` **بالمسار الحقيقي للكتابة** (لا حقن قيمة) ثم يفحص
+    عمره في يوم `today` — فيمرّ الاختبار على الكاتب والقارئ والحاسب معًا."""
+    p = _hg_path(tag)
+    S.record_hunter_run(last, path=p)
+    return S.hunter_staleness(today=today, path=p, **kw)
+
+
+def _hg_safe(fn, *a, **k):
+    """يرجّع القيمة أو اسم الاستثناء بدل أن يرمي. **سببه مقيس:** طفرتا «الكاتب يرمي
+    بدل False» و«انهيار الختم يُسقط التنبيه» قتلتا السويّة بانهيارٍ لا بفشل فحص —
+    فرمز الخروج صحيح لكن **الفشل غير منسوب لقفله**. بهذا الغلاف يظهر ❌ باسم القفل."""
+    try:
+        return fn(*a, **k)
+    except Exception as _e:                                      # noqa: BLE001
+        return f"رمى:{type(_e).__name__}"
+
+
+# ── ① التخوم: يوم تداولٍ واحد صامت · يومان تحذير ───────────────────────────────
+# الحالة السليمة = **يوم واحد** بالتعريف (الصيّاد يمسح جلسة أمس فجرًا والفارز يقرأ
+# صباحًا)، فيومان = تشغيلةٌ سقطت. أي انزلاقٍ في الحدّ يُسقط هذين القفلين.
+check("🔔 ⓿-و·ختمٌ عمرُه يوم تداولٍ واحد (اثنين ⟵ ثلاثاء) ⇒ لا تحذير",
+      _hg("2026-07-27", "2026-07-28", "a") is None)
+_hg_two = _hg("2026-07-27", "2026-07-29", "b")
+check("🔔 ⓿-و·يوما تداول (اثنين ⟵ أربعاء) ⇒ تحذير بالتاريخ والعدد",
+      isinstance(_hg_two, dict) and _hg_two["why"] == "stale"
+      and _hg_two["days"] == 2 and _hg_two["last"] == "2026-07-27")
+# ── ② الحالة التمييزية: عطلة نهاية الأسبوع **لا تُحتسب** ───────────────────────
+# جمعة ⟵ اثنين = **3 أيام تقويمية** لكن **يوم تداول واحد**؛ وكرون الصيّاد
+# (`13 1 * * 2-6`) لا يعمل السبت/الأحد أصلًا. حسابُها تقويميًّا = تحذيرٌ كاذب كل
+# اثنين ⇒ يُدرَّب المالك على تجاهله = موت الحارس. **هذا هو القفل الذي تُسقطه طفرة
+# «يوم تقويميّ بدل تداوليّ».**
+check("🔔 ⓿-و·جمعة ⟵ اثنين: 3 أيام تقويمية = **يوم تداول واحد** ⇒ لا تحذير",
+      _hg("2026-07-24", "2026-07-27", "c") is None
+      and (S.dt.date(2026, 7, 27) - S.dt.date(2026, 7, 24)).days == 3)
+check("🔔 ⓿-و·وجمعة ⟵ ثلاثاء (تشغيلة الاثنين سقطت) ⇒ تحذير — فالقفل ليس عمياءً",
+      (_hg("2026-07-24", "2026-07-28", "d") or {}).get("days") == 2)
+# عطلة رسمية وسط الأسبوع من `market_calendar` المثبَّت (لا اجتهاد): الثانكسجيفينغ
+# 2026-11-26 خميس ⇒ أربعاء ⟵ جمعة = يوم تداول واحد لا يومان.
+check("🔔 ⓿-و·عطلة رسمية (ثانكسجيفينغ) لا تُحتسب يوم تداول ⇒ لا تحذير",
+      "2026-11-26" in _CAL.HOLIDAYS
+      and S.trading_days_between("2026-11-25", "2026-11-27") == 1
+      and _hg("2026-11-25", "2026-11-27", "e") is None)
+# ── ③ الحساب النقيّ: تخوم وسلامة ──────────────────────────────────────────────
+check("🔔 ⓿-و·أيام التداول: صفر لنفس اليوم وللمستقبل (ساعة رنر مغلوطة لا تُنذر)",
+      S.trading_days_between("2026-07-27", "2026-07-27") == 0
+      and S.trading_days_between("2026-07-29", "2026-07-27") == 0
+      and _hg("2026-07-29", "2026-07-27", "f") is None)
+check("🔔 ⓿-و·يقبل date/datetime/نصًّا ISO بنفس الجواب (لا مسار نوعٍ مكسور)",
+      S.trading_days_between(S.dt.date(2026, 7, 27), S.dt.date(2026, 7, 29)) == 2
+      and S.trading_days_between(S.dt.datetime(2026, 7, 27, 3, 0),
+                                 "2026-07-29") == 2)
+check("🔔 ⓿-و·مدًى شاذّ (فوق 400 يوم) يُحسم بلا حلقةٍ طويلة",
+      S.trading_days_between("2020-01-01", "2026-07-27") > 400)
+# ── ④ تعذّر ≠ سليم: الغائب والتالف تحذيرٌ لا صمت ──────────────────────────────
+check("🔔 ⓿-و·ملفّ ختمٍ غائب ⇒ تحذير «missing» (لا انهيار ولا صمت)",
+      (S.hunter_staleness(today="2026-07-28",
+                          path=_os_hc.path.join(_hg_dir, "لا-وجود.json"))
+       or {}).get("why") == "missing")
+_hg_bad = _hg_path("corrupt")
+open(_hg_bad, "w", encoding="utf-8").write("{ هذا ليس JSON")
+check("🔔 ⓿-و·ملفّ تالف ⇒ تحذير «corrupt» (والقارئ يرجّع None بلا رمي)",
+      (S.hunter_staleness(today="2026-07-28", path=_hg_bad) or {}).get("why")
+      == "corrupt" and S.load_hunter_stamp(_hg_bad) is None)
+_hg_nod = _hg_path("nodate")
+open(_hg_nod, "w", encoding="utf-8").write('{"last_session": null}')
+check("🔔 ⓿-و·ملفٌّ سليمٌ بلا تاريخ صالح ⇒ تحذير أيضًا (لا «سليم» بالافتراض)",
+      (S.hunter_staleness(today="2026-07-28", path=_hg_nod) or {}).get("why")
+      == "corrupt")
+check("🔔 ⓿-و·الختم أقلّ حالةٍ ممكنة: مفتاحٌ واحد هو تاريخ الجلسة (لا دِدوب/أسعار)",
+      json.load(open(_hg_path("a"), encoding="utf-8"))
+      == {"last_session": "2026-07-27"})
+check("🔔 ⓿-و·الكاتب فاشل-آمن: تاريخٌ تالف/مسارٌ مستحيل ⇒ False بلا رمي",
+      _hg_safe(S.record_hunter_run, "لا-تاريخ", path=_hg_path("z")) is False
+      and _hg_safe(S.record_hunter_run, object(), path=_hg_path("z")) is False
+      and _hg_safe(S.record_hunter_run, "2026-07-27",
+                   path="/لا/يوجد/مجلد/x.json") is False)
+check("🔔 ⓿-و·max_days محقون يتجاوز CONFIG (والافتراضي 1 = يومُ تداولٍ صامت)",
+      S.CONFIG["HUNTER_STALE_TRADING_DAYS"] == 1
+      and _hg("2026-07-27", "2026-07-29", "g", max_days=2) is None
+      and _hg("2026-07-27", "2026-07-30", "h", max_days=2) is not None)
+# ── ⑤ نصّ التحذير ─────────────────────────────────────────────────────────────
+_hg_msg = S.hunter_stale_line(_hg_two)
+check("🔔 ⓿-و·النصّ يحمل العبارة المطلوبة والتاريخ والعدد والإجراء",
+      "صيّاد المقسّم لم يعمل" in _hg_msg and "2026-07-27" in _hg_msg
+      and "2 من أيام التداول" in _hg_msg and "Split Hunter" in _hg_msg
+      and S.hunter_stale_line(None) == "" and S.hunter_stale_line({}) == "")
+check("🔔 ⓿-و·النصّ يفرّق الغائب عن التالف عن المتقادم (ثلاث صياغات لا واحدة)",
+      len({S.hunter_stale_line({"why": w}) for w in
+           ("missing", "corrupt", "stale")}) == 3)
+check("🔔 ⓿-و·قفل اللغة: بلا علامات مقارنة (قاعدة CLAUDE.md المُلزِمة)",
+      not any(_ch in _hg_msg.replace("<b>", "").replace("</b>", "")
+              for _ch in ("≥", "≤", ">", "<")))
+# ── ⑥ نقطة النداء في المسار اليومي: **تشغيلٌ حقيقيّ** لا قفل نصّي ──────────────
+# `_run_daily` يقود `run_daily_watchlist` فعليًّا؛ نحوّل مسار الختم لملفٍّ مؤقت.
+def _hg_daily(stamp_path):
+    _sv = S.HUNTER_STAMP_FILE
+    try:
+        S.HUNTER_STAMP_FILE = stamp_path
+        return _run_daily([])[0]
+    finally:
+        S.HUNTER_STAMP_FILE = _sv
+
+
+_hg_fresh = _hg_path("fresh")
+S.record_hunter_run(S.dt.date.today(), path=_hg_fresh)
+_hg_sent_fresh = _hg_daily(_hg_fresh)
+S.record_hunter_run(S.dt.date.today() - S.dt.timedelta(days=30), path=_hg_fresh)
+_hg_sent_old = _hg_daily(_hg_fresh)
+check("🔔 ⓿-و·المسار اليومي: ختمٌ طازج ⇒ صفر تحذير · ومتقادم ⇒ التحذير يصل فعلًا",
+      not any("صيّاد المقسّم لم يعمل" in _m for _m in _hg_sent_fresh)
+      and any("صيّاد المقسّم لم يعمل" in _m for _m in _hg_sent_old))
+check("🔔 ⓿-و·صفر قناة تلغرام جديدة: السطر **مُلحَقٌ** بالتقرير لا رسالةٌ مستقلّة",
+      len(_hg_sent_old) == len(_hg_sent_fresh)
+      and any("صيّاد المقسّم لم يعمل" in _m and len(_m) > 200
+              for _m in _hg_sent_old))
+# 🔒 القفل الحاسم: انهيار الرصد **لا يُسقط** المسار اليومي ولا يمنع وصول التقرير.
+_hg_sv = S.hunter_staleness
+try:
+    S.hunter_staleness = lambda *a, **k: (_ for _ in ()).throw(
+        RuntimeError("عطل رصد الصيّاد"))
+    _hg_after = _run_daily([])[0]
+    _hg_raised = None
+except Exception as _e:                                          # noqa: BLE001
+    _hg_after, _hg_raised = [], type(_e).__name__
+finally:
+    S.hunter_staleness = _hg_sv
+check("🔒 ⓿-و·انهيار الرصد لا يُسقط المسار اليومي والتقرير يصل (فاشل-آمن مُثبَت)",
+      _hg_raised is None and len(_hg_after) >= 1 and len(_hg_after[0]) > 40)
+# ── ⑦ الصيّاد: يختم في **كلا** المسارين (الصمت الشرعيّ ليس سقوطًا) ─────────────
+_hg_s1 = _hg_path("run_silent")
+# ⚠️ المرجع = **تاريخ الجلسة** المقروء من البيانات لا يوم الرنر (الكرون فجر UTC فيوم
+#    الرنر = اليوم التالي للجلسة). ويُشتقّ من الـfixture لا يُكتب رقمًا يدويًّا.
+_hg_sess = _sm_df.index[-1].date().isoformat()
+check("🔔 ⓿-و·الصيّاد يختم حتى في يوم «لا مطابق» — وهو بالذات ما يجب ألّا يُخلَط بالسقوط",
+      _sh_run(lambda *a, **k: [], stamp=_hg_s1) == (0, 0)
+      and S.load_hunter_stamp(_hg_s1) == _hg_sess)
+_hg_s2 = _hg_path("run_match")
+check("🔔 ⓿-و·ويختم في يوم المطابق أيضًا بتاريخ **الجلسة** لا يوم الرنر",
+      _sh_run(lambda *a, **k: [{
+          "symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0, "float": 1e6,
+          "avail": None, "borrow_fee": None, "ema20": 1.0, "ema30": 1.0,
+          "ema50": 1.0, "split_date": "2026-06-01", "freq": 0, "plan": {},
+          "bottom_test": None, "split_ma": None}], stamp=_hg_s2) == (0, 1)
+      and S.load_hunter_stamp(_hg_s2) == _hg_sess
+      and _hg_sess != S.dt.date.today().isoformat())
+# 🔴 الاتجاه المقابل: مسارُ الفشل **لا يختم** — وإلّا شهد الختمُ زورًا أن السوق فُحِص.
+_hg_s3 = _hg_path("run_fail")
+check("🔴 ⓿-و·تغطية مخنوقة/انهيار مسح ⇒ **لا ختم** (لا شهادة زور بأن السوق فُحِص)",
+      _sh_run(lambda *a, **k: [], uni=tuple(f"S{i}" for i in range(100)),
+              hist={"S1": _sm_df}, stamp=_hg_s3) == (1, 1)
+      and S.load_hunter_stamp(_hg_s3) is None
+      and _sh_run(lambda *a, **k: (_ for _ in ()).throw(RuntimeError("خنق")),
+                  stamp=_hg_s3) == (1, 1)
+      and S.load_hunter_stamp(_hg_s3) is None)
+# 🔒 فشلُ الختم/الدفع لا يجوز أن يُضيّع تنبيهًا رابحًا (الحارس خادمٌ لا سيّد).
+_hg_sv2 = S.record_hunter_run
+try:
+    S.record_hunter_run = lambda *a, **k: (_ for _ in ()).throw(
+        RuntimeError("قرصٌ ممتلئ"))
+    _hg_rc = _hg_safe(_sh_run, lambda *a, **k: [{
+        "symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0, "float": 1e6,
+        "avail": None, "borrow_fee": None, "ema20": 1.0, "ema30": 1.0,
+        "ema50": 1.0, "split_date": "2026-06-01", "freq": 0, "plan": {},
+        "bottom_test": None, "split_ma": None}], stamp=_hg_path("run_boom"))
+finally:
+    S.record_hunter_run = _hg_sv2
+check("🔒 ⓿-و·انهيار الختم لا يمنع التنبيه الرابح من الوصول (فاشل-آمن مطلق)",
+      _hg_rc == (0, 1))
+check("🔔 ⓿-و·الختم يُدفع بالنمط المحمي (`git_save`) لا بكتابةٍ محلّية تضيع مع الرنر",
+      "git_save" in _insp0.getsource(_SHmod._stamp)
+      and "HUNTER_STAMP_FILE" in _insp0.getsource(_SHmod._stamp))
+# 🔒 قفل نطاق: الحارس **إشعارٌ فقط** — خارج الفرز والاختيار ودرع أداة المقسّم.
+check("🔒 ⓿-و·خارج الجذور ودرع الصيّاد (لا اسم من الحارس في أيٍّ منها)",
+      all(_n not in _insp0.getsource(_f)
+          for _n in ("hunter_staleness", "hunter_stale_line", "record_hunter_run",
+                     "load_hunter_stamp", "HUNTER_STAMP_FILE")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.analyze_ticker, S.apply_float_gate, S.apply_short_gate,
+                     S.scan_market, S.backtest_symbol, S.scan_split_hunter,
+                     S.scan_split_radar, S.split_radar_ready)))
+# ⚠️ الأسماء المحظورة **محدَّدة لا عامّة**: نسختي الأولى وضعت `get`/`post` فيها فسقط
+#    القفل على `data.get("last_session")` — منعٌ بالاسم لا بالمعنى. المقصود: صفر شبكة
+#    وصفر تشغيلٍ للصيّاد وصفر كتابة حالة **من مسار القراءة** (الكتابة في `record_*`).
+_hg_bad_calls = {"requests", "urlopen", "download_history", "scan_split_hunter",
+                 "send_telegram", "git_save", "_atomic_write_json", "polygon_flow",
+                 "polygon_minute_bars", "extended_last_price", "_fetch_info",
+                 "get_universe", "record_hunter_run"}
+_hg_readers = (S.hunter_staleness, S.load_hunter_stamp, S.trading_days_between,
+               S.hunter_stale_line)
+_hg_src_all = "".join(_insp0.getsource(_f) for _f in _hg_readers)
+
+
+def _hg_calls(src):
+    """أسماء النداءات في مصدرٍ ما — **والوحدة المنادى عليها أيضًا** (`requests.get`
+    ⇒ {get, requests}). القراءة على `func.attr` وحدها كانت تُسقط اسم الوحدة، وهي
+    الثغرة التي كشفها حارس التفاهة أدناه (قفلٌ يقرأ «نظيف» لأنه ينظر للمكان الخطأ)."""
+    out = set()
+    for _n in _ast_p1.walk(_ast_p1.parse(src.lstrip())):
+        if not isinstance(_n, _ast_p1.Call):
+            continue
+        f = _n.func
+        if isinstance(f, _ast_p1.Attribute):
+            out.add(f.attr)
+            if isinstance(f.value, _ast_p1.Name):
+                out.add(f.value.id)
+        else:
+            out.add(getattr(f, "id", None))
+    return out
+
+
+check("🔒 ⓿-و·الحارس لا يجلب شبكة ولا يشغّل الصيّاد ولا يكتب حالة (قفل AST + نصّي)",
+      not ({_c for _f in _hg_readers for _c in _hg_calls(_insp0.getsource(_f))}
+           & _hg_bad_calls)
+      and not any(_t in _hg_src_all for _t in ("requests.", "http://", "https://",
+                                               "urllib", "yf.")))
+# 🔴 حارس تفاهة: القفل أعلاه ليس فارغًا — الاسم المحظور يُلتقط فعلًا لو ظهر.
+check("🔴 ⓿-و·القفل غير فارغ: دالّةٌ تنادي `requests` تسقط به (مقياسُ القفل مُختبَر)",
+      bool(_hg_calls("def f(u):\n    return requests.get(u)\n") & _hg_bad_calls)
+      and bool(_hg_calls("def f():\n    git_save(['x'])\n") & _hg_bad_calls)
+      and not (_hg_calls('def f(d):\n    return d.get("k")\n') & _hg_bad_calls))
 
 
 # ==========================================================

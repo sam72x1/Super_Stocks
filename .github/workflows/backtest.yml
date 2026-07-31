@@ -5,6 +5,19 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
+      # 🚧 سقف GitHub الصلب: **25 مدخلًا** لكل `workflow_dispatch` (يُكتشَف بـ422 عند أول
+      #    تشغيل لا بالـlint) — والملف كان مبلوغًا 25/25 بالضبط. فلإضافة علمَي T-GATES
+      #    الناقصين (`bt_min_price` ذراع G5 · `bt_m4_post_split` ذراع G6) أُسقط مدخلان
+      #    **صدر حكمهما النهائيّ فلا يُنتظر منهما تشغيل جديد**:
+      #    · `bt_short` — ⛔ T-SHORT (`short_thread_prereg.md`): +10 · +29 · −7 ⇒ **انقلبت
+      #      بالسنة الثالثة ⇒ فشل الثبات ⇒ لا تغيير على M13**، والملف أُغلق.
+      #    · `bt_stop_pct` — ⛔ T-STOP (`stop_sweep_prereg.md`): الفرق −0.1/+0.1/0.0 ⇒
+      #      **ينقلب ولا يبلغ 0.15R ⇒ الوقف يبقى (5,7)**، والإنتاج مقفول باختبارين.
+      #    🔁 **والإسقاط قابلٌ للنقض**: يُسقَط **المدخل والـenv معًا فقط** — بينما صفّ
+      #    `BT_SHORT`/`BT_STOP_PCT` في جدول `_apply_backtest_overrides` **وعلمُهما في
+      #    CONFIG باقيان** (مقفولان باختبار)، فإحياء أيٍّ منهما = إعادة سطرَي المدخل
+      #    والـenv وحدهما بلا كود. ⚠️ وقفل P1 «كل مفتاح BT_* في هذا الملف له صفّ في
+      #    الجدول» **اتّجاهه واحد** (yml ⇒ جدول) فحذف مدخلٍ لا يكسره.
       symbols:
         description: "رموز مفصولة بفاصلة (مثال: NGEN,SMX,VEEE). **فارغ = امسح السوق الكامل (ناسداك)** لأسهم الارتكاز وشوف اللي انفجر واللي لا — بلا انحياز اختيار"
         required: false
@@ -69,12 +82,12 @@ on:
         description: "🔬 أعمدة تحليل (اختياري): 1 = أضِف للـCSV قطاع + أيام لأقرب أرباح لاختبار «الرابط المشترك». ⚠️ الأرباح best-effort لا point-in-time مضمون تاريخيًّا (بلا known_at). float/CTB مُستبعَدان (نظر مستقبلي/لا تاريخ). باكتيست فقط"
         required: false
         default: ""
-      bt_short:
-        description: "🕵️ تجربة T-SHORT (اختياري): 1 = اجلب **حجم الشورت اليومي من FINRA بتاريخ الإشارة** (point-in-time، بلا تسريب) وقارن شرائح فيصل (10 آلاف أو أقل · 10-20 · 20-40 · أكثر) بمعيار `short_thread_prereg.md`. ⚠️ المقياس حجم FINRA لا «المتاح للاقتراض» (المتاح بلا تاريخ). باكتيست فقط"
+      bt_min_price:
+        description: "🚪 T-GATES ذراع G5 (اختياري): تجاوز أرضية السعر MIN_PRICE — أرضيتنا $1.5 **هندسية** وأرضية فيصل المنصوصة $1 (ودخولاته الموثّقة 0.82/1.13/1.30). اكتب 1.0 للذراع. ⚠️ تخفض أيضًا بوّابة «الإشارة الوهمية» point-in-time (نفس العتبة — مقصود). المعيار: `gates_prereg.md`. باكتيست فقط، لا يمسّ الإنتاج"
         required: false
         default: ""
-      bt_stop_pct:
-        description: "⛔ تجربة T-STOP (اختياري): عمق الوقف تحت الدعم بصيغة «lo,hi» مثل «13,15» — لاختبار وقفٍ **خارج منطقة مسح السيولة** (فيصل ENPH: «جميع أوامر الوقف تحت الدعم · الوقف عند المتداولين من 5-7%»). فارغ = الإنتاج (5,7). المعيار: `stop_sweep_prereg.md`. باكتيست فقط"
+      bt_m4_post_split:
+        description: "🚪 T-GATES ذراع G6 (اختياري): 1 = M4 تقيس مدى القاعدة على **شموع ما بعد آخر تقسيم عكسي حصرًا** (تغيير النافذة نفسها — البديل الجذريّ، غير `bt_split_aware_m4` الذي يصحّح المدى فقط). أقلّ من 5 شموع بعد التقسيم ⇒ M4 تُعتبَر مجتازة (لا حكم على قاعدة لم تتكوّن). ⚠️ يلزم frozen_run_id (السياق splits من اللقطة). باكتيست فقط"
         required: false
         default: ""
       bt_portfolio:
@@ -154,10 +167,11 @@ jobs:
           # 🏦 قوة البوت + الانتقائية — تُقرأ في وضع BACKTEST حصريًا (الإنتاج محصّن بقفل B1)
           BT_POTENTIAL: ${{ github.event.inputs.bt_potential }}
           BT_FEATURES: ${{ github.event.inputs.bt_features }}
-          # 🕵️ T-SHORT: شورت FINRA المؤرَّخ عند الإشارة — يُقرأ في وضع BACKTEST حصريًا
-          BT_SHORT: ${{ github.event.inputs.bt_short }}
-          # ⛔ T-STOP: عمق الوقف تحت الدعم — يُقرأ في وضع BACKTEST حصريًا
-          BT_STOP_PCT: ${{ github.event.inputs.bt_stop_pct }}
+          # 🚪 T-GATES: ذراعا G5 (أرضية M1) وG6 (M4 على شموع ما بعد التقسيم) — وضع
+          # BACKTEST حصريًا. (وأُسقط هنا `BT_SHORT`/`BT_STOP_PCT` بحكمٍ نهائيّ —
+          # التفصيل في تعليق كتلة المدخلات أعلاه؛ صفّاهما بالجدول والعلمان باقيان.)
+          BT_MIN_PRICE: ${{ github.event.inputs.bt_min_price }}
+          BT_M4_POST_SPLIT: ${{ github.event.inputs.bt_m4_post_split }}
           BT_PORTFOLIO: ${{ github.event.inputs.bt_portfolio }}
           BT_PORT_SIZE: ${{ github.event.inputs.bt_port_size }}
           # 🕰️ point-in-time (تدقيق خارجي) — يُقرأ في وضع BACKTEST حصريًا

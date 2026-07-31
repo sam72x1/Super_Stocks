@@ -260,6 +260,10 @@ CONFIG = {
                                  #   ناجح = جمعة كاملة سقطت (GitHub قد يُسقط تشغيلة كرون،
                                  #   والمستودع قاس تأخّرات 95-159د). **إشعار فقط** —
                                  #   القرار للمالك (force_renew=1). لا يُشتَقّ منه تجديد.
+    "HUNTER_STALE_TRADING_DAYS": 1,  # 🔔 ⓿-و أقصى عمرٍ **صامت** لختم صيّاد المقسّم
+                                 #   بأيام التداول. الحالة السليمة = **يوم تداول واحد**
+                                 #   (الصيّاد يمسح جلسة أمس فجرًا والفارز يقرأ صباحًا)،
+                                 #   فيومان فأكثر = تشغيلةٌ سقطت ⇒ تحذير. إشعار فقط.
     # ---- قائمة مراقبة الارتداد المستقلة (v2.8): أسهم ارتكاز حقيقية ارتفعت
     # فوق دخولها؛ نتابعها يوميًا وننبّه أول ما تنزل لسعر الدعم (انهيار البورصة)
     "PULLBACK_WATCH": True,
@@ -341,6 +345,14 @@ CONFIG = {
                                          #   الشموع القديمة فيصنع «قاعدة واسعة» زائفة). نفس
                                          #   آلية M2 · باكتيست حصريًا + سياق splits؛ الإنتاج
                                          #   byte-identical (العلم مطفأ والسياق None = لا أثر).
+    # 🚪 T-GATES ذراع G6 (`gates_prereg.md`) — **البديل الجذريّ لـM4** المسمّى في
+    # `OPUS_EXECUTION_PACKAGE.md §C2`. ⚠️ **ليست G2**: `BT_SPLIT_AWARE_M4` تُبقي
+    # النافذة كاملة وتصحّح **المقياس** (de-inflation)، وهذي تغيّر **النافذة نفسها**
+    # فتقصر مدى القاعدة على **شموع ما بعد آخر تقسيم عكسي حصرًا**. وبقاء أقلّ من 5
+    # شموع بعد التقسيم ⇒ «قاعدة لم تتكوّن» ⇒ M4 تُعتبَر مجتازة (لا حكم عليها).
+    # باكتيست حصريًّا + يلزم سياق splits من لقطة مجمّدة؛ الإنتاج byte-identical
+    # (العلم مطفأ **والسياق None** = الفرع لا يُنفَّذ أصلًا).
+    "BT_M4_POST_SPLIT": 0,
     "RED_CANDLE_MIN_DROP": 15.0,         # شمعة الهبوط الكبيرة ≥ 15% للهدف الأول
     "RES_RED_HEAD_MIN_DROP": 3.0,        # رأس شمعة حمرا (هبوط ≥3%) = مقاومة/هدف
                                          #   (قاعدة فيصل: «رأس الحمرا مقاومة» — يومي)
@@ -519,6 +531,15 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_SPLIT_AWARE_M2", "BT_SPLIT_AWARE_M2", int),   # 🔬 M2 واعية للتقسيم
             ("BT_SPLIT_REF_M2", "BT_SPLIT_REF_M2", int),       # 🔬 M2 مرجع ما بعد التقسيم (فيصل)
             ("BT_SPLIT_AWARE_M4", "BT_SPLIT_AWARE_M4", int),   # 🔬 M4 واعية للتقسيم
+            # 🚪 T-GATES (`gates_prereg.md`) — علما الذراعين الناقصين:
+            # · G5 `BT_MIN_PRICE`: أرضية M1 ($1.5 هندسية) ⇒ أرضية فيصل المنصوصة $1.
+            #   ⚠️ وهي نفسها العتبة التي تقرأها بوّابة «الإشارة الوهمية» point-in-time
+            #   في `backtest_symbol` (‏`_pit_raw_price(...) < MIN_PRICE`) — مقصود:
+            #   الذراع يخفض الأرضية **كلَّها** لا نصفَها.
+            # · G6 `BT_M4_POST_SPLIT`: M4 على شموع ما بعد التقسيم حصرًا (بديل جذريّ).
+            # كلاهما باكتيست حصريًّا — الإنتاج محصّن بقفل B1 (مقفول باختبارَي تسرّب).
+            ("BT_MIN_PRICE", "MIN_PRICE", float),              # 🚪 G5: أرضية سعر M1
+            ("BT_M4_POST_SPLIT", "BT_M4_POST_SPLIT", int),     # 🚪 G6: M4 ما بعد التقسيم
             ("BT_SPIKE_WINDOW", "PRIOR_SPIKE_WINDOW", int),
             ("BT_MIN_DOLLAR_VOL", "MIN_DOLLAR_VOL", float),
             # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — باكتيست حصريًا، منفصلة الدخول/الوقف
@@ -1238,6 +1259,14 @@ def _pit_raw_price(adjusted_price, splits, asof) -> float:
 # صفر أثر حتى لو رُفِع العلم غلطًا (حارس مزدوج مع BT_SPLIT_AWARE_M2).
 _BT_SPLITS_CTX = None
 
+# 🔬 **مرجعٌ واحد** لأعلام التجارب التي تقرأ `_BT_SPLITS_CTX`: يُستعمل في موضع **رفع**
+# السياق (`run_backtest`) بينما القراءة في `analyze_ticker`. إغفال علمٍ جديد هنا =
+# «علمٌ ميّت»: يصل CONFIG لكن السياق يبقى None ⇒ تشغيلة خضراء بعدّادات متطابقة بت-بت
+# (بصمة الـno-op، درس رقم 7). مقفول باختبار **يشتقّ** القائمة من مصدر `analyze_ticker`
+# نفسه فلا يتفرّق الموضعان.
+_BT_SPLIT_CTX_FLAGS = ("BT_SPLIT_AWARE_M2", "BT_SPLIT_REF_M2", "BT_SPLIT_AWARE_M4",
+                       "BT_M4_POST_SPLIT")
+
 
 def _split_aware_hi52(highs, splits, cut) -> float:
     """🔬 قمة 52أ **بعد إلغاء تضخيم التقسيم العكسي** (تجربة M2، باكتيست/تشخيص):
@@ -1471,6 +1500,52 @@ def _split_aware_base_range(highs, lows, splits, cut) -> float:
             return _raw()
         except Exception:
             return -1.0
+
+
+def _post_split_base_range(highs, lows, splits, cut, min_bars: int = 5):
+    """🚪 **T-GATES ذراع G6** (`gates_prereg.md`) — مدى قاعدة M4 محسوبًا على **شموع ما
+    بعد آخر تقسيم عكسي حصرًا** داخل نافذة القاعدة.
+
+    ⚠️ **ليست `_split_aware_base_range` (ذراع G2) — الفرق جوهريّ:** تلك تُبقي النافذة
+    كاملة وتصحّح **المقياس** (de-inflation: تضرب الشموع الأقدم بنِسَب التقسيم لتعيدها
+    لمقياسها المعاصر)، أمّا هذي فتغيّر **النافذة نفسها** وتُسقط شموع ما قبل التقسيم
+    كليًّا — لأن سهم فيصل المقسّم يُقرأ عمليًّا كأنه «وُلد» عند التقسيم، وما قبله سلسلةُ
+    سهمٍ آخر بمقياسٍ آخر. (وG2 محكومٌ عليها no-op على المقسّمة: نافذة 15ج أقصر من أن
+    يقع فيها التقسيم غالبًا.)
+
+    يرجع `(status, range_pct)`:
+    · `("no_split", None)` = لا تقسيم عكسي معروف حتى `cut` (أو تعذّر/بيانات تالفة)
+      ⇒ **السلوك الأساس حرفيًّا**: المُنادي يُبقي المدى الخام ولا يغيّر شيئًا.
+    · `("too_few", None)` = بقي **أقلّ من `min_bars`** شمعة بعد التقسيم داخل النافذة
+      ⇒ «قاعدة لم تتكوّن» فلا حكم عليها ⇒ المُنادي يعتبر M4 **مجتازة**.
+    · `("ok", نسبة%)` = المدى بين قمة وقاع شموع ما بعد التقسيم.
+
+    `min_bars`=5 **مُثبَّتة بالتسجيل المسبق** فليست دِيال ضبط (لا تُعرَض مدخلًا ولا
+    تُقرأ من env — أي كشفٍ لها بالواجهة يدعو لضبطها بعد رؤية النتائج).
+    نقيّة · فاشلة-آمنة · **بلا تسريب مستقبلي** (تقسيمات معروفة حتى `cut` حصرًا).
+    (تقسيم عكسي **قبل** النافذة كلها ⇒ كل شموعها بعده ⇒ المدى = الخام = سلوك اليوم.)"""
+    try:
+        def _n(x):
+            t = pd.Timestamp(x)
+            return t.tz_localize(None) if getattr(t, "tz", None) is not None else t
+        if splits is None or (hasattr(splits, "__len__") and len(splits) == 0):
+            return ("no_split", None)
+        c = _n(cut)
+        it = splits.items() if hasattr(splits, "items") else splits
+        rsplits = [_n(d) for d, r in it if r and 0 < float(r) < 1.0 and _n(d) <= c]
+        if not rsplits:
+            return ("no_split", None)
+        last = max(rsplits)
+        hs = [float(v) for ts, v in highs.items() if _n(ts) >= last]
+        ls = [float(v) for ts, v in lows.items() if _n(ts) >= last]
+        if min(len(hs), len(ls)) < int(min_bars):
+            return ("too_few", None)      # قاعدة لم تتكوّن ⇒ لا حكم (M4 مجتازة)
+        hi, lo = max(hs), min(ls)
+        if not (math.isfinite(hi) and math.isfinite(lo) and lo > 0):
+            return ("no_split", None)     # تعذّر ⇒ السلوك الأساس (تعذّر ≠ صفر)
+        return ("ok", (hi / lo - 1.0) * 100.0)
+    except Exception:
+        return ("no_split", None)
 
 
 def save_frozen_dataset(hist: dict, splits: dict, asof: str, path: str) -> dict:
@@ -2441,7 +2516,18 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         if CONFIG.get("BT_SPLIT_AWARE_M4") and _BT_SPLITS_CTX is not None:
             base_range = _split_aware_base_range(high.tail(bw), low.tail(bw),
                                                  _BT_SPLITS_CTX, df.index[-1])
-        if base_range > CONFIG["BASE_RANGE_MAX_PCT"]:
+        # 🚪 T-GATES ذراع G6 (BT_M4_POST_SPLIT، باكتيست فقط · الإنتاج byte-identical):
+        # العلم مطفأ افتراضيًّا **والسياق None** فلا يُنفَّذ الفرع أصلًا، و«off» تجعل
+        # الشرط أدناه هو شرط الأساس حرفيًّا. ⚠️ **غير G2 أعلاه**: تلك تصحّح **المدى**
+        # والنافذة كما هي؛ وهذي تقصر **النافذة** على شموع ما بعد آخر تقسيم عكسي. وبأقلّ
+        # من 5 شموع بعده ⇒ «قاعدة لم تتكوّن» ⇒ M4 مجتازة (اختيار مُسجَّل مسبقًا، مقفول).
+        _m4ps = ("off", None)
+        if CONFIG.get("BT_M4_POST_SPLIT") and _BT_SPLITS_CTX is not None:
+            _m4ps = _post_split_base_range(high.tail(bw), low.tail(bw),
+                                           _BT_SPLITS_CTX, df.index[-1])
+            if _m4ps[0] == "ok" and _m4ps[1] is not None:
+                base_range = _m4ps[1]
+        if _m4ps[0] != "too_few" and base_range > CONFIG["BASE_RANGE_MAX_PCT"]:
             if not pullback:
                 return _reject("M4_base_واسعة")
             risen = True       # القاعدة اتسعت لأنه ارتفع = مرشّح ارتداد
@@ -7358,6 +7444,174 @@ def renewal_stale_message(st: dict) -> str:
     ])
 
 
+# ==========================================================
+# 🔔 ⓿-و حارس سقوط كرون **صيّاد المقسّم** (وقائيّ — إشعار فقط)
+# ==========================================================
+# **اللماذا (مقيس):** الصيّاد هو الأداة الرابحة حيًّا (رشّح NUWE قبل انفجاره ‏+100%
+# بيومين — `hunter_six_result.md`)، ومع ذلك كان — بخلاف التجديد الأسبوعي الذي له
+# `renewal_staleness` — **بلا أي حارس سقوط**: لو أسقط GitHub تشغيلته (ظاهرة مقيسة
+# عندنا: تأخّرات 95-195 دقيقة وسقوطُ تشغيلات) **لصمتَ صمتًا تامًّا** — وصمتُه يُقرأ
+# «لا مقسّم اليوم» وهو غلط: قد لا يكون فُحص السوق أصلًا.
+# 🔴 **تصريحٌ لازم:** هذا **يكسر** قاعدة «الصيّاد لا يحفظ حالة» الموثّقة في CLAUDE.md
+# — بأقلّ حالةٍ ممكنة: **تاريخٌ واحد** (`{"last_session": "YYYY-MM-DD"}`) لا دِدوب ولا
+# أسعار ولا رموز. ويتطلّب رفع صلاحية `split_hunter.yml` إلى `contents: write`.
+HUNTER_STAMP_FILE = "split_hunter_stamp.json"   # 🔔 ختم آخر مسحٍ ناجح للصيّاد
+
+
+def _market_holidays() -> set:
+    """عطلات السوق من `market_calendar` المثبَّت — فاشلة-آمنة → `set()` فارغة.
+
+    ⚠️ **تبسيطٌ مُصرَّح به عند التعذّر:** يبقى استبعاد السبت/الأحد وحده، فعطلةٌ رسمية
+    وسط الأسبوع تُحسب يوم تداول ⇒ يصل التحذير **قبل أوانه بيوم** (إزعاجٌ لا صمت —
+    وهو الاتجاه الآمن لأداةٍ عقدُها أن الصمت خطر).
+    ⚠️ **وحدٌّ مُعلَن:** `market_calendar` **مثبَّت على 2026** (قرارٌ موثّق) — فعطلات
+    سنةٍ لاحقة غير مذكورة ستقع في التبسيط نفسه (تحذيرٌ مبكّر بيوم، لا صمت)."""
+    try:
+        import market_calendar as _mcal
+        return set(_mcal.HOLIDAYS)
+    except Exception:                                            # noqa: BLE001
+        return set()
+
+
+def trading_days_between(last, today) -> int:
+    """📆 عدد **أيام التداول** الواقعة بعد `last` حتى `today` شموليًّا. نقيّة.
+
+    ⚠️ **يومُ تداولٍ لا يومٌ تقويميّ** — وهذا جوهر الحارس لا زخرفة: كرون الصيّاد
+    `13 1 * * 2-6` لا يعمل السبت/الأحد أصلًا، فختمُ **جلسة الجمعة** يوم **الاثنين**
+    عمرُه **يوم تداولٍ واحد** لا ثلاثة؛ وحسابُه تقويميًّا يُطلق تحذيرًا كاذبًا كل
+    اثنين ⇒ يُدرَّب المالك على تجاهل التحذير = موتُ الحارس.
+    العطلات الرسمية من `market_calendar` (مثبَّت الإصدار) — لا اجتهاد.
+
+    يقبل `date`/`datetime`/نصًّا ISO. يرجّع 0 لغير الموجب (ساعة رنر مغلوطة/نفس اليوم)
+    و`(today-last).days` مباشرةً لمدًى شاذّ (فوق 400 يوم) بلا حلقةٍ طويلة — الحكم
+    محسومٌ أصلًا عند هذا الحدّ."""
+    def _d(x):
+        if isinstance(x, str):
+            return dt.date.fromisoformat(str(x)[:10])
+        if isinstance(x, dt.datetime):
+            return x.date()
+        if isinstance(x, dt.date):
+            return x
+        raise TypeError(f"تاريخ غير صالح: {type(x).__name__}")
+
+    a, b = _d(last), _d(today)
+    span = (b - a).days
+    if span <= 0:
+        return 0
+    if span > 400:                       # حدّ أمان: لا حلقة طويلة على ختمٍ شاذّ
+        return int(span)
+    hol, n, cur = _market_holidays(), 0, a
+    for _ in range(span):
+        cur += dt.timedelta(days=1)
+        if cur.weekday() >= 5:           # السبت/الأحد ليسا سقوطًا (لا جدولة أصلًا)
+            continue
+        if cur.isoformat() in hol:       # عطلة رسمية: لا جلسة ⇒ لا مسح مُنتظَر
+            continue
+        n += 1
+    return n
+
+
+def record_hunter_run(session_date=None, path=None) -> bool:
+    """🔔 يكتب ختم آخر مسحٍ **ناجح** للصيّاد — **أقلّ حالةٍ ممكنة: تاريخٌ واحد**.
+
+    يُستدعى من `split_hunter.py` بعد أن يجتاز المسحُ حارسَ التغطية فعليًّا (أي أن
+    السوق **فُحِص**) — لا عند الإرسال، فيومُ «لا مطابق» تشغيلةٌ ناجحة تمامًا وهو
+    بالضبط اليوم الذي يجب ألّا يُخلَط بالسقوط.
+    ⚠️ المخزَّن = **تاريخ الجلسة** (آخر شمعة بالبيانات) لا يوم الرنر: الكرون فجر UTC
+    فيوم الرنر = اليوم **التالي** للجلسة (جلسة الجمعة تُوسَم سبتًا).
+    فاشلة-آمنة → False بلا رمي (فشلُ الختم لا يجوز أن يُسقط تنبيهًا رابحًا)."""
+    try:
+        d = dt.date.today() if session_date is None else session_date
+        if isinstance(d, str):
+            d = dt.date.fromisoformat(str(d)[:10])
+        elif isinstance(d, dt.datetime):          # يشمل pandas.Timestamp
+            d = d.date()
+        if not isinstance(d, dt.date):
+            raise TypeError(f"تاريخ جلسة غير صالح: {type(d).__name__}")
+        _atomic_write_json(path or HUNTER_STAMP_FILE, {"last_session": d.isoformat()})
+        return True
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ ختم الصيّاد: {e}")
+        return False
+
+
+def load_hunter_stamp(path=None):
+    """يقرأ ختم الصيّاد → `"YYYY-MM-DD"` أو None (غائب/تالف/بلا تاريخ صالح).
+
+    ⚠️ **لا يمرّ بـ`_handle_corrupt_state_file` عمدًا** (بخلاف بقيّة ملفات الحالة):
+    الحجر الصحّي يمنع الكتابة على الملف بقيّة العملية، والصيّاد يجب أن يستطيع إصلاح
+    ختمه بنفسه في تشغيلته التالية. والتلف هنا **يتحوّل تحذيرًا** في التقرير اليومي
+    فلا يضيع صامتًا — وهو المطلوب."""
+    try:
+        with open(path or HUNTER_STAMP_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        v = data.get("last_session") if isinstance(data, dict) else None
+        return dt.date.fromisoformat(str(v)[:10]).isoformat() if v else None
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def hunter_staleness(today=None, max_days=None, path=None):
+    """🔔 هل سقط كرون صيّاد المقسّم؟ **قراءة محلّية صرفة (صفر شبكة) · إشعار فقط.**
+
+    لا تُشغّل الصيّاد ولا تغيّر شيئًا — ترصد فقط أن ختمه تقادم. يرجّع None (سليم)
+    أو dict: `{"why": "missing"|"corrupt"|"stale", "last", "days", "max_days"}`.
+
+    📏 **التخوم مثبَّتة صراحةً (مقفولة باختبارَي تخوم وطفرتين):** عمرٌ **يوم تداولٍ
+    واحد ⇒ صامت** (وهي الحالة السليمة بالتعريف: الصيّاد يمسح جلسة أمس فجرًا والفارز
+    يقرأ صباحًا) · **يوما تداول فأكثر ⇒ تحذير** = تشغيلةٌ واحدة سقطت. فالحدّ
+    (`HUNTER_STALE_TRADING_DAYS`=1) هو **أقصى عمرٍ صامت** لا عتبةَ الإنذار.
+
+    🔒 **تعذّر ≠ سليم:** الملفّ الغائب والتالف والعمر غير القابل للحساب كلُّها
+    **تحذير** لا صمت — لأن الصمت هو العلّة التي بُني هذا الحارس ضدّها."""
+    try:
+        cap = int(CONFIG["HUNTER_STALE_TRADING_DAYS"] if max_days is None else max_days)
+    except Exception:                                            # noqa: BLE001
+        cap = 1
+    p = path or HUNTER_STAMP_FILE
+    try:
+        exists = os.path.exists(p)
+    except Exception:                                            # noqa: BLE001
+        exists = False
+    if not exists:
+        return {"why": "missing", "last": None, "days": None, "max_days": cap}
+    last = load_hunter_stamp(p)
+    if not last:
+        return {"why": "corrupt", "last": None, "days": None, "max_days": cap}
+    try:
+        days = trading_days_between(last, dt.date.today() if today is None else today)
+    except Exception:                                            # noqa: BLE001
+        return {"why": "corrupt", "last": last, "days": None, "max_days": cap}
+    if days is None or int(days) <= cap:
+        return None
+    return {"why": "stale", "last": last, "days": int(days), "max_days": cap}
+
+
+def hunter_stale_line(st: dict) -> str:
+    """⚠️ نصّ تحذير «صيّاد المقسّم لم يعمل» (عربي مبسّط · **بلا علامات مقارنة**).
+    نقيّة · «» لو لا تقادم. **يُلحَق برسالةٍ قائمة** (التقرير اليومي) ولا يُرسَل
+    وحده — عقد المالك: لا قناة تلغرام رابعة."""
+    if not st:
+        return ""
+    why = str(st.get("why") or "")
+    if why == "missing":
+        body = ("لا يوجد ختمٌ لآخر مسح — إمّا لم يعمل الصيّاد بعد، أو لم يُحفَظ ختمه.")
+    elif why == "corrupt":
+        body = ("ملفّ ختم الصيّاد موجود لكن بلا تاريخٍ صالح — تعذّرت معرفة آخر مسح.")
+    else:
+        body = (f"آخر مسحٍ ناجح: {esc(str(st.get('last')))} — مضى عليه "
+                f"{int(st.get('days') or 0)} من أيام التداول، والمتوقّع مسحٌ كل يوم "
+                "بعد إغلاق الافتر.")
+    return _rtl_join([
+        "⚠️ <b>صيّاد المقسّم لم يعمل</b>",
+        body,
+        "",
+        "ℹ️ صمتُ الصيّاد يُقرأ «لا سهم مقسّم اليوم» — وهو غلط هنا: قد لا يكون السوق "
+        "فُحِص أصلًا.",
+        "🔧 <b>الإجراء:</b> شغّل «Split Hunter» يدويًّا من Actions.",
+    ])
+
+
 def make_watch_entry(r: dict, today_iso: str) -> dict:
     """تحويل نتيجة تحليل إلى سجل سهم في القائمة الأسبوعية"""
     return {
@@ -11925,6 +12179,18 @@ def run_daily_watchlist(wl: dict) -> None:
         msg += "\n\n" + pull_sec
     # (قسم مراقبة التقسيم العكسي D9 لم يعد يُدفَع بالتقرير اليومي — «تحت المراقبة»؛
     # قاعدة فيصل ÷2 محفوظة بالكود وتُستدعى عند الحاجة/الجمعة، لا تغرق تقرير الجاهز.)
+    # 🔔 ⓿-و **نقطة النداء الوحيدة** لحارس سقوط كرون صيّاد المقسّم: قراءة محلّية صرفة
+    # (صفر شبكة · لا تشغّل الصيّاد · لا تغيّر حالة) — والسطر **يُلحَق بالتقرير القائم**
+    # فلا قناة تلغرام رابعة (عقد المالك). الصيّاد هو الرابح الحيّ الوحيد وكان بلا نظير
+    # لـ`renewal_staleness`: سقوطُ تشغيلته يصمت صمتًا تامًّا فيُقرأ «لا مقسّم اليوم».
+    # `try` مطلق (نمط خطة 008): الرصد لا يجوز أن يُسقط المتابعة اليومية أبدًا.
+    try:
+        _hl = hunter_stale_line(hunter_staleness())
+        if _hl:
+            log(_hl)
+            msg += "\n\n" + _hl
+    except Exception as _e:                                      # noqa: BLE001
+        log(f"⚠️ رصد سقوط صيّاد المقسّم: {_e}")
     # احفظ حالة اليوم (ترقيات/تنبيهات/تحديثات) قبل الإرسال — لو فشل الإرسال
     # (شبكة/تيليجرام) لا تضيع الحالة المحسوبة (إصلاح 2026-06-24).
     save_watchlist(wl)
@@ -14155,9 +14421,9 @@ def run_backtest(symbols=None) -> None:
     all_trades = []
     # ② P1: تجميع عالميّ لأسباب الرفض عبر كل الرموز (كان يُهدَر مع `sym_reasons`)
     bt_reasons_all = {}
-    # ④-ج «العلم فعّال»: كم رمزًا قرأ فعلًا لقطة splits — تشغيلة بلا لقطة = العلم خامل
-    _split_flag_on = bool(CONFIG.get("BT_SPLIT_AWARE_M2") or CONFIG.get("BT_SPLIT_REF_M2")
-                          or CONFIG.get("BT_SPLIT_AWARE_M4"))
+    # ④-ج «العلم فعّال»: كم رمزًا قرأ فعلًا لقطة splits — تشغيلة بلا لقطة = العلم خامل.
+    # المرجع الواحد `_BT_SPLIT_CTX_FLAGS` يمنع تفرّق الشرط عن موضع القراءة بـanalyze_ticker.
+    _split_flag_on = any(CONFIG.get(_f) for _f in _BT_SPLIT_CTX_FLAGS)
     _split_ctx_syms = 0
     # ③ عدّاد أسماء النواقص خاصّ بهذي التشغيلة (لا يرث تلوّثًا سابقًا)
     _REJECT_SOFT_FAILS.clear()
@@ -14171,9 +14437,7 @@ def run_backtest(symbols=None) -> None:
         # يُقرأ داخل analyze_ticker أثناء التشخيص والمشي معًا؛ None بلا العلم = صفر أثر
         # (الإنتاج/الباكتيست العادي byte-identical). يُضبط **قبل** التشخيص ليعكسه بصدق.
         globals()["_BT_SPLITS_CTX"] = ((splits_map or {}).get(sym)
-                                       if (CONFIG.get("BT_SPLIT_AWARE_M2")
-                                           or CONFIG.get("BT_SPLIT_REF_M2")
-                                           or CONFIG.get("BT_SPLIT_AWARE_M4")) else None)
+                                       if _split_flag_on else None)
         if _split_flag_on and _BT_SPLITS_CTX is not None:
             _split_ctx_syms += 1          # ④-ج: عدّاد «العلم فعّال»
         if not market:      # التشخيص المفصّل (8 قصّات/رمز) لعيّنة صغيرة فقط — لا للسوق
