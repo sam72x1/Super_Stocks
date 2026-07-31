@@ -13,6 +13,9 @@ on:
       #      بالسنة الثالثة ⇒ فشل الثبات ⇒ لا تغيير على M13**، والملف أُغلق.
       #    · `bt_stop_pct` — ⛔ T-STOP (`stop_sweep_prereg.md`): الفرق −0.1/+0.1/0.0 ⇒
       #      **ينقلب ولا يبلغ 0.15R ⇒ الوقف يبقى (5,7)**، والإنتاج مقفول باختبارين.
+      #    · `bt_liberation` — ⛔ T-LIBERATION (`liberation_result.md`): ‏−0.62/−0.59/−0.48R
+      #      **سالبٌ في الثلاث** (نجاح 75-87% بتوقّعٍ سالب!) ⇒ التحرر وسمُ تفعيلٍ لا زنادَ
+      #      دخول، والملف أُغلق. أُسقط ليُفسح مكان `bt_watch_max_fails` (‏T-FAILS).
       #    🔁 **والإسقاط قابلٌ للنقض**: يُسقَط **المدخل والـenv معًا فقط** — بينما صفّ
       #    `BT_SHORT`/`BT_STOP_PCT` في جدول `_apply_backtest_overrides` **وعلمُهما في
       #    CONFIG باقيان** (مقفولان باختبار)، فإحياء أيٍّ منهما = إعادة سطرَي المدخل
@@ -50,8 +53,8 @@ on:
         description: "تجربة C (اختياري): تجاوز أرضية السيولة MIN_DOLLAR_VOL (200K$) — باكتيست فقط"
         required: false
         default: ""
-      bt_liberation:
-        description: "🔓 تجربة T-LIBERATION (اختياري): 1 = ذراعا دخول «بعد كسر التحرر» على نفس الإشارة (L1 الرقم الحرج · L2 أعلى مقاومة) بوقف الأساس ومحرّك الحسم نفسه، مع **مقارنة مقترنة** تُسقط فخّ الامتناع. المعيار: `liberation_prereg.md`. باكتيست فقط، مطفأ = صفقة الأساس بت-بت"
+      bt_watch_max_fails:
+        description: "🚧 تجربة T-FAILS (اختياري): سقف «نواقص التأكيد» (الإنتاج 3). جرّب 5 · 7 · 99 (=بلا حدّ). يستهدف الفيتو الذي يقتل 85.14% ممّن يصله (968/1,137) ولم يُختبَر قطّ، بينما إشارته مقيسةٌ غير مميِّزة ثلاث مرّات. المعيار: `fails_prereg.md`. ⚠️ يمسّ العضوية — باكتيست فقط، فارغ = الإنتاج (3) بت-بت"
         required: false
         default: ""
       bt_sweep_entry:
@@ -157,7 +160,7 @@ jobs:
           # (`BT_LIB_WAIT`=20) مُثبَّتة بالتسجيل المسبق فلا تُعرَض مدخلًا هنا** — كشفُها
           # دِيالًا في الواجهة يدعو لضبطها بعد رؤية النتائج (p-hacking)، وسقف GitHub
           # 25 مدخلًا فرض الاختيار فوقعنا على الأصوب. المفتاح باقٍ بالكود لو لزم.
-          BT_LIBERATION: ${{ github.event.inputs.bt_liberation }}
+          BT_WATCH_MAX_FAILS: ${{ github.event.inputs.bt_watch_max_fails }}
           BT_SWEEP_ENTRY: ${{ github.event.inputs.bt_sweep_entry }}
           BT_SWEEP_STOP: ${{ github.event.inputs.bt_sweep_stop }}
           BT_SWEEP_PCT: ${{ github.event.inputs.bt_sweep_pct }}

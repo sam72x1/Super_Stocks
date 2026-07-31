@@ -542,6 +542,11 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_M4_POST_SPLIT", "BT_M4_POST_SPLIT", int),     # 🚪 G6: M4 ما بعد التقسيم
             ("BT_SPIKE_WINDOW", "PRIOR_SPIKE_WINDOW", int),
             ("BT_MIN_DOLLAR_VOL", "MIN_DOLLAR_VOL", float),
+            # 🚧 T-FAILS (`fails_prereg.md`): سقف «نواقص التأكيد» — الفيتو الوحيد الذي
+            # يقتل 85.14% ممّن يصله (968/1,137) **ولم يُختبَر ولا مرّة**، بينما الإشارة
+            # التي يقوم عليها مقيسةٌ غير مميِّزة ثلاث مرّات (تقاعد A/B · 2025 مقلوبة ·
+            # T-GATES). ⚠️ يمسّ **العضوية** ⇒ باكتيست حصريًّا، والإنتاج يبقى 3.
+            ("BT_WATCH_MAX_FAILS", "WATCH_MAX_FAILS", int),
             # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — باكتيست حصريًا، منفصلة الدخول/الوقف
             ("BT_LIBERATION", "BT_LIBERATION", int),       # 🔓 T-LIBERATION
             ("BT_LIB_WAIT", "BT_LIB_WAIT", int),
