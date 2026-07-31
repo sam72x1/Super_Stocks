@@ -11875,6 +11875,33 @@ check("⚡ EVENT🔒 المُشغِّل يُعلن كم نافذةً استعم�
 check("⚡ EVENT🔒 الرقم الحرج يُخزَّن بالصفقة خلف العلم (كان غائبًا كليًّا)",
       'trade["crit"]' in _insp0.getsource(S.backtest_symbol)
       and "build_interpretation(r)" in _insp0.getsource(S.backtest_symbol))
+
+# 🔴 التجديد اليوميّ للحاجز — الإنتاج يعيد بناء `interp` كلَّ يوم بالسعر الجديد.
+#    تجميدُه أشعل ‏56% من الجلسات (مقيسٌ بالمِجَسّ الثاني) ⇒ شرطُ صلاحيةٍ ثانٍ.
+_ii = {"pivot": 2.00, "stop": (1.86, 1.90), "t1": 3.0, "t2": 4.0, "t3": 5.0,
+       "tranches": [2.00, 2.06, 2.12],
+       "key_levels": {"sup_major": 2.00, "res_minor": 2.50, "res_major": 4.00}}
+_bl_low = EXR.daily_break_level({"interp_in": _ii}, 2.10, 9.99)
+_bl_hi = EXR.daily_break_level({"interp_in": _ii}, 2.60, 9.99)
+check("⚡ EVENT🔒 الحاجز يتجدّد مع السعر (يقفز للمقاومة التالية بعد تجاوز الأولى)",
+      _bl_low is not None and _bl_hi is not None and _bl_hi > _bl_low,
+      f"{_bl_low} → {_bl_hi}")
+check("⚡ EVENT🔒 التجديد يستعمل `build_interpretation` و`_ignition_break_level` الإنتاجيّين",
+      "S.build_interpretation(" in _insp0.getsource(EXR.daily_break_level)
+      and "S._ignition_break_level(" in _insp0.getsource(EXR.daily_break_level))
+check("⚡ EVENT🔒 بلا مدخلاتٍ مخزَّنة ⇒ يسقط لمستوى يوم الإشارة (فاشل-آمن لا انهيار)",
+      EXR.daily_break_level({}, 2.5, 7.77) == 7.77
+      and EXR.daily_break_level({"interp_in": _ii}, None, 7.77) == 7.77)
+# 🔴 قفلٌ **سلوكيّ** على «إغلاق الجلسة السابقة»: خاصّيةٌ تعتمد على **ترتيب** سطرين،
+#    وفحصُ النصّ لا يرى الترتيب — **ونجت طفرةُ إعادة الترتيب فعلًا** حتى استُخرجت
+#    الحلقة إلى `session_levels` النقيّة. الفخّ نفسه للمرّة الثالثة اليوم.
+_sl_sess = {"d1": [{"c": 2.10}], "d2": [{"c": 2.60}], "d3": [{"c": 2.60}]}
+_sl = EXR.session_levels(["d1", "d2", "d3"], _sl_sess, {"interp_in": _ii}, 9.99)
+check("⚡ EVENT🔒 أوّل جلسةٍ تأخذ مستوى يوم الإشارة (لا سابقةَ لها)",
+      _sl["d1"] == 9.99)
+check("⚡ EVENT🔒 التجديد بإغلاق **الجلسة السابقة** لا الحالية (لا نظرَ مستقبليّ)",
+      abs(_sl["d2"] - 2.50) < 1e-9 and abs(_sl["d3"] - 4.00) < 1e-9,
+      f"d2={_sl['d2']} d3={_sl['d3']}")
 check("⚡ EVENT🔒 اشتقاقان متعارضان ⇒ **يُرفَض** (لا يُبنى على أرضيةٍ مظنونة)",
       EXR.plan_levels({"entry": _ent * 1.5, "stop": _st, "t1": _piv * 1.5}) is None)
 

@@ -13022,6 +13022,14 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                     "critical_number") or {}).get("price")
             except Exception:
                 trade["crit"] = None
+            # 🔴 والمستويات المخزَّنة معه — لأن الإنتاج **يجدّد الرقم الحرج يوميًّا**
+            # (`update_watchlist_status` يعيد بناء `interp` بـ`last_price` الجديد بينما
+            # `key_levels`/`h4_levels`/الأهداف تبقى كما خُزِّنت). فتجميدُه على قيمة يوم
+            # الإشارة يجعل الحاجز ثابتًا: يتجاوزه السهم ويبقى فوقه ⇒ **‏56% من الجلسات
+            # تشتعل** (مقيسٌ بمِجَسّ التغطية). تخزينُها يتيح إعادة التجديد اليوميّ نفسه.
+            trade["interp_in"] = {k: r.get(k) for k in (
+                "pivot", "stop", "t1", "t2", "t3", "tranches",
+                "key_levels", "h4_levels", "behav", "trendline") if k in r}
         trades.append(trade)
         i += fwd                                # تخطَّ نافذة كاملة (لا تكرار)
     return trades

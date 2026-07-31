@@ -79,6 +79,41 @@ def plan_levels(t, tol=0.03):
             "from_crit": bool(t.get("crit"))}
 
 
+def daily_break_level(trade, last_price, fallback):
+    """🔴 **تجديد الرقم الحرج يوميًّا — كما يفعل الإنتاج بالضبط.**
+
+    `update_watchlist_status` يعيد بناء `interp` كلَّ يوم بـ`last_price` المحدَّث بينما
+    `key_levels`/`h4_levels`/الأهداف تبقى كما خُزِّنت ⇒ **الحاجز يتحرّك صاعدًا مع
+    السهم**. وتجميدُه على يوم الإشارة كان يُشعل ‏56% من الجلسات (مقيس) لأن السهم
+    يتجاوزه مرّةً ويبقى فوقه.
+
+    `last_price` = **إغلاق الجلسة السابقة** لا الحالية — فالتحديث اليوميّ في الإنتاج
+    يجري قبل الافتتاح. `fallback` = مستوى يوم الإشارة (لأوّل جلسة). فاشلة-آمنة."""
+    ii = (trade or {}).get("interp_in")
+    if not ii or not last_price:
+        return fallback
+    try:
+        interp = S.build_interpretation(dict(ii, price=float(last_price))) or {}
+        lvl = S._ignition_break_level({"pivot": ii.get("pivot"), "interp": interp})
+        return float(lvl) if lvl else fallback
+    except Exception:
+        return fallback
+
+
+def session_levels(days, sess, trade, base):
+    """مستوى الكسر **لكل جلسة** بعد التجديد اليوميّ. دالّة **نقيّة** (بلا شبكة)
+    عمدًا: خاصّية «بإغلاق الجلسة **السابقة**» تعتمد على **ترتيب** سطرين، وفحصُ
+    النصّ لا يرى الترتيب — **ونجت طفرةُ إعادة الترتيب فعلًا** حتى استُخرجت هنا
+    فصارت تُختبَر سلوكيًّا. أوّل جلسةٍ تأخذ `base` (لا سابقةَ لها)."""
+    out, prev = {}, None
+    for day in days:
+        out[day] = daily_break_level(trade, prev, base)
+        sb = sess.get(day) or []
+        if sb:
+            prev = float(sb[-1]["c"])
+    return out
+
+
 def _resolve_from(bars, i0, entry_ask, stop, t1):
     """الحسم **بمحرّك الإنتاج نفسه** (`_resolve_arm`) على شموع الدقيقة بعد الدخول:
     نملك من الشمعة التالية (`entry_intrabar=False`, `filled=0`) · الوقف أوّلًا عند
@@ -145,7 +180,7 @@ def run() -> int:
 
     real, pseudo, cross, oper = [], [], [], []
     cov = {"windows": 0, "no_bars": 0, "sessions": 0, "scale_bad": 0,
-           "trig": 0, "quiet": 0, "no_levels": 0, "crit": 0}
+           "trig": 0, "quiet": 0, "no_levels": 0, "crit": 0, "lifted": 0}
     for a in armed:
         lv = plan_levels(a["trade"])
         if not lv:
@@ -166,16 +201,22 @@ def run() -> int:
             cov["scale_bad"] += 1
             continue
         fired, quiet = [], []
+        # 🔴 الحاجز **يتجدّد يوميًّا بإغلاق الجلسة السابقة** — مطابقةً للتحديث اليوميّ
+        #    في الإنتاج (يجري قبل الافتتاح فلا يقرأ إغلاق اليوم نفسه).
+        lvl_of = session_levels(_days, sess, a["trade"], lv["break"])
         for day in _days:
             sb = sess[day]
             cov["sessions"] += 1
-            hit = EX.replay_trigger(sb, lv["break"], S._ignition_signal,
+            brk = lvl_of[day]
+            if brk > lv["break"]:
+                cov["lifted"] += 1
+            hit = EX.replay_trigger(sb, brk, S._ignition_signal,
                                     vol_mult=S.CONFIG["IGNITION_VOL_MULT"])
             if hit:
                 fired.append((day, sb, hit))
             else:
                 quiet.append(day)
-                xc = EX.cross_trigger(sb, lv["break"])
+                xc = EX.cross_trigger(sb, brk)
                 if xc:
                     cross.append(_one_event(a["symbol"], day, sb, xc[0], xc[1],
                                             lv, "E-CROSS", f"{day}|x"))
@@ -186,7 +227,7 @@ def run() -> int:
             r = _one_event(a["symbol"], day, sb, i, sig, lv, "E-REAL", pk)
             real.append(r)
             # ذراع E-CROSS على يوم الزناد أيضًا (نفس المستوى، بلا شرط الحجم)
-            xc = EX.cross_trigger(sb, lv["break"])
+            xc = EX.cross_trigger(sb, lvl_of.get(day, lv["break"]))
             if xc:
                 cross.append(_one_event(a["symbol"], day, sb, xc[0], xc[1], lv,
                                         "E-CROSS", f"{day}|x"))
@@ -210,7 +251,8 @@ def run() -> int:
 
     # ✅ «أثبت أن التجربة اشتغلت»: كم نافذةً استعملت **الرقم الحرج** فعلًا؟ صفرٌ هنا
     #    يعني أن المقيس زنادٌ آخر (المرجع الاحتياطيّ) — فلا تُقرأ النتيجة.
-    print(f"🎯 مستوى الكسر: {cov['crit']}/{cov['windows']} نافذة بالرقم الحرج"
+    print(f"🎯 مستوى الكسر: {cov['crit']}/{cov['windows']} نافذة بالرقم الحرج "
+          f"· ارتفع الحاجز بالتجديد اليوميّ في {cov['lifted']} جلسة"
           + ("" if cov["crit"] else "  ⛔ **صفر** ⇒ الزناد ليس زنادَ الإنتاج — لا تُقرأ أذرع"))
     print(f"🩺 التغطية: نوافذ={cov['windows']} · بلا شموع={cov['no_bars']} "
           f"· جلسات={cov['sessions']} · مقياس مختلف={cov['scale_bad']} "
