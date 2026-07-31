@@ -160,7 +160,10 @@ def _one_event(sym, day, sess_bars, i, sig, lv, tag, pair_key, fwd=None):
            "mod": bar.get("mod"), "trigger_price": sig.get("price"),
            "usd": sig.get("usd"), "executable": False, "net_r": None,
            "outcome": None, "reason": None}
-    q = EX.hist_quotes(sym, end_ms, end_ms + EX.MAX_QUOTE_AGE_MS + 1000)
+    # 🔴 النافذة تبدأ **قبل** الزناد (‏60 ثانية) وإلّا لم يوجد «عرضٌ قائم» إطلاقًا
+    #    فيُقاس نشاطُ التسعير بدل القابلية — علّة رقم «50.5%» المسحوب.
+    q = EX.hist_quotes(sym, end_ms - EX.QUOTE_LOOKBACK_MS,
+                       end_ms + EX.MAX_QUOTE_AGE_MS + 1000, limit=400)
     ent = EX.pick_entry_quote(q, end_ms)
     if not ent:
         row["reason"] = "non_executable"       # يبقى **في المقام** كما سُجِّل
@@ -350,9 +353,20 @@ def run() -> int:
         dec = [r for r in ex if r.get("net_r") is not None]
         ratio = len(ex) / len(rows) * 100.0
         cb = EX.cluster_bootstrap_mean(dec)
+        # 🔴🔴 **مقياسان لا واحد (مراجعة Codex الثانية):** التسجيل يقول «الخام يبقى في
+        #    المقام» وكان الحساب على **المُنفَّذ المحسوم** وحده ⇒ `−0.088R` متوسطٌ
+        #    **مشروط**. يُطبَع الاثنان صراحةً: **المشروط** (كما كان) و**الخام** بتعريف
+        #    utility مُعلَن — غيرُ المنفَّذ = **صفر R** (لا صفقة ⇒ لا ربح ولا خسارة).
+        #    لا يُختار أحدهما بعد الأرقام؛ كلاهما منشور.
+        raw = EX.raw_denominator(rows)
+        cbr = EX.cluster_bootstrap_mean(raw)
+        pv = sum(1 for r in ex if r.get("prevailing"))
         print(f"  {name}: خام={len(rows)} · قابل للتنفيذ={len(ex)} ({ratio:.0f}%) "
-              f"· محسومة={len(dec)} · متوسط صافي R={cb['mean']:+.3f} "
-              f"· cluster 95%=[{cb['lo']:+.3f}, {cb['hi']:+.3f}] ({cb['k']} رمزًا)")
+              f"[قائم={pv} · تحديثٌ لاحق={len(ex) - pv}] "
+              f"· محسومة={len(dec)} · متوسط صافي R **مشروطًا**={cb['mean']:+.3f} "
+              f"· cluster 95%=[{cb['lo']:+.3f}, {cb['hi']:+.3f}] ({cb['k']} رمزًا)"
+              f"\n      وعلى **المقام الخام** (غير المنفَّذ = 0R، {len(raw)} حدثًا): "
+              f"{cbr['mean']:+.3f} · 95%=[{cbr['lo']:+.3f}, {cbr['hi']:+.3f}]")
         if primary and dec:
             print(f"      تركيز الربح: أكبر رمز={concen(dec,'symbol'):.0%} "
                   f"· أكبر جلسة={concen(dec,'day'):.0%} "

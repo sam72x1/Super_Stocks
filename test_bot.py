@@ -11936,17 +11936,49 @@ check("⚡ EVENT🔒 `group_sessions` يقسّم باليوم النيويورك
       list(EX.group_sessions(_sess)) == ["2026-06-01"]
       and len(EX.group_sessions(list(reversed(_sess)))["2026-06-01"]) == 11)
 
-# ④ 🔴 قاعدة الدخول المسجَّلة: ask عمره ≤5ث — **ولا بديلَ مريحًا**
+# ④ 🔴🔴 **سعرُ الدخول = العرض القائم لا التحديث اللاحق** (مراجعة Codex الثانية).
+# كان الشرط «أوّل ask **بعد** الزناد خلال 5ث» ⇒ عرضٌ صالحٌ نُشر قبل الزناد بثانيةٍ
+# **وما زال نافذًا** يُصنَّف «غير قابلٍ للتنفيذ» لمجرّد أن أحدًا لم يحدّثه — وهو الحال
+# الطبيعيّ في المغمورة ⇒ الرقم القديم (‏50.5%) كان يقيس **نشاطَ التسعير**.
 _qs = [{"t": 1000, "ask": 1.0, "bid": 0.9}, {"t": 2000, "ask": 1.1, "bid": 1.0}]
-check("⚡ EVENT🔒 يُؤخَذ أوّل ask **بعد** إغلاق شمعة الزناد",
-      (EX.pick_entry_quote(_qs, 1500) or {}).get("ask") == 1.1)
-check("⚡ EVENT🔒 اقتباسٌ أقدم من الزناد لا يُستعمل",
-      (EX.pick_entry_quote(_qs, 0) or {}).get("ask") == 1.0)
-check("⚡ EVENT🔒 تجاوز 5 ثوانٍ ⇒ **None** (غير قابل للتنفيذ، لا سعرَ بديلًا)",
+check("⚡ EVENT🔒 يُؤخَذ **العرض القائم** (آخر اقتباسٍ قبل الزناد) لا التحديث اللاحق",
+      (lambda e: e and e["ask"] == 1.0 and e["prevailing"] is True)(
+          EX.pick_entry_quote(_qs, 1500)))
+check("⚡ EVENT🔒 وعرضٌ قائمٌ **بائتٌ جدًّا** يبقى قائمًا (السكون ليس عدمَ قابلية)",
+      (lambda e: e and e["ask"] == 1.0 and e["prevailing"] is True)(
+          EX.pick_entry_quote([{"t": 1000, "ask": 1.0, "bid": 0.9}], 9_000_000)))
+check("⚡ EVENT🔒 وبلا قائمٍ إطلاقًا يُقبَل تحديثٌ لاحق خلال 5ث (موسومًا `prevailing=False`)",
+      (lambda e: e and e["ask"] == 1.1 and e["prevailing"] is False)(
+          EX.pick_entry_quote([_qs[1]], 1500)))
+check("⚡ EVENT🔒 تجاوز 5 ثوانٍ بلا قائم ⇒ **None** (غير قابل للتنفيذ، لا سعرَ بديلًا)",
       EX.pick_entry_quote([{"t": 20000, "ask": 1.1, "bid": 1.0}], 1000) is None)
 check("⚡ EVENT🔒 اقتباسٌ بلا ask صالح يُتخطّى",
       EX.pick_entry_quote([{"t": 1100, "ask": None, "bid": 1.0},
                            {"t": 1200, "ask": 2.0, "bid": 1.9}], 1000)["ask"] == 2.0)
+check("⚡ EVENT🔒 `ask_size`/`bid_size` يُحفَظان (كان المحلّل يُسقطهما ⇒ لا حجمَ يُختبَر)",
+      (EX.pick_entry_quote([{"t": 1000, "ask": 1.0, "bid": 0.9,
+                             "ask_size": 7, "bid_size": 3}], 1500) or {}
+       ).get("ask_size") == 7
+      and '"ask_size": q.get("ask_size")' in _insp0.getsource(EX.hist_quotes))
+check("⚡ EVENT🔒 نافذة الجلب تبدأ **قبل** الزناد وإلّا لم يوجد قائمٌ أصلًا",
+      "QUOTE_LOOKBACK_MS" in _insp0.getsource(EXR._one_event)
+      and EX.QUOTE_LOOKBACK_MS > 0)
+# 🔴 القفل **سلوكيّ**: النصّيّ نجت منه طفرةٌ (`cbr = cb`) لأن العبارتين تبقيان في
+#    المصدر بلا أثر ⇒ استُخرجت الدالّة النقيّة ليُقاس الفرق فعلًا.
+_rd = [{"symbol": "A", "executable": True, "net_r": -1.0},
+       {"symbol": "B", "executable": True, "net_r": 3.0},
+       {"symbol": "C", "executable": False, "net_r": None},
+       {"symbol": "D", "executable": True, "net_r": None}]     # منفَّذٌ بلا حسم
+check("⚡ EVENT🔒 المقام الخام يُبقي **كلّ** حدث ويجعل غيرَ المحسوم صفرًا صريحًا",
+      [r["net_r"] for r in EX.raw_denominator(_rd)] == [-1.0, 3.0, 0.0, 0.0])
+check("⚡ EVENT🔒 والمقامان يفترقان فعلًا (‏+1.000 مشروطًا مقابل +0.500 خامًّا)",
+      abs(sum(r["net_r"] for r in _rd if r["net_r"] is not None) / 2 - 1.0) < 1e-9
+      and abs(sum(r["net_r"] for r in EX.raw_denominator(_rd)) / 4 - 0.5) < 1e-9)
+check("⚡ EVENT🔒 ولا يُشوَّه المدخل (نسخٌ لا تعديلٌ في المكان)",
+      EX.raw_denominator(_rd) is not _rd and _rd[2]["net_r"] is None)
+check("⚡ EVENT🔒 المقامان يُطبَعان معًا: مشروطٌ بالتنفيذ **وخام** (لا يُختار بعدها)",
+      "المقام الخام" in _insp0.getsource(EXR.run)
+      and "raw_denominator" in _insp0.getsource(EXR.run))
 check("⚡ EVENT🔒 المُشغِّل يُبقي غيرَ المنفَّذ **في المقام** (لا يُحذف)",
       'row["reason"] = "non_executable"' in _insp0.getsource(EXR._one_event)
       and "len(ex) / len(rows)" in _insp0.getsource(EXR.run))

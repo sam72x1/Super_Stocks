@@ -26,6 +26,7 @@ NY = ZoneInfo("America/New_York")
 RADAR_WINDOW = 30      # نافذة الرادار الحيّ: `polygon_minute_bars(sym, minutes=30)`
 MIN_BARS = 6           # `_ignition_signal(min_bars=6)`
 MAX_QUOTE_AGE_MS = 5_000   # §④: «أوّل ask عمره ≤5 ثوانٍ» — مسجَّل، لا يُلمَس
+QUOTE_LOOKBACK_MS = 60_000  # 🔴 نظرةٌ للخلف لالتقاط **العرض القائم** (لا التحديث)
 
 _CALLS = {"aggs": 0, "quotes": 0, "trades": 0, "fail": 0}
 
@@ -189,25 +190,66 @@ def relabel(bars_all, bars_reg, entry, stop, thresholds=(30.0, 50.0, 100.0)):
 
 
 def pick_entry_quote(quotes, trigger_end_ms, max_age_ms=MAX_QUOTE_AGE_MS):
-    """§④ **قاعدة الدخول المسجَّلة:** أوّل اقتباسٍ بعد إغلاق شمعة الزناد له `ask`
-    صالح **وعمرُه ‏≤5 ثوانٍ** عن لحظة القرار.
+    """§④ سعرُ الدخول = حالةُ **NBBO عند لحظة القرار**.
 
-    🔴 **وغيابُه ليس ثغرةً تُسدّ بسعرٍ مريح** — يُعاد `None` ويُسجَّل
-    `non_executable` ويبقى **في المقام**. (هذا شرطٌ مسجَّل، لا اجتهاد.)"""
+    🔴🔴 **تصحيح (مراجعة Codex الثانية) — كان يقيس شيئًا آخر:** الشرط القديم «أوّل
+    اقتباسٍ **بعد** الزناد خلال 5 ثوانٍ» يقيس **وصولَ تحديثٍ جديد**، لا وجودَ عرضٍ
+    قائم. وعرضٌ صالحٌ نُشر قبل الزناد بثانيةٍ **وما زال نافذًا** كان يُصنَّف «غير
+    قابلٍ للتنفيذ» لمجرّد أن أحدًا لم يحدّثه — وهو الحال **الطبيعيّ** في المغمورة،
+    وهي كوننا كلُّه. فالرقم المنشور (‏50.5%) كان يقيس **نشاطَ التسعير** لا القابلية.
+
+    القاعدة الآن، بترتيب الأولوية:
+      **①** آخر اقتباسٍ صالح **قبل** لحظة القرار (‏= العرض **القائم**) — عمرُه
+          `age_ms` سالبٌ اصطلاحًا ويُحسب من تاريخه إلى لحظة القرار.
+      **②** فإن لم يوجد قائمٌ إطلاقًا، فأوّل تحديثٍ لاحق خلال `max_age_ms`
+          (السلوك القديم، مُبقًى لأن اقتباسًا وصل بعد جزءٍ من الثانية قابلٌ للتنفيذ).
+    ويُرجَع `ask_size`/`bid_size` (كان المحلّل يُسقطهما ⇒ **لم يكن يُختبَر حجمٌ
+    مطلوب أصلًا**) وعلمُ `prevailing` للتمييز بين الحالتين في التقرير.
+
+    🔴 وغيابُ الاثنين ليس ثغرةً تُسدّ بسعرٍ مريح — `None` ⇒ `non_executable`
+    ويبقى **في المقام**. ⚠️ ويلزم تمرير نافذةٍ تسبق الزناد وإلّا لم يوجد «قائم»."""
     if not quotes:
         return None
+    prev, nxt = None, None
     for q in quotes:
-        ts = q.get("t")
-        ask, bid = q.get("ask"), q.get("bid")
-        if ts is None or not ask or ask <= 0:
+        ts, ask = q.get("t"), q.get("ask")
+        if ts is None or not ask or float(ask) <= 0:
             continue
-        if ts < trigger_end_ms:
-            continue
-        if ts - trigger_end_ms > max_age_ms:
-            return None            # مرّت النافذة بلا اقتباسٍ صالح
-        return {"ask": float(ask), "bid": (float(bid) if bid else None),
-                "t": ts, "age_ms": ts - trigger_end_ms}
-    return None
+        if ts <= trigger_end_ms:
+            if prev is None or ts > prev["t"]:
+                prev = {**q, "t": ts}
+        elif nxt is None or ts < nxt["t"]:
+            nxt = {**q, "t": ts}
+    pick, prevailing = (prev, True) if prev is not None else (nxt, False)
+    if pick is None:
+        return None
+    if not prevailing and pick["t"] - trigger_end_ms > max_age_ms:
+        return None                # لا قائمَ ولا تحديثَ داخل النافذة
+    bid = pick.get("bid")
+    return {"ask": float(pick["ask"]), "bid": (float(bid) if bid else None),
+            "ask_size": pick.get("ask_size"), "bid_size": pick.get("bid_size"),
+            "t": pick["t"], "prevailing": prevailing,
+            "age_ms": abs(int(pick["t"]) - int(trigger_end_ms))}
+
+
+def raw_denominator(rows):
+    """🔴🔴 **المقام الخام** (مراجعة Codex الثانية) — التسجيل ينصّ أن كلّ حدثٍ خام،
+    ومنه **غير المنفَّذ**، يبقى في المقام؛ والحساب المنشور كان على **المُنفَّذ
+    المحسوم** وحده ⇒ `−0.088R` متوسطٌ **مشروط** لا متوسطُ كلّ تنبيه.
+
+    التعريف المُعلَن: **غير المنفَّذ (أو غير المحسوم) = صفر R** — لا صفقة ⇒ لا ربح
+    ولا خسارة. (وهو تعريفُ utility مُصرَّح به لا اجتهادٌ صامت؛ ولا يُلغي تكلفة
+    الفرصة، فهي غير مقيسة هنا ويُصرَّح بذلك.)
+
+    دالّة **نقيّة** مستخرَجة من `run()` عمدًا: القفلُ النصّيّ على مُغلَقٍ داخليّ
+    **لا يرى سلوكًا** — وقد نجت طفرةٌ منه فعلًا، فصار السلوك قابلًا للاختبار."""
+    out = []
+    for r in (rows or []):
+        if r.get("executable") and r.get("net_r") is not None:
+            out.append(r)
+        else:
+            out.append(dict(r, net_r=0.0))
+    return out
 
 
 def runner_exit(bars, t1, t3, reclaim_min=15, hold_sessions=5):
@@ -473,7 +515,10 @@ def hist_quotes(sym, start_ms, end_ms, limit=200, pause=0.04):
         ts = q.get("sip_timestamp") or q.get("participant_timestamp")
         if ts is None:
             continue
+        # 🔴 `ask_size`/`bid_size` كانا يُسقَطان ⇒ **لم يكن يُختبَر حجمٌ مطلوب
+        #    أصلًا** (مراجعة Codex الثانية). يُحفظان الآن ولو لم يُشترَطا بعد.
         out.append({"bid": q.get("bid_price"), "ask": q.get("ask_price"),
+                    "bid_size": q.get("bid_size"), "ask_size": q.get("ask_size"),
                     "t": int(ts) // 1_000_000})
     return out or None
 
