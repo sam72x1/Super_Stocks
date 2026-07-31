@@ -24,6 +24,9 @@ import sys
 # (بصمة الـno-op الموثّقة). لذلك يُضبط هنا حصرًا.
 os.environ["SCREENER_MODE"] = "BACKTEST"
 os.environ["BT_REPLAY10"] = "1"
+# `BT_POTENTIAL` يملأ «الحركة المتاحة قبل الوقف» — مقياسٌ **ثانويّ مسجَّل** (§⑤)
+# يُنشَر ولا يحكم. إلحاق حقولٍ فقط، فلا يمسّ اختيارًا ولا حسمًا.
+os.environ.setdefault("BT_POTENTIAL", "1")
 
 import replay10 as RP                                          # noqa: E402
 import Super_stock as S                                        # noqa: E402
@@ -42,8 +45,31 @@ def _sessions_per_month(idx: dict) -> dict:
 
 
 def _arm(cands, outcome_of, ranker, n_sessions):
-    res = RP.replay(cands, outcome_of=outcome_of, ranker=ranker)
+    # ⚠️ `sessions` **كثيف** (كل جلسات الفهرس لا جلسات المرشّحين وحدها): قرار السعة
+    # لا يتغيّر بالكثافة (الخروجات تُصرَّف بشرط `≤ s`)، **لكن `slot_days` مقياسٌ
+    # مسجَّل ثانويّ** ويُبخَس بالمسح المتفرّق ⇒ يُقاس على الفهرس كاملًا.
+    res = RP.replay(cands, outcome_of=outcome_of, ranker=ranker,
+                    sessions=range(0, n_sessions))
     return res, RP.net_r_per_day(res["taken"], n_sessions)
+
+
+def _secondary(taken, n_sessions):
+    """المقاييس الثانوية المسجَّلة (§⑤ — **تُنشَر ولا تحكم**): أقصى تراجع بمنحنى R ·
+    ‏CVaR‏5% · عدد المنفجرين المُسلَّمين · وسيط «الحركة المتاحة قبل الوقف»."""
+    rs = [(c.payload, RP.r_unit(c.payload)) for c in taken]
+    seq = [v for _, v in rs if v is not None]
+    eq, peak, dd = 0.0, 0.0, 0.0
+    for v in seq:
+        eq += v
+        peak = max(peak, eq)
+        dd = min(dd, eq - peak)
+    tail = sorted(seq)[:max(1, len(seq) // 20)] if seq else [0.0]
+    mg = sorted(float(t.get("mg_pre_stop")) for t, _ in rs
+                if t.get("mg_pre_stop") is not None)
+    return {"total_r": sum(seq), "max_dd_r": dd,
+            "cvar5": sum(tail) / len(tail),
+            "exploded": sum(1 for t, _ in rs if t.get("exploded")),
+            "mg_median": (mg[len(mg) // 2] if mg else None)}
 
 
 def run() -> int:
@@ -84,9 +110,15 @@ def run() -> int:
     v2m = sum(v2) / len(v2)
 
     def _line(tag, res, val):
+        sec = _secondary(res["taken"], n_sessions)
         print(f"  {tag}: صافي R/يوم = {val:+.4f} · مأخوذة={len(res['taken'])} "
               f"· مرفوض بالسعة={res['rejected_cap']} · مكرّر={res['rejected_dup']} "
               f"· أقصى حجم قائمة={res['max_size']} · أيام إشغال={res['slot_days']}")
+        print(f"      ثانويّ (يُنشَر ولا يحكم): إجمالي R={sec['total_r']:+.1f} "
+              f"· أقصى تراجع={sec['max_dd_r']:+.1f}R · CVaR5%={sec['cvar5']:+.2f}R "
+              f"· منفجرون مُسلَّمون={sec['exploded']}"
+              + (f" · وسيط الحركة قبل الوقف={sec['mg_median']:g}%"
+                 if sec["mg_median"] is not None else ""))
 
     print("\n📊 الأذرع:")
     _line("R0 (المُرتِّب الفعليّ)", r0, v0)
