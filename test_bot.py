@@ -11963,6 +11963,13 @@ check("⚡ EVENT🔒 `ask_size`/`bid_size` يُحفَظان (كان المحلّ
 check("⚡ EVENT🔒 نافذة الجلب تبدأ **قبل** الزناد وإلّا لم يوجد قائمٌ أصلًا",
       "QUOTE_LOOKBACK_MS" in _insp0.getsource(EXR._one_event)
       and EX.QUOTE_LOOKBACK_MS > 0)
+# 🔴 **سطرُ عرضٍ بلا حقلٍ = كذبة** — تكرّر منّي: التقرير يطبع «قائم=N» و`prevailing`
+#    لم يكن يُنسَخ للصفّ ⇒ طُبع «قائم=0» في تشغيلةٍ حيّة كاملة. القفل يقرأ **ما يطبعه
+#    التقرير فعلًا** (المفتاح على الصفّ) لا وجودَ الحقل في `pick_entry_quote`.
+check("⚡ EVENT🔒 كلّ مفتاحٍ يطبعه التقرير منسوخٌ للصفّ (`prevailing`/`ask_size`)",
+      all(_k in _insp0.getsource(EXR._one_event)
+          for _k in ('prevailing=ent.get("prevailing")', 'ask_size=ent.get("ask_size")'))
+      and 'r.get("prevailing")' in _insp0.getsource(EXR.run))
 # 🔴 القفل **سلوكيّ**: النصّيّ نجت منه طفرةٌ (`cbr = cb`) لأن العبارتين تبقيان في
 #    المصدر بلا أثر ⇒ استُخرجت الدالّة النقيّة ليُقاس الفرق فعلًا.
 _rd = [{"symbol": "A", "executable": True, "net_r": -1.0},

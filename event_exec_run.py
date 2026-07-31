@@ -172,8 +172,12 @@ def _one_event(sym, day, sess_bars, i, sig, lv, tag, pair_key, fwd=None):
     if spr is None:
         row["reason"] = "no_spread"
         return row
+    # 🔴 `prevailing`/`ask_size` **يُنسَخان للصفّ**: التقرير يطبعهما، وبلا نسخٍ يقرأ
+    #    `None` فيطبع «قائم=0» دائمًا = **سطرُ عرضٍ بلا حقل** (الدرس المدوَّن نفسه،
+    #    وقد تكرّر منّي هنا وكشفه المُخرَج الحيّ لا الاختبار).
     row.update(executable=True, entry=ent["ask"], spread_pct=round(spr * 100, 3),
-               quote_age_ms=ent["age_ms"])
+               quote_age_ms=ent["age_ms"], prevailing=ent.get("prevailing"),
+               ask_size=ent.get("ask_size"))
     path = fwd if fwd is not None else sess_bars[i + 1:]
     res = _resolve_from(path, 0, ent["ask"], lv["stop"], lv["t1"])
     if res is None:
