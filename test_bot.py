@@ -11976,6 +11976,65 @@ _rd = [{"symbol": "A", "executable": True, "net_r": -1.0},
        {"symbol": "B", "executable": True, "net_r": 3.0},
        {"symbol": "C", "executable": False, "net_r": None},
        {"symbol": "D", "executable": True, "net_r": None}]     # منفَّذٌ بلا حسم
+# 🔴 حارس مقياس التقسيم بين الاقتباس والشمعة (Codex §④) — لحظيّ، وفاشلٌ نحو القبول.
+check("🪙 SCALE🔒 اقتباسٌ بمقياسٍ آخر (تقسيمٌ 1:10) يُرفَض بسببٍ مُسمّى لا صمتًا",
+      EX.quote_scale_mismatch(10.0, 1.0, 0.15) is True
+      and "quote_scale_mismatch" in _insp0.getsource(EXR._one_event))
+check("🪙 SCALE🔒 وفارقُ سبريدٍ طبيعيّ (‏2%) لا يُرفَض (القفل ليس عدميًّا)",
+      EX.quote_scale_mismatch(1.02, 1.00, 0.15) is False
+      and EX.quote_scale_mismatch(1.16, 1.00, 0.15) is True)
+
+
+def _oe_row(ask, close=1.00):
+    """يشغّل `_one_event` باقتباسٍ محقون (بلا شبكة) ويُرجع الصفّ.
+    🔴 **قفلٌ سلوكيّ لا نصّيّ**: طفرةٌ تُفرّغ جسم الحارس (‏`pass`) **نجت** من القفل
+    النصّيّ لأن سطر النداء يبقى — فصار الحكم يُقرأ من **الصفّ المُرجَع**."""
+    _sv = EX.hist_quotes
+    try:
+        EX.hist_quotes = lambda *a, **k: [
+            {"t": a[1] if len(a) > 1 else 0, "ask": ask, "bid": ask * 0.99,
+             "ask_size": 5, "bid_size": 5}]
+        _bar = {"t": 1_700_000_000_000, "c": close, "h": close, "l": close,
+                "o": close, "v": 900, "mod": 600, "sess": "2026-03-03"}
+        return EXR._one_event(
+            "AAA", "2026-03-03", [_bar, dict(_bar, t=_bar["t"] + 60_000)], 0,
+            {"price": close, "usd": 900},
+            {"stop": close * 0.9, "t1": close * 1.2, "break": close}, "E-REAL",
+            "k", fwd=[])
+    finally:
+        EX.hist_quotes = _sv
+
+
+check("🪙 SCALE🔒 **سلوكيًّا**: اقتباسٌ بمقياسٍ آخر ⇒ الصفّ غير منفَّذٍ بسببه المُسمّى",
+      (lambda r: r.get("executable") is False
+       and r.get("reason") == "quote_scale_mismatch")(_oe_row(10.0)))
+check("🪙 SCALE🔒 وبمقياسٍ متّسق ⇒ الصفّ **منفَّذ** (فالحارس لا يبتلع كلّ شيء)",
+      (lambda r: r.get("executable") is True
+       and r.get("reason") != "quote_scale_mismatch")(_oe_row(1.01)))
+check("🪙 SCALE🔒 تعذّر القياس (None/NaN/صفر/نصّ) ⇒ **قبول** لا رفضٌ بالظنّ",
+      all(EX.quote_scale_mismatch(a, b, 0.15) is False for a, b in (
+          (None, 1.0), (1.0, None), (float("nan"), 1.0), (1.0, float("nan")),
+          (0.0, 1.0), (1.0, 0.0), ("x", 1.0))))
+# ⚠️ القفل **بالـAST لا بالنصّ**: النصّيّ سقط لأن `ask_size` مذكورٌ في **تعليق** —
+#    وهو الفخّ المدوَّن نفسه (‏`getsource` لا يفرّق كودًا عن تعليق). الشرط الحقيقيّ:
+#    **لا مقارنةَ** على `ask_size` داخل `_one_event` ⇒ لا بوّابة، قياسٌ فقط.
+def _ast_compares_on(fn, name):
+    tree = __import__("ast").parse(
+        __import__("textwrap").dedent(_insp0.getsource(fn)))
+    for n in __import__("ast").walk(tree):
+        if isinstance(n, __import__("ast").Compare):
+            if name in __import__("ast").dump(n):
+                return True
+    return False
+
+
+check("📏 SIZE🔒 حجمُ العرض **يُقاس ولا يُشترَط** (الاشتراط اختيارٌ بعديّ غير مسجَّل)",
+      "يُقاس ولا يُشترَط" in _insp0.getsource(EXR.run)
+      and 'r.get("ask_size")' in _insp0.getsource(EXR.run)
+      and not _ast_compares_on(EXR._one_event, "ask_size"))
+check("📏 SIZE🔒 والقفل يقيس فعلًا: مقارنةٌ على المقياس نفسه تُكشَف (شاهد ضبط)",
+      _ast_compares_on(EXR._one_event, "quote_scale_mismatch") is False
+      and _ast_compares_on(EX.quote_scale_mismatch, "tol") is True)
 check("⚡ EVENT🔒 المقام الخام يُبقي **كلّ** حدث ويجعل غيرَ المحسوم صفرًا صريحًا",
       [r["net_r"] for r in EX.raw_denominator(_rd)] == [-1.0, 3.0, 0.0, 0.0])
 check("⚡ EVENT🔒 والمقامان يفترقان فعلًا (‏+1.000 مشروطًا مقابل +0.500 خامًّا)",

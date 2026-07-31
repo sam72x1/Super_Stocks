@@ -172,6 +172,15 @@ def _one_event(sym, day, sess_bars, i, sig, lv, tag, pair_key, fwd=None):
     if spr is None:
         row["reason"] = "no_spread"
         return row
+    # 🔴 **اختلاف مقياس التقسيم** (مراجعة Codex الثانية §④): الشموع تُطلَب
+    #    `adjusted=true` والاقتباسات **بلا معامل تعديل**، ثم يُقارَن `ask` بالوقف
+    #    والهدف المشتقَّين من المعدَّل. في كونٍ كثير التقسيمات العكسية قد يُسقَط الصفّ
+    #    صامتًا أو تخرج R شاذّة. الحارس يقارن الاقتباس **بشمعة الزناد نفسها** (اللحظة
+    #    ذاتها) بنفس تسامح `SCALE_TOL` المستعمَل على مستوى النافذة — **إعلانًا لا
+    #    صمتًا**: صفٌّ مرفوضٌ بسببٍ مُسمّى يبقى في المقام الخام.
+    if EX.quote_scale_mismatch(ent.get("ask"), bar.get("c"), SCALE_TOL):
+        row["reason"] = "quote_scale_mismatch"
+        return row
     # 🔴 `prevailing`/`ask_size` **يُنسَخان للصفّ**: التقرير يطبعهما، وبلا نسخٍ يقرأ
     #    `None` فيطبع «قائم=0» دائمًا = **سطرُ عرضٍ بلا حقل** (الدرس المدوَّن نفسه،
     #    وقد تكرّر منّي هنا وكشفه المُخرَج الحيّ لا الاختبار).
@@ -365,12 +374,26 @@ def run() -> int:
         raw = EX.raw_denominator(rows)
         cbr = EX.cluster_bootstrap_mean(raw)
         pv = sum(1 for r in ex if r.get("prevailing"))
+        # 🔴 **حجمُ العرض يُقاس ولا يُشترَط** (Codex §②): «قابل للتنفيذ» عندنا =
+        #    وُجد عرضٌ معلَن، **لا** أن الحجم كان متاحًا عنده. واشتراطُ حدٍّ الآن
+        #    **اختيارٌ بعديّ** (لم يُسجَّل قبل الأرقام) ⇒ يُنشَر العدّاد فقط، ويبقى
+        #    الاشتراط رهنَ تسجيلٍ مسبقٍ جديد وموافقة المالك.
+        _sz = [r.get("ask_size") for r in ex if r.get("ask_size") is not None]
+        _lot = sum(1 for v in _sz if float(v) >= 1)      # لوت قياسيّ = 100 سهم عند
+        _big = sum(1 for v in _sz if float(v) >= 10)     # المزوّد (‏1 = 100 سهم)
+        _szl = (f" · حجمُ العرض معلومٌ في {len(_sz)} من {len(ex)}"
+                f" [‏≥لوت={_lot} · ≥10 لوت={_big}] — **يُقاس ولا يُشترَط**"
+                if _sz else " · حجمُ العرض غير معلومٍ في أيٍّ منها")
         print(f"  {name}: خام={len(rows)} · قابل للتنفيذ={len(ex)} ({ratio:.0f}%) "
               f"[قائم={pv} · تحديثٌ لاحق={len(ex) - pv}] "
               f"· محسومة={len(dec)} · متوسط صافي R **مشروطًا**={cb['mean']:+.3f} "
               f"· cluster 95%=[{cb['lo']:+.3f}, {cb['hi']:+.3f}] ({cb['k']} رمزًا)"
               f"\n      وعلى **المقام الخام** (غير المنفَّذ = 0R، {len(raw)} حدثًا): "
-              f"{cbr['mean']:+.3f} · 95%=[{cbr['lo']:+.3f}, {cbr['hi']:+.3f}]")
+              f"{cbr['mean']:+.3f} · 95%=[{cbr['lo']:+.3f}, {cbr['hi']:+.3f}]"
+              + (f"\n     {_szl}" if primary else "")
+              + (f"\n      ⚠️ مرفوضٌ لاختلاف مقياس التقسيم: "
+                 f"{sum(1 for r in rows if r.get('reason') == 'quote_scale_mismatch')}"
+                 if primary else ""))
         if primary and dec:
             print(f"      تركيز الربح: أكبر رمز={concen(dec,'symbol'):.0%} "
                   f"· أكبر جلسة={concen(dec,'day'):.0%} "
