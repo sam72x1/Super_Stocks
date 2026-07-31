@@ -5965,6 +5965,198 @@ def _hunter_models(rows: list, fetch_hist=None, fetch_splits=None) -> dict:
     return out
 
 
+def _ohlc_tail(df, n=3):
+    """آخر `n` شمعة كـ`[(o,h,l,c,v)…]` — محوّلٌ فاشلٌ-آمن (تالف/قصير ⇒ `[]`)."""
+    try:
+        t = df.tail(int(n))
+        out = []
+        for i in range(len(t)):
+            r = t.iloc[i]
+            out.append((float(r["Open"]), float(r["High"]), float(r["Low"]),
+                        float(r["Close"]), float(r.get("Volume") or 0)))
+        return out if len(out) == int(n) else []
+    except Exception:                                            # noqa: BLE001
+        return []
+
+
+def reversal_candle(ohlc):
+    """🕯️ **الشمعة الانعكاسية** — شرطُ فيصل المنصوص (‏`IMG_0448` حرفيًّا):
+    «الشرط تكوين نماذج الهبوط الإيجابية والاكتفاء **وتحقيق شمعة انعكاسية · أيًّا كان
+    نوعها: همر > نجمة صباح > هرامي > وت»**. وترتيبُ الاسمَ ترتيبُه هو.
+
+    `ohlc` = **ثلاث** شمعات `(o,h,l,c,v)` بالترتيب الزمنيّ (الأخيرة آخرًا).
+    يرجّع اسم النموذج أو `None`. دالّة **نقيّة**.
+
+    ⚠️ **الفريم: «كلاهما»** — فيصل سُئل «على اليوميّ ولا 4 ساعات؟» فأجاب **«كلاهما»**
+    (`IMG_0450`) ⇒ تُنادى على الاثنين، ونُسمّي الفريم في العرض.
+    🔒 **عرض/سياق فقط** — لا تدخل شروط الترشيح الخمسة ولا تُغيّر مطابقًا واحدًا."""
+    if not ohlc or len(ohlc) < 3:
+        return None
+    (o1, _h1, _l1, c1, _v1), (o2, h2, l2, c2, _v2), (o3, h3, l3, c3, _v3) = ohlc[-3:]
+    rng3, body3 = (h3 - l3), abs(c3 - o3)
+    low_w, up_w = (min(o3, c3) - l3), (h3 - max(o3, c3))
+    # ① همر: ذيلٌ سفليّ طويل (‏≥2× الجسم **و**≥نصف المدى) · وعلويٌّ قصير **نسبةً
+    #    إلى المدى** · والإغلاق بالثلث الأعلى.
+    #    ⚠️ **تصحيحٌ عند التنفيذ:** كنتُ أشترط `up_w <= body` وهو **مستحيلٌ عمليًّا
+    #    للهمر الصغير الجسم** — وأشهرُ صوره جسمٌ يكاد يكون صفرًا (دراغونفلاي)، فكان
+    #    الشرط يُسقط النموذجَ الأنقى. القياس على **المدى** هو التعريف القياسيّ.
+    #    و`low_w >= 0.5*rng` يمنع وسمَ شمعةٍ مسطّحة (جسمٌ صفر وذيلٌ صفر) همرًا.
+    if (rng3 > 0 and low_w >= 2 * body3 and low_w >= 0.5 * rng3
+            and up_w <= 0.15 * rng3 and (c3 - l3) >= 0.66 * rng3):
+        return "همر"
+    # ② نجمة صباح: حمراء كبيرة ← جسمٌ صغير ← خضراء تستعيد فوق منتصف الحمراء
+    if (c1 < o1 and abs(c2 - o2) <= 0.5 * abs(o1 - c1) and c3 > o3
+            and c3 >= (o1 + c1) / 2.0):
+        return "نجمة صباح"
+    # ③ هرامي: جسمُ الأخيرة **داخل** جسم السابقة، والسابقة حمراء والأخيرة خضراء
+    if (c2 < o2 and c3 > o3 and max(o3, c3) <= o2 and min(o3, c3) >= c2):
+        return "هرامي"
+    # ④ وت (ابتلاع صاعد): جسمٌ أخضر يبتلع جسم الحمراء السابقة
+    if c2 < o2 and c3 > o3 and o3 <= c2 and c3 >= o2:
+        return "وت"
+    return None
+
+
+def tested_level(df, lookback=30, tol=0.015, min_touches=2):
+    """🎯 **المستوى المُختبَر** — قاعدة فيصل الحرفية (`IMG_0451`): «**1.75 ضربها مرّتين
+    ولا كسرها** · إذا الدخول من 1.80 لـ1.90 · **الوقف 1.70**».
+
+    أي: قاعٌ لُمِس **مرّتين فأكثر** ولم يُكسَر **بإغلاق** ⇒ هو مرجعُ الدخول (فوقه)
+    والوقف (تحته). يرجّع `{"level", "touches"}` أو `None`.
+
+    **اللمسة = القاع ضمن `tol` من المستوى.**
+
+    🐞 **عيبٌ في كودي كشفته الطفرة (يُدوَّن لا يُطوى):** كتبتُ أوّلًا حارسًا يرفض
+    المستوى «لو كُسِر بإغلاقٍ تحته» — **وهو فرعٌ لا يمكن أن يُنفَّذ أبدًا**: المستوى
+    `min(lows)` و**كلُّ إغلاقٍ ≥ قاعِ شمعته ≥ المستوى** ⇒ شرطُ الكسر مستحيلٌ رياضيًّا.
+    فحُذف، **و«ولا كسرها» في نصّ فيصل مستوفًى بنيويًّا** بكون المرجع هو القاع نفسه.
+    والمضمونُ الحقيقيّ للقاعدة إذن: **قاعٌ مزدوج** — لُمِس مرّتين فأكثر.
+
+    🔒 **واللمستان يجب أن تكونا مستقلّتين**: شمعتان متجاورتان عند القاع = **اختبارٌ
+    واحد** لا اثنان (وإلّا عدَّ كلُّ انخفاضٍ ممتدّ «مرّتين»). فتُعَدّ **العناقيد**.
+    دالّة فاشلة-آمنة (تالف ⇒ `None`) · عرض/سياق فقط — لا تمسّ وقف الوصفة المنصوص."""
+    try:
+        t = df.tail(int(lookback))
+        lows = [float(x) for x in t["Low"].tolist()]
+    except Exception:                                            # noqa: BLE001
+        return None
+    if len(lows) < 3:
+        return None
+    base = min(lows)
+    if not (base > 0):
+        return None
+    hits = [abs(x / base - 1.0) <= float(tol) for x in lows]
+    clusters = sum(1 for k, v in enumerate(hits) if v and not (k and hits[k - 1]))
+    if clusters < int(min_touches):
+        return None
+    return {"level": round(base, 4), "touches": int(clusters)}
+
+
+def candle_value(df, lookback=20):
+    """🕯️💵 **قيمة الشمعة** (طلب المالك) — سعرُ الإغلاق × حجم اليوم بالدولار، ونسبتُها
+    إلى **وسيط** المدى.
+
+    سندُها نصُّ فيصل على CANF (`IMG_0440`): «**أغلق الفجوة الهابطة عند 3 بـ100 سهم** ·
+    قبل كم يوم المضارب **باع 100 سهم** وصل 3 السعر» ⇒ **حركةٌ كبيرة بقيمةٍ تافهة =
+    يدُ مضاربٍ لا سوق**. فالمقياس ليس الحجم وحده بل **قيمتُه** ونسبتُها للمعتاد.
+
+    يرجّع `{"usd", "ratio", "thin"}` أو `None`. `thin` = القيمة **دون خُمس** الوسيط.
+    دالّة فاشلة-آمنة · **عرض فقط**."""
+    try:
+        t = df.tail(int(lookback))
+        vals = sorted(float(t["Close"].iloc[i]) * float(t["Volume"].iloc[i])
+                      for i in range(len(t)))
+        last = float(t["Close"].iloc[-1]) * float(t["Volume"].iloc[-1])
+    except Exception:                                            # noqa: BLE001
+        return None
+    if not vals or last != last:
+        return None
+    med = vals[len(vals) // 2]
+    ratio = (last / med) if med > 0 else None
+    return {"usd": round(last), "ratio": (round(ratio, 2) if ratio else None),
+            "thin": bool(ratio is not None and ratio < 0.2)}
+
+
+def hunter_watch_state(rev, above_tested):
+    """🪜 **سلّم فيصل الثلاثيّ** — بلفظه على NUWE (`IMG_0449`): «**اصبر** · **متابعه**
+    · **تجهزو**». وهو ما طلبه المالك بـ«المتابعة».
+
+    المطابقون كلُّهم مستوفون «حافظ القاع 3ج» بالبناء، فالمميِّز شيئان مقيسان:
+    **شمعةٌ انعكاسية** تحقّقت · و**ثباتٌ فوق المستوى المُختبَر**.
+      • الاثنان ⇒ **تجهّز** · واحدٌ منهما ⇒ **متابعة** · لا شيء ⇒ **اصبر**.
+    وسندُ الاقتران نصُّ فيصل: «الشرط **الارتداد بعد الثبات**» (`IMG_0450`).
+    دالّة **نقيّة** · **وسمُ حالةٍ لا قرارُ دخول** (لا يُرشَّح ولا يُستبعَد أحدٌ به)."""
+    n = int(bool(rev)) + int(bool(above_tested))
+    return ("تجهّز" if n == 2 else "متابعة" if n == 1 else "اصبر")
+
+
+def hunter_extras(r, df=None, flow=None, df4h=None):
+    """🎁 **كماليّات كرت الصيّاد** (طلب المالك 2026-07-31: اليد · المتابعة · تدفّق
+    السيولة · قيمة الشمعة) + ما أضافته صور الدفعتين.
+
+    🔒 **لا تمسّ النتيجة بتًّا:** تُنادى من `build_split_hunter_alert` **وحدها** بعد
+    اكتمال الاختيار، وتقرأ `r` ولا تكتبه، وأيُّ عطلٍ يُسقط أسطرَها وحدها. الشروط
+    الخمسة و`scan_split_hunter` **byte-identical**.
+    يرجّع قائمة أسطر (قد تكون فارغة)."""
+    out = []
+    try:
+        rev = reversal_candle(_ohlc_tail(df, 3)) if df is not None else None
+        rev4 = reversal_candle(_ohlc_tail(df4h, 3)) if df4h is not None else None
+        lvl = tested_level(df) if df is not None else None
+        px = None
+        try:
+            px = float(r.get("price"))
+        except (TypeError, ValueError):
+            px = None
+        above = bool(lvl and px and px > float(lvl["level"]))
+        # 🪜 المتابعة — سلّم فيصل الثلاثيّ
+        st = hunter_watch_state(rev or rev4, above)
+        _why = " · ".join(
+            ([f"شمعة {rev} (يومي)"] if rev else [])
+            + ([f"شمعة {rev4} (4س)"] if rev4 and rev4 != rev else [])
+            + ([f"فوق المستوى المُختبَر ${lvl['level']:.2f}"] if above else []))
+        out.append(f"  🪜 المتابعة: <b>{st}</b>"
+                   + (f" — {_why}" if _why else " — لا شمعة انعكاسية ولا ثبات بعد"))
+        # 🕯️ الشمعة الانعكاسية (فيصل: «كلاهما» — اليوميّ و4 ساعات)
+        if rev or rev4:
+            _f = " · ".join(([f"يوميّ: {rev}"] if rev else [])
+                            + ([f"4 ساعات: {rev4}"] if rev4 else []))
+            out.append(f"  🕯️ شمعة انعكاسية ({_f}) — شرط فيصل: "
+                       "نماذج هبوطٍ إيجابية ثم اكتفاء ثم انعكاس")
+        # 🎯 المستوى المُختبَر (الدخول فوقه · والوقف تحته)
+        if lvl:
+            out.append(f"  🎯 مستوى مُختبَر ${lvl['level']:.2f} "
+                       f"(لُمِس {lvl['touches']} مرّات ولم يُكسَر بإغلاق) — "
+                       "فيصل: الدخول فوقه والوقف تحته")
+        # 🕯️💵 قيمة الشمعة
+        cv = candle_value(df) if df is not None else None
+        if cv:
+            _t = (" — <b>قيمة تافهة</b>: حركةٌ بأقلّ سيولة = يدُ مضارب لا سوق "
+                  "(فيصل: «أغلق الفجوة بـ100 سهم»)" if cv["thin"] else "")
+            _rt = f" (‏{cv['ratio']:.2f}× الوسيط)" if cv.get("ratio") else ""
+            out.append(f"  🕯️ قيمة شمعة اليوم: {fmt_money(cv['usd'])}{_rt}{_t}")
+        # 💧 تدفّق السيولة (لقطة الطلب/العرض — كما يعرضها فيصل بصورته)
+        fl = flow if isinstance(flow, dict) else None
+        if fl and (fl.get("bid") or fl.get("ask")):
+            _b = (f"طلب {fmt_money(fl.get('bid_size'))} عند ${fl['bid']:.3f}"
+                  if fl.get("bid") else "طلب —")
+            _a = (f"عرض {fmt_money(fl.get('ask_size'))} عند ${fl['ask']:.3f}"
+                  if fl.get("ask") else "عرض —")
+            out.append(f"  💧 تدفّق السيولة: {_b} · {_a}")
+        # 🕵️ اليد
+        ev = hand_evidence(r) or []
+        if len(ev) >= 2:
+            out.append(f"  🕵️ علامات اليد ({len(ev)}): "
+                       + esc(" · ".join(str(x) for x in ev[:3])))
+        # ⚠️ تحذير فيصل الثابت — يُذكر مع اليد لا مستقلًّا
+        out.append("  ⚠️ فيصل: «مضاربٌ فقط يصعد بالسهم — ادخل معه» · "
+                   "و«التدافع للشرا لن يكون وسيلة للربح»")
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ كماليّات الصيّاد: {e}")
+        return out
+    return out
+
+
 def build_split_hunter_alert(rows: list, today=None, fetch_hist=None,
                              fetch_splits=None) -> str:
     """🪝 تنبيه صيّاد المقسّم (فيصل) — يُرسَل **فقط عند وجود مطابق كامل** (صامت غير ذلك).
@@ -6078,6 +6270,12 @@ def build_split_hunter_alert(rows: list, today=None, fetch_hist=None,
         _nbl = next_bottom_line(r.get("next_bottom"))
         if _nbl:
             lines.append("  " + _nbl)
+        # 🎁 كماليّات المالك (اليد · المتابعة · تدفّق السيولة · قيمة الشمعة) + ما
+        # أضافته صور 2026-07-31. **بعد اكتمال الكرت** وخارج أيّ قرار — والحقول تصل
+        # مُثراةً من `split_hunter.py` (‏`_df`/`_flow`/`_df4h`) وغيابُها يُسقط أسطرَها.
+        for _x in hunter_extras(r, df=r.get("_df"), flow=r.get("_flow"),
+                                df4h=r.get("_df4h")):
+            lines.append(_x)
         lines.append("")
     # 🔔 ذيل «قريبون من الشرط»: استوفوا كل شيء وسقطوا على «لم يصعد» بفارق قريب.
     # (فيصل عرض HTCR وقد صعد **+23%** والحدّ المنصوص **20%** — فلا يُسقَط بصمت.

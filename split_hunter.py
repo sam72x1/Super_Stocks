@@ -265,6 +265,25 @@ def run(fetch_ext=None, now_utc=None):
             return 1
         _stamp(S, sess)                 # 🔔 ⓿-و: «السوق فُحِص وسُلِّم» — تاريخٌ واحد
         return 0
+    # 🎁 **إثراء الكماليّات** (طلب المالك: اليد · المتابعة · تدفّق السيولة · قيمة
+    #    الشمعة). 🔒 **بعد `scan_split_hunter` وبعد حارس الافتر** ⇒ يستحيل بنيويًّا
+    #    أن يُدخل أو يُخرج مطابقًا: الصفوف مُختارةٌ سلفًا، والحقول تُقرأ في العرض
+    #    وحده. وكلُّ جالبٍ **فاشلٌ-آمن على حدة** فعطلُ رمزٍ لا يُسقط الرسالة.
+    for _r in rows:
+        _sym = str(_r.get("symbol") or "")
+        try:
+            _r["_df"] = hist.get(_sym)
+        except Exception:                                        # noqa: BLE001
+            pass
+        try:                       # 4 ساعات — فيصل: الشمعة «كلاهما» يوميّ و4س
+            _r["_df4h"] = S.fetch_4h(_sym)
+        except Exception:                                        # noqa: BLE001
+            _r["_df4h"] = None
+        try:                       # لقطة الطلب/العرض **الخام** (‏`order_snapshot`
+            #                        يُرجع نصًّا؛ الكماليّات تحتاج القاموس نفسه).
+            _r["_flow"] = S.polygon_flow(_sym)
+        except Exception:                                        # noqa: BLE001
+            _r["_flow"] = None
     try:
         msg = S.build_split_hunter_alert(rows, today=sess) + (
             "\n" + S._rtl_join([

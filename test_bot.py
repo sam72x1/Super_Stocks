@@ -12365,7 +12365,10 @@ _HUNTER_PINS = {
     "_split_setup_probe": "117eaf66511c12cf",
     "_yahoo_float": "ff6e63f2f6198ad1",
     "bottom_strike": "726f94595be226f1",
-    "build_split_hunter_alert": "775d2241a2f63e5f",
+    # 🎁 حُدِّثت عمدًا (2026-07-31) بإضافة **كماليّات المالك** وحدها: نداءٌ واحد
+    #    لـ`hunter_extras` بعد اكتمال الكرت. و`scan_split_hunter` والثمانية عشر
+    #    الباقية **مطابقة** ⇒ الشروط الخمسة والحكم byte-identical بالبناء.
+    "build_split_hunter_alert": "69f668f73708addf",
     "build_split_radar_section": "e8a02f05df9511ef",
     "faisal_model_plan": "dee70734cacfaa67",
     "faisal_split_plan": "350f26d48509f57d",
@@ -12393,6 +12396,94 @@ check("🛡️ الدرع: كلُّ دوالّ الصيّاد **موجودة** (
 check("🛡️ الدرع: كلُّ دوالّ الصيّاد **مطابقة لبصمتها المثبَّتة** (لا تغيير صامت)",
       not _h_changed, f"تغيّرت={_h_changed}")
 check("🛡️ الدرع يغطّي 19 دالّة (لا يتقلّص بصمت)", len(_HUNTER_PINS) == 19)
+
+# ==========================================================
+# 🎁 كماليّات كرت الصيّاد (طلب المالك 2026-07-31) — عرضٌ لا يمسّ النتيجة
+# ==========================================================
+# 🕯️ الشمعة الانعكاسية بترتيب فيصل الحرفيّ: همر > نجمة صباح > هرامي > وت.
+_rc = lambda *c: S.reversal_candle([(o, h, l, cl, 0) for o, h, l, cl in c])  # noqa: E731
+check("🕯️ REV🔒 همر: ذيلٌ سفليّ ‏≥2× الجسم وإغلاقٌ بالثلث الأعلى",
+      _rc((5, 5, 4, 4.5), (4.5, 4.6, 4, 4.2), (4.2, 4.3, 3.0, 4.2)) == "همر")
+check("🕯️ REV🔒 نجمة صباح: حمراء كبيرة ← جسمٌ صغير ← خضراء فوق منتصف الحمراء",
+      _rc((10, 10, 6, 6), (6, 6.4, 5.8, 6.2), (6.2, 9, 6.1, 8.5)) == "نجمة صباح")
+check("🕯️ REV🔒 هرامي: جسمُ الأخيرة داخل جسم الحمراء السابقة",
+      _rc((9, 9, 8.9, 8.9), (10, 10.1, 5.9, 6.0), (7.0, 7.3, 6.8, 7.2)) == "هرامي")
+check("🕯️ REV🔒 وت (ابتلاع صاعد): الأخضر يبتلع جسم الحمراء",
+      _rc((9, 9, 8.9, 8.9), (10, 10.1, 5.9, 6.0), (5.9, 10.5, 5.8, 10.4)) == "وت")
+check("🕯️ REV🔒 لا نموذج ⇒ None (لا وسمَ مفبرك) · وبيانات ناقصة ⇒ None",
+      _rc((5, 5.1, 4.9, 5.0), (5, 5.1, 4.9, 5.0), (5, 5.1, 4.9, 5.0)) is None
+      and S.reversal_candle([]) is None and S.reversal_candle(None) is None
+      and S.reversal_candle([(1, 1, 1, 1, 0)]) is None)
+
+
+def _mkdf(rows):
+    """إطارٌ صغير من `[(o,h,l,c,v)…]` — بلا شبكة."""
+    return S.pd.DataFrame(
+        {"Open": [r[0] for r in rows], "High": [r[1] for r in rows],
+         "Low": [r[2] for r in rows], "Close": [r[3] for r in rows],
+         "Volume": [r[4] for r in rows]},
+        index=S.pd.date_range("2026-06-01", periods=len(rows), freq="D"))
+
+
+# 🎯 المستوى المُختبَر (فيصل: «1.75 ضربها مرّتين ولا كسرها · الوقف 1.70»).
+_tl_ok = _mkdf([(2, 2.1, 1.75, 2.0, 1), (2, 2.2, 1.9, 2.1, 1),
+                (2, 2.1, 1.76, 2.05, 1), (2, 2.3, 1.95, 2.2, 1)])
+check("🎯 LVL🔒 قاعٌ لُمِس مرّتين بلا كسرٍ بإغلاق ⇒ يُرجَع مع عدد اللمسات",
+      (lambda x: x and abs(x["level"] - 1.75) < 1e-6 and x["touches"] == 2)(
+          S.tested_level(_tl_ok)))
+# 🐞 القفل الذي كشف عيبي: **لمستان متجاورتان = اختبارٌ واحد** لا اثنان — وإلّا
+#    عدَّ كلُّ انخفاضٍ ممتدّ «ضربها مرّتين». (والحارسُ القديم «كُسِر بإغلاق» كان فرعًا
+#    مستحيلَ التنفيذ رياضيًّا فحُذف — نجت منه طفرةٌ فكشفته.)
+check("🎯 LVL🔒 شمعتان متجاورتان عند القاع = **اختبارٌ واحد** ⇒ لا مستوى",
+      S.tested_level(_mkdf([(2, 2.1, 1.75, 2.0, 1), (2, 2.05, 1.755, 1.9, 1),
+                            (2, 2.3, 1.95, 2.2, 1), (2, 2.3, 2.0, 2.25, 1)]))
+      is None)
+check("🎯 LVL🔒 لمسةٌ واحدة لا تكفي · وتالفٌ ⇒ None (لا مستوًى مخترَع)",
+      S.tested_level(_mkdf([(3, 3.1, 1.75, 3.0, 1), (3, 3.2, 2.9, 3.1, 1),
+                            (3, 3.2, 2.95, 3.15, 1)])) is None
+      and S.tested_level(None) is None)
+
+# 🕯️💵 قيمة الشمعة (فيصل: «أغلق الفجوة بـ100 سهم» = حركةٌ بقيمةٍ تافهة = يد).
+_cvd = [(3, 3.1, 2.9, 3.0, 100000)] * 5 + [(3, 3.2, 2.9, 3.0, 100)]
+check("🕯️ VAL🔒 قيمةٌ دون خُمس الوسيط تُوسَم «تافهة» (بصمة اليد لا السوق)",
+      (lambda x: x and x["thin"] is True and x["usd"] == 300)(
+          S.candle_value(_mkdf(_cvd))))
+check("🕯️ VAL🔒 وقيمةٌ معتادة **لا** تُوسَم (القفل ليس عدميًّا) · وتالفٌ ⇒ None",
+      (lambda x: x and x["thin"] is False)(
+          S.candle_value(_mkdf([(3, 3.1, 2.9, 3.0, 100000)] * 6)))
+      and S.candle_value(None) is None)
+
+# 🪜 سلّم فيصل الثلاثيّ (اصبر · متابعة · تجهّز) — وسمُ حالةٍ لا قرارُ دخول.
+check("🪜 WATCH🔒 الاثنان ⇒ تجهّز · واحدٌ ⇒ متابعة · لا شيء ⇒ اصبر",
+      (S.hunter_watch_state("همر", True) == "تجهّز"
+       and S.hunter_watch_state("همر", False) == "متابعة"
+       and S.hunter_watch_state(None, True) == "متابعة"
+       and S.hunter_watch_state(None, False) == "اصبر"))
+
+# 🔒 **القفل الحاسم: الكماليّات لا تمسّ النتيجة.** تُنادى من دالّة العرض وحدها،
+#    وغائبةٌ عن `scan_split_hunter` وعن الجذور — فلا تُدخل مرشّحًا ولا تُخرجه.
+_EXTRA_FNS = ("hunter_extras", "reversal_candle", "tested_level",
+              "candle_value", "hunter_watch_state", "_ohlc_tail")
+check("🎁 EXTRA🔒 صفر أثرٍ على الترشيح: لا اسم منها في `scan_split_hunter` ولا الجذور",
+      all(_n not in _insp0.getsource(_f) for _n in _EXTRA_FNS
+          for _f in (S.scan_split_hunter, S.rank_key, S.select_top,
+                     S.classify_tier, S.entry_status, S.analyze_ticker,
+                     S.apply_float_gate, S.apply_short_gate, S.backtest_symbol)))
+check("🎁 EXTRA🔒 وتُنادى من `build_split_hunter_alert` وحدها (نقطة النداء مُثبَتة)",
+      "hunter_extras(" in _insp0.getsource(S.build_split_hunter_alert)
+      and sum("hunter_extras(" in _insp0.getsource(_f) for _f in (
+          S.build_split_hunter_alert, S.build_split_radar_section,
+          S.build_message, S.build_daily_message)) == 1)
+check("🎁 EXTRA🔒 فاشلة-آمنة: إطارٌ تالف/غياب كل شيء ⇒ أسطرٌ بلا انهيار",
+      isinstance(S.hunter_extras({"symbol": "X", "price": 1.0}), list)
+      and isinstance(S.hunter_extras({}, df="تالف", flow="تالف"), list))
+check("🎁 EXTRA🔒 الأربعة المطلوبة تظهر فعلًا (اليد · المتابعة · التدفّق · القيمة)",
+      (lambda t: all(k in t for k in ("🪜 المتابعة", "🕯️ قيمة شمعة اليوم",
+                                      "💧 تدفّق السيولة")))(
+          "\n".join(S.hunter_extras(
+              {"symbol": "X", "price": 2.2}, df=_mkdf(_cvd),
+              flow={"bid": 3.18, "bid_size": 300, "ask": 3.41,
+                    "ask_size": 611}))))
 # 🔴 والدرعُ نفسه يجب أن يكون قادرًا على السقوط — وإلّا فهو زينة:
 check("🛡️ الدرع **يسقط فعلًا** لو تغيّرت بصمة (شاهد ضبط: بصمةٌ مزيّفة تُكشَف)",
       "scan_split_hunter" in _h_now
