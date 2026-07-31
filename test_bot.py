@@ -11939,6 +11939,63 @@ check("⚡ EVENT🔒 ذراع المضارب **ثانويّة** بالتسمية
       "E-OPERATOR" in _insp0.getsource(EXR.run)
       and "ثانويّة" in _insp0.getsource(EXR.run))
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 🎚️ T-MANAGE-25 — أقفال الإدارة الجزئية (`manage25_prereg.md`)
+#    + قفل **أفق الحسم** (الانحراف الذي سحب أرقام T-EVENT-EXEC الأولى).
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⓪ 🔴 الأفق: الحسم يمتدّ **من يوم الزناد** لا داخل جلسته وحدها
+check("🎚️ MANAGE🔒 الحسم يمتدّ لكامل نافذة ARMED (مسارٌ مسطَّح لا جلسةٌ واحدة)",
+      "flat, base = [], {}" in _insp0.getsource(EXR.run)
+      and "fwd=flat[base[day] + i + 1:]" in _insp0.getsource(EXR.run)
+      and "path = fwd if fwd is not None" in _insp0.getsource(EXR._one_event))
+
+# ① مسار الربع المُمتَّع — أسبابُ الخروج الثلاثة، كلٌّ بحالةٍ تميّزه
+_R = lambda t, c, h=None, s="d1": {  # noqa: E731
+    "t": t, "c": c, "h": (h if h is not None else c), "sess": s}
+_m = 60_000
+check("🎚️ MANAGE🔒 بلوغ t3 يُخرج الربع عند t3",
+      EX.runner_exit([_R(0, 2.1), _R(_m, 2.2, 3.1)], 2.0, 3.0) == ("t3", 3.0))
+check("🎚️ MANAGE🔒 كسرُ t1 بلا استعادةٍ خلال 15 دقيقة ⇒ خروج",
+      EX.runner_exit([_R(i * _m, 1.9) for i in range(20)], 2.0, 9.0)[0] == "broke")
+check("🎚️ MANAGE🔒 والاستعادة داخل المهلة **تُلغي** الكسر (لا خروج)",
+      EX.runner_exit([_R(0, 1.9), _R(_m, 2.05)] + [_R((2 + i) * _m, 2.05)
+                     for i in range(20)], 2.0, 9.0)[0] == "end")
+check("🎚️ MANAGE🔒 انقضاء 5 جلسات يُخرج بالوقت",
+      EX.runner_exit([_R(i * _m, 2.5, s=f"d{i}") for i in range(8)],
+                     2.0, 9.0)[0] == "time")
+check("🎚️ MANAGE🔒 بلا شموع ⇒ None (لا خروجَ مُختلَق)",
+      EX.runner_exit([], 2.0, 3.0) is None)
+check("🎚️ MANAGE🔒 t3 غائبٌ لا يُسقط المسار (يخرج بالشرطَين الباقيَين)",
+      EX.runner_exit([_R(i * _m, 2.5) for i in range(4)], 2.0, None)[0] == "end")
+
+# ② التركيب 75/25 — و**خروجان = تكلفتان** (لا مجّانية للإدارة)
+check("🎚️ MANAGE🔒 غيرُ الرابحة ⇒ ب = أ حرفيًّا",
+      abs(EX.manage_b_r(-10.0, 0, None, 0.02)
+          - EX.manage_b_r(-10.0, 0, None, 0.02)) < 1e-12
+      and abs(EX.manage_b_r(-10.0, 0, None, 0.0) - (-10.0)) < 1e-9)
+check("🎚️ MANAGE🔒 التركيب 75/25 بلا تكلفة = المتوسط المرجَّح",
+      abs(EX.manage_b_r(20.0, 20.0, 40.0, 0.0) - (0.75 * 20 + 0.25 * 40)) < 1e-9)
+check("🎚️ MANAGE🔒 **خروجان = تكلفتان**: السبريد يُخصَم من الجزأين معًا",
+      abs(EX.manage_b_r(20.0, 20.0, 20.0, 0.02)
+          - ((1.20 * 0.99 - 1) * 100)) < 1e-9)
+check("🎚️ MANAGE🔒 الربع الخاسر يسحب النتيجة (ليس تحسينًا بالتعريف)",
+      EX.manage_b_r(20.0, 20.0, -5.0, 0.0) < 20.0)
+
+# ③ 🔴 المُشغِّل: ب تُحسب على **نفس** الصفقة، وغيرُ الرابحة تبقى في المقام
+_oe = _insp0.getsource(EXR._one_event)
+check("🎚️ MANAGE🔒 ب على نفس الصفقة · وغيرُ الرابحة ⇒ same_as_a (تبقى بالمقام)",
+      'row["net_r_b"] = row["net_r"]' in _oe and '"same_as_a"' in _oe
+      and 'if out != "win"' in _oe)
+check("🎚️ MANAGE🔒 مسار الربع يبدأ **بعد** شمعة بلوغ الهدف",
+      "path[k + 1:]" in _oe)
+check("🎚️ MANAGE🔒 t3 يُقرأ من الخطة المخزَّنة لا يُخترَع",
+      '(t.get("interp_in") or {}).get("t3")' in _insp0.getsource(EXR.plan_levels)
+      and '"t3": r.get' not in _oe)
+check("🎚️ MANAGE🔒 المعيار الرباعيّ يُطبع بحدوده المسجَّلة",
+      "0.15" in _insp0.getsource(EXR.run) and "-0.10" in _insp0.getsource(EXR.run)
+      and "CVaR5%" in _insp0.getsource(EXR.run))
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

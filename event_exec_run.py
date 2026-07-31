@@ -76,6 +76,8 @@ def plan_levels(t, tol=0.03):
     if not brk:
         return None
     return {"pivot": piv, "break": float(brk), "stop": stop, "t1": t1,
+            # 🎚️ `t3` من الخطة المخزَّنة — لا هدفٌ مُخترَع (`manage25_prereg.md` §②)
+            "t3": (t.get("interp_in") or {}).get("t3"),
             "from_crit": bool(t.get("crit"))}
 
 
@@ -131,8 +133,15 @@ def _resolve_from(bars, i0, entry_ask, stop, t1):
     return (out, ret)
 
 
-def _one_event(sym, day, sess_bars, i, sig, lv, tag, pair_key):
-    """ينفّذ حدثًا واحدًا بقواعد §④ المسجَّلة: `ask` عمره ≤5ث · لا بديلَ مريحًا."""
+def _one_event(sym, day, sess_bars, i, sig, lv, tag, pair_key, fwd=None):
+    """ينفّذ حدثًا واحدًا بقواعد §④ المسجَّلة: `ask` عمره ≤5ث · لا بديلَ مريحًا.
+
+    🔴 **`fwd` = مسار الدقيقة من الدخول حتى نهاية نافذة ARMED** — لا جلسة الزناد
+    وحدها. كان الحسم يجري داخل الجلسة الواحدة **خلافًا للتسجيل** («من يوم الزناد»)
+    فسُحبت أرقامُ التشغيلة الأولى وأُصلح الأفق (`manage25_prereg.md` ⓪).
+
+    🎚️ **وعليه تُحسب السياسة ب أيضًا** (‏T-MANAGE-25) على **نفس** الصفقة — فالمجتمع
+    واحدٌ **بالبناء** لا بالتوفيق."""
     bar = sess_bars[i]
     end_ms = int(bar["t"]) + 60_000            # §2c: `t` = **بداية** الشمعة
     row = {"arm": tag, "symbol": sym, "day": day, "pair_key": pair_key,
@@ -150,7 +159,8 @@ def _one_event(sym, day, sess_bars, i, sig, lv, tag, pair_key):
         return row
     row.update(executable=True, entry=ent["ask"], spread_pct=round(spr * 100, 3),
                quote_age_ms=ent["age_ms"])
-    res = _resolve_from(sess_bars, i + 1, ent["ask"], lv["stop"], lv["t1"])
+    path = fwd if fwd is not None else sess_bars[i + 1:]
+    res = _resolve_from(path, 0, ent["ask"], lv["stop"], lv["t1"])
     if res is None:
         row["reason"] = "no_runway"
         return row
@@ -158,6 +168,23 @@ def _one_event(sym, day, sess_bars, i, sig, lv, tag, pair_key):
     row["outcome"] = out
     row["net_r"] = EX.net_r(raw, ent["ask"], lv["stop"], spr)
     row["remaining_gain"] = round(raw, 2)
+    # 🎚️ T-MANAGE-25: السياسة ب على **نفس** الصفقة. غيرُ الرابحة ⇒ ب = أ حرفيًّا.
+    risk = (ent["ask"] - lv["stop"]) / ent["ask"] * 100.0
+    if out != "win" or risk <= 0:
+        row["net_r_b"] = row["net_r"]
+        row["b_reason"] = "same_as_a"
+    else:
+        k = next((j for j, b in enumerate(path)
+                  if float(b["h"]) >= lv["t1"]), None)
+        rex = EX.runner_exit(path[k + 1:], lv["t1"], lv.get("t3")) if k is not None else None
+        if rex is None:
+            row["net_r_b"] = row["net_r"]
+            row["b_reason"] = "no_runner_path"
+        else:
+            t1_ret = (lv["t1"] / ent["ask"] - 1.0) * 100.0
+            run_ret = (rex[1] / ent["ask"] - 1.0) * 100.0
+            row["net_r_b"] = EX.manage_b_r(raw, t1_ret, run_ret, spr) / risk
+            row["b_reason"] = rex[0]
     return row
 
 
@@ -204,6 +231,12 @@ def run() -> int:
         # 🔴 الحاجز **يتجدّد يوميًّا بإغلاق الجلسة السابقة** — مطابقةً للتحديث اليوميّ
         #    في الإنتاج (يجري قبل الافتتاح فلا يقرأ إغلاق اليوم نفسه).
         lvl_of = session_levels(_days, sess, a["trade"], lv["break"])
+        # 🔴 مسارٌ مسطَّح لكامل نافذة ARMED — الحسم يمتدّ **من يوم الزناد** كما سُجِّل،
+        #    لا داخل جلسته وحدها (الانحراف الذي سحب أرقام التشغيلة الأولى).
+        flat, base = [], {}
+        for day in _days:
+            base[day] = len(flat)
+            flat.extend(sess[day])
         for day in _days:
             sb = sess[day]
             cov["sessions"] += 1
@@ -219,18 +252,21 @@ def run() -> int:
                 xc = EX.cross_trigger(sb, brk)
                 if xc:
                     cross.append(_one_event(a["symbol"], day, sb, xc[0], xc[1],
-                                            lv, "E-CROSS", f"{day}|x"))
+                                            lv, "E-CROSS", f"{day}|x",
+                                            fwd=flat[base[day] + xc[0] + 1:]))
         cov["trig"] += len(fired)
         cov["quiet"] += len(quiet)
         for day, sb, (i, sig) in fired:
             pk = f"{day}|{sb[i].get('mod')}"
-            r = _one_event(a["symbol"], day, sb, i, sig, lv, "E-REAL", pk)
+            r = _one_event(a["symbol"], day, sb, i, sig, lv, "E-REAL", pk,
+                           fwd=flat[base[day] + i + 1:])
             real.append(r)
             # ذراع E-CROSS على يوم الزناد أيضًا (نفس المستوى، بلا شرط الحجم)
             xc = EX.cross_trigger(sb, lvl_of.get(day, lv["break"]))
             if xc:
                 cross.append(_one_event(a["symbol"], day, sb, xc[0], xc[1], lv,
-                                        "E-CROSS", f"{day}|x"))
+                                        "E-CROSS", f"{day}|x",
+                                        fwd=flat[base[day] + xc[0] + 1:]))
             # 🔴 ثانويّة: بوّابة المضارب (عتبتها شاركت في توليد الفرضية)
             end_ms = int(sb[i]["t"]) + 60_000
             tr = EX.hist_trades(a["symbol"], end_ms - 15 * 60_000, end_ms)
@@ -247,7 +283,8 @@ def run() -> int:
                 if j is not None:
                     pseudo.append(_one_event(a["symbol"], pd, pb, j,
                                              {"price": pb[j].get("c")}, lv,
-                                             "E-PSEUDO", pk))
+                                             "E-PSEUDO", pk,
+                                             fwd=flat[base[pd] + j + 1:]))
 
     # ✅ «أثبت أن التجربة اشتغلت»: كم نافذةً استعملت **الرقم الحرج** فعلًا؟ صفرٌ هنا
     #    يعني أن المقيس زنادٌ آخر (المرجع الاحتياطيّ) — فلا تُقرأ النتيجة.
@@ -297,6 +334,50 @@ def run() -> int:
         print(f"\n📐 الفرق المزدوج داخل الرمز (‏E-REAL − E-PSEUDO): "
               f"متوسط={pd_['mean']:+.3f}R · 95%=[{pd_['lo']:+.3f}, {pd_['hi']:+.3f}] "
               f"· أزواج={pd_['n']} ({pd_['k']} رمزًا)")
+
+    # ══════════ 🎚️ T-MANAGE-25 — على **نفس** الصفقات المُنفَّذة (بالبناء) ══════════
+    if R and R["dec"]:
+        pairs = [(r, r.get("net_r_b")) for r in R["dec"] if r.get("net_r_b") is not None]
+        diffs = [{"symbol": r["symbol"], "net_r": b - r["net_r"]} for r, b in pairs]
+        changed = [d for d, (r, b) in zip(diffs, pairs) if abs(d["net_r"]) > 1e-12]
+        cb = EX.cluster_bootstrap_mean(diffs)
+        med = sorted(d["net_r"] for d in diffs)
+        med = med[len(med) // 2] if med else 0.0
+        a_mean = sum(r["net_r"] for r, _ in pairs) / len(pairs) if pairs else 0.0
+        b_mean = sum(b for _, b in pairs) / len(pairs) if pairs else 0.0
+
+        def _cvar(vals, q=0.05):
+            xs = sorted(vals)
+            k = max(1, int(len(xs) * q))
+            return sum(xs[:k]) / k if xs else 0.0
+        cv_a = _cvar([r["net_r"] for r, _ in pairs])
+        cv_b = _cvar([b for _, b in pairs])
+        print(f"\n🎚️ T-MANAGE-25 (نفس الصفقات المُنفَّذة · {len(pairs)} صفقة):")
+        print(f"  السياسة أ (خروجٌ كامل) = {a_mean:+.3f}R · "
+              f"السياسة ب (‏75/25) = {b_mean:+.3f}R")
+        print(f"  **الفرق المزدوج ب−أ = {cb['mean']:+.3f}R** · وسيط={med:+.3f} · "
+              f"cluster 95%=[{cb['lo']:+.3f}, {cb['hi']:+.3f}] ({cb['k']} رمزًا) "
+              f"· اختلفت ب عن أ في {len(changed)} صفقة")
+        print(f"  CVaR5%: أ={cv_a:+.3f}R · ب={cv_b:+.3f}R "
+              f"(الفرق {cv_b - cv_a:+.3f} · يلزم ألّا يسوء بأكثر من 0.10)")
+        _by = {}
+        for d in changed:
+            if d["net_r"] > 0:
+                _by[d["symbol"]] = _by.get(d["symbol"], 0.0) + d["net_r"]
+        _top2 = sum(sorted(_by.values(), reverse=True)[:2])
+        _tot = sum(_by.values())
+        print(f"  حصّة أعلى اسمَين من الربح الإضافيّ: "
+              f"{(_top2 / _tot * 100 if _tot > 0 else 0):.0f}%")
+        _rs = {}
+        for r, _ in pairs:
+            _rs[r.get("b_reason")] = _rs.get(r.get("b_reason"), 0) + 1
+        print("  أسباب خروج الربع: "
+              + " · ".join(f"{k}={v}" for k, v in sorted(_rs.items())))
+        print(f"  🧭 المعيار الرباعيّ (‏§⑤): ①تحسّن ≥0.15R ⇒ "
+              f"{'✅' if cb['mean'] >= 0.15 else '🔴'} · ②الحدّ السفليّ >0 ⇒ "
+              f"{'✅' if cb['lo'] > 0 else '🔴'} · ③موجب هذي السنة ⇒ "
+              f"{'✅' if cb['mean'] > 0 else '🔴'} · ④CVaR لا يسوء >0.10 ⇒ "
+              f"{'✅' if (cv_b - cv_a) >= -0.10 else '🔴'}")
 
     print("\n🧭 بوّابة القرار الخماسية (‏§⑧ — الخمسة معًا، وتُقرأ عبر السنوات الثلاث):")
     if R:

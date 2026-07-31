@@ -124,6 +124,57 @@ def pick_entry_quote(quotes, trigger_end_ms, max_age_ms=MAX_QUOTE_AGE_MS):
     return None
 
 
+def runner_exit(bars, t1, t3, reclaim_min=15, hold_sessions=5):
+    """🎚️ **‏T-MANAGE-25 · السياسة ب** — مسارُ **الربع المُمتَّع** بعد بيع 75% عند
+    `t1`. `bars` = شموع الدقيقة **من الدقيقة التالية لبلوغ الهدف**، وكلٌّ يحمل `sess`.
+
+    تخرج بأوّل ما يقع (المُسجَّل في `manage25_prereg.md` §②، ولا يُختار بعد الأرقام):
+      **①** **كسرُ `t1`** بإغلاق دقيقةٍ تحته **بلا استعادةٍ** (إغلاق فوقه) خلال
+          `reclaim_min` دقيقة ⇒ الخروج عند إغلاق دقيقة المهلة.
+      **②** بلوغ `t3` (لمسةً) ⇒ الخروج عنده.
+      **③** انقضاء `hold_sessions` جلسة ⇒ الخروج عند آخر إغلاقٍ متاح.
+    يرجّع `(سبب، سعر)` أو `None` لو لا شموع. **الوقف على الربع = `t1`** لا الوقف
+    الأصليّ (اختيارٌ مسجَّل، مصرَّحٌ به). دالّة **نقيّة** بلا شبكة."""
+    if not bars:
+        return None
+    sess0 = bars[0].get("sess")
+    seen, broke_at = [sess0], None
+    for b in bars:
+        s = b.get("sess")
+        if s not in seen:
+            seen.append(s)
+            if len(seen) > hold_sessions:
+                return ("time", float(bars[bars.index(b) - 1]["c"]))
+        try:
+            c, h = float(b["c"]), float(b["h"])
+        except (TypeError, ValueError, KeyError):
+            continue
+        if t3 and h >= float(t3):
+            return ("t3", float(t3))
+        if broke_at is None:
+            if c < float(t1):
+                broke_at = b["t"]
+        else:
+            if c >= float(t1):
+                broke_at = None                      # استعادةٌ داخل المهلة
+            elif b["t"] - broke_at >= reclaim_min * 60_000:
+                return ("broke", c)                  # كُسر ولم يُستعَد
+    return ("end", float(bars[-1]["c"]))
+
+
+def manage_b_r(raw_a_ret, t1_ret, runner_ret, spr, frac=0.75):
+    """صافي R للسياسة **ب** مركَّبًا من جزأين بتكلفتَي خروجٍ **مستقلّتين**.
+
+    `t1_ret`/`runner_ret` = عائدا الجزأين **خامَين** (قبل التكاليف) بالنسبة المئوية.
+    كلُّ خروجٍ يدفع **نصف السبريد** ⇒ **الإدارة ليست مجّانية** (خروجان = تكلفتان).
+    وصفقةٌ لم تبلغ `t1` ⇒ **ب = أ حرفيًّا** (يُمرَّر `runner_ret=None`)."""
+    def _net(r):
+        return (1.0 + float(r) / 100.0) * (1.0 - float(spr or 0.0) / 2.0) - 1.0
+    if runner_ret is None:
+        return _net(raw_a_ret) * 100.0
+    return (frac * _net(t1_ret) + (1.0 - frac) * _net(runner_ret)) * 100.0
+
+
 def spread_frac(q):
     """كسرُ السبريد عند الدخول `(ask − bid) / ask` — تكلفة الخروج الصريحة.
     بلا `bid` صالح ⇒ `None` (لا يُخمَّن؛ الصفقة تُعدّ غير قابلةٍ للتسعير)."""
