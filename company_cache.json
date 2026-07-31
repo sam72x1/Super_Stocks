@@ -1571,20 +1571,6 @@
   "short_interest": 36586,
   "days_to_cover": 0.23
  },
- "AFJK": {
-  "sector": "Financial Services",
-  "industry": "Shell Companies",
-  "business": "Aimei Health Technology Co., Ltd does not have significant operations. It intends to effect a merger, share exchange, asset acquisition stock purchase, reorgani…",
-  "country": "United States",
-  "cash": 18516,
-  "shares_out": 3166332,
-  "short_pct": 0.4,
-  "float": 1441346,
-  "finra_short": 568,
-  "company_name": "Aimei Health Technology Co., Lt",
-  "short_interest": 4398,
-  "days_to_cover": 0.18
- },
  "PSTV": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -1836,5 +1822,19 @@
   "company_name": "Millennium Group International",
   "short_interest": 22351,
   "days_to_cover": 0.19
+ },
+ "AFJK": {
+  "sector": "Financial Services",
+  "industry": "Shell Companies",
+  "business": "Aimei Health Technology Co., Ltd does not have significant operations. It intends to effect a merger, share exchange, asset acquisition stock purchase, reorgani…",
+  "country": "United States",
+  "cash": 18516,
+  "shares_out": 3166332,
+  "short_pct": 0.4,
+  "float": 1441346,
+  "finra_short": 55,
+  "company_name": "Aimei Health Technology Co., Lt",
+  "short_interest": 4398,
+  "days_to_cover": 0.18
  }
 }
