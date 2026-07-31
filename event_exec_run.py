@@ -27,19 +27,31 @@ SCALE_TOL = 0.15
 
 
 def _armed(trades):
-    """كون ARMED = **ما كان على القائمة فعلًا** (الذراع `R0`)، لا ما رشّحه الفارز."""
+    """كون ARMED = **ما كان على القائمة فعلًا** (الذراع `R0`)، لا ما رشّحه الفارز.
+
+    🔴🔴 **بداية النافذة = `eligible_at` حصرًا** (إصلاح العيب الزمنيّ — مراجعة Codex
+    الثانية): `trade["date"]` هو **يوم الإشارة** الذي **إغلاقُه بنى الخطّة**، فمسحُه
+    نظرٌ مستقبليّ. و`eligible_at` = أوّل جلسةٍ يجوز فيها التنفيذ، يكتبها المحرّك من
+    `fut.index[0]`.
+    🔒 **ولا ارتداد إلى `date` عند غيابه** — الارتداد يُعيد التسريب **صامتًا**، وهو
+    أسوأ من التوقّف. الغياب يعني أن العلم كان خاملًا ⇒ يُسقَط الصفّ ويُعدّ، مطابقةً
+    لقاعدة «أثبت أن التجربة اشتغلت قبل تفسير نتيجتها». يرجّع `(نافذات، res، مُسقَط)`."""
     cands, idx, outcome_of = RP.candidates_from_trades(trades)
     res = RP.replay(cands, outcome_of=outcome_of, ranker=RP.rank_actual,
                     sessions=range(0, len(idx)))
     inv = {v: k for k, v in idx.items()}
-    out = []
+    out, dropped = [], 0
     for c in res["taken"]:
         _, held = outcome_of(c)
+        elig = c.payload.get("eligible_at")
+        if not elig:
+            dropped += 1
+            continue
         out.append({"symbol": c.symbol, "trade": c.payload,
-                    "start": c.payload["date"],
+                    "start": elig,
                     "end": inv.get(c.session + max(int(held), 0),
                                    c.payload["exit_date"])})
-    return out, res
+    return out, res, dropped
 
 
 def plan_levels(t, tol=0.03):
@@ -196,7 +208,14 @@ def run() -> int:
     if not have:
         print("⛔ `BT_REPLAY10` خامل ⇒ لا كون ARMED — لا تُفسَّر نتيجة.")
         return 2
-    armed, rep = _armed(have)
+    armed, rep, dropped = _armed(have)
+    if dropped:
+        # 🔴 غيابُ `eligible_at` = علمٌ خامل/بناءٌ قديم. لا نرتدّ ليوم الإشارة (تسريب)
+        #    ولا نصمت: يُعلَن ويُوقَف لو كان الغياب شاملًا.
+        print(f"⚠️ أُسقِطت {dropped} نافذة بلا `eligible_at` (لا ارتداد ليوم الإشارة).")
+    if not armed:
+        print("⛔ صفر نافذةٍ بمرجعٍ زمنيّ صالح ⇒ لا قياس (لا نتيجة مفبركة).")
+        return 2
     if MAX_SYMBOLS:
         armed = armed[:MAX_SYMBOLS]
     print(f"كون ARMED (ما كان على القائمة فعلًا): {len(armed)} نافذة "
@@ -221,8 +240,9 @@ def run() -> int:
             cov["no_bars"] += 1
             continue
         sess = EX.group_sessions(bars)
-        # §⑩-1 حارس المقياس: مرّةً واحدة على **أوّل جلسة مسلَّحة** (يوم الإشارة) —
-        # لا كلَّ يوم، وإلّا أقصينا الرابح لأنه ارتفع (وارتفاعُه هو المطلوب).
+        # §⑩-1 حارس المقياس: مرّةً واحدة على **أوّل جلسةٍ مؤهَّلة** (`eligible_at` =
+        # الجلسة **التالية** ليوم الإشارة) — لا كلَّ يوم، وإلّا أقصينا الرابح لأنه
+        # ارتفع (وارتفاعُه هو المطلوب).
         _days = sorted(sess)
         if _days and EX.scale_mismatch(sess[_days[0]], a["trade"].get("entry"),
                                        SCALE_TOL):

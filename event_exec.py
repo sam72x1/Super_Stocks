@@ -64,16 +64,26 @@ def replay_trigger(session_bars, break_level, signal_fn, vol_mult=3.0,
                    window=RADAR_WINDOW, min_bars=MIN_BARS):
     """يُعيد تشغيل **زناد الرادار الحيّ** على جلسةٍ كاملة، دقيقةً بدقيقة.
 
-    الرادار يستدعي `polygon_minute_bars(sym, minutes=30)` ثم `_ignition_signal`،
-    فالمحاكاة الأمينة = تمرير **نافذةٍ متدحرجة بآخر 30 شمعة** عند كل دقيقةٍ مغلقة.
+    الرادار يستدعي `polygon_minute_bars(sym, minutes=30)` ثم `_ignition_signal`.
+    🔴 **تصحيح (مراجعة Codex الثانية): النافذة زمنيّة لا عدديّة.** كانت `session_bars[
+    i-window+1 : i+1]` = آخر **30 شمعةً موجودة** مهما امتدّ الزمن الذي تغطّيه — وفي
+    سهمٍ رقيق (وهو كوننا كلُّه) قد تغطّي ستُّ شمعاتٍ ساعتين، فيرى التاريخيُّ سياقًا
+    لا يراه الحيّ أبدًا. الآن **آخر `window` دقيقة بالطابع الزمنيّ** حرفيًّا كالحيّ،
+    فالشموع الغائبة (دقائق بلا تداول) تبقى غائبة في الطرفين.
     يرجّع `(فهرس شمعة الزناد، الإشارة)` لأوّل اشتعال — **أوّل حدثٍ لكل جلسة** كما
     سُجِّل — أو `None`.
 
     `signal_fn` مُحقَن ليكون **دالّة الإنتاج نفسها** (لا نسخة منها)."""
     if not session_bars or not break_level:
         return None
+    span = int(window) * 60_000                 # نافذةٌ زمنيّة بالملّي ثانية
     for i in range(len(session_bars)):
-        win = session_bars[max(0, i - window + 1): i + 1]
+        t_i = session_bars[i].get("t")
+        if t_i is None:                         # بلا طابعٍ لا نخمّن نافذةً زمنية
+            continue
+        lo = int(t_i) - span + 60_000           # الشمعة الحالية داخل النافذة
+        win = [b for b in session_bars[:i + 1]
+               if b.get("t") is not None and int(b["t"]) >= lo]
         if len(win) < min_bars:
             continue
         sig = signal_fn(win, break_level, vol_mult=vol_mult)

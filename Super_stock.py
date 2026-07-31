@@ -13007,6 +13007,15 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             _xk, _xi = _arm_a_exit_bar(hi, lo, cl, entry, stop, t1, filled)
             trade["exit_kind"] = _xk
             trade["exit_date"] = (str(fut.index[_xi].date()) if len(fut) else None)
+            # 🔴🔴 **`eligible_at` — إصلاح العيب الزمنيّ (مراجعة Codex الثانية):**
+            # `trade["date"]` هو `df.index[i-1]` = **يوم الإشارة**، و`analyze_ticker`
+            # يقرأ حتى إغلاقه ⇒ الخطّة (الدخول/الوقف/الهدف/الرقم الحرج) **لم تكن
+            # معلومةً أثناء ذلك اليوم**. والمحرّك نفسه يعرف ذلك: التعبئة تبدأ من
+            # `fut = df.iloc[i:]`. فكانت تجربةُ الحدث تعود وتمسح **يوم الإشارة** من
+            # 09:30 بمستوياتٍ اشتُقّت من إغلاقه = نظرٌ مستقبليّ مباشر.
+            # ⇒ يُخزَّن **أوّل جلسةٍ يجوز فيها التنفيذ** صراحةً، ومن **مصدر المحرّك
+            # نفسه** (`fut.index[0]`) لا باشتقاقٍ موازٍ قد ينحرف عنه.
+            trade["eligible_at"] = (str(fut.index[0].date()) if len(fut) else None)
             trade["rr"] = r.get("rr")
             trade["score"] = r.get("score")
             trade["pivot"] = r.get("pivot")
