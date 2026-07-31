@@ -7488,16 +7488,17 @@ def _tf_open(p):
 # ⏰ **بعد إغلاق الافتر** (طلب المالك 2026-07-27): الافتر 16:00→20:00 ET، و20:00 ET =
 # 00:00 UTC صيفًا / 01:00 UTC شتاءً **في اليوم التالي UTC** ⇒ الكرون بعد 01:00 UTC،
 # وخانة الأيام تنزاح ليومٍ لاحق (ثلاثاء→سبت) لتغطية جلسات الاثنين→الجمعة.
-_sh_cron = __import__("re").search(
+_sh_crons = __import__("re").findall(
     r'cron:\s*"(\d+)\s+(\d+)\s+\*\s+\*\s+([\d,-]+)"',
     _tf_open(".github/workflows/split_hunter.yml"))
+_SH_SUMMER, _SH_WINTER = S.dt.date(2026, 7, 28), S.dt.date(2026, 1, 13)
 
 
-def _sh_after_ah(minute, hour):
-    """هل ساعة الكرون (UTC) تقع **بعد** إغلاق الافتر 20:00 ET في الفصلين؟
-    تُقاس على تاريخين حقيقيين (صيف EDT · شتاء EST) بـzoneinfo لا بحساب يدوي."""
+def _sh_after_ah(minute, hour, days=(_SH_SUMMER, _SH_WINTER)):
+    """هل ساعة الكرون (UTC) تقع **بعد** إغلاق الافتر 20:00 ET في كل الأيام المُمرَّرة؟
+    تُقاس على تواريخ حقيقية (صيف EDT · شتاء EST) بـzoneinfo لا بحساب يدوي."""
     ny = _ZI("America/New_York")
-    for _d in (S.dt.date(2026, 7, 28), S.dt.date(2026, 1, 13)):
+    for _d in days:
         e = S.dt.datetime.combine(_d, S.dt.time(hour, minute),
                                   tzinfo=S.dt.timezone.utc).astimezone(ny)
         if e < S.dt.datetime.combine(e.date(), S.dt.time(20, 0), tzinfo=ny):
@@ -7505,15 +7506,28 @@ def _sh_after_ah(minute, hour):
     return True
 
 
-# ⚠️ القفل يبرهن على **القيمة المقروءة من الملف** لا على رقم مكتوب يدويًّا، وإلا بقي
+# ⚠️ القفل يبرهن على **القيم المقروءة من الملف** لا على أرقامٍ مكتوبة يدويًّا، وإلا بقي
 # أخضر لو رجع أحدهم لكرون داخل الافتر (22:17 = العلّة المُصلَحة).
-check("⏰ صيّاد المقسّم·الكرون المقروء من الملف يقع بعد إغلاق الافتر بالفصلين",
-      _sh_cron is not None
-      and _sh_after_ah(int(_sh_cron.group(1)), int(_sh_cron.group(2))))
+# 🔴 **العقد تغيّر (قرار المالك 2026-07-31 «~3 فجرًا بتوقيت السعودية»):** ‏3 فجرًا =
+# 00:00 UTC، وهي لحظةُ إغلاق الافتر **صيفًا بالضبط** و**قبله بساعةٍ شتاءً**. فصار
+# كرونان: الأبكر يخدم الصيف (‏00:13 = 20:13 ET) والأمتنُ يخدم الشتاء — و`session_gate`
+# تُبطل الأبكر شتاءً. فالقفل لم يعد «كلّ كرونٍ بعد الإغلاق» بل **التغطية**:
+#   (أ) لكل فصلٍ كرونٌ واحد على الأقل بعد الإغلاق (لا ليلةَ صمتٍ في السنة كلّها).
+#   (ب) والأبكر بعد الإغلاق **صيفًا** — وهو طلبُ المالك حرفيًّا.
+_sh_hrs = sorted((int(h), int(m)) for m, h, _d in _sh_crons)
+check("⏰ صيّاد المقسّم·لكل فصلٍ كرونٌ يقع بعد إغلاق الافتر (تغطية السنة كاملةً)",
+      len(_sh_crons) >= 2
+      and all(any(_sh_after_ah(m, h, days=(_season,)) for h, m in _sh_hrs)
+              for _season in (_SH_SUMMER, _SH_WINTER)))
+check("⏰ صيّاد المقسّم·الأبكر يسلّم ~3 فجرًا سعوديًّا صيفًا (طلب المالك) بعد الإغلاق",
+      bool(_sh_hrs) and _sh_after_ah(_sh_hrs[0][1], _sh_hrs[0][0],
+                                     days=(_SH_SUMMER,))
+      and _sh_hrs[0][0] == 0)
 check("⏰ صيّاد المقسّم·انحدار: كرون 22:17 UTC (داخل الافتر) يسقط بالقفل نفسه",
-      not _sh_after_ah(17, 22) and not _sh_after_ah(0, 23))
+      not _sh_after_ah(17, 22) and not _sh_after_ah(0, 23)
+      and not _sh_after_ah(13, 0, days=(_SH_WINTER,)))
 check("⏰ صيّاد المقسّم·خانة الأيام مُنزاحة (2-6) لأن الافتر ينتهي فجر اليوم التالي UTC",
-      _sh_cron is not None and _sh_cron.group(3) == "2-6")
+      bool(_sh_crons) and all(_d == "2-6" for _m, _h, _d in _sh_crons))
 check("🚨 صيّاد المقسّم·كل مسار فشل يُبلَّغ ويرجع 1 (الصمت محجوز لـ«لا مرشّح» وحده)",
       (lambda _src: _src.count("_fail(S,") >= 6
        and "send_telegram" in _insp0.getsource(_SHmod._fail)
@@ -7521,8 +7535,15 @@ check("🚨 صيّاد المقسّم·كل مسار فشل يُبلَّغ وي�
        and _SHmod._fail.__doc__ is not None)(_insp0.getsource(_SHmod.run)))
 
 
+# ⏰ ساعةٌ مثبَّتة لكل تشغيلات السويّة: **20:13 ET صيفًا** = بعد إغلاق الافتر بدقائق.
+# بدونها تصير نتيجةُ الاختبار رهينةَ ساعةِ الرنر (أخضر نهارًا وأحمر ليلًا) — وهو صنف
+# «اختبارٌ ينجح والاستعمال الحيّ مكسور» المدوَّن بـCLAUDE.md، مقلوبًا.
+_SH_NOW = S.dt.datetime(2026, 7, 29, 0, 13, tzinfo=S.dt.timezone.utc)
+
+
 def _sh_run(scan, *, uni=("X",), hist=None, send=None, yf=object(),
-            ext=(lambda _s, _d: None), msgs=None, logs=None, stamp=None):
+            ext=(lambda _s, _d: None), msgs=None, logs=None, stamp=None,
+            now=None):
     """يشغّل split_hunter.run() ببيئة محقونة ويُرجع (rc, عدد الإرسالات).
     **try/finally إلزامي** — الاستعادة داخل tuple شَرِه تُترَك مُرقَّعة لو رمى run().
     🌙 `ext` = جالب سعر الافتر المحقون (افتراضه None = **فاشل-آمن مفتوح** حتميّ بلا
@@ -7545,7 +7566,7 @@ def _sh_run(scan, *, uni=("X",), hist=None, send=None, yf=object(),
         S.scan_split_hunter = scan
         if logs is not None:
             S.log = lambda m: logs.append(str(m))
-        return _SHmod.run(fetch_ext=ext), len(sent)
+        return _SHmod.run(fetch_ext=ext, now_utc=now or _SH_NOW), len(sent)
     finally:
         (S.yf, S.send_telegram, S.get_universe, S.download_history,
          S.scan_split_hunter, S.log, S.HUNTER_STAMP_FILE) = _sv
@@ -7554,8 +7575,122 @@ def _sh_run(scan, *, uni=("X",), hist=None, send=None, yf=object(),
 # 🧪 القفل السابق كان **فارغًا**: `S.yf = None` على مستوى الوحدة جعل run() ترجع من
 # بوّابة yf قبل لمس أي محاكاة، فنجح تلقائيًّا. أُثبت بالطفرة (جعل الإرسال بلا شرط
 # لم يُسقطه) ⇒ صار يحقن yf ويؤكّد **الاتجاهين**.
-check("🤫 صيّاد المقسّم·عقد الصمت: لا مطابق ⇒ صفر إرسال (والقفل غير فارغ)",
-      _sh_run(lambda *a, **k: []) == (0, 0))
+# 🔴 **«عقد الصمت» نُسِخ بقرار المالك 2026-07-31** — والنصّ يبقى مكتوبًا لئلّا يُعاد
+# بحسن نيّة: يومُ «لا مطابق» صار **يرسل** «لا يوجد سهم يطابق الشروط»، لأن الصمت كان
+# لا يفرّق «لا مرشّح» عن «سقطت التشغيلة». والقفل يقيس **المحتوى** لا العدد وحده.
+_sh_none_msgs = []
+check("📭 صيّاد المقسّم·لا مطابق ⇒ رسالة «لا يوجد» صريحة (نسخُ عقد الصمت — قرار المالك)",
+      _sh_run(lambda *a, **k: [], msgs=_sh_none_msgs) == (0, 1)
+      and len(_sh_none_msgs) == 1
+      and "لا يوجد سهم يطابق الشروط" in _sh_none_msgs[0]
+      and "تعذّر المسح" not in _sh_none_msgs[0])       # ليست رسالة عطل
+# ⚠️ الفهرسة محروسة عمدًا: طفرةٌ تُصمت الرسالة كانت تُسقط السويّة بـIndexError فتُخفي
+#    **أيّ** قفلٍ سقط (والباقي لا يُنفَّذ) — والعطل يجب أن يُقرأ لا أن يُبهم.
+check("📭 صيّاد المقسّم·ورسالة «لا يوجد» تحمل التغطية (فحصٌ حقيقي لا ادّعاء)",
+      bool(_sh_none_msgs) and "تغطية" in _sh_none_msgs[0]
+      and "🩺" in _sh_none_msgs[0])
+check("⛔ صيّاد المقسّم·رفض تلغرام لرسالة «لا يوجد» يرجع 1 (لا يوم صمتٍ مموَّه)",
+      _sh_run(lambda *a, **k: [], send=lambda *a, **k: False)[0] == 1)
+
+# ==========================================================
+# ⏰🔁 بوّابة التوقيت + دِدوب الكرونين (قرار المالك 2026-07-31)
+# ==========================================================
+# العقد: كرونان (‏00:13 و01:13 UTC) — صيفًا **كلاهما** بعد إغلاق الافتر، وشتاءً
+# الأبكرُ **قبله**. فالبوّابة تُبطل الأبكر شتاءً، والدِدوب يمنع التكرار صيفًا.
+# ولا يجوز حلُّها بكرونٍ واحد «مختار»: GitHub يُسقط تشغيلات كرون (موثّق) فالثاني
+# شبكةُ أمان — ولذلك القفل يقيس **الاتجاهين**: لا تكرار **ولا** ليلةَ صمت.
+_sg_u = lambda h, m=13, d=(2026, 7, 29): S.dt.datetime(  # noqa: E731
+    d[0], d[1], d[2], h, m, tzinfo=S.dt.timezone.utc)
+check("⏰ SG·شتاءً: ‏00:13 UTC = 19:13 ET **قبل** إغلاق الافتر ⇒ البوّابة مغلقة",
+      _SHmod.session_gate(_sg_u(0, d=(2026, 1, 14))) == (False, None))
+check("⏰ SG·شتاءً: ‏01:13 UTC = 20:13 ET ⇒ مفتوحة، وتاريخُ الجلسة **نيويوركيّ**",
+      _SHmod.session_gate(_sg_u(1, d=(2026, 1, 14)))
+      == (True, S.dt.date(2026, 1, 13)))
+check("⏰ SG·صيفًا: ‏00:13 UTC = 20:13 ET ⇒ مفتوحة (وهي «3 فجرًا» طلبِ المالك)",
+      _SHmod.session_gate(_sg_u(0)) == (True, S.dt.date(2026, 7, 28)))
+check("⏰ SG·صيفًا: ‏01:13 UTC مفتوحةٌ أيضًا ⇒ الدِدوب هو مانعُ التكرار لا البوّابة",
+      _SHmod.session_gate(_sg_u(1)) == (True, S.dt.date(2026, 7, 28)))
+check("⏰ SG·حدُّ الإغلاق 20:00 ET بالضبط: 19:59 مغلقة · 20:00 مفتوحة (تخوم لا تقريب)",
+      _SHmod.session_gate(_sg_u(23, 59, d=(2026, 7, 28)))[0] is False
+      and _SHmod.session_gate(_sg_u(0, 0))[0] is True)
+
+
+def _sh_scan_counted(rows):
+    """جالبٌ يعدّ نداءاته — به وحده يُقاس «لم يُمسح السوق أصلًا» (توفير التحميل)."""
+    _n = []
+    return (lambda *a, **k: (_n.append(1), list(rows))[-1]), _n
+
+
+# 🔴 البوّابة ليست تجميلًا: قبل الإغلاق **لا يُمسح السوق ولا يُرسل شيء**.
+_sg_scan, _sg_hits = _sh_scan_counted([])
+check("⏰ SG·run(): قبل إغلاق الافتر ⇒ صفر إرسال **وصفر مسح** (لا تحميل سوقٍ مهدور)",
+      _sh_run(_sg_scan, now=_sg_u(0, d=(2026, 1, 14))) == (0, 0)
+      and _sg_hits == [])
+# 🔓 والتشغيل اليدويّ يتخطّاها — وإلّا صار الفحص الفوريّ مستحيلًا نهارًا.
+_sg_scan2, _sg_hits2 = _sh_scan_counted([])
+_sg_sv = _os_hc.environ.get("HUNTER_FORCE")
+try:
+    _os_hc.environ["HUNTER_FORCE"] = "1"
+    _sg_forced = _sh_run(_sg_scan2, now=_sg_u(0, d=(2026, 1, 14)))
+finally:
+    _os_hc.environ.pop("HUNTER_FORCE", None)
+    if _sg_sv is not None:
+        _os_hc.environ["HUNTER_FORCE"] = _sg_sv
+check("🔓 SG·`HUNTER_FORCE=1` يتخطّى البوّابة (التشغيل اليدويّ يبقى ممكنًا نهارًا)",
+      _sg_forced == (0, 1) and _sg_hits2 == [1])
+
+
+def _sg_stamp(val):
+    """ملفُّ ختمٍ مؤقّت يحمل تاريخًا محدّدًا (يُكتب بكاتب الإنتاج لا بيد)."""
+    p = _os_hc.path.join(__import__("tempfile").mkdtemp(), "stamp.json")
+    assert S.record_hunter_run(val, path=p)
+    return p
+
+
+_sg_sess = _sm_df.index[-1].date()            # جلسة البيانات في الـfixture
+_sg_ny = S.dt.date(2026, 7, 28)               # تاريخ نيويورك عند `_SH_NOW`
+# ⚠️ القفل يلزمه اختلافُهما وإلّا صارت الطبقتان تجربةً واحدة (فخّ «المقام = البسط»).
+check("🔁 DEDUP·الطبقتان متمايزتان في الـfixture (تاريخ نيويورك ≠ جلسة البيانات)",
+      _sg_ny != _sg_sess)
+# ① المسار السريع: مساء نيويورك نفسه سُلِّم سلفًا ⇒ **لا مسح** (يوفّر تحميل السوق).
+_sg_scan3, _sg_hits3 = _sh_scan_counted([])
+check("🔁 DEDUP①·الكرون الثاني ليلة الصيف ⇒ صفر إرسال **وصفر مسح** (المسار السريع)",
+      _sh_run(_sg_scan3, stamp=_sg_stamp(_sg_ny)) == (0, 0) and _sg_hits3 == [])
+# ② والحاسم: يوم العطلة — تاريخ نيويورك **تقدّم** والبياناتُ لم تتقدّم ⇒ يُمسَح
+#    السوق (فالسريع لا يمسكها) لكن **لا رسالة** عن جلسةٍ سُلِّمت أمس.
+_sg_scan4, _sg_hits4 = _sh_scan_counted([])
+check("🔁 DEDUP②·يوم عطلة (بياناتٌ لم تتقدّم) ⇒ يُمسَح ولا يُرسَل — والسريع يخطئها",
+      _sh_run(_sg_scan4, stamp=_sg_stamp(_sg_sess)) == (0, 0)
+      and _sg_hits4 == [1])
+# 🔴 الاتجاه المقابل — وهو الأخطر: **ليلةُ صمتٍ ممنوعة**. ختمٌ لجلسةٍ أقدم ⇒ يُرسَل.
+_sg_scan5, _sg_hits5 = _sh_scan_counted([])
+check("🔁 DEDUP·ختمٌ أقدم (سقطت تشغيلة الكرون الأول) ⇒ الثاني **يُرسِل** لا يصمت",
+      _sh_run(_sg_scan5,
+              stamp=_sg_stamp(_sg_sess - S.dt.timedelta(days=7))) == (0, 1)
+      and _sg_hits5 == [1])
+# 🔓 والتشغيل اليدويّ يتخطّى **الدِدوب أيضًا** لا البوّابة وحدها: المالك يضغط الزرّ
+#    بعد أن سُلِّمت الجلسة ⇒ لولا هذا لخرجت الوظيفة **خضراء بلا رسالة**، وهو بعينه
+#    «الأخضر الصامت» الذي بُنيت كل حراسات هذا الملف ضدّه.
+_sg_scan6, _sg_hits6 = _sh_scan_counted([])
+_sg_p7, _sg_sv2 = _sg_stamp(_sg_sess), _os_hc.environ.get("HUNTER_FORCE")
+try:
+    _os_hc.environ["HUNTER_FORCE"] = "1"
+    _sg_f2 = _sh_run(_sg_scan6, stamp=_sg_p7)
+finally:
+    _os_hc.environ.pop("HUNTER_FORCE", None)
+    if _sg_sv2 is not None:
+        _os_hc.environ["HUNTER_FORCE"] = _sg_sv2
+check("🔓 SG·اليدويّ يتخطّى الدِدوب أيضًا (زرُّ المالك لا يخرج أخضرَ صامتًا)",
+      _sg_f2 == (0, 1) and _sg_hits6 == [1])
+# 🔴 ترتيب الختم: **بعد** الإرسال. لو خُتم قبله لقرأ الكرونُ الثاني «سُلِّم» بعد رفضٍ
+#    من تلغرام ⇒ ضاعت رسالة الليلة بلا رجعة.
+_sg_p6 = _os_hc.path.join(__import__("tempfile").mkdtemp(), "stamp.json")
+check("🔔 ⓿-و·رفض تلغرام ⇒ **لا ختم** ⇒ الكرون الثاني يُعيد المحاولة (لا رسالةٌ تضيع)",
+      _sh_run(lambda *a, **k: [], send=lambda *a, **k: False,
+              stamp=_sg_p6)[0] == 1
+      and S.load_hunter_stamp(_sg_p6) is None
+      and _sh_run(lambda *a, **k: [], stamp=_sg_p6) == (0, 1)
+      and S.load_hunter_stamp(_sg_p6) == _sg_sess.isoformat())
 check("📨 صيّاد المقسّم·الاتجاه المقابل: وجود مطابق ⇒ إرسال فعليّ واحد",
       _sh_run(lambda *a, **k: [{
           "symbol": "X", "price": 1.0, "half": 0.5, "ref": 1.0, "float": 1e6,
@@ -7700,9 +7835,16 @@ _ah_msgs2, _ah_rlogs2 = [], []
 _ah_rc2 = _sh_run(lambda *a, **k: [dict(_ah_row)], uni=("NUWE",),
                   hist={"NUWE": _nuwe_df}, msgs=_ah_msgs2, logs=_ah_rlogs2,
                   ext=lambda s, d: _ah_price * 2.0)
-check("🔗 AH·run(): انفجار الافتر ⇒ **صفر إرسال** (التنبيه البائت لا يخرج)",
-      _ah_rc2 == (0, 0) and _ah_msgs2 == []
-      and any("بائت" in x for x in _ah_rlogs2))
+# 🔴 **العقد تغيّر (قرار المالك 2026-07-31):** كان «صفر إرسال»، وصار **رسالة «لا يوجد»**
+# — والنيّة المحروسة **واحدة لم تتغيّر**: التنبيه **البائت** لا يخرج. فالقفل صار يقيس
+# المحتوى (لا اسمَ السهم ولا خطّة) **ويشترط التصريح بعدد المكتومين** فلا يعود الصمت
+# من باب «لا يوجد» المبهم.
+check("🔗 AH·run(): انفجار الافتر ⇒ التنبيه البائت لا يخرج (والرسالة «لا يوجد» بدله)",
+      _ah_rc2 == (0, 1) and len(_ah_msgs2) == 1
+      and "NUWE" not in _ah_msgs2[0]
+      and "لا يوجد سهم يطابق الشروط" in _ah_msgs2[0]
+      and "الافتر" in _ah_msgs2[0] and "1" in _ah_msgs2[0]
+      and any("كتم الافتر" in x for x in _ah_rlogs2))
 _ah_msgs3 = []
 _ah_rc3 = _sh_run(lambda *a, **k: [dict(_ah_row)], uni=("NUWE",),
                   hist={"NUWE": _nuwe_df}, msgs=_ah_msgs3,
@@ -11212,7 +11354,7 @@ _hg_s1 = _hg_path("run_silent")
 #    الرنر = اليوم التالي للجلسة). ويُشتقّ من الـfixture لا يُكتب رقمًا يدويًّا.
 _hg_sess = _sm_df.index[-1].date().isoformat()
 check("🔔 ⓿-و·الصيّاد يختم حتى في يوم «لا مطابق» — وهو بالذات ما يجب ألّا يُخلَط بالسقوط",
-      _sh_run(lambda *a, **k: [], stamp=_hg_s1) == (0, 0)
+      _sh_run(lambda *a, **k: [], stamp=_hg_s1) == (0, 1)
       and S.load_hunter_stamp(_hg_s1) == _hg_sess)
 _hg_s2 = _hg_path("run_match")
 check("🔔 ⓿-و·ويختم في يوم المطابق أيضًا بتاريخ **الجلسة** لا يوم الرنر",
