@@ -13009,6 +13009,19 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             trade["exit_date"] = (str(fut.index[_xi].date()) if len(fut) else None)
             trade["rr"] = r.get("rr")
             trade["score"] = r.get("score")
+            trade["pivot"] = r.get("pivot")
+            # ⚡ T-EVENT-EXEC: **الرقم الحرج** — مستوى الكسر الذي يقرأه رادار الانطلاق.
+            # كان غائبًا عن الصفقة، فسقط القياس التاريخيّ للمرجع الاحتياطيّ (الأرضية
+            # ×1.05) **فاشتعلت 90% من الجلسات** = زنادٌ آخر لا زنادُ الإنتاج. مِجَسّ
+            # التغطية كشفه قبل قراءة أيّ ذراع. `build_interpretation` طبقةُ تفسيرٍ
+            # نقيّة تقرأ حقول `r` المحسوبة سلفًا (لا تمسّ حسمًا ولا اختيارًا) —
+            # وتُستدعى هنا **خلف العلم** حصرًا. ⚠️ وحدٌّ مُعلَن: خطّ الترند حيٌّ فقط
+            # فيغيب من المرشّحين ⇒ الحاجز **أعلى أو مساوٍ** للحيّ ⇒ أحداثٌ أقلّ لا أكثر.
+            try:
+                trade["crit"] = ((build_interpretation(r) or {}).get(
+                    "critical_number") or {}).get("price")
+            except Exception:
+                trade["crit"] = None
         trades.append(trade)
         i += fwd                                # تخطَّ نافذة كاملة (لا تكرار)
     return trades

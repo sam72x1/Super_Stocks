@@ -11857,9 +11857,24 @@ _ent = round(_piv * (1 + _stp * (_n - 1) / 2.0), 4)
 _lv = EXR.plan_levels({"entry": _ent, "stop": _st, "t1": _piv * 1.5})
 check("⚡ EVENT🔒 الأرضية تُستعاد من الوقف بمعادلة الإنتاج (خطأ أقل من 1%)",
       _lv is not None and abs(_lv["pivot"] / _piv - 1.0) < 0.01)
-check("⚡ EVENT🔒 مستوى الكسر = الأرضية ×1.05 (مرجع `_ignition_break_level` الاحتياطيّ)",
+# 🔴 مستوى الكسر: **الرقم الحرج أوّلًا** (كدالّة الإنتاج) — والمرجع الاحتياطيّ عند
+#    غيابه. المِجَسّ الأوّل بلا رقمٍ حرج **أشعل 90% من الجلسات** ⇒ شرطُ صلاحية.
+check("⚡ EVENT🔒 بلا رقمٍ حرج ⇒ المرجع الاحتياطيّ (الأرضية ×1.05) ووسمُه صادق",
       _lv is not None and abs(_lv["break"] / (_piv * 1.05) - 1.0) < 0.01
-      and "* 1.05" in _insp0.getsource(S._ignition_break_level))
+      and _lv["from_crit"] is False)
+_lvc = EXR.plan_levels({"entry": _ent, "stop": _st, "t1": _piv * 1.5,
+                        "pivot": _piv, "crit": 3.33})
+check("⚡ EVENT🔒 وبوجود الرقم الحرج **يفوز** على المرجع الاحتياطيّ (زنادُ الإنتاج)",
+      _lvc is not None and abs(_lvc["break"] - 3.33) < 1e-9
+      and _lvc["from_crit"] is True)
+check("⚡ EVENT🔒 مستوى الكسر يُحسب بـ`_ignition_break_level` الإنتاجيّ لا بحسابٍ محلّيّ",
+      "S._ignition_break_level(" in _insp0.getsource(EXR.plan_levels))
+check("⚡ EVENT🔒 المُشغِّل يُعلن كم نافذةً استعملت الرقم الحرج (كشف الزناد الخاطئ)",
+      'cov[\'crit\']' in _insp0.getsource(EXR.run)
+      and "لا تُقرأ أذرع" in _insp0.getsource(EXR.run))
+check("⚡ EVENT🔒 الرقم الحرج يُخزَّن بالصفقة خلف العلم (كان غائبًا كليًّا)",
+      'trade["crit"]' in _insp0.getsource(S.backtest_symbol)
+      and "build_interpretation(r)" in _insp0.getsource(S.backtest_symbol))
 check("⚡ EVENT🔒 اشتقاقان متعارضان ⇒ **يُرفَض** (لا يُبنى على أرضيةٍ مظنونة)",
       EXR.plan_levels({"entry": _ent * 1.5, "stop": _st, "t1": _piv * 1.5}) is None)
 

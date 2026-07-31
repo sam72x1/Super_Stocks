@@ -51,10 +51,11 @@ def plan_levels(t, tol=0.03):
     (`entry = pivot × (1 + خطوة×(n−1)/2)`) ويُقارَن الاشتقاقان؛ واختلافُهما فوق
     `tol` ⇒ **`level_mismatch` يُستبعَد ويُعدّ** بدل أن يُبنى على أرضيةٍ خاطئة.
 
-    ⚠️ **وحدٌّ مُعلَن:** **الرقم الحرج غير مخزَّنٍ بالصفقة**، فيُستعمل مرجع الرادار
-    الاحتياطيّ المنصوص في `_ignition_break_level`: الأرضية ×1.05. الرادار الحيّ
-    يفضّل الرقم الحرج حين يتوفّر، وغيابُه هنا يجعل المستوى **أخفض أو مساويًا** ⇒
-    **أحداثٌ أكثر لا أقلّ** — فالالتقاط لا يُضخَّم بحذفٍ."""
+    🔴 **ومستوى الكسر يُحسب بدالّة الإنتاج `_ignition_break_level` نفسها** على شكلٍ
+    مطابقٍ لسجلّ القائمة: **الرقم الحرج** إن وُجد وإلا الأرضية ×1.05.
+    ⚠️ **ولولا ذلك لقِيس زنادٌ آخر:** المِجَسّ الأول (بلا رقمٍ حرج) **أشعل 90% من
+    الجلسات** — لأن الأرضية ×1.05 حاجزٌ يتجاوزه السهم ويبقى فوقه. فالرقم الحرج ليس
+    تحسينًا تجميليًّا بل **شرطُ صلاحيةٍ للقياس كلّه**."""
     try:
         entry, stop, t1 = float(t["entry"]), float(t["stop"]), float(t["t1"])
     except (TypeError, ValueError, KeyError):
@@ -68,7 +69,14 @@ def plan_levels(t, tol=0.03):
     piv_chk = entry / (1.0 + step * (n - 1) / 2.0)
     if piv <= 0 or abs(piv_chk / piv - 1.0) > tol:
         return None                    # اشتقاقان متعارضان ⇒ لا نبني على الظنّ
-    return {"pivot": piv, "break": round(piv * 1.05, 4), "stop": stop, "t1": t1}
+    brk = S._ignition_break_level(
+        {"pivot": t.get("pivot") or piv,
+         "interp": {"critical_number": ({"price": t["crit"]} if t.get("crit")
+                                        else None)}})
+    if not brk:
+        return None
+    return {"pivot": piv, "break": float(brk), "stop": stop, "t1": t1,
+            "from_crit": bool(t.get("crit"))}
 
 
 def _resolve_from(bars, i0, entry_ask, stop, t1):
@@ -137,13 +145,14 @@ def run() -> int:
 
     real, pseudo, cross, oper = [], [], [], []
     cov = {"windows": 0, "no_bars": 0, "sessions": 0, "scale_bad": 0,
-           "trig": 0, "quiet": 0, "no_levels": 0}
+           "trig": 0, "quiet": 0, "no_levels": 0, "crit": 0}
     for a in armed:
         lv = plan_levels(a["trade"])
         if not lv:
             cov["no_levels"] += 1
             continue
         cov["windows"] += 1
+        cov["crit"] += 1 if lv.get("from_crit") else 0
         bars = EX.hist_minute_bars(a["symbol"], a["start"], a["end"])
         if not bars:
             cov["no_bars"] += 1
@@ -199,6 +208,10 @@ def run() -> int:
                                              {"price": pb[j].get("c")}, lv,
                                              "E-PSEUDO", pk))
 
+    # ✅ «أثبت أن التجربة اشتغلت»: كم نافذةً استعملت **الرقم الحرج** فعلًا؟ صفرٌ هنا
+    #    يعني أن المقيس زنادٌ آخر (المرجع الاحتياطيّ) — فلا تُقرأ النتيجة.
+    print(f"🎯 مستوى الكسر: {cov['crit']}/{cov['windows']} نافذة بالرقم الحرج"
+          + ("" if cov["crit"] else "  ⛔ **صفر** ⇒ الزناد ليس زنادَ الإنتاج — لا تُقرأ أذرع"))
     print(f"🩺 التغطية: نوافذ={cov['windows']} · بلا شموع={cov['no_bars']} "
           f"· جلسات={cov['sessions']} · مقياس مختلف={cov['scale_bad']} "
           f"· جلسات مشتعلة={cov['trig']} · هادئة={cov['quiet']} "
