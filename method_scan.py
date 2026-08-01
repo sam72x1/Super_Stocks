@@ -240,7 +240,21 @@ def walk(S, sym, df, splits=None, off_dates=None, pump=None,
         if bot <= 0:
             c["no_bottom"] = c.get("no_bottom", 0) + 1
             continue
-        entry, stop, t1 = bot * 1.032, bot * 0.968, float(sig["peak"])
+        entry, stop = bot * 1.032, bot * 0.968
+        # 🎯 **الهدف الأوّل حرفيًّا من `IMG_0486`: «راس شمعة الفجوه الهابطه 8»** —
+        #    لا القمّة (17.96). استعمالُ القمّة جعل `t1` بعيدًا بعدًا يستحيل بلوغُه
+        #    ⇒ نسبةُ نجاحٍ صفر بالبناء (كشفته التشغيلة الأولى لا القراءة).
+        #    🔒 وتُنادى على **الإطار المبتور** حصرًا (اعتراض ③: الإطار الكامل =
+        #    هدفٌ من المستقبل، والاختبارات تبقى خضراء).
+        t1 = None
+        try:
+            _g = S.falling_gap_candle(df.iloc[:i], price=entry)
+            t1 = float((_g or {}).get("head") or 0) or None
+        except Exception:                                        # noqa: BLE001
+            t1 = None
+        if t1 is None or t1 <= entry:
+            c["no_gap_target"] = c.get("no_gap_target", 0) + 1
+            continue
         fut = df.iloc[i:i + int(fwd)]
         if len(fut) < 5:
             c["short_fwd"] = c.get("short_fwd", 0) + 1

@@ -43,7 +43,17 @@ def run() -> int:
             base = df[df.index <= f"{year}-12-31"]
         except Exception:                                        # noqa: BLE001
             continue
+        # ① **حارس التقسيم — تغطيةٌ حقيقية.** التشغيلة الأولى كشفت أن اللقطة
+        #    المجمّدة تغطّي **79 من 3386** رمزًا ⇒ الحارس **الأخطر** كان خاملًا
+        #    في 98% من الكون، والنتيجة غير قابلة للتفسير. الآن: اللقطة أوّلًا،
+        #    وإلّا **جلبٌ مباشر لكل رمزٍ يبلغ الحدث المؤسِّس** (‏والجلبُ فاشل-آمن
+        #    ⇒ `None` ⇒ لا إقصاء، فيُعَدّ ويُعلَن بدل أن يُدَّعى).
         sp = (S._BT_SPLITS_CTX or {}).get(sym) if S._BT_SPLITS_CTX else None
+        if sp is None:
+            try:
+                sp = S._fetch_splits(sym)
+            except Exception:                                    # noqa: BLE001
+                sp = None
         if sp is None:
             no_splits += 1
         try:                                   # ④ القروب — محسوبٌ في المُنادي
@@ -65,9 +75,11 @@ def run() -> int:
     print(f"🩺 التغطية: رموز={len(hist)} · إشارات خام={len(sig)} · "
           f"للحكم={len(judged)} · مستبعَد كمصدر={excluded_src}")
     print(f"🩺 الإقصاءات: {cov}")
-    print(f"🔴 بلا سياق تقسيمات: {no_splits} رمزًا"
-          + ("  ⇒ **حارس التقسيم خامل ⇒ لا تُفسَّر النتيجة**"
-             if no_splits == len(hist) else ""))
+    _cov_split = 1.0 - (no_splits / max(1, len(hist)))
+    print(f"🔴 حارس التقسيم: تغطية {_cov_split * 100:.0f}% "
+          f"(بلا سياق: {no_splits} من {len(hist)})"
+          + ("  ⇒ **خامل ⇒ لا تُفسَّر النتيجة** (البيانات المعدَّلة تُصنّع الحدث)"
+             if _cov_split < 0.5 else ""))
     print("🔴 شرط «لا إعلان طرح»: "
           + (f"مُختبَر على {sum(1 for r in judged if r['offer_tested'])} من "
              f"{len(judged)}" if offer_idx else
