@@ -11871,6 +11871,91 @@ check("🧪 NH🔒 وكرتُه يُبنى كاملًا بلا انهيار وب
                                    "قيد الإثبات"))
       and "$3.20" in _sm_msg and "$5.00" in _sm_msg)
 _ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة بعد الدخان
+# ==========================================================
+# 🕓 الفريمان معًا — قرار المالك 2026-08-01: «نمشي بالتسلسل حسب اللي أعرفه من أبو
+#    بدر — لأن **الأهداف وغالبًا الشموع وحده**». اليوميّ أوّلًا، ثم 4س لمن سقط.
+# ==========================================================
+_f4_hi = [3.4] * 35 + [18.0] + [9.0, 5.0] + [4.4] * 15 + \
+    [3.25, 3.45, 3.70, 3.80, 3.72, 3.68, 3.66, 3.64]      # رجوعٌ لا يلامس القاع
+_f4_lo = [3.2] * 35 + [12.0] + [8.2, 4.6] + [4.2] * 15 + \
+    [3.10, 3.30, 3.55, 3.62, 3.58, 3.56, 3.54, 3.52]
+_f4_cl = [3.3] * 35 + [13.0] + [8.4, 4.8] + [4.3] * 15 + \
+    [3.20, 3.40, 3.65, 3.75, 3.70, 3.66, 3.62, 3.60]
+_f4_daily = S.pd.DataFrame(
+    {"Open": _f4_cl, "High": _f4_hi, "Low": _f4_lo, "Close": _f4_cl,
+     "Volume": [5e5] * len(_f4_hi)},
+    index=S.pd.date_range("2026-03-02", periods=len(_f4_hi), freq="B"))
+_f4_alt = S.pd.DataFrame(                       # وعلى 4س يكتمل التسلسل فعلًا
+    {"Open": [3.20, 3.40, 3.65, 3.75, 3.60, 3.40, 3.20, 3.16] * 4,
+     "High": [3.25, 3.45, 3.70, 3.80, 3.72, 3.50, 3.30, 3.20] * 4,
+     "Low": [3.10, 3.30, 3.55, 3.62, 3.45, 3.30, 3.14, 3.12] * 4,
+     "Close": [3.20, 3.40, 3.65, 3.75, 3.60, 3.40, 3.20, 3.16] * 4,
+     "Volume": [5e5] * 32},
+    index=S.pd.date_range("2026-03-02", periods=32, freq="B"))
+
+
+def _f4_scan(f4):
+    S.scan_method_hunter({"TEST": _f4_daily}, today=_f4_daily.index[-1].date(),
+                         fetch_pump=lambda d: False, fetch_offering=lambda s: False,
+                         fetch_borrow=lambda s: {"shares_available": 7000},
+                         fetch_h4=f4)
+    return dict(S._METHOD_STAGE)
+
+
+_f4_off, _f4_on = _f4_scan(None), _f4_scan(lambda s: _f4_alt)
+check("🕓 H4🔒 ما يسقط على اليوميّ **يُلتقَط على 4س** (وإلا فالفريم بلا أثر)",
+      _f4_off["seq"] == 0 and _f4_on["seq"] == 1 and _f4_on["seq_h4"] == 1)
+check("🕓 H4🔒 و**اليوميّ أوّلًا**: لا يُجلَب 4س لمن نجح عليه (أقلُّ نداءات)",
+      _f4_scan(lambda s: _f4_alt) and
+      (lambda st: st["h4_fetched"] == 0 and st["seq_h4"] == 0)(
+          (lambda: (S.scan_method_hunter(
+              {"TEST": _sm_df}, today=_sm_df.index[-1].date(),
+              fetch_pump=lambda d: False, fetch_offering=lambda s: False,
+              fetch_borrow=lambda s: {"shares_available": 7000},
+              fetch_h4=lambda s: _f4_alt), dict(S._METHOD_STAGE))[1])()))
+check("🕓 H4🔒 و`fetch_h4=None` ⇒ **السلوك السابق حرفيًّا** (لا 4س بلا حاقن)",
+      _f4_off["h4_fetched"] == 0 and _f4_off["seq_h4"] == 0)
+# 🔒 عطلُ 4س لرمزٍ يتخطّاه وحده ولا يُسقط بقيّة الكون — يُقاس بـ**رمزين**: أحدهما
+#    يرمي على 4س والآخر مطابقٌ على اليوميّ. (‏والحارسُ هو الخارجيّ لكلّ رمز؛ حُذف
+#    الداخليّ لأنه فرعٌ بلا أثرٍ يمكن قياسه — نجت طفرتُه فكشفت تكراره.)
+def _f4_boom(sym):
+    if sym == "TEST":
+        raise RuntimeError("boom")
+    return _f4_alt
+
+
+S.scan_method_hunter({"TEST": _f4_daily, "OK": _sm_df},
+                     today=_f4_daily.index[-1].date(),
+                     fetch_pump=lambda d: False, fetch_offering=lambda s: False,
+                     fetch_borrow=lambda s: {"shares_available": 7000},
+                     fetch_h4=_f4_boom)
+_f4_mix = dict(S._METHOD_STAGE)
+check("🕓 H4🔒 وعطلُ 4س لرمزٍ يتخطّاه **وحده** (الباقي يُفحَص ويُطابِق)",
+      _f4_mix["matched"] == 1 and _f4_mix["seq"] == 1 and _f4_mix["seq_h4"] == 0)
+check("🕓 H4🔒 والمضاعف **4 شمعات بالجلسة لا 6** (‏`prepost` ⇒ 16 ساعة ÷ 4)",
+      S.CONFIG["METHOD_4H_BARS_PER_SESSION"] == 4
+      and "METHOD_4H_BARS_PER_SESSION" in _insp0.getsource(S.scan_method_hunter)
+      and "METHOD_4H_BARS_PER_SESSION" in _insp0.getsource(MH._frame_probe))
+check("🕓 H4🔒 والفريم **مُسمّى** في الكرت وفي قائمة المراقبة (مستوًى بلا فريمه ادّعاء)",
+      "r.get('frame')" in _insp0.getsource(S.build_method_alert)
+      and "n.get('frame')" in _insp0.getsource(S.method_near_lines)
+      and '"frame": frame' in _insp0.getsource(S.scan_method_hunter))
+# 🐞 كتبتُ هذا القفل أوّلًا نصًّا (‏وجودُ «h4_capped» و«قُصّ» في المصدر) — **ونجت
+#    الطفرة** لأن الاسمين يبقيان في تهيئة `stage` وفي سطر السجلّ حتى بعد حذف
+#    العدّاد. ⇒ قفلٌ **سلوكيّ**: بسقفٍ صفر يجب أن يُحصى المقصوص ولا يُجلَب شيء.
+_f4_cap_old = S.CONFIG["METHOD_4H_CAP"]
+try:
+    S.CONFIG["METHOD_4H_CAP"] = 0
+    _f4_cap = _f4_scan(lambda s: _f4_alt)
+finally:
+    S.CONFIG["METHOD_4H_CAP"] = _f4_cap_old
+check("🕓 H4🔒 وسقفُ الجلبات **يُعلَن إن قصّ** (لا قصَّ صامتًا) — قفلٌ سلوكيّ",
+      _f4_cap_old >= 100 and _f4_cap["h4_capped"] == 1
+      and _f4_cap["h4_fetched"] == 0 and _f4_cap["seq"] == 0
+      and "قُصّ" in _insp0.getsource(S.scan_method_hunter))
+check("🕓 H4🔒 والنداء الإنتاجيّ يمرّر الجالب فعلًا (لا ميزةٌ بلا سلك)",
+      "fetch_h4=S.fetch_4h" in _insp0.getsource(MH.run))
+_ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة
 # 🔒 نطاق: أداةٌ مستقلّة — لا تمسّ الفرز ولا صيّاد المقسّم.
 # 🎁 الكماليّات الحيّة (طلب المالك: «نفس اللي أضفناها في أداة التقسيم»).
 _MHrun = _insp0.getsource(MH.run)
@@ -11952,9 +12037,22 @@ check("🔬 FRAME🔒 المِجَسّ **مطفأ افتراضيًّا** ⇒ ا�
 check("🔬 FRAME🔒 ويقيس بـ`method_sequence` **نفسها** على 4س (لا نسخةٍ ثانية)",
       {"method_sequence", "fetch_4h"} <= _s_attrs(MH._frame_probe)
       and "_METHOD_FOUNDING" in _fp_src)
-check("🔬 FRAME🔒 و**لا يمسّ المُرسَل**: لا يستقبل الصفوف ولا يلمس من `S` إلا القراءة",
+def _writes_to_S(fn):
+    """هل يُسنِد المِجَسّ إلى أيّ شيءٍ من `S`؟ (‏`S.x = …` أو `S.x[...] = …`)."""
+    import ast as _a, textwrap as _t
+    for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
+        if isinstance(n, (_a.Assign, _a.AugAssign)):
+            tgts = n.targets if isinstance(n, _a.Assign) else [n.target]
+            for t in tgts:
+                if "S." in _a.unparse(t):
+                    return True
+    return False
+
+
+check("🔬 FRAME🔒 و**لا يمسّ المُرسَل**: لا يستقبل الصفوف · قراءةٌ فقط · ولا يكتب في `S`",
       _s_attrs(MH._frame_probe) <= {"log", "fetch_4h", "method_sequence",
-                                    "_METHOD_FOUNDING", "_METHOD_NEAR"}
+                                    "CONFIG", "_METHOD_FOUNDING", "_METHOD_STAGE"}
+      and _writes_to_S(MH._frame_probe) is False
       and list(_insp0.signature(MH._frame_probe).parameters) == ["S"]
       and _MHrun.index("_frame_probe(S)") > _MHrun.index("scan_method_hunter"))
 check("🔬 FRAME🔒 والحدثُ المؤسِّس يُجمَع ويُفرَّغ كلّ مسح (لا تراكمَ من تشغيلة)",

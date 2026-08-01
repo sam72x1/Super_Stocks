@@ -460,6 +460,15 @@ CONFIG = {
     #    كنهج الافضل كم؟» فأجاب «**20 وتحت**» ⇒ عشرون ألفًا. والمقياس **المتاح
     #    للاقتراض** (ChartExchange) وهو قراءة فيصل الموثّقة للشورت. **مجهولٌ ⇒ يمرّ.**
     "METHOD_SHORT_MAX": 20_000,
+    # 🕓 **الفريم: اليوميّ ثم 4 ساعات** (قرار المالك 2026-08-01: «نمشي بالتسلسل حسب
+    #    اللي أعرفه من أبو بدر — لأن **الأهداف وغالبًا الشموع وحده**»). فالمستويات
+    #    (‏القاع · الفجوة-الهدف) واحدةٌ عبر الفريمين، والتسلسل يُقرأ حيث يظهر.
+    #    ⚖️ وسندُه أن شرح فيصل نفسه **على شموع 4 ساعات** (`IMG_0494`) بينما نافذة
+    #    الـ20-30 يومًا تقويمية ⇒ الفريمان يعملان معًا لا أحدهما.
+    #    ⚠️ **‏4 شمعات 4س بالجلسة لا 6**: `fetch_4h` يجلب بـ`prepost=True` فالجلسة
+    #    الممتدّة 16 ساعة ⟹ أربع شمعات. (كان المِجَسّ يفترض 6 = نافذةٌ أوسع.)
+    "METHOD_4H_BARS_PER_SESSION": 4,
+    "METHOD_4H_CAP": 300,                # سقف جلبات 4س بالتشغيلة — والمقصوص يُعلَن
     "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
     "FINRA_BUDGET": 400,                 # 🕵️ سقف تنزيلات FINRA لتشغيلة T-SHORT
     "FORM4_BUDGET": 48,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
@@ -6154,7 +6163,8 @@ def method_near_lines(near, cap=None):
     for n in rows[:cap]:
         try:
             out.append(f"  • {esc(str(n.get('symbol') or '?'))} "
-                       f"${float(n.get('price') or 0):.2f} — "
+                       f"${float(n.get('price') or 0):.2f} "
+                       f"[{esc(str(n.get('frame') or '—'))}] — "
                        f"{esc(str(n.get('why') or ''))}")
         except Exception:                                        # noqa: BLE001
             continue
@@ -6170,7 +6180,7 @@ def method_near_lines(near, cap=None):
 
 
 def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None,
-                       fetch_borrow=None, fetch_splits=None):
+                       fetch_borrow=None, fetch_splits=None, fetch_h4=None):
     """🔬 **صيّاد «النهج العلمي»** — أداةٌ مستقلّة عن فارز الارتكاز وعن صيّاد المقسّم.
 
     **الشروط الستّة (تُشترط كلُّها — نصّ فيصل حرفيًّا):**
@@ -6199,7 +6209,9 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     #    هي القمع الحقيقيّ بدل التخمين (درسُ «العدّاد الوصفيّ يكشف ما لا يكشفه
     #    اختبارٌ أخضر»). لا أثرَ لها على الحكم.
     stage = {"price": 0, "window_ok": 0, "rise_only_fail": 0,
-             "founding": 0, "seq": 0, "entry_zone": 0}
+             "founding": 0, "seq": 0, "seq_h4": 0, "entry_zone": 0,
+             "h4_fetched": 0, "h4_capped": 0}
+    h4_budget = [int(CONFIG["METHOD_4H_CAP"])]
     _METHOD_NEAR.clear()
     _METHOD_FOUNDING.clear()
     for sym, df in (history or {}).items():
@@ -6219,6 +6231,32 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
             # ② التسلسل الرباعيّ — نافذتُه **مشتقّةٌ من الحدث** (منذ القمّة) لا
             #    ثابتٌ مُبتكَر: كلُّ ما يصفه فيصل يقع بعد القمّة داخل الـ20-30 جلسة.
             ts = method_sequence(df, win=int(fnd["bars_since_peak"]) + 2)
+            frame = "يوميّ"
+            # 🕓 **وإن لم يظهر على اليوميّ فعلى 4 ساعات** (قرار المالك: «الأهداف
+            #    وغالبًا الشموع وحده» ⇒ المستوى واحدٌ والتسلسل يُقرأ حيث يظهر،
+            #    وشرحُ فيصل نفسه على 4س). اليوميّ **أوّلًا** فهو بلا كلفة شبكية،
+            #    ولا يُجلَب 4س إلا لمن سقط عليه ⇒ أقلُّ نداءات ممكنة.
+            if not (ts and ts.get("ok")) and fetch_h4 is not None:
+                if h4_budget[0] <= 0:
+                    stage["h4_capped"] += 1        # 🚫 لا قصَّ صامتًا — يُعلَن
+                else:
+                    h4_budget[0] -= 1
+                    # 🔒 **بلا حارسٍ داخليّ عمدًا**: الحلقة كلُّها داخل
+                    # `try/except Exception: continue` لكلّ رمز، فعطلُ الجلب
+                    # يتخطّى هذا الرمز وحده — **والنتيجة مطابقة** لالتقاطه هنا
+                    # (‏لو فشل 4س فـ`ts` تبقى غير مكتملة ⇒ `continue` بالحالين).
+                    # 🐞 وكان هنا `try/except: pass` فنجت طفرتُه (`pass ⟶ raise`)
+                    #    لأنه **فرعٌ بلا أثرٍ يمكن قياسه** ⇒ حُذف بدل أن يُترَك
+                    #    دفاعًا ميتًا لا يقتله اختبار.
+                    _d4 = fetch_h4(sym)
+                    stage["h4_fetched"] += 1
+                    if _d4 is not None and len(_d4) >= 8:
+                        _w4 = max(8, int(fnd["bars_since_peak"])
+                                  * int(CONFIG["METHOD_4H_BARS_PER_SESSION"]) + 2)
+                        _t4 = method_sequence(_d4, win=_w4)
+                        if _t4 and _t4.get("ok"):
+                            ts, frame = _t4, "4 ساعات"
+                            stage["seq_h4"] += 1
             if not (ts and ts.get("ok")):
                 continue
             seen += 1
@@ -6235,7 +6273,7 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                 # `over_pct` = بُعدُ السعر عن مستوى الدخول — **سالبٌ أو صفر لمن هو
                 # داخل المنطقة**، فيُرتَّب الأقربُ أوّلًا بلا معيارٍ مُبتكَر.
                 _METHOD_NEAR.append({"symbol": sym, "price": price, "why": why,
-                                     "bottom": bot,
+                                     "bottom": bot, "frame": frame,
                                      "over_pct": (price / entry - 1.0) * 100.0,
                                      "bounce_pct": ts.get("bounce_pct")})
             # 🎯 **قابلية التنفيذ الآن**: «هنا يكون الدخول عند **اقل سعر** 3.20»
@@ -6293,7 +6331,7 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                 "peak": fnd["peak"], "rise_pct": fnd["rise_pct"],
                 "bars_since_peak": fnd["bars_since_peak"],
                 "bounce_pct": ts.get("bounce_pct"), "touches": ts.get("touches"),
-                "undercut_pct": ts.get("undercut_pct"),
+                "undercut_pct": ts.get("undercut_pct"), "frame": frame,
                 "avail": (bor or {}).get("shares_available"),
                 "borrow_fee": (bor or {}).get("borrow_fee"), "freq": freq,
                 "df": df})
@@ -6308,8 +6346,11 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     log(f"🔬 النهج العلمي: فوق أرضية السعر {stage['price']} · داخل نافذة 20-30 "
         f"جلسة {stage['window_ok']} (منهم {stage['rise_only_fail']} سقطوا على "
         f"**حدّ الصعود وحده** — وهو الرقم الوحيد بلا سندٍ نصّيّ) · حدثٌ مؤسِّس "
-        f"{stage['founding']} · بلغ التسلسلَ {seen} · داخل منطقة الدخول "
-        f"{stage['entry_zone']} · مطابق كامل {len(rows)}")
+        f"{stage['founding']} · بلغ التسلسلَ {seen} "
+        f"(يوميّ {seen - stage['seq_h4']} · 4س {stage['seq_h4']} من "
+        f"{stage['h4_fetched']} مجلوبًا"
+        + (f" · ⚠️ قُصّ {stage['h4_capped']} بالسقف" if stage["h4_capped"] else "")
+        + f") · داخل منطقة الدخول {stage['entry_zone']} · مطابق كامل {len(rows)}")
     rows.sort(key=lambda r: -(r["t1"] / max(r["entry"], 1e-9)))
     return rows[:int(CONFIG["METHOD_MAX"])]
 
@@ -6328,7 +6369,8 @@ def build_method_alert(rows: list, today=None) -> str:
         lines.append(f"  🏛️ الحدث: صعد {r['rise_pct']:.0f}% إلى "
                      f"${r['peak']:.2f} ثم هبط {r['bars_since_peak']} جلسة "
                      "(شرط فيصل: 20 إلى 30 يومًا)")
-        lines.append(f"  🪜 التسلسل مكتمل: قاع ${r['bottom']:.2f} ⟶ صعد "
+        lines.append(f"  🪜 التسلسل مكتمل <b>[{esc(str(r.get('frame') or '—'))}]</b>"
+                     f": قاع ${r['bottom']:.2f} ⟶ صعد "
                      f"{float(r['bounce_pct'] or 0):.0f}% اختبارًا للمقاومة ⟶ رجع "
                      f"واختبره {int(r['touches'] or 0)} مرّات "
                      f"<b>وحافظ عليه</b> (لم يكسره)")
