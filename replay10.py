@@ -67,6 +67,13 @@ def rank_fifo(c: Candidate):
     return (c.seq,)
 
 
+def rank_rr(c: Candidate):
+    """K2 — **`rr` تنازليًّا** (‏`ranker_prereg.md` §④). مكوّنٌ **قائمٌ غير مُعاير**:
+    هو رابعُ مفاتيح `rank_actual` أصلًا، فعزلُه يجيب: هل تحمل نسبةُ العائد/المخاطرة
+    معلومةَ ترتيبٍ تُخنَق تحت الجاهزية؟ كسرُ التعادل `seq` (حتميّ)."""
+    return (-c.rr, c.seq)
+
+
 def make_rank_random(seed: int) -> Callable[[Candidate], tuple]:
     """R2 — عشوائيّ **حتميّ** بالبذرة: ترتيبٌ ثابتٌ لكل (بذرة، رمز، جلسة).
     يُبنى بالتجزئة لا بمولّدٍ عام ⇒ **قابل لإعادة الإنتاج** ومستقلٌّ عن ترتيب النداء."""
@@ -84,6 +91,7 @@ def replay(
     ranker: Callable[[Candidate], tuple] = rank_actual,
     capacity: int = CAPACITY,
     sessions: Iterable[int] | None = None,
+    dedupe_key: Callable[[Candidate], object] | None = None,
 ) -> dict:
     """يُعيد تشغيل آلة القائمة جلسةً بجلسة.
 
@@ -109,6 +117,7 @@ def replay(
     taken, rej_cap, rej_dup = [], 0, 0
     daily: dict[int, tuple[str, ...]] = {}
     slot_days = 0
+    rej_div = 0
 
     order = sorted(set(sessions) | set(by_session)) if sessions is not None \
         else sorted(by_session)
@@ -126,10 +135,21 @@ def replay(
 
         # ② خصّص السعة على مرشّحي اليوم — **بلا أيّ معرفةٍ بنتيجتهم**
         used = sum(1 for h in live.values() if h.holds_slot)
+        # 🥇 K3 (`ranker_prereg.md` §④): `dedupe_key` **اختياريّ** — عند تمريره
+        #    يُقبَل **مرشّحٌ واحد لكل مفتاح** في الجلسة (سقفُه **واحد** لا رقمٌ
+        #    يُجرَّب). `None` = **السلوك السابق حرفيًّا** (مقفولٌ باختبار تطابق).
+        seen_keys = set()
         for c in sorted(by_session.get(s, ()), key=ranker):
             if c.symbol in live:
                 rej_dup += 1
                 continue
+            if dedupe_key is not None:
+                _k = dedupe_key(c)
+                if _k is not None:
+                    if _k in seen_keys:
+                        rej_div += 1
+                        continue
+                    seen_keys.add(_k)
             if used >= capacity:
                 rej_cap += 1
                 continue
@@ -150,6 +170,7 @@ def replay(
 
     return {
         "taken": taken, "rejected_cap": rej_cap, "rejected_dup": rej_dup,
+        "rejected_div": rej_div,
         "daily": daily, "slot_days": slot_days,
         "max_size": max((len(v) for v in daily.values()), default=0),
         "capacity": capacity,

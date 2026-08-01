@@ -11604,6 +11604,53 @@ import replay10 as RP
 def _cand(sess, sym, seq, rdy=50.0, score=50.0, rr=1.0):
     return RP.Candidate(session=sess, symbol=sym, readiness=rdy, score=score, rr=rr, seq=seq)
 
+# ==========================================================
+# 🥇 T-RANKER — الأذرع (`ranker_prereg.md`) · بحث/قياس خارج الإنتاج
+# ==========================================================
+import ranker_arms as RA           # noqa: E402
+# 🔴 **القفل الأهمّ: `dedupe_key=None` = السلوك السابق حرفيًّا** — وإلّا كانت إضافةُ
+#    K3 قد غيّرت خطَّ الأساس نفسه فبطلت المقارنة كلُّها قبل أن تبدأ.
+# ⚠️ الجاهزية **متمايزة عمدًا**: أوّل عيّنةٍ كتبتُها ساوت بينها فسقط `rank_actual`
+#    إلى `rr` نفسه ⇒ صارت K0 و K2 **متطابقتين** والقفلُ يقيس لا شيء.
+_rk_pool = [_cand(0, "A", 0, rdy=90.0, rr=1.0), _cand(0, "B", 1, rdy=50.0, rr=3.0),
+            _cand(0, "C", 2, rdy=70.0, rr=2.0)]
+_rk_out = lambda c: (RP.R_STOP, 1)                              # noqa: E731
+_rk_base = RP.replay(_rk_pool, outcome_of=_rk_out, capacity=3)
+check("🥇 RANK🔒 `dedupe_key=None` ⇒ نفس المأخوذين ترتيبًا (خطّ الأساس لم يتغيّر)",
+      [c.symbol for c in RP.replay(_rk_pool, outcome_of=_rk_out, capacity=3,
+                                   dedupe_key=None)["taken"]]
+      == [c.symbol for c in _rk_base["taken"]])
+check("🥇 RANK🔒 K2 (`rank_rr`) يرتّب بالعائد/المخاطرة تنازليًّا لا بالجاهزية",
+      [c.symbol for c in RP.replay(_rk_pool, outcome_of=_rk_out, capacity=3,
+                                   ranker=RP.rank_rr)["taken"]] == ["B", "C", "A"]
+      and [c.symbol for c in _rk_base["taken"]] == ["A", "C", "B"])
+# 🥇 K3: **مرشّحٌ واحد لكل مفتاح** في الجلسة — والمرفوض يُعَدّ لا يُبتلَع.
+_rk_k3 = RP.replay(_rk_pool, outcome_of=_rk_out, capacity=3,
+                   dedupe_key=lambda c: "قطاع" if c.symbol in ("A", "B") else "آخر")
+check("🥇 RANK🔒 K3 يقبل واحدًا لكل قطاع في الجلسة ويعدّ المرفوض بالتنويع",
+      [c.symbol for c in _rk_k3["taken"]] == ["A", "C"]
+      and _rk_k3["rejected_div"] == 1)
+check("🥇 RANK🔒 ومفتاحٌ `None` **لا يُقصي** (تعذّر القطاع ≠ إقصاء بالظنّ)",
+      [c.symbol for c in RP.replay(_rk_pool, outcome_of=_rk_out, capacity=3,
+                                   dedupe_key=lambda c: None)["taken"]]
+      == ["A", "C", "B"])
+check("🥇 RANK🔒 مقياس «المنفجرون المُسلَّمون» = ‏+100% قبل الوقف (لا نسبة نجاح)",
+      RA.EXPLODE_PCT == 100.0
+      and RA._exploders([RP.Candidate(0, "A", payload={"mg_pre_stop": 120.0}),
+                         RP.Candidate(0, "B", payload={"mg_pre_stop": 99.9}),
+                         RP.Candidate(0, "C", payload={})]) == 1)
+check("🥇 RANK🔒 القطاع الغائب/الفارغ ⇒ None (لا تنويعَ مفبرك)",
+      RA._sector_key(RP.Candidate(0, "A", payload={})) is None
+      and RA._sector_key(RP.Candidate(0, "A", payload={"sector": "  "})) is None
+      and RA._sector_key(RP.Candidate(0, "A", payload={"sector": "تقنية"}))
+      == "تقنية")
+check("🥇 RANK🔒 المُشغِّل يتوقّف عند خمول العلم (لا يُفسَّر صفرٌ مفبرك)",
+      "BT_POTENTIAL` خامل" in _insp0.getsource(RA.run)
+      and "BT_REPLAY10` خامل" in _insp0.getsource(RA.run))
+check("🥇 RANK🔒 خارج الإنتاج: `ranker_arms` غير مستورَدة في `Super_stock.py`",
+      "import ranker_arms" not in _insp0.getsource(S)
+      and "ranker_arms" not in open("split_hunter.py", encoding="utf-8").read())
+
 # ① 🔴 القفل الحاسم: **الخاسر غير المُعبَّأ يحجز خانةً** (إصلاح P0-01)
 #    سعة 1 · A بالجلسة 0 نتيجته `window` بعد 5 جلسات · B بالجلسة 2.
 #    السلوك القديم كان يُسقط A فيأخذ B الخانة — والصحيح أن B يُرفض بالسعة.
