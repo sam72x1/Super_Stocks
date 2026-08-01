@@ -11605,6 +11605,74 @@ def _cand(sess, sym, seq, rdy=50.0, score=50.0, rr=1.0):
     return RP.Candidate(session=sess, symbol=sym, readiness=rdy, score=score, rr=rr, seq=seq)
 
 # ==========================================================
+# 🔬 صيّاد «النهج العلمي» — أداةٌ مستقلّة (قرار المالك 2026-08-01)
+# ==========================================================
+import method_hunter as MH        # noqa: E402
+_MHsrc = _insp0.getsource(MH.run)
+
+check("🔬 NH🔒 الشروط الستّة كلُّها في المسح (لا شرطَ يسقط صامتًا)",
+      all(_k in _insp0.getsource(S.scan_method_hunter) for _k in (
+          "method_founding", "trigger_state", "falling_gap_candle",
+          "fetch_pump", "fetch_offering", "fetch_borrow")))
+check("🔬 NH🔒 «20 إلى 30 جلسة» حرفيّ من الصورة (تخوم مقفولة: 19 و31 يسقطان)",
+      S.CONFIG["METHOD_DECLINE_MIN"] == 20 and S.CONFIG["METHOD_DECLINE_MAX"] == 30
+      and (lambda f: all(f(n) for n in (20, 25, 30))
+           and not any(f(n) for n in (19, 31)))(
+          lambda n: bool(S.method_founding(
+              S.pd.DataFrame({"High": [1.0] * 5 + [10.0] + [3.0] * n},
+                             index=S.pd.date_range("2024-01-01",
+                                                   periods=6 + n, freq="D"))))))
+check("🔬 NH🔒 الصعود بثابت الإنتاج `EXPLOSION_PCT` لا رقمٍ مُبتكَر",
+      "EXPLOSION_PCT" in _insp0.getsource(S.method_founding)
+      and "PRIOR_SPIKE_WINDOW" in _insp0.getsource(S.method_founding))
+# 🔴 قطبيّة الطرح **معكوسة** عن صيّاد المقسّم — خطأ إشارةٍ واحد لا يكشفه اختبار.
+check("🔬 NH🔒 الطرح **مانعٌ** هنا (‏continue) وهو **حدثٌ مؤسِّس** عند المقسّم",
+      "if fo(sym, today=today):\n                        continue"
+      in _insp0.getsource(S.scan_method_hunter)
+      and "offering" in _insp0.getsource(S.scan_split_hunter))
+check("🔬 NH🔒 القروب يُسقط المرشّح (شرطُ صلاحيةِ قراءةٍ لا وسمُ خطر)",
+      "if fp(df):" in _insp0.getsource(S.scan_method_hunter))
+check("🔬 NH🔒 وتعذّرُ الاقتراض **لا يُسقط** المرشّح (تعذّر ≠ مخالفة)",
+      (lambda src: "bor = None" in src and "bor = fb(sym)" in src
+       and "continue" not in src.split("bor = fb(sym)")[1].split("try:")[0])(
+          _insp0.getsource(S.scan_method_hunter)))
+# 🔒 حرّاس الأداة — نفس حرّاس الصيّاد حرفيًّا (قرار المالك: «نفس الطريقة»).
+check("🔬 NH🔒 بوّابة التوقيت: قبل إغلاق الافتر ⇒ لا مسح · وبعده ⇒ تاريخ نيويورك",
+      MH.session_gate(S.dt.datetime(2026, 1, 14, 0, 13,
+                                    tzinfo=S.dt.timezone.utc)) == (False, None)
+      and MH.session_gate(S.dt.datetime(2026, 7, 29, 0, 13,
+                                        tzinfo=S.dt.timezone.utc))
+      == (True, S.dt.date(2026, 7, 28)))
+check("🔬 NH🔒 حارس التغطية موجود بأرضيةٍ صريحة (خنقُ ياهو ≠ «لا مرشّح»)",
+      MH.MIN_COVERAGE_PCT >= 50.0 and "MIN_COVERAGE_PCT" in _MHsrc
+      and "لم يُفحَص السوق" in _MHsrc)
+check("🔬 NH🔒 كلُّ مسار فشلٍ يُبلَّغ ويرجع 1 (الصمت لا يُخلَط بالعطل)",
+      _MHsrc.count("_fail(S,") >= 6 and "return 1" in _MHsrc
+      and "عطل لا" in _insp0.getsource(MH._fail))
+check("🔬 NH🔒 «لا يوجد» تُرسَل ومعها التغطية (نفس عقد الصيّاد بعد قرار المالك)",
+      "لا يوجد سهم يطابق الشروط" in _MHsrc and "تغطية" in _MHsrc)
+check("🔬 NH🔒 دِدوبٌ بطبقتين: تاريخ نيويورك **وجلسة البيانات**",
+      "sess_et.isoformat()" in _MHsrc and "sess.isoformat()" in _MHsrc)
+check("🔬 NH🔒 الختم **بعد** الإرسال (رفضُ تلغرام لا يختم ⇒ يُعاد غدًا)",
+      _MHsrc.index("_write_stamp(S, sess)") > _MHsrc.index("send_telegram(msg)"))
+check("🔬 NH🔒 حدُّ الصدق في الرسالة: «قيد الإثبات» (لا تُقرأ حكمًا محسومًا)",
+      "قيد الإثبات" in _insp0.getsource(S.build_method_alert))
+# 🔒 نطاق: أداةٌ مستقلّة — لا تمسّ الفرز ولا صيّاد المقسّم.
+check("🔬 NH🔒 خارج الجذور والفرز (لا اسمَ لها في أيٍّ منها)",
+      all(_n not in _insp0.getsource(_f)
+          for _n in ("scan_method_hunter", "method_founding", "build_method_alert")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.analyze_ticker, S.apply_float_gate, S.apply_short_gate,
+                     S.scan_market, S.backtest_symbol, S.scan_split_hunter,
+                     S.build_split_hunter_alert)))
+check("🔬 NH🔒 وكرونُها **لا يزاحم** صيّاد المقسّم (خنقُ ياهو مشترك)",
+      (lambda a, b: a != b)(
+          __import__("re").findall(r'cron:\s*"(\d+ \d+)',
+                                   _tf_open(".github/workflows/method_hunter.yml")),
+          __import__("re").findall(r'cron:\s*"(\d+ \d+)',
+                                   _tf_open(".github/workflows/split_hunter.yml"))))
+
+# ==========================================================
 # 🔬 T-METHOD — البنية الأربع (`method_prereg.md` §⑧-مكرّر) · بحث/قياس
 # ==========================================================
 import method_scan as MS          # noqa: E402

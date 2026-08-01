@@ -443,6 +443,11 @@ CONFIG = {
     "SPLIT_RADAR_FLOAT_MAX": 2_000_000,  # فيصل IMG_0151: «عدد اسهمه تحت 2 مليون»
     "SPLIT_RADAR_PROBE_CAP": 80,         # سقف المُرشّحين لجلب التقسيمات (حدّ تكلفة الشبكة)
     "SPLIT_RADAR_MAX": 12,               # سقف العرض
+    # 🔬 أداة «النهج العلمي» (فيصل · UPC) — مستقلّة عن الفارز وعن صيّاد المقسّم.
+    "METHOD_DECLINE_MIN": 20,            # «تنتظر هبوطه … 20 < 30 يوم» — حرفيّ IMG_0489
+    "METHOD_DECLINE_MAX": 30,            # الحدّ الأعلى من النصّ نفسه
+    "METHOD_MIN_PRICE": 1.0,             # أرضية فيصل المنصوصة («السنتات خارج الشرح»)
+    "METHOD_MAX": 8,                     # سقف المطابقين في الرسالة الواحدة
     "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
     "FINRA_BUDGET": 400,                 # 🕵️ سقف تنزيلات FINRA لتشغيلة T-SHORT
     "FORM4_BUDGET": 48,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
@@ -5963,6 +5968,178 @@ def _hunter_models(rows: list, fetch_hist=None, fetch_splits=None) -> dict:
             f"{len(missing)} رمز ({' · '.join(missing[:6])}) — "
             "تُعرض الأسطر المتاحة فقط (لا تخمين).")
     return out
+
+
+# ═══════════════ 🔬 أداة «النهج العلمي» (فيصل · UPC) — مستقلّة ═══════════════
+# 🔒 **أداةٌ مستقلّة تمامًا عن فارز الارتكاز (14 بوّابة) وعن صيّاد المقسّم** — على
+# نمط الصيّاد حرفيًّا (قرار المالك 2026-08-01). مصدرُها `FAISAL_SCIENTIFIC_METHOD.md`
+# (ستّ صور UPC) **+ ما كان عندنا ولم يُستغَلّ**: `trigger_state` وسندُها `TG_1870`.
+# ⚖️ وميزتُها الحاسمة على القياس التاريخيّ: الشرطان اللذان **استحال باكتيستُهما**
+# (لا إعلان طرح · شورت قليل ورسوم عالية) **يعملان حيًّا** ⇒ تُطبَّق الوصفة **كاملة**.
+
+def peak_and_decline(high):
+    """📈 قمّةٌ حديثة ثم هبوط — يرجّع `{peak_idx, bars_since_peak, peak, rise_pct}`.
+
+    🔴 **ولا تُستعمل `behavior_rise_profile.recency_bars` مكانها**: تُحسب على
+    `c[:n-BASE_WINDOW]` ⇒ **مُزاحةٌ 15 جلسة**، فتقلب الحكم على شرط «20 < 30 يوم».
+    `rise_pct` = صعودُ القمّة عن **أدنى قاعٍ سبقها**. نقيّة · فاشلة-آمنة → None."""
+    try:
+        h = np.asarray(high, dtype=float)
+    except Exception:                                            # noqa: BLE001
+        return None
+    if h.size < 5 or not np.isfinite(h).any():
+        return None
+    pk = int(np.nanargmax(h))
+    if pk <= 0:
+        return None
+    pre = h[:pk]
+    base = float(np.nanmin(pre)) if pre.size else None
+    if not base or base <= 0:
+        return None
+    return {"peak_idx": pk, "bars_since_peak": int(h.size - 1 - pk),
+            "peak": float(h[pk]), "rise_pct": (float(h[pk]) / base - 1.0) * 100.0}
+
+
+def method_founding(df, rise_min=None, win_bars=None, dmin=None, dmax=None):
+    """🏛️ **الحدث المؤسِّس** (`IMG_0486`/`IMG_0489`): «سهم صاعد **نسبه عاليه**» ثم
+    «تنتظر هبوطه فترة زمنيه · **20 < 30 يوم**».
+
+    العتبات: الصعود من `EXPLOSION_PCT` والنافذة من `PRIOR_SPIKE_WINDOW` — **ثوابت
+    إنتاجية قائمة لا أرقامٌ مُبتكَرة**؛ و`20/30` **حرفيّان من الصورة**.
+    نقيّة · فاشلة-آمنة → None."""
+    rise_min = float(CONFIG["EXPLOSION_PCT"] if rise_min is None else rise_min)
+    win_bars = int(CONFIG["PRIOR_SPIKE_WINDOW"] if win_bars is None else win_bars)
+    dmin = int(CONFIG["METHOD_DECLINE_MIN"] if dmin is None else dmin)
+    dmax = int(CONFIG["METHOD_DECLINE_MAX"] if dmax is None else dmax)
+    try:
+        pd_ = peak_and_decline(df.tail(win_bars + dmax + 5)["High"]
+                               .astype(float).values)
+    except Exception:                                            # noqa: BLE001
+        return None
+    if not pd_ or pd_["rise_pct"] < rise_min:
+        return None
+    if not (dmin <= pd_["bars_since_peak"] <= dmax):
+        return None
+    return pd_
+
+
+def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None,
+                       fetch_borrow=None, fetch_splits=None):
+    """🔬 **صيّاد «النهج العلمي»** — أداةٌ مستقلّة عن فارز الارتكاز وعن صيّاد المقسّم.
+
+    **الشروط الستّة (تُشترط كلُّها — نصّ فيصل حرفيًّا):**
+      ① **حدثٌ مؤسِّس**: صعودٌ عالٍ حديث ثم هبوطٌ **20-30 جلسة** (`method_founding`).
+      ② **التسلسل الرباعيّ**: `trigger_state` — «قاع ⟶ اختبار مقاومة ⟶ رجوعٌ يختبر
+         القاع بسحب سيولة ⟶ RSI جاهز» (`TG_1870`، وهو ما تصوّره صور UPC بندًا ببند).
+      ③ **هدفٌ بنيويّ**: رأس شمعة الفجوة الهابطة («الهدف الاول راس شمعة الفجوه
+         الهابطه 8») — وغيابُه **يُسقط المرشّح** لأن الوصفة بلا هدفٍ منصوص ناقصة.
+      ④ **خالٍ من قروب** — وهو عند فيصل **شرطُ صلاحيةِ القراءة** لا وسمُ خطر:
+         «دخول سيوله قروبات … **لا انا ولا اكبر محلل يستطيع قراءة الشموع**».
+      ⑤ **لا إعلان طرح** (`_offering_event`) — ⚠️ وقطبيّتُه **معكوسة** عن صيّاد
+         المقسّم (هناك حدثٌ مؤسِّس **إيجابيّ**، وهنا **مانع**).
+      ⑥ **شورت قليل ورسوم اقتراض عالية** (ChartExchange) — **أفضل-جهد**: تعذّرُه
+         **لا يُسقط** المرشّح بل يُوسَم «غير مؤكّد» (تعذّر ≠ مخالفة).
+    🔒 **خارج الجذور والفرز والحالة** — تنبيه صيدٍ فقط. الجالبات محقونة · فاشل-آمن."""
+    fp = fetch_pump or group_pump_scar
+    fo = fetch_offering or _offering_event
+    fb = fetch_borrow or ce_borrow_info
+    fs = fetch_splits or _fetch_splits
+    today = today or dt.date.today()
+    off_budget = [int(CONFIG["OFFERING_PROBE_CAP"])]
+    rows, seen = [], 0
+    for sym, df in (history or {}).items():
+        try:
+            if df is None or len(df) < 60:
+                continue
+            price = float(df["Close"].values[-1])
+            if price < CONFIG["METHOD_MIN_PRICE"]:
+                continue
+            fnd = method_founding(df)              # ① أرخص شرطٍ أوّلًا
+            if not fnd:
+                continue
+            ts = trigger_state(df)                 # ② التسلسل الرباعيّ
+            if not (ts and ts.get("ok")):
+                continue
+            seen += 1
+            bot = float(ts.get("bottom") or 0)
+            if bot <= 0:
+                continue
+            entry, stop = bot * 1.032, bot * 0.968   # «الدخول 3.20 · الوقف 3»
+            gap = falling_gap_candle(df, price=entry)   # ③ الهدف البنيويّ
+            t1 = float((gap or {}).get("head") or 0)
+            if not t1 or t1 <= entry:
+                continue
+            if fp(df):                              # ④ القروب يُبطل القراءة
+                continue
+            if off_budget[0] > 0:                   # ⑤ الطرح (مقيَّد بميزانية)
+                off_budget[0] -= 1
+                try:
+                    if fo(sym, today=today):
+                        continue
+                except Exception:                                # noqa: BLE001
+                    pass
+            bor = None                              # ⑥ سياق الاقتراض (أفضل-جهد)
+            try:
+                bor = fb(sym)
+            except Exception:                                    # noqa: BLE001
+                bor = None
+            try:
+                freq = _split_frequency(fs(sym), today)
+            except Exception:                                    # noqa: BLE001
+                freq = None
+            rows.append({
+                "symbol": sym, "price": price, "bottom": bot,
+                "entry": entry, "stop": stop, "t1": t1,
+                "gap_value": (gap or {}).get("value"),
+                "peak": fnd["peak"], "rise_pct": fnd["rise_pct"],
+                "bars_since_peak": fnd["bars_since_peak"],
+                "rsi": ts.get("rsi"), "swept_pct": ts.get("swept_pct"),
+                "avail": (bor or {}).get("shares_available"),
+                "borrow_fee": (bor or {}).get("borrow_fee"), "freq": freq,
+                "df": df})
+        except Exception as e:                                   # noqa: BLE001
+            log(f"⚠️ النهج العلمي·{sym}: {e}")
+            continue
+    log(f"🔬 النهج العلمي: بلغ التسلسلَ {seen} · مطابق كامل {len(rows)}")
+    rows.sort(key=lambda r: -(r["t1"] / max(r["entry"], 1e-9)))
+    return rows[:int(CONFIG["METHOD_MAX"])]
+
+
+def build_method_alert(rows: list, today=None) -> str:
+    """🔬 كرت «النهج العلمي» — بلفظ فيصل وأرقامه. عرض/تنبيه فقط."""
+    if not rows:
+        return ""
+    d = today or dt.date.today()
+    lines = [f"🔬 <b>النهج العلمي</b> (فيصل · {len(rows)} مطابق) — {d}",
+             "<i>صعودٌ عالٍ ثم هبوط 20-30 يومًا · قاع ⟶ اختبار مقاومة ⟶ رجوعٌ "
+             "يختبر القاع ⟶ ثبات = انفجار</i>", ""]
+    for r in rows:
+        rr = (r["t1"] - r["entry"]) / max(r["entry"] - r["stop"], 1e-9)
+        lines.append(f"🎯 <b>{esc(r['symbol'])}</b> ${r['price']:.2f}")
+        lines.append(f"  🏛️ الحدث: صعد {r['rise_pct']:.0f}% إلى "
+                     f"${r['peak']:.2f} ثم هبط {r['bars_since_peak']} جلسة "
+                     "(شرط فيصل: 20 إلى 30 يومًا)")
+        lines.append(f"  🪜 التسلسل مكتمل: قاع ${r['bottom']:.2f} ⟶ اختبار مقاومة "
+                     f"⟶ رجوعٌ بسحب سيولة {float(r['swept_pct'] or 0):.0f}% ⟶ "
+                     f"RSI {float(r['rsi'] or 0):.0f} جاهز")
+        lines.append(f"  📥 الدخول <b>${r['entry']:.2f}</b> · "
+                     f"⛔ الوقف <b>${r['stop']:.2f}</b> (تحت القاع مباشرةً)")
+        lines.append(f"  🎯 الهدف الأول <b>${r['t1']:.2f}</b> = رأس شمعة الفجوة "
+                     f"الهابطة · ⚖️ العائد/المخاطرة {rr:.1f}")
+        lines.append("  ✅ خالٍ من قروب (شرط فيصل: القروب يُبطل قراءة الشموع) · "
+                     "✅ لا إعلان طرح")
+        _b = _short_headline({"shares_available": r.get("avail")}) \
+            if r.get("avail") is not None else "—"
+        lines.append(f"  🕵️ متاح للاقتراض: {_b}"
+                     + (f" · رسوم {r['borrow_fee']:.0f}%"
+                        if r.get("borrow_fee") is not None else "")
+                     + " (فيصل: شورت قليل ورسوم عالية)")
+        for _x in hunter_extras(r, df=r.get("df")):
+            lines.append(_x)
+        lines.append("")
+    lines.append("<i>⚠️ وصفةٌ قيد الإثبات الأماميّ — لم تُحسَم تاريخيًّا "
+                 "(العيّنة 27 دون 30). تُقرأ بحذر.</i>")
+    return _rtl_join(lines)
 
 
 def _ohlc_tail(df, n=3):
