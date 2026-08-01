@@ -11752,8 +11752,42 @@ check("🪜 SEQ🔒 ونافذتُها **مشتقّةٌ من الحدث** (‏`b
       in _insp0.getsource(S.scan_method_hunter))
 check("🎯 SEQ🔒 مَن تجاوز مستوى الدخول يُتابَع ولا يُرسَل («الدخول عند اقل سعر 3.20»)",
       "تجاوز منطقة الدخول" in _insp0.getsource(S.scan_method_hunter)
-      and S.CONFIG["METHOD_ENTRY_PCT"] == 3.2
-      and S.CONFIG["METHOD_STOP_PCT"] == 3.2)
+      and S.CONFIG["METHOD_ENTRY_PCT"] == 3.2)
+# ⚓ **مرساةُ أرقام فيصل الحرفية** (`IMG_0486` + `IMG_0496`): قاعٌ 3.10 ⟹ دخول 3.20
+#    ⟹ وقف 3.00. 🔴 **والوقف من الدخول لا من القاع** («3.20-6٪=3.00») — كان يُحسب
+#    من القاع فيعطي رقمًا شبه مطابق **بقاعدةٍ مختلفة**، فيتباعدان عند أي سعرٍ آخر.
+_fa_bot = 3.10
+_fa_entry = _fa_bot * (1 + S.CONFIG["METHOD_ENTRY_PCT"] / 100.0)
+_fa_stop = _fa_entry * (1 - S.CONFIG["METHOD_STOP_PCT"] / 100.0)
+check("⚓ SEQ🔒 أرقام فيصل حرفيًّا: قاع 3.10 ⟹ دخول 3.20 · ووقف 3.00 (‏3.20−6%)",
+      round(_fa_entry, 2) == 3.20 and abs(_fa_stop - 3.00) <= 0.01
+      and S.CONFIG["METHOD_STOP_PCT"] == 6.0
+      and "stop = entry * (1.0 - CONFIG[\"METHOD_STOP_PCT\"]"
+      in _insp0.getsource(S.scan_method_hunter))
+# 🕵️ «الشورت الافضل كم؟» ⟵ «**20 وتحت**» (`IMG_0496`) — رقمٌ بلسانه صار **شرطًا**.
+# 🐞 كتبتُ القفل أوّلًا بـ`split("METHOD_SHORT_MAX")[1]` — **والمفتاح يرد مرّتين**
+#    (الشرط ونصّ السبب) فوقع المقطع **بينهما** وخلا من `continue` ⇒ قفلٌ يسقط على
+#    كودٍ سليم. ⇒ بالـAST على **جسم الشرط** كما في قفل قطبيّة الطرح.
+def _gate_rejects(fn, key):
+    import ast as _a, textwrap as _t
+    for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
+        if isinstance(n, _a.If) and key in _a.unparse(n.test):
+            return any(isinstance(x, _a.Continue) for x in _a.walk(n))
+    return False
+
+
+check("🕵️ SEQ🔒 سقف الشورت 20 ألفًا **شرطٌ يرفض** (لا سياقًا يُعرَض)",
+      S.CONFIG["METHOD_SHORT_MAX"] == 20_000
+      and _gate_rejects(S.scan_method_hunter, "METHOD_SHORT_MAX") is True)
+check("🕵️ SEQ🔒 والمجهول/التالف **يمرّ بفائدة الشك** (تعذّرٌ ≠ مخالفة)",
+      (lambda src: "if _av is not None:" in src
+       and "except (TypeError, ValueError):" in src
+       and "pass" in src.split("except (TypeError, ValueError):")[1][:120])(
+          _insp0.getsource(S.scan_method_hunter)))
+check("🗣️ SEQ🔒 توجيه فيصل لقائمة المراقبة يظهر معها (`IMG_0500`)",
+      any("اركب معه مباشرةً أول شمعة صعود" in x
+          for x in S.method_near_lines([{"symbol": "A", "price": 1.0,
+                                         "why": "بعيد", "over_pct": 1.0}])))
 check("🩺 SEQ🔒 عدّاداتُ المراحل في السجلّ (تفرّق «فحصنا ولم نجد» عن «لم نفحص»)",
       all(_w in _insp0.getsource(S.scan_method_hunter)
           for _w in ("حدثٌ مؤسِّس", "داخل منطقة الدخول", 'stage["founding"]')))

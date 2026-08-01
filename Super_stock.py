@@ -452,7 +452,14 @@ CONFIG = {
     "METHOD_BOUNCE_MIN_PCT": 10.0,       # «الصعود غالبا من 10 > 15٪» IMG_0486
     "METHOD_HOLD_TOL": 0.015,            # تسامح اللمسة — **معادٌ** من `tested_level`
     "METHOD_ENTRY_PCT": 3.2,             # «الدخول عند اقل سعر 3.20» فوق قاع 3.10
-    "METHOD_STOP_PCT": 3.2,              # «مع وقف 3» تحت القاع نفسه — متماثلٌ بنصّه
+    # ⛔ الوقف **من الدخول** لا من القاع — بصيغة فيصل الحسابية الصريحة (`IMG_0496`):
+    #    «يكون وقفه 3 تحت الدعم · **3.20-6٪=3.00**». (وكان يُحسب من القاع بـ3.2%
+    #    فيعطي 3.001 — رقمٌ شبه مطابق **بقاعدةٍ مختلفة**؛ صُحّحت القاعدة 2026-08-01.)
+    "METHOD_STOP_PCT": 6.0,
+    # 🕵️ سقف الشورت **بلسانه** (`IMG_0496`): سُئل «اسهم تصعد وشورتها 50 او 100 الف
+    #    كنهج الافضل كم؟» فأجاب «**20 وتحت**» ⇒ عشرون ألفًا. والمقياس **المتاح
+    #    للاقتراض** (ChartExchange) وهو قراءة فيصل الموثّقة للشورت. **مجهولٌ ⇒ يمرّ.**
+    "METHOD_SHORT_MAX": 20_000,
     "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
     "FINRA_BUDGET": 400,                 # 🕵️ سقف تنزيلات FINRA لتشغيلة T-SHORT
     "FORM4_BUDGET": 48,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
@@ -6146,6 +6153,11 @@ def method_near_lines(near, cap=None):
     if len(rows) > cap:
         out.append(f"  … و<b>{len(rows) - cap}</b> غيرهم أبعدُ عن الدخول "
                    "(لم يُعرَضوا اختصارًا)")
+    # 🗣️ توجيهُ فيصل لهذي القائمة بعينها (`IMG_0500`، سُئل عن سهمين «كانوا ضمن
+    #    المراقبة لكن ماكنت اعرف منطقة الدخول الصحيحه»): «**اذا ماعرفت الدخول
+    #    السهم عندك مراقبه وصعد اركب معه مباشره اول شمعه صعود**».
+    out.append("<i>🗣️ فيصل: «إذا ما عرفت الدخول — السهم عندك مراقبة وصعد، "
+               "اركب معه مباشرةً أول شمعة صعود».</i>")
     return out
 
 
@@ -6204,7 +6216,7 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
             if bot <= 0:
                 continue
             entry = bot * (1.0 + CONFIG["METHOD_ENTRY_PCT"] / 100.0)   # «3.20»
-            stop = bot * (1.0 - CONFIG["METHOD_STOP_PCT"] / 100.0)     # «وقف 3»
+            stop = entry * (1.0 - CONFIG["METHOD_STOP_PCT"] / 100.0)   # «3.20-6٪=3»
             # 🔭 **تتبّعٌ حيّ**: مَن بلغ التسلسل الرباعيّ وسقط على شرطٍ واحد يُسجَّل
             #    باسمه وسببه — «انتظر ضغطته مره ثانيه عند القاع» تحتاج أن تعرف مَن
             #    يقترب، لا أن يختفي صامتًا. (نظير «قريبون من الشرط» بصيّاد المقسّم.)
@@ -6241,11 +6253,24 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                         continue
                 except Exception:                                # noqa: BLE001
                     pass
-            bor = None                              # ⑥ سياق الاقتراض (أفضل-جهد)
+            # ⑥ **الشورت شرطٌ برقمٍ منصوص الآن** (`IMG_0496`): سُئل «الافضل كم؟»
+            #    فأجاب «**20 وتحت**». والمقياس **المتاح للاقتراض** (قراءة فيصل
+            #    الموثّقة للشورت). 🔒 **والمجهول يمرّ بفائدة الشك** (تعذّرٌ ≠ مخالفة)
+            #    — والرسوم تبقى **سياقًا** لأن نصّه «نسبة اقتراض عاليه» بلا رقم.
+            bor = None
             try:
                 bor = fb(sym)
             except Exception:                                    # noqa: BLE001
                 bor = None
+            _av = (bor or {}).get("shares_available")
+            if _av is not None:
+                try:
+                    if float(_av) > float(CONFIG["METHOD_SHORT_MAX"]):
+                        _near(f"المتاح للاقتراض {int(float(_av)):,} فوق حدّ فيصل "
+                              f"({int(CONFIG['METHOD_SHORT_MAX']):,} وتحت)")
+                        continue
+                except (TypeError, ValueError):
+                    pass                       # قيمةٌ تالفة ⇒ مجهولٌ يمرّ
             try:
                 freq = _split_frequency(fs(sym), today)
             except Exception:                                    # noqa: BLE001
@@ -6295,17 +6320,19 @@ def build_method_alert(rows: list, today=None) -> str:
                      f"واختبره {int(r['touches'] or 0)} مرّات "
                      f"<b>وحافظ عليه</b> (لم يكسره)")
         lines.append(f"  📥 الدخول <b>${r['entry']:.2f}</b> · "
-                     f"⛔ الوقف <b>${r['stop']:.2f}</b> (تحت القاع مباشرةً)")
+                     f"⛔ الوقف <b>${r['stop']:.2f}</b> = الدخول ناقص "
+                     f"{CONFIG['METHOD_STOP_PCT']:.0f}% (تحت الدعم — صيغة فيصل)")
         lines.append(f"  🎯 الهدف الأول <b>${r['t1']:.2f}</b> = رأس شمعة الفجوة "
                      f"الهابطة · ⚖️ العائد/المخاطرة {rr:.1f}")
         lines.append("  ✅ خالٍ من قروب (شرط فيصل: القروب يُبطل قراءة الشموع) · "
                      "✅ لا إعلان طرح")
         _b = _short_headline({"shares_available": r.get("avail")}) \
-            if r.get("avail") is not None else "—"
-        lines.append(f"  🕵️ متاح للاقتراض: {_b}"
+            if r.get("avail") is not None else "— (غير مؤكّد)"
+        lines.append(f"  🕵️ متاح للاقتراض: {_b} — حدّ فيصل "
+                     f"{int(CONFIG['METHOD_SHORT_MAX']):,} وتحت"
                      + (f" · رسوم {r['borrow_fee']:.0f}%"
                         if r.get("borrow_fee") is not None else "")
-                     + " (فيصل: شورت قليل ورسوم عالية)")
+                     + " (نسبة اقتراض عالية = إيجابيّ)")
         # 🔁 «انتظر ضغطته مره ثانيه عند القاع» (`IMG_0489`) = اختبار القاع نفسه
         _bt = bottom_test_line(r.get("bottom_test"))
         if _bt:
