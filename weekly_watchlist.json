@@ -322,8 +322,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.91,
-   "live_alert": {}
+   "last_price": 1.91
   },
   {
    "symbol": "AFJK",
@@ -650,8 +649,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 12.04,
-   "live_alert": {}
+   "last_price": 12.04
   },
   {
    "symbol": "QNTM",
@@ -1734,8 +1732,7 @@
      "2026-07-31",
      350000
     ]
-   ],
-   "live_alert": {}
+   ]
   },
   {
    "symbol": "CMTL",
@@ -3491,7 +3488,6 @@
    "hit_date": null,
    "max_gain_pct": 2.0,
    "last_price": 4.11,
-   "live_alert": {},
    "borrow_hist": [
     [
      "2026-07-22",
@@ -3900,7 +3896,7 @@
    "country": "Israel",
    "float": 6910213,
    "last_price": 1.68,
-   "status": "triggered",
+   "status": "watching",
    "triggered_date": "2026-08-01"
   },
   {
