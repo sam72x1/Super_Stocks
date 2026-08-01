@@ -11642,6 +11642,39 @@ check("🔬 NH🔒 «20 إلى 30 جلسة» حرفيّ من الصورة (تخ�
 check("🔬 NH🔒 الصعود بثابت الإنتاج `EXPLOSION_PCT` لا رقمٍ مُبتكَر",
       "EXPLOSION_PCT" in _insp0.getsource(S.method_founding)
       and "PRIOR_SPIKE_WINDOW" in _insp0.getsource(S.method_founding))
+# 🩺 قرار المالك «امش على اللي متأكد منه» (2026-08-01): الرقم بلا سندٍ نصّيّ **يبقى**
+#    كما هو، **ويُقاس** كم يكلّف — فيُعايَر لاحقًا برقمٍ لا برأي.
+
+
+def _mf(rise, bars):
+    """إطارٌ قمّتُه ترتفع `rise`% ثم يهبط `bars` جلسة — للتحكّم بالحالتين معًا."""
+    hi = [1.0] * 5 + [1.0 * (1.0 + rise / 100.0)] + [1.0] * bars
+    return S.pd.DataFrame({"High": hi},
+                          index=S.pd.date_range("2024-01-01", periods=len(hi),
+                                                freq="D"))
+
+
+_mf_st = {}
+_mf_a = S.method_founding(_mf(80.0, 25), stats=_mf_st)     # داخل النافذة ويمرّ
+_mf_b = S.method_founding(_mf(20.0, 25), stats=_mf_st)     # داخل النافذة · صعودٌ قليل
+_mf_c = S.method_founding(_mf(20.0, 40), stats=_mf_st)     # خارج النافذة ⇒ لا يُحصى
+check("🩺 NH🔒 عدّادُ «سقط على حدّ الصعود وحده» يعدّ مَن استوفى النافذة فقط",
+      _mf_st.get("window_ok") == 2 and _mf_st.get("rise_only_fail") == 1
+      and bool(_mf_a) and _mf_b is None and _mf_c is None)
+check("🩺 NH🔒 و`stats` **لا يغيّر القرار أبدًا** (بت-بت مع وبدون · والافتراضيّ None)",
+      all(S.method_founding(_mf(r, b))
+          == S.method_founding(_mf(r, b), stats={})
+          for r, b in ((80.0, 25), (20.0, 25), (20.0, 40), (50.0, 20), (49.0, 30)))
+      and "stats=None" in _insp0.getsource(S.method_founding))
+check("🩺 NH🔒 والعدّاد يظهر في السجلّ موسومًا بأنه الرقم بلا سند",
+      all(_w in _insp0.getsource(S.scan_method_hunter)
+          for _w in ("داخل نافذة 20-30", "حدّ الصعود وحده", "بلا سندٍ نصّيّ",
+                     "stats=stage")))
+# ⚖️ قرار المالك: شرط «الفجوة الهابطة» **يبقى** — ولا يُستورَد هدفٌ من نظامٍ آخر.
+check("⚖️ NH🔒 لا هدفَ بديل من نظام الارتكاز يتسرّب لهذي الوصفة (درسُ `trigger_state`)",
+      "_red_candle_heads" not in _insp0.getsource(S.scan_method_hunter)
+      and "resistance_levels" not in _insp0.getsource(S.scan_method_hunter)
+      and "falling_gap_candle" in _insp0.getsource(S.scan_method_hunter))
 
 # ==========================================================
 # 🪜 `method_sequence` — قراءة **الثبات** (تصحيح 2026-08-01 بمسكة المالك)

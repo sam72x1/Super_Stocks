@@ -6008,12 +6008,21 @@ def peak_and_decline(high):
             "peak": float(h[pk]), "rise_pct": (float(h[pk]) / base - 1.0) * 100.0}
 
 
-def method_founding(df, rise_min=None, win_bars=None, dmin=None, dmax=None):
+def method_founding(df, rise_min=None, win_bars=None, dmin=None, dmax=None,
+                    stats=None):
     """🏛️ **الحدث المؤسِّس** (`IMG_0486`/`IMG_0489`): «سهم صاعد **نسبه عاليه**» ثم
     «تنتظر هبوطه فترة زمنيه · **20 < 30 يوم**».
 
     العتبات: الصعود من `EXPLOSION_PCT` والنافذة من `PRIOR_SPIKE_WINDOW` — **ثوابت
     إنتاجية قائمة لا أرقامٌ مُبتكَرة**؛ و`20/30` **حرفيّان من الصورة**.
+
+    ⚠️ **وحدُّ صدقٍ يُقاس ولا يُدفَن (‏قرار المالك «امش على اللي متأكد منه»،
+    2026-08-01):** «‏20 < 30 يوم» **منصوصٌ حرفيًّا**، أمّا حدُّ الصعود فنصُّه «سهم
+    صاعد **نسبه عاليه**» **بلا رقم** ⇒ الرقم 50% **اشتقاقُنا** (موسومٌ
+    `faisal_inferred` في `FAISAL_SOURCE_LEDGER.md`). فلا يُغيَّر بالرأي — لكن
+    `stats` (قاموسٌ اختياريّ) يُحصي **كم مرشّحًا استوفى النافذة وسقط على الحدّ
+    وحده** فيصير قرارُ معايرته لاحقًا **برقمٍ مقيس لا بتخمين**.
+    🔒 `stats=None` (الافتراضيّ) ⇒ **السلوك السابق حرفيًّا** والقرار لا يتغيّر أبدًا.
     نقيّة · فاشلة-آمنة → None."""
     rise_min = float(CONFIG["EXPLOSION_PCT"] if rise_min is None else rise_min)
     win_bars = int(CONFIG["PRIOR_SPIKE_WINDOW"] if win_bars is None else win_bars)
@@ -6024,9 +6033,14 @@ def method_founding(df, rise_min=None, win_bars=None, dmin=None, dmax=None):
                                .astype(float).values)
     except Exception:                                            # noqa: BLE001
         return None
-    if not pd_ or pd_["rise_pct"] < rise_min:
+    if not pd_:
         return None
-    if not (dmin <= pd_["bars_since_peak"] <= dmax):
+    in_win = bool(dmin <= pd_["bars_since_peak"] <= dmax)
+    if stats is not None and in_win:                 # 🩺 إحصاءٌ لا قرار
+        stats["window_ok"] = stats.get("window_ok", 0) + 1
+        if pd_["rise_pct"] < rise_min:
+            stats["rise_only_fail"] = stats.get("rise_only_fail", 0) + 1
+    if pd_["rise_pct"] < rise_min or not in_win:
         return None
     return pd_
 
@@ -6164,7 +6178,8 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     # 🩺 عدّاداتٌ وصفيّة — تفرّق «فحصنا ولم نجد» عن «لم نفحص»، وتُظهر أيّ مرحلةٍ
     #    هي القمع الحقيقيّ بدل التخمين (درسُ «العدّاد الوصفيّ يكشف ما لا يكشفه
     #    اختبارٌ أخضر»). لا أثرَ لها على الحكم.
-    stage = {"price": 0, "founding": 0, "seq": 0, "entry_zone": 0}
+    stage = {"price": 0, "window_ok": 0, "rise_only_fail": 0,
+             "founding": 0, "seq": 0, "entry_zone": 0}
     _METHOD_NEAR.clear()
     for sym, df in (history or {}).items():
         try:
@@ -6174,7 +6189,7 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
             if price < CONFIG["METHOD_MIN_PRICE"]:
                 continue
             stage["price"] += 1
-            fnd = method_founding(df)              # ① أرخص شرطٍ أوّلًا
+            fnd = method_founding(df, stats=stage)  # ① أرخص شرطٍ أوّلًا
             if not fnd:
                 continue
             stage["founding"] += 1
@@ -6252,7 +6267,9 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     # 🔭 الأقربُ إلى الدخول أوّلًا (مَن هو **داخل** المنطقة سالبُ `over_pct` فيتصدّر)
     _METHOD_NEAR.sort(key=lambda n: n.get("over_pct") if n.get("over_pct")
                       is not None else 1e9)
-    log(f"🔬 النهج العلمي: فوق أرضية السعر {stage['price']} · حدثٌ مؤسِّس "
+    log(f"🔬 النهج العلمي: فوق أرضية السعر {stage['price']} · داخل نافذة 20-30 "
+        f"جلسة {stage['window_ok']} (منهم {stage['rise_only_fail']} سقطوا على "
+        f"**حدّ الصعود وحده** — وهو الرقم الوحيد بلا سندٍ نصّيّ) · حدثٌ مؤسِّس "
         f"{stage['founding']} · بلغ التسلسلَ {seen} · داخل منطقة الدخول "
         f"{stage['entry_zone']} · مطابق كامل {len(rows)}")
     rows.sort(key=lambda r: -(r["t1"] / max(r["entry"], 1e-9)))
