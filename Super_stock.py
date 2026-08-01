@@ -448,6 +448,11 @@ CONFIG = {
     "METHOD_DECLINE_MAX": 30,            # الحدّ الأعلى من النصّ نفسه
     "METHOD_MIN_PRICE": 1.0,             # أرضية فيصل المنصوصة («السنتات خارج الشرح»)
     "METHOD_MAX": 8,                     # سقف المطابقين في الرسالة الواحدة
+    # 🪜 التسلسل الرباعيّ بقراءة **الثبات** — كلُّ رقمٍ هنا حرفيٌّ من الصور:
+    "METHOD_BOUNCE_MIN_PCT": 10.0,       # «الصعود غالبا من 10 > 15٪» IMG_0486
+    "METHOD_HOLD_TOL": 0.015,            # تسامح اللمسة — **معادٌ** من `tested_level`
+    "METHOD_ENTRY_PCT": 3.2,             # «الدخول عند اقل سعر 3.20» فوق قاع 3.10
+    "METHOD_STOP_PCT": 3.2,              # «مع وقف 3» تحت القاع نفسه — متماثلٌ بنصّه
     "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
     "FINRA_BUDGET": 400,                 # 🕵️ سقف تنزيلات FINRA لتشغيلة T-SHORT
     "FORM4_BUDGET": 48,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
@@ -5982,7 +5987,10 @@ def peak_and_decline(high):
 
     🔴 **ولا تُستعمل `behavior_rise_profile.recency_bars` مكانها**: تُحسب على
     `c[:n-BASE_WINDOW]` ⇒ **مُزاحةٌ 15 جلسة**، فتقلب الحكم على شرط «20 < 30 يوم».
-    `rise_pct` = صعودُ القمّة عن **أدنى قاعٍ سبقها**. نقيّة · فاشلة-آمنة → None."""
+    `rise_pct` = صعودُ القمّة عن **أدنى قمّةٍ سبقتها داخل النافذة** (المصفوفة
+    المُمرَّرة `High` وحدها) — ⚠️ **لا عن أدنى قاع**؛ صُحّح الوصف 2026-08-01 بعد أن
+    كان يقول «قاع» والكودُ يقرأ القمم (تُقرأ القيمة **بخسًا طفيفًا** لا نفخًا).
+    نقيّة · فاشلة-آمنة → None."""
     try:
         h = np.asarray(high, dtype=float)
     except Exception:                                            # noqa: BLE001
@@ -6023,6 +6031,74 @@ def method_founding(df, rise_min=None, win_bars=None, dmin=None, dmax=None):
     return pd_
 
 
+def method_sequence(df, win, bounce_min=None, tol=None):
+    """🪜 **التسلسل الرباعيّ بقراءة «الثبات»** — `IMG_0486`/`IMG_0488` حرفيًّا:
+
+    > «صعد بعد اختبار الدعم السابق قبل صعوده كان 3.10 · **هبط واختبر 3.10 حافظ
+    > عليها** صعد 17٪ · الصعود غالبا من **10 > 15٪** · **يرجع يهبط يختبر الدعم** ·
+    > هنا يكون الدخول عند اقل سعر 3.20 مع وقف 3»
+
+    وشاهدُها البصريّ في `IMG_0488`: «**ذيول شموع وعدم كسرها**» — خطٌّ أحمر تلمسه
+    الذيول ولا تخترقه.
+
+    🔴🔴 **ولماذا لا تُستعمل `trigger_state` هنا — وهو خطأٌ وقعتُ فيه وصحّحه المالك:**
+    مرحلتُها ③ سندُها `TG_1870` «رجوعٌ يختبر القاع **مع سحب سيولة**» وتشترط **كسر**
+    القاع بـ7-13% ثم استعادته. وهذا **نقيضُ** ما تصفه هذي الصور («حافظ عليها» ·
+    «وعدم كسرها») ⇒ السهمُ الذي يفعل ما يصفه فيصل **يسقط** على `trigger_state`
+    بنيويًّا. المصدران قراءتان مختلفتان لسهمين مختلفين، وخلطُهما كان يُفرغ الأداة.
+    (‏`trigger_state` **لم تُمَسّ** — تبقى لقراءتها ولتجربة `candle_readiness`.)
+
+    الشروط على آخر `win` بارًا، **بترتيبٍ زمنيّ**:
+      ① **قاعٌ مكوَّن** `b` = الأدنى حتى لحظته.
+      ② **اختبار مقاومة**: أعلى قمّةٍ بعده ترتفع ≥`bounce_min`% عنه (الحدّ **10%**
+         منصوصٌ، والصور تُظهر 15% و17%).
+      ③ **رجوعٌ يختبر القاع**: أدنى قاعٍ بعد القمّة يعود إلى نطاق `tol` من القاع.
+      ④ **وثبات**: لا يهبط تحته أكثر من `tol` **ولا يُغلق تحته إغلاقًا واحدًا**.
+    يرجّع `{ok, bottom, peak, bounce_pct, retest_low, undercut_pct, touches}` أو
+    `None`. **نقيّة · بلا نظر مستقبليّ** (لا تقرأ إلا `df` المُمرَّر) · فاشلة-آمنة.
+    🔒 **لا `RSI` هنا**: الصور الستّ تعدّد شروطها (لا طرح · لا قروب · شورت قليل ورسوم
+    عالية · سلامة من الحراج) و**ليس فيها `RSI`** — فإقحامُه بوّابةً كان زيادةً منّي."""
+    bounce_min = float(CONFIG["METHOD_BOUNCE_MIN_PCT"] if bounce_min is None
+                       else bounce_min)
+    tol = float(CONFIG["METHOD_HOLD_TOL"] if tol is None else tol)
+    try:
+        w = df.tail(int(win))
+        lo = w["Low"].astype(float).values
+        hi = w["High"].astype(float).values
+        cl = w["Close"].astype(float).values
+    except Exception:                                            # noqa: BLE001
+        return None
+    n = len(lo)
+    if n < 6 or not (np.isfinite(lo).all() and np.isfinite(hi).all()
+                     and np.isfinite(cl).all()):
+        return None
+    for b in range(0, n - 3):
+        bot = float(lo[b])
+        if bot <= 0 or float(np.min(lo[:b + 1])) < bot:
+            continue                          # ① قاعٌ مكوَّن = الأدنى حتى لحظته
+        pk = b + 1 + int(np.argmax(hi[b + 1:]))
+        if pk >= n - 1:                       # لا بدّ من بارٍ **بعد** القمّة للرجوع
+            continue
+        if (float(hi[pk]) / bot - 1.0) * 100.0 < bounce_min:
+            continue                          # ② اختبار مقاومة بصعودٍ ≥ الحدّ
+        rl = float(np.min(lo[pk + 1:]))
+        if rl > bot * (1.0 + tol):
+            continue                          # ③ لم يرجع ليختبر القاع أصلًا
+        if rl < bot * (1.0 - tol):
+            continue                          # ④ كسرَه ⇒ **مسحٌ لا ثبات** ⇒ يُرفض
+        # «ولا كسرها» — إغلاقٌ واحد تحت القاع يُبطل الثبات. (وليس تحصيلَ حاصل:
+        # قاعٌ داخل `tol` تحت المستوى قد يُغلق تحته وهو ما نرفضه هنا.)
+        if any(float(cl[k]) < bot for k in range(b + 1, n)):
+            continue
+        hits = [abs(float(lo[k]) / bot - 1.0) <= tol for k in range(b, n)]
+        touches = sum(1 for k, v in enumerate(hits) if v and not (k and hits[k - 1]))
+        return {"ok": True, "bottom": bot, "bottom_idx": b, "peak": float(hi[pk]),
+                "bounce_pct": round((float(hi[pk]) / bot - 1.0) * 100.0, 1),
+                "retest_low": rl, "undercut_pct": round((1.0 - rl / bot) * 100.0, 2),
+                "touches": int(touches)}
+    return None
+
+
 _METHOD_NEAR = []          # 🔭 «قريبون من الشرط» — يُملأ بكل مسح (تتبّعٌ حيّ)
 
 
@@ -6032,8 +6108,10 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
 
     **الشروط الستّة (تُشترط كلُّها — نصّ فيصل حرفيًّا):**
       ① **حدثٌ مؤسِّس**: صعودٌ عالٍ حديث ثم هبوطٌ **20-30 جلسة** (`method_founding`).
-      ② **التسلسل الرباعيّ**: `trigger_state` — «قاع ⟶ اختبار مقاومة ⟶ رجوعٌ يختبر
-         القاع بسحب سيولة ⟶ RSI جاهز» (`TG_1870`، وهو ما تصوّره صور UPC بندًا ببند).
+      ② **التسلسل الرباعيّ**: `method_sequence` — «قاع ⟶ اختبار مقاومة (‏≥10%) ⟶
+         رجوعٌ يختبر القاع ⟶ **ثبات** (‏حافظ عليه ولم يكسره)». 🔴 **وكانت هنا
+         `trigger_state` خطأً حتى 2026-08-01** وهي تشترط **كسرَ** القاع بسحب
+         سيولة ⇒ كانت تُسقط بالضبط ما يصفه فيصل. التفصيل في `method_sequence`.
       ③ **هدفٌ بنيويّ**: رأس شمعة الفجوة الهابطة («الهدف الاول راس شمعة الفجوه
          الهابطه 8») — وغيابُه **يُسقط المرشّح** لأن الوصفة بلا هدفٍ منصوص ناقصة.
       ④ **خالٍ من قروب** — وهو عند فيصل **شرطُ صلاحيةِ القراءة** لا وسمُ خطر:
@@ -6050,6 +6128,10 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     today = today or dt.date.today()
     off_budget = [int(CONFIG["OFFERING_PROBE_CAP"])]
     rows, seen = [], 0
+    # 🩺 عدّاداتٌ وصفيّة — تفرّق «فحصنا ولم نجد» عن «لم نفحص»، وتُظهر أيّ مرحلةٍ
+    #    هي القمع الحقيقيّ بدل التخمين (درسُ «العدّاد الوصفيّ يكشف ما لا يكشفه
+    #    اختبارٌ أخضر»). لا أثرَ لها على الحكم.
+    stage = {"price": 0, "founding": 0, "seq": 0, "entry_zone": 0}
     _METHOD_NEAR.clear()
     for sym, df in (history or {}).items():
         try:
@@ -6058,23 +6140,36 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
             price = float(df["Close"].values[-1])
             if price < CONFIG["METHOD_MIN_PRICE"]:
                 continue
+            stage["price"] += 1
             fnd = method_founding(df)              # ① أرخص شرطٍ أوّلًا
             if not fnd:
                 continue
-            ts = trigger_state(df)                 # ② التسلسل الرباعيّ
+            stage["founding"] += 1
+            # ② التسلسل الرباعيّ — نافذتُه **مشتقّةٌ من الحدث** (منذ القمّة) لا
+            #    ثابتٌ مُبتكَر: كلُّ ما يصفه فيصل يقع بعد القمّة داخل الـ20-30 جلسة.
+            ts = method_sequence(df, win=int(fnd["bars_since_peak"]) + 2)
             if not (ts and ts.get("ok")):
                 continue
             seen += 1
+            stage["seq"] += 1
             bot = float(ts.get("bottom") or 0)
             if bot <= 0:
                 continue
-            entry, stop = bot * 1.032, bot * 0.968   # «الدخول 3.20 · الوقف 3»
+            entry = bot * (1.0 + CONFIG["METHOD_ENTRY_PCT"] / 100.0)   # «3.20»
+            stop = bot * (1.0 - CONFIG["METHOD_STOP_PCT"] / 100.0)     # «وقف 3»
             # 🔭 **تتبّعٌ حيّ**: مَن بلغ التسلسل الرباعيّ وسقط على شرطٍ واحد يُسجَّل
             #    باسمه وسببه — «انتظر ضغطته مره ثانيه عند القاع» تحتاج أن تعرف مَن
             #    يقترب، لا أن يختفي صامتًا. (نظير «قريبون من الشرط» بصيّاد المقسّم.)
             def _near(why):
                 _METHOD_NEAR.append({"symbol": sym, "price": price, "why": why,
-                                     "bottom": bot, "rsi": ts.get("rsi")})
+                                     "bottom": bot,
+                                     "bounce_pct": ts.get("bounce_pct")})
+            # 🎯 **قابلية التنفيذ الآن**: «هنا يكون الدخول عند **اقل سعر** 3.20»
+            #    ⇒ ما تجاوز مستوى الدخول لم يعد قابلًا للشراء بشرطه، فيُتابَع لا يُرسَل.
+            if price > entry:
+                _near(f"تجاوز منطقة الدخول (${entry:.2f})")
+                continue
+            stage["entry_zone"] += 1
             gap = falling_gap_candle(df, price=entry)   # ③ الهدف البنيويّ
             t1 = float((gap or {}).get("head") or 0)
             if not t1 or t1 <= entry:
@@ -6106,14 +6201,17 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                 "gap_value": (gap or {}).get("value"),
                 "peak": fnd["peak"], "rise_pct": fnd["rise_pct"],
                 "bars_since_peak": fnd["bars_since_peak"],
-                "rsi": ts.get("rsi"), "swept_pct": ts.get("swept_pct"),
+                "bounce_pct": ts.get("bounce_pct"), "touches": ts.get("touches"),
+                "undercut_pct": ts.get("undercut_pct"),
                 "avail": (bor or {}).get("shares_available"),
                 "borrow_fee": (bor or {}).get("borrow_fee"), "freq": freq,
                 "df": df})
         except Exception as e:                                   # noqa: BLE001
             log(f"⚠️ النهج العلمي·{sym}: {e}")
             continue
-    log(f"🔬 النهج العلمي: بلغ التسلسلَ {seen} · مطابق كامل {len(rows)}")
+    log(f"🔬 النهج العلمي: فوق أرضية السعر {stage['price']} · حدثٌ مؤسِّس "
+        f"{stage['founding']} · بلغ التسلسلَ {seen} · داخل منطقة الدخول "
+        f"{stage['entry_zone']} · مطابق كامل {len(rows)}")
     rows.sort(key=lambda r: -(r["t1"] / max(r["entry"], 1e-9)))
     return rows[:int(CONFIG["METHOD_MAX"])]
 
@@ -6132,9 +6230,10 @@ def build_method_alert(rows: list, today=None) -> str:
         lines.append(f"  🏛️ الحدث: صعد {r['rise_pct']:.0f}% إلى "
                      f"${r['peak']:.2f} ثم هبط {r['bars_since_peak']} جلسة "
                      "(شرط فيصل: 20 إلى 30 يومًا)")
-        lines.append(f"  🪜 التسلسل مكتمل: قاع ${r['bottom']:.2f} ⟶ اختبار مقاومة "
-                     f"⟶ رجوعٌ بسحب سيولة {float(r['swept_pct'] or 0):.0f}% ⟶ "
-                     f"RSI {float(r['rsi'] or 0):.0f} جاهز")
+        lines.append(f"  🪜 التسلسل مكتمل: قاع ${r['bottom']:.2f} ⟶ صعد "
+                     f"{float(r['bounce_pct'] or 0):.0f}% اختبارًا للمقاومة ⟶ رجع "
+                     f"واختبره {int(r['touches'] or 0)} مرّات "
+                     f"<b>وحافظ عليه</b> (لم يكسره)")
         lines.append(f"  📥 الدخول <b>${r['entry']:.2f}</b> · "
                      f"⛔ الوقف <b>${r['stop']:.2f}</b> (تحت القاع مباشرةً)")
         lines.append(f"  🎯 الهدف الأول <b>${r['t1']:.2f}</b> = رأس شمعة الفجوة "

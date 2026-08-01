@@ -11610,10 +11610,27 @@ def _cand(sess, sym, seq, rdy=50.0, score=50.0, rr=1.0):
 import method_hunter as MH        # noqa: E402
 _MHsrc = _insp0.getsource(MH.run)
 
-check("🔬 NH🔒 الشروط الستّة كلُّها في المسح (لا شرطَ يسقط صامتًا)",
-      all(_k in _insp0.getsource(S.scan_method_hunter) for _k in (
-          "method_founding", "trigger_state", "falling_gap_candle",
+# 🐞 **القفل النصّيّ سقط في الفخّ الموثّق مرّةً أخرى:** كان يشترط ورودَ
+#    `trigger_state` نصًّا، فلمّا استُبدلت بـ`method_sequence` **بقي الاسمُ في
+#    الـdocstring** الذي يشرح الاستبدال ⇒ **مرّ أخضرَ ووصلةُ الإنتاج مقطوعة**.
+#    ⇒ يُقاس **النداء الفعليّ بالـAST** لا وجودُ الحرف.
+def _calls(fn):
+    import ast as _a, textwrap as _t
+    out = set()
+    for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
+        if isinstance(n, _a.Call) and isinstance(n.func, _a.Name):
+            out.add(n.func.id)
+    return out
+
+
+check("🔬 NH🔒 الشروط الستّة **مُناداةٌ فعلًا** (بالـAST لا بالنصّ — لا شرطَ يسقط صامتًا)",
+      {"method_founding", "method_sequence", "falling_gap_candle"}
+      <= _calls(S.scan_method_hunter)
+      and all(_k in _insp0.getsource(S.scan_method_hunter) for _k in (
           "fetch_pump", "fetch_offering", "fetch_borrow")))
+check("🔬 NH🔒 و`trigger_state` **لم تعد تُنادى** (قراءةُ المسح نقيضُ «حافظ عليها»)",
+      "trigger_state" not in _calls(S.scan_method_hunter)
+      and "trigger_state" in _insp0.getsource(S.scan_method_hunter))
 check("🔬 NH🔒 «20 إلى 30 جلسة» حرفيّ من الصورة (تخوم مقفولة: 19 و31 يسقطان)",
       S.CONFIG["METHOD_DECLINE_MIN"] == 20 and S.CONFIG["METHOD_DECLINE_MAX"] == 30
       and (lambda f: all(f(n) for n in (20, 25, 30))
@@ -11625,6 +11642,91 @@ check("🔬 NH🔒 «20 إلى 30 جلسة» حرفيّ من الصورة (تخ�
 check("🔬 NH🔒 الصعود بثابت الإنتاج `EXPLOSION_PCT` لا رقمٍ مُبتكَر",
       "EXPLOSION_PCT" in _insp0.getsource(S.method_founding)
       and "PRIOR_SPIKE_WINDOW" in _insp0.getsource(S.method_founding))
+
+# ==========================================================
+# 🪜 `method_sequence` — قراءة **الثبات** (تصحيح 2026-08-01 بمسكة المالك)
+#    القاعدة: نمطُ فيصل «حافظ عليها · ذيول شموع وعدم كسرها» **يمرّ**،
+#    ونمطُ المسح (‏`trigger_state`) **يُرفَض** — وهما نقيضان لا درجتان.
+# ==========================================================
+def _mseq(t_lo, t_hi, t_cl):
+    """قاعٌ 3.10 ⟶ ارتدادٌ ⟶ رجوع؛ الذيلُ المُمرَّر يحدّد ثباتًا أم كسرًا."""
+    return S.pd.DataFrame(
+        {"Open": t_cl, "High": t_hi, "Low": t_lo, "Close": t_cl,
+         "Volume": [1e5] * len(t_lo)},
+        index=S.pd.date_range("2025-01-01", periods=len(t_lo), freq="B"))
+
+
+_MS_HOLD = _mseq([3.10, 3.20, 3.35, 3.50, 3.45, 3.30, 3.14, 3.11],
+                 [3.25, 3.40, 3.55, 3.60, 3.58, 3.45, 3.30, 3.20],
+                 [3.18, 3.36, 3.50, 3.55, 3.48, 3.35, 3.20, 3.15])
+_MS_SWEEP = _mseq([3.10, 3.20, 3.35, 3.50, 3.45, 3.30, 2.79, 3.00],
+                  [3.25, 3.40, 3.55, 3.60, 3.58, 3.45, 3.35, 3.15],
+                  [3.18, 3.36, 3.50, 3.55, 3.48, 3.35, 3.12, 3.13])
+_MS_FLAT = _mseq([3.10, 3.12, 3.18, 3.22, 3.20, 3.16, 3.12, 3.11],
+                 [3.16, 3.20, 3.26, 3.30, 3.28, 3.24, 3.18, 3.16],
+                 [3.14, 3.18, 3.24, 3.28, 3.25, 3.20, 3.15, 3.13])
+_ms_hold, _ms_sweep = S.method_sequence(_MS_HOLD, 8), S.method_sequence(_MS_SWEEP, 8)
+check("🪜 SEQ🔒 نمطُ فيصل (‏حافظ على القاع) **يمرّ** — وهو ما كان يسقط قبل التصحيح",
+      bool(_ms_hold and _ms_hold["ok"]) and _ms_hold["bottom"] == 3.10
+      and _ms_hold["touches"] >= 2)
+check("🪜 SEQ🔒 ونمطُ **المسح** (‏كسرَ القاع 10% ثم استعاد) **يُرفَض** ⇒ نقيضان لا درجتان",
+      _ms_sweep is None)
+def _pad15(d):
+    """`trigger_state` تشترط ‏15 بارًا؛ نسبقُها بهبوطٍ **فوق** نطاق الذيل فلا يمسّه."""
+    n = 10
+    pre = S.pd.DataFrame(
+        {"Open": [5.0] * n, "High": [5.2] * n, "Low": [4.8] * n,
+         "Close": [5.0] * n, "Volume": [1e5] * n},
+        index=S.pd.date_range("2024-12-01", periods=n, freq="B"))
+    return S.pd.concat([pre, d])
+
+
+check("🪜 SEQ🔒 والقديمة `trigger_state` تعكسهما حرفيًّا (شاهدُ الخطأ، مقفولٌ لئلّا يُنسى)",
+      (S.trigger_state(_pad15(_MS_HOLD), win=8) or {}).get("steps", {})
+      .get("swept_reclaimed") is False
+      and (S.trigger_state(_pad15(_MS_SWEEP), win=8) or {}).get("steps", {})
+      .get("swept_reclaimed") is True)
+check("🪜 SEQ🔒 أرضيةُ الارتداد 10% حرفيّةٌ من الصورة — وتخومُها مقفولة",
+      S.CONFIG["METHOD_BOUNCE_MIN_PCT"] == 10.0
+      and S.method_sequence(_MS_FLAT, 8) is None          # ارتداد ~6% ⇒ يسقط
+      and bool(S.method_sequence(_MS_FLAT, 8, bounce_min=5.0)))
+check("🪜 SEQ🔒 «ولا كسرها»: إغلاقٌ واحد تحت القاع يُبطل الثبات (فرعٌ يُنفَّذ فعلًا)",
+      S.method_sequence(
+          _mseq([3.10, 3.20, 3.35, 3.50, 3.45, 3.30, 3.08, 3.11],
+                [3.25, 3.40, 3.55, 3.60, 3.58, 3.45, 3.30, 3.20],
+                [3.18, 3.36, 3.50, 3.55, 3.48, 3.35, 3.09, 3.15]), 8) is None)
+# 🐞 **قفلٌ فارغ كشفته الطفرة M6 (يُدوَّن لا يُطوى):** أوّل عيّنةٍ كتبتُها كان
+#    فيها القمّة **آخرَ بار**، فيرفضها حارسُ `pk >= n-1` **قبل** أن يُختبَر حارسُ
+#    الرجوع أصلًا ⇒ القفل يمرّ والطفرة تنجو. العيّنة الآن قمّتُها **في الوسط**
+#    فيبقى الرجوعُ هو السببَ الوحيد للرفض.
+check("🪜 SEQ🔒 ومَن لم يرجع ليختبر القاع أصلًا **لا يُقبَل** (القفل ليس عدميًّا)",
+      S.method_sequence(
+          _mseq([3.10, 3.30, 3.55, 3.62, 3.58, 3.56, 3.54, 3.52],
+                [3.25, 3.45, 3.70, 3.80, 3.72, 3.68, 3.66, 3.64],
+                [3.20, 3.40, 3.65, 3.75, 3.70, 3.66, 3.62, 3.60]), 8) is None
+      # شاهدُ ضبط: نفسُ العيّنة برجوعٍ يلامس القاع ⇒ **تُقبَل** (فالرفضُ سببُه الرجوع)
+      and bool(S.method_sequence(
+          _mseq([3.10, 3.30, 3.55, 3.62, 3.58, 3.40, 3.20, 3.12],
+                [3.25, 3.45, 3.70, 3.80, 3.72, 3.60, 3.40, 3.25],
+                [3.20, 3.40, 3.65, 3.75, 3.65, 3.50, 3.30, 3.18]), 8)))
+check("🪜 SEQ🔒 **لا `RSI`** في التسلسل (الصور الستّ تعدّد شروطها وليس فيها RSI)",
+      "rsi" not in _insp0.getsource(S.method_sequence).lower().split('"""')[2])
+check("🪜 SEQ🔒 نقيّةٌ فاشلة-آمنة: تالفٌ/قصيرٌ ⇒ None (لا انهيار)",
+      S.method_sequence(None, 8) is None
+      and S.method_sequence(_mseq([1.0] * 3, [1.1] * 3, [1.05] * 3), 3) is None)
+check("🪜 SEQ🔒 ونافذتُها **مشتقّةٌ من الحدث** (‏`bars_since_peak`) لا ثابتٌ مُبتكَر",
+      'win=int(fnd["bars_since_peak"]) + 2'
+      in _insp0.getsource(S.scan_method_hunter))
+check("🎯 SEQ🔒 مَن تجاوز مستوى الدخول يُتابَع ولا يُرسَل («الدخول عند اقل سعر 3.20»)",
+      "تجاوز منطقة الدخول" in _insp0.getsource(S.scan_method_hunter)
+      and S.CONFIG["METHOD_ENTRY_PCT"] == 3.2
+      and S.CONFIG["METHOD_STOP_PCT"] == 3.2)
+check("🩺 SEQ🔒 عدّاداتُ المراحل في السجلّ (تفرّق «فحصنا ولم نجد» عن «لم نفحص»)",
+      all(_w in _insp0.getsource(S.scan_method_hunter)
+          for _w in ("حدثٌ مؤسِّس", "داخل منطقة الدخول", 'stage["founding"]')))
+check("🪜 SEQ🔒 و`trigger_state` **لم تُمَسّ** (تبقى لقراءتها ولتجربة الشموع)",
+      "SPLIT_SWEEP_MIN_PCT" in _insp0.getsource(S.trigger_state)
+      and "swept_pct" in _insp0.getsource(S.trigger_state))
 # 🔴 قطبيّة الطرح **معكوسة** عن صيّاد المقسّم — خطأ إشارةٍ واحد لا يكشفه اختبار.
 # ⚠️ **بالـAST لا بالنصّ**: القفل النصّيّ انكسر بمجرّد إضافة سطرِ تتبّعٍ قبل
 #    `continue` — والشرط الحقيقيّ أن **جسم الشرط يحوي رفضًا**، لا شكلَ السطر.
