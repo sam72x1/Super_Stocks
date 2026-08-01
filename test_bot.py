@@ -11793,16 +11793,25 @@ check("🔭 NH🔒 ويظهر في الكرت **وفي رسالة «لا يوج�
 # 🐞 **عيبٌ حقيقيّ وصل المالك في رسالةٍ حيّة (2026-08-01):** الترويسة تُعلن «(14)»
 #    والمعروض **ستّة** ⇒ يُقرأ العدد على أنه ما تراه = **قصٌّ صامت** تمنعه قاعدتُنا.
 #    وكان الكودُ **مكرّرًا في موضعين** فأمكن إصلاح أحدهما وبقاءُ الآخر ⇒ مُصدَرٌ واحد.
-_near14 = [{"symbol": f"S{i}", "price": 1.0 + i, "why": "بعيد", "over_pct": float(i)}
-           for i in range(14)]
-_nl14 = S.method_near_lines(_near14)
-check("🔭 NH🔒 **لا قصّ صامت**: يُعلن عددَ مَن لم يُعرَض (‏14 معلَنة · 10 معروضة · 4 مُصرَّح بها)",
-      _nl14[0].count("14") == 1
-      and sum(1 for x in _nl14 if x.startswith("  •")) == S.METHOD_NEAR_SHOW
-      and any("4" in x and "غيرهم" in x for x in _nl14))
+_nearN = [{"symbol": f"S{i}", "price": 1.0 + i, "why": "بعيد", "over_pct": float(i)}
+          for i in range(S.METHOD_NEAR_SHOW + 4)]
+_nlN = S.method_near_lines(_nearN)
+check("🔭 NH🔒 **لا قصّ صامت**: يُعلن الإجمال ويعرض السقف ويُصرّح بعدد الباقين",
+      _nlN[0].count(str(len(_nearN))) == 1
+      and sum(1 for x in _nlN if x.startswith("  •")) == S.METHOD_NEAR_SHOW
+      and any("4" in x and "غيرهم" in x for x in _nlN))
 check("🔭 NH🔒 ولا يظهر سطرُ «غيرهم» حين لا قصّ (القفل ليس عدميًّا) · وفارغٌ ⇒ []",
-      not any("غيرهم" in x for x in S.method_near_lines(_near14[:3]))
+      not any("غيرهم" in x for x in S.method_near_lines(_nearN[:3]))
       and S.method_near_lines([]) == [] and S.method_near_lines(None) == [])
+# 🔴 سؤال المالك 2026-08-01: «فيه أسهم بالقديمة مب موجودة بالجديدة» — سببُه سقفٌ
+#    (‏10) **أضيق من العدد الطبيعيّ** (‏14 بلغوا التسلسل يوم 07-31) ⇒ يقصّ كلَّ يوم.
+check("🔭 NH🔒 السقف أوسع من العدد المعتاد (‏≥20) فلا يُقصّ اليومُ الطبيعيّ أصلًا",
+      S.METHOD_NEAR_SHOW >= 20
+      and sum(1 for x in S.method_near_lines(_nearN[:14]) if x.startswith("  •")) == 14
+      and not any("غيرهم" in x for x in S.method_near_lines(_nearN[:14])))
+check("🔭 NH🔒 وسببُ الترتيب **مرئيّ** في السطر (نسبة التجاوز) — لا رتبةٌ بلا تفسير",
+      "تجاوز منطقة الدخول بـ" in _insp0.getsource(S.scan_method_hunter)
+      and "الدخول $" in _insp0.getsource(S.scan_method_hunter))
 check("🔭 NH🔒 **مُصدَرٌ واحد** للقائمة (لا تكرارَ يُصلَح نصفُه)",
       "[:6]" not in _insp0.getsource(S.build_method_alert)
       and "[:6]" not in _MHrun and "method_near_lines" in _insp0.getsource(S))
