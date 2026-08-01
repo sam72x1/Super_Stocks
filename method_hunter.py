@@ -79,6 +79,48 @@ def _write_stamp(S, session_date) -> None:
         S.log(f"⚠️ ختم النهج العلمي: {e}")
 
 
+def _frame_probe(S):
+    """🔬 **مِجَسّ الفريم** — يقيس ولا يقرّر (‏`METHOD_4H_PROBE=1`، مطفأ افتراضيًّا
+    ⇒ التشغيلة الليلية **بت-بت**).
+
+    **سببُه سؤالٌ لم يُجَب:** `IMG_0494` «**هذي شموع 4 ساعات**» ⇒ الشارت الذي رسم
+    عليه فيصل «ذيول شموع وعدم كسرها» فريمُه **4 ساعات**، وأداتُنا تقرأ **اليوميّ**.
+    وفي `IMG_0495` يسأل متابعٌ «هذا النهج اطبقه دايم ع الفريم اليومي؟» **والجواب
+    غير متاح**. ⇒ **لا يُغيَّر الفريم بالظنّ** (‏درسُ `trigger_state`) — يُقاس الفرق.
+
+    **الحدثُ المؤسِّس تقويميّ فمستقلٌّ عن الفريم**، فنأخذ مَن استوفاه
+    (`_METHOD_FOUNDING`) ونعيد قراءة **التسلسل وحده** على 4س بنفس `method_sequence`
+    وبنافذةٍ مكافئة (‏جلسةٌ ⟹ **‏×6** شمعات 4س). فاشلٌ-آمن لكلّ رمز على حدة.
+    🔒 **لا يمسّ المُرسَل ولا القائمة** — يطبع أرقامًا في السجلّ فقط."""
+    import os
+    if os.environ.get("METHOD_4H_PROBE", "") != "1":
+        return
+    rows = list(getattr(S, "_METHOD_FOUNDING", []) or [])
+    if not rows:
+        S.log("🔬 مِجَسّ الفريم: لا حدثَ مؤسِّس اليوم — لا شيء يُقاس.")
+        return
+    hit4h, checked, failed = [], 0, 0
+    for r in rows:
+        sym = str(r.get("symbol") or "")
+        try:
+            d4 = S.fetch_4h(sym)
+            if d4 is None or len(d4) < 8:
+                failed += 1
+                continue
+            checked += 1
+            win = max(8, int(r.get("bars_since_peak") or 20) * 6 + 2)
+            if S.method_sequence(d4, win=win):
+                hit4h.append(sym)
+        except Exception:                                        # noqa: BLE001
+            failed += 1
+    S.log(f"🔬 مِجَسّ الفريم (قياس فقط · لا يمسّ المُرسَل): حدثٌ مؤسِّس "
+          f"{len(rows)} · فُحِص على 4س {checked} (تعذّر {failed}) · "
+          f"**بلغ التسلسلَ على 4س {len(hit4h)}** مقابل "
+          f"{len(getattr(S, '_METHOD_NEAR', []) or [])} على اليوميّ")
+    if hit4h:
+        S.log("   🕓 على 4س: " + " · ".join(hit4h[:40]))
+
+
 def run(now_utc=None) -> int:
     import Super_stock as S
     import os
@@ -142,6 +184,7 @@ def run(now_utc=None) -> int:
     for _n in (getattr(S, "_METHOD_NEAR", []) or []):
         S.log(f"   🔭 {_n.get('symbol')} ${float(_n.get('price') or 0):.2f} — "
               f"{_n.get('why')}")
+    _frame_probe(S)
     if not rows:
         # 🔭 وحتى في يوم «لا يوجد» يصلك **مَن يقترب** — وهو جوهر «انتظر ضغطته
         #    مره ثانيه عند القاع»: المتابعة تسبق الترشيح.

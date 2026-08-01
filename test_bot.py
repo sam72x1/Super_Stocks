@@ -11887,6 +11887,47 @@ check("🔭 NH🔒 والترتيب **بالأقرب إلى الدخول** (مَ
       and '"over_pct"' in _insp0.getsource(S.scan_method_hunter))
 check("🩺 NH🔒 والسجلّ **بلا سقف** (التشخيص يحتاج الكلّ · القصّ للرسالة وحدها)",
       "[:12]" not in _MHrun and 'S.log(f"   🔭' in _MHrun)
+# 🔬 مِجَسّ الفريم: فيصل صرّح «هذي شموع 4 ساعات» (`IMG_0494`) ونقرأ اليوميّ، وسؤال
+#    «اطبقه دايم ع الفريم اليومي؟» (`IMG_0495`) **بلا جواب** ⇒ يُقاس ولا يُغيَّر.
+_fp_src = _insp0.getsource(MH._frame_probe)
+# 🐞 كتبتُ القفلين أوّلًا نصًّا فسقطا على كودٍ سليم: الأوّل `split` على مفتاحٍ
+#    **يرد في الـdocstring أوّلًا**، والثاني يمنع اسم متغيّرٍ محلّيّ مشروع. ⇒ AST.
+def _guard_returns(fn, key):
+    import ast as _a, textwrap as _t
+    for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
+        if isinstance(n, _a.If) and key in _a.unparse(n.test):
+            return any(isinstance(x, _a.Return) for x in _a.walk(n))
+    return False
+
+
+def _s_attrs(fn):
+    """أسماءُ ما يلمسه المِجَسّ من `S` — فيُثبَت أنه **قارئٌ لا كاتب**."""
+    import ast as _a, textwrap as _t
+    out = set()
+    for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
+        if (isinstance(n, _a.Attribute) and isinstance(n.value, _a.Name)
+                and n.value.id == "S"):
+            out.add(n.attr)
+    return out
+
+
+check("🔬 FRAME🔒 المِجَسّ **مطفأ افتراضيًّا** ⇒ التشغيلة المجدولة بت-بت",
+      _guard_returns(MH._frame_probe, "METHOD_4H_PROBE") is True
+      and MH._frame_probe(S) is None)
+check("🔬 FRAME🔒 ويقيس بـ`method_sequence` **نفسها** على 4س (لا نسخةٍ ثانية)",
+      {"method_sequence", "fetch_4h"} <= _s_attrs(MH._frame_probe)
+      and "_METHOD_FOUNDING" in _fp_src)
+check("🔬 FRAME🔒 و**لا يمسّ المُرسَل**: لا يستقبل الصفوف ولا يلمس من `S` إلا القراءة",
+      _s_attrs(MH._frame_probe) <= {"log", "fetch_4h", "method_sequence",
+                                    "_METHOD_FOUNDING", "_METHOD_NEAR"}
+      and list(_insp0.signature(MH._frame_probe).parameters) == ["S"]
+      and _MHrun.index("_frame_probe(S)") > _MHrun.index("scan_method_hunter"))
+check("🔬 FRAME🔒 والحدثُ المؤسِّس يُجمَع ويُفرَّغ كلّ مسح (لا تراكمَ من تشغيلة)",
+      "_METHOD_FOUNDING.append" in _insp0.getsource(S.scan_method_hunter)
+      and "_METHOD_FOUNDING.clear()" in _insp0.getsource(S.scan_method_hunter))
+check("🔬 FRAME🔒 والعلم موصولٌ بالـworkflow (لا زرَّ بلا سلك)",
+      "METHOD_4H_PROBE" in _tf_open(".github/workflows/method_hunter.yml")
+      and "frame_probe" in _tf_open(".github/workflows/method_hunter.yml"))
 check("🔭 NH🔒 وثلاثة أسبابٍ مُسمّاة لا «سقط» مبهمة",
       all(_w in _insp0.getsource(S.scan_method_hunter) for _w in (
           "لا فجوةَ هابطة", "دخلته قروبات", "إعلان طرح حديث")))

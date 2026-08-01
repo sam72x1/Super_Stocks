@@ -6121,6 +6121,9 @@ def method_sequence(df, win, bounce_min=None, tol=None):
 
 
 _METHOD_NEAR = []          # 🔭 «قريبون من الشرط» — يُملأ بكل مسح (تتبّعٌ حيّ)
+# 🔬 رموزُ مَن استوفى **الحدث المؤسِّس** (‏الحدث تقويميّ ⇒ **مستقلٌّ عن الفريم**).
+#    يُملأ بكل مسح ولا يُستعمَل في أي قرار — مادّةُ مِجَسّ الفريم وحده (‏§الفريم).
+_METHOD_FOUNDING = []
 # كم يُعرَض منهم — **وما زاد يُعلَن عددُه لا يُقصّ صامتًا**.
 # 🔴 **رُفِع 10 ⟶ 25 (2026-08-01، بسؤال المالك «فيه أسهم بالقديمة مب بالجديدة»):**
 # القائمة **مسقوفةٌ طبيعيًّا** بمَن يبلغ التسلسل الرباعيّ (‏14 يوم 07-31 من 3386
@@ -6193,6 +6196,7 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     stage = {"price": 0, "window_ok": 0, "rise_only_fail": 0,
              "founding": 0, "seq": 0, "entry_zone": 0}
     _METHOD_NEAR.clear()
+    _METHOD_FOUNDING.clear()
     for sym, df in (history or {}).items():
         try:
             if df is None or len(df) < 60:
@@ -6205,6 +6209,8 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
             if not fnd:
                 continue
             stage["founding"] += 1
+            _METHOD_FOUNDING.append({"symbol": sym, "price": price,
+                                     "bars_since_peak": fnd["bars_since_peak"]})
             # ② التسلسل الرباعيّ — نافذتُه **مشتقّةٌ من الحدث** (منذ القمّة) لا
             #    ثابتٌ مُبتكَر: كلُّ ما يصفه فيصل يقع بعد القمّة داخل الـ20-30 جلسة.
             ts = method_sequence(df, win=int(fnd["bars_since_peak"]) + 2)

@@ -29,7 +29,12 @@ on:
     # فلا يعيدنا داخل الافتر — والبوّابة تحرسه على أي حال).
     - cron: "37 0 * * 2-6"
     - cron: "37 1 * * 2-6"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      frame_probe:
+        description: "🔬 مِجَسّ الفريم: اقرأ التسلسل على 4 ساعات أيضًا وقارن (قياس فقط)"
+        type: boolean
+        default: false
 jobs:
   method-hunter:
     runs-on: ubuntu-latest
@@ -60,4 +65,8 @@ jobs:
           # الفوريّ نهارًا **يخرج صامتًا بصفر عمل** (البوّابة تُرجعه) — وهو بالضبط
           # صنفُ «أخضرَ بلا رسالة» الذي بُني كل حارسٍ هنا ضدّه.
           METHOD_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+          # 🔬 مِجَسّ الفريم — **قياسٌ لا قرار** ومطفأ افتراضيًّا ⇒ التشغيلة المجدولة
+          # بت-بت. سببُه أن فيصل صرّح «هذي شموع 4 ساعات» بينما نقرأ اليوميّ، وسؤال
+          # «اطبقه دايم ع الفريم اليومي؟» **بلا جواب** ⇒ يُقاس الفرق ولا يُخمَّن.
+          METHOD_4H_PROBE: ${{ inputs.frame_probe && '1' || '' }}
         run: python method_hunter.py
