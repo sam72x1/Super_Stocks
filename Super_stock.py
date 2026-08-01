@@ -6023,6 +6023,9 @@ def method_founding(df, rise_min=None, win_bars=None, dmin=None, dmax=None):
     return pd_
 
 
+_METHOD_NEAR = []          # 🔭 «قريبون من الشرط» — يُملأ بكل مسح (تتبّعٌ حيّ)
+
+
 def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None,
                        fetch_borrow=None, fetch_splits=None):
     """🔬 **صيّاد «النهج العلمي»** — أداةٌ مستقلّة عن فارز الارتكاز وعن صيّاد المقسّم.
@@ -6047,6 +6050,7 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     today = today or dt.date.today()
     off_budget = [int(CONFIG["OFFERING_PROBE_CAP"])]
     rows, seen = [], 0
+    _METHOD_NEAR.clear()
     for sym, df in (history or {}).items():
         try:
             if df is None or len(df) < 60:
@@ -6065,16 +6069,25 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
             if bot <= 0:
                 continue
             entry, stop = bot * 1.032, bot * 0.968   # «الدخول 3.20 · الوقف 3»
+            # 🔭 **تتبّعٌ حيّ**: مَن بلغ التسلسل الرباعيّ وسقط على شرطٍ واحد يُسجَّل
+            #    باسمه وسببه — «انتظر ضغطته مره ثانيه عند القاع» تحتاج أن تعرف مَن
+            #    يقترب، لا أن يختفي صامتًا. (نظير «قريبون من الشرط» بصيّاد المقسّم.)
+            def _near(why):
+                _METHOD_NEAR.append({"symbol": sym, "price": price, "why": why,
+                                     "bottom": bot, "rsi": ts.get("rsi")})
             gap = falling_gap_candle(df, price=entry)   # ③ الهدف البنيويّ
             t1 = float((gap or {}).get("head") or 0)
             if not t1 or t1 <= entry:
+                _near("لا فجوةَ هابطة فوقه (بلا هدفٍ منصوص)")
                 continue
             if fp(df):                              # ④ القروب يُبطل القراءة
+                _near("دخلته قروبات (القروب يُبطل قراءة الشموع)")
                 continue
             if off_budget[0] > 0:                   # ⑤ الطرح (مقيَّد بميزانية)
                 off_budget[0] -= 1
                 try:
                     if fo(sym, today=today):
+                        _near("عنده إعلان طرح حديث")
                         continue
                 except Exception:                                # noqa: BLE001
                     pass
@@ -6134,8 +6147,21 @@ def build_method_alert(rows: list, today=None) -> str:
                      + (f" · رسوم {r['borrow_fee']:.0f}%"
                         if r.get("borrow_fee") is not None else "")
                      + " (فيصل: شورت قليل ورسوم عالية)")
-        for _x in hunter_extras(r, df=r.get("df")):
+        # 🔁 «انتظر ضغطته مره ثانيه عند القاع» (`IMG_0489`) = اختبار القاع نفسه
+        _bt = bottom_test_line(r.get("bottom_test"))
+        if _bt:
+            lines.append("  " + _bt)
+        for _x in hunter_extras(r, df=r.get("df"), flow=r.get("flow"),
+                                df4h=r.get("df4h")):
             lines.append(_x)
+        lines.append("")
+    # 🔭 ذيل التتبّع الحيّ: مَن بلغ التسلسل وسقط على شرطٍ واحد — يُعرَض ليُتابَع.
+    if _METHOD_NEAR:
+        lines.append(f"🔭 <b>قريبون من الشرط</b> (بلغوا التسلسل الرباعيّ · "
+                     f"{len(_METHOD_NEAR)}):")
+        for n in _METHOD_NEAR[:6]:
+            lines.append(f"  • {esc(n['symbol'])} ${n['price']:.2f} — "
+                         f"{esc(n['why'])}")
         lines.append("")
     lines.append("<i>⚠️ وصفةٌ قيد الإثبات الأماميّ — لم تُحسَم تاريخيًّا "
                  "(العيّنة 27 دون 30). تُقرأ بحذر.</i>")

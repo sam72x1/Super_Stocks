@@ -114,16 +114,34 @@ def run(now_utc=None) -> int:
         rows = S.scan_method_hunter(hist, today=sess)
     except Exception as e:                                       # noqa: BLE001
         return _fail(S, f"انهار المسح ({e}).")
+    # 🎁 **إثراء الكماليّات الحيّة** (طلب المالك 2026-08-01: «نفس اللي أضفناها في
+    #    أداة التقسيم»): تدفّق السيولة · شمعة 4س · اختبار القاع.
+    #    🔒 **بعد `scan_method_hunter`** ⇒ يستحيل بنيويًّا أن يُدخل مرشّحًا أو يُخرجه
+    #    (الصفوف مُختارةٌ سلفًا)، وكلُّ جالبٍ **فاشلٌ-آمن على حدة**.
+    for _r in rows:
+        _sym = str(_r.get("symbol") or "")
+        for _k, _fn in (("flow", lambda: S.polygon_flow(_sym)),
+                        ("df4h", lambda: S.fetch_4h(_sym)),
+                        ("bottom_test", lambda: S.bottom_test_state(_r.get("df")))):
+            try:
+                _r[_k] = _fn()
+            except Exception:                                    # noqa: BLE001
+                _r[_k] = None
     syms = " · ".join(str(r.get("symbol") or "?") for r in rows) or "—"
     S.log(f"🔬 النهج العلمي: فحص {len(hist)} من {len(uni)} رمزًا ({cov:.0f}%) "
           f"→ {len(rows)} مطابق كامل: {syms}")
     if not rows:
+        # 🔭 وحتى في يوم «لا يوجد» يصلك **مَن يقترب** — وهو جوهر «انتظر ضغطته
+        #    مره ثانيه عند القاع»: المتابعة تسبق الترشيح.
+        _near = getattr(S, "_METHOD_NEAR", []) or []
         msg = S._rtl_join([
             "🔬 <b>النهج العلمي</b>", "",
             "لا يوجد سهم يطابق الشروط اليوم.",
             f"🩺 فُحِص {len(hist)} من {len(uni)} رمزًا ({cov:.0f}% تغطية)"
             + (f" · جلسة {S.esc(str(sess))}" if sess else ""),
-        ]) + "\n\n" + S.FOOTER
+        ] + ([""] + [f"🔭 <b>قريبون من الشرط</b> ({len(_near)}):"]
+             + [f"  • {S.esc(n['symbol'])} ${n['price']:.2f} — {S.esc(n['why'])}"
+                for n in _near[:6]] if _near else [])) + "\n\n" + S.FOOTER
     else:
         try:
             msg = S.build_method_alert(rows, today=sess) + "\n\n" + S.FOOTER

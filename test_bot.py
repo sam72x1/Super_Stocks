@@ -11626,9 +11626,19 @@ check("🔬 NH🔒 الصعود بثابت الإنتاج `EXPLOSION_PCT` لا �
       "EXPLOSION_PCT" in _insp0.getsource(S.method_founding)
       and "PRIOR_SPIKE_WINDOW" in _insp0.getsource(S.method_founding))
 # 🔴 قطبيّة الطرح **معكوسة** عن صيّاد المقسّم — خطأ إشارةٍ واحد لا يكشفه اختبار.
-check("🔬 NH🔒 الطرح **مانعٌ** هنا (‏continue) وهو **حدثٌ مؤسِّس** عند المقسّم",
-      "if fo(sym, today=today):\n                        continue"
-      in _insp0.getsource(S.scan_method_hunter)
+# ⚠️ **بالـAST لا بالنصّ**: القفل النصّيّ انكسر بمجرّد إضافة سطرِ تتبّعٍ قبل
+#    `continue` — والشرط الحقيقيّ أن **جسم الشرط يحوي رفضًا**، لا شكلَ السطر.
+def _offering_rejects(fn):
+    import ast as _a, textwrap as _t
+    for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
+        if (isinstance(n, _a.If) and isinstance(n.test, _a.Call)
+                and isinstance(n.test.func, _a.Name) and n.test.func.id == "fo"):
+            return any(isinstance(x, _a.Continue) for x in _a.walk(n))
+    return False
+
+
+check("🔬 NH🔒 الطرح **مانعٌ** هنا (يرفض) وهو **حدثٌ مؤسِّس** عند المقسّم — قطبيّةٌ معكوسة",
+      _offering_rejects(S.scan_method_hunter) is True
       and "offering" in _insp0.getsource(S.scan_split_hunter))
 check("🔬 NH🔒 القروب يُسقط المرشّح (شرطُ صلاحيةِ قراءةٍ لا وسمُ خطر)",
       "if fp(df):" in _insp0.getsource(S.scan_method_hunter))
@@ -11658,6 +11668,29 @@ check("🔬 NH🔒 الختم **بعد** الإرسال (رفضُ تلغرام �
 check("🔬 NH🔒 حدُّ الصدق في الرسالة: «قيد الإثبات» (لا تُقرأ حكمًا محسومًا)",
       "قيد الإثبات" in _insp0.getsource(S.build_method_alert))
 # 🔒 نطاق: أداةٌ مستقلّة — لا تمسّ الفرز ولا صيّاد المقسّم.
+# 🎁 الكماليّات الحيّة (طلب المالك: «نفس اللي أضفناها في أداة التقسيم»).
+_MHrun = _insp0.getsource(MH.run)
+check("🎁 NH🔒 الإثراء الحيّ موصول: تدفّق السيولة · 4 ساعات · اختبار القاع",
+      all(_k in _MHrun for _k in ("polygon_flow", "fetch_4h", "bottom_test_state")))
+check("🎁 NH🔒 والإثراء **بعد** المسح ⇒ يستحيل أن يُدخل مرشّحًا أو يُخرجه",
+      _MHrun.index("scan_method_hunter") < _MHrun.index("polygon_flow"))
+check("🎁 NH🔒 وكلُّ جالبٍ فاشلٌ-آمن على حدة (عطلُ رمزٍ لا يُسقط الرسالة)",
+      "_r[_k] = None" in _MHrun)
+check("🎁 NH🔒 الكرت يمرّر `flow`/`df4h` فعلًا (لا حقلٌ يُجلَب ولا يُعرَض)",
+      'flow=r.get("flow")' in _insp0.getsource(S.build_method_alert)
+      and 'df4h=r.get("df4h")' in _insp0.getsource(S.build_method_alert))
+# 🔭 التتبّع الحيّ: «انتظر ضغطته مره ثانيه عند القاع» تحتاج أن تعرف مَن يقترب.
+check("🔭 NH🔒 مَن بلغ التسلسل وسقط على شرطٍ واحد يُسجَّل باسمه وسببه",
+      "_METHOD_NEAR" in _insp0.getsource(S.scan_method_hunter)
+      and "_near(" in _insp0.getsource(S.scan_method_hunter))
+check("🔭 NH🔒 والسجلّ يُفرَّغ كلّ مسح (لا تراكمَ من تشغيلةٍ سابقة)",
+      "_METHOD_NEAR.clear()" in _insp0.getsource(S.scan_method_hunter))
+check("🔭 NH🔒 ويظهر في الكرت **وفي رسالة «لا يوجد»** (المتابعة تسبق الترشيح)",
+      "قريبون من الشرط" in _insp0.getsource(S.build_method_alert)
+      and "قريبون من الشرط" in _MHrun)
+check("🔭 NH🔒 وثلاثة أسبابٍ مُسمّاة لا «سقط» مبهمة",
+      all(_w in _insp0.getsource(S.scan_method_hunter) for _w in (
+          "لا فجوةَ هابطة", "دخلته قروبات", "إعلان طرح حديث")))
 check("🔬 NH🔒 خارج الجذور والفرز (لا اسمَ لها في أيٍّ منها)",
       all(_n not in _insp0.getsource(_f)
           for _n in ("scan_method_hunter", "method_founding", "build_method_alert")
