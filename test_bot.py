@@ -11836,6 +11836,41 @@ check("🔬 NH🔒 الختم **بعد** الإرسال (رفضُ تلغرام �
       _MHsrc.index("_write_stamp(S, sess)") > _MHsrc.index("send_telegram(msg)"))
 check("🔬 NH🔒 حدُّ الصدق في الرسالة: «قيد الإثبات» (لا تُقرأ حكمًا محسومًا)",
       "قيد الإثبات" in _insp0.getsource(S.build_method_alert))
+# 🐞 وحدُّ الصدق نفسه **بات فصار كذبًا**: كان يحيل إلى «27 دون 30» وتلك التجربة
+#    قاست **مجتمعَ المسح** (المرحلة ③ معكوسة) فسُحبت دلالتُها ⇒ الصادق «بلا حكم».
+check("🔬 NH🔒 ولا يُحيل إلى حكمٍ مسحوب (‏«27 دون 30» خرجت — التجربة قاست غير هذا)",
+      "27 دون 30" not in _insp0.getsource(S.build_method_alert)
+      and "لم تُختبَر تاريخيًّا" in _insp0.getsource(S.build_method_alert))
+# 🧪 **دخانُ المسار الكامل**: صفر مطابقٍ حيًّا حتى الآن ⇒ طريقُ الكرت لم يُنفَّذ
+#    إنتاجيًّا قطّ. يُشغَّل هنا **من `scan_method_hunter` نفسها** لا من صفٍّ مُلفَّق.
+_sm_lead = 35
+_sm_hi = [3.4] * _sm_lead + [18.0] + [9.0, 5.0] + [4.4] * 15 + \
+    [3.25, 3.45, 3.70, 3.80, 3.72, 3.50, 3.30, 3.20]
+_sm_lo = [3.2] * _sm_lead + [12.0] + [8.2, 4.6] + [4.2] * 15 + \
+    [3.10, 3.30, 3.55, 3.62, 3.45, 3.30, 3.14, 3.12]
+_sm_cl = [3.3] * _sm_lead + [13.0] + [8.4, 4.8] + [4.3] * 15 + \
+    [3.20, 3.40, 3.65, 3.75, 3.60, 3.40, 3.20, 3.16]
+_sm_df = S.pd.DataFrame(
+    {"Open": _sm_cl, "High": _sm_hi, "Low": _sm_lo, "Close": _sm_cl,
+     "Volume": [5e5] * len(_sm_hi)},
+    index=S.pd.date_range("2026-03-02", periods=len(_sm_hi), freq="B"))
+_sm_rows = S.scan_method_hunter(
+    {"TEST": _sm_df}, today=_sm_df.index[-1].date(),
+    fetch_pump=lambda d: False, fetch_offering=lambda s: False,
+    fetch_borrow=lambda s: {"shares_available": 7_000, "borrow_fee": 120.0})
+check("🧪 NH🔒 مطابقٌ كامل يمرّ فعلًا (المسار الذي لم يُنفَّذ حيًّا قطّ)",
+      len(_sm_rows) == 1 and _sm_rows[0]["symbol"] == "TEST"
+      and abs(_sm_rows[0]["bottom"] - 3.10) < 1e-6
+      and abs(_sm_rows[0]["entry"] - 3.20) < 0.01
+      and abs(_sm_rows[0]["stop"] - 3.00) < 0.02
+      and abs(_sm_rows[0]["t1"] - 5.00) < 1e-6)
+_sm_msg = S.build_method_alert(_sm_rows, today=_sm_df.index[-1].date())
+check("🧪 NH🔒 وكرتُه يُبنى كاملًا بلا انهيار وبأرقام فيصل البنيوية",
+      all(_w in _sm_msg for _w in ("النهج العلمي", "التسلسل مكتمل",
+                                   "رأس شمعة الفجوة", "الدخول ناقص",
+                                   "قيد الإثبات"))
+      and "$3.20" in _sm_msg and "$5.00" in _sm_msg)
+_ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة بعد الدخان
 # 🔒 نطاق: أداةٌ مستقلّة — لا تمسّ الفرز ولا صيّاد المقسّم.
 # 🎁 الكماليّات الحيّة (طلب المالك: «نفس اللي أضفناها في أداة التقسيم»).
 _MHrun = _insp0.getsource(MH.run)
