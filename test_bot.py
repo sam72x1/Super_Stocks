@@ -11605,6 +11605,86 @@ def _cand(sess, sym, seq, rdy=50.0, score=50.0, rr=1.0):
     return RP.Candidate(session=sess, symbol=sym, readiness=rdy, score=score, rr=rr, seq=seq)
 
 # ==========================================================
+# 🔬 T-METHOD — البنية الأربع (`method_prereg.md` §⑧-مكرّر) · بحث/قياس
+# ==========================================================
+import method_scan as MS          # noqa: E402
+import method_run as MR           # noqa: E402
+
+# ① حارس التقسيم — **الأخطر**: البيانات المعدَّلة تُصنّع الحدث المؤسِّس نفسه.
+check("🔬 M①🔒 تقسيمٌ داخل النافذة ⇒ إقصاء · وخارجها ⇒ لا إقصاء",
+      MS.split_in_window([("2026-03-05", 0.1)], "2026-03-01", "2026-03-10") is True
+      and MS.split_in_window([("2026-04-05", 0.1)], "2026-03-01", "2026-03-10")
+      is False)
+check("🔬 M①🔒 فاشلٌ **نحو الإقصاء**: مدخلٌ تالف ⇒ True لا انهيار (كشفه فحصُ دخان)",
+      MS.split_in_window(["تالف"], "2026-03-01", "2026-03-10") is True
+      and MS.split_in_window([(None, None)], "2026-03-01", "2026-03-10") is True)
+check("🔬 M①🔒 غياب السياق ⇒ لا إقصاء **ويُعلَن** (لا إقصاءٌ صامت ولا ادّعاء)",
+      MS.split_in_window(None, "2026-03-01", "2026-03-10") is False
+      and "حارس التقسيم خامل" in _insp0.getsource(MR.run))
+
+# ② فهرس SEC مؤرَّخ — علاجُ البوّابة الميتة.
+check("🔬 M②🔒 النشرات النهائية فقط بتواريخها (‏S-1 روتينية تُستبعَد)",
+      MS.parse_dated_offerings(
+          {"form": ["424B5", "S-1", "424B4", "EFFECT"],
+           "filingDate": ["2026-01-05", "2026-02-01", "2026-03-09", "2026-03-10"]})
+      == ["2026-01-05", "2026-03-09"])
+check("🔬 M②🔒 **بلا نظرٍ مستقبليّ**: نشرةٌ بعد لحظة القرار لا تُقرأ",
+      MS.offering_before(["2026-01-05"], S.dt.date(2026, 3, 1)) is True
+      and MS.offering_before(["2026-06-05"], S.dt.date(2026, 3, 1)) is False)
+check("🔬 M②🔒 وغيابُ الفهرس يُعلَن «غير مُختبَر» لا «مستوفًى» (بصمة الـno-op)",
+      "**غير مُختبَر**" in _insp0.getsource(MR.run)
+      and "لا يُدَّعى استيفاؤه" in _insp0.getsource(MR.run))
+
+# ③ السببية — «آخر اختبار» لا يُعرَف إلا بأثرٍ رجعيّ.
+check("🔬 M③🔒 `peak_and_decline` تقرأ المُمرَّر وحده ⇒ سببيّةٌ بنيويًّا",
+      (lambda r: r and r["peak_idx"] == 10 and r["bars_since_peak"] == 30)(
+          MS.peak_and_decline([1.0] * 5 + [2.0] * 5 + [10.0] + [3.0] * 30)))
+check("🔬 M③🔒 وإلحاق شمعةٍ لاحقة **لا يغيّر** ناتج الماضي (اختبار سببية)",
+      MS.peak_and_decline(([1.0] * 5 + [2.0] * 5 + [10.0] + [3.0] * 30))
+      == MS.peak_and_decline(([1.0] * 5 + [2.0] * 5 + [10.0] + [3.0] * 30
+                              + [9.0] * 7)[:41]))
+# ⚠️ **بالـAST لا بالنصّ**: القفل النصّيّ نجت منه طفرةٌ لأن **الـdocstring** يحوي
+#    العبارة نفسها — وهو الفخّ المدوَّن (‏`getsource` لا يفرّق كودًا عن توثيق).
+#    الشرط الحقيقيّ: الوسيط الثاني لنداء `method_signal` **قَطعٌ** لا اسمُ الإطار.
+def _walk_passes_slice():
+    import ast as _a, textwrap as _t
+    for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(MS.walk)))):
+        if (isinstance(n, _a.Call) and isinstance(n.func, _a.Name)
+                and n.func.id == "method_signal" and len(n.args) >= 2):
+            return isinstance(n.args[1], _a.Subscript)
+    return False
+
+
+check("🔬 M③🔒 المشي يمرّر **قَطعًا** لا الإطار الكامل (قفل AST لا نصّ)",
+      _walk_passes_slice() is True)
+check("🔬 M③🔒 والحسم بمحرّكٍ **واحد** (`_resolve_arm`) — لا ثانٍ (‏F-L1)",
+      "_resolve_arm" in _insp0.getsource(MS.walk)
+      and "filled + 1" in _insp0.getsource(MS.walk))
+
+# ④ استبعاد رموز المصدر (‏in-sample) — سابقة GEOS في E2.
+check("🔬 M④🔒 `UPC` (مصدر الوصفة) خارج عيّنة الحكم ويُعَدّ صراحةً",
+      "UPC" in MS.SOURCE_SYMBOLS
+      and "SOURCE_SYMBOLS" in _insp0.getsource(MR.run)
+      and "مستبعَد كمصدر" in _insp0.getsource(MR.run))
+
+# 🔒 نطاق: الأداة **خارج الإنتاج** — لا تُستورَد ولا تُذكَر في مسار حيّ.
+check("🔬 M🔒 خارج الإنتاج: لا `method_scan`/`method_run` في `Super_stock.py`",
+      "import method_scan" not in _insp0.getsource(S)
+      and "method_run" not in open("split_hunter.py", encoding="utf-8").read())
+check("🔬 M🔒 الحدث المؤسِّس بثوابت **الإنتاج** لا أرقامٍ مُبتكَرة",
+      "EXPLOSION_PCT" in _insp0.getsource(MS.method_signal)
+      and "PRIOR_SPIKE_WINDOW" in _insp0.getsource(MS.method_signal)
+      and MS.DECLINE_MIN_BARS == 20 and MS.DECLINE_MAX_BARS == 30)
+check("🔬 M🔒 «20 < 30 يوم» حرفيّ: 19 و31 يسقطان · 20 و30 يمرّان (تخوم مقفولة)",
+      (lambda f: all(f(n) for n in (20, 25, 30))
+       and not any(f(n) for n in (19, 31)))(
+          lambda n: bool(MS.founding_context(
+              S.pd.DataFrame({"High": [1.0] * 5 + [10.0] + [3.0] * n},
+                             index=S.pd.date_range("2024-01-01",
+                                                   periods=6 + n, freq="D")),
+              50.0, 20))))
+
+# ==========================================================
 # 🥇 T-RANKER — الأذرع (`ranker_prereg.md`) · بحث/قياس خارج الإنتاج
 # ==========================================================
 import ranker_arms as RA           # noqa: E402
