@@ -6100,6 +6100,34 @@ def method_sequence(df, win, bounce_min=None, tol=None):
 
 
 _METHOD_NEAR = []          # 🔭 «قريبون من الشرط» — يُملأ بكل مسح (تتبّعٌ حيّ)
+METHOD_NEAR_SHOW = 10      # كم يُعرَض منهم — **وما زاد يُعلَن عددُه لا يُقصّ صامتًا**
+
+
+def method_near_lines(near, cap=None):
+    """🔭 أسطرُ «قريبون من الشرط» — **مُصدَرٌ واحد** للكرت ولرسالة «لا يوجد» معًا.
+
+    🐞 **سببُ وجودها عيبٌ حقيقيّ وصل المالك في رسالةٍ حيّة (2026-08-01):** كانت
+    الترويسة تُعلن «قريبون من الشرط (**14**)» ثم تعرض **ستّة** — فيُقرأ العدد على
+    أنه ما تراه. وهذا حرفيًّا ما تمنعه قاعدتُنا «**لا قصّ صامت**»، وكان **مكرّرًا في
+    موضعين** فأمكن أن يُصلَح أحدُهما ويبقى الآخر ⇒ وُحِّد المُصدَر.
+    الآن: يُعرَض `cap` منهم **مرتَّبين بالأقرب إلى الدخول**، و**الزائدُ يُعلَن عددُه**.
+    نقيّة · فاشلة-آمنة (‏لا شيء ⇒ `[]`)."""
+    rows = list(near or [])
+    if not rows:
+        return []
+    cap = int(METHOD_NEAR_SHOW if cap is None else cap)
+    out = [f"🔭 <b>قريبون من الشرط</b> ({len(rows)}):"]
+    for n in rows[:cap]:
+        try:
+            out.append(f"  • {esc(str(n.get('symbol') or '?'))} "
+                       f"${float(n.get('price') or 0):.2f} — "
+                       f"{esc(str(n.get('why') or ''))}")
+        except Exception:                                        # noqa: BLE001
+            continue
+    if len(rows) > cap:
+        out.append(f"  … و<b>{len(rows) - cap}</b> غيرهم أبعدُ عن الدخول "
+                   "(لم يُعرَضوا اختصارًا)")
+    return out
 
 
 def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None,
@@ -6161,8 +6189,11 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
             #    باسمه وسببه — «انتظر ضغطته مره ثانيه عند القاع» تحتاج أن تعرف مَن
             #    يقترب، لا أن يختفي صامتًا. (نظير «قريبون من الشرط» بصيّاد المقسّم.)
             def _near(why):
+                # `over_pct` = بُعدُ السعر عن مستوى الدخول — **سالبٌ أو صفر لمن هو
+                # داخل المنطقة**، فيُرتَّب الأقربُ أوّلًا بلا معيارٍ مُبتكَر.
                 _METHOD_NEAR.append({"symbol": sym, "price": price, "why": why,
                                      "bottom": bot,
+                                     "over_pct": (price / entry - 1.0) * 100.0,
                                      "bounce_pct": ts.get("bounce_pct")})
             # 🎯 **قابلية التنفيذ الآن**: «هنا يكون الدخول عند **اقل سعر** 3.20»
             #    ⇒ ما تجاوز مستوى الدخول لم يعد قابلًا للشراء بشرطه، فيُتابَع لا يُرسَل.
@@ -6209,6 +6240,9 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
         except Exception as e:                                   # noqa: BLE001
             log(f"⚠️ النهج العلمي·{sym}: {e}")
             continue
+    # 🔭 الأقربُ إلى الدخول أوّلًا (مَن هو **داخل** المنطقة سالبُ `over_pct` فيتصدّر)
+    _METHOD_NEAR.sort(key=lambda n: n.get("over_pct") if n.get("over_pct")
+                      is not None else 1e9)
     log(f"🔬 النهج العلمي: فوق أرضية السعر {stage['price']} · حدثٌ مؤسِّس "
         f"{stage['founding']} · بلغ التسلسلَ {seen} · داخل منطقة الدخول "
         f"{stage['entry_zone']} · مطابق كامل {len(rows)}")
@@ -6255,13 +6289,9 @@ def build_method_alert(rows: list, today=None) -> str:
             lines.append(_x)
         lines.append("")
     # 🔭 ذيل التتبّع الحيّ: مَن بلغ التسلسل وسقط على شرطٍ واحد — يُعرَض ليُتابَع.
-    if _METHOD_NEAR:
-        lines.append(f"🔭 <b>قريبون من الشرط</b> (بلغوا التسلسل الرباعيّ · "
-                     f"{len(_METHOD_NEAR)}):")
-        for n in _METHOD_NEAR[:6]:
-            lines.append(f"  • {esc(n['symbol'])} ${n['price']:.2f} — "
-                         f"{esc(n['why'])}")
-        lines.append("")
+    _nl = method_near_lines(_METHOD_NEAR)
+    if _nl:
+        lines.extend(_nl + [""])
     lines.append("<i>⚠️ وصفةٌ قيد الإثبات الأماميّ — لم تُحسَم تاريخيًّا "
                  "(العيّنة 27 دون 30). تُقرأ بحذر.</i>")
     return _rtl_join(lines)

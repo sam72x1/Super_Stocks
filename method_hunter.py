@@ -138,7 +138,8 @@ def run(now_utc=None) -> int:
           f"→ {len(rows)} مطابق كامل: {syms}")
     # 🩺 وأسبابُ «القريبين» في **السجلّ** أيضًا لا في تلغرام وحده — فيُشخَّص القمع
     #    من التشغيلة نفسها بلا انتظار رسالة (نظير عدّادات المراحل بالمسح).
-    for _n in (getattr(S, "_METHOD_NEAR", []) or [])[:12]:
+    # ⚠️ **السجلّ بلا سقف عمدًا** — التشخيص يحتاج الكلّ، والقصّ للرسالة وحدها.
+    for _n in (getattr(S, "_METHOD_NEAR", []) or []):
         S.log(f"   🔭 {_n.get('symbol')} ${float(_n.get('price') or 0):.2f} — "
               f"{_n.get('why')}")
     if not rows:
@@ -150,9 +151,7 @@ def run(now_utc=None) -> int:
             "لا يوجد سهم يطابق الشروط اليوم.",
             f"🩺 فُحِص {len(hist)} من {len(uni)} رمزًا ({cov:.0f}% تغطية)"
             + (f" · جلسة {S.esc(str(sess))}" if sess else ""),
-        ] + ([""] + [f"🔭 <b>قريبون من الشرط</b> ({len(_near)}):"]
-             + [f"  • {S.esc(n['symbol'])} ${n['price']:.2f} — {S.esc(n['why'])}"
-                for n in _near[:6]] if _near else [])) + "\n\n" + S.FOOTER
+        ] + ([""] + S.method_near_lines(_near) if _near else [])) + "\n\n" + S.FOOTER
     else:
         try:
             msg = S.build_method_alert(rows, today=sess) + "\n\n" + S.FOOTER

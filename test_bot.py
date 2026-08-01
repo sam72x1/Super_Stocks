@@ -11788,8 +11788,29 @@ check("🔭 NH🔒 مَن بلغ التسلسل وسقط على شرطٍ واح�
 check("🔭 NH🔒 والسجلّ يُفرَّغ كلّ مسح (لا تراكمَ من تشغيلةٍ سابقة)",
       "_METHOD_NEAR.clear()" in _insp0.getsource(S.scan_method_hunter))
 check("🔭 NH🔒 ويظهر في الكرت **وفي رسالة «لا يوجد»** (المتابعة تسبق الترشيح)",
-      "قريبون من الشرط" in _insp0.getsource(S.build_method_alert)
-      and "قريبون من الشرط" in _MHrun)
+      "method_near_lines" in _insp0.getsource(S.build_method_alert)
+      and "method_near_lines" in _MHrun)
+# 🐞 **عيبٌ حقيقيّ وصل المالك في رسالةٍ حيّة (2026-08-01):** الترويسة تُعلن «(14)»
+#    والمعروض **ستّة** ⇒ يُقرأ العدد على أنه ما تراه = **قصٌّ صامت** تمنعه قاعدتُنا.
+#    وكان الكودُ **مكرّرًا في موضعين** فأمكن إصلاح أحدهما وبقاءُ الآخر ⇒ مُصدَرٌ واحد.
+_near14 = [{"symbol": f"S{i}", "price": 1.0 + i, "why": "بعيد", "over_pct": float(i)}
+           for i in range(14)]
+_nl14 = S.method_near_lines(_near14)
+check("🔭 NH🔒 **لا قصّ صامت**: يُعلن عددَ مَن لم يُعرَض (‏14 معلَنة · 10 معروضة · 4 مُصرَّح بها)",
+      _nl14[0].count("14") == 1
+      and sum(1 for x in _nl14 if x.startswith("  •")) == S.METHOD_NEAR_SHOW
+      and any("4" in x and "غيرهم" in x for x in _nl14))
+check("🔭 NH🔒 ولا يظهر سطرُ «غيرهم» حين لا قصّ (القفل ليس عدميًّا) · وفارغٌ ⇒ []",
+      not any("غيرهم" in x for x in S.method_near_lines(_near14[:3]))
+      and S.method_near_lines([]) == [] and S.method_near_lines(None) == [])
+check("🔭 NH🔒 **مُصدَرٌ واحد** للقائمة (لا تكرارَ يُصلَح نصفُه)",
+      "[:6]" not in _insp0.getsource(S.build_method_alert)
+      and "[:6]" not in _MHrun and "method_near_lines" in _insp0.getsource(S))
+check("🔭 NH🔒 والترتيب **بالأقرب إلى الدخول** (مَن هو داخل المنطقة يتصدّر)",
+      "_METHOD_NEAR.sort" in _insp0.getsource(S.scan_method_hunter)
+      and '"over_pct"' in _insp0.getsource(S.scan_method_hunter))
+check("🩺 NH🔒 والسجلّ **بلا سقف** (التشخيص يحتاج الكلّ · القصّ للرسالة وحدها)",
+      "[:12]" not in _MHrun and 'S.log(f"   🔭' in _MHrun)
 check("🔭 NH🔒 وثلاثة أسبابٍ مُسمّاة لا «سقط» مبهمة",
       all(_w in _insp0.getsource(S.scan_method_hunter) for _w in (
           "لا فجوةَ هابطة", "دخلته قروبات", "إعلان طرح حديث")))
