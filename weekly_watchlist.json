@@ -322,7 +322,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.91
+   "last_price": 1.91,
+   "live_alert": {}
   },
   {
    "symbol": "AFJK",
@@ -649,7 +650,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 12.04
+   "last_price": 12.04,
+   "live_alert": {}
   },
   {
    "symbol": "QNTM",
@@ -3898,8 +3900,8 @@
    "country": "Israel",
    "float": 6910213,
    "last_price": 1.68,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-08-01"
   },
   {
    "symbol": "AXTI",
