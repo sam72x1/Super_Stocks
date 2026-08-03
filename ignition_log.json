@@ -197,5 +197,29 @@
   "vol_x": 3.4,
   "usd": 6002,
   "candle_class": "group"
+ },
+ {
+  "symbol": "TYGO",
+  "date": "2026-08-03",
+  "sustain_min": 41,
+  "operator_ok": true,
+  "fired_at": "2026-08-03T20:00:46Z",
+  "break_level": 1.97,
+  "price": 2.0,
+  "vol_x": 6.5,
+  "usd": 37146,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "TRON",
+  "date": "2026-08-03",
+  "sustain_min": 13,
+  "operator_ok": false,
+  "fired_at": "2026-08-03T20:00:46Z",
+  "break_level": 1.5,
+  "price": 1.505,
+  "vol_x": 23.1,
+  "usd": 31904,
+  "candle_class": "group"
  }
 ]
