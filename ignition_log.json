@@ -221,5 +221,41 @@
   "vol_x": 23.1,
   "usd": 31904,
   "candle_class": "group"
+ },
+ {
+  "symbol": "TYGO",
+  "date": "2026-08-04",
+  "sustain_min": 59,
+  "operator_ok": true,
+  "fired_at": "2026-08-04T20:02:55Z",
+  "break_level": 1.97,
+  "price": 2.06,
+  "vol_x": 3.7,
+  "usd": 16082,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "TRON",
+  "date": "2026-08-04",
+  "sustain_min": 60,
+  "operator_ok": true,
+  "fired_at": "2026-08-04T20:02:55Z",
+  "break_level": 1.5,
+  "price": 1.515,
+  "vol_x": 3.3,
+  "usd": 2272,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "NEGG",
+  "date": "2026-08-04",
+  "sustain_min": 1,
+  "operator_ok": false,
+  "fired_at": "2026-08-04T20:02:55Z",
+  "break_level": 16.03,
+  "price": 16.23,
+  "vol_x": 4.8,
+  "usd": 54273,
+  "candle_class": "mid"
  }
 ]
