@@ -718,8 +718,8 @@
     "⚠️ فلوت كبير 101,976,366 (فوق 50,000,000)"
    ],
    "ready": false,
-   "status": "open",
-   "result_date": null,
+   "status": "expired",
+   "result_date": "2026-08-04",
    "max_gain_pct": 6.0
   },
   {
@@ -1881,7 +1881,7 @@
    "rr": 3.3527102581873134,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 6.5
   }
  ]
 }
