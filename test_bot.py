@@ -13521,6 +13521,9 @@ check("🧪 BT🔒 وSCREENER_MODE=BACKTEST مضبوطٌ داخل الأداة �
 
 # ── ③ حاجب الحواف غير الآليّة ────────────────────────────────────────────
 import envelope_bt as _BT                                        # noqa: E402
+import replay10 as RP_                                            # noqa: E402
+import envelope_scan as _ES_pre                                   # noqa: E402
+_es_loaded_bt = _ES_pre.load_edges()
 check("🧪 BT🔒 حاجبٌ: حوافٌّ غيرُ آليّةٍ ⇒ رفضٌ صريح ما لم يُوسَم التجاوز",
       "مُخرَجٌ آليّ" in _insp0.getsource(_BT.run)
       and "ENV_BT_ALLOW_MANUAL_EDGES" in _insp0.getsource(_BT.run))
@@ -13650,6 +13653,92 @@ def _bt_relaxed_args_are_names():
 
 check("🧪 BT🔒 ع⑨: و`run` لا تُمرّر خطوةً ثابتة (تقرأ خطوةَ الإنتاج قبل الإرخاء)",
       _bt_relaxed_args_are_names() and "prod_stride" in _insp0.getsource(_BT.run))
+
+# ── ⑩ 🔴 `V3` **يُوقِف** لا يُطبَع (كان موصوفًا في التسجيل وغيرَ منفَّذ) ────────
+_v3_ok = {"_meta": {"pct": 90, "n_symbols": _BT.V3_N_SYMBOLS,
+                    "excluded": {k: "" for k in _BT.V3_EXCLUDED}}}
+check("🧪 BT🔒 ع⑩: `check_v3` تُجيز الظرفَ المُصرَّح (القفل ليس عدميًّا)",
+      _BT.check_v3(_v3_ok, _BT.V3_FINGERPRINT) == [])
+check("🧪 BT🔒 ع⑩: وتُوقِف عند **بصمةٍ** مختلفة",
+      _BT.check_v3(_v3_ok, "deadbeefdead") != [])
+check("🧪 BT🔒 ع⑩: وتُوقِف عند **عددِ رموزٍ** مختلف (تبدّلُ مجتمع المعايرة)",
+      _BT.check_v3({"_meta": dict(_v3_ok["_meta"], n_symbols=30)},
+                   _BT.V3_FINGERPRINT) != [])
+check("🧪 BT🔒 ع⑩: وتُوقِف عند **مُستبعَدين** مختلفين",
+      _BT.check_v3({"_meta": dict(_v3_ok["_meta"], excluded={"HTZ": ""})},
+                   _BT.V3_FINGERPRINT) != [])
+check("🧪 BT🔒 ع⑩: و`run` تُرجع 5 فعلًا عند مخالفة V3 (لا طَبْعٌ ومضيّ)",
+      "return 5" in _insp0.getsource(_BT.run)
+      and "check_v3" in _insp0.getsource(_BT.run))
+# 🔒 والثوابتُ تطابق **ملفَّ الحواف المدفوع** — فلا تتعفّن نسخةٌ منهما
+check("🧪 BT🔒 ع⑩: وثوابتُ V3 تطابق ملفَّ الحواف الفعليّ (مصدرٌ واحد للحقيقة)",
+      _BT.V3_FINGERPRINT == _ES_pre.edges_fingerprint(_es_loaded_bt)
+      and _BT.V3_N_SYMBOLS == (_es_loaded_bt.get("_meta") or {}).get("n_symbols")
+      and _BT.V3_EXCLUDED == set(
+          ((_es_loaded_bt.get("_meta") or {}).get("excluded") or {}).keys()))
+
+# ── ⑪ 🔴 `V4` بنيويًّا: محورٌ زمنيّ **مشترك** بين الأذرع ────────────────────
+#    العيب: `candidates_from_trades` تبني الفهرس من الصفقات المُمرَّرة وحدها، و`held`
+#    بخطوات ذلك الفهرس ⇒ ذراعٌ كثيفة تحجز الخانةَ **أطولَ** للصفقة نفسها.
+_v4_sparse = [{"symbol": "A", "date": "2025-01-02", "exit_date": "2025-03-03",
+               "eligible_at": "2025-01-03", "entry": 2.0, "stop": 1.8,
+               "ret_a": 5.0, "outcome": "win"}]
+_v4_dense = _v4_sparse + [
+    {"symbol": f"D{i}", "date": f"2025-01-{d:02d}", "exit_date": f"2025-02-{d:02d}",
+     "eligible_at": f"2025-01-{d:02d}", "entry": 2.0, "stop": 1.8,
+     "ret_a": 1.0, "outcome": "win"}
+    for i, d in enumerate(range(5, 28))]
+_v4_by, _v4_idx, _v4_oc = _BT.shared_axis({"sparse": _v4_sparse,
+                                           "dense": _v4_dense})
+_v4_a = next(c for c in _v4_by["sparse"] if c.symbol == "A")
+_v4_b = next(c for c in _v4_by["dense"] if c.symbol == "A")
+check("🧪 BT🔒 ع⑪: نفسُ الصفقة تحجز الخانةَ **المدّةَ نفسَها** في الذراعين (محورٌ مشترك)",
+      _v4_oc(_v4_a)[1] == _v4_oc(_v4_b)[1] and _v4_oc(_v4_a)[1] > 0)
+# 🔒 شاهدُ ضبط: المحورُ المنفرد **يعطي مدّتين مختلفتين** ⇒ القفل ليس عدميًّا
+_v4_s1 = RP_.candidates_from_trades(_v4_sparse)
+_v4_s2 = RP_.candidates_from_trades(_v4_dense)
+_v4_h1 = _v4_s1[2](next(c for c in _v4_s1[0] if c.symbol == "A"))[1]
+_v4_h2 = _v4_s2[2](next(c for c in _v4_s2[0] if c.symbol == "A"))[1]
+check("🧪 BT🔒 ع⑪: وشاهدُ الضبط — بناءٌ لكلّ ذراعٍ يعطي مدّتين **مختلفتين** (العيب حقيقيّ)",
+      _v4_h1 != _v4_h2)
+check("🧪 BT🔒 ع⑪: والترتيبُ النسبيّ داخل الذراع لا يتلوّث باتّحاد الأذرع",
+      [c.symbol for c in _v4_by["dense"]] == [c.symbol for c in _v4_s2[0]])
+
+# ── ⑫ 🕰️ المِرساة الحاكمة `eligible_at` (كانت غيرَ مقروءةٍ إطلاقًا) ──────────
+_ea_rows, _ea_drop = _BT.anchor_eligible(
+    _v4_sparse + [{"symbol": "N", "date": "2025-01-02",
+                   "exit_date": "2025-02-02", "entry": 2.0, "stop": 1.8}])
+check("🕰️ BT🔒 ع⑫: `date` يُرسى على `eligible_at` والأصلُ محفوظٌ في `signal_date`",
+      len(_ea_rows) == 1 and _ea_rows[0]["date"] == "2025-01-03"
+      and _ea_rows[0]["signal_date"] == "2025-01-02")
+check("🕰️ BT🔒 ع⑫: وصفقةٌ بلا الحقل **تُسقَط ويُعلَن عددُها** (لا مِرساةٌ صامتة)",
+      _ea_drop == 1)
+check("🕰️ BT🔒 ع⑫: و`run` تستعمل المِرساة فعلًا من نقطة النداء",
+      "anchor_eligible" in _insp0.getsource(_BT.run)
+      and "shared_axis" in _insp0.getsource(_BT.run))
+
+# ── ⑬ 🐞 `rejected_cap` بالمفتاح الصحيح (كان `rejected_capacity` = None دائمًا) ─
+# 🐞 **وقفلي الأوّل هنا كان نصّيًّا فسقط على تعليقي أنا** (رابعُ مرّةٍ في الجلسة):
+#    الشرحُ يذكر المفتاحَ القديم `rejected_capacity` فقرأه القفلُ استعمالًا.
+#    ⇒ نحويّ: **وسيطُ `res.get(...)` الفعليّ** داخل الدالّة.
+def _bt_res_get_keys():
+    tree = _ast0.parse(_insp0.getsource(_BT.portfolio_metric).lstrip())
+    out = set()
+    for n in _ast0.walk(tree):
+        if (isinstance(n, _ast0.Call) and isinstance(n.func, _ast0.Attribute)
+                and n.func.attr == "get" and n.args
+                and isinstance(n.args[0], _ast0.Constant)):
+            src = n.func.value
+            if isinstance(src, _ast0.Name) and src.id == "res":
+                out.add(n.args[0].value)
+    return out
+
+
+_bt_keys = _bt_res_get_keys()
+check("🐞 BT🔒 ع⑬: عدّادُ القصّ بالسعة يُقرأ بمفتاح `replay10` الفعليّ (قفل AST)",
+      "rejected_cap" in _bt_keys and "rejected_capacity" not in _bt_keys
+      and "rejected_cap" in _insp0.getsource(RP_.replay))
+check("🐞 BT🔒 ع⑬: وكاشفُ المفاتيح ليس عدميًّا (يرى مفاتيحَ فعليّة)", bool(_bt_keys))
 
 # ══════════════════════════════════════════════════════════════════════════
 # 📐🔕 م-د — صيّاد الظرف الصامت (`envelope_hunter`)
@@ -14217,6 +14306,47 @@ check("📐 ENV🔒 D2: القاعُ من الجلسات **السابقة** حص
 check("📐 ENV🔒 D2: بلا انفجارٍ ⇒ None (ولا يُخترَع فهرس)",
       _CE.explosion_index([1.1] * 70, [1.0] * 70) is None
       and _CE.explosion_index([9.0] * 5, [1.0] * 5) is None)
+
+# ── ①-ب 🔴🔴 تصحيح ⑧ (عيبٌ `P0`): المِرساةُ **بدءُ** الانفجار لا جلسةٌ داخله ──
+#    كان `walk_symbol` يُرسي على `explosion_index` — وهي **أحدثُ** جلسةٍ تبلغ +100%
+#    فوق أدنى قاعٍ في العشرين السابقة. وفي صعودٍ ممتدّ **تستوفي ذلك جلساتٌ كثيرة**
+#    فتقع المِرساةُ عميقًا داخل الصعود ⇒ «العشرون جلسةً **قبل** الانفجار» تصير
+#    عشرين جلسةً **من** الانفجار ⇒ الظرفُ مُعايَرٌ على وسط الحركة لا على القاع.
+def _ce_shape(n_base, run_len, top, base=1.00):
+    close = [base] * n_base + [base + (top - base) * k / run_len
+                               for k in range(1, run_len + 1)] + [top] * 20
+    return [c * 1.02 for c in close], [c * 0.98 for c in close]
+
+
+def _ce_inside(n_base, run_len, top):
+    """كم جلسةً من نافذة القياس تقع **داخل** الانفجار؟ (المطلوب صفر)"""
+    hi, lo = _ce_shape(n_base, run_len, top)
+    hit = _CE.explosion_index(hi, lo, 100.0, 20, pick="last")
+    on = _CE.explosion_onset(lo, hit, 20)
+    s = max(0, on - _CE.ENTRY_WINDOW)
+    return hit, on, sum(1 for j in range(s, on) if j >= n_base)
+
+
+_ce_h1, _ce_o1, _ce_in1 = _ce_inside(40, 30, 5.00)      # صعودٌ ممتدّ
+_ce_h2, _ce_o2, _ce_in2 = _ce_inside(40, 1, 2.60)       # قفزةُ يومٍ واحد
+check("📐 ENV🔒 ع⑧: نافذةُ القياس **خارج الانفجار تمامًا** في الشكلين",
+      _ce_in1 == 0 and _ce_in2 == 0)
+# 🔒 شاهدُ ضبطٍ يمنع العدميّة: المِرساةُ القديمة **تُلوّث فعلًا** (‏20 من 20)
+_ce_hi3, _ce_lo3 = _ce_shape(40, 30, 5.00)
+_ce_old = _CE.explosion_index(_ce_hi3, _ce_lo3, 100.0, 20, pick="last")
+_ce_old_s = max(0, _ce_old - _CE.ENTRY_WINDOW)
+check("📐 ENV🔒 ع⑧: وشاهدُ الضبط — المِرساةُ القديمة تُلوّث 20 من 20 (العيب حقيقيّ)",
+      sum(1 for j in range(_ce_old_s, _ce_old) if j >= 40) == _CE.ENTRY_WINDOW)
+check("📐 ENV🔒 ع⑧: والبدءُ **قبل** بلوغ +100% بفارقٍ حقيقيّ (لا تطابقٌ صوريّ)",
+      _ce_o1 < _ce_h1 and _ce_o2 < _ce_h2)
+check("📐 ENV🔒 ع⑧: ولا زحفَ بلا نهاية في قاعدةٍ مسطّحة (قاعٌ مساوٍ ⇒ توقّف)",
+      _CE.explosion_onset([1.0] * 60, 59, 20) is not None
+      and _CE.explosion_onset([1.0] * 60, 59, 20) >= 59 - 20)
+check("📐 ENV🔒 ع⑧: و`walk_symbol` تُرسي على **البدء** من نقطة النداء (قفل AST)",
+      (lambda t: any(isinstance(n, _ast0.Call)
+                     and getattr(n.func, "id", "") == "explosion_onset"
+                     for n in _ast0.walk(t)))(
+          _ast0.parse(_insp0.getsource(_CE.walk_symbol).lstrip())))
 
 # ── ② D5: حافّة الظرف — واتّجاه القصّ (‏P90 تُسقط الطرف المتطرّف وحده) ──────
 _ce_vals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 100]

@@ -35,6 +35,10 @@ EXPLOSION_BASE_BARS = 20
 #    **‏2026-05-22** ⇒ كنتُ أقيس ما قبل انفجاراتٍ لا علاقة لفيصل بها. وكاتالوجُه
 #    مادّةٌ حديثة (‏2025-2026) ⇒ الأحدث هو المُوثَّق. `"first"` محفوظةٌ للمقارنة.
 ANCHOR = "last"
+# 🔴 تصحيح ⑧ (‏2026-08-05 — عيبٌ `P0` مقيس): المِرساةُ الفعليّة صارت **بدءَ**
+#    الانفجار (`explosion_onset`) لا جلسةً تبلغ +100% (قد تكون عميقًا داخله).
+ONSET_MAX_STEPS = 40      # سقفُ خطوات النزول (حارسٌ ضدّ حلقةٍ لا تنتهي)
+ONSET_EPS = 0.001         # «أدنى ماديًّا» — قاعٌ مساوٍ لا يُبرّر خطوةً أخرى
 # D6: عتبات الحكم على الكلفة (مُعلَنة سلفًا)
 COST_WORTHLESS = 50.0
 COST_USABLE = 5.0
@@ -130,6 +134,53 @@ def explosion_index(high, low, rise_pct=EXPLOSION_RISE_PCT,
         if (high[i] / base - 1.0) * 100.0 >= rise_pct:
             return i
     return None
+
+
+def explosion_onset(low, idx, base_bars=EXPLOSION_BASE_BARS):
+    """🎯🔴 **بدءُ الانفجار** — لا جلسةٌ داخله (تصحيح ⑧، عيبٌ `P0` مقيس).
+
+    `explosion_index(pick="last")` يرجّع **أحدثَ** جلسةٍ تبلغ ‏+100% فوق أدنى
+    قاعٍ في العشرين السابقة. وفي انفجارٍ ممتدّ **تستوفي ذلك جلساتٌ كثيرة**، فيقع
+    المُرجَع **عميقًا داخل الصعود** لا عند بدئه ⇒ «العشرون جلسةً قبل الانفجار»
+    تصير عشرين جلسةً **من** الانفجار.
+
+    🧪 **مُثبَتٌ بعيّنةٍ صناعية:** قاعدةٌ هادئة 40 جلسة عند 1.00 ثم صعودٌ 30 جلسة
+    إلى 5.00 ⇒ `pick="last"` يرجّع الجلسة 71 ونافذةُ القياس ‏[51…70] = **‏20 من 20
+    داخل الانفجار** (السعر 2.60→5.00). و`pick="first"` يرجّع 46 ⇒ **‏6 من 20
+    داخله** ⇒ **الطرفان معطوبان**، والعلاجُ تعريفُ **البدء** لا تبديلُ الطرف.
+
+    **التعريف — نزولٌ متكرّرٌ إلى القاع الحقيقيّ:** خطوةٌ واحدة **لا تكفي** لصعودٍ
+    ممتدّ (القاعُ المرجعيّ لجلسةٍ متأخّرة يقع هو نفسُه داخل الصعود — مقيس: 11 من 20
+    تبقى داخله). فنُكرّر: قاعُ النافذة السابقة يصير مِرساةً جديدة، **ما دام أدنى
+    ماديًّا** من الحاليّ؛ فحين لا يوجد قاعٌ أدنى فقد بلغنا القاع.
+    🔒 و**آخرُ** موضعٍ للقاع (لا أوّله) هو الأصحّ: لو لُمس القاعُ مرّتين فالصعودُ
+    بدأ من **الأخيرة**. وشرطُ «أدنى ماديًّا» يمنع الزحفَ بلا نهاية في قاعدةٍ مسطّحة
+    (‏قاعٌ مساوٍ ⇒ توقّف)."""
+    n = len(low)
+    if idx is None or idx <= 0 or idx > n:
+        return None
+
+    def _one(cur):
+        s = max(0, cur - base_bars)
+        seg = [float(v) for v in low[s:cur]]
+        if not seg:
+            return None
+        mn = min(seg)
+        for k in range(len(seg) - 1, -1, -1):     # آخرُ لمسةٍ للقاع
+            if seg[k] == mn:
+                return s + k
+        return s
+
+    cur = int(idx)
+    for _ in range(ONSET_MAX_STEPS):
+        cand = _one(cur)
+        if cand is None or cand >= cur:
+            break
+        # ‏«أدنى ماديًّا» فقط يُبرّر خطوةً أخرى للوراء
+        if float(low[cand]) >= float(low[cur]) * (1.0 - ONSET_EPS):
+            break
+        cur = cand
+    return cur if cur > 0 else None
 
 
 def envelope_edge(values, direction, pct=100.0):
@@ -252,16 +303,23 @@ def measure_session(S, sym, df):
 def walk_symbol(S, sym, df, window=ENTRY_WINDOW):
     """🚶 يمشي نافذة الشراء لرمزٍ ويرجّع `(صفوف، تشخيص)`.
 
-    🔒 **يوم الانفجار مستبعَدٌ صراحةً** (‏D3) — الشريحة تنتهي عند `idx` غير
-    الشاملة، فأقصى جلسةٍ مقيسة هي `idx-1`."""
+    🔒 **يوم الانفجار مستبعَدٌ صراحةً** (‏D3) — الشريحة تنتهي عند المِرساة غير
+    الشاملة، فأقصى جلسةٍ مقيسة هي `المِرساة-1`.
+
+    🔴 **والمِرساةُ صارت `explosion_onset` لا `explosion_index`** (تصحيح ⑧): الثاني
+    قد يقع **عميقًا داخل** الصعود فتصير نافذةُ «ما قبل الانفجار» نافذةً **من**
+    الانفجار (مُثبَتٌ: 20 من 20 داخله). فالمِرساةُ الآن **بدءُ الحركة**."""
     try:
         hi = df["High"].values
         lo = df["Low"].values
     except Exception:                                            # noqa: BLE001
         return [], "بيانات غير صالحة"
-    idx = explosion_index(hi, lo)
-    if idx is None:
+    hit = explosion_index(hi, lo)
+    if hit is None:
         return [], f"لم يقع انفجار +{EXPLOSION_RISE_PCT:.0f}% في المدى"
+    idx = explosion_onset(lo, hit)
+    if idx is None or idx <= 0:
+        return [], "تعذّر تحديد بدء الانفجار"
     start = max(0, idx - window)
     if idx - start < 3:
         return [], "نافذة الشراء أقصر من ثلاث جلسات"
@@ -276,8 +334,8 @@ def walk_symbol(S, sym, df, window=ENTRY_WINDOW):
             m["date"] = str(df.index[j].date())
             rows.append(m)
     if not rows:
-        return [], f"انفجارُه {df.index[idx].date()} لكن لا جلسة قابلة للقياس"
-    return rows, f"انفجر {df.index[idx].date()} · قِيست {len(rows)} جلسة"
+        return [], f"بدءُ انفجاره {df.index[idx].date()} لكن لا جلسة قابلة للقياس"
+    return rows, (f"بدءُ الانفجار {df.index[idx].date()} · بلوغُه +{EXPLOSION_RISE_PCT:.0f}% {df.index[hit].date()} · قِيست {len(rows)} جلسة")
 
 
 def build_envelope(rows, pct=100.0):

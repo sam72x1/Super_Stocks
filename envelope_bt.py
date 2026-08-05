@@ -42,6 +42,33 @@ Z_MIN = 1.96           # أحاديّ · بونفيروني على مقارنت�
 TOST_D = 0.35          # حدُّ التكافؤ — أصغرُ قابلٍ للاستيفاء بالـSE المقيس
 MIN_TRADES = 30        # حدُّ العيّنة/سنة
 
+# ═══ 🔒 `V3` — الظرفُ المُصرَّح به في التسجيل (‏§⑨ · خروج 5) ═════════════════
+# 🔴 **كان موصوفًا في التسجيل وغيرَ منفَّذٍ في الكود** (‏لا `return 5` في الملفّ) —
+#    فعُدِّل ملفُّ الحواف فعلًا (بصمةٌ وعددُ رموزٍ ومُستبعَدون مختلفون) **وما كان
+#    ليمنعَه شيء**: كنتُ سأنشر ربحيةَ ظرفٍ لا يُصرِّح التسجيل به. الآن يُقارَن
+#    صراحةً ويُوقَف. وأيُّ تغييرٍ مقصود يلزمه **تعديلٌ مؤرَّخ في التسجيل** يُحدِّث
+#    هذي الثوابت — وهو ما وقع في تعديل ⑦.
+V3_FINGERPRINT = "bbc3cfde3e92"   # تعديل ⑦ (كان 575dc1855c51 لظرف الثلاثين)
+V3_PCT = 90
+V3_N_SYMBOLS = 28                 # تعديل ⑦ (كان 30)
+V3_EXCLUDED = {"HTZ", "YYAI", "XHLD"}   # تعديل ⑦ (كان {HTZ})
+
+
+def check_v3(edges: dict, fp: str) -> list:
+    """يرجّع قائمةَ المخالفات — فارغةٌ = مطابق."""
+    meta = edges.get("_meta") or {}
+    bad = []
+    if fp != V3_FINGERPRINT:
+        bad.append(f"البصمة {fp} ≠ {V3_FINGERPRINT}")
+    if meta.get("pct") != V3_PCT:
+        bad.append(f"pct={meta.get('pct')} ≠ {V3_PCT}")
+    if meta.get("n_symbols") != V3_N_SYMBOLS:
+        bad.append(f"n_symbols={meta.get('n_symbols')} ≠ {V3_N_SYMBOLS}")
+    have = set((meta.get("excluded") or {}).keys())
+    if have != V3_EXCLUDED:
+        bad.append(f"المُستبعَدون {sorted(have)} ≠ {sorted(V3_EXCLUDED)}")
+    return bad
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # ① المِجَسّات الإلزامية — تُطبَع **قبل** أيّ رقمِ ذراع
@@ -298,12 +325,70 @@ def per_trade_expectancy(trades):
             "r_units": xs}
 
 
-def portfolio_metric(trades, n_sessions):
+def anchor_eligible(trades):
+    """🕰️ **يُعيد إرساء الصفقة على `eligible_at`** — المِرساةُ الحاكمة بنصّ التسجيل
+    (‏§③-و).
+
+    🔴 **السبب:** `trade["date"]` = يوم الإشارة، و`analyze_ticker` يقرأ **حتى
+    إغلاقه** ⇒ الخطّةُ لم تكن معلومةً أثناءه، والمحرّكُ نفسه يبدأ التعبئة من
+    `fut.index[0]`. فإرساءُ الخانة على `date` يحجزها **جلسةً قبل** أن تكون الخطّة
+    قابلة للتنفيذ. والتسجيل يقول «المِرساةُ الحاكمة `eligible_at`» — **ولم يكن
+    الكودُ يقرأ الحقل إطلاقًا** (صفر ذكرٍ له) ⇒ ادّعاءٌ لا يفي به الكود.
+
+    🔒 **وينفَّذ بلا سطرِ منطقٍ مستنسَخ:** نُبدّل `date` بـ`eligible_at` في **نسخةٍ**
+    ثم نمرّرها لجسر `replay10` نفسِه، فيصير `session` و`held` مرسَيَين على أوّل جلسةٍ
+    قابلة للتنفيذ بمحرّكٍ واحد. والأصلُ محفوظٌ في `signal_date` للتشخيص.
+    ⚠️ وصفقةٌ بلا `eligible_at` **تُسقَط ويُعلَن عددُها** (لا تُمرَّر بمِرساةٍ أخرى
+    صامتة)."""
+    out, dropped = [], 0
+    for t in trades:
+        ea = t.get("eligible_at")
+        if not ea:
+            dropped += 1
+            continue
+        c = dict(t)
+        c["signal_date"] = t.get("date")
+        c["date"] = ea
+        out.append(c)
+    return out, dropped
+
+
+def shared_axis(populations):
+    """🔒 **محورٌ زمنيّ واحد لكل الأذرع** — حارس `V4` منفَّذًا لا موصوفًا.
+
+    🔴 **العيب الذي يُصلحه:** `candidates_from_trades` تبني فهرسَ الجلسات من
+    **الصفقات المُمرَّرة إليها وحدها** (`replay10.py:249`)، و`held` يُقاس بخطوات ذلك
+    الفهرس (`:260`). فنداؤها **لكل ذراعٍ على حدة** يعطي ذراعًا كثيفةً محورًا كثيفًا
+    وذراعًا متفرّقةً محورًا مطويًّا ⇒ **المزاحمةُ على السعة تُطبَّق بشدّةٍ مختلفة
+    لسببٍ هو كثافةُ الإشارات لا قاعدةُ التداول** — وهو حرفيًّا `V4` في التسجيل.
+
+    🔒 **والتوحيد بصفر منطقٍ مستنسَخ:** يُبنى الجسرُ **مرّةً واحدة** على اتّحاد
+    صفقات كلّ الأذرع، ثم تُرشَّح المرشّحات لكل ذراع. و`idx` و`outcome_of` مشتركان
+    بالبناء. ✅ **والترتيبُ داخل الذراع لا يتلوّث:** الجسرُ يرتّب بـ(التاريخ، الرمز)
+    ثم يعدّ، والترشيحُ يحفظ الترتيبَ النسبيّ ⇒ `seq` داخل الذراع مطابقٌ لما يعطيه
+    بناءٌ منفرد."""
+    tagged = []
+    for name, rows in populations.items():
+        for t in rows:
+            c = dict(t)
+            c["_pop"] = name
+            tagged.append(c)
+    cands, idx, outcome_of = RP.candidates_from_trades(tagged)
+    by_pop = {name: [] for name in populations}
+    for c in cands:
+        by_pop.setdefault(c.payload.get("_pop"), []).append(c)
+    return by_pop, idx, outcome_of
+
+
+def portfolio_metric(cands, outcome_of, n_sessions):
     """`M-D` **ثانويّ**: صافي R/جلسة بسعة `replay10` (‏10 = الحيّ).
 
     🔴 `exploded` محرَّمٌ ولا يُقرأ (ما بعد الوقف). والمساند: المرفوض بالسعة ·
-    وسيط `mg_pre_stop`."""
-    cands, idx, outcome_of = RP.candidates_from_trades(trades)
+    وسيط `mg_pre_stop`. **والمرشّحات تأتي من محورٍ مشترك** (`shared_axis`) فلا
+    يُبنى فهرسٌ لكل ذراع.
+
+    ⚠️ **وحدُّ صدقٍ يُقرأ مع كل رقم:** `MDE` هذا المقياس (‏0.23-0.27R/جلسة) **يتجاوز
+    حدَّ الأثر المسجَّل 0.15R** ⇒ لا يمكن أن يَبين ⇒ **يُنشَر ولا يحكم** (‏§③-ج)."""
     if not cands:
         return {"net_r_per_day": None, "taken": 0,
                 "note": "صفر مرشّح ⇒ **العلم كان خاملًا** (لا يُفسَّر كصفرٍ حقيقيّ)"}
@@ -315,7 +400,9 @@ def portfolio_metric(trades, n_sessions):
     return {"net_r_per_day": RP.net_r_per_day(taken, max(1, n_sessions)),
             "taken": len(taken), "n_candidates": len(cands),
             "n_sessions": n_sessions,
-            "rejected_cap": res.get("rejected_capacity"),
+            # 🐞 كان `rejected_capacity` — **مفتاحٌ لا وجود له** (`replay10` يُرجع
+            #    `rejected_cap`، `:172`) ⇒ العدّادُ المسجَّل `None` دائمًا.
+            "rejected_cap": res.get("rejected_cap"),
             "mg_median": (statistics.median(mg) if mg else None),
             "mg_ge_100": sum(1 for v in mg if v >= 100.0)}
 
@@ -353,6 +440,15 @@ def run() -> int:
         S.log(f"⛔ حاجب: وسمُ الحواف «{src}» — ليس مُخرَجًا آليًّا. "
               "أعِد المعايرة، أو مرّر ENV_BT_ALLOW_MANUAL_EDGES=1 بوسمٍ صريح.")
         return 3
+    # 🔒 `V3` — الظرفُ المُصرَّح به في التسجيل. **يُوقِف** لا يُطبَع فقط.
+    _v3 = check_v3(edges, fp)
+    if _v3:
+        S.log("⛔ V3: الظرفُ لا يطابق المُصرَّح به في التسجيل ⇒ " + " · ".join(_v3))
+        S.log("   ⇒ إمّا تُعاد المعايرةُ للظرف المُصرَّح، أو يُعدَّل التسجيل "
+              "**بتعديلٍ مؤرَّخ** ثم تُحدَّث ثوابتُ V3 معه.")
+        return 5
+    S.log(f"✅ V3: الظرف مطابقٌ للتسجيل (بصمة {fp} · {V3_N_SYMBOLS} رمزًا · "
+          f"مُستبعَدون {sorted(V3_EXCLUDED)})")
 
     man = probe_manifest(path)
     S.log(f"🔏 المانفست: ok={man['ok']} · sha={str(man.get('sha256'))[:12]} "
@@ -403,19 +499,33 @@ def run() -> int:
 
     S.log("")
     S.log("═══ 📊 النتائج ═══")
-    report = {}
+    # 🔒 **محورٌ زمنيّ واحد لكلّ الأذرع والمجتمعات الستّة** (حارس `V4`)، و**المِرساة
+    #    الحاكمة `eligible_at`** (‏§③-و). ويُبنى الجسرُ مرّةً واحدة.
+    pops, pops_sig = {}, {}
     for arm, tr in arms.items():
-        for tag, rows in (("", tr), ("-X", exclude_catalog(tr)[0])):
-            key = arm + tag
-            mp = per_trade_expectancy(rows)
-            md = portfolio_metric(rows, n_sessions)
-            report[key] = {"MP": {k: v for k, v in mp.items() if k != "r_units"},
-                           "MD": md}
-            S.log(f"   {key:<8} M-P: n={mp['n']:<5} "
-                  f"متوسط={('%.4f' % mp['mean']) if mp['mean'] is not None else '—'}R "
-                  f"se={('%.4f' % mp['se']) if mp.get('se') else '—'} │ "
-                  f"M-D: net={('%.4f' % md['net_r_per_day']) if md.get('net_r_per_day') is not None else '—'} "
-                  f"مأخوذة={md.get('taken')} قُصَّ={md.get('rejected_cap')}")
+        pops[arm], pops_sig[arm] = tr, tr
+        pops[arm + "-X"] = exclude_catalog(tr)[0]
+        pops_sig[arm + "-X"] = pops[arm + "-X"]
+    elig, elig_drop = {}, 0
+    for k, rows in pops.items():
+        elig[k], _d = anchor_eligible(rows)
+        elig_drop += _d
+    S.log(f"🕰️ المِرساة الحاكمة `eligible_at` · صفقاتٌ بلا الحقل أُسقطت: {elig_drop}"
+          + ("  ⚠️ (‏كثيرٌ ⇒ افحص `BT_REPLAY10`)" if elig_drop else ""))
+    cands_by_pop, m_idx, m_outcome = shared_axis(elig)
+    S.log(f"🗓️ محورٌ مشترك: {len(m_idx)} جلسةً فهرسية لكلّ الأذرع "
+          f"(‏تقويم النافذة {n_sessions}) — حارس V4 منفَّذ")
+    report = {}
+    for key in pops:
+        mp = per_trade_expectancy(pops[key])
+        md = portfolio_metric(cands_by_pop.get(key) or [], m_outcome, n_sessions)
+        report[key] = {"MP": {k: v for k, v in mp.items() if k != "r_units"},
+                       "MD": md}
+        S.log(f"   {key:<8} M-P: n={mp['n']:<5} "
+              f"متوسط={('%.4f' % mp['mean']) if mp['mean'] is not None else '—'}R "
+              f"se={('%.4f' % mp['se']) if mp.get('se') else '—'} │ "
+              f"M-D: net={('%.4f' % md['net_r_per_day']) if md.get('net_r_per_day') is not None else '—'} "
+              f"مأخوذة={md.get('taken')} قُصَّ={md.get('rejected_cap')}")
     S.log("")
     S.log("═══ 📏 القوّة (من المقيس لا المُقدَّر) ═══")
     # 🔒 تُقاس على **نفس المجتمع الذي يحكم به الفرق النافذ** (‏`-X`) — وإلّا كان
