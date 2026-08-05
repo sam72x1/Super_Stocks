@@ -349,6 +349,23 @@ def run():
     env90 = build_envelope(rows, 90.0)
     _print_envelope(S, env90, env100, S.CONFIG)
 
+    # ── 🎯 التقاطُ الكاتالوج — رقمٌ **حقيقيّ لـ`P90` وحده** ───────────────────
+    # `P100` يلتقط 100% **بالبناء** (لا معلومة فيه)، أمّا `P90` فيُسقط أشدّ 10%
+    # تطرّفًا **لكل معيارٍ على حدة** ⇒ التقاطُه المشترك مجهولٌ حتى يُقاس. وهو
+    # نصفُ المعادلة: التقاطٌ عالٍ بكلفةٍ منخفضة = إثراءٌ حقيقيّ · والعكس بالعكس.
+    S.log("")
+    S.log("═══ 🎯 التقاط الكاتالوج (النصف الثاني من المعادلة) ═══")
+    for nm, e in (("P100", env100), ("P90", env90)):
+        insid = [r for r in rows if inside_envelope(r, e)]
+        syms_in = {r["symbol"] for r in insid}
+        S.log(f"   ── ظرف {nm}: {len(insid)} من {len(rows)} جلسة "
+              f"({100.0 * len(insid) / max(1, len(rows)):.1f}%) · "
+              f"و{len(syms_in)} من {len(found)} رمزًا "
+              f"({100.0 * len(syms_in) / max(1, len(found)):.1f}%)")
+        miss = sorted(set(found) - syms_in)
+        if miss:
+            S.log(f"      ⚪️ لم يُلتقَط ولا جلسةً: {' · '.join(miss)}")
+
     # ── ② حساسية النافذة (‏D3 — تُنشَر ولا تغيّر الحكم) ──────────────────────
     for w in SENSITIVITY_WINDOWS:
         alt = []
