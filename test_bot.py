@@ -13407,6 +13407,138 @@ check("🛡️ الصيّاد معزولٌ عن أدوات البحث (لا repl
       "replay10" not in _sh_src and "event_exec" not in _sh_src)
 
 # ══════════════════════════════════════════════════════════════════════════
+# 📐 م-د — `envelope_scan`: المصدر الوحيد لقرار الظرف
+# ══════════════════════════════════════════════════════════════════════════
+import envelope_scan as _ES                                      # noqa: E402
+import catalog_envelope as _CE0   # كتلة الظرف تأتي لاحقًا في الملفّ  # noqa: E402
+
+# ── ① العزل: لا يدخل الإنتاج، ولا يُنادى من أيّ مسارٍ حيّ ──────────────────
+check("📐 SCAN🔒 معزولٌ: `Super_stock` لا يستورده ولا الصيّادون الأربعة",
+      all("envelope_scan" not in open(_f, encoding="utf-8").read()
+          for _f in ("Super_stock.py", "split_hunter.py", "method_hunter.py",
+                     "split_filter_hunter.py", "ignition_live.py",
+                     "pullback_live.py")))
+check("📐 SCAN🔒 لا يُرسل تلغرام ولا يحفظ حالة (قرارٌ خالص)",
+      (lambda t: "send_telegram" not in t and "git_save" not in t
+       and "save_watchlist" not in t)(_insp0.getsource(_ES)))
+
+# ── ② `relaxed` هي الموضع الوحيد الذي يمسّ CONFIG — وتستعيدها مهما حصل ────
+_es_snap = {k: S.CONFIG.get(k) for k in _ES.RELAX_ALL}
+with _ES.relaxed(S):
+    _es_inside = all(S.CONFIG.get(k) == v for k, v in _ES.RELAX_ALL.items())
+check("📐 SCAN🔒 `relaxed` **تُرخي فعلًا** داخل السياق (القفل ليس عدميًّا)",
+      _es_inside)
+check("📐 SCAN🔒 وتستعيد `CONFIG` بت-بت بعده",
+      all(S.CONFIG.get(k) == v for k, v in _es_snap.items()))
+try:
+    with _ES.relaxed(S):
+        raise RuntimeError("انهيارٌ مُتعمَّد")
+except RuntimeError:
+    pass
+check("📐 SCAN🔒 والاستعادة تقع **حتى مع الانهيار**",
+      all(S.CONFIG.get(k) == v for k, v in _es_snap.items()))
+check("📐 SCAN🔒 `selftest` يُثبت سلامة الدورة",
+      _ES.selftest(S) is True)
+
+# ── ③ 🔴 الأهمّ: `analyze_ticker` **بت-بit** قبل الأداة وبعدها ─────────────
+#    (وهذا ما تعجز عنه أقفال C3/B3: تأكيدا **قيمةٍ عند الاستيراد**، والإرخاء
+#     يقع زمن التشغيل — فسلوكُ جذرٍ يتغيّر دون لمس كوده.)
+_es_df = _mkdf([(2.0, 2.2, 1.9, 2.0, 500_000)] * 80)
+_es_a = S.analyze_ticker("ESTEST", _es_df)
+with _ES.relaxed(S):
+    _ = S.analyze_ticker("ESTEST", _es_df)
+_es_b = S.analyze_ticker("ESTEST", _es_df)
+check("📐 SCAN🔒 **قفلٌ سلوكيّ**: `analyze_ticker` قبل/بعد الإرخاء متطابق",
+      (_es_a is None and _es_b is None)
+      or (_es_a is not None and _es_b is not None
+          and json.dumps(_es_a, sort_keys=True, default=str)
+          == json.dumps(_es_b, sort_keys=True, default=str)))
+
+# ── ④ الحواف تُقرأ من ملفٍّ ولا تُحسب حيًّا · وغيابُها **رفضٌ لا تساهل** ────
+check("📐 SCAN🔒 بلا حوافّ ⇒ **رفضٌ صريح** (فاشلة-مغلقة عمدًا هنا)",
+      _ES.decide(S, "X", None, {})[0] is False
+      and "لا حوافّ" in _ES.decide(S, "X", None, {})[1])
+check("📐 SCAN🔒 الحواف من ملفٍّ مُثبَت لا حسابٍ حيّ",
+      _ES.EDGES_FILE.endswith(".json")
+      and _ES.load_edges("/tmp/_es_غائب.json") == {})
+check("📐 SCAN🔒 بصمة الحواف حتمية (ترتيب المفاتيح لا يغيّرها)",
+      _ES.edges_fingerprint({"a": 1.0, "b": (2.0, 3.0)})
+      == _ES.edges_fingerprint({"b": (2.0, 3.0), "a": 1.0}))
+
+# ── ⑤ 🔴 M13/M14 فلترٌ نهائيّ — وإلّا سلّم فئةً أخرجها المالك ──────────────
+_es_edges = {"price": 0.0}     # ظرفٌ يقبل كلَّ شيء ⇒ يعزل أثر البوّابتين وحدهما
+_es_vals = {"price": 5.0}
+
+
+def _es_dec(row):
+    """يقرّر على قيمٍ مضمونة الدخول ⇒ الفارق **البوّابتان فقط**."""
+    import types
+    stub = types.SimpleNamespace(
+        CONFIG=S.CONFIG, log=S.log, _float_too_big=S._float_too_big)
+    _ES.measure_session  # noqa: B018  (مرجعٌ صريح: القرار يمرّ بالقياس)
+    ok = _ES.inside_envelope(_es_vals, _es_edges)
+    return ok and _ES._float_ok(stub, row) and _ES._short_ok(stub, row)
+
+
+check("📐 SCAN🔒 M14: فلوتٌ كبيرٌ معلوم ⇒ **يُرفَض** (قرار المالك)",
+      _es_dec({"float": 300_000_000}) is False)
+check("📐 SCAN🔒 M13: شورتٌ عالٍ معلوم ⇒ يُرفَض",
+      _es_dec({"finra_short": S.CONFIG["SHORT_GATE_MAX"] + 1}) is False)
+check("📐 SCAN🔒 والمجهول **يمرّ بفائدة الشك** (قاعدة الفارز الحيّة)",
+      _es_dec({}) is True and _es_dec({"float": None, "finra_short": None}) is True
+      and _es_dec({"float": "تالف", "finra_short": "تالف"}) is True)
+
+
+# 🔴 والقفل أعلاه يفحص **الدالّتين المساعدتين** — وطفرةٌ عطّلت فرع M14 **داخل
+#    `decide` نفسها ونجت**. وهو صنف «الميزة موصولة تُثبَت من نقطة النداء» بعينه
+#    ⇒ قفلٌ يمرّ عبر `decide` كاملةً بجذعٍ محقون.
+class _EsStub:                                                    # noqa: E301
+    """جذعٌ يُمرّر أيّ سهم ⇒ الفارق **البوّابتان داخل `decide`** وحدهما."""
+    def __init__(self):
+        self.CONFIG = dict(S.CONFIG)
+        self.log = S.log
+        self._float_too_big = S._float_too_big
+    def analyze_ticker(self, sym, df):                            # noqa: D102
+        return {"price": 5.0, "gates_status": {}, "soft_fails": []}
+
+
+_es_edges_all = {"price": 0.0}
+check("📐 SCAN🔒 **من نقطة النداء**: `decide` ترفض الفلوت الكبير فعلًا",
+      _ES.decide(_EsStub(), "X", _mkdf([(1, 1, 1, 1, 1)] * 3), _es_edges_all,
+                 {"float": 300_000_000})[0] is False
+      and "M14" in _ES.decide(_EsStub(), "X", _mkdf([(1, 1, 1, 1, 1)] * 3),
+                              _es_edges_all, {"float": 300_000_000})[1])
+check("📐 SCAN🔒 **من نقطة النداء**: `decide` ترفض الشورت العالي فعلًا",
+      (lambda r: r[0] is False and "M13" in r[1])(
+          _ES.decide(_EsStub(), "X", _mkdf([(1, 1, 1, 1, 1)] * 3), _es_edges_all,
+                     {"finra_short": S.CONFIG["SHORT_GATE_MAX"] + 1})))
+check("📐 SCAN🔒 **من نقطة النداء**: السليم يُقبَل (القفل ليس عدميًّا)",
+      _ES.decide(_EsStub(), "X", _mkdf([(1, 1, 1, 1, 1)] * 3), _es_edges_all,
+                 {"float": 900_000, "finra_show": 1_000})[0] is True)
+# 🔴 وطفرةٌ ثالثة نجت: كلُّ عيّناتي **داخل** الظرف فلا تختبر شرطَه. شاهدٌ **خارجه**:
+#    الجذع يُرجع سعرًا 5.0 وحافّة `lo` عند 10.0 ⇒ **يجب** أن يُرفَض «خارج الظرف».
+# 🔴 ورابعةٌ نجت: **قياسٌ فاشل** (‏`analyze_ticker` يرجع None) كان يُقبَل بلا قفل.
+class _EsDead(_EsStub):                                           # noqa: E301
+    def analyze_ticker(self, sym, df):                            # noqa: D102
+        return None
+
+
+check("📐 SCAN🔒 **من نقطة النداء**: تعذّرُ القياس ⇒ رفضٌ مُسمّى لا قبول",
+      (lambda r: r[0] is False and "تعذّر القياس" in r[1] and r[2] is None)(
+          _ES.decide(_EsDead(), "X", _mkdf([(1, 1, 1, 1, 1)] * 3),
+                     _es_edges_all, {"float": 900_000})))
+check("📐 SCAN🔒 **من نقطة النداء**: قيمةٌ خارج الحافّة ⇒ «خارج الظرف»",
+      (lambda r: r[0] is False and "خارج الظرف" in r[1])(
+          _ES.decide(_EsStub(), "X", _mkdf([(1, 1, 1, 1, 1)] * 3),
+                     {"price": 10.0}, {"float": 900_000})))
+
+# ── ⑥ المصدر واحد: لا نسخةَ منطقٍ ثانية ───────────────────────────────────
+check("📐 SCAN🔒 مصدرٌ واحد: يستورد قرار المعايرة ولا ينسخه",
+      _ES.inside_envelope is _CE0.inside_envelope
+      and _ES.measure_session is _CE0.measure_session
+      and _ES.RELAX_ALL is _CE0.RELAX_ALL)
+
+# ══════════════════════════════════════════════════════════════════════════
 # 🗂️ م-ب — سجلّ المرفوضين اليوميّ (الشاهد الأماميّ الوحيد غير المُنقَّب)
 # ══════════════════════════════════════════════════════════════════════════
 _rl_snap = S.build_reject_snapshot(
