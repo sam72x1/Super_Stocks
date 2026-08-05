@@ -14517,6 +14517,94 @@ check("📐 ENV🔒 ولا تكتب حالةً ولا تُرسل تلغرام (�
 
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🧪 T-SPIKE-ABLATION — المرحلة صفر (العقد: `spike_ablation_prereg.md`)
+# ══════════════════════════════════════════════════════════════════════════
+import spike_ablation as _AB                                      # noqa: E402
+
+_ab_edges = _ES_pre.load_edges()
+_ab_body = {k: v for k, v in _ab_edges.items() if k != "_meta"}
+_ab_arms = _AB.build_arms(_ab_body)
+_ab_keys = _AB._keys()
+
+check("🧪 ABL🔒 الأذرع = 4 رئيسة + ALONE + LOO لكلّ معيار (‏لا ذراعَ مخترَعة)",
+      len(_ab_arms) == 4 + 2 * len(_ab_keys)
+      and all(("ALONE:" + c) in _ab_arms and ("LOO:" + c) in _ab_arms
+              for c in _ab_keys))
+check("🧪 ABL🔒 الذراعُ مجموعةٌ جزئيّة **بنفس قيم الحوافّ** (لا عتبةٌ مُبتدَعة)",
+      all(all(_ab_body[k] == env[k] for k in env) for env in _ab_arms.values()))
+check("🧪 ABL🔒 والحكمُ من `inside_envelope` الإنتاجيّة لا نسخةٍ محلّيّة (قفل AST)",
+      (lambda t: any(isinstance(n, _ast0.Attribute) and n.attr == "inside_envelope"
+                     for n in _ast0.walk(t)))(
+          _ast0.parse(_insp0.getsource(_AB.eval_arms).lstrip())))
+
+# 🔒 التداخلُ محتومٌ بالبناء — وهو قفلُ الصلاحية A1 وكاشفُ الـno-op معًا.
+_ab_row_ok = {"price": 2.0, "drop_pct": 90.0, "best_spike": 300.0,
+              "base_range": 100.0, "dollar_vol": 100000.0, "rsi_min": 30.0,
+              "rsi_now": 40.0, "n_soft": 2, "readiness": 60, "score": 50, "rr": 2.0}
+_ab_ev_ok = _AB.eval_arms(_ab_row_ok, _ab_body, _ab_arms)
+check("🧪 ABL🔒 صفٌّ يجتاز الظرفَ كاملًا يجتاز **كلَّ** مجموعةٍ جزئيّة (عطفٌ منطقيّ)",
+      all(_ab_ev_ok.values()))
+
+# 🔒 وشاهدُ ضبطٍ يمنع العدميّة: إسقاطُ المعيار الساقط من `LOO` **يُعيد** القبول.
+_ab_fails = {}
+for _c in _ab_keys:
+    _bad = dict(_ab_row_ok)
+    _e = _ab_body[_c]
+    if isinstance(_e, tuple):
+        _bad[_c] = float(_e[1]) * 10.0 + 1.0        # فوق السقف
+    else:
+        # الاتّجاه من CRITERIA: "lo" ⇒ اكسره بالنزول · "hi" ⇒ بالصعود
+        _dirn = next(d for k, d, _l, _cfg in _CE0.CRITERIA if k == _c)
+        _bad[_c] = (float(_e) - abs(float(_e)) - 1.0 if _dirn == "lo"
+                    else float(_e) + abs(float(_e)) + 1.0)
+    _ab_fails[_c] = _AB.eval_arms(_bad, _ab_body, _ab_arms)
+
+check("🧪 ABL🔒 كسرُ معيارٍ واحد يُسقط `S12` **ويُبقي** `LOO` الخاصّة به (‏11/11)",
+      all(not _ab_fails[c]["S12"] and _ab_fails[c]["LOO:" + c] for c in _ab_keys))
+check("🧪 ABL🔒 وكسرُ معيارٍ **لا** يُسقط `ALONE` لمعيارٍ آخر (استقلالُ الأذرع)",
+      all(_ab_fails[c]["ALONE:" + o] for c in _ab_keys for o in _ab_keys if o != c))
+
+# 🔒 الحدودُ والقراءةُ ثوابتُ مُعلَنة — لا تُبدَّل بعد الرقم
+check("🧪 ABL🔒 حدودُ القراءة مثبَّتةٌ بالكود (‏0.90 يُغلق · 0.50 مستقلّ)",
+      _AB.W_CLOSE == 0.90 and _AB.W_INDEPENDENT == 0.50
+      and _AB.GRID_SESSIONS == 20 and _AB.COVERAGE_MIN == 0.60)
+check("🧪 ABL🔒 وبصمةُ الحوافّ المُصرَّح بها تطابق الملفّ (مصدرٌ واحد للحقيقة)",
+      _AB.EDGES_FP == _ES_pre.edges_fingerprint(_ab_edges))
+check("🧪 ABL🔒 وحرّاسُ البطلان الستّة **تُوقِف بكود** لا تُطبَع فقط",
+      (lambda src: all(t in src for t in ("A1", "A2", "A3", "A4", "A5", "A6"))
+       and src.count("return ") >= 7)(_insp0.getsource(_AB.run)))
+
+# 🔒 عزلٌ وإنتاجٌ آمن — قفل AST لا نصّ (الدرسُ المتكرّر)
+check("🧪 ABL🔒 معزولٌ: لا يستورده الإنتاجُ ولا الصيّادون (AST)",
+      all(not _imports_module(_f, "spike_ablation")
+          for _f in ("Super_stock.py", "envelope_scan.py", "catalog_envelope.py",
+                     "envelope_hunter.py", "split_hunter.py")))
+
+
+def _ab_calls(name):
+    tree = _ast0.parse(open("spike_ablation.py", encoding="utf-8").read())
+    for n in _ast0.walk(tree):
+        if isinstance(n, _ast0.Call):
+            f = n.func
+            nm = (f.attr if isinstance(f, _ast0.Attribute)
+                  else (f.id if isinstance(f, _ast0.Name) else ""))
+            if nm == name:
+                return True
+    return False
+
+
+check("🧪 ABL🔒 ولا إرسالَ ولا حفظَ حالةٍ ولا `git_save` (قياسٌ خالص · AST)",
+      not _ab_calls("send_telegram") and not _ab_calls("git_save")
+      and not _ab_calls("save_watchlist"))
+check("🧪 ABL🔒 ولا يمسّ الجذور: صفر نداءٍ لـ`analyze_ticker` مباشرةً",
+      not _ab_calls("analyze_ticker") and _ab_calls("measure_session"))
+check("🧪 ABL🔒 والتسجيلُ المسبق مدفوعٌ ويحمل القراءةَ والحرّاس",
+      (lambda t: all(x in t for x in ("w = |S12| / |S2|", "0.90", "0.50",
+                                      "A1", "A6", "P1", "P5")))(
+          open("spike_ablation_prereg.md", encoding="utf-8").read()))
+
+
+# ══════════════════════════════════════════════════════════════════════════
 # 🧯 قفلٌ بنيويّ — **لا `check` بعد سطر الملخّص**.
 #    🐞 سببُه عطلٌ حقيقيّ وقع 2026-08-05: ألحقتُ كتلةَ اختباراتٍ **بعد**
 #    `print(النتيجة)` و`raise SystemExit(1)` ⇒ صارت تطبع ✅/❌ في اللوج

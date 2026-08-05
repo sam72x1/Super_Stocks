@@ -1,0 +1,57 @@
+name: T-SPIKE-ABLATION (المرحلة صفر — بنيةُ الظرف)
+
+# 🧪 العقد: `spike_ablation_prereg.md` (مدفوعٌ قبل أيّ رقم).
+# بحث/قياس فقط: بلا تلغرام · بلا حفظ حالة · لقطةٌ مجمَّدة إلزامية.
+# ⚠️ الجدولُ يُطبَع **في اللوج** — سياسةُ الشبكة تمنع تنزيل الـartifacts.
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      frozen_run_id:
+        description: "run-id لتشغيلة «Freeze backtest dataset» (إلزامي)"
+        required: true
+        default: "30598885456"
+
+jobs:
+  ablation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350        # المالكُ أذِن بالوقت · الكونُ الكامل بلا سقف رموز
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: frozen
+      - name: Locate snapshot
+        id: snap
+        run: |
+          f=$(find frozen -name '*.pkl.gz' | head -1)
+          if [ -z "$f" ]; then echo "⛔ لا لقطة"; exit 1; fi
+          echo "path=$f" >> "$GITHUB_OUTPUT"
+          echo "📦 $f"
+      - name: Run ablation
+        env:
+          BT_FROZEN_PATH: ${{ steps.snap.outputs.path }}
+          ABL_OUT: spike_ablation_result.json
+        run: python spike_ablation.py
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: spike-ablation-${{ github.run_id }}
+          path: spike_ablation_result.json
+          retention-days: 90
+          if-no-files-found: warn
