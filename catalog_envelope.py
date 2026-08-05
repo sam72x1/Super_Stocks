@@ -367,34 +367,44 @@ def run():
     universe = [s for s in hist if s not in cat]
     cap = int(os.environ.get("ENV_COST_CAP", "600"))
     probe_days = int(os.environ.get("ENV_COST_DAYS", "5"))
-    hits = ctrl_syms = tested = 0
+    # 🔴 **الظرفان يُقاسان في تمريرةٍ واحدة** — كان `P100` وحده يُقاس، و`P90` هو
+    #    المُرشَّح العمليّ المُعلَن في `D5` ⇒ قياسُ أحدهما وترك الآخر ثغرةٌ في الأداة.
+    envs = {"P100": env100, "P90": env90}
+    hits = {k: 0 for k in envs}
+    ctrl = {k: 0 for k in envs}
+    tested = 0
     for sym in universe[:cap]:
         df = hist.get(sym)
         if df is None or len(df) < 60:
             continue
         tested += 1
-        sym_hit = False
+        seen = {k: False for k in envs}
         for back in range(1, probe_days + 1):
             sl = df.iloc[:len(df) - back + 1]
             if len(sl) < 60:
                 continue
             m = measure_session(S, sym, sl)
-            if m and inside_envelope(m, env100):
-                hits += 1
-                sym_hit = True
-        if sym_hit:
-            ctrl_syms += 1
-    per_day = (hits / probe_days) if probe_days else None
-    scaled = (per_day * len(universe) / max(1, tested)) if per_day is not None else None
+            if not m:
+                continue
+            for k, e in envs.items():
+                if inside_envelope(m, e):
+                    hits[k] += 1
+                    seen[k] = True
+        for k in envs:
+            if seen[k]:
+                ctrl[k] += 1
     S.log(f"   فُحِص {tested} رمزًا × {probe_days} جلسات (سقف {cap} من "
           f"{len(universe)} خارج الكاتالوج)")
-    S.log(f"   مطابقات: {hits} · رموزٌ مطابقة: {ctrl_syms}")
-    S.log(f"   ⇒ {per_day:.1f} مطابق/يوم بالعيّنة · "
-          f"≈{scaled:.0f} مقدَّرًا على الكون كلِّه")
-    S.log(f"   ⚖️ الحكم (عتبات D6 المُعلَنة سلفًا): {cost_verdict(scaled)}")
-    if tested:
-        S.log(f"   🎯 التمييز: {100.0 * ctrl_syms / tested:.1f}% من شاهد الضبط "
-              f"يستوعبه الظرف — وكلَّما اقترب من 100% ضعُف التمييز.")
+    for k in ("P100", "P90"):
+        per_day = (hits[k] / probe_days) if probe_days else None
+        scaled = ((per_day * len(universe) / max(1, tested))
+                  if per_day is not None else None)
+        S.log(f"   ── ظرف {k}: مطابقات {hits[k]} · رموزٌ مطابقة {ctrl[k]} "
+              f"⇒ {per_day:.1f}/يوم بالعيّنة · ≈{scaled:.0f} على الكون")
+        S.log(f"      ⚖️ {cost_verdict(scaled)}")
+        if tested:
+            S.log(f"      🎯 التمييز: {100.0 * ctrl[k] / tested:.1f}% من شاهد "
+                  f"الضبط يستوعبه — وكلَّما اقترب من 100% ضعُف التمييز.")
 
     S.log("")
     S.log("⚠️ حدود صدقٍ قائمة: انحياز بقاء · تشويه تقسيمات · بلا افتر · n=31 "
