@@ -20,6 +20,27 @@ import Super_stock as S
 import technical_report as TR
 import hand_check as HC
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🔴 **السويّة لا تدهس ملفَّ حالةٍ مدفوعًا** — عيبٌ مقيس (‏2026-08-05)
+# ══════════════════════════════════════════════════════════════════════════
+# وصلتُ `record_rejected_symbols` بمسارَي `run_daily_watchlist` و
+# `run_weekly_renewal`، وهما **مُشغَّلان فعليًّا** في السويّة (‏5 مواضع) ⇒ صارت
+# الاختباراتُ تكتب في `reject_log.json` **الحقيقيّ** بمساره الافتراضيّ فتدهس
+# لقطةَ يومٍ حيّ. والجذعُ لكل مُشغِّلٍ على حدة هو **صنفُ عطل «يجب أن نتذكّر»**
+# ⇒ العلاجُ عند المصدر: يُحوَّل الثابتُ نفسُه لمسارٍ مؤقّت **مرّةً واحدة**، فأيُّ
+# نداءٍ — قائمٍ أو قادم — يكتب في المؤقّت. والاختباراتُ المخصَّصة تمرّر مسارها صريحًا.
+# 🔒 وحرسُ ذلك **ليس هذا السطر** (يصير عدميًّا) بل بصمةُ الملفّ الحقيقيّ تُؤخَذ
+#    الآن وتُقارَن **قبل الملخّص** ⇒ أيُّ كاتبٍ بأيّ وسيلةٍ يُسقط السويّة.
+import hashlib as _rej_h                                          # noqa: E402
+import tempfile as _rej_tf                                        # noqa: E402
+
+_REJ_REAL_PATH = S.REJECT_LOG_FILE
+_REJ_REAL_SHA = (
+    _rej_h.sha256(open(_REJ_REAL_PATH, "rb").read()).hexdigest()
+    if _os_hc.path.exists(_REJ_REAL_PATH) else None)
+S.REJECT_LOG_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), "_suite_reject_log.json")
+
 PASS, FAIL = [], []
 
 
@@ -7315,6 +7336,9 @@ def _run_daily(stocks, results=None, hist=None):
     يحرسها 15 قفلًا **نصّيًّا** فقط. أُثبت بالطفرة: حذف `send_telegram(msg)` كليًّا
     يُبقي السويّة خضراء. فصار القفل يشغّلها ويؤكّد وصول الرسالة."""
     sent, saved, _sv = [], [], {}
+    # 📌 `record_rejected_symbols` **لا تُجذَّع عمدًا** فيُختبَر وصلُها فعلًا —
+    #    وأمانُها من دهسِ الملفّ الحقيقيّ يأتي من تحويل `REJECT_LOG_FILE` لمسارٍ
+    #    مؤقّتٍ في رأس السويّة (لا من جذعٍ يُنسى لكل مُشغِّلٍ جديد).
     names = ("scan_market", "download_history", "send_telegram", "save_watchlist",
              "write_csv", "record_reject_stats", "accumulate_explosions")
     for _n in names:
@@ -13428,10 +13452,30 @@ def _bt_calls(name):
 
 
 # ── ① العزل ودرعُ الجذور ──────────────────────────────────────────────────
-check("🧪 BT🔒 لا يُستورَد في الإنتاج ولا في الصيّادين",
-      all("envelope_bt" not in open(_f, encoding="utf-8").read()
-          for _f in ("Super_stock.py", "envelope_scan.py", "catalog_envelope.py",
-                     "envelope_hunter.py", "split_hunter.py")))
+# 🐞 **وهذا القفل كان نصّيًّا فسقط على تعليقٍ يذكر اسمَ الوحدة** (‏2026-08-05):
+#    شرحُ عيبٍ داخل `envelope_scan.py` ذكر «`envelope_bt`» فقرأه القفلُ استيرادًا.
+#    وهو **نفسُ درسِ العدميّة معكوسًا**: النصُّ لا يفرّق كودًا عن تعليق — في
+#    الاتّجاهين. ⇒ صار **نحويًّا**: استيرادٌ فعليّ في الشجرة لا ذكرٌ في نصّ.
+def _imports_module(path, mod):
+    """هل `path` **يستورد** `mod` فعلًا؟ (‏AST — التعليقات والنصوص لا تُحسَب)"""
+    tree = _ast0.parse(open(path, encoding="utf-8").read())
+    for n in _ast0.walk(tree):
+        if isinstance(n, _ast0.Import):
+            if any(a.name == mod or a.name.startswith(mod + ".") for a in n.names):
+                return True
+        if isinstance(n, _ast0.ImportFrom) and (n.module or "") == mod:
+            return True
+    return False
+
+
+_bt_isolated_files = ("Super_stock.py", "envelope_scan.py", "catalog_envelope.py",
+                      "envelope_hunter.py", "split_hunter.py")
+check("🧪 BT🔒 لا يُستورَد في الإنتاج ولا في الصيّادين (قفل AST لا نصّ)",
+      all(not _imports_module(_f, "envelope_bt") for _f in _bt_isolated_files))
+# 🔒 وشاهدُ ضبطٍ يمنع العدميّة: الكاشفُ نفسُه **يرى** استيرادًا حقيقيًّا.
+check("🧪 BT🔒 وكاشفُ الاستيراد ليس عدميًّا (يرى استيرادًا قائمًا فعلًا)",
+      _imports_module("envelope_bt.py", "envelope_scan")
+      and _imports_module("envelope_hunter.py", "envelope_scan"))
 check("🧪 BT🔒 بلا إرسالٍ ولا حفظِ حالة (قياسٌ خالص)",
       not _bt_calls("send_telegram") and not _bt_calls("git_save")
       and not _bt_calls("save_watchlist"))
@@ -13777,9 +13821,16 @@ import catalog_envelope as _CE0   # كتلة الظرف تأتي لاحقًا ف
 _es_blob = json.load(open("envelope_p90.json", encoding="utf-8"))
 check("📐 SCAN🔒 ملفّ الحواف يحمل **المعايير الأحد عشر كلَّها** (لا نقصَ نقلٍ)",
       set(_es_blob["edges"]) == {k for k, _, _, _ in _CE0.CRITERIA})
-check("📐 SCAN🔒 وموسومٌ بلقطته وتشغيلته وعدد رموزه ومَن استُبعد",
-      all(_es_blob.get(k) for k in ("snapshot", "run_id", "n_symbols", "pct"))
+# 🔴 **`snapshot` أُخرِج من هذا القفل بسببٍ مقاس لا تسامحًا:** المُصدِّر يكتبه من
+#    `ENV_SNAPSHOT_ID` و**الـworkflow لم يكن يُصدّره قطّ** ⇒ كلُّ مُخرَجٍ آليّ يخرج
+#    بـ`null`، ومعناه أن أيّ ملفٍّ يحمل لقطةً كان **مملوءًا بيد**. فالشرطُ نُقل إلى
+#    **مصدره الحقيقيّ** (قفلُ الـworkflow أدناه)، وهنا يُشترط ما تكتبه الأداةُ فعلًا.
+check("📐 SCAN🔒 وموسومٌ بتشغيلته وتاريخها وعدد رموزه ومَن استُبعد",
+      all(_es_blob.get(k) for k in ("run_id", "asof", "n_symbols", "pct"))
       and "HTZ" in _es_blob.get("excluded", {}))
+check("📐 SCAN🔒 والـworkflow **يُصدّر `ENV_SNAPSHOT_ID`** فتكون اللقطة ذاتيّة النسب",
+      "ENV_SNAPSHOT_ID" in open(".github/workflows/catalog_envelope.yml",
+                                encoding="utf-8").read())
 check("📐 SCAN🔒 والمقام مُصرَّحٌ به (20 جلسة) — فلا يُقارَن بمقامٍ آخر",
       _es_blob.get("denominator_sessions") == _CE0.ENTRY_WINDOW)
 # 🐞 **وقفلي الأوّل هنا كان فارغًا (خامسُ مرّةٍ في الجلسة):** عنوانُه «تُصدَّر
@@ -13797,6 +13848,28 @@ check("📐 SCAN🔒 ع3: **تواريخ المِرساة مخزَّنة** في�
       and len(_es_blob["anchor_last_measured"]) == _es_blob["n_symbols"])
 check("📐 SCAN🔒 وكودُ التصدير قائمٌ في الأداة (شرطٌ لازمٌ لا كافٍ)",
       "ENVELOPE_P90_JSON" in _insp0.getsource(_CE0))
+
+# ── ⓿-ب 🔴 **الوسمُ يجب أن يصل المستهلك لا أن يبقى في الملفّ** ──────────────
+#    عيبٌ مقيس (‏2026-08-05): `load_edges` كانت تبني `_meta` بقائمةٍ بيضاء من خمسة
+#    مفاتيح فتُسقط `source` و`anchor_last_measured` ⇒ (أ) حاجبُ `envelope_bt`
+#    الذي يشترط «مُخرَجٌ آليّ» **يستحيل عبورُه** ⇒ وسمٌ يدويٌّ كاذب · (ب)
+#    و`probe_anchors` تُعلن **كلَّ السنوات ملوَّثة** ⇒ التجربةُ «لا حكم» لعطلِ
+#    أنابيبَ لا لعيبٍ في البيانات. والأقفالُ أعلاه كانت خضراءَ لأنها تفحص **الملفّ**
+#    والعيبُ في **القارئ** ⇒ القفلُ الصحيح **من نقطة النداء**.
+_es_loaded = _ES.load_edges()
+_es_meta = _es_loaded.get("_meta") or {}
+check("📐 SCAN🔒 ع⓿ب: `_meta` تمرّر **كلَّ** مفاتيح الملفّ غير `edges` (لا قائمةَ بيضاء)",
+      set(_es_meta) == (set(_es_blob) - {"edges"}))
+check("📐 SCAN🔒 ع⓿ب: فيعبُر حاجبُ «مُخرَجٌ آليّ» **من نقطة النداء** لا من الملفّ",
+      str(_es_meta.get("source") or "").startswith("مُخرَجٌ آليّ"))
+check("📐 SCAN🔒 ع⓿ب: وتواريخُ المِرساة **تصل `probe_anchors`** فيُقاس التلوّث فعلًا",
+      (lambda a: a["n"] == _es_blob["n_symbols"]
+       and a["contaminated"] != [2023, 2024, 2025])(
+          _BT.probe_anchors(_es_loaded, (2023, 2024, 2025))))
+check("📐 SCAN🔒 ع⓿ب: و`_meta` لا تُغيّر البصمة (القرارُ بت-بت)",
+      _ES.edges_fingerprint(_es_loaded)
+      == _ES.edges_fingerprint({k: v for k, v in _es_loaded.items()
+                                 if k != "_meta"}))
 #    📌 والظرف **ليس أوسعَ في كل شيء** — أربعةٌ منه **أضيقُ** من حدّنا. قفلٌ على
 #    هذي الحقيقة لئلّا يُوصَف لاحقًا بـ«تخفيفٍ» وهو **إعادةُ تشكيل**.
 _es_tighter = [
@@ -14074,6 +14147,13 @@ check("🗂️ REJ🔒 الملفّ ضمن وسائط `git_save` وإلّا ضا
 check("🗂️ REJ🔒 لا حقلَ إثراءٍ في اللقطة (تسريبٌ لأيّ نموذجٍ لاحق)",
       set(_rl_snap.keys()) == {"date", "walls", "n", "cut"})
 
+
+# 🔒 **والمسار المؤقّت يعمل فعلًا**: المسار اليوميّ يُشغَّل، والكتابةُ تقع في
+#    المؤقّت لا في الملفّ المدفوع. (والحرسُ الشاملُ لكلّ كاتبٍ **قبل الملخّص**.)
+check("🗂️ REJ🔒 `REJECT_LOG_FILE` مُحوَّلٌ لمسارٍ مؤقّت في السويّة (لا مسارَ المستودع)",
+      S.REJECT_LOG_FILE != _REJ_REAL_PATH
+      and S.REJECT_LOG_FILE.startswith(_rej_tf.gettempdir()))
+
 # ══════════════════════════════════════════════════════════════════════════
 # 📐 ظرف الكاتالوج — «الحدّ الأدنى» مقيسًا من أسهم فيصل (العقد:
 #    `catalog_envelope_design.md`، مدفوعٌ قبل أوّل تشغيل).
@@ -14283,6 +14363,18 @@ _tb_needle = 'print(f"' + 'النتيجة: {len(PASS)}'   # ← موصولةٌ �
 _tb_after = _tb_src.split(_tb_needle, 1)[-1]  # حرفيًّا لوجد القفلُ نفسَه فكذب
 check("🧯 لا اختبارَ بعد سطر الملخّص (وإلّا طُبع ولم يُحسب)",
       "check(" not in _tb_after)
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🗂️ حرسٌ شامل: **السويّة لم تكتب في أيّ ملفّ حالةٍ مدفوع**
+# ══════════════════════════════════════════════════════════════════════════
+# يُقارَن **الملفّ الحقيقيّ في المستودع** ببصمته المأخوذة في رأس السويّة. وهو
+# يمسك أيَّ كاتبٍ **بأيّ وسيلة** (نداءٌ مباشر · مسارٌ تكامليّ · مُشغِّلٌ جديد
+# يُضاف غدًا) — لا جذعًا واحدًا بعينه. ⚠️ ويجب أن يبقى **قبل** سطر الملخّص.
+_rej_now = (_rej_h.sha256(open(_REJ_REAL_PATH, "rb").read()).hexdigest()
+            if _os_hc.path.exists(_REJ_REAL_PATH) else None)
+check("🗂️ REJ🔒 السويّةُ لم تُغيّر `reject_log.json` المدفوع (حرسٌ شامل لكلّ كاتب)",
+      _rej_now == _REJ_REAL_SHA,
+      f"قبل={str(_REJ_REAL_SHA)[:12]} · بعد={str(_rej_now)[:12]}")
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")

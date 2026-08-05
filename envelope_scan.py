@@ -55,11 +55,17 @@ def load_edges(path: str = EDGES_FILE) -> dict:
     out = {}
     for k, v in edges.items():
         out[k] = tuple(v) if isinstance(v, list) else v
-    out["_meta"] = {
-        "snapshot": blob.get("snapshot"), "run_id": blob.get("run_id"),
-        "pct": blob.get("pct"), "n_symbols": blob.get("n_symbols"),
-        "excluded": blob.get("excluded"),
-    }
+    # 🔴 **كان هنا قائمةٌ بيضاء بخمسة مفاتيح — وهي عيبٌ مقيس أُصلح 2026-08-05:**
+    #    الأداةُ تكتب `source` و`anchor_last_measured` في الملفّ، **والقارئ كان
+    #    يُسقطهما** ⇒ (أ) حاجبُ `envelope_bt` الذي يشترط وسم «مُخرَجٌ آليّ» **يستحيل
+    #    عبورُه** فيُجبَر المشغّلُ على وسمٍ يدويٍّ كاذب · (ب) و`probe_anchors` تقرأ
+    #    صفرَ تواريخ فتُعلن **كلَّ السنوات ملوَّثة** ⇒ التجربةُ كلُّها «لا حكم»
+    #    لعطلِ أنابيبِ بياناتٍ لا لعيبٍ في البيانات.
+    #    ⇒ صار **تمريرًا شاملًا** لكل مفتاحٍ غير `edges`: أيُّ حقلٍ يضيفه المُصدِّر
+    #    لاحقًا يصل المستهلك تلقائيًّا، فيُقتل **صنفُ** العيب لا حالتُه.
+    #    🔒 آمنٌ على القرار: `inside_envelope` تلفّ `CRITERIA` لا مفاتيحَ الظرف،
+    #    و`edges_fingerprint` تستثني `_meta` صراحةً ⇒ البصمة والقرار بت-بت.
+    out["_meta"] = {k: v for k, v in blob.items() if k != "edges"}
     return out
 
 

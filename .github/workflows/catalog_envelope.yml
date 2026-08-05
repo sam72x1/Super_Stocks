@@ -60,6 +60,12 @@ jobs:
       - name: Run catalog envelope
         env:
           BT_FROZEN_PATH: ${{ steps.snap.outputs.path }}
+          # 🔴 **كان غائبًا — وعيبٌ مقيس (‏2026-08-05):** المُصدِّر يكتب
+          #    `"snapshot": os.environ.get("ENV_SNAPSHOT_ID") or None` ⇒ **كلُّ**
+          #    مُخرَجٍ آليّ يخرج بـ`snapshot: null` فيفقد ملفُّ الحواف — وهو **أثرُ
+          #    القرار** — نسبتَه إلى اللقطة التي عُوير عليها. ومعناه أن أيّ ملفٍّ
+          #    يحمل لقطةً كان **مملوءًا بيدٍ**، وهو عينُ ما تمنعه الأقفال.
+          ENV_SNAPSHOT_ID: ${{ github.event.inputs.frozen_run_id }}
           ENV_SYMBOLS: ${{ github.event.inputs.symbols }}
           ENV_COST_CAP: ${{ github.event.inputs.cost_cap }}
           ENV_COST_DAYS: ${{ github.event.inputs.cost_days }}
