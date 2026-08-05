@@ -12131,6 +12131,25 @@ check("🧮 SF🔒 بوّابةُ التوقيت **حقيقيةٌ لا مُلغ�
                                         tzinfo=S.dt.timezone.utc)) == (False, None)
       and "session_gate(now_utc)" in _SFrun
       and "hasattr" not in _SFrun)
+# 🐞 عيبٌ كشفه **التشغيلُ الحيّ وحده**: `git_save(files, runner, sender)` — مرّرتُ
+#    رسالةَ commit في خانة `runner` ⇒ `'str' object is not callable` ⇒ **الختم لا
+#    يُحفَظ ⇒ الدِدوب بلا ذاكرة**. يُقفَل بأن النداء **بوسيطٍ واحد** كنظيرَيه.
+#    ⚠️ والقفلُ **بالـAST**: نفيٌ نصّيّ («لا فاصلة») يطابق **التعليقَ** الذي يشرح
+#       العيبَ نفسه ⇒ سقط على كودٍ سليم. نعدّ وسائطَ النداء الفعليّ لا حروفَه.
+def _call_argc(fn, name):
+    import ast as _a, textwrap as _t
+    for n in _a.walk(_a.parse(_t.dedent(_insp0.getsource(fn)))):
+        if (isinstance(n, _a.Call) and isinstance(n.func, _a.Attribute)
+                and n.func.attr == name):
+            return len(n.args) + len(n.keywords)
+    return None
+
+
+check("🔏 SF🔒 `git_save` تُنادى **بقائمة الملفات وحدها** (توقيعُها runner/sender)",
+      _call_argc(SF._write_stamp, "git_save") == 1
+      and _call_argc(MH._write_stamp, "git_save") == 1
+      and list(_insp0.signature(S.git_save).parameters)
+      == ["filenames", "runner", "sender"])
 check("🧮 SF🔒 وحرّاسُه نفسُ حرّاس الصيّادين (تغطية · إبلاغ · دِدوب · ختمٌ بعد الإرسال)",
       SF.MIN_COVERAGE_PCT >= 50.0 and "لم يُفحَص السوق" in _SFrun
       and _SFrun.count("_fail(S,") >= 5

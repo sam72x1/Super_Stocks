@@ -71,7 +71,14 @@ def _write_stamp(S, sess):
         import json
         with open(STAMP_FILE, "w", encoding="utf-8") as fh:
             json.dump({"session": (sess.isoformat() if sess else None)}, fh)
-        S.git_save([STAMP_FILE], "split filter stamp")
+        # 🐞 **عيبٌ كشفه التشغيلُ الحيّ وحده (2026-08-05):** كتبتُ
+        #    `git_save([STAMP_FILE], "split filter stamp")` ظنًّا أن الوسيط
+        #    الثاني رسالةُ commit — **وتوقيعُها `(filenames, runner, sender)`**
+        #    فصار النصُّ هو `runner` ⇒ `run(...)` ⇒ **`'str' object is not
+        #    callable`** ⇒ **الختمُ لا يُحفَظ ⇒ الدِدوب بلا ذاكرة ⇒ رسالةٌ
+        #    مكرّرة على الكرون الثاني**. والاختبارات لا تراه (تحقن حول الدفع).
+        #    🧭 والدرس: **وسيطٌ ثانٍ لم أقرأ توقيعَه = خطأٌ ينتظر التشغيل.**
+        S.git_save([STAMP_FILE])
     except Exception as e:                                       # noqa: BLE001
         S.log(f"⚠️ فلترة التقسيم: تعذّر ختمُ الجلسة ({e}).")
 
