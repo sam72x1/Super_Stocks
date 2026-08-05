@@ -6693,6 +6693,218 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     return rows[:int(CONFIG["METHOD_MAX"])]
 
 
+# ==========================================================
+# 🧮 **النظام الرابع — «فلترة أسهم التقسيم»** (‏`FAISAL_SPLIT_FILTER_METHOD.md`)
+#    أداةٌ مستقلّة عن الفارز وعن صيّاد المقسّم وعن صيّاد «النهج العلمي».
+#    🔒 **ولا تمسّ `scan_split_hunter` بحرف** (درعُه قائم) — تُعيد استعمال دوالّه
+#       النقيّة **نداءً** لا تعديلًا، فالبصمات تبقى مطابقة.
+# ==========================================================
+_SPLIT_FILTER_NEAR = []       # 🔭 «قريبون من الشرط» — يُفرَّغ كلّ مسح
+_SPLIT_FILTER_STAGE = {}      # 🩺 عدّاداتُ آخر مسح
+
+
+def split_filter_stop(df, seq):
+    """⛔ **وقفُ هذا النظام = «ذيل شمعة القاع»** — «الوقف ذيل شمعة القاع 2 · مثلًا
+    قاعه 2 دخلت بـ2.10» (‏`FAISAL_SPLIT_FILTER_METHOD.md` §①)، ويؤكّده `IMG_0659`
+    على `$TDIC`: «**مهمّ ما يكسر ذيلها · لذلك قرّرنا الدخول بناءً ع هذي الشمعة**».
+
+    🔴 **وهو وقفٌ رابعٌ مختلف** فلا يُخلط: الارتكاز **7% تحت الدعم** · المقسّم
+    **القاع نفسه** · النهج العلمي **الدخول −6%** · وهنا **ذيلُ شمعة القاع**.
+    نُفضّل ذيلَ الهمر إن وُجد (أدقّ بنصّه)، وإلّا فقاعُ التسلسل. نقيّة."""
+    try:
+        hw = hammer_wick_stop(df)
+        if hw and hw.get("wick_low"):
+            return float(hw["wick_low"]), "ذيل شمعة الهمر"
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        b = float((seq or {}).get("bottom") or 0)
+        return (b, "قاع التسلسل") if b > 0 else (None, None)
+    except (TypeError, ValueError):
+        return None, None
+
+
+def scan_split_filter(history, today=None, fetch_splits=None, fetch_pump=None,
+                      fetch_borrow=None, fetch_news=None):
+    """🧮 **صيّاد «فلترة أسهم التقسيم»** — النوعان ① و② بنصّ فيصل.
+
+    > **①** «سهم مقسّم تنتظر هبوطه **50٪** · شرط **ما صعد أوّل التقسيم أكثر من
+    > 20٪** · في حال تقسيمه 5 دولار تنتظر 2 · **إذا ثبت عليها بيصعد 10٪ يرجع
+    > يختبر القاع مرّة ثانية** مثلًا 2.10 · **الدخول عند ثبات الدعم الثاني تطلبه
+    > طلبًا: 2.05 · 2.10 · 2.15** · **الوقف ذيل شمعة القاع** · كسر 2 تطلع وتنتظر
+    > القاعدة مرّة ثانية · **الشرط ما عليه حراج** · **الشرط الشورت أقلّ من 20
+    > ألف** · **الشرط ما عليه أخبار سلبية** · **الشرط متابعة شموعه ع فريم يوميّ
+    > و4 ساعات**»
+    > **②** «سهم مقسّم **فوق 5 دولار لـ10** — تنتظر هبوطه الأعلى **3 لـ2.50**».
+
+    ⚖️ **وتصحيحُ المالك 2026-08-05 مُدرَجٌ حرفيًّا:** «**الحراج = القروبات**» ⇒
+    الشرطُ يُخدَم بـ`group_pump_scar` القائم، ولم نعد نحتاج بحثًا نصّيًّا بتويتر.
+
+    🧩 **وإعادةُ استعمالٍ مبرَّرة لا صامتة** (درسُ `trigger_state`): «بيصعد 10٪
+    يرجع يختبر القاع مرّة ثانية … **ثبات الدعم الثاني**» هو **نفسُ** ما تقيسه
+    `method_sequence` (قاع ⟶ ارتداد ≥10% ⟶ رجوعٌ يختبر ⟶ ثبات) **وبالرقم نفسه**
+    ⇒ تُعاد هنا **بنصٍّ مطابق لا بنظامٍ مستورَد**.
+
+    يرجّع قائمة صفوف. **حقنُ الجالبات للاختبار** · فاشلٌ-آمن لكلّ رمز."""
+    d = today or dt.date.today()
+    fs = fetch_splits or _fetch_splits
+    fp = fetch_pump or (lambda x: bool(group_pump_scar(x)))
+    fb = fetch_borrow or ce_borrow_info
+    fn = fetch_news or (lambda s: [])
+    rows = []
+    _SPLIT_FILTER_NEAR.clear()
+    stage = {"price": 0, "split_setup": 0, "didnt_rise": 0, "seq": 0,
+             "entry_zone": 0, "short_ok": 0}
+    for sym, df in (history or {}).items():
+        try:
+            if df is None or len(df) < 40:
+                continue
+            price = float(df["Close"].values[-1])
+            # ⓿ حدودُ السعر **مُعادةٌ من رادار التقسيم** ومُعلَنةٌ هندسيةً لا فيصلية
+            #    (‏$1 اشتقاقٌ من «السنتات خارج الشرح» · و$10 سقفٌ قرارُنا) — ونصُّه
+            #    هنا يذكر 5 و10 مثالين لا حدودًا، فلا نخترع أضيقَ منهما.
+            if not (CONFIG["SPLIT_RADAR_PRICE_MIN"] <= price
+                    <= CONFIG["SPLIT_RADAR_PRICE_MAX"]):
+                continue
+            stage["price"] += 1
+            sp = fs(sym)
+            probe = _split_setup_probe(df, sp, d)          # ① الحدث + ÷2 + القاع
+            if not (probe and probe.get("near_bottom")):
+                continue
+            stage["split_setup"] += 1
+            if not probe.get("didnt_rise"):                # ② «ما صعد أكثر من 20٪»
+                _sf_near(sym, price, f"صعد {float(probe.get('rose_pct') or 0):.0f}% "
+                         f"أوّل التقسيم (الحدّ 20%)", probe)
+                continue
+            stage["didnt_rise"] += 1
+            # ③ **ثبات الدعم الثاني** — نافذةٌ مشتقّةٌ من الحدث لا ثابتٌ مُبتكَر
+            seq = method_sequence(df, win=int(CONFIG["FAISAL_BOTTOM_LOOKBACK"]))
+            if not (seq and seq.get("ok")):
+                _sf_near(sym, price, "لم يكتمل ثبات الدعم الثاني "
+                         "(ارتداد 10% ثم رجوعٌ يثبت)", probe)
+                continue
+            stage["seq"] += 1
+            bot = float(seq["bottom"])
+            step = float(CONFIG["FAISAL_LADDER_STEP"])
+            # 📥 «تطلبه طلبًا 2.05 · 2.10 · 2.15» — سلّمٌ **صاعد** من فوق القاع
+            entries = descending_ladder(bot + step, step=-step)
+            if not entries:
+                continue
+            stop, stop_kind = split_filter_stop(df, seq)
+            if stop is None:
+                continue
+            if price > max(entries):        # 🎯 قابليةُ التنفيذ الآن
+                _sf_near(sym, price, f"تجاوز منطقة الطلبات (${max(entries):.2f})",
+                         probe)
+                continue
+            stage["entry_zone"] += 1
+            if fp(df):                      # ⑤ «الشرط ما عليه حراج» = القروبات
+                _sf_near(sym, price, "دخلته قروبات (الحراج)", probe)
+                continue
+            neg = []
+            try:
+                neg = [w for w in (scan_news_risk(fn(sym)) or [])]
+            except Exception:                                    # noqa: BLE001
+                neg = []
+            if neg:                         # ⑥ «الشرط ما عليه أخبار سلبية»
+                _sf_near(sym, price, f"أخبار سلبية: {neg[0]}", probe)
+                continue
+            bor = None
+            try:
+                bor = fb(sym)
+            except Exception:                                    # noqa: BLE001
+                bor = None
+            av = (bor or {}).get("shares_available")
+            if av is not None:              # ④ «الشورت أقلّ من 20 ألف»
+                try:
+                    if float(av) >= float(CONFIG["METHOD_SHORT_MAX"]):
+                        _sf_near(sym, price, f"المتاح للاقتراض {int(float(av)):,} "
+                                 f"— الحدّ أقلّ من "
+                                 f"{int(CONFIG['METHOD_SHORT_MAX']):,}", probe)
+                        continue
+                except (TypeError, ValueError):
+                    pass                    # مجهولٌ يمرّ بفائدة الشك
+            stage["short_ok"] += 1
+            rows.append({
+                "symbol": sym, "price": price, "kind": ("②" if float(
+                    probe.get("ref") or 0) > 5 else "①"),
+                "ref": probe.get("ref"), "half": probe.get("half"),
+                "rose_pct": probe.get("rose_pct"), "event": probe.get("event_kind"),
+                "event_date": probe.get("event_date"), "freq": probe.get("freq"),
+                "bottom": bot, "bounce_pct": seq.get("bounce_pct"),
+                "touches": seq.get("touches"), "entries": entries,
+                "stop": stop, "stop_kind": stop_kind,
+                "avail": av, "borrow_fee": (bor or {}).get("fee_pct"),
+                "df": df})
+        except Exception:                                        # noqa: BLE001
+            continue
+    _SPLIT_FILTER_NEAR.sort(key=lambda n: n.get("price") or 0)
+    _SPLIT_FILTER_STAGE.clear()
+    _SPLIT_FILTER_STAGE.update(stage, matched=len(rows))
+    rows.sort(key=lambda r: r["symbol"])
+    log(f"🧮 فلترة التقسيم: فوق أرضية السعر {stage['price']} · setup تقسيم "
+        f"{stage['split_setup']} · لم يصعد {stage['didnt_rise']} · ثبات الدعم "
+        f"الثاني {stage['seq']} · داخل الطلبات {stage['entry_zone']} · "
+        f"مطابق كامل {len(rows)}")
+    return rows[:int(CONFIG["METHOD_MAX"])]
+
+
+def _sf_near(sym, price, why, probe=None):
+    """🔭 تسجيلُ «قريبٍ من الشرط» لفلترة التقسيم — **بسببٍ مُسمّى لا صمت**."""
+    _SPLIT_FILTER_NEAR.append({"symbol": sym, "price": price, "why": why,
+                               "ref": (probe or {}).get("ref"),
+                               "half": (probe or {}).get("half")})
+
+
+def build_split_filter_alert(rows: list, today=None) -> str:
+    """🧮 كرتُ «فلترة أسهم التقسيم» — بلفظ فيصل وأرقامه. عرض/تنبيه فقط."""
+    if not rows:
+        return ""
+    d = today or dt.date.today()
+    lines = [f"🧮 <b>فلترة أسهم التقسيم</b> (فيصل · {len(rows)} مطابق) — {d}",
+             "<i>مقسّم ⟶ هبوط 50% ⟶ ما صعد أكثر من 20% ⟶ ثبات الدعم الثاني</i>",
+             ""]
+    for r in rows:
+        lines.append(f"🎯 <b>{esc(r['symbol'])}</b> ${r['price']:.2f} "
+                     f"<b>[النوع {esc(str(r.get('kind') or '①'))}]</b>")
+        lines.append(f"  🏛️ {esc(str(r.get('event') or 'تقسيم'))} "
+                     f"{esc(str(r.get('event_date') or ''))} · المرجع "
+                     f"${float(r.get('ref') or 0):.2f} ⟶ الهدف ÷2 = "
+                     f"${float(r.get('half') or 0):.2f}"
+                     + (f" · صعد {float(r['rose_pct']):.0f}% فقط"
+                        if r.get("rose_pct") is not None else ""))
+        lines.append(f"  🪜 ثبات الدعم الثاني: قاع ${r['bottom']:.2f} ⟶ صعد "
+                     f"{float(r.get('bounce_pct') or 0):.0f}% ⟶ رجع واختبره "
+                     f"{int(r.get('touches') or 0)} مرّات")
+        lines.append("  📥 الطلبات: "
+                     + " · ".join(f"<b>${x:.2f}</b>" for x in r["entries"])
+                     + " — «تطلبه طلبًا · لا تشتري من العرض»")
+        lines.append(f"  ⛔ الوقف <b>${r['stop']:.2f}</b> "
+                     f"({esc(str(r.get('stop_kind') or ''))}) — «الوقف ذيل شمعة "
+                     "القاع» · وكسرُه: اخرج وانتظر القاعدة التالية")
+        _b = _short_headline({"shares_available": r.get("avail")}) \
+            if r.get("avail") is not None else "— (غير مؤكّد)"
+        lines.append(f"  🕵️ متاح للاقتراض: {_b} — شرطُ فيصل أقلّ من "
+                     f"{int(CONFIG['METHOD_SHORT_MAX']):,}")
+        lines.append("  ✅ خالٍ من حراج/قروبات · ✅ بلا أخبار سلبية · "
+                     "🕯️ تابعه على <b>يوميّ و4 ساعات</b>")
+        # ⚠️ **`price=None` عمدًا**: هذي الأداة تطبع سلّمَها **الصاعد** المنصوص
+        #    (‏2.05/2.10/2.15)، وتمريرُ السعر كان يُلحق سلّمًا **نازلًا** ثانيًا
+        #    ⇒ **سلّمان متناقضان في كرتٍ واحد**. يُكتفى بسلّم الوصفة.
+        for _x in faisal_rule_lines(r.get("df"), price=None,
+                                    entry=(r["entries"][0] if r.get("entries")
+                                           else None), avail=r.get("avail")):
+            lines.append(_x)
+        lines.append("")
+    _nl = method_near_lines(_SPLIT_FILTER_NEAR)
+    if _nl:
+        lines.extend(_nl + [""])
+    lines.append("<i>⚠️ نظامٌ رابعٌ مستقلّ — <b>قيد الإثبات الأماميّ</b>، لم "
+                 "يُختبَر تاريخيًّا. وقفُه «ذيل شمعة القاع» ولا يُخلط بوقف "
+                 "الارتكاز ولا المقسّم ولا النهج العلمي.</i>")
+    return _rtl_join(lines)
+
+
 def build_method_alert(rows: list, today=None) -> str:
     """🔬 كرت «النهج العلمي» — بلفظ فيصل وأرقامه. عرض/تنبيه فقط."""
     if not rows:

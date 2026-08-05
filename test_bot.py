@@ -12011,6 +12011,146 @@ check("⏸️ FK🔒 صيّاد المقسّم **بلا** هذي القواعد 
       "faisal_rule_lines" not in _insp0.getsource(S.build_split_hunter_alert)
       and "faisal_rule_lines" not in _insp0.getsource(S.scan_split_hunter)
       and "اتركها على جنب" in _insp0.getsource(S.build_split_hunter_alert))
+# ==========================================================
+# 🧮 النظام الرابع — «فلترة أسهم التقسيم» (‏`FAISAL_SPLIT_FILTER_METHOD.md`)
+#    المرساة: مثالُ فيصل نفسه — قاعٌ 2 ⟹ طلبات **2.05 · 2.10 · 2.15** ووقفٌ **2**.
+# ==========================================================
+import split_filter_hunter as SF          # noqa: E402
+_SFrun = _insp0.getsource(SF.run)
+_sf_n = 42
+_sf_hi = [5.0, 5.4] + [5.0 - i * 0.06 for i in range(_sf_n)] \
+    + [2.10, 2.30, 2.45, 2.20, 2.12, 2.08]
+_sf_lo = [4.6, 4.9] + [4.7 - i * 0.06 for i in range(_sf_n)] \
+    + [2.00, 2.15, 2.30, 2.10, 2.02, 2.01]
+_sf_cl = [4.9, 5.1] + [4.85 - i * 0.06 for i in range(_sf_n)] \
+    + [2.05, 2.25, 2.40, 2.15, 2.05, 2.04]
+_sf_idx = S.pd.date_range("2026-04-01", periods=len(_sf_hi), freq="B")
+_sf_df = S.pd.DataFrame({"Open": _sf_cl, "High": _sf_hi, "Low": _sf_lo,
+                         "Close": _sf_cl, "Volume": [3e5] * len(_sf_hi)},
+                        index=_sf_idx)
+_sf_sp = S.pd.Series([0.1], index=[_sf_idx[0]])
+
+
+def _sf_scan(**kw):
+    kw.setdefault("fetch_splits", lambda s: _sf_sp)
+    kw.setdefault("fetch_pump", lambda d: False)
+    kw.setdefault("fetch_borrow", lambda s: {"shares_available": 7000})
+    kw.setdefault("fetch_news", lambda s: [])
+    return S.scan_split_filter({"T1": _sf_df}, today=_sf_idx[-1].date(), **kw)
+
+
+_sf_rows = _sf_scan()
+check("🧮 SF🔒 مطابقٌ كامل بأرقام فيصل: طلبات 2.05/2.10/2.15 · ووقفٌ 2.00",
+      len(_sf_rows) == 1 and _sf_rows[0]["entries"] == [2.05, 2.10, 2.15]
+      and abs(_sf_rows[0]["stop"] - 2.00) < 1e-6
+      and abs(_sf_rows[0]["bottom"] - 2.00) < 1e-6)
+check("🧮 SF🔒 والوقف **ذيل شمعة القاع** لا القاع×نسبة ولا الدخول−6% (رابعُ وقف)",
+      "ذيل شمعة القاع" in _insp0.getsource(S.split_filter_stop)
+      and _sf_rows[0]["stop"] <= _sf_rows[0]["entries"][0])
+check("🧮 SF🔒 «الشرط ما عليه حراج» = **القروبات** (تصحيح المالك 2026-08-05)",
+      _sf_scan(fetch_pump=lambda d: True) == []
+      and any("قروبات" in n["why"] for n in S._SPLIT_FILTER_NEAR))
+check("🧮 SF🔒 «الشورت أقلّ من 20 ألف» شرطٌ يرفض · والمجهولُ يمرّ بفائدة الشك",
+      _sf_scan(fetch_borrow=lambda s: {"shares_available": 25_000}) == []
+      and len(_sf_scan(fetch_borrow=lambda s: {})) == 1
+      and len(_sf_scan(fetch_borrow=lambda s: {"shares_available": 19_999})) == 1)
+check("🧮 SF🔒 «الشرط ما عليه أخبار سلبية» يرفض فعلًا",
+      _sf_scan(fetch_news=lambda s: [{"title": "announces public offering"}]) == []
+      and any("أخبار سلبية" in n["why"] for n in S._SPLIT_FILTER_NEAR))
+# 🐞 عيّنتي الأولى **تستوفي** الشرطين ② و③ فحذفُهما لا يغيّر شيئًا ⇒ نجت طفرتاهما.
+#    يلزم شاهدان **سالبان**: واحدٌ صعد أكثر من 20% وآخرُ بلا ثبات دعمٍ ثانٍ.
+
+
+def _sf_scan_df(df, **kw):
+    kw.setdefault("fetch_splits", lambda s: S.pd.Series([0.1], index=[df.index[0]]))
+    kw.setdefault("fetch_pump", lambda d: False)
+    kw.setdefault("fetch_borrow", lambda s: {"shares_available": 7000})
+    kw.setdefault("fetch_news", lambda s: [])
+    return S.scan_split_filter({"T1": df}, today=df.index[-1].date(), **kw)
+
+
+# ② شاهدٌ سالب — 🐞 وأوّلُ محاولةٍ لي كانت **فارغة**: جعلتُ القمّة 9.0 فصار ÷2
+#    = 4.50 بينما السعر 2.04 ⇒ يرفضه `near_bottom` (شرطٌ **أسبق**) ولا يبلغ ②
+#    أصلًا. الآن: افتتاح الحدث **3.00** وأعلاه **4.08** ⇒ صعد **+36%** (يخالف
+#    «لم يصعد») **و÷2 = 2.04 = السعر** ⇒ `near_bottom` ✓ فيسقط على ② **وحده**.
+_sf_rose_tail_hi = [2.10, 2.30, 2.45, 2.20, 2.12, 2.08]
+_sf_rose_tail_lo = [2.00, 2.15, 2.30, 2.10, 2.02, 2.01]
+_sf_rose_tail_cl = [2.05, 2.25, 2.40, 2.15, 2.05, 2.04]
+_sf_rose = S.pd.DataFrame(
+    {"Open": [3.00, 3.55] + [3.60 - i * 0.042 for i in range(_sf_n)]
+     + _sf_rose_tail_cl,
+     "High": [4.08, 3.90] + [3.80 - i * 0.042 for i in range(_sf_n)]
+     + _sf_rose_tail_hi,
+     "Low": [2.90, 3.40] + [3.50 - i * 0.042 for i in range(_sf_n)]
+     + _sf_rose_tail_lo,
+     "Close": [3.50, 3.60] + [3.65 - i * 0.042 for i in range(_sf_n)]
+     + _sf_rose_tail_cl,
+     "Volume": [3e5] * len(_sf_hi)}, index=_sf_idx)
+check("🧮 SF🔒 «ما صعد أوّل التقسيم أكثر من 20٪» يرفض فعلًا (شاهدٌ سالب)",
+      _sf_scan_df(_sf_rose) == []
+      and any("صعد" in n["why"] and "الحدّ 20%" in n["why"]
+              for n in S._SPLIT_FILTER_NEAR))
+# ③ شاهدٌ سالب: هبوطٌ متّصل بلا ارتدادٍ 10% ولا رجوعٍ يثبت ⇒ لا دعمَ ثانيًا
+_sf_noseq_lo = [4.6, 4.9] + [4.7 - i * 0.062 for i in range(_sf_n + 6)]
+_sf_noseq = S.pd.DataFrame(
+    {"Open": [x * 1.02 for x in _sf_noseq_lo],
+     "High": [x * 1.03 for x in _sf_noseq_lo], "Low": _sf_noseq_lo,
+     "Close": [x * 1.01 for x in _sf_noseq_lo],
+     "Volume": [3e5] * len(_sf_noseq_lo)},
+    index=S.pd.date_range("2026-04-01", periods=len(_sf_noseq_lo), freq="B"))
+# 🐞 «== []» وحدَها **لا تكفي**: بحذف البوّابة ينهار السطرُ التالي (`seq["bottom"]`)
+#    فيلتقطه حارسُ الرمز ⇒ **نفسُ المُخرَج** ⇒ نجت الطفرة. المميِّزُ هو **السبب
+#    المُسمّى** في «قريبون من الشرط» (لا يُسجَّل إلا بمرورِ البوّابة).
+check("🧮 SF🔒 و«ثبات الدعم الثاني» شرطٌ يرفض **بسببٍ مُسمّى** (لا انهيارٍ صامت)",
+      _sf_scan_df(_sf_noseq) == []
+      and any("ثبات الدعم الثاني" in n["why"] for n in S._SPLIT_FILTER_NEAR)
+      and S.method_sequence(_sf_noseq,
+                            win=int(S.CONFIG["FAISAL_BOTTOM_LOOKBACK"])) is None)
+# 🎯 شاهدٌ سالب لبوّابة «داخل الطلبات»: السعر 2.20 فوق أعلى الطلبات 2.15،
+#    والتسلسلُ سليمٌ (قمّتُه تبقى 2.45) فيسقط على هذي البوّابة **وحدها**.
+_sf_above = S.pd.DataFrame(
+    {"Open": _sf_cl + [2.20], "High": _sf_hi + [2.25], "Low": _sf_lo + [2.16],
+     "Close": _sf_cl + [2.20], "Volume": [3e5] * (len(_sf_hi) + 1)},
+    index=S.pd.date_range("2026-04-01", periods=len(_sf_hi) + 1, freq="B"))
+check("🎯 SF🔒 ومَن تجاوز منطقة الطلبات يُتابَع ولا يُرسَل («تطلبه طلبًا»)",
+      _sf_scan_df(_sf_above) == []
+      and S._SPLIT_FILTER_STAGE["seq"] == 1
+      and S._SPLIT_FILTER_STAGE["entry_zone"] == 0
+      and any("تجاوز منطقة الطلبات" in n["why"] for n in S._SPLIT_FILTER_NEAR))
+_sf_msg = S.build_split_filter_alert(_sf_scan(), today=_sf_idx[-1].date())
+check("🧮 SF🔒 والكرت يُبنى كاملًا وبأرقامه · وبلا سلّمين متناقضين",
+      all(_w in _sf_msg for _w in ("فلترة أسهم التقسيم", "$2.05", "$2.15",
+                                   "ذيل شمعة القاع", "يوميّ و4 ساعات"))
+      and "طلباتٌ نازلة" not in _sf_msg)
+check("🧮 SF🔒 بوّابةُ التوقيت **حقيقيةٌ لا مُلغاة** وتطابق نظيرتَيها حرفيًّا",
+      all(SF.session_gate(t) == MH.session_gate(t)
+          for t in (S.dt.datetime(2026, 1, 14, 0, 13, tzinfo=S.dt.timezone.utc),
+                    S.dt.datetime(2026, 7, 29, 0, 13, tzinfo=S.dt.timezone.utc),
+                    S.dt.datetime(2026, 7, 29, 1, 13, tzinfo=S.dt.timezone.utc)))
+      and SF.session_gate(S.dt.datetime(2026, 1, 14, 0, 13,
+                                        tzinfo=S.dt.timezone.utc)) == (False, None)
+      and "session_gate(now_utc)" in _SFrun
+      and "hasattr" not in _SFrun)
+check("🧮 SF🔒 وحرّاسُه نفسُ حرّاس الصيّادين (تغطية · إبلاغ · دِدوب · ختمٌ بعد الإرسال)",
+      SF.MIN_COVERAGE_PCT >= 50.0 and "لم يُفحَص السوق" in _SFrun
+      and _SFrun.count("_fail(S,") >= 5
+      and "لا يوجد سهم يطابق الشروط" in _SFrun
+      and _SFrun.index("_write_stamp(S, sess)") > _SFrun.index("send_telegram(msg)"))
+check("🧮 SF🔒 والكرونُ **مُزاحٌ** عن الصيّادين (لا يتزاحمون على ياهو)",
+      (lambda a, b, c: len({tuple(a), tuple(b), tuple(c)}) == 3)(
+          __import__("re").findall(r'cron:\s*"(\d+ \d+)',
+                                   _tf_open(".github/workflows/split_filter.yml")),
+          __import__("re").findall(r'cron:\s*"(\d+ \d+)',
+                                   _tf_open(".github/workflows/method_hunter.yml")),
+          __import__("re").findall(r'cron:\s*"(\d+ \d+)',
+                                   _tf_open(".github/workflows/split_hunter.yml"))))
+check("🧮 SF🔒 **ولا يمسّ صيّاد المقسّم**: يستعمل دوالَّه نداءً لا تعديلًا",
+      "_split_setup_probe" in _insp0.getsource(S.scan_split_filter)
+      and "scan_split_filter" not in _insp0.getsource(S.scan_split_hunter)
+      and "scan_split_filter" not in _insp0.getsource(S.build_split_hunter_alert))
+check("🧮 SF🔒 وإعادةُ استعمال `method_sequence` **مبرَّرةٌ نصًّا** لا صامتة",
+      "method_sequence" in _insp0.getsource(S.scan_split_filter)
+      and "ثبات الدعم الثاني" in _insp0.getsource(S.scan_split_filter))
 check("🧾 FK🔒 الجديدة كلُّها خارج الجذور (لا تمسّ اختيارًا ولا ترتيبًا)",
       all(_n not in _insp0.getsource(_f)
           for _n in ("short_decline_estimate", "faisal_rsi_zone", "under_all_mas",

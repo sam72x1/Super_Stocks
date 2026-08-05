@@ -1,0 +1,44 @@
+name: Split Filter (فلترة أسهم التقسيم — فيصل)
+
+# 🔏 يكتب ختمَ آخر مسحٍ ناجح (`split_filter_stamp.json`) ويدفعه — فتضييقُها إلى
+# `read` يُفشِل الدفع صامتًا ويجعل الدِدوب بلا ذاكرة.
+permissions:
+  contents: write
+
+# 🧮 النظام الرابع: مقسّم ⟶ هبوط 50% ⟶ ما صعد أكثر من 20% ⟶ ثبات الدعم الثاني.
+# شروطُه: خالٍ من حراج/قروبات · الشورت أقلّ من 20 ألف · بلا أخبار سلبية.
+# عرض/تنبيه فقط — لا يمسّ فرزًا ولا حالةً ولا `LOGIC_VERSION`.
+on:
+  schedule:
+    # ⏰ **بعد إغلاق الافتر** (20:00 ET) — وكرونان لأن ذلك يقع 00:00 UTC صيفًا
+    # و01:00 UTC شتاءً، و`session_gate` تُبطل الأبكرَ شتاءً ذاتيًّا.
+    # ⚠️ خانة الأيام **2-6** (ثلاثاء→سبت): افترُ الاثنين ينتهي فجرَ الثلاثاء UTC.
+    # ودقيقةٌ **مُزاحة عن الصيّادين** (‏13 و37) فلا يتزاحم ثلاثتُهم على ياهو.
+    - cron: "51 0 * * 2-6"
+    - cron: "51 1 * * 2-6"
+  workflow_dispatch: {}
+
+jobs:
+  split-filter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run split filter hunter
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          # 🔓 التشغيل اليدويّ يتخطّى بوّابة التوقيت والدِدوب معًا — وإلّا خرج
+          # الزرّ **أخضر بلا رسالة**، وهو صنفُ العطل غير المرئيّ.
+          SPLIT_FILTER_FORCE: >-
+            ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+        run: python split_filter_hunter.py
