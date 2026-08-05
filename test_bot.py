@@ -6,6 +6,7 @@
 يعمل بلا إنترنت (يحاكي البيانات + يعطّل yfinance).
 """
 import ast as _ast_p1          # 🔧 P1-③: قفل AST على تسمية النواقص (أسفل الملف)
+import ast as _ast0
 import inspect as _insp0
 import json
 import os as _os_hc
@@ -13405,6 +13406,138 @@ check("🛡️ الدرع **يسقط فعلًا** لو تغيّرت بصمة (ش
 _sh_src = open("split_hunter.py", encoding="utf-8").read()
 check("🛡️ الصيّاد معزولٌ عن أدوات البحث (لا replay10 ولا event_exec)",
       "replay10" not in _sh_src and "event_exec" not in _sh_src)
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🧪 م-و — T-ENVELOPE (`envelope_bt.py`): أداةُ قياس الربحية
+# ══════════════════════════════════════════════════════════════════════════
+import catalog_envelope as _CEb   # كتلة الظرف لاحقًا بالملفّ  # noqa: E402
+_bt_src = open("envelope_bt.py", encoding="utf-8").read()
+_bt_tree = _ast0.parse(_bt_src)
+
+
+def _bt_calls(name):
+    """هل تُنادى `name` فعلًا في الأداة؟ (‏AST — التعليقات لا تُحسَب)"""
+    for n in _ast0.walk(_bt_tree):
+        if isinstance(n, _ast0.Call):
+            f = n.func
+            nm = (f.attr if isinstance(f, _ast0.Attribute)
+                  else (f.id if isinstance(f, _ast0.Name) else ""))
+            if nm == name:
+                return True
+    return False
+
+
+# ── ① العزل ودرعُ الجذور ──────────────────────────────────────────────────
+check("🧪 BT🔒 لا يُستورَد في الإنتاج ولا في الصيّادين",
+      all("envelope_bt" not in open(_f, encoding="utf-8").read()
+          for _f in ("Super_stock.py", "envelope_scan.py", "catalog_envelope.py",
+                     "envelope_hunter.py", "split_hunter.py")))
+check("🧪 BT🔒 بلا إرسالٍ ولا حفظِ حالة (قياسٌ خالص)",
+      not _bt_calls("send_telegram") and not _bt_calls("git_save")
+      and not _bt_calls("save_watchlist"))
+# 🐞 وقفلي الأوّل بحث عن **نداءٍ** باسم `decide` — والأداة تُسنده لمتغيّرٍ
+#    (`dec = decide_fn or ES.decide`) لأنها تسمح بحقنٍ للاختبار ⇒ لا نداءَ باسمه.
+#    ⇒ القفل الصحيح: **مرجعُ الخاصّية** `ES.decide` موجودٌ في الشجرة النحوية.
+def _bt_uses_attr(name):
+    return any(isinstance(n, _ast0.Attribute) and n.attr == name
+               for n in _ast0.walk(_bt_tree))
+
+
+check("🧪 BT🔒 القرار من `envelope_scan.decide` والبناء من `backtest_symbol`",
+      _bt_uses_attr("decide") and _bt_calls("backtest_symbol"))
+check("🧪 BT🔒 ولا نسخةَ منطقٍ ثانية: لا `analyze_ticker` مباشرةً ولا حسابَ gain5",
+      not _bt_calls("analyze_ticker") and "gain5" not in _bt_src)
+
+# ── ② 🔴 الأعلام تُضبَط **قبل** الاستيراد وإلّا كانت خاملة ────────────────
+def _bt_env_before_import():
+    """‏`_apply_backtest_overrides` يُنفَّذ وقت التحميل ⇒ ضبطُ العلم بعد الاستيراد
+    = **علمٌ خامل** (بصمة الـno-op). نتحقّق من **ترتيب** العُقد لا من النصّ."""
+    first_import = None
+    last_env = None
+    for i, node in enumerate(_bt_tree.body):
+        if isinstance(node, _ast0.Import) and any(
+                a.name in ("Super_stock", "replay10", "catalog_envelope",
+                           "envelope_scan") for a in node.names):
+            if first_import is None:
+                first_import = i
+        if isinstance(node, _ast0.Expr) and isinstance(node.value, _ast0.Call):
+            f = node.value.func
+            if isinstance(f, _ast0.Attribute) and f.attr in ("setdefault",):
+                last_env = i
+        if isinstance(node, _ast0.Assign) and isinstance(node.targets[0], _ast0.Subscript):
+            last_env = i
+    return (first_import is not None and last_env is not None
+            and last_env < first_import)
+
+
+check("🧪 BT🔒 **الأعلام قبل الاستيراد** (قفل AST على الترتيب — لا علمَ خامل)",
+      _bt_env_before_import())
+check("🧪 BT🔒 وSCREENER_MODE=BACKTEST مضبوطٌ داخل الأداة لا بالـworkflow وحده",
+      "SCREENER_MODE" in _bt_src and "BACKTEST" in _bt_src)
+
+# ── ③ حاجب الحواف غير الآليّة ────────────────────────────────────────────
+import envelope_bt as _BT                                        # noqa: E402
+check("🧪 BT🔒 حاجبٌ: حوافٌّ غيرُ آليّةٍ ⇒ رفضٌ صريح ما لم يُوسَم التجاوز",
+      "مُخرَجٌ آليّ" in _insp0.getsource(_BT.run)
+      and "ENV_BT_ALLOW_MANUAL_EDGES" in _insp0.getsource(_BT.run))
+
+# ── ④ أرضيةُ السعر تُعاد إلى حافّة الظرف (حارسُ الإشارة الوهمية) ──────────
+_bt_rx = _BT.relax_for({"price": 1.62}, "E1")
+check("🧪 BT🔒 `MIN_PRICE` **تُعاد إلى حافّة الظرف** لا صفرًا (وإلّا مات حارسُ الوهميّ)",
+      _bt_rx["MIN_PRICE"] == 1.62 and _CEb.RELAX_ALL["MIN_PRICE"] == 0.0)
+check("🧪 BT🔒 وذراع `E1C` **تُبقي** D11 عاملًا (تُسقط مفتاحه من الإرخاء)",
+      "RECENT_RISE_BLOCK_PCT" not in _BT.relax_for({"price": 1.0}, "E1C")
+      and "RECENT_RISE_BLOCK_PCT" in _BT.relax_for({"price": 1.0}, "E1"))
+
+# ── ⑤ سياقُ الإرخاء يستعيد CONFIG **وإحصاءَ الرفض** ──────────────────────
+_bt_cfg0 = {k: S.CONFIG.get(k) for k in list(_CEb.RELAX_ALL) + ["BACKTEST_STEP"]}
+S._REJECT_STATS["زائف"] = 7
+with _BT.relaxed_step({"MIN_PRICE": 9.0}, 1):
+    _bt_in = (S.CONFIG["MIN_PRICE"] == 9.0 and S.CONFIG["BACKTEST_STEP"] == 1)
+    S._REJECT_STATS["ملوَّث"] = 99
+check("🧪 BT🔒 `relaxed_step` **تُرخي فعلًا** (القفل ليس عدميًّا)", _bt_in)
+check("🧪 BT🔒 وتستعيد `CONFIG` بت-بت",
+      all(S.CONFIG.get(k) == v for k, v in _bt_cfg0.items()))
+check("🧪 BT🔒 و**تستعيد إحصاءَ الرفض** فلا يتلوّث توزيعُ الأساس",
+      S._REJECT_STATS.get("زائف") == 7 and "ملوَّث" not in S._REJECT_STATS)
+S._REJECT_STATS.pop("زائف", None)
+try:
+    with _BT.relaxed_step({"MIN_PRICE": 9.0}, 1):
+        raise RuntimeError("انهيارٌ مُتعمَّد")
+except RuntimeError:
+    pass
+check("🧪 BT🔒 والاستعادة تقع **حتى مع الانهيار**",
+      all(S.CONFIG.get(k) == v for k, v in _bt_cfg0.items()))
+
+# ── ⑥ التلوّث الزمنيّ: بلا تواريخ ⇒ **كلُّ السنوات ملوَّثة احتياطًا** ──────
+check("🧪 BT🔒 بلا تواريخ مِرساة ⇒ لا نفيَ للتلوّث (تُعلَن كلُّها ملوَّثة)",
+      _BT.probe_anchors({"_meta": {}}, (2023, 2024, 2025))["contaminated"]
+      == [2023, 2024, 2025])
+check("🧪 BT🔒 ومع تواريخ ⇒ الملوَّثةُ **هي سنواتُ المِرساة** حصرًا",
+      _BT.probe_anchors({"_meta": {"anchor_last_measured":
+                                   {"A": "2024-05-01", "B": "2026-07-01"}}},
+                        (2023, 2024, 2025))["contaminated"] == [2024])
+
+# ── ⑦ الاستبعاد قبل المحفظة · والمقياسان ─────────────────────────────────
+_bt_tr = [{"symbol": "NUWE", "entry": 2.0, "stop": 1.8, "ret_a": 10.0},
+          {"symbol": "ZZZZ", "entry": 2.0, "stop": 1.8, "ret_a": -10.0}]
+check("🧪 BT🔒 `exclude_catalog` يرشّح رموز الكاتالوج ويُرجع عدد المفقود",
+      (lambda t: [r["symbol"] for r in t[0]] == ["ZZZZ"] and t[1] == 1)(
+          _BT.exclude_catalog(_bt_tr)))
+check("🧪 BT🔒 `per_trade_expectancy` = متوسّط `r_unit` من `replay10` لا حسابٍ محلّيّ",
+      "r_unit" in _insp0.getsource(_BT.per_trade_expectancy)
+      and _BT.per_trade_expectancy([])["n"] == 0)
+check("🧪 BT🔒 و`exploded` **محرَّمٌ ولا يُقرأ** (ما بعد الوقف)",
+      "exploded" not in _bt_src.replace("`exploded` محرَّمٌ ولا يُقرأ", ""))
+check("🧪 BT🔒 وصفرُ مرشّحين يُعلَن **علمًا خاملًا** لا صفرًا حقيقيًّا",
+      "خاملًا" in _insp0.getsource(_BT.portfolio_metric))
+check("🧪 BT🔒 و`z_diff` يُحسب من `se` المقيس (لا تقديرَ)",
+      _BT.z_diff({"mean": 1.0, "se": 0.1}, {"mean": 0.0, "se": 0.1}) is not None
+      and _BT.z_diff({"mean": 1.0, "se": None}, {"mean": 0.0, "se": 0.1}) is None)
+
+# ── ⑧ حدودُ البوّابة مثبَّتةٌ بالكود لا بالرأي ─────────────────────────────
+check("🧪 BT🔒 حدودُ البوّابة ثوابتُ مُعلَنة (‏0.15R · z 1.96 · n 30)",
+      _BT.EFFECT_R == 0.15 and _BT.Z_MIN == 1.96 and _BT.MIN_TRADES == 30)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 📐🔕 م-د — صيّاد الظرف الصامت (`envelope_hunter`)

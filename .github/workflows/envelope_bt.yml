@@ -1,0 +1,77 @@
+name: T-ENVELOPE (ربحية ظرف الكاتالوج)
+
+# 🧪 العقد: `envelope_prereg.md` (مدفوعٌ قبل أيّ رقم).
+# بحث/قياس فقط: بلا تلغرام · بلا حفظ حالة · لقطةٌ مجمَّدة إلزامية.
+# 🔒 **workflow مستقلّ** (كـcatalog_envelope.yml) فلا يمسّ `backtest.yml`:
+#    ⇒ لا يُسقط قفل عدد مدخلاته، ولا قفل P1 (لا علمَ BT_* جديدًا يُمرَّر هنا —
+#    الأعلام تُضبَط داخل السكربت قبل الاستيراد لأن `_apply_backtest_overrides`
+#    يُنفَّذ وقت التحميل، وضبطُها بعده = علمٌ خامل).
+# ⚠️ الجدول يُطبع **في اللوج** — سياسة الشبكة تمنع تنزيل الـartifacts.
+permissions:
+  contents: read
+  actions: read          # لتحميل لقطة التجميد
+
+on:
+  workflow_dispatch:
+    inputs:
+      frozen_run_id:
+        description: "run-id لتشغيلة «Freeze backtest dataset» (إلزامي)"
+        required: true
+        default: ""
+      year:
+        description: "سنة النافذة (2023 · 2024 · 2025) — تشغيلةٌ لكل سنة"
+        required: true
+        default: "2025"
+      arms:
+        description: "الأذرع مفصولةً بفاصلة (افتراضي E0,E1,E1C)"
+        required: false
+        default: "E0,E1,E1C"
+      allow_manual_edges:
+        description: "1 = تجاوزُ حاجب «الحواف غير آليّة» (يُوسَم بالنتيجة)"
+        required: false
+        default: "0"
+
+jobs:
+  envelope-bt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: frozen
+      - name: Locate snapshot
+        id: snap
+        run: |
+          f=$(find frozen -name '*.pkl.gz' | head -1)
+          if [ -z "$f" ]; then echo "⛔ لا لقطة"; exit 1; fi
+          echo "path=$f" >> "$GITHUB_OUTPUT"
+          echo "📦 $f"
+          ls -la "$f"* || true
+      - name: Run T-ENVELOPE
+        env:
+          BT_FROZEN_PATH: ${{ steps.snap.outputs.path }}
+          ENV_BT_YEAR: ${{ github.event.inputs.year }}
+          ENV_BT_ARMS: ${{ github.event.inputs.arms }}
+          ENV_BT_ALLOW_MANUAL_EDGES: ${{ github.event.inputs.allow_manual_edges }}
+          ENV_BT_OUT: envelope_bt_${{ github.event.inputs.year }}.json
+        run: python envelope_bt.py
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: envelope-bt-${{ github.event.inputs.year }}-${{ github.run_id }}
+          path: envelope_bt_*.json
+          retention-days: 90
+          if-no-files-found: warn
