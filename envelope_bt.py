@@ -70,7 +70,9 @@ def probe_anchors(edges: dict, years: tuple) -> dict:
     **داخل** سنةٍ نختبرها ⇒ تسرّبٌ. تواريخُ المِرساة مخزَّنةٌ الآن في
     `envelope_p90.json:anchor_last_measured` (‏كانت تُطبَع سجلًّا فقط فتتبخّر).
 
-    🔴 يرجّع `contaminated` = السنواتُ الملوَّثة — **وهي تُخرَج من الحكم المجمَّع.**"""
+    🔴 يرجّع `contaminated` = السنواتُ الملوَّثة. ⚠️ **والأداةُ ترصد ولا تُقصي:**
+    كلُّ تشغيلةٍ سنةٌ واحدة، فالإقصاءُ يقع في **خطوة التجميع** (‏عند كتابة الحكم)
+    لا هنا — يُقال صريحًا لئلّا يُقرأ السطرُ ضمانةً لا يملكها الكود."""
     anchors = ((edges.get("_meta") or {}).get("anchor_last_measured")
                or {})
     if not anchors:
@@ -162,16 +164,24 @@ def relax_for(edges: dict, arm: str) -> dict:
 # ═══════════════════════════════════════════════════════════════════════════
 # ③ المشي — بنفس سياسة المحرّك حرفيًّا
 # ═══════════════════════════════════════════════════════════════════════════
-def walk_arm(sym, df, edges, splits, window, arm, counters, decide_fn=None):
+def walk_arm(sym, df, edges, splits, window, arm, counters, decide_fn=None,
+             stride=None):
     """🚶 مشيٌ بسياسة المحرّك: `i = MIN_BARS` · `while i < n - fwd` · القرارُ على
-    `df.iloc[:i]` · المرفوض `i += step` · المقبولُ يُبنى بـ`backtest_symbol`
+    `df.iloc[:i]` · المرفوض `i += stride` · المقبولُ يُبنى بـ`backtest_symbol`
     **الإنتاجيّ** على شريحةٍ `iloc[:i+fwd+1]` بنافذة `(d, d)` وخطوة 1 ⇒ صفقةٌ
     واحدة بلا تسريب (النافذةُ الأمامية `fut = df.iloc[i:i+fwd]` لا تقرأ الزائدة).
+
+    🔴 **و`stride` ≠ خطوةُ النداء الداخليّ — والخلطُ بينهما عيبٌ مقيس:**
+    الخطوةُ **1** لازمةٌ للنداء الداخليّ وحده (نافذتُه يومٌ واحد `(d,d)`، فبخطوة 5
+    قد يتخطّى المحرّكُ ذلك البار عينَه فلا تُبنى صفقة). أمّا **مِشيةُ الذراع** فيجب
+    أن تكون **خطوةَ الإنتاج (5)** كما في `E0` — وإلّا زارت الذراعُ خمسةَ أضعافِ
+    البارات فصار «إشاراتٌ أكثر» **كثافةَ عيّنةٍ لا أثرَ ظرف**، وهو بعينه ما يرفضه
+    حارسُ الصلاحية `V6` في التسجيل («الخطوة 5 لا تتغيّر بين الأذرع»).
 
     🔒 `d = str(df.index[i-1].date())` مثبَّتٌ هنا، ويُتحقَّق أن `trade["date"] == d`."""
     dec = decide_fn or ES.decide
     fwd = int(S.CONFIG["BACKTEST_FORWARD_DAYS"])
-    step = int(S.CONFIG["BACKTEST_STEP"])
+    step = int(S.CONFIG["BACKTEST_STEP"] if stride is None else stride)
     n = len(df)
     out = []
     i = int(S.CONFIG["MIN_BARS"])
@@ -193,6 +203,10 @@ def walk_arm(sym, df, edges, splits, window, arm, counters, decide_fn=None):
             i += step
             continue
         counters["accepted"] += 1
+        # 🔒 الخطوة **1 للنداء الداخليّ وحده** ثم تُستعاد فورًا — فمِشيةُ الذراع
+        #    تبقى خطوةَ الإنتاج (‏`step`) كما في `E0`.
+        _prev_step = S.CONFIG.get("BACKTEST_STEP")
+        S.CONFIG["BACKTEST_STEP"] = 1
         try:
             tr = S.backtest_symbol(sym, df.iloc[:i + fwd + 1], None,
                                    date_window=(d, d), splits=splits)
@@ -200,6 +214,11 @@ def walk_arm(sym, df, edges, splits, window, arm, counters, decide_fn=None):
             counters["build_error"] += 1
             i += fwd
             continue
+        finally:
+            if _prev_step is None:                # لم يكن موجودًا ⇒ يُرفَع لا يُصفَّر
+                S.CONFIG.pop("BACKTEST_STEP", None)
+            else:
+                S.CONFIG["BACKTEST_STEP"] = _prev_step
         for t in (tr or []):
             if str(t.get("date")) != d:
                 counters["date_mismatch"] += 1
@@ -207,7 +226,16 @@ def walk_arm(sym, df, edges, splits, window, arm, counters, decide_fn=None):
             t["arm"] = arm
             out.append(t)
         counters["built"] += len(tr or [])
-        i += fwd
+        # 🔒 مرآةُ المحرّك حرفيًّا: **نافذةٌ كاملة بعد صفقةٍ مبنيّة** (`:14321`)،
+        #    و**خطوةٌ واحدة إن لم تُبنَ** — والمحرّكُ قد يرفض داخليًّا بعد قبول
+        #    `decide` (حارسُ الإشارة الوهمية `M1_phantom_split`)، وهناك يتقدّم
+        #    الإنتاجُ بخطوةٍ لا بنافذة. فلولا هذا التمييز لتخطّت الذراعُ 40 جلسة
+        #    حيث يتخطّى الإنتاجُ 5 = فرقُ كثافةٍ ثانٍ بين الأذرع.
+        if tr:
+            i += fwd
+        else:
+            counters["built_none"] = counters.get("built_none", 0) + 1
+            i += step
     return out
 
 
@@ -221,13 +249,16 @@ def walk_production(sym, df, splits, window):
         return []
 
 
-def arm_trades(hist, splits_map, window, arm, edges):
-    """يلفّ الكون لذراعٍ واحدة. حارسٌ لكل رمز **يُسجَّل ولا يُصمَت**."""
+def arm_trades(hist, splits_map, window, arm, edges, stride=None):
+    """يلفّ الكون لذراعٍ واحدة. حارسٌ لكل رمز **يُسجَّل ولا يُصمَت**.
+
+    `stride` = مِشيةُ الذراع، وتُمرَّر **خطوةَ الإنتاج المقروءةَ قبل أيّ إرخاء**
+    فتتساوى كثافةُ العيّنة مع `E0` (حارس `V6`)."""
     fwd = int(S.CONFIG["BACKTEST_FORWARD_DAYS"])
     need = int(S.CONFIG["MIN_BARS"]) + fwd
     counters = {"symbols": 0, "skipped_short": 0, "visits": 0, "accepted": 0,
                 "rejected": 0, "decide_error": 0, "build_error": 0,
-                "date_mismatch": 0, "built": 0}
+                "date_mismatch": 0, "built": 0, "stride": stride}
     trades = []
     t0 = time.time()
     for sym, df in hist.items():
@@ -240,7 +271,7 @@ def arm_trades(hist, splits_map, window, arm, edges):
                        walk_production(sym, df, (splits_map or {}).get(sym), window)]
         else:
             trades += walk_arm(sym, df, edges, (splits_map or {}).get(sym),
-                               window, arm, counters)
+                               window, arm, counters, stride=stride)
     counters["seconds"] = round(time.time() - t0, 1)
     return trades, counters
 
@@ -338,7 +369,8 @@ def run() -> int:
     anch = probe_anchors(edges, (year,))
     S.log(f"🕰️ المِرساة: {anch['n']} تاريخًا · بالسنوات {anch.get('by_year')}")
     if anch["contaminated"]:
-        S.log(f"🔴 **تلوّثٌ زمنيّ**: {anch['contaminated']} — تُخرَج من الحكم المجمَّع"
+        S.log(f"🔴 **تلوّثٌ زمنيّ**: {anch['contaminated']} — **رصدٌ لا إقصاء**: "
+              "هذي التشغيلة سنةٌ واحدة، والإقصاءُ يقع عند تجميع الحكم"
               + (f" · {anch['note']}" if anch.get("note") else ""))
 
     sess_dates = sorted({str(d.date()) for df in hist.values()
@@ -346,15 +378,26 @@ def run() -> int:
     n_sessions = len(sess_dates)
     S.log(f"🗓️ جلسات النافذة: {n_sessions}")
 
+    # 🔒 خطوةُ الإنتاج تُقرأ **قبل أيّ إرخاء** وتُمرَّر مِشيةً لكل ذراع، فلا تُقاس
+    #    كثافةُ عيّنةٍ أكبر على أنها أثرُ ظرف (حارس `V6`: الخطوة 5 لا تتغيّر).
+    prod_stride = int(S.CONFIG["BACKTEST_STEP"])
+    S.log(f"🚶 مِشيةُ كلّ الأذرع = خطوةُ الإنتاج {prod_stride} جلسة "
+          f"(النداء الداخليّ وحده بخطوة 1، ويُستعاد فورًا)")
+    if prod_stride != 5:
+        S.log("⛔ V6: `BACKTEST_STEP` ليس 5 — ثابتٌ متبدّل.")
+        return 8
+
     arms = {}
     for arm in [a.strip() for a in
                 os.environ.get("ENV_BT_ARMS", "E0,E1,E1C").split(",") if a.strip()]:
         if arm == "E0":
-            tr, cnt = arm_trades(hist, splits_map, window, "E0", edges)
+            tr, cnt = arm_trades(hist, splits_map, window, "E0", edges,
+                                 stride=prod_stride)
         else:
             rx = relax_for(edges, arm)
-            with relaxed_step(rx, 1):
-                tr, cnt = arm_trades(hist, splits_map, window, arm, edges)
+            with relaxed_step(rx, prod_stride):
+                tr, cnt = arm_trades(hist, splits_map, window, arm, edges,
+                                     stride=prod_stride)
         arms[arm] = tr
         S.log(f"── {arm}: {len(tr)} صفقة · {cnt}")
 
@@ -375,11 +418,13 @@ def run() -> int:
                   f"مأخوذة={md.get('taken')} قُصَّ={md.get('rejected_cap')}")
     S.log("")
     S.log("═══ 📏 القوّة (من المقيس لا المُقدَّر) ═══")
+    # 🔒 تُقاس على **نفس المجتمع الذي يحكم به الفرق النافذ** (‏`-X`) — وإلّا كان
+    #    الـ`MDE` المطبوع عن عيّنةٍ أوسع من التي يُقارَن بها الأثر، فيُقرأ متفائلًا.
     for key in ("E0", "E1C"):
-        if key in report:
-            mp = per_trade_expectancy(arms.get(key.rstrip("-X"), []))
+        if key in arms:
+            mp = per_trade_expectancy(exclude_catalog(arms[key])[0])
             pw = probe_power(mp.get("r_units") or [])
-            S.log(f"   {key}: sd={pw.get('sd')} se={pw.get('se')} "
+            S.log(f"   {key}-X: sd={pw.get('sd')} se={pw.get('se')} "
                   f"MDE={pw.get('mde_1side')}")
     S.log("")
     S.log("═══ ⚖️ الفرق النافذ: E1C-X مقابل E0-X ═══")

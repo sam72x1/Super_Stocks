@@ -13539,6 +13539,74 @@ check("🧪 BT🔒 و`z_diff` يُحسب من `se` المقيس (لا تقدير
 check("🧪 BT🔒 حدودُ البوّابة ثوابتُ مُعلَنة (‏0.15R · z 1.96 · n 30)",
       _BT.EFFECT_R == 0.15 and _BT.Z_MIN == 1.96 and _BT.MIN_TRADES == 30)
 
+# ── ⑨ 🔴 **مِشيةُ الذراع = خطوةُ الإنتاج** (حارس `V6`) ────────────────────
+#    عيبٌ مقيس: `walk_arm` كان يقرأ الخطوة من `CONFIG` **داخل** سياق الإرخاء
+#    (الذي كان يضبطها 1) فتمشي الذراعُ بخطوة 1 بينما `E0` بخطوة 5 ⇒ خمسةُ أضعافِ
+#    الزيارات ⇒ «إشاراتٌ أكثر» تُقرأ أثرَ ظرفٍ وهي **كثافةُ عيّنة**.
+#    والخطوة 1 لازمةٌ **للنداء الداخليّ وحده** (نافذتُه يومٌ واحد).
+_bt_n = 200
+_bt_df = S.pd.DataFrame(
+    {"Open": [2.0] * _bt_n, "High": [2.1] * _bt_n, "Low": [1.9] * _bt_n,
+     "Close": [2.0] * _bt_n, "Volume": [500000] * _bt_n},
+    index=S.pd.date_range("2025-01-01", periods=_bt_n, freq="D"))
+_bt_win = ("2020-01-01", "2030-12-31")
+
+
+def _bt_visits(stride):
+    """يُرجع عددَ الزيارات بمِشيةٍ مُعطاة — `decide` يرفض دائمًا فلا بناء."""
+    c = {"visits": 0, "accepted": 0, "rejected": 0, "decide_error": 0,
+         "build_error": 0, "date_mismatch": 0, "built": 0}
+    _BT.walk_arm("ZZTEST", _bt_df, {}, None, _bt_win, "E1", c,
+                 decide_fn=lambda *a, **k: (False, "رفضٌ مُتعمَّد", {}),
+                 stride=stride)
+    return c["visits"]
+
+
+_bt_v5, _bt_v1 = _bt_visits(5), _bt_visits(1)
+check("🧪 BT🔒 ع⑨: المِشية **تُطاع فعلًا** (خطوة 5 تزور خُمسَ ما تزوره خطوة 1)",
+      _bt_v1 > 0 and _bt_v5 > 0 and _bt_v1 == _bt_v5 * 5)
+
+# 🔒 والقفلُ الحاسم: المِشية تأتي من الوسيط **لا من `CONFIG` الملوَّثة بالإرخاء**.
+with _BT.relaxed_step({}, 1):
+    _bt_v_in = _bt_visits(5)
+check("🧪 BT🔒 ع⑨: ومِشيةُ الذراع **لا تتلوّث** بخطوة الإرخاء داخل السياق",
+      _bt_v_in == _bt_v5 and S.CONFIG["BACKTEST_STEP"] == _bt_cfg0["BACKTEST_STEP"])
+
+# 🔒 والنداءُ الداخليّ يستعيد الخطوة **حتى لو انهار** — بشاهدِ ضبطٍ يمنع العدميّة.
+_bt_c2 = {"visits": 0, "accepted": 0, "rejected": 0, "decide_error": 0,
+          "build_error": 0, "date_mismatch": 0, "built": 0}
+_bt_step_outer = int(S.CONFIG["BACKTEST_STEP"])
+_BT.walk_arm("ZZTEST", _bt_df, {}, None, _bt_win, "E1", _bt_c2,
+             decide_fn=lambda *a, **k: (True, "", {}), stride=5)
+check("🧪 BT🔒 ع⑨: والخطوةُ تُستعاد بعد النداء الداخليّ (وشاهدُ الضبط: البناء وقع)",
+      _bt_c2["accepted"] >= 1
+      and int(S.CONFIG["BACKTEST_STEP"]) == _bt_step_outer)
+
+# 🔒 ومرآةُ المحرّك: قبولٌ من `decide` **لم يُنتج صفقة** (المحرّك رفض داخليًّا) ⇒
+#    يتقدّم بخطوةٍ لا بنافذةٍ كاملة — وإلّا تخطّت الذراعُ 40 جلسة حيث يتخطّى
+#    الإنتاجُ 5. العدُّ **محسوبٌ من CONFIG لا مكتوبٌ بيدي** فلا يتعفّن.
+_bt_expect = len(range(int(S.CONFIG["MIN_BARS"]),
+                       _bt_n - int(S.CONFIG["BACKTEST_FORWARD_DAYS"]), 5))
+check("🧪 BT🔒 ع⑨: وقبولٌ بلا صفقةٍ مبنيّة ⇒ **خطوة** لا نافذة (مرآةُ المحرّك)",
+      _bt_expect > 1 and _bt_c2["accepted"] == _bt_expect
+      and _bt_c2.get("built_none") == _bt_expect and _bt_c2["built"] == 0)
+
+
+# 🔒 قفلٌ نحويّ مكمّل: لا `relaxed_step(..., 1)` بثابتٍ في مسار الأذرع — الوسيطُ
+#    الثاني يجب أن يكون **اسمًا** (خطوةَ الإنتاج المقروءة قبل الإرخاء).
+def _bt_relaxed_args_are_names():
+    for node in _ast0.walk(_ast0.parse(_insp0.getsource(_BT.run))):
+        if (isinstance(node, _ast0.Call)
+                and isinstance(node.func, _ast0.Name)
+                and node.func.id == "relaxed_step" and len(node.args) >= 2):
+            if isinstance(node.args[1], _ast0.Constant):
+                return False
+    return True
+
+
+check("🧪 BT🔒 ع⑨: و`run` لا تُمرّر خطوةً ثابتة (تقرأ خطوةَ الإنتاج قبل الإرخاء)",
+      _bt_relaxed_args_are_names() and "prod_stride" in _insp0.getsource(_BT.run))
+
 # ══════════════════════════════════════════════════════════════════════════
 # 📐🔕 م-د — صيّاد الظرف الصامت (`envelope_hunter`)
 # ══════════════════════════════════════════════════════════════════════════
