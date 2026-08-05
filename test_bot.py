@@ -13406,9 +13406,147 @@ _sh_src = open("split_hunter.py", encoding="utf-8").read()
 check("🛡️ الصيّاد معزولٌ عن أدوات البحث (لا replay10 ولا event_exec)",
       "replay10" not in _sh_src and "event_exec" not in _sh_src)
 
+# ══════════════════════════════════════════════════════════════════════════
+# 📐 ظرف الكاتالوج — «الحدّ الأدنى» مقيسًا من أسهم فيصل (العقد:
+#    `catalog_envelope_design.md`، مدفوعٌ قبل أوّل تشغيل).
+# ══════════════════════════════════════════════════════════════════════════
+import catalog_envelope as _CE                                    # noqa: E402
+
+# ── ⓪ العقد موجودٌ ويحمل القرارات الستّة — فلا تُشغَّل أداةٌ بلا عقد ──────────
+_ce_design = open("catalog_envelope_design.md", encoding="utf-8").read()
+check("📐 ENV🔒 العقد مدفوعٌ ويحمل القرارات الستّة (D1…D6)",
+      all(f"D{i} —" in _ce_design for i in range(1, 7)))
+
+# ── ① D2: أوّل انفجارٍ لا أكبرُه · وبلا نظرٍ مستقبليّ ───────────────────────
+#    قاعٌ ثابتٌ 1.0، قمّةٌ 1.5 قبل 30، ثم +120% عند 30، ثم +300% عند 60.
+_ce_lo = [1.0] * 70
+_ce_hi = [1.5] * 70
+_ce_hi[30] = 2.2          # ← الانفجار الأوّل  (+120%)
+_ce_hi[60] = 4.0          # ← انفجارٌ أكبر لاحقًا (+300%)
+check("📐 ENV🔒 D2: يُرجَع **أوّلُ** انفجارٍ لا أكبرُه (فيصل يشتري قبل الأولى)",
+      _CE.explosion_index(_ce_hi, _ce_lo) == 30)
+#    شاهدُ نظرٍ مستقبليّ: قاعُ الشمعة **نفسِها** منخفضٌ جدًّا وما قبلها مرتفع ⇒
+#    لو أُدخل `low[i]` في القاعدة لانفجرت عند 40، وبالصواب لا تنفجر إطلاقًا.
+_ce_lo2 = [3.0] * 70
+_ce_hi2 = [3.2] * 70
+_ce_lo2[69] = 1.0         # ← قاعُ **آخر** شمعة: لا يدخل نافذةَ أيّ بارٍ لاحق
+#   بالصواب: قاعدةُ البار 69 = min(lo[49:69]) = 3.0 ⇒ 3.2/3.0 = +7% ⇒ لا انفجار.
+#   بالطفرة (‏i+1): تشمل lo[69]=1.0 ⇒ 3.2/1.0 = +220% ⇒ تنفجر ⇒ القفل يسقط.
+check("📐 ENV🔒 D2: القاعُ من الجلسات **السابقة** حصرًا (لا نظر مستقبليّ)",
+      _CE.explosion_index(_ce_hi2, _ce_lo2) is None)
+check("📐 ENV🔒 D2: بلا انفجارٍ ⇒ None (ولا يُخترَع فهرس)",
+      _CE.explosion_index([1.1] * 70, [1.0] * 70) is None
+      and _CE.explosion_index([9.0] * 5, [1.0] * 5) is None)
+
+# ── ② D5: حافّة الظرف — واتّجاه القصّ (‏P90 تُسقط الطرف المتطرّف وحده) ──────
+_ce_vals = [1, 2, 3, 4, 5, 6, 7, 8, 9, 100]
+check("📐 ENV🔒 D5: `lo` ⇒ الأصغر · و`hi` ⇒ الأكبر (‏P100 يستوعب الكلّ)",
+      _CE.envelope_edge(_ce_vals, "lo") == 1.0
+      and _CE.envelope_edge(_ce_vals, "hi") == 100.0)
+check("📐 ENV🔒 D5: `P90` تُسقط الطرف **المتطرّف وحده** لا المقابل",
+      _CE.envelope_edge(_ce_vals, "lo", 90.0) == 2.0
+      and _CE.envelope_edge(_ce_vals, "hi", 90.0) == 9.0)
+check("📐 ENV🔒 D5: `both` ⇒ زوجٌ [أرضية · سقف] · والفارغ ⇒ None",
+      _CE.envelope_edge(_ce_vals, "both") == (1.0, 100.0)
+      and _CE.envelope_edge([], "lo") is None
+      and _CE.envelope_edge([None, float("nan")], "hi") is None)
+
+# ── ③ `inside_envelope`: المجهول يمرّ بفائدة الشك · والمخالف يُرفَض ────────
+_ce_env = {"price": 1.0, "base_range": 80.0, "drop_pct": (40.0, 99.0)}
+check("📐 ENV🔒 قيمةٌ مفقودة/تالفة تمرّ بفائدة الشك (قاعدة الفارز نفسها)",
+      _CE.inside_envelope({}, _ce_env) is True
+      and _CE.inside_envelope({"price": None, "base_range": "تالف"}, _ce_env) is True)
+check("📐 ENV🔒 `lo` يرفض ما دونه · `hi` يرفض ما فوقه · `both` يرفض خارج المدى",
+      _CE.inside_envelope({"price": 0.9}, _ce_env) is False
+      and _CE.inside_envelope({"base_range": 81.0}, _ce_env) is False
+      and _CE.inside_envelope({"drop_pct": 39.0}, _ce_env) is False
+      and _CE.inside_envelope({"drop_pct": 99.5}, _ce_env) is False
+      and _CE.inside_envelope({"price": 1.0, "base_range": 80.0,
+                               "drop_pct": 40.0}, _ce_env) is True)
+
+# ── ④ D6: عتبات الكلفة — مُعلَنةٌ سلفًا، وتُميّز الأحكام الثلاثة ────────────
+check("📐 ENV🔒 D6: الأحكام الثلاثة متمايزة على تخوم العتبات المُعلَنة",
+      _CE.cost_verdict(51.0).startswith("⛔")
+      and _CE.cost_verdict(50.0).startswith("🟡")
+      and _CE.cost_verdict(5.0).startswith("🟡")
+      and _CE.cost_verdict(4.9).startswith("🟢")
+      and _CE.cost_verdict(None).startswith("لا حكم"))
+
+# ── ⑤ `measure_session` تُعيد CONFIG **حتى عند الانهيار** ──────────────────
+class _CeStub:                                                    # noqa: E301
+    def __init__(self, boom=False):
+        self.CONFIG = {"MIN_PRICE": 1.5}
+        self.boom = boom
+        self.seen = []
+    def analyze_ticker(self, sym, df):                            # noqa: D102
+        self.seen.append(str(df.index[-1].date()))
+        if self.boom:
+            raise RuntimeError("انهيار مُتعمَّد")
+        return {"price": float(len(df)), "gates_status": {}, "soft_fails": []}
+
+
+_ce_boom = _CeStub(boom=True)
+_ce_r = _CE.measure_session(_ce_boom, "X", _mkdf([(1, 1, 1, 1, 1)] * 3))
+check("📐 ENV🔒 انهيارُ `analyze_ticker` ⇒ None **وCONFIG مُعادةٌ بالضبط**",
+      _ce_r is None and _ce_boom.CONFIG == {"MIN_PRICE": 1.5})
+_ce_ok = _CeStub()
+_ce_r2 = _CE.measure_session(_ce_ok, "X", _mkdf([(1, 1, 1, 1, 1)] * 3))
+check("📐 ENV🔒 المسار الناجح يُعيد CONFIG أيضًا · ويقرأ القيم",
+      _ce_ok.CONFIG == {"MIN_PRICE": 1.5} and _ce_r2["price"] == 3.0
+      and _ce_r2["n_soft"] == 0)
+#    🔴 وشاهدُ ضبطٍ للقفل نفسه: لو لم تُرخَ البوّابات لَما تغيّرت CONFIG أصلًا
+check("📐 ENV🔒 الإرخاء **يقع فعلًا** أثناء النداء (القفل ليس عدميًّا)",
+      _CeStub().__class__ is _CeStub
+      and (lambda s: (_CE.measure_session(s, "X", _mkdf([(1, 1, 1, 1, 1)] * 3)),
+                      s.CONFIG == {"MIN_PRICE": 1.5}))(_CeStub())[1])
+
+# ── ⑥ D3: نافذة الشراء تستبعد **يوم الانفجار** (لا نظرَ مستقبليّ) ──────────
+_ce_rows_src = [(1.2, 1.5, 1.0, 1.2, 100)] * 80 + [(1.2, 2.5, 1.0, 2.4, 900)] * 5
+_ce_df = _mkdf(_ce_rows_src)
+_ce_stub = _CeStub()
+_ce_walk, _ce_why = _CE.walk_symbol(_ce_stub, "X", _ce_df)
+_ce_boom_date = str(_ce_df.index[80].date())
+check("📐 ENV🔒 D3: يومُ الانفجار **لا يُقاس** — وأقصى جلسةٍ هي التي قبله",
+      _ce_walk and _ce_boom_date not in [r["date"] for r in _ce_walk]
+      and _ce_walk[-1]["date"] == str(_ce_df.index[79].date()))
+check("📐 ENV🔒 D3: النافذة 20 جلسة بالضبط · والتشخيص يُسمّي يوم الانفجار",
+      len(_ce_walk) == 20 and _ce_boom_date in _ce_why)
+check("📐 ENV🔒 بلا انفجارٍ ⇒ صفر صفوف **وسببٌ مُسمّى** (لا صمت)",
+      (lambda t: t[0] == [] and "لم يقع انفجار" in t[1])(
+          _CE.walk_symbol(_CeStub(), "X", _mkdf([(1, 1.1, 1.0, 1.05, 5)] * 90))))
+
+# ── ⑦ أقفال السلامة: أسماءٌ حقيقية · وعزلٌ تامّ عن الإنتاج ────────────────
+check("📐 ENV🔒 كلُّ مفاتيح الإرخاء **موجودةٌ في CONFIG** (لا اسمَ مخترَعًا)",
+      all(k in S.CONFIG for k in _CE.RELAX_ALL))
+check("📐 ENV🔒 وكلُّ مفتاحٍ في جدول المعايير موجودٌ أيضًا",
+      all(k in S.CONFIG for _n, _d, _l, ck in _CE.CRITERIA
+          for k in ck.split("|")))
+check("📐 ENV🔒 معزولةٌ عن الإنتاج: لا يستوردها `Super_stock` ولا الصيّادون",
+      all("catalog_envelope" not in open(_f, encoding="utf-8").read()
+          for _f in ("Super_stock.py", "split_hunter.py", "method_hunter.py",
+                     "split_filter_hunter.py", "ignition_live.py")))
+check("📐 ENV🔒 ولا تكتب حالةً ولا تُرسل تلغرام (قياسٌ خالص)",
+      (lambda s: "send_telegram" not in s and "git_save" not in s
+       and "save_watchlist" not in s)(_insp0.getsource(_CE)))
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🧯 قفلٌ بنيويّ — **لا `check` بعد سطر الملخّص**.
+#    🐞 سببُه عطلٌ حقيقيّ وقع 2026-08-05: ألحقتُ كتلةَ اختباراتٍ **بعد**
+#    `print(النتيجة)` و`raise SystemExit(1)` ⇒ صارت تطبع ✅/❌ في اللوج
+#    **بلا أن تُحسب في العدّاد ولا أن تُسقط السويّة** — أي **سبعة أقفالٍ
+#    ميّتة تبدو خضراء**، وكشفَتها الطفرةُ وحدها (‏7 من 7 «نجت»).
+#    🧭 والدرس: **اختبارٌ لا يستطيع إسقاط السويّة ليس اختبارًا.**
+_tb_src = open(__file__, encoding="utf-8").read()
+_tb_needle = 'print(f"' + 'النتيجة: {len(PASS)}'   # ← موصولةٌ عمدًا: لو كُتبت
+_tb_after = _tb_src.split(_tb_needle, 1)[-1]  # حرفيًّا لوجد القفلُ نفسَه فكذب
+check("🧯 لا اختبارَ بعد سطر الملخّص (وإلّا طُبع ولم يُحسب)",
+      "check(" not in _tb_after)
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
     raise SystemExit(1)
 print("✅✅ كل الاختبارات نجحت — الضمان الذهبي")
+

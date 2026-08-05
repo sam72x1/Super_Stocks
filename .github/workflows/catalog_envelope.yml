@@ -1,0 +1,66 @@
+name: Catalog Envelope (ظرف الكاتالوج — الحدّ الأدنى مقيسًا)
+
+# 📐 يقيس **الحدّ الأدنى لكل معيار من أسهم فيصل نفسها** بدل الأرقام المخترَعة —
+# العقد كاملًا في `catalog_envelope_design.md` (مدفوعٌ قبل أوّل تشغيل).
+# بحث/قياس فقط: بلا تلغرام · بلا حفظ حالة · بلا Yahoo (لقطة مجمّدة إلزامية).
+# ⚠️ الجدول يُطبع **في اللوج** — سياسة الشبكة تمنع تنزيل الـartifacts.
+permissions:
+  contents: read
+  actions: read          # لتحميل لقطة التجميد من تشغيلة freeze
+
+on:
+  workflow_dispatch:
+    inputs:
+      frozen_run_id:
+        description: "run-id لتشغيلة «Freeze backtest dataset» (إلزامي)"
+        required: true
+        default: ""
+      symbols:
+        description: "رموز مفصولة بفاصلة (فارغ = كاتالوج فيصل الخمسة والثلاثون)"
+        required: false
+        default: ""
+      cost_cap:
+        description: "سقف رموز قياس الكلفة خارج الكاتالوج (افتراضي 600)"
+        required: false
+        default: "600"
+      cost_days:
+        description: "عدد الجلسات الأخيرة لقياس الكلفة (افتراضي 5)"
+        required: false
+        default: "5"
+
+jobs:
+  envelope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: frozen
+      - name: Locate snapshot
+        id: snap
+        run: |
+          f=$(find frozen -name '*.pkl.gz' | head -1)
+          if [ -z "$f" ]; then
+            echo "⛔ لا لقطة داخل الـartifact"; exit 1
+          fi
+          echo "path=$f" >> "$GITHUB_OUTPUT"
+          echo "📦 اللقطة: $f"
+      - name: Run catalog envelope
+        env:
+          BT_FROZEN_PATH: ${{ steps.snap.outputs.path }}
+          ENV_SYMBOLS: ${{ github.event.inputs.symbols }}
+          ENV_COST_CAP: ${{ github.event.inputs.cost_cap }}
+          ENV_COST_DAYS: ${{ github.event.inputs.cost_days }}
+        run: python catalog_envelope.py
