@@ -13407,6 +13407,166 @@ check("🛡️ الصيّاد معزولٌ عن أدوات البحث (لا repl
       "replay10" not in _sh_src and "event_exec" not in _sh_src)
 
 # ══════════════════════════════════════════════════════════════════════════
+# 📐🔕 م-د — صيّاد الظرف الصامت (`envelope_hunter`)
+# ══════════════════════════════════════════════════════════════════════════
+import datetime as _ehdt                                         # noqa: E402
+import os as _ehos                                               # noqa: E402
+import envelope_hunter as _EH                                    # noqa: E402
+
+_eh_src = _insp0.getsource(_EH)
+# ── ① 🔕 صامتٌ بقرار المالك — صفر تلغرام ───────────────────────────────────
+# 🐞 وقفلي الأوّل كان نصّيًّا فسقط على **docstring الأداة نفسها** (تقول «صفر
+#    `send_telegram`») — **رابعُ ظهورٍ للفخّ الموثّق في هذي الجلسة** ⇒ بالـAST:
+#    لا **نداءَ** لدالّة إرسالٍ، لا مجرّد غيابِ نصّها.
+def _eh_no_send():
+    """هل في الوحدة **نداءٌ** لأيّ دالّة إرسالٍ؟ (‏AST — التعليقات لا تُحسَب)"""
+    import ast as _a
+    bad = {"send_telegram", "sendMessage", "post"}
+    for n in _a.walk(_a.parse(_eh_src)):
+        if isinstance(n, _a.Call):
+            f = n.func
+            name = (f.attr if isinstance(f, _a.Attribute)
+                    else (f.id if isinstance(f, _a.Name) else ""))
+            if name in bad:
+                return False
+    return True
+
+
+check("📐🔕 EH🔒 **صامت**: صفر **نداء** إرسال (قفل AST لا نصّيّ)",
+      _eh_no_send())
+check("📐🔕 EH🔒 ولا يمسّ حالة الفارز (لا قائمة ولا تنبيهات)",
+      "save_watchlist" not in _eh_src and "load_watchlist" not in _eh_src
+      and "WATCH_FILE" not in _eh_src)
+check("📐🔕 EH🔒 والقرار من `envelope_scan` لا نسخةٍ ثانية",
+      "envelope_scan" in _eh_src and "inside_envelope" not in _eh_src)
+
+# ── ② بوّابة التوقيت مطابقةٌ لنظائرها في الصيّادين الثلاثة ─────────────────
+import split_filter_hunter as _SFH                               # noqa: E402
+for _h, _m in ((13, False), (19, False), (20, True), (23, True)):
+    _t = _ehdt.datetime(2026, 8, 5, _h, 30, tzinfo=_ehdt.timezone.utc)
+check("📐🔕 EH🔒 بوّابة التوقيت **مطابقةٌ** لبوّابة الأداة الرابعة (نفس الأوقات)",
+      all(_EH.session_gate(_ehdt.datetime(2026, _mo, _d, _h, 30,
+                                          tzinfo=_ehdt.timezone.utc))[0]
+          is _SFH.session_gate(_ehdt.datetime(2026, _mo, _d, _h, 30,
+                                              tzinfo=_ehdt.timezone.utc))[0]
+          for _mo, _d in ((1, 15), (8, 5))
+          for _h in (0, 1, 13, 19, 20, 23)))
+
+# ── ③ محاكاةٌ كاملةٌ بلا شبكة — من **نقطة النداء** ─────────────────────────
+def _eh_run(floats, decide, force="1", now_h=23, cov_syms=None, sess_prev=None,
+            now_d=5):
+    """يشغّل الصيّاد كاملًا بجذوعٍ محقونة ويرجّع (rc، صفوف المُخرَج، اللوق)."""
+    _sv = {k: getattr(S, k, None) for k in
+           ("yf", "get_universe", "download_history", "_yahoo_float", "git_save")}
+    _out, _stamp = "/tmp/_eh_t.jsonl", "/tmp/_eh_t_stamp.json"
+    _o_out, _o_st = _EH.OUT_FILE, _EH.STAMP_FILE
+    _EH.OUT_FILE, _EH.STAMP_FILE = _out, _stamp
+    for _f in (_out, _stamp):
+        try:
+            _ehos.remove(_f)
+        except OSError:
+            pass
+    if sess_prev:
+        with open(_stamp, "w", encoding="utf-8") as fh:
+            json.dump({"session": sess_prev}, fh)
+    _syms = cov_syms if cov_syms is not None else ["AAA", "BBB", "CCC"]
+    _df = S.pd.DataFrame(
+        {"Open": [2.0] * 90, "High": [2.1] * 90, "Low": [1.9] * 90,
+         "Close": [2.0] * 90, "Volume": [5e5] * 90},
+        index=S.pd.date_range("2026-03-02", periods=90, freq="B"))
+    S.yf = object()
+    S.get_universe = lambda: ["AAA", "BBB", "CCC"]
+    S.download_history = lambda u: {q: _df for q in _syms}
+    # 🐞 كان الجذع **يتجاهل `strict`** فطفرةُ `strict=False` نجت. الآن يحاكي
+    #    ياهو حقًّا: بلا `strict` يسقط لـ`sharesOutstanding` **المنفوخ** ⇒ أيّ
+    #    مرشّحٍ يصير «فلوتًا كبيرًا» فيُحذف = **تشديدٌ صامت** يُكشَف الآن.
+    S._yahoo_float = (lambda sym, strict=False:
+                      floats.get(sym) if strict else 999_000_000)
+    S.git_save = lambda *a, **k: None
+    _env0 = _ehos.environ.get("ENVELOPE_FORCE", "")
+    _ehos.environ["ENVELOPE_FORCE"] = force
+    try:
+        rc = _EH.run(now_utc=_ehdt.datetime(2026, 8, now_d, now_h, 0,
+                                            tzinfo=_ehdt.timezone.utc),
+                     decide_fn=decide)
+        try:
+            rows = [json.loads(x) for x in open(_out, encoding="utf-8")]
+        except OSError:
+            rows = []
+        return rc, rows
+    finally:
+        _ehos.environ["ENVELOPE_FORCE"] = _env0
+        _EH.OUT_FILE, _EH.STAMP_FILE = _o_out, _o_st
+        for k, v in _sv.items():
+            if v is not None:
+                setattr(S, k, v)
+
+
+_eh_acc = (lambda St, sym, df, e:
+           (True, "داخل الظرف", {"price": 2.0}) if sym in ("AAA", "BBB")
+           else (False, "خارج الظرف", {"price": 9.0}))
+_eh_rc, _eh_rows = _eh_run({"AAA": 900_000, "BBB": 300_000_000, "CCC": 900_000},
+                           _eh_acc)
+check("📐🔕 EH🔒 يعمل من نقطة النداء ويكتب ترويسةً + صفًّا لكل مرشّح",
+      _eh_rc == 0 and _eh_rows and _eh_rows[0].get("_meta") is True
+      and _eh_rows[0]["stage"]["inside"] == 2)
+check("📐🔕 EH🔒 **M14 تُخرِج الفلوت الكبير فعلًا** (وليست زينة)",
+      _eh_rows[0]["m14_removed"] == ["BBB"]
+      and [r["symbol"] for r in _eh_rows[1:]] == ["AAA"])
+check("📐🔕 EH🔒 والفلوت المجهول **يمرّ بفائدة الشك** ويُعدّ ويُعلَن",
+      (lambda t: t[1][0]["unknown_float"] == 1
+       and [r["symbol"] for r in t[1][1:]] == ["AAA", "BBB"])(
+          _eh_run({"AAA": 900_000, "BBB": None}, _eh_acc)))
+check("📐🔕 EH🔒 والمُخرَج **يصرّح أن M13 غير مقيسة** (لا إيهام)",
+      _eh_rows[0]["m13_measured"] is False)
+check("📐🔕 EH🔒 ويحمل التغطية والبصمة وجلسةَ البيانات (أثرٌ كامل)",
+      _eh_rows[0]["coverage_pct"] == 100.0 and _eh_rows[0]["edges"]
+      and _eh_rows[0]["session"])
+
+# ── ④ الحرّاس: تغطية · دِدوب · حوافّ غائبة ─────────────────────────────────
+check("📐🔕 EH🔒 حارس التغطية: تحت 60% ⇒ **إخفاقٌ صريح** لا مُخرَجٌ ناقص",
+      (lambda t: t[0] == 1 and t[1] == [])(
+          _eh_run({}, _eh_acc, cov_syms=["AAA"])))
+# 🐞 وهذا الاختبار كان **يُحجب ببوّابة التوقيت الأسبق** (‏23:00 UTC = 19:00 ET
+#    = مُغلقة) فيرجع 0 بلا صفوف **لسببٍ آخر** ⇒ طفرةُ إلغاء الدِدوب نجت. الآن
+#    الوقت **‏01:00 UTC = 21:00 ET (مفتوحة)** والختمُ = **جلسة البيانات نفسها**
+#    (‏2026-07-03) فيمرّ الدِدوبُ السريع ويصيب **الحاسم** وحده.
+check("📐🔕 EH🔒 الدِدوب **الحاسم** (جلسة البيانات) ⇒ لا تكرار",
+      (lambda t: t[0] == 0 and t[1] == [])(
+          _eh_run({"AAA": 900_000}, _eh_acc, force="", now_h=1, now_d=6,
+                  sess_prev="2026-07-03")))
+#    وشاهدُ ضبط: ختمٌ **مختلف** ⇒ يمضي المسحُ فعلًا (القفل ليس عدميًّا)
+check("📐🔕 EH🔒 وشاهدُ ضبط: ختمٌ مختلف ⇒ **يمسح** (لا يكتم دائمًا)",
+      (lambda t: t[0] == 0 and len(t[1]) >= 2)(
+          _eh_run({"AAA": 900_000, "BBB": 900_000}, _eh_acc, force="",
+                  now_h=1, now_d=6, sess_prev="2026-01-01")))
+check("📐🔕 EH🔒 بوّابة التوقيت: قبل الإغلاق ⇒ لا مسح (بلا تجاوز)",
+      _eh_run({}, _eh_acc, force="", now_h=13)[0] == 0)
+#    (حالةُ «حوافٌّ غائبة ⇒ رفض» مقفولةٌ في `envelope_scan` أعلاه — لا تُكرَّر
+#     هنا بقفلٍ ملتوٍ يبدو عاملًا وهو تحصيلُ حاصل.)
+check("📐🔕 EH🔒 يقرأ الحواف من `envelope_scan.load_edges` لا يحسبها",
+      "load_edges" in _eh_src and "build_envelope" not in _eh_src)
+
+# ── ⑤ السقف والقصّ مُعلَن · وgit_save بوسيطٍ واحد ─────────────────────────
+check("📐🔕 EH🔒 القصّ **يُعلَن بعدّاده** ولا يُقصّ صامتًا",
+      "cut" in _eh_rows[0] and _eh_rows[0]["cut"] == 0
+      and "MAX_ROWS" in _eh_src)
+
+
+def _eh_gitsave_argc():
+    """‏`git_save` **بوسيطٍ واحد** — العيب الحيّ في الأداة الرابعة لا يُعاد."""
+    import ast as _a
+    for n in _a.walk(_a.parse(_eh_src)):
+        if (isinstance(n, _a.Call) and isinstance(n.func, _a.Attribute)
+                and n.func.attr == "git_save"):
+            return len(n.args)
+    return -1
+
+
+check("📐🔕 EH🔒 `git_save` بوسيطٍ **واحد** (قفل AST — عيبٌ حيّ سابق)",
+      _eh_gitsave_argc() == 1)
+
+# ══════════════════════════════════════════════════════════════════════════
 # 📐 م-د — `envelope_scan`: المصدر الوحيد لقرار الظرف
 # ══════════════════════════════════════════════════════════════════════════
 import envelope_scan as _ES                                      # noqa: E402

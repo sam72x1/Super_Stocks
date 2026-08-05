@@ -1,0 +1,48 @@
+name: Envelope Hunter (صيّاد ظرف الكاتالوج — صامت)
+
+# 📐🔕 أداةٌ خامسة **صامتة**: تكتب `envelope_candidates.jsonl` وتُرفَع artifact —
+# **صفر تلغرام** بقرار المالك («لا إشعار إلا بالجاهز»، مقفولٌ باختبارٍ باسم القرار).
+# القرار كلُّه من `envelope_scan.decide` — نفس الدالّة التي يستعملها الباكتيست.
+# خارج الفرز والحالة · لا `LOGIC_VERSION` · ولا يمسّ الفارز بحرف.
+permissions:
+  contents: write          # يكتب ختمَ الجلسة والمُخرَج ويدفعهما
+
+on:
+  schedule:
+    # ⏰ **بعد إغلاق الافتر** (20:00 ET) — كرونان لأن ذلك 00:00 UTC صيفًا
+    # و01:00 UTC شتاءً، و`session_gate` تُبطل الأبكرَ شتاءً ذاتيًّا.
+    # ⚠️ الأيام **2-6** (ثلاثاء→سبت): افترُ الاثنين ينتهي فجرَ الثلاثاء UTC.
+    # ودقيقةٌ **مُزاحة** عن الصيّادين الثلاثة (13 · 37 · 51) فلا يتزاحم أربعتُهم.
+    - cron: "9 0 * * 2-6"
+    - cron: "9 1 * * 2-6"
+  workflow_dispatch: {}
+
+jobs:
+  envelope-hunter:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run envelope hunter
+        env:
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          # 🔓 التشغيل اليدويّ يتخطّى بوّابة التوقيت والدِدوب — وإلّا خرج الزرّ
+          # أخضرَ بلا مُخرَج، وهو صنفُ العطل غير المرئيّ.
+          ENVELOPE_FORCE: >-
+            ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+        run: python envelope_hunter.py
+      - name: Upload candidates
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: envelope-candidates-${{ github.run_id }}
+          path: envelope_candidates.jsonl
+          retention-days: 90
+          if-no-files-found: warn
