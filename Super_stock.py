@@ -9346,6 +9346,65 @@ def record_reject_stats(wl: dict) -> None:
     wl["reject_stats"] = [e for e in log_rs if e.get("date", "") >= cutoff][-60:]
 
 
+REJECT_LOG_FILE = "reject_log.json"     # 🗂️ م-ب: سجلّ المرفوضين اليوميّ
+REJECT_LOG_DAYS = 20                    # نافذة القياس المسجَّلة (20 يوم تداول)
+REJECT_LOG_MAX_SYMS = 400               # سقفٌ لكل جدارٍ في اليوم — لا انفجار حجم
+
+
+def build_reject_snapshot(reasons: dict, today: str,
+                          cap: int = REJECT_LOG_MAX_SYMS) -> dict:
+    """🗂️ **م-ب: لقطةُ يومٍ من المرفوضين — الرمزُ وجدارُه الأول.**
+
+    السبب مقيس: `record_reject_stats` يحفظ **أعدادًا بلا رمزٍ واحد** ⇒ لا يمكن
+    أن يُسأل السجلّ لاحقًا «أيُّ سهمٍ رفضناه ثم انفجر؟». وهذي — بعد أن استُهلك
+    المدى التاريخيّ بسبعةٍ وعشرين تسجيلًا مسبقًا على اللقطة نفسها — **المصدر
+    الوحيد الباقي لشاهدٍ أماميٍّ غير مُنقَّب**.
+
+    🔒 **دالّة نقيّة** (بلا ملفّات ولا وقت) · مُجمَّعةٌ بالجدار فتصغُر · **والقصّ
+    يُعلَن بعدّاده** (`cut`) فلا يُقرأ الناقصُ كاملًا.
+    ⚠️ **وممنوعٌ فيها أيُّ حقلٍ من `enrich`** — `enrich` يُنفَّذ **بعد**
+    `select_top` فحقولُه تسريبٌ صريح لأيّ نموذجٍ يقرأ هذا السجلّ لاحقًا."""
+    walls, cut = {}, 0
+    for sym, code in sorted((reasons or {}).items()):
+        key = _reject_key_base(code)
+        bucket = walls.setdefault(key, [])
+        if len(bucket) < int(cap):
+            bucket.append(str(sym))
+        else:
+            cut += 1
+    return {"date": today, "walls": walls, "n": len(reasons or {}), "cut": cut}
+
+
+def record_rejected_symbols(reasons: dict = None, path: str = REJECT_LOG_FILE,
+                            keep: int = REJECT_LOG_DAYS, today: str = None) -> int:
+    """🗂️ يكتب لقطة اليوم في `reject_log.json` ويُدوّر النافذة. يرجّع عدد الأيام.
+
+    🔒 **فاشلة-آمنة مطلقًا**: أيُّ استثناء ⇒ تُسجَّل وتُرجع 0 — فلا تُسقط المسار
+    اليوميّ (سابقةٌ موثّقة: استثناءٌ غير محروسٍ أسقط تشغيلةً قبل `git_save`).
+    🔒 **لقطة واحدة لكل يوم** (الأحدث تفوز) — نفس دلالة `record_reject_stats`."""
+    try:
+        reasons = _REJECT_REASONS if reasons is None else reasons
+        if not reasons:
+            return 0
+        day = today or dt.date.today().isoformat()
+        try:
+            with open(path, encoding="utf-8") as fh:
+                rows = json.load(fh)
+            if not isinstance(rows, list):
+                rows = []
+        except Exception:                                        # noqa: BLE001
+            rows = []
+        rows = [r for r in rows if isinstance(r, dict) and r.get("date") != day]
+        rows.append(build_reject_snapshot(reasons, day))
+        rows = sorted(rows, key=lambda r: str(r.get("date", "")))[-int(keep):]
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(rows, fh, ensure_ascii=False)
+        return len(rows)
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ سجلّ المرفوضين: {e}")
+        return 0
+
+
 def scan_pullback(history: dict, exclude: set = None) -> list:
     """قائمة مراقبة الارتداد: أسهم ارتكاز حقيقية ارتفعت فوق دخولها.
     تعيد استخدام البيانات المحمّلة (لا تحميل إضافي). مرتّبة بالأقرب للدعم."""
@@ -13008,6 +13067,14 @@ def run_weekly_renewal(wl: dict) -> None:
         record_reject_stats(wl)           # A1: مقام أسباب الرفض (للتعلّم)
     except Exception as e:
         log(f"⚠️ مقام الرفض: {e}")
+    # 🗂️ م-ب: **الرموز** المرفوضة وجدارُها — لا أعدادًا فقط. حارسٌ مطلق داخل
+    #    الدالّة نفسها، وهذي طبقةٌ ثانية فلا يُسقط المسارَ اليوميَّ شيء.
+    try:
+        _rl = record_rejected_symbols()
+        if _rl:
+            log(f"🗂️ سجلّ المرفوضين: {len(_REJECT_REASONS)} رمزًا · {_rl} يومًا بالنافذة.")
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ سجلّ المرفوضين (خارجيّ): {e}")
     picks = select_top(results, CONFIG["WATCHLIST_SIZE"], exclude)
     try:
         enrich(picks)  # SEC + شورت للقائمة الجديدة
@@ -13251,6 +13318,14 @@ def run_daily_watchlist(wl: dict) -> None:
         record_reject_stats(wl)           # A1: مقام أسباب الرفض (للتعلّم)
     except Exception as e:
         log(f"⚠️ مقام الرفض: {e}")
+    # 🗂️ م-ب: **الرموز** المرفوضة وجدارُها — لا أعدادًا فقط. حارسٌ مطلق داخل
+    #    الدالّة نفسها، وهذي طبقةٌ ثانية فلا يُسقط المسارَ اليوميَّ شيء.
+    try:
+        _rl = record_rejected_symbols()
+        if _rl:
+            log(f"🗂️ سجلّ المرفوضين: {len(_REJECT_REASONS)} رمزًا · {_rl} يومًا بالنافذة.")
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ سجلّ المرفوضين (خارجيّ): {e}")
     # 3) متابعة القائمة الحالية (تُحذف فقط بستوب/هدف؛ نقص البيانات = تُبقى)
     try:
         stopped_today = update_watchlist_status(wl, hist)
@@ -16536,7 +16611,7 @@ def run_performance_system(results, weekly_report_now=False):
         if rep:
             send_telegram(rep)
     # 4) ذاكرة دائمة في الـ repo (سجل التنبيهات + قائمة الأسبوع)
-    git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE])
+    git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE])
 
 
 if __name__ == "__main__":

@@ -13407,10 +13407,129 @@ check("🛡️ الصيّاد معزولٌ عن أدوات البحث (لا repl
       "replay10" not in _sh_src and "event_exec" not in _sh_src)
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🗂️ م-ب — سجلّ المرفوضين اليوميّ (الشاهد الأماميّ الوحيد غير المُنقَّب)
+# ══════════════════════════════════════════════════════════════════════════
+_rl_snap = S.build_reject_snapshot(
+    {"AAA": "M4_base_واسعة", "BBB": "M5_سيولة", "CCC": "M4_base_واسعة"}, "2026-08-05")
+check("🗂️ REJ🔒 اللقطة تُجمَّع بالجدار وتحمل الرمز (لا أعدادًا فقط)",
+      _rl_snap["walls"]["M4_base_واسعة"] == ["AAA", "CCC"]
+      and _rl_snap["walls"]["M5_سيولة"] == ["BBB"] and _rl_snap["n"] == 3)
+check("🗂️ REJ🔒 القصّ **يُعلَن بعدّاده** — لا قصّ صامت",
+      S.build_reject_snapshot({f"S{i}": "M4_base_واسعة" for i in range(500)},
+                              "d", cap=400)["cut"] == 100
+      and _rl_snap["cut"] == 0)
+check("🗂️ REJ🔒 الأسباب الحاملة لرقمٍ تُوحَّد بالقاعدة (مقامٌ لا يتفتّت)",
+      S.build_reject_snapshot({"A": "بعيد_عن_الدخول(45%)",
+                               "B": "بعيد_عن_الدخول(12%)"}, "d")["n"] == 2
+      and len(S.build_reject_snapshot({"A": "بعيد_عن_الدخول(45%)",
+                                       "B": "بعيد_عن_الدخول(12%)"}, "d")["walls"]) == 1)
+# 🔒 فاشلة-آمنة: مسارٌ غير قابلٍ للكتابة ⇒ 0 بلا انهيار (وهو ما يحمي المسار اليوميّ)
+check("🗂️ REJ🔒 فاشلة-آمنة: مسارٌ متعذّر ⇒ 0 ولا استثناء",
+      S.record_rejected_symbols({"A": "M1_سعر"}, path="/proc/لا-يوجد/x.json") == 0)
+check("🗂️ REJ🔒 أسبابٌ فارغة ⇒ 0 (لا ملفّ ولا ضجيج)",
+      S.record_rejected_symbols({}, path="/tmp/_rl_never.json") == 0)
+# 🔒 التدوير + «لقطة واحدة لكل يوم»
+import os as _rl_os
+_rl_p = "/tmp/_rl_roll.json"
+try:
+    _rl_os.remove(_rl_p)
+except OSError:
+    pass
+for _d in range(1, 26):
+    S.record_rejected_symbols({"A": "M1_سعر"}, path=_rl_p, keep=20,
+                              today=f"2026-07-{_d:02d}")
+_rl_rows = json.load(open(_rl_p, encoding="utf-8"))
+check("🗂️ REJ🔒 التدوير يُبقي آخر 20 يومًا فقط (لا انفجار حجم)",
+      len(_rl_rows) == 20 and _rl_rows[0]["date"] == "2026-07-06"
+      and _rl_rows[-1]["date"] == "2026-07-25")
+S.record_rejected_symbols({"A": "M1_سعر", "B": "M5_سيولة"}, path=_rl_p,
+                          keep=20, today="2026-07-25")
+_rl_rows2 = json.load(open(_rl_p, encoding="utf-8"))
+check("🗂️ REJ🔒 لقطةٌ واحدة لكل يوم — والأحدث تفوز",
+      len(_rl_rows2) == 20
+      and sum(1 for r in _rl_rows2 if r["date"] == "2026-07-25") == 1
+      and _rl_rows2[-1]["n"] == 2)
+# 🔴 والقفل الحاسم: **انهيارُها لا يُسقط المسار اليوميّ** — بالشجرة النحوية لا بالنصّ
+#    (النصّيّ يقرأ التعليقات؛ والفخّ الموثّق ثلاث مرّات).
+def _rl_guarded():
+    """هل كلُّ نداءٍ لـ`record_rejected_symbols` داخل `try` في مصدر البوت؟"""
+    import ast as _a
+    tree = _a.parse(open("Super_stock.py", encoding="utf-8").read())
+    calls, guarded = 0, 0
+    for node in _a.walk(tree):
+        if not isinstance(node, _a.Try):
+            continue
+        for sub in _a.walk(node):
+            if (isinstance(sub, _a.Call) and isinstance(sub.func, _a.Name)
+                    and sub.func.id == "record_rejected_symbols"):
+                guarded += 1
+    for node in _a.walk(tree):
+        if (isinstance(node, _a.Call) and isinstance(node.func, _a.Name)
+                and node.func.id == "record_rejected_symbols"):
+            calls += 1
+    return calls, guarded
+
+
+_rl_c, _rl_g = _rl_guarded()
+check("🗂️ REJ🔒 **كلُّ نداءٍ محروسٌ بـtry** (قفل AST — انهيارُها لا يُسقط اليوم)",
+      _rl_c >= 2 and _rl_g == _rl_c)
+check("🗂️ REJ🔒 موصولةٌ في المسارَين اليوميّ والتجديد (نقطتا نداءٍ حيّتان)",
+      _rl_c == 2)
+# 🐞 قفلي الأوّل هنا فحص `getsource(S.main)` و`git_save` **ليست فيها** —
+#    قفلٌ يسأل المكان الخطأ. صار يفحص **نداء `git_save` نفسه** بالشجرة النحوية.
+def _rl_saved():
+    """هل `REJECT_LOG_FILE` ضمن وسائط أيّ نداءٍ لـ`git_save`؟ (‏AST لا نصّ)"""
+    import ast as _a
+    tree = _a.parse(open("Super_stock.py", encoding="utf-8").read())
+    for node in _a.walk(tree):
+        if (isinstance(node, _a.Call) and isinstance(node.func, _a.Name)
+                and node.func.id == "git_save" and node.args):
+            first = node.args[0]
+            if isinstance(first, (_a.List, _a.Tuple)):
+                names = [e.id for e in first.elts if isinstance(e, _a.Name)]
+                if "REJECT_LOG_FILE" in names:
+                    return True
+    return False
+
+
+check("🗂️ REJ🔒 الملفّ ضمن وسائط `git_save` وإلّا ضاع مع الرنر (قفل AST)",
+      _rl_saved())
+# 🔒 وممنوعٌ أيُّ حقلٍ من enrich (تسريب: enrich بعد select_top)
+check("🗂️ REJ🔒 لا حقلَ إثراءٍ في اللقطة (تسريبٌ لأيّ نموذجٍ لاحق)",
+      set(_rl_snap.keys()) == {"date", "walls", "n", "cut"})
+
+# ══════════════════════════════════════════════════════════════════════════
 # 📐 ظرف الكاتالوج — «الحدّ الأدنى» مقيسًا من أسهم فيصل (العقد:
 #    `catalog_envelope_design.md`، مدفوعٌ قبل أوّل تشغيل).
 # ══════════════════════════════════════════════════════════════════════════
 import catalog_envelope as _CE                                    # noqa: E402
+
+# ── 📌 تعديل ⑤: HTZ مُستبعَدٌ **بإعلان** لا بصمت (طفرة M22 نجت أوّلًا = بلا قفل) ──
+check("📐 ENV🔒 تعديل ⑤: المُخرَجون بقرار المالك مُعلَنون بأسبابهم",
+      isinstance(_CE.EXCLUDED_BY_OWNER, dict) and "HTZ" in _CE.EXCLUDED_BY_OWNER
+      and "M14" in _CE.EXCLUDED_BY_OWNER["HTZ"])
+#    🔒 والقفل السلوكيّ: الاستبعاد **يقع فعلًا** — بالشجرة النحوية لا بالنصّ.
+def _ce_excludes():
+    """هل في `run` ترشيحٌ يحذف رمز `EXCLUDED_BY_OWNER` من `syms` فعلًا؟"""
+    import ast as _a
+    tree = _a.parse(_insp0.getsource(_CE))
+    for n in _a.walk(tree):
+        if not (isinstance(n, _a.Assign) and len(n.targets) == 1
+                and isinstance(n.targets[0], _a.Name) and n.targets[0].id == "syms"):
+            continue
+        if isinstance(n.value, _a.ListComp):
+            for cmp_ in n.value.generators:
+                for c in cmp_.ifs:
+                    if (isinstance(c, _a.Compare)
+                            and isinstance(c.ops[0], _a.NotEq)):
+                        return True
+    return False
+
+
+check("📐 ENV🔒 تعديل ⑤: الحذف **ينفَّذ فعلًا** لا يُعلَن فقط (قفل AST)",
+      _ce_excludes())
+check("📐 ENV🔒 تعديل ⑤: قابلٌ للإرجاع بمفتاحٍ مُعلَن (قياسُ أثرٍ لا وضعٌ افتراضيّ)",
+      "ENV_KEEP_M14" in _insp0.getsource(_CE))
 
 # ── ⓪ العقد موجودٌ ويحمل القرارات الستّة — فلا تُشغَّل أداةٌ بلا عقد ──────────
 _ce_design = open("catalog_envelope_design.md", encoding="utf-8").read()
