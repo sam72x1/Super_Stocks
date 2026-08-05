@@ -36,7 +36,7 @@ from catalog_envelope import (                                    # noqa: E402
 
 __all__ = [
     "load_edges", "edges_fingerprint", "relaxed", "measure", "decide",
-    "EDGES_FILE",
+    "chase_ok", "EDGES_FILE",
 ]
 
 
@@ -126,6 +126,35 @@ def _short_ok(S, row) -> bool:
         return True
 
 
+def chase_ok(S, sym: str, df) -> bool:
+    """🚧 **‏D11 — منع الملاحقة (‏`RECENT_RISE_BLOCK_PCT` ‏35%/5ج).**
+
+    🔴 **سببُ وجودها عيبٌ مقيس:** مفاتيح الإرخاء **ثلاثة عشر** ومعايير الظرف
+    **أحد عشر** تغطّي **اثني عشر** ⇒ **مفتاحٌ واحد يُرخى بلا معيارٍ يقابله**، وهو
+    بعينه `RECENT_RISE_BLOCK_PCT` — **وقرارٌ جذريّ مقفول (‏D11)** ورفضٌ صلب حتى
+    للارتداد. ⇒ الظرفُ بلا هذا كان **يلاحق ما ارتفع سلفًا**، وهو ما يمنعه الفارز.
+
+    **والتنفيذ بلا صيغةٍ موازية:** نُرخي كلَّ شيءٍ **إلّا** هذا المفتاح ونعيد نداء
+    `analyze_ticker` **الإنتاجيّ**؛ فإن رجع `None` فقد رفضته **بوّابةُ الملاحقة
+    نفسها** — لأن كلَّ ما عداها مُرخًى، والبوّابات البنيويّة مرّت سلفًا في `measure`.
+    ⇒ **صفر إعادةِ حسابٍ لـ`gain5`** فلا فرصة لصيغةٍ تنحرف.
+
+    🔒 فاشلة-آمنة: استثناءٌ ⇒ `True` (يمرّ بفائدة الشك — قاعدة المستودع)."""
+    keys = {k: v for k, v in RELAX_ALL.items() if k != "RECENT_RISE_BLOCK_PCT"}
+    saved = {k: S.CONFIG.get(k) for k in keys}
+    try:
+        S.CONFIG.update(keys)
+        return S.analyze_ticker(sym, df) is not None
+    except Exception:                                            # noqa: BLE001
+        return True
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                S.CONFIG.pop(k, None)
+            else:
+                S.CONFIG[k] = v
+
+
 def decide(S, sym: str, df, edges: dict, enrich_row: dict = None):
     """✅ **القرار الوحيد** — يرجّع `(مقبول، سبب، القيم)`.
 
@@ -141,6 +170,9 @@ def decide(S, sym: str, df, edges: dict, enrich_row: dict = None):
         return (False, "تعذّر القياس (بياناتٌ ناقصة)", None)
     if not inside_envelope(vals, edges):
         return (False, "خارج الظرف", vals)
+    # 🚧 D11 قبل الفلوت/الشورت — أرخصُ (بلا شبكة) ويُسقط الملاحِق فورًا
+    if not chase_ok(S, sym, df):
+        return (False, "D11 منع الملاحقة (ارتفع فعلًا — قرارٌ جذريّ مقفول)", vals)
     row = dict(enrich_row or {})
     if not _float_ok(S, row):
         return (False, "M14 فلوت كبير (قرار المالك — مُخرَجٌ تمامًا)", vals)

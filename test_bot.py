@@ -13581,9 +13581,21 @@ check("📐 SCAN🔒 وموسومٌ بلقطته وتشغيلته وعدد رم�
       and "HTZ" in _es_blob.get("excluded", {}))
 check("📐 SCAN🔒 والمقام مُصرَّحٌ به (20 جلسة) — فلا يُقارَن بمقامٍ آخر",
       _es_blob.get("denominator_sessions") == _CE0.ENTRY_WINDOW)
-check("📐 SCAN🔒 وتُصدَّر **آليًّا** من الأداة لا نقلًا يدويًّا",
-      "ENVELOPE_P90_JSON" in _insp0.getsource(_CE0)
-      and "envelope_p90.json" in _insp0.getsource(_CE0))
+# 🐞 **وقفلي الأوّل هنا كان فارغًا (خامسُ مرّةٍ في الجلسة):** عنوانُه «تُصدَّر
+#    آليًّا من الأداة لا نقلًا يدويًّا» **وهو يفحص وجودَ كودِ التصدير** في الأداة
+#    **لا مصدرَ الملفّ** ⇒ أخضرُ والادّعاء غير صحيح. والقفلُ الصحيح **سلوكيّ**:
+#    يفحص وسمَ الملفّ نفسه ومجموعةَ مفاتيحه.
+_es_TOOL_KEYS = {"pct", "snapshot", "asof", "run_id", "n_symbols", "excluded",
+                 "denominator_sessions", "anchor_last_measured", "source", "edges"}
+check("📐 SCAN🔒 وسمُ الملفّ يقول **مُخرَجٌ آليّ** (لا نقلًا يدويًّا)",
+      str(_es_blob.get("source", "")).startswith("مُخرَجٌ آليّ"))
+check("📐 SCAN🔒 ولا مفتاحَ فيه لا تكتبه الأداة (يكشف النقل اليدويّ بنيويًّا)",
+      set(_es_blob) <= _es_TOOL_KEYS)
+check("📐 SCAN🔒 ع3: **تواريخ المِرساة مخزَّنة** فيُقاس التلوّث الزمنيّ",
+      isinstance(_es_blob.get("anchor_last_measured"), dict)
+      and len(_es_blob["anchor_last_measured"]) == _es_blob["n_symbols"])
+check("📐 SCAN🔒 وكودُ التصدير قائمٌ في الأداة (شرطٌ لازمٌ لا كافٍ)",
+      "ENVELOPE_P90_JSON" in _insp0.getsource(_CE0))
 #    📌 والظرف **ليس أوسعَ في كل شيء** — أربعةٌ منه **أضيقُ** من حدّنا. قفلٌ على
 #    هذي الحقيقة لئلّا يُوصَف لاحقًا بـ«تخفيفٍ» وهو **إعادةُ تشكيل**.
 _es_tighter = [
@@ -13685,6 +13697,11 @@ class _EsStub:                                                    # noqa: E301
         return {"price": 5.0, "gates_status": {}, "soft_fails": []}
 
 
+class _EsBoom(_EsStub):                                           # noqa: E301
+    def analyze_ticker(self, sym, df):                            # noqa: D102
+        raise RuntimeError("انهيارٌ مُتعمَّد")
+
+
 _es_edges_all = {"price": 0.0}
 check("📐 SCAN🔒 **من نقطة النداء**: `decide` ترفض الفلوت الكبير فعلًا",
       _ES.decide(_EsStub(), "X", _mkdf([(1, 1, 1, 1, 1)] * 3), _es_edges_all,
@@ -13714,6 +13731,49 @@ check("📐 SCAN🔒 **من نقطة النداء**: قيمةٌ خارج الح�
       (lambda r: r[0] is False and "خارج الظرف" in r[1])(
           _ES.decide(_EsStub(), "X", _mkdf([(1, 1, 1, 1, 1)] * 3),
                      {"price": 10.0}, {"float": 900_000})))
+
+# ── ⑤-مكرر 🚧 D11 منع الملاحقة — العيب الذي كان يجعل الظرف يلاحق ما ارتفع ──
+check("📐 SCAN🔒 ع2: `RECENT_RISE_BLOCK_PCT` كان **المفتاح الوحيد** المُرخى بلا معيار",
+      (lambda cov: set(_CE0.RELAX_ALL) - cov == {"RECENT_RISE_BLOCK_PCT"})(
+          {k for _n, _d, _l, c in _CE0.CRITERIA for k in c.split("|")}))
+check("📐 SCAN🔒 D11: `chase_ok` تُرخي كلَّ شيءٍ **إلّا** مفتاح الملاحقة",
+      "RECENT_RISE_BLOCK_PCT" in _insp0.getsource(_ES.chase_ok)
+      and "analyze_ticker" in _insp0.getsource(_ES.chase_ok))
+
+
+class _EsChase(_EsStub):                                          # noqa: E301
+    """جذعٌ يحاكي بوّابةَ الملاحقة: `None` ⇒ رُفض · قاموسٌ ⇒ مرّ."""
+    def __init__(self, chased):
+        super().__init__()
+        self.chased = chased
+        self.calls = 0
+    def analyze_ticker(self, sym, df):                            # noqa: D102
+        self.calls += 1
+        # النداء الأوّل من `measure` (كلُّ شيءٍ مُرخًى) · والثاني من `chase_ok`
+        if self.calls >= 2 and self.chased:
+            return None
+        return {"price": 5.0, "gates_status": {}, "soft_fails": []}
+
+
+check("📐 SCAN🔒 **من نقطة النداء**: `decide` ترفض الملاحِق بسببٍ مُسمّى",
+      (lambda r: r[0] is False and "D11" in r[1])(
+          _ES.decide(_EsChase(True), "X", _mkdf([(1, 1, 1, 1, 1)] * 3),
+                     _es_edges_all, {"float": 900_000})))
+check("📐 SCAN🔒 وشاهدُ ضبط: غيرُ الملاحِق **يُقبَل** (القفل ليس عدميًّا)",
+      _ES.decide(_EsChase(False), "X", _mkdf([(1, 1, 1, 1, 1)] * 3),
+                 _es_edges_all, {"float": 900_000})[0] is True)
+def _es_chase_restores():
+    """يقارن `CONFIG` **قبل وبعد** لا بقيمةٍ مفترضة (تأكيدي الأوّل كان خاطئًا)."""
+    st = _EsStub()
+    before = dict(st.CONFIG)
+    _ES.chase_ok(st, "X", _mkdf([(1, 1, 1, 1, 1)] * 3))
+    return st.CONFIG == before
+
+
+check("📐 SCAN🔒 و`chase_ok` تُعيد `CONFIG` بت-بت (ولا تترك بوّابةً معطَّلة)",
+      _es_chase_restores())
+check("📐 SCAN🔒 وفاشلة-آمنة: انهيارُ التحليل ⇒ يمرّ بفائدة الشك",
+      _ES.chase_ok(_EsBoom(), "X", _mkdf([(1, 1, 1, 1, 1)] * 3)) is True)
 
 # ── ⑥ المصدر واحد: لا نسخةَ منطقٍ ثانية ───────────────────────────────────
 check("📐 SCAN🔒 مصدرٌ واحد: يستورد قرار المعايرة ولا ينسخه",
