@@ -257,5 +257,29 @@
   "vol_x": 4.8,
   "usd": 54273,
   "candle_class": "mid"
+ },
+ {
+  "symbol": "NEGG",
+  "date": "2026-08-05",
+  "sustain_min": 168,
+  "operator_ok": true,
+  "fired_at": "2026-08-05T20:00:38Z",
+  "break_level": 16.03,
+  "price": 16.75,
+  "vol_x": 9.2,
+  "usd": 73390,
+  "candle_class": "mid"
+ },
+ {
+  "symbol": "IPWR",
+  "date": "2026-08-05",
+  "sustain_min": 8,
+  "operator_ok": false,
+  "fired_at": "2026-08-05T20:00:38Z",
+  "break_level": 4.18,
+  "price": 4.23,
+  "vol_x": 5.0,
+  "usd": 18422,
+  "candle_class": "group"
  }
 ]
