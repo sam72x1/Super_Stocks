@@ -13412,6 +13412,29 @@ check("🛡️ الصيّاد معزولٌ عن أدوات البحث (لا repl
 import envelope_scan as _ES                                      # noqa: E402
 import catalog_envelope as _CE0   # كتلة الظرف تأتي لاحقًا في الملفّ  # noqa: E402
 
+# ── ⓿ الحواف المجمَّدة: كاملةٌ وموسومةٌ بمصدرها ────────────────────────────
+_es_blob = json.load(open("envelope_p90.json", encoding="utf-8"))
+check("📐 SCAN🔒 ملفّ الحواف يحمل **المعايير الأحد عشر كلَّها** (لا نقصَ نقلٍ)",
+      set(_es_blob["edges"]) == {k for k, _, _, _ in _CE0.CRITERIA})
+check("📐 SCAN🔒 وموسومٌ بلقطته وتشغيلته وعدد رموزه ومَن استُبعد",
+      all(_es_blob.get(k) for k in ("snapshot", "run_id", "n_symbols", "pct"))
+      and "HTZ" in _es_blob.get("excluded", {}))
+check("📐 SCAN🔒 والمقام مُصرَّحٌ به (20 جلسة) — فلا يُقارَن بمقامٍ آخر",
+      _es_blob.get("denominator_sessions") == _CE0.ENTRY_WINDOW)
+check("📐 SCAN🔒 وتُصدَّر **آليًّا** من الأداة لا نقلًا يدويًّا",
+      "ENVELOPE_P90_JSON" in _insp0.getsource(_CE0)
+      and "envelope_p90.json" in _insp0.getsource(_CE0))
+#    📌 والظرف **ليس أوسعَ في كل شيء** — أربعةٌ منه **أضيقُ** من حدّنا. قفلٌ على
+#    هذي الحقيقة لئلّا يُوصَف لاحقًا بـ«تخفيفٍ» وهو **إعادةُ تشكيل**.
+_es_tighter = [
+    ("price", 1.62, S.CONFIG["MIN_PRICE"]),
+    ("best_spike", 100.0, S.CONFIG["PRIOR_SPIKE_FLOOR"]),
+    ("rr", 1.72, S.CONFIG["MIN_RR_T1"]),
+]
+check("📐 SCAN🔒 الظرف **يعيد التشكيل لا يخفّف**: أربعةٌ منه أضيقُ من حدّنا",
+      all(_es_blob["edges"][k] > cur for k, _v, cur in _es_tighter)
+      and _es_blob["edges"]["drop_pct"][0] > S.CONFIG["MIN_DROP_FLOOR"])
+
 # ── ① العزل: لا يدخل الإنتاج، ولا يُنادى من أيّ مسارٍ حيّ ──────────────────
 check("📐 SCAN🔒 معزولٌ: `Super_stock` لا يستورده ولا الصيّادون الأربعة",
       all("envelope_scan" not in open(_f, encoding="utf-8").read()

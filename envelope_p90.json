@@ -1,0 +1,32 @@
+{
+ "pct": 90,
+ "snapshot": "30598885456",
+ "asof": "2026-07-31",
+ "run_id": "31011181491",
+ "n_symbols": 30,
+ "excluded": {
+  "HTZ": "M14 صلبة — قرار المالك (فلوت 129م)"
+ },
+ "loo_capture_pct": 66.7,
+ "discrimination_pct": 7.2,
+ "enrichment": 9.2,
+ "matches_per_day_est": 105.2,
+ "denominator_sessions": 20,
+ "source": "منقولٌ من سجلّ التشغيلة — يُستبدَل بمُخرَجٍ آليّ من الأداة",
+ "edges": {
+  "price": 1.62,
+  "drop_pct": [
+   79.17,
+   99.67
+  ],
+  "best_spike": 100.0,
+  "base_range": 593.07,
+  "dollar_vol": 124665.0,
+  "rsi_min": 54.0,
+  "rsi_now": 66.24,
+  "n_soft": 6.0,
+  "readiness": 15.0,
+  "score": 45.0,
+  "rr": 1.72
+ }
+}

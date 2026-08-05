@@ -18,6 +18,7 @@
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 
@@ -484,6 +485,30 @@ def run():
             else:
                 S.log(f"      ⛔ الإثراء **لا يُحسب**: مقام الالتقاط "
                       f"{ENTRY_WINDOW}ج ومقام التمييز {probe_days}ج — مختلفان.")
+
+    # ── 🔏 إصدار الحواف **آليًّا** — لا نقلٌ يدويّ من سجلّ ────────────────────
+    #    السبب: نقلُ أحد عشر رقمًا بالعين بابُ خطأٍ صامت، والحواف هي **قرارُ**
+    #    الصيّاد. تُطبَع سطرًا واحدًا (‏JSON) لأن تنزيل الـartifacts محجوبٌ بسياسة
+    #    الشبكة، وتُكتَب ملفًّا أيضًا لمن يستطيع قراءته.
+    try:
+        _blob = {
+            "pct": 90, "snapshot": os.environ.get("ENV_SNAPSHOT_ID") or None,
+            "asof": str(asof), "run_id": os.environ.get("GITHUB_RUN_ID") or None,
+            "n_symbols": len(found),
+            "excluded": (dict(EXCLUDED_BY_OWNER)
+                         if os.environ.get("ENV_KEEP_M14", "") != "1" else {}),
+            "denominator_sessions": probe_days,
+            "source": "مُخرَجٌ آليّ من catalog_envelope.py",
+            "edges": {k: (list(env90[k]) if isinstance(env90[k], tuple)
+                          else env90[k]) for k, _, _, _ in CRITERIA},
+        }
+        _js = json.dumps(_blob, ensure_ascii=False)
+        with open("envelope_p90.json", "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(_blob, ensure_ascii=False, indent=1))
+        S.log("")
+        S.log("🔏 ENVELOPE_P90_JSON " + _js)
+    except Exception as e:                                       # noqa: BLE001
+        S.log(f"⚠️ تعذّر إصدار الحواف آليًّا: {e}")
 
     S.log("")
     S.log("⚠️ حدود صدقٍ قائمة: انحياز بقاء · تشويه تقسيمات · بلا افتر · n=31 "
