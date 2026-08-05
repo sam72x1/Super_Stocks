@@ -1,17 +1,6 @@
 {
  "NGEN": {},
  "DJT": {},
- "IDN": {
-  "sector": "Technology",
-  "industry": "Software - Application",
-  "business": "Intellicheck, Inc., a technology company, provides on-demand digital identity validation solutions for KYC, fraud, and age verification needs in North America.…",
-  "country": "United States",
-  "cash": 10062000,
-  "revenue": 23296000,
-  "shares_out": 20251221,
-  "short_pct": 3.8,
-  "float": 17719818
- },
  "SOGP": {
   "sector": "Communication Services",
   "industry": "Internet Content & Information",
@@ -1861,5 +1850,33 @@
   "company_name": "AIFU Inc.",
   "short_interest": 878,
   "days_to_cover": 0.04
+ },
+ "IPWR": {
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "business": "Ideal Power Inc. focuses on the development and commercialization of its bidirectional bipolar junction TRANsistor solid-state switch technology. The company of…",
+  "country": "United States",
+  "cash": 16410749,
+  "revenue": 25725,
+  "shares_out": 16421520,
+  "short_pct": 4.8,
+  "float": 9583226,
+  "company_name": "Ideal Power Inc.",
+  "short_interest": 778739,
+  "days_to_cover": 2.54
+ },
+ "IDN": {
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "business": "Intellicheck, Inc., a technology company, provides on-demand digital identity validation solutions for KYC, fraud, and age verification needs in North America.…",
+  "country": "United States",
+  "cash": 10062000,
+  "revenue": 23296000,
+  "shares_out": 20251221,
+  "short_pct": 7.2,
+  "float": 19567540,
+  "company_name": "Intellicheck, Inc.",
+  "short_interest": 1228963,
+  "days_to_cover": 3.49
  }
 }
