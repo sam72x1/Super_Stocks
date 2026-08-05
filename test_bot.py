@@ -11870,8 +11870,156 @@ check("🧪 NH🔒 وكرتُه يُبنى كاملًا بلا انهيار وب
                                    "رأس شمعة الفجوة", "الدخول ناقص",
                                    "قيد الإثبات"))
       and "$3.20" in _sm_msg and "$5.00" in _sm_msg)
+# 🐞 وقفلُ الوصل كان **نصّيًّا** (وجودُ الاسم وترتيبُه) فنجت طفرةُ تعطيلِ الحلقة
+#    (`[] and …`) ⇒ يُقاس **من المُخرَج الحيّ** للكرت نفسه.
+check("🧾 FK🔒 وقواعدُ فيصل تظهر في **مُخرَج الكرت** فعلًا (لا وصلةٌ ميتة)",
+      "هدفُ فيصل الأوّل" in _sm_msg and "طلباتٌ نازلة" in _sm_msg
+      and "لا تشتري من العرض" in _sm_msg)
 _ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة بعد الدخان
 # ==========================================================
+# ==========================================================
+# 🧾 قواعدُ «النماذج التعليمية» (2026-08-05) — كلُّ قفلٍ مرساتُه **رقمُ فيصل**
+# ==========================================================
+def _fk(o, h, low, c, start="2026-01-01"):
+    return S.pd.DataFrame(
+        {"Open": o, "High": h, "Low": low, "Close": c, "Volume": [1e5] * len(o)},
+        index=S.pd.date_range(start, periods=len(o), freq="B"))
+
+
+check("🧾 FK🔒 «لكل 10 آلاف سهم = 10٪ هبوط» — بأرقامه ونسبيًّا",
+      S.CONFIG["FAISAL_SHORT_UNIT"] == 10_000
+      and S.CONFIG["FAISAL_SHORT_UNIT_PCT"] == 10.0
+      and S.short_decline_estimate(10_000)["decline_pct"] == 10.0
+      and S.short_decline_estimate(6_000)["decline_pct"] == 6.0
+      and S.short_decline_estimate(150_000)["decline_pct"] == 150.0
+      and S.short_decline_estimate("x") is None
+      and S.short_decline_estimate(float("nan")) is None)
+check("🧾 FK🔒 «RSI من 22 لـ27» — والتخوم مقفولة (‏21.9 و27.1 خارجه)",
+      (S.CONFIG["FAISAL_RSI_LO"], S.CONFIG["FAISAL_RSI_HI"]) == (22.0, 27.0)
+      and all(S.faisal_rsi_zone(v)["in_zone"] for v in (22.0, 25, 27.0))
+      and not any(S.faisal_rsi_zone(v)["in_zone"] for v in (21.9, 27.1))
+      and S.faisal_rsi_zone(None) is None)
+check("🧾 FK🔒 «هدف أوّل 30٪» + قاعدة التحرّر منصوصةً في المُخرَج",
+      S.CONFIG["FAISAL_FIRST_TARGET_PCT"] == 30.0
+      and S.first_target_release(2.0)["target"] == 2.6
+      and "جني ربح" in S.first_target_release(2.0)["rule"]
+      and S.first_target_release(0) is None)
+# 🛑 قاعدة الامتناع بأرقام MNDR: القاع 1.40 والسعر 1.94 ⇒ ‏+38.6% (لا امتناع)،
+#    وعند 2.10 ⇒ ‏+50% ⇒ **امتناع** (وهو حرفيًّا ما قاله: «حقّق 50٪ … ما أخاطر»).
+_fk_lo = [3.0] * 20 + [2.0, 1.70, 1.40, 1.55, 1.70, 1.80, 1.90]
+_fk_a = _fk([2.9] * 20 + [2.1, 1.8, 1.5, 1.6, 1.75, 1.85, 1.94],
+            [3.1] * 20 + [2.2, 1.9, 1.6, 1.7, 1.85, 1.95, 2.00],
+            _fk_lo,
+            [2.9] * 20 + [2.1, 1.8, 1.5, 1.6, 1.75, 1.85, 1.94])
+_fk_b = _fk([2.9] * 20 + [2.1, 1.8, 1.5, 1.6, 1.75, 1.85, 2.10],
+            [3.1] * 20 + [2.2, 1.9, 1.6, 1.7, 1.85, 1.95, 2.20],
+            _fk_lo,
+            [2.9] * 20 + [2.1, 1.8, 1.5, 1.6, 1.75, 1.85, 2.10])
+check("🛑 FK🔒 الامتناع عند 50٪ من القاع — بأرقام $MNDR (‏1.40 قاعًا)",
+      S.CONFIG["FAISAL_ABSTAIN_RISE_PCT"] == 50.0
+      and S.rise_from_bottom(_fk_a)["abstain"] is False
+      and abs(S.rise_from_bottom(_fk_a)["risen_pct"] - 38.6) < 0.2
+      and S.rise_from_bottom(_fk_b)["abstain"] is True
+      and abs(S.rise_from_bottom(_fk_b)["risen_pct"] - 50.0) < 0.2)
+# 🐞 عيّنتاي الأوليان (هابطة صرفة · صاعدة صرفة) **لا تفرّقان `all` عن `any`**:
+#    في الأولى السعرُ تحت الكلّ وفي الثانية فوق الكلّ ⇒ نجت الطفرة. الحالةُ
+#    الحاسمة **بينهما**: فوق المتوسّط القصير وتحت الطويل ⇒ `all`=False و`any`=True.
+_fk_mid = (lambda l: _fk(l, [x * 1.02 for x in l], [x * 0.98 for x in l], l))(
+    [5 - i * 0.05 for i in range(55)] + [2.35, 2.55, 2.75, 2.95, 3.10])
+_fk_midr = S.under_all_mas(_fk_mid)
+check("🧾 FK🔒 «تحت **جميع** المتوسّطات» لا «أيّها» — والحالةُ البينيّة تفصلهما",
+      (lambda d: d and d["under_all"] is True and set(d["mas"]) == {20, 30, 50})(
+          S.under_all_mas(_fk([5 - i * 0.05 for i in range(60)],
+                              [5.1 - i * 0.05 for i in range(60)],
+                              [4.9 - i * 0.05 for i in range(60)],
+                              [5 - i * 0.05 for i in range(60)])))
+      and _fk_midr["under_all"] is False
+      and any(_fk_midr["price"] < v for v in _fk_midr["mas"].values())
+      and any(_fk_midr["price"] > v for v in _fk_midr["mas"].values())
+      and S.under_all_mas(None) is None)
+# 🔨 «شمعة الهمر … مهمّ ما يكسر ذيلها» — والوقفُ ذيلُها (‏$TDIC `IMG_0659`)
+_fk_ham = _fk([3.05] * 20 + [2.65, 2.45, 2.38, 2.38],
+              [3.1] * 20 + [2.70, 2.50, 2.42, 2.45],
+              [3.0] * 20 + [2.60, 2.40, 2.00, 2.35],
+              [3.02] * 20 + [2.62, 2.42, 2.41, 2.43])
+_fk_h = S.hammer_wick_stop(_fk_ham)
+check("🔨 FK🔒 الهمر عند القاع يُكشَف وذيلُه هو الوقف · ولونُه يحدّد المدى",
+      _fk_h and _fk_h["wick_low"] == 2.00 and _fk_h["broken"] is False
+      and _fk_h["red"] is False
+      and "همر" in _insp0.getsource(S.hammer_wick_stop)
+      and "reversal_candle" in _insp0.getsource(S.hammer_wick_stop))
+# 🐞 وعيّنتي الأولى تعطي `broken=False` **وكذلك الطفرة** (التي تُثبّتها False)
+#    ⇒ يلزم شاهدٌ **مكسور** فعلًا: قاعٌ أدنى **بعد** الهمر.
+_fk_hamb = S.hammer_wick_stop(
+    _fk([3.05] * 20 + [2.65, 2.45, 2.38, 2.10],
+        [3.1] * 20 + [2.70, 2.50, 2.42, 2.15],
+        [3.0] * 20 + [2.60, 2.40, 2.00, 1.80],
+        [3.02] * 20 + [2.62, 2.42, 2.41, 1.85]))
+check("🔨 FK🔒 و«ما يكسر ذيلها» يُرصَد فعلًا: قاعٌ أدنى بعده ⇒ `broken=True`",
+      _fk_hamb is not None and _fk_hamb["broken"] is True)
+check("🔨 FK🔒 ولا همرَ ⇒ None (القفل ليس عدميًّا) · وتالفٌ ⇒ None",
+      S.hammer_wick_stop(_fk([3.0] * 24, [3.1] * 24, [2.9] * 24,
+                             [3.0] * 24)) is None
+      and S.hammer_wick_stop(None) is None)
+# 👤 خطّ العنق — قاعٌ وكتفان بأرقامٍ صريحة
+_fk_neck = (lambda l: S.neckline_level(
+    _fk([x * 1.02 for x in l], [x * 1.05 for x in l], l, [x * 1.02 for x in l])))(
+    [3.0] * 6 + [2.30, 2.55, 2.60, 2.55] + [2.00, 2.10, 2.45, 2.60, 2.55]
+    + [2.32, 2.50, 2.75, 2.86, 2.90])
+check("👤 FK🔒 خطّ العنق: الرأس أدنى الكتفين · والعنق أعلى القمم بينها",
+      _fk_neck and _fk_neck["head"] == 2.00
+      and _fk_neck["shoulders"] == [2.30, 2.32] and _fk_neck["above"] is True)
+# 🐞 عيّنتي الأولى لم تكن «متباعدة» أصلًا: الكتفُ الأيمن يُلتقَط **أدنى ما بعد
+#    الرأس**، فوقع على بارٍ وسطيّ 2.45 لا على 4.00 ⇒ القفل يمرّ بلا اختبار.
+#    الآن كلُّ ما بعد الرأس **مرتفعٌ فعلًا** فيصير الكتف 4.20 والتباعد 45%.
+check("👤 FK🔒 وكتفان متباعدان ⇒ لا نموذج (لا يُفبرَك) · وقصيرٌ ⇒ None",
+      S.neckline_level(
+          (lambda l: _fk([x * 1.02 for x in l], [x * 1.05 for x in l], l,
+                         [x * 1.02 for x in l]))(
+              [3.0] * 6 + [2.30, 2.55, 2.60, 2.55] + [2.00]
+              + [4.00, 4.20, 4.40, 4.60, 4.80])) is None
+      and S.neckline_level(_fk([1] * 5, [1] * 5, [1] * 5, [1] * 5)) is None)
+# 📐 فيبوّ زنادَ إعادة دخول — مُعايَرٌ من مثاله: 1.84 ⟶ 3.68 والفيبوّ **2.20**
+check("📐 FK🔒 فيبوّ إعادة الدخول يُعيد رقم فيصل نفسه (‏≈2.20 من 1.84→3.68)",
+      abs(S.fib_reentry(1.84, 3.68)["level"] - 2.20) <= 0.01
+      and S.fib_reentry(3.0, 1.0) is None and S.fib_reentry(None, 1) is None)
+check("🪜 FK🔒 السلّمان كلاهما بأرقامه: نازل 2.60/2.55/2.50 · صاعد 2.05/2.10/2.15",
+      S.descending_ladder(2.60) == [2.60, 2.55, 2.50]
+      and S.descending_ladder(2.05, step=-0.05) == [2.05, 2.10, 2.15]
+      and S.CONFIG["FAISAL_LADDER_STEP"] == 0.05
+      and S.descending_ladder(0) == [] and S.descending_ladder(2.6, step=0) == [])
+# 🔒 نطاق: كلُّها **خارج جذور الفرز** — لا اسمَ لأيٍّ منها في أيٍّ منها.
+_fk_lines = S.faisal_rule_lines(_fk_ham, price=2.43, entry=2.40, avail=6000,
+                                rsi_val=25.0)
+check("🧾 FK🔒 المُصدَرُ الواحد يُخرج القواعد فعلًا (‏لا دالّةٌ تُبنى ولا تُعرَض)",
+      len(_fk_lines) >= 5
+      and any("لكل 10 آلاف" in x for x in _fk_lines)
+      and any("من 22 لـ27" in x for x in _fk_lines)
+      and any("ذيلُها" in x and "الوقف" in x for x in _fk_lines)
+      and any("جني ربح" in x for x in _fk_lines))
+check("🧾 FK🔒 وفاشلٌ-آمن مطلقًا: تالفٌ/غيابٌ ⇒ [] بلا انهيار",
+      S.faisal_rule_lines(None) == []
+      and S.faisal_rule_lines("تالف", price="x", avail="y", rsi_val="z") == [])
+check("🧾 FK🔒 موصولٌ بكرت «النهج العلمي» **بعد** اكتماله (عرضٌ لا قرار)",
+      "faisal_rule_lines" in _insp0.getsource(S.build_method_alert)
+      and _insp0.getsource(S.build_method_alert).index("faisal_rule_lines")
+      > _insp0.getsource(S.build_method_alert).index("hunter_extras")
+      and "faisal_rule_lines" not in _insp0.getsource(S.scan_method_hunter))
+# ⏸️ وصيّاد المقسّم **لم يُمَسّ**: أضفتُها إليه أوّلًا فأسقطها **درعُه** — وقاعدةُ
+#    المالك «اتركها على جنب وأبلغني». يُقفَل الامتناعُ نفسه لئلّا يُنسى ويُضاف سهوًا.
+check("⏸️ FK🔒 صيّاد المقسّم **بلا** هذي القواعد حتى إذنٍ صريح (قرار المالك)",
+      "faisal_rule_lines" not in _insp0.getsource(S.build_split_hunter_alert)
+      and "faisal_rule_lines" not in _insp0.getsource(S.scan_split_hunter)
+      and "اتركها على جنب" in _insp0.getsource(S.build_split_hunter_alert))
+check("🧾 FK🔒 الجديدة كلُّها خارج الجذور (لا تمسّ اختيارًا ولا ترتيبًا)",
+      all(_n not in _insp0.getsource(_f)
+          for _n in ("short_decline_estimate", "faisal_rsi_zone", "under_all_mas",
+                     "rise_from_bottom", "hammer_wick_stop", "neckline_level",
+                     "fib_reentry", "first_target_release", "descending_ladder")
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.analyze_ticker, S.apply_float_gate, S.apply_short_gate,
+                     S.scan_market, S.backtest_symbol)))
+
 # 🕓 الفريمان معًا — قرار المالك 2026-08-01: «نمشي بالتسلسل حسب اللي أعرفه من أبو
 #    بدر — لأن **الأهداف وغالبًا الشموع وحده**». اليوميّ أوّلًا، ثم 4س لمن سقط.
 # ==========================================================

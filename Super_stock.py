@@ -469,6 +469,20 @@ CONFIG = {
     #    الممتدّة 16 ساعة ⟹ أربع شمعات. (كان المِجَسّ يفترض 6 = نافذةٌ أوسع.)
     "METHOD_4H_BARS_PER_SESSION": 4,
     "METHOD_4H_CAP": 300,                # سقف جلبات 4س بالتشغيلة — والمقصوص يُعلَن
+    # 🧾 قواعدُ «النماذج التعليمية» (2026-08-05) — كلُّها **بلفظ فيصل**:
+    "FAISAL_SHORT_UNIT": 10_000,         # «لكل 10 آلاف سهم…» IMG_0531
+    "FAISAL_SHORT_UNIT_PCT": 10.0,       # «…= 10٪ تقريبًا هبوط»  IMG_0531
+    "FAISAL_RSI_LO": 22.0,               # «RSI يكون من 22…»      IMG_0531
+    "FAISAL_RSI_HI": 27.0,               # «…لـ27»                IMG_0531
+    "FAISAL_FIRST_TARGET_PCT": 30.0,     # «هدف أوّل 30٪»          IMG_0531
+    "FAISAL_ABSTAIN_RISE_PCT": 50.0,     # «حقّق 50٪ من القاع ⇒ ما أخاطر» IMG_0566
+    "FAISAL_LADDER_STEP": 0.05,          # «2.60 · 2.55 · 2.50»   IMG_0647
+    # ⚙️ وثلاثةُ ثوابتٍ **هندسية مُعلَنة** (لا سند نصّيّ — تُوسَم `engineering`):
+    "FAISAL_BOTTOM_LOOKBACK": 30,        # نافذة قراءة القاع/الهمر
+    "FAISAL_PATTERN_BARS": 60,           # نافذة كشف خطّ العنق
+    "FAISAL_SHOULDER_TOL": 0.08,         # تقارُبُ الكتفين
+    # 📐 نسبةُ فيبوّ مُعايَرة من مثاله وحده (‏1.84 ⟶ 3.68 والفيبوّ 2.20 ⇒ ‏≈0.196)
+    "FAISAL_FIB_RATIO": 0.196,
     "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
     "FINRA_BUDGET": 400,                 # 🕵️ سقف تنزيلات FINRA لتشغيلة T-SHORT
     "FORM4_BUDGET": 48,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
@@ -6146,6 +6160,330 @@ _METHOD_STAGE = {}
 METHOD_NEAR_SHOW = 25
 
 
+# ==========================================================
+# 🧾 قواعدُ فيصل من «النماذج التعليمية» (‏2026-08-05 — أمر المالك «نفّذ كل شي»)
+#    المصدر: `FAISAL_TEACHING_MODELS.md` + `FAISAL_SPLIT_FILTER_METHOD.md`.
+#    🔒 **كلُّها نقيّة وفاشلة-آمنة، وخارج جذور الفرز** — تُستهلَك عرضًا/سياقًا،
+#    وفي الأداة الرابعة (فلترة التقسيم) بوّابةً حيث ينصّ عليها فيصل صراحةً.
+#    ⚖️ **وتصحيحُ المالك مُدرَج:** «**الحراج = القروبات**» ⇒ الشرطُ الذي كان
+#    «بلا مصدرٍ آليّ» صار مخدومًا بـ`group_pump_scar` القائم · و«برنامج هدف
+#    الشورت» **غيرُ لازم** — يكفينا **عددُ الشورت** وهو عندنا من ChartExchange.
+# ==========================================================
+def short_decline_estimate(shares, per=None, pct=None):
+    """📉 **«لكل 10 آلاف سهم = 10٪ تقريبًا هبوط»** (‏`IMG_0531` حرفيًّا).
+
+    فيصل: «يوجد برنامج خاص … بعد متابعة البرنامج وقياس عدد الشورت ظهر معاي والله
+    أعلم: **لكل 10 آلاف سهم = 10٪ تقريبًا هبوط**». **وقرار المالك:** البرنامج
+    **غيرُ لازم** — يكفي **عددُ الشورت**، وهو عندنا (المتاح من ChartExchange).
+
+    يرجّع `{"shares", "decline_pct"}` أو `None`. **تقديرٌ يُعرَض ولا يُبنى عليه
+    قرار** (‏«والله أعلم» بلفظه). نقيّة · فاشلة-آمنة."""
+    per = float(per if per is not None else CONFIG["FAISAL_SHORT_UNIT"])
+    pct = float(pct if pct is not None else CONFIG["FAISAL_SHORT_UNIT_PCT"])
+    try:
+        s = float(shares)
+    except (TypeError, ValueError):
+        return None
+    if s != s or s < 0 or per <= 0:                  # ⚠️ NaN ليس None
+        return None
+    return {"shares": s, "decline_pct": round(s / per * pct, 1)}
+
+
+def faisal_rsi_zone(value, lo=None, hi=None):
+    """📐 **«يتم قراءة RSI = يكون من 22 لـ27»** (‏`IMG_0531` حرفيًّا) — في حال
+    **تشبّع الهبوط**.
+
+    🔴 **وأوّل مرّة يُذكر حدٌّ سفليّ**: كان عندنا السقف (‏≤27 مثاليّ) بلا أرضية.
+    يرجّع `{"rsi", "in_zone", "state"}` أو `None`. **عرضٌ فقط** — ولا يُقحَم في
+    `M1-M14` ولا في صيّاد «النهج العلمي» (نظامان مختلفان؛ القاعدة المُلزِمة)."""
+    lo = float(lo if lo is not None else CONFIG["FAISAL_RSI_LO"])
+    hi = float(hi if hi is not None else CONFIG["FAISAL_RSI_HI"])
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        return None
+    if v != v:
+        return None
+    st = ("جاهز — داخل نطاق فيصل" if lo <= v <= hi
+          else ("تحت النطاق (تشبّعٌ أعمق)" if v < lo else "فوق النطاق"))
+    return {"rsi": round(v, 1), "in_zone": bool(lo <= v <= hi), "state": st}
+
+
+def under_all_mas(df, periods=(20, 30, 50)):
+    """📊 **«يتداول الآن تحت جميع متوسّطات الحركة»** (‏`IMG_0645` على `$TDIC`) —
+    ذكرها فيصل **شرطًا** ضمن قراءته قبل الدخول.
+
+    يرجّع `{"under_all", "price", "mas": {n: value}}` أو `None`.
+    ⚠️ **المتوسّطات أُسّية** (‏`ema`) موافقةً لما هو مثبّتٌ عندنا (‏EMA 30/50
+    الموثّقة) ولا نخترع نوعًا آخر. نقيّة · فاشلة-آمنة."""
+    try:
+        c = df["Close"].astype(float)
+        p = float(c.iloc[-1])
+    except Exception:                                            # noqa: BLE001
+        return None
+    if p != p or p <= 0:
+        return None
+    mas = {}
+    for n in periods:
+        try:
+            if len(c) < int(n):
+                continue
+            v = float(ema(c, int(n)))
+            if v == v and v > 0:
+                mas[int(n)] = round(v, 4)
+        except Exception:                                        # noqa: BLE001
+            continue
+    if not mas:
+        return None
+    return {"under_all": all(p < v for v in mas.values()),
+            "price": round(p, 4), "mas": mas}
+
+
+def rise_from_bottom(df, lookback=None, abstain=None):
+    """🛑 **قاعدةُ الامتناع** — «جميل السهم لكن صعوده تدريجي **حقّق 50٪ الآن من
+    القاع** … **عن نفسي ما أخاطر — انتظر 1.60**» (‏`IMG_0566` على `$MNDR`).
+
+    ⇒ بعد صعودٍ مقدارُه `abstain`% من القاع **لا يُدخَل**، ويُنتظَر الرجوع للدعم.
+    يرجّع `{"bottom", "price", "risen_pct", "abstain"}` أو `None`. نقيّة."""
+    lookback = int(lookback if lookback is not None
+                   else CONFIG["FAISAL_BOTTOM_LOOKBACK"])
+    abstain = float(abstain if abstain is not None
+                    else CONFIG["FAISAL_ABSTAIN_RISE_PCT"])
+    try:
+        t = df.tail(lookback)
+        bot = float(t["Low"].astype(float).min())
+        p = float(t["Close"].astype(float).iloc[-1])
+    except Exception:                                            # noqa: BLE001
+        return None
+    if not (bot > 0) or p != p:
+        return None
+    r = (p / bot - 1.0) * 100.0
+    return {"bottom": round(bot, 4), "price": round(p, 4),
+            "risen_pct": round(r, 1), "abstain": bool(r >= abstain)}
+
+
+def hammer_wick_stop(df, tol=None):
+    """🔨 **«هذي شمعة الهمر ع الفريم اليوميّ — مهمّ ما يكسر ذيلها · لذلك قرّرنا
+    الدخول فيه بناءً ع هذي الشمعة»** (‏`IMG_0659` على `$TDIC`).
+
+    وقيدُ `IMG_0569` (‏`$MNDR`): «جسم شمعة القاع **بدون رأس** تسمّى مطرقة أو همر ·
+    **شمعة حمرا = صعودٌ قصير الأمد**» ⇒ **لونُ الهمر يحدّد مدى الصعود**.
+
+    نبحث عن **همرٍ عند قاع النافذة** (ضمن `tol` منه) ونرجّع:
+    `{"idx_from_end", "wick_low", "red", "extent", "broken"}` أو `None`.
+    🔒 **الوقفُ هنا = ذيلُ الهمر** — وهو **ثالثُ وقفٍ مختلف** في مادّة فيصل
+    (‏الارتكاز 7% · المقسّم القاع · النهج العلمي الدخول−6%) فلا يُخلط.
+    ويُفوَّض تمييزُ الهمر لـ`reversal_candle` **نفسها** فلا يتفرّق التعريف."""
+    tol = float(tol if tol is not None else CONFIG["METHOD_HOLD_TOL"])
+    try:
+        t = df.tail(int(CONFIG["FAISAL_BOTTOM_LOOKBACK"]))
+        lo = t["Low"].astype(float).values
+        cl = t["Close"].astype(float).values
+        op = t["Open"].astype(float).values
+    except Exception:                                            # noqa: BLE001
+        return None
+    n = len(lo)
+    if n < 4:
+        return None
+    if not (float(np.min(lo)) > 0):
+        return None
+    # 🐞 **عيبٌ كشفته الطفرة (يُدوَّن لا يُطوى):** كنتُ أقيس «عند القاع» بـ**أدنى
+    #    النافذة كلِّها**، فأيُّ كسرٍ ماديٍّ للذيل يجعل القاعَ هو الكسرَ نفسه ⇒
+    #    يسقط الهمر من الكشف رأسًا و`broken` **لا يمكن أن تصير True** إلا بكسرٍ
+    #    داخل التسامح = **فرعٌ شبه ميّت**، وهو عينُ ما رفضناه في `tested_level`.
+    #    ⇒ المرجعُ الآن **أدنى ما حتى لحظة الهمر** (قاعٌ مكوَّن بزمنه)، فيصير
+    #    «ما يكسر ذيلها» **قابلًا للرصد فعلًا** — وهو نصُّ فيصل.
+    for k in range(n - 1, 1, -1):                # الأحدثُ أوّلًا
+        if float(lo[k]) > float(np.min(lo[:k + 1])) * (1.0 + tol):
+            continue                             # ليست قاعًا بزمنها
+        if reversal_candle(_ohlc_tail(t.iloc[:k + 1], 3)) != "همر":
+            continue
+        broken = any(float(lo[j]) < float(lo[k]) for j in range(k + 1, n))
+        red = bool(float(cl[k]) < float(op[k]))
+        return {"idx_from_end": n - 1 - k, "wick_low": round(float(lo[k]), 4),
+                "red": red,
+                "extent": ("صعودٌ قصير الأمد (همر حمراء)" if red
+                           else "همر خضراء"),
+                "broken": bool(broken)}
+    return None
+
+
+def neckline_level(df, lookback=None, tol=None):
+    """👤 **«خطّ العنق»** — فيصل يرسمه بنفسه ويعطي رقمَه: «الأهمّ **ثبات وتداول
+    فوق خطّ العنق 2.86 > أكثر من ربع ساعة** · تحرّر من المقاومة الثانية 3.11 >
+    يعطي أملًا صاعدًا لـ3.30» (‏`IMG_0627`/`0628` على `$DXST`).
+
+    ⚖️ **وسابقةٌ مدوّنة تُقرأ معها:** ادّعاءُ «رأس وكتفين» في `TG_2197` **سقط
+    بالطعن**؛ والفرقُ هنا أن **الرسم والرقم من فيصل نفسه**.
+
+    الكشف (‏**مقلوب** = قاعٌ وكتفان): ثلاثةُ قيعانٍ أوسطُها الأدنى، وخطُّ العنق
+    = **أدنى القمّتين بينها**. يرجّع `{"neck", "head", "shoulders", "above"}`
+    أو `None`. نقيّة · فاشلة-آمنة · **بلا نظر مستقبليّ**."""
+    lookback = int(lookback if lookback is not None
+                   else CONFIG["FAISAL_PATTERN_BARS"])
+    tol = float(tol if tol is not None else CONFIG["FAISAL_SHOULDER_TOL"])
+    try:
+        t = df.tail(lookback)
+        lo = t["Low"].astype(float).values
+        hi = t["High"].astype(float).values
+        p = float(t["Close"].astype(float).iloc[-1])
+    except Exception:                                            # noqa: BLE001
+        return None
+    n = len(lo)
+    if n < 9:
+        return None
+    head = int(np.argmin(lo))
+    if not (2 <= head <= n - 3):
+        return None
+    ls = int(np.argmin(lo[:head - 1])) if head >= 2 else None
+    rs_rel = int(np.argmin(lo[head + 2:])) if head + 2 < n else None
+    if ls is None or rs_rel is None:
+        return None
+    rs = head + 2 + rs_rel
+    if not (lo[head] < lo[ls] and lo[head] < lo[rs]):
+        return None
+    # الكتفان متقاربان (وإلّا فليس النموذج)
+    if abs(float(lo[ls]) / float(lo[rs]) - 1.0) > tol:
+        return None
+    neck = min(float(np.max(hi[ls:head + 1])), float(np.max(hi[head:rs + 1])))
+    if not (neck > 0) or neck <= float(lo[head]):
+        return None
+    return {"neck": round(neck, 4), "head": round(float(lo[head]), 4),
+            "shoulders": [round(float(lo[ls]), 4), round(float(lo[rs]), 4)],
+            "above": bool(p > neck)}
+
+
+def fib_reentry(low, high, ratio=None):
+    """📐 **فيبوناتشي زنادَ إعادة دخول لا هدفًا** — «وإذا هبط **نركب إذا تجاوز
+    خطّ فيبوّاب** · هذا هبط إلى **1.84** الفيبوّ كان **2.20** · **تجاوزه مباشرة
+    ركبنا**» (‏`IMG_0617` على `$EZRA`، ومعها أمرُ شراءٍ منفَّذ عند 2.2597).
+
+    🔴 **وهو أوّل استعمالٍ لفيبوّ عندنا كزنادِ دخول** — كان هدفًا فقط.
+    نُعاير النسبة من مثاله: من 1.84 إلى قمّةٍ 3.68 يقع 2.20 عند ‏≈0.196 من المدى
+    ⇒ **النسبة المعتمدة تُقرأ من CONFIG ولا تُخمَّن هنا.** نقيّة."""
+    ratio = float(ratio if ratio is not None else CONFIG["FAISAL_FIB_RATIO"])
+    try:
+        a, b = float(low), float(high)
+    except (TypeError, ValueError):
+        return None
+    if a != a or b != b or not (b > a > 0):
+        return None
+    return {"level": round(a + (b - a) * ratio, 4), "ratio": ratio,
+            "low": round(a, 4), "high": round(b, 4)}
+
+
+def first_target_release(entry, pct=None):
+    """🎯 **«مع هدف أوّل 30٪ — تحرّر منها تواصل · عدم تحرّر = جني ربح»** ·
+    و«**30٪ غالبًا تمثّل مقاومة أولى**» (‏`IMG_0531` حرفيًّا).
+
+    ⇒ سياسةُ خروجٍ منصوصة: عند بلوغ الهدف الأوّل **يُقرَّر بالتحرّر لا بالسعر**.
+    يرجّع `{"target", "pct", "rule"}` أو `None`. نقيّة · عرض/سياق."""
+    pct = float(pct if pct is not None else CONFIG["FAISAL_FIRST_TARGET_PCT"])
+    try:
+        e = float(entry)
+    except (TypeError, ValueError):
+        return None
+    if e != e or e <= 0:
+        return None
+    return {"target": round(e * (1.0 + pct / 100.0), 4), "pct": pct,
+            "rule": "تحرّر منها ⟸ تواصل · لم يتحرّر ⟸ جني ربح"}
+
+
+def descending_ladder(level, n=None, step=None):
+    """🪜 **سلّمُ طلباتٍ نازل** — «باقي ع الافتر وقت، تبي تطلبه: **2.60 · 2.55 ·
+    2.50**» (‏`IMG_0647` على `$TDIC`) · ونظيرُه الصاعد «2.05 · 2.10 · 2.15»
+    (‏`FAISAL_SPLIT_FILTER_METHOD.md` §①).
+
+    ⚖️ **وهذا يختلف عن دفعاتنا** (`ENTRY_TRANCHES` صاعدة بخطوة **نسبية**): هنا
+    **خطوةٌ ثابتة بالسنتات**. و**الاتّجاهان كلاهما وردا عنه** ⇒ `step` سالبةٌ
+    تُنتج السلّم **الصاعد** (‏2.05/2.10/2.15) وموجبةٌ تُنتج **النازل**
+    (‏2.60/2.55/2.50) — فلا نختار له اتّجاهًا لم يقُله. يرجّع قائمة أسعار."""
+    n = int(n if n is not None else CONFIG["ENTRY_TRANCHES"])
+    step = float(step if step is not None else CONFIG["FAISAL_LADDER_STEP"])
+    try:
+        x = float(level)
+    except (TypeError, ValueError):
+        return []
+    if x != x or x <= 0 or n <= 0 or step == 0 or step != step:
+        return []
+    return [round(x - step * i, 4) for i in range(n) if x - step * i > 0]
+
+
+def faisal_rule_lines(df, price=None, entry=None, avail=None, rsi_val=None):
+    """🧾 **أسطرُ قواعد «النماذج التعليمية»** — مُصدَرٌ واحد يُنادى من كرت صيّاد
+    «النهج العلمي» ومن صيّاد المقسّم معًا، فلا يتفرّق النصّ بين موضعين.
+
+    🔒 **عرض/سياق فقط** — لا يُدخل مرشّحًا ولا يُخرجه، ولا يُنادى إلا **بعد**
+    اكتمال الاختيار. وكلُّ سطرٍ يذكر **رقم فيصل** لا رقمًا مشتقًّا.
+    فاشلة-آمنة تمامًا: كلُّ قاعدةٍ داخل حارسها، والغائبُ يُسقَط بصمت (لا يُخمَّن).
+    """
+    out = []
+    try:
+        sd = short_decline_estimate(avail) if avail is not None else None
+        if sd:
+            out.append(f"  📉 الشورت {int(sd['shares']):,} ⟸ هبوطٌ متوقّع "
+                       f"~{sd['decline_pct']:.0f}% (فيصل: لكل 10 آلاف ‏10%)")
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        rz = faisal_rsi_zone(rsi_val) if rsi_val is not None else None
+        if rz:
+            out.append(f"  📐 RSI {rz['rsi']:.0f} — {esc(rz['state'])} "
+                       "(فيصل: من 22 لـ27)")
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        ua = under_all_mas(df)
+        if ua and ua["under_all"]:
+            out.append("  📊 يتداول <b>تحت جميع متوسّطات الحركة</b> "
+                       f"({' · '.join(str(k) for k in sorted(ua['mas']))}) "
+                       "— شرطُ فيصل")
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        rb = rise_from_bottom(df)
+        if rb and rb["abstain"]:
+            out.append(f"  🛑 <b>حقّق {rb['risen_pct']:.0f}% من القاع "
+                       f"${rb['bottom']:.2f}</b> — فيصل: «عن نفسي ما أخاطر، "
+                       "أنتظر الرجوع للدعم»")
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        hw = hammer_wick_stop(df)
+        if hw:
+            out.append(f"  🔨 همرٌ عند القاع — <b>ذيلُها ${hw['wick_low']:.2f} "
+                       "هو الوقف</b> «مهمّ ما يكسر ذيلها»"
+                       + (f" · {esc(hw['extent'])}" if hw["red"] else "")
+                       + (" · ⚠️ <b>كُسِر</b>" if hw["broken"] else ""))
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        nk = neckline_level(df)
+        if nk:
+            out.append(f"  👤 خطّ العنق <b>${nk['neck']:.2f}</b> "
+                       + ("(السعر فوقه — يلزم ثباتٌ أكثر من ربع ساعة)"
+                          if nk["above"] else "(السعر تحته)"))
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        ft = first_target_release(entry) if entry is not None else None
+        if ft:
+            out.append(f"  🎯 هدفُ فيصل الأوّل <b>${ft['target']:.2f}</b> "
+                       f"(+{ft['pct']:.0f}% · غالبًا مقاومةٌ أولى) — "
+                       f"{esc(ft['rule'])}")
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        lad = descending_ladder(price) if price is not None else []
+        if lad:
+            out.append("  🪜 طلباتٌ نازلة: "
+                       + " · ".join(f"${x:.2f}" for x in lad)
+                       + " — «لا تشتري من العرض»")
+    except Exception:                                            # noqa: BLE001
+        pass
+    return out
+
+
 def method_near_lines(near, cap=None):
     """🔭 أسطرُ «قريبون من الشرط» — **مُصدَرٌ واحد** للكرت ولرسالة «لا يوجد» معًا.
 
@@ -6394,6 +6732,11 @@ def build_method_alert(rows: list, today=None) -> str:
             lines.append("  " + _bt)
         for _x in hunter_extras(r, df=r.get("df"), flow=r.get("flow"),
                                 df4h=r.get("df4h")):
+            lines.append(_x)
+        # 🧾 قواعدُ «النماذج التعليمية» — **بعد اكتمال الكرت** وخارج أيّ قرار.
+        for _x in faisal_rule_lines(r.get("df"), price=r.get("price"),
+                                    entry=r.get("entry"), avail=r.get("avail"),
+                                    rsi_val=r.get("rsi")):
             lines.append(_x)
         lines.append("")
     # 🔭 ذيل التتبّع الحيّ: مَن بلغ التسلسل وسقط على شرطٍ واحد — يُعرَض ليُتابَع.
@@ -6721,6 +7064,11 @@ def build_split_hunter_alert(rows: list, today=None, fetch_hist=None,
         for _x in hunter_extras(r, df=r.get("_df"), flow=r.get("_flow"),
                                 df4h=r.get("_df4h")):
             lines.append(_x)
+        # ⏸️ **ولم تُضَف هنا قواعدُ «النماذج التعليمية» عمدًا (2026-08-05):**
+        #    أضفتُها أوّلًا فأسقطها **درعُ الصيّاد** — وهو يفعل ما بُني له.
+        #    وقاعدةُ المالك المسجَّلة: «صيّاد المقسّم استثناءٌ ونجحنا فيه —
+        #    **اتركها على جنب**، وإن لقيتَ شيئًا يخصّها فأبلغني وأنا أُعلمك».
+        #    ⇒ تبقى في صيّاد «النهج العلمي» وحده حتى إذنٍ صريح.
         lines.append("")
     # 🔔 ذيل «قريبون من الشرط»: استوفوا كل شيء وسقطوا على «لم يصعد» بفارق قريب.
     # (فيصل عرض HTCR وقد صعد **+23%** والحدّ المنصوص **20%** — فلا يُسقَط بصمت.
