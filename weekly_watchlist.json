@@ -339,7 +339,8 @@
    "last_price": 2.04,
    "live_alert": {
     "breakout": "2026-08-04",
-    "afterdump": "2026-08-04"
+    "afterdump": "2026-08-04",
+    "premarket": "2026-08-05"
    },
    "borrow_hist": [
     [
@@ -714,7 +715,8 @@
      "2026-08-05",
      1000000
     ]
-   ]
+   ],
+   "live_alert": {}
   },
   {
    "symbol": "IDN",
@@ -1057,7 +1059,8 @@
      "2026-08-05",
      450000
     ]
-   ]
+   ],
+   "live_alert": {}
   },
   {
    "symbol": "KLXE",
