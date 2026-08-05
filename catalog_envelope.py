@@ -366,6 +366,29 @@ def run():
         if miss:
             S.log(f"      ⚪️ لم يُلتقَط ولا جلسةً: {' · '.join(miss)}")
 
+    # ── 🔬 الالتقاط **خارج العيّنة** (‏leave-one-out) — الحكم الحقيقيّ ─────────
+    # الالتقاط أعلاه **داخل العيّنة**: الظرف مُفصَّلٌ على هؤلاء الرموز أنفسهم.
+    # هنا نبني الظرف من **الثلاثين الآخرين** ونسأل: هل يلتقط المتروك؟ ⇒ هذا وحده
+    # يفرّق «الظرف يعمّم» عن «الظرف يحفظ». والدرس مدوَّنٌ عندنا: انهيار «رابط
+    # Technology 2025» جاء من غياب `leave-one-out` بالضبط.
+    S.log("")
+    S.log("═══ 🔬 الالتقاط خارج العيّنة (‏leave-one-out) — يفرّق التعميم عن الحفظ ═══")
+    for nm, pct in (("P100", 100.0), ("P90", 90.0)):
+        loo_hit, loo_miss = [], []
+        for sym in found:
+            others = [r for r in rows if r["symbol"] != sym]
+            mine = [r for r in rows if r["symbol"] == sym]
+            if not others or not mine:
+                continue
+            e = build_envelope(others, pct)
+            (loo_hit if any(inside_envelope(r, e) for r in mine)
+             else loo_miss).append(sym)
+        tot = len(loo_hit) + len(loo_miss)
+        S.log(f"   ── ظرف {nm}: {len(loo_hit)} من {tot} رمزًا "
+              f"({100.0 * len(loo_hit) / max(1, tot):.1f}%) يُلتقَط **وهو خارج**")
+        if loo_miss:
+            S.log(f"      ⚪️ سقط خارج العيّنة: {' · '.join(sorted(loo_miss))}")
+
     # ── ② حساسية النافذة (‏D3 — تُنشَر ولا تغيّر الحكم) ──────────────────────
     for w in SENSITIVITY_WINDOWS:
         alt = []
