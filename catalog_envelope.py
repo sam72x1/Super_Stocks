@@ -373,6 +373,7 @@ def run():
     # Technology 2025» جاء من غياب `leave-one-out` بالضبط.
     S.log("")
     S.log("═══ 🔬 الالتقاط خارج العيّنة (‏leave-one-out) — يفرّق التعميم عن الحفظ ═══")
+    _LOO = {}
     for nm, pct in (("P100", 100.0), ("P90", 90.0)):
         loo_hit, loo_miss = [], []
         for sym in found:
@@ -384,8 +385,9 @@ def run():
             (loo_hit if any(inside_envelope(r, e) for r in mine)
              else loo_miss).append(sym)
         tot = len(loo_hit) + len(loo_miss)
+        _LOO[nm] = 100.0 * len(loo_hit) / max(1, tot)
         S.log(f"   ── ظرف {nm}: {len(loo_hit)} من {tot} رمزًا "
-              f"({100.0 * len(loo_hit) / max(1, tot):.1f}%) يُلتقَط **وهو خارج**")
+              f"({_LOO[nm]:.1f}%) يُلتقَط **وهو خارج**")
         if loo_miss:
             S.log(f"      ⚪️ سقط خارج العيّنة: {' · '.join(sorted(loo_miss))}")
 
@@ -406,14 +408,22 @@ def run():
     cat = set(syms)
     universe = [s for s in hist if s not in cat]
     cap = int(os.environ.get("ENV_COST_CAP", "600"))
-    probe_days = int(os.environ.get("ENV_COST_DAYS", "5"))
+    # 🔴 **تصحيح ③ (‏2026-08-05، طعنٌ خصوميّ أصاب):** كان الافتراض **‏5** بينما
+    #    الالتقاط يُقاس على **‏20** جلسة/رمز ⇒ «أصاب مرّةً في 20» مقابل «مرّةً في 5»
+    #    = **مقامان مختلفان**، و«الإثراء 8.6×» المنشور **باطلٌ حسابيًّا** وسُحب.
+    #    الافتراض الآن `ENTRY_WINDOW` نفسها فيتساوى المقامان.
+    probe_days = int(os.environ.get("ENV_COST_DAYS", str(ENTRY_WINDOW)))
     # 🔴 **الظرفان يُقاسان في تمريرةٍ واحدة** — كان `P100` وحده يُقاس، و`P90` هو
     #    المُرشَّح العمليّ المُعلَن في `D5` ⇒ قياسُ أحدهما وترك الآخر ثغرةٌ في الأداة.
     envs = {"P100": env100, "P90": env90}
     hits = {k: 0 for k in envs}
     ctrl = {k: 0 for k in envs}
     tested = 0
-    for sym in universe[:cap]:
+    # 🔴 **تصحيح ④:** كان `universe[:cap]` = **أوّل 600 بترتيب القاموس** (أبجديّ
+    #    غالبًا) ⇒ عيّنةٌ منحازة تُوسَّع خطّيًّا على الكون. الآن **خطوةٌ حتمية**
+    #    تمسح الكون كلَّه بالتساوي — نفس الحتمية (لا عشوائية) وبلا انحياز موضع.
+    _step = max(1, len(universe) // max(1, cap))
+    for sym in universe[::_step][:cap]:
         df = hist.get(sym)
         if df is None or len(df) < 60:
             continue
@@ -443,8 +453,17 @@ def run():
               f"⇒ {per_day:.1f}/يوم بالعيّنة · ≈{scaled:.0f} على الكون")
         S.log(f"      ⚖️ {cost_verdict(scaled)}")
         if tested:
-            S.log(f"      🎯 التمييز: {100.0 * ctrl[k] / tested:.1f}% من شاهد "
-                  f"الضبط يستوعبه — وكلَّما اقترب من 100% ضعُف التمييز.")
+            disc = 100.0 * ctrl[k] / tested
+            S.log(f"      🎯 التمييز: {disc:.1f}% من شاهد الضبط يستوعبه "
+                  f"(‏{probe_days} جلسة/رمز) — وكلَّما اقترب من 100% ضعُف التمييز.")
+            # ⚖️ الإثراء **لا يُطبَع إلّا بمقامٍ موحَّد** — وإلّا فهو الرقم الباطل نفسه.
+            if probe_days == ENTRY_WINDOW and disc > 0:
+                S.log(f"      ⚖️ الإثراء (مقامٌ موحَّد {probe_days}ج): "
+                      f"‏{_LOO.get(k, float('nan')):.1f}% ÷ {disc:.1f}% = "
+                      f"‏×{_LOO.get(k, float('nan')) / disc:.2f}")
+            else:
+                S.log(f"      ⛔ الإثراء **لا يُحسب**: مقام الالتقاط "
+                      f"{ENTRY_WINDOW}ج ومقام التمييز {probe_days}ج — مختلفان.")
 
     S.log("")
     S.log("⚠️ حدود صدقٍ قائمة: انحياز بقاء · تشويه تقسيمات · بلا افتر · n=31 "

@@ -13529,6 +13529,44 @@ check("📐 ENV🔒 كلُّ مفاتيح الإرخاء **موجودةٌ في C
 check("📐 ENV🔒 وكلُّ مفتاحٍ في جدول المعايير موجودٌ أيضًا",
       all(k in S.CONFIG for _n, _d, _l, ck in _CE.CRITERIA
           for k in ck.split("|")))
+# ── 🔴 تصحيح ③/④ (طعنٌ خصوميّ 2026-08-05) — مقامٌ موحَّد وعيّنةٌ غير منحازة ──
+#    «إثراء 8.6×» المنشور كان يقسم التقاطًا على **20 جلسة/رمز** على تمييزٍ على
+#    **5 جلسات** ⇒ مقامان مختلفان ⇒ **سُحب**. والقفلان يمنعان عودته:
+check("📐 ENV🔒 تصحيح ③: مقام الكلفة الافتراضيّ = نافذة الالتقاط نفسها",
+      "str(ENTRY_WINDOW)" in _insp0.getsource(_CE)
+      and '"5"' not in _insp0.getsource(_CE).split("probe_days")[1][:120])
+check("📐 ENV🔒 تصحيح ③: الإثراء **لا يُطبَع** بمقامٍ مختلف (شرطٌ صريح)",
+      "probe_days == ENTRY_WINDOW" in _insp0.getsource(_CE)
+      and "لا يُحسب" in _insp0.getsource(_CE))
+# 🐞 وقفلي الأوّل هنا كان **نصّيًّا فسقط على تعليقي أنا** (‏`universe[:cap]`
+#    مذكورةٌ في التعليق الذي يشرح إزالتها) — وهو الفخّ الموثّق نفسه للمرّة الثالثة.
+#    ⇒ صار **على الشجرة النحوية**: نفحص حلقة `for` الفعلية لا نصّ الملفّ.
+def _ce_loop_iters():
+    """يرجّع أشكال `iter` لكل حلقة `for` تمشي على `universe` — من AST لا نصًّا."""
+    import ast as _a
+    tree = _a.parse(_insp0.getsource(_CE))
+    out = []
+    for n in _a.walk(tree):
+        if not isinstance(n, _a.For) or not isinstance(n.iter, _a.Subscript):
+            continue
+        base = n.iter.value
+        if isinstance(base, _a.Name) and base.id == "universe":
+            out.append("قصٌّ مباشر من universe")          # ← الشكل المعيب
+        elif (isinstance(base, _a.Subscript)
+              and isinstance(base.value, _a.Name) and base.value.id == "universe"):
+            out.append("خطوة ثمّ قصّ")                     # ← الشكل الصحيح
+    return out
+
+
+_ce_iters = _ce_loop_iters()
+check("📐 ENV🔒 تصحيح ④: عيّنة الكلفة **خطوةٌ ثمّ قصّ** لا قصًّا مباشرًا (قفل AST)",
+      "خطوة ثمّ قصّ" in _ce_iters and "قصٌّ مباشر من universe" not in _ce_iters)
+#    شاهد ضبط سلوكيّ للخطوة: تمسح الطرفين لا الصدر وحده
+_ce_u = [f"S{i}" for i in range(1000)]
+_ce_step = max(1, len(_ce_u) // 150)
+check("📐 ENV🔒 تصحيح ④: الخطوة تُغطّي آخر الكون فعلًا (شاهد سلوكيّ)",
+      _ce_u[::_ce_step][:150][-1] != _ce_u[149] and len(_ce_u[::_ce_step][:150]) == 150)
+
 check("📐 ENV🔒 معزولةٌ عن الإنتاج: لا يستوردها `Super_stock` ولا الصيّادون",
       all("catalog_envelope" not in open(_f, encoding="utf-8").read()
           for _f in ("Super_stock.py", "split_hunter.py", "method_hunter.py",
