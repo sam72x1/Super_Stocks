@@ -9375,14 +9375,22 @@ def build_reject_snapshot(reasons: dict, today: str,
     return {"date": today, "walls": walls, "n": len(reasons or {}), "cut": cut}
 
 
-def record_rejected_symbols(reasons: dict = None, path: str = REJECT_LOG_FILE,
-                            keep: int = REJECT_LOG_DAYS, today: str = None) -> int:
+def record_rejected_symbols(reasons: dict = None, path: str = None,
+                            keep: int = None, today: str = None) -> int:
     """🗂️ يكتب لقطة اليوم في `reject_log.json` ويُدوّر النافذة. يرجّع عدد الأيام.
 
     🔒 **فاشلة-آمنة مطلقًا**: أيُّ استثناء ⇒ تُسجَّل وتُرجع 0 — فلا تُسقط المسار
     اليوميّ (سابقةٌ موثّقة: استثناءٌ غير محروسٍ أسقط تشغيلةً قبل `git_save`).
-    🔒 **لقطة واحدة لكل يوم** (الأحدث تفوز) — نفس دلالة `record_reject_stats`."""
+    🔒 **لقطة واحدة لكل يوم** (الأحدث تفوز) — نفس دلالة `record_reject_stats`.
+
+    🔴 **والمسارُ يُحسم وقت النداء لا وقت التعريف** (عيبٌ مقيس 2026-08-05): كان
+    `path: str = REJECT_LOG_FILE` فيُربَط الافتراضُ **لحظةَ تعريف الدالّة** ⇒ تحويلُ
+    الثابت لاحقًا (كما تفعل السويّة لئلّا تدهس ملفَّ الحالة المدفوع) **لا يؤثّر
+    إطلاقًا**، فكانت الاختباراتُ تكتب في الملفّ الحقيقيّ وأنا أحسبها مُحوَّلة.
+    ⚖️ والسلوكُ عند الإغفال **مطابقٌ حرفيًّا** لما كان (نفس الثابتين)."""
     try:
+        path = REJECT_LOG_FILE if path is None else path
+        keep = REJECT_LOG_DAYS if keep is None else keep
         reasons = _REJECT_REASONS if reasons is None else reasons
         if not reasons:
             return 0

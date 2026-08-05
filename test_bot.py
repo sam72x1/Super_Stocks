@@ -14243,6 +14243,41 @@ check("🗂️ REJ🔒 `REJECT_LOG_FILE` مُحوَّلٌ لمسارٍ مؤقّ�
       S.REJECT_LOG_FILE != _REJ_REAL_PATH
       and S.REJECT_LOG_FILE.startswith(_rej_tf.gettempdir()))
 
+# 🔴 **والتحويلُ عاجزٌ إن رُبِط الافتراضُ وقت التعريف** (عيبٌ مقيس 2026-08-05):
+#    كان `path: str = REJECT_LOG_FILE` فيُربَط الافتراضُ لحظةَ `def` ⇒ تحويلُ
+#    الثابت بعد الاستيراد **لا يؤثّر**، فكانت السويّة تكتب في الملفّ المدفوع وأنا
+#    أحسبها مُحوَّلة. القفل **سلوكيّ**: نُنادي بلا `path` ونتحقّق أين كُتب فعلًا.
+def _rej_resolves_at_call():
+    import os as _o
+    tmp = _o.path.join(_rej_tf.gettempdir(), "_rej_probe.json")
+    for p in (tmp, S.REJECT_LOG_FILE):
+        try:
+            _o.remove(p)
+        except OSError:
+            pass
+    old = S.REJECT_LOG_FILE
+    S.REJECT_LOG_FILE = tmp
+    try:
+        S.record_rejected_symbols({"AAA": "M1_سعر"}, today="2026-01-01")
+    finally:
+        S.REJECT_LOG_FILE = old
+    return _o.path.exists(tmp)
+
+
+check("🗂️ REJ🔒 والمسارُ يُحسم **وقت النداء** لا وقت التعريف (وإلّا التحويلُ عاجز)",
+      _rej_resolves_at_call())
+check("🗂️ REJ🔒 ولا افتراضَ مربوطًا بالثابت في التوقيع (قفل AST)",
+      (lambda sig: all(not (isinstance(d, _ast0.Name)
+                            and d.id in ("REJECT_LOG_FILE", "REJECT_LOG_DAYS"))
+                       for d in sig.args.defaults))(
+          _ast0.parse(_insp0.getsource(S.record_rejected_symbols).lstrip()).body[0]))
+check("🗂️ REJ🔒 والملفّ المدفوع **نظيف** (لا رموزَ اختبارٍ مُلتزَمة)",
+      (lambda rows: not any(
+          s in json.dumps(rows, ensure_ascii=False)
+          for s in ("CDOFF", "P1A", "P110", "GONE", "مسطّح", "LBOFF")))(
+          json.load(open(_REJ_REAL_PATH, encoding="utf-8"))
+          if _os_hc.path.exists(_REJ_REAL_PATH) else []))
+
 # ══════════════════════════════════════════════════════════════════════════
 # 📐 ظرف الكاتالوج — «الحدّ الأدنى» مقيسًا من أسهم فيصل (العقد:
 #    `catalog_envelope_design.md`، مدفوعٌ قبل أوّل تشغيل).
