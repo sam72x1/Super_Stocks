@@ -13466,7 +13466,7 @@ check("📐 ENV🔒 `lo` يرفض ما دونه · `hi` يرفض ما فوقه �
 
 # ── ④ D6: عتبات الكلفة — مُعلَنةٌ سلفًا، وتُميّز الأحكام الثلاثة ────────────
 check("📐 ENV🔒 D6: الأحكام الثلاثة متمايزة على تخوم العتبات المُعلَنة",
-      _CE.cost_verdict(51.0).startswith("⛔")
+      _CE.cost_verdict(51.0).startswith("🟠")     # 📌 تعديل ①: العدد لا يُسقط
       and _CE.cost_verdict(50.0).startswith("🟡")
       and _CE.cost_verdict(5.0).startswith("🟡")
       and _CE.cost_verdict(4.9).startswith("🟢")

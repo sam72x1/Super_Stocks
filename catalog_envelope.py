@@ -159,7 +159,10 @@ def cost_verdict(per_day, worthless=COST_WORTHLESS, usable=COST_USABLE):
     if per_day is None:
         return "لا حكم (لم تُقَس)"
     if per_day > worthless:
-        return f"⛔ بلا قيمة — {per_day:.1f} مطابق/يوم (فوق {worthless:.0f})"
+        # 📌 تعديل ① (المالك، قبل أيّ رقم): العدد **لا يُسقط** الظرف — «ممكن تزيد
+        #    الأسهم لكن على الأقل بتكون مشابهة لمنفجرين». فينتقل السؤال للتسليم.
+        return (f"🟠 يلزمه مُرتِّبٌ مُثبَت — {per_day:.1f} مطابق/يوم "
+                f"(فوق {worthless:.0f}؛ والسعة 15 والمُرتِّب «غير حاسم»)")
     if per_day >= usable:
         return f"🟡 صالح بشرط مُرتِّب — {per_day:.1f} مطابق/يوم"
     return f"🟢 قابل للتنفيذ — {per_day:.1f} مطابق/يوم (تحت {usable:.0f})"
