@@ -11845,6 +11845,54 @@ def _e2_index_counts(idx):
         return 0, 0
 
 
+def _observed_explosion_block(data) -> list:
+    """📊 **«هل تنفجر أسهمُ الارتكاز؟» — الجوابُ الصادق، موصولًا أخيرًا.**
+
+    🔴 **العلّةُ المقيسة (2026-08-06):** `observed_explosion_summary` مبنيّةٌ وتعمل
+    ومقفولةٌ باختبارات — **وبلا نقطة نداءٍ إنتاجية واحدة** (مراجعُها في `test_bot.py`
+    فقط). فالحقولُ `mg_obs_*` تُكتب كلَّ يوم **ولا يعرضها أيُّ تقرير**، والسؤالُ
+    الجوهريّ يبقى بلا جواب في الرسالة التي بُنيت لتجيبه. وهو **الصنفُ المدوَّن**:
+    «الميزةُ موصولة تُثبَت من نقطة النداء الحيّة لا من وجود الدالّة».
+
+    ⚠️ **ويُعرَض معه مقامُه**: `mg_obs` مسقوفٌ بـ`OBSERVE_CAP` لكل تشغيلة، فقد
+    يُقاس بعضُ المحسومة دون بعض — **فيُصرَّح بالنسبة** بدل إيهام التغطية الكاملة.
+    وكلُّ رقمٍ **أرضيّة** (‏الشمعةُ اليومية عمياءُ عن الافتر).
+    **عرض فقط · فاشل-آمن · خارج الفرز.**"""
+    try:
+        # ⚠️ `alert_data` **افتراضُه `None`** في `build_dev_assistant_report` —
+        #    فلا بدّ من احتماله صراحةً وإلّا انهار التقريرُ كلُّه على مسارٍ شرعيّ.
+        data = data or {}
+        alerts = data.get("alerts") or []
+        closed = [a for a in alerts if a.get("status") not in (None, "", "open")]
+        # 🔴 **خلطُ مقاماتٍ أمسكه قفلٌ قبل الدفع:** `observed_explosion_summary`
+        #    تعدّ **كلَّ** تنبيهٍ يحمل `mg_obs_pct` بلا نظرٍ لحالته، والمقامُ هنا
+        #    **المحسومة** ⇒ بسطٌ ومقامٌ من مجتمعين. (وهو لا يقع إنتاجًا اليوم لأن
+        #    `observe_closed_alerts` تتخطّى المفتوحة — لكنه **يقع بمجرّد أن يكتبها
+        #    كاتبٌ آخر**.) ⇒ تُغذّى الدالّةُ **المقفولة** بالمجتمع الصحيح بدل تعديلها.
+        summ = observed_explosion_summary({"alerts": closed})
+        n, tot = summ.get("n") or 0, len(closed)
+        out = ["\n📊 <b>المقدارُ الصادق بعد الخروج</b> "
+               "(ما فعله السهم بصرف النظر عن خروجنا):"]
+        if not n:
+            out.append("   لا قياسَ بعد — يتراكم مع المحسومة.")
+            return out
+        cov = f"{n} من {tot} محسومة ({n / tot * 100:.0f}%)" if tot else f"{n}"
+        out.append(f"   المقام: {cov}"
+                   + (f" · مكتملُ النافذة {summ.get('done') or 0}"
+                      if summ.get("done") else " · لا نافذةَ مكتملة بعد"))
+        out.append(f"   الوسيط {summ.get('median')}% · الأقصى {summ.get('max')}%")
+        cnt = summ.get("counts") or {}
+        out.append("   بلغ: " + " · ".join(
+            f"+{t}% ⟵ {cnt.get(t, 0)}" for t in sorted(cnt)))
+        if n < tot:
+            out.append(f"   ⚠️ {tot - n} محسومة **بلا قياس** (سقف {OBSERVE_CAP}"
+                       "/تشغيلة) — النسبةُ أعلاه على المقيس وحده.")
+        out.append("   ⚠️ كلُّ رقمٍ **أرضيّة**: الشمعةُ اليومية لا ترى الافتر.")
+        return out
+    except Exception as e:                                       # noqa: BLE001
+        return [f"\n📊 المقدارُ الصادق: تعذّر ({type(e).__name__})."]
+
+
 def _collection_health_block() -> list:
     """🩺 لوحة حالة جمع بيانات المضارب (طلب المستخدم 2026-07-24 «اكيد بننسى»): عدّادات تظهر
     **دائمًا حتى عند الصفر** في تقرير التطوير الأسبوعي — بخلاف البلوكات التفصيلية (`_hand_flow`/
@@ -12794,6 +12842,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         head += _denominator_block()      # A1: مقام الرفض (مستقل)
         head += _ignition_log_block(_ig_log)  # 📏 قياس حافة الرادار (مستقل)
         head += _collection_health_block()    # 🩺 لوحة الجمع (تظهر حتى بعيّنة قليلة — أهمّ وقت)
+        head += _observed_explosion_block(alert_data)   # 📊 وُصلت 2026-08-06
         head.append("\n⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
         return "\n".join(head)
     wins = [r for r in rows if r["_win"]]
@@ -12979,7 +13028,9 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
             "تشغيل إنتاجي حيّ التغطيةَ.",
         ]
 
-    return "\n".join(head + body + _collection_health_block() + _hand_flow_block()
+    return "\n".join(head + body + _collection_health_block()
+                     + _observed_explosion_block(alert_data)   # 📊 وُصلت 2026-08-06
+                     + _hand_flow_block()
                      + _pending_verification_block() + sugg + tail)
 
 
@@ -16596,7 +16647,12 @@ def _prune_alerts(data):
 
 
 TRACK_OBSERVE_DAYS = 60              # نافذة **المراقبة بعد الخروج** (قياس المقدار فقط)
-OBSERVE_CAP = 25                     # سقف نداءات المراقبة لكل تشغيلة (يُعلَن ولا يُصمت)
+OBSERVE_CAP = int(os.environ.get("OBSERVE_CAP", "60"))   # ⟵ 25، رُفع 2026-08-06
+# 🔴 **العلّةُ مقيسة:** بسقف 25 كان **‏20 من 45 محسومة بلا قياسِ مقدارٍ إطلاقًا**
+#    (‏والمقيسُ هو الـ25 الأقدم بالضبط) — أي أن «هل تنفجر أسهمنا؟» كان يُجاب على
+#    **‏56% من العيّنة** وأحدثُها لا يُقاس حتى يتقادم. والمدّةُ تحتمل: الجوبُ اليوميّ
+#    وسيطُه **‏6.9 دقيقة** وسقفُه 300، والنداءُ الواحد جلبُ شموعٍ خفيف.
+#    ⚠️ ويبقى **سقفًا مُعلَنًا بعدّاده** لا قصًّا صامتًا (السطر «مؤجَّل بالسقف N»).
 
 
 def observe_closed_alerts(data, fetch=None, today=None, cap=None):

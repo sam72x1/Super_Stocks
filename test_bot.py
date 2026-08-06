@@ -15127,6 +15127,43 @@ for _f in _fo_cons:
 check("🎯 FO11 كلُّ مستهلكٍ للقطة يفكُّ الصفَّ ثلاثيًّا (يقتل الصنف لا الحالة)",
       not _fo_bad, f"مخالفون={_fo_bad}")
 
+# ── 📊 «هل تنفجر أسهمُ الارتكاز؟» — وُصلت أخيرًا (2026-08-06) ────────────────
+_oe_data = {"alerts": [
+    {"symbol": "A", "status": "stopped", "mg_obs_pct": 12.0},
+    {"symbol": "B", "status": "hit_t1", "mg_obs_pct": 55.0, "mg_obs_done": True},
+    {"symbol": "C", "status": "stopped"},           # محسومةٌ **بلا قياس**
+    {"symbol": "D", "status": "open", "mg_obs_pct": 99.0},   # مفتوحة ⇒ خارج المقام
+]}
+_oe = S._observed_explosion_block(_oe_data)
+_oe_t = "\n".join(_oe)
+check("📊 OE1 الكتلةُ تُنتج المقام والوسيط والعتبات",
+      "2 من 3" in _oe_t and "الوسيط" in _oe_t and "+50%" in _oe_t,
+      _oe_t.replace("\n", " | ")[:170])
+# 🔒 شاهدُ ضبطٍ: المقامُ لا يبتلع غيرَ المقيس
+check("📊 OE2 وتُصرّح بمن **بلا قياس** (لا إيهامَ بتغطيةٍ كاملة)",
+      "بلا قياس" in _oe_t, _oe_t.replace("\n", " | ")[:170])
+check("📊 OE3 وتُعلن أن الأرقام **أرضيّات** (عمى الافتر)",
+      "أرضيّة" in _oe_t, "—")
+_oe_empty = "\n".join(S._observed_explosion_block({"alerts": []}))
+check("📊 OE4 وبلا بيانات تقول «لا قياس» ولا تُخمّن",
+      "لا قياسَ بعد" in _oe_empty, _oe_empty.replace("\n", " | ")[:110])
+
+# 🔴 OE5 — **موصولةٌ من نقطة النداء الحيّة** في **مسارَي** التقرير (AST لا نصّ)
+import ast as _oe_ast
+_oe_tree = _oe_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+_oe_fn = next((n for n in _oe_ast.walk(_oe_tree)
+               if isinstance(n, _oe_ast.FunctionDef)
+               and n.name == "build_dev_assistant_report"), None)
+_oe_calls = [c for c in _oe_ast.walk(_oe_fn or _oe_ast.Module(body=[], type_ignores=[]))
+             if isinstance(c, _oe_ast.Call)
+             and getattr(c.func, "id", None) == "_observed_explosion_block"]
+check("📊 OE5 موصولةٌ في **مسارَي** تقرير التطوير (العيّنة القليلة والكافية)",
+      len(_oe_calls) == 2, f"نقاطُ نداء={len(_oe_calls)}")
+
+# OE6 — سقفُ المراقبة رُفع (‏20 من 45 كانت بلا قياس)
+check("📊 OE6 سقفُ المراقبة ‏≥60 (كان 25 مُلزِمًا مقيسًا)",
+      S.OBSERVE_CAP >= 60, f"OBSERVE_CAP={S.OBSERVE_CAP}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
