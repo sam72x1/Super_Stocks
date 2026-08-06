@@ -1,0 +1,30 @@
+name: 🌱 حصادُ الصيّادين (حسمُ المرشّحين)
+
+# 📏 العقد: `harvest_prereg.md` (مدفوعٌ قبل جمع صفٍّ واحد).
+# قياسٌ فقط: بلا تلغرام · لا يمسّ صيّادًا ولا فرزًا · يكتب `hunter_ledger.jsonl` فقط.
+permissions:
+  contents: write          # يحفظ السجلَّ المتراكم
+
+on:
+  schedule:
+    # ⏰ أسبوعيًّا — النافذةُ 40 جلسة فلا معنى لحسمٍ يوميّ، والكلفةُ تُوفَّر.
+    - cron: "41 3 * * 6"
+  workflow_dispatch: {}
+
+jobs:
+  outcomes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Resolve outcomes
+        env:
+          SCREENER_MODE: DIGEST
+        run: python hunter_outcomes.py

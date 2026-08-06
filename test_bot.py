@@ -14644,6 +14644,90 @@ check("🔒📐 CLOSE: و**صيّادُ المقسّم لم يُمَسّ** (حم
 
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🌱 T-HARVEST — ذاكرةُ الصيّادين (العقد: `harvest_prereg.md`)
+# ══════════════════════════════════════════════════════════════════════════
+import hunter_ledger as _LG                                      # noqa: E402
+import hunter_outcomes as _HO                                    # noqa: E402
+
+_lg_tmp = _os_hc.path.join(_rej_tf.gettempdir(), "_lg_suite.jsonl")
+if _os_hc.path.exists(_lg_tmp):
+    _os_hc.remove(_lg_tmp)
+_lg_rows = [{"symbol": "AAA", "price": 2.0, "rr": 1.8}, {"symbol": "BBB", "price": 1.0}]
+_lg_ref = {"AAA": 2.0, "BBB": 1.0}
+_lg_n1 = _LG.record("split", "2026-08-05", _lg_rows, path=_lg_tmp,
+                    ref_of=lambda s: _lg_ref[s])
+_lg_n2 = _LG.record("split", "2026-08-05", _lg_rows, path=_lg_tmp,
+                    ref_of=lambda s: _lg_ref[s])
+check("🌱 LG🔒 H2: التسجيلُ **مُتَمَاثِل** — الكرونان لا يُنتجان صفَّين",
+      _lg_n1 == 2 and _lg_n2 == 0
+      and len({r["key"] for r in _LG.load(_lg_tmp)}) == 2)
+check("🌱 LG🔒 H3: `ref_close` **يُجمَّد لحظةَ الرصد** (لا يُقرأ وقتَ التقييم)",
+      sorted(r["ref_close"] for r in _LG.load(_lg_tmp)) == [1.0, 2.0])
+# 🔒 لا يلمس صفوفَ الصيّاد إطلاقًا (شرطُ «لا يُغيّر قرارًا»)
+_lg_before = [dict(r) for r in _lg_rows]
+_LG.build_rows("x", "d", _lg_rows)
+check("🌱 LG🔒 لا يكتب في صفوف الصيّاد (نسخةٌ فقط)", _lg_rows == _lg_before)
+check("🌱 LG🔒 ولا يرمي أبدًا — مسارٌ مستحيلٌ يُرجع صفرًا لا استثناءً",
+      _LG.record("x", "d", [{"symbol": "Z"}], path="/proc/لا-يوجد/x.jsonl") == 0)
+# 🔒 H5: لا حسمَ قبل انقضاء النافذة — وشاهدُ ضبطٍ يمنع العدميّة
+check("🌱 LG🔒 H5: لا حسمَ قبل 40 جلسة · ويُحسَم عندها (تفريقيّ)",
+      _LG.score(2.0, [3.0] * 39)["resolved"] is False
+      and _LG.score(2.0, [2.1] * 40)["resolved"] is True)
+check("🌱 LG🔒 `hit100` = بلوغُ ×2 فعلًا (لا وسمٌ صوريّ)",
+      _LG.score(2.0, [2.1] * 39 + [4.0])["hit100"] is True
+      and _LG.score(2.0, [2.1] * 39 + [3.99])["hit100"] is False
+      and _LG.score(2.0, [2.1] * 39 + [3.0])["max_gain"] == 50.0)
+check("🌱 LG🔒 والعتباتُ ثوابتُ مُعلَنة (‏40 جلسة · ×2 · ×1.5)",
+      _LG.FORWARD_SESSIONS == 40 and _LG.HIT_PRIMARY == 2.0
+      and _LG.HIT_SECONDARY == 1.5)
+
+# 🔒 **الأهمّ — لا تسريب: تُقرأ الجلساتُ التالية لجلسة الرصد حصرًا**
+_ho_idx = S.pd.date_range("2026-08-01", periods=5, freq="D")
+_ho_df = S.pd.DataFrame({"High": [10.0, 20.0, 30.0, 40.0, 50.0],
+                         "Close": [1.0] * 5}, index=_ho_idx)
+check("🌱 HO🔒 القصُّ **يستبعد جلسةَ الرصد** (لا تسريب) — تفريقيّ",
+      _HO.after_session(_ho_df, "2026-08-03") == [40.0, 50.0]
+      and _HO.after_session(_ho_df, "2026-07-31") == [10.0, 20.0, 30.0, 40.0, 50.0])
+check("🌱 HO🔒 وفاصلُ Wilson هو آلةُ الحكم نفسُها المستعملة بالمستودع",
+      (lambda t: t[0] < 0.5 < t[1])(_HO.wilson(5, 10))
+      and _HO.wilson(0, 0) == (0.0, 1.0))
+check("🌱 HO🔒 وعتباتُ الحكم مثبَّتةٌ بالكود (‏30 لكل صيّاد · 150 مجمَّعًا)",
+      _HO.MIN_RESOLVED == 30 and _HO.MIN_AGGREGATE == 150)
+
+# ══ 🔴 H1 — **قرارُ الصيّاد بت-بت**: الوصلُ لم يغيّر حكمًا ══════════════════
+# القفلُ **نحويّ**: كلُّ نداءٍ لـ`LEDGER.record` داخل `try` · وليس داخل أيّ شرطٍ
+# يقرّر الإرسال · ولا يُسند لمتغيّرٍ يُقرأ بعدُ ⇒ يستحيل أن يؤثّر في المسار.
+def _lg_hook_safe(path):
+    tree = _ast0.parse(open(path, encoding="utf-8").read())
+    found = 0
+    for node in _ast0.walk(tree):
+        if not isinstance(node, _ast0.Try):
+            continue
+        for st in node.body:
+            if (isinstance(st, _ast0.Expr) and isinstance(st.value, _ast0.Call)
+                    and isinstance(st.value.func, _ast0.Attribute)
+                    and st.value.func.attr == "record"):
+                found += 1
+    return found
+
+
+for _f in ("split_hunter.py", "method_hunter.py", "split_filter_hunter.py",
+           "envelope_hunter.py"):
+    check(f"🌱 H1🔒 {_f}: نداءُ التسجيل **داخل `try` ومُهمَلُ القيمة** (لا يمسّ القرار)",
+          _lg_hook_safe(_f) == 1)
+
+check("🌱 H1🔒 وصيّادُ المقسّم **لم يُحذف منه سطر** (إضافةٌ محضة)",
+      (lambda src: "scan_split_hunter" in src and "session_gate" in src
+       and "ah_guard" in src)(open("split_hunter.py", encoding="utf-8").read()))
+check("🌱 H1🔒 و`Super_stock.py` **لم يُمَسّ** بهذا الوصل إطلاقًا",
+      not _imports_module("Super_stock.py", "hunter_ledger"))
+check("🌱 HARV🔒 والتسجيلُ المسبق مدفوعٌ ويحمل المقياسَ والحرّاس",
+      (lambda t: all(x in t for x in ("hit100", "40 جلسة", "H1", "H6",
+                                      "control_panel", "H-P3")))(
+          open("harvest_prereg.md", encoding="utf-8").read()))
+
+
+# ══════════════════════════════════════════════════════════════════════════
 # 🧯 قفلٌ بنيويّ — **لا `check` بعد سطر الملخّص**.
 #    🐞 سببُه عطلٌ حقيقيّ وقع 2026-08-05: ألحقتُ كتلةَ اختباراتٍ **بعد**
 #    `print(النتيجة)` و`raise SystemExit(1)` ⇒ صارت تطبع ✅/❌ في اللوج

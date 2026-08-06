@@ -130,6 +130,7 @@ def _frame_probe(S):
 
 def run(now_utc=None) -> int:
     import Super_stock as S
+    import hunter_ledger as LEDGER
     import os
     manual = os.environ.get("METHOD_FORCE", "").strip() == "1"
     open_ok, sess_et = session_gate(now_utc)
@@ -171,6 +172,15 @@ def run(now_utc=None) -> int:
         rows = S.scan_method_hunter(hist, today=sess, fetch_h4=S.fetch_4h)
     except Exception as e:                                       # noqa: BLE001
         return _fail(S, f"انهار المسح ({e}).")
+    # 🌱 **ذاكرةُ الصيّاد** (`harvest_prereg.md`، بإذن المالك «نعم ابنها»):
+    #    تُنادى **بعد اكتمال الاختيار وقبل أيّ إثراء** ⇒ لا تُدخل مرشّحًا ولا تُخرجه،
+    #    ولا ترمي أبدًا، ومُتَمَاثِلة فالكرونان لا يُنتجان صفَّين.
+    #    🔒 `ref_close` **يُجمَّد لحظةَ الرصد** (‏H3) — إغلاقُ جلسة المسح نفسها.
+    try:
+        LEDGER.record("method", sess, rows, log=S.log,
+                      ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]))
+    except Exception:                                            # noqa: BLE001
+        pass
     # 🎁 **إثراء الكماليّات الحيّة** (طلب المالك 2026-08-01: «نفس اللي أضفناها في
     #    أداة التقسيم»): تدفّق السيولة · شمعة 4س · اختبار القاع.
     #    🔒 **بعد `scan_method_hunter`** ⇒ يستحيل بنيويًّا أن يُدخل مرشّحًا أو يُخرجه

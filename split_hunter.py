@@ -164,6 +164,7 @@ def _fail(S, why: str) -> int:
 
 def run(fetch_ext=None, now_utc=None):
     import Super_stock as S
+    import hunter_ledger as LEDGER
     # ⏰ بوّابة التوقيت (كرونان: 00:13 صيفًا · 01:13 شتاءً — والبوّابة تحسم أيّهما).
     #    وتُتخطّى بالتشغيل اليدويّ (`workflow_dispatch`) فيبقى الفحص الفوريّ ممكنًا.
     _manual = __import__("os").environ.get("HUNTER_FORCE", "").strip() == "1"
@@ -265,6 +266,15 @@ def run(fetch_ext=None, now_utc=None):
             return 1
         _stamp(S, sess)                 # 🔔 ⓿-و: «السوق فُحِص وسُلِّم» — تاريخٌ واحد
         return 0
+    # 🌱 **ذاكرةُ الصيّاد** (`harvest_prereg.md`، بإذن المالك «نعم ابنها»):
+    #    تُنادى **بعد اكتمال الاختيار وقبل أيّ إثراء** ⇒ لا تُدخل مرشّحًا ولا تُخرجه،
+    #    ولا ترمي أبدًا، ومُتَمَاثِلة فالكرونان لا يُنتجان صفَّين.
+    #    🔒 `ref_close` **يُجمَّد لحظةَ الرصد** (‏H3) — إغلاقُ جلسة المسح نفسها.
+    try:
+        LEDGER.record("split", sess, rows, log=S.log,
+                      ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]))
+    except Exception:                                            # noqa: BLE001
+        pass
     # 🎁 **إثراء الكماليّات** (طلب المالك: اليد · المتابعة · تدفّق السيولة · قيمة
     #    الشمعة). 🔒 **بعد `scan_split_hunter` وبعد حارس الافتر** ⇒ يستحيل بنيويًّا
     #    أن يُدخل أو يُخرج مطابقًا: الصفوف مُختارةٌ سلفًا، والحقول تُقرأ في العرض

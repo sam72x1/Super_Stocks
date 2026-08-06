@@ -98,6 +98,7 @@ def run(now_utc=None, decide_fn=None) -> int:
     import os
     import Super_stock as S
     import envelope_scan as ES
+    import hunter_ledger as LEDGER
 
     manual = os.environ.get("ENVELOPE_FORCE", "") == "1"
     ok, sess_et = session_gate(now_utc)
@@ -197,6 +198,15 @@ def run(now_utc=None, decide_fn=None) -> int:
         S.log(f"✂️ قُصَّ {cut} صفًّا (سقف {MAX_ROWS}) — **مُعلَنٌ لا صامت**.")
         rows = rows[:MAX_ROWS]
 
+    # 🌱 **ذاكرةٌ متراكمة** بجانب المُخرَج اليوميّ (‏`harvest_prereg.md`): مُخرَجُه
+    #    يُدهَس كلَّ ليلة بوضع `"w"` **وهذا مقصودٌ لعرضه**، أمّا السجلُّ فيُلحَق
+    #    ويبقى. 🔒 بعد اكتمال الاختيار · لا يرمي · مُتَمَاثِل.
+    try:
+        LEDGER.record("envelope", (sess.isoformat() if sess else None), rows,
+                      log=S.log,
+                      ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]))
+    except Exception:                                            # noqa: BLE001
+        pass
     # ④ الكتابة — سطرٌ لكل مرشّح، وسطرُ ترويسةٍ يحمل التغطية والبصمة
     try:
         with open(OUT_FILE, "w", encoding="utf-8") as fh:

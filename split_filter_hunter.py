@@ -86,6 +86,7 @@ def _write_stamp(S, sess):
 def run(now_utc=None) -> int:
     import os
     import Super_stock as S
+    import hunter_ledger as LEDGER
     manual = os.environ.get("SPLIT_FILTER_FORCE", "") == "1"
     ok, sess_et = session_gate(now_utc)
     if not manual and not ok:
@@ -122,6 +123,15 @@ def run(now_utc=None) -> int:
         rows = S.scan_split_filter(hist, today=sess)
     except Exception as e:                                       # noqa: BLE001
         return _fail(S, f"انهار المسح ({e}).")
+    # 🌱 **ذاكرةُ الصيّاد** (`harvest_prereg.md`، بإذن المالك «نعم ابنها»):
+    #    تُنادى **بعد اكتمال الاختيار وقبل أيّ إثراء** ⇒ لا تُدخل مرشّحًا ولا تُخرجه،
+    #    ولا ترمي أبدًا، ومُتَمَاثِلة فالكرونان لا يُنتجان صفَّين.
+    #    🔒 `ref_close` **يُجمَّد لحظةَ الرصد** (‏H3) — إغلاقُ جلسة المسح نفسها.
+    try:
+        LEDGER.record("split_filter", sess, rows, log=S.log,
+                      ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]))
+    except Exception:                                            # noqa: BLE001
+        pass
     syms = " · ".join(str(r.get("symbol") or "?") for r in rows) or "—"
     S.log(f"🧮 فلترة التقسيم: فحص {len(hist)} من {len(uni)} رمزًا ({cov:.0f}%) "
           f"→ {len(rows)} مطابق كامل: {syms}")
