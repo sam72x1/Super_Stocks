@@ -15108,6 +15108,25 @@ check("🎯 FO10 مسارُ الكلفة يغطّي الكون 100% (تعبير�
       f"{(min(_fo_cap * _fo_step, _fo_u) / _fo_u * 100) if _fo_step else 0:.1f}% "
       f"· التعبير={_fo_step_src}")
 
+# FO11 · 🔴 **قفلٌ يقتل صنفَ العيب لا حالتَه:** `load_frozen_dataset` تُرجع **صفًّا**
+#        `(hist, splits, asof)`. أيُّ مستهلكٍ يُسنده إلى اسمٍ واحد **ينهار** — وقد
+#        وقع فعلًا في أوّل تشغيلةٍ حيّة. القفلُ يفحص **كلَّ** مستهلكٍ في المستودع.
+_fo_cons = ["catalog_envelope.py", "envelope_bt.py", "faisal_only_check.py"]
+_fo_bad = []
+for _f in _fo_cons:
+    for _n in _fo_ast.walk(_fo_ast.parse(open(_f, encoding="utf-8").read())):
+        if not isinstance(_n, _fo_ast.Assign):
+            continue
+        _v = _n.value
+        if (isinstance(_v, _fo_ast.Call)
+                and getattr(_v.func, "attr", None) == "load_frozen_dataset"):
+            _t = _n.targets[0]
+            if not (isinstance(_t, (_fo_ast.Tuple, _fo_ast.List))
+                    and len(_t.elts) == 3):
+                _fo_bad.append(f"{_f}:{_n.lineno}")
+check("🎯 FO11 كلُّ مستهلكٍ للقطة يفكُّ الصفَّ ثلاثيًّا (يقتل الصنف لا الحالة)",
+      not _fo_bad, f"مخالفون={_fo_bad}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

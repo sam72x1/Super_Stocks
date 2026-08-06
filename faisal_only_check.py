@@ -164,13 +164,22 @@ def main() -> int:
     if not ok:
         return 5
 
+    # 🔴 **عقدٌ ثانٍ أخطأتُ فيه، كشفه التشغيلُ الحيّ لا القراءة:**
+    #    `load_frozen_dataset` تُرجع **صفًّا** `(hist, splits, asof)` لا قاموسًا —
+    #    وأوّلُ صياغةٍ لي فكّته كقاموس فانهارت بـ`AttributeError`. (وهو الصنفُ نفسُه
+    #    الذي وقع في `load_edges` قبل ساعة.) 🔒 **ومقفولٌ الآن باختبارٍ يفكّ الصفَّ
+    #    ثلاثيًّا** فلا يتكرّر صامتًا. وفاشلٌ-مغلق: لقطةٌ فارغة تُوقف التشغيل بدل أن
+    #    تُنتج «التقاطٌ صفر» يُقرأ حكمًا.
     try:
-        hist = S.load_frozen_dataset(frozen)
+        hist, _splits, _asof = S.load_frozen_dataset(frozen)
     except Exception as e:                                       # noqa: BLE001
         log(f"⛔ تعذّرت اللقطة: {e}")
         return 6
+    if not hist:
+        log("⛔ اللقطةُ فارغة — يُرفَض التشغيل (لا يُقرأ الفراغُ حكمًا).")
+        return 6
     universe = sorted(hist.keys())
-    log(f"   اللقطة: {len(universe)} رمزًا · نافذة {WINDOW} جلسة")
+    log(f"   اللقطة: {len(universe)} رمزًا · as-of {_asof} · نافذة {WINDOW} جلسة")
 
     rows_b, syms_b, mb = load_movers()
     log(f"   B: {mb['raw']} صفًّا خامًا ⟶ بلا شبهة تقسيم {mb['clean']} ⟶ "
