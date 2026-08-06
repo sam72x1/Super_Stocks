@@ -26,7 +26,7 @@
    "result_date": "2026-07-06",
    "max_gain_pct": 0.3,
    "mg_obs_pct": 9.6,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "IDN",
@@ -53,7 +53,7 @@
    "result_date": "2026-07-21",
    "max_gain_pct": 8.1,
    "mg_obs_pct": 8.1,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "SEV",
@@ -84,7 +84,7 @@
    "result_date": "2026-07-21",
    "max_gain_pct": 5.5,
    "mg_obs_pct": 5.5,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "NAGE",
@@ -112,7 +112,7 @@
    "result_date": "2026-07-21",
    "max_gain_pct": 8.0,
    "mg_obs_pct": 8.0,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "NGEN",
@@ -140,7 +140,7 @@
    "result_date": "2026-07-21",
    "max_gain_pct": 6.6,
    "mg_obs_pct": 6.6,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "DJT",
@@ -170,7 +170,7 @@
    "result_date": "2026-06-26",
    "max_gain_pct": 0.8,
    "mg_obs_pct": 24.3,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "USGO",
@@ -195,7 +195,7 @@
    "result_date": "2026-07-21",
    "max_gain_pct": 8.8,
    "mg_obs_pct": 8.8,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "INSM",
@@ -221,7 +221,7 @@
    "result_date": "2026-06-24",
    "max_gain_pct": 11.9,
    "mg_obs_pct": 24.8,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "EZRA",
@@ -249,7 +249,7 @@
    "result_date": "2026-07-06",
    "max_gain_pct": 3.0,
    "mg_obs_pct": 25.9,
-   "mg_obs_days": 30
+   "mg_obs_days": 31
   },
   {
    "symbol": "TAOX",
@@ -277,7 +277,7 @@
    "result_date": "2026-07-15",
    "max_gain_pct": 12.6,
    "mg_obs_pct": 12.6,
-   "mg_obs_days": 30
+   "mg_obs_days": 31
   },
   {
    "symbol": "NBP",
@@ -305,7 +305,7 @@
    "result_date": "2026-06-29",
    "max_gain_pct": 38.4,
    "mg_obs_pct": 48.9,
-   "mg_obs_days": 30
+   "mg_obs_days": 31
   },
   {
    "symbol": "CTMX",
@@ -331,7 +331,7 @@
    "result_date": "2026-06-29",
    "max_gain_pct": 24.3,
    "mg_obs_pct": 31.2,
-   "mg_obs_days": 30
+   "mg_obs_days": 31
   },
   {
    "symbol": "VSTM",
@@ -361,7 +361,7 @@
    "result_date": "2026-07-07",
    "max_gain_pct": 17.4,
    "mg_obs_pct": 52.0,
-   "mg_obs_days": 29
+   "mg_obs_days": 30
   },
   {
    "symbol": "UPB",
@@ -386,7 +386,7 @@
    "result_date": "2026-06-29",
    "max_gain_pct": 11.0,
    "mg_obs_pct": 26.9,
-   "mg_obs_days": 29
+   "mg_obs_days": 30
   },
   {
    "symbol": "VFS",
@@ -410,8 +410,8 @@
    "status": "expired",
    "result_date": "2026-07-23",
    "max_gain_pct": 3.2,
-   "mg_obs_pct": 6.6,
-   "mg_obs_days": 29
+   "mg_obs_pct": 7.6,
+   "mg_obs_days": 30
   },
   {
    "symbol": "NERV",
@@ -438,7 +438,7 @@
    "result_date": "2026-06-29",
    "max_gain_pct": 26.0,
    "mg_obs_pct": 33.0,
-   "mg_obs_days": 28
+   "mg_obs_days": 29
   },
   {
    "symbol": "OLMA",
@@ -465,7 +465,7 @@
    "result_date": "2026-06-30",
    "max_gain_pct": 12.7,
    "mg_obs_pct": 17.5,
-   "mg_obs_days": 27
+   "mg_obs_days": 28
   },
   {
    "symbol": "INSM",
@@ -495,7 +495,7 @@
    "result_date": "2026-07-07",
    "max_gain_pct": 10.9,
    "mg_obs_pct": 15.5,
-   "mg_obs_days": 27
+   "mg_obs_days": 28
   },
   {
    "symbol": "OPRX",
@@ -522,8 +522,8 @@
    "status": "hit_t1",
    "result_date": "2026-06-30",
    "max_gain_pct": 15.4,
-   "mg_obs_pct": 38.1,
-   "mg_obs_days": 26
+   "mg_obs_pct": 39.7,
+   "mg_obs_days": 27
   },
   {
    "symbol": "NEGG",
@@ -551,8 +551,8 @@
    "status": "stopped",
    "result_date": "2026-07-02",
    "max_gain_pct": 4.4,
-   "mg_obs_pct": 4.4,
-   "mg_obs_days": 26
+   "mg_obs_pct": 6.6,
+   "mg_obs_days": 27
   },
   {
    "symbol": "KSCP",
@@ -580,7 +580,7 @@
    "result_date": "2026-07-10",
    "max_gain_pct": 7.4,
    "mg_obs_pct": 13.4,
-   "mg_obs_days": 24
+   "mg_obs_days": 25
   },
   {
    "symbol": "EVTV",
@@ -637,7 +637,7 @@
    "result_date": "2026-07-07",
    "max_gain_pct": 14.9,
    "mg_obs_pct": 19.6,
-   "mg_obs_days": 23
+   "mg_obs_days": 24
   },
   {
    "symbol": "PRTS",
@@ -666,7 +666,7 @@
    "result_date": "2026-07-20",
    "max_gain_pct": 1.2,
    "mg_obs_pct": 1.2,
-   "mg_obs_days": 23
+   "mg_obs_days": 24
   },
   {
    "symbol": "SCYX",
@@ -693,7 +693,7 @@
    "result_date": "2026-07-02",
    "max_gain_pct": 16.5,
    "mg_obs_pct": 36.1,
-   "mg_obs_days": 23
+   "mg_obs_days": 24
   },
   {
    "symbol": "VFF",
@@ -1624,9 +1624,9 @@
    "drop_pct": 88.63174659560953,
    "best_spike": 426.06841329678804,
    "rr": 3.6536710074298964,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 4.3
+   "status": "hit_t1",
+   "result_date": "2026-08-05",
+   "max_gain_pct": 13.1
   },
   {
    "symbol": "TYGO",
@@ -1917,7 +1917,7 @@
    "rr": 3.3980579781132465,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 5.1
   },
   {
    "symbol": "IDN",
@@ -1950,6 +1950,264 @@
    "drop_pct": 57.26872084755179,
    "best_spike": 118.34533216296683,
    "rr": 2.1035146196848014,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 1.5
+  },
+  {
+   "symbol": "TMC",
+   "date": "2026-08-06",
+   "ref_bar": "2026-08-05",
+   "price": 4.02,
+   "stop": 3.162,
+   "t1": 4.5,
+   "t2": 5.16,
+   "t3": 11.35,
+   "score": 95,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "يرتكز على متوسط 30/50",
+    "معيد إجرام (2 انفجارات)",
+    "ثبات 5 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "انكماش حزمة كلنجر (تجميع)",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة صاعدة يومي 5%",
+    "فجوة يومية مفتوحة (لم تُغلق)",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 49.97797106238799,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 64.5814991558092,
+   "best_spike": 127.77778063945479,
+   "rr": 2.958580657992844,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "LUNR",
+   "date": "2026-08-06",
+   "ref_bar": "2026-08-05",
+   "price": 13.99,
+   "stop": 10.4997,
+   "t1": 16.0,
+   "t2": 22.4,
+   "t3": 46.75,
+   "score": 90,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "معيد إجرام (2 انفجارات)",
+    "ثبات 5 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (15→56) — سيولة مخفية",
+    "انكماش حزمة كلنجر (تجميع)",
+    "فجوة صاعدة يومي 5%",
+    "فجوة يومية مفتوحة (لم تُغلق)",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 40.90030334370783,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 70.07486679974724,
+   "best_spike": 115.69921564690198,
+   "rr": 3.866230083021292,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "TOYO",
+   "date": "2026-08-06",
+   "ref_bar": "2026-08-05",
+   "price": 5.14,
+   "stop": 4.1013,
+   "t1": 5.67,
+   "t2": 6.4,
+   "t3": 17.43,
+   "score": 90,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "معيد إجرام (2 انفجارات)",
+    "ثبات 6 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (15→42) — سيولة مخفية",
+    "انكماش حزمة كلنجر (تجميع)",
+    "فجوة صاعدة يومي 4%",
+    "فجوة يومية مفتوحة (لم تُغلق)",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 34.585617799090485,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 70.51061516643067,
+   "best_spike": 175.5981083937603,
+   "rr": 2.5757912798674716,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "PLUG",
+   "date": "2026-08-06",
+   "ref_bar": "2026-08-05",
+   "price": 2.1,
+   "stop": 1.7298,
+   "t1": 2.35,
+   "t2": 2.66,
+   "t3": 4.58,
+   "score": 75,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 5 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "توافق 3 فريمات",
+    "نمط شمعة قوي",
+    "انكماش حزمة كلنجر (تجميع)",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 40.66370041257754,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 54.14847293418106,
+   "best_spike": 192.9078164687553,
+   "rr": 2.3183522249480655,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "IMNN",
+   "date": "2026-08-06",
+   "ref_bar": "2026-08-05",
+   "price": 1.59,
+   "stop": 1.3671,
+   "t1": 1.72,
+   "t2": 2.18,
+   "t3": 3.38,
+   "score": 75,
+   "flags": [
+    "تقاطع MACD",
+    "معيد إجرام (2 انفجارات)",
+    "ثبات 6 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "تباعد MFI صعودي (4→17) — سيولة مخفية",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة صاعدة يومي 8%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت 9,918 (مقبول)",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 38.57078511667203,
+   "float": null,
+   "short": 9918,
+   "short_pct": null,
+   "drop_pct": 79.95065848018872,
+   "best_spike": 527.4999904036517,
+   "rr": 1.413816946772592,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "NTLA",
+   "date": "2026-08-06",
+   "ref_bar": "2026-08-05",
+   "price": 10.97,
+   "stop": 9.4395,
+   "t1": 12.84,
+   "t2": 14.61,
+   "t3": 28.25,
+   "score": 50,
+   "flags": [
+    "تقاطع MACD",
+    "ثبات 6 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (11→29) — سيولة مخفية",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 37.666137202099684,
+   "float": null,
+   "short": null,
+   "short_pct": null,
+   "drop_pct": 61.16814064768563,
+   "best_spike": 122.94219714869752,
+   "rr": 2.3542110522824697,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "PPSI",
+   "date": "2026-08-06",
+   "ref_bar": "2026-08-05",
+   "price": 3.05,
+   "stop": 2.5575,
+   "t1": 3.34,
+   "t2": 4.0,
+   "t3": 6.29,
+   "score": 50,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 5 جلسات فوق القاع",
+    "نمط شمعة قوي",
+    "فجوة صاعدة يومي 6%",
+    "فجوات متعددة الفريمات (أسبوعي)",
+    "شورت 30,475 (مقبول)",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Industrials",
+   "rsi": 39.99284791499841,
+   "float": 8600050,
+   "short": 30475,
+   "short_pct": 0.5,
+   "drop_pct": 51.510334327287374,
+   "best_spike": 83.12237814999246,
+   "rr": 1.837200870195792,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
