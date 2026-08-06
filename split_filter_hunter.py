@@ -18,6 +18,11 @@
 حارس تغطية · إبلاغٌ صريح لا صمت · «لا يوجد» ومعها التغطية · وختمٌ **بعد** الإرسال.
 """
 
+# 🌱 ذاكرةُ الصيّادين — **على مستوى الوحدة** لأن `git_save` في ختم الجلسة يحتاج
+#    اسمَ الملفّ. والوحدةُ stdlib-only (‏`json`/`os`) ⇒ صفر أثرٍ جانبيّ وقت الاستيراد.
+import hunter_ledger as LEDGER
+
+
 MIN_COVERAGE_PCT = 60.0
 STAMP_FILE = "split_filter_stamp.json"
 
@@ -72,13 +77,13 @@ def _write_stamp(S, sess):
         with open(STAMP_FILE, "w", encoding="utf-8") as fh:
             json.dump({"session": (sess.isoformat() if sess else None)}, fh)
         # 🐞 **عيبٌ كشفه التشغيلُ الحيّ وحده (2026-08-05):** كتبتُ
-        #    `git_save([STAMP_FILE], "split filter stamp")` ظنًّا أن الوسيط
+        #    `git_save([STAMP_FILE, LEDGER.LEDGER_FILE], "split filter stamp")` ظنًّا أن الوسيط
         #    الثاني رسالةُ commit — **وتوقيعُها `(filenames, runner, sender)`**
         #    فصار النصُّ هو `runner` ⇒ `run(...)` ⇒ **`'str' object is not
         #    callable`** ⇒ **الختمُ لا يُحفَظ ⇒ الدِدوب بلا ذاكرة ⇒ رسالةٌ
         #    مكرّرة على الكرون الثاني**. والاختبارات لا تراه (تحقن حول الدفع).
         #    🧭 والدرس: **وسيطٌ ثانٍ لم أقرأ توقيعَه = خطأٌ ينتظر التشغيل.**
-        S.git_save([STAMP_FILE])
+        S.git_save([STAMP_FILE, LEDGER.LEDGER_FILE])
     except Exception as e:                                       # noqa: BLE001
         S.log(f"⚠️ فلترة التقسيم: تعذّر ختمُ الجلسة ({e}).")
 
@@ -86,7 +91,6 @@ def _write_stamp(S, sess):
 def run(now_utc=None) -> int:
     import os
     import Super_stock as S
-    import hunter_ledger as LEDGER
     manual = os.environ.get("SPLIT_FILTER_FORCE", "") == "1"
     ok, sess_et = session_gate(now_utc)
     if not manual and not ok:

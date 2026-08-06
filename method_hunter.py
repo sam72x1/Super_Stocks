@@ -28,6 +28,11 @@
 🔒 عرض/تنبيه فقط — خارج الفرز والحالة، ولا `LOGIC_VERSION`.
 """
 
+# 🌱 ذاكرةُ الصيّادين — **على مستوى الوحدة** لأن `git_save` في ختم الجلسة يحتاج
+#    اسمَ الملفّ. والوحدةُ stdlib-only (‏`json`/`os`) ⇒ صفر أثرٍ جانبيّ وقت الاستيراد.
+import hunter_ledger as LEDGER
+
+
 MIN_COVERAGE_PCT = 60.0        # 🩺 أرضية تغطية المسح (أقلّ منها = لم نفحص السوق)
 STAMP_FILE = "method_hunter_stamp.json"
 
@@ -74,7 +79,7 @@ def _write_stamp(S, session_date) -> None:
     لقرأه الكرون الثاني «سُلِّم» فضاعت رسالة الليلة). فاشل-آمن مطلق."""
     try:
         S._atomic_write_json(STAMP_FILE, {"last_session": str(session_date)})
-        S.git_save([STAMP_FILE])
+        S.git_save([STAMP_FILE, LEDGER.LEDGER_FILE])
     except Exception as e:                                       # noqa: BLE001
         S.log(f"⚠️ ختم النهج العلمي: {e}")
 
@@ -130,7 +135,6 @@ def _frame_probe(S):
 
 def run(now_utc=None) -> int:
     import Super_stock as S
-    import hunter_ledger as LEDGER
     import os
     manual = os.environ.get("METHOD_FORCE", "").strip() == "1"
     open_ok, sess_et = session_gate(now_utc)

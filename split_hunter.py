@@ -28,6 +28,11 @@
 **لا يمسّ قرارًا واحدًا هنا**: لا دِدوب ولا كتم ولا ترشيح — يقرؤه المسار اليومي وحده.
 التشغيل: python split_hunter.py (يلزم TELEGRAM_BOT_TOKEN/CHAT_ID · ياهو للفلوت)."""
 
+# 🌱 ذاكرةُ الصيّادين — **على مستوى الوحدة** لأن `git_save` في ختم الجلسة يحتاج
+#    اسمَ الملفّ. والوحدةُ stdlib-only (‏`json`/`os`) ⇒ صفر أثرٍ جانبيّ وقت الاستيراد.
+import hunter_ledger as LEDGER
+
+
 
 MIN_COVERAGE_PCT = 60.0        # 🩺 أرضية تغطية المسح (أقلّ منها = لم نفحص السوق)
 # 🌙 وسم الفاشل-الآمن المفتوح: يُرسَل التنبيه **ولا يُكتَم**، لكن بلا ثقةٍ كاذبة.
@@ -139,7 +144,7 @@ def _stamp(S, session_date) -> None:
     خاملة (حارسها الموثّق) فلا git حقيقي."""
     try:
         if S.record_hunter_run(session_date):
-            S.git_save([S.HUNTER_STAMP_FILE])
+            S.git_save([S.HUNTER_STAMP_FILE, LEDGER.LEDGER_FILE])
         else:
             S.log("⚠️ ختم الصيّاد لم يُكتب — سيقرأ التقرير اليومي تقادمًا (تحذير لا صمت).")
     except Exception as e:                                       # noqa: BLE001
@@ -164,7 +169,6 @@ def _fail(S, why: str) -> int:
 
 def run(fetch_ext=None, now_utc=None):
     import Super_stock as S
-    import hunter_ledger as LEDGER
     # ⏰ بوّابة التوقيت (كرونان: 00:13 صيفًا · 01:13 شتاءً — والبوّابة تحسم أيّهما).
     #    وتُتخطّى بالتشغيل اليدويّ (`workflow_dispatch`) فيبقى الفحص الفوريّ ممكنًا.
     _manual = __import__("os").environ.get("HUNTER_FORCE", "").strip() == "1"

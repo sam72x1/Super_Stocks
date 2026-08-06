@@ -22,6 +22,10 @@ artifact، **ولا يُرسِل**. وأيُّ رسالةٍ لاحقةً **قر�
 """
 from __future__ import annotations
 
+# 🌱 ذاكرةُ الصيّادين — **على مستوى الوحدة** لأن `git_save` في ختم الجلسة يحتاج
+#    اسمَ الملفّ. والوحدةُ stdlib-only ⇒ صفر أثرٍ جانبيّ وقت الاستيراد.
+import hunter_ledger as LEDGER
+
 MIN_COVERAGE_PCT = 60.0
 STAMP_FILE = "envelope_hunter_stamp.json"
 OUT_FILE = "envelope_candidates.jsonl"
@@ -61,7 +65,7 @@ def _write_stamp(S, sess):
         import json
         with open(STAMP_FILE, "w", encoding="utf-8") as fh:
             json.dump({"session": (sess.isoformat() if sess else None)}, fh)
-        S.git_save([STAMP_FILE, OUT_FILE])
+        S.git_save([STAMP_FILE, OUT_FILE, LEDGER.LEDGER_FILE])
     except Exception as e:                                       # noqa: BLE001
         S.log(f"⚠️ صيّاد الظرف: تعذّر ختمُ الجلسة ({e}).")
 
@@ -98,7 +102,6 @@ def run(now_utc=None, decide_fn=None) -> int:
     import os
     import Super_stock as S
     import envelope_scan as ES
-    import hunter_ledger as LEDGER
 
     manual = os.environ.get("ENVELOPE_FORCE", "") == "1"
     ok, sess_et = session_gate(now_utc)

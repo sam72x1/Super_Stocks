@@ -14736,6 +14736,30 @@ check("🌱 H1🔒 وصيّادُ المقسّم **لم يُحذف منه سطر
        and "ah_guard" in src)(open("split_hunter.py", encoding="utf-8").read()))
 check("🌱 H1🔒 و`Super_stock.py` **لم يُمَسّ** بهذا الوصل إطلاقًا",
       not _imports_module("Super_stock.py", "hunter_ledger"))
+# 🔴 **والسجلُّ يُدفَع وإلّا مات مع الرنر** — عيبٌ مقيس: وصلتُ التسجيل ونسيتُ
+#    `git_save` ⇒ الصيّادون يكتبون والذاكرةُ تتبخّر كلَّ ليلة. وهو **صنفُ عطلٍ موثّق
+#    عندنا** (ملخّصاتُ رادار الانطلاق ضاعت بدفعٍ ناقص). القفلُ **نحويّ على وسائط
+#    `git_save` نفسِها** لا على النصّ.
+def _lg_saved(path):
+    tree = _ast0.parse(open(path, encoding="utf-8").read())
+    for n in _ast0.walk(tree):
+        if (isinstance(n, _ast0.Call)
+                and getattr(n.func, "attr", getattr(n.func, "id", "")) == "git_save"
+                and n.args and isinstance(n.args[0], (_ast0.List, _ast0.Tuple))):
+            for e in n.args[0].elts:
+                if (isinstance(e, _ast0.Attribute) and e.attr == "LEDGER_FILE"):
+                    return True
+    return False
+
+
+for _f in ("split_hunter.py", "method_hunter.py", "split_filter_hunter.py",
+           "envelope_hunter.py"):
+    check(f"🌱 LG🔒 {_f}: السجلُّ ضمن وسائط `git_save` (وإلّا مات مع الرنر)",
+          _lg_saved(_f))
+check("🌱 LG🔒 والاستيرادُ على مستوى الوحدة فيراه ختمُ الجلسة (لا داخل `run` وحدها)",
+      all(_imports_module(_f, "hunter_ledger")
+          for _f in ("split_hunter.py", "method_hunter.py",
+                     "split_filter_hunter.py", "envelope_hunter.py")))
 check("🌱 HARV🔒 والتسجيلُ المسبق مدفوعٌ ويحمل المقياسَ والحرّاس",
       (lambda t: all(x in t for x in ("hit100", "40 جلسة", "H1", "H6",
                                       "control_panel", "H-P3")))(
