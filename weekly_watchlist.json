@@ -340,7 +340,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.0
+   "last_price": 2.0,
+   "live_alert": {}
   },
   {
    "symbol": "HTCR",
@@ -674,7 +675,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.57
+   "last_price": 2.57,
+   "live_alert": {}
   },
   {
    "symbol": "CMND",
@@ -1009,7 +1011,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.75
+   "last_price": 1.75,
+   "live_alert": {}
   },
   {
    "symbol": "YMAT",
@@ -1339,7 +1342,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.03
+   "last_price": 2.03,
+   "live_alert": {}
   },
   {
    "symbol": "ISPC",
@@ -1674,7 +1678,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.2
+   "last_price": 2.2,
+   "live_alert": {}
   },
   {
    "symbol": "PLYX",
@@ -2024,7 +2029,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.22
+   "last_price": 2.22,
+   "live_alert": {}
   },
   {
    "symbol": "ERNA",
@@ -2359,7 +2365,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.36
+   "last_price": 4.36,
+   "live_alert": {}
   },
   {
    "symbol": "NXTS",
@@ -2684,7 +2691,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.925
+   "last_price": 1.925,
+   "live_alert": {}
   },
   {
    "symbol": "HCWB",
@@ -3053,7 +3061,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.41
+   "last_price": 3.41,
+   "live_alert": {}
   },
   {
    "symbol": "XAIR",
@@ -3402,7 +3411,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.56
+   "last_price": 5.56,
+   "live_alert": {}
   },
   {
    "symbol": "IPWR",
@@ -3747,7 +3757,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.27
+   "last_price": 4.27,
+   "live_alert": {}
   },
   {
    "symbol": "TOYO",
@@ -4065,7 +4076,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.28
+   "last_price": 5.28,
+   "live_alert": {}
   },
   {
    "symbol": "LUNR",
@@ -4384,7 +4396,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 14.93
+   "last_price": 14.93,
+   "live_alert": {}
   },
   {
    "symbol": "ALAR",
@@ -4703,7 +4716,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.96
+   "last_price": 1.96,
+   "live_alert": {}
   },
   {
    "symbol": "NTLA",
@@ -5010,7 +5024,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 11.24
+   "last_price": 11.24,
+   "live_alert": {}
   },
   {
    "symbol": "PLUG",
@@ -5341,7 +5356,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.07
+   "last_price": 2.07,
+   "live_alert": {}
   },
   {
    "symbol": "IDN",
@@ -6055,7 +6071,7 @@
     ]
    ],
    "live_alert": {
-    "buyzone": "2026-08-05",
+    "buyzone": "2026-08-06",
     "breakout": "2026-08-06"
    }
   },
@@ -7427,9 +7443,9 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.0,
-   "last_price": 3.91,
+   "last_price": 3.77,
    "live_alert": {
-    "buyzone": "2026-07-31",
+    "buyzone": "2026-08-06",
     "breakout": "2026-07-31"
    },
    "borrow_hist": [
