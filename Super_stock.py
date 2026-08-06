@@ -341,6 +341,7 @@ CONFIG = {
     "BT_SHORT": 0,                       # 🕵️ T-SHORT: شورت FINRA المؤرَّخ عند الإشارة — باكتيست فقط
     "BT_PORTFOLIO": 0,                   # 🏦 محاكاة الانتقائية (أفضل N بالترتيب)
     "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE)
+    "BT_ENVVALS": 0,                     # 📐 T-RANKER-TIE: ألحِق معايير الظرف الأحد عشر
     "BT_REPLAY10": 0,                    # 🔁 T-REPLAY10: ألحِق بكل صفقة **تاريخ الخروج
                                          #   الفعليّ** (تحرير الخانة بجلسات لا تقويم) و`rr`
                                          #   و`score` — تُقرأها أداة الإعادة الأمينة
@@ -639,6 +640,7 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             # **تاريخ الخروج الفعليّ** (‏`P0-02`: تحرير الخانة بجلسات لا `ordinals`)
             # و`rr` (المحور الرابع في `rank_key`، لم يكن يُخزَّن قطّ). باكتيست حصريًّا.
             ("BT_REPLAY10", "BT_REPLAY10", int),
+            ("BT_ENVVALS", "BT_ENVVALS", int),
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
         v = (env.get(bt_env) or "").strip()
         if not v:
@@ -14865,6 +14867,28 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         # الفعليّ** (‏`P0-02`: الخانة تُحرَّر بجلسةٍ حقيقية لا بـ`ordinals` تقويمية)
         # و`rr` و`score` (محورا `rank_key` الثالث والرابع؛ `rr` لم يكن يُخزَّن قطّ).
         # إلحاق فقط · مطفأ = صفقة الأساس بت-بت.
+        # 📐 T-RANKER-TIE (`ranker_tie_prereg.md`): قيمُ **معايير الظرف الأحد عشر**
+        # للصفقة — بلا أيّ حسابٍ جديد (كلُّها في `r` سلفًا). 🔴 **والسبب عيبٌ مقيس:**
+        # صفقةُ الباكتيست تحمل **اثنين فقط** من الأحد عشر (`n_soft`/`readiness`)،
+        # و`env_depth` تمتنع دون ستّة ⇒ لو شُغِّل الذراعُ بلا هذا الحقل **لامتنع عن كلّ
+        # صفقة وخرجت «لا فرق» وهي `no-op`** — صنفُ `BT_CANDLE` بعينه.
+        # 🔒 أسماءُ الحقول **منسوخةٌ من `catalog_envelope.measure_session`** (المصدرُ
+        # الوحيد للربط) فلا تتفرّق خريطتان. إلحاقٌ فقط · مطفأ = صفقة الأساس بت-بت.
+        if CONFIG.get("BT_ENVVALS"):
+            _rsi_lo = None
+            for _f in (r.get("soft_fails") or []):
+                if isinstance(_f, str) and "RSI" in _f:
+                    _rsi_lo = r.get("rsi_min")
+                    break
+            trade["env_vals"] = {
+                "price": r.get("price"), "drop_pct": r.get("drop_pct"),
+                "best_spike": r.get("best_spike"), "base_range": r.get("base_range"),
+                "dollar_vol": r.get("dollar_vol"),
+                "rsi_min": r.get("rsi_min", _rsi_lo), "rsi_now": r.get("rsi"),
+                "n_soft": len(r.get("soft_fails") or []),
+                "readiness": r.get("readiness"), "score": r.get("score"),
+                "rr": r.get("rr"),
+            }
         if CONFIG.get("BT_REPLAY10"):
             _xk, _xi = _arm_a_exit_bar(hi, lo, cl, entry, stop, t1, filled)
             trade["exit_kind"] = _xk

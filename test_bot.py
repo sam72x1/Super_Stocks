@@ -15624,6 +15624,38 @@ check("🔴 CY6 وكرونُ التجديد **داخلها** ⇒ يبقى في �
       any(_cy_hours(c) == "22" for c in _cy_sched)
       and "schedule" not in _cy_grp, str(_cy_sched))
 
+# ── 📐 T-RANKER-TIE: حقلُ معايير الظرف في صفقة الباكتيست ────────────────────────
+# 🔴 عيبٌ مقيس: الصفقةُ تحمل **اثنين فقط** من الأحد عشر (`n_soft`/`readiness`) و
+# `env_depth` تمتنع دون ستّة ⇒ بلا هذا الحقل يمتنع الذراعُ عن **كلّ** صفقة فتخرج
+# «لا فرق» وهي `no-op` — صنفُ `BT_CANDLE` بعينه.
+_ev_src = open("Super_stock.py", encoding="utf-8").read()
+check("📐 EV1 `BT_ENVVALS` **مطفأٌ افتراضيًّا** (الإنتاج والباكتيستُ الأساس بت-بت)",
+      S.CONFIG["BT_ENVVALS"] == 0)
+check("📐 EV2 وله صفٌّ في جدول التعيين (لا علمَ ميّت — درسُ `BT_CANDLE`)",
+      "BT_ENVVALS" in _insp0.getsource(S._apply_backtest_overrides))
+check("📐 EV3 والحقلُ يُلحَق **داخل حارس العلم** لا خارجه",
+      'if CONFIG.get("BT_ENVVALS"):' in _insp0.getsource(S.backtest_symbol))
+# 🔴 والمميِّز: الأحد عشر **كلُّها** مذكورةٌ بأسماء `measure_session` — لا تسعةٌ ولا خريطةٌ ثانية
+import catalog_envelope as _EVCE                                  # noqa: E402
+_ev_blk = _insp0.getsource(S.backtest_symbol)
+_ev_blk = _ev_blk[_ev_blk.index('if CONFIG.get("BT_ENVVALS")'):][:1200]
+_ev_need = [x[0] for x in _EVCE.CRITERIA]
+check("🔴 EV4 الأحد عشر كلُّها في الحقل بأسماء `measure_session` (خريطةٌ واحدة)",
+      all(f'"{k}"' in _ev_blk for k in _ev_need),
+      str([k for k in _ev_need if f'"{k}"' not in _ev_blk]) or "الكلُّ حاضر")
+# 🔴 وسلوكيًّا: `env_depth` **تمتنع** على صفقةٍ بلا الحقل و**تعمل** معه
+import replay10 as _RT                                            # noqa: E402,F811
+_ev_two = {"n_soft": 3, "readiness": 45}
+_ev_edges = _json.load(open("envelope_p90.json", encoding="utf-8"))["edges"]
+_ev_sides = {x[0]: x[1] for x in _EVCE.CRITERIA}
+_ev_full = _json.loads(open("envelope_candidates.jsonl", encoding="utf-8"
+                            ).readlines()[1])["vals"]
+check("🔴 EV5 بحقلَين فقط ⇒ **امتناع** · وبالأحد عشر ⇒ عمقٌ محسوب (الفارقُ حقيقيّ)",
+      _RT.env_depth(_ev_two, _ev_edges, _ev_sides) is None
+      and isinstance(_RT.env_depth(_ev_full, _ev_edges, _ev_sides), float),
+      f"اثنان={_RT.env_depth(_ev_two, _ev_edges, _ev_sides)} · "
+      f"أحدَ عشر={_RT.env_depth(_ev_full, _ev_edges, _ev_sides)}")
+
 # ── 🥇⑦ T-RANKER-TIE: كاسرُ التعادل (`ranker_tie_prereg.md`) ────────────────────
 # الموضعُ مقيس: 16 سهمًا متعادلين عند جاهزية 70 والسعة 10 ⇒ **10 من 10 خاناتٍ يحكمها
 # التعادل**. والفاصلُ اليوم `score` ثم `rr` — ولم يُختبَرا كاسرَي تعادلٍ قطّ.
