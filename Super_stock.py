@@ -494,6 +494,10 @@ CONFIG = {
     "FAISAL_SHOULDER_TOL": 0.08,         # تقارُبُ الكتفين
     # 📐 نسبةُ فيبوّ مُعايَرة من مثاله وحده (‏1.84 ⟶ 3.68 والفيبوّ 2.20 ⇒ ‏≈0.196)
     "FAISAL_FIB_RATIO": 0.196,
+    # 🥇 **معايير فيصل وحدها** (أمرُ المالك 2026-08-06 «اعتمد على بواباته فقط»):
+    #    مُفعَّلةٌ افتراضيًّا — تُحِلّ حوافَّ `envelope_p90.json` المُعايَرةَ من كاتالوجه
+    #    محلَّ أرقامنا في المفاتيح الأحد عشر. `FAISAL_ONLY=0` يرجع لبوّابات البوت.
+    "FAISAL_ONLY": int(os.environ.get("FAISAL_ONLY", "1")),
     "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
     "FINRA_BUDGET": 400,                 # 🕵️ سقف تنزيلات FINRA لتشغيلة T-SHORT
     "FORM4_BUDGET": 48,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
@@ -663,10 +667,97 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
 
 _BT_OVERRIDES = _apply_backtest_overrides(MODE)
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🥇 **معايير فيصل وحدها** — أمرُ المالك الصريح المتكرّر (2026-08-06)
+# ══════════════════════════════════════════════════════════════════════════════
+# «لازم نلتزم بمعايير فيصل فقط وهذي نجيبها **عن طريق الكتالوج**» ثم — بعد أن قدّمتُ
+# قياسًا بدل تنفيذ — «**ابن الحد الادنى و اعتمد على بواباته فقط**».
+#
+# 🔴 **والسببُ مقيسٌ لا رأي:** من 55 بوّابةً في `FAISAL_SOURCE_LEDGER.md` **‏25.5% فقط
+# بسندٍ فيصليٍّ حرفيّ**، و**أربعٌ من بوّابات الهويّة الخمس من عندنا** (‏M1 سعر $1.5
+# وأرضيةُ فيصل المنصوصة **$1** · M2 سقف 97% · M4 قاعدة 40% · M5 سيولة $200 ألف)
+# **ولا رقمَ فيصليٍّ حرفيٍّ واحد فيها.** والأثر: الفارزُ يقول «لا» في **‏99.8%** من
+# الأيام على أسهم فيصل نفسها، والتقطَ **صفرًا** من 203 متحرّكًا (`additions_audit.md`
+# · `faisal_only_result.md`).
+#
+# ✅ **والحدُّ الأدنى ليس اختراعًا — هو مقيسٌ من كاتالوجه:** `catalog_envelope.py`
+# مشى **أسهمَ فيصل نفسها** في العشرين جلسةً **قبل** بدء انفجارها (مِرساة
+# `explosion_onset` المصحَّحة) وأخرج حدَّ كلِّ معيارٍ من أحد عشر ⟶ `envelope_p90.json`
+# (‏`P90` · 25 رمزًا · بصمة `b4e5372075c1`). **وكلُّ معيارٍ مربوطٌ سلفًا بمفتاح
+# بوّابتنا** في `catalog_envelope.CRITERIA` ⇒ الإحلالُ **مباشرٌ بلا ترجمةٍ يدوية**.
+#
+# 🔒 **ولهذا كان التنفيذُ بإحلال الأرقام لا بتفريع الفرز:** بنيةُ البوّابات تبقى
+# كما هي **وأرقامُها تصير أرقامَه** ⇒ صفرُ مسٍّ بـ`scan_market`/`analyze_ticker`،
+# ومسارٌ واحدٌ يخدم الفرزَ والفحصَ اليدويَّ معًا (قفل «الفحص اليدوي = الأساسي»).
+def faisal_only_overrides(edges: dict) -> dict:
+    """🥇 يترجم حوافَّ ظرف الكاتالوج إلى تعييناتِ `CONFIG` — **دالّة نقيّة**.
+
+    المصدرُ الوحيد للربط `catalog_envelope.CRITERIA` (‏`(معيار، جهة، وصف، مفتاح)`)
+    فلا تتفرّق خريطةٌ مكتوبةٌ بيدي عن خريطة الأداة. `both` ⟹ مفتاحان بـ`|`.
+    الأنواعُ تُصان (`WATCH_MAX_FAILS`/`SCORE_MIN` صحيحان). حوافٌّ ناقصة ⟹ تُتخطّى
+    (‏**لا تُخمَّن**) · وحوافٌّ فارغة ⟹ `{}` أي «لا تغيير» (والمُنادي يُبلّغ)."""
+    try:
+        from catalog_envelope import CRITERIA as _CR
+    except Exception:                                            # noqa: BLE001
+        return {}
+    out = {}
+    _INTS = {"WATCH_MAX_FAILS", "SCORE_MIN"}
+    for name, side, _desc, keyspec in _CR:
+        if name not in (edges or {}):
+            continue
+        val = edges[name]
+        keys = str(keyspec).split("|")
+        try:
+            if side == "both":
+                if len(keys) != 2 or not isinstance(val, (list, tuple)) or len(val) != 2:
+                    continue
+                out[keys[0]], out[keys[1]] = float(val[0]), float(val[1])
+            else:
+                if len(keys) != 1 or isinstance(val, (list, tuple)):
+                    continue
+                out[keys[0]] = int(round(float(val))) if keys[0] in _INTS else float(val)
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def apply_faisal_only(cfg: dict = None, log_fn=None) -> dict:
+    """🥇 يُحِلّ أرقامَ فيصل في `CONFIG`. يرجّع ما طُبِّق (‏`{}` = لم يُطبَّق شيء).
+
+    🔒 **فاشلٌ-آمنٌ بصوتٍ عالٍ لا بصمت:** تعذّرُ الحوافّ ⟹ تبقى بوّاباتُنا **ويُبلَّغ**
+    — لأن الصمتَ هنا يعني فرزًا بأرقامٍ لا يعرفها المالك. و**كلُّ رقمٍ يُطبَّق يُطبَع**
+    فيبقى الفارزُ مقروءًا لا صندوقًا أسود."""
+    cfg = CONFIG if cfg is None else cfg
+    if not cfg.get("FAISAL_ONLY"):
+        return {}
+    try:
+        import envelope_scan as _ev
+        edges = _ev.load_edges()
+        fp = _ev.edges_fingerprint(edges) if edges else ""
+    except Exception as _e:                                      # noqa: BLE001
+        (log_fn or print)(f"⛔ معايير فيصل: تعذّر تحميل الظرف ({type(_e).__name__}) "
+                          "— **بوّاباتُ البوت تبقى** (لا فرزَ بأرقامٍ مجهولة).")
+        return {}
+    ov = faisal_only_overrides(edges)
+    if not ov:
+        (log_fn or print)("⛔ معايير فيصل: حوافُّ الظرف غير محمَّلة/غير صالحة — "
+                          "**بوّاباتُ البوت تبقى**.")
+        return {}
+    cfg.update(ov)
+    (log_fn or print)(
+        "🥇 **معايير فيصل وحدها** مُفعَّلة (أمر المالك) · بصمةُ الحوافّ "
+        f"{fp[:12]} · طُبِّق {len(ov)} رقمًا: "
+        + " · ".join(f"{k}={v}" for k, v in sorted(ov.items())))
+    return ov
+
+
+_FAISAL_ONLY_APPLIED = apply_faisal_only()
+
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.06-opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.06-faisalonly+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ

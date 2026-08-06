@@ -13,6 +13,15 @@ import os as _os_hc
 # 🛡️ حارس حادثة 2026-07-14: يمنع أي git_save حقيقي أثناء الاختبارات (اختبار E2 شغّل
 # ignition_live.main() فنفّذ git حقيقيًّا ودفع بيانات وهمية على main). يُقرأ وقت النداء.
 _os_hc.environ["SUPER_STOCKS_TESTING"] = "1"
+# 🥇 **السويّةُ تعمل على بوّابات البوت (`FAISAL_ONLY=0`) — وهذا قرارٌ منهجيّ لا تهرّب.**
+#    السببُ: أكثرُ من ألفَي اختبارٍ **توصيفيّ** يُثبّت آلةَ `analyze_ticker` بعتباتٍ
+#    معلومة (فِكستشراتٌ مبنيّةٌ عليها حرفيًّا). فتشغيلُها بأرقامٍ أخرى لا يكشف عيبًا
+#    بل **يُبطل معنى الفِكستشر** — وقد رأيتُه: أوّلُ تشغيلٍ بأرقام فيصل انهار عند
+#    السطر 280 لأن سهمًا مصطنعًا لم يعد مرشّحًا. ⇒ **السويّة تُثبّت الآلةَ، والوضعُ
+#    الجديد يأخذ أقفالَه الخاصّة** (‏`FO_*` أدناه: الافتراضُ الإنتاجيّ · الخريطةُ ·
+#    الأنواعُ · الفشلُ الآمن · **والفارقُ السلوكيّ** الذي يُثبت أن التبديل يعمل).
+#    ⚠️ ولذلك القفلُ الأوّل فيها هو **أن الافتراضَ في الإنتاج = 1** فلا يُنسى مُطفأً.
+_os_hc.environ["FAISAL_ONLY"] = "0"
 import types as _ty0
 import numpy as np
 import pandas as pd
@@ -14234,11 +14243,22 @@ check("📐 SCAN🔒 الظرف **يعيد التشكيل لا يخفّف**: أ�
       and _es_blob["edges"]["drop_pct"][0] > S.CONFIG["MIN_DROP_FLOOR"])
 
 # ── ① العزل: لا يدخل الإنتاج، ولا يُنادى من أيّ مسارٍ حيّ ──────────────────
-check("📐 SCAN🔒 معزولٌ: `Super_stock` لا يستورده ولا الصيّادون الأربعة",
+# ✅ **حُدِّث 2026-08-06 بأمر المالك** «ابن الحد الادنى و اعتمد على بواباته فقط»:
+#    الظرفُ صار **مصدرَ أرقام الفرز**. والعزلُ يبقى في كلّ مكانٍ إلّا **بابًا واحدًا
+#    مأذونًا**: `apply_faisal_only` في `Super_stock` — **استيرادٌ كسولٌ داخلها** لا
+#    على مستوى الوحدة، فانكسارُ الظرف لا يُسقط الجذع. والصيّادون **كما هم**.
+check("📐 SCAN🔒 عزلٌ ببابٍ واحدٍ مأذون: الصيّادون لا يستوردونه إطلاقًا",
       all("envelope_scan" not in open(_f, encoding="utf-8").read()
-          for _f in ("Super_stock.py", "split_hunter.py", "method_hunter.py",
+          for _f in ("split_hunter.py", "method_hunter.py",
                      "split_filter_hunter.py", "ignition_live.py",
                      "pullback_live.py")))
+check("📐 SCAN🔒 وفي `Super_stock` **داخل `apply_faisal_only` وحدها** (كسولًا)",
+      "envelope_scan" in _insp0.getsource(S.apply_faisal_only)
+      and not any(("envelope_scan" in (getattr(n, "module", "") or ""))
+                  or any(a.name.startswith("envelope_scan")
+                         for a in getattr(n, "names", []))
+                  for n in _ast0.parse(open("Super_stock.py",
+                                            encoding="utf-8").read()).body))
 check("📐 SCAN🔒 لا يُرسل تلغرام ولا يحفظ حالة (قرارٌ خالص)",
       (lambda t: "send_telegram" not in t and "git_save" not in t
        and "save_watchlist" not in t)(_insp0.getsource(_ES)))
@@ -14803,10 +14823,19 @@ _ce_step = max(1, len(_ce_u) // 150)
 check("📐 ENV🔒 تصحيح ④: الخطوة تُغطّي آخر الكون فعلًا (شاهد سلوكيّ)",
       _ce_u[::_ce_step][:150][-1] != _ce_u[149] and len(_ce_u[::_ce_step][:150]) == 150)
 
-check("📐 ENV🔒 معزولةٌ عن الإنتاج: لا يستوردها `Super_stock` ولا الصيّادون",
+# ✅ حُدِّث بأمر المالك — البابُ المأذون: `faisal_only_overrides` تقرأ **الخريطة**
+#    (‏`CRITERIA`) منها فلا تتفرّق خريطةٌ مكتوبةٌ بيدي عن خريطة الأداة. كسولًا كذلك.
+check("📐 ENV🔒 الصيّادون لا يستوردونها إطلاقًا (العزلُ قائم)",
       all("catalog_envelope" not in open(_f, encoding="utf-8").read()
-          for _f in ("Super_stock.py", "split_hunter.py", "method_hunter.py",
+          for _f in ("split_hunter.py", "method_hunter.py",
                      "split_filter_hunter.py", "ignition_live.py")))
+check("📐 ENV🔒 وفي `Super_stock` **داخل `faisal_only_overrides` وحدها** (الخريطة)",
+      "catalog_envelope" in _insp0.getsource(S.faisal_only_overrides)
+      and not any(("catalog_envelope" in (getattr(n, "module", "") or ""))
+                  or any(a.name.startswith("catalog_envelope")
+                         for a in getattr(n, "names", []))
+                  for n in _ast0.parse(open("Super_stock.py",
+                                            encoding="utf-8").read()).body))
 check("📐 ENV🔒 ولا تكتب حالةً ولا تُرسل تلغرام (قياسٌ خالص)",
       (lambda s: "send_telegram" not in s and "git_save" not in s
        and "save_watchlist" not in s)(_insp0.getsource(_CE)))
@@ -15373,9 +15402,12 @@ _fo_mods |= {n.module.split(".")[0]
              for n in _fo_ast.walk(_fo_ast.parse(open("Super_stock.py",
                                                       encoding="utf-8").read()))
              if isinstance(n, _fo_ast.ImportFrom) and n.module}
-check("🎯 FO8 `Super_stock` لا يستورد أداةَ القياس (AST لا نصّ)",
-      "faisal_only_check" not in _fo_mods and "catalog_envelope" not in _fo_mods,
-      f"وحداتٌ مستورَدة تشمل؟ {sorted(_fo_mods & {'faisal_only_check', 'catalog_envelope'})}")
+# ✅ حُدِّث بأمر المالك: `catalog_envelope` صارت **مصدرَ الخريطة** (بابٌ مأذون
+#    ومقفولٌ أعلاه بأنه داخل `faisal_only_overrides` كسولًا). **وأداةُ القياس
+#    `faisal_only_check` تبقى ممنوعةً تمامًا** — قياسٌ لا إنتاج.
+check("🎯 FO8 `Super_stock` لا يستورد **أداةَ القياس** (AST لا نصّ)",
+      "faisal_only_check" not in _fo_mods,
+      f"مستورَد؟ {sorted(_fo_mods & {'faisal_only_check'})}")
 
 # FO9 · بصمةُ الحوافّ المدفوعة = المُصرَّح بها في الحارس
 import envelope_bt as _fo_bt
@@ -15522,6 +15554,74 @@ check("🔴 HL3 مُنادًى **مرّتين** (مسارُ العيّنة ال�
       len(_hl_calls) == 2, f"عدد النداءات={len(_hl_calls)}")
 check("🌱 HL4 وعلى مستوى الوحدة (وإلّا استحال نداؤه قبل تعريفه في المسار القليل)",
       callable(getattr(S, "_hunter_ledger_block", None)))
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🥇 FAI — «معايير فيصل وحدها» (أمرُ المالك 2026-08-06)
+# ══════════════════════════════════════════════════════════════════════════════
+# «لازم نلتزم بمعايير فيصل فقط وهذي نجيبها عن طريق الكتالوج» ثم «ابن الحد الادنى
+# و اعتمد على بواباته فقط». التنفيذُ **إحلالُ أرقامه في مفاتيح بوّاباتنا** — بلا
+# تفريعِ فرزٍ ولا مسٍّ بـ`scan_market`/`analyze_ticker`.
+_fai_src = open("Super_stock.py", encoding="utf-8").read()
+check("🥇 FAI1b والافتراضُ في الكود = 1 (لا يُنسى مُطفأً)",
+      'os.environ.get("FAISAL_ONLY", "1")' in _fai_src)
+# ── الخريطة: من `CRITERIA` نفسِها لا مكتوبةً بيدي ─────────────────────────────
+_fai_edges = {"price": 1.65, "drop_pct": [89.5, 99.7], "best_spike": 98.9,
+              "base_range": 475.2, "dollar_vol": 39482.0, "rsi_min": 44.0,
+              "rsi_now": 48.9, "n_soft": 5.0, "readiness": 10.0,
+              "score": 35.0, "rr": 1.168}
+_fai_ov = S.faisal_only_overrides(_fai_edges)
+check("🥇 FAI2 الخريطةُ تُغطّي الأحد عشر ⇒ 12 مفتاحًا (‏`drop_pct` مفتاحان)",
+      len(_fai_ov) == 12 and _fai_ov.get("MIN_DROP_FLOOR") == 89.5
+      and _fai_ov.get("MAX_DROP_PCT") == 99.7, str(sorted(_fai_ov))[:110])
+# ⚠️ بـ`.get` لا بالفهرسة: خريطةٌ ناقصةٌ كانت ترمي `KeyError` **فتُسقط السويّة**
+#    وتكتم القفلَ الذي أمسك العيب فعلًا (‏FAI2). رابعُ وقوعٍ لهذا الصنف اليوم.
+check("🥇 FAI3 والأنواعُ مصونة: `WATCH_MAX_FAILS`/`SCORE_MIN` **صحيحان**",
+      isinstance(_fai_ov.get("WATCH_MAX_FAILS"), int) and _fai_ov.get("WATCH_MAX_FAILS") == 5
+      and isinstance(_fai_ov.get("SCORE_MIN"), int) and _fai_ov.get("SCORE_MIN") == 35,
+      f"{_fai_ov.get('WATCH_MAX_FAILS')!r} · {_fai_ov.get('SCORE_MIN')!r}")
+check("🥇 FAI4 معيارٌ غائب ⇒ يُتخطّى ولا يُخمَّن",
+      "MIN_PRICE" not in S.faisal_only_overrides({k: v for k, v in _fai_edges.items()
+                                                  if k != "price"})
+      and S.faisal_only_overrides({}) == {})
+check("🥇 FAI5 وحوافٌّ تالفة ⇒ تُتخطّى بلا انهيار",
+      S.faisal_only_overrides({"price": "س", "drop_pct": [1]}) == {})
+# ── الفشلُ الآمن **بصوتٍ عالٍ**: لا فرزَ بأرقامٍ مجهولة ولا صمت ────────────────
+_fai_msgs = []
+_fai_cfg = {"FAISAL_ONLY": 1}
+_fai_ev = __import__("envelope_scan")
+_fai_saved = _fai_ev.EDGES_FILE
+try:
+    _fai_ev.EDGES_FILE = "/proc/لا-يوجد/x.json"
+    _fai_res = S.apply_faisal_only(_fai_cfg, log_fn=_fai_msgs.append)
+finally:
+    _fai_ev.EDGES_FILE = _fai_saved
+check("🔒 FAI6 حوافٌّ غائبة ⇒ **لا تغيير** ويُبلَّغ صراحةً (لا صفرَ ترشيحٍ صامت)",
+      _fai_res == {} and _fai_cfg == {"FAISAL_ONLY": 1}
+      and any("بوّاباتُ البوت تبقى" in m for m in _fai_msgs), str(_fai_msgs)[:90])
+check("🔒 FAI7 ومُطفأً ⇒ لا تغيير ولا رسالة (السلوكُ السابق حرفيًّا)",
+      S.apply_faisal_only({"FAISAL_ONLY": 0}, log_fn=_fai_msgs.append) == {})
+# ── 🔴 الفارقُ **السلوكيّ**: التبديلُ يبدّل القرار فعلًا ───────────────────────
+_fai_c = dict(S.CONFIG)
+_fai_applied = S.apply_faisal_only(_fai_c, log_fn=lambda *_: None) \
+    if _fai_c.update({"FAISAL_ONLY": 1}) is None else {}
+check("🔴 FAI8 التبديلُ يبدّل الأرقام فعلًا: أرضيةُ الهبوط 40 ⟶ ‏≈89.6 (أشدّ)",
+      bool(_fai_applied) and S.CONFIG["MIN_DROP_FLOOR"] == 40.0
+      and _fai_c["MIN_DROP_FLOOR"] > 80,
+      f"بوت={S.CONFIG['MIN_DROP_FLOOR']} · فيصل={_fai_c.get('MIN_DROP_FLOOR')}")
+check("🔴 FAI9 وليس تخفيفًا بل **إعادةَ تشكيل**: أشدُّ في السعر/الهبوط/الانفجار "
+      "وأوسعُ في القاعدة/السيولة",
+      _fai_c["MIN_PRICE"] > S.CONFIG["MIN_PRICE"]                  # 1.65 > 1.5
+      and _fai_c["MIN_DROP_FLOOR"] > S.CONFIG["MIN_DROP_FLOOR"]    # 89.6 > 40
+      and _fai_c["BASE_RANGE_MAX_PCT"] > S.CONFIG["BASE_RANGE_MAX_PCT"]   # 475 > 40
+      and _fai_c["MIN_DOLLAR_VOL"] < S.CONFIG["MIN_DOLLAR_VOL"],   # 39K < 200K
+      f"سعر {S.CONFIG['MIN_PRICE']}⟶{_fai_c['MIN_PRICE']:.2f} · "
+      f"سيولة {S.CONFIG['MIN_DOLLAR_VOL']:.0f}⟶{_fai_c['MIN_DOLLAR_VOL']:.0f}")
+check("🔴 FAI10 والأرقامُ من **الملفّ المدفوع** لا من الكود (بصمةٌ مطابقة)",
+      abs(_fai_c["MIN_DOLLAR_VOL"]
+          - float(_json.load(open("envelope_p90.json",
+                                  encoding="utf-8"))["edges"]["dollar_vol"])) < 1e-6)
+check("🥇 FAI11 و`LOGIC_VERSION` يحمل الوسمَ (فيُعاد بناءُ القائمة تلقائيًّا)",
+      "faisalonly" in S.LOGIC_VERSION, S.LOGIC_VERSION[:40])
 
 # ── ⏳ تقريرُ «المسارات التي تحتاج وقتًا» (أمرُ المالك 2026-08-06) ────────────────
 try:                     # حرسٌ: انكسارُ الكتلة يجب أن يكون **فشلًا نظيفًا** لا انهيارًا
