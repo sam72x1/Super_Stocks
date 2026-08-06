@@ -3597,7 +3597,7 @@ check("🔬 §2e/P0-3 مدقّق: يرفض عند عدم بلوغ المسار �
       and _an_early["complete"] is False and any("ended_before_expected_close" in x for x in _an_early["incomplete_reasons"])
       and _an_exc["complete"] is False and any("termination" in x for x in _an_exc["incomplete_reasons"]))
 # ── 🔬 (ب+): مقطع (segment_complete) + دمج مقطعين → assembled (session_complete) ──
-def _e2_seg(sub, sd, role, sym, tbs, seg_end_off, close_off=-5, prev=None):
+def _e2_seg(sub, sd, role, sym, tbs, seg_end_off, close_off=-5, prev=None, post_bar=True):
     _now = S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)
     _r = _M.IgnitionMeasurementRecorder(sd, out_root=_os.path.join(_e2_out, sub), segment=role,
           meta={"expected_close_iso": (_now + S.dt.timedelta(minutes=close_off)).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -3614,8 +3614,12 @@ def _e2_seg(sub, sd, role, sym, tbs, seg_end_off, close_off=-5, prev=None):
     _r.trace("05_OPERATOR_MEASURED", {"symbol": sym, "operator_status": "measured", "has_operator": True,
              "nbbo_bid": 2.14, "nbbo_ask": 2.16, "quote_ts": int(_time_e2.time() * 1e9)})
     _r.trace("06_OPERATOR_PASS", {"symbol": sym}); _r.trace("11_ALERT_EMITTED", {"symbol": sym})
-    _r.trace("03_BARS_FETCH", {"symbol": sym, "bars_ok": True, "last_bar_t": tbs + 60000,
-             "bars": [{"o": 2, "h": 2.1, "l": 1.9, "c": 2.06, "v": 90, "t": tbs + 60000}]})
+    # ⚠️ `post_bar=True` (الافتراض) = بارٌ **بعد** التنبيه داخل المقطع — وهو ما **لا
+    #    يستطيعه الرادار حيًّا** (الدِدوب يقطع الجلب). يبقى افتراضًا لتوافق الفِكستشرات
+    #    القائمة، و`post_bar=False` هو المسار الإنتاجيّ الأمين (أقفال E2F أدناه).
+    if post_bar:
+        _r.trace("03_BARS_FETCH", {"symbol": sym, "bars_ok": True, "last_bar_t": tbs + 60000,
+                 "bars": [{"o": 2, "h": 2.1, "l": 1.9, "c": 2.06, "v": 90, "t": tbs + 60000}]})
     _r.telegram_attempt([({"symbol": sym},)]); _r.telegram_success([({"symbol": sym},)])
     _r.loop_end()
     _r.finalize("normal")
@@ -3639,6 +3643,73 @@ check("🔬 (ب+) مدقّق: المقطع ⇒ segment_complete (لا session_co
       and _asm_summ["n_symbols"] == 2 and _r_asm["n_emitted"] == 2)
 check("🔬 (ب+) دمج: candidates المقطعين مدموجة بلا ازدواج + backfill بلغ الإغلاق (success)",
       _r_asm["n_candidates"] == 2 and _r_asm["incomplete_reasons"] == [])
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🔴 E2F — بوّابةٌ كانت **غيرَ قابلةٍ للاستيفاء** كلَّما وُجد ما يُقاس (2026-08-06)
+# ══════════════════════════════════════════════════════════════════════════════
+# الفِكستشر أعلاه (`post_bar=True`) يسجّل بارًا **بعد** التنبيه داخل المقطع — والرادار
+# الحيّ **لا يستطيع ذلك**: الدِدوب في `scan_ignition` يقع **قبل** جلب الشموع، فبعد أوّل
+# تنبيهٍ لرمزٍ لا يُجلَب له بارٌ آخر ذلك اليوم. ⇒ كانت السويّة خضراء والبوّابة الحيّة
+# حمراء منذ 07-30، والارتباط في السجلّ المدفوع قاطع: `n_emitted > 0` ⟺ أحمر.
+# 🧭 وهو صنفُ «الاختبار ينجح ونقطة الاستعمال الحيّة مكسورة» — والفِكستشر هنا هو الكاذب.
+_f_now_ms = int(S.dt.datetime.now(S.dt.timezone.utc).timestamp() * 1000)
+_f_close_ms = int((S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)
+                   - S.dt.timedelta(minutes=5)).timestamp() * 1000)
+_f_bf = lambda s: [{"o": 2, "h": 2.1, "l": 2, "c": 2.05, "v": 10,
+                    "t": _f_close_ms - 60000 * k} for k in (3, 2, 1)]
+
+
+def _e2_faithful(sub, bf, close_seg_end=+5):
+    """جلسةٌ **أمينةٌ للإنتاج**: بلا بارٍ بعد التنبيه في أيّ مقطع. يرجّع حكم المدقّق."""
+    _o = _e2_seg(sub, "2026-07-25", "open", "IGN", _f_now_ms - 3600_000,
+                 seg_end_off=-90, post_bar=False)
+    _e2_seg(sub, "2026-07-25", "close", "BBB", _f_now_ms - 600_000,
+            seg_end_off=close_seg_end, prev=_o.manifest_sha256, post_bar=False)
+    _ASM.assemble("2026-07-25", root=_os.path.join(_e2_out, sub),
+                  write_repo_index=False, fetch_bars=bf)
+    return _A.analyze_session(_os.path.join(_e2_out, sub, "session_2026-07-25"))
+
+
+_f_ok = _e2_faithful("segF_ok", _f_bf)
+check("🔴 E2F1 جلسةٌ أمينةٌ للإنتاج (بلا بارٍ بعد التنبيه) ⇒ session_complete",
+      _f_ok["session_complete"] is True, str(_f_ok["incomplete_reasons"]))
+check("🔴 E2F2 والتأجيلُ **مُعلَنٌ** لا صامت (يُذكر المقطع والسبب)",
+      any("lost_post_alert_path" in x and x.startswith("open:")
+          for x in (_f_ok.get("deferred_reasons") or [])),
+      str(_f_ok.get("deferred_reasons")))
+# ── شاهدا ضبط: الجوهر ما زال يَرفض (وإلّا صار الإصلاح تخفيفًا صامتًا) ────────────
+_f_nobf = _e2_faithful("segF_nobf", None)                   # الردمُ لم يُنفَّذ إطلاقًا
+check("🔴 E2F3 شاهدُ ضبط: بلا ردمٍ ⇒ تُرفَض بـ`path_not_reaching_close`",
+      _f_nobf["session_complete"] is False
+      and any("path_not_reaching_close" in x for x in _f_nobf["incomplete_reasons"]),
+      str(_f_nobf["incomplete_reasons"]))
+_f_short = _e2_faithful("segF_short", lambda s: [{"o": 2, "h": 2.1, "l": 2, "c": 2.05, "v": 10,
+                                                  "t": _f_close_ms - 60000 * 200}])
+check("🔴 E2F4 شاهدُ ضبط: ردمٌ قصُر عن الإغلاق ⇒ تُرفَض أيضًا",
+      _f_short["session_complete"] is False
+      and any("path_not_reaching_close" in x for x in _f_short["incomplete_reasons"]),
+      str(_f_short["incomplete_reasons"]))
+# ── والفلترُ **ضيّق**: سببُ مقطعٍ آخر ما زال يَرفض (لم يُعطَّل `segment_incomplete`) ──
+_f_wnd = _e2_faithful("segF_wnd", _f_bf, close_seg_end=+120)   # نافذةُ close غير مغطّاة
+check("🔴 E2F5 والفلترُ ضيّق: سببُ مقطعٍ **غيرُ مؤجَّل** ما زال يَرفض",
+      _f_wnd["session_complete"] is False
+      and any(x.startswith("segment_incomplete(close:") for x in _f_wnd["incomplete_reasons"]),
+      str(_f_wnd["incomplete_reasons"]))
+# 🔒 والمبرّرُ نفسُه مقفولٌ **بنيويًّا**: الدِدوب **قبل** جلب الشموع في `scan_ignition`.
+#    لو نُقل بعدَه يومًا صار البارُ اللاحق ممكنًا فيسقط مبرّرُ التأجيل — فيسقط هذا القفل.
+import ast as _f_ast
+_f_fn = next(n for n in _f_ast.walk(_f_ast.parse(open("Super_stock.py", encoding="utf-8").read()))
+             if isinstance(n, _f_ast.FunctionDef) and n.name == "scan_ignition")
+_f_dedup_ln = min([n.lineno for n in _f_ast.walk(_f_fn)
+                   if isinstance(n, _f_ast.Constant) and n.value == "ignition_alert"] or [10**9])
+_f_fetch_ln = min([n.lineno for n in _f_ast.walk(_f_fn)
+                   if isinstance(n, _f_ast.Call) and getattr(n.func, "id", None) == "fb"] or [-1])
+check("🔒 E2F6 مبرّرُ التأجيل قائم: الدِدوب **يسبق** جلب الشموع في `scan_ignition` (AST)",
+      _f_dedup_ln < _f_fetch_ln and _f_fetch_ln > 0,
+      f"dedup@{_f_dedup_ln} · fb()@{_f_fetch_ln}")
+check("🔒 E2F7 وقائمةُ التأجيل **واحدة** ولا تتمدّد بلا قصد",
+      _A.DEFERRED_TO_ASSEMBLER == ("lost_post_alert_path",),
+      str(_A.DEFERRED_TO_ASSEMBLER))
 # ── 🔬 P0-1/P1.3: NBBO قياسي **لا-تزامني** (worker) خارج مسار التنبيه + measurement مفضَّل ──
 _p13_fresh = int(_time_e2.time() * 1e9)
 _p13_stale = int((_time_e2.time() - 100) * 1e9)

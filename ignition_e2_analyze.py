@@ -34,6 +34,32 @@ SS_REQUIRED = ["symbol", "active_polls", "bars_attempted", "bars_ok", "coverage_
 # حدود جودة البيانات لأهلية recall (SPEC §7) — **ليست عتبات تداول** (الثلاثة تُطبَّق في المسجّل).
 RECALL_MIN_POLLS, RECALL_MIN_COVERAGE, RECALL_MIN_EXPOSURE_MIN = 20, 0.80, 60
 
+# 🔴 **أسبابٌ مؤجَّلةٌ بالتصميم إلى الـassembler** (إصلاح 2026-08-06 — عطلٌ مقيس):
+#
+# `lost_post_alert_path` يشترط بارَ دقيقةٍ **بعد** شمعة الزناد داخل ملفّات المقطع نفسه.
+# وهذا **مستحيلٌ بنيويًّا** في الإنتاج: دِدوب الرادار (`Super_stock.py:11554` —
+# `if s.get("ignition_alert") == today_iso: continue`) يقع **قبل** `fb(s["symbol"])`،
+# فبعد أوّل تنبيهٍ لرمزٍ لا يُجلَب له بارٌ آخر ذلك اليوم ⇒ لا بارَ بعد الزناد في المقطع.
+# وهذا **سببُ وجود `backfill_emitted`** حرفيًّا بنصّ docstring‌ها: «الرادار يتوقّف عن جلب
+# شموع السهم بعد التنبيه (دِدوب) فتُفقَد الحركة اللاحقة» — و`P0-2` يفرض أن يُنادى
+# **بعد الإغلاق من الـassembler حصريًّا**، والـassembler يكتب في **جذر الجلسة** لا في
+# مجلّدات المقاطع ⇒ **لا سبيلَ لأيّ ردمٍ أن يُرضي هذا الشرط على مستوى المقطع.**
+#
+# ⇒ الأثر المقيس: **كلُّ جلسةٍ أطلقت تنبيهًا كانت تُرفَض** — والارتباط في السجلّ المدفوع
+# قاطع: `n_emitted > 0` ⟺ أحمر · `n_emitted == 0` ⟺ أخضر (16 جلسة، 07-15→08-05) ⇒
+# `session_complete=0` ليس ندرةَ بياناتٍ بل **بوّابةً غيرَ قابلةٍ للاستيفاء عند وجود
+# البيانات التي بُنيت لقياسها**.
+#
+# 🔒 **ولا يُفقَد تدقيقٌ واحد:** الجوهر يحرسه على مستوى الجلسة `path_not_reaching_close`
+# الذي يقرأ **البيانات المدموجة بعد الردم** — فلو فشل الردم (بلا مفتاح · خطأ شبكة ·
+# `backfill_status=empty/error`) لم يبلغ المسارُ الإغلاقَ فتُرفَض الجلسة. أي أن الشرط
+# **انتقل إلى موضعه الصحيح** ولم يُلغَ. وباقي أسباب المقطع (تغطية النافذة · بدء
+# الافتتاح · الدورات · الـschema · الطوابع) تبقى **رافضة** كما هي.
+#
+# ⚠️ ولا تُوسَّع هذي القائمة إلا لسببٍ **مستحيل الاستيفاء بنيويًّا** ويحرسه بديلٌ أقوى
+# على مستوى الجلسة — وإلّا صارت بابًا لتخفيفٍ صامت.
+DEFERRED_TO_ASSEMBLER = ("lost_post_alert_path",)
+
 
 def _read_jsonl(path):
     if not os.path.exists(path):
@@ -128,6 +154,7 @@ def analyze_session(sdir):
 
     # ── أسباب عدم الاكتمال (data-integrity فقط، لا حكم عتبات) ──────────────────
     reasons = []
+    deferred = []      # أسبابُ مقاطعَ مؤجَّلةٌ للـassembler — تُعلَن ولا تَرفض (لا صمت)
     term = sess.get("termination")
     if term != "normal":
         reasons.append(f"termination={term}")
@@ -200,9 +227,15 @@ def analyze_session(sdir):
                 _segdir = os.path.join(sdir, "segment_%s" % _role)
                 if os.path.isdir(_segdir):
                     _sr = analyze_session(_segdir)
-                    if not _sr.get("segment_complete"):
-                        reasons.append("segment_incomplete(%s:%s)"
-                                       % (_role, "|".join(_sr.get("incomplete_reasons", []))[:80]))
+                    # 🔴 2026-08-06: يُفصَل الرافضُ عن **المؤجَّل بالتصميم** (انظر
+                    #    `DEFERRED_TO_ASSEMBLER` أعلاه). المؤجَّل يُعلَن ولا يَرفض.
+                    _block, _defer = [], []
+                    for _x in (_sr.get("incomplete_reasons") or []):
+                        (_defer if _x.startswith(DEFERRED_TO_ASSEMBLER) else _block).append(_x)
+                    if _defer:
+                        deferred.append("%s:%s" % (_role, "|".join(_defer)))
+                    if _block:
+                        reasons.append("segment_incomplete(%s:%s)" % (_role, "|".join(_block)[:80]))
             # 🔬 P0-3: فجوة الانتقال ضمن الحدّ المقفول.
             _gap, _gmax = sess.get("transition_gap_ms"), sess.get("max_transition_gap_min")
             if _gap is not None and _gmax and _gap > _gmax * 60_000:
@@ -226,6 +259,9 @@ def analyze_session(sdir):
         "candidates_with_timestamps": with_ts, "candidates_with_gate_decision": with_gate,
         "alert_logic_version": sess.get("alert_logic_version"),
         "incomplete_reasons": reasons,
+        # 🔴 أسبابُ مقاطعَ **مؤجَّلةٌ للـassembler** (لا تَرفض) — تُطبَع صراحةً فلا يكون
+        #    التأجيلُ تخفيفًا صامتًا، ويبقى مرئيًّا أن الشرط قِيس ومَن يحرسه.
+        "deferred_reasons": deferred,
         # segment → segment_complete · session → session_complete
         "segment_complete": (complete if kind == "segment" else None),
         "session_complete": (complete if is_session else None),
@@ -270,6 +306,9 @@ def main():
         if r["ended_before_expected_close"]:
             print(f"    ⚠️ انتهت قبل الإغلاق المتوقّع بـ{r['minutes_short_of_close']} د "
                   f"(قيد سقف رنر GitHub — تغطية جزئية صريحة).")
+        if r.get("deferred_reasons"):
+            print("    ℹ️ مؤجَّلٌ للـassembler (لا يَرفض · يحرسه `path_not_reaching_close`): "
+                  + " · ".join(r["deferred_reasons"]))
         _label = "segment_complete" if r["kind"] == "segment" else "session_complete"
         verdict = ("✅ %s" % _label) if r["complete"] else ("⚠️ غير مكتملة: " + " · ".join(r["incomplete_reasons"]))
         print(f"    منطق التنبيه: {r['alert_logic_version']} · الحكم: {verdict}")
