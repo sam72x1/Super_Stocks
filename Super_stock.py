@@ -9418,16 +9418,43 @@ def build_reject_snapshot(reasons: dict, today: str,
     🔒 **دالّة نقيّة** (بلا ملفّات ولا وقت) · مُجمَّعةٌ بالجدار فتصغُر · **والقصّ
     يُعلَن بعدّاده** (`cut`) فلا يُقرأ الناقصُ كاملًا.
     ⚠️ **وممنوعٌ فيها أيُّ حقلٍ من `enrich`** — `enrich` يُنفَّذ **بعد**
-    `select_top` فحقولُه تسريبٌ صريح لأيّ نموذجٍ يقرأ هذا السجلّ لاحقًا."""
-    walls, cut = {}, 0
-    for sym, code in sorted((reasons or {}).items()):
-        key = _reject_key_base(code)
-        bucket = walls.setdefault(key, [])
-        if len(bucket) < int(cap):
-            bucket.append(str(sym))
-        else:
-            cut += 1
-    return {"date": today, "walls": walls, "n": len(reasons or {}), "cut": cut}
+    `select_top` فحقولُه تسريبٌ صريح لأيّ نموذجٍ يقرأ هذا السجلّ لاحقًا.
+
+    🔴 **إصلاحان بعد قياس أوّل يومٍ حيّ (2026-08-06) — والعيب كان في أداة القياس:**
+
+    ① **القصُّ كان أبجديًّا** (`sorted(...)` ثم أوّل `cap`) ⇒ الجدارُ المسقوف يحتفظ
+    بشريحةٍ من أوّل الأبجدية حصرًا. مقيسٌ في `reject_log.json` ليوم 08-06: الجدارُ
+    غيرُ المسقوف `M5_سيولة` يمتدّ `AAME→ZOOZ` بينما `M2_هبوط_تحت_40` **يقف عند
+    `COKE`** — أي أنه يحتفظ بـ**A–C وحدها**. ⇒ سؤالُ الحصاد الأماميّ («أيُّ سهمٍ
+    رفضناه ثم انفجر؟») كان **أعمى بنيويًّا عن D–Z** في أكبر جدار، **وهو انحيازٌ
+    منهجيّ لا عيّنةٌ عشوائية** — في المصدر الوحيد الباقي غير المُنقَّب.
+    ⇒ صار الاختيارُ **عيّنةً حتميّةً موحّدة** بـ`sha256("تاريخ:رمز")` — نفسُ نمط
+    `control_panel` المعتمَد في المستودع (سابقةٌ لا اختراع): كلُّ يومٍ عيّنةٌ غيرُ
+    منحازة، وعبر النافذة تتّسع التغطية، والنتيجة **قابلةٌ لإعادة الإنتاج بالضبط**.
+
+    ② **الأعدادُ صارت دقيقةً دائمًا** (`walls_n`) حتى حين تُسقَف القائمة — فقبلها
+    كان جداران عند 400 بالضبط ⇒ **يستحيل ترتيبُهما** من الملفّ. والآن التوزيعُ
+    كاملٌ ومعه `sampled` يسمّي الجدرانَ التي قائمتُها **عيّنة** لا حصر."""
+    import hashlib as _hl
+    buckets = {}
+    for sym, code in (reasons or {}).items():
+        buckets.setdefault(_reject_key_base(code), []).append(str(sym))
+    walls, cut, sampled = {}, 0, []
+    cap = int(cap)
+    for key, syms in buckets.items():
+        if len(syms) <= cap:
+            walls[key] = sorted(syms)
+            continue
+        # عيّنةٌ حتميّةٌ موحّدة (لا أبجدية): الترتيب ببصمة «تاريخ:رمز» ثم أوّل cap.
+        keep = sorted(syms, key=lambda s: _hl.sha256(
+            ("%s:%s" % (today, s)).encode("utf-8")).hexdigest())[:cap]
+        walls[key] = sorted(keep)
+        cut += len(syms) - cap
+        sampled.append(key)
+    return {"date": today, "walls": walls,
+            "walls_n": {k: len(v) for k, v in buckets.items()},   # ② العدد الدقيق دائمًا
+            "sampled": sorted(sampled),                            # ① أيُّ قائمةٍ عيّنة
+            "n": len(reasons or {}), "cut": cut}
 
 
 def record_rejected_symbols(reasons: dict = None, path: str = None,

@@ -14242,6 +14242,29 @@ check("🗂️ REJ🔒 القصّ **يُعلَن بعدّاده** — لا قص�
       S.build_reject_snapshot({f"S{i}": "M4_base_واسعة" for i in range(500)},
                               "d", cap=400)["cut"] == 100
       and _rl_snap["cut"] == 0)
+# 🔴 RS — العيّنةُ **غيرُ منحازة** والأعدادُ **دقيقةٌ** حتى عند السقف (2026-08-06).
+#    العيبُ المقيس: القصُّ الأبجديّ جعل `M2_هبوط_تحت_40` يقف عند `COKE` (A–C وحدها)
+#    بينما الجدارُ غيرُ المسقوف يمتدّ `AAME→ZOOZ` — انحيازٌ منهجيّ في الشاهد الأماميّ.
+_rs_syms = {("SYM%03d" % i): "M1_سعر" for i in range(1200)}
+_rs = S.build_reject_snapshot(_rs_syms, "2026-08-06", cap=400)
+_rs_kept = _rs["walls"]["M1_سعر"]
+check("🔴 RS1 العدد **دقيقٌ** حتى عند السقف (`walls_n`) ⇒ الترتيبُ ممكن",
+      _rs["walls_n"]["M1_سعر"] == 1200 and len(_rs_kept) == 400 and _rs["cut"] == 800,
+      f"n={_rs['walls_n']['M1_سعر']} · kept={len(_rs_kept)} · cut={_rs['cut']}")
+check("🔴 RS2 والقائمةُ المسقوفة **تُوسَم عيّنةً** (لا تُقرأ حصرًا)",
+      _rs["sampled"] == ["M1_سعر"], str(_rs["sampled"]))
+# 🔬 المميِّز: العيّنة تمسح المدى كلَّه — القصُّ الأبجديّ كان سيقف عند SYM399.
+check("🔴 RS3 العيّنةُ **غيرُ منحازةٍ أبجديًّا** (تبلغ آخر المدى لا أوّله)",
+      _rs_kept[-1] > "SYM399" and _rs_kept[0] < "SYM800",
+      f"أول={_rs_kept[0]} · آخر={_rs_kept[-1]}")
+# التوزيع على الأثلاث ≈ متساوٍ (عيّنةٌ موحّدة) — الأبجديُّ يعطي 400/0/0.
+_rs_th = [sum(1 for s in _rs_kept if lo <= int(s[3:]) < hi) for lo, hi in ((0, 400), (400, 800), (800, 1200))]
+check("🔴 RS4 وموزَّعةٌ على الأثلاث الثلاثة (الأبجديُّ كان 400/0/0)",
+      all(80 < t < 220 for t in _rs_th), str(_rs_th))
+check("🔴 RS5 وحتميّةٌ قابلةٌ لإعادة الإنتاج (نفس اليوم ⇒ نفس العيّنة)",
+      S.build_reject_snapshot(_rs_syms, "2026-08-06", cap=400)["walls"]["M1_سعر"] == _rs_kept)
+check("🔴 RS6 ويومٌ آخر ⇒ عيّنةٌ أخرى (تتّسع التغطية عبر النافذة)",
+      S.build_reject_snapshot(_rs_syms, "2026-08-07", cap=400)["walls"]["M1_سعر"] != _rs_kept)
 check("🗂️ REJ🔒 الأسباب الحاملة لرقمٍ تُوحَّد بالقاعدة (مقامٌ لا يتفتّت)",
       S.build_reject_snapshot({"A": "بعيد_عن_الدخول(45%)",
                                "B": "بعيد_عن_الدخول(12%)"}, "d")["n"] == 2
@@ -14319,8 +14342,18 @@ def _rl_saved():
 check("🗂️ REJ🔒 الملفّ ضمن وسائط `git_save` وإلّا ضاع مع الرنر (قفل AST)",
       _rl_saved())
 # 🔒 وممنوعٌ أيُّ حقلٍ من enrich (تسريب: enrich بعد select_top)
+#    ➕ `walls_n`/`sampled` (2026-08-06): **أعدادٌ وأسماءُ جدران** — لا حقلَ إثراءٍ فيهما
+#    (الأول عددُ الرموز لكل جدار، والثاني أسماءُ الجدران المسقوفة). القائمةُ تبقى **حصرًا**.
 check("🗂️ REJ🔒 لا حقلَ إثراءٍ في اللقطة (تسريبٌ لأيّ نموذجٍ لاحق)",
-      set(_rl_snap.keys()) == {"date", "walls", "n", "cut"})
+      set(_rl_snap.keys()) == {"date", "walls", "walls_n", "sampled", "n", "cut"},
+      str(sorted(_rl_snap.keys())))
+# 🔒 وأعمقُ من الحصر: لا اسمَ حقلِ إثراءٍ في **المحتوى كلِّه** (لا المفاتيح وحدها).
+_rl_blob = _json.dumps(S.build_reject_snapshot(
+    {"AAA": "M4_base_واسعة", "BBB": "M5_سيولة"}, "2026-08-05"), ensure_ascii=False)
+check("🗂️ REJ🔒 ولا اسمَ حقلِ إثراءٍ في المحتوى كلِّه (أعمقُ من حصر المفاتيح)",
+      not any(f in _rl_blob for f in ("borrow", "shares_available", "float", "short_pct",
+                                      "h4_confirm", "behav", "rotation_pct", "interp",
+                                      "finra_short", "sector", "country")), _rl_blob[:90])
 
 
 # 🔒 **والمسار المؤقّت يعمل فعلًا**: المسار اليوميّ يُشغَّل، والكتابةُ تقع في
