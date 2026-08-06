@@ -74,6 +74,67 @@ def rank_rr(c: Candidate):
     return (-c.rr, c.seq)
 
 
+# ── 🥇⑦ T-RANKER-TIE: كاسرُ التعادل (‏`ranker_tie_prereg.md`) ──────────────────
+# **الموضعُ مقيس:** على جلسةٍ حيّة كان **‏16 سهمًا متعادلين عند جاهزية 70** والسعة 10
+# ⇒ **‏10 من 10 خاناتٍ يحكمها التعادل**. والفاصلُ اليوم `score` ثم `rr` — ولم يُختبَرا.
+def env_depth(vals: dict, edges: dict, sides: dict, min_criteria: int = 6):
+    """📐 عمقُ السهم **داخل ظرف فيصل** — دالّةٌ نقيّة (‏§② من التسجيل المسبق).
+
+    لكلّ معيار: موقعُه داخل الحدّ مُطبَّعًا إلى `[0,1]` — `lo` أرضيةٌ (الأبعدُ فوقها
+    أعمق) · `hi` سقفٌ (الأبعدُ تحته أعمق) · `both` نطاقٌ (الأقربُ إلى منتصفه أعمق).
+    ثم **الوسيط**. معيارٌ غائبٌ/تالف **يُتخطّى ولا يُخمَّن**، وأقلُّ من `min_criteria`
+    متاحًا ⇒ `None` (**امتناع**: يبقى السهمُ بترتيبه الحاليّ).
+    🔒 **صفرُ ثابتٍ من عندنا** — كلُّ رقمٍ من حوافّ فيصل المُعايَرة من أسهمه."""
+    ds = []
+    for name, side in (sides or {}).items():
+        e = (edges or {}).get(name)
+        v = (vals or {}).get(name)
+        if e is None or v is None:
+            continue
+        try:
+            if side == "both":
+                lo, hi = float(e[0]), float(e[1])
+                if not hi > lo:
+                    continue
+                mid, half = (lo + hi) / 2.0, (hi - lo) / 2.0
+                ds.append(max(0.0, 1.0 - abs(float(v) - mid) / half))
+            else:
+                b = float(e)
+                if b <= 0:
+                    continue
+                raw = (float(v) - b) if side == "lo" else (b - float(v))
+                ds.append(min(1.0, max(0.0, raw / abs(b))))
+        except (TypeError, ValueError, IndexError):
+            continue
+    if len(ds) < int(min_criteria):
+        return None
+    ds.sort()
+    n = len(ds)
+    return ds[n // 2] if n % 2 else (ds[n // 2 - 1] + ds[n // 2]) / 2.0
+
+
+def rank_tie_env(c: Candidate):
+    """`R-ENV` — الجاهزيةُ كما هي، **ثم الأعمقُ داخل ظرف فيصل**، ثم `seq`.
+    🔒 كاسرُ تعادلٍ **حصرًا**: المفتاحُ الأوّل لم يُمَسّ ⇒ لا يُعاد ترتيبُ من
+    يختلفون في الجاهزية، ولا تُمَسّ العضوية. والامتناعُ (`None`) يُنزِله لآخر
+    المتعادلين بدل أن يُخمَّن له عمق."""
+    rdy = c.readiness
+    d = c.payload.get("env_depth")
+    return (-(rdy if rdy is not None else -1.0),
+            -(d if isinstance(d, (int, float)) else -1.0), c.seq)
+
+
+def make_rank_tie_random(seed: int) -> Callable[[Candidate], tuple]:
+    """`R-RAND` — **شاهدُ الضبط الحاسم**: الجاهزيةُ كما هي ثم **كسرُ تعادلٍ عشوائيّ
+    حتميّ**. إن لم يتفوّق `R-ENV` عليه فهو زينة (‏§⑤ من التسجيل)."""
+    def _key(c: Candidate):
+        rdy = c.readiness
+        h = hashlib.sha256(f"{seed}|tie|{c.session}|{c.symbol}".encode()).digest()
+        return (-(rdy if rdy is not None else -1.0),
+                int.from_bytes(h[:8], "big"), c.seq)
+    return _key
+
+
 def make_rank_random(seed: int) -> Callable[[Candidate], tuple]:
     """R2 — عشوائيّ **حتميّ** بالبذرة: ترتيبٌ ثابتٌ لكل (بذرة، رمز، جلسة).
     يُبنى بالتجزئة لا بمولّدٍ عام ⇒ **قابل لإعادة الإنتاج** ومستقلٌّ عن ترتيب النداء."""

@@ -15598,6 +15598,63 @@ check("🔒 CL2c وقيمةٌ مجهولة ⇒ ترتيبُ `cliff` (لا سلو
 check("🔒 CL2d و`scan_split_hunter` **لا تعرف** المفتاح (الشروطُ الخمسة لم تُمَسّ)",
       "SPLIT_RADAR_ORDER" not in _insp0.getsource(S.scan_split_hunter))
 
+# ── 🥇⑦ T-RANKER-TIE: كاسرُ التعادل (`ranker_tie_prereg.md`) ────────────────────
+# الموضعُ مقيس: 16 سهمًا متعادلين عند جاهزية 70 والسعة 10 ⇒ **10 من 10 خاناتٍ يحكمها
+# التعادل**. والفاصلُ اليوم `score` ثم `rr` — ولم يُختبَرا كاسرَي تعادلٍ قطّ.
+import replay10 as _RT                                            # noqa: E402
+import catalog_envelope as _RTCE                                  # noqa: E402
+_rt_edges = _json.load(open("envelope_p90.json", encoding="utf-8"))["edges"]
+_rt_sides = {x[0]: x[1] for x in _RTCE.CRITERIA}
+check("📐 RT1 `env_depth` نقيّةٌ وتُرجع وسيطًا في [0,1]",
+      0.0 <= (_RT.env_depth({"price": 3.0, "drop_pct": [0, 0], "best_spike": 200.0,
+                             "base_range": 100.0, "dollar_vol": 1e6, "rsi_min": 20.0,
+                             "rsi_now": 20.0, "n_soft": 1, "readiness": 60,
+                             "score": 90, "rr": 5.0}, _rt_edges, _rt_sides) or -1) <= 1.0)
+# ⚠️ بحرسٍ حول النداء: كسرُ الحدّ يُفرغ القائمةَ فيرمي `IndexError` **فيُسقط السويّة**
+#    ويكتم القفلَ الذي أمسك العيب — خامسُ وقوعٍ لهذا الصنف اليوم.
+def _rt_d(vals, edges=None):
+    try:
+        return _RT.env_depth(vals, _rt_edges if edges is None else edges, _rt_sides)
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+check("📐 RT2 معيارٌ غائبٌ يُتخطّى · وأقلُّ من الحدّ ⇒ **امتناع** (None) لا تخمين",
+      _rt_d({"price": 3.0}) is None and _rt_d({}) is None,
+      f"{_rt_d({'price': 3.0})!r} · {_rt_d({})!r}")
+check("📐 RT3 وقيمٌ تالفة تُتخطّى بلا انهيار",
+      _rt_d({"price": "س", "score": None, "rr": [1]}) is None)
+check("📐 RT4 وحوافٌّ فارغة ⇒ امتناعٌ لا قبولٌ شامل (فاشلٌ-مغلق هنا عمدًا)",
+      _rt_d({"price": 3.0, "score": 90}, edges={}) is None)
+# 🔴 المميِّز: كاسرُ التعادل **يبدّل الترتيب داخل التعادل ولا يمسّ من يختلفون**
+_rt_c = [_RT.Candidate(symbol="A", session=0, readiness=70, score=90, rr=2.0, seq=0,
+                       payload={"env_depth": 0.2}),
+         _RT.Candidate(symbol="B", session=0, readiness=70, score=80, rr=1.0, seq=1,
+                       payload={"env_depth": 0.9}),
+         _RT.Candidate(symbol="C", session=0, readiness=60, score=100, rr=9.0, seq=2,
+                       payload={"env_depth": 1.0})]
+_rt_prod = [x.symbol for x in sorted(_rt_c, key=_RT.rank_actual)]
+_rt_env = [x.symbol for x in sorted(_rt_c, key=_RT.rank_tie_env)]
+check("🔴 RT5 داخل التعادل يتبدّل الترتيب (A→B) · ومن يختلف في الجاهزية **لا يُمَسّ**",
+      _rt_prod == ["A", "B", "C"] and _rt_env == ["B", "A", "C"],
+      f"إنتاج={_rt_prod} · R-ENV={_rt_env}")
+check("🔒 RT6 والامتناعُ يُنزِله لآخر المتعادلين (لا يُخمَّن له عمق)",
+      [x.symbol for x in sorted(
+          [_RT.Candidate(symbol="N", session=0, readiness=70, seq=0, payload={}),
+           _RT.Candidate(symbol="D", session=0, readiness=70, seq=1,
+                         payload={"env_depth": 0.1})], key=_RT.rank_tie_env)] == ["D", "N"])
+# 🔒 شاهدُ الضبط: كاسرُ تعادلٍ عشوائيٌّ **حتميّ** ويحترم الجاهزية
+_rt_r1 = [x.symbol for x in sorted(_rt_c, key=_RT.make_rank_tie_random(7))]
+check("🔒 RT7 `R-RAND` حتميٌّ بالبذرة · ويُبقي الجاهزيةَ مفتاحًا أوّلًا",
+      _rt_r1 == [x.symbol for x in sorted(_rt_c, key=_RT.make_rank_tie_random(7))]
+      and _rt_r1[-1] == "C", str(_rt_r1))
+check("🔒 RT8 وبذرةٌ أخرى تُغيّر ترتيبَ المتعادلَين (لا ثابتٌ متنكّر)",
+      any([x.symbol for x in sorted(_rt_c, key=_RT.make_rank_tie_random(sd))][:2]
+          != _rt_r1[:2] for sd in range(1, 40)))
+# 🔒 والأذرعُ **معزولةٌ عن الإنتاج** كبقيّة `replay10`
+check("🔒 RT9 كاسرُ التعادل خارج `Super_stock` (بحثٌ لا إنتاج)",
+      "rank_tie_env" not in open("Super_stock.py", encoding="utf-8").read())
+
 # ══════════════════════════════════════════════════════════════════════════════
 # 🥇 FAI — «معايير فيصل وحدها» (أمرُ المالك 2026-08-06)
 # ══════════════════════════════════════════════════════════════════════════════
