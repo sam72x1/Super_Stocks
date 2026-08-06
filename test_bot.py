@@ -15181,6 +15181,28 @@ check("🔒 C25-4 ولكلّ مستبعَدٍ سببٌ مكتوب (لا استب
       all(str(v).strip() for v in _fo_ce.EXCLUDED_BY_OWNER.values()),
       f"{[k for k, v in _fo_ce.EXCLUDED_BY_OWNER.items() if not str(v).strip()]}")
 
+# ── 🔗 `_dedup_closed` يدمج ولا يُسقط (عيبٌ مقيس 2026-08-06) ─────────────────
+_dd_a = {"symbol": "Q", "entry_ref": 1.0, "added": "2026-07-01", "gain": 5.0}
+_dd_b = {"symbol": "Q", "entry_ref": 1.0, "added": "2026-07-01", "gain": 9.9,
+         "mg_obs_pct": 42.0, "t1": 1.2, "ref_bar": "2026-06-30"}
+_dd = S._dedup_closed([dict(_dd_a), dict(_dd_b)])
+check("🔗 DD1 التصادمُ يُدمَج: الحقولُ الغائبة تُملأ من المرميّ",
+      len(_dd) == 1 and _dd[0].get("mg_obs_pct") == 42.0
+      and _dd[0].get("t1") == 1.2 and _dd[0].get("ref_bar") == "2026-06-30",
+      f"{_dd}")
+# 🔒 شاهدُ ضبط: القيمةُ الموجودة **لا تُدهَس** (الأوّل يبقى مرجعًا)
+check("🔗 DD2 ولا تُدهَس قيمةٌ موجودة (الأوّل مرجعٌ لا مُستبدَل)",
+      _dd[0].get("gain") == 5.0, f"gain={_dd[0].get('gain')}")
+check("🔗 DD3 وصفٌّ فريدٌ يمرّ كما هو (القفلُ ليس دمجًا شاملًا)",
+      len(S._dedup_closed([dict(_dd_a),
+                           dict(_dd_b, added="2026-07-09")])) == 2,
+      "صفّان مختلفا `added`")
+
+# ── 🩺 تغطيةُ M13/M14 مرئيّةٌ في لوحة الجمع ──────────────────────────────────
+_ch = "\n".join(S._collection_health_block())
+check("🩺 CV1 لوحةُ الجمع تُظهر تغطيةَ M13 وM14",
+      "تغطيةُ M13" in _ch and "M14" in _ch, _ch.split("\n")[1][:110])
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

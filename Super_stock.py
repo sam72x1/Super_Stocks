@@ -11900,6 +11900,21 @@ def _collection_health_block() -> list:
     نظنّه يجمع وهو واقف). module-level (لا nested) لتُستدعى في مسارَي العيّنة القليلة/الكافية معًا.
     **عرض/تذكير فقط · فاشل-آمن مطلق لكل سطر · خارج الفرز.**"""
     lines = ["\n🩺 <b>حالة جمع بيانات المضارب</b> (تُتراكم للأمام — لا تُنسى):"]
+    # 🔴 **أُضيف 2026-08-06 (عيبٌ صامتٌ مقيس):** شورت FINRA كان معلومًا لـ**صفر من 18**
+    #    في القائمة الحيّة ⇒ **بوّابةُ M13 تمرّر الكلَّ بفائدة الشك** ولا شيء يُنبّه.
+    #    والتمريرُ بفائدة الشك **قرارٌ محسوم لا يُمَسّ** — المُصلَح أن يصير **مرئيًّا**.
+    try:
+        _wl_h = load_watchlist()
+        _st_h = [x for x in (_wl_h.get("stocks") or []) if x.get("status") == "active"]
+        _sh = sum(1 for x in _st_h if isinstance(x.get("finra_short"), (int, float)))
+        _fl = sum(1 for x in _st_h if isinstance(x.get("float"), (int, float)))
+        if _st_h:
+            lines.append(
+                f"   • تغطيةُ M13 (شورت FINRA): {_sh}/{len(_st_h)}"
+                + ("  ⚠️ **الكلُّ يمرّ بفائدة الشك**" if not _sh else "")
+                + f" · وM14 (فلوت): {_fl}/{len(_st_h)}")
+    except Exception:                                            # noqa: BLE001
+        lines.append("   • تغطيةُ M13/M14: تعذّر القياس.")
     try:
         _ig = load_ignition_log()
         _last = max((f.get("date") or "" for f in _ig), default="")
@@ -12429,13 +12444,24 @@ def _dedup_closed(rows: list) -> list:
     وحدهما كان يخلط **ترشيحين مستقلّين** لنفس السهم بنفس سعر الدخول في أسبوعين مختلفين
     (تصادم مثبَت في السجل: LYEL بنفس entry_ref وتاريخَي إضافة مختلفين) → الصفقة الثانية
     **تُحذف من الإحصاء بصمت**، فتنحاز نسبة النجاح ويختفي كسبٌ/خسارةٌ حقيقية من التقرير.
-    `added` مضمون في الصفوف (يُملأ من `date` احتياطًا في `_collect_closed*`)."""
-    seen, out = set(), []
+    `added` مضمون في الصفوف (يُملأ من `date` احتياطًا في `_collect_closed*`).
+
+    🔴 **إصلاح 2026-08-06 (عيبٌ مقيس): كان «الأوّل يفوز» يرمي الصفَّ الأغنى.**
+    مقيسٌ على بيانات اليوم: **‏8 تصادمات**، والفائز (من القائمة) **‏16 حقلًا** والمرميّ
+    (من `alerts`) **‏26** ⇒ يضيع **`mg_obs_pct`/`mg_obs_days`** (وهما مقياسُ «هل تنفجر
+    أسهمنا؟» بعينه) و`ref_bar` و`t1/t2/t3` و`stop` و`result_date`. الآن **يُدمَج**:
+    الأوّلُ يبقى مرجعًا وتُملأ منه الحقولُ **الغائبة فقط** ⇒ لا قيمةَ تُدهَس ولا حقلَ يُفقَد.
+    """
+    seen, out = {}, []
     for r in rows:
         k = (r.get("symbol"), r.get("entry_ref"), r.get("added"))
         if k in seen:
+            base = seen[k]
+            for f, v in r.items():                # دمجٌ لا إسقاط
+                if base.get(f) in (None, "", [], {}) and v not in (None, "", [], {}):
+                    base[f] = v
             continue
-        seen.add(k)
+        seen[k] = r
         out.append(r)
     return out
 
