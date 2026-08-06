@@ -12025,6 +12025,47 @@ def _observed_explosion_block(data) -> list:
         return [f"\n📊 المقدارُ الصادق: تعذّر ({type(e).__name__})."]
 
 
+def _hunter_ledger_block():
+    """🌱 **حصادُ الصيّادين** — يُوصِل ملخّصَ `hunter_ledger.jsonl` إلى المالك.
+
+    السبب (إذنُ المالك 2026-08-06 «اي سوها»): الأربعةُ يسجّلون و`hunter_outcomes`
+    يحسم أسبوعيًّا، **لكن الملخّصَ كان يُطبَع في سجلّ الـworkflow وحده** ⇒ لا يصل
+    إلا بفتح GitHub. وهو **المدى الأماميّ الوحيد غير المُنقَّب** بعد استهلاك
+    التاريخيّ، فبقاؤه غيرَ مرئيٍّ يعني أنه يتراكم ولا يُقرأ.
+    🔒 **وفي تقرير التطوير الأسبوعيّ لا رسالةٍ جديدة** — قاعدةُ «لا قناة رابعة
+    بلا طلب المالك» قائمة، والسابقةُ نفسُها لحصّاد اليد أعلاه.
+    فاشلٌ-آمن: لا سجلَّ أو انكسارُ الوحدة ⇒ لا قسم (لا ضجيج ولا انهيار)."""
+    try:
+        import hunter_ledger as _HL
+        rows = _HL.load()
+        if not rows:
+            return []
+        # ⚠️ الشكلُ **مأخوذٌ من `summary` الفعليّة**: `{صيّاد: {n, resolved,
+        #    hit100, hit50, gains}}` — بلا مستوًى أعلى. وأوّلُ صياغةٍ كتبتُها
+        #    افترضت `total`/`by_hunter` **ولا وجود لهما** ⇒ كانت أسطرًا ميّتة.
+        s = _HL.summary(rows) or {}
+        _tot = sum(int(v.get("n") or 0) for v in s.values() if isinstance(v, dict))
+        _res = sum(int(v.get("resolved") or 0) for v in s.values() if isinstance(v, dict))
+        out = ["\n🌱 <b>حصادُ الصيّادين (الشاهدُ الأماميّ)</b>",
+               f"   📋 مرشّحون مسجَّلون: {_tot} · محسومون: {_res} "
+               f"· بانتظار الحسم: {max(0, _tot - _res)}"]
+        for _h, _v in sorted(s.items()):
+            if not isinstance(_v, dict):
+                continue
+            _g = [x for x in (_v.get("gains") or []) if isinstance(x, (int, float))]
+            out.append(
+                f"   • {esc(str(_h))}: {_v.get('n', 0)} مرشّحًا · محسوم "
+                f"{_v.get('resolved', 0)} · بلغ +100% {_v.get('hit100', 0)} "
+                f"· +50% {_v.get('hit50', 0)}"
+                + (f" · وسيطُ الحركة {sorted(_g)[len(_g) // 2]:+.0f}%" if _g else ""))
+        if _res < 30:      # عيّنةٌ لا تُقرأ حكمًا (نفسُ حدّ الأحكام المسجَّلة)
+            out.append("   ⏳ العيّنةُ تتراكم — <b>لا حكم</b> قبل 30 محسومًا "
+                       f"(نافذةُ كلّ مرشّح {_HL.FORWARD_SESSIONS} جلسة).")
+        return out
+    except Exception:                                        # noqa: BLE001
+        return []
+
+
 def _collection_health_block() -> list:
     """🩺 لوحة حالة جمع بيانات المضارب (طلب المستخدم 2026-07-24 «اكيد بننسى»): عدّادات تظهر
     **دائمًا حتى عند الصفر** في تقرير التطوير الأسبوعي — بخلاف البلوكات التفصيلية (`_hand_flow`/
@@ -13001,6 +13042,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         head += _ignition_log_block(_ig_log)  # 📏 قياس حافة الرادار (مستقل)
         head += _collection_health_block()    # 🩺 لوحة الجمع (تظهر حتى بعيّنة قليلة — أهمّ وقت)
         head += _observed_explosion_block(alert_data)   # 📊 وُصلت 2026-08-06
+        head += _hunter_ledger_block()    # 🌱 والمسارُ القليل أيضًا (فخُّ لوحة الجمع نفسه)
         head.append("\n⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
         return "\n".join(head)
     wins = [r for r in rows if r["_win"]]
@@ -13189,6 +13231,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
     return "\n".join(head + body + _collection_health_block()
                      + _observed_explosion_block(alert_data)   # 📊 وُصلت 2026-08-06
                      + _hand_flow_block()
+                     + _hunter_ledger_block()     # 🌱 وُصِل 2026-08-06 (إذن المالك)
                      + _pending_verification_block() + sugg + tail)
 
 

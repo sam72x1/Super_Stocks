@@ -14981,8 +14981,26 @@ for _f in ("split_hunter.py", "method_hunter.py", "split_filter_hunter.py",
 check("🌱 H1🔒 وصيّادُ المقسّم **لم يُحذف منه سطر** (إضافةٌ محضة)",
       (lambda src: "scan_split_hunter" in src and "session_gate" in src
        and "ah_guard" in src)(open("split_hunter.py", encoding="utf-8").read()))
-check("🌱 H1🔒 و`Super_stock.py` **لم يُمَسّ** بهذا الوصل إطلاقًا",
-      not _imports_module("Super_stock.py", "hunter_ledger"))
+# ✅ **حُدِّث عمدًا بإذن المالك (2026-08-06 «اي سوها»)** — والقفلُ كان يمنع أن يمسّ
+#    **التسجيلُ** الجذعَ، وهذا باقٍ: الصيّادون وحدهم يسجّلون. المسموحُ الآن **القراءةُ
+#    للعرض** في تقرير التطوير حصرًا (كان الملخّصُ لا يصل إلا بفتح GitHub).
+#    ⇒ القفلُ صار **مشروطًا**: الاستيرادُ مسموحٌ في `_hunter_ledger_block` وحدها،
+#    وممنوعٌ في أيّ مسارِ فرزٍ أو تسجيل. **وقراءةٌ فقط: لا `record` ولا `apply_outcomes`.**
+_hl_src = _insp0.getsource(S._hunter_ledger_block)
+check("✅ H1🔒 `Super_stock.py` يقرأ السجلَّ **للعرض وحده** (لا تسجيلَ ولا حسم)",
+      "import hunter_ledger" in _hl_src
+      and ".record(" not in _hl_src and "apply_outcomes" not in _hl_src
+      and "build_rows" not in _hl_src)
+# ⚠️ `_imports_module` يمشي الشجرة كلَّها فيلتقط الاستيرادَ داخل الدالّة أيضًا —
+#    فلا يصلح لقياس «مستوى الوحدة». الفحصُ على **أبناء `Module` المباشرين** وحدهم:
+#    الاستيرادُ الكسول داخل دالّة العرض مقصودٌ (فانكسارُ الوحدة لا يُسقط الجذع).
+_hl_top = [n for n in _ast0.parse(open("Super_stock.py", encoding="utf-8").read()).body
+           if isinstance(n, (_ast0.Import, _ast0.ImportFrom))]
+check("🔒 H1🔒 والاستيرادُ **كسولٌ داخل دالّة العرض** لا على مستوى الوحدة",
+      not any(("hunter_ledger" in (getattr(n, "module", "") or ""))
+              or any(a.name.startswith("hunter_ledger")
+                     for a in getattr(n, "names", []))
+              for n in _hl_top))
 # 🔴 **والسجلُّ يُدفَع وإلّا مات مع الرنر** — عيبٌ مقيس: وصلتُ التسجيل ونسيتُ
 #    `git_save` ⇒ الصيّادون يكتبون والذاكرةُ تتبخّر كلَّ ليلة. وهو **صنفُ عطلٍ موثّق
 #    عندنا** (ملخّصاتُ رادار الانطلاق ضاعت بدفعٍ ناقص). القفلُ **نحويّ على وسائط
@@ -15446,6 +15464,31 @@ check("🔗 DD3 وصفٌّ فريدٌ يمرّ كما هو (القفلُ ليس 
       "صفّان مختلفا `added`")
 
 # ── 🩺 تغطيةُ M13/M14 مرئيّةٌ في لوحة الجمع ──────────────────────────────────
+# ── 🌱 حصادُ الصيّادين يصل المالك (إذنُ المالك 2026-08-06 «اي سوها») ──────────────
+# كان الملخّصُ يُطبَع في سجلّ الـworkflow وحده ⇒ لا يصل إلا بفتح GitHub، وهو **المدى
+# الأماميّ الوحيد غير المُنقَّب**. وُصِل بتقرير التطوير — **لا رسالةٍ رابعة**.
+_hlb = S._hunter_ledger_block()
+check("🌱 HL1 قسمُ الحصاد يُبنى من السجلّ الحقيقيّ (لا شكلٍ متخيَّل)",
+      isinstance(_hlb, list) and (not _hlb or "حصادُ الصيّادين" in _hlb[0]),
+      str(_hlb[:2]))
+check("🌱 HL2 وبلا سجلٍّ ⇒ لا قسم (فاشلٌ-آمن بلا ضجيج)",
+      S._hunter_ledger_block.__doc__ is not None
+      and (lambda _sv: (setattr(__import__("hunter_ledger"), "LEDGER_FILE",
+                                "/proc/لا-يوجد/x.jsonl"),
+                        S._hunter_ledger_block() == [],
+                        setattr(__import__("hunter_ledger"), "LEDGER_FILE", _sv))[1])(
+          __import__("hunter_ledger").LEDGER_FILE))
+# 🔴 والحاسم: مُنادًى في **المسارَين** — القليل والكافي. (فخُّ لوحة الجمع الموثَّق:
+#    البلوكاتُ التفصيلية تختفي في مسار العيّنة القليلة، وهو **أهمُّ وقتٍ** لظهورها.)
+import ast as _hl_ast                                            # noqa: E402
+_hl_tree = _hl_ast.parse(_insp0.getsource(S.build_dev_assistant_report))
+_hl_calls = [n for n in _hl_ast.walk(_hl_tree) if isinstance(n, _hl_ast.Call)
+             and getattr(n.func, "id", None) == "_hunter_ledger_block"]
+check("🔴 HL3 مُنادًى **مرّتين** (مسارُ العيّنة القليلة + الكافية) — لا مرّةً فقط",
+      len(_hl_calls) == 2, f"عدد النداءات={len(_hl_calls)}")
+check("🌱 HL4 وعلى مستوى الوحدة (وإلّا استحال نداؤه قبل تعريفه في المسار القليل)",
+      callable(getattr(S, "_hunter_ledger_block", None)))
+
 _ch = "\n".join(S._collection_health_block())
 check("🩺 CV1 لوحةُ الجمع تُظهر تغطيةَ M13 وM14",
       "تغطيةُ M13" in _ch and "M14" in _ch, _ch.split("\n")[1][:110])
