@@ -298,6 +298,14 @@ def run(fetch_ext=None, now_utc=None):
             _r["_flow"] = S.polygon_flow(_sym)
         except Exception:                                        # noqa: BLE001
             _r["_flow"] = None
+        try:                       # 📐 RSI لسطر «من 22 لـ27» (قاعدة فيصل المنصوصة).
+            #    يُحسب من الشمعة اليومية المحمَّلة أصلًا ⇒ صفرُ نداءٍ إضافي، وعرضٌ
+            #    بحت بعد الاختيار. غيابُه يُسقط سطرَه وحده.
+            _dfx = _r.get("_df")
+            _r["_rsi"] = (float(S.rsi(_dfx["Close"]).iloc[-1])
+                          if _dfx is not None and len(_dfx) > 15 else None)
+        except Exception:                                        # noqa: BLE001
+            _r["_rsi"] = None
     try:
         msg = S.build_split_hunter_alert(rows, today=sess) + (
             "\n" + S._rtl_join([

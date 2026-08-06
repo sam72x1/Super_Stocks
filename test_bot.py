@@ -12204,12 +12204,62 @@ check("🧾 FK🔒 موصولٌ بكرت «النهج العلمي» **بعد** 
       and _insp0.getsource(S.build_method_alert).index("faisal_rule_lines")
       > _insp0.getsource(S.build_method_alert).index("hunter_extras")
       and "faisal_rule_lines" not in _insp0.getsource(S.scan_method_hunter))
-# ⏸️ وصيّاد المقسّم **لم يُمَسّ**: أضفتُها إليه أوّلًا فأسقطها **درعُه** — وقاعدةُ
-#    المالك «اتركها على جنب وأبلغني». يُقفَل الامتناعُ نفسه لئلّا يُنسى ويُضاف سهوًا.
-check("⏸️ FK🔒 صيّاد المقسّم **بلا** هذي القواعد حتى إذنٍ صريح (قرار المالك)",
-      "faisal_rule_lines" not in _insp0.getsource(S.build_split_hunter_alert)
-      and "faisal_rule_lines" not in _insp0.getsource(S.scan_split_hunter)
-      and "اتركها على جنب" in _insp0.getsource(S.build_split_hunter_alert))
+# ✅ **الإذنُ صدر (2026-08-06):** «سوها لو ما تاثر على الفحص و الفرز نفسه». فتحوّل
+#    القفلُ من **امتناعٍ** إلى **إذنٍ مشروط**: مسموحٌ في بانيَ الرسالة · **ممنوعٌ**
+#    في الفحص/الفرز · والشرطُ يُثبَت **سلوكيًّا** لا نصًّا (أدناه FR3).
+check("✅ FR1 قواعدُ «النماذج التعليمية» في كرت صيّاد المقسّم (بإذن المالك)",
+      "faisal_rule_lines" in _insp0.getsource(S.build_split_hunter_alert))
+check("🔒 FR2 وممنوعةٌ في `scan_split_hunter` (الفحصُ والفرزُ لا يعرفانها)",
+      "faisal_rule_lines" not in _insp0.getsource(S.scan_split_hunter)
+      and "short_decline_estimate" not in _insp0.getsource(S.scan_split_hunter)
+      and "faisal_rsi_zone" not in _insp0.getsource(S.scan_split_hunter))
+# 🔴 **والشرطُ يُثبَت سلوكيًّا: نفسُ المطابقين مجموعةً وترتيبًا مع الإثراء وبدونه.**
+#    (القفلُ النصّيّ وحده لا يكفي — الإثراءُ يمرّ عبر حقولٍ يقرؤها بانيَ الرسالة.)
+_fr_args = dict(today=_sr_today, fetch_splits=lambda s: _sr_splits,
+                fetch_float=lambda s: 500_000,
+                fetch_borrow=lambda s: {"shares_available": 12000, "borrow_fee": 700.0},
+                fetch_pump=lambda df: {"found": False})
+_fr_plain = S.scan_split_hunter({"SPLT": _sr_df}, **_fr_args)
+_fr_rich = S.scan_split_hunter({"SPLT": _sr_df}, **_fr_args)
+for _r in _fr_rich:                      # مُحاكاةُ إثراء `split_hunter.py` بعد الاختيار
+    _r["_df"] = _sr_df                   # (بالمفاتيح **الحقيقية** لا المتخيَّلة)
+    _r["_rsi"] = 24.0
+check("🔴 FR3 العضويةُ والترتيبُ **byte-identical** مع الإثراء وبدونه (سلوكيّ)",
+      [x["symbol"] for x in _fr_plain] == [x["symbol"] for x in _fr_rich]
+      and len(_fr_plain) == 1,
+      f"{[x['symbol'] for x in _fr_plain]} مقابل {[x['symbol'] for x in _fr_rich]}")
+# 🔴 والأسطرُ تظهر فعلًا في الكرت (وإلّا كان الإذنُ وصلةً ميتة — درسُ «نقطة النداء»)
+_fr_msg = S.build_split_hunter_alert(_fr_rich, today=_sr_today)
+_fr_msg_bare = S.build_split_hunter_alert(_fr_plain, today=_sr_today)
+# ⚠️ **فارقٌ محدَّد لا «أو»**: أوّلُ صياغةٍ كتبتُها فحصت «RSI أو الشورت أو متوسّطات»
+#    فكانت تمرّ ولو قرأ الكودُ **مفتاحًا وهميًّا** (سطرٌ آخر يكفيها) — أمسكها الدرعُ
+#    وحده. الآن سطرُ RSI **بعينه**: حاضرٌ مع `_rsi` وغائبٌ بدونه.
+check("🔴 FR4 سطرُ RSI **بعينه** يظهر مع `_rsi` ويغيب بدونه (فارقٌ لا «أو»)",
+      "من 22 لـ27" in _fr_msg and "من 22 لـ27" not in _fr_msg_bare
+      and "SPLT" in _fr_msg and "SPLT" in _fr_msg_bare,
+      f"مُثرًى={len(_fr_msg)} · مجرَّد={len(_fr_msg_bare)}")
+# 🔒 FR5 والمُغذّي الحيّ يُسنِد `_rsi` فعلًا (وإلّا بقي سطرُ RSI ميّتًا في الإنتاج).
+#    بالـAST على `split_hunter.run` — لا بالنصّ لئلّا يكفيه تعليقٌ يذكر الاسم.
+import split_hunter as _SH2, ast as _fr_ast                      # noqa: E402
+_fr_tree = _fr_ast.parse(_insp0.getsource(_SH2.run))
+#    ⚠️ ويجب أن يكون الإسنادُ **هو الحساب** لا الاحتياطَ `= None`: أوّلُ صياغةٍ كتبتُها
+#    اكتفت بوجود أيّ إسنادٍ لـ`_rsi`، **فنجت طفرةُ إعادة تسمية سطر الحساب** لأن فرع
+#    `except` يُسنِد `_rsi = None` فيُرضي القفل ⇒ قفلٌ يمرّ والسطرُ ميّت.
+def _fr_assigns_rsi(tree):
+    for a in _fr_ast.walk(tree):
+        if not isinstance(a, _fr_ast.Assign):
+            continue
+        tgt = any(isinstance(n, _fr_ast.Subscript) and isinstance(n.slice, _fr_ast.Constant)
+                  and n.slice.value == "_rsi" for n in a.targets)
+        calc = any(getattr(c.func, "attr", None) == "rsi"
+                   for c in _fr_ast.walk(a.value) if isinstance(c, _fr_ast.Call))
+        if tgt and calc:               # الإسنادُ **وحسابُه** معًا
+            return True
+    return False
+
+
+check("🔒 FR5 `split_hunter.run` يُسنِد `_rsi` **من حساب `rsi`** لا احتياطًا (AST)",
+      _fr_assigns_rsi(_fr_tree))
 # ==========================================================
 # 🧮 النظام الرابع — «فلترة أسهم التقسيم» (‏`FAISAL_SPLIT_FILTER_METHOD.md`)
 #    المرساة: مثالُ فيصل نفسه — قاعٌ 2 ⟹ طلبات **2.05 · 2.10 · 2.15** ووقفٌ **2**.
@@ -13478,9 +13528,14 @@ _HUNTER_PINS = {
     "_yahoo_float": "ff6e63f2f6198ad1",
     "bottom_strike": "726f94595be226f1",
     # 🎁 حُدِّثت عمدًا (2026-07-31) بإضافة **كماليّات المالك** وحدها: نداءٌ واحد
-    #    لـ`hunter_extras` بعد اكتمال الكرت. و`scan_split_hunter` والثمانية عشر
-    #    الباقية **مطابقة** ⇒ الشروط الخمسة والحكم byte-identical بالبناء.
-    "build_split_hunter_alert": "69f668f73708addf",
+    #    لـ`hunter_extras` بعد اكتمال الكرت.
+    # ✅ **وحُدِّثت ثانيةً عمدًا (2026-08-06) بإذن المالك الحرفيّ** «سوها لو ما تاثر
+    #    على الفحص و الفرز نفسه»: نداءٌ واحد لـ`faisal_rule_lines` **بعد**
+    #    `hunter_extras` أي بعد اكتمال الكرت. **وهذا إقرارٌ لا إصلاحُ فشل.**
+    #    🔒 و`scan_split_hunter` **مطابقةٌ حرفيًّا** (`caad69f25763d7b7` لم يتغيّر)
+    #    ومعها الثمانية عشر الباقية ⇒ الشروطُ الخمسة والحكم byte-identical **بالبناء**،
+    #    ومُثبَتٌ **سلوكيًّا** بـFR3 (نفسُ المطابقين مع الإثراء وبدونه).
+    "build_split_hunter_alert": "f5ac8f1223183057",
     "build_split_radar_section": "e8a02f05df9511ef",
     "faisal_model_plan": "dee70734cacfaa67",
     "faisal_split_plan": "350f26d48509f57d",
