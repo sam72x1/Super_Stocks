@@ -8083,6 +8083,9 @@ def build_message(results: list, splits: list,
         _es = entry_status(r)
         lines.append(_es["label"] + (f" — {_es['reason']}" if _es["reason"] else "")
                      + _ready_war_suffix(r, _es))
+        _bn = band_note(r)                # 🎯 أين السعرُ من الدفعات المطبوعة؟
+        if _bn:
+            lines.append(_bn)
         # 🔄 استمرارية: وسم مصير السهم عبر التجديد (طلب المستخدم — لا يختفي بصمت)
         _cs = r.get("cont_status")
         if _cs == "exited":
@@ -8840,6 +8843,53 @@ def hunter_stale_line(st: dict) -> str:
     ])
 
 
+def tranche_avg(s: dict):
+    """📐 متوسطُ الدفعات — **تعبئةُ فيصل الفعلية**، لا سعرُ الترشيح.
+
+    مصدرُه `tranches` المخزَّنة؛ وإن غابت فمنتصفُ `entry`. `None` عند التعذّر."""
+    try:
+        tr = s.get("tranches")
+        if tr and len(tr) >= 1:
+            v = [float(x) for x in tr if x]
+            return round(sum(v) / len(v), 4) if v else None
+        ent = s.get("entry")
+        if ent and len(ent) >= 2:
+            return round((float(ent[0]) + float(ent[1])) / 2.0, 4)
+    except (TypeError, ValueError):
+        return None
+    return None
+
+
+def band_note(s: dict):
+    """🎯 **موقعُ السعر من نطاق الدفعات المطبوع** — سطرُ صدقٍ لا حكم.
+
+    🔴 **العلّةُ مقيسة (2026-08-06):** **‏88% من التنبيهات سعرُها فوق نطاق الدفعات**
+    (وسيط ‏+13.6% فوق الدعم وسقفُ النطاق ‏+6.1%)، و‏7 من 8 موسومين «🟢 جاهز» في القائمة
+    الحيّة سعرُهم **فوق** دفعاتهم المطبوعة في الكرت نفسِه ⇒ الكرتُ يقول «ادخل الآن»
+    ويطبع تحته طلباتٍ **دون السوق**. والأثرُ مقيسٌ في العائد: المخطَّط ‏2.26R
+    والمتتبَّع **‏0.65R**، لأن مسافة المخاطرة من سعر الترشيح وسيطُها ‏17.1% ومن متوسط
+    الدفعات **‏9.7%**.
+
+    🔒 **عرضٌ فقط:** لا يمسّ `entry_status` (جذرٌ مقفول) ولا الدفعات ولا الوقف —
+    يُلحَق بسطر الحالة فيرى المالكُ **أين هو من خطّته**. `None` عند تعذّر القياس."""
+    try:
+        ent = s.get("entry")
+        lp = s.get("last_price") if s.get("last_price") is not None else s.get("price")
+        if not ent or len(ent) < 2 or lp is None:
+            return None
+        lo, hi, lp = float(ent[0]), float(ent[1]), float(lp)
+        if lo <= 0 or hi <= 0:
+            return None
+        if lp < lo:
+            return f"⬇️ السعر تحت نطاق الدفعات بـ{(1 - lp / lo) * 100:.0f}%"
+        if lp <= hi:
+            return "✅ السعر داخل نطاق الدفعات"
+        return (f"⬆️ السعر **فوق** نطاق الدفعات بـ{(lp / hi - 1) * 100:.0f}% "
+                f"(النطاق ${lo:g}–${hi:g}) — الطلباتُ أدنى من السوق")
+    except (TypeError, ValueError):
+        return None
+
+
 def make_watch_entry(r: dict, today_iso: str) -> dict:
     """تحويل نتيجة تحليل إلى سجل سهم في القائمة الأسبوعية"""
     return {
@@ -8849,6 +8899,11 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "entry_ref": round(r["price"], 4),
         "entry": [round(r["entry"][0], 4), round(r["entry"][1], 4)],
         "tranches": [round(p, 4) for p in (r.get("tranches") or r["entry"])],
+        # 📐 **يُخزَّن بجانب `entry_ref` لا بدلًا منه** (قرارُ المالك 2026-06-24 قائم):
+        #    `entry_ref` سعرُ الترشيح · و`entry_avg` **تعبئةُ فيصل الفعلية**. والفرقُ
+        #    بينهما مقيسٌ ‏+8.9% وسيطًا (حتى +29.7%) وهو سببُ 2.26R ⟶ 0.65R.
+        "entry_avg": (lambda _t: round(sum(_t) / len(_t), 4) if _t else None)(
+            [float(p) for p in (r.get("tranches") or r["entry"]) if p]),
         "pivot": round(r["pivot"], 4),
         "stop": round(r["stop"][0], 4),        # الوقف الأبعد (~7% تحت القاع)
         "stop_hi": round(r["stop"][1], 4),

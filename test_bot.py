@@ -15202,6 +15202,36 @@ check("🔗 DD3 وصفٌّ فريدٌ يمرّ كما هو (القفلُ ليس 
 _ch = "\n".join(S._collection_health_block())
 check("🩺 CV1 لوحةُ الجمع تُظهر تغطيةَ M13 وM14",
       "تغطيةُ M13" in _ch and "M14" in _ch, _ch.split("\n")[1][:110])
+# ── 🎯 موقعُ السعر من نطاق الدفعات (عيبٌ مقيس: 88% فوق النطاق) ───────────────
+check("🎯 BN1 فوق النطاق ⇒ يُصرَّح به بالنسبة",
+      "فوق" in (S.band_note({"entry": [1.0, 1.1], "last_price": 1.32}) or "")
+      and "20%" in (S.band_note({"entry": [1.0, 1.1], "last_price": 1.32}) or ""),
+      S.band_note({"entry": [1.0, 1.1], "last_price": 1.32}))
+check("🎯 BN2 داخل النطاق ⇒ ✅ (القفلُ ليس تحذيرًا دائمًا)",
+      "داخل" in (S.band_note({"entry": [1.0, 1.1], "last_price": 1.05}) or ""),
+      S.band_note({"entry": [1.0, 1.1], "last_price": 1.05}))
+check("🎯 BN3 تحت النطاق ⇒ ⬇️",
+      "تحت" in (S.band_note({"entry": [1.0, 1.1], "last_price": 0.90}) or ""),
+      S.band_note({"entry": [1.0, 1.1], "last_price": 0.90}))
+check("🎯 BN4 بلا بياناتٍ ⇒ None (لا تُخمَّن)",
+      S.band_note({}) is None and S.band_note({"entry": [1.0, 1.1]}) is None, "—")
+# 🔒 موصولةٌ من نقطة النداء الحيّة في الكرت (AST لا نصّ)
+import ast as _bn_ast
+_bn_t = _bn_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+_bn_f = next((n for n in _bn_ast.walk(_bn_t) if isinstance(n, _bn_ast.FunctionDef)
+              and n.name == "build_message"), None)
+check("🎯 BN5 موصولةٌ في `build_message` (AST)",
+      any(getattr(c.func, "id", None) == "band_note"
+          for c in _bn_ast.walk(_bn_f or _bn_ast.Module(body=[], type_ignores=[]))
+          if isinstance(c, _bn_ast.Call)), "—")
+# 📐 متوسطُ الدفعات يُخزَّن **بجانب** سعر الترشيح لا بدلًا منه
+check("📐 EA1 `tranche_avg` من الدفعات",
+      S.tranche_avg({"tranches": [1.0, 1.03, 1.06]}) == 1.03,
+      f"{S.tranche_avg({'tranches': [1.0, 1.03, 1.06]})}")
+_ea_src = open("Super_stock.py", encoding="utf-8").read()
+check("📐 EA2 و`entry_ref` **باقٍ** (قرارُ المالك 2026-06-24 لم يُنقَض)",
+      '"entry_ref": round(r["price"], 4),' in _ea_src
+      and '"entry_avg"' in _ea_src, "الحقلان معًا")
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
