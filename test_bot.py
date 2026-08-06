@@ -15598,6 +15598,32 @@ check("🔒 CL2c وقيمةٌ مجهولة ⇒ ترتيبُ `cliff` (لا سلو
 check("🔒 CL2d و`scan_split_hunter` **لا تعرف** المفتاح (الشروطُ الخمسة لم تُمَسّ)",
       "SPLIT_RADAR_ORDER" not in _insp0.getsource(S.scan_split_hunter))
 
+# ── ⏳ استثناءُ المزامنة للتشغيل اليدويّ (عطلٌ مقيس 2026-08-06) ─────────────────
+# المراقبُ يعمل 4 مرّاتٍ بالساعة وGitHub يُبقي **معلَّقًا واحدًا** لكل مجموعة ⇒ التشغيلُ
+# اليدويّ للفرز يُطرَد. المقيس: انتظارُ 84 دقيقة ثم **إلغاءُ** التالية بعد 15 دقيقة.
+import yaml as _cy                                                # noqa: E402
+_cy_ds = _cy.safe_load(open(".github/workflows/daily_screener.yml", encoding="utf-8"))
+_cy_pm = _cy.safe_load(open(".github/workflows/pullback_monitor.yml", encoding="utf-8"))
+_cy_grp = str(_cy_ds["concurrency"]["group"])
+check("⏳ CY1 اليدويُّ في مجموعةٍ خاصّةٍ به · والمجدولُ يبقى في مجموعة الحالة",
+      "workflow_dispatch" in _cy_grp and "super-stocks-manual-" in _cy_grp
+      and "super-stocks-state" in _cy_grp, _cy_grp[:70].replace("\n", " "))
+check("⏳ CY2 والمجموعةُ **فريدةٌ لكل تشغيلة يدوية** (‏`run_id`) وإلّا عاد الطرد",
+      "github.run_id" in _cy_grp)
+check("🔒 CY3 و`cancel-in-progress` يبقى **false** (لا يُقتل جارٍ)",
+      _cy_ds["concurrency"]["cancel-in-progress"] is False
+      and _cy_pm["concurrency"]["cancel-in-progress"] is False)
+check("🔒 CY4 والمراقبُ **لم يُمَسّ** — يبقى في مجموعة الحالة (الحمايةُ قائمة)",
+      _cy_pm["concurrency"]["group"] == "super-stocks-state")
+# 🔴 المبرّرُ مقفول: الكرونُ اليوميّ خارج نافذة المراقب · والتجديدُ داخلها فيبقى محميًّا
+_cy_sched = [c["cron"] for c in _cy_ds[True]["schedule"]]
+_cy_hours = lambda c: c.split()[1]
+check("🔴 CY5 الكرونُ اليوميّ **خارج** نافذة المراقب (11-23) فلا تماسَّ أصلًا",
+      any(_cy_hours(c) == "4" for c in _cy_sched), str(_cy_sched))
+check("🔴 CY6 وكرونُ التجديد **داخلها** ⇒ يبقى في مجموعة الحالة (لم يُستثنَ)",
+      any(_cy_hours(c) == "22" for c in _cy_sched)
+      and "schedule" not in _cy_grp, str(_cy_sched))
+
 # ── 🥇⑦ T-RANKER-TIE: كاسرُ التعادل (`ranker_tie_prereg.md`) ────────────────────
 # الموضعُ مقيس: 16 سهمًا متعادلين عند جاهزية 70 والسعة 10 ⇒ **10 من 10 خاناتٍ يحكمها
 # التعادل**. والفاصلُ اليوم `score` ثم `rr` — ولم يُختبَرا كاسرَي تعادلٍ قطّ.
