@@ -1,0 +1,58 @@
+name: T-RANKER-TIE (tie-break arms)
+permissions:
+  contents: read
+  actions: read          # 🕰️ لتحميل لقطة التجميد من تشغيلة freeze (frozen_run_id)
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (مثال 2025). **الحكم يلزمه ثلاث سنوات** (2023 · 2024 · 2025) — تشغيلةٌ لكل سنة"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "🕰️ معرّف تشغيلة التجميد (لقطة point-in-time). **مُلزِم لإعادة الإنتاج** — §⑥ يشترط نفس اللقطة للأذرع الأربعة"
+        required: false
+        default: ""
+      seeds:
+        description: "عدد بذور `R-RAND` (شاهد الضبط). الافتراضي 200 كما سُجِّل في `ranker_tie_prereg.md` §⑤"
+        required: false
+        default: "200"
+jobs:
+  ranker-tie:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300   # السوق الكامل لسنةٍ كاملة (نفس ثقل الباكتيست)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset (point-in-time reproducibility)
+        if: ${{ github.event.inputs.frozen_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run tie-break arms
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # ⚠️ `SCREENER_MODE` و`BT_REPLAY10` و`BT_ENVVALS` يضبطها السكربت **قبل
+          # الاستيراد** — لأن `_apply_backtest_overrides` يُنفَّذ وقت تحميل الوحدة،
+          # فالضبط هنا يصل متأخّرًا والعلمُ يخرج خاملًا (بصمة الـno-op).
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          TIE_SEEDS: ${{ github.event.inputs.seeds }}
+          # 🕰️ التجميد: لو frozen_run_id مُعطى → حُمِّلت اللقطة، فاقرأها
+          BT_FROZEN_PATH: ${{ github.event.inputs.frozen_run_id != '' && 'frozen_backtest.pkl.gz' || '' }}
+        run: python ranker_tie_arms.py
+      - name: Upload backtest CSV
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ranker-tie-report
+          path: backtest_*.csv
+          if-no-files-found: ignore

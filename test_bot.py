@@ -15882,6 +15882,166 @@ check("📐 EA2 و`entry_ref` **باقٍ** (قرارُ المالك 2026-06-24 �
       '"entry_ref": round(r["price"], 4),' in _ea_src
       and '"entry_avg"' in _ea_src, "الحقلان معًا")
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🥇⑦ T-RANKER-TIE — أقفالُ أذرع كاسر التعادل (`ranker_tie_arms.py`)
+# ══════════════════════════════════════════════════════════════════════════
+# 🔴 **الخطرُ المحدَّد الذي تحرسه هذي الكتلة:** الذراعُ يقرأ `env_depth`، وهو يمتنع
+#    دون ستّة معايير. فلو خرج `BT_ENVVALS` خاملًا **لامتنع عن كلّ صفقة** فصار
+#    `R-ENV ≡ R-0` بالبناء، والمُخرَجُ يقول «لا فرق» **وهو no-op** — صنفُ
+#    `BT_CANDLE` بعينه. ولذلك أكثرُ الأقفال هنا **سلوكيّة على `run()` نفسها**.
+import ast as _rt_ast
+import contextlib as _rt_ctx
+import io as _rt_io
+
+_RT_ENV_KEYS = ("SCREENER_MODE", "BT_REPLAY10", "BT_ENVVALS", "BT_POTENTIAL",
+                "BACKTEST_YEAR")
+_rt_saved_env = {k: _os_hc.environ.get(k) for k in _RT_ENV_KEYS}
+_rt_saved_bt = S.run_backtest
+try:
+    import ranker_tie_arms as _RT
+finally:
+    for _k, _v in _rt_saved_env.items():      # لا تلوّث بقيّة السويّة ببيئة الباكتيست
+        if _v is None:
+            _os_hc.environ.pop(_k, None)
+        else:
+            _os_hc.environ[_k] = _v
+
+_RT.SEEDS, _RT.BOOT = 3, 50                   # سرعةُ سويّة — الأرقامُ الحقيقية بالـworkflow
+
+
+def _rt_trade(sym, day, oc="win", ret=20.0, rdy=70, score=90, rr=3.0, vals=True):
+    e = 2.0
+    t = {"symbol": sym, "date": f"2025-01-{day:02d}", "exit_date": "2025-03-01",
+         "outcome": oc, "exit_kind": oc, "entry": e, "stop": e * 0.93,
+         "ret_a": ret, "readiness": rdy, "score": score, "rr": rr}
+    if vals:
+        t["env_vals"] = {"price": e, "drop_pct": 95.0, "best_spike": 300.0,
+                         "base_range": 60.0, "dollar_vol": 5e5, "rsi_min": 25.0,
+                         "rsi_now": 35.0, "n_soft": 1, "readiness": rdy,
+                         "score": score, "rr": rr}
+    return t
+
+
+def _rt_run(trades):
+    """يشغّل `run()` على صفقاتٍ مدفوعة ويرجّع (رمز الخروج، المُخرَج)."""
+    S.run_backtest = lambda *a, **k: trades
+    buf = _rt_io.StringIO()
+    try:
+        with _rt_ctx.redirect_stdout(buf):
+            rc = _RT.run()
+    finally:
+        S.run_backtest = _rt_saved_bt
+    return rc, buf.getvalue()
+
+
+# ── RTIE1: البيئةُ تُضبَط **قبل** استيراد `Super_stock` وإلّا خرج العلمُ خاملًا ──
+_rt_tree = _rt_ast.parse(open("ranker_tie_arms.py", encoding="utf-8").read())
+_rt_envln = [n.lineno for n in _rt_ast.walk(_rt_tree)
+             if isinstance(n, _rt_ast.Subscript)
+             and getattr(getattr(n.value, "attr", None), "__str__", str)() == "environ"]
+_rt_setln = [n.lineno for n in _rt_tree.body
+             if isinstance(n, _rt_ast.Expr) or isinstance(n, _rt_ast.Assign)]
+_rt_impln = [n.lineno for n in _rt_tree.body
+             if isinstance(n, _rt_ast.Import)
+             and any(a.name == "Super_stock" for a in n.names)]
+_rt_bt_set = [n.lineno for n in _rt_tree.body
+              if isinstance(n, _rt_ast.Expr) and isinstance(n.value, _rt_ast.Call)
+              and "BT_ENVVALS" in _rt_ast.dump(n)]
+_rt_bt_asg = [n.lineno for n in _rt_tree.body
+              if isinstance(n, _rt_ast.Assign) and "BT_ENVVALS" in _rt_ast.dump(n)]
+check("🥇 RTIE1 `BT_ENVVALS` يُضبَط **قبل** `import Super_stock` (وإلّا no-op)",
+      bool(_rt_impln) and bool(_rt_bt_set + _rt_bt_asg)
+      and max(_rt_bt_set + _rt_bt_asg) < min(_rt_impln),
+      f"ضبط={_rt_bt_set + _rt_bt_asg} · استيراد={_rt_impln}")
+
+# ── RTIE2: حارسُ الـno-op يعمل — بلا `env_vals` ⇒ توقّفٌ صريح لا «لا فرق» ──
+_rt_novals = [_rt_trade(f"N{i}", 1 + i % 5, vals=False) for i in range(12)]
+_rt_rc0, _rt_out0 = _rt_run(_rt_novals)
+check("🥇 RTIE2 بلا `env_vals` ⇒ يتوقّف برمزٍ غير صفريّ ويُعلن الـno-op",
+      _rt_rc0 == 4 and "no-op" in _rt_out0, f"rc={_rt_rc0}")
+
+# ── RTIE3: المسارُ الكامل يعمل ويطبع قيودَ الميزانية (§⑥) ──
+_rt_ok = ([_rt_trade(f"A{i}", 1 + i % 6, rdy=70, score=90, rr=3.0) for i in range(14)]
+          + [_rt_trade(f"B{i}", 1 + i % 6, oc="loss", ret=-7.0, rdy=70,
+                       score=90, rr=3.0) for i in range(14)])
+_rt_rc1, _rt_out1 = _rt_run(_rt_ok)
+check("🥇 RTIE3 المسارُ الكامل ينجح ويطبع الأذرع الأربعة",
+      _rt_rc1 == 0 and all(x in _rt_out1
+                           for x in ("R-0", "R-ENV", "R-FIFO", "R-RAND")),
+      f"rc={_rt_rc1}")
+check("🥇 RTIE4 §⑥ قيودُ الميزانية مطبوعة (لقطة · كون · سعة · بصمةُ الحوافّ)",
+      all(x in _rt_out1 for x in ("الميزانيةُ الثابتة", "اللقطة المجمَّدة",
+                                  "السعة:", "بصمةُ الحوافّ", "جلسات فهرسية")))
+check("🥇 RTIE5 والبوّابةُ الرباعية مطبوعةٌ بأرقامها المسجَّلة (0.1R · 30)",
+      "البوّابة الرباعية" in _rt_out1 and "+0.1R" in _rt_out1
+      and f"≥ {_RT.MIN_AFFECTED}" in _rt_out1)
+
+# ── RTIE6: `attach_env_depth` يمتنع دون ستّة معايير ولا يُخمّن (فرقٌ سلوكيّ) ──
+_rt_edges = {"price": 1.0, "drop_pct": (80.0, 99.0), "best_spike": 100.0,
+             "base_range": 400.0, "dollar_vol": 4e4, "rsi_min": 44.0,
+             "rsi_now": 48.0, "n_soft": 5.0, "readiness": 10.0, "score": 35.0,
+             "rr": 1.2}
+_rt_sides = {n: sd for n, sd, _, _ in _RT.CE.CRITERIA}
+_rt_full = [_rt_trade("F1", 1)]
+_rt_thin = [_rt_trade("T1", 1)]
+_rt_thin[0]["env_vals"] = {"price": 2.0, "rr": 3.0}          # معياران فقط
+_rt_d1 = _RT.attach_env_depth(_rt_full, _rt_edges, _rt_sides)
+_rt_d2 = _RT.attach_env_depth(_rt_thin, _rt_edges, _rt_sides)
+check("🥇 RTIE6 عمقُ الظرف: 11 معيارًا ⇒ رقم · معياران ⇒ **امتناع** (لا تخمين)",
+      isinstance(_rt_full[0]["env_depth"], float)
+      and _rt_thin[0]["env_depth"] is None
+      and _rt_d1["ok"] == 1 and _rt_d2["abstain"] == 1,
+      f"{_rt_full[0]['env_depth']} · {_rt_thin[0]['env_depth']}")
+
+# ── RTIE7: الفرقُ المزدوج يُلغي المشترَك — ذراعان متطابقان ⇒ صفرٌ تامّ ──
+_rt_c = [_RT.RP.Candidate(session=0, symbol="X", readiness=70, score=90, rr=3.0,
+                          seq=0, payload=_rt_trade("X", 1))]
+check("🥇 RTIE7 `paired_delta`: المشترَكُ يُلغي نفسَه (ذراعان متطابقان ⇒ صفر)",
+      all(abs(v) < 1e-12 for v in _RT.paired_delta(_rt_c, _rt_c).values()),
+      str(_RT.paired_delta(_rt_c, _rt_c)))
+_rt_c2 = [_RT.RP.Candidate(session=0, symbol="Y", readiness=70, score=90, rr=3.0,
+                           seq=1, payload=_rt_trade("Y", 1, oc="loss", ret=-7.0))]
+check("🥇 RTIE8 `affected` = الفرقُ التماثليّ (متطابقان ⇒ 0 · مختلفان ⇒ 2)",
+      _RT.affected(_rt_c, _rt_c)["n"] == 0
+      and _RT.affected(_rt_c, _rt_c2)["n"] == 2,
+      f"{_RT.affected(_rt_c, _rt_c2)}")
+
+# ── RTIE9: المقامُ مُستعمَلٌ فعلًا في الفاصل (مضاعفتُه تنصّف الحدود) ──
+_rt_dl = {"A": 1.0, "B": -0.5, "C": 0.75, "D": -0.25}
+_rt_ci1 = _RT.cluster_bootstrap_diff(_rt_dl, 10.0, n=400)
+_rt_ci2 = _RT.cluster_bootstrap_diff(_rt_dl, 20.0, n=400)
+check("🥇 RTIE9 المقامُ مُستعمَل: مضاعفتُه تنصّف حدودَ الفاصل",
+      abs(_rt_ci1["lo"] - 2 * _rt_ci2["lo"]) < 1e-9
+      and abs(_rt_ci1["hi"] - 2 * _rt_ci2["hi"]) < 1e-9,
+      f"{_rt_ci1} · {_rt_ci2}")
+
+# ── RTIE10: أربعةُ أذرعٍ **لا خامسة** (ذراعٌ تُضاف بعد الأرقام = p-hacking) ──
+_rt_runfn = next((n for n in _rt_ast.walk(_rt_tree)
+                  if isinstance(n, _rt_ast.FunctionDef) and n.name == "run"), None)
+_rt_rankers = {getattr(c.func, "attr", None) for c in _rt_ast.walk(_rt_runfn)
+               if isinstance(c, _rt_ast.Call)} | {
+    getattr(a, "attr", None) for c in _rt_ast.walk(_rt_runfn)
+    if isinstance(c, _rt_ast.Call) for a in c.args
+    if isinstance(a, _rt_ast.Attribute)}
+_rt_used = {x for x in _rt_rankers if x and x.startswith(("rank_", "make_rank"))}
+check("🥇 RTIE10 الأذرعُ المسجَّلة حصرًا — لا ذراعَ خامسة",
+      _rt_used == {"rank_actual", "rank_tie_env", "rank_fifo",
+                   "make_rank_tie_random"}, str(sorted(_rt_used)))
+
+# ── RTIE11: خارج الإنتاج — `Super_stock` لا يستورده (AST لا نصّ) ──
+_rt_prod = _rt_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+_rt_imports = {a.name for n in _rt_ast.walk(_rt_prod)
+               if isinstance(n, _rt_ast.Import) for a in n.names} | {
+    n.module for n in _rt_ast.walk(_rt_prod) if isinstance(n, _rt_ast.ImportFrom)}
+check("🥇 RTIE11 خارج الإنتاج: `Super_stock` لا يستورد أداةَ الأذرع",
+      "ranker_tie_arms" not in _rt_imports and "replay10" not in _rt_imports)
+
+# ── RTIE12: التسجيلُ المسبق مدفوعٌ ويحمل المعيار قبل أيّ رقم ──
+_rt_pre = open("ranker_tie_prereg.md", encoding="utf-8").read()
+check("🥇 RTIE12 التسجيلُ المسبق يحمل الأذرع والمعيار والميزانية الثابتة",
+      all(x in _rt_pre for x in ("R-ENV", "R-RAND", "R-FIFO", "+0.10R",
+                                 "‏≥ 30 صفقةً متأثّرة", "الميزانيةُ الثابتة")))
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
