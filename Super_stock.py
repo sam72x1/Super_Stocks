@@ -498,6 +498,10 @@ CONFIG = {
     #    مُفعَّلةٌ افتراضيًّا — تُحِلّ حوافَّ `envelope_p90.json` المُعايَرةَ من كاتالوجه
     #    محلَّ أرقامنا في المفاتيح الأحد عشر. `FAISAL_ONLY=0` يرجع لبوّابات البوت.
     "FAISAL_ONLY": int(os.environ.get("FAISAL_ONLY", "1")),
+    # 🔬 T-CLIFF-2: مفتاحُ ترتيب مُرشَّح رادار/صيّاد التقسيم قبل القصّ بالسقف.
+    #    `"cliff"` = عمقُ كليف اليوم الواحد (**الافتراض = السلوك الحاليّ حرفيًّا**)
+    #    · `"cum"` = الهبوطُ التراكميّ على النافذة (ذراعُ البحث).
+    "SPLIT_RADAR_ORDER": os.environ.get("SPLIT_RADAR_ORDER", "cliff"),
     "OFFERING_PROBE_CAP": 20,            # 🆕 سقف نداءات SEC لكشف «طرح جديد» بالصيّاد/تشغيلة
     "FINRA_BUDGET": 400,                 # 🕵️ سقف تنزيلات FINRA لتشغيلة T-SHORT
     "FORM4_BUDGET": 48,                  # 📄 سقف مستندات Form 4 لكل تشغيلة إثراء
@@ -5147,12 +5151,25 @@ def scan_split_radar(history, exclude=None, fetch_splits=None, fetch_borrow=None
             cliff = min((c[-k] / c[-k - 1] - 1.0)
                         for k in range(1, look + 1) if c[-k - 1] > 0)
             if cliff <= -CONFIG["SPLIT_CLIFF_PCT"] / 100.0:
-                pre.append((sym, cliff))
+                # 🔬 **T-CLIFF-2 (‏2026-08-06، أمرُ المالك «سوها»):** مفتاحُ ترتيبٍ
+                #    بديلٌ **مطفأٌ افتراضيًّا**. حكمُ `T-CLIFF` نصَّ أن العلّة **مفتاحُ
+                #    الترتيب والسقف** لا العتبة: الترتيبُ بعمق **كليف اليوم الواحد**،
+                #    و`EHGO` — الذي وُجدت `c3` لأجله — **ضحلُ الكليف بالتعريف** فيقع
+                #    بذيل القائمة فيقصّه السقف. البديل: **الهبوطُ التراكميّ** على
+                #    النافذة. `"cliff"` (الافتراض) = السلوكُ الحاليّ **حرفيًّا**.
+                _cum = None
+                if str(CONFIG.get("SPLIT_RADAR_ORDER", "cliff")) == "cum":
+                    try:
+                        _hi = max(c[-look - 1:])
+                        _cum = (price / _hi - 1.0) if _hi > 0 else 0.0
+                    except (ValueError, ZeroDivisionError):
+                        _cum = 0.0
+                pre.append((sym, cliff if _cum is None else _cum))
         except Exception:
             continue
     if not pre:
         return []
-    pre.sort(key=lambda x: x[1])           # الأعمق كليفًا أولًا (حدّ تكلفة الجلب)
+    pre.sort(key=lambda x: x[1])           # الأعمق (كليفًا أو تراكميًّا) أولًا
     pre = [s for s, _ in pre[:int(CONFIG["SPLIT_RADAR_PROBE_CAP"])]]
     # 2) تأكيد التقسيم + المِجَسّ (جلب تقسيمات مقيَّد على المُرشّحين فقط)
     probed = []

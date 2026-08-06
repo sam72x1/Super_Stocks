@@ -13587,7 +13587,11 @@ _HUNTER_PINS = {
     "half_down_target": "cc65a9195e10cfe0",
     "next_bottom_by_own_drop": "c96d632018d5b8ed",
     "scan_split_hunter": "caad69f25763d7b7",
-    "scan_split_radar": "83d07c387db55820",
+    # 🔬 حُدِّثت عمدًا (2026-08-06، أمرُ المالك «سوها») بإضافة **مفتاح ترتيبٍ مطفأ
+    #    افتراضيًّا** (‏`SPLIT_RADAR_ORDER`) لتجربة T-CLIFF-2 — حكمُ `T-CLIFF` نصَّ أن
+    #    العلّة مفتاحُ الترتيب والسقف لا العتبة. **`"cliff"` = السلوكُ السابق حرفيًّا**
+    #    (مقفولٌ سلوكيًّا أدناه)، و`scan_split_hunter` والشروطُ الخمسة **لم تُمَسّ**.
+    "scan_split_radar": "60ed0a760b87311b",
     "short_targets_report": "ef12710917c8cbd0",
     "split_ma_maturity": "3678007d018c99f5",
     "split_radar_ready": "709553816d0487fb",
@@ -15554,6 +15558,45 @@ check("🔴 HL3 مُنادًى **مرّتين** (مسارُ العيّنة ال�
       len(_hl_calls) == 2, f"عدد النداءات={len(_hl_calls)}")
 check("🌱 HL4 وعلى مستوى الوحدة (وإلّا استحال نداؤه قبل تعريفه في المسار القليل)",
       callable(getattr(S, "_hunter_ledger_block", None)))
+
+# ── 🔬 T-CLIFF-2: مفتاحُ الترتيب (أمرُ المالك «سوها») ─────────────────────────────
+# حكمُ `T-CLIFF`: «العلّةُ مفتاحُ الترتيب والسقف لا العتبة» — الترتيبُ بعمق كليف اليوم
+# الواحد و`EHGO` ضحلُ الكليف **بالتعريف** فيقصّه السقف. الذراعُ الجديد يرتّب تراكميًّا.
+check("🔬 CL2 الافتراضُ `cliff` = **السلوكُ السابق حرفيًّا**",
+      S.CONFIG["SPLIT_RADAR_ORDER"] == "cliff")
+_cl2_c = [1.0] * 10 + [2.0, 1.4] + [1.38] * 8          # كليفٌ حادّ (‏−30%) بلا هبوطٍ كبير
+_cl2_d = [1.0] * 10 + [3.0] + [x for x in (2.7, 2.45, 2.2, 2.0, 1.8, 1.62, 1.5, 1.4, 1.3)]
+_cl2_mk = lambda c: S.pd.DataFrame(
+    {"Open": c, "High": [x * 1.02 for x in c], "Low": [x * 0.98 for x in c],
+     "Close": c, "Volume": [3e5] * len(c)},
+    index=S.pd.date_range("2026-05-01", periods=len(c), freq="B"))
+_cl2_hist = {"SHARP": _cl2_mk(_cl2_c), "DEEP": _cl2_mk(_cl2_d)}
+
+
+def _cl2_order(mode):
+    _sv = S.CONFIG["SPLIT_RADAR_ORDER"]
+    _svc = S.CONFIG["SPLIT_CLIFF_PCT"]
+    try:
+        S.CONFIG["SPLIT_RADAR_ORDER"] = mode
+        S.CONFIG["SPLIT_CLIFF_PCT"] = 5.0        # كلاهما يمرّ المُرشَّح ⇒ الترتيبُ وحده يفرّق
+        seen = []
+        S.scan_split_radar(_cl2_hist,
+                           fetch_splits=lambda s: seen.append(s) or None)
+        return seen
+    finally:
+        S.CONFIG["SPLIT_RADAR_ORDER"] = _sv
+        S.CONFIG["SPLIT_CLIFF_PCT"] = _svc
+
+
+_cl2_a, _cl2_b = _cl2_order("cliff"), _cl2_order("cum")
+check("🔴 CL2b الترتيبُ يتبدّل فعلًا: `cliff` يقدّم الحادَّ · `cum` يقدّم الأعمقَ تراكميًّا",
+      len(_cl2_a) == 2 and len(_cl2_b) == 2
+      and _cl2_a[0] == "SHARP" and _cl2_b[0] == "DEEP",
+      f"cliff={_cl2_a} · cum={_cl2_b}")
+check("🔒 CL2c وقيمةٌ مجهولة ⇒ ترتيبُ `cliff` (لا سلوكٌ ثالثٌ مُخترَع)",
+      _cl2_order("سين") == _cl2_a)
+check("🔒 CL2d و`scan_split_hunter` **لا تعرف** المفتاح (الشروطُ الخمسة لم تُمَسّ)",
+      "SPLIT_RADAR_ORDER" not in _insp0.getsource(S.scan_split_hunter))
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 🥇 FAI — «معايير فيصل وحدها» (أمرُ المالك 2026-08-06)

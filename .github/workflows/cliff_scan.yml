@@ -35,6 +35,14 @@ on:
         required: false
         default: "1500"
       probe_cap:
+        description: "🔬 T-CLIFF-2: تجاوزٌ بحثيّ لسقف probe (فارغ = سقف الإنتاج 80؛ حكمُ T-CLIFF: السقفُ يقصّ الأضحلَ كليفًا)"
+        required: false
+        default: ""
+      order:
+        description: "🔬 T-CLIFF-2: مفتاحُ الترتيب قبل القصّ — cliff (الإنتاج) أو cum (الهبوط التراكميّ)"
+        required: false
+        default: "cliff"
+      probe_cap:
         description: "⚠️ تجاوزٌ بحثيّ مُعلَن لسقف probe (فارغ = سقف الإنتاج 80). يلزم لقياس «حدّ الالتقاط الأعلى» في c4"
         required: false
         default: ""
@@ -78,6 +86,7 @@ jobs:
           CLIFF_FLOAT_MODE: ${{ github.event.inputs.float_mode }}
           CLIFF_FLOAT_BUDGET: ${{ github.event.inputs.float_budget }}
           CLIFF_PROBE_CAP: ${{ github.event.inputs.probe_cap }}
+          SPLIT_RADAR_ORDER: ${{ github.event.inputs.order }}
           CLIFF_EQUIV_DAYS: ${{ github.event.inputs.equiv_days }}
           CLIFF_WARMUP: ${{ github.event.inputs.warmup }}
           CLIFF_CSV: cliff_scan_cost.csv
