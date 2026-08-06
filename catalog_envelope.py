@@ -300,7 +300,7 @@ def measure_session(S, sym, df):
     }
 
 
-def walk_symbol(S, sym, df, window=ENTRY_WINDOW):
+def walk_symbol(S, sym, df, window=ENTRY_WINDOW, anchor=None):
     """🚶 يمشي نافذة الشراء لرمزٍ ويرجّع `(صفوف، تشخيص)`.
 
     🔒 **يوم الانفجار مستبعَدٌ صراحةً** (‏D3) — الشريحة تنتهي عند المِرساة غير
@@ -314,12 +314,26 @@ def walk_symbol(S, sym, df, window=ENTRY_WINDOW):
         lo = df["Low"].values
     except Exception:                                            # noqa: BLE001
         return [], "بيانات غير صالحة"
-    hit = explosion_index(hi, lo)
-    if hit is None:
-        return [], f"لم يقع انفجار +{EXPLOSION_RISE_PCT:.0f}% في المدى"
-    idx = explosion_onset(lo, hit)
-    if idx is None or idx <= 0:
-        return [], "تعذّر تحديد بدء الانفجار"
+    # 🎯 **مِرساةٌ مُمرَّرة (‏`T-FAISAL-ONLY`، 2026-08-06):** `anchor=None` ⇒ السلوكُ
+    #    **بت-بت** كما كان (مقفولٌ باختبار). وبقيمةٍ صحيحة تُستعمل مباشرةً — وهو
+    #    الطريقُ الوحيد لقياس مجموعةٍ تواريخُ أحداثها **مسجَّلةٌ حيًّا** بدل استنتاجها،
+    #    فيبقى منطقُ القصّ أدناه (‏`range(start, idx)` · `len(sl) < 60` · `idx-start<3`)
+    #    **مصدرًا واحدًا** ولا يُنسَخ سطرُ قصٍّ واحد إلى أداةٍ ثانية.
+    if anchor is not None:
+        try:
+            idx = int(anchor)
+        except (TypeError, ValueError):
+            return [], "مِرساةٌ ممرَّرة غير صالحة"
+        if not (0 < idx < len(df)):
+            return [], "مِرساةٌ ممرَّرة خارج المدى"
+        hit = idx
+    else:
+        hit = explosion_index(hi, lo)
+        if hit is None:
+            return [], f"لم يقع انفجار +{EXPLOSION_RISE_PCT:.0f}% في المدى"
+        idx = explosion_onset(lo, hit)
+        if idx is None or idx <= 0:
+            return [], "تعذّر تحديد بدء الانفجار"
     start = max(0, idx - window)
     if idx - start < 3:
         return [], "نافذة الشراء أقصر من ثلاث جلسات"

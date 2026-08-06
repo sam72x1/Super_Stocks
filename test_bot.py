@@ -14979,6 +14979,135 @@ check("🚪 OD5 والمحمولُ يبقى في القائمة (المُلغى 
       and "held = {s[\"symbol\"] for s in wl[\"stocks\"]}" in _od_src,
       "‏`held` يشمل كلَّ الأسهم بلا استثناء")
 
+# ── 🎯 T-FAISAL-ONLY: أقفالُ أداة القياس (سلوكيّة/AST — لا نصّية) ────────────
+import catalog_envelope as _fo_ce
+import faisal_only_check as _fo
+import pandas as _fo_pd
+import numpy as _fo_np
+
+_fo_n = 140
+_fo_idx = _fo_pd.date_range("2025-01-01", periods=_fo_n, freq="B")
+_fo_c = _fo_np.concatenate([_fo_np.linspace(10, 1.0, 100),
+                            _fo_np.linspace(1.0, 1.05, 20),
+                            _fo_np.linspace(1.05, 3.0, 20)])
+_fo_df = _fo_pd.DataFrame({"Open": _fo_c, "High": _fo_c * 1.02,
+                           "Low": _fo_c * 0.98, "Close": _fo_c,
+                           "Volume": _fo_np.full(_fo_n, 900000.0)}, index=_fo_idx)
+
+# FO1 · التوافقُ الخلفيّ: `anchor=None` ⇒ **بت-بت** (وإلّا تغيّر ظرفُ الكاتالوج نفسُه)
+# 🔴 **درسُ الطفرة M10:** أوّلُ صياغةٍ كانت `walk_symbol(df) == walk_symbol(df,
+#    anchor=None)` **فقط** — ومع طفرةٍ تجعل الفرعَ `if True:` ينكسر النداءان
+#    **معًا وبنفس الرسالة** فيتساويان ⇒ **القفلُ يمرّ على كودٍ مكسور**. المساواةُ
+#    وحدها لا تُثبت سلامةً؛ لا بدّ من تأكيد **الناتج المعروف** أيضًا.
+_fo_base = _fo_ce.walk_symbol(S, "T", _fo_df)
+_fo_none = _fo_ce.walk_symbol(S, "T", _fo_df, anchor=None)
+check("🎯 FO1 `walk_symbol(anchor=None)` بت-بت **وناتجُه سليم** (لا انكسارٌ متطابق)",
+      _fo_base == _fo_none and len(_fo_base[0]) == 20
+      and "بدءُ الانفجار" in str(_fo_base[1]),
+      f"تساوٍ={_fo_base == _fo_none} · صفوف={len(_fo_base[0])} · "
+      f"تشخيص={str(_fo_base[1])[:50]}")
+
+# FO2 · **لا نظر مستقبليّ**: كلُّ جلسةٍ مقيسة قبل المِرساة حصرًا
+_fo_rows, _fo_why = _fo_ce.walk_symbol(S, "T", _fo_df, anchor=120)
+_fo_amax = str(_fo_idx[120].date())
+check("🎯 FO2 مِرساةٌ ممرَّرة ⇒ كلُّ جلسةٍ **قبلها** (يومُها مستبعَد)",
+      bool(_fo_rows) and all(r["date"] < _fo_amax for r in _fo_rows),
+      f"صفوف={len(_fo_rows)} · أقصى تاريخ="
+      f"{max((r['date'] for r in _fo_rows), default=None)} · مِرساة={_fo_amax}")
+
+# FO3 · مِرساةٌ خارج المدى تُرفَض ولا تُقصّ ضمنيًّا
+check("🎯 FO3 مِرساةٌ خارج المدى تُرفَض بسببٍ مُسمّى",
+      _fo_ce.walk_symbol(S, "T", _fo_df, anchor=99999)[0] == []
+      and "خارج المدى" in _fo_ce.walk_symbol(S, "T", _fo_df, anchor=99999)[1],
+      f"{_fo_ce.walk_symbol(S, 'T', _fo_df, anchor=99999)[1]}")
+
+# FO4 · 🔴 **B لا تُشترط بـ`was_pivot`** — وهو وسمٌ يشتقّ من البوّابات التي يُعيد
+#      الظرفُ ضبطها ⇒ اشتراطُه ينفخ الالتقاط. متحرّكٌ `was_pivot=False` **يجب** أن يدخل.
+_fo_wl = {"explosions": [
+    {"symbol": "ZZA", "expl_date": "2026-07-01", "was_pivot": False,
+     "suspect_split": False, "base_reason": "M1_سعر"},
+    {"symbol": "ZZB", "expl_date": "2026-07-02", "was_pivot": True,
+     "suspect_split": False, "base_reason": "M4_base_واسعة"},
+    {"symbol": "ZZC", "expl_date": "2026-07-03", "was_pivot": True,
+     "suspect_split": True, "base_reason": "M4_base_واسعة"},
+]}
+import json as _fo_json
+import tempfile as _fo_tmp
+_fo_p = _fo_tmp.mktemp(suffix=".json")
+open(_fo_p, "w", encoding="utf-8").write(_fo_json.dumps(_fo_wl, ensure_ascii=False))
+_fo_rw, _fo_sy, _fo_mb = _fo.load_movers(_fo_p)
+check("🎯 FO4 مجموعةُ B تضمّ `was_pivot=False` (لا تُشترط بوسمٍ من بوّاباتنا)",
+      "ZZA" in _fo_sy and "ZZB" in _fo_sy,
+      f"رموز={_fo_sy}")
+check("🎯 FO5 وتُسقط شبهةَ التقسيم",
+      "ZZC" not in _fo_sy and _fo_mb["clean"] == 2,
+      f"رموز={_fo_sy} · clean={_fo_mb['clean']}")
+
+# FO6 · التقاطعُ مع الكاتالوج يُستبعَد **ويُعلَن**
+_fo_cat = sorted(set(_fo_ce.CATALOG) - set(_fo_ce.EXCLUDED_BY_OWNER))
+_fo_wl2 = {"explosions": [
+    {"symbol": _fo_cat[0], "expl_date": "2026-07-01", "suspect_split": False},
+    {"symbol": "ZZA", "expl_date": "2026-07-02", "suspect_split": False}]}
+_fo_p2 = _fo_tmp.mktemp(suffix=".json")
+open(_fo_p2, "w", encoding="utf-8").write(_fo_json.dumps(_fo_wl2, ensure_ascii=False))
+_fo_r2, _fo_s2, _fo_m2 = _fo.load_movers(_fo_p2)
+check("🎯 FO6 رمزُ الكاتالوج يُستبعَد من B **ويُعلَن**",
+      _fo_cat[0] not in _fo_s2 and _fo_m2["overlap"] == [_fo_cat[0]],
+      f"رموز={_fo_s2} · overlap={_fo_m2['overlap']}")
+
+# FO7 · `first_event` حتميّةٌ: **أوّلُ** حدثٍ لكل رمز مهما كان ترتيبُ المُدخَل
+_fo_ev = [{"symbol": "Q", "expl_date": "2026-07-09"},
+          {"symbol": "Q", "expl_date": "2026-07-02"},
+          {"symbol": "Q", "expl_date": "2026-07-05"}]
+check("🎯 FO7 `first_event` تُرجع الأقدم (حتميّة تجاه ترتيب المُدخَل)",
+      _fo.first_event(_fo_ev)["Q"]["expl_date"] == "2026-07-02"
+      and _fo.first_event(list(reversed(_fo_ev)))["Q"]["expl_date"] == "2026-07-02",
+      f"{_fo.first_event(_fo_ev)['Q']['expl_date']}")
+
+# FO8 (AST) · الأداةُ **لا تُستورَد** في مسار الإنتاج
+import ast as _fo_ast
+_fo_mods = {a.name.split(".")[0]
+            for n in _fo_ast.walk(_fo_ast.parse(open("Super_stock.py",
+                                                     encoding="utf-8").read()))
+            if isinstance(n, _fo_ast.Import) for a in n.names}
+_fo_mods |= {n.module.split(".")[0]
+             for n in _fo_ast.walk(_fo_ast.parse(open("Super_stock.py",
+                                                      encoding="utf-8").read()))
+             if isinstance(n, _fo_ast.ImportFrom) and n.module}
+check("🎯 FO8 `Super_stock` لا يستورد أداةَ القياس (AST لا نصّ)",
+      "faisal_only_check" not in _fo_mods and "catalog_envelope" not in _fo_mods,
+      f"وحداتٌ مستورَدة تشمل؟ {sorted(_fo_mods & {'faisal_only_check', 'catalog_envelope'})}")
+
+# FO9 · بصمةُ الحوافّ المدفوعة = المُصرَّح بها في الحارس
+import envelope_bt as _fo_bt
+import envelope_scan as _fo_es
+_fo_blob = _fo_es.load_edges("envelope_p90.json")
+_fo_blob.pop("_meta", None)          # ← `load_edges` تُرجع الحوافَّ **مسطَّحةً**
+check("🎯 FO9 بصمةُ `envelope_p90.json` = ثابتُ `V3` (مصدرٌ واحد)",
+      bool(_fo_blob)
+      and _fo_es.edges_fingerprint(_fo_blob) == _fo_bt.V3_FINGERPRINT,
+      f"ملفّ={_fo_es.edges_fingerprint(_fo_blob) if _fo_blob else 'فارغ'} · "
+      f"حارس={_fo_bt.V3_FINGERPRINT}")
+
+# FO10 · تغطيةُ مسار الكلفة 100% (‏`ceil` لا `floor`)
+_fo_step_src = None
+for _n in _fo_ast.walk(_fo_ast.parse(open("catalog_envelope.py",
+                                          encoding="utf-8").read())):
+    if (isinstance(_n, _fo_ast.Assign) and _n.targets
+            and getattr(_n.targets[0], "id", None) == "_step"):
+        _fo_step_src = _fo_ast.unparse(_n.value)
+_fo_u, _fo_cap = 3357, 600
+try:
+    _fo_step = eval(_fo_step_src, {"max": max},                   # noqa: S307
+                    {"universe": [0] * _fo_u, "cap": _fo_cap})
+except Exception:                                                 # noqa: BLE001
+    _fo_step = None
+check("🎯 FO10 مسارُ الكلفة يغطّي الكون 100% (تعبيرُ الإنتاج نفسُه)",
+      _fo_step is not None and min(_fo_cap * _fo_step, _fo_u) >= _fo_u,
+      f"step={_fo_step} · تغطية="
+      f"{(min(_fo_cap * _fo_step, _fo_u) / _fo_u * 100) if _fo_step else 0:.1f}% "
+      f"· التعبير={_fo_step_src}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

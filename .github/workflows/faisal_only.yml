@@ -1,0 +1,56 @@
+name: T-FAISAL-ONLY (معايير فيصل وحدها — التقاطٌ وكلفة)
+
+# 🎯 يقيس: هل تلتقط الحوافُّ المقيسة من كاتالوج فيصل المتحرّكين الذين يفوّتهم الفارز؟
+# العقد: `faisal_only_prereg.md` (مدفوعٌ قبل أيّ رقم · ثلاثةُ ملاحق مؤرَّخة).
+# بحث/قياس فقط: بلا تلغرام · بلا حفظ حالة · ولقطةٌ مجمَّدة إلزامية.
+# ⚠️ الجدول يُطبع **في اللوج** — سياسةُ الشبكة تمنع تنزيل الـartifacts.
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      frozen_run_id:
+        description: "run-id لتشغيلة «Freeze backtest dataset» (إلزامي)"
+        required: true
+        default: ""
+      window:
+        description: "نافذةُ القياس بالجلسات (افتراضي 20 — لا تُغيَّر بعد رؤية الأرقام)"
+        required: false
+        default: "20"
+      ctrl_cap:
+        description: "سقفُ رموز شاهد الضبط (0 = الكونُ كلُّه)"
+        required: false
+        default: "0"
+
+jobs:
+  faisal-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: frozen
+      - name: Locate snapshot
+        id: snap
+        run: |
+          f=$(find frozen -name '*.pkl.gz' | head -1)
+          [ -z "$f" ] && { echo "⛔ لا لقطة داخل الـartifact"; exit 1; }
+          echo "path=$f" >> "$GITHUB_OUTPUT"
+      - name: Run T-FAISAL-ONLY
+        env:
+          BT_FROZEN_PATH: ${{ steps.snap.outputs.path }}
+          ENV_SNAPSHOT_ID: ${{ github.event.inputs.frozen_run_id }}
+          FO_WINDOW: ${{ github.event.inputs.window }}
+          FO_CTRL_CAP: ${{ github.event.inputs.ctrl_cap }}
+        run: python faisal_only_check.py
