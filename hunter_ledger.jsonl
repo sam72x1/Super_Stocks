@@ -1,4 +1,0 @@
-{"key": "split|2026-08-09|X", "hunter": "split", "session": "2026-08-09", "symbol": "X", "kind": "candidate", "ref_close": 2.0, "fwd": 40, "outcome": null, "price": 1.0, "float": 1000000.0, "half": 0.5, "ref": 1.0}
-{"key": "split|2026-08-06|NUWE", "hunter": "split", "session": "2026-08-06", "symbol": "NUWE", "kind": "candidate", "ref_close": 1.9, "fwd": 40, "outcome": null, "price": 1.9, "float": 900000.0, "half": 1.93, "ref": 3.85}
-{"key": "envelope|2026-07-03|AAA", "hunter": "envelope", "session": "2026-07-03", "symbol": "AAA", "kind": "candidate", "ref_close": 2.0, "fwd": 40, "outcome": null, "float": 900000.0}
-{"key": "envelope|2026-07-03|BBB", "hunter": "envelope", "session": "2026-07-03", "symbol": "BBB", "kind": "candidate", "ref_close": 2.0, "fwd": 40, "outcome": null}

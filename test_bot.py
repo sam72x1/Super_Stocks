@@ -41,6 +41,21 @@ _REJ_REAL_SHA = (
 S.REJECT_LOG_FILE = _os_hc.path.join(
     _rej_tf.gettempdir(), "_suite_reject_log.json")
 
+# 🔴🔴 **ونفسُ العيب تكرّر بيدي مع سجلّ الحصاد** (‏2026-08-05): وصلتُ `LEDGER.record`
+#    بالصيّادين الأربعة، **والسويّة تُشغّلهم فعلًا** ⇒ صاروا يكتبون في
+#    `hunter_ledger.jsonl` **الحقيقيّ** برموزٍ مصطنعة (`X` · `AAA` · `NUWE` بفلوتٍ
+#    مفبرك) ⇒ **تلويثُ التجربة التي سجّلتُها للتوّ** — إذ ستُحسَم تلك الصفوفُ لاحقًا
+#    كأنها مرشّحون حقيقيّون. **وهو صنفُ العطل نفسه الذي شخّصتُه قبل ساعات** ⇒ نفسُ
+#    العلاج **عند المصدر**: يُحوَّل الثابت مرّةً واحدة، وتُحرَس البصمةُ قبل الملخّص.
+import hunter_ledger as _lg_mod                                   # noqa: E402
+
+_LED_REAL_PATH = _lg_mod.LEDGER_FILE
+_LED_REAL_SHA = (
+    _rej_h.sha256(open(_LED_REAL_PATH, "rb").read()).hexdigest()
+    if _os_hc.path.exists(_LED_REAL_PATH) else None)
+_lg_mod.LEDGER_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), "_suite_hunter_ledger.jsonl")
+
 PASS, FAIL = [], []
 
 
@@ -14751,6 +14766,12 @@ _rej_now = (_rej_h.sha256(open(_REJ_REAL_PATH, "rb").read()).hexdigest()
 check("🗂️ REJ🔒 السويّةُ لم تُغيّر `reject_log.json` المدفوع (حرسٌ شامل لكلّ كاتب)",
       _rej_now == _REJ_REAL_SHA,
       f"قبل={str(_REJ_REAL_SHA)[:12]} · بعد={str(_rej_now)[:12]}")
+
+_led_now = (_rej_h.sha256(open(_LED_REAL_PATH, "rb").read()).hexdigest()
+            if _os_hc.path.exists(_LED_REAL_PATH) else None)
+check("🌱 LG🔒 والسويّةُ لم تُغيّر `hunter_ledger.jsonl` المدفوع (حرسٌ شامل)",
+      _led_now == _LED_REAL_SHA,
+      f"قبل={str(_LED_REAL_SHA)[:12]} · بعد={str(_led_now)[:12]}")
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")

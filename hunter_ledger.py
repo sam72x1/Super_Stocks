@@ -39,8 +39,13 @@ def _key(hunter, session, symbol) -> str:
     return f"{hunter}|{session}|{str(symbol).upper()}"
 
 
-def load(path: str = LEDGER_FILE) -> list:
-    """يقرأ السجلّ. **فاشلٌ-آمن**: ملفٌّ غائبٌ أو سطرٌ تالف ⇒ يُتخطّى بلا انهيار."""
+def load(path: str = None) -> list:
+    """يقرأ السجلّ. **فاشلٌ-آمن**: ملفٌّ غائبٌ أو سطرٌ تالف ⇒ يُتخطّى بلا انهيار.
+
+    🔴 والمسارُ **يُحسَم وقت النداء**: `= LEDGER_FILE` افتراضًا يُربَط **وقت
+    التعريف** فلا يصله أيُّ تحويلٍ لاحق للثابت — وهو الفخُّ الذي جعل السويّة
+    تكتب في السجلّ الحقيقيّ رغم تحويله."""
+    path = path or LEDGER_FILE
     out = []
     try:
         if not os.path.exists(path):
@@ -100,11 +105,14 @@ def build_rows(hunter, session, rows, ref_of=None, kind="candidate") -> list:
 
 
 def record(hunter, session, rows, ref_of=None, kind="candidate",
-           path: str = LEDGER_FILE, log=None) -> int:
+           path: str = None, log=None) -> int:
     """✍️ يُلحق صفوفَ صيّادٍ بالسجلّ ويُرجع **عدد الجديد**.
 
     🔒 **لا يرمي أبدًا** (البند 2) · **ومُتَمَاثِل** (البند 3): ما كان مفتاحُه
-    موجودًا يُتخطّى ⇒ الكرونان لا يُنتجان صفَّين."""
+    موجودًا يُتخطّى ⇒ الكرونان لا يُنتجان صفَّين.
+
+    🔴 والمسارُ **يُحسَم وقت النداء** (نفسُ فخّ الافتراض المربوط)."""
+    path = path or LEDGER_FILE
     try:
         new = build_rows(hunter, session, rows, ref_of=ref_of, kind=kind)
         if not new:
@@ -157,8 +165,11 @@ def pending(rows, resolved_keys=None) -> list:
             and r.get("ref_close")]
 
 
-def apply_outcomes(rows, outcomes, path: str = LEDGER_FILE, log=None) -> int:
-    """يعيد كتابة السجلّ بعد إلحاق الأحكام. **فاشلٌ-آمن** ويُعلن القصّ (‏H6)."""
+def apply_outcomes(rows, outcomes, path: str = None, log=None) -> int:
+    """يعيد كتابة السجلّ بعد إلحاق الأحكام. **فاشلٌ-آمن** ويُعلن القصّ (‏H6).
+
+    🔴 والمسارُ **يُحسَم وقت النداء** (نفسُ فخّ الافتراض المربوط)."""
+    path = path or LEDGER_FILE
     try:
         by_key = dict(outcomes or {})
         n = 0
