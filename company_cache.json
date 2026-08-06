@@ -129,17 +129,6 @@
   "short_pct": 2.5,
   "float": 2605563
  },
- "EZRA": {
-  "sector": "Financial Services",
-  "industry": "Insurance Brokers",
-  "business": "Reliance Global Group, Inc. acquires, owns, and manages insurance distribution and technology-oriented businesses in the United States. The company operates REL…",
-  "country": "United States",
-  "cash": 2273952,
-  "revenue": 12021531,
-  "shares_out": 555764,
-  "short_pct": 14.9,
-  "float": 493362
- },
  "BCAB": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -1713,21 +1702,6 @@
   "days_to_cover": 0.03
  },
  "BYRN": {},
- "PMAX": {
-  "sector": "Financial Services",
-  "industry": "Capital Markets",
-  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
-  "country": "Hong Kong",
-  "cash": 7774304,
-  "revenue": 47647540,
-  "shares_out": 1037171,
-  "short_pct": 4.6,
-  "float": 892196,
-  "finra_short": 29626,
-  "company_name": "Powell Max Limited",
-  "short_interest": 48021,
-  "days_to_cover": 0.07
- },
  "DXST": {
   "sector": "Industrials",
   "industry": "Waste Management",
@@ -1742,24 +1716,6 @@
   "company_name": "Decent Holding Inc.",
   "short_interest": 17477,
   "days_to_cover": 0.03
- },
- "GWAV": {
-  "finra_short": 16193
- },
- "ALAR": {
-  "sector": "Technology",
-  "industry": "Software - Infrastructure",
-  "business": "Alarum Technologies Ltd. provides web data collection solutions in North, South, and Central America, Europe, Southeast Asia, the Middle East, China, Hong Kong,…",
-  "country": "Israel",
-  "cash": 14060000,
-  "revenue": 45333000,
-  "shares_out": 7348826,
-  "short_pct": 0.3,
-  "float": 6910213,
-  "finra_short": 14232,
-  "company_name": "Alarum Technologies Ltd.",
-  "short_interest": 24500,
-  "days_to_cover": 0.24
  },
  "AXTI": {},
  "CIIT": {
@@ -1806,24 +1762,6 @@
   "short_interest": 878,
   "days_to_cover": 0.04
  },
- "TMC": {},
- "LUNR": {},
- "TOYO": {},
- "IPWR": {
-  "sector": "Technology",
-  "industry": "Semiconductors",
-  "business": "Ideal Power Inc. focuses on the development and commercialization of its bidirectional bipolar junction TRANsistor solid-state switch technology. The company of…",
-  "country": "United States",
-  "cash": 16410749,
-  "revenue": 25725,
-  "shares_out": 16421520,
-  "short_pct": 4.8,
-  "float": 9583226,
-  "company_name": "Ideal Power Inc.",
-  "short_interest": 778739,
-  "days_to_cover": 2.54
- },
- "PLUG": {},
  "IDN": {
   "sector": "Technology",
   "industry": "Software - Application",
@@ -1841,7 +1779,6 @@
  "IMNN": {
   "finra_short": 9918
  },
- "NTLA": {},
  "PPSI": {
   "sector": "Industrials",
   "industry": "Electrical Equipment & Parts",
@@ -1872,34 +1809,6 @@
   "short_interest": 144608,
   "days_to_cover": 2.2
  },
- "ALMU": {
-  "sector": "Technology",
-  "industry": "Semiconductors",
-  "business": "Aeluma, Inc. develops optoelectronic and electronic devices for sensing, communication, and computing applications in the United States. The company produces se…",
-  "country": "United States",
-  "cash": 37780000,
-  "revenue": 5196000,
-  "shares_out": 18305335,
-  "short_pct": 26.8,
-  "float": 13651936,
-  "company_name": "Aeluma, Inc.",
-  "short_interest": 3580040,
-  "days_to_cover": 5.74
- },
- "ASTS": {
-  "sector": "Technology",
-  "industry": "Communication Equipment",
-  "business": "AST SpaceMobile, Inc., together with its subsidiaries, designs and develops the constellation of BlueBird satellites in the United States. The company provides…",
-  "country": "United States",
-  "cash": 3029591040,
-  "revenue": 84935000,
-  "shares_out": 298746383,
-  "short_pct": 19.9,
-  "float": 265967930,
-  "company_name": "AST SpaceMobile, Inc.",
-  "short_interest": 59349055,
-  "days_to_cover": 3.08
- },
  "INOD": {
   "sector": "Technology",
   "industry": "Information Technology Services",
@@ -1913,34 +1822,6 @@
   "company_name": "Innodata Inc.",
   "short_interest": 4570220,
   "days_to_cover": 3.45
- },
- "PSIX": {
-  "sector": "Industrials",
-  "industry": "Specialty Industrial Machinery",
-  "business": "Power Solutions International, Inc. designs, engineers, manufactures, markets, and sells engines and power systems in the United States, the rest of North Ameri…",
-  "country": "United States",
-  "cash": 45089000,
-  "revenue": 715550976,
-  "shares_out": 23050450,
-  "short_pct": 14.2,
-  "float": 7335114,
-  "company_name": "Power Solutions International,",
-  "short_interest": 1755134,
-  "days_to_cover": 4.12
- },
- "RCAT": {
-  "sector": "Industrials",
-  "industry": "Aerospace & Defense",
-  "business": "Red Cat Holdings, Inc., together with its subsidiaries, provides drone and robotic solutions for defense, national security, and commercial applications in the…",
-  "country": "United States",
-  "cash": 131919000,
-  "revenue": 54570000,
-  "shares_out": 152192265,
-  "short_pct": 23.6,
-  "float": 111601037,
-  "company_name": "Red Cat Holdings, Inc.",
-  "short_interest": 32643274,
-  "days_to_cover": 3.01
  },
  "RGTI": {
   "sector": "Technology",
@@ -2062,5 +1943,182 @@
   "company_name": "Super Micro Computer, Inc.",
   "short_interest": 97146633,
   "days_to_cover": 1.94
+ },
+ "IPWR": {
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "business": "Ideal Power Inc. focuses on the development and commercialization of its bidirectional bipolar junction TRANsistor solid-state switch technology. The company of…",
+  "country": "United States",
+  "cash": 16410749,
+  "revenue": 25725,
+  "shares_out": 16421520,
+  "short_pct": 4.8,
+  "float": 9583226,
+  "company_name": "Ideal Power Inc.",
+  "short_interest": 778739,
+  "days_to_cover": 2.54
+ },
+ "TOYO": {},
+ "LUNR": {},
+ "ALAR": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "business": "Alarum Technologies Ltd. provides web data collection solutions in North, South, and Central America, Europe, Southeast Asia, the Middle East, China, Hong Kong,…",
+  "country": "Israel",
+  "cash": 14060000,
+  "revenue": 45333000,
+  "shares_out": 7348826,
+  "short_pct": 0.3,
+  "float": 6910213,
+  "finra_short": 14232,
+  "company_name": "Alarum Technologies Ltd.",
+  "short_interest": 24500,
+  "days_to_cover": 0.24
+ },
+ "NTLA": {},
+ "PLUG": {},
+ "CBIO": {},
+ "EZRA": {
+  "sector": "Financial Services",
+  "industry": "Insurance Brokers",
+  "business": "Reliance Global Group, Inc. acquires, owns, and manages insurance distribution and technology-oriented businesses in the United States. The company operates REL…",
+  "country": "United States",
+  "cash": 2273952,
+  "revenue": 12021531,
+  "shares_out": 555764,
+  "short_pct": 14.9,
+  "float": 493362
+ },
+ "ALMU": {
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "business": "Aeluma, Inc. develops optoelectronic and electronic devices for sensing, communication, and computing applications in the United States. The company produces se…",
+  "country": "United States",
+  "cash": 37780000,
+  "revenue": 5196000,
+  "shares_out": 18305335,
+  "short_pct": 26.8,
+  "float": 13651936,
+  "company_name": "Aeluma, Inc.",
+  "short_interest": 3580040,
+  "days_to_cover": 5.74
+ },
+ "ASTS": {
+  "sector": "Technology",
+  "industry": "Communication Equipment",
+  "business": "AST SpaceMobile, Inc., together with its subsidiaries, designs and develops the constellation of BlueBird satellites in the United States. The company provides…",
+  "country": "United States",
+  "cash": 3029591040,
+  "revenue": 84935000,
+  "shares_out": 298746383,
+  "short_pct": 19.9,
+  "float": 265967930,
+  "company_name": "AST SpaceMobile, Inc.",
+  "short_interest": 59349055,
+  "days_to_cover": 3.08
+ },
+ "FIEE": {},
+ "GWAV": {
+  "finra_short": 6381
+ },
+ "JFB": {},
+ "LWLG": {},
+ "PMAX": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets",
+  "business": "Powell Max Limited, through its subsidiaries, provides financial communications services in Hong Kong. The company offers financial printing; corporate reportin…",
+  "country": "Hong Kong",
+  "cash": 7774304,
+  "revenue": 47647540,
+  "shares_out": 1037171,
+  "short_pct": 4.6,
+  "float": 892196,
+  "finra_short": 7372,
+  "company_name": "Powell Max Limited",
+  "short_interest": 48021,
+  "days_to_cover": 0.07
+ },
+ "POET": {
+  "sector": "Technology",
+  "industry": "Semiconductors",
+  "business": "POET Technologies Inc., together with its subsidiaries, designs, develops, manufactures, and sells semiconductor products and services for commercial applicatio…",
+  "country": "Canada",
+  "cash": 429136448,
+  "revenue": 1411494,
+  "shares_out": 172590000,
+  "short_pct": 15.8,
+  "float": 143933402,
+  "company_name": "POET Technologies Inc.",
+  "short_interest": 27242544,
+  "days_to_cover": 1.53
+ },
+ "PSIX": {
+  "sector": "Industrials",
+  "industry": "Specialty Industrial Machinery",
+  "business": "Power Solutions International, Inc. designs, engineers, manufactures, markets, and sells engines and power systems in the United States, the rest of North Ameri…",
+  "country": "United States",
+  "cash": 45089000,
+  "revenue": 715550976,
+  "shares_out": 23050450,
+  "short_pct": 14.2,
+  "float": 7335114,
+  "company_name": "Power Solutions International,",
+  "short_interest": 1755134,
+  "days_to_cover": 4.12
+ },
+ "RCAT": {
+  "sector": "Industrials",
+  "industry": "Aerospace & Defense",
+  "business": "Red Cat Holdings, Inc., together with its subsidiaries, provides drone and robotic solutions for defense, national security, and commercial applications in the…",
+  "country": "United States",
+  "cash": 131919000,
+  "revenue": 54570000,
+  "shares_out": 152192265,
+  "short_pct": 23.6,
+  "float": 111601037,
+  "company_name": "Red Cat Holdings, Inc.",
+  "short_interest": 32643274,
+  "days_to_cover": 3.01
+ },
+ "RYM": {
+  "sector": "Consumer Defensive",
+  "industry": "Tobacco",
+  "business": "RYTHM, Inc. provides solutions for the cannabis and hemp industry in the United States. The company offers consumers hemp-derived tetrahydrocannabinol beverages…",
+  "country": "United States",
+  "cash": 41915000,
+  "revenue": 51010000,
+  "shares_out": 2149128,
+  "short_pct": 1.9,
+  "float": 1189390,
+  "company_name": "RYTHM, Inc.",
+  "short_interest": 26891,
+  "days_to_cover": 2.24
+ },
+ "RZLV": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "business": "Rezolve AI PLC provides generative AI solutions for the retail and e-commerce sectors in the United Kingdom and the United States. It sells its solutions retail…",
+  "country": "United Kingdom",
+  "cash": 111112248,
+  "revenue": 46800100,
+  "shares_out": 398827587,
+  "short_pct": 13.8,
+  "float": 197636180,
+  "company_name": "Rezolve AI PLC",
+  "short_interest": 35942255,
+  "days_to_cover": 2.29
+ },
+ "TMC": {
+  "sector": "Basic Materials",
+  "industry": "Other Industrial Metals & Mining",
+  "business": "TMC the metals company Inc., a deep-sea minerals exploration company, focuses on the collection, processing, and refining of polymetallic nodules found on the s…",
+  "country": "Canada",
+  "cash": 119682000,
+  "shares_out": 433221138,
+  "short_pct": 10.6,
+  "float": 242681817,
+  "company_name": "TMC the metals company Inc.",
+  "short_interest": 29005417,
+  "days_to_cover": 6.19
  }
 }
