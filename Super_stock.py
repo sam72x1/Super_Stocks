@@ -11498,6 +11498,15 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
     for s in wl.get("stocks", []):
         if s.get("status") != "active" or s.get("ignition_alert") == today_iso:
             continue
+        # 🔴 **إصلاح 2026-08-06 (بإذن المالك — عطلٌ مقيس):** كان الفحص على `status`
+        #    وحده، و`cont_status == "exited"` يعني «**خرج من النموذج**» (لم يعد
+        #    ارتكازًا؛ يُحمَل لمتابعة مركز المالك فقط، قرار 2026-07-21). فكان الرادار
+        #    يُطلق «🔥 ادخل الآن» على أسهمٍ خارجة — **‏5 من 9 إطلاقات منذ 2026-07-31**
+        #    (PSTV · TRON ×2 · NEGG ×2) — وهو نقضٌ مباشر لقرار «لا إشعار إلا بالجاهز»
+        #    (2026-07-29). ⚖️ والمحمولُ يبقى **معروضًا** في «🔄 متابعة لمركزك» كما هو —
+        #    المُلغى **دعوةُ دخولٍ جديدة** لا المتابعة.
+        if s.get("cont_status") == "exited":
+            continue
         if _tr:
             _sym = s.get("symbol")
             _emit_trace(trace, "01_SEEN_ACTIVE", lambda: {"symbol": _sym})
@@ -13277,6 +13286,68 @@ def prune_graduated_pullback(wl: dict) -> list:
     return graduated
 
 
+PULLBACK_STALE_MULT = 5.0     # حدُّ «سجلٌّ مستحيل» — يُعلَن ولا يُصمَت
+
+
+def repair_stale_pullback(wl: dict, fetch=None) -> tuple:
+    """🩹 **يُصلح ثم يشطب** سجلّاتِ الارتداد التي صار سعرُها مستحيلًا مقابل نطاقها.
+
+    **العطلُ المقيس (2026-08-06، بإذن المالك):** `FFAI` سعرُه 4.85 ونطاقُه المخزَّن
+    ‏[0.10 , 0.11] = **‏44×** · و`CIIT` **‏13×** — بصمةُ **تقسيمٍ عكسيّ** بعد الإضافة
+    (المخزَّن بمقياس يوم الإضافة، وبيانات ياهو معدَّلة). والقائمة **‏15/15 ممتلئة**
+    فهذان يحجزان خانتين بلا أيّ معنًى، ويمنعان مرشّحًا حقيقيًّا.
+
+    **المبدأ: الإصلاحُ قبل الشطب.** نجرّب `_split_scale_factor` — وهي الآلةُ نفسُها
+    التي تُسوّي الحسم في `update_watchlist_status` (‏F-02) — فإن فسّر التقسيمُ الفارقَ
+    **أُعيد قياسُ النطاق ولم يُشطب السجلّ**؛ وما لا يُفسَّر يُشطب **بسببٍ مُسمّى**.
+
+    🔒 فاشلٌ-آمن مطلق: تعذّر الجلب ⇒ العامل 1.0 ⇒ **سلوكُ اليوم حرفيًّا**. و`fetch`
+    محقونٌ للاختبار. يُرجع `(repaired, dropped)` قائمتَي رموز."""
+    pb = wl.get("pullback") or []
+    if not pb:
+        return ([], [])
+    fx = fetch if fetch is not None else _fetch_splits
+    repaired, dropped, keep = [], [], []
+    for e in pb:
+        try:
+            lp = e.get("last_price")
+            ent = e.get("entry")
+            if lp is None or not ent or len(ent) < 2 or float(ent[1]) <= 0:
+                keep.append(e)
+                continue
+            lo, hi = float(ent[0]), float(ent[1])
+            lp = float(lp)
+            if lp <= hi * PULLBACK_STALE_MULT:
+                keep.append(e)
+                continue
+            # مستحيلٌ ظاهريًّا — هل يفسّره تقسيم؟
+            since = str(e.get("added") or e.get("date") or "")[:10]
+            fac = 1.0
+            if since:
+                try:
+                    fac = float(_split_scale_factor(fx(e["symbol"]), since)) or 1.0
+                except Exception:                            # noqa: BLE001
+                    fac = 1.0
+            if fac and fac != 1.0 and lp <= (hi / fac) * PULLBACK_STALE_MULT:
+                e["entry"] = [round(lo / fac, 4), round(hi / fac, 4)]
+                for k in ("stop", "pivot", "t1", "t2", "t3"):
+                    if isinstance(e.get(k), (int, float)):
+                        e[k] = round(float(e[k]) / fac, 4)
+                e["split_repaired"] = fac
+                repaired.append(e["symbol"])
+                keep.append(e)
+            else:
+                e["drop_reason"] = (f"سجلٌّ مستحيل: السعر {lp:g} مقابل نطاق "
+                                    f"[{lo:g} , {hi:g}] = {lp / hi:.0f}× "
+                                    f"(الحدّ {PULLBACK_STALE_MULT:g}×) ولم يفسّره تقسيم")
+                dropped.append(e["symbol"])
+        except Exception:                                    # noqa: BLE001
+            keep.append(e)                                   # الشكُّ لصالح البقاء
+    if dropped or repaired:
+        wl["pullback"] = keep
+    return (repaired, dropped)
+
+
 def run_daily_watchlist(wl: dict) -> None:
     """يومي (غير الجمعة): قائمة ثابتة دائمة — تُتابَع وتُضاف لها الجديد فقط.
     **الشطب بالستوب فقط**؛ الهدف المُحقَّق **لا يُنهي المتابعة** (يبقى نشطًا
@@ -13460,6 +13531,17 @@ def run_daily_watchlist(wl: dict) -> None:
     #    نمرّر القائمة الأساسية الحالية (تشمل ما أُضيف توًّا) كاستبعاد، ثم
     #    نشيل أي سهم تخرّج للأساسية من المراقبة (لا ازدواج بين القائمتين).
     held_now = {s["symbol"] for s in wl["stocks"]}
+    # 🩹 **قبل الدمج** (إصلاح 2026-08-06): سجلٌّ مستحيل يحجز خانةً في قائمةٍ ممتلئة
+    #    ‏15/15، فتحريرُه **قبل** `merge_pullback` يُتيح استعمالَ الخانة اليوم لا غدًا.
+    #    ويقرأ `last_price` المخزَّن من تشغيلة أمس — وهو كافٍ لكشف فارقٍ من رتبة 44×.
+    try:
+        _rep, _drp = repair_stale_pullback(wl)
+        if _rep:
+            log("🩹 أُعيد قياسُ سجلّ ارتدادٍ بعد تقسيم: " + "، ".join(_rep))
+        if _drp:
+            log("🗑️ شُطبت سجلّاتُ ارتدادٍ مستحيلة: " + "، ".join(_drp))
+    except Exception as e:
+        log(f"⚠️ صيانة سجلّات الارتداد: {e}")
     try:
         merge_pullback(wl, hist, held_now | stopped, today_iso)
     except Exception as e:

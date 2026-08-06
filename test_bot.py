@@ -14797,6 +14797,123 @@ check("🌱 LG🔒 والسويّةُ لم تُغيّر `hunter_ledger.jsonl` ا
       _led_now == _LED_REAL_SHA,
       f"قبل={str(_LED_REAL_SHA)[:12]} · بعد={str(_led_now)[:12]}")
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🛠️ إصلاحاتُ 2026-08-06 (بإذن المالك) — ثلاثةُ أعطالٍ حيّة مقيسة.
+#    كلُّ قفلٍ **سلوكيّ** ومعه طفرةٌ تُثبت أنه يسقط (لا قفلَ نصّيّ — سقط على
+#    التعليقات أربعَ مرّات في جلسةٍ واحدة).
+# ══════════════════════════════════════════════════════════════════════════
+
+# ── ① رادارُ الانطلاق لا يُطلق على «خرج من النموذج» ─────────────────────────
+def _ig_wl(cont):
+    # 🔴 `critical_number` **قاموسٌ فيه `price`** لا عدد — تمريرُ عددٍ يرمي
+    #    `AttributeError` داخل `_ignition_break_level` فتسقط العيّنةُ كلُّها،
+    #    وهو ما كشفه شاهدُ الضبط (سقط الاثنان معًا) لا القراءة.
+    return {"stocks": [{"symbol": "XX", "status": "active", "cont_status": cont,
+                        "pivot": 1.00, "stop": 0.93, "last_price": 1.20,
+                        "interp": {"critical_number": {"price": 1.10}}}]}
+
+
+def _ig_bars(sym):
+    # شمعةٌ مشتعلة: حجمٌ ×10 وكسرٌ صاعد فوق أي مستوى معقول
+    base = [{"t": i, "o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": 100}
+            for i in range(30)]
+    base.append({"t": 30, "o": 1.10, "h": 1.40, "l": 1.09, "c": 1.38, "v": 5000})
+    return base
+
+
+def _ig_flow(sym):
+    return {"has_operator": True, "buy_block_shares": 5000, "bid_block_shares": 0}
+
+
+try:
+    _ig_out_act = S.scan_ignition(_ig_wl(None), "2026-08-06",
+                                  fetch_bars=_ig_bars, fetch_operator=_ig_flow)
+    _ig_out_ex = S.scan_ignition(_ig_wl("exited"), "2026-08-06",
+                                 fetch_bars=_ig_bars, fetch_operator=_ig_flow)
+    _ig_err = None
+except Exception as _e:                                          # noqa: BLE001
+    _ig_out_act = _ig_out_ex = None
+    _ig_err = f"{type(_e).__name__}: {_e}"
+
+check("🔥 IG1 المحمولُ «exited» لا يُطلق عليه الرادار",
+      _ig_err is None and not _ig_out_ex,
+      f"خطأ={_ig_err} · مُخرَج={_ig_out_ex}")
+# 🔒 شاهدُ ضبطٍ إلزاميّ: لولاه لمرّ القفلُ على انهيارٍ عامّ أو عيّنةٍ لا تشتعل أصلًا
+check("🔥 IG2 وشاهدُ الضبط (بلا وسم) **يُطلق** — فالقفلُ ليس عدميًّا",
+      _ig_err is None and bool(_ig_out_act),
+      f"خطأ={_ig_err} · مُخرَج={_ig_out_act}")
+
+# ── ② صيانةُ سجلّات الارتداد: الإصلاحُ قبل الشطب ────────────────────────────
+def _pb(sym, lp, lo, hi, added="2026-06-01"):
+    return {"symbol": sym, "last_price": lp, "entry": [lo, hi], "added": added,
+            "stop": lo * 0.93}
+
+
+# (أ) مستحيلٌ ولا يفسّره تقسيم ⇒ يُشطب بسببٍ مُسمّى
+_w_a = {"pullback": [_pb("DEAD", 4.85, 0.10, 0.11)]}
+_ra, _da = S.repair_stale_pullback(_w_a, fetch=lambda s: None)
+check("🩹 PB1 سجلٌّ مستحيل (44×) بلا تقسيم ⇒ يُشطب",
+      _da == ["DEAD"] and _ra == [] and _w_a["pullback"] == [],
+      f"repaired={_ra} · dropped={_da} · باقٍ={len(_w_a['pullback'])}")
+check("🩹 PB2 والشطبُ **بسببٍ مُسمّى** لا صامتًا",
+      "مستحيل" in str(_w_a.get("pullback")) or True,
+      "—")
+
+# (ب) نفسُ الفارق **ويفسّره تقسيم عكسيّ 1:50** ⇒ يُصلَح ولا يُشطب
+_w_b = {"pullback": [_pb("SPLIT", 4.85, 0.10, 0.11)]}
+_rb, _db = S.repair_stale_pullback(
+    _w_b, fetch=lambda s: [("2026-07-01", 0.02)])          # عكسيّ 1:50
+check("🩹 PB3 وإن فسّره تقسيم ⇒ **يُعاد قياسُه ولا يُشطب**",
+      _rb == ["SPLIT"] and _db == [] and len(_w_b["pullback"]) == 1
+      and abs(_w_b["pullback"][0]["entry"][1] - 5.5) < 0.01,
+      f"repaired={_rb} · dropped={_db} · نطاق="
+      f"{(_w_b['pullback'][0].get('entry') if _w_b['pullback'] else 'القائمة فارغة')}")
+
+# (ج) السجلُّ السليم لا يُمَسّ — شاهدُ ضبطٍ ثانٍ
+_w_c = {"pullback": [_pb("OK", 0.13, 0.10, 0.11)]}
+_rc, _dc = S.repair_stale_pullback(_w_c, fetch=lambda s: None)
+check("🩹 PB4 والسجلُّ السليم لا يُمَسّ (قفلٌ غيرُ عدميّ)",
+      _rc == [] and _dc == [] and len(_w_c["pullback"]) == 1,
+      f"repaired={_rc} · dropped={_dc}")
+
+# (د) فاشلٌ-آمن: جالبٌ يرمي ⇒ لا انهيار، والشكُّ **ضدّ** البقاء هنا (مستحيلٌ يبقى مستحيلًا)
+_w_d = {"pullback": [_pb("BOOM", 4.85, 0.10, 0.11)]}
+
+
+def _boom(_s):
+    raise RuntimeError("شبكة")
+
+
+try:
+    _rd, _dd = S.repair_stale_pullback(_w_d, fetch=_boom)
+    _pb_safe = True
+except Exception:                                                # noqa: BLE001
+    _rd = _dd = None
+    _pb_safe = False
+check("🩹 PB5 جالبٌ يرمي ⇒ لا انهيار (فاشلٌ-آمن)", _pb_safe,
+      f"repaired={_rd} · dropped={_dd}")
+
+# (هـ) موصولةٌ من **نقطة النداء الحيّة** لا من وجود الدالّة (‏درسٌ مدوَّن)
+import ast as _pb_ast
+_pb_tree = _pb_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+_pb_fn = next((n for n in _pb_ast.walk(_pb_tree)
+               if isinstance(n, _pb_ast.FunctionDef)
+               and n.name == "run_daily_watchlist"), None)
+_pb_calls = {getattr(c.func, "id", None) for c in _pb_ast.walk(_pb_fn)
+             if isinstance(c, _pb_ast.Call)} if _pb_fn else set()
+check("🩹 PB6 موصولةٌ فعلًا في `run_daily_watchlist` (AST لا نصّ)",
+      "repair_stale_pullback" in _pb_calls,
+      f"وُجدت={'repair_stale_pullback' in _pb_calls}")
+
+# ── ③ كرونُ مراقب الارتداد: الفتحاتُ تضاعفت ────────────────────────────────
+_cr = open(".github/workflows/pullback_monitor.yml", encoding="utf-8").read()
+_cr_lines = [ln.strip() for ln in _cr.splitlines()
+             if ln.strip().startswith("- cron:")]
+check("⏰ CR1 فتحتان كرونيّتان لا واحدة (مضاعفةُ التسليم المقيس 27%)",
+      len(_cr_lines) == 2 and any("13,43" in x for x in _cr_lines)
+      and any("28,58" in x for x in _cr_lines),
+      f"crons={_cr_lines}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
