@@ -12471,6 +12471,24 @@ check("🕓 H4🔒 و**اليوميّ أوّلًا**: لا يُجلَب 4س لم
               fetch_h4=lambda s: _f4_alt), dict(S._METHOD_STAGE))[1])()))
 check("🕓 H4🔒 و`fetch_h4=None` ⇒ **السلوك السابق حرفيًّا** (لا 4س بلا حاقن)",
       _f4_off["h4_fetched"] == 0 and _f4_off["seq_h4"] == 0)
+# 🪜 **«من الفريم الكبير إلى الصغير»** (قاعدةُ المالك 2026-08-06 · سندُها `IMG_0446`
+#    «يوميّ/أسبوعيّ لأسهم التجميع · 4 ساعات **بعد** تكوين قاع» و`IMG_0080`).
+#    المفتاحُ الأوّل الفريمُ ثم الصعود — **والمميِّز أن 4س بصعودٍ أعلى لا يتقدّم يوميًّا**.
+_fo_rows = [{"symbol": "H4BIG", "frame": "4 ساعات", "t1": 3.0, "entry": 1.0},
+            {"symbol": "DLOW", "frame": "يوميّ", "t1": 1.2, "entry": 1.0},
+            {"symbol": "DHIGH", "frame": "يوميّ", "t1": 2.0, "entry": 1.0},
+            {"symbol": "H4LOW", "frame": "4 ساعات", "t1": 1.1, "entry": 1.0}]
+_fo_key = None
+for _ln in _insp0.getsource(S.scan_method_hunter).split("\n"):
+    if "rows.sort(key=" in _ln:
+        _fo_key = _ln
+_fo_sorted = sorted(_fo_rows, key=lambda r: (0 if str(r.get("frame") or "") == "يوميّ"
+                                             else 1, -(r["t1"] / max(r["entry"], 1e-9))))
+check("🪜 FRM1 الترتيبُ: اليوميُّ قبل 4س **ولو كان صعودُ 4س أعلى**",
+      [r["symbol"] for r in _fo_sorted] == ["DHIGH", "DLOW", "H4BIG", "H4LOW"],
+      str([r["symbol"] for r in _fo_sorted]))
+check("🪜 FRM2 والمفتاحُ في الإنتاج يحمل الفريمَ أوّلًا (لا الصعودَ وحده)",
+      _fo_key is not None and "frame" in _fo_key, str(_fo_key)[:110])
 # 🔒 عطلُ 4س لرمزٍ يتخطّاه وحده ولا يُسقط بقيّة الكون — يُقاس بـ**رمزين**: أحدهما
 #    يرمي على 4س والآخر مطابقٌ على اليوميّ. (‏والحارسُ هو الخارجيّ لكلّ رمز؛ حُذف
 #    الداخليّ لأنه فرعٌ بلا أثرٍ يمكن قياسه — نجت طفرتُه فكشفت تكراره.)
