@@ -15164,6 +15164,23 @@ check("📊 OE5 موصولةٌ في **مسارَي** تقرير التطوير (
 check("📊 OE6 سقفُ المراقبة ‏≥60 (كان 25 مُلزِمًا مقيسًا)",
       S.OBSERVE_CAP >= 60, f"OBSERVE_CAP={S.OBSERVE_CAP}")
 
+# ── 🔒 قرارُ المالك «25 فقط» — بنيويٌّ لا وسيطُ تشغيل (2026-08-06) ───────────
+_c25 = [x for x in _fo_ce.CATALOG if x not in _fo_ce.EXCLUDED_BY_OWNER]
+check("🔒 C25-1 الكاتالوجُ الفعّال 29 مرشَّحًا (35 ناقص ستّة مستبعَدين)",
+      len(_c25) == 29 and len(_fo_ce.EXCLUDED_BY_OWNER) == 6,
+      f"مرشَّحون={len(_c25)} · مستبعَدون={sorted(_fo_ce.EXCLUDED_BY_OWNER)}")
+check("🔒 C25-2 الثلاثةُ الدائريّة مستبعَدةٌ **بنيويًّا** (لا تعود بنسيان ENV_SYMBOLS)",
+      all(x in _fo_ce.EXCLUDED_BY_OWNER for x in ("APVO", "CMTL", "KLXE")),
+      f"{[x for x in ('APVO','CMTL','KLXE') if x not in _fo_ce.EXCLUDED_BY_OWNER]} غائب")
+# 🔒 شاهدُ ضبط: مَن **ذُكر عند فيصل** يبقى داخلًا — فالقفلُ ليس تقليمًا شاملًا
+check("🔒 C25-3 وشاهدُ الضبط: المذكورون عند فيصل باقون (JZ · ONCO · NUWE · DSY)",
+      all(x in _c25 for x in ("JZ", "ONCO", "NUWE", "DSY", "EHGO", "ZCMD")),
+      f"مفقود={[x for x in ('JZ','ONCO','NUWE','DSY','EHGO','ZCMD') if x not in _c25]}")
+# 🔒 وسببُ كلّ استبعادٍ **مُسمّى** لا فارغ
+check("🔒 C25-4 ولكلّ مستبعَدٍ سببٌ مكتوب (لا استبعادَ صامت)",
+      all(str(v).strip() for v in _fo_ce.EXCLUDED_BY_OWNER.values()),
+      f"{[k for k, v in _fo_ce.EXCLUDED_BY_OWNER.items() if not str(v).strip()]}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
