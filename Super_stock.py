@@ -12078,6 +12078,112 @@ def _hunter_ledger_block():
         return []
 
 
+BAND_GATE_SINCE = "2026-08-06"   # يومُ تفعيل «لا إشعارَ إلا داخل النطاق» (مرجعُ قياس ②)
+
+
+def _long_tracks_block() -> list:
+    """⏳ **مساراتٌ تحتاج وقتًا — تقريرٌ أسبوعيّ يخصُّها** (أمرُ المالك 2026-08-06:
+    «اي شي يحتاج وقت ضفه مع اداة التطوير يوصلنا تقرير يخصه كل نهاية اسبوع»).
+
+    السبب: بعد استهلاك المدى التاريخيّ، بقيَ ما **لا يُعجَّل**: سجلّاتٌ تتراكم
+    بالجلسات. وكانت حالتُها تُقرأ بفتح GitHub أو بسؤالي ⇒ **تتراكم ولا تُقرأ**.
+
+    قسمان **متمايزان بقصد**: (أ) ما ينتظر **وقتًا** ومعه عدّادُه الحقيقيّ وعتبتُه ⇒
+    فيُعرَف متى يُقرأ حكمًا · (ب) ما ينتظر **عملًا أو قرارًا** لا وقتًا ⇒ فلا يُدفَن
+    في انتظارٍ ليس انتظارَه. وكلُّ عدّادٍ **من ملفٍّ حقيقيّ بمفتاحه الفعليّ**، وكلُّ
+    مسارٍ في حارسه فعطلُ ملفٍّ لا يُسقط القسم. **عرض/تذكير فقط.**"""
+    # 🔒 **حرسٌ خارجيّ** (نمطُ `_hand_flow_block`): حرّاسُ المسارات الداخلية تعزل
+    #    عطلَ **مصدر**، وهذا يعزل عطلَ **الكتلة نفسها** — فلا يموت تقريرُ المالك
+    #    الأسبوعيّ بسببِ قسمٍ تذكيريّ. مُستنسَخ: بحذف الحارس الداخليّ ينهار
+    #    `build_dev_assistant_report` كلُّه (ملفُّ حصّاد اليد غير موجود).
+    try:
+        return _long_tracks_rows()
+    except Exception:                                            # noqa: BLE001
+        return []
+
+
+def _long_tracks_rows() -> list:
+    """صفوفُ تقرير المسارات — مفصولةٌ ليحرسها `_long_tracks_block` من الخارج."""
+    A, B = [], []
+
+    def _num(fn, dflt=None):
+        try:
+            return fn()
+        except Exception:                                        # noqa: BLE001
+            return dflt
+
+    # ── (أ) تتراكم بالوقت ────────────────────────────────────────────────────
+    def _ledger():
+        import hunter_ledger as _HL
+        rows = _HL.load()
+        s = _HL.summary(rows) or {}
+        n = sum(int(v.get("n") or 0) for v in s.values() if isinstance(v, dict))
+        rz = sum(int(v.get("resolved") or 0) for v in s.values() if isinstance(v, dict))
+        return n, rz
+    _lg = _num(_ledger)
+    if _lg:
+        A.append(f"   🌱 حصادُ الصيّادين: {_lg[0]} مرشّحًا · محسوم <b>{_lg[1]}</b> "
+                 f"من 30 ⇒ {'✅ قابلٌ للقراءة' if _lg[1] >= 30 else 'يتراكم'}")
+
+    _ig = _num(lambda: len(load_ignition_log() or []))
+    if _ig is not None:
+        A.append(f"   🔥 إطلاقاتُ الرادار: <b>{_ig}</b> مسجَّلًا · حكمُ «الإنذار الكاذب» "
+                 f"يلزمه {CONFIG['IGNITION_OUTCOME_MIN']} محسومة (التفصيل بقسم الرادار أعلاه)")
+
+    _hf = _num(lambda: sum(1 for _ in open("hand_flow_log.jsonl", encoding="utf-8")), 0)
+    A.append(f"   🖐️ حصّادُ اليد: <b>{_hf or 0}</b> مسحًا مرصودًا"
+             + (" — ⚠️ لا ملفَّ سجلٍّ بعد (ندرةُ حدثٍ أو عطلُ جمع: راجع لوحة التغطية)"
+                if not _hf else ""))
+
+    def _rej():
+        with open(REJECT_LOG_FILE, encoding="utf-8") as fh:
+            return len(json.load(fh) or [])
+    _rj = _num(_rej, 0)
+    A.append(f"   🗂️ سجلُّ المرفوضين: <b>{_rj or 0}</b> يومًا من "
+             f"{REJECT_LOG_DAYS} (نافذةُ القياس)")
+
+    def _post_gate():
+        d = load_alerts() or {}
+        al = d.get("alerts") or []
+        aft = [r for r in al if str(r.get("date") or "") >= BAND_GATE_SINCE]
+        cl = [r for r in aft if r.get("status") not in (None, "", "open")]
+        return len(aft), len(cl)
+    _pg = _num(_post_gate)
+    if _pg:
+        A.append(f"   📐 قياسُ «الدخول داخل النطاق» (منذ {BAND_GATE_SINCE}): "
+                 f"{_pg[0]} تنبيهًا · محسوم <b>{_pg[1]}</b> — "
+                 "لا تُقارَن بما قبله (نظامان مختلفان)")
+
+    def _e2():
+        with open("ignition_e2_session_index.json", encoding="utf-8") as fh:
+            return len(json.load(fh) or {})
+    _e2n = _num(_e2)
+    if _e2n is not None:
+        A.append(f"   🔬 بوّابةُ E2: <b>{_e2n}</b> وحدةً مسجَّلة · المطلوب 5 مكتملة. "
+                 "⚠️ <b>والاكتمالُ غيرُ محفوظٍ في الفهرس المدفوع</b> ⇒ يُقرأ من "
+                 "بوّابة الـworkflow (خضراء من 2026-08-07).")
+
+    # ── (ب) تنتظر عملًا أو قرارًا — لا وقتًا ─────────────────────────────────
+    B += ["   ⑥ <b>M6</b> (الالتقاطُ على المُسلَّم): يلزمه محاكاةُ الترتيب والسعة "
+          "يومًا بيوم (إعادةُ استعمال `replay10`). 📌 ولا يغيّر حكمَ T-FAISAL-ONLY: "
+          "‏<code>M6 ≤ M1 = 14.6%</code> بنيويًّا وهو دون 50% ⇒ قيمتُه قياسُ كلفة المُرتِّب.",
+          "   ④ <b>T-CLIFF-2</b>: يلزمه مدخلا «سقف probe» و«مفتاح الترتيب» في "
+          "`cliff_scan` (غير موجودين) ثم ستُّ تشغيلات + تسجيلٌ مسبق.",
+          "   ⑦ <b>المُرتِّب</b>: مقيسٌ عند مستوى الصدفة (`T-REPLAY10` ③ غير حاسم · "
+          "وفي 2024 أسوأُ من العشوائيّ وFIFO يتفوّق) ⇒ <b>لا يُمَسّ بالرأي</b>؛ "
+          "يلزمه تسجيلٌ مسبقٌ جديد. ويُرتَّب <b>بعد ⑥</b> فيصير حكمًا لا رأيًا.",
+          "   🔴 <b>بيد المالك:</b> تشغيلُ الفرز بـ<code>force_renew=1</code> مرّةً."]
+
+    if not A and not B:
+        return []
+    out = ["\n⏳ <b>مساراتٌ تحتاج وقتًا (تقريرٌ أسبوعيّ)</b>"]
+    if A:
+        out += ["   <b>— تتراكم بالجلسات:</b>"] + A
+    if B:
+        out += ["   <b>— تنتظر عملًا أو قرارًا (لا وقتًا):</b>"] + B
+    return out
+
+
 def _collection_health_block() -> list:
     """🩺 لوحة حالة جمع بيانات المضارب (طلب المستخدم 2026-07-24 «اكيد بننسى»): عدّادات تظهر
     **دائمًا حتى عند الصفر** في تقرير التطوير الأسبوعي — بخلاف البلوكات التفصيلية (`_hand_flow`/
@@ -13055,6 +13161,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         head += _collection_health_block()    # 🩺 لوحة الجمع (تظهر حتى بعيّنة قليلة — أهمّ وقت)
         head += _observed_explosion_block(alert_data)   # 📊 وُصلت 2026-08-06
         head += _hunter_ledger_block()    # 🌱 والمسارُ القليل أيضًا (فخُّ لوحة الجمع نفسه)
+        head += _long_tracks_block()      # ⏳ تقريرُ المسارات الأسبوعيّ
         head.append("\n⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
         return "\n".join(head)
     wins = [r for r in rows if r["_win"]]
@@ -13244,6 +13351,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
                      + _observed_explosion_block(alert_data)   # 📊 وُصلت 2026-08-06
                      + _hand_flow_block()
                      + _hunter_ledger_block()     # 🌱 وُصِل 2026-08-06 (إذن المالك)
+                     + _long_tracks_block()       # ⏳ أمرُ المالك 2026-08-06
                      + _pending_verification_block() + sugg + tail)
 
 

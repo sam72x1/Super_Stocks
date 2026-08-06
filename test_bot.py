@@ -12872,9 +12872,25 @@ check("🔁 REPLAY10🔒 gate_a: يومان فارغان = اتفاق (لا قس
       RP.jaccard((), ()) == 1.0)
 
 # ⑫ 🔒 قفل عزل: `replay10` **لا يُستورَد في مسار الإنتاج**
-_rp_src = open("Super_stock.py", encoding="utf-8").read()
-check("🔁 REPLAY10🔒 معزولة عن الإنتاج (لا تُستورَد في Super_stock)",
-      "replay10" not in _rp_src)
+# 🔴 **صُحِّح 2026-08-06:** كان `"replay10" not in _rp_src` — نصًّا محضًا، **فسقط على
+#    جملةٍ عربية** في تقرير المسارات تذكر اسمَ الوحدة شرحًا لا استعمالًا. وهو الفخُّ
+#    الموثَّق: **النصُّ لا يفرّق كودًا عن تعليقٍ ولا عن سلسلةِ عرض**، في الاتّجاهين.
+#    الآن **بالـAST على الاستيرادات الفعليّة** — أقوى (يمسك `importlib` بالاسم أيضًا)
+#    وأدقّ (لا يمنع ذِكرَ الاسم في شرحٍ يقرؤه المالك).
+_rp_src = open("Super_stock.py", encoding="utf-8").read()   # يستعمله قفلٌ لاحق
+_rp_tree = _ast0.parse(_rp_src)
+_rp_imports = set()
+for _n in _ast0.walk(_rp_tree):
+    if isinstance(_n, _ast0.Import):
+        _rp_imports |= {a.name.split(".")[0] for a in _n.names}
+    elif isinstance(_n, _ast0.ImportFrom) and _n.module:
+        _rp_imports.add(_n.module.split(".")[0])
+    elif (isinstance(_n, _ast0.Call)
+          and getattr(_n.func, "attr", None) == "import_module"
+          and _n.args and isinstance(_n.args[0], _ast0.Constant)):
+        _rp_imports.add(str(_n.args[0].value).split(".")[0])
+check("🔁 REPLAY10🔒 معزولة عن الإنتاج (لا تُستورَد في Super_stock — AST لا نصّ)",
+      "replay10" not in _rp_imports, str(sorted(_rp_imports))[:120])
 
 # ═══════════════════════════════════════════════════════════════════════════
 # 🔁 T-REPLAY10 · المرحلة 2 — أقفال جسر «صفقات المحرّك ← مرشّحو الإعادة»
@@ -15506,6 +15522,73 @@ check("🔴 HL3 مُنادًى **مرّتين** (مسارُ العيّنة ال�
       len(_hl_calls) == 2, f"عدد النداءات={len(_hl_calls)}")
 check("🌱 HL4 وعلى مستوى الوحدة (وإلّا استحال نداؤه قبل تعريفه في المسار القليل)",
       callable(getattr(S, "_hunter_ledger_block", None)))
+
+# ── ⏳ تقريرُ «المسارات التي تحتاج وقتًا» (أمرُ المالك 2026-08-06) ────────────────
+try:                     # حرسٌ: انكسارُ الكتلة يجب أن يكون **فشلًا نظيفًا** لا انهيارًا
+    _lt = S._long_tracks_block()
+except Exception as _lt_e:                                       # noqa: BLE001
+    _lt = [f"⛔ رمى: {type(_lt_e).__name__}"]
+_lt_txt = "\n".join(_lt)
+check("⏳ LT1 القسمُ يُبنى ومعه القسمان المتمايزان (وقتٌ · عملٌ أو قرار)",
+      bool(_lt) and "تتراكم بالجلسات" in _lt_txt
+      and "تنتظر عملًا أو قرارًا" in _lt_txt, _lt_txt[:80])
+check("⏳ LT2 وكلُّ مسارٍ يحمل **عدّادَه وعتبتَه** لا نصًّا مجرّدًا",
+      all(k in _lt_txt for k in ("حصادُ الصيّادين", "إطلاقاتُ الرادار",
+                                 "حصّادُ اليد", "سجلُّ المرفوضين", "بوّابةُ E2"))
+      and "من 30" in _lt_txt and f"من {S.REJECT_LOG_DAYS}" in _lt_txt)
+# 🔴 والعدّادُ **من الملفّ الحقيقيّ**: نغيّر السجلَّ ⇒ يتغيّر الرقم (لا نصٌّ مثبَّت).
+_lt_old = __import__("hunter_ledger").LEDGER_FILE
+try:
+    _lt_tmp = _os.path.join(_rej_tf.gettempdir(), "lt_probe.jsonl")
+    with open(_lt_tmp, "w", encoding="utf-8") as _fh:
+        for _i in range(3):
+            _fh.write(_json.dumps({"key": f"k{_i}", "hunter": "split", "session": "s",
+                                   "symbol": f"S{_i}", "kind": "candidate",
+                                   "ref_close": 1.0, "fwd": 40, "outcome": None}) + "\n")
+    __import__("hunter_ledger").LEDGER_FILE = _lt_tmp
+    _lt3 = "\n".join(S._long_tracks_block())
+finally:
+    __import__("hunter_ledger").LEDGER_FILE = _lt_old
+check("🔴 LT3 العدّادُ يتحرّك مع السجلّ الحقيقيّ (لا رقمَ مثبَّتًا في النصّ)",
+      "3 مرشّحًا" in _lt3, _lt3.split("\n")[2][:100] if len(_lt3.split("\n")) > 2 else _lt3)
+# 🔒 فاشلٌ-آمن **لكلّ مسارٍ على حدة**: عطلُ ملفٍّ لا يُسقط القسم كلَّه.
+# ⚠️ **وبحرسٍ حول النداء**: لو زال حارسُ المسار لرمى النداءُ فأسقط **السويّة كلَّها**
+#    وكتم أيَّ قفلٍ أمسك العيب — وهو صنفٌ وقع ثلاث مرّاتٍ اليوم. الآن **فشلٌ نظيف**.
+_lt_old2 = S.REJECT_LOG_FILE
+try:
+    S.REJECT_LOG_FILE = "/proc/لا-يوجد/x.json"
+    try:
+        _lt_broken = "\n".join(S._long_tracks_block())
+    except Exception as _e:                                      # noqa: BLE001
+        _lt_broken = f"⛔ رمى: {type(_e).__name__}"
+finally:
+    S.REJECT_LOG_FILE = _lt_old2
+check("🔒 LT4 عطلُ مصدرٍ واحد لا يُسقط القسم (حارسٌ لكل مسار)",
+      "حصادُ الصيّادين" in _lt_broken and "بوّابةُ E2" in _lt_broken,
+      _lt_broken[:70])
+# 🔴 والحاسم: مُنادًى في **المسارَين** (فخُّ العيّنة القليلة — وهو أهمُّ وقتٍ للتقرير).
+_lt_calls = [n for n in _hl_ast.walk(_hl_ast.parse(
+    _insp0.getsource(S.build_dev_assistant_report)))
+    if isinstance(n, _hl_ast.Call) and getattr(n.func, "id", None) == "_long_tracks_block"]
+check("🔴 LT5 مُنادًى **مرّتين** (القليلة + الكافية) وعلى مستوى الوحدة",
+      len(_lt_calls) == 2 and callable(getattr(S, "_long_tracks_block", None)),
+      f"نداءات={len(_lt_calls)}")
+# ⚠️ وبقسمةٍ محروسة: غيابُ الترويسة كان يرمي `IndexError` فيُسقط السويّة بدل الفشل.
+_lt_parts = _lt_txt.split("تنتظر عملًا أو قرارًا")
+check("⏳ LT6 والثلاثةُ المعلَّقة مذكورةٌ في قسم «العمل/القرار» لا في «الوقت»",
+      len(_lt_parts) == 2
+      and all(k in _lt_parts[1] for k in ("M6", "T-CLIFF-2", "force_renew")),
+      f"أقسام={len(_lt_parts)}")
+# 🔒 LT7 حرسٌ **خارجيّ** على الكتلة نفسها — خامدٌ ما دام الداخليُّ سليمًا (لذلك
+#    نجت طفرةُ حذفه) فيُقفَل **بنيويًّا**: `try` يُرجع قائمةً فارغة. وقيمتُه مُقاسة —
+#    بحذف الحارس الداخليّ **انهار `build_dev_assistant_report` كلُّه** (ملفُّ حصّاد
+#    اليد غير موجود) ⇒ قسمٌ تذكيريٌّ كان قادرًا على قتل تقرير المالك الأسبوعيّ.
+_lt7 = _hl_ast.parse(_insp0.getsource(S._long_tracks_block))
+check("🔒 LT7 الكتلةُ محروسةٌ خارجيًّا وتُرجع [] (لا تقتل التقرير الأسبوعيّ)",
+      any(isinstance(h, _hl_ast.ExceptHandler)
+          and any(isinstance(r, _hl_ast.Return) and isinstance(r.value, _hl_ast.List)
+                  for r in _hl_ast.walk(h))
+          for h in _hl_ast.walk(_lt7)))
 
 _ch = "\n".join(S._collection_health_block())
 check("🩺 CV1 لوحةُ الجمع تُظهر تغطيةَ M13 وM14",
