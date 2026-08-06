@@ -14914,6 +14914,71 @@ check("⏰ CR1 فتحتان كرونيّتان لا واحدة (مضاعفةُ �
       and any("28,58" in x for x in _cr_lines),
       f"crons={_cr_lines}")
 
+# ── 🚪 فتحُ الباب: المحمولُ «exited» لا يحجز خانة (أمرُ المالك 2026-08-06) ────
+import ast as _od_ast
+_od_src = open("Super_stock.py", encoding="utf-8").read()
+_od_tree = _od_ast.parse(_od_src)
+_od_fn = next((n for n in _od_ast.walk(_od_tree)
+               if isinstance(n, _od_ast.FunctionDef)
+               and n.name == "run_daily_watchlist"), None)
+
+
+_od_expr = None
+for _n in _od_ast.walk(_od_fn or _od_ast.Module(body=[], type_ignores=[])):
+    if (isinstance(_n, _od_ast.Assign) and _n.targets
+            and getattr(_n.targets[0], "id", None) == "_slot_holders"):
+        _od_expr = _od_ast.unparse(_n.value)
+
+# 🔴 **درسُ الطفرة M6:** أوّلُ صياغةٍ لهذا القفل كانت تُعيد كتابةَ الشرط هنا —
+#    فنجت الطفرةُ التي أزالت الشرطَ من الإنتاج، **لأن القفلَ كان يقيس نسختي لا
+#    الكودَ**. الآن `_od_space` تُقيّم **تعبيرَ الإنتاج المستخرَج بالـAST** حصرًا.
+def _od_space(stocks, size=10):
+    holders = eval(_od_expr, {}, {"wl": {"stocks": stocks}})       # noqa: S307
+    return size - len(holders)
+
+
+_od_sample = [
+    {"symbol": "A", "hit": None, "cont_status": None},        # حاملٌ
+    {"symbol": "B", "hit": "t1", "cont_status": None},        # هدفٌ محقَّق ⇒ لا يحجز
+    {"symbol": "C", "hit": None, "cont_status": "exited"},    # خرج ⇒ لا يحجز
+    {"symbol": "D", "hit": None, "cont_status": "renewed"},   # حاملٌ
+    {"symbol": "E", "hit": None, "cont_status": "continues"}, # حاملٌ (ما زال ارتكازًا)
+]
+try:
+    _od_got = eval(_od_expr, {}, {"wl": {"stocks": _od_sample}})   # noqa: S307
+    _od_names = sorted(x["symbol"] for x in _od_got)
+except Exception as _e:                                            # noqa: BLE001
+    _od_names, _od_expr = [f"خطأ:{type(_e).__name__}"], _od_expr
+
+check("🚪 OD1 تعبيرُ الإنتاج نفسُه: `exited` و`hit` لا يحجزان · والباقي يحجز",
+      _od_names == ["A", "D", "E"],
+      f"حاملون={_od_names} · التعبير={_od_expr}")
+
+# 🔒 شاهدُ ضبطٍ: «continues» (ما زال ارتكازًا) **يجب** أن يحجز — وإلّا صار القفلُ
+#    يبارك إفراغًا شاملًا بدل قاعدةٍ دقيقة.
+check("🚪 OD2 وشاهدُ الضبط: «continues» **يحجز** (القفلُ ليس إفراغًا شاملًا)",
+      "E" in _od_names and "C" not in _od_names,
+      f"حاملون={_od_names}")
+
+# الأثرُ المقاس على قائمة اليوم الحيّة (7 exited من 10 حاملين)
+_od_live = [{"symbol": f"S{i}", "hit": None, "cont_status": "exited"}
+            for i in range(7)] + \
+           [{"symbol": f"R{i}", "hit": None, "cont_status": "renewed"}
+            for i in range(3)]
+check("🚪 OD3 الأثرُ على قائمة اليوم: `space` ‏0 ⟶ 7",
+      _od_space(_od_live) == 7,
+      f"space={_od_space(_od_live)}")
+
+check("🚪 OD4 و`LOGIC_VERSION` مرفوعٌ للتغيير (يمسّ العضوية)",
+      "opendoor" in S.LOGIC_VERSION,
+      f"LOGIC_VERSION={S.LOGIC_VERSION}")
+
+# 🔒 والمتابعةُ لا تُمَسّ: المحمولُ يبقى في `held` فلا يُعاد ترشيحُه مكرَّرًا
+check("🚪 OD5 والمحمولُ يبقى في القائمة (المُلغى حجزُ الخانة لا المتابعة)",
+      _od_fn is not None
+      and "held = {s[\"symbol\"] for s in wl[\"stocks\"]}" in _od_src,
+      "‏`held` يشمل كلَّ الأسهم بلا استثناء")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
