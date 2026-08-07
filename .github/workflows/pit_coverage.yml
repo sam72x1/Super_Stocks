@@ -1,0 +1,58 @@
+# 🩺 مِجَسّ تغطية أسعار المشطوبة (مرحلة PIT ‏P2 — pit_prereg.md §⑤)
+# يدويّ. ينزّل لقطةَ كونٍ من تشغيلة pit_universe ثم يقيس: كم رمزًا «غاب منذها»
+# له تاريخُ أسعارٍ نافع عند Polygon فعلًا؟ (التغطية تُقاس ولا تُفترَض.)
+name: PIT Delisted Coverage Probe
+
+on:
+  workflow_dispatch:
+    inputs:
+      universe_run_id:
+        description: "run id لتشغيلة pit_universe التي تحمل اللقطة"
+        required: true
+      start:
+        description: "بداية نافذة الأسعار YYYY-MM-DD"
+        required: false
+        default: "2024-01-01"
+      end:
+        description: "نهاية نافذة الأسعار YYYY-MM-DD"
+        required: false
+        default: "2025-12-31"
+      sample:
+        description: "حجم العيّنة الحتمية (التسجيل يفرض 30 فأكثر)"
+        required: false
+        default: "40"
+
+permissions:
+  contents: read      # قراءة فقط — المخرَج في السجلّ والـartifact
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pandas
+        run: pip install pandas==2.0.3
+      - name: Download universe snapshot
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pit-universe-*
+          run-id: ${{ github.event.inputs.universe_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: pit
+          merge-multiple: true
+      - name: Probe
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PIT_COVERAGE: "1"
+          PIT_START: ${{ github.event.inputs.start }}
+          PIT_END: ${{ github.event.inputs.end }}
+          PIT_SAMPLE: ${{ github.event.inputs.sample }}
+        run: |
+          f=$(find pit -name 'pit_universe_*.json' | head -1)
+          if [ -z "$f" ]; then echo "⛔ لا لقطة داخل الـartifact"; exit 1; fi
+          echo "📦 اللقطة: $f"
+          PIT_UNIVERSE_FILE="$f" python3 pit_history.py

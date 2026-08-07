@@ -694,9 +694,11 @@ _BT_OVERRIDES = _apply_backtest_overrides(MODE)
 #
 # ✅ **والحدُّ الأدنى ليس اختراعًا — هو مقيسٌ من كاتالوجه:** `catalog_envelope.py`
 # مشى **أسهمَ فيصل نفسها** في العشرين جلسةً **قبل** بدء انفجارها (مِرساة
-# `explosion_onset` المصحَّحة) وأخرج حدَّ كلِّ معيارٍ من أحد عشر ⟶ `envelope_p90.json`
-# (‏`P90` · 25 رمزًا · بصمة `b4e5372075c1`). **وكلُّ معيارٍ مربوطٌ سلفًا بمفتاح
-# بوّابتنا** في `catalog_envelope.CRITERIA` ⇒ الإحلالُ **مباشرٌ بلا ترجمةٍ يدوية**.
+# `explosion_onset` المصحَّحة) وأخرج حدَّ كلِّ معيارٍ من **أربعة عشر** ⟶
+# `envelope_p90.json` (‏`P90` · 25 رمزًا · بصمة `4fb70bcc13e5` — صارت 14 معيارًا
+# بعد فتح D11 بأمر المالك 2026-08-07: gain5/ma_above/gap_above_dist مقيسة).
+# **وكلُّ معيارٍ مربوطٌ سلفًا بمفتاح بوّابتنا** في `catalog_envelope.CRITERIA`
+# ⇒ الإحلالُ **مباشرٌ بلا ترجمةٍ يدوية**.
 #
 # 🔒 **ولهذا كان التنفيذُ بإحلال الأرقام لا بتفريع الفرز:** بنيةُ البوّابات تبقى
 # كما هي **وأرقامُها تصير أرقامَه** ⇒ صفرُ مسٍّ بـ`scan_market`/`analyze_ticker`،
@@ -815,7 +817,7 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.07-proxfirst+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.07-d11cat+proxfirst+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
