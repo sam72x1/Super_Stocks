@@ -57,10 +57,11 @@ on:
         description: "تجربة C (اختياري): تجاوز أرضية السيولة MIN_DOLLAR_VOL (200K$) — باكتيست فقط"
         required: false
         default: ""
-      bt_watch_max_fails:
-        description: "🚧 تجربة T-FAILS (اختياري): سقف «نواقص التأكيد» (الإنتاج 3). جرّب 5 · 7 · 99 (=بلا حدّ). يستهدف الفيتو الذي يقتل 85.14% ممّن يصله (968/1,137) ولم يُختبَر قطّ، بينما إشارته مقيسةٌ غير مميِّزة ثلاث مرّات. المعيار: `fails_prereg.md`. ⚠️ يمسّ العضوية — باكتيست فقط، فارغ = الإنتاج (3) بت-بت"
-        required: false
-        default: ""
+      # ‏· `bt_watch_max_fails` — ⛔ T-FAILS (‏`fails_result.md`): الفيتو يقصّ 70-73%
+      #   مقابل فرقٍ ‏≈صفر **بعيّنةٍ وافرة** (‏198/216/303 ≥ 30 — أوّل عدميّةٍ قويّة
+      #   بالمشروع) والمحفظة −0.07 نقطة ⇒ الحكمُ نهائيّ، لا تشغيلَ منتظرًا. أُسقط
+      #   2026-08-07 ليُفسح مكان `faisal_only` (عزلُ أثر البوّابات في مقارنات PIT —
+      #   `pit_prereg.md` ملحق ②). صفُّ `BT_WATCH_MAX_FAILS` بالجدول وعلمُه باقيان.
       bt_sweep_entry:
         description: "تجربة T1 «الدخول المؤكَّد بالمسح» (اختياري): 1 = فعّلها (دخول بعد مسح تحت الدعم ثم استعادة، بدل التعبئة الفورية). يقارن على نفس الإشارة ويحكم على المُعبَّأة فقط. باكتيست فقط، لا يمسّ الإنتاج"
         required: false
@@ -125,6 +126,10 @@ on:
         description: "🕰️ التجميد الصحيح (موصى): run-id لتشغيلة «Freeze backtest dataset» لتحميل لقطتها المجمَّدة → باكتيست قابل لإعادة الإنتاج 100% + يرفض الوهميات (تعديل تقسيم مستقبلي). فارغ = تحميل حيّ متغيّر"
         required: false
         default: ""
+      faisal_only:
+        description: "🥇 بوّابات الفرز: 1 (الافتراض = الإنتاج الحاليّ، أرقام كاتالوج فيصل) · 0 = بوّابات البوت القديمة — **إلزاميّ 0 في مقارنات PIT مع أساسٍ منشور قِيس قبل faisalonly** (عزل أثر الكون عن أثر البوّابات — pit_prereg.md §④)"
+        required: false
+        default: "1"
 jobs:
   backtest:
     runs-on: ubuntu-latest
@@ -150,6 +155,10 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SCREENER_MODE: BACKTEST
+          # 🥇 عزلُ أثر البوّابات في مقارنات PIT: الافتراض '1' = سلوك اليوم حرفيًّا؛
+          # و'0' يعيد بوّابات البوت القديمة (أساسات ما قبل faisalonly). القيمة
+          # الافتراضية للمدخل '1' فلا يصل env فارغًا (int('') ينهار عند الاستيراد).
+          FAISAL_ONLY: ${{ github.event.inputs.faisal_only || '1' }}
           BACKTEST_SYMBOLS: ${{ github.event.inputs.symbols }}
           BACKTEST_MONTH: ${{ github.event.inputs.month }}
           BACKTEST_YEAR: ${{ github.event.inputs.year }}
@@ -164,7 +173,6 @@ jobs:
           # (`BT_LIB_WAIT`=20) مُثبَّتة بالتسجيل المسبق فلا تُعرَض مدخلًا هنا** — كشفُها
           # دِيالًا في الواجهة يدعو لضبطها بعد رؤية النتائج (p-hacking)، وسقف GitHub
           # 25 مدخلًا فرض الاختيار فوقعنا على الأصوب. المفتاح باقٍ بالكود لو لزم.
-          BT_WATCH_MAX_FAILS: ${{ github.event.inputs.bt_watch_max_fails }}
           BT_SWEEP_ENTRY: ${{ github.event.inputs.bt_sweep_entry }}
           BT_SWEEP_STOP: ${{ github.event.inputs.bt_sweep_stop }}
           BT_SWEEP_PCT: ${{ github.event.inputs.bt_sweep_pct }}
