@@ -129,6 +129,11 @@ CRITERIA = [
     ("gain5",          "hi", "M4ب صعود 5 جلسات",       "RECENT_RISE_BLOCK_PCT"),
     ("ma_above",       "hi", "M12 فوق المتوسط",        "MA_GATE_MAX_ABOVE_PCT"),
     ("gap_above_dist", "hi", "M9 بُعد الفجوة",          "GAP_ABOVE_MAX_DIST_PCT"),
+    # 🥇 المعيار الخامس عشر (قرار المالك 2026-08-07 «سوها» الثانية): توافقُ
+    #    الفريمات كان آخرَ عتبةٍ قابلةٍ للقياس بلا قياس — `tf_count` يُصدَّر من
+    #    `analyze_ticker` سلفًا والبوّابةُ حدٌّ أدنى (‏"lo"). بعده لا يبقى من
+    #    أرقامنا القابلة للقياس إلا M13 (بقرار مالك) — وM14 بلا تاريخ أصلًا.
+    ("tf_count",       "lo", "M6 توافق الفريمات",       "TF_MIN_REVERSALS"),
 ]
 
 
@@ -326,6 +331,8 @@ def measure_session(S, sym, df):
         "gain5": res.get("gain5"),
         "ma_above": res.get("ma_above"),
         "gap_above_dist": res.get("gap_above_dist"),
+        # 🥇 والخامس عشر (نفس اليوم): توافق الفريمات — حقلٌ مُصدَّر سلفًا:
+        "tf_count": res.get("tf_count"),
     }
 
 

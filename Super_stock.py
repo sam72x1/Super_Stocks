@@ -428,7 +428,10 @@ CONFIG = {
     "NEWS_MAX_SHOW": 3,          # أقصى عدد عناوين في الرسالة لكل سهم
 
     # ---- التحليل متعدد الفريمات + أنماط الشموع (v2.3) ----
-    "TF_MIN_REVERSALS": 2,       # إلزامي: انعكاس على ≥ 2 من 3 فريمات
+    "TF_MIN_REVERSALS": 2,       # بوّابة لينة (نقصٌ لا رفض — دفتر المصادر وثّق أن
+                                 # تعليق «إلزامي» القديم كان يناقض الكود). صار
+                                 # **مقيسًا من الكاتالوج** (‏tf_count الخامس عشر،
+                                 # 2026-08-07) — الرقمُ هنا احتياطُ FAISAL_ONLY=0.
     "TF_BOTTOM_POS": 0.40,       # "عند القاع" = ضمن أدنى 40% من مدى الفريم
     "TF_RSI_OVERSOLD": 45.0,     # تشبع الفريم (أعلى قليلاً لأن الفريمات أبطأ)
     "TF_MONTHLY_LOOKBACK": 18,   # نافذة مدى الفريم الشهري
@@ -715,7 +718,8 @@ def faisal_only_overrides(edges: dict) -> dict:
     except Exception:                                            # noqa: BLE001
         return {}
     out = {}
-    _INTS = {"WATCH_MAX_FAILS", "SCORE_MIN"}
+    # `TF_MIN_REVERSALS` صحيحٌ كذلك (عدّاد فريمات 0-3) — أُضيف مع قياسه 2026-08-07
+    _INTS = {"WATCH_MAX_FAILS", "SCORE_MIN", "TF_MIN_REVERSALS"}
     for name, side, _desc, keyspec in _CR:
         if name not in (edges or {}):
             continue
@@ -739,8 +743,10 @@ def faisal_only_overrides(edges: dict) -> dict:
 # 🔴 **ولماذا الوسيطُ لا الحافّة:** الحدُّ الصلب **طرفٌ خارجيّ** بطبعه (‏P90 = آخرُ ما
 #    احتمله أسهمُه)، أمّا «المثالي» فوصفٌ لـ**مركز** توزيعه ⇒ الوسيط. والأربعةُ أدناه
 #    مقيسةٌ في الظرف أصلًا فلا رقمَ جديدٌ يُخترَع.
-# ⚠️ **و`TF_MIN_REVERSALS` (توافقُ الفريمات 2 من 3) غيرُ مذكورٍ عمدًا: لا يقيسه الظرف**
-#    ⇒ يبقى قرارَنا، **ويُصرَّح به** بدل أن يُخمَّن له وسيط.
+# ⚠️ **و`TF_MIN_REVERSALS` غيرُ مذكورٍ هنا عمدًا — لكنّ سببَه تبدّل (2026-08-07):**
+#    كان «لا يقيسه الظرف»، والآن **يقيسه معيارًا صلبًا** (‏`tf_count` الخامس عشر في
+#    `CRITERIA` بأمر المالك «سوها») ⇒ حدُّه من الكاتالوج عبر مسار الحوافّ الصلبة،
+#    **ويبقى خارج مسار الوسيط اللين هذا** (لا «مثاليّ» نصّيّ له فلا وسيطَ يُخمَّن).
 SOFT_MEDIAN_KEYS = {
     "best_spike": ("PRIOR_SPIKE_PCT", "lo"),
     "drop_pct": ("MIN_DROP_PCT", "lo"),      # نطاقٌ: الجانبُ الأدنى (نقصُ الهبوط)
@@ -15180,10 +15186,11 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                 "n_soft": len(r.get("soft_fails") or []),
                 "readiness": r.get("readiness"), "score": r.get("score"),
                 "rr": r.get("rr"),
-                # 🥇 الثلاثة المقيسة من الكاتالوج (فتح D11، 2026-08-07) — نفس
-                #    أسماء `measure_session` (خريطةٌ واحدة، قفل EV4):
+                # 🥇 الأربعة المقيسة من الكاتالوج (فتح D11 + tf_count، 2026-08-07)
+                #    — نفس أسماء `measure_session` (خريطةٌ واحدة، قفل EV4):
                 "gain5": r.get("gain5"), "ma_above": r.get("ma_above"),
                 "gap_above_dist": r.get("gap_above_dist"),
+                "tf_count": r.get("tf_count"),
             }
         if CONFIG.get("BT_REPLAY10"):
             _xk, _xi = _arm_a_exit_bar(hi, lo, cl, entry, stop, t1, filled)

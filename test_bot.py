@@ -14224,16 +14224,18 @@ import catalog_envelope as _CE0   # كتلة الظرف تأتي لاحقًا ف
 
 # ── ⓿ الحواف المجمَّدة: كاملةٌ وموسومةٌ بمصدرها ────────────────────────────
 _es_blob = json.load(open("envelope_p90.json", encoding="utf-8"))
-# ✅ حُدِّث 2026-08-07 مرّتين (قرار المالك «قسها» — فتح D11): CRITERIA صارت **14**
-#    وهبطت معايرةُ الأربعة عشر (`31187484789` · بصمة `4fb70bcc13e5`) ⇒ **عادت
-#    المساواةُ التامّة** كما التزم القفلُ الانتقاليّ نصًّا.
+# ✅ حُدِّث 2026-08-07 ثلاثًا (أوامر المالك «قسها»): CRITERIA صارت **15**
+#    (‏+tf_count الخامس عشر — آخرُ عتبةٍ قابلةٍ للقياس). القفلُ **انتقاليٌّ** حتى
+#    تهبط معايرةُ الخمسة عشر، وبعدها يُعاد إلى المساواة التامّة (وهو يفرضها:
+#    زيادةُ الملفّ على الخريطة تُسقطه).
 _es_old11 = {"price", "drop_pct", "best_spike", "base_range", "dollar_vol",
              "rsi_min", "rsi_now", "n_soft", "readiness", "score", "rr"}
-check("📐 SCAN🔒 ملفّ الحواف يحمل **المعايير الأربعة عشر كلَّها** (مساواةٌ تامّة)",
-      set(_es_blob["edges"]) == {k for k, _, _, _ in _CE0.CRITERIA})
-check("📐 SCAN🔒 والخريطةُ = القديمةُ الأحد عشر + الثلاثةُ المقيسة (‏D11+M12+M9)",
+check("📐 SCAN🔒 ملفّ الحواف: الأربعة عشر السابقة حاضرة والحاضرُ كلُّه من الخريطة",
+      (_es_old11 | {"gain5", "ma_above", "gap_above_dist"}) <= set(_es_blob["edges"])
+      and set(_es_blob["edges"]) <= {k for k, _, _, _ in _CE0.CRITERIA})
+check("📐 SCAN🔒 والخريطةُ = القديمةُ الأحد عشر + الثلاثةُ + `tf_count` (‏15)",
       {k for k, _, _, _ in _CE0.CRITERIA} == _es_old11
-      | {"gain5", "ma_above", "gap_above_dist"})
+      | {"gain5", "ma_above", "gap_above_dist", "tf_count"})
 # 🔴 **`snapshot` أُخرِج من هذا القفل بسببٍ مقاس لا تسامحًا:** المُصدِّر يكتبه من
 #    `ENV_SNAPSHOT_ID` و**الـworkflow لم يكن يُصدّره قطّ** ⇒ كلُّ مُخرَجٍ آليّ يخرج
 #    بـ`null`، ومعناه أن أيّ ملفٍّ يحمل لقطةً كان **مملوءًا بيد**. فالشرطُ نُقل إلى
@@ -15764,7 +15766,10 @@ check("🥇 SOFT1 الخريطةُ أربعُ عتباتٍ بأسمائها ال
                              "rsi_min": ("RSI_OVERSOLD", "hi"),
                              "rsi_now": ("RSI_MAX_NOW", "hi")},
       str(sorted(S.SOFT_MEDIAN_KEYS)))
-check("🥇 SOFT2 و`TF_MIN_REVERSALS` **مستبعَدٌ عمدًا** (لا يقيسه الظرف — يُصرَّح لا يُخمَّن)",
+# ✅ حُدِّث العنوان 2026-08-07: «لا يقيسه الظرف» لم يعد سببَه — صار يقيسه معيارًا
+#    **صلبًا** (‏tf_count الخامس عشر). الادّعاءُ الباقي الصحيح: يبقى **خارج مسار
+#    الوسيط اللين** (لا «مثاليّ» نصّيّ له فلا وسيطَ يُخمَّن) — والفحصُ نفسُه لم يتغيّر.
+check("🥇 SOFT2 و`TF_MIN_REVERSALS` خارج مسار الوسيط اللين (حدُّه صلبٌ من CRITERIA)",
       "TF_MIN_REVERSALS" not in {k for k, _ in S.SOFT_MEDIAN_KEYS.values()})
 _sf = S.faisal_soft_overrides({"best_spike": 250.0, "drop_pct": [88.0, 95.0],
                                "rsi_min": 30.0, "rsi_now": 41.0})
@@ -15806,8 +15811,15 @@ check("🥇 SOFT8 الأربعةُ تصل فعلًا من `envelope_p90.json` ا
       and abs(_sf_cfg2["RSI_OVERSOLD"] - 33.0) < 1e-9
       and _sf_cfg2["PRIOR_SPIKE_PCT"] > 100.0,
       f"{ {k: _sf_cfg2.get(k) for k in ('PRIOR_SPIKE_PCT','MIN_DROP_PCT','RSI_OVERSOLD','RSI_MAX_NOW')} }")
-check("🥇 SOFT9 و`TF_MIN_REVERSALS` **لم يُمَسّ** (لا وسيطَ له — قرارُنا مُصرَّحٌ به)",
-      "TF_MIN_REVERSALS" not in _sf_cfg2)
+# ✅ حُدِّث 2026-08-07 («سوها» الثانية): كان «لم يُمَسّ» — وصار TF قابلًا للوصول
+#    عبر **مسار الحوافّ الصلبة وحده** (‏tf_count في CRITERIA). القفلُ الآن يفرض
+#    المسارَ الصحيح: **الوسيطُ اللين لا يمسّه أبدًا**، ووصولُه (بعد هبوط معايرة
+#    الخمسة عشر) يكون عددًا صحيحًا من الحوافّ. قبل الهبوط: غيابُه سليم.
+check("🥇 SOFT9 و`TF_MIN_REVERSALS` لا يصل إلا من الحوافّ الصلبة (والوسيطُ لا يمسّه)",
+      "TF_MIN_REVERSALS" not in S.faisal_soft_overrides(
+          {"tf_count": 3.0, "rsi_min": 30.0})
+      and ("TF_MIN_REVERSALS" not in _sf_cfg2
+           or isinstance(_sf_cfg2["TF_MIN_REVERSALS"], int)))
 # ══════════════════════════════════════════════════════════════════════════
 # 🎯 PROX — «القابلُ للدخول أوّلًا» في `rank_key` (قرارُ المالك 2026-08-07)
 # ══════════════════════════════════════════════════════════════════════════
@@ -16040,13 +16052,17 @@ check("🥇 FAI2 الخريطةُ تُغطّي الأحد عشر ⇒ 12 مفتا
       and _fai_ov.get("MAX_DROP_PCT") == 99.7, str(sorted(_fai_ov))[:110])
 # ⚠️ بـ`.get` لا بالفهرسة: خريطةٌ ناقصةٌ كانت ترمي `KeyError` **فتُسقط السويّة**
 #    وتكتم القفلَ الذي أمسك العيب فعلًا (‏FAI2). رابعُ وقوعٍ لهذا الصنف اليوم.
-# 🥇 FAI2b (قرار المالك 2026-08-07 «قسها» — فتح D11): الثلاثةُ الجديدة تصل مفاتيحَها
+# 🥇 FAI2b (قرارا المالك 2026-08-07 «قسها»): الأربعةُ المقيسة الجديدة تصل مفاتيحَها
 _fai_ov3 = S.faisal_only_overrides(dict(_fai_edges, gain5=61.0, ma_above=24.0,
-                                        gap_above_dist=88.0))
-check("🥇 FAI2b الثلاثةُ المقيسة (‏D11/M12/M9) تُحِلّ مفاتيحَها الثلاثة ⇒ 15 مفتاحًا",
+                                        gap_above_dist=88.0, tf_count=1.0))
+check("🥇 FAI2b الأربعةُ المقيسة (‏D11/M12/M9/M6) تُحِلّ مفاتيحَها ⇒ 16 مفتاحًا "
+      "و`TF_MIN_REVERSALS` **صحيحٌ** (عدّاد فريمات)",
       _fai_ov3.get("RECENT_RISE_BLOCK_PCT") == 61.0
       and _fai_ov3.get("MA_GATE_MAX_ABOVE_PCT") == 24.0
-      and _fai_ov3.get("GAP_ABOVE_MAX_DIST_PCT") == 88.0 and len(_fai_ov3) == 15,
+      and _fai_ov3.get("GAP_ABOVE_MAX_DIST_PCT") == 88.0
+      and _fai_ov3.get("TF_MIN_REVERSALS") == 1
+      and isinstance(_fai_ov3.get("TF_MIN_REVERSALS"), int)
+      and len(_fai_ov3) == 16,
       str(sorted(_fai_ov3))[:120])
 # 🥇 FAI2c والحقولُ الثلاثة **تُصدَّر فعلًا** من `analyze_ticker` (وصلةٌ حيّة لا اسم):
 #    `gain5` رقمٌ دائمًا على المؤهَّل (تاريخه أطول من 6) · والآخران قد يكونان None
