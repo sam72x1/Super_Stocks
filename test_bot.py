@@ -16548,6 +16548,47 @@ except StopIteration:
     check("🥇 FAITXT1 نصوصُ «المثالي» الأربعة تقرأ CONFIG (قفل AST على soft_fails.append)",
           False, "analyze_ticker غير موجودة!")
 
+# ══════════ 🧭 PIT: أداة كون point-in-time (مرحلة أولى — pit_prereg.md) ══════════
+import pit_universe as _PIT                                       # noqa: E402
+check("🧭 PIT1 عزلٌ تامّ: `pit_universe` لا يُستورَد في `Super_stock.py`",
+      "pit_universe" not in open("Super_stock.py", encoding="utf-8").read())
+_pit_u = _PIT.build_url("2025-01-02")
+check("🧭 PIT2 الدلالةُ الصحيحة: `active=true` مع `date` — و`active=false` ممنوعة "
+      "(درسُ المِجَسّ المسحوب)",
+      "active=true" in _pit_u and "date=2025-01-02" in _pit_u
+      and "exchange=XNAS" in _pit_u and "active=false" not in _pit_u, _pit_u[:110])
+_pit_rows, _pit_next = _PIT.parse_page(
+    {"results": [{"ticker": "AAA", "type": "CS", "name": "A"},
+                 {"ticker": None}, {}, {"ticker": "BBB"}],
+     "next_url": "https://x/next"})
+check("🧭 PIT3 `parse_page` تتخطّى الصفَّ بلا رمزٍ ولا تنهار على الناقص",
+      [r["ticker"] for r in _pit_rows] == ["AAA", "BBB"]
+      and _pit_rows[1]["type"] is None and _pit_next == "https://x/next")
+_pit_s = _PIT.summarize(
+    [{"ticker": t} for t in ("A", "B", "C", "D")],
+    [{"ticker": t} for t in ("B", "D", "E")])
+check("🧭 PIT4 `summarize` فرقُ لقطتين: 4 حيًّا ⟶ غاب A وC (‏50%)",
+      _pit_s["n_then"] == 4 and _pit_s["n_gone"] == 2
+      and _pit_s["gone"] == ["A", "C"] and _pit_s["gone_pct"] == 50.0)
+_pit_pages = [({"results": [{"ticker": f"S{i}"}], "next_url": "https://x/p2"}, )
+              for i in range(3)]
+_pit_boom = None
+try:                        # سقفُ الصفحات مع بقيّةٍ ⇒ يرمي (لا قصّ صامت)
+    _PIT.fetch_universe("2025-01-02", "k", max_pages=2,
+                        fetch=lambda u, k: {"results": [{"ticker": "X"}],
+                                            "next_url": "https://x/more"})
+except RuntimeError as _e:
+    _pit_boom = str(_e)
+check("🧭 PIT5 بلوغُ السقف وصفحاتٌ باقية ⇒ **يرمي مُعلَنًا** (لقطةٌ ناقصة تُرفَض)",
+      _pit_boom is not None and "سقف" in _pit_boom, str(_pit_boom)[:80])
+_pit_full = _PIT.fetch_universe(
+    "2025-01-02", "k", max_pages=5,
+    fetch=(lambda st: lambda u, k: st.pop(0))([
+        {"results": [{"ticker": "A"}], "next_url": "u2"},
+        {"results": [{"ticker": "B"}], "next_url": None}]))
+check("🧭 PIT6 واللفُّ الكامل يجمع الصفحات حتى نهايتها",
+      [r["ticker"] for r in _pit_full] == ["A", "B"])
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

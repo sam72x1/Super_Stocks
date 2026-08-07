@@ -1,0 +1,41 @@
+# 🧭 لقطة كون point-in-time (مرحلة PIT الأولى — pit_prereg.md)
+# يدويّ فقط. يقيس حجم انحياز البقاء الخام: كم اسمًا كان حيًّا في التاريخ المُدخَل
+# وغاب من كون اليوم. يرفع اللقطة artifact (نمط اللقطات المجمَّدة) ويطبع الملخّص
+# في السجلّ (سطر PIT_SUMMARY_JSON) لأن تنزيل الـartifacts محجوب ببيئة التطوير.
+name: PIT Universe Snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "تاريخ اللقطة YYYY-MM-DD (مثال: 2025-01-02)"
+        required: true
+      exchange:
+        description: "البورصة (افتراضي XNAS)"
+        required: false
+        default: "XNAS"
+
+permissions:
+  contents: read      # قراءة فقط — الأداة لا تدفع شيئًا (اللقطة artifact)
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Snapshot
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PIT_DATE: ${{ github.event.inputs.date }}
+          PIT_EXCHANGE: ${{ github.event.inputs.exchange }}
+        run: python3 pit_universe.py
+      - name: Upload snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: pit-universe-${{ github.event.inputs.date }}-${{ github.run_id }}
+          path: pit_universe_*.json
+          retention-days: 90
