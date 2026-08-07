@@ -94,7 +94,9 @@ def polygon_daily(sym: str, start: str, end: str, api_key: str, fetch=_fetch):
     except urllib.error.HTTPError as e:                          # noqa: BLE001
         return None, f"HTTPError:{e.code}"
     except Exception as e:                                       # noqa: BLE001
-        return None, type(e).__name__
+        # الرسالةُ مع الاسم — «ValueError» عاريةً أخفت عطلَ توافق pandas/numpy
+        # تشغيلةً كاملة (‏`31189629168`) حتى فضحها شاهدُ الضبط.
+        return None, f"{type(e).__name__}:{str(e)[:70]}"
 
 
 def pick_sample(symbols, n, salt="pit-coverage"):

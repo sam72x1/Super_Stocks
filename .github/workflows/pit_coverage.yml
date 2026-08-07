@@ -34,8 +34,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install pandas
-        run: pip install pandas==2.0.3
+      - name: Install dependencies
+        # 🔴 كان `pip install pandas==2.0.3` وحدها ⇒ pip يسحب numpy 2.x غير
+        # المتوافقة معها ⇒ استيرادُ pandas يرمي **ValueError** — وهو ما قرأه شاهدُ
+        # الضبط (AAPL: ValueError) في تشغيلة `31189629168`. الإصلاح: متطلّباتُ
+        # الإنتاج المثبَّتة نفسُها (pandas==3.0.5 · numpy==2.4.6 — متوافقتان).
+        run: pip install -r requirements.txt
       - name: Download universe snapshot
         uses: actions/download-artifact@v4
         with:
