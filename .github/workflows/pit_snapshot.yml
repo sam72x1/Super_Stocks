@@ -1,0 +1,62 @@
+# 🧭 لقطة أسعار point-in-time كاملة (مرحلة PIT ‏P3-أ — pit_prereg.md)
+# يدويّ. يبني لقطةً بنفس صيغة التجميد الإنتاجيّ من كونِ يومٍ ماضٍ الشامل
+# (بمن شُطب لاحقًا)، ويرفعها artifact باسم `frozen-dataset` — **فيستهلكها
+# backtest.yml القائم بلا تعديل حرف** (frozen_run_id = تشغيلة هذا الـworkflow).
+name: PIT Snapshot Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      universe_run_id:
+        description: "run id لتشغيلة pit_universe التي تحمل لقطة الكون"
+        required: true
+      start:
+        description: "بداية نافذة الأسعار YYYY-MM-DD (لوكباك ~800ي قبل سنة الباكتيست)"
+        required: false
+        default: "2022-10-01"
+      end:
+        description: "نهاية نافذة الأسعار YYYY-MM-DD (ذيل الحسم بعد السنة)"
+        required: false
+        default: "2026-03-31"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download universe snapshot
+        uses: actions/download-artifact@v4
+        with:
+          pattern: pit-universe-*
+          run-id: ${{ github.event.inputs.universe_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: pit
+          merge-multiple: true
+      - name: Build snapshot
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PIT_START: ${{ github.event.inputs.start }}
+          PIT_END: ${{ github.event.inputs.end }}
+        run: |
+          f=$(find pit -name 'pit_universe_*.json' | head -1)
+          if [ -z "$f" ]; then echo "⛔ لا لقطة كون داخل الـartifact"; exit 1; fi
+          echo "📦 الكون: $f"
+          PIT_UNIVERSE_FILE="$f" python3 pit_snapshot.py
+      - name: Upload frozen dataset
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-dataset
+          path: |
+            frozen_backtest.pkl.gz
+            frozen_backtest.pkl.gz.manifest.json
+          retention-days: 90
+          if-no-files-found: error

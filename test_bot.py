@@ -16635,6 +16635,45 @@ check("🧭 PITH6 شاهدُ الضبط صفرٌ ⇒ `tool_broken` (درسُ ت�
       "لا يُقرأ «تغطيةً معدومة»)",
       _ph_broken["tool_broken"] is True)
 
+# ── 🧭 PITS: بانية اللقطة (‏P3-أ) — التطابقُ مع صيغة الإنتاج **سلوكيًّا** ────────
+import pit_snapshot as _PITS                                      # noqa: E402
+check("🧭 PITS1 عزلٌ تامّ: `pit_snapshot` لا يُستورَد في `Super_stock.py`",
+      "pit_snapshot" not in open("Super_stock.py", encoding="utf-8").read())
+# 🔒 القفلُ الحاسم: لقطةٌ تُبنى بالأداة وتُقرأ عبر `load_frozen_dataset`
+# **الإنتاجيّة نفسِها** — إطاراتٌ متطابقة وتقسيماتٌ متطابقة (لا «نفس الصيغة»
+# بالوصف بل بالقراءة الفعلية؛ درسُ «وصفُ الدالّة ليس دليلًا على سلوكها»).
+_ps_df = _PITH.to_frame([
+    {"t": 1735794000000 + i * 86_400_000, "o": 1.0 + i, "h": 2.0 + i,
+     "l": 0.5 + i, "c": 1.5 + i, "v": 100 + i} for i in range(5)])
+_ps_sp = _PITS.split_series([
+    {"ticker": "TT", "split_from": 20, "split_to": 1,
+     "execution_date": "2025-03-01"},
+    {"ticker": "TT", "split_from": 1, "split_to": 2,
+     "execution_date": "2025-06-01"},
+    {"ticker": "ZZ", "split_from": 0, "split_to": 1,          # تالف ⇒ يُتخطّى
+     "execution_date": "2025-01-01"}])
+check("🧭 PITS2 `split_series` باصطلاح yfinance: عكسيّ 1-مقابل-20 ⇒ 0.05 · "
+      "أماميّ 2-مقابل-1 ⇒ 2.0 · والتالفُ يُتخطّى",
+      list(_ps_sp) == ["TT"] and abs(_ps_sp["TT"].iloc[0] - 0.05) < 1e-12
+      and abs(_ps_sp["TT"].iloc[1] - 2.0) < 1e-12)
+_ps_path = "/tmp/claude-0/-home-user-Super-Stocks/434ec133-9098-5d94-a30d-866522fb9eda/scratchpad/pit_mini.pkl.gz"
+_os_hc.makedirs(_os_hc.path.dirname(_ps_path), exist_ok=True)
+_ps_man = _PITS.save_snapshot({"TT": _ps_df}, {"TT": _ps_sp["TT"]},
+                              asof="2025-01-02", history_days=100, path=_ps_path)
+_ps_h, _ps_s, _ps_asof = S.load_frozen_dataset(_ps_path)
+check("🧭 PITS3 اللقطةُ تُقرأ عبر `load_frozen_dataset` **الإنتاجيّة**: إطارٌ "
+      "متطابقٌ بت-بت وتقسيماتٌ متطابقة وasof محفوظ",
+      _ps_h is not None and _ps_h["TT"].equals(_ps_df)
+      and _ps_s["TT"].equals(_ps_sp["TT"]) and _ps_asof == "2025-01-02"
+      and _ps_man["n_symbols"] == 1 and len(_ps_man["sha256"]) == 64)
+check("🧭 PITS4 والـworkflow يرفع **`frozen-dataset`/`frozen_backtest.pkl.gz`** "
+      "بالاسمين اللذين يستهلكهما `backtest.yml` حرفيًّا",
+      (lambda w: "name: frozen-dataset" in w and "frozen_backtest.pkl.gz" in w
+       and "if-no-files-found: error" in w)(
+          open(".github/workflows/pit_snapshot.yml", encoding="utf-8").read()))
+check("🧭 PITS5 فلترُ النوع أسهمٌ عادية فقط (‏CS/ADRC) — يحاكي كونَ الفارز",
+      _PITS.COMMON_TYPES == {"CS", "ADRC"})
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
