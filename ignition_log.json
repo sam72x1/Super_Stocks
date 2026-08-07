@@ -281,5 +281,17 @@
   "vol_x": 5.0,
   "usd": 18422,
   "candle_class": "group"
+ },
+ {
+  "symbol": "SUPX",
+  "date": "2026-08-07",
+  "sustain_min": 0,
+  "operator_ok": false,
+  "fired_at": "2026-08-07T20:01:01Z",
+  "break_level": 7.15,
+  "price": 7.1575,
+  "vol_x": 3.7,
+  "usd": 51412,
+  "candle_class": "mid"
  }
 ]
