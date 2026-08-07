@@ -5719,7 +5719,19 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
             cliff = min((c[-k] / c[-k - 1] - 1.0)
                         for k in range(1, look + 1) if c[-k - 1] > 0)
             if cliff <= -CONFIG["SPLIT_CLIFF_PCT"] / 100.0:
-                pre.append((sym, cliff))
+                # 🔬 **T-CLIFF-2 (‏`cliff2_prereg.md`) — خطّافُ ترتيبٍ مطفأٌ افتراضيًّا.**
+                # 🔴 وسببُ وجوده هنا **عيبٌ مقيس**: وضعتُه أوّلًا في `scan_split_radar`
+                #    بينما أدواتُ T-CLIFF تقيس **هذي الدالّة** ⇒ خرجت ذراعُ الترتيب
+                #    **مطابقةً بت-بت** لذراع الأساس = **no-op** كشفَته العدّادات لا
+                #    القراءة. `"cliff"` (الافتراض) = السلوكُ الحاليّ **حرفيًّا**.
+                _cum = None
+                if str(CONFIG.get("SPLIT_RADAR_ORDER", "cliff")) == "cum":
+                    try:
+                        _hi = max(c[-look - 1:])
+                        _cum = (price / _hi - 1.0) if _hi > 0 else 0.0
+                    except (ValueError, ZeroDivisionError):
+                        _cum = 0.0
+                pre.append((sym, cliff if _cum is None else _cum))
         except Exception:
             continue
     pre.sort(key=lambda x: x[1])

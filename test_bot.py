@@ -13586,7 +13586,14 @@ _HUNTER_PINS = {
     "group_pump_scar": "604d154f1be734f3",
     "half_down_target": "cc65a9195e10cfe0",
     "next_bottom_by_own_drop": "c96d632018d5b8ed",
-    "scan_split_hunter": "caad69f25763d7b7",
+    # 🔴 **حُدِّثت عمدًا (2026-08-06) — إقرارٌ لا إصلاحُ فشل، وبإذن المالك الحرفيّ**
+    #    «سوها لو ما تاثر على الفحص و الفرز نفسه». السبب **عيبٌ مقيس**: خطّافُ ترتيب
+    #    T-CLIFF-2 وُضع أوّلًا في `scan_split_radar` بينما أدواتُ T-CLIFF تقيس **هذي
+    #    الدالّة** ⇒ خرجت ذراعُ الترتيب **مطابقةً بت-بت** لذراع الأساس = **no-op**
+    #    (‏145/150 مطابق في الحالتين). الآن الخطّافُ هنا، **افتراضُه `"cliff"` =
+    #    السلوكُ السابق حرفيًّا** — مقفولٌ **سلوكيًّا** أدناه (‏CL3) لا نصًّا،
+    #    **والشروطُ الخمسة والحكمُ لم تُمَسّ** (الخطّافُ في **مُرشّح التكلفة** قبلها).
+    "scan_split_hunter": "fc89b1480e4c5bb4",
     # 🔬 حُدِّثت عمدًا (2026-08-06، أمرُ المالك «سوها») بإضافة **مفتاح ترتيبٍ مطفأ
     #    افتراضيًّا** (‏`SPLIT_RADAR_ORDER`) لتجربة T-CLIFF-2 — حكمُ `T-CLIFF` نصَّ أن
     #    العلّة مفتاحُ الترتيب والسقف لا العتبة. **`"cliff"` = السلوكُ السابق حرفيًّا**
@@ -15595,8 +15602,50 @@ check("🔴 CL2b الترتيبُ يتبدّل فعلًا: `cliff` يقدّم ا
       f"cliff={_cl2_a} · cum={_cl2_b}")
 check("🔒 CL2c وقيمةٌ مجهولة ⇒ ترتيبُ `cliff` (لا سلوكٌ ثالثٌ مُخترَع)",
       _cl2_order("سين") == _cl2_a)
-check("🔒 CL2d و`scan_split_hunter` **لا تعرف** المفتاح (الشروطُ الخمسة لم تُمَسّ)",
-      "SPLIT_RADAR_ORDER" not in _insp0.getsource(S.scan_split_hunter))
+# 🔴 **CL2d تقاعد وحُلّ محلَّه CL3 (2026-08-06):** كان يقفل «`scan_split_hunter`
+#    لا تعرف المفتاح» — وهو **ما جعل ذراعَ الترتيب no-op** (الأداةُ تقيس هذي الدالّة
+#    لا الرادار). فنُقل الخطّافُ إليها **بإذن المالك**، والقفلُ صار **سلوكيًّا**:
+#    الافتراضُ بت-بت · و`cum` يبدّل الناجيَ من السقف · والشروطُ الخمسة لم تُمَسّ.
+def _cl3_hist():
+    import pandas as _p
+    def _mk(deep_day, slow):
+        c = [10.0] * 60
+        for i in range(1, 60):
+            c[i] = c[i - 1] * (1 - slow)
+        c[deep_day] = c[deep_day - 1] * 0.6            # كليف يومٍ واحد ‏−40%
+        for i in range(deep_day + 1, 60):
+            c[i] = c[i - 1]
+        ix = _p.date_range("2026-01-01", periods=60, freq="B")
+        return _p.DataFrame({"Open": c, "High": c, "Low": c, "Close": c,
+                             "Volume": [1e6] * 60}, index=ix)
+    return {"DEEP": _mk(50, 0.0), "SLOW": _mk(50, 0.02)}
+
+
+def _cl3_probe(order, cap):
+    _so, _sc = S.CONFIG["SPLIT_RADAR_ORDER"], S.CONFIG["SPLIT_RADAR_PROBE_CAP"]
+    S.CONFIG["SPLIT_RADAR_ORDER"], S.CONFIG["SPLIT_RADAR_PROBE_CAP"] = order, cap
+    seen = []
+    try:
+        S.scan_split_hunter(
+            _cl3_hist(), today="2026-03-24",
+            fetch_splits=lambda x: seen.append(x) or [],
+            fetch_float=lambda x, **k: None, fetch_borrow=lambda x: None,
+            fetch_pump=lambda d: None, fetch_offering=lambda x, **k: None)
+        return seen
+    finally:
+        S.CONFIG["SPLIT_RADAR_ORDER"], S.CONFIG["SPLIT_RADAR_PROBE_CAP"] = _so, _sc
+
+
+check("🔒 CL3a الافتراضُ `cliff` = السلوكُ السابق حرفيًّا (الأحدُّ كليفًا ينجو من السقف)",
+      _cl3_probe("cliff", 1) == ["DEEP"], str(_cl3_probe("cliff", 1)))
+check("🔴 CL3b و`cum` **يبدّل الناجي** فعلًا (وإلّا فالذراعُ no-op كما وقع)",
+      _cl3_probe("cum", 1) == ["SLOW"], str(_cl3_probe("cum", 1)))
+check("🔒 CL3c والشروطُ الخمسة لم تُمَسّ: بسقفٍ يسع الجميع ⇒ **نفسُ المفحوصين** "
+      "بالترتيبين (الخطّافُ في مُرشّح التكلفة لا في الحكم)",
+      sorted(_cl3_probe("cliff", 80)) == sorted(_cl3_probe("cum", 80)) == ["DEEP", "SLOW"],
+      f"cliff={sorted(_cl3_probe('cliff', 80))} · cum={sorted(_cl3_probe('cum', 80))}")
+check("🔒 CL3d وقيمةٌ مجهولة ⇒ `cliff` (لا سلوكٌ ثالثٌ مُخترَع)",
+      _cl3_probe("سين", 1) == ["DEEP"], str(_cl3_probe("سين", 1)))
 
 # ── ⏳ استثناءُ المزامنة للتشغيل اليدويّ (عطلٌ مقيس 2026-08-06) ─────────────────
 # المراقبُ يعمل 4 مرّاتٍ بالساعة وGitHub يُبقي **معلَّقًا واحدًا** لكل مجموعة ⇒ التشغيلُ
