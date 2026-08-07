@@ -460,17 +460,6 @@
   "short_pct": 10.3,
   "float": 14426777
  },
- "ICCM": {
-  "sector": "Healthcare",
-  "industry": "Medical Devices",
-  "business": "IceCure Medical Ltd, a commercial-stage medical device company, engages in the research, development, and marketing of cryoablation systems, disposables, and te…",
-  "country": "Israel",
-  "cash": 8115000,
-  "revenue": 3565000,
-  "shares_out": 2806701,
-  "short_pct": 5.3,
-  "float": 1520609
- },
  "CING": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -2306,21 +2295,6 @@
   "short_interest": 29070,
   "days_to_cover": 3.89
  },
- "INBS": {
-  "sector": "Healthcare",
-  "industry": "Medical Devices",
-  "business": "Intelligent Bio Solutions Inc., a medical technology company, focused on developing and delivering non-invasive testing, and screening solutions in Asia Pacific…",
-  "country": "United States",
-  "cash": 6862204,
-  "revenue": 3913257,
-  "shares_out": 2391846,
-  "short_pct": 4.3,
-  "float": 2171366,
-  "finra_short": 6573,
-  "company_name": "Intelligent Bio Solutions Inc.",
-  "short_interest": 103339,
-  "days_to_cover": 2.03
- },
  "DRCT": {
   "sector": "Communication Services",
   "industry": "Advertising Agencies",
@@ -2334,21 +2308,6 @@
   "company_name": "Direct Digital Holdings, Inc.",
   "short_interest": 10104,
   "days_to_cover": 0.52
- },
- "KXIN": {
-  "sector": "Consumer Cyclical",
-  "industry": "Auto & Truck Dealerships",
-  "business": "Kaixin Holdings, an investment holding company, sells domestic and imported automobiles in the People's Republic of China. It also sells new and used vehicles t…",
-  "country": "China",
-  "cash": 859000,
-  "revenue": 129000,
-  "shares_out": 1509096,
-  "short_pct": 1.1,
-  "float": 1418651,
-  "finra_short": 2674,
-  "company_name": "Kaixin Holdings",
-  "short_interest": 16931,
-  "days_to_cover": 0.11
  },
  "YAAS": {
   "sector": "Technology",
@@ -2392,19 +2351,6 @@
   "short_interest": 240724,
   "days_to_cover": 1.74
  },
- "TVRD": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Tvardi Therapeutics, Inc., a clinical-stage biopharmaceutical company, engages in the development of novel, oral, and small molecule therapies targeting signal…",
-  "country": "United States",
-  "cash": 24981000,
-  "shares_out": 12492113,
-  "short_pct": 5.8,
-  "float": 5671304,
-  "company_name": "Tvardi Therapeutics, Inc.",
-  "short_interest": 542999,
-  "days_to_cover": 0.09
- },
  "BNC": {
   "sector": "Industrials",
   "industry": "Farm & Heavy Construction Machinery",
@@ -2419,6 +2365,48 @@
   "short_interest": 1191778,
   "days_to_cover": 2.12
  },
+ "SEGG": {
+  "sector": "Consumer Cyclical",
+  "industry": "Gambling",
+  "business": "Sports Entertainment Gaming Global Corporation, doing business as SEGG Media Corp., SEGG Media, and SEGG, a digital publisher, provides lottery data results, ja…",
+  "country": "United States",
+  "cash": 171524,
+  "revenue": 559590,
+  "shares_out": 3259487,
+  "short_pct": 3.7,
+  "float": 2980767,
+  "finra_short": 10265,
+  "company_name": "Sports Entertainment Gaming Glo",
+  "short_interest": 111821,
+  "days_to_cover": 0.97
+ },
+ "INTS": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Intensity Therapeutics, Inc., a late-stage clinical biotechnology company, engages in the provision of treatment for the regional and systemic nature of cancer…",
+  "country": "United States",
+  "cash": 10245000,
+  "shares_out": 2702820,
+  "short_pct": 6.3,
+  "float": 2476891,
+  "finra_short": 3310,
+  "company_name": "Intensity Therapeutics, Inc.",
+  "short_interest": 162597,
+  "days_to_cover": 2.4
+ },
+ "TVRD": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Tvardi Therapeutics, Inc., a clinical-stage biopharmaceutical company, engages in the development of novel, oral, and small molecule therapies targeting signal…",
+  "country": "United States",
+  "cash": 24981000,
+  "shares_out": 12492113,
+  "short_pct": 5.8,
+  "float": 5671304,
+  "company_name": "Tvardi Therapeutics, Inc.",
+  "short_interest": 542999,
+  "days_to_cover": 0.09
+ },
  "QTI": {
   "sector": "Healthcare",
   "industry": "Medical Devices",
@@ -2432,6 +2420,21 @@
   "company_name": "QT Imaging Holdings, Inc.",
   "short_interest": 194727,
   "days_to_cover": 6.53
+ },
+ "SUGP": {
+  "sector": "Industrials",
+  "industry": "Security & Protection Services",
+  "business": "SU Group Holdings Limited, through its subsidiaries, operates as an integrated security-related services company in Hong Kong and internationally. It operates i…",
+  "country": "Hong Kong",
+  "cash": 25354528,
+  "revenue": 192386576,
+  "shares_out": 712618,
+  "short_pct": 1.9,
+  "float": 796041,
+  "finra_short": 216231,
+  "company_name": "SU Group Holdings Limited",
+  "short_interest": 13438,
+  "days_to_cover": 0.0
  },
  "CMND": {
   "sector": "Healthcare",
@@ -2477,21 +2480,6 @@
   "short_interest": 72997,
   "days_to_cover": 0.03
  },
- "SUGP": {
-  "sector": "Industrials",
-  "industry": "Security & Protection Services",
-  "business": "SU Group Holdings Limited, through its subsidiaries, operates as an integrated security-related services company in Hong Kong and internationally. It operates i…",
-  "country": "Hong Kong",
-  "cash": 25354528,
-  "revenue": 192386576,
-  "shares_out": 712618,
-  "short_pct": 1.9,
-  "float": 796041,
-  "finra_short": 216231,
-  "company_name": "SU Group Holdings Limited",
-  "short_interest": 13438,
-  "days_to_cover": 0.0
- },
  "RBNE": {
   "sector": "Energy",
   "industry": "Oil & Gas Midstream",
@@ -2521,13 +2509,42 @@
   "short_interest": 29960,
   "days_to_cover": 0.24
  },
+ "ICCM": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "business": "IceCure Medical Ltd, a commercial-stage medical device company, engages in the research, development, and marketing of cryoablation systems, disposables, and te…",
+  "country": "Israel",
+  "cash": 8115000,
+  "revenue": 3565000,
+  "shares_out": 3426375,
+  "short_pct": 4.8,
+  "float": 1735005,
+  "finra_short": 16722,
+  "company_name": "IceCure Medical Ltd.",
+  "short_interest": 111279,
+  "days_to_cover": 0.01
+ },
+ "MNDR": {
+  "sector": "Healthcare",
+  "industry": "Health Information Services",
+  "business": "Mobile-health Network Solutions, an investment holding company, provides telehealth solutions primarily in Singapore. The company operates in two segments: Tele…",
+  "country": "Singapore",
+  "cash": 3479487,
+  "revenue": 7319633,
+  "shares_out": 888592,
+  "short_pct": 2.7,
+  "float": 269597,
+  "company_name": "Mobile-health Network Solutions",
+  "short_interest": 23885,
+  "days_to_cover": 0.11
+ },
  "PLYX": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
   "business": "Polaryx Therapeutics, Inc., a clinical-stage biotechnology company, engages in the discovery, development, and commercialization of disease-modifying therapies…",
   "country": "United States",
   "cash": 3080000,
-  "shares_out": 49845993,
+  "shares_out": 47343297,
   "short_pct": 1.4,
   "float": 4275100,
   "company_name": "Polaryx Therapeutics, Inc.",
@@ -2576,6 +2593,36 @@
   "company_name": "Nakamoto Inc.",
   "short_interest": 1164941,
   "days_to_cover": 4.62
+ },
+ "INBS": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "business": "Intelligent Bio Solutions Inc., a medical technology company, focused on developing and delivering non-invasive testing, and screening solutions in Asia Pacific…",
+  "country": "United States",
+  "cash": 6862204,
+  "revenue": 3913257,
+  "shares_out": 2391846,
+  "short_pct": 4.3,
+  "float": 2171366,
+  "finra_short": 6573,
+  "company_name": "Intelligent Bio Solutions Inc.",
+  "short_interest": 103339,
+  "days_to_cover": 2.03
+ },
+ "KXIN": {
+  "sector": "Consumer Cyclical",
+  "industry": "Auto & Truck Dealerships",
+  "business": "Kaixin Holdings, an investment holding company, sells domestic and imported automobiles in the People's Republic of China. It also sells new and used vehicles t…",
+  "country": "China",
+  "cash": 859000,
+  "revenue": 129000,
+  "shares_out": 1509096,
+  "short_pct": 1.1,
+  "float": 1418651,
+  "finra_short": 2674,
+  "company_name": "Kaixin Holdings",
+  "short_interest": 16931,
+  "days_to_cover": 0.11
  },
  "STKH": {
   "sector": "Consumer Defensive",
@@ -2645,6 +2692,20 @@
   "short_interest": 72452,
   "days_to_cover": 1.24
  },
+ "WETO": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "business": "Wetour Robotics Limited operates as a physical AI infrastructure and wearable robotics company. The company offers AI driven travel and mobility services under…",
+  "country": "United States",
+  "cash": 1301139,
+  "revenue": 27777562,
+  "shares_out": 820800,
+  "short_pct": 0.1,
+  "float": 176268,
+  "company_name": "Wetour Robotics Limited",
+  "short_interest": 624,
+  "days_to_cover": 0.3
+ },
  "FGNX": {
   "sector": "Financial Services",
   "industry": "Asset Management",
@@ -2674,20 +2735,6 @@
   "short_interest": 146181,
   "days_to_cover": 0.08
  },
- "WETO": {
-  "sector": "Technology",
-  "industry": "Software - Infrastructure",
-  "business": "Wetour Robotics Limited operates as a physical AI infrastructure and wearable robotics company. The company offers AI driven travel and mobility services under…",
-  "country": "United States",
-  "cash": 1301139,
-  "revenue": 27777562,
-  "shares_out": 820800,
-  "short_pct": 0.1,
-  "float": 176268,
-  "company_name": "Wetour Robotics Limited",
-  "short_interest": 624,
-  "days_to_cover": 0.3
- },
  "PN": {
   "sector": "Technology",
   "industry": "Solar",
@@ -2701,34 +2748,5 @@
   "company_name": "PN Smart Energy Limited",
   "short_interest": 49881,
   "days_to_cover": 1.76
- },
- "SEGG": {
-  "sector": "Consumer Cyclical",
-  "industry": "Gambling",
-  "business": "Sports Entertainment Gaming Global Corporation, doing business as SEGG Media Corp., SEGG Media, and SEGG, a digital publisher, provides lottery data results, ja…",
-  "country": "United States",
-  "cash": 171524,
-  "revenue": 559590,
-  "shares_out": 3259487,
-  "short_pct": 3.7,
-  "float": 2980767,
-  "finra_short": 10265,
-  "company_name": "Sports Entertainment Gaming Glo",
-  "short_interest": 111821,
-  "days_to_cover": 0.97
- },
- "INTS": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Intensity Therapeutics, Inc., a late-stage clinical biotechnology company, engages in the provision of treatment for the regional and systemic nature of cancer…",
-  "country": "United States",
-  "cash": 10245000,
-  "shares_out": 2702820,
-  "short_pct": 6.3,
-  "float": 2476891,
-  "finra_short": 3310,
-  "company_name": "Intensity Therapeutics, Inc.",
-  "short_interest": 162597,
-  "days_to_cover": 2.4
  }
 }
