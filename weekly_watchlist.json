@@ -337,7 +337,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.73
+   "last_price": 2.73,
+   "live_alert": {
+    "buyzone": "2026-08-07"
+   }
   },
   {
    "symbol": "AKAN",
@@ -668,7 +671,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.13
+   "last_price": 5.13,
+   "live_alert": {}
   },
   {
    "symbol": "PLYX",
@@ -1023,7 +1027,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.26
+   "last_price": 2.26,
+   "live_alert": {}
   },
   {
    "symbol": "PMAX",
@@ -1371,7 +1376,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.66
+   "last_price": 1.66,
+   "live_alert": {}
   },
   {
    "symbol": "YHC",
@@ -1708,7 +1714,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.79
+   "last_price": 1.79,
+   "live_alert": {}
   },
   {
    "symbol": "YMAT",
@@ -2053,7 +2060,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.92
+   "last_price": 1.92,
+   "live_alert": {}
   },
   {
    "symbol": "SUGP",
@@ -2389,7 +2397,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.08
+   "last_price": 2.08,
+   "live_alert": {}
   },
   {
    "symbol": "RBNE",
@@ -2715,7 +2724,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.38
+   "last_price": 2.38,
+   "live_alert": {}
   },
   {
    "symbol": "ICCM",
@@ -3055,7 +3065,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.08
+   "last_price": 3.08,
+   "live_alert": {}
   },
   {
    "symbol": "XAIR",
@@ -3409,7 +3420,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.36
+   "last_price": 5.36,
+   "live_alert": {}
   },
   {
    "symbol": "TVRD",
@@ -13264,8 +13276,8 @@
    "country": "United States",
    "float": 41444030,
    "last_price": 1.69,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-08-07"
   },
   {
    "symbol": "CAPR",
