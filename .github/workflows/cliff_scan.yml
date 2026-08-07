@@ -34,16 +34,12 @@ on:
         description: "سقف نداءات ياهو الفريدة (نفادُه يُعلَن ويجعل أعداد المطابقين أرضية لا سقفًا)"
         required: false
         default: "1500"
-      probe_cap:
-        description: "🔬 T-CLIFF-2: تجاوزٌ بحثيّ لسقف probe (فارغ = سقف الإنتاج 80؛ حكمُ T-CLIFF: السقفُ يقصّ الأضحلَ كليفًا)"
-        required: false
-        default: ""
       order:
         description: "🔬 T-CLIFF-2: مفتاحُ الترتيب قبل القصّ — cliff (الإنتاج) أو cum (الهبوط التراكميّ)"
         required: false
         default: "cliff"
       probe_cap:
-        description: "⚠️ تجاوزٌ بحثيّ مُعلَن لسقف probe (فارغ = سقف الإنتاج 80). يلزم لقياس «حدّ الالتقاط الأعلى» في c4"
+        description: "⚠️ تجاوزٌ بحثيّ مُعلَن لسقف probe (فارغ = سقف الإنتاج 80). يلزم لقياس «حدّ الالتقاط الأعلى» في c4 · وT-CLIFF-2 (حكمُ T-CLIFF: السقفُ يقصّ الأضحلَ كليفًا فيُسقط EHGO)"
         required: false
         default: ""
       equiv_days:

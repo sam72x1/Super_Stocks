@@ -811,6 +811,10 @@ def run():
                   + ("✅ داخل السقف" if r <= 3.0 else "❌ يتجاوز 3×"))
     print("⚠️ وهذا **شرط (ب) وحده**؛ الحكم لا يصدر إلا باستيفاء (أ) الاسترجاع معه — "
           "ويُقاس بأداة `hunter_six_check.py` بنفس الذراع (‏HUNTER_SIX_CLIFF).")
+    print("🔴 **واستثناءٌ مسجَّل (‏`cliff2_prereg.md` §③):** أذرعُ **الترتيب/السقف** "
+          "(`SPLIT_RADAR_ORDER` · `SPLIT_RADAR_PROBE_CAP`) **لا تُقاس بتلك الأداة** — "
+          "مشيُها رمزًا واحدًا لا يُقيَّد بالسقف ولا يعمل فيه ترتيبٌ أصلًا ⇒ استرجاعُها "
+          "يُؤخذ من **قائمة رموز المطابقين أعلاه** في هذي التشغيلة نفسِها.")
 
     if log_msgs:
         print("\n📝 رسائل الإنتاج أثناء المسح (فريدة + تكرارها — لا حذف صامت):")
@@ -1092,9 +1096,17 @@ def selftest():
     VERDICT_PATH = {
         "_split_setup_probe": "4a37c171615d79e1", "_post_split_high": "b63231ab887c4f9d",
         "_split_day_value": "3ac4102924950c71", "faisal_split_plan": "ed7e5bf7e22184e9",
-        "_yahoo_float": "0d6301165a68fa38", "scan_split_radar": "3b490e3cc4644ae1",
+        "_yahoo_float": "0d6301165a68fa38",
+        # 🔴 **إقرارٌ بتغييرٍ متعمَّد لا إصلاحُ فشل (2026-08-06):** أُضيف إلى
+        #    `scan_split_radar` **خطّافُ ترتيبٍ مطفأ** (`SPLIT_RADAR_ORDER`، افتراضُه
+        #    `"cliff"` = السلوكُ السابق **حرفيًّا**) لتجربة `cliff2_prereg.md`.
+        #    والقياسُ يبقى صالحًا لأن الافتراض بت-بت، **وهو مقفولٌ في السويّة**
+        #    (‏`CONFIG["SPLIT_RADAR_ORDER"] == "cliff"` + استعادةٌ بعد الضبط).
+        "scan_split_radar": "4c8a21f4838c37ba",
         "split_radar_ready": "7002dda81b304609", "scan_split_hunter": "e54959a04f43124e"}
-    OFF_PATH = {"build_split_hunter_alert": "f8ccb0080d114dfb"}
+    # 🔴 وإقرارٌ ثانٍ: `build_split_hunter_alert` تغيّرت بإضافة `faisal_rule_lines`
+    #    (قواعدُ فيصل عرضًا على الكرت) — **خارج مسار الحكم** فلا تمسّ قياسًا.
+    OFF_PATH = {"build_split_hunter_alert": "e6c49e84351ed888"}
 
     def _sha(n):
         return hashlib.sha256(inspect.getsource(getattr(S, n)).encode()).hexdigest()[:16]
