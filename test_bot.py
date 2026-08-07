@@ -1896,9 +1896,35 @@ check("جاهز/متابعة 11: VFF داخل النطاق حقًّا → جاه
       and S.entry_status(_live("LYEL", 14.05, [11.47, 11.81, 12.16], 10.67,
                                12.0))["status"] == "watch")
 # 12) 🔒 أقفال
-check("جاهز/متابعة 12-قفل: entry_status خارج rank_key/select_top/classify_tier",
-      all("entry_status" not in _insp0.getsource(f)
-          for f in (S.rank_key, S.select_top, S.classify_tier)))
+# 🔴 **صُحِّح 2026-08-07 مرّتين — نصًّا وسياسةً:**
+# ① **نصًّا:** كان القفلُ يفحص وجودَ السلسلة `"entry_status"` في المصدر، فسقط على
+#    **اقتباسٍ في docstring** `rank_key` (يستشهد بقاعدة القرار الموثّقة فيها) بينما
+#    **لا نداءَ إطلاقًا**. وهو فخُّ «القفل النصّيّ لا يفرّق كودًا عن تعليق» بعينه ⇒
+#    صار **بالـAST على النداء الفعليّ**، فهو الآن أدقُّ وأقوى لا أرخى.
+# ② **سياسةً — إقرارٌ صريح:** القفلُ وُضع 2026-07-08 ليضمن أن **تصنيفَ التوقيت لا
+#    يدخل الاختيار**. و**قرارُ المالك 2026-08-07 غيّر ذلك عمدًا**: «القابلُ للدخول
+#    يتقدّم» صار **مفتاحَ ترتيبٍ أوّل** (‏`prox_prereg.md`) لأن التقرير سلّم عشرةً
+#    لا يجهز منهم أحد. ⇒ **ما يبقى محرَّمًا ومقفولًا هنا:** ألّا يُنادى `entry_status`
+#    في الجذور، و**ألّا يصير القربُ بوّابةَ رفض** (ترتيبٌ لا إقصاء — مقفولٌ بـPROX6).
+import ast as _es12_ast
+_es12_src = open("Super_stock.py", encoding="utf-8").read()
+_es12_tree = _es12_ast.parse(_es12_src)
+
+
+def _es12_calls(fname):
+    fn = next((n for n in _es12_ast.walk(_es12_tree)
+               if isinstance(n, _es12_ast.FunctionDef) and n.name == fname), None)
+    return {getattr(c.func, "id", None) or getattr(c.func, "attr", None)
+            for c in _es12_ast.walk(fn or _es12_ast.Module(body=[], type_ignores=[]))
+            if isinstance(c, _es12_ast.Call)}
+
+
+check("جاهز/متابعة 12-قفل: `entry_status` **لا يُنادى** في "
+      "rank_key/select_top/classify_tier (AST لا نصّ)",
+      all("entry_status" not in _es12_calls(f)
+          for f in ("rank_key", "select_top", "classify_tier")),
+      str({f: sorted(x for x in _es12_calls(f) if x) for f in
+           ("rank_key", "select_top", "classify_tier")}))
 check("جاهز/متابعة 12-قفل: الجاهزية لا تدخل entry_status (ضد رجوع عتبة 75)",
       "readiness" not in _insp0.getsource(S.entry_status)
       and "READY_PCT" not in _insp0.getsource(S.entry_status))
@@ -15767,6 +15793,86 @@ check("🥇 SOFT8 الأربعةُ تصل فعلًا من `envelope_p90.json` ا
       f"{ {k: _sf_cfg2.get(k) for k in ('PRIOR_SPIKE_PCT','MIN_DROP_PCT','RSI_OVERSOLD','RSI_MAX_NOW')} }")
 check("🥇 SOFT9 و`TF_MIN_REVERSALS` **لم يُمَسّ** (لا وسيطَ له — قرارُنا مُصرَّحٌ به)",
       "TF_MIN_REVERSALS" not in _sf_cfg2)
+# ══════════════════════════════════════════════════════════════════════════
+# 🎯 PROX — «القابلُ للدخول أوّلًا» في `rank_key` (قرارُ المالك 2026-08-07)
+# ══════════════════════════════════════════════════════════════════════════
+# العطلُ المقيس: العشرةُ المُسلَّمون كانوا فوق نطاقهم بـ4.5%-48.1%، و`YHC` جاهزيتُه
+# 90 (الأعلى) وهو الأبعد، و`XAIR` القابلُ للدخول جاهزيتُه 60 (الأدنى) ⇒ **المُرتِّبُ
+# يقدّم الأبعدَ بالبناء**. والشرطُ الحرفيّ للمالك: **لا تُمَسّ بوّاباتُ فيصل.**
+def _px(sym, price, tr, rdy, score=90, rr=3.0):
+    return {"symbol": sym, "price": price, "tranches": list(tr),
+            "readiness": rdy, "score": score, "rr": rr}
+
+
+_PX_FAR = _px("YHC", 2.00, [1.27, 1.31, 1.35], 90, 100, 7.21)   # +48.1% فوق النطاق
+_PX_NEAR = _px("XAIR", 5.20, [5.02, 5.17, 5.32], 60, 85, 2.39)  # داخل النطاق
+check("🎯 PROX1 `in_entry_band` تفرّق الداخلَ عن الخارج",
+      S.in_entry_band(_PX_NEAR) is True and S.in_entry_band(_PX_FAR) is False)
+check("🎯 PROX2 وبياناتٌ ناقصة/تالفة ⇒ False (لا يُدَّعى قربٌ بلا دليل)",
+      S.in_entry_band({}) is False
+      and S.in_entry_band({"price": 1.0, "tranches": []}) is False
+      and S.in_entry_band({"price": "س", "tranches": [1.0]}) is False
+      and S.in_entry_band({"price": 0, "tranches": [1.0]}) is False)
+check("🔴 PROX3 القابلُ للدخول يتقدّم **رغم جاهزيةٍ أدنى بثلاثين نقطة** (حالةُ اليوم)",
+      [r["symbol"] for r in sorted([_PX_FAR, _PX_NEAR], key=S.rank_key)]
+      == ["XAIR", "YHC"],
+      str([r["symbol"] for r in sorted([_PX_FAR, _PX_NEAR], key=S.rank_key)]))
+# 🔒 داخلَ الفئة الواحدة: الترتيبُ **byte-identical** للمفتاح القديم
+_PX_OLD = lambda x: (-(x.get("readiness") if x.get("readiness") is not None else -1),  # noqa: E731
+                     -x.get("h4_confirm", 0), -x.get("score", 0), -x.get("rr", 0))
+# 🐞 **عيّنةٌ بأسعارٍ مختلفة عمدًا (صُحِّحت بالطفرة PM5):** أوّلُ صياغةٍ لي جعلت
+#    السعرَ 9.0 للجميع ⇒ مفتاحٌ **سعريٌّ مستمرّ** بدل الثنائيّ لا يغيّر الترتيبَ
+#    فينجو من القفل. الآن الأسعارُ متمايزة **وترتيبُها يخالف ترتيبَ الجاهزية** ⇒
+#    أيُّ مفتاحٍ مستمرٍّ يُسقط القفل.
+_px_all_far = [_px(f"F{i}", pr, [1.0, 1.03, 1.06], r, sc, rrv)
+               for i, (pr, r, sc, rrv)
+               in enumerate([(9.0, 70, 90, 3.1), (7.0, 90, 100, 7.2),
+                             (12.0, 70, 95, 2.0), (5.0, 60, 85, 4.4),
+                             (20.0, 70, 90, 5.0)])]
+check("🔒 PROX4 الجميعُ خارج النطاق ⇒ الترتيبُ **مطابقٌ للقديم حرفيًّا**",
+      [r["symbol"] for r in sorted(_px_all_far, key=S.rank_key)]
+      == [r["symbol"] for r in sorted(_px_all_far, key=_PX_OLD)],
+      str([r["symbol"] for r in sorted(_px_all_far, key=S.rank_key)]))
+_px_all_near = [_px(f"N{i}", pr, [1.0, 1.03, 1.06], r, sc, rrv)
+                for i, (pr, r, sc, rrv)
+                in enumerate([(1.00, 70, 90, 3.1), (0.90, 90, 100, 7.2),
+                              (1.05, 70, 95, 2.0), (0.80, 60, 85, 4.4),
+                              (1.02, 70, 90, 5.0)])]
+check("🔒 PROX5 والجميعُ داخل النطاق ⇒ كذلك مطابق (المفتاحُ ثنائيٌّ لا مستمرّ)",
+      [r["symbol"] for r in sorted(_px_all_near, key=S.rank_key)]
+      == [r["symbol"] for r in sorted(_px_all_near, key=_PX_OLD)])
+check("🔒 PROX6 ترتيبٌ **لا رفض**: العضويةُ لا تتغيّر حين يكون الجميعُ خارج النطاق",
+      {r["symbol"] for r in S.select_top(sorted(_px_all_far, key=S.rank_key), 3, set())}
+      == {r["symbol"] for r in S.select_top(sorted(_px_all_far, key=_PX_OLD), 3, set())})
+# 🔒 صفرُ رقمٍ مخترَع: `in_entry_band` لا تحمل أيّ عتبةٍ عددية غير 0/1/100
+_px_lits = {n.value for n in __import__("ast").walk(__import__("ast").parse(
+    __import__("inspect").getsource(S.in_entry_band)))
+    if isinstance(n, __import__("ast").Constant) and isinstance(n.value, (int, float))
+    and not isinstance(n.value, bool)}
+check("🔒 PROX7 صفرُ عتبةٍ مخترَعة — العتبةُ من CONFIG وحدها",
+      _px_lits <= {0, 1, 0.0, 100.0} and "ENTRY_READY_BAND_TOL_PCT"
+      in __import__("inspect").getsource(S.in_entry_band), str(sorted(_px_lits)))
+# 🔒 شرطُ المالك: بوّاباتُ فيصل لم تُمَسّ
+_px_cfg = {"MIN_PRICE": 1.649999976158142, "MIN_DROP_FLOOR": 89.58801459243173,
+           "MAX_DROP_PCT": 99.72182254044176, "PRIOR_SPIKE_FLOOR": 98.94179994296877,
+           "BASE_RANGE_MAX_PCT": 475.2137106742811, "MIN_DOLLAR_VOL": 39482.02504813671,
+           "RSI_OS_HARD": 44.0, "RSI_NOW_HARD": 48.87697543295087,
+           "WATCH_MAX_FAILS": 5, "NEAR_PCT": 10.0, "SCORE_MIN": 35,
+           "MIN_RR_T1": 1.168184676778314, "PRIOR_SPIKE_PCT": 164.021164021164,
+           "MIN_DROP_PCT": 96.91775344552148, "RSI_OVERSOLD": 33.0,
+           "RSI_MAX_NOW": 35.77890610671257}
+# 🐞 وأوّلُ صياغةٍ لي مرّرت قاموسًا **بلا `FAISAL_ONLY`** فترجع الدالّةُ مبكّرًا
+#    ⇒ «طُبِّق 0» والقفلُ يفحص فراغًا — فخُّ «العيّنةُ يردّها حارسٌ أسبق» مرّةً أخرى.
+_px_live = {"FAISAL_ONLY": 1}
+S.apply_faisal_only(_px_live, log_fn=lambda *_a: None)
+check("🔒 PROX8 بوّاباتُ فيصل الستّ عشرة **كما هي** (شرطُ المالك حرفيًّا)",
+      all(abs(float(_px_live.get(k, -1)) - float(v)) < 1e-9 for k, v in _px_cfg.items())
+      and len(_px_live) == 17, f"طُبِّق {len(_px_live) - 1}")   # 16 + مفتاحُ التفعيل
+check("🎯 PROX9 والتسجيلُ المسبق مدفوعٌ بمعياره وبحدّ الصدق «الباكتيست لا يتحقّق»",
+      all(x in open("prox_prereg.md", encoding="utf-8").read()
+          for x in ("P-1", "P-2", "X1", "no-op", "بوّاباتُ فيصل الستّ عشرة كما هي",
+                    "لا يُدَّعى عائد")))
+
 check("🥇 SOFT10 وبصمةُ الحوافّ الصلبة **لم تتغيّر** (الوسيطُ خارج `edges`)",
       __import__("envelope_scan").edges_fingerprint(
           __import__("envelope_scan").load_edges()) == "b4e5372075c1")

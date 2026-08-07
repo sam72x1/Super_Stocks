@@ -810,7 +810,7 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.07-faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.07-proxfirst+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -9415,14 +9415,43 @@ def classify_tier(soft_fails, two_tier=None, maxf=None):
     return None
 
 
+def in_entry_band(x) -> bool:
+    """🎯 هل السعرُ **داخل نطاق الدفعات** (أي يمكن أن تُعبَّأ فيه طلباتُك اليوم)؟
+
+    دالّةٌ نقيّة تقرأ حقلَي `analyze_ticker` القائمين (`price` · `tranches`) والعتبةَ
+    المعتمَدة `ENTRY_READY_BAND_TOL_PCT` — **صفرُ رقمٍ جديد**. بياناتٌ ناقصة/تالفة
+    ⇒ `False` (‏لا يُدَّعى قربٌ بلا دليل)."""
+    try:
+        tr = [float(t) for t in (x.get("tranches") or []) if t]
+        px = float(x.get("price") or x.get("last_price") or 0)
+        if not tr or px <= 0:
+            return False
+        return px <= max(tr) * (1 + float(
+            CONFIG.get("ENTRY_READY_BAND_TOL_PCT", 0.0)) / 100.0)
+    except (TypeError, ValueError):
+        return False
+
+
 def rank_key(x):
     """مفتاح ترتيب القائمة التأسيسية (موحّد مع التقرير اليومي والرقم المعروض):
-    **الأعلى جاهزيةً** → الأقوى تأكيدًا على 4س (دمج فيصل #3) → الأعلى نقاطًا → الأعلى
-    عائدًا/مخاطرة. (الترتيب فقط — لا يمسّ الاختيار.)
-    🪦 أُزيل مفتاح «A قبل B» بعد تقاعد A/B (كان ثابتًا=B للجميع فبلا أثر؛ إزالته تُبقي
-    الترتيب/العضوية مطابقَين حرفيًا، والجاهزية هي المحور)."""
+    🎯 **القابلُ للدخول اليوم أوّلًا** → الأعلى جاهزيةً → الأقوى تأكيدًا على 4س (دمج
+    فيصل #3) → الأعلى نقاطًا → الأعلى عائدًا/مخاطرة.
+
+    🔴 **ولماذا المفتاحُ الأوّل (قرارُ المالك 2026-08-07، `prox_prereg.md`):** كان
+    الترتيبُ بالجاهزية وحدها، و**`entry_readiness` لا تقرأ `tranches` إطلاقًا** ⇒
+    يمكن أن تكون الجاهزيةُ 90 والسهمُ فوق دفعاته بـ48% (‏`YHC` حيًّا 2026-08-07)
+    بينما الوحيدُ القابلُ للدخول جاهزيتُه 60 (‏`XAIR`) ⇒ **السعةُ العشرُ تُستهلَك في
+    أسماءٍ لا تُعبَّأ فيها طلبات، فيصل التقريرُ بصفر جاهز**. والسندُ نصُّ docstring
+    `entry_status`: «قرارُ فيصل = **موقعُ السعر** لا اكتمالُ بوّابات».
+
+    🔒 **ثنائيٌّ لا مستمرّ، وترتيبٌ لا رفض:** «داخل» قبل «خارج» ثم **بقيّةُ المفاتيح
+    حرفيًّا كما كانت** ⇒ الترتيبُ **داخل كلّ فئة byte-identical**، ولا يُقصى أحد،
+    ولو كان الجميعُ خارج النطاق فالترتيبُ **مطابقٌ للسابق تمامًا**. ولا يمسّ
+    البوّاباتِ ولا الجاهزيةَ ولا الدخولَ ولا الوقفَ (شرطُ المالك حرفيًّا).
+    🪦 أُزيل مفتاح «A قبل B» بعد تقاعد A/B (كان ثابتًا=B للجميع فبلا أثر)."""
     rdy = x.get("readiness")
-    return (-(rdy if rdy is not None else -1),
+    return (0 if in_entry_band(x) else 1,
+            -(rdy if rdy is not None else -1),
             -x.get("h4_confirm", 0),
             -x.get("score", 0), -x.get("rr", 0))
 
