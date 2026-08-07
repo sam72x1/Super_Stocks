@@ -10458,10 +10458,17 @@ print("\n=== 📌 خطة 007: تثبيت الاعتماديات + فحص الد�
 _c7_req = open("requirements.txt", encoding="utf-8").read()
 _c7_pins = [_l.strip() for _l in _c7_req.splitlines()
             if _l.strip() and not _l.strip().startswith("#")]
-check("📌 007·الاعتماديات الأربع مثبَّتة بـ== (لا >= يسمح بترقية صامتة)",
-      len(_c7_pins) == 4 and all("==" in _l for _l in _c7_pins)
-      and all(any(_l.startswith(_p) for _l in _c7_pins)
-              for _p in ("yfinance", "pandas", "numpy", "requests")))
+# 🔴 **حُدِّث عمدًا 2026-08-07 — والقفلُ أدّى عملَه فأمسك التغيير.** كان يشترط
+#    **أربعًا**، وأُضيفت `PyYAML` لأن غيابَها أبقى بوّابة CI حمراء بصمت (السويّةُ
+#    تقرأ ملفّات الـworkflows في أقفالٍ بنيويّة). **والصياغةُ شُدّت لا رُخّيت:**
+#    المجموعةُ **مطابقةٌ بالضبط** (لا «تحوي») ⇒ أيُّ إضافةٍ صامتةٍ لاحقة تُسقطه أيضًا.
+_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests"}
+_c7_names = {_l.split("==")[0].strip() for _l in _c7_pins}
+check("📌 007·الاعتمادياتُ الخمس مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
+      "(لا ترقيةٌ صامتة ولا إضافةٌ صامتة)",
+      _c7_names == _C7_EXPECT and all("==" in _l for _l in _c7_pins)
+      and len(_c7_pins) == len(_C7_EXPECT),
+      f"{sorted(_c7_names)}")
 check("📌 007·بروتوكول الترقية موثّق داخل الملفّ (لا ترقية بلا فحص دخان)",
       "deps_smoke" in _c7_req and "test_bot.py" in _c7_req)
 
@@ -15656,6 +15663,49 @@ check("⛰️ CL4 نتيجةُ T-CLIFF-2 منشورة: الحكم · الأذر�
                               "30597787554")))
 check("⛰️ CL5 وتُصرّح بالـno-op المسحوب وبأن الأثر الإنتاجيّ صفر",
       "no-op" in _cl4 and "مسحوبتان" in _cl4 and "الأثرُ الإنتاجيّ — صفر" in _cl4)
+
+# ══════════════════════════════════════════════════════════════════════════
+# 📦 DEP — كلُّ اعتمادية تستوردها السويّة **مُصرَّحٌ بها** في `requirements.txt`
+# ══════════════════════════════════════════════════════════════════════════
+# 🐞 **عطلٌ حقيقيّ مقيس (2026-08-07):** أضفتُ `import yaml` لأقفال الـworkflows،
+#    والمكتبةُ حاضرةٌ محلّيًّا وغائبةٌ عن الرنر ⇒ `python3 test_bot.py` ينجح عندي
+#    و**`tests.yml` يسقط بـ`ModuleNotFoundError` على كلّ دفعة** — وبقيت البوّابةُ
+#    حمراء ساعتين وأنا أدفع فوقها. 🧭 **الدرس: «السويّةُ خضراء عندي» ليست «البوّابةُ
+#    خضراء» — والفرقُ يُقرأ من سجلّ CI لا من طرفيّتي.**
+#    ⚠️ ولا يُحَلّ بـ`try/except ImportError`: ذاك يُخفي الأقفال **في CI بالذات**.
+import ast as _dep_ast
+import sys as _dep_sys
+
+_DEP_SELF = {"Super_stock", "test_bot"}          # وحداتُ المستودع نفسِه
+_dep_tree = _dep_ast.parse(open("test_bot.py", encoding="utf-8").read())
+_dep_mods = set()
+for _n in _dep_ast.walk(_dep_tree):
+    if isinstance(_n, _dep_ast.Import):
+        _dep_mods |= {a.name.split(".")[0] for a in _n.names}
+    elif isinstance(_n, _dep_ast.ImportFrom) and _n.module and _n.level == 0:
+        _dep_mods.add(_n.module.split(".")[0])
+# وحداتُ المستودع = ملفّاتُ `.py` بجانبنا · والقياسيّة من `sys.stdlib_module_names`
+_dep_local = {f[:-3] for f in __import__("os").listdir(".") if f.endswith(".py")}
+_dep_third = sorted(_dep_mods - set(_dep_sys.stdlib_module_names)
+                    - _dep_local - _DEP_SELF)
+# 🔴 **يُقرأ من أسطر التثبيت وحدَها لا من نصّ الملفّ:** أوّلُ صياغةٍ لي قارنت
+#    بالنصّ الكامل، **والتعليقُ الذي كتبتُه يذكر `PyYAML` باسمه** ⇒ حذفُ سطر
+#    التثبيت كان **يمرّ** والقفلُ أخضر على كذبة. كشفَته الطفرةُ لا القراءة —
+#    وهو **فخُّ «القفل النصّيّ» الموثَّق** وقعتُ فيه مرّةً أخرى.
+_dep_pins = {_l.split("==")[0].strip().lower()
+             for _l in open("requirements.txt", encoding="utf-8").read().splitlines()
+             if _l.strip() and not _l.strip().startswith("#") and "==" in _l}
+# أسماءُ التوزيع تختلف عن أسماء الاستيراد (‏yaml ⟵ PyYAML) — خريطةٌ صريحة لا تخمين
+_DEP_DIST = {"yaml": "pyyaml"}
+_dep_missing = [m for m in _dep_third
+                if _DEP_DIST.get(m, m) not in _dep_pins]
+check("📦 DEP1 كلُّ استيرادٍ خارجيٍّ في السويّة مُصرَّحٌ في `requirements.txt`",
+      not _dep_missing, f"خارجية={_dep_third} · ناقصة={_dep_missing}")
+check("📦 DEP2 والقفلُ يرى `yaml` فعلًا (وإلّا فهو يحرس فراغًا)",
+      "yaml" in _dep_third, str(_dep_third))
+check("📦 DEP3 و`tests.yml` يثبّت من `requirements.txt` (وإلّا فالتصريحُ بلا أثر)",
+      "pip install -r requirements.txt"
+      in open(".github/workflows/tests.yml", encoding="utf-8").read())
 
 # ── ⏳ استثناءُ المزامنة للتشغيل اليدويّ (عطلٌ مقيس 2026-08-06) ─────────────────
 # المراقبُ يعمل 4 مرّاتٍ بالساعة وGitHub يُبقي **معلَّقًا واحدًا** لكل مجموعة ⇒ التشغيلُ
