@@ -15201,6 +15201,11 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             _xk, _xi = _arm_a_exit_bar(hi, lo, cl, entry, stop, t1, filled)
             trade["exit_kind"] = _xk
             trade["exit_date"] = (str(fut.index[_xi].date()) if len(fut) else None)
+            # 🪑 T-SLOT (`slot_prereg.md` §②): تاريخُ التعبئة من فهرس المحرّك نفسه
+            #    (`fut.index[filled]`) — لتمييز «تعبّأ خلال المهلة» عن «متأخّر/لم
+            #    يتعبّأ» في أذرع سياسة الخانات. إلحاقٌ فقط خلف العلم = بت-بت مطفأً.
+            trade["fill_date"] = (str(fut.index[filled].date())
+                                  if filled is not None and len(fut) else None)
             # 🔴🔴 **`eligible_at` — إصلاح العيب الزمنيّ (مراجعة Codex الثانية):**
             # `trade["date"]` هو `df.index[i-1]` = **يوم الإشارة**، و`analyze_ticker`
             # يقرأ حتى إغلاقه ⇒ الخطّة (الدخول/الوقف/الهدف/الرقم الحرج) **لم تكن

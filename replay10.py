@@ -176,6 +176,7 @@ def replay(
     capacity: int = CAPACITY,
     sessions: Iterable[int] | None = None,
     dedupe_key: Callable[[Candidate], object] | None = None,
+    free_of: Callable[[Candidate], int | None] | None = None,
 ) -> dict:
     """يُعيد تشغيل آلة القائمة جلسةً بجلسة.
 
@@ -247,6 +248,14 @@ def replay(
                 frees.setdefault(end, []).append(c.symbol)
             else:
                 exits.setdefault(end, []).append(c.symbol)
+            # 🪑 T-SLOT (`slot_prereg.md` §③): تحريرٌ مبكّر اختياريّ للخانة —
+            #    `free_of(c)` يرجّع إزاحةَ جلساتٍ من الدخول تُحرَّر عندها الخانةُ
+            #    **مع بقاء الاسم محمولًا حتى خروجه** (جنسُ آلية `hit_held` نفسها).
+            #    `None` (الافتراضيّ) = **السلوك السابق بت-بت** (مقفول SLT1).
+            if free_of is not None:
+                _fa = free_of(c)
+                if _fa is not None:
+                    frees.setdefault(s + max(int(_fa), 0), []).append(c.symbol)
             live[c.symbol].reason = reason
 
         daily[s] = tuple(sorted(live))
@@ -320,7 +329,26 @@ def r_unit(trade: dict) -> float | None:
         return None
 
 
-def candidates_from_trades(trades: Sequence[dict]) -> tuple[list, dict, Callable]:
+def make_free_unfilled(k: int, idx: dict) -> Callable[[Candidate], int | None]:
+    """🪑 T-SLOT (`slot_prereg.md` §③): غيرُ المُعبَّأ بعد `k` جلساتٍ يحرّر خانته
+    ويبقى متابَعًا (جنسُ سابقتَي «الهدف المحقَّق لا يحجز» و«افتح الباب»).
+    مَن تعبّأ **خلال** المهلة ⇒ `None` (السلوك الحيّ حرفيًّا) · مَن تعبّأ بعدها أو
+    لم يتعبّأ قطّ أو تاريخُه خارج الفهرس ⇒ `k`. **التعادل الحدّي:** التعبئة في
+    الجلسة `k` بالضبط تُعدّ خلال المهلة (‏`> k` لا `>= k` — مقفول SLT3)."""
+    def _f(c: Candidate):
+        fd = (c.payload or {}).get("fill_date")
+        if fd is None:
+            return int(k)
+        fs = idx.get(str(fd))
+        if fs is None or fs - c.session > int(k):
+            return int(k)
+        return None
+    return _f
+
+
+def candidates_from_trades(trades: Sequence[dict],
+                           extra_dates: Iterable[str] | None = None
+                           ) -> tuple[list, dict, Callable]:
     """يبني `(مرشّحون، فهرس الجلسات، outcome_of)` من صفقات محرّك الباكتيست.
 
     **تُشترط الحقول** `date` و`exit_date` (يضيفهما `BT_REPLAY10`) — وغيابُها يعني أن
@@ -330,7 +358,8 @@ def candidates_from_trades(trades: Sequence[dict]) -> tuple[list, dict, Callable
     **الترتيب الأصليّ `seq`** يُبنى من `(التاريخ، الرمز)` فيكون **حتميًّا** مستقلًّا عن
     ترتيب ورود الصفقات ⇒ FIFO وكسر التعادل قابلان لإعادة الإنتاج."""
     rows = [t for t in trades if t.get("date") and t.get("exit_date")]
-    idx = session_index([t["date"] for t in rows] + [t["exit_date"] for t in rows])
+    idx = session_index([t["date"] for t in rows] + [t["exit_date"] for t in rows]
+                        + [str(d) for d in (extra_dates or []) if d])
     rows = sorted(rows, key=lambda t: (str(t["date"]), str(t.get("symbol") or "")))
     cands = [
         Candidate(session=idx[str(t["date"])], symbol=str(t.get("symbol") or ""),

@@ -16542,6 +16542,137 @@ check("🚦 R2M التسجيلُ المسبق يحمل الأذرعَ الخمس
       all(x in _r2_pre for x in ("K-LIVE", "K-LEGACY", "K-ENV", "K-FIFO",
                                  "K-RAND", "المنفجرون المُسلَّمون",
                                  "0.05R", "المئين 90", "الترتيبُ محايد")))
+
+
+# ═══════════════ 🪑 T-SLOT — أذرعُ سياسة الخانات (`slot_prereg.md`) ═══════════════
+_sl_saved_env = {k: _os_hc.environ.get(k) for k in _RT_ENV_KEYS}
+_sl_saved_bt = S.run_backtest
+try:
+    import slot_arms as _SL
+finally:
+    for _k, _v in _sl_saved_env.items():
+        if _v is None:
+            _os_hc.environ.pop(_k, None)
+        else:
+            _os_hc.environ[_k] = _v
+
+
+def _sl_run(trades):
+    S.run_backtest = lambda *a, **k: trades
+    _yr = _os_hc.environ.pop("BACKTEST_YEAR", None)   # عيّنةٌ لا سنة ⇒ البوّابة تُتخطّى
+    buf = _rt_io.StringIO()
+    try:
+        with _rt_ctx.redirect_stdout(buf):
+            rc = _SL.run()
+    finally:
+        S.run_backtest = _sl_saved_bt
+        if _yr is not None:
+            _os_hc.environ["BACKTEST_YEAR"] = _yr
+    return rc, buf.getvalue()
+
+
+# ── SLT1: `free_of` عاطلًا (يرجّع None دائمًا) ≡ الأساس **بت-بت** ──
+def _sl_cand(sym, sess, seq, oc="window", held=9, band=True, fd=None, mg=60.0):
+    p = {"symbol": sym, "outcome": oc, "entry": 2.0, "stop": 1.86, "ret_a": 10.0,
+         "env_vals": {"in_band": band}, "mg_outcome": "stopped",
+         "mg_pre_stop": mg}
+    if fd is not None:
+        p["fill_date"] = fd
+    p["_held"] = held
+    return _RT.RP.Candidate(session=sess, symbol=sym, readiness=70, score=50,
+                            rr=1.0, seq=seq, payload=p)
+
+
+def _sl_outcome(c):
+    return ("window", int(c.payload.get("_held", 9)))
+
+
+_sl_cs = [_sl_cand("A", 0, 0), _sl_cand("B", 3, 1, held=2),
+          _sl_cand("C", 5, 2, held=3)]
+_sl_base = _RT.RP.replay(_sl_cs, outcome_of=_sl_outcome,
+                         ranker=_RT.RP.rank_live, sessions=range(0, 12))
+_sl_noop = _RT.RP.replay(_sl_cs, outcome_of=_sl_outcome,
+                         ranker=_RT.RP.rank_live, sessions=range(0, 12),
+                         free_of=lambda c: None)
+check("🪑 SLT1 `free_of` العاطل ≡ الأساس بت-بت (كل مفاتيح النتيجة)",
+      _sl_base == _sl_noop)
+
+# ── SLT2: التحريرُ المبكّر يفتح الخانة فعلًا (سعة 1: B مرفوض بلاه · مأخوذ معه) ──
+_sl_two = [_sl_cand("A", 0, 0, held=9), _sl_cand("B", 3, 1, held=2)]
+_sl_r_no = _RT.RP.replay(_sl_two, outcome_of=_sl_outcome, capacity=1,
+                         ranker=_RT.RP.rank_live, sessions=range(0, 12))
+_sl_r_fr = _RT.RP.replay(_sl_two, outcome_of=_sl_outcome, capacity=1,
+                         ranker=_RT.RP.rank_live, sessions=range(0, 12),
+                         free_of=lambda c: 2 if c.symbol == "A" else None)
+check("🪑 SLT2 التحريرُ المبكّر يفتح الخانة: B مرفوضٌ بالسعة بلاه ومأخوذٌ معه",
+      _sl_r_no["rejected_cap"] == 1 and len(_sl_r_no["taken"]) == 1
+      and _sl_r_fr["rejected_cap"] == 0 and len(_sl_r_fr["taken"]) == 2,
+      f"بلاه={len(_sl_r_no['taken'])} · معه={len(_sl_r_fr['taken'])}")
+
+# ── SLT3: `make_free_unfilled` — الحدود الأربعة (والتعادل الحدّي «خلال») ──
+_sl_idx = {"d0": 0, "d5": 5, "d6": 6}
+_sl_fo = _RT.RP.make_free_unfilled(5, _sl_idx)
+check("🪑 SLT3 المهلة: بلا تعبئة ⇒ k · عند k بالضبط ⇒ خلالها (None) · "
+      "بعدها/مجهولة ⇒ k",
+      _sl_fo(_sl_cand("N", 0, 0)) == 5
+      and _sl_fo(_sl_cand("F", 0, 0, fd="d5")) is None
+      and _sl_fo(_sl_cand("L", 0, 0, fd="d6")) == 5
+      and _sl_fo(_sl_cand("U", 0, 0, fd="dX")) == 5)
+
+# ── SLT4: الوصلة الحيّة — `fill_date` داخل كتلة `BT_REPLAY10` من فهرس المحرّك ──
+_sl_blk = _insp0.getsource(S.backtest_symbol)
+_sl_blk = _sl_blk[_sl_blk.index('if CONFIG.get("BT_REPLAY10")'):]
+check("🪑 SLT4 حقلُ `fill_date` داخل كتلة العلم ومن `fut.index[filled]` المحرّك",
+      'trade["fill_date"]' in _sl_blk and "fut.index[filled]" in _sl_blk)
+
+# ── SLT5: `extra_dates` يوسّع الفهرس ولا يغيّر المرشّحين ──
+_sl_rows = [{"symbol": "X", "date": "2025-01-02", "exit_date": "2025-01-09",
+             "outcome": "win", "readiness": 70, "score": 50, "rr": 1.0}]
+_sl_c1, _sl_i1, _ = _RT.RP.candidates_from_trades(_sl_rows)
+_sl_c2, _sl_i2, _ = _RT.RP.candidates_from_trades(
+    _sl_rows, extra_dates=["2025-01-05"])
+check("🪑 SLT5 `extra_dates`: الفهرس يتّسع بالتاريخ الإضافيّ والمرشّحون كما هم",
+      "2025-01-05" in _sl_i2 and "2025-01-05" not in _sl_i1
+      and [c.symbol for c in _sl_c1] == [c.symbol for c in _sl_c2])
+
+# ── SLT6: المسارُ الكامل + التعديلُ الصادق يفرّق NF5 عن NF8 على تعبئةٍ متأخّرة ──
+def _sl_trade(sym, day, exit_day, fill=None, mg=60.0):
+    return {"symbol": sym, "date": f"2025-01-{day:02d}",
+            "exit_date": f"2025-01-{exit_day:02d}", "outcome": "win",
+            "exit_kind": "win", "entry": 2.0, "stop": 1.86, "ret_a": 20.0,
+            "readiness": 70, "score": 50, "rr": 1.0,
+            "env_vals": {"in_band": True},
+            "mg_outcome": "stopped", "mg_pre_stop": mg,
+            "fill_date": fill}
+
+
+_sl_ok = ([_sl_trade(f"T{i}", 1 + 2 * i, 2 + 2 * i, fill=f"2025-01-{1 + 2 * i:02d}")
+           for i in range(4)]
+          + [_sl_trade("TL", 1, 30, fill="2025-01-28", mg=70.0)])
+_sl_rc1, _sl_out1 = _sl_run(_sl_ok)
+check("🪑 SLT6 المسارُ الكامل ينجح ويطبع الأذرعَ الثلاث والهدرَ وبوّابةَ الصلاحية",
+      _sl_rc1 == 0 and all(x in _sl_out1 for x in
+                           ("S-LIVE", "S-NF5", "S-NF8", "d50_adj",
+                            "هدرُ الأساس", "بوّابةُ الصلاحية")),
+      f"rc={_sl_rc1}")
+check("🪑 SLT7 التعديلُ الصادق: TL متأخّرٌ على NF5 (‏adj=4) وداخل مهلة NF8 (‏adj=5)",
+      "S-NF5: d50_adj=4" in _sl_out1 and "S-NF8: d50_adj=5" in _sl_out1,
+      _sl_out1[_sl_out1.find("قراءاتُ §⑤"):][:220] if "قراءاتُ §⑤" in _sl_out1 else "؟")
+
+# ── SLT8: حارسُ الـno-op — بلا مفتاح `fill_date` إطلاقًا ⇒ رمز 8 صريح ──
+_sl_nofd = [{k: v for k, v in _sl_trade(f"N{i}", 1 + i, 3 + i).items()
+             if k != "fill_date"} for i in range(6)]
+_sl_rc2, _sl_out2 = _sl_run(_sl_nofd)
+check("🪑 SLT8 بلا حقل `fill_date` ⇒ رمز 8 (أذرعُ المهلة عمياء = no-op)",
+      _sl_rc2 == 8, f"rc={_sl_rc2}")
+
+# ── SLT9: خارج الإنتاج + التسجيلُ المسبق يحمل الأذرع والبوّابة والتعديل ──
+check("🪑 SLT9 خارج الإنتاج: `Super_stock` لا يستورد `slot_arms`",
+      "slot_arms" not in _rt_imports)
+_sl_pre = open("slot_prereg.md", encoding="utf-8").read()
+check("🪑 SLT10 التسجيلُ يحمل الأذرعَ الثلاث والبوّابةَ الحاكمة والتعديلَ الصادق",
+      all(x in _sl_pre for x in ("S-LIVE", "S-NF5", "S-NF8", "d50_adj",
+                                 "22 · 14 · 6", "3-8 جلسات", "قرارُ مالكٍ حصريّ")))
 # ── RTIE13: النتيجةُ منشورةٌ بحكمها ومعرّفاتِ تشغيلها وحدودِ صدقها ──
 #    🔴 الغرضُ منعُ «نتيجةٌ تُروى ولا تُكتَب»: الحكمُ صريح · التشغيلاتُ الثلاث
 #    بمعرّفاتها · واللقطةُ مذكورة — فلا يُعاد تفسيرُها لاحقًا بلا سندٍ مؤرَّخ.
