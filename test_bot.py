@@ -16476,6 +16476,44 @@ check("🥇 TH16 التسجيلُ المسبق مدفوعٌ بمعياره وح�
       all(x in _th_pre for x in ("+0.10R", "F1", "F4", "لا حكم",
                                  "TIE_HARVEST_MIN", "cluster bootstrap")))
 
+# ══════════ 🥇 FAITXT: نصوصُ «المثالي» تقرأ CONFIG لا أرقامًا مغروسة (2026-08-07) ══════════
+# القرارُ كان يقرأ أرقامَ فيصل والنصُّ يعرض أرقامَنا القديمة (‏50/100/27/40) —
+# «سطرُ عرضٍ يكذب». القفلُ **نحويّ** (AST على سطور soft_fails.append الأربعة نفسِها،
+# لا نصّيّ فلا يخدعه تعليق): كلُّ سطرٍ منها يضمّ Subscript على CONFIG بالمفتاح الصحيح.
+try:
+    import ast as _fx_ast
+    _fx_src = open("Super_stock.py", encoding="utf-8").read()
+    _fx_tree = _fx_ast.parse(_fx_src)
+    _fx_fn = next(n for n in _fx_ast.walk(_fx_tree)
+                  if isinstance(n, _fx_ast.FunctionDef) and n.name == "analyze_ticker")
+    _fx_hits = {}          # مفتاح CONFIG ⟵ وُجد داخل f-string نداءِ soft_fails.append
+    for node in _fx_ast.walk(_fx_fn):
+        if (isinstance(node, _fx_ast.Call)
+                and isinstance(node.func, _fx_ast.Attribute)
+                and node.func.attr == "append"
+                and isinstance(node.func.value, _fx_ast.Name)
+                and node.func.value.id == "soft_fails"):
+            for sub in _fx_ast.walk(node):
+                if (isinstance(sub, _fx_ast.Subscript)
+                        and isinstance(sub.value, _fx_ast.Name)
+                        and sub.value.id == "CONFIG"
+                        and isinstance(sub.slice, _fx_ast.Constant)):
+                    _fx_hits[sub.slice.value] = True
+    _fx_need = {"MIN_DROP_PCT", "PRIOR_SPIKE_PCT", "RSI_OVERSOLD", "RSI_MAX_NOW"}
+    check("🥇 FAITXT1 نصوصُ «المثالي» الأربعة تقرأ CONFIG (قفل AST على soft_fails.append)",
+          _fx_need <= set(_fx_hits),
+          f"الناقص: {_fx_need - set(_fx_hits)}")
+    # وقيمُ الإنتاج (‏FAISAL_ONLY=1 مطبَّقة عند الاستيراد الحيّ) تُنتج نصًّا بأرقام فيصل:
+    # هنا السويّة على FAISAL_ONLY=0 فالبرهان المكمّل = القيمُ الافتراضية تُنتج النصَّ القديم
+    # حرفيًّا (توافقٌ خلفيّ بت-بت) — وهو ما تثبته اختباراتُ التوصيف القائمة على نصّ الكرت.
+    check("🥇 FAITXT2 تحت بوّابات البوت النصُّ القديم حرفيًّا (‏50/100/27/40 من CONFIG)",
+          (S.CONFIG["MIN_DROP_PCT"], S.CONFIG["PRIOR_SPIKE_PCT"],
+           S.CONFIG["RSI_OVERSOLD"], S.CONFIG["RSI_MAX_NOW"]) == (50.0, 100.0, 27.0, 40.0),
+          "قيم الافتراض تغيّرت — راجع التوافق الخلفي")
+except StopIteration:
+    check("🥇 FAITXT1 نصوصُ «المثالي» الأربعة تقرأ CONFIG (قفل AST على soft_fails.append)",
+          False, "analyze_ticker غير موجودة!")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

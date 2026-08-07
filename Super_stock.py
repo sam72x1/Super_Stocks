@@ -2712,7 +2712,11 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         if drop_pct < CONFIG["MIN_DROP_FLOOR"]:
             return _reject("M2_هبوط_تحت_40")   # تحت الأرضية = ليس ارتكازًا
         if drop_pct < CONFIG["MIN_DROP_PCT"]:
-            soft_fails.append(f"الهبوط {drop_pct:.0f}% (المثالي 50% فأكثر)")
+            # 🥇 نصُّ «المثالي» يقرأ `CONFIG` لا رقمًا مغروسًا (تصحيح 2026-08-07):
+            #    تحت بوّابات البوت يطبع 50 حرفيًّا كما كان، وتحت معايير فيصل يطبع رقمَه
+            #    (‏96.9) — كان النصُّ يكذب على المالك بعد إحلال أرقام الكاتالوج.
+            soft_fails.append(f"الهبوط {drop_pct:.0f}% "
+                              f"(المثالي {CONFIG['MIN_DROP_PCT']:.0f}% فأكثر)")
 
         # ---- M3: الانفجار السابق (تدرّج v2.7) ----
         # أرضية (<60%) = رفض. حدّي (60-100%) = نقص (B). مثالي (≥100%) = بلا عقوبة.
@@ -2720,7 +2724,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         if best_spike < CONFIG["PRIOR_SPIKE_FLOOR"]:
             return _reject("M3_انفجار_تحت_60")  # ما انفجر كفاية
         if best_spike < CONFIG["PRIOR_SPIKE_PCT"]:
-            soft_fails.append(f"الانفجار السابق {best_spike:.0f}% (المثالي 100% فأكثر)")
+            soft_fails.append(f"الانفجار السابق {best_spike:.0f}% "
+                              f"(المثالي {CONFIG['PRIOR_SPIKE_PCT']:.0f}% فأكثر)")
 
         # ---- M4: تجميع حالي (مدى ضيق + ما انفجر بعد) ----
         bw = CONFIG["BASE_WINDOW"]
@@ -2810,14 +2815,16 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
                     return _reject("M10_RSI_ما_تشبّع")  # قاعه >32 = ليس ارتكازًا
                 watch_reasons.append("لم يصل التشبّع بعد")  # سيتشبّع عند الارتداد
             elif r_min_os > CONFIG["RSI_OVERSOLD"]:
-                soft_fails.append(f"قاع RSI {r_min_os:.0f} (المثالي 27 أو أقل)")  # 27-32 → B
+                soft_fails.append(f"قاع RSI {r_min_os:.0f} "
+                                  f"(المثالي {CONFIG['RSI_OVERSOLD']:.0f} أو أقل)")  # → B
             if r_now > CONFIG["RSI_NOW_HARD"]:
                 if not pullback:
                     return _reject("M10_RSI_فات_القطار")  # >50 = فات الارتكاز
                 risen = True
                 watch_reasons.append(f"RSI ارتفع للـ{r_now:.0f}")
             elif r_now > CONFIG["RSI_MAX_NOW"]:
-                soft_fails.append(f"RSI الآن {r_now:.0f} أعلى من 40")  # 40-50 طار → B
+                soft_fails.append(f"RSI الآن {r_now:.0f} "
+                                  f"أعلى من {CONFIG['RSI_MAX_NOW']:.0f}")  # طار → B
 
         # ---- M11: تقاطع MACD إيجابي — بوابة لينة ----
         m_line, m_sig = macd(close)
