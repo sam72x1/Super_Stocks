@@ -665,7 +665,7 @@
    "status": "stopped",
    "result_date": "2026-07-20",
    "max_gain_pct": 1.2,
-   "mg_obs_pct": 3.0,
+   "mg_obs_pct": 4.8,
    "mg_obs_days": 26
   },
   {
@@ -1472,7 +1472,7 @@
    "status": "hit_t1",
    "result_date": "2026-07-23",
    "max_gain_pct": 10.7,
-   "mg_obs_pct": 21.3,
+   "mg_obs_pct": 21.5,
    "mg_obs_days": 14
   },
   {
@@ -1890,7 +1890,7 @@
    "rr": 1.4011697143296966,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.4
+   "max_gain_pct": 2.1
   },
   {
    "symbol": "TYGO",
@@ -1966,7 +1966,7 @@
    "status": "hit_t1",
    "result_date": "2026-08-07",
    "max_gain_pct": 14.2,
-   "mg_obs_pct": 14.4,
+   "mg_obs_pct": 17.4,
    "mg_obs_days": 3
   },
   {
@@ -2043,7 +2043,7 @@
    "status": "hit_t1",
    "result_date": "2026-08-07",
    "max_gain_pct": 13.4,
-   "mg_obs_pct": 16.5,
+   "mg_obs_pct": 17.8,
    "mg_obs_days": 2
   },
   {
@@ -2125,7 +2125,7 @@
    "status": "hit_t1",
    "result_date": "2026-08-07",
    "max_gain_pct": 10.3,
-   "mg_obs_pct": 11.8,
+   "mg_obs_pct": 13.9,
    "mg_obs_days": 2
   },
   {
@@ -2163,7 +2163,7 @@
    "rr": 2.3183522249480655,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.8
+   "max_gain_pct": 4.5
   },
   {
    "symbol": "IMNN",
@@ -2385,7 +2385,7 @@
    "rr": 3.836571828464316,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.8
+   "max_gain_pct": 6.6
   },
   {
    "symbol": "CMND",
@@ -2500,7 +2500,7 @@
    "rr": 3.2545143468979134,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.6
+   "max_gain_pct": 4.5
   },
   {
    "symbol": "PLYX",
@@ -3153,6 +3153,47 @@
    "drop_pct": 95.8222222328186,
    "best_spike": 252.05992455852976,
    "rr": 8.623187020280408,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "PMAX",
+   "date": "2026-08-07",
+   "ref_bar": "2026-08-07",
+   "price": 1.66,
+   "stop": 1.3299,
+   "t1": 1.88,
+   "t2": 2.27,
+   "t3": 3.75,
+   "score": 100,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "شمعة فوليوم ضخمة",
+    "جفاف بيع",
+    "ثبات 6 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "توافق 3 فريمات",
+    "انكماش حزمة كلنجر (تجميع)",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة عالية يومي 17%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "فجوة-هدف فوق السعر عند $5.21 (+214%)",
+    "قاب (فجوة) فوق السعر عند $5.21 (فراغ 10% = هدف ذهبي)",
+    "⚠️ شورت عالٍ 40,963 (فوق 40,000)",
+    "فلوت 892,196 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Financial Services",
+   "rsi": 45.622300064139395,
+   "float": 892196,
+   "short": 40963,
+   "short_pct": 1.6,
+   "drop_pct": 96.80769237188193,
+   "best_spike": 111.0552657857959,
+   "rr": 2.8361217688474754,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
