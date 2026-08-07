@@ -982,9 +982,11 @@
    "drop_pct": 54.13436618482701,
    "best_spike": 188.23529164271378,
    "rr": 3.7490979352568923,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 2.0
+   "status": "expired",
+   "result_date": "2026-08-07",
+   "max_gain_pct": 2.0,
+   "mg_obs_pct": 2.0,
+   "mg_obs_days": 21
   },
   {
    "symbol": "DTI",
@@ -1015,9 +1017,11 @@
    "drop_pct": 53.944561631608636,
    "best_spike": 75.84746948469359,
    "rr": 3.0559702214923283,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 12.0
+   "status": "expired",
+   "result_date": "2026-08-07",
+   "max_gain_pct": 12.0,
+   "mg_obs_pct": 12.0,
+   "mg_obs_days": 21
   },
   {
    "symbol": "PTN",
@@ -1089,7 +1093,7 @@
    "result_date": "2026-08-03",
    "max_gain_pct": 10.5,
    "mg_obs_pct": 10.5,
-   "mg_obs_days": 8
+   "mg_obs_days": 9
   },
   {
    "symbol": "CDLX",
@@ -1848,7 +1852,7 @@
    "rr": 2.712409216209536,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 8.0
+   "max_gain_pct": 8.3
   },
   {
    "symbol": "AFJK",
@@ -2185,7 +2189,7 @@
    "rr": 1.413816946772592,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 5.5
+   "max_gain_pct": 5.7
   },
   {
    "symbol": "NTLA",
@@ -2288,7 +2292,7 @@
    "rr": 2.692778530852857,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 1.0
   },
   {
    "symbol": "YHC",
@@ -2331,7 +2335,7 @@
    "rr": 7.214894274784603,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 4.0
   },
   {
    "symbol": "HTCR",
@@ -2371,7 +2375,7 @@
    "rr": 3.836571828464316,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.9
   },
   {
    "symbol": "CMND",
@@ -2409,7 +2413,7 @@
    "rr": 3.115061701854358,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 0.6
   },
   {
    "symbol": "YMAT",
@@ -2448,7 +2452,7 @@
    "rr": 6.91450402265845,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.0
   },
   {
    "symbol": "ISPC",
@@ -2486,7 +2490,7 @@
    "rr": 3.2545143468979134,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.3
   },
   {
    "symbol": "PLYX",
@@ -2524,7 +2528,7 @@
    "rr": 3.120920500374351,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.9
   },
   {
    "symbol": "ERNA",
@@ -2563,7 +2567,7 @@
    "rr": 4.915048146913803,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 4.7
   },
   {
    "symbol": "NXTS",
@@ -2603,7 +2607,7 @@
    "rr": 4.788701299895654,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 4.4
   },
   {
    "symbol": "HCWB",
@@ -2640,7 +2644,7 @@
    "rr": 6.055434809949352,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.1
   },
   {
    "symbol": "XAIR",
@@ -2677,7 +2681,7 @@
    "rr": 2.3932986787930757,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 6.7
   }
  ]
 }
