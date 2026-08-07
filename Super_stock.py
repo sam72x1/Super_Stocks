@@ -728,6 +728,39 @@ def faisal_only_overrides(edges: dict) -> dict:
     return out
 
 
+# 🥇 **خريطةُ «المثالي» في النواقص اللينة ⟵ وسيطُ الكاتالوج** (‏`soft_median`).
+# 🔴 **ولماذا الوسيطُ لا الحافّة:** الحدُّ الصلب **طرفٌ خارجيّ** بطبعه (‏P90 = آخرُ ما
+#    احتمله أسهمُه)، أمّا «المثالي» فوصفٌ لـ**مركز** توزيعه ⇒ الوسيط. والأربعةُ أدناه
+#    مقيسةٌ في الظرف أصلًا فلا رقمَ جديدٌ يُخترَع.
+# ⚠️ **و`TF_MIN_REVERSALS` (توافقُ الفريمات 2 من 3) غيرُ مذكورٍ عمدًا: لا يقيسه الظرف**
+#    ⇒ يبقى قرارَنا، **ويُصرَّح به** بدل أن يُخمَّن له وسيط.
+SOFT_MEDIAN_KEYS = {
+    "best_spike": ("PRIOR_SPIKE_PCT", "lo"),
+    "drop_pct": ("MIN_DROP_PCT", "lo"),      # نطاقٌ: الجانبُ الأدنى (نقصُ الهبوط)
+    "rsi_min": ("RSI_OVERSOLD", "hi"),
+    "rsi_now": ("RSI_MAX_NOW", "hi"),
+}
+
+
+def faisal_soft_overrides(soft: dict) -> dict:
+    """🥇 يترجم **وسيطَ الكاتالوج** إلى عتبات «المثالي» — دالّةٌ نقيّة.
+
+    النطاق (`drop_pct`) يُؤخذ **جانبُه الأدنى** لأن النقصَ اللين هناك «هبوطٌ أقلّ من
+    المثالي». والمفقودُ/التالفُ **يُتخطّى ولا يُخمَّن** · و`{}` = لا تغيير."""
+    out = {}
+    for name, (key, side) in SOFT_MEDIAN_KEYS.items():
+        val = (soft or {}).get(name)
+        if val is None:
+            continue
+        try:
+            out[key] = float(val[0] if isinstance(val, (list, tuple)) else val) \
+                if side == "lo" or not isinstance(val, (list, tuple)) \
+                else float(val[1])
+        except (TypeError, ValueError, IndexError):
+            continue
+    return out
+
+
 def apply_faisal_only(cfg: dict = None, log_fn=None) -> dict:
     """🥇 يُحِلّ أرقامَ فيصل في `CONFIG`. يرجّع ما طُبِّق (‏`{}` = لم يُطبَّق شيء).
 
@@ -750,11 +783,20 @@ def apply_faisal_only(cfg: dict = None, log_fn=None) -> dict:
         (log_fn or print)("⛔ معايير فيصل: حوافُّ الظرف غير محمَّلة/غير صالحة — "
                           "**بوّاباتُ البوت تبقى**.")
         return {}
+    # 🥇 وعتباتُ «المثالي» في النواقص اللينة من **وسيط** الكاتالوج (‏§`soft_median`).
+    #    غيابُ الكتلة (ظرفٌ قديم) ⇒ تبقى عتباتُنا **ويُعلَن** — لا صمت.
+    _soft = faisal_soft_overrides((edges or {}).get("soft_median") or {})
+    ov.update(_soft)
     cfg.update(ov)
     (log_fn or print)(
         "🥇 **معايير فيصل وحدها** مُفعَّلة (أمر المالك) · بصمةُ الحوافّ "
         f"{fp[:12]} · طُبِّق {len(ov)} رقمًا: "
         + " · ".join(f"{k}={v}" for k, v in sorted(ov.items())))
+    (log_fn or print)(
+        f"   ↳ ومنها **{len(_soft)}** عتبةَ «مثاليّ» من وسيط الكاتالوج"
+        if _soft else
+        "   ↳ ⚠️ **لا وسيطَ في الظرف** ⇒ عتباتُ «المثالي» تبقى من عندنا "
+        "(شغّل `catalog_envelope.yml` لإصدارها).")
     return ov
 
 

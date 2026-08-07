@@ -466,6 +466,7 @@ def run():
 
     env100 = build_envelope(rows, 100.0)
     env90 = build_envelope(rows, 90.0)
+    env50 = build_envelope(rows, 50.0)      # 🥇 وسيطُ الكاتالوج — أرقام «المثالي»
     _print_envelope(S, env90, env100, S.CONFIG)
 
     # ── 🎯 التقاطُ الكاتالوج — رقمٌ **حقيقيّ لـ`P90` وحده** ───────────────────
@@ -605,6 +606,11 @@ def run():
             "source": "مُخرَجٌ آليّ من catalog_envelope.py",
             "edges": {k: (list(env90[k]) if isinstance(env90[k], tuple)
                           else env90[k]) for k, _, _, _ in CRITERIA},
+            # 🥇 **وسيطُ الكاتالوج (‏P50) — لأرقام «المثالي» في النواقص اللينة.**
+            # الحدُّ الصلب طرفٌ خارجيّ (‏P90) بطبعه؛ أمّا «المثالي» فمركزُ توزيعِ
+            # أسهمه ⇒ **الوسيط**. يُصدَر هنا آليًّا للسبب نفسِه (لا نقلَ يدويّ).
+            "soft_median": {k: (list(env50[k]) if isinstance(env50[k], tuple)
+                                else env50[k]) for k, _, _, _ in CRITERIA},
         }
         _js = json.dumps(_blob, ensure_ascii=False)
         with open("envelope_p90.json", "w", encoding="utf-8") as fh:

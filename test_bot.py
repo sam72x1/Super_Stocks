@@ -15707,6 +15707,48 @@ check("📦 DEP3 و`tests.yml` يثبّت من `requirements.txt` (وإلّا ف
       "pip install -r requirements.txt"
       in open(".github/workflows/tests.yml", encoding="utf-8").read())
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🥇 SOFT — عتباتُ «المثالي» في النواقص اللينة من **وسيط** الكاتالوج
+# ══════════════════════════════════════════════════════════════════════════
+# أمرُ المالك (2026-08-07): «سوّها». **والحدُّ الصلب طرفٌ خارجيّ (‏P90) و«المثالي»
+# مركزُ التوزيع ⇒ الوسيط** — والأربعةُ مقيسةٌ في الظرف أصلًا فلا رقمَ يُخترَع.
+check("🥇 SOFT1 الخريطةُ أربعُ عتباتٍ بأسمائها الإنتاجية",
+      S.SOFT_MEDIAN_KEYS == {"best_spike": ("PRIOR_SPIKE_PCT", "lo"),
+                             "drop_pct": ("MIN_DROP_PCT", "lo"),
+                             "rsi_min": ("RSI_OVERSOLD", "hi"),
+                             "rsi_now": ("RSI_MAX_NOW", "hi")},
+      str(sorted(S.SOFT_MEDIAN_KEYS)))
+check("🥇 SOFT2 و`TF_MIN_REVERSALS` **مستبعَدٌ عمدًا** (لا يقيسه الظرف — يُصرَّح لا يُخمَّن)",
+      "TF_MIN_REVERSALS" not in {k for k, _ in S.SOFT_MEDIAN_KEYS.values()})
+_sf = S.faisal_soft_overrides({"best_spike": 250.0, "drop_pct": [88.0, 95.0],
+                               "rsi_min": 30.0, "rsi_now": 41.0})
+check("🥇 SOFT3 الترجمةُ صحيحة · والنطاقُ يُؤخذ **جانبُه الأدنى** (نقصُ الهبوط)",
+      _sf == {"PRIOR_SPIKE_PCT": 250.0, "MIN_DROP_PCT": 88.0,
+              "RSI_OVERSOLD": 30.0, "RSI_MAX_NOW": 41.0}, str(_sf))
+check("🥇 SOFT4 المفقودُ يُتخطّى ولا يُخمَّن · والتالفُ كذلك · والفارغُ ⇒ {}",
+      S.faisal_soft_overrides({"rsi_min": 30.0}) == {"RSI_OVERSOLD": 30.0}
+      and S.faisal_soft_overrides({"best_spike": "س"}) == {}
+      and S.faisal_soft_overrides({}) == {} and S.faisal_soft_overrides(None) == {})
+# 🔒 موصولةٌ من `apply_faisal_only` (AST لا نصّ) — وإلّا فالدالّةُ حبرٌ على ورق
+import ast as _sf_ast
+_sf_fn = next((n for n in _sf_ast.walk(_sf_ast.parse(
+    open("Super_stock.py", encoding="utf-8").read()))
+    if isinstance(n, _sf_ast.FunctionDef) and n.name == "apply_faisal_only"), None)
+check("🥇 SOFT5 مُنادًى فعلًا داخل `apply_faisal_only` (AST)",
+      any(getattr(c.func, "id", None) == "faisal_soft_overrides"
+          for c in _sf_ast.walk(_sf_fn) if isinstance(c, _sf_ast.Call)))
+# 🔒 فاشلٌ-آمنٌ **بإعلان**: ظرفٌ بلا وسيط ⇒ عتباتُنا تبقى ويُقال ذلك
+_sf_log = []
+_sf_cfg = {"FAISAL_ONLY": 1}
+S.apply_faisal_only(_sf_cfg, log_fn=_sf_log.append)
+check("🥇 SOFT6 ظرفٌ بلا وسيط ⇒ عتباتُنا تبقى **ويُعلَن** (لا صمت)",
+      any("لا وسيطَ في الظرف" in x or "من وسيط الكاتالوج" in x for x in _sf_log),
+      " | ".join(_sf_log)[-120:])
+check("🥇 SOFT7 و`catalog_envelope.py` يُصدر الوسيطَ آليًّا (لا نقلَ يدويّ)",
+      "soft_median" in open("catalog_envelope.py", encoding="utf-8").read()
+      and "build_envelope(rows, 50.0)"
+      in open("catalog_envelope.py", encoding="utf-8").read())
+
 # ── ⏳ استثناءُ المزامنة للتشغيل اليدويّ (عطلٌ مقيس 2026-08-06) ─────────────────
 # المراقبُ يعمل 4 مرّاتٍ بالساعة وGitHub يُبقي **معلَّقًا واحدًا** لكل مجموعة ⇒ التشغيلُ
 # اليدويّ للفرز يُطرَد. المقيس: انتظارُ 84 دقيقة ثم **إلغاءُ** التالية بعد 15 دقيقة.
