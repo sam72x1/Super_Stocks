@@ -785,7 +785,12 @@ def apply_faisal_only(cfg: dict = None, log_fn=None) -> dict:
         return {}
     # 🥇 وعتباتُ «المثالي» في النواقص اللينة من **وسيط** الكاتالوج (‏§`soft_median`).
     #    غيابُ الكتلة (ظرفٌ قديم) ⇒ تبقى عتباتُنا **ويُعلَن** — لا صمت.
-    _soft = faisal_soft_overrides((edges or {}).get("soft_median") or {})
+    # 🔴 **مفتاحٌ متخيَّل أمسكتُه بالتشغيل لا بالقراءة:** كتبتُ أوّلًا
+    #    `edges.get("soft_median")` — و`load_edges` **يُرجع الحوافَّ وحدها** ويضع كلَّ
+    #    ما عداها تحت `_meta` (عقدُها الموثَّق: «تمريرٌ شامل لكل مفتاحٍ غير `edges`»)
+    #    ⇒ كانت الوصلةُ **ميتةً** والرسالةُ تقول «لا وسيطَ في الظرف» **والملفُّ فيه**.
+    _soft = faisal_soft_overrides(
+        ((edges or {}).get("_meta") or {}).get("soft_median") or {})
     ov.update(_soft)
     cfg.update(ov)
     (log_fn or print)(
@@ -805,7 +810,7 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.06-faisalonly+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.07-faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ

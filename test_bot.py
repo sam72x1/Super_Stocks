@@ -14216,8 +14216,13 @@ check("📐 SCAN🔒 والمقام مُصرَّحٌ به (20 جلسة) — فل
 #    آليًّا من الأداة لا نقلًا يدويًّا» **وهو يفحص وجودَ كودِ التصدير** في الأداة
 #    **لا مصدرَ الملفّ** ⇒ أخضرُ والادّعاء غير صحيح. والقفلُ الصحيح **سلوكيّ**:
 #    يفحص وسمَ الملفّ نفسه ومجموعةَ مفاتيحه.
+# 🔴 **حُدِّث عمدًا 2026-08-07 — إقرارٌ لا إسكات:** الأداةُ صارت تُصدر
+#    **`soft_median`** (‏`build_envelope(rows, 50.0)`) لأن أرقام «المثالي» في النواقص
+#    اللينة صارت من **وسيط** الكاتالوج (أمرُ المالك «سوّها»). والقفلُ يبقى **مطابقةً
+#    بالضبط** فأيُّ مفتاحٍ يُدَسّ يدويًّا لاحقًا يُسقطه كما أسقط هذا.
 _es_TOOL_KEYS = {"pct", "snapshot", "asof", "run_id", "n_symbols", "excluded",
-                 "denominator_sessions", "anchor_last_measured", "source", "edges"}
+                 "denominator_sessions", "anchor_last_measured", "source", "edges",
+                 "soft_median"}
 check("📐 SCAN🔒 وسمُ الملفّ يقول **مُخرَجٌ آليّ** (لا نقلًا يدويًّا)",
       str(_es_blob.get("source", "")).startswith("مُخرَجٌ آليّ"))
 check("📐 SCAN🔒 ولا مفتاحَ فيه لا تكتبه الأداة (يكشف النقل اليدويّ بنيويًّا)",
@@ -15748,6 +15753,23 @@ check("🥇 SOFT7 و`catalog_envelope.py` يُصدر الوسيطَ آليًّا
       "soft_median" in open("catalog_envelope.py", encoding="utf-8").read()
       and "build_envelope(rows, 50.0)"
       in open("catalog_envelope.py", encoding="utf-8").read())
+# 🔴 SOFT8: **الوصلُ يُثبَت من الملفّ الحقيقيّ لا من فِكستشر** — أوّلُ صياغةٍ لي
+#    قرأت `edges["soft_median"]` بينما `load_edges` يضع كلَّ ما عدا `edges` تحت
+#    `_meta` ⇒ **وصلةٌ ميتة** والرسالةُ تقول «لا وسيط» **والملفُّ فيه**. أمسكَتها
+#    التشغيلةُ لا القراءة.
+_sf_cfg2 = {"FAISAL_ONLY": 1}
+S.apply_faisal_only(_sf_cfg2, log_fn=lambda *_a: None)
+check("🥇 SOFT8 الأربعةُ تصل فعلًا من `envelope_p90.json` الحقيقيّ (لا `_meta` ضائع)",
+      all(_sf_cfg2.get(k) is not None for k in
+          ("PRIOR_SPIKE_PCT", "MIN_DROP_PCT", "RSI_OVERSOLD", "RSI_MAX_NOW"))
+      and abs(_sf_cfg2["RSI_OVERSOLD"] - 33.0) < 1e-9
+      and _sf_cfg2["PRIOR_SPIKE_PCT"] > 100.0,
+      f"{ {k: _sf_cfg2.get(k) for k in ('PRIOR_SPIKE_PCT','MIN_DROP_PCT','RSI_OVERSOLD','RSI_MAX_NOW')} }")
+check("🥇 SOFT9 و`TF_MIN_REVERSALS` **لم يُمَسّ** (لا وسيطَ له — قرارُنا مُصرَّحٌ به)",
+      "TF_MIN_REVERSALS" not in _sf_cfg2)
+check("🥇 SOFT10 وبصمةُ الحوافّ الصلبة **لم تتغيّر** (الوسيطُ خارج `edges`)",
+      __import__("envelope_scan").edges_fingerprint(
+          __import__("envelope_scan").load_edges()) == "b4e5372075c1")
 
 # ── ⏳ استثناءُ المزامنة للتشغيل اليدويّ (عطلٌ مقيس 2026-08-06) ─────────────────
 # المراقبُ يعمل 4 مرّاتٍ بالساعة وGitHub يُبقي **معلَّقًا واحدًا** لكل مجموعة ⇒ التشغيلُ
