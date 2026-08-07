@@ -252,6 +252,12 @@ CONFIG = {
 
     # ---- القائمة الأسبوعية (v2.0) ----
     "WATCHLIST_SIZE": 10,        # حجم القائمة الثابتة (حد أقصى)
+    # 🪑 T-SLOT (قرار المالك «نفذ» 2026-08-07، `slot_result.md`): الاسم الذي لم
+    #    يلمس نطاق دفعاته هذا العددَ من الجلسات منذ إدراجه يكفّ عن حجز خانةٍ من
+    #    السعة (ويبقى مُدرَجًا متابَعًا؛ يعود يحجز فور لمس النطاق). الرقم من
+    #    الكاتالوج: سقف قاعدة فيصل «ثبات الدعم 3-8 جلسات» — ذراع S-NF8 المقيسة
+    #    (المنفجرون المُسلَّمون 56 مقابل 42 بالتعديل الصادق، أعلى في كل سنة).
+    "SLOT_UNFILLED_FREE_SESSIONS": 8,
     "CONTINUITY_MAX": 60,        # 🔄 صمّام أمان أقصى فقط (لا حدّ متابعة زمني): السهم
                                  #   النشط يُتابَع الين يُضرب ستوبه أو يعود للترشيح (حدث
                                  #   حقيقي، طلب المستخدم 2026-07-21). لا يُفعَّل طبيعيًّا؛
@@ -823,7 +829,7 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.07-d15cat2+proxfirst+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.07-d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -9136,6 +9142,10 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "symbol": r["symbol"], "added": today_iso,
         # ① تاريخ شمعة الترشيح الفعلية (لا تاريخ التشغيل) — مرجع نافذة التقييم.
         "ref_bar": r.get("ref_bar"),
+        # 🪑 NF8 (T-SLOT): تتبّع لمس نطاق الدفعات — `band_hit` يثبت عند أول لمسة
+        #    (فيحمل خانته دائمًا) · `band_wait_days` جلساتُ الانتظار بلا لمس ·
+        #    `band_last_bar` يمنع العدّ المزدوج لو أُعيد التشغيل على نفس الشمعة.
+        "band_hit": False, "band_wait_days": 0, "band_last_bar": None,
         "entry_ref": round(r["price"], 4),
         "entry": [round(r["entry"][0], 4), round(r["entry"][1], 4)],
         "tranches": [round(p, 4) for p in (r.get("tranches") or r["entry"])],
@@ -10193,6 +10203,43 @@ def _resolve_explosion_suspects(explosions, fetch=None):
     return out
 
 
+def _nf8_track(s: dict, df) -> None:
+    """🪑 NF8 (T-SLOT): تتبّع لمس نطاق الدفعات — **قاع اليوم** هو المرجع (لو نزل
+    السعر لنطاق دفعاتك فطلباتك كانت ستُعبَّأ) عبر **دالّة الإنتاج نفسها**
+    `in_entry_band` (صفر منطق موازٍ). اللمسُ يُفحَص **قبل** العدّ (تعادل T-SLOT
+    الحدّي: اللمس في الجلسة الثامنة يُعدّ خلال المهلة)، و`band_last_bar` يمنع عدّ
+    الشمعة نفسها مرّتين (إعادة تشغيلٍ على نفس اليوم لا تعدّ). فاشل-آمن: عطل ⇒
+    لا عدّ ⇒ لا تحرير (سلوك ما قبل الميزة حرفيًّا)."""
+    try:
+        _bar_iso = str(df.index[-1].date())
+        if not s.get("band_hit"):
+            if in_entry_band({"tranches": s.get("tranches"),
+                              "price": float(df["Low"].iloc[-1])}):
+                s["band_hit"] = True
+            elif s.get("band_last_bar") != _bar_iso:
+                s["band_wait_days"] = int(s.get("band_wait_days") or 0) + 1
+        s["band_last_bar"] = _bar_iso
+    except Exception:
+        pass
+
+
+def _nf8_slot_free(s: dict) -> bool:
+    """🪑 T-SLOT (قرار المالك «نفذ» 2026-08-07، `slot_result.md` — ذراع `S-NF8`):
+    هل يكفّ هذا الاسم عن **حجز خانةٍ** من السعة؟ نعم إذا لم يلمس نطاق دفعاته
+    `SLOT_UNFILLED_FREE_SESSIONS` جلسةً منذ إدراجه ولم يلمسه بعدُ — **ويبقى
+    مُدرَجًا متابَعًا بكل شيء** (جنس سابقتَي «الهدف المحقَّق لا يحجز» ⑨-ب
+    و«افتح الباب»؛ وقاعدة «تُشطب بالستوب فقط» لا تُمَسّ بحرف). يعود يحجز فور
+    لمس النطاق (`band_hit` يثبت في `update_watchlist_status`).
+    **فاشل-آمن:** حقلٌ تالف/غائب ⇒ يحجز (سلوك ما قبل الميزة حرفيًّا)."""
+    try:
+        if s.get("band_hit"):
+            return False
+        return int(s.get("band_wait_days") or 0) >= int(
+            CONFIG.get("SLOT_UNFILLED_FREE_SESSIONS", 8))
+    except (TypeError, ValueError):
+        return False
+
+
 def update_watchlist_status(wl: dict, history: dict) -> list:
     """فحص الستوب/الأهداف/الملاحظات لكل سهم نشط منذ إضافته.
     الستوب أولاً = افتراض محافظ (إلا إذا تحقق هدف قبله).
@@ -10215,6 +10262,7 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
         except Exception:
             ref_bar = added
         s["last_price"] = round(float(df["Close"].iloc[-1]), 4)
+        _nf8_track(s, df)          # 🪑 NF8: تتبّع لمس نطاق الدفعات (T-SLOT)
         # §10: خط الترند يُعاد حسابه من بيانات اليوم (الخط الهابط ينزل يوميًا).
         # ⚠️ الإسناد **بلا شرط عمدًا**: None اليوم = الخط مات → يجب أن يختفي من
         # العرض اليوم نفسه (إبقاء المخزّن = حاجز بالٍ لم يعد موجودًا — لا «تصلحها»).
@@ -14220,8 +14268,13 @@ def run_daily_watchlist(wl: dict) -> None:
     #    🔒 والمتابعةُ **لا تُمَسّ**: يبقى في `wl["stocks"]` وفي `held` (فلا يُكرَّر)
     #    وفي قسم «🔄 متابعة لمركزك». المُلغى **حجزُ الخانة** فقط.
     #    ⚠️ وصمّامُ `CONTINUITY_MAX` هو الحدُّ الأقصى لتضخّم المحمولين — لم يُمَسّ.
+    # 🪑 NF8 (T-SLOT، قرار المالك «نفذ» 2026-08-07): مَن لم يلمس نطاق دفعاته 8
+    #    جلسات لا يحجز خانة (يبقى مُدرَجًا متابَعًا — `_nf8_slot_free`). القياس:
+    #    31-35% من أيام-الخانات كانت وزنًا ميّتًا، والتحرير يرفع المنفجرين
+    #    المُسلَّمين 42 ⟶ 56 بالتعديل الصادق (`slot_result.md`).
     _slot_holders = [s for s in wl["stocks"]
-                     if not s.get("hit") and s.get("cont_status") != "exited"]
+                     if not s.get("hit") and s.get("cont_status") != "exited"
+                     and not _nf8_slot_free(s)]
     space = CONFIG["WATCHLIST_SIZE"] - len(_slot_holders)
     added = []
     low_coverage_note = None

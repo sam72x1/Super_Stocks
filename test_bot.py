@@ -15326,8 +15326,11 @@ for _n in _od_ast.walk(_od_fn or _od_ast.Module(body=[], type_ignores=[])):
 # 🔴 **درسُ الطفرة M6:** أوّلُ صياغةٍ لهذا القفل كانت تُعيد كتابةَ الشرط هنا —
 #    فنجت الطفرةُ التي أزالت الشرطَ من الإنتاج، **لأن القفلَ كان يقيس نسختي لا
 #    الكودَ**. الآن `_od_space` تُقيّم **تعبيرَ الإنتاج المستخرَج بالـAST** حصرًا.
+# 🪑 2026-08-07 (قرار المالك «نفذ»، NF8): التعبيرُ صار ينادي `_nf8_slot_free` —
+#    فيُمرَّر للـeval من الإنتاج نفسه (لا نسخة)، والعيّنة توسّعت بحالتَيه.
 def _od_space(stocks, size=10):
-    holders = eval(_od_expr, {}, {"wl": {"stocks": stocks}})       # noqa: S307
+    holders = eval(_od_expr, {"_nf8_slot_free": S._nf8_slot_free},  # noqa: S307
+                   {"wl": {"stocks": stocks}})
     return size - len(holders)
 
 
@@ -15337,15 +15340,20 @@ _od_sample = [
     {"symbol": "C", "hit": None, "cont_status": "exited"},    # خرج ⇒ لا يحجز
     {"symbol": "D", "hit": None, "cont_status": "renewed"},   # حاملٌ
     {"symbol": "E", "hit": None, "cont_status": "continues"}, # حاملٌ (ما زال ارتكازًا)
+    {"symbol": "F", "hit": None, "cont_status": None,         # 🪑 8 جلسات بلا لمس
+     "band_hit": False, "band_wait_days": 9},                 #    ⇒ لا يحجز (NF8)
+    {"symbol": "G", "hit": None, "cont_status": None,         # 🪑 لامسُ النطاق يحجز
+     "band_hit": True, "band_wait_days": 40},                 #    مهما طال
 ]
 try:
-    _od_got = eval(_od_expr, {}, {"wl": {"stocks": _od_sample}})   # noqa: S307
+    _od_got = eval(_od_expr, {"_nf8_slot_free": S._nf8_slot_free},  # noqa: S307
+                   {"wl": {"stocks": _od_sample}})
     _od_names = sorted(x["symbol"] for x in _od_got)
 except Exception as _e:                                            # noqa: BLE001
     _od_names, _od_expr = [f"خطأ:{type(_e).__name__}"], _od_expr
 
-check("🚪 OD1 تعبيرُ الإنتاج نفسُه: `exited` و`hit` لا يحجزان · والباقي يحجز",
-      _od_names == ["A", "D", "E"],
+check("🚪 OD1 تعبيرُ الإنتاج نفسُه: `exited` و`hit` والمحرَّر NF8 لا يحجزون · والباقي يحجز",
+      _od_names == ["A", "D", "E", "G"],
       f"حاملون={_od_names} · التعبير={_od_expr}")
 
 # 🔒 شاهدُ ضبطٍ: «continues» (ما زال ارتكازًا) **يجب** أن يحجز — وإلّا صار القفلُ
@@ -16673,6 +16681,62 @@ _sl_pre = open("slot_prereg.md", encoding="utf-8").read()
 check("🪑 SLT10 التسجيلُ يحمل الأذرعَ الثلاث والبوّابةَ الحاكمة والتعديلَ الصادق",
       all(x in _sl_pre for x in ("S-LIVE", "S-NF5", "S-NF8", "d50_adj",
                                  "22 · 14 · 6", "3-8 جلسات", "قرارُ مالكٍ حصريّ")))
+
+
+# ═══════ 🪑 NF8 حيًّا — تحرير خانة غير المُعبَّأ (قرار المالك «نفذ» 2026-08-07) ═══════
+_nf_entry = S.make_watch_entry(
+    {"symbol": "NF8T", "ref_bar": "2026-08-01", "price": 2.5,
+     "entry": (1.9, 2.0), "tranches": [1.9, 1.95, 2.0], "pivot": 1.9,
+     "stop": (1.75, 1.79), "t1": 2.3, "t2": 2.6, "t3": 3.0, "score": 60,
+     "flags": [], "rr": 2.0}, "2026-08-01")
+check("🪑 NF81 حقولُ التتبّع تولد مع السجل (band_hit=False · عدّاد 0)",
+      _nf_entry.get("band_hit") is False
+      and _nf_entry.get("band_wait_days") == 0
+      and _nf_entry.get("band_last_bar") is None)
+
+# ── NF82: `_nf8_slot_free` — التخوم والفشل الآمن وقاعدة العودة ──
+check("🪑 NF82 التخوم: 7 جلسات يحجز · 8 يحرّر · لامسُ النطاق يحجز ولو طال ·"
+      " التالف يحجز (فاشل-آمن) · القديم بلا حقول يحجز",
+      _nf8 := True
+      and S._nf8_slot_free({"band_hit": False, "band_wait_days": 7}) is False
+      and S._nf8_slot_free({"band_hit": False, "band_wait_days": 8}) is True
+      and S._nf8_slot_free({"band_hit": True, "band_wait_days": 40}) is False
+      and S._nf8_slot_free({"band_hit": False, "band_wait_days": "x"}) is False
+      and S._nf8_slot_free({}) is False)
+
+# ── NF83: `_nf8_track` — اللمس أولًا · لا عدّ مزدوج لنفس الشمعة · العدّ بشمعة جديدة ──
+_nf_df1 = pd.DataFrame({"Close": [2.6, 2.7], "Low": [2.5, 2.55]},
+                        index=pd.to_datetime(["2026-08-04", "2026-08-05"]))
+_nf_s = {"tranches": [1.9, 1.95, 2.0], "band_hit": False, "band_wait_days": 0,
+         "band_last_bar": None}
+S._nf8_track(_nf_s, _nf_df1)
+_nf_w1 = _nf_s["band_wait_days"]
+S._nf8_track(_nf_s, _nf_df1)                      # نفس الشمعة — لا عدّ مزدوج
+_nf_w2 = _nf_s["band_wait_days"]
+_nf_df2 = pd.DataFrame({"Close": [2.7, 2.8], "Low": [2.55, 2.6]},
+                        index=pd.to_datetime(["2026-08-05", "2026-08-06"]))
+S._nf8_track(_nf_s, _nf_df2)                      # شمعة جديدة — يعدّ
+_nf_w3 = _nf_s["band_wait_days"]
+check("🪑 NF83 العدّ: خارج النطاق يعدّ مرّةً لكل شمعة (1 ثم 1 ثم 2) ولا يلمس",
+      (_nf_w1, _nf_w2, _nf_w3) == (1, 1, 2) and _nf_s["band_hit"] is False,
+      f"{(_nf_w1, _nf_w2, _nf_w3)}")
+_nf_df3 = pd.DataFrame({"Close": [2.2], "Low": [1.98]},
+                        index=pd.to_datetime(["2026-08-07"]))
+S._nf8_track(_nf_s, _nf_df3)                      # القاع دخل النطاق ⇒ لمس
+check("🪑 NF84 اللمس بقاع اليوم (بدالّة `in_entry_band` الإنتاجية) يثبت `band_hit`"
+      " ⇒ يعود يحجز خانته ولو كان محرَّرًا",
+      _nf_s["band_hit"] is True and S._nf8_slot_free(_nf_s) is False)
+check("🪑 NF85 و`_nf8_track` تقرأ النطاق بـ`in_entry_band` (صفر منطق موازٍ)",
+      "in_entry_band(" in _insp0.getsource(S._nf8_track))
+
+# ── NF86: الوصلة الحيّة — من نقطتَي النداء لا من وجود الدالّتين (wire-check) ──
+check("🪑 NF86 `_nf8_slot_free` داخل حساب السعة في `run_daily_watchlist` حرفيًّا",
+      "and not _nf8_slot_free(s)" in _insp0.getsource(S.run_daily_watchlist))
+check("🪑 NF87 و`_nf8_track` يُنادى من `update_watchlist_status` (التتبّع اليومي)",
+      "_nf8_track(s, df)" in _insp0.getsource(S.update_watchlist_status))
+check("🪑 NF88 والعتبة من CONFIG باسم القرار (8 = سقف «ثبات الدعم 3-8»)",
+      S.CONFIG.get("SLOT_UNFILLED_FREE_SESSIONS") == 8
+      and "nf8slot" in S.LOGIC_VERSION)
 # ── RTIE13: النتيجةُ منشورةٌ بحكمها ومعرّفاتِ تشغيلها وحدودِ صدقها ──
 #    🔴 الغرضُ منعُ «نتيجةٌ تُروى ولا تُكتَب»: الحكمُ صريح · التشغيلاتُ الثلاث
 #    بمعرّفاتها · واللقطةُ مذكورة — فلا يُعاد تفسيرُها لاحقًا بلا سندٍ مؤرَّخ.
