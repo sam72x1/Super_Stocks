@@ -16737,6 +16737,50 @@ check("🪑 NF87 و`_nf8_track` يُنادى من `update_watchlist_status` (ا�
 check("🪑 NF88 والعتبة من CONFIG باسم القرار (8 = سقف «ثبات الدعم 3-8»)",
       S.CONFIG.get("SLOT_UNFILLED_FREE_SESSIONS") == 8
       and "nf8slot" in S.LOGIC_VERSION)
+
+
+# ═══════════════ 📦 T-CAP — ذراعا السعة (`cap_prereg.md`) ═══════════════
+_ca_saved_env = {k: _os_hc.environ.get(k) for k in _RT_ENV_KEYS}
+_ca_saved_bt = S.run_backtest
+try:
+    import cap_arms as _CA
+finally:
+    for _k, _v in _ca_saved_env.items():
+        if _v is None:
+            _os_hc.environ.pop(_k, None)
+        else:
+            _os_hc.environ[_k] = _v
+
+
+def _ca_run(trades):
+    S.run_backtest = lambda *a, **k: trades
+    _yr = _os_hc.environ.pop("BACKTEST_YEAR", None)
+    buf = _rt_io.StringIO()
+    try:
+        with _rt_ctx.redirect_stdout(buf):
+            rc = _CA.run()
+    finally:
+        S.run_backtest = _ca_saved_bt
+        if _yr is not None:
+            _os_hc.environ["BACKTEST_YEAR"] = _yr
+    return rc, buf.getvalue()
+
+
+_ca_rc1, _ca_out1 = _ca_run(_sl_ok)
+check("📦 CAP1 المسارُ الكامل ينجح ويطبع الذراعين والمعدَّل وبوّابةَ الصلاحية",
+      _ca_rc1 == 0 and all(x in _ca_out1 for x in
+                           ("C10", "C15", "d50_adj", "بوّابةُ الصلاحية",
+                            "حارسُ العائد")), f"rc={_ca_rc1}")
+check("📦 CAP2 الذراعان (10، 15) حصرًا — لا ثالثة ولا تبديل",
+      _CA.CAPS == (10, 15), str(_CA.CAPS))
+_ca_src = _insp0.getsource(_CA._arm)
+check("📦 CAP3 سياسةُ NF8 مفعَّلة في الذراعين وعتبتُها من CONFIG (مصدرٌ واحد)",
+      "make_free_unfilled" in _ca_src
+      and 'CONFIG["SLOT_UNFILLED_FREE_SESSIONS"]' in _ca_src)
+_ca_pre = open("cap_prereg.md", encoding="utf-8").read()
+check("📦 CAP4 التسجيلُ يحمل الذراعين والبوّابةَ وقاعدةَ «القرار للمالك حصريًّا»",
+      all(x in _ca_pre for x in ("C10", "C15", "35/26", "30/19", "15/11",
+                                 "قرارُ مالكٍ حصريّ")))
 # ── RTIE13: النتيجةُ منشورةٌ بحكمها ومعرّفاتِ تشغيلها وحدودِ صدقها ──
 #    🔴 الغرضُ منعُ «نتيجةٌ تُروى ولا تُكتَب»: الحكمُ صريح · التشغيلاتُ الثلاث
 #    بمعرّفاتها · واللقطةُ مذكورة — فلا يُعاد تفسيرُها لاحقًا بلا سندٍ مؤرَّخ.
