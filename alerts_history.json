@@ -665,7 +665,7 @@
    "status": "stopped",
    "result_date": "2026-07-20",
    "max_gain_pct": 1.2,
-   "mg_obs_pct": 1.9,
+   "mg_obs_pct": 3.0,
    "mg_obs_days": 26
   },
   {
@@ -721,7 +721,7 @@
    "status": "expired",
    "result_date": "2026-08-04",
    "max_gain_pct": 6.0,
-   "mg_obs_pct": 6.3,
+   "mg_obs_pct": 7.0,
    "mg_obs_days": 25
   },
   {
@@ -1963,9 +1963,11 @@
    "drop_pct": 56.02150463757454,
    "best_spike": 139.09573920000295,
    "rr": 3.3980579781132465,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 7.8
+   "status": "hit_t1",
+   "result_date": "2026-08-07",
+   "max_gain_pct": 14.2,
+   "mg_obs_pct": 14.2,
+   "mg_obs_days": 3
   },
   {
    "symbol": "IDN",
@@ -2000,7 +2002,7 @@
    "rr": 2.1035146196848014,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 2.1
+   "max_gain_pct": 2.3
   },
   {
    "symbol": "TMC",
@@ -2041,7 +2043,7 @@
    "status": "hit_t1",
    "result_date": "2026-08-07",
    "max_gain_pct": 13.4,
-   "mg_obs_pct": 13.4,
+   "mg_obs_pct": 16.5,
    "mg_obs_days": 2
   },
   {
@@ -2082,7 +2084,7 @@
    "status": "hit_t1",
    "result_date": "2026-08-07",
    "max_gain_pct": 15.2,
-   "mg_obs_pct": 15.2,
+   "mg_obs_pct": 18.7,
    "mg_obs_days": 2
   },
   {
@@ -2123,7 +2125,7 @@
    "status": "hit_t1",
    "result_date": "2026-08-07",
    "max_gain_pct": 10.3,
-   "mg_obs_pct": 11.3,
+   "mg_obs_pct": 11.8,
    "mg_obs_days": 2
   },
   {
@@ -2689,7 +2691,7 @@
    "rr": 2.3932986787930757,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.9
+   "max_gain_pct": 5.6
   },
   {
    "symbol": "QTI",
@@ -2721,7 +2723,7 @@
    "rr": 3.239716964735427,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -0.2
+   "max_gain_pct": 4.6
   },
   {
    "symbol": "OLOX",
@@ -2829,7 +2831,7 @@
    "rr": 5.024154589371971,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -9.4
+   "max_gain_pct": 5.1
   },
   {
    "symbol": "SUPX",
@@ -3042,6 +3044,39 @@
    "drop_pct": 96.27272735942493,
    "best_spike": 252.27272727272728,
    "rr": 10.801762620655825,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "MENS",
+   "date": "2026-08-07",
+   "ref_bar": "2026-08-07",
+   "price": 2.0327,
+   "stop": 1.7949,
+   "t1": 2.24,
+   "t2": 2.52,
+   "t3": 12.75,
+   "score": 35,
+   "flags": [
+    "ثبات 4 جلسات فوق القاع",
+    "StochRSI انعطاف من التشبع",
+    "Williams %R انعطاف من التشبع",
+    "فجوة صاعدة يومي 3%",
+    "فجوات متعددة الفريمات (شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 26,941,531 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 42.54218645082033,
+   "float": 26941531,
+   "short": null,
+   "short_pct": 0.6,
+   "drop_pct": 96.96611931074911,
+   "best_spike": 392.6441282909939,
+   "rr": 1.281393836458449,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
