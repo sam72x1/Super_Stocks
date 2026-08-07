@@ -16052,6 +16052,151 @@ check("🥇 RTIE14 والنتيجةُ تُصرّح بأن الأثر الإنت�
       "لم يُمَسّ" in _rt_res and "لا `LOGIC_VERSION`" in _rt_res
       and "0 من 4" in _rt_res)
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🥇⑦➡️ T-TIE-FWD — أقفالُ الحصاد الأماميّ (قرارُ المالك 2026-08-06: «‏1»)
+# ══════════════════════════════════════════════════════════════════════════
+# 🔴 **الخطر:** التسجيلُ يقع على **مسار الفرز الحيّ** ⇒ انهيارُه يُسقط التشغيلة،
+#    وخطأٌ في موضعه (قبل `select_top` بدل بعده) يجعله يقرأ ترتيبًا غير الذي قرّر.
+#    فالأقفالُ **سلوكيّةٌ على الدالّة** و**بنيويّةٌ (AST) على موضع النداء وعدده** —
+#    لا نصّية (سقط النصّيّ على التعليقات أربع مرّات في جلسةٍ واحدة).
+import ast as _th_ast
+
+
+def _th_row(sym, rdy, sc, rr, tr=(1.0, 1.03, 1.06), stop=0.93, t1=1.4):
+    return {"symbol": sym, "readiness": rdy, "score": sc, "rr": rr,
+            "tranches": list(tr), "stop": [stop], "t1": t1}
+
+
+_TH_RANKED = [_th_row("A", 70, 100, 5), _th_row("B", 70, 95, 4),
+              _th_row("C", 70, 90, 3), _th_row("D", 70, 85, 2),
+              _th_row("E", 60, 80, 2)]
+_th_c2 = S.tie_cohort(_TH_RANKED, 2)
+check("🥇 TH1 حدُّ القطع **داخل** تعادل ⇒ كوهورتٌ بمأخوذَين ومقصوصَين",
+      bool(_th_c2) and _th_c2["level"] == 70
+      and [m["symbol"] for m in _th_c2["members"] if m["taken"]] == ["A", "B"]
+      and [m["symbol"] for m in _th_c2["members"] if not m["taken"]] == ["C", "D"],
+      str(_th_c2 and [(m["symbol"], m["taken"]) for m in _th_c2["members"]]))
+check("🥇 TH2 الحدُّ **خارج** تعادل ⇒ لا يُسجَّل شيء (الصمتُ صدقٌ لا نقص)",
+      S.tie_cohort(_TH_RANKED, 4) is None
+      and S.tie_cohort(_TH_RANKED, 9) is None
+      and S.tie_cohort(_TH_RANKED, 0) is None)
+check("🥇 TH3 `exclude` مُحترَم (يُقصى **قبل** حساب الحدّ)",
+      [m["symbol"] for m in S.tie_cohort(_TH_RANKED, 2, exclude={"A"})["members"]]
+      == ["B", "C", "D"])
+check("🥇 TH4 جاهزيةٌ مجهولة ⇒ امتناع (لا يُخمَّن تعادل)",
+      S.tie_cohort([_th_row("A", None, 1, 1), _th_row("B", None, 1, 1),
+                    _th_row("C", None, 1, 1)], 1) is None)
+# ── التسجيل: يُلحق · يُدَدوِب · ولا يرمي أبدًا ──
+_th_wl = {}
+_th_ok = S.record_tie_cohort(_th_wl, _TH_RANKED, 2, set(), "2026-08-06", "daily")
+S.record_tie_cohort(_th_wl, _TH_RANKED, 2, set(), "2026-08-06", "daily")
+check("🥇 TH5 التسجيلُ يُلحق ويُدَدوِب بـ(تاريخ، مصدر) — لا مضاعفة",
+      _th_ok is True and len(_th_wl["tie_harvest"]) == 1
+      and len(_th_wl["tie_harvest"][0]["members"]) == 4)
+check("🥇 TH6 لا كوهورت ⇒ False (وليس تسجيلًا فارغًا)",
+      S.record_tie_cohort({}, None, 2, set(), "2026-08-06", "x") is False
+      and S.record_tie_cohort({}, [{"symbol": "Z"}], 1, set(), "d", "x") is False)
+# 🔴 TH6b: **العيّنتان أعلاه لا تصلان الحارس أصلًا** — يردّهما `tie_cohort` بلا
+#    استثناء، فكان القفلُ يدّعي «فاشلٌ-آمن» ولا يختبره (كشفَته الطفرةُ TM4 وحدها:
+#    استبدالُ `return False` بـ`raise` **نجا**). المدخلُ هنا يرمي فعلًا داخل `try`
+#    (‏`None.setdefault`) والفحصُ يلتقط الرمي فيسقط القفلُ نظيفًا بلا انهيار.
+try:
+    _th_fs = S.record_tie_cohort(None, _TH_RANKED, 2, set(), "2026-08-06", "x")
+except Exception as _e:                                          # noqa: BLE001
+    _th_fs = f"رمى: {type(_e).__name__}"
+check("🥇 TH6b فاشلٌ-آمنٌ **مُختبَر**: مدخلٌ يرمي داخل الحارس ⇒ False لا استثناء",
+      _th_fs is False, str(_th_fs))
+# ── الحسم: بمحرّك الإنتاج نفسِه · وفرقٌ سلوكيّ بين رابحٍ وخاسر ──
+_th_idx = pd.date_range("2026-08-07", periods=45, freq="B")
+_th_win = pd.DataFrame({"Open": 1.0, "High": np.linspace(1.05, 1.5, 45),
+                        "Low": np.linspace(0.99, 1.2, 45),
+                        "Close": np.linspace(1.0, 1.45, 45)}, index=_th_idx)
+_th_los = pd.DataFrame({"Open": 1.0, "High": 1.02, "Low": 0.90,
+                        "Close": 0.92}, index=_th_idx)
+_th_m = {"entry": 1.03, "stop": 0.93, "t1": 1.4}
+_th_rw = S._tie_resolve_member(_th_m, _th_win)
+_th_rl = S._tie_resolve_member(_th_m, _th_los)
+check("🥇 TH7 الحسمُ يفرّق الرابح عن الخاسر و`R` بالوحدة الصحيحة (الوقف = ‏−1R)",
+      _th_rw is not None and _th_rw > 2.0 and abs(_th_rl + 1.0) < 0.05,
+      f"رابح={_th_rw} · خاسر={_th_rl}")
+check("🥇 TH8 غيرُ المُعبَّأة ⇒ 0.0R (استهلكت خانةً بلا تنفيذ) · وتالفة ⇒ None",
+      S._tie_resolve_member(
+          {"entry": 0.5, "stop": 0.45, "t1": 0.8},
+          pd.DataFrame({"Open": 9.0, "High": 9.5, "Low": 9.0, "Close": 9.2},
+                       index=_th_idx)) == 0.0
+      and S._tie_resolve_member({"entry": None, "stop": 1, "t1": 2}, _th_win) is None)
+# ── القسم: يظهر دائمًا · ولا يطبع فرقًا قبل العيّنة ──
+_th_blk = S._tie_harvest_block(_th_wl, fetch=lambda s_, d_: _th_win,
+                               today="2026-12-01")
+check("🥇 TH9 القسمُ يظهر **حتى بصفر كوهورت** (أهمُّ وقت: نظنّه يجمع وهو واقف)",
+      bool(S._tie_harvest_block({}, today="2026-12-01"))
+      and "لا كوهورت بعد" in "\n".join(S._tie_harvest_block({}, today="2026-12-01")))
+check("🥇 TH10 دون العيّنة ⇒ «لا حكم» **ولا يُطبَع فرقٌ** (‏§⑤)",
+      any("لا حكم" in x for x in _th_blk)
+      and not any("الفرقُ المزدوج" in x for x in _th_blk),
+      "\n".join(_th_blk)[-90:])
+_th_big = {"tie_harvest": [
+    {"date": "2026-08-06", "source": f"s{i}", "level": 70, "members": [
+        {"symbol": "A", "taken": True, "entry": 1.03, "stop": 0.93, "t1": 1.4},
+        {"symbol": "C", "taken": False, "entry": 1.03, "stop": 0.93, "t1": 1.4},
+        {"symbol": "D", "taken": False, "entry": 1.03, "stop": 0.93, "t1": 1.4}]}
+    for i in range(16)]}
+_th_blk2 = S._tie_harvest_block(
+    _th_big, fetch=lambda s_, d_: (_th_win if s_ == "A" else _th_los),
+    today="2026-12-01")
+check("🥇 TH11 عند بلوغ العيّنة يُطبَع الفرقُ المزدوج بإشارته",
+      any("الفرقُ المزدوج" in x for x in _th_blk2)
+      and any("+" in x and "R" in x for x in _th_blk2),
+      "\n".join(_th_blk2)[-120:])
+check("🥇 TH12 النافذةُ تُحترَم: كوهورتٌ لم تنقضِ نافذتُه لا يُحسم",
+      "محسومٌ منهم: <b>0</b>" in "\n".join(S._tie_harvest_block(
+          _th_wl, fetch=lambda s_, d_: _th_win, today="2026-08-20")))
+# ── الموضع والعدد: بعد `select_top` في **الاثنين** (AST لا نصّ) ──
+_th_tree = _th_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+
+
+def _th_calls(fname, callee):
+    fn = next((n for n in _th_ast.walk(_th_tree)
+               if isinstance(n, _th_ast.FunctionDef) and n.name == fname), None)
+    return [n.lineno for n in _th_ast.walk(
+        fn or _th_ast.Module(body=[], type_ignores=[]))
+        if isinstance(n, _th_ast.Call) and getattr(n.func, "id", None) == callee]
+
+
+_th_pairs = [(f, _th_calls(f, "select_top"), _th_calls(f, "record_tie_cohort"))
+             for f in ("run_weekly_renewal", "run_daily_watchlist")]
+check("🥇 TH13 مُنادًى في **مسارَي** الاختيار و**بعد** `select_top` في كليهما",
+      all(len(st) == 1 and len(rc) == 1 and rc[0] > st[0]
+          for _f, st, rc in _th_pairs), str(_th_pairs))
+check("🥇 TH14 وقسمُ التقرير مُنادًى **مرّتين** (القليلة + الكافية)",
+      len(_th_calls("build_dev_assistant_report", "_tie_harvest_block")) == 2,
+      str(_th_calls("build_dev_assistant_report", "_tie_harvest_block")))
+# ── الجذور: لم تُمَسّ ──
+_TH_ROOTS = ["rank_key", "select_top", "classify_tier", "analyze_ticker",
+             "apply_short_gate", "apply_float_gate", "scan_market",
+             "backtest_symbol", "scan_ignition", "scan_split_hunter",
+             "entry_status", "build_interpretation", "_resolve_arm"]
+_th_dump = {n.name: _th_ast.dump(n) for n in _th_ast.walk(_th_tree)
+            if isinstance(n, _th_ast.FunctionDef) and n.name in _TH_ROOTS}
+check("🥇 TH15 الحصادُ خارج الجذور: لا جذرَ ينادي دوالَّه",
+      not any(x in _th_dump.get(r, "") for r in _TH_ROOTS
+              for x in ("record_tie_cohort", "tie_cohort", "_tie_harvest_block")))
+_th_pre = open("tie_harvest_prereg.md", encoding="utf-8").read()
+# 🛡️ TH17: الحارسُ **الخارجيّ** — انكسارُ القسم يُبلَّغ ولا يقتل التقرير الأسبوعيّ.
+# 🔴 ومحاولتي الأولى كانت قفلًا فارغًا: جعلتُ **الجالب** يرمي، وهو محروسٌ داخليًّا
+#    (`except: v = None`) فلا يبلغ الخارجيّ أصلًا — نفسُ فخّ TH6. المدخلُ هنا يكسر
+#    **خارج** أيّ حارسٍ داخليّ (`tie_harvest` عددٌ لا قائمة ⇒ التكرارُ عليه يرمي).
+try:
+    _th_boom = S._tie_harvest_block({"tie_harvest": 5}, today="2026-12-01")
+except Exception as _e:                                          # noqa: BLE001
+    _th_boom = f"رمى: {type(_e).__name__}"
+check("🥇 TH17 حارسٌ خارجيّ: انكسارُ القسم يُبلَّغ ولا يُسقط التقرير",
+      isinstance(_th_boom, list) and any("تعذّر الحصاد" in x for x in _th_boom),
+      str(_th_boom)[-110:])
+check("🥇 TH16 التسجيلُ المسبق مدفوعٌ بمعياره وحدِّ عيّنته وتنبّؤاتِه",
+      all(x in _th_pre for x in ("+0.10R", "F1", "F4", "لا حكم",
+                                 "TIE_HARVEST_MIN", "cluster bootstrap")))
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

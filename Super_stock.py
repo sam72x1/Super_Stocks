@@ -12030,6 +12030,176 @@ def _ignition_outcome_fetch(sym, fire_date):
         return None
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🥇⑦➡️ T-TIE-FWD — حصادُ كاسر التعادل الأماميّ (`tie_harvest_prereg.md`)
+# ══════════════════════════════════════════════════════════════════════════
+# **السبب مقيس:** `T-RANKER-TIE` فشلت على الباكتيست، **والأداة لا تصل إلى الظاهرة** —
+# كثافةُ المرشّحين ‏1-2/جلسة (لأن `backtest_symbol` يقفز `i += fwd` و`BACKTEST_STEP=5`
+# ⇒ يستحيل ظهورُ رمزٍ في جلستين متتاليتين) بينما الفرزُ الحيّ بلغ **‏109 في يومٍ واحد**
+# فوقع حدُّ القطع **داخل تعادلٍ من ستّة عشر** وقرّر **‏10 من 10** خانات.
+# ⇒ الحصادُ يسجّل الكوهورت كاملًا — المأخوذين **والمقصوصين** — ويحسم الجميع بعد النافذة.
+# 🔒 **قياس فقط:** يقع **بعد** `select_top` ويقرأ مُخرَجَه ⇒ صفرُ أثرٍ على الاختيار ·
+#    فاشلٌ-آمنٌ مطلق · لا `LOGIC_VERSION` · ولا قناةَ تلغرام رابعة (قسمٌ في تقرير التطوير).
+TIE_HARVEST_MAX = 400     # سقفُ السجلّ (كوهورتات) — القصُّ **يُعلَن بعدّاده**
+TIE_HARVEST_MIN = 30      # حدُّ العيّنة المسجَّل (§⑤): مقصوصٌ محسوم
+
+
+def tie_cohort(ranked: list, capacity: int, exclude=None) -> dict:
+    """🥇 يكشف **هل وقع حدُّ القطع داخل تعادلٍ في الجاهزية** — دالّةٌ نقيّة.
+
+    `ranked` = النتائجُ **مرتَّبةً بـ`rank_key`** كما تصل `select_top` تمامًا.
+    يرجّع `None` إن لم يقع تعادلٌ عند الحدّ — **والصمتُ هنا صدقٌ لا نقص** (لا يُسجَّل
+    كوهورتٌ لم يوجد). وإلّا يرجّع `{level, members}` حيث كلُّ عضوٍ موسومٌ `taken`.
+
+    🔒 **قراءةٌ فقط:** لا تُعيد ترتيبًا ولا تُغيّر عضوية — تقرأ ما قرّره `select_top`."""
+    exc = set(exclude or ())
+    elig = [r for r in (ranked or []) if r.get("symbol") not in exc]
+    cap = int(capacity or 0)
+    if cap <= 0 or cap >= len(elig):
+        return None                      # لا حدَّ قطعٍ أصلًا (السعة تسع الجميع)
+    lvl = elig[cap - 1].get("readiness")
+    if lvl is None or elig[cap].get("readiness") != lvl:
+        return None                      # الحدُّ خارج تعادل
+    members = []
+    for i, r in enumerate(elig):
+        if r.get("readiness") != lvl:
+            continue
+        try:
+            tr = [float(x) for x in (r.get("tranches") or []) if x]
+            entry = (sum(tr) / len(tr)) if tr else None
+            stp = r.get("stop")
+            stp = float(stp[0]) if isinstance(stp, (list, tuple)) and stp else (
+                float(stp) if isinstance(stp, (int, float)) else None)
+            members.append({
+                "symbol": r.get("symbol"), "rank": i, "readiness": lvl,
+                "score": r.get("score"), "rr": r.get("rr"),
+                "entry": entry, "stop": stp, "t1": r.get("t1"),
+                "taken": i < cap,
+            })
+        except (TypeError, ValueError):
+            continue                     # عضوٌ تالف يُتخطّى ولا يُخمَّن
+    return {"level": lvl, "members": members} if members else None
+
+
+def record_tie_cohort(wl: dict, ranked: list, capacity: int, exclude,
+                      today: str, source: str) -> bool:
+    """يُلحق كوهورتَ اليوم بـ`wl["tie_harvest"]`. **فاشلٌ-آمنٌ مطلق** — انهيارُه لا
+    يُسقط الفرز. دِدوب بـ`(date, source)` فتشغيلةٌ مكرّرة لا تُضاعف الصفّ.
+
+    ⚖️ يُخزَّن داخل ملفّ القائمة عمدًا (لا ملفّ حالةٍ جديد): `git_save` يحفظه سلفًا
+    والتجديدُ يصون المفاتيح المجهولة (إصلاح ⑥) ⇒ صفرُ كاتبٍ جديد وصفرُ سباق."""
+    try:
+        coh = tie_cohort(ranked, capacity, exclude)
+        if not coh:
+            return False
+        rows = wl.setdefault("tie_harvest", [])
+        key = (str(today), str(source))
+        rows[:] = [x for x in rows
+                   if (str(x.get("date")), str(x.get("source"))) != key]
+        rows.append({"date": str(today), "source": str(source),
+                     "level": coh["level"], "members": coh["members"]})
+        if len(rows) > TIE_HARVEST_MAX:          # قصٌّ **مُعلَن** لا صامت
+            log(f"🥇 حصاد التعادل: قُصّ {len(rows) - TIE_HARVEST_MAX} كوهورتًا أقدم "
+                f"(السقف {TIE_HARVEST_MAX}).")
+            rows[:] = rows[-TIE_HARVEST_MAX:]
+        n_cut = sum(1 for m in coh["members"] if not m.get("taken"))
+        log(f"🥇 حصاد التعادل ({source}): جاهزية {coh['level']} · "
+            f"{len(coh['members'])} متعادلًا · قُصّ {n_cut} — سُجِّلوا للحسم لاحقًا.")
+        return True
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ حصاد التعادل: {e}")
+        return False
+
+
+def _tie_resolve_member(m: dict, df) -> float:
+    """يحسم عضوًا واحدًا ويرجّع `R` — **بمحرّك الإنتاج نفسِه** لا بنسخةٍ منه:
+    التعبئةُ عند متوسط الدفعات (`low <= entry`) ثم `_resolve_arm` (ذراع الذيل).
+    غيرُ المُعبَّأة ‏**0.0R** (عُرف `replay10.r_unit`) · وتعذّرُ الحسم ⇒ `None`."""
+    try:
+        entry, stop, t1 = float(m["entry"]), float(m["stop"]), float(m["t1"])
+    except (TypeError, ValueError, KeyError):
+        return None
+    if entry <= 0 or entry - stop <= 0 or df is None or not len(df):
+        return None
+    hi = df["High"].values.astype(float)
+    lo = df["Low"].values.astype(float)
+    cl = df["Close"].values.astype(float)
+    op = df["Open"].values.astype(float)
+    filled = next((k for k in range(len(cl)) if lo[k] <= entry), None)
+    outcome, ret_a, _, _ = _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled)
+    if ret_a is None:
+        return 0.0                     # لم تُعبَّأ: استهلكت خانةً بلا تنفيذ
+    return float(ret_a) / ((entry - stop) / entry * 100.0)
+
+
+def _tie_harvest_fetch(sym: str, since: str):
+    """يجلب الشموع **بعد** يوم القرار حصرًا (بلا نظرٍ مستقبليّ على يوم القرار نفسه)."""
+    d = download_history([sym]).get(sym)
+    if d is None or not len(d):
+        return None
+    return d[d.index > pd.Timestamp(since)].head(
+        int(CONFIG["BACKTEST_FORWARD_DAYS"]))
+
+
+def _tie_harvest_block(wl: dict, fetch=None, today=None) -> list:
+    """🥇⑦ قسمُ الحصاد في تقرير التطوير — **يظهر دائمًا حتى بصفر كوهورت** (وهو أهمُّ
+    وقت: نظنّه يجمع وهو واقف). يحسم ما انقضت نافذتُه ويطبع التقدّم نحو العيّنة.
+    **ولا يُطبَع فرقٌ قبل بلوغ `TIE_HARVEST_MIN`** — «لا حكم» بنصّ التسجيل §⑤.
+
+    🛡️ **حارسٌ خارجيّ إلزاميّ** (نمط `_hand_flow_block`): انكسارُ القسم **يجب ألّا
+    يقتل التقرير الأسبوعيّ كلَّه** — كشفَته الطفرةُ لا القراءة (‏`if False:` على
+    بوّابة العيّنة قسم على `len(diffs)`=0 فانهارت السويّة بدل أن يسقط القفل)."""
+    out = ["\n🥇 <b>حصاد كاسر التعادل</b> (‏`tie_harvest_prereg.md` — يتراكم للأمام):"]
+    try:
+        rows = (wl or {}).get("tie_harvest") or []
+        if not rows:
+            out.append("   لا كوهورت بعد — يُسجَّل فقط حين يقع حدُّ القطع داخل تعادل.")
+            return out
+        fx = fetch or _tie_harvest_fetch
+        td = today or dt.date.today().isoformat()
+        n_cut_total = sum(1 for r in rows for m in r.get("members") or []
+                          if not m.get("taken"))
+        diffs, n_res_cut, n_coh = [], 0, 0
+        for r in rows:
+            try:
+                age = (dt.date.fromisoformat(str(r.get("date"))[:10])
+                       - dt.date.fromisoformat(str(td)[:10])).days
+            except (TypeError, ValueError):
+                continue
+            if -age < int(CONFIG["BACKTEST_FORWARD_DAYS"]):
+                continue                      # النافذةُ لم تنقضِ — لا يُحسم
+            tk, ct = [], []
+            for m in r.get("members") or []:
+                try:
+                    v = _tie_resolve_member(m, fx(m.get("symbol"), r.get("date")))
+                except Exception:                                # noqa: BLE001
+                    v = None
+                if v is None:
+                    continue
+                (tk if m.get("taken") else ct).append(v)
+            if tk and ct:
+                diffs.append(sum(tk) / len(tk) - sum(ct) / len(ct))
+                n_res_cut += len(ct)
+                n_coh += 1
+        out.append(f"   كوهورتات مسجَّلة: <b>{len(rows)}</b> · مقصوصون: "
+                   f"<b>{n_cut_total}</b> · محسومٌ منهم: <b>{n_res_cut}</b> "
+                   f"(‏{n_coh} كوهورت مكتمل)")
+        if n_res_cut < TIE_HARVEST_MIN or not diffs:
+            out.append(f"   ⏳ <b>لا حكم</b> — يلزم {TIE_HARVEST_MIN} مقصوصًا محسومًا "
+                       f"(ينقص {max(TIE_HARVEST_MIN - n_res_cut, 0)}). النافذة "
+                       f"{int(CONFIG['BACKTEST_FORWARD_DAYS'])} جلسة لكل كوهورت.")
+            return out
+        d = sum(diffs) / len(diffs)
+        out.append(f"   📐 الفرقُ المزدوج (المأخوذون − المقصوصون): <b>{d:+.3f}R</b> "
+                   f"لكلّ كوهورت — العتبة المسجَّلة +0.10R")
+        out.append("   ⚠️ الحكمُ يُكتب <b>مرّةً واحدة</b> عند بلوغ العيّنة أوّل مرّة "
+                   "(‏§⑤) — لا يُعاد كلّ أسبوع.")
+    except Exception as e:                                       # noqa: BLE001
+        out.append(f"   ⚠️ تعذّر الحصاد ({type(e).__name__}) — يُبلَّغ ولا يُسقط "
+                   "التقرير.")
+    return out
+
+
 def _ignition_log_block(log, fetch=None, today=None) -> list:
     """🔥 قياس رادار الانطلاق من السجلّ الحي (أداة التطوير — فرضية التوقيت اللحظي ذات
     الأولوية، **غير مثبتة حتى الآن**؛ E2 §0-ك): الالتقاط ونسبة الإنذار الكاذب + تفصيل حسب تصنيف الشمعة (مضارب/قروب — يجيب
@@ -13272,6 +13442,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
         head += _observed_explosion_block(alert_data)   # 📊 وُصلت 2026-08-06
         head += _hunter_ledger_block()    # 🌱 والمسارُ القليل أيضًا (فخُّ لوحة الجمع نفسه)
         head += _long_tracks_block()      # ⏳ تقريرُ المسارات الأسبوعيّ
+        head += _tie_harvest_block(wl)    # 🥇⑦ حصاد كاسر التعادل (يظهر حتى بصفر كوهورت)
         head.append("\n⚠️ <i>أداة تطوير ذاتي — ليست توصية.</i>")
         return "\n".join(head)
     wins = [r for r in rows if r["_win"]]
@@ -13462,6 +13633,7 @@ def build_dev_assistant_report(wl: dict, alert_data: dict = None) -> str:
                      + _hand_flow_block()
                      + _hunter_ledger_block()     # 🌱 وُصِل 2026-08-06 (إذن المالك)
                      + _long_tracks_block()       # ⏳ أمرُ المالك 2026-08-06
+                     + _tie_harvest_block(wl)     # 🥇⑦ حصاد كاسر التعادل
                      + _pending_verification_block() + sugg + tail)
 
 
@@ -13575,6 +13747,9 @@ def run_weekly_renewal(wl: dict) -> None:
     except Exception as e:                                       # noqa: BLE001
         log(f"⚠️ سجلّ المرفوضين (خارجيّ): {e}")
     picks = select_top(results, CONFIG["WATCHLIST_SIZE"], exclude)
+    # 🥇⑦➡️ حصادُ كاسر التعادل — **بعد** الاختيار ويقرأ مُخرَجَه (صفرُ أثرٍ عليه).
+    record_tie_cohort(wl, results, CONFIG["WATCHLIST_SIZE"], exclude,
+                      today_iso, "renew")
     try:
         enrich(picks)  # SEC + شورت للقائمة الجديدة
     except Exception as e:
@@ -13936,6 +14111,8 @@ def run_daily_watchlist(wl: dict) -> None:
             "القائمة الحالية تُتابَع كالمعتاد.")
     elif space > 0:
         picks = select_top(results, space, exclude=held | stopped)
+        # 🥇⑦➡️ حصادُ كاسر التعادل — نفسُ الموضع: **بعد** الاختيار لا قبله.
+        record_tie_cohort(wl, results, space, held | stopped, today_iso, "daily")
         if picks:
             try:
                 enrich(picks)
