@@ -23,6 +23,7 @@ import json
 import os
 import sys
 import time
+import urllib.error
 import urllib.request
 
 TIMEOUT = 20
@@ -77,12 +78,23 @@ def _fetch(url: str, api_key: str):
 
 
 def polygon_daily(sym: str, start: str, end: str, api_key: str, fetch=_fetch):
-    """📥 شموعُ رمزٍ (يخدم المشطوبة). تعذُّرٌ نهائيّ ⇒ None (يُعدّ «بلا تاريخ»)."""
+    """📥 شموعُ رمزٍ (يخدم المشطوبة). يرجّع `(df, تشخيص)` — **لا ابتلاعَ صامتًا**.
+
+    🔴 درسُ أوّل تشغيلة (‏`31189086227`، ‏0/40 موحَّدة): النسخةُ الأولى كانت ترجع
+    None لكل شيء فلا يُفرَّق «HTTP سليم بلا نتائج» عن «انهيار» عن «رفض» — خلافُ
+    قاعدة «يسجّل ولا يصمت». الآن التشخيصُ يُسمّى: `ok` · `empty(status,count)` ·
+    `HTTPError:code` · اسمُ الاستثناء."""
     try:
         blob = fetch(aggs_url(sym, start, end), api_key)
-        return to_frame((blob or {}).get("results"))
-    except Exception:                                            # noqa: BLE001
-        return None
+        df = to_frame((blob or {}).get("results"))
+        if df is None:
+            return None, (f"empty(status={ (blob or {}).get('status') }"
+                          f",count={ (blob or {}).get('resultsCount') })")
+        return df, "ok"
+    except urllib.error.HTTPError as e:                          # noqa: BLE001
+        return None, f"HTTPError:{e.code}"
+    except Exception as e:                                       # noqa: BLE001
+        return None, type(e).__name__
 
 
 def pick_sample(symbols, n, salt="pit-coverage"):
@@ -93,27 +105,43 @@ def pick_sample(symbols, n, salt="pit-coverage"):
     return ranked[:max(0, int(n))]
 
 
+CONTROL_DEFAULT = ("AAPL", "APVO", "SPRC")   # حيّةٌ ذاتُ تاريخٍ مؤكَّد (‏APVO مُثبَتة
+                                             # ببروب NBBO 2026-07-30 على نفس المفتاح)
+
+
 def coverage_probe(gone, api_key, start, end, sample_n=SAMPLE_DEFAULT,
-                   min_bars=MIN_BARS_DEFAULT, fetch=_fetch, log=print):
+                   min_bars=MIN_BARS_DEFAULT, fetch=_fetch, log=print,
+                   control=CONTROL_DEFAULT):
     """🩺 المِجَسّ الذي يفرضه التسجيل §⑤: كم مشطوبًا له تاريخٌ نافع فعلًا؟
 
-    يرجّع ملخّصًا عدديًّا + تصنيفَ كلّ رمزٍ (‏usable/short/none) — **الفاشل يُسمّى
-    ولا يُطوى** (قاعدة «لا قصّ صامت»)."""
+    🔒 **شاهدُ ضبطٍ إلزاميّ** (درسُ «المقياسُ نفسه يحتاج شاهد ضبط» + تشغيلة 0/40):
+    رموزٌ حيّة تُقاس أوّلًا بنفس المسار — **صفرُها = عطلُ أداةٍ لا غيابُ بيانات**،
+    ويُعلَن `tool_broken` فلا تُقرأ الأصفارُ اللاحقة «تغطيةً معدومة»."""
+    ctrl = {}
+    for sym in control:
+        df, diag = polygon_daily(sym, start, end, api_key, fetch=fetch)
+        ctrl[sym] = {"bars": 0 if df is None else len(df), "diag": diag}
+        log(f"  🎛️ شاهد {sym}: {ctrl[sym]['bars']} شمعة ({diag})")
+    tool_broken = all(c["bars"] == 0 for c in ctrl.values()) if ctrl else False
+    if tool_broken:
+        log("⛔ شاهدُ الضبط كلُّه صفر ⇒ **عطلُ أداةٍ/مفتاحٍ لا غيابُ بيانات** — "
+            "الأصفارُ أدناه لا تُفسَّر تغطية.")
     sample = pick_sample(gone, sample_n)
     detail = {}
     for i, sym in enumerate(sample, 1):
-        df = polygon_daily(sym, start, end, api_key, fetch=fetch)
+        df, diag = polygon_daily(sym, start, end, api_key, fetch=fetch)
         n = 0 if df is None else len(df)
-        detail[sym] = {"bars": n,
+        detail[sym] = {"bars": n, "diag": diag,
                        "verdict": ("usable" if n >= min_bars
                                    else "short" if n > 0 else "none")}
-        log(f"  {i}/{len(sample)} {sym}: {n} شمعة ⇒ {detail[sym]['verdict']}")
+        log(f"  {i}/{len(sample)} {sym}: {n} شمعة ⇒ {detail[sym]['verdict']} ({diag})")
     counts = {v: sum(1 for d in detail.values() if d["verdict"] == v)
               for v in ("usable", "short", "none")}
     total = len(detail) or 1
     return {"sample_n": len(detail), "min_bars": min_bars,
             "start": start, "end": end, **counts,
             "usable_pct": round(100.0 * counts["usable"] / total, 1),
+            "tool_broken": tool_broken, "control": ctrl,
             "detail": detail}
 
 
@@ -146,6 +174,9 @@ def main():
           f" ⇒ التغطية {s['usable_pct']}%")
     print("🔏 PIT_COVERAGE_JSON " + json.dumps(
         {k: v for k, v in s.items() if k != "detail"}, ensure_ascii=False))
+    if s.get("tool_broken"):
+        print("⛔ خروجٌ غير صفريّ: شاهدُ الضبط صفر — أصلِح الأداة قبل تفسير أيّ رقم")
+        return 3
     return 0
 
 

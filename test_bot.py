@@ -16599,6 +16599,42 @@ _pit_full = _PIT.fetch_universe(
 check("🧭 PIT6 واللفُّ الكامل يجمع الصفحات حتى نهايتها",
       [r["ticker"] for r in _pit_full] == ["A", "B"])
 
+# ── 🧭 PITH: جالب التاريخ + مِجَسّ التغطية (‏P2) ─────────────────────────────
+import pit_history as _PITH                                       # noqa: E402
+check("🧭 PITH1 عزلٌ تامّ: `pit_history` لا يُستورَد في `Super_stock.py`",
+      "pit_history" not in open("Super_stock.py", encoding="utf-8").read())
+check("🧭 PITH2 طلبُ الشموع `adjusted=true` (نفسُ تسوية yfinance)",
+      "adjusted=true" in _PITH.aggs_url("XX", "2024-01-01", "2024-12-31"))
+_ph_df = _PITH.to_frame([{"t": 1735794000000, "o": 1.0, "h": 2.0, "l": 0.5,
+                          "c": 1.5, "v": 100}, {"bad": 1},
+                         {"t": 1735880400000, "o": 1.5, "h": 2.5, "l": 1.0,
+                          "c": 2.0, "v": 200}])
+check("🧭 PITH3 `to_frame` بشكل `_extract_into` حرفيًّا ويُسقط الصفَّ التالف",
+      _ph_df is not None and list(_ph_df.columns) ==
+      ["Open", "High", "Low", "Close", "Volume"] and len(_ph_df) == 2
+      and _PITH.to_frame([]) is None and _PITH.to_frame(None) is None)
+check("🧭 PITH4 العيّنةُ **حتميّة** (sha256): نفسُ المدخل ⇒ نفسُ المخرَج حرفيًّا",
+      _PITH.pick_sample(["C", "A", "B", "D"], 2)
+      == _PITH.pick_sample(["D", "B", "A", "C"], 2))
+_ph_probe = _PITH.coverage_probe(
+    ["G1", "G2"], "k", "2024-01-01", "2024-12-31", sample_n=2, min_bars=2,
+    fetch=lambda u, k: ({"results": [{"t": 1735794000000, "o": 1, "h": 1,
+                                      "l": 1, "c": 1, "v": 1},
+                                     {"t": 1735880400000, "o": 1, "h": 1,
+                                      "l": 1, "c": 1, "v": 1}]}
+                        if "CTRL" in u else {"status": "OK", "resultsCount": 0}),
+    log=lambda *_: None, control=("CTRL",))
+check("🧭 PITH5 شاهدٌ حيّ + مشطوبان فارغان ⇒ ليس عطلًا والتشخيصُ مُسمًّى",
+      _ph_probe["tool_broken"] is False and _ph_probe["none"] == 2
+      and all("empty" in d["diag"] for d in _ph_probe["detail"].values()))
+_ph_broken = _PITH.coverage_probe(
+    ["G1"], "k", "2024-01-01", "2024-12-31", sample_n=1, min_bars=2,
+    fetch=lambda u, k: {"status": "OK", "resultsCount": 0},
+    log=lambda *_: None, control=("CTRL",))
+check("🧭 PITH6 شاهدُ الضبط صفرٌ ⇒ `tool_broken` (درسُ تشغيلة 0/40: عطلُ أداةٍ "
+      "لا يُقرأ «تغطيةً معدومة»)",
+      _ph_broken["tool_broken"] is True)
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
