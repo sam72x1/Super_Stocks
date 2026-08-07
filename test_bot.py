@@ -16385,6 +16385,163 @@ _rt_pre = open("ranker_tie_prereg.md", encoding="utf-8").read()
 check("🥇 RTIE12 التسجيلُ المسبق يحمل الأذرع والمعيار والميزانية الثابتة",
       all(x in _rt_pre for x in ("R-ENV", "R-RAND", "R-FIFO", "+0.10R",
                                  "‏≥ 30 صفقةً متأثّرة", "الميزانيةُ الثابتة")))
+
+
+# ═══════════════ 🚦 T-RANKER2 — أذرعُ الترتيب الكامل (`ranker2_prereg.md`) ═══════════════
+_r2_saved_env = {k: _os_hc.environ.get(k) for k in _RT_ENV_KEYS + ("R2_SEEDS",)}
+_r2_saved_bt = S.run_backtest
+try:
+    import ranker2_arms as _R2
+finally:
+    for _k, _v in _r2_saved_env.items():
+        if _v is None:
+            _os_hc.environ.pop(_k, None)
+        else:
+            _os_hc.environ[_k] = _v
+_R2.SEEDS = 5                                 # سرعةُ سويّة — الحقيقيّ بالـworkflow
+
+
+def _r2_trade(sym, day, oc="win", ret=20.0, rdy=70, score=90, rr=3.0,
+              vals=True, band=True, mg=60.0, mg_oc="stopped", exit_day=None):
+    t = _rt_trade(sym, day, oc=oc, ret=ret, rdy=rdy, score=score, rr=rr,
+                  vals=vals)
+    if exit_day is not None:                  # خروجٌ قريب يحرّر الخانة (سعة 10)
+        t["exit_date"] = f"2025-01-{exit_day:02d}"
+    if vals and band is not None:
+        t["env_vals"]["in_band"] = band
+    if mg_oc is not None:
+        t["mg_outcome"] = mg_oc
+        t["mg_pre_stop"] = mg
+    return t
+
+
+def _r2_run(trades):
+    S.run_backtest = lambda *a, **k: trades
+    buf = _rt_io.StringIO()
+    try:
+        with _rt_ctx.redirect_stdout(buf):
+            rc = _R2.run()
+    finally:
+        S.run_backtest = _r2_saved_bt
+    return rc, buf.getvalue()
+
+
+# ── R2A: `rank_live` — داخلُ النطاق **قبل** الأعلى جاهزيةً · وداخل الفئة الترتيبُ القديم ──
+_r2_in60 = _RT.RP.Candidate(session=0, symbol="IN", readiness=60, score=50,
+                            rr=1.0, seq=1,
+                            payload={"env_vals": {"in_band": True}})
+_r2_out90 = _RT.RP.Candidate(session=0, symbol="OUT", readiness=90, score=99,
+                             rr=9.0, seq=0,
+                             payload={"env_vals": {"in_band": False}})
+_r2_in80 = _RT.RP.Candidate(session=0, symbol="IN2", readiness=80, score=10,
+                            rr=0.5, seq=2,
+                            payload={"env_vals": {"in_band": True}})
+_r2_sorted = sorted([_r2_out90, _r2_in60, _r2_in80], key=_RT.RP.rank_live)
+check("🚦 R2A `rank_live`: داخلُ النطاق أوّلًا (جاهزية 60 داخل تسبق 90 خارج) "
+      "وداخل الفئة الأعلى جاهزية",
+      [c.symbol for c in _r2_sorted] == ["IN2", "IN", "OUT"],
+      str([c.symbol for c in _r2_sorted]))
+check("🚦 R2B غيابُ الحقل = خارج النطاق (لا يُدَّعى قربٌ بلا دليل)",
+      _RT.RP.rank_live(_RT.RP.Candidate(session=0, symbol="X", readiness=99,
+                                        score=9, rr=9, seq=0, payload={}))[0] == 1)
+
+# ── R2C: `rank_env_full` — الأعمقُ أوّلًا والامتناعُ يغرق تحت كلّ مقيس ──
+def _r2_env(sym, depth, rdy=70, seq=0):
+    return _RT.RP.Candidate(session=0, symbol=sym, readiness=rdy, score=50,
+                            rr=1.0, seq=seq, payload={"env_depth": depth})
+
+
+_r2_deep = sorted([_r2_env("NONE", None, rdy=99, seq=0),
+                   _r2_env("D0", 0.0, rdy=10, seq=1),
+                   _r2_env("D8", 0.8, rdy=10, seq=2)],
+                  key=_RT.RP.rank_env_full)
+check("🚦 R2C `rank_env_full`: الأعمقُ أوّلًا · وعمقُ 0.0 يسبق الامتناعَ (None يغرق)",
+      [c.symbol for c in _r2_deep] == ["D8", "D0", "NONE"],
+      str([c.symbol for c in _r2_deep]))
+
+# ── R2D: عدّادُ «المنفجرين المُسلَّمين» — تخومٌ صارمة ولا يعدّ غيرَ المُعبَّأ ──
+_r2_cands_d = [
+    _RT.RP.Candidate(session=0, symbol="A", seq=0,
+                     payload={"mg_outcome": "stopped", "mg_pre_stop": 50.0}),
+    _RT.RP.Candidate(session=0, symbol="B", seq=1,
+                     payload={"mg_outcome": "stopped", "mg_pre_stop": 49.9}),
+    _RT.RP.Candidate(session=0, symbol="C", seq=2,
+                     payload={"mg_outcome": "no_fill", "mg_pre_stop": 500.0}),
+    _RT.RP.Candidate(session=0, symbol="D", seq=3, payload={}),
+]
+check("🚦 R2D `delivered`: الحدُّ 50.0 يُعدّ و49.9 لا · و`no_fill`/الغائب لا يُعدّان",
+      _R2.delivered(_r2_cands_d, 50.0) == 1
+      and _R2.delivered(_r2_cands_d, 100.0) == 0,
+      f"d50={_R2.delivered(_r2_cands_d, 50.0)}")
+
+# ── R2E: الوصلة الحيّة — `in_band` داخل كتلة `BT_ENVVALS` **بدالّة الإنتاج** ──
+_r2_blk = _insp0.getsource(S.backtest_symbol)
+_r2_blk = _r2_blk[_r2_blk.index('if CONFIG.get("BT_ENVVALS")'):]
+_r2_blk = _r2_blk[:_r2_blk.index('if CONFIG.get("BT_REPLAY10")')]
+check("🚦 R2E حقلُ `in_band` داخل كتلة العلم ويُحسَب بـ`in_entry_band(r)` الإنتاجية",
+      '"in_band": in_entry_band(r)' in _r2_blk)
+
+# ── R2F: حرّاسُ الـno-op الثلاثة — رموزُ خروجٍ مميِّزة لا «صفر منفجر» صامت ──
+_r2_rc_mg, _r2_out_mg = _r2_run(
+    [_r2_trade(f"M{i}", 1 + i % 5, mg_oc=None) for i in range(10)])
+check("🚦 R2F بلا `mg_outcome` ⇒ رمز 7 صريح (المقياسُ الأساسيّ بلاه مفبرك)",
+      _r2_rc_mg == 7 and "BT_POTENTIAL" in _r2_out_mg, f"rc={_r2_rc_mg}")
+_r2_noband = [_r2_trade(f"B{i}", 1 + i % 5) for i in range(10)]
+for _t in _r2_noband:
+    _t["env_vals"].pop("in_band", None)
+_r2_rc_bd, _ = _r2_run(_r2_noband)
+check("🚦 R2G بلا حقل `in_band` ⇒ رمز 4 (ذراعُ `K-LIVE` بلاه no-op)",
+      _r2_rc_bd == 4, f"rc={_r2_rc_bd}")
+
+# ── R2H: المسارُ الكامل — الأذرعُ الخمس والمقياسُ الأساسيّ وبِركةُ المنفجرين ──
+_r2_ok = ([_r2_trade(f"A{i}", 1 + 2 * i, mg=60.0, exit_day=2 + 2 * i)
+           for i in range(10)]
+          + [_r2_trade(f"L{i}", 2 + 2 * i, oc="loss", ret=-7.0, mg=8.0,
+                       exit_day=3 + 2 * i) for i in range(10)]
+          + [_r2_trade("BIGX", 21, mg=120.0, exit_day=22)])
+_r2_rc1, _r2_out1 = _r2_run(_r2_ok)
+check("🚦 R2H المسارُ الكامل ينجح ويطبع الأذرعَ الخمس والمقياسَ الأساسيّ",
+      _r2_rc1 == 0 and all(x in _r2_out1 for x in
+                           ("K-LIVE", "K-LEGACY", "K-ENV", "K-FIFO", "K-RAND",
+                            "منفجرون مُسلَّمون", "بِركةُ المنفجرين",
+                            "الميزانيةُ الثابتة", "حارسُ العائد")),
+      f"rc={_r2_rc1}")
+check("🚦 R2I عدُّ المنفجرين صحيح: 11 مُسلَّمًا فوق 50% ومنهم واحدٌ فوق 100%",
+      "= 11 (‏100%+ = 1)" in _r2_out1,
+      _r2_out1[_r2_out1.find("K-LIVE"):][:120] if "K-LIVE" in _r2_out1 else "؟")
+
+# ── R2J: خمسةُ أذرعٍ **لا سادسة** (AST كنمط RTIE10) ──
+_r2_tree = _rt_ast.parse(open("ranker2_arms.py", encoding="utf-8").read())
+_r2_runfn = next((n for n in _rt_ast.walk(_r2_tree)
+                  if isinstance(n, _rt_ast.FunctionDef) and n.name == "run"), None)
+_r2_rankers = {getattr(c.func, "attr", None) for c in _rt_ast.walk(_r2_runfn)
+               if isinstance(c, _rt_ast.Call)} | {
+    getattr(a, "attr", None) for c in _rt_ast.walk(_r2_runfn)
+    if isinstance(c, _rt_ast.Call) for a in c.args
+    if isinstance(a, _rt_ast.Attribute)}
+_r2_used = {x for x in _r2_rankers if x and x.startswith(("rank_", "make_rank"))}
+check("🚦 R2J الأذرعُ المسجَّلة حصرًا — لا ذراعَ سادسة",
+      _r2_used == {"rank_live", "rank_actual", "rank_env_full", "rank_fifo",
+                   "make_rank_random"}, str(sorted(_r2_used)))
+
+# ── R2K: خارج الإنتاج + البيئةُ قبل الاستيراد + التسجيلُ المسبق ──
+check("🚦 R2K خارج الإنتاج: `Super_stock` لا يستورد `ranker2_arms`",
+      "ranker2_arms" not in _rt_imports)
+_r2_bt_set = [n.lineno for n in _r2_tree.body
+              if isinstance(n, (_rt_ast.Expr, _rt_ast.Assign))
+              and "BT_POTENTIAL" in _rt_ast.dump(n)]
+_r2_impln = [n.lineno for n in _r2_tree.body
+             if isinstance(n, _rt_ast.Import)
+             and any(a.name == "Super_stock" for a in n.names)]
+check("🚦 R2L `BT_POTENTIAL` يُضبَط **قبل** `import Super_stock` (وإلّا no-op)",
+      bool(_r2_impln) and bool(_r2_bt_set)
+      and max(_r2_bt_set) < min(_r2_impln),
+      f"ضبط={_r2_bt_set} · استيراد={_r2_impln}")
+_r2_pre = open("ranker2_prereg.md", encoding="utf-8").read()
+check("🚦 R2M التسجيلُ المسبق يحمل الأذرعَ الخمس والمقياسَ وقاعدةَ القرار",
+      all(x in _r2_pre for x in ("K-LIVE", "K-LEGACY", "K-ENV", "K-FIFO",
+                                 "K-RAND", "المنفجرون المُسلَّمون",
+                                 "0.05R", "المئين 90", "الترتيبُ محايد")))
 # ── RTIE13: النتيجةُ منشورةٌ بحكمها ومعرّفاتِ تشغيلها وحدودِ صدقها ──
 #    🔴 الغرضُ منعُ «نتيجةٌ تُروى ولا تُكتَب»: الحكمُ صريح · التشغيلاتُ الثلاث
 #    بمعرّفاتها · واللقطةُ مذكورة — فلا يُعاد تفسيرُها لاحقًا بلا سندٍ مؤرَّخ.

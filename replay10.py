@@ -144,6 +144,29 @@ def make_rank_random(seed: int) -> Callable[[Candidate], tuple]:
     return _key
 
 
+# ── 🚦 T-RANKER2 (`ranker2_prereg.md` §③): ذراعا الترتيب الكامل ──────────────────
+def rank_live(c: Candidate):
+    """`K-LIVE` — مُرتِّبُ الإنتاج الحاليّ (T-PROX، قرار المالك 2026-08-07):
+    **داخلُ نطاق الدفعات أوّلًا** (ثنائيّ) ← جاهزية ← نقاط ← `rr` ← `seq`.
+    يقرأ `in_band` المحسوبَ لحظةَ الإشارة **بدالّة الإنتاج** `in_entry_band`
+    (حقلُ `env_vals` خلف `BT_ENVVALS`). غيابُ الحقل ⇒ خارج النطاق (لا يُدَّعى
+    قربٌ بلا دليل — نفسُ عُرف الدالّة الحيّة). `h4_confirm` خاملٌ (صفرٌ حيًّا
+    وتاريخيًّا — مُعلَنٌ في التسجيل) فلا يُمثَّل."""
+    rdy = c.readiness
+    band = 0 if (c.payload.get("env_vals") or {}).get("in_band") else 1
+    return (band, -(rdy if rdy is not None else -1.0), -c.score, -c.rr, c.seq)
+
+
+def rank_env_full(c: Candidate):
+    """`K-ENV` — **عمقُ ظرف فيصل مفتاحًا أوّلًا** (لا كاسرَ تعادلٍ كما في
+    T-RANKER-TIE): الأعمقُ داخل الظرف أوّلًا، والامتناعُ (`None`) **يغرق تحت كلّ
+    مقيس** (‏−1 أدنى من أيّ عمقٍ في [0,1])، ثم مفاتيحُ الأساس القديمة حرفيًّا."""
+    rdy = c.readiness
+    d = c.payload.get("env_depth")
+    return (-(d if isinstance(d, (int, float)) else -1.0),
+            -(rdy if rdy is not None else -1.0), -c.score, -c.rr, c.seq)
+
+
 # ─────────────────────────── آلة الحالة ───────────────────────────
 def replay(
     candidates: Iterable[Candidate],

@@ -15191,6 +15191,11 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                 "gain5": r.get("gain5"), "ma_above": r.get("ma_above"),
                 "gap_above_dist": r.get("gap_above_dist"),
                 "tf_count": r.get("tf_count"),
+                # 🚦 T-RANKER2 (`ranker2_prereg.md` §③): هل السعرُ داخل نطاق
+                #    الدفعات لحظةَ الإشارة؟ — **بدالّة الإنتاج نفسها** (صفرُ رقمٍ
+                #    جديد، وصفرُ منطقٍ موازٍ قد ينحرف عن الحيّ). ليس معيارَ ظرفٍ
+                #    فلا يدخل قفل EV4؛ ذراعُ `K-LIVE` بلاه no-op فتتوقّف صراحةً.
+                "in_band": in_entry_band(r),
             }
         if CONFIG.get("BT_REPLAY10"):
             _xk, _xi = _arm_a_exit_bar(hi, lo, cl, entry, stop, t1, filled)
