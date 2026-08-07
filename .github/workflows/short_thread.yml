@@ -1,0 +1,50 @@
+name: T-M13 (short-gate thread)
+permissions:
+  contents: read
+  actions: read          # 🕰️ لتحميل لقطة التجميد من تشغيلة freeze (frozen_run_id)
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (مثال 2025). **الحكم يلزمه اللقطات الثلاث** (2024 · 2025 · 2026) — تشغيلةٌ لكل سنة"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "🕰️ معرّف تشغيلة التجميد (لقطة point-in-time). **مُلزِم لإعادة الإنتاج** — §① يشترط نفس لقطات T-SLOT"
+        required: false
+        default: ""
+jobs:
+  m13-thread:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset (point-in-time reproducibility)
+        if: ${{ github.event.inputs.frozen_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run short-gate thread
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # ⚠️ الأعلام يضبطها السكربت **قبل الاستيراد** (بصمة الـno-op).
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: ${{ github.event.inputs.frozen_run_id != '' && 'frozen_backtest.pkl.gz' || '' }}
+        run: python short_arms.py
+      - name: Upload backtest CSV
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m13-report
+          path: backtest_*.csv
+          if-no-files-found: ignore

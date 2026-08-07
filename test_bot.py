@@ -16781,6 +16781,22 @@ _ca_pre = open("cap_prereg.md", encoding="utf-8").read()
 check("📦 CAP4 التسجيلُ يحمل الذراعين والبوّابةَ وقاعدةَ «القرار للمالك حصريًّا»",
       all(x in _ca_pre for x in ("C10", "C15", "35/26", "30/19", "15/11",
                                  "قرارُ مالكٍ حصريّ")))
+
+# ── 🕵️ T-M13: السائقُ الناقل — البيئةُ قبل الاستيراد والتسجيلُ مدفوع ──
+_m13_tree = _rt_ast.parse(open("short_arms.py", encoding="utf-8").read())
+_m13_set = [n.lineno for n in _m13_tree.body
+            if isinstance(n, (_rt_ast.Expr, _rt_ast.Assign))
+            and "BT_SHORT" in _rt_ast.dump(n)]
+_m13_imp = [n.lineno for n in _m13_tree.body
+            if isinstance(n, _rt_ast.Import)
+            and any(a.name == "Super_stock" for a in n.names)]
+check("🕵️ M13A `BT_SHORT` يُضبَط **قبل** `import Super_stock` (وإلّا no-op)",
+      bool(_m13_imp) and bool(_m13_set) and max(_m13_set) < min(_m13_imp),
+      f"ضبط={_m13_set} · استيراد={_m13_imp}")
+_m13_pre = open("m13_prereg.md", encoding="utf-8").read()
+check("🕵️ M13B التسجيلُ يحمل قاعدةَ اللاانقلاب وحدَّ صدق «المتاح» وقفل C3",
+      all(x in _m13_pre for x in ("بلا انقلاب", "المتاح للاقتراض", "C3",
+                                  "قرارُ مالكٍ حصريّ")))
 # ── RTIE13: النتيجةُ منشورةٌ بحكمها ومعرّفاتِ تشغيلها وحدودِ صدقها ──
 #    🔴 الغرضُ منعُ «نتيجةٌ تُروى ولا تُكتَب»: الحكمُ صريح · التشغيلاتُ الثلاث
 #    بمعرّفاتها · واللقطةُ مذكورة — فلا يُعاد تفسيرُها لاحقًا بلا سندٍ مؤرَّخ.
