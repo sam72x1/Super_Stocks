@@ -2762,6 +2762,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
                 return _reject("M4_base_واسعة")
             risen = True       # القاعدة اتسعت لأنه ارتفع = مرشّح ارتداد
             watch_reasons.append("ارتفع عن قاعدته")
+        gain5 = None   # 📐 يُصدَّر للظرف (قياس D11 من الكاتالوج — أمر المالك 2026-08-07)
         if len(c) > 6:
             gain5 = (c[-1] / c[-6] - 1.0) * 100.0
             # «انفجر فعلاً» (قفزة 5 جلسات) = فاتنا القطار — يُرفض حتى للارتداد
@@ -2802,6 +2803,10 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         maxd = CONFIG["GAP_ABOVE_MAX_DIST_PCT"]
         near_zones = [z for z in gaps_above["all_zones"]
                       if (z["bottom"] / price - 1.0) * 100.0 <= maxd]
+        # 📐 أقربُ فجوةٍ فوق السعر بالنسبة — يُصدَّر للظرف (قياس عتبة M9 من الكاتالوج).
+        #    لا فجوةَ فوقه إطلاقًا ⇒ None (لا يُقاس بُعدٌ لغير الموجود — يُتخطّى بالظرف).
+        gap_above_dist = min(((z["bottom"] / price - 1.0) * 100.0
+                              for z in gaps_above["all_zones"]), default=None)
         if CONFIG.get("GAP_ABOVE_REQUIRED", False) and not near_zones:
             soft_fails.append("ما فيه فجوة سعرية فوقه (هدف)")
 
@@ -2847,6 +2852,12 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             and (price / m - 1.0) <= band
             for m in (ema30, ema50)
         )
+        # 📐 أدنى «فوق المتوسط%» بين المتوسطين المؤهَّلين (نفس شرط ma_ok: فوق m×0.98)
+        #    — يُصدَّر للظرف (قياس عتبة M12 من الكاتالوج). لا مؤهَّل ⇒ None
+        #    (السقوطُ حينها لكونه تحت المتوسط لا لضيق السقف — خارج ما تقيسه العتبة).
+        _ma_cands = [(price / m - 1.0) * 100.0 for m in (ema30, ema50)
+                     if m and m > 0 and price >= m * (1.0 - 0.02)]
+        ma_above = min(_ma_cands) if _ma_cands else None
         if CONFIG.get("MA_GATE_REQUIRED", False) and not ma_ok:
             _md = ((price / ema30 - 1.0) * 100.0) if ema30 else 0.0
             if _md < 0:
@@ -3353,6 +3364,8 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             "drop_pct": drop_pct, "best_spike": best_spike,
             "n_spikes": n_spikes, "base_range": base_range,
             "rsi": r_now, "dollar_vol": dvol,
+            # 📐 حقول تشخيصية للظرف (قياس D11/M12/M9 من الكاتالوج — لا قرار عليها هنا):
+            "gain5": gain5, "ma_above": ma_above, "gap_above_dist": gap_above_dist,
             "vol_today": float(vol.iloc[-1]),   # D10: لحساب تدوير الفلوت في enrich
             "pivot": pivot, "stop": (stop_lo, stop_hi),
             "entry": (entry_lo, entry_hi), "tranches": tranches,
@@ -15165,6 +15178,10 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                 "n_soft": len(r.get("soft_fails") or []),
                 "readiness": r.get("readiness"), "score": r.get("score"),
                 "rr": r.get("rr"),
+                # 🥇 الثلاثة المقيسة من الكاتالوج (فتح D11، 2026-08-07) — نفس
+                #    أسماء `measure_session` (خريطةٌ واحدة، قفل EV4):
+                "gain5": r.get("gain5"), "ma_above": r.get("ma_above"),
+                "gap_above_dist": r.get("gap_above_dist"),
             }
         if CONFIG.get("BT_REPLAY10"):
             _xk, _xi = _arm_a_exit_bar(hi, lo, cl, entry, stop, t1, filled)

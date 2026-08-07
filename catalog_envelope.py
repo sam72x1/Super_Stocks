@@ -118,6 +118,17 @@ CRITERIA = [
     ("readiness",   "lo",   "الجاهزية",               "NEAR_PCT"),
     ("score",       "lo",   "النقاط",                 "SCORE_MIN"),
     ("rr",          "lo",   "العائد/المخاطرة",        "MIN_RR_T1"),
+    # 🥇 **الثلاثة الأخيرة من أرقامنا — قرار المالك 2026-08-07 «قسها»** (فتحُ D11
+    #    بإذنه الصريح): تُقاس من كاتالوجه بنفس الآلية فتحلّ محلّ 35/15/60.
+    #    التعريفات **مطابقة حرفيًّا لبوّابات الإنتاج** (الحقول تُصدَّر من
+    #    `analyze_ticker` نفسه — صفر منطق مكرّر):
+    #    · `gain5` = صعود آخر 5 جلسات % (بوّابة «انفجر فعلًا» الصلبة)
+    #    · `ma_above` = أدنى «فوق المتوسط%» بين 30/50 المؤهَّلين (عتبة M12 اللينة)
+    #    · `gap_above_dist` = بُعد أقرب فجوة علوية % (عتبة M9 اللينة؛ لا فجوة ⇒ None
+    #      يُتخطّى — البُعد لا يُقاس لغير الموجود)
+    ("gain5",          "hi", "M4ب صعود 5 جلسات",       "RECENT_RISE_BLOCK_PCT"),
+    ("ma_above",       "hi", "M12 فوق المتوسط",        "MA_GATE_MAX_ABOVE_PCT"),
+    ("gap_above_dist", "hi", "M9 بُعد الفجوة",          "GAP_ABOVE_MAX_DIST_PCT"),
 ]
 
 
@@ -311,6 +322,10 @@ def measure_session(S, sym, df):
         "readiness": res.get("readiness"),
         "score": res.get("score"),
         "rr": res.get("rr"),
+        # 🥇 الثلاثة المضافة (قرار المالك 2026-08-07) — من `analyze_ticker` نفسه:
+        "gain5": res.get("gain5"),
+        "ma_above": res.get("ma_above"),
+        "gap_above_dist": res.get("gap_above_dist"),
     }
 
 

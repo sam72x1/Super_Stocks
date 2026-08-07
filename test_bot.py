@@ -14224,8 +14224,19 @@ import catalog_envelope as _CE0   # كتلة الظرف تأتي لاحقًا ف
 
 # ── ⓿ الحواف المجمَّدة: كاملةٌ وموسومةٌ بمصدرها ────────────────────────────
 _es_blob = json.load(open("envelope_p90.json", encoding="utf-8"))
-check("📐 SCAN🔒 ملفّ الحواف يحمل **المعايير الأحد عشر كلَّها** (لا نقصَ نقلٍ)",
-      set(_es_blob["edges"]) == {k for k, _, _, _ in _CE0.CRITERIA})
+# ✅ حُدِّث 2026-08-07 (قرار المالك «قسها» — فتح D11): CRITERIA صارت **14**
+#    (‏+gain5/ma_above/gap_above_dist) والملفُّ المجمَّد الحاليّ يحمل الأحد عشر
+#    القديمة ⇒ القفلُ **انتقاليّ**: القديمةُ كلُّها حاضرة والحاضرُ كلُّه من الخريطة.
+#    🔴 **بعد هبوط معايرةِ الأربعة عشر يُعاد القفلُ إلى المساواة التامّة** —
+#    والقفلُ الانتقاليّ نفسُه يفرض ذلك: زيادةُ الملفّ على الخريطة تُسقطه.
+_es_old11 = {"price", "drop_pct", "best_spike", "base_range", "dollar_vol",
+             "rsi_min", "rsi_now", "n_soft", "readiness", "score", "rr"}
+check("📐 SCAN🔒 ملفّ الحواف: الأحد عشر القديمة كلُّها حاضرة والحاضرُ من الخريطة",
+      _es_old11 <= set(_es_blob["edges"])
+      and set(_es_blob["edges"]) <= {k for k, _, _, _ in _CE0.CRITERIA})
+check("📐 SCAN🔒 والخريطةُ صارت أربعة عشر (‏D11+M12+M9 مقيسة — 2026-08-07)",
+      {k for k, _, _, _ in _CE0.CRITERIA} == _es_old11
+      | {"gain5", "ma_above", "gap_above_dist"})
 # 🔴 **`snapshot` أُخرِج من هذا القفل بسببٍ مقاس لا تسامحًا:** المُصدِّر يكتبه من
 #    `ENV_SNAPSHOT_ID` و**الـworkflow لم يكن يُصدّره قطّ** ⇒ كلُّ مُخرَجٍ آليّ يخرج
 #    بـ`null`، ومعناه أن أيّ ملفٍّ يحمل لقطةً كان **مملوءًا بيد**. فالشرطُ نُقل إلى
@@ -14428,8 +14439,11 @@ check("📐 SCAN🔒 **من نقطة النداء**: قيمةٌ خارج الح�
                      {"price": 10.0}, {"float": 900_000})))
 
 # ── ⑤-مكرر 🚧 D11 منع الملاحقة — العيب الذي كان يجعل الظرف يلاحق ما ارتفع ──
-check("📐 SCAN🔒 ع2: `RECENT_RISE_BLOCK_PCT` كان **المفتاح الوحيد** المُرخى بلا معيار",
-      (lambda cov: set(_CE0.RELAX_ALL) - cov == {"RECENT_RISE_BLOCK_PCT"})(
+# ✅ حُدِّث 2026-08-07 (قرار المالك «قسها»): الفجوةُ **أُغلقت** — `gain5` صار معيارًا
+#    يقابل `RECENT_RISE_BLOCK_PCT` ⇒ **كلُّ** مفاتيح الإرخاء لها معيارٌ الآن.
+#    (كان القفلُ يثبّت الفجوةَ نفسَها: `- cov == {"RECENT_RISE_BLOCK_PCT"}`.)
+check("📐 SCAN🔒 ع2: كلُّ مفاتيح الإرخاء صار لها معيارُ ظرفٍ (الفجوةُ أُغلقت 2026-08-07)",
+      (lambda cov: set(_CE0.RELAX_ALL) - cov == set())(
           {k for _n, _d, _l, c in _CE0.CRITERIA for k in c.split("|")}))
 check("📐 SCAN🔒 D11: `chase_ok` تُرخي كلَّ شيءٍ **إلّا** مفتاح الملاحقة",
       "RECENT_RISE_BLOCK_PCT" in _insp0.getsource(_ES.chase_ok)
@@ -14920,8 +14934,11 @@ check("🧪 ABL🔒 صفٌّ يجتاز الظرفَ كاملًا يجتاز **�
       all(_ab_ev_ok.values()))
 
 # 🔒 وشاهدُ ضبطٍ يمنع العدميّة: إسقاطُ المعيار الساقط من `LOO` **يُعيد** القبول.
+# ✅ حُدِّث 2026-08-07 (فتح D11): الخريطةُ 14 والملفُّ المجمَّد الحاليّ 11 ⇒ الشاهد
+#    يلفّ **الحاضرَ في الملفّ** (‏`subset` تتخطّى الغائب أصلًا فذراعُه فارغةُ الأثر).
+#    بعد هبوط معايرة الأربعة عشر يغطّي الشاهدُ الجميعَ تلقائيًّا (لفٌّ ديناميكيّ).
 _ab_fails = {}
-for _c in _ab_keys:
+for _c in [k for k in _ab_keys if k in _ab_body]:
     _bad = dict(_ab_row_ok)
     _e = _ab_body[_c]
     if isinstance(_e, tuple):
@@ -14933,10 +14950,11 @@ for _c in _ab_keys:
                     else float(_e) + abs(float(_e)) + 1.0)
     _ab_fails[_c] = _AB.eval_arms(_bad, _ab_body, _ab_arms)
 
-check("🧪 ABL🔒 كسرُ معيارٍ واحد يُسقط `S12` **ويُبقي** `LOO` الخاصّة به (‏11/11)",
-      all(not _ab_fails[c]["S12"] and _ab_fails[c]["LOO:" + c] for c in _ab_keys))
+check("🧪 ABL🔒 كسرُ معيارٍ واحد يُسقط `S12` **ويُبقي** `LOO` الخاصّة به (كلُّ الحاضر)",
+      all(not _ab_fails[c]["S12"] and _ab_fails[c]["LOO:" + c] for c in _ab_fails)
+      and len(_ab_fails) >= 11)   # ⇐ يصير 14 تلقائيًّا بعد هبوط المعايرة الجديدة
 check("🧪 ABL🔒 وكسرُ معيارٍ **لا** يُسقط `ALONE` لمعيارٍ آخر (استقلالُ الأذرع)",
-      all(_ab_fails[c]["ALONE:" + o] for c in _ab_keys for o in _ab_keys if o != c))
+      all(_ab_fails[c]["ALONE:" + o] for c in _ab_fails for o in _ab_fails if o != c))
 
 # 🔒 الحدودُ والقراءةُ ثوابتُ مُعلَنة — لا تُبدَّل بعد الرقم
 check("🧪 ABL🔒 حدودُ القراءة مثبَّتةٌ بالكود (‏0.90 يُغلق · 0.50 مستقلّ)",
@@ -16012,6 +16030,22 @@ check("🥇 FAI2 الخريطةُ تُغطّي الأحد عشر ⇒ 12 مفتا
       and _fai_ov.get("MAX_DROP_PCT") == 99.7, str(sorted(_fai_ov))[:110])
 # ⚠️ بـ`.get` لا بالفهرسة: خريطةٌ ناقصةٌ كانت ترمي `KeyError` **فتُسقط السويّة**
 #    وتكتم القفلَ الذي أمسك العيب فعلًا (‏FAI2). رابعُ وقوعٍ لهذا الصنف اليوم.
+# 🥇 FAI2b (قرار المالك 2026-08-07 «قسها» — فتح D11): الثلاثةُ الجديدة تصل مفاتيحَها
+_fai_ov3 = S.faisal_only_overrides(dict(_fai_edges, gain5=61.0, ma_above=24.0,
+                                        gap_above_dist=88.0))
+check("🥇 FAI2b الثلاثةُ المقيسة (‏D11/M12/M9) تُحِلّ مفاتيحَها الثلاثة ⇒ 15 مفتاحًا",
+      _fai_ov3.get("RECENT_RISE_BLOCK_PCT") == 61.0
+      and _fai_ov3.get("MA_GATE_MAX_ABOVE_PCT") == 24.0
+      and _fai_ov3.get("GAP_ABOVE_MAX_DIST_PCT") == 88.0 and len(_fai_ov3) == 15,
+      str(sorted(_fai_ov3))[:120])
+# 🥇 FAI2c والحقولُ الثلاثة **تُصدَّر فعلًا** من `analyze_ticker` (وصلةٌ حيّة لا اسم):
+#    `gain5` رقمٌ دائمًا على المؤهَّل (تاريخه أطول من 6) · والآخران قد يكونان None
+#    شرعًا (لا فجوة فوقه / تحت المتوسطين) فالقفل على **وجود المفتاح** + نوعٍ سليم.
+check("🥇 FAI2c الحقولُ الثلاثة مُصدَّرة من `analyze_ticker` (‏r0 المؤهَّل)",
+      r0 is not None and all(k in r0 for k in ("gain5", "ma_above", "gap_above_dist"))
+      and isinstance(r0.get("gain5"), float),
+      str({k: r0.get(k) for k in ('gain5', 'ma_above', 'gap_above_dist')})[:90]
+      if r0 else "r0=None")
 check("🥇 FAI3 والأنواعُ مصونة: `WATCH_MAX_FAILS`/`SCORE_MIN` **صحيحان**",
       isinstance(_fai_ov.get("WATCH_MAX_FAILS"), int) and _fai_ov.get("WATCH_MAX_FAILS") == 5
       and isinstance(_fai_ov.get("SCORE_MIN"), int) and _fai_ov.get("SCORE_MIN") == 35,
