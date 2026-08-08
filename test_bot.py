@@ -17098,12 +17098,13 @@ _mf_top = [a.name for n in _mf_ast.parse(
 check("🥇 MF3 الوالد لا يستورد الإنتاج (الإنتاج داخل الطفل حصرًا)",
       "Super_stock" not in _mf_top and "envelope_scan" not in _mf_top,
       str(_mf_top))
+import os as _mf_os        # استيرادٌ محلّي: `os` غير معرَّفٍ بهذا النطاق
 check("🥇 MF4 وكلا ملفَّي الحوافّ موجودان فعلًا (وإلّا سقطت الذراعُ لغيابِ ملفّ)",
-      all(os.path.exists(v) for v in _mf.ARMS.values()))
+      all(_mf_os.path.exists(v) for v in _mf.ARMS.values()))
 _mf_pre = open("minfloor_prereg.md", encoding="utf-8").read()
 check("🥇 MF5 التسجيلُ يحمل مفهومَ المالك ومقاييسَه وتحذيرَ `gain5` صريحًا",
       all(x in _mf_pre for x in ("RSI 23", "P100", "P90", "نسبة الدقة",
-                                 "214.73", "انفجر فعلًا", "F2", "F5")))
+                                 "214.73", "بوّابة «انفجر", "F2", "F5")))
 
 # ── 🧭 T-ENVREF — أقفال «الظرف الصادق» (أمر المالك «1 نفذها») ──
 # الأخطار: علم القياس يتسرّب للوضع الافتراضي (يلوّث الظرف الإنتاجي) · نطاق
