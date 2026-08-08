@@ -17737,10 +17737,28 @@ def _hw_cap_log(k):
 
 _hw_over = _hw_cap_log(S.HUNTER_WATCH_H4_CAP + 2)
 _hw_exact = _hw_cap_log(S.HUNTER_WATCH_H4_CAP)
-check("🪝 HW8هـ سقفُ قرائن 4س يُعلَن **بعدد مَن فاته** (‏2) — وعند بلوغ السقف "
-      "بالضبط **لا سطر** (لا ادّعاءَ قصٍّ لم يحدث)",
-      len(_hw_over) == 1 and " وفاتت 2 " in _hw_over[0] and not _hw_exact,
-      f"فوق={_hw_over} · عند الحدّ={len(_hw_exact)}")
+# 🔴 **والحالةُ المميِّزة التي كشفتها الطفرة** (نجت أوّلًا فأُصلح القفل): قائمةٌ
+#    **أطولُ من السقف** ولم يفُت أحدًا شيء — لأن المشطوبين لا يستهلكون ميزانيةَ 4س
+#    (‏`continue` قبلها). فشرطُ «أطول من السقف» يطبع **ادّعاءَ قصٍّ لم يحدث**،
+#    وشرطُ `_h4skip` يصمت. بلا هذي الحالة يتّفق الشرطان فيُعمى القفل.
+_hw_lg, _hw_out2 = S.log, []
+S.save_hunter_watch({"stocks": [
+    dict(_hw_e, symbol=f"D{i}",
+         **({"status": "stopped"} if i >= 2 else {}))
+    for i in range(S.HUNTER_WATCH_H4_CAP + 2)]})
+try:
+    S.log = lambda m, *a, **kw: _hw_out2.append(str(m))
+    _run_daily([], hist={f"D{i}": _hw_df([1.75] * 25)
+                         for i in range(S.HUNTER_WATCH_H4_CAP + 2)})
+finally:
+    S.log = _hw_lg
+_hw_none = [m for m in _hw_out2 if "قرائنُ 4س" in m]
+check("🪝 HW8هـ سقفُ قرائن 4س يُعلَن **بعدد مَن فاته فعلًا** (‏2) · وعند بلوغ السقف "
+      "بالضبط لا سطر · **وقائمةٌ أطولُ من السقف بمشطوبين لا تدّعي قصًّا لم يحدث** "
+      "(المشطوبُ لا يستهلك ميزانيةَ 4س)",
+      len(_hw_over) == 1 and " وفاتت 2 " in _hw_over[0] and not _hw_exact
+      and not _hw_none,
+      f"فوق={len(_hw_over)} · عند الحدّ={len(_hw_exact)} · بمشطوبين={len(_hw_none)}")
 S.save_hunter_watch({"stocks": []})              # نظافةٌ بعد الاختبار
 
 # ── HW9: عزلٌ عن الارتكاز — لا تلوّثَ في الاتجاهين ─────────────────────────
