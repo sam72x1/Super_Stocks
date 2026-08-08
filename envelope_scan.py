@@ -27,7 +27,11 @@ import hashlib
 import json
 import os
 
-EDGES_FILE = "envelope_p90.json"
+# 🥇 **ملفُّ الحوافّ — قرار المالك 2026-08-08 («طبّقها»):** الافتراض صار حدَّه
+# الأدنى المنصوص `P100` (الظرفُ يستوعب **كلَّ** سهمٍ من كتالوجه — «سهم واحد فقط
+# RSI 23 ⇒ هذا هو الحدّ»). و`ENV_EDGES_FILE` يتيح الرجوع لأي ملفٍّ آخر
+# (‏`envelope_p90.json` = الكود السابق) **للمقارنة بلا تعديل كود**.
+EDGES_FILE = os.environ.get("ENV_EDGES_FILE", "").strip() or "envelope_p100.json"
 
 # نفس مفاتيح الإرخاء المستعملة في المعايرة — **تُستورَد لا تُنسَخ** (مصدرٌ واحد).
 from catalog_envelope import (                                    # noqa: E402

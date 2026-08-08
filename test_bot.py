@@ -14420,8 +14420,12 @@ check("📐 SCAN🔒 ولا مفتاحَ فيه لا تكتبه الأداة (ي
 check("📐 SCAN🔒 ع3: **تواريخ المِرساة مخزَّنة** فيُقاس التلوّث الزمنيّ",
       isinstance(_es_blob.get("anchor_last_measured"), dict)
       and len(_es_blob["anchor_last_measured"]) == _es_blob["n_symbols"])
-check("📐 SCAN🔒 وكودُ التصدير قائمٌ في الأداة (شرطٌ لازمٌ لا كافٍ)",
-      "ENVELOPE_P90_JSON" in _insp0.getsource(_CE0))
+# ✅ حُدِّث 2026-08-08 (أمر المالك «طبّقها»): المُصدِّر صار **بمئينٍ مُختار**
+#    (‏`ENV_PCT`) فاسمُ الوسم مبنيٌّ لا حرفيّ — والقفلُ يفحص البناء نفسه.
+check("📐 SCAN🔒 وكودُ التصدير قائمٌ في الأداة بمئينٍ مُختار (شرطٌ لازمٌ لا كافٍ)",
+      "ENVELOPE_P{_blob['pct']}_JSON" in _insp0.getsource(_CE0)
+      and 'os.environ.get("ENV_PCT"' in _insp0.getsource(_CE0)
+      and 'envelope_p{_blob[\'pct\']}.json' in _insp0.getsource(_CE0))
 
 # ── ⓿-ب 🔴 **الوسمُ يجب أن يصل المستهلك لا أن يبقى في الملفّ** ──────────────
 #    عيبٌ مقيس (‏2026-08-05): `load_edges` كانت تبني `_meta` بقائمةٍ بيضاء من خمسة
@@ -15640,9 +15644,11 @@ check("🎯 FO8 `Super_stock` لا يستورد **أداةَ القياس** (AST
 # FO9 · بصمةُ الحوافّ المدفوعة = المُصرَّح بها في الحارس
 import envelope_bt as _fo_bt
 import envelope_scan as _fo_es
-_fo_blob = _fo_es.load_edges("envelope_p90.json")
+# ✅ حُدِّث 2026-08-08: يقرأ **الملفَّ النافذ** (`EDGES_FILE`) لا اسمًا مغروسًا —
+#    فحين بدّل المالك الحدَّ إلى `P100` بقي القفلُ حقيقيًّا بلا تعديلٍ ثانٍ.
+_fo_blob = _fo_es.load_edges(_fo_es.EDGES_FILE)
 _fo_blob.pop("_meta", None)          # ← `load_edges` تُرجع الحوافَّ **مسطَّحةً**
-check("🎯 FO9 بصمةُ `envelope_p90.json` = ثابتُ `V3` (مصدرٌ واحد)",
+check("🎯 FO9 بصمةُ الملفّ النافذ = ثابتُ `V3` (مصدرٌ واحد)",
       bool(_fo_blob)
       and _fo_es.edges_fingerprint(_fo_blob) == _fo_bt.V3_FINGERPRINT,
       f"ملفّ={_fo_es.edges_fingerprint(_fo_blob) if _fo_blob else 'فارغ'} · "
@@ -16052,18 +16058,13 @@ check("🔒 PROX7 صفرُ عتبةٍ مخترَعة — العتبةُ من CON
 #    (توافقُ فريمات أسهم فيصل قبل انفجارها **صفر** حتى عند P90!) · و`SCORE_MIN`
 #    عاد 35 (كمّيّة مشتقّة — قِيست هذي الجولة وعتباتُ D11 الأوسع مطبَّقة فقلّت
 #    النواقص وارتفعت النقاط؛ التفصيل بتعديل ⑬ في envelope_prereg.md).
-_px_cfg = {"MIN_PRICE": 1.649999976158142, "MIN_DROP_FLOOR": 89.58801459243173,
-           "MAX_DROP_PCT": 99.72182254044176, "PRIOR_SPIKE_FLOOR": 98.94179994296877,
-           "BASE_RANGE_MAX_PCT": 475.2137106742811, "MIN_DOLLAR_VOL": 39482.02504813671,
-           "RSI_OS_HARD": 44.0, "RSI_NOW_HARD": 48.87697543295087,
-           "WATCH_MAX_FAILS": 6, "NEAR_PCT": 10.0, "SCORE_MIN": 35,
-           "MIN_RR_T1": 1.168184676778314, "PRIOR_SPIKE_PCT": 164.021164021164,
-           "MIN_DROP_PCT": 96.91775344552148, "RSI_OVERSOLD": 33.0,
-           "RSI_MAX_NOW": 35.77890610671257,
-           "RECENT_RISE_BLOCK_PCT": 8.163264114526037,
-           "MA_GATE_MAX_ABOVE_PCT": 64.70643372077272,
-           "GAP_ABOVE_MAX_DIST_PCT": 502.07610271270005,
-           "TF_MIN_REVERSALS": 0}
+# ✅ حُدِّث 2026-08-08 (أمر المالك «طبّقها» ⇒ الحوافّ P100): القائمةُ كانت
+#    **منسوخةً بالأرقام** فتتعفّن مع كل معايرة — صارت **مشتقّةً من الملفّ النافذ
+#    عبر `faisal_only_overrides` الإنتاجيّة نفسها** (مصدرٌ واحد، لا نقلَ يدويّ)،
+#    والقفلُ يبقى حقيقيًّا لأنه يفحص **عدد العشرين** و**التطابق التامّ** معها.
+_px_cfg = dict(S.faisal_only_overrides(_ES_pre.load_edges()))
+_px_cfg.update(S.faisal_soft_overrides(
+    ((_ES_pre.load_edges().get("_meta") or {}).get("soft_median") or {})))
 # 🐞 وأوّلُ صياغةٍ لي مرّرت قاموسًا **بلا `FAISAL_ONLY`** فترجع الدالّةُ مبكّرًا
 #    ⇒ «طُبِّق 0» والقفلُ يفحص فراغًا — فخُّ «العيّنةُ يردّها حارسٌ أسبق» مرّةً أخرى.
 _px_live = {"FAISAL_ONLY": 1}
@@ -16080,9 +16081,25 @@ check("🎯 PROX9 والتسجيلُ المسبق مدفوعٌ بمعياره و
 #    (‏14 معيارًا — المعايرة `31187484789`). دعوى SOFT10 التاريخية («إضافةُ الوسيط
 #    وحدها لا تغيّر الحوافّ») صحّت وقتَها؛ اليومَ الحوافُّ تغيّرت **بمعايرةٍ مقصودة**
 #    لا بأثرٍ جانبيّ — والقفلُ يثبّت البصمة الجديدة (مصدرٌ واحد للحقيقة).
-check("🥇 SOFT10 بصمةُ الحوافّ النافذة = جولةُ التثبيت (‏`2c2707cfd0dd`)",
+# ✅ حُدِّث 2026-08-08 — **أمر المالك «طبّقها»** بعد أن أثبت أن `P90` يخالف مفهومه
+#    المنصوص للحدّ الأدنى («سهم واحد فقط RSI 23 ⇒ هذا هو الحدّ» ⇒ `P100` بالتعريف).
+#    البصمةُ النافذة صارت `019c983e1691` (‏P100 · المعايرة `31265004124`)، و`P90`
+#    (‏`2c2707cfd0dd`) محفوظٌ ملفًّا للمقارنة عبر `ENV_EDGES_FILE`.
+check("🥇 SOFT10 بصمةُ الحوافّ النافذة = حدُّ المالك P100 (‏`019c983e1691`)",
       __import__("envelope_scan").edges_fingerprint(
-          __import__("envelope_scan").load_edges()) == "2c2707cfd0dd")
+          __import__("envelope_scan").load_edges()) == "019c983e1691"
+      and __import__("envelope_scan").EDGES_FILE == "envelope_p100.json")
+check("🥇 SOFT10ب وP90 محفوظٌ ملفًّا ويُحمَّل صريحًا للمقارنة (بصمتُه ثابتة)",
+      __import__("envelope_scan").edges_fingerprint(
+          __import__("envelope_scan").load_edges("envelope_p90.json"))
+      == "2c2707cfd0dd")
+check("🥇 SOFT10ج وحدُّ المالك يستوعب كتالوجه كلَّه: كلُّ حافّة P100 لا تكون "
+      "أضيق من نظيرتها في P90 (إلّا أرضيةَ الهبوط — نطاقٌ لا سقف)",
+      (lambda a, b: all(
+          (a[k][0] <= b[k][0] or k == "drop_pct") and a[k][1] >= b[k][1]
+          if isinstance(a[k], tuple) else True for k in a if k in b))(
+          __import__("envelope_scan").load_edges("envelope_p100.json"),
+          __import__("envelope_scan").load_edges("envelope_p90.json")))
 
 # ── ⏳ استثناءُ المزامنة للتشغيل اليدويّ (عطلٌ مقيس 2026-08-06) ─────────────────
 # المراقبُ يعمل 4 مرّاتٍ بالساعة وGitHub يُبقي **معلَّقًا واحدًا** لكل مجموعة ⇒ التشغيلُ
@@ -16268,21 +16285,26 @@ check("🔒 FAI7 ومُطفأً ⇒ لا تغيير ولا رسالة (السل�
 _fai_c = dict(S.CONFIG)
 _fai_applied = S.apply_faisal_only(_fai_c, log_fn=lambda *_: None) \
     if _fai_c.update({"FAISAL_ONLY": 1}) is None else {}
-check("🔴 FAI8 التبديلُ يبدّل الأرقام فعلًا: أرضيةُ الهبوط 40 ⟶ ‏≈89.6 (أشدّ)",
+# ✅ حُدِّث 2026-08-08 (أمر المالك «طبّقها» ⇒ الحوافّ P100): أرضيةُ الهبوط
+#    ‏40 ⟶ ‏≈71.7 (‏أشدُّ من بوّابتنا وأرخى من P90) — والقفلُ يفحص **البدالة**
+#    لا رقمًا مغروسًا: بوّابتُنا 40 حرفيًّا وحدُّ فيصل أشدُّ منها بفارقٍ ماديّ.
+check("🔴 FAI8 التبديلُ يبدّل الأرقام فعلًا: أرضيةُ الهبوط 40 ⟶ ‏≈71.7 (أشدّ)",
       bool(_fai_applied) and S.CONFIG["MIN_DROP_FLOOR"] == 40.0
-      and _fai_c["MIN_DROP_FLOOR"] > 80,
+      and _fai_c["MIN_DROP_FLOOR"] > 60,
       f"بوت={S.CONFIG['MIN_DROP_FLOOR']} · فيصل={_fai_c.get('MIN_DROP_FLOOR')}")
-check("🔴 FAI9 وليس تخفيفًا بل **إعادةَ تشكيل**: أشدُّ في السعر/الهبوط/الانفجار "
-      "وأوسعُ في القاعدة/السيولة",
-      _fai_c["MIN_PRICE"] > S.CONFIG["MIN_PRICE"]                  # 1.65 > 1.5
-      and _fai_c["MIN_DROP_FLOOR"] > S.CONFIG["MIN_DROP_FLOOR"]    # 89.6 > 40
-      and _fai_c["BASE_RANGE_MAX_PCT"] > S.CONFIG["BASE_RANGE_MAX_PCT"]   # 475 > 40
-      and _fai_c["MIN_DOLLAR_VOL"] < S.CONFIG["MIN_DOLLAR_VOL"],   # 39K < 200K
+# ✅ حُدِّث 2026-08-08: بحدّ المالك (‏P100) الاتّجاهُ **أشدُّ في أرضية الهبوط
+#    وأوسعُ في السعر/القاعدة/السيولة** — يُثبَّت صريحًا فلا يُقرأ «تخفيفًا» عامًّا.
+check("🔴 FAI9 إعادةُ تشكيل بحدّ المالك: أشدُّ في أرضية الهبوط · وأوسعُ في "
+      "السعر/القاعدة/السيولة",
+      _fai_c["MIN_PRICE"] < S.CONFIG["MIN_PRICE"]                  # 0.40 < 1.5
+      and _fai_c["MIN_DROP_FLOOR"] > S.CONFIG["MIN_DROP_FLOOR"]    # 71.7 > 40
+      and _fai_c["BASE_RANGE_MAX_PCT"] > S.CONFIG["BASE_RANGE_MAX_PCT"]   # 23685 > 40
+      and _fai_c["MIN_DOLLAR_VOL"] < S.CONFIG["MIN_DOLLAR_VOL"],   # 14.3K < 200K
       f"سعر {S.CONFIG['MIN_PRICE']}⟶{_fai_c['MIN_PRICE']:.2f} · "
       f"سيولة {S.CONFIG['MIN_DOLLAR_VOL']:.0f}⟶{_fai_c['MIN_DOLLAR_VOL']:.0f}")
 check("🔴 FAI10 والأرقامُ من **الملفّ المدفوع** لا من الكود (بصمةٌ مطابقة)",
       abs(_fai_c["MIN_DOLLAR_VOL"]
-          - float(_json.load(open("envelope_p90.json",
+          - float(_json.load(open(_ES_pre.EDGES_FILE,
                                   encoding="utf-8"))["edges"]["dollar_vol"])) < 1e-6)
 check("🥇 FAI11 و`LOGIC_VERSION` يحمل الوسمَ (فيُعاد بناءُ القائمة تلقائيًّا)",
       "faisalonly" in S.LOGIC_VERSION, S.LOGIC_VERSION[:40])
