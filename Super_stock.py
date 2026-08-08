@@ -7374,11 +7374,21 @@ def hunter_extras(r, df=None, flow=None, df4h=None):
             _a = (f"عرض {fmt_money(fl.get('ask_size'))} عند ${fl['ask']:.3f}"
                   if fl.get("ask") else "عرض —")
             out.append(f"  💧 تدفّق السيولة: {_b} · {_a}")
-        # 🕵️ اليد
-        ev = hand_evidence(r) or []
+        # 🕵️ اليد — 🐞 **عيبان مقيسان أُصلحا 2026-08-08 (أمر المالك «واليد»)**:
+        #    ① `str(x)` على قاموس الدليل كان يطبع `{'frame': …, 'sign': …}` حرفيًّا.
+        #    ② والأهمّ: صفُّ الصيّاد **لا يحوي** حقول `hand_evidence` (‏behav/h4/تدوير
+        #       — يملؤها إثراءُ الفارز) ⇒ السطر **ميّتٌ بنيويًّا** يعود `[]` دائمًا.
+        #       فتُبنى الحقول الآن من الشموع نفسها بـ`hunter_hand_fields` (صفر نداء).
+        _hr = dict(r)
+        try:
+            if df is not None:
+                _hr.update(hunter_hand_fields(df, r.get("float"), df4h))
+        except Exception:                                        # noqa: BLE001
+            pass
+        ev = hand_evidence(_hr) or []
         if len(ev) >= 2:
-            out.append(f"  🕵️ علامات اليد ({len(ev)}): "
-                       + esc(" · ".join(str(x) for x in ev[:3])))
+            out.append(f"  🕵️ علامات اليد ({len(ev)}): " + esc(" · ".join(
+                f"{e.get('sign')} ({e.get('frame')})" for e in ev[:3])))
         # ⚠️ تحذير فيصل الثابت — يُذكر مع اليد لا مستقلًّا
         out.append("  ⚠️ فيصل: «مضاربٌ فقط يصعد بالسهم — ادخل معه» · "
                    "و«التدافع للشرا لن يكون وسيلة للربح»")
@@ -9009,6 +9019,263 @@ def record_hunter_run(session_date=None, path=None) -> bool:
         return True
     except Exception as e:                                       # noqa: BLE001
         log(f"⚠️ ختم الصيّاد: {e}")
+        return False
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🪝👀 **متابعة أسهم صيّاد التقسيم** — أمر المالك 2026-08-08
+# ══════════════════════════════════════════════════════════════════════════════
+# «ابي بعد أسهم صياد التقسيم يكون لها متابعة **نفس الارتكاز** من ناحية السيولة
+# الخ **واليد**». والصيّاد كان **بلا حالة تشغيلية** بنصّ توثيقه («عرض/تنبيه فقط —
+# لا يحفظ حالة») ⇒ المطابقُ يظهر ليلةً واحدة ثم يُنسى.
+#
+# 🔒 **ملفُّ حالةٍ مستقلّ تمامًا** (`hunter_watchlist.json`) لا `weekly_watchlist`:
+#    النظامان **منفصلان بقرار المالك المتكرّر** (شروطُ الصيّاد الخمسة ليست M1-M14،
+#    ووقفُه القاع لا 7%) ⇒ خلطُهما في ملفٍّ واحد يفتح باب تلوّثٍ في الاتجاهين.
+#    والقائمةُ الجديدة **لا تمرّ على `rank_key`/`select_top`/السعة** ولا تحجز خانةً
+#    من خانات الارتكاز، ولا تدخل «🔄 متابعة لمركزك» (تلك للارتكاز وحده).
+#
+# ⚖️ **وتمييزٌ عن `hunter_ledger`** (كي لا يُظنّ تكرارًا): السجلّ **بحثٌ أماميّ**
+#    (‏JSONL يُلحَق فقط · مرجعٌ مُجمَّد · حسمٌ بعد 40 جلسة · بلا عرض). وهذي
+#    **متابعةٌ تشغيلية** (حالةٌ متغيّرة تُعرَض كلَّ يوم). فلا يُدمَجان: إدخالُ حالةٍ
+#    متغيّرة في السجلّ يكسر عقده (‏H3 «المرجع يُجمَّد»).
+#
+# 🔴 **وأربعةُ أوقافٍ في مادّة فيصل لا تُخلَط** (مقفولٌ باختبار): الارتكاز **7% تحت
+#    الدعم** · **صيّاد المقسّم = القاع نفسه** (وهو وقفُ هذي القائمة) · النهج العلميّ
+#    **الدخول −6%** · والنظام الرابع **ذيل شمعة القاع**. فوقفُ هذي القائمة مصدرُه
+#    `plan["bottom"]` من `faisal_split_plan` حصرًا — **لا يُشتقّ ولا يُخترَع**.
+HUNTER_WATCH_FILE = "hunter_watchlist.json"
+HUNTER_WATCH_MAX = 40          # صمّام أمان (يُقلَّم الأقدم — ويُعلَن)
+HUNTER_WATCH_H4_CAP = 12       # سقف نداءات 4س بالمسار اليومي (يُعلَن لا يُقَصّ صامتًا)
+
+
+def hunter_watch_entry(r: dict, today=None) -> dict:
+    """🪝 سجلّ متابعةٍ لمطابقٍ من الصيّاد — **دالّة نقيّة** (بلا شبكة/قرص).
+
+    **كلُّ حقلٍ منقولٌ من صفّ الصيّاد نفسه — صفرُ رقمٍ مُخترَع.** ومصادرُها:
+      • `stop` ⟵ `plan["bottom"]` = **القاع المُحقَّق** = وقفُ الوصفة المنصوص.
+      • `hold_above` ⟵ `plan["liberation"]` (فيصل: «ثبات فوق … تحرر السهم»).
+      • `targets` ⟵ `plan["targets"]` (‏[{price, src}] كما تبنيها الخطة).
+    🐞 **ودرسٌ من كتابتي الأولى (يُدوَّن لا يُطوى):** كتبتُ `plan["entries"]`
+    و`plan["stop"]` — **ومفتاحان لا وجودَ لهما** في `faisal_split_plan` ⇒ حقلان
+    `None` دائمًا وسطرٌ يُعرَض بلا مصدر = «سطرُ عرضٍ بلا حقلٍ = كذبة» بعينه."""
+    d = today or dt.date.today()
+    plan = r.get("plan") if isinstance(r.get("plan"), dict) else {}
+    return {
+        "symbol": r.get("symbol"),
+        "added": (d.isoformat() if hasattr(d, "isoformat") else str(d)),
+        "ref_price": r.get("price"),          # سعرُ الترشيح (مرجعُ قياس الحركة)
+        "half": r.get("half"),                # القمة÷2 (شرط فيصل ②)
+        "ref": r.get("ref"),                  # قمة ما بعد الحدث (=الهدف ×2)
+        "event_kind": r.get("event_kind", "split"),
+        "split_date": r.get("split_date"),
+        "float": r.get("float"), "avail": r.get("avail"),
+        "borrow_fee": r.get("borrow_fee"),
+        "stop": plan.get("bottom"),           # ⛔ القاع نفسه (وقف الوصفة)
+        "hold_above": plan.get("liberation"),
+        "targets": plan.get("targets") or [],
+        "status": "active", "last_price": r.get("price"),
+    }
+
+
+def hunter_watch_add(wl: dict, rows: list, today=None) -> dict:
+    """🪝 يضيف المطابقين الجدد للقائمة — **نقيّة**، ودِدوب بالرمز (لا تكرار).
+
+    الموجودُ سلفًا **لا يُعاد ضبطُ مرجعه** (وإلّا انتقلت نقطةُ القياس كلَّ ليلة
+    فضاعت المتابعة — عينُ خطأ «القائمة ترفرف»)، **ولا يُعاد إحياءُ مشطوب** (سهمٌ
+    ضُرب وقفُه يبقى مشطوبًا حتى يُرشَّح برمزٍ جديد… أي لا يُعاد). والتقليم عند
+    السقف يُسقط **المشطوب الأقدم أوّلًا** ثم الأقدم مطلقًا، **ويُعلَن** بـ`pruned`."""
+    wl = dict(wl or {})
+    lst = list(wl.get("stocks") or [])
+    have = {str(s.get("symbol")) for s in lst}
+    added = []
+    for r in (rows or []):
+        sym = str((r or {}).get("symbol") or "")
+        if not sym or sym in have:
+            continue
+        lst.append(hunter_watch_entry(r, today))
+        have.add(sym)
+        added.append(sym)
+    pruned = []
+    if len(lst) > HUNTER_WATCH_MAX:
+        # المفتاح: النشط يبقى (True يفرز أخيرًا) ثم الأقدم تاريخًا يُسقَط أولًا.
+        lst.sort(key=lambda s: (s.get("status") == "active",
+                                str(s.get("added") or "")))
+        while len(lst) > HUNTER_WATCH_MAX:
+            pruned.append(str(lst.pop(0).get("symbol")))
+    wl["stocks"] = lst
+    wl["added_last"] = added
+    wl["pruned"] = pruned
+    return wl
+
+
+def hunter_watch_update(s: dict, df, r: dict = None) -> dict:
+    """🪝 يحدّث سجلًّا واحدًا من شمعة اليوم — **نقيّة** (‏`df` مُمرَّر لا مجلوب).
+
+    ① السعر ويومُ الشمعة ② **السيولة الدولارية** 20ج (طلبُ المالك «من ناحية
+    السيولة») ③ الحركة عن مرجع الترشيح ④ حالةُ الوقف: **وقفُ وصفة المقسّم = القاع
+    نفسه** ⇒ الشطبُ بإغلاقٍ تحته (لا بلمسة ذيل — تلك قاعدةُ الارتكاز، ونصُّ فيصل
+    هنا «عدم كسر» والكسرُ عنده بالإغلاق).
+
+    🔒 **فاشلة-آمنة إلزاميًّا:** أيُّ تعذّرٍ يُرجع السجلّ **كما هو** — لا يُشطَب سهمٌ
+    بعطلِ بيانات، ولا تُمحى قيمةٌ قديمة صالحة."""
+    out = dict(s or {})
+    try:
+        close = df["Close"]
+        px = float(close.iloc[-1])
+        if px != px or px <= 0:                      # ⚠️ NaN ليس None
+            return out
+        out["last_price"] = round(px, 4)
+        out["last_bar"] = str(df.index[-1].date())
+        try:
+            out["dollar_vol"] = round(
+                float((close * df["Volume"]).tail(20).mean()), 0)
+        except Exception:                                        # noqa: BLE001
+            pass
+        try:
+            ref = float(out.get("ref_price"))
+            if ref > 0:
+                out["move_pct"] = round((px / ref - 1.0) * 100.0, 1)
+        except (TypeError, ValueError):
+            pass
+        stop = out.get("stop")
+        if stop is not None and out.get("status") == "active":
+            try:
+                if px < float(stop):
+                    out["status"] = "stopped"
+                    out["stopped_at"] = out.get("last_bar")
+            except (TypeError, ValueError):
+                pass
+        if isinstance(r, dict):                # إثراءٌ اختياريّ (سياق يتغيّر)
+            for k in ("float", "avail", "borrow_fee"):
+                if r.get(k) is not None:
+                    out[k] = r[k]
+    except Exception:                                            # noqa: BLE001
+        return out
+    return out
+
+
+def hunter_hand_fields(df, flt=None, df4h=None) -> dict:
+    """🕵️ **يبني الحقول التي تقرأها `hand_evidence`** لسهم صيّاد — دالّة نقيّة.
+
+    🔴 **سببُ وجودها عيبٌ مقيس:** `hand_evidence` تقرأ حقولًا يملؤها **إثراءُ
+    الفارز** (‏`behav` · `h4_levels` · `rotation_pct` · …)، وصفُّ الصيّاد لا يحوي
+    أيًّا منها ⇒ سطرُ «🕵️ علامات اليد» في كرت الصيّاد **ميّتٌ بنيويًّا** (يعود
+    دائمًا `[]`). وهذا بالضبط ما طلبه المالك: «واليد».
+
+    المصادرُ المتاحة بلا نداءٍ إضافي: 🧬 `behavior_rise_profile` (المسح المتكرّر)
+    · 🌀 `four_hour_levels` (السقف المُدار) · 🔁 تدوير الفلوت (حجم اليوم ÷ الفلوت).
+
+    ⚠️ **وحدُّ صدقٍ مكتوب:** قرينةُ «رفعة قروب» (`pump_scar`) **لا يمكن أن تظهر
+    هنا أبدًا** — الشرط ⑤ في `scan_split_hunter` يرفض كلَّ سهمٍ وُجدت فيه ⇒ غيابُها
+    ليس نقصَ قياسٍ بل **نتيجةُ الفرز نفسه**. وقرائنُ الطلبات (‏N5/N6/N7) تحتاج
+    `flow_raw` ولا تُجلَب في المسار اليومي (صفر نداء Polygon إضافي)."""
+    out = {}
+    try:
+        _bh = behavior_rise_profile(df)
+        # ⚠️ **البصمةُ لا تُرجع None عند العطل** بل قاموسَ أصفارٍ («‏—») — فتخزينُه
+        #    يوهم أن الحقل مقيسٌ وهو سقالةٌ فارغة. لا يُدرَج إلّا إن حمل إشارة.
+        if isinstance(_bh, dict) and (_bh.get("score") is not None
+                                      or (_bh.get("sweeps") or 0)
+                                      or (_bh.get("n_pumps") or 0)):
+            out["behav"] = _bh
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        px = float(df["Close"].iloc[-1])
+        if df4h is not None:
+            out["h4_levels"] = four_hour_levels(df4h, px)
+        f = float(flt) if flt else None
+        v = float(df["Volume"].iloc[-1])
+        if f and f > 0 and v == v:
+            out["rotation_pct"] = round(v / f * 100.0)
+    except Exception:                                            # noqa: BLE001
+        pass
+    return {k: v for k, v in out.items() if v is not None}
+
+
+def build_hunter_watch_section(wl: dict, hands: dict = None) -> str:
+    """🪝 قسمُ «متابعة أسهم الصيّاد» — **عرض فقط**، بمفردات متابعة الارتكاز نفسها.
+
+    لكل سهم: السعر والحركة عن ترشيحه · **السيولة** · الفلوت/المتاح · الوقف ·
+    و**علامات اليد** (‏`hands[sym]` = مُخرَج `hand_evidence` — يُحسب في المُنادي
+    حيث تتوفّر الشموع، فتبقى هذي نقيّة).
+
+    قائمةٌ فارغة ⇒ **نصٌّ فارغ** (لا ترويسة معلّقة — قاعدة القسم المستقلّ). والمشطوب
+    يُعرَض **يومًا واحدًا** بسبب شطبه ثم يسقط (لا يُدفَن الخبرُ ولا يتضخّم القسم)."""
+    lst = list((wl or {}).get("stocks") or [])
+    act = [s for s in lst if s.get("status") == "active"]
+    new_stop = [s for s in lst if s.get("status") == "stopped"
+                and s.get("stopped_at") and s.get("stopped_at") == s.get("last_bar")]
+    if not act and not new_stop:
+        return ""
+    hands = hands or {}
+    L = [f"🪝 <b>متابعة أسهم الصيّاد (المقسّم)</b> — {len(act)}",
+         "<i>نظامٌ مستقلّ عن الارتكاز: وقفُه القاع نفسه، وشروطُه الخمسة</i>"]
+    for s in sorted(act, key=lambda x: str(x.get("added") or ""), reverse=True):
+        sym = str(s.get("symbol") or "")
+        head = f"🪝 <b>{esc(sym)}</b>"
+        try:
+            head += f" ${float(s['last_price']):.2f}"
+        except (TypeError, ValueError, KeyError):
+            pass
+        try:
+            head += f" ({float(s['move_pct']):+.0f}% عن ترشيحه)"
+        except (TypeError, ValueError, KeyError):
+            pass
+        L.append(head)
+        bits = []
+        if s.get("dollar_vol") is not None:
+            bits.append(f"💧 سيولة {fmt_money(s['dollar_vol'])}/يوم")
+        if s.get("float") is not None:
+            bits.append(f"فلوت {fmt_money(s['float'])}")
+        if s.get("avail") is not None:
+            bits.append(f"متاح {fmt_money(s['avail'])}")
+        if bits:
+            L.append("  " + " · ".join(bits))
+        try:
+            L.append(f"  ⛔ وقف ${float(s['stop']):.2f} (القاع نفسه — وصفة المقسّم)")
+        except (TypeError, ValueError, KeyError):
+            pass
+        ev = hands.get(sym) or []
+        if len(ev) >= 2:
+            L.append(f"  🕵️ علامات اليد ({len(ev)}): " + esc(" · ".join(
+                f"{e.get('sign')} ({e.get('frame')})" for e in ev[:3])))
+    for s in sorted(new_stop, key=lambda x: str(x.get("symbol") or "")):
+        _p = ""
+        try:
+            _p = f" (أُغلق ${float(s['last_price']):.2f} تحت ${float(s['stop']):.2f})"
+        except (TypeError, ValueError, KeyError):
+            pass
+        L.append(f"🛑 <b>{esc(str(s.get('symbol') or ''))}</b> شُطب — كُسر القاع{_p}")
+    return _rtl_join(L)
+
+
+def load_hunter_watch(path=None) -> dict:
+    """يقرأ قائمة متابعة الصيّاد — فاشل-آمن → `{"stocks": []}`.
+
+    ⚠️ **يمرّ بحجر التلف** (`_handle_corrupt_state_file`) كبقيّة ملفات الحالة
+    **بخلاف** ختم الصيّاد: الختمُ يجب أن يُصلح نفسه ليلًا، أمّا هذي فقائمةُ متابعةٍ
+    مدفوعة، ودهسُها بملفٍّ جديد عند تلفٍ عارض = فقدُ أسهمٍ يحملها المالك بصمت."""
+    try:
+        p = path or HUNTER_WATCH_FILE
+        if os.path.exists(p):
+            with open(p, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict) and isinstance(data.get("stocks"), list):
+                return data
+    except Exception as e:                                       # noqa: BLE001
+        _handle_corrupt_state_file(path or HUNTER_WATCH_FILE, e)
+    return {"stocks": []}
+
+
+def save_hunter_watch(wl: dict, path=None) -> bool:
+    """يحفظ قائمة متابعة الصيّاد ذرّيًّا. فاشل-آمن → False (يُسجَّل ولا يُسقط شيئًا)."""
+    try:
+        _atomic_write_json(path or HUNTER_WATCH_FILE, wl or {"stocks": []})
+        return True
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ حفظ متابعة الصيّاد: {e}")
         return False
 
 
@@ -12633,18 +12900,22 @@ def _long_tracks_rows() -> list:
     return out
 
 
-def _collection_health_block() -> list:
+def _collection_health_block(wl=None) -> list:
     """🩺 لوحة حالة جمع بيانات المضارب (طلب المستخدم 2026-07-24 «اكيد بننسى»): عدّادات تظهر
     **دائمًا حتى عند الصفر** في تقرير التطوير الأسبوعي — بخلاف البلوكات التفصيلية (`_hand_flow`/
     `_ignition_log`) التي ترجع [] عند فراغ سجلّها فتضيع رؤية الجمع وقت توقّفه (وهو أخطر وقت:
     نظنّه يجمع وهو واقف). module-level (لا nested) لتُستدعى في مسارَي العيّنة القليلة/الكافية معًا.
-    **عرض/تذكير فقط · فاشل-آمن مطلق لكل سطر · خارج الفرز.**"""
+    **عرض/تذكير فقط · فاشل-آمن مطلق لكل سطر · خارج الفرز.**
+
+    🔴 **`wl` مُحقَن (2026-08-08):** كان يقرأ القائمة الحيّة دائمًا، **وقفلُه كان
+    يقرؤها معه** ⇒ يومَ مسحِ القائمة بأمر المالك **سقطت السويّة** على بيانات يومٍ
+    لا على عيبِ كود. فالقفلُ يُحقن عيّنته، والإنتاج يبقى على القائمة الحيّة."""
     lines = ["\n🩺 <b>حالة جمع بيانات المضارب</b> (تُتراكم للأمام — لا تُنسى):"]
     # 🔴 **أُضيف 2026-08-06 (عيبٌ صامتٌ مقيس):** شورت FINRA كان معلومًا لـ**صفر من 18**
     #    في القائمة الحيّة ⇒ **بوّابةُ M13 تمرّر الكلَّ بفائدة الشك** ولا شيء يُنبّه.
     #    والتمريرُ بفائدة الشك **قرارٌ محسوم لا يُمَسّ** — المُصلَح أن يصير **مرئيًّا**.
     try:
-        _wl_h = load_watchlist()
+        _wl_h = wl if wl is not None else load_watchlist()
         _st_h = [x for x in (_wl_h.get("stocks") or []) if x.get("status") == "active"]
         _sh = sum(1 for x in _st_h if isinstance(x.get("finra_short"), (int, float)))
         _fl = sum(1 for x in _st_h if isinstance(x.get("float"), (int, float)))
@@ -12653,6 +12924,11 @@ def _collection_health_block() -> list:
                 f"   • تغطيةُ M13 (شورت FINRA): {_sh}/{len(_st_h)}"
                 + ("  ⚠️ **الكلُّ يمرّ بفائدة الشك**" if not _sh else "")
                 + f" · وM14 (فلوت): {_fl}/{len(_st_h)}")
+        else:
+            # 🔇 **كان يصمت صمتًا تامًّا عند قائمةٍ فارغة** — والصمتُ في لوحةٍ بُنيت
+            #    كي «لا نُنسى» هو العيبُ نفسه الذي بُنيت ضدّه. فيُصرَّح بالحال.
+            lines.append("   • تغطيةُ M13/M14: القائمةُ فارغة (بداية نظيفة) — "
+                         "لا تغطيةَ تُقاس اليوم.")
     except Exception:                                            # noqa: BLE001
         lines.append("   • تغطيةُ M13/M14: تعذّر القياس.")
     try:
@@ -14419,6 +14695,50 @@ def run_daily_watchlist(wl: dict) -> None:
         msg += "\n\n" + pull_sec
     # (قسم مراقبة التقسيم العكسي D9 لم يعد يُدفَع بالتقرير اليومي — «تحت المراقبة»؛
     # قاعدة فيصل ÷2 محفوظة بالكود وتُستدعى عند الحاجة/الجمعة، لا تغرق تقرير الجاهز.)
+    # 🪝👀 **متابعة أسهم صيّاد المقسّم** (أمر المالك 2026-08-08: «ابي بعد أسهم صياد
+    # التقسيم يكون لها متابعة نفس الارتكاز من ناحية السيولة الخ واليد»).
+    # 🔒 **قسمٌ داخل التقرير القائم لا قناةٌ رابعة** (عقد المالك) · وملفُّ حالةٍ
+    #    مستقلّ فلا يمسّ `weekly_watchlist` ولا يحجز خانةً من سعة الارتكاز ·
+    #    و`try` مطلق: متابعةُ الصيّاد لا يجوز أن تُسقط المتابعة اليومية أبدًا.
+    try:
+        _hw = load_hunter_watch()
+        _hw_stocks = _hw.get("stocks") or []
+        _hands, _h4n, _h4skip = {}, 0, 0
+        for _i, _s in enumerate(_hw_stocks):
+            _sym = str(_s.get("symbol") or "")
+            _df = hist.get(_sym)
+            if _df is None or not len(_df):
+                continue            # تعذّر ≠ شطب: السجلّ يبقى كما هو
+            _hw_stocks[_i] = _s = hunter_watch_update(_s, _df)
+            if _s.get("status") != "active":
+                continue
+            _df4 = None
+            if _h4n < HUNTER_WATCH_H4_CAP:      # سقفٌ **مُعلَن** على نداءات 4س
+                _h4n += 1
+                try:
+                    _df4 = fetch_4h(_sym)
+                except Exception:                            # noqa: BLE001
+                    _df4 = None
+            else:
+                _h4skip += 1
+            try:
+                _hr = dict(_s)
+                _hr.update(hunter_hand_fields(_df, _s.get("float"), _df4))
+                _hands[_sym] = hand_evidence(_hr)
+            except Exception:                                # noqa: BLE001
+                pass
+        if _h4skip:
+            # ⚠️ يُعلَن **بعدد مَن فاته فعلًا** لا بطول القائمة — وإلّا صار السطرُ
+            #    يدّعي قصًّا لم يحدث (كذبةٌ بالاتجاه المعاكس).
+            log(f"ℹ️ متابعة الصيّاد: قرائنُ 4س حُسِبت لـ{_h4n} وفاتت {_h4skip} "
+                f"(سقفٌ {HUNTER_WATCH_H4_CAP} **مُعلَن** لا قصٌّ صامت).")
+        _hw["stocks"] = _hw_stocks
+        save_hunter_watch(_hw)
+        _hw_sec = build_hunter_watch_section(_hw, _hands)
+        if _hw_sec:
+            msg += "\n\n" + _hw_sec
+    except Exception as _e:                                      # noqa: BLE001
+        log(f"⚠️ متابعة أسهم الصيّاد: {_e}")
     # 🔔 ⓿-و **نقطة النداء الوحيدة** لحارس سقوط كرون صيّاد المقسّم: قراءة محلّية صرفة
     # (صفر شبكة · لا تشغّل الصيّاد · لا تغيّر حالة) — والسطر **يُلحَق بالتقرير القائم**
     # فلا قناة تلغرام رابعة (عقد المالك). الصيّاد هو الرابح الحيّ الوحيد وكان بلا نظير
@@ -17590,7 +17910,11 @@ def run_performance_system(results, weekly_report_now=False):
         if rep:
             send_telegram(rep)
     # 4) ذاكرة دائمة في الـ repo (سجل التنبيهات + قائمة الأسبوع)
-    git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE])
+    # 🪝 + متابعة أسهم الصيّاد (أمر المالك 2026-08-08): حالتُها تتغيّر كلَّ يوم
+    #    (سعر/سيولة/شطب) فلا بدّ من دفعها، وإلّا رُئيت مرّةً ثم رجعت لحالة أمس.
+    #    `git_save` يتخطّى الملفّ غير الموجود ⇒ آمنٌ قبل أوّل مطابق.
+    git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE,
+              HUNTER_WATCH_FILE])
 
 
 if __name__ == "__main__":

@@ -144,11 +144,41 @@ def _stamp(S, session_date) -> None:
     خاملة (حارسها الموثّق) فلا git حقيقي."""
     try:
         if S.record_hunter_run(session_date):
-            S.git_save([S.HUNTER_STAMP_FILE, LEDGER.LEDGER_FILE])
+            S.git_save([S.HUNTER_STAMP_FILE, LEDGER.LEDGER_FILE,
+                        S.HUNTER_WATCH_FILE])
         else:
             S.log("⚠️ ختم الصيّاد لم يُكتب — سيقرأ التقرير اليومي تقادمًا (تحذير لا صمت).")
     except Exception as e:                                       # noqa: BLE001
         S.log(f"⚠️ ختم الصيّاد: {e}")
+
+
+def _watch(S, rows, session_date) -> int:
+    """🪝👀 **يُدرج المطابقين في قائمة متابعة الصيّاد** (أمر المالك 2026-08-08:
+    «ابي بعد أسهم صياد التقسيم يكون لها متابعة نفس الارتكاز من ناحية السيولة الخ
+    واليد»). يرجّع عدد الجديد.
+
+    ⚠️ **يُنادى بعد الإرسال الناجح حصرًا** — بنفس عقد الختم («فُحِص **وسُلِّم**»):
+    فلو رفض تلغرام لم نُدرج سهمًا لم يصل خبرُه المالك، والكرون الثاني يُعيد الاثنين.
+    ودِدوبُ الرمز في `hunter_watch_add` يجعل الإعادة **بلا أثر**.
+
+    🔒 **فاشل-آمن مطلق:** أيُّ عطلٍ يُسجَّل ولا يُسقط شيئًا (التنبيه وصل سلفًا).
+    و**لا يمسّ `weekly_watchlist.json`** إطلاقًا — ملفٌّ مستقلّ."""
+    try:
+        wl = S.load_hunter_watch()
+        before = len(wl.get("stocks") or [])
+        wl = S.hunter_watch_add(wl, rows, today=session_date)
+        n = len(wl.get("added_last") or [])
+        if wl.get("pruned"):
+            S.log(f"✂️ متابعة الصيّاد: قُلِّم {len(wl['pruned'])} "
+                  f"({' · '.join(wl['pruned'])}) — سقف {S.HUNTER_WATCH_MAX} **مُعلَن**.")
+        if not S.save_hunter_watch(wl):
+            return 0
+        S.log(f"🪝👀 متابعة الصيّاد: +{n} · القائمة الآن "
+              f"{len(wl.get('stocks') or [])} (كانت {before}).")
+        return n
+    except Exception as e:                                       # noqa: BLE001
+        S.log(f"⚠️ متابعة الصيّاد: {e} — **ولا يُسقط التنبيه**.")
+        return 0
 
 
 def _fail(S, why: str) -> int:
@@ -320,6 +350,7 @@ def run(fetch_ext=None, now_utc=None):
         S.log("⛔ صيّاد المقسّم: تلغرام رفض التنبيه — المطابق لم يصل.")
         return 1
     S.log("✅ أُرسل تنبيه صيّاد المقسّم لتلغرام.")
+    _watch(S, rows, sess)               # 🪝👀 متابعة يومية للمطابق (أمر المالك)
     _stamp(S, sess)                     # 🔔 ⓿-و: «السوق فُحِص وسُلِّم» — تاريخٌ واحد
     return 0
 

@@ -47,8 +47,13 @@ _REJ_REAL_PATH = S.REJECT_LOG_FILE
 _REJ_REAL_SHA = (
     _rej_h.sha256(open(_REJ_REAL_PATH, "rb").read()).hexdigest()
     if _os_hc.path.exists(_REJ_REAL_PATH) else None)
+# 🔴 **والاسمُ يحمل رقمَ العملية** (عيبٌ مقيس 2026-08-08): باسمٍ ثابتٍ يتشارك
+#    تشغيلان متزامنان (سويّة + طفرة) **الملفَّ نفسه** فيدهس أحدهما بيانات الآخر
+#    ⇒ سقوطٌ عشوائيّ يبدو عيبَ كود. رأيتُه بعيني: `KeyError` في اختبارٍ كان
+#    أخضر. والملفّاتُ الثلاثة تُوسَم بـ`getpid` فتُعزَل العمليات.
+_SUITE_PID = str(_os_hc.getpid())
 S.REJECT_LOG_FILE = _os_hc.path.join(
-    _rej_tf.gettempdir(), "_suite_reject_log.json")
+    _rej_tf.gettempdir(), f"_suite_reject_log.{_SUITE_PID}.json")
 
 # 🔴🔴 **ونفسُ العيب تكرّر بيدي مع سجلّ الحصاد** (‏2026-08-05): وصلتُ `LEDGER.record`
 #    بالصيّادين الأربعة، **والسويّة تُشغّلهم فعلًا** ⇒ صاروا يكتبون في
@@ -63,7 +68,21 @@ _LED_REAL_SHA = (
     _rej_h.sha256(open(_LED_REAL_PATH, "rb").read()).hexdigest()
     if _os_hc.path.exists(_LED_REAL_PATH) else None)
 _lg_mod.LEDGER_FILE = _os_hc.path.join(
-    _rej_tf.gettempdir(), "_suite_hunter_ledger.jsonl")
+    _rej_tf.gettempdir(), f"_suite_hunter_ledger.{_SUITE_PID}.jsonl")
+
+# 🔴🔴🔴 **والثالثة بيدي أيضًا** (‏2026-08-08، متابعة أسهم الصيّاد): وصلتُ
+#    `_watch` بـ`split_hunter.run` **والسويّة تُشغّله** ⇒ يكتب في
+#    `hunter_watchlist.json` **الحقيقيّ** رموزًا مصطنعة، فتظهر في تقرير المالك
+#    غدًا «متابعة» لأسهمٍ لا وجود لها. **نفسُ الصنف ونفسُ العلاج**: يُحوَّل الثابت
+#    عند المصدر مرّةً واحدة، وتُحرَس بصمةُ الملفّ الحقيقيّ قبل الملخّص.
+#    🧭 وثلاثُ مرّاتٍ في ثلاثة أيام ⇒ **القاعدة: كلُّ ملفِّ حالةٍ جديدٍ يُحوَّل هنا
+#    فورَ إنشائه** لا بعد أن يُلوَّث.
+_HW_REAL_PATH = S.HUNTER_WATCH_FILE
+_HW_REAL_SHA = (
+    _rej_h.sha256(open(_HW_REAL_PATH, "rb").read()).hexdigest()
+    if _os_hc.path.exists(_HW_REAL_PATH) else None)
+S.HUNTER_WATCH_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_hunter_watchlist.{_SUITE_PID}.json")
 
 PASS, FAIL = [], []
 
@@ -15349,6 +15368,12 @@ check("🌱 LG🔒 والسويّةُ لم تُغيّر `hunter_ledger.jsonl` ا
       _led_now == _LED_REAL_SHA,
       f"قبل={str(_LED_REAL_SHA)[:12]} · بعد={str(_led_now)[:12]}")
 
+_hw_now = (_rej_h.sha256(open(_HW_REAL_PATH, "rb").read()).hexdigest()
+           if _os_hc.path.exists(_HW_REAL_PATH) else None)
+check("🪝 HW🔒 ولا `hunter_watchlist.json` المدفوع (متابعةُ الصيّاد — حرسٌ شامل)",
+      _hw_now == _HW_REAL_SHA,
+      f"قبل={str(_HW_REAL_SHA)[:12]} · بعد={str(_hw_now)[:12]}")
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🛠️ إصلاحاتُ 2026-08-06 (بإذن المالك) — ثلاثةُ أعطالٍ حيّة مقيسة.
 #    كلُّ قفلٍ **سلوكيّ** ومعه طفرةٌ تُثبت أنه يسقط (لا قفلَ نصّيّ — سقط على
@@ -16376,9 +16401,24 @@ check("🔒 LT7 الكتلةُ محروسةٌ خارجيًّا وتُرجع [] (
                   for r in _hl_ast.walk(h))
           for h in _hl_ast.walk(_lt7)))
 
-_ch = "\n".join(S._collection_health_block())
-check("🩺 CV1 لوحةُ الجمع تُظهر تغطيةَ M13 وM14",
-      "تغطيةُ M13" in _ch and "M14" in _ch, _ch.split("\n")[1][:110])
+# 🔴 **عيبُ قفلٍ مقيس (2026-08-08):** كان يقرأ القائمة **الحيّة** فسقط يومَ مسحها
+#    بأمر المالك — على بيانات يومٍ لا على عيبِ كود. فصار يُحقن عيّنته، **وغير
+#    متماثلة** (شورتٌ معلومٌ لواحدٍ من اثنين · وفلوتٌ للاثنين) فلو قُلب البسطُ
+#    بالمقام أو خُلط الحقلان **سقط**.
+_ch = "\n".join(S._collection_health_block({"stocks": [
+    {"status": "active", "finra_short": 12_000, "float": 900_000},
+    {"status": "active", "float": 1_200_000},
+    {"status": "stopped", "finra_short": 5_000, "float": 1.0}]}))
+check("🩺 CV1 لوحةُ الجمع تُظهر تغطيةَ M13 وM14 بالنشط وحده (‏1/2 و2/2)",
+      "تغطيةُ M13 (شورت FINRA): 1/2" in _ch and "M14 (فلوت): 2/2" in _ch,
+      _ch.split("\n")[1][:110])
+_ch0 = "\n".join(S._collection_health_block({"stocks": []}))
+check("🩺 CV1ب وقائمةٌ فارغة ⇒ **يُصرَّح بها** لا صمتٌ (لوحةٌ بُنيت كي لا نُنسى)",
+      "القائمةُ فارغة" in _ch0 and "⚠️" not in _ch0.split("\n")[1], _ch0[:90])
+_ch_all = "\n".join(S._collection_health_block({"stocks": [
+    {"status": "active", "float": 1.0}]}))
+check("🩺 CV1ج وصفرُ شورتٍ معلوم ⇒ تحذيرُ «الكلُّ يمرّ بفائدة الشك»",
+      "فائدة الشك" in _ch_all)
 # ── 🎯 موقعُ السعر من نطاق الدفعات (عيبٌ مقيس: 88% فوق النطاق) ───────────────
 check("🎯 BN1 فوق النطاق ⇒ يُصرَّح به بالنسبة",
       "فوق" in (S.band_note({"entry": [1.0, 1.1], "last_price": 1.32}) or "")
@@ -17452,6 +17492,289 @@ check("🧭 PITS4 والـworkflow يرفع **`frozen-dataset`/`frozen_backtest.
           open(".github/workflows/pit_snapshot.yml", encoding="utf-8").read()))
 check("🧭 PITS5 فلترُ النوع أسهمٌ عادية فقط (‏CS/ADRC) — يحاكي كونَ الفارز",
       _PITS.COMMON_TYPES == {"CS", "ADRC"})
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🪝👀 **متابعة أسهم صيّاد المقسّم** (أمر المالك 2026-08-08: «ابي بعد أسهم صياد
+#    التقسيم يكون لها متابعة نفس الارتكاز من ناحية السيولة الخ **واليد**»).
+#    كلُّ قفلٍ **سلوكيّ** ومعه ما يُثبت أنه يسقط — لا قفلَ نصّيّ (سقط على التعليق
+#    والـdocstring مرارًا)، ولا قفلَ يقيس شرطًا **أسبق** من الذي يدّعيه.
+# ══════════════════════════════════════════════════════════════════════════
+print("\n=== 🪝 متابعة أسهم الصيّاد ===")
+import datetime as _hw_dt                                        # noqa: E402
+
+
+def _hw_df(closes, lows=None, highs=None, vols=None):
+    n = len(closes)
+    lows = lows if lows is not None else [c * 0.98 for c in closes]
+    highs = highs if highs is not None else [c * 1.02 for c in closes]
+    vols = vols if vols is not None else [10_000] * n
+    return pd.DataFrame(
+        {"Open": closes, "High": highs, "Low": lows, "Close": closes,
+         "Volume": vols},
+        index=pd.date_range("2026-06-01", periods=n, freq="D"))
+
+
+# ── HW1: الحقول من مصادرها الحقيقية — والمفتاحُ المتشابه لا يُخدع ──────────
+# 🐞 كتبتُ أوّلًا `plan["stop"]`/`plan["entries"]` وهما **غير موجودين** في
+#    `faisal_split_plan` ⇒ حقلان None دائمًا. فالعيّنةُ **غير متماثلة عمدًا**:
+#    تحوي `stop` مضلّلًا (‏9.9) بجانب `bottom` الحقيقيّ (‏1.50) — فلو رجع الكودُ
+#    للمفتاح الخطأ **سقط القفل**، ولو كانا متساويين لما فرّق شيئًا.
+_hw_row = {"symbol": "AAA", "price": 2.00, "half": 1.90, "ref": 3.80,
+           "event_kind": "split", "split_date": "2026-05-01",
+           "float": 900_000, "avail": 7_000, "borrow_fee": 25.0,
+           "plan": {"bottom": 1.50, "liberation": 2.20,
+                    "targets": [{"price": 3.0, "src": "مقاومة"}],
+                    "stop": 9.9, "entries": [1, 2]}}
+_hw_e = S.hunter_watch_entry(_hw_row, today=_hw_dt.date(2026, 8, 8))
+check("🪝 HW1 السجلّ يقرأ مصادرَه الحقيقية: الوقف = `plan['bottom']` (القاع "
+      "نفسه) لا مفتاحًا وهميًّا · والتحرر = `liberation` · والأهداف = `targets`",
+      _hw_e["stop"] == 1.50 and _hw_e["hold_above"] == 2.20
+      and _hw_e["targets"] == [{"price": 3.0, "src": "مقاومة"}]
+      and _hw_e["ref_price"] == 2.00 and _hw_e["status"] == "active"
+      and _hw_e["added"] == "2026-08-08",
+      f"stop={_hw_e['stop']}")
+check("🪝 HW1ب وخطّةٌ تالفة (نصّ/None) لا تُسقط السجلّ — حقولُها تغيب فقط",
+      S.hunter_watch_entry({"symbol": "B", "price": 1.0,
+                            "plan": "تالف"})["stop"] is None
+      and S.hunter_watch_entry({"symbol": "B", "price": 1.0})["symbol"] == "B")
+# 🔴 **خطرٌ حقيقيّ من نقطة النداء:** `split_hunter` يمرّر الصفوف **بعد الإثراء**
+#    وفيها `_df`/`_df4h`/`_flow` (‏إطاراتُ pandas!) ⇒ نسخٌ أعمى يجعل الملفَّ
+#    غير قابلٍ للتسلسل فيسقط الحفظ **بعد** وصول التنبيه. فالسجلّ **انتقاءٌ صريح**.
+_hw_rich = S.hunter_watch_add({"stocks": []}, [dict(
+    _hw_row, _df=_hw_df([1.0] * 25), _df4h=_hw_df([1.0] * 25),
+    _flow={"bid": 1.0}, _rsi=25.0)])
+check("🪝 HW1ج السجلّ **قابلٌ للتسلسل**: حقولُ الإثراء (`_df`/`_flow`) لا تُنسَخ "
+      "⇒ `json.dumps` ينجح (وإلّا سقط الحفظ بعد وصول التنبيه)",
+      (lambda _e: not any(str(k).startswith("_") for k in _e)
+       and isinstance(json.dumps(_hw_rich, default=str), str)
+       and json.loads(json.dumps(_hw_rich))["stocks"][0]["stop"] == 1.50)(
+          _hw_rich["stocks"][0]))
+
+# ── HW2: دِدوب الرمز + **المرجع لا يُعاد ضبطه** ─────────────────────────────
+_hw_wl = S.hunter_watch_add({"stocks": []}, [_hw_row],
+                            today=_hw_dt.date(2026, 8, 8))
+_hw_wl2 = S.hunter_watch_add(_hw_wl, [dict(_hw_row, price=5.55)],
+                             today=_hw_dt.date(2026, 8, 9))
+check("🪝 HW2 دِدوبٌ بالرمز **والمرجع مُجمَّد**: إعادةُ الترشيح غدًا بسعرٍ آخر لا "
+      "تُنشئ صفًّا ثانيًا ولا تنقل نقطةَ القياس (وإلّا «ترفرف» القائمة)",
+      len(_hw_wl2["stocks"]) == 1 and _hw_wl2["stocks"][0]["ref_price"] == 2.00
+      and _hw_wl2["added_last"] == [] and _hw_wl["added_last"] == ["AAA"])
+
+# ── HW3: التقليم يُعلَن ويُسقط المشطوبَ الأقدم أوّلًا ────────────────────────
+#    (العددُ محسوبٌ ليتجاوز السقفَ بواحدٍ **بعد** الإضافة ⇒ يُقلَّم صفٌّ واحد،
+#     فيُقاس **مَن** يُقلَّم لا **كم**.)
+_hw_many = {"stocks": (
+    [{"symbol": "OLDACT", "status": "active", "added": "2026-01-01"}]
+    + [{"symbol": "STOP0", "status": "stopped", "added": "2026-02-01"}]
+    + [{"symbol": f"S{i}", "status": "active", "added": "2026-07-01"}
+       for i in range(S.HUNTER_WATCH_MAX - 2)])}
+_hw_pr = S.hunter_watch_add(_hw_many, [_hw_row], today=_hw_dt.date(2026, 8, 8))
+check("🪝 HW3 عند السقف: يُقلَّم **المشطوبُ أوّلًا** (لا النشطُ الأقدم) ويُعلَن "
+      "في `pruned` — لا قصٌّ صامت",
+      len(_hw_pr["stocks"]) == S.HUNTER_WATCH_MAX
+      and _hw_pr["pruned"] == ["STOP0"]
+      and "OLDACT" in {s["symbol"] for s in _hw_pr["stocks"]},
+      f"pruned={_hw_pr.get('pruned')}")
+
+# ── HW4: الشطبُ **بإغلاقٍ** تحت القاع — والذيلُ وحده لا يشطب ────────────────
+# ⚖️ هذا هو الفرقُ الجوهريّ عن قاعدة الارتكاز (تُشطب **بلمسة الذيل**)؛ ونصُّ
+#    فيصل هنا «**عدم كسر**» والكسرُ عنده بالإغلاق. فالعيّنتان تفترقان في الإغلاق
+#    فقط **وذيلُهما واحدٌ تحت الوقف** ⇒ القفلُ يميّز القاعدتين لا الأرقام.
+_hw_act = dict(_hw_e)
+_hw_wick = S.hunter_watch_update(_hw_act, _hw_df([1.60] * 22,
+                                                lows=[1.40] * 22))
+_hw_brk = S.hunter_watch_update(_hw_act, _hw_df([1.45] * 22,
+                                                lows=[1.40] * 22))
+check("🪝 HW4 ذيلٌ يخترق القاع والإغلاقُ فوقه ⇒ **يبقى نشطًا** · وإغلاقٌ تحته ⇒ "
+      "`stopped` (قاعدةُ المقسّم بالإغلاق، لا لمسةُ ذيل الارتكاز)",
+      _hw_wick["status"] == "active" and _hw_brk["status"] == "stopped"
+      and _hw_brk.get("stopped_at") == str(_hw_brk.get("last_bar")),
+      f"wick={_hw_wick['status']} · brk={_hw_brk['status']}")
+check("🪝 HW4ب والسيولةُ والحركةُ محسوبتان (طلبُ المالك «من ناحية السيولة»)",
+      abs(_hw_wick["dollar_vol"] - 1.60 * 10_000) < 1
+      and _hw_wick["move_pct"] == -20.0,
+      f"vol={_hw_wick.get('dollar_vol')} · move={_hw_wick.get('move_pct')}")
+
+# ── HW5: فاشلة-آمنة — عطلُ بياناتٍ لا يشطب سهمًا ───────────────────────────
+_hw_bad = S.hunter_watch_update(_hw_act, None)
+_hw_nan = S.hunter_watch_update(_hw_act, _hw_df([float("nan")] * 22))
+check("🪝 HW5 `df=None` أو إغلاقٌ `NaN` ⇒ السجلّ **كما هو بحرفه** ولا يُشطَب "
+      "(تعذّرٌ ≠ كسرُ وقف · وNaN ليس None)",
+      _hw_bad == _hw_act and _hw_nan == _hw_act
+      and _hw_bad["status"] == "active")
+
+# ── HW6: اليدُ صارت **حقيقية** لصفّ الصيّاد (كانت ميّتة بنيويًّا) ───────────
+# 🔴 العيبُ المقيس: `hand_evidence` تقرأ حقولًا يملؤها إثراءُ الفارز، وصفُّ
+#    الصيّاد لا يحويها ⇒ السطر يعود `[]` **دائمًا**. فالقفلُ **تفريقيّ**: نفسُ
+#    الشموع — بلا الجسر صفرُ دليل، ومعه دليلان فأكثر.
+#    📏 الفِكستشر **مبنيٌّ على عتبات الدالّة لا بالتقريب** (‏`MIN_BARS`=120 وإلّا
+#    رجعت سقالةُ أصفار · ونافذةُ المسح 20 جلسة فالكنسات **متباعدة ≥21** وإلّا وقعت
+#    الأولى داخل نافذة الثانية فصار المرجعُ هو الكنسةَ نفسها ⇒ سقط العدّ إلى 1).
+_hw_n = 160
+_hw_cl = [1.05] * _hw_n
+_hw_lo = [1.00] * _hw_n
+for _i in (40, 70, 100):
+    _hw_lo[_i] = 0.85                 # كنسٌ 15% ثم إغلاقٌ يستعيد المستوى
+_hw_sdf = _hw_df(_hw_cl, lows=_hw_lo, highs=[1.08] * _hw_n,
+                 vols=[2_000_000] * _hw_n)
+_hw_raw = {"symbol": "AAA", "price": 1.05, "float": 900_000}
+_hw_bridged = dict(_hw_raw)
+_hw_bridged.update(S.hunter_hand_fields(_hw_sdf, 900_000))
+check("🪝 HW6 جسرُ اليد يعمل: صفُّ الصيّاد الخام ⇒ **صفرُ دليل** · وبعد "
+      "`hunter_hand_fields` من الشموع نفسها ⇒ دليلان فأكثر (السطرُ كان ميّتًا)",
+      len(S.hand_evidence(_hw_raw)) == 0
+      and len(S.hand_evidence(_hw_bridged)) >= 2,
+      f"خام={len(S.hand_evidence(_hw_raw))} · "
+      f"بالجسر={len(S.hand_evidence(_hw_bridged))}")
+check("🪝 HW6ب والجسرُ فاشلٌ-آمن: `df` تالف ⇒ قاموسٌ فارغ لا انهيار · وبلا فلوت "
+      "لا يُلفَّق تدوير · **وسقالةُ البصمة الفارغة لا تُخزَّن** (تُوهم أنها مقيسة)",
+      S.hunter_hand_fields(None) == {}
+      and "rotation_pct" not in S.hunter_hand_fields(_hw_sdf, None)
+      and "behav" not in S.hunter_hand_fields(_hw_df([1.0] * 30)))
+# 🔴🔴 **وقفلٌ من نقطة النداء الحيّة** — أُضيف بعد أن **نجت طفرةُ نزعِ الجسر من
+#    الكرت** (M6) وسويّتي خضراء: كنتُ أقفل الدالّةَ النقيّة ولا أقفل **الوصلة**،
+#    وهو عينُ العيب الذي أُصلحه (سطرٌ ميّتٌ في كرتٍ يعمل). فيُبنى الكرتُ فعلًا.
+_hw_card = S.hunter_extras({"symbol": "AAA", "price": 1.05, "float": 900_000},
+                           df=_hw_sdf)
+_hw_hand = [x for x in _hw_card if "علامات اليد" in x]
+check("🪝 HW6د **كرتُ الصيّاد نفسه** يطبع سطرَ اليد بأسماء القرائن (لا `{'frame'` "
+      "ولا سطرٌ ميّت) — قفلٌ من نقطة النداء لا من الدالّة النقيّة",
+      len(_hw_hand) == 1 and "مسح دعم متكرر" in _hw_hand[0]
+      and "{'frame'" not in _hw_hand[0] and "(يومي)" in _hw_hand[0],
+      (_hw_hand or ["— لا سطر"])[0][:120])
+check("🪝 HW6ج والدليلان المستحيلان هنا يُصرَّح بهما لا يُلفَّقان: «رفعة قروب» "
+      "يرفضها الشرط ⑤ أصلًا · وقرائنُ الطلبات تحتاج `flow_raw` غير المجلوب",
+      all(k in _insp0.getdoc(S.hunter_hand_fields)
+          for k in ("pump_scar", "flow_raw"))
+      and "pump_scar" not in _insp0.getsource(S.hunter_hand_fields).split(
+          '"""')[2])
+
+# ── HW7: العرض — فارغٌ ⇒ نصٌّ فارغ · والوقفُ يُسمّى بمصدره الصحيح ───────────
+check("🪝 HW7 قائمةٌ فارغة (وبلا مفاتيح) ⇒ **نصٌّ فارغ** — لا ترويسةٌ معلّقة",
+      S.build_hunter_watch_section({"stocks": []}) == ""
+      and S.build_hunter_watch_section({}) == ""
+      and S.build_hunter_watch_section(None) == "")
+_hw_sec = S.build_hunter_watch_section(
+    {"stocks": [dict(_hw_wick, dollar_vol=16_000.0)]},
+    {"AAA": S.hand_evidence(_hw_bridged)})
+check("🪝 HW7ب الكرتُ يعرض السعر والحركة والسيولة والفلوت والمتاح والوقف واليد",
+      "AAA" in _hw_sec and "سيولة" in _hw_sec and "متاح" in _hw_sec
+      and "وقف" in _hw_sec and "علامات اليد" in _hw_sec
+      and "$1.50" in _hw_sec,
+      _hw_sec[:120])
+# 🔴 **أربعةُ أوقافٍ في مادّة فيصل لا تُخلَط** — وهذا القسم للمقسّم: القاع نفسه.
+check("🪝 HW7ج ولا يُخلَط وقفُ الوصفة بأوقاف الأنظمة الثلاثة الأخرى "
+      "(‏7% الارتكاز · −6% النهج العلميّ · ذيل الشمعة للنظام الرابع)",
+      "القاع نفسه" in _hw_sec and "ذيل شمعة" not in _hw_sec
+      and "7%" not in _hw_sec and "−6%" not in _hw_sec)
+_hw_stop_sec = S.build_hunter_watch_section({"stocks": [
+    dict(_hw_brk),
+    dict(_hw_brk, symbol="OLD", stopped_at="2026-01-01", last_bar="2026-08-08")]})
+check("🪝 HW7د المشطوبُ يُعلَن **يومَ شطبه فقط** ثم يسقط (لا يُدفَن الخبرُ ولا "
+      "يتضخّم القسم)",
+      "شُطب" in _hw_stop_sec and "OLD" not in _hw_stop_sec)
+
+# ── HW8: **الوصلةُ الحيّة** — تُثبَت من نقطة النداء لا من وجود الدالّة ───────
+# 🧭 درسُ «⏱️ ربع الساعة»: اختبارُ وحدةٍ أخضر ووصلةٌ ميّتة. فهنا AST على المصدر.
+_hw_sh_src = open("split_hunter.py", encoding="utf-8").read()
+_hw_sh_ast = _ast0.parse(_hw_sh_src)
+_hw_run = next(f for f in _ast0.walk(_hw_sh_ast)
+               if isinstance(f, _ast0.FunctionDef) and f.name == "run")
+_hw_calls = [(n.func.id if isinstance(n.func, _ast0.Name)
+              else getattr(n.func, "attr", ""), n.lineno)
+             for n in _ast0.walk(_hw_run) if isinstance(n, _ast0.Call)]
+_hw_watch_ln = [ln for nm, ln in _hw_calls if nm == "_watch"]
+_hw_send_ln = [ln for nm, ln in _hw_calls if nm == "send_telegram"]
+check("🪝 HW8 `split_hunter.run` ينادي `_watch` فعلًا — و**بعد** الإرسال (بعقد "
+      "الختم «فُحِص وسُلِّم»: لا يُدرَج سهمٌ لم يصل خبرُه)",
+      len(_hw_watch_ln) == 1 and _hw_send_ln
+      and _hw_watch_ln[0] > max(_hw_send_ln),
+      f"_watch@{_hw_watch_ln} · send@{_hw_send_ln}")
+_hw_daily = _insp0.getsource(S.run_daily_watchlist)
+check("🪝 HW8ب والمسارُ اليوميّ موصولٌ: يحمّل ويحدّث ويحفظ ويعرض",
+      all(k in _hw_daily for k in ("load_hunter_watch(", "hunter_watch_update(",
+                                   "save_hunter_watch(",
+                                   "build_hunter_watch_section("))
+      and "hand_evidence(" in _hw_daily)
+check("🪝 HW8ج والملفُّ **يُدفَع** (وإلّا رُئيت المتابعةُ مرّةً ثم رجعت لحالة أمس)",
+      "HUNTER_WATCH_FILE" in _insp0.getsource(S.run_performance_system)
+      and "S.HUNTER_WATCH_FILE" in _hw_sh_src)
+# 🔴 **والقفلُ الحاسم: تشغيلٌ حقيقيّ للتقرير اليوميّ** — لا نصٌّ ولا AST. درسُ
+#    «⏱️ ربع الساعة»: اختباراتُ الوحدة خضراء والوصلةُ الحيّة مكسورة. والعيّنةُ
+#    **غير متماثلة**: سهمٌ في الشموع (يجب أن يظهر ويُحدَّث) وآخرُ غائبٌ عنها (يجب
+#    أن يبقى بحاله لا يُشطَب) ⇒ يُقاس الظهورُ **والفاشلُ-الآمن** معًا.
+_hw_seed = {"stocks": [
+    dict(_hw_e, symbol="INHIST"),
+    dict(_hw_e, symbol="NOHIST", last_price=9.99)]}
+S.save_hunter_watch(_hw_seed)
+_hw_sent, _ = _run_daily([], hist={"INHIST": _hw_df([1.75] * 25)})
+_hw_after = S.load_hunter_watch()
+_hw_map = {s["symbol"]: s for s in _hw_after["stocks"]}
+check("🪝 HW8د **تشغيلٌ حقيقيّ للتقرير اليوميّ**: القسمُ يظهر في الرسالة المُرسَلة "
+      "· والموجودُ في الشموع يُحدَّث سعرُه · والغائبُ عنها **يبقى بحاله** (تعذّرٌ "
+      "≠ شطب) — ولا رسالةَ رابعة",
+      any("متابعة أسهم الصيّاد" in m for m in _hw_sent)
+      and any("INHIST" in m for m in _hw_sent)
+      and _hw_map["INHIST"]["last_price"] == 1.75
+      and _hw_map["NOHIST"]["last_price"] == 9.99
+      and _hw_map["NOHIST"]["status"] == "active",
+      f"رسائل={len(_hw_sent)} · INHIST={_hw_map['INHIST'].get('last_price')}")
+# ── HW8هـ سقفُ 4س **يُعلَن بعدد مَن فاته فعلًا** لا بطول القائمة ─────────────
+# ⚠️ وإلّا صار السطرُ يدّعي قصًّا لم يحدث = كذبةٌ بالاتجاه المعاكس. والعيّنتان
+#    تفترقان في **عددٍ واحد** (‏CAP+2 مقابل CAP) فلا يمرّ شرطُ «أطول من السقف».
+def _hw_cap_log(k):
+    _lg, _out = S.log, []
+    S.save_hunter_watch({"stocks": [
+        dict(_hw_e, symbol=f"C{i}") for i in range(k)]})
+    try:
+        S.log = lambda m, *a, **kw: _out.append(str(m))
+        _run_daily([], hist={f"C{i}": _hw_df([1.75] * 25) for i in range(k)})
+    finally:
+        S.log = _lg
+    return [m for m in _out if "قرائنُ 4س" in m]
+
+
+_hw_over = _hw_cap_log(S.HUNTER_WATCH_H4_CAP + 2)
+_hw_exact = _hw_cap_log(S.HUNTER_WATCH_H4_CAP)
+check("🪝 HW8هـ سقفُ قرائن 4س يُعلَن **بعدد مَن فاته** (‏2) — وعند بلوغ السقف "
+      "بالضبط **لا سطر** (لا ادّعاءَ قصٍّ لم يحدث)",
+      len(_hw_over) == 1 and " وفاتت 2 " in _hw_over[0] and not _hw_exact,
+      f"فوق={_hw_over} · عند الحدّ={len(_hw_exact)}")
+S.save_hunter_watch({"stocks": []})              # نظافةٌ بعد الاختبار
+
+# ── HW9: عزلٌ عن الارتكاز — لا تلوّثَ في الاتجاهين ─────────────────────────
+_hw_own = (_insp0.getsource(S.hunter_watch_entry)
+           + _insp0.getsource(S.hunter_watch_add)
+           + _insp0.getsource(S.hunter_watch_update)
+           + _insp0.getsource(S.build_hunter_watch_section)
+           + _insp0.getsource(S.hunter_hand_fields))
+check("🪝 HW9 قائمةُ الصيّاد لا تلمس `weekly_watchlist` ولا دوالَّه (ملفٌّ "
+      "وحالةٌ مستقلّان — قرارُ المالك أن النظامين منفصلان)",
+      not any(k in _hw_own for k in ("WATCH_FILE", "load_watchlist",
+                                     "save_watchlist", "make_watch_entry")))
+_hw_roots = ("rank_key", "select_top", "classify_tier", "entry_status",
+             "analyze_ticker", "scan_split_hunter", "scan_market",
+             "backtest_symbol", "apply_short_gate", "apply_float_gate")
+_hw_names = ("hunter_watch_entry", "hunter_watch_add", "hunter_watch_update",
+             "build_hunter_watch_section", "hunter_hand_fields",
+             "load_hunter_watch", "save_hunter_watch")
+_hw_leak = []
+for _rt in _hw_roots:
+    _src_rt = _insp0.getsource(getattr(S, _rt))
+    for _nd in _ast0.walk(_ast0.parse(_ast0.unparse(_ast0.parse(_src_rt)))):
+        if isinstance(_nd, _ast0.Call):
+            _nm = (_nd.func.id if isinstance(_nd.func, _ast0.Name)
+                   else getattr(_nd.func, "attr", ""))
+            if _nm in _hw_names:
+                _hw_leak.append(f"{_rt}→{_nm}")
+check("🪝 HW9ب ولا جذرٌ من العشرة ينادي أيًّا منها (قفلُ AST على **النداء** لا "
+      "على النصّ — فالتعليقُ والـdocstring لا يخدعانه)",
+      not _hw_leak, " · ".join(_hw_leak))
+_hw_before = S.hunter_watch_entry(_hw_row, today=_hw_dt.date(2026, 8, 8))
+S.hunter_watch_update(_hw_before, _hw_df([1.45] * 22))
+check("🪝 HW9ج والتحديثُ **لا يعدّل** السجلّ المُمرَّر (نقيّة: نسخةٌ تُرجَع)",
+      _hw_before["status"] == "active" and "stopped_at" not in _hw_before)
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
