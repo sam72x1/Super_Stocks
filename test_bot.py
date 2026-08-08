@@ -17075,6 +17075,36 @@ check("🧭 M2R8 التسجيل المسبق يحمل الذراعين والب�
           ("R0", "BT_SPLIT_REF_M2", "22 (2024)", "العلم فعّال", "TDIC", "NUWE",
            "لا فرق مادي", "قرار مالكٍ حصريّ", "shifted_low")))
 
+# ── 🥇 T-MINFLOOR — أقفال «حدّ المالك المنصوص» (أمره «طبّقها») ──
+# الخطر: ذراعان تقرآن نفسَ الملفّ ⇒ no-op يُقرأ نتيجةً · ونسبةُ دقةٍ بلا مقام.
+import minfloor_arms as _mf
+check("🥇 MF1 الذراعان تختلفان في الملفّ **وحده** (وكلُّ الأعلام الأربعة فيهما)",
+      _mf.child_env("A90")["ENV_EDGES_FILE"] == "envelope_p90.json"
+      and _mf.child_env("A100")["ENV_EDGES_FILE"] == "envelope_p100.json"
+      and all(_mf.child_env("A90")[k] == _mf.child_env("A100")[k]
+              for k in ("SCREENER_MODE", "BT_REPLAY10", "BT_ENVVALS",
+                        "BT_POTENTIAL")))
+check("🥇 MF2 نسبةُ الدقة بمقامها: no_fill/open **لا تُحسب** والمقام صفرٌ ⇒ None",
+      _mf.rates([{"outcome": "win"}, {"outcome": "loss"}, {"outcome": "loss"},
+                 {"outcome": "no_fill"}, {"outcome": "open"}])
+      == {"signals": 5, "decided": 3, "wins": 1, "losses": 2, "no_fill": 1,
+          "win_rate": 33.3}
+      and _mf.rates([{"outcome": "no_fill"}])["win_rate"] is None
+      and _mf.rates([])["win_rate"] is None)
+import ast as _mf_ast
+_mf_top = [a.name for n in _mf_ast.parse(
+    open("minfloor_arms.py", encoding="utf-8").read()).body
+    if isinstance(n, _mf_ast.Import) for a in n.names]
+check("🥇 MF3 الوالد لا يستورد الإنتاج (الإنتاج داخل الطفل حصرًا)",
+      "Super_stock" not in _mf_top and "envelope_scan" not in _mf_top,
+      str(_mf_top))
+check("🥇 MF4 وكلا ملفَّي الحوافّ موجودان فعلًا (وإلّا سقطت الذراعُ لغيابِ ملفّ)",
+      all(os.path.exists(v) for v in _mf.ARMS.values()))
+_mf_pre = open("minfloor_prereg.md", encoding="utf-8").read()
+check("🥇 MF5 التسجيلُ يحمل مفهومَ المالك ومقاييسَه وتحذيرَ `gain5` صريحًا",
+      all(x in _mf_pre for x in ("RSI 23", "P100", "P90", "نسبة الدقة",
+                                 "214.73", "انفجر فعلًا", "F2", "F5")))
+
 # ── 🧭 T-ENVREF — أقفال «الظرف الصادق» (أمر المالك «1 نفذها») ──
 # الأخطار: علم القياس يتسرّب للوضع الافتراضي (يلوّث الظرف الإنتاجي) · نطاق
 # ناقص/تالف يمرّ صامتًا فيصير R2 ≡ R1 خفيةً · اختيار الذراعين ينقلب.
