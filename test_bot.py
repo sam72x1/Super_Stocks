@@ -16908,6 +16908,92 @@ check("🥇 RTIE14 والنتيجةُ تُصرّح بأن الأثر الإنت�
       and "0 من 4" in _rt_res)
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🧭 T-M2REF — أقفالُ ذراعَي «مرجع الهبوط الواعي بالتقسيم» (أمر المالك «قسها»)
+# ══════════════════════════════════════════════════════════════════════════
+# 🔴 الأخطار المقفولة: تسرّبُ علم R1 إلى R0 (يقتل المقارنة بصمت) · جدولُ إعادة
+#    الإنتاج V1 يتبدّل بعد الأرقام · مصنّفُ الآلية يخلط السلال (opened/shifted/
+#    still/no_ref) · «العلم فعّال» لا يُلتقط فيمرّ no-op · الوالد يستورد الإنتاج
+#    فيلوّث الذراعين. عيّنةُ المصنّف **خمسُ حالاتٍ بخمسة أجوبة** (درسُ «عيّنة
+#    بجوابين»: طفرتان مرّتا لأن حالتين تشابهتا).
+import m2ref_arms as _m2r
+
+_m2e0, _m2e1 = _m2r.child_env("R0"), _m2r.child_env("R1")
+check("🧭 M2R1 عزل الذراعين: R0 بلا `BT_SPLIT_REF_M2` وR1 به + الأعلام الأربعة",
+      "BT_SPLIT_REF_M2" not in _m2e0 and _m2e1.get("BT_SPLIT_REF_M2") == "1"
+      and all(_m2e0.get(k) == "1" for k in
+              ("BT_REPLAY10", "BT_ENVVALS", "BT_POTENTIAL"))
+      and _m2e0.get("SCREENER_MODE") == "BACKTEST"
+      and all(_m2e1.get(k) == _m2e0.get(k) for k in _m2e0))
+check("🧭 M2R2 بوّابة V1: الجدول المسجَّل 22/14/6 بت-بت + سنة بلا مرجع تُعلَن",
+      _m2r.VALID_D50 == {"2024": 22, "2025": 14, "2026": 6}
+      and _m2r.v1_check("2024", 22) == "pass"
+      and _m2r.v1_check("2024", 23) == "fail"
+      and _m2r.v1_check("2030", 5) == "no_ref")
+# مصنّف الآلية: 5 حالات بخمسة أجوبة + صفوف تالفة لا تُسقطه (M2R3+M2R5)
+_m2_idx = pd.date_range("2026-01-05", periods=3, freq="B")
+
+
+def _m2_df(close_last, high_max):
+    return pd.DataFrame({"High": [high_max / 2, high_max, close_last],
+                         "Close": [high_max / 2, high_max / 2, close_last],
+                         "Volume": [1, 1, 1]}, index=_m2_idx)
+
+
+_m2_hist = {"A": _m2_df(1.0, 2.0),        # هبوط 50% — غير محجوب
+            "B": _m2_df(1.0, 1000.0),     # محجوب · بلا مرجع → no_ref
+            "C": _m2_df(1.0, 1000.0),     # محجوب · مرجع 100 → 99% داخل النطاق
+            "D": _m2_df(1.0, 1000.0),     # محجوب · مرجع 5 → 80% تحت الأرضية
+            "E": _m2_df(1.0, 1000.0),     # محجوب · مرجع 100000 → فوق السقف
+            "Z1": None, "Z2": pd.DataFrame(),
+            "Z3": _m2_df(0.0, 1000.0)}    # سعر 0 → يُتخطّى بلا انهيار
+_m2_smap = {"C": 100.0, "D": 5.0, "E": 100000.0}
+_m2_mech = _m2r.mech_scan(_m2_hist, _m2_smap, 99.72, 89.588,
+                          lambda highs, sp, cut: sp)
+check("🧭 M2R3 مصنّف الآلية: 5 حالات بخمسة أجوبة (opened/shifted/still/no_ref)",
+      _m2_mech["universe"] == 5 and _m2_mech["blocked_adj"] == 4
+      and _m2_mech["opened"] == 1 and _m2_mech["opened_syms"] == ["C"]
+      and _m2_mech["shifted_low"] == 1 and _m2_mech["still_blocked"] == 1
+      and _m2_mech["no_ref"] == 1, str(_m2_mech))
+check("🧭 M2R4 التقاط «العلم فعّال» وجدار السقف: نشط/خامل/غائب + العدّ",
+      _m2r.flag_syms("🔬 العلم فعّال: قرأ لقطة splits لـ57 رمزًا (من 3000).") == 57
+      and _m2r.flag_syms("⛔ … قرأ لقطة splits لـ0 رمز …") == 0
+      and _m2r.flag_syms("لا شيء هنا") is None
+      and _m2r.m2cap_wall("باكتيست·   4. M2_هبوط_فوق_97 = 17 (0.5%)") == 17
+      and _m2r.m2cap_wall("") is None)
+_m2_anc = _m2r.anchor_row("C", _m2_hist, _m2_smap, 99.72, 89.588,
+                          lambda highs, sp, cut: sp)
+_m2_ab = _m2r.anchor_row("QQ", _m2_hist, _m2_smap, 99.72, 89.588,
+                         lambda highs, sp, cut: sp)
+check("🧭 M2R5 المِرساة: الحاضر بقيمه وحكم نطاقه · والغائب يُعلَن لا يُتخطّى",
+      _m2_anc.get("present") is True and _m2_anc.get("psh") == 100.0
+      and _m2_anc.get("drop_ref") == 99.0
+      and _m2_anc.get("band_verdict") == "داخل النطاق"
+      and _m2_ab == {"symbol": "QQ", "present": False}, str(_m2_anc))
+import ast as _m2_ast
+_m2_tree = _m2_ast.parse(open("m2ref_arms.py", encoding="utf-8").read())
+_m2_top = [a.name for n in _m2_tree.body if isinstance(n, _m2_ast.Import)
+           for a in n.names] + \
+          [n.module for n in _m2_tree.body
+           if isinstance(n, _m2_ast.ImportFrom) and n.module]
+check("🧭 M2R6 الوالد لا يستورد الإنتاج: `Super_stock`/`replay10` ليسا "
+      "باستيرادات مستوى الوحدة (داخل مسار الطفل حصرًا)",
+      "Super_stock" not in _m2_top and "replay10" not in _m2_top,
+      str(_m2_top))
+_m2_yml = open(".github/workflows/m2ref.yml", encoding="utf-8").read()
+import re as _m2_re
+check("🧭 M2R7 الـworkflow: اللقطة والسنة حاضرتان ولا يضبط علم R1 بنفسه "
+      "(العزل في السائق لا في الـyml)",
+      "BT_FROZEN_PATH" in _m2_yml and "BACKTEST_YEAR" in _m2_yml
+      and "frozen_run_id" in _m2_yml
+      and _m2_re.search(r"^\s+BT_SPLIT_REF_M2:", _m2_yml,
+                        _m2_re.MULTILINE) is None)
+_m2_pre = open("m2ref_prereg.md", encoding="utf-8").read()
+check("🧭 M2R8 التسجيل المسبق يحمل الذراعين والبوّابات والمِرساتين وقاعدة القرار",
+      all(x in _m2_pre for x in
+          ("R0", "BT_SPLIT_REF_M2", "22 (2024)", "العلم فعّال", "TDIC", "NUWE",
+           "لا فرق مادي", "قرار مالكٍ حصريّ", "shifted_low")))
+
+# ══════════════════════════════════════════════════════════════════════════
 # 🥇⑦➡️ T-TIE-FWD — أقفالُ الحصاد الأماميّ (قرارُ المالك 2026-08-06: «‏1»)
 # ══════════════════════════════════════════════════════════════════════════
 # 🔴 **الخطر:** التسجيلُ يقع على **مسار الفرز الحيّ** ⇒ انهيارُه يُسقط التشغيلة،

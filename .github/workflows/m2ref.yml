@@ -1,0 +1,51 @@
+name: T-M2REF (split-aware M2 reference)
+permissions:
+  contents: read
+  actions: read          # 🕰️ لتحميل لقطة التجميد من تشغيلة freeze (frozen_run_id)
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (2024 أو 2025 أو 2026). **الحكم يلزمه اللقطات الثلاث** — تشغيلة لكل سنة"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "🕰️ معرّف تشغيلة التجميد (لقطة point-in-time). **مُلزِم**: بلاه ذراع R1 خاملة (no-op) وV2 تسقط. 2024=31199493957 · 2025=31191327731 · 2026=31199510868"
+        required: true
+        default: ""
+jobs:
+  m2ref:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330   # ذراعان متتاليتان (عمليتان معزولتان) على لقطة سنة كاملة
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset (point-in-time reproducibility)
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run M2-reference arms
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # ⚠️ بيئة الذراعين (SCREENER_MODE/BT_REPLAY10/BT_ENVVALS/BT_POTENTIAL
+          # وBT_SPLIT_REF_M2 لذراع R1 وحدها) يضبطها **الوالد لكل طفل قبل بدء
+          # بايثون** — لا تُضبط هنا (عزل الذراعين M2R1 + درس بصمة الـno-op).
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python m2ref_arms.py
+      - name: Upload backtest CSV
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m2ref-report
+          path: backtest_*.csv
+          if-no-files-found: ignore
