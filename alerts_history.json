@@ -1020,7 +1020,7 @@
    "status": "expired",
    "result_date": "2026-08-07",
    "max_gain_pct": 12.0,
-   "mg_obs_pct": 12.0,
+   "mg_obs_pct": 12.5,
    "mg_obs_days": 22
   },
   {
@@ -1093,7 +1093,7 @@
    "result_date": "2026-08-03",
    "max_gain_pct": 10.5,
    "mg_obs_pct": 10.5,
-   "mg_obs_days": 9
+   "mg_obs_days": 10
   },
   {
    "symbol": "CDLX",
@@ -2163,7 +2163,7 @@
    "rr": 2.3183522249480655,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.5
+   "max_gain_pct": 4.8
   },
   {
    "symbol": "IMNN",
@@ -2423,7 +2423,7 @@
    "rr": 3.115061701854358,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 0.6
   },
   {
    "symbol": "YMAT",
@@ -2577,7 +2577,7 @@
    "rr": 4.915048146913803,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 2.9
+   "max_gain_pct": 3.0
   },
   {
    "symbol": "NXTS",
@@ -2756,9 +2756,11 @@
    "drop_pct": 98.89454750331733,
    "best_spike": 227.27274528782698,
    "rr": 4.523665784630037,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "stopped",
+   "result_date": "2026-08-07",
+   "max_gain_pct": 8.8,
+   "mg_obs_pct": 8.8,
+   "mg_obs_days": 1
   },
   {
    "symbol": "AKAN",
@@ -2793,7 +2795,7 @@
    "rr": 1.319999999999996,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.6
   },
   {
    "symbol": "AEMD",
@@ -2869,7 +2871,7 @@
    "rr": 3.9452647767499474,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 4.7
   },
   {
    "symbol": "INBS",
@@ -2906,7 +2908,7 @@
    "rr": 4.85499617165523,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 5.3
   },
   {
    "symbol": "RBNE",
@@ -2944,7 +2946,7 @@
    "rr": 3.3674953193350583,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 0.4
   },
   {
    "symbol": "TVRD",
@@ -2978,7 +2980,7 @@
    "rr": 1.3201335273706025,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.2
   },
   {
    "symbol": "BNC",
@@ -3011,7 +3013,7 @@
    "rr": 1.4372820634037373,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 0.8
   },
   {
    "symbol": "SUGP",
@@ -3046,7 +3048,7 @@
    "rr": 10.801762620655825,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 9.8
   },
   {
    "symbol": "MENS",
@@ -3079,7 +3081,7 @@
    "rr": 1.281393836458449,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.3
   },
   {
    "symbol": "ICCM",
@@ -3119,7 +3121,7 @@
    "rr": 2.892102716359715,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.7
   },
   {
    "symbol": "MNDR",
@@ -3155,7 +3157,7 @@
    "rr": 8.623187020280408,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 5.3
   },
   {
    "symbol": "PMAX",
@@ -3194,6 +3196,329 @@
    "drop_pct": 96.80769237188193,
    "best_spike": 111.0552657857959,
    "rr": 2.8361217688474754,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 7.8
+  },
+  {
+   "symbol": "TIL",
+   "date": "2026-08-08",
+   "ref_bar": "2026-08-07",
+   "price": 7.41,
+   "stop": 6.5305,
+   "t1": 8.05,
+   "t2": 9.5,
+   "t3": 18.34,
+   "score": 95,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "يرتكز على متوسط 30/50",
+    "معيد إجرام (2 انفجارات)",
+    "ثبات 3 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (13→33) — سيولة مخفية",
+    "DMI: ‎+DI فوق ‎-DI",
+    "استعاد MA5/MA20 (تجميع)",
+    "شورت 921 (مقبول)",
+    "فلوت 3,621,440 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 50.9031268243539,
+   "float": 3621440,
+   "short": 921,
+   "short_pct": 5.1,
+   "drop_pct": 78.09830695679096,
+   "best_spike": 740.1589773123166,
+   "rr": 1.1721986179223502,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "FUFU",
+   "date": "2026-08-08",
+   "ref_bar": "2026-08-07",
+   "price": 1.3,
+   "stop": 1.1718,
+   "t1": 1.51,
+   "t2": 1.73,
+   "t3": 3.2,
+   "score": 75,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "جفاف بيع",
+    "ثبات 7 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "انكماش حزمة كلنجر (تجميع)",
+    "Williams %R انعطاف من التشبع",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة صاعدة يومي 5%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 18,464,771 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 42.380068514426846,
+   "float": 18464771,
+   "short": null,
+   "short_pct": 0.8,
+   "drop_pct": 75.83643262707666,
+   "best_spike": 111.51418808623141,
+   "rr": 1.6380654092957667,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "VHUB",
+   "date": "2026-08-08",
+   "ref_bar": "2026-08-07",
+   "price": 0.69,
+   "stop": 0.6045,
+   "t1": 0.8,
+   "t2": 0.92,
+   "t3": 2.2,
+   "score": 60,
+   "flags": [
+    "RSI تشبع وانحناء (قاع 33→35)",
+    "تقاطع MACD",
+    "جفاف بيع",
+    "ثبات 4 جلسات فوق القاع",
+    "Williams %R انعطاف من التشبع",
+    "فجوة صاعدة يومي 6%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت 7,613 (مقبول)",
+    "فلوت 21,509,431 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": null,
+   "rsi": 35.3626867959171,
+   "float": 21509431,
+   "short": 7613,
+   "short_pct": 0.9,
+   "drop_pct": 98.28784116456936,
+   "best_spike": 169.6969546452923,
+   "rr": 1.9847321525599542,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "CVKD",
+   "date": "2026-08-08",
+   "ref_bar": "2026-08-07",
+   "price": 1.95,
+   "stop": 1.7298,
+   "t1": 2.17,
+   "t2": 2.92,
+   "t3": 4.62,
+   "score": 80,
+   "flags": [
+    "RSI تشبع وانحناء (قاع 29→33)",
+    "تقاطع MACD",
+    "KST صاعد",
+    "جفاف بيع",
+    "ثبات 11 جلسات فوق القاع",
+    "نمط شمعة قوي",
+    "انكماش حزمة كلنجر (تجميع)",
+    "Williams %R انعطاف من التشبع",
+    "فجوة صاعدة يومي 7%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت 7,157 (مقبول)",
+    "فلوت 2,442,714 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 33.42916999127249,
+   "float": 2442714,
+   "short": 7157,
+   "short_pct": 2.1,
+   "drop_pct": 86.68032785550375,
+   "best_spike": 105.52408422781387,
+   "rr": 1.3552702944365211,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "LGHL",
+   "date": "2026-08-08",
+   "ref_bar": "2026-08-07",
+   "price": 0.9,
+   "stop": 0.8045,
+   "t1": 0.99,
+   "t2": 1.11,
+   "t3": 2.58,
+   "score": 65,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 4 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة عالية يومي 124%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "⚠️ شورت عالٍ 194,288 (فوق 40,000)",
+    "فلوت 455,328 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Financial Services",
+   "rsi": 24.644078468980354,
+   "float": 455328,
+   "short": 194288,
+   "short_pct": 11.7,
+   "drop_pct": 99.71615102174017,
+   "best_spike": 101.75437832385113,
+   "rr": 1.088351262270946,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "LPCN",
+   "date": "2026-08-08",
+   "ref_bar": "2026-08-07",
+   "price": 2.13,
+   "stop": 1.8879,
+   "t1": 2.35,
+   "t2": 2.67,
+   "t3": 6.53,
+   "score": 60,
+   "flags": [
+    "تقاطع MACD",
+    "يرتكز على متوسط 30/50",
+    "ثبات 4 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة صاعدة يومي 6%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت 4,684 (مقبول)",
+    "فلوت 6,912,476 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 42.454252013195045,
+   "float": 6912476,
+   "short": 4684,
+   "short_pct": 1.5,
+   "drop_pct": 82.78092050002756,
+   "best_spike": 257.4603139041624,
+   "rr": 1.2864916663515877,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "ENGN",
+   "date": "2026-08-08",
+   "ref_bar": "2026-08-07",
+   "price": 1.8,
+   "stop": 1.5903,
+   "t1": 1.96,
+   "t2": 2.24,
+   "t3": 12.25,
+   "score": 60,
+   "flags": [
+    "تقاطع MACD",
+    "جفاف بيع",
+    "يرتكز على متوسط 30/50",
+    "ثبات 7 جلسات فوق القاع",
+    "انكماش حزمة كلنجر (تجميع)",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة-هدف فوق السعر عند $2.24 (+24%)",
+    "قاب (فجوة) فوق السعر عند $2.24 (فراغ 255% = هدف ذهبي)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 19,129,512 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 44.44628509228509,
+   "float": 19129512,
+   "short": null,
+   "short_pct": 3.0,
+   "drop_pct": 85.30612283823442,
+   "best_spike": 80.31088671763264,
+   "rr": 1.1785506294111303,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "EMPD",
+   "date": "2026-08-08",
+   "ref_bar": "2026-08-07",
+   "price": 2.835,
+   "stop": 2.5528,
+   "t1": 3.09,
+   "t2": 4.17,
+   "t3": 11.37,
+   "score": 40,
+   "flags": [
+    "RSI تشبع وانحناء (قاع 31→32)",
+    "جفاف بيع",
+    "ثبات 5 جلسات فوق القاع",
+    "Williams %R انعطاف من التشبع",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 13,327,847 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Consumer Cyclical",
+   "rsi": 32.2360346987969,
+   "float": 13327847,
+   "short": null,
+   "short_pct": 16.9,
+   "drop_pct": 75.06815613520956,
+   "best_spike": 321.24756585325497,
+   "rr": 0.961474886507853,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "DFSC",
+   "date": "2026-08-08",
+   "ref_bar": "2026-08-07",
+   "price": 1.26,
+   "stop": 1.1067,
+   "t1": 1.4,
+   "t2": 1.61,
+   "t3": 6.0,
+   "score": 85,
+   "flags": [
+    "RSI تشبع وانحناء (قاع 27→29)",
+    "تقاطع MACD",
+    "KST صاعد",
+    "معيد إجرام (2 انفجارات)",
+    "ثبات 1 جلسات فوق القاع",
+    "Williams %R انعطاف من التشبع",
+    "فجوة عالية يومي 9%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت 1,978,215 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Industrials",
+   "rsi": 29.24028012358906,
+   "float": 1978215,
+   "short": null,
+   "short_pct": 2.6,
+   "drop_pct": 79.00000015894571,
+   "best_spike": 2835.4839165993653,
+   "rr": 1.444167307095018,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
