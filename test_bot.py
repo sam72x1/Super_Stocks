@@ -232,6 +232,25 @@ try:
 except Exception as e:
     check("HCG5-8: أقفال أنواع البوابات", False, str(e))
 
+# HCG7b: السويّة على FAISAL_ONLY=0 (توافق=2) فلا تمرّ بفرع «معلومة» — نمرّ به
+# قسرًا هنا: حدّ 0 (وضع معايير فيصل الحيّ) ⇒ البوابة «معلومة» لا لينة تُعدّ
+try:
+    _tf_old = S.CONFIG["TF_MIN_REVERSALS"]
+    _sdl2 = S.download_history
+    S.CONFIG["TF_MIN_REVERSALS"] = 0
+    S.download_history = lambda syms: {"TFZ": synth_pivot(seed=2)}
+    try:
+        _d0, _g0, _ = AO.analyze_on_demand("TFZ")
+    finally:
+        S.CONFIG["TF_MIN_REVERSALS"] = _tf_old
+        S.download_history = _sdl2
+    _tf0 = next((g for g in (_g0 or []) if "توافق الفريمات" in g[0]), None)
+    check("HCG7b: حدّ التوافق 0 (وضع فيصل الحيّ) ⇒ «معلومة» بلا عدّ — لا بوابة",
+          _tf0 is not None and len(_tf0) > 3 and _tf0[3] == "info"
+          and "خرج من الشروط بقياس الكاتالوج" in _tf0[0], str(_tf0))
+except Exception as e:
+    check("HCG7b: فرع «معلومة» عند حدّ 0", False, str(e))
+
 # HCG9: سبب الرفض الاحتياطي يسمّي الصلبة الساقطة فقط (لا اللينة الناقصة)
 try:
     _fb_gates = [("السعر فوق $1.65", False, "$1.20", "hard"),
