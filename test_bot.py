@@ -16943,17 +16943,22 @@ _m2_hist = {"A": _m2_df(1.0, 2.0),        # هبوط 50% — غير محجوب
             "B": _m2_df(1.0, 1000.0),     # محجوب · بلا مرجع → no_ref
             "C": _m2_df(1.0, 1000.0),     # محجوب · مرجع 100 → 99% داخل النطاق
             "D": _m2_df(1.0, 1000.0),     # محجوب · مرجع 5 → 80% تحت الأرضية
+            "D2": _m2_df(1.0, 1000.0),    # محجوب · مرجع 6 → 83% تحت الأرضية
             "E": _m2_df(1.0, 1000.0),     # محجوب · مرجع 100000 → فوق السقف
             "Z1": None, "Z2": pd.DataFrame(),
             "Z3": _m2_df(0.0, 1000.0)}    # سعر 0 → يُتخطّى بلا انهيار
-_m2_smap = {"C": 100.0, "D": 5.0, "E": 100000.0}
+_m2_smap = {"C": 100.0, "D": 5.0, "D2": 6.0, "E": 100000.0}
 _m2_mech = _m2r.mech_scan(_m2_hist, _m2_smap, 99.72, 89.588,
                           lambda highs, sp, cut: sp)
-check("🧭 M2R3 مصنّف الآلية: 5 حالات بخمسة أجوبة (opened/shifted/still/no_ref)",
-      _m2_mech["universe"] == 5 and _m2_mech["blocked_adj"] == 4
+# 🔴 السلال **غير متناظرة عمدًا** (opened=1 مقابل shifted=2): طفرة تبديل السلال
+# (mu3) نجت من عيّنة 1↔1 المتناظرة — التبديل لا يغيّر عدّين متساويين. درس
+# «عيّنة بجوابين» يتكرّر: القفل يجب أن يسقط على الطفرة التي يدّعي حراستها.
+check("🧭 M2R3 مصنّف الآلية: 6 حالات بسلال غير متناظرة (opened/shifted/still/no_ref)",
+      _m2_mech["universe"] == 6 and _m2_mech["blocked_adj"] == 5
       and _m2_mech["opened"] == 1 and _m2_mech["opened_syms"] == ["C"]
-      and _m2_mech["shifted_low"] == 1 and _m2_mech["still_blocked"] == 1
-      and _m2_mech["no_ref"] == 1, str(_m2_mech))
+      and _m2_mech["shifted_low"] == 2 and _m2_mech["still_blocked"] == 1
+      and _m2_mech["no_ref"] == 1
+      and len(_m2_mech["opened_syms"]) == _m2_mech["opened"], str(_m2_mech))
 check("🧭 M2R4 التقاط «العلم فعّال» وجدار السقف: نشط/خامل/غائب + العدّ",
       _m2r.flag_syms("🔬 العلم فعّال: قرأ لقطة splits لـ57 رمزًا (من 3000).") == 57
       and _m2r.flag_syms("⛔ … قرأ لقطة splits لـ0 رمز …") == 0
