@@ -33,15 +33,41 @@ VALID_D50 = {"2024": 22, "2025": 14, "2026": 6}
 # ── §③: بيئة كل ذراع — **دالّة نقيّة** (قفل M2R1: عزل الذراعين).
 #    `BT_ENVVALS` إلزامي (rank_live يقرأ in_band) · `BT_POTENTIAL` إلزامي
 #    (d50 يقرأ mg_pre_stop) · `BT_REPLAY10` إلزامي (exit_date لتحرير الخانات).
-ARM_EXTRA = {"R0": {}, "R1": {"BT_SPLIT_REF_M2": "1"}}
+ARM_EXTRA = {"R0": {}, "R1": {"BT_SPLIT_REF_M2": "1"},
+             # 🧭 T-ENVREF (`envref_prereg.md` §③): R2 = مسطرة صادقة + نطاق صادق
+             # (الحدود تصل عبر M2REF_BAND ويطبّقها الطفل بعد الاستيراد — V4)
+             "R2": {"BT_SPLIT_REF_M2": "1"}}
 
 
 def child_env(arm: str) -> dict:
-    """بيئة الطفل للذراع — R0 **بلا** `BT_SPLIT_REF_M2` وR1 به حصرًا."""
+    """بيئة الطفل للذراع — R0 **بلا** `BT_SPLIT_REF_M2` وR1/R2 به حصرًا."""
     env = {"SCREENER_MODE": "BACKTEST", "BT_REPLAY10": "1",
            "BT_ENVVALS": "1", "BT_POTENTIAL": "1"}
     env.update(ARM_EXTRA.get(arm, {}))
     return env
+
+
+# 🧭 T-ENVREF: النطاق الصادق — تحقيق صارم (قفل ENVR2). المفاتيح الثلاثة إلزامية.
+BAND_KEYS = ("MIN_DROP_FLOOR", "MAX_DROP_PCT", "MIN_DROP_PCT")
+
+
+def band_from_env(raw):
+    """يفكّ M2REF_BAND (JSON) ويرفض الناقص/التالف — None = لا نطاق (وضع R0+R1)."""
+    if not (raw or "").strip():
+        return None
+    try:
+        d = json.loads(raw)
+        out = {k: float(d[k]) for k in BAND_KEYS}
+        if not all(v > 0 for v in out.values()):
+            return None
+        return out
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def arms_for(band) -> tuple:
+    """اختيار الذراعين: نطاق صادق حاضر ⇒ R0+R2 · غائب ⇒ السلوك القديم R0+R1."""
+    return ("R0", "R2") if band else ("R0", "R1")
 
 
 # ── §⑤-V2: سطر «العلم فعّال» — يلتقط النشط (N>0) والخامل (0) معًا.
@@ -166,6 +192,19 @@ def run_child(arm: str) -> int:
     """جسم الذراع — يعمل في عملية مستقلة بيئتُها مضبوطة قبل بدء بايثون."""
     import replay10 as RP                                        # noqa: PLC0415
     import Super_stock as S                                      # noqa: PLC0415
+    band_applied = None
+    if arm == "R2":
+        # 🧭 V4 (envref_prereg §④): النطاق الصادق يُطبَّق بعد الاستيراد ويُوثَّق
+        # قبل/بعد — غيابه/تلفه = سقوط صريح لا صمت (وإلا صار R2 ≡ R1 خفيةً).
+        band = band_from_env(os.environ.get("M2REF_BAND", ""))
+        if band is None:
+            print("M2REF_JSON: " + json.dumps(
+                {"arm": arm, "error": "M2REF_BAND غائب/تالف — R2 بلا نطاق"},
+                ensure_ascii=False))
+            return 4
+        band_applied = {"before": {k: S.CONFIG.get(k) for k in BAND_KEYS},
+                        "after": dict(band)}
+        S.CONFIG.update(band)
     trades = S.run_backtest() or []
     with_fields = [t for t in trades if t.get("exit_date")]
     with_band = [t for t in with_fields
@@ -174,7 +213,8 @@ def run_child(arm: str) -> int:
     with_mg = [t for t in with_fields if t.get("mg_outcome") is not None]
     payload = {"arm": arm, "year": (os.environ.get("BACKTEST_YEAR") or "?"),
                "n_trades": len(trades), "with_fields": len(with_fields),
-               "with_band": len(with_band), "with_mg": len(with_mg)}
+               "with_band": len(with_band), "with_mg": len(with_mg),
+               "band_applied": band_applied}
     if with_fields:
         cands, idx, outcome_of = RP.candidates_from_trades(with_fields)
         res = RP.replay(cands, outcome_of=outcome_of, ranker=RP.rank_live,
@@ -190,8 +230,9 @@ def run_child(arm: str) -> int:
             "per_trade": round(sum(rs) / len(taken), 6) if taken else 0.0,
             "signals_syms": sorted({t["symbol"] for t in with_fields}),
         })
-    if arm == "R1":
+    if arm in ("R1", "R2"):
         # مسح الآلية + المِرساتان (§⑤-3/V3) — من نفس اللقطة المجمّدة
+        # (لذراع R2 يقرأ المصنّف حدَّي CONFIG **بعد** تطبيق النطاق الصادق)
         fp = os.environ.get("BT_FROZEN_PATH", "").strip()
         if fp and os.path.exists(fp):
             hist, smap, _asof = S.load_frozen_dataset(fp)
@@ -211,12 +252,20 @@ def run_child(arm: str) -> int:
 
 def run_parent() -> int:
     year = (os.environ.get("BACKTEST_YEAR") or "?").strip()
-    print(f"\n{'=' * 72}\n🧭 T-M2REF — مرجع الهبوط الواعي بالتقسيم · السنة {year}"
+    band = band_from_env(os.environ.get("M2REF_BAND", ""))
+    arms = arms_for(band)
+    tag = "T-ENVREF (مسطرة+نطاق صادقان)" if band else "T-M2REF"
+    print(f"\n{'=' * 72}\n🧭 {tag} — الذراعان {arms} · السنة {year}"
           f"\n{'=' * 72}")
+    if band:
+        print("🧭 النطاق الصادق الممرَّر: "
+              + " · ".join(f"{k}={band[k]:.3f}" for k in BAND_KEYS))
     results, logs = {}, {}
-    for arm in ("R0", "R1"):
+    for arm in arms:
         env = dict(os.environ)
         env.update(child_env(arm))
+        if arm != "R2":
+            env.pop("M2REF_BAND", None)   # النطاق للذراع R2 حصرًا (عزل)
         print(f"\n──── تشغيل الذراع {arm} (عملية معزولة) ────", flush=True)
         p = subprocess.run([sys.executable, os.path.abspath(__file__),
                             "--child", arm],
@@ -232,7 +281,7 @@ def run_parent() -> int:
             return 2
         results[arm] = json.loads(tail[-1].split("M2REF_JSON:", 1)[1])
 
-    r0, r1 = results["R0"], results["R1"]
+    r0, r1 = results["R0"], results[arms[1]]
 
     # ── بوّابات الصلاحية (§⑤-4) — قبل قراءة أي مقارنة ──
     print("\n🚧 بوّابات الصلاحية:")
@@ -241,11 +290,21 @@ def run_parent() -> int:
           f"{VALID_D50.get(year, '—')} ⇒ "
           + {"pass": "✅", "fail": "⛔ سقطت — لا حكم",
              "no_ref": "⚠️ سنة بلا مرجع مسجَّل"}[v1])
-    n_flag = flag_syms(logs["R1"])
-    print(f"  V2 «العلم فعّال» في R1: قرأ لقطة splits لـ{n_flag} رمزًا ⇒ "
+    n_flag = flag_syms(logs[arms[1]])
+    print(f"  V2 «العلم فعّال» في {arms[1]}: قرأ لقطة splits لـ{n_flag} رمزًا ⇒ "
           + ("✅" if (n_flag or 0) > 0 else "⛔ خامل ⇒ no-op — لا حكم"))
     n_flag0 = flag_syms(logs["R0"])
     print(f"      (وR0 بلا العلم: سطر «العلم فعّال» {'غائب ✅' if n_flag0 is None else f'حاضر بقيمة {n_flag0} ⛔ عزل مكسور'})")
+    if band:
+        _ba = r1.get("band_applied") or {}
+        _ok4 = _ba.get("after") == {k: band[k] for k in BAND_KEYS}
+        print("  V4 النطاق الصادق مطبَّق في الطفل: "
+              + ("✅ " + " · ".join(
+                    f"{k} {(_ba.get('before') or {}).get(k):.3f}→{(_ba.get('after') or {}).get(k):.3f}"
+                    for k in BAND_KEYS) if _ok4
+                 else "⛔ غير مطبَّق/مختلف — لا حكم"))
+        if not _ok4:
+            return 5
     anchors = r1.get("anchors")
     print("  V3 المِرساتان (شفافية — من اللقطة مباشرة):")
     if anchors:
@@ -282,8 +341,8 @@ def run_parent() -> int:
 
     # ── المقارنة (§⑤-1/2) ──
     print(f"\n📊 الذراعان (سعة {r0.get('capacity')} · rank_live · بلا free_of):")
-    for tag, r in (("R0", r0), ("R1", r1)):
-        print(f"  {tag}: إشارات={r.get('with_fields')} · مأخوذة={r.get('taken')}"
+    for tag2, r in (("R0", r0), (arms[1], r1)):
+        print(f"  {tag2}: إشارات={r.get('with_fields')} · مأخوذة={r.get('taken')}"
               f" · d50={r.get('d50')} (d100={r.get('d100')}) · "
               f"R/صفقة={r.get('per_trade', 0):+.4f} · "
               f"إجمالي R={r.get('total_r', 0):+.1f} · "
@@ -291,20 +350,20 @@ def run_parent() -> int:
     s0 = set(r0.get("signals_syms") or [])
     s1 = set(r1.get("signals_syms") or [])
     added, removed = sorted(s1 - s0), sorted(s0 - s1)
-    print(f"  رموز جديدة في R1: {len(added)}"
+    print(f"  رموز جديدة في {arms[1]}: {len(added)}"
           + (f" ({', '.join(added[:15])}{'…' if len(added) > 15 else ''})"
              if added else ""))
-    print(f"  رموز فقدها R1: {len(removed)}"
+    print(f"  رموز فقدها {arms[1]}: {len(removed)}"
           + (f" ({', '.join(removed[:15])}{'…' if len(removed) > 15 else ''})"
              if removed else ""))
-    w0, w1 = m2cap_wall(logs["R0"]), m2cap_wall(logs["R1"])
+    w0, w1 = m2cap_wall(logs["R0"]), m2cap_wall(logs[arms[1]])
     print(f"  جدار M2_هبوط_فوق_97: R0={w0 if w0 is not None else '—'} · "
           f"R1={w1 if w1 is not None else '—'}")
 
     d = (r1.get("d50") or 0) - (r0.get("d50") or 0)
     dr = (r1.get("per_trade") or 0.0) - (r0.get("per_trade") or 0.0)
     print("\n🧭 قراءات §⑥ لهذي السنة (الحكم يلزمه اللقطات الثلاث):")
-    print(f"  d50: R1−R0 = {d:+d} · حارس العائد R1−R0 = {dr:+.4f}R/صفقة "
+    print(f"  d50: {arms[1]}−R0 = {d:+d} · حارس العائد {arms[1]}−R0 = {dr:+.4f}R/صفقة "
           f"(الحدّ −0.05)")
     print("\n⚠️ حدود الصدق كما سُجِّلت (§⑦): 2026 جزئية · أعداد صغيرة "
           "(ثبات الاتجاه لا p-values) · المرجع الواعي رهن اكتمال سجلّ تقسيمات "

@@ -16998,6 +16998,54 @@ check("🧭 M2R8 التسجيل المسبق يحمل الذراعين والب�
           ("R0", "BT_SPLIT_REF_M2", "22 (2024)", "العلم فعّال", "TDIC", "NUWE",
            "لا فرق مادي", "قرار مالكٍ حصريّ", "shifted_low")))
 
+# ── 🧭 T-ENVREF — أقفال «الظرف الصادق» (أمر المالك «1 نفذها») ──
+# الأخطار: علم القياس يتسرّب للوضع الافتراضي (يلوّث الظرف الإنتاجي) · نطاق
+# ناقص/تالف يمرّ صامتًا فيصير R2 ≡ R1 خفيةً · اختيار الذراعين ينقلب.
+import catalog_envelope as _ce_env
+check("🧭 ENVR1 `split_ctx_for`: مطفأ ⇒ None دائمًا (حتى مع splits) · مرفوع ⇒ "
+      "سلسلة الرمز · الغائب/الفارغ ⇒ None",
+      _ce_env.split_ctx_for("A", {"A": [("2024-01-01", 0.05)]}, False) is None
+      and _ce_env.split_ctx_for("A", {"A": [("2024-01-01", 0.05)]}, True)
+      == [("2024-01-01", 0.05)]
+      and _ce_env.split_ctx_for("B", {"A": [("2024-01-01", 0.05)]}, True) is None
+      and _ce_env.split_ctx_for("A", {"A": []}, True) is None)
+import ast as _ce_ast
+_ce_run_src = _ce_ast.parse(open("catalog_envelope.py", encoding="utf-8").read())
+_ce_calls = [n for n in _ce_ast.walk(_ce_run_src)
+             if isinstance(n, _ce_ast.Call)
+             and getattr(n.func, "id", "") == "split_ctx_for"]
+# النداء الحيّ لكل رمز يمرّر **العلم اسمًا** (`_split_ref_on`) لا ثابتًا —
+# (نداء العدّاد داخل حارس العلم يمرّر True مشروعًا فلا يُحظر الثابت مطلقًا)
+check("🧭 ENVR2 الحقن موصول من نقطة النداء الحيّة (AST): نداء لكل رمز بثالث "
+      "وسيطٍ هو علم التفعيل `_split_ref_on`",
+      len(_ce_calls) >= 2
+      and any(isinstance(c.args[2], _ce_ast.Name)
+              and c.args[2].id == "_split_ref_on" for c in _ce_calls
+              if len(c.args) > 2))
+check("🧭 ENVR3 `band_from_env`: الصالح يُقبل · الناقص/التالف/السالب/الفارغ يُرفض",
+      _m2r.band_from_env('{"MIN_DROP_FLOOR":80.5,"MAX_DROP_PCT":99.7,'
+                         '"MIN_DROP_PCT":90.1}')
+      == {"MIN_DROP_FLOOR": 80.5, "MAX_DROP_PCT": 99.7, "MIN_DROP_PCT": 90.1}
+      and _m2r.band_from_env('{"MIN_DROP_FLOOR":80}') is None
+      and _m2r.band_from_env("خربان") is None
+      and _m2r.band_from_env("") is None
+      and _m2r.band_from_env('{"MIN_DROP_FLOOR":-1,"MAX_DROP_PCT":99,'
+                             '"MIN_DROP_PCT":90}') is None)
+check("🧭 ENVR4 اختيار الذراعين: نطاق ⇒ R0+R2 · بلاه ⇒ R0+R1 (توافق خلفي) · "
+      "وبيئة R2 تحمل علم المسطرة الصادقة",
+      _m2r.arms_for({"MIN_DROP_FLOOR": 80}) == ("R0", "R2")
+      and _m2r.arms_for(None) == ("R0", "R1")
+      and _m2r.child_env("R2").get("BT_SPLIT_REF_M2") == "1")
+_env_pre = open("envref_prereg.md", encoding="utf-8").read()
+check("🧭 ENVR5 تسجيل T-ENVREF يحمل بوّابة V-T (إعادة الظرف بت-بت) وV4 والقاعدة",
+      all(x in _env_pre for x in ("V-T", "بت-بت", "M2REF_BAND", "89.588",
+                                  "لا يُمَسّ", "قرار مالك")))
+_env_yml = open(".github/workflows/envelope_ref.yml", encoding="utf-8").read()
+check("🧭 ENVR6 قياس الظرف الصادق تمريرتان (مطفأ ثم مرفوع) وبلا أي خطوة دفع",
+      _env_yml.count("catalog_envelope as CE") == 2
+      and 'ENV_SPLIT_REF: "1"' in _env_yml
+      and "git push" not in _env_yml and "git commit" not in _env_yml)
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🥇⑦➡️ T-TIE-FWD — أقفالُ الحصاد الأماميّ (قرارُ المالك 2026-08-06: «‏1»)
 # ══════════════════════════════════════════════════════════════════════════

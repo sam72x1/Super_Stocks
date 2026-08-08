@@ -431,6 +431,20 @@ def _print_envelope(S, env90, env100, cur):
         S.log(f"{label:<26}{now:>14}{_fmt(e100):>20}{_fmt(e90):>20}   {verdict}")
 
 
+def split_ctx_for(sym, splits_map, enabled):
+    """🧭 T-ENVREF: سياق تقسيمات الرمز — **None دائمًا والعلم مطفأ** (بت-بت).
+
+    دالة نقيّة (قفل ENVR1): التفعيل صريح؛ ومع علمٍ مرفوع يرجع سلسلة تقسيمات
+    الرمز من اللقطة (أو None لو غائبة) فيقرأها فرع `BT_SPLIT_REF_M2` الإنتاجي."""
+    if not enabled:
+        return None
+    try:
+        sp = (splits_map or {}).get(sym)
+        return sp if sp is not None and len(sp) else None
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
 def run():
     import Super_stock as S
 
@@ -459,6 +473,17 @@ def run():
                     syms = [q for q in syms if q != _x]
                     S.log(f"   ⛔ استُبعد {_x}: {_why}")
 
+    # 🧭 T-ENVREF (`envref_prereg.md` §②): علم `ENV_SPLIT_REF=1` يقيس `drop_pct`
+    # بالمرجع الصادق (قمة ما بعد آخر تقسيم عكسي) **عبر مسار `analyze_ticker`
+    # الإنتاجي نفسه** (نفس فرع `BT_SPLIT_REF_M2` في الذراع R1) — المِرساة
+    # والنافذة والتجميع كلها بلا حرف تغيير. العلم مطفأ ⇒ بت-بت (مقفول ENVR1).
+    _split_ref_on = os.environ.get("ENV_SPLIT_REF", "") == "1"
+    if _split_ref_on:
+        S.CONFIG["BT_SPLIT_REF_M2"] = 1
+        _n_ctx = sum(1 for q in syms if split_ctx_for(q, _splits, True) is not None)
+        S.log(f"🧭 المسطرة الصادقة مفعَّلة: سياق splits متاح لـ{_n_ctx} من "
+              f"{len(syms)} رمزًا (صفر = no-op، لا تُفسَّر النتيجة).")
+
     # ── ① نمشي الكاتالوج ────────────────────────────────────────────────────
     rows, found, missing, anchors = [], [], [], {}
     for sym in syms:
@@ -466,7 +491,9 @@ def run():
         if df is None or len(df) < 60:
             missing.append((sym, "غير موجود باللقطة أو تاريخُه أقصر من 60 جلسة"))
             continue
+        S._BT_SPLITS_CTX = split_ctx_for(sym, _splits, _split_ref_on)
         r, why = walk_symbol(S, sym, df)
+        S._BT_SPLITS_CTX = None
         S.log(f"   {'✅' if r else '⚪️'} {sym:<6} {why}")
         if r:
             rows.extend(r)

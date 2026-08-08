@@ -1,0 +1,47 @@
+name: T-ENVREF measure (truthful envelope band)
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      frozen_run_id:
+        description: "لقطة الظرف الإنتاجي (نفسها إلزامًا للمقارنة بت-بت). الافتراضي = لقطة envelope_p90.json الحالية"
+        required: true
+        default: "31070013412"
+jobs:
+  envref:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      # ⚠️ تمريرتان في جوب واحد — **ولا خطوة دفع/commit إطلاقًا**: الملف الإنتاجي
+      # `envelope_p90.json` بالمستودع لا يُمَسّ؛ القراءة من السجل (🔏 ENVELOPE_P90_JSON).
+      - name: Pass 1 — flag OFF (بوّابة V-T: إعادة إنتاج الظرف الإنتاجي بت-بت)
+        env:
+          ENV_SNAPSHOT_ID: ${{ github.event.inputs.frozen_run_id }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: |
+          echo "════ V-T (العلم مطفأ — يجب أن يطابق envelope_p90.json الإنتاجي بت-بت) ════"
+          python -c "import catalog_envelope as CE; raise SystemExit(CE.run())"
+      - name: Pass 2 — flag ON (المسطرة الصادقة)
+        env:
+          ENV_SNAPSHOT_ID: ${{ github.event.inputs.frozen_run_id }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+          ENV_SPLIT_REF: "1"
+        run: |
+          echo "════ المسطرة الصادقة (ENV_SPLIT_REF=1) ════"
+          python -c "import catalog_envelope as CE; raise SystemExit(CE.run())"

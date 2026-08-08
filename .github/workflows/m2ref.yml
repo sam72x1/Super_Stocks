@@ -13,6 +13,10 @@ on:
         description: "🕰️ معرّف تشغيلة التجميد (لقطة point-in-time). **مُلزِم**: بلاه ذراع R1 خاملة (no-op) وV2 تسقط. 2024=31199493957 · 2025=31191327731 · 2026=31199510868"
         required: true
         default: ""
+      band:
+        description: "🧭 T-ENVREF: النطاق الصادق JSON (المفاتيح MIN_DROP_FLOOR/MAX_DROP_PCT/MIN_DROP_PCT). حاضر ⇒ الذراعان R0+R2 · فارغ ⇒ R0+R1 (T-M2REF الأصلية)"
+        required: false
+        default: ""
 jobs:
   m2ref:
     runs-on: ubuntu-latest
@@ -41,6 +45,7 @@ jobs:
           # بايثون** — لا تُضبط هنا (عزل الذراعين M2R1 + درس بصمة الـno-op).
           BACKTEST_YEAR: ${{ github.event.inputs.year }}
           BT_FROZEN_PATH: frozen_backtest.pkl.gz
+          M2REF_BAND: ${{ github.event.inputs.band }}
         run: python m2ref_arms.py
       - name: Upload backtest CSV
         if: always()
