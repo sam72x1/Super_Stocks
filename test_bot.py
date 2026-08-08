@@ -186,6 +186,67 @@ try:
         check("الفحص اليدوي = الأساسي", _diag is not None, "r0/diag فارغ")
 except Exception as e:
     check("الفحص اليدوي = الأساسي", False, str(e))
+
+# 🥇 HCG5-HCG8: أنواع بوابات العرض تطابق حقيقة الفارز (مسكة المالك 2026-08-08)
+# — الصلبة ترفض بالفارز (M1-M5 + RSI) · اللينة نقص (نمط/فجوة/MACD/متوسط) ·
+# توافق الفريمات عند حدّ 0 = «معلومة» لا بوابة. عرض فقط — الفارز لم يُمسّ.
+try:
+    _gk = {g[0].split(" (")[0].split(" فوق")[0].split(" ضمن")[0]: g[3]
+           for g in (_g or []) if len(g) > 3}
+    _hard_names = [n for n, k in _gk.items() if k == "hard"]
+    _soft_names = [n for n, k in _gk.items() if k == "soft"]
+    check("HCG5: الصلبة = السعر/الهبوط/الانفجار/القاعدة/السيولة/RSI حصرًا",
+          any("السعر" in n for n in _hard_names)
+          and any("الهبوط" in n for n in _hard_names)
+          and any("انفجار" in n for n in _hard_names)
+          and any("قاعدة" in n for n in _hard_names)
+          and any("سيولة" in n for n in _hard_names)
+          and any("RSI" in n for n in _hard_names)
+          and not any("MACD" in n or "نمط" in n or "متوسطه" in n
+                      or "فجوة-هدف" in n for n in _hard_names),
+          f"hard={_hard_names}")
+    check("HCG6: اللينة = نمط الشمعة/الفجوة-هدف/MACD/المتوسط (نقص لا رفض)",
+          any("نمط شمعة" in n for n in _soft_names)
+          and any("فجوة-هدف" in n for n in _soft_names)
+          and any("MACD" in n for n in _soft_names)
+          and any("متوسطه" in n for n in _soft_names),
+          f"soft={_soft_names}")
+    _tf_g = next((g for g in (_g or []) if "توافق الفريمات" in g[0]), None)
+    if int(S.CONFIG.get("TF_MIN_REVERSALS", 2)) < 1:
+        check("HCG7: توافق الفريمات عند حدّ 0 ⇒ «معلومة» (خرج بقياس الكاتالوج)",
+              _tf_g is not None and _tf_g[3] == "info"
+              and "خرج من الشروط" in _tf_g[0], str(_tf_g))
+    else:
+        check("HCG7: توافق الفريمات بحدّ فعّال ⇒ بوابة لينة (مطابقة الفارز)",
+              _tf_g is not None and _tf_g[3] == "soft", str(_tf_g))
+    # دقة الأرقام: قيم RSI بعُشرية (44.4 لا «44») حتى لا يناقض العرضُ الحكم —
+    # وعتبة السعر بخانتين ($1.65 لا «$2») — درس «قاع 44 معروضًا مع ❌»
+    import re as _re_hc
+    _rsi_g = next((g for g in (_g or []) if g[0].startswith("RSI")), None)
+    check("HCG8: قيم RSI المعروضة بعُشرية + عتبة السعر بخانتين (لا تدوير يكذب)",
+          _rsi_g is not None
+          and _re_hc.search(r"قاع \d+\.\d+ / الآن \d+\.\d+", _rsi_g[2]) is not None
+          and any(_re_hc.search(r"السعر فوق \$\d+\.\d{2}$", g[0])
+                  for g in (_g or [])),
+          f"rsi_detail={_rsi_g[2] if _rsi_g else None}")
+except Exception as e:
+    check("HCG5-8: أقفال أنواع البوابات", False, str(e))
+
+# HCG9: سبب الرفض الاحتياطي يسمّي الصلبة الساقطة فقط (لا اللينة الناقصة)
+try:
+    _fb_gates = [("السعر فوق $1.65", False, "$1.20", "hard"),
+                 ("تقاطع MACD إيجابي", False, "سلبي/لا تقاطع", "soft")]
+    if _diag:
+        _fb_msg = AO.render_ondemand(dict(_diag), _fb_gates, None,
+                                     reject_reason=None)
+        _fb_line = next(ln for ln in _fb_msg.split("\n") if "لم يكن البوت" in ln)
+        check("HCG9: سبب الرفض من الصلبة الساقطة وحدها (MACD اللينة لا تُذكر)",
+              "السعر فوق" in _fb_line and "MACD" not in _fb_line, _fb_line)
+    else:
+        check("HCG9: سبب الرفض الاحتياطي", False, "_diag غائب")
+except Exception as e:
+    check("HCG9: سبب الرفض الاحتياطي", False, str(e))
+
 if r0:
     check("مُصنّف A أو B", r0["tier"] in ("A", "B"), f"tier={r0['tier']} soft={r0['soft_fails']}")
     check("نواقصه ضمن الحد", len(r0["soft_fails"]) <= S.CONFIG["WATCH_MAX_FAILS"])
@@ -2526,11 +2587,16 @@ check("فحص اليد: بلا قرائن ⇒ «لا قرائن واضحة» (ص
                                                      "behav": {}}))
 check("فحص اليد·الأهم: يحلّله كسهم ارتكاز (قسم «التحليل كسهم ارتكاز»)",
       "التحليل كسهم ارتكاز" in _hc_msg)
-_hc_gates = [("السعر فوق $1", True, "$2.00"),
-             ("الهبوط ضمن 40–97%", True, "-70%"),
-             ("انفجار سابق 60% فأكثر", True, "120%"),
-             ("قاعدة ضيقة (40% أو أقل) ولم ينفجر", False, "55%"),
-             ("RSI تشبّع (قاع 32 أو أقل) والآن أقل من 50", False, "الآن 47")]
+_hc_gates = [("السعر فوق $1", True, "$2.00", "hard"),
+             ("الهبوط ضمن 40–97%", True, "-70%", "hard"),
+             ("انفجار سابق 60% فأكثر", True, "120%", "hard"),
+             ("قاعدة ضيقة (40% أو أقل) ولم ينفجر", False, "55%", "hard"),
+             ("RSI تشبّع (قاع 32 أو أقل) والآن أقل من 50", False, "الآن 47",
+              "hard"),
+             ("نمط شمعة انعكاسي (يومي/أسبوعي)", False, "لا يوجد", "soft"),
+             ("تقاطع MACD إيجابي", True, "إيجابي", "soft"),
+             ("توافق الفريمات — خرج من الشروط بقياس الكاتالوج", True,
+              "الحال: 1/3", "info")]
 _hc_piv = dict(_hc_r, gates=_hc_gates,
                interp={"setup_type": "liquidity_sweep",
                        "entry_mode": {"mode": "near_support"},
@@ -2541,10 +2607,22 @@ _hc_pmsg = HC.render_hand_check("TST", _hc_piv)
 check("فحص اليد·ارتكاز مؤهّل: يعرض «مؤهّل» + الحالة + الرقم الحرج + الأهداف",
       "سهم ارتكاز مؤهّل" in _hc_pmsg and "الرقم الحرج" in _hc_pmsg
       and "🎯 أهداف:" in _hc_pmsg)
-check("فحص اليد·البوابات: يعرض كل البوابات ✅/❌ + العدّ «N/M» (طلب المستخدم)",
-      "البوابات الإلزامية:" in _hc_pmsg and "3/5" in _hc_pmsg
+check("فحص اليد·البوابات: تقسيم صادق — صلبة 3/5 + لينة 1/2 + ✅/❌ لكل بوابة",
+      "بوابات فيصل الصلبة" in _hc_pmsg and "3/5" in _hc_pmsg
+      and "تأكيدات لينة" in _hc_pmsg and "1/2" in _hc_pmsg
       and "❌ قاعدة ضيقة" in _hc_pmsg and "✅ السعر فوق" in _hc_pmsg)
-# 🎯 جوهر الطلب: سهم سقط على بوابة صلبة (السعر) — تظهر باقي البوابات مع ذلك
+# 🥇 مسكة المالك 2026-08-08: «13 بوابة هذي أصلًا من البوابات اللي حنا مسوينها
+# مب اللي من فيصل» — العرض القديم كان يسمّي الكل «البوابات الإلزامية» بعدّ واحد.
+check("HCG1: التسمية القديمة «البوابات الإلزامية» اختفت من فحص اليد",
+      "البوابات الإلزامية" not in _hc_pmsg)
+check("HCG2: بوابة «معلومة» (توافق=0) بلا ✅/❌ ولا تدخل أي عدّ — سطر ℹ️",
+      "ℹ️ توافق الفريمات — خرج من الشروط" in _hc_pmsg
+      and "✅ توافق الفريمات — خرج" not in _hc_pmsg
+      and "3/8" not in _hc_pmsg)          # العدّ القديم الموحّد (كل الثمانية) اختفى
+check("HCG3: اللينة الناقصة لا تظهر سبب رفض ولا تُحسب في عدّ الصلبة",
+      "5/8" not in _hc_pmsg and "4/8" not in _hc_pmsg)
+# 🎯 جوهر الطلب: سهم سقط على بوابة صلبة (السعر) — تظهر باقي البوابات مع ذلك.
+# (تُترك ثلاثياتٍ قديمة عمدًا = قفل التوافق الخلفي HCG4: ثلاثية بلا نوع → صلبة)
 _hc_low = {"symbol": "BBLG", "price": 1.30, "behav": {"sweeps": 3, "score": 61},
            "reject_reason": "M1_سعر=1",
            "gates": [("السعر فوق $1", False, "$1.30"),
@@ -2556,6 +2634,8 @@ check("فحص اليد·الأهم: سهم تحت الحد (سقط على الس
       "ليس سهم ارتكاز مؤهّلًا" in _hc_lmsg and "3/4" in _hc_lmsg
       and "❌ السعر فوق" in _hc_lmsg and "✅ الهبوط" in _hc_lmsg
       and "✅ انفجار سابق" in _hc_lmsg)
+check("HCG4: توافق خلفي — ثلاثيات قديمة بلا نوع تُعامل صلبة (لا انهيار ولا اختفاء)",
+      "بوابات فيصل الصلبة" in _hc_lmsg and "تأكيدات لينة" not in _hc_lmsg)
 check("فحص اليد·صدق: نص «تدفق الطلبات الحي غير متاح» موجود (بلا تدفق حي)",
       "تدفق الطلبات الحي" in _hc_msg)
 # 🩹 التذييل صادق حسب المصدر: تدفق Polygon الحي ⇒ «حي من Polygon» لا «غير متاح»

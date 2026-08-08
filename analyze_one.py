@@ -6,8 +6,10 @@
 ملف منفصل — لا يعدّل Super_stock.py ولا يلمس الفرز التلقائي.
 
 v2: مُواءَم بالكامل مع البوت الأساسي الجديد:
-  • يفحص كل البوابات الإلزامية الحالية (لا 7 فقط): يضيف الفجوة-فوق،
-    RSI، MACD، المتوسط الأسي، الشورت، والفلوت — تماماً كقرار الترشيح.
+  • يفحص كل بوابات الفرز الحالية بتقسيمها الصادق (صلبة ترفض · لينة نقص ·
+    «معلومة» خرجت من الشروط بقياس الكاتالوج): الفجوة-فوق، RSI، MACD،
+    المتوسط الأسي، الشورت، والفلوت — تماماً كقرار الترشيح، وأرقامها أرقام
+    CONFIG الحيّة (معايير فيصل وحدها عند تفعيلها — لا أرقام قديمة مثبّتة).
   • يستخدم المتوسط الأسي (EMA) لا البسيط (SMA) في النقاط — مطابقة لفيصل.
   • نقاط الفجوات والفجوة-هدف مُضافة لتطابق درجة البوت بالضبط.
   • الأهداف من نفس منطق البوت (مقاومات حقيقية + فجوات-هدف).
@@ -29,12 +31,61 @@ except ImportError:
 C = bot.CONFIG
 
 
+def _n(x) -> str:
+    """رقم عتبة للعرض: الصحيح كما هو، وغيره بعُشرية واحدة — حتى لا يكذب
+    التقريبُ على الحكم (مسكة المالك 2026-08-08: «قاع 44» معروضًا مع ❌ والحد
+    المعروض «44 أو أقل» — القيمة الحقيقية كانت 44.4 والتدوير أخفاها)."""
+    try:
+        v = float(x)
+    except (TypeError, ValueError):
+        return str(x)
+    return f"{v:.0f}" if abs(v - round(v)) < 0.05 else f"{v:.1f}"
+
+
+def _gate_kind(g) -> str:
+    """نوع البوابة من الرباعية؛ الثلاثيات القديمة تُعامل «صلبة» (توافق خلفي)."""
+    return g[3] if len(g) > 3 else "hard"
+
+
+def render_gate_lines(gates) -> list:
+    """🚪 أسطر عرض البوابات بتقسيمها الصادق — **عرض فقط** (لا قرار).
+
+    تصحيح مسكة المالك (2026-08-08 «13 بوابة هذي أصلًا من البوابات اللي حنا
+    مسوينها مب اللي من فيصل»): كان العرض يسمّي الثلاث عشرة كلّها «البوابات
+    الإلزامية» بينما الفارز الحقيقي يفرّق: **صلبة ترفض** (السعر/الهبوط/الانفجار/
+    القاعدة/السيولة/RSI/الشورت/الفلوت — أرقامها من ظرف كتالوج فيصل، والشورت/
+    الفلوت بقرار المالك) · **لينة نقص لا رفض** (نمط الشمعة/الفجوة-هدف/MACD/
+    المتوسط — تُحسب ضمن حد النواقص) · **معلومة** (توافق الفريمات عند حدّ 0 —
+    قياس الكاتالوج أخرجه من الشروط فلا يُعدّ ولا يُوسَم ✅/❌)."""
+    hard = [g for g in gates if _gate_kind(g) == "hard"]
+    soft = [g for g in gates if _gate_kind(g) == "soft"]
+    info = [g for g in gates if _gate_kind(g) == "info"]
+    L = []
+    if hard:
+        hp = sum(1 for g in hard if g[1])
+        L.append(f"🚪 بوابات فيصل الصلبة (ترفض): <b>{hp}/{len(hard)}</b> — "
+                 "أرقامها مقيسة من كتالوجه (ظرف P90) · الشورت/الفلوت بقرار "
+                 "المالك · تظهر كاملة حتى لو سقط على واحدة:")
+        for g in hard:
+            L.append(f"  {'✅' if g[1] else '❌'} {g[0]} — {g[2]}")
+    if soft:
+        sp = sum(1 for g in soft if g[1])
+        L.append(f"🔸 تأكيدات لينة (نقصها لا يرفض — يُحسب ضمن حد النواقص "
+                 f"{int(C.get('WATCH_MAX_FAILS', 3))}): <b>{sp}/{len(soft)}</b>:")
+        for g in soft:
+            L.append(f"  {'✅' if g[1] else '❌'} {g[0]} — {g[2]}")
+    for g in info:
+        L.append(f"  ℹ️ {g[0]} — {g[2]}")
+    return L
+
+
 # ==========================================================
 # التحليل عند الطلب — يحسب كل بوابة كمعلومة (بلا رفض)
 # ==========================================================
 def analyze_on_demand(sym: str):
     """يرجع (result_dict, gates) عند النجاح، أو (None, رسالة) عند تعذّر البيانات.
-    gates = قائمة (اسم، نجح؟، تفصيل) لكل البوابات الإلزامية الحالية في البوت
+    gates = قائمة (اسم، نجح؟، تفصيل، نوع) لكل بوابات الفرز الحالية في البوت —
+    النوع: hard صلبة ترفض · soft لينة نقص · info خرجت بقياس الكاتالوج
     (الشورت والفلوت يُضافان لاحقاً في main بعد الإثراء)."""
     sym = sym.strip().upper()
     try:
@@ -69,29 +120,30 @@ def analyze_on_demand(sym: str):
                   if (z["bottom"] / price - 1.0) * 100.0 <= maxd]
     best_spike, n_spikes = bot.spike_info(c, exclude_last=C["BASE_WINDOW"])
 
-    gates = []   # (الاسم، نجح؟، التفصيل)
+    # (الاسم، نجح؟، التفصيل، النوع) — النوع «مطابق للفارز الحقيقي»: hard ترفض ·
+    # soft نقص يُحسب ضمن حد النواقص · info خرجت من الشروط بقياس الكاتالوج.
+    # (مسكة المالك 2026-08-08: كانت الثلاث عشرة كلها تُعرض «إلزامية» — كذبة إطار.)
+    gates = []
 
-    # M1: السعر
+    # M1: السعر (صلبة) — العتبة بخانتين لا مدوّرة ($1.65 كانت تظهر «$2»)
     g1 = price >= C["MIN_PRICE"]
-    gates.append((f"السعر فوق ${C['MIN_PRICE']:.0f}", g1, f"${price:.2f}"))
+    gates.append((f"السعر فوق ${C['MIN_PRICE']:.2f}", g1, f"${price:.2f}", "hard"))
 
-    # M2: الهبوط من قمة 52 أسبوع
+    # M2: الهبوط من قمة 52 أسبوع (صلبة عند الأرضية/السقف · «المثالي» نقص بالحكم)
     hi52 = float(high.tail(252).max())
     drop_pct = (1.0 - price / hi52) * 100.0 if hi52 > 0 else 0.0
-    # يجتاز عند الأرضية (مثل البوت): 40–97% يمرّ · 40–50% نقص لا رفض → فلا يتناقض
-    # مع حكم «B» المعروض في نفس الرسالة (إصلاح فحص 2026-06-24).
     g2 = (drop_pct >= C["MIN_DROP_FLOOR"]) and (drop_pct <= C["MAX_DROP_PCT"])
-    gates.append((f"الهبوط ضمن {C['MIN_DROP_FLOOR']:.0f}–{C['MAX_DROP_PCT']:.0f}%"
-                  f" (المثالي {C['MIN_DROP_PCT']:.0f}% فأكثر)",
-                  g2, f"{drop_pct:.0f}%"))
+    gates.append((f"الهبوط ضمن {_n(C['MIN_DROP_FLOOR'])}–{_n(C['MAX_DROP_PCT'])}%"
+                  f" (المثالي {_n(C['MIN_DROP_PCT'])}% فأكثر)",
+                  g2, f"{drop_pct:.1f}%", "hard"))
 
-    # M3: الانفجار السابق — يجتاز عند الأرضية 60% (مثل البوت)، و60–100% نقص لا رفض
+    # M3: الانفجار السابق (صلبة عند الأرضية · «المثالي» نقص بالحكم)
     g3 = best_spike >= C["PRIOR_SPIKE_FLOOR"]
-    gates.append((f"انفجار سابق {C['PRIOR_SPIKE_FLOOR']:.0f}% فأكثر"
-                  f" (المثالي {C['PRIOR_SPIKE_PCT']:.0f}%)",
-                  g3, f"{best_spike:.0f}% ({n_spikes} انفجار موثّق)"))
+    gates.append((f"انفجار سابق {_n(C['PRIOR_SPIKE_FLOOR'])}% فأكثر"
+                  f" (المثالي {_n(C['PRIOR_SPIKE_PCT'])}%)",
+                  g3, f"{best_spike:.1f}% ({n_spikes} انفجار موثّق)", "hard"))
 
-    # M4: قاعدة ضيقة + لم ينفجر بعد
+    # M4: قاعدة ضيقة + لم ينفجر بعد (صلبة — حدّ الحركة معروض حتى يُقرأ الحكم)
     bw = C["BASE_WINDOW"]
     base_hi = float(high.tail(bw).max())
     base_lo = float(low.tail(bw).min())
@@ -99,48 +151,57 @@ def analyze_on_demand(sym: str):
     gain5 = (c[-1] / c[-6] - 1.0) * 100.0 if len(c) > 6 else 0.0
     g4 = (base_range <= C["BASE_RANGE_MAX_PCT"]) and \
          (gain5 <= C["RECENT_RISE_BLOCK_PCT"])
-    gates.append((f"قاعدة ضيقة ({C['BASE_RANGE_MAX_PCT']:.0f}% أو أقل) ولم ينفجر",
-                  g4, f"مدى القاعدة {base_range:.0f}%، حركة 5 جلسات {gain5:+.0f}%"))
+    gates.append((f"قاعدة ضيقة ({_n(C['BASE_RANGE_MAX_PCT'])}% أو أقل) ولم ينفجر "
+                  f"(حركة 5ج {_n(C['RECENT_RISE_BLOCK_PCT'])}% أو أقل)",
+                  g4, f"مدى القاعدة {base_range:.1f}%، حركة 5 جلسات {gain5:+.1f}%",
+                  "hard"))
 
-    # M5: السيولة الدولارية
+    # M5: السيولة الدولارية (صلبة)
     dvol = float((close * vol).tail(20).mean())
     g5 = math.isfinite(dvol) and dvol >= C["MIN_DOLLAR_VOL"]
     gates.append((f"سيولة {bot.fmt_money(C['MIN_DOLLAR_VOL'])}/يوم أو أكثر",
-                  g5, f"{bot.fmt_money(dvol)}/يوم"))
+                  g5, f"{bot.fmt_money(dvol)}/يوم", "hard"))
 
-    # M6: توافق الفريمات
-    g6 = mtf["count"] >= C["TF_MIN_REVERSALS"]
-    gates.append((f"توافق الفريمات {C['TF_MIN_REVERSALS']} من 3 على الأقل",
-                  g6, f"{mtf['count']}/3 — {mtf['display']}"))
+    # M6: توافق الفريمات — لينة بالفارز (نقص لا رفض)؛ وعند حدّ 0 (قياس الكاتالوج:
+    # أسهم فيصل عند قيعانها 0/3) تخرج من الشروط ⇒ «معلومة» بلا ✅/❌ ولا عدّ —
+    # كان سطر «0 من 3 على الأقل ✅» يتحقّق دائمًا فينفخ العدّاد بلا معنى.
+    if C["TF_MIN_REVERSALS"] >= 1:
+        g6 = mtf["count"] >= C["TF_MIN_REVERSALS"]
+        gates.append((f"توافق الفريمات {int(C['TF_MIN_REVERSALS'])} من 3 على الأقل",
+                      g6, f"{mtf['count']}/3 — {mtf['display']}", "soft"))
+    else:
+        gates.append(("توافق الفريمات — خرج من الشروط بقياس الكاتالوج", True,
+                      f"الحال: {mtf['count']}/3 — {mtf['display']}", "info"))
 
-    # M7: نمط شمعة انعكاسي
+    # M7: نمط شمعة انعكاسي (لينة — الفارز يسجّله نقصًا لا رفضًا)
     g7 = bool(patterns)
     gates.append(("نمط شمعة انعكاسي (يومي/أسبوعي)",
-                  g7, "، ".join(patterns) if patterns else "لا يوجد"))
+                  g7, "، ".join(patterns) if patterns else "لا يوجد", "soft"))
 
-    # M9: فجوة-هدف غير مملوءة فوق السعر (إلزامي لو مفعّل في البوت)
+    # M9: فجوة-هدف غير مملوءة فوق السعر (لينة — الفارز يسجّلها نقصًا لا رفضًا)
     if C.get("GAP_ABOVE_REQUIRED", False):
         g9 = bool(near_zones)
         d9 = (f"{len(near_zones)} منطقة (أقرب ${near_zones[0]['bottom']:.2f})"
               if near_zones else "لا توجد فجوة-هدف فوق السعر")
-        gates.append(("فجوة-هدف غير مملوءة فوق السعر", g9, d9))
+        gates.append(("فجوة-هدف غير مملوءة فوق السعر", g9, d9, "soft"))
 
-    # M10: RSI متدرّج (مطابق للبوت): قاع التشبّع ≤RSI_OS_HARD + الآن ≤RSI_NOW_HARD
+    # M10: RSI متدرّج (صلبة — سقفا الرفض بالفارز) · القيم بعُشرية حتى لا يناقض
+    # العرضُ الحكمَ (قاع 44.4 كان يظهر «44» مع ❌ والحد «44 أو أقل»)
     if C.get("RSI_GATE_REQUIRED", False):
         r_min_os = float(rsi_s.tail(C["RSI_OS_LOOKBACK"]).min())
         g10 = (r_min_os <= C["RSI_OS_HARD"] and r_now <= C["RSI_NOW_HARD"])
-        gates.append((f"RSI تشبّع (قاع {C['RSI_OS_HARD']:.0f} أو أقل) والآن "
-                      f"{C['RSI_NOW_HARD']:.0f} أو أقل", g10,
-                      f"قاع {r_min_os:.0f} / الآن {r_now:.0f}"))
+        gates.append((f"RSI تشبّع (قاع {_n(C['RSI_OS_HARD'])} أو أقل) والآن "
+                      f"{_n(C['RSI_NOW_HARD'])} أو أقل", g10,
+                      f"قاع {r_min_os:.1f} / الآن {r_now:.1f}", "hard"))
 
-    # M11: تقاطع MACD إيجابي (إلزامي لو مفعّل)
+    # M11: تقاطع MACD إيجابي (لينة — الفارز يسجّله نقصًا لا رفضًا)
     if C.get("MACD_GATE_REQUIRED", False):
         g11 = (float(m_line.iloc[-1]) >= float(m_sig.iloc[-1])
                or (m_line.iloc[-5:] > m_sig.iloc[-5:]).any())
         gates.append(("تقاطع MACD إيجابي", g11,
-                      "إيجابي" if g11 else "سلبي/لا تقاطع"))
+                      "إيجابي" if g11 else "سلبي/لا تقاطع", "soft"))
 
-    # M12: السعر على المتوسط الأسي 30/50 (إلزامي لو مفعّل)
+    # M12: السعر على المتوسط الأسي 30/50 (لينة — الفارز يسجّلها نقصًا لا رفضًا)
     if C.get("MA_GATE_REQUIRED", False):
         band = C["MA_GATE_MAX_ABOVE_PCT"] / 100.0
         g12 = any(m > 0 and price >= m * 0.98 and (price / m - 1.0) <= band
@@ -153,7 +214,7 @@ def analyze_on_demand(sym: str):
         else:
             _d12 = (f"السعر أعلى بـ{ma_dist:.0f}% من متوسطه المتحرك "
                     "(يفتح برجوعه قرب متوسطه)")
-        gates.append(("السعر قرب متوسطه المتحرك 30/50", g12, _d12))
+        gates.append(("السعر قرب متوسطه المتحرك 30/50", g12, _d12, "soft"))
 
     # ===== الدرجة الفنية (نفس أوزان البوت — تُحسب دائماً) =====
     score = 0
@@ -523,7 +584,7 @@ def append_short_float_gates(result: dict, gates: list) -> list:
     """يضيف بوابتي الشورت (M13) والفلوت (M14) بعد الإثراء — لأنهما يحتاجان
     بيانات شبكية يجلبها enrich. نفس منطق البوت: يعدّي لو البيانة مفقودة."""
     gates = list(gates)
-    # M13 — الشورت العالي
+    # M13 — الشورت العالي (صلبة · الرقم قرار المالك C3 — خارج قياس الكاتالوج)
     if C.get("SHORT_GATE_REQUIRED", False):
         fd = result.get("fintel") or {}
         srt = fd.get("short_volume")
@@ -533,15 +594,15 @@ def append_short_float_gates(result: dict, gates: list) -> list:
         d13 = (f"{bot.fmt_money(srt)} (الحد {bot.fmt_money(C['SHORT_GATE_MAX'])})"
                if srt is not None else "غير متاح — مُرِّر بفائدة الشك")
         gates.append((f"الشورت تحت {bot.fmt_money(C['SHORT_GATE_MAX'])}",
-                      g13, d13))
-    # M14 — الفلوت الكبير (أقوى رابط مشترك في أسهم فيصل)
+                      g13, d13, "hard"))
+    # M14 — الفلوت الكبير (صلبة · الرقم قرار المالك 2026-07-29 — خارج الكاتالوج)
     if C.get("FLOAT_GATE_REQUIRED", False):
         fl = result.get("float")
         g14 = (fl is None) or (fl < C["FLOAT_GATE_MAX"])
         d14 = (f"{bot.fmt_money(fl)} (الحد {bot.fmt_money(C['FLOAT_GATE_MAX'])})"
                if fl is not None else "غير متاح — مُرِّر بفائدة الشك")
         gates.append((f"الفلوت تحت {bot.fmt_money(C['FLOAT_GATE_MAX'])}",
-                      g14, d14))
+                      g14, d14, "hard"))
     return gates
 
 
@@ -550,8 +611,10 @@ def append_short_float_gates(result: dict, gates: list) -> list:
 # ==========================================================
 def render_ondemand(result: dict, gates: list, official, reject_reason=None,
                     pullback=None) -> str:
-    passed = sum(1 for _, ok, _ in gates if ok)
-    total = len(gates)
+    # ترويسة العدّ على **الصلبة وحدها** — عدّ الثلاث عشرة كلها كان يعرض
+    # التأكيدات اللينة والميّت (توافق=0) كأنها شروط رفض (مسكة المالك 2026-08-08)
+    _hard = [g for g in gates if _gate_kind(g) == "hard"]
+    _hp = sum(1 for g in _hard if g[1])
 
     head = [
         f"🔎 <b>تحليل يدوي عند الطلب: {result['symbol']}</b>",
@@ -560,7 +623,7 @@ def render_ondemand(result: dict, gates: list, official, reject_reason=None,
         "(متى أدخل — التوقيت)",
         f"الدرجة الفنية: <b>{result['score']}/100</b>  "
         "(قوة الإشارات الفنية)",
-        f"البوابات الإلزامية: <b>{passed}/{total}</b>",
+        f"بوابات فيصل الصلبة: <b>{_hp}/{len(_hard)}</b>",
     ]
     # الحكم = قرار البوت الأساسي نفسه (مؤهّل / ارتداد / مرفوض) — لا تناقض
     # (🪦 A/B متقاعد 2026-07-05: فئة واحدة مؤهّلة، الجاهزية هي المحور)
@@ -576,8 +639,10 @@ def render_ondemand(result: dict, gates: list, official, reject_reason=None,
                     f"ارتفع ({wr}). انتظر رجوعه لسعر الدعم "
                     f"<b>${tgt:.2f}</b> ثم ادخل.")
     else:
-        why = reject_reason or "؛ ".join(n for n, ok, _ in gates if not ok) \
-            or "لم يجتز بوابة إلزامية"
+        # سبب الرفض الاحتياطي من **الصلبة الساقطة وحدها** — ناقص لين ليس سبب رفض
+        why = reject_reason or "؛ ".join(
+            g[0] for g in gates if not g[1] and _gate_kind(g) == "hard") \
+            or "لم يجتز بوابة صلبة"
         head.append(f"الحكم: ❌ <b>لم يكن البوت ليرشّحه</b> (السبب: {why})")
     head.append("")
     # تفصيل نسبة الجاهزية (المتوفر/الجزئي/الناقص)
@@ -589,9 +654,8 @@ def render_ondemand(result: dict, gates: list, official, reject_reason=None,
         if result.get("readiness_missing"):
             head.append("⏳ ناقص: " + "، ".join(result["readiness_missing"]))
         head.append("")
-    head.append("📋 <b>تفصيل البوابات الإلزامية:</b>")
-    for name, ok, detail in gates:
-        head.append(f"  {'✅' if ok else '❌'} {name} — {detail}")
+    head.append("📋 <b>تفصيل البوابات:</b>")
+    head += render_gate_lines(gates)
     head.append("")
     head.append("— — — البطاقة الكاملة — — —")
 
