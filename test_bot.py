@@ -2655,6 +2655,61 @@ check("فحص اليد·الأهم: سهم تحت الحد (سقط على الس
       and "✅ انفجار سابق" in _hc_lmsg)
 check("HCG4: توافق خلفي — ثلاثيات قديمة بلا نوع تُعامل صلبة (لا انهيار ولا اختفاء)",
       "بوابات فيصل الصلبة" in _hc_lmsg and "تأكيدات لينة" not in _hc_lmsg)
+
+# ── 🧭 «الهبوط الصادق» — مسكة المالك 2026-08-08 «هذي تعتبر مشكلة هل حليتها؟» ──
+# الخطر المقيس: اسمُ الجدار «فوق السقف» على مقسَّمٍ عكسيًّا وحقيقتُه «تحت
+# الأرضية» ⇒ سببُ رفضٍ كاذب **ضلّلني بنفسي**. عرض/تشخيص فقط — القرار لا يُمَسّ.
+check("🧭 TD1 `truthful_drop` نقيّة: تحسب من المرجع · والتالف/الصفر/None ⇒ None",
+      abs(AO.truthful_drop(2.65, 10.5) - 74.7619047) < 1e-4
+      and AO.truthful_drop(2.65, None) is None
+      and AO.truthful_drop(2.65, 0) is None
+      and AO.truthful_drop(None, 10.5) is None
+      and AO.truthful_drop("x", 10.5) is None)
+check("🧭 TD2 `drop_verdict` بحدود التخوم: الأرضية نفسها «داخل» · تحتها بشعرة "
+      "«تحت» · السقف نفسه «داخل» · فوقه بشعرة «فوق»",
+      AO.drop_verdict(89.588, 89.588, 99.722) == "داخل النطاق"
+      and AO.drop_verdict(89.587, 89.588, 99.722) == "تحت الأرضية"
+      and AO.drop_verdict(99.722, 89.588, 99.722) == "داخل النطاق"
+      and AO.drop_verdict(99.723, 89.588, 99.722) == "فوق السقف"
+      and AO.drop_verdict(None, 89.6, 99.7) is None)
+# 🎯 حالة TDIC الحيّة حرفيًّا: سعر 2.65 · مرجع صادق 10.5 · جدار مُسجَّل «فوق_97»
+_td_tdic = AO.truthful_drop_lines(2.65, 10.5, 89.588, 99.722,
+                                  reason="M2_هبوط_فوق_97=1")
+check("🧭 TD3 تنبيهُ التعارض يظهر على حالة TDIC: «74.8%» + «تحت الأرضية» + "
+      "«اسم السبب المُسجَّل مضلِّل»",
+      any("74.8%" in x for x in _td_tdic)
+      and any("تحت الأرضية" in x for x in _td_tdic)
+      and any("مضلِّل" in x for x in _td_tdic), str(_td_tdic))
+# ولا يُطلق تنبيهًا حين لا تعارض (جدار السقف والصدقُ يوافقه فوق السقف)
+_td_ok = AO.truthful_drop_lines(0.2, 100.0, 89.588, 99.722,   # 99.8% = فوق السقف
+                                reason="M2_هبوط_فوق_97=1")
+check("🧭 TD4 لا تنبيه بلا تعارض: صادقٌ «فوق السقف» مع نفس الجدار ⇒ سطرُ سياق فقط",
+      any("فوق السقف" in x for x in _td_ok)
+      and not any("مضلِّل" in x for x in _td_ok)
+      and len(AO.truthful_drop_lines(2.65, 10.5, 89.6, 99.7,
+                                     reason="M1_سعر=1")) == 2, str(_td_ok))
+check("🧭 TD5 فاشل-آمن: بلا مرجع (سهم غير مقسّم) ⇒ **صفر سطر** والكرت بت-بت",
+      AO.truthful_drop_lines(2.65, None, 89.6, 99.7) == []
+      and AO.render_gate_lines(_hc_gates, truthful=None)
+      == AO.render_gate_lines(_hc_gates))
+# 🔒 موصولٌ من نقطة النداء الحيّة (AST): فحص اليد يمرّر `m2_truthful` فعلًا
+# — لا يكفي وجودُ الدالّة (درس «الوصلة الميتة»).
+import ast as _td_ast      # استيرادٌ محلّي: `_rt_ast` يُستورَد بعد هذا الموضع
+_td_tree = _td_ast.parse(open("hand_check.py", encoding="utf-8").read())
+_td_calls = [n for n in _td_ast.walk(_td_tree) if isinstance(n, _td_ast.Call)
+             and getattr(n.func, "attr", "") == "render_gate_lines"]
+check("🧭 TD6 الوصلة حيّة: `render_gate_lines` تُنادى بـ`truthful=` من فحص اليد",
+      bool(_td_calls)
+      and any(k.arg == "truthful" for c in _td_calls for k in c.keywords),
+      f"نداءات={len(_td_calls)}")
+# 🔒 والمرجع بنافذة 252 **كما يقيس الفارز** لا بكامل التاريخ (وإلا مقياسٌ ثالث)
+_td_src = open("hand_check.py", encoding="utf-8").read()
+check("🧭 TD7 مرجعُ M2 الصادق بنافذة 252 حرفيًّا (اتّساق المقياس مع الفارز)",
+      '_post_split_high(df["High"].tail(252)' in _td_src
+      and '"m2_truthful"' in _td_src)
+check("🧭 TD8 عرض فقط: الدوالّ الثلاث خارج جذور القرار (لا تُنادى في الفارز)",
+      all(x not in _insp0.getsource(S.analyze_ticker)
+          for x in ("truthful_drop", "drop_verdict", "truthful_drop_lines")))
 check("فحص اليد·صدق: نص «تدفق الطلبات الحي غير متاح» موجود (بلا تدفق حي)",
       "تدفق الطلبات الحي" in _hc_msg)
 # 🩹 التذييل صادق حسب المصدر: تدفق Polygon الحي ⇒ «حي من Polygon» لا «غير متاح»

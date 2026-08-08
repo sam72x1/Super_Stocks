@@ -47,7 +47,62 @@ def _gate_kind(g) -> str:
     return g[3] if len(g) > 3 else "hard"
 
 
-def render_gate_lines(gates) -> list:
+def truthful_drop(price, ref):
+    """🧭 «الهبوط الصادق»: من **قمة ما بعد آخر تقسيم عكسي** لا القمة المعدَّلة.
+    دالّة نقيّة — `None` عند غياب المرجع أو تلفه (فلا سطر، ولا تخمين)."""
+    try:
+        p, r = float(price), float(ref)
+        if not (p > 0 and r > 0):
+            return None
+        return (1.0 - p / r) * 100.0
+    except (TypeError, ValueError):
+        return None
+
+
+def drop_verdict(d, floor, cap):
+    """حكم النطاق على قيمة هبوط: «تحت الأرضية» · «داخل النطاق» · «فوق السقف»."""
+    try:
+        d, floor, cap = float(d), float(floor), float(cap)
+    except (TypeError, ValueError):
+        return None
+    if d < floor:
+        return "تحت الأرضية"
+    return "داخل النطاق" if d <= cap else "فوق السقف"
+
+
+REJECT_CEILING_MARK = "فوق_97"          # اسمُ جدار السقف في عدّاد الرفض
+
+
+def truthful_drop_lines(price, ref, floor=None, cap=None, reason=None) -> list:
+    """🧭 أسطرُ «الهبوط الصادق» — **عرض/تشخيص فقط، لا يغيّر حكمًا**.
+
+    سببُه (مسكة المالك 2026-08-08 «طيب هذي تعتبر مشكلة هل حليتها؟»): الفارز
+    يقيس M2 على سلسلةٍ **معدَّلة بالتقسيمات**، فالمقسَّم عكسيًّا يُرفَض بسببٍ
+    **مغلوطٍ في اسمه**: TDIC سُجِّل «هبوط فوق السقف 99.7%» وهبوطه الصادق من
+    قمّته الحقيقية ‏$10.5 هو **‏74.8% = تحت الأرضية**. القرارُ صحيحٌ في الحالتين
+    (رفضٌ ⟵ رفض) لكنّ **التفسير** كان كاذبًا — **وقد ضلّلني بنفسي** في أوّل
+    تشخيصٍ قدّمتُه للمالك عن TDIC.
+    ⚖️ **ولا يمسّ الحكم:** `T-M2REF`/`T-ENVREF` قاستا اعتماد المرجع الصادق في
+    **القرار** وأُغلق الملفّ بقرار المالك — وهذا **صدقٌ في التفسير** لا أكثر.
+    و`reason` (اختياريّ) يُنتج تنبيهًا صريحًا عند تعارض اسم الجدار مع الصدق."""
+    d = truthful_drop(price, ref)
+    if d is None:
+        return []
+    v = (drop_verdict(d, floor, cap)
+         if (floor is not None and cap is not None) else None)
+    L = [f"🧭 الهبوط الصادق (من قمة ما بعد آخر تقسيم عكسي ${float(ref):,.2f}): "
+         f"<b>{d:.1f}%</b>" + (f" ⟶ {v}" if v else "")]
+    if reason and REJECT_CEILING_MARK in str(reason) and v == "تحت الأرضية":
+        L.append("⚠️ <b>اسم السبب المُسجَّل مضلِّل</b>: «الهبوط فوق السقف» مقيسٌ "
+                 "على القمة المعدَّلة بالتقسيم — والسبب الحقيقي أنه <b>تحت "
+                 "الأرضية</b> (لم يبلغ انهيار فيصل). الرفض صحيح، والاسم لا.")
+    else:
+        L.append("<i>الفارز يحسب M2 على السلسلة المعدَّلة بالتقسيمات — فهذا "
+                 "السطر يصحّح فهم السبب لا الحكم.</i>")
+    return L
+
+
+def render_gate_lines(gates, truthful=None) -> list:
     """🚪 أسطر عرض البوابات بتقسيمها الصادق — **عرض فقط** (لا قرار).
 
     تصحيح مسكة المالك (2026-08-08 «13 بوابة هذي أصلًا من البوابات اللي حنا
@@ -76,6 +131,12 @@ def render_gate_lines(gates) -> list:
             L.append(f"  {'✅' if g[1] else '❌'} {g[0]} — {g[2]}")
     for g in info:
         L.append(f"  ℹ️ {g[0]} — {g[2]}")
+    # 🧭 «الهبوط الصادق» تحت البوابات الصلبة (مسكة المالك 2026-08-08) — يُمرَّر
+    # من نقطة النداء التي تملك التقسيمات (فحص اليد)؛ غيابُه ⇒ صفر سطر (بت-بت).
+    if truthful:
+        L += truthful_drop_lines(truthful.get("price"), truthful.get("ref"),
+                                 truthful.get("floor"), truthful.get("cap"),
+                                 truthful.get("reason"))
     return L
 
 

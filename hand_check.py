@@ -163,7 +163,10 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     gates = r.get("gates") or []
     if gates:
         import analyze_one as AO
-        L += AO.render_gate_lines(gates)
+        # 🧭 «الهبوط الصادق» (مسكة المالك 2026-08-08): يُمرَّر من هنا لأن هذي
+        # نقطة النداء التي تملك التقسيمات فعلًا (تُجلب أصلًا لتكرار التقسيم) —
+        # فصفر نداء شبكي إضافي. غيابُه (سهم غير مقسّم) ⇒ صفر سطر.
+        L += AO.render_gate_lines(gates, truthful=r.get("m2_truthful"))
         L.append("")
     if r.get("interp"):        # مؤهّل بالفارز → الحالة + الدخول + الأهداف
         es = bot.entry_status(r)
@@ -285,6 +288,18 @@ def hand_check(sym: str):
                           if sp is not None and len(sp) else None)
     except Exception:
         r["split_ref"] = None
+    # 🧭 مرجع «الهبوط الصادق» لسطر M2 — **بنافذة 252 حرفيًّا كما يقيس الفارز**
+    # (لا كامل التاريخ كمرجع الـ÷2 أعلاه، وإلا صار «الصادق» بمقياسٍ ثالث).
+    # عرض/تشخيص فقط · فاشل-آمن ⇒ None فلا سطر.
+    try:
+        _m2ref = (bot._post_split_high(df["High"].tail(252), sp, df.index[-1])
+                  if sp is not None and len(sp) else None)
+        r["m2_truthful"] = ({"price": float(df["Close"].iloc[-1]), "ref": _m2ref,
+                             "floor": bot.CONFIG["MIN_DROP_FLOOR"],
+                             "cap": bot.CONFIG["MAX_DROP_PCT"]}
+                            if _m2ref else None)
+    except Exception:
+        r["m2_truthful"] = None
     # (🔬 التجميع الصامت أُزيل — تجربة T-ACC فشلت بالسنتين؛ لا نجلبه ولا نعرضه)
     # مؤهّل ارتكاز؟ (interp + دخول/أهداف لو مرّ) · وإلا السبب الأول
     try:
@@ -314,6 +329,10 @@ def hand_check(sym: str):
         elif getattr(bot, "_REJECT_STATS", None):
             r["reject_reason"] = " · ".join(f"{k}={v}"
                                             for k, v in bot._REJECT_STATS.items())
+            # 🧭 يُمرَّر اسمُ الجدار للسطر الصادق ليكشف التعارض صراحةً
+            # («فوق السقف» مُسجَّلًا والصدقُ «تحت الأرضية») — عرض فقط.
+            if isinstance(r.get("m2_truthful"), dict):
+                r["m2_truthful"]["reason"] = r["reject_reason"]
     except Exception as e:
         # 14د: كان `pass` صامتًا فيُعرض انهيارُ التحليل حكمًا سلبيًا واثقًا.
         bot.log(f"⚠️ فحص اليد: انهار تحليل الارتكاز لـ{sym}: {e}")
