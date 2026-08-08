@@ -27,6 +27,10 @@ on:
         description: "عدد الجلسات الأخيرة لقياس الكلفة (افتراضي 5)"
         required: false
         default: "5"
+      pct:
+        description: "🥇 مئينُ الحدّ الأدنى: 100 = حدُّ المالك المنصوص (الظرف يستوعب كلَّ سهم من كتالوجه) · 90 = الكود السابق. يُصدَر الملفُّ باسم envelope_p{pct}.json"
+        required: false
+        default: "100"
 
 jobs:
   envelope:
@@ -69,4 +73,7 @@ jobs:
           ENV_SYMBOLS: ${{ github.event.inputs.symbols }}
           ENV_COST_CAP: ${{ github.event.inputs.cost_cap }}
           ENV_COST_DAYS: ${{ github.event.inputs.cost_days }}
+          ENV_PCT: ${{ github.event.inputs.pct }}
+          # ⚠️ المعايرةُ تُقاس بحوافّ P90 المحمَّلة أو P100 — لا فرق: `measure_session`
+          # يُرخي **كلَّ** البوّابات (‏D4) فالقياسُ مستقلٌّ عن الملفّ المحمَّل.
         run: python catalog_envelope.py

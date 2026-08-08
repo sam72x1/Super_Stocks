@@ -644,8 +644,20 @@ def run():
     #    الصيّاد. تُطبَع سطرًا واحدًا (‏JSON) لأن تنزيل الـartifacts محجوبٌ بسياسة
     #    الشبكة، وتُكتَب ملفًّا أيضًا لمن يستطيع قراءته.
     try:
+        # 🥇 **قرار المالك 2026-08-08 («وش مفهوم الحد الأدنى … طبّقها»):** المئينُ
+        # صار **مُختارًا بـ`ENV_PCT`** (‏افتراضُه 90 = السلوك السابق بت-بت).
+        # 🔴 **والسببُ تصحيحُ خطأٍ منّي:** مفهومُ المالك للحدّ الأدنى منصوصٌ
+        # («سهم واحد فقط RSI 23 ⇒ **هذا هو الحدّ**») ⇒ الظرفُ يجب أن **يستوعب
+        # كلَّ سهمٍ من كتالوجه** = `P100` بالتعريف. وأنا ثبّتُّ `P90` — وهو
+        # يقلّم أشدّ 10% تطرّفًا **فيقصّ الأسهمَ التي تصنع الحدّ نفسه** (‏AZI ·
+        # DSY · JZ · ZCMD صفرُ جلسةٍ مُلتقَطة) — بمعيارٍ **كلفويٍّ من عندي**
+        # حسمتُه بنفسي بدل أن أعرضه قرارًا. ⚖️ والكلفةُ حقيقيّةٌ ومقيسة
+        # (‏≈1271 مطابقًا/يوم مقابل 159) لكنّ محلَّها المُرتِّب والسعة لا الهويّة.
+        _pct = float(os.environ.get("ENV_PCT", "90") or 90)
+        _envp = build_envelope(rows, _pct)
         _blob = {
-            "pct": 90, "snapshot": os.environ.get("ENV_SNAPSHOT_ID") or None,
+            "pct": (int(_pct) if float(_pct).is_integer() else _pct),
+            "snapshot": os.environ.get("ENV_SNAPSHOT_ID") or None,
             "asof": str(asof), "run_id": os.environ.get("GITHUB_RUN_ID") or None,
             "n_symbols": len(found),
             "excluded": (dict(EXCLUDED_BY_OWNER)
@@ -653,8 +665,8 @@ def run():
             "denominator_sessions": probe_days,
             "anchor_last_measured": dict(sorted(anchors.items())),
             "source": "مُخرَجٌ آليّ من catalog_envelope.py",
-            "edges": {k: (list(env90[k]) if isinstance(env90[k], tuple)
-                          else env90[k]) for k, _, _, _ in CRITERIA},
+            "edges": {k: (list(_envp[k]) if isinstance(_envp[k], tuple)
+                          else _envp[k]) for k, _, _, _ in CRITERIA},
             # 🥇 **وسيطُ الكاتالوج (‏P50) — لأرقام «المثالي» في النواقص اللينة.**
             # الحدُّ الصلب طرفٌ خارجيّ (‏P90) بطبعه؛ أمّا «المثالي» فمركزُ توزيعِ
             # أسهمه ⇒ **الوسيط**. يُصدَر هنا آليًّا للسبب نفسِه (لا نقلَ يدويّ).
@@ -662,10 +674,11 @@ def run():
                                 else env50[k]) for k, _, _, _ in CRITERIA},
         }
         _js = json.dumps(_blob, ensure_ascii=False)
-        with open("envelope_p90.json", "w", encoding="utf-8") as fh:
+        _out = f"envelope_p{_blob['pct']}.json"
+        with open(_out, "w", encoding="utf-8") as fh:
             fh.write(json.dumps(_blob, ensure_ascii=False, indent=1))
         S.log("")
-        S.log("🔏 ENVELOPE_P90_JSON " + _js)
+        S.log(f"🔏 ENVELOPE_P{_blob['pct']}_JSON " + _js)
     except Exception as e:                                       # noqa: BLE001
         S.log(f"⚠️ تعذّر إصدار الحواف آليًّا: {e}")
 
