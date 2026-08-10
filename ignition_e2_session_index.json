@@ -117,5 +117,12 @@
     "n_raw_candidates": 1,
     "n_symbols": 26,
     "termination": "normal"
+  },
+  "2026-08-10": {
+    "n_delivered": 0,
+    "n_emitted": 0,
+    "n_raw_candidates": 0,
+    "n_symbols": 10,
+    "termination": "normal"
   }
 }
