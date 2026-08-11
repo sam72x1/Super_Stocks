@@ -3723,6 +3723,64 @@ check("🔒 FIL11 و`LOGIC_VERSION` يحمل `fillpicks`+`shutdoor` (يمسّا�
       "fillpicks" in S.LOGIC_VERSION and "shutdoor" in S.LOGIC_VERSION,
       S.LOGIC_VERSION[:44])
 
+# ══════════════════════════════════════════════════════════════════════════════
+# 🔬🔥 OPF — أداةُ T-OPFIRE (‏`opfire_prereg.md` هو العقد · قياس/بحث فقط)
+# ══════════════════════════════════════════════════════════════════════════════
+import opfire_scan as OPF                                        # noqa: E402
+_opf_src = open("opfire_scan.py", encoding="utf-8").read()
+_opf_ast = _brg_ast_mod.parse(_opf_src)
+check("🔬 OPF1 قرارُ الكتم **مركَّبٌ ثلاثيًّا** كالإنتاج: مقيسٌ+مضارب يمرّ · "
+      "مقيسٌ+بلا مضارب يُكتَم · و`None` يُشرَّح بصنف الشمعة (`group` يُكتَم فقط)",
+      OPF.mute_decision({"has_operator": True}, 500_000) == ("pass_operator", False)
+      and OPF.mute_decision({"has_operator": False}, 500_000) == ("mute_operator", True)
+      and OPF.mute_decision(None, 10_000) == ("fallback", True)
+      and OPF.mute_decision(None, 500_000) == ("fallback", False)
+      and OPF.mute_decision(None, 70_000) == ("fallback", False))
+# 🔴 OPF2 **كلُّ حكمٍ بدوالّ الإنتاج بأسمائها** — قفلٌ نحويٌّ (AST) لا نصّيّ: القفلُ
+#    النصّيّ يسقط على التعليق/الـdocstring (فخٌّ موثَّقٌ تكرّر في هذا المستودع).
+_opf_calls = {getattr(n.func, "attr", None) for n in _brg_ast_mod.walk(_opf_ast)
+              if isinstance(n, _brg_ast_mod.Call)}
+check("🔬 OPF2 الدوالُّ الإنتاجيةُ تُنادى **بالاسم** (لا نسخةَ منطق): break_level · "
+      "signal · operator_blocks · candle_class",
+      {"_ignition_break_level", "_ignition_signal", "_operator_blocks",
+       "_ignition_candle_class"} <= _opf_calls,
+      str(sorted(x for x in _opf_calls if x))[:100])
+check("🔬 OPF3 **نافذتا الحيّ حرفيًّا**: الكشفُ 30 دقيقة (‏`:12369`) والبصمةُ 250 صفقة "
+      "(‏`operator_flow`) — لا رقمًا من عندي",
+      OPF.WIN_MIN == 30 and OPF.FOOTPRINT_TRADES == 250)
+# 🐞 OPF4 **سقطت صياغتُه الأولى على docstring‌ي نفسِه**: الملفُّ يقتبس عيبَ الإنتاج
+#    («تُثبّت `adjusted=true`») فقرأه القفلُ النصّيُّ استعمالًا — **الفخُّ الموثَّق،
+#    تكرّر**. ⇒ صار يقرأ **مصدرَ الدالّة الجالبة** لا الملفَّ كلَّه.
+import re as _re_opf                                             # noqa: E402
+_opf_fetch_src = _insp0.getsource(OPF.fetch_minute_bars_raw)
+check("🔬 OPF4 **سعرٌ خامٌّ** في جالب الشموع (`adjusted=false`) ولا معدَّلَ فيه — V9",
+      "adjusted=false" in _opf_fetch_src and "adjusted=true" not in _opf_fetch_src)
+check("🔬 OPF5 **قارئٌ محض**: صفرُ كتابةِ حالةٍ وصفرُ حفظٍ/دفع",
+      all(x not in _opf_src for x in ("git_save", "save_watchlist", "save_alerts",
+                                      "_atomic_write", "json.dump"))
+      and not _re_opf.search(r'open\([^)]*["\'][wax]b?\+?["\']', _opf_src))
+check("🔬 OPF6 معزولٌ عن الإنتاج: `Super_stock` لا يستورده",
+      "opfire_scan" not in open("Super_stock.py", encoding="utf-8").read())
+check("🔬 OPF7 البوّابةُ **تسقط بصوتٍ عالٍ**: `gate` تُسجّل الفاشلَ ويُرجَع خروجٌ غيرُ "
+      "صفريّ (لا مضيَّ على عطب)",
+      (lambda: (OPF._FAILS.clear(),
+                OPF.gate("t-ok", True), OPF.gate("t-bad", False),
+                OPF._FAILS == ["t-bad"])[-1])()
+      and (OPF._FAILS.clear() or True))
+_opf_wf = open(".github/workflows/opfire.yml", encoding="utf-8").read()
+check("🔬 OPF8 الـworkflow: يدويٌّ بلا كرون · قراءةٌ فقط · وطباعةٌ حيّة (V6)",
+      "cron:" not in _opf_wf and "contents: read" in _opf_wf
+      and 'PYTHONUNBUFFERED: "1"' in _opf_wf
+      and "secrets.POLYGON_API_KEY" in _opf_wf)
+check("🔬 OPF9 لا وضعَ غيرَ الجدوى مُنفَّذٌ (العقدُ يمنع السوقَ الكامل قبل عبوره)",
+      OPF.MODE == "feasibility" and 'MODE != "feasibility"' in _opf_src
+      and "return 2" in _opf_src)
+# 🔴 OPF10 **بلا تسريبٍ مستقبليّ**: الشرطُ صريحٌ بالحقل وبالمقارنة الصارمة `<`.
+check("🔬 OPF10 البصمةُ من صفقاتٍ زمنُها **أصغرُ من** نهاية دقيقة الاشتعال (`<` لا `<=`)",
+      'int(r["ts"]) < end_ns' in _opf_src and "end_ms + 60_000" not in _opf_src)
+check("🔬 OPF11 دِدوب: **اشتعالٌ واحدٌ لكلّ (رمز، جلسة)** — العقد §②-4",
+      _opf_src.count("break                                        # 🔒 اشتعالٌ") == 1)
+
 # ⏰ الفارز اليومي: الكرون مقدَّم بمقدار التأخّر المقيس (138-159د) ليصل التقرير ~10ص
 # السعودية (07:00-07:30 UTC). قفل حسابي — أي عودة لـ«23 7» أو تقديم مفرط يُسقطه.
 _ds_cron = next((x.split('"')[1] for x in

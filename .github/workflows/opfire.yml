@@ -1,0 +1,43 @@
+name: T-OPFIRE (feasibility day)
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "يومُ التداول (YYYY-MM-DD) — يومٌ واحدٌ فقط · فارغ = أمس"
+        required: false
+        default: ""
+      max_syms:
+        description: "سقفُ رموز القائمة الحيّة في يوم الجدوى"
+        required: false
+        default: "12"
+      witness:
+        description: "شاهدُ الضبط — رمزٌ سائلٌ معروف (الصفرُ بلا شاهدٍ = عطب)"
+        required: false
+        default: "AAPL"
+jobs:
+  feasibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run T-OPFIRE feasibility day
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          OPFIRE_MODE: feasibility
+          OPFIRE_DAY: ${{ github.event.inputs.day }}
+          OPFIRE_MAX_SYMS: ${{ github.event.inputs.max_syms }}
+          OPFIRE_WITNESS: ${{ github.event.inputs.witness }}
+          # 🔴 بلا هذا يُخزّن بايثون الطباعةَ فتشغيلةٌ تُقتَل تضيع بكلّ مُخرَجها
+          #    (وقع فعلًا في مِجَسّ الملفّات: 11 دقيقةً وصفرُ سطر) — البوّابة `V6`.
+          PYTHONUNBUFFERED: "1"
+          FAISAL_ONLY: "0"
+        run: python3 opfire_scan.py
