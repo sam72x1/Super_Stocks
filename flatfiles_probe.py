@@ -36,6 +36,7 @@ import shutil
 import subprocess
 import sys
 import time
+import zlib
 
 ENDPOINT = os.environ.get("POLYGON_S3_ENDPOINT", "https://files.massive.com")
 BUCKET = os.environ.get("POLYGON_S3_BUCKET", "flatfiles")
@@ -43,6 +44,9 @@ BUCKET = os.environ.get("POLYGON_S3_BUCKET", "flatfiles")
 DAY = os.environ.get("PROBE_DAY", "2026-08-07")
 WITNESS = os.environ.get("PROBE_WITNESS", "AAPL")        # شاهدُ الضبط (سائلٌ معروف)
 CAP_MB = float(os.environ.get("PROBE_CAP_MB", "4096"))   # سقفُ تنزيلٍ معلَن
+# 🔒 عيّنةُ بادئةٍ بدل يومٍ كامل: تحمي من **الزمن** لا من الحجم وحده (تشغيلةٌ
+#    سابقة عملت 11 دقيقةً ثم قتلها الرنر وضاع مُخرَجُها).
+SAMPLE_MB = float(os.environ.get("PROBE_SAMPLE_MB", "256"))
 OPERATOR_MIN = int(os.environ.get("OPERATOR_MIN_SHARES", "1000"))
 # مساراتٌ مرشَّحة — تُجرَّب بالترتيب ويُعلَن ما نجح (لا افتراضَ مسارٍ واحد).
 TRADE_PREFIXES = ("us_stocks_sip/trades_v1", "us_stocks_sip/trades")
@@ -159,8 +163,13 @@ def reduce_trades(fh, symbols=None, min_shares=OPERATOR_MIN, cap_rows=None) -> d
     xi = idx.get("exchange")
     buf: dict = {}
     n_rows = 0
+    # 🔒 **الخام يُحفَظ في مرجعٍ خارجيّ** ليبقى ما قُرئ متاحًا لو انقطعت العيّنة
+    #    (تنزيلُ بادئةٍ ⇒ انقطاعٌ متوقَّع عند آخر كتلة) — بلا هذا يضيع كلُّ ما اختُزل.
+    reduce_trades.last_buf = buf
+    reduce_trades.last_rows = 0
     for row in rd:
         n_rows += 1
+        reduce_trades.last_rows = n_rows
         if cap_rows and n_rows > cap_rows:
             break
         try:
@@ -179,6 +188,25 @@ def reduce_trades(fh, symbols=None, min_shares=OPERATOR_MIN, cap_rows=None) -> d
                                for p, s, x in rows])
         out[sym] = {"n_trades": len(rows), "operator": ob, "acc": ac}
     out["_rows_read"] = n_rows
+    return out
+
+
+def _finish_partial(min_shares=OPERATOR_MIN) -> dict:
+    """يُكمل الاختزالَ من الخام الذي قُرئ **قبل** انقطاع العيّنة (نفسُ دوالّ الإنتاج).
+
+    بلا هذا يضيع كلُّ ما اختُزل عند القطع المتوقَّع فتُقرأ العيّنةُ الناجحةُ «فشلًا»."""
+    import Super_stock as S                                  # noqa: PLC0415
+    buf = getattr(reduce_trades, "last_buf", {}) or {}
+    out = {}
+    for sym, rows in buf.items():
+        out[sym] = {
+            "n_trades": len(rows),
+            "operator": S._operator_blocks([(p, s) for p, s, _x in rows],
+                                           min_shares),
+            "acc": S.acc_components([{"price": p, "size": s, "exchange": x}
+                                     for p, s, x in rows]),
+        }
+    out["_rows_read"] = getattr(reduce_trades, "last_rows", 0)
     return out
 
 
@@ -359,11 +387,23 @@ def main() -> int:
 
     # ── ③ التنزيل والاختزال: هل يمرّ داخل حدود الرنر؟ ────────────────────────
     dst = f"/tmp/{DAY}.trades.csv.gz"
-    print(f"\n③ تنزيلٌ واحدٌ ثم اختزالٌ فوريّ (لا تخزينَ خام) → {dst}")
+    # 🔴 **عيبٌ ثالثٌ في مِجَسّي كشفه التشغيلُ (2026-08-11):** أوّلُ تشغيلةٍ تجاوزت 403
+    #    عملت **11 دقيقة** ثم **قتلها الرنر**، **وضاع مُخرَجُها كلُّه** — تنزيلُ يومٍ
+    #    كاملٍ من صفقات SIP يبلغ غيغاباياتٍ، وسقفُ `CAP_MB` وحده لا يحمي من **الزمن**.
+    #    ⇒ **عيّنةُ بادئةٍ محدودة**: نُنزّل أوّلَ `SAMPLE_MB` بمدى بايتات، ونختزل ما
+    #    ينضغط منه، **والحجمُ الكاملُ يبقى مقروءًا من ② فتُسقَط الكلفةُ عليه**.
+    #    ⚖️ **وحدُّ صدقٍ يُطبَع مع الرقم:** ملفُّ الصفقات مرتَّبٌ بالرمز ⇒ عيّنةُ
+    #    البادئة **ليست عيّنةً عشوائية** من السوق؛ هي كافيةٌ للجدوى (الأعمدةُ · شاهدُ
+    #    الضبط · سرعةُ الاختزال) **ولا يُبنى عليها إحصاءُ سوق**.
+    sample_mb = min(SAMPLE_MB, size_mb if size_mb == size_mb else SAMPLE_MB)
+    print(f"\n③ تنزيلُ **عيّنةِ بادئة** ({sample_mb:,.0f}MB من {size_mb:,.1f}MB) "
+          f"ثم اختزالٌ فوريّ (لا تخزينَ خام) → {dst}")
     t0 = time.time()
     # 🔗 **من المنفذ الذي نجح في ②** لا من الافتراض (وإلّا قِسنا منفذًا وحمّلنا آخر).
-    rc, out, err = aws("cp", f"s3://{BUCKET}/{key}", dst, timeout=1800,
-                       endpoint=used_ep or None)
+    _end_byte = int(sample_mb * 1024 * 1024) - 1
+    rc, out, err = aws_api("get-object", "--bucket", BUCKET, "--key", key,
+                           "--range", f"bytes=0-{_end_byte}", dst,
+                           timeout=1800, endpoint=used_ep or None)
     dl = time.time() - t0
     if rc != 0:
         print(f"  ⛔ فشل التنزيل (rc={rc}): {(err or out).strip()[:300]}")
@@ -372,16 +412,26 @@ def main() -> int:
     print(f"  ✅ نُزّل {real_mb:,.1f}MB في {dl:,.1f}ث "
           f"({real_mb / max(dl, 1e-9):,.1f}MB/ث)")
     t1 = time.time()
+    # 🔒 العيّنةُ مقطوعةٌ عمدًا ⇒ **يُتوقَّع** خطأُ نهايةٍ عند آخر كتلة: نلتقطه ونُبقي
+    #    ما اختُزل (وإلّا صارت العيّنةُ الناجحةُ «فشلًا» بحكمِ التصميم).
+    feat, _trunc = {}, False
     try:
-        with gzip.open(dst, "rt", newline="", encoding="utf-8") as gz:
+        with gzip.open(dst, "rt", newline="", encoding="utf-8",
+                       errors="replace") as gz:
             feat = reduce_trades(gz)
+    except (EOFError, OSError, zlib.error) as e:              # قطعٌ متوقَّع
+        _trunc = True
+        print(f"  ℹ️ انتهت العيّنةُ عند حدِّ التنزيل ({type(e).__name__}) — "
+              "وهو **متوقَّعٌ** ولا يُبطل ما اختُزل.")
+        feat = _finish_partial()
     except Exception as e:                                    # noqa: BLE001
-        print(f"  ⛔ الاختزالُ فشل: {type(e).__name__}: {e}")
+        print(f"  ⛔ الاختزالُ فشل لسببٍ غيرِ القطع: {type(e).__name__}: {e}")
         os.remove(dst)
         return 3
     red = time.time() - t1
     rows = feat.pop("_rows_read", 0)
-    print(f"  ✅ اختُزل {rows:,} صفقةً ⟶ {len(feat):,} رمزًا في {red:,.1f}ث")
+    print(f"  ✅ اختُزل {rows:,} صفقةً ⟶ {len(feat):,} رمزًا في {red:,.1f}ث"
+          + (" (عيّنةُ بادئةٍ مقطوعة)" if _trunc else ""))
     os.remove(dst)
     print("  🧹 أُسقط الخام (قيدُ المساحة) — الباقي سماتٌ فقط.")
 

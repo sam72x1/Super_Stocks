@@ -20,6 +20,10 @@ on:
         description: "سقفُ التنزيل بالميغابايت — فوقه يُعلَن ولا يُنزَّل"
         required: false
         default: "4096"
+      sample_mb:
+        description: "حجمُ عيّنةِ البادئة بالميغابايت (يحمي من الزمن لا الحجم وحده)"
+        required: false
+        default: "256"
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -52,4 +56,8 @@ jobs:
           PROBE_WITNESS: ${{ github.event.inputs.witness }}
           PROBE_CAP_MB: ${{ github.event.inputs.cap_mb }}
           FAISAL_ONLY: "0"
+          # 🔴 بلا هذا يُخزّن بايثون الطباعةَ، فتشغيلةٌ تُقتَل تضيع **بكلّ**
+          #    مُخرَجها (وقع فعلًا: 11 دقيقةً ثم قتلٌ وصفرُ سطر).
+          PYTHONUNBUFFERED: "1"
+          PROBE_SAMPLE_MB: ${{ github.event.inputs.sample_mb }}
         run: python3 flatfiles_probe.py
