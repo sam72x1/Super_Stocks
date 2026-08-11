@@ -16094,9 +16094,21 @@ _px_cfg.update(S.faisal_soft_overrides(
 #    ⇒ «طُبِّق 0» والقفلُ يفحص فراغًا — فخُّ «العيّنةُ يردّها حارسٌ أسبق» مرّةً أخرى.
 _px_live = {"FAISAL_ONLY": 1}
 S.apply_faisal_only(_px_live, log_fn=lambda *_a: None)
-check("🔒 PROX8 بوّاباتُ فيصل **العشرون** كما أخرجتها معايرةُ الخمسة عشر (شرطُ المالك)",
-      all(abs(float(_px_live.get(k, -1)) - float(v)) < 1e-9 for k, v in _px_cfg.items())
-      and len(_px_live) == 21, f"طُبِّق {len(_px_live) - 1}")   # 20 + مفتاحُ التفعيل
+# ✅ حُدِّث 2026-08-10 — **بإقرارٍ مؤرَّخ**: أمرُ المالك «اعتمد 120» (‏`T-BASE-2`) أدخل
+#    **استثناءً واحدًا** فوق الظرف، **وهذا القفلُ أمسكه فأدّى عملَه بالضبط** (سقط على
+#    `BASE_RANGE_MAX_PCT` وحدها). فالصياغةُ الجديدة **أشدُّ لا أرخى**: الظرفُ يحكم كلَّ
+#    مفتاحٍ **إلّا** مفاتيحَ قرار المالك، **وهي تُفحَص مطابقةً حرفيًّا لقيمها المُعلَنة**
+#    ⇒ أيُّ انزياحٍ غيرِ مأذون (في الظرف أو في الطبقة) يُسقطه كما كان.
+_px_own = dict(S.OWNER_GATE_OVERRIDES)
+check("🔒 PROX8 بوّاباتُ فيصل **العشرون** كما أخرجتها المعايرة — إلّا استثناءَ المالك "
+      "المُعلَن (‏`T-BASE-2`)، وهو يُفحَص حرفيًّا",
+      all(abs(float(_px_live.get(k, -1)) - float(v)) < 1e-9
+          for k, v in _px_cfg.items() if k not in _px_own)
+      and all(abs(float(_px_live.get(k, -1)) - float(v)) < 1e-9
+              for k, v in _px_own.items())
+      and set(_px_own) <= set(_px_cfg)            # الاستثناءُ **يُبدِل** حافّةً قائمة
+      and len(_px_live) == 21,                    # 20 + مفتاحُ التفعيل
+      f"طُبِّق {len(_px_live) - 1} · استثناءُ المالك {sorted(_px_own)}")
 check("🎯 PROX9 والتسجيلُ المسبق مدفوعٌ بمعياره وبحدّ الصدق «الباكتيست لا يتحقّق»",
       all(x in open("prox_prereg.md", encoding="utf-8").read()
           for x in ("P-1", "P-2", "X1", "no-op", "بوّاباتُ فيصل الستّ عشرة كما هي",
@@ -16333,6 +16345,55 @@ check("🔴 FAI10 والأرقامُ من **الملفّ المدفوع** لا �
                                   encoding="utf-8"))["edges"]["dollar_vol"])) < 1e-6)
 check("🥇 FAI11 و`LOGIC_VERSION` يحمل الوسمَ (فيُعاد بناءُ القائمة تلقائيًّا)",
       "faisalonly" in S.LOGIC_VERSION, S.LOGIC_VERSION[:40])
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🥇 OGB — قرارُ المالك 2026-08-10 «اعتمد 120»: سقفُ عرض القاعدة يعلو الظرف
+# ══════════════════════════════════════════════════════════════════════════════
+# سندُه `base2_result.md` (‏`T-BASE-2`): `B120` استوفى الحرّاسَ الأربعة (‏d50 ‏53=53 ·
+# أقصى نقصٍ سنويّ 18.2% · R ‏+0.058 · ويرفض LGHL). ‏120 **رقمُ قرارٍ** لا رقمَ كاتالوج
+# ⇒ وسمُه `engineering`، والقفلُ يحرس **أنه نافذٌ ومُعلَنٌ ولا يُدهَس**.
+# 🔴 **والسويّةُ تعمل بـ`FAISAL_ONLY=0`** فلا تمرّ بالفرع أصلًا ⇒ كلُّ قفلٍ أدناه
+#    **يُجبِر الفرعَ** بـcfg مُصطنع (درسُ HCG7b: القفلُ الذي لا يمرّ بالفرع لا يحرسه).
+_ogb_log, _ogb_cfg = [], {"FAISAL_ONLY": 1}
+_ogb_ov = S.apply_faisal_only(_ogb_cfg, log_fn=_ogb_log.append)
+_ogb_file = float(_json.load(open(_ES_pre.EDGES_FILE,
+                                 encoding="utf-8"))["edges"]["base_range"])
+check("🥇 OGB1 القيمةُ النافذة **120** فعلًا (لا افتراضُ الجدول ولا حافّةُ الظرف)",
+      bool(_ogb_ov) and _ogb_cfg["BASE_RANGE_MAX_PCT"] == 120.0
+      and _ogb_ov.get("BASE_RANGE_MAX_PCT") == 120.0,
+      f"نافذ={_ogb_cfg.get('BASE_RANGE_MAX_PCT')}")
+# 🔴 OGB2 **الأهمُّ**: يُطبَّق **آخرًا** فلا يدهسه إصدارُ حوافَّ جديد — والفارقُ
+#    سلوكيّ لا نصّيّ: حافّةُ الملفّ رقمٌ آخرُ ماديًّا (‏P100 ‏≈23,684) والنافذُ 120.
+check("🥇 OGB2 يعلو حافّةَ الظرف المدفوعة (‏قرارُ المالك آخرُ طبقة)",
+      _ogb_file > 1000.0 and _ogb_cfg["BASE_RANGE_MAX_PCT"] == 120.0,
+      f"ملفّ={_ogb_file:.2f} ⟶ نافذ={_ogb_cfg['BASE_RANGE_MAX_PCT']}")
+check("🥇 OGB3 ويُعلَن **باسمه وبوسمِه** لا مدفونًا في القائمة (لا سطرَ عرضٍ يكذب)",
+      any("بقرار المالك" in m and "BASE_RANGE_MAX_PCT=120.0" in m
+          and "engineering" in m for m in _ogb_log)
+      and any("منها **1** بقرار المالك" in m for m in _ogb_log),
+      str(_ogb_log[-1])[:100] if _ogb_log else "بلا رسالة")
+# 🔒 OGB4 وبـ`FAISAL_ONLY=0` **لا يُمَسّ** — يحرس قفلَي `B3`/`C3` (الأربعون بحكمٍ مقيس)
+_ogb_off = {"FAISAL_ONLY": 0, "BASE_RANGE_MAX_PCT": 40.0}
+check("🔒 OGB4 مُطفأً ⇒ بوّابةُ البوت **40** كما هي (لا إرخاءَ لم يُطلَب)",
+      S.apply_faisal_only(_ogb_off, log_fn=lambda *_a: None) == {}
+      and _ogb_off["BASE_RANGE_MAX_PCT"] == 40.0
+      and S.CONFIG["BASE_RANGE_MAX_PCT"] == 40.0)
+check("🥇 OGB5 و`LOGIC_VERSION` يحمل `base120` (فيُعاد بناءُ القائمة تلقائيًّا)",
+      "base120" in S.LOGIC_VERSION, S.LOGIC_VERSION[:34])
+# 🔒 OGB6 وأدواتُ البحث تبقى صالحة: مفتاحُ الباكتيست **يعلو القرار** (وإلّا صارت
+#    أذرعُ `base2_arms`/`base_arms` كلُّها 120 = تجربةٌ لا تقيس شيئًا).
+_ogb_b4 = S.CONFIG["BASE_RANGE_MAX_PCT"]
+S._apply_backtest_overrides("BACKTEST", {"BT_BASE_RANGE_MAX": "23684.631623040408"})
+check("🔒 OGB6 و`BT_BASE_RANGE_MAX` يعلو القرار (الأذرعُ تبقى قابلةً للقياس)",
+      abs(S.CONFIG["BASE_RANGE_MAX_PCT"] - 23684.631623040408) < 1e-6)
+S.CONFIG["BASE_RANGE_MAX_PCT"] = _ogb_b4
+check("🥇 OGB7 والقرارُ مدوَّنٌ في دفتر المصادر بوسمِه `engineering`",
+      "120" in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+      and "T-BASE-2" in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read())
+# 🔒 OGB8 والطبقةُ **مفتاحٌ واحد** — أيُّ توسيعٍ لاحق قرارُ مالكٍ بتجربةٍ مسجَّلة
+check("🔒 OGB8 طبقةُ قرارِ المالك مفتاحٌ واحدٌ حصرًا (‏M4) لا سلّةُ استثناءات",
+      set(S.OWNER_GATE_OVERRIDES) == {"BASE_RANGE_MAX_PCT"},
+      str(S.OWNER_GATE_OVERRIDES))
 
 # ── ⏳ تقريرُ «المسارات التي تحتاج وقتًا» (أمرُ المالك 2026-08-06) ────────────────
 try:                     # حرسٌ: انكسارُ الكتلة يجب أن يكون **فشلًا نظيفًا** لا انهيارًا
