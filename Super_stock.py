@@ -177,7 +177,10 @@ CONFIG = {
     #    **بعد** `select_top` (جلبُه لآلاف رموز الفرز = حظر — قيدٌ مدوَّن) ⇒ تُطبَّق
     #    **طبقةً تالية** على المُختارين، بنفس سابقة `refloat_gate_recheck` (M14).
     "BORROW_GATE_REQUIRED": True,  # بوّابةُ المتاح: أطفئها لتعطيلها بلا كود
-    "BORROW_AVAIL_MAX": 40_000,    # فوقه = «حرب وتصريف/ذخيرة هبوط» بإطار فيصل
+    # 🥇 نصُّ فيصل حرفيًّا «تحت 20 ألف» (`IMG_0151`) — أمرُ المالك 2026-08-11 «طبّق 20».
+    "BORROW_AVAIL_MAX": 20_000,    # فوقه = «حرب وتصريف/ذخيرة هبوط» بإطار فيصل
+    # 🎯 «صلّح الترتيب»: جولاتُ تعبئةِ الخانات بعد إخراج M14/المتاح (سقفُ كلفةٍ مُعلَن).
+    "PICK_FILL_ROUNDS": 4,
     "FLOAT_GATE_REQUIRED": True,  # M14: رفض الفلوت الكبير (أقوى رابط في أسهم فيصل)
     "FLOAT_GATE_MAX": 50_000_000, # حد الفلوت: كل أسهم فيصل تحته (HCAI 163ألف ←
                                   # MWC 26.68م). الفلوت الصغير = ينفجر بسهولة.
@@ -887,7 +890,7 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.11-borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.11-borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -2743,6 +2746,38 @@ def _hanging_man(df: pd.DataFrame) -> bool:
         return False
 
 
+def base_rose(price, base_hi, base_lo) -> bool:
+    """🚪 هل اتّساعُ القاعدة **صعودٌ عن قاعها** أم **هبوطٌ عن قمّتها**؟ (نقيّة)
+
+    **العيب الذي تُغلقه** (أمرُ المالك 2026-08-11 «اقفل الباب»): مسارُ الارتداد كان
+    يَسِم كلَّ قاعدةٍ أوسعَ من `BASE_RANGE_MAX_PCT` بأنه «**ارتفع** عن قاعدته»
+    **بلا أيّ شرطِ اتجاه** ⇒ سهمٌ هبط ‏−99% داخل النافذة قاعدتُه واسعةٌ أيضًا فيُقبَل
+    مرشّحَ ارتداد. والثغرةُ **مُبلَّغةٌ مدوَّنةٌ منذ 2026-07-31** (‏`gates_result.md`)
+    وبقيت مفتوحة حتى اليوم.
+
+    **المعيار:** موضعُ **السعر الحاليّ** داخل مدى نافذة القاعدة — في نصفه الأعلى ⇒
+    ارتفع عن قاعدته (مرشّحُ ارتداد) · وفي الأدنى ⇒ هابطٌ عن قمّته فليس ارتدادًا
+    (يلتقطه مسارُ الفرز العاديّ إن استوفى شروطه).
+
+    ⚖️ **وصدقٌ في وصف الرقم:** المنتصفُ **قسمةٌ محايدةٌ صفريّةُ المعالم** لا عتبةً
+    مُعايَرة — ولم يُقَس من كاتالوج فيصل ولا من باكتيست، فهو **اختيارُ تصميمٍ
+    مُعلَن**، وأيُّ إزاحةٍ له تحتاج قياسًا.
+    🔴 **وأوّلُ صياغةٍ لي كانت أضعف:** «موضعُ القمّة بعد موضع القاع» — أسقطتها
+    **عيّنةُ الارتداد القائمة** حيث القممُ تصعد والقيعانُ تنزل معًا فتساوى الموضعان
+    (‏argmax == argmin) ⇒ كان الشرطُ سيرفض ارتدادًا حقيقيًّا. **العيّنةُ حرست، لا القراءة.**
+
+    🔒 **فاشلةٌ-آمنةٌ مفتوحة:** تعذّرُ القياس (تالفٌ/غيرُ منتهٍ/مدًى صفريّ) ⇒ `True` =
+    **سلوكُ ما قبل الإغلاق حرفيًّا**، فلا تُفرَّغ قائمةُ الارتداد بعطلٍ في البيانات."""
+    try:
+        p, hi, lo = float(price), float(base_hi), float(base_lo)
+    except (TypeError, ValueError):
+        return True
+    if not (math.isfinite(p) and math.isfinite(hi) and math.isfinite(lo)) \
+            or hi <= lo:
+        return True
+    return p >= (hi + lo) / 2.0
+
+
 def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
     """يرجع dict بالنتيجة إذا اجتاز الشروط الإلزامية، وإلا None.
     pullback=True: وضع «مراقبة الارتداد» — سهم ارتكاز حقيقي (بنية مكتملة)
@@ -2832,6 +2867,10 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         if _m4ps[0] != "too_few" and base_range > CONFIG["BASE_RANGE_MAX_PCT"]:
             if not pullback:
                 return _reject("M4_base_واسعة")
+            # 🚪 «اقفل الباب» (أمرُ المالك 2026-08-11): الاتّساعُ وحده لا يعني ارتفاعًا —
+            # فالهابطُ ‏−99% قاعدتُه واسعةٌ أيضًا. الشرطُ موقعيٌّ بلا رقمٍ مخترَع.
+            if not base_rose(price, base_hi, base_lo):
+                return _reject("M4_base_واسعة_هبوطًا")
             risen = True       # القاعدة اتسعت لأنه ارتفع = مرشّح ارتداد
             watch_reasons.append("ارتفع عن قاعدته")
         gain5 = None   # 📐 يُصدَّر للظرف (قياس D11 من الكاتالوج — أمر المالك 2026-08-07)
@@ -9771,8 +9810,10 @@ def borrow_gate_recheck(picks):
     «طبّق حدّ فيصل»). تُخرِج المُختارَ الذي متاحُه **فوق** `BORROW_AVAIL_MAX`.
 
     **السند:** «المتاح» هو ما يسمّيه فيصل «شورت» (‏XHLD «شورته 600 ألف؟ طاخ طيخ» ·
-    DSY «7000 متوفّر») — **مقياسٌ فيصليٌّ بلفظه**؛ والرقمُ 40,000 **قرارُ مالك**
-    (‏`engineering`)، ونصُّه الحرفيّ «تحت 20 ألف» على بُعد كلمةٍ في `CONFIG`.
+    DSY «7000 متوفّر») — **مقياسٌ فيصليٌّ بلفظه**؛ **والرقمُ صار نصَّه أيضًا**:
+    ‏**20,000** («تحت 20 ألف»، `IMG_0151`) بأمر المالك 2026-08-11 «طبّق 20» بعد أن
+    كان 40,000 قرارَ مالكٍ يساوي `SHORT_GATE_MAX` عددًا لا مفهومًا ⇒ **المقياسُ
+    والرقمُ كلاهما من فيصل الآن** (`FAISAL_SOURCE_LEDGER.md`).
     **والدافعُ مقيس** (`borrow_gate_result.md`): وسيطُ المتاح في قائمتنا 350,000
     مقابل **‏10,000** عند اختيارات فيصل المنفَّذة و700,000 عند شاهد السوق ⇒ مِعيارُه
     الظاهر لم يكن ممثَّلًا في فرزنا إطلاقًا.
@@ -9782,7 +9823,7 @@ def borrow_gate_recheck(picks):
     منذ 2026-07-11) ⇒ هذي **طبقةٌ تالية** بنفس سابقة `refloat_gate_recheck` (M14
     بعد الإثراء)، **لا بوّابةَ فرزٍ جديدة**.
 
-    ⚖️ **والمقارنةُ `>` لا `>=`**: الحدُّ نفسُه **مقبول** (‏40,000 يمرّ) — «فوق الحدّ»
+    ⚖️ **والمقارنةُ `>` لا `>=`**: الحدُّ نفسُه **مقبول** (‏20,000 يمرّ) — «فوق الحدّ»
     هو ما يوصف بذخيرة الهبوط. ترجّع `(kept, ejected)` و`ejected` أزواجُ (رمز، متاح).
 
     🔒 **فاشلٌ-آمنٌ مفتوح إلزاميًّا:** مجهولٌ (‏`None`) أو تالفٌ ⇒ **يمرّ بفائدة الشك**
@@ -9805,6 +9846,55 @@ def borrow_gate_recheck(picks):
             continue
         kept.append(r)
     return kept, ejected
+
+
+def fill_picks(results, space, exclude, enrich_fn=None, rounds=None):
+    """🎯 **تعبئةُ الخانات بالترتيب مع بوّابتَي ما بعد الإثراء** (أمرُ المالك
+    2026-08-11 «صلّح الترتيب»).
+
+    🔴 **العيبُ المقيس:** المسارُ كان `select_top` ⟶ `enrich` ⟶ إخراجٌ بـM14 وبالمتاح
+    ⟶ **والخانةُ المُفرَّغة تبقى فارغة** ولو كان تحت حدّ القطع مرشّحون مؤهَّلون. وبعد
+    بوّابة المتاح (‏`borrow_gate_result.md`: تُخرِج **13 من 14** عند حدّ فيصل 20 ألفًا)
+    كان المالكُ سيستلم **قائمةً شبه فارغة** — لا لأن البِركة فرغت بل لأن الترتيبَ
+    اختار عشرةً ولم يُستأنَف بعد الإخراج.
+
+    ✅ **العلاج:** نُعيد الاختيار من **بقيّة المرتَّبين** (بإضافة المُخرَجين إلى
+    `exclude` فلا يُعاد اختيارُهم) ونُثريهم ونطبّق **البوّابتين نفسَهما** حتى تُعبَّأ
+    الخانات أو تنفد البِركة أو تنتهي الجولات.
+
+    🔒 **والترتيبُ لم يُمَسّ:** `rank_key`/`select_top` byte-identical — تُنادى
+    `select_top` **نفسُها** في كل جولة على بِركةٍ أصغر، **والجولةُ الأولى مطابقةٌ
+    حرفيًّا للسلوك السابق** (فلو لم يُخرَج أحدٌ فالمُخرَجُ بت-بت). ولا بوّابةَ جديدة:
+    نفسُ `refloat_gate_recheck` و`borrow_gate_recheck`.
+
+    ⚖️ **والكلفةُ مسقوفةٌ مُعلَنة:** `PICK_FILL_ROUNDS` جولاتٌ كحدٍّ أقصى (وميزانيةُ
+    ChartExchange تُصفَّر مع كل نداء `enrich` فلا تُخنَق الجولةُ التالية)، وما بقي
+    ناقصًا يُعلَن بعددِه لا يُطوى.
+
+    ترجّع `(picks, fl_out, bw_out, used_rounds)` — والقائمةُ مرتَّبةٌ كما تُنتجها
+    `select_top`. 🔒 فاشلةٌ-آمنة: انكسارُ الإثراء يُسجَّل ولا يُسقط التعبئة."""
+    rounds = int(CONFIG.get("PICK_FILL_ROUNDS", 4) if rounds is None else rounds)
+    picks, fl_out, bw_out = [], [], []
+    excl = set(exclude or set())
+    used = 0
+    while len(picks) < space and used < max(rounds, 1):
+        used += 1
+        got = select_top(results, space - len(picks), exclude=excl)
+        if not got:
+            break
+        excl |= {r["symbol"] for r in got}
+        try:
+            (enrich_fn or enrich)(got)
+        except Exception as e:                                   # noqa: BLE001
+            log(f"⚠️ الإثراء (جولة {used}): {e}")
+        got, _fl = refloat_gate_recheck(got)
+        fl_out += _fl
+        got, _bw = borrow_gate_recheck(got)
+        bw_out += _bw
+        picks += got
+        if not _fl and not _bw:
+            break                     # لم يُخرَج أحد ⇒ لا حاجة لجولةٍ أخرى
+    return picks, fl_out, bw_out, used
 
 
 def classify_tier(soft_fails, two_tier=None, maxf=None):
@@ -14290,26 +14380,26 @@ def run_weekly_renewal(wl: dict) -> None:
             log(f"🗂️ سجلّ المرفوضين: {len(_REJECT_REASONS)} رمزًا · {_rl} يومًا بالنافذة.")
     except Exception as e:                                       # noqa: BLE001
         log(f"⚠️ سجلّ المرفوضين (خارجيّ): {e}")
-    picks = select_top(results, CONFIG["WATCHLIST_SIZE"], exclude)
     # 🥇⑦➡️ حصادُ كاسر التعادل — **بعد** الاختيار ويقرأ مُخرَجَه (صفرُ أثرٍ عليه).
     record_tie_cohort(wl, results, CONFIG["WATCHLIST_SIZE"], exclude,
                       today_iso, "renew")
-    try:
-        enrich(picks)  # SEC + شورت للقائمة الجديدة
-    except Exception as e:
-        log(f"⚠️ الإثراء: {e}")
-    # 🔁 M14 بعد الإثراء: الفلوت الذي تعذّر لحظة البوّابة صار متاحًا ⇒ أعِد الحكم.
-    picks, _fl_out = refloat_gate_recheck(picks)
+    # 🎯 «صلّح الترتيب» (أمرُ المالك 2026-08-11): اختيارٌ ⟶ إثراءٌ ⟶ بوّابتا M14/المتاح
+    #    ⟶ **وتعبئةُ ما أُخرِج من بقيّة المرتَّبين** (كانت الخانةُ تبقى فارغة).
+    picks, _fl_out, _bw_out, _rnd = fill_picks(
+        results, CONFIG["WATCHLIST_SIZE"], exclude)
     if _fl_out:
         log("🔁 أُخرِج بفلوت كبير ظهر بعد الإثراء: "
             + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
-    # 🔒📏 بوّابةُ «المتاح للاقتراض» (أمرُ المالك «طبّق حدّ فيصل») — **بعد** الإثراء
-    #    لأن الرقمَ يأتي منه، وبنفس موضع M14 حرفيًّا. والإخراجُ **يُعلَن بالأرقام**.
-    picks, _bw_out = borrow_gate_recheck(picks)
     if _bw_out:
         log(f"🔒 أُخرِج بمتاحِ اقتراضٍ فوق {int(CONFIG['BORROW_AVAIL_MAX']):,} "
             "(ذخيرة هبوط بإطار فيصل): "
             + "، ".join(f"{s_}({int(float(v)):,})" for s_, v in _bw_out))
+    if _fl_out or _bw_out:
+        log(f"🎯 تعبئةُ الخانات: {len(picks)} من {CONFIG['WATCHLIST_SIZE']} "
+            f"بعد {_rnd} جولة"
+            + ("" if len(picks) >= CONFIG["WATCHLIST_SIZE"]
+               else f" — نقصَ {CONFIG['WATCHLIST_SIZE'] - len(picks)} "
+                    "(نفدت البِركة أو انتهت الجولات)"))
     splits = []   # (أُلغي عرض التقسيم العكسي — يهمّنا A وB فقط)
     # 3ب) قائمة مراقبة الارتداد المستقلة (تعيد استخدام نفس البيانات)
     pull_entries = []
@@ -14666,25 +14756,24 @@ def run_daily_watchlist(wl: dict) -> None:
         log(f"⚠️ تخطّي إضافة الجديد اليوم: {low_coverage_note} — "
             "القائمة الحالية تُتابَع كالمعتاد.")
     elif space > 0:
-        picks = select_top(results, space, exclude=held | stopped)
         # 🥇⑦➡️ حصادُ كاسر التعادل — نفسُ الموضع: **بعد** الاختيار لا قبله.
         record_tie_cohort(wl, results, space, held | stopped, today_iso, "daily")
+        # 🎯 «صلّح الترتيب» — نفسُ التعبئة في المسار اليوميّ (لا تُنسى إحداهما).
+        picks, _fl_out, _bw_out, _rnd = fill_picks(
+            results, space, held | stopped)
+        if _fl_out:
+            log("🔁 لم يُضَف (فلوت كبير ظهر بعد الإثراء): "
+                + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
+        if _bw_out:
+            log(f"🔒 لم يُضَف (متاحُ اقتراضٍ فوق "
+                f"{int(CONFIG['BORROW_AVAIL_MAX']):,}): "
+                + "، ".join(f"{s_}({int(float(v)):,})" for s_, v in _bw_out))
+        if _fl_out or _bw_out:
+            log(f"🎯 تعبئةُ الخانات: {len(picks)} من {space} بعد {_rnd} جولة"
+                + ("" if len(picks) >= space
+                   else f" — نقصَ {space - len(picks)} "
+                        "(نفدت البِركة أو انتهت الجولات)"))
         if picks:
-            try:
-                enrich(picks)
-            except Exception as e:
-                log(f"⚠️ الإثراء: {e}")
-            # 🔁 M14 بعد الإثراء (نفس منطق التجديد) — لا يُضاف من ظهر فلوته كبيرًا.
-            picks, _fl_out = refloat_gate_recheck(picks)
-            if _fl_out:
-                log("🔁 لم يُضَف (فلوت كبير ظهر بعد الإثراء): "
-                    + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
-            # 🔒📏 وبوّابةُ «المتاح» بنفس الموضع في المسار اليوميّ (لا تُنسى إحداهما).
-            picks, _bw_out = borrow_gate_recheck(picks)
-            if _bw_out:
-                log(f"🔒 لم يُضَف (متاحُ اقتراضٍ فوق "
-                    f"{int(CONFIG['BORROW_AVAIL_MAX']):,}): "
-                    + "، ".join(f"{s_}({int(float(v)):,})" for s_, v in _bw_out))
             for r in picks:
                 wl["stocks"].append(make_watch_entry(r, today_iso))
                 added.append(r)

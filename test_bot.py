@@ -3533,8 +3533,10 @@ check("🔒 M14·إعادة التقييم لا تُستدعى داخل أي ج�
 # 🔒📏 BRG — بوّابةُ «المتاح للاقتراض» (أمرُ المالك 2026-08-11 «طبّق حدّ فيصل»)
 # ══════════════════════════════════════════════════════════════════════════════
 # سندُها `borrow_gate_result.md`: وسيطُ المتاح في قائمتنا 350,000 مقابل **10,000**
-# عند اختيارات فيصل المنفَّذة و700,000 عند شاهد السوق. **المقياسُ فيصليٌّ بلفظه
-# والرقمُ (40,000) قرارُ مالك** — ونصُّه الحرفيّ «تحت 20 ألف» على بُعد كلمةٍ.
+# عند اختيارات فيصل المنفَّذة و700,000 عند شاهد السوق.
+# 🥇 **تحديثٌ مؤرَّخ 2026-08-11 (أمرُ المالك «طبّق 20»): الرقمُ صار نصَّ فيصل حرفيًّا
+#    ‏20,000** («تحت 20 ألف»، `IMG_0151`) بعد أن كان 40,000 قرارَ مالك ⇒ **المقياسُ
+#    والرقمُ كلاهما `faisal_verbatim`**. وBRG4 أدناه حُدِّث بإقرارٍ لا بإرخاء.
 _BRG_LIM = float(S.CONFIG["BORROW_AVAIL_MAX"])
 
 
@@ -3563,9 +3565,9 @@ finally:
 check("🔒 BRG3 مُطفأةً ⇒ **مرورٌ بت-بت** (لا إخراجَ ولو 9 ملايين)",
       len(_brg_p[0]) == 2 and _brg_p[1] == []
       and S.CONFIG["BORROW_GATE_REQUIRED"] is True)
-check("🔒 BRG4 والافتراضُ في الكود **مُفعَّل** بحدّ 40,000 (قرارُ المالك)",
+check("🔒 BRG4 والافتراضُ في الكود **مُفعَّل** بحدّ **20,000** = نصُّ فيصل حرفيًّا",
       S.CONFIG["BORROW_GATE_REQUIRED"] is True
-      and float(S.CONFIG["BORROW_AVAIL_MAX"]) == 40_000.0)
+      and float(S.CONFIG["BORROW_AVAIL_MAX"]) == 20_000.0)
 # 🔴 BRG5 **الوصلةُ من نقطتَي النداء الحيّتين** (AST لا نصّ) — والدرسُ المتكرّر:
 #    دالّةٌ موجودةٌ وغيرُ موصولةٍ = حبرٌ على ورق. ويجب أن تكون في **الاثنتين**.
 import ast as _brg_ast_mod                                       # noqa: E402
@@ -3575,20 +3577,143 @@ _brg_calls = {n.name for n in _brg_ast_mod.walk(_brg_ast)
               and any(getattr(c.func, "id", None) == "borrow_gate_recheck"
                       for c in _brg_ast_mod.walk(n)
                       if isinstance(c, _brg_ast_mod.Call))}
-check("🔒 BRG5 موصولةٌ فعلًا من **مسارَي الاختيار** (التجديد + الإضافة اليومية)",
-      {"run_weekly_renewal", "run_daily_watchlist"} <= _brg_calls,
+# 🔴 **تحديثٌ مؤرَّخ 2026-08-11 («صلّح الترتيب»):** صارت تُنادى من `fill_picks` التي
+#    تُنادى من المسارَين ⇒ **السلسلةُ كاملةٌ تُقفَل حلقةً حلقة** بدل نداءٍ مباشر —
+#    **والقفلُ القديم أمسك النقل فأدّى عمله** (وهذا هو المطلوب منه).
+check("🔒 BRG5 موصولةٌ فعلًا: `borrow_gate_recheck` ⟵ `fill_picks` ⟵ **مسارا الاختيار**",
+      "fill_picks" in _brg_calls
+      and {"run_weekly_renewal", "run_daily_watchlist"} <= {
+          n.name for n in _brg_ast_mod.walk(_brg_ast)
+          if isinstance(n, _brg_ast_mod.FunctionDef)
+          and any(getattr(c.func, "id", None) == "fill_picks"
+                  for c in _brg_ast_mod.walk(n)
+                  if isinstance(c, _brg_ast_mod.Call))},
       str(sorted(_brg_calls))[:80])
 check("🔒 BRG6 ولا تُستدعى داخل أيّ جذر (طبقةٌ تالية للإثراء لا بوّابةَ فرز)",
       all("borrow_gate_recheck" not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.apply_float_gate,
                      S.apply_short_gate, S.scan_market, S.analyze_ticker,
                      S.backtest_symbol, S.entry_status, S.entry_readiness)))
-check("🔒 BRG7 و`M13` **لم تُمَسّ**: مقياسُها حجمُ FINRA وحدُّها 40 ألفًا كما هو "
-      "(مقياسان مختلفان لا واحد)",
+check("🔒 BRG7 و`M13` **لم تُمَسّ**: مقياسُها حجمُ FINRA وحدُّها 40 ألفًا كما هو، "
+      "**ولا يساوي حدَّ المتاح** (مقياسان مختلفان لا واحد — لا يتسرّب أحدُهما للآخر)",
       S.CONFIG["SHORT_GATE_MAX"] == 40_000
+      and float(S.CONFIG["BORROW_AVAIL_MAX"]) != float(S.CONFIG["SHORT_GATE_MAX"])
       and "shares_available" not in _insp0.getsource(S.apply_short_gate))
-check("🔒 BRG8 و`LOGIC_VERSION` يحمل `borrowgate` (يمسّ العضوية ⇒ إعادةُ بناء)",
-      "borrowgate" in S.LOGIC_VERSION, S.LOGIC_VERSION[:40])
+check("🔒 BRG8 و`LOGIC_VERSION` يحمل `borrowgate` و`borrow20` (يمسّ العضوية ⇒ إعادةُ بناء)",
+      "borrowgate" in S.LOGIC_VERSION and "borrow20" in S.LOGIC_VERSION,
+      S.LOGIC_VERSION[:44])
+# ══════════════════════════════════════════════════════════════════════════════
+# 🚪 SHD — «اقفل الباب»: بابُ الارتداد يشترط **اتجاهًا** (أمرُ المالك 2026-08-11)
+# ══════════════════════════════════════════════════════════════════════════════
+# الثغرةُ كانت مُبلَّغةً مدوَّنةً منذ 2026-07-31 (`gates_result.md`): مسارُ الارتداد
+# يَسِم القاعدةَ الواسعة «ارتفع عن قاعدته» **بلا شرط اتجاه** ⇒ الهابطُ ‏−99% يُقبَل.
+check("🚪 SHD1 السعرُ في النصف الأعلى من مدى القاعدة ⇒ ارتفع عن قاعدته (يُقبَل)",
+      S.base_rose(9.0, 10.0, 1.0) is True
+      and S.base_rose(5.5, 10.0, 1.0) is True)          # فوق المنتصف بشعرة
+check("🚪 SHD2 وفي النصف الأدنى ⇒ هابطٌ عن قمّته ⇒ **لا ارتداد** (البابُ مُغلَق) — "
+      "وهذي حالةُ الهابط ‏−99% حرفيًّا",
+      S.base_rose(1.05, 100.0, 1.0) is False
+      and S.base_rose(5.0, 10.0, 1.0) is False)          # تحت المنتصف بشعرة
+check("🚪 SHD2ب والمنتصفُ بالضبط **يمرّ** (تخومٌ فاشلةٌ-آمنة، لا رفضَ على تعادل)",
+      S.base_rose(5.5, 10.0, 1.0) is True)
+check("🚪 SHD3 فاشلةٌ-آمنةٌ **مفتوحة**: تالفٌ/غيرُ منتهٍ/مدًى صفريّ ⇒ True = "
+      "سلوكُ ما قبل الإغلاق",
+      S.base_rose(None, None, None) is True
+      and S.base_rose("س", 10.0, 1.0) is True
+      and S.base_rose(float("nan"), 10.0, 1.0) is True
+      and S.base_rose(1.0, 5.0, 5.0) is True)
+# 🔴 SHD4 **الوصلةُ من `analyze_ticker` نفسِها** (AST لا نصّ — والقفلُ النصّيّ يسقط
+#    على تعليقٍ يذكر الاسم؛ درسٌ مكرّرٌ في هذا المستودع).
+_shd_ast = _brg_ast_mod.parse(open("Super_stock.py", encoding="utf-8").read())
+_shd_fn = next(n for n in _brg_ast_mod.walk(_shd_ast)
+               if isinstance(n, _brg_ast_mod.FunctionDef)
+               and n.name == "analyze_ticker")
+check("🚪 SHD4 موصولةٌ فعلًا من داخل `analyze_ticker` (لا حبرًا على ورق)",
+      any(getattr(c.func, "id", None) == "base_rose"
+          for c in _brg_ast_mod.walk(_shd_fn)
+          if isinstance(c, _brg_ast_mod.Call)))
+# 🔒 SHD5 مسارُ الفرز العاديّ (`pullback=False`) **بت-بت**: الشرطُ خلف `if not pullback:
+#    return _reject(...)` فيستحيل أن يمسّه. برهانٌ سلوكيّ لا نصّيّ.
+_shd_df = synth_pivot(seed=2)
+check("🔒 SHD5 الفرزُ العاديّ **بت-بت**: المرشّحُ النموذجيّ ما زال يُقبَل بنفس نقاطه "
+      "(الشرطُ خلف `if not pullback` فيستحيل أن يمسّه)",
+      (lambda _r: _r is not None and _r.get("tier") == "B")(
+          S.analyze_ticker("SHDX", _shd_df)))
+check("🔒 SHD6 وسببُ الرفض **مُسمّى** فيُقرأ من التوزيع (لا يُدفَن في اسمٍ قائم)",
+      "M4_base_واسعة_هبوطًا" in _insp0.getsource(S.analyze_ticker))
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🎯 FIL — «صلّح الترتيب»: تعبئةُ الخانات بعد إخراج M14/المتاح (أمرُ المالك)
+# ══════════════════════════════════════════════════════════════════════════════
+def _fil_r(sym, av=None, flt=None):
+    return {"symbol": sym, "shares_available": av, "float": flt,
+            "flags": [], "soft_fails": []}
+
+
+_fil_pool = [_fil_r("A", 9_000_000), _fil_r("B", 8_000_000),
+             _fil_r("C", 1_000), _fil_r("D", 2_000)]
+_fil_p, _fil_fl, _fil_bw, _fil_n = S.fill_picks(
+    _fil_pool, 2, set(), enrich_fn=lambda _x: None)
+check("🎯 FIL1 الخانةُ المُفرَّغة **تُعبَّأ** من بقيّة المرتَّبين (كانت تبقى فارغة)",
+      [r["symbol"] for r in _fil_p] == ["C", "D"] and len(_fil_bw) == 2,
+      f"{[r['symbol'] for r in _fil_p]} · مُخرَج={[s for s, _v in _fil_bw]}")
+_fil_clean = [_fil_r("X", 1_000), _fil_r("Y", 2_000), _fil_r("Z", 3_000)]
+_fil_p2, _, _fil_bw2, _fil_n2 = S.fill_picks(
+    _fil_clean, 2, set(), enrich_fn=lambda _x: None)
+check("🔒 FIL2 بلا إخراجٍ ⇒ **جولةٌ واحدة والمُخرَجُ بت-بت** كالسلوك السابق",
+      [r["symbol"] for r in _fil_p2] == ["X", "Y"] and _fil_n2 == 1
+      and _fil_bw2 == [])
+check("🎯 FIL3 والترتيبُ محفوظ: المُعبَّأ **بعد** الباقي لا قبله (لا يُقلَب سلّمُ الرتب)",
+      [r["symbol"] for r in S.fill_picks(
+          [_fil_r("P", 1_000), _fil_r("Q", 9_000_000), _fil_r("R", 2_000)],
+          2, set(), enrich_fn=lambda _x: None)[0]] == ["P", "R"])
+_fil_p4 = S.fill_picks([_fil_r("K", 9_000_000)], 3, set(),
+                       enrich_fn=lambda _x: None)
+check("🎯 FIL4 نفدت البِركة ⇒ يتوقّف بلا حلقةٍ لا نهائية (ونقصٌ يُعلَن لا يُطوى)",
+      _fil_p4[0] == [] and _fil_p4[3] <= int(S.CONFIG["PICK_FILL_ROUNDS"]))
+_fil_p5 = S.fill_picks(
+    [_fil_r(f"S{i}", 9_000_000) for i in range(50)] + [_fil_r("GOOD", 1_000)],
+    1, set(), enrich_fn=lambda _x: None)
+check("🎯 FIL5 الجولاتُ **مسقوفة** بـ`PICK_FILL_ROUNDS` (كلفةُ الإثراء لا تنفجر)",
+      _fil_p5[3] == int(S.CONFIG["PICK_FILL_ROUNDS"]),
+      f"جولات={_fil_p5[3]}")
+check("🔒 FIL6 فاشلةٌ-آمنة: انكسارُ الإثراء **لا يُسقط** التعبئة",
+      len(S.fill_picks([_fil_r("E", 1_000)], 1, set(),
+                       enrich_fn=lambda _x: (_ for _ in ()).throw(
+                           RuntimeError("شبكة")))[0]) == 1)
+check("🎯 FIL7 و`exclude` مُحترَم (المُستبعَدُ لا يُعبَّأ به)",
+      [r["symbol"] for r in S.fill_picks(
+          _fil_clean, 2, {"X"}, enrich_fn=lambda _x: None)[0]] == ["Y", "Z"])
+# 🔴 FIL8 موصولةٌ من **مسارَي الاختيار**، و`select_top`/`rank_key` **لم تُمَسّا**.
+_fil_calls = {n.name for n in _brg_ast_mod.walk(_shd_ast)
+              if isinstance(n, _brg_ast_mod.FunctionDef)
+              and any(getattr(c.func, "id", None) == "fill_picks"
+                      for c in _brg_ast_mod.walk(n)
+                      if isinstance(c, _brg_ast_mod.Call))}
+check("🎯 FIL8 موصولةٌ من التجديد **والإضافة اليومية** معًا",
+      {"run_weekly_renewal", "run_daily_watchlist"} <= _fil_calls,
+      str(sorted(_fil_calls))[:80])
+# 🔴 FIL9 **قفلٌ نحويٌّ لا نصّيّ** — والقفلُ النصّيّ سقط على docstring‌ي نفسِه أوّلَ
+#    مرّة (يذكر `rank_key` شرحًا لا استعمالًا): درسٌ مكرّرٌ في هذا المستودع.
+_fil_fn = next(n for n in _brg_ast_mod.walk(_shd_ast)
+               if isinstance(n, _brg_ast_mod.FunctionDef)
+               and n.name == "fill_picks")
+_fil_names = {getattr(c.func, "id", None) or getattr(c.func, "attr", None)
+              for c in _brg_ast_mod.walk(_fil_fn)
+              if isinstance(c, _brg_ast_mod.Call)}
+check("🔒 FIL9 والترتيبُ نفسُه لم يُمَسّ: تنادي `select_top` الإنتاجية **ولا تُرتِّب "
+      "من عندها** (لا `sort`/`sorted`/`rank_key` — نحويًّا لا نصًّا)",
+      "select_top" in _fil_names
+      and not ({"sort", "sorted", "rank_key"} & _fil_names),
+      str(sorted(x for x in _fil_names if x))[:90])
+check("🔒 FIL10 ولا تُستدعى داخل أيّ جذر (طبقةُ تعبئةٍ لا بوّابةَ فرز)",
+      all("fill_picks" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.scan_market,
+                     S.analyze_ticker, S.backtest_symbol, S.entry_status)))
+check("🔒 FIL11 و`LOGIC_VERSION` يحمل `fillpicks`+`shutdoor` (يمسّان العضوية)",
+      "fillpicks" in S.LOGIC_VERSION and "shutdoor" in S.LOGIC_VERSION,
+      S.LOGIC_VERSION[:44])
+
 # ⏰ الفارز اليومي: الكرون مقدَّم بمقدار التأخّر المقيس (138-159د) ليصل التقرير ~10ص
 # السعودية (07:00-07:30 UTC). قفل حسابي — أي عودة لـ«23 7» أو تقديم مفرط يُسقطه.
 _ds_cron = next((x.split('"')[1] for x in
@@ -17547,11 +17672,31 @@ def _th_calls(fname, callee):
         if isinstance(n, _th_ast.Call) and getattr(n.func, "id", None) == callee]
 
 
-_th_pairs = [(f, _th_calls(f, "select_top"), _th_calls(f, "record_tie_cohort"))
+# 🥇 **تحديثٌ مؤرَّخ 2026-08-11 («صلّح الترتيب»):** الاختيارُ في المسارَين صار عبر
+#    `fill_picks` (تعبئةُ ما أخرجته بوّابتا M14/المتاح) فلم تبقَ `select_top` نداءً
+#    مباشرًا فيهما — **والقفلُ القديم أمسك التغيير فأدّى عمله**. وبدل تخفيفه إلى
+#    «موجودةٌ في مكانٍ ما» شُدَّ إلى **الثابت الحقيقيّ**: الحصادُ يقرأ **نفسَ مدخلات
+#    الاختيار حرفيًّا** (نفس تعبير السعة ونفس تعبير الاستبعاد) — وهو أقوى من الترتيب،
+#    لأن ترتيبَ نداءَين لا يقرأ أحدُهما مُخرَجَ الآخر لا يحمل معنًى.
+def _th_call_nodes(fname, callee):
+    fn = next((n for n in _th_ast.walk(_th_tree)
+               if isinstance(n, _th_ast.FunctionDef) and n.name == fname), None)
+    return [n for n in _th_ast.walk(
+        fn or _th_ast.Module(body=[], type_ignores=[]))
+        if isinstance(n, _th_ast.Call) and getattr(n.func, "id", None) == callee]
+
+
+_th_pairs = [(f, _th_call_nodes(f, "fill_picks"),
+              _th_call_nodes(f, "record_tie_cohort"))
              for f in ("run_weekly_renewal", "run_daily_watchlist")]
-check("🥇 TH13 مُنادًى في **مسارَي** الاختيار و**بعد** `select_top` في كليهما",
-      all(len(st) == 1 and len(rc) == 1 and rc[0] > st[0]
-          for _f, st, rc in _th_pairs), str(_th_pairs))
+check("🥇 TH13 مُنادًى في **مسارَي** الاختيار — مرّةً واحدةً مع نداءِ تعبئةٍ واحد",
+      all(len(fp) == 1 and len(rc) == 1 for _f, fp, rc in _th_pairs),
+      str([(f, len(fp), len(rc)) for f, fp, rc in _th_pairs]))
+check("🥇 TH13ب و**بنفس مدخلات الاختيار حرفيًّا** (السعة والاستبعاد) — فالحصادُ يقيس "
+      "حدَّ القطع الفعليّ لا حدًّا آخر",
+      all([_th_ast.dump(a) for a in rc[0].args[1:4]]
+          == [_th_ast.dump(a) for a in fp[0].args[0:3]]
+          for _f, fp, rc in _th_pairs))
 check("🥇 TH14 وقسمُ التقرير مُنادًى **مرّتين** (القليلة + الكافية)",
       len(_th_calls("build_dev_assistant_report", "_tie_harvest_block")) == 2,
       str(_th_calls("build_dev_assistant_report", "_tie_harvest_block")))

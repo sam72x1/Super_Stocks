@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import csv
 import gzip
+import json
 import os
 import shutil
 import subprocess
@@ -59,6 +60,16 @@ def _run(args: list, timeout=900) -> tuple[int, str, str]:
 
 def aws(*args: str, timeout=900) -> tuple[int, str, str]:
     return _run(["aws", "s3", *args, "--endpoint-url", ENDPOINT], timeout=timeout)
+
+
+def aws_api(*args: str, timeout=300) -> tuple[int, str, str]:
+    """‏`s3api` لا `s3` — يُستعمل لـ`head-object` الذي **لا يلزمه إذنُ سرد**.
+
+    🔴 **ولماذا:** تشغيلةُ 2026-08-11 رجعت `403 Forbidden` على `ListObjectsV2` عند
+    جذر البكت. والسردُ إذنٌ **منفصل** عن القراءة، فمنعُه لا يعني منعَ البيانات ⇒
+    نقيسُ الحجمَ بـ`head-object` (‏HeadObject) فلا يحجبنا إذنُ السرد."""
+    return _run(["aws", "s3api", *args, "--endpoint-url", ENDPOINT],
+                timeout=timeout)
 
 
 def creds_present() -> bool:
@@ -139,10 +150,20 @@ def control_ok(feat: dict, witness: str = WITNESS) -> tuple[bool, str]:
 
 
 def find_trades_key(day: str) -> tuple[str, float]:
-    """يجرّب المساراتَ المرشَّحة ويرجّع (المفتاح، الحجم بالميغا) — أو ("", nan)."""
+    """يجرّب المساراتَ المرشَّحة ويرجّع (المفتاح، الحجم بالميغا) — أو ("", nan).
+
+    🔑 **`head-object` أوّلًا** (لا يلزمه إذنُ سرد — والسردُ رجع 403) ثم `ls` احتياطًا،
+    فالطريقان مستقلّان في الإذن ونجاحُ أحدهما يكفي."""
     y, m, _d = day.split("-")
     for pre in TRADE_PREFIXES:
         key = f"{pre}/{y}/{m}/{day}.csv.gz"
+        rc, out, _err = aws_api("head-object", "--bucket", BUCKET,
+                                "--key", key, timeout=180)
+        if rc == 0 and out.strip():
+            try:
+                return key, int(json.loads(out)["ContentLength"]) / 1024 / 1024
+            except (ValueError, KeyError, TypeError):
+                return key, float("nan")
         rc, out, _err = aws("ls", f"s3://{BUCKET}/{key}", timeout=180)
         if rc == 0 and out.strip():
             try:
@@ -167,15 +188,23 @@ def main() -> int:
           f"شاهدُ الضبط: {WITNESS}")
 
     # ── ① الاستحقاق: ماذا يشمله الاشتراك فعلًا؟ (سردٌ لا افتراض) ──────────────
-    print("\n① الاستحقاق — سردُ البكت (إثباتٌ لا افتراض):")
-    rc, out, err = aws("ls", f"s3://{BUCKET}/", timeout=180)
-    if rc != 0:
-        print(f"  ⛔ فشل السرد (rc={rc}): {(err or out).strip()[:300]}")
-        print("  ↳ إن كان `NoSuchBucket` فاسمُ البكت غير صحيح — اضبط "
-              "`POLYGON_S3_BUCKET` بقيمة «Bucket» من صفحة المفتاح.")
-        return 3
-    prefixes = [ln.split()[-1] for ln in out.splitlines() if ln.strip()]
-    print("  ✅ " + (" · ".join(prefixes) if prefixes else "(فارغ)"))
+    # 🔴 **تصحيحُ عيبٍ في مِجَسِّي نفسِه (2026-08-11):** كانت هذي الخطوةُ **تُسقط
+    #    المِجَسَّ كلَّه** عند فشل السرد — فرجعَ `403 Forbidden` على `ListObjectsV2`
+    #    عند الجذر فمات القياسُ قبل أن يجرّب البياناتَ أصلًا. **والسردُ إذنٌ منفصلٌ
+    #    عن القراءة**: منعُه لا يعني منعَ الملفّات. ⇒ صارت **تشخيصًا لا بوّابة**:
+    #    تجرّب سلّمَ بادئاتٍ وتطبع نتيجةَ كلٍّ **وتمضي مهما كان**.
+    # 🧭 **الدرس المُعمَّم: خطوةُ تشخيصٍ لا يجوز أن تُسقط القياسَ الذي تسبقه.**
+    print("\n① الاستحقاق — سلّمُ سردٍ **تشخيصيّ** (لا يُسقط القياس):")
+    for pre in ("", "us_stocks_sip/", TRADE_PREFIXES[0] + "/"):
+        rc, out, err = aws("ls", f"s3://{BUCKET}/{pre}", timeout=180)
+        tag = pre or "(الجذر)"
+        if rc == 0:
+            names = [ln.split()[-1] for ln in out.splitlines() if ln.strip()]
+            print(f"  ✅ {tag}: " + (" · ".join(names[:12]) or "(فارغ)"))
+        else:
+            print(f"  ⚠️ {tag}: rc={rc} · {(err or out).strip()[:160]}")
+    print("  ↳ ‏403 على السرد **لا يمنع القراءة** — الحكمُ في ② و③ لا هنا. "
+          "و`NoSuchBucket` وحده يعني أن اسمَ البكت غلط.")
 
     # ── ② حجمُ يومٍ واحد قبل تنزيله (قرارُ كلفةٍ لا مفاجأة) ───────────────────
     print("\n② حجمُ يومٍ واحد من الصفقات (يُجرَّب أكثرُ من مسار):")
