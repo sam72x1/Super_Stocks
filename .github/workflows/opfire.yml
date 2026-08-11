@@ -1,9 +1,26 @@
-name: T-OPFIRE (feasibility day)
+name: T-OPFIRE (feasibility / armed slices)
 permissions:
   contents: read
+  actions: read          # 🕰️ لتحميل لقطة التجميد (كون ARMED point-in-time)
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: "feasibility = يومٌ واحد · armed = قياسُ المكتوم على كون ARMED (‏§⑥)"
+        required: false
+        default: "feasibility"
+      year:
+        description: "‏armed فقط — السنة (مثال 2025)"
+        required: false
+        default: ""
+      frozen_run_id:
+        description: "‏armed فقط — لقطةُ التجميد. التسجيل ثبّت 30598885456"
+        required: false
+        default: ""
+      max_windows:
+        description: "‏armed فقط — سقفُ نوافذ ARMED (0 = بلا حدّ · القصُّ يُطبَع بعدده)"
+        required: false
+        default: "0"
       day:
         description: "يومُ التداول (YYYY-MM-DD) — يومٌ واحدٌ فقط · فارغ = أمس"
         required: false
@@ -19,7 +36,7 @@ on:
 jobs:
   feasibility:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 330
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,13 +46,23 @@ jobs:
           python-version: "3.11"
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Run T-OPFIRE feasibility day
+      - name: Download frozen dataset (point-in-time ARMED universe)
+        if: ${{ github.event.inputs.frozen_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run T-OPFIRE
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
-          OPFIRE_MODE: feasibility
+          OPFIRE_MODE: ${{ github.event.inputs.mode }}
           OPFIRE_DAY: ${{ github.event.inputs.day }}
           OPFIRE_MAX_SYMS: ${{ github.event.inputs.max_syms }}
+          OPFIRE_MAX_WINDOWS: ${{ github.event.inputs.max_windows }}
           OPFIRE_WITNESS: ${{ github.event.inputs.witness }}
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: ${{ github.event.inputs.frozen_run_id != '' && 'frozen_backtest.pkl.gz' || '' }}
           # 🔴 بلا هذا يُخزّن بايثون الطباعةَ فتشغيلةٌ تُقتَل تضيع بكلّ مُخرَجها
           #    (وقع فعلًا في مِجَسّ الملفّات: 11 دقيقةً وصفرُ سطر) — البوّابة `V6`.
           PYTHONUNBUFFERED: "1"

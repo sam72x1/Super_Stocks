@@ -3740,14 +3740,28 @@ check("🔬 OPF1 قرارُ الكتم **مركَّبٌ ثلاثيًّا** كا�
 #    النصّيّ يسقط على التعليق/الـdocstring (فخٌّ موثَّقٌ تكرّر في هذا المستودع).
 _opf_calls = {getattr(n.func, "attr", None) for n in _brg_ast_mod.walk(_opf_ast)
               if isinstance(n, _brg_ast_mod.Call)}
-check("🔬 OPF2 الدوالُّ الإنتاجيةُ تُنادى **بالاسم** (لا نسخةَ منطق): break_level · "
-      "signal · operator_blocks · candle_class",
-      {"_ignition_break_level", "_ignition_signal", "_operator_blocks",
-       "_ignition_candle_class"} <= _opf_calls,
-      str(sorted(x for x in _opf_calls if x))[:100])
+# 🔄 **حُدِّث 2026-08-11 بإقرار:** `_ignition_signal` لم تبقَ نداءً مباشرًا بل صارت
+#    **مُحقَنةً** في `EX.replay_trigger` (نافذةٌ زمنيّة كالحيّ) — **وسقط القفلُ فعلًا
+#    عند التغيير فأدّى عمله**. فيُشترَط الآن **الحقنُ في المُشغِّل بالاسم** لا مجرّدُ
+#    ذكرِها، وفي **موضعَي الكشف كليهما** (الجدوى · ARMED).
+_opf_inj = sum(1 for n in _brg_ast_mod.walk(_opf_ast)
+               if isinstance(n, _brg_ast_mod.Call)
+               and getattr(n.func, "attr", None) == "replay_trigger"
+               and any(isinstance(a, _brg_ast_mod.Attribute)
+                       and a.attr == "_ignition_signal" for a in n.args))
+check("🔬 OPF2 الدوالُّ الإنتاجيةُ **بأسمائها** (لا نسخةَ منطق): break_level · "
+      "operator_blocks · candle_class نداءً · و`_ignition_signal` **محقونةً** في "
+      "`replay_trigger` في الوضعين",
+      {"_ignition_break_level", "_operator_blocks",
+       "_ignition_candle_class"} <= _opf_calls and _opf_inj == 2,
+      f"حقنُ الإشارة={_opf_inj} · " + str(sorted(x for x in _opf_calls if x))[:80])
 check("🔬 OPF3 **نافذتا الحيّ حرفيًّا**: الكشفُ 30 دقيقة (‏`:12369`) والبصمةُ 250 صفقة "
       "(‏`operator_flow`) — لا رقمًا من عندي",
-      OPF.WIN_MIN == 30 and OPF.FOOTPRINT_TRADES == 250)
+      OPF.WIN_MIN == 30 and OPF.FOOTPRINT_TRADES == 250
+      # 🔴 والثابتُ يجب أن **يحكم** لا أن يجلس: يُمرَّر صريحًا في موضعَي الكشف
+      #    ويطابق ثابتَ الرادار — وإلّا كان قفلًا على لا شيء.
+      and OPF.WIN_MIN == OPF.EX.RADAR_WINDOW
+      and _opf_src.count("window=WIN_MIN") == 2)
 # 🐞 OPF4 **سقطت صياغتُه الأولى على docstring‌ي نفسِه**: الملفُّ يقتبس عيبَ الإنتاج
 #    («تُثبّت `adjusted=true`») فقرأه القفلُ النصّيُّ استعمالًا — **الفخُّ الموثَّق،
 #    تكرّر**. ⇒ صار يقرأ **مصدرَ الدالّة الجالبة** لا الملفَّ كلَّه.
@@ -3772,14 +3786,152 @@ check("🔬 OPF8 الـworkflow: يدويٌّ بلا كرون · قراءةٌ ف
       "cron:" not in _opf_wf and "contents: read" in _opf_wf
       and 'PYTHONUNBUFFERED: "1"' in _opf_wf
       and "secrets.POLYGON_API_KEY" in _opf_wf)
-check("🔬 OPF9 لا وضعَ غيرَ الجدوى مُنفَّذٌ (العقدُ يمنع السوقَ الكامل قبل عبوره)",
+# 🔄 OPF9 **حُدِّث بإقرارٍ مؤرَّخ 2026-08-11** (‏`opfire_prereg.md` §⑩-ج): وضعُ `armed`
+#    صار منفَّذًا — **والممنوعُ ما زال قائمًا**: أيُّ وضعٍ ثالث يُرجع خروجًا غيرَ صفريّ،
+#    والسنواتُ الثلاث لا تُشغَّل قبل بلوغ الأرضية (‏`OPF17`).
+check("🔬 OPF9 وضعان **فقط** (`feasibility`/`armed`) وأيُّ ثالثٍ ⇒ خروجٌ غيرُ صفريّ",
       OPF.MODE == "feasibility" and 'MODE != "feasibility"' in _opf_src
-      and "return 2" in _opf_src)
+      and 'MODE == "armed"' in _opf_src and "return 2" in _opf_src)
 # 🔴 OPF10 **بلا تسريبٍ مستقبليّ**: الشرطُ صريحٌ بالحقل وبالمقارنة الصارمة `<`.
 check("🔬 OPF10 البصمةُ من صفقاتٍ زمنُها **أصغرُ من** نهاية دقيقة الاشتعال (`<` لا `<=`)",
       'int(r["ts"]) < end_ns' in _opf_src and "end_ms + 60_000" not in _opf_src)
 check("🔬 OPF11 دِدوب: **اشتعالٌ واحدٌ لكلّ (رمز، جلسة)** — العقد §②-4",
       _opf_src.count("break                                        # 🔒 اشتعالٌ") == 1)
+
+# ══════════ 🔬🔥 T-OPFIRE · وضعُ ARMED (‏§⑥ أرضيّةُ العيّنة · §⑩-ج) ══════════
+_opf_tree = _ast0.parse(_opf_src)
+# 🔴 OPF12 **ترتيبٌ لا نصّ**: ضبطُ العلمين يجب أن يسبق `import Super_stock` — فبعده
+#    يخرجان **خاملَين** (`_apply_backtest_overrides` وقتَ التحميل) = بصمةُ `BT_CANDLE`
+#    الميّت. والقفلُ النصّيُّ **لا يرى ترتيبًا** (الدرسُ المدوَّن) ⇒ نحويٌّ بالأسطر.
+_opf_env_ln = min([n.lineno for n in _ast0.walk(_opf_tree)
+                   if isinstance(n, _ast0.Subscript)
+                   and isinstance(getattr(n, "slice", None), _ast0.Constant)
+                   and n.slice.value in ("SCREENER_MODE", "BT_REPLAY10")] or [10 ** 9])
+_opf_imp_ln = min([n.lineno for n in _ast0.walk(_opf_tree)
+                   if isinstance(n, _ast0.Import)
+                   and any(a.name == "Super_stock" for a in n.names)] or [0])
+check("🔬 OPF12 `SCREENER_MODE`/`BT_REPLAY10` تُضبَطان **قبل** `import Super_stock` "
+      "(وإلّا خرج العلمُ خاملًا = `no-op` صامت)",
+      0 < _opf_env_ln < _opf_imp_ln)
+_opf_callnames = {_ast0.unparse(n.func) for n in _ast0.walk(_opf_tree)
+                  if isinstance(n, _ast0.Call)}
+# 🔴 OPF13 مسارُ كشفٍ **واحدٌ** في الوضعين: نافذةٌ **زمنيّة** (‏`replay_trigger`) وجلسةٌ
+#    **نظاميّة** (‏`group_sessions`) — وعودةُ النافذة العدديّة أو مشيُ ما قبل السوق
+#    يقيسان اشتعالًا **لا يراه الرادارُ الحيُّ أبدًا**.
+check("🔬 OPF13 الكشفُ `EX.group_sessions`+`EX.replay_trigger` (نافذةٌ زمنيّة · جلسةٌ "
+      "نظاميّة) ولا نافذةَ عدديّةٍ باقية",
+      {"EX.replay_trigger", "EX.group_sessions"} <= _opf_callnames
+      and "i - WIN_MIN" not in _opf_src)
+# 🐞 **سقطت صياغتُه الأولى على docstring‌ي نفسِه** — الوصفُ يشرح «**وبلا**
+#    `timestamp.gte` عمدًا» فقرأه القفلُ النصّيُّ استعمالًا. **الفخُّ الموثَّق، رابعةً
+#    في هذا المستودع** ⇒ الحكمُ من **مفاتيح `params` نحويًّا** لا من نصّ الملفّ.
+_opf_fp_tree = _brg_ast_mod.parse(_insp0.getsource(OPF.fetch_footprint_desc))
+_opf_fp_params: dict = {}
+for _n in _brg_ast_mod.walk(_opf_fp_tree):
+    if isinstance(_n, _brg_ast_mod.Call) and any(
+            k.arg == "params" for k in _n.keywords):
+        _d = next(k.value for k in _n.keywords if k.arg == "params")
+        if isinstance(_d, _brg_ast_mod.Dict):
+            _opf_fp_params = {k.value: _brg_ast_mod.unparse(v)
+                              for k, v in zip(_d.keys, _d.values)
+                              if isinstance(k, _brg_ast_mod.Constant)}
+_opf_fp_rev = any(isinstance(n, _brg_ast_mod.Call)
+                  and _brg_ast_mod.unparse(n.func) == "rows.reverse"
+                  for n in _brg_ast_mod.walk(_opf_fp_tree))
+check("🔬 OPF14 جالبُ البصمة **بشكل نداء الإنتاج**: `order=desc` · `limit=250` · عكسٌ "
+      "للتصاعديّ · مفاتيحُ `params` = `lt`+`limit`+`order` **حصرًا بلا حدٍّ أدنى**",
+      set(_opf_fp_params) == {"timestamp.lt", "limit", "order"}
+      and _opf_fp_params.get("order") == "'desc'" and _opf_fp_rev
+      and OPF.FOOTPRINT_TRADES in (OPF.fetch_footprint_desc.__defaults__ or ()),
+      str(sorted(_opf_fp_params))[:90])
+_opf_ra_calls = {_ast0.unparse(n.func) for n in
+                 _ast0.walk(_ast0.parse(_insp0.getsource(OPF.run_armed)))
+                 if isinstance(n, _ast0.Call)}
+check("🔬 OPF15 **إعادةُ استعمالٍ لا بناءٍ**: كونُ ARMED والمستوياتُ والتجديدُ اليوميّ "
+      "من `event_exec_run` بأسمائها · والحكمُ بدوالّ الإنتاج",
+      {"EXR._armed", "EXR.plan_levels", "EXR.session_levels", "EX.hist_minute_bars",
+       "EX.scale_mismatch", "EX.replay_trigger", "S._operator_blocks",
+       "S._ignition_candle_class", "mute_decision"} <= _opf_ra_calls)
+
+
+def _opf_armed(fp):
+    """يشغّل `run_armed` على نافذةٍ مصطنعةٍ بلا شبكة ⟶ `(رمز الخروج، المُخرَج)`.
+
+    🔒 **`event_exec_run` يُستبدَل بجذعٍ في `sys.modules`** — لأن استيرادَه الحقيقيّ
+    يضبط `SCREENER_MODE=BACKTEST` **على مستوى الوحدة** فيُلوّث بقيّةَ السويّة (ولو
+    أعدنا البيئة لأصبح استيرادُه لاحقًا مخبَّأً بلا ضبط = عطبٌ في اختبارٍ آخر).
+    وأمّا أنه **الحقيقيُّ في الإنتاج** فذاك ما يقفله `OPF15` نحويًّا."""
+    import io as _io2
+    import sys as _sys2
+    import types as _ty2
+    from contextlib import redirect_stdout as _rd2
+    day, base = "2025-03-04", 1741097400000
+    bars = [{"o": (1.30 if i == 35 else 1.00), "h": (1.30 if i == 35 else 1.00),
+             "l": 0.99, "c": (1.30 if i == 35 else 1.00),
+             "v": (5000 if i == 35 else 100), "t": base + i * 60000}
+            for i in range(40)]
+    tr = {"symbol": "ZZZ", "entry": 1.0, "stop": 0.93, "t1": 1.5, "crit": 1.20,
+          "eligible_at": day, "exit_date": day,
+          "interp_in": {"pivot": 1.0, "price": 1.0}}
+    stub = _ty2.ModuleType("event_exec_run")
+    stub._armed = lambda t: ([{"symbol": "ZZZ", "trade": tr,
+                               "start": day, "end": day}], {"rejected_cap": 0}, 0)
+    stub.plan_levels = lambda t: {"pivot": 1.0, "break": 1.20, "stop": 0.93,
+                                  "t1": 1.5, "t3": None, "from_crit": True}
+    stub.session_levels = lambda d, s, t, b: {k: b for k in d}
+    old_mod, _sys2.modules["event_exec_run"] = _sys2.modules.pop(
+        "event_exec_run", None), stub
+    o_bt, o_hm, o_cs, o_fp = (S.run_backtest, OPF.EX.hist_minute_bars,
+                              OPF.EX.call_stats, OPF.fetch_footprint_desc)
+    S.run_backtest = lambda *a, **k: [tr]
+    OPF.EX.hist_minute_bars = lambda *a, **k: bars
+    OPF.EX.call_stats = lambda: {"aggs": 1}
+    OPF.fetch_footprint_desc = fp
+    buf = _io2.StringIO()
+    try:
+        with _rd2(buf):
+            rc = OPF.run_armed()
+    finally:
+        (S.run_backtest, OPF.EX.hist_minute_bars, OPF.EX.call_stats,
+         OPF.fetch_footprint_desc) = o_bt, o_hm, o_cs, o_fp
+        _sys2.modules.pop("event_exec_run", None)
+        if old_mod is not None:
+            _sys2.modules["event_exec_run"] = old_mod
+        OPF._FAILS.clear()
+    return rc, buf.getvalue()
+
+
+_opf_o_key = _os_hc.environ.get("POLYGON_API_KEY")
+_os_hc.environ["POLYGON_API_KEY"] = "test-key-not-used"
+try:
+    # 🔴 OPF16 **فشلُ الشبكة ليس شريحة**: `fetch_footprint_desc → None` يُعَدّ «تعذّر
+    #    جلبُ الصفقات» ولا يُخلَط بـ`fallback` — وإلّا صار عطبُ نداءٍ **كتمًا مفبركًا**
+    #    يرفع شريحةَ المكتوم ويُبلَغ المالكُ بأرضيةٍ لم تُبلَغ.
+    _rc_bad, _out_bad = _opf_armed(lambda s, e, limit=250: (None, None, []))
+    check("🔬 OPF16 تعذّرُ جلب الصفقات **يُعَدّ ولا يُصنَّف** شريحةً (لا كتمٌ مفبركٌ من "
+          "عطبِ شبكة)",
+          "تعذّر جلبُ الصفقات=1" in _out_bad and "مُشرَّح=0" in _out_bad
+          and "اشتعالات=1" in _out_bad and "مكتوم=0" in _out_bad)
+    # 🔴 OPF17 الأرضيةُ **تُوقِف** لا تُعلَّق: خروجٌ **‏5** مميَّزٌ عن 3 (بوّابة) و2 (عطب)
+    #    — «أخضر» كان سيُقرأ إذنًا بالمضيّ. ومعامِلُ التوسيع مطبوعٌ (‏`V7`).
+    _rc_thin, _out_thin = _opf_armed(
+        lambda s, e, limit=250: ([{"ts": e - 10 ** 9, "price": 1.0, "size": 100,
+                                   "exchange": 4}] * 5, e - 10 ** 9, []))
+    check("🔬 OPF17 الأرضيةُ غيرُ المبلوغة ⇒ **خروج 5** ونصُّ «لا حكم» + معامِلُ "
+          "التوسيع مطبوع (‏V7) · والبصمةُ دون 20 صفقة تُعَدّ سببًا بنيويًّا",
+          _rc_thin == 5 and "لا حكم" in _out_thin
+          and "معامِلُ التوسيع ×3" in _out_thin
+          and "بصمةٌ دون 20 صفقة=1" in _out_thin
+          and OPF.FLOOR_SLICE == 25 and OPF.PENDING_FRAC == 0.80)
+finally:
+    if _opf_o_key is None:
+        _os_hc.environ.pop("POLYGON_API_KEY", None)
+    else:
+        _os_hc.environ["POLYGON_API_KEY"] = _opf_o_key
+check("🔬 OPF18 الـworkflow يمرّر وضعًا ولقطةَ تجميدٍ وسنةً (وإلّا كان `armed` بلا كون)",
+      all(x in _opf_wf for x in ("OPFIRE_MODE: ${{ github.event.inputs.mode }}",
+                                 "BACKTEST_YEAR:", "BT_FROZEN_PATH:",
+                                 "frozen-dataset")))
 
 # ⏰ الفارز اليومي: الكرون مقدَّم بمقدار التأخّر المقيس (138-159د) ليصل التقرير ~10ص
 # السعودية (07:00-07:30 UTC). قفل حسابي — أي عودة لـ«23 7» أو تقديم مفرط يُسقطه.
