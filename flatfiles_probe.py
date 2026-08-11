@@ -45,6 +45,11 @@ CAP_MB = float(os.environ.get("PROBE_CAP_MB", "4096"))   # سقفُ تنزيلٍ
 OPERATOR_MIN = int(os.environ.get("OPERATOR_MIN_SHARES", "1000"))
 # مساراتٌ مرشَّحة — تُجرَّب بالترتيب ويُعلَن ما نجح (لا افتراضَ مسارٍ واحد).
 TRADE_PREFIXES = ("us_stocks_sip/trades_v1", "us_stocks_sip/trades")
+# 🔗 منفذان يُجرَّبان: منفذُ صفحة المفتاح **أوّلًا** (هو الموثَّق لاشتراك المالك) ثم
+#    منفذُ Polygon التاريخيّ — تشخيصًا لا تخمينًا: نفسُ المفتاحين على منفذين، فإن نجح
+#    أحدُهما فالعلّةُ عنوانٌ لا استحقاق، وإن فشل الاثنان فالعلّةُ **الاستحقاق**.
+ENDPOINTS = tuple(dict.fromkeys(
+    [ENDPOINT] + [e for e in ("https://files.polygon.io",) if e != ENDPOINT]))
 
 
 def _run(args: list, timeout=900) -> tuple[int, str, str]:
@@ -58,17 +63,18 @@ def _run(args: list, timeout=900) -> tuple[int, str, str]:
         return 124, "", f"تجاوزَ المهلة ({timeout}ث)"
 
 
-def aws(*args: str, timeout=900) -> tuple[int, str, str]:
-    return _run(["aws", "s3", *args, "--endpoint-url", ENDPOINT], timeout=timeout)
+def aws(*args: str, timeout=900, endpoint=None) -> tuple[int, str, str]:
+    return _run(["aws", "s3", *args, "--endpoint-url", endpoint or ENDPOINT],
+                timeout=timeout)
 
 
-def aws_api(*args: str, timeout=300) -> tuple[int, str, str]:
+def aws_api(*args: str, timeout=300, endpoint=None) -> tuple[int, str, str]:
     """‏`s3api` لا `s3` — يُستعمل لـ`head-object` الذي **لا يلزمه إذنُ سرد**.
 
     🔴 **ولماذا:** تشغيلةُ 2026-08-11 رجعت `403 Forbidden` على `ListObjectsV2` عند
     جذر البكت. والسردُ إذنٌ **منفصل** عن القراءة، فمنعُه لا يعني منعَ البيانات ⇒
     نقيسُ الحجمَ بـ`head-object` (‏HeadObject) فلا يحجبنا إذنُ السرد."""
-    return _run(["aws", "s3api", *args, "--endpoint-url", ENDPOINT],
+    return _run(["aws", "s3api", *args, "--endpoint-url", endpoint or ENDPOINT],
                 timeout=timeout)
 
 
@@ -149,28 +155,39 @@ def control_ok(feat: dict, witness: str = WITNESS) -> tuple[bool, str]:
                   f"دارك={w['acc']['dark_share_pct']:.1f}%")
 
 
-def find_trades_key(day: str) -> tuple[str, float]:
-    """يجرّب المساراتَ المرشَّحة ويرجّع (المفتاح، الحجم بالميغا) — أو ("", nan).
+def find_trades_key(day: str) -> tuple[str, float, str, list]:
+    """يجرّب المساراتَ المرشَّحة ويرجّع (المفتاح، الميغا، المنفذ، محاولاتٌ مُعلَنة).
 
     🔑 **`head-object` أوّلًا** (لا يلزمه إذنُ سرد — والسردُ رجع 403) ثم `ls` احتياطًا،
-    فالطريقان مستقلّان في الإذن ونجاحُ أحدهما يكفي."""
+    فالطريقان مستقلّان في الإذن ونجاحُ أحدهما يكفي.
+    🔴 **وعيبٌ ثانٍ في مِجَسّي أُصلح (2026-08-11):** كانت ترجّع «لم يُوجَد» **وتبتلع
+    السبب** ⇒ يستوي عندها **«ممنوعٌ» (‏AccessDenied)** و**«لا مفتاحَ بهذا الاسم»
+    (‏404)** و**«يومٌ لم يتداول»** — ثلاثةُ أحكامٍ مختلفةٍ تمامًا تُطبَع حكمًا واحدًا.
+    الآن تُرجَع **كلُّ محاولةٍ بسببها الحرفيّ** فيُقرأ الفرق. 🧭 والدرس: **حكمٌ سالبٌ
+    بلا سببٍ مُسمًّى يخفي تشخيصَه.**"""
     y, m, _d = day.split("-")
-    for pre in TRADE_PREFIXES:
-        key = f"{pre}/{y}/{m}/{day}.csv.gz"
-        rc, out, _err = aws_api("head-object", "--bucket", BUCKET,
-                                "--key", key, timeout=180)
-        if rc == 0 and out.strip():
-            try:
-                return key, int(json.loads(out)["ContentLength"]) / 1024 / 1024
-            except (ValueError, KeyError, TypeError):
-                return key, float("nan")
-        rc, out, _err = aws("ls", f"s3://{BUCKET}/{key}", timeout=180)
-        if rc == 0 and out.strip():
-            try:
-                return key, int(out.split()[2]) / 1024 / 1024
-            except (IndexError, ValueError):
-                return key, float("nan")
-    return "", float("nan")
+    tries = []
+    for ep in ENDPOINTS:
+        for pre in TRADE_PREFIXES:
+            key = f"{pre}/{y}/{m}/{day}.csv.gz"
+            rc, out, err = aws_api("head-object", "--bucket", BUCKET,
+                                   "--key", key, timeout=180, endpoint=ep)
+            if rc == 0 and out.strip():
+                try:
+                    return (key, int(json.loads(out)["ContentLength"])
+                            / 1024 / 1024, ep, tries)
+                except (ValueError, KeyError, TypeError):
+                    return key, float("nan"), ep, tries
+            tries.append((ep, key, "head", rc, (err or out).strip()[:200]))
+            rc, out, err = aws("ls", f"s3://{BUCKET}/{key}", timeout=180,
+                               endpoint=ep)
+            if rc == 0 and out.strip():
+                try:
+                    return key, int(out.split()[2]) / 1024 / 1024, ep, tries
+                except (IndexError, ValueError):
+                    return key, float("nan"), ep, tries
+            tries.append((ep, key, "ls", rc, (err or out).strip()[:200]))
+    return "", float("nan"), "", tries
 
 
 def main() -> int:
@@ -208,13 +225,17 @@ def main() -> int:
 
     # ── ② حجمُ يومٍ واحد قبل تنزيله (قرارُ كلفةٍ لا مفاجأة) ───────────────────
     print("\n② حجمُ يومٍ واحد من الصفقات (يُجرَّب أكثرُ من مسار):")
-    key, size_mb = find_trades_key(DAY)
+    key, size_mb, used_ep, tries = find_trades_key(DAY)
+    for ep, k, how, rc, err in tries:
+        print(f"  ⚠️ [{how}] {ep} · {k} · rc={rc} · {err}")
     if not key:
-        print(f"  ⛔ لم يُوجَد ملفُّ صفقاتٍ لـ{DAY} في: "
-              + " · ".join(TRADE_PREFIXES))
-        print("  ↳ اختر مسارًا من سرد ① (قد يختلف اسمُ المجموعة بخطّتك) أو يومًا آخر.")
+        print(f"  ⛔ لم يُوجَد ملفُّ صفقاتٍ لـ{DAY} — **والسببُ مطبوعٌ أعلاه لكلّ محاولة**.")
+        print("  ↳ اقرأ **نوعَ** الخطأ لا وجودَه: `AccessDenied`/‏403 على **كلّ** منفذٍ "
+              "وكلّ مسار ⇒ **الاشتراكُ لا يشمل الملفّاتَ المجمَّعة** (استحقاقٌ لا عنوان) · "
+              "و‏404/`NoSuchKey` ⇒ المسارُ أو اليومُ غلط (يومَ عطلةٍ لا ملفّ) · "
+              "و`NoSuchBucket` ⇒ اسمُ البكت غلط · ونجاحُ منفذٍ وفشلُ آخرَ ⇒ العلّةُ العنوان.")
         return 3
-    print(f"  ✅ {key} ≈ {size_mb:,.1f} ميغابايت (مضغوط)")
+    print(f"  ✅ {key} ≈ {size_mb:,.1f} ميغابايت (مضغوط) · المنفذُ النافع: {used_ep}")
     if size_mb == size_mb and size_mb > CAP_MB:      # (‏nan != nan)
         print(f"  ⛔ فوق السقف المُعلَن {CAP_MB:,.0f}MB — **يُعلَن ولا يُنزَّل صامتًا**.")
         return 3
@@ -223,7 +244,9 @@ def main() -> int:
     dst = f"/tmp/{DAY}.trades.csv.gz"
     print(f"\n③ تنزيلٌ واحدٌ ثم اختزالٌ فوريّ (لا تخزينَ خام) → {dst}")
     t0 = time.time()
-    rc, out, err = aws("cp", f"s3://{BUCKET}/{key}", dst, timeout=1800)
+    # 🔗 **من المنفذ الذي نجح في ②** لا من الافتراض (وإلّا قِسنا منفذًا وحمّلنا آخر).
+    rc, out, err = aws("cp", f"s3://{BUCKET}/{key}", dst, timeout=1800,
+                       endpoint=used_ep or None)
     dl = time.time() - t0
     if rc != 0:
         print(f"  ⛔ فشل التنزيل (rc={rc}): {(err or out).strip()[:300]}")
