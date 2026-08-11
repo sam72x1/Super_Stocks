@@ -293,5 +293,17 @@
   "vol_x": 3.7,
   "usd": 51412,
   "candle_class": "mid"
+ },
+ {
+  "symbol": "ENGN",
+  "date": "2026-08-11",
+  "sustain_min": 0,
+  "operator_ok": false,
+  "fired_at": "2026-08-11T20:01:02Z",
+  "break_level": 1.79,
+  "price": 1.795,
+  "vol_x": 4.6,
+  "usd": 57433,
+  "candle_class": "mid"
  }
 ]
