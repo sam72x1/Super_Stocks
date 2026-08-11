@@ -721,7 +721,7 @@
    "status": "expired",
    "result_date": "2026-08-04",
    "max_gain_pct": 6.0,
-   "mg_obs_pct": 27.4,
+   "mg_obs_pct": 27.6,
    "mg_obs_days": 26
   },
   {
@@ -2502,7 +2502,7 @@
    "rr": 3.2545143468979134,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 6.6
+   "max_gain_pct": 8.2
   },
   {
    "symbol": "PLYX",
@@ -2579,7 +2579,7 @@
    "rr": 4.915048146913803,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 8.8
+   "max_gain_pct": 8.9
   },
   {
    "symbol": "NXTS",
@@ -2797,7 +2797,7 @@
    "rr": 1.319999999999996,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -0.7
+   "max_gain_pct": 1.7
   },
   {
    "symbol": "AEMD",
@@ -2948,7 +2948,7 @@
    "rr": 3.3674953193350583,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -2.0
+   "max_gain_pct": -1.6
   },
   {
    "symbol": "TVRD",
@@ -3567,7 +3567,7 @@
    "rr": 1.737160760872117,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 7.9
   },
   {
    "symbol": "ARBK",
@@ -3603,7 +3603,7 @@
    "rr": 1.1092223875664233,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 0.3
   },
   {
    "symbol": "AIXI",
@@ -3639,7 +3639,7 @@
    "rr": 1.337448285086113,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 9.9
   },
   {
    "symbol": "FLYE",
@@ -3673,7 +3673,7 @@
    "rr": 0.9259260526573558,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 3.6
   },
   {
    "symbol": "PLSM",
@@ -3710,7 +3710,7 @@
    "rr": 2.1306519940305124,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 4.4
   }
  ]
 }
