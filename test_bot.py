@@ -3528,6 +3528,67 @@ check("🔒 M14·إعادة التقييم لا تُستدعى داخل أي ج�
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.apply_float_gate,
                      S.apply_short_gate, S.scan_market, S.analyze_ticker,
                      S.backtest_symbol, S.entry_status)))
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🔒📏 BRG — بوّابةُ «المتاح للاقتراض» (أمرُ المالك 2026-08-11 «طبّق حدّ فيصل»)
+# ══════════════════════════════════════════════════════════════════════════════
+# سندُها `borrow_gate_result.md`: وسيطُ المتاح في قائمتنا 350,000 مقابل **10,000**
+# عند اختيارات فيصل المنفَّذة و700,000 عند شاهد السوق. **المقياسُ فيصليٌّ بلفظه
+# والرقمُ (40,000) قرارُ مالك** — ونصُّه الحرفيّ «تحت 20 ألف» على بُعد كلمةٍ.
+_BRG_LIM = float(S.CONFIG["BORROW_AVAIL_MAX"])
+
+
+def _brg(av):
+    return {"symbol": "BG", "shares_available": av}
+
+
+_brg_k, _brg_e = S.borrow_gate_recheck(
+    [_brg(3_200_000), _brg(_BRG_LIM), _brg(_BRG_LIM + 1), _brg(1_000)])
+check("🔒 BRG1 فوق الحدّ يُخرَج · والحدُّ نفسُه **يمرّ** (‏`>` لا `>=`) · والأقلُّ يمرّ",
+      len(_brg_k) == 2 and len(_brg_e) == 2
+      and {v for _s, v in _brg_e} == {3_200_000, _BRG_LIM + 1},
+      f"باقٍ={len(_brg_k)} · مُخرَج={[v for _s, v in _brg_e]}")
+check("🔒 BRG2 فاشلٌ-آمنٌ **مفتوح**: مجهولٌ/تالفٌ/غائبٌ يمرّ بفائدة الشك "
+      "(قاطعُ CE لا يُفرّغ القائمة)",
+      S.borrow_gate_recheck([_brg(None)])[1] == []
+      and S.borrow_gate_recheck([_brg("س")])[1] == []
+      and S.borrow_gate_recheck([_brg({})])[1] == []
+      and len(S.borrow_gate_recheck([{"symbol": "NOKEY"}])[0]) == 1)
+_brg_off = dict(S.CONFIG)
+try:
+    S.CONFIG["BORROW_GATE_REQUIRED"] = False
+    _brg_p = S.borrow_gate_recheck([_brg(9_000_000), _brg(1)])
+finally:
+    S.CONFIG.update(_brg_off)
+check("🔒 BRG3 مُطفأةً ⇒ **مرورٌ بت-بت** (لا إخراجَ ولو 9 ملايين)",
+      len(_brg_p[0]) == 2 and _brg_p[1] == []
+      and S.CONFIG["BORROW_GATE_REQUIRED"] is True)
+check("🔒 BRG4 والافتراضُ في الكود **مُفعَّل** بحدّ 40,000 (قرارُ المالك)",
+      S.CONFIG["BORROW_GATE_REQUIRED"] is True
+      and float(S.CONFIG["BORROW_AVAIL_MAX"]) == 40_000.0)
+# 🔴 BRG5 **الوصلةُ من نقطتَي النداء الحيّتين** (AST لا نصّ) — والدرسُ المتكرّر:
+#    دالّةٌ موجودةٌ وغيرُ موصولةٍ = حبرٌ على ورق. ويجب أن تكون في **الاثنتين**.
+import ast as _brg_ast_mod                                       # noqa: E402
+_brg_ast = _brg_ast_mod.parse(open("Super_stock.py", encoding="utf-8").read())
+_brg_calls = {n.name for n in _brg_ast_mod.walk(_brg_ast)
+              if isinstance(n, _brg_ast_mod.FunctionDef)
+              and any(getattr(c.func, "id", None) == "borrow_gate_recheck"
+                      for c in _brg_ast_mod.walk(n)
+                      if isinstance(c, _brg_ast_mod.Call))}
+check("🔒 BRG5 موصولةٌ فعلًا من **مسارَي الاختيار** (التجديد + الإضافة اليومية)",
+      {"run_weekly_renewal", "run_daily_watchlist"} <= _brg_calls,
+      str(sorted(_brg_calls))[:80])
+check("🔒 BRG6 ولا تُستدعى داخل أيّ جذر (طبقةٌ تالية للإثراء لا بوّابةَ فرز)",
+      all("borrow_gate_recheck" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.apply_float_gate,
+                     S.apply_short_gate, S.scan_market, S.analyze_ticker,
+                     S.backtest_symbol, S.entry_status, S.entry_readiness)))
+check("🔒 BRG7 و`M13` **لم تُمَسّ**: مقياسُها حجمُ FINRA وحدُّها 40 ألفًا كما هو "
+      "(مقياسان مختلفان لا واحد)",
+      S.CONFIG["SHORT_GATE_MAX"] == 40_000
+      and "shares_available" not in _insp0.getsource(S.apply_short_gate))
+check("🔒 BRG8 و`LOGIC_VERSION` يحمل `borrowgate` (يمسّ العضوية ⇒ إعادةُ بناء)",
+      "borrowgate" in S.LOGIC_VERSION, S.LOGIC_VERSION[:40])
 # ⏰ الفارز اليومي: الكرون مقدَّم بمقدار التأخّر المقيس (138-159د) ليصل التقرير ~10ص
 # السعودية (07:00-07:30 UTC). قفل حسابي — أي عودة لـ«23 7» أو تقديم مفرط يُسقطه.
 _ds_cron = next((x.split('"')[1] for x in

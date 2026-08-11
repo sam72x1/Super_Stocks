@@ -165,6 +165,19 @@ CONFIG = {
     #    ويُوسَم `unsourced` في `FAISAL_SOURCE_LEDGER.md`.** وتغييرُه قرارُ مالك.
     # ⚠️ والعتبة الوحيدة بلسان فيصل «تحت 20 ألف» وهي على **المتاح للاقتراض** لا على
     #    **حجم FINRA اليومي** الذي تقيسه M13 — **مقياسان مختلفان** (مُدوَّن سلفًا).
+    # 🔒📏 **بوّابةُ «المتاح للاقتراض» — أمرُ المالك 2026-08-11 «طبّق حدّ فيصل»**
+    # (بعد نتيجة `T-BORROW`: قائمةُ يومها 14 سهمًا، **‏11 منها متاحُه فوق 40 ألفًا**،
+    #  ووسيطُ المتاح عندنا 350,000 مقابل **‏10,000** عند اختيارات فيصل المنفَّذة).
+    # ⚖️ **والمقياسُ فيصليٌّ بلفظه والرقمُ قرارُ مالكٍ — يُفصَل بينهما صراحةً:**
+    #    «المتاح» هو ما يسمّيه فيصل «شورت» (‏XHLD «شورته 600 ألف؟ **طاخ طيخ**» ·
+    #    DSY «7000 متوفّر») ⇒ **المقياس `faisal_verbatim`**. أمّا **‏40,000** فرقمُنا
+    #    (يساوي `SHORT_GATE_MAX` عددًا لا مفهومًا) ⇒ **`engineering`**؛ **والعتبةُ
+    #    المنصوصة بلسانه «تحت 20 ألف»** وهي **كلمةٌ واحدة** من هنا (‏20_000).
+    # 🔴 **وقيدٌ معماريّ يحكم موضعَها:** `shares_available` يُجلَب في `enrich`
+    #    **بعد** `select_top` (جلبُه لآلاف رموز الفرز = حظر — قيدٌ مدوَّن) ⇒ تُطبَّق
+    #    **طبقةً تالية** على المُختارين، بنفس سابقة `refloat_gate_recheck` (M14).
+    "BORROW_GATE_REQUIRED": True,  # بوّابةُ المتاح: أطفئها لتعطيلها بلا كود
+    "BORROW_AVAIL_MAX": 40_000,    # فوقه = «حرب وتصريف/ذخيرة هبوط» بإطار فيصل
     "FLOAT_GATE_REQUIRED": True,  # M14: رفض الفلوت الكبير (أقوى رابط في أسهم فيصل)
     "FLOAT_GATE_MAX": 50_000_000, # حد الفلوت: كل أسهم فيصل تحته (HCAI 163ألف ←
                                   # MWC 26.68م). الفلوت الصغير = ينفجر بسهولة.
@@ -874,7 +887,7 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.10-base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.11-borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -9753,6 +9766,47 @@ def refloat_gate_recheck(picks):
     return kept, ejected
 
 
+def borrow_gate_recheck(picks):
+    """🔒📏 **بوّابةُ «المتاح للاقتراض» بعد الإثراء** (أمرُ المالك 2026-08-11
+    «طبّق حدّ فيصل»). تُخرِج المُختارَ الذي متاحُه **فوق** `BORROW_AVAIL_MAX`.
+
+    **السند:** «المتاح» هو ما يسمّيه فيصل «شورت» (‏XHLD «شورته 600 ألف؟ طاخ طيخ» ·
+    DSY «7000 متوفّر») — **مقياسٌ فيصليٌّ بلفظه**؛ والرقمُ 40,000 **قرارُ مالك**
+    (‏`engineering`)، ونصُّه الحرفيّ «تحت 20 ألف» على بُعد كلمةٍ في `CONFIG`.
+    **والدافعُ مقيس** (`borrow_gate_result.md`): وسيطُ المتاح في قائمتنا 350,000
+    مقابل **‏10,000** عند اختيارات فيصل المنفَّذة و700,000 عند شاهد السوق ⇒ مِعيارُه
+    الظاهر لم يكن ممثَّلًا في فرزنا إطلاقًا.
+
+    🔴 **ولماذا هنا لا في بوّابات الفرز:** `shares_available` يأتي من `ce_borrow_info`
+    داخل `enrich` **بعد** `select_top` (وجلبُه لآلاف رموز الفرز = حظر — قيدٌ مدوَّن
+    منذ 2026-07-11) ⇒ هذي **طبقةٌ تالية** بنفس سابقة `refloat_gate_recheck` (M14
+    بعد الإثراء)، **لا بوّابةَ فرزٍ جديدة**.
+
+    ⚖️ **والمقارنةُ `>` لا `>=`**: الحدُّ نفسُه **مقبول** (‏40,000 يمرّ) — «فوق الحدّ»
+    هو ما يوصف بذخيرة الهبوط. ترجّع `(kept, ejected)` و`ejected` أزواجُ (رمز، متاح).
+
+    🔒 **فاشلٌ-آمنٌ مفتوح إلزاميًّا:** مجهولٌ (‏`None`) أو تالفٌ ⇒ **يمرّ بفائدة الشك**
+    (قاعدةُ M13/M14 نفسُها: تعذّرُ الجلب ≠ صفر)، فقاطعُ دائرة ChartExchange لا
+    يُفرِّغ القائمة. ومطفأةٌ بمفتاحٍ واحد ⇒ **مرورٌ بت-بت**.
+    🔒 **ولا تمسّ جذرًا:** `apply_short_gate`/`select_top`/`classify_tier`/
+    `analyze_ticker` byte-identical — و`M13` (حجم FINRA) **لم تُمَسّ** فهما مقياسان."""
+    if not CONFIG.get("BORROW_GATE_REQUIRED", False):
+        return list(picks or []), []
+    limit = float(CONFIG["BORROW_AVAIL_MAX"])
+    kept, ejected = [], []
+    for r in (picks or []):
+        try:
+            av = r.get("shares_available")
+            over = av is not None and float(av) > limit
+        except (TypeError, ValueError):
+            over = False                 # تالفٌ ⇒ يمرّ (سلوكُ ما قبل البوّابة حرفيًّا)
+        if over:
+            ejected.append((r.get("symbol"), r.get("shares_available")))
+            continue
+        kept.append(r)
+    return kept, ejected
+
+
 def classify_tier(soft_fails, two_tier=None, maxf=None):
     """قبول/رفض السهم حسب عدد بوابات التأكيد الناقصة: 0..maxf → 'B' (مؤهّل) | أكثر → None
     (يُرفض). دالة نقية (تستخدمها scan_market).
@@ -14249,6 +14303,13 @@ def run_weekly_renewal(wl: dict) -> None:
     if _fl_out:
         log("🔁 أُخرِج بفلوت كبير ظهر بعد الإثراء: "
             + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
+    # 🔒📏 بوّابةُ «المتاح للاقتراض» (أمرُ المالك «طبّق حدّ فيصل») — **بعد** الإثراء
+    #    لأن الرقمَ يأتي منه، وبنفس موضع M14 حرفيًّا. والإخراجُ **يُعلَن بالأرقام**.
+    picks, _bw_out = borrow_gate_recheck(picks)
+    if _bw_out:
+        log(f"🔒 أُخرِج بمتاحِ اقتراضٍ فوق {int(CONFIG['BORROW_AVAIL_MAX']):,} "
+            "(ذخيرة هبوط بإطار فيصل): "
+            + "، ".join(f"{s_}({int(float(v)):,})" for s_, v in _bw_out))
     splits = []   # (أُلغي عرض التقسيم العكسي — يهمّنا A وB فقط)
     # 3ب) قائمة مراقبة الارتداد المستقلة (تعيد استخدام نفس البيانات)
     pull_entries = []
@@ -14618,6 +14679,12 @@ def run_daily_watchlist(wl: dict) -> None:
             if _fl_out:
                 log("🔁 لم يُضَف (فلوت كبير ظهر بعد الإثراء): "
                     + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
+            # 🔒📏 وبوّابةُ «المتاح» بنفس الموضع في المسار اليوميّ (لا تُنسى إحداهما).
+            picks, _bw_out = borrow_gate_recheck(picks)
+            if _bw_out:
+                log(f"🔒 لم يُضَف (متاحُ اقتراضٍ فوق "
+                    f"{int(CONFIG['BORROW_AVAIL_MAX']):,}): "
+                    + "، ".join(f"{s_}({int(float(v)):,})" for s_, v in _bw_out))
             for r in picks:
                 wl["stocks"].append(make_watch_entry(r, today_iso))
                 added.append(r)
