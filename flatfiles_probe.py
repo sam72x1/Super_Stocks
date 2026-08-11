@@ -79,6 +79,28 @@ def aws_api(*args: str, timeout=300, endpoint=None) -> tuple[int, str, str]:
                 timeout=timeout)
 
 
+def creds_shape() -> dict:
+    """🔐 **شكلُ** المفتاحين لا قيمتُهما — أطوالٌ وأحكامٌ منطقيّة فقط.
+
+    **لماذا:** بعد أن غيّر المالك السرَّ وبقي 403، صار أهمُّ سؤالٍ **هل الزوجُ متطابق؟**
+    فإعادةُ توليد بيانات S3 تُغيّر **معرِّفَ المفتاح أيضًا** — وتحديثُ السرِّ وحده يُبقي
+    زوجًا غيرَ متطابق. وهذي الدالّةُ تكشف **الاقتطاعَ والمسافةَ والسطرَ الزائد وشكلَ
+    المعرِّف** بلا كشفِ حرفٍ واحدٍ من القيمتين (‏أطوالٌ + بولين فقط)."""
+    kid = os.environ.get("AWS_ACCESS_KEY_ID", "") or ""
+    sec = os.environ.get("AWS_SECRET_ACCESS_KEY", "") or ""
+    return {
+        "id_len": len(kid),
+        "sec_len": len(sec),
+        "id_uuid_shaped": bool(re.fullmatch(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-"
+                                            r"[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
+                                            r"[0-9a-fA-F]{12}", kid.strip())),
+        "id_outer_space": kid != kid.strip(),
+        "sec_outer_space": sec != sec.strip(),
+        "id_inner_space": bool(re.search(r"\s", kid.strip())),
+        "sec_inner_space": bool(re.search(r"\s", sec.strip())),
+    }
+
+
 def creds_present() -> bool:
     """🔐 المفتاحان يُقرآن من البيئة فقط — **ويُرجَع حكمٌ لا القيمة**، ولا يُطبَعان."""
     return bool(os.environ.get("AWS_ACCESS_KEY_ID")
@@ -218,6 +240,23 @@ def main() -> int:
     #    فالعلّةُ **استحقاقٌ على البكت** · وفشلُها بـ`InvalidAccessKeyId`/
     #    `SignatureDoesNotMatch` ⇒ **العلّةُ المفتاحان** (يُعاد ضبطُهما في Secrets).
     #    🔒 ولا تُطبَع قيمةُ سرٍّ — أسماءُ البكتات ورمزُ الخطأ فقط.
+    # ── ⓪-أ شكلُ المفتاحين (أطوالٌ وأحكام — بلا حرفٍ من القيمة) ─────────────────
+    _sh = creds_shape()
+    print("\n⓪-أ شكلُ المفتاحين (لا تُطبَع قيمةٌ — أطوالٌ وأحكامٌ فقط):")
+    print(f"  • معرِّفُ المفتاح: طول={_sh['id_len']} · "
+          f"شكلُ UUID={'✅' if _sh['id_uuid_shaped'] else '❌'} · "
+          f"مسافةٌ طرفيّة={'⚠️ نعم' if _sh['id_outer_space'] else 'لا'} · "
+          f"مسافةٌ داخليّة={'⚠️ نعم' if _sh['id_inner_space'] else 'لا'}")
+    print(f"  • السرّ: طول={_sh['sec_len']} · "
+          f"مسافةٌ طرفيّة={'⚠️ نعم' if _sh['sec_outer_space'] else 'لا'} · "
+          f"مسافةٌ داخليّة={'⚠️ نعم' if _sh['sec_inner_space'] else 'لا'}")
+    if not _sh["id_uuid_shaped"]:
+        print("  ⚠️ معرِّفُ المفتاح **ليس بشكل UUID** — ومفاتيحُ S3 عند المزوّد بهذا "
+              "الشكل ⇒ يُحتمَل أن المخزَّنَ في `POLYGON_S3_KEY` قيمةٌ أخرى.")
+    print("  🔑 **تنبيهٌ حاسم:** إعادةُ توليد بيانات S3 تُغيّر **المعرِّفَ والسرَّ معًا** ⇒ "
+          "تحديثُ `POLYGON_S3_SECRET` وحده يُبقي زوجًا **غيرَ متطابق** فيبقى 403. "
+          "حدِّث **الاثنين** من نفس الصفحة في اللحظة نفسِها.")
+
     print("\n⓪ المصادقة — هل المفتاحان مقبولان أصلًا؟ (يفرّق «بلا استحقاق» عن «مفتاحٌ خطأ»):")
     for ep in ENDPOINTS:
         rc, out, err = aws_api("list-buckets", timeout=120, endpoint=ep)
