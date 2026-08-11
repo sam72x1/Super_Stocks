@@ -9396,6 +9396,8 @@ S._MISSED[:] = _a2_missed_bak
 
 # --- A3: التنبيهات الجديدة تحمل سمات التعلّم ---
 if r0:
+    # 🔒 لقطةٌ **بِكرٌ قبل أوّل نداء** — يستعملها BRW2 أدناه. (‏سببُها في تعليقه.)
+    _brw_r0_pure = dict(r0)
     _a3_data = {"alerts": []}
     S.record_new_alerts(_a3_data, [r0])
     _a3_alert = _a3_data["alerts"][0]
@@ -9405,6 +9407,47 @@ if r0:
                "drop_pct", "best_spike", "rr"))
           and _a3_alert["tier"] == r0.get("tier")
           and _a3_alert["rr"] == r0.get("rr"))
+    # 🔒📏 **T-BORROW 🅒 (2026-08-11، أمرُ المالك «قس المتاح»):** «المتاح للاقتراض»
+    #    (مقياسُ فيصل الظاهر) كان **يُجلَب ويُعرَض ثم يُرمى** — صفرٌ في
+    #    `alerts_history` (‏0 من 101) وصفرٌ في `history` ⇒ حافّتُه **غيرُ قابلةٍ
+    #    للقياس بأثرٍ رجعيّ**. القفلُ يحرس **الوصلةَ الحيّة** لا وجودَ الحقل:
+    #    القيمةُ تُنقَل من `r` كما هي، والغائبةُ تبقى `None` (تعذّر ≠ صفر).
+    check("🔒 BRW1 التنبيهُ الجديد يحمل «المتاح» و«الرسوم» لحظةَ الترشيح "
+          "(‏T-BORROW 🅒 — وإلّا فلا قياسَ للحافّة أبدًا)",
+          "shares_available" in _a3_alert and "borrow_fee" in _a3_alert
+          and _a3_alert["shares_available"] == r0.get("shares_available")
+          and _a3_alert["borrow_fee"] == r0.get("borrow_fee"),
+          f"متاح={_a3_alert.get('shares_available')!r} · "
+          f"رسوم={_a3_alert.get('borrow_fee')!r}")
+    # 🔴 وفارقٌ **سلوكيّ**: صفٌّ يحمل قيمتين حقيقيّتين يُنقلهما حرفيًّا — فلا يمرّ
+    #    القفلُ بمجرّد وجود مفتاحٍ بقيمة `None` (وهو ما كان سيحدث لو نسختُ الاسم فقط).
+    _brw_data = {"alerts": []}
+    _brw_r = dict(r0, symbol="BRWX", shares_available=7000, borrow_fee=613.89)
+    S.record_new_alerts(_brw_data, [_brw_r])
+    _brw_a = [a for a in _brw_data["alerts"] if a["symbol"] == "BRWX"][0]
+    check("🔒 BRW1ب والقيمتان تُنقلان **فعلًا** لا مفتاحًا فارغًا (7000 · 613.89)",
+          _brw_a["shares_available"] == 7000 and _brw_a["borrow_fee"] == 613.89,
+          f"{_brw_a.get('shares_available')!r} · {_brw_a.get('borrow_fee')!r}")
+    # 🔒 BRW2 طبقةُ تسجيلٍ محضّة: `r` لا يُمَسّ (لا حقلَ يُضاف ولا يُحوَّل)
+    # 🐞 **وصياغتان متتاليتان لي كانتا قفلًا فارغًا — كشفتهما الطفرةُ لا القراءة:**
+    #    ① أخذتُ اللقطةَ `before = dict(r)` **بعد** أن مرّ الصفُّ على
+    #    `record_new_alerts` ⇒ التلوّثُ في **الطرفين** فيتساويان دائمًا · ② ثم
+    #    بنيتُ صفًّا «جديدًا» بـ`dict(r0, …)` — **و`r0` نفسُه ملوَّثٌ** من نداء A3
+    #    أعلاه فورّثه للنسخة ⇒ نجت طفرةُ «‏`r["_touched"]=True`» **مرّتين**.
+    # 🧭 **الدرس: النسخةُ ليست بِكرًا إلّا إذا كان أصلُها بِكرًا** — فاللقطةُ الآن
+    #    من `_brw_r0_pure` المأخوذة **قبل** أوّل نداءٍ في الكتلة.
+    _brw_v = dict(_brw_r0_pure, symbol="BRWV",
+                  shares_available=3000, borrow_fee=804.26)
+    _brw_pristine = dict(_brw_v)
+    S.record_new_alerts({"alerts": []}, [_brw_v])
+    check("🔒 BRW2 صفُّ الترشيح `r` لا يُمَسّ (تسجيلٌ لا إثراء)",
+          _brw_v == _brw_pristine,
+          str(sorted(set(_brw_v) - set(_brw_pristine)))[:60])
+    # 🔒 BRW3 والتسجيلُ المسبق مدفوعٌ بحدِّ جدواه وبقاعدةِ «ما لا أفعله»
+    check("🔒 BRW3 `borrow_gate_prereg.md` يحمل حدَّ الجدوى وقفلَ M13 والعيّنة 60",
+          all(x in open("borrow_gate_prereg.md", encoding="utf-8").read()
+              for x in ("لا يمكن قياسُ حافّةِ «المتاح» بأثرٍ رجعيّ",
+                        "لا تُمَسّان", "T-BORROW-FWD", "60")))
 
 # --- A5: حارس العيّنة الصغيرة + مفارقة القوة ---
 _a5_alerts = {"alerts": (
