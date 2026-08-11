@@ -3677,10 +3677,19 @@ _fil_p5 = S.fill_picks(
 check("🎯 FIL5 الجولاتُ **مسقوفة** بـ`PICK_FILL_ROUNDS` (كلفةُ الإثراء لا تنفجر)",
       _fil_p5[3] == int(S.CONFIG["PICK_FILL_ROUNDS"]),
       f"جولات={_fil_p5[3]}")
-check("🔒 FIL6 فاشلةٌ-آمنة: انكسارُ الإثراء **لا يُسقط** التعبئة",
-      len(S.fill_picks([_fil_r("E", 1_000)], 1, set(),
-                       enrich_fn=lambda _x: (_ for _ in ()).throw(
-                           RuntimeError("شبكة")))[0]) == 1)
+# 🐞 **ودرسٌ من جولة الطفرات:** أوّلُ صياغةٍ لهذا القفل كانت **تنهار** بالطفرة بدل أن
+#    تطبع ❌ (الاستثناءُ يفلت فيقتل السويّةَ ويُخفي سطرَ الملخّص) — **وانهيارٌ ليس
+#    فشلًا مقروءًا**. فصار الاستثناءُ **مُلتقَطًا هنا** ليُقرأ الحكمُ باسمه.
+def _fil6():
+    try:
+        return len(S.fill_picks([_fil_r("E", 1_000)], 1, set(),
+                                enrich_fn=lambda _x: (_ for _ in ()).throw(
+                                    RuntimeError("شبكة")))[0]) == 1
+    except Exception:                                            # noqa: BLE001
+        return False        # الاستثناءُ أفلت ⇒ الحارسُ غائب ⇒ فشلٌ **مطبوع**
+
+
+check("🔒 FIL6 فاشلةٌ-آمنة: انكسارُ الإثراء **لا يُسقط** التعبئة", _fil6())
 check("🎯 FIL7 و`exclude` مُحترَم (المُستبعَدُ لا يُعبَّأ به)",
       [r["symbol"] for r in S.fill_picks(
           _fil_clean, 2, {"X"}, enrich_fn=lambda _x: None)[0]] == ["Y", "Z"])
@@ -17692,9 +17701,12 @@ _th_pairs = [(f, _th_call_nodes(f, "fill_picks"),
 check("🥇 TH13 مُنادًى في **مسارَي** الاختيار — مرّةً واحدةً مع نداءِ تعبئةٍ واحد",
       all(len(fp) == 1 and len(rc) == 1 for _f, fp, rc in _th_pairs),
       str([(f, len(fp), len(rc)) for f, fp, rc in _th_pairs]))
+# 🐞 وحارسُ الطول **قبل** الفهرسة: بلا نداءِ تعبئةٍ كان القفلُ ينهار بـ`IndexError`
+#    (فيُخفي الملخّص) بدل أن يطبع ❌ — نفسُ درس `FIL6`.
 check("🥇 TH13ب و**بنفس مدخلات الاختيار حرفيًّا** (السعة والاستبعاد) — فالحصادُ يقيس "
       "حدَّ القطع الفعليّ لا حدًّا آخر",
-      all([_th_ast.dump(a) for a in rc[0].args[1:4]]
+      all(len(fp) == 1 and len(rc) == 1
+          and [_th_ast.dump(a) for a in rc[0].args[1:4]]
           == [_th_ast.dump(a) for a in fp[0].args[0:3]]
           for _f, fp, rc in _th_pairs))
 check("🥇 TH14 وقسمُ التقرير مُنادًى **مرّتين** (القليلة + الكافية)",
