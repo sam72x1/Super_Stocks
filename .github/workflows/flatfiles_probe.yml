@@ -1,0 +1,50 @@
+name: Flat Files Probe (S3 feasibility)
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "يومُ التداول للفحص (YYYY-MM-DD) — يومٌ واحدٌ فقط"
+        required: true
+        default: "2026-08-07"
+      bucket:
+        description: "قيمة «Bucket» من صفحة المفتاح (افتراضًا flatfiles)"
+        required: false
+        default: "flatfiles"
+      witness:
+        description: "شاهدُ الضبط — رمزٌ سائلٌ معروف (الصفرُ بلا شاهدٍ = عطب)"
+        required: false
+        default: "AAPL"
+      cap_mb:
+        description: "سقفُ التنزيل بالميغابايت — فوقه يُعلَن ولا يُنزَّل"
+        required: false
+        default: "4096"
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      # ℹ️ `aws` CLI مثبَّتٌ سلفًا على رنرات ubuntu ⇒ صفرُ اعتماديةٍ جديدة (ولا boto3).
+      - name: Show aws CLI version (إثباتُ توفّره لا افتراضُه)
+        run: aws --version
+      - name: Run flat-files feasibility probe
+        env:
+          # 🔐 المفتاحان من Secrets حصرًا — لا يُطبَعان ولا يُسجَّلان.
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+          POLYGON_S3_BUCKET: ${{ github.event.inputs.bucket }}
+          PROBE_DAY: ${{ github.event.inputs.day }}
+          PROBE_WITNESS: ${{ github.event.inputs.witness }}
+          PROBE_CAP_MB: ${{ github.event.inputs.cap_mb }}
+          FAISAL_ONLY: "0"
+        run: python3 flatfiles_probe.py

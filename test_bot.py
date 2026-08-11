@@ -16052,6 +16052,83 @@ check("📦 DEP3 و`tests.yml` يثبّت من `requirements.txt` (وإلّا ف
       "pip install -r requirements.txt"
       in open(".github/workflows/tests.yml", encoding="utf-8").read())
 
+# ══════════════════════════════════════════════════════════════════════════════
+# 🩺📦 FF — مِجَسُّ جدوى الملفّات المجمَّعة (‏Flat Files · S3، أمرُ المالك 2026-08-11)
+# ══════════════════════════════════════════════════════════════════════════════
+# **جدوى لا حكم**: يجيب «هل نسرد البكت وننزّل يومًا ونختزله داخل حدود الرنر؟» — وأيُّ
+# تجربةٍ تُبنى عليه **تُسجَّل قبل أرقامها**. والأقفالُ تحرس ثلاثة: الاختزالُ يقرأ
+# الترويسة · شاهدُ الضبط **يسقط فعلًا** · والعزلُ عن الإنتاج وعن الأسرار.
+import io as _io_ff                                              # noqa: E402
+import re as _re_ff                                              # noqa: E402
+
+import flatfiles_probe as _FF                                    # noqa: E402
+_FF_HDR = ("ticker,conditions,correction,exchange,id,participant_timestamp,price,"
+           "sequence_number,sip_timestamp,size,tape,trf_id,trf_timestamp")
+
+
+def _ff_csv(n_liquid=1200, n_tiny=30):
+    """CSV مصطنعٌ **بترويسة المزوّد الحقيقية** — شاهدٌ سائل ورمزٌ ضحل."""
+    rows = [_FF_HDR]
+    for i in range(n_liquid):
+        rows.append(f"AAPL,,0,{4 if i % 11 == 0 else 12},{i},0,"
+                    f"{10.0 + (i % 7) * 0.01},{i},0,"
+                    f"{1500 if i % 50 == 0 else 100},C,,")
+    for i in range(n_tiny):
+        rows.append(f"TINY,,0,12,{i},0,1.00,{i},0,50,C,,")
+    return _io_ff.StringIO("\n".join(rows) + "\n")
+
+
+def _ff_hdr_guard():
+    """True إذا كانت الترويسةُ الناقصة **تُعلَن بأسماء الأعمدة المفقودة**."""
+    try:
+        _FF.reduce_trades(_io_ff.StringIO("a,b,c\n1,2,3\n"))
+    except KeyError as e:
+        return all(x in str(e) for x in ("ticker", "price", "size"))
+    return False                      # لم يرمِ ⇒ الترويسةُ مفترَضةٌ لا مقروءة
+
+
+_ff_feat = _FF.reduce_trades(_ff_csv())
+_ff_rows = _ff_feat.pop("_rows_read", 0)
+check("🩺 FF1 الاختزالُ يُخرج سماتِ المضارب **بدوالّ الإنتاج نفسِها** لكلّ رمز",
+      _ff_rows == 1230 and set(_ff_feat) == {"AAPL", "TINY"}
+      and _ff_feat["AAPL"]["operator"]["n_blocks"] == 24
+      and _ff_feat["AAPL"]["operator"]["has_operator"] is True
+      and _ff_feat["TINY"]["operator"]["n_blocks"] == 0,
+      f"صفوف={_ff_rows} · طبعات={_ff_feat['AAPL']['operator']['n_blocks']}")
+check("🩺 FF2 وأسماءُ الأعمدة **من الترويسة** لا مفترَضة: الناقصُ يُعلَن باسمه",
+      _ff_hdr_guard())
+# 🔴 FF3 **شاهدُ الضبط يسقط فعلًا** — بالاتجاهين (وإلّا فهو زينةٌ لا حارس)
+check("🩺 FF3 شاهدُ الضبط: يمرّ على السائل · **ويسقط** على الغائب/الضحل/بلا سمات",
+      _FF.control_ok(_ff_feat, "AAPL")[0] is True
+      and _FF.control_ok(_ff_feat, "TINY")[0] is False
+      and _FF.control_ok({}, "AAPL")[0] is False
+      and _FF.control_ok({"AAPL": {"n_trades": 5}}, "AAPL")[0] is False,
+      _FF.control_ok(_ff_feat, "AAPL")[1][:70])
+_ff_src = open("flatfiles_probe.py", encoding="utf-8").read()
+# 🐞 **وصياغتا هذين القفلين كانتا مكسورتين وكشفهما التشغيلُ قبل الدفع:** FF4 كان
+#    يمنع `open(` كلَّه — **والقراءةُ نفسُها تحتاجه** (‏`gzip.open(..., "rt")`) ·
+#    وFF5 كان يمنع أيَّ سطرٍ فيه `print` و`AWS_SECRET` معًا — فأسقط **رسالةَ تشخيصٍ
+#    تسمّي المتغيّرَ ولا تطبع قيمته**. ⇒ صار كلٌّ يفحص **الخطرَ الحقيقيّ**: كتابةً
+#    فعليّةً · وطبعَ **قيمةٍ** لا اسم. 🧭 **والدرس: قفلٌ يمنع الصحيحَ ليس أشدَّ — هو
+#    مكسور**، ويُكتشَف بتشغيله لا بقراءته.
+check("🔒 FF4 مِجَسٌّ **قارئٌ فقط**: صفرُ كتابةِ حالةٍ وصفرُ حفظٍ/دفع",
+      all(x not in _ff_src for x in ("git_save", "_atomic_write", "json.dump",
+                                     "save_alerts", "save_watchlist"))
+      and not _re_ff.search(r'open\([^)]*["\'][wax]b?\+?["\']', _ff_src)
+      and "gzip.open" in _ff_src,          # ← والقراءةُ حاضرةٌ فعلًا (لا قفلَ فراغ)
+      "قراءةٌ محضة")
+check("🔒 FF5 ولا يطبع **قيمةَ** سرٍّ أبدًا (يسمّي المتغيّرَ ولا يكشفه)",
+      "AWS_SECRET_ACCESS_KEY" in _ff_src
+      and not any(("os.environ" in ln and "AWS_SECRET" in ln and "print" in ln)
+                  for ln in _ff_src.splitlines())
+      and isinstance(_FF.creds_present(), bool))   # ترجّع حكمًا لا القيمة
+check("🔒 FF6 ومعزولٌ عن الإنتاج: `Super_stock` لا يستورده",
+      "flatfiles_probe" not in open("Super_stock.py", encoding="utf-8").read())
+_ff_wf = open(".github/workflows/flatfiles_probe.yml", encoding="utf-8").read()
+check("🔒 FF7 والـworkflow يمرّر السرَّين عبر `env:` من Secrets · قراءةٌ فقط · بلا كرون",
+      "secrets.POLYGON_S3_KEY" in _ff_wf and "secrets.POLYGON_S3_SECRET" in _ff_wf
+      and "contents: read" in _ff_wf and "cron:" not in _ff_wf)
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🥇 SOFT — عتباتُ «المثالي» في النواقص اللينة من **وسيط** الكاتالوج
 # ══════════════════════════════════════════════════════════════════════════
