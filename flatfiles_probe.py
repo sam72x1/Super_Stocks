@@ -88,12 +88,16 @@ def creds_shape() -> dict:
     المعرِّف** بلا كشفِ حرفٍ واحدٍ من القيمتين (‏أطوالٌ + بولين فقط)."""
     kid = os.environ.get("AWS_ACCESS_KEY_ID", "") or ""
     sec = os.environ.get("AWS_SECRET_ACCESS_KEY", "") or ""
+    _uuid = (r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
+             r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
     return {
         "id_len": len(kid),
         "sec_len": len(sec),
-        "id_uuid_shaped": bool(re.fullmatch(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-"
-                                            r"[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
-                                            r"[0-9a-fA-F]{12}", kid.strip())),
+        "id_uuid_shaped": bool(re.fullmatch(_uuid, kid.strip())),
+        # 🔁 **برهانُ الانقلاب:** المعرِّفُ وحده هو UUID عند المزوّد ⇒ لو كان **السرُّ**
+        #    بشكل UUID والمعرِّفُ ليس كذلك، فالقيمتان **متبادلتان** — استنتاجٌ يصير
+        #    برهانًا بفحصٍ واحد، بلا كشفِ حرفٍ من أيٍّ منهما.
+        "sec_uuid_shaped": bool(re.fullmatch(_uuid, sec.strip())),
         "id_outer_space": kid != kid.strip(),
         "sec_outer_space": sec != sec.strip(),
         "id_inner_space": bool(re.search(r"\s", kid.strip())),
@@ -250,7 +254,11 @@ def main() -> int:
     print(f"  • السرّ: طول={_sh['sec_len']} · "
           f"مسافةٌ طرفيّة={'⚠️ نعم' if _sh['sec_outer_space'] else 'لا'} · "
           f"مسافةٌ داخليّة={'⚠️ نعم' if _sh['sec_inner_space'] else 'لا'}")
-    if not _sh["id_uuid_shaped"]:
+    if _sh["sec_uuid_shaped"] and not _sh["id_uuid_shaped"]:
+        print("  🔁🔴 **القيمتان متبادلتان — برهانٌ لا استنتاج:** المعرِّفُ وحده يكون "
+              "بشكل UUID عند المزوّد، **والسرُّ عندك هو الذي بشكل UUID**. ⇒ **بدِّل "
+              "بينهما**: ما في `POLYGON_S3_SECRET` مكانُه `POLYGON_S3_KEY` والعكس.")
+    elif not _sh["id_uuid_shaped"]:
         print("  ⚠️ معرِّفُ المفتاح **ليس بشكل UUID** — ومفاتيحُ S3 عند المزوّد بهذا "
               "الشكل ⇒ يُحتمَل أن المخزَّنَ في `POLYGON_S3_KEY` قيمةٌ أخرى.")
     print("  🔑 **تنبيهٌ حاسم:** إعادةُ توليد بيانات S3 تُغيّر **المعرِّفَ والسرَّ معًا** ⇒ "
