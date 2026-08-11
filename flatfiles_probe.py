@@ -31,6 +31,7 @@ import csv
 import gzip
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -229,6 +230,32 @@ def main() -> int:
                   + (" · ".join(str(n) for n in names[:8]) or "(بلا بكتات)"))
         else:
             print(f"  ⚠️ {ep}: rc={rc} · {(err or out).strip()[:200]}")
+
+    # ── ⓪-ب رمزُ الخطأ الحقيقيّ من جسم الردّ (الحاسمُ فعلًا) ────────────────────
+    # 🔴 **وتصحيحٌ ذاتيٌّ لِما كتبتُه في ⓪ قبل أن أرى نتيجتَه:** `ListBuckets` **ليست
+    #    فارقًا حاسمًا** — سياسةُ المزوّد تحصر المفتاحَ في بكتٍ واحد فتمنعُها **حتى
+    #    للمفتاح الصالح المستحِقّ** ⇒ ‏403 عليها **متوقَّعٌ** ولا يفرّق شيئًا.
+    #    والفارقُ الحاسمُ هو **رمزُ الخطأ في جسم الردّ**: `AccessDenied` ⇒ صادَقَ ولم
+    #    يُصرَّح (‏= استحقاق) · `SignatureDoesNotMatch` ⇒ **السرُّ خطأ/مقتطَع** ·
+    #    `InvalidAccessKeyId` ⇒ **المفتاحُ خطأ/معطَّل**. و`aws` يطبع «403 Forbidden»
+    #    مجرَّدًا فيحجبه ⇒ نستخرجه من `--debug`.
+    # 🔒 **ولا يُطبَع من الـdebug شيءٌ إلّا `<Code>`/`<Message>`** (بمرشِّحٍ صارم) —
+    #    فلا تُسرَّب ترويسةُ توقيعٍ ولا سرّ.
+    print("\n⓪-ب رمزُ الخطأ من جسم الردّ (الفارقُ الحاسم: استحقاقٌ أم مفتاح؟):")
+    _y, _m, _ = DAY.split("-")
+    _k = f"{TRADE_PREFIXES[0]}/{_y}/{_m}/{DAY}.csv.gz"
+    for ep in ENDPOINTS:
+        rc, out, err = aws_api("head-object", "--bucket", BUCKET, "--key", _k,
+                               "--debug", timeout=180, endpoint=ep)
+        blob = (err or "") + (out or "")
+        codes = re.findall(r"<Code>([A-Za-z]{3,40})</Code>", blob)
+        msgs = re.findall(r"<Message>([^<]{0,140})</Message>", blob)
+        if codes or msgs:
+            print(f"  🔎 {ep}: Code={' · '.join(dict.fromkeys(codes)) or '—'}"
+                  f" · Message={(msgs[0] if msgs else '—')}")
+        else:
+            print(f"  ⚠️ {ep}: لا رمزَ في جسم الردّ (rc={rc}) — "
+                  "ردٌّ بلا جسمٍ قياسيّ، والحكمُ يبقى على ما في ② وحده.")
 
     print("\n① الاستحقاق — سلّمُ سردٍ **تشخيصيّ** (لا يُسقط القياس):")
     for pre in ("", "us_stocks_sip/", TRADE_PREFIXES[0] + "/"):
