@@ -737,7 +737,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.28,
+   "last_price": 5.23,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -1119,7 +1119,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.395,
+   "last_price": 1.41,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -1800,14 +1800,16 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.81,
+   "last_price": 2.84,
    "borrow_hist": [
     [
      "2026-08-11",
      75000
     ]
    ],
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-08-11"
+   }
   },
   {
    "symbol": "FUFU",
@@ -2142,7 +2144,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.29,
+   "last_price": 1.295,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -2500,7 +2502,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.978,
+   "last_price": 0.99,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -3532,7 +3534,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.79,
+   "last_price": 1.81,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -3540,7 +3542,8 @@
     ]
    ],
    "live_alert": {
-    "buyzone": "2026-08-11"
+    "buyzone": "2026-08-11",
+    "breakout": "2026-08-11"
    }
   },
   {
@@ -3878,7 +3881,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.2893,
+   "last_price": 3.24,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -4577,7 +4580,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.2,
-   "last_price": 2.06,
+   "last_price": 1.94,
    "live_alert": {
     "buyzone": "2026-08-11",
     "breakout": "2026-08-11"
@@ -4928,10 +4931,11 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 7.1,
-   "last_price": 1.2035,
+   "last_price": 1.205,
    "live_alert": {
     "breakout": "2026-08-10",
-    "buyzone": "2026-08-11"
+    "buyzone": "2026-08-11",
+    "sweep": "2026-08-11"
    },
    "borrow_hist": [
     [
@@ -5009,7 +5013,7 @@
    "sector": "Consumer Cyclical",
    "country": "China",
    "float": 1729957,
-   "last_price": 1.44,
+   "last_price": 1.41,
    "status": "watching",
    "triggered_date": null
   },
@@ -5043,7 +5047,7 @@
    "sector": "Industrials",
    "country": "China",
    "float": 6578,
-   "last_price": 5.06,
+   "last_price": 5.135,
    "status": "watching",
    "triggered_date": null
   },
@@ -5111,7 +5115,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 420640,
-   "last_price": 6.0316,
+   "last_price": 6.0796,
    "status": "watching",
    "triggered_date": null
   },
@@ -5145,7 +5149,7 @@
    "sector": "Healthcare",
    "country": "China",
    "float": 3457821,
-   "last_price": 1.0288,
+   "last_price": 1.02,
    "status": "watching",
    "triggered_date": null
   },
@@ -5247,7 +5251,7 @@
    "sector": "Industrials",
    "country": "United States",
    "float": 25776946,
-   "last_price": 0.5073,
+   "last_price": 0.5042,
    "status": "watching",
    "triggered_date": null
   },
@@ -5315,7 +5319,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 6119475,
-   "last_price": 1.315,
+   "last_price": 1.295,
    "status": "watching",
    "triggered_date": null
   },
@@ -5349,7 +5353,7 @@
    "sector": "Consumer Cyclical",
    "country": "China",
    "float": 1870622,
-   "last_price": 2.33,
+   "last_price": 2.373,
    "status": "watching",
    "triggered_date": null
   },
@@ -5383,7 +5387,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 41096760,
-   "last_price": 1.295,
+   "last_price": 1.39,
    "status": "watching",
    "triggered_date": null
   },
@@ -5417,7 +5421,7 @@
    "sector": "Consumer Cyclical",
    "country": "Singapore",
    "float": 2472062,
-   "last_price": 0.9042,
+   "last_price": 0.9055,
    "status": "watching",
    "triggered_date": null
   },
@@ -5451,7 +5455,7 @@
    "sector": "Communication Services",
    "country": "China",
    "float": 797563,
-   "last_price": 9.92,
+   "last_price": 10.04,
    "status": "watching",
    "triggered_date": null
   }
