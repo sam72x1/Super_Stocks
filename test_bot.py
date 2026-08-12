@@ -19136,6 +19136,49 @@ _c475_prod = open("Super_stock.py", encoding="utf-8").read()
 check("🔒 CLOSE475ب ورقمُ الذراع 475.21 لا يظهر في `Super_stock.py` (لا تسرّبَ للإنتاج)",
       "475.213" not in _c475_prod, "تسرّبٌ محتمل")
 
+# ═══ 🪦 DEADWALL · «بعيد_عن_الدخول» **ميّتٌ بنيويًّا** عند `NEAR_PCT=0` (2026-08-12) ══
+# **المسكة:** أوصيتُ المالكَ بـ«قِس الجدران» بحجّة أن الجدرانَ المشتقّة تقصّ 83%
+# **وكلُّها من عندنا** — والفحصُ قبل التجربة نقض شقَّي الحجّة:
+#   ① العتباتُ الستُّ كلُّها صارت **من ظرف الكاتالوج** (‏`NEAR_PCT`/`SCORE_MIN`/
+#      `MIN_RR_T1`/`WATCH_MAX_FAILS`/`RSI_OS_HARD`/`RSI_NOW_HARD` ضمن العشرين
+#      المطبَّقة) ⇒ «كلُّها من عندنا» **بائتةٌ** (كانت صحيحةً قبل الظرف).
+#   ② و`بعيد_عن_الدخول` **يستحيل أن يقع**: الشرطُ `readiness_pct < NEAR_PCT` و
+#      `NEAR_PCT = 0.0`، و`entry_readiness` **مجموعُ سبعة مكوّناتٍ غيرِ سالبة**
+#      (`total = int(sum(p for p, _ in comp.values()))`) ⇒ مداها [0,100].
+# 🔒 **والقفلُ يحرس الافتراضَ لا الملاحظة:** لو صارت الجاهزيةُ قادرةً على السلب
+#    يومًا (بمكوّنٍ عقابيّ) **أحيا الجدارُ نفسَه صامتًا** — فيسقط هذا القفلُ ويُنبّه.
+import ast as _dw_ast                                            # noqa: E402
+import inspect as _dw_insp                                       # noqa: E402
+_dw_src = _dw_insp.getsource(S.entry_readiness)
+_dw_tree = _dw_ast.parse(_dw_src)
+# كلُّ إسنادٍ إلى `comp[...]` قيمتُه صفٌّ `(pts, max)` — نتحقّق أن لا ثابتَ سالب
+# ولا نفيَ أُحاديّ (`-x`) في موضع النقاط.
+_dw_neg = []
+for _n in _dw_ast.walk(_dw_tree):
+    if not (isinstance(_n, _dw_ast.Assign) and isinstance(_n.value, _dw_ast.Tuple)):
+        continue
+    _t = _n.targets[0]
+    if not (isinstance(_t, _dw_ast.Subscript)
+            and getattr(_t.value, "id", "") == "comp"):
+        continue
+    _pts = _n.value.elts[0] if _n.value.elts else None
+    if isinstance(_pts, _dw_ast.UnaryOp) and isinstance(_pts.op, _dw_ast.USub):
+        _dw_neg.append(_n.lineno)
+    if isinstance(_pts, _dw_ast.Constant) and isinstance(_pts.value, (int, float))             and _pts.value < 0:
+        _dw_neg.append(_n.lineno)
+check("🪦 DEADWALL مكوّناتُ `entry_readiness` غيرُ سالبة ⇒ مداها [0,100] "
+      "(الافتراضُ الذي يجعل `بعيد_عن_الدخول` ميّتًا عند `NEAR_PCT=0`)",
+      not _dw_neg, f"مكوّناتٌ سالبة في الأسطر={_dw_neg}")
+# ② وسلوكيًّا: تحت الظرف النافذ `NEAR_PCT` **صفرٌ أو أقلّ** ⇒ الجدارُ لا يُطلَق.
+#    (السويّةُ تعمل بـ`FAISAL_ONLY=0` فتُقرأ القيمةُ من طبقة الإحلال لا من CONFIG —
+#    درسُ «اقرأ القيمةَ النافذة لا المكتوبة».)
+import envelope_scan as _dw_es                                    # noqa: E402
+_dw_ov = S.faisal_only_overrides(_dw_es.load_edges(_dw_es.EDGES_FILE))
+_dw_near = float(_dw_ov.get("NEAR_PCT", S.CONFIG["NEAR_PCT"]))
+check("🪦 DEADWALLب و`NEAR_PCT` النافذ = 0 ⇒ `readiness < 0` مستحيل ⇒ الجدارُ ميّت "
+      "(يُدوَّن فلا يُنسَب إليه قصٌّ)", _dw_near <= 0.0,
+      f"النافذ NEAR_PCT={_dw_near}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
