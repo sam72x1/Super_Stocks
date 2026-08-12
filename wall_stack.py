@@ -64,6 +64,15 @@ MAX_PEEL = 16          # سقف أمان: أكثر من عدد البوّابا�
 # 🔴 **الأوسمة منقولةٌ من الدفتر لا مخترَعة هنا**، ومقفولةٌ باختبارٍ يقارنها به.
 #     `engineering` = رقمٌ من عندنا · `inferred` = استنتاجنا من كلامه ·
 #     `verbatim` = قاله فيصل بلفظه (‏ولا واحدة منها في M1-M5 — نتيجة الدفتر).
+#
+# 🔴🔴 **تصحيحٌ مؤرَّخ 2026-08-12 — هذي الخريطةُ تصف «مَن صاغ البوّابة» لا «مَن
+#     صاغ رقمَها»، والأرقامُ في التعليقات أدناه كانت **بائتةً** (ما قبل الظرف):**
+#     بعد «معايير فيصل وحدها» صارت العتباتُ النافذة **من كاتالوج فيصل** (‏`MIN_PRICE`
+#     0.40 · `MIN_DROP_FLOOR` 71.72 · `PRIOR_SPIKE_FLOOR` 78.27 · `MIN_DOLLAR_VOL`
+#     14,314 · `SCORE_MIN` 5 · `NEAR_PCT` 0 · `WATCH_MAX_FAILS` 8 · `RSI` 69/71.1 …)
+#     ⇒ **سطرُ «‏100% engineering» كان يُقرأ «الجدرانُ كلُّها من عندنا» وهو مُضلِّل.**
+#     ولذلك أُضيف بُعدٌ ثانٍ **يُحسَب من القيمة النافذة** (`threshold_source`) ويُطبَع
+#     معه، فيُقرأ البُعدان معًا: **البوّابةُ من عندنا · ورقمُها من كاتالوجه.**
 WALL_SOURCE = {
     "M1_سعر":              "engineering",   # MIN_PRICE=1.5
     "M2_هبوط_فوق_97":      "engineering",   # MAX_DROP_PCT=97
@@ -85,8 +94,47 @@ WALL_SOURCE = {
 
 
 def wall_source(reason):
-    """وسمُ مصدر الجدار، أو «غير موسوم» — ولا يُخمَّن."""
+    """وسمُ مصدر **البوّابة** (من الدفتر)، أو «غير موسوم» — ولا يُخمَّن."""
     return WALL_SOURCE.get(_base_name(reason), "غير_موسوم")
+
+
+def _config_key(reason):
+    """مفتاحُ `CONFIG` الذي يحكم هذا الجدار — من `RELAX`/`RELAX_PREFIX` **نفسِهما**
+    (مصدرٌ واحد: خريطةُ الإرخاء هي خريطةُ العتبات) أو `None` للبنيويّ."""
+    base = _base_name(reason)
+    if base in RELAX:
+        return RELAX[base][0]
+    for pref, key, _ in RELAX_PREFIX:
+        if str(reason).startswith(pref) or base.startswith(pref.rstrip("_")):
+            return key
+    return None
+
+
+def threshold_source(reason, cfg=None, applied=None, owner=None):
+    """📒 مصدرُ **رقمِ** الجدار من **القيمة النافذة** لا من جدولٍ مكتوب:
+    `faisal_envelope` (‏من ظرف الكاتالوج) · `owner` (قرارُ مالكٍ يعلو الظرف) ·
+    `engineering` (رقمُنا) · `بنيويّ` (بلا مفتاح عتبة).
+
+    🔴 **ولماذا يُحسَب لا يُكتَب:** جدولٌ مكتوبٌ **يتعفّن** — وهو بعينه ما وقع في
+    تعليقات `WALL_SOURCE` أعلاه (أرقامُ ما قبل الظرف). فيُقرأ من الإحلال الفعليّ."""
+    import Super_stock as _S                                     # noqa: PLC0415
+    cfg = _S.CONFIG if cfg is None else cfg
+    key = _config_key(reason)
+    if key is None:
+        return "بنيويّ"
+    if owner is None:
+        owner = getattr(_S, "OWNER_GATE_OVERRIDES", {}) or {}
+    if key in owner:
+        return "owner"
+    if not int(cfg.get("FAISAL_ONLY", 0)):
+        return "engineering"          # وضعُ بوّابات البوت ⇒ الرقمُ رقمُنا
+    if applied is None:
+        try:
+            import envelope_scan as _E                           # noqa: PLC0415
+            applied = _S.faisal_only_overrides(_E.load_edges(_E.EDGES_FILE))
+        except Exception:                                          # noqa: BLE001
+            return "غير_محسوم"       # يُعلَن ولا يُخمَّن
+    return "faisal_envelope" if key in applied else "engineering"
 
 
 def _relax_for(reason):
@@ -182,17 +230,24 @@ def aggregate(rows):
             sole[n] = sole.get(n, 0) + 1
     # 📒 التجميع بالمصدر: كم يومًا **جدارُه الأول** من هندستنا مقابل كلام فيصل؟
     by_src, sole_src = {}, {}
+    # 📒 بُعدٌ ثانٍ **محسوبٌ من القيمة النافذة**: مَن صاغ **رقمَ** الجدار؟
+    #    (‏تصحيح 2026-08-12 — البُعدُ الأوّل يصف البوّابة وكان يُقرأ خطأً عن الرقم.)
+    by_th, sole_th = {}, {}
     for r in rows:
         w = r.get("walls") or []
         if not w:
             continue
         s = wall_source(w[0])
         by_src[s] = by_src.get(s, 0) + 1
+        t = threshold_source(w[0])
+        by_th[t] = by_th.get(t, 0) + 1
         if len(w) == 1:
             sole_src[s] = sole_src.get(s, 0) + 1
+            sole_th[t] = sole_th.get(t, 0) + 1
     return {"n": len(rows), "passed_after_relax": passed, "walls_hist": hist,
             "total_blocks": total, "sole_blocker": sole, "first_blocks": first,
-            "first_by_source": by_src, "sole_by_source": sole_src}
+            "first_by_source": by_src, "sole_by_source": sole_src,
+            "first_by_thresh": by_th, "sole_by_thresh": sole_th}
 
 
 def format_report(agg):
@@ -215,8 +270,12 @@ def format_report(agg):
         items = sorted(d.items(), key=lambda kv: -kv[1])
         body = " · ".join(f"{k}={v}" for k, v in items)
         out.append(f"   {title}: {body}")
-    for title, key in (("📒 مصدر الجدار الأول", "first_by_source"),
-                       ("📒 مصدر الجدار الوحيد", "sole_by_source")):
+    for title, key in (("📒 صياغةُ البوّابة — الجدار الأول", "first_by_source"),
+                       ("📒 صياغةُ البوّابة — الجدار الوحيد", "sole_by_source"),
+                       ("📒 مصدرُ **رقمِ** الجدار الأول (محسوبٌ من النافذ)",
+                        "first_by_thresh"),
+                       ("📒 مصدرُ **رقمِ** الجدار الوحيد (محسوبٌ من النافذ)",
+                        "sole_by_thresh")):
         d = agg.get(key) or {}
         if d:
             tot = sum(d.values()) or 1
