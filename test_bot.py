@@ -13784,6 +13784,17 @@ check("🔁 REPLAY10🔒 `BT_REPLAY10` مطفأ افتراضيًّا في CONFIG
 check("🔁 REPLAY10🔒 سعة الإعادة = `WATCHLIST_SIZE` الحيّ (إصلاح P0-02 لا رقمٌ يدويّ)",
       RP.CAPACITY == S.CONFIG["WATCHLIST_SIZE"],
       f"RP={RP.CAPACITY} · حيّ={S.CONFIG['WATCHLIST_SIZE']}")
+
+# CAP15 · 🪑 **سعةُ المحفظة المحاكاة = السعةُ الحيّة** — تعليقُ `BT_PORT_SIZE` يقول
+#         «= WATCHLIST_SIZE» وكان **كاذبًا** (‏15 مقابل 10) وهو بعينه العيبُ `P0-02`
+#         الذي أخرجته مراجعةُ Codex («السعة 15 مقابل 10 حيًّا»). بقرار سعة 15
+#         تطابقا، **فيُقفَل التطابقُ لئلّا يعود الانحرافُ صامتًا**؛ وأيُّ تغييرٍ
+#         مقصودٍ لأحدهما يجب أن يمرّ من هنا لا أن يتسرّب.
+check("🪑 CAP15 سعةُ الباكتيست تطابق السعة الحيّة (لا يعود عيبُ P0-02 صامتًا)",
+      S.CONFIG["BT_PORT_SIZE"] == S.CONFIG["WATCHLIST_SIZE"],
+      f"BT={S.CONFIG['BT_PORT_SIZE']} · حيّ={S.CONFIG['WATCHLIST_SIZE']}")
+check("🪑 CAP15ب قرارُ المالك نافذ: السعة 15",
+      S.CONFIG["WATCHLIST_SIZE"] == 15, f"القيمة={S.CONFIG['WATCHLIST_SIZE']}")
 check("🔁 REPLAY10🔒 `BT_REPLAY10` له صفٌّ في جدول التعيين (لا علم ميّت)",
       '("BT_REPLAY10"' in _insp0.getsource(S._apply_backtest_overrides))
 check("🔁 REPLAY10🔒 الإنتاج محصّن — العلم لا يُطبَّق خارج وضع BACKTEST",
@@ -18767,6 +18778,186 @@ _hw_before = S.hunter_watch_entry(_hw_row, today=_hw_dt.date(2026, 8, 8))
 S.hunter_watch_update(_hw_before, _hw_df([1.45] * 22))
 check("🪝 HW9ج والتحديثُ **لا يعدّل** السجلّ المُمرَّر (نقيّة: نسخةٌ تُرجَع)",
       _hw_before["status"] == "active" and "stopped_at" not in _hw_before)
+
+
+# ══════════════ 🌙 T-AH — عمى الافتر (بلا شبكة · عقد `ah_prereg.md`) ══════════
+import ast as _ah_ast                                            # noqa: E402
+import datetime as _ah_dt                                        # noqa: E402
+import inspect as _ah_insp                                       # noqa: E402
+import io as _ah_io                                              # noqa: E402
+
+import ah_scan as AH                                             # noqa: E402
+import event_exec as _ah_ex                                      # noqa: E402
+import market_calendar as _ah_mc                                 # noqa: E402
+
+
+def _ah_ts(day, hh, mm):
+    """طابعٌ **بالنانو** لدقيقةٍ بتوقيت نيويورك (كما يعطيها المزوّد)."""
+    d = _ah_dt.datetime.fromisoformat(f"{day}T{hh:02d}:{mm:02d}:00").replace(
+        tzinfo=AH.NY)
+    return int(d.timestamp() * 1_000_000_000)
+
+
+# AH1 · `V3` حدُّ الجلسة من التقويم لا 16:00 ثابتة — واليومُ المبكّرُ هو المميِّز.
+_ah_early = sorted(_ah_mc.EARLY_CLOSES)[0]          # إغلاقُه 13:00
+check("🌙 AH1 يومُ الإغلاق المبكّر: ما بعد 13:00 **ممتدٌّ لا نظاميّ** (V3)",
+      AH.session_bucket(_ah_early, 12 * 60 + 30) == "regular"
+      and AH.session_bucket(_ah_early, 14 * 60) == "post",
+      f"12:30={AH.session_bucket(_ah_early, 12 * 60 + 30)} · "
+      f"14:00={AH.session_bucket(_ah_early, 14 * 60)}")
+_ah_hol = sorted(_ah_mc.HOLIDAYS)[0]
+check("🌙 AH1ب والعطلةُ: لا جلسةَ ⇒ كلُّ دقيقةٍ `off` (لا تُحسَب ممتدّةً)",
+      AH.session_bucket(_ah_hol, 11 * 60) == "off"
+      and AH.session_bucket(_ah_hol, 17 * 60) == "off")
+
+# AH2 · `V4` الاتّفاقُ مع `ny_session_key` الإنتاجية في اليوم النظاميّ — إعادةُ
+#       استعمالٍ لا تعريفٌ ثانٍ للجلسة. (يومٌ عاديّ: لا عطلةٌ ولا إغلاقٌ مبكّر.)
+_ah_reg = "2026-08-07"
+assert _ah_reg not in _ah_mc.HOLIDAYS and _ah_reg not in _ah_mc.EARLY_CLOSES
+_ah_dis = []
+for _h in range(4, 20):
+    for _m in (0, 29, 30, 31, 59):
+        _mod = _h * 60 + _m
+        _mine = AH.session_bucket(_ah_reg, _mod) == "regular"
+        _prod = _ah_ex.ny_session_key(_ah_ts(_ah_reg, _h, _m) // 1_000_000) is not None
+        if _mine != _prod:
+            _ah_dis.append(f"{_h:02d}:{_m:02d}")
+check("🌙 AH2 تصنيفُ «نظاميّ» يطابق `event_exec.ny_session_key` الإنتاجية (V4)",
+      not _ah_dis, f"مخالفات={_ah_dis[:8]}")
+
+# AH3 · `V2` الأعمدةُ من الترويسة: ترتيبٌ مقلوبٌ وأسماءٌ بحروفٍ كبيرة يجب أن تُقرأ.
+_ah_csv = (
+    "VOLUME,Window_Start,Close,Ticker,High,Low\n"
+    f"1000,{_ah_ts(_ah_reg, 10, 0)},5.00,ABC,5.10,4.90\n"
+    f"400,{_ah_ts(_ah_reg, 15, 59)},5.00,ABC,5.05,4.95\n"
+    f"200,{_ah_ts(_ah_reg, 17, 0)},7.00,ABC,7.50,6.90\n"
+    f"300,{_ah_ts(_ah_reg, 5, 0)},4.00,ABC,4.20,3.90\n")
+_ah_red = AH.reduce_minutes(_ah_io.StringIO(_ah_csv))
+_ah_r = _ah_red.get(("ABC", _ah_reg))
+check("🌙 AH3 الأعمدةُ تُقرأ من الترويسة مهما اختلف الترتيبُ وحالةُ الأحرف (V2)",
+      isinstance(_ah_r, dict) and _ah_r["reg_vol"] == 1400.0
+      and _ah_r["post_vol"] == 200.0 and _ah_r["pre_vol"] == 300.0,
+      f"صف={_ah_r}")
+check("🌙 AH3ب و`reg_close` إغلاقُ **آخرِ دقيقةٍ نظامية** لا آخرِ صفٍّ في الملفّ",
+      _ah_r and _ah_r["reg_close_mod"] == 15 * 60 + 59)
+check("🌙 AH3ج وحركةُ الافتر = post_high/reg_close−1 = +50%",
+      abs(AH.post_move_pct(_ah_r) - 50.0) < 1e-9,
+      f"={AH.post_move_pct(_ah_r)}")
+
+# AH3-د ترويسةٌ ناقصة ⇒ **ترمي** ولا تُرجع صفرًا بصمت (رمزُ خروجٍ 5 في الأداة).
+try:
+    AH.reduce_minutes(_ah_io.StringIO("ticker,high\nABC,1\n"))
+    _ah_raise = False
+except KeyError:
+    _ah_raise = True
+check("🌙 AH3د ترويسةٌ ناقصةُ الأعمدة **ترمي** (لا مُخرَجٌ فارغٌ صامت)", _ah_raise)
+
+# AH4 · «تعذّرٌ ≠ صفر»: بلا افتر ⇒ `None` لا 0.0 — والمقامُ يعدّها `unmeasurable`.
+check("🌙 AH4 بلا شمعةِ افتر ⇒ الحركةُ `None` لا صفر (تعذّرٌ ≠ صفر)",
+      AH.post_move_pct({"reg_close": 5.0, "post_high": None}) is None
+      and AH.post_move_pct({"reg_close": 0.0, "post_high": 7.0}) is None)
+_ah_bc = AH.bucket_counts([{"reg_close": 5.0, "post_high": 7.5},
+                           {"reg_close": 5.0, "post_high": None},
+                           {"reg_close": 5.0, "post_high": 5.5}])
+check("🌙 AH4ب والمقامُ صريحٌ: قابلٌ للقياس 2 · غيرُ قابل 1 · ‏≥20%: 1",
+      _ah_bc["measurable"] == 2 and _ah_bc["unmeasurable"] == 1
+      and _ah_bc["ge_20"] == 1 and _ah_bc["ge_10"] == 2, f"{_ah_bc}")
+
+# AH5 · `V1` شاهدُ الضبط يسقط على الصفر **وعلى النصف** (فليس تحصيلَ حاصل).
+check("🌙 AH5 شاهدُ الضبط: صفرٌ ⇒ سقوط · نصفٌ ⇒ سقوط · 2% ⇒ نجاح · وغيابُه سقوط",
+      (not AH.control_verdict({"reg_vol": 100.0, "pre_vol": 0.0, "post_vol": 0.0})[0])
+      and (not AH.control_verdict({"reg_vol": 50.0, "pre_vol": 50.0,
+                                   "post_vol": 0.0})[0])
+      and AH.control_verdict({"reg_vol": 98.0, "pre_vol": 1.0,
+                              "post_vol": 1.0})[0]
+      and (not AH.control_verdict(None)[0]))
+
+# AH6 · `V5` حركةُ ما قبل السوق **لا تُقاس** بلا إغلاقِ اليوم السابق.
+check("🌙 AH6 ما قبل السوق: بلا إغلاقِ الأمس ⇒ `None` (V5 — لا مقياسَ مفبرك)",
+      AH.pre_move_pct({"pre_high": 6.0}, None) is None
+      and abs(AH.pre_move_pct({"pre_high": 6.0}, 5.0) - 20.0) < 1e-9)
+
+# AH7 · 🔒 عزلٌ: لا يُستورَد في الإنتاج · ولا يكتب حالة · ولا يُرسل تلغرام.
+check("🌙 AH7 `ah_scan` غيرُ مستورَدٍ في `Super_stock` (بحثٌ لا إنتاج)",
+      "ah_scan" not in {getattr(n, "module", None) or ""
+                        for n in _ah_ast.walk(_ah_ast.parse(
+                            open("Super_stock.py", encoding="utf-8").read()))
+                        if isinstance(n, (_ah_ast.Import, _ah_ast.ImportFrom))}
+      and "import ah_scan" not in open("Super_stock.py", encoding="utf-8").read())
+_ah_src = _ah_insp.getsource(AH)
+_ah_bad = []
+for _n in _ah_ast.walk(_ah_ast.parse(_ah_src)):
+    if isinstance(_n, _ah_ast.Call):
+        _nm = (_n.func.id if isinstance(_n.func, _ah_ast.Name)
+               else getattr(_n.func, "attr", ""))
+        if _nm in ("send_telegram", "save_watchlist", "save_hunter_watch",
+                   "git_save", "save_alerts"):
+            _ah_bad.append(_nm)
+        # ✍️ `open(...)` بوضعِ كتابةٍ ممنوع — والقراءةُ نفسُها تحتاج `open` فلا يُمنَع
+        #    كلُّه (درسُ `FF4`: قفلٌ يمنع الصحيحَ ليس أشدَّ — هو مكسور).
+        if _nm == "open" and len(_n.args) > 1:
+            _v = _n.args[1]
+            if isinstance(_v, _ah_ast.Constant) and any(
+                    c in str(_v.value) for c in ("w", "a", "+", "x")):
+                _ah_bad.append("open(write)")
+check("🌙 AH7ب ولا نداءَ إرسالٍ ولا حفظِ حالةٍ ولا كتابةِ ملفّ", not _ah_bad,
+      f"مخالفات={_ah_bad}")
+
+# AH8 · كلُّ مدخلٍ في `ah_scan.yml` موصولٌ بمتغيّرِ بيئةٍ يقرؤه السكربت نحويًّا
+#       (نفسُ قفل `FO12` — يقتل صنفَ «المدخل الميّت»).
+_ah_wf = _fo_yaml.safe_load(open(".github/workflows/ah_scan.yml",
+                                 encoding="utf-8"))
+_ah_inp = set((_ah_wf.get(True) or _ah_wf.get("on"))["workflow_dispatch"]["inputs"])
+_ah_env = {}
+for _s in _ah_wf["jobs"]["ah"]["steps"]:
+    if isinstance(_s.get("env"), dict):
+        _ah_env.update(_s["env"])
+_ah_txt = " ".join(str(v) for v in _ah_env.values())
+_ah_dead = sorted(k for k in _ah_inp if f"inputs.{k}" not in _ah_txt)
+_ah_reads = {n.args[0].value for n in _ah_ast.walk(_ah_ast.parse(_ah_src))
+             if isinstance(n, _ah_ast.Call)
+             and getattr(n.func, "attr", None) == "get"
+             and getattr(getattr(n.func, "value", None), "attr", None) == "environ"
+             and n.args and isinstance(n.args[0], _ah_ast.Constant)}
+_ah_unread = sorted(k for k, v in _ah_env.items()
+                    if "inputs." in str(v) and k not in _ah_reads)
+check("🌙 AH8 كلُّ مدخلٍ موصولٌ ببيئةٍ **يقرؤها السكربت نحويًّا** (لا مدخلَ ميّت)",
+      not _ah_dead and not _ah_unread,
+      f"ميّتة={_ah_dead} · غيرُ مقروءة={_ah_unread}")
+# 🔐 AH8ب · قفلٌ **يفحص الخطرَ الحقيقيّ**: لا نداءَ طباعةٍ يحمل في شجرته قراءةَ
+#         **قيمةِ** مفتاح (درسُ `FF5`: منعُ كلِّ سطرٍ فيه `print`+`AWS_SECRET` أسقط
+#         رسالةَ تشخيصٍ تسمّي المتغيّرَ ولا تكشف قيمته ⇒ قفلٌ مكسور).
+_ah_secrets = ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY")
+_ah_leak = []
+for _n in _ah_ast.walk(_ah_ast.parse(_ah_src)):
+    if not (isinstance(_n, _ah_ast.Call)
+            and (getattr(_n.func, "id", "") in ("print", "log"))):
+        continue
+    for _sub in _ah_ast.walk(_n):
+        if (isinstance(_sub, _ah_ast.Constant)
+                and _sub.value in _ah_secrets
+                and isinstance(getattr(_sub, "parent", None), object)):
+            _ah_leak.append(f"سطر {_n.lineno}")
+            break
+check("🔐 AH8ب لا نداءَ طباعةٍ يقرأ **قيمةَ** مفتاح (أطوالٌ وأحكامٌ فقط)",
+      not _ah_leak, f"مخالفات={_ah_leak}")
+
+# AH9 · 🚦 «أخضرُ لا يُقرأ إذنًا»: سقوطُ شاهد الضبط يُخرِج **‏3** لا صفرًا — يُقرأ
+#       نحويًّا من فرع `if not ok:` داخل `main` (لا نصًّا: التعليقُ لا يحرس).
+_ah_main = next(n for n in _ah_ast.walk(_ah_ast.parse(_ah_src))
+                if isinstance(n, _ah_ast.FunctionDef) and n.name == "main")
+_ah_rc = []
+for _n in _ah_ast.walk(_ah_main):
+    if not isinstance(_n, _ah_ast.If):
+        continue
+    _t = _ah_ast.unparse(_n.test)
+    if _t.replace(" ", "") != "notok":
+        continue
+    _ah_rc = [r.value.value for r in _ah_ast.walk(_n)
+              if isinstance(r, _ah_ast.Return)
+              and isinstance(r.value, _ah_ast.Constant)]
+check("🚦 AH9 سقوطُ شاهد الضبط ⇒ **خروج 3** لا صفر (أخضرُ يُقرأ إذنًا)",
+      _ah_rc == [3], f"رموزُ الخروج في الفرع={_ah_rc}")
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")

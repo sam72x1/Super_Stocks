@@ -267,7 +267,14 @@ CONFIG = {
     "BOLL_SQUEEZE_PCTL": 0.25,     # عرض الحزمة ضمن أدنى 25% من آخر 60 جلسة
 
     # ---- القائمة الأسبوعية (v2.0) ----
-    "WATCHLIST_SIZE": 10,        # حجم القائمة الثابتة (حد أقصى)
+    # 🪑 **‏15 بقرار المالك 2026-08-12** («اعتمد سعة 15») بعد أن أكّد أن المقصود
+    #    **عددُ الأسهم في الرسالة التي تصله**. سندُه المقيس `cap_result.md`
+    #    (‏`T-CAP`): المنفجرون المُسلَّمون معدَّلًا **‏72 مقابل 56 = ‏+29%** وأعلى
+    #    في السنوات الثلاث. ⚠️ **وكلفتُه مُعلَنةٌ وقد رآها قبل قراره:** حارسُ
+    #    العائد المسجَّل **سقط** (‏−0.075R/صفقة مجمَّعًا · سالبٌ في كل سنة ·
+    #    الحدّ ‏−0.05) لأن الخانات الإضافية تلتقط **ذيلَ** المُرتِّب (‏`P3`
+    #    مكذَّب). ⇒ **قرارُ مالكٍ صريح لا توصيةَ قياس.**
+    "WATCHLIST_SIZE": 15,        # حجم القائمة الثابتة (حد أقصى)
     # 🪑 T-SLOT (قرار المالك «نفذ» 2026-08-07، `slot_result.md`): الاسم الذي لم
     #    يلمس نطاق دفعاته هذا العددَ من الجلسات منذ إدراجه يكفّ عن حجز خانةٍ من
     #    السعة (ويبقى مُدرَجًا متابَعًا؛ يعود يحجز فور لمس النطاق). الرقم من
@@ -362,7 +369,7 @@ CONFIG = {
     "BT_FEATURES": 0,                    # 🔬 أعمدة تحليل point-in-time (قطاع + أيام أرباح) — باكتيست فقط
     "BT_SHORT": 0,                       # 🕵️ T-SHORT: شورت FINRA المؤرَّخ عند الإشارة — باكتيست فقط
     "BT_PORTFOLIO": 0,                   # 🏦 محاكاة الانتقائية (أفضل N بالترتيب)
-    "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE)
+    "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE — مقفولٌ `CAP15`)
     "BT_ENVVALS": 0,                     # 📐 T-RANKER-TIE: ألحِق معايير الظرف الأحد عشر
     "BT_REPLAY10": 0,                    # 🔁 T-REPLAY10: ألحِق بكل صفقة **تاريخ الخروج
                                          #   الفعليّ** (تحرير الخانة بجلسات لا تقويم) و`rr`
@@ -890,7 +897,7 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.11-borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.12-cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ

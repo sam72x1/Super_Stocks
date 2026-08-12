@@ -1,0 +1,51 @@
+name: T-AH (عمى الافتر — شموع الدقيقة المجمَّعة)
+
+# 🌙 يقيس: كم من الحركة يقع خارج الجلسة النظامية؟ وما معدَّلُ الأساس عند عتبة
+#    `ah_guard`؟ العقد: `ah_prereg.md` (مدفوعٌ قبل أيّ رقم · حرّاس V1-V6).
+# 🔒 قراءةٌ فقط · بلا كرون · بلا تلغرام · بلا كتابةِ حالة. والسرَّان من GitHub
+#    Secrets حصرًا عبر `env:` **ولا يُطبَعان** (تُطبَع أطوالٌ وأحكامٌ فقط).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "أيامٌ مفصولةٌ بفاصلة (مثال 2026-08-06,2026-08-07). يومان متتاليان يُفعّلان قياسَ ما قبل السوق (V5)"
+        required: false
+        default: "2026-08-07"
+      witness:
+        description: "شاهدُ الضبط (سائلٌ معروف — إلزاميّ بحارس V1)"
+        required: false
+        default: "AAPL"
+      price_max:
+        description: "سقفُ سعر «فئتنا» بالدولار"
+        required: false
+        default: "10"
+      cap_mb:
+        description: "سقفُ التنزيل المُعلَن بالميغابايت (يُوقَف بإعلانٍ لا صمتًا)"
+        required: false
+        default: "2048"
+
+jobs:
+  ah:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Show aws CLI version (إثباتُ توفّره لا افتراضُه)
+        run: aws --version
+      - name: Run T-AH scan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          AH_DAYS: ${{ github.event.inputs.days }}
+          AH_WITNESS: ${{ github.event.inputs.witness }}
+          AH_PRICE_MAX: ${{ github.event.inputs.price_max }}
+          AH_CAP_MB: ${{ github.event.inputs.cap_mb }}
+          PYTHONUNBUFFERED: "1"
+        run: python ah_scan.py
