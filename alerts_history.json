@@ -26,7 +26,7 @@
    "result_date": "2026-07-06",
    "max_gain_pct": 0.3,
    "mg_obs_pct": 9.6,
-   "mg_obs_days": 33
+   "mg_obs_days": 36
   },
   {
    "symbol": "IDN",
@@ -195,7 +195,7 @@
    "result_date": "2026-07-21",
    "max_gain_pct": 8.8,
    "mg_obs_pct": 8.8,
-   "mg_obs_days": 33
+   "mg_obs_days": 36
   },
   {
    "symbol": "INSM",
@@ -277,7 +277,7 @@
    "result_date": "2026-07-15",
    "max_gain_pct": 12.6,
    "mg_obs_pct": 12.6,
-   "mg_obs_days": 32
+   "mg_obs_days": 35
   },
   {
    "symbol": "NBP",
@@ -361,7 +361,7 @@
    "result_date": "2026-07-07",
    "max_gain_pct": 17.4,
    "mg_obs_pct": 68.9,
-   "mg_obs_days": 31
+   "mg_obs_days": 34
   },
   {
    "symbol": "UPB",
@@ -386,7 +386,7 @@
    "result_date": "2026-06-29",
    "max_gain_pct": 11.0,
    "mg_obs_pct": 26.9,
-   "mg_obs_days": 31
+   "mg_obs_days": 34
   },
   {
    "symbol": "VFS",
@@ -411,7 +411,7 @@
    "result_date": "2026-07-23",
    "max_gain_pct": 3.2,
    "mg_obs_pct": 7.6,
-   "mg_obs_days": 34
+   "mg_obs_days": 32
   },
   {
    "symbol": "NERV",
@@ -438,7 +438,7 @@
    "result_date": "2026-06-29",
    "max_gain_pct": 26.0,
    "mg_obs_pct": 33.0,
-   "mg_obs_days": 33
+   "mg_obs_days": 30
   },
   {
    "symbol": "OLMA",
@@ -465,7 +465,7 @@
    "result_date": "2026-06-30",
    "max_gain_pct": 12.7,
    "mg_obs_pct": 17.5,
-   "mg_obs_days": 32
+   "mg_obs_days": 29
   },
   {
    "symbol": "INSM",
@@ -637,7 +637,7 @@
    "result_date": "2026-07-07",
    "max_gain_pct": 14.9,
    "mg_obs_pct": 19.6,
-   "mg_obs_days": 25
+   "mg_obs_days": 28
   },
   {
    "symbol": "PRTS",
@@ -693,7 +693,7 @@
    "result_date": "2026-07-02",
    "max_gain_pct": 16.5,
    "mg_obs_pct": 36.1,
-   "mg_obs_days": 27
+   "mg_obs_days": 26
   },
   {
    "symbol": "VFF",
@@ -761,7 +761,7 @@
    "result_date": "2026-07-23",
    "max_gain_pct": -0.8,
    "mg_obs_pct": -0.8,
-   "mg_obs_days": 22
+   "mg_obs_days": 25
   },
   {
    "symbol": "FEMY",
@@ -797,8 +797,8 @@
    "status": "stopped",
    "result_date": "2026-07-16",
    "max_gain_pct": -0.4,
-   "mg_obs_pct": -0.4,
-   "mg_obs_days": 22
+   "mg_obs_pct": 3.4,
+   "mg_obs_days": 25
   },
   {
    "symbol": "GEOS",
@@ -911,7 +911,7 @@
    "result_date": "2026-07-15",
    "max_gain_pct": 5.1,
    "mg_obs_pct": 5.1,
-   "mg_obs_days": 22
+   "mg_obs_days": 24
   },
   {
    "symbol": "LI",
@@ -949,7 +949,7 @@
    "result_date": "2026-07-16",
    "max_gain_pct": 9.2,
    "mg_obs_pct": 16.5,
-   "mg_obs_days": 23
+   "mg_obs_days": 24
   },
   {
    "symbol": "HFFG",
@@ -1128,7 +1128,7 @@
    "result_date": "2026-07-24",
    "max_gain_pct": 4.6,
    "mg_obs_pct": 4.6,
-   "mg_obs_days": 19
+   "mg_obs_days": 22
   },
   {
    "symbol": "SY",
@@ -1164,7 +1164,7 @@
    "result_date": "2026-07-23",
    "max_gain_pct": 16.4,
    "mg_obs_pct": 39.2,
-   "mg_obs_days": 21
+   "mg_obs_days": 20
   },
   {
    "symbol": "PETS",
@@ -1202,7 +1202,7 @@
    "result_date": "2026-07-23",
    "max_gain_pct": 12.3,
    "mg_obs_pct": 12.6,
-   "mg_obs_days": 19
+   "mg_obs_days": 21
   },
   {
    "symbol": "KLRS",
@@ -1318,7 +1318,7 @@
    "rr": 2.8398787736046684,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 2.7
+   "max_gain_pct": 1.6
   },
   {
    "symbol": "APVO",
@@ -1359,7 +1359,7 @@
    "result_date": "2026-07-17",
    "max_gain_pct": 8.9,
    "mg_obs_pct": 8.9,
-   "mg_obs_days": 18
+   "mg_obs_days": 16
   },
   {
    "symbol": "NAMI",
@@ -1397,7 +1397,7 @@
    "result_date": "2026-07-27",
    "max_gain_pct": 7.7,
    "mg_obs_pct": 180.2,
-   "mg_obs_days": 14
+   "mg_obs_days": 17
   },
   {
    "symbol": "CMTL",
@@ -1666,7 +1666,7 @@
    "result_date": "2026-08-05",
    "max_gain_pct": 13.1,
    "mg_obs_pct": 25.8,
-   "mg_obs_days": 13
+   "mg_obs_days": 14
   },
   {
    "symbol": "TYGO",
@@ -1702,7 +1702,7 @@
    "result_date": "2026-07-31",
    "max_gain_pct": 16.6,
    "mg_obs_pct": 23.7,
-   "mg_obs_days": 11
+   "mg_obs_days": 12
   },
   {
    "symbol": "HTZ",
@@ -1856,7 +1856,7 @@
    "result_date": "2026-08-07",
    "max_gain_pct": 23.3,
    "mg_obs_pct": 36.0,
-   "mg_obs_days": 9
+   "mg_obs_days": 10
   },
   {
    "symbol": "AFJK",
@@ -2128,7 +2128,7 @@
    "result_date": "2026-08-07",
    "max_gain_pct": 10.3,
    "mg_obs_pct": 13.9,
-   "mg_obs_days": 3
+   "mg_obs_days": 4
   },
   {
    "symbol": "PLUG",
@@ -3056,7 +3056,7 @@
    "rr": 10.801762620655825,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.9
+   "max_gain_pct": 12.2
   },
   {
    "symbol": "MENS",
@@ -3089,7 +3089,7 @@
    "rr": 1.281393836458449,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.3
+   "max_gain_pct": 7.7
   },
   {
    "symbol": "ICCM",
@@ -3716,7 +3716,7 @@
    "rr": 2.1306519940305124,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 3.7
+   "max_gain_pct": 4.0
   },
   {
    "symbol": "FEMY",
@@ -3749,7 +3749,7 @@
    "rr": 2.2234807134455297,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 5.5
   }
  ]
 }
