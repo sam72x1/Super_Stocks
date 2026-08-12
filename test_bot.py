@@ -3743,25 +3743,30 @@ _opf_calls = {getattr(n.func, "attr", None) for n in _brg_ast_mod.walk(_opf_ast)
 # 🔄 **حُدِّث 2026-08-11 بإقرار:** `_ignition_signal` لم تبقَ نداءً مباشرًا بل صارت
 #    **مُحقَنةً** في `EX.replay_trigger` (نافذةٌ زمنيّة كالحيّ) — **وسقط القفلُ فعلًا
 #    عند التغيير فأدّى عمله**. فيُشترَط الآن **الحقنُ في المُشغِّل بالاسم** لا مجرّدُ
-#    ذكرِها، وفي **موضعَي الكشف كليهما** (الجدوى · ARMED).
-_opf_inj = sum(1 for n in _brg_ast_mod.walk(_opf_ast)
-               if isinstance(n, _brg_ast_mod.Call)
-               and getattr(n.func, "attr", None) == "replay_trigger"
-               and any(isinstance(a, _brg_ast_mod.Attribute)
-                       and a.attr == "_ignition_signal" for a in n.args))
-check("🔬 OPF2 الدوالُّ الإنتاجيةُ **بأسمائها** (لا نسخةَ منطق): break_level · "
-      "operator_blocks · candle_class نداءً · و`_ignition_signal` **محقونةً** في "
-      "`replay_trigger` في الوضعين",
+#    ذكرِها، وفي **كلّ** موضعِ كشف.
+# 🔄 **وحُدِّث ثانيةً 2026-08-12 بإقرار:** كان يشترط **العدد 2** فسقط عند إضافة موضعِ
+#    كشفٍ ثالث (وضعُ الحكم) — **فأدّى عمله**. وصار يقفل **الخاصّية لا العدد**: كلُّ
+#    موضعِ كشفٍ يحقن دالّةَ الإنتاج بالاسم ⇒ أيُّ موضعٍ جديدٍ بلا حقنٍ يُسقطه **بلا
+#    تعديلٍ لاحق**، فلا يتعفّن الرقمُ ولا يُرخى القفل.
+_opf_rt = [n for n in _brg_ast_mod.walk(_opf_ast)
+           if isinstance(n, _brg_ast_mod.Call)
+           and getattr(n.func, "attr", None) == "replay_trigger"]
+_opf_inj = sum(1 for n in _opf_rt
+               if any(isinstance(a, _brg_ast_mod.Attribute)
+                      and a.attr == "_ignition_signal" for a in n.args))
+check("🔬 OPF2 الدوالُّ الإنتاجيةُ **بأسمائها**: break_level · operator_blocks · "
+      "candle_class نداءً · و`_ignition_signal` محقونةٌ في **كلّ** موضعِ كشف",
       {"_ignition_break_level", "_operator_blocks",
-       "_ignition_candle_class"} <= _opf_calls and _opf_inj == 2,
-      f"حقنُ الإشارة={_opf_inj} · " + str(sorted(x for x in _opf_calls if x))[:80])
+       "_ignition_candle_class"} <= _opf_calls
+      and len(_opf_rt) >= 2 and _opf_inj == len(_opf_rt),
+      f"مواضعُ الكشف={len(_opf_rt)} · محقونة={_opf_inj}")
 check("🔬 OPF3 **نافذتا الحيّ حرفيًّا**: الكشفُ 30 دقيقة (‏`:12369`) والبصمةُ 250 صفقة "
       "(‏`operator_flow`) — لا رقمًا من عندي",
       OPF.WIN_MIN == 30 and OPF.FOOTPRINT_TRADES == 250
-      # 🔴 والثابتُ يجب أن **يحكم** لا أن يجلس: يُمرَّر صريحًا في موضعَي الكشف
+      # 🔴 والثابتُ يجب أن **يحكم** لا أن يجلس: يُمرَّر صريحًا في **كلّ** موضعِ كشف
       #    ويطابق ثابتَ الرادار — وإلّا كان قفلًا على لا شيء.
       and OPF.WIN_MIN == OPF.EX.RADAR_WINDOW
-      and _opf_src.count("window=WIN_MIN") == 2)
+      and _opf_src.count("window=WIN_MIN") == len(_opf_rt))
 # 🐞 OPF4 **سقطت صياغتُه الأولى على docstring‌ي نفسِه**: الملفُّ يقتبس عيبَ الإنتاج
 #    («تُثبّت `adjusted=true`») فقرأه القفلُ النصّيُّ استعمالًا — **الفخُّ الموثَّق،
 #    تكرّر**. ⇒ صار يقرأ **مصدرَ الدالّة الجالبة** لا الملفَّ كلَّه.
@@ -3789,9 +3794,11 @@ check("🔬 OPF8 الـworkflow: يدويٌّ بلا كرون · قراءةٌ ف
 # 🔄 OPF9 **حُدِّث بإقرارٍ مؤرَّخ 2026-08-11** (‏`opfire_prereg.md` §⑩-ج): وضعُ `armed`
 #    صار منفَّذًا — **والممنوعُ ما زال قائمًا**: أيُّ وضعٍ ثالث يُرجع خروجًا غيرَ صفريّ،
 #    والسنواتُ الثلاث لا تُشغَّل قبل بلوغ الأرضية (‏`OPF17`).
-check("🔬 OPF9 وضعان **فقط** (`feasibility`/`armed`) وأيُّ ثالثٍ ⇒ خروجٌ غيرُ صفريّ",
+check("🔬 OPF9 ثلاثةُ أوضاعٍ **فقط** (`feasibility`/`armed`/`judge`) وأيُّ رابعٍ ⇒ "
+      "خروجٌ غيرُ صفريّ",
       OPF.MODE == "feasibility" and 'MODE != "feasibility"' in _opf_src
-      and 'MODE == "armed"' in _opf_src and "return 2" in _opf_src)
+      and 'MODE == "armed"' in _opf_src and 'MODE == "judge"' in _opf_src
+      and "return 2" in _opf_src)
 # 🔴 OPF10 **بلا تسريبٍ مستقبليّ**: الشرطُ صريحٌ بالحقل وبالمقارنة الصارمة `<`.
 check("🔬 OPF10 البصمةُ من صفقاتٍ زمنُها **أصغرُ من** نهاية دقيقة الاشتعال (`<` لا `<=`)",
       'int(r["ts"]) < end_ns' in _opf_src and "end_ms + 60_000" not in _opf_src)
@@ -3932,6 +3939,165 @@ check("🔬 OPF18 الـworkflow يمرّر وضعًا ولقطةَ تجميدٍ
       all(x in _opf_wf for x in ("OPFIRE_MODE: ${{ github.event.inputs.mode }}",
                                  "BACKTEST_YEAR:", "BT_FROZEN_PATH:",
                                  "frozen-dataset")))
+
+# ══════════ ⚖️ T-OPFIRE · وضعُ الحكم (‏§③-§⑤ · §⑩-و) ══════════
+# 🔴 OPF19 شاهدُ الضبط `F3` **حتميٌّ بالصيغة المسجَّلة**: الفهرسُ يُعاد حسابُه هنا
+#    استقلالًا من `sha256("YYYY-MM-DD:SYM")` — فتغييرُ مفتاح الهاش أو المدى يُسقطه.
+_opf_sb = [{"c": 1.0, "v": 100, "mod": 570 + k, "t": 1741098600000 + k * 60000}
+           for k in range(20)]
+_opf_ci = OPF.control_index(_opf_sb, 12, "ZZZ", "2025-03-04", 5)
+_opf_cand = [j for j in range(12) if abs(_opf_sb[j]["mod"] - _opf_sb[12]["mod"]) <= 5]
+import hashlib as _opf_h                                          # noqa: E402
+_opf_exp = _opf_cand[
+    int(_opf_h.sha256(b"2025-03-04:ZZZ").hexdigest()[:8], 16) % len(_opf_cand)]
+check("🔬 OPF19 `F3` حتميٌّ بصيغة `sha256(\"YYYY-MM-DD:SYM\")` · **قبل** الاشتعال · "
+      "داخل ±5 · و`None` بلا مرشّحٍ **بلا انهيارٍ على فهرسٍ شاذّ**",
+      _opf_ci == _opf_exp and _opf_ci < 12
+      and abs(_opf_sb[_opf_ci]["mod"] - _opf_sb[12]["mod"]) <= 5
+      and OPF.control_index(_opf_sb, 12, "ZZZ", "2025-03-04", 5) == _opf_ci
+      and OPF.control_index(_opf_sb, 0, "ZZZ", "2025-03-04", 5) is None
+      and OPF.control_index(_opf_sb, 9999, "ZZZ", "2025-03-04", 5) is None,
+      f"الشاهد={_opf_ci} · المتوقَّع={_opf_exp}")
+# 🔴 OPF20 نافذةُ الحكم: **بعد** يوم الاشتعال حصرًا (لا تسريب) **ومقصوصةٌ عند 40**
+#    (السلسلةُ المفتوحة تُلغي `pending` بنيويًّا — §②-6).
+_opf_idx = pd.to_datetime([f"2025-01-{d:02d}" for d in range(1, 29)]
+                          + [f"2025-02-{d:02d}" for d in range(1, 29)])
+_opf_hist = {"ZZZ": pd.DataFrame({"High": [1.0] * len(_opf_idx),
+                                  "Close": [1.0] * len(_opf_idx)}, index=_opf_idx)}
+_opf_af = OPF.daily_after(_opf_hist, "ZZZ", "2025-01-10")
+check("🔬 OPF20 شموعُ الحكم **بعد** يوم الاشتعال حصرًا ومقصوصةٌ عند "
+      f"{OPF.OUTCOME_SESSIONS} جلسة",
+      _opf_af is not None and len(_opf_af) == OPF.OUTCOME_SESSIONS
+      and str(_opf_af.index[0].date()) > "2025-01-10"
+      and OPF.daily_after(_opf_hist, "ZZZ", "2099-01-01") is None
+      and OPF.daily_after(_opf_hist, "MISSING", "2025-01-10") is None)
+# 🔴 OPF21 شموعُ الحكم من **اللقطة** لا من ياهو (‏§⑩-و-1): جلبٌ حيٌّ اليوم يُدخل
+#    تقسيماتٍ بعد `as-of` = **مقياسٌ ثالث** ⇒ يُمتنَع بخروجٍ غيرِ صفريّ لا يُخمَّن.
+_opf_judge_src = _insp0.getsource(OPF.run_judge)
+_opf_jc = {_brg_ast_mod.unparse(n.func) for n in
+           _brg_ast_mod.walk(_brg_ast_mod.parse(_opf_judge_src))
+           if isinstance(n, _brg_ast_mod.Call)}
+check("🔬 OPF21 شموعُ الحكم من `S.load_frozen_dataset` **ولا جلبَ يوميٍّ من ياهو** "
+      "(مقياسٌ ثالث) · والحكمُ `S._ignition_outcome` بالاسم",
+      {"S.load_frozen_dataset", "S._ignition_outcome", "daily_after",
+       "S._wilson_ci"} <= (_opf_jc | {"S._wilson_ci"})
+      and "S.load_frozen_dataset" in _opf_jc and "S._ignition_outcome" in _opf_jc
+      and not ({"S._ignition_outcome_fetch", "S.download_history", "yf.download"}
+               & _opf_jc))
+check("🔬 OPF22 `pending` **خارج المقام** ويُعلَن عددُها (‏§②-6)",
+      OPF._fake_pct({"real": 3, "fakeout": 1, "pending": 96}) == (25.0, 4)
+      and OPF._fake_pct({"real": 0, "fakeout": 0, "pending": 9}) == (None, 0))
+# 🔴 OPF23 **ثنائيُّ الطرف** — تصحيحُ عيب `T-ACC` الأحاديّ المنصوص في §⑤-3: أحاديُّ
+#    الطرف يستحيل عليه أن يرى علاقةً عكسية، فطفرةُ `a["lo"] > b["hi"]` وحدها تسقط هنا.
+check("🔬 OPF23 فصلُ Wilson **ثنائيُّ الطرف** في الاتجاهين (‏§⑤-3)",
+      OPF._separated({"lo": 60, "hi": 90}, {"lo": 10, "hi": 40})
+      and OPF._separated({"lo": 10, "hi": 40}, {"lo": 60, "hi": 90})
+      and not OPF._separated({"lo": 10, "hi": 60}, {"lo": 40, "hi": 90})
+      and not OPF._separated({"lo": None, "hi": None}, {"lo": 10, "hi": 40}))
+check("🔬 OPF24 آلةُ الدلالة **واحدة** = `S._wilson_ci` الإنتاجيّة · ولا نسخةَ ثانية "
+      "في الملفّ (‏`1.96`/`z` محليّان ممنوعان — §⑩-و-4)",
+      "S._wilson_ci" in _opf_src and "1.96" not in _opf_src
+      and not _re_opf.search(r"^\s*z\s*=", _opf_src, _re_opf.M))
+
+
+def _opf_judge(fp, outcome=None, frozen=True):
+    """يشغّل `run_judge` بلا شبكة ⟶ `(رمز الخروج، المُخرَج، فهارسُ نهاياتِ البصمة)`.
+
+    🔒 نفسُ سببِ الجذع في `_opf_armed`: استيرادُ `event_exec_run` الحقيقيّ يضبط
+    `SCREENER_MODE=BACKTEST` على مستوى الوحدة فيلوّث بقيّةَ السويّة."""
+    import io as _io3
+    import sys as _sys3
+    import types as _ty3
+    from contextlib import redirect_stdout as _rd3
+    day, base = "2025-03-04", 1741098600000        # 09:50 نيويورك (داخل الجلسة)
+    bars = [{"o": (1.30 if k == 15 else 1.00), "h": (1.30 if k == 15 else 1.00),
+             "l": 0.99, "c": (1.30 if k == 15 else 1.00),
+             "v": (5000 if k == 15 else 100), "t": base + k * 60000}
+            for k in range(20)]
+    tr = {"symbol": "ZZZ", "entry": 1.0, "stop": 0.93, "t1": 1.5, "crit": 1.20,
+          "eligible_at": day, "exit_date": day,
+          "interp_in": {"pivot": 1.0, "price": 1.0}}
+    idx = pd.to_datetime(["2025-03-04", "2025-03-05", "2025-03-06"])
+    hist = {"ZZZ": pd.DataFrame({"High": [1.0, 1.6, 1.7], "Close": [1.0, 1.5, 1.6],
+                                 "Low": [0.9] * 3, "Open": [1.0] * 3,
+                                 "Volume": [100] * 3}, index=idx)}
+    stub = _ty3.ModuleType("event_exec_run")
+    stub._armed = lambda t: ([{"symbol": "ZZZ", "trade": tr,
+                               "start": day, "end": day}], {"rejected_cap": 0}, 0)
+    stub.plan_levels = lambda t: {"pivot": 1.0, "break": 1.20, "stop": 0.93,
+                                  "t1": 1.5, "t3": None, "from_crit": True}
+    stub.session_levels = lambda d, s, t, b: {k: b for k in d}
+    old_mod, _sys3.modules["event_exec_run"] = _sys3.modules.pop(
+        "event_exec_run", None), stub
+    ends = []
+
+    def _wrap(sym, end_ns, limit=250):
+        ends.append(end_ns)
+        return fp(sym, end_ns, limit)
+    o = (S.run_backtest, S.load_frozen_dataset, S._ignition_outcome,
+         OPF.EX.hist_minute_bars, OPF.EX.call_stats, OPF.fetch_footprint_desc)
+    S.run_backtest = lambda *a, **k: [tr]
+    S.load_frozen_dataset = ((lambda p: (hist, {}, "2026-07-22")) if frozen
+                             else (lambda p: (None, None, None)))
+    if outcome is not None:
+        S._ignition_outcome = lambda *a, **k: outcome
+    OPF.EX.hist_minute_bars = lambda *a, **k: bars
+    OPF.EX.call_stats = lambda: {"aggs": 1}
+    OPF.fetch_footprint_desc = _wrap
+    buf = _io3.StringIO()
+    try:
+        with _rd3(buf):
+            rc = OPF.run_judge()
+    finally:
+        (S.run_backtest, S.load_frozen_dataset, S._ignition_outcome,
+         OPF.EX.hist_minute_bars, OPF.EX.call_stats,
+         OPF.fetch_footprint_desc) = o
+        _sys3.modules.pop("event_exec_run", None)
+        if old_mod is not None:
+            _sys3.modules["event_exec_run"] = old_mod
+        OPF._FAILS.clear()
+    return rc, buf.getvalue(), ends
+
+
+_opf_o_key2 = _os_hc.environ.get("POLYGON_API_KEY")
+_opf_o_fz = _os_hc.environ.get("BT_FROZEN_PATH")
+_os_hc.environ["POLYGON_API_KEY"] = "test-key-not-used"
+_os_hc.environ["BT_FROZEN_PATH"] = "test-frozen-not-read"
+try:
+    def _opf_fp_ok(sym, end_ns, limit=250):
+        rows = [{"ts": end_ns - (250 - j) * 10 ** 9, "price": 1.0 + j * 0.0001,
+                 "size": 2000 if j % 10 == 0 else 100, "exchange": 4}
+                for j in range(60)]
+        return rows, rows[0]["ts"], []
+    # 🔴 OPF25 **الوسمُ من `_ignition_outcome` وحدها**: بجذعٍ يُرجع `fakeout` دائمًا
+    #    يجب أن يقع **كلُّ** المحسوم في `fakeout` — فلو وُسِم من مصدرٍ آخر (صنفُ الشمعة
+    #    أو `acc_components`) لانكشف. وهو قفلٌ **سلوكيّ** لا نصّيّ.
+    _rc_j, _out_j, _ends_j = _opf_judge(_opf_fp_ok, outcome="fakeout")
+    _opf_f1raw = [ln for ln in _out_j.splitlines()
+                  if ln.startswith("RAW|") and "|F1|" in ln]
+    check("🔬 OPF25 وسمُ الأذرع **من `_ignition_outcome` حصرًا** (جذعٌ يُرجع `fakeout` "
+          "⇒ صفرُ `real` في كلّ شريحة) · و`acc_components` وصفٌ لا يدخل ذراعًا",
+          _rc_j == 0 and len(_opf_f1raw) == 2
+          and all(int(ln.split("|")[4]) == 0 for ln in _opf_f1raw)
+          and sum(int(ln.split("|")[5]) for ln in _opf_f1raw) == 1,
+          f"rc={_rc_j} · F1={_opf_f1raw}")
+    # 🔴 OPF26 `F3` بنافذته **هو** لا بنافذة الاشتعال (وإلّا صار الشاهدُ نسخةً من
+    #    الاشتعال فبطل غرضُه كحارسٍ للتداخل الانتقائيّ — §②-5).
+    check("🔬 OPF26 `F3` يُحسَب من **نافذته هو**: نداءان بنهايتين مختلفتين والشاهدُ "
+          "**أسبقُ** زمنيًّا",
+          len(_ends_j) == 2 and _ends_j[1] < _ends_j[0],
+          f"نهايات={_ends_j}")
+    # 🔴 OPF27 بلا لقطةٍ مجمَّدة ⇒ **يُمتنَع بخروج 2 ولا يُخمَّن** (مقياسٌ ثالث).
+    _rc_nf, _out_nf, _ = _opf_judge(_opf_fp_ok, frozen=False)
+    check("🔬 OPF27 بلا لقطةٍ مجمَّدة ⇒ **امتناعٌ بخروج 2** ونصُّ «مقياسٌ ثالث» "
+          "(لا جلبَ ياهو صامتًا)",
+          _rc_nf == 2 and "مقياسًا ثالثًا" in _out_nf)
+finally:
+    for _k, _v in (("POLYGON_API_KEY", _opf_o_key2), ("BT_FROZEN_PATH", _opf_o_fz)):
+        if _v is None:
+            _os_hc.environ.pop(_k, None)
+        else:
+            _os_hc.environ[_k] = _v
 
 # ⏰ الفارز اليومي: الكرون مقدَّم بمقدار التأخّر المقيس (138-159د) ليصل التقرير ~10ص
 # السعودية (07:00-07:30 UTC). قفل حسابي — أي عودة لـ«23 7» أو تقديم مفرط يُسقطه.
