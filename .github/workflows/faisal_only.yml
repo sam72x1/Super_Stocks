@@ -23,6 +23,10 @@ on:
         description: "سقفُ رموز شاهد الضبط (0 = الكونُ كلُّه)"
         required: false
         default: "0"
+      edges:
+        description: "ملفُّ الحوافّ: `envelope_p100.json` = **النافذُ في الإنتاج اليوم** (بصمة 019c983e1691) · `envelope_p90.json` = ظرفُ القياس الأصليّ لـT-FAISAL-ONLY (b4e5372075c1). ⚠️ البصمةُ تُطبَع في الترويسة **قبل أيّ رقم** فلا يُخلط ظرفان"
+        required: false
+        default: "envelope_p100.json"
 
 jobs:
   faisal-only:
@@ -53,4 +57,7 @@ jobs:
           ENV_SNAPSHOT_ID: ${{ github.event.inputs.frozen_run_id }}
           FO_WINDOW: ${{ github.event.inputs.window }}
           FO_CTRL_CAP: ${{ github.event.inputs.ctrl_cap }}
+          # 🔴 مدخلٌ بلا `env` = **مدخلٌ ميّت** يُقرأ «طُبِّق» وهو لم يُطبَّق — بصمةُ
+          #    الـno-op التي وقعت في `BT_CANDLE`. مقفولٌ بـ`FO12` على **كلّ** المداخل.
+          ENVELOPE_EDGES: ${{ github.event.inputs.edges }}
         run: python faisal_only_check.py

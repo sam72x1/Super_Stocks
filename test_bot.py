@@ -16336,6 +16336,40 @@ for _f in _fo_cons:
 check("🎯 FO11 كلُّ مستهلكٍ للقطة يفكُّ الصفَّ ثلاثيًّا (يقتل الصنف لا الحالة)",
       not _fo_bad, f"مخالفون={_fo_bad}")
 
+# FO12 · 🔴 **مدخلٌ بلا `env` = مدخلٌ ميّت** — بصمةُ الـno-op التي وقعت في
+#        `BT_CANDLE` (يُمرَّر بالـworkflow وغائبٌ عن جدول الإحلال ⇒ القيمةُ لا تُطبَّق
+#        **والتشغيلةُ خضراء**). القفلُ يعمّم قاعدة P1 على `faisal_only.yml`:
+#        ① كلُّ مدخلٍ يظهر في **قيمةِ** متغيّرِ بيئةٍ في خطوة التشغيل.
+#        ② والاسمُ الذي تحمله الحوافُّ (`ENVELOPE_EDGES`) **هو الذي تقرؤه الأداة
+#           فعلًا** — يُقرأ نحويًّا من `os.environ.get` لا نصًّا (فالتعليقُ لا يحرس).
+import yaml as _fo_yaml                                          # noqa: E402
+_fo_wf = _fo_yaml.safe_load(open(".github/workflows/faisal_only.yml",
+                                encoding="utf-8"))
+_fo_in = set((_fo_wf.get(True) or _fo_wf.get("on"))["workflow_dispatch"]["inputs"])
+_fo_steps = _fo_wf["jobs"]["faisal-only"]["steps"]
+_fo_env = {}
+for _s in _fo_steps:
+    if isinstance(_s.get("env"), dict):
+        _fo_env.update(_s["env"])
+_fo_envtxt = " ".join(str(v) for v in _fo_env.values())
+_fo_dead = sorted(k for k in _fo_in if f"inputs.{k}" not in _fo_envtxt)
+check("🎯 FO12-أ كلُّ مدخلٍ في faisal_only.yml موصولٌ بمتغيّرِ بيئة (لا مدخلَ ميّت)",
+      not _fo_dead, f"ميّتة={_fo_dead} · مداخل={sorted(_fo_in)}")
+
+# ② الاسمُ الذي يُمرَّر للحوافّ يجب أن يكون **نفسَه** الذي تقرؤه الأداة نحويًّا.
+_fo_edge_env = sorted(k for k, v in _fo_env.items() if "inputs.edges" in str(v))
+_fo_read = set()
+for _n in _fo_ast.walk(_fo_ast.parse(open("faisal_only_check.py",
+                                          encoding="utf-8").read())):
+    if (isinstance(_n, _fo_ast.Call)
+            and getattr(_n.func, "attr", None) == "get"
+            and getattr(getattr(_n.func, "value", None), "attr", None) == "environ"
+            and _n.args and isinstance(_n.args[0], _fo_ast.Constant)):
+        _fo_read.add(_n.args[0].value)
+check("🎯 FO12-ب اسمُ متغيّر الحوافّ يُقرأ فعلًا في faisal_only_check (وصلةٌ لا نيّة)",
+      len(_fo_edge_env) == 1 and _fo_edge_env[0] in _fo_read,
+      f"مُمرَّر={_fo_edge_env} · مقروءٌ نحويًّا={sorted(_fo_read)}")
+
 # ── 📊 «هل تنفجر أسهمُ الارتكاز؟» — وُصلت أخيرًا (2026-08-06) ────────────────
 _oe_data = {"alerts": [
     {"symbol": "A", "status": "stopped", "mg_obs_pct": 12.0},
