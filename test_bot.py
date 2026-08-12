@@ -18963,6 +18963,164 @@ check("🚦 AH9 سقوطُ شاهد الضبط ⇒ **خروج 3** لا صفر (�
       _ah_rc == [3], f"رموزُ الخروج في الفرع={_ah_rc}")
 
 
+# ═════════ 🌙📏 T-AH-YEAR (عقد `ah_year_prereg.md` · بلا شبكة) ═════════════════
+# العيبُ الذي وُلدت منه: `ah_guard` يقرأ **آخرَ** إغلاقِ افترٍ (`extended_last_price`)
+# و`T-AH` قاس **القمّة** ⇒ رقمُه سقفٌ أعلى لا معدَّلُ الحارس. فالأقفالُ تحرس
+# **التمييزَ بين المقياسين** أوّلًا — لأن اختلاطَهما هو الخطأ الذي حدث فعلًا.
+import csv as _ay_csv                                            # noqa: E402
+import datetime as _ay_dt                                        # noqa: E402
+import io as _ay_io                                              # noqa: E402
+from zoneinfo import ZoneInfo as _AY_TZ                           # noqa: E402
+
+_AY_NY = _AY_TZ("America/New_York")
+
+
+def _ay_ts(day, h, m):
+    return int(_ay_dt.datetime.fromisoformat(day)
+               .replace(hour=h, minute=m, tzinfo=_AY_NY).timestamp() * 1e9)
+
+
+def _ay_file(rows):
+    """ملفٌّ مصطنع بترويسةٍ **مقلوبةِ الترتيب** (فلا يمرّ افتراضُ ترتيبِ أعمدة)."""
+    b = _ay_io.StringIO()
+    w = _ay_csv.writer(b)
+    w.writerow(["volume", "close", "high", "low", "window_start", "ticker"])
+    for r in rows:
+        w.writerow(r)
+    b.seek(0)
+    return b
+
+
+# 🎯 عيّنةٌ **تفريقيّة**: قفزةٌ تتلاشى مقابل قفزةٍ تُحفَظ — فلا يمكن لقفلٍ أن ينجو
+#    بخلط المقياسين (‏SPIKY قمّتُه +150% وإغلاقُه +5% · HOLDY +50% و+45%).
+_AY_D = "2026-08-06"
+_ay_rows = [
+    [1000, 1.00, 1.01, 0.99, _ay_ts(_AY_D, 15, 59), "SPIKY"],
+    [10, 2.50, 2.50, 2.40, _ay_ts(_AY_D, 16, 30), "SPIKY"],
+    [10, 1.05, 1.10, 1.00, _ay_ts(_AY_D, 19, 59), "SPIKY"],
+    [2000, 2.00, 2.05, 1.95, _ay_ts(_AY_D, 15, 58), "HOLDY"],
+    [20, 2.90, 3.00, 2.80, _ay_ts(_AY_D, 18, 0), "HOLDY"],
+]
+_ay_red = AH.reduce_minutes(_ay_file(_ay_rows))
+_ay_sp = _ay_red[("SPIKY", _AY_D)]
+_ay_ho = _ay_red[("HOLDY", _AY_D)]
+
+check("🌙 AHY1 مقياسُ الحارس (`post_last_pct`) يقرأ **إغلاقَ** الافتر لا قمّتَه — "
+      "والقفزةُ المتلاشيةُ تفرّقهما (+150% قمّةً · +5% إغلاقًا)",
+      round(AH.post_move_pct(_ay_sp), 1) == 150.0
+      and round(AH.post_last_pct(_ay_sp), 1) == 5.0,
+      f"قمّة={AH.post_move_pct(_ay_sp)} · إغلاق={AH.post_last_pct(_ay_sp)}")
+
+check("🌙 AHY1ب والقفزةُ المحفوظةُ يقرؤها المقياسان معًا (+50% · +45%) ⇒ القفلُ "
+      "**يفرّق** ولا يقبل أيَّ تبديل",
+      round(AH.post_move_pct(_ay_ho), 1) == 50.0
+      and round(AH.post_last_pct(_ay_ho), 1) == 45.0,
+      f"قمّة={AH.post_move_pct(_ay_ho)} · إغلاق={AH.post_last_pct(_ay_ho)}")
+
+check("🌙 AHY2 `post_close` بأكبر **دقيقة** لا بآخر صفٍّ في الملفّ (‏VY4 — نفس "
+      "صيغة الإنتاج «بأكبر طابعٍ زمنيّ لا بترتيب الورود»)",
+      AH.reduce_minutes(_ay_file([_ay_rows[0], _ay_rows[2], _ay_rows[1]]))[
+          ("SPIKY", _AY_D)]["post_close"] == 1.05,
+      "صفوفٌ مقلوبةُ الترتيب يجب أن تعطي نفسَ الإغلاق 1.05")
+
+check("🌙 AHY3 بلا شمعةِ افترٍ ⇒ مقياسُ الحارس `None` **لا صفر** (تعذّرٌ ≠ صفر)",
+      AH.post_last_pct({"reg_close": 2.0, "post_close": None}) is None
+      and AH.post_last_pct({"reg_close": 0.0, "post_close": 2.0}) is None,
+      "مرجعٌ صفريٌّ أو إغلاقٌ غائب ⇒ None")
+
+# ‏VY-CAL · لا تُختلَق عطلاتُ سنةٍ بلا تقويمٍ مُتحقَّق
+_ay_years = AH.calendar_years()
+check("🌙 AHY4 `VY-CAL` مدًى خارج سنوات التقويم المُتحقَّقة ⇒ **لا أيام** (ولا "
+      "تُخمَّن عطلات — وسنةٌ بلا تقويمٍ تَسِم الإغلاقَ المبكّر «نظاميًّا»)",
+      AH.trading_days("2025-01-02", "2025-01-31") == []
+      and AH.trading_days("2024-06-03", "2024-06-07") == []
+      and len(AH.trading_days("2026-01-02", "2026-01-30")) == 20,
+      f"سنواتُ التقويم={sorted(_ay_years)}")
+
+_ay_jan = AH.trading_days("2026-01-01", "2026-01-31")
+check("🌙 AHY5 أيامُ التداول تُسقط **نهايةَ الأسبوع والعطلة** معًا",
+      "2026-01-01" not in _ay_jan          # رأسُ السنة (عطلة)
+      and "2026-01-19" not in _ay_jan      # MLK
+      and "2026-01-03" not in _ay_jan      # سبت
+      and "2026-01-02" in _ay_jan,
+      f"يناير={len(_ay_jan)} يومًا")
+
+# 🐞 قفلٌ **سلوكيّ** لا مقارنةٌ متناظرة: لو غُرس `{2026}` لأعطى **نفسَ الجواب اليوم**
+#    فينجو ⇒ نمدُّ التقويمَ مؤقّتًا ونشترط أن **يتّسع المدى تلقائيًّا** (درسُ «التناظرُ
+#    يُعمي القفل عن التبديل»). والاستعادةُ في `finally` فلا يتسرّب.
+_ay_probe = "2099-01-01"
+try:
+    _ah_mc.HOLIDAYS.add(_ay_probe)
+    _ay_grown = AH.calendar_years()
+    _ay_span = AH.trading_days("2099-01-05", "2099-01-09")   # اثنين→جمعة
+finally:
+    _ah_mc.HOLIDAYS.discard(_ay_probe)
+check("🌙 AHY6 سنواتُ التقويم **مشتقّةٌ** من جدوله لا مغروسةً — مُثبَتٌ **سلوكيًّا** "
+      "بمدِّ التقويم: يتّسع المدى تلقائيًّا ولا يتعفّن رقمٌ مغروس",
+      2099 in _ay_grown and len(_ay_span) == 5
+      and 2099 not in AH.calendar_years()
+      and AH.trading_days("2099-01-05", "2099-01-09") == [],
+      f"مع المدّ={sorted(_ay_grown)} · أيامٌ={len(_ay_span)} · وبعد الاستعادة="
+      f"{sorted(AH.calendar_years())}")
+
+# ‏VY8 · فحصُ التكامل الذاتيّ — **ويجب أن يقدر على السقوط**
+_ay_acc = AH.YearAcc(10.0)
+_ay_acc.ingest(_AY_D, _ay_red)
+_ay_ours = [r for r in _ay_red.values()
+            if isinstance(r.get("reg_close"), float) and 0 < r["reg_close"] < 10]
+_ay_iok, _ay_iwhy = _ay_acc.integrity(_ay_ours, "ours")
+_ay_acc.ge[("ours", "high", 20.0)] += 1                  # عبثٌ متعمَّد
+_ay_bad, _ = _ay_acc.integrity(_ay_ours, "ours")
+_ay_acc.ge[("ours", "high", 20.0)] -= 1
+check("🌙 AHY7 `VY8` المُراكِمُ يطابق `bucket_counts` بت-بت — **ويسقط** عند أوّل "
+      "اختلاف (وإلّا صار عندنا مقياسان يبدوان متّسقين)",
+      _ay_iok and not _ay_bad, f"مطابق={_ay_iok} ({_ay_iwhy}) · بعد العبث={_ay_bad}")
+
+check("🌙 AHY8 `Y2` فجوةُ التلاشي تعدّ المتلاشيةَ **ولا** تعدّ المحفوظة "
+      "(‏1 من 2 = 50% على هذي العيّنة)",
+      _ay_acc.fade_den[("ours", 20.0)] == 2
+      and _ay_acc.fade_num[("ours", 20.0)] == 1
+      and _ay_acc.ge[("ours", "last", 20.0)] == 1
+      and _ay_acc.ge[("ours", "high", 20.0)] == 2,
+      f"مقام={_ay_acc.fade_den[('ours', 20.0)]} · "
+      f"بسط={_ay_acc.fade_num[('ours', 20.0)]}")
+
+# ‏VY7 · سنةٌ لا تُحفَظ في الذاكرة — الحفظُ **مشروطٌ** نحويًّا لا نصًّا
+_ay_upd = [n for n in _ah_ast.walk(_ah_main)
+           if isinstance(n, _ah_ast.Call)
+           and isinstance(n.func, _ah_ast.Attribute) and n.func.attr == "update"
+           and isinstance(n.func.value, _ah_ast.Name) and n.func.value.id == "frames"]
+_ay_guarded = []
+for _n in _ah_ast.walk(_ah_main):
+    if isinstance(_n, _ah_ast.If) and "keep_frames" in _ah_ast.unparse(_n.test):
+        _ay_guarded += [c for c in _ah_ast.walk(_n) if c in _ay_upd]
+check("🌙 AHY9 `VY7` حفظُ الصفوف **مشروطٌ بـ`keep_frames`** (سنةٌ ‏≈3 ملايين صفٍّ "
+      "تُسقط الرنر — والانهيارُ يُقرأ «لم يُقَس»)",
+      len(_ay_upd) == 1 and len(_ay_guarded) == 1,
+      f"نداءاتُ update={len(_ay_upd)} · محروسٌ منها={len(_ay_guarded)}")
+
+# ‏VY5 · يُمنَع نحويًّا قياسُ `ref` في هذي الأداة (خامٌّ مقابل معدَّل = خلطُ مقياسين)
+_ay_refs = [n for n in _ah_ast.walk(_ah_ast.parse(_ah_src))
+            if isinstance(n, _ah_ast.Constant) and n.value == "ref"]
+check("🌙 AHY10 `VY5` لا يُقاس مرجعُ `ref` هنا: الملفّاتُ **خامّة** وياهو **معدَّل** "
+      "⇒ نسبةُ اليوم نفسِه تُلغي التعديل، ونسبةُ `ext/ref` تخلط مقياسين (درسُ V9)",
+      not _ay_refs, f"إشاراتُ 'ref'={len(_ay_refs)}")
+
+check("🌙 AHY11 شرائحُ السعر وعتباتُ المنحنى **مثبَّتةٌ قبل الأرقام** (‏20% هي "
+      "العتبةُ الحيّة داخل المنحنى فلا تُختار بعديًّا)",
+      AH.CURVE == (10.0, 15.0, 20.0, 25.0, 30.0, 50.0, 100.0)
+      and AH.GUARD_T in AH.CURVE
+      and AH.PRICE_BANDS == ((0.0, 2.0), (2.0, 5.0), (5.0, 10.0)),
+      f"CURVE={AH.CURVE} · شرائح={AH.PRICE_BANDS}")
+
+check("🌙 AHY12 عتبةُ `SPLIT_ROSE_MAX_PCT` (نصُّ فيصل) **لا تُمَسّ**: صفرُ إسنادٍ "
+      "لها في أداة القياس (سقفُ النجاح منحنى كلفةٍ لا قرار)",
+      not [n for n in _ah_ast.walk(_ah_ast.parse(_ah_src))
+           if isinstance(n, _ah_ast.Constant) and n.value == "SPLIT_ROSE_MAX_PCT"],
+      "الأداةُ تقيس مرجعَ `price` وحده — والقرارُ للمالك")
+del _ay_red, _ay_acc, _ay_ours, _ay_rows
+
+
 # ═════════ 🧱④ T-BASE-475 (عقد `base475_prereg.md` · بلا شبكة) ═════════════════
 import importlib as _b4_imp                                      # noqa: E402
 import os as _b4_os                                              # noqa: E402

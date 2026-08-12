@@ -26,6 +26,18 @@ on:
         description: "سقفُ التنزيل المُعلَن بالميغابايت (يُوقَف بإعلانٍ لا صمتًا)"
         required: false
         default: "2048"
+      from_day:
+        description: "🌙📏 T-AH-YEAR: بدايةُ المدى ISO (يُلغي `days`). العقد `ah_year_prereg.md`. مثال 2026-01-02"
+        required: false
+        default: ""
+      to_day:
+        description: "🌙📏 T-AH-YEAR: نهايةُ المدى ISO. ⚠️ خارج تقويمنا المُتحقَّق ⇒ خروج 8 (لا تُختلَق عطلات)"
+        required: false
+        default: ""
+      budget_min:
+        description: "ميزانيةُ ساعةِ الحائط بالدقائق — تُوقِف **بإعلان** قبل سقف الجوب"
+        required: false
+        default: "300"
 
 jobs:
   ah:
@@ -47,5 +59,10 @@ jobs:
           AH_WITNESS: ${{ github.event.inputs.witness }}
           AH_PRICE_MAX: ${{ github.event.inputs.price_max }}
           AH_CAP_MB: ${{ github.event.inputs.cap_mb }}
+          # 🔴 مدخلٌ بلا `env` = **مدخلٌ ميّت** يُقرأ «طُبِّق» وهو لم يُطبَّق — بصمةُ
+          #    الـno-op التي وقعت في `BT_CANDLE`. مقفولٌ بـ`AHY9` على **كلّ** المداخل.
+          AH_FROM: ${{ github.event.inputs.from_day }}
+          AH_TO: ${{ github.event.inputs.to_day }}
+          AH_BUDGET_MIN: ${{ github.event.inputs.budget_min }}
           PYTHONUNBUFFERED: "1"
         run: python ah_scan.py
