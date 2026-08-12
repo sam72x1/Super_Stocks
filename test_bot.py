@@ -19061,6 +19061,62 @@ check("🧱④ B475-6 قرارُ المالك مسجَّلٌ نافذ: `OWNER_GA
       and list(S.OWNER_GATE_OVERRIDES) == ["BASE_RANGE_MAX_PCT"],
       f"السجلّ={S.OWNER_GATE_OVERRIDES}")
 
+# B475-7 · 🔴 الشرط ⑤ **مشروطٌ بالسعة** (ملحق ⑧) — ثلاثُ حالاتٍ مُفرِّقة، تُجبَر
+#          بحقنِ `_live_capacity` فلا تعتمد على سعةِ الشجرة (درسُ `HCG7b`).
+_b4_m = _b4_load(None)
+_b4_res = {a: {"cap": _b4_m.ARMS[a], "signals": 100 - i, "taken": 5,
+               "d50": _b4_m.INTEGRITY.get(a, {}).get("2024", 7)}
+           for i, a in enumerate(_b4_m.ARMS)}
+_b4_hits = {a: i * 10 for i, a in enumerate(_b4_m.ARMS)}
+_b4_orig = _b4_m._live_capacity
+
+
+def _b4_gate(cap, res=None, year="2024"):
+    _b4_m._live_capacity = lambda: cap
+    try:
+        return _b4_m.validity(res or _b4_res, _b4_hits, year)
+    finally:
+        _b4_m._live_capacity = _b4_orig
+
+
+# (أ) سعةُ النشر + أرقامٌ مطابقة ⇒ يُفرَض ويعبر (السلوكُ الأصليّ حرفيًّا)
+_ok_a, _ln_a = _b4_gate(_b4_m.PUB_CAP)
+_c5a = next(w for t, o, w in _ln_a if t == "⑤")
+# (ب) سعةُ النشر + رقمٌ **مخالف** ⇒ **يسقط** (لم يُرخَ عند السعة المنشورة)
+_bad = {a: dict(v) for a, v in _b4_res.items()}
+_bad["B120"]["d50"] = 999
+_ok_b, _ln_b = _b4_gate(_b4_m.PUB_CAP, _bad)
+_c5b = next((o for t, o, w in _ln_b if t == "⑤"), None)
+# (ج) سعةٌ مختلفة + نفسُ الرقم المخالف ⇒ **مؤجَّلٌ ومُعلَن** ويطبع الرقمين
+_ok_c, _ln_c = _b4_gate(_b4_m.PUB_CAP + 5, _bad)
+_c5c = next((w for t, o, w in _ln_c if t == "⑤"), "")
+_o5c = next((o for t, o, w in _ln_c if t == "⑤"), None)
+check("🧱④ B475-7 الشرط ⑤: بت-بت عند سعة النشر (يعبر بالمطابق · **ويسقط** بالمخالف)",
+      _c5a.startswith("فحصُ التكامل بت-بت") and _c5b is False,
+      f"أ={_c5a[:60]} · ب={_c5b}")
+check("🧱④ B475-7ب وعند سعةٍ مختلفة: **مؤجَّلٌ ومُعلَن** لا يُسقِط — ويطبع "
+      "«مقيس» و«منشور» معًا (فليس إلغاءً صامتًا)",
+      _o5c is True and "مؤجَّل" in _c5c and "مقيس=" in _c5c and "منشور=" in _c5c,
+      f"ج={_c5c[:110]}")
+# (د) سنةٌ غير مرجعية ⇒ تُرفَض عمدًا **في الحالتين** (لم يُفتَح بابٌ جديد)
+check("🧱④ B475-7ج وسنةٌ غير مرجعية تُرفَض عمدًا أيًّا كانت السعة",
+      next(o for t, o, w in _b4_gate(_b4_m.PUB_CAP, None, "1999")[1]
+           if t == "⑤") is False
+      and next(o for t, o, w in _b4_gate(99, None, "1999")[1]
+               if t == "⑤") is False)
+
+# B475-8 · الحكمُ لا يُدفَن: رمزُ الخروجُ وأسطرُ البوّابة تُطبَع **بعد** المِجَسّ.
+_b4_src = open("base2_arms.py", encoding="utf-8").read()
+_b4_tree = _ah_ast.parse(_b4_src)
+_b4_body = [n for n in _b4_tree.body if isinstance(n, _ah_ast.If)][-1]
+_b4_dump = _ah_ast.unparse(_b4_body)
+check("🧱④ B475-8 رمزُ الخروج وأسطرُ البوّابة يُطبَعان **بعد** `probe()` (لا يُدفَن الحكم)",
+      _b4_dump.index("probe()") < _b4_dump.index("رمزُ الخروج")
+      < _b4_dump.index("sys.exit(_rc)") and "_LAST_GATE" in _b4_dump,
+      "ترتيبُ الطباعة")
+check("🧱④ B475-8ب وترويسةُ النتيجة تقرأ السعةَ الحيّة لا رقمًا مغروسًا",
+      "سعة {_live_capacity()}" in _b4_src and "النتيجة (سعة 10" not in _b4_src)
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

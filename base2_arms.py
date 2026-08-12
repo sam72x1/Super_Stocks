@@ -46,6 +46,11 @@ if _EXTRA:
     ARMS = dict(sorted({**ARMS, _nm: float(_vl)}.items(),
                        key=lambda kv: -kv[1]))
 GATE_KEY = "M4_base_واسعة"      # عدّادُ البوّابة في توزيع رفض الإنتاج
+# 🔴 **السعةُ التي قِيست عندها أرقامُ `INTEGRITY`** — والحيّةُ صارت 15 بقرار
+#    المالك 2026-08-12 ⇒ المقارنةُ عبر سعتين **باطلةٌ بنصّ** `base475_prereg §③`
+#    («ولا يُقارَن رقمٌ جديد برقمٍ منشورٍ عند سعةٍ أخرى») ⇒ الشرط ⑤ **مشروط**.
+PUB_CAP = 10
+_LAST_GATE: list = []           # أسطرُ البوّابة — تُعاد طباعتُها آخرًا
 # §④-5 فحصُ التكامل: أرقامٌ منشورةٌ سلفًا يجب أن تُعاد بت-بت (سنة ⟶ d50).
 # §④-5 فحصُ التكامل — 🔴 **أُشدَّ 2026-08-12** (‏`base475_prereg.md` §④): كانت
 #      مِرساتين فصارت **ثلاثًا** بإضافة `B120` (‏d50 المنشور 25 · 18 · 10 في
@@ -166,6 +171,13 @@ def run_child(arm: str) -> int:
     return 0
 
 
+def _live_capacity() -> int:
+    """السعةُ الحيّة **من `replay10` نفسِها** التي يستعملها الطفلُ في الحسم —
+    لا رقمٌ يدويّ (وهي مربوطةٌ بـ`WATCHLIST_SIZE` بقفل `REPLAY10🔒`)."""
+    import replay10 as _rp                                        # noqa: PLC0415
+    return int(_rp.CAPACITY)
+
+
 def validity(res: dict, hits: dict, year: str) -> tuple[bool, list]:
     """§④ — خمسةُ شروطٍ تُقرأ **قبل** أيّ تفسير. تُرجع (سليم، أسطر)."""
     order = list(ARMS)                       # الأساس ثم الأضيق تدرّجًا
@@ -196,14 +208,29 @@ def validity(res: dict, hits: dict, year: str) -> tuple[bool, list]:
     lines.append(("④", c4, "المقياسُ الحاكم محسوبٌ لا غائب: "
                   + " · ".join(f"{a}.d50={res[a].get('d50')}" for a in order)))
 
-    # ⑤ فحصُ التكامل — أرقامٌ منشورةٌ سلفًا تُعاد بت-بت (خرقُه يُبطل التشغيلة).
-    bad = [f"{a}:{res[a].get('d50')}≠{INTEGRITY[a][year]}"
-           for a in INTEGRITY if year in INTEGRITY[a]
-           and res[a].get("d50") != INTEGRITY[a][year]]
-    c5 = not bad and any(year in INTEGRITY[a] for a in INTEGRITY)
-    lines.append(("⑤", c5, "فحصُ التكامل (يُعيد المنشور بت-بت)"
-                  + (f" — خرق: {' · '.join(bad)}" if bad
-                     else " — سنةٌ غير مرجعية (تُرفَض عمدًا)" if not c5 else "")))
+    # ⑤ فحصُ التكامل — **مشروطٌ بالسعة** (تعديلُ `base475_prereg §⑧`، 2026-08-12):
+    #    السعةُ الحيّة == `PUB_CAP` ⇒ يُفرَض **بت-بت** (السلوكُ الأصليّ حرفيًّا).
+    #    وإلّا ⇒ **مؤجَّلٌ ومُعلَن**: تُطبَع المقيسةُ والمنشورةُ معًا ولا يُسقِط البوّابة،
+    #    لأن المقارنةَ عبر سعتين باطلةٌ بنصّ التسجيل — **والحكمُ داخل التشغيلة**
+    #    (كلُّ الأذرع بنفس السعة) فلا يفقد شيئًا.
+    # 🔴 **ولا يُمرَّر صامتًا:** بلا طباعةِ الرقمين صار «إلغاءً» لا «تأجيلًا».
+    cap_live = int(_live_capacity())
+    ref = {a: INTEGRITY[a][year] for a in INTEGRITY if year in INTEGRITY[a]}
+    got = {a: res[a].get("d50") for a in ref}
+    side = " · ".join(f"{a}: مقيس={got[a]} منشور={ref[a]}" for a in sorted(ref))
+    if not ref:
+        c5 = False
+        lines.append(("⑤", c5, "فحصُ التكامل — **سنةٌ غير مرجعية** (تُرفَض عمدًا)"))
+    elif cap_live == PUB_CAP:
+        bad = [f"{a}:{got[a]}≠{ref[a]}" for a in ref if got[a] != ref[a]]
+        c5 = not bad
+        lines.append(("⑤", c5, f"فحصُ التكامل بت-بت (سعة {cap_live}) — {side}"
+                      + (f" ⇒ خرق: {' · '.join(bad)}" if bad else "")))
+    else:
+        c5 = True
+        lines.append(("⑤", c5, f"فحصُ التكامل **مؤجَّلٌ ومُعلَن**: السعةُ الحيّة "
+                      f"{cap_live} ≠ سعةُ النشر {PUB_CAP} ⇒ المقارنةُ عبر سعتين "
+                      f"باطلةٌ (‏§③) والحكمُ **داخل التشغيلة**. للسجلّ — " + side))
 
     for _t, _o, _w in lines:
         ok = ok and _o
@@ -232,6 +259,7 @@ def run_parent() -> int:
         res[arm] = json.loads(rows[-1].split("BASE2_JSON:", 1)[1])
 
     ok, lines = validity(res, hits, year)
+    globals()["_LAST_GATE"] = lines        # لإعادةِ الطبع آخرًا
     print("\n🚧 بوّابةُ الصلاحية (‏§④ — تُقرأ قبل أيّ تفسير):")
     for tag, good, why in lines:
         print(f"  {tag} {'✅' if good else '⛔'} {why}")
@@ -239,7 +267,8 @@ def run_parent() -> int:
         print("⛔ **بوّابةُ الصلاحية سقطت ⇒ لا تُفسَّر النتيجة.**")
         return 3
 
-    print(f"\n📊 النتيجة (سعة 10 · rank_live · السنة {year}):")
+    print(f"\n📊 النتيجة (سعة {_live_capacity()} · rank_live · "
+          f"السنة {year}):")
     base = res[BASE_ARM]
     for arm in ARMS:
         r = res[arm]
@@ -280,4 +309,14 @@ if __name__ == "__main__":
         probe()
     except Exception as _e:                                       # noqa: BLE001
         print(f"⚠️ المِجَسّ التشخيصيّ: {_e} — ولا يمسّ الحكم.")
+    # 🔴 **الحكمُ يُعاد طبعُه آخرًا:** مُخرَجُ المِجَسّ طويلٌ فدفنَ سطرَ سببِ السقوط
+    #    خارج ذيلِ السجلّ (تشغيلاتُ 2026-08-12 رجعت `rc=3` **بلا سببٍ مقروء**) —
+    #    نظيرُ «عمليةٌ طويلة بلا طباعةٍ حيّة عمياءُ عند أوّل قتل».
+    print(f"\n{'=' * 78}\n🏁 رمزُ الخروج: {_rc}"
+          + ("  ✅ البوّابةُ عبرت" if _rc == 0
+             else "  ⛔ **بوّابةُ الصلاحية سقطت**" if _rc == 3
+             else "  ⛔ ذراعٌ سقطت (rc≠0) — لا حكم")
+          + f"\n{'=' * 78}")
+    for _t, _o, _w in (_LAST_GATE or []):
+        print(f"  {_t} {'✅' if _o else '⛔'} {_w}")
     sys.exit(_rc)
