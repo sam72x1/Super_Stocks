@@ -8664,6 +8664,31 @@ def _redact_secrets(s) -> str:
     return s
 
 
+def _strip_tags(t: str) -> str:
+    """يجرّد وسومَ HTML البسيطة — لإعادةِ إرسالٍ **نصًّا صريحًا** حين يرفض تلغرام
+    التنسيق. المحتوى لا يُمَسّ (تُرسَل بلا `parse_mode` فالحروفُ تظهر كما هي)."""
+    for a in ("<b>", "</b>", "<i>", "</i>", "<code>", "</code>", "<pre>", "</pre>"):
+        t = (t or "").replace(a, "")
+    return t
+
+
+def _parse_fail_hint(text: str, body: str) -> str:
+    """يستخرج `byte offset` من ردّ تلغرام ويطبع **مقطعًا حوله** ⇒ يُسمّى الجاني.
+
+    🔴 **سببُه حادثةٌ حقيقية (2026-08-12، تشغيلة `31562445766`):** رُفضت رسالةٌ بـ
+    «‏can't parse entities: Unsupported start tag "20)" at byte offset 3416» — أي أن
+    حرفًا `<` غيرَ مُهرَّبٍ في حقلٍ ديناميكيّ أفسد الرسالة كلَّها، **ولم يكن في السجلّ
+    ما يحدّد موضعَه** فبقي مجهولًا. الآن يُطبَع المقطعُ فيُعرَف المصدر."""
+    m = re.search(r"byte offset (\d+)", body or "")
+    if not m:
+        return "ℹ️ بلا `byte offset` في الردّ — لا يمكن تحديدُ الموضع."
+    off = int(m.group(1))
+    raw = (text or "").encode("utf-8", "replace")
+    lo, hi = max(0, off - 45), min(len(raw), off + 45)
+    snip = raw[lo:hi].decode("utf-8", "replace").replace("\n", "⏎")
+    return f"🔎 موضعُ العطب (byte {off}): …{snip}…"
+
+
 def send_telegram(text: str) -> bool:
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
         log("ℹ️ لا يوجد توكن تيليجرام — الطباعة على الشاشة فقط:")
@@ -8695,7 +8720,36 @@ def send_telegram(text: str) -> bool:
                     "parse_mode": "HTML",
                     "disable_web_page_preview": True}, timeout=30)
                 if resp.status_code != 200:
-                    log(f"⚠️ تيليجرام رفض ({cid}): {_redact_secrets(resp.text)[:200]}")
+                    # 🔴 **الفحصُ على الخامّ والعرضُ على المُهرَّب** — لا العكس:
+                    #    `_redact_secrets` تستبدل التوكن في **كلّ** موضع، فلو فُحِص
+                    #    المُهرَّبُ لأمكن أن تُشوَّه العبارةُ المفحوصة فتفشل المطابقةُ
+                    #    والإعادةُ لا تعمل. **كشفه الاختبارُ لا القراءة.**
+                    #    🧭 القاعدة: التهريبُ **للعرض** لا للمنطق.
+                    _raw = resp.text or ""
+                    _body = _redact_secrets(_raw)
+                    log(f"⚠️ تيليجرام رفض ({cid}): {_body[:200]}")
+                    # 🔴 **شبكةُ أمانٍ (2026-08-12):** خطأُ تنسيقٍ واحدٌ (`<` غيرُ
+                    #    مُهرَّبٍ في حقلٍ ديناميكيّ) كان **يُتلف الرسالةَ كلَّها بلا
+                    #    إعادة** ⇒ تقريرٌ كاملٌ لا يصل المالكَ أبدًا. وقعت فعلًا في
+                    #    التشغيلة `31562445766`. الآن تُعاد **نصًّا صريحًا بلا
+                    #    `parse_mode`** فتصل بلا تنسيقٍ — **ولا تُفقَد**.
+                    # 🔒 والإعادةُ **مقصورةٌ على خطأ التنسيق حصرًا**: لا تُعاد على
+                    #    429/شبكةٍ (فتصير مطرقةً على حدّ المعدّل).
+                    if "can't parse entities" in _raw:
+                        log("   " + _parse_fail_hint(ch, _raw))
+                        try:
+                            r2 = requests.post(url, json={
+                                "chat_id": cid, "text": _strip_tags(ch),
+                                "disable_web_page_preview": True}, timeout=30)
+                            if r2.status_code == 200:
+                                log("   ✅ أُعيدت **نصًّا صريحًا** — وصلت بلا تنسيق "
+                                    "(لا تُفقَد).")
+                                continue
+                            log("   ⛔ وحتى النصُّ الصريح رُفض: "
+                                f"{_redact_secrets(r2.text)[:120]}")
+                        except Exception as e2:                  # noqa: BLE001
+                            log(f"   ⛔ إعادةُ النصّ الصريح فشلت: "
+                                f"{_redact_secrets(e2)}")
                     ok = False
             except Exception as e:
                 log(f"⚠️ خطأ تيليجرام ({cid}): {_redact_secrets(e)}")

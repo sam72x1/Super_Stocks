@@ -18094,6 +18094,60 @@ check("🥇 TH14 وقسمُ التقرير مُنادًى **مرّتين** (ال
       len(_th_calls("build_dev_assistant_report", "_tie_harvest_block")) == 2,
       str(_th_calls("build_dev_assistant_report", "_tie_harvest_block")))
 
+# ══════════ 📨 شبكةُ أمان الإرسال — خطأُ تنسيقٍ لا يُتلف تقريرًا ══════════
+# 🔴 **حادثةٌ حقيقية (2026-08-12، تشغيلة `31562445766`):** رُفضت رسالةٌ بـ«‏can't parse
+#    entities: Unsupported start tag "20)"» — حرفُ `<` غيرُ مُهرَّبٍ في حقلٍ ديناميكيّ
+#    **أتلف الرسالةَ كلَّها بلا إعادة** ⇒ تقريرٌ كاملٌ لم يصل المالكَ أبدًا.
+def _tg_probe(code, body, token="1234567890:AAbbCCddEEffGGhh",
+              text="مقدمةٌ ثم <b>تنسيق</b> ورقمٌ <20) يفسد كلَّ التحليل"):
+    """يشغّل `send_telegram` بردٍّ مصطنع ⟶ `(النتيجة، نداءاتُ الشبكة)`."""
+    import types as _ty_tg
+    o = (S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.requests)
+    calls = []
+
+    class _R:
+        def __init__(self, c, t):
+            self.status_code, self.text = c, t
+
+    def _post(url, json=None, timeout=None):
+        calls.append(json)
+        return _R(code, body) if len(calls) == 1 else _R(200, '{"ok":true}')
+    S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT = token, "111"
+    S.requests = _ty_tg.SimpleNamespace(post=_post)
+    try:
+        return S.send_telegram(text), calls
+    finally:
+        (S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.requests) = o
+
+
+_TG_ERR = ('{"description":"Bad Request: can\'t parse entities: Unsupported '
+           'start tag \\"20)\\" at byte offset 30"}')
+_tg_ok, _tg_calls = _tg_probe(400, _TG_ERR)
+check("📨 TGP1 خطأُ تنسيقٍ ⇒ **إعادةٌ نصًّا صريحًا بلا `parse_mode`** والوسومُ مجرَّدة "
+      "⇒ الرسالةُ **تصل ولا تُفقَد**",
+      _tg_ok is True and len(_tg_calls) == 2
+      and "parse_mode" not in _tg_calls[1]
+      and "<b>" not in _tg_calls[1]["text"]
+      and "<20)" in _tg_calls[1]["text"],
+      f"نتيجة={_tg_ok} · نداءات={len(_tg_calls)}")
+_tg429, _tg_c429 = _tg_probe(429, '{"description":"Too Many Requests"}')
+check("📨 TGP2 وخطأٌ **غيرُ** تنسيقيّ (‏429) ⇒ **لا إعادة** (فلا تصير مطرقةً على حدّ "
+      "المعدّل) ويُرجَع `False`",
+      _tg429 is False and len(_tg_c429) == 1)
+# 🔴🔴 TGP3 **أقوى قفلٍ هنا** — وهو العيبُ الذي كشفه الاختبارُ في نسختي الأولى:
+#    الفحصُ كان على النصّ **المُهرَّب** (`_redact_secrets`)، وتوكنٌ يطابق حرفًا في
+#    رسالة الخطأ يُشوّهها فتفشل المطابقةُ **والإعادةُ لا تعمل**. ⇒ الفحصُ على الخامّ
+#    والعرضُ على المُهرَّب. **والتهريبُ للعرض لا للمنطق.**
+_tg_t, _tg_ct = _tg_probe(400, _TG_ERR, token="t")
+check("📨 TGP3 الشرطُ يُفحَص على **الردّ الخامّ** لا المُهرَّب (توكنٌ يطابق حرفًا في "
+      "نصّ الخطأ لا يُعطّل الإعادة) — **التهريبُ للعرض لا للمنطق**",
+      _tg_t is True and len(_tg_ct) == 2)
+check("📨 TGP4 `_parse_fail_hint` يسمّي **موضعَ العطب** بمقطعٍ حوله · وبلا `offset` "
+      "يُصرَّح بتعذّر التحديد",
+      "<20)" in S._parse_fail_hint("مقدمةٌ ثم <b>x</b> ورقمٌ <20) يفسد", _TG_ERR)
+      and "byte 30" in S._parse_fail_hint("مقدمةٌ ثم <b>x</b> ورقمٌ <20) يفسد", _TG_ERR)
+      and "لا يمكن تحديدُ الموضع" in S._parse_fail_hint("x", '{"description":"y"}'))
+
 # ══════════ 🕓 T-TIE-4H — «سجّل 4س» (‏`tie_harvest_prereg.md` §⑩) ══════════
 _t4_rows = [{"symbol": f"S{i}", "readiness": 70, "score": 50 - i, "rr": 2.0,
              "price": 1.0 + i * 0.01, "tranches": [1.0, 1.03, 1.06],
