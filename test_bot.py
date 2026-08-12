@@ -19187,11 +19187,15 @@ check("🪦 DEADWALLب و`NEAR_PCT` النافذ = 0 ⇒ `readiness < 0` مست�
 # الظرف. ⇒ أُضيف `threshold_source` **محسوبًا من القيمة النافذة** لا من جدولٍ
 # مكتوب (فالجدولُ المكتوبُ **يتعفّن** — وهو ما وقع فعلًا).
 import wall_stack as _th_ws                                      # noqa: E402
+# 🔴 **يُجبَر الفرعُ بـcfg مصطنع**: السويّةُ تعمل بـ`FAISAL_ONLY=0` فالوسمُ فيها
+#    `engineering` **بحقّ** — وقفلٌ يقرأ الوضعَ الافتراضيّ لا يحرس شيئًا (درسُ
+#    `HCG7b`: القفلُ الذي لا يمرّ بالفرع لا يحرسه). وأوّلُ صياغةٍ لي سقطت هنا.
+_th_cfg1 = {"FAISAL_ONLY": 1}
 check("📒 THSRC مصدرُ **رقمِ** `M2_هبوط_تحت` = `faisal_envelope` لا `engineering` "
       "(الرقمُ النافذ 71.72 من الكاتالوج — والبوّابةُ تبقى موسومةً من صياغتنا)",
-      _th_ws.threshold_source("M2_هبوط_تحت_40") == "faisal_envelope"
+      _th_ws.threshold_source("M2_هبوط_تحت_40", cfg=_th_cfg1) == "faisal_envelope"
       and _th_ws.wall_source("M2_هبوط_تحت_40") == "engineering",
-      f"عتبة={_th_ws.threshold_source('M2_هبوط_تحت_40')} · "
+      f"عتبة={_th_ws.threshold_source('M2_هبوط_تحت_40', cfg=_th_cfg1)} · "
       f"بوّابة={_th_ws.wall_source('M2_هبوط_تحت_40')}")
 check("📒 THSRCب وقرارُ المالك يُوسَم `owner` لا يُخلَط بالكاتالوج (`M4_base_واسعة`)",
       _th_ws.threshold_source("M4_base_واسعة") == "owner")
@@ -19207,7 +19211,14 @@ check("📒 THSRCد وبوضع بوّابات البوت (FAISAL_ONLY=0) يعو�
 # 🔴 والتقريرُ **يطبع البُعدين معًا** — وإلّا بقي السطرُ المُضلِّل وحده.
 _th_rows = [{"symbol": "X", "date": "d", "walls": ["M2_هبوط_تحت_40"]},
             {"symbol": "Y", "date": "d", "walls": ["M4_base_واسعة", "M5_سيولة"]}]
-_th_rep = "\n".join(_th_ws.format_report(_th_ws.aggregate(_th_rows)))
+# ويُجبَر الفرعُ هنا أيضًا — بضبطِ الوضع الحقيقيّ مؤقّتًا واستعادته في `finally`
+# (فتُختبَر **الوصلةُ الفعليّة** لا لامبدا مُبدَلة).
+_th_prev = S.CONFIG.get("FAISAL_ONLY")
+try:
+    S.CONFIG["FAISAL_ONLY"] = 1
+    _th_rep = "\n".join(_th_ws.format_report(_th_ws.aggregate(_th_rows)))
+finally:
+    S.CONFIG["FAISAL_ONLY"] = _th_prev
 check("📒 THSRCهـ والتقريرُ يطبع بُعدَي المصدر معًا (صياغةُ البوّابة · ورقمُها)",
       "صياغةُ البوّابة" in _th_rep and "مصدرُ **رقمِ**" in _th_rep
       and "faisal_envelope" in _th_rep, _th_rep[:160])
