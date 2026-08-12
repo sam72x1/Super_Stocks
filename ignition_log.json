@@ -305,5 +305,29 @@
   "vol_x": 4.6,
   "usd": 57433,
   "candle_class": "mid"
+ },
+ {
+  "symbol": "XAIR",
+  "date": "2026-08-12",
+  "sustain_min": 2,
+  "operator_ok": false,
+  "fired_at": "2026-08-12T20:00:37Z",
+  "break_level": 5.99,
+  "price": 6.16,
+  "vol_x": 3.2,
+  "usd": 6721,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "QTI",
+  "date": "2026-08-12",
+  "sustain_min": 7,
+  "operator_ok": false,
+  "fired_at": "2026-08-12T20:00:37Z",
+  "break_level": 2.93,
+  "price": 3.065,
+  "vol_x": 25.3,
+  "usd": 30101,
+  "candle_class": "group"
  }
 ]
