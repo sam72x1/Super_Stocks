@@ -18875,9 +18875,10 @@ check("🌙 AH5 شاهدُ الضبط: صفرٌ ⇒ سقوط · نصفٌ ⇒ س�
       and (not AH.control_verdict(None)[0]))
 
 # AH6 · `V5` حركةُ ما قبل السوق **لا تُقاس** بلا إغلاقِ اليوم السابق.
+_ah_pv = AH.pre_move_pct({"pre_high": 6.0}, 5.0)      # 🔴 يُحسَب بأمان (يسقط لا ينهار)
 check("🌙 AH6 ما قبل السوق: بلا إغلاقِ الأمس ⇒ `None` (V5 — لا مقياسَ مفبرك)",
       AH.pre_move_pct({"pre_high": 6.0}, None) is None
-      and abs(AH.pre_move_pct({"pre_high": 6.0}, 5.0) - 20.0) < 1e-9)
+      and _ah_pv is not None and abs(_ah_pv - 20.0) < 1e-9, f"بالأمس={_ah_pv}")
 
 # AH7 · 🔒 عزلٌ: لا يُستورَد في الإنتاج · ولا يكتب حالة · ولا يُرسل تلغرام.
 check("🌙 AH7 `ah_scan` غيرُ مستورَدٍ في `Super_stock` (بحثٌ لا إنتاج)",
