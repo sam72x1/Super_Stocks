@@ -18093,6 +18093,91 @@ check("🥇 TH13ب و**بنفس مدخلات الاختيار حرفيًّا** (
 check("🥇 TH14 وقسمُ التقرير مُنادًى **مرّتين** (القليلة + الكافية)",
       len(_th_calls("build_dev_assistant_report", "_tie_harvest_block")) == 2,
       str(_th_calls("build_dev_assistant_report", "_tie_harvest_block")))
+
+# ══════════ 🕓 T-TIE-4H — «سجّل 4س» (‏`tie_harvest_prereg.md` §⑩) ══════════
+_t4_rows = [{"symbol": f"S{i}", "readiness": 70, "score": 50 - i, "rr": 2.0,
+             "price": 1.0 + i * 0.01, "tranches": [1.0, 1.03, 1.06],
+             "stop": [0.93], "t1": 1.5} for i in range(5)]
+
+
+def _t4_h4(sym):
+    """شموعُ 4س مصطنعة — الانعكاسُ **مؤكَّدٌ** فتخرج درجةٌ غيرُ صفريّة لو حُسبت."""
+    n = 80
+    return pd.DataFrame({"Open": [1.0] * n, "High": [1.2] * n,
+                         "Low": [0.8] * n, "Close": [1.0] * n,
+                         "Volume": [1000] * n})
+
+
+# 🔴🔴 TIE4-1 **القفلُ الحاكم**: التسجيلُ **لا يُبدّل الاختيار**. والخطرُ مقيسٌ في
+#    البناء: `fill_picks` ينادي `select_top` في كلّ جولة، و`h4_confirm` مفتاحٌ **ثالثٌ**
+#    في `rank_key` ⇒ كتابةُ الدرجة على الصفّ تُبدّل جولةَ 2. قفلٌ **سلوكيّ** لا نصّيّ.
+_t4_before = [r["symbol"] for r in sorted(_t4_rows, key=S.rank_key)]
+_t4_wl: dict = {}
+S.record_tie_cohort(_t4_wl, sorted(_t4_rows, key=S.rank_key), 2, set(),
+                    "2026-08-12", "t4", h4_fetch=_t4_h4)
+_t4_after = [r["symbol"] for r in sorted(_t4_rows, key=S.rank_key)]
+_t4_mem = (_t4_wl.get("tie_harvest") or [{}])[0].get("members") or []
+check("🕓 TIE4-1 **تسجيلٌ لا قرار**: ترتيبُ `rank_key` مطابقٌ بعد التسجيل · "
+      "و`h4_confirm` **لا يُكتَب على أيّ صفٍّ من النتائج** (وإلّا قرأته جولةُ "
+      "`fill_picks` الثانية فبدّل الاختيار)",
+      _t4_before == _t4_after
+      and not any("h4_confirm" in r for r in _t4_rows)
+      and len(_t4_mem) == 5
+      and all(m.get("h4_confirm") is not None for m in _t4_mem),
+      f"قبل={_t4_before} · بعد={_t4_after}")
+# 🔴 TIE4-2 «تعذّرٌ ≠ صفر» — والصفرُ درجةٌ حقيقيّةٌ تعني «لا تأكيد» (§⑩-3).
+check("🕓 TIE4-2 تعذّرُ الجلب/غيابُ السعر ⇒ **`None` لا صفرًا**",
+      S.tie_h4_scores([{"symbol": "X", "price": 1.0}],
+                      fetch=lambda s: (_ for _ in ()).throw(RuntimeError("net")))
+      == {"X": None}
+      and S.tie_h4_scores([{"symbol": "Y"}], fetch=_t4_h4) == {"Y": None}
+      and S.tie_h4_scores([{"symbol": "Z", "price": 1.0}],
+                          fetch=lambda s: None) == {"Z": None})
+# 🔴 TIE4-3 **مقياسٌ واحد**: نفسُ وسائط الإنتاج ونفسُ دالّة الدرجة — قفلٌ نحويّ على
+#    النداء (النصّيُّ يسقط على التعليق/الـdocstring، فخٌّ موثَّقٌ تكرّر أربع مرّات).
+_t4_tree = _th_ast.parse(_insp0.getsource(S.tie_h4_scores))
+_t4_calls = {_th_ast.unparse(n.func) for n in _th_ast.walk(_t4_tree)
+             if isinstance(n, _th_ast.Call)}
+_t4_tfr = [n for n in _th_ast.walk(_t4_tree) if isinstance(n, _th_ast.Call)
+           and _th_ast.unparse(n.func) == "timeframe_reversal"]
+check("🕓 TIE4-3 الدرجةُ بدالّة الإنتاج `h4_confirm_score` · والتأكيدُ "
+      "`timeframe_reversal(h4, 60, 20)` **بنفس وسائط `enrich` حرفيًّا** · والمستويات "
+      "`four_hour_levels`",
+      {"h4_confirm_score", "four_hour_levels", "timeframe_reversal"} <= _t4_calls
+      and len(_t4_tfr) == 1
+      and [_th_ast.unparse(a) for a in _t4_tfr[0].args[1:]] == ["60", "20"],
+      str(sorted(_t4_calls))[:110])
+# 🔴 TIE4-4 السقفُ **يحكم** ويُعلَن — لا قصٌّ صامت.
+check(f"🕓 TIE4-4 السقفُ `TIE_H4_CAP`={S.TIE_H4_CAP} يحكم فعلًا (‏30 عضوًا ⇒ يُقاس "
+      f"{S.TIE_H4_CAP} فقط)",
+      S.TIE_H4_CAP == 25
+      and len(S.tie_h4_scores([{"symbol": f"Q{i}", "price": 1.0}
+                               for i in range(30)], fetch=_t4_h4)) == 25
+      and len(S.tie_h4_scores([{"symbol": f"Q{i}", "price": 1.0}
+                               for i in range(30)], fetch=_t4_h4, cap=3)) == 3)
+# 🔴 TIE4-5 القسمُ يظهر **دائمًا** ولو صفرًا — وإلّا صار حصادًا صامتًا لا نعرف أنه واقف.
+_t4_txt = "\n".join(S._tie_harvest_block(_t4_wl, fetch=lambda s_, d_: None,
+                                         today="2026-08-13"))
+_t4_zero = {"tie_harvest": [{"date": "2026-08-12", "source": "z", "level": 70,
+                             "members": [{"symbol": "A", "taken": True,
+                                          "h4_confirm": 0},
+                                         {"symbol": "B", "taken": False,
+                                          "h4_confirm": 0}]}]}
+_t4_z = "\n".join(S._tie_harvest_block(_t4_zero, fetch=lambda s_, d_: None,
+                                       today="2026-08-13"))
+check("🕓 TIE4-5 قسمُ `T-TIE-4H` يُطبَع بالتغطية وبنسبة الأصفار · وينذر `H2` عند "
+      "‏≥80% أصفارًا **نتيجةً لا عيبًا** · ويصرّح «تسجيلٌ لا قرار»",
+      "T-TIE-4H" in _t4_txt and "تسجيلٌ لا قرار" in _t4_txt
+      and "أصفارُ الدرجة" in _t4_txt
+      and "عاجزٌ بنيويًّا" in _t4_z and "أصفارُ الدرجة <b>100%</b>" in _t4_z,
+      _t4_txt.splitlines()[-2][:100] if len(_t4_txt.splitlines()) > 1 else "—")
+# 🔴 TIE4-6 `price` مخزَّنٌ في العضو — وبلاه يُحسَب 4س بمدخلٍ مختلفٍ عن الإنتاج.
+check("🕓 TIE4-6 `tie_cohort` يخزّن `price` (مدخلُ `h4_confirm_score` الإنتاجيّ) "
+      "ولا يُستبدَل بمتوسط الدفعات",
+      all("price" in m for m in _t4_mem)
+      and _t4_mem[0]["price"] != _t4_mem[0]["entry"]
+      and "m.get('price')" in _insp0.getsource(S.tie_h4_scores).replace('"', "'")
+      and "m.get('entry')" not in _insp0.getsource(S.tie_h4_scores).replace('"', "'"))
 # ── الجذور: لم تُمَسّ ──
 _TH_ROOTS = ["rank_key", "select_top", "classify_tier", "analyze_ticker",
              "apply_short_gate", "apply_float_gate", "scan_market",

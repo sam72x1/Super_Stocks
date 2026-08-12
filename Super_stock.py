@@ -12667,6 +12667,46 @@ def _ignition_outcome_fetch(sym, fire_date):
 #    فاشلٌ-آمنٌ مطلق · لا `LOGIC_VERSION` · ولا قناةَ تلغرام رابعة (قسمٌ في تقرير التطوير).
 TIE_HARVEST_MAX = 400     # سقفُ السجلّ (كوهورتات) — القصُّ **يُعلَن بعدّاده**
 TIE_HARVEST_MIN = 30      # حدُّ العيّنة المسجَّل (§⑤): مقصوصٌ محسوم
+TIE_H4_CAP = 25           # §⑩-3: سقفُ أعضاءِ كوهورتٍ يُقاس لهم 4س — القصُّ يُعلَن
+
+
+def tie_h4_scores(members, fetch=None, cap=None) -> dict:
+    """🕓 §⑩ `T-TIE-4H` — درجةُ تأكيد الأربع ساعات لأعضاء الكوهورت. **تسجيلٌ لا قرار.**
+
+    🔴🔴 **ترجّع قاموسًا محلّيًّا `{رمز: درجة}` ولا تكتب على أيّ صفٍّ من النتائج
+    أبدًا** — والسببُ مقيسٌ في البناء لا احتياطٌ نظريّ: `fill_picks` ينادي `select_top`
+    **في كلّ جولة**، و`h4_confirm` **مفتاحٌ ثالثٌ** في `rank_key`، فكتابةُ الدرجة على
+    الصفّ تجعل جولةَ 2 تقرؤها ⇒ **التسجيلُ يُبدّل الاختيار** وهو ما يمنعه التسجيل نصًّا.
+
+    📏 **و«تعذّرٌ ≠ صفر»:** فشلُ الجلب ⇒ `None` (الصفرُ درجةٌ حقيقيّة تعني «لا تأكيد»).
+    والحسابُ بدالّة الإنتاج `h4_confirm_score` على حقولٍ **محلّيّة** (`tf4h`/`h4_levels`)
+    مبنيّةٍ بنفس منطق `enrich`. فاشلةٌ-آمنة: أيُّ عضوٍ يرمي ⇒ `None` له وحده."""
+    out: dict = {}
+    fx = fetch or fetch_4h
+    lim = int(cap if cap is not None else TIE_H4_CAP)
+    for m in (members or [])[:lim]:
+        sym = m.get("symbol") if isinstance(m, dict) else None
+        if not sym:
+            continue
+        try:
+            h4 = fx(sym)
+            # 🔒 **السعرُ سعرُ الإنتاج نفسُه** (`r["price"]`) لا متوسطُ الدفعات:
+            #    `h4_confirm_score` تقارن `flip >= price × 0.92` ⇒ سعرٌ آخرُ = مقياسٌ
+            #    ثانٍ. وغيابُه ⇒ `None` **ولا ارتدادَ إلى `entry`** (الارتدادُ يفبرك
+            #    درجةً بمقياسٍ مختلف — «تعذّرٌ ≠ صفر» ولا «تعذّرٌ ≠ بديل»).
+            px = m.get("price")
+            if h4 is None or len(h4) == 0 or not px:
+                out[sym] = None
+                continue
+            loc = {"price": float(px),
+                   # 🔒 نفسُ وسائط الإنتاج حرفيًّا (`enrich`: `timeframe_reversal(h4, 60, 20)`)
+                   "tf4h": ("✅ مؤكِّد" if timeframe_reversal(h4, 60, 20)
+                            else "⏳ غير مؤكِّد بعد"),
+                   "h4_levels": four_hour_levels(h4, float(px))}
+            out[sym] = int(h4_confirm_score(loc))
+        except Exception:                                        # noqa: BLE001
+            out[sym] = None
+    return out
 
 
 def tie_cohort(ranked: list, capacity: int, exclude=None) -> dict:
@@ -12699,6 +12739,8 @@ def tie_cohort(ranked: list, capacity: int, exclude=None) -> dict:
                 "symbol": r.get("symbol"), "rank": i, "readiness": lvl,
                 "score": r.get("score"), "rr": r.get("rr"),
                 "entry": entry, "stop": stp, "t1": r.get("t1"),
+                # 🕓 §⑩ `T-TIE-4H`: السعرُ يُخزَّن ليُحسَب 4س **بمدخل الإنتاج نفسِه**
+                "price": r.get("price"),
                 "taken": i < cap,
             })
         except (TypeError, ValueError):
@@ -12707,7 +12749,7 @@ def tie_cohort(ranked: list, capacity: int, exclude=None) -> dict:
 
 
 def record_tie_cohort(wl: dict, ranked: list, capacity: int, exclude,
-                      today: str, source: str) -> bool:
+                      today: str, source: str, h4_fetch=None) -> bool:
     """يُلحق كوهورتَ اليوم بـ`wl["tie_harvest"]`. **فاشلٌ-آمنٌ مطلق** — انهيارُه لا
     يُسقط الفرز. دِدوب بـ`(date, source)` فتشغيلةٌ مكرّرة لا تُضاعف الصفّ.
 
@@ -12717,6 +12759,18 @@ def record_tie_cohort(wl: dict, ranked: list, capacity: int, exclude,
         coh = tie_cohort(ranked, capacity, exclude)
         if not coh:
             return False
+        # 🕓 §⑩ `T-TIE-4H`: الدرجةُ تُلحَق **بسجلّ الكوهورت** حصرًا — والقاموسُ محلّيّ
+        #    فلا يمسّ صفًّا من النتائج ولا يقرؤه `select_top` في جولةٍ تالية.
+        _h4 = tie_h4_scores(coh["members"], fetch=h4_fetch)
+        for _m in coh["members"]:
+            _m["h4_confirm"] = _h4.get(_m.get("symbol"))
+        _n4 = sum(1 for _m in coh["members"] if _m.get("h4_confirm") is None)
+        _cut4 = max(0, len(coh["members"]) - TIE_H4_CAP)
+        log(f"🕓 T-TIE-4H: قِيست 4س لـ{len(coh['members']) - _n4} من "
+            f"{len(coh['members'])} عضوًا · تعذّرت {_n4} (تُسجَّل `None` لا صفرًا)"
+            + (f" · **قُصّ {_cut4} فوق السقف {TIE_H4_CAP}**" if _cut4 else "")
+            + ("  ⚠️ الكوهورتُ **يُستبعَد من الحكم** (تغطيةٌ ناقصة)"
+               if (_n4 or _cut4) else ""))
         rows = wl.setdefault("tie_harvest", [])
         key = (str(today), str(source))
         rows[:] = [x for x in rows
@@ -12809,6 +12863,24 @@ def _tie_harvest_block(wl: dict, fetch=None, today=None) -> list:
         out.append(f"   كوهورتات مسجَّلة: <b>{len(rows)}</b> · مقصوصون: "
                    f"<b>{n_cut_total}</b> · محسومٌ منهم: <b>{n_res_cut}</b> "
                    f"(‏{n_coh} كوهورت مكتمل)")
+        # 🕓 §⑩ `T-TIE-4H` — يظهر **دائمًا** ولو صفرًا (وإلّا صار حصادًا صامتًا لا
+        #    نعرف أنه واقف). ولا حكمَ هنا: تغطيةٌ وتوزيعٌ فقط (`H1`/`H2` قابلان للكسر).
+        _all4 = [m.get("h4_confirm") for r in rows for m in r.get("members") or []]
+        if _all4:
+            _known = [v for v in _all4 if v is not None]
+            _full = sum(1 for r in rows if (r.get("members")
+                        and all(m.get("h4_confirm") is not None
+                                for m in r["members"])))
+            _z = (sum(1 for v in _known if v == 0) / len(_known) * 100.0
+                  if _known else 0.0)
+            out.append(f"   🕓 <b>T-TIE-4H</b>: قِيست 4س لـ<b>{len(_known)}</b> من "
+                       f"{len(_all4)} عضوًا · كوهورتات كاملةُ التغطية "
+                       f"<b>{_full}</b>/{len(rows)} (يلزم {TIE_HARVEST_MIN}) · "
+                       f"وأصفارُ الدرجة <b>{_z:.0f}%</b>"
+                       + ("  ⚠️ <b>‏≥80% أصفارًا ⇒ المفتاحُ عاجزٌ بنيويًّا عن كسر "
+                          "تعادل (‏`H2`) — نتيجةٌ لا عيب</b>" if _z >= 80 else ""))
+            out.append("      (تسجيلٌ لا قرار — و`h4_confirm` ما زال نائمًا في "
+                       "المُرتِّب بقرار D7)")
         if n_res_cut < TIE_HARVEST_MIN or not diffs:
             out.append(f"   ⏳ <b>لا حكم</b> — يلزم {TIE_HARVEST_MIN} مقصوصًا محسومًا "
                        f"(ينقص {max(TIE_HARVEST_MIN - n_res_cut, 0)}). النافذة "
