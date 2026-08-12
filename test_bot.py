@@ -18962,6 +18962,105 @@ for _n in _ah_ast.walk(_ah_main):
 check("🚦 AH9 سقوطُ شاهد الضبط ⇒ **خروج 3** لا صفر (أخضرُ يُقرأ إذنًا)",
       _ah_rc == [3], f"رموزُ الخروج في الفرع={_ah_rc}")
 
+
+# ═════════ 🧱④ T-BASE-475 (عقد `base475_prereg.md` · بلا شبكة) ═════════════════
+import importlib as _b4_imp                                      # noqa: E402
+import os as _b4_os                                              # noqa: E402
+
+
+def _b4_load(extra=None):
+    """يُعيد تحميل `base2_arms` بعلمٍ محدَّد — والاستعادةُ في `finally` فلا يتسرّب."""
+    _old = _b4_os.environ.get("BASE2_EXTRA_ARM")
+    try:
+        if extra is None:
+            _b4_os.environ.pop("BASE2_EXTRA_ARM", None)
+        else:
+            _b4_os.environ["BASE2_EXTRA_ARM"] = extra
+        import base2_arms as _m
+        return _b4_imp.reload(_m)
+    finally:
+        if _old is None:
+            _b4_os.environ.pop("BASE2_EXTRA_ARM", None)
+        else:
+            _b4_os.environ["BASE2_EXTRA_ARM"] = _old
+
+
+# B475-1 · 🔒 **بلا العلم ⇒ الأذرعُ الأربعةُ المسجَّلة بت-بت** — فتبقى تجربةُ
+#          `T-BASE-2` («أربعةٌ ولا خامسة») قابلةً لإعادة الإنتاج حرفيًّا.
+_b4_off = _b4_load(None)
+check("🧱④ B475-1 بلا `BASE2_EXTRA_ARM` ⇒ الأذرعُ الأربعةُ المسجَّلة بت-بت",
+      list(_b4_off.ARMS) == ["B23685", "B120", "B80", "B40"]
+      and _b4_off.ARMS["B120"] == 120.0,
+      f"ARMS={list(_b4_off.ARMS)}")
+
+# B475-2 · الذراعُ تُدرَج **بترتيبها** (الأوسعُ أوّلًا) فتنطبق حرّاسُ الرتابة ②/③
+#          بلا تعديل — وإدراجُها في غير موضعها يُسقط البوّابةَ على عطبِ ترتيب.
+_b4_on = _b4_load("B475=475.2137106742811")
+_b4_vals = list(_b4_on.ARMS.values())
+check("🧱④ B475-2 الذراعُ تُدرَج بموضعها الصحيح والقيمُ تنازليّةٌ صارمة",
+      list(_b4_on.ARMS) == ["B23685", "B475", "B120", "B80", "B40"]
+      and all(_b4_vals[i] > _b4_vals[i + 1] for i in range(len(_b4_vals) - 1))
+      and abs(_b4_on.ARMS["B475"] - 475.2137106742811) < 1e-12,
+      f"ARMS={list(_b4_on.ARMS)}")
+
+# B475-3 · صيغةٌ فاسدةٌ أو اسمٌ مكرَّر ⇒ **توقّفٌ صريح** لا تجاهلٌ صامت (وإلّا صار
+#          العلمُ ميّتًا والتشغيلةُ خضراءَ تقيس الأربعةَ وتُقرأ «قِسنا 475»).
+for _bad in ("B475", "=475", "B120=99"):
+    try:
+        _b4_load(_bad)
+        _b4_raised = False
+    except SystemExit:
+        _b4_raised = True
+    check(f"🧱④ B475-3 مدخلٌ فاسد {_bad!r} ⇒ توقّفٌ صريح لا تجاهلٌ صامت", _b4_raised)
+_b4_load(None)          # 🧹 استعادةُ الوضع الافتراضيّ للسويّة
+
+# B475-4 · فحصُ التكامل **ثلاثيّ** الآن (تشديدٌ لا إرخاء) وأرقامُه هي المنشورة.
+check("🧱④ B475-4 مِرساتا التكامل صارت **ثلاثًا** بإضافة `B120` (25·18·10)",
+      sorted(_b4_off.INTEGRITY) == ["B120", "B23685", "B40"]
+      and _b4_off.INTEGRITY["B120"] == {"2024": 25, "2025": 18, "2026": 10},
+      f"INTEGRITY={_b4_off.INTEGRITY}")
+
+# B475-5 · المدخلُ موصولٌ بالبيئةِ **التي يقرؤها السكربت نحويًّا** (لا مدخلَ ميّت).
+_b4_wf = _fo_yaml.safe_load(open(".github/workflows/base2.yml", encoding="utf-8"))
+_b4_in = set((_b4_wf.get(True) or _b4_wf.get("on"))["workflow_dispatch"]["inputs"])
+_b4_env = {}
+for _st in _b4_wf["jobs"]["base2"]["steps"]:
+    if isinstance(_st.get("env"), dict):
+        _b4_env.update(_st["env"])
+_b4_txt = " ".join(str(v) for v in _b4_env.values())
+_b4_reads = {n.args[0].value for n in _ah_ast.walk(_ah_ast.parse(
+    open("base2_arms.py", encoding="utf-8").read()))
+    if isinstance(n, _ah_ast.Call)
+    and getattr(n.func, "attr", None) == "get"
+    and getattr(getattr(n.func, "value", None), "attr", None) == "environ"
+    and n.args and isinstance(n.args[0], _ah_ast.Constant)}
+# 🐞 **أوّلُ صياغةٍ لي كانت مكسورة:** اشترطتُ أن يظهر **كلُّ** مدخلٍ في `env`،
+#    و`frozen_run_id` يُستهلَك مشروعًا في `with: run-id` لخطوة التنزيل ⇒ القفلُ كان
+#    **يمنع الصحيح** (درسا `FF4`/`FF5`: قفلٌ يمنع الصحيحَ ليس أشدَّ — هو مكسور).
+#    ⇒ يُفحَص **الاستهلاكُ في أيّ موضعٍ من الجوب**، ومعه الخطرُ الحقيقيّ صريحًا:
+#    وصلةُ `extra_arm` ⟶ `BASE2_EXTRA_ARM` ⟶ قراءةٌ نحويّةٌ في السكربت.
+_b4_job = _fo_yaml.dump(_b4_wf["jobs"]["base2"], allow_unicode=True)
+_b4_dead = sorted(k for k in _b4_in if f"inputs.{k}" not in _b4_job)
+check("🧱④ B475-5 كلُّ مدخلٍ مُستهلَكٌ في الجوب · و`extra_arm` موصولٌ بمتغيّرٍ "
+      "**يقرؤه** `base2_arms` نحويًّا",
+      not _b4_dead and "BASE2_EXTRA_ARM" in _b4_env
+      and "inputs.extra_arm" in str(_b4_env.get("BASE2_EXTRA_ARM", ""))
+      and "BASE2_EXTRA_ARM" in _b4_reads,
+      f"ميّتة={_b4_dead} · env={sorted(_b4_env)} · مقروءة={sorted(_b4_reads)}")
+
+# B475-6 · 🔴 قرارُ المالك (‏120) **ما زال النافذَ في الإنتاج** — ويُقرأ من طبقةِ
+#          الإحلال نفسِها **لا من `CONFIG` الحيّ**: السويّةُ تعمل بـ`FAISAL_ONLY=0`
+#          فقيمةُ `CONFIG` هناك 40، وشرطٌ بـ«أو» كان سيمرّ **بلا أن يحرس شيئًا**
+#          (درسُ `HCG7b`: قفلٌ لا يمرّ بالفرع لا يحرسه) ⇒ يُجبَر الفرعُ.
+# 🐞 **وثانيةً:** قرأتُ `faisal_only_overrides` وهي تُرجع **رقمَ الكاتالوج**
+#    (‏23,684.63)؛ وقرارُ المالك طبقةٌ **تُطبَّق آخرًا** داخل `apply_faisal_only`
+#    (‏`ov.update(OWNER_GATE_OVERRIDES)`) ⇒ الموضعُ الصحيحُ هو السجلُّ نفسه.
+#    (والخاصّيةُ «تُطبَّق آخرًا» محروسةٌ سلفًا بأقفال `OGB`.)
+check("🧱④ B475-6 قرارُ المالك مسجَّلٌ نافذ: `OWNER_GATE_OVERRIDES` = 120 حصرًا",
+      S.OWNER_GATE_OVERRIDES.get("BASE_RANGE_MAX_PCT") == 120.0
+      and list(S.OWNER_GATE_OVERRIDES) == ["BASE_RANGE_MAX_PCT"],
+      f"السجلّ={S.OWNER_GATE_OVERRIDES}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

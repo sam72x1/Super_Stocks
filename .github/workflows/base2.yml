@@ -13,6 +13,10 @@ on:
         description: "لقطة PIT: 2024=31199493957 · 2025=31191327731 · 2026=31199510868"
         required: true
         default: ""
+      extra_arm:
+        description: "🧱④ T-BASE-475 (اختياري): ذراعٌ إضافيةٌ بصيغة `الاسم=القيمة` — مثال `B475=475.2137106742811` (رقمُ كاتالوج فيصل P90). **فارغ = الأذرعُ الأربعةُ المسجَّلةُ في base2_prereg بت-بت**"
+        required: false
+        default: ""
 jobs:
   base2:
     runs-on: ubuntu-latest
@@ -38,4 +42,6 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           BACKTEST_YEAR: ${{ github.event.inputs.year }}
           BT_FROZEN_PATH: frozen_backtest.pkl.gz
+          # 🔴 مدخلٌ بلا `env` = مدخلٌ ميّت (بصمةُ `BT_CANDLE`) — مقفولٌ `B475-2`.
+          BASE2_EXTRA_ARM: ${{ github.event.inputs.extra_arm }}
         run: python base2_arms.py
