@@ -4010,9 +4010,14 @@ def _opf_judge(fp, outcome=None, frozen=True):
     import types as _ty3
     from contextlib import redirect_stdout as _rd3
     day, base = "2025-03-04", 1741098600000        # 09:50 نيويورك (داخل الجلسة)
+    # 🐞 حجمُ شمعة الاشتعال **‏100,000 عمدًا** (‏$130K ⇒ صنفُها `operator` لا `group`):
+    #    بحجمٍ أصغرَ يصير صنفُها `group` فتُعطي طفرةُ «الوسمُ من صنف الشمعة» **نفسَ**
+    #    جواب الجذع (`fakeout`) ⇒ **عيّنةٌ بجوابين فيُعمى القفل** — وقد **نجت الطفرةُ
+    #    فعلًا** حتى فُرِّقت العيّنة. الدرسُ المدوَّن: **القفلُ لا يحرس إلّا بقدر ما
+    #    تُفرِّق عيّنتُه.**
     bars = [{"o": (1.30 if k == 15 else 1.00), "h": (1.30 if k == 15 else 1.00),
              "l": 0.99, "c": (1.30 if k == 15 else 1.00),
-             "v": (5000 if k == 15 else 100), "t": base + k * 60000}
+             "v": (100_000 if k == 15 else 100), "t": base + k * 60000}
             for k in range(20)]
     tr = {"symbol": "ZZZ", "entry": 1.0, "stop": 0.93, "t1": 1.5, "crit": 1.20,
           "eligible_at": day, "exit_date": day,
