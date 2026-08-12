@@ -18840,9 +18840,11 @@ check("🌙 AH3 الأعمدةُ تُقرأ من الترويسة مهما اخ�
       f"صف={_ah_r}")
 check("🌙 AH3ب و`reg_close` إغلاقُ **آخرِ دقيقةٍ نظامية** لا آخرِ صفٍّ في الملفّ",
       _ah_r and _ah_r["reg_close_mod"] == 15 * 60 + 59)
+# 🔴 يُحسَب بأمان: **القفلُ يجب أن يسقط لا أن ينهار** — والانهيارُ يخفي سطرَ
+#    الملخّص فيُقرأ «لم يُقَس» (كشفَته طفرةُ M2 التي أسقطت AH3 ثم فكّكت `None`).
+_ah_pm = AH.post_move_pct(_ah_r) if isinstance(_ah_r, dict) else None
 check("🌙 AH3ج وحركةُ الافتر = post_high/reg_close−1 = +50%",
-      abs(AH.post_move_pct(_ah_r) - 50.0) < 1e-9,
-      f"={AH.post_move_pct(_ah_r)}")
+      _ah_pm is not None and abs(_ah_pm - 50.0) < 1e-9, f"={_ah_pm}")
 
 # AH3-د ترويسةٌ ناقصة ⇒ **ترمي** ولا تُرجع صفرًا بصمت (رمزُ خروجٍ 5 في الأداة).
 try:
