@@ -14519,6 +14519,101 @@ check("🛡️ الدرع: كلُّ دوالّ الصيّاد **مطابقة ل�
       not _h_changed, f"تغيّرت={_h_changed}")
 check("🛡️ الدرع يغطّي 19 دالّة (لا يتقلّص بصمت)", len(_HUNTER_PINS) == 19)
 
+# ═════ 🚦🕵️ T-RANKER3 (عقد `ranker3_prereg.md` · بلا شبكة) ════════════════════
+import ranker3_arms as _r3                                       # noqa: E402
+import replay10 as _r3rp                                         # noqa: E402
+
+# عيّنةٌ **تفريقيّة**: خاملٌ (حجمٌ عاديّ · لا كسرَ حرج) مقابل نشِطٍ (حجم ×8 · مدًى
+# متوسّع · إغلاقٌ عند 97% من مداه · تجاوَز الرقم الحرج).
+_r3n = 40
+_r3q = S.activity_features([10.0] * _r3n, [9.8] * _r3n, [9.9] * _r3n,
+                           [1e5] * _r3n, crit=12.0, price=9.9, n_spikes=0)
+_r3h = [10.0] * (_r3n - 1) + [13.0]
+_r3l = [9.8] * (_r3n - 1) + [9.9]
+_r3c = [9.9] * (_r3n - 1) + [12.9]
+_r3v = [1e5] * (_r3n - 1) + [8e5]
+_r3a = S.activity_features(_r3h, _r3l, _r3c, _r3v, crit=12.0, price=12.9, n_spikes=3)
+
+check("🚦 R3-1 `activity_features` **تفرّق** الخاملَ عن النشِط: كلُّ مكوّنٍ يشتعل "
+      "(‏a1 حجم · a2 مدًى · a3 إغلاق · a5 تجاوزُ الحرج) ⇒ 4 مقابل 2 — ولا مكوّنَ ميّت",
+      _r3a["act_score"] == 4 and _r3q["act_score"] == 2
+      and (_r3a["a1"], _r3a["a2"], _r3a["a3"], _r3a["a5"]) == (1, 1, 1, 1)
+      and _r3q["a1"] == 0 and _r3q["a5"] == 0 and _r3a["n_spikes"] == 3,
+      f"نشِط={_r3a['act_score']} خامل={_r3q['act_score']}")
+
+# 🔒 R3-V1 · **صفرُ نظرٍ مستقبليّ** — تبديلُ ما بعد الشمعة الأخيرة لا يغيّر شيئًا
+_r3far = S.activity_features([99.0] * 5 + _r3h, [1.0] * 5 + _r3l,
+                             [50.0] * 5 + _r3c, [9e9] * 5 + _r3v,
+                             crit=12.0, price=12.9, n_spikes=3)
+check("🚦 R3-V1 **بلا نظرٍ مستقبليّ**: إضافةُ شموعٍ لاحقة **تغيّر** الجواب (فالدالّة "
+      "تقرأ آخرَ شمعة) · و**تبديلُ الماضي البعيد خارج النافذة لا يغيّره** — فهي "
+      "تقرأ نافذتَها المعلَنة حصرًا لا كلَّ التاريخ",
+      _r3far["act_score"] == _r3a["act_score"],
+      f"بعيد={_r3far['act_score']} · أصل={_r3a['act_score']}")
+
+check("🚦 R3-2 فاشلةٌ-آمنة: فارغٌ/بلا `crit` ⇒ صفرٌ ولا ترمي (تعذّرٌ ≠ ادّعاء)",
+      S.activity_features([], [], [], [])["act_score"] == 0
+      and S.activity_features(_r3h, _r3l, _r3c, _r3v, crit=None)["a5"] == 0)
+
+# 🔒 R3-3 · **الأذرعُ تُرتِّب فعلًا مختلفًا** (كاشفُ الـno-op قبل أيّ تشغيل)
+_r3mk = (lambda sym, a, rdy, sc, band:                            # noqa: E731
+         _r3rp.Candidate(symbol=sym, seq=0, session=0, readiness=rdy, score=sc,
+                         rr=1.0, payload={"act_vals": a, "symbol": sym,
+                                          "env_vals": {"in_band": band}}))
+_r3A = _r3mk("ACT", _r3a, 45, 85, False)      # نشِطٌ **خارج** النطاق (نمطُ DFSC)
+_r3B = _r3mk("DULL", _r3q, 0, 20, True)       # خاملٌ **داخل** النطاق (نمطُ BBLG)
+_r3ord = {n: [x.symbol for x in sorted([_r3A, _r3B], key=f)]
+          for n, f in (("R-0", _r3rp.rank_live), ("R-ACT", _r3rp.rank_act),
+                       ("R-ACT2", _r3rp.rank_act_band),
+                       ("R-HIST", _r3rp.rank_hist))}
+check("🚦 R3-3 الأذرعُ **متمايزة**: `R-0` يضع الخاملَ أوّلًا (يُعيد إنتاج انقلاب "
+      "`BBLG`/`DFSC`) · و`R-ACT` و`R-HIST` يقلبانه · فليست نسخةً واحدة",
+      _r3ord["R-0"][0] == "DULL" and _r3ord["R-ACT"][0] == "ACT"
+      and _r3ord["R-HIST"][0] == "ACT", f"{_r3ord}")
+
+# 🔒 R3-4 · **التعارضُ البنيويّ مُثبَتٌ ومُوثَّق** (ملحق §⑫-أ) — لا يُنسى
+check("🚦 R3-4 **`R-ACT2` يستحيل عليها بنيويًّا تجاوزُ فئة النطاق** (تحفظ عقدَ "
+      "«الجاهز فقط») ⇒ الحارس (د) يُقاس على `R-ACT` — **مكتوبٌ في التسجيل قبل "
+      "أيّ رقم** (‏§⑫-أ)",
+      _r3ord["R-ACT2"][0] == "DULL"
+      and "يستحيل عليها بنيويًّا" in open("ranker3_prereg.md",
+                                          encoding="utf-8").read()
+      and "الحارس (د) يُقاس على `R-ACT`" in open("ranker3_prereg.md",
+                                                 encoding="utf-8").read())
+
+# 🔒 R3-5 · **الغائبُ يغرق** — لا يُدَّعى نشاطٌ بلا دليل (عُرفُ `rank_env_full`)
+_r3sink = [x.symbol for x in sorted(
+    [_r3mk("NONE", None, 90, 99, False), _r3A], key=_r3rp.rank_act)]
+check("🚦 R3-5 صفٌّ بلا حقول نشاط **يغرق تحت** أيّ مقيس (لا يُدَّعى نشاطٌ بلا دليل)",
+      _r3sink == ["ACT", "NONE"], f"{_r3sink}")
+
+# 🔒 R3-6 · **العلمُ مطفأٌ ⇒ الإنتاج بت-بت** · والحقلُ لا يُقرأ من أيّ مسارٍ حيّ
+check("🚦 R3-6 `BT_ACTVALS` مطفأٌ افتراضيًّا · و`act_vals`/`activity_features` "
+      "**صفرُ ذِكرٍ** في أيّ جذرِ اختيارٍ أو مسارٍ إنتاجيّ",
+      S.CONFIG["BT_ACTVALS"] == 0
+      and all("activity_features" not in _insp0.getsource(getattr(S, f))
+              and "act_vals" not in _insp0.getsource(getattr(S, f))
+              for f in ("rank_key", "select_top", "analyze_ticker",
+                        "classify_tier", "entry_status", "scan_market",
+                        "run_daily_watchlist")))
+
+# 🔒 R3-7 · **لا مدخلَ ميّت** في الـworkflow (بصمةُ `BT_CANDLE`)
+check("🚦 R3-7 كلُّ مدخلٍ في `ranker3.yml` موصولٌ ببيئةٍ يقرؤها السكربت",
+      (lambda y, src: all(("${{ github.event.inputs." + k + " }}") in y
+                          for k in ("years", "frozen_run_id"))
+       and "R3_YEARS" in src and "BT_FROZEN_PATH" in src)(
+          open(".github/workflows/ranker3.yml", encoding="utf-8").read(),
+          open("ranker3_arms.py", encoding="utf-8").read()))
+
+# 🔒 R3-8 · **`d50@3` منفصلٌ عن `d50`** ولا يخلطان (سؤالُ المالك «سهمين فقط»)
+check("🚦 R3-8 `_d` يقصر العدَّ على أعلى `top` خانات فعلًا · و`TOP_N`=3 · "
+      "و`child_env` يرفع الأعلامَ الخمسة (‏V4)",
+      _r3.TOP_N == 3 and _r3.JUDGE_ARM == "R-ACT2" and len(_r3.ARMS) == 4
+      and set(_r3.child_env()) == {"SCREENER_MODE", "BT_REPLAY10", "BT_ENVVALS",
+                                   "BT_POTENTIAL", "BT_ACTVALS"},
+      f"{sorted(_r3.child_env())}")
+del _r3q, _r3a, _r3h, _r3l, _r3c, _r3v, _r3A, _r3B, _r3ord, _r3mk, _r3far, _r3sink
+
 # ═════ 🔧 «صلّح كل شي متأكد منه» (2026-08-13) — أقفالُ الإصلاحات الستّة ═══════════
 # 🔒 SHDOC · **إثباتُ أن تصحيحَ الـdocstring لم يغيّر سلوكًا**: جسمُ الدالّة (بعد
 #    استبعاد الـdocstring) يُقارَن ببصمةٍ مثبَّتة — فلو تسلّل سطرُ كودٍ مع «تصحيحِ

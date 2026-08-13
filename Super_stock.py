@@ -378,6 +378,9 @@ CONFIG = {
     "BT_SHORT": 0,                       # 🕵️ T-SHORT: شورت FINRA المؤرَّخ عند الإشارة — باكتيست فقط
     "BT_PORTFOLIO": 0,                   # 🏦 محاكاة الانتقائية (أفضل N بالترتيب)
     "BT_PORT_SIZE": 15,                  # سعة المحفظة المحاكاة (= WATCHLIST_SIZE — مقفولٌ `CAP15`)
+    # 🕵️ T-RANKER3 (`ranker3_prereg.md`): ألحِق **حقول النشاط** بالصفقة (‏`act_score`
+    #    ومكوّناتها + `n_spikes` الذي يُحسب سلفًا ويُرمى). إلحاقٌ فقط · مطفأ = بت-بت.
+    "BT_ACTVALS": 0,
     "BT_ENVVALS": 0,                     # 📐 T-RANKER-TIE: ألحِق معايير الظرف الأحد عشر
     "BT_REPLAY10": 0,                    # 🔁 T-REPLAY10: ألحِق بكل صفقة **تاريخ الخروج
                                          #   الفعليّ** (تحرير الخانة بجلسات لا تقويم) و`rr`
@@ -696,6 +699,7 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             # و`rr` (المحور الرابع في `rank_key`، لم يكن يُخزَّن قطّ). باكتيست حصريًّا.
             ("BT_REPLAY10", "BT_REPLAY10", int),
             ("BT_ENVVALS", "BT_ENVVALS", int),
+            ("BT_ACTVALS", "BT_ACTVALS", int),        # 🕵️ T-RANKER3
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
         v = (env.get(bt_env) or "").strip()
         if not v:
@@ -1913,6 +1917,76 @@ def load_frozen_dataset(path: str):
 # ==========================================================
 # 5) أدوات تحليل النموذج
 # ==========================================================
+def activity_features(high, low, close, vol, crit=None, price=None,
+                      n_spikes=None, win: int = 20) -> dict:
+    """🕵️ **«هل يجهّزه المضارب الآن؟»** — دالّةٌ نقيّةٌ لتجربة `T-RANKER3`
+    (`ranker3_prereg.md §④`)، أمرُ المالك 2026-08-13 بعد حالة `DFSC`:
+    «**فرقٌ بين ارتكازٍ يجهّزه المضارب ونشيط وسهمٍ خامل**».
+
+    **صفرُ مؤشّرٍ مخترَع وصفرُ رقمٍ من عندي** — أربعةُ مكوّناتٍ ثنائيّة، عتبةُ كلٍّ
+    منها **إمّا ثابتٌ قائمٌ في `CONFIG` وإمّا قسمةٌ محايدةٌ صفريّةُ المعالم**
+    (نفسُ عُرف `base_rose`: المنتصفُ اختيارُ تصميمٍ مُعلَنٌ لا عتبةٌ مُعايَرة):
+
+      • `A1` **قفزةُ حجم**: حجمُ آخر جلسة ‏≥ `VOL_SPIKE_MULT` × متوسط 20 (ثابتٌ قائم).
+      • `A2` **توسّعُ مدى**: مدى آخر جلسة ‏≥ **وسيط** مدى 20 (نسبةُ 1.0 = محايدة ·
+        ووسيطٌ لا متوسط: مقاومةُ الذيل — نفسُ سبب اختيار الوسيط في `T-CMAG`).
+      • `A3` **موضعُ الإغلاق**: في **النصف الأعلى** من مدى يومه (منتصفٌ محايد) —
+        وهو نقيضُ `BBLG` الذي أغلق عند **‏34%** من مداه يومَ ترشيحه.
+      • `A5` **تجاوزُ الرقم الحرج**: `price ≥ crit` — **نفسُ شرط `_ignition_signal`
+        الإنتاجيّ** (لا عتبةَ جديدة). غيابُ `crit` ⇒ صفر (لا يُدَّعى تحرّرٌ بلا مرجع).
+
+    `act_score` = مجموعُها ∈ [0,4]. ويُرفَق `n_spikes` (**فرضيةُ المالك (ب)**: «لو كان
+    منفجرًا مرّتين فهذا شيءٌ إضافيّ») — 🔴 **وهو يُحسب في `spike_info` سلفًا ثم يُرمى
+    وسمَ عرضٍ** ولا يدخل ترتيبًا قطّ.
+
+    🔒 **بلا نظرٍ مستقبليّ بنيويًّا:** تقرأ آخرَ شمعةٍ **مكتملة** ونافذتَها السابقة
+    فقط — ولا تعرف شيئًا عمّا بعدها (مقفولٌ `R3-V1` بتبديل المستقبل).
+    🔒 **فاشلةٌ-آمنة:** بياناتٌ ناقصة/صفريّة/`NaN` ⇒ المكوّنُ صفرٌ ولا ترمي أبدًا.
+    ⚠️ **قياس/بحثٌ فقط** — خارج الفرز والجذور، ولا تُنادى من أيّ قرارٍ إنتاجيّ."""
+    out = {"vol_x": None, "range_x": None, "close_pos": None,
+           "crit_break": 0, "a1": 0, "a2": 0, "a3": 0, "a5": 0,
+           "act_score": 0, "n_spikes": (int(n_spikes) if n_spikes else 0)}
+    try:
+        h = np.asarray(high, dtype=float)
+        lo = np.asarray(low, dtype=float)
+        c = np.asarray(close, dtype=float)
+        v = np.asarray(vol, dtype=float)
+        n = min(len(h), len(lo), len(c), len(v))
+        if n < win + 2:
+            return out
+        h, lo, c, v = h[:n], lo[:n], c[:n], v[:n]
+        prev = slice(-(win + 1), -1)            # النافذةُ السابقة **بلا** آخر شمعة
+        # A1 — قفزةُ الحجم (العتبةُ ثابتٌ قائم)
+        vm = float(np.mean(v[prev]))
+        if vm > 0 and v[-1] == v[-1]:
+            out["vol_x"] = float(v[-1]) / vm
+            out["a1"] = int(out["vol_x"] >= float(CONFIG["VOL_SPIKE_MULT"]))
+        # A2 — توسّعُ المدى (النسبةُ 1.0 محايدة)
+        rng = h[prev] - lo[prev]
+        rmed = float(np.median(rng[rng == rng])) if len(rng) else 0.0
+        rlast = float(h[-1] - lo[-1])
+        if rmed > 0 and rlast == rlast:
+            out["range_x"] = rlast / rmed
+            out["a2"] = int(out["range_x"] >= 1.0)
+        # A3 — موضعُ الإغلاق في مدى يومه (المنتصفُ محايد)
+        if rlast > 0:
+            out["close_pos"] = (float(c[-1]) - float(lo[-1])) / rlast
+            out["a3"] = int(out["close_pos"] >= 0.5)
+        # A5 — تجاوزُ الرقم الحرج (نفسُ شرط الرادار الإنتاجيّ)
+        try:
+            p = float(price) if price is not None else float(c[-1])
+            k = float(crit) if crit is not None else None
+            if k is not None and k == k and k > 0 and p == p:
+                out["crit_break"] = int(p >= k)
+                out["a5"] = out["crit_break"]
+        except (TypeError, ValueError):
+            pass
+        out["act_score"] = out["a1"] + out["a2"] + out["a3"] + out["a5"]
+    except Exception:                                            # noqa: BLE001
+        return out
+    return out
+
+
 def spike_info(close: np.ndarray, exclude_last: int):
     """أكبر مكسب خلال ≤ نافذة جلسات + عدد الانفجارات المنفصلة (معيد إجرام)"""
     c = close[:-exclude_last] if exclude_last > 0 else close
@@ -15979,6 +16053,9 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
             r = analyze_ticker(sym, df.iloc[:i])
         except Exception:
             r = None
+        _sig_i = i          # 🕵️ T-RANKER3: فهرسُ **لحظة الإشارة** (لا يُقرأ إلا خلف
+                            #    العلم المطفأ · ولا يمسّ `trade` أبدًا) — فبلا العلم
+                            #    مُخرَجُ الصفقة **بت-بت** (مقفولٌ R3-V6).
         if not r:
             if reasons is not None:
                 _rr = _REJECT_REASONS.get(sym, "؟")
@@ -16140,6 +16217,25 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
                     "critical_number") or {}).get("price")
             except Exception:
                 trade["crit"] = None
+            # 🕵️ **T-RANKER3** (`ranker3_prereg.md §④`) — «هل يجهّزه المضارب الآن؟».
+            # 🔴 **وموضعُها هنا قيدٌ لا خيار:** أوّلُ صياغةٍ وضعتُها **قبل** كتلة
+            #    `crit` أعلاه ⇒ `trade.get("crit")` كان `None` دائمًا ⇒ المكوّنُ `A5`
+            #    (تجاوزُ الرقم الحرج) **صفرٌ أبدًا = مكوّنٌ ميّت** — بصمةُ الـ`no-op`
+            #    التي أسقطت `BT_CANDLE` و`T-CLIFF-2`. أمسكتُها بالقراءة قبل التشغيل.
+            #    النافذةُ `df.iloc[:_sig_i]` = **لحظةُ الإشارة حصرًا** ⇒ صفرُ نظرٍ
+            #    مستقبليّ بنيويًّا · و`n_spikes` من `spike_info` **الإنتاجيّة نفسِها**.
+            #    إلحاقٌ فقط · مطفأ = صفقة الأساس بت-بت.
+            if CONFIG.get("BT_ACTVALS"):
+                try:
+                    _w = df.iloc[:_sig_i]
+                    _bs, _ns = spike_info(_w["Close"].values.astype(float),
+                                          exclude_last=CONFIG["BASE_WINDOW"])
+                    trade["act_vals"] = activity_features(
+                        _w["High"].values, _w["Low"].values, _w["Close"].values,
+                        _w["Volume"].values, crit=trade.get("crit"),
+                        price=r.get("price"), n_spikes=_ns)
+                except Exception:                                # noqa: BLE001
+                    trade["act_vals"] = None   # تعذّرٌ ≠ صفر — يُعلَن ولا يُختلَق
             # 🔴 والمستويات المخزَّنة معه — لأن الإنتاج **يجدّد الرقم الحرج يوميًّا**
             # (`update_watchlist_status` يعيد بناء `interp` بـ`last_price` الجديد بينما
             # `key_levels`/`h4_levels`/الأهداف تبقى كما خُزِّنت). فتجميدُه على قيمة يوم

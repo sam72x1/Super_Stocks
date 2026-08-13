@@ -1,0 +1,47 @@
+name: T-RANKER3 (الارتكاز الذي يجهّزه المضارب — مُرتِّبًا)
+
+# 🚦🕵️ يقيس: هل يرفع **السلوكُ القريب** (‏`act_score`) و**تاريخُ الانفجارات**
+#    (`n_spikes`) المنفجرَ إلى الخانات الأولى؟ العقد: `ranker3_prereg.md`.
+# 🔒 بحث/قياس فقط · بلا كرون · و`BT_ACTVALS` مطفأٌ في الإنتاج ⇒ الفارزُ بت-بت.
+# ⚠️ ولا مسَّ بـ`rank_key` — الأذرعُ مُرتِّباتٌ في `replay10` (أقلُّ تدخّلًا من §⑩).
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "السنوات مفصولةً بفاصلة — الحكمُ يلزمه الثلاث"
+        required: true
+        default: "2024,2025,2026"
+      frozen_run_id:
+        description: "لقطة PIT — يلزمها لقطةٌ تغطّي السنوات المطلوبة"
+        required: true
+        default: ""
+jobs:
+  ranker3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run ranker3 arms
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 🔴 مدخلٌ بلا `env` = مدخلٌ ميّت (بصمةُ `BT_CANDLE`) — مقفولٌ `R3-7`.
+          R3_YEARS: ${{ github.event.inputs.years }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python ranker3_arms.py

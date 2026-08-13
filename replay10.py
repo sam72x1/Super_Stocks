@@ -165,6 +165,46 @@ def rank_live(c: Candidate):
     return (band, -(rdy if rdy is not None else -1.0), -c.score, -c.rr, c.seq)
 
 
+def _act(c: Candidate) -> tuple:
+    """قراءةُ حقول النشاط من الصفقة (‏`T-RANKER3`) — **الغيابُ يغرق تحت كلّ مقيس**
+    (‏−1 أدنى من أيّ `act_score` في [0,4]) فلا يُدَّعى نشاطٌ بلا دليل، وهو **نفسُ
+    عُرف `rank_env_full` مع الامتناع**. تُرجع (‏−درجة، ‏−عددُ الانفجارات)."""
+    a = c.payload.get("act_vals")
+    if not isinstance(a, dict):
+        return (1.0, 0.0)                      # الغائبُ يغرق (‏−(−1) = +1 أكبر)
+    try:
+        return (-float(a.get("act_score") or 0.0), -float(a.get("n_spikes") or 0.0))
+    except (TypeError, ValueError):
+        return (1.0, 0.0)
+
+
+def rank_act(c: Candidate):
+    """`R-ACT` — **درجةُ النشاط أوّلًا** ثم مفاتيحُ الإنتاج حرفيًّا.
+    يجيب: هل السلوكُ القريب أقوى من كلّ شيء؟ (‏`ranker3_prereg.md §④`)"""
+    rdy = c.readiness
+    act, ns = _act(c)
+    band = 0 if (c.payload.get("env_vals") or {}).get("in_band") else 1
+    return (act, ns, band, -(rdy if rdy is not None else -1.0), -c.score, -c.rr, c.seq)
+
+
+def rank_act_band(c: Candidate):
+    """`R-ACT2` — 🥇 **الحاكمة**: `in_band` أوّلًا (يحفظ عقد «لا إشعار إلا بالجاهز»
+    ولا يُلغي `T-PROX`) **ثم درجةُ النشاط** ثم بقيّةُ مفاتيح الإنتاج حرفيًّا."""
+    rdy = c.readiness
+    act, ns = _act(c)
+    band = 0 if (c.payload.get("env_vals") or {}).get("in_band") else 1
+    return (band, act, ns, -(rdy if rdy is not None else -1.0), -c.score, -c.rr, c.seq)
+
+
+def rank_hist(c: Candidate):
+    """`R-HIST` — **تاريخُ الانفجارات وحده أوّلًا** (`n_spikes`) ثم مفاتيحُ الإنتاج.
+    يعزل **فرضية المالك (ب)**: «لو كان منفجرًا مرّتين فهذا شيءٌ إضافيّ»."""
+    rdy = c.readiness
+    _, ns = _act(c)
+    band = 0 if (c.payload.get("env_vals") or {}).get("in_band") else 1
+    return (ns, band, -(rdy if rdy is not None else -1.0), -c.score, -c.rr, c.seq)
+
+
 def rank_env_full(c: Candidate):
     """`K-ENV` — **عمقُ ظرف فيصل مفتاحًا أوّلًا** (لا كاسرَ تعادلٍ كما في
     T-RANKER-TIE): الأعمقُ داخل الظرف أوّلًا، والامتناعُ (`None`) **يغرق تحت كلّ
