@@ -1837,19 +1837,6 @@
   "short_interest": 143133,
   "days_to_cover": 0.36
  },
- "AEMD": {
-  "sector": "Healthcare",
-  "industry": "Medical Devices",
-  "business": "Aethlon Medical, Inc., a medical therapeutic company, engages in developing novel immunotherapeutic devices in the United States. It develops Hemopurifier, a cl…",
-  "country": "United States",
-  "cash": 5026458,
-  "shares_out": 526712,
-  "short_pct": 8.7,
-  "float": 470276,
-  "company_name": "Aethlon Medical, Inc.",
-  "short_interest": 45693,
-  "days_to_cover": 1.06
- },
  "ERNA": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -4008,5 +3995,18 @@
   "company_name": "Quince Therapeutics, Inc.",
   "short_interest": 56631,
   "days_to_cover": 1.35
+ },
+ "AEMD": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "business": "Aethlon Medical, Inc., a medical therapeutic company, engages in developing novel immunotherapeutic devices in the United States. It develops Hemopurifier, a cl…",
+  "country": "United States",
+  "cash": 5026458,
+  "shares_out": 526712,
+  "short_pct": 8.8,
+  "float": 469954,
+  "company_name": "Aethlon Medical, Inc.",
+  "short_interest": 46330,
+  "days_to_cover": 1.31
  }
 }
