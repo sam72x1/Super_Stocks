@@ -911,7 +911,7 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.12-cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.13-listsplit+rrtruth+cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -8623,8 +8623,16 @@ def build_message(results: list, splits: list,
             lines.append(_bn)
         # 🔄 استمرارية: وسم مصير السهم عبر التجديد (طلب المستخدم — لا يختفي بصمت)
         _cs = r.get("cont_status")
+        # 🪑 فصلُ القائمتين (2026-08-13): المرتفعُ فوق نطاق دخوله **لا يحجز خانةً**
+        #    ⇒ وسمُ «خارج أفضل-N» يُوهم طردًا وهو كذبةُ إطار. التسميةُ محايدةٌ صادقة
+        #    (الفئةُ تضمّ رابحًا كبيرًا ومنجرفًا هامشيًّا معًا) — ⚠️ و`exited` يبقى
+        #    تحذيرُه لأنه **لا يحجز أصلًا** («افتح الباب») والتحذيرُ أهمُّ خبرٍ له
+        #    (حسمُ غموضِ «استبدل سطرَي cont_status» — مدوَّنٌ في الحزمة §③-1).
         if _cs == "exited":
             lines.append("⚠️ خرج من نموذج الارتكاز — نتابعه لمركزك (راجع خطتك/الوقف)")
+        elif _position_risen(r):
+            lines.append("📈 فوق نطاق دخوله — لا يحجز خانة "
+                         "(يعود يحجز إذا رجع للنطاق)")
         elif _cs == "continues":
             lines.append(f"🔄 يستمر (خارج أفضل-{CONFIG['WATCHLIST_SIZE']} — متابعة لمركزك)")
         # 🧬 طريقة ارتفاع اليد (سلوك المضارب — **عرض/تشخيص فقط، لا يمسّ الفرز ولا الاختيار**):
@@ -10943,6 +10951,35 @@ def _nf8_slot_free(s: dict) -> bool:
             return False
         return int(s.get("band_wait_days") or 0) >= int(
             CONFIG.get("SLOT_UNFILLED_FREE_SESSIONS", 8))
+    except (TypeError, ValueError):
+        return False
+
+
+def _position_risen(s: dict) -> bool:
+    """🪑 فصل القائمتين (أمر المالك 2026-08-13 «افصل القايمتين» — سند
+    `ranker3_prereg.md §⑫` وقياس `ranker3_result.md §④`): هل هذا الاسم
+    **مركزٌ ارتفع فوق نطاق دخوله**؟ نعم إذا (لمس نطاقَه `band_hit` أو بلغ
+    هدفَه `hit`) **و** سعرُه الأخير فوق أعلى دفعةٍ الآن.
+    ⇒ لا يحجز خانةً (طلباتُ الدخول أوامرُ حدٍّ تحته فلا تُعبَّأ اليوم)
+    **ويبقى مُدرَجًا متابَعًا بكل شيء** — جنسُ سابقات ⑨-ب و«افتح الباب»
+    وNF8؛ وقاعدة «تُشطب بالستوب فقط» لا تُمَسّ بحرف. ويعود يحجز فور رجوع
+    السعر إلى النطاق (يُعاد التقييم يوميًّا من `last_price` — ذاتيّ الشفاء،
+    لا ترحيل ولا حقل جديد).
+    شرطُ (`band_hit` أو `hit`) يمنع تحرير مَن لم يلمس نطاقه قطّ فور إدراجه —
+    تلك فئةُ NF8 القائمة (مؤقّت 8 جلسات) ولا تُبتلَع.
+    ⚠️ لا يُستعمَل `in_entry_band` هنا: ترجع False عند النقص، وFalse هنا
+    معناها «فوق النطاق» ⇒ الناقصُ كان سيتحرّر خطأً — فالمقارنة مكتوبة
+    بنفس صيغتها حرفيًّا معكوسةً، والنقصُ يحجز (قفل `LS7` يثبت التكامل).
+    **فاشل-آمن:** حقلٌ غائب/تالف ⇒ False ⇒ يحجز (سلوك ما قبل الميزة حرفيًّا)."""
+    try:
+        if not (s.get("band_hit") or s.get("hit")):
+            return False
+        tr = [float(t) for t in (s.get("tranches") or []) if t]
+        px = float(s.get("last_price") or 0)
+        if not tr or px <= 0:
+            return False          # ناقصٌ ⇒ يحجز (فاشل-آمن)
+        return px > max(tr) * (1 + float(
+            CONFIG.get("ENTRY_READY_BAND_TOL_PCT", 0.0)) / 100.0)
     except (TypeError, ValueError):
         return False
 
@@ -13666,6 +13703,11 @@ def build_daily_message(wl: dict, splits: list,
     _ready = [(s, es) for s, es in _st if es["status"] == "ready_now"]
     _watch = [(s, es) for s, es in _st if es["status"] != "ready_now"]
     _pw = f" · 🔄 {len(_carried)} متابعة لمركزك" if _carried else ""
+    # 🪑 فصلُ القائمتين (2026-08-13): عدّادٌ صريحٌ للمرتفعين فوق نطاقهم — لا يحجزون
+    #    خانات، فيُعلَن عددُهم بدل أن يُقرأ نقصُ الخانات لغزًا. عرضٌ فقط.
+    _risen_n = sum(1 for s in wl["stocks"] if _position_risen(s))
+    if _risen_n:
+        _pw += f" · 📈 {_risen_n} فوق نطاق الدخول (لا تحجز خانات)"
     if ready_only:
         lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
                  f"🟢 {len(_ready)} جاهز للدخول · 👀 {len(_watch)} تحت متابعة البوت"
@@ -13913,7 +13955,11 @@ def build_position_watch_section(carried: list) -> str:
         if isinstance(_stp, (list, tuple)):
             _stp = _stp[0] if _stp else None
         cs = s.get("cont_status")
-        tag = ("⚠️ خرج من النموذج" if cs == "exited" else "🔄 يستمر ارتكازًا")
+        # 🪑 فصلُ القائمتين (2026-08-13) — **الموضعُ الحيُّ للفئة**: المرتفعُ فوق
+        #    نطاقه لا يحجز خانةً، ووسمُه محايدٌ صادق. و`exited` يبقى تحذيرُه.
+        tag = ("⚠️ خرج من النموذج" if cs == "exited"
+               else ("📈 فوق نطاق دخوله — لا يحجز خانة" if _position_risen(s)
+                     else "🔄 يستمر ارتكازًا"))
         parts = [f"<b>${sym}</b>", tag]
         if isinstance(lp, (int, float)):
             parts.append(f"${lp:.2f}")
@@ -15134,9 +15180,17 @@ def run_daily_watchlist(wl: dict) -> None:
     #    جلسات لا يحجز خانة (يبقى مُدرَجًا متابَعًا — `_nf8_slot_free`). القياس:
     #    31-35% من أيام-الخانات كانت وزنًا ميّتًا، والتحرير يرفع المنفجرين
     #    المُسلَّمين 42 ⟶ 56 بالتعديل الصادق (`slot_result.md`).
+    # 🪑 فصلُ القائمتين (أمر المالك 2026-08-13 «افصل القايمتين» ثم «نفّذ ⑫-ب»
+    #    بعد شاهدَي `DFSC` و`BOXL`): الخانةُ حجزٌ لاسمٍ **يمكن تعبئةُ طلباتك فيه
+    #    الآن**. فلا يحجز: (⑫-أ) مركزٌ لمس نطاقه ثم ارتفع فوقه (`_position_risen`)
+    #    · (⑫-ب) محمولٌ من تجديدٍ سابق **لم يُعَد اختيارُه** (`continues`) — الخانةُ
+    #    لاختيار الأسبوع الجاري وللإضافات اليومية. **وكلاهما يبقى مُدرَجًا متابَعًا
+    #    بكل شيء** («تُشطب بالستوب فقط» لا تُمَسّ). و`renewed`/`None` يحجزان.
+    #    القياسُ يومَ القرار: حاملون 20 من سعة 15 ⇒ **صفرُ إضافةٍ ممكنة** ⟶ بعدهما 6.
     _slot_holders = [s for s in wl["stocks"]
                      if not s.get("hit") and s.get("cont_status") != "exited"
-                     and not _nf8_slot_free(s)]
+                     and s.get("cont_status") != "continues"
+                     and not _nf8_slot_free(s) and not _position_risen(s)]
     space = CONFIG["WATCHLIST_SIZE"] - len(_slot_holders)
     added = []
     low_coverage_note = None

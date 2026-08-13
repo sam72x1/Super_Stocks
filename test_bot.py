@@ -16449,8 +16449,20 @@ for _n in _od_ast.walk(_od_fn or _od_ast.Module(body=[], type_ignores=[])):
 #    الكودَ**. الآن `_od_space` تُقيّم **تعبيرَ الإنتاج المستخرَج بالـAST** حصرًا.
 # 🪑 2026-08-07 (قرار المالك «نفذ»، NF8): التعبيرُ صار ينادي `_nf8_slot_free` —
 #    فيُمرَّر للـeval من الإنتاج نفسه (لا نسخة)، والعيّنة توسّعت بحالتَيه.
+# 🪑🔴 **تحديثٌ مؤرَّخ 2026-08-13 (أمرا المالك «افصل القايمتين» ثم «نفّذ ⑫-ب» —
+#    تخويلٌ مسمًّى في `list_separation_package.md §⑤`، أخرجه تدقيقٌ خصوميّ قبل
+#    التنفيذ):** التعبيرُ صار ينادي `_position_risen` ويشترط `!= "continues"` ⇒
+#    (أ) الاسمُ الجديد يُمرَّر للـ`eval` **من الإنتاج نفسه** (وإلّا `NameError`
+#    فيسقط القفلُ بخطأٍ لا بحكم) · (ب) العيّنةُ `E` (`continues`) انتقلت من
+#    «حاملٍ» إلى **محرَّر** بنصّ ⑫-ب · (ج) وشاهدُ `OD2` كان نصُّه «`continues`
+#    **يحجز**» = **عكسُ القرار حرفيًّا** ⇒ استُبدل بشاهدٍ **أدقَّ تفريقًا**
+#    (`renewed` و`None` يحجزان) فبقي غرضُه: القفلُ ليس مباركةَ إفراغٍ شامل.
+_OD_GLOBALS = {"_nf8_slot_free": S._nf8_slot_free,
+               "_position_risen": S._position_risen}
+
+
 def _od_space(stocks, size=10):
-    holders = eval(_od_expr, {"_nf8_slot_free": S._nf8_slot_free},  # noqa: S307
+    holders = eval(_od_expr, _OD_GLOBALS,  # noqa: S307
                    {"wl": {"stocks": stocks}})
     return size - len(holders)
 
@@ -16460,27 +16472,31 @@ _od_sample = [
     {"symbol": "B", "hit": "t1", "cont_status": None},        # هدفٌ محقَّق ⇒ لا يحجز
     {"symbol": "C", "hit": None, "cont_status": "exited"},    # خرج ⇒ لا يحجز
     {"symbol": "D", "hit": None, "cont_status": "renewed"},   # حاملٌ
-    {"symbol": "E", "hit": None, "cont_status": "continues"}, # حاملٌ (ما زال ارتكازًا)
+    {"symbol": "E", "hit": None, "cont_status": "continues"}, # ⑫-ب ⇒ لا يحجز
     {"symbol": "F", "hit": None, "cont_status": None,         # 🪑 8 جلسات بلا لمس
      "band_hit": False, "band_wait_days": 9},                 #    ⇒ لا يحجز (NF8)
     {"symbol": "G", "hit": None, "cont_status": None,         # 🪑 لامسُ النطاق يحجز
      "band_hit": True, "band_wait_days": 40},                 #    مهما طال
 ]
 try:
-    _od_got = eval(_od_expr, {"_nf8_slot_free": S._nf8_slot_free},  # noqa: S307
+    _od_got = eval(_od_expr, _OD_GLOBALS,                          # noqa: S307
                    {"wl": {"stocks": _od_sample}})
     _od_names = sorted(x["symbol"] for x in _od_got)
 except Exception as _e:                                            # noqa: BLE001
     _od_names, _od_expr = [f"خطأ:{type(_e).__name__}"], _od_expr
 
-check("🚪 OD1 تعبيرُ الإنتاج نفسُه: `exited` و`hit` والمحرَّر NF8 لا يحجزون · والباقي يحجز",
-      _od_names == ["A", "D", "E", "G"],
+check("🚪 OD1 تعبيرُ الإنتاج نفسُه: `exited` و`hit` والمحرَّر NF8 و`continues` "
+      "لا يحجزون · والباقي يحجز",
+      _od_names == ["A", "D", "G"],
       f"حاملون={_od_names} · التعبير={_od_expr}")
 
-# 🔒 شاهدُ ضبطٍ: «continues» (ما زال ارتكازًا) **يجب** أن يحجز — وإلّا صار القفلُ
-#    يبارك إفراغًا شاملًا بدل قاعدةٍ دقيقة.
-check("🚪 OD2 وشاهدُ الضبط: «continues» **يحجز** (القفلُ ليس إفراغًا شاملًا)",
-      "E" in _od_names and "C" not in _od_names,
+# 🔒 شاهدُ ضبطٍ **بديلٌ أدقُّ تفريقًا** (2026-08-13): القفلُ ليس إفراغًا شاملًا —
+#    `renewed` (أعاد التأهّل) و`None` (اختيارُ الأسبوع/إضافةٌ يومية) **يحجزان**،
+#    و`continues` وحدَه هو المحرَّر بنصّ ⑫-ب. (النصُّ السابق «`continues` يحجز»
+#    صار عكسَ قرار المالك ⇒ استُبدل بإقرارٍ مؤرَّخٍ لا بإرخاء.)
+check("🚪 OD2 وشاهدُ الضبط: `renewed` و`None` **يحجزان** (ليس إفراغًا شاملًا) "
+      "و`continues` وحدَه محرَّر",
+      "D" in _od_names and "A" in _od_names and "E" not in _od_names,
       f"حاملون={_od_names}")
 
 # الأثرُ المقاس على قائمة اليوم الحيّة (7 exited من 10 حاملين)
@@ -16501,6 +16517,109 @@ check("🚪 OD5 والمحمولُ يبقى في القائمة (المُلغى 
       _od_fn is not None
       and "held = {s[\"symbol\"] for s in wl[\"stocks\"]}" in _od_src,
       "‏`held` يشمل كلَّ الأسهم بلا استثناء")
+
+# ══ 🪑 فصلُ القائمتين (‏LS1-LS11) — أمرا المالك 2026-08-13 «افصل القايمتين»
+#    ثم «نفّذ ⑫-ب» · العقد `list_separation_package.md` · شاهداه `DFSC`/`BOXL`.
+#    ⚠️ العيّناتُ **مفرِّقة** عمدًا (درسُ «القفلُ لا يحرس إلّا بقدر ما تُفرِّق
+#    عيّنتُه»): لكل قفلٍ حالةٌ تُعطي جوابين مختلفين قبل التعديل وبعده.
+def _ls(sym, **kw):
+    base = {"symbol": sym, "hit": None, "cont_status": None,
+            "band_hit": True, "band_wait_days": 0,
+            "tranches": [1.00, 1.03, 1.06], "last_price": 1.00}
+    base.update(kw)
+    return base
+
+
+# LS1 — مرتفعٌ لامسٌ يتحرّر · وقائمةٌ ممتلئة به تقبل مرشّحًا جديدًا (نسخة DFSC)
+_ls_dfsc = _ls("DFSC", tranches=[1.26, 1.30, 1.34], last_price=2.40)
+check("🪑 LS1 المرتفعُ فوق نطاقه (لامسٌ) لا يحجز — والقائمةُ الممتلئة به تفتح خانة",
+      S._position_risen(_ls_dfsc) is True
+      and _od_space([_ls_dfsc] * 10, size=10) == 10,
+      f"risen={S._position_risen(_ls_dfsc)} · space={_od_space([_ls_dfsc] * 10)}")
+
+# LS2 — داخل النطاق يحجز (نسخة TIL: 7.32 مقابل سقف 7.44)
+_ls_til = _ls("TIL", tranches=[7.02, 7.23, 7.44], last_price=7.32)
+check("🪑 LS2 الداخلُ في نطاقه **يحجز**",
+      S._position_risen(_ls_til) is False and _od_space([_ls_til], size=10) == 9,
+      f"risen={S._position_risen(_ls_til)}")
+
+# LS3 — فوق النطاق **بلا لمسٍ قطّ** ⇒ يحجز (فئةُ NF8 لها مؤقّتُها ولا تُبتلَع)
+_ls_notouch = _ls("NEW", band_hit=False, band_wait_days=2, last_price=2.00)
+check("🪑 LS3 فوق النطاق **بلا لمسٍ قطّ** ⇒ يحجز (فئةُ NF8 لها مؤقّتُها)",
+      S._position_risen(_ls_notouch) is False
+      and _od_space([_ls_notouch], size=10) == 9,
+      f"risen={S._position_risen(_ls_notouch)}")
+
+# LS4 — رجع للنطاق ⇒ يحجز من جديد (إعادةُ تقييمٍ يومية · ذاتيُّ الشفاء)
+_ls_back = dict(_ls_dfsc, last_price=1.20)
+check("🪑 LS4 رجع للنطاق ⇒ **يحجز من جديد** (نفسُ السجلّ بسعرين)",
+      S._position_risen(_ls_dfsc) is True and S._position_risen(_ls_back) is False,
+      f"مرتفع={S._position_risen(_ls_dfsc)} · راجع={S._position_risen(_ls_back)}")
+
+# LS5 — ناقصُ البيانات **يحجز** (فاشل-آمن · والغائبُ لا يرتدّ إلى `entry_ref`)
+_ls_nopx = _ls("NOPX", last_price=None, entry_ref=99.0)
+_ls_notr = _ls("NOTR", tranches=[], last_price=99.0)
+check("🪑 LS5 ناقصُ البيانات (بلا سعرٍ أو بلا دفعات) **يحجز** — ولا ارتدادَ لـ`entry_ref`",
+      S._position_risen(_ls_nopx) is False and S._position_risen(_ls_notr) is False
+      and _od_space([_ls_nopx, _ls_notr], size=10) == 8,
+      f"nopx={S._position_risen(_ls_nopx)} · notr={S._position_risen(_ls_notr)}")
+
+# LS6 — الحدُّ بالضبط: السعر = أعلى دفعة ⇒ **يحجز** (المقارنة `>` الصارمة)
+_ls_edge = _ls("EDGE", tranches=[1.00, 1.03, 1.06], last_price=1.06)
+_ls_over = _ls("OVER", tranches=[1.00, 1.03, 1.06], last_price=1.0601)
+check("🪑 LS6 التخوم: السعرُ = أعلى دفعة ⇒ يحجز · وفوقها بأيّ قدرٍ ⇒ يتحرّر",
+      S._position_risen(_ls_edge) is False and S._position_risen(_ls_over) is True,
+      f"edge={S._position_risen(_ls_edge)} · over={S._position_risen(_ls_over)}")
+
+# LS7 — تكاملٌ **مشروطٌ باللمس** (صياغةٌ مصحَّحة بتدقيقٍ قبل التنفيذ): لغير
+#       اللامس التكافؤُ باطلٌ عمدًا (كلاهما False = فئةُ NF8) ⇒ يُشترَط اللمس.
+_ls_pairs = [_ls_dfsc, _ls_til, _ls_back, _ls_edge, _ls_over,
+             _ls("W1", tranches=[2.0, 2.1, 2.2], last_price=3.0),
+             _ls("W2", tranches=[2.0, 2.1, 2.2], last_price=1.5)]
+_ls_ok = all(
+    S._position_risen(x) == (not S.in_entry_band(
+        {"tranches": x["tranches"], "price": x["last_price"]}))
+    for x in _ls_pairs if (x.get("band_hit") or x.get("hit")))
+check("🪑 LS7 تكامل: للّامسِ كاملِ البيانات `_position_risen ⟺ not in_entry_band`",
+      _ls_ok and S._position_risen(_ls_notouch) is False
+      and S.in_entry_band({"tranches": _ls_notouch["tranches"],
+                           "price": _ls_notouch["last_price"]}) is False,
+      f"تكافؤ={_ls_ok} (وغيرُ اللامس: الطرفان False عمدًا)")
+
+# LS8 — سلوكيّ (عرض): المرتفعُ يطبع السطرَ الجديد ولا يطبع «خارج أفضل-»
+_ls_card = dict(_ls_dfsc, cont_status="continues", stop=1.10,
+                interp={"critical_number": {"price": 2.5}})
+_ls_sec_risen = S.build_position_watch_section([_ls_card])
+_ls_sec_in = S.build_position_watch_section([dict(_ls_til,
+                                                  cont_status="continues")])
+check("🪑 LS8 العرض: المرتفعُ «📈 فوق نطاق دخوله» بلا «خارج أفضل-» · والداخلُ بنصّه القديم",
+      "فوق نطاق دخوله" in _ls_sec_risen and "يستمر ارتكازًا" not in _ls_sec_risen
+      and "يستمر ارتكازًا" in _ls_sec_in and "فوق نطاق" not in _ls_sec_in,
+      f"مرتفع={'فوق نطاق دخوله' in _ls_sec_risen} · داخل={'يستمر ارتكازًا' in _ls_sec_in}")
+
+# LS9 — ⑫-ب: `continues` **داخل نطاقه** لا يحجز (وقائمةٌ ممتلئة به تفتح خانة)
+_ls_carry = dict(_ls_til, cont_status="continues")
+check("🪑 LS9 ⑫-ب: المحمولُ `continues` **داخل نطاقه** لا يحجز",
+      _od_space([_ls_carry] * 10, size=10) == 10,
+      f"space={_od_space([_ls_carry] * 10)}")
+
+# LS10 — حدودُ ⑫-ب: `renewed` داخل النطاق **يحجز** (المُعادُ اختيارُه لا يُبتلَع)
+_ls_renew = dict(_ls_til, cont_status="renewed")
+check("🪑 LS10 حدودُ ⑫-ب: `renewed` داخل النطاق **يحجز**",
+      _od_space([_ls_renew] * 10, size=10) == 0,
+      f"space={_od_space([_ls_renew] * 10)}")
+
+# LS11 — حدودُ ⑫-ب: `None` (اختيارُ الأسبوع/إضافةٌ يومية) **يحجز**
+check("🪑 LS11 حدودُ ⑫-ب: `cont_status=None` **يحجز**",
+      _od_space([_ls_til] * 10, size=10) == 0,
+      f"space={_od_space([_ls_til] * 10)}")
+
+# LS12 — `LOGIC_VERSION` يحمل وسمَي الدفعة (يمسّ العضوية ⇒ إعادةُ بناءٍ تلقائية)
+# 🐞 ودرسٌ تكرّر أثناء التنفيذ: أُلحق هذا القفلُ أوّلًا **بعد** سطر الملخّص
+#    فصار ميّتًا يطبع ✅ ولا يُحسب ولا يُسقط — نُقل، والعدّادُ هو الشاهد.
+check("🪑 LS12 و`LOGIC_VERSION` مرفوعٌ بوسمَي الدفعة (listsplit+rrtruth)",
+      "listsplit" in S.LOGIC_VERSION and "rrtruth" in S.LOGIC_VERSION,
+      f"LOGIC_VERSION={S.LOGIC_VERSION}")
 
 # ── 🎯 T-FAISAL-ONLY: أقفالُ أداة القياس (سلوكيّة/AST — لا نصّية) ────────────
 import catalog_envelope as _fo_ce
