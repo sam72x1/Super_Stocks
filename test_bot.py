@@ -19015,6 +19015,216 @@ check("🚦 AH9 سقوطُ شاهد الضبط ⇒ **خروج 3** لا صفر (�
       _ah_rc == [3], f"رموزُ الخروج في الفرع={_ah_rc}")
 
 
+# ═════════ 🧱🕯️ T-STABILITY (عقد `stability_prereg.md` · بلا شبكة) ════════════
+# العيبُ المقيس: «حافظ ع قاعه لمدة 3 جلسات» (`STABILITY_MIN` — `faisal_verbatim`)
+# تُحسب وتُعرَض **ولا ترفض قطّ** ⇒ رُشِّح `BBLG` و`bars_after`=صفر. والأقفالُ تحرس
+# **أن السقفَ 8 لا يُنفَّذ** و**أن الإنتاج بت-بت بلا العلم** — لأنهما موضعا الخطر.
+import wall_stack as _ws0                                        # noqa: E402
+import stability_arms as _st_arms                                 # noqa: E402
+
+
+def _st_df(closes, lows=None, vol=1e6):
+    """إطارٌ من الإغلاقات (والقيعانُ مشتقّةٌ أو صريحة) — بلا شبكة."""
+    cl = list(closes)
+    lw = list(lows) if lows is not None else [x * 0.99 for x in cl]
+    return S.pd.DataFrame(
+        {"Open": cl, "High": [x * 1.01 for x in cl], "Low": lw,
+         "Close": cl, "Volume": [vol] * len(cl)},
+        index=S.pd.date_range("2025-06-02", periods=len(cl), freq="B"))
+
+
+# 🎯 عيّنةٌ **تفريقيّة**: (أ) القاعُ آخرُ شمعة ⇒ bars_after=0 (حالةُ BBLG) ·
+#    (ب) ثبتَ أربعَ جلساتٍ فوق قاعه ⇒ held و bars_after=4.
+# 🔴 **عيّنةٌ تبلغ كتلةَ الثبات فعلًا** — ومحاولتي الأولى (خمسُ شموع) كان يرفضها
+#    جدارٌ أسبق فنجح القفلُ **تافهًا**؛ فبُنيت دورةٌ كاملة: قاعدةٌ هادئة ⟶ انفجار
+#    ⟶ انهيار ⟶ انحدارٌ رتيبٌ **قاعُه آخرُ شمعة** (‏bars_after=0 = حالةُ `BBLG`).
+#    🔒 ومُثبَتٌ سلوكيًّا في `ST6`: **الإنتاجُ يمرّرها** وكلُّ ذراعٍ ترفضها باسمها.
+_st_now = _st_df(
+    [1.0] * 60
+    + [1.0 + 3.0 * i / 11 for i in range(12)]              # انفجار ‏+300%
+    + [3.95 - 1.7 * i / 29 for i in range(30)]             # انهيار
+    + [2.20 - 0.40 * i / 14 for i in range(15)],           # انحدارٌ رتيب
+    vol=3e6)
+_st_held = _st_df([5, 4, 3, 1.2, 1.25, 1.3, 1.28, 1.32],
+                  lows=[5, 4, 3, 1, 1.005, 1.01, 1.02, 1.03])
+_ps_now = S.pivot_stability(_st_now["Low"].values.astype(float),
+                            _st_now["Close"].values.astype(float)) or {}
+_ps_held = S.pivot_stability(_st_held["Low"].values.astype(float),
+                             _st_held["Close"].values.astype(float)) or {}
+check("🧱 ST1 العيّنةُ تفريقيّة: قاعٌ في آخر شمعة ⇒ bars_after=0 · وثباتٌ ⇒ ‏≥3",
+      _ps_now.get("bars_after") == 0 and not _ps_now.get("held")
+      and _ps_held.get("bars_after", 0) >= S.CONFIG["STABILITY_MIN"]
+      and _ps_held.get("held"),
+      f"الآن={_ps_now.get('bars_after')}/{_ps_now.get('held')} · "
+      f"ثابت={_ps_held.get('bars_after')}/{_ps_held.get('held')}")
+
+check("🧱 ST2 الأرضيةُ 3 هي **نصُّ فيصل** والسقفُ 8 **رقمُنا** — والدفترُ يوسمهما كذلك",
+      "faisal_verbatim" in [ln for ln in open("FAISAL_SOURCE_LEDGER.md",
+                                              encoding="utf-8").read().splitlines()
+                            if "STABILITY_MIN" in ln][0]
+      and "engineering" in [ln for ln in open("FAISAL_SOURCE_LEDGER.md",
+                                              encoding="utf-8").read().splitlines()
+                            if "STABILITY_MAX" in ln][0],
+      "الأرضيةُ تُنفَّذ · والسقفُ لا")
+
+# 🔒 ST5 · **السقفُ ممنوعٌ في كتلة البوّابة** — قفلٌ نحويّ على مصدر `analyze_ticker`
+_st_src = _insp0.getsource(S.analyze_ticker)
+_st_blk = _st_src[_st_src.find("_st_arm"):]
+_st_blk = _st_blk[:_st_blk.find("if ps and ps[\"held\"]")]
+check("🧱 ST5 `STABILITY_MAX` **صفرُ ذِكرٍ** في كتلة البوّابة (إنفاذُه يرفض مَن ثبت "
+      "10 جلسات وهو أفضل ⇒ زيادةٌ منّا لا التزامٌ بفيصل)",
+      "STABILITY_MAX" not in _st_blk and "STABILITY_MIN" in _st_blk,
+      f"طولُ الكتلة={len(_st_blk)}")
+
+check("🧱 ST3 الأذرعُ ثلاثٌ ولا رابعة · والحاكمةُ `S2` (نصُّ فيصل كاملًا)",
+      list(_st_arms.ARMS) == ["S0", "S1", "S2"]
+      and _st_arms.ARMS["S0"] == "" and _st_arms.ARMS["S1"] == "floor"
+      and _st_arms.ARMS["S2"] == "faisal"
+      and _st_arms.JUDGE_ARM == "S2",
+      f"{_st_arms.ARMS}")
+
+check("🧱 ST4 عدّادا البوّابة لهما **خريطةُ إرخاء** في `wall_stack` (لا سببَ رفضٍ "
+      "بلا خريطة) — وإرخاؤهما بإطفاء العلم لا بتحريك الأرضية 3",
+      all(_ws0.RELAX.get(k) == ("BT_STABILITY_GATE", "")
+          for k in _st_arms.GATE_KEYS),
+      f"{[_ws0.RELAX.get(k) for k in _st_arms.GATE_KEYS]}")
+
+# 🔒 ST6 · **قفلٌ سلوكيّ حقيقيّ — يُقرأ من عدّاد الرفض لا من قيمة الإرجاع.**
+# 🐞 وثلاثُ محاولاتٍ سقطت قبل أن يصحّ: (أ) عيّنةُ خمسِ شموعٍ يرفضها جدارٌ أسبق
+#    فرجعت `None` في الحالتين ⇒ نجاحٌ **تافه** · (ب) ثم عيّنةٌ كاملة لكن سعرُها
+#    الأخير 0.46 ورفضتها بوّابةُ السعر (السويّةُ تعمل بـ`FAISAL_ONLY=0` فحدُّها 1.5)
+#    · (ج) ثم **حدُّ النواقص (‏3)** يرفض عند السطر ‏≈3000 و**كتلةُ الثبات عند
+#    ‏≈3087** ⇒ الكتلةُ **غيرُ مبلوغة والقفلُ يحرس لا شيء**.
+# ⇒ العلاجُ درسُ `HCG7b`: **يُجبَر الفرعُ** برفع `WATCH_MAX_FAILS` مؤقّتًا (لا
+#    بتحريك الأرضية 3 ولا بلمسِ عتبةِ ثبات) والاستعادةُ في `finally`.
+# 🎯 **والقفلُ تفريقيّ:** بلا العلم يبلغ السهمُ **ما بعد** كتلة الثبات فيُرفَض
+#    برفضٍ **آخرَ مُسمًّى** (‏`بعيد_عن_الدخول`) — وهو الذي يُثبت أنها مبلوغة —
+#    ومع كلّ ذراعٍ يُرفَض **باسمها هي**. ⇒ حذفُ الكتلة يُعيد الثلاثةَ إلى الرفض
+#    الآخر فيسقط القفل.
+_st_keep = S.CONFIG.get("BT_STABILITY_GATE")
+_st_keep_wmf = S.CONFIG.get("WATCH_MAX_FAILS")
+_st_seen, _st_all = {}, {}
+try:
+    S.CONFIG["WATCH_MAX_FAILS"] = 20
+    for _arm, _val in (("off", ""), ("floor", "floor"), ("faisal", "faisal")):
+        S.CONFIG["BT_STABILITY_GATE"] = _val
+        S._REJECT_STATS.clear()
+        S.analyze_ticker("STAB", _st_now)
+        _st_all[_arm] = set(S._REJECT_STATS)
+        _st_seen[_arm] = {k for k in S._REJECT_STATS if k in _st_arms.GATE_KEYS}
+finally:
+    S.CONFIG["BT_STABILITY_GATE"] = _st_keep
+    S.CONFIG["WATCH_MAX_FAILS"] = _st_keep_wmf
+    S._REJECT_STATS.clear()
+check("🧱 ST6 قفلٌ **سلوكيّ تفريقيّ**: بلا العلم **صفرُ رفضٍ باسم الثبات** والسهمُ "
+      "يبلغ ما بعد الكتلة (فهي مبلوغةٌ فعلًا) · ومع كلّ ذراعٍ **يُرفَض باسمها هي** "
+      "(فالعلمُ يعمل والإنتاجُ بت-بت)",
+      _st_seen.get("off") == set()
+      and _st_all.get("off") not in (None, set())
+      and _st_seen.get("floor") == {"M_ثبات_تحت_الأرضية"}
+      and _st_seen.get("faisal") == {"M_ثبات_لم_يكتمل"},
+      f"أسبابٌ كاملة={_st_all}")
+
+check("🧱 ST7 كلُّ مدخلٍ في `stability.yml` موصولٌ ببيئةٍ يقرؤها السكربت "
+      "(لا مدخلَ ميّت — بصمةُ `BT_CANDLE`)",
+      (lambda y, src: all(
+          ("${{ github.event.inputs." + k + " }}") in y
+          for k in ("year", "frozen_run_id", "probe_syms"))
+       and "STAB_PROBE_SYMS" in src)(
+          open(".github/workflows/stability.yml", encoding="utf-8").read(),
+          open("stability_arms.py", encoding="utf-8").read()))
+
+check("🧱 ST8 `child_env` يرفع أعلامَ الباكتيست الأربعة (‏V4 — بلاها `d50`=None "
+      "و«‏+0» يُقرأ «لا فرق»)",
+      set(_st_arms.child_env()) == {"SCREENER_MODE", "BT_REPLAY10",
+                                    "BT_ENVVALS", "BT_POTENTIAL"},
+      f"{sorted(_st_arms.child_env())}")
+
+check("🧱 ST9 بوّابةُ الصلاحية **تسقط** على no-op (عدّادٌ لا يشتعل) وتعبر بالمتدرّج",
+      (lambda mk: (not _st_arms.validity(mk(0, 0, 0), {"S0": 0, "S1": 0, "S2": 0},
+                                         "2025")[0])
+       and _st_arms.validity(mk(9, 7, 5), {"S0": 0, "S1": 40, "S2": 60},
+                             "2025")[0])(
+          lambda a, b, c: {"S0": {"gate": "", "signals": 100, "taken": 15,
+                                  "d50": a, "d100": 1, "per_trade": 0.0,
+                                  "win_rate": 20.0},
+                           "S1": {"gate": "floor", "signals": 80, "taken": 15,
+                                  "d50": b, "d100": 1, "per_trade": 0.0,
+                                  "win_rate": 20.0},
+                           "S2": {"gate": "faisal", "signals": 60, "taken": 15,
+                                  "d50": c, "d100": 1, "per_trade": 0.0,
+                                  "win_rate": 20.0}}),
+      "S0=0 شرطٌ لازم · وS1>0 · وS2≥S1")
+
+# 🔒 ST10 · **`V3` ثلاثيّةُ الحالة: تُعلَن ولا تُسقط** — والمِرساةُ عند **سعة 15**
+# 🔴 وهو تصحيحٌ لعيبٍ في أداتي: كتبتُ في التسجيل «يُعلَن» ثم أنفذتُه **مُسقِطًا**،
+#    ومِرساتُه كانت أرقامَ سعة 10 (‏25/18/10) والحيّةُ 15 ⇒ فحصٌ **مؤجَّلٌ دائمًا**
+#    أي حارسٌ لا يفحص شيئًا. صار أرقامَ `base475_result.md §①` (‏25/26/15) فينفُذ.
+# 🎯 والقفلُ **تفريقيّ بثلاث حالات**: مطابقٌ ⇒ ✅ · خارقٌ ⇒ ℹ️ **ولا يُسقط** ·
+#    وعدّادٌ لا يشتعل ⇒ ⛔ **يُسقط** — فيستحيل أن تُقرأ حالةٌ مكان أخرى.
+_st_mk = (lambda a: {  # noqa: E731
+    "S0": {"gate": "", "signals": 100, "taken": 15, "d50": a, "d100": 1,
+           "per_trade": 0.0, "win_rate": 20.0},
+    "S1": {"gate": "floor", "signals": 80, "taken": 15, "d50": 7, "d100": 1,
+           "per_trade": 0.0, "win_rate": 20.0},
+    "S2": {"gate": "faisal", "signals": 60, "taken": 15, "d50": 5, "d100": 1,
+           "per_trade": 0.0, "win_rate": 20.0}})
+_st_hit = {"S0": 0, "S1": 40, "S2": 60}
+# تُحسَب **مسبقًا** (لا lambda تُغلق على عالميٍّ يُحذَف لاحقًا) — والمفتاحُ (سنة، d50)
+_st_v3 = {}
+_st_okg = {}
+for _y, _a in (("2025", 26), ("2025", 99), ("2023", 26)):
+    _ok0, _ln0 = _st_arms.validity(_st_mk(_a), _st_hit, _y)
+    _st_v3[(_y, _a)] = [g for t, g, _ in _ln0 if t == "V3"]
+    _st_okg[(_y, _a)] = _ok0
+check("🧱 ST10 `V3` **تُعلَن ولا تُسقط** (‏None) · والمِرساةُ 2025=26 عند سعة 15: "
+      "مطابقٌ ⇒ True · خارقٌ ⇒ None **والبوّابةُ تعبر** · وسنةٌ غير مرجعية ⇒ None",
+      _st_arms.PUB_CAP == _st_arms._live_capacity()
+      and _st_arms.INTEGRITY["S0"] == {"2024": 25, "2025": 26, "2026": 15}
+      and _st_v3[("2025", 26)] == [True]
+      and _st_v3[("2025", 99)] == [None]
+      and _st_v3[("2023", 26)] == [None]
+      and _st_okg[("2025", 99)] is True
+      and _st_okg[("2023", 26)] is True
+      and _st_arms.validity(_st_mk(26), {"S0": 0, "S1": 0, "S2": 0},
+                            "2025")[0] is False
+      and _st_arms._mark(None) == "ℹ️" and _st_arms._mark(True) == "✅"
+      and _st_arms._mark(False) == "⛔",
+      f"سعة={_st_arms.PUB_CAP} · مِرساة={_st_arms.INTEGRITY['S0']}")
+# 🔒 ST11 · **خروج 4 على لقطةٍ مفقودة — منفَّذٌ لا موعود** (درسُ `envelope_prereg §⑦`:
+#    حارسٌ مكتوبٌ في التسجيل وغيرُ منفَّذٍ في الكود **ليس حارسًا — هو نيّة**).
+# 🔴 والخطرُ حقيقيّ: بلا اللقطة يمضي الباكتيست على **كون اليوم** ⇒ مجتمعٌ آخر
+#    ومِرساةُ `V3` بلا معنًى — **بصمت**. والقفلُ **تفريقيّ**: مسارٌ مفقودٌ ⇒ 4 ·
+#    ومسارٌ موجودٌ **لا** يُرجع 4 (وإلّا صار حارسًا يمنع الصحيح = قفلٌ مكسور).
+_st_env0 = _os.environ.get("BT_FROZEN_PATH")
+_st_fz = {}
+try:
+    for _k, _v in (("مفقود", "/nonexistent/frozen_backtest.pkl.gz"),
+                   ("موجود", "test_bot.py"), ("غيرُ مضبوط", None)):
+        if _v is None:
+            _os.environ.pop("BT_FROZEN_PATH", None)
+        else:
+            _os.environ["BT_FROZEN_PATH"] = _v
+        _st_fz[_k] = _st_arms.frozen_missing()
+finally:
+    if _st_env0 is None:
+        _os.environ.pop("BT_FROZEN_PATH", None)
+    else:
+        _os.environ["BT_FROZEN_PATH"] = _st_env0
+check("🧱 ST11 حارسُ اللقطة **منفَّذٌ لا موعود** وتفريقيّ: المفقودُ يُوقِف (خروج 4 "
+      "في `run_parent`) · **والموجودُ وغيرُ المضبوط لا يُوقِفان** (حارسٌ يمنع "
+      "الصحيحَ = قفلٌ مكسور) · و`4` مذكورٌ في `stability_prereg.md §⑩`",
+      _st_fz.get("مفقود") == "/nonexistent/frozen_backtest.pkl.gz"
+      and _st_fz.get("موجود") == "" and _st_fz.get("غيرُ مضبوط") == ""
+      and "return 4" in _insp0.getsource(_st_arms.run_parent)
+      and "frozen_missing()" in _insp0.getsource(_st_arms.run_parent)
+      and "**‏4** = لقطةٌ مفقودة" in open("stability_prereg.md",
+                                          encoding="utf-8").read(),
+      f"{_st_fz}")
+
+del _st_now, _st_held, _ps_now, _ps_held, _st_mk, _st_hit, _st_v3, _st_okg
+
+
 # ═════════ 🌙📏 T-AH-YEAR (عقد `ah_year_prereg.md` · بلا شبكة) ═════════════════
 # العيبُ الذي وُلدت منه: `ah_guard` يقرأ **آخرَ** إغلاقِ افترٍ (`extended_last_price`)
 # و`T-AH` قاس **القمّة** ⇒ رقمُه سقفٌ أعلى لا معدَّلُ الحارس. فالأقفالُ تحرس

@@ -356,6 +356,11 @@ CONFIG = {
     # جلسات، بوّابة D4) + ساق اختبار المقاومة + ساق الرجوع + المسح + الاستعادة ≈ 25.
     # وهو حالةُ آخر الشموع (‏25) مقابل سجلّ `behavior_rise_profile` (‏~800) = 32× أقصر.
     "CANDLE_WIN_BARS": 25,
+    # 🧱🕯️ T-STABILITY (`stability_prereg.md` · أمرُ المالك «سجّل الثبات وقِسه»):
+    #    "" = الإنتاج (يُحسب ولا يرفض) · "floor" = يرفض إن `bars_after < STABILITY_MIN`
+    #    · "faisal" = نصُّه كاملًا (`held` **و** ‏≥3 جلسات). ⛔ ولا ذراعَ للسقف 8
+    #    (‏`engineering` — إنفاذُه يرفض مَن ثبت 10 جلسات وهو أفضل). مقفول ST5.
+    "BT_STABILITY_GATE": "",
     "BT_LIBERATION": 0,                   # 1 = فعّل ذراعَي التحرر (L1 أقرب حاجز · L2 أعلى مقاومة)
     "BT_LIB_WAIT": 20,                    # نافذة انتظار الكسر بالجلسات (مُثبَّتة بالتسجيل المسبق)
     "BT_SWEEP_ENTRY": 0,                  # 1 = دخول بعد مسح+استعادة (بدل التعبئة الفورية)
@@ -659,6 +664,8 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_WATCH_MAX_FAILS", "WATCH_MAX_FAILS", int),
             # 🔬 تجربة الدخول المؤكَّد بالمسح (T1) — باكتيست حصريًا، منفصلة الدخول/الوقف
             ("BT_LIBERATION", "BT_LIBERATION", int),       # 🔓 T-LIBERATION
+            # 🧱🕯️ T-STABILITY — **نصّ** لا عدد (الذراعُ اسمُها لا رقمُها)
+            ("BT_STABILITY_GATE", "BT_STABILITY_GATE", str),
             ("BT_LIB_WAIT", "BT_LIB_WAIT", int),
             # 🕯️ T-CANDLE (`candle_readiness_prereg.md`) — **كان غائبًا من هذا الجدول**
             # بينما `backtest.yml` يمرّره في البيئة ⇒ لا يصل CONFIG أبدًا ⇒ التشغيلة
@@ -3069,6 +3076,22 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             flags.append(f"معيد إجرام ({n_spikes} انفجارات)")
 
         ps = pivot_stability(low.values.astype(float), c)
+        # 🧱🕯️ **T-STABILITY** (‏`stability_prereg.md` · أمرُ المالك 2026-08-13 «سجّل
+        #    الثبات وقِسه» بعد مسكة `BBLG`): علمُ **باكتيستٍ مطفأٌ افتراضيًّا** ⇒ بلاه
+        #    المُخرَجُ **بت-بت** (مقفولٌ سلوكيًّا `ST6`). العيبُ المقيس: قاعدةُ فيصل
+        #    «حافظ ع قاعه لمدة 3 جلسات» (`STABILITY_MIN` — `faisal_verbatim`) **تُحسب
+        #    وتُعرَض ولا ترفض قطّ**، فرُشِّح `BBLG` و`bars_after`=صفر (يومَ صنع قاعَه).
+        # ⛔ **و`STABILITY_MAX` ممنوعٌ هنا قطعًا** (‏`engineering` — نطاقُه المنقول 3-5
+        #    والسقفُ 8 سماحيتُنا): إنفاذُه يرفض مَن ثبت 10 جلسات وهو **أفضل** ⇒ زيادةٌ
+        #    منّا لا التزامٌ بفيصل. مقفولٌ `ST5`.
+        _st_arm = str(CONFIG.get("BT_STABILITY_GATE") or "")
+        if _st_arm and ps:
+            _sb = int(ps["bars_after"])
+            if _st_arm == "floor" and _sb < CONFIG["STABILITY_MIN"]:
+                return _reject("M_ثبات_تحت_الأرضية")
+            if _st_arm == "faisal" and not (ps["held"]
+                                            and _sb >= CONFIG["STABILITY_MIN"]):
+                return _reject("M_ثبات_لم_يكتمل")
         if ps and ps["held"]:
             score += 15           # الثبات يرفع النقاط (مكوّن، لا قرار جاهزية)
             flags.append(f"ثبات {ps['bars_after']} جلسات فوق القاع")
