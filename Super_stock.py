@@ -3535,6 +3535,21 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         risk = max(entry_ref - stop_lo, 1e-9)
         rr = (t1 - entry_ref) / risk
         rr2 = (t2 - entry_ref) / risk
+        # 🎯 صدقُ RR (أمر المالك 2026-08-13 «نفّذ أ» — `entry_points_audit.md §③-1`):
+        #    فوق نطاق الدفعات **لا تعبئةَ اليوم عند المتوسط** (أوامرُ حدٍّ تحت
+        #    السوق) ⇒ العائدُ القابل للتنفيذ يُقاس من السعر الحالي. والمقيسُ حيًّا:
+        #    ‏88% من التنبيهات سُعِّرت فوق نطاقها (وسيط +13.6%) فكان المخطَّط 2.26R
+        #    والمتتبَّع 0.76R. **داخل النطاق ⇒ بت-بت** (لا سطرَ يتغيّر)، وفوقه
+        #    `price > entry_ref` دائمًا ⇒ البسطُ أصغر والمخاطرةُ أكبر ⇒ **تشديدٌ
+        #    رتيبٌ لا يرفع `rr` أبدًا** (قفل `ET4`). والمقارنة `>` الصارمة:
+        #    المساوي للسقف داخلَ النطاق. و`entry_ref` المحلّيّ **لا يُمَسّ**
+        #    (يبقى متوسطَ الدفعات للعرض والتتبّع — قرارُ المالك 2026-06-24).
+        _band_top = max(tranches) * (1 + CONFIG.get(
+            "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
+        if price > _band_top:
+            _risk_now = max(price - stop_lo, 1e-9)
+            rr = (t1 - price) / _risk_now
+            rr2 = (t2 - price) / _risk_now
         # v2.7: ضعف RR = نقص (ينقل لقائمة B المراقبة) بدل الرفض النهائي —
         # متوافق مع قرار «ما نطلع صفر». لو تجاوز مجموع النواقص الحد → يُرفض.
         if rr < CONFIG["MIN_RR_T1"]:
@@ -5006,9 +5021,17 @@ def enrich(results: list) -> None:
                         r["t1"], r["t2"], r["t3"], r["price"], r["h4_levels"])
                     # حدّث rr2 بعد تنقيح t2 (يُكتب في CSV الأسبوعي) — من متوسط
                     # الدفعات نفسه، فلا يتعارض مع t2 الجديد (t1/rr مقفولان).
+                    # 🎯 صدقُ RR — أ-1-ب (2026-08-13): فوق نطاق الدفعات يُقاس
+                    #    من السعر الحالي **كما في `analyze_ticker`** وإلّا حمل
+                    #    الصفُّ الواحد مقياسين (`rr` صادقٌ و`rr2` مخطَّط) —
+                    #    وهو يُصدَّر في CSV المشرف. داخل النطاق ⇒ بت-بت.
                     try:
                         _er = sum(r["tranches"]) / len(r["tranches"])
-                        r["rr2"] = (r["t2"] - _er) / max(_er - r["stop"][0], 1e-9)
+                        _bt = max(r["tranches"]) * (1 + CONFIG.get(
+                            "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
+                        _ref2 = (r["price"] if r["price"] > _bt else _er)
+                        r["rr2"] = (r["t2"] - _ref2) / max(
+                            _ref2 - r["stop"][0], 1e-9)
                     except Exception:
                         pass
                     r["h4_confirm"] = h4_confirm_score(r)
@@ -8714,8 +8737,12 @@ def build_message(results: list, splits: list,
         # ===== مجموعة الدخول / الدعم / الوقف =====
         lines.append("")
         _trs = r.get("tranches") or [r["entry"][0], r["entry"][1]]
-        lines.append("📥 الشراء (دفعات): "
-                     + " · ".join(f"${p:.2f}" for p in _trs))
+        # ⏳ لا نقاطَ ميتة (أ-2، 2026-08-13): السعرُ فوق نطاق الدفعات ⇒ أوامرُ
+        #    الحدّ **لا تُعبَّأ اليوم** فطباعتُها «نقاطَ دخولٍ» كذبةٌ عملية.
+        #    والدفعاتُ تبقى مخزَّنةً كما هي (يقرؤها `in_entry_band`/NF8/الفصل).
+        #    ناقصُ البيانات ⇒ السلوكُ القديم حرفيًّا («سطرُ عرضٍ بلا حقلٍ = كذبة»).
+        lines.append(_entry_line_or_wait(_trs, r.get("price"),
+                                         "📥 الشراء (دفعات): "))
         kl = r.get("key_levels") or {}
         pivot = r.get("pivot")
         sup_major = kl.get("sup_major") or pivot
@@ -10953,6 +10980,30 @@ def _nf8_slot_free(s: dict) -> bool:
             CONFIG.get("SLOT_UNFILLED_FREE_SESSIONS", 8))
     except (TypeError, ValueError):
         return False
+
+
+def _entry_line_or_wait(tranches, price, prefix: str) -> str:
+    """⏳ سطرُ الدخول الصادق (أ-2، أمر المالك 2026-08-13 «نفّذ ١»): ما دام السعرُ
+    **فوق نطاق الدفعات** فأوامرُ الحدّ تحته **لا تُعبَّأ اليوم** ⇒ طباعتُها
+    «نقاطَ دخولٍ» كذبةٌ عملية (المقيس حيًّا: ‏88% من التنبيهات فوق نطاقها) ⇒
+    يُطبَع بدلها **ما يجب فعلُه**: انتظارُ رجوعه للنطاق بحدَّيه.
+    دالّةٌ نقيّة · **فاشلة-آمنة**: بيانات ناقصة/تالفة ⇒ السطرُ القديم حرفيًّا
+    (لا يُدَّعى «فوق النطاق» بلا دليل — «سطرُ عرضٍ بلا حقلٍ = كذبة»).
+    والعتبةُ عتبةُ `in_entry_band` نفسُها — صفرُ رقمٍ جديد."""
+    try:
+        tr = [float(t) for t in (tranches or []) if t]
+        body = " · ".join(f"${p:.2f}" for p in tr)
+        px = float(price or 0)
+        if tr and px > 0:
+            top = max(tr) * (1 + float(
+                CONFIG.get("ENTRY_READY_BAND_TOL_PCT", 0.0)) / 100.0)
+            if px > top:
+                return (f"⏳ فوق نطاق الدخول — انتظر رجوعه للنطاق "
+                        f"${min(tr):.2f}–${max(tr):.2f} "
+                        f"(الطلبات تُعبَّأ داخله فقط)")
+        return prefix + body
+    except (TypeError, ValueError):
+        return prefix + " · ".join(str(p) for p in (tranches or []))
 
 
 def _position_risen(s: dict) -> bool:
@@ -13831,7 +13882,9 @@ def build_daily_message(wl: dict, splits: list,
             round(s["pivot"] * (1 + CONFIG["ENTRY_STEP_PCT"] / 100.0 * j), 2)
             for j in range(int(CONFIG["ENTRY_TRANCHES"]))]
         stop = s["stop"]
-        lines.append("   📥 دخول: " + " · ".join(f"${p:.2f}" for p in trs)
+        # ⏳ لا نقاطَ ميتة (أ-2) — نفسُ القاعدة في المسار اليومي (الوقفُ يبقى دائمًا)
+        lines.append("   " + _entry_line_or_wait(trs, s.get("last_price"),
+                                                 "📥 دخول: ")
                      + f"  ·  ⛔ وقف خسارة ${stop:.2f}")
         # الأهداف الثلاثة (أسعار فقط — بلا نسبة، تفاديًا لتشوّش ٪ في العربي RTL)
         # + وسم «معلّق» للهدف خلف حاجز غير مكسور (طبقة التفسير §9 — عرض فقط)

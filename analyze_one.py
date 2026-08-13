@@ -596,6 +596,14 @@ def analyze_on_demand(sym: str):
     risk = max(entry_ref - stop_lo, 1e-9)
     rr = (t1 - entry_ref) / risk
     rr2 = (t2 - entry_ref) / risk
+    # 🎯 صدقُ RR — **مرآةُ `analyze_ticker` حرفيًّا** (أ-1، 2026-08-13): فوق نطاق
+    #    الدفعات يُقاس العائدُ من السعر الحالي. **إلزاميّةٌ لا اختيارية**: بدونها
+    #    ينكسر قفلُ «الفحص اليدوي = الأساسي (RR بالضبط)». داخل النطاق ⇒ بت-بت.
+    _band_top = max(tranches) * (1 + C.get("ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
+    if price > _band_top:
+        _risk_now = max(price - stop_lo, 1e-9)
+        rr = (t1 - price) / _risk_now
+        rr2 = (t2 - price) / _risk_now
     if rr < C["MIN_RR_T1"]:
         warnings.append(f"العائد مقابل المخاطرة منخفض ({rr:.1f}× — "
                         f"المطلوب {C['MIN_RR_T1']:.1f}× على الأقل)")

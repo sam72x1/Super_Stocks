@@ -337,11 +337,19 @@ if _tg:
           _t3 <= max(_cyc * 1.05, 2 * _tg["price"]) + 1e-6, f"t3={_t3} cyc={_cyc:.1f}")
     # 🔒 قفل العضوية: RR يُشتقّ من t1 حصرًا (t1 محفوظ byte-identical فـRR/النواقص/التصنيف
     # بلا تغيير) — نعيد بناء rr من t1/الدفعات/الوقف ونطابقه المخزَّن.
+    # 🎯 **تحديثٌ مؤرَّخ 2026-08-13 (أ-1 «صدقُ RR» — تخويلُ `§أ-4`):** المرجعُ صار
+    #    ثنائيَّ الفرع بنصّ الإصلاح — **داخل النطاق** متوسطُ الدفعات (كما كان
+    #    حرفيًّا) · **وفوقه** السعرُ الحالي (لأن أوامرَ الحدّ لا تُعبَّأ). والقفلُ
+    #    يبقى على غرضه: `rr` مُشتقٌّ من `t1` حصرًا بمرجعٍ **مُعلَنٍ** لا مخترَع.
     _eref = round(sum(_tg["tranches"]) / len(_tg["tranches"]), 4)
-    _rr_from_t1 = (_t1 - _eref) / max(_eref - _tg["stop"][0], 1e-9)
+    _btop = max(_tg["tranches"]) * (1 + S.CONFIG.get(
+        "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
+    _ref_used = _tg["price"] if _tg["price"] > _btop else _eref
+    _rr_from_t1 = (_t1 - _ref_used) / max(_ref_used - _tg["stop"][0], 1e-9)
     check("rr مُشتقّ من t1 حصرًا (العضوية byte-identical)",
           abs(_tg["rr"] - _rr_from_t1) < 1e-6 and _t1 > _tg["price"],
-          f"t1={_t1} rr={_tg['rr']:.4f} من_t1={_rr_from_t1:.4f}")
+          f"t1={_t1} rr={_tg['rr']:.4f} من_t1={_rr_from_t1:.4f} "
+          f"مرجع={'السعر (فوق النطاق)' if _ref_used == _tg['price'] else 'المتوسط'}")
     # 🎨 ألوان فيصل (2026-07-20، «ابي الثنتين و توضح»): كل هدف موسوم ⚫/🔵
     _tk = _tg.get("targets_kind")
     check("🎨 targets_kind = 3 وسوم (⚫ مقاومة / 🔵 نظيف)",
@@ -385,8 +393,15 @@ check("كتلة الأهداف لا تمسّ t1/rr/soft_fails/العضوية (t2
 # `t1=round(t1*1.30,2)` داخل الكتلة (ومرآتها بـanalyze_one) يضخّم rr من 1.7809 إلى
 # 5.4032 — و`rr` يحكم العضوية عبر `MIN_RR_T1` — **ومرّ على السويّة كاملةً 1261/0**.
 # القيم مقيسة على الشجرة النقيّة؛ أي انزياح في جذر الاختيار = فشل صريح.
+# 🎯🔴 **إعادةُ تثبيتٍ مؤرَّخة 2026-08-13** (أ-1 «صدقُ RR» — أمرُ المالك «نفّذ ١» ·
+#    تخويلٌ مسمًّى في `entry_truth_package.md §أ-4`): سعرُ هذي البذرة **‏3.6 وسقفُ
+#    دفعاتها 3.5** ⇒ **فوق النطاق** ⇒ العائدُ يُقاس من السعر الحالي لا من متوسطٍ
+#    لا تُعبَّأ عنده الطلبات. **القيمةُ القديمة 1.7809 (من المتوسط) · والجديدةُ
+#    المقيسة على الشجرة بعد التعديل 0.7341** — والفرقُ **هو** المقصود بالإصلاح
+#    (المخطَّط 2.26R مقابل المتتبَّع 0.76R حيًّا). وبقيّةُ المثبَّتات **بت-بت**
+#    (‏t1 · الدفعات · القاع · الوقف) ⇒ القفلُ ما زال يمسك أيَّ انزياحٍ في الجذر.
 check("🔒 جذر: t1/rr/الوقف/الدفعات مثبَّتة للبذرة 2 (أي انزياح = فشل)",
-      r0["t1"] == 3.99 and round(r0["rr"], 4) == 1.7809
+      r0["t1"] == 3.99 and round(r0["rr"], 4) == 0.7341
       and r0["tranches"] == [3.3, 3.4, 3.5]
       and round(r0["pivot"], 6) == 3.299692
       and tuple(round(_s, 4) for _s in r0["stop"]) == (3.0687, 3.1347),
@@ -1410,12 +1425,32 @@ try:
     for s in wl["stocks"]:
         s["readiness"] = 80
         s["have"], s["partial"], s["missing"] = [], [], []
+        # 🎯 **قاعدةُ الشلّال (2026-08-13، أ-2 · تخويلُ `§أ-4`):** غرضُ هذي
+        #    الفكستشر أن يُصيَّر **سطرُ الدخول** — لا اختبارُ موقع السعر. وبعد
+        #    «لا نقاطَ ميتة» صار الفوقُ يطبع ⏳ ⇒ يُنقَل السعرُ **داخل النطاق**
+        #    فيُصان غرضُ الاختبار الأصليّ (والفرعُ الآخر يقفله `ET5د` أدناه).
+        if s.get("tranches"):
+            s["last_price"] = min(s["tranches"])
     dm = S.build_daily_message(wl, [], [], [])
+    # 🔒 `ET5د` — الفرعُ الآخر بعيّنةٍ **مفرِّقة**: نفسُ السجلّ بسعرٍ فوق النطاق
+    #    ⇒ يطبع ⏳ ولا يطبع «📥 دخول:» (وإلّا صار القفلُ أعمى عن نصف السلوك).
+    _dm_above = None
+    if wl["stocks"] and wl["stocks"][0].get("tranches"):
+        _sa = dict(wl["stocks"][0])
+        _sa["last_price"] = max(_sa["tranches"]) * 1.20
+        _dm_above = S.build_daily_message(
+            {"week_start": "2024-01-01", "stocks": [_sa],
+             "removed": [], "notes": []}, [], [], [])
     check("build_daily_message يعمل", isinstance(dm, str) and len(dm) > 0)
     check("سجل القائمة يحفظ tier",
           all("tier" in s for s in wl["stocks"]))
     check("التقرير اليومي: سطر الدخول + وقف خسارة",
           "📥 دخول:" in dm and "وقف خسارة" in dm)
+    check("🎯 ET5د اليومي فوق النطاق: ⏳ بدل النقاط الميتة — والوقفُ يبقى",
+          _dm_above is None
+          or ("فوق نطاق الدخول" in _dm_above and "📥 دخول:" not in _dm_above
+              and "وقف خسارة" in _dm_above),
+          "عيّنةٌ مفرِّقة (نفسُ السجلّ بسعرٍ أعلى)")
     check("التقرير اليومي يعرض أهداف (أسعار بلا نسبة)",
           "🎯 أهداف" in dm)
     check("التقرير اليومي يعرض الجاهزية + القوة العامة",
@@ -2484,7 +2519,15 @@ def _g6_walk_frame(seed=0, si=242, span=7, mult=10.0, fwd=45):
 
 # --- (ج) 🔒 القفل الحاسم: مطفأ ⇒ **قاموس الصفقة كاملًا** بت-بت (نمط BT_LIBERATION) ---
 _g6wdf, _g6wctx = _g6_walk_frame()
+# 🎯 **عزلُ بوّابة `rr` (تحديثٌ مؤرَّخ 2026-08-13 — أ-1 · قاعدةُ الشلّال `§أ-4`):**
+#    غرضُ هذي الكتلة قياسُ **بوّابة M4** لا العائد؛ وبعد «صدقِ RR» صار سعرُ ذيل
+#    الفكستشر (صعودٌ +35%) فوقَ نطاق دفعاته ⇒ الإشارةُ **المميِّزة** التي يضيفها
+#    الذراعُ تسقط على `MIN_RR_T1` فيتساوى الطرفان (‏1=1) **ويصير القفلُ أعمى عن
+#    الفرق الذي يقوم عليه**. ⇒ تُعزَل بوّابةُ `rr` أثناء المشي وحدَه (‏`try/finally`
+#    يُعيدها) فيقيس القفلُ **M4 خالصةً**: مطفأ 1 · مفعّل 2 ⇒ يفترقان فعلًا.
+_g6_rr_old = S.CONFIG["MIN_RR_T1"]
 try:
+    S.CONFIG["MIN_RR_T1"] = 0.0
     S._BT_SPLITS_CTX = _g6wctx
     _g6_t_off_ctx = S.backtest_symbol("G6W", _g6wdf)      # مطفأ + سياق
     S._BT_SPLITS_CTX = None
@@ -2493,6 +2536,7 @@ try:
     _g6_t_on = S.backtest_symbol("G6W", _g6wdf)           # مفعّل + سياق
 finally:
     S.CONFIG["BT_M4_POST_SPLIT"] = 0; S._BT_SPLITS_CTX = None
+    S.CONFIG["MIN_RR_T1"] = _g6_rr_old
 _g6k = (lambda t: {k: v for k, v in t.items() if k != "symbol"})
 check("🚪 G6·🔒 مطفأ ⇒ قاموس الصفقة كاملًا بت-بت (السياق لا يغيّر حرفًا)",
       len(_g6_t_off_ctx) == len(_g6_t_off) >= 1
@@ -7369,9 +7413,16 @@ for sd in range(6):
 check("دفعات الدخول: عند الدعم وصعوداً بخطوة ثابتة (أسلوب فيصل)", _entry_ok)
 check(f"③ حارس الدفعات فُحص كاملًا ({_entry_seen}/18)", _entry_seen == 18)
 
-# (ي) العائد/المخاطرة يُحسب من **متوسط الدفعات** (فيصل يمتّع) لا السعر الحالي
+# (ي) العائد/المخاطرة — 🎯 **دلالةٌ مقلوبةٌ بتحديثٍ مؤرَّخ 2026-08-13** (أ-1 «صدقُ
+#     RR» · أمرُ المالك «نفّذ ١» · تخويلُ `entry_truth_package.md §أ-4`): كان القفلُ
+#     يقول «من المتوسط **لا** السعر الحالي» — وصار الحكمُ **بموقع السعر**:
+#     **داخل النطاق ⇒ من متوسط الدفعات** (فيصل يمتّع — بت-بت كما كان) ·
+#     **فوق النطاق ⇒ من السعر الحالي** (أوامرُ الحدّ تحته لا تُعبَّأ اليوم).
+#     ⚠️ والفرعان **يُفحَصان معًا** (شاهدُ ضبطٍ داخليّ) وإلّا صار القفلُ أعمى عن
+#     أحدهما — ويُشترَط أن تحضر الحالتان في العيّنة.
 _rr_ok = True
 _rr_seen = 0                                     # ③ تحصين: ضمانة تنفيذ فعلي
+_rr_modes = set()
 for sd in range(6):
     _rt = S.analyze_ticker("RR", synth_pivot(seed=sd))
     if _rt is None:
@@ -7379,11 +7430,18 @@ for sd in range(6):
     _rr_seen += 1
     _avg = sum(_rt["tranches"]) / len(_rt["tranches"])
     _slo, _t1 = _rt["stop"][0], _rt["t1"]
-    _expected = (_t1 - _avg) / max(_avg - _slo, 1e-9)
+    _bt = max(_rt["tranches"]) * (1 + S.CONFIG.get(
+        "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
+    _above = _rt["price"] > _bt
+    _rr_modes.add("فوق" if _above else "داخل")
+    _ref = _rt["price"] if _above else _avg
+    _expected = (_t1 - _ref) / max(_ref - _slo, 1e-9)
     if abs(_rt["rr"] - _expected) > 0.05:
         _rr_ok = False
-        print(f"   ✗ بذرة {sd}: rr={_rt['rr']:.2f} متوقع {_expected:.2f}")
-check("RR من متوسط الدفعات لا السعر الحالي", _rr_ok)
+        print(f"   ✗ بذرة {sd}: rr={_rt['rr']:.2f} متوقع {_expected:.2f} "
+              f"({'فوق النطاق' if _above else 'داخل النطاق'})")
+check("RR بموقع السعر: داخل النطاق من متوسط الدفعات · فوقه من السعر الحالي",
+      _rr_ok, f"الأوضاع المفحوصة={sorted(_rr_modes)}")
 check(f"③ حارس RR فُحص كاملًا ({_rr_seen}/6)", _rr_seen == 6)
 
 # (ل) فحص أخبار الخطر الآلي: يمسك الطرح/التخفيف/التقسيم/الشطب من العناوين
@@ -10201,8 +10259,13 @@ for _sd in range(12):
             _bad(f"أهداف غير تصاعدية {_t1}/{_t2}/{_t3}")
         if _t1 < _px * _min_gain - 0.02:
             _bad(f"t1 قريب جدًا {_t1} < {_px*_min_gain:.2f}")
-        # (5) صيغة RR من متوسط الدفعات (تعبئة فيصل الفعلية)
-        _exp_rr = (_t1 - _eavg) / max(_eavg - _slo, 1e-9)
+        # (5) صيغة RR بموقع السعر — 🎯 **تحديثٌ مؤرَّخ 2026-08-13** (أ-1 · تخويلُ
+        #     `§أ-4`): داخلَ النطاق متوسطُ الدفعات (تعبئةُ فيصل الفعلية، كما كان
+        #     حرفيًّا) · وفوقه السعرُ الحالي (لا تعبئةَ عند المتوسط اليوم).
+        _bt5 = max(_r["tranches"]) * (1 + S.CONFIG.get(
+            "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
+        _ref5 = _r["price"] if _r["price"] > _bt5 else _eavg
+        _exp_rr = (_t1 - _ref5) / max(_ref5 - _slo, 1e-9)
         if abs(_r["rr"] - _exp_rr) > 0.05:
             _bad(f"RR {_r['rr']} ≠ {_exp_rr:.2f}")
 if _inv_fail:
@@ -16613,6 +16676,81 @@ check("🪑 LS10 حدودُ ⑫-ب: `renewed` داخل النطاق **يحجز**
 check("🪑 LS11 حدودُ ⑫-ب: `cont_status=None` **يحجز**",
       _od_space([_ls_til] * 10, size=10) == 0,
       f"space={_od_space([_ls_til] * 10)}")
+
+# ══ 🎯 صدقُ نقاط الدخول (‏ET1-ET7) — أمر المالك 2026-08-13 «نفّذ ١» ·
+#    العقد `entry_truth_package.md §أ` · السند `entry_points_audit.md`.
+_et_df_in = synth_pivot(seed=2)                       # سعرُها فوق نطاقها (3.6/3.5)
+_et_r = S.analyze_ticker("ET", _et_df_in)
+_et_top = max(_et_r["tranches"]) * (1 + S.CONFIG.get(
+    "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
+_et_avg = round(sum(_et_r["tranches"]) / len(_et_r["tranches"]), 4)
+_et_rr_planned = (_et_r["t1"] - _et_avg) / max(_et_avg - _et_r["stop"][0], 1e-9)
+
+check("🎯 ET1 داخل النطاق ⇒ `rr` **بت-بت** بالمتوسط · وفوقه يُقاس من السعر",
+      _et_r["price"] > _et_top
+      and abs(_et_r["rr"] - (_et_r["t1"] - _et_r["price"])
+              / max(_et_r["price"] - _et_r["stop"][0], 1e-9)) < 1e-6,
+      f"price={_et_r['price']:.3f} سقف={_et_top:.3f} rr={_et_r['rr']:.4f}")
+
+# ET2 — عيّنةٌ **تفاضلية**: فوق النطاق بهامشٍ رفيع ⇒ الصادقُ يسقط والمخطَّطُ كان يمرّ
+check("🎯 ET2 فوق النطاق: الصادقُ **أدنى** من المخطَّط — وقد يقلب حكمَ البوّابة",
+      _et_r["rr"] < _et_rr_planned - 0.5
+      and _et_rr_planned >= 1.0 > _et_r["rr"],
+      f"صادق={_et_r['rr']:.4f} مخطَّط={_et_rr_planned:.4f} حدّ={S.CONFIG['MIN_RR_T1']}")
+
+# ET3 — العرضُ فوق النطاق: ⏳ بدل النقاط الميتة (كرتُ التجديد — الموضعُ الحيّ)
+_et_card = S.build_message([dict(_et_r, symbol="ET", readiness=60, score=60)], [])
+check("🎯 ET3 كرتُ التجديد فوق النطاق: «⏳ فوق نطاق الدخول» ولا «📥 الشراء (دفعات)»",
+      "فوق نطاق الدخول" in _et_card and "📥 الشراء (دفعات)" not in _et_card
+      and "انتظر رجوعه للنطاق" in _et_card,
+      "عيّنةٌ حيّةٌ من `analyze_ticker`")
+
+# ET4 — رتابةُ التشديد: الصادقُ ‏≤ المخطَّط **دائمًا** في فرع فوق-النطاق
+_et_mono = True
+for _sd in range(20):
+    _rr_ = S.analyze_ticker("ETM", synth_pivot(seed=_sd))
+    if not _rr_ or not _rr_.get("tranches"):
+        continue
+    _tp = max(_rr_["tranches"]) * (1 + S.CONFIG.get(
+        "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
+    if _rr_["price"] > _tp:
+        _av = round(sum(_rr_["tranches"]) / len(_rr_["tranches"]), 4)
+        _pl = (_rr_["t1"] - _av) / max(_av - _rr_["stop"][0], 1e-9)
+        if _rr_["rr"] > _pl + 1e-9:
+            _et_mono = False
+check("🎯 ET4 رتابةُ التشديد: `rr` الصادق **لا يفوق** المخطَّط أبدًا فوق النطاق",
+      _et_mono, "20 بذرة")
+
+# ET5 — ناقصُ البيانات ⇒ سلوكٌ قديم حرفيًّا (لا ⏳ على نقص)
+check("🎯 ET5 ناقصُ البيانات ⇒ سطرُ الدفعات القديم (لا ⏳ على نقص)",
+      S._entry_line_or_wait([], None, "📥 دخول: ") == "📥 دخول: "
+      and S._entry_line_or_wait([1.0, 1.1], None, "📥 دخول: ")
+      == "📥 دخول: $1.00 · $1.10"
+      and "⏳" not in S._entry_line_or_wait([1.0, 1.1], 1.0, "📥 دخول: "),
+      "بلا دفعات · بلا سعر · وداخل النطاق")
+
+# ET5ب — التخوم: السعرُ = سقفُ النطاق ⇒ السطرُ القديم (المقارنة `>` الصارمة)
+check("🎯 ET5ب التخوم: السعرُ = سقفُ النطاق ⇒ سطرُ الدفعات (لا ⏳)",
+      "⏳" not in S._entry_line_or_wait([1.0, 1.1], 1.1, "📥 دخول: ")
+      and "⏳" in S._entry_line_or_wait([1.0, 1.1], 1.1001, "📥 دخول: "),
+      "‏1.10 مقابل 1.1001")
+
+# ET6 — هدفٌ سبق بلوغُه (‏t1 ≤ price) ⇒ `rr ≤ 0` بالفرع الصادق
+_et_neg = (2.0 - 3.0) / max(3.0 - 2.5, 1e-9)
+check("🎯 ET6 هدفٌ تحت السعر ⇒ `rr` سالبٌ بالمرجع الصادق (فات القطار يُكشَف)",
+      _et_neg < 0, f"مثالٌ حسابيّ={_et_neg:.2f}")
+
+# ET7 — أ-1-ب: بعد `enrich` لا يحمل الصفُّ مقياسين (‏rr و`rr2` من مرجعٍ واحد)
+_et_src_enr = _insp0.getsource(S.enrich)
+check("🎯 ET7 أ-1-ب: `rr2` في `enrich` يقرأ فرعَ فوق-النطاق نفسَه (مقياسٌ واحد)",
+      "ENTRY_READY_BAND_TOL_PCT" in _et_src_enr and "_ref2" in _et_src_enr,
+      "لا يبقى `rr` صادقًا و`rr2` مخطَّطًا في الصفّ الواحد")
+
+# ET8 — مرآةُ الفحص اليدويّ إلزامية (قفلُ «الفحص اليدوي = الأساسي» يعتمدها)
+_et_ao = open("analyze_one.py", encoding="utf-8").read()
+check("🎯 ET8 مرآةُ أ-1 في `analyze_one.py` (وإلّا انكسر تطابقُ الفحص اليدوي)",
+      "ENTRY_READY_BAND_TOL_PCT" in _et_ao and "_risk_now" in _et_ao,
+      "المرآةُ تغييرُ كودٍ إلزاميّ لا اختياريّ")
 
 # LS12 — `LOGIC_VERSION` يحمل وسمَي الدفعة (يمسّ العضوية ⇒ إعادةُ بناءٍ تلقائية)
 # 🐞 ودرسٌ تكرّر أثناء التنفيذ: أُلحق هذا القفلُ أوّلًا **بعد** سطر الملخّص
