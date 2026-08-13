@@ -3450,21 +3450,36 @@ check("🔴 تقليم المحمولين: الكبير يُشطب · الصغي
 def _sr_row(sym, **kw):
     r = {"symbol": sym, "price": 2.0, "half": 1.8, "ref": 3.6, "float": 60_000,
          "short": 0, "near_bottom": True, "held_ok": True, "short_ok": True,
-         "float_ok": True, "pump": False}
+         "float_ok": True, "pump": False,
+         # ④ نصُّ فيصل — أُضيفت للجاهزية 2026-08-13 («صلّح الرادار»)
+         "didnt_rise": True, "rose_pct": 8.0}
     r.update(kw)
     return r
 _sr_all = [_sr_row("NUWE"), _sr_row("NTCL", pump=True), _sr_row("RDGT", short_ok=False),
            _sr_row("CTNT", float_ok=False), _sr_row("LZMH", held_ok=False),
-           _sr_row("FAR", near_bottom=False)]
-check("🔕 رادار التقسيم·الجاهز = الخمسة كلها (أي ❌ يُسقط السهم)",
+           _sr_row("FAR", near_bottom=False),
+           # 🔴 الحالةُ التي كان الرادارُ يعرضها والصيّادُ يرفضها (‏LZMH/CHSN حيًّا)
+           _sr_row("ROSE", didnt_rise=False, rose_pct=92.0)]
+check("🔕 رادار التقسيم·الجاهز = **الستّة** كلها (أي ❌ يُسقط السهم — ومنها «لم يصعد»)",
       [r["symbol"] for r in S.split_radar_ready(_sr_all)] == ["NUWE"])
+check("🔴 RDR6 «لم يصعد» **شرطُ رفضٍ في الرادار** بعد أن كان غائبًا (نصُّ فيصل "
+      "`IMG_0153`) — والصاعدُ +92% يُسقَط وحدَه مع بقاء كلّ شيءٍ آخر ✅",
+      S.split_radar_ready([_sr_row("ROSE", didnt_rise=False)]) == []
+      and len(S.split_radar_ready([_sr_row("OK2")])) == 1,
+      "الفارقُ الوحيدُ بين الصفّين هو `didnt_rise`")
 _sr_msg = S.build_split_radar_section(_sr_all)
 check("🔕 رادار التقسيم·الرسالة تحمل المطابق وحده — لا ذكر لأي ساقط",
       "NUWE" in _sr_msg and not any(x in _sr_msg
-                                    for x in ("NTCL", "RDGT", "CTNT", "LZMH", "FAR")))
+                                    for x in ("NTCL", "RDGT", "CTNT", "LZMH", "FAR",
+                                              "ROSE")))
+check("🔴 RDR6ب والشرطُ **يُطبَع برقمه** فلا تبقى «المطابق الكامل» دعوًى بلا شاهد",
+      "لم يصعد بعد الحدث 8%" in _sr_msg
+      and f"لا يتجاوز {S.CONFIG['SPLIT_ROSE_MAX_PCT']:.0f}%" in _sr_msg,
+      _sr_msg[:0] or "سطرٌ مستقلٌّ يحمل النسبة والحدّ")
 check("🔕 رادار التقسيم·صفر مطابق ⇒ رسالة فارغة (صمت تامّ، لا إشعار)",
       S.build_split_radar_section([_sr_row("X", pump=True)]) == ""
-      and S.build_split_radar_section([]) == "")
+      and S.build_split_radar_section([]) == ""
+      and S.build_split_radar_section([_sr_row("Y", didnt_rise=False)]) == "")
 check("🔕 رادار التقسيم·الرسالة نفسها لا تحمل ❌ إطلاقًا (كل المعروض ✅)",
       "❌" not in _sr_msg)
 # 🔴 M14 بوّابة صلبة (قرار المالك 2026-07-29 «يكون مستبعد تماما»)
@@ -7695,11 +7710,27 @@ _sr_rows = S.scan_split_radar(_sr_hist, fetch_splits=lambda s: _sr_splits,
                                                       "borrow_fee": 705.0},
                               fetch_float=lambda s: 1_500_000,            # <2م
                               fetch_pump=lambda df: {"found": False})
-check("🎯 رادار·مسح: يلتقط المقسّم المطابق setup فيصل (فلوت<2م·متاح CE<20ألف·5/5)",
+check("🎯 رادار·مسح: يلتقط المقسّم المطابق setup فيصل (فلوت<2م·متاح CE<20ألف·**6/6**)",
       len(_sr_rows) == 1 and _sr_rows[0]["symbol"] == "SPLT"
       and _sr_rows[0]["float_ok"] and _sr_rows[0]["short_ok"]
       and _sr_rows[0]["short"] == 12000 and _sr_rows[0]["borrow_fee"] == 705.0
-      and _sr_rows[0]["match"] == 5)
+      and _sr_rows[0]["match"] == 6)
+# 🔴 RDR6ج · قفلٌ **سلوكيّ** لا نصّيّ (الأوّلُ سقط على `return None` في `except`):
+#    المفتاحُ يُصدَر في **الحالتين المتفرّقتين** (‏مرَّ وسقط) ⇒ التحقّقُ الصارم في
+#    `split_radar_ready` **يستحيل أن يقصّ مرشّحًا حقيقيًّا بصمت**.
+_rd_pass = S._split_setup_probe(_sr_df, _sr_splits, _sr_today) or {}
+check("🔴 RDR6ج مفتاحُ `didnt_rise` **مضمونُ الحضور** من المِجَسّ في الحالتين "
+      "(مرَّ وسقط) ⇒ الصرامةُ لا تقصّ مرشّحًا حقيقيًّا بصمت",
+      "didnt_rise" in _rd_pass and _rd_pass["didnt_rise"] is True
+      and "didnt_rise" in _dr_probe and _dr_probe["didnt_rise"] is False
+      and "rose_pct" in _rd_pass and "rose_pct" in _dr_probe,
+      f"مرَّ={_rd_pass.get('rose_pct')}% · سقط={_dr_probe.get('rose_pct')}%")
+check("🔴 RDR6د درجةُ التطابق صارت **0-6** و«جاهز ⟺ 6» ⇒ الجاهزُ يبقى في قمّة "
+      "الترتيب فلا يقصّه `SPLIT_RADAR_MAX` (كان جاهز ⟺ 5)",
+      _sr_rows[0]["match"] == 6
+      and _sr_rows[0]["didnt_rise"] is True
+      and len(S.split_radar_ready(_sr_rows)) == 1,
+      f"match={_sr_rows[0]['match']} · rose_pct={_sr_rows[0].get('rose_pct')}")
 check("🎯 رادار·مسح: exclude يستبعد الرمز",
       S.scan_split_radar(_sr_hist, exclude={"SPLT"},
                          fetch_splits=lambda s: _sr_splits) == [])
@@ -14415,7 +14446,11 @@ _HUNTER_PINS = {
     #    ومعها الثمانية عشر الباقية ⇒ الشروطُ الخمسة والحكم byte-identical **بالبناء**،
     #    ومُثبَتٌ **سلوكيًّا** بـFR3 (نفسُ المطابقين مع الإثراء وبدونه).
     "build_split_hunter_alert": "f5ac8f1223183057",
-    "build_split_radar_section": "e8a02f05df9511ef",
+    # 🔴 **حُدِّثت عمدًا (2026-08-13) — إقرارٌ لا إصلاحُ فشل، وبأمر المالك الحرفيّ
+    #    «صلّح الرادار»** بعد أن كشف سؤالُه «ليه الأداة الثانية تجيب سهم ما تجيبه
+    #    الأولى؟» أن الرادار كان يفحص **خمسًا من ستّ** ويسمّي نفسَه «المطابق الكامل».
+    #    التغيير: **سطرٌ يطبع «لم يصعد» برقمه** فلا تبقى الترويسةُ دعوًى بلا شاهد.
+    "build_split_radar_section": "04adaa9b1071c79d",
     "faisal_model_plan": "dee70734cacfaa67",
     "faisal_split_plan": "350f26d48509f57d",
     "falling_gap_candle": "f4074bb2c193e4d9",
@@ -14434,10 +14469,17 @@ _HUNTER_PINS = {
     #    افتراضيًّا** (‏`SPLIT_RADAR_ORDER`) لتجربة T-CLIFF-2 — حكمُ `T-CLIFF` نصَّ أن
     #    العلّة مفتاحُ الترتيب والسقف لا العتبة. **`"cliff"` = السلوكُ السابق حرفيًّا**
     #    (مقفولٌ سلوكيًّا أدناه)، و`scan_split_hunter` والشروطُ الخمسة **لم تُمَسّ**.
-    "scan_split_radar": "60ed0a760b87311b",
+    # 🔴 **حُدِّثت عمدًا (2026-08-13، أمرُ المالك «صلّح الرادار»):** `match` صارت
+    #    **0-6** بإضافة `didnt_rise` ⇒ «جاهز ⟺ 6» والرتبةُ محفوظة (الجاهزُ يبقى في
+    #    القمّة فلا يقصّه `SPLIT_RADAR_MAX`) — والشروطُ الحاسبةُ نفسُها لم تُمَسّ.
+    "scan_split_radar": "1e37384d52ad87ba",
     "short_targets_report": "ef12710917c8cbd0",
     "split_ma_maturity": "3678007d018c99f5",
-    "split_radar_ready": "709553816d0487fb",
+    # 🔴 **حُدِّثت عمدًا (2026-08-13، أمرُ المالك «صلّح الرادار») — وهي جوهرُ
+    #    الإصلاح:** أُضيف شرطُ فيصل ④ «لم يصعد أكثر من 20%» (`IMG_0153`) الذي كان
+    #    **غائبًا كليًّا** عن الرادار وحده. ⚠️ **ويُشدّد لا يُرخي**: يُسقط ما كان
+    #    يُعرَض (‏LZMH/CHSN ليلةَ 08-12) ولا يُدخل شيئًا جديدًا — مقفولٌ `RDR6`.
+    "split_radar_ready": "08874a72450f4451",
 }
 _h_ast, _h_hash = __import__("ast"), __import__("hashlib")
 _h_src = open("Super_stock.py", encoding="utf-8").read()
@@ -14453,6 +14495,16 @@ check("🛡️ الدرع: كلُّ دوالّ الصيّاد **موجودة** (
 check("🛡️ الدرع: كلُّ دوالّ الصيّاد **مطابقة لبصمتها المثبَّتة** (لا تغيير صامت)",
       not _h_changed, f"تغيّرت={_h_changed}")
 check("🛡️ الدرع يغطّي 19 دالّة (لا يتقلّص بصمت)", len(_HUNTER_PINS) == 19)
+# 🔒 **إصلاحُ الرادار 2026-08-13 لم يمسّ الصيّاد بحرف** — يُقفَل صراحةً لأن حمايةَ
+#    المالك للصيّاد نصٌّ («اتركها على جنب وأبلغني»)، والإصلاحُ في الرادار وحده.
+check("🔒 RDR6هـ إصلاحُ الرادار **لم يمسّ الصيّاد**: `scan_split_hunter` وشرطُه ④ "
+      "و`_split_setup_probe` بصماتُها **بت-بت** كما كانت",
+      _h_now.get("scan_split_hunter") == "fc89b1480e4c5bb4"
+      and _h_now.get("_split_setup_probe") == "117eaf66511c12cf"
+      and _h_now.get("scan_split_hunter") not in (None, "")
+      and 'didnt_rise' in _insp0.getsource(S.scan_split_hunter),
+      f"صيّاد={_h_now.get('scan_split_hunter')} · مِجَسّ="
+      f"{_h_now.get('_split_setup_probe')}")
 
 # ==========================================================
 # 🎁 كماليّات كرت الصيّاد (طلب المالك 2026-07-31) — عرضٌ لا يمسّ النتيجة
