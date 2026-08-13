@@ -8,6 +8,7 @@
 import ast as _ast_p1          # 🔧 P1-③: قفل AST على تسمية النواقص (أسفل الملف)
 import ast as _ast0
 import inspect as _insp0
+import random as _rnd0
 import json
 import os as _os_hc
 # 🛡️ حارس حادثة 2026-07-14: يمنع أي git_save حقيقي أثناء الاختبارات (اختبار E2 شغّل
@@ -19124,6 +19125,96 @@ check("🧱 ST6 قفلٌ **سلوكيّ تفريقيّ**: بلا العلم **ص
       and _st_seen.get("floor") == {"M_ثبات_تحت_الأرضية"}
       and _st_seen.get("faisal") == {"M_ثبات_لم_يكتمل"},
       f"أسبابٌ كاملة={_st_all}")
+
+# 🔒 ST6ب · **العيّنةُ التي كانت ناقصةً — وكشفتها الطفرةُ لا القراءة.**
+# 🔴 طفرةُ `M3` («أسقِط `held` من `S2` فتصير نسخةَ `S1`») **نجت من الأقفال كلِّها**
+#    لأن عيّنةَ `ST6` قاعُها آخرُ شمعة (‏`bars_after`=0) فترفضها الذراعان معًا ⇒
+#    **جوابان متطابقان ⇒ قفلٌ أعمى عن الفرق بين S1 و S2** — وهو **الفرقُ الذي
+#    تقوم عليه التجربةُ كلُّها** (‏`S2` الحاكمة لأن «حافظ» فعلٌ في نصّ فيصل).
+# 🎯 **والعيّنةُ هنا تفصلهما بنيويًّا:** قاعٌ 1.80 يُعاد اختبارُه بعد ستّ جلسات
+#    بشمعةٍ **تُغلق عند القاع بالضبط** ⇒ `bars_after`=6 (الزمنُ مستوفًى ⇒ `S1`
+#    **تمرّ**) و`held=False` (لأن `closes[-1] > pivot` كاذب ⇒ `S2` **ترفض**).
+# 🧭 والدرسُ المُعمَّم للمرّة الرابعة في هذا المستودع: **القفلُ لا يحرس إلّا بقدر
+#    ما تُفرِّق عيّنتُه** — والطفرةُ هي التي تكشفه لا المراجعةُ بالعين.
+_st_d_cl = ([1.0] * 60 + [1.0 + 3.0 * i / 11 for i in range(12)]
+            + [3.95 - 1.87 * i / 21 for i in range(22)]
+            + [2.05, 2.02, 2.00, 1.98, 1.96, 1.94, 1.92, 1.90, 1.86, 1.90,
+               1.92, 1.90, 1.88, 1.86, 1.80])
+_st_d_lo = ([x * 0.99 for x in _st_d_cl[:94]]
+            + [2.03, 2.00, 1.98, 1.96, 1.94, 1.92, 1.90, 1.88, 1.80, 1.88,
+               1.90, 1.88, 1.86, 1.84, 1.80])
+_st_disc = _st_df(_st_d_cl, lows=_st_d_lo, vol=3e6)
+_ps_disc = S.pivot_stability(_st_disc["Low"].values.astype(float),
+                             _st_disc["Close"].values.astype(float)) or {}
+_st_keep2 = S.CONFIG.get("BT_STABILITY_GATE")
+_st_keep_wmf2 = S.CONFIG.get("WATCH_MAX_FAILS")
+_st_seen2 = {}
+try:
+    S.CONFIG["WATCH_MAX_FAILS"] = 20
+    for _arm, _val in (("off", ""), ("floor", "floor"), ("faisal", "faisal")):
+        S.CONFIG["BT_STABILITY_GATE"] = _val
+        S._REJECT_STATS.clear()
+        S.analyze_ticker("STB2", _st_disc)
+        _st_seen2[_arm] = {k for k in S._REJECT_STATS if k in _st_arms.GATE_KEYS}
+finally:
+    S.CONFIG["BT_STABILITY_GATE"] = _st_keep2
+    S.CONFIG["WATCH_MAX_FAILS"] = _st_keep_wmf2
+    S._REJECT_STATS.clear()
+check("🧱 ST6ب **`S1` و`S2` تفترقان فعلًا**: قاعٌ مضت عليه 6 جلساتٍ ولم يصمد "
+      "(‏`bars_after`=6 · `held`=False) ⇒ الزمنُ وحده **يمرّ** ونصُّ فيصل كاملًا "
+      "**يرفض** — فإسقاطُ `held` من `S2` يُسقط هذا القفل",
+      _ps_disc.get("bars_after", 0) >= S.CONFIG["STABILITY_MIN"]
+      and _ps_disc.get("held") is False
+      and _st_seen2.get("off") == set()
+      and _st_seen2.get("floor") == set()
+      and _st_seen2.get("faisal") == {"M_ثبات_لم_يكتمل"},
+      f"ps={_ps_disc} · أسباب={_st_seen2}")
+del _st_d_cl, _st_d_lo, _st_disc, _ps_disc, _st_seen2
+
+# 🔒 ST12 · **`STABILITY_TOL_PCT` خامدٌ بنيويًّا — يُقفَل ليُقرأ لا ليُنسى.**
+# 🔑 نتيجةُ `stability_result.md §③`: في `pivot_stability` يكون `after = lows[k+1:]`
+#    مجموعةً فرعيةً من `seg = lows[-look:]` و`pivot = min(seg)` ⇒ `min(after) ≥ pivot
+#    > tol` **رياضيًّا دائمًا** ⇒ شرطُ التسامح **لا يمكن أن يفشل** ⇒ `held` يكافئ
+#    «`bars_after ≥ 1` **و** `closes[-1] > pivot`» وحده.
+# 🎯 والقفلُ **يحرس الملاحظةَ بمقياسها لا بالرأي**: يُبرهَن على عيّنةٍ عريضة، **ويُثبَت
+#    أن الثابتَ لا يزال في موضعٍ واحد** — فلو أُضيف موضعٌ ثانٍ (أو تغيّر تعريفُ القاع
+#    فصار التسامحُ نافذًا) **سقط القفلُ فيُعاد قياسُ الملاحظة** بدل أن تتعفّن.
+# 🐞 وأوّلُ صياغةٍ لهذا القفل **سقطت على نفسها**: عدَّت كلَّ ذكرٍ للثابت فوجدت
+#    **موضعين** — تعريفَه في `CONFIG` (`:313`) واستعمالَه (`:2082`) — وهما شيئان
+#    مختلفان. ⇒ يُعَدُّ **الاستعمالُ** وحده (`CONFIG["…"]`) ويُشترَط تعريفٌ واحد.
+_st_src0 = open("Super_stock.py", encoding="utf-8").read()
+_st_code = [ln for ln in _st_src0.splitlines() if not ln.strip().startswith("#")]
+_st_tolm = [i for i, ln in enumerate(_st_code, 1)
+            if 'CONFIG["STABILITY_TOL_PCT"]' in ln]
+_st_told = [i for i, ln in enumerate(_st_code, 1)
+            if '"STABILITY_TOL_PCT":' in ln]
+_st_rng = _rnd0.Random(20260813)
+_st_tol_bind = 0
+_st_tol_neq = 0
+for _ in range(4000):
+    _m = _st_rng.randint(5, 40)
+    _lo = [round(_st_rng.uniform(0.5, 5.0), 2) for _ in range(_m)]
+    _cl = [round(_lo[i] + _st_rng.uniform(0.0, 0.5), 2) for i in range(_m)]
+    _p = S.pivot_stability(S.np.array(_lo, dtype=float),
+                           S.np.array(_cl, dtype=float))
+    if not _p:
+        continue
+    _look = min(S.CONFIG["PIVOT_LOOKBACK"], _m)
+    _k = _m - _look + int(S.np.argmin(S.np.array(_lo[-_look:], dtype=float)))
+    _aft = _lo[_k + 1:]
+    _tolv = _p["pivot"] * (1.0 - S.CONFIG["STABILITY_TOL_PCT"] / 100.0)
+    if _aft and min(_aft) < _tolv:
+        _st_tol_bind += 1
+    if _p["held"] != (_p["bars_after"] >= 1 and _cl[-1] > _p["pivot"]):
+        _st_tol_neq += 1
+check("🧱 ST12 `STABILITY_TOL_PCT` **خامدٌ بنيويًّا**: صفرُ تقييدٍ على 4000 إطار · "
+      "و`held` يكافئ «‏≥1 جلسة **و** الإغلاقُ فوق القاع» بصفر اختلاف · والثابتُ في "
+      "**موضعٍ واحد** (فلو صار نافذًا سقط القفلُ وأُعيد القياس)",
+      _st_tol_bind == 0 and _st_tol_neq == 0
+      and len(_st_tolm) == 1 and len(_st_told) == 1,
+      f"قيَّد={_st_tol_bind} · اختلف={_st_tol_neq} · "
+      f"استعمال={_st_tolm} · تعريف={_st_told}")
+del _st_src0, _st_code, _st_tolm, _st_told, _st_rng, _st_tol_bind, _st_tol_neq
 
 check("🧱 ST7 كلُّ مدخلٍ في `stability.yml` موصولٌ ببيئةٍ يقرؤها السكربت "
       "(لا مدخلَ ميّت — بصمةُ `BT_CANDLE`)",
