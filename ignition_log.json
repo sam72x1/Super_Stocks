@@ -329,5 +329,65 @@
   "vol_x": 25.3,
   "usd": 30101,
   "candle_class": "group"
+ },
+ {
+  "symbol": "DFSC",
+  "date": "2026-08-13",
+  "sustain_min": 369,
+  "operator_ok": true,
+  "fired_at": "2026-08-13T20:00:49Z",
+  "break_level": 1.27,
+  "price": 2.76,
+  "vol_x": 4.0,
+  "usd": 8754276,
+  "candle_class": "strong"
+ },
+ {
+  "symbol": "FUFU",
+  "date": "2026-08-13",
+  "sustain_min": 273,
+  "operator_ok": true,
+  "fired_at": "2026-08-13T20:00:50Z",
+  "break_level": 1.37,
+  "price": 1.5,
+  "vol_x": 4.2,
+  "usd": 19296,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "SNAL",
+  "date": "2026-08-13",
+  "sustain_min": 0,
+  "operator_ok": false,
+  "fired_at": "2026-08-13T20:00:50Z",
+  "break_level": 2.96,
+  "price": 2.97,
+  "vol_x": 18.0,
+  "usd": 39543,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "ENGN",
+  "date": "2026-08-13",
+  "sustain_min": 160,
+  "operator_ok": true,
+  "fired_at": "2026-08-13T20:00:50Z",
+  "break_level": 1.69,
+  "price": 1.705,
+  "vol_x": 47.8,
+  "usd": 50326,
+  "candle_class": "mid"
+ },
+ {
+  "symbol": "XAIR",
+  "date": "2026-08-13",
+  "sustain_min": 21,
+  "operator_ok": true,
+  "fired_at": "2026-08-13T20:00:51Z",
+  "break_level": 6.37,
+  "price": 6.865,
+  "vol_x": 5.5,
+  "usd": 15062,
+  "candle_class": "group"
  }
 ]
