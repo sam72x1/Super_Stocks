@@ -16764,6 +16764,29 @@ check("🎯 ET5ب التخوم: السعرُ = سقفُ النطاق ⇒ سطر�
       and "⏳" in S._entry_line_or_wait([1.0, 1.1], 1.1001, "📥 دخول: "),
       "‏1.10 مقابل 1.1001")
 
+# ET1ب — 🔴 **تخومُ الجذر بعيّنةٍ مفرِّقة** (أُضيف بعد أن **نجت** طفرةُ `>=`:
+#        لم تكن عيّنةٌ واحدةٌ تضع السعرَ **عند** السقف بالضبط ⇒ القفلُ أعمى عن
+#        حدِّه — درسُ «القفلُ لا يحرس إلّا بقدر ما تُفرِّق عيّنتُه»).
+#        نبني إطارًا سعرُه الأخير = سقفُ النطاق **حرفيًّا** ونشترط المتوسطَ مرجعًا.
+_et_edge_df = synth_pivot(seed=2).copy()
+_et_edge_top = max(_et_r["tranches"])            # التسامحُ 0 ⇒ السقفُ = أعلى دفعة
+for _c in ("Close", "High"):
+    _et_edge_df.iloc[-1, _et_edge_df.columns.get_loc(_c)] = max(
+        _et_edge_top, float(_et_edge_df["High"].iloc[-1])
+        if _c == "High" else _et_edge_top)
+_et_edge_df.iloc[-1, _et_edge_df.columns.get_loc("Close")] = _et_edge_top
+_et_e = S.analyze_ticker("ETE", _et_edge_df)
+_et_e_ok = False
+if _et_e and _et_e.get("tranches"):
+    _ea = round(sum(_et_e["tranches"]) / len(_et_e["tranches"]), 4)
+    _et_e_ok = (abs(float(_et_e["price"]) - max(_et_e["tranches"])) < 1e-9
+                and abs(_et_e["rr"] - (_et_e["t1"] - _ea)
+                        / max(_ea - _et_e["stop"][0], 1e-9)) < 1e-6)
+check("🎯 ET1ب تخومُ الجذر: السعرُ **عند** سقف النطاق ⇒ المرجعُ المتوسطُ "
+      "(المقارنة `>` الصارمة — طفرةُ `>=` تسقط هنا)",
+      _et_e_ok,
+      f"price={_et_e and _et_e['price']} سقف={_et_e and max(_et_e['tranches'])}")
+
 # ET6 — هدفٌ سبق بلوغُه (‏t1 ≤ price) ⇒ `rr ≤ 0` بالفرع الصادق
 _et_neg = (2.0 - 3.0) / max(3.0 - 2.5, 1e-9)
 check("🎯 ET6 هدفٌ تحت السعر ⇒ `rr` سالبٌ بالمرجع الصادق (فات القطار يُكشَف)",
