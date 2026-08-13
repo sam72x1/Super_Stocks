@@ -16861,6 +16861,105 @@ check("📌 AN8 الأذرعُ ثلاثٌ مثبَّتة (‏A0/B1/B2) والح�
       and _an_mod.GATE_KEYS == ("M_لا_مستوى_مختبر",),
       f"ARMS={_an_mod.ARMS}")
 
+# ══ 🔬🕵️ مِجَسُّ اليومين + أداةُ الـ23 سنة (‏PX/O) — **مبنيّتان بلا تشغيل** ·
+#    العقدان `preexp_probe_prereg.md` و`op23_prereg.md` (مدفوعان قبل أيّ رقم).
+import preexp_probe as _px
+import op23_scan as _op
+import yaml as _yaml0                                             # noqa: E402
+
+# PX1/O1 — صفرُ تسريب: النافذةُ **قبل** المِرساة حصرًا (عيّنةٌ مفرِّقة)
+_px_idx = pd.date_range("2024-01-01", periods=40, freq="B")
+_px_bars = pd.DataFrame({"Open": 1.0, "High": 1.1, "Low": 0.9, "Close": 1.0,
+                         "Volume": 1e5}, index=_px_idx)
+_px_anchor = str(_px_idx[30].date())
+_px_sess = _px._sessions_before(_px_bars, _px_anchor, (-2, -1))
+check("🔬 PX1 صفرُ تسريب: كلُّ جلسةٍ **قبل** المِرساة حصرًا (لا يومَ الانفجار)",
+      len(_px_sess) == 2 and all(str(d.date()) < _px_anchor for d in _px_sess)
+      and str(_px_sess[-1].date()) == str(_px_idx[29].date()),
+      f"النافذة={[str(d.date()) for d in _px_sess]} · مِرساة={_px_anchor}")
+
+# PX1ب — الإزاحاتُ **بالجلسات لا بالأيام** (عطلةٌ لا تُزيح النافذة)
+_px_gap = _px_idx.delete(29)                      # حذفُ جلسةٍ = عطلةٌ مزروعة
+_px_b2 = pd.DataFrame({"Open": 1.0, "High": 1.1, "Low": 0.9, "Close": 1.0,
+                       "Volume": 1e5}, index=_px_gap)
+check("🔬 PX1ب الإزاحاتُ بالجلسات لا بالأيام (العطلةُ لا تُزيح النافذة)",
+      len(_px._sessions_before(_px_b2, _px_anchor, (-2, -1))) == 2)
+
+# PX3 — تعذّرُ الجلب **يُعَدّ ولا يُصنَّف** (عطبُ شبكةٍ ليس «هدوءًا»)
+_px_old_key = _os_hc.environ.get("POLYGON_API_KEY")
+try:
+    _os_hc.environ["POLYGON_API_KEY"] = ""
+    _px_nofetch = _px.trades_layer("XXX", "2024-01-05")
+finally:
+    if _px_old_key is None:
+        _os_hc.environ.pop("POLYGON_API_KEY", None)
+    else:
+        _os_hc.environ["POLYGON_API_KEY"] = _px_old_key
+check("🔬 PX3 تعذّرُ الجلب يُعَدّ ولا يُصنَّف (‏`fetch_ok=False` لا صفرٌ صامت)",
+      _px_nofetch == {"fetch_ok": False},
+      f"{_px_nofetch}")
+
+# PX4/O3 — المِرساةُ `explosion_onset` **بالاسم** ولا `explosion_index` وحدَها
+_px_src = open("preexp_probe.py", encoding="utf-8").read()
+_op_src = open("op23_scan.py", encoding="utf-8").read()
+check("🔬 PX4/O3 المِرساةُ `explosion_onset` بالاسم في الأداتين (لا المعطوبة وحدَها)",
+      "explosion_onset(" in _px_src and "explosion_onset(" in _op_src
+      and "onset_anchor" in _op_src,
+      "‏`explosion_index` تُستعمَل مدخلًا للتصحيح لا مِرساةً")
+
+# PX5 — الاقتطاعُ **مُعلَن** لا صامت
+check("🔬 PX5 الاقتطاعُ مُعلَنٌ بحقلٍ صريح (`truncated`) وسقفٌ مطبوع",
+      "truncated" in _px_src and "TRADE_CAP" in _px_src)
+
+# PX7 — المقاييسُ **دوالُّ الإنتاج بأسمائها** (لا نسخَ منطق)
+check("🔬 PX7 دوالُّ الإنتاج بأسمائها (acc/operator/uniform/activity)",
+      all(_n in _px_src for _n in ("acc_components", "_operator_blocks",
+                                   "uniform_prints", "activity_features")))
+
+# PX9/O12 — 🔒 **قفلُ العزل الحاسم:** الإنتاجُ لا يستورد الأداتين إطلاقًا
+_ss_src = open("Super_stock.py", encoding="utf-8").read()
+check("🔬 PX9/O12 عزلٌ تامّ: `Super_stock` لا يستورد المِجَسَّ ولا أداةَ الـ23",
+      "preexp_probe" not in _ss_src and "op23_scan" not in _ss_src,
+      "أداتا بحثٍ خارج مسار الفرز")
+
+# O2 — حارسُ التقسيم الوهميّ **فعّالٌ وفاشلٌ-آمنٌ مُغلَق**
+check("🕵️ O2 حارسُ التقسيم: عكسيٌّ قريبٌ ⇒ يُستبعَد · أماميٌّ/بعيدٌ ⇒ يمرّ · "
+      "وتالفٌ ⇒ **يُستبعَد** (فاشل-آمن مُغلَق)",
+      _op.reverse_split_near([("2024-01-10", 0.1)], "2024-01-12") is True
+      and _op.reverse_split_near([("2024-01-10", 2.0)], "2024-01-12") is False
+      and _op.reverse_split_near([("2023-01-10", 0.1)], "2024-01-12") is False
+      and _op.reverse_split_near("تالف", "2024-01-12") is True
+      and _op.reverse_split_near([("2024-01-10", 0.1)], "سيء") is True)
+
+# O4 — الفلترُ = `analyze_ticker` الإنتاجيّ **بالاسم** (لا نسخةَ مبسَّطة)
+check("🕵️ O4 «شروطُ فيصل فقط» = `analyze_ticker` الإنتاجيّ بالاسم",
+      "S.analyze_ticker(" in _op_src and "MIN_BARS" in _op_src)
+
+# O7 — السحبُ الحتميّ: نفسُ المدخلات ⇒ نفسُ العيّنة (قابلةٌ لإعادة الإنتاج)
+check("🕵️ O7 سحبُ مجموعة التمييز **حتميّ** (sha256) — لا انتقاءَ يدويّ",
+      _op.control_panel(2024, "AAPL") == _op.control_panel(2024, "AAPL")
+      and _op.control_panel(2024, "AAPL", 0.0) is False
+      and _op.control_panel(2024, "AAPL", 1.0) is True)
+
+# O8 — الحقبُ ثلاثٌ مثبَّتة (التقسيمُ إلزاميّ قبل الأرقام)
+check("🕵️ O8 الحقبُ ثلاثٌ مثبَّتةٌ قبل الأرقام · و`era_of` تُصنّف صحيحًا",
+      len(_op.ERAS) == 3 and _op.era_of(2005) == "2003-2012"
+      and _op.era_of(2015) == "2013-2019" and _op.era_of(2024) == "2020-2026"
+      and _op.era_of(1999) == "خارج المدى")
+
+# O9 — كلُّ إسقاطِ كلفةٍ يطبع **معامِلَ التوسيع** (الدرسُ المقيس)
+check("🕵️ O9 إسقاطُ الكلفة يطبع معامِلَ التوسيع صراحةً",
+      "معامِلُ التوسيع" in _op.cost_projection(10, 4, 2.5))
+
+# O11/PX8 — الـworkflows: كلُّ مدخلٍ موصولٌ بـ`env` (قاعدة P1)
+for _wf, _job in (("preexp_probe", "probe"), ("op23", "op23")):
+    _y = _yaml0.safe_load(open(f".github/workflows/{_wf}.yml", encoding="utf-8"))
+    _ins = _y[True]["workflow_dispatch"]["inputs"]
+    _env = [s for s in _y["jobs"][_job]["steps"] if "env" in s][-1]["env"]
+    check(f"🔬 {_wf}.yml: كلُّ مدخلٍ موصولٌ بـenv (لا مدخلَ ميّت)",
+          not [i for i in _ins if not any(i in str(v) for v in _env.values())],
+          f"مدخلات={list(_ins)}")
+
 # LS12 — `LOGIC_VERSION` يحمل وسمَي الدفعة (يمسّ العضوية ⇒ إعادةُ بناءٍ تلقائية)
 # 🐞 ودرسٌ تكرّر أثناء التنفيذ: أُلحق هذا القفلُ أوّلًا **بعد** سطر الملخّص
 #    فصار ميّتًا يطبع ✅ ولا يُحسب ولا يُسقط — نُقل، والعدّادُ هو الشاهد.

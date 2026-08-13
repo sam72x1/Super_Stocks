@@ -1,0 +1,45 @@
+name: T-PREEXP-PROBE (سلوكُ اليومين قبل الانفجار)
+
+# 🔬🕵️ مِجَسٌّ تشخيصيّ **لا تجربةَ حكم** — العقد `preexp_probe_prereg.md`
+#    (مدفوعٌ قبل أيّ رقم · سقفُ النجاح: تقريرٌ وصفيّ · صفرُ تغيير كود/عتبة/وزن).
+# 🔒 يدويّ فقط · بلا كرون · والأداةُ خارج مسار الفرز (لا يستوردها الإنتاج).
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "رموزٌ محدَّدة بفاصلة (اختياريّ) — فارغ = العيّنتان كاملتين"
+        required: false
+        default: ""
+      csv:
+        description: "اسمُ ملفّ الصفوف التراكميّ"
+        required: false
+        default: "preexp_probe_rows.jsonl"
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run pre-explosion probe
+        env:
+          # 🔴 مدخلٌ بلا `env` = مدخلٌ ميّت (بصمةُ `BT_CANDLE`) — مقفولٌ `PX8`.
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PREEXP_ONLY: ${{ github.event.inputs.only }}
+          PREEXP_CSV: ${{ github.event.inputs.csv }}
+        run: python preexp_probe.py
+      - name: Upload rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preexp-rows
+          path: preexp_probe_rows.jsonl
+          if-no-files-found: warn

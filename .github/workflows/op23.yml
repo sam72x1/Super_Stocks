@@ -1,0 +1,57 @@
+name: T-OP23 (سلوكُ المضارب قبل الانفجار — 23 سنة)
+
+# 🕵️📈 العقد `op23_prereg.md` (مدفوعٌ قبل أيّ رقم · حرّاسُ O1-O10).
+# ⚠️ **يُشغَّل مرحلةً مرحلة**: `discover` أوّلًا (نرى W1/W2 وتقديرَ الكلفة) قبل
+#    حرقِ ساعاتِ الصفقات. 🔒 يدويّ فقط · بلا كرون · خارج مسار الفرز.
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: "الطور: discover · filter · trades · report"
+        required: true
+        default: "discover"
+      years:
+        description: "السنوات (مثال 2003-2012) — فارغ = كلّها"
+        required: false
+        default: ""
+      syms:
+        description: "رموزُ الكون لهذي التجزئة (بفاصلة)"
+        required: false
+        default: ""
+      csv:
+        description: "ملفّ الأحداث التراكميّ"
+        required: false
+        default: "op23_events.jsonl"
+jobs:
+  op23:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run OP23 scan
+        env:
+          # 🔴 مدخلٌ بلا `env` = مدخلٌ ميّت (بصمةُ `BT_CANDLE`) — مقفولٌ `O11`.
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          POLYGON_S3_KEY: ${{ secrets.POLYGON_S3_KEY }}
+          POLYGON_S3_SECRET: ${{ secrets.POLYGON_S3_SECRET }}
+          OP23_PHASE: ${{ github.event.inputs.phase }}
+          OP23_YEARS: ${{ github.event.inputs.years }}
+          OP23_SYMS: ${{ github.event.inputs.syms }}
+          OP23_CSV: ${{ github.event.inputs.csv }}
+        run: python op23_scan.py
+      - name: Upload events
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: op23-events
+          path: op23_events.jsonl
+          if-no-files-found: warn
