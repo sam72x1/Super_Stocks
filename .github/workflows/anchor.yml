@@ -1,0 +1,52 @@
+name: T-ANCHOR (الإرساء على المستوى المُختبَر)
+
+# 🎯📌 يقيس: هل إرساءُ الدفعات والوقف على **مستوًى مُختبَرٍ صامد** (‏`tested_level`
+#    — «‏1.75 ضربها مرّتين ولا كسرها») بدل أدنى قاعِ النافذة المتحرّك يحسّن التسليم؟
+#    العقد: `anchor_prereg.md` (مدفوعٌ قبل أيّ رقم · حرّاسُ V1-V7).
+# 🔒 بحث/قياس فقط · بلا كرون · والعلمُ `BT_ANCHOR` مطفأٌ افتراضيًّا فالإنتاجُ بت-بت.
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (2024 · 2025 · 2026) — الحكم يلزمه الثلاث"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "لقطة PIT: 2024=31199493957 · 2025=31191327731 · 2026=31199510868"
+        required: true
+        default: ""
+      probe_syms:
+        description: "رموزُ المِجَسّ التشخيصيّ (الحارس د) — فارغ = BBLG"
+        required: false
+        default: ""
+jobs:
+  anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run anchor arms
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+          # 🔴 مدخلٌ بلا `env` = مدخلٌ ميّت (بصمةُ `BT_CANDLE`) — مقفولٌ `AN7`.
+          ANCH_PROBE_SYMS: ${{ github.event.inputs.probe_syms }}
+        run: python anchor_arms.py

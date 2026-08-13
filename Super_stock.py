@@ -364,6 +364,8 @@ CONFIG = {
     #    · "faisal" = نصُّه كاملًا (`held` **و** ‏≥3 جلسات). ⛔ ولا ذراعَ للسقف 8
     #    (‏`engineering` — إنفاذُه يرفض مَن ثبت 10 جلسات وهو أفضل). مقفول ST5.
     "BT_STABILITY_GATE": "",
+    # 🎯📌 `T-ANCHOR` (‏`anchor_prereg.md`): "" الأساس · "tested" · "tested_strict"
+    "BT_ANCHOR": "",
     "BT_LIBERATION": 0,                   # 1 = فعّل ذراعَي التحرر (L1 أقرب حاجز · L2 أعلى مقاومة)
     "BT_LIB_WAIT": 20,                    # نافذة انتظار الكسر بالجلسات (مُثبَّتة بالتسجيل المسبق)
     "BT_SWEEP_ENTRY": 0,                  # 1 = دخول بعد مسح+استعادة (بدل التعبئة الفورية)
@@ -672,6 +674,7 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_LIBERATION", "BT_LIBERATION", int),       # 🔓 T-LIBERATION
             # 🧱🕯️ T-STABILITY — **نصّ** لا عدد (الذراعُ اسمُها لا رقمُها)
             ("BT_STABILITY_GATE", "BT_STABILITY_GATE", str),
+            ("BT_ANCHOR", "BT_ANCHOR", str),
             ("BT_LIB_WAIT", "BT_LIB_WAIT", int),
             # 🕯️ T-CANDLE (`candle_readiness_prereg.md`) — **كان غائبًا من هذا الجدول**
             # بينما `backtest.yml` يمرّره في البيئة ⇒ لا يصل CONFIG أبدًا ⇒ التشغيلة
@@ -3350,9 +3353,26 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # ---- دفعات الدخول (أسلوب فيصل): أوامر عند الدعم وصعوداً بخطوة ثابتة.
         #      تتعبّى كلما نزل السعر للدعم؛ أدنى دفعة = الدعم = أفضل تعبئة.
         #      (فيصل @kisar_: 1.70/1.75/1.80 · الوقف 1.50). ----
+        # 🎯📌 `T-ANCHOR` (علمُ باكتيستٍ **مطفأٌ افتراضيًّا** ⇒ الإنتاجُ بت-بت —
+        #      العقد `anchor_prereg.md`): المِرساةُ الافتراضية `pivot` = أدنى قاعِ
+        #      النافذة **المتحرّك**، وفيصل يرسي على **مستوًى مُختبَرٍ صامد**
+        #      («‏1.75 ضربها مرّتين ولا كسرها» `IMG_0451`). الذراعان يقيسان الفرق:
+        #      `tested` (وإلّا ارتدادٌ لـ`pivot`) · `tested_strict` (وإلّا رفضٌ
+        #      باسمٍ مُسمًّى). و`tested_level` تُنادى على **الشريحة نفسِها** المنتهية
+        #      عند يوم الترتيب ⇒ صفرُ نظرٍ مستقبليّ. والوقفُ والدفعات يُشتقّان من
+        #      المِرساة نفسِها (وإلّا قِيس نصفُ التغيير).
+        _anchor = pivot
+        if CONFIG.get("BT_ANCHOR"):
+            _tl = tested_level(df)
+            if _tl:
+                _anchor = float(_tl["level"])
+                stop_hi = _anchor * (1 - s_lo / 100.0)
+                stop_lo = _anchor * (1 - s_hi / 100.0)
+            elif str(CONFIG.get("BT_ANCHOR")) == "tested_strict":
+                return _reject("M_لا_مستوى_مختبر")
         n_tr = max(1, int(CONFIG["ENTRY_TRANCHES"]))
         step = CONFIG["ENTRY_STEP_PCT"] / 100.0
-        tranches = [round(pivot * (1 + step * i), 2) for i in range(n_tr)]
+        tranches = [round(_anchor * (1 + step * i), 2) for i in range(n_tr)]
         entry_lo = tranches[0]                           # عند الدعم (أفضل تعبئة)
         entry_hi = tranches[-1]                          # أعلى دفعة (أسوأ تعبئة)
 

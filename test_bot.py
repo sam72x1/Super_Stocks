@@ -14892,11 +14892,40 @@ check("🪜 WATCH🔒 الاثنان ⇒ تجهّز · واحدٌ ⇒ متابع
 #    وغائبةٌ عن `scan_split_hunter` وعن الجذور — فلا تُدخل مرشّحًا ولا تُخرجه.
 _EXTRA_FNS = ("hunter_extras", "reversal_candle", "tested_level",
               "candle_value", "hunter_watch_state", "_ohlc_tail")
+# 🎯📌 **استثناءٌ مؤرَّخٌ واحدٌ 2026-08-13 (‏`T-ANCHOR` — `anchor_prereg.md`):**
+#    `tested_level` صارت تُنادى داخل `analyze_ticker` **حصرًا خلف علمِ باكتيستٍ
+#    مطفأ** (`BT_ANCHOR`) — سابقةُ `BT_STABILITY_GATE`/`BT_SPLIT_REF_M2`.
+#    ⚖️ **والضمانةُ لم تُرخَ بل اشتدّت:** بدل غيابِ الاسم (فحصٌ نصّيٌّ **بالوكالة**)
+#    يُشترَط الآن لهذي الدالّة **شرطان أقوى**: (أ) نداؤها في الجذر **داخل الفرع
+#    المشروط وحدَه** — مُثبَتٌ نحويًّا بالـAST لا بالنصّ · (ب) والمُخرَجُ **بت-بت**
+#    مطفأً (‏`AN1` السلوكيّ). وبقيّةُ الكماليّات تبقى على غياب الاسم كما هي.
+_EXTRA_STRICT = tuple(_n for _n in _EXTRA_FNS if _n != "tested_level")
 check("🎁 EXTRA🔒 صفر أثرٍ على الترشيح: لا اسم منها في `scan_split_hunter` ولا الجذور",
-      all(_n not in _insp0.getsource(_f) for _n in _EXTRA_FNS
+      all(_n not in _insp0.getsource(_f) for _n in _EXTRA_STRICT
           for _f in (S.scan_split_hunter, S.rank_key, S.select_top,
                      S.classify_tier, S.entry_status, S.analyze_ticker,
-                     S.apply_float_gate, S.apply_short_gate, S.backtest_symbol)))
+                     S.apply_float_gate, S.apply_short_gate, S.backtest_symbol))
+      and all("tested_level" not in _insp0.getsource(_f)
+              for _f in (S.scan_split_hunter, S.rank_key, S.select_top,
+                         S.classify_tier, S.entry_status, S.apply_float_gate,
+                         S.apply_short_gate, S.backtest_symbol)))
+# 🔒 **الشرط (أ) نحويًّا:** كلُّ نداءٍ لـ`tested_level` داخل `analyze_ticker` يقع
+#    تحت `if CONFIG.get("BT_ANCHOR")` — فلو خرج نداءٌ من الفرع سقط القفل.
+_ta_tree = _ast0.parse(_insp0.getsource(S.analyze_ticker).lstrip())
+_ta_guarded, _ta_all = 0, 0
+for _nd in _ast0.walk(_ta_tree):
+    if (isinstance(_nd, _ast0.Call)
+            and getattr(_nd.func, "id", None) == "tested_level"):
+        _ta_all += 1
+for _nd in _ast0.walk(_ta_tree):
+    if isinstance(_nd, _ast0.If) and "BT_ANCHOR" in _ast0.dump(_nd.test):
+        for _sub in _ast0.walk(_nd):
+            if (isinstance(_sub, _ast0.Call)
+                    and getattr(_sub.func, "id", None) == "tested_level"):
+                _ta_guarded += 1
+check("🎁 EXTRA🔒-أ `tested_level` في الجذر **داخل فرع `BT_ANCHOR` وحدَه** (AST لا نصّ)",
+      _ta_all >= 1 and _ta_all == _ta_guarded,
+      f"نداءات={_ta_all} · محروسة={_ta_guarded}")
 check("🎁 EXTRA🔒 وتُنادى من `build_split_hunter_alert` وحدها (نقطة النداء مُثبَتة)",
       "hunter_extras(" in _insp0.getsource(S.build_split_hunter_alert)
       and sum("hunter_extras(" in _insp0.getsource(_f) for _f in (
@@ -16751,6 +16780,86 @@ _et_ao = open("analyze_one.py", encoding="utf-8").read()
 check("🎯 ET8 مرآةُ أ-1 في `analyze_one.py` (وإلّا انكسر تطابقُ الفحص اليدوي)",
       "ENTRY_READY_BAND_TOL_PCT" in _et_ao and "_risk_now" in _et_ao,
       "المرآةُ تغييرُ كودٍ إلزاميّ لا اختياريّ")
+
+# ══ 🎯📌 `T-ANCHOR` (‏AN1-AN7) — أداةُ قياسٍ **مبنيّةٌ بلا تشغيل** ·
+#    العقد `anchor_prereg.md` (مدفوعٌ قبل أيّ رقم).
+_an_df = synth_pivot(seed=5)
+_an_base = S.analyze_ticker("AN", _an_df)
+_an_old = S.CONFIG.get("BT_ANCHOR")
+try:
+    S.CONFIG["BT_ANCHOR"] = "tested"
+    _an_b1 = S.analyze_ticker("AN", _an_df)
+    S.CONFIG["BT_ANCHOR"] = "tested_strict"
+    _an_b2 = S.analyze_ticker("AN", _an_df)
+finally:
+    S.CONFIG["BT_ANCHOR"] = _an_old
+_an_off = S.analyze_ticker("AN", _an_df)
+
+check("📌 AN1 العلمُ مطفأٌ ⇒ الفارزُ **بت-بت** (قفلٌ سلوكيّ: القاموسُ كاملًا)",
+      _an_base is not None and _an_off is not None
+      and json.dumps(_an_base, sort_keys=True, default=str)
+      == json.dumps(_an_off, sort_keys=True, default=str),
+      "قبل الأذرع وبعدها")
+
+check("📌 AN2 `B1` ترتدّ لـ`pivot` حين لا مستوى مُختبَر (لا رفض)",
+      (_an_b1 is not None) if S.tested_level(_an_df) is None else True,
+      f"tested_level={S.tested_level(_an_df)}")
+
+# AN3 — `tested_strict` يرفض **باسمٍ مُسمًّى** حين لا مستوى (عيّنةٌ مفرِّقة)
+_an_flat = synth_pivot(seed=5).copy()
+_an_flat.iloc[-30:, _an_flat.columns.get_loc("Low")] = \
+    _an_flat["Low"].iloc[-30:].values * np.linspace(1.0, 0.55, 30)  # قاعٌ متحدّر
+_an_named = None
+try:
+    S.CONFIG["BT_ANCHOR"] = "tested_strict"
+    _an_named = S._diagnose_symbol("ANX", _an_flat) if hasattr(
+        S, "_diagnose_symbol") else None
+finally:
+    S.CONFIG["BT_ANCHOR"] = _an_old
+check("📌 AN3 اسمُ الرفض `M_لا_مستوى_مختبر` **موصولٌ من نقطة النداء** (لا نصٌّ ميت)",
+      "M_لا_مستوى_مختبر" in _insp0.getsource(S.analyze_ticker)
+      and 'CONFIG.get("BT_ANCHOR")' in _insp0.getsource(S.analyze_ticker),
+      "مقروءٌ من مصدر الجذر لا من ملفٍّ كامل")
+
+# AN4 — الوقفُ والدفعات يُشتقّان من **المِرساة نفسِها** (وإلّا قِيس نصفُ التغيير)
+_an_src = _insp0.getsource(S.analyze_ticker)
+_an_i = _an_src.index("_anchor = pivot")
+_an_win = _an_src[_an_i:_an_i + 1200]
+check("📌 AN4 المِرساةُ تحكم الدفعات **والوقف** معًا (لا نصفَ تغيير)",
+      "tranches = [round(_anchor" in _an_win
+      and "stop_hi = _anchor" in _an_win and "stop_lo = _anchor" in _an_win,
+      "الدفعاتُ والوقفُ من `_anchor`")
+
+# AN5 — صفرُ نظرٍ مستقبليّ: `tested_level` تُنادى على `df` المقصوصة نفسِها
+check("📌 AN5 صفرُ نظرٍ مستقبليّ: `tested_level(df)` على الشريحة المقصوصة نفسِها",
+      "tested_level(df)" in _an_win,
+      "لا شريحةَ أطول ولا بياناتُ ما بعد يوم الترتيب")
+
+# AN6 — أرقامُ `tested_level` **كما هي** (صفرُ معايرةٍ في هذي التجربة)
+_an_sig = _insp0.signature(S.tested_level).parameters
+check("📌 AN6 أرقامُ `tested_level` بلا معايرة (‏30 · 0.015 · 2) ولا تُقرأ من env",
+      _an_sig["lookback"].default == 30 and _an_sig["tol"].default == 0.015
+      and _an_sig["min_touches"].default == 2
+      and "BT_ANCHOR_TOL" not in open("Super_stock.py", encoding="utf-8").read(),
+      "المتغيّرُ الوحيدُ هو المِرساة")
+
+# AN7 — الأداةُ والـworkflow: كلُّ مدخلٍ موصولٌ بـ`env` (قاعدة P1)
+_an_wf = open(".github/workflows/anchor.yml", encoding="utf-8").read()
+_an_py = open("anchor_arms.py", encoding="utf-8").read()
+check("📌 AN7 `anchor.yml`: كلُّ مدخلٍ موصولٌ بـenv/‏run-id (لا مدخلَ ميّت)",
+      "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _an_wf
+      and "ANCH_PROBE_SYMS: ${{ github.event.inputs.probe_syms }}" in _an_wf
+      and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _an_wf
+      and "ANCH_PROBE_SYMS" in _an_py,
+      "بصمةُ `BT_CANDLE` لا تتكرّر")
+
+# AN8 — الأذرعُ ثلاثٌ ولا رابعة · والحاكمةُ مثبَّتةٌ قبل الأرقام
+import anchor_arms as _an_mod
+check("📌 AN8 الأذرعُ ثلاثٌ مثبَّتة (‏A0/B1/B2) والحاكمةُ `B1` قبل الأرقام",
+      list(_an_mod.ARMS) == ["A0", "B1", "B2"]
+      and _an_mod.BASE_ARM == "A0" and _an_mod.JUDGE_ARM == "B1"
+      and _an_mod.GATE_KEYS == ("M_لا_مستوى_مختبر",),
+      f"ARMS={_an_mod.ARMS}")
 
 # LS12 — `LOGIC_VERSION` يحمل وسمَي الدفعة (يمسّ العضوية ⇒ إعادةُ بناءٍ تلقائية)
 # 🐞 ودرسٌ تكرّر أثناء التنفيذ: أُلحق هذا القفلُ أوّلًا **بعد** سطر الملخّص
