@@ -1377,11 +1377,21 @@ try:
           "الهدف 1" in msg)
     check("البطاقة تعرض الدعم الأساسي + شريط القوة",
           "الدعم الأساسي" in msg and "القوة العامة" in msg)
-    check("البطاقة B تعرض البوابات الناقصة مرقّمة من 14",
-          "البوابات الناقصة" in msg and "من 14" in msg and "1- MACD" in msg)
+    # 🔴 **حُدِّث عمدًا 2026-08-13** (أمرُ المالك «صلّح كل شي متأكد منه»): المقامُ
+    #    «‏من 14» كان **مخترَعًا** (لا شيء في المستودع يحسبه) ⇒ صار **الحدَّ الحاسم**
+    #    `WATCH_MAX_FAILS` المقروءَ من `CONFIG`. **والقفلُ أدّى عملَه فأمسك التغيير.**
+    check("البطاقة B تعرض النواقص مرقّمة **بالحدّ الحاسم** لا بمقامٍ مخترَع",
+          "النواقص" in msg and "الحدّ" in msg and "1- MACD" in msg
+          and "من 14" not in msg and "14/14" not in msg)
     check("البطاقة تعرض «دخول المضارب» (Williams %R)", "دخول المضارب" in msg)
-    check("سطر الفريمات 2/3 يوضّح الباقي", "باقي فريم" in (S.timeframes_info(2) or ""))
-    check("سطر الفريمات 3/3 مكتمل", "مكتمل" in (S.timeframes_info(3) or ""))
+    # 🔴 **حُدِّثا عمدًا 2026-08-13** (سؤال المالك «فريمات الكمال هذي مب من بوّابات
+    #    فيصل؟» — وكان محقًّا): أُزيل لفظُ «الكمال» وصار السطرُ يطبع **الحدَّ النافذ**،
+    #    وعند حدٍّ صفر يقول «معلومة — ليست شرطًا». **والقفلان أمسكا التغيير.**
+    check("سطر الفريمات يوضّح الباقي **بلا لفظ «كمال»** ويطبع الحدّ",
+          (lambda t: "⏳ = الباقي" in t and "كمال" not in t and "الحدّ" in t)(
+              S.timeframes_info(2, "شهري ✅ · أسبوعي ✅ · يومي ⏳") or ""))
+    check("سطر الفريمات 3 من 3 (بلا ادّعاء «مكتمل» كمعيار)",
+          (lambda t: "3 من 3" in t and "كمال" not in t)(S.timeframes_info(3) or ""))
     check("سطر الفريمات أقل من 2 لا يظهر (يبقى نقصًا)", S.timeframes_info(1) is None)
     check("سطر الفريمات يسمّي الفريم الناقص (⏳)",
           "يومي ⏳" in (S.timeframes_info(2, "شهري ✅ · أسبوعي ✅ · يومي ⏳") or ""))
@@ -14434,7 +14444,11 @@ check("🩺 PROBE🔒 يُعلن أنه مسقوفٌ بالصفحات (حدٌّ 
 _HUNTER_PINS = {
     "_post_split_high": "353d5aa6565d37ce",
     "_split_day_value": "b5f53cfc6693f26c",
-    "_split_frequency": "6e8590474f4cb291",
+    # 🔴 **حُدِّثت عمدًا (2026-08-13) — إصلاحُ نظرٍ مستقبليّ مُبلَّغٌ سلفًا:** كان
+    #    `d >= cutoff` **بلا حدٍّ أعلى** فيَعُدّ تقسيمًا يقع **بعد** يوم المرجع (حيًّا
+    #    لا أثرَ له · وأدواتُ المشي التاريخيّ كانت تقرأ المستقبل). الآن نافذةٌ مغلقةُ
+    #    الطرفين. **يُشدّد لا يُرخي** — مقفولٌ `FIX6`.
+    "_split_frequency": "51cde065c445e10f",
     "_split_setup_probe": "117eaf66511c12cf",
     "_yahoo_float": "ff6e63f2f6198ad1",
     "bottom_strike": "726f94595be226f1",
@@ -14465,7 +14479,11 @@ _HUNTER_PINS = {
     #    (‏145/150 مطابق في الحالتين). الآن الخطّافُ هنا، **افتراضُه `"cliff"` =
     #    السلوكُ السابق حرفيًّا** — مقفولٌ **سلوكيًّا** أدناه (‏CL3) لا نصًّا،
     #    **والشروطُ الخمسة والحكمُ لم تُمَسّ** (الخطّافُ في **مُرشّح التكلفة** قبلها).
-    "scan_split_hunter": "fc89b1480e4c5bb4",
+    # 🔴 **حُدِّثت عمدًا (2026-08-13، أمرُ المالك «صلّح كل شي متأكد منه») —
+    #    **تصحيحُ نصٍّ فقط**: الـdocstring كان يسرد **خمسة** شروطٍ والكودُ يشترط
+    #    **ستّة** (‏`didnt_rise` = «لم يصعد» — نصُّ فيصل). ⇒ **الجسمُ byte-identical**
+    #    مُثبَتًا ببصمةٍ تستبعد الـdocstring (‏`SHDOC`) ⇒ صفرُ تغييرٍ في السلوك.
+    "scan_split_hunter": "1c6d651d25b52cde",
     # 🔬 حُدِّثت عمدًا (2026-08-06، أمرُ المالك «سوها») بإضافة **مفتاح ترتيبٍ مطفأ
     #    افتراضيًّا** (‏`SPLIT_RADAR_ORDER`) لتجربة T-CLIFF-2 — حكمُ `T-CLIFF` نصَّ أن
     #    العلّة مفتاحُ الترتيب والسقف لا العتبة. **`"cliff"` = السلوكُ السابق حرفيًّا**
@@ -14473,7 +14491,11 @@ _HUNTER_PINS = {
     # 🔴 **حُدِّثت عمدًا (2026-08-13، أمرُ المالك «صلّح الرادار»):** `match` صارت
     #    **0-6** بإضافة `didnt_rise` ⇒ «جاهز ⟺ 6» والرتبةُ محفوظة (الجاهزُ يبقى في
     #    القمّة فلا يقصّه `SPLIT_RADAR_MAX`) — والشروطُ الحاسبةُ نفسُها لم تُمَسّ.
-    "scan_split_radar": "1e37384d52ad87ba",
+    # 🔴 **حُدِّثت عمدًا (2026-08-13) — «السقفُ لا يقصّ جاهزًا»:** كان
+    #    `SPLIT_RADAR_MAX` يُطبَّق **قبل** الجاهزية ⇒ قصٌّ صامتٌ ممكنٌ لمطابقٍ كامل
+    #    (لم يقع عمليًّا — و«لم يقع» ليست حارسًا). **يُشدّد لا يُرخي** (لا يُدخل
+    #    غيرَ جاهز) — مقفولٌ `FIX3` سلوكيًّا.
+    "scan_split_radar": "6ca219c88dcbb536",
     "short_targets_report": "ef12710917c8cbd0",
     "split_ma_maturity": "3678007d018c99f5",
     # 🔴 **حُدِّثت عمدًا (2026-08-13، أمرُ المالك «صلّح الرادار») — وهي جوهرُ
@@ -14496,15 +14518,153 @@ check("🛡️ الدرع: كلُّ دوالّ الصيّاد **موجودة** (
 check("🛡️ الدرع: كلُّ دوالّ الصيّاد **مطابقة لبصمتها المثبَّتة** (لا تغيير صامت)",
       not _h_changed, f"تغيّرت={_h_changed}")
 check("🛡️ الدرع يغطّي 19 دالّة (لا يتقلّص بصمت)", len(_HUNTER_PINS) == 19)
+
+# ═════ 🔧 «صلّح كل شي متأكد منه» (2026-08-13) — أقفالُ الإصلاحات الستّة ═══════════
+# 🔒 SHDOC · **إثباتُ أن تصحيحَ الـdocstring لم يغيّر سلوكًا**: جسمُ الدالّة (بعد
+#    استبعاد الـdocstring) يُقارَن ببصمةٍ مثبَّتة — فلو تسلّل سطرُ كودٍ مع «تصحيحِ
+#    نصّ» سقط القفل. (وهو الفرقُ بين «غيّرتُ التوثيق» و«غيّرتُ الحكم».)
+_fx_ast, _fx_h = __import__("ast"), __import__("hashlib")
+_fx_tree = _fx_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+
+
+def _fx_body(name):
+    for n in _fx_ast.walk(_fx_tree):
+        if isinstance(n, (_fx_ast.FunctionDef, _fx_ast.AsyncFunctionDef)) \
+                and n.name == name:
+            b = list(n.body)
+            if b and isinstance(b[0], _fx_ast.Expr) \
+                    and isinstance(b[0].value, _fx_ast.Constant) \
+                    and isinstance(b[0].value.value, str):
+                b = b[1:]
+            return _fx_h.sha256("".join(_fx_ast.dump(x) for x in b)
+                                .encode()).hexdigest()[:16]
+    return None
+
+
+check("🔧 SHDOC تصحيحُ الـdocstring **لم يمسّ الحكم**: جسمُ `scan_split_hunter` "
+      "و`apply_short_gate` بت-بت (استُبعد الـdocstring من البصمة)",
+      _fx_body("scan_split_hunter") == "1f7c63da4939b1be"
+      and _fx_body("apply_short_gate") == "5115b9160d0c017d",
+      f"hunter={_fx_body('scan_split_hunter')} · m13={_fx_body('apply_short_gate')}")
+
+# 🔒 FIX7 · **التوثيقُ يطابق كودَه** — الصنفُ الذي أمسكه المالك مرّتين
+check("🔧 FIX7 لا توثيقَ يكذب: docstring الصيّاد يذكر الشرط السادس · و`M13` لا "
+      "تدّعي «يرفض» (الكودُ يسجّلها نقصًا لينًا) · وتعليقُ `CONFIG` كذلك",
+      "didnt_rise" in _insp0.getsource(S.scan_split_hunter)
+      and "⑥" in _insp0.getsource(S.scan_split_hunter)
+      and "يرفض السهم لو شورته" not in _insp0.getsource(S.apply_short_gate)
+      and "نقصٌ لينٌ" in _insp0.getsource(S.apply_short_gate)
+      and "M13: رفض الشورت العالي" not in open("Super_stock.py",
+                                               encoding="utf-8").read())
+
+# 🔒 FIX1 · **مصدرٌ واحد لحارس الافتر** (لا مقياسان يتفرّقان)
+check("🔧 FIX1 حارسُ الافتر **دالّةٌ واحدة**: `split_hunter.ah_guard` يفوّض إلى "
+      "`S.ah_guard_rows` · والعقدُ محفوظ (kept, unverified) · وفاشلٌ-آمنٌ مفتوح",
+      "ah_guard_rows" in _insp0.getsource(_SHmod.ah_guard)
+      and callable(getattr(S, "ah_guard_rows", None))
+      and (lambda k, u: len(k) == 0 and u == [])(
+          *_SHmod.ah_guard(S, [{"symbol": "X", "price": 1.0, "ref": 2.0}],
+                           _ah_summer, fetch=lambda s, d: 9.0))
+      and (lambda k, u: len(k) == 1 and u == ["Y"])(
+          *_SHmod.ah_guard(S, [{"symbol": "Y", "price": 1.0, "ref": 2.0}],
+                           _ah_summer, fetch=lambda s, d: None)))
+
+# 🔒 FIX2 · **الرادارُ موصولٌ بالحارس من نقطة النداء الحيّة** (لا وجودُ دالّة)
+# 🐞 **وأوّلُ صياغةٍ لهذا القفل سقطت على تعليقي أنا** (يذكر `date.today()` **شرحًا**
+#    للعيب الذي أتفاداه) — الفخُّ النصّيُّ الموثّق، **للمرّة الخامسة في هذا المستودع**
+#    ⇒ صار **نحويًّا (AST)**: يقرأ **النداءات** لا الحروف.
+_fx_dtree = [n for n in _fx_ast.walk(_fx_tree)
+             if isinstance(n, _fx_ast.FunctionDef)
+             and n.name == "run_daily_watchlist"]
+_fx_calls = {(_fx_ast.unparse(c.func) if hasattr(_fx_ast, "unparse")
+              else getattr(c.func, "id", ""))
+             for c in _fx_ast.walk(_fx_dtree[0]) if isinstance(c, _fx_ast.Call)} \
+    if _fx_dtree else set()
+check("🔧 FIX2 الرادارُ يمرّ بحارس الافتر **من نقطة النداء الحيّة** (نحويًّا لا نصًّا) "
+      "— ويومُ الجلسة من البيانات (`df.index[-1]`) لا من ساعة الرنر",
+      "ah_guard_rows" in _fx_calls and "scan_split_radar" in _fx_calls
+      and "build_split_radar_section" in _fx_calls
+      and any("index[-1]" in c for c in _fx_calls | {
+          _fx_ast.unparse(n) for n in _fx_ast.walk(_fx_dtree[0])
+          if isinstance(n, _fx_ast.Subscript)} if isinstance(c, str)),
+      f"نداءاتٌ ذاتُ صلة={sorted(c for c in _fx_calls if 'radar' in c or 'guard' in c)}")
+
+# 🔒 FIX3 · **السقفُ لا يقصّ جاهزًا** — قفلٌ سلوكيّ تفريقيّ
+_fx_rows = ([{"symbol": f"R{i}", "match": 6, "freq": 0} for i in range(14)]
+            + [{"symbol": f"N{i}", "match": 3, "freq": 0} for i in range(9)])
+_fx_lim = 12
+_fx_ready = [p for p in _fx_rows if p["match"] == 6]
+_fx_rest = [p for p in _fx_rows if p["match"] != 6]
+_fx_keep = _fx_ready + _fx_rest[:max(0, _fx_lim - len(_fx_ready))]
+check("🔧 FIX3 السقفُ لا يقصّ جاهزًا: ‏14 جاهزًا بسقف 12 ⇒ **الأربعةَ عشرَ كلُّهم** "
+      "· وغيرُ الجاهز **لا يدخل** (يُشدّد لا يُرخي) · والمنطقُ نفسُه في الإنتاج",
+      len([p for p in _fx_keep if p["match"] == 6]) == 14
+      and len([p for p in _fx_keep if p["match"] != 6]) == 0
+      and 'p["match"] == 6' in _insp0.getsource(S.scan_split_radar)
+      and "ready + rest[" in _insp0.getsource(S.scan_split_radar))
+
+# 🔒 FIX4 · **لا مقامَ مخترَع** — «14» كان مغروسًا ولا شيء يحسبه
+# 🐞 **وهذا القفلُ أيضًا سقط أوّلًا على تعليقي** (يقتبس «‏/14» ليشرح ما أُزيل) ⇒
+#    صار يقرأ **ثوابتَ النصّ في الشجرة** (ما يُطبَع فعلًا) لا مصدرَ الدالّة.
+def _fx_strs(name):
+    out = []
+    for f in _fx_ast.walk(_fx_tree):
+        if isinstance(f, _fx_ast.FunctionDef) and f.name == name:
+            for n in _fx_ast.walk(f):
+                if isinstance(n, _fx_ast.Constant) and isinstance(n.value, str):
+                    out.append(n.value)
+    return out
+
+
+_fx_bad = [t for nm in ("build_message", "build_daily_message")
+           for t in _fx_strs(nm)
+           if ("من 14" in t or "14/14" in t or "/14" in t or "اجتاز 14" in t)]
+check("🔧 FIX4 لا مقامَ مخترَع في **ما يُطبَع فعلًا**: صفرُ «‏من 14»/«‏14/14»/«‏/14» "
+      "في ثوابت الكرت واليوميّ · والمقامُ المطبوع `WATCH_MAX_FAILS` النافذ",
+      not _fx_bad
+      and "WATCH_MAX_FAILS" in _insp0.getsource(S.build_message)
+      and "WATCH_MAX_FAILS" in _insp0.getsource(S.build_daily_message),
+      f"نصوصٌ مخالفة={_fx_bad[:3]}")
+
+# 🔒 FIX5 · **الفريماتُ لا تبيع «كمالًا»** والحدُّ الصفريّ يُعلَن معلومةً
+_fx_keep_tf = S.CONFIG.get("TF_MIN_REVERSALS")
+try:
+    S.CONFIG["TF_MIN_REVERSALS"] = 0
+    _fx_zero = S.timeframes_info(1, "شهري ✅ · أسبوعي ⏳ · يومي ⏳") or ""
+    S.CONFIG["TF_MIN_REVERSALS"] = 2
+    _fx_two = S.timeframes_info(2, "شهري ✅ · أسبوعي ✅ · يومي ⏳") or ""
+    _fx_none = S.timeframes_info(1, "شهري ✅ · أسبوعي ⏳ · يومي ⏳")
+finally:
+    S.CONFIG["TF_MIN_REVERSALS"] = _fx_keep_tf
+check("🔧 FIX5 عند حدٍّ صفر ⇒ «ℹ️ معلومة — ليست شرطًا» · وعند حدٍّ فعّال يُطبَع "
+      "الحدُّ · و**لفظُ «الكمال» أُزيل** · ودون الحدّ ⇒ None (لا سطرَ كاذب)",
+      "ليست شرطًا" in _fx_zero and "كمال" not in _fx_zero
+      and "الحدّ 2" in _fx_two and "كمال" not in _fx_two
+      and _fx_none is None,
+      f"صفر={_fx_zero[:50]} · اثنان={_fx_two[:50]}")
+
+# 🔒 FIX6 · **لا نظرَ مستقبليّ في تكرار التقسيم** — قفلٌ تفريقيّ
+_fx_sp = [(_dt0.date(2026, 1, 5), 0.1), (_dt0.date(2026, 9, 1), 0.1)]
+check("🔧 FIX6 `_split_frequency` **يتجاهل تقسيمًا بعد يوم المرجع**: قديمٌ+مستقبليّ "
+      "عند 2026-08-12 ⇒ 1 · وعند 2026-09-30 ⇒ 2 (فليس الحارسُ عدميًّا)",
+      S._split_frequency(_fx_sp, _dt0.date(2026, 8, 12)) == 1
+      and S._split_frequency(_fx_sp, _dt0.date(2026, 9, 30)) == 2,
+      f"{S._split_frequency(_fx_sp, _dt0.date(2026, 8, 12))} · "
+      f"{S._split_frequency(_fx_sp, _dt0.date(2026, 9, 30))}")
+del _fx_rows, _fx_keep, _fx_ready, _fx_rest, _fx_sp
 # 🔒 **إصلاحُ الرادار 2026-08-13 لم يمسّ الصيّاد بحرف** — يُقفَل صراحةً لأن حمايةَ
 #    المالك للصيّاد نصٌّ («اتركها على جنب وأبلغني»)، والإصلاحُ في الرادار وحده.
 check("🔒 RDR6هـ إصلاحُ الرادار **لم يمسّ الصيّاد**: `scan_split_hunter` وشرطُه ④ "
       "و`_split_setup_probe` بصماتُها **بت-بت** كما كانت",
-      _h_now.get("scan_split_hunter") == "fc89b1480e4c5bb4"
+      # 🔴 **حُدِّث عمدًا 2026-08-13 مساءً وصار أقوى:** بعد تصحيح docstring الصيّاد
+      #    (كان يسرد خمسًا والكودُ ستًّا) لم تعد البصمةُ الكاملةُ صالحةً مقياسًا —
+      #    فصار القفلُ على **الجسم بعد استبعاد الـdocstring**، وهو **أدقُّ لغرضه**:
+      #    الغرضُ «لم يُمَسّ الحكم» لا «لم يُمَسّ الحرف». والمِجَسُّ يبقى كاملًا.
+      _fx_body("scan_split_hunter") == "1f7c63da4939b1be"
       and _h_now.get("_split_setup_probe") == "117eaf66511c12cf"
-      and _h_now.get("scan_split_hunter") not in (None, "")
+      and _fx_body("scan_split_hunter") not in (None, "")
       and 'didnt_rise' in _insp0.getsource(S.scan_split_hunter),
-      f"صيّاد={_h_now.get('scan_split_hunter')} · مِجَسّ="
+      f"جسمُ الصيّاد={_fx_body('scan_split_hunter')} · مِجَسّ="
       f"{_h_now.get('_split_setup_probe')}")
 
 # ==========================================================

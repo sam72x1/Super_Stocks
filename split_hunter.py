@@ -40,65 +40,19 @@ AH_UNVERIFIED_TAG = "⚠️ لم يُتحقّق من سعر الافتر"
 
 
 def ah_guard(S, rows, session_date, fetch=None):
-    """🌙⛔ **حارس الافتر (AH-GUARD)** — يمنع التنبيه **البائت**.
+    """🌙⛔ **حارس الافتر (AH-GUARD)** — غلافٌ يفوّض إلى `S.ah_guard_rows`.
+
+    🔴 **نُقل الجسمُ إلى `Super_stock.ah_guard_rows` (2026-08-13، أمرُ المالك «صلّح كل
+    شي متأكد منه»)** لأن **الرادار كان بلا حارسِ افترٍ إطلاقًا** (عيبٌ مُبلَّغ)، ونسخُ
+    المنطق له كان سيُنشئ **مقياسين للشيء الواحد**. ⇒ **مصدرٌ واحد**، والاسمُ والعقد
+    (`(kept, unverified)`) وحقنُ `fetch` كما هي حرفيًّا — فالصيّادُ لم يتغيّر سلوكُه.
 
     العيب المُثبَت (2026-07-30): الصيّاد يعمل بعد إغلاق الافتر بالتصميم، لكن بياناته
     شمعة ياهو اليومية و**هي لا تشمل الافتر** ⇒ رشّح NUWE بعد أن انفجر ‏+100% في الافتر.
-
-    القاعدة — **صفر عتبة مخترعة**: نعيد تطبيق شرط فيصل ② «لم يصعد»
-    (`SPLIT_ROSE_MAX_PCT` كما هو) على **السعر الممتد** مقابل مرجعَي الصفّ نفسه:
-    `price` (إغلاق الجلسة الذي بُني عليه الكرت كلّه: القاع÷2 · الهدف · الوقف) و`ref`
-    (قمة ما بعد الحدث = الهدف +100%). كسرُ أيّهما ⇒ **يُكتَم** مع سطر سجلّ صريح.
-
-    ⚠️ **لماذا المرجعان لا `ref` وحده** (تصريحٌ لا اجتهادٌ صامت): في NUWE نفسه
-    ‏`ref ≈ 2×price`، والانفجار بلغ ‏~`ref` ⇒ ‏`ext/ref − 1 ≈ 0%` فلا يكتم شيئًا؛
-    الذي يلتقط «+100% في الافتر» فعلًا هو ‏`ext/price − 1`. فأُبقي شرط `ref` كما نُصّ
-    عليه **وأُضيف** مرجع `price` — والعتبة واحدة لم تُمسّ.
-
-    🔒 **فاشل-آمن مفتوح (fail-open):** بلا مفتاح/تعذّر الجلب/صفر شموع/مرجع تالف ⇒
-    الصفّ **يبقى** ويُوسَم في `unverified` (تعذّر ≠ صفر · لا كتم صامت ولا ثقة كاذبة).
-    يرجع `(kept, unverified)`. `fetch(sym, date)` محقون للاختبار بلا شبكة."""
-    kept, unverified = [], []
-    try:
-        th = float(S.CONFIG["SPLIT_ROSE_MAX_PCT"])
-    except Exception:                                            # noqa: BLE001
-        return list(rows or []), [str(r.get("symbol") or "") for r in (rows or [])]
-    f = fetch if fetch is not None else S.extended_last_price
-    for r in rows or []:
-        sym = str(r.get("symbol") or "")
-        try:
-            ext = f(sym, session_date)
-            ext = float(ext) if ext is not None else None
-        except Exception:                                        # noqa: BLE001
-            ext = None
-        if ext is None or ext != ext or ext <= 0:                # ⚠️ NaN ليس None
-            unverified.append(sym)
-            kept.append(r)
-            continue
-        bases, broke = [], None
-        for name, raw in (("إغلاق الجلسة", r.get("price")),
-                          ("قمة ما بعد الحدث", r.get("ref"))):
-            try:
-                b = float(raw)
-            except (TypeError, ValueError):
-                continue
-            if b != b or b <= 0:
-                continue
-            bases.append(name)
-            rise = (ext / b - 1.0) * 100.0
-            # نفس صيغة المِجَسّ حرفيًّا: القرار على الخام و«أكبر من» لا «أكبر أو يساوي»
-            if broke is None and rise > th:
-                broke = (name, b, rise)
-        if not bases:                     # لا مرجع صالح ⇒ لم نتحقّق (لا نكتم بالظنّ)
-            unverified.append(sym)
-            kept.append(r)
-            continue
-        if broke:
-            S.log(f"⛔ {sym}: شرط «لم يصعد» مكسور بالافتر (+{broke[2]:.0f}% عن "
-                  f"{broke[0]} ${broke[1]:.2f} ← ${ext:.2f}) — تنبيه بائت أُلغي")
-            continue
-        kept.append(r)
-    return kept, unverified
+    القاعدة — **صفر عتبة مخترعة**: يُعاد تطبيق شرط فيصل ② «لم يصعد»
+    (`SPLIT_ROSE_MAX_PCT` كما هو) على السعر الممتد مقابل مرجعَي الصفّ: **إغلاق الجلسة**
+    و**قمة ما بعد الحدث**. **فاشل-آمن مفتوح**: تعذّرٌ ⇒ يبقى ويُوسَم `unverified`."""
+    return S.ah_guard_rows(rows, session_date, fetch=fetch)
 
 
 def session_gate(now_utc=None, close_hour=20):

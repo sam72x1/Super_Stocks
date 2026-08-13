@@ -152,8 +152,11 @@ CONFIG = {
     "MACD_GATE_REQUIRED": True,  # M11: تقاطع MACD إيجابي إلزامي
     "MA_GATE_REQUIRED": True,    # M12: السعر على المتوسط الأسي 30/50
     "MA_GATE_MAX_ABOVE_PCT": 15.0,  # أقصى ارتفاع فوق المتوسط الأسي (مرتكز لا طائر)
-    "SHORT_GATE_REQUIRED": True, # M13: رفض الشورت العالي (ذكي: يعدّي لو مفقود)
-    "SHORT_GATE_MAX": 40_000,    # حد "الشورت العالي" (فوقها = نقص B)
+    # 🔴 **تصحيحُ تعليقٍ يكذب (2026-08-13، مسكةُ `BBLG`):** كان مكتوبًا «M13: **رفض**
+    # الشورت العالي» — **والكودُ لا يرفض**: يُسجَّل **نقصًا لينًا** والسهمُ يبقى
+    # (يُحسَم بحدّ النواقص لا هنا). لا سلوكَ تغيّر — النصُّ وحده صُحِّح.
+    "SHORT_GATE_REQUIRED": True, # M13: **وسمُ** الشورت العالي نقصًا (ذكي: يعدّي لو مفقود)
+    "SHORT_GATE_MAX": 40_000,    # حد "الشورت العالي" (فوقها = **نقص لين**، لا رفض)
     # 🔴 **تصحيح سندٍ لا تصحيح رقم (2026-07-31، دفتر المصادر):** كان مكتوبًا هنا
     # «فيصل اختار **SPPL** بـ35ألف» — **وسندان مزعومان سقطا كلاهما بالتحقّق البصريّ**:
     # ① `TG_1818` تبيّن أنه **لقطة محادثة مع طرفٍ ثالث** لا كلام فيصل (سقط 2026-07-30).
@@ -4979,7 +4982,13 @@ def _split_frequency(splits, today, days: int = 365) -> int:
     قصيره غالبا مايطول، سبوع بالكثير» (مثل ZCMD حقّق 600% ثم ارتدّ). دالة نقيّة ·
     فاشلة-آمنة (بيانات مفقودة/غير صالحة → 0). تقبل pandas Series (فهرسها تواريخ ·
     قيمتها نسبة التقسيم) أو قائمة أزواج (تاريخ, نسبة). `today` = dt.date. **عرض/تحذير
-    فقط — خارج الفرز نهائيًا** (لا يمسّ الدخول/الوقف/الأهداف/العضوية)."""
+    فقط — خارج الفرز نهائيًا** (لا يمسّ الدخول/الوقف/الأهداف/العضوية).
+
+    🔴 **إصلاحُ نظرٍ مستقبليّ (2026-08-13، أمرُ المالك «صلّح كل شي متأكد منه» — كان
+    مُبلَّغًا بلا إصلاح):** الشرطُ كان `d >= cutoff` **بلا حدٍّ أعلى** ⇒ يَعُدّ تقسيمًا
+    يقع **بعد** يوم المرجع. حيًّا لا أثرَ له (‏`today` هو اليوم فلا تقسيمَ مستقبليّ)
+    **لكن أدوات المشي التاريخيّ تمرّر `today` قديمًا** فكان الحقلُ يقرأ المستقبل.
+    الآن **نافذةٌ مغلقة الطرفين** `cutoff <= d <= today`. ⚠️ **يُشدّد لا يُرخي.**"""
     try:
         cutoff = today - dt.timedelta(days=days)
         if hasattr(splits, "index") and hasattr(splits, "values"):
@@ -4992,7 +5001,7 @@ def _split_frequency(splits, today, days: int = 365) -> int:
                 d = ts.date() if hasattr(ts, "date") else ts
                 if isinstance(d, str):
                     d = dt.date.fromisoformat(d[:10])
-                if float(ratio) < 1.0 and d >= cutoff:
+                if float(ratio) < 1.0 and cutoff <= d <= today:
                     n += 1
             except Exception:
                 continue
@@ -5437,7 +5446,17 @@ def scan_split_radar(history, exclude=None, fetch_splits=None, fetch_borrow=None
         p["match"] = int(p["near_bottom"]) + int(p["held_ok"]) + int(p["short_ok"]) \
             + int(p["float_ok"]) + int(not p["pump"]) + int(bool(p.get("didnt_rise")))
     probed.sort(key=lambda x: (-x["match"], x.get("freq", 0)))
-    return probed[:int(cap or CONFIG["SPLIT_RADAR_MAX"])]
+    # 🔴 **السقفُ لا يقصّ جاهزًا أبدًا (إصلاح 2026-08-13، أمرُ المالك «صلّح كل شي متأكد
+    #    منه»)** — كان مُبلَّغًا بلا إصلاح: `SPLIT_RADAR_MAX` يُطبَّق **قبل** الجاهزية،
+    #    فلو تجاوز الجاهزون السقفَ يومًا **قُصَّ أحدُهم صامتًا** — وهو بالضبط ما تمنعه
+    #    قاعدتُنا «لا قصَّ صامتًا». عمليًّا لم يقع (الجاهزُ يتصدّر بالفرز) **لكن
+    #    «لم يقع» ليست حارسًا**. ⇒ الجاهزون (‏`match`==6) يمرّون كلُّهم، والسقفُ يحكم
+    #    البقيّةَ وحدها. ⚠️ **يُشدّد لا يُرخي**: لا يُدخل صفًّا غيرَ جاهز، وأقصى أثره
+    #    **إظهارُ جاهزٍ كان يُحذَف** — والترتيبُ محفوظ (الجاهزون أوّلًا كما هم).
+    lim = int(cap or CONFIG["SPLIT_RADAR_MAX"])
+    ready = [p for p in probed if p["match"] == 6]
+    rest = [p for p in probed if p["match"] != 6]
+    return ready + rest[:max(0, lim - len(ready))]
 
 
 def _float_too_big(fl) -> bool:
@@ -5941,9 +5960,15 @@ def scan_split_hunter(history, today=None, fetch_splits=None, fetch_float=None,
     (بطاقة فيصل MWC تعامل الطرح كالقسم حرفيًّا). **الشروط الخمسة الأخرى لم تُمَسّ** —
     توسيع نوع الحدث لا تخفيف معيار. نداء SEC للطرح مقيَّد بـ`OFFERING_PROBE_CAP` ولا
     يقع إلا على مُرشّح OHLCV **بلا** تقسيم عكسي حديث (فصفر تكلفة على المقسّمين).
-    **الشروط الصارمة (تُشترط كلها — قرار المستخدم «أساسي موثوق»):** ① مقسّم عكسي حديث
-    ② وصل قمة-ما-بعد-التقسيم÷2 ③ حافظ القاع 3 جلسات ④ فلوت<2مليون (ياهو، مثبَت) ⑤
-    خالٍ من رفعة قروب. **السياق (عرض فقط، أفضل-جهد):** المتاح<20ألف + رسوم الاقتراض
+    **الشروط الصارمة (تُشترط كلها — قرار المستخدم «أساسي موثوق»):** ① حدثٌ مؤسِّس حديث
+    ② وصل قمة-ما-بعد-الحدث÷2 ③ حافظ القاع 3 جلسات ④ فلوت<2مليون (ياهو، مثبَت) ⑤
+    خالٍ من رفعة قروب ⑥ **«لم يصعد أكثر من `SPLIT_ROSE_MAX_PCT`% بعد الحدث»**
+    (‏`IMG_0150/0153` — نصُّ فيصل، مُنفَّذةٌ في الكود أدناه: `if not pr["didnt_rise"]`).
+    🔴 **وهذا النصُّ كان يسرد خمسًا والكودُ يشترط ستًّا** — عيبٌ مُبلَّغٌ 2026-08-13
+    صباحًا وأُصلح مساءً بأمر المالك «صلّح كل شي متأكد منه». **تصحيحُ نصٍّ فقط: صفرُ
+    تغييرٍ في السلوك** (جسمُ الدالّة byte-identical — مقفولٌ `SHDOC`)، والبصمةُ
+    تُحدَّث **بإقرارٍ مؤرَّخ** لا بإرخاء.
+    **السياق (عرض فقط، أفضل-جهد):** المتاح<20ألف + رسوم الاقتراض
     (ChartExchange، قد يتقطّع/يغيب) + متوسطات 20/30/50 + تكرار التقسيم. **لا يمسّ
     الاختيار/الدخول/الوقف/العضوية — تنبيه صيد فقط.** الجالبات محقونة للاختبار · فاشل-آمن."""
     fs = fetch_splits or _fetch_splits
@@ -7952,17 +7977,33 @@ def news_links_compact(sym: str) -> str:
 
 
 def timeframes_info(tf_count, tf_display=None):
-    """سطر معلومة عن توافق الفريمات لمّا تُجتاز البوابة (2 فأكثر) — يسمّي كل فريم
-    (شهري/أسبوعي/يومي) بعلامته فيبان الفريم الناقص (⏳). يرجع None لو لم تُجتَز
-    (تظهر وقتها ضمن النواقص) أو العدد غير متوفر."""
-    if tf_count is None or tf_count < CONFIG["TF_MIN_REVERSALS"]:
+    """سطر معلومة عن توافق الفريمات — يسمّي كل فريم (شهري/أسبوعي/يومي) بعلامته
+    فيبان الناقص (⏳). يرجع None لو العدد غير متوفر أو دون الحدّ النافذ.
+
+    🔴 **تصحيحُ صدقٍ (2026-08-13، سؤال المالك «فريمات الكمال هذي مب قلنا إنها مب من
+    ضمن بوّابات فيصل؟» — وكان محقًّا):** كان السطرُ يقول «⏳ = الباقي **للكمال**»
+    فيبيع معيارًا لا نملكه. **والمقيس:** `TF_MIN_REVERSALS` **قيمتُه النافذة صفر**
+    بعد «معايير فيصل وحدها» — لأن معايرةَ الكاتالوج وجدت أن أسهم فيصل في العشرين
+    جلسةً قبل انفجارها **لا تُجمِع ولا فريمًا واحدًا** (‏`d15cat`) ⇒ الحدُّ خرج من
+    الشروط بقياسِ كاتالوجه. ⇒ عند حدٍّ صفر يُوسَم السطرُ **«معلومة — ليست شرطًا»**
+    (نفسُ ما تفعله بطاقةُ البوّابات في فحص اليد بالضبط)، **ولا يُقال «كمال»**؛
+    وعند حدٍّ فعّال يُطبَع الحدُّ نفسُه لا رقمٌ مغروس. **عرض فقط — صفرُ أثرٍ على
+    الفرز** (الدالّة لا تُنادى من أيّ قرار)."""
+    if tf_count is None:
         return None
+    try:
+        need = float(CONFIG["TF_MIN_REVERSALS"])
+    except (TypeError, ValueError, KeyError):
+        need = 0.0
+    if tf_count < need:
+        return None
+    note = ("ℹ️ معلومة — ليست شرطًا (حدُّ الكاتالوج صفر)" if need <= 0
+            else f"الحدّ {int(need)} من 3")
     if tf_display:
-        tag = "مكتمل" if tf_count >= 3 else f"{tf_count}/3 · ⏳ = الباقي للكمال"
-        return f"🕯️ الفريمات ({tag}): {tf_display}"
+        tag = "‏3 من 3" if tf_count >= 3 else f"{tf_count} من 3 · ⏳ = الباقي"
+        return f"🕯️ الفريمات ({tag} · {note}): {tf_display}"
     # احتياطي (سجلّات قديمة بلا تفصيل الفريمات)
-    return ("🕯️ الفريمات 3/3 ✓ (مكتمل)" if tf_count >= 3
-            else "🕯️ الفريمات 2/3 ✓ (باقي فريم للكمال)")
+    return f"🕯️ الفريمات {int(tf_count)} من 3 ({note})"
 
 
 _SETUP_AR = {"pivot_reversal": "ارتكاز انعكاسي", "liquidity_sweep": "مسح سيولة",
@@ -8648,13 +8689,19 @@ def build_message(results: list, splits: list,
         if tier == "B":
             sf = r.get("soft_fails", [])
             if sf:
-                lines.append(f"🅱️ البوابات الناقصة ({len(sf)} من 14):")
+                # 🔴 **«من 14» كان مقامًا مخترَعًا (أُصلح 2026-08-13):** لا ثابتَ ولا
+                #    قائمةَ ولا حسابَ في المستودع كلِّه يُنتج الرقم 14 — كان **مغروسًا
+                #    نصًّا في ثلاثة أسطر عرض**، وعددُ النواقص الممكنة ليس 14 أصلًا.
+                #    ⇒ المقامُ الآن **الحدُّ الذي يحسم العضوية فعلًا** (`WATCH_MAX_FAILS`
+                #    ويُقرأ من `CONFIG` فلا يتعفّن) — فيقرأ المالكُ كم بقي له.
+                lines.append(f"🅱️ النواقص ({len(sf)} · الحدّ "
+                             f"{CONFIG['WATCH_MAX_FAILS']}):")
                 for i, f in enumerate(sf, 1):
                     lines.append(f"   {i}- {f}")
             else:
                 lines.append("🅱️ مراقبة")
         else:
-            lines.append("✅ اجتاز 14/14 بوابة")
+            lines.append("✅ صفر نواقص")
         _tfi = timeframes_info(r.get("tf_count"), r.get("tf_display"))
         if _tfi:
             lines.append(_tfi)
@@ -9720,10 +9767,19 @@ def make_pullback_entry(r: dict, today_iso: str) -> dict:
 
 
 def apply_short_gate(results: list) -> list:
-    """M13 — بوابة الشورت العالي، تُطبّق بعد الفرز (مرحلة ثانية).
+    """M13 — الشورت العالي، تُطبّق بعد الفرز (مرحلة ثانية).
     الشورت يُجلب فقط للأسهم الناجحة (جلبه بطيء، يستحيل لكل السوق).
-    يرفض السهم لو شورته معروف وعالي (≥ الحد). لو البيانة مفقودة من
-    المصادر الثلاثة (Fintel→FINRA→Yahoo) → يعدّي (فائدة الشك)."""
+
+    🔴 **تصحيحُ توثيقٍ يكذب على كوده (2026-08-13، أمرُ المالك «صلّح كل شي متأكد منه» —
+    وأخرجَته مسكةُ `BBLG`):** كان هذا النصُّ يقول «**يرفض** السهم لو شورته معروف
+    وعالي» **ويكذّبه كودُه بعد أسطر** (‏«v2.7: لا يُحذف — يُسجَّل نقصًا») — والكذبةُ
+    كانت مكرّرةً في تعليق `CONFIG` وفي `CLAUDE.md`. **والحقيقة:** الشورتُ العالي
+    **نقصٌ لينٌ يُسجَّل** (`soft_fails`) والسهمُ **يبقى**، فيُحسَم بحدّ النواقص
+    (`WATCH_MAX_FAILS`) لا بهذي الدالّة. ⇒ **لا سلوكَ تغيّر — النصُّ وحده صُحِّح.**
+    ⚠️ ولذلك ظهر `BBLG` مرشّحًا وشورتُه **‏786,805** مقابل حدٍّ 40,000 (‏19.7×).
+
+    ومقياسُها **حجمُ FINRA اليوميّ** لا «المتاح للاقتراض» (مقياسان مختلفان — مقفول).
+    ولو البيانة مفقودة من المصادر (Fintel→FINRA→Yahoo) → **يمرّ** (فائدة الشك)."""
     if not CONFIG.get("SHORT_GATE_REQUIRED", False) or not results:
         return results
     syms = [r["symbol"] for r in results]
@@ -11505,6 +11561,71 @@ def extended_last_price(sym: str, session_date, fetch_bars=None):
         return round(best_c, 4) if best_c is not None else None
     except Exception:
         return None
+
+
+def ah_guard_rows(rows, session_date, fetch=None):
+    """🌙⛔ **حارس الافتر على صفوف المرشّحين** — يمنع التنبيه **البائت**.
+
+    🏠 **موضعُها هنا (2026-08-13، أمرُ المالك «صلّح كل شي متأكد منه»):** كانت تعيش في
+    `split_hunter.ah_guard` وحدها، **والرادارُ بلا حارسِ افترٍ إطلاقًا** — عيبٌ مُبلَّغٌ
+    منذ 2026-08-13 صباحًا. ونسخُها للرادار كان سيُنشئ **مقياسين للشيء الواحد** (الذنبُ
+    الموثّق: منطقان يتفرّقان فيكذب أحدُهما) ⇒ **نُقلت هنا مصدرًا واحدًا**،
+    و`split_hunter.ah_guard` صارت **غلافًا يفوّض إليها** فاسمُها العامّ وعقدُها كما هما.
+
+    القاعدة — **صفر عتبة مخترَعة**: يُعاد تطبيق شرط فيصل ② «لم يصعد»
+    (`SPLIT_ROSE_MAX_PCT` كما هو) على **السعر الممتد** مقابل مرجعَي الصفّ نفسه:
+    `price` (إغلاق الجلسة الذي بُني عليه الكرت: القاع÷2 · الهدف · الوقف) و`ref`
+    (قمة ما بعد الحدث = الهدف +100%). كسرُ أيّهما ⇒ **يُكتَم** مع سطر سجلّ صريح.
+
+    ⚠️ **لماذا المرجعان لا `ref` وحده** (تصريحٌ لا اجتهادٌ صامت): في NUWE نفسه
+    ‏`ref ≈ 2×price`، والانفجار بلغ ‏~`ref` ⇒ ‏`ext/ref − 1 ≈ 0%` فلا يكتم شيئًا؛
+    الذي يلتقط «+100% في الافتر» فعلًا هو ‏`ext/price − 1`.
+
+    🔒 **فاشل-آمن مفتوح (fail-open):** بلا مفتاح/تعذّر الجلب/صفر شموع/مرجع تالف ⇒
+    الصفّ **يبقى** ويُوسَم في `unverified` (تعذّر ≠ صفر · لا كتم صامت ولا ثقة كاذبة).
+    يرجع `(kept, unverified)`. `fetch(sym, date)` محقون للاختبار بلا شبكة.
+    🔒 عرض/تنبيه فقط — خارج الفرز والجذور (مقفول)."""
+    kept, unverified = [], []
+    try:
+        th = float(CONFIG["SPLIT_ROSE_MAX_PCT"])
+    except Exception:                                            # noqa: BLE001
+        return list(rows or []), [str(r.get("symbol") or "") for r in (rows or [])]
+    f = fetch if fetch is not None else extended_last_price
+    for r in rows or []:
+        sym = str(r.get("symbol") or "")
+        try:
+            ext = f(sym, session_date)
+            ext = float(ext) if ext is not None else None
+        except Exception:                                        # noqa: BLE001
+            ext = None
+        if ext is None or ext != ext or ext <= 0:                # ⚠️ NaN ليس None
+            unverified.append(sym)
+            kept.append(r)
+            continue
+        bases, broke = [], None
+        for name, raw in (("إغلاق الجلسة", r.get("price")),
+                          ("قمة ما بعد الحدث", r.get("ref"))):
+            try:
+                b = float(raw)
+            except (TypeError, ValueError):
+                continue
+            if b != b or b <= 0:
+                continue
+            bases.append(name)
+            rise = (ext / b - 1.0) * 100.0
+            # نفس صيغة المِجَسّ حرفيًّا: القرار على الخام و«أكبر من» لا «أكبر أو يساوي»
+            if broke is None and rise > th:
+                broke = (name, b, rise)
+        if not bases:                     # لا مرجع صالح ⇒ لم نتحقّق (لا نكتم بالظنّ)
+            unverified.append(sym)
+            kept.append(r)
+            continue
+        if broke:
+            log(f"⛔ {sym}: شرط «لم يصعد» مكسور بالافتر (+{broke[2]:.0f}% عن "
+                f"{broke[0]} ${broke[1]:.2f} ← ${ext:.2f}) — تنبيه بائت أُلغي")
+            continue
+        kept.append(r)
+    return kept, unverified
 
 
 def monitor_live_events(wl: dict, history: dict, today_iso: str,
@@ -13619,10 +13740,12 @@ def build_daily_message(wl: dict, splits: list,
             lines.append(f"   🚀 تحرر فوق ${s['liberation']:.2f}")
         if any("Williams" in f for f in (s.get("flags") or [])):
             lines.append("   ⚡ دخول المضارب ✓ (إشارة زخم للدخول)")
-        # النواقص (B) مرقّمة بسطر واحد (n من 14)
+        # النواقص (B) مرقّمة بسطر واحد — المقامُ **الحدُّ الحاسم** لا رقمٌ مغروس
+        # (‏«‏/14» كان مخترَعًا: لا شيء في المستودع يحسبه — أُصلح 2026-08-13).
         if tier == "B" and s.get("soft_fails"):
             sf = s["soft_fails"]
-            lines.append(f"   🅱️ ناقص ({len(sf)}/14): "
+            lines.append(f"   🅱️ ناقص ({len(sf)} · الحدّ "
+                         f"{CONFIG['WATCH_MAX_FAILS']}): "
                          + " · ".join(f"{j}- {x}" for j, x in enumerate(sf, 1)))
         _tfi = timeframes_info(s.get("tf_count"), s.get("tf_display"))
         if _tfi:
@@ -15167,6 +15290,26 @@ def run_daily_watchlist(wl: dict) -> None:
                                       # `scan_split_hunter` أصلًا — فاختلفت الأداتان).
                                       fetch_float=_yahoo_float,
                                       fetch_pump=group_pump_scar)
+        # 🌙⛔ **حارسُ الافتر — أُضيف 2026-08-13 (أمرُ المالك «صلّح كل شي متأكد منه»)**
+        #    بعد أن كان مُبلَّغًا بلا إصلاح: الصيّادُ محروسٌ والرادارُ **بلا حارسٍ
+        #    إطلاقًا** رغم أن كليهما يقرأ **شمعة ياهو اليومية التي لا تشمل الافتر**
+        #    ⇒ كان يمكن أن يرسل الرادارُ سهمًا انفجر ‏+100% بعد الإغلاق (واقعةُ NUWE).
+        #    🔒 **نفسُ الدالّة ونفسُ العتبة** (`ah_guard_rows` · `SPLIT_ROSE_MAX_PCT`)
+        #    التي يستعملها الصيّاد — لا نسخةَ ثانية. **فاشلٌ-آمنٌ مفتوح**: تعذّرُ
+        #    التحقّق ⇒ الصفُّ يبقى ويُوسَم، فلا يُكتَم مرشّحٌ بالظنّ.
+        #    📅 **ويومُ الجلسة من البيانات لا من ساعة الرنر** — نفسُ ما يفعله الصيّاد
+        #    (`max` آخرِ شمعة): الفرزُ يعمل قبل الافتتاح فآخرُ شمعةٍ يوميّة هي **جلسةُ
+        #    أمس**، وهي بالضبط الجلسةُ التي نريد فحصَ افترِها. (‏`date.today()` على
+        #    الرنر قد يكون اليومَ التالي — العيبُ الموثّق في `polygon_after_hours`.)
+        _sess = None
+        try:
+            _sess = max(df.index[-1] for df in hist.values() if len(df)).date()
+        except (ValueError, AttributeError, TypeError):
+            _sess = None
+        radar_rows, _ah_unv = ah_guard_rows(radar_rows, _sess)
+        if _ah_unv:
+            log(f"⚠️ رادار التقسيم: لم يُتحقّق من سعر الافتر لـ{len(_ah_unv)} "
+                f"({', '.join(_ah_unv[:6])}) — تُعرَض بفائدة الشك")
         radar_msg = build_split_radar_section(radar_rows)
         if radar_msg:
             send_telegram(radar_msg + "\n\n" + FOOTER)
