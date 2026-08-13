@@ -128,6 +128,44 @@ def cost_projection(n_syms: int, n_days: int, secs_per_day: float) -> str:
             f"(**معامِلُ التوسيع مطبوعٌ صراحةً — لا إسقاطَ من عيّنةٍ بلا معامِل**)")
 
 
+HISTORY_START = "2003-01-01"      # بدءُ تاريخ Polygon المُثبَت (‏flatfiles §)
+
+
+def fetch_history(syms: list) -> dict:
+    """📥 **جالبُ التاريخ الطويل** — `pit_history.polygon_daily` **بالاسم**
+    (المنفذُ مُتحقَّقٌ سلفًا في `pit_prereg §P2`: تغطيةُ 90% ويخدم **المشطوبة**).
+
+    🔴🔴 **ولماذا لا `download_history`** (إصلاحُ عيبٍ مقيسٍ بعد أوّل تشغيلة —
+    ملحق `op23_prereg §⓪-أ`): جالبُ الإنتاج مسقوفٌ بـ`HISTORY_DAYS`=800 يومًا
+    (‏≈2.2 سنة) ⇒ **كلُّ المِرساة تقع في 2026 بالضرورة** فطبع التوزيعُ
+    ‏2003-2012=0 · 2013-2019=0 — أي أن «‏23 سنة» كانت **دعوًى لا تنفيذًا**.
+    ⚠️ **وتعذّرُ الجلب يُعلَن بسببه المُسمّى** (‏`O7`: «الصفرُ عطبُ أداةٍ حتى
+    يُنفى») · **وارتدادٌ صريحٌ إلى جالب الإنتاج عند غياب المفتاح** مع **وسمٍ
+    ظاهر** أن المدى قصيرٌ فلا تُقرأ الحقبُ الفارغةُ نتيجةً."""
+    import os as _os                                             # noqa: PLC0415
+    key = (_os.environ.get("POLYGON_API_KEY") or "").strip()
+    if not key:
+        import Super_stock as S                                  # noqa: PLC0415
+        _log("⚠️ **بلا `POLYGON_API_KEY`** ⇒ ارتدادٌ لجالب الإنتاج (سقفٌ "
+             "‏≈2.2 سنة) — **الحقبُ القديمةُ ستُطبَع صفرًا لضيق المدى لا لغياب "
+             "الأحداث**، فلا تُقرأ نتيجةً.")
+        return S.download_history(syms)
+    import pit_history as PH                                     # noqa: PLC0415
+    end = dt.date.today().isoformat()
+    out, bad = {}, []
+    for i, sym in enumerate(syms, 1):
+        df, why = PH.polygon_daily(sym, HISTORY_START, end, key)
+        if df is None or len(df) < 60:
+            bad.append(f"{sym}:{why}")
+            continue
+        out[sym] = df
+        if i % 25 == 0:
+            _log(f"   … {i}/{len(syms)} رمزًا")
+    _log(f"📥 تاريخٌ من {HISTORY_START}: {len(out)}/{len(syms)} رمزًا"
+         + (f" · **تعذّر {len(bad)}**: " + " · ".join(bad[:8]) if bad else ""))
+    return out
+
+
 def phase_discover(years) -> dict:
     """‏P1 — اكتشافُ الأحداث. **يُشغَّل أوّلًا وحدَه** فنرى `W1`/`W2` قبل حرق
     ساعاتِ الصفقات (§⑥-3)."""
@@ -140,7 +178,7 @@ def phase_discover(years) -> dict:
              "بأمرٍ منفصل — لا يُختلَق هنا.)")
         return {"events": [], "raw": 0, "split_blocked": 0}
     raw, blocked, events = 0, 0, []
-    hist = S.download_history(syms)
+    hist = fetch_history(syms)
     for sym in syms:
         bars = hist.get(sym)
         if bars is None or len(bars) < BASE_BARS * 3:
