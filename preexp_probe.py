@@ -143,11 +143,19 @@ def trades_layer(sym: str, sess_date: str) -> dict:
     except Exception:                                             # noqa: BLE001
         pass
     try:
-        ob = S._operator_blocks(rows, S.CONFIG["OPERATOR_MIN_SHARES"]) or {}
-        out.update({"buy_block_shares": ob.get("buy_block_shares"),
-                    "bid_block_shares": ob.get("bid_block_shares")})
-    except Exception:                                             # noqa: BLE001
-        pass
+        # 🔴 `_operator_blocks` تستقبل **أزواج (سعر، حجم)** لا قواميس (‏`for p, s
+        #    in trades`) — تمريرُ القواميس يرمي داخلها فترجع `None` صامتةً ⇒
+        #    «مقامٌ صفر» يُقرأ «لا بيانات» وحقيقتُه **عطبُ شكل**. مقفول `PX8`.
+        ob = S._operator_blocks([(t.get("price"), t.get("size")) for t in rows],
+                                S.CONFIG["OPERATOR_MIN_SHARES"])
+        if ob is None:                       # عيّنةٌ دون 20 صفقة — يُعلَن ولا يُصمت
+            out["blocks_status"] = "عيّنةٌ غيرُ كافية"
+        else:
+            out.update({"buy_block_shares": ob.get("buy_block_shares"),
+                        "bid_block_shares": ob.get("bid_block_shares"),
+                        "blocks_status": "ok"})
+    except Exception as exc:                                      # noqa: BLE001
+        out["blocks_status"] = f"عطب:{type(exc).__name__}"        # لا `pass` صامت
     try:
         up = S.uniform_prints([(t.get("price"), t.get("size")) for t in rows])
         out.update({"uniform_size": (up or {}).get("uniform_size"),
@@ -179,6 +187,23 @@ def _median(xs):
         return None
     n = len(ys)
     return ys[n // 2] if n % 2 else (ys[n // 2 - 1] + ys[n // 2]) / 2.0
+
+
+_BLOCK_METRICS = ("buy_block_shares", "bid_block_shares")
+
+
+def _status_tally(rows, key) -> str:
+    """عدّادُ حالاتِ طبقةٍ عبر نوافذ الحدث والشاهد — **يُنطِق المقامَ الصفريّ**.
+
+    بلا هذا يُطبَع «مقامٌ صفر» فيُقرأ «السوق هادئ» وحقيقتُه قد تكون عطبَ شكلٍ في
+    الأداة (وقد وقع فعلًا: قواميسُ بدل أزواج) — درسُ «الصفرُ عطبُ أداةٍ حتى يُنفى»."""
+    tally: dict = {}
+    for r in rows:
+        for w in (r.get("حدث") or []) + (r.get("شاهد") or []):
+            st = w.get(key) or ("تعذّرُ جلب" if not w.get("fetch_ok") else "غائب")
+            tally[st] = tally.get(st, 0) + 1
+    return " · ".join(f"{k}:{v}" for k, v in
+                      sorted(tally.items(), key=lambda kv: -kv[1])) or "بلا نوافذ"
 
 
 def _mean_of(win, key):
@@ -215,7 +240,11 @@ def report_rows(rows) -> None:
             pairs = [(a, b) for a, b in zip(ev, ct)
                      if isinstance(a, (int, float)) and isinstance(b, (int, float))]
             if not pairs:
-                _log(f"{m:<20}{'—':>13}{'—':>14}{'—':>13}{'مقامٌ صفر':>12}")
+                # 🔴 «الصفرُ عطبُ أداةٍ حتى يُنفى»: المقامُ الصفريّ **يُشخَّص**
+                #    بحالات الطبقة لا يُترك مبهمًا (‏`PX9`).
+                why = (f"  ⇐ {_status_tally(sub, 'blocks_status')}"
+                       if m in _BLOCK_METRICS else "")
+                _log(f"{m:<20}{'—':>13}{'—':>14}{'—':>13}{'مقامٌ صفر':>12}{why}")
                 continue
             d = [a - b for a, b in pairs]
             pos = sum(1 for x in d if x > 0)

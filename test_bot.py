@@ -16939,6 +16939,47 @@ check("🔬 PX7 دوالُّ الإنتاج بأسمائها (acc/operator/unifo
       all(_n in _px_src for _n in ("acc_components", "_operator_blocks",
                                    "uniform_prints", "activity_features")))
 
+# PX10 — 🔴 **شكلُ مدخل `_operator_blocks`** (عيبٌ مقيسٌ في تشغيلة `31749403631`):
+#        الإنتاجيّةُ تفكّ `for p, s in trades` ⇒ تستقبل **أزواجًا** لا قواميس؛
+#        وتمريرُ القواميس يرمي داخلها فترجع `None` **صامتةً** ⇒ يُطبَع «مقامٌ صفر»
+#        فيُقرأ «لا بيانات» وحقيقتُه عطبُ شكل. سلوكيٌّ **مفرِّق** ‏+ نحويّ.
+_pk_rows = [{"price": 1.0 + (i % 3) * 0.01, "size": 1500} for i in range(30)]
+check("🔬 PX10أ الإنتاجيّةُ تفرّق: قواميسُ ⇒ None · أزواجُ ⇒ قياسٌ فعليّ",
+      S._operator_blocks(_pk_rows, 1000) is None
+      and (S._operator_blocks([(r["price"], r["size"]) for r in _pk_rows],
+                              1000) or {}).get("buy_block_shares", 0) > 0,
+      "لولا التفريقُ لكان القفلُ أعمى عن الشكل")
+_pk_call = [n for n in _ast0.walk(_ast0.parse(_px_src))
+            if isinstance(n, _ast0.Call)
+            and getattr(n.func, "attr", "") == "_operator_blocks"]
+check("🔬 PX10ب والمِجَسُّ يمرّر **أزواجًا** (‏ListComp عنصرُها Tuple) لا قواميس",
+      len(_pk_call) == 1 and isinstance(_pk_call[0].args[0], _ast0.ListComp)
+      and isinstance(_pk_call[0].args[0].elt, _ast0.Tuple))
+
+# PX11 — «الصفرُ عطبُ أداةٍ حتى يُنفى»: المقامُ الصفريّ **يُشخَّص** بحالاتٍ مُسمّاة،
+#        ولا `pass` صامتٌ يبتلع سببَه.
+check("🔬 PX11أ `_status_tally` تُنطِق المقامَ الصفريّ بحالاته",
+      "عطب:ValueError" in _px._status_tally(
+          [{"حدث": [{"fetch_ok": True, "blocks_status": "عطب:ValueError"}],
+            "شاهد": []}], "blocks_status")
+      and "تعذّرُ جلب" in _px._status_tally(
+          [{"حدث": [{"fetch_ok": False}], "شاهد": []}], "blocks_status"))
+check("🔬 PX11ب وكتلةُ الطبعات تُسجّل حالتَها ولا تُخفي استثناءَها",
+      "blocks_status" in _px_src
+      and "except Exception as exc" in _px_src
+      and _px_src.count("_status_tally(") >= 2)
+
+# O14 — 🔴 مسارُ الرفع = **المدخل** لا اسمٌ مغروس (تشغيلةُ `31749977789` كتبت
+#       أحداثَها في ملفٍّ آخر فلم تُرفَع: «لا ملفّات» = نتيجةٌ تضيع)، ‏+ حدُّ صدقِ
+#       المِرساة الواحدة يُطبَع مع الحقب.
+_o14 = _yaml0.safe_load(open(".github/workflows/op23.yml", encoding="utf-8"))
+_o14u = [s for s in _o14["jobs"]["op23"]["steps"]
+         if "upload-artifact" in str(s.get("uses", ""))][0]
+check("🕵️ O14أ مسارُ الرفع يتبع مدخلَ `csv` (لا اسمَ مغروسًا)",
+      "inputs.csv" in str(_o14u["with"]["path"]))
+check("🕵️ O14ب وفراغُ الحقب يُعلَن **أثرَ مِرساةٍ واحدة** لا نقصَ تاريخ",
+      "مِرساةٌ واحدة لكلّ رمز" in _op_src and "pick='last'" in _op_src)
+
 # PX9/O12 — 🔒 **قفلُ العزل الحاسم:** الإنتاجُ لا يستورد الأداتين إطلاقًا
 _ss_src = open("Super_stock.py", encoding="utf-8").read()
 check("🔬 PX9/O12 عزلٌ تامّ: `Super_stock` لا يستورد المِجَسَّ ولا أداةَ الـ23",

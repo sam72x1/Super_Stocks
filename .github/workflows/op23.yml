@@ -53,5 +53,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: op23-events
-          path: op23_events.jsonl
+          # 🔴 كان مغروسًا `op23_events.jsonl` بينما الاسمُ **مدخلٌ** ⇒ تشغيلةٌ
+          #    بملفٍّ آخر تكتب أحداثَها ولا تُرفَع («لا ملفّات») = نتيجةٌ تضيع.
+          path: ${{ github.event.inputs.csv }}
           if-no-files-found: warn
