@@ -168,6 +168,67 @@ def control_check() -> bool:
     return ok
 
 
+METRICS = ("vol_x", "range_x", "close_pos", "gap_pct", "n_trades", "usd",
+           "aggressive_buy_pct", "block_share_pct", "dark_share_pct",
+           "buy_block_shares", "bid_block_shares", "uniform_count")
+
+
+def _median(xs):
+    ys = sorted(v for v in xs if isinstance(v, (int, float)))
+    if not ys:
+        return None
+    n = len(ys)
+    return ys[n // 2] if n % 2 else (ys[n // 2 - 1] + ys[n // 2]) / 2.0
+
+
+def _mean_of(win, key):
+    """متوسطُ المقياس على جلستَي النافذة (‏[−2،−1] أو الشاهد)."""
+    vals = [w.get(key) for w in (win or [])
+            if isinstance(w.get(key), (int, float))]
+    return (sum(vals) / len(vals)) if vals else None
+
+
+def report_rows(rows) -> None:
+    """§② **المقارنةُ المجمَّعة** — وسيطُ **الفرق الزوجيّ** (حدث − شاهد) لكلّ
+    مقياسٍ ولكلّ مجموعة، **وعدُّ الإشارات الموجبة/السالبة**.
+
+    🔴 **بلا اختباراتِ دلالةٍ حاكمة** (§②): وصفٌ لا حكم — والعيّنةُ مختارةٌ على
+    النتيجة. والمقياسُ الذي **لا يكفي مقامُه** يُطبَع بمقامه لا بنسبةٍ عارية."""
+    good = [r for r in rows if r.get("complete")]
+    if not good:
+        _log("⚠️ لا أزواجَ كاملة ⇒ لا وصف.")
+        return
+    for grp, label in (("أ", "كتالوج فيصل"), ("ب", "أسماكُنا الحيّة"),
+                       (None, "المجموعتان معًا")):
+        sub = [r for r in good if grp is None or r["group"] == grp]
+        if not sub:
+            continue
+        _log(f"\n{'─' * 74}\n📊 {label} — أزواجٌ كاملة: {len(sub)}"
+             + ("" if len(sub) >= MIN_PAIRS else
+                f" ⚠️ **دون أرضية {MIN_PAIRS}: وصفٌ خامٌّ لا يُبنى عليه**")
+             + f"\n{'─' * 74}")
+        _log(f"{'المقياس':<20}{'وسيطُ الحدث':>13}{'وسيطُ الشاهد':>14}"
+             f"{'وسيطُ الفرق':>13}{'موجب/سالب':>12}")
+        for m in METRICS:
+            ev = [_mean_of(r.get("حدث"), m) for r in sub]
+            ct = [_mean_of(r.get("شاهد"), m) for r in sub]
+            pairs = [(a, b) for a, b in zip(ev, ct)
+                     if isinstance(a, (int, float)) and isinstance(b, (int, float))]
+            if not pairs:
+                _log(f"{m:<20}{'—':>13}{'—':>14}{'—':>13}{'مقامٌ صفر':>12}")
+                continue
+            d = [a - b for a, b in pairs]
+            pos = sum(1 for x in d if x > 0)
+            neg = sum(1 for x in d if x < 0)
+            _log(f"{m:<20}{_median([a for a, _ in pairs]):>13.3f}"
+                 f"{_median([b for _, b in pairs]):>14.3f}"
+                 f"{_median(d):>13.3f}{f'{pos}/{neg}':>12}"
+                 + (f"  (ن={len(pairs)})" if len(pairs) != len(sub) else ""))
+    _log("\n⚠️ **قراءةٌ إلزامية:** «وسيطُ الفرق» وصفٌ لا دلالة — لا اختبارَ حاكمًا "
+         "هنا بنصّ العقد · والعيّنةُ مختارةٌ على النتيجة ⇒ **توصيفٌ لا معدَّلُ "
+         "إصابة** · وأيُّ نمطٍ لافتٍ **فرضيةٌ** لاختبارٍ أماميّ مسجَّل لا قاعدة.")
+
+
 def main() -> int:
     if not os.environ.get("POLYGON_API_KEY", "").strip():
         _log("⛔ `POLYGON_API_KEY` غائب ⇒ خروج 2 (لا مِجَسَّ بلا مصدر).")
@@ -236,6 +297,7 @@ def main() -> int:
         for r in rows:
             fh.write(json.dumps(r, ensure_ascii=False) + "\n")
     good = [r for r in rows if r.get("complete")]
+    report_rows(rows)                      # §② المقارنةُ المجمَّعة — لا تُدفَن
     _log(f"\n📊 أزواجٌ صالحة: {len(good)} من {len(rows)} "
          f"(‏تُخطّي {skipped} · تعذّرُ جلبٍ {nofetch} — يُعَدّ ولا يُصنَّف)")
     for g in ("أ", "ب"):
