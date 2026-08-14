@@ -5000,6 +5000,40 @@
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "PSIG",
+   "date": "2026-08-14",
+   "ref_bar": "2026-08-14",
+   "price": 1.12,
+   "stop": 1.0323,
+   "t1": 1.27,
+   "t2": 2.88,
+   "t3": 5.96,
+   "score": 40,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 22 جلسات فوق القاع",
+    "انكماش حزمة كلنجر (تجميع)",
+    "شورت 4,043 (مقبول)",
+    "فلوت 7,786,235 (صغير ✅)"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Industrials",
+   "rsi": 20.933926624778692,
+   "float": 7786235,
+   "short": 4043,
+   "short_pct": 1.1,
+   "shares_available": null,
+   "borrow_fee": null,
+   "drop_pct": 90.66666662693024,
+   "best_spike": 250.72464995012646,
+   "rr": 1.1414414414414418,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
   }
  ]
 }

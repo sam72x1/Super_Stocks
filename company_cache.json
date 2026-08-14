@@ -3960,6 +3960,46 @@
   "short_interest": 22143790,
   "days_to_cover": 7.26
  },
+ "MLEC": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Moolec Science SA, a science-based ingredient company, engages in the development of ingredients for food, pet food, animal feed, and dietary supplements using…",
+  "country": "Cayman Islands",
+  "shares_out": 726118,
+  "short_pct": 0.8,
+  "finra_short": 173,
+  "company_name": "Moolec Science SA",
+  "short_interest": 4512,
+  "days_to_cover": 0.38
+ },
+ "KSCP": {
+  "sector": "Industrials",
+  "industry": "Security & Protection Services",
+  "business": "Knightscope, Inc. designs, develops, manufactures, markets, deploys, and supports autonomous security robots (ASR) in the United States. The company provides K5…",
+  "country": "United States",
+  "cash": 11401000,
+  "revenue": 14434000,
+  "shares_out": 19856782,
+  "short_pct": 10.2,
+  "float": 15189572,
+  "company_name": "Knightscope, Inc.",
+  "short_interest": 2031080,
+  "days_to_cover": 0.97
+ },
+ "KMRK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Leisure",
+  "business": "K-TECH Solutions Company Limited, through its subsidiary, designs, develops, tests, and sells various toy products in Hong Kong, the United Kingdom, Europe, and…",
+  "country": "Hong Kong",
+  "cash": 7484589,
+  "revenue": 17088424,
+  "shares_out": 16600000,
+  "short_pct": 1.6,
+  "float": 4600011,
+  "company_name": "K-Tech Solutions Company Limite",
+  "short_interest": 71596,
+  "days_to_cover": 0.64
+ },
  "CODX": {
   "sector": "Healthcare",
   "industry": "Medical Devices",
@@ -3998,7 +4038,7 @@
   "revenue": 11710999552,
   "shares_out": 35325754,
   "short_pct": 57.1,
-  "float": 12997758,
+  "float": 14775703,
   "company_name": "Avis Budget Group, Inc.",
   "short_interest": 5542005,
   "days_to_cover": 9.63
@@ -4741,46 +4781,6 @@
   "company_name": "AGM Group Holdings Inc.",
   "short_interest": 55709,
   "days_to_cover": 0.88
- },
- "MLEC": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Moolec Science SA, a science-based ingredient company, engages in the development of ingredients for food, pet food, animal feed, and dietary supplements using…",
-  "country": "Cayman Islands",
-  "shares_out": 726118,
-  "short_pct": 0.8,
-  "finra_short": 173,
-  "company_name": "Moolec Science SA",
-  "short_interest": 4512,
-  "days_to_cover": 0.38
- },
- "KSCP": {
-  "sector": "Industrials",
-  "industry": "Security & Protection Services",
-  "business": "Knightscope, Inc. designs, develops, manufactures, markets, deploys, and supports autonomous security robots (ASR) in the United States. The company provides K5…",
-  "country": "United States",
-  "cash": 11401000,
-  "revenue": 14434000,
-  "shares_out": 19856782,
-  "short_pct": 10.2,
-  "float": 15189572,
-  "company_name": "Knightscope, Inc.",
-  "short_interest": 2031080,
-  "days_to_cover": 0.97
- },
- "KMRK": {
-  "sector": "Consumer Cyclical",
-  "industry": "Leisure",
-  "business": "K-TECH Solutions Company Limited, through its subsidiary, designs, develops, tests, and sells various toy products in Hong Kong, the United Kingdom, Europe, and…",
-  "country": "Hong Kong",
-  "cash": 7484589,
-  "revenue": 17088424,
-  "shares_out": 16600000,
-  "short_pct": 1.6,
-  "float": 4600011,
-  "company_name": "K-Tech Solutions Company Limite",
-  "short_interest": 71596,
-  "days_to_cover": 0.64
  },
  "NWGL": {
   "sector": "Basic Materials",
