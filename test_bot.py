@@ -17309,12 +17309,31 @@ _prd_hi = [2.8] * 25 + [6.0, 11.72, 10.5, 8.0, 6.8, 5.9, 5.1, 4.6, 4.2, 3.9, 3.7
 _prd_cl = [2.7] * 25 + [5.5, 10.0, 8.2, 7.2, 6.2, 5.5, 4.8, 4.3, 3.9, 3.6, 3.61]
 _prd_r = _PRD.press_read(_prd_frame(_prd_lo, _prd_hi, _prd_cl))
 check("🗜️📡 PRD1 «مضغوطٌ جالسٌ عند قاعه» يُطلق على نمط WETO (عمق 69.2 · قاع 3.34)"
-      " — ولا يُطلق على الضحل ولا المُغادر ولا الصاعد",
+      " — ولا يُطلق على الضحل ولا المُغادر ولا الصاعد ولا السنتات (أرضية فيصل $1)",
       bool(_prd_r) and _prd_r["press_low"] == 3.34 and _prd_r["drop_pct"] == 69.2
       and _PRD.press_read(_prd_frame([3.0] * 40, [4.0] * 40, [3.2] * 40)) is None
       and _PRD.press_read(_prd_frame(_prd_lo, _prd_hi, _prd_cl[:-1] + [4.5])) is None
       and _PRD.press_read(_prd_frame([2.6] * 35 + [9.0], [2.8] * 35 + [12.0],
-                                     [2.7] * 35 + [11.5])) is None)
+                                     [2.7] * 35 + [11.5])) is None
+      and _PRD.press_read(_prd_frame([x / 10 for x in _prd_lo],
+                                     [x / 10 for x in _prd_hi],
+                                     [x / 10 for x in _prd_cl])) is None)
+
+# PRD9 — الترتيب: صاحبُ الخطة/المستوى/الحفظ يتقدّم على الميّت الأعمق هبوطًا
+# (تصحيحُ أول تشغيلة حيّة: «الأعمق أولًا» صدّر أمواتَ ‏−99% في رأس الرسالة).
+# سلوكيٌّ: `alert_rank` النقيّة تُرتّب فعلًا، و`run` تناديها بالاسم (AST لا نصّ).
+_prd_zomb = dict(_prd_r, drop_pct=99.5, tested_level=None, hold_sessions=0)
+_prd_rows9 = [{"symbol": "ZOMB", "read": _prd_zomb, "plan": None, "src": "متحرّك"},
+              {"symbol": "WETO", "read": dict(_prd_r, tested_level=3.6),
+               "plan": {"entry": [2.7, 2.86], "t1": 5.5}, "src": "قائمة الارتداد"}]
+_prd_sorted9 = sorted(_prd_rows9, key=_PRD.alert_rank)
+_prd_run_ast = _ast0.parse(_insp0.getsource(_PRD.run))
+_prd_rank_called = any(
+    isinstance(n, _ast0.Attribute) and n.attr == "sort" for n in _ast0.walk(_prd_run_ast)
+) and "alert_rank" in [getattr(n, "id", None) for n in _ast0.walk(_prd_run_ast)]
+check("🗜️📡 PRD9 `alert_rank`: صاحبُ الخطة يتصدّر قبل الميّت الأعمق · و`run` "
+      "تناديها بالاسم (AST)",
+      [r["symbol"] for r in _prd_sorted9] == ["WETO", "ZOMB"] and _prd_rank_called)
 
 # PRD2 — الذاكرة تنجو من مسح القوائم (ثقب «بداية نظيفة» الذي أضاع WETO/CAPR)
 _prd_st = {"symbols": {"WETO": {"first_seen": "2026-08-07", "last_seen": "2026-08-07",

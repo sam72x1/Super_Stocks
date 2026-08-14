@@ -170,6 +170,8 @@ def press_read(df, w=W):
         close = float(cl[i])
         if high_w <= 0 or close <= 0 or j_star >= i:
             return None                       # القمةُ اليومَ نفسه = ما زال صاعدًا
+        if close < float(S.CONFIG.get("SPLIT_RADAR_PRICE_MIN", 1.0)):
+            return None                       # «السنتات خارج الشرح» (فيصل IMG_0153)
         drop = (high_w - close) / high_w * 100.0
         if drop < float(S.CONFIG.get("SPLIT_CLIFF_PCT", 30.0)):
             return None                       # هبوطٌ ضحل — ليس ضغط النموذج
@@ -196,6 +198,19 @@ def press_read(df, w=W):
                 "tested_level": tl}
     except Exception:                                            # noqa: BLE001
         return None
+
+
+def alert_rank(r: dict):
+    """نقيّة: مفتاح ترتيب الرسالة — الأقرب لنمط WETO يتقدّم.
+
+    🔴 تصحيحُ أول تشغيلة حيّة (2026-08-14): «الأعمق أولًا» صدّر أمواتَ ‏−99%
+    (‏YYAI بستّة سنتات) في رأس الرسالة. الترتيب: صاحبُ خطةٍ محفوظة ⟵ مستوى
+    مُختبَر ⟵ حفظٌ فعليّ (جلسات بلا قاعٍ جديد) ⟵ ثم العمق."""
+    p = r.get("read") or {}
+    return (-(1 if r.get("plan") else 0),
+            -(1 if p.get("tested_level") else 0),
+            -(1 if p.get("hold_sessions") else 0),
+            -float(p.get("drop_pct") or 0.0))
 
 
 def should_alert(entry: dict, today_iso: str) -> bool:
@@ -299,7 +314,7 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
             continue
         rows.append({"symbol": sym, "read": r,
                      "plan": mem.get("plan"), "src": mem.get("src", "؟")})
-    rows.sort(key=lambda r: -r["read"]["drop_pct"])       # الأعمق ضغطًا أولًا
+    rows.sort(key=alert_rank)        # الأقرب لنمط WETO أولًا (تصحيح أول تشغيلة)
     _log(f"🩺 التغطية: فُحص {len(pool) - failed} · تعذّر {failed} · مطابق {len(rows)}.")
     if rows:
         msg = build_alert(rows, session_iso)
