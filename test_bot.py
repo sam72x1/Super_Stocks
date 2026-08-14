@@ -17219,11 +17219,50 @@ _ps5st = str(_ps5["jobs"]["press"]["steps"])
 check("🗜️ PS5 press.yml: كلُّ مدخلٍ موصول (لا مدخلَ ميّتًا — بصمةُ BT_CANDLE)",
       not [i for i in _ps5in if f"inputs.{i}" not in _ps5st])
 
+# ═══════════ 🗜️🎯 أقفال T-PRESS-Q (press_prereg.md §⑨ · PQ1-PQ5) ═══════════
+import pressq_scan as _pq
+
+# PQ1 — التصنيفُ **بدوالّ press_scan بالاسم** (مصدرٌ واحدٌ لا نسخَ منطق)
+_pq_src = open("pressq_scan.py", encoding="utf-8").read()
+check("🗜️ PQ1 `state_of` تنادي `P.classify` و`P.W` بالاسم (لا نسخةَ محلّية)",
+      "P.classify(" in _pq_src and "P.W" in _pq_src
+      and "def classify" not in _pq_src)
+
+# PQ2 — سلوكيًّا: الحالةُ من يوم الإشارة وتبديلُ المستقبل لا يغيّرها ·
+#        والغائبُ «تعذّر» لا «لم يُضغَط» (عطبٌ ليس هدوءًا)
+_pq_h = {"XX": _pr_frame()}
+check("🗜️ PQ2 `state_of`: يومُ الضغط `held` · تبديلُ المستقبل لا يغيّره · "
+      "ورمزٌ/يومٌ غائب ⇒ «تعذّر»",
+      _pq.state_of(_pq_h, "XX", str(_pq_h["XX"].index[60].date()))[0] == "held"
+      and _pq.state_of({"XX": _pr_frame(hi_z=(63, 9.0))}, "XX",
+                       str(_pq_h["XX"].index[60].date()))[0] == "held"
+      and _pq.state_of(_pq_h, "YY", "2024-03-01") == ("تعذّر", False)
+      and _pq.state_of(_pq_h, "XX", "1999-01-01") == ("تعذّر", False))
+
+# PQ3 — `exploded50`: ‏`no_fill`/الغائبُ خارجَ المقام (نفسُ استبعاد `_d`)
+check("🗜️ PQ3 `exploded50`: no_fill⇒None · 60⇒True · 40⇒False · تالف⇒None",
+      _pq.exploded50({"mg_outcome": "no_fill", "mg_pre_stop": 90}) is None
+      and _pq.exploded50({"mg_outcome": "hit", "mg_pre_stop": 60}) is True
+      and _pq.exploded50({"mg_outcome": "hit", "mg_pre_stop": 40}) is False
+      and _pq.exploded50({"mg_outcome": "hit", "mg_pre_stop": "سيء"}) is None)
+
+# PQ4 — مِرساةُ PQV1 = أرقامُ B2 المنشورة (وإلّا فحصُ التكامل بلا مرجع)
+check("🗜️ PQ4 مِرساةُ التكامل أرقامُ B2 المنشورة (‏1591/1607/736)",
+      _pq.PUB_SIGNALS == {"2024": 1591, "2025": 1607, "2026": 736})
+
+# PQ5 — pressq.yml موصولُ المدخلات (P1) و`BACKTEST_YEAR` لا مفتاحَ ميّت
+_pq_y = _yaml0.safe_load(open(".github/workflows/pressq.yml", encoding="utf-8"))
+_pq_in = _pq_y[True]["workflow_dispatch"]["inputs"]
+_pq_st = str(_pq_y["jobs"]["pressq"]["steps"])
+check("🗜️ PQ5 pressq.yml: كلُّ مدخلٍ موصول و`BACKTEST_YEAR` معيَّن",
+      not [i for i in _pq_in if f"inputs.{i}" not in _pq_st]
+      and "BACKTEST_YEAR" in _pq_st)
+
 # PX9/O12 — 🔒 **قفلُ العزل الحاسم:** الإنتاجُ لا يستورد الأداتين إطلاقًا
 _ss_src = open("Super_stock.py", encoding="utf-8").read()
-check("🔬 PX9/O12/PS1 عزلٌ تامّ: `Super_stock` لا يستورد أدوات البحث الثلاث",
+check("🔬 PX9/O12/PS1 عزلٌ تامّ: `Super_stock` لا يستورد أدوات البحث الأربع",
       "preexp_probe" not in _ss_src and "op23_scan" not in _ss_src
-      and "press_scan" not in _ss_src,
+      and "press_scan" not in _ss_src and "pressq_scan" not in _ss_src,
       "أدواتُ بحثٍ خارج مسار الفرز")
 
 # O2 — حارسُ التقسيم الوهميّ **فعّالٌ وفاشلٌ-آمنٌ مُغلَق**
