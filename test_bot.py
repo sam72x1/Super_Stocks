@@ -14935,10 +14935,20 @@ for _nd in _ast0.walk(_ta_tree):
                     and getattr(_sub.func, "id", None) == "tested_level"):
                 _ta_guarded += 1
 _ex_src0 = _insp0.getsource(S.analyze_ticker)
-check("🎁 EXTRA🔒-أ2 واشتقاقُ `_amode` يقرأ المفتاحين و«pivot» يجبر الأساس",
-      'CONFIG.get("BT_ANCHOR")' in _ex_src0
-      and 'CONFIG.get("ANCHOR_MODE")' in _ex_src0
-      and '"pivot"' in _ex_src0)
+# 🐞 إقرارٌ مؤرَّخ (2026-08-14): النسخةُ النصّيّة من هذا القفل **نجت طفرتُها**
+#    (وجدت `"pivot"` في تعليقي داخل الكتلة — **الفخُّ النصّيُّ الخامس**) ⇒ صار
+#    **سلوكيًّا مفرِّقًا** على `_anchor_mode` النقيّة (ثلاثُ حالاتٍ بثلاثة أجوبة)
+#    + اشتراطُ ندائها في الجذر **وفي المرآة** بالاسم (مصدرٌ واحد).
+check("🎁 EXTRA🔒-أ2 `_anchor_mode` مفرِّقة: pivot⇒\"\" · فراغٌ⇒الإنتاج · "
+      "تجاوزٌ⇒نفسُه — ومناداةٌ بالاسم في الجذر والمرآة",
+      S._anchor_mode("pivot", "tested_strict") == ""
+      and S._anchor_mode("", "tested_strict") == "tested_strict"
+      and S._anchor_mode(None, "tested_strict") == "tested_strict"
+      and S._anchor_mode("tested", "tested_strict") == "tested"
+      and S._anchor_mode("", "") == ""
+      and "_anchor_mode(" in _ex_src0
+      and "bot._anchor_mode(" in open("analyze_one.py",
+                                      encoding="utf-8").read())
 check("🎁 EXTRA🔒-أ `tested_level` في الجذر **داخل فرع `_amode` وحدَه** (AST لا نصّ)",
       _ta_all >= 1 and _ta_all == _ta_guarded,
       f"نداءات={_ta_all} · محروسة={_ta_guarded}")

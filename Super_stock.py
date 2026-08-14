@@ -926,6 +926,19 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
+def _anchor_mode(bt, prod) -> str:
+    """نقيّة: الوضعُ النافذ لمِرساة الدخول/الوقف (اعتماد B2 «1» 2026-08-14).
+
+    `bt` (تجاوزُ القياس) يعلو: **"pivot" يجبر الأساسَ القديم** (يُرجع "") ·
+    وقيمةٌ أخرى غيرُ فارغة تُقاس كما هي · والفراغُ يُسلِّم للإنتاج `prod`
+    (‏`ANCHOR_MODE`). مقفولةٌ بقفلٍ **مفرِّق** (‏ADOPT3) لأن أوّلَ قفلٍ نصّيٍّ
+    عليها نجت طفرتُه (وجد "pivot" في تعليقٍ — الفخُّ الخامس)."""
+    bt = str(bt or "")
+    if bt == "pivot":
+        return ""
+    return bt or str(prod or "")
+
+
 LOGIC_VERSION = "2026.08.13-listsplit+rrtruth+cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+anchorb2+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
@@ -3374,12 +3387,11 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         #      عند يوم الترتيب ⇒ صفرُ نظرٍ مستقبليّ. والوقفُ والدفعات يُشتقّان من
         #      المِرساة نفسِها (وإلّا قِيس نصفُ التغيير).
         _anchor = pivot
-        # ⚙️ الوضعُ النافذ: `BT_ANCHOR` يعلو **للقياس** ("pivot" يجبر الأساسَ
-        #    القديم)، وإلّا `ANCHOR_MODE` الإنتاجيّ = "tested_strict" باعتماد
-        #    المالك («1» 2026-08-14 — `anchor_prereg.md §⑫/⑬`).
-        _amode = str(CONFIG.get("BT_ANCHOR") or "")
-        _amode = ("" if _amode == "pivot"
-                  else (_amode or str(CONFIG.get("ANCHOR_MODE") or "")))
+        # ⚙️ الوضعُ النافذ عبر `_anchor_mode` النقيّة (مصدرٌ واحد للجذر ومرآة
+        #    `analyze_one`) — الإنتاجُ tested_strict باعتماد المالك («1»
+        #    2026-08-14 — `anchor_prereg.md §⑫/⑬`).
+        _amode = _anchor_mode(CONFIG.get("BT_ANCHOR"),
+                              CONFIG.get("ANCHOR_MODE"))
         if _amode:
             _tl = tested_level(df)
             if _tl:
