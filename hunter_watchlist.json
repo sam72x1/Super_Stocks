@@ -1,3 +1,34 @@
 {
- "stocks": []
+ "stocks": [
+  {
+   "symbol": "CHSN",
+   "added": "2026-08-13",
+   "ref_price": 1.01,
+   "half": 0.94,
+   "ref": 1.88,
+   "event_kind": "split",
+   "split_date": "2026-05-07",
+   "float": 387547,
+   "avail": 1,
+   "borrow_fee": 58.5,
+   "stop": 0.92,
+   "hold_above": 1.05,
+   "targets": [
+    {
+     "price": 1.19,
+     "src": "رأس شمعة حمراء"
+    },
+    {
+     "price": 1.25,
+     "src": "رأس شمعة حمراء"
+    }
+   ],
+   "status": "active",
+   "last_price": 1.01
+  }
+ ],
+ "added_last": [
+  "CHSN"
+ ],
+ "pruned": []
 }
