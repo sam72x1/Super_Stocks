@@ -16964,10 +16964,30 @@ check("🔬 PX11أ `_status_tally` تُنطِق المقامَ الصفريّ ب
             "شاهد": []}], "blocks_status")
       and "تعذّرُ جلب" in _px._status_tally(
           [{"حدث": [{"fetch_ok": False}], "شاهد": []}], "blocks_status"))
-check("🔬 PX11ب وكتلةُ الطبعات تُسجّل حالتَها ولا تُخفي استثناءَها",
-      "blocks_status" in _px_src
-      and "except Exception as exc" in _px_src
-      and _px_src.count("_status_tally(") >= 2)
+# 🔴 **PX11ب كان نصّيًّا فنجت طفرةُ `pass`** (الأسماءُ باقيةٌ في فرعٍ آخر) —
+#    رابعُ ظهورٍ للفخّ نفسِه في يوم. صار **سلوكيًّا**: يُجبَر الاستثناءُ ويُشترَط
+#    أن تُسجَّل حالتُه **باسم الصنف** لا أن تُبتلَع.
+_p11_ob, _p11_tr = S._operator_blocks, S.polygon_base_trades
+try:
+    S.polygon_base_trades = lambda *a, **k: [{"price": 1.0, "size": 1500}] * 30
+
+    def _p11_boom(*a, **k):
+        raise ValueError("محاكاةُ عطب")
+    S._operator_blocks = _p11_boom
+    _p11a = _px.trades_layer("X", "2026-08-10")
+    S._operator_blocks = lambda *a, **k: None          # عيّنةٌ غيرُ كافية
+    _p11b = _px.trades_layer("X", "2026-08-10")
+    S._operator_blocks = lambda *a, **k: {"buy_block_shares": 7,
+                                          "bid_block_shares": 3}
+    _p11c = _px.trades_layer("X", "2026-08-10")
+finally:
+    S._operator_blocks, S.polygon_base_trades = _p11_ob, _p11_tr
+check("🔬 PX11ب الاستثناءُ **يُسجَّل باسمه** · و«غيرُ كافية» تُسمّى · والنجاحُ `ok` "
+      "(لا `pass` يبتلع سببَ المقام الصفريّ)",
+      _p11a.get("blocks_status") == "عطب:ValueError"
+      and _p11b.get("blocks_status") == "عيّنةٌ غيرُ كافية"
+      and _p11c.get("blocks_status") == "ok" and _p11c.get("buy_block_shares") == 7,
+      "ثلاثُ حالاتٍ **متفرّقة** فلا ينجو قفلٌ بخلطها")
 
 # O14 — 🔴 مسارُ الرفع = **المدخل** لا اسمٌ مغروس (تشغيلةُ `31749977789` كتبت
 #       أحداثَها في ملفٍّ آخر فلم تُرفَع: «لا ملفّات» = نتيجةٌ تضيع)، ‏+ حدُّ صدقِ
@@ -17004,6 +17024,26 @@ check("🔬 PX13 `fetch_bars`: افتراضٌ yahoo · و`polygon` ببدءٍ ث
       "PREEXP_SOURCE" in _px_src and "polygon_daily(" in _px_src
       and 'HIST_START = "2003-01-01"' in _px_src
       and "download_history" in _px_src)
+# PX16 — 🔴 **القفلُ النصّيّ أعلاه نجا على نداءٍ معطوب** (تشغيلة `31762073316`:
+#        ‏55 تخطّيًا من 55) لأنه يفحص **وجودَ الاسم** لا **صحّةَ النداء**. فيُشترَط
+#        نحويًّا: **أربعةُ وسائط** (ومنها المفتاح) **وتفكيكُ الزوج** `(df, why)`.
+_p16 = [n for n in _ast0.walk(_ast0.parse(_px_src)) if isinstance(n, _ast0.Call)
+        and getattr(n.func, "attr", "") == "polygon_daily"]
+_p16asg = [n for n in _ast0.walk(_ast0.parse(_px_src))
+           if isinstance(n, _ast0.Assign) and isinstance(n.targets[0], _ast0.Tuple)
+           and isinstance(n.value, _ast0.Call)
+           and getattr(n.value.func, "attr", "") == "polygon_daily"]
+check("🔬 PX16 نداءُ `polygon_daily` **بأربعة وسائط** والزوجُ **مفكَّك** "
+      "(‏لا اسمٌ حاضرٌ ونداءٌ ساقط)",
+      len(_p16) == 1 and len(_p16[0].args) == 4 and len(_p16asg) == 1
+      and len(_p16asg[0].targets[0].elts) == 2,
+      "القفلُ النصّيّ لا يفرّق نداءً صحيحًا عن معطوب")
+
+# PX17 — 🔴 **لا تشغيلةَ خضراءَ بلا قياس**: صفرُ أزواجٍ ⇒ خروجٌ غيرُ صفريّ.
+#        وقعت فعلًا: تشغيلةٌ ناجحةٌ ببصمةٍ فارغة `e3b0c442…` (هاشُ الفراغ).
+check("🔬 PX17 صفرُ أزواجٍ كاملة ⇒ خروج 4 مُعلَنٌ (بصمةُ الـno-op ممنوعة)",
+      "return 4" in _px_src and "لا تشغيلةَ خضراءَ بلا قياس" in _px_src
+      and "if not good:" in _px_src)
 check("🔬 PX13ب والمصدرُ **يُطبَع في الترويسة** موسومًا بحتميّته (لا يُقرأ رقمٌ "
       "بلا معرفة مصدره)",
       "مصدرُ الشموع" in _px_src and "نافذةٌ متدحرجةٌ تنتهي اليوم" in _px_src)

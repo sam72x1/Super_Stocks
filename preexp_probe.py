@@ -273,8 +273,17 @@ def fetch_bars(sym: str):
     src = (os.environ.get("PREEXP_SOURCE") or "yahoo").strip().lower()
     if src == "polygon":
         import pit_history as PH                                  # noqa: PLC0415
-        return PH.polygon_daily(sym, HIST_START,
-                                dt.date.today().isoformat())
+        # 🔴 عيبان في سطرٍ واحد كشفتهما التشغيلةُ `31762073316` لا القراءة:
+        #    ① `api_key` **وسيطٌ إلزاميّ** فسقط النداءُ على 55 رمزًا من 55
+        #    ② و`polygon_daily` تُرجع **زوجًا** `(df, تشخيص)` فإرجاعُه كما هو
+        #       يعطي طولًا 2 فيُتخطّى الرمزُ **صامتًا** لو نجح النداء.
+        #    والنمطُ الصحيح كان في `op23_scan` نفسِه — نسختُه الآن (‏`PX16`).
+        df, why = PH.polygon_daily(sym, HIST_START,
+                                   dt.date.today().isoformat(),
+                                   os.environ.get("POLYGON_API_KEY", "").strip())
+        if df is None:
+            _log(f"  ⚪️ {sym}: تعذّر جلبُ التاريخ ({why})")
+        return df
     import Super_stock as S                                       # noqa: PLC0415
     return (S.download_history([sym]) or {}).get(sym)
 
@@ -384,6 +393,11 @@ def main() -> int:
     _log(f"💾 الصفوفُ في {out} (تراكميّ · قابلٌ للاستئناف)")
     _log("\n⚠️ **تشخيصٌ لا حكم:** العيّنةُ مختارةٌ على النتيجة ⇒ توصيفٌ لا معدَّلُ "
          "إصابة · ولا تُشتقّ منه قاعدةٌ بلا تسجيلٍ مسبقٍ جديدٍ واختبارٍ أماميّ.")
+    if not good:
+        # 🔴 **صفرُ أزواجٍ ⇒ خروجٌ 4** (‏`PX17`): تشغيلةٌ خضراءُ بلا قياسٍ هي بصمةُ
+        #    الـno-op — وقعت فعلًا في `31762073316` (‏55 تخطّيًا · بصمةٌ فارغة).
+        _log("⛔ صفرُ أزواجٍ كاملة ⇒ خروج 4 — **لا تشغيلةَ خضراءَ بلا قياس**.")
+        return 4
     return 0
 
 
