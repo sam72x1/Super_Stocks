@@ -17817,6 +17817,50 @@ check("🎚️ PL2 `TANCHOR`: مرساة المستوى 3.34 (وقف 3.1062) ت�
       and _PRD.press_read(_prd_frame(_pl_lo, _pl_hi, _pl_cl),
                           w=40)["imp_head"] == 4.2)
 
+# ═══════ 🟣 أقفال T-PURPLE (entry_purple_prereg.md · EP1-EP3) ═══════
+import entry_purple_arms as _EP
+
+# EP1 — سلوكي على synth_pivot: 5 إشارات في 2024 وصفر في 1999 (قيد السنة) ·
+# الصف بلا مستوى ⇒ الذراعان بت-بت · والصف بمستوى ⇒ وقف E1 من المستوى
+# (‏mirror_plan(lv) = lv×0.93 بستّ خانات) لا من خطة الإنتاج
+_ep_rows = _EP.walk_symbol_purple("EPRB", synth_pivot(seed=2), year="2024")
+_ep_nolv = [e for e in _ep_rows if not e["lv"]]
+_ep_lv = [e for e in _ep_rows if e["lv"]]
+check("🟣 EP1 `walk_symbol_purple`: 4 إشارات (2024 ببيئة السويّة FAISAL_ONLY=0) "
+      "· صفر (1999) · بلا مستوى ⇒ بت-بت · وبمستوى ⇒ وقف E1 = المستوى×0.93",
+      len(_ep_rows) == 4
+      and _EP.walk_symbol_purple("EPRB", synth_pivot(seed=2), year="1999") == []
+      and _ep_nolv and all(e["oc1"] == e["oc0"] and e["st1"] == e["st0"]
+                           for e in _ep_nolv)
+      and _ep_lv and all(e["st1"] == round(e["lv"] * 0.93, 6) for e in _ep_lv)
+      and any(e["st1"] != e["st0"] for e in _ep_lv))
+
+# EP2 — الوصل بالاسم (AST): القبول والمستوى والخطة والحسم من دوالّها المقيسة
+_ep_ast = _ast0.parse(_insp0.getsource(_EP.walk_symbol_purple))
+_ep_attrs = {nn.attr for nn in _ast0.walk(_ep_ast)
+             if isinstance(nn, _ast0.Attribute)}
+check("🟣 EP2 المِشية تنادي `analyze_ticker`+`tested_level`+`mirror_plan`+"
+      "`resolve_episode` بالاسم (AST لا نصّ)",
+      {"analyze_ticker", "tested_level", "mirror_plan",
+       "resolve_episode"} <= _ep_attrs)
+
+# EP3 — فحص البنية يوقف فعلًا (تنافرٌ بلا مستوى ⇒ 3) · صفر إشارات ⇒ 4 ·
+# سليم ⇒ 0 · والـworkflow موصول والعزل قائم
+import io as _ep_io
+import contextlib as _ep_ctx
+with _ep_ctx.redirect_stdout(_ep_io.StringIO()):
+    _ep_rc3 = _EP.report([{"i": 1, "lv": None, "oc0": "win", "oc1": "loss",
+                           "st0": 1.0, "st1": 1.0}], 1, "2024")
+    _ep_rc4 = _EP.report([], 1, "2024")
+    _ep_rc0 = _EP.report(_ep_rows, 1, "2024")
+_ep_y = open(".github/workflows/entry_purple.yml", encoding="utf-8").read()
+check("🟣 EP3 فحص البنية ⇒ خروج 3 · صفر إشارات ⇒ 4 · سليم ⇒ 0 · "
+      "entry_purple.yml موصول env · و`Super_stock` لا يذكر الأداة",
+      _ep_rc3 == 3 and _ep_rc4 == 4 and _ep_rc0 == 0
+      and "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _ep_y
+      and "BT_FROZEN_PATH" in _ep_y and "frozen-dataset" in _ep_y
+      and "entry_purple" not in _ss_src)
+
 # PRD7 — الـworkflow موصول (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
 _prd_y = open(".github/workflows/press_radar.yml", encoding="utf-8").read()
 check("🗜️📡 PRD7 press_radar.yml: كرونا 25 مُزاحان (2-6) · FORCE موصول بالدسباتش · "
