@@ -17399,8 +17399,96 @@ check("🗜️📡 PRD5 عقدُ «فُحص وسُلّم»: فشلُ الإرس�
       _rc_fail == 1 and _no_stamp and _rc_ok == 0 and _stamped and _rc_dedup == 0)
 
 # PRD6 — عزل: الإنتاج لا يعرف الرادار (تنبيه/عرض خارج الفرز كليًّا)
-check("🗜️📡 PRD6 عزلٌ: `Super_stock` لا يستورد/يذكر `press_radar`",
-      "press_radar" not in _ss_src)
+check("🗜️📡 PRD6 عزلٌ: `Super_stock` لا يستورد/يذكر أدوات الرادار/الأذرع الثلاث",
+      "press_radar" not in _ss_src and "rebound_arms" not in _ss_src
+      and "press_cat_probe" not in _ss_src)
+
+# ═══════ 🧱🔁 أقفال T-REBOUND-HOLD (rebound_hold_prereg.md · RB1-RB6) ═══════
+import rebound_arms as _RB
+
+# RB1 — مرآةُ صيغة الإنتاج تطابق سجلَّ WETO الحيّ بت-بت (‏2.70 ⟵ وقف 2.511)
+_rb_tr, _rb_st = _RB.mirror_plan(2.7)
+check("🧱🔁 RB1 `mirror_plan(2.70)` = دفعات [2.7,2.781,2.862] · وقف 2.511 "
+      "(مطابقة سجلّ WETO الإنتاجيّ)",
+      _rb_st == 2.511 and _rb_tr[0] == 2.7 and abs(_rb_tr[1] - 2.781) < 1e-9
+      and len(_rb_tr) == int(S.CONFIG.get("ENTRY_TRANCHES", 3)))
+
+# RB2 — محرّك الحسم: هدف=win · الوقف أولًا في الشمعة نفسها=loss · بلا لمس=no_fill
+check("🧱🔁 RB2 `resolve_episode`: win · loss (الوقف أولًا) · no_fill",
+      _RB.resolve_episode([5.0] * 10 + [4.0, 4.2, 6.5],
+                          [4.5] * 10 + [2.75, 3.9, 4.1], 9,
+                          [2.7, 2.78, 2.86], 2.511) == "win"
+      and _RB.resolve_episode([5.0] * 10 + [4.0, 4.2],
+                              [4.5] * 10 + [2.4, 3.9], 9,
+                              [2.7, 2.78, 2.86], 2.511) == "loss"
+      and _RB.resolve_episode([5.0] * 15, [4.5] * 15, 9,
+                              [2.7, 2.78, 2.86], 2.511) == "no_fill")
+
+# RB3 — `hold_overlay`: قاعٌ مزدوجٌ ممسوك ⇒ المستوى · غادر/بلا مستوى ⇒ None
+_rb_lo = np.full(60, 3.5)
+_rb_cl = np.full(60, 3.6)
+_rb_lo[-12] = 3.0
+_rb_lo[-4] = 3.004
+_rb_lo[-1] = 3.05
+_rb_cl2 = _rb_cl.copy()
+_rb_cl[-1] = 3.1
+_rb_df = pd.DataFrame({"Low": _rb_lo, "High": np.full(60, 3.8),
+                       "Close": _rb_cl, "Open": _rb_cl},
+                      index=pd.date_range("2026-05-01", periods=60, freq="B"))
+_rb_df2 = _rb_df.copy()
+_rb_cl2[-1] = 3.6
+_rb_df2["Close"] = _rb_cl2
+check("🧱🔁 RB3 `hold_overlay`: ممسوكٌ عند قاعٍ مزدوج 3.0 ⇒ 3.0 · غادره ⇒ None",
+      _RB.hold_overlay(_rb_df) == 3.0 and _RB.hold_overlay(_rb_df2) is None)
+
+# RB4 — RHV3: الإضافيّ حصرًا من السبب الهدف (مرفوضُ جدارٍ آخر لا يدخل)
+S._REJECT_REASONS["RBAA"] = "M4_base_واسعة_هبوطًا"
+S._REJECT_REASONS["RBBB"] = "M1_سعر"
+check("🧱🔁 RB4 `is_target_reject`: السببُ الهدف فقط ✓ · جدارٌ آخر ✗ · غائب ✗",
+      _RB.is_target_reject("RBAA") is True
+      and _RB.is_target_reject("RBBB") is False
+      and _RB.is_target_reject("RBCC") is False)
+S._REJECT_REASONS.pop("RBAA", None)
+S._REJECT_REASONS.pop("RBBB", None)
+
+# RB5 — قيدُ السنة (منعُ العدّ المزدوج بين اللقطات) + قفزةُ WAIT بعد الحلقة
+_rb_idx = pd.date_range("2025-06-01", periods=300, freq="B")
+_rb_dfw = pd.DataFrame({"Low": np.full(300, 3.0), "High": np.full(300, 4.0),
+                        "Close": np.full(300, 3.5), "Open": np.full(300, 3.5)},
+                       index=_rb_idx)
+_rb_saved_at = S.analyze_ticker
+S.analyze_ticker = lambda sym, sl, pullback=False: {
+    "tranches": [3.0, 3.09, 3.18], "stop": [2.79], "entry": [3.0, 3.18]}
+try:
+    _rb_eps = _RB.walk_symbol("STUB", _rb_dfw, year="2026")
+finally:
+    S.analyze_ticker = _rb_saved_at
+check("🧱🔁 RB5 قيدُ السنة: كلُّ حلقات 2026 داخلها · والقفزةُ WAIT تمنع التكديس",
+      {str(_rb_idx[e[1]])[:4] for e in _rb_eps} == {"2026"}
+      and len(_rb_eps) >= 2
+      and all(_rb_eps[k + 1][1] - _rb_eps[k][1] >= _RB.WAIT
+              for k in range(len(_rb_eps) - 1)))
+
+# RB6 — الـworkflows موصولة (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
+_rb_y = open(".github/workflows/rebound_hold.yml", encoding="utf-8").read()
+_ct_y = open(".github/workflows/press_cat_probe.yml", encoding="utf-8").read()
+check("🧱🔁 RB6 rebound_hold.yml + press_cat_probe.yml: المدخلات موصولة env",
+      "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _rb_y
+      and "BT_FROZEN_PATH" in _rb_y and "frozen-dataset" in _rb_y
+      and "PREEXP_SOURCE: ${{ github.event.inputs.source }}" in _ct_y
+      and "POLYGON_API_KEY" in _ct_y)
+
+# CT1 — مِجَسُّ الكتالوج: `probe_day` تُطلق على نمط WETO وتسمّي سببَ عدم الإطلاق
+import press_cat_probe as _CT
+_ct_f = _prd_frame(_prd_lo, _prd_hi, _prd_cl)
+_ct_r, _ct_why = _CT.probe_day(_ct_f, len(_ct_f) - 1)
+_ct_r2, _ct_why2 = _CT.probe_day(_prd_frame([3.0] * 40, [4.0] * 40, [3.2] * 40), 39)
+_ct_r3, _ct_why3 = _CT.probe_day(_ct_f, 5)
+check("🗜️📚 CT1 `probe_day`: نمطُ WETO «أطلق» · الضحلُ «عمق أقل من الحد» · "
+      "والقصيرُ «تاريخ قصير» (لا صفرَ غامضًا)",
+      bool(_ct_r) and _ct_why == "أطلق"
+      and _ct_r2 is None and _ct_why2 == "عمق أقل من الحد (ليس مضغوطًا)"
+      and _ct_r3 is None and _ct_why3 == "تاريخ قصير")
 
 # PRD7 — الـworkflow موصول (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
 _prd_y = open(".github/workflows/press_radar.yml", encoding="utf-8").read()

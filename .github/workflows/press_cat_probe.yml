@@ -1,0 +1,32 @@
+name: Press Catalog Probe (مِجَسّ الكتالوج T-2)
+
+# 🗜️📚 العقد press_prereg.md §⑪ (مدفوع قبل أي رقم) — هل كان رادار الضغط سيرى
+# منفجري الكتالوج/أسماكنا قبل جلستين؟ يدوي بلا كرون · قراءة فقط · صفر حالة.
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      source:
+        description: "مصدر الشموع — polygon (حتمي، المعتمد §⑪) أو yahoo"
+        required: true
+        default: "polygon"
+jobs:
+  cat_probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run catalog probe
+        env:
+          # 🔴 مدخل بلا env = مدخل ميت (قاعدة P1)
+          PREEXP_SOURCE: ${{ github.event.inputs.source }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        run: python press_cat_probe.py
