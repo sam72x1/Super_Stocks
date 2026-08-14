@@ -204,8 +204,14 @@ def press_read(df, w=W, band_pct=None):
                 tl = round(float(_t["level"]), 4)
         except Exception:                                        # noqa: BLE001
             tl = None
+        # 🕯️ «الشمعة المهمة» (نص فيصل على NEXR، صورة 2026-08-14: «الشمعه
+        # واضحه · ذيلها 2.60 · راسها 2.80 · لو كسر ذيلها ولا رجع يفشل ·
+        # لذلك فيه طلبات مضارب — لو حطيت طلبي 2.70 و2.80 ممتاز»): شمعةُ
+        # صنع القاع — ذيلُها القاع نفسه ورأسُها High يومها؛ طلباتُ فيصل
+        # داخل مداها والفشلُ كسرُ الذيل بلا رجوع. حقلُ عرضٍ إضافيّ حصرًا.
         return {"close": round(close, 4), "high_w": round(high_w, 4),
                 "press_low": round(press_low, 4),
+                "imp_head": round(float(hi[j_low]), 4),
                 "drop_pct": round(drop, 1),
                 "hold_sessions": int(i - j_low),
                 "runup_pct": round(runup_pct(hi, lo, j_star), 1),
@@ -329,6 +335,10 @@ def build_alert(rows, session_iso: str) -> str:
         if p.get("tested_level"):
             seg.append(f"مستوى مُختبَر عند ${p['tested_level']}")
         seg.append(f"🟣 الطلبات مقسّمة قرب القاع ${p['press_low']} · 🔴 الوقف تحته")
+        if p.get("imp_head"):
+            seg.append(f"🕯️ الشمعة المهمة: ذيلها ${p['press_low']} ورأسها "
+                       f"${p['imp_head']} — طلبات فيصل داخل مداها، وكسرُ "
+                       "الذيل بلا رجوع يُفشلها (درس NEXR)")
         plan = r.get("plan") or {}
         if plan.get("entry"):
             e = plan["entry"]
