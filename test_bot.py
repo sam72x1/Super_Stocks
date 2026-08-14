@@ -30,6 +30,14 @@ import Super_stock as S
 import technical_report as TR
 import hand_check as HC
 
+# 🥇 **تثبيتُ مِرساة السويّة (سابقةُ `FAISAL_ONLY=0` — قرارٌ منهجيّ لا تهرّب):**
+#    باعتماد B2 («1» 2026-08-14) صار الإنتاجُ `ANCHOR_MODE="tested_strict"`،
+#    وألفا فِكستشرٍ توصيفيّ مبنيّةٌ على مِرساة `pivot` (سهمٌ مصطنعٌ بلا مستوًى
+#    مُختبَرٍ يُرفَض تحت strict فيُبطَل معنى الفِكستشر لا يُكشَف عيب).
+#    ⇒ السويّةُ تثبّت الآلةَ على `pivot`، **والاعتمادُ يأخذ أقفالَه القسريّة**
+#    (‏ADOPT1-5 أدناه) — وأوّلُها أن الافتراضَ في مصدر الإنتاج = tested_strict.
+S.CONFIG["ANCHOR_MODE"] = ""
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🔴 **السويّة لا تدهس ملفَّ حالةٍ مدفوعًا** — عيبٌ مقيس (‏2026-08-05)
 # ══════════════════════════════════════════════════════════════════════════
@@ -14910,7 +14918,10 @@ check("🎁 EXTRA🔒 صفر أثرٍ على الترشيح: لا اسم منه�
                          S.classify_tier, S.entry_status, S.apply_float_gate,
                          S.apply_short_gate, S.backtest_symbol)))
 # 🔒 **الشرط (أ) نحويًّا:** كلُّ نداءٍ لـ`tested_level` داخل `analyze_ticker` يقع
-#    تحت `if CONFIG.get("BT_ANCHOR")` — فلو خرج نداءٌ من الفرع سقط القفل.
+#    تحت فرعِ الوضع النافذ. 🥇 **إقرارٌ مؤرَّخ (2026-08-14، اعتماد B2):** الحارسُ
+#    كان `if CONFIG.get("BT_ANCHOR")` وصار `if _amode` — والقفلُ **شُدِّد لا
+#    أُرخي**: يُشترَط فوقه أن اشتقاقَ `_amode` يقرأ المفتاحين معًا (‏BT يعلو
+#    للقياس و`ANCHOR_MODE` يحكم الإنتاج) وأن "pivot" يُصفّره.
 _ta_tree = _ast0.parse(_insp0.getsource(S.analyze_ticker).lstrip())
 _ta_guarded, _ta_all = 0, 0
 for _nd in _ast0.walk(_ta_tree):
@@ -14918,12 +14929,17 @@ for _nd in _ast0.walk(_ta_tree):
             and getattr(_nd.func, "id", None) == "tested_level"):
         _ta_all += 1
 for _nd in _ast0.walk(_ta_tree):
-    if isinstance(_nd, _ast0.If) and "BT_ANCHOR" in _ast0.dump(_nd.test):
+    if isinstance(_nd, _ast0.If) and "_amode" in _ast0.dump(_nd.test):
         for _sub in _ast0.walk(_nd):
             if (isinstance(_sub, _ast0.Call)
                     and getattr(_sub.func, "id", None) == "tested_level"):
                 _ta_guarded += 1
-check("🎁 EXTRA🔒-أ `tested_level` في الجذر **داخل فرع `BT_ANCHOR` وحدَه** (AST لا نصّ)",
+_ex_src0 = _insp0.getsource(S.analyze_ticker)
+check("🎁 EXTRA🔒-أ2 واشتقاقُ `_amode` يقرأ المفتاحين و«pivot» يجبر الأساس",
+      'CONFIG.get("BT_ANCHOR")' in _ex_src0
+      and 'CONFIG.get("ANCHOR_MODE")' in _ex_src0
+      and '"pivot"' in _ex_src0)
+check("🎁 EXTRA🔒-أ `tested_level` في الجذر **داخل فرع `_amode` وحدَه** (AST لا نصّ)",
       _ta_all >= 1 and _ta_all == _ta_guarded,
       f"نداءات={_ta_all} · محروسة={_ta_guarded}")
 check("🎁 EXTRA🔒 وتُنادى من `build_split_hunter_alert` وحدها (نقطة النداء مُثبَتة)",
@@ -16818,11 +16834,66 @@ finally:
     S.CONFIG["BT_ANCHOR"] = _an_old
 _an_off = S.analyze_ticker("AN", _an_df)
 
-check("📌 AN1 العلمُ مطفأٌ ⇒ الفارزُ **بت-بت** (قفلٌ سلوكيّ: القاموسُ كاملًا)",
+# 🥇 إقرارٌ مؤرَّخ (2026-08-14، اعتماد B2 «1»): عنوانُ AN1 القديم («العلمُ
+#    مطفأٌ ⇒ بت-بت») **مات بالاعتماد** — الإنتاجُ لم يعد pivot. البتّيّةُ هنا
+#    تحت تثبيت السويّة (`ANCHOR_MODE=""`)، وأقفالُ الاعتماد ADOPT1-5 أدناه.
+check("📌 AN1 تحت تثبيت السويّة (‏pivot) ⇒ بت-بت قبل الأذرع وبعدها",
       _an_base is not None and _an_off is not None
       and json.dumps(_an_base, sort_keys=True, default=str)
       == json.dumps(_an_off, sort_keys=True, default=str),
       "قبل الأذرع وبعدها")
+
+# ═══ 🥇 أقفالُ الاعتماد ADOPT1-5 — قرارُ المالك «اعتمد الصارمة» («1» 2026-08-14
+#     بعد عبور الحرّاس الأربعة `anchor_prereg.md §⑫`) — لا تُرخى بحسن نيّة ═══
+_ad_src = open("Super_stock.py", encoding="utf-8").read()
+check("🥇 ADOPT1 الافتراضُ في **مصدر الإنتاج** `ANCHOR_MODE=\"tested_strict\"` "
+      "(تثبيتُ السويّة لا يخفيه — يُقرأ من الملفّ لا من CONFIG المثبَّت)",
+      '"ANCHOR_MODE": "tested_strict",' in _ad_src
+      and "اعتمد الصارمة" in _ad_src,
+      "قرارُ مالكٍ مُسمًّى في التعليق فلا يُرخى صامتًا")
+
+# ADOPT2 — سلوكيًّا: ANCHOR_MODE يصل نفسَ فرع الأذرع بت-بت (وليس مفتاحًا ميّتًا)
+_ad_old = (S.CONFIG.get("BT_ANCHOR"), S.CONFIG.get("ANCHOR_MODE"))
+try:
+    S.CONFIG["BT_ANCHOR"], S.CONFIG["ANCHOR_MODE"] = "", "tested_strict"
+    _ad_via_mode = S.analyze_ticker("AN", _an_df)
+    S.CONFIG["BT_ANCHOR"], S.CONFIG["ANCHOR_MODE"] = "tested_strict", ""
+    _ad_via_bt = S.analyze_ticker("AN", _an_df)
+    S.CONFIG["BT_ANCHOR"], S.CONFIG["ANCHOR_MODE"] = "pivot", "tested_strict"
+    _ad_pivot = S.analyze_ticker("AN", _an_df)
+finally:
+    S.CONFIG["BT_ANCHOR"], S.CONFIG["ANCHOR_MODE"] = _ad_old
+check("🥇 ADOPT2 `ANCHOR_MODE` موصولٌ بنفس فرع الأذرع **بت-بت** (لا مفتاحَ ميّتًا"
+      " — بصمةُ BT_CANDLE)",
+      json.dumps(_ad_via_mode, sort_keys=True, default=str)
+      == json.dumps(_an_b2, sort_keys=True, default=str)
+      and json.dumps(_ad_via_bt, sort_keys=True, default=str)
+      == json.dumps(_an_b2, sort_keys=True, default=str))
+check("🥇 ADOPT3 و`BT_ANCHOR=\"pivot\"` يجبر الأساسَ القديم بت-بت رغم اعتماد "
+      "الإنتاج (قابليةُ إعادة إنتاج الأرقام المنشورة)",
+      json.dumps(_ad_pivot, sort_keys=True, default=str)
+      == json.dumps(_an_base, sort_keys=True, default=str))
+check("🥇 ADOPT4 تقشيرُ `M_لا_مستوى_مختبر` في wall_stack صار بمفتاح الإنتاج "
+      "`ANCHOR_MODE` (وإلّا صار الجدارُ غيرَ قابلٍ للتقشير بعد الاعتماد)",
+      '"M_لا_مستوى_مختبر":     ("ANCHOR_MODE",         "")'
+      in open("wall_stack.py", encoding="utf-8").read())
+check("🥇 ADOPT5 ذراعُ `A0` في anchor_arms صارت **\"pivot\"** — وإلّا قاست "
+      "الأساسَ الجديد وسمّته القديم (no-op مقلوب)",
+      '"A0": "pivot"' in open("anchor_arms.py", encoding="utf-8").read())
+check("🥇 ADOPT6 و`LOGIC_VERSION` يحمل `anchorb2` (يمسّ العضويةَ والدخول/الوقف "
+      "⇒ إعادةُ بناءٍ تلقائية + force_renew)",
+      "anchorb2" in S.LOGIC_VERSION)
+
+# ADOPT7 — مرآةُ `analyze_one` (قاعدة «الفحص اليدوي = الأساسي»): الإبرُ من
+#          **الكود** لا التعليقات (‏`_anchor1` لا يعيش في تعليق) + نداءُ
+#          `tested_level` بالاسم — وطفرةُ حذف المرآة تُسقطه.
+_ao_src = open("analyze_one.py", encoding="utf-8").read()
+check("🥇 ADOPT7 مرآةُ المِرساة في analyze_one: اشتقاقُ الوضع + tested_level + "
+      "الدفعاتُ والوقفُ من `_anchor1`",
+      'C.get("ANCHOR_MODE")' in _ao_src
+      and "bot.tested_level(df)" in _ao_src
+      and "tranches = [round(_anchor1" in _ao_src
+      and "stop_hi = _anchor1" in _ao_src)
 
 check("📌 AN2 `B1` ترتدّ لـ`pivot` حين لا مستوى مُختبَر (لا رفض)",
       (_an_b1 is not None) if S.tested_level(_an_df) is None else True,

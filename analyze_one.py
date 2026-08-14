@@ -476,9 +476,23 @@ def analyze_on_demand(sym: str):
     sweep_hi = pivot * (1 - d_lo / 100.0)
 
     # دفعات الدخول (أسلوب فيصل): أوامر عند الدعم وصعوداً بخطوة ثابتة
+    # 🥇 مرآةُ مِرساة الإنتاج (اعتماد B2 — «1» 2026-08-14، «الفحص اليدوي =
+    #    الأساسي»): مستوًى مُختبَرٌ ⇒ الدفعاتُ والوقفُ منه. وتحت `tested_strict`
+    #    بلا مستوًى: الحكمُ الرسميّ (analyze_ticker أدناه) يرفض باسمه، والعرضُ
+    #    هنا يرتدّ لـ`pivot` **ليُقرأ الكرت** (الفحصُ يعرض المرفوضَ كاملًا).
+    _amode = str(C.get("BT_ANCHOR") or "")
+    _amode = ("" if _amode == "pivot"
+              else (_amode or str(C.get("ANCHOR_MODE") or "")))
+    _anchor1 = pivot
+    if _amode:
+        _tl1 = bot.tested_level(df)
+        if _tl1:
+            _anchor1 = float(_tl1["level"])
+            stop_hi = _anchor1 * (1 - s_lo / 100.0)
+            stop_lo = _anchor1 * (1 - s_hi / 100.0)
     n_tr = max(1, int(C["ENTRY_TRANCHES"]))
     step = C["ENTRY_STEP_PCT"] / 100.0
-    tranches = [round(pivot * (1 + step * i), 2) for i in range(n_tr)]
+    tranches = [round(_anchor1 * (1 + step * i), 2) for i in range(n_tr)]
     entry_lo = tranches[0]
     entry_hi = tranches[-1]
     # الضمان الذهبي: الوقف دائمًا تحت أدنى الدخول

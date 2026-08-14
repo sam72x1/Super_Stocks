@@ -364,7 +364,19 @@ CONFIG = {
     #    · "faisal" = نصُّه كاملًا (`held` **و** ‏≥3 جلسات). ⛔ ولا ذراعَ للسقف 8
     #    (‏`engineering` — إنفاذُه يرفض مَن ثبت 10 جلسات وهو أفضل). مقفول ST5.
     "BT_STABILITY_GATE": "",
-    # 🎯📌 `T-ANCHOR` (‏`anchor_prereg.md`): "" الأساس · "tested" · "tested_strict"
+    # 🥇 مِرساةُ الدخول/الوقف الإنتاجية — **قرارُ المالك «اعتمد الصارمة» («1»)
+    #    2026-08-14** بعد عبور حرّاس `T-ANCHOR` الأربعة (‏`anchor_prereg.md §⑫`:
+    #    d50 ‏88 مقابل 62 = ‏+42% بلا نقصِ سنة · ‏ΔR مجمَّعًا ‏+0.079 · ‏3,260
+    #    صفقةً مختلفةَ المِرساة · وترفض BBLG). **المقياسُ `tested_level`
+    #    `faisal_verbatim`** («‏1.75 ضربها مرّتين ولا كسرها» `IMG_0451`)،
+    #    والصرامةُ (رفضُ مَن لا مستوى له باسم `M_لا_مستوى_مختبر`) تصميمُ الذراع
+    #    **المقيسة**. ⚠️ كلفتُها المُعلَنةُ للمالك قبل قراره: قصُّ ‏≈52% من
+    #    الإشارات وفئةُ «القاع الطازج بلمسةٍ واحدة» تُرفَض بالبناء.
+    #    "" = مِرساةُ `pivot` القديمة (ما قبل 2026-08-14).
+    "ANCHOR_MODE": "tested_strict",
+    # 🎯📌 تجاوزُ باكتيست `T-ANCHOR` (‏`anchor_prereg.md`): "" لا تجاوزَ
+    #    (‏`ANCHOR_MODE` يحكم) · **"pivot" يجبر الأساسَ القديم** (لإعادة إنتاج
+    #    الأرقام المنشورة قبل الاعتماد) · "tested" · "tested_strict"
     "BT_ANCHOR": "",
     "BT_LIBERATION": 0,                   # 1 = فعّل ذراعَي التحرر (L1 أقرب حاجز · L2 أعلى مقاومة)
     "BT_LIB_WAIT": 20,                    # نافذة انتظار الكسر بالجلسات (مُثبَّتة بالتسجيل المسبق)
@@ -914,7 +926,7 @@ _FAISAL_ONLY_APPLIED = apply_faisal_only()
 # نسخة منطق التحليل — تُختم في ملف القائمة. أي تعديل يمسّ الدخول/الوقف/الأهداف/
 # المستويات → ارفع الرقم، فالبوت يعيد حساب القائمة كاملة تلقائياً في أول تشغيل
 # (ضمان: القائمة دائمًا على آخر منطق، بلا انتظار يوم التجديد ولا تدخّل يدوي).
-LOGIC_VERSION = "2026.08.13-listsplit+rrtruth+cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.13-listsplit+rrtruth+cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+anchorb2+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -3362,13 +3374,19 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         #      عند يوم الترتيب ⇒ صفرُ نظرٍ مستقبليّ. والوقفُ والدفعات يُشتقّان من
         #      المِرساة نفسِها (وإلّا قِيس نصفُ التغيير).
         _anchor = pivot
-        if CONFIG.get("BT_ANCHOR"):
+        # ⚙️ الوضعُ النافذ: `BT_ANCHOR` يعلو **للقياس** ("pivot" يجبر الأساسَ
+        #    القديم)، وإلّا `ANCHOR_MODE` الإنتاجيّ = "tested_strict" باعتماد
+        #    المالك («1» 2026-08-14 — `anchor_prereg.md §⑫/⑬`).
+        _amode = str(CONFIG.get("BT_ANCHOR") or "")
+        _amode = ("" if _amode == "pivot"
+                  else (_amode or str(CONFIG.get("ANCHOR_MODE") or "")))
+        if _amode:
             _tl = tested_level(df)
             if _tl:
                 _anchor = float(_tl["level"])
                 stop_hi = _anchor * (1 - s_lo / 100.0)
                 stop_lo = _anchor * (1 - s_hi / 100.0)
-            elif str(CONFIG.get("BT_ANCHOR")) == "tested_strict":
+            elif _amode == "tested_strict":
                 return _reject("M_لا_مستوى_مختبر")
         n_tr = max(1, int(CONFIG["ENTRY_TRANCHES"]))
         step = CONFIG["ENTRY_STEP_PCT"] / 100.0
