@@ -1359,3 +1359,267 @@
 {"key": "envelope|2026-08-12|SCNX", "hunter": "envelope", "session": "2026-08-12", "symbol": "SCNX", "kind": "candidate", "ref_close": 0.44999998807907104, "fwd": 40, "outcome": null}
 {"key": "envelope|2026-08-12|SCWO", "hunter": "envelope", "session": "2026-08-12", "symbol": "SCWO", "kind": "candidate", "ref_close": 2.319999933242798, "fwd": 40, "outcome": null}
 {"key": "envelope|2026-08-12|SDA", "hunter": "envelope", "session": "2026-08-12", "symbol": "SDA", "kind": "candidate", "ref_close": 0.7800999879837036, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|ABVC", "hunter": "envelope", "session": "2026-08-13", "symbol": "ABVC", "kind": "candidate", "ref_close": 0.9593999981880188, "fwd": 40, "outcome": null, "float": 20436193.0}
+{"key": "envelope|2026-08-13|ACON", "hunter": "envelope", "session": "2026-08-13", "symbol": "ACON", "kind": "candidate", "ref_close": 2.4000000953674316, "fwd": 40, "outcome": null, "float": 2577906.0}
+{"key": "envelope|2026-08-13|ACTU", "hunter": "envelope", "session": "2026-08-13", "symbol": "ACTU", "kind": "candidate", "ref_close": 0.9750999808311462, "fwd": 40, "outcome": null, "float": 8564737.0}
+{"key": "envelope|2026-08-13|ACXP", "hunter": "envelope", "session": "2026-08-13", "symbol": "ACXP", "kind": "candidate", "ref_close": 1.4800000190734863, "fwd": 40, "outcome": null, "float": 4168118.0}
+{"key": "envelope|2026-08-13|AFJK", "hunter": "envelope", "session": "2026-08-13", "symbol": "AFJK", "kind": "candidate", "ref_close": 12.0, "fwd": 40, "outcome": null, "float": 1441346.0}
+{"key": "envelope|2026-08-13|AHMA", "hunter": "envelope", "session": "2026-08-13", "symbol": "AHMA", "kind": "candidate", "ref_close": 1.659999966621399, "fwd": 40, "outcome": null, "float": 2144956.0}
+{"key": "envelope|2026-08-13|AIIO", "hunter": "envelope", "session": "2026-08-13", "symbol": "AIIO", "kind": "candidate", "ref_close": 2.9200000762939453, "fwd": 40, "outcome": null, "float": 17769764.0}
+{"key": "envelope|2026-08-13|AIRE", "hunter": "envelope", "session": "2026-08-13", "symbol": "AIRE", "kind": "candidate", "ref_close": 1.5099999904632568, "fwd": 40, "outcome": null, "float": 3931451.0}
+{"key": "envelope|2026-08-13|AISP", "hunter": "envelope", "session": "2026-08-13", "symbol": "AISP", "kind": "candidate", "ref_close": 1.940000057220459, "fwd": 40, "outcome": null, "float": 21993449.0}
+{"key": "envelope|2026-08-13|AIXC", "hunter": "envelope", "session": "2026-08-13", "symbol": "AIXC", "kind": "candidate", "ref_close": 0.6909999847412109, "fwd": 40, "outcome": null, "float": 18558726.0}
+{"key": "envelope|2026-08-13|AIXI", "hunter": "envelope", "session": "2026-08-13", "symbol": "AIXI", "kind": "candidate", "ref_close": 0.8858000040054321, "fwd": 40, "outcome": null, "float": 866043.0}
+{"key": "envelope|2026-08-13|AKAN", "hunter": "envelope", "session": "2026-08-13", "symbol": "AKAN", "kind": "candidate", "ref_close": 5.010000228881836, "fwd": 40, "outcome": null, "float": 537663.0}
+{"key": "envelope|2026-08-13|AKTX", "hunter": "envelope", "session": "2026-08-13", "symbol": "AKTX", "kind": "candidate", "ref_close": 7.0, "fwd": 40, "outcome": null, "float": 704677.0}
+{"key": "envelope|2026-08-13|ALAR", "hunter": "envelope", "session": "2026-08-13", "symbol": "ALAR", "kind": "candidate", "ref_close": 1.8300000429153442, "fwd": 40, "outcome": null, "float": 6883569.0}
+{"key": "envelope|2026-08-13|AMCI", "hunter": "envelope", "session": "2026-08-13", "symbol": "AMCI", "kind": "candidate", "ref_close": 4.809999942779541, "fwd": 40, "outcome": null, "float": 4720086.0}
+{"key": "envelope|2026-08-13|AMOD", "hunter": "envelope", "session": "2026-08-13", "symbol": "AMOD", "kind": "candidate", "ref_close": 4.559999942779541, "fwd": 40, "outcome": null, "float": 943770.0}
+{"key": "envelope|2026-08-13|AMST", "hunter": "envelope", "session": "2026-08-13", "symbol": "AMST", "kind": "candidate", "ref_close": 1.0700000524520874, "fwd": 40, "outcome": null, "float": 2786079.0}
+{"key": "envelope|2026-08-13|ANNA", "hunter": "envelope", "session": "2026-08-13", "symbol": "ANNA", "kind": "candidate", "ref_close": 2.5, "fwd": 40, "outcome": null, "float": 9752727.0}
+{"key": "envelope|2026-08-13|APVO", "hunter": "envelope", "session": "2026-08-13", "symbol": "APVO", "kind": "candidate", "ref_close": 3.4000000953674316, "fwd": 40, "outcome": null, "float": 1125295.0}
+{"key": "envelope|2026-08-13|ARBK", "hunter": "envelope", "session": "2026-08-13", "symbol": "ARBK", "kind": "candidate", "ref_close": 2.890000104904175, "fwd": 40, "outcome": null, "float": 395190.0}
+{"key": "envelope|2026-08-13|ARTL", "hunter": "envelope", "session": "2026-08-13", "symbol": "ARTL", "kind": "candidate", "ref_close": 0.7587000131607056, "fwd": 40, "outcome": null, "float": 2171639.0}
+{"key": "envelope|2026-08-13|ASPC", "hunter": "envelope", "session": "2026-08-13", "symbol": "ASPC", "kind": "candidate", "ref_close": 10.600000381469727, "fwd": 40, "outcome": null, "float": 552581.0}
+{"key": "envelope|2026-08-13|ATGL", "hunter": "envelope", "session": "2026-08-13", "symbol": "ATGL", "kind": "candidate", "ref_close": 7.630000114440918, "fwd": 40, "outcome": null, "float": 14864979.0}
+{"key": "envelope|2026-08-13|ATPC", "hunter": "envelope", "session": "2026-08-13", "symbol": "ATPC", "kind": "candidate", "ref_close": 2.5, "fwd": 40, "outcome": null, "float": 433301.0}
+{"key": "envelope|2026-08-13|AUID", "hunter": "envelope", "session": "2026-08-13", "symbol": "AUID", "kind": "candidate", "ref_close": 0.4731000065803528, "fwd": 40, "outcome": null, "float": 14149643.0}
+{"key": "envelope|2026-08-13|AVX", "hunter": "envelope", "session": "2026-08-13", "symbol": "AVX", "kind": "candidate", "ref_close": 3.109999895095825, "fwd": 40, "outcome": null, "float": 5693541.0}
+{"key": "envelope|2026-08-13|BAOS", "hunter": "envelope", "session": "2026-08-13", "symbol": "BAOS", "kind": "candidate", "ref_close": 0.5950000286102295, "fwd": 40, "outcome": null, "float": 1034490.0}
+{"key": "envelope|2026-08-13|BBLG", "hunter": "envelope", "session": "2026-08-13", "symbol": "BBLG", "kind": "candidate", "ref_close": 0.6743000149726868, "fwd": 40, "outcome": null, "float": 1790467.0}
+{"key": "envelope|2026-08-13|BCAB", "hunter": "envelope", "session": "2026-08-13", "symbol": "BCAB", "kind": "candidate", "ref_close": 3.450000047683716, "fwd": 40, "outcome": null, "float": 1362573.0}
+{"key": "envelope|2026-08-13|BCTX", "hunter": "envelope", "session": "2026-08-13", "symbol": "BCTX", "kind": "candidate", "ref_close": 3.440000057220459, "fwd": 40, "outcome": null, "float": 7859562.0}
+{"key": "envelope|2026-08-13|BEAT", "hunter": "envelope", "session": "2026-08-13", "symbol": "BEAT", "kind": "candidate", "ref_close": 0.5898000001907349, "fwd": 40, "outcome": null, "float": 46831672.0}
+{"key": "envelope|2026-08-13|BENF", "hunter": "envelope", "session": "2026-08-13", "symbol": "BENF", "kind": "candidate", "ref_close": 2.4700000286102295, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|BETR", "hunter": "envelope", "session": "2026-08-13", "symbol": "BETR", "kind": "candidate", "ref_close": 15.0, "fwd": 40, "outcome": null, "float": 9105069.0}
+{"key": "envelope|2026-08-13|BGDE", "hunter": "envelope", "session": "2026-08-13", "symbol": "BGDE", "kind": "candidate", "ref_close": 6.059999942779541, "fwd": 40, "outcome": null, "float": 3530509.0}
+{"key": "envelope|2026-08-13|BGMS", "hunter": "envelope", "session": "2026-08-13", "symbol": "BGMS", "kind": "candidate", "ref_close": 0.9251000285148621, "fwd": 40, "outcome": null, "float": 3456228.0}
+{"key": "envelope|2026-08-13|BIRD", "hunter": "envelope", "session": "2026-08-13", "symbol": "BIRD", "kind": "candidate", "ref_close": 2.640000104904175, "fwd": 40, "outcome": null, "float": 4433230.0}
+{"key": "envelope|2026-08-13|BIYA", "hunter": "envelope", "session": "2026-08-13", "symbol": "BIYA", "kind": "candidate", "ref_close": 2.6700000762939453, "fwd": 40, "outcome": null, "float": 1809172.0}
+{"key": "envelope|2026-08-13|BKYI", "hunter": "envelope", "session": "2026-08-13", "symbol": "BKYI", "kind": "candidate", "ref_close": 3.7699999809265137, "fwd": 40, "outcome": null, "float": 987037.0}
+{"key": "envelope|2026-08-13|BMGL", "hunter": "envelope", "session": "2026-08-13", "symbol": "BMGL", "kind": "candidate", "ref_close": 4.619999885559082, "fwd": 40, "outcome": null, "float": 501423.0}
+{"key": "envelope|2026-08-13|BNC", "hunter": "envelope", "session": "2026-08-13", "symbol": "BNC", "kind": "candidate", "ref_close": 2.5399999618530273, "fwd": 40, "outcome": null, "float": 36272162.0}
+{"key": "envelope|2026-08-13|BNKK", "hunter": "envelope", "session": "2026-08-13", "symbol": "BNKK", "kind": "candidate", "ref_close": 1.024999976158142, "fwd": 40, "outcome": null, "float": 4907457.0}
+{"key": "envelope|2026-08-13|BNR", "hunter": "envelope", "session": "2026-08-13", "symbol": "BNR", "kind": "candidate", "ref_close": 9.289999961853027, "fwd": 40, "outcome": null, "float": 3320718.0}
+{"key": "envelope|2026-08-13|BNRG", "hunter": "envelope", "session": "2026-08-13", "symbol": "BNRG", "kind": "candidate", "ref_close": 3.4600000381469727, "fwd": 40, "outcome": null, "float": 23788.0}
+{"key": "envelope|2026-08-13|BRAI", "hunter": "envelope", "session": "2026-08-13", "symbol": "BRAI", "kind": "candidate", "ref_close": 5.690000057220459, "fwd": 40, "outcome": null, "float": 39980659.0}
+{"key": "envelope|2026-08-13|BRLS", "hunter": "envelope", "session": "2026-08-13", "symbol": "BRLS", "kind": "candidate", "ref_close": 0.800000011920929, "fwd": 40, "outcome": null, "float": 6468397.0}
+{"key": "envelope|2026-08-13|BTCS", "hunter": "envelope", "session": "2026-08-13", "symbol": "BTCS", "kind": "candidate", "ref_close": 1.0700000524520874, "fwd": 40, "outcome": null, "float": 38772525.0}
+{"key": "envelope|2026-08-13|BTCT", "hunter": "envelope", "session": "2026-08-13", "symbol": "BTCT", "kind": "candidate", "ref_close": 0.4706000089645386, "fwd": 40, "outcome": null, "float": 9168463.0}
+{"key": "envelope|2026-08-13|BTOG", "hunter": "envelope", "session": "2026-08-13", "symbol": "BTOG", "kind": "candidate", "ref_close": 0.8370000123977661, "fwd": 40, "outcome": null, "float": 1477857.0}
+{"key": "envelope|2026-08-13|CALC", "hunter": "envelope", "session": "2026-08-13", "symbol": "CALC", "kind": "candidate", "ref_close": 0.6572999954223633, "fwd": 40, "outcome": null, "float": 2862788.0}
+{"key": "envelope|2026-08-13|CAR", "hunter": "envelope", "session": "2026-08-13", "symbol": "CAR", "kind": "candidate", "ref_close": 136.99000549316406, "fwd": 40, "outcome": null, "float": 12997758.0}
+{"key": "envelope|2026-08-13|CCHH", "hunter": "envelope", "session": "2026-08-13", "symbol": "CCHH", "kind": "candidate", "ref_close": 1.3200000524520874, "fwd": 40, "outcome": null, "float": 1637009.0}
+{"key": "envelope|2026-08-13|CCTG", "hunter": "envelope", "session": "2026-08-13", "symbol": "CCTG", "kind": "candidate", "ref_close": 0.788100004196167, "fwd": 40, "outcome": null, "float": 3008949.0}
+{"key": "envelope|2026-08-13|CDLX", "hunter": "envelope", "session": "2026-08-13", "symbol": "CDLX", "kind": "candidate", "ref_close": 4.260000228881836, "fwd": 40, "outcome": null, "float": 5022133.0}
+{"key": "envelope|2026-08-13|CELU", "hunter": "envelope", "session": "2026-08-13", "symbol": "CELU", "kind": "candidate", "ref_close": 0.6952999830245972, "fwd": 40, "outcome": null, "float": 18865820.0}
+{"key": "envelope|2026-08-13|CETX", "hunter": "envelope", "session": "2026-08-13", "symbol": "CETX", "kind": "candidate", "ref_close": 3.0199999809265137, "fwd": 40, "outcome": null, "float": 1111927.0}
+{"key": "envelope|2026-08-13|CETY", "hunter": "envelope", "session": "2026-08-13", "symbol": "CETY", "kind": "candidate", "ref_close": 0.9200000166893005, "fwd": 40, "outcome": null, "float": 10408712.0}
+{"key": "envelope|2026-08-13|CGTL", "hunter": "envelope", "session": "2026-08-13", "symbol": "CGTL", "kind": "candidate", "ref_close": 3.680000066757202, "fwd": 40, "outcome": null, "float": 1091512.0}
+{"key": "envelope|2026-08-13|CHR", "hunter": "envelope", "session": "2026-08-13", "symbol": "CHR", "kind": "candidate", "ref_close": 1.8899999856948853, "fwd": 40, "outcome": null, "float": 1627815.0}
+{"key": "envelope|2026-08-13|CHSN", "hunter": "envelope", "session": "2026-08-13", "symbol": "CHSN", "kind": "candidate", "ref_close": 1.0099999904632568, "fwd": 40, "outcome": null, "float": 387547.0}
+{"key": "envelope|2026-08-13|CIRC", "hunter": "envelope", "session": "2026-08-13", "symbol": "CIRC", "kind": "candidate", "ref_close": 0.6800000071525574, "fwd": 40, "outcome": null, "float": 24304178.0}
+{"key": "envelope|2026-08-13|CLIK", "hunter": "envelope", "session": "2026-08-13", "symbol": "CLIK", "kind": "candidate", "ref_close": 1.3899999856948853, "fwd": 40, "outcome": null, "float": 258171.0}
+{"key": "envelope|2026-08-13|CMND", "hunter": "envelope", "session": "2026-08-13", "symbol": "CMND", "kind": "candidate", "ref_close": 1.850000023841858, "fwd": 40, "outcome": null, "float": 1484169.0}
+{"key": "envelope|2026-08-13|CNSY", "hunter": "envelope", "session": "2026-08-13", "symbol": "CNSY", "kind": "candidate", "ref_close": 3.700000047683716, "fwd": 40, "outcome": null, "float": 6456422.0}
+{"key": "envelope|2026-08-13|CNTX", "hunter": "envelope", "session": "2026-08-13", "symbol": "CNTX", "kind": "candidate", "ref_close": 0.5063999891281128, "fwd": 40, "outcome": null, "float": 44944537.0}
+{"key": "envelope|2026-08-13|CODX", "hunter": "envelope", "session": "2026-08-13", "symbol": "CODX", "kind": "candidate", "ref_close": 1.4900000095367432, "fwd": 40, "outcome": null, "float": 3522923.0}
+{"key": "envelope|2026-08-13|CRIS", "hunter": "envelope", "session": "2026-08-13", "symbol": "CRIS", "kind": "candidate", "ref_close": 1.8700000047683716, "fwd": 40, "outcome": null, "float": 1375363.0}
+{"key": "envelope|2026-08-13|CRMT", "hunter": "envelope", "session": "2026-08-13", "symbol": "CRMT", "kind": "candidate", "ref_close": 3.0899999141693115, "fwd": 40, "outcome": null, "float": 5636269.0}
+{"key": "envelope|2026-08-13|CRVO", "hunter": "envelope", "session": "2026-08-13", "symbol": "CRVO", "kind": "candidate", "ref_close": 2.930000066757202, "fwd": 40, "outcome": null, "float": 9897111.0}
+{"key": "envelope|2026-08-13|CTNT", "hunter": "envelope", "session": "2026-08-13", "symbol": "CTNT", "kind": "candidate", "ref_close": 1.6399999856948853, "fwd": 40, "outcome": null, "float": 2755193.0}
+{"key": "envelope|2026-08-13|CVKD", "hunter": "envelope", "session": "2026-08-13", "symbol": "CVKD", "kind": "candidate", "ref_close": 1.8600000143051147, "fwd": 40, "outcome": null, "float": 2442312.0}
+{"key": "envelope|2026-08-13|CVRX", "hunter": "envelope", "session": "2026-08-13", "symbol": "CVRX", "kind": "candidate", "ref_close": 2.940000057220459, "fwd": 40, "outcome": null, "float": 18378173.0}
+{"key": "envelope|2026-08-13|CYN", "hunter": "envelope", "session": "2026-08-13", "symbol": "CYN", "kind": "candidate", "ref_close": 1.065000057220459, "fwd": 40, "outcome": null, "float": 13460960.0}
+{"key": "envelope|2026-08-13|DCOY", "hunter": "envelope", "session": "2026-08-13", "symbol": "DCOY", "kind": "candidate", "ref_close": 3.5299999713897705, "fwd": 40, "outcome": null, "float": 527835.0}
+{"key": "envelope|2026-08-13|DFLI", "hunter": "envelope", "session": "2026-08-13", "symbol": "DFLI", "kind": "candidate", "ref_close": 1.2999999523162842, "fwd": 40, "outcome": null, "float": 13017429.0}
+{"key": "envelope|2026-08-13|DLXY", "hunter": "envelope", "session": "2026-08-13", "symbol": "DLXY", "kind": "candidate", "ref_close": 0.4090000092983246, "fwd": 40, "outcome": null, "float": 4706021.0}
+{"key": "envelope|2026-08-13|DTCX", "hunter": "envelope", "session": "2026-08-13", "symbol": "DTCX", "kind": "candidate", "ref_close": 1.9199999570846558, "fwd": 40, "outcome": null, "float": 30428719.0}
+{"key": "envelope|2026-08-13|EEIQ", "hunter": "envelope", "session": "2026-08-13", "symbol": "EEIQ", "kind": "candidate", "ref_close": 2.4802000522613525, "fwd": 40, "outcome": null, "float": 907597.0}
+{"key": "envelope|2026-08-13|EHGO", "hunter": "envelope", "session": "2026-08-13", "symbol": "EHGO", "kind": "candidate", "ref_close": 1.8200000524520874, "fwd": 40, "outcome": null, "float": 1442666.0}
+{"key": "envelope|2026-08-13|EHTH", "hunter": "envelope", "session": "2026-08-13", "symbol": "EHTH", "kind": "candidate", "ref_close": 1.2100000381469727, "fwd": 40, "outcome": null, "float": 25640858.0}
+{"key": "envelope|2026-08-13|ELAB", "hunter": "envelope", "session": "2026-08-13", "symbol": "ELAB", "kind": "candidate", "ref_close": 0.8966000080108643, "fwd": 40, "outcome": null, "float": 4089694.0}
+{"key": "envelope|2026-08-13|ELTX", "hunter": "envelope", "session": "2026-08-13", "symbol": "ELTX", "kind": "candidate", "ref_close": 3.1500000953674316, "fwd": 40, "outcome": null, "float": 12249896.0}
+{"key": "envelope|2026-08-13|EMPD", "hunter": "envelope", "session": "2026-08-13", "symbol": "EMPD", "kind": "candidate", "ref_close": 2.8299999237060547, "fwd": 40, "outcome": null, "float": 13327847.0}
+{"key": "envelope|2026-08-13|ENGN", "hunter": "envelope", "session": "2026-08-13", "symbol": "ENGN", "kind": "candidate", "ref_close": 1.690000057220459, "fwd": 40, "outcome": null, "float": 18270037.0}
+{"key": "envelope|2026-08-13|ENLV", "hunter": "envelope", "session": "2026-08-13", "symbol": "ENLV", "kind": "candidate", "ref_close": 1.690000057220459, "fwd": 40, "outcome": null, "float": 3847639.0}
+{"key": "envelope|2026-08-13|ENVB", "hunter": "envelope", "session": "2026-08-13", "symbol": "ENVB", "kind": "candidate", "ref_close": 1.5099999904632568, "fwd": 40, "outcome": null, "float": 3542782.0}
+{"key": "envelope|2026-08-13|ESLA", "hunter": "envelope", "session": "2026-08-13", "symbol": "ESLA", "kind": "candidate", "ref_close": 0.7246000170707703, "fwd": 40, "outcome": null, "float": 14105329.0}
+{"key": "envelope|2026-08-13|FABC", "hunter": "envelope", "session": "2026-08-13", "symbol": "FABC", "kind": "candidate", "ref_close": 2.75, "fwd": 40, "outcome": null, "float": 4437679.0}
+{"key": "envelope|2026-08-13|FEMY", "hunter": "envelope", "session": "2026-08-13", "symbol": "FEMY", "kind": "candidate", "ref_close": 2.2899999618530273, "fwd": 40, "outcome": null, "float": 2495041.0}
+{"key": "envelope|2026-08-13|FGL", "hunter": "envelope", "session": "2026-08-13", "symbol": "FGL", "kind": "candidate", "ref_close": 0.49630001187324524, "fwd": 40, "outcome": null, "float": 259176.0}
+{"key": "envelope|2026-08-13|FLNA", "hunter": "envelope", "session": "2026-08-13", "symbol": "FLNA", "kind": "candidate", "ref_close": 0.945900022983551, "fwd": 40, "outcome": null, "float": 44822964.0}
+{"key": "envelope|2026-08-13|FLYE", "hunter": "envelope", "session": "2026-08-13", "symbol": "FLYE", "kind": "candidate", "ref_close": 1.7415000200271606, "fwd": 40, "outcome": null, "float": 1461181.0}
+{"key": "envelope|2026-08-13|FOFO", "hunter": "envelope", "session": "2026-08-13", "symbol": "FOFO", "kind": "candidate", "ref_close": 2.5299999713897705, "fwd": 40, "outcome": null, "float": 3571050.0}
+{"key": "envelope|2026-08-13|FRGT", "hunter": "envelope", "session": "2026-08-13", "symbol": "FRGT", "kind": "candidate", "ref_close": 2.1700000762939453, "fwd": 40, "outcome": null, "float": 498548.0}
+{"key": "envelope|2026-08-13|FRMM", "hunter": "envelope", "session": "2026-08-13", "symbol": "FRMM", "kind": "candidate", "ref_close": 6.239999771118164, "fwd": 40, "outcome": null, "float": 5470632.0}
+{"key": "envelope|2026-08-13|FRSX", "hunter": "envelope", "session": "2026-08-13", "symbol": "FRSX", "kind": "candidate", "ref_close": 1.3200000524520874, "fwd": 40, "outcome": null, "float": 2292852.0}
+{"key": "envelope|2026-08-13|FTCI", "hunter": "envelope", "session": "2026-08-13", "symbol": "FTCI", "kind": "candidate", "ref_close": 2.430000066757202, "fwd": 40, "outcome": null, "float": 11325176.0}
+{"key": "envelope|2026-08-13|FTFT", "hunter": "envelope", "session": "2026-08-13", "symbol": "FTFT", "kind": "candidate", "ref_close": 0.8131999969482422, "fwd": 40, "outcome": null, "float": 752661.0}
+{"key": "envelope|2026-08-13|FTHM", "hunter": "envelope", "session": "2026-08-13", "symbol": "FTHM", "kind": "candidate", "ref_close": 0.7369999885559082, "fwd": 40, "outcome": null, "float": 23158858.0}
+{"key": "envelope|2026-08-13|FUFU", "hunter": "envelope", "session": "2026-08-13", "symbol": "FUFU", "kind": "candidate", "ref_close": 1.2799999713897705, "fwd": 40, "outcome": null, "float": 18464771.0}
+{"key": "envelope|2026-08-13|FUSE", "hunter": "envelope", "session": "2026-08-13", "symbol": "FUSE", "kind": "candidate", "ref_close": 0.828000009059906, "fwd": 40, "outcome": null, "float": 10065146.0}
+{"key": "envelope|2026-08-13|GDEV", "hunter": "envelope", "session": "2026-08-13", "symbol": "GDEV", "kind": "candidate", "ref_close": 11.710000038146973, "fwd": 40, "outcome": null, "float": 1728290.0}
+{"key": "envelope|2026-08-13|GDTC", "hunter": "envelope", "session": "2026-08-13", "symbol": "GDTC", "kind": "candidate", "ref_close": 0.8450000286102295, "fwd": 40, "outcome": null, "float": 3493055.0}
+{"key": "envelope|2026-08-13|GIPR", "hunter": "envelope", "session": "2026-08-13", "symbol": "GIPR", "kind": "candidate", "ref_close": 0.7052000164985657, "fwd": 40, "outcome": null, "float": 424097.0}
+{"key": "envelope|2026-08-13|GITS", "hunter": "envelope", "session": "2026-08-13", "symbol": "GITS", "kind": "candidate", "ref_close": 1.9299999475479126, "fwd": 40, "outcome": null, "float": 2307880.0}
+{"key": "envelope|2026-08-13|GMHS", "hunter": "envelope", "session": "2026-08-13", "symbol": "GMHS", "kind": "candidate", "ref_close": 0.7013000249862671, "fwd": 40, "outcome": null, "float": 25982149.0}
+{"key": "envelope|2026-08-13|GNPX", "hunter": "envelope", "session": "2026-08-13", "symbol": "GNPX", "kind": "candidate", "ref_close": 4.869999885559082, "fwd": 40, "outcome": null, "float": 480214.0}
+{"key": "envelope|2026-08-13|GNTA", "hunter": "envelope", "session": "2026-08-13", "symbol": "GNTA", "kind": "candidate", "ref_close": 1.2999999523162842, "fwd": 40, "outcome": null, "float": 13507982.0}
+{"key": "envelope|2026-08-13|GOVX", "hunter": "envelope", "session": "2026-08-13", "symbol": "GOVX", "kind": "candidate", "ref_close": 0.7178000211715698, "fwd": 40, "outcome": null, "float": 7361874.0}
+{"key": "envelope|2026-08-13|HCWB", "hunter": "envelope", "session": "2026-08-13", "symbol": "HCWB", "kind": "candidate", "ref_close": 2.924999952316284, "fwd": 40, "outcome": null, "float": 944615.0}
+{"key": "envelope|2026-08-13|HERE", "hunter": "envelope", "session": "2026-08-13", "symbol": "HERE", "kind": "candidate", "ref_close": 1.8600000143051147, "fwd": 40, "outcome": null, "float": 18433467.0}
+{"key": "envelope|2026-08-13|HIND", "hunter": "envelope", "session": "2026-08-13", "symbol": "HIND", "kind": "candidate", "ref_close": 2.1600000858306885, "fwd": 40, "outcome": null, "float": 3644441.0}
+{"key": "envelope|2026-08-13|HIT", "hunter": "envelope", "session": "2026-08-13", "symbol": "HIT", "kind": "candidate", "ref_close": 1.059999942779541, "fwd": 40, "outcome": null, "float": 20219802.0}
+{"key": "envelope|2026-08-13|HODO", "hunter": "envelope", "session": "2026-08-13", "symbol": "HODO", "kind": "candidate", "ref_close": 0.49000000953674316, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|HPAI", "hunter": "envelope", "session": "2026-08-13", "symbol": "HPAI", "kind": "candidate", "ref_close": 0.4823000133037567, "fwd": 40, "outcome": null, "float": 7586883.0}
+{"key": "envelope|2026-08-13|HSDT", "hunter": "envelope", "session": "2026-08-13", "symbol": "HSDT", "kind": "candidate", "ref_close": 1.7999999523162842, "fwd": 40, "outcome": null, "float": 41383891.0}
+{"key": "envelope|2026-08-13|HTCO", "hunter": "envelope", "session": "2026-08-13", "symbol": "HTCO", "kind": "candidate", "ref_close": 3.049999952316284, "fwd": 40, "outcome": null, "float": 3730155.0}
+{"key": "envelope|2026-08-13|HYPD", "hunter": "envelope", "session": "2026-08-13", "symbol": "HYPD", "kind": "candidate", "ref_close": 2.8299999237060547, "fwd": 40, "outcome": null, "float": 13359432.0}
+{"key": "envelope|2026-08-13|ICCM", "hunter": "envelope", "session": "2026-08-13", "symbol": "ICCM", "kind": "candidate", "ref_close": 3.0, "fwd": 40, "outcome": null, "float": 2197107.0}
+{"key": "envelope|2026-08-13|ICU", "hunter": "envelope", "session": "2026-08-13", "symbol": "ICU", "kind": "candidate", "ref_close": 3.1700000762939453, "fwd": 40, "outcome": null, "float": 3950677.0}
+{"key": "envelope|2026-08-13|IMNN", "hunter": "envelope", "session": "2026-08-13", "symbol": "IMNN", "kind": "candidate", "ref_close": 1.5800000429153442, "fwd": 40, "outcome": null, "float": 4444701.0}
+{"key": "envelope|2026-08-13|INDP", "hunter": "envelope", "session": "2026-08-13", "symbol": "INDP", "kind": "candidate", "ref_close": 1.059999942779541, "fwd": 40, "outcome": null, "float": 3240995.0}
+{"key": "envelope|2026-08-13|INHD", "hunter": "envelope", "session": "2026-08-13", "symbol": "INHD", "kind": "candidate", "ref_close": 10.84000015258789, "fwd": 40, "outcome": null, "float": 2518846.0}
+{"key": "envelope|2026-08-13|INSG", "hunter": "envelope", "session": "2026-08-13", "symbol": "INSG", "kind": "candidate", "ref_close": 4.730000019073486, "fwd": 40, "outcome": null, "float": 13903972.0}
+{"key": "envelope|2026-08-13|INTS", "hunter": "envelope", "session": "2026-08-13", "symbol": "INTS", "kind": "candidate", "ref_close": 4.0, "fwd": 40, "outcome": null, "float": 2991870.0}
+{"key": "envelope|2026-08-13|IVF", "hunter": "envelope", "session": "2026-08-13", "symbol": "IVF", "kind": "candidate", "ref_close": 0.9700999855995178, "fwd": 40, "outcome": null, "float": 1626703.0}
+{"key": "envelope|2026-08-13|IXHL", "hunter": "envelope", "session": "2026-08-13", "symbol": "IXHL", "kind": "candidate", "ref_close": 3.1600000858306885, "fwd": 40, "outcome": null, "float": 9871355.0}
+{"key": "envelope|2026-08-13|JAGX", "hunter": "envelope", "session": "2026-08-13", "symbol": "JAGX", "kind": "candidate", "ref_close": 0.7831000089645386, "fwd": 40, "outcome": null, "float": 541705.0}
+{"key": "envelope|2026-08-13|JFIN", "hunter": "envelope", "session": "2026-08-13", "symbol": "JFIN", "kind": "candidate", "ref_close": 2.299999952316284, "fwd": 40, "outcome": null, "float": 16746501.0}
+{"key": "envelope|2026-08-13|KELYB", "hunter": "envelope", "session": "2026-08-13", "symbol": "KELYB", "kind": "candidate", "ref_close": 23.670000076293945, "fwd": 40, "outcome": null, "float": 29250895.0}
+{"key": "envelope|2026-08-13|KG", "hunter": "envelope", "session": "2026-08-13", "symbol": "KG", "kind": "candidate", "ref_close": 7.730000019073486, "fwd": 40, "outcome": null, "float": 1607838.0}
+{"key": "envelope|2026-08-13|KMRK", "hunter": "envelope", "session": "2026-08-13", "symbol": "KMRK", "kind": "candidate", "ref_close": 1.2000000476837158, "fwd": 40, "outcome": null, "float": 4600011.0}
+{"key": "envelope|2026-08-13|KPTI", "hunter": "envelope", "session": "2026-08-13", "symbol": "KPTI", "kind": "candidate", "ref_close": 1.9900000095367432, "fwd": 40, "outcome": null, "float": 14608760.0}
+{"key": "envelope|2026-08-13|KSCP", "hunter": "envelope", "session": "2026-08-13", "symbol": "KSCP", "kind": "candidate", "ref_close": 1.6200000047683716, "fwd": 40, "outcome": null, "float": 15189572.0}
+{"key": "envelope|2026-08-13|KTTA", "hunter": "envelope", "session": "2026-08-13", "symbol": "KTTA", "kind": "candidate", "ref_close": 0.4779999852180481, "fwd": 40, "outcome": null, "float": 17063088.0}
+{"key": "envelope|2026-08-13|LESL", "hunter": "envelope", "session": "2026-08-13", "symbol": "LESL", "kind": "candidate", "ref_close": 0.7699000239372253, "fwd": 40, "outcome": null, "float": 9041976.0}
+{"key": "envelope|2026-08-13|LFS", "hunter": "envelope", "session": "2026-08-13", "symbol": "LFS", "kind": "candidate", "ref_close": 2.1600000858306885, "fwd": 40, "outcome": null, "float": 6594046.0}
+{"key": "envelope|2026-08-13|LGHL", "hunter": "envelope", "session": "2026-08-13", "symbol": "LGHL", "kind": "candidate", "ref_close": 0.8069999814033508, "fwd": 40, "outcome": null, "float": 455328.0}
+{"key": "envelope|2026-08-13|LHAI", "hunter": "envelope", "session": "2026-08-13", "symbol": "LHAI", "kind": "candidate", "ref_close": 0.800000011920929, "fwd": 40, "outcome": null, "float": 9827914.0}
+{"key": "envelope|2026-08-13|LHSW", "hunter": "envelope", "session": "2026-08-13", "symbol": "LHSW", "kind": "candidate", "ref_close": 2.880000114440918, "fwd": 40, "outcome": null, "float": 328688.0}
+{"key": "envelope|2026-08-13|LITS", "hunter": "envelope", "session": "2026-08-13", "symbol": "LITS", "kind": "candidate", "ref_close": 0.8955000042915344, "fwd": 40, "outcome": null, "float": 29680522.0}
+{"key": "envelope|2026-08-13|LNAI", "hunter": "envelope", "session": "2026-08-13", "symbol": "LNAI", "kind": "candidate", "ref_close": 2.240000009536743, "fwd": 40, "outcome": null, "float": 2921457.0}
+{"key": "envelope|2026-08-13|LPCN", "hunter": "envelope", "session": "2026-08-13", "symbol": "LPCN", "kind": "candidate", "ref_close": 2.059999942779541, "fwd": 40, "outcome": null, "float": 6892855.0}
+{"key": "envelope|2026-08-13|LRHC", "hunter": "envelope", "session": "2026-08-13", "symbol": "LRHC", "kind": "candidate", "ref_close": 0.6288999915122986, "fwd": 40, "outcome": null, "float": 2104693.0}
+{"key": "envelope|2026-08-13|MASK", "hunter": "envelope", "session": "2026-08-13", "symbol": "MASK", "kind": "candidate", "ref_close": 1.5299999713897705, "fwd": 40, "outcome": null, "float": 756661.0}
+{"key": "envelope|2026-08-13|MATH", "hunter": "envelope", "session": "2026-08-13", "symbol": "MATH", "kind": "candidate", "ref_close": 0.8180999755859375, "fwd": 40, "outcome": null, "float": 25758391.0}
+{"key": "envelope|2026-08-13|MBRX", "hunter": "envelope", "session": "2026-08-13", "symbol": "MBRX", "kind": "candidate", "ref_close": 0.5713000297546387, "fwd": 40, "outcome": null, "float": 4290105.0}
+{"key": "envelope|2026-08-13|MCRB", "hunter": "envelope", "session": "2026-08-13", "symbol": "MCRB", "kind": "candidate", "ref_close": 4.480000019073486, "fwd": 40, "outcome": null, "float": 8590840.0}
+{"key": "envelope|2026-08-13|MENS", "hunter": "envelope", "session": "2026-08-13", "symbol": "MENS", "kind": "candidate", "ref_close": 2.059999942779541, "fwd": 40, "outcome": null, "float": 26929654.0}
+{"key": "envelope|2026-08-13|MLEC", "hunter": "envelope", "session": "2026-08-13", "symbol": "MLEC", "kind": "candidate", "ref_close": 6.989999771118164, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|MNDR", "hunter": "envelope", "session": "2026-08-13", "symbol": "MNDR", "kind": "candidate", "ref_close": 1.6449999809265137, "fwd": 40, "outcome": null, "float": 269597.0}
+{"key": "envelope|2026-08-13|MOBX", "hunter": "envelope", "session": "2026-08-13", "symbol": "MOBX", "kind": "candidate", "ref_close": 1.5299999713897705, "fwd": 40, "outcome": null, "float": 11549872.0}
+{"key": "envelope|2026-08-13|MSS", "hunter": "envelope", "session": "2026-08-13", "symbol": "MSS", "kind": "candidate", "ref_close": 1.409999966621399, "fwd": 40, "outcome": null, "float": 325423.0}
+{"key": "envelope|2026-08-13|MTVA", "hunter": "envelope", "session": "2026-08-13", "symbol": "MTVA", "kind": "candidate", "ref_close": 1.4600000381469727, "fwd": 40, "outcome": null, "float": 4313691.0}
+{"key": "envelope|2026-08-13|NAMM", "hunter": "envelope", "session": "2026-08-13", "symbol": "NAMM", "kind": "candidate", "ref_close": 1.340000033378601, "fwd": 40, "outcome": null, "float": 8718860.0}
+{"key": "envelope|2026-08-13|NCNA", "hunter": "envelope", "session": "2026-08-13", "symbol": "NCNA", "kind": "candidate", "ref_close": 1.4800000190734863, "fwd": 40, "outcome": null, "float": 4160914.0}
+{"key": "envelope|2026-08-13|NEON", "hunter": "envelope", "session": "2026-08-13", "symbol": "NEON", "kind": "candidate", "ref_close": 0.8834999799728394, "fwd": 40, "outcome": null, "float": 13052414.0}
+{"key": "envelope|2026-08-13|NEXR", "hunter": "envelope", "session": "2026-08-13", "symbol": "NEXR", "kind": "candidate", "ref_close": 2.740000009536743, "fwd": 40, "outcome": null, "float": 73353.0}
+{"key": "envelope|2026-08-13|NIKI", "hunter": "envelope", "session": "2026-08-13", "symbol": "NIKI", "kind": "candidate", "ref_close": 8.369999885559082, "fwd": 40, "outcome": null, "float": 535932.0}
+{"key": "envelope|2026-08-13|NIVF", "hunter": "envelope", "session": "2026-08-13", "symbol": "NIVF", "kind": "candidate", "ref_close": 0.5497999787330627, "fwd": 40, "outcome": null, "float": 188292.0}
+{"key": "envelope|2026-08-13|NTHI", "hunter": "envelope", "session": "2026-08-13", "symbol": "NTHI", "kind": "candidate", "ref_close": 3.2100000381469727, "fwd": 40, "outcome": null, "float": 9037008.0}
+{"key": "envelope|2026-08-13|NUWE", "hunter": "envelope", "session": "2026-08-13", "symbol": "NUWE", "kind": "candidate", "ref_close": 1.2999999523162842, "fwd": 40, "outcome": null, "float": 75863.0}
+{"key": "envelope|2026-08-13|NVNI", "hunter": "envelope", "session": "2026-08-13", "symbol": "NVNI", "kind": "candidate", "ref_close": 1.1200000047683716, "fwd": 40, "outcome": null, "float": 9131088.0}
+{"key": "envelope|2026-08-13|OBAI", "hunter": "envelope", "session": "2026-08-13", "symbol": "OBAI", "kind": "candidate", "ref_close": 0.5101000070571899, "fwd": 40, "outcome": null, "float": 16459794.0}
+{"key": "envelope|2026-08-13|ODD", "hunter": "envelope", "session": "2026-08-13", "symbol": "ODD", "kind": "candidate", "ref_close": 13.329999923706055, "fwd": 40, "outcome": null, "float": 30065394.0}
+{"key": "envelope|2026-08-13|OLOX", "hunter": "envelope", "session": "2026-08-13", "symbol": "OLOX", "kind": "candidate", "ref_close": 2.930000066757202, "fwd": 40, "outcome": null, "float": 1381292.0}
+{"key": "envelope|2026-08-13|OM", "hunter": "envelope", "session": "2026-08-13", "symbol": "OM", "kind": "candidate", "ref_close": 4.25, "fwd": 40, "outcome": null, "float": 15704467.0}
+{"key": "envelope|2026-08-13|ONEG", "hunter": "envelope", "session": "2026-08-13", "symbol": "ONEG", "kind": "candidate", "ref_close": 1.034999966621399, "fwd": 40, "outcome": null, "float": 7000000.0}
+{"key": "envelope|2026-08-13|PARA", "hunter": "envelope", "session": "2026-08-13", "symbol": "PARA", "kind": "candidate", "ref_close": 1.7000000476837158, "fwd": 40, "outcome": null, "float": 1352833.0}
+{"key": "envelope|2026-08-13|PASG", "hunter": "envelope", "session": "2026-08-13", "symbol": "PASG", "kind": "candidate", "ref_close": 4.574999809265137, "fwd": 40, "outcome": null, "float": 2883693.0}
+{"key": "envelope|2026-08-13|PBK", "hunter": "envelope", "session": "2026-08-13", "symbol": "PBK", "kind": "candidate", "ref_close": 0.44850000739097595, "fwd": 40, "outcome": null, "float": 41013698.0}
+{"key": "envelope|2026-08-13|PFSA", "hunter": "envelope", "session": "2026-08-13", "symbol": "PFSA", "kind": "candidate", "ref_close": 0.9506000280380249, "fwd": 40, "outcome": null, "float": 181784.0}
+{"key": "envelope|2026-08-13|PLCE", "hunter": "envelope", "session": "2026-08-13", "symbol": "PLCE", "kind": "candidate", "ref_close": 2.4000000953674316, "fwd": 40, "outcome": null, "float": 7421621.0}
+{"key": "envelope|2026-08-13|PLSM", "hunter": "envelope", "session": "2026-08-13", "symbol": "PLSM", "kind": "candidate", "ref_close": 3.0199999809265137, "fwd": 40, "outcome": null, "float": 2941301.0}
+{"key": "envelope|2026-08-13|PMAX", "hunter": "envelope", "session": "2026-08-13", "symbol": "PMAX", "kind": "candidate", "ref_close": 1.559999942779541, "fwd": 40, "outcome": null, "float": 892196.0}
+{"key": "envelope|2026-08-13|PN", "hunter": "envelope", "session": "2026-08-13", "symbol": "PN", "kind": "candidate", "ref_close": 2.799999952316284, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|PPCB", "hunter": "envelope", "session": "2026-08-13", "symbol": "PPCB", "kind": "candidate", "ref_close": 1.2200000286102295, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|PSIG", "hunter": "envelope", "session": "2026-08-13", "symbol": "PSIG", "kind": "candidate", "ref_close": 1.1299999952316284, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|PULM", "hunter": "envelope", "session": "2026-08-13", "symbol": "PULM", "kind": "candidate", "ref_close": 1.5099999904632568, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|PWCM", "hunter": "envelope", "session": "2026-08-13", "symbol": "PWCM", "kind": "candidate", "ref_close": 1.5199999809265137, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|QCLS", "hunter": "envelope", "session": "2026-08-13", "symbol": "QCLS", "kind": "candidate", "ref_close": 2.859999895095825, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|QTEX", "hunter": "envelope", "session": "2026-08-13", "symbol": "QTEX", "kind": "candidate", "ref_close": 1.0, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|QTI", "hunter": "envelope", "session": "2026-08-13", "symbol": "QTI", "kind": "candidate", "ref_close": 2.8499999046325684, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RADX", "hunter": "envelope", "session": "2026-08-13", "symbol": "RADX", "kind": "candidate", "ref_close": 2.6500000953674316, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RAIN", "hunter": "envelope", "session": "2026-08-13", "symbol": "RAIN", "kind": "candidate", "ref_close": 0.9700000286102295, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RAY", "hunter": "envelope", "session": "2026-08-13", "symbol": "RAY", "kind": "candidate", "ref_close": 2.889899969100952, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RAYA", "hunter": "envelope", "session": "2026-08-13", "symbol": "RAYA", "kind": "candidate", "ref_close": 2.505000114440918, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RBNE", "hunter": "envelope", "session": "2026-08-13", "symbol": "RBNE", "kind": "candidate", "ref_close": 2.740000009536743, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RDGT", "hunter": "envelope", "session": "2026-08-13", "symbol": "RDGT", "kind": "candidate", "ref_close": 0.878000020980835, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RDHL", "hunter": "envelope", "session": "2026-08-13", "symbol": "RDHL", "kind": "candidate", "ref_close": 0.5950000286102295, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RECT", "hunter": "envelope", "session": "2026-08-13", "symbol": "RECT", "kind": "candidate", "ref_close": 1.1598999500274658, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RETO", "hunter": "envelope", "session": "2026-08-13", "symbol": "RETO", "kind": "candidate", "ref_close": 1.2000000476837158, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RIME", "hunter": "envelope", "session": "2026-08-13", "symbol": "RIME", "kind": "candidate", "ref_close": 0.45249998569488525, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RKDA", "hunter": "envelope", "session": "2026-08-13", "symbol": "RKDA", "kind": "candidate", "ref_close": 0.5698999762535095, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|RNAZ", "hunter": "envelope", "session": "2026-08-13", "symbol": "RNAZ", "kind": "candidate", "ref_close": 3.4800000190734863, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SAGT", "hunter": "envelope", "session": "2026-08-13", "symbol": "SAGT", "kind": "candidate", "ref_close": 0.6872000098228455, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SBET", "hunter": "envelope", "session": "2026-08-13", "symbol": "SBET", "kind": "candidate", "ref_close": 6.320000171661377, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SBFM", "hunter": "envelope", "session": "2026-08-13", "symbol": "SBFM", "kind": "candidate", "ref_close": 1.2000000476837158, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SCNX", "hunter": "envelope", "session": "2026-08-13", "symbol": "SCNX", "kind": "candidate", "ref_close": 0.4650000035762787, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SDA", "hunter": "envelope", "session": "2026-08-13", "symbol": "SDA", "kind": "candidate", "ref_close": 0.7506999969482422, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SDOT", "hunter": "envelope", "session": "2026-08-13", "symbol": "SDOT", "kind": "candidate", "ref_close": 11.010000228881836, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SEGG", "hunter": "envelope", "session": "2026-08-13", "symbol": "SEGG", "kind": "candidate", "ref_close": 2.424999952316284, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SERV", "hunter": "envelope", "session": "2026-08-13", "symbol": "SERV", "kind": "candidate", "ref_close": 4.940000057220459, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SILO", "hunter": "envelope", "session": "2026-08-13", "symbol": "SILO", "kind": "candidate", "ref_close": 3.2200000286102295, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SINT", "hunter": "envelope", "session": "2026-08-13", "symbol": "SINT", "kind": "candidate", "ref_close": 1.7100000381469727, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SKIN", "hunter": "envelope", "session": "2026-08-13", "symbol": "SKIN", "kind": "candidate", "ref_close": 0.6600000262260437, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SKK", "hunter": "envelope", "session": "2026-08-13", "symbol": "SKK", "kind": "candidate", "ref_close": 4.585000038146973, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SKYA", "hunter": "envelope", "session": "2026-08-13", "symbol": "SKYA", "kind": "candidate", "ref_close": 0.9998999834060669, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SKYQ", "hunter": "envelope", "session": "2026-08-13", "symbol": "SKYQ", "kind": "candidate", "ref_close": 2.740000009536743, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SLBT", "hunter": "envelope", "session": "2026-08-13", "symbol": "SLBT", "kind": "candidate", "ref_close": 2.7100000381469727, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SLGB", "hunter": "envelope", "session": "2026-08-13", "symbol": "SLGB", "kind": "candidate", "ref_close": 0.6029000282287598, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SLMT", "hunter": "envelope", "session": "2026-08-13", "symbol": "SLMT", "kind": "candidate", "ref_close": 3.9800000190734863, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SMX", "hunter": "envelope", "session": "2026-08-13", "symbol": "SMX", "kind": "candidate", "ref_close": 16.25, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SMXT", "hunter": "envelope", "session": "2026-08-13", "symbol": "SMXT", "kind": "candidate", "ref_close": 4.210000038146973, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SNAL", "hunter": "envelope", "session": "2026-08-13", "symbol": "SNAL", "kind": "candidate", "ref_close": 2.9700000286102295, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SNES", "hunter": "envelope", "session": "2026-08-13", "symbol": "SNES", "kind": "candidate", "ref_close": 1.2549999952316284, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SONM", "hunter": "envelope", "session": "2026-08-13", "symbol": "SONM", "kind": "candidate", "ref_close": 3.390000104904175, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SOWG", "hunter": "envelope", "session": "2026-08-13", "symbol": "SOWG", "kind": "candidate", "ref_close": 3.109999895095825, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SPHL", "hunter": "envelope", "session": "2026-08-13", "symbol": "SPHL", "kind": "candidate", "ref_close": 2.799999952316284, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SPRB", "hunter": "envelope", "session": "2026-08-13", "symbol": "SPRB", "kind": "candidate", "ref_close": 49.77000045776367, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SSM", "hunter": "envelope", "session": "2026-08-13", "symbol": "SSM", "kind": "candidate", "ref_close": 2.5999999046325684, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|STEX", "hunter": "envelope", "session": "2026-08-13", "symbol": "STEX", "kind": "candidate", "ref_close": 0.8658000230789185, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|STKE", "hunter": "envelope", "session": "2026-08-13", "symbol": "STKE", "kind": "candidate", "ref_close": 1.059999942779541, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SUIG", "hunter": "envelope", "session": "2026-08-13", "symbol": "SUIG", "kind": "candidate", "ref_close": 0.8399999737739563, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SUNE", "hunter": "envelope", "session": "2026-08-13", "symbol": "SUNE", "kind": "candidate", "ref_close": 2.5299999713897705, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SUPX", "hunter": "envelope", "session": "2026-08-13", "symbol": "SUPX", "kind": "candidate", "ref_close": 6.949999809265137, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|SVRN", "hunter": "envelope", "session": "2026-08-13", "symbol": "SVRN", "kind": "candidate", "ref_close": 6.690000057220459, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TDTH", "hunter": "envelope", "session": "2026-08-13", "symbol": "TDTH", "kind": "candidate", "ref_close": 2.2100000381469727, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TDUP", "hunter": "envelope", "session": "2026-08-13", "symbol": "TDUP", "kind": "candidate", "ref_close": 3.1700000762939453, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TGL", "hunter": "envelope", "session": "2026-08-13", "symbol": "TGL", "kind": "candidate", "ref_close": 2.9800000190734863, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TIL", "hunter": "envelope", "session": "2026-08-13", "symbol": "TIL", "kind": "candidate", "ref_close": 7.269999980926514, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TNMG", "hunter": "envelope", "session": "2026-08-13", "symbol": "TNMG", "kind": "candidate", "ref_close": 0.4034999907016754, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TONX", "hunter": "envelope", "session": "2026-08-13", "symbol": "TONX", "kind": "candidate", "ref_close": 2.9100000858306885, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TRUG", "hunter": "envelope", "session": "2026-08-13", "symbol": "TRUG", "kind": "candidate", "ref_close": 0.8715000152587891, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TURB", "hunter": "envelope", "session": "2026-08-13", "symbol": "TURB", "kind": "candidate", "ref_close": 1.309999942779541, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TVRD", "hunter": "envelope", "session": "2026-08-13", "symbol": "TVRD", "kind": "candidate", "ref_close": 1.7699999809265137, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|TWG", "hunter": "envelope", "session": "2026-08-13", "symbol": "TWG", "kind": "candidate", "ref_close": 1.2599999904632568, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|UCAR", "hunter": "envelope", "session": "2026-08-13", "symbol": "UCAR", "kind": "candidate", "ref_close": 0.7897999882698059, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|UCL", "hunter": "envelope", "session": "2026-08-13", "symbol": "UCL", "kind": "candidate", "ref_close": 0.7329999804496765, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|UFG", "hunter": "envelope", "session": "2026-08-13", "symbol": "UFG", "kind": "candidate", "ref_close": 0.5422000288963318, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|UONE", "hunter": "envelope", "session": "2026-08-13", "symbol": "UONE", "kind": "candidate", "ref_close": 5.090000152587891, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|UPXI", "hunter": "envelope", "session": "2026-08-13", "symbol": "UPXI", "kind": "candidate", "ref_close": 0.7458999752998352, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|VHUB", "hunter": "envelope", "session": "2026-08-13", "symbol": "VHUB", "kind": "candidate", "ref_close": 0.6886000037193298, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|VIOT", "hunter": "envelope", "session": "2026-08-13", "symbol": "VIOT", "kind": "candidate", "ref_close": 0.7200000286102295, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|VRAX", "hunter": "envelope", "session": "2026-08-13", "symbol": "VRAX", "kind": "candidate", "ref_close": 2.819999933242798, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|VRXA", "hunter": "envelope", "session": "2026-08-13", "symbol": "VRXA", "kind": "candidate", "ref_close": 1.8899999856948853, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|VSA", "hunter": "envelope", "session": "2026-08-13", "symbol": "VSA", "kind": "candidate", "ref_close": 3.700000047683716, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|VSME", "hunter": "envelope", "session": "2026-08-13", "symbol": "VSME", "kind": "candidate", "ref_close": 1.2999999523162842, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|VWAV", "hunter": "envelope", "session": "2026-08-13", "symbol": "VWAV", "kind": "candidate", "ref_close": 1.2300000190734863, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|WCT", "hunter": "envelope", "session": "2026-08-13", "symbol": "WCT", "kind": "candidate", "ref_close": 0.9595000147819519, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|WFF", "hunter": "envelope", "session": "2026-08-13", "symbol": "WFF", "kind": "candidate", "ref_close": 1.6299999952316284, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|WKSP", "hunter": "envelope", "session": "2026-08-13", "symbol": "WKSP", "kind": "candidate", "ref_close": 0.6812999844551086, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|WNW", "hunter": "envelope", "session": "2026-08-13", "symbol": "WNW", "kind": "candidate", "ref_close": 2.609999895095825, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|WSHP", "hunter": "envelope", "session": "2026-08-13", "symbol": "WSHP", "kind": "candidate", "ref_close": 5.050000190734863, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|WVE", "hunter": "envelope", "session": "2026-08-13", "symbol": "WVE", "kind": "candidate", "ref_close": 5.199999809265137, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|XCUR", "hunter": "envelope", "session": "2026-08-13", "symbol": "XCUR", "kind": "candidate", "ref_close": 1.309999942779541, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|XPON", "hunter": "envelope", "session": "2026-08-13", "symbol": "XPON", "kind": "candidate", "ref_close": 3.627500057220459, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|XXII", "hunter": "envelope", "session": "2026-08-13", "symbol": "XXII", "kind": "candidate", "ref_close": 4.110000133514404, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|YDDL", "hunter": "envelope", "session": "2026-08-13", "symbol": "YDDL", "kind": "candidate", "ref_close": 1.7799999713897705, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|YDES", "hunter": "envelope", "session": "2026-08-13", "symbol": "YDES", "kind": "candidate", "ref_close": 2.509999990463257, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|YMAT", "hunter": "envelope", "session": "2026-08-13", "symbol": "YMAT", "kind": "candidate", "ref_close": 2.009999990463257, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|ZCMD", "hunter": "envelope", "session": "2026-08-13", "symbol": "ZCMD", "kind": "candidate", "ref_close": 1.0299999713897705, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|ZDAI", "hunter": "envelope", "session": "2026-08-13", "symbol": "ZDAI", "kind": "candidate", "ref_close": 1.6950000524520874, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|ZSQR", "hunter": "envelope", "session": "2026-08-13", "symbol": "ZSQR", "kind": "candidate", "ref_close": 4.159999847412109, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-13|ZSTK", "hunter": "envelope", "session": "2026-08-13", "symbol": "ZSTK", "kind": "candidate", "ref_close": 1.6678999662399292, "fwd": 40, "outcome": null}
