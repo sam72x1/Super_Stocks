@@ -1,0 +1,35 @@
+name: Press Radar (رادار الضغط)
+
+# 🗜️📡 أمر المالك 2026-08-14 «نفذ 1» بعد حالتَي WETO (+177%) وCAPR (+98%):
+# تنبيه «مضغوطٌ جالسٌ عند قاعه» على بِركة الأسماء المعروفة — عرض/تنبيه فقط.
+# كرونان بعد إغلاق الافتر (نمط الصيّادين: session_gate تحسم أيّهما يعمل بالفصلين)
+# — والدقائق 25 مُزاحة عن 13 (صيّاد المقسّم) و37 (النهج العلمي) و51 (الفلترة)
+# فلا يتزاحمون على ياهو.
+permissions:
+  contents: write   # git_save يدفع حالة الرادار وسجل الحصاد
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "25 0 * * 2-6"
+    - cron: "25 1 * * 2-6"
+jobs:
+  press_radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run press radar
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 🔓 التشغيل اليدويّ يتخطّى بوّابة التوقيت والدِدوب معًا — وإلّا خرج
+          # زرّ المالك أخضرَ بصفر عمل (الصنف الموثَّق «أخضر بلا رسالة»).
+          PRESS_RADAR_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+        run: python press_radar.py

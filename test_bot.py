@@ -17291,6 +17291,106 @@ check("🔬 PX9/O12/PS1 عزلٌ تامّ: `Super_stock` لا يستورد أد�
       and "press_scan" not in _ss_src and "pressq_scan" not in _ss_src,
       "أدواتُ بحثٍ خارج مسار الفرز")
 
+# ═══════ 🗜️📡 أقفال رادار الضغط (أمر المالك «نفذ 1» — حالتا WETO/CAPR) ═══════
+_prd_exists_before = _os_hc.path.exists("press_radar_state.json")
+import press_radar as _PRD
+check("🗜️📡 PRD8 استيراد الرادار بلا أثر جانبي (لا يُنشئ ملف حالة)",
+      _os_hc.path.exists("press_radar_state.json") == _prd_exists_before)
+
+
+def _prd_frame(lo, hi, cl):
+    idx = pd.date_range("2026-07-01", periods=len(lo), freq="B")
+    return pd.DataFrame({"Low": lo, "High": hi, "Close": cl, "Open": cl}, index=idx)
+
+
+# نمط WETO الحيّ: هدوء 2.7 ⟵ قمة 11.72 ⟵ ضغط إلى 3.34 ⟵ إغلاق 3.61 (المُتحقَّق)
+_prd_lo = [2.6] * 25 + [3.0, 8.0, 9.5, 7.0, 6.0, 5.2, 4.6, 4.1, 3.8, 3.5, 3.34]
+_prd_hi = [2.8] * 25 + [6.0, 11.72, 10.5, 8.0, 6.8, 5.9, 5.1, 4.6, 4.2, 3.9, 3.7]
+_prd_cl = [2.7] * 25 + [5.5, 10.0, 8.2, 7.2, 6.2, 5.5, 4.8, 4.3, 3.9, 3.6, 3.61]
+_prd_r = _PRD.press_read(_prd_frame(_prd_lo, _prd_hi, _prd_cl))
+check("🗜️📡 PRD1 «مضغوطٌ جالسٌ عند قاعه» يُطلق على نمط WETO (عمق 69.2 · قاع 3.34)"
+      " — ولا يُطلق على الضحل ولا المُغادر ولا الصاعد",
+      bool(_prd_r) and _prd_r["press_low"] == 3.34 and _prd_r["drop_pct"] == 69.2
+      and _PRD.press_read(_prd_frame([3.0] * 40, [4.0] * 40, [3.2] * 40)) is None
+      and _PRD.press_read(_prd_frame(_prd_lo, _prd_hi, _prd_cl[:-1] + [4.5])) is None
+      and _PRD.press_read(_prd_frame([2.6] * 35 + [9.0], [2.8] * 35 + [12.0],
+                                     [2.7] * 35 + [11.5])) is None)
+
+# PRD2 — الذاكرة تنجو من مسح القوائم (ثقب «بداية نظيفة» الذي أضاع WETO/CAPR)
+_prd_st = {"symbols": {"WETO": {"first_seen": "2026-08-07", "last_seen": "2026-08-07",
+                                "src": "قائمة الارتداد",
+                                "plan": {"entry": [2.7, 2.86], "t1": 5.5}}}}
+_prd_pool, _prd_cut = _PRD.build_pool(
+    {"pullback": [], "stocks": [], "removed": [], "explosions": []},
+    _prd_st, "2026-08-13")
+_prd_st_old = {"symbols": {"OLD": {"first_seen": "2026-05-01",
+                                   "last_seen": "2026-05-01", "src": "x"}}}
+_prd_pool_old, _ = _PRD.build_pool({}, _prd_st_old, "2026-08-13")
+check("🗜️📡 PRD2 ذاكرةُ الرادار تنجو من مسح القوائم (WETO باقٍ) والقديمُ يُقلَّم",
+      "WETO" in _prd_pool and _prd_cut == 0
+      and "OLD" not in _prd_pool_old and "OLD" not in _prd_st_old["symbols"])
+
+# PRD3 — الدِدوب ثلاثيّ الحالات (طازج ✓ · قبل يومين ✗ · بعد المهلة ✓)
+check("🗜️📡 PRD3 دِدوب التنبيه: طازجٌ يُرسَل · حديثٌ يُكتَم · بعد المهلة يُعاد",
+      _PRD.should_alert({}, "2026-08-14") is True
+      and _PRD.should_alert({"last_alert": "2026-08-12"}, "2026-08-14") is False
+      and _PRD.should_alert({"last_alert": "2026-08-08"}, "2026-08-14") is True)
+
+# PRD4 — الرسالة بلا علامات مقارنة/وسوم (درس HF-TG اليوم نفسه) + الخطة المحفوظة
+_prd_msg = _PRD.build_alert([{"symbol": "WETO", "read": _prd_r,
+                              "plan": {"entry": [2.7, 2.86], "t1": 5.5},
+                              "src": "قائمة الارتداد"}], "2026-08-13")
+check("🗜️📡 PRD4 رسالةُ الرادار بلا `<`/`>`/`≥`/`≤` + تعرض الخطة المحفوظة والمصدر",
+      all(c not in _prd_msg for c in "<>≥≤")
+      and "خطتنا المحفوظة" in _prd_msg and "قائمة الارتداد" in _prd_msg
+      and "قيد الإثبات الأمامي" in _prd_msg)
+
+# PRD5 — سلوكيًّا: فشلُ الإرسال ⇒ لا ختمَ ولا سجلَّ (rc=1)؛ نجاحُه ⇒ ختمٌ وسجلّ
+import tempfile as _prd_tmp
+_prd_dir = _prd_tmp.mkdtemp(prefix="prd_")
+_prd_sp = _os_hc.path.join(_prd_dir, "st.json")
+_prd_lp = _os_hc.path.join(_prd_dir, "led.jsonl")
+_prd_wl_saved = S.load_watchlist
+S.load_watchlist = lambda: {"pullback": [{"symbol": "TSTX", "entry": [2.7, 2.86],
+                                          "tranches": [2.7, 2.78, 2.86],
+                                          "pivot": 2.7, "stop": 2.51, "t1": 5.5}],
+                            "stocks": [], "removed": [], "explosions": []}
+try:
+    import datetime as _prd_dt
+    _prd_now = _prd_dt.datetime(2026, 8, 14, 1, 30, tzinfo=_prd_dt.timezone.utc)
+    _prd_fetch = lambda syms: {"TSTX": _prd_frame(_prd_lo, _prd_hi, _prd_cl)}
+    _rc_fail = _PRD.run(now_utc=_prd_now, fetch_hist=_prd_fetch,
+                        sender=lambda m: False, state_path=_prd_sp,
+                        ledger_path=_prd_lp, saver=lambda f: None)
+    _no_stamp = not _os_hc.path.exists(_prd_lp) and \
+        _PRD.load_state(_prd_sp).get("last_session") != "2026-08-13"
+    _rc_ok = _PRD.run(now_utc=_prd_now, fetch_hist=_prd_fetch,
+                      sender=lambda m: True, state_path=_prd_sp,
+                      ledger_path=_prd_lp, saver=lambda f: None)
+    _stamped = _PRD.load_state(_prd_sp).get("last_session") == "2026-08-13" and \
+        _os_hc.path.exists(_prd_lp) and \
+        "TSTX" in open(_prd_lp, encoding="utf-8").read()
+    _rc_dedup = _PRD.run(now_utc=_prd_now, fetch_hist=_prd_fetch,
+                         sender=lambda m: (_ for _ in ()).throw(AssertionError("أُرسل رغم الدِدوب")),
+                         state_path=_prd_sp, ledger_path=_prd_lp, saver=lambda f: None)
+finally:
+    S.load_watchlist = _prd_wl_saved
+check("🗜️📡 PRD5 عقدُ «فُحص وسُلّم»: فشلُ الإرسال ⇒ rc=1 بلا ختمٍ ولا سجلّ · "
+      "نجاحُه ⇒ ختمٌ وسجلٌّ فيه TSTX · وإعادةُ الجلسة دِدوبٌ صامت",
+      _rc_fail == 1 and _no_stamp and _rc_ok == 0 and _stamped and _rc_dedup == 0)
+
+# PRD6 — عزل: الإنتاج لا يعرف الرادار (تنبيه/عرض خارج الفرز كليًّا)
+check("🗜️📡 PRD6 عزلٌ: `Super_stock` لا يستورد/يذكر `press_radar`",
+      "press_radar" not in _ss_src)
+
+# PRD7 — الـworkflow موصول (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
+_prd_y = open(".github/workflows/press_radar.yml", encoding="utf-8").read()
+check("🗜️📡 PRD7 press_radar.yml: كرونا 25 مُزاحان (2-6) · FORCE موصول بالدسباتش · "
+      "contents write · أسرار تلغرام",
+      '"25 0 * * 2-6"' in _prd_y and '"25 1 * * 2-6"' in _prd_y
+      and "PRESS_RADAR_FORCE" in _prd_y and "workflow_dispatch" in _prd_y
+      and "contents: write" in _prd_y and "TELEGRAM_BOT_TOKEN" in _prd_y)
+
 # O2 — حارسُ التقسيم الوهميّ **فعّالٌ وفاشلٌ-آمنٌ مُغلَق**
 check("🕵️ O2 حارسُ التقسيم: عكسيٌّ قريبٌ ⇒ يُستبعَد · أماميٌّ/بعيدٌ ⇒ يمرّ · "
       "وتالفٌ ⇒ **يُستبعَد** (فاشل-آمن مُغلَق)",
