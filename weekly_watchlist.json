@@ -349,7 +349,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.69
+   "last_price": 5.69,
+   "live_alert": {}
   },
   {
    "symbol": "SLGB",
@@ -703,7 +704,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.603
+   "last_price": 0.603,
+   "live_alert": {}
   },
   {
    "symbol": "SPHL",
@@ -1058,7 +1060,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.8
+   "last_price": 2.8,
+   "live_alert": {}
   },
   {
    "symbol": "CTNT",
@@ -1423,7 +1426,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.64
+   "last_price": 1.64,
+   "live_alert": {}
   },
   {
    "symbol": "KSCP",
@@ -1778,7 +1782,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.62
+   "last_price": 1.62,
+   "live_alert": {}
   },
   {
    "symbol": "AGMH",
@@ -2127,7 +2132,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.976
+   "last_price": 0.976,
+   "live_alert": {}
   },
   {
    "symbol": "KITT",
@@ -2452,7 +2458,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.03
+   "last_price": 1.03,
+   "live_alert": {}
   },
   {
    "symbol": "SMXT",
@@ -2803,7 +2810,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.21
+   "last_price": 4.21,
+   "live_alert": {}
   },
   {
    "symbol": "MIMI",
@@ -3162,7 +3170,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.17
+   "last_price": 2.17,
+   "live_alert": {}
   },
   {
    "symbol": "CODX",
@@ -3518,7 +3527,8 @@
      "2026-08-14",
      550000
     ]
-   ]
+   ],
+   "live_alert": {}
   },
   {
    "symbol": "FLYE",
@@ -4239,7 +4249,8 @@
    "live_alert": {
     "breakout": "2026-08-13",
     "buyzone": "2026-08-12",
-    "sweep": "2026-08-11"
+    "sweep": "2026-08-11",
+    "premarket": "2026-08-14"
    },
    "borrow_hist": [
     [
@@ -6092,7 +6103,10 @@
      "2026-08-14",
      20000
     ]
-   ]
+   ],
+   "live_alert": {
+    "premarket": "2026-08-14"
+   }
   },
   {
    "symbol": "ARBK",
@@ -7543,7 +7557,8 @@
      "2026-08-14",
      15000
     ]
-   ]
+   ],
+   "live_alert": {}
   },
   {
    "symbol": "FTCI",
@@ -9277,7 +9292,8 @@
      "2026-08-14",
      0
     ]
-   ]
+   ],
+   "live_alert": {}
   },
   {
    "symbol": "LPCN",
@@ -9993,7 +10009,8 @@
      "2026-08-14",
      10000
     ]
-   ]
+   ],
+   "live_alert": {}
   },
   {
    "symbol": "KG",
@@ -10319,7 +10336,8 @@
      "2026-08-14",
      20000
     ]
-   ]
+   ],
+   "live_alert": {}
   },
   {
    "symbol": "ENGN",
@@ -11367,7 +11385,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.93
+   "last_price": 2.93,
+   "live_alert": {}
   },
   {
    "symbol": "APVO",
@@ -11700,7 +11719,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.4
+   "last_price": 3.4,
+   "live_alert": {}
   },
   {
    "symbol": "CALC",
@@ -12051,7 +12071,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.657
+   "last_price": 0.657,
+   "live_alert": {}
   },
   {
    "symbol": "TWG",
