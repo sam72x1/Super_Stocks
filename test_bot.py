@@ -17471,6 +17471,19 @@ check("🧱🔁 RB5 قيدُ السنة: كلُّ حلقات 2026 داخلها �
       and all(_rb_eps[k + 1][1] - _rb_eps[k][1] >= _RB.WAIT
               for k in range(len(_rb_eps) - 1)))
 
+# RB7 — §⑨: التقرير يطبع «التسليم لكل حلقة» بمقامه الكامل (المقياس الحاكم
+# لـT-REBOUND-2) — سلوكيًّا: 1 بالغ من 4 حلقات (محسومتان) ⇒ 25% لا 50%
+import io as _rb_io
+import contextlib as _rb_ctx
+_rb_buf = _rb_io.StringIO()
+with _rb_ctx.redirect_stdout(_rb_buf):
+    _RB.report([("G0", 1, "win"), ("G0", 50, "loss"),
+                ("G0", 100, "no_fill"), ("G0", 150, "open"),
+                ("G1x", 1, "win")], 10, "TEST")
+_rb_out = _rb_buf.getvalue()
+check("🧱🔁 RB7 §⑨: «التسليم لكل حلقة» يُطبع بالمقام الكامل (‏25.00% = 1 من 4)",
+      "التسليم لكل حلقة" in _rb_out and " 25.00% (1 من 4)" in _rb_out)
+
 # RB6 — الـworkflows موصولة (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
 _rb_y = open(".github/workflows/rebound_hold.yml", encoding="utf-8").read()
 _ct_y = open(".github/workflows/press_cat_probe.yml", encoding="utf-8").read()

@@ -197,6 +197,11 @@ def report(episodes, n_syms, year) -> int:
         _log(f"  {name:<18} حلقات={len(eps):<5} محسومة={len(dec):<5} "
              f"بلغ50={k:<4} نسبة={rate:6.2f}% Wilson=[{100 * w[0]:.2f},{100 * w[1]:.2f}] "
              f"no_fill={nf} · open={op}")
+        # §⑨ `T-REBOUND-2`: المقياسُ الحاكم — التسليم لكل حلقةٍ مقبولة
+        # (المقامُ كلُّ الحلقات بما فيها no_fill/open — يجمع الجدوى والتنفيذ)
+        wp = wilson(k, len(eps))
+        _log(f"    ⤷ التسليم لكل حلقة = {100.0 * k / len(eps) if eps else 0.0:6.2f}% "
+             f"({k} من {len(eps)}) Wilson=[{100 * wp[0]:.2f},{100 * wp[1]:.2f}]")
     dec1 = [e for e in g1 if e[2] in ("win", "loss")]
     _log(f"  🧭 أرضيّة §④-1 (إضافيّون محسومون فوق 30): {len(dec1)} ⇒ "
          + ("✅" if len(dec1) >= 30 else "🔴 **لا حكم لهذي السنة**"))
