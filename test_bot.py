@@ -17362,17 +17362,38 @@ check("🗜️📡 PRD3 دِدوب التنبيه: طازجٌ يُرسَل · ح
       and _PRD.should_alert({"last_alert": "2026-08-08"}, "2026-08-14") is True)
 
 # PRD4 — الرسالة بلا علامات مقارنة/وسوم (درس HF-TG اليوم نفسه) + الخطة المحفوظة
-_prd_msg = _PRD.build_alert([{"symbol": "WETO", "read": _prd_r,
+# (‏2026-08-14 مساءً: الكرت الكامل صار لقسم «جاهز» — حفظ 3 جلسات فأكثر — فرُفع
+# حفظُ العيّنة إلى 5 بإقرارٍ مؤرَّخ؛ WETO يوم صفر يغطّيه PRD10)
+_prd_msg = _PRD.build_alert([{"symbol": "WETO",
+                              "read": dict(_prd_r, hold_sessions=5),
                               "plan": {"entry": [2.7, 2.86], "t1": 5.5},
                               "prev_q": "2026-08-07",
                               "src": "قائمة الارتداد"}], "2026-08-13")
 check("🗜️📡 PRD4 رسالةُ الرادار بلا `<`/`>`/`≥`/`≤` + تعرض الخطة المحفوظة والمصدر "
-      "وركضةَ النموذج (عرضٌ لا فلتر — القياسُ منع الفلتر)",
+      "وركضةَ النموذج (عرضٌ لا فلتر — القياسُ منع الفلتر) + وسمَ جاهز وألوانَ فيصل",
       all(c not in _prd_msg for c in "<>≥≤")
       and "خطتنا المحفوظة" in _prd_msg and "قائمة الارتداد" in _prd_msg
       and "قيد الإثبات الأمامي" in _prd_msg
       and "ركض قبل الضغط" in _prd_msg
-      and "كان مؤهلًا عند البوت @2026-08-07" in _prd_msg)
+      and "كان مؤهلًا عند البوت @2026-08-07" in _prd_msg
+      and "🟢 جاهز" in _prd_msg and "🟣 الطلبات" in _prd_msg)
+
+# PRD10 — «اعتمد الحفظ» (أمر المالك 2026-08-14 بعد §⑬): الرسالة قسمان —
+# الحافظُ 3 جلسات كرتٌ كامل تحت 🟢، وغيرُ الحافظ سطرٌ مضغوط تحت 👀 **لا
+# يُسقَط** (درس WETO: انفجر من حفظ 0ج) ولا كرتَ له
+_prd10 = _PRD.build_alert(
+    [{"symbol": "RDYX", "read": dict(_prd_r, hold_sessions=4), "plan": None,
+      "src": "متحرّك"},
+     {"symbol": "FRSH", "read": dict(_prd_r, hold_sessions=0), "plan": None,
+      "src": "متحرّك"}], "2026-08-14")
+_prd10_watch_seg = _prd10.split("👀")[-1]
+check("🗜️📡 PRD10 قسما الرسالة: RDYX كرتٌ جاهز (🟢+حافظ+🟣) · FRSH سطرُ متابعةٍ "
+      "مضغوط (حفظ 0ج) بلا كرتٍ ولا يُسقَط",
+      "🟢 جاهز" in _prd10 and "RDYX" in _prd10.split("👀")[0]
+      and "حافظ قاعه 4 جلسة" in _prd10
+      and "👀 قيد المتابعة" in _prd10 and "FRSH" in _prd10_watch_seg
+      and "حفظ 0ج" in _prd10_watch_seg
+      and "🟣" not in _prd10_watch_seg)
 
 # PRD5 — سلوكيًّا: فشلُ الإرسال ⇒ لا ختمَ ولا سجلَّ (rc=1)؛ نجاحُه ⇒ ختمٌ وسجلّ
 import tempfile as _prd_tmp
@@ -17387,7 +17408,11 @@ S.load_watchlist = lambda: {"pullback": [{"symbol": "TSTX", "entry": [2.7, 2.86]
 try:
     import datetime as _prd_dt
     _prd_now = _prd_dt.datetime(2026, 8, 14, 1, 30, tzinfo=_prd_dt.timezone.utc)
-    _prd_fetch = lambda syms: {"TSTX": _prd_frame(_prd_lo, _prd_hi, _prd_cl)}
+    # (‏2026-08-14 مساءً: مُدّ الإطار إلى 61 شمعة — نافذة «وسّع» ALERT_W=40
+    #  تحتاج 41 فأكثر، والنمط نفسه حرفيًّا بذيله)
+    _prd_fetch = lambda syms: {"TSTX": _prd_frame([2.6] * 50 + _prd_lo[25:],
+                                                  [2.8] * 50 + _prd_hi[25:],
+                                                  [2.7] * 50 + _prd_cl[25:])}
     _rc_fail = _PRD.run(now_utc=_prd_now, fetch_hist=_prd_fetch,
                         sender=lambda m: False, state_path=_prd_sp,
                         ledger_path=_prd_lp, saver=lambda f: None)
@@ -17627,37 +17652,39 @@ check("🧪 CT3 §⑪-ج: `variant_day` (V0 أعمى عن القمة القدي�
       and not _ct3_c3["VC-safety"] and _ct3_c3["VD-full"])
 
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
-# ومسارُ التنبيه V0 وحده بت-بت (إطارُ VA1-فقط ⇒ صفرُ تنبيهٍ والمُرسِل لا
-# يُنادى أصلًا — لو نادته الطفرة انهار بالرمية)
+# 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
+# (‏ALERT_W=40) فالإطارُ الذي كان «تركيبة بحثٍ صامتة» صار **يُنبّه** — والقفل
+# صار يثبت الوصلَ الحيّ: القمةُ الأقدم من 20ج تصل المالك (VAON حفظُه 14ج ⇒
+# 🟢 جاهز) والعدّاداتُ باقية سجلًّا (V0=0 يثبت أن القديمة كانت عمياء عنها)
 import io as _ct4_io
 import contextlib as _ct4_ctx
 _ct4_dir = _prd_tmp.mkdtemp(prefix="ct4_")
 _ct4_wl_saved = S.load_watchlist
+_ct4_sent = []
 S.load_watchlist = lambda: {"pullback": [{"symbol": "VAON"}], "stocks": [],
                             "removed": [], "explosions": []}
 try:
     _ct4_buf = _ct4_io.StringIO()
-    try:
-        with _ct4_ctx.redirect_stdout(_ct4_buf):
-            _ct4_rc = _PRD.run(
-                now_utc=_prd_dt.datetime(2026, 8, 14, 1, 30,
-                                         tzinfo=_prd_dt.timezone.utc),
-                fetch_hist=lambda syms: {"VAON": _ct2_old},
-                sender=lambda m: (_ for _ in ()).throw(
-                    AssertionError("تنبيهٌ من تركيبة بحثٍ — ممنوع")),
-                state_path=_os_hc.path.join(_ct4_dir, "st.json"),
-                ledger_path=_os_hc.path.join(_ct4_dir, "led.jsonl"),
-                saver=lambda f: None)
-    except Exception:                       # القفل يسقط ولا ينهار
-        _ct4_rc = "انهيار — المُرسِل نودي على تركيبة بحث"
+    with _ct4_ctx.redirect_stdout(_ct4_buf):
+        _ct4_rc = _PRD.run(
+            now_utc=_prd_dt.datetime(2026, 8, 14, 1, 30,
+                                     tzinfo=_prd_dt.timezone.utc),
+            fetch_hist=lambda syms: {"VAON": _ct2_old},
+            sender=lambda m: (_ct4_sent.append(m), True)[1],
+            state_path=_os_hc.path.join(_ct4_dir, "st.json"),
+            ledger_path=_os_hc.path.join(_ct4_dir, "led.jsonl"),
+            saver=lambda f: None)
     _ct4_log = _ct4_buf.getvalue()
 finally:
     S.load_watchlist = _ct4_wl_saved
-check("🧪 CT4 عدّادات §⑪-ج في الرادار: V0=0 · VA1=1 · VA3=1 في السجلّ · "
-      "وصفرُ تنبيه (المُرسِل لم يُنادَ · rc=0 · لا سجلَّ حصاد)",
-      _ct4_rc == 0 and "V0=0" in _ct4_log and "VA1=1" in _ct4_log
-      and "VA3=1" in _ct4_log and "مطابق 0" in _ct4_log
-      and not _os_hc.path.exists(_os_hc.path.join(_ct4_dir, "led.jsonl")))
+check("🧪 CT4 «وسّع» حيًّا: القمةُ الأقدم من 20ج تُنبّه الآن (VAON 🟢 جاهز "
+      "حفظ 14ج) · V0=0 يثبت عمى القراءة القديمة · العدّادات سجلٌّ والحصاد كُتب",
+      _ct4_rc == 0 and len(_ct4_sent) == 1 and "VAON" in _ct4_sent[0]
+      and "🟢 جاهز" in _ct4_sent[0]
+      and "V0=0" in _ct4_log and "VA1=1" in _ct4_log and "مطابق 1" in _ct4_log
+      and _os_hc.path.exists(_os_hc.path.join(_ct4_dir, "led.jsonl"))
+      and "VAON" in open(_os_hc.path.join(_ct4_dir, "led.jsonl"),
+                         encoding="utf-8").read())
 
 # ═══════ 🗜️📐 أقفال T-PRESS-BT (press_prereg.md §⑫ · PB1-PB3) ═══════
 import press_backtest as _PB

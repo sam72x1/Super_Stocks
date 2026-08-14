@@ -49,6 +49,13 @@ import sys
 STATE_FILE = "press_radar_state.json"      # ذاكرة البِركة + دِدوب التنبيه + ختم الجلسة
 LEDGER_FILE = "press_radar_ledger.jsonl"   # حصاد أمامي (يُلحَق بعد الإرسال حصرًا)
 W = 20                    # نافذة القمة الحديثة (نافذة نموذج الضغط المقيسة في T-PRESS)
+# 🥇 «اعتمد الحفظ ووسّع» (أمر المالك 2026-08-14 مساءً بعد §⑪-ج و§⑬):
+ALERT_W = 40              # نافذة قراءة **التنبيه** — VA1: التقاط الكتالوج 29/29
+#                           والأفضل توقّعًا في كل سنة (§⑬)؛ نافذة الركضة تبقى W
+READY_HOLD = 3            # «اذا حافظ ع ادنى قاع طبق النموذج» — الشريحة الموجبة
+#                           المقيسة (§⑬: ‏+0.174R [+0.110,+0.240] · موجبة كل سنة)؛
+#                           غير الحافظ يبقى ظاهرًا «👀 قيد المتابعة» (درس WETO:
+#                           انفجر من حفظ 0ج — لا يُسقَط، يُميَّز)
 MEMORY_DAYS = 45          # احتفاظ الذاكرة بالاسم منذ آخر ظهور (ينجو من مسح القوائم)
 REALERT_DAYS = 5          # لا إعادة تنبيه لنفس السهم قبلها
 POOL_CAP = 250            # سقف البِركة — القصّ يُعلَن بعدّاده لا صمتًا
@@ -288,24 +295,40 @@ def should_alert(entry: dict, today_iso: str) -> bool:
 
 def build_alert(rows, session_iso: str) -> str:
     """يبني رسالة التنبيه. **بلا `<` أو `>` أو `≥` أو `≤` إطلاقًا** (قاعدة العرض
-    2026-06-23 + درسُ كسر HTML في تلغرام المُصلَح اليوم نفسه). سقف ALERT_CAP
-    سطرًا والباقي يُذكَر عددًا (لا قصّ صامت)."""
-    shown = rows[:ALERT_CAP]
+    2026-06-23 + درسُ كسر HTML في تلغرام المُصلَح اليوم نفسه).
+
+    🥇 «اعتمد الحفظ» (أمر المالك 2026-08-14 بعد §⑬): قسمان — 🟢 **جاهز**
+    (حافظ قاعه `READY_HOLD` جلسات فأكثر = الشريحة الموجبة المقيسة) بكروتٍ
+    كاملة، و👀 **قيد المتابعة** (مضغوطٌ لم يحفظ بعد) بأسطرٍ مضغوطة — لا
+    يُسقَط (درس WETO: انفجر من حفظ 0ج) لكنه يتميّز. سقف ALERT_CAP لكل قسم
+    والباقي يُذكَر عددًا (لا قصّ صامت). ألوانُ فيصل الموثّقة على الخطة:
+    ‏🟣 الطلبات (الدخول عند الدعم) · 🔴 الوقف."""
+    ready, watch = [], []
+    for r in rows:
+        h = int((r.get("read") or {}).get("hold_sessions") or 0)
+        (ready if h >= READY_HOLD else watch).append(r)
     lines = [f"🗜️📡 رادار الضغط — جلسة {session_iso}",
              "ضغطُ مضاربٍ عند القاع (نموذج فيصل: «اذا حافظ ع ادنى قاع طبق النموذج»):",
              ""]
+    shown = ready[:ALERT_CAP]
+    if shown:
+        lines.append(f"🟢 جاهز — حافظ قاعه {READY_HOLD} جلسات فأكثر "
+                     "(الشريحة الموجبة المقيسة):")
+    else:
+        lines.append(f"لا جاهز هذي الجلسة (ما فيه مضغوطٌ حافظ قاعه "
+                     f"{READY_HOLD} جلسات).")
     for r in shown:
         p = r["read"]
         seg = [f"• {r['symbol']} ${p['close']}",
-               f"ضُغط من ${p['high_w']} (هبوط {p['drop_pct']}%) وجالسٌ عند قاعه ${p['press_low']}"]
-        if p.get("hold_sessions"):
-            seg.append(f"بلا قاعٍ جديد منذ {p['hold_sessions']} جلسة")
+               f"ضُغط من ${p['high_w']} (هبوط {p['drop_pct']}%) وجالسٌ عند قاعه ${p['press_low']}",
+               f"حافظ قاعه {int(p.get('hold_sessions') or 0)} جلسة"]
         if float(p.get("runup_pct") or 0.0) >= 50.0:
             seg.append(f"ركض قبل الضغط {p['runup_pct']}% (نمط النموذج)")
         if r.get("prev_q"):
             seg.append(f"🔁 كان مؤهلًا عند البوت @{r['prev_q']} (تسلسل التركيبة الكامل)")
         if p.get("tested_level"):
             seg.append(f"مستوى مُختبَر عند ${p['tested_level']}")
+        seg.append(f"🟣 الطلبات مقسّمة قرب القاع ${p['press_low']} · 🔴 الوقف تحته")
         plan = r.get("plan") or {}
         if plan.get("entry"):
             e = plan["entry"]
@@ -315,8 +338,16 @@ def build_alert(rows, session_iso: str) -> str:
                        + (f" · هدف أول {t1}" if t1 else ""))
         seg.append(f"المصدر: {r.get('src', '؟')}")
         lines.append(" — ".join(seg))
-    if len(rows) > len(shown):
-        lines.append(f"…و{len(rows) - len(shown)} آخرون فوق سقف العرض (في سجل الحصاد كاملين).")
+    if len(ready) > len(shown):
+        lines.append(f"…و{len(ready) - len(shown)} جاهزون فوق سقف العرض (في سجل الحصاد كاملين).")
+    if watch:
+        lines += ["", f"👀 قيد المتابعة (مضغوطون لم يحفظوا {READY_HOLD} جلسات بعد):"]
+        for r in watch[:ALERT_CAP]:
+            p = r["read"]
+            lines.append(f"• {r['symbol']} ${p['close']} — هبوط {p['drop_pct']}% "
+                         f"· حفظ {int(p.get('hold_sessions') or 0)}ج · قاع ${p['press_low']}")
+        if len(watch) > ALERT_CAP:
+            lines.append(f"…و{len(watch) - ALERT_CAP} آخرون تحت المتابعة (في السجل كاملين).")
     lines += ["",
               "⚠️ عرضٌ وتنبيه قيد الإثبات الأمامي — ليس توصية. القراءة من الشموع "
               "اليومية (لا تشمل الافتر).",
@@ -374,12 +405,11 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
         if df is None or getattr(df, "empty", True):
             failed += 1
             continue
-        r = press_read(df)
-        # 🧪 §⑪-ج: عدّاداتُ كلفةٍ ليلية **صامتة** (سجلّ فقط — لا تنبيه ولا
-        # حالة): كم رمزًا من البِركة يطابق كلَّ تركيبةٍ مسجَّلة؟ القراءاتُ
-        # نقيّةٌ لا ترمي (عقد `press_read`) ومسارُ التنبيه V0 وحده كما هو.
-        grid["V0"] += 1 if r else 0
-        grid["VA1"] += 1 if press_read(df, w=40) else 0
+        # 🥇 «وسّع» (2026-08-14): قراءةُ التنبيه صارت VA1 (نافذة `ALERT_W`=40 —
+        # التقاط الكتالوج 29/29 والأفضل توقّعًا في §⑬). العدّاداتُ تبقى سجلًّا.
+        r = press_read(df, w=ALERT_W)
+        grid["V0"] += 1 if press_read(df) else 0
+        grid["VA1"] += 1 if r else 0
         grid["VA2"] += 1 if press_read(df, band_pct=20.0) else 0
         grid["VA3"] += 1 if press_read(df, w=40, band_pct=20.0) else 0
         if not r:
