@@ -218,6 +218,33 @@ def runup_pct(hi, lo, j_star, w=W):
         return 0.0
 
 
+def prev_qualified(sym, bars, anchor_iso, max_back=120, step=5):
+    """🔁 فكرة المالك (2026-08-14): «متجاوزُ البوابات **سابقًا** ثم ركض ثم
+    انضغط». تفحص: هل قبله الإنتاجُ (أيُّ المسارين — الفرز أو الارتداد) في أيّ
+    يومٍ معيَّن قبل المِرساة؟ عيّنةُ كلّ `step` جلسات حتى `max_back` ⇒ الناتج
+    **أرضيةٌ لا حصر** (نافذةُ تأهّلٍ قصيرة قد تقع بين العيّنات). بإعدادات
+    الإنتاج الحيّة اليوم (ومنها المرساة المُختبَرة) — مُعلَن."""
+    import Super_stock as S                                      # noqa: PLC0415
+    try:
+        idx = [d for d in bars.index if str(d.date()) < anchor_iso]
+        pos = {d: k for k, d in enumerate(bars.index)}
+        n = len(idx)
+        for off in range(3, max_back + 1, step):
+            k = n - off
+            if k < 60:
+                break
+            i = pos[idx[k]]
+            sl = bars.iloc[:i + 1]
+            try:
+                if S.analyze_ticker(sym, sl) or S.analyze_ticker(sym, sl, pullback=True):
+                    return str(idx[k].date())
+            except Exception:                                    # noqa: BLE001
+                continue
+    except Exception:                                            # noqa: BLE001
+        return None
+    return None
+
+
 def alert_rank(r: dict):
     """نقيّة: مفتاح ترتيب الرسالة — الأقرب لنمط WETO يتقدّم.
 
@@ -231,7 +258,11 @@ def alert_rank(r: dict):
     import Super_stock as S                                      # noqa: PLC0415
     ran = 1 if float(p.get("runup_pct") or 0.0) >= float(
         S.CONFIG.get("EXPLOSION_PCT", 50.0)) else 0
+    # 🔁 «تركيبة المالك» (2026-08-14): «مؤهلٌ سابقًا ثم انضغط» = الدرجة الأولى
+    # (قِيست: 19 من 26 من التقاط الكتالوج + شبه صفر ضجيج) — **درجةٌ لا فلتر**
+    # (الفلترُ الصلب يفقد 7 حقيقيين منهم ONCO/KUST — مقيس في §⑪-ب).
     return (-(1 if r.get("plan") else 0),
+            -(1 if r.get("prev_q") else 0),
             -(1 if p.get("tested_level") else 0),
             -(1 if p.get("hold_sessions") else 0),
             -ran,
@@ -265,6 +296,8 @@ def build_alert(rows, session_iso: str) -> str:
             seg.append(f"بلا قاعٍ جديد منذ {p['hold_sessions']} جلسة")
         if float(p.get("runup_pct") or 0.0) >= 50.0:
             seg.append(f"ركض قبل الضغط {p['runup_pct']}% (نمط النموذج)")
+        if r.get("prev_q"):
+            seg.append(f"🔁 كان مؤهلًا عند البوت @{r['prev_q']} (تسلسل التركيبة الكامل)")
         if p.get("tested_level"):
             seg.append(f"مستوى مُختبَر عند ${p['tested_level']}")
         plan = r.get("plan") or {}
@@ -292,7 +325,8 @@ def append_ledger(rows, session_iso: str, path=LEDGER_FILE) -> int:
         with open(path, "a", encoding="utf-8") as fh:
             for r in rows:
                 rec = {"session": session_iso, "symbol": r["symbol"],
-                       "src": r.get("src"), **r["read"]}
+                       "src": r.get("src"), "prev_q": r.get("prev_q"),
+                       **r["read"]}
                 fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 n += 1
     except Exception as e:                                       # noqa: BLE001
@@ -341,6 +375,15 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
             continue
         rows.append({"symbol": sym, "read": r,
                      "plan": mem.get("plan"), "src": mem.get("src", "؟")})
+    # 🔁 تركيبة المالك: «مؤهلٌ سابقًا عند البوت؟» تُحسب للمطابقين فقط (قلّة
+    # بعد الدِدوب) — فاشلة-آمنة: تعذّرها لا يمس التنبيه.
+    for r in rows:
+        try:
+            _df = hist.get(r["symbol"])
+            r["prev_q"] = (prev_qualified(r["symbol"], _df, "9999-12-31")
+                           if _df is not None else None)
+        except Exception:                                        # noqa: BLE001
+            r["prev_q"] = None
     rows.sort(key=alert_rank)        # الأقرب لنمط WETO أولًا (تصحيح أول تشغيلة)
     _log(f"🩺 التغطية: فُحص {len(pool) - failed} · تعذّر {failed} · مطابق {len(rows)}.")
     if rows:

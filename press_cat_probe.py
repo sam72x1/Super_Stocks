@@ -61,33 +61,6 @@ def probe_day(bars, upto_idx):
         return None, "تعذّر التشخيص"
 
 
-def prev_qualified(sym, bars, anchor_iso, max_back=120, step=5):
-    """🔁 فكرة المالك (2026-08-14): «متجاوزُ البوابات **سابقًا** ثم ركض ثم
-    انضغط». تفحص: هل قبله الإنتاجُ (أيُّ المسارين — الفرز أو الارتداد) في أيّ
-    يومٍ معيَّن قبل المِرساة؟ عيّنةُ كلّ `step` جلسات حتى `max_back` ⇒ الناتج
-    **أرضيةٌ لا حصر** (نافذةُ تأهّلٍ قصيرة قد تقع بين العيّنات). بإعدادات
-    الإنتاج الحيّة اليوم (ومنها المرساة المُختبَرة) — مُعلَن."""
-    import Super_stock as S                                      # noqa: PLC0415
-    try:
-        idx = [d for d in bars.index if str(d.date()) < anchor_iso]
-        pos = {d: k for k, d in enumerate(bars.index)}
-        n = len(idx)
-        for off in range(3, max_back + 1, step):
-            k = n - off
-            if k < 60:
-                break
-            i = pos[idx[k]]
-            sl = bars.iloc[:i + 1]
-            try:
-                if S.analyze_ticker(sym, sl) or S.analyze_ticker(sym, sl, pullback=True):
-                    return str(idx[k].date())
-            except Exception:                                    # noqa: BLE001
-                continue
-    except Exception:                                            # noqa: BLE001
-        return None
-    return None
-
-
 def main() -> int:
     import preexp_probe as PX                                    # noqa: PLC0415
     _log(f"\n{'=' * 78}\n🗜️📚 مِجَسُّ الكتالوج T−2 — قراءةُ رادار الضغط قبل "
@@ -137,7 +110,8 @@ def main() -> int:
                             (r or {}).get("runup_pct")))
         fired = any(x[1] for x in day_res)
         runups = [x[6] for x in day_res if x[1] and x[6] is not None]
-        pq = prev_qualified(sym, bars, anchor)
+        import press_radar as PR                             # noqa: PLC0415
+        pq = PR.prev_qualified(sym, bars, anchor)
         rows.append({"symbol": sym, "group": ev["group"], "anchor": anchor,
                      "fired": fired, "days": day_res, "prev_q": pq,
                      "runup": max(runups) if runups else None})

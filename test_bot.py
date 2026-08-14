@@ -17331,9 +17331,15 @@ _prd_run_ast = _ast0.parse(_insp0.getsource(_PRD.run))
 _prd_rank_called = any(
     isinstance(n, _ast0.Attribute) and n.attr == "sort" for n in _ast0.walk(_prd_run_ast)
 ) and "alert_rank" in [getattr(n, "id", None) for n in _ast0.walk(_prd_run_ast)]
-check("🗜️📡 PRD9 `alert_rank`: صاحبُ الخطة يتصدّر قبل الميّت الأعمق · و`run` "
+_prd_tier9 = sorted([{"symbol": "PRESSONLY", "read": _prd_zomb, "plan": None},
+                     {"symbol": "FULLSEQ", "read": _prd_zomb, "plan": None,
+                      "prev_q": "2026-08-01"}], key=_PRD.alert_rank)
+check("🗜️📡 PRD9 `alert_rank`: صاحبُ الخطة يتصدّر قبل الميّت الأعمق · "
+      "و«مؤهلٌ سابقًا» (تركيبة المالك) درجةٌ تسبق المضغوطَ فقط · و`run` "
       "تناديها بالاسم (AST)",
-      [r["symbol"] for r in _prd_sorted9] == ["WETO", "ZOMB"] and _prd_rank_called)
+      [r["symbol"] for r in _prd_sorted9] == ["WETO", "ZOMB"]
+      and [r["symbol"] for r in _prd_tier9] == ["FULLSEQ", "PRESSONLY"]
+      and _prd_rank_called)
 
 # PRD2 — الذاكرة تنجو من مسح القوائم (ثقب «بداية نظيفة» الذي أضاع WETO/CAPR)
 _prd_st = {"symbols": {"WETO": {"first_seen": "2026-08-07", "last_seen": "2026-08-07",
@@ -17358,13 +17364,15 @@ check("🗜️📡 PRD3 دِدوب التنبيه: طازجٌ يُرسَل · ح
 # PRD4 — الرسالة بلا علامات مقارنة/وسوم (درس HF-TG اليوم نفسه) + الخطة المحفوظة
 _prd_msg = _PRD.build_alert([{"symbol": "WETO", "read": _prd_r,
                               "plan": {"entry": [2.7, 2.86], "t1": 5.5},
+                              "prev_q": "2026-08-07",
                               "src": "قائمة الارتداد"}], "2026-08-13")
 check("🗜️📡 PRD4 رسالةُ الرادار بلا `<`/`>`/`≥`/`≤` + تعرض الخطة المحفوظة والمصدر "
       "وركضةَ النموذج (عرضٌ لا فلتر — القياسُ منع الفلتر)",
       all(c not in _prd_msg for c in "<>≥≤")
       and "خطتنا المحفوظة" in _prd_msg and "قائمة الارتداد" in _prd_msg
       and "قيد الإثبات الأمامي" in _prd_msg
-      and "ركض قبل الضغط" in _prd_msg)
+      and "ركض قبل الضغط" in _prd_msg
+      and "كان مؤهلًا عند البوت @2026-08-07" in _prd_msg)
 
 # PRD5 — سلوكيًّا: فشلُ الإرسال ⇒ لا ختمَ ولا سجلَّ (rc=1)؛ نجاحُه ⇒ ختمٌ وسجلّ
 import tempfile as _prd_tmp
