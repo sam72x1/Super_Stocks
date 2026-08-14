@@ -61,6 +61,33 @@ def probe_day(bars, upto_idx):
         return None, "تعذّر التشخيص"
 
 
+def prev_qualified(sym, bars, anchor_iso, max_back=120, step=5):
+    """🔁 فكرة المالك (2026-08-14): «متجاوزُ البوابات **سابقًا** ثم ركض ثم
+    انضغط». تفحص: هل قبله الإنتاجُ (أيُّ المسارين — الفرز أو الارتداد) في أيّ
+    يومٍ معيَّن قبل المِرساة؟ عيّنةُ كلّ `step` جلسات حتى `max_back` ⇒ الناتج
+    **أرضيةٌ لا حصر** (نافذةُ تأهّلٍ قصيرة قد تقع بين العيّنات). بإعدادات
+    الإنتاج الحيّة اليوم (ومنها المرساة المُختبَرة) — مُعلَن."""
+    import Super_stock as S                                      # noqa: PLC0415
+    try:
+        idx = [d for d in bars.index if str(d.date()) < anchor_iso]
+        pos = {d: k for k, d in enumerate(bars.index)}
+        n = len(idx)
+        for off in range(3, max_back + 1, step):
+            k = n - off
+            if k < 60:
+                break
+            i = pos[idx[k]]
+            sl = bars.iloc[:i + 1]
+            try:
+                if S.analyze_ticker(sym, sl) or S.analyze_ticker(sym, sl, pullback=True):
+                    return str(idx[k].date())
+            except Exception:                                    # noqa: BLE001
+                continue
+    except Exception:                                            # noqa: BLE001
+        return None
+    return None
+
+
 def main() -> int:
     import preexp_probe as PX                                    # noqa: PLC0415
     _log(f"\n{'=' * 78}\n🗜️📚 مِجَسُّ الكتالوج T−2 — قراءةُ رادار الضغط قبل "
@@ -110,13 +137,15 @@ def main() -> int:
                             (r or {}).get("runup_pct")))
         fired = any(x[1] for x in day_res)
         runups = [x[6] for x in day_res if x[1] and x[6] is not None]
+        pq = prev_qualified(sym, bars, anchor)
         rows.append({"symbol": sym, "group": ev["group"], "anchor": anchor,
-                     "fired": fired, "days": day_res,
+                     "fired": fired, "days": day_res, "prev_q": pq,
                      "runup": max(runups) if runups else None})
         mark = "🔥" if fired else "—"
         det = " · ".join(f"{d}:{'✅' if f else w}" for d, f, w, *_ in day_res)
         ru = f" · ركضة {max(runups):.0f}%" if runups else ""
-        _log(f"  {mark} {sym} ({ev['group']}) مِرساة {anchor} ⇒ {det}{ru}")
+        pqs = f" · مؤهلٌ سابقًا @{pq}" if pq else " · لم يتأهل سابقًا"
+        _log(f"  {mark} {sym} ({ev['group']}) مِرساة {anchor} ⇒ {det}{ru}{pqs}")
     if not rows:
         _log("⛔ صفرُ أزواجٍ مقيسة (بصمة الـno-op) — خروج 4.")
         return 4
@@ -128,6 +157,16 @@ def main() -> int:
         k = sum(1 for r in sub if r["fired"])
         _log(f"  المجموعة ({g}): أطلق الرادار قبل الانفجار (‏−2 أو −1) في "
              f"{k} من {len(sub)} = {100.0 * k / len(sub):.1f}%")
+    # 🔁 «تركيبة المالك» (تأهّل سابقًا ⟵ انضغط ⟵ انفجر): كم تُبقي من الالتقاط؟
+    for g in ("أ", "ب"):
+        sub = [r for r in rows if r["group"] == g]
+        fired_g = [r for r in sub if r["fired"]]
+        pq_all = sum(1 for r in sub if r["prev_q"])
+        pq_fired = sum(1 for r in fired_g if r["prev_q"])
+        if sub:
+            _log(f"  🔁 تركيبة «مؤهلٌ سابقًا + مضغوط»: المجموعة ({g}) — "
+                 f"مؤهلون سابقًا {pq_all} من {len(sub)} · ومن المُطلَقين "
+                 f"{pq_fired} من {len(fired_g)} (هذي صيدُ التركيبة الكاملة)")
     # 🗜️ توزيع «ركضة ما قبل الضغط» بين المُطلَقين — لقياس فلتر المالك المقترح
     # (‏«فلاتر مو كل متحرك») قبل فرضه: كم من الالتقاط يبقى عند كل عتبة قائمة؟
     fired_rows = [r for r in rows if r["fired"] and r.get("runup") is not None]
