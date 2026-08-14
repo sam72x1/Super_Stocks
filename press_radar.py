@@ -225,9 +225,16 @@ def alert_rank(r: dict):
     (‏YYAI بستّة سنتات) في رأس الرسالة. الترتيب: صاحبُ خطةٍ محفوظة ⟵ مستوى
     مُختبَر ⟵ حفظٌ فعليّ (جلسات بلا قاعٍ جديد) ⟵ ثم العمق."""
     p = r.get("read") or {}
+    # 🗜️ «ركضة قبل الضغط» مفتاحُ ترتيبٍ لا فلتر (قرار 2026-08-14 بعد القياس:
+    # الفلترُ الصلب عند 50% يُبقي 13 من 26 من التقاط الكتالوج — يقتل النصف،
+    # لأن ركضة الفئة أقدمُ من النافذة غالبًا. فتُعرَض وتُقدِّم ولا تُسقِط).
+    import Super_stock as S                                      # noqa: PLC0415
+    ran = 1 if float(p.get("runup_pct") or 0.0) >= float(
+        S.CONFIG.get("EXPLOSION_PCT", 50.0)) else 0
     return (-(1 if r.get("plan") else 0),
             -(1 if p.get("tested_level") else 0),
             -(1 if p.get("hold_sessions") else 0),
+            -ran,
             -float(p.get("drop_pct") or 0.0))
 
 
@@ -256,6 +263,8 @@ def build_alert(rows, session_iso: str) -> str:
                f"ضُغط من ${p['high_w']} (هبوط {p['drop_pct']}%) وجالسٌ عند قاعه ${p['press_low']}"]
         if p.get("hold_sessions"):
             seg.append(f"بلا قاعٍ جديد منذ {p['hold_sessions']} جلسة")
+        if float(p.get("runup_pct") or 0.0) >= 50.0:
+            seg.append(f"ركض قبل الضغط {p['runup_pct']}% (نمط النموذج)")
         if p.get("tested_level"):
             seg.append(f"مستوى مُختبَر عند ${p['tested_level']}")
         plan = r.get("plan") or {}
