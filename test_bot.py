@@ -17811,7 +17811,11 @@ check("🎚️ PL2 `TANCHOR`: مرساة المستوى 3.34 (وقف 3.1062) ت�
       len(_pl_recs) == 1 and _pl_recs[0]["tlv"] == 3.34
       and _pl_recs[0]["t_stop"] == 3.1062 and _pl_recs[0]["stop"] == 3.255
       and _pl_recs[0]["hold"] == 6 and _pl_recs[0]["oc_t"] is not None
-      and _pbg_recs[0]["tlv"] is None and _pbg_recs[0]["oc_t"] is None)
+      and _pbg_recs[0]["tlv"] is None and _pbg_recs[0]["oc_t"] is None
+      # 🕯️ عيّنة مفرِّقة لرأس الشمعة المهمة (درس NEXR): رأسُ شمعةِ صنع القاع
+      # 4.2 وآخرُ شمعةٍ رأسُها 3.9 — لو قُرئ من آخر شمعةٍ سقط هنا
+      and _PRD.press_read(_prd_frame(_pl_lo, _pl_hi, _pl_cl),
+                          w=40)["imp_head"] == 4.2)
 
 # PRD7 — الـworkflow موصول (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
 _prd_y = open(".github/workflows/press_radar.yml", encoding="utf-8").read()
