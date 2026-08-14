@@ -16,6 +16,10 @@ on:
         description: "اسمُ ملفّ الصفوف التراكميّ"
         required: false
         default: "preexp_probe_rows.jsonl"
+      source:
+        description: "مصدرُ الشموع: yahoo (متدحرج) · polygon (بدءٌ ثابت ⇒ حتميّ)"
+        required: false
+        default: "yahoo"
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -35,11 +39,14 @@ jobs:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           PREEXP_ONLY: ${{ github.event.inputs.only }}
           PREEXP_CSV: ${{ github.event.inputs.csv }}
+          PREEXP_SOURCE: ${{ github.event.inputs.source }}
         run: python preexp_probe.py
       - name: Upload rows
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: preexp-rows
-          path: preexp_probe_rows.jsonl
+          # 🔴 نفسُ عيبِ `op23` (‏O14أ): مسارٌ مغروسٌ واسمُ الملفّ **مدخل** ⇒
+          #    تشغيلةٌ بملفٍّ آخر لا تُرفَع صفوفُها. يتبع المدخلَ الآن.
+          path: ${{ github.event.inputs.csv }}
           if-no-files-found: warn

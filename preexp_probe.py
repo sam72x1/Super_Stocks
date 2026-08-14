@@ -34,6 +34,7 @@ EVENT_OFFSETS = (-2, -1)          # نافذةُ الحدث (§①)
 CTRL_OFFSETS = (-12, -11)         # شاهدُ الضبط لنفس السهم (case-crossover)
 MIN_PAIRS = 15                    # أرضيةُ الوصف لكلّ مجموعة (‏PX6)
 TRADE_CAP = 60_000                # سقفُ صفقاتِ الجلسة — **يُطبَع دائمًا** (‏PX5)
+HIST_START = "2003-01-01"         # بدءٌ **ثابت** لمصدر polygon (‏PX13)
 
 
 def _log(msg: str) -> None:
@@ -258,13 +259,54 @@ def report_rows(rows) -> None:
          "إصابة** · وأيُّ نمطٍ لافتٍ **فرضيةٌ** لاختبارٍ أماميّ مسجَّل لا قاعدة.")
 
 
+def fetch_bars(sym: str):
+    """مصدرُ الشموع — **مُعلَنٌ وقابلٌ للتثبيت** (`PREEXP_SOURCE`).
+
+    🔴 **العيبُ المُشخَّص (‏2026-08-14):** الافتراضُ `yahoo` هو `download_history`
+    وهي نافذةٌ **متدحرجة تنتهي «الآن»** (`today − HISTORY_DAYS`) ⇒ ① مِرساةُ
+    المجموعة (أ) تُحسب بـ`pick="last"` على نافذةٍ تتحرّك **فتتغيّر بين تشغيلتين**
+    ② والشمعةُ الأخيرة **تُنقَّح بعد الإغلاق** فتتحرّك المتوسّطاتُ المشتقّة منها
+    ③ **وانفجارٌ أقدمُ من ‏≈2.2 سنة لا يُرى أصلًا** — وهو **عينُ عيبِ `op23` §⓪-أ
+    الذي أُصلح هناك ولم يُصلَح هنا**.
+    ⇒ `polygon` يجلب من **بدءٍ ثابت** بـ`pit_history.polygon_daily` **بالاسم**
+    (نفسُ علاج `op23`) فيصير المِجَسُّ قابلًا لإعادة الإنتاج. مقفول `PX13`."""
+    src = (os.environ.get("PREEXP_SOURCE") or "yahoo").strip().lower()
+    if src == "polygon":
+        import pit_history as PH                                  # noqa: PLC0415
+        return PH.polygon_daily(sym, HIST_START,
+                                dt.date.today().isoformat())
+    import Super_stock as S                                       # noqa: PLC0415
+    return (S.download_history([sym]) or {}).get(sym)
+
+
+def row_fingerprint(rec: dict) -> str:
+    """بصمةُ صفٍّ **حتميّة** — المِرساةُ وتواريخُ النوافذ الأربع وقيمُ المقاييس.
+
+    بها يصير أيُّ فرقٍ بين تشغيلتين **منسوبًا لصفّه وحقلِه** بدل «فرقٌ غيرُ
+    مُفسَّر» (‏`PX12`) — درسُ «فرقٌ غيرُ مُفسَّرٍ عيبٌ مرشَّحٌ حتى يُشخَّص»."""
+    import hashlib                                                # noqa: PLC0415
+    parts = [rec.get("symbol", ""), rec.get("group", ""),
+             str(rec.get("anchor"))]
+    for label in ("حدث", "شاهد"):
+        for w in (rec.get(label) or []):
+            parts.append(str(w.get("date")))
+            parts += [f"{m}={w.get(m)}" for m in METRICS]
+    return hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:12]
+
+
 def main() -> int:
     if not os.environ.get("POLYGON_API_KEY", "").strip():
         _log("⛔ `POLYGON_API_KEY` غائب ⇒ خروج 2 (لا مِجَسَّ بلا مصدر).")
         return 2
     _log(f"\n{'=' * 78}\n🔬🕵️ T-PREEXP-PROBE — سلوكُ اليومين قبل الانفجار"
          f"\n   نافذةُ الحدث {EVENT_OFFSETS} · شاهدُ الضبط {CTRL_OFFSETS} · "
-         f"سقفُ الصفقات {TRADE_CAP:,}\n{'=' * 78}")
+         f"سقفُ الصفقات {TRADE_CAP:,}"
+         f"\n   📥 مصدرُ الشموع: "
+         f"{(os.environ.get('PREEXP_SOURCE') or 'yahoo')}"
+         + ("  ⚠️ **نافذةٌ متدحرجةٌ تنتهي اليوم ⇒ غيرُ حتميّ بين تشغيلتين**"
+            if (os.environ.get('PREEXP_SOURCE') or 'yahoo') != 'polygon'
+            else f"  (بدءٌ ثابت {HIST_START} ⇒ حتميّ)")
+         + f"\n{'=' * 78}")
     if not control_check():
         _log("⛔ شاهدُ الضبط سقط ⇒ خروج 3 (لا رقمَ يُنشَر ولا يُفسَّر).")
         return 3
@@ -278,8 +320,7 @@ def main() -> int:
     for ev in events:
         sym = ev["symbol"]
         try:
-            hist = S.download_history([sym])
-            bars = hist.get(sym)
+            bars = fetch_bars(sym)
         except Exception as e:                                    # noqa: BLE001
             _log(f"  ⚪️ {sym}: تعذّر التحميل ({e})")
             skipped += 1
@@ -319,7 +360,8 @@ def main() -> int:
                 ok_all = False
         rec["complete"] = ok_all
         rows.append(rec)
-        _log(f"  ✓ {sym} ({ev['group']}) مِرساة {anchor} — "
+        rec["fp"] = row_fingerprint(rec)
+        _log(f"  ✓ {sym} ({ev['group']}) مِرساة {anchor} · بصمة {rec['fp']} — "
              f"{'كامل' if ok_all else '⚠️ ناقص (يُستبعَد من الوصف)'}")
     out = os.environ.get("PREEXP_CSV") or "preexp_probe_rows.jsonl"
     with open(out, "a", encoding="utf-8") as fh:
@@ -334,6 +376,11 @@ def main() -> int:
         _log(f"   المجموعة ({g}): {n}"
              + ("" if n >= MIN_PAIRS else
                 f" ⚠️ **دون أرضية {MIN_PAIRS} ⇒ «لا تكفي وصفًا» وتُنشَر خامًا**"))
+    import hashlib as _hl                                        # noqa: PLC0415
+    _dig = _hl.sha256("|".join(sorted(r.get("fp", "") for r in rows))
+                      .encode("utf-8")).hexdigest()[:16]
+    _log(f"🔑 **بصمةُ التشغيلة {_dig}** — تشغيلتان بنفس المصدر والعيّنة يجب أن "
+         "تتطابق بصمتُهما؛ واختلافُها **عيبُ حتميّةٍ يُشخَّص بمقارنة بصمات الصفوف**.")
     _log(f"💾 الصفوفُ في {out} (تراكميّ · قابلٌ للاستئناف)")
     _log("\n⚠️ **تشخيصٌ لا حكم:** العيّنةُ مختارةٌ على النتيجة ⇒ توصيفٌ لا معدَّلُ "
          "إصابة · ولا تُشتقّ منه قاعدةٌ بلا تسجيلٍ مسبقٍ جديدٍ واختبارٍ أماميّ.")
