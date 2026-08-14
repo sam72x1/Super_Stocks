@@ -368,12 +368,20 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
     fetch = fetch_hist or S.download_history
     hist = fetch(pool) or {}
     rows, failed = [], 0
+    grid = {"V0": 0, "VA1": 0, "VA2": 0, "VA3": 0}
     for sym in pool:
         df = hist.get(sym)
         if df is None or getattr(df, "empty", True):
             failed += 1
             continue
         r = press_read(df)
+        # 🧪 §⑪-ج: عدّاداتُ كلفةٍ ليلية **صامتة** (سجلّ فقط — لا تنبيه ولا
+        # حالة): كم رمزًا من البِركة يطابق كلَّ تركيبةٍ مسجَّلة؟ القراءاتُ
+        # نقيّةٌ لا ترمي (عقد `press_read`) ومسارُ التنبيه V0 وحده كما هو.
+        grid["V0"] += 1 if r else 0
+        grid["VA1"] += 1 if press_read(df, w=40) else 0
+        grid["VA2"] += 1 if press_read(df, band_pct=20.0) else 0
+        grid["VA3"] += 1 if press_read(df, w=40, band_pct=20.0) else 0
         if not r:
             continue
         mem = state.get("symbols", {}).get(sym, {})
@@ -392,6 +400,9 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
             r["prev_q"] = None
     rows.sort(key=alert_rank)        # الأقرب لنمط WETO أولًا (تصحيح أول تشغيلة)
     _log(f"🩺 التغطية: فُحص {len(pool) - failed} · تعذّر {failed} · مطابق {len(rows)}.")
+    _log(f"🧪 عدّادات §⑪-ج (كلفة التركيبات على البِركة — سجلّ فقط): "
+         f"V0={grid['V0']} · VA1={grid['VA1']} · VA2={grid['VA2']} · "
+         f"VA3={grid['VA3']} من {len(pool) - failed} مفحوصًا.")
     if rows:
         msg = build_alert(rows, session_iso)
         send = sender or S.send_telegram

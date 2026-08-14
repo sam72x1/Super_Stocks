@@ -17565,6 +17565,39 @@ check("🧪 CT3 §⑪-ج: `variant_day` (V0 أعمى عن القمة القدي�
       and _ct3_c2["VB-owner"] and _ct3_c2["VB-union"]
       and not _ct3_c3["VC-safety"] and _ct3_c3["VD-full"])
 
+# CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
+# ومسارُ التنبيه V0 وحده بت-بت (إطارُ VA1-فقط ⇒ صفرُ تنبيهٍ والمُرسِل لا
+# يُنادى أصلًا — لو نادته الطفرة انهار بالرمية)
+import io as _ct4_io
+import contextlib as _ct4_ctx
+_ct4_dir = _prd_tmp.mkdtemp(prefix="ct4_")
+_ct4_wl_saved = S.load_watchlist
+S.load_watchlist = lambda: {"pullback": [{"symbol": "VAON"}], "stocks": [],
+                            "removed": [], "explosions": []}
+try:
+    _ct4_buf = _ct4_io.StringIO()
+    try:
+        with _ct4_ctx.redirect_stdout(_ct4_buf):
+            _ct4_rc = _PRD.run(
+                now_utc=_prd_dt.datetime(2026, 8, 14, 1, 30,
+                                         tzinfo=_prd_dt.timezone.utc),
+                fetch_hist=lambda syms: {"VAON": _ct2_old},
+                sender=lambda m: (_ for _ in ()).throw(
+                    AssertionError("تنبيهٌ من تركيبة بحثٍ — ممنوع")),
+                state_path=_os_hc.path.join(_ct4_dir, "st.json"),
+                ledger_path=_os_hc.path.join(_ct4_dir, "led.jsonl"),
+                saver=lambda f: None)
+    except Exception:                       # القفل يسقط ولا ينهار
+        _ct4_rc = "انهيار — المُرسِل نودي على تركيبة بحث"
+    _ct4_log = _ct4_buf.getvalue()
+finally:
+    S.load_watchlist = _ct4_wl_saved
+check("🧪 CT4 عدّادات §⑪-ج في الرادار: V0=0 · VA1=1 · VA3=1 في السجلّ · "
+      "وصفرُ تنبيه (المُرسِل لم يُنادَ · rc=0 · لا سجلَّ حصاد)",
+      _ct4_rc == 0 and "V0=0" in _ct4_log and "VA1=1" in _ct4_log
+      and "VA3=1" in _ct4_log and "مطابق 0" in _ct4_log
+      and not _os_hc.path.exists(_os_hc.path.join(_ct4_dir, "led.jsonl")))
+
 # PRD7 — الـworkflow موصول (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
 _prd_y = open(".github/workflows/press_radar.yml", encoding="utf-8").read()
 check("🗜️📡 PRD7 press_radar.yml: كرونا 25 مُزاحان (2-6) · FORCE موصول بالدسباتش · "
