@@ -25,6 +25,22 @@ import sys
 
 ARMS = (("P-V0", {}), ("P-VA1", {"w": 40}))
 
+# 🗜️🧠 §⑬ `T-PRESS-BT-2`: بوّاباتُ الأذرع العشر — مثبّتة من التسجيل حرفيًّا،
+# لا تُضاف حاديةَ عشرةَ بعد الأرقام. السبعُ الأولى على خطة الدفعات عند القاع،
+# والثلاثُ الأخيرة على دخول «اول صعود اذا رجع وثبت تدخل» المؤجَّل.
+GATES = (
+    ("BASE", lambda e: True),
+    ("HOLD3", lambda e: e["hold"] >= 3),
+    ("RUN50", lambda e: e["runup"] >= 50.0),
+    ("TESTED", lambda e: e["tested"]),
+    ("DEEP50", lambda e: e["drop"] >= 50.0),
+    ("HOLD3+RUN50", lambda e: e["hold"] >= 3 and e["runup"] >= 50.0),
+    ("HOLD3+TESTED", lambda e: e["hold"] >= 3 and e["tested"]),
+    ("RECLAIM", lambda e: True),
+    ("RECLAIM+HOLD3", lambda e: e["hold"] >= 3),
+    ("RECLAIM+RUN50", lambda e: e["runup"] >= 50.0),
+)
+
 
 def _log(m):
     print(m, flush=True)
@@ -61,6 +77,144 @@ def walk_symbol_press(sym, df, year=None):
                 continue
             i += 1
     return out
+
+
+def resolve_reclaim(hi, lo, cl, i, press_low, wait=None):
+    """نقيّة (§⑬): دخول فيصل المؤجَّل — «فريم دقيقه **اول صعود اذا رجع وثبت
+    تدخل**» (منشور WETO الحرفيّ) رقميًّا بثوابت قائمة مسمّاة لا رقمَ جديدًا:
+    ① أوّل يومٍ بعد الإطلاق إغلاقُه فوق قاع الضغط بـ`METHOD_BOUNCE_MIN_PCT`
+    (‏«الصعود غالبا من 10 > 15٪» IMG_0486) ② ثم أوّل يومٍ يلمس قاعُه نطاقَ
+    الضغط (`SPLIT_SWEEP_MAX_PCT`) **ويغلق عند القاع أو فوقه** («رجع وثبت» —
+    تعريفُ «حافظ» المثبت في `stability_result`) ⇒ الدخول بإغلاقه · الوقف
+    وقفُ `mirror_plan(القاع)` نفسُه · الهدف `TARGET_X`× الدخول · الحسم من
+    اليوم التالي والوقفُ أولًا. ترجع (حسم، دخول، وقف)."""
+    import Super_stock as S                                      # noqa: PLC0415
+    import rebound_arms as RB                                    # noqa: PLC0415
+    try:
+        w = int(wait if wait is not None else RB.WAIT)
+        pl = float(press_low)
+        bounce = pl * (1.0 + float(S.CONFIG.get("METHOD_BOUNCE_MIN_PCT", 10.0)) / 100.0)
+        band = pl * (1.0 + float(S.CONFIG.get("SPLIT_SWEEP_MAX_PCT", 13.0)) / 100.0)
+        stop = RB.mirror_plan(pl)[1]
+        n = len(cl)
+        end = min(i + 1 + w, n)
+        j = None
+        for t in range(i + 1, end):
+            if float(cl[t]) >= bounce:
+                j = t
+                break
+        if j is None:
+            return ("no_entry", None, None)
+        k = None
+        for t in range(j + 1, end):
+            if float(lo[t]) <= band and float(cl[t]) >= pl:
+                k = t
+                break
+        if k is None:
+            return ("no_entry", None, None)
+        entry = float(cl[k])
+        if entry <= stop:
+            return ("no_entry", None, None)
+        tgt = entry * float(RB.TARGET_X)
+        for t in range(k + 1, n):
+            if float(lo[t]) <= stop:
+                return ("loss", entry, stop)
+            if float(hi[t]) >= tgt:
+                return ("win", entry, stop)
+        return ("open", entry, stop)
+    except Exception:                                            # noqa: BLE001
+        return ("no_entry", None, None)
+
+
+def walk_symbol_grid(sym, df, year=None):
+    """مِشيةُ §⑬: نفسُ حلقات `P-VA1` **بالبناء** (نفس القراءة والخطة والحسم
+    والقفزة) + حقولُ البوّابات من القراءة نفسها + حسمُ RECLAIM لكل حلقة —
+    فكلُّ ذراعٍ مرشِّحٌ فرعيٌّ من نفس القائمة (ميزانية مطابقة)."""
+    import press_radar as PR                                     # noqa: PLC0415
+    import rebound_arms as RB                                    # noqa: PLC0415
+    recs = []
+    try:
+        hi = df["High"].values.astype(float)
+        lo = df["Low"].values.astype(float)
+        cl = df["Close"].values.astype(float)
+        yrs = [str(d)[:4] for d in df.index]
+    except Exception:                                            # noqa: BLE001
+        return recs
+    n = len(df)
+    i = RB.MIN_BARS
+    while i < n:
+        if year and yrs[i] != str(year):
+            i += 1
+            continue
+        r = PR.press_read(df.iloc[:i + 1], w=40)
+        if r:
+            pl = float(r["press_low"])
+            tr, st = RB.mirror_plan(pl)
+            oc = RB.resolve_episode(hi, lo, i, tr, st)
+            rc_oc, rc_en, rc_st = resolve_reclaim(hi, lo, cl, i, pl)
+            recs.append({"i": i, "hold": int(r.get("hold_sessions") or 0),
+                         "runup": float(r.get("runup_pct") or 0.0),
+                         "tested": bool(r.get("tested_level")),
+                         "drop": float(r.get("drop_pct") or 0.0),
+                         "oc": oc, "stop": st,
+                         "rc_oc": rc_oc, "rc_entry": rc_en, "rc_stop": rc_st})
+            i += RB.WAIT
+            continue
+        i += 1
+    return recs
+
+
+def grid_report(recs, base_check, year) -> int:
+    """§⑬: جدول الأذرع العشر. `base_check` = (حلقات، محسومة، بلغ) لذراع
+    `P-VA1` من مسار §⑫ في **نفس التشغيلة** — تطابقُ BASE معها **بت-بت** فحصُ
+    تكاملٍ حاكم (اختلافٌ ⇒ خروج 3 ولا يُفسَّر رقم)."""
+    import rebound_arms as RB                                    # noqa: PLC0415
+    rw = r_win_value()
+    _log(f"\n🧠 شبكة §⑬ — سنة {year} (الأذرعُ العشر المسجّلة · حلقات الأساس "
+         f"{len(recs)}):")
+    rc = 0
+    for name, gate in GATES:
+        sub = [e for e in recs if gate(e)]
+        if name.startswith("RECLAIM"):
+            dec = [e for e in sub if e["rc_oc"] in ("win", "loss")]
+            k = sum(1 for e in dec if e["rc_oc"] == "win")
+            rs = []
+            for e in dec:
+                if e["rc_oc"] == "win":
+                    en, stp = float(e["rc_entry"]), float(e["rc_stop"])
+                    rs.append((en * (float(RB.TARGET_X) - 1.0)) / (en - stp))
+                else:
+                    rs.append(-1.0)
+            if rs:
+                m = sum(rs) / len(rs)
+                var = sum((x - m) ** 2 for x in rs) / max(len(rs) - 1, 1)
+                se = (var / len(rs)) ** 0.5
+                ci = f"[{m - 1.96 * se:+.3f},{m + 1.96 * se:+.3f}]"
+            else:
+                m, ci = 0.0, "[—]"
+            ne = sum(1 for e in sub if e["rc_oc"] == "no_entry")
+            _log(f"  {name:<14} حلقات={len(sub):<6} محسومة={len(dec):<5} "
+                 f"بلغ150={k:<4} نسبة={100.0 * k / len(dec) if dec else 0.0:6.2f}% "
+                 f"E={m:+.3f}R {ci} · no_entry={ne}")
+        else:
+            dec = [e for e in sub if e["oc"] in ("win", "loss")]
+            k = sum(1 for e in dec if e["oc"] == "win")
+            w = RB.wilson(k, len(dec)) if dec else (0.0, 0.0)
+            p = k / len(dec) if dec else 0.0
+            _log(f"  {name:<14} حلقات={len(sub):<6} محسومة={len(dec):<5} "
+                 f"بلغ150={k:<4} نسبة={100.0 * p:6.2f}% "
+                 f"Wilson=[{100 * w[0]:.2f},{100 * w[1]:.2f}] "
+                 f"E={p * (rw + 1.0) - 1.0:+.3f}R "
+                 f"[{w[0] * (rw + 1.0) - 1.0:+.3f},{w[1] * (rw + 1.0) - 1.0:+.3f}]")
+        if name == "BASE":
+            got = (len(sub), len(dec), k)
+            if got != tuple(base_check):
+                _log(f"⛔ فحص تكامل BASE سقط: {got} مقابل P-VA1 {base_check} "
+                     f"⇒ خروج 3 ولا يُفسَّر رقمٌ من الشبكة.")
+                rc = 3
+            else:
+                _log(f"    ✅ فحص تكامل: BASE ≡ P-VA1 بت-بت {got}")
+    return rc
 
 
 def r_win_value():
@@ -133,7 +287,19 @@ def main() -> int:
         episodes.extend(walk_symbol_press(sym, df, year=yr))
         if n_syms % 500 == 0:
             _log(f"  … مشى {n_syms} رمزًا · حلقات حتى الآن {len(episodes)}")
-    return report(episodes, n_syms, year)
+    rc = report(episodes, n_syms, year)
+    # 🧠 §⑬: شبكة الأذرع العشر — BASE يُطابَق بـP-VA1 من نفس التشغيلة (تكامل)
+    va1 = [e for e in episodes if e[0] == "P-VA1"]
+    va1_dec = [e for e in va1 if e[2] in ("win", "loss")]
+    base_check = (len(va1), len(va1_dec),
+                  sum(1 for e in va1_dec if e[2] == "win"))
+    grecs = []
+    for sym, df in hist.items():
+        if df is None or len(df) < RB.MIN_BARS + 5:
+            continue
+        grecs.extend(walk_symbol_grid(sym, df, year=yr))
+    rc2 = grid_report(grecs, base_check, year)
+    return rc or rc2
 
 
 if __name__ == "__main__":

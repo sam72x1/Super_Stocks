@@ -17699,6 +17699,50 @@ check("🗜️📐 PB3 `r_win_value`≈5.15 · press_backtest.yml موصول env
       and "BT_FROZEN_PATH" in _pb_y and "frozen-dataset" in _pb_y
       and "press_backtest" not in _ss_src)
 
+# ═══════ 🗜️🧠 أقفال T-PRESS-BT-2 (§⑬ · PBG1-PBG3) ═══════
+# PBG1 — تكامل: مِشية الشبكة تعيد حلقة P-VA1 نفسها (نفس الحسم ونفس وقف
+# قاع الضغط 3.1062) + حقول البوابات من القراءة (عمق 69.2 · ركضة موجودة)
+_pbg_recs = _PB.walk_symbol_grid("PBT", _pb_f, year="2026")
+_pbg_va1 = [e for e in _pb_eps if e[0] == "P-VA1"]
+check("🗜️🧠 PBG1 الشبكة ≡ P-VA1 (حسمٌ ووقفٌ بت-بت) + حقول البوابات حاضرة",
+      len(_pbg_recs) == 1 and len(_pbg_va1) == 1
+      and _pbg_recs[0]["oc"] == _pbg_va1[0][2]
+      and _pbg_recs[0]["stop"] == 3.1062 == _pbg_va1[0][3]
+      and _pbg_recs[0]["drop"] == 69.2 and _pbg_recs[0]["runup"] > 300
+      and _pbg_recs[0]["hold"] == 0 and _pbg_recs[0]["tested"] is False)
+
+# PBG2 — «اول صعود اذا رجع وثبت تدخل» بأربع حالات مفرِّقة: ربح (الدخول
+# بإغلاق يوم الرجوع 3.05 لا بالقاع) · بلا صعود ⇒ no_entry · رجوعٌ كسر
+# القاع إغلاقًا ⇒ no_entry · والوقف أولًا ⇒ خسارة
+_pbg_win = _PB.resolve_reclaim([3.2, 3.6, 3.3, 4.7], [3.0, 3.3, 3.1, 4.0],
+                               [3.0, 3.5, 3.05, 4.6], 0, 3.0)
+_pbg_nob = _PB.resolve_reclaim([3.2, 3.3, 3.3, 3.3], [3.0, 3.0, 3.0, 3.0],
+                               [3.0, 3.1, 3.2, 3.2], 0, 3.0)
+_pbg_brk = _PB.resolve_reclaim([3.2, 3.6, 3.3, 4.7], [3.0, 3.3, 3.1, 4.0],
+                               [3.0, 3.5, 2.9, 4.6], 0, 3.0)
+_pbg_los = _PB.resolve_reclaim([3.2, 3.6, 3.3, 5.0], [3.0, 3.3, 3.1, 2.7],
+                               [3.0, 3.5, 3.05, 2.8], 0, 3.0)
+check("🗜️🧠 PBG2 `resolve_reclaim`: ربحٌ بدخول 3.05 ووقف 2.79 · لا صعود ⇒ "
+      "no_entry · كسرُ القاع إغلاقًا ⇒ no_entry · الوقف أولًا ⇒ خسارة",
+      _pbg_win == ("win", 3.05, 2.79)
+      and _pbg_nob[0] == "no_entry" and _pbg_brk[0] == "no_entry"
+      and _pbg_los[0] == "loss" and _pbg_los[1] == 3.05)
+
+# PBG3 — الأذرع العشر بأسمائها المسجلة حرفيًّا · وبواباتها تفرّق فعلًا
+_pbg_names = [n for n, _ in _PB.GATES]
+_pbg_g = dict(_PB.GATES)
+_pbg_e1 = {"hold": 5, "runup": 0.0, "tested": False, "drop": 30.0}
+_pbg_e2 = {"hold": 0, "runup": 60.0, "tested": True, "drop": 49.9}
+check("🗜️🧠 PBG3 الأذرع العشر كما سُجّلت · HOLD3 بالحفظ لا الركضة · RUN50 "
+      "بالركضة · DEEP50 عند الحد بالضبط",
+      _pbg_names == ["BASE", "HOLD3", "RUN50", "TESTED", "DEEP50",
+                     "HOLD3+RUN50", "HOLD3+TESTED", "RECLAIM",
+                     "RECLAIM+HOLD3", "RECLAIM+RUN50"]
+      and _pbg_g["HOLD3"](_pbg_e1) and not _pbg_g["HOLD3"](_pbg_e2)
+      and not _pbg_g["RUN50"](_pbg_e1) and _pbg_g["RUN50"](_pbg_e2)
+      and not _pbg_g["DEEP50"](_pbg_e2)
+      and _pbg_g["DEEP50"](dict(_pbg_e2, drop=50.0)))
+
 # PRD7 — الـworkflow موصول (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
 _prd_y = open(".github/workflows/press_radar.yml", encoding="utf-8").read()
 check("🗜️📡 PRD7 press_radar.yml: كرونا 25 مُزاحان (2-6) · FORCE موصول بالدسباتش · "
