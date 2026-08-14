@@ -17453,6 +17453,67 @@ _rb_df2["Close"] = _rb_cl2
 check("🧱🔁 RB3 `hold_overlay`: ممسوكٌ عند قاعٍ مزدوج 3.0 ⇒ 3.0 · غادره ⇒ None",
       _RB.hold_overlay(_rb_df) == 3.0 and _RB.hold_overlay(_rb_df2) is None)
 
+# ═══ 🧱🔁② أقفال «رقّهم» (أمر المالك 2026-08-14 «‏1» بعد نجاح T-REBOUND-2) ═══
+# RHP1 — سلوكي بزوج مفرِّق: قاعدةٌ واسعة هبوطًا **ممسوكة عند قاعٍ مزدوج** تُقبل
+# مرشّحَ ارتداد W بسببها المسمّى · ونفسُها بإغلاقٍ غادر المستوى تُرفض بالحرف
+# القديم · والمسار العادي (بلا pullback) يرفض M4_base_واسعة كما كان بت-بت.
+_rhp_df = synth_pivot(seed=2).copy()
+_rhp_cl = _rhp_df["Close"].values.copy()
+_rhp_lo = _rhp_df["Low"].values.copy()
+_rhp_hi = _rhp_df["High"].values.copy()
+_rhp_cl[-15:] = [5.8, 5.0, 4.4, 3.9, 3.5, 3.25, 3.05, 3.0, 3.1, 3.15,
+                 3.1, 3.05, 3.0, 3.02, 3.05]
+_rhp_lo[-15:] = [5.5, 4.8, 4.2, 3.7, 3.35, 3.1, 2.98, 2.95, 3.02, 3.05,
+                 3.0, 2.98, 2.952, 2.98, 2.97]
+_rhp_hi[-15:] = [6.2, 5.6, 4.9, 4.3, 3.8, 3.5, 3.3, 3.2, 3.25, 3.3,
+                 3.25, 3.2, 3.15, 3.12, 3.12]
+_rhp_df["Close"] = _rhp_cl
+_rhp_df["Low"] = _rhp_lo
+_rhp_df["High"] = _rhp_hi
+_rhp_df["Open"] = _rhp_cl * 1.01
+S._REJECT_REASONS.pop("RHPN", None)
+_rhp_norm = S.analyze_ticker("RHPN", _rhp_df)
+_rhp_norm_why = S._REJECT_REASONS.get("RHPN")
+_rhp_pb = S.analyze_ticker("RHPP", _rhp_df, pullback=True)
+_rhp_df2 = _rhp_df.copy()
+_rhp_cl2 = _rhp_df2["Close"].values.copy()
+_rhp_cl2[-1] = 3.5                       # فوق سقف 13% من 2.95 = غادر المستوى
+_rhp_df2["Close"] = _rhp_cl2
+_rhp_hi2 = _rhp_df2["High"].values.copy()
+_rhp_hi2[-1] = 3.55
+_rhp_df2["High"] = _rhp_hi2
+S._REJECT_REASONS.pop("RHPL", None)
+_rhp_left = S.analyze_ticker("RHPL", _rhp_df2, pullback=True)
+check("🧱🔁② RHP1 «رقّهم»: الممسوكُ عند مستوى مُختبَر يُقبل W بسببه المسمّى · "
+      "المُغادرُ يُرفض M4_base_واسعة_هبوطًا · والمسارُ العادي يرفض كما كان",
+      _rhp_norm is None and _rhp_norm_why == "M4_base_واسعة"
+      and _rhp_pb is not None and _rhp_pb["tier"] == "W"
+      and any("ممسوك عند مستوى مُختبَر" in w for w in _rhp_pb["watch_reasons"])
+      and _rhp_left is None
+      and S._REJECT_REASONS.get("RHPL") == "M4_base_واسعة_هبوطًا")
+S._REJECT_REASONS.pop("RHPN", None)
+S._REJECT_REASONS.pop("RHPL", None)
+
+# RHP2 — `held_at_tested_level` النقيّة بثلاث حالات (ممسوك · غادر · لا مستوى)
+check("🧱🔁② RHP2 `held_at_tested_level`: ممسوك ⇒ 3.0 · غادر ⇒ None · "
+      "بلا قاعٍ مزدوج ⇒ None",
+      S.held_at_tested_level(_rb_df) == 3.0
+      and S.held_at_tested_level(_rb_df2) is None
+      and S.held_at_tested_level(
+          pd.DataFrame({"Low": np.full(60, 3.0), "High": np.full(60, 4.0),
+                        "Close": np.full(60, 3.5), "Open": np.full(60, 3.5)},
+                       index=pd.date_range("2026-05-01", periods=60, freq="B"))
+      ) is None)
+
+# RHP3 — مصدرٌ واحد: `hold_overlay` تفويضٌ بالاسم لدالّة الإنتاج (AST لا نصّ)
+_rhp_ho_ast = _ast0.parse(_insp0.getsource(_RB.hold_overlay))
+_rhp_delegates = any(
+    isinstance(nn, _ast0.Attribute) and nn.attr == "held_at_tested_level"
+    for nn in _ast0.walk(_rhp_ho_ast))
+check("🧱🔁② RHP3 `hold_overlay` ⟵ `S.held_at_tested_level` بالاسم (AST) "
+      "ونتيجتُهما واحدة على العيّنة",
+      _rhp_delegates and _RB.hold_overlay(_rb_df) == S.held_at_tested_level(_rb_df))
+
 # RB4 — RHV3: الإضافيّ حصرًا من السبب الهدف (مرفوضُ جدارٍ آخر لا يدخل)
 S._REJECT_REASONS["RBAA"] = "M4_base_واسعة_هبوطًا"
 S._REJECT_REASONS["RBBB"] = "M1_سعر"

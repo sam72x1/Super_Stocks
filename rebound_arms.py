@@ -55,20 +55,17 @@ def _log(m):
 def hold_overlay(df):
     """نقيّة: شرطا الطبقة (§② من التسجيل) — مستوى مُختبَر موجود، وآخرُ إغلاقٍ
     عنده أو فوقه داخل `SPLIT_SWEEP_MAX_PCT`(=13)% (نطاق المسح الموثّق).
-    ترجع المستوى أو None."""
+    ترجع المستوى أو None.
+
+    🧱🔁② بعد اعتماد «رقّهم» (2026-08-14) صار الشرطُ نفسُه إنتاجيًّا باسم
+    `Super_stock.held_at_tested_level` — **فصار هذا تفويضًا بالاسم** (مصدرٌ
+    واحدٌ لا نسختان تتفرّقان). ⚠️ وإعادةُ تشغيل الأداة على كودِ ما بعد
+    الترقية تقيس عالمًا آخر (الإنتاجُ يقبل الفئةَ فلا يبقى رفضُ
+    `M4_base_واسعة_هبوطًا` للممسوك ⇒ `G1` يقارب الصفر بنيويًّا) — أرقامُ
+    §⑧/⑩ مقيسةٌ على كودِ ما قبلها ومقفولةٌ كما نُشرت."""
     import Super_stock as S                                      # noqa: PLC0415
     try:
-        t = S.tested_level(df)
-        if not t:
-            return None
-        level = float(t["level"])
-        close = float(df["Close"].values[-1])
-        if level <= 0 or close < level:
-            return None                        # كُسر — ليس «ممسوكًا»
-        cap = level * (1.0 + float(S.CONFIG.get("SPLIT_SWEEP_MAX_PCT", 13.0)) / 100.0)
-        if close > cap:
-            return None                        # غادر المستوى
-        return level
+        return S.held_at_tested_level(df)
     except Exception:                                            # noqa: BLE001
         return None
 

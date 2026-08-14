@@ -939,7 +939,7 @@ def _anchor_mode(bt, prod) -> str:
     return bt or str(prod or "")
 
 
-LOGIC_VERSION = "2026.08.13-listsplit+rrtruth+cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+anchorb2+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.14-reboundhold2+listsplit+rrtruth+cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+anchorb2+tranches+4h+keylevels+avgRR"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -2897,6 +2897,34 @@ def base_rose(price, base_hi, base_lo) -> bool:
     return p >= (hi + lo) / 2.0
 
 
+def held_at_tested_level(df):
+    """🧱🔁② «رقّهم» (أمرُ المالك 2026-08-14 «‏1» بعد نجاح `T-REBOUND-2` بمعاييرها
+    الخمسة وسنةِ 2023 المحجوزة — `rebound_hold_prereg.md §⑨/⑩`): شرطُ «الممسوك
+    عند مستوى مُختبَر» **كما قِيس حرفيًّا** — مستوًى مُختبَرٌ قائمٌ (قاعٌ مزدوج
+    `tested_level`)، وآخرُ إغلاقٍ **عنده أو فوقه** داخل نطاق المسح الموثّق
+    `SPLIT_SWEEP_MAX_PCT`(=13)%. ترجع المستوى أو None.
+
+    المقيس: تسليمُ ‏+50% لكل حلقةٍ لهذي الفئة **‏13.20% مقابل 8.97%** لمقبولي
+    الإنتاج مجمَّعًا على أربع سنوات (فاصل الفرق ‏[+1.01,+7.43] لا يلمس الصفر)،
+    و`no_fill` ‏≈0.5% مقابل ‏≈60% — لأن الخطة عند المستوى تتعبّأ («‏3.60
+    بالملي») بينما المنطقة العميقة لا تُبلَغ. نقيّةٌ فاشلة-آمنة: تعذّرٌ ⇒ None
+    = بقاءُ الرفض القديم بحرفه."""
+    try:
+        t = tested_level(df)
+        if not t:
+            return None
+        level = float(t["level"])
+        close_v = float(df["Close"].values[-1])
+        if level <= 0 or close_v < level:
+            return None                        # كُسر — ليس «ممسوكًا»
+        cap = level * (1.0 + float(CONFIG.get("SPLIT_SWEEP_MAX_PCT", 13.0)) / 100.0)
+        if close_v > cap:
+            return None                        # غادر المستوى
+        return level
+    except Exception:
+        return None
+
+
 def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
     """يرجع dict بالنتيجة إذا اجتاز الشروط الإلزامية، وإلا None.
     pullback=True: وضع «مراقبة الارتداد» — سهم ارتكاز حقيقي (بنية مكتملة)
@@ -2989,9 +3017,19 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             # 🚪 «اقفل الباب» (أمرُ المالك 2026-08-11): الاتّساعُ وحده لا يعني ارتفاعًا —
             # فالهابطُ ‏−99% قاعدتُه واسعةٌ أيضًا. الشرطُ موقعيٌّ بلا رقمٍ مخترَع.
             if not base_rose(price, base_hi, base_lo):
-                return _reject("M4_base_واسعة_هبوطًا")
-            risen = True       # القاعدة اتسعت لأنه ارتفع = مرشّح ارتداد
-            watch_reasons.append("ارتفع عن قاعدته")
+                # 🧱🔁② «رقّهم» (أمرُ المالك 2026-08-14 «‏1»): الممسوكُ عند مستوى
+                # مُختبَر يُقبل مرشّحَ ارتداد ويكمل بقيّةَ البوّابات — `T-REBOUND-2`
+                # نجحت 5/5 وسنةُ 2023 المحجوزة كرّرت الاتجاه (التسليم لكل حلقة
+                # ‏13.20% مقابل 8.97%). غيابُ المستوى/مغادرتُه/تعذّرُ القياس ⇒
+                # الرفضُ القديم بحرفه (فاشل-آمن مُغلَق على القبول).
+                _held_lv = held_at_tested_level(df)
+                if _held_lv is None:
+                    return _reject("M4_base_واسعة_هبوطًا")
+                risen = True
+                watch_reasons.append(f"ممسوك عند مستوى مُختبَر ${_held_lv:g}")
+            else:
+                risen = True   # القاعدة اتسعت لأنه ارتفع = مرشّح ارتداد
+                watch_reasons.append("ارتفع عن قاعدته")
         gain5 = None   # 📐 يُصدَّر للظرف (قياس D11 من الكاتالوج — أمر المالك 2026-08-07)
         if len(c) > 6:
             gain5 = (c[-1] / c[-6] - 1.0) * 100.0
