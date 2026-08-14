@@ -17659,6 +17659,46 @@ check("🧪 CT4 عدّادات §⑪-ج في الرادار: V0=0 · VA1=1 · VA
       and "VA3=1" in _ct4_log and "مطابق 0" in _ct4_log
       and not _os_hc.path.exists(_os_hc.path.join(_ct4_dir, "led.jsonl")))
 
+# ═══════ 🗜️📐 أقفال T-PRESS-BT (press_prereg.md §⑫ · PB1-PB3) ═══════
+import press_backtest as _PB
+
+# PB1 — سلوكي بعيّنتين مفرِّقتين: نمطُ WETO (يطلقه الذراعان بخطةٍ مرساتُها
+# قاعُ الضغط 3.34 ⇒ وقف 3.1062) · وقمةٌ أقدم من 20ج (P-VA1 وحدها) · وقيدُ
+# السنة يُصفّر سنةً غريبة
+_pb_lo = [2.6] * 50 + [3.0, 8.0, 9.5, 7.0, 6.0, 5.2, 4.6, 4.1, 3.8, 3.5, 3.34]
+_pb_hi = [2.8] * 50 + [6.0, 11.72, 10.5, 8.0, 6.8, 5.9, 5.1, 4.6, 4.2, 3.9, 3.7]
+_pb_cl = [2.7] * 50 + [5.5, 10.0, 8.2, 7.2, 6.2, 5.5, 4.8, 4.3, 3.9, 3.6, 3.61]
+_pb_f = _prd_frame(_pb_lo, _pb_hi, _pb_cl)
+_pb_old_f = _prd_frame([2.6] * 25 + _ct2_lo41, [2.8] * 25 + _ct2_hi41,
+                       [2.7] * 25 + _ct2_cl41)
+_pb_eps = _PB.walk_symbol_press("PBT", _pb_f, year="2026")
+_pb_none = _PB.walk_symbol_press("PBT", _pb_f, year="1999")
+_pb_old_eps = _PB.walk_symbol_press("PBO", _pb_old_f, year="2026")
+check("🗜️📐 PB1 `walk_symbol_press`: الذراعان يطلقان على WETO بوقفٍ من قاع "
+      "الضغط (3.1062) · القمةُ القديمة لذراع w=40 وحدها · وسنةٌ غريبة ⇒ صفر",
+      sorted(e[0] for e in _pb_eps) == ["P-V0", "P-VA1"]
+      and all(e[3] == 3.1062 for e in _pb_eps)
+      and _pb_none == []
+      and [e[0] for e in _pb_old_eps] == ["P-VA1"])
+
+# PB2 — الوصل بالاسم (AST): القراءة والخطة والحسم من دوالّها المقيسة حصرًا
+_pb_ast = _ast0.parse(_insp0.getsource(_PB.walk_symbol_press))
+_pb_attrs = {nn.attr for nn in _ast0.walk(_pb_ast)
+             if isinstance(nn, _ast0.Attribute)}
+check("🗜️📐 PB2 المِشية تنادي `press_read`+`mirror_plan`+`resolve_episode` "
+      "بالاسم (AST لا نصّ)",
+      {"press_read", "mirror_plan", "resolve_episode"} <= _pb_attrs)
+
+# PB3 — `r_win_value` بأرقام خطة الإنتاج ≈5.15R · والـworkflow موصول (P1) ·
+# والعزل قائم (الفرز لا يعرف الأداة)
+_pb_y = open(".github/workflows/press_backtest.yml", encoding="utf-8").read()
+check("🗜️📐 PB3 `r_win_value`≈5.15 · press_backtest.yml موصول env · "
+      "و`Super_stock` لا يذكر الأداة",
+      abs(_PB.r_win_value() - 5.15) < 0.01
+      and "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _pb_y
+      and "BT_FROZEN_PATH" in _pb_y and "frozen-dataset" in _pb_y
+      and "press_backtest" not in _ss_src)
+
 # PRD7 — الـworkflow موصول (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
 _prd_y = open(".github/workflows/press_radar.yml", encoding="utf-8").read()
 check("🗜️📡 PRD7 press_radar.yml: كرونا 25 مُزاحان (2-6) · FORCE موصول بالدسباتش · "
