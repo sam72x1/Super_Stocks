@@ -2631,7 +2631,7 @@
    "rr": 4.788701299895654,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.4
+   "max_gain_pct": 4.9
   },
   {
    "symbol": "HCWB",
@@ -2964,7 +2964,7 @@
    "rr": 3.3674953193350583,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 9.1
+   "max_gain_pct": 9.4
   },
   {
    "symbol": "TVRD",
@@ -3329,7 +3329,7 @@
    "rr": 1.9847321525599542,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 1.9
+   "max_gain_pct": 1.4
   },
   {
    "symbol": "CVKD",
@@ -3832,7 +3832,7 @@
    "rr": 1.6817640047675764,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.8
+   "max_gain_pct": 6.0
   },
   {
    "symbol": "TWG",
@@ -3901,7 +3901,7 @@
    "rr": 1.3955022011987053,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 4.1
+   "max_gain_pct": 4.5
   },
   {
    "symbol": "SKYA",
@@ -4075,7 +4075,7 @@
    "rr": 1.769041383539786,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 5.3
   },
   {
    "symbol": "PLCE",
@@ -4109,7 +4109,7 @@
    "rr": 1.4763349875142415,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 7.0
   },
   {
    "symbol": "SDOT",
@@ -4147,7 +4147,7 @@
    "rr": 1.0346522593626961,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 9.0
   },
   {
    "symbol": "KG",
@@ -4180,7 +4180,7 @@
    "rr": 1.0751280103539016,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 12.0
   },
   {
    "symbol": "OLOX",
@@ -4213,7 +4213,7 @@
    "rr": 0.9488311043965355,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 4.4
   },
   {
    "symbol": "APVO",
@@ -4246,7 +4246,7 @@
    "rr": 2.0597323423164253,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 4.0
   },
   {
    "symbol": "CALC",
@@ -4278,7 +4278,7 @@
    "rr": 1.862688819478379,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 5.0
   },
   {
    "symbol": "CODX",
@@ -4318,7 +4318,7 @@
    "rr": 0.6152584236858408,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 5.7
   }
  ]
 }
