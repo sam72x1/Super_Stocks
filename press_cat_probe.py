@@ -106,13 +106,17 @@ def main() -> int:
             r, why = probe_day(bars, idx_map[si])
             day_res.append((str(si.date()), bool(r), why,
                             (r or {}).get("drop_pct"), (r or {}).get("press_low"),
-                            (r or {}).get("tested_level")))
+                            (r or {}).get("tested_level"),
+                            (r or {}).get("runup_pct")))
         fired = any(x[1] for x in day_res)
+        runups = [x[6] for x in day_res if x[1] and x[6] is not None]
         rows.append({"symbol": sym, "group": ev["group"], "anchor": anchor,
-                     "fired": fired, "days": day_res})
+                     "fired": fired, "days": day_res,
+                     "runup": max(runups) if runups else None})
         mark = "🔥" if fired else "—"
         det = " · ".join(f"{d}:{'✅' if f else w}" for d, f, w, *_ in day_res)
-        _log(f"  {mark} {sym} ({ev['group']}) مِرساة {anchor} ⇒ {det}")
+        ru = f" · ركضة {max(runups):.0f}%" if runups else ""
+        _log(f"  {mark} {sym} ({ev['group']}) مِرساة {anchor} ⇒ {det}{ru}")
     if not rows:
         _log("⛔ صفرُ أزواجٍ مقيسة (بصمة الـno-op) — خروج 4.")
         return 4
@@ -124,6 +128,15 @@ def main() -> int:
         k = sum(1 for r in sub if r["fired"])
         _log(f"  المجموعة ({g}): أطلق الرادار قبل الانفجار (‏−2 أو −1) في "
              f"{k} من {len(sub)} = {100.0 * k / len(sub):.1f}%")
+    # 🗜️ توزيع «ركضة ما قبل الضغط» بين المُطلَقين — لقياس فلتر المالك المقترح
+    # (‏«فلاتر مو كل متحرك») قبل فرضه: كم من الالتقاط يبقى عند كل عتبة قائمة؟
+    fired_rows = [r for r in rows if r["fired"] and r.get("runup") is not None]
+    for thr, name in ((50.0, "EXPLOSION_PCT=50"), (70.0, "EXPLOSION_RUN_PCT=70")):
+        for g in ("أ", "ب"):
+            sub = [r for r in fired_rows if r["group"] == g]
+            if sub:
+                keep = sum(1 for r in sub if r["runup"] >= thr)
+                _log(f"  فلتر الركضة ‏≥{name}: المجموعة ({g}) يبقى {keep} من {len(sub)} مُطلَقًا")
     # تفكيكُ أسباب عدم الإطلاق (على مستوى الأيام) — لا صفرَ غامضًا
     from collections import Counter                              # noqa: PLC0415
     why = Counter(w for r in rows for _, f, w, *_ in r["days"] if not f)

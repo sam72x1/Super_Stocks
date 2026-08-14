@@ -195,9 +195,27 @@ def press_read(df, w=W):
                 "press_low": round(press_low, 4),
                 "drop_pct": round(drop, 1),
                 "hold_sessions": int(i - j_low),
+                "runup_pct": round(runup_pct(hi, lo, j_star), 1),
                 "tested_level": tl}
     except Exception:                                            # noqa: BLE001
         return None
+
+
+def runup_pct(hi, lo, j_star, w=W):
+    """نقيّة: **ركضةُ ما قبل الضغط** — قمةُ النافذة منسوبةً لأدنى قاعٍ في الـ`w`
+    جلسة قبلها. من نموذج فيصل حرفيًّا («اي سهم **قبل يصعد** يضغطه المضارب»):
+    الفئةُ المقصودة ركضت ثم ضُغطت (‏WETO: ‏2.6 ⟵ 11.72 = ‏+350%)، والميّتُ
+    المنهار ينزل بلا ركضةٍ أصلًا (قمتُه بقايا هبوطٍ لا صعود). تعذّرٌ ⇒ 0."""
+    try:
+        j0 = max(0, int(j_star) - int(w))
+        if int(j_star) <= j0:
+            return 0.0
+        base = float(min(lo[j0:int(j_star)]))
+        if base <= 0:
+            return 0.0
+        return (float(hi[int(j_star)]) / base - 1.0) * 100.0
+    except Exception:                                            # noqa: BLE001
+        return 0.0
 
 
 def alert_rank(r: dict):
