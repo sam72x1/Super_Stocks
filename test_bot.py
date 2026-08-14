@@ -17060,11 +17060,90 @@ _p15u = [s for s in _p15["jobs"]["probe"]["steps"]
 check("🔬 PX15 مسارُ رفع الصفوف يتبع مدخلَ `csv` (لا اسمَ مغروسًا)",
       "inputs.csv" in str(_p15u["with"]["path"]))
 
+# ═══════════ 🗜️ أقفال T-PRESS (press_prereg.md · PS1-PS8) ═══════════
+import press_scan as _pr
+import pandas as _pr_pd
+import numpy as _pr_np
+
+# PS3/PS7 — التصنيفُ **مفرِّق** وبحدود التخوم بالضبط (درسُ ET1ب: طفرةُ `>=`
+#           لا تسقط إلّا بعيّنةٍ عند الحدّ حرفيًّا)
+check("🗜️ PS3 التصنيف: لمسٌ بالضبط=حُفظ · إغلاقٌ عند القاع بالضبط=حُفظ · "
+      "كسرٌ=broken · مسحٌ=حُفظ+swept · بلا ضغط=None",
+      _pr.classify(1.00, 1.02, 1.00) == ("held", False)
+      and _pr.classify(0.90, 1.00, 1.00) == ("held", True)
+      and _pr.classify(0.90, 0.95, 1.00) == ("broken", False)
+      and _pr.classify(1.05, 1.06, 1.00) == (None, False),
+      "المساواةُ في الطرفين (low==prior_min · close==prior_min) عيّنتا تخوم")
+
+
+def _pr_frame(**mut):
+    """قيعانٌ **صاعدة** ⇒ لا يومَ ضغطٍ إلّا المصنوع (‏i=60) — عزلٌ تامّ.
+
+    🐞 نسختُها الأولى كانت قيعانًا مسطّحة فكلُّ يومٍ «مضغوطٌ بالمساواة» ⇒
+    اختلط عدُّ G1 وسقط القفلان كذبًا — «القفلُ لا يحرس إلّا بقدر ما تُفرِّق
+    عيّنتُه»."""
+    idx = _pr_pd.date_range("2024-01-02", periods=120, freq="B")
+    lo = 1.0 + _pr_np.arange(120) * 0.01
+    hi = lo + 0.2
+    cl = lo + 0.1
+    vol = _pr_np.full(120, 1000.0)
+    lo[60] = 1.30          # كسرُ أدنى النافذة (‏prior_min=lo[40]=1.40)
+    cl[60] = 1.45          # وإغلاقٌ فوقه ⇒ ضغطٌ ممسوك (مسحٌ واستُعيد)
+    for k, (j, v) in mut.items():
+        {"lo": lo, "hi": hi, "cl": cl, "vol": vol}[k.split("_")[0]][j] = v
+    return _pr_pd.DataFrame({"Low": lo, "High": hi, "Close": cl,
+                             "Volume": vol}, index=idx)
+
+
+# PS2 — 🔒 **صفرُ نظرٍ مستقبليّ (PV1) سلوكيًّا**: تبديلُ المستقبل لا يغيّر
+#        تصنيفَ اليوم — ويغيّر النتيجةَ وحدها. (‏G1 = يومٌ واحدٌ معزول)
+_prA, _prB = _pr.Acc(), _pr.Acc()
+_pr.walk_symbol(_pr_frame(), 2024, _prA)                       # بلا انفجار
+_pr.walk_symbol(_pr_frame(hi_x=(63, 2.50)), 2024, _prB)        # انفجارٌ لاحق فقط
+check("🗜️ PS2 تبديلُ المستقبل: التصنيفُ ثابتٌ (‏G1=1) والنتيجةُ وحدَها تتغيّر",
+      _prA.n == _prB.n and _prA.n.get("G1") == 1
+      and _prA.k50.get("G1", 0) == 0 and _prB.k50.get("G1", 0) == 1
+      and _prA.n.get("G3") == 1,     # المسحُ مُصنَّفٌ فرعيًّا أيضًا
+      "قيعانٌ صاعدةٌ تعزل يومَ الضغط فلا يختلط العدّ")
+
+# PS7 — انفجارُ **يوم الضغط نفسِه** لا يُحسب (النافذةُ i+1..i+FWD حصرًا)
+_prC = _pr.Acc()
+_pr.walk_symbol(_pr_frame(hi_y=(60, 9.00)), 2024, _prC)
+check("🗜️ PS7 قفزةُ يوم i نفسِه لا تُحسب انفجارًا (صفرُ تسريب)",
+      _prC.n.get("G1") == 1 and _prC.k50.get("G1", 0) == 0)
+
+# PS4 — PV2: صفرُ G1 ⇒ خروج 3 (لا تشغيلةَ خضراءَ بلا قياس — وقعت في المِجَسّ)
+_prE = _pr.Acc()
+_prE.n = {"G0": 100}; _prE.k50 = {"G0": 5}; _prE.k100 = {}
+check("🗜️ PS4 صفرُ أيام G1 ⇒ `report` يرجع 3", _pr.report(_prE, 2024) == 3)
+
+# PS8 — PV3 سلوكيًّا: الكبارُ ينفجرون كالصغار ⇒ عطبُ أداةٍ ⇒ 3
+_prF = _pr.Acc()
+_prF.n = {"G0": 200, "G1": 10, "G2": 5}
+_prF.k50 = {"G0": 20, "G1": 2, "G2": 0}; _prF.k100 = {}
+_prF.bucket = {("G0", "≤$2"): [100, 2], ("G0", ">$10"): [100, 10]}
+check("🗜️ PS8 شاهدُ الضبط الساقط (‏>$10 ≥ ≤$2) ⇒ `report` يرجع 3",
+      _pr.report(_prF, 2024) == 3)
+
+# PS6 — H-VOL أثلاثٌ لا عتبةٌ مخترعة (قاعدة faisal-gates)
+_pr_src = open("press_scan.py", encoding="utf-8").read()
+check("🗜️ PS6 الحجمُ بأثلاثٍ (`len(terc) // 3`) وبلا ثابتِ عتبةِ حجمٍ من عندنا",
+      "len(terc) // 3" in _pr_src and "VOL_X_MIN" not in _pr_src
+      and "VOL_MULT" not in _pr_src)
+
+# PS5 — press.yml: كلُّ مدخلٍ موصولٌ بـenv (قاعدة P1)
+_ps5 = _yaml0.safe_load(open(".github/workflows/press.yml", encoding="utf-8"))
+_ps5in = _ps5[True]["workflow_dispatch"]["inputs"]
+_ps5st = str(_ps5["jobs"]["press"]["steps"])
+check("🗜️ PS5 press.yml: كلُّ مدخلٍ موصول (لا مدخلَ ميّتًا — بصمةُ BT_CANDLE)",
+      not [i for i in _ps5in if f"inputs.{i}" not in _ps5st])
+
 # PX9/O12 — 🔒 **قفلُ العزل الحاسم:** الإنتاجُ لا يستورد الأداتين إطلاقًا
 _ss_src = open("Super_stock.py", encoding="utf-8").read()
-check("🔬 PX9/O12 عزلٌ تامّ: `Super_stock` لا يستورد المِجَسَّ ولا أداةَ الـ23",
-      "preexp_probe" not in _ss_src and "op23_scan" not in _ss_src,
-      "أداتا بحثٍ خارج مسار الفرز")
+check("🔬 PX9/O12/PS1 عزلٌ تامّ: `Super_stock` لا يستورد أدوات البحث الثلاث",
+      "preexp_probe" not in _ss_src and "op23_scan" not in _ss_src
+      and "press_scan" not in _ss_src,
+      "أدواتُ بحثٍ خارج مسار الفرز")
 
 # O2 — حارسُ التقسيم الوهميّ **فعّالٌ وفاشلٌ-آمنٌ مُغلَق**
 check("🕵️ O2 حارسُ التقسيم: عكسيٌّ قريبٌ ⇒ يُستبعَد · أماميٌّ/بعيدٌ ⇒ يمرّ · "
