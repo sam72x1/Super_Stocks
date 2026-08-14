@@ -20,9 +20,74 @@ import sys
 
 OFFSETS = (-2, -1)
 
+# 🧪 §⑪-ج: التركيباتُ الأربع المحسوبة من الشموع — مثبّتة من التسجيل، لا تُعدَّل
+# بعد رؤية الأرقام. البقية (VB/VC/VD) تُركَّب من هذي القراءات + قرائن الحياة.
+VARIANTS = (("V0", {}),
+            ("VA1", {"w": 40}),
+            ("VA2", {"band_pct": 20.0}),
+            ("VA3", {"w": 40, "band_pct": 20.0}))
+COMBO_ORDER = ("V0", "VA1", "VA2", "VA3",
+               "VB-owner", "VB-union", "VC-safety", "VD-full")
+
 
 def _log(m):
     print(m, flush=True)
+
+
+def dollar_vol_ok(sl):
+    """نقيّة (‏VC-safety): وسيطُ السيولة الدولارية لآخر 20 جلسة مقابل
+    `MIN_DOLLAR_VOL` **النافذ** (ظرف فيصل عند `FAISAL_ONLY=1`). ترجع
+    True/False أو None عند تعذّر القراءة (يُعَدّ ولا يُخمَّن)."""
+    import Super_stock as S                                      # noqa: PLC0415
+    try:
+        import statistics                                        # noqa: PLC0415
+        cl = sl["Close"].values.astype(float)[-20:]
+        vo = sl["Volume"].values.astype(float)[-20:]
+        if len(cl) < 5 or len(cl) != len(vo):
+            return None
+        med = statistics.median(float(c) * float(v) for c, v in zip(cl, vo))
+        return med >= float(S.CONFIG.get("MIN_DOLLAR_VOL", 200000))
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def variant_day(bars, upto_idx):
+    """نقيّة: قراءاتُ اليوم الواحد للتركيبات الأربع المحسوبة + بوّابة السلامة.
+    تنادي `press_radar.press_read` **بالاسم** بوسيطَي البحث (‏§⑪-ج)."""
+    import press_radar as PR                                     # noqa: PLC0415
+    sl = bars.iloc[:upto_idx + 1]
+    out = {name: PR.press_read(sl, **kw) for name, kw in VARIANTS}
+    out["safety"] = dollar_vol_ok(sl)
+    return out
+
+
+def life_evidence(read, prev_q):
+    """نقيّة (‏«قرينةُ حياةٍ واحدة»): مؤهلٌ سابقًا **أو** ركضة عند حد
+    `EXPLOSION_PCT` فأكثر **أو** مستوى مُختبَر **أو** حفظٌ جلسة فأكثر."""
+    import Super_stock as S                                      # noqa: PLC0415
+    if prev_q:
+        return True
+    if not read:
+        return False
+    thr = float(S.CONFIG.get("EXPLOSION_PCT", 50.0))
+    return bool(float(read.get("runup_pct") or 0.0) >= thr
+                or read.get("tested_level")
+                or int(read.get("hold_sessions") or 0) >= 1)
+
+
+def combo_flags(var_days, prev_q):
+    """نقيّة: أعلامُ التركيبات الثماني لحدثٍ واحد من قراءات أيامه.
+    VC/VD تشترط السلامة **في نفس يوم الإطلاق** (لا خلط أيام)."""
+    c = {name: any(d.get(name) for d in var_days)
+         for name, _ in VARIANTS}
+    c["VB-owner"] = bool(c["V0"] and prev_q)
+    c["VB-union"] = any(d.get("V0") and life_evidence(d.get("V0"), prev_q)
+                        for d in var_days)
+    c["VC-safety"] = any(d.get("V0") and d.get("safety") is True
+                         for d in var_days)
+    c["VD-full"] = any(d.get("VA3") and life_evidence(d.get("VA3"), prev_q)
+                       and d.get("safety") is True for d in var_days)
+    return c
 
 
 def probe_day(bars, upto_idx):
@@ -101,20 +166,24 @@ def main() -> int:
             skipped[sym] = "جلساتُ ما قبل المِرساة غائبة"
             continue
         idx_map = {d: k for k, d in enumerate(bars.index)}
-        day_res = []
+        day_res, var_days = [], []
         for si in sess:
             r, why = probe_day(bars, idx_map[si])
             day_res.append((str(si.date()), bool(r), why,
                             (r or {}).get("drop_pct"), (r or {}).get("press_low"),
                             (r or {}).get("tested_level"),
                             (r or {}).get("runup_pct")))
+            var_days.append(variant_day(bars, idx_map[si]))     # §⑪-ج
         fired = any(x[1] for x in day_res)
         runups = [x[6] for x in day_res if x[1] and x[6] is not None]
         import press_radar as PR                             # noqa: PLC0415
         pq = PR.prev_qualified(sym, bars, anchor)
         rows.append({"symbol": sym, "group": ev["group"], "anchor": anchor,
                      "fired": fired, "days": day_res, "prev_q": pq,
-                     "runup": max(runups) if runups else None})
+                     "runup": max(runups) if runups else None,
+                     "combo": combo_flags(var_days, pq),
+                     "safety_unknown": sum(1 for d in var_days
+                                           if d.get("safety") is None)})
         mark = "🔥" if fired else "—"
         det = " · ".join(f"{d}:{'✅' if f else w}" for d, f, w, *_ in day_res)
         ru = f" · ركضة {max(runups):.0f}%" if runups else ""
@@ -150,6 +219,25 @@ def main() -> int:
             if sub:
                 keep = sum(1 for r in sub if r["runup"] >= thr)
                 _log(f"  فلتر الركضة ‏≥{name}: المجموعة ({g}) يبقى {keep} من {len(sub)} مُطلَقًا")
+    # 🧪 §⑪-ج: شبكةُ التركيبات الثماني — الالتقاط لكل مجموعة + الغائبون بأسمائهم
+    _log(f"\n{'—' * 70}\n🧪 شبكة التركيبات (§⑪-ج — مثبّتة قبل القياس):")
+    for name in COMBO_ORDER:
+        parts = []
+        for g in ("أ", "ب"):
+            sub = [r for r in rows if r["group"] == g]
+            if not sub:
+                continue
+            k = sum(1 for r in sub if r["combo"].get(name))
+            parts.append(f"({g}) {k} من {len(sub)}")
+        _log(f"  {name}: " + " · ".join(parts))
+        miss_a = [r["symbol"] for r in rows
+                  if r["group"] == "أ" and not r["combo"].get(name)]
+        if miss_a:
+            _log(f"     غائبو الكتالوج: {' · '.join(miss_a)}")
+    unk = sum(r.get("safety_unknown") or 0 for r in rows)
+    if unk:
+        _log(f"  ⚠️ قراءاتُ سلامةٍ متعذّرة (يوم-قراءة): {unk} — تُعَدّ سقوطًا"
+             " في VC/VD (مُعلَن لا صامت)")
     # تفكيكُ أسباب عدم الإطلاق (على مستوى الأيام) — لا صفرَ غامضًا
     from collections import Counter                              # noqa: PLC0415
     why = Counter(w for r in rows for _, f, w, *_ in r["days"] if not f)

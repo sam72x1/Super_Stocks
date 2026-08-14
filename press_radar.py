@@ -138,7 +138,7 @@ def build_pool(wl: dict, state: dict, today_iso: str):
 
 # ─────────────────────────── قراءة الضغط (نقيّة) ───────────────────────────
 
-def press_read(df, w=W):
+def press_read(df, w=W, band_pct=None):
     """نقيّة: هل السهم «مضغوطٌ جالسٌ عند قاع ضغطه» الآن؟
 
     من نموذج فيصل الموثّق — والقراءة **من القمة الحديثة** لا من قاع التاريخ:
@@ -148,6 +148,10 @@ def press_read(df, w=W):
         عنده**: داخل `SPLIT_SWEEP_MAX_PCT`(=13)% فوقه (نطاق المسح الموثّق).
     «حافظ» يُرجَع **عدّادًا** (`hold_sessions` = جلسات منذ آخر قاعٍ جديد)
     و`tested_level` الإنتاجية تُرجَع إثراءً إن وُجدت. تعذّرٌ ⇒ None بلا انهيار.
+
+    🧪 وسيطا البحث `w`/`band_pct` (‏§⑪-ج): افتراضُهما `W` و`None` (⇒ يقرأ
+    `SPLIT_SWEEP_MAX_PCT` من CONFIG) = **سلوك الإنتاج بت-بت**؛ تمريرُ غيرهما
+    مقصورٌ على مِجَسّ شبكة التركيبات — لا مسار إنتاجيّ يمرّرهما (مقفول).
 
     ✅ متحقَّق على أرقام WETO الحيّة: قمة 11.72 · إغلاق 08-13 = 3.61 ⇒ عمق
     ‏69.2% ✓ · قاع الضغط 3.34 ⇒ الجلوس 3.61 ≈ ‏+8.1% داخل 13% ✓ ⇒ يُطلق
@@ -181,7 +185,9 @@ def press_read(df, w=W):
             return None
         j_low = int(j_star + max(k for k in range(len(press_seg))
                                  if float(press_seg[k]) == press_low))
-        near_cap = press_low * (1.0 + float(S.CONFIG.get("SPLIT_SWEEP_MAX_PCT", 13.0)) / 100.0)
+        band = (float(band_pct) if band_pct is not None
+                else float(S.CONFIG.get("SPLIT_SWEEP_MAX_PCT", 13.0)))
+        near_cap = press_low * (1.0 + band / 100.0)
         if close > near_cap:
             return None                       # غادر قاعه — التنبيه فات محله
         tl = None

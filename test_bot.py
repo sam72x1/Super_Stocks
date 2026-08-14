@@ -17515,6 +17515,56 @@ check("🗜️📚 CT1 `probe_day`: نمطُ WETO «أطلق» · الضحلُ �
       and _ct_r2 is None and _ct_why2 == "عمق أقل من الحد (ليس مضغوطًا)"
       and _ct_r3 is None and _ct_why3 == "تاريخ قصير")
 
+# CT2 — وسيطا البحث في `press_read` (§⑪-ج): الافتراض ≡ الإنتاج بت-بت ·
+# وعيّنتان **مفرِّقتان**: جالسٌ +16% (يرفضه 13% ويقبله 20) · وقمةٌ أقدم من
+# نافذة العشرين (لا يراها إلا w=40) — درس «القفل لا يحرس إلا بقدر ما تفرّق عيّنته»
+_ct2_sit16 = _prd_frame(_prd_lo, _prd_hi, _prd_cl[:-1] + [3.874])
+_ct2_lo41 = [2.6] * 15 + [9.0] + [3.5] * 10 + [3.34] + [3.4] * 14
+_ct2_hi41 = [2.8] * 15 + [12.0] + [4.2] * 25
+_ct2_cl41 = [2.7] * 15 + [10.0] + [3.8] * 24 + [3.61]
+_ct2_old = _prd_frame(_ct2_lo41, _ct2_hi41, _ct2_cl41)
+check("🧪 CT2 `press_read(w, band_pct)`: الافتراض ≡ الإنتاج بت-بت · جالسٌ +16% "
+      "يقبله band=20 فقط · وقمةٌ أقدم من 20ج يراها w=40 فقط (قاعها 3.34)",
+      _PRD.press_read(_ct_f) == _PRD.press_read(_ct_f, w=_PRD.W, band_pct=None)
+      and _PRD.press_read(_ct2_sit16) is None
+      and bool(_PRD.press_read(_ct2_sit16, band_pct=20.0))
+      and _PRD.press_read(_ct2_old) is None
+      and bool(_PRD.press_read(_ct2_old, w=40))
+      and _PRD.press_read(_ct2_old, w=40)["press_low"] == 3.34)
+
+# CT3 — شبكة §⑪-ج: `variant_day` تفرّق فعلًا · `dollar_vol_ok` نعم/لا/تعذّر ·
+# `life_evidence` بالركضة · و`combo_flags` تركّب الثماني كما سُجّلت
+# (‏VB-owner بالمؤهّل · VB-union بالقرينة · VC بسلامة يوم الإطلاق · VD من VA3)
+_ct3_vd = _CT.variant_day(_ct2_old, len(_ct2_old) - 1)
+_ct3_volf = _prd_frame(_prd_lo, _prd_hi, _prd_cl)
+_ct3_volf["Volume"] = 100000.0
+_ct3_saved_mdv = S.CONFIG.get("MIN_DOLLAR_VOL")
+S.CONFIG["MIN_DOLLAR_VOL"] = 200000
+_ct3_dv_ok = _CT.dollar_vol_ok(_ct3_volf)
+S.CONFIG["MIN_DOLLAR_VOL"] = 500000
+_ct3_dv_no = _CT.dollar_vol_ok(_ct3_volf)
+S.CONFIG["MIN_DOLLAR_VOL"] = _ct3_saved_mdv
+_ct3_ev = {"runup_pct": 55.0, "tested_level": None, "hold_sessions": 0}
+_ct3_noev = {"runup_pct": 0.0, "tested_level": None, "hold_sessions": 0}
+_ct3_day = {"V0": _ct3_noev, "VA1": None, "VA2": _ct3_noev, "VA3": None,
+            "safety": True}
+_ct3_c1 = _CT.combo_flags([_ct3_day], None)
+_ct3_c2 = _CT.combo_flags([_ct3_day], "2026-08-01")
+_ct3_day2 = {"V0": None, "VA1": None, "VA2": None,
+             "VA3": dict(_ct3_noev, hold_sessions=2), "safety": True}
+_ct3_c3 = _CT.combo_flags([_ct3_day2], None)
+check("🧪 CT3 §⑪-ج: `variant_day` (V0 أعمى عن القمة القديمة وVA1/VA3 يريانها) "
+      "· `dollar_vol_ok` بثلاث حالات · `life_evidence` · و`combo_flags` الثماني",
+      _ct3_vd["V0"] is None and bool(_ct3_vd["VA1"]) and bool(_ct3_vd["VA3"])
+      and _ct3_dv_ok is True and _ct3_dv_no is False
+      and _CT.dollar_vol_ok(_prd_frame([3.0] * 40, [4.0] * 40, [3.2] * 40)) is None
+      and _CT.life_evidence(_ct3_ev, None) is True
+      and _CT.life_evidence(_ct3_noev, None) is False
+      and _ct3_c1["V0"] and not _ct3_c1["VB-owner"] and not _ct3_c1["VB-union"]
+      and _ct3_c1["VC-safety"] and not _ct3_c1["VD-full"]
+      and _ct3_c2["VB-owner"] and _ct3_c2["VB-union"]
+      and not _ct3_c3["VC-safety"] and _ct3_c3["VD-full"])
+
 # PRD7 — الـworkflow موصول (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
 _prd_y = open(".github/workflows/press_radar.yml", encoding="utf-8").read()
 check("🗜️📡 PRD7 press_radar.yml: كرونا 25 مُزاحان (2-6) · FORCE موصول بالدسباتش · "
