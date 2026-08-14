@@ -1885,6 +1885,32 @@ check("🧹تنظيف: اقتراح «A أفضل من B» الميت أُزيل 
 check("🧹تنظيف: الفحص اليدوي بلا حكم 🅰️ (حكم موحّد 🎯 مؤهّل)",
       "🅰️" not in open("analyze_one.py", encoding="utf-8").read())
 
+# ===== 🖐️🔴 HF-TG: ملخّص حصّاد اليد آمنُ HTML (إصلاح 2026-08-14) =====
+# العطل الحيّ (تشغيلة 31793429251، مرّتين): «(<20)» في summary() تقرؤه تلغرام
+# وسمَ HTML («Unsupported start tag "20)"») فيسقط الإرسال إلى احتياط النصّ الخام —
+# والملخّص يُغرَس في تقرير التطوير (وضع HTML) **بلا تهريب**. القفل سلوكيّ على
+# الفرعين معًا: لا `<` ولا `>` في أيّ مُخرَج، والكلماتُ بدل الرمز (قاعدة 2026-06-23).
+import tempfile as _hf_tmp
+from hand_flow_recorder import HandFlowRecorder as _HFR
+_hf_p = _os_hc.path.join(_hf_tmp.gettempdir(), "hf_tg_lock.jsonl")
+def _hf_write(n_decided):
+    with open(_hf_p, "w", encoding="utf-8") as _fh:
+        for _i in range(n_decided):
+            _fh.write(json.dumps({"symbol": f"T{_i}", "outcome": "win" if _i % 2 else "loss",
+                                  "features": {"absorption": 0.5}}) + "\n")
+_hf_write(3)                                   # فرعُ العيّنة القليلة (الذي كان مكسورًا)
+_hf_small = _HFR(_hf_p).summary()
+check("🖐️HF-TG1: فرع العيّنة القليلة بلا `<`/`>` + كلمات «أقل من 20»",
+      "<" not in _hf_small and ">" not in _hf_small and "أقل من 20" in _hf_small)
+_hf_write(24)                                  # فرعُ العيّنة الكافية (الامتصاص)
+_hf_big = _HFR(_hf_p).summary()
+check("🖐️HF-TG2: فرع العيّنة الكافية بلا `<`/`>` (يُغرَس في HTML بلا تهريب)",
+      "<" not in _hf_big and ">" not in _hf_big and "امتصاص" in _hf_big)
+try:
+    _os_hc.remove(_hf_p)
+except OSError:
+    pass
+
 # ===== 🟢👀 فصل «جاهز للدخول» عن «متابعة» (ENTRY_READY_SPLIT_PLAN — عرض فقط) =====
 def _es_mode(mode, reason=""):
     return {"interp": {"entry_mode": {"mode": mode, "reason": reason}}}
