@@ -389,5 +389,41 @@
   "vol_x": 5.5,
   "usd": 15062,
   "candle_class": "group"
+ },
+ {
+  "symbol": "KITT",
+  "date": "2026-08-14",
+  "sustain_min": 1,
+  "operator_ok": false,
+  "fired_at": "2026-08-14T20:00:58Z",
+  "break_level": 1.05,
+  "price": 1.06,
+  "vol_x": 7.7,
+  "usd": 4660,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "KSCP",
+  "date": "2026-08-14",
+  "sustain_min": 1,
+  "operator_ok": false,
+  "fired_at": "2026-08-14T20:00:58Z",
+  "break_level": 1.66,
+  "price": 1.6799,
+  "vol_x": 9.3,
+  "usd": 49206,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "MIMI",
+  "date": "2026-08-14",
+  "sustain_min": 7,
+  "operator_ok": false,
+  "fired_at": "2026-08-14T20:00:59Z",
+  "break_level": 2.2,
+  "price": 2.21,
+  "vol_x": 5.3,
+  "usd": 5538,
+  "candle_class": "group"
  }
 ]
