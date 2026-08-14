@@ -17770,6 +17770,46 @@ check("🗜️🧠 PBG3 الأذرع العشر كما سُجّلت · HOLD3 ب�
       and not _pbg_g["DEEP50"](_pbg_e2)
       and _pbg_g["DEEP50"](dict(_pbg_e2, drop=50.0)))
 
+# ═══════ 🎚️ أقفال T-PRESS-BT-3 (§⑭ · PL1-PL2) ═══════
+# PL1 — سلّم §⑭ بأسمائه الستة المسجلة · عتباته تفرّق (حفظ 2 يعبر HOLD2 لا
+# HOLD4 · حفظ 4 يعبر HOLD4 لا HOLD5 · TANCHOR يشترط المستوى) · والمسار
+# الرئيسي ينادي `ladder_report` بالاسم (AST)
+_pl_names = [n for n, _, _ in _PB.LADDER]
+_pl_g = {n: (g, k) for n, g, k in _PB.LADDER}
+_pl_e2 = {"hold": 2, "drop": 60.0, "tlv": None}
+_pl_e4 = {"hold": 4, "drop": 40.0, "tlv": 3.34}
+_pl_main_ast = _ast0.parse(_insp0.getsource(_PB.main))
+_pl_called = "ladder_report" in [getattr(nn, "id", None)
+                                 for nn in _ast0.walk(_pl_main_ast)]
+check("🎚️ PL1 سلّم §⑭: الأسماء الستة كما سُجّلت · العتبات تفرّق · "
+      "و`main` ينادي `ladder_report` (AST)",
+      _pl_names == ["HOLD3-مرجع", "HOLD2", "HOLD4", "HOLD5",
+                    "HOLD3+DEEP50", "HOLD3+TANCHOR"]
+      and _pl_g["HOLD2"][0](_pl_e2) and not _pl_g["HOLD4"][0](_pl_e2)
+      and _pl_g["HOLD4"][0](_pl_e4) and not _pl_g["HOLD5"][0](_pl_e4)
+      and not _pl_g["HOLD3+DEEP50"][0](_pl_e4)
+      and _pl_g["HOLD3+TANCHOR"][0](_pl_e4)
+      and not _pl_g["HOLD3+TANCHOR"][0](dict(_pl_e4, tlv=None))
+      and _pl_g["HOLD3+TANCHOR"][1] == "oc_t"
+      and _pl_called)
+
+# PL2 — TANCHOR بعيّنة مفرِّقة: قاع الضغط 3.5 (وقف 3.255) والمستوى المختبر
+# 3.34 (وقف 3.1062) — الخطتان تفترقان فعلًا · وبلا قاعٍ مزدوج tlv/oc_t غائبان
+_pl_lo = ([3.9] * 45 + [3.34, 3.6, 3.345, 3.6, 3.6, 4.2, 8.0, 9.5, 6.0, 3.5,
+                        3.55] + [3.55, 3.6, 3.52, 3.53, 3.55])
+_pl_hi = ([4.1] * 45 + [3.9, 3.9, 3.9, 3.9, 3.9, 6.0, 11.72, 12.0, 8.0, 4.2,
+                        4.0] + [4.0, 4.0, 3.95, 3.9, 3.9])
+_pl_cl = ([4.0] * 45 + [3.6, 3.7, 3.6, 3.7, 3.7, 5.5, 10.0, 11.0, 6.2, 3.8,
+                        3.7] + [3.7, 3.72, 3.65, 3.6, 3.61])
+_pl_recs = _PB.walk_symbol_grid("PLX", _prd_frame(_pl_lo, _pl_hi, _pl_cl),
+                                year="2026")
+check("🎚️ PL2 `TANCHOR`: مرساة المستوى 3.34 (وقف 3.1062) تفترق عن قاع الضغط "
+      "3.5 (وقف 3.255) · حفظ 6 · وبلا قاعٍ مزدوج (WETO) لا tlv ولا oc_t",
+      len(_pl_recs) == 1 and _pl_recs[0]["tlv"] == 3.34
+      and _pl_recs[0]["t_stop"] == 3.1062 and _pl_recs[0]["stop"] == 3.255
+      and _pl_recs[0]["hold"] == 6 and _pl_recs[0]["oc_t"] is not None
+      and _pbg_recs[0]["tlv"] is None and _pbg_recs[0]["oc_t"] is None)
+
 # PRD7 — الـworkflow موصول (قاعدة P1: مدخلٌ بلا env = مدخلٌ ميّت)
 _prd_y = open(".github/workflows/press_radar.yml", encoding="utf-8").read()
 check("🗜️📡 PRD7 press_radar.yml: كرونا 25 مُزاحان (2-6) · FORCE موصول بالدسباتش · "

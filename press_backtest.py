@@ -152,12 +152,20 @@ def walk_symbol_grid(sym, df, year=None):
             tr, st = RB.mirror_plan(pl)
             oc = RB.resolve_episode(hi, lo, i, tr, st)
             rc_oc, rc_en, rc_st = resolve_reclaim(hi, lo, cl, i, pl)
+            # 🎚️ §⑭ `TANCHOR`: لمن يملك مستوًى مختبرًا — نفسُ محرّك الحسم
+            # بخطةٍ مرساتُها المستوى (🟣 طلبات فيصل عنده) بدل قاع الضغط
+            tlv = float(r["tested_level"]) if r.get("tested_level") else None
+            oc_t, st_t = None, None
+            if tlv:
+                tr_t, st_t = RB.mirror_plan(tlv)
+                oc_t = RB.resolve_episode(hi, lo, i, tr_t, st_t)
             recs.append({"i": i, "hold": int(r.get("hold_sessions") or 0),
                          "runup": float(r.get("runup_pct") or 0.0),
                          "tested": bool(r.get("tested_level")),
                          "drop": float(r.get("drop_pct") or 0.0),
                          "oc": oc, "stop": st,
-                         "rc_oc": rc_oc, "rc_entry": rc_en, "rc_stop": rc_st})
+                         "rc_oc": rc_oc, "rc_entry": rc_en, "rc_stop": rc_st,
+                         "tlv": tlv, "oc_t": oc_t, "t_stop": st_t})
             i += RB.WAIT
             continue
         i += 1
@@ -215,6 +223,36 @@ def grid_report(recs, base_check, year) -> int:
             else:
                 _log(f"    ✅ فحص تكامل: BASE ≡ P-VA1 بت-بت {got}")
     return rc
+
+
+# 🎚️ §⑭ سلّم التثبيت — الأذرع الست مثبتة من التسجيل (لا سابعة بعد الأرقام).
+# صيغة كل ذراع: (اسم، شرط على السجل، مفتاح الحسم) — 'oc' خطة القاع و'oc_t'
+# خطة المستوى المختبر (R_win واحد — الصيغة نسبية فلا تتأثر بالمرساة).
+LADDER = (
+    ("HOLD3-مرجع", lambda e: e["hold"] >= 3, "oc"),
+    ("HOLD2", lambda e: e["hold"] >= 2, "oc"),
+    ("HOLD4", lambda e: e["hold"] >= 4, "oc"),
+    ("HOLD5", lambda e: e["hold"] >= 5, "oc"),
+    ("HOLD3+DEEP50", lambda e: e["hold"] >= 3 and e["drop"] >= 50.0, "oc"),
+    ("HOLD3+TANCHOR", lambda e: e["hold"] >= 3 and e["tlv"], "oc_t"),
+)
+
+
+def ladder_report(recs, year) -> None:
+    """§⑭: سلّم الحفظ ومرساة المستوى — من نفس سجلات §⑬ (ميزانية مطابقة)."""
+    import rebound_arms as RB                                    # noqa: PLC0415
+    rw = r_win_value()
+    _log(f"\n🎚️ سلّم §⑭ — سنة {year} (معيار الإزاحة: الحد الأدنى فوق +0.110):")
+    for name, gate, key in LADDER:
+        sub = [e for e in recs if gate(e)]
+        dec = [e for e in sub if e.get(key) in ("win", "loss")]
+        k = sum(1 for e in dec if e.get(key) == "win")
+        w = RB.wilson(k, len(dec)) if dec else (0.0, 0.0)
+        p = k / len(dec) if dec else 0.0
+        _log(f"  {name:<15} حلقات={len(sub):<6} محسومة={len(dec):<5} "
+             f"بلغ150={k:<4} نسبة={100.0 * p:6.2f}% "
+             f"E={p * (rw + 1.0) - 1.0:+.3f}R "
+             f"[{w[0] * (rw + 1.0) - 1.0:+.3f},{w[1] * (rw + 1.0) - 1.0:+.3f}]")
 
 
 def r_win_value():
@@ -299,6 +337,7 @@ def main() -> int:
             continue
         grecs.extend(walk_symbol_grid(sym, df, year=yr))
     rc2 = grid_report(grecs, base_check, year)
+    ladder_report(grecs, year)                                  # 🎚️ §⑭
     return rc or rc2
 
 
