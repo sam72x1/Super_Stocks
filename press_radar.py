@@ -297,71 +297,136 @@ def should_alert(entry: dict, today_iso: str) -> bool:
     return gap is None or gap >= REALERT_DAYS
 
 
-# ──────────────────── الرسالة (بلا علامات مقارنة ولا وسوم HTML) ────────────────────
+# ──────────── الرسالة (بأسلوب التقرير الأسبوعي · بلا علامات مقارنة) ────────────
+
+def _esc(t) -> str:
+    """تهريبٌ أدنى للحقول الديناميكية (تلغرام `parse_mode=HTML`) — عرضٌ فقط.
+    فيبقى العقدُ قائمًا: لا `<` ولا `>` خامّ يصل الرسالةَ فيكسرها."""
+    return (str(t).replace("&", "&amp;").replace("<", "&lt;")
+            .replace(">", "&gt;"))
+
+
+def _card_sep() -> str:
+    """فاصلُ الكروت = **فاصلُ التقرير الأسبوعي نفسُه حرفيًّا** (مصدرٌ واحد فلا
+    يتفرّق الشكلان بعد اليوم). تعذّرُ الاستيراد ⇒ نفسُ الشرطات (فاشلٌ-آمن)."""
+    try:
+        import Super_stock as S                                  # noqa: PLC0415
+        return S.DAILY_CARD_SEP
+    except Exception:                                            # noqa: BLE001
+        return "━" * 15
+
+
+def _compact_line(r: dict) -> str:
+    """سطرٌ مضغوطٌ لسهمٍ واحد (بقيّةُ الجاهزين · وقيدُ المتابعة) — نمطُ السطر
+    الصغير في التقرير الأسبوعي: الرمزُ ثم الصغائرُ مفصولةً بنقاط."""
+    p = r.get("read") or {}
+    return (f"• <b>${_esc(r.get('symbol'))}</b> ${p.get('close')} · "
+            f"هبوط {p.get('drop_pct')}% · قاع ${p.get('press_low')} · "
+            f"حافظ {int(p.get('hold_sessions') or 0)} جلسة")
+
+
+def _ready_card(i: int, r: dict) -> list:
+    """كرتُ سهمٍ جاهز — **بترتيب كرت التقرير الأسبوعي حرفيًّا**: رأسٌ ⟵ الصغائرُ
+    في سطر 💰 ⟵ السياق ⟵ 📥 الدخول والوقف ⟵ 🎯 الهدف ⟵ المستويات ⟵ 🔗 المصدر.
+    كلُّ معلومةٍ مهمّة بسطرها (قاعدة العرض 2026-06-23) — والشرحُ المكرّر خرج للذيل."""
+    p = r.get("read") or {}
+    h = int(p.get("hold_sessions") or 0)
+    seg = [f"{i}) 🗜️ <b>${_esc(r.get('symbol'))}</b> · 🟢 حافظ قاعه {h} جلسة",
+           f"   💰 ${p.get('close')} · هبوط {p.get('drop_pct')}% من "
+           f"${p.get('high_w')} · قاع الضغط ${p.get('press_low')}"]
+    if float(p.get("runup_pct") or 0.0) >= 50.0:
+        seg.append(f"   📈 ركض قبل الضغط {p['runup_pct']}% (نمط النموذج)")
+    if r.get("prev_q"):
+        seg.append(f"   🔁 كان مؤهلًا عند البوت @{_esc(r['prev_q'])}")
+    plan = r.get("plan") or {}
+    e = plan.get("entry")
+    if e:
+        ln = ("   📥 دخول (خطتنا المحفوظة): "
+              + (f"{e[0]} - {e[1]}"
+                 if isinstance(e, (list, tuple)) and len(e) == 2 else str(e)))
+        if plan.get("stop"):
+            ln += f"  ·  ⛔ وقف خسارة ${plan['stop']}"
+        seg.append(ln)
+    if plan.get("t1"):
+        seg.append(f"   🎯 هدف أول: ${plan['t1']}")
+    if p.get("tested_level"):
+        seg.append(f"   📍 مستوى مُختبَر عند ${p['tested_level']}")
+    seg.append(f"   🟣 الطلبات قرب القاع ${p.get('press_low')} · 🔴 الوقف تحته")
+    if p.get("imp_head"):
+        seg.append(f"   🕯️ الشمعة المهمة: ذيلها ${p.get('press_low')} · "
+                   f"رأسها ${p['imp_head']}")
+    seg.append(f"   🔗 المصدر: {_esc(r.get('src', '؟'))}")
+    return seg
+
 
 def build_alert(rows, session_iso: str) -> str:
-    """يبني رسالة التنبيه. **بلا `<` أو `>` أو `≥` أو `≤` إطلاقًا** (قاعدة العرض
-    2026-06-23 + درسُ كسر HTML في تلغرام المُصلَح اليوم نفسه).
+    """يبني رسالة التنبيه **بأسلوب إشعار الأسهم الأسبوعي حرفيًّا** (أمرُ المالك
+    2026-08-15 بعد أوّل تسليمٍ حيّ: «ارجع شكل الرسالة لأنها فوضى دسمة مرّة —
+    خلّها بنفس أسلوب وطريقة إشعار الأسهم الأسبوعية بالضبط»).
+
+    الشكلُ منقولٌ من `build_daily_message`: ترويسةٌ بعدّادين ⟵ عنوانُ قسمٍ
+    بعدده ⟵ كروتٌ **مرقّمة** كلُّ معلومةٍ مهمّة فيها بسطرها والصغائرُ مجموعةٌ
+    في سطر 💰 ⟵ فاصلُ شرطاتٍ بين كل سهمين (`DAILY_CARD_SEP` **نفسُه**) ⟵ ذيل.
+    🔴 والعلّةُ التي شكا منها: **الشرحُ المكرّر في كل سهم** (الشمعة المهمة/
+    النموذج) — نُقل إلى الذيل **مرّةً واحدة**، والسهمُ كان سطرًا واحدًا طويلًا
+    مربوطًا بـ« — » فصار كرتًا مقروءًا.
 
     🥇 «اعتمد الحفظ» (أمر المالك 2026-08-14 بعد §⑬): قسمان — 🟢 **جاهز**
     (حافظ قاعه `READY_HOLD` جلسات فأكثر = الشريحة الموجبة المقيسة) بكروتٍ
     كاملة، و👀 **قيد المتابعة** (مضغوطٌ لم يحفظ بعد) بأسطرٍ مضغوطة — لا
-    يُسقَط (درس WETO: انفجر من حفظ 0ج) لكنه يتميّز. سقف ALERT_CAP لكل قسم
-    والباقي يُذكَر عددًا (لا قصّ صامت). ألوانُ فيصل الموثّقة على الخطة:
-    ‏🟣 الطلبات (الدخول عند الدعم) · 🔴 الوقف."""
+    يُسقَط (درس WETO: انفجر من حفظ 0ج) لكنه يتميّز. **ولا قصَّ صامتًا:** ما
+    فوق سقف الكروت يُعرَض أسطرًا مضغوطة ثم يُذكَر الباقي عددًا.
+    🔒 وسومُ HTML **مقصورةٌ على `<b>`/`<i>`** (تلغرام `parse_mode=HTML` كما في
+    التقرير الأسبوعي)، والحقولُ الديناميكية تمرّ بـ`_esc` — فلا `<`/`>` خامّ
+    يكسر الرسالة (درس 2026-08-14)، **ولا علاماتِ مقارنةٍ إطلاقًا** (قاعدة
+    العرض 2026-06-23). ألوانُ فيصل: 🟣 الطلبات (الدخول عند القاع) · 🔴 الوقف."""
     ready, watch = [], []
     for r in rows:
         h = int((r.get("read") or {}).get("hold_sessions") or 0)
         (ready if h >= READY_HOLD else watch).append(r)
-    lines = [f"🗜️📡 رادار الضغط — جلسة {session_iso}",
-             "ضغطُ مضاربٍ عند القاع (نموذج فيصل: «اذا حافظ ع ادنى قاع طبق النموذج»):",
+    sep = _card_sep()
+    lines = [f"🗜️📡 <b>رادار الضغط</b> — {session_iso}",
+             f"🟢 {len(ready)} جاهز · 👀 {len(watch)} قيد المتابعة "
+             "(نموذج فيصل: «اذا حافظ ع ادنى قاع طبق النموذج»)",
              ""]
     shown = ready[:ALERT_CAP]
     if shown:
-        lines.append(f"🟢 جاهز — حافظ قاعه {READY_HOLD} جلسات فأكثر "
-                     "(الشريحة الموجبة المقيسة):")
+        lines.append(f"🟢 <b>جاهز — حافظ قاعه {READY_HOLD} جلسات فأكثر</b> "
+                     f"({len(ready)})")
     else:
-        lines.append(f"لا جاهز هذي الجلسة (ما فيه مضغوطٌ حافظ قاعه "
-                     f"{READY_HOLD} جلسات).")
-    for r in shown:
-        p = r["read"]
-        seg = [f"• {r['symbol']} ${p['close']}",
-               f"ضُغط من ${p['high_w']} (هبوط {p['drop_pct']}%) وجالسٌ عند قاعه ${p['press_low']}",
-               f"حافظ قاعه {int(p.get('hold_sessions') or 0)} جلسة"]
-        if float(p.get("runup_pct") or 0.0) >= 50.0:
-            seg.append(f"ركض قبل الضغط {p['runup_pct']}% (نمط النموذج)")
-        if r.get("prev_q"):
-            seg.append(f"🔁 كان مؤهلًا عند البوت @{r['prev_q']} (تسلسل التركيبة الكامل)")
-        if p.get("tested_level"):
-            seg.append(f"مستوى مُختبَر عند ${p['tested_level']}")
-        seg.append(f"🟣 الطلبات مقسّمة قرب القاع ${p['press_low']} · 🔴 الوقف تحته")
-        if p.get("imp_head"):
-            seg.append(f"🕯️ الشمعة المهمة: ذيلها ${p['press_low']} ورأسها "
-                       f"${p['imp_head']} — طلبات فيصل داخل مداها، وكسرُ "
-                       "الذيل بلا رجوع يُفشلها (درس NEXR)")
-        plan = r.get("plan") or {}
-        if plan.get("entry"):
-            e = plan["entry"]
-            t1 = plan.get("t1")
-            seg.append("خطتنا المحفوظة: منطقة "
-                       + (f"{e[0]}-{e[1]}" if isinstance(e, (list, tuple)) and len(e) == 2 else str(e))
-                       + (f" · هدف أول {t1}" if t1 else ""))
-        seg.append(f"المصدر: {r.get('src', '؟')}")
-        lines.append(" — ".join(seg))
-    if len(ready) > len(shown):
-        lines.append(f"…و{len(ready) - len(shown)} جاهزون فوق سقف العرض (في سجل الحصاد كاملين).")
+        lines.append(f"🟢 لا سهم حافظ قاعه {READY_HOLD} جلسات هذي الجلسة — "
+                     f"{len(watch)} تحت المتابعة (يظهرون أدناه).")
+    for i, r in enumerate(shown, 1):
+        if i > 1:                       # فاصلُ الكروت (نفسُ التقرير الأسبوعي)
+            lines += ["", sep, ""]
+        lines += _ready_card(i, r)
+    _rest = ready[len(shown):]
+    if _rest:
+        lines += ["", f"🟢 <b>باقي الجاهزين</b> ({len(_rest)}) — سطرٌ لكل سهم:"]
+        for r in _rest[:ALERT_CAP * 2]:
+            lines.append(_compact_line(r))
+        if len(_rest) > ALERT_CAP * 2:
+            lines.append(f"…و{len(_rest) - ALERT_CAP * 2} في سجل الحصاد "
+                         "(لا قصَّ صامتًا).")
     if watch:
-        lines += ["", f"👀 قيد المتابعة (مضغوطون لم يحفظوا {READY_HOLD} جلسات بعد):"]
-        for r in watch[:ALERT_CAP]:
-            p = r["read"]
-            lines.append(f"• {r['symbol']} ${p['close']} — هبوط {p['drop_pct']}% "
-                         f"· حفظ {int(p.get('hold_sessions') or 0)}ج · قاع ${p['press_low']}")
-        if len(watch) > ALERT_CAP:
-            lines.append(f"…و{len(watch) - ALERT_CAP} آخرون تحت المتابعة (في السجل كاملين).")
-    lines += ["",
-              "⚠️ عرضٌ وتنبيه قيد الإثبات الأمامي — ليس توصية. القراءة من الشموع "
-              "اليومية (لا تشمل الافتر).",
-              f"🧾 حصاد الرادار يتراكم في السجل ({len(rows)} قراءة هذي الجلسة)."]
+        lines += ["", f"👀 <b>قيد المتابعة — لم يحفظ قاعه {READY_HOLD} جلسات "
+                      f"بعد</b> ({len(watch)})"]
+        for r in watch[:ALERT_CAP * 2]:
+            lines.append(_compact_line(r))
+        if len(watch) > ALERT_CAP * 2:
+            lines.append(f"…و{len(watch) - ALERT_CAP * 2} في السجل "
+                         "(لا قصَّ صامتًا).")
+    body = "\n".join(lines)
+    lines += ["", sep, ""]
+    if "🕯️" in body:                    # شرحٌ مرّةً واحدة — لا في كل سهم
+        lines.append("🕯️ <b>الشمعة المهمة</b> = شمعةُ صنع القاع: طلباتُ فيصل "
+                     "داخل مداها، وكسرُ ذيلها بلا رجوعٍ يُفشل النموذج (درس NEXR).")
+    if "🟣" in body:
+        lines.append("🟣 <b>الطلبات</b> = منطقةُ الشراء عند القاع · 🔴 الوقف "
+                     "تحتها (ألوان فيصل الموثّقة).")
+    lines += ["⚠️ <i>عرضٌ وتنبيه قيد الإثبات الأمامي — ليست توصية. القراءة من "
+              "الشموع اليومية (لا تشمل الافتر).</i>",
+              f"📒 الحصاد: {len(rows)} قراءة سُجّلت هذي الجلسة."]
     return "\n".join("‏" + ln if ln else ln for ln in lines)
 
 

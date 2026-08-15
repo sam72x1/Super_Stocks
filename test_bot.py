@@ -17371,15 +17371,31 @@ _prd_msg = _PRD.build_alert([{"symbol": "WETO",
                               "plan": {"entry": [2.7, 2.86], "t1": 5.5},
                               "prev_q": "2026-08-07",
                               "src": "قائمة الارتداد"}], "2026-08-13")
-check("🗜️📡 PRD4 رسالةُ الرادار بلا `<`/`>`/`≥`/`≤` + تعرض الخطة المحفوظة والمصدر "
-      "وركضةَ النموذج (عرضٌ لا فلتر — القياسُ منع الفلتر) + وسمَ جاهز وألوانَ فيصل",
-      all(c not in _prd_msg for c in "<>≥≤")
+# 🔴 إقرارٌ مؤرَّخ 2026-08-15 (أمرُ المالك «ارجع شكل الرسالة … بنفس أسلوب إشعار
+# الأسهم الأسبوعية بالضبط»): الشكلُ صار كرتَ التقرير الأسبوعي، ووسومُ `<b>`/`<i>`
+# صارت مقصودةً كما فيه (parse_mode=HTML). فالقفلُ **يشتدّ لا يُرخى**: قائمةٌ بيضاء
+# للوسوم المسموحة (فأيُّ وسمٍ آخر يُسقطه) + صفرُ `<>≥≤` في النصّ بعد نزعها
+# (وهو ما كان يحرسه أصلًا: لا حقلَ ديناميكيّ يكسر HTML ولا علامةَ مقارنة).
+import re as _re_prd
+_prd_tags = set(_re_prd.findall(r"<[^>]*>", _prd_msg))
+_prd_plain = _re_prd.sub(r"</?[bi]>", "", _prd_msg)
+# وحقلٌ ديناميكيٌّ خبيث (رمزٌ/مصدرٌ فيه أقواس) لا يجوز أن يُسرّب وسمًا خامًّا
+_prd_evil = _PRD.build_alert([{"symbol": "A<B>", "read": _prd_r, "plan": None,
+                               "src": "س<ص>"}], "2026-08-15")
+_prd_evil_tags = set(_re_prd.findall(r"<[^>]*>", _prd_evil))
+check("🗜️📡 PRD4 رسالةُ الرادار: وسومٌ مسموحةٌ حصرًا (`b`/`i`) وصفرُ `<`/`>`/`≥`/`≤` "
+      "بعد نزعها + تعرض الخطة المحفوظة والمصدر وركضةَ النموذج (عرضٌ لا فلتر — "
+      "القياسُ منع الفلتر) + وسمَ جاهز وألوانَ فيصل",
+      _prd_tags <= {"<b>", "</b>", "<i>", "</i>"}
+      and all(c not in _prd_plain for c in "<>≥≤")
+      and _prd_evil_tags <= {"<b>", "</b>", "<i>", "</i>"}
       and "خطتنا المحفوظة" in _prd_msg and "قائمة الارتداد" in _prd_msg
       and "قيد الإثبات الأمامي" in _prd_msg
       and "ركض قبل الضغط" in _prd_msg
       and "كان مؤهلًا عند البوت @2026-08-07" in _prd_msg
-      and "🟢 جاهز" in _prd_msg and "🟣 الطلبات" in _prd_msg
-      and "🕯️ الشمعة المهمة" in _prd_msg and "ورأسها $3.7" in _prd_msg)
+      and f"🟢 <b>جاهز — حافظ قاعه {_PRD.READY_HOLD} جلسات فأكثر</b>" in _prd_msg
+      and "🟣 الطلبات" in _prd_msg
+      and "🕯️ الشمعة المهمة" in _prd_msg and "رأسها $3.7" in _prd_msg)
 
 # PRD10 — «اعتمد الحفظ» (أمر المالك 2026-08-14 بعد §⑬): الرسالة قسمان —
 # الحافظُ 3 جلسات كرتٌ كامل تحت 🟢، وغيرُ الحافظ سطرٌ مضغوط تحت 👀 **لا
@@ -17389,14 +17405,45 @@ _prd10 = _PRD.build_alert(
       "src": "متحرّك"},
      {"symbol": "FRSH", "read": dict(_prd_r, hold_sessions=0), "plan": None,
       "src": "متحرّك"}], "2026-08-14")
-_prd10_watch_seg = _prd10.split("👀")[-1]
+# 🔴 إقرارٌ مؤرَّخ 2026-08-15: بعد أن صار الشرحُ المكرّر ذيلًا **مرّةً واحدة**،
+# يُقتطَع القسمُ عند فاصل الذيل — وإلّا قرأ القفلُ 🟣 من سطر الشرح فسقط على
+# رسالةٍ سليمة (شاهدُ «القفلُ يقرأ ما لا يقصد»). المعنى نفسُه: سطرُ المتابعة
+# مضغوطٌ بلا ألوانٍ ولا خطة.
+_prd10_watch_seg = _prd10.split("👀")[-1].split(_PRD._card_sep())[0]
+_prd10_ready_seg = _prd10.split("👀 <b>")[0]
 check("🗜️📡 PRD10 قسما الرسالة: RDYX كرتٌ جاهز (🟢+حافظ+🟣) · FRSH سطرُ متابعةٍ "
-      "مضغوط (حفظ 0ج) بلا كرتٍ ولا يُسقَط",
-      "🟢 جاهز" in _prd10 and "RDYX" in _prd10.split("👀")[0]
+      "مضغوط (حافظ 0 جلسة) بلا كرتٍ ولا يُسقَط",
+      f"🟢 <b>جاهز — حافظ قاعه {_PRD.READY_HOLD} جلسات فأكثر</b>" in _prd10
+      and "RDYX" in _prd10_ready_seg and "FRSH" not in _prd10_ready_seg
       and "حافظ قاعه 4 جلسة" in _prd10
-      and "👀 قيد المتابعة" in _prd10 and "FRSH" in _prd10_watch_seg
-      and "حفظ 0ج" in _prd10_watch_seg
-      and "🟣" not in _prd10_watch_seg)
+      and "👀 <b>قيد المتابعة" in _prd10 and "FRSH" in _prd10_watch_seg
+      and "حافظ 0 جلسة" in _prd10_watch_seg
+      and "🟣" not in _prd10_watch_seg and "📥" not in _prd10_watch_seg)
+
+# PRD11 — 🥇 شكلُ الرسالة = شكلُ التقرير الأسبوعي (أمرُ المالك 2026-08-15 بعد
+# أوّل تسليمٍ حيّ: «فوضى دسمة … خلّها بنفس أسلوب إشعار الأسهم الأسبوعية بالضبط»).
+# ثلاثةُ أشياءَ تُحرَس معًا: ① الترقيمُ والفاصلُ **بعينه** (`DAILY_CARD_SEP` مصدرًا
+# واحدًا لا نسخةً مكتوبة) ② والمعلومةُ سطرًا سطرًا لا سطرًا واحدًا طويلًا
+# ③ **والشرحُ مرّةً واحدة في الذيل لا في كل سهم** — وهو بعينه ما جعلها فوضى.
+_prd11_r = dict(_prd_r, hold_sessions=4)
+_prd11 = _PRD.build_alert(
+    [{"symbol": "AAA", "read": _prd11_r, "plan": None, "src": "متحرّك"},
+     {"symbol": "BBB", "read": _prd11_r, "plan": None, "src": "متحرّك"}],
+    "2026-08-15")
+_prd11_nohead = _PRD.build_alert(          # بلا شمعةٍ مهمّة ⇒ لا شرحَ لها أصلًا
+    [{"symbol": "CCC", "read": dict(_prd11_r, imp_head=None), "plan": None,
+      "src": "متحرّك"}], "2026-08-15")
+check("🗜️📡 PRD11 شكلُ الكرت الأسبوعي: ترقيمٌ + فاصلُ `DAILY_CARD_SEP` نفسُه بين "
+      "السهمين + أسطرٌ مستقلّة (💰/🟣) + الشرحُ **مرّةً واحدة** بالذيل (لا يتكرّر "
+      "مع كل سهم) ويغيب إن غاب سببُه",
+      "1) 🗜️ <b>$AAA</b>" in _prd11 and "2) 🗜️ <b>$BBB</b>" in _prd11
+      and _PRD._card_sep() == S.DAILY_CARD_SEP
+      and ("‏" + S.DAILY_CARD_SEP) in _prd11
+      and "\n‏   💰 " in _prd11 and "\n‏   🟣 " in _prd11
+      and _prd11.count("🕯️ الشمعة المهمة:") == 2
+      and _prd11.count("درس NEXR") == 1
+      and "درس NEXR" not in _prd11_nohead
+      and "🕯️" not in _prd11_nohead)
 
 # PRD5 — سلوكيًّا: فشلُ الإرسال ⇒ لا ختمَ ولا سجلَّ (rc=1)؛ نجاحُه ⇒ ختمٌ وسجلّ
 import tempfile as _prd_tmp
@@ -17683,7 +17730,10 @@ finally:
 check("🧪 CT4 «وسّع» حيًّا: القمةُ الأقدم من 20ج تُنبّه الآن (VAON 🟢 جاهز "
       "حفظ 14ج) · V0=0 يثبت عمى القراءة القديمة · العدّادات سجلٌّ والحصاد كُتب",
       _ct4_rc == 0 and len(_ct4_sent) == 1 and "VAON" in _ct4_sent[0]
-      and "🟢 جاهز" in _ct4_sent[0]
+      # إقرارٌ مؤرَّخ 2026-08-15: عنوانُ القسم صار بوسم `<b>` (شكلُ التقرير
+      # الأسبوعي) — والقفلُ يقرأ العنوانَ **كاملًا** فصار أدقَّ لا أرخى.
+      and (f"🟢 <b>جاهز — حافظ قاعه {_PRD.READY_HOLD} جلسات فأكثر</b>"
+           in _ct4_sent[0])
       and "V0=0" in _ct4_log and "VA1=1" in _ct4_log and "مطابق 1" in _ct4_log
       and _os_hc.path.exists(_os_hc.path.join(_ct4_dir, "led.jsonl"))
       and "VAON" in open(_os_hc.path.join(_ct4_dir, "led.jsonl"),
