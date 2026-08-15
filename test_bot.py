@@ -18257,9 +18257,41 @@ check("🔑 PL19أ (خطة 019-أ) وسمُ «حافة فجوة فوقية» ي�
       'get("all_zones")' in _pl19_src and 'get("zones")' not in _pl19_src
       and "all_zones" in _insp0.getsource(S.all_unfilled_gaps_above))
 _pl19_dump = _insp0.getsource(S._dump_actor)
-check("🔑 PL19ب/ج (خطة 019-ب/ج) صفرُ شورتٍ **قراءةٌ لا غياب** (`sp is not None`) "
+# 🐞 **القفلُ الأوّل كان نصّيًّا فنجت منه الطفرة** (2026-08-15، جولة N7): كان
+# يفحص `"sp is not None" in getsource(enrich)` — و`enrich` فيها **`sp` ثانٍ**
+# (‏`if sp is not None and len(sp)` للتقسيمات) فبقي النصُّ مطابقًا بعد إرجاع
+# الشرط إلى `if sp` ⇒ **قفلٌ أعمى**. الآن **سلوكيّ**: شورتٌ صفرٌ حقيقيّ مع
+# ذاكرةٍ تحمل قيمةً قديمة — الصفرُ يجب أن يصمد ولا تُدهسه الذاكرة.
+_pl19_prev = {k: getattr(S, k, None) for k in ("_fetch_info", "yf")}
+_pl19_cache_saved = dict(getattr(S, "COMPANY_CACHE", {}) or {})
+
+
+class _PL19Tk:
+    def __init__(self, sym):
+        self.symbol = sym
+        self.splits = None
+
+
+class _PL19Yf:
+    Ticker = _PL19Tk
+
+
+_pl19_rows = [{"symbol": "ZRO", "price": 2.0, "short_pct": 44.4}]
+try:
+    S.yf = _PL19Yf
+    S._fetch_info = lambda t: {"shortPercentOfFloat": 0.0}
+    S.COMPANY_CACHE["ZRO"] = {"short_pct": 44.4, "float": 1e6}
+    S.enrich(_pl19_rows)
+finally:
+    for k, v in _pl19_prev.items():
+        if v is not None:
+            setattr(S, k, v)
+    S.COMPANY_CACHE.clear()
+    S.COMPANY_CACHE.update(_pl19_cache_saved)
+check("🔑 PL19ب/ج (خطة 019-ب/ج) **سلوكيًّا**: شورتٌ صفرٌ من ياهو يصمد صفرًا ولا "
+      "تدهسه الذاكرةُ القديمة (44.4) — «صفر شورت» قراءةٌ إيجابية لا غيابُ بيانات "
       "· ورتبةُ `fintel_short` الميتة أُسقطت من سلسلة `_dump_actor`",
-      "sp is not None" in _insp0.getsource(S.enrich)
+      _pl19_rows[0].get("short_pct") == 0.0
       and '"fintel_short"' not in _pl19_dump
       and '"shares_available"' in _pl19_dump and '"finra_short"' in _pl19_dump)
 
