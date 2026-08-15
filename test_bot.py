@@ -18346,9 +18346,14 @@ import e2_recover as _PL24
 _pl24_root = _prd_tmp.mkdtemp(prefix="pl24_")
 _pl24_d = _os_hc.path.join(_pl24_root, "ign-assembled-9", "session_2026-08-10")
 _os_hc.makedirs(_pl24_d, exist_ok=True)
-with open(_os_hc.path.join(_pl24_d, "ignition_e2_summary.json"), "w",
+# 🐞 **العيّنةُ الأولى كانت عمياء** (طفرة N11 نجت منها 2026-08-15): كتبتُ
+# الملخّصَ باسم `ignition_e2_summary.json` **داخل** مجلّد الجلسة، و`_summary_of`
+# تقرأ `summary.json` داخلها أو ترتدّ للاسم الآخر **مجلّدين فوقها** ⇒ كان
+# `None` في الذراعين فلا تُفرِّق الطفرةَ عن الأصل. الآن الاسمُ الصحيح.
+with open(_os_hc.path.join(_pl24_d, "summary.json"), "w",
           encoding="utf-8") as _f:
-    _json0.dump({"session_date": "2026-08-03", "loops_completed": 7}, _f)
+    _json0.dump({"session_date": "2026-08-03", "loops_completed": 7,
+                 "n_delivered": 3, "termination": "normal"}, _f)
 _pl24_repo = _prd_tmp.mkdtemp(prefix="pl24r_")
 _pl24_out = _PL24.recover(_pl24_root, _pl24_repo)
 _pl24_idx_path = _os_hc.path.join(_pl24_repo, _PL24.INDEX)
@@ -18358,7 +18363,7 @@ check("🔴 PL24 (خطة 024) ملخّصٌ بتاريخٍ مخالف (2026-08-03
       "**يُتخطّى ويُعلَن** ولا يُدمَج تحت تاريخٍ ليس له (عقد «لا نخمّن» منفَّذًا)",
       "2026-08-10" not in _pl24_idx and "2026-08-03" not in _pl24_idx
       and "2026-08-10" in (_pl24_out.get("no_summary") or [])
-      and int(_pl24_out.get("new") or 0) == 0)
+      and (_pl24_out.get("new") or []) == [])
 
 # PL21 — 🔒 خطة 021: `_redact_secrets` يغطّي **كلَّ** الأسرار لا تيليجرام وحده.
 # العيّنةُ مفرِّقة: سرٌّ حقيقيّ من البيئة + نمطٌ بنيويّ لسرٍّ **لم نُسمِّه**.
