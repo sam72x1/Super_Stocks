@@ -18441,21 +18441,39 @@ try:
     _PL27HL._KEYS_CACHE.clear()
     _pl27_n1 = _PL27HL.record("t", "S1", [{"symbol": "AAA", "price": 1.0}],
                               path=_pl27_p)
+    _pl27_reads_before = len(_pl27_reads)
     _pl27_k1 = _PL27HL._known_keys(_pl27_p)
     _pl27_k2 = _PL27HL._known_keys(_pl27_p)      # نفسُ الحالة ⇒ بلا تحليلٍ جديد
-    _pl27_reads_after = len(_pl27_reads)
+    # تحليلٌ **واحدٌ** للنداءين (الأوّلُ يملأ الكاشَ والثاني يقرؤه)
+    _pl27_reads_pair = len(_pl27_reads) - _pl27_reads_before
     _pl27_n2 = _PL27HL.record("t", "S1", [{"symbol": "AAA", "price": 1.0}],
                               path=_pl27_p)      # مكرّر ⇒ صفر
     _pl27_n3 = _PL27HL.record("t", "S2", [{"symbol": "BBB", "price": 2.0}],
                               path=_pl27_p)      # جديدٌ بعد تغيّر الملفّ
+    # 🐞 **الحالةُ المفرِّقة** (طفرة M6 نجت بدونها 2026-08-15): كاتبٌ **آخر**
+    # (صيّادٌ ثانٍ في الجوب نفسِه أو دفعٌ خارجيّ) يُلحق صفًّا بالملفّ من ورائنا.
+    # بلا إبطالٍ ببصمة الملفّ يبقى الكاشُ بائتًا فلا يرى المفتاح ⇒ **صفٌّ
+    # مكرَّر**. وبالإبطال: يُقرأ الملفُّ من جديد فيُخطَّى. (العيّنةُ السابقة لم
+    # تكن تُفرِّق: مفتاحُ BBB غائبٌ عن الكاش البائت **وعن الملفّ** معًا.)
+    with open(_pl27_p, "a", encoding="utf-8") as _fh:
+        _fh.write(_json0.dumps(
+            {"key": _PL27HL._key("t", "S3", "CCC"), "hunter": "t",
+             "session": "S3", "symbol": "CCC", "ref_close": 3.0,
+             "outcome": None}, ensure_ascii=False) + "\n")
+    _pl27_n4 = _PL27HL.record("t", "S3", [{"symbol": "CCC", "price": 3.0}],
+                              path=_pl27_p)      # كاتبٌ آخر سبقنا ⇒ صفر
+    _pl27_ccc = sum(1 for _r in _PL27HL.load(_pl27_p)
+                    if _r.get("symbol") == "CCC")
 finally:
     _PL27HL.load = _pl27_load_saved
     _PL27HL._KEYS_CACHE.clear()
-check("🌱 PL27ج كاشُ مفاتيح السجلّ: نداءان متتاليان بلا تغيّر الملفّ = تحليلٌ "
-      "واحد · والدِدوب يبقى صحيحًا (المكرّر 0) · والملفُّ المتغيّر يُبطل الكاش "
-      "فيُرصَد الجديد (‏1) — أداءٌ بلا فقدِ صحّة",
+check("🌱 PL27ج كاشُ مفاتيح السجلّ: نداءان متتاليان بلا تغيّر الملفّ = **تحليلٌ "
+      "واحد** (‏`load` نُوديت مرّةً) · والدِدوب صحيح (المكرّر 0) · **وكاتبٌ آخر "
+      "يُلحق صفًّا من ورائنا ⇒ البصمةُ تُبطل الكاشَ فلا يتكرّر الصفّ** (‏CCC "
+      "مرّةً واحدة) — أداءٌ بلا فقدِ صحّة",
       _pl27_n1 == 1 and _pl27_n2 == 0 and _pl27_n3 == 1
-      and _pl27_k1 == _pl27_k2 and _pl27_reads_after == _pl27_reads_after)
+      and _pl27_k1 == _pl27_k2 and _pl27_reads_pair == 1
+      and _pl27_n4 == 0 and _pl27_ccc == 1)
 
 # PL23 — 🧪 خطة 023: توصيفُ دوالٍّ **يواجه مُخرَجُها المالكَ** ولم تكن مقفولة
 # إلّا عبورًا (‏`apply_outcomes` · `pending` · `rebuild_fire_log` · `runup_pct`).
