@@ -17400,8 +17400,14 @@ check("🗜️📡 PRD4 رسالةُ الرادار: وسومٌ مسموحةٌ �
 # PRD10 — «اعتمد الحفظ» (أمر المالك 2026-08-14 بعد §⑬): الرسالة قسمان —
 # الحافظُ 3 جلسات كرتٌ كامل تحت 🟢، وغيرُ الحافظ سطرٌ مضغوط تحت 👀 **لا
 # يُسقَط** (درس WETO: انفجر من حفظ 0ج) ولا كرتَ له
+# 🐞 وعيّنةٌ **مفرِّقة** (2026-08-15): `MIDD` بحفظِ جلستين — بين 1 و`READY_HOLD`
+# — فيسقط أيُّ إرخاءٍ للعتبة (طفرة MP8 «‏h >= 1» **نجت** على عيّنة 4/0 لأن
+# الجوابين متطابقان فيها: «القفلُ لا يحرس إلّا بقدر ما تُفرِّق عيّنتُه»).
+# والعتبةُ قرارٌ مقيس (‏+0.174R للشريحة الحافظة §⑬) لا خيارَ عرض.
 _prd10 = _PRD.build_alert(
     [{"symbol": "RDYX", "read": dict(_prd_r, hold_sessions=4), "plan": None,
+      "src": "متحرّك"},
+     {"symbol": "MIDD", "read": dict(_prd_r, hold_sessions=2), "plan": None,
       "src": "متحرّك"},
      {"symbol": "FRSH", "read": dict(_prd_r, hold_sessions=0), "plan": None,
       "src": "متحرّك"}], "2026-08-14")
@@ -17415,6 +17421,8 @@ check("🗜️📡 PRD10 قسما الرسالة: RDYX كرتٌ جاهز (🟢+�
       "مضغوط (حافظ 0 جلسة) بلا كرتٍ ولا يُسقَط",
       f"🟢 <b>جاهز — حافظ قاعه {_PRD.READY_HOLD} جلسات فأكثر</b>" in _prd10
       and "RDYX" in _prd10_ready_seg and "FRSH" not in _prd10_ready_seg
+      and "MIDD" not in _prd10_ready_seg      # حفظُ جلستين ليس جاهزًا (العتبة 3)
+      and "MIDD" in _prd10_watch_seg
       and "حافظ قاعه 4 جلسة" in _prd10
       and "👀 <b>قيد المتابعة" in _prd10 and "FRSH" in _prd10_watch_seg
       and "حافظ 0 جلسة" in _prd10_watch_seg
