@@ -4853,5 +4853,9 @@
   "company_name": "Quince Therapeutics, Inc.",
   "short_interest": 56631,
   "days_to_cover": 1.35
+ },
+ "ZRO": {
+  "short_pct": 0.0,
+  "float": 1000000.0
  }
 }
