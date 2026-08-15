@@ -18044,6 +18044,148 @@ check("🕯️ PRD22 زنادُ الرأس على الكرت: تحت الرأس 
       and "✅ يتداول فوق رأسها" in _prd22_above
       and "ارتداد يلمس رأسها" not in _prd22_above)
 
+# PRD23 — 🔒 الاقتراض/الفلوت على الكرت (طلب المالك 2026-08-15): `borrow_line`
+# الإنتاجية **بالاسم** (إطار فيصل الموثق) + الفلوت في سطر 💰 · والتعذرُ غيابُ
+# سطرٍ صامتٌ لا «0» · والمصدرُ يُترجم مفسَّرًا والمجهولُ يمرّ كما هو
+_prd23_card = "\n".join(_PRD._ready_card(1, {
+    "symbol": "BRW", "read": dict(_prd_r, hold_sessions=4), "plan": None,
+    "src": "قائمة الارتداد", "float_sh": 1790000,
+    "borrow": {"borrow_fee": 776.7, "shares_available": 7000}}))
+_prd23_bare = "\n".join(_PRD._ready_card(1, {
+    "symbol": "NOB", "read": dict(_prd_r, hold_sessions=4), "plan": None,
+    "src": "مصدر غريب"}))
+check("🔒 PRD23 كرتُ الاقتراض/الفلوت: `borrow_line` بإطار فيصل (متاح 7K قليل · "
+      "رسوم إيجابية) + «فلوت 1.8M» + مصدرٌ مفسَّر — والبلا-حقولٍ بلا سطرٍ "
+      "والمجهولُ يمرّ",
+      "🔒 اقتراض:" in _prd23_card and "7K" in _prd23_card
+      and "فلوت 1.8M" in _prd23_card
+      and "قائمة الارتداد — سهمُنا وله خطة دخول محفوظة" in _prd23_card
+      and "🔒 اقتراض:" not in _prd23_bare and "فلوت" not in _prd23_bare
+      and "مصدر غريب" in _prd23_bare)
+
+# PRD24 — سلوكيًّا من نقطة النداء الحيّة: run() يجلب CE/الفلوت **لأصحاب
+# الكروت وحدهم** (لا لكل البِركة — سقفُ النداءات) ويُلحقهما بالرسالة والحصاد
+# · وانهيارُ الجالب لا يُسقط الرادار
+# 🐞 والعيّنةُ **مفرِّقة بالبناء** (قُوّيت قبل الطفرات لا بعدها): معها WQT
+# مطابقٌ **بلا حفظ** (متابعةٌ بلا كرت) — فطفرةُ «اجلب للبِركة كلّها» تُظهر
+# WQT في `calls` وتسقط؛ بلا WQT كانت تنجو (رمزٌ واحد = قفلٌ أعمى عن الشرط)
+_prd24_dir = _prd_tmp.mkdtemp(prefix="prd24_")
+_prd24_lp = _os_hc.path.join(_prd24_dir, "led.jsonl")
+_prd24_wl_saved = S.load_watchlist
+_prd24_ce_saved, _prd24_fl_saved = S.ce_borrow_info, S._yahoo_float
+S.load_watchlist = lambda: {"pullback": [],
+                            "stocks": [{"symbol": "TSTX"},
+                                       {"symbol": "WQT"}],
+                            "removed": [], "explosions": []}
+# (‏WQT ممدود إلى 51 شمعة — نافذة ALERT_W=40 تحتاج 41 فأكثر، وقاعُه طازج
+#  ‏hold=0 ⇒ متابعةٌ بلا كرت — مُتحقَّق قبل الكتابة)
+_prd24_fetch = lambda syms: {"TSTX": _wk19_fetch(None)["TSTX"],
+                             "WQT": _prd_frame([2.6] * 40 + _prd_lo[25:],
+                                               [2.8] * 40 + _prd_hi[25:],
+                                               [2.7] * 40 + _prd_cl[25:])}
+_prd24_calls, _prd24_sent = [], []
+try:
+    S.ce_borrow_info = lambda sym: (_prd24_calls.append(sym),
+                                    {"borrow_fee": 12.5,
+                                     "shares_available": 9000})[1]
+    S._yahoo_float = lambda sym, strict=False: 1790000
+    _prd24_rc = _PRD.run(now_utc=_prd_now, fetch_hist=_prd24_fetch,
+                         sender=lambda m: (_prd24_sent.append(m), True)[1],
+                         state_path=_os_hc.path.join(_prd24_dir, "st.json"),
+                         ledger_path=_prd24_lp, saver=lambda f: None)
+    S.ce_borrow_info = lambda sym: (_ for _ in ()).throw(RuntimeError("down"))
+    S._yahoo_float = lambda sym, strict=False: (_ for _ in ()).throw(
+        RuntimeError("down"))
+    _prd24_rc2 = _PRD.run(now_utc=_prd_now, fetch_hist=_prd24_fetch,
+                          sender=lambda m: True,
+                          state_path=_os_hc.path.join(_prd24_dir, "st2.json"),
+                          ledger_path=_os_hc.path.join(_prd24_dir, "l2.jsonl"),
+                          saver=lambda f: None)
+finally:
+    S.load_watchlist = _prd24_wl_saved
+    S.ce_borrow_info, S._yahoo_float = _prd24_ce_saved, _prd24_fl_saved
+_prd24_msg = _prd24_sent[0] if _prd24_sent else ""
+_prd24_recs = [_json0.loads(ln) for ln in
+               open(_prd24_lp, encoding="utf-8").read().splitlines() if ln]
+_prd24_rec = next(r for r in _prd24_recs if r.get("symbol") == "TSTX")
+check("🔒 PRD24 من نقطة النداء الحيّة: CE يُنادى لصاحب الكرت وحده (TSTX لا "
+      "WQT المطابق بلا حفظ — وهو في الرسالة متابعةً فالاستثناء غيرُ فارغ) "
+      "والرسوم 12.5% والمتاح 9K والفلوت في الرسالة والحصاد · وانهيارُ "
+      "الجالبين لا يُسقط الرادار",
+      _prd24_rc == 0 and _prd24_calls == ["TSTX"]
+      and "WQT" in _prd24_msg
+      and "🔒 اقتراض:" in _prd24_msg
+      and "فلوت 1.8M" in _prd24_msg
+      and _prd24_rec.get("borrow_fee") == 12.5
+      and _prd24_rec.get("shares_available") == 9000
+      and _prd24_rec.get("float_sh") == 1790000
+      and _prd24_rc2 == 0)
+
+# WKA — 🗜️🔥 أقفال أداة §⑯ (`press_wake_arms.py`): المِشيةُ بدوالّ الإنتاج
+# بالاسم، والعيّناتُ **مفرِّقة بالبناء** (استُكشفت قبل الكتابة لا افتُرضت):
+# A حافظٌ مستيقظ يُعبَّأ ويبلغ هدفه (hold=3 · oc=win · awake/vol) · Q توأمه
+# الهادئ (نفسُ الشموع بحجمٍ مسطّح ⇒ awake=False — الحجمُ وحده يفرّق) ·
+# S مكنوسٌ بعد حفظ (swept=True · hold=0) · والكادنسُ سلوكيّ: مطابقتان
+# خامّ (60·61) والمِشيةُ تنتج **واحدة** ⇒ قفزةُ WAIT تعمل (لو حُذفت لظهرتا)
+import press_wake_arms as _WKA
+_wka_loA = [2.6] * 47 + _prd_lo[25:] + [3.5, 3.55, 3.5] + [3.35, 3.4]
+_wka_hiA = [2.8] * 47 + _prd_hi[25:] + [3.75, 3.8, 3.75] + [3.6, 5.5]
+_wka_clA = [2.7] * 47 + _prd_cl[25:] + [3.6, 3.65, 3.61] + [3.5, 5.4]
+_wka_fA = _prd_frame(_wka_loA, _wka_hiA, _wka_clA)
+_wka_fA["Volume"] = 1000.0
+_wka_fA.iloc[60, _wka_fA.columns.get_loc("Volume")] = 6000.0
+_wka_fQ = _prd_frame(_wka_loA, _wka_hiA, _wka_clA)
+_wka_fQ["Volume"] = 1000.0
+_wka_fS = _prd_frame([2.6] * 45 + _prd_lo[25:] + [3.5, 3.55, 3.5, 3.52, 3.3],
+                     [2.8] * 45 + _prd_hi[25:] + [3.75, 3.8, 3.75, 3.7, 3.6],
+                     [2.7] * 45 + _prd_cl[25:] + [3.6, 3.65, 3.6, 3.62, 3.4])
+_wka_fS["Volume"] = 1000.0
+_wka_A = _WKA.walk_symbol_wake("A", _wka_fA)
+_wka_Q = _WKA.walk_symbol_wake("Q", _wka_fQ)
+_wka_S = _WKA.walk_symbol_wake("S", _wka_fS)
+import rebound_arms as _wka_RB
+_wka_raw = [i for i in range(_wka_RB.MIN_BARS, len(_wka_fA))
+            if _PRD.press_read(_wka_fA.iloc[:i + 1], w=_PRD.ALERT_W)]
+check("🗜️ WKA1 مِشيةُ §⑯ على حافظٍ يُعبَّأ ويبلغ هدفه: حلقةٌ واحدة "
+      "(‏hold=3 · oc=win · awake+vol) — تثبت وصلَ press_read وresolve_episode "
+      "وwake_read معًا من المِشية نفسها",
+      len(_wka_A) == 1 and _wka_A[0]["hold"] == 3
+      and _wka_A[0]["oc"] == "win" and _wka_A[0]["awake"] is True
+      and _wka_A[0]["vol"] is True and _wka_A[0]["swept"] is False)
+check("🗜️ WKA2 التوأمان المفرِّقان: الهادئ (نفس الشموع بحجم مسطّح) "
+      "awake=False · والمكنوسُ بعد حفظٍ swept=True مع hold=0",
+      len(_wka_Q) == 1 and _wka_Q[0]["awake"] is False
+      and _wka_Q[0]["oc"] == "win"
+      and len(_wka_S) == 1 and _wka_S[0]["swept"] is True
+      and _wka_S[0]["hold"] == 0)
+check("🗜️ WKA3 كادنسُ §⑬ سلوكيًّا: مطابقتان خامّ في الفكستشر (60·61) "
+      "والمِشيةُ تنتج واحدة ⇒ قفزةُ WAIT بعد المطابقة تعمل (غيرُ فارغ القفل: "
+      "لو حُذفت القفزةُ لصارت الحلقات 2) · وفلترُ السنة يُفرغ سنةً غريبة",
+      len(_wka_raw) >= 2 and len(_wka_A) == 1
+      and _WKA.walk_symbol_wake("A", _wka_fA, year="2031") == [])
+import io as _wka_io
+import contextlib as _wka_ctx
+_wka_buf = _wka_io.StringIO()
+with _wka_ctx.redirect_stdout(_wka_buf):
+    _wka_rc_empty = _WKA.report([], 5, "2024")
+    _wka_rc_full = _WKA.report(_wka_A + _wka_Q + _wka_S, 3, "2024")
+_wka_out = _wka_buf.getvalue()
+check("🗜️ WKA4 تقريرُ §⑯: صفرُ حلقات ⇒ خروج 4 (بصمة الـno-op تُعلَن لا "
+      "تُفسَّر) · ومع البيانات خروج 0 وفيه مِرساةُ التكامل وشرائحُ 🔥/🩸 "
+      "وسطرُ «تشخيصٌ لا معايرة» (إغلاق §⑭)",
+      _wka_rc_empty == 4 and _wka_rc_full == 0
+      and "مِرساةُ التكامل" in _wka_out and "HOLD3" in _wka_out
+      and "🔥 مستيقظ" in _wka_out and "🩸 مكنوسٌ بعد حفظ" in _wka_out
+      and "صفرُ تغيير عتبةٍ" in _wka_out)
+_wka_wf = open(".github/workflows/press_wake.yml", encoding="utf-8").read()
+check("🗜️ WKA5 قاعدة P1 في press_wake.yml: السنةُ واللقطةُ موصولتان "
+      "(‏BACKTEST_YEAR وBT_FROZEN_PATH وrun-id من المدخلات) — مدخلٌ بلا env "
+      "مدخلٌ ميت",
+      "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _wka_wf
+      and "BT_FROZEN_PATH: frozen_backtest.pkl.gz" in _wka_wf
+      and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _wka_wf
+      and "python press_wake_arms.py" in _wka_wf)
+
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
 # 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
 # (‏ALERT_W=40) فالإطارُ الذي كان «تركيبة بحثٍ صامتة» صار **يُنبّه** — والقفل

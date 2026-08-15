@@ -489,15 +489,46 @@ def _compact_line(r: dict) -> str:
     return ln
 
 
+# 🔗 مسمّيات المصدر مفسَّرةً ذاتيًّا (طلب المالك 2026-08-15 «عدّلها وعلّمني وش
+# تفيدني»): المصدرُ = **لماذا هذا السهمُ داخل بِركة الرادار أصلًا ومن أي عينٍ
+# جاء** — ولكلٍّ دلالةُ تعاملٍ مختلفة. المفاتيحُ المخزّنة في الحالة/الحصاد لا
+# تتغيّر (استقرارُ السجلّ) — الترجمةُ عرضٌ فقط.
+SRC_LABELS = {
+    "قائمة الارتداد": "قائمة الارتداد — سهمُنا وله خطة دخول محفوظة",
+    "قائمة الترشيح": "قائمة الأسبوع — مؤهّل بوابات البوت",
+    "شُطب حديثًا": "شُطب من قوائمنا حديثًا — الرادار ما زال يراقبه",
+    "متحرّك حديث": "متحرّك سابق — انفجر ثم انضغط (نمط WETO)",
+    "ذاكرة الرادار": "ذاكرة الرادار — محفوظ من مسح القوائم",
+}
+
+
+def _src_label(src) -> str:
+    """ترجمةُ مفتاح المصدر لعرضٍ مفسَّر — المجهولُ يمرّ كما هو (لا يُخفى)."""
+    return SRC_LABELS.get(str(src or "؟"), str(src or "؟"))
+
+
 def _ready_card(i: int, r: dict) -> list:
     """كرتُ سهمٍ جاهز — **بترتيب كرت التقرير الأسبوعي حرفيًّا**: رأسٌ ⟵ الصغائرُ
     في سطر 💰 ⟵ السياق ⟵ 📥 الدخول والوقف ⟵ 🎯 الهدف ⟵ المستويات ⟵ 🔗 المصدر.
     كلُّ معلومةٍ مهمّة بسطرها (قاعدة العرض 2026-06-23) — والشرحُ المكرّر خرج للذيل."""
     p = r.get("read") or {}
     h = int(p.get("hold_sessions") or 0)
+    import Super_stock as S                                      # noqa: PLC0415
+    _fl = r.get("float_sh")
     seg = [f"{i}) 🗜️ <b>${_esc(r.get('symbol'))}</b> · 🟢 حافظ قاعه {h} جلسة",
            f"   💰 ${p.get('close')} · هبوط {p.get('drop_pct')}% من "
-           f"${p.get('high_w')} · قاع الضغط ${p.get('press_low')}"]
+           f"${p.get('high_w')} · قاع الضغط ${p.get('press_low')}"
+           + (f" · فلوت {S.fmt_money(_fl)}" if _fl else "")]
+    # 🔒 الشورت المتاح والرسوم (طلب المالك 2026-08-15) — من ChartExchange
+    # **مصدر فيصل نفسه** (رابطه بصورته 9431 · بيانات IBKR كل 15 دقيقة)،
+    # والفلوت من ياهو (المصدر المثبَت للمغمورة). العرضُ بإطار فيصل الموثّق
+    # عبر `borrow_line` **بالاسم** — وتعذُّرُ الجلب غيابٌ صامتٌ للسطر لا «0».
+    _bw = r.get("borrow") or {}
+    if _bw.get("borrow_fee") is not None or _bw.get("shares_available") is not None:
+        try:
+            seg.append("   " + S.borrow_line(_bw))
+        except Exception:                                        # noqa: BLE001
+            pass
     if float(p.get("runup_pct") or 0.0) >= 50.0:
         seg.append(f"   📈 ركض قبل الضغط {p['runup_pct']}% (نمط النموذج)")
     if r.get("prev_q"):
@@ -534,7 +565,7 @@ def _ready_card(i: int, r: dict) -> list:
                    f"رأسها ${p['imp_head']}"
                    + (" — ✅ يتداول فوق رأسها (زناد فيصل متحقق)" if _above
                       else " — ارتداد يلمس رأسها = دخول فيصل (درس PLRZ)"))
-    seg.append(f"   🔗 المصدر: {_esc(r.get('src', '؟'))}")
+    seg.append(f"   🔗 المصدر: {_esc(_src_label(r.get('src')))}")
     return seg
 
 
@@ -684,8 +715,14 @@ def append_ledger(rows, session_iso: str, path=LEDGER_FILE) -> int:
                     dup += 1
                     continue
                 _w = r.get("wake") or {}
+                _b = r.get("borrow") or {}
                 rec = {"session": session_iso, "symbol": r["symbol"],
                        "src": r.get("src"), "prev_q": r.get("prev_q"),
+                       # 🔒 الاقتراض/الفلوت يُحصَدان مع الصف (سابقة A3:
+                       # «يُجلَب ويُعرَض ثم يُرمى» عيبٌ مقيس — فلا يتكرر هنا)
+                       "borrow_fee": _b.get("borrow_fee"),
+                       "shares_available": _b.get("shares_available"),
+                       "float_sh": r.get("float_sh"),
                        # 🔥 حقولُ الصحوة تُحصَد مع كل صفّ — فيصير سؤال «هل
                        # الصحوةُ تتنبّأ؟» قابلًا للقياس من السجل لا مُدَّعًى
                        "wake_vol_x": _w.get("vol_x"),
@@ -787,6 +824,26 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
         except Exception:                                        # noqa: BLE001
             r["wake"] = {}
     rows.sort(key=alert_rank)        # الأقرب لنمط WETO أولًا (تصحيح أول تشغيلة)
+    # 🔒 الشورت المتاح/الرسوم/الفلوت (طلب المالك 2026-08-15) — **لأصحاب
+    # الكروت وحدهم** (ترتيبُ العرض نفسُه: المستيقظُ الحافظ أولًا ثم الحافظ ·
+    # حتى سقف الكروت) = ‏≤ALERT_CAP نداءَ CE ومثلَها لياهو، لا لكل البِركة.
+    # فاشلٌ-آمنٌ حقلًا حقلًا: التعذّر غيابُ سطرٍ لا صفرٌ ولا انهيار.
+    _rdy = [r for r in rows
+            if int((r.get("read") or {}).get("hold_sessions") or 0) >= READY_HOLD]
+    _card_rows = ([r for r in _rdy if (r.get("wake") or {}).get("awake")]
+                  + [r for r in _rdy
+                     if not (r.get("wake") or {}).get("awake")])[:ALERT_CAP]
+    for r in _card_rows:
+        try:
+            _b = S.ce_borrow_info(r["symbol"]) or {}
+            if _b:
+                r["borrow"] = _b
+        except Exception:                                        # noqa: BLE001
+            pass
+        try:
+            r["float_sh"] = S._yahoo_float(r["symbol"])
+        except Exception:                                        # noqa: BLE001
+            r["float_sh"] = None
     _log(f"🩺 التغطية: فُحص {len(pool) - failed} · تعذّر {failed} · مطابق {len(rows)}.")
     _log(f"🧪 عدّادات §⑪-ج (كلفة التركيبات على البِركة — سجلّ فقط): "
          f"V0={grid['V0']} · VA1={grid['VA1']} · VA2={grid['VA2']} · "
