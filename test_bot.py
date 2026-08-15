@@ -17940,6 +17940,29 @@ check("🔥 CT5 §⑮ `wake_day`: حافظٌ مستيقظ (match+ready+awake+vol
       and _ct5_w2["ready"] and not _ct5_w2["awake"]
       and not _ct5_w3["match"] and not _ct5_w3["ready"])
 
+# CT6 — 🩸 §⑮-ب `swept_after_hold`: عيّناتٌ **رباعيّةُ التفريق** (صمد 4 ثم
+# كُسر=True · سلّميٌّ بلا حفظ=False · صمد 2 فقط=False يفرّق الحدّ · وتالف
+# ينهار بأمان) + الحقلان يمرّان في `press_read` (الكنسُ عرض/حصاد لا قرار:
+# المطابقةُ نفسُها بت-بت مع الكنس وبدونه)
+_ct6_a = _PRD.swept_after_hold(
+    [10.0, 8.0, 6.0, 5.0, 5.2, 5.1, 5.3, 5.15, 4.8], 0, 8)
+_ct6_b = _PRD.swept_after_hold([10.0, 8.0, 6.0, 5.0, 4.5, 4.0, 3.5], 0, 6)
+_ct6_c = _PRD.swept_after_hold([10.0, 8.0, 5.0, 5.2, 5.1, 4.8], 0, 5)
+_ct6_d = _PRD.swept_after_hold(None, 0, 5)
+_ct6_sit = _prd_frame(_prd_lo + [3.5, 3.55, 3.5, 3.52, 3.3],
+                      _prd_hi + [3.75, 3.8, 3.75, 3.7, 3.6],
+                      _prd_cl + [3.6, 3.65, 3.6, 3.62, 3.4])
+_ct6_r = _PRD.press_read(_ct6_sit)
+check("🩸 CT6 §⑮-ب `swept_after_hold`: صمد 4 ثم كُسر=(True,4) · سلّمي=False · "
+      "صمد 2=False (يفرّق الحدّ) · تالف=(False,0) · ونمطُ «جلس ثم كُنس» يمرّ "
+      "في press_read (‏swept_hold=True · prev_hold=4 · hold=0)",
+      _ct6_a == (True, 4) and _ct6_b == (False, 0) and _ct6_c == (False, 0)
+      and _ct6_d == (False, 0)
+      and bool(_ct6_r) and _ct6_r["swept_hold"] is True
+      and _ct6_r["prev_hold"] == 4 and _ct6_r["hold_sessions"] == 0
+      and _PRD.press_read(_prd_frame(_prd_lo, _prd_hi, _prd_cl))["swept_hold"]
+      is False)
+
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
 # 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
 # (‏ALERT_W=40) فالإطارُ الذي كان «تركيبة بحثٍ صامتة» صار **يُنبّه** — والقفل

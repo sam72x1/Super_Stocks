@@ -100,7 +100,9 @@ def wake_day(bars, upto_idx):
     sl = bars.iloc[:upto_idx + 1]
     r = PR.press_read(sl, w=PR.ALERT_W)
     out = {"match": bool(r), "hold": int((r or {}).get("hold_sessions") or 0),
-           "ready": False, "awake": False, "vol": False, "rev": None}
+           "ready": False, "awake": False, "vol": False, "rev": None,
+           "swept": bool((r or {}).get("swept_hold")),   # 🩸 §⑮-ب
+           "prev_hold": int((r or {}).get("prev_hold") or 0)}
     if not r:
         return out
     out["ready"] = out["hold"] >= PR.READY_HOLD
@@ -217,7 +219,12 @@ def main() -> int:
                               "rev": next((w["rev"] for w in wake_days
                                            if w["rev"]), None),
                               "hold": max((w["hold"] for w in wake_days),
-                                          default=0)},
+                                          default=0),
+                              # 🩸 §⑮-ب: كنسٌ بعد حفظٍ في أيّ يومِ قراءة
+                              "swept": any(w.get("swept") for w in wake_days),
+                              "prev_hold": max((w.get("prev_hold") or 0
+                                                for w in wake_days),
+                                               default=0)},
                      "safety_unknown": sum(1 for d in var_days
                                            if d.get("safety") is None)})
         mark = "🔥" if fired else "—"
@@ -295,6 +302,19 @@ def main() -> int:
                 for r in m if not r["wake"]["ready"]]
         if _nr2:
             _log(f"     طابقوا ولم يحفظوا 3ج (قسم المتابعة): {' · '.join(_nr2)}")
+        # 🩸 §⑮-ب — بين المطابقين **غير الحافظين**: كم منهم قاعُه الطازج كسرَ
+        #    قاعًا صمد 3ج فأكثر (كنسُ النموذج)؟ W-P3: النصفُ فأكثر في (أ).
+        _nr3 = [r for r in m if not r["wake"]["ready"]]
+        if _nr3:
+            _sw = [r for r in _nr3 if r["wake"].get("swept")]
+            _log(f"     🩸 §⑮-ب «كنسٌ بعد حفظ» بين غير الحافظين: {len(_sw)} "
+                 f"من {len(_nr3)}"
+                 + (" — " + " · ".join(
+                     f"{r['symbol']}(صمد {r['wake']['prev_hold']}ج ثم كُنس)"
+                     for r in _sw) if _sw else ""))
+            _no = [r["symbol"] for r in _nr3 if not r["wake"].get("swept")]
+            if _no:
+                _log(f"        بلا كنسٍ بعد حفظ: {' · '.join(_no)}")
     unk = sum(r.get("safety_unknown") or 0 for r in rows)
     if unk:
         _log(f"  ⚠️ قراءاتُ سلامةٍ متعذّرة (يوم-قراءة): {unk} — تُعَدّ سقوطًا"

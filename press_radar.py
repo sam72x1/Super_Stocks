@@ -209,11 +209,15 @@ def press_read(df, w=W, band_pct=None):
         # لذلك فيه طلبات مضارب — لو حطيت طلبي 2.70 و2.80 ممتاز»): شمعةُ
         # صنع القاع — ذيلُها القاع نفسه ورأسُها High يومها؛ طلباتُ فيصل
         # داخل مداها والفشلُ كسرُ الذيل بلا رجوع. حقلُ عرضٍ إضافيّ حصرًا.
+        # 🩸 §⑮-ب: «كنسٌ طازجٌ بعد حفظ» داخل مقطع الضغط (حقلا حصادٍ/عرضٍ
+        # إضافيان — لا يغيّران قرار المطابقة بحرف)
+        _sw, _ph = swept_after_hold(lo, j_star, i)
         return {"close": round(close, 4), "high_w": round(high_w, 4),
                 "press_low": round(press_low, 4),
                 "imp_head": round(float(hi[j_low]), 4),
                 "drop_pct": round(drop, 1),
                 "hold_sessions": int(i - j_low),
+                "swept_hold": bool(_sw), "prev_hold": int(_ph),
                 "runup_pct": round(runup_pct(hi, lo, j_star), 1),
                 "tested_level": tl}
     except Exception:                                            # noqa: BLE001
@@ -353,6 +357,36 @@ def wake_read(df, ah_pct=None):
         ah_hot = False
     out["awake"] = bool(a1) or out["rev"] is not None or ah_hot
     return out
+
+
+def swept_after_hold(lo, j_star, i):
+    """🩸 نقيّة (‏§⑮-ب): «كنسٌ طازجٌ بعد حفظ» — داخل مقطع الضغط [j_star..i]:
+    هل صمد قاعٌ `READY_HOLD` جلساتٍ فأكثر **ثم كُسر بقاعٍ أطزج**؟
+
+    من نصّ النموذج حرفيًّا («مسح السيوله = اوامر الوقف») ومن قياس §⑮:
+    **‏79% من الكتالوج عشيّةَ انفجاره قاعُه طازجٌ (حفظ 0-2)** — أي أن كسرَ
+    القاع المحفوظ ليس فقدانَ نموذجٍ بل **الكنسَ الأخير** غالبًا. صفرُ رقمٍ
+    جديد (‏`READY_HOLD` القائم حصرًا). ترجع `(هل كُنس، أطولُ حفظٍ سابقٍ كُسر)`
+    — تعذّرٌ ⇒ `(False, 0)` بلا انهيار."""
+    try:
+        j, i = int(j_star), int(i)
+        if i <= j:
+            return False, 0
+        cur = float(lo[j])
+        last_new = j
+        best = 0
+        swept = False
+        for k in range(j + 1, i + 1):
+            v = float(lo[k])
+            if v < cur:                     # قاعٌ جديد — كم صمد الذي قبله؟
+                held = k - last_new - 1
+                if held >= READY_HOLD:
+                    swept = True
+                    best = max(best, held)
+                cur, last_new = v, k
+        return swept, best
+    except Exception:                                            # noqa: BLE001
+        return False, 0
 
 
 def wake_line(w: dict) -> str:
