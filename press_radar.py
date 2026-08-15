@@ -430,19 +430,52 @@ def build_alert(rows, session_iso: str) -> str:
     return "\n".join("‏" + ln if ln else ln for ln in lines)
 
 
+def _ledger_seen(path, session_iso) -> set:
+    """رموزُ الجلسة المسجَّلةُ سلفًا في الحصاد — فيبقى **صفٌّ واحدٌ لكل سهمٍ في
+    الجلسة** مهما تكرّر الإرسال (التشغيلُ اليدويّ لا يضاعف عيّنة القياس).
+    تعذّرُ القراءة ⇒ مجموعةٌ فارغة (فاشلٌ-آمنٌ **مفتوح**: لا نُسقط حصادًا بسبب
+    عطلِ قراءة — والتكرارُ يبقى قابلًا للكشف بالمفتاح، والفقدُ لا يُستعاد)."""
+    seen = set()
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for ln in fh:
+                try:
+                    d = json.loads(ln)
+                except Exception:                                # noqa: BLE001
+                    continue
+                if str(d.get("session")) == str(session_iso):
+                    seen.add(str(d.get("symbol")))
+    except FileNotFoundError:
+        return seen
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⚠️ قراءة سجل الحصاد تعذّرت ({e}) — يُكتَب بلا فحص تكرار.")
+        return set()
+    return seen
+
+
 def append_ledger(rows, session_iso: str, path=LEDGER_FILE) -> int:
-    """يُلحق القراءات بسجل الحصاد — **بعد نجاح الإرسال حصرًا** (عقد «فُحص وسُلّم»)."""
-    n = 0
+    """يُلحق القراءات بسجل الحصاد — **بعد نجاح الإرسال حصرًا** (عقد «فُحص
+    وسُلّم»). 🔒 وإلحاقٌ **مُتماثِلُ التكرار** (2026-08-15): الرمزُ المسجَّلُ
+    لهذي الجلسة لا يُعاد — فإعادةُ الإرسال اليدويّ **لا تضاعف عيّنة الحصاد**
+    (وهي عيّنةُ قياسٍ أمامية: التكرارُ يفسدها بصمت)."""
+    seen = _ledger_seen(path, session_iso)
+    n, dup = 0, 0
     try:
         with open(path, "a", encoding="utf-8") as fh:
             for r in rows:
+                if str(r["symbol"]) in seen:
+                    dup += 1
+                    continue
                 rec = {"session": session_iso, "symbol": r["symbol"],
                        "src": r.get("src"), "prev_q": r.get("prev_q"),
                        **r["read"]}
                 fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                seen.add(str(r["symbol"]))
                 n += 1
     except Exception as e:                                       # noqa: BLE001
         _log(f"⚠️ سجل الحصاد لم يُكتب: {e}")
+    if dup:
+        _log(f"📒 الحصاد: {dup} رمزًا مسجَّلًا سلفًا لهذي الجلسة — لم يُكرَّر.")
     return n
 
 
@@ -490,7 +523,14 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
         if not r:
             continue
         mem = state.get("symbols", {}).get(sym, {})
-        if not should_alert(mem, session_iso):
+        # 🔓 التشغيلُ اليدويُّ يتخطّى **دِدوب السهم أيضًا** (2026-08-15، أمرُ
+        # المالك «شغّله خلّه يوصلني الآن»): الـworkflow يَعِد صراحةً أن الزرّ
+        # «يتخطّى بوّابة التوقيت **والدِدوب معًا**» — والكودُ كان يتخطّى دِدوبَ
+        # الجلسة وحده، فيبقى دِدوبُ السهم (‏REALERT_DAYS=5) كاتمًا كلَّ مطابقٍ
+        # نُبِّه أمس ⇒ **زرُّ المالك أخضرُ بصفر رسالة** = عينُ الصنف الذي كُتب
+        # التعليقُ لمنعه. ⇒ الوعدُ يُنفَّذ في الكود. 🔒 والكرونُ لم يُمَسّ
+        # (‏`force` صفرٌ فيه) والحصادُ صار متماثلَ التكرار فلا تتضاعف العيّنة.
+        if not force and not should_alert(mem, session_iso):
             continue
         rows.append({"symbol": sym, "read": r,
                      "plan": mem.get("plan"), "src": mem.get("src", "؟")})

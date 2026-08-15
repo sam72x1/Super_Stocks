@@ -17507,6 +17507,56 @@ check("🗜️📡 PRD5 عقدُ «فُحص وسُلّم»: فشلُ الإرس�
       "نجاحُه ⇒ ختمٌ وسجلٌّ فيه TSTX · وإعادةُ الجلسة دِدوبٌ صامت",
       _rc_fail == 1 and _no_stamp and _rc_ok == 0 and _stamped and _rc_dedup == 0)
 
+# PRD13 — 🔓 التشغيلُ اليدويّ (`PRESS_RADAR_FORCE=1`) يتخطّى **دِدوب السهم**
+# أيضًا لا دِدوبَ الجلسة وحده (2026-08-15): الـworkflow يَعِد بذلك نصًّا، وبلا
+# هذا يخرج زرُّ المالك **أخضرَ بصفر رسالة** كلَّما نُبِّه السهمُ خلال المهلة.
+# سلوكيّ ومفرِّق: نفسُ الحالة — بلا العلم صمتٌ · وبه إرسال.
+_prd13_dir = _prd_tmp.mkdtemp(prefix="prd13_")
+_prd13_sp = _os_hc.path.join(_prd13_dir, "st.json")
+_prd13_lp = _os_hc.path.join(_prd13_dir, "led.jsonl")
+_PRD.save_state({"last_session": "2026-08-10",
+                 "symbols": {"TSTX": {"last_seen": "2026-08-13",
+                                      "last_alert": "2026-08-13",
+                                      "src": "قائمة الارتداد"}}}, _prd13_sp)
+_prd13_wl_saved = S.load_watchlist
+S.load_watchlist = lambda: {"pullback": [], "stocks": [{"symbol": "TSTX"}],
+                            "removed": [], "explosions": []}
+_prd13_sent, _prd13_env = [], _os_hc.environ.get("PRESS_RADAR_FORCE")
+try:
+    _prd13_off = _PRD.run(                       # بلا العلم: دِدوبُ السهم يكتم
+        now_utc=_prd_now, fetch_hist=_prd_fetch,
+        sender=lambda m: (_prd13_sent.append(("off", m)), True)[1],
+        state_path=_prd13_sp, ledger_path=_prd13_lp, saver=lambda f: None)
+    _os_hc.environ["PRESS_RADAR_FORCE"] = "1"
+    _prd13_on = _PRD.run(                        # وبه: يصل المالكَ فعلًا
+        now_utc=_prd_now, fetch_hist=_prd_fetch,
+        sender=lambda m: (_prd13_sent.append(("on", m)), True)[1],
+        state_path=_prd13_sp, ledger_path=_prd13_lp, saver=lambda f: None)
+    _prd13_on2 = _PRD.run(                       # وإعادتُه لا تضاعف الحصاد
+        now_utc=_prd_now, fetch_hist=_prd_fetch,
+        sender=lambda m: (_prd13_sent.append(("on2", m)), True)[1],
+        state_path=_prd13_sp, ledger_path=_prd13_lp, saver=lambda f: None)
+finally:
+    S.load_watchlist = _prd13_wl_saved
+    if _prd13_env is None:
+        _os_hc.environ.pop("PRESS_RADAR_FORCE", None)
+    else:
+        _os_hc.environ["PRESS_RADAR_FORCE"] = _prd13_env
+_prd13_led = [_ln for _ln in open(_prd13_lp, encoding="utf-8").read().splitlines()
+              if _ln.strip()] if _os_hc.path.exists(_prd13_lp) else []
+check("🗜️📡 PRD13 الزرُّ اليدويّ يتخطّى دِدوبَ السهم (وعدُ الـworkflow منفَّذٌ في "
+      "الكود): بلا العلم صمتٌ · وبه رسالةٌ تصل",
+      _prd13_off == 0 and not [t for t, _ in _prd13_sent if t == "off"]
+      and _prd13_on == 0 and [t for t, _ in _prd13_sent if t == "on"]
+      and "TSTX" in dict(_prd13_sent)["on"])
+
+# PRD14 — 📒 الحصادُ متماثلُ التكرار: عيّنةُ القياس الأمامية لا تتضاعف بإعادة
+# الإرسال اليدويّ (صفٌّ واحدٌ لكل سهمٍ في الجلسة مهما تكرّر الزرّ)
+check("🗜️📡 PRD14 الحصاد لا يتضاعف: إرسالان بالعلم ⇒ صفٌّ واحدٌ لـTSTX في الجلسة",
+      len(_prd13_led) == 1
+      and _json0.loads(_prd13_led[0])["symbol"] == "TSTX"
+      and [t for t, _ in _prd13_sent if t == "on2"])
+
 # PRD6 — عزل: الإنتاج لا يعرف الرادار (تنبيه/عرض خارج الفرز كليًّا)
 check("🗜️📡 PRD6 عزلٌ: `Super_stock` لا يستورد/يذكر أدوات الرادار/الأذرع الثلاث",
       "press_radar" not in _ss_src and "rebound_arms" not in _ss_src
