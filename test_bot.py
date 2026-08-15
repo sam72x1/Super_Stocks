@@ -18616,6 +18616,84 @@ check("🔁 SPK🔒هـ موصولٌ حيًّا: `make_watch_entry` يحمل `sp
           {"stocks": [dict(_spk_entry, status="active")]},
           [], [], [], ready_only=False))
 
+# MW — 🔬 أقفال T-METHOD-WINDOW (`method_window_arms.py` · العقد
+# `method_window_prereg.md` مدفوعٌ قبل أيّ رقم). قياسٌ فقط — صفرُ مسٍّ بالإنتاج.
+import method_window_arms as _MW
+check("🔬 MW1 الاشتقاقُ == النداءُ المباشر: صفٌّ `bars_since_peak`=14 عضوٌ في "
+      "‏A1/A3 وليس في A0/A2 · و=25 عضوٌ في الأربع (تخومٌ مفرِّقة)",
+      _MW.arm_member(10, False, 14, False, None) is True
+      and _MW.arm_member(20, False, 14, False, None) is False
+      and all(_MW.arm_member(d, False, 25, False, None) is True
+              for d in (10, 20))
+      and _MW.arm_member(10, False, 31, False, None) is False
+      and _MW.arm_member(10, False, 9, False, None) is False)
+check("🔬 MW1ب واشتقاقُ النافذة يطابق `method_founding` بالـ`dmin` نفسه على "
+      "إطارٍ حقيقيّ (لا مقياسَ ثانٍ)",
+      (lambda d: (lambda f: f is not None and _MW.arm_member(
+          20, False, int(f["bars_since_peak"]), False, None)
+          == (S.method_founding(d, dmin=20, dmax=30) is not None)
+          and _MW.arm_member(10, False, int(f["bars_since_peak"]), False, None)
+          == (S.method_founding(d, dmin=10, dmax=30) is not None))(
+              S.method_founding(d, dmin=0, dmax=30)))(_sm_df))
+check("🔬 MW4 شرطُ RSI **مفرِّق**: محسوبٌ 35 يُرفَض · ومحسوبٌ 25 يمرّ · "
+      "و30.0 بالضبط تُرفَض («تحت 30») — وفي أذرع بلا RSI الثلاثةُ تمرّ",
+      _MW.arm_member(20, True, 25, True, 35.0) is False
+      and _MW.arm_member(20, True, 25, True, 25.0) is True
+      and _MW.arm_member(20, True, 25, True, 30.0) is False
+      and all(_MW.arm_member(20, False, 25, True, v) is True
+              for v in (35.0, 25.0, 30.0)))
+check("🔬 MW5 «تعذّرٌ ≠ مخالفة»: غيرُ المحسوب (`rsi_ok=False`) **يمرّ** ولو كانت "
+      "قيمتُه 50 المحشوّة",
+      _MW.arm_member(20, True, 25, False, 50.0) is True
+      and _MW.arm_member(20, True, 25, False, None) is True)
+check("🔬 MW5ب `rsi_at` يميّز المحسوبَ من المحشوّ: سلسلةٌ قصيرة ⇒ (None, False) · "
+      "وسلسلةٌ بلا هبوطٍ واحد ⇒ (None, False) · وسلسلةٌ حقيقية ⇒ رقمٌ محسوب",
+      _MW.rsi_at(S, S.pd.Series([1.0] * 10))[1] is False
+      and _MW.rsi_at(S, S.pd.Series([float(i) for i in range(1, 60)]))[1] is False
+      and _MW.rsi_at(S, S.pd.Series(_sm_cl))[1] is True)
+# عيّنةُ المشي: نفسُ شكل الدخان مسبوقًا بهضبةٍ هادئة ⇒ عدّةُ جلساتٍ تُقاس
+# (والحدثُ المؤسِّس في ذيلها كما هو — `tail` لا يتأثّر بالحشو الأماميّ).
+_mw_pad = 40
+_mw_df = S.pd.DataFrame(
+    {"Open": [3.3] * _mw_pad + list(_sm_cl),
+     "High": [3.4] * _mw_pad + list(_sm_hi),
+     "Low": [3.2] * _mw_pad + list(_sm_lo),
+     "Close": [3.3] * _mw_pad + list(_sm_cl),
+     "Volume": [5e5] * (_mw_pad + len(_sm_hi))},
+    index=S.pd.date_range("2026-01-01", periods=_mw_pad + len(_sm_hi), freq="B"))
+_mw_res = _MW.measure(S, {"TEST": _mw_df})
+check("🔬 MW2 التمريرةُ الواحدة تقيس فعلًا (لا no-op): أزواجٌ مقيسة فوق الصفر · "
+      "**والتوسيعُ يُدخل صفوفًا** (‏`window_ok` لـA1 أكبرُ من A0 والسلّتان تحملان) "
+      "· و`A0 ⊆ A1` بالبناء",
+      _mw_res["pairs"] > 0
+      and _mw_res["cnt"]["A0"]["price"] > 0
+      and _mw_res["cnt"]["A1"]["window_ok"] > _mw_res["cnt"]["A0"]["window_ok"]
+      and _mw_res["buckets"]["10-19"] > 0 and _mw_res["buckets"]["20-30"] > 0
+      and _mw_res["cnt"]["A0"]["match"] <= _mw_res["cnt"]["A1"]["match"]
+      and _mw_res["cnt"]["A2"]["match"] <= _mw_res["cnt"]["A3"]["match"]
+      and set(_mw_res["syms"]["A0"]) <= set(_mw_res["syms"]["A1"]))
+check("🔬 MW2ب المشيُ مُرسًى من الآخر: **أحدثُ جلسةٍ مقيسةٌ دائمًا** (طولٌ لا "
+      "يقبل القسمة على الخطوة لا يُسقطها)",
+      (lambda d: _MW.measure(S, {"X": d})["cnt"]["A0"]["price"] ==
+       len(list(range(len(d), _MW.MIN_BARS - 1, -_MW.STEP))))(_mw_df))
+check("🔬 MW11 الأذرعُ لا تقرأ عتباتِ النافذة/RSI من `CONFIG` (وإلّا صار الأساسُ "
+      "بعد التطبيق عالمًا آخر يُسمّى الأساس — درسُ CAP15)",
+      "METHOD_DECLINE_MIN" not in _insp0.getsource(_MW)
+      and "METHOD_DECLINE_MAX" not in _insp0.getsource(_MW)
+      and "METHOD_RSI_MAX" not in _insp0.getsource(_MW)
+      and _MW.DMAX == 30 and _MW.RSI_MAX == 30.0)
+check("🔬 MW10 أداةُ القياس خارج الإنتاج: `Super_stock` لا يستورد "
+      "`method_window_arms`",
+      "method_window_arms" not in _insp0.getsource(S))
+_mw_wf = open(".github/workflows/method_window.yml", encoding="utf-8").read()
+check("🔬 MW-P1 قاعدة P1: كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها السكربت (مدخلٌ بلا env "
+      "مدخلٌ ميت — بصمةُ BT_CANDLE)",
+      "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _mw_wf
+      and "BT_FROZEN_PATH: frozen_backtest.pkl.gz" in _mw_wf
+      and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _mw_wf
+      and "python method_window_arms.py" in _mw_wf
+      and "schedule:" not in _mw_wf)
+
 # VWR — 🕵️ أقفال «تأكيد دخول المضارب» (ثلاثية فيصل على فريم الدقيقة — منشور X
 # + شارت WETO 2026-08-15): عيّناتٌ **مفرِّقةٌ شكلًا شكلًا** + وايرُ المراقب الحيّ.
 _vwr_sup = 3.60
