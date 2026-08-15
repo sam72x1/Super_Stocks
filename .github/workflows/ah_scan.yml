@@ -48,6 +48,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip          # 🧊 خطة 025
       - run: pip install -r requirements.txt
       - name: Show aws CLI version (إثباتُ توفّره لا افتراضُه)
         run: aws --version

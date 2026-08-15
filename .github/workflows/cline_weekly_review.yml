@@ -27,19 +27,29 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # 🔒 **خطة 021 (2026-08-15):** الافتراضُ يترك توكنَ الدفع في
+          # `.git/config` طوال الجوب — ووكيلُ `cline -y` يُوافق على **كلّ** أمر
+          # صدفةٍ ويقرأ ملفّاتٍ فيها نصوصٌ خارجية (عناوينُ أخبارٍ محصودة · نصُّ
+          # تلغرام) ⇒ حقنٌ ناجحٌ يكفيه `git push` ليكتب في المستودع. الحارسُ
+          # الوحيد كان **جملةً في البرومبت** — وهي تخفيفٌ لا حاجزٌ أمنيّ.
+          # الآن: لا اعتمادَ محفوظًا في الشجرة؛ وخطوةُ الـPR تأخذ توكنَها
+          # صراحةً عند تنفيذها وحدَها.
+          persist-credentials: false
 
       - name: تهيئة Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip          # 🧊 خطة 025
 
       - name: المتطلبات + بوابة الاختبارات (لازم تنجح قبل المراجعة)
         run: |
           pip install -r requirements.txt || true
           python3 test_bot.py
 
-      - name: تثبيت Cline
-        run: npm install -g cline
+      # 🔒 خطة 021 — الوسمُ العائم `cline` يعني كودًا يتبدّل تحتنا في وكيلٍ ذاتيّ
+      - name: تثبيت Cline (مثبَّت الإصدار)
+        run: npm install -g cline@2
 
       - name: المراجعة الأسبوعية المستقلة (Cline)
         env:

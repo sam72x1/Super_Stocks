@@ -104,6 +104,30 @@ def build_rows(hunter, session, rows, ref_of=None, kind="candidate") -> list:
     return out
 
 
+_KEYS_CACHE: dict = {}        # 🗃️ خطة 027-ب: {مسار: (بصمة، مجموعةُ مفاتيح)}
+
+
+def _known_keys(path: str) -> set:
+    """🗃️ نقيّة-الأثر (خطة 027-ب): مفاتيحُ السجلّ **بتحليلٍ واحدٍ لكلّ حالة ملفّ**.
+
+    `record` كانت تُعيد تحليل الملفّ كلَّه (‏20 ألف سطرٍ سقفًا) في **كلّ** نداء
+    لبناء مجموعةِ دِدوب. الآن يُخزَّن مفتاحُ الحالة `(حجم، زمنُ تعديل)` مع
+    المجموعة ⇒ أيُّ تغيّرٍ للملفّ (بما فيه إلحاقُنا نحن) يُبطل الكاش تلقائيًّا
+    فلا يُقرأ سجلٌّ بائت. فاشلةٌ-آمنة: أيُّ عطبٍ ⇒ ترتدّ إلى `load()` الكاملة."""
+    try:
+        st = os.stat(path)
+        sig = (st.st_size, int(st.st_mtime_ns))
+    except Exception:                                            # noqa: BLE001
+        sig = None
+    hit = _KEYS_CACHE.get(path)
+    if sig is not None and hit and hit[0] == sig:
+        return hit[1]
+    keys = {r.get("key") for r in load(path)}
+    if sig is not None:
+        _KEYS_CACHE[path] = (sig, keys)
+    return keys
+
+
 def record(hunter, session, rows, ref_of=None, kind="candidate",
            path: str = None, log=None) -> int:
     """✍️ يُلحق صفوفَ صيّادٍ بالسجلّ ويُرجع **عدد الجديد**.
@@ -117,7 +141,7 @@ def record(hunter, session, rows, ref_of=None, kind="candidate",
         new = build_rows(hunter, session, rows, ref_of=ref_of, kind=kind)
         if not new:
             return 0
-        have = {r.get("key") for r in load(path)}
+        have = _known_keys(path)
         fresh = [r for r in new if r["key"] not in have]
         dup = len(new) - len(fresh)
         if fresh:

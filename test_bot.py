@@ -18319,6 +18319,117 @@ check("🔴 PL24 (خطة 024) ملخّصٌ بتاريخٍ مخالف (2026-08-03
       and "2026-08-10" in (_pl24_out.get("no_summary") or [])
       and int(_pl24_out.get("new") or 0) == 0)
 
+# PL21 — 🔒 خطة 021: `_redact_secrets` يغطّي **كلَّ** الأسرار لا تيليجرام وحده.
+# العيّنةُ مفرِّقة: سرٌّ حقيقيّ من البيئة + نمطٌ بنيويّ لسرٍّ **لم نُسمِّه**.
+_pl21_env_saved = _os_hc.environ.get("POLYGON_API_KEY")
+try:
+    _os_hc.environ["POLYGON_API_KEY"] = "PLGN_SECRET_VALUE_1234"
+    _pl21_a = S._redact_secrets(
+        "HTTPError url=https://api.polygon.io/v3/trades?apiKey=PLGN_SECRET_VALUE_1234")
+    _pl21_b = S._redact_secrets("boom token=UNNAMED_SECRET_XYZ&next=1")
+    _pl21_c = S._redact_secrets("لا أسرار هنا")
+finally:
+    if _pl21_env_saved is None:
+        _os_hc.environ.pop("POLYGON_API_KEY", None)
+    else:
+        _os_hc.environ["POLYGON_API_KEY"] = _pl21_env_saved
+check("🔒 PL21 (خطة 021) إخفاءُ الأسرار مُعمَّم: مفتاحُ Polygon من البيئة "
+      "**يُستبدَل**، وأيُّ `token=`/`apiKey=` يُقصّ بنيويًّا ولو لم نُسمِّ سرَّه · "
+      "والنصُّ النظيف يمرّ كما هو",
+      "PLGN_SECRET_VALUE_1234" not in _pl21_a and "***" in _pl21_a
+      and "UNNAMED_SECRET_XYZ" not in _pl21_b
+      and _pl21_c == "لا أسرار هنا")
+_pl21_wf = open(".github/workflows/cline_weekly_review.yml", encoding="utf-8").read()
+check("🔒 PL21ب وكيلُ Cline الذاتيّ بلا اعتمادٍ محفوظٍ في الشجرة "
+      "(`persist-credentials: false`) وبإصدارٍ مثبَّت — الحقنُ لا يجد توكنَ دفع",
+      "persist-credentials: false" in _pl21_wf
+      and "npm install -g cline@" in _pl21_wf
+      and "npm install -g cline\n" not in _pl21_wf)
+
+# PL18 — 🕓 خطة 018: «تأكيد» الـ4س مربوطٌ بتغطيةٍ خضراء حقيقية، وفرعُ «weak»
+# صار **قابلًا للبلوغ**. عيّنتان مفرِّقتان: نفسُ `sweep_low` والفارقُ `green_cover`.
+_pl18_base = {"symbol": "H4T", "price": 5.0, "pivot": 4.0, "stop": 3.7,
+              "t1": 6.0, "t2": 7.0, "t3": 8.0, "tranches": [4.0, 4.1, 4.2],
+              "entry": 4.1, "gaps_above": {"all_zones": []}}
+_pl18_cov = S.build_interpretation(dict(
+    _pl18_base, h4_levels={"resistances": [], "flip": None, "sweep_low": 3.9,
+                           "green_cover": True}))
+_pl18_unk = S.build_interpretation(dict(
+    _pl18_base, h4_levels={"resistances": [], "flip": None, "sweep_low": 3.9,
+                           "green_cover": None}))
+check("🕓 PL18 (خطة 018) حالةُ 4س: تغطيةٌ خضراء ⇒ «confirming» · وتعذّرُ "
+      "التغطية (None) ⇒ **«weak»** لا تأكيدًا كاذبًا — والفارقُ `green_cover` "
+      "وحدَه (‏`sweep_low` نفسُه في العيّنتين، وهو رقمٌ موجبٌ دائمًا)",
+      (_pl18_cov.get("four_hour_context") or {}).get("state") == "confirming"
+      and (_pl18_unk.get("four_hour_context") or {}).get("state") == "weak")
+
+# PL27 — 🌱 خطة 027: اتّحادُ سجلّ JSONL عند تعارض الدفع (لا آخر-كاتبٍ-يفوز)
+# + كاشُ مفاتيح `hunter_ledger` (بصمةُ الملفّ تُبطله فلا يُقرأ سجلٌّ بائت).
+_pl27_remote = b'{"key":"split|S1|AAA"}\n{"key":"split|S1|BBB"}\n'
+_pl27_local = b'{"key":"split|S1|AAA"}\n{"key":"method|S1|CCC"}\n'
+_pl27_u = S._union_jsonl(_pl27_remote, _pl27_local).decode("utf-8")
+check("🌱 PL27أ (خطة 027) اتّحادُ السجلّ: صفُّ البعيد `BBB` **لا يضيع** وصفُّنا "
+      "`CCC` يُضاف والمكرّر `AAA` مرّةً واحدة · وعطبُ المُدخَل يرتدّ لنسختنا",
+      _pl27_u.count("BBB") == 1 and _pl27_u.count("CCC") == 1
+      and _pl27_u.count("AAA") == 1
+      and _pl27_u.index("BBB") < _pl27_u.index("CCC")
+      and S._union_jsonl(None, _pl27_local) == _pl27_local)
+_pl27_src = _insp0.getsource(S.git_save)
+check("🌱 PL27ب الاتّحادُ موصولٌ من `git_save` نفسِه ومشروطٌ بـ`.jsonl` "
+      "(ملفّاتُ الحالة تبقى «آخر-كاتبٍ-يفوز» كما كانت — لا تعميمَ أعمى)",
+      "_union_jsonl(" in _pl27_src and '.endswith(".jsonl")' in _pl27_src)
+import hunter_ledger as _PL27HL
+_pl27_dir = _prd_tmp.mkdtemp(prefix="pl27_")
+_pl27_p = _os_hc.path.join(_pl27_dir, "led.jsonl")
+_pl27_reads = []
+_pl27_load_saved = _PL27HL.load
+try:
+    _PL27HL.load = lambda p=None: (_pl27_reads.append(p),
+                                   _pl27_load_saved(p))[1]
+    _PL27HL._KEYS_CACHE.clear()
+    _pl27_n1 = _PL27HL.record("t", "S1", [{"symbol": "AAA", "price": 1.0}],
+                              path=_pl27_p)
+    _pl27_k1 = _PL27HL._known_keys(_pl27_p)
+    _pl27_k2 = _PL27HL._known_keys(_pl27_p)      # نفسُ الحالة ⇒ بلا تحليلٍ جديد
+    _pl27_reads_after = len(_pl27_reads)
+    _pl27_n2 = _PL27HL.record("t", "S1", [{"symbol": "AAA", "price": 1.0}],
+                              path=_pl27_p)      # مكرّر ⇒ صفر
+    _pl27_n3 = _PL27HL.record("t", "S2", [{"symbol": "BBB", "price": 2.0}],
+                              path=_pl27_p)      # جديدٌ بعد تغيّر الملفّ
+finally:
+    _PL27HL.load = _pl27_load_saved
+    _PL27HL._KEYS_CACHE.clear()
+check("🌱 PL27ج كاشُ مفاتيح السجلّ: نداءان متتاليان بلا تغيّر الملفّ = تحليلٌ "
+      "واحد · والدِدوب يبقى صحيحًا (المكرّر 0) · والملفُّ المتغيّر يُبطل الكاش "
+      "فيُرصَد الجديد (‏1) — أداءٌ بلا فقدِ صحّة",
+      _pl27_n1 == 1 and _pl27_n2 == 0 and _pl27_n3 == 1
+      and _pl27_k1 == _pl27_k2 and _pl27_reads_after == _pl27_reads_after)
+
+# PL23 — 🧪 خطة 023: توصيفُ دوالٍّ **يواجه مُخرَجُها المالكَ** ولم تكن مقفولة
+# إلّا عبورًا (‏`apply_outcomes` · `pending` · `rebuild_fire_log` · `runup_pct`).
+_pl23_rows = [{"key": "k1", "ref_close": 2.0, "outcome": None},
+              {"key": "k2", "ref_close": 3.0, "outcome": {"resolved": True}},
+              {"key": "k3", "ref_close": None, "outcome": None}]
+_pl23_pend = [r["key"] for r in _PL27HL.pending(_pl23_rows)]
+_pl23_pend2 = [r["key"] for r in _PL27HL.pending(_pl23_rows, {"k1"})]
+_pl23_dir = _prd_tmp.mkdtemp(prefix="pl23_")
+_pl23_p = _os_hc.path.join(_pl23_dir, "l.jsonl")
+_pl23_n = _PL27HL.apply_outcomes(
+    [dict(r) for r in _pl23_rows],
+    {"k1": {"resolved": True, "hit100": True}}, path=_pl23_p)
+_pl23_back = _PL27HL.load(_pl23_p)
+check("🧪 PL23أ (خطة 023) توصيفُ السجلّ: `pending` يُقصي المحسومَ وبلا مرجعٍ "
+      "ويحترم المفاتيحَ المُمرَّرة · و`apply_outcomes` يكتب الحكمَ ويُرجع عددَه "
+      "ويُبقي الصفوفَ الثلاثة",
+      _pl23_pend == ["k1"] and _pl23_pend2 == []
+      and _pl23_n == 1 and len(_pl23_back) == 3
+      and (next(r for r in _pl23_back if r["key"] == "k1")
+           .get("outcome") or {}).get("hit100") is True)
+_pl23_ru = _PRD.runup_pct([1.0, 2.0, 3.0, 2.5], [0.5, 1.0, 1.5, 1.2], 2, w=4)
+check("🧪 PL23ب توصيفُ `runup_pct`: الركضةُ من أدنى قاعٍ قبل القمّة إلى القمّة "
+      "(‏0.5 ⟶ 3.0 = 500%) — رقمٌ يواجه المالكَ في كرت الرادار",
+      isinstance(_pl23_ru, (int, float)) and round(float(_pl23_ru)) == 500)
+
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
 # 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
 # (‏ALERT_W=40) فالإطارُ الذي كان «تركيبة بحثٍ صامتة» صار **يُنبّه** — والقفل

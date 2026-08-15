@@ -8546,10 +8546,16 @@ def build_interpretation(r: dict) -> dict:
                 h4state = "support_flipped"
             elif gcov is False:
                 h4state = "waiting_green_cover"   # حمرا أخيرة بلا تغطية = ننتظر
-            elif h4l.get("sweep_low"):
+            elif gcov is True:
+                # 🕓 **خطة 018 (2026-08-15) — سطرٌ كان يكذب:** الشرطُ القديم
+                # `sweep_low` **رقمٌ موجبٌ دائمًا** (‏`min(lows)`) فلا يفشل قطّ ⇒
+                # «‏(تأكيد)» تُطبع على كلّ سهمٍ لم يُحجَب برأسٍ حمراء ولا انقلابٍ
+                # ولو لم يمسح شيئًا، **وفرعُ `weak` ميّتٌ بنيويًّا**. الآن التأكيدُ
+                # مربوطٌ بالإشارة الحقيقية الموجودة في البيانات نفسها: **تغطيةُ
+                # خضراء** (شمعةُ 4س أغلقت فوق افتتاح آخر حمراء).
                 h4state = "confirming"
             else:
-                h4state = "weak"
+                h4state = "weak"     # صار **قابلًا للبلوغ** (كان ميتًا)
             out["four_hour_context"] = {
                 "state": h4state, "red_candle_head": red_head, "flip": flip,
                 "sweep_low": h4l.get("sweep_low"), "green_cover": gcov}
@@ -8982,11 +8988,26 @@ def _redact_secrets(s) -> str:
     يعكس الرابط في وصف الخطأ). تسجيل فقط — لا يمسّ الإرسال ولا الفرز. فاشل-آمن → "***"."""
     try:
         s = str(s)
-        if not TELEGRAM_TOKEN:
-            return s
-        for form in (TELEGRAM_TOKEN, quote(TELEGRAM_TOKEN, safe="")):
-            if form and form in s:
-                s = s.replace(form, "***")
+        # 🔒 **توسعةُ خطة 021 (2026-08-15):** كان يغطّي توكن تيليجرام **وحده**،
+        # وبقيّةُ الأسرار (Polygon · S3 · AlphaVantage · FMP · Finnhub · Cline)
+        # تظهر في نصوص استثناءات `requests` داخل الرابط (`?apiKey=…`) فتُسجَّل
+        # خامًّا في سجلّ Actions العلنيّ. الآن: كلُّ سرٍّ **حاضرٍ في البيئة**
+        # يُستبدَل بشكلَيه (خام + مرمَّز-URL)، ومعه **قصٌّ بنيويّ** لأيّ
+        # `apiKey=`/`apikey=`/`token=` مهما كان مصدرُه (سرٌّ لم نُسمِّه بعد).
+        for _name in ("TELEGRAM_BOT_TOKEN", "POLYGON_API_KEY", "POLYGON_S3_KEY",
+                      "POLYGON_S3_SECRET", "ALPHAVANTAGE_KEY", "FMP_API_KEY",
+                      "FINNHUB_API_KEY", "CLINE_API_KEY"):
+            _v = (os.environ.get(_name) or "").strip()
+            if len(_v) < 8:          # قِصَرٌ شاذّ = لا نستبدل (تجنّبُ تشويهٍ أعمى)
+                continue
+            for form in (_v, quote(_v, safe="")):
+                if form and form in s:
+                    s = s.replace(form, "***")
+        if TELEGRAM_TOKEN:
+            for form in (TELEGRAM_TOKEN, quote(TELEGRAM_TOKEN, safe="")):
+                if form and form in s:
+                    s = s.replace(form, "***")
+        s = re.sub(r"(?i)\b(api_?key|token|secret)=[^&\s\"']+", r"\1=***", s)
     except Exception:
         return "***"
     return s
@@ -18313,6 +18334,35 @@ STATUS_AR = {
 }
 
 
+def _union_jsonl(remote_bytes, local_bytes) -> bytes:
+    """🌱 نقيّة (خطة 027): اتّحادُ سجلٍّ مُلحَقٍ (JSONL) بلا فقدِ صفوف.
+
+    البعيدُ أوّلًا **بترتيبه**، ثم صفوفُنا التي ليست فيه — والتمييزُ بحقل `key`
+    إن وُجد وإلّا بالسطر الخام. فاشلةٌ-آمنة: أيُّ عطبٍ ⇒ تُرجع نسختَنا (السلوكُ
+    السابق حرفيًّا) فلا يصير الإصلاحُ ناقلَ فشلٍ جديدًا."""
+    try:
+        def _rows(bs):
+            return [ln for ln in (bs or b"").decode("utf-8", "replace").split("\n")
+                    if ln.strip()]
+
+        def _k(ln):
+            try:
+                d = json.loads(ln)
+                return str(d.get("key")) if isinstance(d, dict) and d.get("key") else ln
+            except Exception:                                    # noqa: BLE001
+                return ln
+        out, seen = [], set()
+        for ln in _rows(remote_bytes) + _rows(local_bytes):
+            kk = _k(ln)
+            if kk in seen:
+                continue
+            seen.add(kk)
+            out.append(ln)
+        return ("\n".join(out) + "\n").encode("utf-8")
+    except Exception:                                            # noqa: BLE001
+        return local_bytes
+
+
 def git_save(filenames, runner=None, sender=None):
     """يرفع ملفات البيانات إلى الـ repo حتى لا تضيع بين تشغيلات GitHub Actions.
     ⑬ (إصلاح تدقيق 2026-07-12): عند تعارض rebase كان `--abort` يعيد الحالة كما
@@ -18367,6 +18417,22 @@ def git_save(filenames, runner=None, sender=None):
                                 _blobs[fn] = f.read()
                     run("git reset --hard FETCH_HEAD >/dev/null 2>&1")
                     for fn, _b in _blobs.items():
+                        # 🌱 **خطة 027 (2026-08-15):** «آخر-كاتبٍ-يفوز» صحيحٌ
+                        # لملفّ حالةٍ ذي كاتبٍ واحد، **وخاطئٌ لسجلٍّ يُلحَق به
+                        # أربعةُ صيّادين** (`hunter_ledger.jsonl`): جوبٌ يبدأ
+                        # قبل أن يصل دفعُ سابقه يكتب نسختَه فوق البعيد ⇒ صفوفُ
+                        # السابق **تضيع صامتةً** و`git_save` يُبلغ نجاحًا،
+                        # والسجلُّ هو ذاكرةُ الإثبات الأماميّ. ⇒ سجلّاتُ
+                        # `.jsonl` تُدمَج **اتّحادًا** (البعيدُ أولًا ثم جديدُنا،
+                        # بلا تكرارٍ بالمفتاح) وغيرُها يبقى كما كان بت-بت.
+                        if str(fn).endswith(".jsonl") and os.path.exists(fn):
+                            try:
+                                with open(fn, "rb") as f:
+                                    _remote = f.read()
+                                _b = _union_jsonl(_remote, _b)
+                                log(f"🌱 اتّحادُ سجلٍّ مُلحَق: {fn}")
+                            except Exception as _ue:             # noqa: BLE001
+                                log(f"⚠️ تعذّر اتّحاد {fn} ({_ue}) — أُبقيت نسختُنا")
                         with open(fn, "wb") as f:
                             f.write(_b)
                         run(f'git add "{fn}"')
