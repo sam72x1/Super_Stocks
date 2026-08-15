@@ -17445,6 +17445,22 @@ check("🗜️📡 PRD11 شكلُ الكرت الأسبوعي: ترقيمٌ + ف
       and "درس NEXR" not in _prd11_nohead
       and "🕯️" not in _prd11_nohead)
 
+# PRD12 — «لا قصَّ صامتًا» في **العرض** لا في السجلّ وحده (2026-08-15): ما فوق
+# سقف الكروت يُعرَض **سطرًا مضغوطًا باسمه** لا عددًا مبهمًا («…و19 فوق السقف»
+# كانت تخفي تسعةَ عشرَ اسمًا عن المالك). كشفَ غيابَ هذا القفلِ **طفرةٌ نجت**
+# (‏MP6: حذفُ حلقة العرض) — لا القراءة.
+_prd12_rows = [{"symbol": f"OV{k}", "read": dict(_prd_r, hold_sessions=4),
+                "plan": None, "src": "متحرّك"}
+               for k in range(1, _PRD.ALERT_CAP + 2)]
+_prd12 = _PRD.build_alert(_prd12_rows, "2026-08-15")
+_prd12_last = _prd12_rows[-1]["symbol"]
+check("🗜️📡 PRD12 ما فوق سقف الكروت يُعرَض سطرًا مضغوطًا **باسمه** (لا عددًا "
+      "مبهمًا) ولا يأخذ كرتًا",
+      "🟢 <b>باقي الجاهزين</b> (1)" in _prd12
+      and f"• <b>${_prd12_last}</b>" in _prd12
+      and f"{_PRD.ALERT_CAP + 1}) 🗜️" not in _prd12
+      and _prd12.count("1) 🗜️") == 1)
+
 # PRD5 — سلوكيًّا: فشلُ الإرسال ⇒ لا ختمَ ولا سجلَّ (rc=1)؛ نجاحُه ⇒ ختمٌ وسجلّ
 import tempfile as _prd_tmp
 _prd_dir = _prd_tmp.mkdtemp(prefix="prd_")
