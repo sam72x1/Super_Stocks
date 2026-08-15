@@ -1360,3 +1360,4 @@
 {"key": "envelope|2026-08-12|SCWO", "hunter": "envelope", "session": "2026-08-12", "symbol": "SCWO", "kind": "candidate", "ref_close": 2.319999933242798, "fwd": 40, "outcome": null}
 {"key": "envelope|2026-08-12|SDA", "hunter": "envelope", "session": "2026-08-12", "symbol": "SDA", "kind": "candidate", "ref_close": 0.7800999879837036, "fwd": 40, "outcome": null}
 {"key": "split|2026-08-13|CHSN", "hunter": "split", "session": "2026-08-13", "symbol": "CHSN", "kind": "candidate", "ref_close": 1.0099999904632568, "fwd": 40, "outcome": null, "price": 1.01, "float": 387547.0, "half": 0.94, "ref": 1.88}
+{"key": "split|2026-08-14|CHSN", "hunter": "split", "session": "2026-08-14", "symbol": "CHSN", "kind": "candidate", "ref_close": 1.1200000047683716, "fwd": 40, "outcome": null, "price": 1.12, "float": 387547.0, "half": 0.94, "ref": 1.88}
