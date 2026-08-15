@@ -18316,10 +18316,19 @@ try:
     S.yf = _PL17Yf
     _pl17_a, _pl17_b = S._fetch_splits("ZZZ"), S._fetch_splits("ZZZ")
     _pl17_c = S._fetch_splits("YYY")
-    S.yf = None                       # تعذّرٌ ⇒ None ويُخزَّن
+    # 🐞 **العيّنةُ الأولى كانت عمياء** (طفرة N10 نجت منها 2026-08-15): استعملت
+    # `S.yf = None` وله **تخزينُه الخاصّ** في الفرع المبكّر، فلم تمرّ بالسطر الذي
+    # تمسّه الطفرة أصلًا. الآن التعذّرُ **استثناءٌ حقيقيّ** (مسارُ `except` ⟶
+    # `out = None` ⟶ التخزين) — وهو الفرعُ الذي يجب أن يحرسه القفل.
+    class _PL17Boom:
+        Ticker = staticmethod(
+            lambda sym: (_ for _ in ()).throw(RuntimeError("yahoo down")))
+
+    S.yf = _PL17Boom                  # تعذّرٌ باستثناء ⇒ None ويُخزَّن
     _pl17_none1 = S._fetch_splits("NUL")
     S.yf = _PL17Yf                    # ولو عاد المصدر: الجوابُ ثابتٌ للتشغيلة
     _pl17_none2 = S._fetch_splits("NUL")
+    _pl17_calls_after = list(_pl17_calls)
 finally:
     S.yf = _pl17_yf_saved
     S._SPLITS_MEMO.clear()
@@ -18327,7 +18336,7 @@ finally:
 check("🗃️ PL17 (خطة 017) كاشُ التقسيمات: نداءان لنفس الرمز = جلبةٌ واحدة "
       "(‏ZZZ مرّة · YYY مرّة) والقيمةُ نفسُها · و`None` مخزَّنٌ فلا يُعاد الجلب "
       "ولا يتبدّل الحكمُ داخل التشغيلة",
-      _pl17_calls == ["ZZZ", "YYY"] and _pl17_a == _pl17_b == "SPL-ZZZ"
+      _pl17_calls_after == ["ZZZ", "YYY"] and _pl17_a == _pl17_b == "SPL-ZZZ"
       and _pl17_c == "SPL-YYY"
       and _pl17_none1 is None and _pl17_none2 is None)
 
