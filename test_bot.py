@@ -16050,11 +16050,27 @@ def _rej_resolves_at_call():
 
 check("🗂️ REJ🔒 والمسارُ يُحسم **وقت النداء** لا وقت التعريف (وإلّا التحويلُ عاجز)",
       _rej_resolves_at_call())
+# 🐞 **تقسيةٌ 2026-08-15:** كان يفترض أن `body[0]` هو التعريفُ نفسُه — وفي تشغيلةٍ
+#    كاملة (تحت طفرة) رجع `getsource` شكلًا آخر فرمى `AttributeError` ⇒ **انهيارٌ
+#    يكتم سطرَ الملخّص** بدل سقوطٍ مُسمًّى. الآن **يُبحَث عن التعريف** بالشجرة،
+#    وغيابُه **يُسقط القفل** صراحةً (لا يمرّ صامتًا).
+def _rej_sig_defaults():
+    try:
+        tree = _ast0.parse(_insp0.getsource(S.record_rejected_symbols).lstrip())
+    except Exception:                                            # noqa: BLE001
+        return None
+    for _n in _ast0.walk(tree):
+        if (isinstance(_n, _ast0.FunctionDef)
+                and _n.name == "record_rejected_symbols"):
+            return _n.args.defaults
+    return None
+
+
 check("🗂️ REJ🔒 ولا افتراضَ مربوطًا بالثابت في التوقيع (قفل AST)",
-      (lambda sig: all(not (isinstance(d, _ast0.Name)
-                            and d.id in ("REJECT_LOG_FILE", "REJECT_LOG_DAYS"))
-                       for d in sig.args.defaults))(
-          _ast0.parse(_insp0.getsource(S.record_rejected_symbols).lstrip()).body[0]))
+      (lambda ds: ds is not None
+       and all(not (isinstance(d, _ast0.Name)
+                    and d.id in ("REJECT_LOG_FILE", "REJECT_LOG_DAYS"))
+               for d in ds))(_rej_sig_defaults()))
 check("🗂️ REJ🔒 والملفّ المدفوع **نظيف** (لا رموزَ اختبارٍ مُلتزَمة)",
       (lambda rows: not any(
           s in json.dumps(rows, ensure_ascii=False)
