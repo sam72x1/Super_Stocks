@@ -2054,6 +2054,85 @@ def spike_info(close: np.ndarray, exclude_last: int):
     return best * 100.0, clusters
 
 
+def spike_history(close) -> list:
+    """🔁 **مقاديرُ رفعات السهم السابقة** بترتيبها الزمنيّ (‏% لكلّ عنقود).
+
+    نفسُ آلة `spike_info` حرفيًّا (النسبُ على كلّ نافذة 1..`PRIOR_SPIKE_WINDOW`
+    وفجوةُ 20 جلسة تفصل العناقيد) — والمختلفُ الوحيد أنها تُرجع **مقدارَ كلّ
+    عنقود** بدل الأكبر عبر التاريخ.
+
+    ⚖️ **والعتبةُ `EXPLOSION_PCT` (‏50%) لا `PRIOR_SPIKE_PCT`** — وهو **نصُّ
+    ملحق ⑥ في `repeat_prereg.md`** المدفوع قبل أرقام `T-REPEAT`: العتبةُ النافذة
+    تحت ظرف الكاتالوج **‏164%** فتجعل «الرفعة» نادرةً بالبناء ويموت المقياس.
+    🔒 **مقيسةٌ ومنشورة:** `T-REPEAT` (‏`repeat_result.md`، ثلاث لقطات PIT) —
+    و**سقفُ نجاحها المسجَّل سطرُ عرضٍ فقط** (لا بوّابةَ خروجٍ ولا عتبة).
+    نقيّة · فاشلة-آمنة → `[]`."""
+    # 🐞 `np.asarray(None, dtype=float)` ينجح ويُنتج مصفوفةً **بلا أبعاد** فيرمي
+    #    `len()` خارج الحارس ⇒ `.ravel()` تجعلها ذاتَ بُعدٍ واحد و`size` لا ترمي.
+    #    (كشفه قفلي `SPK🔒` لا القراءة.)
+    try:
+        c = np.asarray(close, dtype=float).ravel()
+    except Exception:                                            # noqa: BLE001
+        return []
+    n = int(c.size)
+    if n < 15:
+        return []
+    w_max = int(CONFIG["PRIOR_SPIKE_WINDOW"])
+    thr = float(CONFIG["EXPLOSION_PCT"]) / 100.0
+    best_at = {}                              # فهرسُ نهاية الرفعة ⟶ أقصى نسبةٍ عنده
+    for w in range(1, w_max + 1):
+        if n <= w:
+            break
+        with np.errstate(divide="ignore", invalid="ignore"):
+            ratio = c[w:] / np.where(c[:-w] > 0, c[:-w], np.nan) - 1.0
+        ratio = np.nan_to_num(ratio, nan=0.0)
+        for j in np.where(ratio >= thr)[0]:
+            i = int(j + w)
+            v = float(ratio[j])
+            if v > best_at.get(i, 0.0):
+                best_at[i] = v
+    if not best_at:
+        return []
+    mags, cur, last = [], 0.0, -10_000
+    for i in sorted(best_at):
+        if i - last >= 20 and cur > 0.0:      # فجوةُ 20ج = رفعةٌ مستقلّة
+            mags.append(round(cur * 100.0, 1))
+            cur = 0.0
+        cur = max(cur, best_at[i])
+        last = i
+    if cur > 0.0:
+        mags.append(round(cur * 100.0, 1))
+    return mags
+
+
+def past_spikes_line(mags) -> str:
+    """🔁 **سطرُ «رفعاتُ هذا السهم السابقة»** — سقفُ نجاح `T-REPEAT` المسجَّل
+    (‏`repeat_prereg.md §④`) حرفيًّا: **سطرُ عرضٍ على الكرت وإرشادُ إدارةٍ بقاعدة
+    فيصل** — ولا بوّابةَ خروجٍ آلية ولا عتبة (‏`T-EXIT` و`T-MANAGE-25` أغلقتا
+    سياساتِ الخروج الثابتة بالقياس).
+
+    ⚠️ **ويُقدَّم حقائقَ تاريخٍ لا تنبّؤًا** — بنصّ `repeat_result.md`: الارتباطُ
+    داخل السهم **حقيقيٌّ إحصائيًّا وضعيفٌ جدًّا** (‏ρ ‏≈0.04-0.07)، و«دبّل سابقًا»
+    يرفع احتمالَ الدبل التالي **‏+1..+4 نقاط فقط** ⇒ لا يصلح قرارَ خروج.
+    والرقمُ المقيس الذي **يصلح سياقًا**: الرفعةُ التالية وسيطُها ‏72-81% ويدبّل
+    **ثلثُها تقريبًا** (‏27-35% عبر ثلاث لقطات).
+    يرجّع `""` لمن له أقلُّ من رفعتين (لا تاريخَ يُقال). نقيّة."""
+    try:
+        v = [float(x) for x in (mags or []) if float(x) > 0]
+    except (TypeError, ValueError):
+        return ""
+    if len(v) < 2:
+        return ""
+    s = sorted(v)
+    med = s[len(s) // 2] if len(s) % 2 else (s[len(s) // 2 - 1] + s[len(s) // 2]) / 2
+    dbl = sum(1 for x in v if x >= 100.0)
+    return (f"🔁 رفعاته السابقة: {len(v)} رفعات · وسيطها {med:.0f}% · "
+            f"أكبرها {max(v):.0f}%"
+            + (f" · دبّل فيها {dbl} مرّة" if dbl else " · لم يدبّل فيها")
+            + " — تاريخٌ لا تنبّؤ (فيصل: بالصعود التدريجي جني الربح عند "
+              "المقاومة الأولى وتبقى كمية بسيطة)")
+
+
 def behavior_rise_profile(df):
     """🧬 بصمة «طريقة ارتفاع اليد» (سلوك المضارب — طلب المستخدم 2026-07-05، أولويته
     القصوى: «كيف يرفعها»). **عرض/تشخيص فقط — لا تمسّ الفرز ولا اختيار select_top إطلاقًا**
@@ -8811,6 +8890,9 @@ def build_message(results: list, splits: list,
         _kl = klinger_line(r.get("klinger"))     # 📊 كلنجر (حجم — فيصل IMG_0125)
         if _kl:
             lines.append(_kl)
+        _ps = past_spikes_line(r.get("spikes"))  # 🔁 رفعاته السابقة (T-REPEAT — عرض)
+        if _ps:
+            lines.append(_ps)
         _ib = insider_buy_line(r)                # 📄 شراء داخلي (فيصل: سبب ارتفاع)
         if _ib:
             lines.append(_ib)
@@ -9973,6 +10055,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
         "fsto_osc": r.get("fsto_osc"),                    # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
         "klinger": r.get("klinger"),                      # 📊 كلنجر (حجم، فيصل — عرض فقط)
+        "spikes": r.get("spikes"),                        # 🔁 رفعاته السابقة (T-REPEAT — عرض فقط)
         "cci": r.get("cci"),                              # 📉 CCI(14) (فيصل — عرض فقط)
         "insider_buys": r.get("insider_buys"),            # 📄 شراء داخلي (Form 4)
         "offering_event": r.get("offering_event"),        # 🆕 طرح جديد (حدث مؤسِّس)
@@ -10744,6 +10827,8 @@ def scan_market():
                     df["High"], df["Low"], df["Close"])
                 r["bottom_test"] = bottom_test_state(df)  # 🔁 «القاع 2» (فيصل EDBL — عرض فقط)
                 r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
+                # 🔁 رفعاتُ السهم السابقة (‏`T-REPEAT` — سقفُ نجاحه سطرُ عرضٍ فقط)
+                r["spikes"] = spike_history(df["Close"].values)
                 r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
             except Exception as _e:
                 log(f"⚠️ إثراء عرض {sym}: {type(_e).__name__}: {_e} — تُخطّى حقول "
@@ -11246,6 +11331,7 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
             s["cci"] = cci_state(                      # 📉 CCI(14) يتجدّد يوميًا (عرض فقط)
                 df["High"], df["Low"], df["Close"])
             s["bottom_test"] = bottom_test_state(df)   # 🔁 «القاع 2» يتجدّد يوميًا (عرض فقط)
+            s["spikes"] = spike_history(df["Close"].values)  # 🔁 رفعاته السابقة (عرض فقط)
             _psn = pivot_stability(df["Low"].values.astype(float),
                                    df["Close"].values.astype(float))
             if _psn:
@@ -14105,6 +14191,9 @@ def build_daily_message(wl: dict, splits: list,
         _kl = klinger_line(s.get("klinger"))          # 📊 كلنجر (حجم، فيصل — عرض فقط)
         if _kl:
             lines.append("   " + _kl)
+        _ps = past_spikes_line(s.get("spikes"))       # 🔁 رفعاته السابقة (T-REPEAT)
+        if _ps:
+            lines.append("   " + _ps)
         _ib = insider_buy_line(s)                     # 📄 شراء داخلي (Form 4)
         if _ib:
             lines.append("   " + _ib)

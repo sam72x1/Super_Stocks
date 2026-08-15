@@ -18573,6 +18573,48 @@ check("🔁 RPT4 قاعدة P1 في repeat.yml: BACKTEST_YEAR وBT_FROZEN_PATH �
       and "BT_FROZEN_PATH: frozen_backtest.pkl.gz" in _rpt_wf
       and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _rpt_wf
       and "python repeat_arms.py" in _rpt_wf)
+# 🔁 **`SPK🔒` — سطرُ «رفعاته السابقة» (أمر المالك «عرض الرفعات» 2026-08-15):**
+# سقفُ نجاح `T-REPEAT` المسجَّل **قبل** أرقامه = **سطرُ عرضٍ فقط**. والقفلُ
+# الحاسم أن **المقياسَ واحد**: دالّةُ الإنتاج `spike_history` تُطابق أداةَ البحث
+# المجمَّدة `repeat_arms.spike_magnitudes` **رقمًا رقمًا** على نفس العيّنة — وإلّا
+# صار على السهم قراءتان: واحدةٌ تُعرَض للمالك وأخرى نُشرت أرقامُها.
+check("🔁 SPK🔒 مقياسٌ واحد: `spike_history` الإنتاجية == `spike_magnitudes` "
+      "البحثية رقمًا رقمًا (على العيّنة المفرِّقة نفسها) · والقصيرُ = []",
+      [round(x, 1) for x in S.spike_history(_rpt_c)]
+      == [round(x, 1) for x in _RPT.spike_magnitudes(_rpt_c)]
+      and [round(x, 1) for x in S.spike_history(_rpt_c)] == [120.0, 66.7]
+      and S.spike_history([1.0] * 10) == [] and S.spike_history(None) == [])
+check("🔁 SPK🔒ب السطرُ حقائقُ تاريخٍ لا تنبّؤ: رفعتان ⇒ العدد والوسيط والأكبر "
+      "ومعها قاعدةُ فيصل · ورفعةٌ واحدة أو صفر ⇒ **لا سطر** (لا تاريخَ يُقال)",
+      "رفعاته السابقة" in S.past_spikes_line([120.0, 66.7])
+      and "وسيطها 93%" in S.past_spikes_line([120.0, 66.7])
+      and "أكبرها 120%" in S.past_spikes_line([120.0, 66.7])
+      and "المقاومة الأولى" in S.past_spikes_line([120.0, 66.7])
+      and S.past_spikes_line([120.0]) == "" and S.past_spikes_line([]) == ""
+      and S.past_spikes_line(None) == "")
+check("🔁 SPK🔒ج «دبّل» يُقال بعدده ولا يُخترَع: رفعتان فوق 100% ⇒ «دبّل فيها 2 "
+      "مرّة» · وكلتاهما دون 100% ⇒ «لم يدبّل فيها»",
+      "دبّل فيها 2 مرّة" in S.past_spikes_line([120.0, 150.0])
+      and "لم يدبّل فيها" in S.past_spikes_line([60.0, 80.0])
+      and "دبّل" in S.past_spikes_line([60.0, 80.0]))
+# 🔒 **عرضٌ فقط — والقفلُ نحويّ لا نصّيّ** (فخُّ الـdocstring مدوَّنٌ عندنا).
+_spk_roots = ("rank_key", "select_top", "classify_tier", "entry_status",
+              "analyze_ticker", "backtest_symbol", "fill_picks")
+check("🔁 SPK🔒د خارج الاختيار كلِّه: لا `spike_history` ولا `past_spikes_line` "
+      "في أيٍّ من الجذور السبعة (بالـAST لا بالنصّ)",
+      all(nm not in _calls(getattr(S, _fn))
+          for _fn in _spk_roots
+          for nm in ("spike_history", "past_spikes_line")))
+# 🧪 والوصلُ **من نقطة النداء الحيّة**: الحقلُ يُخزَّن في القائمة ويظهر في اليوميّ
+# (درسُ «الميزة موصولة تُثبَت من نقطة النداء لا من وجود الدالّة»).
+_spk_entry = S.make_watch_entry(dict(r0, symbol="SPK",
+                                     spikes=[120.0, 66.7]), "2026-08-15")
+check("🔁 SPK🔒هـ موصولٌ حيًّا: `make_watch_entry` يحمل `spikes` واليوميُّ يطبع "
+      "السطر منه (لا وصلةٌ ميتة)",
+      _spk_entry.get("spikes") == [120.0, 66.7]
+      and "رفعاته السابقة" in S.build_daily_message(
+          {"stocks": [dict(_spk_entry, status="active")]},
+          [], [], [], ready_only=False))
 
 # VWR — 🕵️ أقفال «تأكيد دخول المضارب» (ثلاثية فيصل على فريم الدقيقة — منشور X
 # + شارت WETO 2026-08-15): عيّناتٌ **مفرِّقةٌ شكلًا شكلًا** + وايرُ المراقب الحيّ.
