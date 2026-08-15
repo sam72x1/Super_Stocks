@@ -18373,6 +18373,11 @@ try:
     _pl21_a = S._redact_secrets(
         "HTTPError url=https://api.polygon.io/v3/trades?apiKey=PLGN_SECRET_VALUE_1234")
     _pl21_b = S._redact_secrets("boom token=UNNAMED_SECRET_XYZ&next=1")
+    # 🐞 **حالةٌ ثالثة مفرِّقة** (طفرة M1 نجت بدونها 2026-08-15): السرُّ **عاريًا
+    # بلا `param=`** — لا يلتقطه القصُّ البنيويّ، فلا يُخفيه إلّا مرورُ أسماء
+    # البيئة. بدونها كان قتلُ الحلقة يمرّ لأن العيّنتين داخل `apiKey=`/`token=`.
+    _pl21_d = S._redact_secrets(
+        "ConnectionError: peer rejected PLGN_SECRET_VALUE_1234 after 3 tries")
     _pl21_c = S._redact_secrets("لا أسرار هنا")
 finally:
     if _pl21_env_saved is None:
@@ -18384,6 +18389,7 @@ check("🔒 PL21 (خطة 021) إخفاءُ الأسرار مُعمَّم: مفت
       "والنصُّ النظيف يمرّ كما هو",
       "PLGN_SECRET_VALUE_1234" not in _pl21_a and "***" in _pl21_a
       and "UNNAMED_SECRET_XYZ" not in _pl21_b
+      and "PLGN_SECRET_VALUE_1234" not in _pl21_d and "***" in _pl21_d
       and _pl21_c == "لا أسرار هنا")
 _pl21_wf = open(".github/workflows/cline_weekly_review.yml", encoding="utf-8").read()
 check("🔒 PL21ب وكيلُ Cline الذاتيّ بلا اعتمادٍ محفوظٍ في الشجرة "
