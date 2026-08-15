@@ -522,8 +522,21 @@ CONFIG = {
     "SPLIT_RADAR_PROBE_CAP": 80,         # سقف المُرشّحين لجلب التقسيمات (حدّ تكلفة الشبكة)
     "SPLIT_RADAR_MAX": 12,               # سقف العرض
     # 🔬 أداة «النهج العلمي» (فيصل · UPC) — مستقلّة عن الفارز وعن صيّاد المقسّم.
-    "METHOD_DECLINE_MIN": 20,            # «تنتظر هبوطه … 20 < 30 يوم» — حرفيّ IMG_0489
-    "METHOD_DECLINE_MAX": 30,            # الحدّ الأعلى من النصّ نفسه
+    # 🔴 **‏10 لا 20 (2026-08-15، أمرُ المالك «نفّذ الحزمة»)**: نصّان لفيصل،
+    #    والأحدثُ أوسع — والقديمُ لا يُمحى من السجلّ:
+    #      • `IMG_0489`: «تنتظر هبوطه فترة زمنيه · **20 < 30 يوم**»
+    #      • منشور 2026-08-15 («كيف تعرف انه بيدبل»): هابطٌ من صعودٍ عالٍ
+    #        **«من 10 ايام لشهر»** ⇒ 10-30.
+    #    ⚠️ و«يوم» عندنا **جلسةُ تداول** وقد تكون تقويميّةً عنده — مُعلَنٌ غيرُ محسوم.
+    #    📊 الكلفةُ مقيسة (`method_window_result.md`): المطابقُ 196 ⟶ 364 مجمَّعًا.
+    "METHOD_DECLINE_MIN": 10,            # «من 10 ايام لشهر» — حرفيّ (2026-08-15)
+    "METHOD_DECLINE_MAX": 30,            # «لشهر» · وهو الحدّ الأعلى في النصّين
+    # 🔴 **«‏+ RSI تحت 30»** — منشور 2026-08-15 حرفيًّا. وكان RSI **مُسقَطًا عمدًا**
+    #    من هذي الوصفة (2026-08-01: «ليس في الصور الستّ») **فصار القرارُ بائتًا
+    #    بنصّه الجديد** (درسُ `T-MINFLOOR`: حين يكون مفهومُه منصوصًا يُنفَّذ كما نصّه).
+    #    ⚖️ ولا يعارض «‏RSI من 22 لـ27» (`IMG_0531`) — «تحت 30» أوسعُ ويحتويه.
+    #    📊 والكلفةُ مقيسة: يقصّ 89.8% من المطابقين (196 ⟶ 20).
+    "METHOD_RSI_MAX": 30.0,              # «RSI تحت 30» — حرفيّ (2026-08-15)
     "METHOD_MIN_PRICE": 1.0,             # أرضية فيصل المنصوصة («السنتات خارج الشرح»)
     "METHOD_MAX": 8,                     # سقف المطابقين في الرسالة الواحدة
     # 🪜 التسلسل الرباعيّ بقراءة **الثبات** — كلُّ رقمٍ هنا حرفيٌّ من الصور:
@@ -7233,7 +7246,7 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
     #    اختبارٌ أخضر»). لا أثرَ لها على الحكم.
     stage = {"price": 0, "window_ok": 0, "rise_only_fail": 0,
              "founding": 0, "seq": 0, "seq_h4": 0, "entry_zone": 0,
-             "h4_fetched": 0, "h4_capped": 0}
+             "rsi_ok": 0, "h4_fetched": 0, "h4_capped": 0}
     h4_budget = [int(CONFIG["METHOD_4H_CAP"])]
     _METHOD_NEAR.clear()
     _METHOD_FOUNDING.clear()
@@ -7350,11 +7363,33 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                         continue
                 except (TypeError, ValueError):
                     pass                       # قيمةٌ تالفة ⇒ مجهولٌ يمرّ
+            # ⑦ **RSI تحت 30** — «+ RSI تحت 30» (منشور 2026-08-15، حرفيّ).
+            #    🔒 الفريمُ **اليوميّ** حتى لو قُرئ التسلسلُ على 4س: قاعدةُ المالك
+            #       المنصوصة «يمشي من الفريم الكبير إلى الصغير» + `IMG_0446`
+            #       («يوميّ/أسبوعيّ لأسهم التجميع») ⇒ اليوميُّ حاكم.
+            # 🔴 **«تعذّرٌ ≠ مخالفة»:** `rsi()` تنتهي بـ`fillna(50)` فالمحشوُّ يُقرأ
+            #    **‏50** و«تحت 30» كانت سترفضه ⇒ الفشلُ ينقلب **مُغلَقًا**. لذلك
+            #    يُميَّز المحسوبُ من المحشوّ: نافذةٌ كافية **و** هبوطٌ واحدٌ على
+            #    الأقلّ داخلها (‏`avg_loss`=0 هو مسارُ الحشو الوحيد الممكن هنا).
+            _rsi, _rsi_ok = None, False
+            try:
+                _cl = df["Close"].astype(float)
+                if len(_cl) >= 20 and bool((_cl.diff().tail(42) < 0).any()):
+                    _rsi = float(rsi(_cl).iloc[-1])
+                    _rsi_ok = _rsi == _rsi              # ليس NaN
+            except Exception:                                    # noqa: BLE001
+                _rsi, _rsi_ok = None, False
+            if _rsi_ok and _rsi >= float(CONFIG["METHOD_RSI_MAX"]):
+                _near(f"RSI {_rsi:.0f} — شرط فيصل: تحت "
+                      f"{int(CONFIG['METHOD_RSI_MAX'])}")
+                continue
+            stage["rsi_ok"] = stage.get("rsi_ok", 0) + 1
             try:
                 freq = _split_frequency(fs(sym), today)
             except Exception:                                    # noqa: BLE001
                 freq = None
             rows.append({
+                "rsi": _rsi,
                 "symbol": sym, "price": price, "bottom": bot,
                 "entry": entry, "stop": stop, "t1": t1,
                 "gap_value": (gap or {}).get("value"),
@@ -7374,14 +7409,18 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                       is not None else 1e9)
     _METHOD_STAGE.clear()
     _METHOD_STAGE.update(stage, matched=len(rows))
-    log(f"🔬 النهج العلمي: فوق أرضية السعر {stage['price']} · داخل نافذة 20-30 "
+    # 🔴 النافذةُ **من `CONFIG`** لا مغروسةً نصًّا: رقمٌ مكتوبٌ في سطرِ عرضٍ
+    #    يتعفّن أوّلَ ما تتغيّر العتبةُ فيصير السطرُ يكذب (مقفولٌ سلوكيًّا).
+    log(f"🔬 النهج العلمي: فوق أرضية السعر {stage['price']} · داخل نافذة "
+        f"{int(CONFIG['METHOD_DECLINE_MIN'])}-{int(CONFIG['METHOD_DECLINE_MAX'])} "
         f"جلسة {stage['window_ok']} (منهم {stage['rise_only_fail']} سقطوا على "
         f"**حدّ الصعود وحده** — وهو الرقم الوحيد بلا سندٍ نصّيّ) · حدثٌ مؤسِّس "
         f"{stage['founding']} · بلغ التسلسلَ {seen} "
         f"(يوميّ {seen - stage['seq_h4']} · 4س {stage['seq_h4']} من "
         f"{stage['h4_fetched']} مجلوبًا"
         + (f" · ⚠️ قُصّ {stage['h4_capped']} بالسقف" if stage["h4_capped"] else "")
-        + f") · داخل منطقة الدخول {stage['entry_zone']} · مطابق كامل {len(rows)}")
+        + f") · داخل منطقة الدخول {stage['entry_zone']} · "
+        + f"عبر شرطَ RSI {stage['rsi_ok']} · مطابق كامل {len(rows)}")
     # 🪜 **«من الفريم الكبير إلى الصغير»** — قاعدةُ المالك المنصوصة (2026-08-06، سُئل
     #    عن فريم `IMG_0494` فأجاب: «ما اعرف واللي اعرفه من فيصل **يمشي من الفريم
     #    الكبير إلى الصغير**»). وسندُها في الكاتالوج: `IMG_0446` «‏15-30 دقيقة لأسهم
@@ -7615,15 +7654,18 @@ def build_method_alert(rows: list, today=None) -> str:
     if not rows:
         return ""
     d = today or dt.date.today()
+    # 🔴 النافذةُ **من `CONFIG`** لا مغروسةً: عتبةٌ تتغيّر ونصٌّ لا يتغيّر = سطرٌ
+    #    يكذب على قارئه (مقفولٌ سلوكيًّا بـ`MWB2`).
+    _dw = (int(CONFIG["METHOD_DECLINE_MIN"]), int(CONFIG["METHOD_DECLINE_MAX"]))
     lines = [f"🔬 <b>النهج العلمي</b> (فيصل · {len(rows)} مطابق) — {d}",
-             "<i>صعودٌ عالٍ ثم هبوط 20-30 يومًا · قاع ⟶ اختبار مقاومة ⟶ رجوعٌ "
-             "يختبر القاع ⟶ ثبات = انفجار</i>", ""]
+             f"<i>صعودٌ عالٍ ثم هبوط {_dw[0]}-{_dw[1]} يومًا · قاع ⟶ اختبار "
+             "مقاومة ⟶ رجوعٌ يختبر القاع ⟶ ثبات = انفجار</i>", ""]
     for r in rows:
         rr = (r["t1"] - r["entry"]) / max(r["entry"] - r["stop"], 1e-9)
         lines.append(f"🎯 <b>{esc(r['symbol'])}</b> ${r['price']:.2f}")
         lines.append(f"  🏛️ الحدث: صعد {r['rise_pct']:.0f}% إلى "
                      f"${r['peak']:.2f} ثم هبط {r['bars_since_peak']} جلسة "
-                     "(شرط فيصل: 20 إلى 30 يومًا)")
+                     f"(شرط فيصل: {_dw[0]} إلى {_dw[1]} يومًا)")
         lines.append(f"  🪜 التسلسل مكتمل <b>[{esc(str(r.get('frame') or '—'))}]</b>"
                      f": قاع ${r['bottom']:.2f} ⟶ صعد "
                      f"{float(r['bounce_pct'] or 0):.0f}% اختبارًا للمقاومة ⟶ رجع "
