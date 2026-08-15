@@ -7238,12 +7238,19 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
             if fp(df):                              # ④ القروب يُبطل القراءة
                 _near("دخلته قروبات (القروب يُبطل قراءة الشموع)")
                 continue
+            # 🔴 **`off_checked` — «فُحِص» لا «سليم» (إصلاح 2026-08-15 بأمر المالك
+            #    «صلّح سطر الطرح»):** الفحصُ مقيَّدٌ بميزانيةٍ وقد يرمي، وحين لا
+            #    يقع كان الكرتُ يطبع «✅ لا إعلان طرح» ⇒ **ادّعاءٌ غيرُ مفحوصٍ في
+            #    رسالةٍ تصل المالك**. الآن تُحمَل الحقيقةُ في الصفّ ويعرضها الكرت
+            #    كما هي — والقرارُ (المرورُ عند التعذّر) **لم يتغيّر بحرف**.
+            off_checked = False
             if off_budget[0] > 0:                   # ⑤ الطرح (مقيَّد بميزانية)
                 off_budget[0] -= 1
                 try:
                     if fo(sym, today=today):
                         _near("عنده إعلان طرح حديث")
                         continue
+                    off_checked = True              # نُفِّذ الفحصُ ورجع سالبًا
                 except Exception:                                # noqa: BLE001
                     pass
             # ⑥ **الشورت شرطٌ برقمٍ منصوص الآن** (`IMG_0496`): سُئل «الافضل كم؟»
@@ -7278,6 +7285,7 @@ def scan_method_hunter(history, today=None, fetch_pump=None, fetch_offering=None
                 "undercut_pct": ts.get("undercut_pct"), "frame": frame,
                 "avail": (bor or {}).get("shares_available"),
                 "borrow_fee": (bor or {}).get("borrow_fee"), "freq": freq,
+                "off_checked": off_checked,
                 "df": df})
         except Exception as e:                                   # noqa: BLE001
             log(f"⚠️ النهج العلمي·{sym}: {e}")
@@ -7547,8 +7555,12 @@ def build_method_alert(rows: list, today=None) -> str:
                      f"{CONFIG['METHOD_STOP_PCT']:.0f}% (تحت الدعم — صيغة فيصل)")
         lines.append(f"  🎯 الهدف الأول <b>${r['t1']:.2f}</b> = رأس شمعة الفجوة "
                      f"الهابطة · ⚖️ العائد/المخاطرة {rr:.1f}")
+        # 🔴 «فُحِص» لا «سليم»: القروبُ يُفحَص لكلّ مرشّح بلا استثناء، أمّا الطرحُ
+        #    فمقيَّدٌ بميزانيةٍ وقد يتعذّر ⇒ يُقال ما وقع فعلًا (`off_checked`).
         lines.append("  ✅ خالٍ من قروب (شرط فيصل: القروب يُبطل قراءة الشموع) · "
-                     "✅ لا إعلان طرح")
+                     + ("✅ لا إعلان طرح" if r.get("off_checked") else
+                        "⚠️ الطرح لم يُفحَص (نفدت ميزانية الفحص أو تعذّر) — "
+                        "مرَّ بفائدة الشك"))
         _b = _short_headline({"shares_available": r.get("avail")}) \
             if r.get("avail") is not None else "— (غير مؤكّد)"
         lines.append(f"  🕵️ متاح للاقتراض: {_b} — حدّ فيصل "

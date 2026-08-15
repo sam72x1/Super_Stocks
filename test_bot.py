@@ -13047,6 +13047,43 @@ check("🧪 NH🔒 وكرتُه يُبنى كاملًا بلا انهيار وب
 check("🧾 FK🔒 وقواعدُ فيصل تظهر في **مُخرَج الكرت** فعلًا (لا وصلةٌ ميتة)",
       "هدفُ فيصل الأوّل" in _sm_msg and "طلباتٌ نازلة" in _sm_msg
       and "لا تشتري من العرض" in _sm_msg)
+# 🔴 **`OFF🔒` — «فُحِص» لا «سليم» (أمر المالك «صلّح سطر الطرح» 2026-08-15):**
+# الفحصُ مقيَّدٌ بميزانيةٍ وقد يرمي، وكان الكرتُ يطبع «✅ لا إعلان طرح» في
+# الحالتين ⇒ **ادّعاءٌ غيرُ مفحوصٍ في رسالةٍ تصل المالك**. الثلاثةُ **مفرِّقة**:
+# نفسُ الشموع ولا يختلف إلّا **حالُ الفحص** — فيستحيل أن تمرّ طفرةٌ بخلط الحالتين.
+# 📌 ولاحظ أن الجالبَ في الدخان أعلاه **يرمي فعلًا** (`lambda s` والنداءُ
+#    `fo(sym, today=today)`) ⇒ هو بنفسه شاهدُ الحالة «لم يُفحَص».
+check("🔴 OFF🔒 تعذّرُ الفحص (الجالبُ يرمي) ⇒ الصفُّ يحمل `off_checked=False` "
+      "والكرتُ يقول «لم يُفحَص» ولا يدّعي «لا إعلان طرح»",
+      _sm_rows[0].get("off_checked") is False
+      and "الطرح لم يُفحَص" in _sm_msg
+      and "✅ لا إعلان طرح" not in _sm_msg)
+_off_ok_rows = S.scan_method_hunter(
+    {"TEST": _sm_df}, today=_sm_df.index[-1].date(),
+    fetch_pump=lambda d: False, fetch_offering=lambda s, today=None: False,
+    fetch_borrow=lambda s: {"shares_available": 7_000, "borrow_fee": 120.0})
+_off_ok_msg = S.build_method_alert(_off_ok_rows, today=_sm_df.index[-1].date())
+check("🔴 OFF🔒ب فحصٌ وقع ورجع سالبًا ⇒ `off_checked=True` والكرتُ يقول «✅ لا "
+      "إعلان طرح» (الادّعاءُ مسنودٌ الآن)",
+      len(_off_ok_rows) == 1 and _off_ok_rows[0].get("off_checked") is True
+      and "✅ لا إعلان طرح" in _off_ok_msg
+      and "الطرح لم يُفحَص" not in _off_ok_msg)
+_off_cap_saved = S.CONFIG["OFFERING_PROBE_CAP"]
+try:
+    S.CONFIG["OFFERING_PROBE_CAP"] = 0             # 🚫 نفادُ الميزانية
+    _off_cap_rows = S.scan_method_hunter(
+        {"TEST": _sm_df}, today=_sm_df.index[-1].date(),
+        fetch_pump=lambda d: False,
+        fetch_offering=lambda s, today=None: False,
+        fetch_borrow=lambda s: {"shares_available": 7_000, "borrow_fee": 120.0})
+finally:
+    S.CONFIG["OFFERING_PROBE_CAP"] = _off_cap_saved
+check("🔴 OFF🔒ج نفادُ ميزانية الفحص ⇒ المرشّح **يبقى** (القرار لم يتغيّر) لكنّ "
+      "`off_checked=False` فلا يُدَّعى فحصٌ لم يقع",
+      len(_off_cap_rows) == 1
+      and _off_cap_rows[0].get("off_checked") is False
+      and "الطرح لم يُفحَص" in S.build_method_alert(
+          _off_cap_rows, today=_sm_df.index[-1].date()))
 _ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة بعد الدخان
 # ==========================================================
 # ==========================================================
