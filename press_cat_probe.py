@@ -90,6 +90,32 @@ def combo_flags(var_days, prev_q):
     return c
 
 
+def wake_day(bars, upto_idx):
+    """نقيّة (‏§⑮): قراءةُ التنبيه الإنتاجية + الصحوة ليومٍ واحد — **الدالتان
+    الحيّتان بالاسم** (`press_read(w=ALERT_W)` و`wake_read`). قرينةُ الافتر
+    غيرُ قابلةٍ للقياس من اليومي ⇒ `ah_pct=None` والأرقام **أرضيّة** (مُعلَن
+    في التسجيل). ترجع `{"match","hold","ready","awake","vol","rev"}`."""
+    import press_radar as PR                                     # noqa: PLC0415
+    import Super_stock as S                                      # noqa: PLC0415
+    sl = bars.iloc[:upto_idx + 1]
+    r = PR.press_read(sl, w=PR.ALERT_W)
+    out = {"match": bool(r), "hold": int((r or {}).get("hold_sessions") or 0),
+           "ready": False, "awake": False, "vol": False, "rev": None}
+    if not r:
+        return out
+    out["ready"] = out["hold"] >= PR.READY_HOLD
+    w = PR.wake_read(sl)
+    out["awake"] = bool(w.get("awake"))
+    try:
+        out["vol"] = bool(w.get("vol_x")
+                          and float(w["vol_x"]) >= float(
+                              S.CONFIG.get("VOL_SPIKE_MULT", 5.0)))
+    except Exception:                                            # noqa: BLE001
+        out["vol"] = False
+    out["rev"] = w.get("rev")
+    return out
+
+
 def probe_day(bars, upto_idx):
     """نقيّة: تقصّ الشموع حتى الفهرس (شاملًا) وتقرأ `press_read` بالاسم.
     ترجع (قراءة أو None، سببُ عدم الإطلاق المُسمّى)."""
@@ -174,6 +200,7 @@ def main() -> int:
                             (r or {}).get("tested_level"),
                             (r or {}).get("runup_pct")))
             var_days.append(variant_day(bars, idx_map[si]))     # §⑪-ج
+        wake_days = [wake_day(bars, idx_map[si]) for si in sess]  # §⑮
         fired = any(x[1] for x in day_res)
         runups = [x[6] for x in day_res if x[1] and x[6] is not None]
         import press_radar as PR                             # noqa: PLC0415
@@ -182,6 +209,15 @@ def main() -> int:
                      "fired": fired, "days": day_res, "prev_q": pq,
                      "runup": max(runups) if runups else None,
                      "combo": combo_flags(var_days, pq),
+                     "wake": {"match": any(w["match"] for w in wake_days),
+                              "ready": any(w["ready"] for w in wake_days),
+                              "fire": any(w["ready"] and w["awake"]
+                                          for w in wake_days),
+                              "vol": any(w["vol"] for w in wake_days),
+                              "rev": next((w["rev"] for w in wake_days
+                                           if w["rev"]), None),
+                              "hold": max((w["hold"] for w in wake_days),
+                                          default=0)},
                      "safety_unknown": sum(1 for d in var_days
                                            if d.get("safety") is None)})
         mark = "🔥" if fired else "—"
@@ -234,6 +270,31 @@ def main() -> int:
                   if r["group"] == "أ" and not r["combo"].get(name)]
         if miss_a:
             _log(f"     غائبو الكتالوج: {' · '.join(miss_a)}")
+    # 🔥 §⑮ — قمعُ «الصحوة على الكتالوج» (مسجَّلٌ قبل الأرقام): أين كان سيقع
+    #    السهمُ في **رسالة اليوم** عند ‏−2/−1؟ طابقَ ⟵ حافظ (قسم الجاهزين) ⟵
+    #    مستيقظ (يتصدّر في 🔥). قرينةُ الافتر غيرُ مقيسةٍ هنا ⇒ **أرضيّة**.
+    _log(f"\n{'—' * 70}\n🔥 قمع الصحوة (§⑮ — أرقامُ «مستيقظ» أرضيّةٌ بلا الافتر):")
+    for g in ("أ", "ب"):
+        sub = [r for r in rows if r["group"] == g]
+        if not sub:
+            continue
+        m = [r for r in sub if r["wake"]["match"]]
+        rd = [r for r in m if r["wake"]["ready"]]
+        fi = [r for r in rd if r["wake"]["fire"]]
+        _log(f"  المجموعة ({g}): طابق قراءةَ التنبيه {len(m)} من {len(sub)} "
+             f"⟵ حافظٌ (يدخل قسم الجاهزين) {len(rd)} ⟵ مستيقظٌ (يتصدّر 🔥) "
+             f"{len(fi)}")
+        if rd:
+            nv = sum(1 for r in fi if r["wake"]["vol"])
+            nr = sum(1 for r in fi if r["wake"]["rev"])
+            _log(f"     قرائنُ المستيقظين: قفزةُ حجم {nv} · شمعةٌ انعكاسية {nr}")
+        _q = [r["symbol"] for r in rd if not r["wake"]["fire"]]
+        if _q:
+            _log(f"     حافظون هادئون (كانوا سيقعون تحت 🔥): {' · '.join(_q)}")
+        _nr2 = [f"{r['symbol']}(حفظ {r['wake']['hold']})"
+                for r in m if not r["wake"]["ready"]]
+        if _nr2:
+            _log(f"     طابقوا ولم يحفظوا 3ج (قسم المتابعة): {' · '.join(_nr2)}")
     unk = sum(r.get("safety_unknown") or 0 for r in rows)
     if unk:
         _log(f"  ⚠️ قراءاتُ سلامةٍ متعذّرة (يوم-قراءة): {unk} — تُعَدّ سقوطًا"

@@ -17919,6 +17919,27 @@ check("🧪 CT3 §⑪-ج: `variant_day` (V0 أعمى عن القمة القدي�
       and _ct3_c2["VB-owner"] and _ct3_c2["VB-union"]
       and not _ct3_c3["VC-safety"] and _ct3_c3["VD-full"])
 
+# CT5 — 🔥 §⑮ `wake_day`: قمعُ الصحوة بالدالتين الحيّتين (press_read(ALERT_W)
+# + wake_read) وبعيّناتٍ **ثلاثيّةِ التفريق**: حافظٌ مستيقظ (حجم 6×) · حافظٌ
+# هادئ (نفس الشموع بحجمٍ مسطّح) · ولا مطابق — فلا يعمى قفلٌ عن الفرق الذي
+# تقوم عليه §⑮ (المسطّح يفرّق ready عن awake، واللامطابق يفرّق match)
+_ct5_lo = [2.6] * 50 + _prd_lo[25:] + [3.5, 3.55, 3.5]
+_ct5_hi = [2.8] * 50 + _prd_hi[25:] + [3.75, 3.8, 3.75]
+_ct5_cl = [2.7] * 50 + _prd_cl[25:] + [3.6, 3.65, 3.61]
+_ct5_f = _prd_frame(_ct5_lo, _ct5_hi, _ct5_cl)
+_ct5_f["Volume"] = 1000.0
+_ct5_hot = _ct5_f.copy()
+_ct5_hot.iloc[-1, _ct5_hot.columns.get_loc("Volume")] = 6000.0
+_ct5_w1 = _CT.wake_day(_ct5_hot, len(_ct5_hot) - 1)
+_ct5_w2 = _CT.wake_day(_ct5_f, len(_ct5_f) - 1)
+_ct5_w3 = _CT.wake_day(_prd_frame([2.0] * 70, [2.2] * 70, [2.1] * 70), 69)
+check("🔥 CT5 §⑮ `wake_day`: حافظٌ مستيقظ (match+ready+awake+vol) · حافظٌ "
+      "هادئ (ready بلا awake) · ولا مطابق — ثلاثيُّ التفريق",
+      _ct5_w1["match"] and _ct5_w1["ready"] and _ct5_w1["awake"]
+      and _ct5_w1["vol"] and _ct5_w1["hold"] == 3
+      and _ct5_w2["ready"] and not _ct5_w2["awake"]
+      and not _ct5_w3["match"] and not _ct5_w3["ready"])
+
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
 # 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
 # (‏ALERT_W=40) فالإطارُ الذي كان «تركيبة بحثٍ صامتة» صار **يُنبّه** — والقفل
