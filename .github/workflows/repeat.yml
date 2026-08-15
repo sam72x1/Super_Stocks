@@ -1,0 +1,44 @@
+name: T-REPEAT (سلوك المضارب يتكرر؟)
+
+# 🔁 العقد repeat_prereg.md (مدفوع قبل أي رقم · أمر المالك).
+# قياس فقط · يدوي بلا كرون · صفر مسّ إنتاج.
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "وسم اللقطة (2023 · 2024 · 2025)"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "لقطة PIT: 2023=31574165523 · 2024=31199493957 · 2025=31191327731"
+        required: true
+        default: ""
+jobs:
+  repeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip          # 🧊 خطة 025
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run repeat measurement
+        env:
+          # 🔴 مدخل بلا env = مدخل ميت (قاعدة P1)
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python repeat_arms.py

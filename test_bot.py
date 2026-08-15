@@ -18500,6 +18500,43 @@ check("🧪 PL23ب توصيفُ `runup_pct`: الركضةُ من أدنى قاع
       "(‏0.5 ⟶ 3.0 = 500%) — رقمٌ يواجه المالكَ في كرت الرادار",
       isinstance(_pl23_ru, (int, float)) and round(float(_pl23_ru)) == 500)
 
+# RPT — 🔁 أقفال أداة T-REPEAT (`repeat_arms.py` · العقد `repeat_prereg.md`
+# + ملحق ⑥): العيّناتُ **مفرِّقة بالبناء** (اكتُشف أولًا أن هضبةً +50% فوق
+# القاعدة تُسلسل العنقودين — فالعيّنةُ تنزل لـ+20% بين الرفعتين عمدًا).
+import repeat_arms as _RPT
+_rpt_c = ([1.0] * 40 + [1.4, 1.9, 2.2, 1.9, 1.6] + [1.2] * 30
+          + [1.5, 1.8, 2.0, 1.9] + [1.7] * 10)
+_rpt_m = _RPT.spike_magnitudes(_rpt_c)
+check("🔁 RPT1 `spike_magnitudes`: رفعتان منفصلتان (‏+120 ثم +66.7) بترتيبهما "
+      "الزمنيّ · ورفعةٌ واحدة = عنصرٌ واحد (لا أزواج) · وقصيرٌ = []",
+      [round(x, 1) for x in _rpt_m] == [120.0, 66.7]
+      and len(_RPT.spike_magnitudes([1.0] * 50 + [1.6, 2.1, 1.9]
+                                    + [1.8] * 20)) == 1
+      and _RPT.spike_magnitudes([1.0] * 10) == [])
+check("🔁 RPT2 سبيرمان بلا scipy: مطابقةٌ تامّة +1 · معكوسةٌ −1 · وثابتٌ "
+      "(مقامٌ صفر) = 0 لا انهيار",
+      round(_RPT.spearman([1, 2, 3, 4], [10, 20, 30, 40]), 3) == 1.0
+      and round(_RPT.spearman([1, 2, 3, 4], [40, 30, 20, 10]), 3) == -1.0
+      and _RPT.spearman([5, 5, 5], [1, 2, 3]) == 0.0)
+import random as _rpt_rand
+_rpt_rng = _rpt_rand.Random(1)
+_rpt_corr = [(50.0 + i * 7, (50.0 + i * 7) * 0.9 + _rpt_rng.random() * 10)
+             for i in range(60)]
+_rpt_noise = [(50.0 + i * 7, _rpt_rng.random() * 200) for i in range(60)]
+_rpt_j1, _rpt_j2 = _RPT.judge(_rpt_corr), _RPT.judge(_rpt_noise)
+check("🔁 RPT3 `judge` يفرّق: أزواجٌ مترابطة ⇒ فوق p95 العشوائيّ · وضجيجٌ ⇒ "
+      "لا يتجاوزه · وشريحتا 30/100 تحملان n وWilson",
+      _rpt_j1["beats_null"] is True and _rpt_j2["beats_null"] is False
+      and _rpt_j1["n_pairs"] == 60
+      and (_rpt_j1["lo_bin"]["n"] + _rpt_j1["hi_bin"]["n"]) == 60)
+_rpt_wf = open(".github/workflows/repeat.yml", encoding="utf-8").read()
+check("🔁 RPT4 قاعدة P1 في repeat.yml: BACKTEST_YEAR وBT_FROZEN_PATH وrun-id "
+      "موصولة — مدخلٌ بلا env مدخلٌ ميت",
+      "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _rpt_wf
+      and "BT_FROZEN_PATH: frozen_backtest.pkl.gz" in _rpt_wf
+      and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _rpt_wf
+      and "python repeat_arms.py" in _rpt_wf)
+
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
 # 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
 # (‏ALERT_W=40) فالإطارُ الذي كان «تركيبة بحثٍ صامتة» صار **يُنبّه** — والقفل
