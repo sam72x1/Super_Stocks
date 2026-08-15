@@ -13054,12 +13054,17 @@ def _sm_scan(**kw):
 _sm_rows = _sm_scan(
     fetch_pump=lambda d: False, fetch_offering=lambda s: False,
     fetch_borrow=lambda s: {"shares_available": 7_000, "borrow_fee": 120.0})
+# 🐞 **سنتينل بدل الفهرسة المباشرة (2026-08-15):** طفرةُ «اقلب مقارنة RSI»
+#    أفرغت الصفوفَ فرمى `_sm_rows[0]` **‏IndexError** ⇒ السويّةُ **تنهار** ولا
+#    تطبع سطرَ الملخّص ⇒ يُقرأ «انهيار» لا «سقط قفلٌ». **والقفلُ يجب أن يسقط لا
+#    أن ينهار** (قاعدةٌ مدوَّنة عندنا) ⇒ الفهرسةُ صارت آمنة.
+_sm_row0 = _sm_rows[0] if _sm_rows else {}
 check("🧪 NH🔒 مطابقٌ كامل يمرّ فعلًا (المسار الذي لم يُنفَّذ حيًّا قطّ)",
-      len(_sm_rows) == 1 and _sm_rows[0]["symbol"] == "TEST"
-      and abs(_sm_rows[0]["bottom"] - 3.10) < 1e-6
-      and abs(_sm_rows[0]["entry"] - 3.20) < 0.01
-      and abs(_sm_rows[0]["stop"] - 3.00) < 0.02
-      and abs(_sm_rows[0]["t1"] - 5.00) < 1e-6)
+      len(_sm_rows) == 1 and _sm_row0.get("symbol") == "TEST"
+      and abs(_sm_row0.get("bottom", 0) - 3.10) < 1e-6
+      and abs(_sm_row0.get("entry", 0) - 3.20) < 0.01
+      and abs(_sm_row0.get("stop", 0) - 3.00) < 0.02
+      and abs(_sm_row0.get("t1", 0) - 5.00) < 1e-6)
 _sm_msg = S.build_method_alert(_sm_rows, today=_sm_df.index[-1].date())
 check("🧪 NH🔒 وكرتُه يُبنى كاملًا بلا انهيار وبأرقام فيصل البنيوية",
       all(_w in _sm_msg for _w in ("النهج العلمي", "التسلسل مكتمل",
@@ -13079,7 +13084,7 @@ check("🧾 FK🔒 وقواعدُ فيصل تظهر في **مُخرَج الكر
 #    `fo(sym, today=today)`) ⇒ هو بنفسه شاهدُ الحالة «لم يُفحَص».
 check("🔴 OFF🔒 تعذّرُ الفحص (الجالبُ يرمي) ⇒ الصفُّ يحمل `off_checked=False` "
       "والكرتُ يقول «لم يُفحَص» ولا يدّعي «لا إعلان طرح»",
-      _sm_rows[0].get("off_checked") is False
+      _sm_row0.get("off_checked") is False
       and "الطرح لم يُفحَص" in _sm_msg
       and "✅ لا إعلان طرح" not in _sm_msg)
 _off_ok_rows = _sm_scan(
@@ -13134,6 +13139,15 @@ check("🔴 MWB1 شرطُ RSI **بوّابةُ رفضٍ فعلًا**: نفسُ �
       "يكون RSI فوق الحدّ ويمرّ حين يكون تحته — والسببُ **مُسمًّى** في «قريبون»",
       len(_mwb_rej) == 0 and len(_mwb_pass) == 1
       and any("RSI" in str(n.get("why") or "") for n in _mwb_rej_near))
+# 🐞 **وطفرةُ «`>` بدل `>=`» نجت** لأن تخومي كانت على **أداة القياس** لا على
+#    الإنتاج: `MWB1` يشغّل الحدَّ عند 0 و100 فلا يمرّ بالحدّ نفسِه قطّ. ⇒ يُضبَط
+#    الحدُّ على **قيمة RSI الفعلية للعيّنة بالضبط**: «تحت 30» تعني أن المساوي
+#    **يُرفَض** — فبـ`>=` صفرُ صفوف وبـ`>` يمرّ.
+_mwb_edge = float(S.rsi(_sm_df["Close"]).iloc[-1])
+check("🔴 MWB1ب تخومُ الإنتاج: RSI **مساويًا للحدّ بالضبط ⇒ يُرفَض** («تحت 30» "
+      "لا تشمل الثلاثين) — والعيّنةُ عند الحدّ حرفيًّا",
+      len(_mwb_scan(_mwb_edge)[0]) == 0
+      and len(_mwb_scan(_mwb_edge + 0.01)[0]) == 1)
 check("🔴 MWB2 **سطرُ العرض لا يكذب**: نافذةُ الكرت والسجلّ تُقرأ من `CONFIG` "
       "(ضبطٌ مؤقّتٌ على 12-28 ⇒ يظهر «12 إلى 28» لا رقمٌ مغروس)",
       (lambda saved: (lambda _:
@@ -13150,9 +13164,15 @@ check("🔴 MWB3 «تعذّرٌ ≠ مخالفة» حيًّا: سلسلةٌ بل
       "_rsi_ok" in _insp0.getsource(S.scan_method_hunter)
       and "diff().tail(42) < 0" in _insp0.getsource(S.scan_method_hunter)
       and _MW0.arm_member(10, True, 25, False, 50.0) is True)
-check("🔴 MWB4 عدّادٌ مُسمًّى في السجلّ (‏لا يستوي «بوّابةٌ خاملة» و«رفضٌ شامل»)",
-      "rsi_ok" in _insp0.getsource(S.scan_method_hunter)
-      and "عبر شرطَ RSI" in _insp0.getsource(S.scan_method_hunter))
+# 🐞 كتبتُ هذا القفلَ أوّلًا **نصًّا** (وجودُ «rsi_ok» و«عبر شرطَ RSI» في المصدر)
+#    — **ونجت الطفرة**: حذفُ سطر الزيادة يُبقي الاسمين في تهيئة `stage` وفي سطر
+#    السجلّ. ⇒ قفلٌ **سلوكيّ**: العدّادُ يتحرّك مع المرور ويبقى صفرًا مع الرفض.
+check("🔴 MWB4 عدّادٌ **يتحرّك** لا اسمٌ في المصدر: يساوي عددَ العابرين ويبقى "
+      "صفرًا حين يرفض الجميع (‏لا يستوي «بوّابةٌ خاملة» و«رفضٌ شامل»)",
+      "عبر شرطَ RSI" in _insp0.getsource(S.scan_method_hunter)
+      and (lambda a, b: a == 1 and b == 0)(
+          (_mwb_scan(100.0), dict(S._METHOD_STAGE))[1].get("rsi_ok"),
+          (_mwb_scan(0.0), dict(S._METHOD_STAGE))[1].get("rsi_ok")))
 check("🔴 MWB5 الصفُّ يحمل `rsi` فيحيا سطرُ «‏📐 RSI» الميّت في الكرت "
       "(‏`faisal_rule_lines` كانت تستقبل None دائمًا)",
       "\"rsi\": _rsi" in _insp0.getsource(S.scan_method_hunter)
