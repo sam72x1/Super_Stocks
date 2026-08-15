@@ -288,6 +288,91 @@ def alert_rank(r: dict):
             -float(p.get("drop_pct") or 0.0))
 
 
+def wake_read(df, ah_pct=None):
+    """🔥 نقيّة: «صحوةُ آخر جلستين» — هل يُظهر السهمُ المضغوطُ الحافظُ سلوكَ
+    مضاربٍ يتحرّك الآن؟ (مسكةُ المالك 2026-08-15: «27 سهمًا وش أدخل فيه؟ …
+    المفروض وقت سلوك المضارب في آخر جلستين — فيصل يقول السهم بيتحرّك في
+    الافتر/البري ومعناها فيه أشياء تدلّ على التحرّك يسويها المضارب»).
+
+    **صفرُ منطقٍ جديد وصفرُ رقمٍ من عندي — تركيبُ ثلاث أدواتٍ قائمة بالاسم:**
+      • `S.activity_features` (المبنيّة لسؤال «هل يجهّزه المضارب الآن؟» —
+        عتباتُها من `CONFIG`: قفزةُ حجم `VOL_SPIKE_MULT`ד20 · توسّعُ مدى ·
+        موضعُ إغلاق) — تُنادى على **آخر جلستين** (جلسةً جلسة) ويُؤخذ الأقوى،
+        لأن نصَّ المالك «آخر جلستين» حرفيًّا.
+      • `S.reversal_candle` (نموذجُ فيصل المنصوص: همر/نجمة صباح/هرامي/وت)
+        على آخر ثلاث شموعٍ يومية.
+      • حركةُ الجلسة الممتدة `ah_pct` (تُمرَّر من `extended_last_price` —
+        «بيتحرك في الافتر» بلفظه) بعتبة `PM_MOVE_PCT` **القائمة** (‏10).
+    **`awake`** = قفزةُ الحجم **أو** شمعةٌ انعكاسية **أو** حركةُ افترٍ فوق
+    العتبة — الثلاثُ القويّة حصرًا (توسّعُ المدى وموضعُ الإغلاق سياقٌ في
+    `score` لا يرفعان العلم: منتصفاتٌ محايدة يجتازها نصفُ الأيام).
+
+    ⚠️ **حدُّ صدقٍ إلزاميّ (يُقرأ قبل أي بناء):** عائلةُ «سلوكٌ يميّز المنفجر»
+    فشلت **خمس مرّات مقيسة** على مجتمع الفارز الرئيسي (آخرها `T-RANKER3`) —
+    هذي الطبقةُ **عرضٌ وترتيبُ انتباهٍ وحصادٌ أماميّ** على مجتمعٍ آخر (فئة
+    الضغط)، **لا فلتر**: لا اسمَ يُسقَط بها (درسُ WETO)، وحكمُها يأتي من
+    سجلّ الحصاد لا يُدَّعى سلفًا. تعذّرٌ ⇒ خمود (فاشلة-آمنة، لا ترمي)."""
+    import Super_stock as S                                      # noqa: PLC0415
+    out = {"vol_x": None, "score": 0, "rev": None,
+           "ah_pct": ah_pct, "awake": False}
+    # 🐞 التدهورُ **مكوّنًا مكوّنًا لا كلًّا** (أمسكه فحصُ PRD19 قبل الدفع):
+    # الصياغةُ الأولى كانت ترجع مبكّرًا عند غياب عمود الحجم — **فتقتل قرينةَ
+    # الافتر المستقلّةَ معه** (الكرتُ يطبع سطرَ الافتر والحصادُ يقول خامد =
+    # عرضٌ يناقض سجلَّه). كلُّ قرينةٍ في حارسها.
+    a1 = 0
+    try:                       # ① الحجم/النشاط — آخر جلستين جلسةً جلسة، الأقوى
+        h = df["High"].values.astype(float)
+        lo = df["Low"].values.astype(float)
+        c = df["Close"].values.astype(float)
+        v = df["Volume"].values.astype(float)
+        for cut in (None, -1):
+            f = S.activity_features(h[:cut], lo[:cut], c[:cut], v[:cut])
+            if f.get("vol_x") and (out["vol_x"] is None
+                                   or f["vol_x"] > out["vol_x"]):
+                out["vol_x"] = round(float(f["vol_x"]), 1)
+            a1 = max(a1, int(f.get("a1") or 0))
+            out["score"] = max(out["score"], int(f.get("act_score") or 0))
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:                       # ② الشمعة الانعكاسية (لا تحتاج الحجم أصلًا)
+        o2 = df["Open"].values.astype(float)
+        h2 = df["High"].values.astype(float)
+        l2 = df["Low"].values.astype(float)
+        c2 = df["Close"].values.astype(float)
+        ohlc = [(float(o2[k]), float(h2[k]), float(l2[k]), float(c2[k]), 0.0)
+                for k in range(max(0, len(c2) - 3), len(c2))]
+        out["rev"] = S.reversal_candle(ohlc)
+    except Exception:                                            # noqa: BLE001
+        out["rev"] = None
+    ah_hot = False
+    try:
+        if ah_pct is not None:
+            ah_hot = abs(float(ah_pct)) >= float(
+                S.CONFIG.get("PM_MOVE_PCT", 10))
+    except Exception:                                            # noqa: BLE001
+        ah_hot = False
+    out["awake"] = bool(a1) or out["rev"] is not None or ah_hot
+    return out
+
+
+def wake_line(w: dict) -> str:
+    """سطرُ الصحوة للكرت — يسمّي القرائنَ الحاضرة فقط (لا ادّعاءَ بلا شاهد)."""
+    import Super_stock as S                                      # noqa: PLC0415
+    sigs = []
+    try:
+        if w.get("vol_x") and float(w["vol_x"]) >= float(
+                S.CONFIG.get("VOL_SPIKE_MULT", 5.0)):
+            sigs.append(f"قفزة حجم ×{w['vol_x']}")
+        if w.get("rev"):
+            sigs.append(f"شمعة انعكاسية ({w['rev']})")
+        if w.get("ah_pct") is not None and abs(float(w["ah_pct"])) >= float(
+                S.CONFIG.get("PM_MOVE_PCT", 10)):
+            sigs.append(f"حركة افتر {float(w['ah_pct']):+.1f}%")
+    except Exception:                                            # noqa: BLE001
+        return ""
+    return ("   🔥 صحوة آخر جلستين: " + " · ".join(sigs)) if sigs else ""
+
+
 def should_alert(entry: dict, today_iso: str) -> bool:
     """دِدوب: لا إعادة تنبيه لنفس السهم قبل REALERT_DAYS."""
     last = (entry or {}).get("last_alert")
@@ -351,6 +436,9 @@ def _ready_card(i: int, r: dict) -> list:
         seg.append(f"   🎯 هدف أول: ${plan['t1']}")
     if p.get("tested_level"):
         seg.append(f"   📍 مستوى مُختبَر عند ${p['tested_level']}")
+    _wl = wake_line(r.get("wake") or {})
+    if _wl:                             # 🔥 قرائنُ الصحوة الحاضرة بأسمائها
+        seg.append(_wl)
     seg.append(f"   🟣 الطلبات قرب القاع ${p.get('press_low')} · 🔴 الوقف تحته")
     if p.get("imp_head"):
         seg.append(f"   🕯️ الشمعة المهمة: ذيلها ${p.get('press_low')} · "
@@ -384,25 +472,46 @@ def build_alert(rows, session_iso: str) -> str:
     for r in rows:
         h = int((r.get("read") or {}).get("hold_sessions") or 0)
         (ready if h >= READY_HOLD else watch).append(r)
+    # 🔥 «صحوة آخر جلستين» (مسكة المالك 2026-08-15 «27 سهمًا وش أدخل فيه؟»):
+    # الحافظُ **المتحرّك الآن** يتصدّر بكرتٍ كامل، والحافظُ الهادئ ينزل أسطرًا
+    # مضغوطة — **ترتيبُ انتباهٍ لا فلتر** (لا اسمَ يُسقَط — درسُ WETO)، وصفرُ
+    # صحوةٍ ⇒ الشكلُ السابق حرفيًّا (الجاهزون كلُّهم كروتًا حتى السقف).
+    fire = [r for r in ready if (r.get("wake") or {}).get("awake")]
+    quiet = [r for r in ready if not (r.get("wake") or {}).get("awake")]
     sep = _card_sep()
     lines = [f"🗜️📡 <b>رادار الضغط</b> — {session_iso}",
-             f"🟢 {len(ready)} جاهز · 👀 {len(watch)} قيد المتابعة "
+             (f"🔥 {len(fire)} يتحرّك الآن · " if fire else "")
+             + f"🟢 {len(ready)} جاهز · 👀 {len(watch)} قيد المتابعة "
              "(نموذج فيصل: «اذا حافظ ع ادنى قاع طبق النموذج»)",
              ""]
-    shown = ready[:ALERT_CAP]
-    if shown:
-        lines.append(f"🟢 <b>جاهز — حافظ قاعه {READY_HOLD} جلسات فأكثر</b> "
-                     f"({len(ready)})")
+    if fire:
+        shown = fire[:ALERT_CAP]
+        lines.append("🔥 <b>يتحرّك الآن — حافظٌ وعليه سلوكُ مضاربٍ في آخر "
+                     f"جلستين</b> ({len(fire)})")
     else:
-        lines.append(f"🟢 لا سهم حافظ قاعه {READY_HOLD} جلسات هذي الجلسة — "
-                     f"{len(watch)} تحت المتابعة (يظهرون أدناه).")
+        shown = ready[:ALERT_CAP]
+        if shown:
+            lines.append(f"🟢 <b>جاهز — حافظ قاعه {READY_HOLD} جلسات فأكثر</b> "
+                         f"({len(ready)})")
+        else:
+            lines.append(f"🟢 لا سهم حافظ قاعه {READY_HOLD} جلسات هذي الجلسة — "
+                         f"{len(watch)} تحت المتابعة (يظهرون أدناه).")
     for i, r in enumerate(shown, 1):
         if i > 1:                       # فاصلُ الكروت (نفسُ التقرير الأسبوعي)
             lines += ["", sep, ""]
         lines += _ready_card(i, r)
-    _rest = ready[len(shown):]
+    if fire:
+        _rest = fire[len(shown):] + quiet
+        _rest_title = (f"🟢 <b>جاهزون هادئون — حافظوا قاعهم بلا صحوةٍ بعد</b> "
+                       f"({len(quiet)})")
+        if len(fire) > len(shown):      # فائضُ النار يتقدّم بإعلانٍ لا صمت
+            _rest_title = (f"🟢 <b>البقية</b> ({len(_rest)} — منهم "
+                           f"{len(fire) - len(shown)} 🔥 فوق سقف الكروت)")
+    else:
+        _rest = ready[len(shown):]
+        _rest_title = f"🟢 <b>باقي الجاهزين</b> ({len(_rest)}) — سطرٌ لكل سهم:"
     if _rest:
-        lines += ["", f"🟢 <b>باقي الجاهزين</b> ({len(_rest)}) — سطرٌ لكل سهم:"]
+        lines += ["", _rest_title]
         for r in _rest[:ALERT_CAP * 2]:
             lines.append(_compact_line(r))
         if len(_rest) > ALERT_CAP * 2:
@@ -418,14 +527,19 @@ def build_alert(rows, session_iso: str) -> str:
                          "(لا قصَّ صامتًا).")
     body = "\n".join(lines)
     lines += ["", sep, ""]
+    if "🔥" in body:                    # شرحُ الصحوة مرّةً واحدة — وحدُّ صدقها معه
+        lines.append("🔥 <b>الصحوة</b> = قفزةُ حجمٍ أو شمعةٌ انعكاسية أو حركةُ "
+                     "افترٍ في آخر جلستين — ترتيبُ انتباهٍ قيد الإثبات الأمامي، "
+                     "لا يُسقِط أحدًا ولا يضمن انفجارًا.")
     if "🕯️" in body:                    # شرحٌ مرّةً واحدة — لا في كل سهم
         lines.append("🕯️ <b>الشمعة المهمة</b> = شمعةُ صنع القاع: طلباتُ فيصل "
                      "داخل مداها، وكسرُ ذيلها بلا رجوعٍ يُفشل النموذج (درس NEXR).")
     if "🟣" in body:
         lines.append("🟣 <b>الطلبات</b> = منطقةُ الشراء عند القاع · 🔴 الوقف "
                      "تحتها (ألوان فيصل الموثّقة).")
-    lines += ["⚠️ <i>عرضٌ وتنبيه قيد الإثبات الأمامي — ليست توصية. القراءة من "
-              "الشموع اليومية (لا تشمل الافتر).</i>",
+    lines += ["⚠️ <i>عرضٌ وتنبيه قيد الإثبات الأمامي — ليست توصية. قراءةُ "
+              "الضغط من الشموع اليومية، وقرينةُ الافتر وحدَها من الجلسة "
+              "الممتدة عند توفّرها.</i>",
               f"📒 الحصاد: {len(rows)} قراءة سُجّلت هذي الجلسة."]
     return "\n".join("‏" + ln if ln else ln for ln in lines)
 
@@ -466,8 +580,16 @@ def append_ledger(rows, session_iso: str, path=LEDGER_FILE) -> int:
                 if str(r["symbol"]) in seen:
                     dup += 1
                     continue
+                _w = r.get("wake") or {}
                 rec = {"session": session_iso, "symbol": r["symbol"],
                        "src": r.get("src"), "prev_q": r.get("prev_q"),
+                       # 🔥 حقولُ الصحوة تُحصَد مع كل صفّ — فيصير سؤال «هل
+                       # الصحوةُ تتنبّأ؟» قابلًا للقياس من السجل لا مُدَّعًى
+                       "wake_vol_x": _w.get("vol_x"),
+                       "wake_rev": _w.get("rev"),
+                       "wake_ah_pct": _w.get("ah_pct"),
+                       "wake_score": _w.get("score"),
+                       "awake": bool(_w.get("awake")),
                        **r["read"]}
                 fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 seen.add(str(r["symbol"]))
@@ -543,6 +665,24 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
                            if _df is not None else None)
         except Exception:                                        # noqa: BLE001
             r["prev_q"] = None
+    # 🔥 صحوةُ آخر جلستين (2026-08-15): تُحسب لكل مطابق من شموعه الموجودة
+    # أصلًا (صفر نداء إضافي)، وحركةُ الافتر تُجلب **للحافظين وحدهم** (سقفُ
+    # نداءات Polygon = عدد الجاهزين ≈ عشرات لا مئات) — فاشلة-آمنة: بلا مفتاح/
+    # تعذّر ⇒ ah_pct=None والقراءةُ الباقية تعمل.
+    for r in rows:
+        ah_pct = None
+        try:
+            if int((r.get("read") or {}).get("hold_sessions") or 0) >= READY_HOLD:
+                _ext = S.extended_last_price(r["symbol"], session_iso)
+                _cl = float((r.get("read") or {}).get("close") or 0)
+                if _ext and _cl > 0:
+                    ah_pct = round((float(_ext) / _cl - 1.0) * 100.0, 1)
+        except Exception:                                        # noqa: BLE001
+            ah_pct = None
+        try:
+            r["wake"] = wake_read(hist.get(r["symbol"]), ah_pct=ah_pct)
+        except Exception:                                        # noqa: BLE001
+            r["wake"] = {}
     rows.sort(key=alert_rank)        # الأقرب لنمط WETO أولًا (تصحيح أول تشغيلة)
     _log(f"🩺 التغطية: فُحص {len(pool) - failed} · تعذّر {failed} · مطابق {len(rows)}.")
     _log(f"🧪 عدّادات §⑪-ج (كلفة التركيبات على البِركة — سجلّ فقط): "

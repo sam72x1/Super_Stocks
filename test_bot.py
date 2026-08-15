@@ -17557,6 +17557,150 @@ check("🗜️📡 PRD14 الحصاد لا يتضاعف: إرسالان بالع
       and _json0.loads(_prd13_led[0])["symbol"] == "TSTX"
       and [t for t, _ in _prd13_sent if t == "on2"])
 
+# ═══════ 🔥 أقفال «صحوة آخر جلستين» (مسكة المالك 2026-08-15 · PRD15-19) ═══════
+# «27 سهمًا وش أدخل فيه؟ … المفروض وقت سلوك المضارب في آخر جلستين». الطبقةُ
+# تركيبُ ثلاث أدواتٍ قائمة (activity_features · reversal_candle ·
+# extended_last_price) — **عرضٌ وترتيبُ انتباهٍ وحصاد، لا فلتر**.
+
+
+def _wk_frame(o, h, lo, c, v):
+    idx = pd.date_range("2026-05-01", periods=len(c), freq="B")
+    return pd.DataFrame({"Open": o, "High": h, "Low": lo, "Close": c,
+                         "Volume": v}, index=idx)
+
+
+_wk_vm = float(S.CONFIG["VOL_SPIKE_MULT"])
+_wk_pm = float(S.CONFIG["PM_MOVE_PCT"])
+_wk_n = 30
+_wk_flat = [2.0] * _wk_n
+_wk_v0 = [1000.0] * _wk_n
+# قفزةُ الحجم في الجلسة **قبل** الأخيرة — تختبر «آخر جلستين» بعينها لا الأخيرة
+_wk_spike_df = _wk_frame(_wk_flat, [2.2] * _wk_n, [1.8] * _wk_n, _wk_flat,
+                         _wk_v0[:-2] + [1000.0 * _wk_vm, 900.0])
+_wk_under_df = _wk_frame(_wk_flat, [2.2] * _wk_n, [1.8] * _wk_n, _wk_flat,
+                         _wk_v0[:-2] + [1000.0 * _wk_vm - 1, 900.0])
+_wk_o3 = list(_wk_flat)
+_wk_h3, _wk_l3, _wk_c3 = [2.2] * _wk_n, [1.8] * _wk_n, list(_wk_flat)
+_wk_o3[-1], _wk_h3[-1], _wk_l3[-1], _wk_c3[-1] = 2.18, 2.2, 1.5, 2.19
+_wk_hammer_df = _wk_frame(_wk_o3, _wk_h3, _wk_l3, _wk_c3, _wk_v0)
+_wk_quiet_df = _wk_frame(_wk_flat, [2.2] * _wk_n, [1.8] * _wk_n, _wk_flat, _wk_v0)
+_wk_a = _PRD.wake_read(_wk_spike_df)
+_wk_b = _PRD.wake_read(_wk_under_df)
+_wk_c = _PRD.wake_read(_wk_hammer_df)
+_wk_d = _PRD.wake_read(_wk_quiet_df, ah_pct=_wk_pm)
+_wk_e = _PRD.wake_read(_wk_quiet_df, ah_pct=_wk_pm - 0.1)
+_wk_f = _PRD.wake_read(None)
+check("🔥 PRD15 حدودُ الصحوة مفرِّقة: قفزةُ الجلسة قبل الأخيرة على الحدّ توقظ · "
+      "تحته بشعرةٍ تخمد · همرٌ يوقظ · افترٌ عند الحدّ يوقظ وتحته يخمد · "
+      "تالفٌ يخمد بلا انهيار",
+      _wk_a["awake"] is True and _wk_b["awake"] is False
+      and _wk_c["awake"] is True and _wk_c["rev"] == "همر"
+      and _wk_d["awake"] is True and _wk_e["awake"] is False
+      and _wk_f["awake"] is False and _wk_f["vol_x"] is None)
+
+# PRD15ب — العتباتُ من CONFIG لا أرقامٌ مغروسة (سلوكيًّا: رفعُ الثابت يُخمد
+# العيّنةَ التي كانت على الحدّ — لو كان الرقم حرفيًّا في الكود لبقيت مستيقظة)
+_wk_cfg_saved = (S.CONFIG["VOL_SPIKE_MULT"], S.CONFIG["PM_MOVE_PCT"])
+try:
+    S.CONFIG["VOL_SPIKE_MULT"] = _wk_cfg_saved[0] * 100
+    _wk_bump_v = _PRD.wake_read(_wk_spike_df)
+    S.CONFIG["PM_MOVE_PCT"] = 99.0
+    _wk_bump_ah = _PRD.wake_read(_wk_quiet_df, ah_pct=_wk_pm)
+finally:
+    S.CONFIG["VOL_SPIKE_MULT"], S.CONFIG["PM_MOVE_PCT"] = _wk_cfg_saved
+check("🔥 PRD15ب عتبتا الصحوة تُقرآن من CONFIG وقتَ النداء (رفعُهما يُخمد "
+      "عيّنتَي الحدّ) — لا رقمَ مغروسًا",
+      _wk_bump_v["awake"] is False and _wk_bump_ah["awake"] is False)
+
+# PRD16 — قسمُ 🔥 في الرسالة: المتحرّك كرتٌ أول بسطر الصحوة · الهادئ الجاهز
+# سطرٌ مضغوط · **وصفرُ صحوةٍ ⇒ الشكلُ السابق حرفيًّا** (لا 🔥 إطلاقًا)
+_wk_fire_row = {"symbol": "FIRY", "read": dict(_prd_r, hold_sessions=6),
+                "plan": None, "src": "متحرّك",
+                "wake": {"vol_x": 6.0, "score": 2, "rev": "همر",
+                         "ah_pct": 12.0, "awake": True}}
+_wk_quiet_row = {"symbol": "QUIT", "read": dict(_prd_r, hold_sessions=9),
+                 "plan": None, "src": "متحرّك",
+                 "wake": {"vol_x": 1.0, "score": 0, "rev": None,
+                          "ah_pct": None, "awake": False}}
+_wk_msg = _PRD.build_alert([_wk_fire_row, _wk_quiet_row], "2026-08-15")
+_wk_fire_seg = _wk_msg.split("🟢 <b>")[0]
+_wk_msg_off = _PRD.build_alert(
+    [dict(_wk_fire_row, wake={}), dict(_wk_quiet_row, wake={})], "2026-08-15")
+check("🔥 PRD16 قسمُ «يتحرّك الآن»: FIRY كرتٌ أول بسطر الصحوة (حجم+همر+افتر "
+      "بأسمائها) · QUIT سطرٌ مضغوطٌ تحت «جاهزون هادئون» · وشرحُ 🔥 مرّةً "
+      "واحدة · وصفرُ صحوةٍ ⇒ لا 🔥 في الرسالة كلِّها",
+      "🔥 <b>يتحرّك الآن" in _wk_msg and "1) 🗜️ <b>$FIRY</b>" in _wk_fire_seg
+      and "صحوة آخر جلستين: قفزة حجم ×6.0 · شمعة انعكاسية (همر) · "
+          "حركة افتر +12.0%" in _wk_fire_seg
+      and "جاهزون هادئون" in _wk_msg
+      and "• <b>$QUIT</b>" in _wk_msg and "2) 🗜️" not in _wk_msg
+      and _wk_msg.count("🔥 <b>الصحوة</b>") == 1
+      and "🔥" not in _wk_msg_off)
+
+# PRD17 — الحصادُ يحمل حقولَ الصحوة (فيصير «هل الصحوة تتنبّأ؟» قابلًا للقياس
+# من السجل لا مُدَّعًى)
+_wk_dir = _prd_tmp.mkdtemp(prefix="wk_")
+_wk_lp = _os_hc.path.join(_wk_dir, "led.jsonl")
+_PRD.append_ledger([_wk_fire_row], "2026-08-15", path=_wk_lp)
+_wk_rec = _json0.loads(open(_wk_lp, encoding="utf-8").read().strip())
+check("🔥 PRD17 صفُّ الحصاد يحمل awake/wake_vol_x/wake_rev/wake_ah_pct",
+      _wk_rec.get("awake") is True and _wk_rec.get("wake_vol_x") == 6.0
+      and _wk_rec.get("wake_rev") == "همر" and _wk_rec.get("wake_ah_pct") == 12.0)
+
+# PRD18 — قاعدة P1 (المدخلُ بلا env مدخلٌ ميت): مفتاح Polygon موصولٌ في
+# workflow الرادار وإلّا كانت قرينةُ الافتر ميتةً على الرنر صامتةً
+_wk_wf = open(".github/workflows/press_radar.yml", encoding="utf-8").read()
+check("🔥 PRD18 press_radar.yml يمرّر POLYGON_API_KEY من الأسرار",
+      "POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}" in _wk_wf)
+
+# PRD19 — سلوكيًّا من نقطة النداء الحيّة (wire-check): run() يجلب الافتر
+# للحافظ ويُلحق الصحوةَ بالرسالة والحصاد · وانهيارُ الجالب لا يُسقط الرادار
+# 🐞 وعيّنتُه **مفرِّقة بالبناء** (سقطت أولًا): فيكستشر WETO حفظُه صفر —
+# وجلبُ الافتر مقصورٌ على الحافظ (‏hold ≥ READY_HOLD) ⇒ ما كان `calls`
+# ليمتلئ أبدًا. فبُني ذيلٌ حافظٌ 3 جلسات فوق قاعه 3.34 (القراءةُ تبقى
+# مطابقة: العمق 69% والجلوس +8% داخل 13%).
+_wk19_fetch = lambda syms: {"TSTX": _prd_frame(
+    [2.6] * 50 + _prd_lo[25:] + [3.5, 3.55, 3.5],
+    [2.8] * 50 + _prd_hi[25:] + [3.75, 3.8, 3.75],
+    [2.7] * 50 + _prd_cl[25:] + [3.6, 3.65, 3.61])}
+_wk19_hold = int((_PRD.press_read(_wk19_fetch(None)["TSTX"],
+                                  w=_PRD.ALERT_W) or {}).get("hold_sessions")
+                 or 0)
+_wk19_dir = _prd_tmp.mkdtemp(prefix="wk19_")
+_wk19_sp = _os_hc.path.join(_wk19_dir, "st.json")
+_wk19_lp = _os_hc.path.join(_wk19_dir, "led.jsonl")
+_wk19_wl_saved, _wk19_ext_saved = S.load_watchlist, S.extended_last_price
+S.load_watchlist = lambda: {"pullback": [], "stocks": [{"symbol": "TSTX"}],
+                            "removed": [], "explosions": []}
+_wk19_sent, _wk19_calls = [], []
+try:
+    S.extended_last_price = lambda sym, d, **k: (_wk19_calls.append(sym),
+                                                 3.61 * 1.2)[1]
+    _wk19_rc = _PRD.run(now_utc=_prd_now, fetch_hist=_wk19_fetch,
+                        sender=lambda m: (_wk19_sent.append(m), True)[1],
+                        state_path=_wk19_sp, ledger_path=_wk19_lp,
+                        saver=lambda f: None)
+    S.extended_last_price = lambda sym, d, **k: (_ for _ in ()).throw(
+        RuntimeError("polygon down"))
+    _wk19_rc2 = _PRD.run(now_utc=_prd_now, fetch_hist=_wk19_fetch,
+                         sender=lambda m: True,
+                         state_path=_os_hc.path.join(_wk19_dir, "st2.json"),
+                         ledger_path=_os_hc.path.join(_wk19_dir, "led2.jsonl"),
+                         saver=lambda f: None)
+finally:
+    S.load_watchlist = _wk19_wl_saved
+    S.extended_last_price = _wk19_ext_saved
+_wk19_rec = _json0.loads(open(_wk19_lp, encoding="utf-8").read().strip())
+check("🔥 PRD19 من نقطة النداء الحيّة: العيّنةُ حافظةٌ فعلًا (‏hold=3) والافترُ "
+      "يُجلب لها (‏+20% ⇒ 🔥 في الرسالة وawake بالحصاد) · وانهيارُ الجالب لا "
+      "يُسقط الرادار (فاشل-آمن)",
+      _wk19_hold >= _PRD.READY_HOLD
+      and _wk19_rc == 0 and _wk19_calls == ["TSTX"]
+      and "🔥" in (_wk19_sent[0] if _wk19_sent else "")
+      and "حركة افتر +20.0%" in (_wk19_sent[0] if _wk19_sent else "")
+      and _wk19_rec.get("awake") is True and _wk19_rec.get("wake_ah_pct") == 20.0
+      and _wk19_rc2 == 0)
+
 # PRD6 — عزل: الإنتاج لا يعرف الرادار (تنبيه/عرض خارج الفرز كليًّا)
 check("🗜️📡 PRD6 عزلٌ: `Super_stock` لا يستورد/يذكر أدوات الرادار/الأذرع الثلاث",
       "press_radar" not in _ss_src and "rebound_arms" not in _ss_src

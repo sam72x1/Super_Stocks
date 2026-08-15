@@ -29,6 +29,9 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 🔥 حركة الافتر لقرائن «الصحوة» (extended_last_price) — فاشل-آمن:
+          # غيابه = القراءة اليومية وحدها، لا تعطيل
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           # 🔓 التشغيل اليدويّ يتخطّى بوّابة التوقيت والدِدوب معًا — وإلّا خرج
           # زرّ المالك أخضرَ بصفر عمل (الصنف الموثَّق «أخضر بلا رسالة»).
           PRESS_RADAR_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
