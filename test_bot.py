@@ -17963,6 +17963,39 @@ check("🩸 CT6 §⑮-ب `swept_after_hold`: صمد 4 ثم كُسر=(True,4) · 
       and _PRD.press_read(_prd_frame(_prd_lo, _prd_hi, _prd_cl))["swept_hold"]
       is False)
 
+# PRD20 — 🩸 عرضُ الكنس (بعد تحقّق W-P3: ‏21/23 كتالوج · 9/9 أسماكنا):
+# المكنوسُ يتقدّم داخل المتابعة موسومًا بمدّة حفظه المكسور · والحافظُ المكنوس
+# يحمل سطرَ «التسلسل الكامل» في كرته · والشرحُ مرّةً بالذيل ويغيب بغيابه ·
+# **ولا أحدَ يُسقَط** (ترتيبُ انتباهٍ لا فلتر)
+_prd20_swept = {"symbol": "SWPT",
+                "read": dict(_prd_r, hold_sessions=0, swept_hold=True,
+                             prev_hold=7),
+                "plan": None, "src": "متحرّك"}
+_prd20_fresh = {"symbol": "FRS2",
+                "read": dict(_prd_r, hold_sessions=1, swept_hold=False,
+                             prev_hold=0),
+                "plan": None, "src": "متحرّك"}
+_prd20_rswpt = {"symbol": "RSWP",
+                "read": dict(_prd_r, hold_sessions=4, swept_hold=True,
+                             prev_hold=5),
+                "plan": None, "src": "متحرّك"}
+# ‏FRS2 قبل SWPT عمدًا — الترتيبُ يجب أن يقلبهما (عيّنةٌ مفرِّقة لطفرة الفرز)
+_prd20 = _PRD.build_alert([_prd20_rswpt, _prd20_fresh, _prd20_swept],
+                          "2026-08-15")
+_prd20_watch = _prd20.split("👀")[-1].split(_PRD._card_sep())[0]
+_prd20_off = _PRD.build_alert([_prd20_fresh], "2026-08-15")
+check("🩸 PRD20 عرضُ الكنس: SWPT يتقدّم FRS2 في المتابعة موسومًا (كُنس بعد "
+      "حفظ 7) · RSWP الحافظ يحمل سطرَ التسلسل الكامل · الشرحُ مرّةً ويغيب "
+      "بغيابه · ولا أحدَ يُسقَط",
+      _prd20_watch.find("SWPT") < _prd20_watch.find("FRS2")
+      and "🩸 كُنس بعد حفظ 7 جلسة" in _prd20_watch
+      and "FRS2" in _prd20_watch
+      # (‏split على عنوان القسم لا على 👀 وحدها — عدّادُ الترويسة يحويها؛
+      #  نفسُ فخّ PRD10 المدوَّن)
+      and "تسلسل النموذج الكامل" in _prd20.split("👀 <b>")[0]
+      and _prd20.count("🩸 <b>كُنس بعد حفظ</b>") == 1
+      and "🩸" not in _prd20_off)
+
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
 # 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
 # (‏ALERT_W=40) فالإطارُ الذي كان «تركيبة بحثٍ صامتة» صار **يُنبّه** — والقفل

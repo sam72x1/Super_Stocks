@@ -437,11 +437,17 @@ def _card_sep() -> str:
 
 def _compact_line(r: dict) -> str:
     """سطرٌ مضغوطٌ لسهمٍ واحد (بقيّةُ الجاهزين · وقيدُ المتابعة) — نمطُ السطر
-    الصغير في التقرير الأسبوعي: الرمزُ ثم الصغائرُ مفصولةً بنقاط."""
+    الصغير في التقرير الأسبوعي: الرمزُ ثم الصغائرُ مفصولةً بنقاط.
+    🩸 §⑮-ب (تحقّق W-P3: ‏21/23 كتالوج · 9/9 أسماكنا): «كُنس بعد حفظ» يُوسَم
+    — فقاعٌ طازجٌ كسرَ قاعًا صامدًا هو نمطُ عشيّة الانفجار الغالب، لا فقدانَ
+    نموذج."""
     p = r.get("read") or {}
-    return (f"• <b>${_esc(r.get('symbol'))}</b> ${p.get('close')} · "
-            f"هبوط {p.get('drop_pct')}% · قاع ${p.get('press_low')} · "
-            f"حافظ {int(p.get('hold_sessions') or 0)} جلسة")
+    ln = (f"• <b>${_esc(r.get('symbol'))}</b> ${p.get('close')} · "
+          f"هبوط {p.get('drop_pct')}% · قاع ${p.get('press_low')} · "
+          f"حافظ {int(p.get('hold_sessions') or 0)} جلسة")
+    if p.get("swept_hold"):
+        ln += f" · 🩸 كُنس بعد حفظ {int(p.get('prev_hold') or 0)} جلسة"
+    return ln
 
 
 def _ready_card(i: int, r: dict) -> list:
@@ -473,6 +479,9 @@ def _ready_card(i: int, r: dict) -> list:
     _wl = wake_line(r.get("wake") or {})
     if _wl:                             # 🔥 قرائنُ الصحوة الحاضرة بأسمائها
         seg.append(_wl)
+    if p.get("swept_hold"):             # 🩸 حافظٌ سبقه كنسٌ = التسلسل الكامل
+        seg.append(f"   🩸 كُنس بعد حفظ {int(p.get('prev_hold') or 0)} جلسة "
+                   f"ثم عاد يحفظ — تسلسل النموذج الكامل (حافظ ⟵ مسح ⟵ ثبات)")
     seg.append(f"   🟣 الطلبات قرب القاع ${p.get('press_low')} · 🔴 الوقف تحته")
     if p.get("imp_head"):
         seg.append(f"   🕯️ الشمعة المهمة: ذيلها ${p.get('press_low')} · "
@@ -552,6 +561,13 @@ def build_alert(rows, session_iso: str) -> str:
             lines.append(f"…و{len(_rest) - ALERT_CAP * 2} في سجل الحصاد "
                          "(لا قصَّ صامتًا).")
     if watch:
+        # 🩸 §⑮-ب: المكنوسُ بعد حفظٍ يتقدّم داخل المتابعة (ترتيبُ انتباهٍ لا
+        # فلتر — 79% من الكتالوج عشيّةَ انفجاره كان هنا بقاعٍ طازج، و21/23
+        # منهم بهذي البصمة بالضبط). ترتيبٌ مستقرّ: داخل كل شقٍّ ترتيبُ
+        # alert_rank كما هو.
+        watch = ([r for r in watch if (r.get("read") or {}).get("swept_hold")]
+                 + [r for r in watch
+                    if not (r.get("read") or {}).get("swept_hold")])
         lines += ["", f"👀 <b>قيد المتابعة — لم يحفظ قاعه {READY_HOLD} جلسات "
                       f"بعد</b> ({len(watch)})"]
         for r in watch[:ALERT_CAP * 2]:
@@ -561,6 +577,10 @@ def build_alert(rows, session_iso: str) -> str:
                          "(لا قصَّ صامتًا).")
     body = "\n".join(lines)
     lines += ["", sep, ""]
+    if "🩸" in body:                    # شرحُ الكنس مرّةً واحدة — بسنده المقيس
+        lines.append("🩸 <b>كُنس بعد حفظ</b> = قاعٌ صمد ثم كُسر بقاعٍ أطزج "
+                     "(«مسح السيوله = اوامر الوقف») — بصمةُ عشيّة الانفجار في "
+                     "21 من 23 من كتالوج فيصل، وليست فقدانَ نموذج.")
     if "🔥" in body:                    # شرحُ الصحوة مرّةً واحدة — وحدُّ صدقها معه
         lines.append("🔥 <b>الصحوة</b> = قفزةُ حجمٍ أو شمعةٌ انعكاسية أو حركةُ "
                      "افترٍ في آخر جلستين — ترتيبُ انتباهٍ قيد الإثبات الأمامي، "
