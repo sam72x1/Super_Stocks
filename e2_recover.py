@@ -63,9 +63,14 @@ def recover(download_root, repo_root="."):
         summ = _summary_of(sdir)
         if not summ or summ.get("session_date") not in (None, date):
             # ملخّص غائب أو لتاريخ آخر ⇒ لا نخمّن
-            if not summ:
-                no_summary.append((date, sdir))
-                continue
+            # 🔴 خطة 024 (2026-08-15): الفرعُ كان يتخطّى **الغائبَ وحده**، أمّا
+            # الملخّصُ الموجودُ بتاريخٍ مختلف فيمرّ ويُدمَج **تحت التاريخ الخطأ**
+            # — و`_summary_of` ترتدّ لملخّص التشغيلة الجذر الذي قد يخصّ جلسةً
+            # أخرى، فهذي بعينها الحالةُ المقصودة ⇒ عدّاداتٌ (‏n_delivered/
+            # n_emitted) تُكتب لجلسةٍ ليست لها = فهرسٌ مُفسَد. العقدُ المكتوب
+            # «لا نخمّن» صار **منفَّذًا**: كلتا الحالتين تُتخطَّى وتُعلَن.
+            no_summary.append((date, sdir))
+            continue
         loops = int(summ.get("loops_completed") or 0)
         prev = best.get(date)
         if prev and prev[0] != loops:
@@ -98,7 +103,7 @@ def recover(download_root, repo_root="."):
         print("   ⚠️ تعارض تاريخ من تشغيلتين (فازت الأكثر دورات): "
               + " · ".join("%s (%d مقابل %d)" % c for c in conflicts))
     if no_summary:
-        print("   ⚠️ بلا ملخّص (تُخطَّت، لا تخمين): "
+        print("   ⚠️ بلا ملخّصٍ أو بتاريخٍ مخالف (تُخطَّت، لا تخمين): "
               + ", ".join(d for d, _ in no_summary))
     # صدق العدّ: الفهرس لا يُثبت الاكتمال — المدقّق الصارم وحده يفعل.
     normal = [d for d, v in idx.items() if v.get("termination") == "normal"]

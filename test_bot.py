@@ -18186,6 +18186,139 @@ check("🗜️ WKA5 قاعدة P1 في press_wake.yml: السنةُ واللقط
       and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _wka_wf
       and "python press_wake_arms.py" in _wka_wf)
 
+# ══════════ خطط improve المُنفَّذة (‏2026-08-15) — أقفالُها ══════════
+# PL15 — 🩺 خطة 015: أرضيةُ تغطية الرادار **سلوكيًّا** من نقطة النداء الحيّة.
+# العيّنةُ **مفرِّقةٌ بالبناء**: بِركةٌ من ثلاثة رموز يعود منها واحدٌ فقط
+# (‏33% < 60%) ⇒ يجب أن يخرج بغير صفرٍ **وبلا ختم** (فيُعيد الكرونُ الثاني)
+# **وبلا رسالة**؛ وبِركةٌ من رمزٍ واحدٍ يعود (‏100%) تمرّ وتُنبّه وتختم.
+# 🔴 والحالتان تُقاسان على **نفس الفكستشر الحافظ** فالفارقُ التغطيةُ وحدها.
+_pl15_dir = _prd_tmp.mkdtemp(prefix="pl15_")
+_pl15_wl_saved = S.load_watchlist
+_pl15_sent, _pl15_sent2 = [], []
+try:
+    S.load_watchlist = lambda: {"pullback": [],
+                                "stocks": [{"symbol": "TSTX"}, {"symbol": "AAA"},
+                                           {"symbol": "BBB"}],
+                                "removed": [], "explosions": []}
+    _pl15_sp = _os_hc.path.join(_pl15_dir, "st.json")
+    _pl15_rc_low = _PRD.run(now_utc=_prd_now, fetch_hist=_wk19_fetch,
+                            sender=lambda m: (_pl15_sent.append(m), True)[1],
+                            state_path=_pl15_sp,
+                            ledger_path=_os_hc.path.join(_pl15_dir, "l.jsonl"),
+                            saver=lambda f: None)
+    _pl15_state_low = _json0.loads(open(_pl15_sp, encoding="utf-8").read()) \
+        if _os_hc.path.exists(_pl15_sp) else {}
+    S.load_watchlist = lambda: {"pullback": [], "stocks": [{"symbol": "TSTX"}],
+                                "removed": [], "explosions": []}
+    _pl15_sp2 = _os_hc.path.join(_pl15_dir, "st2.json")
+    _pl15_rc_ok = _PRD.run(now_utc=_prd_now, fetch_hist=_wk19_fetch,
+                           sender=lambda m: (_pl15_sent2.append(m), True)[1],
+                           state_path=_pl15_sp2,
+                           ledger_path=_os_hc.path.join(_pl15_dir, "l2.jsonl"),
+                           saver=lambda f: None)
+    _pl15_state_ok = _json0.loads(open(_pl15_sp2, encoding="utf-8").read()) \
+        if _os_hc.path.exists(_pl15_sp2) else {}
+finally:
+    S.load_watchlist = _pl15_wl_saved
+check("🩺 PL15 (خطة 015) أرضيةُ تغطية الرادار: تغطية 33% ⇒ خروجٌ غيرُ صفريّ "
+      "**بلا ختمِ جلسةٍ ولا رسالة** (الكرون الثاني يعيد) · وتغطية 100% تمرّ "
+      "وتُنبّه وتختم — والفكستشر واحدٌ فالفارقُ التغطيةُ وحدها",
+      _PRD.MIN_COVERAGE_PCT == 60.0
+      and _pl15_rc_low == 1 and not _pl15_sent
+      and _pl15_state_low.get("last_session") is None
+      and _pl15_rc_ok == 0 and len(_pl15_sent2) == 1
+      and _pl15_state_ok.get("last_session") == "2026-08-13")
+
+# PL14 — 🗓️ خطة 014: تقادمُ التقويم **يُعلَن لا يُصمَت** + سنةُ 2027.
+import market_calendar as _PL14
+check("🗓️ PL14 (خطة 014) مدى التقويم: 2027-01-01 عطلةٌ معروفة داخل المدى · "
+      "و2028-01-01 «regular» **موسومٌ beyond_calendar** لا معرفةً · "
+      "و`calendar_staleness` صامتةٌ داخل الأمان وتُنذر قبل النفاد وتُعلن بعده",
+      _PL14.CALENDAR_LAST_YEAR == 2027
+      and _PL14.session_info("2027-01-01")["session_type"] == "holiday"
+      and _PL14.session_info("2027-01-01")["beyond_calendar"] is False
+      and _PL14.session_info("2028-01-01")["session_type"] == "regular"
+      and _PL14.session_info("2028-01-01")["beyond_calendar"] is True
+      and _PL14.calendar_staleness("2026-08-15") is None
+      and (_PL14.calendar_staleness("2027-11-15") or {}).get("warn") is True
+      and (_PL14.calendar_staleness("2028-03-01") or {}).get("stale") is True
+      and _PL14.session_info("2027-11-26")["close_ny_min"] == 13 * 60
+      and _PL14.beyond_calendar("لا-تاريخ") is True)
+_pl14_ign = open("ignition_live.py", encoding="utf-8").read()
+check("🗓️ PL14ب الحارسُ موصولٌ من نقطة النداء الحيّة: `ignition_live` ينادي "
+      "`calendar_staleness` ويطبع رسالتَها (حارسٌ لا يُسمَع ليس حارسًا)",
+      "calendar_staleness(" in _pl14_ign
+      and "bot.log(_st[\"message\"])" in _pl14_ign)
+
+# PL19 — 🔑 خطة 019: المفاتيحُ المتخيَّلة الثلاثة (عرض/إثراء — خارج القرار).
+_pl19_src = _insp0.getsource(S.build_interpretation)
+check("🔑 PL19أ (خطة 019-أ) وسمُ «حافة فجوة فوقية» يقرأ `all_zones` (المفتاحَ "
+      "الحقيقيّ لـ`all_unfilled_gaps_above`) لا `zones` الذي لا وجود له",
+      'get("all_zones")' in _pl19_src and 'get("zones")' not in _pl19_src
+      and "all_zones" in _insp0.getsource(S.all_unfilled_gaps_above))
+_pl19_dump = _insp0.getsource(S._dump_actor)
+check("🔑 PL19ب/ج (خطة 019-ب/ج) صفرُ شورتٍ **قراءةٌ لا غياب** (`sp is not None`) "
+      "· ورتبةُ `fintel_short` الميتة أُسقطت من سلسلة `_dump_actor`",
+      "sp is not None" in _insp0.getsource(S.enrich)
+      and '"fintel_short"' not in _pl19_dump
+      and '"shares_available"' in _pl19_dump and '"finra_short"' in _pl19_dump)
+
+# PL17 — 🗃️ خطة 017: كاشُ التقسيمات لكل تشغيلة — **سلوكيّ**: نداءان لنفس
+# الرمز = جلبةٌ واحدة، و`None` يُخزَّن أيضًا (فلا يتبدّل الحكمُ بين نداءين).
+_pl17_calls = []
+
+
+class _PL17Tk:
+    def __init__(self, sym):
+        _pl17_calls.append(sym)
+        self.splits = "SPL-" + sym
+
+
+class _PL17Yf:
+    Ticker = _PL17Tk
+
+
+_pl17_yf_saved, _pl17_memo_saved = S.yf, dict(S._SPLITS_MEMO)
+try:
+    S._SPLITS_MEMO.clear()
+    S.yf = _PL17Yf
+    _pl17_a, _pl17_b = S._fetch_splits("ZZZ"), S._fetch_splits("ZZZ")
+    _pl17_c = S._fetch_splits("YYY")
+    S.yf = None                       # تعذّرٌ ⇒ None ويُخزَّن
+    _pl17_none1 = S._fetch_splits("NUL")
+    S.yf = _PL17Yf                    # ولو عاد المصدر: الجوابُ ثابتٌ للتشغيلة
+    _pl17_none2 = S._fetch_splits("NUL")
+finally:
+    S.yf = _pl17_yf_saved
+    S._SPLITS_MEMO.clear()
+    S._SPLITS_MEMO.update(_pl17_memo_saved)
+check("🗃️ PL17 (خطة 017) كاشُ التقسيمات: نداءان لنفس الرمز = جلبةٌ واحدة "
+      "(‏ZZZ مرّة · YYY مرّة) والقيمةُ نفسُها · و`None` مخزَّنٌ فلا يُعاد الجلب "
+      "ولا يتبدّل الحكمُ داخل التشغيلة",
+      _pl17_calls == ["ZZZ", "YYY"] and _pl17_a == _pl17_b == "SPL-ZZZ"
+      and _pl17_c == "SPL-YYY"
+      and _pl17_none1 is None and _pl17_none2 is None)
+
+# PL24 — 🔴 خطة 024: `e2_recover` يتخطّى الملخّصَ **المخالفَ تاريخُه** كما
+# يتخطّى الغائب (عقدُه المكتوب «لا نخمّن») — سلوكيًّا على شجرةٍ مؤقّتة.
+import e2_recover as _PL24
+_pl24_root = _prd_tmp.mkdtemp(prefix="pl24_")
+_pl24_d = _os_hc.path.join(_pl24_root, "ign-assembled-9", "session_2026-08-10")
+_os_hc.makedirs(_pl24_d, exist_ok=True)
+with open(_os_hc.path.join(_pl24_d, "ignition_e2_summary.json"), "w",
+          encoding="utf-8") as _f:
+    _json0.dump({"session_date": "2026-08-03", "loops_completed": 7}, _f)
+_pl24_repo = _prd_tmp.mkdtemp(prefix="pl24r_")
+_pl24_out = _PL24.recover(_pl24_root, _pl24_repo)
+_pl24_idx_path = _os_hc.path.join(_pl24_repo, _PL24.INDEX)
+_pl24_idx = (_json0.loads(open(_pl24_idx_path, encoding="utf-8").read())
+             if _os_hc.path.exists(_pl24_idx_path) else {})
+check("🔴 PL24 (خطة 024) ملخّصٌ بتاريخٍ مخالف (2026-08-03 في مجلّد 2026-08-10) "
+      "**يُتخطّى ويُعلَن** ولا يُدمَج تحت تاريخٍ ليس له (عقد «لا نخمّن» منفَّذًا)",
+      "2026-08-10" not in _pl24_idx and "2026-08-03" not in _pl24_idx
+      and "2026-08-10" in (_pl24_out.get("no_summary") or [])
+      and int(_pl24_out.get("new") or 0) == 0)
+
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
 # 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
 # (‏ALERT_W=40) فالإطارُ الذي كان «تركيبة بحثٍ صامتة» صار **يُنبّه** — والقفل

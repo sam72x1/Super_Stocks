@@ -288,7 +288,13 @@ def _segment_window(role, t0=None):
         import market_calendar as cal
         _date = now_aware.astimezone(bot.dt.timezone.utc).date().isoformat()
         ci = cal.session_info(_date)
-        _cal = {"session_type": ci["session_type"], "calendar_version": ci["calendar_version"]}
+        _cal = {"session_type": ci["session_type"], "calendar_version": ci["calendar_version"],
+                "beyond_calendar": bool(ci.get("beyond_calendar"))}
+        # 🗓️ خطة 014: التقادمُ يُعلَن لا يُصمَت — خارج مدى التقويم يصير «regular»
+        # **افتراضًا لا معرفةً**، فبلا هذا السطر يمشي الرادارُ على سوقٍ مغلقٍ صامتًا.
+        _st = cal.calendar_staleness(_date)
+        if _st:
+            bot.log(_st["message"])
         if ci["session_type"] == "early_close" and ci["close_ny_min"] is not None:
             _close_utc = sess["close"] - (cal.REGULAR_CLOSE_NY_MIN - ci["close_ny_min"])
     except Exception:

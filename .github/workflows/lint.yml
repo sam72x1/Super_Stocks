@@ -1,0 +1,41 @@
+name: Lint (تقريريّ · والاسمُ غيرُ المعرَّف وحده يُحمّر)
+
+# 🧹 خطة 016 (2026-08-15): سويّةُ الاختبارات **بلا إنترنت بتصميمها** فلا تصل
+# فروعَ الرنرات الحيّة (ignition_live · press_radar · الصيّادون) ⇒ اسمٌ غيرُ
+# معرَّفٍ في فرعِ `except` ليليّ يمرّ **أخضر** ولا ينكشف إلّا حين ينهار تنبيهُ
+# المالك فجرًا. هذي البوّابة تمسك ذلك الصنف بكلفةٍ تقارب الصفر.
+#
+# ⚖️ **بوّابتان لا واحدة:** الحمراءُ ضيّقةٌ جدًّا — `F821` (اسمٌ غيرُ معرَّف) +
+# خطأٌ نحويّ (‏ruff يُبلغه دائمًا بلا اختيار) — وكلاهما **عطبٌ مؤكَّد لا رأي**
+# وعددُهما اليوم صفر. والتقريريّةُ تطبع الباقي (استيراد/متغيّر غيرُ مستعمل)
+# **بلا تحمير** فلا يُبنى جدارُ ضجيجٍ على 20 ألف سطر. تشديدُها قرارُ مالك.
+permissions:
+  contents: read
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch: {}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: تثبيت ruff (مثبَّت الإصدار — كي لا تتبدّل القواعد تحتنا)
+        run: pip install ruff==0.15.8
+      - name: 🩺 فحصٌ تقريريّ (لا يُحمّر)
+        continue-on-error: true
+        run: |
+          echo "🧹 تقريريّ: F401 استيرادٌ غيرُ مستعمل · F811 إعادةُ تعريف ·"
+          echo "   F841 متغيّرٌ غيرُ مستعمل — تُطبَع ولا تُسقط البناء."
+          ruff check . --select F401,F811,F841 --output-format concise --statistics
+      - name: 🔴 البوّابة الحمراء الضيّقة (اسمٌ غيرُ معرَّف أو خطأٌ نحويّ)
+        run: ruff check . --select F821 --output-format concise
