@@ -345,9 +345,18 @@ def wake_read(df, ah_pct=None):
         c2 = df["Close"].values.astype(float)
         ohlc = [(float(o2[k]), float(h2[k]), float(l2[k]), float(c2[k]), 0.0)
                 for k in range(max(0, len(c2) - 3), len(c2))]
-        out["rev"] = S.reversal_candle(ohlc)
+        # ترتيبُ فيصل المنصوص أولًا — والإضافيةُ (همر مقلوب/دوجي · §⑥)
+        # عند غيابه فقط. 🔴 **والدوجي سياقٌ لا علمَ إيقاظ** (أمسكه الفحص قبل
+        # الدفع: جسمٌ ضئيلٌ شائعٌ في فئتنا فيوقظ الجميع ويُميّع 🔥؛ ونصُّ
+        # فيصل عنه «انطلاقة» تُروى بعد وقوعها لا زنادُ دخولٍ منصوص —
+        # بخلاف الهمر المقلوب: «كان دخولي ع الدعم ع شمعة الهمر المقلوبه»).
+        _rev_main = S.reversal_candle(ohlc)
+        _rev_x = None if _rev_main else extra_candle(ohlc)
+        out["rev"] = _rev_main or _rev_x
+        rev_wakes = _rev_main is not None or _rev_x == "همر مقلوب"
     except Exception:                                            # noqa: BLE001
         out["rev"] = None
+        rev_wakes = False
     ah_hot = False
     try:
         if ah_pct is not None:
@@ -355,7 +364,7 @@ def wake_read(df, ah_pct=None):
                 S.CONFIG.get("PM_MOVE_PCT", 10))
     except Exception:                                            # noqa: BLE001
         ah_hot = False
-    out["awake"] = bool(a1) or out["rev"] is not None or ah_hot
+    out["awake"] = bool(a1) or rev_wakes or ah_hot
     return out
 
 
@@ -387,6 +396,36 @@ def swept_after_hold(lo, j_star, i):
         return swept, best
     except Exception:                                            # noqa: BLE001
         return False, 0
+
+
+def extra_candle(ohlc):
+    """🕯️ أنماطُ القاع الإضافية المنصوصة في دفعة صور 2026-08-15 (‏37 صورة —
+    `FAISAL_PRESSURE_MODEL.md §⑥`): **الهمرُ المقلوب** («كان دخولي ع الدعم
+    ع شمعة الهمر المقلوبه») **والدوجي** (‏AMCI: «انطلاقته من شمعة الدوجي»).
+
+    تُقرأ **بعد** `reversal_candle` الإنتاجية حصرًا (ترتيبُ فيصل المنصوص
+    «همر > نجمة صباح > هرامي > وت» يتقدّم دائمًا). نِسَبُ الهمر المقلوب
+    **مرآةُ** نسب الهمر القائمة في `reversal_candle` حرفيًّا (ذيلٌ علويّ
+    ‏≥2× الجسم و≥نصف المدى · سفليٌّ ≤15% · الإغلاقُ بالثلث الأسفل) —
+    **صفرُ رقمٍ جديد**؛ وجسمُ الدوجي ≤10% من المدى = **اختيارُ تصميمٍ
+    مُعلَن** (نظير «المنتصف قسمة محايدة» — لا عتبةَ مُعايَرة).
+    عرض/سياق فقط · تعذّرٌ ⇒ None بلا انهيار."""
+    try:
+        if not ohlc:
+            return None
+        o3, h3, l3, c3, _v = ohlc[-1]
+        rng, body = (h3 - l3), abs(c3 - o3)
+        if rng <= 0:
+            return None
+        low_w, up_w = (min(o3, c3) - l3), (h3 - max(o3, c3))
+        if (up_w >= 2 * body and up_w >= 0.5 * rng
+                and low_w <= 0.15 * rng and (h3 - c3) >= 0.66 * rng):
+            return "همر مقلوب"
+        if body <= 0.1 * rng:
+            return "دوجي"
+        return None
+    except Exception:                                            # noqa: BLE001
+        return None
 
 
 def wake_line(w: dict) -> str:
@@ -484,8 +523,17 @@ def _ready_card(i: int, r: dict) -> list:
                    f"ثم عاد يحفظ — تسلسل النموذج الكامل (حافظ ⟵ مسح ⟵ ثبات)")
     seg.append(f"   🟣 الطلبات قرب القاع ${p.get('press_low')} · 🔴 الوقف تحته")
     if p.get("imp_head"):
+        # 🥇 ترقية الدلالة (دفعة 37 صورة 2026-08-15 · درس PLRZ): رأسُ شمعة
+        # القاع **زنادُ دخولٍ** لا مدًى فقط — «لابد يرتد السهم عند سعر راس
+        # الشمعه = دخول» (وتحقق +143%). والمتجاوزُ رأسَها زنادُه متحقق.
+        try:
+            _above = float(p.get("close") or 0) >= float(p["imp_head"])
+        except Exception:                                        # noqa: BLE001
+            _above = False
         seg.append(f"   🕯️ الشمعة المهمة: ذيلها ${p.get('press_low')} · "
-                   f"رأسها ${p['imp_head']}")
+                   f"رأسها ${p['imp_head']}"
+                   + (" — ✅ يتداول فوق رأسها (زناد فيصل متحقق)" if _above
+                      else " — ارتداد يلمس رأسها = دخول فيصل (درس PLRZ)"))
     seg.append(f"   🔗 المصدر: {_esc(r.get('src', '؟'))}")
     return seg
 
@@ -587,7 +635,8 @@ def build_alert(rows, session_iso: str) -> str:
                      "لا يُسقِط أحدًا ولا يضمن انفجارًا.")
     if "🕯️" in body:                    # شرحٌ مرّةً واحدة — لا في كل سهم
         lines.append("🕯️ <b>الشمعة المهمة</b> = شمعةُ صنع القاع: طلباتُ فيصل "
-                     "داخل مداها، وكسرُ ذيلها بلا رجوعٍ يُفشل النموذج (درس NEXR).")
+                     "داخل مداها، وكسرُ ذيلها بلا رجوعٍ يُفشل النموذج (درس "
+                     "NEXR) — ولمسُ رأسها بالارتداد زنادُ دخوله (درس PLRZ).")
     if "🟣" in body:
         lines.append("🟣 <b>الطلبات</b> = منطقةُ الشراء عند القاع · 🔴 الوقف "
                      "تحتها (ألوان فيصل الموثّقة).")
