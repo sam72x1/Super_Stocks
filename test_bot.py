@@ -18537,6 +18537,90 @@ check("🔁 RPT4 قاعدة P1 في repeat.yml: BACKTEST_YEAR وBT_FROZEN_PATH �
       and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _rpt_wf
       and "python repeat_arms.py" in _rpt_wf)
 
+# VWR — 🕵️ أقفال «تأكيد دخول المضارب» (ثلاثية فيصل على فريم الدقيقة — منشور X
+# + شارت WETO 2026-08-15): عيّناتٌ **مفرِّقةٌ شكلًا شكلًا** + وايرُ المراقب الحيّ.
+_vwr_sup = 3.60
+
+
+def _vwr_bar(l, h, c, v=1000):
+    return {"o": c, "h": h, "l": l, "c": c, "v": v, "vw": c}
+
+
+_vwr_weto = ([_vwr_bar(3.8, 4.2, 4.0), _vwr_bar(4.2, 5.0, 4.9),
+              _vwr_bar(4.5, 5.0, 4.6),
+              _vwr_bar(3.58, 4.0, 3.65), _vwr_bar(3.6, 3.8, 3.7),
+              _vwr_bar(3.7, 4.1, 4.05), _vwr_bar(4.0, 4.4, 4.35)])
+_vwr_ok = S.vwap_entry_confirm(_vwr_weto, _vwr_sup)
+check("🕵️ VWR1 ثلاثية فيصل تُقرأ على شكل WETO: صعودٌ أوّل ‏+39% ⟵ لمسةُ الدعم "
+      "وثبات ⟵ عبورُ الفيواب صاعدًا ⇒ dict بحقوله",
+      _vwr_ok is not None and round(_vwr_ok["prior_rise_pct"]) == 39
+      and _vwr_ok["support"] == 3.6 and _vwr_ok["vwap"] > 0)
+check("🕵️ VWR2 الأشكالُ المفرِّقة الأربعة كلُّها None: بلا صعودٍ أوّل · كسرٌ "
+      "بإغلاقٍ بعد اللمسة · بقي تحت الفيواب · وجلوسٌ فوق الفيواب بلا عبورٍ حقيقيّ",
+      S.vwap_entry_confirm([_vwr_bar(3.58, 3.7, 3.65)] * 5
+                           + [_vwr_bar(3.7, 4.0, 3.95)], _vwr_sup) is None
+      and S.vwap_entry_confirm(_vwr_weto[:4] + [_vwr_bar(3.3, 3.6, 3.40)]
+                               + _vwr_weto[5:], _vwr_sup) is None
+      and S.vwap_entry_confirm(_vwr_weto[:5]
+                               + [_vwr_bar(3.55, 3.7, 3.62)], _vwr_sup) is None
+      and S.vwap_entry_confirm(
+          [_vwr_bar(3.8, 4.2, 4.1), _vwr_bar(4.2, 5.0, 4.9),
+           _vwr_bar(3.6, 5.1, 5.05), _vwr_bar(5.0, 5.3, 5.2)],
+          _vwr_sup) is None
+      and S.vwap_entry_confirm([], _vwr_sup) is None
+      and S.vwap_entry_confirm(_vwr_weto, 0) is None)
+# وايرُ المراقب الحيّ: المفتاح حاضر + جالبُ دقائق محقون ⇒ حدث vwap_reclaim
+# يمرّ **عبر بوّابة المضارب** (has_operator=True يمرّ ويحمل كمياته · False يُكتم)
+# + دِدوب مرة/يوم. البريماركت/الافتر محقونان None (صفر شبكة).
+_vwr_dates = pd.date_range("2026-06-01", periods=30, freq="B")
+_vwr_dates = _vwr_dates[:29].append(pd.DatetimeIndex(["2026-07-08"]))
+_vwr_df = pd.DataFrame({"Low": [3.6] * 29 + [3.65],
+                        "High": [4.2] * 30,
+                        "Close": [3.9] * 29 + [3.7],
+                        "Open": [3.9] * 30}, index=_vwr_dates)
+_vwr_env_saved = _os_hc.environ.get("POLYGON_API_KEY")
+_vwr_pmb_saved, _vwr_pm_saved = S.polygon_minute_bars, S.polygon_premarket
+_vwr_wl = {"stocks": [{"symbol": "VWR", "status": "active",
+                       "tranches": [5.0, 5.1, 5.2], "stop": 3.0, "pivot": 3.5,
+                       "interp": {}}]}
+try:
+    _os_hc.environ["POLYGON_API_KEY"] = "test-key"
+    S.polygon_minute_bars = lambda sym, minutes=90: list(_vwr_weto)
+    S.polygon_premarket = lambda sym, prev_close=None: None
+    _vwr_op = {"has_operator": True, "buy_block_shares": 2000,
+               "bid_block_shares": 3000, "bid": 3.6, "ask": 3.65,
+               "bid_size": 500, "ask_size": 400}
+    _vwr_ev = S.monitor_live_events(_vwr_wl, {"VWR": _vwr_df}, "2026-07-08",
+                                    fetch_operator=lambda sym: dict(_vwr_op),
+                                    fetch_afterhours=lambda sym, rc: None)
+    _vwr_ev2 = S.monitor_live_events(_vwr_wl, {"VWR": _vwr_df}, "2026-07-08",
+                                     fetch_operator=lambda sym: dict(_vwr_op),
+                                     fetch_afterhours=lambda sym, rc: None)
+    _vwr_wl2 = {"stocks": [dict(_vwr_wl["stocks"][0], symbol="VWQ")]}
+    _vwr_ev3 = S.monitor_live_events(
+        _vwr_wl2, {"VWQ": _vwr_df}, "2026-07-08",
+        fetch_operator=lambda sym: {"has_operator": False},
+        fetch_afterhours=lambda sym, rc: None)
+finally:
+    if _vwr_env_saved is None:
+        _os_hc.environ.pop("POLYGON_API_KEY", None)
+    else:
+        _os_hc.environ["POLYGON_API_KEY"] = _vwr_env_saved
+    S.polygon_minute_bars, S.polygon_premarket = _vwr_pmb_saved, _vwr_pm_saved
+_vwr_hit = [(k, d) for _, k, d in _vwr_ev if k == "vwap_reclaim"]
+check("🕵️ VWR3 من نقطة النداء الحيّة: `monitor_live_events` يُطلق vwap_reclaim "
+      "بوصفٍ يحمل «هنا الدخول» وكمياتِ المضارب (البوّابة أثرت) · والدِدوب يمنع "
+      "التكرار · وhas_operator=False **يكتمه** («تأكدنا انه مب قروب» حرفيًّا)",
+      len(_vwr_hit) == 1 and "هنا الدخول" in _vwr_hit[0][1]
+      and "سهم" in _vwr_hit[0][1]
+      and not [1 for _, k, _ in _vwr_ev2 if k == "vwap_reclaim"]
+      and not [1 for _, k, _ in _vwr_ev3 if k == "vwap_reclaim"])
+check("🕵️ VWR4 خارج الجذور: `vwap_entry_confirm` لا تظهر في rank_key/"
+      "select_top/backtest_symbol/analyze_ticker (توقيت/عرض لا اختيار)",
+      all("vwap_entry_confirm" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.backtest_symbol,
+                     S.analyze_ticker)))
+
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
 # 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
 # (‏ALERT_W=40) فالإطارُ الذي كان «تركيبة بحثٍ صامتة» صار **يُنبّه** — والقفل

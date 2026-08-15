@@ -11658,8 +11658,11 @@ def polygon_minute_bars(sym: str, minutes: int = 90):
         res = (r.json() or {}).get("results") or []
         # 🔬 E2 (§9): نحفظ الطابع الزمني `t` (بداية شمعة الدقيقة، ms) — مطلوب لقياس الأبكرية/
         # الـlatency في القياس الظلّي. **حقل إضافي فقط** (المستهلكون يقرؤون c/v/l/h فلا يتأثّرون).
+        # 🕵️ `vw` (سعر الدقيقة المرجّح بالحجم من Polygon) أُضيف 2026-08-15 لعدّة
+        # «تأكيد دخول المضارب» (فيواب الجلسة) — **حقل إضافي فقط** كسابقة `t`.
         bars = [{"o": b.get("o"), "h": b.get("h"), "l": b.get("l"),
-                 "c": b.get("c"), "v": b.get("v"), "t": b.get("t")} for b in res
+                 "c": b.get("c"), "v": b.get("v"), "t": b.get("t"),
+                 "vw": b.get("vw")} for b in res
                 if b.get("l") is not None and b.get("c") is not None]
         return bars or None
     except Exception:
@@ -11678,6 +11681,53 @@ def _minute_sweep(bars: list, support: float) -> bool:
         return low_min < support * 0.98 and last_close >= support
     except Exception:
         return False
+
+
+def vwap_entry_confirm(bars: list, support: float):
+    """🕵️ **تأكيدُ دخول المضارب — ثلاثيةُ فيصل على فريم الدقيقة** (منشورُ X +
+    شارت WETO، لقطة المالك 2026-08-15): «فريم دقيقه اول صعود اذا رجع وثبت تدخل
+    … هبط لنفس الدعم 3.60 · رجع يصعد ع خفيف · **فيواب 3.91 > هنا الدخول**».
+
+    نقيّة (بلا شبكة). الشروطُ الأربعة — **أرقامُها كلُّها معادةٌ من ثوابت قائمة
+    لا مخترعة** (مُعلَنٌ كلٌّ بمصدره):
+      ① لمسةُ الدعم: قاعُ دقيقةٍ داخل ±2% من الدعم (تسامحُ `_minute_sweep` نفسُه).
+      ② صعودٌ أوّلُ قبلها: قمّةٌ سابقة فوق الدعم بـ`PM_MOVE_PCT`(=10)% فأكثر
+         (عتبةُ حركة الجلسة القائمة في المراقب نفسه — «هذا صعد ل5 مباشرة»).
+      ③ ثباتٌ بعد اللمسة: لا إغلاقَ دقيقةٍ تحت الدعم بأكثر من 2% («وثبت»).
+      ④ عبورُ الفيواب: كان تحت فيواب الجلسة التراكميّ بعد اللمسة ثم آخرُ إغلاقٍ
+         **فوقه** («فوق فيواب > هنا الدخول») — عبورٌ حقيقيّ لا جلوسٌ فوقه.
+    يرجّع dict {vwap, support, prior_rise_pct} أو None. **عرض/تنبيه فقط** —
+    يمرّ على بوّابة المضارب القائمة في المراقب («تأكدنا انه مب قروب»)."""
+    try:
+        if not bars or support <= 0:
+            return None
+        closes = [float(b["c"]) for b in bars]
+        lows = [float(b["l"]) for b in bars]
+        highs = [float(b["h"]) for b in bars]
+        vols = [max(float(b.get("v") or 0.0), 0.0) for b in bars]
+        px = [float(b["vw"]) if b.get("vw") is not None else float(b["c"])
+              for b in bars]
+        vwap, s_pv, s_v = [], 0.0, 0.0
+        for p, v in zip(px, vols):
+            s_pv += p * v
+            s_v += v
+            vwap.append(s_pv / s_v if s_v > 0 else p)
+        touch = next((i for i, l in enumerate(lows)
+                      if l <= support * 1.02), None)
+        if touch is None or touch == 0:
+            return None                              # لا لمسة أو لا «قبلها»
+        prior_hi = max(highs[:touch])
+        if prior_hi < support * (1.0 + CONFIG["PM_MOVE_PCT"] / 100.0):
+            return None                              # لا صعودَ أوّل
+        if any(c < support * 0.98 for c in closes[touch:]):
+            return None                              # كسرٌ بإغلاق = لم يثبت
+        was_below = any(closes[i] <= vwap[i] for i in range(touch, len(bars)))
+        if not (was_below and closes[-1] > vwap[-1]):
+            return None                              # لا عبورَ فيواب حقيقيًّا
+        return {"vwap": round(vwap[-1], 4), "support": round(float(support), 4),
+                "prior_rise_pct": (prior_hi / support - 1.0) * 100.0}
+    except Exception:
+        return None
 
 
 # ==========================================================
@@ -11998,10 +12048,15 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
             # والمسار اليومي لم يرصد المسح، افحص دقائق Polygon على نفس الدعم (أدنى 20ج).
             # نفس نوع الحدث (sweep) ونفس الدِدوب — لا نوع جديد. بلا مفتاح = المسار
             # اليومي حرفيًا (polygon_minute_bars ترجع None → _minute_sweep=False).
+            # 🕵️ دعمُ الدقائق (أدنى 20ج) — حسابُه مرفوعٌ هنا (2026-08-15) ليخدم
+            # فرعَي المسح **وتأكيد الدخول** معًا؛ سلوكُ المسح لم يتغيّر بحرف.
+            try:
+                _lo = df["Low"].values.astype(float)
+                _sup20 = float(np.min(_lo[-21:-1]))
+            except Exception:                                    # noqa: BLE001
+                _sup20 = 0.0
             if not sw and os.environ.get("POLYGON_API_KEY", "").strip():
                 try:
-                    _lo = df["Low"].values.astype(float)
-                    _sup20 = float(np.min(_lo[-21:-1]))
                     # سقف الطلبات (يحمي ميزانية المراقب 15د): نفحص الدقائق فقط
                     # للأسهم **قرب دعمها** (ضمن 8% فوقه) حيث المسح ممكن. البعيد لا
                     # يُمسح، والمسح-ثم-الركض البعيد يلتقطه المسار اليومي (كسر+ارتفاع).
@@ -12014,6 +12069,26 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
                     pass
             if sw:
                 events.append(("sweep", sw))
+            # 🕵️ **تأكيد دخول المضارب — ثلاثية فيصل على فريم الدقيقة** (منشور X
+            # + شارت WETO، أمر المالك 2026-08-15 «يوصلني تنبيه مباشرة لأي سهم
+            # يدخله المضارب»): صعودٌ أوّل ⟵ رجوعٌ للدعم وثبات ⟵ عبورُ الفيواب
+            # صاعدًا = «هنا الدخول». نافذةُ الجلسة كاملة (390د) · نفسُ بوّابة
+            # القرب (8%) · ويمرّ على بوّابة المضارب القائمة (`_gated`) فلا يصل
+            # إلا مؤكَّدًا «مب قروب». بلا مفتاح = صفرُ عمل · فاشلٌ-آمن.
+            if (os.environ.get("POLYGON_API_KEY", "").strip()
+                    and _sup20 > 0 and lp <= _sup20 * 1.08):
+                try:
+                    _vb = polygon_minute_bars(s["symbol"], minutes=390)
+                    _vc = vwap_entry_confirm(_vb, _sup20) if _vb else None
+                    if _vc:
+                        events.append(("vwap_reclaim",
+                                       f"تأكيد دخول مضارب (ثلاثية فيصل): صعد "
+                                       f"{_vc['prior_rise_pct']:.0f}% فوق الدعم "
+                                       f"${_sup20:.2f} ثم رجع له وثبت، والآن عبر "
+                                       f"الفيواب ${_vc['vwap']:.2f} صاعدًا — "
+                                       "«فوق فيواب = هنا الدخول»"))
+                except Exception:
+                    pass
             if stop0 is not None and lp <= stop0:
                 events.append(("break",
                                f"كسر الوقف ${stop0:.2f} — الفكرة ملغاة/خطرة"))
@@ -12079,7 +12154,7 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
         # OPERATOR_MIN_SHARES). الخطر (break) والبريماركت لا يُبوَّبان (تنبيه واجب/مغطّى).
         # فاشل-آمن: تعذّر القياس (None) → لا نكتم (لا نفوّت حدثًا حقيقيًا بعطل شبكي)؛
         # وُجد المضارب → نُلحق كمياته بوصف الحدث المبوَّب.
-        _gated = {"sweep", "buyzone", "breakout"}
+        _gated = {"sweep", "buyzone", "breakout", "vwap_reclaim"}
         _fo = fetch_operator or (operator_flow
                                  if os.environ.get("POLYGON_API_KEY", "").strip()
                                  else None)
