@@ -10750,9 +10750,176 @@ REJECT_LOG_MAX_SYMS = 400               # سقفٌ لكل جدارٍ في الي
 #
 # ⛔ **ولا يمسّ قرارًا:** المُخرَجُ يبقى مُخرَجًا · و`BORROW_AVAIL_MAX`=20,000
 #    (قرارُ مالك) **لا تُمَسّ** · والسجلُّ ملفٌّ مستقلٌّ **يُلحَق فقط**.
+# ────────────────────────────────────────────────────────────────────────────
+# 👀 **قائمةُ «تحت المتابعة» — قرارُ المالك 2026-08-16 «جدارين»**
+#
+# نصُّه: «مب مشكلة إن البوت ما يكون مرشّح لي، لمّا على الأقل يكون ضمن المتابعة
+# والبوت يتابع شموعه بعد نهاية كل جلسة — كذا مب يكون أفضل بما إنه غير جاهز؟»
+#
+# 🥇 **وسندُه مقيس:** `catalog_compare` أثبت أن `RUBI` **داخلَ ظرف كتالوج فيصل في
+#    12 من 14 معيارًا** (عرضُ قاعدته مطابقٌ لوسيط أسهمه · سيولتُه ضِعفاه · نواقصُه
+#    أقلّ · وRSI أعمقُ تشبّعًا) ويسقط على **اثنين فقط**. فإسقاطُه بالكامل خسارة.
+#
+# ⚖️ **والتعريفُ مثبَّتٌ ومُعلَن:** «تحت المتابعة» = **مرفوضٌ من الفرز** · وخارجَ
+#    ظرف الكاتالوج في **معيارين أو أقلّ** (`NEAR_WATCH_MAX_OUT`، قرارُ المالك).
+#    ⚠️ وهو مقياسٌ **قربٌ من أسهم فيصل** لا «قربٌ من بوّاباتنا» — والفرقُ مقصود.
+#
+# ⛔ **عرض/متابعة فقط:** لا يدخل `results` ولا `rank_key` ولا `select_top` ولا
+#    يحجز خانة · ولا `LOGIC_VERSION` · ولا قناةَ تلغرام رابعة (قسمٌ داخل التقرير).
+NEAR_WATCH_FILE = "near_watch.json"
+NEAR_WATCH_MAX_OUT = 2       # 🥇 «جدارين» — قرارُ المالك 2026-08-16 حرفيًّا
+NEAR_WATCH_SHOW = 15         # سقفُ العرض — **والقصُّ يُعلَن بعدده**
+NEAR_WATCH_STALE_DAYS = 10   # يسقط من المتابعة إن غاب عن الفرز هذي المدّة
+NEAR_WATCH_BUDGET_S = 240    # ميزانيةُ زمنِ القياس/تشغيلة — **والقصُّ يُعلَن**
+
 BORROW_WATCH_FILE = "borrow_watch.jsonl"   # سجلٌّ يُلحَق فقط (مرجعٌ مُجمَّد)
 BORROW_WATCH_HORIZON = 40   # جلسات المتابعة بعد أوّل رصد (= نافذةُ الحسم المسجَّلة)
 BORROW_WATCH_CAP = 40       # سقفُ الرموز المجلوبة/تشغيلة — **والقصُّ يُعلَن بعدّاده**
+
+
+def load_near_watch(path: str = None) -> dict:
+    """يقرأ قائمةَ المتابعة. فاشل-آمن: غيابٌ/تلفٌ ⇒ `{}` (تُبنى من جديد)."""
+    try:
+        with open(path or NEAR_WATCH_FILE, encoding="utf-8") as fh:
+            d = json.load(fh)
+        return d if isinstance(d, dict) else {}
+    except Exception:                                            # noqa: BLE001
+        return {}
+
+
+def save_near_watch(watch: dict, path: str = None) -> bool:
+    """يحفظ قائمةَ المتابعة. فاشل-آمن: أيُّ خطأ ⇒ `False` ولا يرمي."""
+    try:
+        with open(path or NEAR_WATCH_FILE, "w", encoding="utf-8") as fh:
+            json.dump(watch or {}, fh, ensure_ascii=False, indent=1)
+        return True
+    except Exception:                                            # noqa: BLE001
+        return False
+
+
+def near_watch_measure(sym: str, df, edges: dict):
+    """📏 يقيس سهمًا **مرفوضًا** بكلّ البوّابات مُرخاة ⇒ (قيم، خارجة) أو `None`.
+
+    ⚖️ **صفرُ منطقٍ مكرّر:** يعيد استعمال `catalog_envelope.measure_session`
+    **نفسِها** التي عايرت الظرف — فالمقياسُ واحدٌ لا اثنان.
+    🔴 **ويُرخي `ANCHOR_MODE` أيضًا** لأن `RELAX_ALL` **بائتٌ** ولا يشمله (عيبٌ
+    مُبلَّغٌ 2026-08-16) ⇒ بدونه يسقط القياسُ **صامتًا** لكلّ سهمٍ بلا مستوًى مختبَر."""
+    try:
+        import catalog_envelope as _ce
+    except Exception:                                            # noqa: BLE001
+        return None
+    _sv = CONFIG.get("ANCHOR_MODE")
+    try:
+        CONFIG["ANCHOR_MODE"] = "pivot"
+        vals = _ce.measure_session(sys.modules[__name__], sym, df)
+    except Exception:                                            # noqa: BLE001
+        return None
+    finally:
+        CONFIG["ANCHOR_MODE"] = _sv
+    if not vals:
+        return None
+    try:
+        vals["_n_criteria"] = len(_ce.CRITERIA)
+    except Exception:                                            # noqa: BLE001
+        pass
+    return vals, near_watch_outside(vals, edges)
+
+
+def near_watch_outside(vals: dict, edges: dict) -> list:
+    """👀 المعاييرُ التي يقع فيها السهمُ **خارج ظرف كتالوج فيصل** — دالّةٌ نقيّة.
+
+    ترجّع أسماءَ المعايير الخارجة (بالعربي كما في `CRITERIA`). والخريطةُ من
+    `catalog_envelope.CRITERIA` **نفسِها** (مصدرٌ واحد — نفسُ بابِ `faisal_only_overrides`
+    المأذون) فلا تتفرّق خريطةٌ مكتوبةٌ بيدي عن خريطة الأداة.
+
+    🔒 **والمفقودُ يمرّ بفائدة الشك** — قاعدةُ الفارز نفسُها (مجهولٌ ≠ خارج)، وإلّا
+    بدا السهمُ أبعدَ ممّا هو بسبب عطلِ جلبٍ فيسقط من المتابعة ظلمًا."""
+    try:
+        from catalog_envelope import CRITERIA as _CR
+    except Exception:                                            # noqa: BLE001
+        return []
+    out = []
+    for name, side, desc, _k in _CR:
+        v = (vals or {}).get(name)
+        edge = (edges or {}).get(name)
+        if v is None or edge is None:
+            continue                       # مجهولٌ ⇒ يمرّ بفائدة الشك
+        try:
+            v = float(v)
+            if side == "lo" and v < float(edge):
+                out.append(desc)
+            elif side == "hi" and v > float(edge):
+                out.append(desc)
+            elif side == "both" and isinstance(edge, (list, tuple)) and len(edge) == 2:
+                if v < float(edge[0]) or v > float(edge[1]):
+                    out.append(desc)
+        except (TypeError, ValueError):
+            continue                       # تالفٌ ⇒ يمرّ بفائدة الشك
+    return out
+
+
+def near_watch_entry(sym: str, vals: dict, outside: list, today_iso: str,
+                     prev: dict = None) -> dict:
+    """صفُّ سهمٍ تحت المتابعة — نقيّة. يحفظ **أوّلَ رصدٍ** فيُقرأ «منذ كم يوم»."""
+    prev = prev or {}
+    return {
+        "symbol": str(sym or "").upper(),
+        "first_seen": prev.get("first_seen") or today_iso,
+        "last_seen": today_iso,
+        "n_out": len(outside or []),
+        "outside": list(outside or []),
+        "price": (vals or {}).get("price"),
+        "rsi_now": (vals or {}).get("rsi_now"),
+        "readiness": (vals or {}).get("readiness"),
+        "score": (vals or {}).get("score"),
+        "n_criteria": (vals or {}).get("_n_criteria"),
+    }
+
+
+def near_watch_prune(watch: dict, today_iso: str, stale_days: int = None) -> dict:
+    """يُسقط مَن غاب عن الفرز أكثرَ من `NEAR_WATCH_STALE_DAYS` — نقيّة.
+
+    ⚖️ **والغيابُ ليس رفضًا**: قد يكون خنقَ بياناتٍ · لذلك المهلةُ أيّامٌ لا يومٌ واحد."""
+    lim = int(NEAR_WATCH_STALE_DAYS if stale_days is None else stale_days)
+    return {s: e for s, e in (watch or {}).items()
+            if _iso_days_between(e.get("last_seen") or "", today_iso) <= lim}
+
+
+def build_near_watch_section(watch: dict, cap: int = None) -> str:
+    """👀 قسمُ «تحت المتابعة» في التقرير اليوميّ — عرضٌ فقط.
+
+    يُرتَّب **بالأقرب** (أقلُّ معاييرَ خارجة ثم أعلى جاهزية). **والقصُّ يُعلَن
+    بعدده** ولا يُطوى. وقائمةٌ فارغة ⇒ **نصٌّ فارغ** (لا قسمَ ولا ضجيج)."""
+    rows = sorted((watch or {}).values(),
+                  key=lambda e: (e.get("n_out", 9),
+                                 -(e.get("readiness") or 0), e.get("symbol", "")))
+    if not rows:
+        return ""
+    shown, extra = rows[:int(cap or NEAR_WATCH_SHOW)], max(
+        0, len(rows) - int(cap or NEAR_WATCH_SHOW))
+    out = [f"👀 <b>تحت المتابعة</b> ({len(rows)}) — قريبٌ من كتالوج فيصل، "
+           "غيرُ مرشَّح بعد"]
+    for e in shown:
+        nc = e.get("n_criteria")
+        inside = (f"{int(nc) - int(e.get('n_out') or 0)} من {int(nc)}"
+                  if nc else "—")
+        line = (f"• <b>${e.get('symbol')}</b> — داخلَ معايير فيصل {inside}"
+                f" · ينقصه: {'، '.join(e.get('outside') or []) or '—'}")
+        px, rsi = e.get("price"), e.get("rsi_now")
+        bits = []
+        if px is not None:
+            bits.append(f"${float(px):.2f}")
+        if rsi is not None:
+            bits.append(f"RSI {float(rsi):.0f}")
+        d = _iso_days_between(e.get("first_seen") or "", e.get("last_seen") or "")
+        if d:
+            bits.append(f"تحت المتابعة {d} يوم")
+        if bits:
+            line += "\n  " + " · ".join(bits)
+        out.append(line)
+    if extra:
+        out.append(f"… و{extra} غيرها (العرضُ مقصوصٌ عند {len(shown)})")
+    return "\n".join(out)
 
 
 def borrow_watch_row(symbol: str, available, fee, price, date_iso: str,
@@ -11039,8 +11206,31 @@ def scan_market():
     results = []
     _REJECT_STATS.clear()                 # تصفير عدّاد أسباب الرفض
     _REJECT_REASONS.clear()
+    # 👀 قائمةُ «تحت المتابعة» (قرارُ المالك «جدارين») — تُبنى **من المرفوضين**
+    #    داخلَ نفس الحلقة (البياناتُ في اليد ⇒ صفرُ تحميلٍ إضافيّ) وبميزانيةِ زمنٍ
+    #    **يُعلَن قصُّها**. ⛔ ولا تمسّ `results` ولا الترتيب ولا الخانات.
+    _nw_edges, _nw_new, _nw_t0, _nw_cut = {}, {}, time.time(), 0
+    try:
+        import envelope_scan as _nw_ev
+        _nw_edges = _nw_ev.load_edges() or {}
+    except Exception:                                            # noqa: BLE001
+        _nw_edges = {}
+    _nw_today = dt.date.today().isoformat()
+
     for sym, df in history.items():
         r = analyze_ticker(sym, df)
+        if not r and _nw_edges:
+            # 🔒 حارسٌ مطلق: قائمةُ متابعةٍ عرضيّة **لا تُسقط الفرز** بحالٍ.
+            try:
+                if time.time() - _nw_t0 > NEAR_WATCH_BUDGET_S:
+                    _nw_cut += 1                       # قُصّ بالميزانية — يُعلَن
+                else:
+                    _m = near_watch_measure(sym, df, _nw_edges)
+                    if _m and len(_m[1]) <= NEAR_WATCH_MAX_OUT:
+                        _nw_new[sym] = near_watch_entry(
+                            sym, _m[0], _m[1], _nw_today)
+            except Exception:                                    # noqa: BLE001
+                pass
         if r:
             # ① (إصلاح تدقيق 2026-07-12): تاريخ **شمعة الترشيح الفعلية** (آخر شمعة
             # في البيانات) — المسار اليومي يعمل 07:23 UTC قبل الافتتاح فتاريخ التشغيل
@@ -11137,6 +11327,25 @@ def scan_market():
     # (🪦 A/B متقاعد — الجاهزية هي المحور؛ يطابق اليومي وترويسة «الجاهز أولاً»)
     results.sort(key=rank_key)
     log(f"الفرز: {len(results)} مرشح مؤهّل (مرتّب بالجاهزية)")
+    # 👀 حفظُ «تحت المتابعة» — **بعد** الترتيب فلا يمسّه، وحارسٌ مطلق.
+    #    المُرشَّحُ اليوم يخرج منها (صار مرشَّحًا فعلًا لا متابَعًا).
+    try:
+        if _nw_edges:
+            _nw_all = load_near_watch()
+            for _s, _e in _nw_new.items():
+                _e["first_seen"] = (_nw_all.get(_s) or {}).get(
+                    "first_seen") or _e["first_seen"]
+                _nw_all[_s] = _e
+            for _r in results:                       # المرشَّحُ ليس متابَعًا
+                _nw_all.pop(_r.get("symbol"), None)
+            _nw_all = near_watch_prune(_nw_all, _nw_today)
+            save_near_watch(_nw_all)
+            log(f"👀 تحت المتابعة: {len(_nw_all)} سهم "
+                f"(جديدُ اليوم {len(_nw_new)} · بحدّ {NEAR_WATCH_MAX_OUT} "
+                "معيارًا خارج ظرف فيصل)"
+                + (f" · ⚠️ قُصَّ {_nw_cut} بميزانية الزمن" if _nw_cut else ""))
+    except Exception as _e:                                      # noqa: BLE001
+        log(f"⚠️ قائمةُ المتابعة تعذّرت (لا تمسّ الفرز): {_e}")
     return results, history
 
 
@@ -16036,6 +16245,17 @@ def run_daily_watchlist(wl: dict) -> None:
             msg += "\n\n" + _hl
     except Exception as _e:                                      # noqa: BLE001
         log(f"⚠️ رصد سقوط صيّاد المقسّم: {_e}")
+    # 👀 قسمُ «تحت المتابعة» (قرارُ المالك 2026-08-16 «جدارين») — **قسمٌ داخل
+    #    التقرير لا قناةٌ رابعة** (عقدُ المالك قائم). وهو **الاستثناءُ الثالث**
+    #    المُعلَن لقاعدة «الجاهز فقط»: المالك طلبه صراحةً («لمّا على الأقل يكون
+    #    ضمن المتابعة والبوت يتابع شموعه بعد نهاية كل جلسة»).
+    #    🔒 حارسٌ مطلق: قسمٌ عرضيّ لا يجوز أن يُسقط التقرير.
+    try:
+        _nws = build_near_watch_section(load_near_watch())
+        if _nws:
+            msg += "\n\n" + _nws
+    except Exception as _e:                                      # noqa: BLE001
+        log(f"⚠️ قسم «تحت المتابعة»: {_e}")
     # احفظ حالة اليوم (ترقيات/تنبيهات/تحديثات) قبل الإرسال — لو فشل الإرسال
     # (شبكة/تيليجرام) لا تضيع الحالة المحسوبة (إصلاح 2026-06-24).
     save_watchlist(wl)

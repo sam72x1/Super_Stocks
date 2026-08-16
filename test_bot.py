@@ -103,6 +103,14 @@ _BW_REAL_SHA = (
 S.BORROW_WATCH_FILE = _os_hc.path.join(
     _rej_tf.gettempdir(), f"_suite_borrow_watch.{_SUITE_PID}.jsonl")
 
+# 👀 **وخامسُ ملفِّ حالة — يُحوَّل فورَ إنشائه** (‏قائمةُ «تحت المتابعة»).
+_NW_REAL_PATH = S.NEAR_WATCH_FILE
+_NW_REAL_SHA = (
+    _rej_h.sha256(open(_NW_REAL_PATH, "rb").read()).hexdigest()
+    if _os_hc.path.exists(_NW_REAL_PATH) else None)
+S.NEAR_WATCH_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_near_watch.{_SUITE_PID}.json")
+
 PASS, FAIL = [], []
 
 
@@ -11197,9 +11205,28 @@ finally:
      S.yf, S.build_interpretation, S.descending_trendline) = _c4_sv
 # 🔒 قفل بنيوي: `results.append(r)` خارج الحارس (وإلا سقط الإثراء = سقوط عضوية)
 _c4_src = _insp0.getsource(S.scan_market)
-check("🔒 005·results.append خارج try الإثراء (الحارس لا يبتلع العضوية)",
-      "\n            results.append(r)" in _c4_src
-      and _c4_src.count("except Exception as _e:") == 2)
+# 🔄 **تحديثٌ مؤرَّخ 2026-08-16 — القفلُ أمسك التغيير فأدّى عمله، ويُشدَّد لا يُرخى:**
+#    كان يشترط `count("except Exception as _e:") == 2` — **عدَّ حرّاسٍ نصّيًّا**، وهو
+#    وكيلٌ هشّ: أيُّ حارسٍ جديدٍ **غيرِ ذي صلة** يكسره (وقع فعلًا عند إضافة قائمة
+#    «تحت المتابعة»). ⇒ صار **بنيويًّا بالـAST على الثابت الحقيقيّ**: لا عقدةَ `Try`
+#    في `scan_market` تحوي `results.append(r)` إطلاقًا — وهذا **أشدُّ** لأنه يمنع
+#    ابتلاعَ العضوية بأيّ حارسٍ كان، لا بالحارسَين المعدودَين وحدهما.
+_c4_tree = _ast0.parse(_c4_src)
+
+
+def _c4_has_append(node):
+    return any(isinstance(c, _ast0.Call)
+               and getattr(getattr(c.func, "value", None), "id", None) == "results"
+               and getattr(c.func, "attr", None) == "append"
+               for c in _ast0.walk(node))
+
+
+check("🔒 005·results.append **خارج كلّ `try`** في الفرز (‏AST — الحارس لا يبتلع "
+      "العضوية مهما أُضيف من حرّاس)",
+      _c4_has_append(_c4_tree)
+      and not any(_c4_has_append(n) for n in _ast0.walk(_c4_tree)
+                  if isinstance(n, _ast0.Try)),
+      f"try={sum(1 for n in _ast0.walk(_c4_tree) if isinstance(n, _ast0.Try))}")
 check("🔒 005·الحارس يسجّل ولا يصمت (لا pass صامتة في مساري الفشل)",
       _c4_src.count('log(f"⚠️ إثراء عرض') == 1 and _c4_src.count('log(f"⚠️ تفسير') == 1)
 
@@ -16599,6 +16626,130 @@ _bw_now = (_rej_h.sha256(open(_BW_REAL_PATH, "rb").read()).hexdigest()
 check("📉 BW🔒 ولا `borrow_watch.jsonl` المدفوع (سجلُّ T-BORROW-FALL — إلحاقٌ فقط)",
       _bw_now == _BW_REAL_SHA,
       f"قبل={str(_BW_REAL_SHA)[:12]} · بعد={str(_bw_now)[:12]}")
+
+_nw_now = (_rej_h.sha256(open(_NW_REAL_PATH, "rb").read()).hexdigest()
+           if _os_hc.path.exists(_NW_REAL_PATH) else None)
+check("👀 NW🔒 ولا `near_watch.json` المدفوع (قائمةُ «تحت المتابعة»)",
+      _nw_now == _NW_REAL_SHA,
+      f"قبل={str(_NW_REAL_SHA)[:12]} · بعد={str(_nw_now)[:12]}")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 👀 قائمةُ «تحت المتابعة» — أقفالُ NW1-NW9 (قرارُ المالك 2026-08-16 «جدارين»)
+#    ⚖️ سلوكيّةٌ أو بالـAST — لا قفلَ نصّيّ.
+# ══════════════════════════════════════════════════════════════════════════
+_nw_edges = {"price": 1.0, "rsi_now": 40.0, "drop_pct": [70.0, 99.9]}
+
+# ── NW1: «جدارين» — الحدُّ النافذُ هو قرارُ المالك حرفيًّا ──────────────────
+check("👀 NW1 حدُّ المتابعة **معياران** (قرارُ المالك «جدارين»)",
+      S.NEAR_WATCH_MAX_OUT == 2, f"الحدّ={S.NEAR_WATCH_MAX_OUT}")
+
+# ── NW2: خارجُ الظرف يُحسَب · **والمجهولُ يمرّ بفائدة الشك** (فارقٌ حقيقيّ) ──
+try:
+    _o_in = S.near_watch_outside({"price": 5.0, "rsi_now": 20.0,
+                                  "drop_pct": 90.0}, _nw_edges)
+    _o_out = S.near_watch_outside({"price": 0.5, "rsi_now": 55.0,
+                                   "drop_pct": 99.99}, _nw_edges)
+    _o_na = S.near_watch_outside({"price": None, "rsi_now": None,
+                                  "drop_pct": None}, _nw_edges)
+except Exception as _e:                                          # noqa: BLE001
+    _o_in = _o_out = _o_na = [f"⛔ {type(_e).__name__}"]
+check("👀 NW2 المعاييرُ الخارجة تُحسَب فعلًا · والداخلُ صفر · "
+      "**والمجهولُ يمرّ بفائدة الشك** (لا يُعَدّ خارجًا)",
+      _o_in == [] and len(_o_out) == 3 and _o_na == [],
+      f"داخل={_o_in} · خارج={len(_o_out)} · مجهول={_o_na}")
+
+# ── NW3: `first_seen` يُحفَظ عبر الأيام (فيُقرأ «منذ كم يوم») ───────────────
+try:
+    _e1 = S.near_watch_entry("aaa", {"price": 2.0}, ["M2"], "2026-08-10")
+    _e2 = S.near_watch_entry("AAA", {"price": 2.1}, ["M2"], "2026-08-16", _e1)
+except Exception as _e:                                          # noqa: BLE001
+    _e1 = _e2 = {}
+check("👀 NW3 `first_seen` يُحفَظ و`last_seen` يتقدّم (عمرُ المتابعة يُقرأ)",
+      _e1.get("first_seen") == "2026-08-10"
+      and _e2.get("first_seen") == "2026-08-10"
+      and _e2.get("last_seen") == "2026-08-16"
+      and _e2.get("symbol") == "AAA", str(_e2)[:80])
+
+# ── NW4: التقليمُ **فارقيّ** — الغائبُ طويلًا يسقط والحديثُ يبقى ────────────
+try:
+    _pr = S.near_watch_prune(
+        {"NEW": {"last_seen": "2026-08-15"}, "OLD": {"last_seen": "2026-07-01"}},
+        "2026-08-16", 10)
+except Exception as _e:                                          # noqa: BLE001
+    _pr = {"⛔": type(_e).__name__}
+check("👀 NW4 يسقط مَن غاب فوق المهلة ويبقى الحديث (فارقٌ حقيقيّ)",
+      set(_pr) == {"NEW"}, f"باقٍ={sorted(_pr)}")
+
+# ── NW5: القسمُ يعرض · ويُعلن القصّ · والفارغُ **نصٌّ فارغ** لا ضجيج ────────
+_nw_many = {f"S{i}": {"symbol": f"S{i}", "n_out": 1, "outside": ["M2 الهبوط"],
+                      "price": 2.0, "rsi_now": 25.0, "readiness": 40,
+                      "n_criteria": 15, "first_seen": "2026-08-10",
+                      "last_seen": "2026-08-16"} for i in range(20)}
+try:
+    _sec = S.build_near_watch_section(_nw_many, cap=5)
+    _sec_empty = S.build_near_watch_section({})
+except Exception as _e:                                          # noqa: BLE001
+    _sec, _sec_empty = f"⛔ {type(_e).__name__}", "x"
+check("👀 NW5 القسمُ يعرض بالسقف **ويُعلن الباقي بعدده** · والفارغُ نصٌّ فارغ",
+      "تحت المتابعة" in _sec and "و15 غيرها" in _sec and _sec_empty == "",
+      _sec[:70])
+
+check("👀 NW5ب يطبع «داخلَ معايير فيصل 14 من 15» وينقصه المعيارُ باسمه",
+      "14 من 15" in _sec and "M2 الهبوط" in _sec, _sec[:110])
+
+# ── NW6: الترتيبُ **بالأقرب** (أقلُّ خارجًا أوّلًا) — فارقٌ حقيقيّ ──────────
+_nw_mix = {
+    "FAR": {"symbol": "FAR", "n_out": 2, "outside": ["a", "b"], "readiness": 90,
+            "n_criteria": 15, "first_seen": "2026-08-16", "last_seen": "2026-08-16"},
+    "NEAR": {"symbol": "NEAR", "n_out": 1, "outside": ["a"], "readiness": 10,
+             "n_criteria": 15, "first_seen": "2026-08-16", "last_seen": "2026-08-16"},
+}
+try:
+    _sec2 = S.build_near_watch_section(_nw_mix)
+except Exception as _e:                                          # noqa: BLE001
+    _sec2 = f"⛔ {type(_e).__name__}"
+check("👀 NW6 الأقربُ أوّلًا ولو كانت جاهزيتُه أدنى (الترتيبُ بالقرب لا بالجاهزية)",
+      _sec2.find("$NEAR") < _sec2.find("$FAR"), _sec2[:80])
+
+# ── NW7: **موصولٌ من نقطتَي النداء الحيّتين** (‏AST لا نصّ) ─────────────────
+_nw_scan = _ast0.parse(_insp.getsource(S.scan_market))
+_nw_meas = [c for c in _ast0.walk(_nw_scan) if isinstance(c, _ast0.Call)
+            and getattr(c.func, "id", None) == "near_watch_measure"]
+_nw_save = [c for c in _ast0.walk(_nw_scan) if isinstance(c, _ast0.Call)
+            and getattr(c.func, "id", None) == "save_near_watch"]
+check("👀 NW7 القياسُ والحفظُ موصولان من `scan_market` (‏AST)",
+      len(_nw_meas) == 1 and len(_nw_save) == 1,
+      f"قياس={len(_nw_meas)} · حفظ={len(_nw_save)}")
+
+_nw_daily = _ast0.parse(_insp.getsource(S.run_daily_watchlist))
+_nw_sec = [c for c in _ast0.walk(_nw_daily) if isinstance(c, _ast0.Call)
+           and getattr(c.func, "id", None) == "build_near_watch_section"]
+check("👀 NW7ب القسمُ موصولٌ من `run_daily_watchlist` (‏AST — لا قناةَ رابعة)",
+      len(_nw_sec) == 1, f"نداءات={len(_nw_sec)}")
+
+# ── NW8: كلُّ الوصلات **داخل `try`** — عرضٌ لا يُسقط فرزًا ولا تقريرًا ──────
+def _nw_guarded(tree, fname):
+    return any(isinstance(n, _ast0.Try) and any(
+        isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == fname
+        for c in _ast0.walk(n)) for n in _ast0.walk(tree))
+
+
+check("👀 NW8 القياسُ والحفظُ والقسمُ كلُّها داخل `try` (لا تُسقط الفرزَ ولا التقرير)",
+      _nw_guarded(_nw_scan, "near_watch_measure")
+      and _nw_guarded(_nw_scan, "save_near_watch")
+      and _nw_guarded(_nw_daily, "build_near_watch_section"))
+
+# ── NW9: **لا تمسّ الاختيار** — الجذورُ لا تعرف قائمةَ المتابعة (‏AST) ──────
+_nw_names = set()
+for _fn in (S.rank_key, S.select_top, S.classify_tier, S.analyze_ticker):
+    for _c in _ast0.walk(_ast0.parse(_insp.getsource(_fn))):
+        if isinstance(_c, _ast0.Call):
+            _nw_names.add(getattr(_c.func, "id", None))
+check("👀 NW9 `rank_key`/`select_top`/`classify_tier`/`analyze_ticker` "
+      "**لا تعرف** قائمةَ المتابعة (عرضٌ لا اختيار)",
+      not ({"near_watch_measure", "near_watch_outside", "save_near_watch",
+            "load_near_watch", "build_near_watch_section"} & _nw_names))
 
 
 # ══════════════════════════════════════════════════════════════════════════
