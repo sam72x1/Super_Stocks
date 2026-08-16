@@ -34,6 +34,16 @@ SYMS = [s.strip().upper() for s in
 #    وهذا **عرضٌ تشخيصيّ** لا بوّابة. والمصدرُ نظامُه «زنادُ دخولٍ لمتابَع».
 FAISAL_RSI_ENTRY_MAX = 30.0
 
+# 🔴🔴 **عيبٌ مقيسٌ في أداة المعايرة — يُبلَّغ ولا يُصلَح صامتًا:** `RELAX_ALL` في
+#    `catalog_envelope` **بائت**: لا يُرخي `ANCHOR_MODE` (بوّابةُ `T-ANCHOR`
+#    المعتمَدة 2026-08-14 التي ترفض باسم `M_لا_مستوى_مختبر`) ⇒ **كلُّ سهمٍ بلا
+#    مستوًى مضروبٍ مرّتين يسقط قياسُه صامتًا** — وهو ما وقع لـ`RUBI` و`DRCT` في
+#    أوّل تشغيلة (طبعت «لم تُرجع قيمًا» بلا سبب).
+# ⚖️ **ولا أُعدّل `RELAX_ALL` نفسَه:** هو مصدرُ معايرةِ الظرف الذي يحكم عشرين
+#    رقمًا في الإنتاج، وتغييرُه يُحرّك أيَّ معايرةٍ قادمة **صامتًا**. ⇒ إرخاءٌ
+#    **إضافيٌّ مُعلَنٌ في المُخرَج** خاصٌّ بهذا المِجَسّ وحده.
+EXTRA_RELAX = {"ANCHOR_MODE": "pivot"}   # المِرساةُ القديمة = قياسٌ بلا رفضٍ صلب
+
 
 def _fmt(v):
     if v is None:
@@ -84,7 +94,9 @@ def main() -> int:
     edges, median = env.get("edges", {}), env.get("soft_median", {})
     print(f"📐 الظرف: {ENV_FILE} · {env.get('n_symbols')} رمزًا من الكاتالوج "
           f"· as-of {env.get('asof')}")
-    print(f"🎯 المقارنة: {', '.join(SYMS)}\n")
+    print(f"🎯 المقارنة: {', '.join(SYMS)}")
+    print(f"🔧 إرخاءٌ إضافيٌّ لهذا المِجَسّ (مُعلَن): {EXTRA_RELAX} — "
+          "لأن `RELAX_ALL` لا يُرخي بوّابةَ المِرساة فيسقط القياسُ صامتًا\n")
 
     data = S.download_history(SYMS)
     for sym in SYMS:
@@ -93,9 +105,30 @@ def main() -> int:
         if df is None or len(df) < 60:
             print(f"⛔ {sym}: بياناتٌ غير كافية — لا يُقارَن")
             continue
-        vals = CE.measure_session(S, sym, df)
+        # 🔧 إرخاءٌ إضافيٌّ **مُعلَن** (‏`EXTRA_RELAX`) ثم استعادةٌ في `finally`.
+        _sv = {k: S.CONFIG.get(k) for k in EXTRA_RELAX}
+        try:
+            S.CONFIG.update(EXTRA_RELAX)
+            vals = CE.measure_session(S, sym, df)
+            # 🔴 **ولا فشلَ صامت** (الدرسُ المتكرّر): إن لم تُرجع قيمًا نُظهر
+            #    **سببَ الرفض الفعليّ** من `analyze_ticker` مباشرةً لا «لم تُرجع».
+            _why = ""
+            if not vals:
+                try:
+                    S.analyze_ticker(sym, df)
+                    # 🔑 السببُ يُسجَّل في `_REJECT_REASONS` (نفسُ ما يقرؤه
+                    #    `_diagnose_symbol` الإنتاجيّ) — لا في المُعاد.
+                    _why = S._REJECT_REASONS.get(sym) or "لا سببَ مُعلَن"
+                except Exception as _e:                          # noqa: BLE001
+                    _why = f"رمى {type(_e).__name__}: {_e}"
+        finally:
+            for k, v in _sv.items():
+                if v is None:
+                    S.CONFIG.pop(k, None)
+                else:
+                    S.CONFIG[k] = v
         if not vals:
-            print(f"⛔ {sym}: `measure_session` لم تُرجع قيمًا")
+            print(f"⛔ {sym}: تعذّر القياس — السبب: {_why}")
             continue
         rows = compare_one(vals, edges, median)
         n_in = sum(1 for _, _, _, ok, _ in rows if ok is True)
