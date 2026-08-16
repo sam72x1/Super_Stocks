@@ -1,0 +1,43 @@
+name: Catalog Compare (أين يقع السهم من كتالوج فيصل؟)
+
+# 🔐 أقلّ صلاحية: مِجَسٌّ تشخيصيّ — عرض/قراءة فقط، لا يكتب حالة ولا يرسل تلغرام.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbols:
+        description: رموزٌ مفصولةٌ بفاصلة (مثال RUBI,DRCT)
+        required: true
+        type: string
+      env_file:
+        description: "ملفُّ الظرف (افتراضي envelope_p100.json)"
+        required: false
+        type: string
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Compare against Faisal catalog envelope
+        env:
+          CMP_SYMS: ${{ github.event.inputs.symbols }}
+          CMP_ENV_FILE: ${{ github.event.inputs.env_file }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        run: |
+          export CMP_ENV_FILE="${CMP_ENV_FILE:-envelope_p100.json}"
+          python catalog_compare.py
