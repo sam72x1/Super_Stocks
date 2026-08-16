@@ -560,6 +560,15 @@ CONFIG = {
     "METHOD_4H_BARS_PER_SESSION": 4,
     "METHOD_4H_CAP": 300,                # سقف جلبات 4س بالتشغيلة — والمقصوص يُعلَن
     # 🧾 قواعدُ «النماذج التعليمية» (2026-08-05) — كلُّها **بلفظ فيصل**:
+    # 🔒📉 **زنادُ دخولِ فيصل على المتاح — `T-BORROW-FALL`** (صورةُ المالك
+    #    2026-08-16 · تغريدةُ `DRCT`): «اختبرها **وثبت مع شورت اقل من 10K**».
+    #    الوسم **`faisal_verbatim`** · ونظامُه **زنادُ دخولٍ لسهمٍ تحت المتابعة**.
+    # ⛔ **وليس بوّابةَ فرز:** `BORROW_AVAIL_MAX`=20,000 (قرارُ مالك) لا تُمَسّ.
+    # ⚠️ **ومفتاحٌ مستقلٌّ عمدًا** رغم تساوي الرقم مع `FAISAL_SHORT_UNIT` أدناه —
+    #    ذاك **وحدةُ صيغةِ مقدارٍ** («لكل 10 آلاف = 10٪ هبوط») لا عتبةَ دخول،
+    #    وخلطُهما هو خطأُ `trigger_state` المدوَّن («إعادةُ الاستعمال استيرادُ
+    #    نظامٍ آخر بصمت»). مقفولٌ `BF8`.
+    "FAISAL_ENTRY_AVAIL_MAX": 10_000,
     "FAISAL_SHORT_UNIT": 10_000,         # «لكل 10 آلاف سهم…» IMG_0531
     "FAISAL_SHORT_UNIT_PCT": 10.0,       # «…= 10٪ تقريبًا هبوط»  IMG_0531
     "FAISAL_RSI_LO": 22.0,               # «RSI يكون من 22…»      IMG_0531
@@ -10730,6 +10739,171 @@ REJECT_LOG_FILE = "reject_log.json"     # 🗂️ م-ب: سجلّ المرفوض
 REJECT_LOG_DAYS = 20                    # نافذة القياس المسجَّلة (20 يوم تداول)
 REJECT_LOG_MAX_SYMS = 400               # سقفٌ لكل جدارٍ في اليوم — لا انفجار حجم
 
+# ────────────────────────────────────────────────────────────────────────────
+# 🔒📉 T-BORROW-FALL — حصّادُ «المتاح للاقتراض» للمُخرَجين بالبوّابة
+#     التسجيلُ المسبق: `borrow_fall_prereg.md` (مدفوعٌ `f07a1c6` **قبل أوّل صفّ**).
+#
+# 🔑 **الثقبُ الذي يسدّه — مُثبَتٌ من الكود:** `refresh_borrow` (التي تبني
+#    `borrow_hist`) تُنادى **لأعضاء القائمة وحدهم** ⇒ سهمٌ متاحُه 55 ألفًا تُخرجه
+#    `borrow_gate_recheck` ⟶ لا يدخل القائمة ⟶ **فلا يُسجَّل نزولُه 55K ⟵ 10K**.
+#    وفيصل يراقب هذا النزولَ بعينه («المتوفر الان 55 الف … ادخل بشورت اقل من 10K»).
+#
+# ⛔ **ولا يمسّ قرارًا:** المُخرَجُ يبقى مُخرَجًا · و`BORROW_AVAIL_MAX`=20,000
+#    (قرارُ مالك) **لا تُمَسّ** · والسجلُّ ملفٌّ مستقلٌّ **يُلحَق فقط**.
+BORROW_WATCH_FILE = "borrow_watch.jsonl"   # سجلٌّ يُلحَق فقط (مرجعٌ مُجمَّد)
+BORROW_WATCH_HORIZON = 40   # جلسات المتابعة بعد أوّل رصد (= نافذةُ الحسم المسجَّلة)
+BORROW_WATCH_CAP = 40       # سقفُ الرموز المجلوبة/تشغيلة — **والقصُّ يُعلَن بعدّاده**
+
+
+def borrow_watch_row(symbol: str, available, fee, price, date_iso: str,
+                     kind: str) -> dict:
+    """صفٌّ واحدٌ في سجلّ `T-BORROW-FALL` — **دالّةٌ نقيّة**.
+
+    ⚖️ **حقائقُ خامّة لا مقاييسَ مشتقّة:** السجلُّ يحفظ (تاريخ · رمز · متاح · رسوم ·
+    سعر · نوع)، **و`pre_move_pct` والنتيجةُ يحسبهما التقريرُ لاحقًا** من الشموع —
+    فصلٌ متعمَّد على نمط `hunter_ledger` (مرجعٌ مُجمَّد · الحسمُ بعدُ).
+
+    🔒 **و«تعذّرٌ ≠ صفر»** (‏`W2` من التسجيل): المتاحُ المجهول يبقى `None` ولا
+    يُقرأ صفرًا — وإلّا صار عطبُ شبكةٍ «نزولًا تحت 10 آلاف» **مفبركًا** فيقلب الحكم.
+
+    `kind`: «‏seed» = يومُ إخراجه بالبوّابة · «‏track» = متابعةٌ لاحقة."""
+    def _num(v):
+        try:
+            f = float(v)
+            return f if f == f else None          # NaN ⇒ مجهول (لا صفر)
+        except (TypeError, ValueError):
+            return None
+    return {"date": date_iso, "symbol": str(symbol or "").upper(),
+            "available": _num(available), "fee": _num(fee),
+            "price": _num(price), "kind": kind}
+
+
+def load_borrow_watch(path: str = None) -> list:
+    """يقرأ سجلّ `T-BORROW-FALL` (‏JSONL). فاشل-آمن: غيابٌ/تلفٌ ⇒ قائمةٌ فارغة،
+    **والسطرُ التالف يُتخطّى ولا يُسقط الباقي**."""
+    p = path or BORROW_WATCH_FILE
+    out = []
+    try:
+        with open(p, encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    d = json.loads(line)
+                except Exception:                                # noqa: BLE001
+                    continue
+                if isinstance(d, dict) and d.get("symbol"):
+                    out.append(d)
+    except Exception:                                            # noqa: BLE001
+        return out
+    return out
+
+
+def append_borrow_watch(rows: list, path: str = None) -> int:
+    """يُلحق صفوفًا بالسجلّ (**إلحاقٌ فقط — لا تعديلَ ولا حذف**). يرجّع كم صفًّا
+    كُتب. فاشل-آمن: أيُّ خطأ ⇒ صفر ولا يرمي (السجلُّ بحثٌ لا يُسقط تشغيلة)."""
+    if not rows:
+        return 0
+    p = path or BORROW_WATCH_FILE
+    n = 0
+    try:
+        with open(p, "a", encoding="utf-8") as fh:
+            for r in rows:
+                fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+                n += 1
+    except Exception:                                            # noqa: BLE001
+        return n
+    return n
+
+
+def borrow_watch_due(ledger: list, today_iso: str,
+                     horizon: int = None, cap: int = None):
+    """الرموزُ التي **تُتابَع اليوم**: رُصدت خلال أفق المتابعة ولم تُرصد اليومَ بعد.
+
+    يرجّع `(syms, dropped)` — و`dropped` عددُ ما قصَّه السقف ⇒ **يُطبَع ولا يُطوى**
+    (‏`W3`: «كلُّ قصٍّ يُعلَن بعدّاده»). الترتيبُ **بالأحدث رصدًا** فالمتابعةُ
+    حتميّةٌ قابلةٌ لإعادة الإنتاج لا عشوائية."""
+    horizon = int(BORROW_WATCH_HORIZON if horizon is None else horizon)
+    cap = int(BORROW_WATCH_CAP if cap is None else cap)
+    first, last = {}, {}
+    for r in (ledger or []):
+        s, d = r.get("symbol"), r.get("date")
+        if not s or not d:
+            continue
+        if s not in first or d < first[s]:
+            first[s] = d
+        if s not in last or d > last[s]:
+            last[s] = d
+    due = []
+    for s, d0 in first.items():
+        if last.get(s) == today_iso:          # رُصد اليومَ سلفًا ⇒ لا تكرار
+            continue
+        if _iso_days_between(d0, today_iso) > horizon:
+            continue                           # خرج من أفق المتابعة
+        due.append(s)
+    due.sort(key=lambda s: (last.get(s, ""), s), reverse=True)
+    dropped = max(0, len(due) - cap)
+    return due[:cap], dropped
+
+
+def _iso_days_between(a: str, b: str) -> int:
+    """فرقُ الأيام التقويمية بين تاريخين `YYYY-MM-DD`. فاشل-آمن ⇒ عددٌ كبير
+    (فيخرج الرمزُ من الأفق بدل أن يُتابَع للأبد على تاريخٍ تالف)."""
+    try:
+        return abs((dt.date.fromisoformat(str(b)[:10])
+                    - dt.date.fromisoformat(str(a)[:10])).days)
+    except Exception:                                            # noqa: BLE001
+        return 10 ** 6
+
+
+def harvest_borrow_watch(ejected, results, today_iso: str, fetch=None,
+                         path: str = None, horizon: int = None,
+                         cap: int = None) -> dict:
+    """🔒📉 **حصّادُ `T-BORROW-FALL`** — يبذر المُخرَجين بالبوّابة ويتابع القدامى.
+
+    ⛔ **صفرُ أثرٍ على الاختيار** (‏`W5`): لا يُعيد مُخرَجًا ولا يمسّ `picks` ولا
+    `CONFIG` — يقرأ ويكتب سجلًّا مستقلًّا. **ويُنادى داخل `try` في نقطة النداء
+    الحيّة** فانكسارُه لا يُسقط التشغيلة.
+
+    يرجّع عدّادات التغطية: `{"seeded","tracked","unknown","dropped","written"}` —
+    و`unknown` = **تعذّرَ جلبُ متاحه** (يُسجَّل `None` ويُعَدّ · `W2`)."""
+    fetch = fetch or ce_borrow_info
+    led = load_borrow_watch(path)
+    seen_today = {r.get("symbol") for r in led if r.get("date") == today_iso}
+    price_of = {}
+    for r in (results or []):
+        try:
+            price_of[str(r.get("symbol") or "").upper()] = r.get("price")
+        except Exception:                                        # noqa: BLE001
+            continue
+    rows, unknown = [], 0
+    for sym, av in (ejected or []):
+        s = str(sym or "").upper()
+        if not s or s in seen_today:
+            continue
+        seen_today.add(s)
+        rows.append(borrow_watch_row(s, av, None, price_of.get(s),
+                                     today_iso, "seed"))
+    seeded = len(rows)
+    due, dropped = borrow_watch_due(led, today_iso, horizon, cap)
+    for s in due:
+        if s in seen_today:
+            continue
+        seen_today.add(s)
+        try:
+            d = fetch(s) or {}
+        except Exception:                                        # noqa: BLE001
+            d = {}
+        av = d.get("shares_available")
+        if av is None:
+            unknown += 1
+        rows.append(borrow_watch_row(s, av, d.get("borrow_fee"),
+                                     price_of.get(s), today_iso, "track"))
+    written = append_borrow_watch(rows, path)
+    return {"seeded": seeded, "tracked": len(rows) - seeded,
+            "unknown": unknown, "dropped": dropped, "written": written}
+
 
 def build_reject_snapshot(reasons: dict, today: str,
                           cap: int = REJECT_LOG_MAX_SYMS) -> dict:
@@ -15666,6 +15840,18 @@ def run_daily_watchlist(wl: dict) -> None:
             log(f"🔒 لم يُضَف (متاحُ اقتراضٍ فوق "
                 f"{int(CONFIG['BORROW_AVAIL_MAX']):,}): "
                 + "، ".join(f"{s_}({int(float(v)):,})" for s_, v in _bw_out))
+        # 🔒📉 حصادُ T-BORROW-FALL — **بعد** البوّابة وبلا أثرٍ عليها: المُخرَجُ يبقى
+        # مُخرَجًا، وإنّما يُسجَّل متاحُه ويُتابَع نزولُه (فيصل يدخل «تحت 10K»).
+        # حارسٌ مطلق: انكسارُ سجلِّ بحثٍ لا يُسقط الفرز.
+        try:
+            _bwh = harvest_borrow_watch(_bw_out, results, today_iso)
+            if _bwh.get("written"):
+                log(f"📉 حصادُ المتاح: بذر {_bwh['seeded']} · تابع "
+                    f"{_bwh['tracked']} · مجهول {_bwh['unknown']}"
+                    + (f" · قُصَّ {_bwh['dropped']}" if _bwh.get("dropped")
+                       else ""))
+        except Exception as _e:                                  # noqa: BLE001
+            log(f"⚠️ حصادُ المتاح تعذّر (لا يمسّ الفرز): {_e}")
         if _fl_out or _bw_out:
             log(f"🎯 تعبئةُ الخانات: {len(picks)} من {space} بعد {_rnd} جولة"
                 + ("" if len(picks) >= space

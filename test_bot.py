@@ -93,6 +93,16 @@ _HW_REAL_SHA = (
 S.HUNTER_WATCH_FILE = _os_hc.path.join(
     _rej_tf.gettempdir(), f"_suite_hunter_watchlist.{_SUITE_PID}.json")
 
+# 🔒📉 **ورابعُ ملفِّ حالة — يُحوَّل فورَ إنشائه لا بعد أن يُلوَّث** (‏T-BORROW-FALL):
+#    السويّةُ تُشغّل `harvest_borrow_watch` برموزٍ مصطنعة ⇒ بلا تحويلٍ تكتب في
+#    `borrow_watch.jsonl` **الحقيقيّ** فتُفسد سجلَّ بحثٍ لا يُعاد بناؤه (إلحاقٌ فقط).
+_BW_REAL_PATH = S.BORROW_WATCH_FILE
+_BW_REAL_SHA = (
+    _rej_h.sha256(open(_BW_REAL_PATH, "rb").read()).hexdigest()
+    if _os_hc.path.exists(_BW_REAL_PATH) else None)
+S.BORROW_WATCH_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_borrow_watch.{_SUITE_PID}.jsonl")
+
 PASS, FAIL = [], []
 
 
@@ -16583,6 +16593,202 @@ _hw_now = (_rej_h.sha256(open(_HW_REAL_PATH, "rb").read()).hexdigest()
 check("🪝 HW🔒 ولا `hunter_watchlist.json` المدفوع (متابعةُ الصيّاد — حرسٌ شامل)",
       _hw_now == _HW_REAL_SHA,
       f"قبل={str(_HW_REAL_SHA)[:12]} · بعد={str(_hw_now)[:12]}")
+
+_bw_now = (_rej_h.sha256(open(_BW_REAL_PATH, "rb").read()).hexdigest()
+           if _os_hc.path.exists(_BW_REAL_PATH) else None)
+check("📉 BW🔒 ولا `borrow_watch.jsonl` المدفوع (سجلُّ T-BORROW-FALL — إلحاقٌ فقط)",
+      _bw_now == _BW_REAL_SHA,
+      f"قبل={str(_BW_REAL_SHA)[:12]} · بعد={str(_bw_now)[:12]}")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🔒📉 T-BORROW-FALL — أقفالُ حصّادِ «المتاح للاقتراض» (‏BF1-BF11)
+#    التسجيل: `borrow_fall_prereg.md` (مدفوعٌ `f07a1c6` **قبل أوّل صفّ**).
+#    ⚖️ كلُّها **سلوكيّةٌ أو بالـAST** — لا قفلَ نصّيّ (سقط على التعليقات مرارًا).
+# ══════════════════════════════════════════════════════════════════════════
+_bw_tmp = _os_hc.path.join(_rej_tf.gettempdir(),
+                           f"_bf_ledger.{_SUITE_PID}.jsonl")
+
+
+def _bf_reset():
+    try:
+        _os_hc.remove(_bw_tmp)
+    except OSError:
+        pass
+
+
+# ── BF1: «تعذّرٌ ≠ صفر» — والعيّنةُ **تفرّق** (صالحٌ ⇒ رقم · تالفٌ ⇒ None) ────
+try:
+    _r_ok = S.borrow_watch_row("abc", 55000, 3.5, 2.6, "2026-08-16", "seed")
+    _r_na = S.borrow_watch_row("ABC", None, None, None, "2026-08-16", "track")
+    _r_bad = S.borrow_watch_row("ABC", "غير معروف", "x", "y",
+                                "2026-08-16", "track")
+    _r_nan = S.borrow_watch_row("ABC", float("nan"), None, None,
+                                "2026-08-16", "track")
+except Exception as _e:                                          # noqa: BLE001
+    _r_ok = _r_na = _r_bad = _r_nan = {"⛔": f"رمى {type(_e).__name__}"}
+check("📉 BF1 المتاحُ المجهول/التالف/‏NaN يبقى `None` **ولا يُقرأ صفرًا** "
+      "(وإلّا صار عطبُ شبكةٍ «نزولًا تحت 10 آلاف» مفبركًا)",
+      _r_ok.get("available") == 55000.0 and _r_na.get("available") is None
+      and _r_bad.get("available") is None and _r_nan.get("available") is None,
+      f"صالح={_r_ok.get('available')} · مجهول={_r_na.get('available')} · "
+      f"تالف={_r_bad.get('available')} · nan={_r_nan.get('available')}")
+
+check("📉 BF1ب الرمزُ يُوحَّد كبيرًا والنوعُ يُحفَظ",
+      _r_ok.get("symbol") == "ABC" and _r_ok.get("kind") == "seed"
+      and _r_na.get("kind") == "track", str(_r_ok)[:70])
+
+# ── BF2: إلحاقٌ فقط — الصفُّ الثاني لا يمحو الأوّل ──────────────────────────
+_bf_reset()
+try:
+    S.append_borrow_watch([_r_ok], _bw_tmp)
+    S.append_borrow_watch([_r_na], _bw_tmp)
+    _bf_led = S.load_borrow_watch(_bw_tmp)
+except Exception as _e:                                          # noqa: BLE001
+    _bf_led = [f"⛔ رمى {type(_e).__name__}"]
+check("📉 BF2 السجلُّ **يُلحَق فقط** — الكتابةُ الثانية لا تمحو الأولى",
+      len(_bf_led) == 2 and _bf_led[0].get("available") == 55000.0,
+      f"عدد={len(_bf_led)}")
+
+# ── BF10: سطرٌ تالفٌ يُتخطّى **ولا يُسقط الباقي** ──────────────────────────
+try:
+    with open(_bw_tmp, "a", encoding="utf-8") as _fh:
+        _fh.write("{هذا ليس JSON\n\n")
+        _fh.write('{"لا_رمز": 1}\n')
+    _bf_led2 = S.load_borrow_watch(_bw_tmp)
+except Exception as _e:                                          # noqa: BLE001
+    _bf_led2 = [f"⛔ رمى {type(_e).__name__}"]
+check("📉 BF10 السطرُ التالف يُتخطّى والباقي يُقرأ (فاشل-آمن لا انهيار)",
+      len(_bf_led2) == 2, f"عدد={len(_bf_led2)}")
+
+# ── BF3: أفقُ المتابعة **فارقيّ** — الحديثُ يُتابَع والقديمُ يخرج ──────────
+_bf_hist = [{"symbol": "NEW", "date": "2026-08-10", "available": 55000},
+            {"symbol": "OLD", "date": "2026-05-01", "available": 55000}]
+try:
+    _due, _drop = S.borrow_watch_due(_bf_hist, "2026-08-16", 40, 40)
+except Exception as _e:                                          # noqa: BLE001
+    _due, _drop = [f"⛔ {type(_e).__name__}"], -1
+check("📉 BF3 أفقُ المتابعة يُبقي الحديثَ ويُخرج القديم (فارقٌ حقيقيّ)",
+      _due == ["NEW"], f"due={_due}")
+
+# ── BF4: المرصودُ اليومَ سلفًا لا يُعاد (لا تكرارَ صفٍّ في اليوم) ──────────
+try:
+    _due2, _ = S.borrow_watch_due(
+        _bf_hist + [{"symbol": "NEW", "date": "2026-08-16", "available": 9000}],
+        "2026-08-16", 40, 40)
+except Exception as _e:                                          # noqa: BLE001
+    _due2 = [f"⛔ {type(_e).__name__}"]
+check("📉 BF4 مَن رُصد اليومَ سلفًا لا يُتابَع مرّتين", _due2 == [], f"due={_due2}")
+
+# ── BF5: السقفُ يقصّ **ويُعلن عدده** — وسقفٌ واسعٌ لا يقصّ (فارق) ──────────
+_bf_many = [{"symbol": f"S{i}", "date": "2026-08-15"} for i in range(10)]
+try:
+    _d3, _drop3 = S.borrow_watch_due(_bf_many, "2026-08-16", 40, 4)
+    _d4, _drop4 = S.borrow_watch_due(_bf_many, "2026-08-16", 40, 99)
+except Exception as _e:                                          # noqa: BLE001
+    _d3 = _d4 = []
+    _drop3 = _drop4 = -1
+check("📉 BF5 السقفُ يقصّ **ويُعلن العدد** (‏6) · والسقفُ الواسع لا يقصّ (‏0)",
+      len(_d3) == 4 and _drop3 == 6 and len(_d4) == 10 and _drop4 == 0,
+      f"مقصوص={_drop3}/{_drop4}")
+
+# ── BF7: تعذّرُ الجلب يُعَدّ `unknown` **ويُسجَّل `None`** لا صفرًا ─────────
+_bf_reset()
+try:
+    _st_bad = S.harvest_borrow_watch(
+        [], [], "2026-08-16", fetch=lambda s: None, path=_bw_tmp,
+        horizon=40, cap=40)                       # لا بذرَ ولا متابعة ⇒ صفر
+    S.append_borrow_watch(
+        [S.borrow_watch_row("ZZZ", 55000, None, None, "2026-08-15", "seed")],
+        _bw_tmp)
+    _st_unk = S.harvest_borrow_watch(
+        [], [], "2026-08-16", fetch=lambda s: None, path=_bw_tmp,
+        horizon=40, cap=40)
+    _led_unk = S.load_borrow_watch(_bw_tmp)
+    _last = _led_unk[-1] if _led_unk else {}
+except Exception as _e:                                          # noqa: BLE001
+    _st_bad = _st_unk = {"⛔": type(_e).__name__}
+    _last = {}
+check("📉 BF7 تعذّرُ جلب المتاح يُعَدّ `unknown` **ويُسجَّل `None`** (لا صفر)",
+      _st_unk.get("unknown") == 1 and _st_unk.get("tracked") == 1
+      and _last.get("available") is None and _last.get("kind") == "track",
+      f"{_st_unk} · آخر={_last}")
+
+# ── BF7ب: البذرُ يُسجَّل بسعر الصفّ ولا يُعاد في نفس اليوم ─────────────────
+_bf_reset()
+try:
+    _st_seed = S.harvest_borrow_watch(
+        [("aaa", 55000), ("BBB", 40000)],
+        [{"symbol": "AAA", "price": 2.5}], "2026-08-16",
+        fetch=lambda s: {"shares_available": 9000}, path=_bw_tmp,
+        horizon=40, cap=40)
+    _st_again = S.harvest_borrow_watch(
+        [("AAA", 55000)], [], "2026-08-16",
+        fetch=lambda s: {"shares_available": 9000}, path=_bw_tmp,
+        horizon=40, cap=40)
+    _led_s = S.load_borrow_watch(_bw_tmp)
+except Exception as _e:                                          # noqa: BLE001
+    _st_seed = _st_again = {"⛔": type(_e).__name__}
+    _led_s = []
+check("📉 BF7ج البذرُ يكتب صفًّا لكلّ مُخرَج بسعره · وإعادةُ اليوم لا تُكرّر",
+      _st_seed.get("seeded") == 2 and _st_again.get("seeded") == 0
+      and len(_led_s) == 2
+      and next((r.get("price") for r in _led_s
+                if r.get("symbol") == "AAA"), None) == 2.5,
+      f"بذر={_st_seed} · إعادة={_st_again} · عدد={len(_led_s)}")
+
+# ── BF6: **موصولٌ من نقطة النداء الحيّة** (‏AST لا نصّ) ────────────────────
+_bf_src = _ast0.parse(_insp.getsource(S.run_daily_watchlist))
+_bf_calls = [c for c in _ast0.walk(_bf_src)
+             if isinstance(c, _ast0.Call)
+             and getattr(c.func, "id", None) == "harvest_borrow_watch"]
+check("📉 BF6 الحصّادُ موصولٌ فعلًا من `run_daily_watchlist` (‏AST — `W1`)",
+      len(_bf_calls) == 1, f"نداءات={len(_bf_calls)}")
+
+# ── BF11: النداءُ **داخل `try`** — انكسارُ سجلِّ بحثٍ لا يُسقط الفرز ────────
+_bf_guarded = False
+for _n in _ast0.walk(_bf_src):
+    if isinstance(_n, _ast0.Try) and any(
+            isinstance(c, _ast0.Call)
+            and getattr(c.func, "id", None) == "harvest_borrow_watch"
+            for c in _ast0.walk(_n)):
+        _bf_guarded = True
+check("📉 BF11 الحصّادُ داخل `try` في نقطة النداء (انكسارُه لا يُسقط التشغيلة)",
+      _bf_guarded)
+
+# ── BF8: لا خلطَ بين عتبةِ الدخول ووحدةِ صيغةِ المقدار ────────────────────
+# 🐞 **وصياغتي الأولى لهذا القفل سقطت على تعليقي أنا** (‏`... .split(
+#    "FAISAL_SHORT_UNIT")[0]` والتعليقُ يذكر الاسمَ **قبل** المفتاح) — وهو فخُّ
+#    «القفل النصّيّ» المدوَّن، **للمرّة الخامسة في هذا المستودع**. ⇒ صار **سلوكيًّا**:
+#    تبديلُ أحدِهما لا يُحرّك الآخر ⇒ **برهانٌ أنهما ليسا اسمَين لقيمةٍ واحدة**.
+_bf_sv = (S.CONFIG["FAISAL_ENTRY_AVAIL_MAX"], S.CONFIG["FAISAL_SHORT_UNIT"],
+          S.CONFIG["BORROW_AVAIL_MAX"])
+try:
+    S.CONFIG["FAISAL_ENTRY_AVAIL_MAX"] = 777
+    _bf_indep = (S.CONFIG["FAISAL_SHORT_UNIT"] == 10_000
+                 and S.CONFIG["BORROW_AVAIL_MAX"] == 20_000)
+finally:
+    (S.CONFIG["FAISAL_ENTRY_AVAIL_MAX"], S.CONFIG["FAISAL_SHORT_UNIT"],
+     S.CONFIG["BORROW_AVAIL_MAX"]) = _bf_sv
+check("📉 BF8 الثلاثةُ مفاتيحُ **مستقلّة سلوكيًّا**: عتبةُ دخول فيصل 10,000 · "
+      "وحدةُ صيغة المقدار 10,000 · وبوّابةُ المالك 20,000 — وتبديلُ الأولى "
+      "لا يُحرّك الأخريَين (‏فليست أسماءً لقيمةٍ واحدة)",
+      _bf_sv == (10_000, 10_000, 20_000) and _bf_indep,
+      f"قبل={_bf_sv} · مستقلّة={_bf_indep}")
+
+# ── BF9: الحصّادُ **لا يمسّ الاختيار** — الجذرَان بلا أثرٍ منه (‏AST) ──────
+_bf_gate_src = _ast0.parse(_insp.getsource(S.borrow_gate_recheck))
+_bf_fill_src = _ast0.parse(_insp.getsource(S.fill_picks))
+_bf_names = {getattr(c.func, "id", None)
+             for t in (_bf_gate_src, _bf_fill_src)
+             for c in _ast0.walk(t) if isinstance(c, _ast0.Call)}
+check("📉 BF9 `borrow_gate_recheck`/`fill_picks` **لا تناديان الحصّاد** "
+      "(‏`W5`: المُخرَجُ يبقى مُخرَجًا)",
+      "harvest_borrow_watch" not in _bf_names
+      and "append_borrow_watch" not in _bf_names, str(sorted(
+          n for n in _bf_names if n))[:90])
+
+_bf_reset()
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🛠️ إصلاحاتُ 2026-08-06 (بإذن المالك) — ثلاثةُ أعطالٍ حيّة مقيسة.
