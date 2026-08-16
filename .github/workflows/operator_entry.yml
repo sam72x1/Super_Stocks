@@ -1,0 +1,71 @@
+name: Operator Entry (🎯 هنا الدخول — عاملُ جلسةٍ حيّ)
+
+# 🔐 يكتب ملفَّ الدِدوب وحدَه (`op_entry_state.json`) — لا يمسّ قائمةً ولا فرزًا.
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      segment:
+        description: "المقطع: pre / open / post"
+        required: false
+        type: string
+      interval:
+        description: "ثوانٍ بين الدورات (افتراضي 60)"
+        required: false
+        type: string
+  schedule:
+    # ⏰ **الكرونُ مُقدَّمٌ بمقدار تأخّر GitHub المقيس** (‏95-152 دقيقة · وسيط
+    #    ‏≈119) — نفسُ علاج `ignition.yml` و`daily_screener.yml` المدوَّن.
+    #    الأهدافُ **بتوقيت نيويورك** (المصدرُ يتصيّف/يتشتّى ذاتيًّا فلا يتعفّن):
+    #      · `pre`  ⟵ 04:00 نيويورك (بدءُ البريماركت) = 08:00 UTC صيفًا
+    #      · `open` ⟵ 09:30 نيويورك (الجرس)          = 13:30 UTC صيفًا
+    #      · `post` ⟵ 15:00 نيويورك (قبيل الإغلاق)   = 19:00 UTC صيفًا
+    #    ⚠️ **وهذا تقريبٌ لا ضمان:** التأخّرُ متغيّرٌ، والمقاطعُ تتداخل عمدًا
+    #    (‏5.5 ساعةٍ لكلٍّ) فلا تُفتَح فجوةٌ عند الجرس · والدِدوبُ يمنع التكرار.
+    #    والمراقبُ الدوريّ (كلَّ 15د) يبقى **شبكةَ أمان** لِما يُسقطه الكرون.
+    - cron: "1 6 * * 1-5"     # ⟶ pre
+    - cron: "31 11 * * 1-5"   # ⟶ open
+    - cron: "1 17 * * 1-5"    # ⟶ post
+
+# مجموعةُ تزامنٍ مستقلّة: لا يكتب قائمةَ الفرز فلا يزاحم `super-stocks-state`.
+concurrency:
+  group: super-stocks-operator-entry-${{ github.event.schedule || 'manual' }}
+  cancel-in-progress: false
+
+jobs:
+  entry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345          # فوق سقف السكربت (330) بهامشٍ للإنهاء
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run operator-entry watcher
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          OE_SEGMENT: >-
+            ${{ github.event.inputs.segment
+                || (github.event.schedule == '1 6 * * 1-5' && 'pre')
+                || (github.event.schedule == '31 11 * * 1-5' && 'open')
+                || (github.event.schedule == '1 17 * * 1-5' && 'post')
+                || 'manual' }}
+          OE_INTERVAL: ${{ github.event.inputs.interval }}
+        run: python operator_entry_live.py

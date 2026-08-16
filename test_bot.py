@@ -19520,6 +19520,48 @@ check("🔒 VWR8ب ويمرّر **القوائمَ الثلاث الإضافية
 check("🔒 VWR8ج والدِدوبُ يُنزَع عند إخفاق الإرسال (وإلّا استُهلك ختمُ السهم على "
       "رسالةٍ لم تصل — عينُ عيب 2026-07-27)",
       "_op_seen.pop(" in _vwr_pl and "_stamp_restore(wl, snap)" in _vwr_pl)
+# ── ⚡ OEL — عاملُ الجلسة الحيّ «هنا الدخول» (أمرُ المالك «سرعة») ──────────
+_oel_src = open("operator_entry_live.py", encoding="utf-8").read()
+_oel_t = _ast0.parse(_oel_src)
+_oel_calls = {_ast0.unparse(_n.func) for _n in _ast0.walk(_oel_t)
+              if isinstance(_n, _ast0.Call)}
+check("⚡ OEL1 العاملُ يبني الكونَ ويمسح ويرسل بدوالّ الإنتاج (AST)",
+      {"bot.live_watch_universe", "bot.scan_operator_entry",
+       "bot.build_operator_entry_alert", "bot.send_telegram"} <= _oel_calls)
+check("🔒 OEL2 بلا مفتاح Polygon = **صفرُ عمل** (فاشلٌ-آمن) — والحارسُ أوّلُ سطر",
+      'os.environ.get("POLYGON_API_KEY"' in _oel_src
+      and _oel_src.index("POLYGON_API_KEY") < _oel_src.index("while "))
+# 🔒 OEL3 — **الختمُ بعد الإرسال حصرًا** ويُنزَع عند الرفض (عقدُ «فُحِص وسُلِّم»)
+_oel_main = _oel_src[_oel_src.index("def main("):]
+check("🔒 OEL3 الختمُ **بعد** نجاح الإرسال · ويُنزَع عند الرفض · ويُدفَع فورًا",
+      _oel_main.index("bot.send_telegram") < _oel_main.index("save_op_entry_state")
+      and "seen.pop(_s, None)" in _oel_main
+      and "bot.git_save([bot.OP_ENTRY_STATE_FILE])" in _oel_main)
+# 🔒 OEL4 — **إشعارٌ لا اختيار**: لا يكتب قائمةً ولا يمسّ فرزًا
+check("🔒 OEL4 لا يكتب قائمةَ الفرز ولا يمسّ جذرًا (يقرأ ويرسل فقط)",
+      all(_n not in _oel_src for _n in ("save_watchlist", "scan_market",
+                                        "save_near_watch", "rank_key",
+                                        "select_top", "analyze_ticker")))
+# 🔒 OEL5 — التوقيتُ **من نيويورك** لا ثوابتَ UTC (يتصيّف/يتشتّى ذاتيًّا)
+check("🔒 OEL5 النافذةُ من توقيت نيويورك (لا ثوابتَ UTC تتعفّن بالفصول)",
+      "America/New_York" in _oel_src and "EXT_CLOSE_NY" in _oel_src)
+# 🔒 OEL6 — الـworkflow: ثلاثةُ مقاطعَ · وكلُّ كرونٍ موصولٌ بقيمةِ `OE_SEGMENT`
+_oel_wf = open(".github/workflows/operator_entry.yml", encoding="utf-8").read()
+_oel_crons = _re10.findall(r'- cron: "([^"]+)"', _oel_wf)
+check("⚡ OEL6 ثلاثةُ مقاطع · وكلُّ كرونٍ **موصولٌ** بقيمةِ `OE_SEGMENT` "
+      "(وإلّا صار مدخلًا ميّتًا — بصمةُ `BT_CANDLE`)",
+      len(_oel_crons) == 3
+      and all(f"'{_c}'" in _oel_wf for _c in _oel_crons)
+      and "OE_SEGMENT" in _oel_wf and "POLYGON_API_KEY" in _oel_wf)
+check("🔒 OEL7 سقفُ الجوب فوق سقف السكربت (‏345 مقابل 330) فينتهي رشيقًا",
+      "timeout-minutes: 345" in _oel_wf and "MAX_RUNTIME_MIN = 330" in _oel_src)
+# 🔒 OEL8 — **والمراقبُ الدوريّ يبقى شبكةَ أمان** (لا يُلغى بالعامل السريع)
+check("🔒 OEL8 المراقبُ الدوريّ باقٍ (شبكةُ أمانٍ للأفتر ولِما يُسقطه الكرون)",
+      "bot.scan_operator_entry" in open("pullback_live.py", encoding="utf-8").read())
+# 👀 OEW — سقفُ العرض بأمر المالك «وسّع العرض»
+check("👀 OEW1 سقفُ عرض «تحت المتابعة» = 40 (‏20 لكلّ سلّة) — أمرُ المالك",
+      S.NEAR_WATCH_SHOW == 40)
+
 # 🔒 VWR9 — **بيتٌ واحدٌ لا اثنان**: `monitor_live_events` لم تعد تنادي الدالّة
 #    (كانت تُغذّيها «أدنى 20 جلسة» خلف بوّابةِ قربٍ 8% وداخلَ فرعٍ يُتخطّى في
 #    البريماركت) ⇒ لا تنبيهَ مكرّرٌ ولا فرعٌ يقرأ مستوًى خاطئًا.
