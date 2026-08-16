@@ -621,9 +621,13 @@ def analyze_on_demand(sym: str):
                         f"المطلوب {C['MIN_RR_T1']:.1f}× على الأقل)")
 
     # مستويات الـ4 ساعات (منظومة فيصل) — طبقة مساندة، لا تمسّ الخطة اليومية
+    # 🌙 ومعها «اليوميُّ فوّت هذا» من **نفس** الشموع الساعيّة (مرآةٌ إلزامية
+    #    لِما يفعله `enrich` — قفل «الفحص اليدوي = الأساسي»). صفرُ نداءٍ إضافيّ.
+    _ah_missed = None
     try:
-        _h4 = bot.fetch_4h(sym)
+        _h4, _h1 = bot.fetch_4h(sym, with_h1=True)
         h4_levels = bot.four_hour_levels(_h4, price) if _h4 is not None else None
+        _ah_missed = bot.ah_missed_extremes(_h1)
     except Exception:
         h4_levels = None
     # دمج فيصل #1: تنقيح t2/t3 بأهداف الـ4س (t1/RR مقفولان) — مطابقة لِما يُنقّح
@@ -656,6 +660,7 @@ def analyze_on_demand(sym: str):
         # مفاتيح اختيارية يملؤها الإثراء — نهيّئها لتفادي أي خطأ
         "short_pct": None, "float": None, "recent_split": None,
         "news": [], "tf4h": "غير متوفر",
+        "ah_missed": _ah_missed,           # 🌙 ما فوّته اليوميُّ (عرض فقط)
         "sec_status": None, "sec_filings": [],
     }
     return result, gates, df

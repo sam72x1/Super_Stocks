@@ -210,7 +210,9 @@ try:
     import analyze_one as AO
     _sdl, _s4h = S.download_history, getattr(S, "fetch_4h", None)
     S.download_history = lambda syms: {"TEST": synth_pivot(seed=2)}
-    S.fetch_4h = lambda *a, **k: None
+    # 🌙 الجذعُ يطابق **عقدَ الدالّة** (‏`with_h1=True` ⇒ زوج) — وإلّا مرّ المسارُ
+    #    عبر `TypeError` مبتلَع فبدا أخضرَ وهو يقيس انهيارًا لا سلوكًا.
+    S.fetch_4h = lambda *a, **k: (None, None) if k.get("with_h1") else None
     _diag, _g, _ = AO.analyze_on_demand("TEST")
     S.download_history = _sdl
     if _s4h is not None:
@@ -23208,6 +23210,156 @@ check("🔒 CEI12 `ceiling_arms` خارج الإنتاج (لا يستوردها 
       "ceiling_arms" not in open("Super_stock.py", encoding="utf-8").read()
       and all(_n not in _insp0.getsource(_CA)
               for _n in ("def rank_key", "def select_top", "def analyze_ticker")))
+
+# ============================================================================
+# 🌙 أقفال «اليوميُّ فوّت هذا» (AHM) — سطرُ الافتر · عرضٌ فقط
+#    المصدر: مسكةُ فيصل على DRCT «ع الفريم اليومي لايوجد شمعه ساقطه عند 1.99 …
+#    الفريم اليومي فقط وقت الماركت».
+# ============================================================================
+import datetime as _ahdt
+from zoneinfo import ZoneInfo as _AHZ
+
+_AHNY = _AHZ("America/New_York")
+
+
+def _ah_frame(spec, days=(11, 12, 13)):
+    """يبني إطارًا ساعيًّا اصطناعيًّا: `spec(day, hour) -> (low, high)`."""
+    _rows = []
+    for _d in days:
+        for _h in range(4, 20):
+            _lo, _hi = spec(_d, _h)
+            _rows.append((_ahdt.datetime(2026, 8, _d, _h, 0, tzinfo=_AHNY),
+                          _lo, _hi))
+    _ix = pd.DatetimeIndex([_r[0] for _r in _rows])
+    return pd.DataFrame({"Open": [_r[1] for _r in _rows],
+                         "High": [_r[2] for _r in _rows],
+                         "Low": [_r[1] for _r in _rows],
+                         "Close": [_r[2] for _r in _rows],
+                         "Volume": [10_000] * len(_rows)}, index=_ix)
+
+
+# قاعٌ في البريماركت (05:00) وقمّةٌ في الافتر (17:00) — والشمعةُ المختلطة (09:00)
+# تحمل قيمًا **متطرّفةً في الاتجاهين** فلو تسرّبت لأيّ سلّةٍ لظهر أثرُها فورًا.
+def _ah_spec(d, h):
+    if h == 9:
+        return (1.20, 3.50)          # مختلطة: 09:00-10:00 تعبر الافتتاح
+    if d == 13 and h == 5:
+        return (1.60, 1.70)          # هبوطُ بريماركت
+    if d == 13 and h == 17:
+        return (2.05, 2.90)          # صعودُ افتر
+    return (2.00, 2.10)
+
+
+_AHM = S.ah_missed_extremes(_ah_frame(_ah_spec))
+check("🌙 AHM1 تقرأ الجلسةَ الممتدّة فعلًا (قاعُ البريماركت وقمّةُ الافتر)",
+      isinstance(_AHM, dict) and abs(_AHM["ext_low"] - 1.60) < 1e-9
+      and abs(_AHM["ext_high"] - 2.90) < 1e-9, str(_AHM)[:110])
+# 🔒 AHM2 — **جوهرُ الصحّة**: الشمعةُ المختلطة تُستبعَد ولا تُنسَب لطرف. لو نُسبت
+#    «ممتدّةً» لقفز `ext_low` إلى 1.20، ولو نُسبت «نظاميّةً» لقفز `reg_low` إليها.
+check("🔒 AHM2 الشمعةُ المختلطة (09:00) مُستبعَدةٌ ومعدودة — لا تُنسَب لطرف",
+      _AHM["mixed_bars"] == 3 and abs(_AHM["reg_low"] - 2.00) < 1e-9
+      and _AHM["ext_low"] > 1.5 and _AHM["reg_high"] < 3.0,
+      f"mix={_AHM['mixed_bars']} reg_low={_AHM['reg_low']} "
+      f"ext_low={_AHM['ext_low']} reg_high={_AHM['reg_high']}")
+check("🌙 AHM3 الفارقان محسوبان بالاتجاهين (أعمقُ نزولًا · أعلى صعودًا)",
+      abs(_AHM["down_pct"] - 20.0) < 0.01 and abs(_AHM["up_pct"] - 38.1) < 0.1,
+      f"down={_AHM['down_pct']} up={_AHM['up_pct']}")
+# 🔒 AHM4 — «تعذّرٌ ليس صفرًا»: بلا إطارٍ أو بطرفٍ غائبٍ ⇒ `None` لا قاموسَ أصفار
+_AH_REG_ONLY = _ah_frame(lambda d, h: (2.0, 2.1)).iloc[
+    [i for i, t in enumerate(_ah_frame(lambda d, h: (2.0, 2.1)).index)
+     if 10 <= t.hour <= 14]]
+check("🔒 AHM4 «تعذّرٌ ليس صفرًا» — بلا إطارٍ أو بلا طرفٍ ممتدٍّ ⇒ None",
+      S.ah_missed_extremes(None) is None
+      and S.ah_missed_extremes(pd.DataFrame()) is None
+      and S.ah_missed_extremes(_AH_REG_ONLY) is None)
+# 🔒 AHM5 — العتبةُ تحكم فعلًا (فارقٌ صغير ⇒ صفرُ سطر) — فارقيّةٌ لا «أو»
+_AH_SMALL = S.ah_missed_extremes(_ah_frame(
+    lambda d, h: (1.20, 3.50) if h == 9 else
+    ((1.98, 2.08) if (d == 13 and h == 5) else (2.00, 2.10))))
+check("🔒 AHM5 عتبةُ العرض تحكم: فارقُ 1% صامت · و20% يُطبَع",
+      S.ah_missed_line(_AH_SMALL) == [] and len(S.ah_missed_line(_AHM)) == 2,
+      f"small={_AH_SMALL and _AH_SMALL.get('down_pct')}")
+# 🔒 AHM6 — البائتُ لا يُقال حين يُمرَّر تاريخُ اليوم · والطازجُ يُقال · وبلا
+#    تمريرٍ (المسارُ الحيّ) لا كتمَ تقادمٍ إطلاقًا — ثلاثُ حالاتٍ **متفرّقة**
+check("🔒 AHM6 البائتُ يُكتَم بـtoday_iso · والطازجُ يُعرَض · وبلا تمريرٍ يُعرَض",
+      S.ah_missed_line(_AHM, today_iso="2026-08-30") == []
+      and len(S.ah_missed_line(_AHM, today_iso="2026-08-14")) == 2
+      and len(S.ah_missed_line(_AHM)) == 2)
+check("🔒 AHM7 لا علاماتِ مقارنةٍ في النصّ المعروض (قاعدةُ اللغة المُلزِمة)",
+      not any(_c in "".join(S.ah_missed_line(_AHM)) for _c in "≥≤><"))
+# 🔒 AHM8 — الوصلُ **من نقطة النداء الحيّة** بالـAST لا بوجود الدالّة
+_AH_T = _ast0.parse(_insp0.getsource(S.build_message))
+check("🔒 AHM8 موصولةٌ في `build_message` (AST — لا وجودُ دالّة)",
+      any(getattr(_c.func, "id", None) == "ah_missed_line"
+          for _c in _ast0.walk(_AH_T) if isinstance(_c, _ast0.Call)))
+_AH_D = _ast0.parse(_insp0.getsource(S.build_daily_message))
+_AH_DC = [_c for _c in _ast0.walk(_AH_D) if isinstance(_c, _ast0.Call)
+          and getattr(_c.func, "id", None) == "ah_missed_line"]
+# 🔒 AHM9 — واليوميُّ **يمرّر `today_iso`** (وإلّا عُرض بائتٌ من سجلٍّ مخزَّن)
+check("🔒 AHM9 اليوميُّ موصولٌ **ويمرّر today_iso** (فيُكتَم البائت)",
+      len(_AH_DC) == 1
+      and any(_k.arg == "today_iso" for _k in _AH_DC[0].keywords))
+# 🔒 AHM10 — الكرتُ **لا يمرّر** `today_iso` (طازجٌ بعد الإثراء ⇒ لا كتمَ تقادم)
+_AH_MC = [_c for _c in _ast0.walk(_AH_T) if isinstance(_c, _ast0.Call)
+          and getattr(_c.func, "id", None) == "ah_missed_line"]
+check("🔒 AHM10 الكرتُ لا يمرّر today_iso (القياسُ طازجٌ بعد الإثراء)",
+      len(_AH_MC) == 1 and not _AH_MC[0].keywords)
+# 🔒 AHM11 — `enrich` يقرأ الساعيّة من **نفس** نداء `fetch_4h` (صفرُ نداءٍ ثانٍ)
+_AH_E = _insp0.getsource(S.enrich)
+check("🔒 AHM11 `enrich` يقرأ الساعيّة من نفس نداء 4س (صفرُ نداءٍ شبكيٍّ ثانٍ)",
+      "fetch_4h(r[\"symbol\"], with_h1=True)" in _AH_E
+      and _AH_E.count("fetch_4h(") == 1
+      and "ah_missed_extremes(_h1)" in _AH_E)
+# 🔒 AHM12 — `with_h1=False` (الافتراض) ⇒ **المُخرَجُ بت-بت** لكلّ المستهلكين
+_AH_SEEN = {}
+
+
+def _ah_fake_dl(sym, **kw):
+    _AH_SEEN["prepost"] = kw.get("prepost")
+    return _ah_frame(_ah_spec, days=tuple(range(1, 14)))
+
+
+_ah_yf, _ah_cfg = S.yf, S.CONFIG.get("ENABLE_4H", True)
+try:
+    S.yf = type("Y", (), {"download": staticmethod(_ah_fake_dl)})()
+    S.CONFIG["ENABLE_4H"] = True
+    _ah_one = S.fetch_4h("T")
+    _ah_two = S.fetch_4h("T", with_h1=True)
+    check("🔒 AHM12 `with_h1=False` يرجّع 4س وحدها (بت-بت) · و True يرجّع زوجًا",
+          not isinstance(_ah_one, tuple) and isinstance(_ah_two, tuple)
+          and len(_ah_two) == 2 and _ah_two[1] is not None
+          and (_ah_one is None) == (_ah_two[0] is None))
+    # 🔒 AHM13 — الساعيّةُ مجلوبةٌ بـ`prepost=True` (وإلّا فالجلسةُ الممتدّةُ غائبةٌ
+    #    أصلًا والسطرُ يستحيل أن يظهر = ميزةٌ موصولةٌ على مصدرٍ أعمى)
+    check("🔒 AHM13 الجلبُ بـprepost=True (بدونه الجلسةُ الممتدّة غائبةٌ بنيويًّا)",
+          _AH_SEEN.get("prepost") is True, str(_AH_SEEN))
+finally:
+    S.yf, S.CONFIG["ENABLE_4H"] = _ah_yf, _ah_cfg
+# 🔒 AHM14 — **عرضٌ فقط**: خارج الجذور تمامًا (اختيارٌ/ترتيبٌ/دخولٌ/هدف)
+check("🔒 AHM14 خارج الجذور: صفرُ ذِكرٍ في الاختيار/الترتيب/الدخول/الأهداف",
+      all("ah_missed" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier,
+                     S.entry_status, S.analyze_ticker, S.scan_market,
+                     S.backtest_symbol)))
+# 🔒 AHM15 — ومرآةُ الفحص اليدوي إلزامية (‏`analyze_one` يقيس نفسَ الشيء)
+_AH_AO = open("analyze_one.py", encoding="utf-8").read()
+check("🔒 AHM15 مرآةُ الفحص اليدوي: `analyze_one` يقيسها بنفس الدالّة والمصدر",
+      "with_h1=True" in _AH_AO and "ah_missed_extremes(_h1)" in _AH_AO
+      and '"ah_missed"' in _AH_AO)
+# 🔒 AHM16 — وفحصُ اليد **يصرّح بالفراغ** ويفرّق «لا فارق» عن «تعذّر»
+_AH_HC = open("hand_check.py", encoding="utf-8").read()
+check("🔒 AHM16 فحصُ اليد يفرّق «لا فارق» عن «تعذّر القياس» (لا يصمت ولا يخلط)",
+      "ah_missed_line" in _AH_HC and "تعذّرٌ ليس نفيًا" in _AH_HC
+      and "بفارقٍ يستحقّ الذكر" in _AH_HC)
+# 🔒 AHM17 — العتباتُ الثلاثُ موسومةٌ `engineering` في دفتر المصادر (لا تتسلّل
+#    كأنها من فيصل — نصُّه يصف الظاهرة ولا يعطي رقمًا)
+_AH_LED = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+check("🔒 AHM17 العتباتُ الثلاثُ مُوسَمةٌ في دفتر المصادر",
+      all(_k in _AH_LED for _k in ("AH_MISSED_MIN_PCT", "AH_MISSED_DAYS",
+                                   "AH_MISSED_STALE_DAYS")))
+# 🔒 AHM18 — والحقلُ **مخزَّنٌ في السجلّ** وإلّا كان سطرُ اليوميّ ميّتًا بنيويًّا
+check("🔒 AHM18 `ah_missed` مخزَّنٌ في `make_watch_entry` (وإلّا فسطرُ اليوميّ ميّت)",
+      '"ah_missed": r.get("ah_missed")' in _insp0.getsource(S.make_watch_entry))
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")

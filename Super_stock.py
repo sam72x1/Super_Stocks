@@ -1491,24 +1491,146 @@ def multi_timeframe(df: pd.DataFrame) -> dict:
             "monthly": m, "patterns": pats, "display": disp}
 
 
-def fetch_4h(sym: str):
+def fetch_4h(sym: str, with_h1: bool = False):
     """يحمّل فريم 4 ساعات (يشمل التداول خارج السوق prepost — لرصد ذيل المسح
-    الحقيقي مثل ما يوضّح فيصل). يرجع DataFrame مجمّعة 4س أو None."""
+    الحقيقي مثل ما يوضّح فيصل). يرجع DataFrame مجمّعة 4س أو None.
+
+    🌙 **`with_h1=True` يرجّع `(h4, h1)`** — الشموعُ الساعيّة **مُحمَّلةٌ سلفًا**
+    هنا وكانت تُرمى؛ وإظهارُها يجنّبنا **نداءً شبكيًّا ثانيًا** لسطر «اليوميُّ
+    فوّت» (‏`ah_missed_extremes`). **والافتراضُ `False` ⇒ المُخرَجُ بت-بت.**"""
     if yf is None or not CONFIG.get("ENABLE_4H", True):
-        return None
+        return (None, None) if with_h1 else None
     try:
         h1 = yf.download(sym, period="60d", interval="1h", auto_adjust=True,
                          prepost=True, progress=False)
         if h1 is None or h1.empty:
-            return None
+            return (None, None) if with_h1 else None
         if isinstance(h1.columns, pd.MultiIndex):
             h1.columns = h1.columns.get_level_values(0)
         h1 = h1.dropna(subset=["Close"])
         h4 = resample_ohlc(h1, "4h")
-        return h4 if len(h4) >= 20 else None
+        h4 = h4 if len(h4) >= 20 else None
+        return (h4, h1) if with_h1 else h4
     except Exception:
+        return (None, None) if with_h1 else None
+
+
+# 🌙 عتباتُ سطر «اليوميُّ فوّت هذا» — **`engineering` · عرض فقط** (موسومةٌ في
+#    `FAISAL_SOURCE_LEDGER.md`): لا بوّابةَ ولا وزنَ ترتيبٍ ولا هدفٌ يقرؤها.
+AH_MISSED_MIN_PCT = 5.0        # أقلُّ فارقٍ يستحقّ سطرًا (دونه ضجيجُ تقريب)
+AH_MISSED_DAYS = 10            # نافذةُ الجلسات المقروءة من الفريم الساعيّ
+AH_MISSED_STALE_DAYS = 3       # بعدها لا يُعرَض من سجلٍّ مخزَّن (البائتُ لا يُقال)
+
+
+def ah_missed_extremes(h1, days: int = None):
+    """🌙 **ماذا فوّته الفريمُ اليوميّ؟** — مسكةُ فيصل على `DRCT` حرفيًّا:
+    «ع الفريم اليومي **لايوجد شمعه ساقطه** عند 1.99 بمعنى هبط السهم في الافتر
+    او البري — **الفريم اليومي فقط وقت الماركت**».
+
+    تقرأ الشموعَ **الساعيّة** التي يحمّلها `fetch_4h(..., with_h1=True)` أصلًا
+    بـ`prepost=True` ⇒ **صفرُ نداءٍ شبكيٍّ إضافيّ**، وتفصلها بتوقيت نيويورك:
+      · **نظاميّ** = الشمعةُ **كلُّها** داخل 09:30-16:00 (وهو ما تُظهره اليوميّة).
+      · **ممتدّ**  = الشمعةُ **كلُّها** خارجها (بريماركت أو افتر).
+      · **مختلط**  = تعبر الحدَّ (شمعةُ 09:00 مثلًا) ⇒ **تُستبعَد وتُعَدّ**
+        ولا تُنسَب لطرف — نسبتُها لأحدهما تفبرك الفارقَ الذي نقيسه.
+
+    🔒 **«تعذّرٌ ليس صفرًا»:** بلا إطارٍ أو بلا طرفٍ من الطرفين ⇒ `None` (لا صفر).
+    ولا نظرَ مستقبليّ: القراءةُ كلُّها من شموعٍ مضت.
+
+    يرجّع: `reg_low/ext_low/reg_high/ext_high` · `down_pct` (كم أعمقُ نزل
+    الممتدُّ تحت أدنى النظاميّ) · `up_pct` · العدّادات · `asof` (آخرُ جلسة)."""
+    try:
+        from zoneinfo import ZoneInfo
+        if h1 is None or not len(h1):
+            return None
+        need = ("Open", "High", "Low", "Close")
+        if any(c not in h1.columns for c in need):
+            return None
+        idx = h1.index
+        if getattr(idx, "tz", None) is None:
+            idx = idx.tz_localize("UTC")
+        idx = idx.tz_convert(ZoneInfo("America/New_York"))
+        # مدى الشمعة من وسيط الفروق (لا نفترض ساعةً — الوسيطُ يصف الإطار فعلًا)
+        span = dt.timedelta(hours=1)
+        if len(idx) > 1:
+            try:
+                _d = pd.Series(idx[1:]) - pd.Series(idx[:-1])
+                _m = _d.median()
+                if pd.notna(_m) and _m.total_seconds() > 0:
+                    span = _m.to_pytimedelta()
+            except Exception:                                    # noqa: BLE001
+                span = dt.timedelta(hours=1)
+        lim = int(days if days is not None else AH_MISSED_DAYS)
+        sess = sorted({t.date() for t in idx})[-max(lim, 1):]
+        keep = set(sess)
+        reg_lo = ext_lo = reg_hi = ext_hi = None
+        n_reg = n_ext = n_mix = 0
+        for pos in range(len(idx)):
+            t = idx[pos]
+            if t.date() not in keep:
+                continue
+            start = t.hour * 60 + t.minute
+            end = start + int(span.total_seconds() // 60)
+            if start >= 570 and end <= 960:                  # 09:30 ← 16:00
+                bucket = "reg"
+            elif end <= 570 or start >= 960:
+                bucket = "ext"
+            else:
+                n_mix += 1
+                continue
+            try:
+                lo = float(h1["Low"].iloc[pos])
+                hi = float(h1["High"].iloc[pos])
+            except Exception:                                    # noqa: BLE001
+                continue
+            if not (lo > 0 and hi > 0):
+                continue
+            if bucket == "reg":
+                n_reg += 1
+                reg_lo = lo if reg_lo is None else min(reg_lo, lo)
+                reg_hi = hi if reg_hi is None else max(reg_hi, hi)
+            else:
+                n_ext += 1
+                ext_lo = lo if ext_lo is None else min(ext_lo, lo)
+                ext_hi = hi if ext_hi is None else max(ext_hi, hi)
+        if not (n_reg and n_ext):
+            return None                     # طرفٌ غائب ⇒ لا مقارنة (لا صفر)
+        down = ((reg_lo - ext_lo) / reg_lo * 100.0) if ext_lo < reg_lo else None
+        up = ((ext_hi - reg_hi) / reg_hi * 100.0) if ext_hi > reg_hi else None
+        return {"reg_low": reg_lo, "ext_low": ext_lo,
+                "reg_high": reg_hi, "ext_high": ext_hi,
+                "down_pct": down, "up_pct": up,
+                "reg_bars": n_reg, "ext_bars": n_ext, "mixed_bars": n_mix,
+                "days": len(sess), "asof": sess[-1].isoformat()}
+    except Exception:                                            # noqa: BLE001
         return None
 
+
+def ah_missed_line(m, today_iso: str = None, min_pct: float = None) -> list:
+    """🌙 سطرُ «اليوميُّ فوّت هذا» — **عرضٌ فقط**، يرجّع قائمةَ أسطرٍ (قد تكون فارغة).
+
+    ⏳ **والبائتُ لا يُقال:** حين يُمرَّر `today_iso` (مسارُ السجلّ المخزَّن) يُكتَم
+    السطرُ إن تجاوز عمرُ القياس `AH_MISSED_STALE_DAYS` — فالنافذةُ تتحرّك، وسطرٌ
+    عن أسبوعٍ مضى يُقرأ حدثًا اليوم. والمسارُ الحيّ (الكرت) لا يمرّره ⇒ يُعرَض."""
+    if not isinstance(m, dict):
+        return []
+    if today_iso and _iso_days_between(m.get("asof") or "",
+                                       today_iso) > AH_MISSED_STALE_DAYS:
+        return []
+    thr = float(min_pct if min_pct is not None else AH_MISSED_MIN_PCT)
+    out = []
+    d, u = m.get("down_pct"), m.get("up_pct")
+    if d is not None and d >= thr:
+        out.append(
+            f"🌙 اليوميُّ فوّت هذا: هبط إلى ${m['ext_low']:.2f} في الجلسة "
+            f"الممتدّة (أدنى ما تُظهره اليوميّة ${m['reg_low']:.2f} — "
+            f"أعمق بـ{d:.0f}%)")
+    if u is not None and u >= thr:
+        out.append(
+            f"🌙 اليوميُّ فوّت هذا: صعد إلى ${m['ext_high']:.2f} في الجلسة "
+            f"الممتدّة (أعلى ما تُظهره اليوميّة ${m['reg_high']:.2f} — "
+            f"أعلى بـ{u:.0f}%)")
+    return out
 
 
 # ==========================================================
@@ -5249,7 +5371,13 @@ def enrich(results: list) -> None:
                 r.setdefault("warnings", []).append(_w)
             # فريم 4 ساعات: تأكيد الانعكاس + مستويات فيصل (دعوم/أهداف/انقلاب)
             try:
-                h4 = fetch_4h(r["symbol"])
+                h4, _h1 = fetch_4h(r["symbol"], with_h1=True)
+                # 🌙 «اليوميُّ فوّت هذا» — من **نفس** الشموع الساعيّة المجلوبة
+                #    هنا (‏`prepost=True`) ⇒ صفرُ نداءٍ شبكيٍّ إضافيّ. عرضٌ فقط.
+                try:
+                    r["ah_missed"] = ah_missed_extremes(_h1)
+                except Exception:                                # noqa: BLE001
+                    r["ah_missed"] = None
                 if h4 is not None:
                     _ok4 = timeframe_reversal(h4, 60, 20)
                     r["tf4h"] = "✅ مؤكِّد" if _ok4 else "⏳ غير مؤكِّد بعد"
@@ -8973,6 +9101,10 @@ def build_message(results: list, splits: list,
         _ps = past_spikes_line(r.get("spikes"))  # 🔁 رفعاته السابقة (T-REPEAT — عرض)
         if _ps:
             lines.append(_ps)
+        # 🌙 «اليوميُّ فوّت هذا» (مسكةُ فيصل على DRCT) — الكرتُ يُبنى بعد الإثراء
+        #    مباشرةً فالقياسُ طازج ⇒ **لا تمريرَ لـ`today_iso`** (لا كتمَ تقادم).
+        for _ahl in ah_missed_line(r.get("ah_missed")):
+            lines.append(_ahl)
         _ib = insider_buy_line(r)                # 📄 شراء داخلي (فيصل: سبب ارتفاع)
         if _ib:
             lines.append(_ib)
@@ -10137,6 +10269,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "klinger": r.get("klinger"),                      # 📊 كلنجر (حجم، فيصل — عرض فقط)
         "spikes": r.get("spikes"),                        # 🔁 رفعاته السابقة (T-REPEAT — عرض فقط)
         "cci": r.get("cci"),                              # 📉 CCI(14) (فيصل — عرض فقط)
+        "ah_missed": r.get("ah_missed"),                   # 🌙 ما فوّته اليوميُّ (عرض فقط · يُكتَم إن بات)
         "insider_buys": r.get("insider_buys"),            # 📄 شراء داخلي (Form 4)
         "offering_event": r.get("offering_event"),        # 🆕 طرح جديد (حدث مؤسِّس)
         "news_acc": r.get("news_acc"),                    # 📉 قبول الخبر
@@ -14648,6 +14781,10 @@ def build_daily_message(wl: dict, splits: list,
         _ps = past_spikes_line(s.get("spikes"))       # 🔁 رفعاته السابقة (T-REPEAT)
         if _ps:
             lines.append("   " + _ps)
+        # 🌙 «اليوميُّ فوّت هذا» — من السجلّ المخزَّن ⇒ **يُمرَّر تاريخُ اليوم**
+        #    فيُكتَم البائتُ (النافذةُ تتحرّك، وسطرٌ عن أسبوعٍ مضى يُقرأ حدثَ اليوم).
+        for _ahl in ah_missed_line(s.get("ah_missed"), today_iso=today):
+            lines.append("   " + _ahl)
         _ib = insider_buy_line(s)                     # 📄 شراء داخلي (Form 4)
         if _ib:
             lines.append("   " + _ib)
