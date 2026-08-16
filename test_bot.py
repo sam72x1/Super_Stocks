@@ -19315,6 +19315,23 @@ check("🔒 NWF3 وسمُ الاتجاه في العرض: «دون الأرضي�
       any("دون الأرضية" in _x for _x in _nwf_lo)
       and any("فوق السقف" in _x for _x in _nwf_hi)
       and _nwf_lo != _nwf_hi, f"{_nwf_lo} · {_nwf_hi}")
+# 🔒 NWF5 — **قائمةٌ تُصلَح ولا تُنظَّف ليست مُصلَحة:** مَن قِيس اليومَ ولم
+#    يتأهّل **يخرج فورًا**، والتقادمُ (10 أيام) لِمَن **تعذّر قياسُه** وحده.
+#    (‏عيبٌ مقيس: بعد تشديد الحدث المؤسِّس بقيت 2,296 سهمًا فيها `AAPL` لأن
+#    التقليمَ كان بالتقادم وحده ⇒ حكمُ الأمس يعيش عشرةَ أيام.)
+_nwf_src = _insp0.getsource(S.scan_market)
+_nwf_t = _ast0.parse(_nwf_src)
+_nwf_pops = [_n for _n in _ast0.walk(_nwf_t) if isinstance(_n, _ast0.Call)
+             and _ast0.unparse(_n.func).endswith("_nw_all.pop")]
+check("🔒 NWF5 المقيسُ غيرُ المتأهّل يخرج فورًا (‏`_nw_meas - _nw_new`) — "
+      "والتقادمُ للمتعذّر قياسُه وحده",
+      "_nw_meas.add(sym)" in _nwf_src
+      and "_nw_meas - set(_nw_new)" in _nwf_src
+      and len(_nwf_pops) == 2)   # المُرشَّحُ اليوم · والمقيسُ غيرُ المتأهّل
+check("🔒 NWF6 والعدّاداتُ تفرّق الحالات (قِيس · بلا انهيار · تعذّر · خرج) — "
+      "فلا يُقرأ رقمٌ واحدٌ بمعانٍ أربعة",
+      all(_k in _nwf_src for _k in ("_nw_seen", "_nw_unf", "_nw_fail",
+                                    "_nw_out", "_nw_cut")))
 # 🔒 NWF4 — والبوّابةُ **موصولةٌ في حلقة الفرز** بالـAST (لا وجودَ دالّةٍ فقط)
 _nwf_sm = _ast0.parse(_insp0.getsource(S.scan_market))
 check("🔒 NWF4 `near_watch_founded` مُنادًى داخل `scan_market` (AST)",

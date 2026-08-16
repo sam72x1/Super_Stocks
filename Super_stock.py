@@ -11390,6 +11390,7 @@ def scan_market():
     #    وقاعدتُنا «الصفرُ عطبُ أداةٍ حتى يُنفى» ⇒ يُفصَّل في السجلّ.
     _nw_edges, _nw_new, _nw_t0, _nw_cut = {}, {}, time.time(), 0
     _nw_seen = _nw_fail = _nw_err = _nw_unf = 0
+    _nw_meas = set()
     try:
         import envelope_scan as _nw_ev
         _nw_edges = _nw_ev.load_edges() or {}
@@ -11409,11 +11410,16 @@ def scan_market():
                     _m = near_watch_measure(sym, df, _nw_edges)
                     if not _m:
                         _nw_fail += 1      # **تعذّرَ القياس** لا «بعيدٌ عن الظرف»
-                    elif not near_watch_founded(_m[0], _nw_edges):
-                        _nw_unf += 1       # لم ينهَر أصلًا ⇒ ليس من عائلتنا
-                    elif len(_m[1]) <= NEAR_WATCH_MAX_OUT:
-                        _nw_new[sym] = near_watch_entry(
-                            sym, _m[0], _m[1], _nw_today)
+                    else:
+                        # 🔑 **قِيس فعلًا** ⇒ حكمُ اليوم نافذ: إمّا يدخل أو
+                        #    **يخرج فورًا**. والتقادمُ (10 أيام) للمتعذّر قياسُه
+                        #    وحده — لا لمَن قِيس وحُكم عليه.
+                        _nw_meas.add(sym)
+                        if not near_watch_founded(_m[0], _nw_edges):
+                            _nw_unf += 1   # لم ينهَر أصلًا ⇒ ليس من عائلتنا
+                        elif len(_m[1]) <= NEAR_WATCH_MAX_OUT:
+                            _nw_new[sym] = near_watch_entry(
+                                sym, _m[0], _m[1], _nw_today)
             except Exception:                                    # noqa: BLE001
                 _nw_err += 1
         if r:
@@ -11523,13 +11529,21 @@ def scan_market():
                 _nw_all[_s] = _e
             for _r in results:                       # المرشَّحُ ليس متابَعًا
                 _nw_all.pop(_r.get("symbol"), None)
+            # 🔴 **وقِيس اليومَ ولم يتأهّل ⇒ يخرج فورًا** (إصلاح 2026-08-16):
+            #    التقليمُ بالتقادم وحده كان يُبقي **حكمَ الأمس** عشرةَ أيام،
+            #    فبقيت 2,296 سهمًا (فيها `AAPL`) بعد تشديد الحدث المؤسِّس —
+            #    **قائمةٌ تُصلَح ولا تُنظَّف ليست مُصلَحة.**
+            _nw_out = 0
+            for _s in (_nw_meas - set(_nw_new)):
+                if _nw_all.pop(_s, None) is not None:
+                    _nw_out += 1
             _nw_all = near_watch_prune(_nw_all, _nw_today)
             save_near_watch(_nw_all)
             log(f"👀 تحت المتابعة: {len(_nw_all)} سهم "
                 f"(جديدُ اليوم {len(_nw_new)} · بحدّ {NEAR_WATCH_MAX_OUT} "
                 "معيارًا خارج ظرف فيصل)"
                 + f" · 🩺 قِيس {_nw_seen} · بلا انهيار {_nw_unf} · تعذّر {_nw_fail}"
-                + f" · أخطأ {_nw_err}"
+                + f" · أخطأ {_nw_err} · خرج {_nw_out}"
                 + (f" · ⚠️ قُصَّ {_nw_cut} بميزانية الزمن" if _nw_cut else ""))
     except Exception as _e:                                      # noqa: BLE001
         log(f"⚠️ قائمةُ المتابعة تعذّرت (لا تمسّ الفرز): {_e}")
