@@ -12368,27 +12368,72 @@ def _minute_sweep(bars: list, support: float) -> bool:
         return False
 
 
-def vwap_entry_confirm(bars: list, support: float):
+def intraday_support(bars: list):
+    """📍 **الدعمُ الذي يرسمه فيصل على فريم الدقيقة** — قاعُ التجميع الذي انطلقت
+    منه الاندفاعةُ الأولى (‏«هبط لنفس الدعم **3.60**» في شارت WETO).
+
+    نقيّة. تجد **أعلى قمّةٍ** في النافذة ثم ترجّع **أدنى قاعٍ قبلها** — وهو
+    بالضبط الخطُّ البنفسجيّ في صورته. تُرجّع `(support, hi_index, hi_price)`
+    أو `None` إن لم يكن ثمّة ما قبل القمّة (القمّةُ أوّلُ شمعة).
+
+    🔴 **ولماذا لا يُستعمل «أدنى 20 جلسة»:** ذاك مستوًى **يوميّ** قد يبعد
+    مراتبَ عن قاع الجلسة، و«نفسُ الدعم» في نصّه هو قاعُ **هذي** الحركة."""
+    try:
+        if not bars or len(bars) < 3:
+            return None
+        highs = [float(b["h"]) for b in bars]
+        lows = [float(b["l"]) for b in bars]
+        hi_i = max(range(len(highs)), key=lambda i: highs[i])
+        if hi_i == 0:
+            return None                    # لا «ما قبل القمّة» ⇒ لا اندفاعة
+        base = min(lows[:hi_i])
+        if not (base > 0):
+            return None
+        return (round(base, 4), hi_i, round(highs[hi_i], 4))
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def vwap_entry_confirm(bars: list, support: float = None):
     """🕵️ **تأكيدُ دخول المضارب — ثلاثيةُ فيصل على فريم الدقيقة** (منشورُ X +
     شارت WETO، لقطة المالك 2026-08-15): «فريم دقيقه اول صعود اذا رجع وثبت تدخل
     … هبط لنفس الدعم 3.60 · رجع يصعد ع خفيف · **فيواب 3.91 > هنا الدخول**».
 
     نقيّة (بلا شبكة). الشروطُ الأربعة — **أرقامُها كلُّها معادةٌ من ثوابت قائمة
     لا مخترعة** (مُعلَنٌ كلٌّ بمصدره):
-      ① لمسةُ الدعم: قاعُ دقيقةٍ داخل ±2% من الدعم (تسامحُ `_minute_sweep` نفسُه).
-      ② صعودٌ أوّلُ قبلها: قمّةٌ سابقة فوق الدعم بـ`PM_MOVE_PCT`(=10)% فأكثر
-         (عتبةُ حركة الجلسة القائمة في المراقب نفسه — «هذا صعد ل5 مباشرة»).
-      ③ ثباتٌ بعد اللمسة: لا إغلاقَ دقيقةٍ تحت الدعم بأكثر من 2% («وثبت»).
-      ④ عبورُ الفيواب: كان تحت فيواب الجلسة التراكميّ بعد اللمسة ثم آخرُ إغلاقٍ
+      ① **الاندفاعةُ الأولى**: أعلى قمّةٍ في النافذة، وقاعُ ما قبلها هو الدعم
+         («هذا صعد ل5 مباشرة» من 3.60). `support=None` ⇒ يُشتقّ من الشموع
+         بـ`intraday_support` — وهو الافتراض.
+      ② صعودٌ أوّل: القمّةُ فوق الدعم بـ`PM_MOVE_PCT`(=10)% فأكثر (عتبةُ حركة
+         الجلسة القائمة في المراقب نفسه).
+      ③ **الرجوعُ بعد القمّة**: أوّلُ قاعِ دقيقةٍ **بعد** القمّة داخل ‏+2% من
+         الدعم (تسامحُ `_minute_sweep` نفسُه).
+      ④ ثباتٌ بعد اللمسة: لا إغلاقَ دقيقةٍ تحت الدعم بأكثر من 2% («وثبت»).
+      ⑤ عبورُ الفيواب: كان تحت فيواب الجلسة التراكميّ بعد اللمسة ثم آخرُ إغلاقٍ
          **فوقه** («فوق فيواب > هنا الدخول») — عبورٌ حقيقيّ لا جلوسٌ فوقه.
-    يرجّع dict {vwap, support, prior_rise_pct} أو None. **عرض/تنبيه فقط** —
-    يمرّ على بوّابة المضارب القائمة في المراقب («تأكدنا انه مب قروب»)."""
+
+    🔴🔴 **تصحيحٌ مؤرَّخ 2026-08-16 — العيبُ كان في ترتيب القراءة:** كانت
+    `touch` = **أوّلُ** لمسةٍ في النافذة كلِّها، وفي جلسةٍ حقيقية (390 دقيقة من
+    الافتتاح) تقع اللمسةُ الأولى في **تجميعِ ما قبل الاندفاعة** ⇒ إمّا
+    `touch == 0` فتُردّ، أو `prior_hi` على بادئةٍ ضئيلة فيسقط شرطُ الصعود ⇒
+    **الدالّةُ تقرأ التسلسلَ معكوسًا** (رجوعٌ ثمّ صعود) بينما نصُّه «**اول صعود
+    اذا رجع** وثبت». وفِكستشرُ الاختبار كان يبدأ **عند الاندفاعة نفسِها** فأخضرَّ
+    على شكلٍ يستحيل أن يصل من الإنتاج — صنفُ «الفِكستشرُ الذي يكذب» حرفيًّا.
+
+    يرجّع dict {vwap, support, prior_rise_pct, high, touch_idx} أو None.
+    **عرض/تنبيه فقط** — يمرّ على بوّابة المضارب («تأكدنا انه مب قروب»)."""
     try:
-        if not bars or support <= 0:
+        if not bars:
+            return None
+        base = intraday_support(bars)
+        if base is None:
+            return None
+        derived, hi_i, hi_px = base
+        support = derived if support is None else float(support)
+        if support <= 0:
             return None
         closes = [float(b["c"]) for b in bars]
         lows = [float(b["l"]) for b in bars]
-        highs = [float(b["h"]) for b in bars]
         vols = [max(float(b.get("v") or 0.0), 0.0) for b in bars]
         px = [float(b["vw"]) if b.get("vw") is not None else float(b["c"])
               for b in bars]
@@ -12397,22 +12442,191 @@ def vwap_entry_confirm(bars: list, support: float):
             s_pv += p * v
             s_v += v
             vwap.append(s_pv / s_v if s_v > 0 else p)
-        touch = next((i for i, l in enumerate(lows)
-                      if l <= support * 1.02), None)
-        if touch is None or touch == 0:
-            return None                              # لا لمسة أو لا «قبلها»
-        prior_hi = max(highs[:touch])
-        if prior_hi < support * (1.0 + CONFIG["PM_MOVE_PCT"] / 100.0):
+        if hi_px < support * (1.0 + CONFIG["PM_MOVE_PCT"] / 100.0):
             return None                              # لا صعودَ أوّل
+        # ③ اللمسةُ **بعد** القمّة حصرًا — هذا هو التصحيح المؤرَّخ أعلاه.
+        touch = next((i for i in range(hi_i + 1, len(lows))
+                      if lows[i] <= support * 1.02), None)
+        if touch is None:
+            return None                              # لم يرجع للدعم بعد
         if any(c < support * 0.98 for c in closes[touch:]):
             return None                              # كسرٌ بإغلاق = لم يثبت
         was_below = any(closes[i] <= vwap[i] for i in range(touch, len(bars)))
         if not (was_below and closes[-1] > vwap[-1]):
             return None                              # لا عبورَ فيواب حقيقيًّا
         return {"vwap": round(vwap[-1], 4), "support": round(float(support), 4),
-                "prior_rise_pct": (prior_hi / support - 1.0) * 100.0}
+                "prior_rise_pct": (hi_px / support - 1.0) * 100.0,
+                "high": hi_px, "touch_idx": touch}
     except Exception:
         return None
+
+
+# ==========================================================
+# 🎯 «هنا الدخول» — متابعةٌ حيّةٌ لكلّ أسهمنا وتنبيهٌ لحظةَ دخول المضارب
+#    (أمرُ المالك 2026-08-16: «متابعة مستمرة للأسهم اللي موجوده عندنا سواء تحت
+#     المراقبة او جاهزة او غيره · ويوصلنا تحديث مباشرة حسب دخول المضارب … عشان
+#     اقدر ادخل مع المضارب لو ما تمركزت في السهم من قبل»).
+# ==========================================================
+LIVE_WATCH_CAP = 60            # engineering — سقفٌ **مُعلَنُ القصّ** على كون المتابعة
+LIVE_WATCH_PRESS_DAYS = 5      # engineering — حداثةُ تنبيه رادار الضغط ليدخل الكون
+OP_ENTRY_WINDOW_MIN = 390      # دقائقُ الجلسة (نفسُ ما يمرّره المراقب اليوم)
+OP_ENTRY_STATE_FILE = "op_entry_state.json"   # دِدوب: مرّةٌ لكلّ سهمٍ في اليوم
+
+# ترتيبُ الأولوية **مُعلَنٌ لا ضمنيّ**: الأقربُ إلى خطّةِ دخولٍ محفوظة أوّلًا،
+# فإن قصَّ السقفُ فإنما يقصّ الأبعدَ عن التنفيذ — ويُعلَن بعددِه.
+LIVE_WATCH_SOURCES = ("الارتداد", "الترشيح", "رادار الضغط",
+                      "تحت المتابعة", "متابعة الصيّاد")
+
+
+def live_watch_universe(wl=None, near=None, press=None, hunter=None,
+                        cap: int = None, today_iso: str = None):
+    """👁️ **كونُ المتابعة الحيّة = كلُّ سهمٍ عندنا** من قوائمنا الخمس، مرتَّبًا
+    بأولويةٍ مُعلَنة ومنزوعَ التكرار (أوّلُ مصدرٍ يفوز فيبقى الوسمُ الأدقّ).
+
+    نقيّة (بلا شبكة ولا قرص — كلُّ مصدرٍ يُمرَّر). تُرجّع `(rows, dropped)` حيث
+    `rows` = [{'symbol', 'src'}] و`dropped` عددُ ما قصَّه السقف — **يُعلَن ولا
+    يُطوى** (قاعدةُ «لا قصَّ صامتًا»).
+
+    ⚖️ **ولا تُغيّر عضويةَ أيّ قائمة**: قراءةٌ فقط، ومُخرَجُها **إشعارٌ لا اختيار**."""
+    rows, seen = [], set()
+    lim = int(cap if cap is not None else LIVE_WATCH_CAP)
+    today_iso = today_iso or dt.date.today().isoformat()
+
+    def _add(sym, src):
+        sym = str(sym or "").upper().strip()
+        if not sym or sym in seen:
+            return
+        seen.add(sym)
+        rows.append({"symbol": sym, "src": src})
+
+    wl = wl or {}
+    for e in (wl.get("pullback") or []):
+        _add(e.get("symbol"), "الارتداد")
+    for s in (wl.get("stocks") or []):
+        # 🔒 نفسُ استثناء الرادار: «خرج من النموذج» يبقى معروضًا للمتابعة ولا
+        #    تُوجَّه إليه **دعوةُ دخولٍ جديدة** (قرار 2026-08-06).
+        if s.get("status") == "active" and s.get("cont_status") != "exited":
+            _add(s.get("symbol"), "الترشيح")
+    for sym, e in ((press or {}).get("symbols") or {}).items():
+        la = (e or {}).get("last_alert")
+        if la and _iso_days_between(la, today_iso) <= LIVE_WATCH_PRESS_DAYS:
+            _add(sym, "رادار الضغط")
+    for e in ((near or {}).get("stocks") or []):
+        _add(e.get("symbol"), "تحت المتابعة")
+    for e in ((hunter or {}).get("stocks") or []):
+        if e.get("status") == "active":
+            _add(e.get("symbol"), "متابعة الصيّاد")
+    dropped = max(0, len(rows) - lim)
+    return rows[:lim], dropped
+
+
+def scan_operator_entry(universe, today_iso: str, fetch_bars=None,
+                        fetch_operator=None, seen: dict = None,
+                        window_min: int = None) -> list:
+    """🎯 يمسح كونَ المتابعة عن **ثلاثية فيصل** ويرجّع مَن بلغ «هنا الدخول».
+
+    لكلّ سهم: دقائقُ الجلسة ⟶ `vwap_entry_confirm` (الدعمُ **مشتقٌّ من الشموع**
+    لا من أدنى 20 جلسة) ⟶ **بوّابةُ المضارب** بنفس قاعدة الرادار: قِيس التدفّقُ
+    ولا طبعاتِ مضارب ⇒ **يُكتَم**؛ تعذّر القياس (`None`) ⇒ **يمرّ بفائدة الشك**
+    فلا نفوّت دخولًا بعطلٍ شبكيّ.
+
+    `seen` قاموسُ دِدوب {رمز: تاريخ} — **مرّةٌ لكلّ سهمٍ في اليوم**، ويُحدَّث
+    هنا **ولا يُحفظ** (الحفظُ مسؤوليةُ المُشغِّل بعد الإرسال).
+    فاشلةٌ-آمنة: أيُّ سهمٍ يرمي ⇒ يُتخطّى وحده. **إشعارٌ لا اختيار.**"""
+    fb = fetch_bars or polygon_minute_bars
+    fo = fetch_operator or operator_flow
+    win = int(window_min if window_min is not None else OP_ENTRY_WINDOW_MIN)
+    seen = seen if seen is not None else {}
+    out = []
+    for row in (universe or []):
+        sym = row.get("symbol")
+        if not sym or seen.get(sym) == today_iso:
+            continue
+        try:
+            bars = fb(sym, minutes=win)
+        except Exception:                                        # noqa: BLE001
+            bars = None
+        if not bars:
+            continue
+        try:
+            vc = vwap_entry_confirm(bars)
+        except Exception:                                        # noqa: BLE001
+            vc = None
+        if not vc:
+            continue
+        try:
+            of = fo(sym)
+        except Exception:                                        # noqa: BLE001
+            of = None
+        if of is not None and not of.get("has_operator"):
+            continue                     # قِيس ولا مضارب ⇒ ضجيجٌ يُكتَم
+        seen[sym] = today_iso
+        vc = dict(vc)
+        vc["price"] = round(float(bars[-1]["c"]), 4)
+        out.append((row, vc, of))
+    return out
+
+
+def build_operator_entry_alert(rows: list) -> str:
+    """📩 رسالةُ «‏🎯 هنا الدخول» — كرتٌ لكلّ سهم بأسلوب التقرير الأسبوعيّ.
+
+    ⚖️ **وتقول ما تعرفه فقط:** الوقفُ **ليس** في نصّ الصورة، فيُعرَض قاعُ
+    الحركة **مستوًى بنيويًّا لا يُكسَر** ولا يُسمّى وقفًا (‏قاعدةُ «أربعةُ أوقافٍ
+    لا تُخلَط»)، والهدفُ يُوصَف كما وصفه: **«مرسومٌ سابقًا» على فريمٍ أعلى**."""
+    if not rows:
+        return ""
+    lines = [f"🎯 <b>هنا الدخول — دخل المضارب</b> ({len(rows)})",
+             "<i>ثلاثيةُ فيصل على فريم الدقيقة: صعودٌ أوّل ⟵ رجعَ لنفس الدعم "
+             "وثبت ⟵ عبرَ الفيواب صاعدًا.</i>", ""]
+    sep = DAILY_CARD_SEP
+    for i, (row, vc, of) in enumerate(rows, 1):
+        if i > 1:
+            lines.append(sep)
+        lines.append(f"<b>{i}. ${esc(row.get('symbol'))}</b> "
+                     f"· {esc(row.get('src') or '')}")
+        lines.append(f"   💰 السعر الآن ${vc['price']:.2f}")
+        lines.append(f"   📈 صعد {vc['prior_rise_pct']:.0f}% "
+                     f"إلى ${vc['high']:.2f} ثم رجع لدعمه")
+        lines.append(f"   📍 الدعم الذي ثبت عنده ${vc['support']:.2f} "
+                     "(مستوًى بنيويّ — كسرُه يُلغي القراءة)")
+        lines.append(f"   🟣 الفيواب ${vc['vwap']:.2f} — عبره صاعدًا "
+                     "«فوق فيواب = هنا الدخول»")
+        _ol = operator_line(of) if of else ""
+        if _ol:
+            lines.append("   " + _ol)
+    lines += ["", "🎯 الهدف: <i>ما هو مرسومٌ سابقًا على فريمك الأعلى</i> — "
+              "الصورةُ لا تنصّ على وقفٍ لهذي الوصفة، والمعروضُ أعلاه قاعُ "
+              "الحركة لا وقفَ الارتكاز.",
+              "⚠️ إشعارُ توقيتٍ لا توصية — <i>قيد الإثبات الأماميّ</i>."]
+    return _rtl_join(lines)
+
+
+def load_op_entry_state(path: str = None) -> dict:
+    """دِدوبُ «هنا الدخول»: {رمز: تاريخ}. فاشلٌ-آمن ⇒ `{}` (بلا ذاكرةٍ يُعاد
+    التنبيه — أهونُ من كتمِ دخولٍ حقيقيّ)."""
+    path = OP_ENTRY_STATE_FILE if path is None else path
+    try:
+        with open(path, encoding="utf-8") as fh:
+            d = json.load(fh)
+        return d if isinstance(d, dict) else {}
+    except Exception:                                            # noqa: BLE001
+        return {}
+
+
+def save_op_entry_state(state: dict, path: str = None, keep_days: int = 3,
+                        today_iso: str = None) -> bool:
+    """يحفظ الدِدوب مقلَّمًا (لا ينمو بلا حدّ). يرجّع True عند النجاح."""
+    path = OP_ENTRY_STATE_FILE if path is None else path
+    today_iso = today_iso or dt.date.today().isoformat()
+    try:
+        keep = {k: v for k, v in (state or {}).items()
+                if _iso_days_between(str(v), today_iso) <= keep_days}
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(keep, fh, ensure_ascii=False, indent=1)
+        return True
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ حفظ دِدوب «هنا الدخول»: {e}")
+        return False
 
 
 # ==========================================================
@@ -12754,26 +12968,18 @@ def monitor_live_events(wl: dict, history: dict, today_iso: str,
                     pass
             if sw:
                 events.append(("sweep", sw))
-            # 🕵️ **تأكيد دخول المضارب — ثلاثية فيصل على فريم الدقيقة** (منشور X
-            # + شارت WETO، أمر المالك 2026-08-15 «يوصلني تنبيه مباشرة لأي سهم
-            # يدخله المضارب»): صعودٌ أوّل ⟵ رجوعٌ للدعم وثبات ⟵ عبورُ الفيواب
-            # صاعدًا = «هنا الدخول». نافذةُ الجلسة كاملة (390د) · نفسُ بوّابة
-            # القرب (8%) · ويمرّ على بوّابة المضارب القائمة (`_gated`) فلا يصل
-            # إلا مؤكَّدًا «مب قروب». بلا مفتاح = صفرُ عمل · فاشلٌ-آمن.
-            if (os.environ.get("POLYGON_API_KEY", "").strip()
-                    and _sup20 > 0 and lp <= _sup20 * 1.08):
-                try:
-                    _vb = polygon_minute_bars(s["symbol"], minutes=390)
-                    _vc = vwap_entry_confirm(_vb, _sup20) if _vb else None
-                    if _vc:
-                        events.append(("vwap_reclaim",
-                                       f"تأكيد دخول مضارب (ثلاثية فيصل): صعد "
-                                       f"{_vc['prior_rise_pct']:.0f}% فوق الدعم "
-                                       f"${_sup20:.2f} ثم رجع له وثبت، والآن عبر "
-                                       f"الفيواب ${_vc['vwap']:.2f} صاعدًا — "
-                                       "«فوق فيواب = هنا الدخول»"))
-                except Exception:
-                    pass
+            # 🔴🔴 **نُقل «تأكيد دخول المضارب» من هنا 2026-08-16 (بأمر المالك
+            # «تاكد انك استغليتها صح») — وثلاثةُ حواجزَ مقيسة كانت تمنعه بنيويًّا
+            # من الإطلاق على الحالة التي وُلد لها (‏WETO):**
+            #   ① كان يُغذّى `_sup20` = **أدنى 20 جلسة** (مستوًى يوميّ) بينما
+            #      «نفسُ الدعم 3.60» في نصّه هو **قاعُ حركة الدقيقة**.
+            #   ② وبوّابةُ القرب `lp <= _sup20*1.08` تحجب سهمًا اندفع ثم رجع —
+            #      وWETO عند الدخول كان **+196% بريماركت**.
+            #   ③ وهذي الكتلةُ كلُّها داخل `if not premarket_only and not _stale`
+            #      **والحركةُ في صورته بريماركت** ⇒ تُتخطّى في وقتها بالضبط.
+            # ⇒ صارت في `scan_operator_entry` بدعمٍ مشتقٍّ من الدقائق وكونٍ يضمّ
+            #   **كلَّ قوائمنا** ويعمل قبل الافتتاح وبعده — **بيتٌ واحد لا اثنان**
+            #   فلا تنبيهٌ مكرّر. و`vwap_entry_confirm` هي هي (مقياسٌ واحد).
             if stop0 is not None and lp <= stop0:
                 events.append(("break",
                                f"كسر الوقف ${stop0:.2f} — الفكرة ملغاة/خطرة"))

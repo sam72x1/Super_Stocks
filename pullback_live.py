@@ -38,6 +38,18 @@ def _stamp_restore(wl, snap):
             e["status"] = pb[e["symbol"]]
 
 
+def _load_press_state(path: str = "press_radar_state.json") -> dict:
+    """ذاكرةُ رادار الضغط (قراءةٌ فقط) — منها نأخذ مَن نُبِّه عليه حديثًا فيدخل
+    كونَ المتابعة الحيّة. **فاشلٌ-آمن ⇒ `{}`** (غيابُه يُنقص الكونَ ولا يُسقط شيئًا).
+    🔒 ولا يُكتَب فيه هنا إطلاقًا — الرادارُ وحده يملكه."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            d = bot.json.load(fh)
+        return d if isinstance(d, dict) else {}
+    except Exception:                                            # noqa: BLE001
+        return {}
+
+
 def main():
     wl = bot.load_watchlist()
     snap = _stamp_snapshot(wl)     # 🛡️ للاسترجاع عند إخفاق الإرسال
@@ -81,13 +93,46 @@ def main():
                 bot.log("المراقبة اللحظية: لا أحداث جديدة.")
         except Exception as e:
             bot.log(f"⚠️ الأحداث اللحظية: {e}")
+    # (3) 🎯 «هنا الدخول» — متابعةٌ حيّةٌ لِـ**كلّ** أسهمنا (الترشيح · الارتداد ·
+    #     رادار الضغط · تحت المتابعة · متابعة الصيّاد) عن ثلاثية فيصل على فريم
+    #     الدقيقة، **قبل الافتتاح وبعده** (حركةُ WETO في صورته كانت بريماركت).
+    #     أمرُ المالك 2026-08-16: «يوصلنا تحديث مباشرة حسب دخول المضارب … عشان
+    #     اقدر ادخل مع المضارب لو ما تمركزت في السهم من قبل».
+    #     🔒 حارسٌ مطلق: قسمٌ إشعاريّ لا يجوز أن يُسقط المراقبة · وبلا مفتاح
+    #     Polygon = صفرُ عمل (‏`polygon_minute_bars` ترجع None فلا مطابق).
+    _op_seen, _op_rows = None, []
+    try:
+        _op_today = bot.dt.date.today().isoformat()
+        _uni, _cut = bot.live_watch_universe(
+            wl, near=bot.load_near_watch(), press=_load_press_state(),
+            hunter=bot.load_hunter_watch(), today_iso=_op_today)
+        if _cut:
+            # ⚠️ **يُعلَن بعدده** (قاعدة «لا قصَّ صامتًا») — والمقصوصُ هو الأبعدُ
+            #    عن التنفيذ بترتيب الأولوية المُعلَن، لا اختيارٌ عشوائيّ.
+            bot.log(f"ℹ️ كون المتابعة الحيّة: قُصّ {_cut} فوق السقف "
+                    f"{bot.LIVE_WATCH_CAP} (مُعلَن لا صامت).")
+        if _uni:
+            _op_seen = bot.load_op_entry_state()
+            _op_rows = bot.scan_operator_entry(_uni, _op_today, seen=_op_seen)
+            bot.log(f"🎯 متابعة الدخول: فُحص {len(_uni)} سهمًا · "
+                    f"مطابق {len(_op_rows)}.")
+            if _op_rows:
+                alerts.append(bot.build_operator_entry_alert(_op_rows))
+    except Exception as e:                                       # noqa: BLE001
+        bot.log(f"⚠️ متابعة «هنا الدخول»: {e}")
     if not alerts:
         return
     # احفظ الحالة (triggered + sweep_alert_date) **قبل** الإرسال — لو فشل الإرسال
     # أو انهارت العملية بعده لا تتكرّر التنبيهات (نفس ضمان المسار الأصلي).
     bot.save_watchlist(wl)
+    # 🎯 ودِدوبُ «هنا الدخول» يُحفَظ بنفس المقايضة (حفظٌ قبل الإرسال يمنع التكرار)
+    #    — ويُعاد عند الإخفاق أدناه تمامًا كأختام المراقب.
+    _op_files = []
+    if _op_rows and _op_seen is not None:
+        if bot.save_op_entry_state(_op_seen):
+            _op_files = [bot.OP_ENTRY_STATE_FILE]
     try:
-        bot.git_save([bot.WATCH_FILE])
+        bot.git_save([bot.WATCH_FILE] + _op_files)
     except Exception as e:
         bot.log(f"⚠️ حفظ الحالة: {e}")
     # ⚠️ **إصلاح 2026-07-27 (تدقيق «أعلى مستوى»):** كانت نتيجة الإرسال **مُهمَلة**،
@@ -107,6 +152,12 @@ def main():
         bot.log(f"⛔ لم يصل {failed} من {len(alerts)} تنبيهًا — أُعيدت أختام الدِدوب "
                 "لتُعاد المحاولة بالدورة التالية (تنبيه الخطر لا يُفقَد).")
         _stamp_restore(wl, snap)
+        # 🎯 والدِدوبُ الجديد يُنزَع فتُعاد محاولةُ «هنا الدخول» أيضًا — وإلّا
+        #    استُهلك ختمُ السهم على رسالةٍ لم تصل (عينُ عيب 2026-07-27).
+        if _op_rows and _op_seen is not None:
+            for _r, _v, _o in _op_rows:
+                _op_seen.pop(_r.get("symbol"), None)
+            bot.save_op_entry_state(_op_seen)
         bot.save_watchlist(wl)
         try:
             bot.git_save([bot.WATCH_FILE])

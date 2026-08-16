@@ -111,6 +111,14 @@ _NW_REAL_SHA = (
 S.NEAR_WATCH_FILE = _os_hc.path.join(
     _rej_tf.gettempdir(), f"_suite_near_watch.{_SUITE_PID}.json")
 
+# 🎯 **وسادسُ ملفِّ حالة — يُحوَّل فورَ إنشائه** (‏دِدوبُ «هنا الدخول»).
+_OE_REAL_PATH = S.OP_ENTRY_STATE_FILE
+_OE_REAL_SHA = (
+    _rej_h.sha256(open(_OE_REAL_PATH, "rb").read()).hexdigest()
+    if _os_hc.path.exists(_OE_REAL_PATH) else None)
+S.OP_ENTRY_STATE_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_op_entry.{_SUITE_PID}.json")
+
 PASS, FAIL = [], []
 
 
@@ -16635,6 +16643,12 @@ check("👀 NW🔒 ولا `near_watch.json` المدفوع (قائمةُ «تح�
       _nw_now == _NW_REAL_SHA,
       f"قبل={str(_NW_REAL_SHA)[:12]} · بعد={str(_nw_now)[:12]}")
 
+_oe_now = (_rej_h.sha256(open(_OE_REAL_PATH, "rb").read()).hexdigest()
+           if _os_hc.path.exists(_OE_REAL_PATH) else None)
+check("🎯 OE🔒 ولا `op_entry_state.json` المدفوع (دِدوبُ «هنا الدخول»)",
+      _oe_now == _OE_REAL_SHA,
+      f"قبل={str(_OE_REAL_SHA)[:12]} · بعد={str(_oe_now)[:12]}")
+
 
 # ══════════════════════════════════════════════════════════════════════════
 # 👀 قائمةُ «تحت المتابعة» — أقفالُ NW1-NW9 (قرارُ المالك 2026-08-16 «جدارين»)
@@ -19158,8 +19172,13 @@ check("🔬 MW-P1 قاعدة P1: كلُّ مدخلٍ موصولٌ ببيئةٍ �
       and "python method_window_arms.py" in _mw_wf
       and "schedule:" not in _mw_wf)
 
-# VWR — 🕵️ أقفال «تأكيد دخول المضارب» (ثلاثية فيصل على فريم الدقيقة — منشور X
-# + شارت WETO 2026-08-15): عيّناتٌ **مفرِّقةٌ شكلًا شكلًا** + وايرُ المراقب الحيّ.
+# VWR — 🎯 أقفال «هنا الدخول — دخل المضارب» (ثلاثيةُ فيصل على فريم الدقيقة ·
+#   منشور X + شارت WETO، لقطتا المالك 2026-08-15 و2026-08-16).
+#   🔴🔴 **وهذي الكتلةُ أُعيد بناؤها 2026-08-16 لأن سابقتَها كانت تحرس شكلًا
+#   يستحيل أن يصل من الإنتاج:** فِكستشرُ الأمس `_vwr_weto` كان يبدأ **عند
+#   الاندفاعة نفسِها** (سبعُ شمعات)، والإنتاجُ يمرّر **390 دقيقةً من الافتتاح**
+#   فتقع اللمسةُ الأولى في **تجميعِ ما قبل الاندفاعة** ⇒ `touch == 0` ⇒ ‏None.
+#   ⇒ العيّناتُ هنا **بشكل الإنتاج**: تجميعٌ ⟵ اندفاعة ⟵ رجوعٌ ⟵ ثباتٌ ⟵ عبور.
 _vwr_sup = 3.60
 
 
@@ -19167,93 +19186,204 @@ def _vwr_bar(l, h, c, v=1000):
     return {"o": c, "h": h, "l": l, "c": c, "v": v, "vw": c}
 
 
-_vwr_weto = ([_vwr_bar(3.8, 4.2, 4.0), _vwr_bar(4.2, 5.0, 4.9),
-              _vwr_bar(4.5, 5.0, 4.6),
-              _vwr_bar(3.58, 4.0, 3.65), _vwr_bar(3.6, 3.8, 3.7),
-              _vwr_bar(3.7, 4.1, 4.05), _vwr_bar(4.0, 4.4, 4.35)])
-_vwr_ok = S.vwap_entry_confirm(_vwr_weto, _vwr_sup)
-check("🕵️ VWR1 ثلاثية فيصل تُقرأ على شكل WETO: صعودٌ أوّل ‏+39% ⟵ لمسةُ الدعم "
-      "وثبات ⟵ عبورُ الفيواب صاعدًا ⇒ dict بحقوله",
-      _vwr_ok is not None and round(_vwr_ok["prior_rise_pct"]) == 39
-      and _vwr_ok["support"] == 3.6 and _vwr_ok["vwap"] > 0)
-check("🕵️ VWR2 الأشكالُ المفرِّقة الأربعة كلُّها None: بلا صعودٍ أوّل · كسرٌ "
-      "بإغلاقٍ بعد اللمسة · بقي تحت الفيواب · وجلوسٌ فوق الفيواب بلا عبورٍ حقيقيّ",
-      S.vwap_entry_confirm([_vwr_bar(3.58, 3.7, 3.65)] * 5
-                           + [_vwr_bar(3.7, 4.0, 3.95)], _vwr_sup) is None
-      and S.vwap_entry_confirm(_vwr_weto[:4] + [_vwr_bar(3.3, 3.6, 3.40)]
-                               + _vwr_weto[5:], _vwr_sup) is None
-      and S.vwap_entry_confirm(_vwr_weto[:5]
-                               + [_vwr_bar(3.55, 3.7, 3.62)], _vwr_sup) is None
-      and S.vwap_entry_confirm(
-          [_vwr_bar(3.8, 4.2, 4.1), _vwr_bar(4.2, 5.0, 4.9),
-           _vwr_bar(3.6, 5.1, 5.05), _vwr_bar(5.0, 5.3, 5.2)],
-          _vwr_sup) is None
-      and S.vwap_entry_confirm([], _vwr_sup) is None
-      and S.vwap_entry_confirm(_vwr_weto, 0) is None)
-# 🐞 **VWR2ب — درسُ «القفل لا يحرس إلّا بقدر ما تُفرِّق عيّنتُه» (2026-08-15):**
-# طفرةُ «احذف شرط الصعود الأوّل» **نجت** من `VWR2` لأن عيّنة «بلا صعودٍ أوّل»
-# فيها اللمسةُ عند البار **صفر** فتُردّ بحارسٍ **أسبق** (`touch == 0`) ⇒ الجوابُ
-# `None` في المسارين. العيّنةُ هنا **زوجٌ مفرِّق**: نفسُ الشموع حرفيًّا ولا يختلف
-# إلّا **رأسُ البار الأوّل** (‏3.90 تحت عتبة 10% مقابل 4.00 فوقها) ⇒ فرقُ الجواب
-# **لا يمكن أن ينشأ إلا من هذا الشرط**.
-_vwr_norise = [_vwr_bar(3.80, 3.90, 3.85), _vwr_bar(3.60, 3.75, 3.62),
-               _vwr_bar(3.62, 3.80, 3.75), _vwr_bar(3.70, 3.95, 3.92)]
-_vwr_rise = [_vwr_bar(3.80, 4.00, 3.85)] + _vwr_norise[1:]
-check("🕵️ VWR2ب زوجٌ مفرِّق لشرط «الصعود الأوّل» وحده: قمّةٌ سابقة تحت "
-      "10% فوق الدعم ⇒ None · وبرفعها فوقها ⇒ dict (وما عداها متطابق)",
-      S.vwap_entry_confirm(_vwr_norise, _vwr_sup) is None
-      and (S.vwap_entry_confirm(_vwr_rise, _vwr_sup) or {}).get("vwap") is not None)
-# وايرُ المراقب الحيّ: المفتاح حاضر + جالبُ دقائق محقون ⇒ حدث vwap_reclaim
-# يمرّ **عبر بوّابة المضارب** (has_operator=True يمرّ ويحمل كمياته · False يُكتم)
-# + دِدوب مرة/يوم. البريماركت/الافتر محقونان None (صفر شبكة).
-_vwr_dates = pd.date_range("2026-06-01", periods=30, freq="B")
-_vwr_dates = _vwr_dates[:29].append(pd.DatetimeIndex(["2026-07-08"]))
-_vwr_df = pd.DataFrame({"Low": [3.6] * 29 + [3.65],
-                        "High": [4.2] * 30,
-                        "Close": [3.9] * 29 + [3.7],
-                        "Open": [3.9] * 30}, index=_vwr_dates)
-_vwr_env_saved = _os_hc.environ.get("POLYGON_API_KEY")
-_vwr_pmb_saved, _vwr_pm_saved = S.polygon_minute_bars, S.polygon_premarket
-_vwr_wl = {"stocks": [{"symbol": "VWR", "status": "active",
-                       "tranches": [5.0, 5.1, 5.2], "stop": 3.0, "pivot": 3.5,
-                       "interp": {}}]}
-try:
-    _os_hc.environ["POLYGON_API_KEY"] = "test-key"
-    S.polygon_minute_bars = lambda sym, minutes=90: list(_vwr_weto)
-    S.polygon_premarket = lambda sym, prev_close=None: None
-    _vwr_op = {"has_operator": True, "buy_block_shares": 2000,
-               "bid_block_shares": 3000, "bid": 3.6, "ask": 3.65,
-               "bid_size": 500, "ask_size": 400}
-    _vwr_ev = S.monitor_live_events(_vwr_wl, {"VWR": _vwr_df}, "2026-07-08",
-                                    fetch_operator=lambda sym: dict(_vwr_op),
-                                    fetch_afterhours=lambda sym, rc: None)
-    _vwr_ev2 = S.monitor_live_events(_vwr_wl, {"VWR": _vwr_df}, "2026-07-08",
-                                     fetch_operator=lambda sym: dict(_vwr_op),
-                                     fetch_afterhours=lambda sym, rc: None)
-    _vwr_wl2 = {"stocks": [dict(_vwr_wl["stocks"][0], symbol="VWQ")]}
-    _vwr_ev3 = S.monitor_live_events(
-        _vwr_wl2, {"VWQ": _vwr_df}, "2026-07-08",
-        fetch_operator=lambda sym: {"has_operator": False},
-        fetch_afterhours=lambda sym, rc: None)
-finally:
-    if _vwr_env_saved is None:
-        _os_hc.environ.pop("POLYGON_API_KEY", None)
-    else:
-        _os_hc.environ["POLYGON_API_KEY"] = _vwr_env_saved
-    S.polygon_minute_bars, S.polygon_premarket = _vwr_pmb_saved, _vwr_pm_saved
-_vwr_hit = [(k, d) for _, k, d in _vwr_ev if k == "vwap_reclaim"]
-check("🕵️ VWR3 من نقطة النداء الحيّة: `monitor_live_events` يُطلق vwap_reclaim "
-      "بوصفٍ يحمل «هنا الدخول» وكمياتِ المضارب (البوّابة أثرت) · والدِدوب يمنع "
-      "التكرار · وhas_operator=False **يكتمه** («تأكدنا انه مب قروب» حرفيًّا)",
-      len(_vwr_hit) == 1 and "هنا الدخول" in _vwr_hit[0][1]
-      and "سهم" in _vwr_hit[0][1]
-      and not [1 for _, k, _ in _vwr_ev2 if k == "vwap_reclaim"]
-      and not [1 for _, k, _ in _vwr_ev3 if k == "vwap_reclaim"])
-check("🕵️ VWR4 خارج الجذور: `vwap_entry_confirm` لا تظهر في rank_key/"
-      "select_top/backtest_symbol/analyze_ticker (توقيت/عرض لا اختيار)",
-      all("vwap_entry_confirm" not in _insp0.getsource(_f)
+def _vwr_session(pre=10, imp_v=10000, break_close=None, no_touch=False):
+    """يبني جلسةَ دقائقَ **بشكل الإنتاج** — `pre` شمعةَ تجميعٍ عند الدعم قبل
+    الاندفاعة (وهو ما كان يقتل الدالّةَ قبل الإصلاح)."""
+    b = [_vwr_bar(3.60, 3.68, 3.64, 25000) for _ in range(pre)]
+    for p in (3.90, 4.20, 4.60, 4.90, 5.03):
+        b.append(_vwr_bar(p - 0.15, p + 0.03, p, imp_v))
+    for p in (4.70, 4.30, 3.95, 3.72, 3.61):
+        lo = (p + 0.12) if no_touch else (p - 0.02)   # بلا لمسةٍ للدعم
+        b.append(_vwr_bar(lo, p + 0.12, p, imp_v))
+    for _ in range(4):
+        # عند `no_touch` تجلس شمعاتُ الثبات **فوق** الدعم أيضًا، وإلّا لمسته هي
+        # فبطل معنى العيّنة (وهو ما أمسكه أوّلُ تشغيل — الفِكستشرُ يُفحَص لا يُفترَض).
+        _hl = 3.92 if no_touch else 3.60
+        b.append(_vwr_bar(_hl, _hl + 0.10, break_close or (_hl + 0.06), 25000))
+    b.append(_vwr_bar(3.70, 3.80, 3.78, 40000))
+    b.append(_vwr_bar(3.83, 3.93, 3.91, 40000))
+    return b
+
+
+_vwr_prod = _vwr_session()
+_vwr_ok = S.vwap_entry_confirm(_vwr_prod)
+check("🎯 VWR1 ثلاثيةُ فيصل على **شكل الإنتاج** (تجميعٌ قبل الاندفاعة): "
+      "صعودٌ أوّل ⟵ رجعَ لنفس الدعم وثبت ⟵ عبرَ الفيواب ⇒ dict بحقوله",
+      _vwr_ok is not None and _vwr_ok["support"] == 3.6
+      and round(_vwr_ok["prior_rise_pct"]) == 41 and _vwr_ok["vwap"] > 0
+      and _vwr_ok["high"] == 5.06, str(_vwr_ok)[:110])
+# 🔒 VWR1ب — **قفلُ انحدارِ العيب بعينه** (زوجٌ مفرِّق): نفسُ الشموع حرفيًّا ولا
+#    يختلف إلّا **طولُ التجميع قبل الاندفاعة**. القراءةُ المعطوبة («أوّلُ لمسةٍ في
+#    النافذة») تُرجع None متى وُجد تجميعٌ عند الدعم؛ والصحيحة («أوّلُ لمسةٍ **بعد**
+#    القمّة») تُرجع dict في الحالتين. ⇒ سقوطُ هذا القفل = عودةُ العيب.
+# 🔑 والدليلُ **بنيويٌّ لا حظّيّ**: نحسب «أوّلَ لمسةٍ في النافذة» (القراءةُ
+#    المعطوبة) ونُثبت أنها عند البار **صفر** — أي أن الكودَ القديم كان يُرجع
+#    `None` قطعًا على هذي العيّنات — بينما الحاليُّ يُطلق على الثلاث.
+_vwr_naive = [next((i for i, _b in enumerate(_vwr_session(pre=n))
+                    if _b["l"] <= _vwr_sup * 1.02), None) for n in (5, 10, 40)]
+check("🔒 VWR1ب اللمسةُ تُقرأ **بعد** القمّة لا أوّلَ النافذة — «أوّلُ لمسة» تقع "
+      "عند البار صفر (فالقديمُ None قطعًا) والحاليُّ يُطلق على 5 · 10 · 40",
+      _vwr_naive == [0, 0, 0]
+      and all(S.vwap_entry_confirm(_vwr_session(pre=n)) is not None
+              for n in (5, 10, 40)),
+      f"أوّلُ لمسة={_vwr_naive} · "
+      + str([bool(S.vwap_entry_confirm(_vwr_session(pre=n)))
+             for n in (5, 10, 40)]))
+# 🔒 VWR1ج — والدعمُ **مشتقٌّ من الدقائق** لا من مستوًى يوميّ: `intraday_support`
+#    ترجّع قاعَ ما قبل القمّة، و`None` حين تكون القمّةُ أوّلَ شمعة (لا اندفاعة).
+_vwr_is = S.intraday_support(_vwr_prod)
+check("🔒 VWR1ج `intraday_support` = قاعُ ما قبل القمّة (‏3.60) · وبلا «ما قبل» "
+      "⇒ None (لا اندفاعةَ تُقاس)",
+      _vwr_is is not None and _vwr_is[0] == 3.6 and _vwr_is[2] == 5.06
+      and S.intraday_support([_vwr_bar(3.6, 9.9, 9.0)] * 4) is None
+      and S.intraday_support([]) is None, str(_vwr_is))
+check("🎯 VWR2 الأشكالُ المفرِّقة كلُّها None: بلا صعودٍ أوّل · لم يرجع للدعم · "
+      "كسرٌ بإغلاقٍ بعد اللمسة · بقي تحت الفيواب · وفارغٌ/دعمٌ باطل",
+      S.vwap_entry_confirm([_vwr_bar(3.58, 3.70, 3.65)] * 6) is None
+      and S.vwap_entry_confirm(_vwr_session(no_touch=True)) is None
+      and S.vwap_entry_confirm(_vwr_session(break_close=3.40)) is None
+      and S.vwap_entry_confirm(_vwr_session(imp_v=200000)) is None
+      and S.vwap_entry_confirm([]) is None
+      and S.vwap_entry_confirm(_vwr_prod, 0) is None)
+# 🐞 **VWR2ب — درسُ «القفل لا يحرس إلّا بقدر ما تُفرِّق عيّنتُه»:** زوجٌ لا يختلف
+#    إلّا في **رأس شمعة الاندفاعة** (تحت عتبة `PM_MOVE_PCT`=10% مقابل فوقها).
+_vwr_norise = ([_vwr_bar(3.60, 3.68, 3.64, 25000)] * 3
+               + [_vwr_bar(3.70, 3.90, 3.88, 9000)]
+               + [_vwr_bar(3.60, 3.72, 3.62, 9000)]
+               + [_vwr_bar(3.62, 3.80, 3.75, 40000)])
+_vwr_rise = _vwr_norise[:3] + [_vwr_bar(3.70, 4.00, 3.88, 9000)] + _vwr_norise[4:]
+check("🎯 VWR2ب زوجٌ مفرِّق لشرط «الصعود الأوّل» وحده: قمّةٌ تحت 10% فوق الدعم "
+      "⇒ None · وبرفعها فوقها ⇒ dict (وما عداها متطابق)",
+      S.vwap_entry_confirm(_vwr_norise) is None
+      and (S.vwap_entry_confirm(_vwr_rise) or {}).get("vwap") is not None)
+
+# ── كونُ المتابعة الحيّة: كلُّ قوائمنا الخمس ────────────────────────────────
+_vwr_wl_uni = {"stocks": [{"symbol": "AAA", "status": "active"},
+                          {"symbol": "BBB", "status": "active",
+                           "cont_status": "exited"},
+                          {"symbol": "CCC", "status": "stopped"}],
+               "pullback": [{"symbol": "PPP"}, {"symbol": "AAA"}]}
+_vwr_uni, _vwr_cut = S.live_watch_universe(
+    _vwr_wl_uni, near={"stocks": [{"symbol": "NNN"}]},
+    press={"symbols": {"RRR": {"last_alert": "2026-08-15"},
+                       "OLD": {"last_alert": "2026-07-01"}}},
+    hunter={"stocks": [{"symbol": "HHH", "status": "active"},
+                       {"symbol": "HOF", "status": "stopped"}]},
+    today_iso="2026-08-16")
+check("👁️ VWR5 كونُ المتابعة = القوائمُ الخمس بأولويةٍ مُعلَنة · منزوعُ التكرار "
+      "(‏AAA بمصدره الأوّل) · ويُقصي «خرج من النموذج» والمشطوبَ والبائتَ",
+      [r["symbol"] for r in _vwr_uni] == ["PPP", "AAA", "RRR", "NNN", "HHH"]
+      and _vwr_uni[1]["src"] == "الارتداد" and _vwr_cut == 0,
+      str([(r["symbol"], r["src"]) for r in _vwr_uni]))
+_vwr_cap = S.live_watch_universe(
+    _vwr_wl_uni, near={"stocks": [{"symbol": "NNN"}]}, cap=2,
+    today_iso="2026-08-16")
+check("🔒 VWR5ب السقفُ يقصّ **الأبعدَ عن التنفيذ** ويُعلَن بعدده (لا قصَّ صامتًا)",
+      [r["symbol"] for r in _vwr_cap[0]] == ["PPP", "AAA"] and _vwr_cap[1] == 1,
+      str(_vwr_cap))
+
+# ── الماسحُ الحيّ: بوّابةُ المضارب + الدِدوب ───────────────────────────────
+_vwr_flat = [_vwr_bar(3.58, 3.62, 3.60)] * 30
+_vwr_pool = [{"symbol": "WETO", "src": "تحت المتابعة"},
+             {"symbol": "FLAT", "src": "الترشيح"}]
+
+
+def _vwr_fb(sym, minutes=390):
+    return list(_vwr_prod) if sym == "WETO" else list(_vwr_flat)
+
+
+_vwr_op_full = {"has_operator": True, "buy_block_shares": 2000,
+                "bid_block_shares": 3000, "bid": 3.90, "ask": 3.92,
+                "bid_size": 500, "ask_size": 300}
+_vwr_seen = {}
+_vwr_rows = S.scan_operator_entry(_vwr_pool, "2026-08-16", fetch_bars=_vwr_fb,
+                                  fetch_operator=lambda s: dict(_vwr_op_full),
+                                  seen=_vwr_seen)
+check("🎯 VWR6 الماسحُ يلتقط المطابقَ وحده (‏WETO لا FLAT) ويختمُ دِدوبَه",
+      [r[0]["symbol"] for r in _vwr_rows] == ["WETO"]
+      and _vwr_seen.get("WETO") == "2026-08-16"
+      and _vwr_rows[0][1]["price"] == 3.91)
+check("🔒 VWR6ب بوّابةُ المضارب: قِيس ولا مضارب ⇒ **يُكتَم** · تعذّر القياس "
+      "(‏None) ⇒ **يمرّ بفائدة الشك** · والدِدوب يمنع التكرار في اليوم نفسه",
+      S.scan_operator_entry(_vwr_pool, "2026-08-16", fetch_bars=_vwr_fb,
+                            fetch_operator=lambda s: {"has_operator": False},
+                            seen={}) == []
+      and [r[0]["symbol"] for r in S.scan_operator_entry(
+          _vwr_pool, "2026-08-16", fetch_bars=_vwr_fb,
+          fetch_operator=lambda s: None, seen={})] == ["WETO"]
+      and S.scan_operator_entry(_vwr_pool, "2026-08-16", fetch_bars=_vwr_fb,
+                                fetch_operator=lambda s: dict(_vwr_op_full),
+                                seen=_vwr_seen) == [])
+check("🔒 VWR6ج فاشلٌ-آمن: جالبٌ يرمي أو يرجّع فارغًا ⇒ يُتخطّى السهمُ وحده "
+      "ولا ينهار المسح",
+      S.scan_operator_entry(_vwr_pool, "2026-08-16",
+                            fetch_bars=lambda s, minutes=390: (_ for _ in ()).throw(RuntimeError("x")),
+                            fetch_operator=lambda s: None, seen={}) == []
+      and S.scan_operator_entry(_vwr_pool, "2026-08-16",
+                                fetch_bars=lambda s, minutes=390: None,
+                                fetch_operator=lambda s: None, seen={}) == [])
+
+# ── الرسالة: تقول ما تعرفه وحده ────────────────────────────────────────────
+_vwr_msg = S.build_operator_entry_alert(_vwr_rows)
+check("📩 VWR7 الرسالةُ تحمل «هنا الدخول» والدعمَ والفيواب وكمياتِ المضارب · "
+      "وبلا صفوف ⇒ نصٌّ فارغ (صمتٌ لا رسالةٌ فاضية)",
+      "هنا الدخول" in _vwr_msg and "3.60" in _vwr_msg and "3.91" in _vwr_msg
+      and "سهم" in _vwr_msg and S.build_operator_entry_alert([]) == "")
+check("🔒 VWR7ب صدقُ العرض: **لا تُسمّي وقفًا** (الصورة لا تنصّ عليه) · وتصف "
+      "الهدفَ «مرسومًا سابقًا» · وبلا علاماتِ مقارنةٍ إطلاقًا",
+      "وقفَ الارتكاز" in _vwr_msg and "مرسومٌ سابقًا" in _vwr_msg
+      and not any(_c in _vwr_msg for _c in "≥≤")
+      and "قيد الإثبات الأماميّ" in _vwr_msg)
+
+# ── الوصلُ من نقطة النداء الحيّة (AST) + البيتُ الواحد ─────────────────────
+_vwr_pl = open("pullback_live.py", encoding="utf-8").read()
+_vwr_pl_t = _ast0.parse(_vwr_pl)
+_vwr_calls = {_ast0.unparse(n.func) for n in _ast0.walk(_vwr_pl_t)
+              if isinstance(n, _ast0.Call)}
+check("🔒 VWR8 موصولٌ من `pullback_live` بالـAST: كونٌ ⟵ مسحٌ ⟵ رسالة",
+      {"bot.live_watch_universe", "bot.scan_operator_entry",
+       "bot.build_operator_entry_alert"} <= _vwr_calls, str(len(_vwr_calls)))
+_vwr_uni_call = [n for n in _ast0.walk(_vwr_pl_t) if isinstance(n, _ast0.Call)
+                 and _ast0.unparse(n.func) == "bot.live_watch_universe"]
+check("🔒 VWR8ب ويمرّر **القوائمَ الثلاث الإضافية** (تحت المتابعة · رادار الضغط "
+      "· متابعة الصيّاد) — وإلّا صار «كلُّ أسهمنا» دعوًى بلا مادّة",
+      len(_vwr_uni_call) == 1
+      and {"near", "press", "hunter"} <= {k.arg for k in _vwr_uni_call[0].keywords})
+check("🔒 VWR8ج والدِدوبُ يُنزَع عند إخفاق الإرسال (وإلّا استُهلك ختمُ السهم على "
+      "رسالةٍ لم تصل — عينُ عيب 2026-07-27)",
+      "_op_seen.pop(" in _vwr_pl and "_stamp_restore(wl, snap)" in _vwr_pl)
+# 🔒 VWR9 — **بيتٌ واحدٌ لا اثنان**: `monitor_live_events` لم تعد تنادي الدالّة
+#    (كانت تُغذّيها «أدنى 20 جلسة» خلف بوّابةِ قربٍ 8% وداخلَ فرعٍ يُتخطّى في
+#    البريماركت) ⇒ لا تنبيهَ مكرّرٌ ولا فرعٌ يقرأ مستوًى خاطئًا.
+_vwr_mle = _insp0.getsource(S.monitor_live_events)
+_vwr_mle_calls = {_ast0.unparse(n.func) for n in _ast0.walk(_ast0.parse(_vwr_mle))
+                  if isinstance(n, _ast0.Call)}
+check("🔒 VWR9 بيتٌ واحد: `vwap_entry_confirm` خارج `monitor_live_events` "
+      "(نُقلت للماسح الحيّ) — فلا تنبيهَ مكرّرٌ ولا دعمٌ يوميٌّ خاطئ",
+      "vwap_entry_confirm" not in _vwr_mle_calls
+      and "_minute_sweep" in _vwr_mle_calls)   # حارسُ تفاهة: المسحُ باقٍ كما هو
+check("🔒 VWR10 خارج الجذور: لا `vwap_entry_confirm` ولا `scan_operator_entry` "
+      "في rank_key/select_top/backtest_symbol/analyze_ticker/scan_market",
+      all(_n not in _insp0.getsource(_f)
           for _f in (S.rank_key, S.select_top, S.backtest_symbol,
-                     S.analyze_ticker)))
+                     S.analyze_ticker, S.scan_market)
+          for _n in ("vwap_entry_confirm", "scan_operator_entry",
+                     "live_watch_universe")))
+# 🔒 VWR11 — الكرونُ يغطّي البريماركت المبكّر: حركةُ WETO كانت ‏≈08:47 UTC صيفًا،
+#    والكرونُ القديم يبدأ 11:13 ⇒ خارج التغطية. الآن يبدأ 08:13.
+_vwr_cron = open(".github/workflows/pullback_monitor.yml", encoding="utf-8").read()
+_vwr_hours = _re10.findall(r'cron:\s*"[\d,]+\s+(\d+)-(\d+)\s', _vwr_cron)
+check("🔒 VWR11 كرونُ المراقب يبدأ من 08 UTC (بريماركت مبكّر) — وإلّا فاللحظةُ "
+      "التي بُنيت لها الميزةُ خارجَ التغطية",
+      _vwr_hours and all(int(a) <= 8 for a, _b in _vwr_hours)
+      and len(_vwr_hours) == 2, str(_vwr_hours))
+# 🔒 VWR12 — الدِدوبُ يُقلَّم فلا ينمو بلا حدّ · وقراءتُه فاشلةٌ-آمنة
+_vwr_st = _os_hc.path.join(_rej_tf.gettempdir(), f"_vwr_st.{_SUITE_PID}.json")
+S.save_op_entry_state({"A": "2026-08-16", "B": "2026-01-01"}, path=_vwr_st,
+                      today_iso="2026-08-16")
+check("🔒 VWR12 الدِدوبُ يُقلَّم بالتقادم · والقراءةُ فاشلةٌ-آمنة ⇒ {}",
+      S.load_op_entry_state(_vwr_st) == {"A": "2026-08-16"}
+      and S.load_op_entry_state(_vwr_st + ".nope") == {})
 
 # CT4 — عدّاداتُ §⑪-ج الليلية في الرادار **صامتة**: تُسجَّل في السجلّ فقط،
 # 🔄 أُعيد بناؤه 2026-08-14 مساءً بعد «وسّع»: قراءةُ التنبيه صارت VA1 نفسها
