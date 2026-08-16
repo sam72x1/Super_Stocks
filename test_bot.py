@@ -19528,15 +19528,28 @@ _oel_calls = {_ast0.unparse(_n.func) for _n in _ast0.walk(_oel_t)
 check("⚡ OEL1 العاملُ يبني الكونَ ويمسح ويرسل بدوالّ الإنتاج (AST)",
       {"bot.live_watch_universe", "bot.scan_operator_entry",
        "bot.build_operator_entry_alert", "bot.send_telegram"} <= _oel_calls)
+# 🧭 «القفلُ يجب أن يسقط لا أن ينهار» — و`str.index` على غائبٍ **يرمي** فيكتم
+#    سطرَ الملخّص وكلَّ قفلٍ بعده. مقيسٌ اليوم: طفرةُ «الختمُ قبل الإرسال»
+#    أسقطت `OEL3` **بانهيار** لا بسقوطٍ مقروء ⇒ صارت `_ix` تُرجع −1 وتُحرَس.
+def _ix(hay, needle):
+    """موضعُ الإبرة أو **−1** — لا `ValueError` يكتم بقيّةَ الأقفال."""
+    return hay.find(needle)
+
+
+_oel_pk, _oel_wh = _ix(_oel_src, "POLYGON_API_KEY"), _ix(_oel_src, "while ")
 check("🔒 OEL2 بلا مفتاح Polygon = **صفرُ عمل** (فاشلٌ-آمن) — والحارسُ أوّلُ سطر",
       'os.environ.get("POLYGON_API_KEY"' in _oel_src
-      and _oel_src.index("POLYGON_API_KEY") < _oel_src.index("while "))
+      and _oel_pk >= 0 and _oel_wh >= 0 and _oel_pk < _oel_wh,
+      f"مفتاح={_oel_pk} حلقة={_oel_wh}")
 # 🔒 OEL3 — **الختمُ بعد الإرسال حصرًا** ويُنزَع عند الرفض (عقدُ «فُحِص وسُلِّم»)
-_oel_main = _oel_src[_oel_src.index("def main("):]
+_oel_mi = _ix(_oel_src, "def main(")
+_oel_main = _oel_src[_oel_mi:] if _oel_mi >= 0 else ""
+_oel_tg, _oel_sv = _ix(_oel_main, "bot.send_telegram"), _ix(_oel_main, "save_op_entry_state")
 check("🔒 OEL3 الختمُ **بعد** نجاح الإرسال · ويُنزَع عند الرفض · ويُدفَع فورًا",
-      _oel_main.index("bot.send_telegram") < _oel_main.index("save_op_entry_state")
+      _oel_tg >= 0 and _oel_sv >= 0 and _oel_tg < _oel_sv
       and "seen.pop(_s, None)" in _oel_main
-      and "bot.git_save([bot.OP_ENTRY_STATE_FILE])" in _oel_main)
+      and "bot.git_save([bot.OP_ENTRY_STATE_FILE])" in _oel_main,
+      f"إرسال={_oel_tg} ختم={_oel_sv}")
 # 🔒 OEL4 — **إشعارٌ لا اختيار**: لا يكتب قائمةً ولا يمسّ فرزًا
 check("🔒 OEL4 لا يكتب قائمةَ الفرز ولا يمسّ جذرًا (يقرأ ويرسل فقط)",
       all(_n not in _oel_src for _n in ("save_watchlist", "scan_market",
