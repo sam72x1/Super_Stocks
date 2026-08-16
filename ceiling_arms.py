@@ -70,11 +70,21 @@ def rates(trades) -> dict:
 
 
 def gate_hits(text: str) -> int:
-    """عدّادُ جدار السقف من **توزيع رفض الإنتاج نفسِه** (‏`V2`).
-    صيغتُه: «‏   1. M2_هبوط_فوق_97 = 18220 (31.0%)». غيابُ المفتاح ⇒ 0 —
-    **وهو بعينه ما يشترطه `V2` عند `C3`** (بلا سقفٍ ⇒ صفرُ رفضاتِ سقف)."""
+    """عدّادُ جدار السقف من **سطر التجميع العالميّ وحده**.
+
+    صيغتُه المرساة: «‏   1. M2_هبوط_فوق_97 = 18220 (31.0%)» — **مرقَّمةٌ** بخلاف
+    سطر كلّ رمز («‏باكتيست·أسباب AAA (…): M2_هبوط_فوق_97=5»).
+
+    🐞 **عيبٌ أمسكه ناقدٌ خصوميّ قبل أيّ تشغيلة — والعدّادُ كان مضروبًا في ٢:**
+    السطرُ لكلّ رمزٍ **غيرُ محروسٍ بـ`market`** (‏`Super_stock.py:18272`) فيُطبع
+    في السوق الكامل أيضًا، ومجموعُ سطور الرموز = التجميعُ نفسُه ⇒ الرقعةُ الحرّة
+    كانت تجمعهما (‏مُستنسَخٌ على سجلّ `RUBI`: 13 + 13 = **26** والحقيقيّ 13).
+    ⚠️ **ويمسّ أدواتٍ أخرى:** `base2_arms.gate_hits`/`base_arms`/`stability_arms`
+    بالنمط الحرّ نفسِه ⇒ **عدّاداتُ الجدار المنشورة هناك مضروبةٌ في ٢** (أحكامُها
+    على `d50`/`R` فلا تتأثّر) — **يُبلَّغ ولا يُصحَّح صامتًا في ملفٍّ منشور.**"""
     return sum(int(m.group(1)) for m in
-               re.finditer(re.escape(GATE_KEY) + r"[^=\n]*=\s*(\d+)", text or ""))
+               re.finditer(r"^\s*\d+\.\s*" + re.escape(GATE_KEY) + r"\s*=\s*(\d+)",
+                           text or "", flags=re.M))
 
 
 def ratio_needed(cap: float) -> float:
@@ -134,26 +144,79 @@ def probe(syms: str = None) -> int:
     return 0
 
 
+def trades_path(arm: str) -> str:
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        f"ceil_trades_{arm}.json")
+
+
+def snapshot_id() -> dict:
+    """🔒 **هويّةُ اللقطة — برهانُ «الميزانيةِ الثابتة» لا دعواها.**
+
+    `frozen_missing` تفحص **وجودَ الملفّ** فقط، و`run_backtest` عند فسادِه
+    **لا يسقط** بل يرتدّ إلى تحميلٍ حيّ من ياهو ⇒ مشيٌ على **كون اليوم**
+    بأرقامٍ معقولةِ الشكل وحارسُ `rc=4` يمرّ. فتُقرأ الهويّةُ فعلًا
+    (‏`as-of` وعددُ الرموز) ويُشترَط تطابقُها في الأذرع الأربع (‏`V7`)."""
+    import Super_stock as S                                      # noqa: PLC0415
+    p = (os.environ.get("BT_FROZEN_PATH") or "").strip()
+    if not p:
+        return {"asof": None, "n": None}
+    hist, _sp, asof = S.load_frozen_dataset(p)
+    return {"asof": (str(asof) if asof else None),
+            "n": (len(hist) if hist else 0)}
+
+
 def run_child(arm: str) -> int:
-    import replay10 as RP                                        # noqa: PLC0415
     import Super_stock as S                                      # noqa: PLC0415
     S.CONFIG["MAX_DROP_PCT"] = float(ARMS[arm])           # **بعد** الاستيراد
     print(f"ARM_EFFECTIVE {arm} MAX_DROP_PCT={S.CONFIG['MAX_DROP_PCT']!r}")
+    snap = snapshot_id()
+    print(f"SNAP {arm} as-of={snap['asof']} n_symbols={snap['n']}")
     trades = S.run_backtest() or []
     out = {"arm": arm, "year": (os.environ.get("BACKTEST_YEAR") or "?"),
-           "cap": S.CONFIG["MAX_DROP_PCT"]}
+           "cap": S.CONFIG["MAX_DROP_PCT"], "snap": snap,
+           "expl": float(S.CONFIG["EXPLOSION_PCT"])}
     out.update(rates(trades))
+    # 🔴 **الحسمُ المحفظيّ انتقل إلى الوالد** (‏`V8`): `candidates_from_trades`
+    #    يبني محورَ الجلسات **من صفقات الذراع وحدها** ⇒ ذراعٌ بإشاراتٍ أكثر
+    #    يصير محورُها **أكثفَ** فتطول مدّةُ إشغال الخانة **بوحدات الفهرس** لنفس
+    #    المدى التقويميّ ⇒ ازدحامٌ أشدّ ⇒ `d50` يتحرّك **لسببٍ حسابيٍّ محض**.
+    #    العلاجُ `extra_dates` (وسيطٌ **قائمٌ في `replay10` ولا تستعمله أداة**):
+    #    الوالدُ يوحّد المحورَ باتّحاد تواريخ الأذرع الأربع. فيكتب الطفلُ صفقاته.
     wf = [t for t in trades if t.get("exit_date")]
-    if wf:
-        cands, idx, oc = RP.candidates_from_trades(wf)
+    with open(trades_path(arm), "w", encoding="utf-8") as fh:
+        json.dump(wf, fh, ensure_ascii=False, default=str)
+    out["wf"] = len(wf)
+    print("CEIL_JSON: " + json.dumps(out, ensure_ascii=False))
+    return 0
+
+
+def portfolio(wf_by_arm: dict, expl: float) -> dict:
+    """🏦 الحسمُ المحفظيُّ للأذرع **على محورِ جلساتٍ موحَّد** (‏`V8`).
+
+    `extra_dates` = اتّحادُ تواريخ الأذرع الأربع ⇒ **نفسُ الفهرس لكلّها**، فمدّةُ
+    إشغال الخانة تُقاس بوحدةٍ واحدة ولا يصنع الفرقَ اختلافُ كثافة المحور."""
+    import replay10 as RP                                        # noqa: PLC0415
+    dates = set()
+    for rows in wf_by_arm.values():
+        for t in rows:
+            if t.get("date"):
+                dates.add(str(t["date"]))
+            if t.get("exit_date"):
+                dates.add(str(t["exit_date"]))
+    out = {}
+    for arm, rows in wf_by_arm.items():
+        if not rows:
+            out[arm] = {"taken": None, "d50": None}
+            continue
+        cands, idx, oc = RP.candidates_from_trades(rows, extra_dates=sorted(dates))
         res = RP.replay(cands, outcome_of=oc, ranker=RP.rank_live,
                         sessions=range(0, len(idx)))
         taken = res["taken"]
         rs = [v for v in (RP.r_unit(c.payload) for c in taken) if v is not None]
 
-        def _d(thr):
+        def _d(thr, _tk=taken):
             n = 0
-            for c in taken:
+            for c in _tk:
                 p = c.payload
                 if p.get("mg_outcome") in (None, "no_fill"):
                     continue
@@ -163,12 +226,18 @@ def run_child(arm: str) -> int:
                 except (TypeError, ValueError):
                     pass
             return n
-        out.update({"taken": len(taken), "rejected_cap": res["rejected_cap"],
-                    "d50": _d(float(S.CONFIG["EXPLOSION_PCT"])), "d100": _d(100.0),
-                    "per_trade": (round(sum(rs) / len(taken), 4)
-                                  if taken else 0.0)})
-    print("CEIL_JSON: " + json.dumps(out, ensure_ascii=False))
-    return 0
+        # 🔴 **`no_fill` داخل المأخوذين يُطبَع** — لأن `r_unit` تُرجع **0.0R** لغير
+        #    المُعبَّأة (اختيارٌ موثَّقٌ في `replay10`: الخانةُ استُهلكت)، والأساسُ
+        #    **سالب** ⇒ كلُّ اسمٍ جديدٍ لا يُعبَّأ **يرفع** المتوسطَ نحو الصفر.
+        #    ⇒ المعيار (ج) قد يمرّ **بآليةٍ لا بحافّة**، والشاهدُ هذا العدّاد.
+        #    **والمقياسُ المسجَّل لا يُبدَّل** (تحريكُ هدف) — يُعرَض معه فقط.
+        nf = sum(1 for c in taken if (c.payload or {}).get("mg_outcome") == "no_fill"
+                 or (c.payload or {}).get("outcome") == "no_fill")
+        out[arm] = {"taken": len(taken), "rejected_cap": res["rejected_cap"],
+                    "d50": _d(expl), "d100": _d(100.0), "axis": len(idx),
+                    "taken_no_fill": nf,
+                    "per_trade": (round(sum(rs) / len(taken), 4) if taken else 0.0)}
+    return out
 
 
 def _live_capacity() -> int:
@@ -178,8 +247,21 @@ def _live_capacity() -> int:
     return int(_rp.CAPACITY)
 
 
+def _mark(v) -> str:
+    """‏✅ عبَر · ⛔ يُسقط · **ℹ️ يُعلَن ولا يُسقط** (‏`None`) — علامتان لثلاث
+    حالاتٍ تكذب (درسُ `ST10`)."""
+    return "ℹ️" if v is None else ("✅" if v else "⛔")
+
+
 def validity(res: dict, hits: dict, year: str) -> tuple[bool, list]:
-    """§⑤ — خمسةُ شروطٍ تُقرأ **قبل** أيّ تفسير. تُرجع (سليم، أسطر)."""
+    """§⑤ — الشروطُ تُقرأ **قبل** أيّ تفسير. تُرجع (سليم، أسطر).
+
+    🔴 **وتمييزٌ حاسمٌ اتُّخذ قبل أيّ رقم (‏§⑤-ب من التسجيل):** ما هو **بنيويّ**
+    يُسقِط، وما ليس بنيويًّا **يُعلَن ولا يُسقِط** — لأن `backtest_symbol` يقفز
+    `i += fwd` بعد كلّ صفقة، فالأذرعُ **ليست متداخلة**: قبولٌ أبكر في ذراعٍ أوسع
+    **يبتلع** نافذةً كاملة فقد تنقص إشاراتُها. ⇒ رتابةُ الإشارات ورتابةُ العدّاد
+    **ليستا خاصّيتين بنيويّتين**، وجعلُهما بوّابةً قاطعةً كان **يُسقط تشغيلةً
+    سليمة** = حارسٌ يمنع الصحيح، وهو **قفلٌ مكسورٌ لا أشدّ**."""
     order = list(ARMS)                       # الأساس ثم الأوسعُ تدرّجًا
     lines, ok = [], True
 
@@ -188,21 +270,43 @@ def validity(res: dict, hits: dict, year: str) -> tuple[bool, list]:
     lines.append(("V1", c1, "القيمُ النافذة أربعٌ متمايزة: "
                   + " · ".join(f"{a}={res[a]['cap']:.5f}" for a in order)))
 
-    # `V2` **حارسُ الـno-op**: السقفُ الأوسعُ يرفض **أقلّ** ⇒ العدّادُ يتناقص
-    #  رتيبًا · **و`C3` (بلا سقف) صفرٌ بالضبط** وإلّا فالعلمُ لم يعمل.
-    mono = all(hits[order[i]] >= hits[order[i + 1]] for i in range(len(order) - 1))
-    c2 = bool(mono and hits[order[-1]] == 0 and hits[BASE_ARM] > 0)
-    lines.append(("V2", c2, "العلمُ فعّال — العدّادُ يتناقص و`C3`=صفر: "
-                  + " ≥ ".join(f"{a}={hits[a]}" for a in order)))
+    # `V2` **حارسُ الـno-op — بشقِّه البنيويّ وحده**: بلا سقفٍ (`C3`) يستحيل
+    #  رياضيًّا أن تقع رفضةُ سقفٍ (‏`drop < 100` لأن `price > 0`) ⇒ **صفرٌ
+    #  بالضبط**؛ وبالسقف النافذ (`C0`) يجب أن يرفض شيئًا وإلّا فالجدارُ خامد.
+    c2 = bool(hits[order[-1]] == 0 and hits[BASE_ARM] > 0)
+    lines.append(("V2", c2, "العلمُ فعّال (بنيويّ): `C3`=صفر و`C0`>صفر — "
+                  + " · ".join(f"{a}={hits[a]}" for a in order)))
 
     c4 = all(res[a].get("taken") is not None and res[a].get("d50") is not None
              for a in order)
     lines.append(("V4", c4, "المقياسُ الحاكم محسوبٌ لا غائب: "
                   + " · ".join(f"{a}.d50={res[a].get('d50')}" for a in order)))
 
+    # `V7` **هويّةُ اللقطة** — برهانُ «الميزانيةِ الثابتة»: نفسُ `as-of` ونفسُ
+    #  عددِ الرموز في الأربع (ملفٌّ تالفٌ يرتدّ لتحميلٍ حيّ **بلا سقوط**).
+    snaps = {a: (res[a].get("snap") or {}) for a in order}
+    ids = {(s.get("asof"), s.get("n")) for s in snaps.values()}
+    c7 = len(ids) == 1 and all(s.get("n") for s in snaps.values())
+    lines.append(("V7", c7, "هويّةُ اللقطة واحدةٌ في الأربع (ميزانيةٌ ثابتة): "
+                  + " · ".join(f"{a}={snaps[a].get('asof')}/{snaps[a].get('n')}"
+                               for a in order)))
+
+    # `V8` **محورُ الجلسات موحَّد** — وإلّا تحرّك `d50` بكثافةِ المحور لا بالسقف.
+    ax = {res[a].get("axis") for a in order}
+    c8 = len(ax) == 1 and None not in ax
+    lines.append(("V8", c8, f"محورُ الجلسات موحَّدٌ للأربع: {sorted(x for x in ax)}"))
+
+    # ℹ️ **رصدٌ يُعلَن ولا يُسقط** (غيرُ بنيويّ — انظر docstring):
+    mono_h = all(hits[order[i]] >= hits[order[i + 1]] for i in range(len(order) - 1))
+    lines.append(("R1", None if mono_h else None,
+                  ("رتابةُ العدّاد ✔" if mono_h else "🔎 **العدّادُ غيرُ رتيب**")
+                  + " (رصدٌ لا بوّابة — `i += fwd` يجعل الأذرعَ غيرَ متداخلة): "
+                  + " ≥ ".join(f"{a}={hits[a]}" for a in order)))
     sig = [res[a]["signals"] for a in order]
-    c5 = all(sig[i] <= sig[i + 1] for i in range(len(sig) - 1))
-    lines.append(("V5", c5, "الإشاراتُ رتيبةٌ تصاعديًّا: "
+    mono_s = all(sig[i] <= sig[i + 1] for i in range(len(sig) - 1))
+    lines.append(("R2", None,
+                  ("رتابةُ الإشارات ✔" if mono_s else "🔎 **الإشاراتُ غيرُ رتيبة**")
+                  + " (رصدٌ لا بوّابة): "
                   + " ≤ ".join(f"{a}={res[a]['signals']}" for a in order)))
 
     # `V3` فحصُ التكامل — **بت-بت بلا تأجيل** لأن السعتين متساويتان (15).
@@ -226,6 +330,8 @@ def validity(res: dict, hits: dict, year: str) -> tuple[bool, list]:
                       f"باطلة والحكمُ **داخل التشغيلة**. للسجلّ — " + side))
 
     for _t, _o, _w in lines:
+        if _o is None:                       # ℹ️ رصدٌ يُعلَن ولا يُسقط
+            continue
         ok = ok and _o
     return ok, lines
 
@@ -256,11 +362,24 @@ def run_parent() -> int:
             return 2
         res[arm] = json.loads(rows[-1].split("CEIL_JSON:", 1)[1])
 
+    # 🏦 الحسمُ المحفظيّ **في الوالد على محورٍ موحَّد** (‏`V8`).
+    wf_by_arm = {}
+    for arm in ARMS:
+        try:
+            with open(trades_path(arm), encoding="utf-8") as fh:
+                wf_by_arm[arm] = json.load(fh)
+        except Exception as e:                                    # noqa: BLE001
+            print(f"⛔ تعذّر قراءة صفقات {arm}: {e} — لا حكم.")
+            return 2
+    port = portfolio(wf_by_arm, float(res[BASE_ARM].get("expl") or 50.0))
+    for arm in ARMS:
+        res[arm].update(port.get(arm) or {})
+
     ok, lines = validity(res, hits, year)
     globals()["_LAST_GATE"] = lines        # لإعادةِ الطبع آخرًا
     print("\n🚧 بوّابةُ الصلاحية (‏§⑤ — تُقرأ قبل أيّ تفسير):")
     for tag, good, why in lines:
-        print(f"  {tag} {'✅' if good else '⛔'} {why}")
+        print(f"  {tag} {_mark(good)} {why}")
     if not ok:
         print("⛔ **بوّابةُ الصلاحية سقطت ⇒ لا تُفسَّر النتيجة.**")
         return 3
@@ -270,8 +389,10 @@ def run_parent() -> int:
     for arm in ARMS:
         r = res[arm]
         print(f"  {arm:<4}: إشارات={r['signals']:<5} · محسومة={r['decided']:<5} · "
+              f"غير_مُعبّأة={r['no_fill']:<4} · "
               f"دقة={r['win_rate']}% ({r['wins']}✅/{r['losses']}🛑) · "
-              f"مأخوذة={r['taken']:<4} · d50={r['d50']:<3} (d100={r['d100']:<3}) · "
+              f"مأخوذة={r['taken']:<4} (منها بلا تعبئة={r.get('taken_no_fill')}) · "
+              f"d50={r['d50']:<3} (d100={r['d100']:<3}) · "
               f"R/صفقة={r['per_trade']} · مرفوض بالسعة={r.get('rejected_cap')} · "
               f"عدّادُ السقف={hits[arm]}")
     print("\n🧭 الفرق عن الأساس:")
@@ -295,6 +416,14 @@ def run_parent() -> int:
           "أغلقه المالك) · وانحيازُ بقاء · وبلا افتر · والمُرتِّبُ عند الصدفة "
           "بسعة 15 ⇒ **‏±3 داخل الضجيج** · و«يُقبَل مرشّحًا» ≠ «يصل المالك» · "
           "و`RUBI` **تشخيصٌ لا معيار** (‏§⑥-د).")
+    print("⚠️ **وثلاثةُ قيودٍ أضافها نقدٌ خصوميّ قبل الأرقام:** ① `M13`/`M14` "
+          "**لا تعملان في الباكتيست** (‏`scan_market` وحدها تُطبّقهما) ⇒ داخلٌ "
+          "جديدٌ منهارٌ قد تحذفه `M14` حيًّا · ② `r_unit` تُرجع **0.0R لغير "
+          "المُعبَّأة** والأساسُ سالب ⇒ كلُّ اسمٍ لا يُعبَّأ **يرفع** المتوسط "
+          "نحو الصفر ⇒ المعيار (ج) قد يمرّ **بآليةٍ لا بحافّة** (والعدّادُ "
+          "«منها بلا تعبئة» أعلاه هو الشاهد) · ③ الداخلون الجدد (هبوطٌ فوق "
+          "‏99.95%) **يتجنّبون نقصَ `M2` اللين تلقائيًّا** (‏`MIN_DROP_PCT`="
+          "96.92) فليسوا عيّنةً عشوائيّةً من المرشّحين.")
     return 0
 
 

@@ -780,7 +780,14 @@ def _bt_stomped(applied, cfg) -> list:
 
     تُرجع أسماءَ المدهوسة («‏المفتاح: طُلب X والنافذ Y») — و**فارغةٌ = كلُّها
     نفذت**. وغيرُ الرقميّ (‏`STOP_BELOW_LOW_PCT` زوجٌ · `CORE5=1` بلا مفتاح)
-    **يُتخطّى ولا يُدَّعى** (تعذّرٌ ≠ مخالفة)."""
+    **يُتخطّى ولا يُدَّعى** (تعذّرٌ ≠ مخالفة).
+
+    🐞 **والمقارنةُ نسبيّةٌ لا مطلقة — عيبٌ في نسختي الأولى أمسكه ناقدٌ خصوميّ
+    قبل أيّ تشغيلة:** `_apply_backtest_overrides` يسجّل بـ`f"{v:g}"` = **ستُّ
+    خاناتٍ معنوية** ⇒ `99.94998260261913` تُسجَّل «‏99.95» والفرقُ `1.74e-05`
+    **أكبرُ من `1e-9`** ⇒ الحارسُ كان **يصرخ «لم تنفُذ» على تجربةٍ نافذة** =
+    حارسٌ يمنع الصحيح، وهو **قفلٌ مكسورٌ لا أشدّ**. والنسبيّةُ `1e-5` تسع دقّةَ
+    `:g` وتبقى تكشف الدهسَ الحقيقيّ (‏99.5 مقابل 99.95 = ‏4.5e-3)."""
     out = []
     for item in (applied or []):
         key, _, want = str(item).partition("=")
@@ -788,9 +795,10 @@ def _bt_stomped(applied, cfg) -> list:
         if not key or key not in (cfg or {}):
             continue
         try:
-            if abs(float(cfg[key]) - float(want)) <= 1e-9:
+            got, wnt = float(cfg[key]), float(want)
+            if abs(got - wnt) <= 1e-5 * max(1.0, abs(got), abs(wnt)):
                 continue
-            out.append(f"{key}: طُلب {want} والنافذ {float(cfg[key]):g}")
+            out.append(f"{key}: طُلب {want} والنافذ {got:g}")
         except (TypeError, ValueError):
             continue
     return out

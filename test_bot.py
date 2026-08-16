@@ -22665,6 +22665,17 @@ check("🧱 CEI1ب والمنفَّذُ فعلًا **لا يُعلَن** (وإل
 check("🧱 CEI1ج و«تعذّرٌ ≠ مخالفة»: الزوجُ والمفتاحُ المجهول يُتخطَّيان بلا ادّعاء",
       S._bt_stomped(["STOP_BELOW_LOW_PCT=(13,15)", "CORE5=1", "GHOST=5"],
                     {"STOP_BELOW_LOW_PCT": (5, 7)}) == [])
+# 🐞 **CEI1د — إنذارٌ كاذبٌ أمسكه ناقدٌ خصوميّ قبل أيّ تشغيلة:** التسجيلُ يوصي
+#    بمسار `faisal_only=0`، و`_apply_backtest_overrides` يسجّل بـ`:g` (ستُّ خاناتٍ
+#    معنوية) ⇒ تمريرُ القيمة النافذة نفسِها يُسجَّل «‏99.95» والفرقُ `1.74e-05`
+#    ⇒ الحارسُ كان **يصرخ «لم تنفُذ» على تجربةٍ نافذة** = حارسٌ يمنع الصحيح.
+#    عيّنةٌ **مفرِّقة**: نفسُ المفتاح، والفرقُ الوحيد **مقدارُ الانحراف**.
+check("🐞 CEI1د دقّةُ `:g` لا تُنتج إنذارًا كاذبًا (‏1.74e-05 يمرّ) والدهسُ "
+      "الحقيقيّ يُكشَف (‏4.5e-3 يُعلَن)",
+      S._bt_stomped([f"MAX_DROP_PCT={99.94998260261913:g}"],
+                    {"MAX_DROP_PCT": 99.94998260261913}) == []
+      and len(S._bt_stomped(["MAX_DROP_PCT=99.5"],
+                            {"MAX_DROP_PCT": 99.94998260261913})) == 1)
 # 🔒 CEI2 — الوصلةُ **حيّةٌ من نقطة النداء** لا مجرّدُ وجودِ دالّة (الدرسُ المدوَّن)
 _cei_src = _insp0.getsource(S.run_backtest)
 check("🔒 CEI2 والحارسُ موصولٌ في `run_backtest` ويُعلن الامتناعَ عن التفسير",
@@ -22688,17 +22699,72 @@ check("🧱 CEI5 وترجمةُ السقف إلى نسبةٍ صحيحةٌ حسا
       and abs(_CA.ratio_needed(99.99) - 10000.0) < 1e-3
       and abs(_CA.ratio_needed(99.999) - 100000.0) < 1e-2)
 # 🔒 CEI6 — حارسُ الـno-op: `V2` يجب أن **يسقط** إن لم يُصفَّر عدّادُ `C3`
+_cei_snap = {"asof": "2024-01-02", "n": 3376}
 _cei_res = {a: {"cap": _CA.ARMS[a], "signals": 100, "taken": 5, "d50": 1,
                 "d100": 0, "per_trade": 0.0, "win_rate": 20.0, "wins": 1,
-                "losses": 4, "decided": 5} for a in _CA.ARMS}
+                "losses": 4, "decided": 5, "no_fill": 0, "axis": 250,
+                "snap": dict(_cei_snap)} for a in _CA.ARMS}
+# 🔴 مِرساةُ `V3` تفحص `C0` وحدَها ⇒ تُضبَط في الفكستشر لتُعزَل الشروطُ الأخرى
+#    (وإلّا سقطت أقفالُ الرتابة/الهويّة على **شرطٍ آخر** لا على ما تدّعيه).
+_cei_res["C0"]["d50"] = 32
 _cei_ok_hits = {"C0": 30, "C1": 10, "C2": 2, "C3": 0}
 _cei_bad_hits = {"C0": 30, "C1": 10, "C2": 2, "C3": 1}     # ← لم يُصفَّر ⇒ no-op
-_cei_v2 = lambda h: [x for x in _CA.validity(_cei_res, h, "2024")[1]      # noqa: E731
-                     if x[0] == "V2"][0][1]
+
+
+def _cei_v(res, hits, tag):
+    return [x for x in _CA.validity(res, hits, "2024")[1] if x[0] == tag][0][1]
+
+
 check("🔒 CEI6 `V2` يعبر عند التصفير ويسقط عند بقاءِ رفضةٍ واحدة (حارسُ no-op)",
-      _cei_v2(_cei_ok_hits) is True and _cei_v2(_cei_bad_hits) is False)
+      _cei_v(_cei_res, _cei_ok_hits, "V2") is True
+      and _cei_v(_cei_res, _cei_bad_hits, "V2") is False)
 check("🔒 CEI6ب و`V2` يسقط أيضًا لو كان الأساسُ نفسُه صفرًا (الجدارُ لا يعمل)",
-      _cei_v2({"C0": 0, "C1": 0, "C2": 0, "C3": 0}) is False)
+      _cei_v(_cei_res, {"C0": 0, "C1": 0, "C2": 0, "C3": 0}, "V2") is False)
+# 🔴 **CEI6ج — الرتابةُ رصدٌ لا بوّابة (قرارٌ اتُّخذ قبل أيّ رقم):** الأذرعُ
+#    **ليست متداخلة** (‏`i += fwd`) فقد تنقص إشاراتُ ذراعٍ أوسعَ بنيويًّا ⇒
+#    جعلُها قاطعةً كان **يُسقط تشغيلةً سليمة**. تُطبَع `ℹ️` ولا تُسقط.
+_cei_rev = {a: dict(_cei_res[a]) for a in _CA.ARMS}
+_cei_rev["C3"]["signals"] = 1          # إشاراتٌ تنقص عند الأوسع = خرقُ الرتابة
+_cei_bad_mono = {"C0": 2, "C1": 30, "C2": 5, "C3": 0}   # عدّادٌ غيرُ رتيب
+check("🔴 CEI6ج خرقُ الرتابتين **لا يُسقط** البوّابة (رصدٌ `ℹ️` لا حارس)",
+      _CA.validity(_cei_rev, _cei_bad_mono, "2024")[0] is True
+      and _cei_v(_cei_rev, _cei_bad_mono, "R1") is None
+      and _cei_v(_cei_rev, _cei_bad_mono, "R2") is None)
+# 🔒 CEI13 — هويّةُ اللقطة (`V7`): برهانُ «الميزانيةِ الثابتة» لا دعواها
+_cei_mixed = {a: dict(_cei_res[a]) for a in _CA.ARMS}
+_cei_mixed["C2"]["snap"] = {"asof": "2024-01-02", "n": 3000}   # كونٌ آخر
+check("🔒 CEI13 `V7` يعبر عند تطابق اللقطة ويسقط عند اختلافِ عددِ الرموز",
+      _cei_v(_cei_res, _cei_ok_hits, "V7") is True
+      and _cei_v(_cei_mixed, _cei_ok_hits, "V7") is False)
+check("🔒 CEI13ب و`V7` يسقط عند لقطةٍ فارغة (ملفٌّ تالفٌ يرتدّ لتحميلٍ حيّ بصمت)",
+      _cei_v({a: {**_cei_res[a], "snap": {"asof": None, "n": 0}}
+              for a in _CA.ARMS}, _cei_ok_hits, "V7") is False)
+# 🔒 CEI14 — محورُ الجلسات موحَّد (`V8`): وإلّا تحرّك `d50` بكثافةِ المحور
+_cei_ax = {a: dict(_cei_res[a]) for a in _CA.ARMS}
+_cei_ax["C3"]["axis"] = 260
+check("🔒 CEI14 `V8` يعبر عند توحيد المحور ويسقط عند اختلافه",
+      _cei_v(_cei_res, _cei_ok_hits, "V8") is True
+      and _cei_v(_cei_ax, _cei_ok_hits, "V8") is False)
+# 🐞 **وقفلي الأوّل كان نصّيًّا فسقط على تعليقي أنا** (‏`run_child` يشرح سببَ نقلِ
+#    الحسم فيذكر اسمَ الدالّة) — **الفخُّ الموثَّق للمرّة الخامسة** ⇒ صار **نحويًّا**:
+#    يُفحَص **نداءٌ فعليّ** في شجرة `run_child` لا ورودُ الاسم في نصّها.
+_cei_child_calls = {
+    (getattr(_n.func, "id", None) or getattr(_n.func, "attr", None))
+    for _n in _ast0.walk(_ast0.parse(_insp0.getsource(_CA.run_child)))
+    if isinstance(_n, _ast0.Call)}
+check("🔒 CEI14ب والوالدُ يوحّد المحورَ بـ`extra_dates` فعلًا (والطفلُ **لا ينادي** "
+      "الحسمَ — نحويًّا لا نصًّا)",
+      "extra_dates=sorted(dates)" in _insp0.getsource(_CA.portfolio)
+      and "candidates_from_trades" not in _cei_child_calls
+      and "replay" not in _cei_child_calls, str(sorted(_cei_child_calls))[:150])
+# 🐞 CEI15 — عدّادُ الجدار من **سطر التجميع وحده** (كان مضروبًا في ٢)
+_cei_log = ("باكتيست·أسباب RUBI (20 رفضة · 2 سببًا): M2_هبوط_فوق_97=13\n"
+            "باكتيست·📉 توزيع أسباب الرفض:\n"
+            "   1. M2_هبوط_فوق_97 = 13 (65.0%)\n")
+check("🐞 CEI15 عدّادُ الجدار يقرأ التجميعَ وحده (‏13 لا 26 — كان ×2)",
+      _CA.gate_hits(_cei_log) == 13, str(_CA.gate_hits(_cei_log)))
+check("🐞 CEI15ب وسطرُ كلّ رمزٍ وحده لا يُحتسَب (وإلّا عاد الضعف)",
+      _CA.gate_hits("باكتيست·أسباب X (5 رفضة): M2_هبوط_فوق_97=5\n") == 0)
 # 🔒 CEI7 — كلُّ مدخلٍ في الـworkflow موصولٌ بـ`env` (بصمةُ `BT_CANDLE`)
 _cei_yml = _yaml0.safe_load(open(".github/workflows/ceiling.yml", encoding="utf-8"))
 _cei_steps = _cei_yml["jobs"]["ceiling"]["steps"]
