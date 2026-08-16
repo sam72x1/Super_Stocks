@@ -22707,8 +22707,15 @@ _cei_res = {a: {"cap": _CA.ARMS[a], "signals": 100, "taken": 5, "d50": 1,
 # 🔴 مِرساةُ `V3` تفحص `C0` وحدَها ⇒ تُضبَط في الفكستشر لتُعزَل الشروطُ الأخرى
 #    (وإلّا سقطت أقفالُ الرتابة/الهويّة على **شرطٍ آخر** لا على ما تدّعيه).
 _cei_res["C0"]["d50"] = 32
-_cei_ok_hits = {"C0": 30, "C1": 10, "C2": 2, "C3": 0}
-_cei_bad_hits = {"C0": 30, "C1": 10, "C2": 2, "C3": 1}     # ← لم يُصفَّر ⇒ no-op
+# 🐞 **الفكستشرُ يُبنى من `_CA.ARMS` لا بأسماءٍ مغروسة** — طفرةُ «ذراعٍ خامسة»
+#    أسقطت `CEI3` **بحقّ** ثم **انهار** قفلٌ لاحق بـ`KeyError: 'C4'` فاختفى سطرُ
+#    الملخّص وقُرئ «انهيار» لا «سقطت». **والقفلُ يجب أن يسقط لا أن ينهار.**
+_cei_names = list(_CA.ARMS)
+_cei_ok_hits = {a: v for a, v in zip(_cei_names,
+                                     [30, 10, 2] + [0] * len(_cei_names))}
+_cei_ok_hits[_cei_names[-1]] = 0            # الأوسعُ دائمًا صفر (بنيويّ)
+_cei_bad_hits = dict(_cei_ok_hits)
+_cei_bad_hits[_cei_names[-1]] = 1           # ← لم يُصفَّر ⇒ no-op
 
 
 def _cei_v(res, hits, tag):
@@ -22719,13 +22726,14 @@ check("🔒 CEI6 `V2` يعبر عند التصفير ويسقط عند بقاء�
       _cei_v(_cei_res, _cei_ok_hits, "V2") is True
       and _cei_v(_cei_res, _cei_bad_hits, "V2") is False)
 check("🔒 CEI6ب و`V2` يسقط أيضًا لو كان الأساسُ نفسُه صفرًا (الجدارُ لا يعمل)",
-      _cei_v(_cei_res, {"C0": 0, "C1": 0, "C2": 0, "C3": 0}, "V2") is False)
+      _cei_v(_cei_res, {a: 0 for a in _cei_names}, "V2") is False)
 # 🔴 **CEI6ج — الرتابةُ رصدٌ لا بوّابة (قرارٌ اتُّخذ قبل أيّ رقم):** الأذرعُ
 #    **ليست متداخلة** (‏`i += fwd`) فقد تنقص إشاراتُ ذراعٍ أوسعَ بنيويًّا ⇒
 #    جعلُها قاطعةً كان **يُسقط تشغيلةً سليمة**. تُطبَع `ℹ️` ولا تُسقط.
 _cei_rev = {a: dict(_cei_res[a]) for a in _CA.ARMS}
 _cei_rev["C3"]["signals"] = 1          # إشاراتٌ تنقص عند الأوسع = خرقُ الرتابة
-_cei_bad_mono = {"C0": 2, "C1": 30, "C2": 5, "C3": 0}   # عدّادٌ غيرُ رتيب
+_cei_bad_mono = dict(_cei_ok_hits)
+_cei_bad_mono[_cei_names[0]] = 2                       # عدّادٌ غيرُ رتيب
 check("🔴 CEI6ج خرقُ الرتابتين **لا يُسقط** البوّابة (رصدٌ `ℹ️` لا حارس)",
       _CA.validity(_cei_rev, _cei_bad_mono, "2024")[0] is True
       and _cei_v(_cei_rev, _cei_bad_mono, "R1") is None
