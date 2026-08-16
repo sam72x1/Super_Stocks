@@ -4337,10 +4337,6 @@
   "short_interest": 20152,
   "days_to_cover": 0.01
  },
- "ZRO": {
-  "short_pct": 0.0,
-  "float": 1000000.0
- },
  "PLUR": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -4914,5 +4910,9 @@
   "company_name": "Newegg Commerce, Inc.",
   "short_interest": 426996,
   "days_to_cover": 6.1
+ },
+ "ZRO": {
+  "short_pct": 0.0,
+  "float": 1000000.0
  }
 }
