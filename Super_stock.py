@@ -11342,7 +11342,11 @@ def scan_market():
     # 👀 قائمةُ «تحت المتابعة» (قرارُ المالك «جدارين») — تُبنى **من المرفوضين**
     #    داخلَ نفس الحلقة (البياناتُ في اليد ⇒ صفرُ تحميلٍ إضافيّ) وبميزانيةِ زمنٍ
     #    **يُعلَن قصُّها**. ⛔ ولا تمسّ `results` ولا الترتيب ولا الخانات.
+    # 🩺 عدّاداتُ تشخيصٍ (‏2026-08-16): صفرٌ في «تحت المتابعة» كان يُقرأ
+    #    «لا قريبَ اليوم» وهو قد يكون **عطبَ قياسٍ أو قصَّ ميزانية** —
+    #    وقاعدتُنا «الصفرُ عطبُ أداةٍ حتى يُنفى» ⇒ يُفصَّل في السجلّ.
     _nw_edges, _nw_new, _nw_t0, _nw_cut = {}, {}, time.time(), 0
+    _nw_seen = _nw_fail = _nw_err = 0
     try:
         import envelope_scan as _nw_ev
         _nw_edges = _nw_ev.load_edges() or {}
@@ -11358,12 +11362,15 @@ def scan_market():
                 if time.time() - _nw_t0 > NEAR_WATCH_BUDGET_S:
                     _nw_cut += 1                       # قُصّ بالميزانية — يُعلَن
                 else:
+                    _nw_seen += 1
                     _m = near_watch_measure(sym, df, _nw_edges)
-                    if _m and len(_m[1]) <= NEAR_WATCH_MAX_OUT:
+                    if not _m:
+                        _nw_fail += 1      # **تعذّرَ القياس** لا «بعيدٌ عن الظرف»
+                    elif len(_m[1]) <= NEAR_WATCH_MAX_OUT:
                         _nw_new[sym] = near_watch_entry(
                             sym, _m[0], _m[1], _nw_today)
             except Exception:                                    # noqa: BLE001
-                pass
+                _nw_err += 1
         if r:
             # ① (إصلاح تدقيق 2026-07-12): تاريخ **شمعة الترشيح الفعلية** (آخر شمعة
             # في البيانات) — المسار اليومي يعمل 07:23 UTC قبل الافتتاح فتاريخ التشغيل
@@ -11476,6 +11483,7 @@ def scan_market():
             log(f"👀 تحت المتابعة: {len(_nw_all)} سهم "
                 f"(جديدُ اليوم {len(_nw_new)} · بحدّ {NEAR_WATCH_MAX_OUT} "
                 "معيارًا خارج ظرف فيصل)"
+                + f" · 🩺 قِيس {_nw_seen} · تعذّر {_nw_fail} · أخطأ {_nw_err}"
                 + (f" · ⚠️ قُصَّ {_nw_cut} بميزانية الزمن" if _nw_cut else ""))
     except Exception as _e:                                      # noqa: BLE001
         log(f"⚠️ قائمةُ المتابعة تعذّرت (لا تمسّ الفرز): {_e}")
@@ -12511,8 +12519,14 @@ def live_watch_universe(wl=None, near=None, press=None, hunter=None,
         la = (e or {}).get("last_alert")
         if la and _iso_days_between(la, today_iso) <= LIVE_WATCH_PRESS_DAYS:
             _add(sym, "رادار الضغط")
-    for e in ((near or {}).get("stocks") or []):
-        _add(e.get("symbol"), "تحت المتابعة")
+    # 🔴 **وشكلُ «تحت المتابعة» قاموسٌ مفتاحُه الرمز** (`{sym: entry}`) لا
+    #    `{"stocks": [...]}` — وأوّلُ كتابةٍ لي هنا قرأت `.get("stocks")`
+    #    **فكانت قراءةً ميّتةً دائمًا**؛ أمسكها فحصُ الشكل على الملفّ الحقيقيّ
+    #    لا القراءة. (صنفُ «المفتاحُ المتخيَّل» — مقفولٌ `VWR5ج` بالشكل الفعليّ.)
+    _near = (near or {})
+    for _k, _e in (_near.items() if isinstance(_near, dict) else []):
+        if isinstance(_e, dict) and _e.get("symbol"):
+            _add(_e.get("symbol"), "تحت المتابعة")
     for e in ((hunter or {}).get("stocks") or []):
         if e.get("status") == "active":
             _add(e.get("symbol"), "متابعة الصيّاد")
@@ -19872,8 +19886,13 @@ def run_performance_system(results, weekly_report_now=False):
     # 🪝 + متابعة أسهم الصيّاد (أمر المالك 2026-08-08): حالتُها تتغيّر كلَّ يوم
     #    (سعر/سيولة/شطب) فلا بدّ من دفعها، وإلّا رُئيت مرّةً ثم رجعت لحالة أمس.
     #    `git_save` يتخطّى الملفّ غير الموجود ⇒ آمنٌ قبل أوّل مطابق.
+    # 🔴 **وعيبٌ مقيسٌ أُصلح 2026-08-16:** `NEAR_WATCH_FILE` كان **يُكتَب على
+    #    الرنر ولا يُدفَع** ⇒ يموت مع الرنر كلَّ يوم: `first_seen` يعود صفرًا
+    #    فلا يُقرأ «منذ كم يوم»، والتقليمُ بعد 10 أيام **يستحيل**، وكونُ
+    #    المتابعة الحيّة لا يجده أصلًا. **والدليلُ أن الملفّ غائبٌ من المستودع
+    #    بعد تشغيلةٍ كاملة ناجحة** (`31957908070`) رغم أن الحفظ غيرُ مشروط.
     git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE,
-              HUNTER_WATCH_FILE])
+              HUNTER_WATCH_FILE, NEAR_WATCH_FILE])
 
 
 if __name__ == "__main__":

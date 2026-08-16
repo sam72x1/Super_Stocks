@@ -19257,6 +19257,8 @@ check("🎯 VWR2ب زوجٌ مفرِّق لشرط «الصعود الأوّل» 
       S.vwap_entry_confirm(_vwr_norise) is None
       and (S.vwap_entry_confirm(_vwr_rise) or {}).get("vwap") is not None)
 
+_vwr_ne = {"NNN": S.near_watch_entry("NNN", {"price": 2.0}, ["drop_pct"],
+                                     "2026-08-16")}
 # ── كونُ المتابعة الحيّة: كلُّ قوائمنا الخمس ────────────────────────────────
 _vwr_wl_uni = {"stocks": [{"symbol": "AAA", "status": "active"},
                           {"symbol": "BBB", "status": "active",
@@ -19264,20 +19266,39 @@ _vwr_wl_uni = {"stocks": [{"symbol": "AAA", "status": "active"},
                           {"symbol": "CCC", "status": "stopped"}],
                "pullback": [{"symbol": "PPP"}, {"symbol": "AAA"}]}
 _vwr_uni, _vwr_cut = S.live_watch_universe(
-    _vwr_wl_uni, near={"stocks": [{"symbol": "NNN"}]},
+    _vwr_wl_uni, near=_vwr_ne,
     press={"symbols": {"RRR": {"last_alert": "2026-08-15"},
                        "OLD": {"last_alert": "2026-07-01"}}},
     hunter={"stocks": [{"symbol": "HHH", "status": "active"},
                        {"symbol": "HOF", "status": "stopped"}]},
     today_iso="2026-08-16")
+# 🔒 VWR5ج — **الشكلُ الحقيقيّ لا المتخيَّل:** `near_watch.json` قاموسٌ مفتاحُه
+#    الرمز (`{sym: entry}`) كما تكتبه `save_near_watch`، وأوّلُ قراءةٍ لي كانت
+#    `.get("stocks")` = **قراءةٌ ميّتةٌ دائمًا**. العيّنةُ هنا **مبنيّةٌ بدوالّ
+#    الإنتاج نفسِها** (`near_watch_entry`) فلا تُبنى على افتراضِ شكل.
+check("🔒 VWR5ج «تحت المتابعة» تُقرأ بشكلها الحقيقيّ (قاموسٌ مفتاحُه الرمز) — "
+      "والشكلُ المتخيَّل `{'stocks': [...]}` لا يُدخل شيئًا",
+      [r["symbol"] for r in S.live_watch_universe(
+          {}, near=_vwr_ne, today_iso="2026-08-16")[0]] == ["NNN"]
+      and S.live_watch_universe(
+          {}, near={"stocks": [{"symbol": "ZZZ"}]},
+          today_iso="2026-08-16")[0] == [])
+# 🔒 VWR5د — والملفُّ **يُدفَع** وإلّا مات مع الرنر (عيبٌ مقيسٌ 2026-08-16:
+#    تشغيلةٌ كاملةٌ ناجحة ولا ملفَّ في المستودع رغم أن الحفظ غيرُ مشروط).
+_vwr_gs = [_n for _n in _ast0.walk(_ast0.parse(_insp0.getsource(
+    S.run_performance_system))) if isinstance(_n, _ast0.Call)
+    and _ast0.unparse(_n.func) == "git_save"]
+check("🔒 VWR5د `NEAR_WATCH_FILE` مدفوعٌ في `git_save` (وإلّا مات مع الرنر: "
+      "`first_seen` يعود صفرًا والتقليمُ يستحيل والكونُ لا يجده)",
+      len(_vwr_gs) == 1
+      and "NEAR_WATCH_FILE" in _ast0.unparse(_vwr_gs[0]))
 check("👁️ VWR5 كونُ المتابعة = القوائمُ الخمس بأولويةٍ مُعلَنة · منزوعُ التكرار "
       "(‏AAA بمصدره الأوّل) · ويُقصي «خرج من النموذج» والمشطوبَ والبائتَ",
       [r["symbol"] for r in _vwr_uni] == ["PPP", "AAA", "RRR", "NNN", "HHH"]
       and _vwr_uni[1]["src"] == "الارتداد" and _vwr_cut == 0,
       str([(r["symbol"], r["src"]) for r in _vwr_uni]))
 _vwr_cap = S.live_watch_universe(
-    _vwr_wl_uni, near={"stocks": [{"symbol": "NNN"}]}, cap=2,
-    today_iso="2026-08-16")
+    _vwr_wl_uni, near=_vwr_ne, cap=2, today_iso="2026-08-16")
 check("🔒 VWR5ب السقفُ يقصّ **الأبعدَ عن التنفيذ** ويُعلَن بعدده (لا قصَّ صامتًا)",
       [r["symbol"] for r in _vwr_cap[0]] == ["PPP", "AAA"] and _vwr_cap[1] == 1,
       str(_vwr_cap))
