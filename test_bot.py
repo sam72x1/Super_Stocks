@@ -23251,19 +23251,24 @@ def _ah_spec(d, h):
 
 
 _AHM = S.ah_missed_extremes(_ah_frame(_ah_spec))
+# ⚠️ **القراءةُ بـ`.get` عمدًا:** طفرةٌ تُلغي أحدَ السلّتين تُرجع `None`، والفهرسةُ
+#    المباشرة كانت **تُنهي السويّةَ بانهيار** فيُكتَم كلُّ قفلٍ بعدها — والقاعدةُ
+#    المدوَّنة: «القفلُ يجب أن **يسقط** لا أن **ينهار**» (كشفَتها الطفرةُ `M2`).
+_AHG = _AHM if isinstance(_AHM, dict) else {}
 check("🌙 AHM1 تقرأ الجلسةَ الممتدّة فعلًا (قاعُ البريماركت وقمّةُ الافتر)",
-      isinstance(_AHM, dict) and abs(_AHM["ext_low"] - 1.60) < 1e-9
-      and abs(_AHM["ext_high"] - 2.90) < 1e-9, str(_AHM)[:110])
+      isinstance(_AHM, dict) and abs(_AHG.get("ext_low", 0) - 1.60) < 1e-9
+      and abs(_AHG.get("ext_high", 0) - 2.90) < 1e-9, str(_AHM)[:110])
 # 🔒 AHM2 — **جوهرُ الصحّة**: الشمعةُ المختلطة تُستبعَد ولا تُنسَب لطرف. لو نُسبت
 #    «ممتدّةً» لقفز `ext_low` إلى 1.20، ولو نُسبت «نظاميّةً» لقفز `reg_low` إليها.
 check("🔒 AHM2 الشمعةُ المختلطة (09:00) مُستبعَدةٌ ومعدودة — لا تُنسَب لطرف",
-      _AHM["mixed_bars"] == 3 and abs(_AHM["reg_low"] - 2.00) < 1e-9
-      and _AHM["ext_low"] > 1.5 and _AHM["reg_high"] < 3.0,
-      f"mix={_AHM['mixed_bars']} reg_low={_AHM['reg_low']} "
-      f"ext_low={_AHM['ext_low']} reg_high={_AHM['reg_high']}")
+      _AHG.get("mixed_bars") == 3 and abs(_AHG.get("reg_low", 0) - 2.00) < 1e-9
+      and _AHG.get("ext_low", 0) > 1.5 and 0 < _AHG.get("reg_high", 0) < 3.0,
+      f"mix={_AHG.get('mixed_bars')} reg_low={_AHG.get('reg_low')} "
+      f"ext_low={_AHG.get('ext_low')} reg_high={_AHG.get('reg_high')}")
 check("🌙 AHM3 الفارقان محسوبان بالاتجاهين (أعمقُ نزولًا · أعلى صعودًا)",
-      abs(_AHM["down_pct"] - 20.0) < 0.01 and abs(_AHM["up_pct"] - 38.1) < 0.1,
-      f"down={_AHM['down_pct']} up={_AHM['up_pct']}")
+      abs((_AHG.get("down_pct") or 0) - 20.0) < 0.01
+      and abs((_AHG.get("up_pct") or 0) - 38.1) < 0.1,
+      f"down={_AHG.get('down_pct')} up={_AHG.get('up_pct')}")
 # 🔒 AHM4 — «تعذّرٌ ليس صفرًا»: بلا إطارٍ أو بطرفٍ غائبٍ ⇒ `None` لا قاموسَ أصفار
 _AH_REG_ONLY = _ah_frame(lambda d, h: (2.0, 2.1)).iloc[
     [i for i, t in enumerate(_ah_frame(lambda d, h: (2.0, 2.1)).index)
