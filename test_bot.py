@@ -19577,6 +19577,24 @@ check("🔒 OEL9ب والمدخلُ **موصولٌ** بالـworkflow (وإلّ�
       "`BT_CANDLE`) · ومقروءٌ في السكربت",
       "OE_BUDGET_MIN" in _oel_wf and "inputs.budget" in _oel_wf
       and 'os.environ.get("OE_BUDGET_MIN")' in _oel_src)
+# 🔒 OEL10 — حارسُ «لا جلسةَ اليوم» **يعمل فعلًا** (كان يقرأ مفتاحًا متخيَّلًا)
+try:
+    _oel_ns = _oel_mod._no_session
+    _oel_sess = (_oel_ns("2026-08-16"),      # أحد ⇒ لا جلسة
+                 _oel_ns("2026-08-15"),      # سبت ⇒ لا جلسة
+                 _oel_ns("2026-08-17"),      # اثنين نظاميّ ⇒ جلسة
+                 _oel_ns("2026-09-07"),      # عطلةُ سوقٍ (اثنين) ⇒ لا جلسة
+                 _oel_ns("لا-تاريخ"))        # تالفٌ ⇒ فاشلٌ-آمن ⇒ نعمل
+except Exception as _e:                                          # noqa: BLE001
+    _oel_sess = f"⛔ رمى: {type(_e).__name__}"
+check("🔒 OEL10 «لا جلسةَ اليوم» يميّز **نهايةَ الأسبوع** و**عطلةَ السوق** عن "
+      "اليوم النظاميّ · والتالفُ يمرّ (فاشلٌ-آمن) — والمفتاحُ `session_type` لا "
+      "`type` (كان متخيَّلًا فالحارسُ ميّتٌ)",
+      _oel_sess == (True, True, False, True, False), str(_oel_sess))
+check("🔒 OEL10ب وموصولٌ من نقطة النداء الحيّة (AST) داخل `main`",
+      any(getattr(_c.func, "id", None) == "_no_session"
+          for _c in _ast0.walk(_ast0.parse(_oel_src))
+          if isinstance(_c, _ast0.Call)))
 
 # 👀 OEW — سقفُ العرض بأمر المالك «وسّع العرض»
 check("👀 OEW1 سقفُ عرض «تحت المتابعة» = 40 (‏20 لكلّ سلّة) — أمرُ المالك",

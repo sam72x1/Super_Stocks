@@ -66,11 +66,22 @@ def _budget(left_min, raw=None):
     return max(0, min(cap, int(left_min)))
 
 
-def _holiday(date_iso) -> bool:
-    """عطلةُ سوق؟ **فاشل-آمن ⇒ False** (نعمل ولا نصمت على شكٍّ في التقويم)."""
+def _no_session(date_iso) -> bool:
+    """لا جلسةَ اليوم؟ (عطلةُ سوقٍ **أو** نهايةُ أسبوع) — **فاشل-آمن ⇒ False**.
+
+    🐞 **وسابقتُه عيبٌ حقيقيّ مقيس (2026-08-16):** كان يقرأ `.get("type")`
+    و**المفتاحُ الفعليّ `session_type`** ⇒ يُرجع `None` أبدًا ⇒ **الحارسُ ميّتٌ
+    منذ ولادته** = «المفتاحُ المتخيَّل» للمرّة الرابعة في هذا المستودع.
+    🔴 **وأُضيفت نهايةُ الأسبوع** لأن `market_calendar.is_trading_day` تنصّ
+    صراحةً أنها **لا تفحصها** وتتّكل على أن الكرون أيامُ عمل — وهو صحيحٌ
+    للكرون **لا للتشغيل اليدويّ**، وهذا عاملٌ يعمل ساعاتٍ لا دقائق.
+    """
     try:
+        y, m, d = (int(x) for x in str(date_iso).split("-")[:3])
+        if bot.dt.date(y, m, d).weekday() >= 5:                   # سبتٌ أو أحد
+            return True
         import market_calendar as mc
-        return (mc.session_info(date_iso) or {}).get("type") == "holiday"
+        return (mc.session_info(date_iso) or {}).get("session_type") == "holiday"
     except Exception:                                            # noqa: BLE001
         return False
 
@@ -126,8 +137,8 @@ def main():
         interval = INTERVAL_DEFAULT
     t0 = time.time()
     mins, day = _ny_minutes()
-    if _holiday(day):
-        _log(f"📅 {day} عطلةُ سوق — لا جلسةَ متابعة.")
+    if _no_session(day):
+        _log(f"📅 {day} لا جلسةَ سوقٍ اليوم (عطلةٌ أو نهايةُ أسبوع) — لا متابعة.")
         return 0
     # نهايةُ العمل: إغلاقُ الجلسة الممتدّة (‏20:00 نيويورك) أو سقفُ الزمن.
     left_min = max(0, EXT_CLOSE_NY - mins)
