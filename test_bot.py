@@ -19558,6 +19558,26 @@ check("🔒 OEL7 سقفُ الجوب فوق سقف السكربت (‏345 مقا
 # 🔒 OEL8 — **والمراقبُ الدوريّ يبقى شبكةَ أمان** (لا يُلغى بالعامل السريع)
 check("🔒 OEL8 المراقبُ الدوريّ باقٍ (شبكةُ أمانٍ للأفتر ولِما يُسقطه الكرون)",
       "bot.scan_operator_entry" in open("pullback_live.py", encoding="utf-8").read())
+# 🔒 OEL9 — مفتاحُ `OE_BUDGET_MIN` **يُقصّر ولا يُطيل** (فحصُ دخانٍ آمن)
+import importlib.util as _oel_ilu
+_oel_spec = _oel_ilu.spec_from_file_location("_oel_mod", "operator_entry_live.py")
+_oel_mod = _oel_ilu.module_from_spec(_oel_spec)
+try:
+    _oel_spec.loader.exec_module(_oel_mod)
+    _oel_b = _oel_mod._budget
+    _oel_res = (_oel_b(300, "3"), _oel_b(300, "9999"), _oel_b(300, None),
+                _oel_b(300, "خطأ"), _oel_b(0, "30"), _oel_b(600, None))
+except Exception as _e:                                          # noqa: BLE001
+    _oel_res = f"⛔ رمى: {type(_e).__name__}"
+check("🔒 OEL9 `OE_BUDGET_MIN` يُقصّر (‏3) ولا يُطيل (‏9999 ⟶ ما تبقّى 300) · "
+      "وتعذّرُ القراءة يرجع للافتراض · وانتهاءُ الجلسة يبقى صفرًا · ولا يتجاوز "
+      "سقفَ السكربت 330",
+      _oel_res == (3, 300, 300, 300, 0, 330), str(_oel_res))
+check("🔒 OEL9ب والمدخلُ **موصولٌ** بالـworkflow (وإلّا صار ميّتًا — بصمةُ "
+      "`BT_CANDLE`) · ومقروءٌ في السكربت",
+      "OE_BUDGET_MIN" in _oel_wf and "inputs.budget" in _oel_wf
+      and 'os.environ.get("OE_BUDGET_MIN")' in _oel_src)
+
 # 👀 OEW — سقفُ العرض بأمر المالك «وسّع العرض»
 check("👀 OEW1 سقفُ عرض «تحت المتابعة» = 40 (‏20 لكلّ سلّة) — أمرُ المالك",
       S.NEAR_WATCH_SHOW == 40)

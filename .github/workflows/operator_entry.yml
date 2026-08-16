@@ -15,6 +15,10 @@ on:
         description: "ثوانٍ بين الدورات (افتراضي 60)"
         required: false
         type: string
+      budget:
+        description: "دقائقُ العمل (فحصُ دخان — يُقصّر ولا يُطيل)"
+        required: false
+        type: string
   schedule:
     # ⏰ **الكرونُ مُقدَّمٌ بمقدار تأخّر GitHub المقيس** (‏95-152 دقيقة · وسيط
     #    ‏≈119) — نفسُ علاج `ignition.yml` و`daily_screener.yml` المدوَّن.
@@ -68,4 +72,5 @@ jobs:
                 || (github.event.schedule == '1 17 * * 1-5' && 'post')
                 || 'manual' }}
           OE_INTERVAL: ${{ github.event.inputs.interval }}
+          OE_BUDGET_MIN: ${{ github.event.inputs.budget }}
         run: python operator_entry_live.py

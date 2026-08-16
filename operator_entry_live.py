@@ -49,6 +49,23 @@ def _ny_minutes(now=None):
         return (n.hour * 60 + n.minute - 240) % 1440, n.date().isoformat()
 
 
+def _budget(left_min, raw=None):
+    """سقفُ العمل بالدقائق — و`OE_BUDGET_MIN` **يُقصّر ولا يُطيل** (بنيويًّا).
+
+    الحاصلُ = أصغرُ الثلاثة: سقفُ السكربت (‏330) · قيمةُ المفتاح · وما تبقّى من
+    الجلسة الممتدّة ⇒ فمهما كبرت القيمةُ لا تتجاوز الجلسةَ ولا سقفَ الجوب.
+    وُلد لأن عاملَ جلسةٍ يعمل ‏5.5 ساعة **لا يُمكن فحصُ دخانه**: سجلُّ GitHub
+    لا يُنزَّل قبل انتهاء التشغيلة ⇒ ميزةٌ بلا طريقِ إثباتٍ من نقطة النداء الحيّة.
+    وتعذّرُ القراءة ⇒ الافتراضُ (فاشلٌ-آمن) لا صفرٌ صامت.
+    """
+    try:
+        cap = int(str(raw or "").strip() or MAX_RUNTIME_MIN)
+    except Exception:                                            # noqa: BLE001
+        cap = MAX_RUNTIME_MIN
+    cap = max(1, min(MAX_RUNTIME_MIN, cap))
+    return max(0, min(cap, int(left_min)))
+
+
 def _holiday(date_iso) -> bool:
     """عطلةُ سوق؟ **فاشل-آمن ⇒ False** (نعمل ولا نصمت على شكٍّ في التقويم)."""
     try:
@@ -114,7 +131,7 @@ def main():
         return 0
     # نهايةُ العمل: إغلاقُ الجلسة الممتدّة (‏20:00 نيويورك) أو سقفُ الزمن.
     left_min = max(0, EXT_CLOSE_NY - mins)
-    budget = min(MAX_RUNTIME_MIN, left_min)
+    budget = _budget(left_min, os.environ.get("OE_BUDGET_MIN"))
     if budget <= 0:
         _log(f"⏹️ الجلسةُ الممتدّة انتهت (‏{mins // 60:02d}:{mins % 60:02d} "
              "نيويورك) — لا عمل.")
