@@ -10903,7 +10903,10 @@ NEAR_WATCH_FILE = "near_watch.json"
 NEAR_WATCH_MAX_OUT = 2       # 🥇 «جدارين» — قرارُ المالك 2026-08-16 حرفيًّا
 NEAR_WATCH_SHOW = 15         # سقفُ العرض — **والقصُّ يُعلَن بعدده**
 NEAR_WATCH_STALE_DAYS = 10   # يسقط من المتابعة إن غاب عن الفرز هذي المدّة
-NEAR_WATCH_BUDGET_S = 240    # ميزانيةُ زمنِ القياس/تشغيلة — **والقصُّ يُعلَن**
+NEAR_WATCH_BUDGET_S = 240
+# 🎯 زنادُ دخول فيصل بلفظه («‏+ rsi اقل من 30» — تغريدةُ `DRCT`) —
+#    **عرضٌ وترتيبٌ لا بوّابة** (شرطُ الـRSI بوّابةً ألغاه المالك).
+FAISAL_RSI_ENTRY_MAX = 30.0    # ميزانيةُ زمنِ القياس/تشغيلة — **والقصُّ يُعلَن**
 
 BORROW_WATCH_FILE = "borrow_watch.jsonl"   # سجلٌّ يُلحَق فقط (مرجعٌ مُجمَّد)
 BORROW_WATCH_HORIZON = 40   # جلسات المتابعة بعد أوّل رصد (= نافذةُ الحسم المسجَّلة)
@@ -11061,41 +11064,71 @@ def near_watch_prune(watch: dict, today_iso: str, stale_days: int = None) -> dic
             if _iso_days_between(e.get("last_seen") or "", today_iso) <= lim}
 
 
-def build_near_watch_section(watch: dict, cap: int = None) -> str:
-    """👀 قسمُ «تحت المتابعة» في التقرير اليوميّ — عرضٌ فقط.
+def near_watch_buckets(watch: dict):
+    """👀 **سلّتان لا ترتيبٌ واحد** — ومصدرُ كلٍّ منهما فيصليّ:
 
-    يُرتَّب **بالأقرب** (أقلُّ معاييرَ خارجة ثم أعلى جاهزية). **والقصُّ يُعلَن
-    بعدده** ولا يُطوى. وقائمةٌ فارغة ⇒ **نصٌّ فارغ** (لا قسمَ ولا ضجيج)."""
-    rows = sorted((watch or {}).values(),
-                  key=lambda e: (e.get("n_out", 9),
-                                 -(e.get("readiness") or 0), e.get("symbol", "")))
-    if not rows:
+      ① **داخلَ ظرف فيصل تمامًا** (`n_out == 0`) — لا يخرج عن أيّ معيارٍ من
+         كتالوجه، **وجدارُه من عندنا** (هندسيّ). حالُ `DRCT`.
+      ② **متشبّعٌ الآن** (`rsi_now` تحت `FAISAL_RSI_ENTRY_MAX`=30) — **زنادُ
+         دخول فيصل بلفظه** («اختبرها وثبت … + rsi اقل من 30» — تغريدةُ DRCT).
+         حالُ `RUBI` (‏19.5).
+
+    🔴 **وسببُ السلّتين مقيس:** بترتيبٍ واحد `(النواقص، الجاهزية)` وقع `RUBI`
+    **‏#609 من 726** فلا يظهر أبدًا، و`DRCT` #58 — **ولا ترتيبَ واحدٌ يُظهر
+    الاثنين** (بالتشبّع ينقلب: `RUBI` #10 و`DRCT` #446). فالسلّتان تصفان
+    سؤالين مختلفين لا تفضيلًا بينهما.
+
+    نقيّة. تُرجّع `(inside, oversold)` مرتَّبتين، **والتقاطعُ يُستبعَد من
+    الثانية** فلا يُعَدّ سهمٌ مرّتين."""
+    # 🔒 والقيمُ غيرُ القواميس تُتخطّى (شكلٌ قديم/متخيَّل ⇒ **لا انهيار**):
+    #    القاعدةُ نفسُها المطبَّقة على الأقفال — يسقط ولا ينهار.
+    rows = [e for e in (watch or {}).values() if isinstance(e, dict)]
+    inside = sorted((e for e in rows if e.get("n_out") == 0),
+                    key=lambda e: (-(e.get("readiness") or 0),
+                                   e.get("symbol", "")))
+    _seen = {e.get("symbol") for e in inside}
+    oversold = sorted(
+        (e for e in rows if e.get("symbol") not in _seen
+         and e.get("rsi_now") is not None
+         and float(e["rsi_now"]) < FAISAL_RSI_ENTRY_MAX),
+        key=lambda e: (float(e.get("rsi_now") or 99), e.get("symbol", "")))
+    return inside, oversold
+
+
+def build_near_watch_section(watch: dict, cap: int = None) -> str:
+    """👀 قسمُ «تحت المتابعة» في التقرير اليوميّ — عرضٌ فقط، **بسلّتين**.
+
+    **والقصُّ يُعلَن بعدده** ولا يُطوى. وقائمةٌ فارغة ⇒ **نصٌّ فارغ**."""
+    inside, oversold = near_watch_buckets(watch)
+    if not (inside or oversold):
         return ""
-    shown, extra = rows[:int(cap or NEAR_WATCH_SHOW)], max(
-        0, len(rows) - int(cap or NEAR_WATCH_SHOW))
-    out = [f"👀 <b>تحت المتابعة</b> ({len(rows)}) — قريبٌ من كتالوج فيصل، "
-           "غيرُ مرشَّح بعد"]
-    for e in shown:
-        nc = e.get("n_criteria")
-        inside = (f"{int(nc) - int(e.get('n_out') or 0)} من {int(nc)}"
-                  if nc else "—")
-        line = (f"• <b>${e.get('symbol')}</b> — داخلَ معايير فيصل {inside}"
-                f" · ينقصه: {'، '.join(e.get('outside') or []) or '—'}")
-        px, rsi = e.get("price"), e.get("rsi_now")
-        bits = []
-        if px is not None:
-            bits.append(f"${float(px):.2f}")
-        if rsi is not None:
-            bits.append(f"RSI {float(rsi):.0f}")
-        d = _iso_days_between(e.get("first_seen") or "", e.get("last_seen") or "")
-        if d:
-            bits.append(f"تحت المتابعة {d} يوم")
-        if bits:
-            line += "\n  " + " · ".join(bits)
-        out.append(line)
-    if extra:
-        out.append(f"… و{extra} غيرها (العرضُ مقصوصٌ عند {len(shown)})")
-    return "\n".join(out)
+    lim = max(1, int(cap or NEAR_WATCH_SHOW) // 2)
+    out = [f"👀 <b>تحت المتابعة</b> ({len(inside) + len(oversold)}) — "
+           "قريبٌ من كتالوج فيصل، غيرُ مرشَّح بعد"]
+
+    def _emit(title, rows):
+        if not rows:
+            return
+        out.append(f"   <b>{title}</b> ({len(rows)})")
+        for e in rows[:lim]:
+            _bits = [f"${(e.get('price') or 0):.2f}"]
+            if e.get("rsi_now") is not None:
+                _bits.append(f"RSI {float(e['rsi_now']):.0f}")
+            if e.get("readiness") is not None:
+                _bits.append(f"جاهزية {e['readiness']}")
+            _o = " · ".join(e.get("outside") or []) or "لا شيء خارج الظرف"
+            _d = _iso_days_between(e.get("first_seen") or "",
+                                   e.get("last_seen") or "")
+            out.append(f"   • {esc(e.get('symbol'))} — {' · '.join(_bits)} "
+                       f"· ينقصه: {esc(_o)}"
+                       + (f" · منذ {_d} يومًا" if _d else ""))
+        if len(rows) > lim:
+            out.append(f"   …و{len(rows) - lim} غيرهم (يُعلَن لا يُطوى)")
+
+    _emit("داخلَ ظرف فيصل تمامًا — وجدارُه من عندنا", inside)
+    _emit(f"متشبّعٌ الآن (‏RSI تحت {FAISAL_RSI_ENTRY_MAX:.0f} — زنادُ فيصل)",
+          oversold)
+    return _rtl_join(out)
 
 
 def borrow_watch_row(symbol: str, available, fee, price, date_iso: str,
@@ -12556,7 +12589,7 @@ def live_watch_universe(wl=None, near=None, press=None, hunter=None,
     يُطوى** (قاعدةُ «لا قصَّ صامتًا»).
 
     ⚖️ **ولا تُغيّر عضويةَ أيّ قائمة**: قراءةٌ فقط، ومُخرَجُها **إشعارٌ لا اختيار**."""
-    rows, seen = [], set()
+    buckets, seen = {k: [] for k in LIVE_WATCH_SOURCES}, set()
     lim = int(cap if cap is not None else LIVE_WATCH_CAP)
     today_iso = today_iso or dt.date.today().isoformat()
 
@@ -12565,7 +12598,7 @@ def live_watch_universe(wl=None, near=None, press=None, hunter=None,
         if not sym or sym in seen:
             return
         seen.add(sym)
-        rows.append({"symbol": sym, "src": src})
+        buckets.setdefault(src, []).append({"symbol": sym, "src": src})
 
     wl = wl or {}
     for e in (wl.get("pullback") or []):
@@ -12584,14 +12617,30 @@ def live_watch_universe(wl=None, near=None, press=None, hunter=None,
     #    **فكانت قراءةً ميّتةً دائمًا**؛ أمسكها فحصُ الشكل على الملفّ الحقيقيّ
     #    لا القراءة. (صنفُ «المفتاحُ المتخيَّل» — مقفولٌ `VWR5ج` بالشكل الفعليّ.)
     _near = (near or {})
-    for _k, _e in (_near.items() if isinstance(_near, dict) else []):
-        if isinstance(_e, dict) and _e.get("symbol"):
+    if isinstance(_near, dict) and _near:
+        # 🔑 **ومنها رأسا السلّتين لا كلُّها** (‏726 صفًّا لا تُمسَح لحظيًّا):
+        #    داخلَ الظرف تمامًا · والمتشبّعُ الآن بزناد فيصل.
+        _in, _os = near_watch_buckets(_near)
+        for _e in (_in[:lim] + _os[:lim]):   # مرشَّحون؛ الحصّةُ تقصّ
             _add(_e.get("symbol"), "تحت المتابعة")
     for e in ((hunter or {}).get("stocks") or []):
         if e.get("status") == "active":
             _add(e.get("symbol"), "متابعة الصيّاد")
-    dropped = max(0, len(rows) - lim)
-    return rows[:lim], dropped
+    # 🔴 **حصصٌ بالتناوب لا أولويةٌ صارمة (إصلاح 2026-08-16 — تجويعٌ مقيس):**
+    #    بالقصّ الصارم كانت الأولى تستهلك السقفَ كلَّه (‏ارتداد 5 + ترشيح 24 +
+    #    رادار الضغط 60 = 89 فوق سقفِ 60) ⇒ **«تحت المتابعة» ومتابعةُ الصيّاد
+    #    تأخذان صفرًا دائمًا** — أي أن سهمَ المالك لا يدخل المسحَ الحيّ أصلًا.
+    #    التناوبُ يضمن لكلّ مصدرٍ نصيبًا، **والأولويةُ تبقى داخل الدورة**.
+    total = sum(len(v) for v in buckets.values())
+    order = [k for k in LIVE_WATCH_SOURCES if buckets.get(k)] + \
+            [k for k in buckets if k not in LIVE_WATCH_SOURCES and buckets[k]]
+    rows, idx = [], 0
+    while len(rows) < lim and any(idx < len(buckets[k]) for k in order):
+        for k in order:
+            if idx < len(buckets[k]) and len(rows) < lim:
+                rows.append(buckets[k][idx])
+        idx += 1
+    return rows, max(0, total - len(rows))
 
 
 def scan_operator_entry(universe, today_iso: str, fetch_bars=None,

@@ -16708,25 +16708,30 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     _sec, _sec_empty = f"⛔ {type(_e).__name__}", "x"
 check("👀 NW5 القسمُ يعرض بالسقف **ويُعلن الباقي بعدده** · والفارغُ نصٌّ فارغ",
-      "تحت المتابعة" in _sec and "و15 غيرها" in _sec and _sec_empty == "",
+      "تحت المتابعة" in _sec and "غيرهم" in _sec and _sec_empty == "",
       _sec[:70])
 
-check("👀 NW5ب يطبع «داخلَ معايير فيصل 14 من 15» وينقصه المعيارُ باسمه",
-      "14 من 15" in _sec and "M2 الهبوط" in _sec, _sec[:110])
+check("👀 NW5ب يطبع ما ينقصه **باسمه** وسعرَه وتشبّعَه (لا رقمًا مبهمًا)",
+      "M2 الهبوط" in _sec and "RSI" in _sec and "ينقصه" in _sec, _sec[:110])
 
-# ── NW6: الترتيبُ **بالأقرب** (أقلُّ خارجًا أوّلًا) — فارقٌ حقيقيّ ──────────
+# ── NW6: «داخلَ الظرف تمامًا» يتقدّم «المتشبّع» — والسلّتان لا تتداخلان ────
 _nw_mix = {
-    "FAR": {"symbol": "FAR", "n_out": 2, "outside": ["a", "b"], "readiness": 90,
-            "n_criteria": 15, "first_seen": "2026-08-16", "last_seen": "2026-08-16"},
-    "NEAR": {"symbol": "NEAR", "n_out": 1, "outside": ["a"], "readiness": 10,
-             "n_criteria": 15, "first_seen": "2026-08-16", "last_seen": "2026-08-16"},
+    "OVS": {"symbol": "OVS", "n_out": 2, "outside": ["a", "b"], "readiness": 90,
+            "rsi_now": 18.0, "price": 1.9, "n_criteria": 15,
+            "first_seen": "2026-08-16", "last_seen": "2026-08-16"},
+    "INS": {"symbol": "INS", "n_out": 0, "outside": [], "readiness": 10,
+            "rsi_now": 55.0, "price": 3.0, "n_criteria": 15,
+            "first_seen": "2026-08-16", "last_seen": "2026-08-16"},
 }
 try:
     _sec2 = S.build_near_watch_section(_nw_mix)
 except Exception as _e:                                          # noqa: BLE001
     _sec2 = f"⛔ {type(_e).__name__}"
-check("👀 NW6 الأقربُ أوّلًا ولو كانت جاهزيتُه أدنى (الترتيبُ بالقرب لا بالجاهزية)",
-      _sec2.find("$NEAR") < _sec2.find("$FAR"), _sec2[:80])
+check("👀 NW6 «داخلَ الظرف تمامًا» يتقدّم «المتشبّع» ولو كانت جاهزيتُه أدنى — "
+      "وكلٌّ في سلّته بعنوانها",
+      _sec2.find("INS") < _sec2.find("OVS")
+      and "داخلَ ظرف فيصل تمامًا" in _sec2 and "زنادُ فيصل" in _sec2,
+      _sec2[:90])
 
 # ── NW7: **موصولٌ من نقطتَي النداء الحيّتين** (‏AST لا نصّ) ─────────────────
 _nw_scan = _ast0.parse(_insp.getsource(S.scan_market))
@@ -19277,8 +19282,8 @@ check("🎯 VWR2ب زوجٌ مفرِّق لشرط «الصعود الأوّل» 
       S.vwap_entry_confirm(_vwr_norise) is None
       and (S.vwap_entry_confirm(_vwr_rise) or {}).get("vwap") is not None)
 
-_vwr_ne = {"NNN": S.near_watch_entry("NNN", {"price": 2.0}, ["drop_pct"],
-                                     "2026-08-16")}
+_vwr_ne = {"NNN": S.near_watch_entry(
+    "NNN", {"price": 2.0, "rsi_now": 21.0, "readiness": 40}, [], "2026-08-16")}
 # ── كونُ المتابعة الحيّة: كلُّ قوائمنا الخمس ────────────────────────────────
 _vwr_wl_uni = {"stocks": [{"symbol": "AAA", "status": "active"},
                           {"symbol": "BBB", "status": "active",
@@ -19360,14 +19365,72 @@ check("🔒 VWR5د `NEAR_WATCH_FILE` مدفوعٌ في `git_save` (وإلّا م
       and "NEAR_WATCH_FILE" in _ast0.unparse(_vwr_gs[0]))
 check("👁️ VWR5 كونُ المتابعة = القوائمُ الخمس بأولويةٍ مُعلَنة · منزوعُ التكرار "
       "(‏AAA بمصدره الأوّل) · ويُقصي «خرج من النموذج» والمشطوبَ والبائتَ",
-      [r["symbol"] for r in _vwr_uni] == ["PPP", "AAA", "RRR", "NNN", "HHH"]
-      and _vwr_uni[1]["src"] == "الارتداد" and _vwr_cut == 0,
+      sorted(r["symbol"] for r in _vwr_uni) == ["AAA", "HHH", "NNN", "PPP",
+                                                "RRR"]
+      and {r["symbol"]: r["src"] for r in _vwr_uni}["AAA"] == "الارتداد"
+      and _vwr_uni[0]["symbol"] == "PPP" and _vwr_cut == 0,
       str([(r["symbol"], r["src"]) for r in _vwr_uni]))
 _vwr_cap = S.live_watch_universe(
     _vwr_wl_uni, near=_vwr_ne, cap=2, today_iso="2026-08-16")
-check("🔒 VWR5ب السقفُ يقصّ **الأبعدَ عن التنفيذ** ويُعلَن بعدده (لا قصَّ صامتًا)",
-      [r["symbol"] for r in _vwr_cap[0]] == ["PPP", "AAA"] and _vwr_cap[1] == 1,
-      str(_vwr_cap))
+check("🔒 VWR5ب السقفُ يُعلَن قصُّه (لا قصَّ صامتًا) — والباقي محسوبٌ بدقّة",
+      len(_vwr_cap[0]) == 2 and _vwr_cap[1] == 1, str(_vwr_cap))
+# 🔒 VWR5هـ — **حصصٌ بالتناوب لا أولويةٌ صارمة تُجوِّع الأخيرة.** عيبٌ مقيس:
+#    ارتداد 5 + ترشيح 24 + رادار الضغط 60 = 89 فوق سقفِ 60 ⇒ «تحت المتابعة»
+#    ومتابعةُ الصيّاد **صفرٌ دائمًا** = سهمُ المالك خارجَ المسح الحيّ أصلًا.
+_vwr_big = {"stocks": [{"symbol": f"S{_i}", "status": "active"}
+                       for _i in range(24)],
+            "pullback": [{"symbol": f"P{_i}"} for _i in range(5)]}
+_vwr_bp = {"symbols": {f"R{_i}": {"last_alert": "2026-08-15"}
+                       for _i in range(60)}}
+_vwr_bn = {f"N{_i}": S.near_watch_entry(
+    f"N{_i}", {"price": 2.0, "rsi_now": 20 + _i, "readiness": 50},
+    [] if _i < 5 else ["x"], "2026-08-16") for _i in range(30)}
+_vwr_bh = {"stocks": [{"symbol": f"H{_i}", "status": "active"}
+                      for _i in range(3)]}
+_vwr_rr, _vwr_rrc = S.live_watch_universe(
+    _vwr_big, _vwr_bn, _vwr_bp, _vwr_bh, today_iso="2026-08-16")
+_vwr_by = {}
+for _r in _vwr_rr:
+    _vwr_by[_r["src"]] = _vwr_by.get(_r["src"], 0) + 1
+check("🔒 VWR5هـ لا مصدرَ يُجوَّع: الخمسةُ كلُّها لها نصيبٌ رغم تجاوز السقف",
+      len(_vwr_rr) == S.LIVE_WATCH_CAP and _vwr_rrc > 0
+      and all(_vwr_by.get(_k, 0) > 0 for _k in S.LIVE_WATCH_SOURCES),
+      str(_vwr_by))
+
+# 🔒 NWB1-NWB3 — **سلّتان بمصدرَين فيصليَّين** (عيبٌ مقيس: بترتيبٍ واحد وقع
+#    `RUBI` **‏#609 من 726** فلا يظهر، و`DRCT` #58 — **ولا ترتيبَ واحدٌ يُظهر
+#    الاثنين**: بالتشبّع ينقلب `RUBI` #10 و`DRCT` #446).
+_nwb = {
+    "INS": S.near_watch_entry("INS", {"price": 3.0, "rsi_now": 55.0,
+                                      "readiness": 70}, [], "2026-08-16"),
+    "OVS": S.near_watch_entry("OVS", {"price": 1.9, "rsi_now": 19.5,
+                                      "readiness": 45}, ["a", "b"],
+                              "2026-08-16"),
+    "FAR": S.near_watch_entry("FAR", {"price": 4.0, "rsi_now": 60.0,
+                                      "readiness": 20}, ["a", "b"],
+                              "2026-08-16"),
+}
+_nwb_in, _nwb_os = S.near_watch_buckets(_nwb)
+check("👀 NWB1 السلّتان: «داخلَ الظرف تمامًا» (‏n_out صفر) · و«متشبّعٌ الآن» "
+      "(‏RSI تحت 30 — زنادُ فيصل) · والبعيدُ غيرُ المتشبّع خارجَ الاثنتين",
+      [e["symbol"] for e in _nwb_in] == ["INS"]
+      and [e["symbol"] for e in _nwb_os] == ["OVS"])
+check("🔒 NWB2 لا يُعَدّ سهمٌ مرّتين: داخلَ الظرف **ومتشبّعٌ** يظهر في الأولى فقط",
+      [e["symbol"] for e in S.near_watch_buckets(
+          {"X": S.near_watch_entry("X", {"price": 2.0, "rsi_now": 15.0,
+                                         "readiness": 50}, [],
+                                   "2026-08-16")})[1]] == [])
+_nwb_msg = S.build_near_watch_section(_nwb)
+check("🔒 NWB3 القسمُ يعرض السلّتين بعنوانٍ لكلٍّ وعددِها · وفارغٌ ⇒ نصٌّ فارغ · "
+      "وبلا علاماتِ مقارنة",
+      "INS" in _nwb_msg and "OVS" in _nwb_msg and "زنادُ فيصل" in _nwb_msg
+      and S.build_near_watch_section({}) == ""
+      and not any(_c in _nwb_msg for _c in "≥≤"))
+# 🔒 NWB4 — والكونُ الحيّ يقرأ **رأسَي السلّتين** لا القائمةَ كلَّها
+check("🔒 NWB4 الكونُ الحيّ يقرأ رأسَي السلّتين (‏`near_watch_buckets`) بالـAST",
+      any(getattr(_c.func, "id", None) == "near_watch_buckets"
+          for _c in _ast0.walk(_ast0.parse(_insp0.getsource(
+              S.live_watch_universe))) if isinstance(_c, _ast0.Call)))
 
 # ── الماسحُ الحيّ: بوّابةُ المضارب + الدِدوب ───────────────────────────────
 _vwr_flat = [_vwr_bar(3.58, 3.62, 3.60)] * 30
