@@ -12803,15 +12803,15 @@ check("🔬 NH🔒 الشروط الستّة **مُناداةٌ فعلًا** (ب
 check("🔬 NH🔒 و`trigger_state` **لم تعد تُنادى** (قراءةُ المسح نقيضُ «حافظ عليها»)",
       "trigger_state" not in _calls(S.scan_method_hunter)
       and "trigger_state" in _insp0.getsource(S.scan_method_hunter))
-# 🔴 **إقرارٌ مؤرَّخ 2026-08-15 (أمر المالك «نفّذ الحزمة»):** كان هذا القفلُ يثبّت
-# «‏20 إلى 30» من `IMG_0489` — **وسقط بالتغيير فأدّى عملَه**. النصُّ الأحدث
-# («من 10 ايام لشهر» · منشور 2026-08-15) **أوسع**، والقياسُ نُشر قبل التطبيق
-# (`method_window_result.md`: المطابقُ 196 ⟶ 364). ⇒ يُحدَّث إلى **‏10-30**
-# **وتُشدَّد تخومُه** (‏9 و31 يسقطان · و10 و20 و30 يمرّان) لا أن يُرخى.
-check("🔬 NH🔒 «من 10 ايام لشهر» حرفيّ (تخوم مقفولة: 9 و31 يسقطان · 10 و30 يمرّان)",
-      S.CONFIG["METHOD_DECLINE_MIN"] == 10 and S.CONFIG["METHOD_DECLINE_MAX"] == 30
-      and (lambda f: all(f(n) for n in (10, 20, 25, 30))
-           and not any(f(n) for n in (9, 31)))(
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-15 (قرارُ المالك «ارجع 20»):** جُرِّب النصُّ الأوسع
+# («من 10 ايام لشهر») و**قِيست كلفتُه** (`method_window_result.md`: المطابقُ
+# 196 ⟶ 364) فاختار المالكُ الرجوعَ إلى «‏20 < 30 يوم» (`IMG_0489`). ⇒ القفلُ
+# يعود إلى **‏20-30** بتخومه (‏19 و31 يسقطان · 20 و30 يمرّان) — **والرقمان
+# كلاهما نصُّ فيصل، والاختيارُ بينهما قرارُ مالكٍ مُدوَّن.**
+check("🔬 NH🔒 «‏20 < 30 يوم» حرفيّ (تخوم مقفولة: 19 و31 يسقطان · 20 و30 يمرّان)",
+      S.CONFIG["METHOD_DECLINE_MIN"] == 20 and S.CONFIG["METHOD_DECLINE_MAX"] == 30
+      and (lambda f: all(f(n) for n in (20, 25, 30))
+           and not any(f(n) for n in (19, 31)))(
           lambda n: bool(S.method_founding(
               S.pd.DataFrame({"High": [1.0] * 5 + [10.0] + [3.0] * n},
                              index=S.pd.date_range("2024-01-01",
@@ -13037,18 +13037,13 @@ _sm_df = S.pd.DataFrame(
 
 
 
-# 🔬 **مِشطُ الدخان يرفع شرطَ RSI عمدًا (2026-08-15):** هذي الكتلةُ تقفل **أرقام
-# فيصل البنيوية** (‏القاع 3.10 · الدخول 3.20 · الوقف 3.00 · الهدف 5.00)، و‏RSI
-# هذي العيّنة **‏41.2** فتسقط بالبوّابة الجديدة. رفعُ الحدّ هنا **مُعلَنٌ ومحصور**
-# ولا يُخفي شيئًا: البوّابةُ نفسُها مقفولةٌ سلوكيًّا بـ`MWB1`/`MWB3` أدناه.
+# 🔴 **مِشطُ الدخان صار نداءً مباشرًا (2026-08-15، أمرُ المالك «الغ شرط rsi»):**
+# كان يرفع `METHOD_RSI_MAX` مؤقّتًا لأن ‏RSI هذي العيّنة **‏41.2** فتسقط بالبوّابة
+# التي كانت مطبَّقة. **البوّابةُ أُلغيت** ⇒ لا مفتاحَ يُرفَع، والغلافُ يبقى اسمًا
+# واحدًا تنادي به الكتلةُ كلُّها (‏`OFF🔒` وما بعده) فلا تتفرّق نقاطُ النداء.
 def _sm_scan(**kw):
-    _sv = S.CONFIG["METHOD_RSI_MAX"]
-    try:
-        S.CONFIG["METHOD_RSI_MAX"] = 100.0
-        return S.scan_method_hunter(
-            {"TEST": _sm_df}, today=_sm_df.index[-1].date(), **kw)
-    finally:
-        S.CONFIG["METHOD_RSI_MAX"] = _sv
+    return S.scan_method_hunter(
+        {"TEST": _sm_df}, today=_sm_df.index[-1].date(), **kw)
 
 
 _sm_rows = _sm_scan(
@@ -13113,41 +13108,28 @@ check("🔴 OFF🔒ج نفادُ ميزانية الفحص ⇒ المرشّح **
           _off_cap_rows, today=_sm_df.index[-1].date()))
 import method_scan as _MS0            # noqa: E402  (أداةُ البحث المجمَّدة)
 import method_window_arms as _MW0     # noqa: E402  (أذرعُ القياس)
-# 🔴 **`MWB🔒` — المرحلة (ب): تطبيقُ التحديثين المنصوصين (2026-08-15).**
-# القياسُ نُشر **قبل** التطبيق (`method_window_result.md`) والقاعدةُ كانت مثبَّتةً
-# **قبل الأرقام** (`method_window_prereg.md §⑦`). العيّناتُ **مفرِّقة**.
-# 🐞 **وأوّلُ صياغةٍ لهذا القفل سقطت بخطئي أنا:** فحصتُ `_METHOD_NEAR` **بعد**
-#    تشغيلةٍ ثانيةٍ ناجحة — والقائمةُ تُفرَّغ في رأس كلّ مسح ⇒ السببُ المُسمّى
-#    اختفى. ⇒ يُلتقَط **فورَ** تشغيلة الرفض. (نظيرُ درسِ «اقرأ الحالةَ في لحظتها».)
-def _mwb_scan(rsi_max):
-    _sv = S.CONFIG["METHOD_RSI_MAX"]
-    try:
-        S.CONFIG["METHOD_RSI_MAX"] = rsi_max
-        rows = S.scan_method_hunter(
-            {"TEST": _sm_df}, today=_sm_df.index[-1].date(),
-            fetch_pump=lambda d: False,
-            fetch_offering=lambda s, today=None: False,
-            fetch_borrow=lambda s: {"shares_available": 7_000})
-        return rows, list(getattr(S, "_METHOD_NEAR", []) or [])
-    finally:
-        S.CONFIG["METHOD_RSI_MAX"] = _sv
+# 🔴 **`MWB🔒` — بعد قرارَي المالك «ارجع 20» و«الغ شرط rsi» (2026-08-15).**
+# طُبِّق النصّان ساعاتٍ ثم **أُلغيا بأمره بعد أن رأى القياس** — والأقفالُ تتبع
+# القرارَ النافذ: **لا بوّابةَ RSI**، والحقلُ **يبقى عرضًا**. (والقياسُ محفوظٌ في
+# `method_window_result.md` فلا يضيع، وإعادةُ التفعيل سطرٌ واحد.)
+def _mwb_scan():
+    rows = S.scan_method_hunter(
+        {"TEST": _sm_df}, today=_sm_df.index[-1].date(),
+        fetch_pump=lambda d: False,
+        fetch_offering=lambda s, today=None: False,
+        fetch_borrow=lambda s: {"shares_available": 7_000})
+    return rows, list(getattr(S, "_METHOD_NEAR", []) or [])
 
 
-_mwb_rej, _mwb_rej_near = _mwb_scan(0.0)      # يرفض كلَّ RSI محسوب
-_mwb_pass, _ = _mwb_scan(100.0)               # لا يرفض أحدًا
-check("🔴 MWB1 شرطُ RSI **بوّابةُ رفضٍ فعلًا**: نفسُ المرشّح الكامل يسقط حين "
-      "يكون RSI فوق الحدّ ويمرّ حين يكون تحته — والسببُ **مُسمًّى** في «قريبون»",
-      len(_mwb_rej) == 0 and len(_mwb_pass) == 1
-      and any("RSI" in str(n.get("why") or "") for n in _mwb_rej_near))
-# 🐞 **وطفرةُ «`>` بدل `>=`» نجت** لأن تخومي كانت على **أداة القياس** لا على
-#    الإنتاج: `MWB1` يشغّل الحدَّ عند 0 و100 فلا يمرّ بالحدّ نفسِه قطّ. ⇒ يُضبَط
-#    الحدُّ على **قيمة RSI الفعلية للعيّنة بالضبط**: «تحت 30» تعني أن المساوي
-#    **يُرفَض** — فبـ`>=` صفرُ صفوف وبـ`>` يمرّ.
-_mwb_edge = float(S.rsi(_sm_df["Close"]).iloc[-1])
-check("🔴 MWB1ب تخومُ الإنتاج: RSI **مساويًا للحدّ بالضبط ⇒ يُرفَض** («تحت 30» "
-      "لا تشمل الثلاثين) — والعيّنةُ عند الحدّ حرفيًّا",
-      len(_mwb_scan(_mwb_edge)[0]) == 0
-      and len(_mwb_scan(_mwb_edge + 0.01)[0]) == 1)
+# 📌 عيّنةُ الدخان RSI‏ها **‏41.2** — أي **فوق 30**: لو بقيت البوّابةُ لسقطت.
+# فمرورُها هنا **دليلٌ سلوكيّ** على أن الشرطَ أُلغي فعلًا لا نصًّا.
+_mwb_rows, _mwb_near = _mwb_scan()
+check("🔴 MWB1 **لا بوّابةَ RSI**: مرشّحٌ RSI‏ه 41 (فوق 30) **يمرّ** — ولا سببَ "
+      "رفضٍ باسم RSI في «قريبون» (قرارُ المالك «الغ شرط rsi»)",
+      round(float(S.rsi(_sm_df["Close"]).iloc[-1])) == 41
+      and len(_mwb_rows) == 1
+      and not any("RSI" in str(n.get("why") or "") for n in _mwb_near)
+      and "METHOD_RSI_MAX" not in _insp0.getsource(S.scan_method_hunter))
 check("🔴 MWB2 **سطرُ العرض لا يكذب**: نافذةُ الكرت والسجلّ تُقرأ من `CONFIG` "
       "(ضبطٌ مؤقّتٌ على 12-28 ⇒ يظهر «12 إلى 28» لا رقمٌ مغروس)",
       (lambda saved: (lambda _:
@@ -13159,33 +13141,21 @@ check("🔴 MWB2 **سطرُ العرض لا يكذب**: نافذةُ الكرت 
            "METHOD_DECLINE_MAX": S.CONFIG["METHOD_DECLINE_MAX"]})
       and "20 إلى 30" not in _insp0.getsource(S.build_method_alert)
       and "نافذة 20-30" not in _insp0.getsource(S.scan_method_hunter))
-check("🔴 MWB3 «تعذّرٌ ≠ مخالفة» حيًّا: سلسلةٌ بلا هبوطٍ واحد (‏`rsi()` تحشو 50) "
-      "**تمرّ** ولا تُقرأ الخمسون رفضًا",
-      "_rsi_ok" in _insp0.getsource(S.scan_method_hunter)
-      and "diff().tail(42) < 0" in _insp0.getsource(S.scan_method_hunter)
-      and _MW0.arm_member(10, True, 25, False, 50.0) is True)
-# 🐞 كتبتُ هذا القفلَ أوّلًا **نصًّا** (وجودُ «rsi_ok» و«عبر شرطَ RSI» في المصدر)
-#    — **ونجت الطفرة**: حذفُ سطر الزيادة يُبقي الاسمين في تهيئة `stage` وفي سطر
-#    السجلّ. ⇒ قفلٌ **سلوكيّ**: العدّادُ يتحرّك مع المرور ويبقى صفرًا مع الرفض.
-check("🔴 MWB4 عدّادٌ **يتحرّك** لا اسمٌ في المصدر: يساوي عددَ العابرين ويبقى "
-      "صفرًا حين يرفض الجميع (‏لا يستوي «بوّابةٌ خاملة» و«رفضٌ شامل»)",
-      "عبر شرطَ RSI" in _insp0.getsource(S.scan_method_hunter)
-      and (lambda a, b: a == 1 and b == 0)(
-          (_mwb_scan(100.0), dict(S._METHOD_STAGE))[1].get("rsi_ok"),
-          (_mwb_scan(0.0), dict(S._METHOD_STAGE))[1].get("rsi_ok")))
+check("🔴 MWB3 والرقمُ المعروض **محسوبٌ لا محشوّ**: `rsi()` تنتهي بـ`fillna(50)` "
+      "⇒ يُشترط تمييزُ المحسوب (نافذةٌ كافية وهبوطٌ واحدٌ داخلها) وإلّا صار "
+      "«‏📐 RSI 50» قراءةً مُختلَقة",
+      "diff().tail(42) < 0" in _insp0.getsource(S.scan_method_hunter)
+      and "_v == _v" in _insp0.getsource(S.scan_method_hunter))
 check("🔴 MWB5 الصفُّ يحمل `rsi` فيحيا سطرُ «‏📐 RSI» الميّت في الكرت "
       "(‏`faisal_rule_lines` كانت تستقبل None دائمًا)",
-      "\"rsi\": _rsi" in _insp0.getsource(S.scan_method_hunter)
+      '"rsi": _rsi' in _insp0.getsource(S.scan_method_hunter)
       and (lambda rs: len(rs) == 1 and rs[0].get("rsi") is not None
            and "📐 RSI" in S.build_method_alert(
-               rs, today=_sm_df.index[-1].date()))(
-          _sm_scan(
-              fetch_pump=lambda d: False,
-              fetch_offering=lambda s, today=None: False,
-              fetch_borrow=lambda s: {"shares_available": 7_000})))
+               rs, today=_sm_df.index[-1].date()))(_mwb_rows))
 check("🔴 MWB6 أداةُ البحث المجمَّدة لم تُمَسّ: ثوابتُ `method_scan.py` تبقى 20/30 "
       "فلا يتسرّب تغييرُ الإنتاج إلى أرقامٍ منشورة",
-      _MS0.DECLINE_MIN_BARS == 20 and _MS0.DECLINE_MAX_BARS == 30)
+      _MS0.DECLINE_MIN_BARS == 20 and _MS0.DECLINE_MAX_BARS == 30
+      and _MW0.RSI_MAX == 30.0)
 _ = S.scan_method_hunter({}, today=None)          # تنظيفُ الحالة العامّة بعد الدخان
 # ==========================================================
 # ==========================================================
@@ -13610,19 +13580,14 @@ def _f4_boom(sym):
     return _f4_alt
 
 
-# 🔬 شرطُ RSI مرفوعٌ هنا عمدًا: هذا القفلُ يقيس **عزلَ عطل 4س** لا البوّابة
-#    الجديدة، وعيّنةُ `_sm_df` نفسُها RSI‏ها 41 (البوّابةُ مقفولةٌ في `MWB1`).
-_f4_rsi_saved = S.CONFIG["METHOD_RSI_MAX"]
-try:
-    S.CONFIG["METHOD_RSI_MAX"] = 100.0
-    S.scan_method_hunter({"TEST": _f4_daily, "OK": _sm_df},
-                         today=_f4_daily.index[-1].date(),
-                         fetch_pump=lambda d: False,
-                         fetch_offering=lambda s: False,
-                         fetch_borrow=lambda s: {"shares_available": 7000},
-                         fetch_h4=_f4_boom)
-finally:
-    S.CONFIG["METHOD_RSI_MAX"] = _f4_rsi_saved
+# 🔴 كان هنا رفعٌ مؤقّتٌ لـ`METHOD_RSI_MAX` (عيّنةُ `_sm_df` ‏RSI‏ها 41) — **زال
+#    بزوال البوّابة** (أمرُ المالك «الغ شرط rsi» 2026-08-15) فالنداءُ مباشر.
+S.scan_method_hunter({"TEST": _f4_daily, "OK": _sm_df},
+                     today=_f4_daily.index[-1].date(),
+                     fetch_pump=lambda d: False,
+                     fetch_offering=lambda s: False,
+                     fetch_borrow=lambda s: {"shares_available": 7000},
+                     fetch_h4=_f4_boom)
 _f4_mix = dict(S._METHOD_STAGE)
 check("🕓 H4🔒 وعطلُ 4س لرمزٍ يتخطّاه **وحده** (الباقي يُفحَص ويُطابِق)",
       _f4_mix["matched"] == 1 and _f4_mix["seq"] == 1 and _f4_mix["seq_h4"] == 0)
