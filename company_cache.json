@@ -890,20 +890,6 @@
   "short_interest": 672000,
   "days_to_cover": 0.03
  },
- "NEGG": {
-  "sector": "Consumer Cyclical",
-  "industry": "Internet Retail",
-  "business": "Newegg Commerce, Inc. operates as an electronics-focused e-retailer in the United States, Canada, and internationally. The company sells desktops, laptops, gami…",
-  "country": "United States",
-  "cash": 57050000,
-  "revenue": 1403527040,
-  "shares_out": 20973423,
-  "short_pct": 28.2,
-  "float": 1375167,
-  "company_name": "Newegg Commerce, Inc.",
-  "short_interest": 295007,
-  "days_to_cover": 3.22
- },
  "NUAI": {
   "sector": "Technology",
   "industry": "Software - Infrastructure",
@@ -2650,21 +2636,6 @@
   "short_interest": 3746865,
   "days_to_cover": 7.18
  },
- "BNKK": {
-  "sector": "Consumer Defensive",
-  "industry": "Beverages - Non-Alcoholic",
-  "business": "Bonk, Inc. provides over-the-counter products and consumer products in the United States. The company offers Safety Shot Beverage, an over-the-counter drink tha…",
-  "country": "United States",
-  "cash": 890643,
-  "revenue": 8224617,
-  "shares_out": 8000940,
-  "short_pct": 2.5,
-  "float": 4907457,
-  "finra_short": 6205,
-  "company_name": "Bonk, Inc.",
-  "short_interest": 193599,
-  "days_to_cover": 2.14
- },
  "PRFX": {
   "sector": "Healthcare",
   "industry": "Drug Manufacturers - Specialty & Generic",
@@ -3215,20 +3186,6 @@
   "short_interest": 87627,
   "days_to_cover": 0.99
  },
- "INTS": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Intensity Therapeutics, Inc., a late-stage clinical biotechnology company, engages in the provision of treatment for the regional and systemic nature of cancer…",
-  "country": "United States",
-  "cash": 9529000,
-  "shares_out": 2702820,
-  "short_pct": 2.7,
-  "float": 2991870,
-  "finra_short": 11400,
-  "company_name": "Intensity Therapeutics, Inc.",
-  "short_interest": 68355,
-  "days_to_cover": 1.53
- },
  "CALC": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -3468,21 +3425,6 @@
   "company_name": "Actuate Therapeutics, Inc.",
   "short_interest": 450180,
   "days_to_cover": 1.11
- },
- "HIT": {
-  "sector": "Technology",
-  "industry": "Software - Application",
-  "business": "Health In Tech, Inc. operates as an insurance technology platform company in the United States. The company offers reference-based pricing, group insurance capt…",
-  "country": "United States",
-  "cash": 10325208,
-  "revenue": 34084172,
-  "shares_out": 53834658,
-  "short_pct": 3.5,
-  "float": 20219802,
-  "finra_short": 29720,
-  "company_name": "Health In Tech, Inc.",
-  "short_interest": 713957,
-  "days_to_cover": 12.05
  },
  "TVRD": {
   "sector": "Healthcare",
@@ -4306,6 +4248,99 @@
   "short_interest": 56631,
   "days_to_cover": 1.35
  },
+ "BNR": {
+  "sector": "Healthcare",
+  "industry": "Diagnostics & Research",
+  "business": "Burning Rock Biotech Limited develops and sells cancer therapy selection tests in the People's Republic of China and the United States. It operates in three seg…",
+  "country": "China",
+  "cash": 446001984,
+  "revenue": 514428992,
+  "shares_out": 8813858,
+  "short_pct": 0.5,
+  "float": 3320718,
+  "finra_short": 7,
+  "company_name": "Burning Rock Biotech Limited",
+  "short_interest": 39238,
+  "days_to_cover": 2.51
+ },
+ "SEGG": {
+  "sector": "Consumer Cyclical",
+  "industry": "Gambling",
+  "business": "Sports Entertainment Gaming Global Corporation, doing business as SEGG Media Corp., SEGG Media, and SEGG, a digital publisher, provides lottery data results, ja…",
+  "country": "United States",
+  "cash": 171524,
+  "revenue": 559590,
+  "shares_out": 3259487,
+  "short_pct": 5.4,
+  "float": 2980767,
+  "finra_short": 13319,
+  "company_name": "Sports Entertainment Gaming Glo",
+  "short_interest": 162787,
+  "days_to_cover": 1.51
+ },
+ "NEUP": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Neuphoria Therapeutics Inc., a clinical stage biopharmaceutical company, discovers and develops novel allosteric ion channel modulators for the treatment of cen…",
+  "country": "United States",
+  "cash": 19440656,
+  "revenue": -13267,
+  "shares_out": 5404551,
+  "short_pct": 1.2,
+  "float": 4186689,
+  "finra_short": 1023,
+  "company_name": "Neuphoria Therapeutics Inc.",
+  "short_interest": 65538,
+  "days_to_cover": 0.15
+ },
+ "LHSW": {
+  "sector": "Technology",
+  "industry": "Software - Infrastructure",
+  "business": "Lianhe Sowell International Group Ltd, through its subsidiaries, engages in the provision of machine vision products and solutions in China. It offers industria…",
+  "country": "China",
+  "cash": 2004915,
+  "revenue": 43269568,
+  "shares_out": 3250000,
+  "short_pct": 4.8,
+  "float": 341835,
+  "finra_short": 8277,
+  "company_name": "Lianhe Sowell International Gro",
+  "short_interest": 52946,
+  "days_to_cover": 0.01
+ },
+ "BGMS": {
+  "sector": "Industrials",
+  "industry": "Building Products & Equipment",
+  "business": "Bio Green Med Solution, Inc. engages in the distributing, trading, and installation of protective and fire safety materials and equipment, and fire protection a…",
+  "country": "Malaysia",
+  "cash": 3339000,
+  "revenue": 1525000,
+  "shares_out": 5519456,
+  "short_pct": 1.6,
+  "float": 3456228,
+  "finra_short": 211,
+  "company_name": "Bio Green Med Solution, Inc.",
+  "short_interest": 66628,
+  "days_to_cover": 0.76
+ },
+ "PPCB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Propanc Biopharma, Inc., a development-stage biopharmaceutical healthcare company, engages in the development of cancer treatments for patients with pancreatic,…",
+  "country": "Australia",
+  "cash": 443702,
+  "shares_out": 2278371,
+  "short_pct": 1.0,
+  "float": 1250074,
+  "finra_short": 9282,
+  "company_name": "Propanc Biopharma, Inc.",
+  "short_interest": 20152,
+  "days_to_cover": 0.01
+ },
+ "ZRO": {
+  "short_pct": 0.0,
+  "float": 1000000.0
+ },
  "PLUR": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -4408,20 +4443,32 @@
   "short_interest": 1184568,
   "days_to_cover": 6.88
  },
- "BNR": {
+ "NNNN": {
   "sector": "Healthcare",
-  "industry": "Diagnostics & Research",
-  "business": "Burning Rock Biotech Limited develops and sells cancer therapy selection tests in the People's Republic of China and the United States. It operates in three seg…",
-  "country": "China",
-  "cash": 446001984,
-  "revenue": 514428992,
-  "shares_out": 8813858,
-  "short_pct": 0.5,
-  "float": 3320718,
-  "finra_short": 7,
-  "company_name": "Burning Rock Biotech Limited",
-  "short_interest": 39238,
-  "days_to_cover": 2.51
+  "industry": "Medical Instruments & Supplies",
+  "business": "Anbio Biotechnology provides in vitro diagnostics (IVD) products in the European Union, the Asia Pacific, North America, South America, and internationally. The…",
+  "country": "Germany",
+  "cash": 11901231,
+  "revenue": 8646844,
+  "shares_out": 43891200,
+  "short_pct": 0.1,
+  "float": 39691251,
+  "company_name": "Anbio Biotechnology",
+  "short_interest": 47525,
+  "days_to_cover": 1.15
+ },
+ "MENS": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Jyong Biotech Ltd., a science-driven biotechnology company, engages in the development and commercialization of plant-derived drugs for the treatment of urinary…",
+  "country": "Taiwan",
+  "cash": 1175000,
+  "shares_out": 74233667,
+  "short_pct": 0.4,
+  "float": 26941531,
+  "company_name": "Jyong Biotech Ltd.",
+  "short_interest": 179849,
+  "days_to_cover": 2.63
  },
  "UCL": {
   "sector": "Communication Services",
@@ -4437,33 +4484,6 @@
   "company_name": "uCloudlink Group Inc.",
   "short_interest": 8915,
   "days_to_cover": 1.66
- },
- "MENS": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Jyong Biotech Ltd., a science-driven biotechnology company, engages in the development and commercialization of plant-derived drugs for the treatment of urinary…",
-  "country": "Taiwan",
-  "cash": 1175000,
-  "shares_out": 74233667,
-  "short_pct": 0.4,
-  "float": 26941531,
-  "company_name": "Jyong Biotech Ltd.",
-  "short_interest": 179849,
-  "days_to_cover": 2.63
- },
- "NNNN": {
-  "sector": "Healthcare",
-  "industry": "Medical Instruments & Supplies",
-  "business": "Anbio Biotechnology provides in vitro diagnostics (IVD) products in the European Union, the Asia Pacific, North America, South America, and internationally. The…",
-  "country": "Germany",
-  "cash": 11901231,
-  "revenue": 8646844,
-  "shares_out": 43891200,
-  "short_pct": 0.1,
-  "float": 39691251,
-  "company_name": "Anbio Biotechnology",
-  "short_interest": 47525,
-  "days_to_cover": 1.15
  },
  "DCOY": {
   "sector": "Healthcare",
@@ -4493,19 +4513,6 @@
   "short_interest": 61499,
   "days_to_cover": 0.01
  },
- "PLSM": {
-  "sector": "Healthcare",
-  "industry": "Medical Devices",
-  "business": "Pulsenmore Ltd., a medical device company, engages in the research, development, manufacture, marketing, and sale of portable ultrasound solutions. The company…",
-  "country": "Israel",
-  "shares_out": 6502844,
-  "short_pct": 0.4,
-  "float": 2941301,
-  "finra_short": 3492,
-  "company_name": "Pulsenmore Ltd.",
-  "short_interest": 16438,
-  "days_to_cover": 0.01
- },
  "NTRP": {
   "sector": "Consumer Cyclical",
   "industry": "Travel Services",
@@ -4521,6 +4528,48 @@
   "short_interest": 35633,
   "days_to_cover": 0.1
  },
+ "PLSM": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "business": "Pulsenmore Ltd., a medical device company, engages in the research, development, manufacture, marketing, and sale of portable ultrasound solutions. The company…",
+  "country": "Israel",
+  "shares_out": 6502844,
+  "short_pct": 0.4,
+  "float": 2941301,
+  "finra_short": 3492,
+  "company_name": "Pulsenmore Ltd.",
+  "short_interest": 16438,
+  "days_to_cover": 0.01
+ },
+ "HIT": {
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "business": "Health In Tech, Inc. operates as an insurance technology platform company in the United States. The company offers reference-based pricing, group insurance capt…",
+  "country": "United States",
+  "cash": 10325208,
+  "revenue": 34084172,
+  "shares_out": 53834658,
+  "short_pct": 3.5,
+  "float": 20224389,
+  "finra_short": 52187,
+  "company_name": "Health In Tech, Inc.",
+  "short_interest": 713957,
+  "days_to_cover": 12.05
+ },
+ "INTS": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Intensity Therapeutics, Inc., a late-stage clinical biotechnology company, engages in the provision of treatment for the regional and systemic nature of cancer…",
+  "country": "United States",
+  "cash": 9529000,
+  "shares_out": 3264879,
+  "short_pct": 2.7,
+  "float": 2991968,
+  "finra_short": 11400,
+  "company_name": "Intensity Therapeutics, Inc.",
+  "short_interest": 68355,
+  "days_to_cover": 1.53
+ },
  "QNTM": {
   "sector": "Healthcare",
   "industry": "Biotechnology",
@@ -4533,36 +4582,6 @@
   "company_name": "Quantum Biopharma Ltd.",
   "short_interest": 303789,
   "days_to_cover": 3.42
- },
- "GURE": {
-  "sector": "Basic Materials",
-  "industry": "Chemicals",
-  "business": "Gulf Resources, Inc., through its subsidiaries, manufactures and trades in bromine and crude salt in the People's Republic of China. The company operates throug…",
-  "country": "China",
-  "cash": 5820083,
-  "revenue": 20721228,
-  "shares_out": 1539531,
-  "short_pct": 0.0,
-  "float": 1010090,
-  "finra_short": 1499,
-  "company_name": "Gulf Resources, Inc.",
-  "short_interest": 566,
-  "days_to_cover": 0.13
- },
- "SEGG": {
-  "sector": "Consumer Cyclical",
-  "industry": "Gambling",
-  "business": "Sports Entertainment Gaming Global Corporation, doing business as SEGG Media Corp., SEGG Media, and SEGG, a digital publisher, provides lottery data results, ja…",
-  "country": "United States",
-  "cash": 171524,
-  "revenue": 559590,
-  "shares_out": 3259487,
-  "short_pct": 5.4,
-  "float": 2980767,
-  "finra_short": 13319,
-  "company_name": "Sports Entertainment Gaming Glo",
-  "short_interest": 162787,
-  "days_to_cover": 1.51
  },
  "EEIQ": {
   "sector": "Consumer Defensive",
@@ -4578,6 +4597,21 @@
   "company_name": "EpicQuest Education Group Inter",
   "short_interest": 14060,
   "days_to_cover": 0.23
+ },
+ "GURE": {
+  "sector": "Basic Materials",
+  "industry": "Chemicals",
+  "business": "Gulf Resources, Inc., through its subsidiaries, manufactures and trades in bromine and crude salt in the People's Republic of China. The company operates throug…",
+  "country": "China",
+  "cash": 5820083,
+  "revenue": 20721228,
+  "shares_out": 1539531,
+  "short_pct": 0.0,
+  "float": 1010090,
+  "finra_short": 1499,
+  "company_name": "Gulf Resources, Inc.",
+  "short_interest": 566,
+  "days_to_cover": 0.13
  },
  "CDLX": {
   "sector": "Communication Services",
@@ -4623,21 +4657,6 @@
   "short_interest": 110922,
   "days_to_cover": 6.43
  },
- "NEUP": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Neuphoria Therapeutics Inc., a clinical stage biopharmaceutical company, discovers and develops novel allosteric ion channel modulators for the treatment of cen…",
-  "country": "United States",
-  "cash": 19440656,
-  "revenue": -13267,
-  "shares_out": 5404551,
-  "short_pct": 1.2,
-  "float": 4186689,
-  "finra_short": 1023,
-  "company_name": "Neuphoria Therapeutics Inc.",
-  "short_interest": 65538,
-  "days_to_cover": 0.15
- },
  "AFJK": {
   "sector": "Financial Services",
   "industry": "Shell Companies",
@@ -4652,20 +4671,33 @@
   "short_interest": 2344,
   "days_to_cover": 0.07
  },
- "LHSW": {
-  "sector": "Technology",
-  "industry": "Software - Infrastructure",
-  "business": "Lianhe Sowell International Group Ltd, through its subsidiaries, engages in the provision of machine vision products and solutions in China. It offers industria…",
-  "country": "China",
-  "cash": 2004915,
-  "revenue": 43269568,
-  "shares_out": 3250000,
-  "short_pct": 4.8,
-  "float": 341835,
-  "finra_short": 8277,
-  "company_name": "Lianhe Sowell International Gro",
-  "short_interest": 52946,
-  "days_to_cover": 0.01
+ "BNKK": {
+  "sector": "Consumer Defensive",
+  "industry": "Beverages - Non-Alcoholic",
+  "business": "Bonk, Inc. provides over-the-counter products and consumer products in the United States. The company offers Safety Shot Beverage, an over-the-counter drink tha…",
+  "country": "United States",
+  "cash": 290379,
+  "revenue": 9343075,
+  "shares_out": 8000940,
+  "short_pct": 2.5,
+  "float": 4908897,
+  "finra_short": 14847,
+  "company_name": "Bonk, Inc.",
+  "short_interest": 193599,
+  "days_to_cover": 2.14
+ },
+ "ELTX": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Elicio Therapeutics, Inc., a clinical-stage biotechnology company, develops immunotherapies for the treatment of cancer. Its lead product candidate, ELI-002, is…",
+  "country": "United States",
+  "cash": 23480000,
+  "shares_out": 26281882,
+  "short_pct": 8.6,
+  "float": 16978621,
+  "company_name": "Elicio Therapeutics, Inc.",
+  "short_interest": 1747798,
+  "days_to_cover": 1.84
  },
  "ICON": {
   "sector": "Industrials",
@@ -4796,34 +4828,20 @@
   "short_interest": 146276,
   "days_to_cover": 2.63
  },
- "STI": {
-  "sector": "Industrials",
-  "industry": "Electrical Equipment & Parts",
-  "business": "Solidion Technology, Inc., a battery technology company that focuses on the development and commercialization of battery materials, components, cells, and selec…",
-  "country": "United States",
-  "cash": 27677316,
-  "revenue": 219690,
-  "shares_out": 8495683,
-  "short_pct": 5.8,
-  "float": 3563446,
-  "company_name": "Solidion Technology, Inc.",
-  "short_interest": 185111,
-  "days_to_cover": 1.08
- },
- "BGMS": {
-  "sector": "Industrials",
-  "industry": "Building Products & Equipment",
-  "business": "Bio Green Med Solution, Inc. engages in the distributing, trading, and installation of protective and fire safety materials and equipment, and fire protection a…",
-  "country": "Malaysia",
-  "cash": 3339000,
-  "revenue": 1525000,
-  "shares_out": 5519456,
-  "short_pct": 1.6,
-  "float": 3456228,
-  "finra_short": 211,
-  "company_name": "Bio Green Med Solution, Inc.",
-  "short_interest": 66628,
-  "days_to_cover": 0.76
+ "RAY": {
+  "sector": "Consumer Defensive",
+  "industry": "Household & Personal Products",
+  "business": "Raytech Holding Limited, through its subsidiaries, engages in the sourcing and wholesale of personal care and lifestyle electrical appliances for international…",
+  "country": "Hong Kong",
+  "cash": 78032888,
+  "revenue": 142629088,
+  "shares_out": 5874743,
+  "short_pct": 0.1,
+  "float": 4535830,
+  "finra_short": 56,
+  "company_name": "Raytech Holding Limited",
+  "short_interest": 7497,
+  "days_to_cover": 1.19
  },
  "SNGX": {
   "sector": "Healthcare",
@@ -4839,19 +4857,19 @@
   "short_interest": 585019,
   "days_to_cover": 1.53
  },
- "PPCB": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Propanc Biopharma, Inc., a development-stage biopharmaceutical healthcare company, engages in the development of cancer treatments for patients with pancreatic,…",
-  "country": "Australia",
-  "cash": 443702,
-  "shares_out": 2278371,
-  "short_pct": 1.0,
-  "float": 1250074,
-  "finra_short": 9282,
-  "company_name": "Propanc Biopharma, Inc.",
-  "short_interest": 20152,
-  "days_to_cover": 0.01
+ "STI": {
+  "sector": "Industrials",
+  "industry": "Electrical Equipment & Parts",
+  "business": "Solidion Technology, Inc., a battery technology company that focuses on the development and commercialization of battery materials, components, cells, and selec…",
+  "country": "United States",
+  "cash": 27677316,
+  "revenue": 219690,
+  "shares_out": 8495683,
+  "short_pct": 5.8,
+  "float": 3563446,
+  "company_name": "Solidion Technology, Inc.",
+  "short_interest": 185111,
+  "days_to_cover": 1.08
  },
  "GVH": {
   "sector": "Industrials",
@@ -4883,8 +4901,18 @@
   "short_interest": 48996,
   "days_to_cover": 2.72
  },
- "ZRO": {
-  "short_pct": 0.0,
-  "float": 1000000.0
+ "NEGG": {
+  "sector": "Consumer Cyclical",
+  "industry": "Internet Retail",
+  "business": "Newegg Commerce, Inc. operates as an electronics-focused e-retailer in the United States, Canada, and internationally. The company sells desktops, laptops, gami…",
+  "country": "United States",
+  "cash": 57050000,
+  "revenue": 1403527040,
+  "shares_out": 20973423,
+  "short_pct": 40.8,
+  "float": 1375167,
+  "company_name": "Newegg Commerce, Inc.",
+  "short_interest": 426996,
+  "days_to_cover": 6.1
  }
 }
