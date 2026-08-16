@@ -23489,9 +23489,13 @@ check("🔒 AHM16 فحصُ اليد يفرّق «لا فارق» عن «تعذّ
 # 🔒 AHM17 — العتباتُ الثلاثُ موسومةٌ `engineering` في دفتر المصادر (لا تتسلّل
 #    كأنها من فيصل — نصُّه يصف الظاهرة ولا يعطي رقمًا)
 _AH_LED = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
-check("🔒 AHM17 العتباتُ الثلاثُ مُوسَمةٌ في دفتر المصادر",
-      all(_k in _AH_LED for _k in ("AH_MISSED_MIN_PCT", "AH_MISSED_DAYS",
-                                   "AH_MISSED_STALE_DAYS")))
+# 🐞 **والمطابقةُ بحدود الكلمة لا بالاحتواء** (كشفَتها طفرةُ 2026-08-16:
+#    إعادةُ التسمية إلى `AH_MISSED_STALE_DAYS_X` **نجت** لأن الاسمَ القديم
+#    سلسلةٌ جزئيةٌ من الجديد ⇒ `in` يمرّ والوسمُ ضاع).
+check("🔒 AHM17 العتباتُ الثلاثُ مُوسَمةٌ في دفتر المصادر (مطابقةٌ بحدود الكلمة)",
+      all(_re10.search(r"\b" + _k + r"\b", _AH_LED)
+          for _k in ("AH_MISSED_MIN_PCT", "AH_MISSED_DAYS",
+                     "AH_MISSED_STALE_DAYS")))
 # 🔒 AHM18 — والحقلُ **مخزَّنٌ في السجلّ** وإلّا كان سطرُ اليوميّ ميّتًا بنيويًّا
 check("🔒 AHM18 `ah_missed` مخزَّنٌ في `make_watch_entry` (وإلّا فسطرُ اليوميّ ميّت)",
       '"ah_missed": r.get("ah_missed")' in _insp0.getsource(S.make_watch_entry))
