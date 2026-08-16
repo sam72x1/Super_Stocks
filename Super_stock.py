@@ -10980,15 +10980,58 @@ def near_watch_outside(vals: dict, edges: dict) -> list:
         try:
             v = float(v)
             if side == "lo" and v < float(edge):
-                out.append(desc)
+                out.append(f"{desc} (دون الحدّ)")
             elif side == "hi" and v > float(edge):
-                out.append(desc)
+                out.append(f"{desc} (فوق الحدّ)")
             elif side == "both" and isinstance(edge, (list, tuple)) and len(edge) == 2:
-                if v < float(edge[0]) or v > float(edge[1]):
-                    out.append(desc)
+                if v < float(edge[0]):
+                    out.append(f"{desc} (دون الأرضية)")
+                elif v > float(edge[1]):
+                    out.append(f"{desc} (فوق السقف)")
         except (TypeError, ValueError):
             continue                       # تالفٌ ⇒ يمرّ بفائدة الشك
     return out
+
+
+# 🧱 **الحدثُ المؤسِّس** — بلا انهيارٍ لا ارتكازَ أصلًا (هويّةُ الفئة في نصّ
+#    فيصل: «انفجر ثم **انهار**»). يُقاس على `drop_pct` وحدَه.
+NEAR_WATCH_FOUNDING = ("drop_pct",)
+
+
+def near_watch_founded(vals: dict, edges: dict, keys=None) -> bool:
+    """🧱 هل وقع **الحدثُ المؤسِّس**؟ — دالّةٌ نقيّة، وشرطُ دخولٍ لقائمة المتابعة.
+
+    🔴 **وسببُها مقيس (2026-08-16، أوّلُ تشغيلةٍ حيّة):** «خارج الظرف في معيارين
+    أو أقلّ» وحدَه أعطى **‏2,296 سهمًا فيها `AAPL`** — لأن `drop_pct` معيارُ
+    **نطاق**، فالسهمُ الذي **لم ينهَر أصلًا** يُعَدّ «خارجًا» تمامًا كالمنهار
+    أعمقَ من السقف. والفرقُ بينهما هويّةُ الفئة كلُّها:
+      · **دون الأرضية** = لم يقع الانهيارُ ⇒ **ليس من عائلتنا** ⇒ يُستبعَد.
+      · **فوق السقف** = انهار أعمقَ (حالُ `RUBI`، وسقفُنا ملوَّثٌ بالتقسيم
+        المتسلسل — عيبُ `C1` المدوَّن) ⇒ **يبقى تحت المتابعة**.
+    ⚖️ **وهذي ليست معايرةً على `RUBI`** بل تعريفُ الفئة: بوّابةُ `M2` نفسُها
+    لها أرضيةٌ وسقف، والأرضيةُ هي «هل انهار؟».
+    🔒 **والمجهولُ يمرّ بفائدة الشك** (قاعدةُ الفارز نفسُها)."""
+    try:
+        from catalog_envelope import CRITERIA as _CR
+    except Exception:                                            # noqa: BLE001
+        return True
+    want = tuple(keys or NEAR_WATCH_FOUNDING)
+    for name, side, _desc, _k in _CR:
+        if name not in want:
+            continue
+        v = (vals or {}).get(name)
+        edge = (edges or {}).get(name)
+        if v is None or edge is None:
+            continue                       # مجهولٌ ⇒ يمرّ بفائدة الشك
+        try:
+            v = float(v)
+            floor = (float(edge[0]) if isinstance(edge, (list, tuple))
+                     and len(edge) == 2 else float(edge))
+            if v < floor:
+                return False               # لم يقع الحدثُ المؤسِّس
+        except (TypeError, ValueError):
+            continue
+    return True
 
 
 def near_watch_entry(sym: str, vals: dict, outside: list, today_iso: str,
@@ -11346,7 +11389,7 @@ def scan_market():
     #    «لا قريبَ اليوم» وهو قد يكون **عطبَ قياسٍ أو قصَّ ميزانية** —
     #    وقاعدتُنا «الصفرُ عطبُ أداةٍ حتى يُنفى» ⇒ يُفصَّل في السجلّ.
     _nw_edges, _nw_new, _nw_t0, _nw_cut = {}, {}, time.time(), 0
-    _nw_seen = _nw_fail = _nw_err = 0
+    _nw_seen = _nw_fail = _nw_err = _nw_unf = 0
     try:
         import envelope_scan as _nw_ev
         _nw_edges = _nw_ev.load_edges() or {}
@@ -11366,6 +11409,8 @@ def scan_market():
                     _m = near_watch_measure(sym, df, _nw_edges)
                     if not _m:
                         _nw_fail += 1      # **تعذّرَ القياس** لا «بعيدٌ عن الظرف»
+                    elif not near_watch_founded(_m[0], _nw_edges):
+                        _nw_unf += 1       # لم ينهَر أصلًا ⇒ ليس من عائلتنا
                     elif len(_m[1]) <= NEAR_WATCH_MAX_OUT:
                         _nw_new[sym] = near_watch_entry(
                             sym, _m[0], _m[1], _nw_today)
@@ -11483,7 +11528,8 @@ def scan_market():
             log(f"👀 تحت المتابعة: {len(_nw_all)} سهم "
                 f"(جديدُ اليوم {len(_nw_new)} · بحدّ {NEAR_WATCH_MAX_OUT} "
                 "معيارًا خارج ظرف فيصل)"
-                + f" · 🩺 قِيس {_nw_seen} · تعذّر {_nw_fail} · أخطأ {_nw_err}"
+                + f" · 🩺 قِيس {_nw_seen} · بلا انهيار {_nw_unf} · تعذّر {_nw_fail}"
+                + f" · أخطأ {_nw_err}"
                 + (f" · ⚠️ قُصَّ {_nw_cut} بميزانية الزمن" if _nw_cut else ""))
     except Exception as _e:                                      # noqa: BLE001
         log(f"⚠️ قائمةُ المتابعة تعذّرت (لا تمسّ الفرز): {_e}")

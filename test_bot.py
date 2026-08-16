@@ -19272,6 +19272,35 @@ _vwr_uni, _vwr_cut = S.live_watch_universe(
     hunter={"stocks": [{"symbol": "HHH", "status": "active"},
                        {"symbol": "HOF", "status": "stopped"}]},
     today_iso="2026-08-16")
+# ── 🧱 الحدثُ المؤسِّس: بلا انهيارٍ لا متابعة (عيبٌ مقيسٌ على تشغيلةٍ حيّة) ──
+#    «خارج الظرف في معيارين أو أقلّ» وحدَه أعطى **‏2,296 سهمًا فيها `AAPL`**،
+#    لأن `drop_pct` معيارُ **نطاق**: مَن لم ينهَر يُعَدّ «خارجًا» كمَن انهار
+#    أعمقَ من السقف. والزوجُ هنا **مفرِّقٌ بالاتجاه وحده**.
+_nwf_ed = {"drop_pct": (71.72029570041596, 99.94998260261913)}
+check("🧱 NWF1 الحدثُ المؤسِّس يفصل بالاتجاه: **دون الأرضية** (لم ينهَر) ⇒ "
+      "يُستبعَد · **فوق السقف** (انهار أعمق) ⇒ يبقى · وداخلَ النطاق ⇒ يبقى",
+      S.near_watch_founded({"drop_pct": 12.0}, _nwf_ed) is False
+      and S.near_watch_founded({"drop_pct": 100.0}, _nwf_ed) is True
+      and S.near_watch_founded({"drop_pct": 98.0}, _nwf_ed) is True)
+check("🔒 NWF2 «تعذّرٌ ليس رفضًا»: مجهولٌ/تالفٌ/بلا حوافّ ⇒ يمرّ بفائدة الشك",
+      S.near_watch_founded({}, _nwf_ed) is True
+      and S.near_watch_founded({"drop_pct": None}, _nwf_ed) is True
+      and S.near_watch_founded({"drop_pct": "x"}, _nwf_ed) is True
+      and S.near_watch_founded({"drop_pct": 12.0}, {}) is True)
+# 🔒 NWF3 — والاتجاهُ **يُقال في العرض** لا يُطوى: «دون الأرضية» ليست «فوق السقف»
+_nwf_lo = S.near_watch_outside({"drop_pct": 12.0}, _nwf_ed)
+_nwf_hi = S.near_watch_outside({"drop_pct": 100.0}, _nwf_ed)
+check("🔒 NWF3 وسمُ الاتجاه في العرض: «دون الأرضية» مقابل «فوق السقف» — "
+      "فلا يُقرأ المنهارُ أعمقَ كمَن لم ينهَر",
+      any("دون الأرضية" in _x for _x in _nwf_lo)
+      and any("فوق السقف" in _x for _x in _nwf_hi)
+      and _nwf_lo != _nwf_hi, f"{_nwf_lo} · {_nwf_hi}")
+# 🔒 NWF4 — والبوّابةُ **موصولةٌ في حلقة الفرز** بالـAST (لا وجودَ دالّةٍ فقط)
+_nwf_sm = _ast0.parse(_insp0.getsource(S.scan_market))
+check("🔒 NWF4 `near_watch_founded` مُنادًى داخل `scan_market` (AST)",
+      any(getattr(_c.func, "id", None) == "near_watch_founded"
+          for _c in _ast0.walk(_nwf_sm) if isinstance(_c, _ast0.Call)))
+
 # 🔒 VWR5ج — **الشكلُ الحقيقيّ لا المتخيَّل:** `near_watch.json` قاموسٌ مفتاحُه
 #    الرمز (`{sym: entry}`) كما تكتبه `save_near_watch`، وأوّلُ قراءةٍ لي كانت
 #    `.get("stocks")` = **قراءةٌ ميّتةٌ دائمًا**. العيّنةُ هنا **مبنيّةٌ بدوالّ
