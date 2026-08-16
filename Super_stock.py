@@ -12620,9 +12620,14 @@ def live_watch_universe(wl=None, near=None, press=None, hunter=None,
     if isinstance(_near, dict) and _near:
         # 🔑 **ومنها رأسا السلّتين لا كلُّها** (‏726 صفًّا لا تُمسَح لحظيًّا):
         #    داخلَ الظرف تمامًا · والمتشبّعُ الآن بزناد فيصل.
+        # 🔑 **وبالتناوب بين السلّتين** لا «الأولى ثم الثانية»: الأولى (‏222
+        #    صفًّا) كانت ستستهلك حصّةَ المصدر كلَّها فتُجوَّع سلّةُ التشبّع —
+        #    **وهي سلّةُ زناد فيصل** (‏وفيها `RUBI`). نفسُ عيب التجويع بدرجةٍ أدقّ.
         _in, _os = near_watch_buckets(_near)
-        for _e in (_in[:lim] + _os[:lim]):   # مرشَّحون؛ الحصّةُ تقصّ
-            _add(_e.get("symbol"), "تحت المتابعة")
+        for _i in range(max(len(_in[:lim]), len(_os[:lim]))):
+            for _lst in (_in[:lim], _os[:lim]):
+                if _i < len(_lst):
+                    _add(_lst[_i].get("symbol"), "تحت المتابعة")
     for e in ((hunter or {}).get("stocks") or []):
         if e.get("status") == "active":
             _add(e.get("symbol"), "متابعة الصيّاد")

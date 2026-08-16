@@ -19426,6 +19426,24 @@ check("🔒 NWB3 القسمُ يعرض السلّتين بعنوانٍ لكلٍ�
       "INS" in _nwb_msg and "OVS" in _nwb_msg and "زنادُ فيصل" in _nwb_msg
       and S.build_near_watch_section({}) == ""
       and not any(_c in _nwb_msg for _c in "≥≤"))
+# 🔒 NWB5 — **وبالتناوب بين السلّتين** لا «الأولى ثم الثانية»: سلّةُ «داخلَ
+#    الظرف» (‏222 صفًّا حيًّا) كانت ستستهلك حصّةَ المصدر كلَّها فتُجوَّع سلّةُ
+#    التشبّع — **وهي سلّةُ زناد فيصل** (وفيها `RUBI`). نفسُ عيبِ التجويع أدقّ.
+_nwb_big = {}
+for _i in range(30):
+    _nwb_big[f"I{_i}"] = S.near_watch_entry(
+        f"I{_i}", {"price": 2.0, "rsi_now": 50.0, "readiness": 90 - _i}, [],
+        "2026-08-16")
+    _nwb_big[f"O{_i}"] = S.near_watch_entry(
+        f"O{_i}", {"price": 2.0, "rsi_now": 15.0 + _i * 0.3, "readiness": 40},
+        ["a", "b"], "2026-08-16")
+_nwb_rows = [_r["symbol"] for _r in S.live_watch_universe(
+    {}, _nwb_big, cap=10, today_iso="2026-08-16")[0]]
+check("🔒 NWB5 الكونُ الحيّ يتناوب بين السلّتين — فلا تُجوَّع سلّةُ زناد فيصل",
+      len(_nwb_rows) == 10
+      and sum(1 for _x in _nwb_rows if _x.startswith("I")) == 5
+      and sum(1 for _x in _nwb_rows if _x.startswith("O")) == 5,
+      str(_nwb_rows))
 # 🔒 NWB4 — والكونُ الحيّ يقرأ **رأسَي السلّتين** لا القائمةَ كلَّها
 check("🔒 NWB4 الكونُ الحيّ يقرأ رأسَي السلّتين (‏`near_watch_buckets`) بالـAST",
       any(getattr(_c.func, "id", None) == "near_watch_buckets"
