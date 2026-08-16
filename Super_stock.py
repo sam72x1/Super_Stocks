@@ -766,6 +766,36 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
     return applied
 
 
+def _bt_stomped(applied, cfg) -> list:
+    """🔴 أيُّ تجاوزاتِ باكتيستٍ **طُلبت ولم تنفُذ**؟ — دالّةٌ نقيّة (عرض/تشخيص).
+
+    **العيبُ المقيس (‏`ceiling_prereg.md §⑧`، 2026-08-16):** الترتيبُ على مستوى
+    الوحدة `_apply_backtest_overrides` (‏`:769`) ثم `apply_faisal_only` (‏`:945`)
+    التي تنفّذ `cfg.update(ov)` ⇒ **ظرفُ الكاتالوج يدهس ستّةَ مفاتيحَ**
+    (‏`MAX_DROP_PCT` · `MIN_DROP_FLOOR` · `BASE_RANGE_MAX_PCT` · `MIN_PRICE` ·
+    `MIN_DOLLAR_VOL` · `WATCH_MAX_FAILS`) عند `FAISAL_ONLY=1` وهو الافتراض.
+    وكان سطرُ «الإعدادات» يعلن «تجربة: MAX_DROP_PCT=99.5» **والنافذ 99.94998**
+    ⇒ **بصمةُ no-op أخبثُ من `BT_CANDLE`**: هناك لا يُطبع شيء، وهنا يُطبع
+    **تأكيدٌ كاذب** أن التجربة اشتغلت. مُستنسَخٌ بالتشغيل لا بالقراءة.
+
+    تُرجع أسماءَ المدهوسة («‏المفتاح: طُلب X والنافذ Y») — و**فارغةٌ = كلُّها
+    نفذت**. وغيرُ الرقميّ (‏`STOP_BELOW_LOW_PCT` زوجٌ · `CORE5=1` بلا مفتاح)
+    **يُتخطّى ولا يُدَّعى** (تعذّرٌ ≠ مخالفة)."""
+    out = []
+    for item in (applied or []):
+        key, _, want = str(item).partition("=")
+        key, want = key.strip(), want.strip()
+        if not key or key not in (cfg or {}):
+            continue
+        try:
+            if abs(float(cfg[key]) - float(want)) <= 1e-9:
+                continue
+            out.append(f"{key}: طُلب {want} والنافذ {float(cfg[key]):g}")
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
 _BT_OVERRIDES = _apply_backtest_overrides(MODE)
 
 
@@ -18266,6 +18296,15 @@ def run_backtest(symbols=None) -> list:
     log(f"باكتيست — {settings} | إشارات={st['signals']} "
         f"محسومة={st['decided']} نجاح={st['win_rate']:.0f}% "
         f"({st['wins']}✅/{st['losses']}🛑) غير_مُعبّأة={st['no_fill']}")
+    # 🔴 **«تجربةٌ طُلبت ولم تنفُذ» تُعلَن بصوتٍ عالٍ** (‏`ceiling_prereg §⑧`):
+    #    السطرُ أعلاه كان يعلن التجاوزَ المطلوبَ ولو دهسه ظرفُ فيصل ⇒ يُقرأ
+    #    «التجربةُ اشتغلت» وحقيقتُه «لم تُقَس». الآن يُقارَن المطلوبُ بالنافذ.
+    _bt_dead = _bt_stomped(_BT_OVERRIDES, CONFIG)
+    if _bt_dead:
+        log("⛔ **تجاوزاتُ باكتيستٍ طُلبت ولم تنفُذ** — ظرفُ الكاتالوج يُطبَّق "
+            "بعدها فيدهسها. **لا تُفسَّر هذي التشغيلةُ تجربةً**؛ الحلّ: "
+            "`faisal_only=0` أو أداةُ أذرعٍ تضبط `CONFIG` بعد الاستيراد. "
+            + " · ".join(_bt_dead))
     # ④-ج «العلم فعّال» (درس الـno-op رقم 7): علمٌ تقسيميّ مرفوع بلا لقطة مجمّدة =
     # `_BT_SPLITS_CTX` يبقى None ⇒ التجربة **لم تشتغل** والعدّادات تخرج متطابقة بت-بت.
     # يُعلَن صراحةً قبل قراءة أي نتيجة، ولا يُستنتج من خضرة التشغيلة.

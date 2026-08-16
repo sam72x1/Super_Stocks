@@ -22644,6 +22644,113 @@ check("📒 THSRCهـ والتقريرُ يطبع بُعدَي المصدر مع
       "صياغةُ البوّابة" in _th_rep and "مصدرُ **رقمِ**" in _th_rep
       and "faisal_envelope" in _th_rep, _th_rep[:160])
 
+# ── 🧱⛰️ T-CEILING — أقفالُ سقف الانهيار (`ceiling_prereg.md`) ────────────────
+# 🔴 **العيبُ الذي وُلدت منه:** `_apply_backtest_overrides` (‏`:769`) ثم
+#    `apply_faisal_only` (‏`:945`) ⇒ الظرفُ يدهس ستّةَ مفاتيح، **وسطرُ الإعدادات
+#    كان يعلن التجربةَ المدهوسة** فيُقرأ «اشتغلت» وحقيقتُه «لم تُقَس».
+# 🔴 **ولماذا لم يمسكه قفلٌ قائم:** السويّةُ تعمل بـ`FAISAL_ONLY=0` (قرارٌ منهجيّ
+#    مدوَّن) فالتجاوزُ ينفُذ فيها **بحقّ** ⇒ قفلُ «`BT_MAX_DROP_PCT` يصل CONFIG»
+#    يمرّ أخضرَ ومسارُ الإنتاج مكسور = «اختبارٌ ينجح ونقطةُ الاستعمال الحيّة
+#    مكسورة». ⇒ الأقفالُ أدناه **تُجبِر الفرع** بقاموسٍ مصطنع (درسُ `HCG7b`).
+import os as _cei_os                                              # noqa: E402
+import ceiling_arms as _CA                                        # noqa: E402
+import envelope_scan as _CEI_ES                                   # noqa: E402
+check("🧱 CEI1 `_bt_stomped` نقيّةٌ تكشف المدهوسَ باسمِه (طُلب مقابل النافذ)",
+      S._bt_stomped(["MAX_DROP_PCT=99.5"], {"MAX_DROP_PCT": 99.94998}) ==
+      ["MAX_DROP_PCT: طُلب 99.5 والنافذ 99.95"],
+      str(S._bt_stomped(["MAX_DROP_PCT=99.5"], {"MAX_DROP_PCT": 99.94998})))
+check("🧱 CEI1ب والمنفَّذُ فعلًا **لا يُعلَن** (وإلّا صار الحارسُ ضجيجًا دائمًا)",
+      S._bt_stomped(["MAX_DROP_PCT=99.5"], {"MAX_DROP_PCT": 99.5}) == []
+      and S._bt_stomped([], {"MAX_DROP_PCT": 1}) == [])
+check("🧱 CEI1ج و«تعذّرٌ ≠ مخالفة»: الزوجُ والمفتاحُ المجهول يُتخطَّيان بلا ادّعاء",
+      S._bt_stomped(["STOP_BELOW_LOW_PCT=(13,15)", "CORE5=1", "GHOST=5"],
+                    {"STOP_BELOW_LOW_PCT": (5, 7)}) == [])
+# 🔒 CEI2 — الوصلةُ **حيّةٌ من نقطة النداء** لا مجرّدُ وجودِ دالّة (الدرسُ المدوَّن)
+_cei_src = _insp0.getsource(S.run_backtest)
+check("🔒 CEI2 والحارسُ موصولٌ في `run_backtest` ويُعلن الامتناعَ عن التفسير",
+      "_bt_stomped(_BT_OVERRIDES, CONFIG)" in _cei_src
+      and "لا تُفسَّر هذي التشغيلةُ تجربةً" in _cei_src)
+check("🧱 CEI3 الأذرعُ **أربعٌ ولا خامسة** وقيمُها هي المسجَّلة حرفيًّا (§②)",
+      list(_CA.ARMS) == ["C0", "C1", "C2", "C3"]
+      and abs(_CA.ARMS["C0"] - 99.94998260261913) < 1e-12
+      and (_CA.ARMS["C1"], _CA.ARMS["C2"], _CA.ARMS["C3"]) == (99.99, 99.999, 100.0)
+      and _CA.BASE_ARM == "C0", str(_CA.ARMS))
+check("🧱 CEI3ب و`C0` = القيمةُ الإنتاجيّة النافذة نفسُها (وإلّا فالأساسُ ليس الأساس)",
+      abs(_CA.ARMS["C0"] - float(
+          S.faisal_only_overrides(_CEI_ES.load_edges() or {}).get(
+              "MAX_DROP_PCT", -1))) < 1e-12)
+check("🧱 CEI4 و`C3`=100.0 **يُلغي السقفَ فعلًا** لأن المقارنةَ `>` صارمة "
+      "و`drop < 100` دائمًا (‏`price > 0`)",
+      "drop_pct > CONFIG[\"MAX_DROP_PCT\"]" in _insp0.getsource(S.analyze_ticker))
+check("🧱 CEI5 وترجمةُ السقف إلى نسبةٍ صحيحةٌ حسابيًّا (‏99.94998…⇒×1999.3 · 100⇒∞)",
+      abs(_CA.ratio_needed(99.94998260261913) - 1999.3043468) < 1e-4
+      and _CA.ratio_needed(100.0) == float("inf")
+      and abs(_CA.ratio_needed(99.99) - 10000.0) < 1e-3
+      and abs(_CA.ratio_needed(99.999) - 100000.0) < 1e-2)
+# 🔒 CEI6 — حارسُ الـno-op: `V2` يجب أن **يسقط** إن لم يُصفَّر عدّادُ `C3`
+_cei_res = {a: {"cap": _CA.ARMS[a], "signals": 100, "taken": 5, "d50": 1,
+                "d100": 0, "per_trade": 0.0, "win_rate": 20.0, "wins": 1,
+                "losses": 4, "decided": 5} for a in _CA.ARMS}
+_cei_ok_hits = {"C0": 30, "C1": 10, "C2": 2, "C3": 0}
+_cei_bad_hits = {"C0": 30, "C1": 10, "C2": 2, "C3": 1}     # ← لم يُصفَّر ⇒ no-op
+_cei_v2 = lambda h: [x for x in _CA.validity(_cei_res, h, "2024")[1]      # noqa: E731
+                     if x[0] == "V2"][0][1]
+check("🔒 CEI6 `V2` يعبر عند التصفير ويسقط عند بقاءِ رفضةٍ واحدة (حارسُ no-op)",
+      _cei_v2(_cei_ok_hits) is True and _cei_v2(_cei_bad_hits) is False)
+check("🔒 CEI6ب و`V2` يسقط أيضًا لو كان الأساسُ نفسُه صفرًا (الجدارُ لا يعمل)",
+      _cei_v2({"C0": 0, "C1": 0, "C2": 0, "C3": 0}) is False)
+# 🔒 CEI7 — كلُّ مدخلٍ في الـworkflow موصولٌ بـ`env` (بصمةُ `BT_CANDLE`)
+_cei_yml = _yaml0.safe_load(open(".github/workflows/ceiling.yml", encoding="utf-8"))
+_cei_steps = _cei_yml["jobs"]["ceiling"]["steps"]
+_cei_env = (_cei_steps[-1].get("env") or {})
+_cei_ins = set((_cei_yml[True]["workflow_dispatch"]["inputs"] or {}))
+# 🔴 **يُمسح كلُّ الخطوات لا الأخيرة وحدها**: `frozen_run_id` يُقرأ في خطوة تنزيل
+#    اللقطة لا في `env` — وقصرُ الفحص على الأخيرة كان يُسقط مدخلًا **حيًّا**
+#    (‏حارسٌ يمنع الصحيحَ = قفلٌ مكسور، درسُ FF4/FF5 — أمسكه التشغيلُ لا القراءة).
+_cei_all = json.dumps(_cei_steps, ensure_ascii=False, default=str)
+check("🔒 CEI7 كلُّ مدخلٍ في `ceiling.yml` مقروءٌ فعلًا في خطوةٍ ما (لا مدخلَ ميّت)",
+      all(f"inputs.{i}" in _cei_all for i in _cei_ins),
+      f"{sorted(_cei_ins)} · ميّت={[i for i in sorted(_cei_ins) if f'inputs.{i}' not in _cei_all]}")
+check("🔒 CEI7ب و`BT_FROZEN_PATH` مُمرَّرٌ (بلا لقطةٍ يُقاس كونُ اليوم بصمت)",
+      "BT_FROZEN_PATH" in _cei_env and _CA.frozen_missing.__doc__)
+_cei_prev_fz = _cei_os.environ.get("BT_FROZEN_PATH")
+try:
+    _cei_os.environ["BT_FROZEN_PATH"] = "/nope/frozen.pkl.gz"
+    _cei_miss = _CA.frozen_missing()
+    _cei_os.environ["BT_FROZEN_PATH"] = "test_bot.py"     # موجودٌ فعلًا
+    _cei_here = _CA.frozen_missing()
+finally:
+    if _cei_prev_fz is None:
+        _cei_os.environ.pop("BT_FROZEN_PATH", None)
+    else:
+        _cei_os.environ["BT_FROZEN_PATH"] = _cei_prev_fz
+# 🔴 **الاتّجاهان معًا**: حارسٌ يمنع الصحيحَ **قفلٌ مكسور** لا أشدّ (درسُ FF4/FF5).
+check("🔒 CEI8 `frozen_missing` تُوقِف المفقودَ **ولا تُوقِف الموجود**",
+      _cei_miss == "/nope/frozen.pkl.gz" and _cei_here == ""
+      and _CA.frozen_missing() == "")
+check("🧱 CEI9 مِرساةُ `V3` هي أرقامُ `anchor_prereg §⑫` للذراع `B2` (‏32·41·15)",
+      _CA.INTEGRITY["C0"] == {"2024": 32, "2025": 41, "2026": 15}
+      and _CA.PUB_CAP == int(S.CONFIG["WATCHLIST_SIZE"]),
+      f"{_CA.INTEGRITY} · PUB_CAP={_CA.PUB_CAP}")
+check("🔒 CEI10 والأداةُ تضبط `CONFIG` **بعد الاستيراد** ولا تعوّل على البيئة "
+      "(العلمُ البيئيّ مدهوسٌ عند FAISAL_ONLY=1)",
+      'S.CONFIG["MAX_DROP_PCT"] = float(ARMS[arm])'
+      in _insp0.getsource(_CA.run_child)
+      and "BT_MAX_DROP_PCT" not in _insp0.getsource(_CA.child_env))
+check("🔒 CEI11 والمِجَسُّ **تشخيصٌ لا معيار** — مُصرَّحٌ به في مصدره",
+      "لا يقلب حكمًا" in (_CA.probe.__doc__ or ""))
+check("🔒 CEI11ب والتسجيلُ يمنع صراحةً أن يصير «يقبل RUBI» معيارَ نجاح",
+      "ليس معيارَ نجاح" in open("ceiling_prereg.md", encoding="utf-8").read())
+# 🔒 CEI11ج والمِجَسُّ **لا يُستدعى داخل الحكم** — يُنادى بعد `run_parent` حصرًا
+check("🔒 CEI11ج والمِجَسُّ خارج مسار الحكم (لا يُنادى في `run_parent`/`validity`)",
+      "probe(" not in _insp0.getsource(_CA.run_parent)
+      and "probe(" not in _insp0.getsource(_CA.validity))
+# 🔒 CEI12 — الأداةُ **خارج الإنتاج**: لا يستوردها `Super_stock` ولا تمسّ جذرًا
+check("🔒 CEI12 `ceiling_arms` خارج الإنتاج (لا يستوردها البوت) ولا تمسّ جذرًا",
+      "ceiling_arms" not in open("Super_stock.py", encoding="utf-8").read()
+      and all(_n not in _insp0.getsource(_CA)
+              for _n in ("def rank_key", "def select_top", "def analyze_ticker")))
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
