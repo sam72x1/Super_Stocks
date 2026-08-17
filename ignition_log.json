@@ -425,5 +425,53 @@
   "vol_x": 5.3,
   "usd": 5538,
   "candle_class": "group"
+ },
+ {
+  "symbol": "CODX",
+  "date": "2026-08-17",
+  "sustain_min": 12,
+  "operator_ok": false,
+  "fired_at": "2026-08-17T20:01:19Z",
+  "break_level": 1.5,
+  "price": 1.57,
+  "vol_x": 5.9,
+  "usd": 38369,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "KITT",
+  "date": "2026-08-17",
+  "sustain_min": 6,
+  "operator_ok": false,
+  "fired_at": "2026-08-17T20:01:20Z",
+  "break_level": 0.96,
+  "price": 0.966,
+  "vol_x": 21.7,
+  "usd": 19432,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "LNKS",
+  "date": "2026-08-17",
+  "sustain_min": 9,
+  "operator_ok": false,
+  "fired_at": "2026-08-17T20:01:20Z",
+  "break_level": 1.16,
+  "price": 1.21,
+  "vol_x": 3.3,
+  "usd": 11432,
+  "candle_class": "group"
+ },
+ {
+  "symbol": "MLEC",
+  "date": "2026-08-17",
+  "sustain_min": 19,
+  "operator_ok": true,
+  "fired_at": "2026-08-17T20:01:20Z",
+  "break_level": 7.38,
+  "price": 8.6977,
+  "vol_x": 5.5,
+  "usd": 20735,
+  "candle_class": "group"
  }
 ]
