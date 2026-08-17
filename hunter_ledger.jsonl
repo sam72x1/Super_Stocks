@@ -1569,3 +1569,5 @@
 {"key": "envelope|2026-08-14|SUIG", "hunter": "envelope", "session": "2026-08-14", "symbol": "SUIG", "kind": "candidate", "ref_close": 0.8069999814033508, "fwd": 40, "outcome": null}
 {"key": "envelope|2026-08-14|TDUP", "hunter": "envelope", "session": "2026-08-14", "symbol": "TDUP", "kind": "candidate", "ref_close": 3.069999933242798, "fwd": 40, "outcome": null}
 {"key": "split|2026-08-14|CHSN", "hunter": "split", "session": "2026-08-14", "symbol": "CHSN", "kind": "candidate", "ref_close": 1.1200000047683716, "fwd": 40, "outcome": null, "price": 1.12, "float": 387547.0, "half": 0.94, "ref": 1.88}
+{"key": "envelope|2026-08-14|AMCI", "hunter": "envelope", "session": "2026-08-14", "symbol": "AMCI", "kind": "candidate", "ref_close": 4.760000228881836, "fwd": 40, "outcome": null}
+{"key": "envelope|2026-08-14|BNKK", "hunter": "envelope", "session": "2026-08-14", "symbol": "BNKK", "kind": "candidate", "ref_close": 1.0800000429153442, "fwd": 40, "outcome": null, "float": 4908897.0}
