@@ -161,7 +161,8 @@ def main():
                       for k in bot.LIVE_WATCH_SOURCES))
     _log(f"💰 كونُ السيولة (**بلا استثناء**): {len(uni_all)} سهمًا · خيوط "
          f"{bot.LIQ_WORKERS} · زنادٌ قفزةُ حجمٍ "
-         f"{bot.CONFIG['IGNITION_VOL_MULT']}× · مراحل 1 و"
+         f"{bot.CONFIG['IGNITION_VOL_MULT']}× **وأرضيةُ ${bot.LIQ_MIN_USD:,} "
+         f"داخلةً** · تحديثٌ عند تجاوز القمّة · مراحل 1 و"
          + " و".join(str(m) for m in bot.LIQ_STAGE_MINUTES) + " دقيقة")
     loops, fired, errs = 0, 0, 0
     liq_at, liq_cov, liq_hit = 0, 0, 0
@@ -212,7 +213,9 @@ def main():
         _snap = dict(seen)          # لقطةٌ للرجوع عند رفض تيليجرام (لا كتمَ صامت)
         try:
             _today2 = _ny_minutes()[1]
-            lrows, lcov, lsec = bot.scan_liq_stages(uni_all, _today2, seen=seen)
+            lrows, lcov, lsec = bot.scan_liq_stages(
+                uni_all, _today2, seen=seen,
+                fetch_operator=bot.operator_flow)
             liq_cov += lcov
         except Exception as e:                                   # noqa: BLE001
             errs += 1

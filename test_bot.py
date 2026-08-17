@@ -20249,6 +20249,66 @@ check("⏫ LS9 الرسالةُ **تفصل «دخلت سيولة» عن «دخل
       and "$33,000" in _ls_msg and "60×" in _ls_msg
       and "ليست" in _ls_msg
       and not any(_c in _ls_bare for _c in "<>≥≤"), _ls_bare[:110])
+# 🔴 LS12-LS15 — **بوّابةُ الضجيج بقرار المالك 2026-08-17** («الاشعارات … مقرفه
+#    جدااا و عشوايه · فوق ٣٠ الف دولار · سيولة داخله مب خارجة · و التحديث في حال
+#    كانت تزيد»). عيّناتٌ **مفرِّقةٌ لكلّ شرطٍ على حدة** فلا يمرّ قفلٌ على «أو».
+def _lsq(seq, quiet=500, quiet_px=1.00):
+    out = [{"o": quiet_px, "h": quiet_px, "l": quiet_px, "c": quiet_px,
+            "v": quiet, "t": _ls_base + i * 60_000} for i in range(20)]
+    _c = quiet_px
+    for _k, (_v, _c, _o, _h, _l) in enumerate(seq):
+        out.append({"o": _o, "h": _h, "l": _l, "c": _c, "v": _v,
+                    "t": _ls_base + (20 + _k) * 60_000})
+    out.append({"o": _c, "h": _c, "l": _c, "c": _c, "v": 10,
+                "t": _ls_base + (20 + len(seq)) * 60_000})
+    return out
+
+
+def _lsq_run(seq):
+    _st, _log = {}, []
+    for _n in range(1, len(seq) + 1):
+        _e, _st = S.liq_stage_events(_lsq(seq[:_n]), _st)
+        _log.append([(x["stage"], x["usd"]) for x in _e])
+    return _log
+
+
+check("🔴 LS12 **الأرضيةُ المطلقة $30 ألف تقتل الضجيج**: قفزةٌ نسبيّةٌ 3× بسيولةٍ "
+      "تافهة ($1,500) ⇒ **صمت** — وهو بعينه سببُ الإغراق قبلها",
+      _lsq_run([(1500, 1.00, 1.00, 1.01, 0.99)]) == [[]]
+      and S.LIQ_MIN_USD == 30_000
+      and _lsq_run([(30_000, 1.50, 1.20, 1.52, 1.19)]) == [[("M1", 45_000)]],
+      f"أرضية={S.LIQ_MIN_USD}")
+check("🔴 LS13 **«داخلةٌ لا خارجة»**: حمراءُ ⇒ صمت · وخضراءُ إغلاقُها في النصف "
+      "**الأسفل** ⇒ صمت · وخضراءُ قويّةُ الإغلاق ⇒ تُطلق (ثلاثُ عيّناتٍ مفرِّقة)",
+      _lsq_run([(30_000, 1.20, 1.50, 1.52, 1.19)]) == [[]]
+      and _lsq_run([(30_000, 1.21, 1.20, 1.60, 1.19)]) == [[]]
+      and _lsq_run([(30_000, 1.50, 1.20, 1.52, 1.19)]) == [[("M1", 45_000)]])
+check("🔴 LS14 **التحديثُ «في حال كانت تزيد» فقط**: سلسلةٌ خابيةٌ ⇒ إشعارٌ واحدٌ ثم "
+      "**صمتٌ ذاتيّ** · ومتزايدةٌ ⇒ تحديثٌ عند كلّ قمّةٍ جديدة",
+      _lsq_run([(30_000, 1.50, 1.20, 1.52, 1.19), (26_000, 1.55, 1.51, 1.56, 1.50),
+                (23_000, 1.58, 1.56, 1.59, 1.55)])
+      == [[("M1", 45_000)], [], []]
+      and [x[0][0] for x in _lsq_run(
+          [(30_000, 1.50, 1.20, 1.52, 1.19), (50_000, 1.56, 1.51, 1.57, 1.50),
+           (75_000, 1.60, 1.57, 1.61, 1.56)])] == ["M1", "Mu", "Mu"])
+_lsq_uni = [{"symbol": "A", "src": "تحت المتابعة"}]
+_lsq_fb = (lambda s, minutes=65: _lsq([(30_000, 1.50, 1.20, 1.52, 1.19)]))
+_lsq_res = {}
+for _nm, _fo in (("no", lambda s: {"has_operator": False}),
+                 ("unk", lambda s: None),
+                 ("yes", lambda s: {"has_operator": True, "buy_block_shares": 4000,
+                                    "bid_block_shares": 2000})):
+    _lsq_res[_nm] = len(S.scan_liq_stages(_lsq_uni, "2026-08-17", seen={},
+                                          fetch_bars=_lsq_fb, fetch_operator=_fo,
+                                          workers=2)[0])
+check("🔴 LS15 **تأكيدُ المضارب على الناجين وحدهم** (عتبةُ فيصل 1000 سهم): قِيس ولا "
+      "مضارب ⇒ **يُكتَم** · تعذّر ⇒ **يمرّ بفائدة الشك** · ومضاربٌ ⇒ يمرّ — ونداءُ "
+      "الصفقات **بعد** بوّابة الدقيقة فلا يُنادى على 319",
+      _lsq_res == {"no": 0, "unk": 1, "yes": 1}
+      and _insp0.getsource(S.scan_liq_stages).find("fetch_operator(")
+      > _insp0.getsource(S.scan_liq_stages).find("ThreadPoolExecutor"),
+      str(_lsq_res))
+
 _ls_oel = open("operator_entry_live.py", encoding="utf-8").read()
 _ls_oel_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_ast0.parse(_ls_oel))
                  if isinstance(_c, _ast0.Call)}

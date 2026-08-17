@@ -12689,6 +12689,15 @@ LIQ_STATE_PREFIX = "LIQ:"      # نطاقٌ داخل ددوب «هنا الدخ�
 LIQ_STAGE_MINUTES = (5, 30)    # مراحلُ التجميع **من المِرساة** (بعد `M1` الفورية)
 LIQ_WORKERS = 8                # engineering — بِركةُ خيوطٍ في مسح السيولة **وحده**
 LIQ_UPDATE_CAP = 6             # engineering — سقفُ تحديثاتِ الدقيقة/سهم/يوم (مُعلَن)
+# 🔴 **بوّابةُ الضجيج — قرارُ المالك 2026-08-17** («كمية الاشعارات … مقرفه جدااا و
+#    عشوايه · لا يرسل لي الا الاسهم اللي سيولتها في فريم الدقيقة فوق ٣٠ الف دولار
+#    سيولة داخله مب خارجة · و التحديث في حال كانت تزيد»):
+#    ⓵ **أرضيةٌ مطلقة** ‏$30 ألف — والعيبُ الذي أصلحته: الزنادُ كان **نسبيًّا** فقط
+#    (‏3× متوسّطه) فسهمٌ يتداول 500 سهمًا/دقيقة يصرخ على ‏$1,500.
+#    ⓶ **واتجاهٌ داخلٌ لا خارج**: خضراءُ **وإغلاقٌ في النصف الأعلى** من مداها.
+#    ⓷ **والتحديثُ عند تجاوز أعلى قمّةٍ سابقة** (high-water) لا كلَّ دقيقة.
+LIQ_MIN_USD = 30_000           # قرارُ المالك — أرضيةُ سيولةِ الدقيقة بالدولار
+LIQ_CLOSE_POS_MIN = 0.5        # engineering — الإغلاقُ في النصف الأعلى («داخلة»)
 
 # ترتيبُ الأولوية **مُعلَنٌ لا ضمنيّ**: الأقربُ إلى خطّةِ دخولٍ محفوظة أوّلًا،
 # فإن قصَّ السقفُ فإنما يقصّ الأبعدَ عن التنفيذ — ويُعلَن بعددِه.
@@ -12999,16 +13008,33 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
         def _usd(b):
             return float(b["c"]) * float(b["v"])
 
+        def _inflow(b):
+            """💵 **«سيولةٌ داخلةٌ لا خارجة»** (قرارُ المالك): الدقيقةُ **خضراء**
+            **وإغلاقُها في النصف الأعلى** من مداها ⇒ المشترون حسموها. أرخصُ مقياسٍ
+            صادقٍ من شموع الدقيقة وحدها (‏`close_pos` — نفسُ مفهوم `activity_features`)
+            **بلا أيّ نداءٍ إضافيّ**؛ وتأكيدُ الطبعات يجري لاحقًا على الناجين وحدهم."""
+            try:
+                o_, c_ = float(b.get("o") or b["c"]), float(b["c"])
+                h_, l_ = float(b.get("h") or c_), float(b.get("l") or c_)
+                if c_ < o_:
+                    return False
+                rng = h_ - l_
+                return rng <= 0 or (c_ - l_) >= LIQ_CLOSE_POS_MIN * rng
+            except Exception:                                    # noqa: BLE001
+                return False
+
         ev = []
         anchor = st.get("anchor_ms")
         if not anchor:
             prior = [float(b["v"]) for b in closed[:-1]]
             avg = sum(prior) / len(prior) if prior else 0.0
             vx = (float(last["v"]) / avg) if avg > 0 else 0.0
-            if vx < vm:
+            # 🔴 ثلاثيةُ البوّابة: قفزةٌ نسبيّة **و**أرضيةٌ مطلقة **و**اتجاهٌ داخل
+            if vx < vm or _usd(last) < LIQ_MIN_USD or not _inflow(last):
                 return ([], st)
             st = {"anchor_ms": last_ms, "last_ms": last_ms, "sent": ["M1"],
-                  "updates": 0, "vol_x": round(vx, 1)}
+                  "updates": 0, "vol_x": round(vx, 1),
+                  "peak_usd": round(_usd(last))}
             ev.append({"stage": "M1", "usd": round(_usd(last)), "minutes": 1,
                        "anchor_ms": last_ms, "last_ms": last_ms,
                        "vol_x": round(vx, 1), "price": round(float(last["c"]), 4),
@@ -13017,13 +13043,20 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
         anchor = int(anchor)
         if last_ms > int(st.get("last_ms") or 0):
             st["last_ms"] = last_ms
-            if int(st.get("updates") or 0) < cap:
-                st["updates"] = int(st.get("updates") or 0) + 1
-                ev.append({"stage": "Mu", "usd": round(_usd(last)),
-                           "minutes": 1, "anchor_ms": anchor, "last_ms": last_ms,
-                           "vol_x": st.get("vol_x"),
-                           "price": round(float(last["c"]), 4),
-                           "class": _ignition_candle_class(_usd(last))})
+            _u = _usd(last)
+            _pk = float(st.get("peak_usd") or 0)
+            # 🔴 **التحديثُ «في حال كانت تزيد»** (قرارُ المالك): يلزمه تجاوزُ **أعلى
+            #    قمّةٍ سابقة** ‏+ الأرضيةُ ‏+ الاتجاهُ الداخل ⇒ الحركةُ الخابيةُ
+            #    **تصمت ذاتيًّا** ولا تُلاحقك بدقيقةٍ فارغةٍ كلَّ دقيقة.
+            if _u > _pk and _u >= LIQ_MIN_USD and _inflow(last):
+                st["peak_usd"] = round(_u)
+                if int(st.get("updates") or 0) < cap:
+                    st["updates"] = int(st.get("updates") or 0) + 1
+                    ev.append({"stage": "Mu", "usd": round(_usd(last)),
+                               "minutes": 1, "anchor_ms": anchor,
+                               "last_ms": last_ms, "vol_x": st.get("vol_x"),
+                               "price": round(float(last["c"]), 4),
+                               "class": _ignition_candle_class(_usd(last))})
         sent = list(st.get("sent") or [])
         span = (last_ms - anchor) // 60_000 + 1     # دقائقُ مغطّاةٌ من المِرساة
         for n in stg:
@@ -13048,7 +13081,8 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
 
 
 def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None,
-                    window_min: int = None, workers: int = None, clock=None):
+                    window_min: int = None, workers: int = None, clock=None,
+                    fetch_operator=None):
     """⏫💰 يمسح كونَ المتابعة **بلا استثناء** ويرجّع أحداثَ التدرّج.
 
     ⚖️ **«بلا اي استثناء» بالعضوية *وبحبيبةِ الدقيقة***: ‏319 نداءً تسلسليًّا ‏≈96ث
@@ -13097,6 +13131,27 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
                 seen[LIQ_STATE_PREFIX + row["symbol"]] = st
             if ev:
                 out.append((row, ev))
+    # 🕵️ **الطبقةُ الثانية — تأكيدُ المضارب على الناجين وحدهم** (قرارُ المالك «نتاكد
+    #    ان المضارب اللي يحرك السهم»): بوّابةُ الدقيقة تقصّ الكونَ من 319 إلى قلّة،
+    #    فيصير نداءُ الصفقات **رخيصًا** ⇒ يُقاس بـ`operator_flow` الإنتاجيّة نفسِها
+    #    (طبعاتُ ‏`OPERATOR_MIN_SHARES`=1000 — عتبةُ فيصل، وسمُها `faisal_verbatim`).
+    #    🔒 **وفاشلٌ-آمنٌ مفتوح:** قِيس ولا مضارب ⇒ **يُكتَم** · تعذّر القياس (`None`)
+    #    ⇒ **يمرّ بفائدة الشك** ويُوسَم «لم يُتحقّق» — فلا نفوّت دخولًا بعطلٍ شبكيّ.
+    #    (نفسُ قاعدة `scan_ignition` و`scan_operator_entry` — مقياسٌ واحدٌ لا ثالث.)
+    if out and fetch_operator is not None:
+        kept = []
+        for row, ev in out:
+            try:
+                of = fetch_operator(row["symbol"])
+            except Exception:                                    # noqa: BLE001
+                of = None
+            if of is not None and not of.get("has_operator"):
+                seen.pop(LIQ_STATE_PREFIX + row["symbol"], None)   # يُعاد الفحص
+                continue
+            for e in ev:
+                e["operator"] = of
+            kept.append((row, ev))
+        out = kept
     return (out, covered, round(float(tick() - t0), 1))
 
 
@@ -13130,6 +13185,14 @@ def build_liq_stage_alert(rows: list) -> str:
                          + (f" · قفزةُ حجمٍ {float(_vx):.0f}×" if _vx else ""))
             if _d:
                 lines.append(f"      🕵️ حكمُ الهوية بعتبات فيصل: {_d}")
+            if "operator" in e:
+                _of = e.get("operator")
+                _ol = operator_line(_of) if _of else ""
+                lines.append("      " + (("🕵️ " + _ol) if _ol else
+                                         ("🕵️ طبعاتُ مضاربٍ مؤكَّدة"
+                                          if _of else
+                                          "⚠️ لم يُتحقّق من طبعات المضارب "
+                                          "(تعذّر القياس — مرَّ بفائدة الشك)")))
     lines += ["", "⚠️ «دخلت سيولة» <b>ليست</b> «دخل المضارب» — الأولى قفزةُ حجمٍ "
               "والثانيةُ عتبةُ فيصل الدولاريّة، وكلٌّ مطبوعٌ باسمه.",
               "<i>إشعارُ توقيتٍ لا توصية — قيد الإثبات الأماميّ.</i>"]
