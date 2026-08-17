@@ -15008,6 +15008,81 @@ check("⏱️ QTR10 «معلّق» و«تعذّر الجلب» **يفترقان 
       and "معلّق 0" in _qt_out.get("corrupt", (0, ""))[1],
       str({_k: _v[1][-140:] for _k, _v in _qt_out.items()})[:420])
 
+# ═════ ⏱️🪜 SLD — T-SUSTAIN-LADDER (عقدٌ مدفوعٌ قبل أيّ رقم) ═════
+import sustain_ladder as _sldm                                   # noqa: E402
+_sld_src = open("sustain_ladder.py", encoding="utf-8").read()
+_sld_t = _ast0.parse(_sld_src)
+_sld_calls = {_ast0.unparse(_n.func) for _n in _ast0.walk(_sld_t)
+              if isinstance(_n, _ast0.Call)}
+check("⏱️🪜 SLD1 **مقياسٌ واحد لا اثنان**: النتيجةُ من `_ignition_outcome` "
+      "الإنتاجيّة (‏AST) · والصمودُ من `sustain_min` **المخزَّن** لا محسوبًا",
+      {"bot._ignition_outcome", "bot._ignition_outcome_fetch"} <= _sld_calls
+      and "operator_sustain" not in _sld_src and "_fire_sustain" not in _sld_src)
+check("⏱️🪜 SLD2 **قراءةٌ فقط**: صفرُ إرسالٍ وكتابةِ حالةٍ ومسٍّ بالفرز · "
+      "**وصفرُ كتابةٍ في `CONFIG`** (نحويًّا)",
+      not [_ast0.unparse(_tg) for _n in _ast0.walk(_sld_t)
+           if isinstance(_n, (_ast0.Assign, _ast0.AugAssign))
+           for _tg in (_n.targets if isinstance(_n, _ast0.Assign) else [_n.target])
+           if isinstance(_tg, _ast0.Subscript)
+           and "CONFIG" in _ast0.unparse(_tg.value)]
+      and all(_n not in _sld_src for _n in ("send_telegram", "git_save", "save_",
+                                            "scan_market", "rank_key",
+                                            "select_top", "scan_ignition",
+                                            "IGNITION_USD_", "IGNITION_VOL_MULT",
+                                            "_ignition_signal", '"w"')))
+check("⏱️🪜 SLD3 **الأذرعُ الأربعُ مثبَّتةٌ ولا خامسة** وحدُّ 15 من نصّ فيصل · "
+      "والتقطيعُ يفرّق فعلًا (‏4 · 7 · 12 · 20 · و15 بالضبط في العليا)",
+      len(_sldm.RUNGS) == 4
+      and [_sldm.rung_of(v) for v in (4, 7, 12, 20, 15, 0)]
+      == ["0-4د", "5-9د", "10-14د", "15د فأكثر", "15د فأكثر", "0-4د"],
+      str([_sldm.rung_of(v) for v in (4, 7, 12, 20, 15, 0)]))
+check("⏱️🪜 SLD4 **أرضيةُ الدرجة رقمٌ مُعادٌ لا مخترَع** (`IGNITION_OUTCOME_MIN`) "
+      "— نحويًّا لا نصًّا",
+      "IGNITION_OUTCOME_MIN" in {_n.slice.value for _n in _ast0.walk(_sld_t)
+                                 if isinstance(_n, _ast0.Subscript)
+                                 and _ast0.unparse(_n.value).endswith("CONFIG")
+                                 and isinstance(getattr(_n, "slice", None),
+                                                _ast0.Constant)})
+_sld_i5 = _sld_src.find("return 5")
+_sld_imo = _sld_src.find("الرتابةُ غيرُ المتناقصة")
+check("⏱️🪜 SLD5 «لا حكم» **يُوقِف بخروج 5 قبل طباعة رتابةٍ أو فصل** (بنصّ §④)",
+      _sld_i5 >= 0 and _sld_imo >= 0 and _sld_i5 < _sld_imo,
+      f"return5={_sld_i5} · الرتابة={_sld_imo}")
+check("⏱️🪜 SLD6 و«لا حكم» ≠ «لا يفصل» — العبارتان متمايزتان · وسقفُ النجاح "
+      "**سطرُ عرضٍ فقط** · ويُطبَع ما سبق التسجيل",
+      "لا حكم" in _sld_src and "لا يفصل" in _sld_src
+      and "**غيرُ** «لا حكم»" in _sld_src and "سطرُ عرضٍ" in _sld_src
+      and _sldm.PREREG_DECIDED == 18)
+check("⏱️🪜 SLD7 «تعذّرٌ ليس صفرًا»: غيرُ الرقميّ و`NaN` **يُخرجان من المجتمع** "
+      "لا يُحسبان درجةً صفرية",
+      _sldm.rung_of(None) is None and _sldm.rung_of("x") is None
+      and _sldm.rung_of(float("nan")) is None and _sldm.rung_of(-1) is None)
+try:
+    _sld_w = (_sldm.wilson(0, 8), _sldm.wilson(4, 8), _sldm.wilson(0, 0))
+    _sld_wok = (_sld_w[0][0] == 0.0 and _sld_w[1][0] < 50.0 < _sld_w[1][1]
+                and _sld_w[2] == (0.0, 0.0))
+except Exception as _sld_e:                                      # noqa: BLE001
+    _sld_w, _sld_wok = f"⛔ رمى: {type(_sld_e).__name__}", False
+check("⏱️🪜 SLD8 Wilson صحيحٌ حسابيًّا ومقامٌ صفريّ لا ينهار", _sld_wok,
+      str(_sld_w)[:90])
+_sld_pre = open("sustain_ladder_prereg.md", encoding="utf-8").read()
+check("⏱️🪜 SLD9 العقدُ مدفوعٌ ويحمل **إقرارَ البعديّة** واستحالةَ الحكم اليوم "
+      "والمعيارَ الثلاثيَّ وسقفَ النجاح والتنبّؤاتِ ودائريّةَ القياس",
+      all(_w in _sld_pre for _w in ("IGNITION_OUTCOME_MIN", "Wilson", "لا يفصل",
+                                    "سقفُ النجاح", "تنبّؤاتي", "دائريّةٌ جزئية",
+                                    "IMG_0294", "بعديّة", "مستحيلٌ اليوم")))
+_sld_wf = open(".github/workflows/radar_read.yml", encoding="utf-8").read()
+_sld_steps = [_s for _j in (_qt_yaml.safe_load(_sld_wf).get("jobs") or {}).values()
+              for _s in (_j.get("steps") or []) if isinstance(_s, dict)]
+_sld_step = next((_s for _s in _sld_steps
+                  if "sustain_ladder.py" in str(_s.get("run") or "")), None)
+check("⏱️🪜 SLD10 موصولٌ بالـworkflow بـ`always()`+`continue-on-error` (‏بنيةُ "
+      "YAML لا نصُّها) فلا يكتمه سقوطُ ما قبله ولا يُحمَّر خروجُ «لا حكم»",
+      _sld_step is not None
+      and "always()" in str(_sld_step.get("if") or "")
+      and _sld_step.get("continue-on-error") is True,
+      f"الخطوة={_sld_step}")
+
 check("🐍 PYV1 كلُّ الـworkflows على **إصدارٍ واحد** — فلا يسقط أحدُها بصمتٍ على "
       "بصمةٍ مُعايَرةٍ لغيره (وهو ما قتل المراجِعَ الأسبوعيَّ سبعةَ أسابيع)",
       len(_PY_WF) == 1, "الإصدارات: " + str({k: len(v) for k, v in _PY_WF.items()})

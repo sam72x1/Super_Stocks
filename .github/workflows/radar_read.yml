@@ -34,3 +34,8 @@ jobs:
         if: always()
         continue-on-error: true
         run: python radar_quarter.py
+
+      - name: ⏱️🪜 T-SUSTAIN-LADDER (عقد `sustain_ladder_prereg.md`)
+        if: always()
+        continue-on-error: true
+        run: python sustain_ladder.py
