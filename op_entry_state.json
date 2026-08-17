@@ -140,7 +140,7 @@
  },
  "LIQ:SGLY": {
   "anchor_ms": 1787003880000,
-  "last_ms": 1787008740000,
+  "last_ms": 1787008800000,
   "sent": [
    "M1",
    "M5",
@@ -288,14 +288,14 @@
  },
  "LIQ:PFSA": {
   "anchor_ms": 1787007660000,
-  "last_ms": 1787008740000,
+  "last_ms": 1787008800000,
   "sent": [
    "M1",
    "M5"
   ],
-  "updates": 4,
+  "updates": 5,
   "vol_x": 11.3,
-  "peak_usd": 753287,
+  "peak_usd": 1012136,
   "early": true,
   "date": "2026-08-17"
  },
