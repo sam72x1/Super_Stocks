@@ -20160,15 +20160,27 @@ check("💰 LIQ8 الرسالةُ تحمل الفريماتِ الثلاثةَ �
       and "100 ألف دولار" in _liq_msg and "دخل المضارب" in _liq_msg
       and not any(_c in _liq_bare for _c in "<>≥≤"),
       _liq_bare[:120])
-check("💰 LIQ9 **قراءةٌ لا اختيار**: الثلاثةُ خارج `rank_key`/`select_top`/"
-      "`classify_tier`/`entry_status`/`analyze_ticker`/`scan_market`/"
-      "`backtest_symbol`/`scan_ignition`/`scan_operator_entry`",
+# 🔓 **إقرارٌ مؤرَّخ 2026-08-17 — أمرُ المالك «صلّح الرادار»:** `candle_liquidity`
+#    صارت مُنادةً **داخل `scan_ignition`** (طبقةُ توقيتٍ لا اختيار) بإذنٍ صريح.
+#    والقفلُ **يشتدّ لا يُرخى**: ① جذورُ **الاختيار** الثمانيةُ تبقى خاليةً من
+#    الأربعة كلِّها ② والرادارُ يُسمح له بـ`candle_liquidity` **وحدها** —
+#    و`scan_candle_liquidity`/`build_liquidity_alert`/`liquidity_verdict` ممنوعةٌ
+#    فيه (فلا تتسرّب قناةُ الإشعار الموازية إلى مسار الرادار).
+_liq_sel_roots = (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                  S.analyze_ticker, S.scan_market, S.backtest_symbol,
+                  S.scan_operator_entry)
+_liq_rad = _insp0.getsource(S.scan_ignition)
+check("💰 LIQ9 **قراءةٌ لا اختيار**: الأربعةُ خارج جذورِ الاختيار الثمانية · "
+      "والرادارُ يُسمح له بـ`candle_liquidity` **وحدها** (بإذن المالك) لا بقناة "
+      "الإشعار الموازية",
       all(_n not in _insp0.getsource(_f)
-          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
-                     S.analyze_ticker, S.scan_market, S.backtest_symbol,
-                     S.scan_ignition, S.scan_operator_entry)
+          for _f in _liq_sel_roots
           for _n in ("candle_liquidity", "liquidity_verdict",
-                     "scan_candle_liquidity", "build_liquidity_alert")))
+                     "scan_candle_liquidity", "build_liquidity_alert"))
+      and "candle_liquidity(" in _liq_rad
+      and all(_n not in _liq_rad for _n in ("scan_candle_liquidity",
+                                            "build_liquidity_alert",
+                                            "liquidity_verdict")))
 # 🐞 **عيّنتي الأولى لم تكن تُفرِّق (طفرة Q11 نجت):** بشمعةٍ واحدة **كلُّ** الفريمات
 #    بلا بُكيتٍ مكتمل ⇒ `usds` فارغة ⇒ الدالّةُ ترجع `None` كاملةً ⇒ نفسُ الجواب مع
 #    الطفرة وبدونها. ⇒ عيّنةٌ **مختلطة**: 20 دقيقةً تبدأ بعد حدّ الثلاثين بخمسٍ ⇒
@@ -20207,6 +20219,132 @@ check("💰 LIQ11 **موصولٌ من نقطة النداء الحيّة** (‏A
           "seen.pop(bot.LIQ_STATE_PREFIX")
       and "bot.LIQ_STATE_PREFIX" in _liq_oel,
       f"نداءات؟{'bot.scan_candle_liquidity' in _liq_oel_calls}")
+
+# ═══ 🔥📐 RF — «صلّح الرادار»: فريماتُ فيصل الثلاثة (`radar_frames_prereg.md`) ═══
+_rf_src = _insp0.getsource(S.scan_ignition)
+_rf_t = _ast0.parse(_rf_src)
+
+
+def _rf_trig(n=30, spike_at=29, spike=(1.20, 4000)):
+    """شموعُ الزناد — قفزةُ حجمٍ وكسرٌ صاعد **بسيولةٍ تافهة للدقيقة** (‏$4,800)."""
+    out = []
+    for i in range(n):
+        px, v = 1.00, 1000
+        if i == spike_at:
+            px, v = spike
+        out.append({"o": px, "h": px, "l": px, "c": px, "v": v,
+                    "t": _liq_base + i * 60_000})
+    return out
+
+
+def _rf_liq(burst_v=200_000, burst_at=40):
+    """شموعُ السيولة الأوسع — بصمةُ المضارب على فريم الثلاثين."""
+    out = []
+    for i in range(65):
+        px, v = 1.00, 1000
+        if i == burst_at:
+            px, v = 1.35, burst_v
+        out.append({"o": px, "h": px * 1.05, "l": px * 0.99, "c": px, "v": v,
+                    "t": _liq_base + i * 60_000})
+    return out
+
+
+def _rf_run(liq_fn):
+    """يُشغّل الرادارَ على سهمٍ واحدٍ ويرجّع (صفوف، sig) — فاشلٌ-آمنٌ لا ينهار."""
+    try:
+        w = {"stocks": [{"symbol": "AAA", "status": "active", "pivot": 1.0,
+                         "interp": {"critical_number": {"price": 1.05}}}]}
+        r = S.scan_ignition(w, "2026-08-17", fetch_bars=lambda s: _rf_trig(),
+                            fetch_flow=lambda s: None,
+                            fetch_operator=lambda s: None, fetch_liq_bars=liq_fn)
+        return (r, (r[0][1] if r else None))
+    except Exception as _e:                                      # noqa: BLE001
+        return (f"⛔ رمى: {type(_e).__name__}: {_e}", None)
+
+
+_rf_off, _rf_off_sig = _rf_run(lambda s: None)          # سلوكُ اليوم حرفيًّا
+_rf_on, _rf_on_sig = _rf_run(lambda s: _rf_liq())       # بفريمات فيصل
+check("🔥📐 RF1 **العيبُ يُغلَق فعلًا**: الدقيقةُ وحدها تكتم كـ«قروب» ($4,800) · "
+      "وبفريمات فيصل يمرّ كـ«مضارب» ($299,000 على الثلاثين) — تفريقيٌّ لا وصفيّ",
+      _rf_off == [] and isinstance(_rf_on, list) and len(_rf_on) == 1
+      and _rf_on_sig and _rf_on_sig.get("usd") == 4800
+      and round(float(_rf_on_sig.get("usd_eff"))) == 299_000
+      and S._ignition_candle_class(_rf_on_sig["usd_eff"])[0] == "operator",
+      f"مطفأ={_rf_off if not isinstance(_rf_off, list) else len(_rf_off)} · "
+      f"usd={(_rf_on_sig or {}).get('usd')} · eff={(_rf_on_sig or {}).get('usd_eff')}")
+_rf_small, _rf_small_sig = _rf_run(lambda s: _rf_liq(burst_v=10))
+check("🔥📐 RF2 **رتيبٌ لا يُشدِّد أبدًا**: فريماتٌ أضعفُ من الدقيقة ⇒ `usd_eff` "
+      "يبقى **قيمةَ الدقيقة** (‏`max`) ⇒ الصنفُ لا ينزل درجةً ⇒ **الكتمةُ تُخفَّف "
+      "ولا تُزاد** (‏§③ من العقد)",
+      "max(" in _rf_src
+      and (_rf_small == [] or (_rf_small_sig or {}).get("usd_eff")
+           >= (_rf_small_sig or {}).get("usd", 0)),
+      f"صغير={_rf_small if not isinstance(_rf_small, list) else len(_rf_small)}")
+check("🔥📐 RF3 **الزنادُ byte-identical**: `_ignition_signal` يقرأ شموعَ `fb` نفسَها "
+      "(‏`bars` لا `fbl`) — والسعرُ والحجمُ و`usd` **متطابقةٌ** بالفريمات وبدونها",
+      not any("fbl" in _ast0.unparse(_c) for _c in _ast0.walk(_rf_t)
+              if isinstance(_c, _ast0.Call)
+              and getattr(_c.func, "id", "") == "_ignition_signal")
+      and (_rf_on_sig or {}).get("usd") == 4800
+      and (_rf_on_sig or {}).get("price") == 1.2
+      and (_rf_on_sig or {}).get("vol_x") == 4.0,
+      f"sig={_rf_on_sig}")
+_rf_fbl = [_c for _c in _ast0.walk(_rf_t) if isinstance(_c, _ast0.Call)
+           and getattr(_c.func, "id", "") == "fbl"]
+check("🔥📐 RF4 **النداءُ الثاني بعد الاشتعال حصرًا** (‏صفرُ كلفةٍ على غير المشتعل) "
+      "· ونافذتُه `LIQ_WINDOW_MIN` لا 30 (وإلّا فريمُ الثلاثين غيرُ مقروء)",
+      len(_rf_fbl) == 1
+      and _rf_src.find("if not sig:") < _rf_src.find("fbl(s[\"symbol\"])")
+      and "minutes=LIQ_WINDOW_MIN" in _rf_src and S.LIQ_WINDOW_MIN >= 60,
+      f"نداءات fbl={len(_rf_fbl)} · النافذة={S.LIQ_WINDOW_MIN}")
+# 🔒 RF5 **نحويٌّ لا عدديّ**: يُشترَط أن **صفرَ** حمولةِ أثرٍ تذكر `usd_eff` (فالأثرُ
+#    يسجّل الإشارةَ الخامّة) و**نداءً واحدًا** بالقراءة الفعّالة هو **بوّابةُ الكتم**
+#    — بدل عدّ نصّيٍّ يتعفّن مع كلّ سطرٍ يُضاف.
+_rf_tr_eff = [_ast0.unparse(_c.args[1])[:24] for _c in _ast0.walk(_rf_t)
+              if isinstance(_c, _ast0.Call)
+              and getattr(_c.func, "id", "") == "_emit_trace"
+              and "usd_eff" in _ast0.unparse(_c)]
+_rf_cls = [_ast0.unparse(_c.args[0]) for _c in _ast0.walk(_rf_t)
+           if isinstance(_c, _ast0.Call)
+           and getattr(_c.func, "id", "") == "_ignition_candle_class"]
+check("🔥📐 RF5 **حمولاتُ الأثر (E2) لا تُمَسّ** (‏نحويًّا): صفرُ حمولةٍ تذكر "
+      "`usd_eff` — الأثرُ يسجّل الإشارةَ **الخامّة** والقرارُ يستعمل **الفعّالة**، "
+      "فلا يُقرأ الأثرُ قرارًا · والفعّالةُ **نداءٌ واحد** هو بوّابةُ الكتم",
+      _rf_tr_eff == []
+      and sum(1 for _a in _rf_cls if "usd_eff" in _a) == 1
+      and sum(1 for _a in _rf_cls if _a == "sig.get('usd')") >= 2,
+      f"أثرٌ ملوَّث={_rf_tr_eff} · نداءات={_rf_cls}")
+check("🔥📐 RF6 **ولا عتبةَ تغيّرت ولا كتمٌ جديد** (‏§⑤): الأرقامُ الثلاثةُ كما هي · "
+      "وصفرُ كتابةٍ في `CONFIG` داخل الرادار · وعددُ `continue` كما هو",
+      S.CONFIG["IGNITION_USD_OPERATOR"] == 100_000
+      and S.CONFIG["IGNITION_USD_STRONG"] == 300_000
+      and S.CONFIG["IGNITION_USD_GROUP"] == 50_000
+      and S.CONFIG["IGNITION_VOL_MULT"] == 3.0
+      and not [1 for _n in _ast0.walk(_rf_t)
+               if isinstance(_n, (_ast0.Assign, _ast0.AugAssign))
+               for _tg in (_n.targets if isinstance(_n, _ast0.Assign)
+                           else [_n.target])
+               if isinstance(_tg, _ast0.Subscript)
+               and "CONFIG" in _ast0.unparse(_tg.value)])
+_rf_msg = S.build_ignition_alert(_rf_on) if isinstance(_rf_on, list) else ""
+check("🔥📐 RF7 العرضُ يطبع **الصنفَ الفعّالَ والفريماتِ الثلاثة** فيرى المالكُ ما "
+      "بُني عليه الحكمُ لا خلاصتَه",
+      "شمعة مضارب" in _rf_msg and "$299,000" in _rf_msg
+      and "1د $1,000" in _rf_msg and "5د $5,000" in _rf_msg
+      and "30د $299,000" in _rf_msg, _rf_msg[-200:])
+_rf_rec = _insp0.getsource(S.record_ignition_fires)
+check("🔥📐 RF8 سجلُّ الإطلاق **إضافةٌ لا تبديل** (‏§④-F3): `usd`/`candle_class` "
+      "يبقيان الدقيقةَ وحدها فتبقى الـ37 السابقة قابلةً لإعادة الإنتاج · "
+      "و`usd_eff`/`candle_class_eff`/`frames_usd` حقولٌ جديدةٌ تتراكم للأمام",
+      '"usd": usd, "candle_class": _ignition_candle_class(usd)[0]' in _rf_rec
+      and all(_k in _rf_rec for _k in ('"usd_eff"', '"candle_class_eff"',
+                                       '"frames_usd"')))
+check("🔥📐 RF9 العقدُ مدفوعٌ ويحمل القيودَ الثلاثةَ وسقفَ النجاح والتنبّؤاتِ "
+      "والعيبَ المُبلَّغَ غيرَ المُصلَح",
+      all(_w in open("radar_frames_prereg.md", encoding="utf-8").read()
+          for _w in ("byte-identical", "بعد الاشتعال حصرًا", "رتيبٌ",
+                     "سقفُ النجاح", "`F1`", "`F3`", "قيد التكوين",
+                     "يُبلَّغ ولا يُصلَح")))
 
 # 👀 OEW — سقفُ العرض بأمر المالك «وسّع العرض»
 check("👀 OEW1 سقفُ عرض «تحت المتابعة» = 40 (‏20 لكلّ سلّة) — أمرُ المالك",

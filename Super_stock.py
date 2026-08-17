@@ -14305,7 +14305,8 @@ def _ignition_candle_class(usd):
 
 
 def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
-                  vol_mult: float = None, fetch_operator=None, trace=None) -> list:
+                  vol_mult: float = None, fetch_operator=None, trace=None,
+                  fetch_liq_bars=None) -> list:
     """🔥 يفحص القائمة المؤهّلة ويكشف **لحظة اشتعال** كل زنبرك (قفزة حجم + كسر الرقم
     الحرج صاعدًا) ثم يرفق تدفق الأوامر الحي للتأكيد. `fetch_bars`/`fetch_flow`/
     `fetch_operator` قابلة للحقن (اختبار بلا شبكة). **دِدوب مرة/سهم/يوم**
@@ -14319,6 +14320,14 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
     🔬 **P0-1 (مراجعة Codex 4):** لا جلب NBBO قياسي هنا إطلاقًا — كان يؤخّر مسار التنبيه حتى 8ث.
     المسجّل يجلب NBBO القياسي **لا-تزامنيًّا** (worker) بعد بثّ 04 فورًا، فلا ينتظر التنبيه القياس."""
     fb = fetch_bars or (lambda sym: polygon_minute_bars(sym, minutes=30))
+    # 💰 **جالبُ فريمات فيصل الثلاثة** — نافذةٌ أوسعُ (`LIQ_WINDOW_MIN`) لأن فريمَ
+    #    الثلاثين يلزمه بُكيتان مكتملتان. 🔒 **ولا يُمَسّ به الزناد:** `fb` أعلاه كما
+    #    هو حرفيًّا و`_ignition_signal` يقرأ شموعَه هي، فلا يتغيّر `avg` ولا
+    #    `vol_mult` (‏درسُ «توسيعُ النافذة يُغيّر قرارَ الإطلاق» — `radar_frames_prereg §②`).
+    #    والنداءُ يقع **بعد الاشتعال حصرًا** (نادرٌ: 37 في 37 يومًا) ⇒ صفرُ كلفةٍ
+    #    على غير المشتعل.
+    fbl = fetch_liq_bars or (lambda sym: polygon_minute_bars(
+        sym, minutes=LIQ_WINDOW_MIN))
     ff = fetch_flow or order_snapshot
     fo = fetch_operator or operator_flow
     vm = vol_mult if vol_mult is not None else CONFIG["IGNITION_VOL_MULT"]
@@ -14373,6 +14382,27 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
                 "t1": s.get("t1"), "t2": s.get("t2"), "t3": s.get("t3"),
                 # 🔬 §2c: Polygon `t` = **بداية** شمعة الدقيقة؛ المسجّل يشتقّ النهاية = البداية+60000.
                 "trigger_bar_start": (bars[-1].get("t") if bars else None)})
+        # 💰 **فريماتُ فيصل الثلاثة** (`IMG_1066`): «حط فريم دقيقه و 5 و 30 · شف كم
+        #    السيوله». كان الرادارُ يقرأ **دقيقةً واحدة** ⇒ بصمةُ مضاربٍ على الثلاثين
+        #    تُقرأ «قروبًا» فتُكتَم في مسار الاحتياط. 🔒 **والقراءةُ رتيبةٌ لا تُشدِّد
+        #    أبدًا:** العتبةُ على `max(usd الدقيقة، أقصى الفريمات)` ⇒ القيمةُ لا تنقص
+        #    عن اليوم فالصنفُ لا ينزل درجةً ⇒ **الكتمةُ تُخفَّف ولا تُزاد**، والخطأُ
+        #    الممكن في جهة **عدم تفويت** تنبيه. وتعذّرَ النداءُ ⇒ **سلوكُ اليوم حرفيًّا**.
+        #    ⚠️ **وحمولاتُ `_emit_trace` لا تُمَسّ:** الأثرُ يسجّل الإشارةَ **الخامّة**
+        #    (دقيقةً واحدة) والقرارُ يستعمل القراءةَ **الفعّالة** — فلا يُقرأ الأثرُ قرارًا.
+        try:
+            _liq_bars_ = fbl(s["symbol"])
+        except Exception:                                        # noqa: BLE001
+            _liq_bars_ = None
+        _liq_cl_ = candle_liquidity(_liq_bars_) if _liq_bars_ else None
+        sig["usd_eff"] = sig.get("usd")
+        if _liq_cl_ and _liq_cl_.get("max_usd") is not None:
+            try:
+                sig["usd_eff"] = max(float(sig.get("usd") or 0),
+                                     float(_liq_cl_["max_usd"]))
+            except (TypeError, ValueError):
+                sig["usd_eff"] = sig.get("usd")
+            sig["frames"] = _liq_cl_.get("frames")
         # 🕵️ بوّابة المضارب: يُكتَم الاشتعال بلا مضارب (لا نضع ignition_alert = يُعاد
         # الفحص لو دخل المضارب لاحقًا نفس اليوم). فاشل-آمن: تعذّر القياس → شمعة الدولار.
         try:
@@ -14396,7 +14426,7 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
                 continue
             if _tr:
                 _emit_trace(trace, "06_OPERATOR_PASS", lambda: {"symbol": _sym})
-        elif _ignition_candle_class(sig.get("usd"))[0] == "group":
+        elif _ignition_candle_class(sig.get("usd_eff"))[0] == "group":
             if _tr:
                 _emit_trace(trace, "10_FALLBACK_FAIL", lambda: {"symbol": _sym, "candle_class": "group"})
             continue
@@ -14431,11 +14461,20 @@ def build_ignition_alert(rows: list) -> str:
         lines.append(f"🔥 <b>${esc(s['symbol'])}</b> ${sig['price']:.2f}{lvl_txt} "
                      f"· حجم الدقيقة {sig['vol_x']:.0f}× المتوسط")
         # 💰 وسم شمعة مضارب/قروب بسيولتها الدولارية (قاعدة فيصل — عرض فقط، لا فلترة)
-        _usd = sig.get("usd")
+        #    والقراءةُ **الفعّالة** (‏`max` مع فريمات 1/5/30) لا الدقيقةُ وحدها ⇒
+        #    الوسمُ لا يقول «قروب» لسهمٍ بصمتُه على فريمٍ أعلى. وتُطبَع الفريماتُ
+        #    الثلاثةُ **إن قُرئت** فيرى المالكُ ما بُني عليه الحكمُ لا خلاصتَه.
+        _usd = sig.get("usd_eff", sig.get("usd"))
         _cls, _desc = _ignition_candle_class(_usd)
         if _desc:
             _icon = "⚠️" if _cls == "group" else "💰"
             lines.append(f"   {_icon} سيولة الشمعة ${_usd:,.0f} — {_desc}")
+            _fr = sig.get("frames") or {}
+            if _fr:
+                lines.append("   💵 " + " · ".join(
+                    f"{_n}د " + (f"${(_fr[_n] or {}).get('usd', 0):,.0f}"
+                                 if _fr.get(_n) else "—")
+                    for _n in sorted(_fr, key=int)))
         # 🕵️ كميات المضارب (طلب المستخدم: شراء عدواني/على الطلب) — تظهر لو قِيست.
         # مختصرة بلغة الأوامر مع وسم المستوى (طلب المستخدم 2026-07-09)؛ سطر التدفق
         # المفصّل (نِسَب/لقطة) أُسقط من التنبيه — التفصيل بفحص اليد.
@@ -14517,7 +14556,20 @@ def record_ignition_fires(rows, today_iso, fetch_bars=None) -> int:
                                  timespec="seconds") + "Z",
                              "break_level": _ignition_break_level(s),
                              "price": sig.get("price"), "vol_x": sig.get("vol_x"),
-                             "usd": usd, "candle_class": _ignition_candle_class(usd)[0]})
+                             "usd": usd, "candle_class": _ignition_candle_class(usd)[0],
+                             # 💰 **إضافةٌ لا تبديل** (`radar_frames_prereg §④-F3`):
+                             #    `usd`/`candle_class` يبقيان **الدقيقةَ وحدها** كي
+                             #    تبقى الصفوفُ الـ37 السابقة وأرقامُها المنشورة
+                             #    (‏74.2% وجدولُ الأصناف) قابلةً لإعادة الإنتاج بت-بت،
+                             #    **ولا يُعاد تصنيفُ ماضٍ**. والقراءةُ الفعّالة
+                             #    (فريمات 1/5/30) تُلحَق حقلًا جديدًا يتراكم للأمام.
+                             "usd_eff": sig.get("usd_eff", usd),
+                             "candle_class_eff": _ignition_candle_class(
+                                 sig.get("usd_eff", usd))[0],
+                             "frames_usd": {str(_n): ((sig.get("frames") or {})[_n]
+                                                      or {}).get("usd")
+                                            for _n in (sig.get("frames") or {})}
+                             or None})
             seen.add((sym, today_iso))
             added += 1
         if added:
