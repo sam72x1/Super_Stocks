@@ -1128,7 +1128,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.2,
-   "last_price": 1.75,
+   "last_price": 1.76,
    "live_alert": {
     "buyzone": "2026-08-14",
     "breakout": "2026-08-11",
@@ -4534,7 +4534,8 @@
    "max_gain_pct": 0.0,
    "last_price": 8.57,
    "live_alert": {
-    "breakout": "2026-08-17"
+    "breakout": "2026-08-17",
+    "afterdump": "2026-08-17"
    },
    "spikes": [
     70.9,
