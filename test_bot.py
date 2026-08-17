@@ -20308,6 +20308,28 @@ check("💰 LIQ10 فاشلةٌ-آمنة: بلا شموعٍ/تالفٍ ⇒ `None`
       str({k: (v or {}).get("usd") if isinstance(v, dict) else v
            for k, v in ((_liq_mixed or {}).get("frames") or {}).items()})
       + " · " + str(_liq_mx_lines)[:90])
+# 🔒 LS11 — **قرارُ المالك 2026-08-17 مقفولًا لا شفويًّا:** «لا يرسل لي جميع اسهم
+#    البورصة · يرسل اسهم الخاصة بالبوت فقط اللي تحت المتابعه و الجاهزة الخ».
+#    ⇒ كونُ السيولة **من قوائم البوت الخمس حصرًا** (`live_watch_universe`) —
+#    مقيسٌ اليوم: **319** (تحت المتابعة 239 · رادار الضغط 51 · الترشيح 24 ·
+#    الارتداد 5). ⛔ **وممنوعٌ بنيويًّا أيُّ مصدرٍ سوقيٍّ عامّ** (`get_universe`
+#    الذي يقرأ `nasdaqlisted.txt`، أو `scan_market`) في مسار السيولة أو في
+#    العامل الحيّ — فلا يوسّعه أحدٌ لاحقًا بحسن نيّة.
+_ls_wide = ("get_universe", "nasdaqlisted", "nasdaqtrader", "scan_market")
+check("🔒 LS11 كونُ السيولة **أسهمُ البوت وحدها** (قوائمُه الخمس) — وصفرُ مصدرٍ "
+      "سوقيٍّ عامّ في المسح ولا في العامل الحيّ (قرارُ المالك، مقفولًا)",
+      all(_w not in _insp0.getsource(S.scan_liq_stages) for _w in _ls_wide)
+      and all(_w not in _insp0.getsource(S.liq_stage_events) for _w in _ls_wide)
+      and all(_w not in _ls_oel for _w in _ls_wide)
+      and "live_watch_universe" in _ls_oel,
+      "المصادرُ الممنوعة: " + " · ".join(_ls_wide))
+_ls_uni_src = {_s["src"] for _s in S.live_watch_universe(
+    {"stocks": [{"symbol": "A", "status": "active"}]}, None, None, None,
+    cap=10 ** 9)[0]}
+check("🔒 LS11ب والمصادرُ **مسمّاةٌ ومحدودةٌ بالخمس** — فلا تتسرّب فئةٌ سادسة",
+      _ls_uni_src <= set(S.LIVE_WATCH_SOURCES) and len(S.LIVE_WATCH_SOURCES) == 5,
+      str(sorted(S.LIVE_WATCH_SOURCES)))
+
 # 🪦 **`LIQ11` متقاعدٌ 2026-08-17:** كان يقفل وصلَ `scan_candle_liquidity` وقد
 #    تقاعدت لصالح الثلاثيّة المتدرّجة — و**`LS10` يقفل الوصلَ الجديد أشدَّ** (يشترط
 #    فوقه **إرجاعَ الحالة** عند رفض تيليجرام وغيابَ الاسم القديم).
