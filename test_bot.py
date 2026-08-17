@@ -13341,6 +13341,74 @@ check("🧾 FK🔒 المُصدَرُ الواحد يُخرج القواعد ف�
 check("🧾 FK🔒 وفاشلٌ-آمن مطلقًا: تالفٌ/غيابٌ ⇒ [] بلا انهيار",
       S.faisal_rule_lines(None) == []
       and S.faisal_rule_lines("تالف", price="x", avail="y", rsi_val="z") == [])
+
+# ═════ 📐 FIB — «وصّل الفيبو» (أمرُ المالك 2026-08-16) ══════════════════════
+#    كانت `fib_reentry` **مبنيّةً ومُختبَرةً وبلا نقطةِ نداءٍ إنتاجية** — أخرجها
+#    مسحُ «كودٌ موجودٌ ولا يُنادى» (‏14 من 1091). عرض/سياق فقط.
+# ⚠️ **عيّنةٌ تفرّق فعلًا** (درسُ الطفرة F2): قاعٌ **قبل** القمّة أعمقُ
+#    (‏1.00) من القاع **بعدها** (‏1.84) ⇒ «أدنى النافذة كلِّها» يعطي رقمًا
+#    مختلفًا ⇒ يستحيل أن ينجو تبديلُ المرجع. وبعيّنتي الأولى تساوى الاثنان
+#    فنجت الطفرة — «القفلُ لا يحرس إلّا بقدر ما تُفرِّق عيّنتُه».
+_fib_rows = [(1.4, 1.0), (1.6, 1.3), (2.0, 1.7), (2.6, 2.2), (3.2, 2.9),
+             (3.68, 3.4), (3.0, 2.6), (2.5, 2.1), (2.2, 1.84), (2.3, 2.0)]
+_fib_df = pd.DataFrame(
+    {"High": [h for h, _ in _fib_rows], "Low": [x for _, x in _fib_rows],
+     "Open": [h for h, _ in _fib_rows], "Close": [x for _, x in _fib_rows],
+     "Volume": [10_000] * len(_fib_rows)},
+    index=pd.date_range("2026-06-01", periods=len(_fib_rows), freq="D"))
+# ⬆️ **صاعدٌ لم يهبط**: القاعُ **قبل** القمّة ⇒ الزنادُ لا ينطبق نصًّا («وإذا هبط»)
+_fib_up = _fib_df.copy()
+_fib_up["High"] = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6, 3.68]
+_fib_up["Low"] = [x - 0.1 for x in _fib_up["High"]]
+_fib_a = S.fib_reentry_from(_fib_df, 2.2597)
+_fib_b = S.fib_reentry_from(_fib_df, 2.05)
+_fib_c = S.fib_reentry_from(_fib_df)
+check("📐 FIB1 يُعيد **أرقام فيصل حرفيًّا**: من قاع 1.84 وقمّة 3.68 ⇒ الفيبوّ "
+      "‏≈2.20 · وعند سعر أمرِه المنفَّذ 2.2597 ⇒ **تجاوزه**",
+      _fib_a and abs(_fib_a["level"] - 2.20) <= 0.01
+      and _fib_a["low"] == 1.84 and _fib_a["high"] == 3.68
+      and _fib_a["crossed"] is True and _fib_b["crossed"] is False,
+      str(_fib_a))
+check("📐 FIB2 **الترتيبُ شرط**: قمّةٌ ثمّ هبوطٌ ⇒ زناد · وصاعدٌ لم يهبط (القاعُ "
+      "قبل القمّة) ⇒ `None` — عيّنتان تفترقان في الترتيب وحدَه",
+      _fib_a is not None and S.fib_reentry_from(_fib_up, 3.0) is None
+      and S.fib_reentry_from(_fib_df.head(6), 3.0) is None)
+check("📐 FIB3 تعذّرُ السعر ⇒ `crossed=None` **لا `False`** (تعذّرٌ ≠ «لم يتجاوز») "
+      "· والسطرُ حينها **بلا حكمِ تجاوز**",
+      _fib_c["crossed"] is None and _fib_c["price"] is None
+      and S.fib_reentry_from(_fib_df, "تالف")["crossed"] is None
+      and not any("تجاوزه" in x and ("✅" in x or "⏳" in x)
+                  for x in S.faisal_rule_lines(_fib_df)))
+_fib_ln = [x for x in S.faisal_rule_lines(_fib_df, price=2.2597)
+           if "فيبوّ إعادة الدخول" in x]
+_fib_ln0 = [x for x in S.faisal_rule_lines(_fib_up, price=3.0)
+            if "فيبوّ إعادة الدخول" in x]
+check("📐 FIB4 **موصولٌ من نقطة النداء الحيّة**: السطرُ يظهر بالمثال ويغيب عن "
+      "الصاعد · ويحمل الرقمَ ونصَّ فيصل · وبلا علاماتِ مقارنة",
+      len(_fib_ln) == 1 and not _fib_ln0
+      and "$2.20" in _fib_ln[0] and "ركبنا" in _fib_ln[0]
+      and "تجاوزه" in _fib_ln[0]
+      and not any(c in _fib_ln[0] for c in "≥≤"), (_fib_ln or ["—"])[0][:90])
+# 🐞 **درسُ الطفرة F5:** الصياغةُ الأولى كانت **نصّيّة** فنجت الطفرةُ لأن
+#    **الـdocstring نفسَه** يذكر `FAISAL_BOTTOM_LOOKBACK` شرحًا — الفخُّ الموثَّق
+#    «القفلُ النصّيّ لا يفرّق كودًا عن تعليق» **للمرّة الخامسة**. صار **نحويًّا**
+#    على مفتاح `CONFIG` في تعبير الافتراض وحدَه.
+def _fib_lookback_key(fn):
+    """مفاتيحُ `CONFIG` المقروءةُ داخل الدالّة — من الشجرة لا من النصّ."""
+    return {_n.slice.value for _n in _ast0.walk(
+        _ast0.parse(_insp0.getsource(getattr(S, fn)).lstrip()))
+        if isinstance(_n, _ast0.Subscript)
+        and getattr(_n.value, "id", None) == "CONFIG"
+        and isinstance(getattr(_n, "slice", None), _ast0.Constant)}
+
+
+check("📐 FIB5 **نافذةٌ واحدة لا اثنتان**: `FAISAL_BOTTOM_LOOKBACK` مقروءةٌ "
+      "**نحويًّا** (لا نصًّا) في الدالّتين — فلا ينجو رقمٌ مغروسٌ مكانها",
+      all("FAISAL_BOTTOM_LOOKBACK" in _fib_lookback_key(_f)
+          for _f in ("fib_reentry_from", "rise_from_bottom")),
+      str({_f: sorted(_fib_lookback_key(_f))
+           for _f in ("fib_reentry_from", "rise_from_bottom")}))
+del _fib_rows, _fib_up, _fib_a, _fib_b, _fib_c, _fib_ln, _fib_ln0
 check("🧾 FK🔒 موصولٌ بكرت «النهج العلمي» **بعد** اكتماله (عرضٌ لا قرار)",
       "faisal_rule_lines" in _insp0.getsource(S.build_method_alert)
       and _insp0.getsource(S.build_method_alert).index("faisal_rule_lines")
@@ -14837,6 +14905,14 @@ check("🐍 PYV3 تشخيصُ الدرع **يفرّق**: كلُّها تختلف
        and _shield_detail([], 2, "3.12", "3.11") == "تغيّرت=[]"),
       _shield_detail(["a", "b"], 2, "3.12", "3.11")[:60])
 check("🛡️ الدرع يغطّي 19 دالّة (لا يتقلّص بصمت)", len(_HUNTER_PINS) == 19)
+check("📐 FIB6 **الدرعُ لم يُمَسّ**: لا `fib_reentry` ولا `fib_reentry_from` داخل "
+      "أيٍّ من الدوالّ التسع عشرة المدروعة (الوصلُ عبر `faisal_rule_lines` وحدَه)",
+      not [_f for _f in _HUNTER_PINS
+           if "fib_reentry" in _insp0.getsource(getattr(S, _f, S.esc))],
+      "مدروعةٌ ملوَّثة=" + str([_f for _f in _HUNTER_PINS
+                               if "fib_reentry" in _insp0.getsource(
+                                   getattr(S, _f, S.esc))]))
+
 
 # ═════ 🚦🕵️ T-RANKER3 (عقد `ranker3_prereg.md` · بلا شبكة) ════════════════════
 import ranker3_arms as _r3                                       # noqa: E402

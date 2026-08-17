@@ -7244,6 +7244,45 @@ def fib_reentry(low, high, ratio=None):
             "low": round(a, 4), "high": round(b, 4)}
 
 
+def fib_reentry_from(df, price=None, lookback=None):
+    """📐 **مرجعُ فيبوّ إعادة الدخول من الشموع** — بترتيب فيصل: قمّةٌ **ثم** هبوط.
+
+    نصُّه «و**إذا هبط** نركب إذا تجاوز خطّ فيبوّاب» ⇒ القاعُ يجب أن يقع **بعد**
+    القمّة. وبلا هذا الشرط يصير السهمُ الصاعدُ الذي لم يهبط قطّ حاملًا «زنادَ
+    إعادة دخول» لا معنى له — وهو **عينُ عيب `vwap_entry_confirm`** المقيس
+    2026-08-16 (قرأتُ التسلسلَ معكوسًا فعجزت الميزةُ عن الإطلاق على الحالة التي
+    وُلدت لها). ⇒ لا قمّةً في آخر شمعة، ولا قاعًا قبلها ⇒ `None` لا رقمٌ مفبرك.
+
+    🔒 **والنافذةُ نفسُ نافذة `rise_from_bottom`** (`FAISAL_BOTTOM_LOOKBACK`) —
+    مقياسٌ واحد لا اثنان. و`crossed=None` عند تعذّر السعر (تعذّرٌ ≠ «لم يتجاوز»).
+    نقيّة · فاشلة-آمنة · عرض/سياق فقط."""
+    lookback = int(lookback if lookback is not None
+                   else CONFIG["FAISAL_BOTTOM_LOOKBACK"])
+    try:
+        t = df.tail(lookback)
+        hi_v = t["High"].astype(float).values
+        lo_v = t["Low"].astype(float).values
+        hi_i = int(hi_v.argmax())
+        if hi_i >= len(lo_v) - 1:        # القمّةُ آخرُ شمعة ⇒ لم يهبط بعدها
+            return None
+        lo, hi = float(lo_v[hi_i + 1:].min()), float(hi_v[hi_i])
+    except Exception:                                            # noqa: BLE001
+        return None
+    fb = fib_reentry(lo, hi)
+    if not fb:
+        return None
+    p = None
+    if price is not None:
+        try:
+            v = float(price)
+            p = v if v == v else None
+        except (TypeError, ValueError):
+            p = None
+    fb["price"] = round(p, 4) if p is not None else None
+    fb["crossed"] = None if p is None else bool(p > fb["level"])
+    return fb
+
+
 def first_target_release(entry, pct=None):
     """🎯 **«مع هدف أوّل 30٪ — تحرّر منها تواصل · عدم تحرّر = جني ربح»** ·
     و«**30٪ غالبًا تمثّل مقاومة أولى**» (‏`IMG_0531` حرفيًّا).
@@ -7318,6 +7357,17 @@ def faisal_rule_lines(df, price=None, entry=None, avail=None, rsi_val=None):
             out.append(f"  🛑 <b>حقّق {rb['risen_pct']:.0f}% من القاع "
                        f"${rb['bottom']:.2f}</b> — فيصل: «عن نفسي ما أخاطر، "
                        "أنتظر الرجوع للدعم»")
+    except Exception:                                            # noqa: BLE001
+        pass
+    try:
+        fbx = fib_reentry_from(df, price)
+        if fbx:
+            st = ("" if fbx["crossed"] is None
+                  else (" · ✅ <b>تجاوزه</b>" if fbx["crossed"]
+                        else " · ⏳ لم يتجاوزه بعد"))
+            out.append(f"  📐 فيبوّ إعادة الدخول <b>${fbx['level']:.2f}</b> "
+                       f"(من قمّة ${fbx['high']:.2f} إلى قاع ${fbx['low']:.2f})"
+                       " — «تجاوزه مباشرة ركبنا»" + st)
     except Exception:                                            # noqa: BLE001
         pass
     try:
