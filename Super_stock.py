@@ -12719,6 +12719,20 @@ LIQ_MIN_MOVE_PCT = 5.0         # قرارُ المالك — رفعةُ الدق
 #    🔒 **وشرطُ الحياة باقٍ على الدقيقة الأخيرة** (قفزةُ الحجم والاتجاهُ والرفعة) ⇒
 #    **مجموعٌ ضخمٌ بدقيقةٍ ميّتةٍ الآن لا يُطلِق** — مقفولٌ سلوكيًّا.
 LIQ_CUM_MINUTES = 3            # `A1` — مجموعُ ثلاثِ دقائقَ (‏`liq_move_result.md`)
+LIQ_OPERATOR_TRADES = 5_000    # engineering — تغطيةُ قراءة المضارب في قناة السيولة
+# 🚨 **إشعارُ ما قبل الإغلاق `M0` — بلاغُ المالك 2026-08-17** («التنبية وصلني بعد ما
+#    ارتفع السهم فوق 20٪ وهذا شي مستحيل يصير خلال دقيقة وحده»). **وسندُه مقيس:**
+#    مِرساةُ `XOS` كانت **‏+24.29% في دقيقةٍ واحدة** بقفزةِ حجمٍ **‏132×** — وهي
+#    **أوّلُ دقيقةٍ مكتملة** من الحركة ⇒ **بتصميمِ «الدقيقةِ المكتملة» يستحيل بنيويًّا
+#    أن نسبق انفجارًا عنيفًا في دقيقته الأولى.**
+#    🔑 **والحلُّ سليمُ الاتّجاه:** الشمعةُ قيد التكوين **تُنقِص** الحجمَ والسيولةَ
+#    ولا تزيدهما ⇒ **إن عبرت البوّاباتِ وهي جزئيّةٌ فالمكتملةُ ستعبرها يقينًا** ⇒
+#    الإطلاقُ المبكّر **لا يُدخل حالةً لم تكن ستُطلِق**.
+#    ⚠️ **وحدُّ صدقٍ مُعلَنٌ لا مطويّ:** الرفعةُ **قد ترتدّ** قبل الإغلاق ⇒ `M0`
+#    **إشعارٌ غيرُ مكتمل**، ويُسمّى كذلك في الرسالة، ويتبعه `Mu` بالأرقام المكتملة.
+#    🔒 **وإضافيٌّ محض:** لا يكتم شيئًا ولا يُلغي `M1`؛ وإطفاءُ `LIQ_EARLY` يرجع
+#    بالسلوك **بت-بت** إلى ما قبله.
+LIQ_EARLY = True               # قرارُ المالك — إشعارٌ قبل إغلاق الدقيقة
 
 # ترتيبُ الأولوية **مُعلَنٌ لا ضمنيّ**: الأقربُ إلى خطّةِ دخولٍ محفوظة أوّلًا،
 # فإن قصَّ السقفُ فإنما يقصّ الأبعدَ عن التنفيذ — ويُعلَن بعددِه.
@@ -13075,8 +13089,32 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
             avg = sum(prior) / len(prior) if prior else 0.0
             vx = (float(last["v"]) / avg) if avg > 0 else 0.0
             # 🔴 ثلاثيةُ البوّابة: قفزةٌ نسبيّة **و**أرضيةٌ مطلقة **و**اتجاهٌ داخل
-            if vx < vm or not _liq_ok() or not _inflow(last):
-                return ([], st)
+            _ok_now = not (vx < vm or not _liq_ok() or not _inflow(last))
+            if not _ok_now:
+                # 🚨 `M0`: المكتملةُ لم تعبر ⇒ تُجرَّب **المتكوّنة** (أشدُّ بالبناء)
+                if not LIQ_EARLY or len(rows) < 3:
+                    return ([], st)
+                form = rows[-1]
+                pv = [float(b["v"]) for b in closed]
+                pavg = sum(pv) / len(pv) if pv else 0.0
+                fvx = (float(form["v"]) / pavg) if pavg > 0 else 0.0
+                fcum = (_usd(form) if max(1, int(LIQ_CUM_MINUTES)) <= 1 else
+                        _usd(form) + sum(_usd(b) for b in
+                                         closed[-(max(1, int(LIQ_CUM_MINUTES))
+                                                  - 1):]))
+                if (fvx < vm or fcum < LIQ_MIN_USD or not _inflow(form)):
+                    return ([], st)
+                fms = int(form["t"])
+                st = {"anchor_ms": fms, "last_ms": fms - 60_000,
+                      "sent": ["M1"], "updates": 0, "vol_x": round(fvx, 1),
+                      "peak_usd": round(_usd(form)), "early": True}
+                ev.append({"stage": "M0", "usd": round(_usd(form)),
+                           "minutes": 1, "anchor_ms": fms, "last_ms": fms,
+                           "vol_x": round(fvx, 1),
+                           "price": round(float(form["c"]), 4),
+                           "move": round(_rise(form), 2),
+                           "class": _ignition_candle_class(_usd(form))})
+                return (ev, st)
             st = {"anchor_ms": last_ms, "last_ms": last_ms, "sent": ["M1"],
                   "updates": 0, "vol_x": round(vx, 1),
                   "peak_usd": round(_usd(last))}
@@ -13189,7 +13227,12 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
         kept = []
         for row, ev in out:
             try:
-                of = fetch_operator(row["symbol"])
+                # 🔴 تغطيةٌ أوسعُ **في هذي القناة وحدها** (الرادارُ على 250 بت-بت)
+                try:
+                    of = fetch_operator(row["symbol"],
+                                        limit=LIQ_OPERATOR_TRADES)
+                except TypeError:          # جالبٌ محقونٌ بلا وسيط (اختبار)
+                    of = fetch_operator(row["symbol"])
             except Exception:                                    # noqa: BLE001
                 of = None
             if of is not None and not of.get("has_operator"):
@@ -13202,7 +13245,9 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
     return (out, covered, round(float(tick() - t0), 1))
 
 
-_LIQ_STAGE_TXT = {"M1": "🚨 <b>دخلت سيولة الآن</b> — أوّلُ دقيقة",
+_LIQ_STAGE_TXT = {"M0": "🚨🚨 <b>دخلت سيولة الآن</b> — <i>دقيقةٌ قيد التكوين "
+                        "(غيرُ مكتملة · قد ترتدّ)</i>",
+                  "M1": "🚨 <b>دخلت سيولة الآن</b> — أوّلُ دقيقة",
                   "Mu": "🔁 تحديثُ الدقيقة",
                   "M5": "5️⃣ <b>اكتملت 5 دقائق</b> من دخول السيولة",
                   "M30": "🕧 <b>اكتملت 30 دقيقة</b> من دخول السيولة"}
@@ -13268,8 +13313,23 @@ def save_op_entry_state(state: dict, path: str = None, keep_days: int = 3,
     path = OP_ENTRY_STATE_FILE if path is None else path
     today_iso = today_iso or dt.date.today().isoformat()
     try:
+        # 🔴🔴 **عيبٌ قاتلٌ أُصلح 2026-08-17 (بلاغُ المالك «ما يوصلني تحديث»):**
+        #    كان المُقلِّمُ يقرأ **كلَّ** قيمةٍ **نصَّ تاريخٍ** (`str(v)`) — وقيمةُ
+        #    مفاتيح `LIQ:` **قاموسُ حالة** (‏مِرساةٌ/مُرسَلات/قمّةُ ماء) ⇒
+        #    `_iso_days_between` يرجع **‏1,000,000** فتُرمى **كلُّ** حالةِ سيولةٍ
+        #    في كلّ حفظ ⇒ 🔴 **المِرساةُ لا تنجو دورة**: كلُّ دقيقةٍ مؤهَّلةٍ تصير
+        #    **`M1` «أوّلُ دقيقة»** بدل `Mu` «تحديث»، **و`M5`/`M30` لا يفيران
+        #    أبدًا**، وقمّةُ الماءِ وسقفُ التحديثاتِ يُصفَّران.
+        #    ⇒ **مُقلِّمٌ واعٍ بالشكل**: القاموسُ تاريخُه في `date`، والنصُّ كما هو،
+        #    وما لا تاريخَ له **يُبقى** (فاشلٌ-آمنٌ مفتوح: لا نمحو حالةً لشكلٍ
+        #    لم نتوقّعه — وهو **عينُ ما وقع**).
+        def _stamp(v):
+            if isinstance(v, dict):
+                return str(v.get("date") or today_iso)
+            return str(v)
+
         keep = {k: v for k, v in (state or {}).items()
-                if _iso_days_between(str(v), today_iso) <= keep_days}
+                if _iso_days_between(_stamp(v), today_iso) <= keep_days}
         with open(path, "w", encoding="utf-8") as fh:
             json.dump(keep, fh, ensure_ascii=False, indent=1)
         return True
@@ -14304,12 +14364,21 @@ def _operator_blocks(trades, min_shares):
         return None
 
 
-def operator_flow(sym: str):
+def operator_flow(sym: str, limit: int = 250):
     """🕵️ كشف دخول المضارب من صفقات Polygon الخام (غلاف شبكي فاشل-آمن حول
-    `_operator_blocks`). يجلب آخر ~250 صفقة + NBBO (جدار الطلب) → طبعات ≥
+    `_operator_blocks`). يجلب آخر `limit` صفقة + NBBO (جدار الطلب) → طبعات ≥
     `OPERATOR_MIN_SHARES` مصنَّفة (شراء عدواني/على الطلب). **فاشل-آمن مطلق → None**
     (بلا مفتاح/401/403/429/شبكة — لا يعيق شيئًا). المفتاح يُقرأ وقت النداء. عرض/تنبيه
-    فقط — خارج الفرز. حدّ الصدق: تصنيف تيك تقريبي + قمة الدفتر فقط (لا L2)."""
+    فقط — خارج الفرز. حدّ الصدق: تصنيف تيك تقريبي + قمة الدفتر فقط (لا L2).
+
+    🔴 **و`limit` أُضيف 2026-08-17 (بلاغُ المالك «مستحيل ما يكون رفعه المضارب»):**
+    الافتراضُ **‏250 كما كان** ⇒ الرادارُ و«هنا الدخول» **بت-بت**. والسببُ مقيس:
+    دقيقةُ `XOS` المُنبَّه عليها **‏≈125,783 سهمًا** و`AUUD` **‏≈460,541** — و250
+    صفقةً تغطّي شريحةً صغيرة ⇒ **المعروضُ ‏8,692 سهمًا لـXOS = ‏7% من الدقيقة**
+    فيبدو المضاربُ غائبًا وهو حاضر. ⇒ **قناةُ السيولة وحدها ترفعه** إلى
+    `LIQ_OPERATOR_TRADES` (‏والرفعُ يجعل القراءةَ أصدقَ ويُرخي الكتمَ لا يشدّه).
+    ⚠️ **وحدُّ صدقٍ باقٍ:** سقفُ Polygon للصفحة الواحدة 50,000 ⇒ في الدقائق
+    الضخمة تبقى التغطيةُ جزئيّةً **وتُقال جزئيّة**."""
     key = os.environ.get("POLYGON_API_KEY", "").strip()
     if not key:
         return None
@@ -14317,7 +14386,8 @@ def operator_flow(sym: str):
         base, h = "https://api.polygon.io", {"Authorization": f"Bearer {key}"}
         s = sym.upper()
         tr = requests.get(f"{base}/v3/trades/{s}", headers=h,
-                          params={"limit": 250, "order": "desc"}, timeout=12)
+                          params={"limit": int(limit), "order": "desc"},
+                          timeout=12)
         if tr.status_code != 200:
             return None
         trades = (tr.json() or {}).get("results") or []
