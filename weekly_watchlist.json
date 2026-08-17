@@ -124,8 +124,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 155791513.7,
-    "signal": 39861029.2,
+    "kvo": 155791514.1,
+    "signal": 39861029.7,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -383,10 +383,13 @@
     [
      "2026-08-16",
      0
+    ],
+    [
+     "2026-08-17",
+     0
     ]
    ],
    "spikes": [
-    155.0,
     112.6,
     51.8,
     88.6,
@@ -772,6 +775,10 @@
     [
      "2026-08-16",
      550000
+    ],
+    [
+     "2026-08-17",
+     550000
     ]
    ],
    "spikes": [
@@ -1148,6 +1155,10 @@
     [
      "2026-08-16",
      200000
+    ],
+    [
+     "2026-08-17",
+     200000
     ]
    ],
    "spikes": [
@@ -1514,6 +1525,10 @@
     [
      "2026-08-16",
      500000
+    ],
+    [
+     "2026-08-17",
+     500000
     ]
    ],
    "live_alert": {
@@ -1871,6 +1886,10 @@
     ],
     [
      "2026-08-16",
+     150000
+    ],
+    [
+     "2026-08-17",
      150000
     ]
    ],
@@ -2248,6 +2267,10 @@
     [
      "2026-08-16",
      3000
+    ],
+    [
+     "2026-08-17",
+     3000
     ]
    ]
   },
@@ -2607,6 +2630,10 @@
    "borrow_hist": [
     [
      "2026-08-16",
+     10000
+    ],
+    [
+     "2026-08-17",
      10000
     ]
    ]
@@ -2970,6 +2997,10 @@
     ],
     [
      "2026-08-16",
+     40000
+    ],
+    [
+     "2026-08-17",
      40000
     ]
    ],
@@ -3382,6 +3413,10 @@
     [
      "2026-08-16",
      60000
+    ],
+    [
+     "2026-08-17",
+     60000
     ]
    ],
    "live_alert": {
@@ -3780,6 +3815,10 @@
     ],
     [
      "2026-08-16",
+     20000
+    ],
+    [
+     "2026-08-17",
      20000
     ]
    ],
@@ -7122,8 +7161,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -2167731.6,
-    "signal": -344028.0,
+    "kvo": -2167731.5,
+    "signal": -344027.9,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -9652,7 +9691,7 @@
    },
    "klinger": {
     "kvo": 3149131.9,
-    "signal": 2112873.9,
+    "signal": 2112874.0,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -9879,7 +9918,6 @@
    "last_price": 0.913,
    "live_alert": {},
    "spikes": [
-    74.2,
     464.5,
     115.8,
     78.0,
@@ -15790,8 +15828,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 4517078.7,
-    "signal": 6892188.4,
+    "kvo": 4517078.6,
+    "signal": 6892188.3,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -25336,226 +25374,6 @@
  "explosions": [
   {
    "symbol": "FBRX",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 162.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "FTH",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 149.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "VRAX",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-02",
-   "gain": 132.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "RTB",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 117.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "GALT",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 102.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M10_RSI_ما_تشبّع",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "GRPN",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-22",
-   "gain": 77.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M10_RSI_ما_تشبّع",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "SLBT",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-30",
-   "gain": 76.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "PYXS",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 75.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M10_RSI_ما_تشبّع",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "MNPR",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 74.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M10_RSI_ما_تشبّع",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "STAK",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-16",
-   "gain": 68.0,
-   "kind": "قفزة",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "ATPC",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-16",
-   "gain": 67.0,
-   "kind": "قفزة",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M10_RSI_ما_تشبّع",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "FBRX",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 178.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "FTH",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 117.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "RGNX",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-22",
-   "gain": 101.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "PHOE",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 100.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M10_RSI_ما_تشبّع",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "AARD",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 99.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M10_RSI_ما_تشبّع",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "GALT",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 93.0,
-   "kind": "تجمّع",
-   "reason": "M10_RSI_ما_تشبّع",
-   "base_reason": "M10_RSI_ما_تشبّع",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "SDOT",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-17",
-   "gain": 78.0,
-   "kind": "قفزة",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M4_base_واسعة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "LVLU",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 75.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M5_سيولة",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "VSTM",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-26",
-   "gain": 75.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "نواقص_فوق_3",
-   "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "FBRX",
    "date": "2026-07-20",
    "expl_date": "2026-06-22",
    "gain": 174.0,
@@ -27565,314 +27383,6 @@
    "reason": "M4_base_واسعة",
    "base_reason": "M4_base_واسعة",
    "was_pivot": true,
-   "suspect_split": false
-  },
-  {
-   "symbol": "JTAI",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-15",
-   "gain": 580.0,
-   "kind": "قفزة",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": true
-  },
-  {
-   "symbol": "EHGO",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 246.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "NVCT",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 139.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "BLZE",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-23",
-   "gain": 120.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "LBGJ",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-29",
-   "gain": 103.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_فوق_97",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "DFTX",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 101.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "TOP",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 100.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "NIXX",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 89.0,
-   "kind": "تجمّع",
-   "reason": "M1_سعر",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "OXBR",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-23",
-   "gain": 87.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "TGHL",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-16",
-   "gain": 87.0,
-   "kind": "قفزة",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "BOLD",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 86.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "CBUS",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 85.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "FCEL",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-26",
-   "gain": 83.0,
-   "kind": "تجمّع",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "ATAI",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-23",
-   "gain": 77.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "CDNA",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-17",
-   "gain": 74.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "GNPX",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-16",
-   "gain": 1529.0,
-   "kind": "قفزة",
-   "reason": "M4_base_واسعة",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": true
-  },
-  {
-   "symbol": "NVVE",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-07",
-   "gain": 341.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_فوق_97",
-   "base_reason": "M2_هبوط_فوق_97",
-   "was_pivot": false,
-   "suspect_split": true
-  },
-  {
-   "symbol": "GMM",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-09",
-   "gain": 147.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_فوق_97",
-   "base_reason": "M2_هبوط_فوق_97",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "NVCT",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 127.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "TOP",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 118.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "JZXN",
-   "date": "2026-07-17",
-   "expl_date": "2026-07-01",
-   "gain": 109.0,
-   "kind": "تجمّع",
-   "reason": "M1_سعر",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "SLS",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 99.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "DFTX",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 98.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "WKSP",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 97.0,
-   "kind": "تجمّع",
-   "reason": "M1_سعر",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "CJMB",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-23",
-   "gain": 74.0,
-   "kind": "تجمّع",
-   "reason": "M1_سعر",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "DYAI",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-25",
-   "gain": 73.0,
-   "kind": "تجمّع",
-   "reason": "M1_سعر",
-   "base_reason": "M1_سعر",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "MNPR",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 73.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
-   "suspect_split": false
-  },
-  {
-   "symbol": "CDNA",
-   "date": "2026-07-17",
-   "expl_date": "2026-06-18",
-   "gain": 72.0,
-   "kind": "تجمّع",
-   "reason": "M2_هبوط_تحت_40",
-   "base_reason": "M2_هبوط_تحت_40",
-   "was_pivot": false,
    "suspect_split": false
   },
   {
@@ -32131,6 +31641,22 @@
    },
    "universe": 3573,
    "valid": 3388
+  },
+  {
+   "date": "2026-08-17",
+   "stats": {
+    "M2_هبوط_تحت_40": 2661,
+    "M_لا_مستوى_مختبر": 354,
+    "M4_base_واسعة": 98,
+    "M1_سعر": 81,
+    "M3_انفجار_تحت_60": 58,
+    "M10_RSI_فات_القطار": 5,
+    "M2_هبوط_فوق_97": 17,
+    "M5_سيولة": 5,
+    "نقاط_تحت_5": 1
+   },
+   "universe": 3573,
+   "valid": 3388
   }
  ],
  "tie_harvest": [
@@ -34849,6 +34375,39 @@
      "price": 0.753000020980835,
      "taken": false,
      "h4_confirm": 3
+    }
+   ]
+  },
+  {
+   "date": "2026-08-17",
+   "source": "daily",
+   "level": 20,
+   "members": [
+    {
+     "symbol": "ZCMD",
+     "rank": 9,
+     "readiness": 20,
+     "score": 40,
+     "rr": 1.8999999999999977,
+     "entry": 1.03,
+     "stop": 0.9299999999999999,
+     "t1": 1.22,
+     "price": 1.0,
+     "taken": true,
+     "h4_confirm": 0
+    },
+    {
+     "symbol": "DCOY",
+     "rank": 10,
+     "readiness": 20,
+     "score": 35,
+     "rr": 1.2036395147313692,
+     "entry": 3.5733333333333337,
+     "stop": 3.2271,
+     "t1": 3.99,
+     "price": 3.5799999237060547,
+     "taken": false,
+     "h4_confirm": 0
     }
    ]
   }
