@@ -1,0 +1,29 @@
+name: Radar Read (🔥 نسبة الإنذار الكاذب من السجلّ الحيّ)
+
+# 🔒 **قراءةٌ فقط**: لا كرون · لا كتابةَ حالة · لا رسالة تلغرام · لا مسَّ فرزٍ.
+#    يُنفّذ قياسًا **مسجَّلًا سلفًا** في تصميم الرادار (تأكيد 12% · أرضية 8).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1: إصدارٌ واحد لكلّ الـworkflows
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: اقرأ الرادار
+        run: python radar_read.py

@@ -14834,6 +14834,47 @@ for _p in sorted(_glob10.glob(".github/workflows/*.yml")):
                             open(_p, encoding="utf-8").read()):
         _PY_WF.setdefault(_m, []).append(_p.split("/")[-1])
 _PY_PROD = max(_PY_WF, key=lambda k: len(_PY_WF[k])) if _PY_WF else "3.11"
+# ═════ 🔥 RDRD — «اقرأ الرادار» (أمرُ المالك 2026-08-17) ══════════════════
+#    قياسٌ **مسجَّلٌ سلفًا** في تصميم الرادار (تأكيد 12% · أرضية 8) لا تجربةٌ جديدة.
+_rd_src = open("radar_read.py", encoding="utf-8").read()
+_rd_t = _ast0.parse(_rd_src)
+_rd_calls = {_ast0.unparse(_n.func) for _n in _ast0.walk(_rd_t)
+             if isinstance(_n, _ast0.Call)}
+check("🔥 RDRD1 **مقياسٌ واحد لا اثنان**: يُنادي `_ignition_log_block` و"
+      "`_ignition_outcome` الإنتاجيّتين (‏AST) — لا نسخةَ منطقٍ ثانية",
+      {"bot._ignition_log_block", "bot._ignition_outcome",
+       "bot._ignition_outcome_fetch"} <= _rd_calls, str(len(_rd_calls)))
+check("🔥 RDRD2 **قراءةٌ فقط**: صفرُ كتابةِ حالةٍ وصفرُ إرسالٍ وصفرُ مسٍّ بالفرز",
+      all(_n not in _rd_src for _n in ("send_telegram", "git_save", "save_",
+                                       "scan_market", "rank_key", "select_top",
+                                       'open(path, "w"')))
+check("🔥 RDRD3 الأرضيةُ **تُوقِف بخروجٍ مميَّز** (‏5) ولا تُطبَع نسبةٌ دونها — "
+      "«لا حكم» لا رقمٌ هشّ",
+      "لا حكم" in _rd_src and "return 5" in _rd_src
+      and _rd_src.index("return 5") < _rd_src.index("نسبةُ الإنذار الكاذب"))
+# 🐞 **نحويًّا لا نصًّا** (درسُ الطفرة): صياغتي الأولى نصّيّةٌ بعلامتَي تنصيصٍ
+#    مزدوجتين، والسكربتُ يستعمل مفردةً داخل f-string ⇒ القفلُ سقط على **شكل
+#    الاقتباس** لا على المعنى. الآن من الشجرة.
+_rd_keys = {_n.slice.value for _n in _ast0.walk(_rd_t)
+            if isinstance(_n, _ast0.Subscript)
+            and _ast0.unparse(_n.value).endswith("CONFIG")
+            and isinstance(getattr(_n, "slice", None), _ast0.Constant)}
+check("🔥 RDRD4 العتبتان **من CONFIG** لا مغروستان (فلا تتعفّنا) — قراءةٌ نحويّة",
+      {"IGNITION_CONFIRM_PCT", "IGNITION_OUTCOME_MIN"} <= _rd_keys,
+      str(sorted(_rd_keys)))
+_rd_wf = open(".github/workflows/radar_read.yml", encoding="utf-8").read()
+check("🔥 RDRD5 الـworkflow **يدويٌّ بلا كرون** وصلاحيتُه `contents: read`",
+      "cron" not in _rd_wf and "contents: read" in _rd_wf
+      and "workflow_dispatch" in _rd_wf)
+_rd_w = _rd_src[_rd_src.index("def wilson"):]
+import radar_read as _rdm                                        # noqa: E402
+check("🔥 RDRD6 فاصلُ Wilson صحيحٌ حسابيًّا (‏0/10 يبدأ من صفر · 5/10 يحيط 50% "
+      "· ومقامٌ صفريّ لا ينهار)",
+      _rdm.wilson(0, 10)[0] == 0.0
+      and _rdm.wilson(5, 10)[0] < 50.0 < _rdm.wilson(5, 10)[1]
+      and _rdm.wilson(0, 0) == (0.0, 0.0),
+      f"{_rdm.wilson(5, 10)}")
+
 check("🐍 PYV1 كلُّ الـworkflows على **إصدارٍ واحد** — فلا يسقط أحدُها بصمتٍ على "
       "بصمةٍ مُعايَرةٍ لغيره (وهو ما قتل المراجِعَ الأسبوعيَّ سبعةَ أسابيع)",
       len(_PY_WF) == 1, "الإصدارات: " + str({k: len(v) for k, v in _PY_WF.items()})
