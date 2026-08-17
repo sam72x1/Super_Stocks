@@ -14933,11 +14933,64 @@ check("⏱️ QTR8 العقدُ مدفوعٌ ويحمل: المجتمعَ وال
       all(_w in _qt_pre for _w in ("IGNITION_OUTCOME_MIN", "Wilson",
                                    "لا يفصل", "سقفُ النجاح", "تنبّؤي",
                                    "دائريّةٌ جزئية", "IMG_0294")))
+# 🐞 **الفخُّ النصّيُّ للمرّة السادسة (2026-08-17):** صياغتي الأولى فحصت
+#    `"if: always()" in _qt_wf` **نصًّا** — و**تعليقي أنا** في الـworkflow يشرح
+#    «`if: always()` — القياسان مستقلّان» ⇒ نزعُ السطر الفعليّ **نجا** (طفرة M11).
+#    ⇒ الحكمُ الآن من **بنية YAML المُحلَّلة** لا من نصّ الملفّ.
+import yaml as _qt_yaml                                          # noqa: E402
 _qt_wf = open(".github/workflows/radar_read.yml", encoding="utf-8").read()
-check("⏱️ QTR9 موصولٌ بالـworkflow **بـ`always()`** فلا يكتمه سقوطُ الأوّل · "
-      "و`radar_read.py` **ما زال موصولًا** (لا يُستبدَل)",
-      "radar_quarter.py" in _qt_wf and "radar_read.py" in _qt_wf
-      and "if: always()" in _qt_wf)
+_qt_steps = [_s for _j in (_qt_yaml.safe_load(_qt_wf).get("jobs") or {}).values()
+             for _s in (_j.get("steps") or []) if isinstance(_s, dict)]
+_qt_step = next((_s for _s in _qt_steps
+                 if "radar_quarter.py" in str(_s.get("run") or "")), None)
+_qt_rd = any("radar_read.py" in str(_s.get("run") or "") for _s in _qt_steps)
+check("⏱️ QTR9 موصولٌ بالـworkflow **بـ`always()`+`continue-on-error`** فلا يكتمه "
+      "سقوطُ الأوّل ولا يُحمَّر خروجُ «لا حكم» · و`radar_read.py` ما زال موصولًا",
+      _qt_step is not None and _qt_rd
+      and "always()" in str(_qt_step.get("if") or "")
+      and _qt_step.get("continue-on-error") is True,
+      f"الخطوة={_qt_step} · read؟{_qt_rd}")
+
+# ⏱️ QTR10 — «معلّق» و«تعذّر الجلب» **يفترقان سلوكيًّا** (‏`_ignition_outcome`
+#    ترجع «pending» عند `df is None` ⇒ الخلطُ يُخفي **سببَ** عدم بلوغ الأرضية).
+import contextlib as _qt_cx                                      # noqa: E402
+import io as _qt_ioo                                             # noqa: E402
+import tempfile as _qt_tf                                        # noqa: E402
+_qt_fires = [{"symbol": "AAA", "date": "2026-01-05", "price": 1.0,
+              "break_level": 0.9, "operator_ok": True, "sustain_min": 20},
+             {"symbol": "BBB", "date": "2026-01-05", "price": 1.0,
+              "break_level": 0.9, "operator_ok": False, "sustain_min": 3}]
+_qt_lp = _os_hc.path.join(_qt_tf.mkdtemp(), "qtrlog.json")
+open(_qt_lp, "w", encoding="utf-8").write(json.dumps(_qt_fires))
+_qt_real_df = pd.DataFrame({"High": [2.0], "Close": [1.9]},
+                           index=pd.to_datetime(["2026-01-06"]))
+_qt_keep, _qt_keep_env = S._ignition_outcome_fetch, _os_hc.environ.get("RADAR_LOG")
+_qt_out = {}
+try:
+    _os_hc.environ["RADAR_LOG"] = _qt_lp
+    for _qk, _qfn in (("nodata", lambda *_a, **_k: None),
+                      ("decided", lambda *_a, **_k: _qt_real_df)):
+        S._ignition_outcome_fetch = _qfn
+        _qbuf = _qt_ioo.StringIO()
+        with _qt_cx.redirect_stdout(_qbuf):
+            _qrc = _qtm.main()
+        _qt_out[_qk] = (_qrc, _qbuf.getvalue())
+except Exception as _qe:                                         # noqa: BLE001
+    _qt_out = {"⛔": (None, f"رمى: {type(_qe).__name__}: {_qe}")}
+finally:
+    S._ignition_outcome_fetch = _qt_keep
+    if _qt_keep_env is None:
+        _os_hc.environ.pop("RADAR_LOG", None)
+    else:
+        _os_hc.environ["RADAR_LOG"] = _qt_keep_env
+check("⏱️ QTR10 «معلّق» و«تعذّر الجلب» **يفترقان سلوكيًّا** — والاثنان مُستبعَدان "
+      "من المقام (‏§②) فلا يُخفي الخلطُ سببَ عدم بلوغ الأرضية",
+      "تعذّر الجلب 2" in _qt_out.get("nodata", (0, ""))[1]
+      and "معلّق 0" in _qt_out.get("nodata", (0, ""))[1]
+      and "محسوم 0" in _qt_out.get("nodata", (0, ""))[1]
+      and "تعذّر الجلب 0" in _qt_out.get("decided", (0, ""))[1]
+      and "محسوم 2" in _qt_out.get("decided", (0, ""))[1],
+      str({_k: _v[1][-140:] for _k, _v in _qt_out.items()})[:340])
 
 check("🐍 PYV1 كلُّ الـworkflows على **إصدارٍ واحد** — فلا يسقط أحدُها بصمتٍ على "
       "بصمةٍ مُعايَرةٍ لغيره (وهو ما قتل المراجِعَ الأسبوعيَّ سبعةَ أسابيع)",

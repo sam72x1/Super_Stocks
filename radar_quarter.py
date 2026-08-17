@@ -55,7 +55,7 @@ def main():
     print(f"   العتبات: صمودٌ ‏≥{bot.CONFIG['OPERATOR_SUSTAIN_MIN']}د · تأكيدٌ "
           f"+{bot.CONFIG['IGNITION_CONFIRM_PCT']}% · أرضيةُ الذراع {floor}")
     arms = {True: [0, 0], False: [0, 0]}          # ok → [real, fake]
-    pend = 0
+    pend = nodata = 0
     for f in pop:
         try:
             df = bot._ignition_outcome_fetch(f.get("symbol"), f.get("date"))
@@ -63,12 +63,25 @@ def main():
             df = None
         oc = bot._ignition_outcome(f, df)
         if oc == "pending":
-            pend += 1
+            # 🔴 `_ignition_outcome` ترجع «pending» عند `df is None` أيضًا
+            #    (`Super_stock.py:14369`) ⇒ **«لم يُحسَم» و«تعذّر الجلب» لا
+            #    يفترقان بنيويًّا**، وهذا يمسّ **سببَ** عدم بلوغ الأرضية مباشرةً.
+            #    فيُفصَلان **عدًّا** — والمقياسُ لا يتغيّر (‏§②: مُستبعَدٌ في الحالين).
+            #    والتالفُ يُعَدّ «تعذّر جلب» (‏أصدقُ من ادّعاء أنه لم يُحسَم).
+            try:
+                blank = df is None or len(df) == 0
+            except Exception:                                    # noqa: BLE001
+                blank = True
+            if blank:
+                nodata += 1
+            else:
+                pend += 1
             continue
         a = arms[bool(f.get("operator_ok"))]
         a[0 if oc == "real" else 1] += 1
     dec = sum(sum(v) for v in arms.values())
-    print(f"\n📊 المقام: محسوم {dec} · معلّق {pend} (مُستبعَدٌ بنصّ §②)")
+    print(f"\n📊 المقام: محسوم {dec} · معلّق {pend} · تعذّر الجلب {nodata} "
+          f"(الاثنان مُستبعَدان بنصّ §②)")
     rows = []
     for ok in (True, False):
         r, f_ = arms[ok]
