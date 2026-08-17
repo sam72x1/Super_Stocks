@@ -7418,7 +7418,9 @@
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 0.781,
-   "live_alert": {},
+   "live_alert": {
+    "premarket": "2026-08-17"
+   },
    "spikes": [
     78.9,
     56.9,
@@ -15319,7 +15321,8 @@
    ],
    "live_alert": {
     "buyzone": "2026-08-14",
-    "breakout": "2026-08-14"
+    "breakout": "2026-08-14",
+    "premarket": "2026-08-17"
    },
    "spikes": [
     122.4,
