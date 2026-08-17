@@ -2716,6 +2716,40 @@ check("🔒 قرار المالك: قسم اليد و«متابعة لمركزك
       "👀 متابعة" in S.build_hand_section(_wl_hw)
       and "GONE" in S.build_position_watch_section(
           [_pw_stock("GONE", "exited", 1.9, 1.7)]))
+# ═════ 🔄 CARRY — «خرج من النموذج» لا يُوسَم «جاهز للدخول» (مسكةُ المالك 08-16)
+#    أربعُ صورٍ أظهرت `CLIK`/`BBLG`/`FTCI`/`FEMY`/`CVKD` **«🟢 جاهز للدخول»** في
+#    قسم اليد و**«⚠️ خرج من النموذج»** في رسالة القائمة **في اللحظة نفسِها**.
+#    والمقيسُ على القائمة الحيّة: **20 من 44 نشطًا وسمُها `exited`**.
+_cy_base = dict(_wl_hs["stocks"][0],
+                interp={"entry_mode": {"mode": "near_support"}})
+_cy_msg = lambda cs: S.build_hand_section(          # noqa: E731
+    {"stocks": [dict(_cy_base, cont_status=cs)]})
+check("🔄 CARRY1 `exited` **لا يُوسَم جاهزًا** ولو كان سعرُه عند الدعم — بل "
+      "«خرج من النموذج — متابعةٌ لمركزك» · و`continues` «محمولٌ لمركزك»",
+      "جاهز للدخول" not in _cy_msg("exited")
+      and "خرج من النموذج" in _cy_msg("exited")
+      and "جاهز للدخول" not in _cy_msg("continues")
+      and "محمولٌ لمركزك" in _cy_msg("continues"),
+      _cy_msg("exited")[-70:])
+check("🔄 CARRY1ب **والمرشّحُ يبقى كما كان** (‏`renewed`/`None` ⇒ جاهز) — فالإصلاحُ "
+      "مشروطٌ لا كتمٌ عامّ · والحالتان تفترقان",
+      "🟢 جاهز للدخول" in _cy_msg(None)
+      and "🟢 جاهز للدخول" in _cy_msg("renewed")
+      and _cy_msg(None) != _cy_msg("exited"))
+check("🔄 CARRY2 الترويسةُ **تفصل المقامَين** (مرشّحٌ مقابل محمولٍ لمركزك) — جوابُ "
+      "«كمية عشوائية ومب موجودة في الرسالة الأولى»",
+      "1 مرشّحًا" in _cy_msg(None) and "0 محمولًا" in _cy_msg(None)
+      and "0 مرشّحًا" in _cy_msg("exited") and "1 محمولًا" in _cy_msg("exited"))
+check("🔄 CARRY3 `carry_tag` **مُصدَرٌ واحد** يُنادى من قسم اليد (‏AST) — فلا "
+      "يتفرّق الوسمُ بين رسالتين تصلان معًا",
+      any(getattr(_c.func, "id", None) == "carry_tag"
+          for _c in _ast0.walk(_ast0.parse(
+              _insp0.getsource(S.build_hand_section).lstrip()))
+          if isinstance(_c, _ast0.Call)))
+check("🔄 CARRY4 نقيّةٌ وفاشلةٌ-آمنة: التالفُ/الغائبُ ⇒ مرشّحٌ (فائدةُ الشك) — "
+      "فلا يُكتَم سهمٌ على نقصِ حقل",
+      S.carry_tag({}) == ("", True) and S.carry_tag(None) == ("", True)
+      and S.carry_tag({"cont_status": "شيءٌ آخر"}) == ("", True))
 check("🕵️قسم: لا أسهم يد ⇒ قسم فارغ (لا ترويسة معلّقة)",
       S.build_hand_section({"stocks": [
           {"symbol": "X", "status": "active", "behav": {}}]}) == "")
@@ -5763,9 +5797,20 @@ check("🕵️ شورت رئيسي: بلا متاح CE ⇒ يسقط للحجم �
       S._short_headline({"fintel": {"short_volume": 800}}) == "شورت 800"
       and S._short_headline({"finra_short": 2000}) == "شورت 2K"
       and S._short_headline({"short": 900}) == "شورت 900")
-check("🕵️ شورت رئيسي: بلا حجم ⇒ نسبة من الفلوت ثم «—»",
-      S._short_headline({"short_pct": 12.5}) == "شورت 12.5% من الفلوت"
-      and S._short_headline({}) == "شورت —")
+# 🔴 **إقرارٌ مؤرَّخ (2026-08-16، مسكةُ المالك «الشورت غلط»):** القفلُ كان يثبّت
+#    النصَّ **الصامت** «شورت 12.5% من الفلوت» — والصمتُ هو العيب: `PSIG` عندنا
+#    ‏1.1% من فلوتٍ 7.79م (‏≈85,600) وChartExchange **‏30,000 متاحًا** ⇒ مقياسان
+#    تحت كلمةٍ واحدة. **يُشدَّد لا يُرخى**: الرقمُ كما هو **ويُصرَّح بتبدّل
+#    المقياس**، والقفلُ يشترط التصريحَ ويمنع عودةَ الصمت.
+check("🕵️ شورت رئيسي: بلا حجم ⇒ نسبةٌ من الفلوت **مع التصريح بتبدّل المقياس** "
+      "ثم «—»",
+      S._short_headline({"short_pct": 12.5}).startswith("شورت 12.5% من الفلوت")
+      and "ChartExchange" in S._short_headline({"short_pct": 12.5})
+      and "تعذّر" in S._short_headline({"short_pct": 12.5})
+      and S._short_headline({}) == "شورت —"
+      # 🔒 والمرجعُ الأوّل حين يتوفّر **بلا أيّ تصريح** (فالتصريحُ للسقوط وحدَه)
+      and S._short_headline({"shares_available": 30_000}) == "شورت 30K",
+      S._short_headline({"short_pct": 12.5}))
 check("🕵️ شورت رئيسي: متاح صفر (ELAB) قيمة صحيحة تُعرض لا تُتخطّى",
       S._short_headline({"shares_available": 0, "finra_short": 800})
       == "شورت 0")
