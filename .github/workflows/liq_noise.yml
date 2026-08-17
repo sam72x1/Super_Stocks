@@ -1,0 +1,35 @@
+name: LIQ Noise (🔇 مِجَسُّ ضجيج إشعارات السيولة)
+
+# 🔒 **قراءةٌ فقط**: لا كرون · لا كتابةَ حالة · لا رسالة تلغرام · لا مسَّ فرزٍ.
+#    عقدُه `liq_noise_prereg.md` مدفوعٌ **قبل أيّ رقم**. يقيس **الضجيجَ والاسترجاعَ**
+#    لثمانية أذرعٍ على جلسةٍ حيّة — ولا يغيّر عتبةً ولا يُرسل إشعارًا.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1: إصدارٌ واحد لكلّ الـworkflows
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔇 قِس الضجيج (‏V0-V7)
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        # ⛔ **بلا `continue-on-error`**: خروجُ 3 = سقوطُ `LOCK-V4` (المقياسُ تفرّق
+        #    عن الإنتاج) وخروجُ 2 = تعذّرُ بياناتٍ — وكلاهما **يجب أن يُحمَّر**
+        #    فلا يُقرأ صمتُه نجاحًا (درسُ «الصفرُ عطبُ أداةٍ حتى يُنفى»).
+        run: python liq_noise_probe.py

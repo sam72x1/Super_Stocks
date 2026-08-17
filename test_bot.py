@@ -20309,6 +20309,93 @@ check("🔴 LS15 **تأكيدُ المضارب على الناجين وحدهم*
       > _insp0.getsource(S.scan_liq_stages).find("ThreadPoolExecutor"),
       str(_lsq_res))
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 🔇 NZ1-NZ7 — **مِجَسُّ الضجيج LIQ-NOISE** (عقدُ `liq_noise_prereg.md`)
+#    أمرُ المالك «سو عصف ذهني … بعد ما تسوي مجموعة اختبارات و تجارب علي الفكرة».
+#    🔑 والأخطرُ فيه أن يتفرّق **مقياسُ المِجَسّ** عن الإنتاج فتُقرأ أرقامُ الأذرع
+#    على آلةٍ أخرى ⇒ `NZ2` يقفل التطابقَ **بت-بت** ويجري داخل السويّة لا في
+#    التشغيل وحده (فتفرّقٌ يُدخِله ريفاكتورٌ قادمٌ يسقط **هنا** لا بعد أسبوع).
+# ═══════════════════════════════════════════════════════════════════════════
+import liq_noise_probe as _NZ                                      # noqa: E402
+
+check("🔇 NZ1 **الأذرعُ الثمانيةُ بأسمائها لا تُزاد بعد الأرقام** (‏`liq_noise_prereg §②`) "
+      "· ولكلٍّ وصفٌ معروض",
+      list(_NZ.ARMS) == ["V0", "V1", "V2", "V3", "V4", "V5", "V6", "V7"]
+      and set(_NZ.ARM_DESC) == set(_NZ.ARMS),
+      f"أذرع={list(_NZ.ARMS)}")
+
+_nz_ok, _nz_notes = _NZ._lock_v4()
+check("🔇 NZ2 **`V4` بت-بت مع `liq_stage_events` الإنتاجيّة** على ثلاث عيّناتٍ "
+      "**مفرِّقة** ‏+ شاهدٌ يُثبت أن العيّنة تفرّق (‏V0 أكثرُ من V4) ⇒ مقياسٌ واحدٌ "
+      "لا نسختان تتفرّقان بصمت",
+      _nz_ok, " | ".join(_nz_notes))
+
+_nz_src = open("liq_noise_probe.py", encoding="utf-8").read()
+_nz_tree = _ast0.parse(_nz_src)
+_nz_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_nz_tree)
+             if isinstance(_c, _ast0.Call)}
+_nz_writes = [_c for _c in _ast0.walk(_nz_tree) if isinstance(_c, _ast0.Call)
+              and _ast0.unparse(_c.func) == "open"
+              and any(isinstance(a, _ast0.Constant) and isinstance(a.value, str)
+                      and ("w" in a.value or "a" in a.value) for a in _c.args)]
+check("🔇 NZ3 **قياسٌ فقط**: صفرُ إرسالِ تلغرام · صفرُ كتابةِ حالة · صفرُ حفظٍ "
+      "(‏`open` بوضع كتابةٍ ممنوع) — فلا يُلوّث المِجَسُّ ما يقيسه",
+      not any(_x in _nz_calls for _x in
+              ("bot.send_telegram", "send_telegram", "bot.git_save",
+               "bot.save_op_entry_state", "bot.save_watchlist"))
+      and not _nz_writes,
+      f"كتابات={len(_nz_writes)}")
+
+check("🔇 NZ4 **خارج الجذور**: لا ينادي فارزًا ولا مُرتِّبًا ولا رادارًا",
+      not any(_x in _nz_calls for _x in
+              ("bot.rank_key", "bot.select_top", "bot.classify_tier",
+               "bot.analyze_ticker", "bot.scan_ignition", "bot.scan_market",
+               "bot.scan_split_hunter", "bot.scan_operator_entry")),
+      "—")
+
+_nz_prg = open("liq_noise_prereg.md", encoding="utf-8").read()
+check("🔇 NZ5 **ثوابتُ الحكم هي المسجَّلةُ حرفيًّا** (‏+30% للمتحرّك · أرضيةُ 5 "
+      "متحرّكين للحكم) — فلا يُحرَّك هدفٌ بعد الأرقام",
+      _NZ.MOVER_PCT == 30.0 and _NZ.MOVER_MIN_N == 5
+      and "30%" in _nz_prg and "‏5 متحرّكين" in _nz_prg,
+      f"pct={_NZ.MOVER_PCT} n={_NZ.MOVER_MIN_N}")
+
+# 🕘 NZ6 — مرجعُ المتحرّك **الجلسةُ النظاميّة** لا البريماركت. عيّنتان **تفرّقان**:
+#    شموعٌ كلُّها قبل الجرس ⇒ `None` (ويُعَدّ لا يُخمَّن) · وشموعٌ داخل الجلسة ⇒ مرجع.
+def _nz_bars(hour_utc, n=8, hi=None):
+    import datetime as _d
+    _t0 = int(_d.datetime(2026, 8, 17, hour_utc, 0,
+                          tzinfo=_d.timezone.utc).timestamp() * 1000)
+    _out = []
+    for _i in range(n):
+        _h = (hi if (hi and _i == n - 1) else 1.05)
+        _out.append({"t": _t0 + _i * 60_000, "o": 1.0, "h": _h, "l": 0.99,
+                     "c": 1.0, "v": 500})
+    return _out
+
+
+_nz_pre = _NZ.session_ref(_nz_bars(11))          # 07:00 نيويورك = بريماركت
+_nz_reg = _NZ.session_ref(_nz_bars(14, 8, 1.5))  # 10:00 نيويورك = الجلسة
+check("🕘 NZ6 **مرجعُ «المتحرّك» الجلسةُ النظاميّة وحدها**: بريماركتٌ خالصٌ ⇒ `None` "
+      "(يُستبعَد ويُعَدّ) · وداخلُ الجلسة ⇒ مرجعٌ بنسبةِ صعودٍ محسوبة",
+      _nz_pre is None and isinstance(_nz_reg, dict)
+      and _nz_reg["rise_pct"] == 50.0 and _nz_reg["high_i"] == 7,
+      f"pre={_nz_pre} reg={_nz_reg}")
+
+# 🐞 **وعيّنةُ NZ7 يجب أن تُنتج أحداثًا فعلًا** — أوّلُ صياغةٍ لي كانت شموعًا
+#    متساويةَ الحجم ⇒ صفرُ حدث ⇒ `max(..., default=…)` يمرّ **على قائمةٍ فارغة**
+#    = قفلٌ يحرس لا شيء (درسُ «القفلُ لا يحرس إلّا بقدر ما تُفرِّق عيّنتُه»).
+_nz_rb = _nz_bars(14, 12)
+for _i in (8, 9, 10):                 # قفزةُ حجمٍ ‏+ سيولةٌ فوق الأرضية
+    _nz_rb[_i].update({"v": 40_000, "h": 1.30, "c": 1.29, "l": 1.0})
+_nz_rp = _NZ.replay(_nz_rb, _NZ.ARMS["V0"])
+_nz_ks = [_k for _k, _e in _nz_rp]
+check("▶️ NZ7 **الإعادةُ دقيقةٌ مكتملةٌ في كلّ خطوة** كما يرى الحيُّ: الأحداثُ "
+      "موجودةٌ فعلًا · وأقصى فهرسٍ مرصودٍ لا يتجاوز `len(bars)-2` (المتكوّنةُ "
+      "مُسقَطةٌ دائمًا فيستحيل قياسٌ على شمعةٍ لم تُغلَق)",
+      len(_nz_rp) >= 2 and max(_nz_ks) == 12 - 2 and min(_nz_ks) >= 1,
+      f"أحداث={len(_nz_rp)} · فهارس={_nz_ks}")
+
 _ls_oel = open("operator_entry_live.py", encoding="utf-8").read()
 _ls_oel_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_ast0.parse(_ls_oel))
                  if isinstance(_c, _ast0.Call)}
