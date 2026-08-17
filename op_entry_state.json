@@ -1,4 +1,616 @@
 {
  "SNYR": "2026-08-17",
- "HAO": "2026-08-17"
+ "HAO": "2026-08-17",
+ "LIQ:NWGL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:LFS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CCHH": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HUIZ": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CODX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MSS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:YAAS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SPHL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PLCE": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HAO": {
+  "anchor_ms": 1787003400000,
+  "last_ms": 1787003340000,
+  "sent": [
+   "M1"
+  ],
+  "updates": 0,
+  "vol_x": 8.7,
+  "peak_usd": 74739,
+  "early": true,
+  "date": "2026-08-17"
+ },
+ "LIQ:FTCI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SSM": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CISS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:KMRK": {
+  "date": "2026-08-17"
+ },
+ "LIQ:FEMY": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HODO": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MLEC": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SDOT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SNYR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MTVA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AKAN": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PDSB": {
+  "date": "2026-08-17"
+ },
+ "LIQ:LNKS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ATPC": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AGMH": {
+  "date": "2026-08-17"
+ },
+ "LIQ:TENX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:KSCP": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MIMI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RUBI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:VRAX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ONMD": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PN": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SKYQ": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CRE": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HTCO": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RCON": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SLGB": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RNAZ": {
+  "date": "2026-08-17"
+ },
+ "LIQ:UZX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:KITT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MBRX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CTNT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SGLY": {
+  "date": "2026-08-17"
+ },
+ "LIQ:YXT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SION": {
+  "date": "2026-08-17"
+ },
+ "LIQ:LBGJ": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CNTX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PCLA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:EDBL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AUUD": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SPWR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HYFM": {
+  "date": "2026-08-17"
+ },
+ "LIQ:EMPD": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SEGG": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AVAT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:JDZG": {
+  "date": "2026-08-17"
+ },
+ "LIQ:DAIC": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PLSM": {
+  "date": "2026-08-17"
+ },
+ "LIQ:INLF": {
+  "date": "2026-08-17"
+ },
+ "LIQ:LZMH": {
+  "date": "2026-08-17"
+ },
+ "LIQ:JTAI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:INHD": {
+  "date": "2026-08-17"
+ },
+ "LIQ:GNPX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:NAMM": {
+  "date": "2026-08-17"
+ },
+ "LIQ:VMD": {
+  "date": "2026-08-17"
+ },
+ "LIQ:NAUT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:VIVK": {
+  "date": "2026-08-17"
+ },
+ "LIQ:DWSN": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ZCMD": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ALAR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:FFAI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RAYA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CNET": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AIOS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:NUWE": {
+  "date": "2026-08-17"
+ },
+ "LIQ:XCH": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BTOG": {
+  "date": "2026-08-17"
+ },
+ "LIQ:OFAL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:FAMI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:GRNQ": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MB": {
+  "date": "2026-08-17"
+ },
+ "LIQ:THRY": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SMTK": {
+  "date": "2026-08-17"
+ },
+ "LIQ:VCIG": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PFSA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:NIVF": {
+  "date": "2026-08-17"
+ },
+ "LIQ:GMEX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:YMT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CVRX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:VBIO": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AKBA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RBNE": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RDGT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RETO": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HRTX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:WVE": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ABAT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BIAF": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BNKK": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ELAB": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ENSC": {
+  "date": "2026-08-17"
+ },
+ "LIQ:FUSE": {
+  "date": "2026-08-17"
+ },
+ "LIQ:FWDI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:GXAI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HXHX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:IXHL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:KPTI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:KUST": {
+  "date": "2026-08-17"
+ },
+ "LIQ:LTBR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MASK": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MNTS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:NVX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:QTEX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:REKR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:YMAT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ZSQR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:GUTS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RDHL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SNES": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AIFC": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AIHS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AIXC": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AUID": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BIYA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CHR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CIRC": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CMND": {
+  "date": "2026-08-17"
+ },
+ "LIQ:EDSA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:FLNA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:FRSX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:GOVX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HCAI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HCWB": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ILLR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:INDP": {
+  "date": "2026-08-17"
+ },
+ "LIQ:IVF": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MVST": {
+  "date": "2026-08-17"
+ },
+ "LIQ:NTCL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PARA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PBK": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PMAX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:QSI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SBFM": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SERV": {
+  "date": "2026-08-17"
+ },
+ "LIQ:TDIC": {
+  "date": "2026-08-17"
+ },
+ "LIQ:WCT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:WNW": {
+  "date": "2026-08-17"
+ },
+ "LIQ:XPON": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ACXP": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AIXI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:JZ": {
+  "date": "2026-08-17"
+ },
+ "LIQ:LGHL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SAGT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:TYGO": {
+  "date": "2026-08-17"
+ },
+ "LIQ:XOS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:AIIO": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CUPR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:EHGO": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ODD": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RENX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SBET": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SXTP": {
+  "date": "2026-08-17"
+ },
+ "LIQ:XCUR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BZAI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:DARE": {
+  "date": "2026-08-17"
+ },
+ "LIQ:GIPR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:LESL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:LX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:PWCM": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SLE": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BBLG": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CRIS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:GPRO": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MEDS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:WFF": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BAOS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ENLV": {
+  "date": "2026-08-17"
+ },
+ "LIQ:HUMA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:INV": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MVIS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:RAIN": {
+  "date": "2026-08-17"
+ },
+ "LIQ:UCAR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BCAB": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BETR": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BYND": {
+  "date": "2026-08-17"
+ },
+ "LIQ:ENGN": {
+  "date": "2026-08-17"
+ },
+ "LIQ:FGL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:FRGT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:INTS": {
+  "date": "2026-08-17"
+ },
+ "LIQ:MOBX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:OTLK": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SKYA": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SLXN": {
+  "date": "2026-08-17"
+ },
+ "LIQ:UPXI": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CHSN": {
+  "date": "2026-08-17"
+ },
+ "LIQ:CGTX": {
+  "date": "2026-08-17"
+ },
+ "LIQ:IBG": {
+  "date": "2026-08-17"
+ },
+ "LIQ:BGDE": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SLBT": {
+  "date": "2026-08-17"
+ },
+ "LIQ:SNAL": {
+  "date": "2026-08-17"
+ },
+ "LIQ:QTTB": {
+  "date": "2026-08-17"
+ }
 }
