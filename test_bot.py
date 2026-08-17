@@ -20176,17 +20176,26 @@ check("💰 LIQ9 **قراءةٌ لا اختيار**: الثلاثةُ خارج `
 _liq_mixed = S.candle_liquidity(
     [{"o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": 1000,
       "t": _liq_base + (5 + i) * 60_000} for i in range(20)])
+# 🐞 **وفجوةٌ ثالثةٌ كشفتها طفرةُ V3:** `.get(30) is None` **لا يفرّق** بين «حاضرٌ
+#    بقيمة `None`» و«محذوفٌ» ⇒ حذفُ المفتاح كان يمرّ. **والفرقُ حقيقيّ:**
+#    `liquidity_lines` تطبع «—» للحاضرِ المتعذّر، والمحذوفُ **يغيب عن العرض صامتًا**
+#    ⇒ يُشترَط **حضورُ المفاتيح الثلاثة** وأن يُصيَّر «—» في السطر (‏«تعذّرٌ يُقال»).
+_liq_mx_lines = S.liquidity_lines(_liq_mixed)
 check("💰 LIQ10 فاشلةٌ-آمنة: بلا شموعٍ/تالفٍ ⇒ `None` **ولا انهيار** · وفريمٌ بلا "
-      "بُكيتٍ مكتمل ⇒ **تعذّرٌ (`None`) لا صفر** مع بقاء الفريمَين الآخرين",
+      "بُكيتٍ مكتمل ⇒ **تعذّرٌ يُعلَن (`None` ثم «—» في العرض) لا صفرٌ ولا غيابٌ "
+      "صامت** مع بقاء الفريمَين الآخرين",
       S.candle_liquidity(None) is None and S.candle_liquidity([]) is None
       and S.candle_liquidity([{"t": 1, "c": None, "v": 1}]) is None
       and S.liquidity_verdict(None) is None
       and isinstance(_liq_mixed, dict)
+      and set((_liq_mixed.get("frames") or {})) == {1, 5, 30}
       and (_liq_mixed.get("frames") or {}).get(30) is None
       and ((_liq_mixed.get("frames") or {}).get(1) or {}).get("usd") == 1000
-      and ((_liq_mixed.get("frames") or {}).get(5) or {}).get("usd") == 5000,
+      and ((_liq_mixed.get("frames") or {}).get(5) or {}).get("usd") == 5000
+      and any("30د —" in _l for _l in _liq_mx_lines),
       str({k: (v or {}).get("usd") if isinstance(v, dict) else v
-           for k, v in ((_liq_mixed or {}).get("frames") or {}).items()}))
+           for k, v in ((_liq_mixed or {}).get("frames") or {}).items()})
+      + " · " + str(_liq_mx_lines)[:90])
 _liq_oel = open("operator_entry_live.py", encoding="utf-8").read()
 _liq_oel_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_ast0.parse(_liq_oel))
                   if isinstance(_c, _ast0.Call)}
