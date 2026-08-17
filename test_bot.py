@@ -25047,6 +25047,136 @@ check("🔒 AHM17 العتباتُ الثلاثُ مُوسَمةٌ في دفتر
 check("🔒 AHM18 `ah_missed` مخزَّنٌ في `make_watch_entry` (وإلّا فسطرُ اليوميّ ميّت)",
       '"ah_missed": r.get("ah_missed")' in _insp0.getsource(S.make_watch_entry))
 
+# ═════════════════════════════════════════════════════════════════════════════
+# 🚨🔬 MZ1-MZ9 — **مِجَسُّ M0** (عقدُ `m0_prereg.md`): هل إشعارُ ما قبل الإغلاق
+#    يستحقّ خطرَه؟ **والأقفالُ تحرس أداةَ القياس نفسَها** — فالدرسُ المقيسُ في هذا
+#    المستودع أن **عيوبَ أدواتِ القياس أكثرُ من نتائج الفرضيات**.
+# ═════════════════════════════════════════════════════════════════════════════
+import textwrap as _tw0                                            # noqa: E402
+import m0_probe as _MZ                                             # noqa: E402
+
+# 🔒 MZ1 — الأذرعُ **أربعٌ ولا خامسة** (‏`m0_prereg §④`): ذراعٌ تُضاف بعد الأرقام
+#    = `p-hacking` بعينه، وذراعٌ تُحذَف = تحريكُ هدفٍ في الاتّجاه الآخر.
+check("🚨 MZ1 **الأذرعُ أربعٌ مثبَّتةٌ ولا تُزاد بعد الأرقام** (‏E0-E3)",
+      sorted(_MZ.ARMS) == ["E0", "E1", "E2", "E3"]
+      and _MZ.ARMS["E0"].get("off") is True and _MZ.ARMS["E1"] == {}
+      and float(_MZ.ARMS["E2"]["floor_mult"]) == 2.0
+      and int(_MZ.ARMS["E3"]["min_elapsed"]) == 20,
+      str(sorted(_MZ.ARMS)))
+
+# 🔒 MZ2 — **`E1` هي المشحونُ حرفيًّا**: بوّابةُ المِجَسّ تطابق فرعَ `M0` في
+#    `liq_stage_events` على خمس عيّناتٍ **مفرِّقة** (عابرةٌ · حجمٌ · أرضيةٌ · رفعةٌ ·
+#    إغلاق). ولو تفرّقا لقاس المِجَسُّ شيئًا آخرَ **وسمّاه باسم الإنتاج**.
+_mz_e1, _mz_e1n = _MZ._lock_e1()
+check("🚨 MZ2 **`E1` تطابق فرعَ `M0` الإنتاجيَّ سلوكيًّا** (خمسُ عيّناتٍ مفرِّقة)",
+      _mz_e1, " · ".join(_mz_e1n)[:200])
+
+# 🔒 MZ3 — **الحدودُ العُلويّةُ لا تُقصي عابرًا**: الترشيحُ مُبرهَنٌ لا تقديريّ،
+#    فإقصاءُ دقيقةٍ يعني **استحالةَ** عبورها — وإلّا صار «صفرُ ارتداد» أثرَ قصٍّ.
+_mz_pr, _mz_prn = _MZ._lock_prune()
+check("🚨 MZ3 **حدودُ الترشيح عُلويّةٌ مُبرهَنة** (حارّةٌ تعبر · باردةٌ يسقط سقفُها)",
+      _mz_pr, " · ".join(_mz_prn)[:160])
+
+# 🔒 MZ4 — **مصدرُ الشموع لا يصير مسطرةً ثانية**: مفاتيحُ `day_minutes` **مطابقةٌ
+#    بالضبط** لمفاتيح `polygon_minute_bars` (لا زائدًا ولا ناقصًا) ⇒ الشكلُ واحدٌ
+#    فلا يقرأ المِجَسُّ حقلًا لا يراه الإنتاج (وهو صنفُ «المفتاحِ المتخيَّل»).
+def _mz_keys(src):
+    """🔎 مفاتيحُ **قاموسِ الشمعة** وحده (الذي يحوي `c` و`v`) — لا قواميسَ
+    الترويسة والوسائط، وإلّا سقط القفلُ على `Authorization`/`limit` وهو كودٌ سليم."""
+    out = set()
+    for d in _ast0.walk(_ast0.parse(_tw0.dedent(src))):
+        if not isinstance(d, _ast0.Dict):
+            continue
+        ks = {n.value for n in d.keys if isinstance(n, _ast0.Constant)
+              and isinstance(n.value, str)}
+        if {"c", "v"} <= ks:
+            out |= ks
+    return out
+
+
+_mz_day = _mz_keys(_insp0.getsource(_MZ.day_minutes))
+_mz_prod = _mz_keys(_insp0.getsource(S.polygon_minute_bars))
+check("🚨 MZ4 **شكلُ الشمعة واحدٌ**: مفاتيحُ `day_minutes` = مفاتيحُ الإنتاج بالضبط",
+      _mz_day == _mz_prod and "vw" in _mz_day,
+      f"مِجَسّ={sorted(_mz_day)} · إنتاج={sorted(_mz_prod)}")
+
+# 🔒 MZ5 — **قراءةٌ فقط بنيويًّا**: صفرُ كتابةِ ملفٍّ · صفرُ إرسالِ تلغرام · وصفرُ
+#    إسنادٍ إلى أيّ خاصّيّةٍ في `bot` (كنتُ سأُطفئ `LIQ_EARLY` بالتحويل — وذاك يجعل
+#    المِجَسَّ **يغيّر الإنتاجَ في التشغيلة**، فمُنِع بنيويًّا لا بالنيّة).
+_mz_src = open("m0_probe.py", encoding="utf-8").read()
+_mz_t = _ast0.parse(_mz_src)
+_mz_writes = [n for n in _ast0.walk(_mz_t) if isinstance(n, _ast0.Call)
+              and getattr(n.func, "id", None) == "open"
+              and any(isinstance(a, _ast0.Constant) and isinstance(a.value, str)
+                      and ("w" in a.value or "a" in a.value) for a in n.args)]
+_mz_tg = [n for n in _ast0.walk(_mz_t) if isinstance(n, _ast0.Call)
+          and getattr(getattr(n.func, "attr", None) and n.func, "attr", "")
+          in ("send_telegram", "save_op_entry_state", "save_near_watch",
+              "save_watchlist", "git_save")]
+_mz_asg = [n for n in _ast0.walk(_mz_t)
+           if isinstance(n, (_ast0.Assign, _ast0.AugAssign))
+           for _t2 in (n.targets if isinstance(n, _ast0.Assign) else [n.target])
+           if isinstance(_t2, _ast0.Attribute)
+           and getattr(_t2.value, "id", None) == "bot"]
+check("🚨 MZ5 **المِجَسُّ يقرأ ولا يكتب**: صفرُ كتابةِ ملفٍّ/تلغرامٍ/إسنادٍ إلى `bot`",
+      not _mz_writes and not _mz_tg and not _mz_asg,
+      f"كتابة={len(_mz_writes)} · إرسال={len(_mz_tg)} · إسناد={len(_mz_asg)}")
+
+# 🔒 MZ6 — **«الإثمار» مقياسٌ واحدٌ لا اثنان**: يُستعمَل `liq_move_probe.fruit`
+#    **بالاسم** وعتبتاه من هناك، ولا يُعرَّف في المِجَسّ ثانيةً (وإلّا صار للسهم
+#    قراءتان يقودان إلى مقارنةٍ بلا معنى بين تجربتين).
+check("🚨 MZ6 **الإثمارُ مُعادٌ حرفيًّا** من `liq_move_probe` (مقياسٌ واحد)",
+      "LM.fruit(" in _mz_src and "FRUIT_PCT" not in _mz_src.split("import")[0]
+      and not _re_opf.search(r"^FRUIT_(PCT|MIN)\s*=", _mz_src, _re_opf.M)
+      and _MZ.LM.FRUIT_PCT == 3.0 and _MZ.LM.FRUIT_MIN == 15)
+
+# 🔒 MZ7 — **الـworkflow لا يبتلع فشلًا**: بلا كرون (يدويٌّ فقط) · بلا
+#    `continue-on-error` (خروجُ 3/4/5 يجب أن يُرى أحمر) · والمفتاحُ موصولٌ فعلًا
+#    (بلاه يخرج المِجَسُّ 2 ⇒ **تشغيلةٌ خضراءُ بصفر قياس** = بصمةُ الـno-op).
+#    🐞 **وأوّلُ صياغةٍ لي سقطت على تعليقي أنا** (التعليقُ يقول «ولا
+#    `continue-on-error`» فقرأه القفلُ استعمالًا) = **الفخُّ النصّيُّ الموثَّق** ⇒
+#    صار **بنيويًّا بالـYAML** لا بالنصّ.
+_mz_yml = _qt_yaml.safe_load(open(".github/workflows/m0.yml",
+                                  encoding="utf-8").read())
+_mz_on = _mz_yml.get(True) or _mz_yml.get("on") or {}
+_mz_jobs = list((_mz_yml.get("jobs") or {}).values())
+_mz_steps = [_s for _j in _mz_jobs for _s in (_j.get("steps") or [])]
+_mz_env = {}
+for _s in _mz_steps:
+    _mz_env.update(_s.get("env") or {})
+_mz_pyv = [(_s.get("with") or {}).get("python-version") for _s in _mz_steps
+           if (_s.get("with") or {}).get("python-version")]
+check("🚨 MZ7 **`m0.yml` يدويٌّ · بلا ابتلاعِ فشل · والمفتاحُ موصول** (بنيويًّا)",
+      set(_mz_on) == {"workflow_dispatch"}
+      and all("continue-on-error" not in _s for _s in _mz_steps)
+      and all(not _j.get("continue-on-error") for _j in _mz_jobs)
+      and _mz_env.get("POLYGON_API_KEY") == "${{ secrets.POLYGON_API_KEY }}"
+      and _mz_pyv == ["3.11"],
+      f"on={sorted(map(str, _mz_on))} · py={_mz_pyv} · "
+      f"env={sorted(_mz_env)}")
+
+# 🔒 MZ8 — **`E0` صامتةٌ بنيويًّا** (الأساسُ لا يستطيع أن يُطلِق جزئيّةً): وإلّا
+#    صار الأساسُ يقيس نفسَ الذراع فيخرج «لا فرق» وهو **no-op** لا نتيجة.
+def _mzb(i, o, h, l, c, v):
+    return {"t": i * 60_000, "o": o, "h": h, "l": l, "c": c, "v": v}
+
+
+_mz_base = [_mzb(i, 1.0, 1.005, 0.995, 1.0, 500) for i in range(8)]
+_mz_form = _mzb(9, 1.00, 1.30, 1.00, 1.29, 40_000)
+_mz_cl = _mz_base + [_mzb(8, 1.0, 1.005, 0.995, 1.0, 300)]
+check("🚨 MZ8 **`E0` صامتةٌ و`E1` تُطلِق على العيّنة نفسِها** (الفرقُ حقيقيٌّ لا لفظيّ)",
+      _MZ.m0_gate(_mz_cl, _mz_form, _MZ.ARMS["E0"]) is None
+      and _MZ.m0_gate(_mz_cl, _mz_form, _MZ.ARMS["E1"]) is not None)
+
+# 🔒 MZ9 — **العقدُ حاضرٌ ولا يتبدّل**: التسجيلُ المسبق يذكر الأذرعَ الأربعَ
+#    وقاعدةَ القرار الثلاثيّةَ ومعاييرَ تغطية المضارب — فلا تُقرأ نتيجةٌ بلا عقدها.
+_mz_pre = open("m0_prereg.md", encoding="utf-8").read()
+check("🚨 MZ9 **`m0_prereg.md` يثبّت الأذرعَ وقاعدةَ القرار ومعاييرَ التغطية**",
+      all(_k in _mz_pre for _k in ("`E0`", "`E1`", "`E2`", "`E3`",
+                                  "نسبةُ الارتداد", "‏≤40%", "‏≥1.5%",
+                                  "‏3.6 نقطة", "operator_flow", "‏≥90%")),
+      f"طول={len(_mz_pre)}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
