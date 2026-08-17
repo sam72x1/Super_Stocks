@@ -488,8 +488,19 @@ def main():                                                       # noqa: C901
                      "hit": sum(1 for v in ok if v >= LM.FRUIT_PCT),
                      "pct": ((100.0 * sum(1 for v in ok if v >= LM.FRUIT_PCT)
                               / len(ok)) if ok else None)}
+        # 📌 **وصفيٌّ خارج قاعدة القرار (‏§⑤-4 يعدّ الدقائق لا الرسائل):** في
+        #    الإنتاج **أوّلُ** عبورٍ لكلّ سهمٍ يضع المِرساةَ وما بعده تحديثات ⇒
+        #    عددُ **المِرساة** هو ما يصل المالكَ فعلًا رسالةً جديدة. يُنشَر ولا
+        #    يُبنى عليه حكم (لم يُسجَّل مسبقًا).
+        first = {}
+        for _s2, _r2 in per.items():
+            ab = sorted([x for x in _r2 if x["cls"] in ("A", "B")],
+                        key=lambda z: z["i"])
+            if ab:
+                first[_s2] = ab[0]["cls"]
         res[an] = {"A": A, "B": B, "C": C, "rev": rev, "per": per,
-                   "sec": _med(secs_saved), "px": _med(px_gain), "fruit": fr}
+                   "sec": _med(secs_saved), "px": _med(px_gain), "fruit": fr,
+                   "first": first}
 
     print("\n" + "=" * 72)
     print("① التصنيفُ الثلاثيُّ ونسبةُ الارتداد (‏§③/§⑤)")
@@ -509,6 +520,16 @@ def main():                                                       # noqa: C901
               f"{fas:>7} | {fbs:>7}")
     print("\n  " + " · ".join(f"{k}: {v}" for k, v in ARM_DESC.items()))
     print("  ⚖️ `A` مكسبٌ خالص · `B` **الخطرُ الجديد كلُّه** · `C` لا يُضيف شيئًا.")
+    print("\n  📌 **وصفيٌّ خارج الحكم — مِرساةُ كلّ سهم** (أوّلُ عبورٍ يضع المِرساةَ "
+          "وما بعده تحديثات ⇒ هذي هي الرسائلُ الجديدة فعلًا):")
+    for an in ARMS:
+        fst = res[an].get("first") or {}
+        na = sum(1 for v in fst.values() if v == "A")
+        nb = sum(1 for v in fst.values() if v == "B")
+        tot = na + nb
+        print(f"   • {an}: أسهمٌ تُطلِق {tot} — مِرساتُها `A` {na} · "
+              f"`B` {nb}" + (f" ⇒ **{100.0 * nb / tot:.0f}% من المراسي ارتداد**"
+                             if tot else ""))
 
     print("\n" + "=" * 72)
     print("② كلُّ دقيقةٍ مصنَّفةٍ تحت `E1` — بأسمائها لا مجمَّعةً")
@@ -576,6 +597,7 @@ def main():                                                       # noqa: C901
     covs = {c: [] for c in OP_CAPS}
     lats = {c: [] for c in OP_CAPS}
     flips, ns, prop_cap = 0, [], int(bot.LIQ_OPERATOR_TRADES)
+    mutes = {c: 0 for c in OP_CAPS}
     print("  سهم | دقيقة | صفقاتُ الدقيقة | " +
           " | ".join(f"تغطية {c:,}" for c in OP_CAPS) + " | حكمٌ يتغيّر؟")
     for x in smp:
@@ -601,7 +623,12 @@ def main():                                                       # noqa: C901
         known = [v for v in vs.values() if v is not None]
         flip = bool(known) and (any(known) != all(known))
         # 🔴 «يقلب حكمًا إلى الكتم» بنصّ §⑦-4: الأضيقُ (‏250) يقول «مضاربٌ حاضر»
-        #    والسقفُ **المقترح** يقول «غائب» ⇒ الرفعُ شدَّ الكتمَ وهو ما يمنعه العقد.
+        #    والسقفُ الأوسعُ يقول «غائب» ⇒ الرفعُ شدَّ الكتمَ وهو ما يمنعه العقد.
+        # 🔒 ويُقاس **لكلّ سقفٍ مرشَّح** لا للمشحون وحده: §⑦-2 يُعدِّد أربعةَ سقوف،
+        #    فلا يُختار أحدُها ومعيارُه الرابع غيرُ مقيسٍ عليه.
+        for cap in OP_CAPS:
+            if bool(vs.get(250)) and (vs.get(cap) is False):
+                mutes[cap] = mutes.get(cap, 0) + 1
         mute = bool(vs.get(250)) and (vs.get(prop_cap) is False)
         flips += 1 if mute else 0
         print(f"  ${s:<6} | {i:>5} | {n:>13,} | " + " | ".join(line) +
@@ -614,22 +641,36 @@ def main():                                                       # noqa: C901
                   f"**{(0 if mc is None else mc):.0f}%** · كلفةٌ "
                   f"{('—' if ml is None else f'{ml:.2f}ث')}")
         m250 = _med(covs[250]) or 0.0
-        prop = prop_cap
-        mprop = _med(covs.get(prop) or [])
         c1 = m250 < 50.0
-        c2 = mprop is not None and mprop >= 90.0
-        c3 = (_med(lats.get(prop) or []) or 99.0) <= 3.0
-        c4 = flips == 0
-        print(f"\n  🔎 معاييرُ §⑦ للسقف المشحون ({prop:,}):")
-        print(f"   ① ‏250 يغطّي أقلَّ من النصف: {m250:.0f}% "
-              f"{'✅' if c1 else '❌'}")
-        print(f"   ② والمقترحُ يغطّي 90% فأكثر: "
-              f"{('—' if mprop is None else f'{mprop:.0f}%')} "
-              f"{'✅' if c2 else '❌'}")
-        print(f"   ③ وكلفتُه ثلاثُ ثوانٍ أو أقلّ: {'✅' if c3 else '❌'}")
-        print(f"   ④ ولا يقلب حكمًا إلى الكتم: {flips} "
-              f"{'✅' if c4 else '❌'}")
-        print(f"   ⇒ **{'✅ الرفعُ مسنودٌ بالدليل' if (c1 and c2 and c3 and c4) else '🔴 لا يُرفَع — ويُبلَّغ الرقم'}**")
+        print("\n  🔎 معاييرُ §⑦ — تُقيَّم لكلّ سقفٍ مرشَّحٍ لا للمشحون وحده:")
+        print(f"   ① ‏250 يغطّي أقلَّ من نصفِ الدقيقة وسيطًا: {m250:.0f}% "
+              f"{'✅' if c1 else '❌'} (شرطٌ عامٌّ لكلّ الأذرع)")
+        best = None
+        for cap in OP_CAPS:
+            if cap == 250:
+                continue
+            mc = _med(covs.get(cap) or [])
+            ml = _med(lats.get(cap) or [])
+            k2 = mc is not None and mc >= 90.0
+            k3 = ml is not None and ml <= 3.0
+            k4 = mutes.get(cap, 0) == 0
+            good = c1 and k2 and k3 and k4
+            if good and best is None:
+                best = cap                      # 🥇 **أصغرُ** سقفٍ يستوفي الأربعة
+            print(f"   • {cap:>6,}: تغطيةٌ "
+                  f"{('—' if mc is None else f'{mc:.0f}%')} "
+                  f"{'✅' if k2 else '❌'} · كلفةٌ "
+                  f"{('—' if ml is None else f'{ml:.2f}ث')} "
+                  f"{'✅' if k3 else '❌'} · يقلب للكتم {mutes.get(cap, 0)} "
+                  f"{'✅' if k4 else '❌'} ⇒ "
+                  f"{'✅ مسنودٌ بالدليل' if good else '🔴 لا يُعتمَد'}")
+        if best:
+            print(f"\n   ⇒ **يُرفَع إلى {best:,}** — أصغرُ سقفٍ يستوفي الأربعة "
+                  f"(والمشحونُ الآن {prop_cap:,})"
+                  + ("  ✅ **وهو المشحونُ فعلًا ⇒ لا تغيير**"
+                     if best == prop_cap else ""))
+        else:
+            print("\n   ⇒ 🔴 **لا سقفَ يستوفي الأربعة ⇒ لا يُرفَع، ويُبلَّغ الرقم**.")
     else:
         print("\n  ⛔ صفرُ إشعارٍ مقيسِ الصفقات ⇒ **لا حكمَ على التغطية**.")
 
