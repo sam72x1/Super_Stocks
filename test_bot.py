@@ -20249,12 +20249,13 @@ def _rf_liq(burst_v=200_000, burst_at=40):
     return out
 
 
-def _rf_run(liq_fn):
+def _rf_run(liq_fn, spike=(1.20, 4000)):
     """يُشغّل الرادارَ على سهمٍ واحدٍ ويرجّع (صفوف، sig) — فاشلٌ-آمنٌ لا ينهار."""
     try:
         w = {"stocks": [{"symbol": "AAA", "status": "active", "pivot": 1.0,
                          "interp": {"critical_number": {"price": 1.05}}}]}
-        r = S.scan_ignition(w, "2026-08-17", fetch_bars=lambda s: _rf_trig(),
+        r = S.scan_ignition(w, "2026-08-17",
+                            fetch_bars=lambda s: _rf_trig(spike=spike),
                             fetch_flow=lambda s: None,
                             fetch_operator=lambda s: None, fetch_liq_bars=liq_fn)
         return (r, (r[0][1] if r else None))
@@ -20272,14 +20273,25 @@ check("🔥📐 RF1 **العيبُ يُغلَق فعلًا**: الدقيقةُ �
       and S._ignition_candle_class(_rf_on_sig["usd_eff"])[0] == "operator",
       f"مطفأ={_rf_off if not isinstance(_rf_off, list) else len(_rf_off)} · "
       f"usd={(_rf_on_sig or {}).get('usd')} · eff={(_rf_on_sig or {}).get('usd_eff')}")
-_rf_small, _rf_small_sig = _rf_run(lambda s: _rf_liq(burst_v=10))
+# 🐞 **عيّنتي الأولى لم تُفرِّق (طفرة R3 نجت):** «فريماتٌ أضعف» بـ`burst_v=10` تُعطي
+#    فريمَ ثلاثين بـ**$29,013** (‏29 دقيقةً بـ$1,000) وهو **أعلى** من دقيقة الزناد
+#    ($4,800) ⇒ الرتابةُ محقّقةٌ في المسارين · **وشرطُ «أو `[]`» جعل الكتمَ يُقرأ
+#    نجاحًا** — وهو أسوأُ من عدم الاختبار. ⇒ عيّنةٌ **مفرِّقةٌ بنيويًّا**: دقيقةُ
+#    زنادٍ **قويّة** ($240,000 = مضارب) وفريماتٌ **تافهةٌ حقًّا** (كلُّ حجمٍ 10 ⇒ أقصاها
+#    ‏≈$300) ⇒ بـ`max` يمرّ بقيمة الدقيقة · وبـ`min`/بالفريمات وحدها **يُكتَم**.
+_rf_weak, _rf_weak_sig = _rf_run(
+    lambda s: [{"o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": 10,
+                "t": _liq_base + i * 60_000} for i in range(65)],
+    spike=(1.20, 200_000))
 check("🔥📐 RF2 **رتيبٌ لا يُشدِّد أبدًا**: فريماتٌ أضعفُ من الدقيقة ⇒ `usd_eff` "
       "يبقى **قيمةَ الدقيقة** (‏`max`) ⇒ الصنفُ لا ينزل درجةً ⇒ **الكتمةُ تُخفَّف "
-      "ولا تُزاد** (‏§③ من العقد)",
-      "max(" in _rf_src
-      and (_rf_small == [] or (_rf_small_sig or {}).get("usd_eff")
-           >= (_rf_small_sig or {}).get("usd", 0)),
-      f"صغير={_rf_small if not isinstance(_rf_small, list) else len(_rf_small)}")
+      "ولا تُزاد** (‏§③ من العقد) — والكتمُ **ليس** نجاحًا لهذا القفل",
+      isinstance(_rf_weak, list) and len(_rf_weak) == 1
+      and _rf_weak_sig and _rf_weak_sig.get("usd") == 240_000
+      and round(float(_rf_weak_sig.get("usd_eff"))) == 240_000,
+      f"صفوف={_rf_weak if not isinstance(_rf_weak, list) else len(_rf_weak)} · "
+      f"usd={(_rf_weak_sig or {}).get('usd')} · "
+      f"eff={(_rf_weak_sig or {}).get('usd_eff')}")
 check("🔥📐 RF3 **الزنادُ byte-identical**: `_ignition_signal` يقرأ شموعَ `fb` نفسَها "
       "(‏`bars` لا `fbl`) — والسعرُ والحجمُ و`usd` **متطابقةٌ** بالفريمات وبدونها",
       not any("fbl" in _ast0.unparse(_c) for _c in _ast0.walk(_rf_t)
