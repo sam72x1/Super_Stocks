@@ -3226,6 +3226,17 @@ def _ig_bars(prices, vols):
             for p, v in zip(prices, vols)]
 _ig_quiet = [1.95, 1.96, 1.95, 1.96, 1.97, 1.96, 1.95, 1.96, 1.97]
 _ig_fire = _ig_bars(_ig_quiet + [2.05], [100] * 9 + [500])     # حجم 5× · كسر 2.00 صاعدًا
+
+
+def _ig_live(bars):
+    """🔴 يُحاكي **ردَّ Polygon الحقيقيّ**: شمعةٌ **قيد التكوين** بعد شمعة الاشتعال.
+    فِكستشرُنا السابق كان يُسلّم شمعةً أخيرةً **مكتملة** — وهو ما **لا يفعله المزوّدُ
+    قطّ** في جلسةٍ حيّة ⇒ «فِكستشرٌ يكذب» أخفى عيبَ الشمعة الجزئية سنةً. والرادارُ
+    الآن يُسقط الأخيرةَ ويقرأ آخرَ مكتملة (أمرُ المالك 2026-08-17)."""
+    _l = bars[-1]
+    return list(bars) + [{k: v for k, v in _l.items() if k not in ("v", "t")}
+                         | {"v": max(1, int(_l["v"] // 10))}
+                         | ({"t": _l["t"] + 60} if _l.get("t") is not None else {})]
 # دالة الكشف النقية
 check("انطلاق·كشف: قفزة حجم + كسر صاعد + اتجاه صاعد ⇒ اشتعال {price,vol_x,usd}",
       S._ignition_signal(_ig_fire, 2.00) == {"price": 2.05, "vol_x": 5.0,
@@ -3250,7 +3261,8 @@ _ig_wl = {"stocks": [
      "interp": {"critical_number": {"price": 2.00}}},
     {"symbol": "QUIET", "status": "active", "pivot": 5.0,
      "interp": {"critical_number": {"price": 6.0}}}]}
-_ig_map = {"IGN": _ig_fire, "QUIET": _ig_bars([5.0] * 10, [100] * 10)}
+_ig_map = {"IGN": _ig_live(_ig_fire),
+           "QUIET": _ig_live(_ig_bars([5.0] * 10, [100] * 10))}
 _ig_op = lambda s: {"has_operator": True}   # مضارب موجود (تُختبر البوّابة مستقلةً أدناه)
 _ig_rows = S.scan_ignition(_ig_wl, "2026-07-08",
                            fetch_bars=lambda s: _ig_map.get(s),
@@ -3289,7 +3301,8 @@ def _e2_wl():   # قائمة جديدة كل مرّة (scan_ignition يضع igni
         {"symbol": "QUIET", "status": "active", "pivot": 5.0,
          "interp": {"critical_number": {"price": 6.0}}}]}
 _e2_fire_t = [dict(_b, t=1000 + _i * 60) for _i, _b in enumerate(_ig_fire)]   # + طابع t (E2 §9)
-_e2_bars = {"IGN": _e2_fire_t, "QUIET": _ig_bars([5.0] * 10, [100] * 10)}
+_e2_bars = {"IGN": _ig_live(_e2_fire_t),
+            "QUIET": _ig_live(_ig_bars([5.0] * 10, [100] * 10))}
 _e2_fb = lambda s: _e2_bars.get(s)
 import time as _time_e2
 # ثابت ms (تكافؤ حتمي: نفس القيمة كل نداء) — قديم فـprimary_executable=False (غير مفحوص هنا).
@@ -3345,13 +3358,15 @@ _e2_one = lambda: {"stocks": [{"symbol": "IGN", "status": "active", "pivot": 1.9
                                "interp": {"critical_number": {"price": 2.00}}}]}
 _e2_ev3 = []
 _r_strong = S.scan_ignition(_e2_one(), "2026-07-20",
-                            fetch_bars=lambda s: _ig_bars(_ig_quiet + [2.05], [100] * 9 + [400000]),
+                            fetch_bars=lambda s: _ig_live(
+                                _ig_bars(_ig_quiet + [2.05], [100] * 9 + [400000])),
                             fetch_operator=lambda s: None, trace=lambda e, p: _e2_ev3.append(e))
 check("🔬 E2-A §21.2 funnel: تعذّر المضارب + شمعة قوية ⇒ 08→09_FALLBACK_PASS + emitted",
       len(_r_strong) == 1 and "08_OPERATOR_UNAVAILABLE" in _e2_ev3 and "09_FALLBACK_PASS" in _e2_ev3)
 _e2_ev4 = []
 _r_grp = S.scan_ignition(_e2_one(), "2026-07-20",
-                         fetch_bars=lambda s: _ig_bars(_ig_quiet + [2.05], [100] * 9 + [1000]),
+                         fetch_bars=lambda s: _ig_live(
+                             _ig_bars(_ig_quiet + [2.05], [100] * 9 + [1000])),
                          fetch_operator=lambda s: None, trace=lambda e, p: _e2_ev4.append(e))
 check("🔬 E2-A §21.2 funnel: تعذّر المضارب + شمعة قروب ⇒ 10_FALLBACK_FAIL (يُكتَم)",
       _r_grp == [] and "10_FALLBACK_FAIL" in _e2_ev4)
@@ -4374,7 +4389,7 @@ check("🔬 E2-A §21.1: نص تنبيه Telegram متطابق مع/بدون tra
 _rec_nr = _M.IgnitionMeasurementRecorder("2026-07-20", out_root=_os.path.join(_e2_out, "noraw"))
 S.scan_ignition({"stocks": [{"symbol": "FLAT", "status": "active", "pivot": 5.0,
                              "interp": {"critical_number": {"price": 6.0}}}]},
-                "2026-07-20", fetch_bars=lambda s: _ig_bars([5.0] * 10, [100] * 10),
+                "2026-07-20", fetch_bars=lambda s: _ig_live(_ig_bars([5.0] * 10, [100] * 10)),
                 fetch_operator=_e2_fo_pass, trace=_rec_nr.trace)
 _rec_nr.finalize("normal")
 _nr_ss = {r["symbol"]: r for r in _e2_read_jsonl("noraw", "symbol_sessions.jsonl")}
@@ -4451,7 +4466,11 @@ with _gz.open(_bf_path, "rt", encoding="utf-8") as _fh:
 _bf_post = [m["t"] for m in _bf_mins if m["symbol"] == "IGN" and m["t"] > _bf_start]
 _bf_ss = {r["symbol"]: r for r in _e2_read_jsonl("bf", "symbol_sessions.jsonl")}
 check("🔬 §2b ردم بعدي: مسار الدقيقة يحوي بارات **بعد** لحظة الاشتعال للرمز المُنبَّه (+حالة backfill)",
-      _bf_n == 1 and len(_bf_post) == 3 and all(t > _bf_start for t in _bf_post)
+      # 🔴 **إقرارٌ مؤرَّخ 2026-08-17:** صارت **‏4** لا 3 — ثلاثةٌ من الردم
+      #    **وواحدةٌ هي الشمعةُ المتكوّنة** التي جُلبت ويُسقطها الزنادُ (إصلاحُ
+      #    «الشمعة الجزئية») فيصير `trigger_bar_start` أسبقَ بدقيقة. **عددٌ محدَّدٌ
+      #    لا `>=`** كي لا يُرخى القفل.
+      _bf_n == 1 and len(_bf_post) == 4 and all(t > _bf_start for t in _bf_post)
       and _bf_ss["IGN"]["backfill_status"] == "done_unverified"
       and _bf_ss["IGN"]["backfill_bars_added"] == 3 and _bf_ss["IGN"]["backfill_last_bar_ts"] is not None)
 # 🔬 P1.2: backfill_status = success فقط عند بلوغ الحدّ المتوقّع؛ partial لو قصُر؛ empty/error.
@@ -5552,6 +5571,9 @@ _op_bars = [{"o": p, "h": p * 1.01, "l": p * 0.99, "c": p, "v": v} for p, v in z
     [2.0, 2.0, 2.01, 2.0, 2.01, 2.0, 2.0, 2.01, 2.08], [3000] * 8 + [100000])]  # $208K
 _grp_bars = [{"o": p, "h": p * 1.01, "l": p * 0.99, "c": p, "v": v} for p, v in zip(
     [2.0, 2.0, 2.01, 2.0, 2.01, 2.0, 2.0, 2.01, 2.08], [1000] * 8 + [15000])]   # $31K قروب
+# 🔴 **الشمعةُ الجزئية** (2026-08-17): الرادارُ يُسقط الأخيرةَ ويقرأ آخرَ مكتملة ⇒
+#    الفِكستشرُ يُلَفّ بـ`_ig_live` **عند التعريف** ليُحاكي ردَّ Polygon الحقيقيّ.
+_op_bars, _grp_bars = _ig_live(_op_bars), _ig_live(_grp_bars)
 def _op_st(sym):
     return {"symbol": sym, "status": "active", "pivot": 1.9, "t1": 2.4, "stop": 1.6,
             "interp": {"critical_number": {"price": 2.0}}}
@@ -17435,6 +17457,9 @@ def _ig_bars(sym):
     base = [{"t": i, "o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": 100}
             for i in range(30)]
     base.append({"t": 30, "o": 1.10, "h": 1.40, "l": 1.09, "c": 1.38, "v": 5000})
+    # 🔴 شمعةٌ **قيد التكوين** بعدها — الرادارُ يُسقطها ويقرأ المشتعلةَ المكتملة
+    #    (إصلاحُ «الشمعة الجزئية» 2026-08-17؛ وهكذا يُرسل Polygon حيًّا).
+    base.append({"t": 31, "o": 1.38, "h": 1.39, "l": 1.37, "c": 1.38, "v": 40})
     return base
 
 
@@ -20118,54 +20143,128 @@ check("💰 LIQ5 عتبتا فيصل **من `CONFIG` لا مغروستان** (�
                                  if isinstance(_n, _ast0.Subscript)
                                  and isinstance(getattr(_n, "slice", None),
                                                 _ast0.Constant)})
-_liq_uni = [{"symbol": "AAA", "src": "الترشيح"},
-            {"symbol": "BBB", "src": "تحت المتابعة"},
-            {"symbol": "CCC", "src": "الارتداد"}]
-_liq_seen = {}
-_liq_rows, _liq_cov, _liq_next = S.scan_candle_liquidity(
-    _liq_uni, "2026-08-17", seen=_liq_seen,
-    fetch_bars=lambda s, minutes=65: _liq_bars(40 if s == "AAA" else None))
-_liq_rows2, _, _ = S.scan_candle_liquidity(
-    _liq_uni, "2026-08-17", seen=_liq_seen,
-    fetch_bars=lambda s, minutes=65: _liq_bars(40 if s == "AAA" else None))
-check("💰 LIQ6 المسحُ يُطلق المطابقَ وحده · ودِدوبٌ **مرّةً لكلّ سهمٍ في اليوم** "
-      "بنطاقٍ مستقلٍّ لا يمسّ ددوب «هنا الدخول»",
-      [r[0]["symbol"] for r in _liq_rows] == ["AAA"] and _liq_rows2 == []
-      and _liq_seen == {S.LIQ_STATE_PREFIX + "AAA": "2026-08-17"}
-      and S.LIQ_STATE_PREFIX + "AAA" != "AAA",
-      str(_liq_seen))
-_liq_clock = [0.0]
+# 🔓 **إقرارٌ مؤرَّخ 2026-08-17 — أمرُ المالك بعد حالة `$WFF`:** `scan_candle_liquidity`
+#    و`build_liquidity_alert` **تقاعدتا** لأن زنادَهما (رفعة 30% على بُكيتٍ **مصفوفٍ
+#    على الساعة** + عتبةٌ دولاريّة) **متأخّرٌ بنيويًّا حتى ثلاثين دقيقة** — مقيسًا:
+#    الرسالةُ وصلت والسعرُ ‏+146.53%. وحلّت محلَّهما الثلاثيّةُ المتدرّجة
+#    (`liq_stage_events`/`scan_liq_stages`/`build_liq_stage_alert`) بعقد
+#    `liq_stages_prereg.md`. ⚖️ **و`candle_liquidity`/`liquidity_verdict` باقيتان**
+#    لأنهما **قراءةُ فيصل بالعين** ويستعملهما الرادارُ لحكم الهوية.
+_ls_base = _liq_base
 
 
-def _liq_tick():
-    _liq_clock[0] += 20.0
-    return _liq_clock[0]
+def _ls_bars(n_after, quiet_v=500, burst_v=30_000, forming=True):
+    """‏20 دقيقةً هادئة ثم `n_after` دقيقةً بسيولةٍ قافزة · والأخيرةُ **قيد التكوين**."""
+    out = [{"o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": quiet_v,
+            "t": _ls_base + i * 60_000} for i in range(20)]
+    for k in range(n_after):
+        px = 1.0 + 0.10 * (k + 1)
+        out.append({"o": px, "h": px, "l": px, "c": px, "v": burst_v,
+                    "t": _ls_base + (20 + k) * 60_000})
+    if forming:
+        out.append({"o": 9, "h": 9, "l": 9, "c": 9, "v": 1,
+                    "t": _ls_base + (20 + n_after) * 60_000})
+    return out
 
 
-_liq_r3, _liq_c3, _liq_n3 = S.scan_candle_liquidity(
-    _liq_uni, "2026-08-17", seen={}, budget_sec=25, clock=_liq_tick,
-    fetch_bars=lambda s, minutes=65: _liq_bars(40))
-check("💰 LIQ7 **«بلا اي استثناء» بالعضوية لا بالحبيبة**: الميزانيةُ تقطع الدورة "
-      "**وترجّع الموضعَ التالي** ⇒ مسحٌ دائريٌّ يغطّي الكونَ كلَّه بلا إقصاء",
-      _liq_c3 == 1 and _liq_n3 == 1 and _liq_next == 0,
-      f"غُطِّي={_liq_c3} · التالي={_liq_n3} · دورةٌ كاملة={_liq_next}")
-_liq_msg = S.build_liquidity_alert(_liq_rows)
-_liq_bare = _liq_msg
-for _t in ("<b>", "</b>", "<i>", "</i>"):
-    _liq_bare = _liq_bare.replace(_t, "")
-check("💰 LIQ8 الرسالةُ تحمل الفريماتِ الثلاثةَ ونصَّ فيصل · **بلا علاماتِ مقارنة** "
-      "وبلا وسمٍ خارج القائمة البيضاء · وصفرُ صفوفٍ ⇒ **صمتٌ تامّ**",
-      S.build_liquidity_alert([]) == ""
-      and "دقيقة و5 و30" in _liq_msg and "30%" in _liq_msg
-      and "100 ألف دولار" in _liq_msg and "دخل المضارب" in _liq_msg
-      and not any(_c in _liq_bare for _c in "<>≥≤"),
-      _liq_bare[:120])
-# 🔓 **إقرارٌ مؤرَّخ 2026-08-17 — أمرُ المالك «صلّح الرادار»:** `candle_liquidity`
-#    صارت مُنادةً **داخل `scan_ignition`** (طبقةُ توقيتٍ لا اختيار) بإذنٍ صريح.
-#    والقفلُ **يشتدّ لا يُرخى**: ① جذورُ **الاختيار** الثمانيةُ تبقى خاليةً من
-#    الأربعة كلِّها ② والرادارُ يُسمح له بـ`candle_liquidity` **وحدها** —
-#    و`scan_candle_liquidity`/`build_liquidity_alert`/`liquidity_verdict` ممنوعةٌ
-#    فيه (فلا تتسرّب قناةُ الإشعار الموازية إلى مسار الرادار).
+_ls_st, _ls_seq = {}, []
+for _n in (1, 2, 3, 6, 31):
+    _e, _ls_st = S.liq_stage_events(_ls_bars(_n), _ls_st)
+    _ls_seq.append([(x["stage"], x["usd"], x["minutes"]) for x in _e])
+check("⏫ LS1 **التدرّجُ بنصّ المالك**: `M1` فورًا عند أوّل دقيقةٍ قافزة · ثم `Mu` "
+      "بكلّ دقيقة · ثم `M5` عند الخمس · و`M30` عند الثلاثين — **ولا يتقدّم أحدُها "
+      "على وقته**",
+      [x[0][0] for x in _ls_seq] == ["M1", "Mu", "Mu", "Mu", "Mu"]
+      and _ls_seq[0] == [("M1", 33_000, 1)]
+      and ("M5", 195_000, 5) in _ls_seq[3]
+      and ("M30", 2_295_000, 30) in _ls_seq[4]
+      and len(_ls_seq[1]) == 1 and len(_ls_seq[2]) == 1,
+      str(_ls_seq)[:200])
+check("⏫ LS2 **الزنادُ رقمٌ مُعادٌ لا مخترَع**: `IGNITION_VOL_MULT` نحويًّا · "
+      "**ولا عتبةَ دولاريّةٍ في الزناد** (تبقى لحكم الهوية وحده)",
+      "IGNITION_VOL_MULT" in {_n2.slice.value for _n2 in _ast0.walk(
+          _ast0.parse(_insp0.getsource(S.liq_stage_events)))
+          if isinstance(_n2, _ast0.Subscript)
+          and _ast0.unparse(_n2.value).endswith("CONFIG")
+          and isinstance(getattr(_n2, "slice", None), _ast0.Constant)}
+      and all(_k not in _insp0.getsource(S.liq_stage_events)
+              for _k in ("IGNITION_USD_OPERATOR", "IGNITION_USD_GROUP",
+                         "OPERATOR_RIP_PCT")))
+check("⏫ LS3 **النوافذُ من المِرساة لا من بُكيتٍ مصفوفٍ على الساعة** — وهو عينُ "
+      "إصلاح `$WFF`: مِرساةُ الحدث تُخزَّن ويُقاس منها",
+      _ls_st.get("anchor_ms") == _ls_base + 20 * 60_000
+      and "anchor" in _insp0.getsource(S.liq_stage_events),
+      f"مِرساة+{(_ls_st.get('anchor_ms', _ls_base) - _ls_base) // 60000}د")
+_ls_cap_st, _ls_ups = {}, 0
+for _n in range(1, 12):
+    _e, _ls_cap_st = S.liq_stage_events(_ls_bars(_n), _ls_cap_st, update_cap=3)
+    _ls_ups += sum(1 for x in _e if x["stage"] == "Mu")
+check("⏫ LS4 **سقفُ التحديثات يحكم ويُعلَن** فلا تنقلب الميزةُ إغراقًا — و`M5`/`M30` "
+      "**لا يُقصّان بالسقف** (مرحلتان لا تحديثان)",
+      _ls_ups == 3 and "M5" in (_ls_cap_st.get("sent") or []),
+      f"تحديثات={_ls_ups} · مُرسَل={_ls_cap_st.get('sent')}")
+check("⏫ LS5 **المتكوّنةُ تُسقَط دائمًا** («بعد ما تجهز») — فآخرُ دقيقةٍ مقروءةٍ "
+      "مكتملةٌ ولا تُقرأ الشمعةُ الجزئية",
+      S.liq_stage_events(_ls_bars(1))[0][0]["usd"] == 33_000
+      and S.liq_stage_events(_ls_bars(1, forming=False))[0] == []
+      and S.liq_stage_events(_ls_bars(2, forming=False))[0][0]["usd"] == 33_000
+      and "rows[:-1]" in _insp0.getsource(S.liq_stage_events),
+      "بلا متكوّنةٍ تُسقَط الأخيرةُ فلا حدث — وهو البرهانُ لا العيب")
+_ls_flat = [{"o": 1, "h": 1, "l": 1, "c": 1, "v": 500,
+             "t": _ls_base + i * 60_000} for i in range(25)]
+check("⏫ LS6 بلا قفزةٍ ⇒ **صفرُ حدثٍ وصمتٌ تامّ** · وفاشلةٌ-آمنةٌ لا تنهار",
+      S.liq_stage_events(_ls_flat)[0] == []
+      and S.liq_stage_events(None)[0] == []
+      and S.liq_stage_events([{"t": 1}])[0] == []
+      and S.build_liq_stage_alert([]) == "")
+_ls_uni = [{"symbol": f"S{i}", "src": "تحت المتابعة"} for i in range(12)]
+_ls_seen = {}
+_ls_rows, _ls_cov, _ls_sec = S.scan_liq_stages(
+    _ls_uni, "2026-08-17", seen=_ls_seen, workers=4,
+    fetch_bars=lambda s, minutes=65: _ls_bars(1) if s in ("S1", "S7") else _ls_flat)
+check("⏫ LS7 **المسحُ متزامنٌ ويغطّي الكونَ كلَّه في دورةٍ واحدة** (وعدُ الدقيقة) · "
+      "ويرجّع المطابقَ وحده · والتغطيةُ **تُرجَع** فتُطبَع ولا تُخفى",
+      [r[0]["symbol"] for r in _ls_rows] == ["S1", "S7"] and _ls_cov == 12
+      and isinstance(_ls_sec, float)
+      and "ThreadPoolExecutor" in _insp0.getsource(S.scan_liq_stages),
+      f"صفوف={[r[0]['symbol'] for r in _ls_rows]} · تغطية={_ls_cov}")
+check("⏫ LS8 **الحالةُ قاموسٌ بنطاق `LIQ:`** (لا ملفَّ حالةٍ جديد) · والقديمُ نصًّا "
+      "**يُطرَح ذاتيًّا** · ويومٌ جديدٌ يبدأ من الصفر",
+      isinstance(_ls_seen.get("LIQ:S1"), dict)
+      and _ls_seen["LIQ:S1"]["date"] == "2026-08-17"
+      and _ls_seen["LIQ:S1"]["sent"] == ["M1"]
+      and S.scan_liq_stages(_ls_uni[:2], "2026-08-18",
+                            seen={"LIQ:S1": "2026-08-17"}, workers=2,
+                            fetch_bars=lambda s, minutes=65: _ls_bars(1)
+                            )[0][0][1][0]["stage"] == "M1",
+      str(_ls_seen.get("LIQ:S1"))[:110])
+_ls_msg = S.build_liq_stage_alert([({"symbol": "WFF", "src": "تحت المتابعة"},
+                                    S.liq_stage_events(_ls_bars(1))[0])])
+_ls_bare = _ls_msg
+for _t2 in ("<b>", "</b>", "<i>", "</i>"):
+    _ls_bare = _ls_bare.replace(_t2, "")
+check("⏫ LS9 الرسالةُ **تفصل «دخلت سيولة» عن «دخل المضارب»** فلا يُخلَط النصّان · "
+      "وتطبع السيولةَ والسعرَ وقفزةَ الحجم · وبلا علاماتِ مقارنة",
+      "دخلت سيولة الآن" in _ls_msg and "حكمُ الهوية بعتبات فيصل" in _ls_msg
+      and "$33,000" in _ls_msg and "60×" in _ls_msg
+      and "ليست" in _ls_msg
+      and not any(_c in _ls_bare for _c in "<>≥≤"), _ls_bare[:110])
+_ls_oel = open("operator_entry_live.py", encoding="utf-8").read()
+_ls_oel_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_ast0.parse(_ls_oel))
+                 if isinstance(_c, _ast0.Call)}
+check("⏫ LS10 **موصولٌ من نقطة النداء الحيّة** (‏AST) · والكونُ **بلا سقف** · "
+      "والحالةُ **تُرجَع كما كانت** عند رفض تيليجرام (لا كتمَ صامتٌ ولا ختمٌ كاذب)",
+      {"bot.scan_liq_stages", "bot.build_liq_stage_alert"} <= _ls_oel_calls
+      and "cap=10 ** 9" in _ls_oel and "_snap = dict(seen)" in _ls_oel
+      and "seen[_k] = _snap[_k]" in _ls_oel
+      and "scan_candle_liquidity" not in _ls_oel,
+      f"نداءات؟{'bot.scan_liq_stages' in _ls_oel_calls}")
+
+# 🔓 **إقرارٌ مؤرَّخ 2026-08-17 (أمرا المالك «صلّح الرادار» ثم «صلّح الشمعة
+#    الجزئية»):** `candle_liquidity` مُنادةٌ **داخل `scan_ignition`** (طبقةُ توقيتٍ
+#    لا اختيار) بإذنٍ صريح — والقفلُ **يشتدّ لا يُرخى**: جذورُ **الاختيار** الثمانيةُ
+#    تبقى خاليةً من الخمسة كلِّها · والرادارُ يُسمح له بـ`candle_liquidity` **وحدها**
+#    فلا تتسرّب إليه قناةُ الإشعار المتدرّجة.
 _liq_sel_roots = (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
                   S.analyze_ticker, S.scan_market, S.backtest_symbol,
                   S.scan_operator_entry)
@@ -20176,10 +20275,11 @@ check("💰 LIQ9 **قراءةٌ لا اختيار**: الأربعةُ خارج �
       all(_n not in _insp0.getsource(_f)
           for _f in _liq_sel_roots
           for _n in ("candle_liquidity", "liquidity_verdict",
-                     "scan_candle_liquidity", "build_liquidity_alert"))
+                     "scan_liq_stages", "build_liq_stage_alert",
+                     "liq_stage_events"))
       and "candle_liquidity(" in _liq_rad
-      and all(_n not in _liq_rad for _n in ("scan_candle_liquidity",
-                                            "build_liquidity_alert",
+      and all(_n not in _liq_rad for _n in ("scan_liq_stages",
+                                            "build_liq_stage_alert",
                                             "liquidity_verdict")))
 # 🐞 **عيّنتي الأولى لم تكن تُفرِّق (طفرة Q11 نجت):** بشمعةٍ واحدة **كلُّ** الفريمات
 #    بلا بُكيتٍ مكتمل ⇒ `usds` فارغة ⇒ الدالّةُ ترجع `None` كاملةً ⇒ نفسُ الجواب مع
@@ -20208,18 +20308,9 @@ check("💰 LIQ10 فاشلةٌ-آمنة: بلا شموعٍ/تالفٍ ⇒ `None`
       str({k: (v or {}).get("usd") if isinstance(v, dict) else v
            for k, v in ((_liq_mixed or {}).get("frames") or {}).items()})
       + " · " + str(_liq_mx_lines)[:90])
-_liq_oel = open("operator_entry_live.py", encoding="utf-8").read()
-_liq_oel_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_ast0.parse(_liq_oel))
-                  if isinstance(_c, _ast0.Call)}
-check("💰 LIQ11 **موصولٌ من نقطة النداء الحيّة** (‏AST) · والكونُ **بلا سقف** "
-      "(‏`cap=`) · والختمُ **بعد** الإرسال ويُنزَع عند الرفض",
-      {"bot.scan_candle_liquidity", "bot.build_liquidity_alert"} <= _liq_oel_calls
-      and "cap=10 ** 9" in _liq_oel
-      and _liq_oel.find("bot.build_liquidity_alert") < _liq_oel.find(
-          "seen.pop(bot.LIQ_STATE_PREFIX")
-      and "bot.LIQ_STATE_PREFIX" in _liq_oel,
-      f"نداءات؟{'bot.scan_candle_liquidity' in _liq_oel_calls}")
-
+# 🪦 **`LIQ11` متقاعدٌ 2026-08-17:** كان يقفل وصلَ `scan_candle_liquidity` وقد
+#    تقاعدت لصالح الثلاثيّة المتدرّجة — و**`LS10` يقفل الوصلَ الجديد أشدَّ** (يشترط
+#    فوقه **إرجاعَ الحالة** عند رفض تيليجرام وغيابَ الاسم القديم).
 # ═══ 🔥📐 RF — «صلّح الرادار»: فريماتُ فيصل الثلاثة (`radar_frames_prereg.md`) ═══
 _rf_src = _insp0.getsource(S.scan_ignition)
 _rf_t = _ast0.parse(_rf_src)
@@ -20234,6 +20325,10 @@ def _rf_trig(n=30, spike_at=29, spike=(1.20, 4000)):
             px, v = spike
         out.append({"o": px, "h": px, "l": px, "c": px, "v": v,
                     "t": _liq_base + i * 60_000})
+    # 🔴 شمعةٌ **قيد التكوين** بعد شمعة الزناد — الرادارُ يُسقطها ويقرأ المكتملة
+    #    (إصلاحُ «الشمعة الجزئية» 2026-08-17، وهكذا يُرسل Polygon حيًّا).
+    out.append({"o": 1.00, "h": 1.00, "l": 1.00, "c": 1.00, "v": 50,
+                "t": _liq_base + n * 60_000})
     return out
 
 

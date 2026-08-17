@@ -12683,6 +12683,12 @@ LIQ_FRAMES = (1, 5, 30)        # faisal_verbatim — «حط فريم دقيقه 
 LIQ_WINDOW_MIN = 65            # engineering — يكفي لبُكيتَين مكتملتين من 30 دقيقة
 LIQ_BUDGET_SEC = 25            # engineering — سقفُ زمنٍ **مُعلَن** لدورة المسح
 LIQ_STATE_PREFIX = "LIQ:"      # نطاقٌ داخل ددوب «هنا الدخول» — لا ملفَّ حالةٍ جديد
+# ⏫ **التدرّجُ بنصّ المالك** (2026-08-17 · `liq_stages_prereg.md`): «اشعار مباشرة
+#    على فريم الدقيقة … مع تحديث كل دقيقة … وبعد ما نكمل 5 دقايق يجيني تنبية بقيمة
+#    سيولة 5 دقايق وهكذا». والزنادُ **`IGNITION_VOL_MULT` القائم** لا رقمٌ جديد.
+LIQ_STAGE_MINUTES = (5, 30)    # مراحلُ التجميع **من المِرساة** (بعد `M1` الفورية)
+LIQ_WORKERS = 8                # engineering — بِركةُ خيوطٍ في مسح السيولة **وحده**
+LIQ_UPDATE_CAP = 6             # engineering — سقفُ تحديثاتِ الدقيقة/سهم/يوم (مُعلَن)
 
 # ترتيبُ الأولوية **مُعلَنٌ لا ضمنيّ**: الأقربُ إلى خطّةِ دخولٍ محفوظة أوّلًا،
 # فإن قصَّ السقفُ فإنما يقصّ الأبعدَ عن التنفيذ — ويُعلَن بعددِه.
@@ -12951,81 +12957,182 @@ def liquidity_lines(cl: dict, vd: dict = None) -> list:
                             if vd.get("group") else " ⇒ بين الحدّين")))
     return out
 
+def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
+                     stages=None, update_cap: int = None):
+    """⏫💰 **الإشعارُ المتدرّجُ بنصّ المالك** — نقيّة، بلا شبكة، قابلة للاختبار.
 
-def scan_candle_liquidity(universe, today_iso: str, fetch_bars=None,
-                          seen: dict = None, start: int = 0,
-                          budget_sec: float = None, window_min: int = None,
-                          clock=None):
-    """💰 يمسح كونَ المتابعة عن **رفعةٍ بسيولةٍ** بقاعدة فيصل المركَّبة.
+    عقدُها `liq_stages_prereg.md`. أربعُ مراحل: **`M1`** أوّلُ دقيقةٍ **مكتملة**
+    قفزَ حجمُها ‏≥`IGNITION_VOL_MULT`× متوسطَ ما قبلها (**زنادٌ مُعادٌ من الرادار
+    لا رقمٌ جديد**) · **`Mu`** تحديثٌ بكلّ دقيقةٍ مكتملةٍ بعدها · **`M5`/`M30`**
+    سيولةٌ مجمَّعةٌ **من المِرساة** عند اكتمال 5 و30 دقيقة.
 
-    ⚖️ **«بلا اي استثناء» بالعضوية لا بالحبيبة** (أمرُ المالك): لا يُقصى سهمٌ من
-    الكون — لكنّ دورةً واحدةً لا تكفي 319 نداءً، فيمشي **دائريًّا** من `start`
-    بميزانيةِ زمنٍ **مُعلَنة** ويرجّع الموضعَ التالي ⇒ **كلُّ سهمٍ يُغطّى خلال
-    دوراتٍ معدودة** والتغطيةُ تُطبَع ولا تُخفى.
+    🔑 **ولماذا مِرساةٌ لا بُكيتٌ مصفوفٌ على الساعة:** لأن المالك قال «بعد ما نكمل
+    5 دقايق **من دخول السيولة الضخمة**» — والبُكيتُ المصفوف (قراءةُ فيصل بالعين في
+    `candle_liquidity`) **يتأخّر حتى ثلاثين دقيقة** وهو **عينُ العيب في `$WFF`**
+    (‏سيولةُ الدقيقة $38,859 لم تُطلِق شيئًا والسعرُ ‏+146%).
+    ⇒ **مقياسان بغرضَين معلنَين، لا واحدٌ يُدَّعى في موضعَين.**
 
-    `seen` قاموسُ ددوب «هنا الدخول» نفسُه بنطاقٍ مستقلّ (`LIQ_STATE_PREFIX`) —
-    فلا ملفَّ حالةٍ جديد ولا تعارضَ مع دِدوب الدخول (المفتاحُ الموسوم لا يساوي
-    رمزًا أبدًا). يُحدَّث هنا **ولا يُحفَظ** (الحفظُ بعد الإرسال، مسؤوليةُ المُشغِّل).
+    🔒 **الشمعةُ المتكوّنة تُسقَط دائمًا** (‏«بعد ما تجهز») — نفسُ عقد
+    `candle_liquidity`. **ولا عتبةَ دولاريّةٍ في الزناد**: عتباتُ `IGNITION_USD_*`
+    تبقى **لحكم الهوية** (مضاربٌ/قروب) ويُطبَع معه سطرًا مستقلًّا.
 
-    يرجّع `(rows, covered, next_start)`. **إشعارٌ/قياسٌ لا اختيار.**"""
+    ترجّع `(events, new_state)`؛ و`events` قائمةٌ من
+    `{"stage","usd","minutes","anchor_ms","last_ms","vol_x","price","class"}`.
+    فاشلةٌ-آمنة ⇒ `([], state)`."""
+    st = dict(state or {})
+    try:
+        vm = float(vol_mult if vol_mult is not None
+                   else CONFIG["IGNITION_VOL_MULT"])
+        cap = int(update_cap if update_cap is not None else LIQ_UPDATE_CAP)
+        stg = tuple(stages if stages is not None else LIQ_STAGE_MINUTES)
+        rows = [b for b in (bars or []) if b.get("t") is not None
+                and b.get("c") is not None and b.get("v") is not None]
+        if len(rows) < 3:
+            return ([], st)
+        rows.sort(key=lambda b: int(b["t"]))
+        closed = rows[:-1]                 # 🔒 المتكوّنةُ تُسقَط دائمًا
+        if len(closed) < 2:
+            return ([], st)
+        last = closed[-1]
+        last_ms = int(last["t"])
+
+        def _usd(b):
+            return float(b["c"]) * float(b["v"])
+
+        ev = []
+        anchor = st.get("anchor_ms")
+        if not anchor:
+            prior = [float(b["v"]) for b in closed[:-1]]
+            avg = sum(prior) / len(prior) if prior else 0.0
+            vx = (float(last["v"]) / avg) if avg > 0 else 0.0
+            if vx < vm:
+                return ([], st)
+            st = {"anchor_ms": last_ms, "last_ms": last_ms, "sent": ["M1"],
+                  "updates": 0, "vol_x": round(vx, 1)}
+            ev.append({"stage": "M1", "usd": round(_usd(last)), "minutes": 1,
+                       "anchor_ms": last_ms, "last_ms": last_ms,
+                       "vol_x": round(vx, 1), "price": round(float(last["c"]), 4),
+                       "class": _ignition_candle_class(_usd(last))})
+            return (ev, st)
+        anchor = int(anchor)
+        if last_ms > int(st.get("last_ms") or 0):
+            st["last_ms"] = last_ms
+            if int(st.get("updates") or 0) < cap:
+                st["updates"] = int(st.get("updates") or 0) + 1
+                ev.append({"stage": "Mu", "usd": round(_usd(last)),
+                           "minutes": 1, "anchor_ms": anchor, "last_ms": last_ms,
+                           "vol_x": st.get("vol_x"),
+                           "price": round(float(last["c"]), 4),
+                           "class": _ignition_candle_class(_usd(last))})
+        sent = list(st.get("sent") or [])
+        span = (last_ms - anchor) // 60_000 + 1     # دقائقُ مغطّاةٌ من المِرساة
+        for n in stg:
+            tag = f"M{int(n)}"
+            if tag in sent or span < int(n):
+                continue
+            win = [b for b in closed
+                   if anchor <= int(b["t"]) < anchor + int(n) * 60_000]
+            if not win:
+                continue
+            tot = sum(_usd(b) for b in win)
+            sent.append(tag)
+            ev.append({"stage": tag, "usd": round(tot), "minutes": len(win),
+                       "anchor_ms": anchor, "last_ms": last_ms,
+                       "vol_x": st.get("vol_x"),
+                       "price": round(float(win[-1]["c"]), 4),
+                       "class": _ignition_candle_class(tot)})
+        st["sent"] = sent
+        return (ev, st)
+    except Exception:                                            # noqa: BLE001
+        return ([], st)
+
+
+def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None,
+                    window_min: int = None, workers: int = None, clock=None):
+    """⏫💰 يمسح كونَ المتابعة **بلا استثناء** ويرجّع أحداثَ التدرّج.
+
+    ⚖️ **«بلا اي استثناء» بالعضوية *وبحبيبةِ الدقيقة***: ‏319 نداءً تسلسليًّا ‏≈96ث
+    ⇒ يستحيل الوفاءُ بوعد الدقيقة، فتُستعمل **بِركةُ خيوطٍ محدودة** (`LIQ_WORKERS`)
+    **في هذا المسح وحده** — لا تمسّ الرادارَ ولا مسحَ الدخول. **والتغطيةُ تُرجَع
+    ويطبعها المُشغِّل** فيُقرأ الإخفاقُ ولا يُخفى.
+
+    `seen` قاموسُ ددوب «هنا الدخول» نفسُه بنطاق `LIQ_STATE_PREFIX` — وقيمتُه الآن
+    **قاموسُ حالةٍ** (مِرساة/مُرسَلات/تحديثات) لا تاريخًا؛ والقديمُ (نصٌّ) **يُطرَح
+    ويُبدَأ من جديد** (ذاتيُّ الشفاء). يُحدَّث هنا **ولا يُحفَظ** (الحفظُ بعد الإرسال).
+
+    يرجّع `(rows, covered, secs)` و`rows` = [(صفُّ الكون، الأحداث)]. **إشعارٌ لا
+    اختيار.** فاشلةٌ-آمنة لكلّ سهمٍ على حدة."""
+    import concurrent.futures as _cf
     fb = fetch_bars or polygon_minute_bars
     win = int(window_min if window_min is not None else LIQ_WINDOW_MIN)
-    bud = float(budget_sec if budget_sec is not None else LIQ_BUDGET_SEC)
+    nw = max(1, int(workers if workers is not None else LIQ_WORKERS))
     tick = clock or time.time
     seen = seen if seen is not None else {}
-    uni = list(universe or [])
+    uni = [r for r in (universe or []) if r.get("symbol")]
     if not uni:
-        return ([], 0, 0)
-    t0, out, covered = tick(), [], 0
-    n = len(uni)
-    idx = int(start) % n
-    for _ in range(n):
-        if (tick() - t0) >= bud:
-            break
-        row = uni[idx]
-        idx = (idx + 1) % n
-        covered += 1
+        return ([], 0, 0.0)
+    t0 = tick()
+
+    def _one(row):
         sym = row.get("symbol")
-        if not sym or seen.get(LIQ_STATE_PREFIX + sym) == today_iso:
-            continue
         try:
             bars = fb(sym, minutes=win)
         except Exception:                                        # noqa: BLE001
-            bars = None
+            return (row, None, None)
         if not bars:
-            continue
-        cl = candle_liquidity(bars)
-        vd = liquidity_verdict(cl)
-        if not vd:
-            continue
-        seen[LIQ_STATE_PREFIX + sym] = today_iso
-        out.append((row, cl, vd))
-    return (out, covered, idx)
+            return (row, None, None)
+        cur = seen.get(LIQ_STATE_PREFIX + sym)
+        if not isinstance(cur, dict) or cur.get("date") != today_iso:
+            cur = {"date": today_iso}
+        ev, st = liq_stage_events(bars, {k: v for k, v in cur.items()
+                                        if k != "date"})
+        st["date"] = today_iso
+        return (row, ev, st)
+
+    out, covered = [], 0
+    with _cf.ThreadPoolExecutor(max_workers=nw) as pool:
+        for row, ev, st in pool.map(_one, uni):
+            covered += 1
+            if st is not None:
+                seen[LIQ_STATE_PREFIX + row["symbol"]] = st
+            if ev:
+                out.append((row, ev))
+    return (out, covered, round(float(tick() - t0), 1))
 
 
-def build_liquidity_alert(rows: list) -> str:
-    """📩 رسالةُ «‏💰 سيولةُ الشمعة — مضاربٌ أم قروب؟» بأسلوب التقرير الأسبوعيّ.
+_LIQ_STAGE_TXT = {"M1": "🚨 <b>دخلت سيولة الآن</b> — أوّلُ دقيقة",
+                  "Mu": "🔁 تحديثُ الدقيقة",
+                  "M5": "5️⃣ <b>اكتملت 5 دقائق</b> من دخول السيولة",
+                  "M30": "🕧 <b>اكتملت 30 دقيقة</b> من دخول السيولة"}
 
-    ⚖️ **تقول ما قِيس ولا تزيد:** لا وقفَ ولا هدفَ ولا توصية — الرسالةُ جوابُ
-    سؤالٍ واحدٍ سأله متابعٌ وأجابه فيصل: **مَن رفع السهم؟**"""
+
+def build_liq_stage_alert(rows: list) -> str:
+    """📩 رسالةُ التدرّج — **توقيتٌ لا توصية**، وتفصل «دخلت سيولة» عن «دخل المضارب».
+
+    ⚖️ **ولا تخلط النصّين:** الزنادُ **قفزةُ حجم** (‏`IGNITION_VOL_MULT`) وحكمُ
+    الهويّة **عتباتُ فيصل الدولاريّة** — فيُطبَعان سطرَين لا سطرًا واحدًا."""
     if not rows:
         return ""
-    lines = [f"💰 <b>سيولةُ الشمعة — مضاربٌ أم قروب؟</b> ({len(rows)})",
-             "<i>قاعدةُ فيصل: انظر الشمعةَ على فريم دقيقة و5 و30 وكم سيولتُها — "
-             "المضاربُ يشلع السهم 30% مباشرةً فوق 100 ألف دولار.</i>", ""]
-    for i, (row, cl, vd) in enumerate(rows, 1):
+    lines = ["⏫💰 <b>سيولةُ الشمعة — لحظةَ دخولها</b>",
+             "<i>قفزةُ حجمِ الدقيقة (زنادُ الرادار نفسُه) ⇒ إشعارٌ فوريّ · ثم "
+             "تحديثٌ بكلّ دقيقة · ثم مجموعُ 5 و30 دقيقة من لحظة الدخول.</i>", ""]
+    for i, (row, evs) in enumerate(rows, 1):
         if i > 1:
             lines.append(DAILY_CARD_SEP)
-        tag = ("🕵️ <b>دخل المضارب</b>" if vd.get("operator")
-               else ("⚠️ <b>رفعةُ قروب</b>" if vd.get("group")
-                     else "➖ بين الحدّين"))
         lines.append(f"<b>{i}. ${esc(row.get('symbol'))}</b> "
-                     f"· {esc(row.get('src') or '')} · {tag}")
-        for ln in liquidity_lines(cl, vd):
-            lines.append("   " + ln)
-    lines += ["", "⚠️ قراءةُ <i>مَن رفع السهم</i> لا توصيةً — والسيولةُ إغلاقُ "
-              "الدقيقة × حجمِها مجموعًا على شمعةٍ <b>مكتملة</b>.",
-              "<i>قيد الإثبات الأماميّ.</i>"]
+                     f"· {esc(row.get('src') or '')}")
+        for e in evs:
+            _k, _d = e.get("class") or ("", "")
+            lines.append("   " + _LIQ_STAGE_TXT.get(e["stage"], e["stage"]))
+            _vx = e.get("vol_x")
+            lines.append(f"      💰 سيولة {e['minutes']} دقيقة "
+                         f"${e['usd']:,} · السعر ${e['price']:.2f}"
+                         + (f" · قفزةُ حجمٍ {float(_vx):.0f}×" if _vx else ""))
+            if _d:
+                lines.append(f"      🕵️ حكمُ الهوية بعتبات فيصل: {_d}")
+    lines += ["", "⚠️ «دخلت سيولة» <b>ليست</b> «دخل المضارب» — الأولى قفزةُ حجمٍ "
+              "والثانيةُ عتبةُ فيصل الدولاريّة، وكلٌّ مطبوعٌ باسمه.",
+              "<i>إشعارُ توقيتٍ لا توصية — قيد الإثبات الأماميّ.</i>"]
     return _rtl_join(lines)
 
 
@@ -14367,6 +14474,16 @@ def scan_ignition(wl: dict, today_iso: str, fetch_bars=None, fetch_flow=None,
                 "first_bar_t": (bars[0].get("t") if bars else None),
                 "last_bar_t": (bars[-1].get("t") if bars else None),
                 "bars": bars})   # 🔬 E2 (§10): مسار الدقيقة
+        # 🔴 **الشمعةُ الجزئية** (أمرُ المالك 2026-08-17 «صلّح الشمعة الجزئية» ·
+        #    `liq_stages_prereg §④`): آخرُ شمعةٍ في ردّ Polygon **قيد التكوين**
+        #    (الحلقةُ كلَّ ‏≈45ث ⇒ عمرُها ‏≈30ث وسيطًا) ⇒ حجمُها **جزئيّ** فتشتدّ
+        #    بوّابةُ `vol_mult` بلا سبب و`usd` ينحدر نحو «قروب». ⇒ تُسقَط **دائمًا**
+        #    فيُقرأ **آخرُ مكتملة** — نفسُ عقد `candle_liquidity`.
+        #    🔒 و`_ignition_signal` **byte-identical**: القصُّ عند نقطة النداء لا فيه.
+        #    ⚠️ والكلفةُ مُعلَنة: تأخّرٌ حتى ‏60ث مقابل **صدقِ القراءة** — وقبِلها
+        #    المالكُ صريحًا لأن البديلَ قراءةٌ منقوصةٌ تكتم.
+        if bars and len(bars) > 1:
+            bars = bars[:-1]
         sig = _ignition_signal(bars, lvl, vol_mult=vm) if bars else None
         if not sig:
             continue

@@ -159,8 +159,10 @@ def main():
     _log(f"👁️ كون المتابعة: {len(uni)} سهمًا — "
          + " · ".join(f"{k}={sum(1 for r in uni if r['src'] == k)}"
                       for k in bot.LIVE_WATCH_SOURCES))
-    _log(f"💰 كونُ السيولة (**بلا استثناء**): {len(uni_all)} سهمًا · ميزانيةُ "
-         f"الدورة {bot.LIQ_BUDGET_SEC}ث · فريمات {bot.LIQ_FRAMES}")
+    _log(f"💰 كونُ السيولة (**بلا استثناء**): {len(uni_all)} سهمًا · خيوط "
+         f"{bot.LIQ_WORKERS} · زنادٌ قفزةُ حجمٍ "
+         f"{bot.CONFIG['IGNITION_VOL_MULT']}× · مراحل 1 و"
+         + " و".join(str(m) for m in bot.LIQ_STAGE_MINUTES) + " دقيقة")
     loops, fired, errs = 0, 0, 0
     liq_at, liq_cov, liq_hit = 0, 0, 0
     while (time.time() - t0) < budget * 60:
@@ -203,27 +205,34 @@ def main():
                     seen.pop(_s, None)
                 _log(f"⚠️ تيليجرام رفض «هنا الدخول» ({len(rows)}) — "
                      "نُزع الختمُ لتُعاد المحاولة.")
-        # 💰 «مضاربٌ أم قروب؟» — مسحٌ دائريٌّ على الكون **بلا استثناء** بميزانيةِ
-        #    زمنٍ مُعلَنة؛ الحكمُ مركَّبٌ (رفعة 30% + سيولة) فلا يُغرِق.
+        # ⏫💰 **التدرّجُ بنصّ المالك**: أوّلُ دقيقةٍ تدخل فيها سيولةٌ ⇒ إشعارٌ فوريّ ·
+        #    ثم تحديثٌ بكلّ دقيقة · ثم مجموعُ 5 و30 دقيقة **من لحظة الدخول**.
+        #    والمسحُ **متزامنٌ** فيغطّي الكونَ كلَّه في دورةٍ واحدة (‏319 نداءً
+        #    تسلسليًّا ‏≈96ث ⇒ يستحيل وعدُ الدقيقة).
+        _snap = dict(seen)          # لقطةٌ للرجوع عند رفض تيليجرام (لا كتمَ صامت)
         try:
             _today2 = _ny_minutes()[1]
-            lrows, lcov, liq_at = bot.scan_candle_liquidity(
-                uni_all, _today2, seen=seen, start=liq_at)
+            lrows, lcov, lsec = bot.scan_liq_stages(uni_all, _today2, seen=seen)
             liq_cov += lcov
         except Exception as e:                                   # noqa: BLE001
             errs += 1
-            lrows = []
+            lrows, lcov, lsec = [], 0, 0.0
             _log(f"⚠️ مسحُ السيولة (دورة {loops}): {e}")
+        if lcov and (loops % REFRESH_EVERY == 0 or lrows):
+            _log(f"💰 التغطية: {lcov} من {len(uni_all)} في {lsec}ث "
+                 f"(خيوط {bot.LIQ_WORKERS})")
         if lrows:
             _lsyms = [r[0]["symbol"] for r in lrows]
+            _lstg = [e["stage"] for _r, _evs in lrows for e in _evs]
             try:
                 lok = bot.send_telegram(
-                    bot.build_liquidity_alert(lrows) + "\n\n" + bot.FOOTER)
+                    bot.build_liq_stage_alert(lrows) + "\n\n" + bot.FOOTER)
             except Exception as e:                               # noqa: BLE001
                 lok, _ = False, _log(f"⚠️ إرسال «سيولة الشمعة»: {e}")
             if lok:
-                liq_hit += len(lrows)
-                _log(f"💰 {len(lrows)} رفعة: {', '.join(_lsyms)}")
+                liq_hit += len(_lstg)
+                _log(f"💰 {len(_lstg)} حدثًا: {', '.join(_lsyms)} "
+                     f"[{', '.join(_lstg)}]")
                 bot.save_op_entry_state(seen)     # الختمُ **بعد** الإرسال حصرًا
                 try:
                     bot.git_save([bot.OP_ENTRY_STATE_FILE])
@@ -231,9 +240,13 @@ def main():
                     _log(f"⚠️ دفعُ ددوب السيولة: {e}")
             else:
                 for _s in _lsyms:                # لم يصل ⇒ يُعاد في دورةٍ تالية
-                    seen.pop(bot.LIQ_STATE_PREFIX + _s, None)
+                    _k = bot.LIQ_STATE_PREFIX + _s
+                    if _k in _snap:
+                        seen[_k] = _snap[_k]
+                    else:
+                        seen.pop(_k, None)
                 _log(f"⚠️ تيليجرام رفض «سيولة الشمعة» ({len(lrows)}) — "
-                     "نُزع الختمُ لتُعاد المحاولة.")
+                     "أُرجعت الحالةُ لتُعاد المحاولة.")
         time.sleep(interval)
     _log(f"✅ انتهى [{role}]: {loops} دورة · {fired} دخولًا · {liq_hit} رفعةَ "
          f"سيولة · تغطيةُ السيولة {liq_cov} قراءةً · {errs} خطأ.")
