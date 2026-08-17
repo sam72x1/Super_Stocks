@@ -122,7 +122,10 @@ def _load_universe():
     if not isinstance(seen, dict):
         seen = bot.load_op_entry_state()
     uni, cut = bot.live_watch_universe(wl, near, press, hunter)
-    return uni, cut, seen
+    # 💰 كونُ السيولة **بلا سقف** — أمرُ المالك «لكل الأسهم اللي تحت متابعة البوت
+    #    بلا اي استثناء». والقصُّ في الكون المُسقَّف يبقى لِـ«هنا الدخول» وحده.
+    uni_all, _ = bot.live_watch_universe(wl, near, press, hunter, cap=10 ** 9)
+    return uni, cut, seen, uni_all
 
 
 def main():
@@ -149,23 +152,28 @@ def main():
         return 0
     _log(f"🎯 «هنا الدخول» [{role}]: يبدأ عند {mins // 60:02d}:{mins % 60:02d} "
          f"نيويورك · كلَّ {interval}ث · لمدّة {budget} دقيقة.")
-    uni, cut, seen = _load_universe()
+    uni, cut, seen, uni_all = _load_universe()
     if cut:
         _log(f"ℹ️ كون المتابعة: قُصّ {cut} فوق السقف {bot.LIVE_WATCH_CAP} "
              "(مُعلَن لا صامت).")
     _log(f"👁️ كون المتابعة: {len(uni)} سهمًا — "
          + " · ".join(f"{k}={sum(1 for r in uni if r['src'] == k)}"
                       for k in bot.LIVE_WATCH_SOURCES))
+    _log(f"💰 كونُ السيولة (**بلا استثناء**): {len(uni_all)} سهمًا · ميزانيةُ "
+         f"الدورة {bot.LIQ_BUDGET_SEC}ث · فريمات {bot.LIQ_FRAMES}")
     loops, fired, errs = 0, 0, 0
+    liq_at, liq_cov, liq_hit = 0, 0, 0
     while (time.time() - t0) < budget * 60:
         loops += 1
         if loops % REFRESH_EVERY == 0:
             try:
-                uni, _c, _s = _load_universe()
+                uni, _c, _s, uni_all = _load_universe()
                 for _k, _v in (_s or {}).items():
                     seen.setdefault(_k, _v)
             except Exception as e:                               # noqa: BLE001
                 _log(f"⚠️ تحديثُ الكون (دورة {loops}): {e}")
+            _log(f"💰 تغطيةُ السيولة: {liq_cov} قراءةً تراكميًّا من "
+                 f"{len(uni_all)} · الموضعُ الآن {liq_at} · {liq_hit} رفعة.")
         try:
             _today = _ny_minutes()[1]
             rows = bot.scan_operator_entry(uni, _today, seen=seen)
@@ -195,8 +203,40 @@ def main():
                     seen.pop(_s, None)
                 _log(f"⚠️ تيليجرام رفض «هنا الدخول» ({len(rows)}) — "
                      "نُزع الختمُ لتُعاد المحاولة.")
+        # 💰 «مضاربٌ أم قروب؟» — مسحٌ دائريٌّ على الكون **بلا استثناء** بميزانيةِ
+        #    زمنٍ مُعلَنة؛ الحكمُ مركَّبٌ (رفعة 30% + سيولة) فلا يُغرِق.
+        try:
+            _today2 = _ny_minutes()[1]
+            lrows, lcov, liq_at = bot.scan_candle_liquidity(
+                uni_all, _today2, seen=seen, start=liq_at)
+            liq_cov += lcov
+        except Exception as e:                                   # noqa: BLE001
+            errs += 1
+            lrows = []
+            _log(f"⚠️ مسحُ السيولة (دورة {loops}): {e}")
+        if lrows:
+            _lsyms = [r[0]["symbol"] for r in lrows]
+            try:
+                lok = bot.send_telegram(
+                    bot.build_liquidity_alert(lrows) + "\n\n" + bot.FOOTER)
+            except Exception as e:                               # noqa: BLE001
+                lok, _ = False, _log(f"⚠️ إرسال «سيولة الشمعة»: {e}")
+            if lok:
+                liq_hit += len(lrows)
+                _log(f"💰 {len(lrows)} رفعة: {', '.join(_lsyms)}")
+                bot.save_op_entry_state(seen)     # الختمُ **بعد** الإرسال حصرًا
+                try:
+                    bot.git_save([bot.OP_ENTRY_STATE_FILE])
+                except Exception as e:                           # noqa: BLE001
+                    _log(f"⚠️ دفعُ ددوب السيولة: {e}")
+            else:
+                for _s in _lsyms:                # لم يصل ⇒ يُعاد في دورةٍ تالية
+                    seen.pop(bot.LIQ_STATE_PREFIX + _s, None)
+                _log(f"⚠️ تيليجرام رفض «سيولة الشمعة» ({len(lrows)}) — "
+                     "نُزع الختمُ لتُعاد المحاولة.")
         time.sleep(interval)
-    _log(f"✅ انتهى [{role}]: {loops} دورة · {fired} دخولًا · {errs} خطأ.")
+    _log(f"✅ انتهى [{role}]: {loops} دورة · {fired} دخولًا · {liq_hit} رفعةَ "
+         f"سيولة · تغطيةُ السيولة {liq_cov} قراءةً · {errs} خطأ.")
     return 0
 
 

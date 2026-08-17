@@ -19967,6 +19967,137 @@ check("🔒 OEL10ب وموصولٌ من نقطة النداء الحيّة (AST)
           for _c in _ast0.walk(_ast0.parse(_oel_src))
           if isinstance(_c, _ast0.Call)))
 
+# ══════ 💰 LIQ — «مضاربٌ أم قروب؟» (فيصل `IMG_1066`، 2026-08-17) ══════
+_liq_base = 1_755_000_000_000 // 1_800_000 * 1_800_000     # مصفوفٌ على 30 دقيقة
+
+
+def _liq_bars(burst_i=None, burst=(1.00, 1.40, 1.35, 200_000), n=65):
+    """‏65 دقيقةً هادئةً وبُكيتُها الأخيرةُ **قيد التكوين** — والانفجارُ (إن وُجد)
+    في الدقيقة `burst_i` وحدها، فتتفرّق قراءةُ الفريمات الثلاثة **بنيويًّا**."""
+    out = []
+    for i in range(n):
+        o = h = l = c = 1.00
+        v = 1000
+        if burst_i is not None and i == burst_i:
+            o, h, c, v = burst
+            l = min(o, c)
+        out.append({"o": o, "h": h, "l": l, "c": c, "v": v,
+                    "t": _liq_base + i * 60_000})
+    return out
+
+
+_liq_cl = S.candle_liquidity(_liq_bars(40))
+_liq_f = (_liq_cl or {}).get("frames") or {}
+check("💰 LIQ1 **الفريماتُ الثلاثةُ بلفظه** (‏دقيقة و5 و30) وبُكيتاتٌ **مصفوفةٌ على "
+      "الساعة** لا «آخر N شمعة» — والانفجارُ يظهر على 30د وحدها",
+      S.LIQ_FRAMES == (1, 5, 30) and set(_liq_f) == {1, 5, 30}
+      and _liq_f[1]["usd"] == 1000 and _liq_f[5]["usd"] == 5000
+      and _liq_f[30]["usd"] == 299_000,
+      str({k: (v or {}).get("usd") for k, v in _liq_f.items()}))
+check("💰 LIQ2 **«بعد ما تجهز» بنيويًّا**: أحدثُ بُكيتٍ يُسقَط دائمًا (قيد التكوين) "
+      "⇒ شمعةُ 30د المقروءةُ تنتهي قبل آخر شمعةِ دقيقة",
+      _liq_f[30]["start_ms"] == _liq_base + 30 * 60_000
+      and _liq_f[30]["minutes"] == 30
+      and _liq_f[1]["start_ms"] == _liq_base + 63 * 60_000,
+      f"30د تبدأ {_liq_f[30]['start_ms'] - _liq_base}ms · دقيقة "
+      f"{_liq_f[1]['start_ms'] - _liq_base}ms")
+check("💰 LIQ3 **مقياسٌ واحد لا اثنان**: الصنفُ من `_ignition_candle_class` "
+      "الإنتاجيّة على **أقصى** الفريمات (‏AST) — لا عتبةٌ مكرّرة",
+      any(getattr(_c.func, "id", None) == "_ignition_candle_class"
+          for _c in _ast0.walk(_ast0.parse(_insp0.getsource(S.candle_liquidity)))
+          if isinstance(_c, _ast0.Call))
+      and (_liq_cl or {}).get("class", ("", ""))[0] == "operator"
+      and (_liq_cl or {}).get("max_usd") == 299_000)
+_liq_vd = S.liquidity_verdict(_liq_cl)
+_liq_quiet = S.liquidity_verdict(S.candle_liquidity(_liq_bars(None)))
+_liq_grp = S.liquidity_verdict(S.candle_liquidity(
+    _liq_bars(40, burst=(1.00, 1.40, 1.35, 300))))
+check("💰 LIQ4 **الحكمُ مركَّبٌ لا عتبةٌ وحدها**: رفعةٌ 30% **مع** سيولة ⇒ مضارب · "
+      "ورفعةٌ بسيولةٍ تافهة ⇒ **قروب** · وبلا رفعةٍ ⇒ `None` (لا رسالة)",
+      _liq_quiet is None and _liq_vd and _liq_vd["operator"] is True
+      and _liq_vd["frame"] == 30 and _liq_grp and _liq_grp["group"] is True
+      and _liq_grp["operator"] is False,
+      f"هادئ={_liq_quiet} · قروب={(_liq_grp or {}).get('kind')}")
+check("💰 LIQ5 عتبتا فيصل **من `CONFIG` لا مغروستان** (‏نحويًّا) — والرفعةُ 30 "
+      "والسيولةُ 100 ألف دولار",
+      S.CONFIG["OPERATOR_RIP_PCT"] == 30.0
+      and S.CONFIG["IGNITION_USD_OPERATOR"] == 100_000
+      and "OPERATOR_RIP_PCT" in {_n.slice.value for _n in
+                                 _ast0.walk(_ast0.parse(_insp0.getsource(
+                                     S.liquidity_verdict)))
+                                 if isinstance(_n, _ast0.Subscript)
+                                 and isinstance(getattr(_n, "slice", None),
+                                                _ast0.Constant)})
+_liq_uni = [{"symbol": "AAA", "src": "الترشيح"},
+            {"symbol": "BBB", "src": "تحت المتابعة"},
+            {"symbol": "CCC", "src": "الارتداد"}]
+_liq_seen = {}
+_liq_rows, _liq_cov, _liq_next = S.scan_candle_liquidity(
+    _liq_uni, "2026-08-17", seen=_liq_seen,
+    fetch_bars=lambda s, minutes=65: _liq_bars(40 if s == "AAA" else None))
+_liq_rows2, _, _ = S.scan_candle_liquidity(
+    _liq_uni, "2026-08-17", seen=_liq_seen,
+    fetch_bars=lambda s, minutes=65: _liq_bars(40 if s == "AAA" else None))
+check("💰 LIQ6 المسحُ يُطلق المطابقَ وحده · ودِدوبٌ **مرّةً لكلّ سهمٍ في اليوم** "
+      "بنطاقٍ مستقلٍّ لا يمسّ ددوب «هنا الدخول»",
+      [r[0]["symbol"] for r in _liq_rows] == ["AAA"] and _liq_rows2 == []
+      and _liq_seen == {S.LIQ_STATE_PREFIX + "AAA": "2026-08-17"}
+      and S.LIQ_STATE_PREFIX + "AAA" != "AAA",
+      str(_liq_seen))
+_liq_clock = [0.0]
+
+
+def _liq_tick():
+    _liq_clock[0] += 20.0
+    return _liq_clock[0]
+
+
+_liq_r3, _liq_c3, _liq_n3 = S.scan_candle_liquidity(
+    _liq_uni, "2026-08-17", seen={}, budget_sec=25, clock=_liq_tick,
+    fetch_bars=lambda s, minutes=65: _liq_bars(40))
+check("💰 LIQ7 **«بلا اي استثناء» بالعضوية لا بالحبيبة**: الميزانيةُ تقطع الدورة "
+      "**وترجّع الموضعَ التالي** ⇒ مسحٌ دائريٌّ يغطّي الكونَ كلَّه بلا إقصاء",
+      _liq_c3 == 1 and _liq_n3 == 1 and _liq_next == 0,
+      f"غُطِّي={_liq_c3} · التالي={_liq_n3} · دورةٌ كاملة={_liq_next}")
+_liq_msg = S.build_liquidity_alert(_liq_rows)
+_liq_bare = _liq_msg
+for _t in ("<b>", "</b>", "<i>", "</i>"):
+    _liq_bare = _liq_bare.replace(_t, "")
+check("💰 LIQ8 الرسالةُ تحمل الفريماتِ الثلاثةَ ونصَّ فيصل · **بلا علاماتِ مقارنة** "
+      "وبلا وسمٍ خارج القائمة البيضاء · وصفرُ صفوفٍ ⇒ **صمتٌ تامّ**",
+      S.build_liquidity_alert([]) == ""
+      and "دقيقة و5 و30" in _liq_msg and "30%" in _liq_msg
+      and "100 ألف دولار" in _liq_msg and "دخل المضارب" in _liq_msg
+      and not any(_c in _liq_bare for _c in "<>≥≤"),
+      _liq_bare[:120])
+check("💰 LIQ9 **قراءةٌ لا اختيار**: الثلاثةُ خارج `rank_key`/`select_top`/"
+      "`classify_tier`/`entry_status`/`analyze_ticker`/`scan_market`/"
+      "`backtest_symbol`/`scan_ignition`/`scan_operator_entry`",
+      all(_n not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+                     S.analyze_ticker, S.scan_market, S.backtest_symbol,
+                     S.scan_ignition, S.scan_operator_entry)
+          for _n in ("candle_liquidity", "liquidity_verdict",
+                     "scan_candle_liquidity", "build_liquidity_alert")))
+check("💰 LIQ10 فاشلةٌ-آمنة: بلا شموعٍ/تالفٍ ⇒ `None` **ولا انهيار** · وبُكيتٌ "
+      "واحدٌ (‏قيد التكوين) ⇒ **تعذّرٌ لا صفر**",
+      S.candle_liquidity(None) is None and S.candle_liquidity([]) is None
+      and S.candle_liquidity([{"t": 1, "c": None, "v": 1}]) is None
+      and S.liquidity_verdict(None) is None
+      and (S.candle_liquidity(_liq_bars(None, n=1)) or {}).get(
+          "frames", {}).get(30) is None)
+_liq_oel = open("operator_entry_live.py", encoding="utf-8").read()
+_liq_oel_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_ast0.parse(_liq_oel))
+                  if isinstance(_c, _ast0.Call)}
+check("💰 LIQ11 **موصولٌ من نقطة النداء الحيّة** (‏AST) · والكونُ **بلا سقف** "
+      "(‏`cap=`) · والختمُ **بعد** الإرسال ويُنزَع عند الرفض",
+      {"bot.scan_candle_liquidity", "bot.build_liquidity_alert"} <= _liq_oel_calls
+      and "cap=10 ** 9" in _liq_oel
+      and _liq_oel.find("bot.build_liquidity_alert") < _liq_oel.find(
+          "seen.pop(bot.LIQ_STATE_PREFIX")
+      and "bot.LIQ_STATE_PREFIX" in _liq_oel,
+      f"نداءات؟{'bot.scan_candle_liquidity' in _liq_oel_calls}")
+
 # 👀 OEW — سقفُ العرض بأمر المالك «وسّع العرض»
 check("👀 OEW1 سقفُ عرض «تحت المتابعة» = 40 (‏20 لكلّ سلّة) — أمرُ المالك",
       S.NEAR_WATCH_SHOW == 40)

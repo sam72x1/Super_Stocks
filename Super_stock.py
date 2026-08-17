@@ -208,6 +208,9 @@ CONFIG = {
     # 🕵️ بوّابة المضارب على التنبيهات (طلب المستخدم: «لا إشعار إلا لو دخل المضارب» —
     # قاعدة فيصل: صفقة المضارب ≥1000 سهم؛ يشتري على الطلب، يفرّغ العروض لحظة الرفع):
     "OPERATOR_MIN_SHARES": 1000,    # أقل حجم طبعة تُعدّ «مضاربًا» (فيصل — عرضية موثّقة)
+    # faisal_verbatim (‏2026-08-17، `IMG_1066`): «المضارب … يشلع السهم **30٪**
+    # مباشره فوق 100 الف دولار» ⇒ شرطُ «الرفعة» المقترنُ بعتبة `IGNITION_USD_*`.
+    "OPERATOR_RIP_PCT": 30.0,
     # 🆕 دروس مضارب جديدة (صور 2026-07-20، فحص اليد فقط · عرض/تحذير · فاشل-آمن):
     # N6 شراء الإغلاق (طبعات كبيرة محايدة التيك = سعر مساوٍ للسابق → يعمى عنها كاشف التيك
     # `_operator_blocks`) · N7 طبعات آلية دقيقة خارج NBBO. عتبات عرضية (لا فرز/ترتيب):
@@ -12669,6 +12672,18 @@ LIVE_WATCH_PRESS_DAYS = 5      # engineering — حداثةُ تنبيه راد�
 OP_ENTRY_WINDOW_MIN = 390      # دقائقُ الجلسة (نفسُ ما يمرّره المراقب اليوم)
 OP_ENTRY_STATE_FILE = "op_entry_state.json"   # دِدوب: مرّةٌ لكلّ سهمٍ في اليوم
 
+# ══════════ 💰 سيولةُ الشمعة — «مضاربٌ أم قروب؟» (فيصل 2026-08-17) ══════════
+# نصُّه حرفيًّا جوابًا على «كيف اتاكد من دخول المضارب … إذا اللي رفعت قروب ولا
+# مضارب»: «شف شمعة اي سهم الان طالع 100٪ · **حط فريم دقيقه و 5 و 30** · اضغط ع
+# الشمعه مطوله ع كل فريم شف كم السيوله · المضارب ماعنده دنفسه يشلع السهم **30٪**
+# مباشره **فوق 100 الف دولار**» (‏`faisal_images/IMG_1066.png`).
+# ⚠️ **وكلمةُ «ماعنده دنفسه» غيرُ محسومةٍ لغويًّا عندي** فلا أبني عليها؛ والمبنيُّ
+# هو الأرقامُ الصريحة: الفريماتُ الثلاثة · سيولةُ الشمعة · 30% · فوق 100 ألف دولار.
+LIQ_FRAMES = (1, 5, 30)        # faisal_verbatim — «حط فريم دقيقه و 5 و 30»
+LIQ_WINDOW_MIN = 65            # engineering — يكفي لبُكيتَين مكتملتين من 30 دقيقة
+LIQ_BUDGET_SEC = 25            # engineering — سقفُ زمنٍ **مُعلَن** لدورة المسح
+LIQ_STATE_PREFIX = "LIQ:"      # نطاقٌ داخل ددوب «هنا الدخول» — لا ملفَّ حالةٍ جديد
+
 # ترتيبُ الأولوية **مُعلَنٌ لا ضمنيّ**: الأقربُ إلى خطّةِ دخولٍ محفوظة أوّلًا،
 # فإن قصَّ السقفُ فإنما يقصّ الأبعدَ عن التنفيذ — ويُعلَن بعددِه.
 LIVE_WATCH_SOURCES = ("الارتداد", "الترشيح", "رادار الضغط",
@@ -12822,6 +12837,195 @@ def build_operator_entry_alert(rows: list) -> str:
               "الصورةُ لا تنصّ على وقفٍ لهذي الوصفة، والمعروضُ أعلاه قاعُ "
               "الحركة لا وقفَ الارتكاز.",
               "⚠️ إشعارُ توقيتٍ لا توصية — <i>قيد الإثبات الأماميّ</i>."]
+    return _rtl_join(lines)
+
+
+def candle_liquidity(bars: list, frames=None):
+    """💰 **سيولةُ الشمعة على فريمات فيصل الثلاثة** — نقيّة، بلا شبكة.
+
+    نصُّه (‏`IMG_1066`، 2026-08-17): «حط فريم دقيقه و 5 و 30 · اضغط ع الشمعه
+    مطوله ع كل فريم **شف كم السيوله**». فتُجمَّع شموعُ الدقيقة إلى بُكيتات
+    **مصفوفةٍ على الساعة** (‏`t // (N*60000)`) — لا «آخر N شمعة» — لأن ما
+    يضغط عليه في التطبيق شمعةٌ محدَّدةُ الحدود.
+
+    🔑 **وتُرجع آخرَ شمعةٍ ‏«بعد ما تجهز» حصرًا:** أحدثُ بُكيتٍ **يُسقَط دائمًا**
+    لأنه قيد التكوين ⇒ يستحيل بنيويًّا أن نقرأ شمعةً غيرَ مكتملة.
+
+    ⚖️ **ومقياسُ السيولة هو مقياسُ الرادار نفسُه** (`_ignition_signal`:
+    إغلاق × حجم) مجموعًا على دقائق البُكيت — فلا يصير على السهم قراءتان.
+    ⚖️ **و«الرفعة» تُقاس من الفتح إلى القمّة** (‏`h/o`) لأن «يشلع السهم 30٪» رفعٌ
+    وقع فعلًا وإن أُعيد قبل الإغلاق؛ والصافي (`c/o`) يُرجَع أيضًا ولا يُحكَم به.
+
+    ترجّع `{"frames": {N: {...}}, "max_usd": float, "class": (مفتاح، وصف)}`
+    أو `None` (بلا شموع/بلا بُكيتٍ مكتمل). فاشلةٌ-آمنة."""
+    try:
+        fr = tuple(frames if frames is not None else LIQ_FRAMES)
+        rows = [b for b in (bars or []) if b.get("t") is not None
+                and b.get("c") is not None and b.get("v") is not None]
+        if not rows:
+            return None
+        rows.sort(key=lambda b: int(b["t"]))
+        out, usds = {}, []
+        for n in fr:
+            span = int(n) * 60_000
+            if span <= 0:
+                continue
+            buckets = {}
+            for b in rows:
+                buckets.setdefault(int(b["t"]) // span, []).append(b)
+            keys = sorted(buckets)
+            if len(keys) < 2:
+                out[int(n)] = None        # لا بُكيتَ مكتمل ⇒ **تعذّرٌ لا صفر**
+                continue
+            grp = buckets[keys[-2]]       # 🔒 أحدثُ **مكتمل** (الأخيرُ قيد التكوين)
+            usd = sum(float(x["c"]) * float(x["v"]) for x in grp)
+            o = float(grp[0].get("o") or grp[0]["c"])
+            c = float(grp[-1]["c"])
+            hi = max(float(x.get("h") or x["c"]) for x in grp)
+            lo = min(float(x.get("l") or x["c"]) for x in grp)
+            pct = ((hi / o) - 1.0) * 100.0 if o > 0 else None
+            net = ((c / o) - 1.0) * 100.0 if o > 0 else None
+            out[int(n)] = {"usd": round(usd), "pct": (round(pct, 2) if pct
+                                                     is not None else None),
+                           "net": (round(net, 2) if net is not None else None),
+                           "open": round(o, 4), "close": round(c, 4),
+                           "high": round(hi, 4), "low": round(lo, 4),
+                           "start_ms": int(keys[-2]) * span, "minutes": len(grp)}
+            usds.append(usd)
+        if not usds:
+            return None
+        mx = max(usds)
+        return {"frames": out, "max_usd": round(mx),
+                "class": _ignition_candle_class(mx)}
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def liquidity_verdict(cl: dict, rip_pct: float = None):
+    """🕵️ **«مضاربٌ أم قروب؟»** — قاعدةُ فيصل **المركَّبة** لا عتبةٌ وحدها.
+
+    شرطان معًا: **رفعةٌ ‏≥`OPERATOR_RIP_PCT`% على أيّ فريم** (‏«يشلع السهم 30٪»)
+    ⟵ **وسيولةٌ** تُقارَن بعتبات `IGNITION_USD_*` (‏«فوق 100 الف دولار»).
+    والسيولةُ تُقرأ **أقصى الفريمات** لأن نصَّه يقول انظرها على كلٍّ منها: فبصمةُ
+    المضارب قد تظهر على الثلاثين وإن كانت الدقيقةُ دونها — **وهذا بعينه ما يعمى
+    عنه الرادارُ اليوم** (يقرأ دقيقةً واحدة).
+
+    بلا رفعةٍ ⇒ `None` (‏لا حكمَ ولا رسالة). فاشلةٌ-آمنة."""
+    try:
+        if not cl:
+            return None
+        thr = float(rip_pct if rip_pct is not None
+                    else CONFIG["OPERATOR_RIP_PCT"])
+        ripped = [(int(n), f) for n, f in (cl.get("frames") or {}).items()
+                  if f and f.get("pct") is not None and float(f["pct"]) >= thr]
+        if not ripped:
+            return None
+        top = max(ripped, key=lambda kv: kv[1].get("usd") or 0)
+        key, desc = cl.get("class") or ("", "")
+        return {"frame": top[0], "rip_pct": top[1]["pct"],
+                "usd": cl.get("max_usd"), "kind": key, "desc": desc,
+                "operator": key in ("operator", "strong"),
+                "group": key == "group"}
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def liquidity_lines(cl: dict, vd: dict = None) -> list:
+    """💰 أسطرُ العرض — تقول **ما قِيس** وتُسمّي المتعذّرَ ولا تُصفّره."""
+    if not cl:
+        return []
+    parts = []
+    for n in sorted((cl.get("frames") or {}), key=int):
+        f = (cl.get("frames") or {}).get(n)
+        parts.append(f"{n}د " + (f"${f['usd']:,}" if f else "—"))
+    out = ["💰 سيولة الشمعة (فيصل: دقيقة و5 و30): " + " · ".join(parts)]
+    key, desc = cl.get("class") or ("", "")
+    if desc:
+        out.append(f"🕵️ القراءة: {desc}")
+    if vd:
+        # ⚠️ وسومُ HTML مقصودة (‏`parse_mode=HTML`) — و«**» لا تُصيّر عريضًا هناك.
+        out.append(f"📈 رفعةُ {vd['rip_pct']:.0f}% على فريم {vd['frame']}د "
+                   f"بسيولة ${vd['usd']:,}"
+                   + (" ⇒ <b>دخل المضارب</b>" if vd.get("operator")
+                      else (" ⇒ <b>رفعةُ قروب</b> — حذارِ الهبوط"
+                            if vd.get("group") else " ⇒ بين الحدّين")))
+    return out
+
+
+def scan_candle_liquidity(universe, today_iso: str, fetch_bars=None,
+                          seen: dict = None, start: int = 0,
+                          budget_sec: float = None, window_min: int = None,
+                          clock=None):
+    """💰 يمسح كونَ المتابعة عن **رفعةٍ بسيولةٍ** بقاعدة فيصل المركَّبة.
+
+    ⚖️ **«بلا اي استثناء» بالعضوية لا بالحبيبة** (أمرُ المالك): لا يُقصى سهمٌ من
+    الكون — لكنّ دورةً واحدةً لا تكفي 319 نداءً، فيمشي **دائريًّا** من `start`
+    بميزانيةِ زمنٍ **مُعلَنة** ويرجّع الموضعَ التالي ⇒ **كلُّ سهمٍ يُغطّى خلال
+    دوراتٍ معدودة** والتغطيةُ تُطبَع ولا تُخفى.
+
+    `seen` قاموسُ ددوب «هنا الدخول» نفسُه بنطاقٍ مستقلّ (`LIQ_STATE_PREFIX`) —
+    فلا ملفَّ حالةٍ جديد ولا تعارضَ مع دِدوب الدخول (المفتاحُ الموسوم لا يساوي
+    رمزًا أبدًا). يُحدَّث هنا **ولا يُحفَظ** (الحفظُ بعد الإرسال، مسؤوليةُ المُشغِّل).
+
+    يرجّع `(rows, covered, next_start)`. **إشعارٌ/قياسٌ لا اختيار.**"""
+    fb = fetch_bars or polygon_minute_bars
+    win = int(window_min if window_min is not None else LIQ_WINDOW_MIN)
+    bud = float(budget_sec if budget_sec is not None else LIQ_BUDGET_SEC)
+    tick = clock or time.time
+    seen = seen if seen is not None else {}
+    uni = list(universe or [])
+    if not uni:
+        return ([], 0, 0)
+    t0, out, covered = tick(), [], 0
+    n = len(uni)
+    idx = int(start) % n
+    for _ in range(n):
+        if (tick() - t0) >= bud:
+            break
+        row = uni[idx]
+        idx = (idx + 1) % n
+        covered += 1
+        sym = row.get("symbol")
+        if not sym or seen.get(LIQ_STATE_PREFIX + sym) == today_iso:
+            continue
+        try:
+            bars = fb(sym, minutes=win)
+        except Exception:                                        # noqa: BLE001
+            bars = None
+        if not bars:
+            continue
+        cl = candle_liquidity(bars)
+        vd = liquidity_verdict(cl)
+        if not vd:
+            continue
+        seen[LIQ_STATE_PREFIX + sym] = today_iso
+        out.append((row, cl, vd))
+    return (out, covered, idx)
+
+
+def build_liquidity_alert(rows: list) -> str:
+    """📩 رسالةُ «‏💰 سيولةُ الشمعة — مضاربٌ أم قروب؟» بأسلوب التقرير الأسبوعيّ.
+
+    ⚖️ **تقول ما قِيس ولا تزيد:** لا وقفَ ولا هدفَ ولا توصية — الرسالةُ جوابُ
+    سؤالٍ واحدٍ سأله متابعٌ وأجابه فيصل: **مَن رفع السهم؟**"""
+    if not rows:
+        return ""
+    lines = [f"💰 <b>سيولةُ الشمعة — مضاربٌ أم قروب؟</b> ({len(rows)})",
+             "<i>قاعدةُ فيصل: انظر الشمعةَ على فريم دقيقة و5 و30 وكم سيولتُها — "
+             "المضاربُ يشلع السهم 30% مباشرةً فوق 100 ألف دولار.</i>", ""]
+    for i, (row, cl, vd) in enumerate(rows, 1):
+        if i > 1:
+            lines.append(DAILY_CARD_SEP)
+        tag = ("🕵️ <b>دخل المضارب</b>" if vd.get("operator")
+               else ("⚠️ <b>رفعةُ قروب</b>" if vd.get("group")
+                     else "➖ بين الحدّين"))
+        lines.append(f"<b>{i}. ${esc(row.get('symbol'))}</b> "
+                     f"· {esc(row.get('src') or '')} · {tag}")
+        for ln in liquidity_lines(cl, vd):
+            lines.append("   " + ln)
+    lines += ["", "⚠️ قراءةُ <i>مَن رفع السهم</i> لا توصيةً — والسيولةُ إغلاقُ "
+              "الدقيقة × حجمِها مجموعًا على شمعةٍ <b>مكتملة</b>.",
+              "<i>قيد الإثبات الأماميّ.</i>"]
     return _rtl_join(lines)
 
 
