@@ -1,0 +1,36 @@
+name: LIQ Case (🔎 ليه ما وصلني تحديثٌ لسهم كذا؟)
+
+# 🔒 **قراءةٌ/تشخيصٌ فقط**: لا كرون · لا كتابةَ حالة · لا رسالة تلغرام · لا مسَّ فرزٍ.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbols:
+        description: "رموزٌ بفاصلة (مثال: XOS,AUUD,SNYR)"
+        required: false
+        type: string
+
+jobs:
+  case:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔎 فكّك البوّابةَ دقيقةً دقيقة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          LIQ_CASE: ${{ inputs.symbols }}
+        run: python liq_case_probe.py
