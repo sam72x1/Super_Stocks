@@ -30,13 +30,13 @@
  },
  "LIQ:HAO": {
   "anchor_ms": 1787003400000,
-  "last_ms": 1787003340000,
+  "last_ms": 1787003520000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 8.7,
-  "peak_usd": 74739,
+  "peak_usd": 554940,
   "early": true,
   "date": "2026-08-17"
  },
