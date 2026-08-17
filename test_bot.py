@@ -14919,10 +14919,14 @@ check("⏱️ QTR6 **سقفُ النجاح مثبَّت (§⑤)**: يُقترَ�
                                            "_ignition_signal", "يُكتَم")),
       f"كتاباتُ CONFIG={_qt_cfgw}")
 import radar_quarter as _qtm                                     # noqa: E402
+try:                    # 🔒 صنفُ «القفل المنهار»: مقامٌ صفريٌّ يرمي ⇒ يكتم ما بعده
+    _qt_w = (_qtm.wilson(0, 8), _qtm.wilson(4, 8), _qtm.wilson(0, 0))
+    _qt_wok = (_qt_w[0][0] == 0.0 and _qt_w[1][0] < 50.0 < _qt_w[1][1]
+               and _qt_w[2] == (0.0, 0.0))
+except Exception as _qt_e:                                       # noqa: BLE001
+    _qt_w, _qt_wok = f"⛔ رمى: {type(_qt_e).__name__}", False
 check("⏱️ QTR7 Wilson صحيحٌ حسابيًّا ومقامٌ صفريّ لا ينهار",
-      _qtm.wilson(0, 8)[0] == 0.0
-      and _qtm.wilson(4, 8)[0] < 50.0 < _qtm.wilson(4, 8)[1]
-      and _qtm.wilson(0, 0) == (0.0, 0.0))
+      _qt_wok, str(_qt_w)[:90])
 _qt_pre = open("quarter_prereg.md", encoding="utf-8").read()
 check("⏱️ QTR8 العقدُ مدفوعٌ ويحمل: المجتمعَ والمقياسَ والأرضيةَ والمعيارَ "
       "الثلاثيَّ وسقفَ النجاح والتنبّؤَ وحدودَ الصدق",
