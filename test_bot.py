@@ -6310,12 +6310,25 @@ try:
         check("تنبيه Cline: لا يلتقط تقريرًا قديمًا عند غياب تقرير اليوم",
               _cn.find_report() is None
               and "لم يُعثر على تقرير هذا الأسبوع" in _cn.build_message())
+        # 🔒 CNT1 — **الوعدُ مشروطٌ بالتقرير**: بلا تقريرٍ لا يُوعَد بـ«التقرير
+        #    الكامل» ولا بـPR (كان يَعِد بهما سبعةَ أسابيع والتدقيقُ لم يجرِ).
+        _cn_none = _cn.build_message()
+        check("🔒 CNT1 بلا تقرير: **لا وعدَ** بتقريرٍ ولا PR · ويقول «لم يجرِ» "
+              "ويحيل إلى سجلّ الـworkflow",
+              "التقرير الكامل" not in _cn_none and "يُفتح لك PR" not in _cn_none
+              and "لم يجرِ" in _cn_none
+              and "cline_weekly_review.yml" in _cn_none, _cn_none[-90:])
         with open("custom_report.md", "w", encoding="utf-8") as _f:
             _f.write("## ملخّص تنفيذي\n- تقرير محدد صراحة\n")
         _os_notify.environ["CLINE_REPORT_PATH"] = "custom_report.md"
         check("تنبيه Cline: CLINE_REPORT_PATH الصريح يعمل",
               _cn.find_report() == "custom_report.md"
               and "تقرير محدد صراحة" in _cn.build_message())
+        _cn_has = _cn.build_message()
+        check("🔒 CNT1ب **وبوجود التقرير يعود الوعدُ** (فالإصلاحُ مشروطٌ لا حذفٌ "
+              "دائم) — والحالتان تفترقان في الذيل",
+              "التقرير الكامل" in _cn_has and "يُفتح لك PR" in _cn_has
+              and "لم يجرِ" not in _cn_has and _cn_has != _cn_none)
 finally:
     _os_notify.chdir(_old_cwd)
     if _old_env_report is None:

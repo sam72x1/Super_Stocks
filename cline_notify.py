@@ -79,12 +79,16 @@ def build_message():
             summary = extract_summary(f.read())
     else:
         summary = "⚠️ لم يُعثر على تقرير هذا الأسبوع — راجع سجلّ GitHub Actions."
-    msg = (
-        f"{header}\n\n{summary}\n\n"
-        "📄 التقرير الكامل على فرع cline/weekly-review — يُفتح لك PR للمراجعة.\n"
-        f"🔗 {PULLS_URL}\n\n"
-        "(مراجعة فقط — لا دمج للجذور بلا موافقتك)"
-    )
+    # 🔴 **تصحيحُ تناقضٍ مقيس (2026-08-16):** كان الذيلُ يَعِد بـ«التقرير الكامل»
+    #    وبـ«PR للمراجعة» **حتى حين لا تقريرَ أصلًا** — فيُقرأ الصدرُ تحذيرًا
+    #    والذيلُ طمأنينةً. وهي حالةٌ **وقعت سبعةَ أسابيع متتالية** (خطوةُ Cline
+    #    ساقطة والتنبيهُ يصل). الآن الوعدُ **مشروطٌ بوجود التقرير**.
+    tail = ("📄 التقرير الكامل على فرع cline/weekly-review — يُفتح لك PR للمراجعة.\n"
+            f"🔗 {PULLS_URL}\n\n"
+            "(مراجعة فقط — لا دمج للجذور بلا موافقتك)") if path else (
+        "🚫 لا تقريرَ ولا PR هذا الأسبوع — التدقيقُ **لم يجرِ**.\n"
+        f"🔗 https://github.com/{REPO}/actions/workflows/cline_weekly_review.yml")
+    msg = f"{header}\n\n{summary}\n\n{tail}"
     if len(msg) > MAX_LEN:
         msg = msg[:MAX_LEN] + "…"
     return msg
