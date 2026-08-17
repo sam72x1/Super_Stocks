@@ -20438,6 +20438,99 @@ check("▶️ NZ7 **الإعادةُ دقيقةٌ مكتملةٌ في كلّ خ�
       len(_nz_rp) >= 2 and max(_nz_ks) == 12 - 2 and min(_nz_ks) >= 1,
       f"أحداث={len(_nz_rp)} · فهارس={_nz_ks}")
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 📈🧮 MV1-MV7 — **مِجَسُّ LIQ-MOVE** (عقدُ `liq_move_prereg.md`): الأرضيةُ
+#    التراكميّةُ التي أمر المالكُ بتسجيلها ‏× ثمانيةُ بدائلَ للتجاوب.
+# ═══════════════════════════════════════════════════════════════════════════
+import liq_move_probe as _MV                                       # noqa: E402
+
+check("📈 MV1 **الشبكةُ مثبَّتةٌ ولا تُزاد خليّةٌ بعد الأرقام** (‏`liq_move_prereg §②/③`) "
+      "· ولكلّ ذراعِ تجاوبٍ وصفٌ معروض",
+      list(_MV.A_ARMS) == ["A0", "A1"]
+      and list(_MV.B_ARMS) == ["B0", "B1", "B2", "B3", "B4", "B5", "B6", "B7"]
+      and set(_MV.B_DESC) == set(_MV.B_ARMS)
+      and _MV.A_ARMS["A1"]["cum_floor"] == 3,
+      f"A={list(_MV.A_ARMS)} B={list(_MV.B_ARMS)}")
+
+_mv_ok, _mv_notes = _MV._lock_prod()
+check("📈 MV2 **الخليّةُ `A0/B1` بت-بت مع `liq_stage_events` الإنتاجيّة** على خمسِ "
+      "عيّناتٍ **مفرِّقة** (فيها أرقامُ `TENX` الحقيقيّة) ‏+ شاهدَي تفريقٍ (التجاوبُ "
+      "يفرّق · والتراكميّةُ تفرّق) ⇒ مقياسٌ واحدٌ لا نسختان",
+      _mv_ok and len(_mv_notes) == 7, " | ".join(_mv_notes))
+
+_mv_src = open("liq_move_probe.py", encoding="utf-8").read()
+_mv_tree = _ast0.parse(_mv_src)
+_mv_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_mv_tree)
+             if isinstance(_c, _ast0.Call)}
+_mv_writes = [_c for _c in _ast0.walk(_mv_tree) if isinstance(_c, _ast0.Call)
+              and _ast0.unparse(_c.func) == "open"
+              and any(isinstance(a, _ast0.Constant) and isinstance(a.value, str)
+                      and ("w" in a.value or "a" in a.value) for a in _c.args)]
+check("📈 MV3 **قياسٌ فقط**: صفرُ إرسالٍ · صفرُ كتابةٍ · صفرُ نداءٍ لجذرٍ (فارزٍ أو "
+      "مُرتِّبٍ أو رادار)",
+      not _mv_writes
+      and not any(_x in _mv_calls for _x in
+                  ("bot.send_telegram", "send_telegram", "bot.git_save",
+                   "bot.rank_key", "bot.select_top", "bot.analyze_ticker",
+                   "bot.scan_ignition", "bot.scan_market",
+                   "bot.scan_operator_entry", "bot.scan_split_hunter")),
+      f"كتابات={len(_mv_writes)}")
+
+_mv_prg = open("liq_move_prereg.md", encoding="utf-8").read()
+check("📈 MV4 **ثوابتُ الحكم هي المسجَّلةُ حرفيًّا**: «أثمر» ‏+3% خلال 15 دقيقة · "
+      "وحدُّ الاستبدال ‏3.6 نقطة (**تقلّبُ القياس المقيس** لا رقمٌ مخترَع) · "
+      "والمتحرّكُ ‏+30%",
+      (_MV.FRUIT_PCT, _MV.FRUIT_MIN, _MV.JITTER_PP, _MV.MOVER_PCT)
+      == (3.0, 15, 3.6, 30.0)
+      # 🐞 **وعلاماتُ الاتّجاه (RLM) تُنزَع من الطرفين قبل المقارنة** — أوّلُ
+      #    صياغةٍ بحثت عن «‏15 دقيقةً» بعلامةٍ والنصُّ بلاها ⇒ **سقط القفلُ على
+      #    عقدٍ سليم**: صنفُ «القفل النصّيّ» بثوبٍ عربيٍّ (علامةٌ غيرُ مرئيّة).
+      and all(_t in _mv_prg.replace("\u200f", "")
+              for _t in ("+3%", "15 دقيقةً", "3.6 نقطة")),
+      f"{(_MV.FRUIT_PCT, _MV.FRUIT_MIN, _MV.JITTER_PP)}")
+
+_mv_bars = [{"t": i * 60_000, "o": 1.0, "h": 1.1, "l": 1.0, "c": 1.0 + 0.01 * i,
+             "v": 500} for i in range(40)]
+check("🍎 MV5 **«تعذّرَ القياس» ليس صفرًا**: إشعارٌ في آخر ربع ساعةٍ ⇒ `None` "
+      "(يُستبعَد ويُعَدّ) · وإشعارٌ بمهلةٍ كاملة ⇒ رقمٌ محسوب",
+      _MV.fruit(_mv_bars, 30, 1.30) is None
+      and _MV.fruit(_mv_bars, 5, 1.05) is not None
+      and _MV.fruit(_mv_bars, 5, 0) is None,
+      f"آخر={_MV.fruit(_mv_bars, 30, 1.30)} · وسط={_MV.fruit(_mv_bars, 5, 1.05)}")
+
+check("🔒 MV6 **تعريفُ المتحرّك يُعاد استعمالًا لا نسخًا**: يُنادى "
+      "`liq_noise_probe.session_ref` نفسُها (‏AST) فلا يصير للمتحرّك تعريفان",
+      any(_ast0.unparse(_c.func) == "NZ.session_ref" for _c in
+          _ast0.walk(_mv_tree) if isinstance(_c, _ast0.Call))
+      and "def session_ref" not in _mv_src)
+
+# 🔒 MV7 — التراكميّةُ **لا تُطلِق على مجموعٍ قديمٍ بدقيقةٍ ميّتةٍ الآن**: شرطُ الحياة
+#    (قفزةُ الحجم والاتجاهُ والرفعة) يبقى على **الدقيقة الأخيرة** في الحالين.
+def _mv_seq(rows):
+    out = [{"t": i * 60_000, "o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": 500}
+           for i in range(20)]
+    for k, (v, o, c) in enumerate(rows):
+        out.append({"t": (20 + k) * 60_000, "o": o, "h": c, "l": o, "c": c,
+                    "v": v})
+    out.append({"t": (20 + len(rows)) * 60_000, "o": c, "h": c, "l": c, "c": c,
+                "v": 10})
+    return out
+
+
+_mv_alive = _mv_seq([(11_500, 1.00, 1.06), (11_500, 1.06, 1.13),
+                     (11_500, 1.13, 1.20)])
+_mv_dead = _mv_seq([(100_000, 1.00, 1.30), (500, 1.30, 1.31)])
+check("🔒 MV7 **التراكميّةُ تُبكِّر ولا تُبعِث ميّتًا**: ثلاثُ دقائقَ حيّةٍ مجموعُها "
+      "فوق الأرضية ⇒ **تُطلق `A1` ولا تُطلق `A0`** · ودقيقةٌ أخيرةٌ **ميّتة** "
+      "(بلا قفزةِ حجمٍ ولا رفعة) **لا تُنتج حدثًا** ولو كان مجموعُ الثلاث ضخمًا — "
+      "والحدثُ الوحيدُ من الدقيقة الحيّة **قبلها**",
+      len(_MV.replay(_mv_alive, _MV.A_ARMS["A1"], _MV.B_ARMS["B1"])) > 0
+      and len(_MV.replay(_mv_alive, _MV.A_ARMS["A0"], _MV.B_ARMS["B1"])) == 0
+      and [x[1]["stage"] for x in _MV.replay(
+          _mv_dead, _MV.A_ARMS["A1"], _MV.B_ARMS["B1"])] == ["M1"],
+      f"حيّة A1={len(_MV.replay(_mv_alive, _MV.A_ARMS['A1'], _MV.B_ARMS['B1']))} "
+      f"A0={len(_MV.replay(_mv_alive, _MV.A_ARMS['A0'], _MV.B_ARMS['B1']))}")
+
 _ls_oel = open("operator_entry_live.py", encoding="utf-8").read()
 _ls_oel_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_ast0.parse(_ls_oel))
                  if isinstance(_c, _ast0.Call)}

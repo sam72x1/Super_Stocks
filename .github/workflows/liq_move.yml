@@ -1,0 +1,33 @@
+name: LIQ Move (📈🧮 التراكميّة × بدائلُ التجاوب)
+
+# 🔒 **قراءةٌ فقط**: لا كرون · لا كتابةَ حالة · لا رسالة تلغرام · لا مسَّ فرزٍ.
+#    عقدُه `liq_move_prereg.md` مدفوعٌ **قبل أيّ رقم**.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1: إصدارٌ واحد لكلّ الـworkflows
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📈 قِس الشبكة (‏A0/A1 × B0-B7)
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        # ⛔ **بلا `continue-on-error`**: خروجُ 3 = سقوطُ `LOCK-PROD` (المقياسُ تفرّق
+        #    عن الإنتاج) وخروجُ 2 = تعذّرُ بياناتٍ — وكلاهما **يجب أن يُحمَّر**.
+        run: python liq_move_probe.py
