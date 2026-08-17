@@ -12710,6 +12710,15 @@ LIQ_CLOSE_POS_MIN = 0.5        # engineering — الإغلاقُ في النص�
 #    مقياسُ **تجاوبٍ** مستقلّ. وقياسُ الرفعة **من فتح الدقيقة إلى إغلاقها** (لا إلى
 #    قمّتها) فارتفاعٌ ارتدّ كلُّه ليس تجاوبًا.
 LIQ_MIN_MOVE_PCT = 5.0         # قرارُ المالك — رفعةُ الدقيقة الواحدة (فتح ⟶ إغلاق)
+# 🧮 **الأرضيةُ التراكميّة — اعتُمدت بعقد `liq_move_prereg.md §⑥` (2026-08-17):**
+#    الأرضيةُ تُقاس على **مجموع** آخرِ `LIQ_CUM_MINUTES` دقائقَ مكتملةٍ لا على دقيقةٍ
+#    واحدة. **وسندُها مقيس:** أرضيةُ الدقيقة الواحدة كانت تُكلّف **‏59 دقيقةً** من
+#    الأسبقيّة (`liq_noise_result.md §③`)، والتراكميّةُ **تستعيد 11 دقيقةً** (وسيطُ
+#    الأسبقيّة 11 ⟶ 22) **بفرقِ إثمارٍ صفر** و**زيادةِ إشعاراتٍ 6.6% فقط** ⇒ الشروطُ
+#    الثلاثةُ المسجَّلةُ **قبل** الأرقام استُوفيت.
+#    🔒 **وشرطُ الحياة باقٍ على الدقيقة الأخيرة** (قفزةُ الحجم والاتجاهُ والرفعة) ⇒
+#    **مجموعٌ ضخمٌ بدقيقةٍ ميّتةٍ الآن لا يُطلِق** — مقفولٌ سلوكيًّا.
+LIQ_CUM_MINUTES = 3            # `A1` — مجموعُ ثلاثِ دقائقَ (‏`liq_move_result.md`)
 
 # ترتيبُ الأولوية **مُعلَنٌ لا ضمنيّ**: الأقربُ إلى خطّةِ دخولٍ محفوظة أوّلًا،
 # فإن قصَّ السقفُ فإنما يقصّ الأبعدَ عن التنفيذ — ويُعلَن بعددِه.
@@ -13020,6 +13029,17 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
         def _usd(b):
             return float(b["c"]) * float(b["v"])
 
+        def _liq_ok():
+            """💰 الأرضيةُ **تراكميّةٌ** على آخرِ `LIQ_CUM_MINUTES` دقائقَ مكتملة.
+
+            سهمٌ يدخله ‏10 آلافٍ/دقيقةً ثلاثَ دقائقَ يستوفيها **والميتُ لا يستوفيها
+            أبدًا** ⇒ تُستعاد أسبقيّةٌ بلا فتحِ بابِ الضجيج (مقيسٌ: ‏+6.6% إشعارات).
+            و`LIQ_CUM_MINUTES`=1 يرجع للدقيقة الواحدة **بت-بت**."""
+            n = max(1, int(LIQ_CUM_MINUTES))
+            if n <= 1:
+                return _usd(last) >= LIQ_MIN_USD
+            return sum(_usd(b) for b in closed[-n:]) >= LIQ_MIN_USD
+
         def _rise(b):
             """📈 رفعةُ الدقيقة **فتحًا ⟶ إغلاقًا** بالنسبة — مقياسُ «التجاوب»."""
             try:
@@ -13055,7 +13075,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
             avg = sum(prior) / len(prior) if prior else 0.0
             vx = (float(last["v"]) / avg) if avg > 0 else 0.0
             # 🔴 ثلاثيةُ البوّابة: قفزةٌ نسبيّة **و**أرضيةٌ مطلقة **و**اتجاهٌ داخل
-            if vx < vm or _usd(last) < LIQ_MIN_USD or not _inflow(last):
+            if vx < vm or not _liq_ok() or not _inflow(last):
                 return ([], st)
             st = {"anchor_ms": last_ms, "last_ms": last_ms, "sent": ["M1"],
                   "updates": 0, "vol_x": round(vx, 1),
@@ -13074,7 +13094,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
             # 🔴 **التحديثُ «في حال كانت تزيد»** (قرارُ المالك): يلزمه تجاوزُ **أعلى
             #    قمّةٍ سابقة** ‏+ الأرضيةُ ‏+ الاتجاهُ الداخل ⇒ الحركةُ الخابيةُ
             #    **تصمت ذاتيًّا** ولا تُلاحقك بدقيقةٍ فارغةٍ كلَّ دقيقة.
-            if _u > _pk and _u >= LIQ_MIN_USD and _inflow(last):
+            if _u > _pk and _liq_ok() and _inflow(last):
                 st["peak_usd"] = round(_u)
                 if int(st.get("updates") or 0) < cap:
                     st["updates"] = int(st.get("updates") or 0) + 1

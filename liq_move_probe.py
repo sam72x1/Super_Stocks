@@ -253,7 +253,7 @@ def fruit(bars, idx, price):
 
 
 def _lock_prod():
-    """🔒 `LOCK-PROD` — الخليّةُ `A0/B1` **بت-بت** مع الإنتاج على عيّناتِ `LOCK-V4`
+    """🔒 `LOCK-PROD` — الخليّةُ `A1/B1` **بت-بت** مع الإنتاج على عيّناتِ `LOCK-V4`
     الأربعِ **المفرِّقة** (تُعاد استعمالًا لا نسخًا) ‏+ شاهدُ تفريقٍ للتجاوب."""
     def _b(t, o, h, l, c, v):
         return {"t": t, "o": o, "h": h, "l": l, "c": c, "v": v}
@@ -276,7 +276,10 @@ def _lock_prod():
     for name, bars in (("ضخمةٌ داخلة", big), ("صغيرةٌ نسبيّة", small),
                        ("سلسلةٌ خابية", fade), ("خضراءُ متناقصة", dim),
                        ("TENX بلا تجاوب", tenx)):
-        mine = replay(bars, A_ARMS["A0"], B_ARMS["B1"])
+        # 🔓 **إقرارٌ مؤرَّخ 2026-08-17: الإنتاجُ صار `A1/B1`** باعتماد التراكميّة
+        #    بعقد `liq_move_prereg.md §⑥` ⇒ القفلُ ينتقل إليها. و`A0/B1` تبقى
+        #    ذراعًا مقيسةً في الشبكة فأرقامُ `liq_move_result.md` تُعاد بت-بت.
+        mine = replay(bars, A_ARMS["A1"], B_ARMS["B1"])
         prod, st = [], {}
         for k in range(3, len(bars) + 1):
             evs, st = bot.liq_stage_events(

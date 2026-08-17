@@ -5,10 +5,11 @@
 عقدُه `liq_noise_prereg.md` **مدفوعٌ قبل أيّ رقم**. يجيب سؤالًا واحدًا: **كم إشعارًا
 يقصّ كلُّ طبقةٍ من بوّابة الضجيج؟ وهل تُفقِد متحرّكًا؟**
 
-🔑 **مقياسٌ واحدٌ لا اثنان:** الذراعُ `V4` **هي الإنتاجُ حرفيًّا** — والمِجَسُّ يقفلها
-بمقارنةٍ **بت-بت** مع `Super_stock.liq_stage_events` على المدخل نفسِه (‏`LOCK-V4`).
-فإن تفرّق المُخرَجان **يُوقَف بخروجٍ غيرِ صفريّ** ولا يُنشَر رقم — لأن أرقامَ الأذرع
-الأخرى ستكون على آلةٍ غير آلةِ الإنتاج.
+🔒🔒 **مُجمَّدٌ بالكامل (2026-08-17):** وظيفتُه **إعادةُ إنتاج أرقام
+`liq_noise_result.md`** بت-بت لا مطابقةُ الإنتاج الحاضر — فالإنتاجُ اكتسب بعدها
+بوّابةَ التجاوب والأرضيةَ التراكميّة. ⇒ **تتبّعُ الإنتاج في
+`liq_move_probe._lock_prod` وحدَه**، ولو حملَه المِجَسّان لصارا **مقياسَين يتفرّقان
+بصمت**. و`_lock_v4` يقفل **المُخرَجَ المُجمَّد** فأيُّ انزياحٍ يُوقِف بخروج 3.
 
 ⚖️ **والإعادةُ ما يفعله الحيُّ فعلًا:** المُشغِّلُ يلفّ كلَّ ‏≈60 ثانية ويقرأ نافذةَ
 `LIQ_WINDOW_MIN`، والدالّةُ **تُسقط الشمعةَ المتكوّنة** ⇒ فإطعامُ `bars[:k]` خطوةً
@@ -53,9 +54,14 @@ ARMS = {
     "V7": {"floor_anchor": True, "floor_update": True, "inflow": True,
            "highwater": True, "above_open": True},
 }
-# 🔴 **الإنتاجُ الحيّ** (يتبع `LIQ_MIN_MOVE_PCT` وقتَ النداء لا قيمةً مغروسة).
-PROD = {"floor_anchor": True, "floor_update": True, "inflow": True,
-        "highwater": True, "move_min": None}
+# 🔴🔓 **إقرارٌ مؤرَّخ 2026-08-17 — `PROD` سُحبت من هذا المِجَسّ:** الإنتاجُ اكتسب
+#    بوّابةَ التجاوب **والأرضيةَ التراكميّة**، ولو حملَتهما نسخةٌ هنا ونسخةٌ في
+#    `liq_move_probe` لصار **مقياسان يتفرّقان بصمت** — وهو الخطرُ الذي بُنيت الأقفال
+#    لمنعه. ⇒ **تتبّعُ الإنتاج بت-بت في `liq_move_probe._lock_prod` وحدَه (`MV2`)**،
+#    وهذا المِجَسُّ صار **مُجمَّدًا بالكامل**: وظيفتُه **إعادةُ إنتاج أرقام
+#    `liq_noise_result.md`** لا مطابقةُ الحاضر. و`_lock_v4` يقفل **مُخرَجَه الثابت**.
+FROZEN_COUNTS = {"ضخمةٌ داخلة": 1, "صغيرةٌ نسبيّة": 0, "سلسلةٌ خابية": 1,
+                 "خضراءُ متناقصةُ السيولة": 1}
 ARM_DESC = {
     "V0": "الأساسُ الذي أغرق (قفزةٌ نسبيّةٌ وحدها)",
     "V1": "‏+ أرضيةُ $30 ألفٍ على المِرساة وحدها",
@@ -298,16 +304,10 @@ def _lock_v4(fetch=None):
     ok, notes = True, []
     for name, bars in (("ضخمةٌ داخلة", big), ("صغيرةٌ نسبيّة", small),
                        ("سلسلةٌ خابية", fade), ("خضراءُ متناقصةُ السيولة", dim)):
-        mine = replay(bars, PROD)
-        prod, st = [], {}
-        for k in range(3, len(bars) + 1):
-            evs, st = bot.liq_stage_events(bars[max(0, k - bot.LIQ_WINDOW_MIN):k],
-                                           st)
-            for e in (evs or []):
-                prod.append((k - 2, e))
-        same = json.dumps(mine, sort_keys=True, default=str) == \
-            json.dumps(prod, sort_keys=True, default=str)
-        notes.append(f"{name}: مِجَسّ={len(mine)} إنتاج={len(prod)} "
+        mine = replay(bars, ARMS["V4"])
+        want = FROZEN_COUNTS[name]
+        same = len(mine) == want
+        notes.append(f"{name}: V4={len(mine)} مُجمَّد={want} "
                      f"{'✅' if same else '❌'}")
         ok = ok and same
     n0 = len(replay(small, ARMS["V0"]))
@@ -317,8 +317,8 @@ def _lock_v4(fetch=None):
     ok = ok and n0 > n4
     # 🔒 **وشاهدٌ يُثبت أن العيّنةَ الرابعةَ تفرّق على القمّة بعينها** — وإلّا عاد
     #    القفلُ أعمى عن الطبقة التي كشفتها الطفرة (‏`M7`).
-    _nohw = {k: v for k, v in PROD.items() if k != "highwater"}
-    d_hw, d_no = len(replay(dim, PROD)), len(replay(dim, _nohw))
+    _nohw = {k: v for k, v in ARMS["V4"].items() if k != "highwater"}
+    d_hw, d_no = len(replay(dim, ARMS["V4"])), len(replay(dim, _nohw))
     notes.append(f"القمّةُ تفرّق: مع={d_hw} · بلا={d_no} "
                  f"{'✅' if d_no > d_hw else '❌'}")
     ok = ok and d_no > d_hw
