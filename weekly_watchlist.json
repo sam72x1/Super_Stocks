@@ -5603,7 +5603,9 @@
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 1.14,
-   "live_alert": {},
+   "live_alert": {
+    "premarket": "2026-08-17"
+   },
    "spikes": [
     125.6,
     61.9,
