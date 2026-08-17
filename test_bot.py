@@ -15053,10 +15053,15 @@ check("⏱️🪜 SLD6 و«لا حكم» ≠ «لا يفصل» — العبار�
       "لا حكم" in _sld_src and "لا يفصل" in _sld_src
       and "**غيرُ** «لا حكم»" in _sld_src and "سطرُ عرضٍ" in _sld_src
       and _sldm.PREREG_DECIDED == 18)
-check("⏱️🪜 SLD7 «تعذّرٌ ليس صفرًا»: غيرُ الرقميّ و`NaN` **يُخرجان من المجتمع** "
-      "لا يُحسبان درجةً صفرية",
+# ⚠️ **إقرارٌ من جولة الطفرات (Q15):** حارسُ `NaN` الصريح **خامدٌ بالبناء** — لأن
+#    `nan` يُخفق في **كلّ** مقارنة فتخرج الحلقةُ إلى `return None` أصلًا ⇒ حذفُه
+#    **بلا أثرٍ سلوكيّ** = «طفرةٌ باطلة» لا فجوةُ قفل. ويُبقى **حرزًا** لو بُدِّل
+#    التقطيعُ يومًا بصيغةٍ لا تُخفق على `nan`، ويُوسَم خامدًا كي لا يُطفَر مرّةً أخرى.
+check("⏱️🪜 SLD7 «تعذّرٌ ليس صفرًا»: غيرُ الرقميّ و`NaN` والسالبُ **يُخرجون من "
+      "المجتمع** لا يُحسبون درجةً صفرية (‏وحارسُ `NaN` خامدٌ بالبناء — مُعلَن)",
       _sldm.rung_of(None) is None and _sldm.rung_of("x") is None
-      and _sldm.rung_of(float("nan")) is None and _sldm.rung_of(-1) is None)
+      and _sldm.rung_of(float("nan")) is None and _sldm.rung_of(-1) is None
+      and _sldm.rung_of(0) == "0-4د")
 try:
     _sld_w = (_sldm.wilson(0, 8), _sldm.wilson(4, 8), _sldm.wilson(0, 0))
     _sld_wok = (_sld_w[0][0] == 0.0 and _sld_w[1][0] < 50.0 < _sld_w[1][1]
@@ -20063,19 +20068,29 @@ def _liq_bars(burst_i=None, burst=(1.00, 1.40, 1.35, 200_000), n=65):
 
 _liq_cl = S.candle_liquidity(_liq_bars(40))
 _liq_f = (_liq_cl or {}).get("frames") or {}
+
+
+def _lqf(n, k):
+    """🔒 وصولٌ محروس — صنفُ «القفل المنهار»: طفرةُ البُكيت تُفرّغ `frames` فيرمي
+    الفهرسُ المباشر ⇒ **يكتم كلَّ قفلٍ بعده** بدل أن يسقط مقروءًا (وقع فعلًا: Q1)."""
+    v = (_liq_f or {}).get(n)
+    return (v or {}).get(k) if isinstance(v, dict) else None
+
+
 check("💰 LIQ1 **الفريماتُ الثلاثةُ بلفظه** (‏دقيقة و5 و30) وبُكيتاتٌ **مصفوفةٌ على "
       "الساعة** لا «آخر N شمعة» — والانفجارُ يظهر على 30د وحدها",
       S.LIQ_FRAMES == (1, 5, 30) and set(_liq_f) == {1, 5, 30}
-      and _liq_f[1]["usd"] == 1000 and _liq_f[5]["usd"] == 5000
-      and _liq_f[30]["usd"] == 299_000,
-      str({k: (v or {}).get("usd") for k, v in _liq_f.items()}))
+      and _lqf(1, "usd") == 1000 and _lqf(5, "usd") == 5000
+      and _lqf(30, "usd") == 299_000,
+      str({k: (v or {}).get("usd") if isinstance(v, dict) else v
+           for k, v in (_liq_f or {}).items()})[:120])
 check("💰 LIQ2 **«بعد ما تجهز» بنيويًّا**: أحدثُ بُكيتٍ يُسقَط دائمًا (قيد التكوين) "
       "⇒ شمعةُ 30د المقروءةُ تنتهي قبل آخر شمعةِ دقيقة",
-      _liq_f[30]["start_ms"] == _liq_base + 30 * 60_000
-      and _liq_f[30]["minutes"] == 30
-      and _liq_f[1]["start_ms"] == _liq_base + 63 * 60_000,
-      f"30د تبدأ {_liq_f[30]['start_ms'] - _liq_base}ms · دقيقة "
-      f"{_liq_f[1]['start_ms'] - _liq_base}ms")
+      _lqf(30, "start_ms") == _liq_base + 30 * 60_000
+      and _lqf(30, "minutes") == 30
+      and _lqf(1, "start_ms") == _liq_base + 63 * 60_000,
+      f"30د تبدأ {_lqf(30, 'start_ms')} · دقيقة {_lqf(1, 'start_ms')} · "
+      f"الأساس {_liq_base}")
 check("💰 LIQ3 **مقياسٌ واحد لا اثنان**: الصنفُ من `_ignition_candle_class` "
       "الإنتاجيّة على **أقصى** الفريمات (‏AST) — لا عتبةٌ مكرّرة",
       any(getattr(_c.func, "id", None) == "_ignition_candle_class"
@@ -20154,13 +20169,24 @@ check("💰 LIQ9 **قراءةٌ لا اختيار**: الثلاثةُ خارج `
                      S.scan_ignition, S.scan_operator_entry)
           for _n in ("candle_liquidity", "liquidity_verdict",
                      "scan_candle_liquidity", "build_liquidity_alert")))
-check("💰 LIQ10 فاشلةٌ-آمنة: بلا شموعٍ/تالفٍ ⇒ `None` **ولا انهيار** · وبُكيتٌ "
-      "واحدٌ (‏قيد التكوين) ⇒ **تعذّرٌ لا صفر**",
+# 🐞 **عيّنتي الأولى لم تكن تُفرِّق (طفرة Q11 نجت):** بشمعةٍ واحدة **كلُّ** الفريمات
+#    بلا بُكيتٍ مكتمل ⇒ `usds` فارغة ⇒ الدالّةُ ترجع `None` كاملةً ⇒ نفسُ الجواب مع
+#    الطفرة وبدونها. ⇒ عيّنةٌ **مختلطة**: 20 دقيقةً تبدأ بعد حدّ الثلاثين بخمسٍ ⇒
+#    فريما 1 و5 لهما بُكيتاتٌ مكتملة و**فريمُ 30 لا** ⇒ يظهر «تعذّرٌ» بعينه.
+_liq_mixed = S.candle_liquidity(
+    [{"o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": 1000,
+      "t": _liq_base + (5 + i) * 60_000} for i in range(20)])
+check("💰 LIQ10 فاشلةٌ-آمنة: بلا شموعٍ/تالفٍ ⇒ `None` **ولا انهيار** · وفريمٌ بلا "
+      "بُكيتٍ مكتمل ⇒ **تعذّرٌ (`None`) لا صفر** مع بقاء الفريمَين الآخرين",
       S.candle_liquidity(None) is None and S.candle_liquidity([]) is None
       and S.candle_liquidity([{"t": 1, "c": None, "v": 1}]) is None
       and S.liquidity_verdict(None) is None
-      and (S.candle_liquidity(_liq_bars(None, n=1)) or {}).get(
-          "frames", {}).get(30) is None)
+      and isinstance(_liq_mixed, dict)
+      and (_liq_mixed.get("frames") or {}).get(30) is None
+      and ((_liq_mixed.get("frames") or {}).get(1) or {}).get("usd") == 1000
+      and ((_liq_mixed.get("frames") or {}).get(5) or {}).get("usd") == 5000,
+      str({k: (v or {}).get("usd") if isinstance(v, dict) else v
+           for k, v in ((_liq_mixed or {}).get("frames") or {}).items()}))
 _liq_oel = open("operator_entry_live.py", encoding="utf-8").read()
 _liq_oel_calls = {_ast0.unparse(_c.func) for _c in _ast0.walk(_ast0.parse(_liq_oel))
                   if isinstance(_c, _ast0.Call)}
