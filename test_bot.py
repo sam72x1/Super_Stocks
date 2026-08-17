@@ -14964,12 +14964,25 @@ _qt_lp = _os_hc.path.join(_qt_tf.mkdtemp(), "qtrlog.json")
 open(_qt_lp, "w", encoding="utf-8").write(json.dumps(_qt_fires))
 _qt_real_df = pd.DataFrame({"High": [2.0], "Close": [1.9]},
                            index=pd.to_datetime(["2026-01-06"]))
+
+
+
+class _QtBadDF:
+    """كائنٌ تالفٌ يرمي عند `len` — **الحالةُ الثالثة المفرِّقة**: بلاها لا تبلغ
+    عيّنتي فرعَ `except` أصلًا (‏`None` تُقصِّر الدائرة قبل `len`) فنجت طفرةُ
+    «التالفُ معلّقٌ» — درسُ «القفل لا يحرس إلّا بقدر ما تُفرِّق عيّنتُه»."""
+
+    def __len__(self):
+        raise RuntimeError("تالف")
+
+
 _qt_keep, _qt_keep_env = S._ignition_outcome_fetch, _os_hc.environ.get("RADAR_LOG")
 _qt_out = {}
 try:
     _os_hc.environ["RADAR_LOG"] = _qt_lp
     for _qk, _qfn in (("nodata", lambda *_a, **_k: None),
-                      ("decided", lambda *_a, **_k: _qt_real_df)):
+                      ("decided", lambda *_a, **_k: _qt_real_df),
+                      ("corrupt", lambda *_a, **_k: _QtBadDF())):
         S._ignition_outcome_fetch = _qfn
         _qbuf = _qt_ioo.StringIO()
         with _qt_cx.redirect_stdout(_qbuf):
@@ -14983,14 +14996,17 @@ finally:
         _os_hc.environ.pop("RADAR_LOG", None)
     else:
         _os_hc.environ["RADAR_LOG"] = _qt_keep_env
-check("⏱️ QTR10 «معلّق» و«تعذّر الجلب» **يفترقان سلوكيًّا** — والاثنان مُستبعَدان "
-      "من المقام (‏§②) فلا يُخفي الخلطُ سببَ عدم بلوغ الأرضية",
+check("⏱️ QTR10 «معلّق» و«تعذّر الجلب» **يفترقان سلوكيًّا** بثلاث حالاتٍ مفرِّقة "
+      "(‏لا شيء · محسوم · **تالفٌ يرمي**) — والاثنان مُستبعَدان من المقام (‏§②) "
+      "فلا يُخفي الخلطُ سببَ عدم بلوغ الأرضية",
       "تعذّر الجلب 2" in _qt_out.get("nodata", (0, ""))[1]
       and "معلّق 0" in _qt_out.get("nodata", (0, ""))[1]
       and "محسوم 0" in _qt_out.get("nodata", (0, ""))[1]
       and "تعذّر الجلب 0" in _qt_out.get("decided", (0, ""))[1]
-      and "محسوم 2" in _qt_out.get("decided", (0, ""))[1],
-      str({_k: _v[1][-140:] for _k, _v in _qt_out.items()})[:340])
+      and "محسوم 2" in _qt_out.get("decided", (0, ""))[1]
+      and "تعذّر الجلب 2" in _qt_out.get("corrupt", (0, ""))[1]
+      and "معلّق 0" in _qt_out.get("corrupt", (0, ""))[1],
+      str({_k: _v[1][-140:] for _k, _v in _qt_out.items()})[:420])
 
 check("🐍 PYV1 كلُّ الـworkflows على **إصدارٍ واحد** — فلا يسقط أحدُها بصمتٍ على "
       "بصمةٍ مُعايَرةٍ لغيره (وهو ما قتل المراجِعَ الأسبوعيَّ سبعةَ أسابيع)",
