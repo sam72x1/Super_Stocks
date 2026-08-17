@@ -14875,6 +14875,66 @@ check("🔥 RDRD6 فاصلُ Wilson صحيحٌ حسابيًّا (‏0/10 يبد�
       and _rdm.wilson(0, 0) == (0.0, 0.0),
       f"{_rdm.wilson(5, 10)}")
 
+# ═════ ⏱️ QTR — T-QUARTER (عقدُ `quarter_prereg.md` مدفوعٌ قبل أيّ رقم) ═════
+_qt_src = open("radar_quarter.py", encoding="utf-8").read()
+_qt_t = _ast0.parse(_qt_src)
+_qt_calls = {_ast0.unparse(_n.func) for _n in _ast0.walk(_qt_t)
+             if isinstance(_n, _ast0.Call)}
+check("⏱️ QTR1 **مقياسٌ واحد لا اثنان**: النتيجةُ من `_ignition_outcome` "
+      "الإنتاجيّة (‏AST) · والصمودُ من `operator_ok` **المخزَّن** لا محسوبًا",
+      {"bot._ignition_outcome", "bot._ignition_outcome_fetch"} <= _qt_calls
+      and "operator_sustain" not in _qt_src and "_fire_sustain" not in _qt_src)
+check("⏱️ QTR2 **قراءةٌ فقط**: صفرُ إرسالٍ وكتابةِ حالةٍ ومسٍّ بالفرز",
+      all(_n not in _qt_src for _n in ("send_telegram", "git_save", "save_",
+                                       "scan_market", "rank_key", "select_top",
+                                       "scan_ignition", '"w"')))
+check("⏱️ QTR3 **أرضيةُ الذراع رقمٌ مُعادٌ لا مخترَع** (`IGNITION_OUTCOME_MIN`) "
+      "— نحويًّا لا نصًّا",
+      "IGNITION_OUTCOME_MIN" in {_n.slice.value for _n in _ast0.walk(_qt_t)
+                                 if isinstance(_n, _ast0.Subscript)
+                                 and _ast0.unparse(_n.value).endswith("CONFIG")
+                                 and isinstance(getattr(_n, "slice", None),
+                                                _ast0.Constant)})
+_qt_i5, _qt_idf = _qt_src.find("return 5"), _qt_src.find("فرقُ نسبةِ الحقيقيّ")
+check("⏱️ QTR4 «لا حكم» **يُوقِف بخروج 5 قبل طباعة أيّ فرق** (بنصّ §④) — "
+      "والفرقُ لا يُطبَع إلّا بعد البوّابة",
+      _qt_i5 >= 0 and _qt_idf >= 0 and _qt_i5 < _qt_idf,
+      f"return5={_qt_i5} · الفرق={_qt_idf}")
+check("⏱️ QTR5 و«لا حكم» ≠ «لا يفصل» — العبارتان متمايزتان في المُخرَج",
+      "لا حكم" in _qt_src and "لا يفصل" in _qt_src
+      and "**غيرُ** «لا حكم»" in _qt_src)
+# 🔴 صياغتي الأولى منعت الكلمةَ `continue` — **وهي كلمةُ لغةٍ** تستعملها الحلقةُ
+#    لاستبعاد «المعلّق» بنصّ §②، فسقط القفلُ على كودٍ سليم = «قفلٌ يمنع الصحيحَ
+#    ليس أشدَّ — هو مكسور» (‏درسُ FF4/FF5). ⇒ يقيس **الخطرَ الحقيقيّ**: كتابةٌ في
+#    `CONFIG` (تبديلُ عتبةٍ) أو ذِكرُ عتباتِ الإشعال — **نحويًّا لا نصًّا**.
+_qt_cfgw = [_ast0.unparse(_tg) for _n in _ast0.walk(_qt_t)
+            if isinstance(_n, (_ast0.Assign, _ast0.AugAssign))
+            for _tg in (_n.targets if isinstance(_n, _ast0.Assign) else [_n.target])
+            if isinstance(_tg, _ast0.Subscript)
+            and "CONFIG" in _ast0.unparse(_tg.value)]
+check("⏱️ QTR6 **سقفُ النجاح مثبَّت (§⑤)**: يُقترَح سطرُ عرضٍ فقط · صفرُ ذِكرٍ "
+      "لعتباتِ الإشعال · **وصفرُ كتابةٍ في `CONFIG`** (نحويًّا)",
+      "سطرُ عرضٍ" in _qt_src and not _qt_cfgw
+      and all(_n not in _qt_src for _n in ("IGNITION_USD_", "IGNITION_VOL_MULT",
+                                           "_ignition_signal", "يُكتَم")),
+      f"كتاباتُ CONFIG={_qt_cfgw}")
+import radar_quarter as _qtm                                     # noqa: E402
+check("⏱️ QTR7 Wilson صحيحٌ حسابيًّا ومقامٌ صفريّ لا ينهار",
+      _qtm.wilson(0, 8)[0] == 0.0
+      and _qtm.wilson(4, 8)[0] < 50.0 < _qtm.wilson(4, 8)[1]
+      and _qtm.wilson(0, 0) == (0.0, 0.0))
+_qt_pre = open("quarter_prereg.md", encoding="utf-8").read()
+check("⏱️ QTR8 العقدُ مدفوعٌ ويحمل: المجتمعَ والمقياسَ والأرضيةَ والمعيارَ "
+      "الثلاثيَّ وسقفَ النجاح والتنبّؤَ وحدودَ الصدق",
+      all(_w in _qt_pre for _w in ("IGNITION_OUTCOME_MIN", "Wilson",
+                                   "لا يفصل", "سقفُ النجاح", "تنبّؤي",
+                                   "دائريّةٌ جزئية", "IMG_0294")))
+_qt_wf = open(".github/workflows/radar_read.yml", encoding="utf-8").read()
+check("⏱️ QTR9 موصولٌ بالـworkflow **بـ`always()`** فلا يكتمه سقوطُ الأوّل · "
+      "و`radar_read.py` **ما زال موصولًا** (لا يُستبدَل)",
+      "radar_quarter.py" in _qt_wf and "radar_read.py" in _qt_wf
+      and "if: always()" in _qt_wf)
+
 check("🐍 PYV1 كلُّ الـworkflows على **إصدارٍ واحد** — فلا يسقط أحدُها بصمتٍ على "
       "بصمةٍ مُعايَرةٍ لغيره (وهو ما قتل المراجِعَ الأسبوعيَّ سبعةَ أسابيع)",
       len(_PY_WF) == 1, "الإصدارات: " + str({k: len(v) for k, v in _PY_WF.items()})

@@ -27,3 +27,10 @@ jobs:
 
       - name: اقرأ الرادار
         run: python radar_read.py
+
+      - name: ⏱️ T-QUARTER (عقد `quarter_prereg.md`)
+        # `if: always()` — القياسان مستقلّان، فسقوطُ أحدهما لا يكتم الآخر.
+        # وخروجُ 5 = «لا حكم» (أرضيةٌ لم تُبلَغ) وهو **نتيجةٌ لا عطل** ⇒ لا يُحمَّر.
+        if: always()
+        continue-on-error: true
+        run: python radar_quarter.py
