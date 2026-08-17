@@ -34,6 +34,11 @@ WORKERS = 8
 
 # ⚙️ **الأذرعُ الثمانية — مثبَّتةٌ في `liq_noise_prereg.md §②`.** ولا تُضاف ذراعٌ
 #    بعد الأرقام (`LOCK-ARMS` في السويّة يقفل الأسماءَ والعدد).
+# 🔒🔒 **وهي مُجمَّدةٌ على نشرة `liq_noise_result.md` — بما فيها `V4`.** فبوّابةُ
+#    «رفعةِ الدقيقة» (قرارُ المالك 2026-08-17 الثاني) دخلت الإنتاجَ **بعد** نشر تلك
+#    الأرقام؛ ولو أُدخلت في `V4` لانقلبت الأرقامُ المنشورةُ **صامتةً** ⇒ سابقةُ
+#    `CAP15` حرفيًّا: **المنشورُ يُعاد إنتاجُه بت-بت، والإنتاجُ الحيُّ يُتابَع بذراعٍ
+#    مستقلّةٍ `PROD`** — وهي وحدَها ما يقفله `LOCK-V4`.
 ARMS = {
     "V0": {},
     "V1": {"floor_anchor": True},
@@ -48,6 +53,9 @@ ARMS = {
     "V7": {"floor_anchor": True, "floor_update": True, "inflow": True,
            "highwater": True, "above_open": True},
 }
+# 🔴 **الإنتاجُ الحيّ** (يتبع `LIQ_MIN_MOVE_PCT` وقتَ النداء لا قيمةً مغروسة).
+PROD = {"floor_anchor": True, "floor_update": True, "inflow": True,
+        "highwater": True, "move_min": None}
 ARM_DESC = {
     "V0": "الأساسُ الذي أغرق (قفزةٌ نسبيّةٌ وحدها)",
     "V1": "‏+ أرضيةُ $30 ألفٍ على المِرساة وحدها",
@@ -85,11 +93,25 @@ def arm_events(bars, state, cfg):
         def _usd(b):
             return float(b["c"]) * float(b["v"])
 
+        _mvmin = cfg.get("move_min", 0.0)
+        if _mvmin is None:                    # ⇐ `PROD` تتبع الإنتاجَ وقتَ النداء
+            _mvmin = float(bot.LIQ_MIN_MOVE_PCT)
+
+        def _rise(b):
+            """📈 رفعةُ الدقيقة **فتحًا ⟶ إغلاقًا** — مقياسُ «التجاوب» (قرارُ المالك)."""
+            try:
+                o_, c_ = float(b.get("o") or b["c"]), float(b["c"])
+                return ((c_ - o_) / o_ * 100.0) if o_ > 0 else 0.0
+            except Exception:                                    # noqa: BLE001
+                return 0.0
+
         def _inflow(b):
             try:
                 o_, c_ = float(b.get("o") or b["c"]), float(b["c"])
                 h_, l_ = float(b.get("h") or c_), float(b.get("l") or c_)
                 if c_ < o_:
+                    return False
+                if _mvmin and o_ > 0 and (c_ - o_) / o_ * 100.0 < _mvmin:
                     return False
                 rng = h_ - l_
                 return rng <= 0 or (c_ - l_) >= bot.LIQ_CLOSE_POS_MIN * rng
@@ -149,6 +171,7 @@ def arm_events(bars, state, cfg):
                        "anchor_ms": last_ms, "last_ms": last_ms,
                        "vol_x": round(vx, 1),
                        "price": round(float(last["c"]), 4),
+                       "move": round(_rise(last), 2),
                        "class": bot._ignition_candle_class(_usd(last))})
             return (ev, st)
         anchor = int(anchor)
@@ -168,6 +191,7 @@ def arm_events(bars, state, cfg):
                                "anchor_ms": anchor, "last_ms": last_ms,
                                "vol_x": st.get("vol_x"),
                                "price": round(float(last["c"]), 4),
+                               "move": round(_rise(last), 2),
                                "class": bot._ignition_candle_class(_u)})
         sent = list(st.get("sent") or [])
         span = (last_ms - anchor) // 60_000 + 1
@@ -274,7 +298,7 @@ def _lock_v4(fetch=None):
     ok, notes = True, []
     for name, bars in (("ضخمةٌ داخلة", big), ("صغيرةٌ نسبيّة", small),
                        ("سلسلةٌ خابية", fade), ("خضراءُ متناقصةُ السيولة", dim)):
-        mine = replay(bars, ARMS["V4"])
+        mine = replay(bars, PROD)
         prod, st = [], {}
         for k in range(3, len(bars) + 1):
             evs, st = bot.liq_stage_events(bars[max(0, k - bot.LIQ_WINDOW_MIN):k],
@@ -293,8 +317,8 @@ def _lock_v4(fetch=None):
     ok = ok and n0 > n4
     # 🔒 **وشاهدٌ يُثبت أن العيّنةَ الرابعةَ تفرّق على القمّة بعينها** — وإلّا عاد
     #    القفلُ أعمى عن الطبقة التي كشفتها الطفرة (‏`M7`).
-    _nohw = {k: v for k, v in ARMS["V4"].items() if k != "highwater"}
-    d_hw, d_no = len(replay(dim, ARMS["V4"])), len(replay(dim, _nohw))
+    _nohw = {k: v for k, v in PROD.items() if k != "highwater"}
+    d_hw, d_no = len(replay(dim, PROD)), len(replay(dim, _nohw))
     notes.append(f"القمّةُ تفرّق: مع={d_hw} · بلا={d_no} "
                  f"{'✅' if d_no > d_hw else '❌'}")
     ok = ok and d_no > d_hw

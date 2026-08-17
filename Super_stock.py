@@ -12698,6 +12698,18 @@ LIQ_UPDATE_CAP = 6             # engineering — سقفُ تحديثاتِ ال�
 #    ⓷ **والتحديثُ عند تجاوز أعلى قمّةٍ سابقة** (high-water) لا كلَّ دقيقة.
 LIQ_MIN_USD = 30_000           # قرارُ المالك — أرضيةُ سيولةِ الدقيقة بالدولار
 LIQ_CLOSE_POS_MIN = 0.5        # engineering — الإغلاقُ في النصف الأعلى («داخلة»)
+# 🔴🔴 **بوّابةُ التجاوب — قرارُ المالك 2026-08-17 الثاني** («لاحظت أسهم كثيره جدااا
+#    يوصلني انها داخلها سيولة مرتفعه **ومع ذلك ما تتحرك** … لا يصير يوصلني اشعار او
+#    تحديث بخصوص سهم إلا اللي **يرتفع خلال دقيقة وحده نسبة فوق 5٪** بالإضافة إلى
+#    ارتفاع السيولة»).
+#    🔑 **وسندُه مقيسٌ من صورتَيه:** `TENX` سيولةُ خمسِ دقائقَ **‏$1,045,680** وصنفُها
+#    «مضاربٌ قويّ» بعتبة فيصل — **والسهمُ ‏+1.11% فقط**؛ و`BZAI` بـ$301,595 **وهو
+#    ‏−28.09% في اليوم**. وتفصيلُ الصفقات يشرح السبب: **‏50 ألف شراءٍ و50 ألف بيعٍ
+#    عند ‏1.82 بالضبط** = كتلٌ متقاطعةٌ **تُمتصّ ولا تُحرّك السعر**.
+#    ⇒ **الدرسُ: عتباتُ فيصل الدولاريّة تُصنّف الشمعةَ ولا تتنبّأ بالحركة** — فيلزم
+#    مقياسُ **تجاوبٍ** مستقلّ. وقياسُ الرفعة **من فتح الدقيقة إلى إغلاقها** (لا إلى
+#    قمّتها) فارتفاعٌ ارتدّ كلُّه ليس تجاوبًا.
+LIQ_MIN_MOVE_PCT = 5.0         # قرارُ المالك — رفعةُ الدقيقة الواحدة (فتح ⟶ إغلاق)
 
 # ترتيبُ الأولوية **مُعلَنٌ لا ضمنيّ**: الأقربُ إلى خطّةِ دخولٍ محفوظة أوّلًا،
 # فإن قصَّ السقفُ فإنما يقصّ الأبعدَ عن التنفيذ — ويُعلَن بعددِه.
@@ -13008,6 +13020,14 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
         def _usd(b):
             return float(b["c"]) * float(b["v"])
 
+        def _rise(b):
+            """📈 رفعةُ الدقيقة **فتحًا ⟶ إغلاقًا** بالنسبة — مقياسُ «التجاوب»."""
+            try:
+                o_, c_ = float(b.get("o") or b["c"]), float(b["c"])
+                return ((c_ - o_) / o_ * 100.0) if o_ > 0 else 0.0
+            except Exception:                                    # noqa: BLE001
+                return 0.0
+
         def _inflow(b):
             """💵 **«سيولةٌ داخلةٌ لا خارجة»** (قرارُ المالك): الدقيقةُ **خضراء**
             **وإغلاقُها في النصف الأعلى** من مداها ⇒ المشترون حسموها. أرخصُ مقياسٍ
@@ -13017,6 +13037,11 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 o_, c_ = float(b.get("o") or b["c"]), float(b["c"])
                 h_, l_ = float(b.get("h") or c_), float(b.get("l") or c_)
                 if c_ < o_:
+                    return False
+                # 🔴 **بوّابةُ التجاوب (قرارُ المالك):** «إلّا اللي يرتفع خلال دقيقة
+                #    وحده نسبة فوق 5٪» — تُقاس **فتحًا ⟶ إغلاقًا** فالارتفاعُ الذي
+                #    ارتدّ كلُّه ليس تجاوبًا. وسيولةٌ بلا تجاوبٍ = امتصاصٌ (`TENX`).
+                if o_ > 0 and (c_ - o_) / o_ * 100.0 < LIQ_MIN_MOVE_PCT:
                     return False
                 rng = h_ - l_
                 return rng <= 0 or (c_ - l_) >= LIQ_CLOSE_POS_MIN * rng
@@ -13038,6 +13063,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
             ev.append({"stage": "M1", "usd": round(_usd(last)), "minutes": 1,
                        "anchor_ms": last_ms, "last_ms": last_ms,
                        "vol_x": round(vx, 1), "price": round(float(last["c"]), 4),
+                       "move": round(_rise(last), 2),
                        "class": _ignition_candle_class(_usd(last))})
             return (ev, st)
         anchor = int(anchor)
@@ -13056,6 +13082,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                                "minutes": 1, "anchor_ms": anchor,
                                "last_ms": last_ms, "vol_x": st.get("vol_x"),
                                "price": round(float(last["c"]), 4),
+                               "move": round(_rise(last), 2),
                                "class": _ignition_candle_class(_usd(last))})
         sent = list(st.get("sent") or [])
         span = (last_ms - anchor) // 60_000 + 1     # دقائقُ مغطّاةٌ من المِرساة
@@ -13169,8 +13196,9 @@ def build_liq_stage_alert(rows: list) -> str:
     if not rows:
         return ""
     lines = ["⏫💰 <b>سيولةُ الشمعة — لحظةَ دخولها</b>",
-             "<i>قفزةُ حجمِ الدقيقة (زنادُ الرادار نفسُه) ⇒ إشعارٌ فوريّ · ثم "
-             "تحديثٌ بكلّ دقيقة · ثم مجموعُ 5 و30 دقيقة من لحظة الدخول.</i>", ""]
+             "<i>قفزةُ حجمِ الدقيقة (زنادُ الرادار نفسُه) ‏+ أرضيةٌ دولاريّة "
+             "‏+ <b>رفعةُ الدقيقة</b> ⇒ إشعارٌ فوريّ · ثم تحديثٌ عند الزيادة · ثم "
+             "مجموعُ 5 و30 دقيقة من لحظة الدخول.</i>", ""]
     for i, (row, evs) in enumerate(rows, 1):
         if i > 1:
             lines.append(DAILY_CARD_SEP)
@@ -13180,9 +13208,12 @@ def build_liq_stage_alert(rows: list) -> str:
             _k, _d = e.get("class") or ("", "")
             lines.append("   " + _LIQ_STAGE_TXT.get(e["stage"], e["stage"]))
             _vx = e.get("vol_x")
+            _mv = e.get("move")
             lines.append(f"      💰 سيولة {e['minutes']} دقيقة "
                          f"${e['usd']:,} · السعر ${e['price']:.2f}"
-                         + (f" · قفزةُ حجمٍ {float(_vx):.0f}×" if _vx else ""))
+                         + (f" · قفزةُ حجمٍ {float(_vx):.0f}×" if _vx else "")
+                         + (f" · 📈 رفعةُ الدقيقة {float(_mv):.1f}%"
+                            if _mv else ""))
             if _d:
                 lines.append(f"      🕵️ حكمُ الهوية بعتبات فيصل: {_d}")
             if "operator" in e:
