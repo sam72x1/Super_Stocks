@@ -1,0 +1,31 @@
+name: Gate Probe (🚪🔬 أيُّ شرطٍ يُؤخّر أوّلَ تنبيه؟)
+
+# 🔒 **قراءةٌ/قياسٌ فقط**: لا كرون · لا كتابةَ حالة · لا رسالة تلغرام · لا مسَّ فرزٍ.
+# ⛔ **ولا ابتلاعَ فشل**: خروج 2 (لا بيانات) و3 (قفلٌ ساقط) **تُرى حمراء**.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🚪🔬 قِس شروط البوّابة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        run: python gate_probe.py

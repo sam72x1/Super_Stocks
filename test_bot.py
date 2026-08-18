@@ -25242,6 +25242,91 @@ check("🚨 MZ9 **`m0_prereg.md` يثبّت الأذرعَ وقاعدةَ الق
                                   "‏3.6 نقطة", "operator_flow", "‏≥90%")),
       f"طول={len(_mz_pre)}")
 
+# ═════════════════════════════════════════════════════════════════════════════
+# 🚪🔬 GT1-GT7 — **مِجَسُّ شروط البوّابة** (عقدُ `gate_prereg.md`): أيُّ شرطٍ
+#    يُؤخّر أوّلَ تنبيه؟ **والأقفالُ تحرس أداةَ القياس** — فعيوبُ الأدواتِ في هذا
+#    المستودع أكثرُ من نتائج الفرضيات.
+# ═════════════════════════════════════════════════════════════════════════════
+import gate_probe as _GT                                           # noqa: E402
+
+# 🔒 GT1 — الأذرعُ **سبعٌ ولا تُزاد بعد الأرقام** (‏`gate_prereg §④`)
+check("🚪 GT1 **الأذرعُ سبعٌ مثبَّتةٌ** (‏G0-G6) ولا تُزاد بعد الأرقام",
+      sorted(_GT.ARMS) == ["G0", "G1", "G2", "G3", "G4", "G5", "G6"]
+      and _GT.ARMS["G0"] == {}
+      and _GT.ARMS["G1"]["close_pos"] == 0.0
+      and _GT.ARMS["G2"]["vol_mult"] == 2.0
+      and _GT.ARMS["G3"]["cum_n"] == 5
+      and _GT.ARMS["G4"]["move_min"] == 3.0
+      and _GT.ARMS["G5"]["floor"] == 15_000.0
+      and _GT.ARMS["G6"].get("no_rise") is True,
+      str(sorted(_GT.ARMS)))
+
+# 🔒 GT2 — **`G0` يطابق بوّابةَ الإنتاج سلوكيًّا** ‏+ كلُّ ذراعٍ **تفرّق فعلًا**
+#    (وإلّا صارت زينةً تُقرأ «لا فرق» وهي `no-op` بنيويّ)
+_gt_ok, _gt_n = _GT._lock_g0()
+check("🚪 GT2 **`G0` = بوّابةُ الإنتاج · والسبعُ تفرّق** (ستُّ عيّناتٍ ‏+ ستّةُ شواهد)",
+      _gt_ok, " · ".join(_gt_n)[:200])
+
+# 🔒 GT3 — **أرقامُ المالك مفصولةٌ عن القابل للتوصية بنيويًّا**: قاعدةُ القرار
+#    تُطبَّق على `COACHABLE` وحدَها، و`G4`/`G5` في `OWNER_COST` و`G6` حدٌّ أعلى.
+#    ⇒ يستحيل أن يخرج المِجَسُّ بتوصيةٍ تمسّ رقمًا هو نصُّ المالك.
+_gt_src = open("gate_probe.py", encoding="utf-8").read()
+check("🚪 GT3 **رقما المالك خارج التوصية بنيويًّا** (‏$30 ألفًا و5% كلفةٌ لا توصية)",
+      _GT.COACHABLE == ("G1", "G2", "G3")
+      and _GT.OWNER_COST == ("G4", "G5") and _GT.UPPER_BOUND == ("G6",)
+      and "for an in COACHABLE:" in _gt_src
+      and not _re_opf.search(r"for an in .*OWNER_COST.*:\s*\n(?:.*\n)*?"
+                             r"\s+if good and best is None", _gt_src),
+      f"قابل={_GT.COACHABLE} · كلفة={_GT.OWNER_COST}")
+
+# 🔒 GT4 — **المتحرّكُ منقولٌ حرفيًّا** ولا يُحرَّك ليُجمّل نتيجة
+check("🚪 GT4 **`MOVER_PCT`=30 منقولٌ حرفيًّا** من `liq_noise_prereg` (لا يُعاير)",
+      _GT.MOVER_PCT == 30.0 and _GT.T10_PCT == 10.0
+      and _GT.JITTER_PP == 3.6)
+
+# 🔒 GT5 — **الإثمارُ مقياسٌ واحدٌ لا اثنان**: يُستعمَل `liq_move_probe.fruit`
+#    بالاسم ولا يُعرَّف في المِجَسّ ثانيةً.
+check("🚪 GT5 **الإثمارُ مُعادٌ حرفيًّا** من `liq_move_probe` (مقياسٌ واحد)",
+      "LM.fruit(" in _gt_src
+      and not _re_opf.search(r"^FRUIT_(PCT|MIN)\s*=", _gt_src, _re_opf.M)
+      and _GT.LM.FRUIT_PCT == 3.0 and _GT.LM.FRUIT_MIN == 15)
+
+# 🔒 GT6 — **قراءةٌ فقط بنيويًّا**: صفرُ كتابةِ ملفٍّ · صفرُ تلغرام · وصفرُ إسنادٍ
+#    إلى أيّ خاصّيّةٍ في `bot` (فلا يغيّر المِجَسُّ الإنتاجَ في التشغيلة).
+_gt_t = _ast0.parse(_gt_src)
+_gt_w = [n for n in _ast0.walk(_gt_t) if isinstance(n, _ast0.Call)
+         and getattr(n.func, "id", None) == "open"
+         and any(isinstance(a, _ast0.Constant) and isinstance(a.value, str)
+                 and ("w" in a.value or "a" in a.value) for a in n.args)]
+_gt_tg = [n for n in _ast0.walk(_gt_t) if isinstance(n, _ast0.Call)
+          and getattr(n.func, "attr", "") in ("send_telegram", "git_save",
+                                              "save_op_entry_state")]
+_gt_as = [n for n in _ast0.walk(_gt_t)
+          if isinstance(n, (_ast0.Assign, _ast0.AugAssign))
+          for _t3 in (n.targets if isinstance(n, _ast0.Assign) else [n.target])
+          if isinstance(_t3, _ast0.Attribute)
+          and getattr(_t3.value, "id", None) == "bot"]
+check("🚪 GT6 **المِجَسُّ يقرأ ولا يكتب**: صفرُ كتابةِ ملفٍّ/تلغرامٍ/إسنادٍ إلى `bot`",
+      not _gt_w and not _gt_tg and not _gt_as,
+      f"كتابة={len(_gt_w)} · إرسال={len(_gt_tg)} · إسناد={len(_gt_as)}")
+
+# 🔒 GT7 — **الـworkflow لا يبتلع فشلًا** (بنيويًّا بالـYAML لا بالنصّ — درسُ MZ7)
+_gt_y = _qt_yaml.safe_load(open(".github/workflows/gate.yml",
+                                encoding="utf-8").read())
+_gt_on = _gt_y.get(True) or _gt_y.get("on") or {}
+_gt_st = [_x for _j in (_gt_y.get("jobs") or {}).values()
+          for _x in (_j.get("steps") or [])]
+_gt_env = {}
+for _x in _gt_st:
+    _gt_env.update(_x.get("env") or {})
+check("🚪 GT7 **`gate.yml` يدويٌّ · بلا ابتلاعِ فشل · والمفتاحُ موصول** (بنيويًّا)",
+      set(_gt_on) == {"workflow_dispatch"}
+      and all("continue-on-error" not in _x for _x in _gt_st)
+      and _gt_env.get("POLYGON_API_KEY") == "${{ secrets.POLYGON_API_KEY }}"
+      and [(_x.get("with") or {}).get("python-version") for _x in _gt_st
+           if (_x.get("with") or {}).get("python-version")] == ["3.11"],
+      f"on={sorted(map(str, _gt_on))}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
