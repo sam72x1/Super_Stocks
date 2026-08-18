@@ -19,6 +19,7 @@
 import json
 import os
 import subprocess
+import sys
 import time
 
 try:
@@ -107,6 +108,59 @@ def _fetch_state(paths):
     return out
 
 
+def _git_out(args, timeout=15):
+    """مُخرَجُ git نصًّا — فاشلٌ-آمن ⇒ سلسلةٌ فارغة."""
+    try:
+        r = subprocess.run(["git"] + list(args), capture_output=True,
+                           timeout=timeout)
+        return r.stdout.decode("utf-8", "replace").strip() if r.returncode == 0 \
+            else ""
+    except Exception:                                            # noqa: BLE001
+        return ""
+
+
+def _self_update(t0, budget):
+    """🔄 يُحدّث الكودَ حيًّا حين يتقدّم `origin/main` ثم **يُعيد تشغيل نفسه**.
+
+    🔴🔴 **العلّةُ مقيسةٌ من بلاغ المالك (2026-08-18، `$BAOS`):** هذا العاملُ جوبٌ
+    يعمل ‏≈5.5 ساعة ويسحب الكودَ **لحظةَ الـcheckout**؛ فإصلاحٌ يُدفَع بعد بدئه
+    **لا يصله حتى المقطع التالي**. ووصل المالكَ كرتٌ بختمِ إصدار `36c1f23` بينما
+    الإصلاحُ `08f43ae` مدفوعٌ قبله بساعةٍ ونصف — **والختمُ في الرسالة نفسِها هو
+    الدليل**. ⇒ «الإصلاحُ مدفوعٌ» **ليس** «الإصلاحُ يعمل عند المالك».
+
+    🔒 **فاشلٌ-آمنٌ ومحافظ:** لا يُحدَّث إلّا بشجرةٍ **نظيفة** وبلا كوميتاتٍ
+    محلّيّةٍ غيرِ مدفوعة (وإلّا ضاع ختمُ ددوبٍ لم يُدفَع ⇒ **رسالةٌ مكرّرة**،
+    وهي الضجيجُ الذي يكرهه). وأيُّ إخفاق ⇒ **يمضي بالكود القديم ولا يتوقّف**.
+    ⚖️ **ولا يُطيل الجوب أبدًا:** المتبقّي يُمرَّر عبر `OE_BUDGET_MIN` وهو
+    **يُقصّر ولا يُطيل** بنيويًّا (`_budget`) ⇒ رتيبٌ لا يمدّ زمنًا.
+    يُرجع `False` إن لم يُعِد التشغيل (وإلّا لا يعود أصلًا)."""
+    head = _git_out(["rev-parse", "HEAD"])
+    remote = _git_out(["rev-parse", "FETCH_HEAD"])
+    if not head or not remote or head == remote:
+        return False
+    _log(f"🔄 كودٌ أحدثُ على origin ({head[:7]} ⟶ {remote[:7]}) — يُفحَص الأمان.")
+    if _git_out(["status", "--porcelain"]):
+        _log("⏸️ الشجرةُ غيرُ نظيفة ⇒ **لا تحديث** (يمضي بالقديم).")
+        return False
+    if _git_out(["rev-list", "FETCH_HEAD..HEAD"]):
+        _log("⏸️ كوميتاتٌ محلّيّةٌ غيرُ مدفوعة ⇒ **لا تحديث** (لئلّا يتكرّر إشعار).")
+        return False
+    rem = int(budget - (time.time() - t0) / 60.0)
+    if rem < 2:
+        _log("⏸️ المتبقّي أقلُّ من دقيقتين ⇒ لا فائدةَ من إعادة التشغيل.")
+        return False
+    if _git_out(["reset", "--hard", "FETCH_HEAD"], timeout=60) == "":
+        _log("⚠️ تعذّر تحديثُ الشجرة ⇒ يمضي بالقديم (فاشلٌ-آمن).")
+        return False
+    _log(f"♻️ حُدِّث الكودُ إلى {remote[:7]} — يُعاد التشغيل بميزانية {rem} دقيقة.")
+    try:
+        os.execve(sys.executable, [sys.executable] + sys.argv,
+                  dict(os.environ, OE_BUDGET_MIN=str(rem)))
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⚠️ تعذّرت إعادةُ التشغيل ({e}) — يمضي بالكود المحدَّث في الذاكرة.")
+    return False
+
+
 # 🔗 **قائمةُ الترشيح محفوظةٌ هنا لضمّ سياقِ الفلتر بلا نداءٍ إضافيّ.**
 #    ⚖️ ولماذا خاصّيّةُ وحدةٍ لا عنصرٌ خامسٌ في المُرجَع: ثلاثةُ مِجَسّاتٍ تُفكّك
 #    مُخرَجَ `_load_universe` **رباعيًّا** (`m0_probe` · `liq_move_probe` ·
@@ -188,6 +242,13 @@ def main():
                     seen.setdefault(_k, _v)
             except Exception as e:                               # noqa: BLE001
                 _log(f"⚠️ تحديثُ الكون (دورة {loops}): {e}")
+            # 🔄 **وبعد الجلب مباشرةً**: `_load_universe` نفّذ `git fetch` سلفًا
+            #    فالمقارنةُ بلا نداءٍ شبكيٍّ إضافيّ. (يُنادى **بعد** ضمّ الددوب
+            #    كي لا يُعاد التشغيل قبل أن تُقرأ أختامُ المقاطع الأخرى.)
+            try:
+                _self_update(t0, budget)
+            except Exception as e:                               # noqa: BLE001
+                _log(f"⚠️ فحصُ تحديث الكود: {e}")
             _log(f"💰 تغطيةُ السيولة: {liq_cov} قراءةً تراكميًّا من "
                  f"{len(uni_all)} · الموضعُ الآن {liq_at} · {liq_hit} رفعة.")
         try:

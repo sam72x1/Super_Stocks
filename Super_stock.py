@@ -9410,6 +9410,24 @@ def _parse_fail_hint(text: str, body: str) -> str:
     return f"🔎 موضعُ العطب (byte {off}): …{snip}…"
 
 
+def _recipient_hint(body: str) -> str:
+    """💡 يترجم رفضَ تيليجرام إلى **خطوةٍ يفعلها المستلم** لا رمزِ خطأ.
+
+    أشهرُ سببٍ عند إضافة صديق: **لم يفتح محادثةَ البوت ويضغط Start** — وتيليجرام
+    لا يسمح للبوت أن يبدأ محادثةً أوّلًا. يرجع `""` لِما لا يُعرَف (لا يُخمَّن)."""
+    b = (body or "").lower()
+    if "chat not found" in b:
+        return ("💡 المستلمُ لم يبدأ محادثةَ البوت بعد — يفتح البوت ويضغط "
+                "**Start** (أو يُرسل أيَّ رسالة)، ثم تصله الإشعارات.")
+    if "bot was blocked" in b:
+        return "💡 المستلمُ **حظر البوت** — يُلغي الحظرَ ويضغط Start."
+    if "user is deactivated" in b:
+        return "💡 حسابُ المستلم **معطَّل** — يُزال رقمُه من السرّ."
+    if "bot is not a member" in b or "not enough rights" in b:
+        return "💡 مجموعةٌ: أضِف البوتَ **عضوًا** فيها أوّلًا."
+    return ""
+
+
 def send_telegram(text: str) -> bool:
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
         log("ℹ️ لا يوجد توكن تيليجرام — الطباعة على الشاشة فقط:")
@@ -9417,10 +9435,11 @@ def send_telegram(text: str) -> bool:
               .replace("<i>", "").replace("</i>", "") + "\n")
         return False
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    # دعم أكثر من مستلم: TELEGRAM_CHAT_ID يقبل عدة أرقام مفصولة بفاصلة
-    # (لإضافة أصدقاء يستقبلون نفس الرسائل). رقم واحد يشتغل عادي.
-    recipients = [c.strip() for c in TELEGRAM_CHAT.replace(";", ",").split(",")
-                  if c.strip()]
+    # 👥 **أكثرُ من مستلم**: `TELEGRAM_CHAT_ID` يقبل عدّةَ أرقامٍ بفاصلة (أو سطرٍ
+    #    جديد) — **يُعدَّل السرُّ القائم ولا يُضاف سرٌّ ثانٍ بالاسم نفسه**.
+    recipients = _chat_recipients()
+    admin = recipients[0] if recipients else None
+    failed = []
     chunks = _chunk_message(text)
     # ⚠️ **إصلاح 2026-07-27:** نصّ فارغ ⇒ `_chunk_message` يرجع [] ⇒ الحلقة لا تدور
     # و`ok` يبقى True ⇒ الدالّة **تُعلن نجاحًا لرسالة لم تُرسَل**. وهذا يهدم العقد
@@ -9471,19 +9490,55 @@ def send_telegram(text: str) -> bool:
                         except Exception as e2:                  # noqa: BLE001
                             log(f"   ⛔ إعادةُ النصّ الصريح فشلت: "
                                 f"{_redact_secrets(e2)}")
-                    ok = False
+                    if cid not in failed:
+                        failed.append(cid)
+                    _h = _recipient_hint(_raw)
+                    if _h:
+                        log("   " + _h)
+                    if cid == admin:
+                        ok = False
             except Exception as e:
                 log(f"⚠️ خطأ تيليجرام ({cid}): {_redact_secrets(e)}")
-                ok = False
+                if cid not in failed:
+                    failed.append(cid)
+                if cid == admin:
+                    ok = False
         time.sleep(1)
+    # 🔴🔴 **عقدُ الإرجاع = وصولُ المشرف، لا وصولُ الجميع** (أُصلح 2026-08-18 قبل
+    #    أن يُضيف المالكُ صديقَيه): كان إخفاقُ **أيّ** مستلمٍ يُرجع `False`،
+    #    والعمّالُ الأحياء يقرأون `False` = «تيليجرام رفض» ⇒ **يُنزَع الختمُ
+    #    ويُعاد الإشعارُ في الدورة التالية** ⇒ صديقٌ لم يضغط Start على البوت
+    #    (وتيليجرام يرفض بـ`chat not found`) كان **سيجعل الرسالةَ نفسَها تتكرّر
+    #    على المالك كلَّ ‏≈60 ثانية بلا نهاية** — وهو عينُ الضجيج الذي يكرهه،
+    #    **وسببُه إضافةُ صديقٍ لا عطلٌ في السوق**.
+    #    ⇒ الختمُ يحرس **تسليمَ المالك**، وإخفاقُ صديقٍ **يُبلَّغ بصوتٍ عالٍ ولا
+    #    يُعيد إرسالًا**. (وإخفاقُ المشرف يبقى `False` كما كان — بت-بت.)
+    if failed:
+        log(f"⚠️ لم تصل إلى {len(failed)} من {len(recipients)} مستلمين: "
+            + " · ".join(failed)
+            + ("" if ok else " — ومنهم المشرف"))
     return ok
+
+
+def _chat_recipients() -> list:
+    """👥 مستلمو تيليجرام — **مُحلِّلٌ واحدٌ لا اثنان**.
+
+    يتحمّل الفاصلة والفاصلةَ المنقوطة و**السطرَ الجديد والمسافة** (سرُّ GitHub
+    قد يُلصَق بأسطر) · ويُسقط التكرارَ **مع حفظ الترتيب** (‏**الأوّلُ هو المشرف**)
+    فلا يصل الإشعارُ مرّتين لمن كُرّر رقمُه سهوًا."""
+    raw = (TELEGRAM_CHAT or "").replace(";", ",").replace("\n", ",") \
+        .replace("\r", ",").replace("\t", ",").replace(" ", ",")
+    out = []
+    for c in raw.split(","):
+        c = c.strip()
+        if c and c not in out:
+            out.append(c)
+    return out
 
 
 def _admin_chat() -> list:
     """المستلم المشرف (أول رقم) فقط — لا يُرسل الملفات للأصدقاء."""
-    recips = [c.strip() for c in TELEGRAM_CHAT.replace(";", ",").split(",")
-              if c.strip()]
-    return recips[:1]
+    return _chat_recipients()[:1]
 
 
 def send_telegram_document(path: str, caption: str = "") -> bool:
@@ -13179,11 +13234,17 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
             ev.append({"stage": tag, "usd": round(tot), "minutes": len(win),
                        "anchor_ms": anchor, "last_ms": last_ms,
                        "vol_x": st.get("vol_x"),
-                       "price": round(float(win[-1]["c"]), 4),
-                       # 🔴 **ولا يساوي `last_ms` دائمًا:** السعرُ هنا من آخرِ شمعةٍ
-                       #    **داخل النافذة** لا أحدثِ شمعة، فلو تجاوز العدّادُ
-                       #    النافذةَ (سهمٌ لم يُمسَح دورةً) صار أقدمَ بدقائق.
-                       "price_ms": int(win[-1]["t"]),
+                       # 🔴🔴 **أُصلح بأمر المالك 2026-08-18 («تعطيني أسعار للسهم
+                       #    بالسالب … حلها»):** كان السعرُ من `win[-1]` = آخرِ شمعةٍ
+                       #    **داخل النافذة** لا أحدثِ شمعةٍ مغلقة ⇒ لو تجاوز
+                       #    العدّادُ النافذةَ صار **أقدمَ بدقائق بنيويًّا** فيُطبَع
+                       #    سعرٌ «تعدّاه السهمُ من زمان». الآن **أحدثُ شمعةٍ مغلقة**
+                       #    (`last`) — أطزجُ ما تسمح به البيانات.
+                       #    ⚖️ **والسيولةُ والدقائقُ تبقيان من النافذة** (هما معنى
+                       #    «مجموعُ خمس دقائق») ⇒ لا يختلط مقياسان.
+                       "price": round(float(last["c"]), 4),
+                       "price_ms": last_ms,
+                       "win_price": round(float(win[-1]["c"]), 4),
                        "class": _ignition_candle_class(tot)})
         st["sent"] = sent
         return (ev, st)
@@ -13542,9 +13603,14 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
             _age = ("" if not _bc else
                     f" (قبل {_bc[1]}ث)" if _bc[1] < 90 else
                     f" (قبل {_bc[1] // 60} دقيقة)")
-            _px = (f" · سعرُ إغلاق دقيقة {_bc[0]}{_age} "
-                   f"${e['price']:.2f}" if _bc else
-                   f" · سعرُ إغلاق الدقيقة ${e['price']:.2f}")
+            # 📡 **والسعرُ الحيُّ يتصدّر حين يتوفّر** (أمرُ المالك 2026-08-18):
+            #    كان الكرتُ يقود بسعرِ شمعةٍ مضت فيُقرأ «سعرٌ تعدّاه السهم»؛
+            #    والاقتباسُ **مجلوبٌ أصلًا** في الطبقة الثانية ⇒ صفرُ نداءٍ إضافيّ.
+            #    وإغلاقُ الدقيقة **يبقى مطبوعًا بعمره** فلا يُخفى شيء.
+            _lp = live_price_note(e.get("operator")) if "operator" in e else None
+            _px = ((f" · 📡 السعرُ الآن ${_lp:.2f}" if _lp else "")
+                   + (f" · إغلاقُ دقيقة {_bc[0]} ${e['price']:.2f}{_age}"
+                      if _bc else f" · إغلاقُ الدقيقة ${e['price']:.2f}"))
             # 🔴 **و`vol_x` في المجاميع منسوخٌ من المِرساة** (‏`st.get("vol_x")`)
             #    ⇒ يُوسَم بعمره بدل أن يُقرأ لحظيًّا.
             _agg = str(e.get("stage") or "") in ("M5", "M30")
@@ -13558,11 +13624,7 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                 lines.append(f"      🕵️ حكمُ الهوية بعتبات فيصل: {_d}")
             if "operator" in e:
                 _of = e.get("operator")
-                # 📡 **الحيُّ يُسمّى باسمه** بدل أن يُقرأ سعرُ الشمعة سعرًا حاليًّا
-                _lp = live_price_note(_of)
-                if _lp:
-                    lines.append(f"      📡 السعرُ الآن ‏≈${_lp:.2f} "
-                                 f"(من الاقتباس لحظةَ الإرسال)")
+                # 📡 الحيُّ صار في سطر السيولة نفسِه (يتصدّر) فلا يُكرَّر هنا.
                 _ol = operator_line(_of) if _of else ""
                 lines.append("      " + (_ol if _ol else
                                          ("🕵️ طبعاتُ مضاربٍ مؤكَّدة"

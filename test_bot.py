@@ -25826,9 +25826,12 @@ check("📡 SHOW3 **«السعرُ الآن» يظهر مع الاقتباس و�
       and S.live_price_note({}) is None and S.live_price_note(None) is None,
       f"وسيطُ الاقتباس={S.live_price_note(_show_of)}")
 
-# 🔒 SHOW4 — 🔴 **حالةُ المالك بعينها**: مجموعُ الثلاثين سعرُه من شمعةٍ **داخل
-#          النافذة** فقد يسبق أحدثَ شمعةٍ بدقائق ⇒ **يُقال عمرُه** · و`vol_x`
-#          منسوخٌ من المِرساة ⇒ **يُوسَم**. وفارقٌ: المرحلةُ الأولى بلا الوسم.
+# 🔒 SHOW4 — 🔴 **حالةُ المالك بعينها**: مجموعُ الثلاثين **يُقال عمرُ سعره**
+#          و`vol_x` منسوخٌ من المِرساة ⇒ **يُوسَم**. وفارقٌ: المرحلةُ الأولى
+#          بلا الوسم.
+#          ⚖️ **وتصحيحُ تعليقٍ تعفّن (2026-08-18):** كان يقول «سعرُه من شمعةٍ
+#          داخل النافذة» — **وقد أُصلح** (‏`PRC1`: صار أحدثَ شمعةٍ مغلقة)،
+#          ووسمُ العمر يبقى لأن الشمعةَ المغلقةَ نفسَها ليست سعرًا حيًّا.
 _show_m30 = S.build_liq_stage_alert(
     _show_row(stage="M30", minutes=30, usd=9_680_000, price=6.10,
             price_ms=_show_t - 25 * 60_000, move=None), now_ms=_show_now)
@@ -25841,9 +25844,15 @@ check("🕐 SHOW4 **مجموعُ الثلاثين يُظهر عمرَ سعره �
 #          ⇒ الرسالةُ تُبنى ويُطبَع السعرُ **بلا ادّعاءِ وقت**.
 _show_bare = S.build_liq_stage_alert(_show_row(price_ms=None), now_ms=_show_now)
 _show_junk = S.build_liq_stage_alert(_show_row(price_ms="س"), now_ms=_show_now)
-check("🕐 SHOW5 **طابعٌ غائبٌ/تالفٌ ⇒ سعرٌ بلا ادّعاءِ وقت ولا انهيار**",
-      "سعرُ إغلاق الدقيقة" in _show_bare and "قبل" not in _show_bare.split("💰")[1][:80]
-      and "سعرُ إغلاق الدقيقة" in _show_junk and "$7.64" in _show_bare,
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-18** (بلاغُ `$BAOS`): صار السعرُ الحيُّ يتصدّر
+#    السطرَ، فتغيّر نصُّ الارتداد «سعرُ إغلاق الدقيقة» ⟶ «إغلاقُ الدقيقة».
+#    ⇒ **يُشدَّد لا يُرخى**: يُشترَط مع غيابِ ادّعاءِ الوقت **غيابُ سطر السعر
+#    الحيّ أيضًا** (لا اقتباسَ في العيّنة) — فلا ينجو ارتدادٌ يخترع سعرًا.
+check("🕐 SHOW5 **طابعٌ غائبٌ/تالفٌ ⇒ سعرٌ بلا ادّعاءِ وقت ولا سعرٍ حيٍّ ولا انهيار**",
+      "إغلاقُ الدقيقة" in _show_bare
+      and "قبل" not in _show_bare.split("💰")[1][:80]
+      and "📡" not in _show_bare
+      and "إغلاقُ الدقيقة" in _show_junk and "$7.64" in _show_bare,
       _show_bare.split("💰")[1][:80] if "💰" in _show_bare else "")
 
 # 🔒 SHOW6 — 🔒 **`price_ms` حقلٌ إضافيٌّ بحت**: يُكتَب في المراحل الأربع **ولا
@@ -26023,6 +26032,216 @@ check("📈 CR6 **الـworkflow يدويٌّ · بلا كرون · بلا اب�
 # 🔒 CR7 — **عزلٌ تامّ**: الإنتاجُ لا يستورد المِجَسّ (أداةُ بحثٍ خارج الفرز).
 check("🔒 CR7 **`Super_stock` لا يستورد `cumrise_probe`** (عزلٌ تامّ)",
       "cumrise_probe" not in open("Super_stock.py", encoding="utf-8").read())
+
+# ==========================================================
+# 🕐💰 **بلاغُ `$BAOS` (2026-08-18): «تعطيني أسعار للسهم بالسالب … حلها»**
+#    عيبان مستقلّان: ① سعرُ المجاميع من **آخرِ شمعةٍ داخل النافذة** لا أحدثِ
+#    شمعةٍ مغلقة ⇒ أقدمُ بدقائقَ **بنيويًّا** ② والكرتُ كان يقود بسعرِ شمعةٍ
+#    مضت بينما الاقتباسُ الحيُّ مجلوبٌ أصلًا.
+# ==========================================================
+def _prc_b(i, o, h, l, c, v):
+    return {"t": i * 60_000, "o": o, "h": h, "l": l, "c": c, "v": v}
+
+
+_prc_bars = ([_prc_b(i, 1.0, 1.0, 1.0, 1.0, 500) for i in range(8)]
+             + [_prc_b(8, 1.00, 1.30, 1.00, 1.29, 40_000)]
+             + [_prc_b(i, 1.29, 1.31, 1.28, round(1.29 + 0.01 * (i - 8), 4), 300)
+                for i in range(9, 22)])
+_prc_e1, _prc_st = S.liq_stage_events(_prc_bars[:10], {})
+_prc_e2, _prc_st = S.liq_stage_events(_prc_bars[:22], _prc_st)
+_prc_m5 = next((e for e in _prc_e2 if e["stage"] == "M5"), {})
+
+# 🔒 PRC1 — **سعرُ المجاميع من أحدثِ شمعةٍ مغلقة** — والعيّنةُ **تفرّق**: النافذةُ
+#           تنتهي عند الدقيقة 12 والأحدثُ 20 ⇒ 1.33 مقابل 1.41 (فرقٌ 6%).
+check("🕐 PRC1 **`M5` يقرأ أحدثَ شمعةٍ مغلقة لا آخرَ النافذة** (البؤاتُ البنيويّ)",
+      _prc_m5.get("price") == 1.41 and _prc_m5.get("win_price") == 1.33
+      and _prc_m5.get("price_ms") == 20 * 60_000,
+      f"price={_prc_m5.get('price')} · نافذة={_prc_m5.get('win_price')}")
+
+# 🔒 PRC2 — **والسيولةُ والدقائقُ تبقيان من النافذة** (معنى «مجموعُ خمس دقائق»)
+#           ⇒ لا يختلط مقياسان بحجّة تطزيج السعر.
+_prc_win_usd = round(sum(float(b["c"]) * float(b["v"])
+                         for b in _prc_bars[8:13]))
+check("🔒 PRC2 **السيولةُ والدقائقُ من النافذة لا من الأحدث** (مقياسان لا يختلطان)",
+      _prc_m5.get("minutes") == 5 and _prc_m5.get("usd") == _prc_win_usd,
+      f"usd={_prc_m5.get('usd')} · متوقَّع={_prc_win_usd}")
+
+# 🔒 PRC3 — **الكرتُ يقود بالسعر الحيّ حين يتوفّر · وبإغلاق الدقيقة حين لا يتوفّر**
+#           (فارقٌ محدَّد: حاضرٌ مع الاقتباس وغائبٌ بدونه — لا «أو»).
+_prc_ev = {"stage": "M5", "usd": 980354, "minutes": 5, "anchor_ms": 1_000_000,
+           "last_ms": 1_240_000, "vol_x": 14.0, "price": 0.46,
+           "price_ms": 1_240_000, "class": ("strong", "شمعة مضارب قوية")}
+_prc_q = dict(_prc_ev, operator={"has_operator": True, "bid": 0.47, "ask": 0.47,
+                                 "bid_size": 100, "ask_size": 100,
+                                 "quote_age_ms": 900})
+_prc_row = {"symbol": "BAOS", "src": "تحت المتابعة"}
+_prc_with = S.build_liq_stage_alert([(_prc_row, [_prc_q])], now_ms=1_300_040)
+_prc_without = S.build_liq_stage_alert([(_prc_row, [_prc_ev])], now_ms=1_300_040)
+check("📡 PRC3 **السعرُ الآن يتصدّر مع الاقتباس ويغيب بدونه · وإغلاقُ الدقيقة "
+      "يبقى بعمره**",
+      "📡 السعرُ الآن $0.47" in _prc_with
+      and "📡 السعرُ الآن" not in _prc_without
+      and "إغلاقُ دقيقة" in _prc_with and "إغلاقُ دقيقة" in _prc_without
+      and "$0.46" in _prc_with,
+      [ln for ln in _prc_with.splitlines() if "سيولة 5" in ln][:1])
+
+# 🔒 PRC4 — **ولا يُطبَع مرّتين** (كان سطرًا مستقلًّا ‏+ سطرَ السيولة).
+check("📡 PRC4 **سطرُ السعر الحيّ مرّةً واحدة** (لا تكرار)",
+      _prc_with.count("📡 السعرُ الآن") == 1,
+      f"عدد={_prc_with.count('📡 السعرُ الآن')}")
+
+# ==========================================================
+# 🔄 **العاملُ الحيُّ كان لا يستقبل إصلاحًا قبل المقطع التالي** — عيبٌ مقيسٌ من
+#    الرسالة نفسِها (ختمُ `36c1f23` بينما الإصلاحُ مدفوعٌ قبله بساعةٍ ونصف).
+# ==========================================================
+_sup_src = open("operator_entry_live.py", encoding="utf-8").read()
+try:
+    _sup_tree, _sup_ok = _af_ast.parse(_sup_src), True
+except SyntaxError:
+    _sup_tree, _sup_ok = None, False
+import operator_entry_live as _sup_oel                             # noqa: E402
+
+_sup_calls = []
+
+
+def _sup_git(args, timeout=15):
+    _sup_calls.append(list(args))
+    a = list(args)
+    if a[:1] == ["rev-parse"]:
+        return "aaa" if a[1] == "HEAD" else "bbb"
+    if a[:1] == ["status"]:
+        return _sup_state.get("dirty", "")
+    if a[:1] == ["rev-list"]:
+        return _sup_state.get("ahead", "")
+    return "ok"
+
+
+_sup_orig = _sup_oel._git_out
+_sup_state = {}
+try:
+    _sup_oel._git_out = _sup_git
+    import time as _sup_time
+    _sup_state = {"dirty": " M x.py", "ahead": ""}
+    _sup_calls.clear()
+    _r_dirty = _sup_oel._self_update(_sup_time.time(), 60)
+    _dirty_reset = any(c[:1] == ["reset"] for c in _sup_calls)
+    _sup_state = {"dirty": "", "ahead": "deadbeef"}
+    _sup_calls.clear()
+    _r_ahead = _sup_oel._self_update(_sup_time.time(), 60)
+    _ahead_reset = any(c[:1] == ["reset"] for c in _sup_calls)
+    _sup_state = {"dirty": "", "ahead": ""}
+    _sup_calls.clear()
+    _r_short = _sup_oel._self_update(_sup_time.time(), 1)   # المتبقّي دون دقيقتين
+    _short_reset = any(c[:1] == ["reset"] for c in _sup_calls)
+except Exception as _e:                                          # noqa: BLE001
+    _r_dirty = _r_ahead = _r_short = f"⛔ {type(_e).__name__}"
+    _dirty_reset = _ahead_reset = _short_reset = True
+finally:
+    _sup_oel._git_out = _sup_orig
+
+# 🔒 SUP1 — **ثلاثةُ حرّاسٍ يمنعون التحديثَ**، وكلٌّ يُختبَر **بمفرده** فلا ينجو
+#           حارسٌ ميّتٌ خلف آخر. والحاسمُ: **صفرُ `git reset`** في الثلاث.
+check("🔄 SUP1 **شجرةٌ متّسخة · أو كوميتاتٌ غيرُ مدفوعة · أو متبقٍّ قصير ⇒ لا "
+      "تحديثَ ولا `reset`** (لئلّا يضيع ختمٌ فيتكرّر الإشعار)",
+      _r_dirty is False and _r_ahead is False and _r_short is False
+      and not _dirty_reset and not _ahead_reset and not _short_reset,
+      f"متّسخة={_r_dirty}/{_dirty_reset} · أمام={_r_ahead}/{_ahead_reset} · "
+      f"قصير={_r_short}/{_short_reset}")
+
+# 🔒 SUP2 — **مُنادًى حيًّا من فرع التحديث · وداخلَ `try` عريض** فلا يُسقط الجوب.
+_sup_wired = [n for n in (_af_ast.walk(_sup_tree) if _sup_ok else [])
+              if isinstance(n, _af_ast.Call)
+              and getattr(n.func, "id", None) == "_self_update"]
+_sup_guarded = any(
+    any(isinstance(h.type, _af_ast.Name) and h.type.id == "Exception"
+        for h in t.handlers)
+    and any(getattr(getattr(c, "func", None), "id", None) == "_self_update"
+            for c in _af_ast.walk(t))
+    for t in (_af_ast.walk(_sup_tree) if _sup_ok else [])
+    if isinstance(t, _af_ast.Try))
+check("🔄 SUP2 **مُنادًى مرّةً حيًّا ومحروسٌ بالتقاطٍ عريض** (فاشلٌ-آمن)",
+      _sup_ok and len(_sup_wired) == 1 and _sup_guarded,
+      f"نداءات={len(_sup_wired)} · محروس؟ {_sup_guarded}")
+
+# 🔒 SUP3 — **لا يُطيل الجوبَ أبدًا**: المتبقّي يُمرَّر عبر `OE_BUDGET_MIN` وهو
+#           **يُقصّر ولا يُطيل** بنيويًّا — يُفحَص **سلوكيًّا** لا نصًّا.
+check("🔄 SUP3 **`OE_BUDGET_MIN` يُقصّر ولا يُطيل** (‏3 ⟶ 3 · و9999 ⟶ ما تبقّى)",
+      _sup_oel._budget(300, "3") == 3 and _sup_oel._budget(300, "9999") == 300
+      and "OE_BUDGET_MIN" in _af_insp.getsource(_sup_oel._self_update),
+      f"قصير={_sup_oel._budget(300, '3')} · طويل={_sup_oel._budget(300, '9999')}")
+
+# ==========================================================
+# 👥 **«أبي أضيف صديقي» (2026-08-18)** — الدعمُ قائمٌ، لكنّ **عقدَ الإرجاع** كان
+#    سيصنع كارثةَ ضجيج: إخفاقُ **أيّ** مستلمٍ يُرجع `False`، والعمّالُ الأحياء
+#    يقرأونه «تيليجرام رفض» ⇒ **يُنزَع الختمُ ويُعاد الإشعارُ كلَّ دورة**.
+# ==========================================================
+class _TgResp:
+    def __init__(self, code, text=""):
+        self.status_code, self.text = code, text
+
+
+_tg_calls = []
+_tg_orig_post, _tg_orig_chat = S.requests.post, S.TELEGRAM_CHAT
+_tg_orig_tok, _tg_orig_sleep = S.TELEGRAM_TOKEN, S.time.sleep
+
+
+def _tg_run(chat, ok_ids, body='{"description":"Bad Request: chat not found"}'):
+    def _post(url, json=None, timeout=None, **k):
+        _tg_calls.append(json.get("chat_id"))
+        return (_TgResp(200) if json.get("chat_id") in ok_ids
+                else _TgResp(400, body))
+    S.TELEGRAM_CHAT, S.TELEGRAM_TOKEN = chat, "T"
+    S.requests.post, S.time.sleep = _post, (lambda *a, **k: None)
+    _tg_calls.clear()
+    try:
+        return S.send_telegram("مرحبا"), list(_tg_calls)
+    finally:
+        S.requests.post, S.TELEGRAM_CHAT = _tg_orig_post, _tg_orig_chat
+        S.TELEGRAM_TOKEN, S.time.sleep = _tg_orig_tok, _tg_orig_sleep
+
+
+# 🔒 TGM1 — **المُحلِّل واحدٌ ويتحمّل الفاصلة والسطرَ والمسافة · ويُسقط التكرار**
+_tg_save = S.TELEGRAM_CHAT
+try:
+    S.TELEGRAM_CHAT = "111,\n222 ; 333,111"
+    _tg_rec, _tg_adm = S._chat_recipients(), S._admin_chat()
+finally:
+    S.TELEGRAM_CHAT = _tg_save
+check("👥 TGM1 **مستلمون بفاصلةٍ أو سطرٍ أو مسافة · بلا تكرار · والأوّلُ المشرف**",
+      _tg_rec == ["111", "222", "333"] and _tg_adm == ["111"],
+      f"{_tg_rec} · مشرف={_tg_adm}")
+
+# 🔒 TGM2 — 🔴 **الحاسم**: صديقٌ لم يضغط Start ⇒ **`True`** فلا يُنزَع الختمُ ولا
+#          يتكرّر الإشعار · **والمشرفُ إن أخفق ⇒ `False`** (العقدُ القديم بت-بت).
+#          حالتان **متفرّقتان** فلا ينجو عقدٌ يخلط بينهما.
+_tg_ok_friend, _tg_seen1 = _tg_run("111,222,333", {"111"})
+_tg_ok_admin, _tg_seen2 = _tg_run("111,222,333", {"222", "333"})
+check("👥 TGM2 **إخفاقُ صديقٍ لا يُعيد الإرسال (True) · وإخفاقُ المشرف يُرجع False**",
+      _tg_ok_friend is True and _tg_ok_admin is False
+      and _tg_seen1 == ["111", "222", "333"],
+      f"صديق={_tg_ok_friend} · مشرف={_tg_ok_admin}")
+
+# 🔒 TGM3 — **ولا يُكتَم إخفاقُ صديقٍ صامتًا**: يُطبَع بعدده وبأسمائه ومعه
+#          **خطوةٌ يفعلها المستلم** لا رمزُ خطأ.
+_tg_log = []
+_tg_orig_log = S.log
+try:
+    S.log = lambda m, *a, **k: _tg_log.append(str(m))
+    _tg_run("111,222", {"111"})
+finally:
+    S.log = _tg_orig_log
+_tg_txt = "\n".join(_tg_log)
+check("👥 TGM3 **الإخفاقُ يُبلَّغ بعدده وبالتلميح العمليّ** (لا صمت)",
+      "لم تصل إلى 1 من 2" in _tg_txt and "Start" in _tg_txt
+      and S._recipient_hint('{"description":"bot was blocked by the user"}')
+      and S._recipient_hint("boom") == "",
+      [ln for ln in _tg_log if "لم تصل" in ln][:1])
+
+# 🔒 TGM4 — **الملفّاتُ للمشرف وحدَه** (لا تُرسَل CSV للأصدقاء) — مقفولٌ بالمُحلِّل
+#          الواحد فلا يتفرّق تعريفُ «المشرف» عن تعريف «المستلمين».
+check("👥 TGM4 **`_admin_chat` أوّلُ `_chat_recipients` حصرًا** (الملفّاتُ للمشرف)",
+      "_chat_recipients()[:1]" in _af_insp.getsource(S._admin_chat)
+      and "_chat_recipients()" in _af_insp.getsource(S.send_telegram))
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
