@@ -25691,19 +25691,35 @@ check("🩺 AF13ج **جدولُ المحاور = ما يفحصه الكود با
       f"في الكود={len(_af_used) - 1} · في الجدول={len(S.ALERT_FILTER_AXES)} · "
       f"الفرق={sorted((_af_used - {'enabled'}) ^ set(S.ALERT_FILTER_AXES))}")
 
-# 🔒 AF14 — 🥇 **المشحونُ = قرارُ المالك «شغّل P5»**: `Mu` وحدها مكتومة، وبقيّةُ
-#           المراحل تمرّ — **سلوكيًّا عبر `load_alert_filter()` من الملفّ الحقيقيّ**
-#           لا من قاموسٍ مكتوبٍ في الاختبار (وإلّا لم يحرس الملفَّ المدفوع).
+# 🔒 AF14 — 🥇 **المشحونُ = قرارُ المالك «شغّل C1»** (‏2026-08-18 · **إقرارٌ مؤرَّخ**:
+#           كان يقفل `P5` فأمسك التبديلَ فأدّى عملَه — **وشُدِّد لا أُرخي**: صار
+#           يفحص **محورَين لا واحدًا**، وكلٌّ بفارقٍ يعزله عن الآخر).
+#           سلوكيًّا **عبر `load_alert_filter()` من الملفّ الحقيقيّ** لا من قاموسٍ
+#           مكتوبٍ في الاختبار (وإلّا لم يحرس الملفَّ المدفوع).
+#           **سندُه المقيس:** ‏119 حدثًا ⟶ 70 (‏−41%) بصفرِ سهمٍ يضيع (‏`32109839498`).
 _af_live = S.load_alert_filter()
-_af_stage = lambda st: S.alert_filter_keep(                        # noqa: E731
-    _af_row, dict(_af_ev, stage=st), _af_live)[0]
-check("🥇 AF14 **المشحونُ يكتم التحديثَ `Mu` وحده** (قرارُ المالك «شغّل P5»)",
-      _af_stage("Mu") is False and all(_af_stage(_s) for _s in
-                                       ("M0", "M1", "M5", "M30"))
+
+
+def _af_ship_keep(stage, move):
+    return S.alert_filter_keep(_af_row, dict(_af_ev, stage=stage, move=move),
+                               _af_live)[0]
+
+
+check("🥇 AF14 **المشحونُ يكتم التحديثَ `Mu` **و** الرفعةَ دون العشرة** "
+      "(قرارُ المالك «شغّل C1») — محوران بفارقَين معزولَين",
+      # ① محورُ المرحلة يعزله ثباتُ الرفعة فوق الحدّ
+      _af_ship_keep("Mu", 12.0) is False
+      and all(_af_ship_keep(_s, 12.0) for _s in ("M0", "M1", "M5", "M30"))
+      # ② ومحورُ الرفعة يعزله ثباتُ المرحلة المقبولة · والحدُّ نفسُه يمرّ
+      and _af_ship_keep("M1", 6.5) is False
+      and _af_ship_keep("M1", 10.0) is True
+      # ③ والمحوران هما المشحونان لا ثالثَ لهما
       and set(_af_live) - {k for k in _af_live if str(k).startswith("_")}
-      == {"stages"},
+      == {"stages", "min_move_pct"}
+      and S.alert_filter_issues(_af_live) == [],
       f"المشحون={sorted(k for k in _af_live if not str(k).startswith('_'))} · "
-      f"Mu={_af_stage('Mu')} · M1={_af_stage('M1')}")
+      f"Mu@12={_af_ship_keep('Mu', 12.0)} · M1@6.5={_af_ship_keep('M1', 6.5)} · "
+      f"M1@10={_af_ship_keep('M1', 10.0)}")
 
 # 🔒 AF15 — **الحارسُ موصولٌ حيًّا وداخلَ نفس الـ`try`** فلا يُسقط انكسارُه الجوب،
 #           **ويسبق التطبيق** (إبلاغٌ ثم عمل، لا العكس).
