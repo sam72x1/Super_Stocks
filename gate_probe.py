@@ -127,13 +127,35 @@ def gate_trace(bars, i, arm, w=None):
     cpos = 1.0 if rng <= 0 else (c_ - l_) / rng
     mv = float(arm.get("move_min", bot.LIQ_MIN_MOVE_PCT))
     cp = float(arm.get("close_pos", bot.LIQ_CLOSE_POS_MIN))
+    # 📈🧮 **الرفعةُ التراكميّة** (‏`T-CUMRISE` · أمرُ المالك 2026-08-18) — إضافةٌ
+    #    **مطفأةٌ افتراضيًّا**: بلا `rise_n`/`rise_any` يكون `rise_eff = rise`
+    #    ⇒ أذرعُ `gate_result.md` (‏G0-G6) **بت-بت** وتبقى قابلةً لإعادة الإنتاج.
+    #    ⚖️ **ولا رقمَ جديد:** القيمةُ تبقى `LIQ_MIN_MOVE_PCT` (رقمُ المالك)،
+    #    والمتغيّرُ **النافذةُ التي تُقاس عليها** — وهي `LIQ_CUM_MINUTES` النافذةُ
+    #    في الإنتاج اليوم للأرضية الدولاريّة. ⇒ توحيدُ نافذتين لا اختراعُ ثالثة.
+    def _cum_rise(k):
+        seg = closed[-int(k):] if int(k) > 1 else [last]
+        if not seg:
+            return rise
+        o0 = float(seg[0].get("o") or seg[0]["c"])
+        return ((c_ - o0) / o0 * 100.0) if o0 > 0 else 0.0
+    rn = int(arm.get("rise_n") or 0)
+    ra = int(arm.get("rise_any") or 0)
+    rise_eff = _cum_rise(rn) if rn > 1 else rise
+    if arm.get("no_rise"):
+        g_rise = True
+    elif ra > 1:                      # 🔗 **اتّحادٌ رتيب**: لا يكتم ما يُطلقه اليوم
+        g_rise = (rise >= mv) or (_cum_rise(ra) >= mv)
+    else:
+        g_rise = rise_eff >= mv
     return {
-        "vx": vx, "cum": cum, "rise": rise, "cpos": cpos, "price": c_,
+        "vx": vx, "cum": cum, "rise": rise, "rise_eff": rise_eff,
+        "cpos": cpos, "price": c_,
         "usd": MZ._usd(last),
         "g_vol": vx >= float(arm.get("vol_mult", bot.CONFIG["IGNITION_VOL_MULT"])),
         "g_floor": cum >= floor,
         "g_green": c_ >= o_,
-        "g_rise": True if arm.get("no_rise") else rise >= mv,
+        "g_rise": g_rise,
         "g_cpos": (rng <= 0) or ((c_ - l_) >= cp * rng),
     }
 

@@ -1,0 +1,36 @@
+name: Cumulative Rise (📈🧮 قِس الرفعة التراكميّة)
+
+# 🔒 **قراءةٌ/قياسٌ فقط**: لا كرون · لا كتابةَ حالة · لا رسالة تلغرام · لا مسَّ فرزٍ.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "الجلسةُ المقيسة YYYY-MM-DD (فارغٌ = آخرُ جلسةٍ فيها بيانات)"
+        required: false
+        type: string
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📈🧮 قِس الرفعة التراكميّة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          GATE_DAY: ${{ inputs.day }}
+        run: python cumrise_probe.py

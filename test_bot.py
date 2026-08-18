@@ -19850,15 +19850,27 @@ _vwr_bn = {f"N{_i}": S.near_watch_entry(
     [] if _i < 5 else ["x"], "2026-08-16") for _i in range(30)}
 _vwr_bh = {"stocks": [{"symbol": f"H{_i}", "status": "active"}
                       for _i in range(3)]}
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-18 (أمرُ المالك «ارفع السقف»):** كان القفلُ يقرأ
+#    `S.LIVE_WATCH_CAP` فيربط **الخاصّيةَ** (لا تجويعَ مصدر) بـ**قيمةِ** السقف؛
+#    فلمّا صار 400 لم تعد الفِكستشرُ (‏122 سهمًا) تتجاوزه ⇒ سقط القفلُ على كودٍ
+#    سليم. ⇒ **يُشدَّد لا يُرخى**: السقفُ يُمرَّر **صريحًا** فتُختبَر الخاصّيةُ
+#    عند سقفٍ **مُلزِمٍ يقينًا** مهما تحرّك الثابت · **ويُضاف شقٌّ ثانٍ** يُثبت
+#    أن السقفَ النافذ لم يعد يقصّ هذي الفِكستشر (فيُقرأ التغييرُ من القفل نفسِه).
 _vwr_rr, _vwr_rrc = S.live_watch_universe(
-    _vwr_big, _vwr_bn, _vwr_bp, _vwr_bh, today_iso="2026-08-16")
+    _vwr_big, _vwr_bn, _vwr_bp, _vwr_bh, cap=60, today_iso="2026-08-16")
 _vwr_by = {}
 for _r in _vwr_rr:
     _vwr_by[_r["src"]] = _vwr_by.get(_r["src"], 0) + 1
 check("🔒 VWR5هـ لا مصدرَ يُجوَّع: الخمسةُ كلُّها لها نصيبٌ رغم تجاوز السقف",
-      len(_vwr_rr) == S.LIVE_WATCH_CAP and _vwr_rrc > 0
+      len(_vwr_rr) == 60 and _vwr_rrc > 0
       and all(_vwr_by.get(_k, 0) > 0 for _k in S.LIVE_WATCH_SOURCES),
       str(_vwr_by))
+_vwr_now, _vwr_nowc = S.live_watch_universe(
+    _vwr_big, _vwr_bn, _vwr_bp, _vwr_bh, today_iso="2026-08-16")
+check("⬆️ VWR5و **وبالسقف النافذ لا يُقصّ أحدٌ من الفِكستشر نفسِها** "
+      "(‏122 سهمًا تحت 400 — أثرُ «ارفع السقف» مقروءٌ من القفل)",
+      _vwr_nowc == 0 and len(_vwr_now) == len(_vwr_rr) + _vwr_rrc,
+      f"قُصّ={_vwr_nowc} · كون={len(_vwr_now)}")
 
 # 🔒 NWB1-NWB3 — **سلّتان بمصدرَين فيصليَّين** (عيبٌ مقيس: بترتيبٍ واحد وقع
 #    `RUBI` **‏#609 من 726** فلا يظهر، و`DRCT` #58 — **ولا ترتيبَ واحدٌ يُظهر
@@ -25863,6 +25875,154 @@ check("🕵️ SHOW7 **سطرُ المضارب بأيقونةٍ واحدة** (ك
       _show_msg.count("🕵️ المضارب") == 1
       and "🕵️ 🕵️" not in _show_msg,
       [ln for ln in _show_msg.splitlines() if "المضارب:" in ln][:1])
+
+# ==========================================================
+# ⬆️⏱️ **«ارفع السقف»** — أمرُ المالك 2026-08-18. سقفُ كون المتابعة 60 ⟶ 400
+#    (الكونُ الكامل اليوم 314 ⇒ صفرُ قصّ) ‏+ **إيقاعُ الدورة** كي لا يتحوّل
+#    التوسيعُ إلى تأخيرٍ في إشعارات السيولة.
+# ==========================================================
+_cap_oel = open("operator_entry_live.py", encoding="utf-8").read()
+try:
+    _cap_tree, _cap_ok = _af_ast.parse(_cap_oel), True
+except SyntaxError:
+    _cap_tree, _cap_ok = None, False
+
+# 🔒 CAPR1 — القيمةُ النافذة **‏400** (لا 60) · وهي **مُعلَنةُ القصّ** لا صامتة.
+check("⬆️ CAPR1 **سقفُ كون المتابعة 400** (أمرُ المالك «ارفع السقف»)",
+      S.LIVE_WATCH_CAP == 400,
+      f"السقف={S.LIVE_WATCH_CAP}")
+
+# 🔒 CAPR2 — **سلوكيّ**: بالسقف الجديد لا يُقصّ أحدٌ من كونٍ حجمُه 314، وبالقديم
+#            يُقصّ 254. عيّنةٌ **مفرِّقة** (لولا الفرق لمرّت طفرةُ الرجوع إلى 60).
+_cap_wl = {"stocks": [{"symbol": f"S{i:03d}", "status": "active"}
+                      for i in range(314)]}
+_cap_u4, _cap_c4 = S.live_watch_universe(_cap_wl, None, None, None)
+_cap_u6, _cap_c6 = S.live_watch_universe(_cap_wl, None, None, None, cap=60)
+check("⬆️ CAPR2 **بالسقف النافذ صفرُ قصٍّ على 314 · وبـ60 يُقصّ 254**",
+      len(_cap_u4) == 314 and _cap_c4 == 0
+      and len(_cap_u6) == 60 and _cap_c6 == 254,
+      f"نافذ=({len(_cap_u4)},{_cap_c4}) · ستّون=({len(_cap_u6)},{_cap_c6})")
+
+# 🔒 CAPR3 — **الإيقاعُ رتيبٌ لا يُؤخّر أبدًا**: النومُ `max(0, interval - مضى)`
+#            لا `interval` مطلقًا. والفرقُ ماديّ: المسحُ **تسلسليّ** فكونٌ أكبرُ
+#            يعني عملًا أطول، ولو بقي النومُ مضافًا لتضخّمت الدورةُ **فتأخّرت
+#            إشعاراتُ السيولة** — وهي شكوى المالك بعينها.
+_cap_sleeps = [n for n in (_af_ast.walk(_cap_tree) if _cap_ok else [])
+               if isinstance(n, _af_ast.Call)
+               and getattr(getattr(n, "func", None), "attr", None) == "sleep"]
+_cap_paced = [n for n in _cap_sleeps
+              if n.args and isinstance(n.args[0], _af_ast.Call)
+              and getattr(n.args[0].func, "id", None) == "max"]
+check("⏱️ CAPR3 **النومُ مُوقَّتٌ لا مضاف** (‏`max(0, interval - مضى)`)",
+      _cap_ok and len(_cap_sleeps) == 1 and len(_cap_paced) == 1
+      and "time.sleep(interval)" not in _cap_oel,
+      f"نوم={len(_cap_sleeps)} · مُوقَّت={len(_cap_paced)}")
+
+# 🔒 CAPR4 — و**مِرساةُ الزمن تُؤخَذ في رأس الدورة** لا بعد العمل (وإلّا صار
+#            الطرحُ ‏≈0 والإيقاعُ **إضافةً بثوبٍ جديد**). تُفحَص بالـAST: أوّلُ
+#            جملةٍ بعد `loops += 1` هي إسنادُ `_cyc`.
+_cap_body = None
+for _n in (_af_ast.walk(_cap_tree) if _cap_ok else []):
+    if isinstance(_n, _af_ast.While):
+        _cap_body = _n.body
+        break
+_cap_head = ""
+if _cap_body and len(_cap_body) > 1 and isinstance(_cap_body[1], _af_ast.Assign):
+    _cap_head = getattr(_cap_body[1].targets[0], "id", "")
+check("⏱️ CAPR4 **المِرساةُ في رأس الدورة** (‏`_cyc` أوّلَ ما بعد العدّاد)",
+      _cap_ok and _cap_head == "_cyc",
+      f"أوّلُ إسنادٍ في الحلقة={_cap_head!r}")
+
+# ==========================================================
+# 📈🧮 **`T-CUMRISE`** — «قِس الرفعة التراكميّة» (أمرُ المالك 2026-08-18).
+#    عقدُه `cumrise_prereg.md` **مدفوعٌ قبل أيّ رقم**. أقفالُ الأداة هنا،
+#    والحكمُ في مُخرَجها لا في السويّة.
+# ==========================================================
+import cumrise_probe as CR                                        # noqa: E402
+import gate_probe as _cr_gp                                       # noqa: E402
+import liq_move_probe as _cr_lm                                   # noqa: E402
+_cr_src = _af_insp.getsource(CR)
+
+# 🔒 CR1 — **الأذرعُ أربعٌ لا خامسة** (ذراعٌ تُضاف بعد الأرقام = `p-hacking`)
+#          وقيمُها من ثوابت الإنتاج لا أرقامٍ مغروسة.
+check("📈 CR1 **أربعُ أذرعٍ بالضبط** · و`R1` نافذتُها `LIQ_CUM_MINUTES` النافذة",
+      list(CR.ARMS) == ["R0", "R1", "R2", "R3"]
+      and CR.ARMS["R0"] == {}
+      and CR.ARMS["R1"] == {"rise_n": S.LIQ_CUM_MINUTES}
+      and CR.ARMS["R3"] == {"rise_any": S.LIQ_CUM_MINUTES},
+      str(CR.ARMS))
+
+# 🔒 CR2 — **الحدودُ منقولةٌ لا مخترَعة**: حدُّ التأخّر من `T-GATE` · والإثمارُ
+#          من `JITTER_PP` المقيس · والمتحرّكُ من `MOVER_PCT` · والإثمارُ نفسُه
+#          دالّةُ `liq_move_probe` **بالاسم** (مقياسٌ واحدٌ لا اثنان).
+check("📈 CR2 **الحدودُ مُعادةٌ لا مخترَعة · والإثمارُ بدالّة واحدة**",
+      CR.LATE_GAIN_MIN == 5.0 and _cr_gp.JITTER_PP == 3.6
+      and "LM.fruit(" in _cr_src and "GP.anchor_of(" in _cr_src
+      and _cr_lm.FRUIT_PCT == 3.0 and _cr_lm.FRUIT_MIN == 15,
+      f"تأخّر={CR.LATE_GAIN_MIN} · ضجيج={_cr_gp.JITTER_PP} · "
+      f"إثمار={_cr_lm.FRUIT_PCT}%/{_cr_lm.FRUIT_MIN}د")
+
+# 🔒 CR3 — 🔴 **رقمُ المالك لا يُمَسّ**: لا ذراعَ تُغيّر `move_min` ولا `floor`
+#          ولا `vol_mult` ولا `close_pos`. المتغيّرُ **نافذةُ القياس** وحدَها.
+_cr_keys = set()
+for _a in CR.ARMS.values():
+    _cr_keys |= set(_a)
+check("🔴 CR3 **الأذرعُ لا تمسّ رقمَ المالك** (‏5% و$30 ألفًا) — النافذةُ فقط",
+      _cr_keys <= {"rise_n", "rise_any"}
+      and S.LIQ_MIN_MOVE_PCT == 5.0 and S.LIQ_MIN_USD == 30_000,
+      f"مفاتيحُ الأذرع={sorted(_cr_keys)}")
+
+# 🔒 CR4 — **`gate_trace` مطفأةٌ افتراضيًّا**: بلا `rise_n`/`rise_any` يبقى
+#          `rise_eff == rise` ⇒ أذرعُ `gate_result.md` (‏G0-G6) **بت-بت**.
+#          يُفحَص **سلوكيًّا** على العيّنة التي تفرّق (لو كان الافتراضُ تراكميًّا
+#          لانقلب الجوابُ) — لا نصًّا (فخُّ «القفل النصّيّ»).
+_cr_flat = [CR._b(i, 1.0, 1.0, 1.0, 1.0, 500) for i in range(8)]
+_cr_climb = _cr_flat + [CR._b(8, 1.0, 1.03, 1.0, 1.03, 12_000),
+                        CR._b(9, 1.03, 1.0609, 1.03, 1.0609, 12_000),
+                        CR._b(10, 1.0609, 1.0927, 1.0609, 1.0927, 40_000),
+                        CR._b(11, 1.0927, 1.093, 1.09, 1.0927, 100)]
+_cr_g = {g: _cr_gp.anchor_of(_cr_climb, _cr_gp.ARMS[g])[0]
+         for g in ("G0", "G1", "G2", "G3", "G5")}
+check("🔒 CR4 **الإضافةُ مطفأةٌ افتراضيًّا** — `G0`-`G5` صامتةٌ على العيّنة "
+      "التراكميّة و`R1` تُطلق ⇒ أرقامُ `gate_result` قابلةٌ لإعادة الإنتاج",
+      all(v is None for v in _cr_g.values())
+      and _cr_gp.anchor_of(_cr_climb, CR.ARMS["R1"])[0] == 10,
+      str(_cr_g))
+
+# 🔒 CR5 — **القفلُ يسقط ولا ينهار**: `_lock_arms` يُرجع (bool, notes) ويشمل
+#          شاهدَ `K2` (‏`R1` تكتم ما يُطلقه `R0`) — وهو ما يمنع قراءةَ «‏R1
+#          مجموعةٌ فوق R0» خطأً. وأيُّ سقوطٍ ⇒ **خروج 3 ولا يُنشَر رقم**.
+try:
+    _cr_ok, _cr_notes = CR._lock_arms()
+except Exception as _e:                                          # noqa: BLE001
+    _cr_ok, _cr_notes = False, [f"⛔ رمى: {type(_e).__name__}"]
+check("🔒 CR5 **`LOCK-ARMS` يعبر · ويشمل شاهدَ `K2`** (‏`R1` تكتم ما يُطلقه `R0`)",
+      _cr_ok and any("هبوطٌ ثم قفزة" in n for n in _cr_notes)
+      and "return 3" in _cr_src,
+      f"عبر؟ {_cr_ok} · شواهد={len(_cr_notes)}")
+
+# 🔒 CR6 — **`cumrise.yml` يدويٌّ بلا كرون · بلا ابتلاعِ فشل · واليومُ موصول**
+_cr_yml = _af_yaml.safe_load(open(".github/workflows/cumrise.yml",
+                                  encoding="utf-8"))
+_cr_on = _cr_yml.get(True) or _cr_yml.get("on")
+_cr_on = list(_cr_on) if isinstance(_cr_on, dict) else list(_cr_on or [])
+_cr_job = list((_cr_yml.get("jobs") or {}).values())[0]
+_cr_steps = _cr_job.get("steps") or []
+_cr_env = {}
+for _s in _cr_steps:
+    _cr_env.update(_s.get("env") or {})
+check("📈 CR6 **الـworkflow يدويٌّ · بلا كرون · بلا ابتلاعِ فشل · ومدخلُ اليوم "
+      "موصولٌ ببيئةٍ يقرؤها السكربت** (بصمةُ `BT_CANDLE`)",
+      _cr_on == ["workflow_dispatch"]
+      and not any(_s.get("continue-on-error") for _s in _cr_steps)
+      and _cr_env.get("GATE_DAY") == "${{ inputs.day }}"
+      and "POLYGON_API_KEY" in _cr_env
+      and 'os.environ.get("GATE_DAY")' in _cr_src,
+      f"on={_cr_on} · بيئة={sorted(_cr_env)}")
+
+# 🔒 CR7 — **عزلٌ تامّ**: الإنتاجُ لا يستورد المِجَسّ (أداةُ بحثٍ خارج الفرز).
+check("🔒 CR7 **`Super_stock` لا يستورد `cumrise_probe`** (عزلٌ تامّ)",
+      "cumrise_probe" not in open("Super_stock.py", encoding="utf-8").read())
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
