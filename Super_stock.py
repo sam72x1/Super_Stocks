@@ -13266,6 +13266,133 @@ _LIQ_STAGE_TXT = {"M0": "🚨🚨 <b>دخلت سيولة الآن</b> — <i>د�
                   "M30": "🕧 <b>اكتملت 30 دقيقة</b> من دخول السيولة"}
 
 
+ALERT_FILTER_FILE = "alert_filter.json"   # 🎛️ فلترُ المالك — **قصٌّ لا إضافة**
+
+
+def load_alert_filter(path: str = None) -> dict:
+    """🎛️ يقرأ فلترَ المالك. **فاشلٌ-آمنٌ مفتوحٌ مطلقًا**: غائبٌ/تالفٌ/غيرُ قاموسٍ
+    ⇒ `{}` ⇒ **كلُّ شيءٍ يمرّ** = سلوكُ ما قبل الفلتر **بت-بت**.
+
+    ⚖️ **ولماذا مفتوحٌ لا مغلق:** الكتمُ **إزالةُ إشعار**، وقاعدةُ المستودع أن
+    ما يُزيل يفشل مفتوحًا (لا نحجب فرصةً بعطلِ ملفّ)."""
+    p = path or ALERT_FILTER_FILE
+    try:
+        with open(p, encoding="utf-8") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except Exception:                                            # noqa: BLE001
+        return {}
+
+
+def alert_ctx(entry) -> dict:
+    """🔗 سياقُ السهم من قائمتِنا — **ضمٌّ بالرمز بلا أيّ نداءٍ شبكيّ**.
+
+    كلُّ حقلٍ متعذّرٍ يعود `None` ⇒ **محورُه يمرّ** (تعذّرٌ ليس رفضًا)."""
+    e = entry if isinstance(entry, dict) else {}
+    return {"tranches": e.get("tranches"), "entry_status": e.get("entry_status"),
+            "float": e.get("float"), "avail": e.get("shares_available"),
+            "cont_status": e.get("cont_status")}
+
+
+def alert_filter_keep(row, ev, cfg=None, ctx=None):
+    """🎛️ **هل يُسلَّم هذا الحدث؟** نقيّة — ترجّع `(يُسلَّم؟، سببُ الكتم)`.
+
+    🔒 **ثلاثةُ عقودٍ بنيويّة:**
+    ① **تقصّ ولا تُضيف** — لا مسارَ فيها يُرجع `True` لحدثٍ لم يعبر البوّابةَ أصلًا.
+    ② **فاشلةٌ-آمنةٌ مفتوحة** — `cfg` فارغٌ/تالف · أو حقلٌ غائبٌ في الحدث/السياق
+       ⇒ **يمرّ**. فلا يُكتَم إشعارٌ بنقصِ بيانات.
+    ③ **مكانُها الإرسالُ لا الفحص** — الحالةُ (مِرساة/دِدوب/مجاميع 5 و30) تتقدّم
+       كما هي، فلو خُفِّف الفلترُ ظهرًا **لا ينهال المكتومُ دفعةً واحدة**.
+
+    محاورُها كلُّها اختياريّة: `sources` · `stages` · `classes` · `price_min/max` ·
+    `min_usd` · `min_move_pct` · `min_vol_x` · `require_operator` ·
+    `in_entry_band_only` · `entry_status` · `float_max` · `avail_max`."""
+    c = cfg if isinstance(cfg, dict) else {}
+    if not c or c.get("enabled") is False:
+        return (True, "")
+    x = ctx if isinstance(ctx, dict) else {}
+    r = row if isinstance(row, dict) else {}
+    e = ev if isinstance(ev, dict) else {}
+
+    def _num(v):
+        try:
+            return None if v is None else float(v)
+        except (TypeError, ValueError):
+            return None
+
+    src = r.get("src")
+    if c.get("sources") and src and src not in c["sources"]:
+        return (False, f"المصدر «{src}»")
+    if c.get("stages") and e.get("stage") and e["stage"] not in c["stages"]:
+        return (False, f"المرحلة {e['stage']}")
+    if c.get("classes"):
+        k = (e.get("class") or ("", ""))[0]
+        if k and k not in c["classes"]:
+            return (False, f"صنفُ الشمعة «{k}»")
+    px = _num(e.get("price"))
+    if px is not None:
+        if _num(c.get("price_min")) is not None and px < float(c["price_min"]):
+            return (False, f"السعر {px:g}")
+        if _num(c.get("price_max")) is not None and px > float(c["price_max"]):
+            return (False, f"السعر {px:g}")
+    for key, fld, lbl in (("min_usd", "usd", "السيولة"),
+                          ("min_move_pct", "move", "الرفعة"),
+                          ("min_vol_x", "vol_x", "قفزةُ الحجم")):
+        lim, val = _num(c.get(key)), _num(e.get(fld))
+        if lim is not None and val is not None and val < lim:
+            return (False, f"{lbl} {val:g}")
+    if c.get("require_operator"):
+        # 🔴🔴 **قِيس قبل الشحن فوُجد ميّتًا:** أوّلُ صياغةٍ لي كانت «اكتم إن
+        #    `has_operator is False`» — **ولا يمكن أن تُطلَق أبدًا**، لأن
+        #    `scan_liq_stages` **يُسقط تلك الحالةَ بنفسه** قبل أن تصل الفلتر
+        #    (‏«قِيس ولا مضارب ⇒ يُكتَم»). ⇒ محورٌ خامدٌ ووسمٌ يكذب.
+        #    **والمعنى الوحيدُ غيرُ المكرَّر:** الإنتاجُ يمرّر **ما تعذّر قياسُه**
+        #    بفائدة الشك (`of is None`)، وهذا المحورُ يُشدّده **عند التسليم وحده**:
+        #    لا يصلني إلا **مؤكَّدٌ بالطبعات**. (والحالةُ تتقدّم كما هي.)
+        of = e.get("operator")
+        if not isinstance(of, dict) or of.get("has_operator") is not True:
+            return (False, "المضارب غيرُ مؤكَّد")
+    if c.get("in_entry_band_only") and x.get("tranches"):
+        # 🔒 **بدالّة الإنتاج نفسِها** لا بنسخةٍ منها — والسعرُ سعرُ الحدث.
+        if not in_entry_band({"tranches": x.get("tranches"), "price": px}):
+            return (False, "خارج نطاق الدفعات")
+    if c.get("entry_status") and x.get("entry_status"):
+        st = str(x["entry_status"])
+        if not any(str(w) in st for w in c["entry_status"]):
+            return (False, "حالةُ الدخول")
+    for key, fld, lbl in (("float_max", "float", "الفلوت"),
+                          ("avail_max", "avail", "المتاح")):
+        lim, val = _num(c.get(key)), _num(x.get(fld))
+        if lim is not None and val is not None and val > lim:
+            return (False, f"{lbl} {val:,.0f}")
+    return (True, "")
+
+
+def apply_alert_filter(rows, cfg=None, wl=None):
+    """🎛️ يطبّق الفلترَ على مُخرَج `scan_liq_stages` ⇒ `(المُسلَّم، المكتوم)`.
+
+    **المكتومُ يُرجَع بأسبابه ليُعَدّ ويُطبَع** — قاعدةُ «لا قصَّ صامتًا».
+    ولا يمسّ `seen` ولا يُعيد ترتيبَ ما بقي (**الترتيبُ محفوظ**)."""
+    cfg = cfg if isinstance(cfg, dict) else {}
+    idx = {}
+    for st in ((wl or {}).get("stocks") or []):
+        if st.get("symbol"):
+            idx[str(st["symbol"]).upper()] = st
+    kept, muted = [], []
+    for row, evs in (rows or []):
+        ctx = alert_ctx(idx.get(str(row.get("symbol", "")).upper()))
+        keep_evs = []
+        for e in (evs or []):
+            ok, why = alert_filter_keep(row, e, cfg, ctx)
+            if ok:
+                keep_evs.append(e)
+            else:
+                muted.append((row.get("symbol"), e.get("stage"), why))
+        if keep_evs:
+            kept.append((row, keep_evs))
+    return (kept, muted)
+
+
 def build_liq_stage_alert(rows: list) -> str:
     """📩 رسالةُ التدرّج — **توقيتٌ لا توصية**، وتفصل «دخلت سيولة» عن «دخل المضارب».
 

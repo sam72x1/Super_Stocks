@@ -1,0 +1,36 @@
+name: Alert Filter (🎛️📏 كم يبقى وكم يسقط بالفلتر؟)
+
+# 🔒 **قراءةٌ/قياسٌ فقط**: لا كرون · لا كتابةَ حالة · لا رسالة تلغرام · لا مسَّ فرزٍ.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "الجلسةُ المقيسة YYYY-MM-DD (فارغٌ = آخرُ جلسةٍ فيها بيانات)"
+        required: false
+        type: string
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🎛️📏 قِس الفلتر
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          GATE_DAY: ${{ inputs.day }}
+        run: python alert_filter_check.py

@@ -107,8 +107,17 @@ def _fetch_state(paths):
     return out
 
 
+# 🔗 **قائمةُ الترشيح محفوظةٌ هنا لضمّ سياقِ الفلتر بلا نداءٍ إضافيّ.**
+#    ⚖️ ولماذا خاصّيّةُ وحدةٍ لا عنصرٌ خامسٌ في المُرجَع: ثلاثةُ مِجَسّاتٍ تُفكّك
+#    مُخرَجَ `_load_universe` **رباعيًّا** (`m0_probe` · `liq_move_probe` ·
+#    `gate_probe`) ⇒ تغييرُ عددِ العناصر يكسرها صامتًا. **والقراءةُ هنا فقط.**
+_WL = {}
+
+
 def _load_universe():
-    """يبني كونَ المتابعة من **أحدث** نسخةٍ للقوائم الخمس (أو المحلّية عند التعذّر)."""
+    """يبني كونَ المتابعة من **أحدث** نسخةٍ للقوائم الخمس (أو المحلّية عند التعذّر).
+
+    ويحفظ قائمةَ الترشيح في `_WL` ليضمّ الفلترُ سياقَه بلا نداءٍ شبكيٍّ جديد."""
     fresh = _fetch_state(["weekly_watchlist.json", "near_watch.json",
                           "press_radar_state.json", "hunter_watchlist.json",
                           bot.OP_ENTRY_STATE_FILE])
@@ -121,6 +130,9 @@ def _load_universe():
     seen = fresh.get(bot.OP_ENTRY_STATE_FILE)
     if not isinstance(seen, dict):
         seen = bot.load_op_entry_state()
+    _WL.clear()
+    if isinstance(wl, dict):
+        _WL.update(wl)
     uni, cut = bot.live_watch_universe(wl, near, press, hunter)
     # 💰 كونُ السيولة **بلا سقف** — أمرُ المالك «لكل الأسهم اللي تحت متابعة البوت
     #    بلا اي استثناء». والقصُّ في الكون المُسقَّف يبقى لِـ«هنا الدخول» وحده.
@@ -224,6 +236,30 @@ def main():
         if lcov and (loops % REFRESH_EVERY == 0 or lrows):
             _log(f"💰 التغطية: {lcov} من {len(uni_all)} في {lsec}ث "
                  f"(خيوط {bot.LIQ_WORKERS})")
+        # 🎛️ **فلترُ المالك — يقصّ ما يُرسَل ولا يمسّ ما يُفحَص** (قرارُه
+        #    2026-08-18 «ابن الفلتر»). ملفٌّ غائبٌ/فارغ ⇒ **بت-بت كما كان**.
+        #    🔴 **وحارسٌ حاسم:** الحالةُ تُختَم **بعد الإرسال** في هذا المسار، فلو
+        #    كتم الفلترُ كلَّ شيءٍ لَما خُتم شيءٌ ⇒ يُعاد الإشعارُ نفسُه كلَّ دورة.
+        #    ⇒ **يُختَم المكتومُ أيضًا** (فُحص وقُرِّر كتمُه عمدًا)، والرجوعُ عند
+        #    رفض تيليجرام يقتصر على **المُرسَل** لا على المكتوم.
+        _lmuted = []
+        if lrows:
+            try:
+                lrows, _lmuted = bot.apply_alert_filter(
+                    lrows, bot.load_alert_filter(), _WL)
+            except Exception as e:                               # noqa: BLE001
+                _lmuted = []
+                _log(f"⚠️ فلترُ الإشعارات (يمرّ الكلّ): {e}")
+            if _lmuted:
+                _log(f"🎛️ كُتم {len(_lmuted)} بالفلتر: "
+                     + " · ".join(f"{s}/{st} ({w})" for s, st, w in _lmuted[:8])
+                     + (f" … و{len(_lmuted) - 8}" if len(_lmuted) > 8 else ""))
+            if not lrows:            # كُتم الكلّ ⇒ **يُختَم ولا يُرسَل**
+                bot.save_op_entry_state(seen)
+                try:
+                    bot.git_save([bot.OP_ENTRY_STATE_FILE])
+                except Exception as e:                           # noqa: BLE001
+                    _log(f"⚠️ دفعُ ددوب السيولة (مكتوم): {e}")
         if lrows:
             _lsyms = [r[0]["symbol"] for r in lrows]
             _lstg = [e["stage"] for _r, _evs in lrows for e in _evs]

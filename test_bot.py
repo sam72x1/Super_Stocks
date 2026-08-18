@@ -25407,6 +25407,241 @@ check("🚪 GT7 **`gate.yml` يدويٌّ · بلا ابتلاعِ فشل · و�
            if (_x.get("with") or {}).get("python-version")] == ["3.11"],
       f"on={sorted(map(str, _gt_on))}")
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🎛️ أقفالُ فلتر الإشعارات (AF1-AF12) — أمرُ المالك 2026-08-18 «ابن الفلتر و قس»
+#    العقدُ ثلاثيّ: **يقصّ ولا يُضيف** · **فاشلٌ-آمنٌ مفتوح** · **عند الإرسال
+#    لا عند الفحص** (فالحالةُ تتقدّم فلا ينهال المكتومُ لو خُفِّف الفلترُ ظهرًا).
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _af_ast                                             # noqa: E402
+import inspect as _af_insp                                        # noqa: E402
+import json as _af_js                                             # noqa: E402
+import os as _af_os                                               # noqa: E402
+import tempfile as _af_tf                                         # noqa: E402
+import yaml as _af_yaml                                           # noqa: E402
+import alert_filter_check as AFC                                  # noqa: E402
+
+_af_row = {"symbol": "TEST", "src": "الترشيح", "price": 3.0}
+_af_ev = {"stage": "M1", "class": ("group", "قروب"), "price": 3.0,
+          "usd": 40_000.0, "move": 6.5, "vol_x": 4.2}
+
+
+def _af(cfg, ev=None, ctx=None, row=None):
+    return S.alert_filter_keep(row or _af_row, ev or _af_ev, cfg, ctx)
+
+
+# 🔒 AF1 — **فاشلٌ-آمنٌ مفتوح** بأربعة أشكالٍ من العطل · **وتفريقيًّا** يكتم بفلترٍ
+#          حقيقيّ (وإلّا كان القفلُ يمرّ على دالّةٍ ترجّع `True` دائمًا).
+check("🎛️ AF1 **فلترٌ فارغ/تالف/مُطفأ ⇒ يمرّ · وفلترٌ حقيقيٌّ يكتم** (تفريقيّ)",
+      _af({})[0] and _af(None)[0] and _af("خردة")[0]
+      and _af({"enabled": False, "min_usd": 10 ** 9})[0]
+      and not _af({"min_usd": 10 ** 9})[0],
+      f"فارغ={_af({})} · مُطفأ={_af({'enabled': False, 'min_usd': 10 ** 9})}")
+
+# 🔒 AF2 — **كلُّ محورٍ يكتم فعلًا** (اثنا عشر فارقًا مستقلًّا لا «أو» واحدة):
+#          لكلٍّ فلترٌ يكتم وفلترٌ محايدٌ يمرّ — فلا ينجو محورٌ ميّت.
+_af_axes = [
+    ("sources", {"sources": ["الارتداد"]}, {"sources": ["الترشيح"]}, {}, {}),
+    ("stages", {"stages": ["M30"]}, {"stages": ["M1"]}, {}, {}),
+    ("classes", {"classes": ["operator"]}, {"classes": ["group"]}, {}, {}),
+    ("price_min", {"price_min": 9.0}, {"price_min": 1.0}, {}, {}),
+    ("price_max", {"price_max": 1.0}, {"price_max": 9.0}, {}, {}),
+    ("min_usd", {"min_usd": 100_000}, {"min_usd": 1_000}, {}, {}),
+    ("min_move_pct", {"min_move_pct": 20.0}, {"min_move_pct": 1.0}, {}, {}),
+    ("min_vol_x", {"min_vol_x": 9.0}, {"min_vol_x": 2.0}, {}, {}),
+    ("require_operator", {"require_operator": True},
+     {"require_operator": False}, {}, {}),
+    ("in_entry_band_only", {"in_entry_band_only": True},
+     {"in_entry_band_only": False}, {"tranches": [1.0, 1.03, 1.06]},
+     {"tranches": [1.0, 1.03, 1.06]}),
+    ("entry_status", {"entry_status": ["جاهز"]}, {"entry_status": ["متابعة"]},
+     {"entry_status": "👀 متابعة"}, {"entry_status": "👀 متابعة"}),
+    ("float_max", {"float_max": 1_000}, {"float_max": 10 ** 9},
+     {"float": 5_000_000}, {"float": 5_000_000}),
+    ("avail_max", {"avail_max": 10}, {"avail_max": 10 ** 9},
+     {"avail": 90_000}, {"avail": 90_000}),
+]
+_af_dead = [k for k, cut, keep, cx1, cx2 in _af_axes
+            if not (not _af(cut, ctx=cx1 or None)[0]
+                    and _af(keep, ctx=cx2 or None)[0])]
+check("🎛️ AF2 **ثلاثةَ عشرَ فارقًا على اثني عشر محورًا — كلُّها تكتم وتمرّ** (لا محورَ خامد)",
+      not _af_dead and len(_af_axes) == 13,
+      f"خامدة={_af_dead} · عددُها={len(_af_axes)}")
+
+# 🔒 AF2ب — 🔴🔴 **القفلُ الذي وُلد من عيبٍ حقيقيّ:** أوّلُ صياغةٍ لـ`require_operator`
+#           كانت «اكتم إن `has_operator is False`» — **ولا تُطلَق أبدًا** لأن
+#           `scan_liq_stages` يُسقط تلك الحالةَ قبلها (سطرُ «قِيس ولا مضارب ⇒ يُكتَم»).
+#           فيُشترَط هنا **المعنى غيرُ المكرَّر**: غيرُ المقيس (`None`) **يُكتَم أيضًا**.
+check("🎛️ AF2ب **«المضاربُ مؤكَّد» يكتم غيرَ المقيس لا المكذَّبَ وحده** (لا محورَ مكرَّر)",
+      not _af({"require_operator": True}, ev=dict(_af_ev, operator=None))[0]
+      and not _af({"require_operator": True},
+                  ev=dict(_af_ev, operator={"has_operator": False}))[0]
+      and _af({"require_operator": True},
+              ev=dict(_af_ev, operator={"has_operator": True}))[0]
+      and "لا مضارب" not in S.alert_filter_keep(
+          _af_row, dict(_af_ev, operator=None), {"require_operator": True})[1],
+      str(_af({"require_operator": True}, ev=dict(_af_ev, operator=None))))
+
+# 🔒 AF3 — **السياقُ الغائب يمرّ** (تعذّرٌ ليس رفضًا) · تفريقيًّا مع سياقٍ حاضرٍ يكتم
+check("🎛️ AF3 **حقلُ سياقٍ غائبٌ ⇒ يمرّ · وحاضرٌ مخالفٌ ⇒ يكتم** (فاشلٌ-آمنٌ مفتوح)",
+      _af({"in_entry_band_only": True}, ctx={"tranches": None})[0]
+      and _af({"float_max": 1_000}, ctx={"float": None})[0]
+      and _af({"avail_max": 10}, ctx={})[0]
+      and not _af({"float_max": 1_000}, ctx={"float": 5_000_000})[0],
+      "غيابُ tranches/float/avail يمرّ · وحضورُ float المخالف يكتم")
+
+# 🔒 AF4 — **يقصّ ولا يُضيف**: مُخرَجُ `apply_alert_filter` مجموعةٌ فرعيّةٌ من مُدخَله
+#          **بترتيبه**، مهما كان الفلتر (وشاهدُ ضبطٍ: بلا فلترٍ يخرج المُدخَلُ كما هو).
+_af_rows = [
+    ({"symbol": "AAA", "src": "الترشيح"},
+     [dict(_af_ev, stage="M1"), dict(_af_ev, stage="Mu", usd=5_000.0)]),
+    ({"symbol": "BBB", "src": "الارتداد"}, [dict(_af_ev, stage="M5")]),
+]
+_af_all = [(r["symbol"], e["stage"]) for r, evs in _af_rows for e in evs]
+
+
+def _af_flat(res):
+    return [(r["symbol"], e["stage"]) for r, evs in res for e in evs]
+
+
+_af_k0, _af_m0 = S.apply_alert_filter(_af_rows, {})
+_af_k1, _af_m1 = S.apply_alert_filter(_af_rows, {"min_usd": 10_000})
+_af_k2, _af_m2 = S.apply_alert_filter(_af_rows, {"min_usd": 10 ** 9})
+check("🎛️ AF4 **قصٌّ لا إضافة**: المُخرَجُ فرعيٌّ بترتيبه · وبلا فلترٍ يخرج كما دخل",
+      _af_flat(_af_k0) == _af_all and _af_m0 == []
+      and _af_flat(_af_k1) == [("AAA", "M1"), ("BBB", "M5")]
+      and _af_flat(_af_k2) == [] and len(_af_m2) == 3
+      and all(x in _af_all for x in _af_flat(_af_k1)),
+      f"بلا فلتر={_af_flat(_af_k0)} · بـ10آلاف={_af_flat(_af_k1)}")
+
+# 🔒 AF5 — **لا قصَّ صامتًا**: كلُّ مكتومٍ يعود باسمه ومرحلتِه **وسببٍ غيرِ فارغ**،
+#          والعددُ يساوي الفرقَ بالضبط (فلا يضيع حدثٌ بين الشقّين).
+check("🎛️ AF5 **المكتومُ يعود بالرمز والمرحلة وسببٍ مُسمًّى · وعددُه = الفرقُ تمامًا**",
+      len(_af_m1) == len(_af_all) - len(_af_flat(_af_k1))
+      and all(isinstance(t, tuple) and len(t) == 3 and t[0] and t[1]
+              and isinstance(t[2], str) and t[2].strip() for t in _af_m1 + _af_m2),
+      f"مكتوم={_af_m1}")
+
+# 🔒 AF6 — **بدالّة الإنتاج نفسِها** (‏`in_entry_band`) لا بنسخةٍ منها — بالـAST،
+#          وسلوكيًّا: سعرٌ داخل النطاق يمرّ وفوقه يُكتَم **بنفس عتبة الإنتاج**.
+_af_src = _af_insp.getsource(S.alert_filter_keep)
+_af_calls = {getattr(c.func, "id", None) for c in _af_ast.walk(_af_ast.parse(_af_src))
+             if isinstance(c, _af_ast.Call)}
+_af_tr = {"tranches": [2.0, 2.06, 2.12]}
+check("🎛️ AF6 **نطاقُ الدفعات بدالّة الإنتاج `in_entry_band`** (‏AST + فارقٌ سلوكيّ)",
+      "in_entry_band" in _af_calls
+      and _af({"in_entry_band_only": True}, ev=dict(_af_ev, price=2.05),
+              ctx=_af_tr)[0]
+      and not _af({"in_entry_band_only": True}, ev=dict(_af_ev, price=9.9),
+                  ctx=_af_tr)[0],
+      f"نداءات={sorted(x for x in _af_calls if x)}")
+
+# 🔒 AF7 — **الملفُّ المشحون `{}`** ⇒ الإنتاجُ **بت-بت كما قبل الفلتر**، وقراءتُه
+#          فاشلةٌ-آمنة (غائبٌ/تالفٌ/قائمةٌ ⇒ `{}`).
+_af_tmp = _af_tf.mkdtemp()
+_af_bad = _af_os.path.join(_af_tmp, "bad.json")
+open(_af_bad, "w", encoding="utf-8").write("{ليس جيسون")
+_af_lst = _af_os.path.join(_af_tmp, "lst.json")
+open(_af_lst, "w", encoding="utf-8").write("[1,2]")
+try:
+    _af_ship = _af_js.load(open("alert_filter.json", encoding="utf-8"))
+except Exception as _e:                                          # noqa: BLE001
+    _af_ship = f"⛔ {type(_e).__name__}"
+check("🎛️ AF7 **المشحونُ `{}` = بلا فلتر · والقراءةُ فاشلةٌ-آمنة** (تالفٌ/قائمةٌ/غائب)",
+      _af_ship == {}
+      and S.load_alert_filter(_af_os.path.join(_af_tmp, "لا-وجود.json")) == {}
+      and S.load_alert_filter(_af_bad) == {}
+      and S.load_alert_filter(_af_lst) == {},
+      f"المشحون={_af_ship}")
+
+# 🔒 AF8 — 🔴 **الخطرُ الحقيقيّ:** الحالةُ تُختَم **بعد الإرسال** في هذا المسار،
+#          فلو كتم الفلترُ كلَّ شيءٍ ولم يُختَم لَعاد الإشعارُ نفسُه كلَّ دورةٍ أبدًا.
+#          ⇒ يُشترَط بالـAST أن فرعَ «كُتم الكلّ» **ينادي `save_op_entry_state`**.
+_af_oel = open("operator_entry_live.py", encoding="utf-8").read()
+_af_tree = _af_ast.parse(_af_oel)
+_af_mute_ok = False
+for _n in _af_ast.walk(_af_tree):
+    if not isinstance(_n, _af_ast.If):
+        continue
+    _t = _n.test
+    if (isinstance(_t, _af_ast.UnaryOp) and isinstance(_t.op, _af_ast.Not)
+            and getattr(_t.operand, "id", None) == "lrows"):
+        _af_mute_ok = any(
+            getattr(getattr(c, "func", None), "attr", None) == "save_op_entry_state"
+            for c in _af_ast.walk(_n) if isinstance(c, _af_ast.Call))
+check("🎛️ AF8 **كُتم الكلّ ⇒ تُختَم الحالةُ ولا يُرسَل** (وإلّا عاد الإشعارُ أبدًا)",
+      _af_mute_ok, f"فرعُ «كُتم الكلّ» يختم؟ {_af_mute_ok}")
+
+# 🔒 AF9 — **الفلترُ موصولٌ من نقطة النداء الحيّة** (لا وجودُ الدالّة وحدَه)، ومحروسٌ
+#          بـ`try` فعطلُه **يمرّر الكلّ** ولا يُسقط الجوب.
+_af_wired = {getattr(getattr(c, "func", None), "attr", None)
+             for c in _af_ast.walk(_af_tree) if isinstance(c, _af_ast.Call)}
+_af_guarded = any(
+    any(getattr(getattr(c, "func", None), "attr", None) == "apply_alert_filter"
+        for c in _af_ast.walk(h)) for h in _af_ast.walk(_af_tree)
+    if isinstance(h, _af_ast.Try))
+check("🎛️ AF9 **مُنادًى حيًّا ومحروسٌ بـ`try`** (‏AST على `operator_entry_live`)",
+      {"apply_alert_filter", "load_alert_filter"} <= _af_wired and _af_guarded,
+      f"محروس؟ {_af_guarded}")
+
+# 🔒 AF10 — **`_WL` حيٌّ ويُملأ** · و`_load_universe` **ما زالت رباعيّة** لأن ثلاثة
+#           مِجَسّاتٍ تفكّها (‏m0/liq_move/gate) — فتغييرُ العدد يكسرها صامتًا.
+_af_lu = next((n for n in _af_ast.walk(_af_tree)
+               if isinstance(n, _af_ast.FunctionDef) and n.name == "_load_universe"),
+              None)
+_af_ret = [n for n in _af_ast.walk(_af_lu or _af_ast.parse("")) if isinstance(n, _af_ast.Return)]
+_af_ar = {len(n.value.elts) for n in _af_ret if isinstance(n.value, _af_ast.Tuple)}
+_af_fill = any(
+    isinstance(getattr(c, "func", None), _af_ast.Attribute)
+    and getattr(c.func.value, "id", None) == "_WL"
+    for c in _af_ast.walk(_af_lu or _af_ast.parse("")) if isinstance(c, _af_ast.Call))
+check("🎛️ AF10 **`_WL` يُملأ في `_load_universe` · وهي رباعيّةٌ كما تفكّها المِجَسّات**",
+      "_WL = {}" in _af_oel and _af_fill and _af_ar == {4},
+      f"أطوالُ الإرجاع={sorted(_af_ar)} · يُملأ؟ {_af_fill}")
+
+# 🔒 AF11 — **المِجَسُّ قياسٌ لا فعل**: صفرُ إرسالٍ وصفرُ كتابةِ حالةٍ وصفرُ دفعٍ،
+#           والتوليفاتُ **تسعٌ مثبَّتة** و`P0` **ضبطٌ فارغ** (بلا شاهدٍ لا يُقرأ جدول).
+_af_chk = open("alert_filter_check.py", encoding="utf-8").read()
+_af_ct = _af_ast.parse(_af_chk)
+_af_bad_calls = {a for a in
+                 {getattr(getattr(c, "func", None), "attr", None)
+                  for c in _af_ast.walk(_af_ct) if isinstance(c, _af_ast.Call)}
+                 if a in {"send_telegram", "git_save", "save_op_entry_state",
+                          "save_watchlist", "save_alerts"}}
+check("🎛️ AF11 **المِجَسُّ لا يرسل ولا يكتب حالةً · تسعُ توليفاتٍ · و`P0` ضبطٌ فارغ**",
+      not _af_bad_calls and len(AFC.PRESETS) == 9
+      and AFC.PRESETS["P0 بلا فلتر"] == {}
+      and AFC.UNMEASURED == {"require_operator"},
+      f"نداءاتٌ ممنوعة={sorted(_af_bad_calls)} · توليفات={len(AFC.PRESETS)}")
+
+# 🔒 AF11ب — **الاستبعادُ بنيويٌّ من المفاتيح لا من اسمِ التوليفة**: كلُّ توليفةٍ
+#            تحوي محورًا غيرَ مقيسٍ **لا يُطبَع لها رقم** (وإلّا قُرئ «كُتم 100%»
+#            كلفةَ فلترٍ وهو كلفةُ عدمِ الجلب). يُفحَص على المفاتيح لا على النصّ.
+_af_unm = [k for k, c in AFC.PRESETS.items() if set(c) & AFC.UNMEASURED]
+check("🎛️ AF11ب **غيرُ المقيس يُستبعَد بمفاتيحه لا باسمه** (واحدةٌ بالضبط)",
+      len(_af_unm) == 1 and "require_operator" in AFC.PRESETS[_af_unm[0]]
+      and "set(cfg) & UNMEASURED" in _af_chk,
+      f"غيرُ المقيس={_af_unm}")
+
+# 🔒 AF12 — `alert_filter.yml` **يدويٌّ · بلا كرون · بلا ابتلاعِ فشل · واليومُ موصول**
+_af_yml = _af_yaml.safe_load(open(".github/workflows/alert_filter.yml",
+                              encoding="utf-8"))
+_af_on = _af_yml.get(True) or _af_yml.get("on")
+_af_on = list(_af_on) if isinstance(_af_on, dict) else (
+    [_af_on] if isinstance(_af_on, str) else list(_af_on or []))
+_af_job = list((_af_yml.get("jobs") or {}).values())[0]
+_af_steps = _af_job.get("steps") or []
+_af_envs = {}
+for _s in _af_steps:
+    _af_envs.update(_s.get("env") or {})
+check("🎛️ AF12 **`alert_filter.yml` يدويٌّ بلا كرون · بلا `continue-on-error` · "
+      "والمفتاحُ واليومُ موصولان**",
+      set(_af_on) == {"workflow_dispatch"}
+      and all("continue-on-error" not in _s for _s in _af_steps)
+      and _af_envs.get("POLYGON_API_KEY") == "${{ secrets.POLYGON_API_KEY }}"
+      and "GATE_DAY" in _af_envs,
+      f"on={sorted(map(str, _af_on))} · env={sorted(_af_envs)}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
