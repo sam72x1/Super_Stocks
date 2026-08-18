@@ -13,6 +13,7 @@
 """
 import json
 import os
+import statistics as stt
 import sys
 import time
 
@@ -52,6 +53,59 @@ PRESETS = {
 #    `operator` غائبٌ أصلًا، فذراعُ `require_operator` كانت ستطبع «كُتم 100%»
 #    وهو **رقمٌ كاذب** (كلفةُ عدمِ الجلب لا كلفةُ الفلتر). ⇒ تُستبعَد بالاسم.
 UNMEASURED = {"require_operator"}
+
+
+def _ev_ms(e):
+    """⏱️ لحظةُ الحدث بالملّي — أوّلُ حقلٍ متاحٍ بترتيبٍ مُعلَن (لا تخمين)."""
+    for k in ("last_ms", "price_ms", "anchor_ms"):
+        v = (e or {}).get(k)
+        try:
+            if v and float(v) > 0:
+                return float(v)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def anchor_impact(rows, kept):
+    """🚩 **أثرُ الفلتر على أوّلِ إشعار — لا على عددِ الأسهم.**
+
+    🔴🔴 **لماذا وُجدت (تصحيحٌ ذاتيٌّ مقيسٌ 2026-08-18):** كنتُ أصف `C1` بأنه
+    «قصٌّ 41% **بصفرِ سهمٍ يضيع**» — **والرقمُ صحيحٌ والوصفُ مُضلِّلٌ ماديًّا**،
+    لأن المقياسَ يعدّ **الأسهم** لا **أوّلَ إشعار**: سهمٌ كُتمت مِرساتُه ووصل
+    مجموعُ خمس دقائقه بعد دقائقَ **يُحسَب «لم يضع»**.
+    **والسجلُّ الحيُّ كشف الحقيقة:** `C1` كتم مِرساةَ `$SGLY` (‏6.3%) و`$PFSA`
+    (‏5.3%) و`$PBK` (‏5.8%) و`$BAOS` (‏5.47%) — **‏4 من 6 إشعاراتٍ أولى** —
+    ومرّت `$WFF` (‏16.1%) وحدَها بوضوح. **فلم يكن يقصّ ضجيجًا بل يقصّ المِرساة.**
+    🔑 **والسببُ بنيويّ:** البوّابةُ نفسُها تشترط رفعةَ `LIQ_MIN_MOVE_PCT`=5%،
+    فأغلبُ المراسي تقع **بين 5 و10** ⇒ شرطُ عشرةٍ **يكتم أغلبَها بالتعريف**.
+
+    ⇒ **مقياسان جديدان يمنعان تكرارَ العمى:**
+    · `muted_anchors` — الأسهمُ التي كُتمت **مِرساتُها** ووصلها لاحقًا.
+    · `delay_med` — **وسيطُ تأخير أوّلِ إشعارٍ يصلك** بالدقائق.
+    والسهمُ الضائعُ كليًّا **لا يُحسَب هنا** (يُعَدّ في `lost`) فلا يُغطّى عيبٌ بعيب."""
+    kmap = {}
+    for r, evs in (kept or []):
+        sym = (r or {}).get("symbol")
+        if sym and sym not in kmap:
+            kmap[sym] = evs or []
+    muted, delays = [], []
+    for r, evs in (rows or []):
+        if not evs:
+            continue
+        sym = (r or {}).get("symbol")
+        k = kmap.get(sym)
+        if not k:
+            continue                     # ضائعٌ كليًّا ⇒ يُعَدّ في `lost` لا هنا
+        a, f = evs[0], k[0]
+        if f is a:
+            continue                     # المِرساةُ نفسُها وصلت ⇒ لا تأخير
+        muted.append(sym)
+        t0, t1 = _ev_ms(a), _ev_ms(f)
+        if t0 is not None and t1 is not None and t1 >= t0:
+            delays.append((t1 - t0) / 60_000.0)
+    return {"muted_anchors": sorted(muted), "delays": delays,
+            "delay_med": (stt.median(delays) if delays else None)}
 
 
 def replay_symbol(bars):
@@ -129,7 +183,8 @@ def main():                                                       # noqa: C901
     print("=" * 74)
     print("① جدولُ الكلفة — كم يبقى وكم يُكتَم؟")
     print("=" * 74)
-    print("  التوليفة | أسهمٌ تصلك | أحداث | كُتم | نصيبُ الكتم")
+    print("  التوليفة | أسهمٌ تصلك | أحداث | كُتم | نصيبُ الكتم | 🚩 مراسٍ مكتومة "
+          "| ⏱️ تأخيرُ أوّلِ إشعار")
     shipped = bot.load_alert_filter()
     issues = bot.alert_filter_issues(shipped)
     print("🥇 **المشحونُ حيًّا الآن**: "
@@ -146,17 +201,45 @@ def main():                                                       # noqa: C901
         # 🔒 **الاستبعادُ بنيويٌّ من المفاتيح لا من اسمِ التوليفة** — فاسمٌ يُعاد
         #    تسميتُه لا يُسقط الوسمَ صامتًا (فخُّ «القفل النصّيّ» بعينه).
         if set(cfg) & UNMEASURED:
-            res[name] = {"syms": None, "ev": None, "muted": [], "lost": []}
+            res[name] = {"syms": None, "ev": None, "muted": [], "lost": [],
+                         "anch": {"muted_anchors": [], "delay_med": None}}
             print(f"  {name:<40} |  ⚠️ غيرُ مقيسٍ هنا — لا رقمَ يُطبَع "
                   f"(الطبعاتُ لا تُجلَب في الإعادة)")
             continue
         kept, muted = bot.apply_alert_filter(rows, cfg, wl)
         ks = {r["symbol"] for r, _e in kept}
         ke = sum(len(e) for _r, e in kept)
+        # 🚩 **المقياسُ الذي كان ناقصًا**: كم سهمًا كُتمت **مِرساتُه** وكم تأخّر
+        #    أوّلُ إشعارٍ يصل المالك — لا «كم سهمًا ضاع» وحده.
+        anch = anchor_impact(rows, kept)
         res[name] = {"syms": ks, "ev": ke, "muted": muted,
-                     "lost": sorted(base_syms - ks)}
+                     "lost": sorted(base_syms - ks), "anch": anch}
+        _dm = ("—" if anch["delay_med"] is None
+               else f"{anch['delay_med']:.1f}د")
         print(f"  {name:<40} | {len(ks):>9} | {ke:>5} | {len(muted):>4} | "
-              f"{100.0 * len(muted) / max(1, n_ev):>5.0f}%")
+              f"{100.0 * len(muted) / max(1, n_ev):>5.0f}% | "
+              f"{len(anch['muted_anchors']):>13} | {_dm:>18}")
+
+    print("\n" + "=" * 74)
+    print("①-ب 🚩 مَن كُتمت مِرساتُه — «وصلك متأخّرًا» لا «لم يضع»")
+    print("=" * 74)
+    print("   🔴 **تصحيحٌ ذاتيٌّ يُقرأ قبل الجدول:** «صفرُ سهمٍ يضيع» **لا يعني**")
+    print("      أن الإشعارَ وصل في وقته — سهمٌ كُتمت مِرساتُه ووصل مجموعُه بعد")
+    print("      دقائقَ يُحسَب «لم يضع»، **وهو بالضبط ما يشكو منه المالك**.")
+    for name in PRESETS:
+        a = res[name]["anch"]
+        if res[name]["syms"] is None:
+            print(f"  {name}: ⚠️ غيرُ مقيس")
+            continue
+        if not a["muted_anchors"]:
+            print(f"  {name}: ✅ **لا مِرساةَ تُكتَم** — أوّلُ إشعارٍ يصل كما هو")
+            continue
+        print(f"  {name}: 🚩 **{len(a['muted_anchors'])} مِرساةً مكتومة** ⇒ "
+              + ", ".join("$" + x for x in a["muted_anchors"][:16])
+              + (f" … و{len(a['muted_anchors']) - 16}"
+                 if len(a["muted_anchors"]) > 16 else "")
+              + (f" · وسيطُ التأخير **{a['delay_med']:.1f} دقيقة**"
+                 if a["delay_med"] is not None else " · التأخيرُ غيرُ مقيس"))
 
     print("\n" + "=" * 74)
     print("② مَن يسقط — بالاسم لا مجمَّعًا")
@@ -198,6 +281,8 @@ def main():                                                       # noqa: C901
           "والمتاح تتغيّر) ⇒ محاورُ السياق **تقريبٌ مُعلَن**.")
     print("  5. **وكلُّ محورٍ فاشلٌ-آمنٌ مفتوح**: حقلٌ غائبٌ ⇒ **يمرّ** — فالكتمُ "
           "المقيسُ أدنى ما يكون لا أعلاه.")
+    print("  6. 🚩 **و«صفرُ سهمٍ يضيع» ليس «لا تأخير»** — اقرأ عمودَ المراسي "
+          "المكتومة معه دائمًا: توليفةٌ تكتم مِرساةً **تُؤخّر ولا تُنقّي**.")
     print("  6. والكونُ رقيقٌ (أسهمُ فيصل) ⇒ لا يُعمَّم على كونٍ سائل.")
     print(f"\n⏱️ زمنُ التشغيل: {round(time.time() - t0, 1)}ث")
     print("\n📌 **للتشغيل حيًّا:** اكتب التوليفةَ في `alert_filter.json` — "

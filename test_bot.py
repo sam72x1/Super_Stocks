@@ -26257,6 +26257,63 @@ check("👥 TGM4 **`_admin_chat` أوّلُ `_chat_recipients` حصرًا** (ا�
       "_chat_recipients()[:1]" in _af_insp.getsource(S._admin_chat)
       and "_chat_recipients()" in _af_insp.getsource(S.send_telegram))
 
+# ==========================================================
+# 🚩 **مقياسُ «المِرساةُ المكتومة»** — تصحيحٌ ذاتيٌّ مقيس (2026-08-18).
+#    كنتُ أصف `C1` بـ«قصٌّ 41% **بصفرِ سهمٍ يضيع**» — **والرقمُ صحيحٌ والوصفُ
+#    مُضلِّلٌ ماديًّا**: المقياسُ يعدّ **الأسهم** لا **أوّلَ إشعار**. والسجلُّ
+#    الحيُّ حسمها: `C1` كتم مِرساةَ `$SGLY`/`$PFSA`/`$PBK`/`$BAOS` — ‏4 من 6.
+# ==========================================================
+def _anc_ev(stage, ms, move=None):
+    d = {"stage": stage, "usd": 50_000, "minutes": 1, "anchor_ms": ms,
+         "last_ms": ms, "price": 1.0, "price_ms": ms, "class": ("strong", "x")}
+    if move is not None:
+        d["move"] = move
+    return d
+
+
+# 🎯 عيّنةٌ **بأرقام `$PFSA` الحيّة**: مِرساةٌ رفعتُها 5.3% ثم تحديث ثم مجموعُ 5.
+_anc_row = {"symbol": "PFSA", "src": "تحت المتابعة"}
+_anc_rows = [(_anc_row, [_anc_ev("M1", 1_000_000, 5.3),
+                         _anc_ev("Mu", 1_060_000, 4.0),
+                         _anc_ev("M5", 1_240_000)])]
+
+
+def _anc_of(cfg):
+    _k, _m = S.apply_alert_filter(_anc_rows, cfg, {})
+    return AFC.anchor_impact(_anc_rows, _k)
+
+
+_anc_c1 = _anc_of({"stages": ["M0", "M1", "M5", "M30"], "min_move_pct": 10.0})
+_anc_p5 = _anc_of({"stages": ["M0", "M1", "M5", "M30"]})
+_anc_p0 = _anc_of({})
+_anc_lost = _anc_of({"stages": ["M30"]})          # ضائعٌ كليًّا
+
+# 🔒 AF16 — **المقياسُ يفرّق فعلًا**: `C1` يكتم مِرساةً بتأخيرِ **4 دقائق**،
+#          و`P5` المشحونُ **صفر**. ولولا التفريقُ لكان عدّادًا يُقرأ «لا فرق».
+check("🚩 AF16 **مقياسُ المِرساة المكتومة يفرّق**: `C1` يكتم مِرساةَ `$PFSA` "
+      "بتأخيرِ 4 دقائق · و`P5` المشحونُ صفر",
+      _anc_c1["muted_anchors"] == ["PFSA"]
+      and abs((_anc_c1["delay_med"] or 0) - 4.0) < 0.01
+      and _anc_p5["muted_anchors"] == [] and _anc_p5["delay_med"] is None
+      and _anc_p0["muted_anchors"] == [],
+      f"C1={_anc_c1['muted_anchors']}/{_anc_c1['delay_med']} · "
+      f"P5={_anc_p5['muted_anchors']}")
+
+# 🔒 AF17 — **ولا يُغطّى عيبٌ بعيب**: السهمُ الضائعُ كليًّا **لا يُحسَب مِرساةً
+#          مكتومة** (يُعَدّ في `lost`) — وإلّا صار الرقمُ مجموعَ ظاهرتين.
+check("🚩 AF17 **الضائعُ كليًّا لا يُحسَب مِرساةً مكتومة** (لا خلطَ ظاهرتين)",
+      _anc_lost["muted_anchors"] == [] and _anc_lost["delay_med"] is None,
+      str(_anc_lost))
+
+# 🔒 AF18 — **والعمودُ مطبوعٌ ومعه حدُّ الصدق** — وإلّا بقي المقياسُ محسوبًا
+#          وغيرَ مرئيّ (وهو بعينه ما جعل العمى يمرّ أوّل مرّة).
+_anc_src = _af_insp.getsource(AFC)
+check("🚩 AF18 **العمودُ والقسمُ وحدُّ الصدق كلُّها مطبوعة** (مقياسٌ لا يُرى لا يحرس)",
+      "🚩 مراسٍ مكتومة" in _anc_src
+      and "مَن كُتمت مِرساتُه" in _anc_src
+      and "anchor_impact(rows, kept)" in _anc_src
+      and "ليس «لا تأخير»" in _anc_src)
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
