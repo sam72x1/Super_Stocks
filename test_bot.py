@@ -26116,9 +26116,19 @@ def _sup_git(args, timeout=15):
     return "ok"
 
 
+# 🔴🔴 **صنفٌ جديدٌ في دستور الأقفال كشفته الطفرةُ `N5` (2026-08-18): «القفلُ
+#    الذي يُعيد تشغيل السويّة».** بحذف حارسِ الشجرة المتّسخة يمضي `_self_update`
+#    إلى `os.execve(sys.executable, [sys.executable] + sys.argv, …)` — **وداخلَ
+#    السويّة هذا يُعيد تشغيل `test_bot.py` نفسِها بلا نهاية** ⇒ لم يسقط القفلُ
+#    ولم ينهر، بل **علّق الجولةَ حتى المهلة وأوقف بقيّةَ الطفرات**.
+#    ⇒ **يُبدَّل `os.execve` بجذعٍ يُسجَّل ولا يُنفَّذ**: يستحيل على السويّة أن
+#    تُعيد تشغيل نفسها، **ويصير عدمُ ندائه شرطًا مقفولًا** لا أثرًا جانبيًّا.
+_sup_exec = []
 _sup_orig = _sup_oel._git_out
+_sup_orig_exec = _sup_oel.os.execve
 _sup_state = {}
 try:
+    _sup_oel.os.execve = lambda *a, **k: _sup_exec.append(a)
     _sup_oel._git_out = _sup_git
     import time as _sup_time
     _sup_state = {"dirty": " M x.py", "ahead": ""}
@@ -26138,15 +26148,17 @@ except Exception as _e:                                          # noqa: BLE001
     _dirty_reset = _ahead_reset = _short_reset = True
 finally:
     _sup_oel._git_out = _sup_orig
+    _sup_oel.os.execve = _sup_orig_exec
 
 # 🔒 SUP1 — **ثلاثةُ حرّاسٍ يمنعون التحديثَ**، وكلٌّ يُختبَر **بمفرده** فلا ينجو
 #           حارسٌ ميّتٌ خلف آخر. والحاسمُ: **صفرُ `git reset`** في الثلاث.
 check("🔄 SUP1 **شجرةٌ متّسخة · أو كوميتاتٌ غيرُ مدفوعة · أو متبقٍّ قصير ⇒ لا "
-      "تحديثَ ولا `reset`** (لئلّا يضيع ختمٌ فيتكرّر الإشعار)",
+      "تحديثَ ولا `reset` ولا إعادةَ تشغيل** (لئلّا يضيع ختمٌ فيتكرّر الإشعار)",
       _r_dirty is False and _r_ahead is False and _r_short is False
-      and not _dirty_reset and not _ahead_reset and not _short_reset,
+      and not _dirty_reset and not _ahead_reset and not _short_reset
+      and not _sup_exec,
       f"متّسخة={_r_dirty}/{_dirty_reset} · أمام={_r_ahead}/{_ahead_reset} · "
-      f"قصير={_r_short}/{_short_reset}")
+      f"قصير={_r_short}/{_short_reset} · إعادةُ تشغيل={len(_sup_exec)}")
 
 # 🔒 SUP2 — **مُنادًى حيًّا من فرع التحديث · وداخلَ `try` عريض** فلا يُسقط الجوب.
 _sup_wired = [n for n in (_af_ast.walk(_sup_tree) if _sup_ok else [])
