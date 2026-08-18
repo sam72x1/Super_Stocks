@@ -25765,6 +25765,105 @@ check("🎛️ AF12 **`alert_filter.yml` يدويٌّ بلا كرون · بلا 
       and "GATE_DAY" in _af_envs,
       f"on={sorted(map(str, _af_on))} · env={sorted(_af_envs)}")
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🕐 أقفالُ «صلّح العرض» (SHOW1-SHOW7) — بلاغُ المالك 2026-08-18 على `$SGLY`:
+#    «السعرُ اللي يوصلني عليه التنبيه مب صحيح — سعرٌ نازلٌ جدًّا والسهمُ متعدّيه».
+#    **وكان محقًّا:** `price` إغلاقُ شمعةِ دقيقةٍ مضت لا سعرٌ حيّ، ولم يكن في
+#    الرسالة ما يقول ذلك. عرضٌ فقط — **صفرُ مسٍّ بأيّ قرار**.
+# ══════════════════════════════════════════════════════════════════════════
+import datetime as _show_dt                                         # noqa: E402
+from zoneinfo import ZoneInfo as _show_tz                           # noqa: E402
+
+_show_t = _show_dt.datetime(2026, 8, 17, 17, 58,
+                        tzinfo=_show_tz("America/New_York")).timestamp() * 1000
+_show_of = {"bid_block_shares": 7169, "buy_block_shares": 6493,
+          "bid": 7.25, "bid_size": 400, "ask": 7.31, "ask_size": 100}
+
+
+def _show_row(**kw):
+    e = {"stage": "M1", "usd": 611926, "minutes": 1, "price": 7.64,
+         "price_ms": _show_t, "vol_x": 4.0, "move": 5.2,
+         "class": ("strong", "شمعة مضارب قوية")}
+    e.update(kw)
+    return [({"symbol": "SGLY", "src": "رادار الضغط"}, [e])]
+
+
+_show_now = _show_t + 60_000 + 74_000
+_show_msg = S.build_liq_stage_alert(_show_row(operator=_show_of), now_ms=_show_now)
+
+# 🔒 SHOW1 — **الشمعةُ تُنسَب إلى وقت إغلاقها لا فتحها**: شمعةُ 17:58 تُغلق 17:59.
+check("🕐 SHOW1 **السعرُ منسوبٌ إلى دقيقة إغلاقه (17:59) لا فتحه (17:58)**",
+      S.bar_clock(_show_t, now_ms=_show_now) == ("17:59", 74)
+      and "17:59" in _show_msg and "دقيقة 17:58" not in _show_msg,
+      str(S.bar_clock(_show_t, now_ms=_show_now)))
+
+# 🔒 SHOW2 — **العمرُ يُطبَع** ويتغيّر بتغيّر لحظةِ الإرسال (لا رقمٌ مغروس)
+_show_old = S.build_liq_stage_alert(_show_row(), now_ms=_show_t + 60_000 + 1_600_000)
+check("🕐 SHOW2 **العمرُ مقروءٌ ويتحرّك**: ثوانٍ تحت التسعين · ودقائقُ فوقها",
+      "(قبل 74ث)" in _show_msg and "(قبل 26 دقيقة)" in _show_old
+      and "(قبل 74ث)" not in _show_old,
+      _show_old.split("💰")[1][:90] if "💰" in _show_old else _show_old[:90])
+
+# 🔒 SHOW3 — 📡 **السعرُ الحيُّ يُسمّى باسمه**، ويغيب حين يغيب الاقتباس (لا يُخمَّن)
+_show_noq = S.build_liq_stage_alert(_show_row(operator={"bid_block_shares": 10}),
+                                  now_ms=_show_now)
+check("📡 SHOW3 **«السعرُ الآن» يظهر مع الاقتباس ويغيب بدونه** (تعذّرٌ ≠ تخمين)",
+      "السعرُ الآن" in _show_msg and "7.28" in _show_msg
+      and "السعرُ الآن" not in _show_noq
+      and S.live_price_note(_show_of) == (7.25 + 7.31) / 2
+      and S.live_price_note({}) is None and S.live_price_note(None) is None,
+      f"وسيطُ الاقتباس={S.live_price_note(_show_of)}")
+
+# 🔒 SHOW4 — 🔴 **حالةُ المالك بعينها**: مجموعُ الثلاثين سعرُه من شمعةٍ **داخل
+#          النافذة** فقد يسبق أحدثَ شمعةٍ بدقائق ⇒ **يُقال عمرُه** · و`vol_x`
+#          منسوخٌ من المِرساة ⇒ **يُوسَم**. وفارقٌ: المرحلةُ الأولى بلا الوسم.
+_show_m30 = S.build_liq_stage_alert(
+    _show_row(stage="M30", minutes=30, usd=9_680_000, price=6.10,
+            price_ms=_show_t - 25 * 60_000, move=None), now_ms=_show_now)
+check("🕐 SHOW4 **مجموعُ الثلاثين يُظهر عمرَ سعره ويَسِم قفزةَ الحجم «عند المِرساة»**",
+      "(قبل 26 دقيقة)" in _show_m30 and "(عند المِرساة)" in _show_m30
+      and "(عند المِرساة)" not in _show_msg,
+      _show_m30.split("💰")[1][:110] if "💰" in _show_m30 else "")
+
+# 🔒 SHOW5 — **فاشلٌ-آمنٌ مفتوح**: بلا `price_ms` (سجلٌّ قديم) أو بطابعٍ تالف
+#          ⇒ الرسالةُ تُبنى ويُطبَع السعرُ **بلا ادّعاءِ وقت**.
+_show_bare = S.build_liq_stage_alert(_show_row(price_ms=None), now_ms=_show_now)
+_show_junk = S.build_liq_stage_alert(_show_row(price_ms="س"), now_ms=_show_now)
+check("🕐 SHOW5 **طابعٌ غائبٌ/تالفٌ ⇒ سعرٌ بلا ادّعاءِ وقت ولا انهيار**",
+      "سعرُ إغلاق الدقيقة" in _show_bare and "قبل" not in _show_bare.split("💰")[1][:80]
+      and "سعرُ إغلاق الدقيقة" in _show_junk and "$7.64" in _show_bare,
+      _show_bare.split("💰")[1][:80] if "💰" in _show_bare else "")
+
+# 🔒 SHOW6 — 🔒 **`price_ms` حقلٌ إضافيٌّ بحت**: يُكتَب في المراحل الأربع **ولا
+#          يُقرأ في أيّ شرطٍ** داخل بوّابة القرار ⇒ القرارُ بت-بت.
+_show_src = _af_insp.getsource(S.liq_stage_events)
+_show_tree = _af_ast.parse(_show_src)
+# 🐞 **صيغتي الأولى كانت مكسورة (2026-08-18):** فحصتُ `"price_ms" in dump(If)`
+#    و`dump` يشمل **جسمَ** الشرط، وجسمُه يحوي القاموسَ ⇒ خمسُ مطابقاتٍ **كاذبة**
+#    على كودٍ سليم = «قفلٌ يمنع الصحيحَ ليس أشدَّ — هو مكسور» (درسُ `FF4`/`FF5`).
+#    الصياغةُ الصحيحة: **كلُّ ورودٍ للاسم مفتاحُ قاموسٍ، ولا قراءةَ له إطلاقًا.**
+_show_all = [n for n in _af_ast.walk(_show_tree)
+             if isinstance(n, _af_ast.Constant) and n.value == "price_ms"]
+_show_keys = [k for d in _af_ast.walk(_show_tree)
+              if isinstance(d, _af_ast.Dict)
+              for k in d.keys
+              if isinstance(k, _af_ast.Constant) and k.value == "price_ms"]
+check("🔒 SHOW6 **`price_ms` مفتاحُ كتابةٍ في أربعةِ قواميسَ ولا يُقرأ قطّ** "
+      "(القرارُ بت-بت)",
+      len(_show_keys) == 4 and len(_show_all) == len(_show_keys)
+      and '["price_ms"]' not in _show_src
+      and '.get("price_ms")' not in _show_src
+      and "price_ms" not in _af_insp.getsource(S.alert_filter_keep),
+      f"ورودٌ={len(_show_all)} · مفاتيحُ={len(_show_keys)} · "
+      f"قراءاتٌ={_show_src.count(chr(91) + chr(34) + 'price_ms' + chr(34) + chr(93))}")
+
+# 🔒 SHOW7 — **أيقونةٌ واحدة لا اثنتان**: `operator_line` تحمل أيقونتَها، والمُنادي
+#          كان يضيف ثانية (عيبٌ **سابق** — مُتحقَّقٌ على `origin/main`).
+check("🕵️ SHOW7 **سطرُ المضارب بأيقونةٍ واحدة** (كان يُطبَع مرّتين)",
+      _show_msg.count("🕵️ المضارب") == 1
+      and "🕵️ 🕵️" not in _show_msg,
+      [ln for ln in _show_msg.splitlines() if "المضارب:" in ln][:1])
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

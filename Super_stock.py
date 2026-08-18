@@ -13125,6 +13125,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                            "minutes": 1, "anchor_ms": fms, "last_ms": fms,
                            "vol_x": round(fvx, 1),
                            "price": round(float(form["c"]), 4),
+                           "price_ms": fms,
                            "move": round(_rise(form), 2),
                            "class": _ignition_candle_class(_usd(form))})
                 return (ev, st)
@@ -13134,6 +13135,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
             ev.append({"stage": "M1", "usd": round(_usd(last)), "minutes": 1,
                        "anchor_ms": last_ms, "last_ms": last_ms,
                        "vol_x": round(vx, 1), "price": round(float(last["c"]), 4),
+                       "price_ms": last_ms,
                        "move": round(_rise(last), 2),
                        "class": _ignition_candle_class(_usd(last))})
             return (ev, st)
@@ -13153,6 +13155,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                                "minutes": 1, "anchor_ms": anchor,
                                "last_ms": last_ms, "vol_x": st.get("vol_x"),
                                "price": round(float(last["c"]), 4),
+                               "price_ms": last_ms,
                                "move": round(_rise(last), 2),
                                "class": _ignition_candle_class(_usd(last))})
         sent = list(st.get("sent") or [])
@@ -13171,6 +13174,10 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                        "anchor_ms": anchor, "last_ms": last_ms,
                        "vol_x": st.get("vol_x"),
                        "price": round(float(win[-1]["c"]), 4),
+                       # 🔴 **ولا يساوي `last_ms` دائمًا:** السعرُ هنا من آخرِ شمعةٍ
+                       #    **داخل النافذة** لا أحدثِ شمعة، فلو تجاوز العدّادُ
+                       #    النافذةَ (سهمٌ لم يُمسَح دورةً) صار أقدمَ بدقائق.
+                       "price_ms": int(win[-1]["t"]),
                        "class": _ignition_candle_class(tot)})
         st["sent"] = sent
         return (ev, st)
@@ -13454,7 +13461,55 @@ def apply_alert_filter(rows, cfg=None, wl=None):
     return (kept, muted)
 
 
-def build_liq_stage_alert(rows: list) -> str:
+def bar_clock(price_ms, now_ms=None):
+    """🕐 **متى كانت الشمعةُ التي صار إغلاقُها هو السعر؟** — نصٌّ عربيٌّ نقيّ.
+
+    🔴 **ولماذا وُجدت (بلاغُ المالك 2026-08-18 على `$SGLY`):** «السعرُ اللي يوصلني
+    عليه التنبيه مب صحيح — سعرٌ نازلٌ جدًّا والسهمُ متعدّيه». **وكان محقًّا:**
+    `price` **إغلاقُ شمعةِ دقيقةٍ مضت** لا سعرٌ حيّ — والشمعةُ المتكوّنة تُسقَط
+    دائمًا (‏`closed = rows[:-1]`) ⇒ عمرُه ‏0-60 ثانيةً قبل الجلب، ويزيد بدورة
+    المسح. **ولم يكن في الرسالة ما يقول ذلك** فيستحيل أن يفرّق البائتَ من الحيّ.
+
+    ⚖️ **تُسمّي وقتَ الإغلاق لا وقتَ الفتح:** الشمعةُ تغطّي ‏[t، t+60ث) وسعرُها
+    إغلاقُها ⇒ **الوقتُ المطبوع `t+60ث`** وإلّا نسبنا السعرَ إلى دقيقةٍ سابقة.
+    تُرجّع `("17:59", 74)` أو `None` عند تعذّرِ القراءة (**لا تُخمَّن**)."""
+    try:
+        ms = float(price_ms)
+        if ms <= 0:
+            return None
+        close_ms = ms + 60_000.0
+        from zoneinfo import ZoneInfo
+        _dt = dt.datetime.fromtimestamp(close_ms / 1000.0,
+                                        tz=ZoneInfo("America/New_York"))
+        nw = float(now_ms) if now_ms is not None else time.time() * 1000.0
+        return (_dt.strftime("%H:%M"), max(0, int((nw - close_ms) / 1000.0)))
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def live_price_note(of):
+    """📡 **السعرُ الآن** من الاقتباس المجلوب أصلًا — بصفرِ نداءٍ إضافيّ.
+
+    🔴 **العيبُ الذي تعالجه:** الشموعُ تُجلَب للكون كلِّه **ثم** يُجلَب تدفّقُ
+    المضارب للناجين وحدهم (‏`scan_liq_stages` «الطبقةُ الثانية») ⇒ الاقتباسُ
+    **أحدثُ من الشمعة**، وكانا يُطبعان جنبًا إلى جنبٍ بلا بيانِ ذلك: رسالةُ
+    `$SGLY` طبعت «السعر ‏$7.64» ومعها «طلب ‏$7.25 · عرض ‏$7.31» — **رقمان من
+    لحظتين**. الآن يُسمّى الحيُّ باسمه. `None` عند غيابه (‏**لا يُخمَّن**)."""
+    if not isinstance(of, dict):
+        return None
+    b, a = of.get("bid"), of.get("ask")
+    try:
+        if b and a and float(b) > 0 and float(a) > 0:
+            return (float(b) + float(a)) / 2.0
+        for v in (a, b):
+            if v and float(v) > 0:
+                return float(v)
+    except (TypeError, ValueError):
+        return None
+    return None
+
+
+def build_liq_stage_alert(rows: list, now_ms=None) -> str:
     """📩 رسالةُ التدرّج — **توقيتٌ لا توصية**، وتفصل «دخلت سيولة» عن «دخل المضارب».
 
     ⚖️ **ولا تخلط النصّين:** الزنادُ **قفزةُ حجم** (‏`IGNITION_VOL_MULT`) وحكمُ
@@ -13475,17 +13530,35 @@ def build_liq_stage_alert(rows: list) -> str:
             lines.append("   " + _LIQ_STAGE_TXT.get(e["stage"], e["stage"]))
             _vx = e.get("vol_x")
             _mv = e.get("move")
+            # 🕐 **السعرُ يُنسَب إلى دقيقته وعمرِها** (بلاغُ المالك 2026-08-18):
+            #    هو **إغلاقُ شمعةٍ مضت** لا سعرٌ حيّ — فيُقال ذلك صراحةً.
+            _bc = bar_clock(e.get("price_ms"), now_ms=now_ms)
+            _age = ("" if not _bc else
+                    f" (قبل {_bc[1]}ث)" if _bc[1] < 90 else
+                    f" (قبل {_bc[1] // 60} دقيقة)")
+            _px = (f" · سعرُ إغلاق دقيقة {_bc[0]}{_age} "
+                   f"${e['price']:.2f}" if _bc else
+                   f" · سعرُ إغلاق الدقيقة ${e['price']:.2f}")
+            # 🔴 **و`vol_x` في المجاميع منسوخٌ من المِرساة** (‏`st.get("vol_x")`)
+            #    ⇒ يُوسَم بعمره بدل أن يُقرأ لحظيًّا.
+            _agg = str(e.get("stage") or "") in ("M5", "M30")
             lines.append(f"      💰 سيولة {e['minutes']} دقيقة "
-                         f"${e['usd']:,} · السعر ${e['price']:.2f}"
-                         + (f" · قفزةُ حجمٍ {float(_vx):.0f}×" if _vx else "")
+                         f"${e['usd']:,}" + _px
+                         + (f" · قفزةُ حجمٍ {float(_vx):.0f}×"
+                            + (" (عند المِرساة)" if _agg else "") if _vx else "")
                          + (f" · 📈 رفعةُ الدقيقة {float(_mv):.1f}%"
                             if _mv else ""))
             if _d:
                 lines.append(f"      🕵️ حكمُ الهوية بعتبات فيصل: {_d}")
             if "operator" in e:
                 _of = e.get("operator")
+                # 📡 **الحيُّ يُسمّى باسمه** بدل أن يُقرأ سعرُ الشمعة سعرًا حاليًّا
+                _lp = live_price_note(_of)
+                if _lp:
+                    lines.append(f"      📡 السعرُ الآن ‏≈${_lp:.2f} "
+                                 f"(من الاقتباس لحظةَ الإرسال)")
                 _ol = operator_line(_of) if _of else ""
-                lines.append("      " + (("🕵️ " + _ol) if _ol else
+                lines.append("      " + (_ol if _ol else
                                          ("🕵️ طبعاتُ مضاربٍ مؤكَّدة"
                                           if _of else
                                           "⚠️ لم يُتحقّق من طبعات المضارب "
