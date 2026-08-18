@@ -35,6 +35,16 @@ PRESETS = {
     "P6 سيولةُ الدقيقة ‏100 ألفٍ فأكثر": {"min_usd": 100_000},
     "P7 رفعةُ الدقيقة ‏10% فأكثر": {"min_move_pct": 10.0},
     "P8 السعرُ من دولارٍ إلى عشرة": {"price_min": 1.0, "price_max": 10.0},
+    # 🥇 **المشحونُ حيًّا** (أمرُ المالك «شغّل P5») — يُقرأ من الملفّ نفسِه لا
+    #    يُنسَخ، فلو بدّله المالكُ بيده قاست الأداةُ **ما ينفُذ فعلًا** لا ما كتبتُه أنا.
+    "🥇 المشحونُ حيًّا (`alert_filter.json`)": None,
+    # 🔗 **وتركيباتٌ للخطوة التالية** — كلٌّ فوق P5 لا بدلًا منه.
+    "C1 P5 + رفعةُ 10%": {"stages": ["M0", "M1", "M5", "M30"],
+                          "min_move_pct": 10.0},
+    "C2 P5 + شمعةُ مضاربٍ فأعلى": {"stages": ["M0", "M1", "M5", "M30"],
+                                   "classes": ["operator", "strong"]},
+    "C3 P5 + قوائمُ الترشيح والارتداد": {"stages": ["M0", "M1", "M5", "M30"],
+                                         "sources": ["الترشيح", "الارتداد"]},
 }
 
 
@@ -120,8 +130,19 @@ def main():                                                       # noqa: C901
     print("① جدولُ الكلفة — كم يبقى وكم يُكتَم؟")
     print("=" * 74)
     print("  التوليفة | أسهمٌ تصلك | أحداث | كُتم | نصيبُ الكتم")
+    shipped = bot.load_alert_filter()
+    issues = bot.alert_filter_issues(shipped)
+    print("🥇 **المشحونُ حيًّا الآن**: "
+          + (json.dumps({k: v for k, v in shipped.items()
+                         if not str(k).startswith("_")}, ensure_ascii=False)
+             if shipped else "{} (بلا فلتر)"))
+    print("   🩺 حارسُ الإعداد: "
+          + ("سليمٌ بلا عِلَل" if not issues else " · ".join(issues)))
+    print()
     res = {}
     for name, cfg in PRESETS.items():
+        if cfg is None:                       # المشحونُ يُقرأ لا يُنسَخ
+            cfg = shipped
         # 🔒 **الاستبعادُ بنيويٌّ من المفاتيح لا من اسمِ التوليفة** — فاسمٌ يُعاد
         #    تسميتُه لا يُسقط الوسمَ صامتًا (فخُّ «القفل النصّيّ» بعينه).
         if set(cfg) & UNMEASURED:

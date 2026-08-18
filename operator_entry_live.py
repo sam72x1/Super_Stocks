@@ -245,8 +245,12 @@ def main():
         _lmuted = []
         if lrows:
             try:
-                lrows, _lmuted = bot.apply_alert_filter(
-                    lrows, bot.load_alert_filter(), _WL)
+                _cfg = bot.load_alert_filter()
+                # 🩺 **عِلَلُ الإعداد تُطبَع ولا تُصلَّح**: مفتاحٌ مطبعيٌّ يمرّ كلَّ
+                #    شيءٍ صامتًا فيظنّ المالكُ أنه يُفلتر — فيُرى بالعين في السجلّ.
+                for _iss in (bot.alert_filter_issues(_cfg) or []):
+                    _log(f"🩺 فلترُ الإشعارات: {_iss}")
+                lrows, _lmuted = bot.apply_alert_filter(lrows, _cfg, _WL)
             except Exception as e:                               # noqa: BLE001
                 _lmuted = []
                 _log(f"⚠️ فلترُ الإشعارات (يمرّ الكلّ): {e}")

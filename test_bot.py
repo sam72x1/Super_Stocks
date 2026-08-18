@@ -25547,12 +25547,20 @@ try:
     _af_ship = _af_js.load(open("alert_filter.json", encoding="utf-8"))
 except Exception as _e:                                          # noqa: BLE001
     _af_ship = f"⛔ {type(_e).__name__}"
-check("🎛️ AF7 **المشحونُ `{}` = بلا فلتر · والقراءةُ فاشلةٌ-آمنة** (تالفٌ/قائمةٌ/غائب)",
-      _af_ship == {}
+# ⬆️ **إقرارٌ مؤرَّخ 2026-08-18: القفلُ أمسك شحنَ `P5` فأدّى عملَه** (كان يشترط
+#    `{}`). ولا يُرخى إلى «أيُّ شيء»: صار يشترط أن المشحونَ **قاموسٌ سليمٌ بحارسه**
+#    وأن **كلَّ مفتاحٍ حقيقيٍّ فيه محورٌ معروف** — فيسقط على `{"min_use": …}` المطبعيّ
+#    كما يسقط على قيمةٍ من نوعٍ خاطئ. (والدلالةُ الحرفيّةُ لـ`P5` مقفولةٌ في `AF14`.)
+_af_ship_keys = {k for k in (_af_ship if isinstance(_af_ship, dict) else {})
+                 if not str(k).startswith("_")}
+check("🎛️ AF7 **المشحونُ قاموسٌ سليمٌ ومحاورُه معروفة · والقراءةُ فاشلةٌ-آمنة**",
+      isinstance(_af_ship, dict)
+      and _af_ship_keys <= set(S.ALERT_FILTER_AXES) | {"enabled"}
+      and S.alert_filter_issues(_af_ship) == []
       and S.load_alert_filter(_af_os.path.join(_af_tmp, "لا-وجود.json")) == {}
       and S.load_alert_filter(_af_bad) == {}
       and S.load_alert_filter(_af_lst) == {},
-      f"المشحون={_af_ship}")
+      f"محاورُ المشحون={sorted(_af_ship_keys)} · عِلَل={S.alert_filter_issues(_af_ship)}")
 
 # 🔒 AF8 — 🔴 **الخطرُ الحقيقيّ:** الحالةُ تُختَم **بعد الإرسال** في هذا المسار،
 #          فلو كتم الفلترُ كلَّ شيءٍ ولم يُختَم لَعاد الإشعارُ نفسُه كلَّ دورةٍ أبدًا.
@@ -25608,16 +25616,91 @@ _af_bad_calls = {a for a in
                   for c in _af_ast.walk(_af_ct) if isinstance(c, _af_ast.Call)}
                  if a in {"send_telegram", "git_save", "save_op_entry_state",
                           "save_watchlist", "save_alerts"}}
-check("🎛️ AF11 **المِجَسُّ لا يرسل ولا يكتب حالةً · تسعُ توليفاتٍ · و`P0` ضبطٌ فارغ**",
-      not _af_bad_calls and len(AFC.PRESETS) == 9
+# ⬆️ **إقرارٌ مؤرَّخ 2026-08-18 (أمرُ المالك «شغّل P5»):** ‏9 ⟶ **13** توليفة
+#    (أُضيف المشحونُ حيًّا وثلاثُ تركيباتٍ فوق P5) — **تشديدٌ لا إرخاء**: يُشترَط
+#    مع العدد أن **المشحونَ يُقرأ من الملفّ لا يُنسَخ** (‏`None` سنتينل)، وإلّا
+#    قاست الأداةُ ما كتبتُه أنا لا ما ينفُذ على المالك.
+check("🎛️ AF11 **المِجَسُّ لا يرسل ولا يكتب حالةً · 13 توليفة · `P0` ضبطٌ فارغ · "
+      "والمشحونُ يُقرأ لا يُنسَخ**",
+      not _af_bad_calls and len(AFC.PRESETS) == 13
       and AFC.PRESETS["P0 بلا فلتر"] == {}
-      and AFC.UNMEASURED == {"require_operator"},
+      and AFC.UNMEASURED == {"require_operator"}
+      and sum(1 for _v in AFC.PRESETS.values() if _v is None) == 1
+      and "cfg = shipped" in _af_chk and "bot.load_alert_filter()" in _af_chk,
       f"نداءاتٌ ممنوعة={sorted(_af_bad_calls)} · توليفات={len(AFC.PRESETS)}")
+
+# 🔒 AF13 — 🩺 **حارسُ الإعداد يمسك ستّةَ أصنافٍ من العطل** — كلُّ صنفٍ فارقٌ مستقلّ،
+#           **والمشحونُ الحيُّ يمرّ سليمًا** (وإلّا كان القفلُ يقبل حارسًا يصرخ دائمًا).
+_af_cases = [
+    ("مطبعيّ", {"min_use": 100_000}), ("قائمةٌ فارغة", {"stages": []}),
+    ("مرحلةٌ مجهولة", {"stages": ["M1", "M9"]}),
+    ("صنفٌ مجهول", {"classes": ["operator", "زحل"]}),
+    ("رقمٌ نصّيّ", {"min_usd": "100000"}), ("true بدل رقم", {"min_usd": True}),
+    ("سعرٌ مقلوب", {"price_min": 9.0, "price_max": 1.0}),
+    ("تالف", "خردة"), ("لا شيء", None),
+]
+_af_miss = [n for n, c in _af_cases if not S.alert_filter_issues(c)]
+_af_ship_cfg = S.load_alert_filter()
+check("🩺 AF13 **الحارسُ يمسك تسعةَ أعطالٍ · والمشحونُ الحيُّ سليمٌ بلا عِلَل**",
+      not _af_miss and S.alert_filter_issues(_af_ship_cfg) == []
+      and S.alert_filter_issues({}) == [],
+      f"فاتَه={_af_miss} · عِلَلُ المشحون={S.alert_filter_issues(_af_ship_cfg)}")
+
+# 🔒 AF13ب — **يُبلغ ولا يتصرّف**: لا يُبدّل الإعداد، ولا يغيّر قرارَ الفلتر —
+#            فالمفتاحُ المطبعيُّ **يبقى بلا أثر** (يمرّ) بعد الإبلاغ كما قبله.
+_af_typo = {"min_use": 100_000}
+_af_copy = dict(_af_typo)
+_af_ignored = S.alert_filter_issues(_af_typo)
+check("🩺 AF13ب **الحارسُ يُبلغ ولا يُصلح**: الإعدادُ كما هو · والمطبعيُّ ما زال يمرّ",
+      _af_typo == _af_copy and len(_af_ignored) == 1
+      and S.alert_filter_keep(_af_row, _af_ev, _af_typo)[0] is True,
+      f"بعد الفحص={_af_typo}")
+
+# 🔒 AF13ج — 🔴 **مصدرٌ واحد**: كلُّ محورٍ تفحصه `alert_filter_keep` مُعرَّفٌ في
+#            `ALERT_FILTER_AXES` **والعكس** — وإلّا صار محورٌ جديدٌ يعمل ويصفه
+#            الحارسُ «مجهولًا»، أو محورٌ في الجدول **بلا أثرٍ في الكود** (خامد).
+_af_used = {n.value for n in _af_ast.walk(_af_ast.parse(_af_src))
+            if isinstance(n, _af_ast.Constant) and isinstance(n.value, str)
+            and n.value in set(S.ALERT_FILTER_AXES) | {"enabled"}}
+check("🩺 AF13ج **جدولُ المحاور = ما يفحصه الكود بالضبط** (لا مجهولَ ولا خامد)",
+      _af_used - {"enabled"} == set(S.ALERT_FILTER_AXES)
+      and len(S.ALERT_FILTER_AXES) == 13,
+      f"في الكود={len(_af_used) - 1} · في الجدول={len(S.ALERT_FILTER_AXES)} · "
+      f"الفرق={sorted((_af_used - {'enabled'}) ^ set(S.ALERT_FILTER_AXES))}")
+
+# 🔒 AF14 — 🥇 **المشحونُ = قرارُ المالك «شغّل P5»**: `Mu` وحدها مكتومة، وبقيّةُ
+#           المراحل تمرّ — **سلوكيًّا عبر `load_alert_filter()` من الملفّ الحقيقيّ**
+#           لا من قاموسٍ مكتوبٍ في الاختبار (وإلّا لم يحرس الملفَّ المدفوع).
+_af_live = S.load_alert_filter()
+_af_stage = lambda st: S.alert_filter_keep(                        # noqa: E731
+    _af_row, dict(_af_ev, stage=st), _af_live)[0]
+check("🥇 AF14 **المشحونُ يكتم التحديثَ `Mu` وحده** (قرارُ المالك «شغّل P5»)",
+      _af_stage("Mu") is False and all(_af_stage(_s) for _s in
+                                       ("M0", "M1", "M5", "M30"))
+      and set(_af_live) - {k for k in _af_live if str(k).startswith("_")}
+      == {"stages"},
+      f"المشحون={sorted(k for k in _af_live if not str(k).startswith('_'))} · "
+      f"Mu={_af_stage('Mu')} · M1={_af_stage('M1')}")
+
+# 🔒 AF15 — **الحارسُ موصولٌ حيًّا وداخلَ نفس الـ`try`** فلا يُسقط انكسارُه الجوب،
+#           **ويسبق التطبيق** (إبلاغٌ ثم عمل، لا العكس).
+_af_ord = (_af_oel.find("alert_filter_issues"), _af_oel.find("apply_alert_filter"))
+_af_iss_guarded = any(
+    any(getattr(getattr(c, "func", None), "attr", None) == "alert_filter_issues"
+        for c in _af_ast.walk(h)) for h in _af_ast.walk(_af_tree)
+    if isinstance(h, _af_ast.Try))
+check("🩺 AF15 **الحارسُ مُنادًى حيًّا · محروسٌ بـ`try` · ويسبق التطبيق**",
+      "alert_filter_issues" in _af_wired and _af_iss_guarded
+      and 0 < _af_ord[0] < _af_ord[1],
+      f"محروس؟ {_af_iss_guarded} · ترتيب={_af_ord}")
 
 # 🔒 AF11ب — **الاستبعادُ بنيويٌّ من المفاتيح لا من اسمِ التوليفة**: كلُّ توليفةٍ
 #            تحوي محورًا غيرَ مقيسٍ **لا يُطبَع لها رقم** (وإلّا قُرئ «كُتم 100%»
 #            كلفةَ فلترٍ وهو كلفةُ عدمِ الجلب). يُفحَص على المفاتيح لا على النصّ.
-_af_unm = [k for k, c in AFC.PRESETS.items() if set(c) & AFC.UNMEASURED]
+# 💥 **صنفُ «القفل المنهار» وقع هنا فعلًا (2026-08-18):** سنتينلُ المشحون `None`
+#    جعل `set(c)` يرمي ⇒ **كتم الملخّصَ وكلَّ قفلٍ بعده**. ⇒ وصولٌ محروس.
+_af_unm = [k for k, c in AFC.PRESETS.items()
+           if isinstance(c, dict) and set(c) & AFC.UNMEASURED]
 check("🎛️ AF11ب **غيرُ المقيس يُستبعَد بمفاتيحه لا باسمه** (واحدةٌ بالضبط)",
       len(_af_unm) == 1 and "require_operator" in AFC.PRESETS[_af_unm[0]]
       and "set(cfg) & UNMEASURED" in _af_chk,

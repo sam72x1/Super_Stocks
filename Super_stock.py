@@ -13284,6 +13284,67 @@ def load_alert_filter(path: str = None) -> dict:
         return {}
 
 
+# 🎛️ **محاورُ الفلتر المعروفة** — مصدرٌ واحد: يقرؤه الحارسُ ويقرؤه `alert_filter_keep`
+#    فلا يتفرّق «ما يُقبَل» عن «ما يُفحَص». (‏`enabled` مفتاحُ إطفاء · و`_…` تعليقٌ حرّ.)
+ALERT_FILTER_AXES = {
+    "sources": list, "stages": list, "classes": list,
+    "price_min": float, "price_max": float, "min_usd": float,
+    "min_move_pct": float, "min_vol_x": float,
+    "require_operator": bool, "in_entry_band_only": bool,
+    "entry_status": list, "float_max": float, "avail_max": float,
+}
+ALERT_FILTER_STAGES = ("M0", "M1", "Mu", "M5", "M30")
+ALERT_FILTER_CLASSES = ("group", "mid", "operator", "strong")
+
+
+def alert_filter_issues(cfg) -> list:
+    """🩺 **يقرأ فلترَ المالك ويُبلغ بعِلَله — ولا يكتم ولا يُصلح.**
+
+    🔴 **ولماذا وُجد:** الفلترُ فاشلٌ-آمنٌ مفتوح، فمفتاحٌ **مكتوبٌ خطأً** (‏`min_use`
+    بدل `min_usd`) **يمرّ كلَّ شيءٍ صامتًا** ⇒ يظنّ المالكُ أنه يُفلتر وهو لا يفعل.
+    وهو **عينُ صنفِ «المحور الخامد»** الذي أمسكناه قبل الشحن، لكنه في **الإعداد** لا
+    في الكود. ⇒ يُطبَع في سجلّ العامل الحيّ **فيُرى بالعين**.
+
+    ⚖️ **يُبلغ ولا يتصرّف:** لا يُسقط مفتاحًا ولا يُبدّل قيمةً — فتغييرُ إعدادِ
+    المالك بلا إذنه أسوأُ من الخطأ نفسه."""
+    out = []
+    if cfg is None:
+        return ["⛔ تعذّرت قراءةُ الفلتر — يمرّ الكلّ"]
+    if not isinstance(cfg, dict):
+        return [f"⛔ شكلُ الفلتر «{type(cfg).__name__}» لا قاموسٌ — يمرّ الكلّ"]
+    for k, v in cfg.items():
+        if str(k).startswith("_") or k == "enabled":
+            continue
+        want = ALERT_FILTER_AXES.get(k)
+        if want is None:
+            out.append(f"⛔ محورٌ مجهول «{k}» — **لا أثرَ له إطلاقًا** (مطبعيّ؟)")
+            continue
+        if want is list:
+            if not isinstance(v, (list, tuple)):
+                out.append(f"⛔ «{k}» يجب أن يكون قائمةً لا {type(v).__name__}")
+            elif not v:
+                out.append(f"⚠️ «{k}» قائمةٌ فارغة — **خامدٌ لا يكتم شيئًا**")
+        elif want is float:
+            # 🔒 و`True` **ليس رقمًا هنا**: بايثون يعدّه 1 فيصير `min_usd: true`
+            #    أرضيةَ دولارٍ واحد — يمرّ صامتًا ويبدو فلترًا.
+            if isinstance(v, bool) or not isinstance(v, (int, float)):
+                out.append(f"⛔ «{k}» يجب أن يكون رقمًا لا {type(v).__name__}")
+        elif want is bool and not isinstance(v, bool):
+            out.append(f"⛔ «{k}» يجب أن يكون صحيحًا/خطأً لا {type(v).__name__}")
+    for k, allowed, lbl in (("stages", ALERT_FILTER_STAGES, "مرحلة"),
+                            ("classes", ALERT_FILTER_CLASSES, "صنف")):
+        v = cfg.get(k)
+        if isinstance(v, (list, tuple)):
+            bad = [str(x) for x in v if str(x) not in allowed]
+            if bad:
+                out.append(f"⛔ {lbl}ٌ مجهولة في «{k}»: {', '.join(bad)} — "
+                           f"والمعروفُ: {', '.join(allowed)}")
+    lo, hi = cfg.get("price_min"), cfg.get("price_max")
+    if isinstance(lo, (int, float)) and isinstance(hi, (int, float)) and lo > hi:
+        out.append(f"⛔ أرضيةُ السعر {lo} أعلى من سقفه {hi} — **يكتم كلَّ شيء**")
+    return out
+
+
 def alert_ctx(entry) -> dict:
     """🔗 سياقُ السهم من قائمتِنا — **ضمٌّ بالرمز بلا أيّ نداءٍ شبكيّ**.
 
