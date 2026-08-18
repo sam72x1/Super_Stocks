@@ -376,8 +376,18 @@ def main():                                                       # noqa: C901
                 for s in g0["rows"] if s in res[an]["rows"]]
         dlat = [g0["rows"][s]["late"] - res[an]["rows"][s]["late"]
                 for s in g0["rows"] if s in res[an]["rows"]]
-        print(f"   • {an}: **{_med(pair):+.0f} دقيقة** · وتأخّرٌ أقلُّ بـ"
-              f"**{_med(dlat):+.1f} نقطة** مقترنةً (‏{len(pair)} سهمًا مشتركًا)")
+        # 📌 **وصفيٌّ خارج قاعدة القرار (لم يُسجَّل):** الوسيطُ المقترَنُ خرج
+        #    **صفرًا لكلّ ذراع** — وهو **صحيحٌ حسابيًّا ومُضلِّلٌ ملخَّصًا**: أكثرُ
+        #    الأسهم لا يتحرّك أنملةً والمكسبُ **مركَّزٌ في أقلّيّة**. ⇒ يُنشَر معه
+        #    **كم سهمًا تحسّن ووسيطُ تحسّنِهم** — يُقرأ ولا يُبنى عليه حكم.
+        imp = [x for x in pair if x > 0]
+        impl = [x for x in dlat if x > 0.05]
+        print(f"   • {an}: وسيطٌ **{_med(pair):+.0f} دقيقة** · وتأخّرٌ أقلُّ بـ"
+              f"**{_med(dlat):+.1f} نقطة** (‏{len(pair)} سهمًا مشتركًا)"
+              f"\n      ↳ 📌 وصفيٌّ: **تحسّن {len(imp)} من {len(pair)}** "
+              f"({100.0 * len(imp) / max(1, len(pair)):.0f}%) · ووسيطُ تحسّنِهم "
+              f"**{('—' if not imp else f'{_med(imp):.0f} دقيقة')}** و"
+              f"**{('—' if not impl else f'{_med(impl):.1f} نقطة')}**")
     print("  " + " · ".join(f"{k}: {v}" for k, v in ARM_DESC.items()))
 
     print("\n" + "=" * 74)
