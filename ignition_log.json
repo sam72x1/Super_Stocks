@@ -473,5 +473,35 @@
   "vol_x": 5.5,
   "usd": 20735,
   "candle_class": "group"
+ },
+ {
+  "symbol": "PSIG",
+  "date": "2026-08-18",
+  "sustain_min": 191,
+  "operator_ok": true,
+  "fired_at": "2026-08-18T20:00:37Z",
+  "break_level": 1.14,
+  "price": 1.3,
+  "vol_x": 6.3,
+  "usd": 19019,
+  "candle_class": "group",
+  "usd_eff": 19019,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "CELU",
+  "date": "2026-08-18",
+  "sustain_min": 10,
+  "operator_ok": false,
+  "fired_at": "2026-08-18T20:00:37Z",
+  "break_level": 0.71,
+  "price": 0.79,
+  "vol_x": 4.0,
+  "usd": 7684,
+  "candle_class": "group",
+  "usd_eff": 7684,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
