@@ -1,10 +1,16 @@
 name: Cumulative Rise (📈🧮 قِس الرفعة التراكميّة)
 
-# 🔒 **قراءةٌ/قياسٌ فقط**: لا كرون · لا كتابةَ حالة · لا رسالة تلغرام · لا مسَّ فرزٍ.
+# 🔒 قياسٌ بلا مساسِ فرزٍ ولا تلغرام. 🧾 **تحديثٌ مؤرَّخ 2026-08-18 (T-CUMRISE-FWD،
+#    عقدُه `cumrise_fwd_prereg.md` مدفوعٌ قبل أوّل صفّ):** كرونان بعد إغلاق الافتر
+#    يُلحقان صفَّ الجلسة بـ`cumrise_fwd_ledger.jsonl` (سجلُّ بحثٍ append-only —
+#    نمطُ `hunter_ledger`) — **القياسُ نفسُه لم يتغيّر بحرف** (أقفال CR1-CR7).
 permissions:
-  contents: read
+  contents: write   # لدفع سجلّ الحصاد وحده — والتشغيلُ اليدويّ بلا كتابة
 
 on:
+  schedule:
+    - cron: "41 0 * * 2-6"   # بعد إغلاق الافتر صيفًا (00:00 UTC) — مُزاحٌ عن الصيّادين
+    - cron: "41 1 * * 2-6"   # وشتاءً (01:00 UTC) — الدِدوبُ باليوم يمنع التكرار
   workflow_dispatch:
     inputs:
       day:
@@ -33,4 +39,24 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           GATE_DAY: ${{ inputs.day }}
+          CUMRISE_LEDGER: ${{ github.event_name == 'schedule' && '1' || '' }}
         run: python cumrise_probe.py
+
+      - name: 🧾 دفعُ سجلّ الحصاد (المجدول وحده · fetch+rebase وإعادةُ محاولة)
+        if: github.event_name == 'schedule'
+        run: |
+          if git diff --quiet -- cumrise_fwd_ledger.jsonl && \
+             [ -z "$(git status --porcelain cumrise_fwd_ledger.jsonl)" ]; then
+            echo "لا صفَّ جديدًا (دِدوب أو لا مادّة) — لا دفع."; exit 0
+          fi
+          git config user.name "super-stocks-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add cumrise_fwd_ledger.jsonl
+          git commit -m "cumrise fwd ledger $(date -u +%F)"
+          for i in 1 2 3 4; do
+            git fetch origin main && git rebase origin/main && \
+              git push origin HEAD:main && exit 0
+            git rebase --abort 2>/dev/null || true
+            sleep $((2 ** i))
+          done
+          echo "⛔ تعذّر الدفعُ بعد 4 محاولات" && exit 1

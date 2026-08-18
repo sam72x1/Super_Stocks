@@ -19861,12 +19861,24 @@ _vwr_rr, _vwr_rrc = S.live_watch_universe(
 _vwr_by = {}
 for _r in _vwr_rr:
     _vwr_by[_r["src"]] = _vwr_by.get(_r["src"], 0) + 1
-check("🔒 VWR5هـ لا مصدرَ يُجوَّع: الخمسةُ كلُّها لها نصيبٌ رغم تجاوز السقف",
+# 🗓️ **إقرارٌ ثانٍ مؤرَّخ 2026-08-18 (مقعدُ `$CDTG`):** صار المصدرُ السادس
+#    «متحرّك حديث قرب الظرف» ⇒ الفِكستشرُ اكتسب متحرّكًا حديثًا قريبَ الظرف
+#    فيُختبَر عدمُ التجويع **على الستّ كلِّها** — أشدُّ لا أرخى.
+_vwr_big6 = dict(_vwr_big)
+_vwr_big6["explosions"] = [{"symbol": "MV1", "date": "2026-08-14", "gain": 90.0}]
+_vwr_bn6 = dict(_vwr_bn)
+_vwr_bn6["MV1"] = {"symbol": "MV1", "n_out": 1, "rsi_now": 55.0}
+_vwr_rr, _vwr_rrc = S.live_watch_universe(
+    _vwr_big6, _vwr_bn6, _vwr_bp, _vwr_bh, cap=60, today_iso="2026-08-16")
+_vwr_by = {}
+for _r in _vwr_rr:
+    _vwr_by[_r["src"]] = _vwr_by.get(_r["src"], 0) + 1
+check("🔒 VWR5هـ لا مصدرَ يُجوَّع: الستّةُ كلُّها لها نصيبٌ رغم تجاوز السقف",
       len(_vwr_rr) == 60 and _vwr_rrc > 0
       and all(_vwr_by.get(_k, 0) > 0 for _k in S.LIVE_WATCH_SOURCES),
       str(_vwr_by))
 _vwr_now, _vwr_nowc = S.live_watch_universe(
-    _vwr_big, _vwr_bn, _vwr_bp, _vwr_bh, today_iso="2026-08-16")
+    _vwr_big6, _vwr_bn6, _vwr_bp, _vwr_bh, today_iso="2026-08-16")
 check("⬆️ VWR5و **وبالسقف النافذ لا يُقصّ أحدٌ من الفِكستشر نفسِها** "
       "(‏122 سهمًا تحت 400 — أثرُ «ارفع السقف» مقروءٌ من القفل)",
       _vwr_nowc == 0 and len(_vwr_now) == len(_vwr_rr) + _vwr_rrc,
@@ -20807,9 +20819,46 @@ check("🔒 LS11 كونُ السيولة **أسهمُ البوت وحدها** (�
 _ls_uni_src = {_s["src"] for _s in S.live_watch_universe(
     {"stocks": [{"symbol": "A", "status": "active"}]}, None, None, None,
     cap=10 ** 9)[0]}
-check("🔒 LS11ب والمصادرُ **مسمّاةٌ ومحدودةٌ بالخمس** — فلا تتسرّب فئةٌ سادسة",
-      _ls_uni_src <= set(S.LIVE_WATCH_SOURCES) and len(S.LIVE_WATCH_SOURCES) == 5,
+# 🗓️ **إقرارٌ مؤرَّخ 2026-08-18 (حالةُ `$CDTG`):** كانت «محدودةٌ بالخمس» فأمسكت
+#    إضافةَ مقعد المتحرّك الحديث وأدّت عملها ⇒ حُدِّثت **وشُدِّدت**: ستٌّ بالاسم،
+#    والسادسةُ **مشروطةٌ بقرب الظرف** (لا بابَ سوقٍ عامّ — قرارُ المالك قائم).
+check("🔒 LS11ب والمصادرُ **مسمّاةٌ ومحدودةٌ بالستّ** — والسادسةُ «متحرّك حديث "
+      "قرب الظرف» لا مصدرَ سوقٍ عامّ",
+      _ls_uni_src <= set(S.LIVE_WATCH_SOURCES) and len(S.LIVE_WATCH_SOURCES) == 6
+      and "متحرّك حديث قرب الظرف" in S.LIVE_WATCH_SOURCES,
       str(sorted(S.LIVE_WATCH_SOURCES)))
+
+# ==========================================================
+# 💥 **مقعدُ المتحرّك الحديث (2026-08-18، `$CDTG`):** مذكورٌ في البوت (+88%)
+#    وانفجر +177% بصفرِ إشعار — خارجَ السلّتين وذاكرةُ الضغط أسقطته.
+# ==========================================================
+_lwm_wl = {"stocks": [{"symbol": "PSIG", "status": "active"}],
+           "explosions": [
+               {"symbol": "CDTG", "date": "2026-08-06", "gain": 79.0},
+               {"symbol": "OLDX", "date": "2026-07-20", "gain": 300.0},
+               {"symbol": "NONEAR", "date": "2026-08-17", "gain": 90.0},
+               {"symbol": "PSIG", "date": "2026-08-16", "gain": 55.0}]}
+_lwm_near = {"CDTG": {"symbol": "CDTG", "n_out": 1, "rsi_now": 59.1},
+             "OLDX": {"symbol": "OLDX", "n_out": 1, "rsi_now": 55.0},
+             "PSIG": {"symbol": "PSIG", "n_out": 1, "rsi_now": 50.0}}
+_lwm_rows, _lwm_drop = S.live_watch_universe(
+    _lwm_wl, _lwm_near, None, None, cap=100, today_iso="2026-08-18")
+_lwm_src = {r["symbol"]: r["src"] for r in _lwm_rows}
+check("💥 LWM1 **متحرّكُ 12 يومًا القريبُ من الظرف يدخل الكون** (إعادةُ حالة "
+      "`CDTG` بتواريخها) — ونافذةُ 5 أيامٍ كانت ستفوّته",
+      _lwm_src.get("CDTG") == "متحرّك حديث قرب الظرف"
+      and S.LIVE_WATCH_MOVER_DAYS == 14,
+      f"src={_lwm_src.get('CDTG')} · نافذة={S.LIVE_WATCH_MOVER_DAYS}")
+check("💥 LWM2 **القيدان يقصّان**: متحرّكٌ بعيدٌ عن الظرف لا يدخل بهذا المقعد · "
+      "وقديمُ 29 يومًا لا يدخل (فارقان محدَّدان)",
+      "NONEAR" not in _lwm_src
+      and _lwm_src.get("OLDX") != "متحرّك حديث قرب الظرف",
+      f"NONEAR={_lwm_src.get('NONEAR')} · OLDX={_lwm_src.get('OLDX')}")
+check("💥 LWM3 **الدِدوبُ يُبقي الوسمَ الأدقّ**: مرشَّحٌ نشطٌ متحرّكٌ يبقى "
+      "«الترشيح» ويظهر مرّةً واحدة",
+      _lwm_src.get("PSIG") == "الترشيح"
+      and sum(1 for r in _lwm_rows if r["symbol"] == "PSIG") == 1,
+      f"PSIG={_lwm_src.get('PSIG')}")
 
 # 🪦 **`LIQ11` متقاعدٌ 2026-08-17:** كان يقفل وصلَ `scan_candle_liquidity` وقد
 #    تقاعدت لصالح الثلاثيّة المتدرّجة — و**`LS10` يقفل الوصلَ الجديد أشدَّ** (يشترط
@@ -26012,7 +26061,10 @@ check("🔒 CR5 **`LOCK-ARMS` يعبر · ويشمل شاهدَ `K2`** (‏`R1` 
       and "return 3" in _cr_src,
       f"عبر؟ {_cr_ok} · شواهد={len(_cr_notes)}")
 
-# 🔒 CR6 — **`cumrise.yml` يدويٌّ بلا كرون · بلا ابتلاعِ فشل · واليومُ موصول**
+# 🔒 CR6 — 🗓️ **إقرارٌ مؤرَّخ 2026-08-18 (T-CUMRISE-FWD):** كان «بلا كرون»
+#    فأمسك إضافةَ الحصاد الأماميّ وأدّى عملَه ⇒ حُدِّث **وشُدِّد**: كرونا ما بعد
+#    الافتر بالفصلين حصرًا · السجلُّ **مشروطٌ بالمجدول** فلا يكتب اليدويُّ حالةً ·
+#    ولا ابتلاعَ فشلٍ · واليومُ موصول.
 _cr_yml = _af_yaml.safe_load(open(".github/workflows/cumrise.yml",
                                   encoding="utf-8"))
 _cr_on = _cr_yml.get(True) or _cr_yml.get("on")
@@ -26022,18 +26074,62 @@ _cr_steps = _cr_job.get("steps") or []
 _cr_env = {}
 for _s in _cr_steps:
     _cr_env.update(_s.get("env") or {})
-check("📈 CR6 **الـworkflow يدويٌّ · بلا كرون · بلا ابتلاعِ فشل · ومدخلُ اليوم "
-      "موصولٌ ببيئةٍ يقرؤها السكربت** (بصمةُ `BT_CANDLE`)",
-      _cr_on == ["workflow_dispatch"]
+_cr_crons = [c.get("cron") for c in
+             ((_cr_yml.get(True) or _cr_yml.get("on") or {})
+              .get("schedule") or [])]
+check("📈 CR6 **كرونا ما بعد الافتر بالفصلين + يدويٌّ لليوم · السجلُّ مشروطٌ "
+      "بالمجدول · بلا ابتلاعِ فشل · واليومُ موصول**",
+      sorted(_cr_on) == ["schedule", "workflow_dispatch"]
+      and _cr_crons == ["41 0 * * 2-6", "41 1 * * 2-6"]
       and not any(_s.get("continue-on-error") for _s in _cr_steps)
       and _cr_env.get("GATE_DAY") == "${{ inputs.day }}"
       and "POLYGON_API_KEY" in _cr_env
-      and 'os.environ.get("GATE_DAY")' in _cr_src,
-      f"on={_cr_on} · بيئة={sorted(_cr_env)}")
+      and "schedule" in str(_cr_env.get("CUMRISE_LEDGER"))
+      and 'os.environ.get("GATE_DAY")' in _cr_src
+      and any("cumrise_fwd_ledger" in str(_s.get("run", ""))
+              and "github.event_name == 'schedule'" in str(_s.get("if", ""))
+              for _s in _cr_steps),
+      f"on={sorted(_cr_on)} · كرون={_cr_crons}")
 
 # 🔒 CR7 — **عزلٌ تامّ**: الإنتاجُ لا يستورد المِجَسّ (أداةُ بحثٍ خارج الفرز).
 check("🔒 CR7 **`Super_stock` لا يستورد `cumrise_probe`** (عزلٌ تامّ)",
       "cumrise_probe" not in open("Super_stock.py", encoding="utf-8").read())
+
+# ==========================================================
+# 🧾 **T-CUMRISE-FWD (2026-08-18، `cumrise_fwd_prereg.md` مدفوعٌ قبل أوّل صفّ):**
+#    الحصادُ الأماميّ — سجلُّ جلساتٍ يتراكم، والحكمُ عند الأرضيّات لا قبلها.
+# ==========================================================
+_crf_res = {"R0": {"fired": {"A": 3, "B": 5}, "alerts": 9,
+                   "late": [17.123, 4.0], "fruit_n": 2, "fruit_pct": 50.0,
+                   "unres": 1},
+            "R1": {"fired": {"A": 1}, "alerts": 12, "late": [8.5],
+                   "fruit_n": 1, "fruit_pct": None, "unres": 0}}
+_crf_row = CR.fwd_ledger_row("2026-08-18", _crf_res, ["A", "Z"], 314, 7)
+check("🧾 CRF1 **صفُّ السجلّ حقائقُ خامّة**: اليومُ والكونُ والتعذّرُ والمتحرّكون "
+      "المصادون بالاسم · والتأخّرُ قائمةً لا وسيطًا (الحسمُ وقتَ الحصاد)",
+      _crf_row["day"] == "2026-08-18" and _crf_row["universe"] == 314
+      and _crf_row["fetch_fails"] == 7 and _crf_row["movers"] == ["A", "Z"]
+      and _crf_row["arms"]["R0"]["late"] == [17.12, 4.0]
+      and _crf_row["arms"]["R0"]["movers_hit"] == ["A"]
+      and _crf_row["arms"]["R1"]["fruit_pct"] is None
+      and _crf_row["arms"]["R1"]["movers_hit"] == ["A"],
+      f"R0={_crf_row['arms']['R0']}")
+import tempfile as _crf_tmp
+with _crf_tmp.NamedTemporaryFile("w", suffix=".jsonl", delete=False,
+                                 encoding="utf-8") as _crf_f:
+    _crf_f.write('{"day": "2026-08-17"}\n' + "سطرٌ تالف\n")
+    _crf_path = _crf_f.name
+check("🧾 CRF2 **الدِدوبُ باليوم** — الموجودُ يُتخطّى والجديدُ يُقاس · والتالفُ "
+      "والغائبُ لا يمنعان القياس (فاشلٌ-آمن)",
+      CR._ledger_has("2026-08-17", path=_crf_path) is True
+      and CR._ledger_has("2026-08-18", path=_crf_path) is False
+      and CR._ledger_has("2026-08-18", path="/غير/موجود.jsonl") is False)
+S.os.unlink(_crf_path)
+check("🧾 CRF3 **وضعُ السجلّ موصولٌ في المِجَسّ** (دِدوبٌ مبكّرٌ + كتابةٌ بعد "
+      "الجدول) — لا دالّةٌ معزولة (درسُ wire-check)",
+      'os.environ.get("CUMRISE_LEDGER", "").strip() == "1"' in _cr_src
+      and "_ledger_has(day)" in _cr_src
+      and "fwd_ledger_row(day, res, movers" in _cr_src)
 
 # ==========================================================
 # 🕐💰 **بلاغُ `$BAOS` (2026-08-18): «تعطيني أسعار للسهم بالسالب … حلها»**
@@ -26327,6 +26423,13 @@ try:
     _sc_misstage = _sup_oel._stamps_covered()
     _sup_state = {"show": ""}
     _sc_unread = _sup_oel._stamps_covered()
+    # 🗓️ نسخةُ origin ليومٍ **أحدث** تبدأ `sent` من جديد ⇒ ختمُ الأمس المحلّيّ
+    #    لاغٍ ولا يحجب التحديث (وإلّا انسدّ كلَّ صباحٍ حتى أوّل إرسال).
+    _sup_oel.bot.load_op_entry_state = lambda: {
+        "LIQ:PFSA": {"sent": ["M1", "M5", "M30"], "date": "2026-08-17"}}
+    _sup_state = {"show": _sup_json.dumps(
+        {"LIQ:PFSA": {"sent": ["M1"], "date": "2026-08-18"}})}
+    _sc_newday = _sup_oel._stamps_covered()
     _sup_oel.bot.load_op_entry_state = lambda: {}
     _sc_empty = _sup_oel._stamps_covered()
     _sup_oel.bot.load_op_entry_state = _sup_orig_load
@@ -26366,6 +26469,7 @@ except Exception as _e:                                          # noqa: BLE001
     _r_go, _go_reset, _sup_exec_guarded = None, False, [1]
     _cc_mixed = _cc_data = _cc_err = _cc_boot_anchored = None
     _sc_super = _sc_misskey = _sc_misstage = _sc_unread = _sc_empty = None
+    _sc_newday = None
 finally:
     _sup_oel._git_out = _sup_orig
     _sup_oel.os.execve = _sup_orig_exec
@@ -26402,8 +26506,9 @@ check("🔄 SUP1ب **الكودُ يُحصى وحالةُ البوت لا · و�
 check("🔄 SUP4 **تغطيةُ الأختام بالمحتوى**: superset يمرّ · مفتاحٌ غائبٌ يرفض · "
       "مرحلةٌ ناقصةٌ ترفض · تعذّرٌ يرفض · فارغٌ يمرّ",
       _sc_super is True and _sc_misskey is False and _sc_misstage is False
-      and _sc_unread is False and _sc_empty is True,
-      f"[{_sc_super},{_sc_misskey},{_sc_misstage},{_sc_unread},{_sc_empty}]")
+      and _sc_unread is False and _sc_empty is True and _sc_newday is True,
+      f"[{_sc_super},{_sc_misskey},{_sc_misstage},{_sc_unread},{_sc_empty},"
+      f"يومٌ_أحدث={_sc_newday}]")
 
 # 🔒 SUP5 — **قرارُ التحديث لا يستشير `rev-list`** (نسبُ التاريخ تكذب مع إعادة
 #           كتابة `git_save` — بالـAST على النداءات لا النصّ، فالـdocstring يذكرها).
@@ -26489,10 +26594,16 @@ _tg_save = S.TELEGRAM_CHAT
 try:
     S.TELEGRAM_CHAT = "111,\n222 ; 333,111"
     _tg_rec, _tg_adm = S._chat_recipients(), S._admin_chat()
+    # 🔴 والفاصلةُ العربية «،» — حالة 2026-08-18: لوحةُ المالك عربية، وفاصلةٌ
+    #    عربيةٌ تُلصق الأرقامَ رقمًا مشوّهًا ⇒ صمتٌ كلّيّ عن المشرف.
+    S.TELEGRAM_CHAT = "444،555؛666"
+    _tg_ar = S._chat_recipients()
 finally:
     S.TELEGRAM_CHAT = _tg_save
-check("👥 TGM1 **مستلمون بفاصلةٍ أو سطرٍ أو مسافة · بلا تكرار · والأوّلُ المشرف**",
-      _tg_rec == ["111", "222", "333"] and _tg_adm == ["111"],
+check("👥 TGM1 **مستلمون بفاصلةٍ أو سطرٍ أو مسافة أو فاصلةٍ عربية «،؛» · بلا "
+      "تكرار · والأوّلُ المشرف**",
+      _tg_rec == ["111", "222", "333"] and _tg_adm == ["111"]
+      and _tg_ar == ["444", "555", "666"],
       f"{_tg_rec} · مشرف={_tg_adm}")
 
 # 🔒 TGM2 — 🔴 **الحاسم**: صديقٌ لم يضغط Start ⇒ **`True`** فلا يُنزَع الختمُ ولا

@@ -175,6 +175,12 @@ def _stamps_covered():
         rv = rem.get(k)
         if rv is None:
             return False
+        # 🗓️ ختمُ **يومٍ أقدم** محلّيًّا لاغٍ — نسخةُ origin ليومٍ أحدث تبدأ
+        #    `sent` من جديدٍ فلا يُقرأ نقصُها «ختمًا ضائعًا» فيُحجَب التحديثُ
+        #    صباحَ كلِّ يومٍ حتى أوّل إرسال.
+        if isinstance(lv, dict) and isinstance(rv, dict) \
+                and str(rv.get("date") or "") > str(lv.get("date") or ""):
+            continue
         if isinstance(lv, dict) and lv.get("sent"):
             rs = set((rv.get("sent") or [])) if isinstance(rv, dict) else set()
             if not set(lv.get("sent") or []) <= rs:

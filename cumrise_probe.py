@@ -12,6 +12,7 @@
 والإثمارُ من `liq_move_probe.fruit` **نفسِها** — لا نسخةَ ثانية.
 🔒 **قراءةٌ/قياسٌ فقط:** لا يكتب حالةً ولا يرسل تلغرامًا ولا يمسّ فرزًا ولا جذرًا.
 """
+import json
 import os
 import sys
 import time
@@ -44,6 +45,43 @@ MOVER_MIN_N = 5             # أرضيةُ المعيار ④ (‏§⑥)
 
 def _b(i, o, h, l, c, v):
     return {"t": i * 60_000, "o": o, "h": h, "l": l, "c": c, "v": v}
+
+
+LEDGER_FILE = "cumrise_fwd_ledger.jsonl"   # 🧾 T-CUMRISE-FWD (cumrise_fwd_prereg.md)
+
+
+def _ledger_has(day, path=None):
+    """دِدوبُ الجلسة: صفٌّ بيومها موجودٌ ⇒ لا تُعاد (الكرونان يمرّان بلا تكرار).
+    فاشلٌ-آمن: ملفٌّ غائبٌ/تالفٌ ⇒ False (تُقاس — الإعادةُ أرحم من الفقد)."""
+    try:
+        with open(path or LEDGER_FILE, encoding="utf-8") as f:
+            for ln in f:
+                try:
+                    if json.loads(ln).get("day") == day:
+                        return True
+                except Exception:                                # noqa: BLE001
+                    continue
+    except Exception:                                            # noqa: BLE001
+        return False
+    return False
+
+
+def fwd_ledger_row(day, res, movers, n_uni, fails):
+    """صفُّ السجلّ الأماميّ — **حقائقُ خامّةٌ لا مقاييسُ مشتقّة** (نمطُ
+    `hunter_ledger`): الحسمُ المجمَّع يُحسَب وقتَ الحصاد من الصفوف لا هنا."""
+    return {"day": day, "universe": int(n_uni), "fetch_fails": int(fails),
+            "movers": sorted(movers),
+            "arms": {an: {
+                "fired": len(r.get("fired") or {}),
+                "alerts": int(r.get("alerts") or 0),
+                "late": [round(float(x), 2) for x in (r.get("late") or [])],
+                "fruit_n": int(r.get("fruit_n") or 0),
+                "fruit_pct": (None if r.get("fruit_pct") is None
+                              else round(float(r["fruit_pct"]), 1)),
+                "unres": int(r.get("unres") or 0),
+                "movers_hit": sorted(s2 for s2 in movers
+                                     if s2 in (r.get("fired") or {})),
+            } for an, r in res.items()}}
 
 
 def _lock_arms():
@@ -126,6 +164,11 @@ def main():                                                       # noqa: C901
             return 2
     print(f"📅 **الجلسةُ المقيسة: {day}** (‏{back} يومًا للخلف · شاهدُ الضبط "
           f"`AAPL` {nb} شمعة) — تُحسَم مرّةً واحدةً للكلّ (‏`V3`).\n")
+    _fwd = os.environ.get("CUMRISE_LEDGER", "").strip() == "1"
+    if _fwd and _ledger_has(day):
+        print(f"🧾 الجلسةُ {day} مسجَّلةٌ في `{LEDGER_FILE}` سلفًا ⇒ دِدوب "
+              "(الكرونُ الثاني يمرّ بلا تكرار).")
+        return 0
 
     import operator_entry_live as oel
     try:
@@ -308,6 +351,13 @@ def main():                                                       # noqa: C901
     print(f"  6. وأيُّ فرقٍ دون **{GP.JITTER_PP} نقطة** داخلَ الضجيج المقيس "
           "ولا يُدَّعى.")
     print("  7. **والفلترُ المشحون خارج هذا القياس** — يُقاس الزنادُ لا التسليم.")
+
+    if _fwd:
+        row = fwd_ledger_row(day, res, movers, len(syms), fails)
+        with open(LEDGER_FILE, "a", encoding="utf-8") as f:
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+        print(f"\n🧾 سُجّلت جلسةُ {day} في `{LEDGER_FILE}` — عقدُها "
+              "`cumrise_fwd_prereg.md` (الحكمُ عند الأرضيّات لا قبلها).")
     return 0
 
 
