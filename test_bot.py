@@ -25599,13 +25599,17 @@ _af_lu = next((n for n in _af_ast.walk(_af_tree)
               None)
 _af_ret = [n for n in _af_ast.walk(_af_lu or _af_ast.parse("")) if isinstance(n, _af_ast.Return)]
 _af_ar = {len(n.value.elts) for n in _af_ret if isinstance(n.value, _af_ast.Tuple)}
-_af_fill = any(
-    isinstance(getattr(c, "func", None), _af_ast.Attribute)
-    and getattr(c.func.value, "id", None) == "_WL"
-    for c in _af_ast.walk(_af_lu or _af_ast.parse("")) if isinstance(c, _af_ast.Call))
-check("🎛️ AF10 **`_WL` يُملأ في `_load_universe` · وهي رباعيّةٌ كما تفكّها المِجَسّات**",
-      "_WL = {}" in _af_oel and _af_fill and _af_ar == {4},
-      f"أطوالُ الإرجاع={sorted(_af_ar)} · يُملأ؟ {_af_fill}")
+# 🐞 **شُدِّد 2026-08-18 — طفرةُ `M9` نجت فكشفت القفلَ لا الكود:** كان يشترط
+#    «نداءَ سمةٍ على `_WL`» فأرضاه **`_WL.clear()` الباقي** بعد حذف `_WL.update(wl)`
+#    ⇒ **لا يفرّق «يُنظَّف» عن «يُملأ»**. صار يشترط **الاسمَين معًا بأسمائهما**.
+_af_wl_m = {getattr(c.func, "attr", None)
+            for c in _af_ast.walk(_af_lu or _af_ast.parse("")) if isinstance(c, _af_ast.Call)
+            and isinstance(getattr(c, "func", None), _af_ast.Attribute)
+            and getattr(c.func.value, "id", None) == "_WL"}
+check("🎛️ AF10 **`_WL` يُنظَّف **و**يُملأ** في `_load_universe` · وهي رباعيّةٌ كما "
+      "تفكّها المِجَسّات**",
+      "_WL = {}" in _af_oel and {"clear", "update"} <= _af_wl_m and _af_ar == {4},
+      f"أطوالُ الإرجاع={sorted(_af_ar)} · نداءاتُ _WL={sorted(x for x in _af_wl_m if x)}")
 
 # 🔒 AF11 — **المِجَسُّ قياسٌ لا فعل**: صفرُ إرسالٍ وصفرُ كتابةِ حالةٍ وصفرُ دفعٍ،
 #           والتوليفاتُ **تسعٌ مثبَّتة** و`P0` **ضبطٌ فارغ** (بلا شاهدٍ لا يُقرأ جدول).
