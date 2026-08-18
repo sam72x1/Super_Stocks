@@ -74,7 +74,7 @@ def second_bars(sym, t0_ms, t1_ms, tries=3):
     return None
 
 
-def day_minutes(sym):
+def day_minutes(sym, day=None):
     """📥 شموعُ **اليومِ كاملًا** (بريماركتَ وجلسةً وأفترَ) بنداءٍ واحد.
 
     `polygon_minute_bars` مسقوفٌ بـ500 شمعة ⇒ في تشغيلةٍ مسائيّةٍ **لا يبلغ
@@ -88,7 +88,8 @@ def day_minutes(sym):
     try:
         from zoneinfo import ZoneInfo
         import datetime as _dt
-        d = _dt.datetime.now(ZoneInfo("America/New_York")).date().isoformat()
+        d = (str(day) if day else
+             _dt.datetime.now(ZoneInfo("America/New_York")).date().isoformat())
         r = requests.get(f"https://api.polygon.io/v2/aggs/ticker/{sym.upper()}"
                          f"/range/1/minute/{d}/{d}",
                          headers={"Authorization": f"Bearer {key}"},

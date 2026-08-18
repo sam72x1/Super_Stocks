@@ -52,21 +52,52 @@ OWNER_COST = ("G4", "G5")             # 🔴 أرقامُ المالك — كل�
 UPPER_BOUND = ("G6",)
 
 
-def prev_close(sym):
-    """📉 إغلاقُ الأمس من `/v2/aggs/{sym}/prev` — نفسُ ما يقرؤه الشارت."""
+def resolve_day(control="AAPL", max_back=7):
+    """📅 **الجلسةُ المقيسة تُحسَم مرّةً واحدةً للكلّ** — لا سهمًا سهمًا.
+
+    🔴 **وسببُه عيبٌ وقع فعلًا:** أوّلُ تشغيلةٍ (`32097494557`) وقعت **00:00
+    نيويورك** فلم يكن ليومها شمعةٌ واحدة ⇒ **0 من 319**. والارتدادُ سهمًا سهمًا
+    كان سيخلط **أيّامًا مختلفةً في جدولٍ واحد** — وهو أسوأُ من الفشل الصريح.
+    ⇒ يُجرَّب اليومُ ثم ما قبله بشاهدِ ضبطٍ سائلٍ واحد، **ويُعلَن أيُّ يومٍ قِيس**."""
+    from zoneinfo import ZoneInfo
+    import datetime as _dt
+    d0 = _dt.datetime.now(ZoneInfo("America/New_York")).date()
+    for k in range(int(max_back)):
+        d = (d0 - _dt.timedelta(days=k)).isoformat()
+        bars = MZ.day_minutes(control, day=d)
+        if bars and len(bars) >= 100:
+            return (d, k, len(bars))
+    return (None, None, 0)
+
+
+def prev_close(sym, day):
+    """📉 إغلاقُ **اليومِ السابقِ للجلسة المقيسة** — لا «أمسِ اليومَ الجاري».
+
+    🔴🔴 **عيبٌ كشفه تثبيتُ اليوم:** `/v2/aggs/{sym}/prev` يُرجع اليومَ السابقَ
+    **للحظة النداء**؛ فلو قِيست جلسةُ الاثنين وشُغِّل المِجَسُّ فجرَ الثلاثاء
+    لأرجع **إغلاقَ الاثنين نفسِه** ⇒ «التأخّر» يُقاس عن يومه هو فيخرج **≈صفر**
+    ويُقرأ «لا تأخّر» وهو خطأُ قياسٍ صرف. ⇒ يُطلَب مدًى يوميٌّ وتُؤخذ **آخرُ
+    جلسةٍ تاريخُها قبل يوم القياس** (مقفولٌ `GT8`)."""
     key = os.environ.get("POLYGON_API_KEY", "").strip()
-    if not key:
+    if not key or not day:
         return None
     try:
+        import datetime as _dt
+        d1 = _dt.date.fromisoformat(str(day))
+        d0 = (d1 - _dt.timedelta(days=12)).isoformat()
         r = requests.get(f"https://api.polygon.io/v2/aggs/ticker/"
-                         f"{sym.upper()}/prev",
+                         f"{sym.upper()}/range/1/day/{d0}/{day}",
                          headers={"Authorization": f"Bearer {key}"},
-                         params={"adjusted": "true"}, timeout=12)
+                         params={"adjusted": "true", "sort": "asc",
+                                 "limit": 50}, timeout=12)
         if r.status_code != 200:
             return None
         res = (r.json() or {}).get("results") or []
-        c = res[0].get("c") if res else None
-        return float(c) if c else None
+        cut = int(_dt.datetime.combine(
+            d1, _dt.time()).replace(tzinfo=_dt.timezone.utc).timestamp()) * 1000
+        prior = [b for b in res if b.get("t") is not None and int(b["t"]) < cut
+                 and b.get("c")]
+        return float(prior[-1]["c"]) if prior else None
     except Exception:                                            # noqa: BLE001
         return None
 
@@ -231,6 +262,21 @@ def main():                                                       # noqa: C901
         return 3
     print("   ✅ `LOCK-G0` عبر — والأذرعُ السبعُ تفرّق فعلًا.\n")
 
+    # 📅 الجلسةُ المقيسةُ **تُحسَم مرّةً واحدةً للكلّ وتُعلَن**
+    day = (os.environ.get("GATE_DAY") or "").strip() or None
+    if day:
+        back, nb = 0, len(MZ.day_minutes("AAPL", day=day) or [])
+        if nb < 100:
+            print(f"⛔ اليومُ المطلوب {day} بلا بياناتٍ لشاهد الضبط ⇒ لا قياس.")
+            return 2
+    else:
+        day, back, nb = resolve_day()
+        if not day:
+            print("⛔ لم تُوجَد جلسةٌ فيها بيانات خلال سبعةِ أيام ⇒ لا قياس.")
+            return 2
+    print(f"📅 **الجلسةُ المقيسة: {day}** (‏{back} يومًا للخلف · شاهدُ الضبط "
+          f"`AAPL` {nb} شمعة) — تُحسَم مرّةً واحدةً للكلّ فلا تُخلَط أيّام.\n")
+
     import operator_entry_live as oel
     try:
         _u, _c, _s, uni_all = oel._load_universe()
@@ -245,7 +291,7 @@ def main():                                                       # noqa: C901
 
     def _one(s):
         try:
-            return (s, MZ.day_minutes(s), prev_close(s))
+            return (s, MZ.day_minutes(s, day=day), prev_close(s, day))
         except Exception:                                        # noqa: BLE001
             return (s, None, None)
 

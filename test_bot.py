@@ -25319,6 +25319,48 @@ _gt_st = [_x for _j in (_gt_y.get("jobs") or {}).values()
 _gt_env = {}
 for _x in _gt_st:
     _gt_env.update(_x.get("env") or {})
+# 🔒 GT8 — 🔴🔴 **العيبُ الذي كشفه أوّلُ تشغيلٍ فاشل** (`32097494557` عند 00:00
+#    نيويورك ⇒ صفرُ شموع): ① الجلسةُ المقيسةُ **تُحسَم مرّةً واحدةً** ولا تُترَك
+#    لكلّ سهمٍ فتُخلَط أيّامٌ في جدولٍ واحد ② و**إغلاقُ الأمس يُنسَب إلى يومِ
+#    القياس لا إلى لحظةِ النداء**: `/prev` كان سيُرجع **إغلاقَ يومِ القياس نفسِه**
+#    لو شُغِّل فجرَ اليوم التالي ⇒ «التأخّر» يخرج **≈صفرًا** ويُقرأ «لا تأخّر»
+#    وهو خطأُ قياسٍ صرف. ⇒ يُشترَط **مدًى يوميّ** و**قطعٌ زمنيٌّ قبل يوم القياس**.
+# 🐞 **وصياغتي الأولى سقطت على docstring‌ي نفسِه** (يشرح عيبَ `/prev` فقرأه
+#    القفلُ استعمالًا) = **الفخُّ النصّيُّ الموثَّق للمرّة الرابعة** ⇒ صار الحكمُ
+#    من **ثوابتِ الكود بعد إسقاط الـdocstring** لا من نصّ الملفّ.
+def _gt_code_consts(fn):
+    _n = _ast0.parse(_tw0.dedent(_insp0.getsource(fn))).body[0]
+    _body = _n.body[1:] if (_n.body and isinstance(_n.body[0], _ast0.Expr)
+                            and isinstance(_n.body[0].value, _ast0.Constant)
+                            and isinstance(_n.body[0].value.value, str)
+                            ) else _n.body
+    return [c.value for b in _body for c in _ast0.walk(b)
+            if isinstance(c, _ast0.Constant) and isinstance(c.value, str)]
+
+
+_gt_pc = _insp0.getsource(_GT.prev_close)
+_gt_rd = _insp0.getsource(_GT.resolve_day)
+_gt_pcc = _gt_code_consts(_GT.prev_close)
+check("🚪 GT8 **اليومُ مثبَّتٌ وإغلاقُ الأمس قبلَه قطعًا** (لا `/prev` ولا خلطُ أيّام)",
+      not any("/prev" in _c for _c in _gt_pcc)
+      and any("range/1/day" in _c for _c in _gt_pcc)
+      and "int(b[\"t\"]) < cut" in _gt_pc
+      and "day=None" in _insp0.getsource(_GT.MZ.day_minutes)
+      and "GATE_DAY" in _gt_src and "resolve_day()" in _gt_src
+      and "day=d" in _gt_rd,
+      f"ثوابتُ الكود={[_c for _c in _gt_pcc if '/' in _c][:2]}")
+# 🔒 GT8ب — **سلوكيًّا**: إغلاقُ الأمس يُرفَض إن ساوى يومَ القياس (شاهدٌ مُصطنَع)
+_gt_days = [{"t": 1_000, "c": 9.0}, {"t": 2_000, "c": 7.0}]
+
+
+def _gt_pick(res, cut):
+    return [b for b in res if int(b["t"]) < cut][-1]["c"]
+
+
+check("🚪 GT8ب **القطعُ يختار ما قبلَ يومِ القياس لا يومَه** (شاهدٌ تفريقيّ)",
+      _gt_pick(_gt_days, 2_000) == 9.0 and _gt_pick(_gt_days, 3_000) == 7.0,
+      "قطعٌ عند 2000⇒9.0 · عند 3000⇒7.0")
+
 check("🚪 GT7 **`gate.yml` يدويٌّ · بلا ابتلاعِ فشل · والمفتاحُ موصول** (بنيويًّا)",
       set(_gt_on) == {"workflow_dispatch"}
       and all("continue-on-error" not in _x for _x in _gt_st)
