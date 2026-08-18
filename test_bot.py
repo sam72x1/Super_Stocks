@@ -26145,9 +26145,17 @@ try:
     _sup_calls.clear()
     _r_short = _sup_oel._self_update(_sup_time.time(), 1)   # المتبقّي دون دقيقتين
     _short_reset = any(c[:1] == ["reset"] for c in _sup_calls)
+    # ✅ وحالةٌ **تعبر الحرّاسَ الثلاثة** ⇒ تُحدِّث وتُعيد التشغيل فعلًا،
+    #    فتُقاس **بيئةُ إعادة التشغيل** سلوكيًّا لا نصًّا.
+    _sup_exec_guarded = list(_sup_exec)   # 🔒 لقطةُ الحرّاس الثلاثة قبل الحالة العابرة
+    _sup_exec.clear()
+    _sup_calls.clear()
+    _r_go = _sup_oel._self_update(_sup_time.time(), 60)
+    _go_reset = any(c[:1] == ["reset"] for c in _sup_calls)
 except Exception as _e:                                          # noqa: BLE001
     _r_dirty = _r_ahead = _r_short = f"⛔ {type(_e).__name__}"
     _dirty_reset = _ahead_reset = _short_reset = True
+    _r_go, _go_reset, _sup_exec_guarded = None, False, [1]
 finally:
     _sup_oel._git_out = _sup_orig
     _sup_oel.os.execve = _sup_orig_exec
@@ -26158,9 +26166,10 @@ check("🔄 SUP1 **شجرةٌ متّسخة · أو كوميتاتٌ غيرُ م�
       "تحديثَ ولا `reset` ولا إعادةَ تشغيل** (لئلّا يضيع ختمٌ فيتكرّر الإشعار)",
       _r_dirty is False and _r_ahead is False and _r_short is False
       and not _dirty_reset and not _ahead_reset and not _short_reset
-      and not _sup_exec,
+      and not _sup_exec_guarded,
       f"متّسخة={_r_dirty}/{_dirty_reset} · أمام={_r_ahead}/{_ahead_reset} · "
-      f"قصير={_r_short}/{_short_reset} · إعادةُ تشغيل={len(_sup_exec)}")
+      f"قصير={_r_short}/{_short_reset} · "
+      f"إعادةُ تشغيل={len(_sup_exec_guarded)}")
 
 # 🔒 SUP2 — **مُنادًى حيًّا من فرع التحديث · وداخلَ `try` عريض** فلا يُسقط الجوب.
 _sup_wired = [n for n in (_af_ast.walk(_sup_tree) if _sup_ok else [])
@@ -26178,11 +26187,21 @@ check("🔄 SUP2 **مُنادًى مرّةً حيًّا ومحروسٌ بالت�
       f"نداءات={len(_sup_wired)} · محروس؟ {_sup_guarded}")
 
 # 🔒 SUP3 — **لا يُطيل الجوبَ أبدًا**: المتبقّي يُمرَّر عبر `OE_BUDGET_MIN` وهو
-#           **يُقصّر ولا يُطيل** بنيويًّا — يُفحَص **سلوكيًّا** لا نصًّا.
-check("🔄 SUP3 **`OE_BUDGET_MIN` يُقصّر ولا يُطيل** (‏3 ⟶ 3 · و9999 ⟶ ما تبقّى)",
+#           **يُقصّر ولا يُطيل** بنيويًّا.
+# 🐞 **وكان نصّيًّا فنجت منه طفرةُ `N8`** (‏2026-08-18): يفحص وجودَ الاسم في
+#    **مصدر الدالّة**، **والاسمُ في الـdocstring الذي يشرحه** ⇒ حذفُه من الكود
+#    **يمرّ**. الفخُّ النصّيُّ الموثَّق **للمرّة السادسة** ⇒ صار **سلوكيًّا**:
+#    تُلتقَط بيئةُ `execve` الفعليّة ويُشترَط أن تحمل المفتاح **بقيمةِ المتبقّي**.
+_sup_env = (_sup_exec[0][2] if (_sup_exec and len(_sup_exec[0]) > 2
+                                and isinstance(_sup_exec[0][2], dict)) else {})
+check("🔄 SUP3 **بيئةُ إعادة التشغيل تحمل `OE_BUDGET_MIN` بالمتبقّي** · "
+      "والمفتاحُ **يُقصّر ولا يُطيل** (‏3 ⟶ 3 · و9999 ⟶ ما تبقّى)",
       _sup_oel._budget(300, "3") == 3 and _sup_oel._budget(300, "9999") == 300
-      and "OE_BUDGET_MIN" in _af_insp.getsource(_sup_oel._self_update),
-      f"قصير={_sup_oel._budget(300, '3')} · طويل={_sup_oel._budget(300, '9999')}")
+      and _r_go is False and _go_reset and len(_sup_exec) == 1
+      and str(_sup_env.get("OE_BUDGET_MIN", "")).isdigit()
+      and 0 < int(_sup_env["OE_BUDGET_MIN"]) <= 60,
+      f"قصير={_sup_oel._budget(300, '3')} · طويل={_sup_oel._budget(300, '9999')} "
+      f"· execve={len(_sup_exec)} · ميزانية={_sup_env.get('OE_BUDGET_MIN')!r}")
 
 # ==========================================================
 # 👥 **«أبي أضيف صديقي» (2026-08-18)** — الدعمُ قائمٌ، لكنّ **عقدَ الإرجاع** كان
