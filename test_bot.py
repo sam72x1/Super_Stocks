@@ -26093,6 +26093,145 @@ check("📡 PRC4 **سطرُ السعر الحيّ مرّةً واحدة** (لا 
       f"عدد={_prc_with.count('📡 السعرُ الآن')}")
 
 # ==========================================================
+# ⏱️📡 **طزاجةُ الاقتباس (2026-08-18، حالةُ `$SAGT`):** الكرتُ طبع «السعرُ الآن
+#    $0.76» من اقتباسٍ أقدمَ من الشمعة ($0.81) بدقائق والسهمُ عند $0.86 —
+#    فـ«الآن» صارت مشروطةً بطابعٍ يُثبتها، والبائتُ يُسمّى بائتًا بعمره.
+# ==========================================================
+_qag_base = 1_787_000_000_000
+_qag_ev = {"stage": "M1", "usd": 301_297, "minutes": 1, "anchor_ms": _qag_base,
+           "last_ms": _qag_base, "vol_x": 4.0, "price": 0.81,
+           "price_ms": _qag_base, "class": ("strong", "شمعة مضارب قوية"),
+           "move": 5.8}
+_qag_row = {"symbol": "SAGT", "src": "تحت المتابعة"}
+_qag_now = _qag_base + 120_000
+
+
+def _qag_of(ts_ms):
+    return {"has_operator": True, "bid": 0.76, "ask": 0.77, "bid_size": 3200,
+            "ask_size": 100, "quote_ts": int(ts_ms * 1e6)}   # نانو كما من Polygon
+
+
+_qag_fresh = S.build_liq_stage_alert(
+    [(_qag_row, [dict(_qag_ev, operator=_qag_of(_qag_base + 110_000))])],
+    now_ms=_qag_now)
+_qag_stale = S.build_liq_stage_alert(
+    [(_qag_row, [dict(_qag_ev, operator=_qag_of(_qag_base - 420_000))])],
+    now_ms=_qag_now)
+_qag_unk = S.build_liq_stage_alert(
+    [(_qag_row, [dict(_qag_ev, operator={"has_operator": True,
+                                         "bid": 0.76, "ask": 0.77})])],
+    now_ms=_qag_now)
+
+check("⏱️ QAG1 **الطازجُ يُسمّى «الآن» بعمره** («قبل 10ث») ولا وسمَ بائت",
+      "📡 السعرُ الآن" in _qag_fresh and "(قبل 10ث)" in _qag_fresh
+      and "بائت" not in _qag_fresh,
+      [ln for ln in _qag_fresh.splitlines() if "سيولة 1" in ln][:1])
+check("⏱️ QAG2 **الأقدمُ من الشمعة يُوسَم «اقتباسٌ بائت» بعمره ولا يُسمّى "
+      "«الآن»** (فارقٌ محدَّد لا «أو»)",
+      "اقتباسٌ بائت" in _qag_stale and "9.0د" in _qag_stale
+      and "السعرُ الآن" not in _qag_stale,
+      [ln for ln in _qag_stale.splitlines() if "سيولة 1" in ln][:1])
+check("⏱️ QAG3 **بلا طابعٍ ⇒ يمرّ بفائدة الشك** (سلوكُ ما قبل الإصلاح بت-بت: "
+      "«الآن» بلا عمرٍ ولا وسم)",
+      "📡 السعرُ الآن" in _qag_unk
+      and "السعرُ الآن $0.77 (قبل" not in _qag_unk       # عمرُ الشمعة يبقى، لا عمرَ للاقتباس
+      and "بائت" not in _qag_unk,
+      [ln for ln in _qag_unk.splitlines() if "سيولة 1" in ln][:1])
+# 🔒 QAG4 — الوحدة: نانو وملّي يتطابقان · واقتباسٌ **أقدمُ من الشمعة** بائتٌ
+#           ولو كان عمرُه المطلقُ صغيرًا (عينُ حالة SAGT).
+_qag_ns = S.quote_freshness({"quote_ts": int((_qag_base + 10_000) * 1e6)},
+                            now_ms=_qag_base + 20_000, bar_ms=_qag_base)
+_qag_ms = S.quote_freshness({"quote_ts": _qag_base + 10_000},
+                            now_ms=_qag_base + 20_000, bar_ms=_qag_base)
+_qag_old = S.quote_freshness({"quote_ts": _qag_base + 10_000},
+                             now_ms=_qag_base + 20_000,
+                             bar_ms=_qag_base + 100_000)
+check("⏱️ QAG4 **نانو=ملّي** في الحكم والعمر · و«أقدمُ من الشمعة» بائتٌ ولو "
+      "كان عمرُه ثوانيَ",
+      _qag_ns == _qag_ms == ("fresh", 10.0) and _qag_old[0] == "stale",
+      f"ns={_qag_ns} · ms={_qag_ms} · أقدم={_qag_old}")
+
+# ==========================================================
+# 📊 **«من إغلاق الأمس» (2026-08-18، حالتا `$SAGT`/`$AIXC`):** «رفعةُ الدقيقة
+#    5.8%» والسهمُ +33% على يومه ⇒ مقياسُ «التأخّر» (T-GATE) صار سطرًا في الكرت.
+# ==========================================================
+_dch_with = S.build_liq_stage_alert(
+    [(_qag_row, [dict(_qag_ev, prev_close=0.6486)])], now_ms=_qag_now)
+_dch_without = S.build_liq_stage_alert(
+    [(_qag_row, [dict(_qag_ev)])], now_ms=_qag_now)
+check("📊 DCH1 **سطرُ «من إغلاق الأمس» بالنسبة الصحيحة** ($0.65 ⟶ $0.81 = "
+      "صاعدٌ 24.9%) — حاضرٌ مع الحقل وغائبٌ بدونه",
+      "من إغلاق الأمس ($0.65)" in _dch_with and "صاعدٌ 24.9%" in _dch_with
+      and "من إغلاق الأمس" not in _dch_without,
+      [ln for ln in _dch_with.splitlines() if "إغلاق الأمس" in ln][:1])
+check("📊 DCH2 **الهابطُ يُسمّى هابطًا** (لا إشارات مقارنة — كلماتٌ فقط)",
+      "هابطٌ 12.3%" in S.build_liq_stage_alert(
+          [(_qag_row, [dict(_qag_ev, price=0.81, prev_close=0.9236)])],
+          now_ms=_qag_now))
+# 🔒 DCH3 — **الوصلةُ من نقطة النداء الحيّة** (`scan_liq_stages` يرفق `prev_close`
+#           للناجين): درسُ wire-check — وجودُ الدالّة ليس وصلَها.
+_dch_seen = {}
+_dch_orig_pc = S.polygon_prev_close
+try:
+    S.polygon_prev_close = lambda sym, day=None: 0.71
+    _dch_rows, _dch_cov, _dch_sec = S.scan_liq_stages(
+        [{"symbol": "S1", "src": "تحت المتابعة"}], "2026-08-18",
+        seen=_dch_seen, workers=1,
+        fetch_bars=lambda s, minutes=65: _ls_bars(1),
+        fetch_operator=lambda s, limit=None: {"has_operator": True,
+                                              "bid": 1.0, "ask": 1.1})
+finally:
+    S.polygon_prev_close = _dch_orig_pc
+_dch_evs = _dch_rows[0][1] if _dch_rows else []
+check("📊 DCH3 **`prev_close` يُرفَق في المسح الحيّ للناجين** (وصلةٌ لا دالّةٌ "
+      "معزولة) · والكاشُ نداءٌ واحدٌ لكلّ (سهم، يوم)",
+      bool(_dch_evs) and all(e.get("prev_close") == 0.71 for e in _dch_evs)
+      and "polygon_prev_close" in _insp0.getsource(S.scan_liq_stages),
+      f"أحداث={len(_dch_evs)} · prev={[e.get('prev_close') for e in _dch_evs]}")
+# 🔒 DCH4 — **بلا مفتاح Polygon ⇒ `None` فورًا بلا نداءٍ شبكيّ** (السويّةُ بلا
+#           إنترنت بتصميمها) · والكاشُ يمنع تكرار النداء لليوم الواحد.
+_dch_key0 = S.os.environ.pop("POLYGON_API_KEY", None)
+try:
+    S._PREV_CLOSE_CACHE.clear()
+    _dch_nokey = S.polygon_prev_close("QQQ", "2026-08-18")
+    _dch_cached = "('QQQ', '2026-08-18')" in str(
+        {str(k): v for k, v in S._PREV_CLOSE_CACHE.items()})
+finally:
+    if _dch_key0 is not None:
+        S.os.environ["POLYGON_API_KEY"] = _dch_key0
+    S._PREV_CLOSE_CACHE.clear()
+check("📊 DCH4 **بلا مفتاحٍ ⇒ `None` فورًا** والنتيجةُ تُخزَّن فلا يتكرّر النداء",
+      _dch_nokey is None and _dch_cached,
+      f"نتيجة={_dch_nokey} · مخزَّن={_dch_cached}")
+
+# ==========================================================
+# 🧾 **ختمُ الإصدار يقول الحقيقة (2026-08-18):** كان يقرأ `GITHUB_SHA` وهو
+#    **يتجمّد عبر `os.execve`** ⇒ بعد التحديث الذاتيّ يختم الكودُ الجديدُ رسائلَه
+#    بالشا القديم — «الختمُ الشاهد» يكذب. صار sha الإقلاع من git، والبيئةُ احتياط.
+# ==========================================================
+import subprocess as _cvs_sp
+_cvs_git = _cvs_sp.run(["git", "rev-parse", "--short=7", "HEAD"],
+                       capture_output=True, text=True).stdout.strip()[:7]
+_cvs_boot0 = S._CODE_VERSION_BOOT
+_cvs_env0 = S.os.environ.get("GITHUB_SHA")
+try:
+    S._CODE_VERSION_BOOT = None
+    S.os.environ["GITHUB_SHA"] = "deadbeefcafe0000"
+    _cvs_v = S.code_version()
+    _cvs_v2 = S.code_version()          # الثاني من الكاش — لا يتقلّب
+finally:
+    S._CODE_VERSION_BOOT = _cvs_boot0
+    if _cvs_env0 is None:
+        S.os.environ.pop("GITHUB_SHA", None)
+    else:
+        S.os.environ["GITHUB_SHA"] = _cvs_env0
+check("🧾 CVS1 **الختمُ من git الإقلاعِ لا من `GITHUB_SHA` المجمَّد** — بيئةٌ "
+      "مزوّرةٌ لا تُغيّره · وثابتٌ بين النداءين",
+      bool(_cvs_git) and _cvs_v == _cvs_git and _cvs_v2 == _cvs_v
+      and _cvs_v != "deadbee",
+      f"git={_cvs_git} · ختم={_cvs_v}")
+
+# ==========================================================
 # 🔄 **العاملُ الحيُّ كان لا يستقبل إصلاحًا قبل المقطع التالي** — عيبٌ مقيسٌ من
 #    الرسالة نفسِها (ختمُ `36c1f23` بينما الإصلاحُ مدفوعٌ قبله بساعةٍ ونصف).
 # ==========================================================
@@ -26110,66 +26249,182 @@ def _sup_git(args, timeout=15):
     _sup_calls.append(list(args))
     a = list(args)
     if a[:1] == ["rev-parse"]:
-        return "aaa" if a[1] == "HEAD" else "bbb"
+        return "bbbbbbbb" if a[1] == "FETCH_HEAD" else "cccccccc"
     if a[:1] == ["status"]:
         return _sup_state.get("dirty", "")
-    if a[:1] == ["rev-list"]:
-        return _sup_state.get("ahead", "")
+    if a[:1] == ["show"]:
+        return _sup_state.get("show", "")
     return "ok"
 
 
-# 🔴🔴 **صنفٌ جديدٌ في دستور الأقفال كشفته الطفرةُ `N5` (2026-08-18): «القفلُ
-#    الذي يُعيد تشغيل السويّة».** بحذف حارسِ الشجرة المتّسخة يمضي `_self_update`
-#    إلى `os.execve(sys.executable, [sys.executable] + sys.argv, …)` — **وداخلَ
-#    السويّة هذا يُعيد تشغيل `test_bot.py` نفسِها بلا نهاية** ⇒ لم يسقط القفلُ
-#    ولم ينهر، بل **علّق الجولةَ حتى المهلة وأوقف بقيّةَ الطفرات**.
-#    ⇒ **يُبدَّل `os.execve` بجذعٍ يُسجَّل ولا يُنفَّذ**: يستحيل على السويّة أن
-#    تُعيد تشغيل نفسها، **ويصير عدمُ ندائه شرطًا مقفولًا** لا أثرًا جانبيًّا.
+# 🔴🔴 **صنفٌ في دستور الأقفال كشفته الطفرةُ `N5` (2026-08-18): «القفلُ الذي
+#    يُعيد تشغيل السويّة».** `os.execve` داخل السويّة يُعيد تشغيل `test_bot.py`
+#    نفسِها بلا نهاية ⇒ **يُبدَّل بجذعٍ يُسجَّل ولا يُنفَّذ** ويصير عدمُ ندائه
+#    شرطًا مقفولًا.
+# 🔴🔴 **وإعادةُ بناء 2026-08-18 مساءً — بإقرارٍ مؤرَّخ:** `_self_update` v1
+#    قارن HEAD بالريموت و`git_save` يجعلهما متساويين دائمًا (يدفع الحالةَ بـ
+#    rebase فيتقدّم HEAD فوق كودٍ لا تشغّله العملية) ⇒ **مقطعٌ عاش 5.5 ساعةً
+#    على `fbf21f1` بصفرِ سطرِ 🔄 في سجلّه** — فصارت المقارنةُ محتوى الكود
+#    (`_code_changed` من sha الإقلاع) وحارسُ الأختام محتوًى (`_stamps_covered`)
+#    لا `rev-list` (نسبُ التاريخ تكذب مع إعادة كتابة `git_save`).
 _sup_exec = []
 _sup_orig = _sup_oel._git_out
 _sup_orig_exec = _sup_oel.os.execve
+_sup_orig_boot = _sup_oel._BOOT_SHA
+_sup_orig_cc = _sup_oel._code_changed
+_sup_orig_sc = _sup_oel._stamps_covered
+_sup_orig_run = _sup_oel.subprocess.run
+_sup_orig_load = _sup_oel.bot.load_op_entry_state
 _sup_state = {}
+_sup_diff_args = []
+
+
+class _SupDiff:
+    def __init__(self, rc, out):
+        self.returncode, self.stdout = rc, out.encode("utf-8")
+
+
+def _sup_run(cmd, **kw):
+    _sup_diff_args.append(list(cmd))
+    return _SupDiff(_sup_state.get("diff_rc", 0),
+                    _sup_state.get("diff_out", ""))
+
+
 try:
     _sup_oel.os.execve = lambda *a, **k: _sup_exec.append(a)
     _sup_oel._git_out = _sup_git
+    _sup_oel._BOOT_SHA = "aaaaaaaa"
     import time as _sup_time
-    _sup_state = {"dirty": " M x.py", "ahead": ""}
+
+    # ⓐ وحدة `_code_changed`: كودٌ يُحصى · حالةُ بوتٍ لا تُحصى · التعذّرُ = تغيير ·
+    #    **والمرساةُ sha الإقلاعِ لا HEAD الحيّ** (يُقرأ من وسائط النداء الفعليّة).
+    _sup_oel.subprocess.run = _sup_run
+    _sup_state = {"diff_out": "op_entry_state.json\nSuper_stock.py\n"
+                              "weekly_watchlist.json\n"
+                              ".github/workflows/operator_entry.yml\n"}
+    _cc_mixed = _sup_oel._code_changed()
+    _sup_state = {"diff_out": "op_entry_state.json\nnear_watch.json\n"}
+    _cc_data = _sup_oel._code_changed()
+    _sup_state = {"diff_out": "", "diff_rc": 128}
+    _cc_err = _sup_oel._code_changed()
+    _cc_boot_anchored = all("aaaaaaaa" in c for c in _sup_diff_args)
+    _sup_oel.subprocess.run = _sup_orig_run
+
+    # ⓑ وحدة `_stamps_covered`: التغطيةُ محتوًى — مفتاحٌ غائب/مرحلةٌ ناقصة/تعذّرُ
+    #    القراءة كلُّها ترفض، والمحلّيُّ الفارغ يمرّ (لا شيءَ يُحمى).
+    _sup_loc = {"LIQ:PFSA": {"sent": ["M1", "M5"], "anchor_ms": 1},
+                "SAGT": "2026-08-18"}
+    _sup_oel.bot.load_op_entry_state = lambda: dict(_sup_loc)
+    import json as _sup_json
+    _sup_state = {"show": _sup_json.dumps(
+        {"LIQ:PFSA": {"sent": ["M1", "M5", "M30"]}, "SAGT": "2026-08-18",
+         "LIQ:AIXC": {"sent": ["M1"]}})}
+    _sc_super = _sup_oel._stamps_covered()
+    _sup_state = {"show": _sup_json.dumps({"LIQ:PFSA": {"sent": ["M1", "M5"]}})}
+    _sc_misskey = _sup_oel._stamps_covered()
+    _sup_state = {"show": _sup_json.dumps(
+        {"LIQ:PFSA": {"sent": ["M1"]}, "SAGT": "2026-08-18"})}
+    _sc_misstage = _sup_oel._stamps_covered()
+    _sup_state = {"show": ""}
+    _sc_unread = _sup_oel._stamps_covered()
+    _sup_oel.bot.load_op_entry_state = lambda: {}
+    _sc_empty = _sup_oel._stamps_covered()
+    _sup_oel.bot.load_op_entry_state = _sup_orig_load
+
+    # ⓒ حرّاسُ `_self_update` كلٌّ بمفرده (كودٌ متغيّرٌ دائمًا كي تُبلَغ الحرّاس)
+    _sup_oel._code_changed = lambda: ["Super_stock.py"]
+    _sup_oel._stamps_covered = lambda: True
+    _sup_state = {"dirty": " M x.py"}
     _sup_calls.clear()
     _r_dirty = _sup_oel._self_update(_sup_time.time(), 60)
     _dirty_reset = any(c[:1] == ["reset"] for c in _sup_calls)
-    _sup_state = {"dirty": "", "ahead": "deadbeef"}
+    _sup_state = {}
+    _sup_oel._stamps_covered = lambda: False
     _sup_calls.clear()
-    _r_ahead = _sup_oel._self_update(_sup_time.time(), 60)
-    _ahead_reset = any(c[:1] == ["reset"] for c in _sup_calls)
-    _sup_state = {"dirty": "", "ahead": ""}
+    _r_uncov = _sup_oel._self_update(_sup_time.time(), 60)
+    _uncov_reset = any(c[:1] == ["reset"] for c in _sup_calls)
+    _sup_oel._stamps_covered = lambda: True
     _sup_calls.clear()
-    _r_short = _sup_oel._self_update(_sup_time.time(), 1)   # المتبقّي دون دقيقتين
+    _r_short = _sup_oel._self_update(_sup_time.time(), 1)
     _short_reset = any(c[:1] == ["reset"] for c in _sup_calls)
-    # ✅ وحالةٌ **تعبر الحرّاسَ الثلاثة** ⇒ تُحدِّث وتُعيد التشغيل فعلًا،
-    #    فتُقاس **بيئةُ إعادة التشغيل** سلوكيًّا لا نصًّا.
-    _sup_exec_guarded = list(_sup_exec)   # 🔒 لقطةُ الحرّاس الثلاثة قبل الحالة العابرة
+    # ⓓ **حالةُ بياناتٍ فقط ⇒ صمتٌ تامّ** (عيبُ اليوم بعينه: دفعاتُ العامل نفسِه
+    #    يجب ألّا تُقرأ «كودًا أحدث» فتُعيد التشغيل بلا نهاية)
+    _sup_oel._code_changed = lambda: []
+    _sup_calls.clear()
+    _r_data = _sup_oel._self_update(_sup_time.time(), 60)
+    _data_reset = any(c[:1] == ["reset"] for c in _sup_calls)
+    _sup_exec_guarded = list(_sup_exec)     # لقطةُ ما قبل الحالة العابرة
+    # ⓔ الحالةُ العابرة ⇒ `reset` ثم `execve` ببيئةٍ تحمل المتبقّي
+    _sup_oel._code_changed = lambda: ["Super_stock.py"]
     _sup_exec.clear()
     _sup_calls.clear()
     _r_go = _sup_oel._self_update(_sup_time.time(), 60)
     _go_reset = any(c[:1] == ["reset"] for c in _sup_calls)
 except Exception as _e:                                          # noqa: BLE001
-    _r_dirty = _r_ahead = _r_short = f"⛔ {type(_e).__name__}"
-    _dirty_reset = _ahead_reset = _short_reset = True
+    _r_dirty = _r_uncov = _r_short = _r_data = f"⛔ {type(_e).__name__}"
+    _dirty_reset = _uncov_reset = _short_reset = _data_reset = True
     _r_go, _go_reset, _sup_exec_guarded = None, False, [1]
+    _cc_mixed = _cc_data = _cc_err = _cc_boot_anchored = None
+    _sc_super = _sc_misskey = _sc_misstage = _sc_unread = _sc_empty = None
 finally:
     _sup_oel._git_out = _sup_orig
     _sup_oel.os.execve = _sup_orig_exec
+    _sup_oel._BOOT_SHA = _sup_orig_boot
+    _sup_oel._code_changed = _sup_orig_cc
+    _sup_oel._stamps_covered = _sup_orig_sc
+    _sup_oel.subprocess.run = _sup_orig_run
+    _sup_oel.bot.load_op_entry_state = _sup_orig_load
 
-# 🔒 SUP1 — **ثلاثةُ حرّاسٍ يمنعون التحديثَ**، وكلٌّ يُختبَر **بمفرده** فلا ينجو
-#           حارسٌ ميّتٌ خلف آخر. والحاسمُ: **صفرُ `git reset`** في الثلاث.
-check("🔄 SUP1 **شجرةٌ متّسخة · أو كوميتاتٌ غيرُ مدفوعة · أو متبقٍّ قصير ⇒ لا "
-      "تحديثَ ولا `reset` ولا إعادةَ تشغيل** (لئلّا يضيع ختمٌ فيتكرّر الإشعار)",
-      _r_dirty is False and _r_ahead is False and _r_short is False
-      and not _dirty_reset and not _ahead_reset and not _short_reset
-      and not _sup_exec_guarded,
-      f"متّسخة={_r_dirty}/{_dirty_reset} · أمام={_r_ahead}/{_ahead_reset} · "
-      f"قصير={_r_short}/{_short_reset} · "
-      f"إعادةُ تشغيل={len(_sup_exec_guarded)}")
+# 🔒 SUP1 — **الحرّاسُ الثلاثة (متّسخة · أختامٌ ناقصة · متبقٍّ قصير) كلٌّ بمفرده
+#           يمنع** · **وحالةُ بياناتٍ فقط تصمت** ⇒ صفرُ `reset` وصفرُ إعادةِ تشغيل.
+check("🔄 SUP1 **متّسخةٌ · أو أختامٌ ليست على origin · أو متبقٍّ قصير · أو حالةُ "
+      "بياناتٍ فقط ⇒ لا `reset` ولا إعادةَ تشغيل** (لئلّا يضيع ختمٌ أو يُعاد بلا داعٍ)",
+      _r_dirty is False and _r_uncov is False and _r_short is False
+      and _r_data is False and not _dirty_reset and not _uncov_reset
+      and not _short_reset and not _data_reset and not _sup_exec_guarded,
+      f"متّسخة={_r_dirty}/{_dirty_reset} · أختام={_r_uncov}/{_uncov_reset} · "
+      f"قصير={_r_short}/{_short_reset} · بيانات={_r_data}/{_data_reset} · "
+      f"إعادة={len(_sup_exec_guarded)}")
+
+# 🔒 SUP1ب — **`_code_changed` يميّز الكودَ عن حالة البوت ويرسو على sha الإقلاع**
+#            (عيبُ 2026-08-18: مقارنةُ HEAD الحيّ تقرأ «لا جديد» أبدًا لأن
+#            `git_save` يبتلع كوميتاتِ الكود) · والتعذّرُ يُعَدّ تغييرًا (يُعاد
+#            الرسوّ بدل بقاءٍ أعمى).
+check("🔄 SUP1ب **الكودُ يُحصى وحالةُ البوت لا · والمرساةُ sha الإقلاع · "
+      "والتعذّرُ تغيير**",
+      _cc_mixed == ["Super_stock.py", ".github/workflows/operator_entry.yml"]
+      and _cc_data == [] and bool(_cc_err) and _cc_boot_anchored is True,
+      f"مختلط={_cc_mixed} · بيانات={_cc_data} · تعذّر={_cc_err} · "
+      f"مرساة={_cc_boot_anchored}")
+
+# 🔒 SUP4 — **`_stamps_covered` محتوًى لا تاريخًا**: الغائبُ والناقصةُ مرحلتُه
+#           والمتعذّرةُ قراءتُه كلُّها ترفض، والمحلّيُّ الفارغ يمرّ.
+check("🔄 SUP4 **تغطيةُ الأختام بالمحتوى**: superset يمرّ · مفتاحٌ غائبٌ يرفض · "
+      "مرحلةٌ ناقصةٌ ترفض · تعذّرٌ يرفض · فارغٌ يمرّ",
+      _sc_super is True and _sc_misskey is False and _sc_misstage is False
+      and _sc_unread is False and _sc_empty is True,
+      f"[{_sc_super},{_sc_misskey},{_sc_misstage},{_sc_unread},{_sc_empty}]")
+
+# 🔒 SUP5 — **قرارُ التحديث لا يستشير `rev-list`** (نسبُ التاريخ تكذب مع إعادة
+#           كتابة `git_save` — بالـAST على النداءات لا النصّ، فالـdocstring يذكرها).
+_sup5_calls = []
+for _n in _af_ast.walk(_af_ast.parse(_insp0.getsource(_sup_oel._self_update))):
+    if isinstance(_n, _af_ast.Call):
+        for _a in _af_ast.walk(_n):
+            if isinstance(_a, _af_ast.Constant) and _a.value == "rev-list":
+                _sup5_calls.append(_a.value)
+check("🔄 SUP5 **صفرُ `rev-list` في قرار التحديث** (AST على النداءات) · "
+      "و`_code_changed`+`_stamps_covered` مُناديان فعلًا",
+      not _sup5_calls
+      and "_code_changed" in [getattr(getattr(c, "func", None), "id", None)
+                              for c in _af_ast.walk(_af_ast.parse(
+                                  _insp0.getsource(_sup_oel._self_update)))
+                              if isinstance(c, _af_ast.Call)]
+      and "_stamps_covered" in [getattr(getattr(c, "func", None), "id", None)
+                                for c in _af_ast.walk(_af_ast.parse(
+                                    _insp0.getsource(_sup_oel._self_update)))
+                                if isinstance(c, _af_ast.Call)],
+      f"rev-list={len(_sup5_calls)}")
 
 # 🔒 SUP2 — **مُنادًى حيًّا من فرع التحديث · وداخلَ `try` عريض** فلا يُسقط الجوب.
 _sup_wired = [n for n in (_af_ast.walk(_sup_tree) if _sup_ok else [])
@@ -26186,12 +26441,8 @@ check("🔄 SUP2 **مُنادًى مرّةً حيًّا ومحروسٌ بالت�
       _sup_ok and len(_sup_wired) == 1 and _sup_guarded,
       f"نداءات={len(_sup_wired)} · محروس؟ {_sup_guarded}")
 
-# 🔒 SUP3 — **لا يُطيل الجوبَ أبدًا**: المتبقّي يُمرَّر عبر `OE_BUDGET_MIN` وهو
-#           **يُقصّر ولا يُطيل** بنيويًّا.
-# 🐞 **وكان نصّيًّا فنجت منه طفرةُ `N8`** (‏2026-08-18): يفحص وجودَ الاسم في
-#    **مصدر الدالّة**، **والاسمُ في الـdocstring الذي يشرحه** ⇒ حذفُه من الكود
-#    **يمرّ**. الفخُّ النصّيُّ الموثَّق **للمرّة السادسة** ⇒ صار **سلوكيًّا**:
-#    تُلتقَط بيئةُ `execve` الفعليّة ويُشترَط أن تحمل المفتاح **بقيمةِ المتبقّي**.
+# 🔒 SUP3 — **لا يُطيل الجوبَ أبدًا**: بيئةُ `execve` الفعليّة تحمل `OE_BUDGET_MIN`
+#           بالمتبقّي (سلوكيًّا — درسُ طفرة `N8`: القفلُ النصّيُّ نجا على docstring).
 _sup_env = (_sup_exec[0][2] if (_sup_exec and len(_sup_exec[0]) > 2
                                 and isinstance(_sup_exec[0][2], dict)) else {})
 check("🔄 SUP3 **بيئةُ إعادة التشغيل تحمل `OE_BUDGET_MIN` بالمتبقّي** · "

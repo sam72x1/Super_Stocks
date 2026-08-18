@@ -9319,10 +9319,39 @@ def build_message(results: list, splits: list,
     return _rtl_join(lines)
 
 
-def code_version() -> str:
-    """رقم إصدار الكود (SHA قصير) — يُختم في كل رسالة حتى تُعرف النسخة فورًا
-    ولا تختلط برسائل تشغيلات قديمة. GitHub Actions يضبط GITHUB_SHA."""
+def _boot_code_sha() -> str:
+    """sha **كود العملية في الذاكرة** — يُلتقط مرّةً عند الاستيراد (لحظتَها الشجرةُ
+    هي الكودُ المُحمَّل فعلًا). 🔴 **لماذا لا يُقرأ حيًّا وقت النداء ولا من البيئة
+    (عيبان مقيسان 2026-08-18):** ① `GITHUB_SHA` **يتجمّد عبر `os.execve`** فبعد
+    التحديث الذاتيّ يختم الكودُ الجديدُ رسائلَه بالشا القديم — «الختمُ الشاهد»
+    يكذب ② وقراءةُ HEAD وقتَ النداء تكذب عكسًا: `git_save` يدفع الحالةَ بـrebase
+    فيتقدّم HEAD فوق كوميتاتِ كودٍ **لا تشغّلها العملية** ⇒ ختمٌ أحدثُ من الكود.
+    فاشلٌ-آمن: تعذّرُ git ⟶ `GITHUB_SHA` ⟶ «local»."""
+    try:
+        import subprocess as _sp                 # استيرادٌ كسول — الوحدةُ لا تستورده
+        r = _sp.run(["git", "rev-parse", "--short=7", "HEAD"],
+                    capture_output=True, timeout=10)
+        if r.returncode == 0:
+            sha = r.stdout.decode("utf-8", "replace").strip()
+            if sha:
+                return sha[:7]
+    except Exception:                                            # noqa: BLE001
+        pass
     return (os.environ.get("GITHUB_SHA") or "").strip()[:7] or "local"
+
+
+_CODE_VERSION_BOOT = None            # يُملأ كسولًا عند أوّل ختمٍ ثم يثبت
+
+
+def code_version() -> str:
+    """رقم إصدار الكود (SHA قصير) — يُختم في كل رسالة حتى تُعرف النسخة فورًا.
+
+    الختمُ = **sha الإقلاع** (كودُ الذاكرة) لا `GITHUB_SHA` المجمَّد ولا HEAD
+    الحيّ — تفصيلُ السبب في `_boot_code_sha`."""
+    global _CODE_VERSION_BOOT
+    if _CODE_VERSION_BOOT is None:
+        _CODE_VERSION_BOOT = _boot_code_sha()
+    return _CODE_VERSION_BOOT
 
 
 def _chunk_message(text: str, limit: int = 3800) -> list:
@@ -13325,8 +13354,14 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
             if of is not None and not of.get("has_operator"):
                 seen.pop(LIQ_STATE_PREFIX + row["symbol"], None)   # يُعاد الفحص
                 continue
+            # 📊 إغلاقُ الأمس **للناجين وحدهم** (نداءٌ واحدٌ لكلّ سهمٍ باليوم —
+            #    كاشُ `polygon_prev_close`) ⇒ سطرُ «من إغلاق الأمس» في الكرت.
+            #    فاشلٌ-آمنٌ داخليًّا (`None` ⇒ غيابُ السطر لا انهيارُ المسح).
+            _pc = polygon_prev_close(row.get("symbol"), today_iso)
             for e in ev:
                 e["operator"] = of
+                if _pc:
+                    e["prev_close"] = _pc
             kept.append((row, ev))
         out = kept
     return (out, covered, round(float(tick() - t0), 1))
@@ -13554,6 +13589,94 @@ def bar_clock(price_ms, now_ms=None):
         return None
 
 
+def _ts_any_ms(t):
+    """أيُّ طابع Unix (ثوانٍ/ملّي/مايكرو/نانو) ⟶ ملّي ثانية — نظيرُ
+    `ignition_measurement._normalize_ts_ms` (المصدرُ المرجعيّ للعتبات).
+    `None` لغير الصالح — نقيّةٌ بلا شبكةٍ ولا ساعة."""
+    try:
+        t = float(t)
+    except (TypeError, ValueError):
+        return None
+    if t <= 0:
+        return None
+    if t >= 1e18:
+        return int(t / 1e6)
+    if t >= 1e15:
+        return int(t / 1e3)
+    if t >= 1e12:
+        return int(t)
+    if t >= 1e9:
+        return int(t * 1e3)
+    return None
+
+
+def quote_freshness(of, now_ms=None, bar_ms=None):
+    """⏱️ حكمُ طزاجة اقتباس NBBO: (`"fresh"`/`"stale"`/`"unknown"`، العمرُ بالثواني).
+
+    🔴 **وُلدت من حالة `$SAGT` (2026-08-18):** الكرتُ طبع «📡 السعرُ الآن $0.76»
+    من اقتباسٍ **أقدمَ من الشمعة** (‏$0.81) بدقائق والسهمُ فوقهما — فـ«الآن» لا
+    تُقال إلا لاقتباسٍ يُثبت طابعُه أنه حديث. الحكم: بائتٌ إن كان أقدمَ من بداية
+    شمعة الكرت بأكثر من دقيقة، أو عمرُه فوق 180 ثانية. بلا طابعٍ (`quote_ts` ثم
+    `quote_age_ms` احتياطًا) ⇒ `"unknown"` **ويمرّ بفائدة الشك** (سلوكُ ما قبل
+    الإصلاح بت-بت — فالوسمُ إزالةُ ثقةٍ ولا نُزيل على نقص)."""
+    if not isinstance(of, dict):
+        return ("unknown", None)
+    ts = _ts_any_ms(of.get("quote_ts"))
+    if ts is not None:
+        now = now_ms if now_ms is not None else time.time() * 1000.0
+        age = max(0.0, (float(now) - ts) / 1000.0)
+        stale = (bar_ms is not None and ts + 60_000 < int(bar_ms)) or age > 180
+        return ("stale" if stale else "fresh", round(age, 1))
+    qa = of.get("quote_age_ms")
+    try:
+        if qa is not None:
+            age = max(0.0, float(qa) / 1000.0)
+            return ("stale" if age > 180 else "fresh", round(age, 1))
+    except (TypeError, ValueError):
+        pass
+    return ("unknown", None)
+
+
+def _fmt_age_s(a):
+    """عمرٌ بالثواني ⟶ نصٌّ مقروء («45ث» · «7.2د»)."""
+    try:
+        a = float(a)
+    except (TypeError, ValueError):
+        return "?"
+    return f"{int(a)}ث" if a < 120 else f"{a / 60.0:.1f}د"
+
+
+_PREV_CLOSE_CACHE: dict = {}   # (رمز، يوم) ⟶ إغلاقُ الأمس — نداءٌ واحدٌ لكلّ سهمٍ باليوم
+
+
+def polygon_prev_close(sym: str, day_iso: str = None):
+    """📊 إغلاقُ الجلسة السابقة (`/v2/aggs/…/prev`) — **للعرض الحيّ حصرًا**.
+
+    هو مقياسُ «التأخّر» الذي حكم به `T-GATE` موضوعًا في يد المالك داخل الرسالة:
+    حالتا `$SAGT`/`$AIXC` (‏2026-08-18) — الكرتُ قال «رفعةُ الدقيقة 5.8%» والسهمُ
+    ‏+33% على يومه فقُرئ «مب منطقي». ⚠️ `/prev` نسبيٌّ للحظة النداء (عيبُ `T-GATE`
+    الموثَّق) ⇒ صالحٌ أثناء الجلسة الحيّة فقط ولا يصلح للقياس التاريخيّ.
+    فاشلٌ-آمنٌ ⇒ `None` (غيابُ السطر، لا رقمٌ مخمَّن) · بلا مفتاحٍ ⇒ `None` فورًا."""
+    key = (str(sym or "").upper(), str(day_iso or ""))
+    if key in _PREV_CLOSE_CACHE:
+        return _PREV_CLOSE_CACHE[key]
+    px = None
+    try:
+        k = os.environ.get("POLYGON_API_KEY", "").strip()
+        if k:
+            r = requests.get(
+                f"https://api.polygon.io/v2/aggs/ticker/{key[0]}/prev",
+                headers={"Authorization": f"Bearer {k}"}, timeout=8)
+            if r.status_code == 200:
+                res = ((r.json() or {}).get("results") or [{}])[0]
+                c = res.get("c")
+                px = float(c) if c and float(c) > 0 else None
+    except Exception:                                            # noqa: BLE001
+        px = None
+    _PREV_CLOSE_CACHE[key] = px
+    return px
+
+
 def live_price_note(of):
     """📡 **السعرُ الآن** من الاقتباس المجلوب أصلًا — بصفرِ نداءٍ إضافيّ.
 
@@ -13607,8 +13730,26 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
             #    كان الكرتُ يقود بسعرِ شمعةٍ مضت فيُقرأ «سعرٌ تعدّاه السهم»؛
             #    والاقتباسُ **مجلوبٌ أصلًا** في الطبقة الثانية ⇒ صفرُ نداءٍ إضافيّ.
             #    وإغلاقُ الدقيقة **يبقى مطبوعًا بعمره** فلا يُخفى شيء.
-            _lp = live_price_note(e.get("operator")) if "operator" in e else None
-            _px = ((f" · 📡 السعرُ الآن ${_lp:.2f}" if _lp else "")
+            _of_e = e.get("operator") if "operator" in e else None
+            _lp = live_price_note(_of_e)
+            # ⏱️ «الآن» مشروطةٌ بالطزاجة — حالة `$SAGT` (2026-08-18): طُبع
+            #    «السعرُ الآن $0.76» من اقتباسٍ أقدمَ من الشمعة ($0.81) بدقائق
+            #    والسهمُ فوقهما ⇒ البائتُ يُسمّى بائتًا بعمره، والمجهولُ يمرّ
+            #    بفائدة الشك (سلوكُ ما قبل الإصلاح بت-بت لغير الموسوم).
+            _fv, _fa = quote_freshness(_of_e, now_ms=now_ms,
+                                       bar_ms=e.get("price_ms"))
+            if _lp is None:
+                _live = ""
+            elif _fv == "stale":
+                _live = (f" · ⚠️ اقتباسٌ بائت ${_lp:.2f}"
+                         + (f" (عمرُه {_fmt_age_s(_fa)})"
+                            if _fa is not None else "")
+                         + " — لا يُقرأ سعرًا حاليًّا")
+            else:
+                _live = (f" · 📡 السعرُ الآن ${_lp:.2f}"
+                         + (f" (قبل {_fmt_age_s(_fa)})"
+                            if _fa is not None and _fa >= 5 else ""))
+            _px = (_live
                    + (f" · إغلاقُ دقيقة {_bc[0]} ${e['price']:.2f}{_age}"
                       if _bc else f" · إغلاقُ الدقيقة ${e['price']:.2f}"))
             # 🔴 **و`vol_x` في المجاميع منسوخٌ من المِرساة** (‏`st.get("vol_x")`)
@@ -13620,6 +13761,20 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                             + (" (عند المِرساة)" if _agg else "") if _vx else "")
                          + (f" · 📈 رفعةُ الدقيقة {float(_mv):.1f}%"
                             if _mv else ""))
+            # 📊 مقياسُ «التأخّر» (حكمُ `T-GATE`) في يد المالك داخل الرسالة —
+            #    حالتا `$SAGT`/`$AIXC` (‏2026-08-18): «رفعةُ الدقيقة 5.8%» والسهمُ
+            #    ‏+33% على يومه فقُرئت الرسالةُ «مب منطقي». تعذّرُ الإغلاق ⇒ لا سطر.
+            _pc = e.get("prev_close")
+            _ref = _lp if (_lp is not None and _fv != "stale") else e.get("price")
+            if _pc and _ref:
+                try:
+                    _dcp = (float(_ref) / float(_pc) - 1.0) * 100.0
+                    lines.append(
+                        f"      📊 من إغلاق الأمس (${float(_pc):.2f}): "
+                        + ("صاعدٌ " if _dcp >= 0 else "هابطٌ ")
+                        + f"{abs(_dcp):.1f}% حتى لحظة الإشعار")
+                except (TypeError, ValueError):
+                    pass
             if _d:
                 lines.append(f"      🕵️ حكمُ الهوية بعتبات فيصل: {_d}")
             if "operator" in e:

@@ -119,31 +119,99 @@ def _git_out(args, timeout=15):
         return ""
 
 
-def _self_update(t0, budget):
-    """🔄 يُحدّث الكودَ حيًّا حين يتقدّم `origin/main` ثم **يُعيد تشغيل نفسه**.
+# 🧭 sha الإقلاع — كودُ العملية **في الذاكرة** لا رأسُ الشجرة: `git_save` يدفع
+#    حالةَ البوت كلَّ دقائق بـrebase فيبتلع HEAD المحلّيُّ كوميتاتِ الكود الجديدة
+#    **في الشجرة** بينما بايثون يشغّل ما استورده عند الإقلاع ⇒ مقارنةُ HEAD
+#    بالريموت تقرأ «لا جديد» أبدًا (مقيسٌ 2026-08-18: مقطعٌ عاش 5.5 ساعةً على
+#    `fbf21f1` عبر ستّ دفعاتِ كودٍ وصفرِ سطرِ 🔄 في سجلّه).
+_BOOT_SHA = _git_out(["rev-parse", "HEAD"]) or None
 
-    🔴🔴 **العلّةُ مقيسةٌ من بلاغ المالك (2026-08-18، `$BAOS`):** هذا العاملُ جوبٌ
-    يعمل ‏≈5.5 ساعة ويسحب الكودَ **لحظةَ الـcheckout**؛ فإصلاحٌ يُدفَع بعد بدئه
-    **لا يصله حتى المقطع التالي**. ووصل المالكَ كرتٌ بختمِ إصدار `36c1f23` بينما
-    الإصلاحُ `08f43ae` مدفوعٌ قبله بساعةٍ ونصف — **والختمُ في الرسالة نفسِها هو
-    الدليل**. ⇒ «الإصلاحُ مدفوعٌ» **ليس** «الإصلاحُ يعمل عند المالك».
 
-    🔒 **فاشلٌ-آمنٌ ومحافظ:** لا يُحدَّث إلّا بشجرةٍ **نظيفة** وبلا كوميتاتٍ
-    محلّيّةٍ غيرِ مدفوعة (وإلّا ضاع ختمُ ددوبٍ لم يُدفَع ⇒ **رسالةٌ مكرّرة**،
-    وهي الضجيجُ الذي يكرهه). وأيُّ إخفاق ⇒ **يمضي بالكود القديم ولا يتوقّف**.
-    ⚖️ **ولا يُطيل الجوب أبدًا:** المتبقّي يُمرَّر عبر `OE_BUDGET_MIN` وهو
-    **يُقصّر ولا يُطيل** بنيويًّا (`_budget`) ⇒ رتيبٌ لا يمدّ زمنًا.
-    يُرجع `False` إن لم يُعِد التشغيل (وإلّا لا يعود أصلًا)."""
-    head = _git_out(["rev-parse", "HEAD"])
-    remote = _git_out(["rev-parse", "FETCH_HEAD"])
-    if not head or not remote or head == remote:
+def _code_changed():
+    """📜 ملفّاتُ **الكود** المتغيّرة بين sha الإقلاع وFETCH_HEAD — حالةُ البوت لا تُحصى.
+
+    العاملُ نفسُه يدفع `op_entry_state.json` كلَّ دقائق فلو حُسبت الحالةُ تغييرًا
+    لأعاد التشغيلَ بلا نهاية؛ ولو حُسب التاريخُ (`rev-list`) بدل المحتوى لكذب
+    (‏`git_save` يعيد كتابةَ main). ⇒ **المحتوى وحدَه**: `git diff --name-only`
+    مقصورًا على `.py` والـworkflow و`alert_filter.json` و`requirements.txt`.
+    تعذّرُ الفرق (sha الإقلاع أُزيل بإعادة كتابةٍ عنيفة) ⇒ **يُعَدّ تغييرًا**
+    (إعادةُ التشغيل تعيد الرسوَ على الرأس الجديد فلا حلقةَ: بعدها الإقلاع = الرأس)."""
+    if not _BOOT_SHA:
+        return []
+    try:
+        r = subprocess.run(["git", "diff", "--name-only", _BOOT_SHA,
+                            "FETCH_HEAD"], capture_output=True, timeout=30)
+        if r.returncode != 0:
+            return ["(تعذّر قياسُ الفرق — يُعاد الرسوّ احتياطًا)"]
+        names = [n.strip() for n in r.stdout.decode("utf-8", "replace")
+                 .splitlines() if n.strip()]
+    except Exception:                                            # noqa: BLE001
+        return ["(تعذّر قياسُ الفرق — يُعاد الرسوّ احتياطًا)"]
+    keep = (".py", ".yml", "alert_filter.json", "requirements.txt")
+    return [n for n in names if n.endswith(keep)]
+
+
+def _stamps_covered():
+    """🧷 هل أختامُ الدِدوب المحلّيّة كلُّها حاضرةٌ في نسخة origin؟
+
+    مقارنةُ **محتوًى لا نسبِ تاريخ** — فالنسبُ تكذب حين يُعيد `git_save` كتابةَ
+    main (مقيس 2026-08-18: جلبٌ عاديّ رُفض non-fast-forward). الثابتُ المطلوبُ
+    حمايتُه واحد: **ألّا يضيع ختمُ إرسالٍ فيتكرّر إشعار** — يُفحَص من الملفّ
+    نفسِه: كلُّ مفتاحٍ محلّيٍّ موجودٌ في نسخة origin و`sent` لا تنقص."""
+    try:
+        loc = bot.load_op_entry_state()
+    except Exception:                                            # noqa: BLE001
         return False
-    _log(f"🔄 كودٌ أحدثُ على origin ({head[:7]} ⟶ {remote[:7]}) — يُفحَص الأمان.")
+    if not loc:
+        return True                       # لا أختامَ محلّيّة ⇒ لا شيءَ يُحمى
+    rem_txt = _git_out(["show", f"FETCH_HEAD:{bot.OP_ENTRY_STATE_FILE}"])
+    try:
+        rem = json.loads(rem_txt or "")
+    except Exception:                                            # noqa: BLE001
+        return False
+    if not isinstance(rem, dict):
+        return False
+    for k, lv in loc.items():
+        rv = rem.get(k)
+        if rv is None:
+            return False
+        if isinstance(lv, dict) and lv.get("sent"):
+            rs = set((rv.get("sent") or [])) if isinstance(rv, dict) else set()
+            if not set(lv.get("sent") or []) <= rs:
+                return False
+    return True
+
+
+def _self_update(t0, budget):
+    """🔄 يُحدّث الكودَ حيًّا حين تتغيّر **ملفّاتُ الكود** على origin ثم يُعيد تشغيل نفسه.
+
+    🔴🔴 **إصلاحان مقيسان (2026-08-18):** ① النسخةُ الأولى قارنت HEAD بالريموت —
+    و`git_save` يجعلهما متساويين دائمًا (يدفع الحالةَ بـrebase فيتقدّم HEAD فوق
+    كوميتات الكود الجديدة) ⇒ **مقطعٌ عاش 5.5 ساعةً على كودٍ بائتٍ بصفرِ سطرِ 🔄
+    في سجلّه** والمالكُ يستلم كروتًا بختم `fbf21f1` بعد ستّ دفعاتِ إصلاح.
+    الآن المقارنةُ **كودُ الذاكرة (sha الإقلاع) مقابل الريموت، محتوًى لا تاريخًا**
+    (`_code_changed`) ② وحارسُ «كوميتاتٌ غيرُ مدفوعة» كان `rev-list` — نسبُ
+    تاريخٍ تكذب مع إعادة الكتابة ⇒ صار **فحصَ محتوى الأختام** (`_stamps_covered`).
+
+    🔒 **فاشلٌ-آمنٌ ومحافظ:** شجرةٌ متّسخة أو أختامٌ ناقصةٌ على origin ⇒ لا تحديث
+    (لئلّا يضيع ختمُ ددوبٍ فيتكرّر إشعار — الضجيجُ الذي يكرهه المالك). وأيُّ
+    إخفاق ⇒ **يمضي بالكود القديم ولا يتوقّف**. ⚖️ **ولا يُطيل الجوب أبدًا:**
+    المتبقّي يُمرَّر عبر `OE_BUDGET_MIN` وهو **يُقصّر ولا يُطيل** بنيويًّا
+    (`_budget`). يُرجع `False` إن لم يُعِد التشغيل (وإلّا لا يعود أصلًا)."""
+    remote = _git_out(["rev-parse", "FETCH_HEAD"])
+    if not remote or not _BOOT_SHA:
+        return False
+    changed = _code_changed()
+    if not changed:
+        return False                       # حالةُ بوتٍ فقط ⇒ لا إعادةَ تشغيل
+    _log(f"🔄 كودٌ أحدثُ على origin ({_BOOT_SHA[:7]} ⟶ {remote[:7]}: "
+         f"{'، '.join(changed[:3])}) — يُفحَص الأمان.")
     if _git_out(["status", "--porcelain"]):
         _log("⏸️ الشجرةُ غيرُ نظيفة ⇒ **لا تحديث** (يمضي بالقديم).")
         return False
-    if _git_out(["rev-list", "FETCH_HEAD..HEAD"]):
-        _log("⏸️ كوميتاتٌ محلّيّةٌ غيرُ مدفوعة ⇒ **لا تحديث** (لئلّا يتكرّر إشعار).")
+    if not _stamps_covered():
+        _log("⏸️ أختامُ ددوبٍ محلّيّةٌ ليست كلُّها على origin ⇒ **لا تحديث** "
+             "(لئلّا يتكرّر إشعار).")
         return False
     rem = int(budget - (time.time() - t0) / 60.0)
     if rem < 2:
