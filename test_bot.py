@@ -25566,7 +25566,15 @@ check("🎛️ AF7 **المشحونُ قاموسٌ سليمٌ ومحاورُه �
 #          فلو كتم الفلترُ كلَّ شيءٍ ولم يُختَم لَعاد الإشعارُ نفسُه كلَّ دورةٍ أبدًا.
 #          ⇒ يُشترَط بالـAST أن فرعَ «كُتم الكلّ» **ينادي `save_op_entry_state`**.
 _af_oel = open("operator_entry_live.py", encoding="utf-8").read()
-_af_tree = _af_ast.parse(_af_oel)
+# 💥 **صنفُ «القفل المنهار» وقع هنا (طفرةُ `M8` 2026-08-18):** خطأٌ نحويٌّ في
+#    الملفّ كان يجعل `parse` يرمي **فيُسقط السويّةَ ويكتم كلَّ قفلٍ بعده**.
+#    ⇒ فشلٌ **نظيفٌ بسببٍ مُسمًّى**: الأقفالُ الثلاثةُ تسقط بأسمائها ويُطبَع السبب.
+try:
+    _af_tree = _af_ast.parse(_af_oel)
+    _af_parse_ok, _af_parse_err = True, ""
+except SyntaxError as _e:                                        # noqa: BLE001
+    _af_tree, _af_parse_ok = _af_ast.parse(""), False
+    _af_parse_err = f"⛔ نحوُ `operator_entry_live` مكسور: {_e}"
 _af_mute_ok = False
 for _n in _af_ast.walk(_af_tree):
     if not isinstance(_n, _af_ast.If):
@@ -25578,19 +25586,29 @@ for _n in _af_ast.walk(_af_tree):
             getattr(getattr(c, "func", None), "attr", None) == "save_op_entry_state"
             for c in _af_ast.walk(_n) if isinstance(c, _af_ast.Call))
 check("🎛️ AF8 **كُتم الكلّ ⇒ تُختَم الحالةُ ولا يُرسَل** (وإلّا عاد الإشعارُ أبدًا)",
-      _af_mute_ok, f"فرعُ «كُتم الكلّ» يختم؟ {_af_mute_ok}")
+      _af_parse_ok and _af_mute_ok,
+      f"{_af_parse_err}فرعُ «كُتم الكلّ» يختم؟ {_af_mute_ok}")
 
 # 🔒 AF9 — **الفلترُ موصولٌ من نقطة النداء الحيّة** (لا وجودُ الدالّة وحدَه)، ومحروسٌ
 #          بـ`try` فعطلُه **يمرّر الكلّ** ولا يُسقط الجوب.
 _af_wired = {getattr(getattr(c, "func", None), "attr", None)
              for c in _af_ast.walk(_af_tree) if isinstance(c, _af_ast.Call)}
+def _af_broad(node):
+    """🔒 هل يلتقط هذا الـ`Try` **`Exception` عريضًا**؟ — `except ZeroDivisionError`
+    حارسٌ بالاسم لا بالفعل: يمرّ بنيويًّا ويترك عطلَ الشبكة يُسقط الجوب.
+    (أخرجته طفرةُ `M8` 2026-08-18: `AF9` كان يشترط وجودَ `Try` لا صلاحيتَه.)"""
+    return any(getattr(h.type, "id", None) in ("Exception", "BaseException")
+               or h.type is None for h in node.handlers)
+
+
 _af_guarded = any(
-    any(getattr(getattr(c, "func", None), "attr", None) == "apply_alert_filter"
-        for c in _af_ast.walk(h)) for h in _af_ast.walk(_af_tree)
+    _af_broad(h)
+    and any(getattr(getattr(c, "func", None), "attr", None) == "apply_alert_filter"
+            for c in _af_ast.walk(h)) for h in _af_ast.walk(_af_tree)
     if isinstance(h, _af_ast.Try))
-check("🎛️ AF9 **مُنادًى حيًّا ومحروسٌ بـ`try`** (‏AST على `operator_entry_live`)",
-      {"apply_alert_filter", "load_alert_filter"} <= _af_wired and _af_guarded,
-      f"محروس؟ {_af_guarded}")
+check("🎛️ AF9 **مُنادًى حيًّا · ومحروسٌ بالتقاطٍ عريضٍ لا باسمِ `try` وحدَه**",
+      _af_parse_ok and {"apply_alert_filter", "load_alert_filter"} <= _af_wired
+      and _af_guarded, f"{_af_parse_err}محروسٌ عريضًا؟ {_af_guarded}")
 
 # 🔒 AF10 — **`_WL` حيٌّ ويُملأ** · و`_load_universe` **ما زالت رباعيّة** لأن ثلاثة
 #           مِجَسّاتٍ تفكّها (‏m0/liq_move/gate) — فتغييرُ العدد يكسرها صامتًا.
@@ -25608,7 +25626,8 @@ _af_wl_m = {getattr(c.func, "attr", None)
             and getattr(c.func.value, "id", None) == "_WL"}
 check("🎛️ AF10 **`_WL` يُنظَّف **و**يُملأ** في `_load_universe` · وهي رباعيّةٌ كما "
       "تفكّها المِجَسّات**",
-      "_WL = {}" in _af_oel and {"clear", "update"} <= _af_wl_m and _af_ar == {4},
+      _af_parse_ok and "_WL = {}" in _af_oel
+      and {"clear", "update"} <= _af_wl_m and _af_ar == {4},
       f"أطوالُ الإرجاع={sorted(_af_ar)} · نداءاتُ _WL={sorted(x for x in _af_wl_m if x)}")
 
 # 🔒 AF11 — **المِجَسُّ قياسٌ لا فعل**: صفرُ إرسالٍ وصفرُ كتابةِ حالةٍ وصفرُ دفعٍ،
@@ -25690,11 +25709,12 @@ check("🥇 AF14 **المشحونُ يكتم التحديثَ `Mu` وحده** (�
 #           **ويسبق التطبيق** (إبلاغٌ ثم عمل، لا العكس).
 _af_ord = (_af_oel.find("alert_filter_issues"), _af_oel.find("apply_alert_filter"))
 _af_iss_guarded = any(
-    any(getattr(getattr(c, "func", None), "attr", None) == "alert_filter_issues"
-        for c in _af_ast.walk(h)) for h in _af_ast.walk(_af_tree)
+    _af_broad(h)
+    and any(getattr(getattr(c, "func", None), "attr", None) == "alert_filter_issues"
+            for c in _af_ast.walk(h)) for h in _af_ast.walk(_af_tree)
     if isinstance(h, _af_ast.Try))
-check("🩺 AF15 **الحارسُ مُنادًى حيًّا · محروسٌ بـ`try` · ويسبق التطبيق**",
-      "alert_filter_issues" in _af_wired and _af_iss_guarded
+check("🩺 AF15 **الحارسُ مُنادًى حيًّا · محروسٌ بالتقاطٍ عريض · ويسبق التطبيق**",
+      _af_parse_ok and "alert_filter_issues" in _af_wired and _af_iss_guarded
       and 0 < _af_ord[0] < _af_ord[1],
       f"محروس؟ {_af_iss_guarded} · ترتيب={_af_ord}")
 
