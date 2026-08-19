@@ -744,7 +744,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 63.5,
-   "last_price": 6.65,
+   "last_price": 6.805,
    "borrow_hist": [
     [
      "2026-08-13",
@@ -17156,7 +17156,7 @@
    "sector": "Technology",
    "country": "China",
    "float": 4025118,
-   "last_price": 2.85,
+   "last_price": 2.87,
    "status": "watching",
    "triggered_date": null
   },
