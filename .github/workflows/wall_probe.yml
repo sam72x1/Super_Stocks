@@ -1,0 +1,36 @@
+name: Wall-Pull Probe (🧱 جدار الطلبات الملغى)
+# مِجَسّ تشخيصيّ — قراءة فقط: NBBO تاريخيّ + صفقات + دقائق ليومٍ واحد.
+# لا كرون · لا كتابة حالة · لا تلغرام · خارج الفرز.
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: "الرمز (الافتراضي ZCMD — حالة الجدار الملغى)"
+        required: false
+        default: "ZCMD"
+      date:
+        description: "اليوم (YYYY-MM-DD) — الافتراضي جمعة الجدار 2026-08-14"
+        required: false
+        default: "2026-08-14"
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run probe
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PROBE_SYMBOL: ${{ github.event.inputs.symbol }}
+          PROBE_DATE: ${{ github.event.inputs.date }}
+        run: python wall_pull_probe.py
