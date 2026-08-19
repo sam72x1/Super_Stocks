@@ -13280,7 +13280,8 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 st = {"anchor_ms": fms, "last_ms": fms - 60_000,
                       "sent": ["M1"], "updates": 0, "vol_x": round(fvx, 1),
                       "peak_usd": round(_usd(form)), "early": True,
-                      "last_eval_ms": last_ms, "pulse_ms": fms}
+                      "last_eval_ms": last_ms, "pulse_ms": fms,
+                      "anchor_price": round(float(form["c"]), 4)}
                 ev.append({"stage": "M0", "usd": round(_usd(form)),
                            "minutes": 1, "anchor_ms": fms, "last_ms": fms,
                            "vol_x": round(fvx, 1),
@@ -13291,10 +13292,14 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 return (ev, st)
             vx, _ab = hit
             _ams = int(_ab["t"])
+            # 🌊 `anchor_price` = دخولُ المِرساة (إغلاقُ شمعتها) — حقلُ **عرضٍ**
+            #    يغذّي وسمَ الكاسح (T-KASIH قاست F5 من هذا السعر بعينه).
+            #    القديمُ بلا المفتاح ⇒ يسقط مكوّنُ المسافة وحدَه (ذاتيُّ الشفاء).
             st = {"anchor_ms": _ams, "last_ms": _ams, "sent": ["M1"],
                   "updates": 0, "vol_x": round(vx, 1),
                   "peak_usd": round(_usd(_ab)), "last_eval_ms": last_ms,
-                  "pulse_ms": _ams}
+                  "pulse_ms": _ams,
+                  "anchor_price": round(float(_ab["c"]), 4)}
             ev.append({"stage": "M1", "usd": round(_usd(_ab)), "minutes": 1,
                        "anchor_ms": _ams, "last_ms": _ams,
                        "vol_x": round(vx, 1), "price": round(float(_ab["c"]), 4),
@@ -13389,6 +13394,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                        "price": round(float(last["c"]), 4),
                        "price_ms": last_ms,
                        "win_price": round(float(win[-1]["c"]), 4),
+                       "anchor_price": st.get("anchor_price"),
                        "class": _ignition_candle_class(tot)})
         st["sent"] = sent
         return (ev, st)
@@ -13863,6 +13869,101 @@ def bid_wall_line(of, min_usd=None):
         return ""
 
 
+# ═══════════ 🌊 وسمُ الكاسح — قياسُ T-KASIH (أمرُ المالك «نفّذ الوسم» 2026-08-19) ═══════════
+# النِّسَبُ من `kasih_result.md` (44,200 مِرساة · 2023-2025 · مدًى أدنى-أقصى عبر
+# السنوات الثلاث · الأساس 9.7-11.7%) — **عرضٌ فقط**: لا بوّابةَ ولا كتمَ ولا وزن.
+# ⚖️ حدودُ السلال **مطابقةٌ لأداة القياس** `kasih_scan.f5_bucket`/`f3_bucket`
+#    (مقفولةٌ بمقارنةٍ سلوكية في السويّة — والإنتاجُ لا يستوردها: عقد KAS4).
+KASIH_RATES = {
+    "f2": {"strong": (16.5, 20.3), "operator": (7.8, 8.5),
+           "mid": (4.6, 6.1), "group": (3.8, 4.0)},
+    "f5": {"فوق 75%": (27.0, 33.8), "30-75%": (16.4, 20.9),
+           "10-30%": (10.1, 11.9), "دون 10%": (5.5, 6.9)},
+    "f3": {"بريماركت مبكر 04-06": (19.1, 23.4), "بريماركت متأخر": (13.4, 15.9),
+           "جلسة صباحية": (8.3, 9.1), "بعد الظهر": (7.6, 9.4)},
+}
+_KASIH_F2_AR = {"strong": "قوية (فوق $300 ألف)", "operator": "مضارب",
+                "mid": "وسط", "group": "قروب (دون $50 ألف)"}
+
+
+def kasih_gap_bucket(gap_pct):
+    """🌊 سلةُ «المسافة من إغلاق الأمس» — **نفسُ حدود `kasih_scan.f5_bucket`**."""
+    try:
+        g = float(gap_pct)
+    except (TypeError, ValueError):
+        return None
+    if g != g:                                   # NaN ليس None — درسٌ مقيس
+        return None
+    if g < 10:
+        return "دون 10%"
+    if g < 30:
+        return "10-30%"
+    if g < 75:
+        return "30-75%"
+    return "فوق 75%"
+
+
+def kasih_time_bucket(anchor_ms):
+    """🌊 سلةُ وقت المِرساة (نيويورك) — **نفسُ حدود `kasih_scan.f3_bucket`**."""
+    try:
+        from zoneinfo import ZoneInfo
+        m = dt.datetime.fromtimestamp(int(anchor_ms) / 1000,
+                                      tz=ZoneInfo("America/New_York"))
+    except (TypeError, ValueError, OSError, OverflowError):
+        return None
+    mod = m.hour * 60 + m.minute
+    if mod < 6 * 60:
+        return "بريماركت مبكر 04-06"
+    if mod < 9 * 60 + 30:
+        return "بريماركت متأخر"
+    if mod < 12 * 60:
+        return "جلسة صباحية"
+    return "بعد الظهر"
+
+
+def kasih_tag_line(ev: dict) -> str:
+    """🌊 سطرُ وسم الكاسح على كرت `M5` **حصرًا** (سلةُ F2 قِيست على مجموع خمس
+    دقائق فلا تُلبَس لدقيقةٍ واحدة ولا لثلاثين). يقرأ السلالَ الثلاث المستوفيةَ
+    معاييرَ `T-KASIH` بنسبها التاريخية (أدنى-أقصى السنوات الثلاث).
+
+    فاشلٌ-آمن: أيُّ مكوّنٍ تعذّر (حالةٌ قديمة بلا `anchor_price` · لا
+    `prev_close` · صنفٌ مجهول) **يسقط وحدَه**، ولا سطرَ إن لم يبقَ مكوّن.
+    ⛔ **عرضٌ لا توصية**: «كاسح» = لمسُ ‏+30% تاريخيًّا قبل كسر قاع شمعة
+    المِرساة — لا صفقةَ منفَّذة (حدود `kasih_result.md §⑦`)."""
+    try:
+        if str((ev or {}).get("stage") or "") != "M5":
+            return ""
+        parts = []
+        cls = ev.get("class")
+        key = cls[0] if isinstance(cls, (list, tuple)) and cls else None
+        r = KASIH_RATES["f2"].get(key or "")
+        if r:
+            parts.append(f"سيولةُ الخمس «{_KASIH_F2_AR.get(key, key)}» "
+                         f"{r[0]:.1f}-{r[1]:.1f}%")
+        gb = None
+        try:
+            _ap = float(ev.get("anchor_price"))
+            _pc = float(ev.get("prev_close"))
+            if _pc > 0:
+                gb = kasih_gap_bucket((_ap / _pc - 1.0) * 100.0)
+        except (TypeError, ValueError):
+            gb = None
+        r = KASIH_RATES["f5"].get(gb or "")
+        if r:
+            parts.append(f"مِرساتُه من إغلاق الأمس «{gb}» "
+                         f"{r[0]:.1f}-{r[1]:.1f}%")
+        r = KASIH_RATES["f3"].get(kasih_time_bucket(ev.get("anchor_ms")) or "")
+        if r:
+            parts.append(f"وقتُها «{kasih_time_bucket(ev.get('anchor_ms'))}» "
+                         f"{r[0]:.1f}-{r[1]:.1f}%")
+        if not parts:
+            return ""
+        return ("🌊 وسمُ الكاسح تاريخيًّا (قياسُ 3 سنوات · 44,200 مِرساة · "
+                "الأساس 11% · لمسُ +30% لا تنفيذ): " + " · ".join(parts))
+    except Exception:                                            # noqa: BLE001
+        return ""                     # كتمُ سطرِ عرضٍ خيرٌ من إسقاط الكرت كلِّه
+
+
 def build_liq_stage_alert(rows: list, now_ms=None) -> str:
     """📩 رسالةُ التدرّج — **توقيتٌ لا توصية**، وتفصل «دخلت سيولة» عن «دخل المضارب».
 
@@ -13961,6 +14062,11 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                         + f"{abs(_dcp):.1f}% حتى لحظة الإشعار")
                 except (TypeError, ValueError):
                     pass
+            # 🌊 وسمُ الكاسح (أمرُ المالك «نفّذ الوسم» بعد نتيجة T-KASIH) —
+            #    الدالةُ تُقيِّد نفسَها بكرت `M5` وترجع "" لغيره (عرضٌ فقط).
+            _kl = kasih_tag_line(e)
+            if _kl:
+                lines.append("      " + _kl)
             if _d:
                 lines.append(f"      🕵️ حكمُ الهوية بعتبات فيصل: {_d}")
             if "operator" in e:

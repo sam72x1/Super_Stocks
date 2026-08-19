@@ -27292,6 +27292,119 @@ check("🌊 KAS5 الـworkflow موصول: المدخلان ⟵ بيئةٌ يق
       and {"KASIH_YEAR", "KASIH_DAY", "AWS_ACCESS_KEY_ID"} <= _kas_reads,
       f"env={sorted(_kas_env)} reads={sorted(_kas_reads & {'KASIH_YEAR', 'KASIH_DAY'})}")
 
+
+# ═══════════ 🌊 وسمُ الكاسح على كرت M5 — KAS6-KAS10 (أمر المالك «نفّذ الوسم») ═══════════
+# عرضٌ فقط: النسبُ من kasih_result.md · السلالُ مطابقةٌ لأداة القياس سلوكيًّا ·
+# والوسمُ على M5 حصرًا. فاشلٌ-آمن: المكوّنُ المتعذّر يسقط وحدَه.
+
+# KAS6 — `anchor_price` يُخزَّن عند المِرساة ويصل حدثَ M5 · والحالةُ القديمة
+#   بلا المفتاح ⇒ `None` (ذاتيُّ الشفاء، لا انهيار) — سلوكيًّا عبر دالة الإنتاج.
+_k6_r1 = ([_cu_bar(i, 1.0, 1.0, 1000) for i in range(10)]
+          + [_cu_bar(10, 1.0, 1.10, 300000), _cu_bar(11, 1.10, 1.10, 10)])
+_k6_r2 = (_k6_r1[:-1]
+          + [_cu_bar(11, 1.10, 1.11, 2000), _cu_bar(12, 1.11, 1.11, 1500),
+             _cu_bar(13, 1.11, 1.12, 1200), _cu_bar(14, 1.12, 1.12, 900),
+             _cu_bar(15, 1.12, 1.13, 800), _cu_bar(16, 1.13, 1.13, 10)])
+try:
+    _k6_e1, _k6_st = S.liq_stage_events(_k6_r1, {})
+    _k6_e2, _ = S.liq_stage_events(_k6_r2, dict(_k6_st))
+    _k6_m5 = next((e for e in _k6_e2 if e.get("stage") == "M5"), {})
+    _k6_old = {k: v for k, v in _k6_st.items() if k != "anchor_price"}
+    _k6_e3, _ = S.liq_stage_events(_k6_r2, _k6_old)
+    _k6_m5o = next((e for e in _k6_e3 if e.get("stage") == "M5"), {})
+except Exception as _e:                                          # noqa: BLE001
+    _k6_st, _k6_m5, _k6_m5o = {"⛔": type(_e).__name__}, {}, {"x": 1}
+check("🌊 KAS6 anchor_price في الحالة ⟵ حدث M5 · والقديمةُ بلا المفتاح ⇒ None بلا انهيار",
+      _k6_st.get("anchor_price") == 1.1 and _k6_m5.get("anchor_price") == 1.1
+      and "anchor_price" in _k6_m5o and _k6_m5o.get("anchor_price") is None,
+      f"st={_k6_st.get('anchor_price')} m5={_k6_m5.get('anchor_price')}")
+
+# KAS7 — الوسمُ على M5 حصرًا وبمكوّناته الثلاثة · وغيابُ anchor_price يسقط
+#   مكوّنَ المسافة **وحدَه** · وM30/M1/Px بلا وسمٍ في الكرت (فارقان).
+_k7_ev = {"stage": "M5", "usd": 887238, "minutes": 5,
+          "anchor_ms": 1_787_146_320_000, "last_ms": 1_787_146_620_000,
+          "vol_x": 12.0, "price": 2.10, "price_ms": 1_787_146_620_000,
+          "anchor_price": 1.95, "prev_close": 1.44,
+          "class": S._ignition_candle_class(887238)}
+try:
+    _k7_l = S.kasih_tag_line(_k7_ev)
+    _k7_no_ap = S.kasih_tag_line({k: v for k, v in _k7_ev.items()
+                                  if k != "anchor_price"})
+    _k7_empty = S.kasih_tag_line({"stage": "M5"})
+    _k7_msg5 = S.build_liq_stage_alert(
+        [({"symbol": "KA7", "src": "الترشيح"}, [_k7_ev])],
+        now_ms=1_787_146_650_000)
+    _k7_msg30 = S.build_liq_stage_alert(
+        [({"symbol": "KA7", "src": "الترشيح"},
+          [dict(_k7_ev, stage="M30", minutes=30)])],
+        now_ms=1_787_146_650_000)
+except Exception as _e:                                          # noqa: BLE001
+    _k7_l = _k7_no_ap = _k7_empty = _k7_msg5 = _k7_msg30 = f"⛔ {type(_e).__name__}"
+check("🌊 KAS7 الوسمُ بمكوّناته الثلاثة على M5 · يسقط المكوّنُ المتعذّر وحدَه · وM30 بلا وسم",
+      "سيولةُ الخمس «قوية" in _k7_l and "«30-75%» 16.4-20.9%" in _k7_l
+      and "«جلسة صباحية»" in _k7_l and "لمسُ +30% لا تنفيذ" in _k7_l
+      and "من إغلاق الأمس" not in _k7_no_ap and "سيولةُ الخمس" in _k7_no_ap
+      and _k7_empty == "" and S.kasih_tag_line(dict(_k7_ev, stage="Px")) == ""
+      and "وسمُ الكاسح" in _k7_msg5 and "وسمُ الكاسح" not in _k7_msg30,
+      _k7_l[:100])
+
+# KAS8 — حدودُ السلال في الإنتاج **مطابقةٌ لأداة القياس سلوكيًّا** (مقياسٌ واحد
+#   بلا استيراد الإنتاج للأداة — عقد KAS4): عيّنةُ تخومٍ تفرّق كلَّ حدّ.
+_k8_g = [-5.0, 0.0, 9.99, 10.0, 29.9, 30.0, 74.9, 75.0, 200.0]
+_k8_gap_ok = all(S.kasih_gap_bucket(g) == _KAS.f5_bucket(g) for g in _k8_g)
+import datetime as _kas_dt                                       # noqa: E402
+from zoneinfo import ZoneInfo as _KasZI                          # noqa: E402
+_k8_times = [(4, 30), (5, 59), (6, 0), (9, 29), (9, 30), (11, 59), (12, 0),
+             (15, 0), (19, 59)]
+_k8_ms = [int(_kas_dt.datetime(2026, 8, 17, h, m,
+                               tzinfo=_KasZI("America/New_York"))
+              .timestamp() * 1000) for h, m in _k8_times]
+_k8_t_ok = all(S.kasih_time_bucket(ms) == _KAS.f3_bucket(ms) for ms in _k8_ms)
+check("🌊 KAS8 سلالُ الإنتاج تطابق أداةَ القياس سلوكيًّا على التخوم (مسافةً ووقتًا)",
+      _k8_gap_ok and _k8_t_ok
+      and S.kasih_gap_bucket(None) is None
+      and S.kasih_gap_bucket(float("nan")) is None,
+      f"gap={_k8_gap_ok} time={_k8_t_ok}")
+
+# KAS9 — النسبُ المعروضة = المنشورة في kasih_result.md حرفيًّا (قيدٌ مزدوج:
+#   نسخةٌ مستقلة هنا) · وسطرُ العرض بلا علامات مقارنة (قاعدة 2026-06-23).
+_k9_pub = {
+    "f2": {"strong": (16.5, 20.3), "operator": (7.8, 8.5),
+           "mid": (4.6, 6.1), "group": (3.8, 4.0)},
+    "f5": {"فوق 75%": (27.0, 33.8), "30-75%": (16.4, 20.9),
+           "10-30%": (10.1, 11.9), "دون 10%": (5.5, 6.9)},
+    "f3": {"بريماركت مبكر 04-06": (19.1, 23.4),
+           "بريماركت متأخر": (13.4, 15.9),
+           "جلسة صباحية": (8.3, 9.1), "بعد الظهر": (7.6, 9.4)},
+}
+check("🌊 KAS9 النسبُ = المنشورةُ حرفيًّا · والسطرُ بلا علامات مقارنة",
+      S.KASIH_RATES == _k9_pub
+      and isinstance(_k7_l, str)
+      and all(c not in _k7_l for c in "<>≥≤"),
+      "")
+
+# KAS10 — عرضٌ لا اختيار: `kasih_tag_line`/`KASIH_RATES` خارج الجذور (AST على
+#   المصادر) · والوصلةُ حيّةٌ من build_liq_stage_alert (نداءٌ فعليّ لا وجودُ دالة).
+_k10_roots = ["rank_key", "select_top", "classify_tier", "entry_status",
+              "analyze_ticker", "scan_market", "backtest_symbol",
+              "scan_ignition", "scan_split_hunter", "scan_liq_stages"]
+_k10_leak = []
+for _fn in _k10_roots:
+    _src10 = _insp0.getsource(getattr(S, _fn))
+    for _nd in _ast0.walk(_ast0.parse(_src10)):
+        _nm = (getattr(_nd, "id", None) if isinstance(_nd, _ast0.Name)
+               else getattr(_nd, "attr", None))
+        if _nm in ("kasih_tag_line", "KASIH_RATES", "kasih_gap_bucket",
+                   "kasih_time_bucket"):
+            _k10_leak.append(f"{_fn}:{_nm}")
+_k10_calls = [c for c in _ast0.walk(_ast0.parse(
+                  _insp0.getsource(S.build_liq_stage_alert)))
+              if isinstance(c, _ast0.Call)
+              and getattr(c.func, "id", None) == "kasih_tag_line"]
+check("🌊 KAS10 الوسمُ خارج الجذور العشرة (AST) · وموصولٌ بنداءٍ فعليّ من الكرت",
+      _k10_leak == [] and len(_k10_calls) == 1,
+      f"تسرب={_k10_leak} نداءات={len(_k10_calls)}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
