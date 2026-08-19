@@ -27005,13 +27005,17 @@ _pls_bars = [_cu_bar(100, 1.9, 2.0, 30000), _cu_bar(101, 2.0, 2.0, 1000),
              _cu_bar(104, 1.99, 1.99, 10)]
 _pls_ev, _pls_st = _cu_run(_pls_bars, _pls_anch)
 _pls_px = [e for e in _pls_ev if e.get("stage") == "Px"]
+# 🐞 وصولٌ محروس (درسُ «القفلُ المنهار يكتم غيرَه» — أمسكته طفرةُ M1 نفسُها:
+#    إسقاطُ abs يترك نبضًا واحدًا فيرمي [1] داخل وسائط check ويكتم ما بعده):
+_pls_up = _pls_px[0] if len(_pls_px) > 0 else {}
+_pls_dn = _pls_px[1] if len(_pls_px) > 1 else {}
 
 # PLS1 — الاتجاهان معًا وبقيمتيهما وسابقتيهما (2.00 ⟵ +12% ⟵ 2.24 ⟵ −11.2%):
 check("💓 PLS1 نبضُ الصعود والهبوط معًا بقيمتيهما وسابقتيهما",
-      len(_pls_px) == 2 and _pls_px[0].get("pulse_pct") == 12.0
-      and _pls_px[0].get("prev_price") == 2.0
-      and _pls_px[1].get("pulse_pct") == -11.2
-      and _pls_px[1].get("prev_price") == 2.24, str(_pls_px)[:140])
+      len(_pls_px) == 2 and _pls_up.get("pulse_pct") == 12.0
+      and _pls_up.get("prev_price") == 2.0
+      and _pls_dn.get("pulse_pct") == -11.2
+      and _pls_dn.get("prev_price") == 2.24, str(_pls_px)[:140])
 
 # PLS2 — «بـ10٪» تشمل العشرةَ بالضبط، و9.9% لا تفير (حدُّ التخوم يفصل الحدّين):
 _pls_e10, _ = _cu_run([_cu_bar(100, 1.9, 2.0, 30000), _cu_bar(101, 2.0, 2.0, 1000),
@@ -27059,9 +27063,9 @@ check("💓 PLS5 لا نبضَ قبل المِرساة (−15% بلا مرساة
 # PLS6 — علامةُ الاتجاه **فارقة** في الكرت: لا «أو» تُرضيها علامةٌ أخرى.
 _pls_row = {"symbol": "PLS", "src": "الترشيح"}
 try:
-    _pls_up_msg = S.build_liq_stage_alert([(_pls_row, [_pls_px[0]])],
+    _pls_up_msg = S.build_liq_stage_alert([(_pls_row, [_pls_up])],
                                           now_ms=105 * 60_000)
-    _pls_dn_msg = S.build_liq_stage_alert([(_pls_row, [_pls_px[1]])],
+    _pls_dn_msg = S.build_liq_stage_alert([(_pls_row, [_pls_dn])],
                                           now_ms=105 * 60_000)
 except Exception as _e:                                          # noqa: BLE001
     _pls_up_msg = _pls_dn_msg = f"⛔ رمى {type(_e).__name__}"
@@ -27087,7 +27091,7 @@ check("💓 PLS7 العتبةُ من `LIQ_PULSE_PCT` وقتَ النداء (حق
 #   لا شكلية) وحارسُ الإعداد بصفر عِلّة — لولا إدراج `Px` لكُتم النبضُ صامتًا.
 try:
     _pls_cfg = S.load_alert_filter()
-    _pls_ok, _ = S.alert_filter_keep(_pls_row, _pls_px[1], _pls_cfg, {})
+    _pls_ok, _ = S.alert_filter_keep(_pls_row, _pls_dn, _pls_cfg, {})
     _pls_mu_ok, _w = S.alert_filter_keep(_pls_row, {"stage": "Mu", "price": 2.0},
                                          _pls_cfg, {})
     _pls_iss = S.alert_filter_issues(_pls_cfg)
@@ -27124,15 +27128,15 @@ check("💓 PLS9 «لا مضارب»: النبضُ ينجو وحالتُه تب�
 _pls_cfg2 = {"stages": ["M0", "M1", "Mu", "M5", "M30", "Px"],
              "min_move_pct": 10.0}
 try:
-    _pls_ok2, _ = S.alert_filter_keep(_pls_row, _pls_px[1], _pls_cfg2, {})
+    _pls_ok2, _ = S.alert_filter_keep(_pls_row, _pls_dn, _pls_cfg2, {})
     _pls_mu2, _ = S.alert_filter_keep(_pls_row, {"stage": "Mu", "price": 2.0,
                                                  "move": 4.0}, _pls_cfg2, {})
 except Exception as _e:                                          # noqa: BLE001
     _pls_ok2, _pls_mu2 = f"⛔ {type(_e).__name__}", None
 check("💓 PLS10 النبضُ الهابط بلا `move`/`class` عمدًا ⇒ محورُ الرفعة لا يكتم إشارةَ الخروج",
       _pls_ok2 is True and _pls_mu2 is False
-      and "move" not in _pls_px[1] and "class" not in _pls_px[1],
-      f"px={_pls_ok2} mu={_pls_mu2} keys={sorted(_pls_px[1])}")
+      and _pls_dn and "move" not in _pls_dn and "class" not in _pls_dn,
+      f"px={_pls_ok2} mu={_pls_mu2} keys={sorted(_pls_dn)}")
 
 
 print("\n" + "=" * 50)
