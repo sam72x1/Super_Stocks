@@ -426,11 +426,14 @@ def main() -> int:
         bucket_table(rows_out, "f5", "F5 — المسافة من إغلاق الأمس")
         bucket_table(rows_out, "f6", "F6 — صمودُ ربع الساعة (فيصل)")
         if one_day:
-            print("\n⑤ مراسي اليوم بأزمنتها (لمطابقة V1 مع gate_result):")
-            for r in sorted(rows_out, key=lambda x: -x["mg_after"])[:25]:
+            # ⚠️ وضعُ اليوم يطبع **كلَّ** المراسي بلا قصّ — V1 تشترط المطابقةَ
+            #   بالاسم والزمن والسعر، والـartifact محجوبٌ شبكيًّا من بيئة التطوير.
+            print(f"\n⑤ مراسي اليوم كلُّها ({len(rows_out)} — بلا قصّ) "
+                  f"لمطابقة V1 مع gate_result:")
+            for r in sorted(rows_out, key=lambda x: -x["mg_after"]):
                 print(f"   ${r['sym']:6} مرساة {r['anchor_ny']} · دخول "
                       f"${r['entry']:.4g} · mg بعدها {r['mg_after']:+.1f}% · "
-                      f"F2 {r['f2']} (${r['usd5']:,})")
+                      f"خروج {r['exit']} · F2 {r['f2']} (${r['usd5']:,})")
     print("\n⚠️ حدودُ الصدق (§⑧): لمسٌ لا تنفيذ · يومٌ واحد · مِرساةٌ/رمز/يوم ·"
           " إغلاقُ الأمس من الشموع · الحكمُ عبر السنوات الثلاث لا سنةً واحدة.")
     if v2_anchors:
