@@ -5864,7 +5864,8 @@
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
     "break": "2026-08-18",
-    "breakout": "2026-08-18"
+    "breakout": "2026-08-18",
+    "premarket": "2026-08-19"
    },
    "spikes": [
     250.7,
@@ -7301,7 +7302,9 @@
    "hit_date": null,
    "max_gain_pct": 0.5,
    "last_price": 5.85,
-   "live_alert": {},
+   "live_alert": {
+    "premarket": "2026-08-19"
+   },
    "spikes": [
     328.2
    ],
@@ -13630,7 +13633,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 15.24
+   "last_price": 15.24,
+   "live_alert": {}
   },
   {
    "symbol": "CODX",
