@@ -26707,6 +26707,125 @@ check("🔁 AF19 **جدولُ الكلفة يُطبَع مرّتين** (ينجو
       and _af19_src.count('print("  6. ') == 1
       and _af19_src.count('print("  7. ') == 1)
 
+
+# ═══════════════ ⛏️🔁 T-SWEEP-RECLAIM — أقفال «الستوب المكنوس» ═══════════════
+# العقد: sweep_reclaim_prereg.md — الأداة بحث/قياس خارج الإنتاج، وأقفالها هنا
+# تفريقيّة (كلُّ قفلٍ يسقط بطفرةٍ مسمّاة). أسماء SR1-SR8 فريدة.
+try:
+    import importlib.util as _sr_ilu
+    _sr_spec = _sr_ilu.spec_from_file_location("_sr_mod", "sweep_reclaim_arms.py")
+    _sr = _sr_ilu.module_from_spec(_sr_spec)
+    import sys as _sr_sys
+    # ⚠️ الوحدة تضبط SCREENER_MODE=BACKTEST على مستوى الوحدة وتستورد Super_stock
+    #    المستورَد سلفًا هنا — التحميل آمن (لا يعيد تحميل Super_stock).
+    _sr_spec.loader.exec_module(_sr)
+    _SR_OK = True
+except Exception as _sr_e:                      # noqa: BLE001
+    _SR_OK = False
+    check("⛏️ SR0 وحدة sweep_reclaim_arms تُحمَّل", False, f"⛔ {type(_sr_e).__name__}: {_sr_e}")
+if _SR_OK:
+    import numpy as _sr_np
+
+    def _srw(hi, lo, cl, ex, pivot, t1, w):
+        try:
+            return _sr.reclaim_walk(_sr_np.array(hi, float), _sr_np.array(lo, float),
+                                    _sr_np.array(cl, float), ex, pivot, t1, w)
+        except Exception as _e:                  # noqa: BLE001
+            return {"kind": f"⛔ رمى {type(_e).__name__}"}
+
+    # SR1 — مسحٌ ثم استعادة ⇒ win بحساب R الصحيح (عيّنة مفرِّقة بالأرقام)
+    #   pivot=1.00 · جلسة الستوب: قاع 0.90 وإغلاق 1.02 (استعادة بنفس الجلسة)
+    #   ⇒ دخول 1.02 · قاع جديد 0.90 ⇒ وقف2 = 0.90×(1−7%)=0.837 · هدف 1.22
+    #   الشمعة التالية رأسها 1.25 ⇒ win · R = (1.22−1.02)/(1.02−0.837)
+    _r1 = _srw(hi=[1.1, 1.05, 1.25], lo=[1.0, 0.90, 1.01], cl=[1.05, 1.02, 1.20],
+               ex=1, pivot=1.00, t1=1.22, w=5)
+    _exp_r = round((1.22 - 1.02) / (1.02 - _sr._stop2_of(0.90)), 4)
+    check("⛏️ SR1 مسحٌ ثم استعادةُ نفس الجلسة ⇒ win بحساب R من صيغة الإنتاج",
+          _r1.get("kind") == "win" and _r1.get("r") == _exp_r
+          and _r1.get("reclaim_idx") == 1, str(_r1)[:120])
+
+    # SR2 — جلسةُ الستوب نفسُها تُحسب استعادةً (§③) — الإغلاقات اللاحقة كلُّها تحت
+    #   القاع فلو بدأ البحثُ بعدها ضاعت الاستعادة ⇒ الطفرة (range من ex+1) تُسقطه.
+    _r2 = _srw(hi=[1.1, 1.06, 0.99], lo=[1.0, 0.90, 0.95], cl=[1.05, 1.03, 0.96],
+               ex=1, pivot=1.00, t1=1.30, w=5)
+    check("⛏️ SR2 جلسةُ الستوب تُحسب في نافذة الاستعادة",
+          _r2.get("reclaim_idx") == 1 and _r2.get("entry2") == 1.03, str(_r2)[:120])
+
+    # SR3 — رأسُ شمعة الدخول لا يُحسم (درس F-L1): رأسُ جلسة الاستعادة فوق الهدف
+    #   والتاليةُ تضرب الوقف ⇒ loss لا win.
+    _r3 = _srw(hi=[1.1, 1.40, 0.95], lo=[1.0, 0.90, 0.80], cl=[1.05, 1.05, 0.90],
+               ex=1, pivot=1.00, t1=1.30, w=5)
+    check("⛏️ SR3 رأسُ شمعة الدخول لا يحسم الهدف (loss لا win)",
+          _r3.get("kind") == "loss" and _r3.get("r") == -1.0, str(_r3)[:120])
+
+    # SR4 — الوقفُ أوّلًا داخل الشمعة الواحدة (محافظ): قاعُها تحت الوقف ورأسُها
+    #   فوق الهدف ⇒ loss.
+    _r4 = _srw(hi=[1.1, 1.06, 1.50], lo=[1.0, 0.90, 0.70], cl=[1.05, 1.02, 1.00],
+               ex=1, pivot=1.00, t1=1.22, w=5)
+    check("⛏️ SR4 الوقفُ يُفحَص أوّلًا داخل الشمعة (win المزدوجة = loss)",
+          _r4.get("kind") == "loss", str(_r4)[:120])
+
+    # SR5 — استعادةٌ فوق الهدف أصلًا = ملاحقة تُعَدّ ولا تُتاجَر.
+    _r5 = _srw(hi=[1.1, 1.30], lo=[1.0, 0.90], cl=[1.05, 1.25],
+               ex=1, pivot=1.00, t1=1.22, w=5)
+    check("⛏️ SR5 إغلاقُ الاستعادة فوق الهدف ⇒ already_above_t1 (لا صفقة)",
+          _r5.get("kind") == "already_above_t1", str(_r5)[:120])
+
+    # SR6 — وقفُ إعادة الدخول من CONFIG لا رقمٌ مغروس: حقنُ (5,12) يغيّر الناتج.
+    _sr_old = S.CONFIG["STOP_BELOW_LOW_PCT"]
+    try:
+        S.CONFIG["STOP_BELOW_LOW_PCT"] = (5.0, 12.0)
+        _sr6_a = round(_sr._stop2_of(1.0), 4)
+    finally:
+        S.CONFIG["STOP_BELOW_LOW_PCT"] = _sr_old
+    _sr6_b = round(_sr._stop2_of(1.0), 4)
+    check("⛏️ SR6 وقفُ إعادة الدخول يقرأ CONFIG (يتحرّك بحقن 12% ويعود)",
+          _sr6_a == 0.88 and _sr6_b == round(1.0 * (1 - _sr_old[1] / 100.0), 4),
+          f"a={_sr6_a} b={_sr6_b}")
+
+    # SR7 — survived بسعر آخر شمعة (mark-to-market) بعيّنةٍ تفرّق بالأرقام.
+    _r7 = _srw(hi=[1.1, 1.06, 1.10, 1.12], lo=[1.0, 0.90, 1.00, 1.01],
+               cl=[1.05, 1.02, 1.05, 1.10], ex=1, pivot=1.00, t1=2.00, w=5)
+    _exp7 = round((1.10 - 1.02) / (1.02 - _sr._stop2_of(0.90)), 4)
+    check("⛏️ SR7 غيرُ المحسوم survived بإغلاق آخر شمعة (رقمٌ مفرِّق)",
+          _r7.get("kind") == "survived" and _r7.get("r") == _exp7, str(_r7)[:120])
+
+    # SR8 — لا استعادة داخل النافذة ⇒ no_reclaim (ولا انهيار على نافذةٍ قصيرة).
+    _r8 = _srw(hi=[1.1, 1.06, 0.99], lo=[1.0, 0.90, 0.95], cl=[1.05, 0.98, 0.96],
+               ex=1, pivot=1.00, t1=1.30, w=1)
+    check("⛏️ SR8 لا إغلاقَ فوق الدعم داخل النافذة ⇒ no_reclaim",
+          _r8.get("kind") == "no_reclaim", str(_r8)[:120])
+
+    # SR9 — عزلُ البحث عن الإنتاج (AST): Super_stock لا يستورد الأداة، والأداة
+    #   تضبط SCREENER_MODE **قبل** استيراد Super_stock (بصمة الـno-op).
+    _sr_src_txt = open("sweep_reclaim_arms.py", encoding="utf-8").read()
+    _sr_i1 = _sr_src_txt.find('os.environ["SCREENER_MODE"] = "BACKTEST"')
+    _sr_i2 = _sr_src_txt.find("import Super_stock as S")
+    import ast as _sr_ast
+    _ss_imports = [n for n in _sr_ast.walk(_sr_ast.parse(
+        open("Super_stock.py", encoding="utf-8").read()))
+        if isinstance(n, (_sr_ast.Import, _sr_ast.ImportFrom))]
+    _ss_names = {a.name for n in _ss_imports for a in getattr(n, "names", [])}
+    check("⛏️ SR9 عزلٌ: الإنتاج لا يستورد الأداة · والوضعُ يُضبَط قبل الاستيراد",
+          "sweep_reclaim_arms" not in _ss_names
+          and 0 <= _sr_i1 < _sr_i2, f"i1={_sr_i1} i2={_sr_i2}")
+
+    # SR10 — أسلاك الـworkflow موصولة (قاعدة P1): السنة واللقطة تصلان السكربت.
+    import yaml as _sr_yaml
+    _sr_wf = _sr_yaml.safe_load(open(".github/workflows/sweep_reclaim.yml",
+                                     encoding="utf-8"))
+    _sr_steps = _sr_wf["jobs"]["sweep-reclaim"]["steps"]
+    _sr_env = {}
+    for _st in _sr_steps:
+        if "sweep_reclaim_arms.py" in str(_st.get("run", "")):
+            _sr_env = _st.get("env", {}) or {}
+    check("⛏️ SR10 الـworkflow يمرّر BACKTEST_YEAR وBT_FROZEN_PATH للسكربت",
+          "BACKTEST_YEAR" in _sr_env
+          and _sr_env.get("BT_FROZEN_PATH") == "frozen_backtest.pkl.gz"
+          and any("download-artifact" in str(_st.get("uses", ""))
+                  for _st in _sr_steps), str(_sr_env)[:100])
+
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

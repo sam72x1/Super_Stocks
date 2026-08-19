@@ -1,0 +1,44 @@
+name: T-SWEEP-RECLAIM (الستوب المكنوس)
+# ⛏️🔁 العقد: sweep_reclaim_prereg.md — يُشغَّل يدويًّا لكلّ سنة (2023 · 2024 · 2025)
+# على اللقطة المجمّدة نفسها. قراءة/قياس فقط — صفر مسّ إنتاج وصفر كتابة حالة.
+permissions:
+  contents: read
+  actions: read          # 🕰️ لتحميل لقطة التجميد من تشغيلة freeze (frozen_run_id)
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (مثال 2025). الحكم يلزمه ثلاث سنوات — تشغيلةٌ لكل سنة"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "🕰️ معرّف تشغيلة التجميد (لقطة point-in-time) — مُلزِم (§⑤ V1)"
+        required: true
+        default: "30598885456"
+jobs:
+  sweep-reclaim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset (point-in-time)
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run sweep-reclaim arms
+        env:
+          # ⚠️ SCREENER_MODE وBT_REPLAY10 يضبطهما السكربت قبل الاستيراد
+          # (بصمة الـno-op الموثّقة: BT_CANDLE).
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python sweep_reclaim_arms.py
