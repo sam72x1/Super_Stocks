@@ -27139,6 +27139,37 @@ check("💓 PLS10 النبضُ الهابط بلا `move`/`class` عمدًا ⇒
       f"px={_pls_ok2} mu={_pls_mu2} keys={sorted(_pls_dn)}")
 
 
+# ═══════════ 🕐 صدقُ الكرت مع الاقتباس البائت — SHOW8/SHOW9 (بلاغ المالك 2026-08-19) ═══════════
+# كرتُ ZYBT/CXAI الحيّ: السطرُ الأعلى يسمّي الاقتباسَ بائتًا (42.6د) وجدارا
+# الطلب/العرض يُطبعان تحته من اللقطة نفسِها كأنهما الآن · و«سيولة 29 دقيقة»
+# تحت ترويسة «اكتملت 30» (دقيقةٌ بلا صفقاتٍ لا شمعةَ لها) تُقرأ غلطًا.
+_sh8_now = 1_787_151_000_000
+_sh8_bar = _sh8_now - 3 * 60_000
+_sh8_of = {"has_operator": True, "bid": 1.56, "bid_size": 300, "ask": 1.60,
+           "ask_size": 1100, "bid_block_shares": 624088,
+           "quote_ts": int((_sh8_now - 42.6 * 60_000) * 1e6)}
+_sh8_ev = {"stage": "M30", "usd": 680417, "minutes": 29,
+           "anchor_ms": _sh8_bar - 29 * 60_000, "last_ms": _sh8_bar,
+           "vol_x": 9.5, "price": 4.19, "price_ms": _sh8_bar,
+           "operator": _sh8_of, "prev_close": 4.26}
+_sh8_row = {"symbol": "SH8", "src": "تحت المتابعة"}
+try:
+    _sh8_msg = S.build_liq_stage_alert([(_sh8_row, [_sh8_ev])], now_ms=_sh8_now)
+    _sh8_ok = dict(_sh8_ev, minutes=30,
+                   operator=dict(_sh8_of, quote_ts=int((_sh8_now - 3000) * 1e6)))
+    _sh8_msg2 = S.build_liq_stage_alert([(_sh8_row, [_sh8_ok])], now_ms=_sh8_now)
+except Exception as _e:                                          # noqa: BLE001
+    _sh8_msg = _sh8_msg2 = f"⛔ رمى {type(_e).__name__}"
+check("🕐 SHOW8 جدارا الدفتر يُوسمان بعمر الاقتباس البائت ولا يُوسمان مع الطازج",
+      "الجداران من لقطةٍ قديمة" in _sh8_msg and "عمرُها 42.6د" in _sh8_msg
+      and "اقتباسٌ بائت" in _sh8_msg
+      and "الجداران من لقطةٍ قديمة" not in _sh8_msg2
+      and "اقتباسٌ بائت" not in _sh8_msg2, _sh8_msg[:80])
+check("🕳️ SHOW9 المجموعُ الناقصُ الشموع يسمّي نافذتَه كاملةً وشموعَه المتوفّرة",
+      "سيولة 30 دقيقة (توفّرت 29 شمعة)" in _sh8_msg
+      and "توفّرت" not in _sh8_msg2
+      and "سيولة 30 دقيقة" in _sh8_msg2, "")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

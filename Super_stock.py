@@ -13932,7 +13932,16 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
             # 🔴 **و`vol_x` في المجاميع منسوخٌ من المِرساة** (‏`st.get("vol_x")`)
             #    ⇒ يُوسَم بعمره بدل أن يُقرأ لحظيًّا.
             _agg = str(e.get("stage") or "") in ("M5", "M30")
-            lines.append(f"      💰 سيولة {e['minutes']} دقيقة "
+            # 🕳️ في المجاميع: دقيقةٌ بلا صفقاتٍ لا شمعةَ لها ⇒ «سيولة 29
+            #    دقيقة» تحت ترويسة «اكتملت 30» تُقرأ غلطًا (بلاغ المالك
+            #    2026-08-19) — فتُسمّى النافذةُ كاملةً وعددُ الشموع المتوفّرة.
+            _mn = int(e.get("minutes") or 0)
+            _min_lbl = f"{_mn} دقيقة"
+            if str(e.get("stage") or "") in ("M5", "M30"):
+                _nstage = int(str(e["stage"])[1:])
+                _min_lbl = (f"{_nstage} دقيقة" if _mn == _nstage else
+                            f"{_nstage} دقيقة (توفّرت {_mn} شمعة)")
+            lines.append(f"      💰 سيولة {_min_lbl} "
                          f"${e['usd']:,}" + _px
                          + (f" · قفزةُ حجمٍ {float(_vx):.0f}×"
                             + (" (عند المِرساة)" if _agg else "") if _vx else "")
@@ -13958,6 +13967,15 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                 _of = e.get("operator")
                 # 📡 الحيُّ صار في سطر السيولة نفسِه (يتصدّر) فلا يُكرَّر هنا.
                 _ol = operator_line(_of) if _of else ""
+                # 🕐 جدارا الطلب/العرض مصدرُهما الاقتباسُ نفسُه — فإن كان
+                #    بائتًا وُسِما بعمره بدل أن يُقرآ وضعَ دفترٍ حاليًّا
+                #    (بلاغُ المالك 2026-08-19: السطرُ الأعلى يسمّي الاقتباسَ
+                #    بائتًا وجدارُه يُطبَع تحته كأنه الآن — تناقضٌ يكذب).
+                if (_ol and _fv == "stale"
+                        and ("طلب " in _ol or "عرض " in _ol)):
+                    _ol += (" · ⚠️ الجداران من لقطةٍ قديمة"
+                            + (f" (عمرُها {_fmt_age_s(_fa)})"
+                               if _fa is not None else ""))
                 lines.append("      " + (_ol if _ol else
                                          ("🕵️ طبعاتُ مضاربٍ مؤكَّدة"
                                           if _of else
