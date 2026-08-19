@@ -26826,6 +26826,79 @@ if _SR_OK:
                   for _st in _sr_steps), str(_sr_env)[:100])
 
 
+
+# ═══════════════ 🧱 رادار الجدار — أقفال WALL1-WALL6 ═══════════════
+# أمرُ المالك 2026-08-19 «ابن رادار الجدار» — عرض/تحذير فقط، خارج البوّابات.
+def _wall_call(of, mn=None):
+    try:
+        return S.bid_wall_line(of, min_usd=mn)
+    except Exception as _e:                      # noqa: BLE001
+        return f"⛔ رمى {type(_e).__name__}"
+
+# WALL1 — فارقٌ محدَّد: جدارُ ZCMD الحقيقيّ يُطبَع بأرقامه، والصغيرُ لا سطرَ له.
+_w_big = {"bid": 1.0, "bid_size": 303300, "quote_ts": 1}
+_w_sm = {"bid": 1.0, "bid_size": 100, "quote_ts": 1}
+_w1 = _wall_call(_w_big)
+check("🧱 WALL1 جدارُ 303,300 سهمًا عند $1.00 يُطبَع بأرقامه والصغيرُ صامت",
+      "جدارُ طلباتٍ ضخم" in _w1 and "303,300" in _w1 and "$1.00" in _w1
+      and "$303,300" in _w1 and _wall_call(_w_sm) == "", _w1[:100])
+
+# WALL2 — العتبةُ من CONFIG وقتَ النداء (حقنُ سقفٍ خياليّ يُصمِت الجدارَ الكبير).
+_w_old = S.CONFIG["WALL_MIN_USD"]
+try:
+    S.CONFIG["WALL_MIN_USD"] = 1e9
+    _w2a = _wall_call(_w_big)
+finally:
+    S.CONFIG["WALL_MIN_USD"] = _w_old
+check("🧱 WALL2 العتبةُ تُقرأ من CONFIG وقت النداء (سقفٌ خياليّ يُصمِته ثم يعود)",
+      _w2a == "" and "جدارُ طلباتٍ ضخم" in _wall_call(_w_big), f"a={_w2a!r}")
+
+# WALL3 — فاشلةٌ-آمنة: تلفٌ/نقصٌ ⇒ "" بلا انهيار (القفلُ يسقط ولا ينهار).
+_w3 = [_wall_call(None), _wall_call({}), _wall_call({"bid": "x", "bid_size": 5}),
+       _wall_call({"bid": 1.0}), _wall_call({"bid": -1.0, "bid_size": 999999})]
+check("🧱 WALL3 التالفُ والناقصُ يعودان \"\" بلا انهيار",
+      all(v == "" for v in _w3), str(_w3)[:80])
+
+# WALL4 — الوصلُ من نقطة النداء الحيّة (AST): نداءٌ واحدٌ في build_liq_stage_alert
+#   وصفرُ ذكرٍ في الجذور (عرضٌ لا اختيار).
+import ast as _w_ast
+_w_src_alert = __import__("inspect").getsource(S.build_liq_stage_alert)
+_w_calls = [n for n in _w_ast.walk(_w_ast.parse(_w_src_alert))
+            if isinstance(n, _w_ast.Call)
+            and getattr(n.func, "id", None) == "bid_wall_line"]
+_w_roots_clean = True
+for _rn in ("rank_key", "select_top", "classify_tier", "entry_status",
+            "analyze_ticker", "backtest_symbol", "scan_ignition",
+            "scan_operator_entry"):
+    if "bid_wall_line" in __import__("inspect").getsource(getattr(S, _rn)):
+        _w_roots_clean = False
+check("🧱 WALL4 موصولٌ من build_liq_stage_alert (نداءٌ واحدٌ بالـAST) وخارجُ الجذور",
+      len(_w_calls) == 1 and _w_roots_clean, f"calls={len(_w_calls)}")
+
+# WALL5 — سلوكيٌّ على الكرت كاملًا: زوجٌ مفرِّق — اقتباسٌ طازج ⇒ سطرُ 🧱 يظهر ·
+#   ونفسُ الجدار باقتباسٍ بائت (عمرُه فوق 180ث) ⇒ الكرتُ بلا 🧱 (عقدُ الطزاجة).
+def _w_card(quote_ts_ms):
+    _now = 1_800_000_000_000
+    _of = {"bid": 1.0, "bid_size": 303300, "ask": 1.02, "ask_size": 5,
+           "has_operator": True, "buy_block_shares": 2000,
+           "bid_block_shares": 1500, "quote_ts": quote_ts_ms * 1_000_000}
+    _e = {"stage": "M1", "price": 1.01, "price_ms": _now - 30_000,
+          "minutes": 1, "usd": 45_000, "vol_x": 4.0, "move": 5.5,
+          "class": ("group", "قروب"), "operator": _of}
+    return S.build_liq_stage_alert([({"symbol": "ZCMD", "src": "اختبار"},
+                                     [_e])], now_ms=_now)
+_w_fresh = _w_card(1_800_000_000_000 - 3_000)      # عمرُه 3ث — طازج
+_w_stale = _w_card(1_800_000_000_000 - 400_000)    # عمرُه 400ث — بائت
+check("🧱 WALL5 الكرتُ يطبع 🧱 مع اقتباسٍ طازجٍ ويكتمه مع البائت (زوجٌ مفرِّق)",
+      "جدارُ طلباتٍ ضخم" in _w_fresh and "جدارُ طلباتٍ ضخم" not in _w_stale
+      and "اقتباسٌ بائت" in _w_stale, "")
+
+# WALL6 — صفُّ الدفتر موجودٌ وموسومٌ (قاعدة «كلُّ صفٍّ جديدٍ يلزمه وسم»).
+_w_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+check("🧱 WALL6 صفُّ WALL_MIN_USD في دفتر المصادر موسومٌ engineering وبدلالةٍ مُعلَنة",
+      "WALL_MIN_USD=100_000" in _w_led and "بدلالةٍ مختلفة" in _w_led)
+
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
