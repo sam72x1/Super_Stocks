@@ -20029,14 +20029,23 @@ check("🔒 OEL2 بلا مفتاح Polygon = **صفرُ عمل** (فاشلٌ-آ�
       and _oel_pk >= 0 and _oel_wh >= 0 and _oel_pk < _oel_wh,
       f"مفتاح={_oel_pk} حلقة={_oel_wh}")
 # 🔒 OEL3 — **الختمُ بعد الإرسال حصرًا** ويُنزَع عند الرفض (عقدُ «فُحِص وسُلِّم»)
+# 📅 **إقرارٌ مؤرَّخ 2026-08-19 وتشديدٌ لا إرخاء:** كان القفلُ يقارن **أوّلَ**
+#    `send_telegram` بأوّلِ `save_op_entry_state` في المصدر كلِّه — وهو ترتيبُ
+#    مواضعَ هشّ: لمّا لُفّ مسحُ السيولة في `_liq_sweep()` (إصلاحُ قفز الدقائق)
+#    صار فرعُ «كُتم الكلّ ⇒ يُختَم ولا يُرسَل» (عقدُ `AF8` المقصود) يسبق نصًّا
+#    فسقط القفلُ على كودٍ سليم. الآن يفحص **العقدَ نفسَه في القناتين**: ختمٌ
+#    **بعد** إرسال «هنا الدخول» · وختمٌ **بعد** إرسال «سيولة الشمعة» · والرجوعُ
+#    عند الرفض · والدفعُ الفوريّ.
 _oel_mi = _ix(_oel_src, "def main(")
 _oel_main = _oel_src[_oel_mi:] if _oel_mi >= 0 else ""
-_oel_tg, _oel_sv = _ix(_oel_main, "bot.send_telegram"), _ix(_oel_main, "save_op_entry_state")
-check("🔒 OEL3 الختمُ **بعد** نجاح الإرسال · ويُنزَع عند الرفض · ويُدفَع فورًا",
-      _oel_tg >= 0 and _oel_sv >= 0 and _oel_tg < _oel_sv
+_oel_es = _ix(_oel_main, "bot.build_operator_entry_alert")
+_oel_ls = _ix(_oel_main, "bot.build_liq_stage_alert")
+check("🔒 OEL3 الختمُ **بعد** نجاح الإرسال (في القناتين) · ويُنزَع عند الرفض · ويُدفَع فورًا",
+      _oel_es >= 0 and _ix(_oel_main[_oel_es:], "save_op_entry_state") >= 0
+      and _oel_ls >= 0 and _ix(_oel_main[_oel_ls:], "save_op_entry_state") >= 0
       and "seen.pop(_s, None)" in _oel_main
       and "bot.git_save([bot.OP_ENTRY_STATE_FILE])" in _oel_main,
-      f"إرسال={_oel_tg} ختم={_oel_sv}")
+      f"دخول={_oel_es} سيولة={_oel_ls}")
 # 🔒 OEL4 — **إشعارٌ لا اختيار**: لا يكتب قائمةً ولا يمسّ فرزًا
 check("🔒 OEL4 لا يكتب قائمةَ الفرز ولا يمسّ جذرًا (يقرأ ويرسل فقط)",
       all(_n not in _oel_src for _n in ("save_watchlist", "scan_market",
@@ -26897,6 +26906,82 @@ check("🧱 WALL5 الكرتُ يطبع 🧱 مع اقتباسٍ طازجٍ وي
 _w_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
 check("🧱 WALL6 صفُّ WALL_MIN_USD في دفتر المصادر موسومٌ engineering وبدلالةٍ مُعلَنة",
       "WALL_MIN_USD=100_000" in _w_led and "بدلالةٍ مختلفة" in _w_led)
+
+
+
+# ═══════════ 🕳️⏫ قفزُ الدقائق — أقفال CU1-CU5 + LIQF1 (بلاغ $WXM «برضو فيه تاخير») ═══════════
+# البوّابةُ كانت تفحص آخرَ شمعةٍ مغلقة وحدها، ودورةُ العامل المقيسة 86-757ث ⇒
+# دقائقُ كاملة لا تُفحَص أبدًا. الإصلاح: فحصُ كلّ مغلقةٍ لم تُفحَص (الأقدم أوّلًا)
+# بالبوّابات الثلاث نفسها — وأوّلُ رؤيةٍ = الأخيرة وحدها (حارسُ رشّ الإقلاع).
+def _cu_bar(t_min, o, c, v):
+    return {"t": t_min * 60_000, "o": o, "c": c, "v": v,
+            "h": max(o, c), "l": min(o, c)}
+
+_cu_quiet = [_cu_bar(i, 1.0, 1.0, 1000) for i in range(10)]
+_cu_hot = _cu_bar(11, 1.00, 1.06, 60000)      # ‏+6% · قفزة ~60× · ‏$63.6K
+_cu_dull = _cu_bar(12, 1.06, 1.05, 900)
+_cu_form = _cu_bar(13, 1.05, 1.05, 10)
+
+def _cu_run(bars, st):
+    try:
+        return S.liq_stage_events(bars, dict(st))
+    except Exception as _e:                      # noqa: BLE001
+        return ([{"stage": f"⛔ رمى {type(_e).__name__}"}], {})
+
+# CU1 — الدقيقةُ المؤهّلة وسطَ الدورة تُمسَك بمِرساتها هي (كانت تضيع بنيويًّا):
+#   رؤيةٌ أولى هادئة ⟵ دورةٌ تالية فيها [مؤهّلة ثم خاملة] ⇒ M1 على المؤهّلة.
+_cu_ev1, _cu_st1 = _cu_run(_cu_quiet + [_cu_bar(10, 1.0, 1.0, 1000),
+                                        _cu_form], {})
+_cu_ev2, _cu_st2 = _cu_run(_cu_quiet + [_cu_bar(10, 1.0, 1.0, 1000),
+                                        _cu_hot, _cu_dull, _cu_form], _cu_st1)
+check("🕳️ CU1 الدقيقةُ المؤهّلة وسط الدورة تُمسك (مِرساةٌ على دقيقتها لا على الأخيرة)",
+      not _cu_ev1 and len(_cu_ev2) == 1 and _cu_ev2[0].get("stage") == "M1"
+      and _cu_ev2[0].get("anchor_ms") == 11 * 60_000
+      and _cu_ev2[0].get("price") == 1.06, str(_cu_ev2)[:120])
+
+# CU2 — أوّلُ رؤيةٍ = الأخيرةُ وحدها (حارسُ رشّ الإقلاع): مؤهّلةٌ قديمة في
+#   النافذة والأخيرةُ خاملة ⇒ صمتٌ (بت-بت مع القديم).
+_cu_ev3, _ = _cu_run(_cu_quiet + [_cu_hot, _cu_dull, _cu_form], {})
+check("🕳️ CU2 أوّلُ رؤيةٍ تفحص الأخيرةَ وحدها (لا رشَّ مراسٍ بائتة عند الإقلاع)",
+      _cu_ev3 == [], str(_cu_ev3)[:80])
+
+# CU3 — مؤهّلتان جديدتان ⇒ المِرساةُ الأقدم (مِرساةُ الحقّ لا الأحدث).
+_cu_hot2 = _cu_bar(12, 1.06, 1.13, 80000)
+_cu_ev4, _ = _cu_run(_cu_quiet + [_cu_bar(10, 1.0, 1.0, 1000),
+                                  _cu_hot, _cu_hot2, _cu_form], _cu_st1)
+check("🕳️ CU3 مؤهّلتان جديدتان ⇒ الأقدمُ هي المِرساة",
+      _cu_ev4 and _cu_ev4[0].get("anchor_ms") == 11 * 60_000, str(_cu_ev4)[:100])
+
+# CU4 — البوّاباتُ الثلاث تُنفَّذ على كلّ شمعةٍ بعينها: وسطى رفعتُها 4% (تحت
+#   حدّ المالك 5%) تُتخطّى، والتالية 6% تُمسك — لا «أوّل جديدةٍ» بلا بوّابات.
+_cu_low = _cu_bar(11, 1.00, 1.04, 60000)
+_cu_ok = _cu_bar(12, 1.04, 1.11, 70000)
+_cu_ev5, _ = _cu_run(_cu_quiet + [_cu_bar(10, 1.0, 1.0, 1000),
+                                  _cu_low, _cu_ok, _cu_form], _cu_st1)
+check("🕳️ CU4 رفعةُ 4% تُتخطّى و6% تُمسك (البوّاباتُ لكلّ شمعةٍ لا للموضع)",
+      _cu_ev5 and _cu_ev5[0].get("anchor_ms") == 12 * 60_000, str(_cu_ev5)[:100])
+
+# CU5 — مسارُ «الأخيرةُ مؤهّلةٌ عند أوّل رؤية» = القديمُ بت-بت (الحقول نفسها).
+_cu_ev6, _cu_st6 = _cu_run(_cu_quiet + [_cu_hot, _cu_form], {})
+check("🕳️ CU5 أوّلُ رؤيةٍ والأخيرةُ مؤهّلة ⇒ M1 بحقوله القديمة حرفيًّا",
+      _cu_ev6 and _cu_ev6[0]["stage"] == "M1"
+      and _cu_ev6[0]["anchor_ms"] == 11 * 60_000
+      and _cu_ev6[0]["price"] == 1.06
+      and _cu_st6.get("sent") == ["M1"]
+      and _cu_st6.get("peak_usd") == round(1.06 * 60000), str(_cu_ev6)[:100])
+
+# LIQF1 — العامل يمسح السيولة **مرّتين في الدورة** وأولاهما **قبل** مسح الدخول
+#   التسلسليّ (بنيويًّا من المصدر): def واحد · نداءان · الأوّلُ يسبق
+#   scan_operator_entry والثاني يليه.
+_lf_src = open("operator_entry_live.py", encoding="utf-8").read()
+_lf_calls = [i for i, ln in enumerate(_lf_src.splitlines())
+             if ln.strip() == "_liq_sweep()"]
+_lf_scan = next((i for i, ln in enumerate(_lf_src.splitlines())
+                 if "bot.scan_operator_entry(" in ln), -1)
+check("⏫ LIQF1 مسحُ السيولة مرّتان بالدورة وأوّلُهما قبل مسح الدخول",
+      len(_lf_calls) == 2 and _lf_scan > 0
+      and _lf_calls[0] < _lf_scan < _lf_calls[1],
+      f"calls={_lf_calls} scan={_lf_scan}")
 
 
 print("\n" + "=" * 50)

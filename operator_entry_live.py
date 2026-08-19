@@ -306,54 +306,16 @@ def main():
          + " و".join(str(m) for m in bot.LIQ_STAGE_MINUTES) + " دقيقة")
     loops, fired, errs = 0, 0, 0
     liq_at, liq_cov, liq_hit = 0, 0, 0
-    while (time.time() - t0) < budget * 60:
-        loops += 1
-        _cyc = time.time()
-        if loops % REFRESH_EVERY == 0:
-            try:
-                uni, _c, _s, uni_all = _load_universe()
-                for _k, _v in (_s or {}).items():
-                    seen.setdefault(_k, _v)
-            except Exception as e:                               # noqa: BLE001
-                _log(f"⚠️ تحديثُ الكون (دورة {loops}): {e}")
-            # 🔄 **وبعد الجلب مباشرةً**: `_load_universe` نفّذ `git fetch` سلفًا
-            #    فالمقارنةُ بلا نداءٍ شبكيٍّ إضافيّ. (يُنادى **بعد** ضمّ الددوب
-            #    كي لا يُعاد التشغيل قبل أن تُقرأ أختامُ المقاطع الأخرى.)
-            try:
-                _self_update(t0, budget)
-            except Exception as e:                               # noqa: BLE001
-                _log(f"⚠️ فحصُ تحديث الكود: {e}")
-            _log(f"💰 تغطيةُ السيولة: {liq_cov} قراءةً تراكميًّا من "
-                 f"{len(uni_all)} · الموضعُ الآن {liq_at} · {liq_hit} رفعة.")
-        try:
-            _today = _ny_minutes()[1]
-            rows = bot.scan_operator_entry(uni, _today, seen=seen)
-        except Exception as e:                                   # noqa: BLE001
-            errs += 1
-            rows = []
-            _log(f"⚠️ المسح (دورة {loops}): {e}")
-        if rows:
-            _syms = [r[0]["symbol"] for r in rows]
-            try:
-                ok = bot.send_telegram(
-                    bot.build_operator_entry_alert(rows) + "\n\n" + bot.FOOTER)
-            except Exception as e:                               # noqa: BLE001
-                ok, _ = False, _log(f"⚠️ إرسال «هنا الدخول»: {e}")
-            if ok:
-                fired += len(rows)
-                _log(f"🎯 {len(rows)} دخول: {', '.join(_syms)}")
-                # ⚠️ الختمُ **بعد** الإرسال حصرًا (عقدُ «فُحِص وسُلِّم») — والدفعُ
-                #    فورًا كي ينجو الدِدوب من موت الرنر وتقرأه المقاطعُ التالية.
-                bot.save_op_entry_state(seen)
-                try:
-                    bot.git_save([bot.OP_ENTRY_STATE_FILE])
-                except Exception as e:                           # noqa: BLE001
-                    _log(f"⚠️ دفعُ الدِدوب: {e}")
-            else:
-                for _s in _syms:                 # لم يصل ⇒ يُعاد في الدورة التالية
-                    seen.pop(_s, None)
-                _log(f"⚠️ تيليجرام رفض «هنا الدخول» ({len(rows)}) — "
-                     "نُزع الختمُ لتُعاد المحاولة.")
+    def _liq_sweep():
+        """⏫💰 مسحُ السيولة كاملًا (فحص ⟵ فلتر ⟵ إرسال ⟵ ختم) — يُنادى
+        **مرّتين في الدورة** (إصلاح 2026-08-19، بلاغُ المالك على `$WXM` «برضو
+        فيه تاخير»): مرّةً **قبل** مسح الدخول التسلسليّ البطيء ومرّةً بعده —
+        الفاصلُ بين مسحَي سيولةٍ متتاليين مقيسٌ من السجلّ الحيّ **‏86-757 ثانية**
+        (مسحُ الدخول يستهلك الدورة) بينما مسحُ السيولة نفسُه ‏10-13ث ⇒ النداءُ
+        المزدوج يقصّ فاصلَ الانتظار إلى النصف تقريبًا بلا خيوطٍ جديدة ولا
+        تغييرِ عتبة. والدِدوبُ و`last_eval_ms` يجعلان الثاني بلا حدثٍ ما لم
+        تُغلَق دقيقةٌ جديدة (لا تكرار)."""
+        nonlocal liq_cov, liq_hit, errs
         # ⏫💰 **التدرّجُ بنصّ المالك**: أوّلُ دقيقةٍ تدخل فيها سيولةٌ ⇒ إشعارٌ فوريّ ·
         #    ثم تحديثٌ بكلّ دقيقة · ثم مجموعُ 5 و30 دقيقة **من لحظة الدخول**.
         #    والمسحُ **متزامنٌ** فيغطّي الكونَ كلَّه في دورةٍ واحدة (‏319 نداءً
@@ -426,6 +388,58 @@ def main():
                         seen.pop(_k, None)
                 _log(f"⚠️ تيليجرام رفض «سيولة الشمعة» ({len(lrows)}) — "
                      "أُرجعت الحالةُ لتُعاد المحاولة.")
+    while (time.time() - t0) < budget * 60:
+        loops += 1
+        _cyc = time.time()
+        if loops % REFRESH_EVERY == 0:
+            try:
+                uni, _c, _s, uni_all = _load_universe()
+                for _k, _v in (_s or {}).items():
+                    seen.setdefault(_k, _v)
+            except Exception as e:                               # noqa: BLE001
+                _log(f"⚠️ تحديثُ الكون (دورة {loops}): {e}")
+            # 🔄 **وبعد الجلب مباشرةً**: `_load_universe` نفّذ `git fetch` سلفًا
+            #    فالمقارنةُ بلا نداءٍ شبكيٍّ إضافيّ. (يُنادى **بعد** ضمّ الددوب
+            #    كي لا يُعاد التشغيل قبل أن تُقرأ أختامُ المقاطع الأخرى.)
+            try:
+                _self_update(t0, budget)
+            except Exception as e:                               # noqa: BLE001
+                _log(f"⚠️ فحصُ تحديث الكود: {e}")
+            _log(f"💰 تغطيةُ السيولة: {liq_cov} قراءةً تراكميًّا من "
+                 f"{len(uni_all)} · الموضعُ الآن {liq_at} · {liq_hit} رفعة.")
+        # ⏫ السيولة أوّلًا (النداء الأوّل من اثنين — انظر docstring المسح):
+        #    الدقيقةُ الحرِجة لا تنتظر المسحَ التسلسليَّ البطيء.
+        _liq_sweep()
+        try:
+            _today = _ny_minutes()[1]
+            rows = bot.scan_operator_entry(uni, _today, seen=seen)
+        except Exception as e:                                   # noqa: BLE001
+            errs += 1
+            rows = []
+            _log(f"⚠️ المسح (دورة {loops}): {e}")
+        if rows:
+            _syms = [r[0]["symbol"] for r in rows]
+            try:
+                ok = bot.send_telegram(
+                    bot.build_operator_entry_alert(rows) + "\n\n" + bot.FOOTER)
+            except Exception as e:                               # noqa: BLE001
+                ok, _ = False, _log(f"⚠️ إرسال «هنا الدخول»: {e}")
+            if ok:
+                fired += len(rows)
+                _log(f"🎯 {len(rows)} دخول: {', '.join(_syms)}")
+                # ⚠️ الختمُ **بعد** الإرسال حصرًا (عقدُ «فُحِص وسُلِّم») — والدفعُ
+                #    فورًا كي ينجو الدِدوب من موت الرنر وتقرأه المقاطعُ التالية.
+                bot.save_op_entry_state(seen)
+                try:
+                    bot.git_save([bot.OP_ENTRY_STATE_FILE])
+                except Exception as e:                           # noqa: BLE001
+                    _log(f"⚠️ دفعُ الدِدوب: {e}")
+            else:
+                for _s in _syms:                 # لم يصل ⇒ يُعاد في الدورة التالية
+                    seen.pop(_s, None)
+                _log(f"⚠️ تيليجرام رفض «هنا الدخول» ({len(rows)}) — "
+                     "نُزع الختمُ لتُعاد المحاولة.")
+        _liq_sweep()
         # ⏱️ **إيقاعٌ لا إضافة** (مع رفع السقف 2026-08-18): كان يُضاف `interval`
         #    **فوق** زمن العمل ⇒ دورةٌ = عملٌ ‏+ 60ث. ومع كونٍ أكبرَ يصير المسحُ
         #    التسلسليُّ أطولَ فتتضخّم الدورةُ **فتتأخّر إشعاراتُ السيولة** — وهي

@@ -13222,12 +13222,42 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
         ev = []
         anchor = st.get("anchor_ms")
         if not anchor:
-            prior = [float(b["v"]) for b in closed[:-1]]
-            avg = sum(prior) / len(prior) if prior else 0.0
-            vx = (float(last["v"]) / avg) if avg > 0 else 0.0
-            # 🔴 ثلاثيةُ البوّابة: قفزةٌ نسبيّة **و**أرضيةٌ مطلقة **و**اتجاهٌ داخل
-            _ok_now = not (vx < vm or not _liq_ok() or not _inflow(last))
-            if not _ok_now:
+            # 🕳️🔴 **قفزُ الدقائق — أُصلح 2026-08-19 (بلاغُ المالك على `$WXM`:
+            #    «برضو فيه تاخير»):** كانت البوّابةُ تفحص **آخرَ شمعةٍ مغلقةٍ
+            #    وحدها** لحظةَ المسح، ودورةُ العامل المقيسةُ من سجلّه الحيّ
+            #    **‏86-757 ثانية** (المسحُ التسلسليُّ لمسار الدخول يسبقها) ⇒ كلُّ
+            #    دقيقةٍ أُغلقت داخل الدورة **لا تُفحَص أبدًا** — `$WXM` انطلق
+            #    04:31 والمِرساةُ وقعت 04:36 والسهمُ ‏+37.7%. الآن تُفحَص **كلُّ**
+            #    الشموع المغلقة التي لم تُفحَص من قبل (علامةُ مياهٍ `last_eval_ms`)
+            #    **الأقدمُ أوّلًا** بالبوّابات الثلاث **نفسِها** لكلّ شمعة،
+            #    والمِرساةُ أوّلُ عابرة ⇒ **صفرُ تغييرِ عتبة: نفسُ القواعد على كلّ
+            #    دقيقةٍ مرّةً واحدة** بدل «أيّ دقيقةٍ صادفها المسح».
+            # 🔒 **أوّلُ رؤيةٍ للسهم = الأخيرةُ وحدها (بت-بت مع القديم):** وإلّا
+            #    رشّ العاملُ عند إقلاعه مراسيَ بائتةً من عمق النافذة (‏65 دقيقة).
+            def _bar_gates(i):
+                b = closed[i]
+                prior = [float(x["v"]) for x in closed[:i]]
+                avg = sum(prior) / len(prior) if prior else 0.0
+                vx_ = (float(b["v"]) / avg) if avg > 0 else 0.0
+                n = max(1, int(LIQ_CUM_MINUTES))
+                cum = (_usd(b) if n <= 1 else
+                       sum(_usd(x) for x in closed[max(0, i - n + 1):i + 1]))
+                ok = not (vx_ < vm or cum < LIQ_MIN_USD or not _inflow(b))
+                return ok, vx_, b
+            _seen_ms = st.get("last_eval_ms")
+            if _seen_ms is None:
+                cands = [len(closed) - 1]
+            else:
+                cands = [i for i in range(1, len(closed))
+                         if int(closed[i]["t"]) > int(_seen_ms)]
+            st["last_eval_ms"] = last_ms
+            hit = None
+            for i in cands:                      # الأقدمُ أوّلًا — مِرساةُ الحقّ
+                ok, vx_, b = _bar_gates(i)
+                if ok:
+                    hit = (vx_, b)
+                    break
+            if hit is None:
                 # 🚨 `M0`: المكتملةُ لم تعبر ⇒ تُجرَّب **المتكوّنة** (أشدُّ بالبناء)
                 if not LIQ_EARLY or len(rows) < 3:
                     return ([], st)
@@ -13244,7 +13274,8 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 fms = int(form["t"])
                 st = {"anchor_ms": fms, "last_ms": fms - 60_000,
                       "sent": ["M1"], "updates": 0, "vol_x": round(fvx, 1),
-                      "peak_usd": round(_usd(form)), "early": True}
+                      "peak_usd": round(_usd(form)), "early": True,
+                      "last_eval_ms": last_ms}
                 ev.append({"stage": "M0", "usd": round(_usd(form)),
                            "minutes": 1, "anchor_ms": fms, "last_ms": fms,
                            "vol_x": round(fvx, 1),
@@ -13253,15 +13284,17 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                            "move": round(_rise(form), 2),
                            "class": _ignition_candle_class(_usd(form))})
                 return (ev, st)
-            st = {"anchor_ms": last_ms, "last_ms": last_ms, "sent": ["M1"],
+            vx, _ab = hit
+            _ams = int(_ab["t"])
+            st = {"anchor_ms": _ams, "last_ms": _ams, "sent": ["M1"],
                   "updates": 0, "vol_x": round(vx, 1),
-                  "peak_usd": round(_usd(last))}
-            ev.append({"stage": "M1", "usd": round(_usd(last)), "minutes": 1,
-                       "anchor_ms": last_ms, "last_ms": last_ms,
-                       "vol_x": round(vx, 1), "price": round(float(last["c"]), 4),
-                       "price_ms": last_ms,
-                       "move": round(_rise(last), 2),
-                       "class": _ignition_candle_class(_usd(last))})
+                  "peak_usd": round(_usd(_ab)), "last_eval_ms": last_ms}
+            ev.append({"stage": "M1", "usd": round(_usd(_ab)), "minutes": 1,
+                       "anchor_ms": _ams, "last_ms": _ams,
+                       "vol_x": round(vx, 1), "price": round(float(_ab["c"]), 4),
+                       "price_ms": _ams,
+                       "move": round(_rise(_ab), 2),
+                       "class": _ignition_candle_class(_usd(_ab))})
             return (ev, st)
         anchor = int(anchor)
         if last_ms > int(st.get("last_ms") or 0):
