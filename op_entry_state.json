@@ -1398,13 +1398,13 @@
  },
  "LIQ:YJ": {
   "anchor_ms": 1787133420000,
-  "last_ms": 1787133420000,
+  "last_ms": 1787133480000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 50.2,
-  "peak_usd": 149916,
+  "peak_usd": 465840,
   "last_eval_ms": 1787133480000,
   "date": "2026-08-19"
  },
