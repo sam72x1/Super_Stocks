@@ -1055,7 +1055,7 @@
    "status": "stopped",
    "result_date": "2026-07-14",
    "max_gain_pct": 5.9,
-   "mg_obs_pct": 6.3,
+   "mg_obs_pct": 7.5,
    "mg_obs_days": 29
   },
   {
@@ -5107,7 +5107,7 @@
    "rr": 1.8812409112942283,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.0
+   "max_gain_pct": 2.6
   }
  ]
 }

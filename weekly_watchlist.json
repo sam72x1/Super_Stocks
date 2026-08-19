@@ -124,8 +124,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 125761325.5,
-    "signal": 64481315.3,
+    "kvo": 125750574.8,
+    "signal": 64479779.5,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -519,13 +519,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 35095.2,
-    "signal": 6820.0,
+    "kvo": 35611.2,
+    "signal": 6893.7,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
    "cci": {
-    "cci": 120.3,
+    "cci": 124.6,
     "state": "تشبّع شرائي"
    },
    "insider_buys": [],
@@ -894,13 +894,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -14116652.6,
-    "signal": -12561587.8,
+    "kvo": -14114662.9,
+    "signal": -12561303.6,
     "state": "هابط (تصريف)",
     "cross": ""
    },
    "cci": {
-    "cci": -48.7,
+    "cci": -37.3,
     "state": "محايد"
    },
    "insider_buys": [],
@@ -1121,7 +1121,7 @@
    ],
    "hit": null,
    "hit_date": null,
-   "max_gain_pct": -3.6,
+   "max_gain_pct": -2.0,
    "last_price": 2.61,
    "live_alert": {
     "buyzone": "2026-08-18"
@@ -1266,8 +1266,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -30256.8,
-    "signal": -61857.1,
+    "kvo": -30710.3,
+    "signal": -61921.9,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -1640,13 +1640,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -194418.2,
-    "signal": -115356.3,
+    "kvo": -195635.3,
+    "signal": -115530.2,
     "state": "هابط (تصريف)",
     "cross": ""
    },
    "cci": {
-    "cci": -81.9,
+    "cci": -38.9,
     "state": "محايد"
    },
    "insider_buys": [],
@@ -2032,13 +2032,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -557937.2,
-    "signal": -244711.7,
+    "kvo": -566898.1,
+    "signal": -245991.8,
     "state": "هابط (تصريف)",
     "cross": ""
    },
    "cci": {
-    "cci": 11.4,
+    "cci": 5.5,
     "state": "محايد"
    },
    "insider_buys": [],
@@ -2399,13 +2399,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -1961376.8,
-    "signal": -2528217.5,
+    "kvo": -1961506.6,
+    "signal": -2528236.0,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
    "cci": {
-    "cci": 85.2,
+    "cci": 85.1,
     "state": "محايد"
    },
    "insider_buys": [],
@@ -2618,7 +2618,7 @@
    "hit": "t2",
    "hit_date": "2026-08-17",
    "max_gain_pct": 29.3,
-   "last_price": 7.1593,
+   "last_price": 7.159,
    "live_alert": {
     "breakout": "2026-08-18",
     "afterdump": "2026-08-17",
@@ -2767,13 +2767,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 2113162.8,
-    "signal": 2528765.7,
+    "kvo": 2111783.5,
+    "signal": 2528568.6,
     "state": "هابط (تصريف)",
     "cross": ""
    },
    "cci": {
-    "cci": -154.1,
+    "cci": -156.8,
     "state": "تشبّع بيعي"
    },
    "insider_buys": [],
@@ -2985,7 +2985,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.3,
-   "last_price": 0.6666,
+   "last_price": 0.67,
    "live_alert": {
     "buyzone": "2026-08-18",
     "break": "2026-08-18",
@@ -3075,8 +3075,8 @@
    "short_interest": 160464,
    "days_to_cover": 0.31,
    "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": null,
-   "shares_available": null,
+   "borrow_fee": 89.99,
+   "shares_available": 300000,
    "company_name": "MetaVia Inc.",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -3144,13 +3144,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -27265781.6,
-    "signal": -29324604.9,
+    "kvo": -27266161.9,
+    "signal": -29324659.3,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
    "cci": {
-    "cci": 56.5,
+    "cci": 56.2,
     "state": "محايد"
    },
    "insider_buys": [],
@@ -3385,6 +3385,12 @@
     141.9,
     74.8,
     296.9
+   ],
+   "borrow_hist": [
+    [
+     "2026-08-19",
+     300000
+    ]
    ]
   },
   {
@@ -3436,8 +3442,8 @@
    "short_interest": 7691037,
    "days_to_cover": 15.6,
    "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": null,
-   "shares_available": null,
+   "borrow_fee": 6.66,
+   "shares_available": 3000000,
    "company_name": "Tron Inc.",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -3506,8 +3512,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 565046.8,
-    "signal": 989243.6,
+    "kvo": 563889.0,
+    "signal": 989078.2,
     "state": "هابط (تصريف)",
     "cross": "تقاطع هابط"
    },
@@ -3735,6 +3741,12 @@
     2449.7,
     114.0,
     101.6
+   ],
+   "borrow_hist": [
+    [
+     "2026-08-19",
+     3000000
+    ]
    ]
   },
   {
@@ -3857,8 +3869,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -694377.2,
-    "signal": -633161.8,
+    "kvo": -694406.0,
+    "signal": -633165.9,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -4080,7 +4092,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.4,
-   "last_price": 0.9549,
+   "last_price": 0.955,
    "live_alert": {},
    "spikes": [
     118.3,
@@ -4215,8 +4227,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 1459518.6,
-    "signal": 3081378.0,
+    "kvo": 1455565.8,
+    "signal": 3080813.3,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -4569,13 +4581,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -121410.0,
-    "signal": -233694.7,
+    "kvo": -121738.0,
+    "signal": -233741.6,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
    "cci": {
-    "cci": 213.4,
+    "cci": 214.2,
     "state": "تشبّع شرائي"
    },
    "insider_buys": [],
@@ -4790,8 +4802,8 @@
    ],
    "hit": "t1",
    "hit_date": "2026-08-18",
-   "max_gain_pct": 15.0,
-   "last_price": 0.7367,
+   "max_gain_pct": 15.1,
+   "last_price": 0.737,
    "live_alert": {
     "breakout": "2026-08-18"
    },
@@ -4923,13 +4935,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -2499887.4,
-    "signal": -611205.5,
+    "kvo": -2500582.8,
+    "signal": -611304.8,
     "state": "هابط (تصريف)",
     "cross": ""
    },
    "cci": {
-    "cci": -124.3,
+    "cci": -123.2,
     "state": "تشبّع بيعي"
    },
    "insider_buys": [],
@@ -5288,8 +5300,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 763315.5,
-    "signal": 490508.7,
+    "kvo": 756681.8,
+    "signal": 489561.1,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -5644,8 +5656,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 8916948.8,
-    "signal": -1202918.0,
+    "kvo": 9064276.7,
+    "signal": -1181871.2,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -5984,8 +5996,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -4944642.5,
-    "signal": -4489619.7,
+    "kvo": -4944845.1,
+    "signal": -4489648.6,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -6349,8 +6361,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 675956.3,
-    "signal": 842600.9,
+    "kvo": 675963.6,
+    "signal": 842601.9,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -6699,8 +6711,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -2029056.8,
-    "signal": -1538558.1,
+    "kvo": -2029066.2,
+    "signal": -1538559.5,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -7062,13 +7074,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -2186723.3,
-    "signal": -2494392.5,
+    "kvo": -2184881.9,
+    "signal": -2494129.4,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
    "cci": {
-    "cci": -156.8,
+    "cci": -130.3,
     "state": "تشبّع بيعي"
    },
    "insider_buys": [],
@@ -7437,8 +7449,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 67213.7,
-    "signal": -59674.9,
+    "kvo": 67267.3,
+    "signal": -59667.2,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -7820,8 +7832,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -202511.0,
-    "signal": -187425.6,
+    "kvo": -202580.2,
+    "signal": -187435.5,
     "state": "هابط (تصريف)",
     "cross": "تقاطع هابط"
    },
@@ -8228,8 +8240,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -2980060.0,
-    "signal": -4115253.0,
+    "kvo": -2980001.1,
+    "signal": -4115244.6,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -8460,7 +8472,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 8.8,
-   "last_price": 0.9931,
+   "last_price": 0.993,
    "live_alert": {
     "premarket": "2026-08-17",
     "buyzone": "2026-08-18",
@@ -8594,8 +8606,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -18288058.1,
-    "signal": -9867601.5,
+    "kvo": -18288016.8,
+    "signal": -9867595.6,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -8959,13 +8971,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 61613981.5,
-    "signal": 102169538.8,
+    "kvo": 61609190.1,
+    "signal": 102168854.3,
     "state": "هابط (تصريف)",
     "cross": ""
    },
    "cci": {
-    "cci": -54.5,
+    "cci": -53.6,
     "state": "محايد"
    },
    "insider_buys": [],
@@ -9278,6 +9290,7 @@
     "لا نمط شمعة انعكاسي",
     "RSI الآن 42 أعلى من 36",
     "السعر أقل بـ16% من متوسطه المتحرك (يفتح بصعود ~16% أو بثبات أسابيع)",
+    "العائد مقابل المخاطرة منخفض",
     "شورت عالٍ"
    ],
    "warnings": [
@@ -9332,13 +9345,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 1999832.2,
-    "signal": 2137848.6,
+    "kvo": 2002180.2,
+    "signal": 2138184.1,
     "state": "هابط (تصريف)",
     "cross": "تقاطع هابط"
    },
    "cci": {
-    "cci": -83.5,
+    "cci": -79.6,
     "state": "محايد"
    },
    "insider_buys": [],
@@ -9532,7 +9545,7 @@
    },
    "tf_count": 1,
    "tf_display": "شهري ✅ · أسبوعي ⏳ · يومي ⏳",
-   "liberation": 1.8,
+   "liberation": 1.69,
    "sector": "Industrials",
    "country": "United States",
    "status": "active",
@@ -9557,7 +9570,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.9,
-   "last_price": 0.8762,
+   "last_price": 0.876,
    "live_alert": {
     "breakout": "2026-08-17"
    },
@@ -9683,13 +9696,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 39778.9,
-    "signal": 9700.2,
+    "kvo": 41106.1,
+    "signal": 9889.8,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
    "cci": {
-    "cci": -46.5,
+    "cci": -32.5,
     "state": "محايد"
    },
    "insider_buys": [],
@@ -10053,8 +10066,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 5528845.4,
-    "signal": 6459978.2,
+    "kvo": 5530220.3,
+    "signal": 6460174.6,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -10421,13 +10434,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 9181364.3,
-    "signal": 6572814.3,
+    "kvo": 9182082.6,
+    "signal": 6572917.0,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
    "cci": {
-    "cci": -73.2,
+    "cci": -73.3,
     "state": "محايد"
    },
    "insider_buys": [
@@ -10787,8 +10800,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -24375063.7,
-    "signal": -28443474.5,
+    "kvo": -24375403.7,
+    "signal": -28443523.1,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -11046,7 +11059,7 @@
    "symbol": "ONMD",
    "added": "2026-08-14",
    "ref_bar": "2026-08-14",
-   "band_hit": false,
+   "band_hit": true,
    "band_wait_days": 2,
    "band_last_bar": "2026-08-18",
    "entry_ref": 0.7642,
@@ -11169,13 +11182,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -4054254.3,
-    "signal": -1200131.8,
+    "kvo": -4033964.7,
+    "signal": -1197233.3,
     "state": "هابط (تصريف)",
     "cross": ""
    },
    "cci": {
-    "cci": -112.7,
+    "cci": -114.1,
     "state": "تشبّع بيعي"
    },
    "insider_buys": [
@@ -11423,7 +11436,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -10.6,
-   "last_price": 0.6005,
+   "last_price": 0.601,
    "live_alert": {
     "premarket": "2026-08-18",
     "dump": "2026-08-18"
@@ -11561,8 +11574,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -1819365.1,
-    "signal": -2088768.6,
+    "kvo": -1822377.3,
+    "signal": -2089198.9,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -11917,13 +11930,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 42202810.1,
-    "signal": 17859897.8,
+    "kvo": 42205866.8,
+    "signal": 17860334.5,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
    "cci": {
-    "cci": -69.2,
+    "cci": -68.0,
     "state": "محايد"
    },
    "insider_buys": [],
@@ -12269,13 +12282,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 6433.2,
-    "signal": 5845.8,
+    "kvo": 6438.8,
+    "signal": 5846.6,
     "state": "صاعد (تجميع)",
     "cross": "تقاطع صاعد"
    },
    "cci": {
-    "cci": -113.8,
+    "cci": -113.4,
     "state": "تشبّع بيعي"
    },
    "insider_buys": [],
@@ -12480,7 +12493,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.5,
-   "last_price": 7.995,
+   "last_price": 8.0,
    "borrow_hist": [
     [
      "2026-08-14",
@@ -12621,8 +12634,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -3235407.4,
-    "signal": -1908940.7,
+    "kvo": -3235737.2,
+    "signal": -1908987.8,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -12982,8 +12995,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -9255207.5,
-    "signal": -10460153.4,
+    "kvo": -9255208.5,
+    "signal": -10460153.6,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -13251,9 +13264,9 @@
    "symbol": "SMX",
    "added": "2026-08-19",
    "ref_bar": "2026-08-18",
-   "band_hit": false,
+   "band_hit": true,
    "band_wait_days": 0,
-   "band_last_bar": null,
+   "band_last_bar": "2026-08-18",
    "entry_ref": 15.24,
    "entry": [
     14.44,
@@ -13367,8 +13380,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": 713467.5,
-    "signal": 813011.0,
+    "kvo": 716004.1,
+    "signal": 813373.3,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -13384,7 +13397,7 @@
     51.5
    ],
    "cci": {
-    "cci": -156.0,
+    "cci": -145.2,
     "state": "تشبّع بيعي"
    },
    "ah_missed": {
@@ -13751,8 +13764,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -17144160.2,
-    "signal": -18534644.0,
+    "kvo": -17165065.9,
+    "signal": -18537630.5,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -14128,8 +14141,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -15744492.5,
-    "signal": -15883297.8,
+    "kvo": -15744588.9,
+    "signal": -15883311.5,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -14525,8 +14538,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -2064227.1,
-    "signal": -1912816.4,
+    "kvo": -2064524.0,
+    "signal": -1912858.8,
     "state": "هابط (تصريف)",
     "cross": ""
    },
@@ -14889,13 +14902,13 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -14040534.9,
-    "signal": -8860052.1,
+    "kvo": -14041485.3,
+    "signal": -8860187.8,
     "state": "هابط (تصريف)",
     "cross": ""
    },
    "cci": {
-    "cci": -103.2,
+    "cci": -103.3,
     "state": "تشبّع بيعي"
    },
    "insider_buys": [],
@@ -15105,7 +15118,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.0,
-   "last_price": 0.6433,
+   "last_price": 0.643,
    "borrow_hist": [
     [
      "2026-08-13",
@@ -33134,10 +33147,10 @@
    "stats": {
     "M2_هبوط_تحت_40": 2645,
     "M_لا_مستوى_مختبر": 355,
-    "M4_base_واسعة": 104,
-    "M1_سعر": 91,
+    "M4_base_واسعة": 105,
+    "M1_سعر": 87,
     "M3_انفجار_تحت_60": 63,
-    "M2_هبوط_فوق_97": 14,
+    "M2_هبوط_فوق_97": 15,
     "M10_RSI_فات_القطار": 6,
     "M5_سيولة": 3,
     "نقاط_تحت_5": 1
@@ -35895,6 +35908,65 @@
      "price": 3.5799999237060547,
      "taken": false,
      "h4_confirm": 0
+    }
+   ]
+  },
+  {
+   "date": "2026-08-19",
+   "source": "daily",
+   "level": 30,
+   "members": [
+    {
+     "symbol": "GOVX",
+     "rank": 7,
+     "readiness": 30,
+     "score": 80,
+     "rr": 2.0280811232449283,
+     "entry": 0.65,
+     "stop": 0.5859,
+     "t1": 0.78,
+     "price": 0.6510000228881836,
+     "taken": true,
+     "h4_confirm": 2
+    },
+    {
+     "symbol": "NVNI",
+     "rank": 8,
+     "readiness": 30,
+     "score": 60,
+     "rr": 1.1889428316655086,
+     "entry": 1.03,
+     "stop": 0.92907,
+     "t1": 1.15,
+     "price": 1.0299999713897705,
+     "taken": true,
+     "h4_confirm": 1
+    },
+    {
+     "symbol": "FLNA",
+     "rank": 9,
+     "readiness": 30,
+     "score": 45,
+     "rr": 0.850348027842226,
+     "entry": 0.8766666666666666,
+     "stop": 0.7905,
+     "t1": 0.95,
+     "price": 0.8700000047683716,
+     "taken": true,
+     "h4_confirm": 1
+    },
+    {
+     "symbol": "LITS",
+     "rank": 10,
+     "readiness": 30,
+     "score": 35,
+     "rr": 0.850348027842226,
+     "entry": 0.8766666666666666,
+     "stop": 0.7905,
+     "t1": 0.95,
+     "price": 0.8799999952316284,
+     "taken": false,
+     "h4_confirm": 1
     }
    ]
   }
