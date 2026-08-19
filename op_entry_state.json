@@ -91,7 +91,7 @@
   "updates": 2,
   "vol_x": 70.0,
   "peak_usd": 2941498,
-  "last_eval_ms": 1787144400000,
+  "last_eval_ms": 1787144460000,
   "date": "2026-08-19"
  },
  "LIQ:HODO": {
@@ -156,7 +156,7 @@
   ],
   "updates": 3,
   "vol_x": 18.4,
-  "peak_usd": 2354410,
+  "peak_usd": 1183808,
   "last_eval_ms": 1787140440000,
   "date": "2026-08-19"
  },
@@ -221,7 +221,7 @@
   "updates": 0,
   "vol_x": 19.4,
   "peak_usd": 41111,
-  "last_eval_ms": 1787141100000,
+  "last_eval_ms": 1787141160000,
   "date": "2026-08-19"
  },
  "LIQ:SION": {
@@ -299,7 +299,6 @@
   "date": "2026-08-19"
  },
  "LIQ:LZMH": {
-  "last_eval_ms": 1787140920000,
   "date": "2026-08-19"
  },
  "LIQ:JTAI": {
@@ -462,7 +461,7 @@
   "date": "2026-08-19"
  },
  "LIQ:ELAB": {
-  "last_eval_ms": 1787141700000,
+  "last_eval_ms": 1787141520000,
   "date": "2026-08-19"
  },
  "LIQ:ENSC": {
@@ -707,7 +706,7 @@
    "M5",
    "M30"
   ],
-  "updates": 5,
+  "updates": 4,
   "vol_x": 97.0,
   "peak_usd": 4656798,
   "last_eval_ms": 1787135400000,
