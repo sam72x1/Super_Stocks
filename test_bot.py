@@ -27170,6 +27170,128 @@ check("🕳️ SHOW9 المجموعُ الناقصُ الشموع يسمّي ن�
       and "توفّرت" not in _sh8_msg2
       and "سيولة 30 دقيقة" in _sh8_msg2, "")
 
+
+# ═══════════ 🌊 T-KASIH — أقفال أداة القياس KAS1-KAS5 (2026-08-19) ═══════════
+# العقد `kasih_prereg.md` مدفوعٌ قبل أي رقم. الأقفال تحرس: مقياسًا واحدًا (KAS1) ·
+# المرشِّح المسبق يفرّق ولا يُفقد مِرساة (KAS2) · الحسم يفرّق الكاسحَ من الميّت من
+# الصامد (KAS3) · قراءة/قياس فقط (KAS4) · وصلَ الـworkflow نحويًّا (KAS5).
+_kas_env_had = "SCREENER_MODE" in _os_hc.environ
+import kasih_scan as _KAS                                          # noqa: E402
+if not _kas_env_had:
+    _os_hc.environ.pop("SCREENER_MODE", None)   # setdefault الاستيراد لا يلوّث السويّة
+
+
+def _kas_bar(m, o, h, lo, c, v):
+    return (m * 60_000, o, h, lo, c, v)
+
+
+# يومُ مِرساةٍ يقبله الإنتاج (هدوءٌ ثم +10% بحجم 300× و$330K) ثم كاسحٌ ثم كسرُ قاعها
+_kas_hot = ([_kas_bar(i, 1.0, 1.0, 1.0, 1.0, 1000) for i in range(10)]
+            + [_kas_bar(10, 1.0, 1.12, 0.99, 1.10, 300000),
+               _kas_bar(11, 1.10, 1.30, 1.08, 1.28, 50000),
+               _kas_bar(12, 1.28, 1.55, 1.25, 1.50, 40000),
+               _kas_bar(13, 1.50, 1.50, 0.90, 0.95, 30000),
+               _kas_bar(14, 0.95, 0.96, 0.94, 0.95, 500)])
+_kas_calm = [_kas_bar(i, 1.0, 1.0, 1.0, 1.0, 1000) for i in range(20)]
+
+# KAS1 — مقياسٌ واحد: `first_anchor` تنادي `S.liq_stage_events` **بالـAST** (لا صيغةً
+#   محلية)، وسلوكيًّا تعيد M1 عند شمعة المِرساة نفسها بسعرها.
+_kas_calls = [c for c in _ast0.walk(_ast0.parse(_insp0.getsource(_KAS.first_anchor)))
+              if isinstance(c, _ast0.Call)
+              and getattr(c.func, "attr", None) == "liq_stage_events"
+              and getattr(getattr(c.func, "value", None), "id", None) == "S"]
+try:
+    _kas_e = _KAS.first_anchor(_kas_hot)
+    _kas_none = _KAS.first_anchor(_kas_calm)
+except Exception as _e:                                          # noqa: BLE001
+    _kas_e, _kas_none = f"⛔ {type(_e).__name__}", "⛔"
+check("🌊 KAS1 كشفُ المِرساة بدالّة الإنتاج نفسها (AST) ويعيد M1 عند شمعتها",
+      len(_kas_calls) == 1 and isinstance(_kas_e, dict)
+      and _kas_e.get("stage") == "M1" and _kas_e.get("anchor_ms") == 600000
+      and abs(float(_kas_e.get("price") or 0) - 1.10) < 1e-9,
+      f"نداءات={len(_kas_calls)} e={str(_kas_e)[:60]}")
+
+# KAS2 — المرشِّح المسبق يفرّق: يومُ المِرساة يعبره · والهادئ يسقط **وبلا مِرساةٍ
+#   أصلًا** (اتجاهُ السوبرست: الإسقاطُ لا يُفقد مِرساةً — عيّنةٌ مفرِّقة).
+try:
+    _kas_scr = (_KAS.prescreen(_kas_hot), _KAS.prescreen(_kas_calm))
+except Exception as _e:                                          # noqa: BLE001
+    _kas_scr = (f"⛔ {type(_e).__name__}", None)
+check("🌊 KAS2 المرشِّحُ سوبرست مفرِّق: يومُ المِرساة يعبر · والهادئ يسقط وبلا مِرساة",
+      _kas_scr == (True, False) and _kas_none is None,
+      f"scr={_kas_scr} calm_anchor={_kas_none}")
+
+# KAS3 — الحسمُ يفرّق الحالات الثلاث: كاسحٌ-ثم-كسر (kasih30 وexit=break) ·
+#   ميّتٌ فورًا (لا كاسح · سُحق) · صامدٌ لآخر اليوم (eod · صمد 15د · ومعه
+#   مقياسُ الدائرية المرافق `kasih30_from5` — عقد §⑦-K5).
+_kas_dead = ([_kas_bar(i, 1.0, 1.0, 1.0, 1.0, 1000) for i in range(10)]
+             + [_kas_bar(10, 1.0, 1.12, 0.99, 1.10, 300000),
+                _kas_bar(11, 1.10, 1.10, 0.90, 0.92, 20000),
+                _kas_bar(12, 0.92, 0.93, 0.91, 0.92, 500)])
+_kas_sust = ([_kas_bar(i, 1.0, 1.0, 1.0, 1.0, 1000) for i in range(10)]
+             + [_kas_bar(10, 1.0, 1.12, 0.99, 1.10, 300000)]
+             + [_kas_bar(10 + j, 1.10 + j * 0.002, 1.12 + j * 0.002, 1.09,
+                         1.11 + j * 0.002, 2000) for j in range(1, 22)])
+try:
+    _kas_r1 = _KAS.resolve(_kas_hot, 600000, 1.10)
+    _kas_e2 = _KAS.first_anchor(_kas_dead)
+    _kas_r2 = _KAS.resolve(_kas_dead, int(_kas_e2["anchor_ms"]),
+                           float(_kas_e2["price"]))
+    _kas_e3 = _KAS.first_anchor(_kas_sust)
+    _kas_r3 = _KAS.resolve(_kas_sust, int(_kas_e3["anchor_ms"]),
+                           float(_kas_e3["price"]))
+except Exception as _e:                                          # noqa: BLE001
+    _kas_r1 = _kas_r2 = _kas_r3 = {"⛔": type(_e).__name__}
+check("🌊 KAS3 الحسمُ يفرّق: كاسح/كسر · ميّت/سُحق · صامد/eod + مقياسُ الدائرية المرافق",
+      _kas_r1.get("kasih30") is True and _kas_r1.get("exit") == "break"
+      and _kas_r2.get("kasih30") is False and _kas_r2.get("sustain15") is False
+      and _kas_r2.get("mg_after") == 0.0
+      and _kas_r3.get("exit") == "eod" and _kas_r3.get("sustain15") is True
+      and "kasih30_from5" in _kas_r3,
+      f"r1={str(_kas_r1)[:52]} r3={str(_kas_r3)[:52]}")
+
+# KAS4 — قراءة/قياسٌ فقط: صفرُ نداءِ إرسالٍ أو كتابةِ حالةٍ في الأداة كلِّها
+#   (AST لا نصًّا — الـdocstring يذكر «تلغرام» شرحًا) · وSuper_stock لا يستوردها.
+_kas_forbidden = {"send_telegram", "save_op_entry_state", "git_save",
+                  "save_watchlist", "save_near_watch", "save_hunter_watchlist",
+                  "save_alerts", "save_press_state"}
+_kas_bad = [getattr(c.func, "attr", None) or getattr(c.func, "id", None)
+            for c in _ast0.walk(_ast0.parse(_insp0.getsource(_KAS)))
+            if isinstance(c, _ast0.Call)
+            and ((getattr(c.func, "attr", None) or
+                  getattr(c.func, "id", None)) in _kas_forbidden)]
+check("🌊 KAS4 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة (AST) · والإنتاجُ لا يستوردها",
+      _kas_bad == []
+      and "import kasih_scan" not in open("Super_stock.py",
+                                          encoding="utf-8").read(),
+      f"ممنوعة={_kas_bad}")
+
+# KAS5 — وصلُ الـworkflow نحويًّا: المدخلان موصولان ببيئةٍ **يقرؤها السكربت** ·
+#   والمفاتيح من POLYGON_S3_KEY/SECRET · قراءةُ contents فقط · وبلا كرون.
+_kas_wf = _fo_yaml.safe_load(open(".github/workflows/kasih.yml",
+                                  encoding="utf-8"))
+_kas_on = (_kas_wf.get(True) or _kas_wf.get("on") or {})
+_kas_env = {}
+for _s in _kas_wf["jobs"]["kasih"]["steps"]:
+    if isinstance(_s.get("env"), dict):
+        _kas_env.update(_s["env"])
+_kas_reads = {n.args[0].value for n in _ast0.walk(
+                  _ast0.parse(_insp0.getsource(_KAS)))
+              if isinstance(n, _ast0.Call)
+              and getattr(n.func, "attr", None) == "get"
+              and getattr(getattr(n.func, "value", None), "attr", None) == "environ"
+              and n.args and isinstance(n.args[0], _ast0.Constant)}
+check("🌊 KAS5 الـworkflow موصول: المدخلان ⟵ بيئةٌ يقرؤها السكربت · مفاتيح S3 · بلا كرون",
+      set(_kas_on.get("workflow_dispatch", {}).get("inputs", {})) == {"year", "day"}
+      and "schedule" not in _kas_on
+      and _kas_wf.get("permissions") == {"contents": "read"}
+      and "inputs.year" in str(_kas_env.get("KASIH_YEAR"))
+      and "inputs.day" in str(_kas_env.get("KASIH_DAY"))
+      and "POLYGON_S3_KEY" in str(_kas_env.get("AWS_ACCESS_KEY_ID"))
+      and "POLYGON_S3_SECRET" in str(_kas_env.get("AWS_SECRET_ACCESS_KEY"))
+      and {"KASIH_YEAR", "KASIH_DAY", "AWS_ACCESS_KEY_ID"} <= _kas_reads,
+      f"env={sorted(_kas_env)} reads={sorted(_kas_reads & {'KASIH_YEAR', 'KASIH_DAY'})}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

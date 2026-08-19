@@ -1,0 +1,51 @@
+name: "T-KASIH (🌊 أي مرساة يتبعها التحرك الكاسح)"
+
+# 🔒 قياس/قراءة فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد kasih_prereg.md
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة المقيسة (2023/2024/2025)"
+        required: false
+        type: string
+      day:
+        description: "يوم تحقق V1 (YYYY-MM-DD — يتقدم على السنة)"
+        required: false
+        type: string
+
+jobs:
+  kasih:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌊 قِس المراسي والكاسح
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          KASIH_YEAR: ${{ inputs.year }}
+          KASIH_DAY: ${{ inputs.day }}
+        run: python kasih_scan.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kasih-rows-${{ inputs.year || inputs.day }}
+          path: kasih_rows_*.jsonl
+          retention-days: 90
+          if-no-files-found: warn
