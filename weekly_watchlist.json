@@ -9217,7 +9217,8 @@
    "max_gain_pct": -1.3,
    "last_price": 0.538,
    "live_alert": {
-    "buyzone": "2026-08-18"
+    "buyzone": "2026-08-18",
+    "premarket": "2026-08-19"
    },
    "spikes": [
     100.0,
