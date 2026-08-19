@@ -146,7 +146,7 @@
   ],
   "updates": 3,
   "vol_x": 18.4,
-  "peak_usd": 1183808,
+  "peak_usd": 2354410,
   "last_eval_ms": 1787140440000,
   "date": "2026-08-19"
  },
@@ -211,7 +211,7 @@
   "updates": 0,
   "vol_x": 19.4,
   "peak_usd": 41111,
-  "last_eval_ms": 1787141160000,
+  "last_eval_ms": 1787141100000,
   "date": "2026-08-19"
  },
  "LIQ:SION": {
@@ -288,6 +288,7 @@
   "date": "2026-08-19"
  },
  "LIQ:LZMH": {
+  "last_eval_ms": 1787140920000,
   "date": "2026-08-19"
  },
  "LIQ:JTAI": {
