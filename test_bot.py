@@ -20341,7 +20341,12 @@ def _lsq_run(seq):
     _st, _log = {}, []
     for _n in range(1, len(seq) + 1):
         _e, _st = S.liq_stage_events(_lsq(seq[:_n]), _st)
-        _log.append([(x["stage"], x["usd"]) for x in _e])
+        # 💓 إقرارٌ مؤرَّخ 2026-08-19: نبضُ `Px` (أمرُ المالك — قناةٌ
+        #    مستقلّةٌ تختبرها أقفال PLS1-PLS10) يُعزَل هنا كي تبقى أقفال
+        #    LS12-LS18 **تعزل شرطَها** (M1/Mu) — وهو مبدؤها المنصوص أصلًا
+        #    («أُعيد بناؤها كي يعزل كلٌّ شرطَه»)، لا إرخاءً.
+        _log.append([(x["stage"], x["usd"]) for x in _e
+                     if x.get("stage") != "Px"])
     return _log
 
 
@@ -25929,9 +25934,12 @@ _show_keys = [k for d in _af_ast.walk(_show_tree)
               if isinstance(d, _af_ast.Dict)
               for k in d.keys
               if isinstance(k, _af_ast.Constant) and k.value == "price_ms"]
-check("🔒 SHOW6 **`price_ms` مفتاحُ كتابةٍ في أربعةِ قواميسَ ولا يُقرأ قطّ** "
+# 💓 إقرارٌ مؤرَّخ 2026-08-19: صار خامسًا — قاموسُ حدثِ نبض `Px` (أمرُ المالك)
+#    يكتب `price_ms` أيضًا، والعقدُ نفسُه باقٍ بل أوسع: **خمسُ كتاباتٍ وصفرُ
+#    قراءةٍ** ⇒ القرارُ بت-بت.
+check("🔒 SHOW6 **`price_ms` مفتاحُ كتابةٍ في خمسةِ قواميسَ ولا يُقرأ قطّ** "
       "(القرارُ بت-بت)",
-      len(_show_keys) == 4 and len(_show_all) == len(_show_keys)
+      len(_show_keys) == 5 and len(_show_all) == len(_show_keys)
       and '["price_ms"]' not in _show_src
       and '.get("price_ms")' not in _show_src
       and "price_ms" not in _af_insp.getsource(S.alert_filter_keep),
@@ -26982,6 +26990,149 @@ check("⏫ LIQF1 مسحُ السيولة مرّتان بالدورة وأوّل�
       len(_lf_calls) == 2 and _lf_scan > 0
       and _lf_calls[0] < _lf_scan < _lf_calls[1],
       f"calls={_lf_calls} scan={_lf_scan}")
+
+
+# ═══════════ 💓 نبضُ الدقيقة — أقفال PLS1-PLS10 (أمر المالك 2026-08-19) ═══════════
+# «ابيك تصير تعطيني تحديث للشمعة الدقيقه في حال ارتفعت او انخفضت ب١٠٪ عن الشمعة
+# السابقه و تقول بعلامة واضحة اذا ارتفاع او انخفاض … عشان اعرف استمر ولا لا» —
+# حدثُ `Px` في قناة السيولة: للمرسى وحدها · علامةُ مياهٍ `pulse_ms` · بلا `move`
+# و`class` عمدًا · ويتخطّى بوّابةَ «لا مضارب» (إشارةُ خروجٍ لا دخول).
+_pls_anch = {"anchor_ms": 100 * 60_000, "last_ms": 100 * 60_000,
+             "sent": ["M1"], "updates": 0, "vol_x": 5.0, "peak_usd": 60_000,
+             "last_eval_ms": 100 * 60_000, "pulse_ms": 100 * 60_000}
+_pls_bars = [_cu_bar(100, 1.9, 2.0, 30000), _cu_bar(101, 2.0, 2.0, 1000),
+             _cu_bar(102, 2.0, 2.24, 1500), _cu_bar(103, 2.24, 1.99, 1200),
+             _cu_bar(104, 1.99, 1.99, 10)]
+_pls_ev, _pls_st = _cu_run(_pls_bars, _pls_anch)
+_pls_px = [e for e in _pls_ev if e.get("stage") == "Px"]
+
+# PLS1 — الاتجاهان معًا وبقيمتيهما وسابقتيهما (2.00 ⟵ +12% ⟵ 2.24 ⟵ −11.2%):
+check("💓 PLS1 نبضُ الصعود والهبوط معًا بقيمتيهما وسابقتيهما",
+      len(_pls_px) == 2 and _pls_px[0].get("pulse_pct") == 12.0
+      and _pls_px[0].get("prev_price") == 2.0
+      and _pls_px[1].get("pulse_pct") == -11.2
+      and _pls_px[1].get("prev_price") == 2.24, str(_pls_px)[:140])
+
+# PLS2 — «بـ10٪» تشمل العشرةَ بالضبط، و9.9% لا تفير (حدُّ التخوم يفصل الحدّين):
+_pls_e10, _ = _cu_run([_cu_bar(100, 1.9, 2.0, 30000), _cu_bar(101, 2.0, 2.0, 1000),
+                       _cu_bar(102, 2.0, 1.8, 1500), _cu_bar(103, 1.8, 1.8, 10)],
+                      _pls_anch)
+_pls_e99, _ = _cu_run([_cu_bar(100, 1.9, 2.0, 30000), _cu_bar(101, 2.0, 2.0, 1000),
+                       _cu_bar(102, 2.0, 2.198, 1500),
+                       _cu_bar(103, 2.198, 2.198, 10)], _pls_anch)
+check("💓 PLS2 عشرةٌ بالضبط تفير (−10.0) والأدنى منها بعُشرٍ لا يفير",
+      [e.get("pulse_pct") for e in _pls_e10 if e.get("stage") == "Px"] == [-10.0]
+      and not [e for e in _pls_e99 if e.get("stage") == "Px"],
+      f"e10={str(_pls_e10)[:60]} e99={str(_pls_e99)[:60]}")
+
+# PLS3 — علامةُ المياه: إعادةُ نفس الشموع ⇒ صفرُ تكرار، والجديدةُ وحدها تفير.
+_pls_e2, _ = _cu_run(_pls_bars, _pls_st)
+_pls_more = _pls_bars[:-1] + [_cu_bar(104, 1.99, 2.24, 800),
+                              _cu_bar(105, 2.24, 2.24, 10)]
+_pls_e3, _ = _cu_run(_pls_more, _pls_st)
+check("💓 PLS3 علامةُ المياه: لا تكرارَ لنبضٍ مضى والجديدةُ وحدها تفير",
+      not [e for e in _pls_e2 if e.get("stage") == "Px"]
+      and [e.get("pulse_pct") for e in _pls_e3
+           if e.get("stage") == "Px"] == [12.6],
+      f"e2={str(_pls_e2)[:50]} e3={str(_pls_e3)[:80]}")
+
+# PLS4 — حالةُ ما قبل النشر (بلا `pulse_ms`): ضبطُ العلامة **بلا رشٍّ رجعيّ**
+#   (الشموعُ تحوي ±12% قائمة) ثم النبضُ للجديدة وحدها — ذاتيُّ الشفاء بلا ترحيل.
+_pls_old = {k: v for k, v in _pls_anch.items() if k != "pulse_ms"}
+_pls_e4, _pls_st4 = _cu_run(_pls_bars, _pls_old)
+_pls_e5, _ = _cu_run(_pls_more, _pls_st4)
+check("💓 PLS4 ما قبل النشر: لا رشَّ رجعيًّا ثم النبضُ يعمل للجديدة",
+      not [e for e in _pls_e4 if e.get("stage") == "Px"]
+      and _pls_st4.get("pulse_ms") == 103 * 60_000
+      and [e.get("pulse_pct") for e in _pls_e5
+           if e.get("stage") == "Px"] == [12.6],
+      f"e4={str(_pls_e4)[:50]} e5={str(_pls_e5)[:80]}")
+
+# PLS5 — **للمرسى وحدها**: هابطةٌ −15% بلا مِرساةٍ ⇒ صفرُ أحداث (وبمِرساةٍ
+#   تفير — PLS1) ⇒ النطاقُ مقفولٌ بفارقٍ لا بادّعاء.
+_pls_e6, _ = _cu_run([_cu_bar(i, 1.0, 1.0, 1000) for i in range(100, 110)]
+                     + [_cu_bar(110, 1.0, 0.85, 900),
+                        _cu_bar(111, 0.85, 0.85, 10)], {})
+check("💓 PLS5 لا نبضَ قبل المِرساة (−15% بلا مرساة ⇒ صمت)",
+      _pls_e6 == [], str(_pls_e6)[:80])
+
+# PLS6 — علامةُ الاتجاه **فارقة** في الكرت: لا «أو» تُرضيها علامةٌ أخرى.
+_pls_row = {"symbol": "PLS", "src": "الترشيح"}
+try:
+    _pls_up_msg = S.build_liq_stage_alert([(_pls_row, [_pls_px[0]])],
+                                          now_ms=105 * 60_000)
+    _pls_dn_msg = S.build_liq_stage_alert([(_pls_row, [_pls_px[1]])],
+                                          now_ms=105 * 60_000)
+except Exception as _e:                                          # noqa: BLE001
+    _pls_up_msg = _pls_dn_msg = f"⛔ رمى {type(_e).__name__}"
+check("💓 PLS6 علامةُ الاتجاه فارقة: 🟢⬆️/ارتفاعٌ للصاعد و🔴⬇️/انخفاضٌ للهابط بلا اختلاط",
+      "🟢⬆️" in _pls_up_msg and "ارتفاعٌ 12.0%" in _pls_up_msg
+      and "انخفاضٌ" not in _pls_up_msg and "🔴⬇️" not in _pls_up_msg
+      and "🔴⬇️" in _pls_dn_msg and "انخفاضٌ 11.2%" in _pls_dn_msg
+      and "ارتفاعٌ" not in _pls_dn_msg and "🟢⬆️" not in _pls_dn_msg
+      and "عن إغلاق الشمعة السابقة ($2.00)" in _pls_up_msg,
+      f"up={_pls_up_msg[:60]!r}")
+
+# PLS7 — العتبةُ تُقرأ **وقتَ النداء** من `LIQ_PULSE_PCT` (حقنُ 50 يكتم ±12):
+_pls_sv = S.LIQ_PULSE_PCT
+try:
+    S.LIQ_PULSE_PCT = 50.0
+    _pls_e7, _ = _cu_run(_pls_bars, _pls_anch)
+finally:
+    S.LIQ_PULSE_PCT = _pls_sv
+check("💓 PLS7 العتبةُ من `LIQ_PULSE_PCT` وقتَ النداء (حقنُ 50 يكتم ±12)",
+      not [e for e in _pls_e7 if e.get("stage") == "Px"], str(_pls_e7)[:80])
+
+# PLS8 — الفلترُ **المشحون فعلًا** يمرّر `Px` ويكتم `Mu` (القائمةُ البيضاء حيّة
+#   لا شكلية) وحارسُ الإعداد بصفر عِلّة — لولا إدراج `Px` لكُتم النبضُ صامتًا.
+try:
+    _pls_cfg = S.load_alert_filter()
+    _pls_ok, _ = S.alert_filter_keep(_pls_row, _pls_px[1], _pls_cfg, {})
+    _pls_mu_ok, _w = S.alert_filter_keep(_pls_row, {"stage": "Mu", "price": 2.0},
+                                         _pls_cfg, {})
+    _pls_iss = S.alert_filter_issues(_pls_cfg)
+except Exception as _e:                                          # noqa: BLE001
+    _pls_ok, _pls_mu_ok, _pls_iss = f"⛔ {type(_e).__name__}", None, ["رمى"]
+check("💓 PLS8 المشحونُ يمرّر Px ويكتم Mu وبصفر عِلّة إعداد",
+      _pls_ok is True and _pls_mu_ok is False and _pls_iss == [],
+      f"px={_pls_ok} mu={_pls_mu_ok} iss={_pls_iss}")
+
+# PLS9 — بوّابةُ «لا مضارب»: النبضُ ينجو **وحالتُه تبقى** (لا M1 مكرَّرًا) ·
+#   وغيرُ النبض يُكتَم وتُفرَغ حالتُه (السلوكُ القائم بت-بت) — فارقان معًا.
+_pls_seen = {S.LIQ_STATE_PREFIX + "PXA": dict(_pls_anch, date="2026-08-19")}
+_pls_ba = [_cu_bar(100, 1.9, 2.0, 30000), _cu_bar(101, 2.0, 2.0, 1000),
+           _cu_bar(102, 2.0, 1.76, 1500), _cu_bar(103, 1.76, 1.76, 10)]
+_pls_bb = [_cu_bar(200, 1.0, 1.0, 20000), _cu_bar(201, 1.0, 1.0, 20000),
+           _cu_bar(202, 1.0, 1.06, 900000), _cu_bar(203, 1.06, 1.06, 10)]
+try:
+    _pls_rows, _c9, _s9 = S.scan_liq_stages(
+        [{"symbol": "PXA", "src": "الترشيح"},
+         {"symbol": "PXB", "src": "الترشيح"}], "2026-08-19",
+        fetch_bars=lambda s, minutes=65: _pls_ba if s == "PXA" else _pls_bb,
+        seen=_pls_seen,
+        fetch_operator=lambda s, limit=None: {"has_operator": False})
+    _pls_out = {r["symbol"]: [e["stage"] for e in evs] for r, evs in _pls_rows}
+except Exception as _e:                                          # noqa: BLE001
+    _pls_out = {"⛔": type(_e).__name__}
+check("💓 PLS9 «لا مضارب»: النبضُ ينجو وحالتُه تبقى · وغيرُه يُكتَم وتُفرَغ حالتُه",
+      _pls_out == {"PXA": ["Px"]}
+      and (S.LIQ_STATE_PREFIX + "PXA") in _pls_seen
+      and (S.LIQ_STATE_PREFIX + "PXB") not in _pls_seen, str(_pls_out)[:100])
+
+# PLS10 — لا `move` ولا `class` في حدث النبض **عمدًا**: محورُ الرفعة — لو أُعيد
+#   شحنُه — لا يكتم النبضَ الهابط (إشارةَ الخروج)، وMu برفعة 4% تُكتَم به (فارق).
+_pls_cfg2 = {"stages": ["M0", "M1", "Mu", "M5", "M30", "Px"],
+             "min_move_pct": 10.0}
+try:
+    _pls_ok2, _ = S.alert_filter_keep(_pls_row, _pls_px[1], _pls_cfg2, {})
+    _pls_mu2, _ = S.alert_filter_keep(_pls_row, {"stage": "Mu", "price": 2.0,
+                                                 "move": 4.0}, _pls_cfg2, {})
+except Exception as _e:                                          # noqa: BLE001
+    _pls_ok2, _pls_mu2 = f"⛔ {type(_e).__name__}", None
+check("💓 PLS10 النبضُ الهابط بلا `move`/`class` عمدًا ⇒ محورُ الرفعة لا يكتم إشارةَ الخروج",
+      _pls_ok2 is True and _pls_mu2 is False
+      and "move" not in _pls_px[1] and "class" not in _pls_px[1],
+      f"px={_pls_ok2} mu={_pls_mu2} keys={sorted(_pls_px[1])}")
 
 
 print("\n" + "=" * 50)

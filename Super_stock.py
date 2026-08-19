@@ -12810,6 +12810,8 @@ LIQ_CLOSE_POS_MIN = 0.5        # engineering — الإغلاقُ في النص�
 #    مقياسُ **تجاوبٍ** مستقلّ. وقياسُ الرفعة **من فتح الدقيقة إلى إغلاقها** (لا إلى
 #    قمّتها) فارتفاعٌ ارتدّ كلُّه ليس تجاوبًا.
 LIQ_MIN_MOVE_PCT = 5.0         # قرارُ المالك — رفعةُ الدقيقة الواحدة (فتح ⟶ إغلاق)
+LIQ_PULSE_PCT = 10.0           # قرارُ المالك 2026-08-19 — «نبضُ الدقيقة»: تغيّرُ
+                               # إغلاقِ الشمعة عن إغلاق سابقتها (الاتجاهان معًا)
 # 🧮 **الأرضيةُ التراكميّة — اعتُمدت بعقد `liq_move_prereg.md §⑥` (2026-08-17):**
 #    الأرضيةُ تُقاس على **مجموع** آخرِ `LIQ_CUM_MINUTES` دقائقَ مكتملةٍ لا على دقيقةٍ
 #    واحدة. **وسندُها مقيس:** أرضيةُ الدقيقة الواحدة كانت تُكلّف **‏59 دقيقةً** من
@@ -13145,7 +13147,10 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
     عقدُها `liq_stages_prereg.md`. أربعُ مراحل: **`M1`** أوّلُ دقيقةٍ **مكتملة**
     قفزَ حجمُها ‏≥`IGNITION_VOL_MULT`× متوسطَ ما قبلها (**زنادٌ مُعادٌ من الرادار
     لا رقمٌ جديد**) · **`Mu`** تحديثٌ بكلّ دقيقةٍ مكتملةٍ بعدها · **`M5`/`M30`**
-    سيولةٌ مجمَّعةٌ **من المِرساة** عند اكتمال 5 و30 دقيقة.
+    سيولةٌ مجمَّعةٌ **من المِرساة** عند اكتمال 5 و30 دقيقة · و**`Px`** «نبضُ
+    الدقيقة» (أمرُ المالك 2026-08-19): كلُّ شمعةٍ مغلقةٍ تغيّر إغلاقُها عن
+    إغلاق سابقتها `LIQ_PULSE_PCT`% فأكثر **في الاتجاهين** — «عشان اعرف
+    استمر ولا لا».
 
     🔑 **ولماذا مِرساةٌ لا بُكيتٌ مصفوفٌ على الساعة:** لأن المالك قال «بعد ما نكمل
     5 دقايق **من دخول السيولة الضخمة**» — والبُكيتُ المصفوف (قراءةُ فيصل بالعين في
@@ -13275,7 +13280,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 st = {"anchor_ms": fms, "last_ms": fms - 60_000,
                       "sent": ["M1"], "updates": 0, "vol_x": round(fvx, 1),
                       "peak_usd": round(_usd(form)), "early": True,
-                      "last_eval_ms": last_ms}
+                      "last_eval_ms": last_ms, "pulse_ms": fms}
                 ev.append({"stage": "M0", "usd": round(_usd(form)),
                            "minutes": 1, "anchor_ms": fms, "last_ms": fms,
                            "vol_x": round(fvx, 1),
@@ -13288,7 +13293,8 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
             _ams = int(_ab["t"])
             st = {"anchor_ms": _ams, "last_ms": _ams, "sent": ["M1"],
                   "updates": 0, "vol_x": round(vx, 1),
-                  "peak_usd": round(_usd(_ab)), "last_eval_ms": last_ms}
+                  "peak_usd": round(_usd(_ab)), "last_eval_ms": last_ms,
+                  "pulse_ms": _ams}
             ev.append({"stage": "M1", "usd": round(_usd(_ab)), "minutes": 1,
                        "anchor_ms": _ams, "last_ms": _ams,
                        "vol_x": round(vx, 1), "price": round(float(_ab["c"]), 4),
@@ -13297,6 +13303,48 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                        "class": _ignition_candle_class(_usd(_ab))})
             return (ev, st)
         anchor = int(anchor)
+        # 💓 **«نبضُ الدقيقة» (أمرُ المالك 2026-08-19: «تحديث للشمعة الدقيقه
+        #    في حال ارتفعت او انخفضت ب10٪ عن الشمعة السابقه … بعلامة واضحة
+        #    … عشان اعرف استمر ولا لا»):** لكلّ شمعةٍ مغلقةٍ تغيّر إغلاقُها
+        #    عن إغلاق سابقتها `LIQ_PULSE_PCT`% فأكثر — **في الاتجاهين** —
+        #    حدثُ `Px` بعلامةِ اتجاهٍ صريحة.
+        #    ⚖️ **للمرسى وحدها** (تحديثٌ لسهمٍ سبق تنبيهُه): على الكون كلِّه
+        #    كان فارقُ العرض/الطلب في الرقيق — وقد يتجاوز العشرةَ وحدَه —
+        #    سيصنع نبضًا عشوائيًّا كلَّ دقيقة (عينُ «مقرفه وعشوايه»).
+        #    🔒 علامةُ مياهٍ مستقلّة `pulse_ms` = كلُّ شمعةٍ مرّةً واحدة
+        #    (عقدُ «لا دقيقةَ تُقفز») · **وأوّلُ رؤيةٍ بعد النشر = ضبطُ
+        #    العلامة بلا رشٍّ رجعيّ** (نظيرُ قاعدة `last_eval_ms` المقفولة) ·
+        #    ولا مفتاحَ `move` في الحدث **عمدًا** (النبضُ الهابط سالبُ
+        #    الرفعة بالبناء، فمحورُ `min_move_pct` — لو أُعيد شحنُه يومًا —
+        #    كان سيكتم إشارةَ الخروج بالذات) · ولا `class` (أصنافُ الهوية
+        #    وُضعت لدقيقة الرفع لا لدقيقة الهبوط — وسمُ «مضارب قويّ» على
+        #    انهيارٍ يكذب).
+        _pms = st.get("pulse_ms")
+        if _pms is None:
+            st["pulse_ms"] = last_ms
+        else:
+            for _i in range(1, len(closed)):
+                _b = closed[_i]
+                if int(_b["t"]) <= int(_pms):
+                    continue
+                _pv = float(closed[_i - 1]["c"])
+                if _pv <= 0:
+                    continue
+                # ⚖️ البوّابةُ على **الرقم المعروض نفسِه** (المدوَّر لعُشر):
+                #    ‏1.8 من 2.0 = ‏−9.99999…% ثنائيًّا — بوّابةٌ خامّة كانت
+                #    تكتم «−10.0%» المطبوعةَ بفارقٍ بليونيّ، فيقرأ المالك
+                #    عتبةً مكتوبةً 10 وسلوكًا يخالفها.
+                _chg = round((float(_b["c"]) - _pv) / _pv * 100.0, 1)
+                if abs(_chg) < float(LIQ_PULSE_PCT):
+                    continue
+                ev.append({"stage": "Px", "usd": round(_usd(_b)),
+                           "minutes": 1, "anchor_ms": anchor,
+                           "last_ms": int(_b["t"]),
+                           "price": round(float(_b["c"]), 4),
+                           "price_ms": int(_b["t"]),
+                           "prev_price": round(_pv, 4),
+                           "pulse_pct": _chg})
+            st["pulse_ms"] = last_ms
         if last_ms > int(st.get("last_ms") or 0):
             st["last_ms"] = last_ms
             _u = _usd(last)
@@ -13419,8 +13467,17 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
             except Exception:                                    # noqa: BLE001
                 of = None
             if of is not None and not of.get("has_operator"):
-                seen.pop(LIQ_STATE_PREFIX + row["symbol"], None)   # يُعاد الفحص
-                continue
+                # 💓 **نبضُ `Px` لا يُكتَم بغياب المضارب** (أمرُ المالك
+                #    2026-08-19 «عشان اعرف استمر ولا لا»): هروبُ المضارب
+                #    لحظةَ هبوطٍ عنيف هو عينُ ما طُلبت رؤيتُه — وكتمُه يقلب
+                #    الميزةَ ضدَّ غرضها. وغيرُ النبض يُكتَم ويُعاد فحصُ سهمِه
+                #    (السلوكُ القائم **بت-بت** لكلّ صفٍّ بلا نبض)؛ ومع نبضٍ
+                #    ناجٍ **تبقى الحالة** (المِرساةُ قائمةٌ وعلامةُ النبض
+                #    تُكمل) فلا يُعاد `M1` مكرَّرًا لسهمٍ سبق تنبيهُه.
+                ev = [e for e in ev if e.get("stage") == "Px"]
+                if not ev:
+                    seen.pop(LIQ_STATE_PREFIX + row["symbol"], None)   # يُعاد الفحص
+                    continue
             # 📊 إغلاقُ الأمس **للناجين وحدهم** (نداءٌ واحدٌ لكلّ سهمٍ باليوم —
             #    كاشُ `polygon_prev_close`) ⇒ سطرُ «من إغلاق الأمس» في الكرت.
             #    فاشلٌ-آمنٌ داخليًّا (`None` ⇒ غيابُ السطر لا انهيارُ المسح).
@@ -13469,7 +13526,7 @@ ALERT_FILTER_AXES = {
     "require_operator": bool, "in_entry_band_only": bool,
     "entry_status": list, "float_max": float, "avail_max": float,
 }
-ALERT_FILTER_STAGES = ("M0", "M1", "Mu", "M5", "M30")
+ALERT_FILTER_STAGES = ("M0", "M1", "Mu", "M5", "M30", "Px")
 ALERT_FILTER_CLASSES = ("group", "mid", "operator", "strong")
 
 
@@ -13824,7 +13881,20 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                      f"· {esc(row.get('src') or '')}")
         for e in evs:
             _k, _d = e.get("class") or ("", "")
-            lines.append("   " + _LIQ_STAGE_TXT.get(e["stage"], e["stage"]))
+            if e.get("stage") == "Px":
+                # 💓 نبضُ الدقيقة — **علامةُ الاتجاه أوّلَ السطر وبالكلمة**
+                #    (أمرُ المالك 2026-08-19: «بعلامة واضحة اذا ارتفاع او
+                #    انخفاض»).
+                _pp = float(e.get("pulse_pct") or 0.0)
+                lines.append("   " + ("🟢⬆️ <b>نبضُ الدقيقة: ارتفاعٌ "
+                                      if _pp >= 0 else
+                                      "🔴⬇️ <b>نبضُ الدقيقة: انخفاضٌ ")
+                             + f"{abs(_pp):.1f}%</b> عن إغلاق الشمعة السابقة"
+                             + (f" (${float(e['prev_price']):.2f})"
+                                if e.get("prev_price") else ""))
+            else:
+                lines.append("   "
+                             + _LIQ_STAGE_TXT.get(e["stage"], e["stage"]))
             _vx = e.get("vol_x")
             _mv = e.get("move")
             # 🕐 **السعرُ يُنسَب إلى دقيقته وعمرِها** (بلاغُ المالك 2026-08-18):
