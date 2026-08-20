@@ -28416,17 +28416,28 @@ check("🛑 ES9 بلوغُ الهدف بصيغة resolve حرفيًّا (وال�
 #   تُقارَن وكلٌّ على مجتمعٍ آخر. الآن **بوّابةُ صلاحيةٍ تُوقِف بخروجٍ غيرِ
 #   صفريّ**. ويُقفَل: الثابتُ موجودٌ بقيمته · وأن الكتلةَ تشترطه فعلًا في قرار
 #   الإيقاف (بالـAST لا بالنصّ — فالتعليقُ يذكره شرحًا).
-_es10_names = set()
+#   🐞🔴 **وصياغتي الأولى نجت منها طفرةٌ فكُشف عيبُها:** كانت تفحص **وجودَ**
+#   الاسمين في `main` — و`cov_bad` يبقى **مُسنَدًا** بعد نزعه من شرط `if` ⇒
+#   مرَّت خضراء. صنفُ `AF10` بعينه («‏`_WL.clear()` كان يُرضي شرطَ يُملأ»):
+#   **حضورُ الاسم ليس مشاركتَه في القرار.** ⇒ صار يقرأ **شرطَ عقدة `If` التي
+#   ترجع 3** حصرًا.
+_es10_tests = []
 for _n in _es_ast.walk(_ES_TREE):
     if isinstance(_n, _es_ast.FunctionDef) and _n.name == "main":
         for _m in _es_ast.walk(_n):
-            if isinstance(_m, _es_ast.Name):
-                _es10_names.add(_m.id)
-check("🛑 ES10 حارسُ التغطية V4 مُعرَّفٌ بقيمته ومشروطٌ في قرار الإيقاف",
+            if isinstance(_m, _es_ast.If) and any(
+                    isinstance(_b, _es_ast.Return)
+                    and isinstance(getattr(_b, "value", None), _es_ast.Constant)
+                    and _b.value.value == 3 for _b in _es_ast.walk(_m)):
+                _es10_tests.append({x.id for x in _es_ast.walk(_m.test)
+                                    if isinstance(x, _es_ast.Name)})
+_es10_guards = set().union(*_es10_tests) if _es10_tests else set()
+check("🛑 ES10 حارسُ التغطية V4 بقيمته · وداخلَ شرطِ الإيقاف نفسِه (لا مجرّد حاضر)",
       getattr(_es_mod, "COVERAGE_MAX_MISS", None) == 0.05
-      and "COVERAGE_MAX_MISS" in _es10_names and "cov_bad" in _es10_names,
+      and len(_es10_tests) == 1 and "cov_bad" in _es10_guards
+      and {"v0_bad", "v0_bad5"} <= _es10_guards,
       f"القيمة={getattr(_es_mod, 'COVERAGE_MAX_MISS', None)} · "
-      f"بالكتلة={'COVERAGE_MAX_MISS' in _es10_names}")
+      f"شروط={_es10_tests}")
 
 # AH-DL1 — 🔒 **تراجعٌ أُسّيّ على تنزيل اليوم** (السببُ نفسُه: 503 من S3).
 #   **سلوكيّ ومفرِّق:** فشلٌ عابرٌ ثم نجاح ⇒ True بثلاث محاولات · وفشلٌ دائم ⇒
