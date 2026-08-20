@@ -409,7 +409,7 @@ def head_size_mb(key: str):
     return None, None
 
 
-def download(key: str, dest: str, endpoint: str, tries: int = 3,
+def download(key: str, dest: str, endpoint: str, tries: int = 5,
              sleep=None) -> bool:
     """⬇️ تنزيلُ يومٍ مع **تراجعٍ أُسّيّ** — أُضيف 2026-08-20 بعد عطبٍ مقيس:
     شُغّلت ثلاثُ سنواتٍ معًا على البكت نفسِه فردّ S3 **‏503 Service
@@ -428,7 +428,7 @@ def download(key: str, dest: str, endpoint: str, tries: int = 3,
         log(f"   ⛔ تعذّر التنزيل (rc={rc} · محاولة {i + 1}/{tries}): "
             f"{(err or '')[:160]}")
         if i + 1 < max(1, int(tries)):
-            _sl(5 * (2 ** i))
+            _sl(15 * (2 ** i))
     return False
 
 
