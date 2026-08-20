@@ -13304,16 +13304,28 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
             # 🌊 `anchor_price` = دخولُ المِرساة (إغلاقُ شمعتها) — حقلُ **عرضٍ**
             #    يغذّي وسمَ الكاسح (T-KASIH قاست F5 من هذا السعر بعينه).
             #    القديمُ بلا المفتاح ⇒ يسقط مكوّنُ المسافة وحدَه (ذاتيُّ الشفاء).
+            # 🛑 `anchor_low` = **قاعُ شمعة المِرساة** — نظيرُ `anchor_price`
+            #    حرفيًّا (ذاتيُّ الشفاء: الحالةُ القديمة بلا المفتاح تُسقط سطرَ
+            #    الوقف وحدَه). 🥇 **وسندُه أقوى من أيّ رقمٍ جديد:** هو **عينُ**
+            #    تعريف الخروج في `kasih_scan.resolve` ⇒ كلُّ رقمٍ نشرناه عن
+            #    الكاسحين (الأساس 11% · التوليفة 19.7-22.6% · الأحمر 3.4-4.0%)
+            #    محسوبٌ **بفرض الخروج عند كسره** على 44,200 مِرساة في ثلاث
+            #    سنوات — فعرضُه إظهارُ الافتراض لا اختراعُ وقف.
+            #    ⚖️ **ونظامُه خامسٌ يُسمّى** ولا يُخلَط بالأربعة (الارتكاز 7%
+            #    تحت الدعم · المقسّم القاع · النهج العلميّ −6% · ذيلُ الشمعة).
             st = {"anchor_ms": _ams, "last_ms": _ams, "sent": ["M1"],
                   "updates": 0, "vol_x": round(vx, 1),
                   "peak_usd": round(_usd(_ab)), "last_eval_ms": last_ms,
                   "pulse_ms": _ams,
-                  "anchor_price": round(float(_ab["c"]), 4)}
+                  "anchor_price": round(float(_ab["c"]), 4),
+                  "anchor_low": round(float(_ab["l"]), 4)}
             ev.append({"stage": "M1", "usd": round(_usd(_ab)), "minutes": 1,
                        "anchor_ms": _ams, "last_ms": _ams,
                        "vol_x": round(vx, 1), "price": round(float(_ab["c"]), 4),
                        "price_ms": _ams,
                        "move": round(_rise(_ab), 2),
+                       "anchor_price": round(float(_ab["c"]), 4),
+                       "anchor_low": round(float(_ab["l"]), 4),
                        "class": _ignition_candle_class(_usd(_ab))})
             return (ev, st)
         anchor = int(anchor)
@@ -13406,6 +13418,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                     "price_ms": last_ms,
                     "win_price": round(float(win[-1]["c"]), 4),
                     "anchor_price": st.get("anchor_price"),
+                    "anchor_low": st.get("anchor_low"),
                     "class": _ignition_candle_class(tot)}
             # 🌊② «وسع الوسم» (أمرُ المالك 2026-08-20): مؤشّراتُ المواصلة
             #    تُلحق بحدث M5 **حصرًا** (سلالُها قيست على نافذة الخمس) —
@@ -14056,6 +14069,87 @@ def kasih_time_bucket(anchor_ms):
     return "بعد الظهر"
 
 
+def liq_tier(ev: dict):
+    """🥇🥈🥉 **فئةُ القوّة الثلاثية** — أمرُ المالك 2026-08-20 («ابي يكون فيه
+    تصنيف قوي و متوسط و ضعيف لو قرر البوت … اني ادخل»).
+
+    ⚖️ **تسميةُ سلالٍ منشورة لا عتبةٌ جديدة** (‏`exit_stop_prereg.md §④`):
+    🥇 **قوي** = `J1` مستوفاة **و** عدّادُ المواصلة 3 أو 4 · 🥉 **ضعيف** =
+    `J1` غيرُ مستوفاة **و** العدّادُ 0 أو 1 · 🥈 **متوسط** ما بينهما.
+    **صفرُ رقمٍ مخترَع:** الأربعةُ (‏c3/c4/v2/v3) منشورةٌ بنسبها في
+    `kasih2_result.md`، والحدّان طرفا سلالٍ منشورة، وطرفُ الصفر سندُه
+    `red_mute_result.md` (‏3.4-4.0% مقابل 14-17%).
+
+    🔴🔴 **وحدُّ صدقٍ يُقرأ مع كلّ استعمال:** مكوّناتُها **اختيرت على المقياس
+    نفسِه وعلى الصفوف نفسِها** في `T-KASIH-2` ⇒ النسبُ **وصفُ عيّنةٍ لا تنبّؤ**،
+    والاختبارُ الحقيقيُّ **أماميّ**. (سابقةُ تقاعُد `A/B`: تصنيفٌ يزعم جودةً
+    أُعدم — والمسموحُ تصنيفٌ **يصف**.)
+
+    ترجّع `(المفتاح، العدّاد، المحسوب)` أو `None` لغير `M5` وللناقص —
+    فاشلةٌ-آمنة (لا وسمَ خيرٌ من وسمٍ مخترَع)."""
+    try:
+        if str((ev or {}).get("stage") or "") != "M5":
+            return None
+        k2 = (ev or {}).get("k2") or {}
+        top = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+               "v2": "المرساة دون 30% (سيولة تتوالى)",
+               "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)"}
+        got = [f for f in ("c3", "c4", "v2", "v3") if k2.get(f)]
+        if not got:
+            return None
+        green = sum(1 for f in got if k2.get(f) == top[f])
+        j1 = kasih_j1(ev)[0]
+        if j1 and green >= 3:
+            return ("قوي", green, len(got))
+        if (not j1) and green <= 1:
+            return ("ضعيف", green, len(got))
+        return ("متوسط", green, len(got))
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+_LIQ_TIER_AR = {"قوي": "🥇 قوي", "متوسط": "🥈 متوسط", "ضعيف": "🥉 ضعيف"}
+
+
+def liq_stop_line(ev: dict):
+    """🛑 **سطرُ الوقف البنيويّ** — أمرُ المالك 2026-08-20 («يكون معطيني وقف
+    خسارة حسب الشموع لان ممكن السعر ينزل قبل يوصلني تنبية خروج»).
+
+    🔴🔴 **وتصحيحٌ يسبق السطرَ نفسَه:** **لا يوجد تنبيهُ خروجٍ لهذي القناة
+    أصلًا** — `monitor_live_events` تقرأ **قائمة الترشيح** حصرًا، ومَن يصل
+    بوصفه «تحت المتابعة» (حالةُ `$RITR`) **بلا خروجٍ مراقَبٍ إطلاقًا**.
+
+    🥇 **والمستوى ليس اختراعًا:** قاعُ شمعة المِرساة هو **عينُ** تعريف الخروج
+    في `kasih_scan.resolve` ⇒ **كلُّ** رقمٍ نشرناه عن الكاسحين محسوبٌ بفرض
+    الخروج عند كسره، على 44,200 مِرساة في ثلاث سنوات.
+
+    ⚖️ **نظامٌ خامسٌ يُسمّى** (‏`engineering`): ليس وقفَ الارتكاز اليوميّ
+    (‏7% تحت الدعم) ولا وقفَ المقسّم (القاع) ولا النهجَ العلميّ (‏−6%) ولا
+    ذيلَ الشمعة — **والكسرُ بإغلاق دقيقةٍ دونه لا بلمسةِ ذيل** (درسُ
+    `T-LABEL-AUDIT`: ذيلُ الجلسة الممتدّة قد يكون طبعةً واحدة).
+
+    `""` عند غياب المستوى (حالةٌ قديمة) — ذاتيُّ الشفاء بلا ترحيل."""
+    try:
+        lo = float((ev or {}).get("anchor_low"))
+        if lo <= 0:
+            return ""
+        ref = None
+        for k in ("anchor_price", "price"):
+            try:
+                v = float((ev or {}).get(k))
+                if v > 0:
+                    ref = v
+                    break
+            except (TypeError, ValueError):
+                continue
+        s = f"🛑 وقفُ الجلسة {_px_txt(lo)} (قاعُ شمعة المِرساة)"
+        if ref:
+            s += f" — على بُعد {abs(ref / lo - 1.0) * 100.0:.1f}% من دخولها"
+        return s + " · يُكسَر بإغلاق دقيقةٍ دونه"
+    except (TypeError, ValueError):
+        return ""
+
+
 def kasih_j1(ev: dict):
     """🥇 **قاعدةُ «التوليفة» J1 — مصدرٌ واحدٌ لا نسختان** (‏`kasih2_result.md`):
     سيولةُ الخمس بصنف «قوي/مضارب» **مع** فجوةٍ من إغلاق الأمس 30% فأكثر.
@@ -14216,6 +14310,13 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
         _ck = _cls[0] if isinstance(_cls, (list, tuple)) and _cls else None
         if _ck in _LIQ_CLS_AR:
             head.append(_LIQ_CLS_AR[_ck])
+        # 🥇🥈🥉 **فئةُ القوّة** (أمرُ المالك 2026-08-20) — تسميةُ سلالٍ
+        #    منشورة، ووصفٌ لا تنبّؤ (‏`exit_stop_prereg.md §④`).
+        _tier = next((t for t in (liq_tier(e) for e in evs) if t), None)
+        if _tier:
+            # 🔒 **بلا عدّادٍ هنا**: تفصيلُه في سطر 🌊 («مواصلة ن من م») ⇒
+            #    طبعُه مرّتين حشوٌ في السطر الذي يُقرأ من الإشعار.
+            head.append(_LIQ_TIER_AR[_tier[0]])
         # 🥇 شارةُ التوليفة (‏J1) من أيّ حدثِ M5 في الكرت — قاعدةٌ واحدة.
         _j1 = [kasih_j1(e) for e in evs]
         if any(a for a, _ in _j1):
@@ -14271,6 +14372,12 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
             _kl = kasih_tag_line(e)
             if _kl:
                 lines.append("   " + _kl)
+            # 🛑 الوقفُ **مرّةً واحدةً للسهم** (آخرُ حدثٍ يحمل المستوى):
+            #    مستوًى واحدٌ للمِرساة، وتكرارُه لكلّ حدثٍ حشوٌ بلا معلومة.
+            if _ei == len(evs) - 1:
+                _sl = liq_stop_line(e)
+                if _sl:
+                    lines.append("   " + _sl)
             # 🧱 جدارُ الطلبات — والبائتُ لا يُطبَع جدارًا (عقدُ «السعر الآن»).
             if "operator" in e and e.get("operator"):
                 _fv, _fa = quote_freshness(e.get("operator"), now_ms=now_ms,

@@ -27883,7 +27883,7 @@ _br_of = {"has_operator": True, "bid_block_shares": 7_824_183,
 def _br_ev(stage, usd, minutes, ms, **kw):
     d = {"stage": stage, "price": 0.1261, "usd": usd, "minutes": minutes,
          "price_ms": ms, "prev_close": 0.0763, "anchor_price": 0.1261,
-         "anchor_ms": _br_t, "operator": _br_of,
+         "anchor_ms": _br_t, "operator": _br_of, "anchor_low": 0.1105,
          "class": ("strong", "شمعة مضارب قوية (فيصل: 300 ألف فأكثر)")}
     d.update(kw)
     return d
@@ -27901,10 +27901,17 @@ _br_two = S.build_liq_stage_alert([(_br_row, [_br_m1, _br_m5])], now_ms=_br_now)
 
 # BRIEF1 — **ميزانيةُ الطول**: حالةُ `$RITR` نفسُها (سهمٌ · حدثٌ) تحت 500 محرفٍ
 #   وستّةِ أسطر. الرقمُ ليس ذوقًا: الكرتُ القديم 1,460/16 وهو ما ضيّع الصفقة.
-check("📏 BRIEF1 كرتُ `$RITR` (سهمٌ · حدثٌ) تحت 500 محرفٍ و6 أسطر "
-      f"(كان 1,460 في 16 سطرًا) — الفعليّ {len(_br_one)}/"
-      f"{len(_br_one.splitlines())}",
-      len(_br_one) < 500 and len(_br_one.splitlines()) <= 6,
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-20 (أمرُ المالك «تصنيف … و وقف خسارة حسب الشموع»):**
+#   الميزانيةُ اتّسعت 500 ⟶ **560 محرفًا و7 أسطر** لأن المالك أمر بمحتوًى جديدٍ
+#   في الكرت (سطرُ الوقف · وسمُ الفئة). **ويُشدَّد لا يُرخى:** الاتّساعُ **مشروطٌ
+#   بأنّ الزيادةَ هي المأمورُ بها بعينِها** — يُشترَط حضورُ سطر الوقف ووسم الفئة
+#   في العيّنة نفسِها، فلا تُشترى الميزانيةُ لحشوٍ آخر.
+check("📏 BRIEF1 كرتُ `$RITR` (سهمٌ · حدثٌ) تحت 560 محرفٍ و7 أسطر · "
+      "والزيادةُ هي المأمورُ بها (وقفٌ + فئة) "
+      f"— الفعليّ {len(_br_one)}/{len(_br_one.splitlines())}",
+      len(_br_one) < 560 and len(_br_one.splitlines()) <= 7
+      and "🛑 وقفُ الجلسة" in _br_one
+      and any(_t in _br_one for _t in ("🥇 قوي", "🥈 متوسط", "🥉 ضعيف")),
       f"محارف={len(_br_one)} · أسطر={len(_br_one.splitlines())}")
 
 # BRIEF2 — **السطرُ الأوّل يكفي للقرار**: الرمزُ والسعرُ وكم صعد عن أمسه وشارةُ
@@ -27935,11 +27942,16 @@ check("📏 BRIEF3 **حرّاسُ الصدق باقيةٌ مضغوطة**: «سي
 _br_many = S.build_liq_stage_alert(
     [({"symbol": f"S{k}", "src": "تحت المتابعة"}, [_br_m1, _br_m5])
      for k in range(3)], now_ms=_br_now)
-check("📏 BRIEF4 ثلاثةُ أسهمٍ بحدثين ⇒ ثلاثةُ رؤوسٍ وفاصلان وتحت 1,400 محرف",
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-20:** السقفُ 1,400 ⟶ **1,700** تبعًا لاتّساع
+#   ميزانية الكرت المفرد (‏560×3). **والتشديدُ:** يُشترَط أن يبقى **وسيطُ
+#   السهم الواحد دون 570 محرفًا** — فلا يتحوّل السقفُ الجماعيّ إلى بابٍ
+#   يتضخّم منه الكرتُ المفرد بلا أن يسقط `BRIEF1`.
+check("📏 BRIEF4 ثلاثةُ أسهمٍ بحدثين ⇒ ثلاثةُ رؤوسٍ وفاصلان وتحت 1,700 محرف "
+      "(ووسيطُ السهم دون 570)",
       _br_many.count("🔥") == 3
       and _br_many.count(S.DAILY_CARD_SEP) == 2
-      and len(_br_many) < 1400,
-      f"محارف={len(_br_many)}")
+      and len(_br_many) < 1700 and (len(_br_many) / 3.0) < 570,
+      f"محارف={len(_br_many)} · للسهم={len(_br_many) / 3.0:.0f}")
 
 # BRIEF6 — 🔴 **ثغرةٌ كشفتها طفرةٌ نجت (M9، 2026-08-20):** `BRIEF1` يقيس بنّاءَ
 #   الكرت وحدَه ولا يرى **ما يُلحقه المُرسِل** ⇒ إعادةُ `FOOTER` (‏100 محرفٍ
@@ -27998,6 +28010,111 @@ check("📏 BRIEF5 قاعدةُ «التوليفة» في `kasih_j1` وحدها 
               for c in _ast0.walk(_ast0.parse(
                   _insp0.getsource(S.build_liq_stage_alert)))
               if isinstance(c, _ast0.Call)),
+      "")
+
+# ═══ 🛑🥇 «التصنيف والوقف» — أقفال TIER1-TIER4 · STOP1-STOP4 (2026-08-20) ═══
+# أمرُ المالك: «تصنيف قوي و متوسط و ضعيف … و وقف خسارة حسب الشموع». العقد
+# `exit_stop_prereg.md` مدفوعٌ قبل أيّ رقم. الأقفالُ تحرس: تفريقَ الفئات
+# الثلاث · دائريّتَها المُعلَنة · وصلَ `anchor_low` من المِرساة إلى الكرت ·
+# وأنّ الوقفَ **نظامٌ خامسٌ مُسمًّى** لا يختلط بالأربعة.
+_tr_k2 = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+          "v2": "المرساة دون 30% (سيولة تتوالى)",
+          "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)"}
+_tr_low = {"c3": "نقضت", "c4": "خضراء 0-1",
+           "v2": "المرساة فوق 60% من الخمس (اندفاعة وحيدة)",
+           "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)"}
+
+
+def _tr_ev(k2, cls="strong", pc=0.70):
+    return {"stage": "M5", "class": (cls, "x"), "anchor_price": 1.29,
+            "prev_close": pc, "anchor_ms": _br_t, "k2": dict(k2)}
+
+
+# TIER1 — الفئاتُ الثلاث **تفترق** على تخوم القاعدة: J1 وعدّادُ المواصلة.
+_tr_strong = S.liq_tier(_tr_ev(_tr_k2))                       # J1 ✓ · 4 خضراء
+_tr_mid_a = S.liq_tier(_tr_ev(dict(_tr_k2, c3="نقضت", c4="خضراء 0-1")))
+_tr_mid_b = S.liq_tier(_tr_ev(_tr_k2, cls="mid"))             # J1 ✗ · 4 خضراء
+_tr_weak = S.liq_tier(_tr_ev(_tr_low, cls="mid"))             # J1 ✗ · صفر
+_tr_edge = S.liq_tier(_tr_ev(dict(_tr_low, c3=_tr_k2["c3"]), cls="mid"))
+check("🥇 TIER1 الفئاتُ الثلاث تفترق على تخومها (‏J1 × عدّاد المواصلة) · "
+      "و«ضعيف» يشترط النفيَين معًا · وواحدٌ أخضرُ يبقى ضعيفًا",
+      _tr_strong[0] == "قوي" and _tr_strong[1] == 4
+      and _tr_mid_a[0] == "متوسط" and _tr_mid_b[0] == "متوسط"
+      and _tr_weak[0] == "ضعيف" and _tr_weak[1] == 0
+      and _tr_edge[0] == "ضعيف" and _tr_edge[1] == 1,
+      f"{_tr_strong} · {_tr_mid_a} · {_tr_mid_b} · {_tr_weak} · {_tr_edge}")
+
+# TIER2 — **M5 حصرًا** (السلالُ قيست على نافذة الخمس) · وبلا `k2` لا وسم ·
+#   والتالفُ لا يُسقط الكرت (فاشلٌ-آمن: لا وسمَ خيرٌ من وسمٍ مخترَع).
+check("🥇 TIER2 الوسمُ على M5 حصرًا · وبلا k2 أو بتالفٍ ⇒ None بلا انهيار",
+      S.liq_tier(dict(_tr_ev(_tr_k2), stage="M1")) is None
+      and S.liq_tier(dict(_tr_ev(_tr_k2), stage="M30")) is None
+      and S.liq_tier({k: v for k, v in _tr_ev(_tr_k2).items() if k != "k2"})
+      is None
+      and S.liq_tier({"stage": "M5", "k2": {}}) is None
+      and S.liq_tier(None) is None and S.liq_tier({"stage": "M5"}) is None)
+
+# TIER3 — 🔒 **عرضٌ لا اختيار**: الفئةُ خارج الجذور وخارج الفلتر ⇒ مَن يُطلق
+#   ومَن يُكتَم **بت-بت**. (نفسُ عقد `k2` — حقلٌ إضافيٌّ بحت.)
+_tr_src = _insp0.getsource(S)
+check("🥇 TIER3 الفئةُ عرضٌ لا اختيار: خارج الجذور وخارج `alert_filter_keep`",
+      all("liq_tier" not in _insp0.getsource(getattr(S, _f))
+          for _f in ("rank_key", "select_top", "classify_tier", "entry_status",
+                     "analyze_ticker", "scan_market", "liq_stage_events",
+                     "alert_filter_keep", "scan_liq_stages")),
+      "")
+
+# TIER4 — **الدائريّةُ مُعلَنةٌ في المصدر** (‏`exit_stop_prereg §④`): مكوّناتُ
+#   الفئة اختيرت على المقياس نفسِه ⇒ وصفٌ لا تنبّؤ. قفلُ توثيقٍ يمنع أن
+#   تُقرأ الفئةُ يومًا تنبّؤًا بلا حدِّها.
+_tr_doc = _insp0.getsource(S.liq_tier)
+check("🥇 TIER4 حدُّ الدائريّة مكتوبٌ في المصدر (وصفٌ لا تنبّؤ · واختبارُه أماميّ)",
+      "وصفُ عيّنةٍ لا تنبّؤ" in _tr_doc and "أماميّ" in _tr_doc
+      and "A/B" in _tr_doc)
+
+# STOP1 — **الوصلةُ من المِرساة إلى الكرت** (درسُ wire-check): `anchor_low`
+#   يُكتَب في الحالة وفي حدثَي M1 وM5 — ويُقرأ في السطر. فارقٌ محدَّد.
+_st_bars = [{"t": _br_t - 60_000 * (12 - i), "o": 1.00, "h": 1.01, "l": 0.99,
+             "c": 1.00, "v": 500} for i in range(12)]
+_st_bars += [{"t": _br_t, "o": 1.00, "h": 1.30, "l": 0.97, "c": 1.29,
+              "v": 40_000},
+             {"t": _br_t + 60_000, "o": 1.29, "h": 1.31, "l": 1.28,
+              "c": 1.30, "v": 20_000}]
+_st_ev, _st_st = S.liq_stage_events(_st_bars)
+_st_m1 = next((e for e in _st_ev if e.get("stage") == "M1"), {})
+check("🛑 STOP1 `anchor_low` يُكتَب في الحالة وفي حدث M1 من **قاع شمعة "
+      "المِرساة** (‏0.97) — وصلةٌ حيّةٌ لا مفتاحٌ متخيَّل",
+      _st_st.get("anchor_low") == 0.97 and _st_m1.get("anchor_low") == 0.97
+      and _st_m1.get("anchor_price") == 1.29,
+      f"حالة={_st_st.get('anchor_low')} · M1={_st_m1.get('anchor_low')}")
+
+# STOP2 — السطرُ يظهر مع المستوى ويغيب بدونه (حالةٌ قديمة) · والمسافةُ صحيحة.
+_st_l = S.liq_stop_line({"anchor_low": 0.1105, "anchor_price": 0.1261})
+_st_bare = S.liq_stop_line({"anchor_price": 0.1261})
+check("🛑 STOP2 سطرُ الوقف حاضرٌ مع المستوى وغائبٌ بدونه · وبالمسافة الصحيحة "
+      "(‏0.1261 ⟶ 0.1105 = 14.1%)",
+      "$0.1105" in _st_l and "14.1%" in _st_l
+      and "قاعُ شمعة المِرساة" in _st_l
+      and _st_bare == "" and S.liq_stop_line({}) == ""
+      and S.liq_stop_line({"anchor_low": "س"}) == "",
+      _st_l[:90])
+
+# STOP3 — 🔒 **نظامٌ خامسٌ يُسمّى ولا يختلط بالأربعة**: السطرُ يقول «وقفُ
+#   الجلسة» و«قاعُ شمعة المِرساة» — ولا يذكر 7% ولا −6% ولا ذيلَ الشمعة.
+check("🛑 STOP3 الوقفُ يسمّي نظامَه ولا يستورد وقفًا من نظامٍ آخر",
+      "وقفُ الجلسة" in _st_l
+      and not any(_w in _st_l for _w in ("7%", "6%", "ذيل", "الدعم")),
+      _st_l[:90])
+
+# STOP4 — 🔒 **عرضٌ لا قرار**: الوقفُ خارج الجذور · ولا يمسّ `rr` ولا الوقفَ
+#   الإنتاجيّ (`STOP_BELOW_LOW_PCT` جذرٌ مقفول).
+check("🛑 STOP4 الوقفُ عرضٌ لا قرار: خارج الجذور ولا يمسّ وقفَ الارتكاز",
+      all("liq_stop_line" not in _insp0.getsource(getattr(S, _f))
+          for _f in ("rank_key", "select_top", "classify_tier", "entry_status",
+                     "analyze_ticker", "scan_market", "backtest_symbol",
+                     "alert_filter_keep"))
+      and "STOP_BELOW_LOW_PCT" not in _insp0.getsource(S.liq_stop_line)
+      and S.CONFIG["STOP_BELOW_LOW_PCT"] == (5, 7),
       "")
 
 print("\n" + "=" * 50)
