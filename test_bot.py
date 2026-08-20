@@ -27712,6 +27712,88 @@ check("🌊② KAS14 نِسبُ التوسيع مقفولةٌ ازدواجيًّ
       and all(b in S.KASIH_RATES[f] for (f, b) in _kw_pub),
       f"ازدواج={_kw_dup}")
 
+# ═══ 🔴🔇 «اكتم الأحمر» — أقفال RED1-RED4 (عقد red_mute_prereg.md · 2026-08-20) ═══
+# أداةُ الإحصاء kasih2_red_stats.py: تعريفُ «الأحمر» يفرّق (RED1) · قراءةٌ فقط
+# (RED2) · وصلُ الـworkflow (RED3) · وسلالُ العليا تطابق kasih2_scan سلوكيًّا (RED4).
+import kasih2_red_stats as _RS
+
+# RED1 — التعريفُ بنصّ العقد §① يفرّق على أربع حالاتٍ حدّية:
+#   4 محسوبةٍ سفلى ⇒ أحمر · 3 محسوبةٍ سفلى (الرابعة None) ⇒ أحمر ·
+#   3 محسوبةٍ إحداها عليا ⇒ ليس أحمر · 2 محسوبةٍ فقط ⇒ يمرّ بفائدة الشك.
+_rs_low = {"c3": "نقضت", "c4": "خضراء 0-1",
+           "v2": "المرساة فوق 60% من الخمس (اندفاعة وحيدة)",
+           "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)"}
+check("🔴🔇 RED1 «الأحمر» يفرّق: ‏4 سفلى=أحمر · 3 سفلى=أحمر · عليا واحدة=لا · "
+      "‏2 محسوبة=يمرّ بفائدة الشك",
+      _RS.is_red(dict(_rs_low)) is True
+      and _RS.is_red({**_rs_low, "c3": None}) is True
+      and _RS.is_red({**_rs_low, "c4": "خضراء 3-4"}) is False
+      and _RS.is_red({**_rs_low, "c3": None,
+                      "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)"}) is False
+      and _RS.is_red({**_rs_low, "c3": None, "v2": None}) is False)
+
+# RED2 — قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة/فتحٍ للكتابة (AST) · والإنتاجُ لا
+#   يستورد الأداة.
+_rs_tree = _ast0.parse(_insp0.getsource(_RS))
+_rs_bad = [getattr(n.func, "attr", getattr(n.func, "id", None))
+           for n in _ast0.walk(_rs_tree) if isinstance(n, _ast0.Call)
+           if (getattr(n.func, "attr", getattr(n.func, "id", "")) or "")
+           in ("send_telegram", "save_watchlist", "save_op_entry_state",
+               "git_save")]
+_rs_wopen = []
+for _n in _ast0.walk(_rs_tree):
+    if (isinstance(_n, _ast0.Call)
+            and getattr(_n.func, "id", None) == "open"):
+        _md = ""
+        if len(_n.args) >= 2 and isinstance(_n.args[1], _ast0.Constant):
+            _md = str(_n.args[1].value)
+        for _kw in _n.keywords:
+            if _kw.arg == "mode" and isinstance(_kw.value, _ast0.Constant):
+                _md = str(_kw.value.value)
+        if any(ch in _md for ch in "wax+"):
+            _rs_wopen.append(_md)
+check("🔴🔇 RED2 قراءةٌ فقط: صفرُ إرسال/كتابة (AST) · والإنتاجُ لا يستورد الأداة",
+      _rs_bad == [] and _rs_wopen == []
+      and not any(_l.strip().startswith(("import kasih2_red_stats",
+                                         "from kasih2_red_stats"))
+                  for _l in open("Super_stock.py",
+                                 encoding="utf-8").read().splitlines()),
+      f"سيئ={_rs_bad} كتابة={_rs_wopen}")
+
+# RED3 — وصلُ الـworkflow نحويًّا (نمط K2L4 على kasih2_red.yml): المدخلُ ⟵
+#   بيئةٌ يستهلكها التنزيل · صلاحياتُ قراءةٍ فقط (contents+actions) · بلا كرون ·
+#   يشغّل أداةَ الإحصاء بعد `gh run download`.
+_red_wf = _fo_yaml.safe_load(open(".github/workflows/kasih2_red.yml",
+                                  encoding="utf-8"))
+_red_on = (_red_wf.get(True) or _red_wf.get("on") or {})
+_red_env = {}
+_red_run = ""
+for _s in _red_wf["jobs"]["red"]["steps"]:
+    if isinstance(_s.get("env"), dict):
+        _red_env.update(_s["env"])
+    _red_run += " " + str(_s.get("run") or "")
+check("🔴🔇 RED3 kasih2_red.yml موصول: run_ids ⟵ RED_RUN_IDS · gh run download "
+      "⟶ kasih2_red_stats · بلا كرون · قراءةُ contents+actions فقط",
+      set(_red_on.get("workflow_dispatch", {}).get("inputs", {})) == {"run_ids"}
+      and "schedule" not in _red_on
+      and _red_wf.get("permissions") == {"contents": "read", "actions": "read"}
+      and "inputs.run_ids" in str(_red_env.get("RED_RUN_IDS"))
+      and "github.token" in str(_red_env.get("GH_TOKEN"))
+      and "gh run download" in _red_run
+      and "kasih2_red_stats.py" in _red_run
+      and "RED_RUN_IDS" in _red_run,
+      f"env={sorted(_red_env)}")
+
+# RED4 — سلالُ «العليا» في أداة الإحصاء تطابق مُخرَجات kasih2_scan **سلوكيًّا**
+#   (لا نصًّا): انحرافُ حرفٍ واحدٍ في السلسلة يجعل الأحمرَ يبتلع السلّةَ العليا
+#   بصمت — فتُحسب السلالُ من دوالّ الأداة نفسِها على عيّناتٍ عليا.
+check("🔴🔇 RED4 سلالُ TOP تطابق مُخرَجات kasih2_scan سلوكيًّا (c3/c4/v2/v3)",
+      _K2.c3_bucket(_k2_sweep, _k2a2, 1.29) == _RS.TOP["c3"]
+      and _K2.c4_bucket(_k2_sweep, _k2a2) == _RS.TOP["c4"]
+      and _K2.v2_bucket(20.0, 100.0) == _RS.TOP["v2"]
+      and _K2.v3_bucket(_k2_rows, 10 * _k2M) == _RS.TOP["v3"],
+      f"c4={_K2.c4_bucket(_k2_sweep, _k2a2)}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
