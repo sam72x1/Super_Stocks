@@ -21,9 +21,9 @@
    "M5",
    "M30"
   ],
-  "updates": 1,
+  "updates": 2,
   "vol_x": 30.2,
-  "peak_usd": 10104647,
+  "peak_usd": 4165804,
   "last_eval_ms": 1787216400000,
   "pulse_ms": 1787227860000,
   "anchor_price": 1.95,
@@ -536,7 +536,7 @@
   "updates": 0,
   "vol_x": 9.0,
   "peak_usd": 652356,
-  "last_eval_ms": 1787227380000,
+  "last_eval_ms": 1787227320000,
   "pulse_ms": 1787227860000,
   "anchor_price": 0.768,
   "date": "2026-08-20"
@@ -1683,9 +1683,9 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 3,
   "vol_x": 16.5,
-  "peak_usd": 2066895,
+  "peak_usd": 2104684,
   "last_eval_ms": 1787225820000,
   "pulse_ms": 1787227860000,
   "anchor_price": 4.12,
