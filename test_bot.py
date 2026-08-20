@@ -20323,7 +20323,12 @@ check("⏫ LS9 الرسالةُ **تفصل «دخلت سيولة» عن «دخل
       #    الأوّل** («💪 شمعةٌ قوية») وتمييزُ «سيولة» عن «مضارب» في الذيل.
       #    **والعقدُ يُشدَّد:** يُشترَط أن يكون تمييزُ النصّين **حاضرًا
       #    بلفظَيه** وأن تظهر الشارةُ في **السطر الأوّل** بعينه.
-      "💪" in _ls_msg.splitlines()[0] and "دخلت سيولة" in _ls_msg
+      # ⚖️ **تحديثٌ مؤرَّخ 2026-08-20:** الشارةُ صارت أيقونتُها بحسب الصنف
+      #    (‏💪 للقويّ/المضارب · ⚖️ للوسط · ⚠️ للقروب بتحذيره) ⇒ يُفحَص
+      #    **حضورُ شارةِ هويّةٍ في السطر الأوّل** أيًّا كان صنفُها.
+      any(_b in _ls_msg.splitlines()[0]
+          for _b in ("💪 ", "⚖️ شمعةٌ وسط", "⚠️ قروب"))
+      and "دخلت سيولة" in _ls_msg
       and "دخل المضارب" in _ls_msg
       and "$33,000" in _ls_msg and "60×" in _ls_msg
       and "ليست" in _ls_msg
@@ -27935,6 +27940,45 @@ check("📏 BRIEF4 ثلاثةُ أسهمٍ بحدثين ⇒ ثلاثةُ رؤو�
       and _br_many.count(S.DAILY_CARD_SEP) == 2
       and len(_br_many) < 1400,
       f"محارف={len(_br_many)}")
+
+# BRIEF6 — 🔴 **ثغرةٌ كشفتها طفرةٌ نجت (M9، 2026-08-20):** `BRIEF1` يقيس بنّاءَ
+#   الكرت وحدَه ولا يرى **ما يُلحقه المُرسِل** ⇒ إعادةُ `FOOTER` (‏100 محرفٍ
+#   مكرَّرِ التنويه) كانت **تمرّ بصفرِ قفلٍ ساقط**. ⇒ القفلُ ينتقل إلى **نقطة
+#   النداء الحيّة**: نداءُ كرت السيولة في `operator_entry_live` **بلا أيّ إلحاق**
+#   (لا `FOOTER` ولا جمعُ نصوص) — وسائرُ الكروت تُبقي ذيلَها كما هي (فارقٌ محدَّد).
+_br_oel = open("operator_entry_live.py", encoding="utf-8").read()
+_br_tree = _ast0.parse(_br_oel)
+_br_liq_calls = [n for n in _ast0.walk(_br_tree)
+                 if isinstance(n, _ast0.Call)
+                 and getattr(n.func, "attr", None) == "send_telegram"
+                 and any(getattr(getattr(a, "func", None), "attr", None)
+                         == "build_liq_stage_alert"
+                         for a in _ast0.walk(n))]
+_br_liq_plain = [n for n in _br_liq_calls
+                 if n.args and isinstance(n.args[0], _ast0.Call)
+                 and getattr(n.args[0].func, "attr", None)
+                 == "build_liq_stage_alert"]
+_br_other_footer = [n for n in _ast0.walk(_br_tree)
+                    if isinstance(n, _ast0.Call)
+                    and getattr(n.func, "attr", None) == "send_telegram"
+                    and "FOOTER" in _ast0.dump(n)]
+check("📏 BRIEF6 **كرتُ السيولة يُرسَل بلا إلحاقٍ من المُرسِل** (لا FOOTER — "
+      "الذيلُ المضغوط يحمل التنويه) · وسائرُ الكروت تُبقي ذيلَها",
+      len(_br_liq_calls) == 1 and len(_br_liq_plain) == 1
+      and "FOOTER" not in _ast0.dump(_br_liq_calls[0])
+      and len(_br_other_footer) >= 1,
+      f"نداءاتُ السيولة={len(_br_liq_calls)} · "
+      f"بلا إلحاق={len(_br_liq_plain)} · بذيلٍ عامّ={len(_br_other_footer)}")
+
+# BRIEF7 — **شارةُ الهوية تحمل تحذيرَها**: «قروب» كان وصفُه الطويل يقول «حذارِ
+#   تصريفًا سريعًا» — فاختصارُه إلى الاسم وحدَه **يُسقط تحذيرًا**، و💪 تكذب عليه.
+_br_grp = S.build_liq_stage_alert(
+    [(_br_row, [dict(_br_m5, **{"class": ("group", "حجم قروب")})])],
+    now_ms=_br_now)
+check("📏 BRIEF7 **شارةُ «قروب» تحمل تحذيرَها ولا تلبس 💪**",
+      "⚠️ قروب" in _br_grp and "حذارِ تصريفًا" in _br_grp
+      and "💪" not in _br_grp and "💪 شمعةٌ قوية" in _br_one,
+      _br_grp.splitlines()[0][:110])
 
 # BRIEF5 — **قاعدةُ J1 مصدرٌ واحد**: الشارةُ في الرأس تُحسَب من `kasih_j1`
 #   وحدَها — و`kasih_tag_line` **لا تعرف الشارةَ إطلاقًا** (لا نسختان تتفرّقان).
