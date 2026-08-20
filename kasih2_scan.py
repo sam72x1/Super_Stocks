@@ -187,6 +187,51 @@ def k2_features(rows, a_ms, entry, f2key, gap, usd1, usd5):
     }
 
 
+def entry_view(rows, a_ms, entry, prev_c):
+    """💵 **«لو دخلت، على كم؟»** — عرضُ وضع اليوم (أمرُ المالك 2026-08-20:
+    «طبّقها على رداك وخواتها وعلّمني كنت بدخل على نسبة كم»).
+
+    يُرجع نقطتَي الدخول الواقعيّتين ونسبةَ كلٍّ عن **إغلاق الأمس**:
+    ① `M1` = إغلاقُ شمعة المِرساة (أوّلُ إشعار) ② `M5` = **إغلاقُ الدقيقة
+    الخامسة** — وهو **سعرُ كرت M5 حرفيًّا** (الكرتُ يفير حين `span ≥ 5`
+    فيكون أحدثُ مغلقةٍ هي `anchor+4د`، وهي نفسُها آخرُ شمعةٍ داخل نافذة
+    الخمس) ⇒ الوسمُ الموسَّع يُقرأ عند هذا السعر بالضبط.
+
+    ⚖️ **ومقياسٌ واحدٌ لا اثنان:** الحسمُ يبقى `kasih_scan.resolve`؛ وهذي
+    أرقامُ **عرض** تُقارَن ببوليانِه (`kasih30_from5`) في نداءِ المُنادي —
+    وأيُّ تفرّقٍ يُطبَع ويُعَدّ (لا يُبتلَع)."""
+    ab = next((b for b in rows if b[0] == a_ms), None)
+    if ab is None or entry <= 0:
+        return None
+    anchor_low = ab[3]
+    e5 = entry
+    e5_frozen = False
+    mx5 = None
+    mx = entry
+    for b in rows:
+        t, _o, h, _l, c, _v = b
+        if t <= a_ms:
+            continue
+        if not e5_frozen and t < a_ms + KS.ENTRY5_MIN * MIN2:
+            e5 = c
+        elif not e5_frozen:
+            e5_frozen = True
+            mx5 = e5
+        mx = max(mx, h)
+        if mx5 is not None:
+            mx5 = max(mx5, h)
+        if c < anchor_low:
+            break
+    out = {"e1": entry, "e5": e5,
+           "mg1": (mx / entry - 1.0) * 100.0,
+           "mg5": ((mx5 / e5 - 1.0) * 100.0
+                   if (mx5 is not None and e5 > 0) else None)}
+    if prev_c:
+        out["gap1"] = (entry / float(prev_c) - 1.0) * 100.0
+        out["gap5"] = (e5 / float(prev_c) - 1.0) * 100.0
+    return out
+
+
 def main() -> int:                                                # noqa: C901
     if not (os.environ.get("AWS_ACCESS_KEY_ID") or "").strip():
         print("⛔ لا مفاتيح S3 — لا قياس (ولا يُخمَّن رقم).")
@@ -216,7 +261,7 @@ def main() -> int:                                                # noqa: C901
     prev_close: dict = {}
     rows_out: list = []
     n_files = n_missing = n_syms = n_screened = n_anchored = 0
-    n_gapcap = 0
+    n_gapcap = n_evmis = 0
     out_path = f"kasih2_rows_{year or one_day}.jsonl"
     fout = open(out_path, "w", encoding="utf-8")
 
@@ -283,6 +328,16 @@ def main() -> int:                                                # noqa: C901
                    "f5": (KS.f5_bucket(gap) if gap is not None else None)}
             row.update(res)
             row.update(k2_features(b, a_ms, entry, f2key, gap, usd1, usd5))
+            if one_day:
+                ev = entry_view(b, a_ms, entry, pc)
+                if ev:
+                    row["_ev"] = ev
+                    # 🔒 تفرّقُ العرض عن الحسم يُطبَع ويُعَدّ — لا يُبتلَع
+                    if (ev["mg5"] is not None
+                            and "kasih30_from5" in res
+                            and (ev["mg5"] >= KS.KASIH_PCT)
+                            != bool(res["kasih30_from5"])):
+                        n_evmis += 1
             fout.write(json.dumps(row, ensure_ascii=False) + "\n")
             rows_out.append(row)
         prev_close.update(closes)
@@ -322,6 +377,42 @@ def main() -> int:                                                # noqa: C901
         KS.bucket_table(rows_out, "p2", "P2 — طزاجةُ قمّة اليوم")
         KS.bucket_table(rows_out, "f2", "🔗 مرجع F2 (فحصُ التكامل مع kasih)")
         KS.bucket_table(rows_out, "f5", "🔗 مرجع F5 (فحصُ التكامل مع kasih)")
+    if one_day and rows_out:
+        # 💵 «لو دخلت، على كم؟» — سطرٌ لكلّ مِرساة، بلا قصّ (أمرُ المالك)
+        print(f"\n💵 مراسي اليوم كلُّها ({len(rows_out)} — بلا قصّ) · "
+              f"«لو دخلت، على كم؟»")
+        print(f"   🔒 تفرّقُ العرض عن الحسم: {n_evmis} "
+              f"{'✅' if n_evmis == 0 else '⛔ يُقرأ عطبَ أداةٍ لا نتيجة'}")
+        print(f"   {'الرمز':7}{'مرساة':>7} {'سعرُ M1':>9}{'عن أمس':>9} "
+              f"{'سعرُ M5':>9}{'عن أمس':>9} {'بعد M5':>8}  الوسمُ الذي كان سيصلك")
+        for r in sorted(rows_out, key=lambda x: -(x.get("_ev") or {})
+                        .get("mg5", -999)):
+            e = r.get("_ev") or {}
+            tag = ("🥇توليفة" if str(r.get("j1") or "").startswith("توليفة")
+                   else "—")
+            marks = []
+            for fk, sym_ in (("c3", "تصديق"), ("c4", "خضراء"),
+                             ("v2", "سيولة"), ("v3", "نبض")):
+                v = r.get(fk)
+                if not v:
+                    continue
+                good = (v.startswith("صادقت") or v == "خضراء 3-4"
+                        or v.startswith("المرساة دون 30")
+                        or v.startswith("سيولةٌ داخلة"))
+                bad = (v == "نقضت" or v == "خضراء 0-1"
+                       or v.startswith("المرساة فوق 60")
+                       or v.startswith("سيولةٌ نازحة"))
+                marks.append(("✅" if good else ("🔴" if bad else "◻️")) + sym_)
+            ny_t = dt.datetime.fromtimestamp(
+                r["anchor_ms"] / 1000, tz=KS.NY).strftime("%H:%M")
+            g1 = e.get("gap1")
+            g5 = e.get("gap5")
+            mg5 = e.get("mg5")
+            print(f"   ${r['sym']:6}{ny_t:>7} "
+                  f"{e.get('e1', 0):>9.4g}{(f'{g1:+.0f}%' if g1 is not None else '—'):>9} "
+                  f"{e.get('e5', 0):>9.4g}{(f'{g5:+.0f}%' if g5 is not None else '—'):>9} "
+                  f"{(f'{mg5:+.1f}%' if mg5 is not None else '—'):>8}  "
+                  f"{tag} {' '.join(marks)} [{r.get('f2')} · {r.get('exit')}]")
     print("\n⚠️ حدودُ الصدق (العقد §⑦): لمسٌ لا تنفيذ · يومُ المِرساة وحده · "
           "الرفيقُ من د5 هو الحاكم على دائرية نافذة الخمس · الحكمُ عبر "
           "السنوات الثلاث لا سنةً واحدة · والحاكمةُ J1 وحدَها والبقيةُ استكشاف.")
