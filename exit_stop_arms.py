@@ -35,6 +35,17 @@ PRE_WIN_MIN = 15          # نافذةُ `S3` — §③ حرفيًّا
 ARMS = ("S0", "S1", "S2", "S3")
 FLOOR_TIER_YEAR = 40      # §⑥ — أرضيةُ المِرساة لكلّ فئةٍ في كلّ سنة
 COVERAGE_MAX_MISS = 0.05  # `V4` — أقصى نسبةِ أيامٍ مفقودةٍ يُقبَل معها حكم
+
+
+def coverage_bad(n_files: int, n_missing: int) -> bool:
+    """`V4` — هل التغطيةُ ناقصةٌ بما يُبطل الحكم؟ **نقيّةٌ لتُقفَل سلوكيًّا**:
+    قفلٌ بنيويٌّ يُثبت أن الاسمَ داخلَ شرط الإيقاف **ولا يرى دلالةَ العتبة**،
+    وقد نجت منه طفرةُ قلبِ `>` إلى `<`. ⚖️ **والمقامُ كلُّ أيام السنة المُدرَجة**
+    (مقيسةٌ + مفقودة) · وصفرُ أيامٍ ⇒ **لا حكم** (لا تُقرأ «تغطيةٌ تامّة»)."""
+    tot = int(n_files or 0) + int(n_missing or 0)
+    if tot <= 0:
+        return True
+    return (int(n_missing or 0) / float(tot)) > COVERAGE_MAX_MISS
 FLOOR_TIER_SWEEP = 30     # §⑥ — أرضيةُ الكاسحين لكلّ فئةٍ مجمَّعًا (تُقرأ لاحقًا)
 
 TOP = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
@@ -331,8 +342,7 @@ def main() -> int:
     #   (‏`press_radar` كان الوحيدَ بلا أرضيةِ تغطيةٍ فكان خنقُ المزوّد يمرّ
     #   صامتًا). ⚖️ **والأرضيةُ ‏5% رقمٌ مستدير**، والتشغيلاتُ الثلاثُ ذاتُ
     #   الجودة قِيست عند **‏3.8-4.2%** مفقودًا.
-    cov_bad = (n_files + n_missing) > 0 and (
-        n_missing / float(n_files + n_missing)) > COVERAGE_MAX_MISS
+    cov_bad = coverage_bad(n_files, n_missing)
     print(f"   V4  تغطيةُ الأيام: مفقودٌ {n_missing}/{n_files + n_missing} "
           f"({n_missing / max(1, n_files + n_missing) * 100:.1f}%) "
           + ("✅" if not cov_bad else
