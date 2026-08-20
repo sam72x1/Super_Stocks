@@ -28410,6 +28410,57 @@ for _e5v, _hi in ((0.4040, 0.5252), (0.5050, 0.6565)):
 check("🛑 ES9 بلوغُ الهدف بصيغة resolve حرفيًّا (والقديمةُ تُخطئ في الاتجاهين)",
       not _es9_bad, str(_es9_bad)[:180])
 
+# ES10 — 🔒🔴 **حارسُ تغطية الأيام `V4`** (أُضيف بعد عطبٍ مقيسٍ لا مفترَض):
+#   تشغيلةُ 2024 قِيست **194 يومًا ومفقودٌ 68 (26%)** لأن S3 ردّ **503** حين
+#   شُغّلت السنواتُ الثلاث معًا — **والأداةُ طبعت التغطيةَ ومضت** ⇒ سنواتٌ
+#   تُقارَن وكلٌّ على مجتمعٍ آخر. الآن **بوّابةُ صلاحيةٍ تُوقِف بخروجٍ غيرِ
+#   صفريّ**. ويُقفَل: الثابتُ موجودٌ بقيمته · وأن الكتلةَ تشترطه فعلًا في قرار
+#   الإيقاف (بالـAST لا بالنصّ — فالتعليقُ يذكره شرحًا).
+_es10_names = set()
+for _n in _es_ast.walk(_ES_TREE):
+    if isinstance(_n, _es_ast.FunctionDef) and _n.name == "main":
+        for _m in _es_ast.walk(_n):
+            if isinstance(_m, _es_ast.Name):
+                _es10_names.add(_m.id)
+check("🛑 ES10 حارسُ التغطية V4 مُعرَّفٌ بقيمته ومشروطٌ في قرار الإيقاف",
+      getattr(_es_mod, "COVERAGE_MAX_MISS", None) == 0.05
+      and "COVERAGE_MAX_MISS" in _es10_names and "cov_bad" in _es10_names,
+      f"القيمة={getattr(_es_mod, 'COVERAGE_MAX_MISS', None)} · "
+      f"بالكتلة={'COVERAGE_MAX_MISS' in _es10_names}")
+
+# AH-DL1 — 🔒 **تراجعٌ أُسّيّ على تنزيل اليوم** (السببُ نفسُه: 503 من S3).
+#   **سلوكيّ ومفرِّق:** فشلٌ عابرٌ ثم نجاح ⇒ True بثلاث محاولات · وفشلٌ دائم ⇒
+#   False بعددِ المحاولات المسجَّل · **والنومُ محقونٌ** فلا يُبطئ السويّة.
+_ahd_calls = {"n": 0}
+_ahd_sleeps = []
+_ahd_orig = AH.FP.aws
+
+
+def _ahd_flaky(*a, **k):
+    _ahd_calls["n"] += 1
+    return (0, "", "") if _ahd_calls["n"] >= 3 else (1, "", "503 Service Unavailable")
+
+
+def _ahd_dead(*a, **k):
+    _ahd_calls["n"] += 1
+    return (1, "", "503 Service Unavailable")
+
+
+try:
+    AH.FP.aws = _ahd_flaky
+    _ahd_ok = AH.download("k", "/tmp/_ahd", "ep", sleep=_ahd_sleeps.append)
+    _ahd_n1 = _ahd_calls["n"]
+    _ahd_calls["n"] = 0
+    AH.FP.aws = _ahd_dead
+    _ahd_bad = AH.download("k", "/tmp/_ahd", "ep", sleep=_ahd_sleeps.append)
+    _ahd_n2 = _ahd_calls["n"]
+finally:
+    AH.FP.aws = _ahd_orig
+check("⬇️ AH-DL1 تنزيلُ اليوم يُعيد المحاولة بتراجعٍ أُسّيّ (عابرٌ ينجح · دائمٌ يفشل)",
+      _ahd_ok is True and _ahd_n1 == 3 and _ahd_bad is False and _ahd_n2 == 3
+      and _ahd_sleeps[:2] == [5, 10],
+      f"عابر=({_ahd_ok},{_ahd_n1}) دائم=({_ahd_bad},{_ahd_n2}) نوم={_ahd_sleeps}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

@@ -21,6 +21,7 @@ import datetime as dt
 import gzip
 import os
 import sys
+import time as _time
 import time
 from zoneinfo import ZoneInfo
 
@@ -408,12 +409,27 @@ def head_size_mb(key: str):
     return None, None
 
 
-def download(key: str, dest: str, endpoint: str) -> bool:
-    rc, _, err = FP.aws("cp", f"s3://{FP.BUCKET}/{key}", dest,
-                        endpoint=endpoint, timeout=3600)
-    if rc != 0:
-        log(f"   ⛔ تعذّر التنزيل (rc={rc}): {(err or '')[:180]}")
-    return rc == 0
+def download(key: str, dest: str, endpoint: str, tries: int = 3,
+             sleep=None) -> bool:
+    """⬇️ تنزيلُ يومٍ مع **تراجعٍ أُسّيّ** — أُضيف 2026-08-20 بعد عطبٍ مقيس:
+    شُغّلت ثلاثُ سنواتٍ معًا على البكت نفسِه فردّ S3 **‏503 Service
+    Unavailable**، فضاع **‏68 يومًا من 262** في تشغيلةٍ واحدة (‏`32398766093`).
+    ⚖️ **لا يمسّ أيَّ قيمةٍ مقيسة** — يزيد الأيامَ المُحصَّلة ولا يغيّر حسابًا،
+    وكلُّ محاولةٍ فاشلةٍ **تُسجَّل ولا تُبتَلع.**"""
+    _sl = sleep if sleep is not None else _time.sleep
+    err = ""
+    for i in range(max(1, int(tries))):
+        rc, _, err = FP.aws("cp", f"s3://{FP.BUCKET}/{key}", dest,
+                            endpoint=endpoint, timeout=3600)
+        if rc == 0:
+            if i:
+                log(f"   ↩️ نجح التنزيل بعد {i + 1} محاولات: {key}")
+            return True
+        log(f"   ⛔ تعذّر التنزيل (rc={rc} · محاولة {i + 1}/{tries}): "
+            f"{(err or '')[:160]}")
+        if i + 1 < max(1, int(tries)):
+            _sl(5 * (2 ** i))
+    return False
 
 
 def report_year(acc, mode: str, measured: int, missing: list,
