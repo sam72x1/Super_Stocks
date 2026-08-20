@@ -20122,6 +20122,48 @@ check("🔒 OEL11 الترويسةُ تُعلن أرضيةَ النبض ونسب
       {"LIQ_PULSE_MIN_USD", "LIQ_PULSE_PCT"} <= _oel11_names,
       f"داخل _log: {sorted(n for n in _oel11_names if 'PULSE' in n)}")
 
+# 🔒 OEL12 — **سطرُ «انتهى» يقول إن عدّاداته من آخر إعادة تشغيل** (2026-08-20).
+#   `os.execve` يبدأ عمليةً جديدةً فتُصفَّر `loops`/`liq_hit`، **والسطرُ كان
+#   يطبعها كأنها عدّادُ المقطع كلِّه** — مقيسٌ حيًّا: مقطعٌ عاش 5.5 ساعةٍ طبع
+#   «2 دورة · 3 رفعة». ⇒ رقمٌ صحيحٌ في عمودٍ خاطئ **أسوأُ من لا رقم**.
+try:
+    _oel12_rs = _oel_mod._restarts
+    _oel12 = (_oel12_rs({}),                     # لا مفتاح ⇒ صفر
+              _oel12_rs({"OE_RESTARTS": "3"}),   # ثلاثٌ ⇒ 3
+              _oel12_rs({"OE_RESTARTS": " 2 "}), # بفراغات ⇒ 2
+              _oel12_rs({"OE_RESTARTS": "لا"}),  # تالفٌ ⇒ صفر (فاشلٌ-آمن)
+              _oel12_rs({"OE_RESTARTS": "-4"}))  # سالبٌ ⇒ صفر
+except Exception as _e:                                          # noqa: BLE001
+    _oel12 = f"⛔ رمى: {type(_e).__name__}"
+check("🔒 OEL12 عدّادُ إعادات التشغيل يفرّق (صفر · 3 · 2 · تالفٌ صفر · سالبٌ صفر)",
+      _oel12 == (0, 3, 2, 0, 0), str(_oel12))
+_oel12_tree = _ast0.parse(_oel_src)
+_oel12_exec = [_c for _c in _ast0.walk(_oel12_tree)
+               if isinstance(_c, _ast0.Call)
+               and getattr(getattr(_c.func, "value", None), "id", None) == "os"
+               and getattr(_c.func, "attr", None) == "execve"]
+# ⚠️ الاسمُ **مفتاحٌ مُسمًّى داخل `dict(...)` المتداخلة** لا وسيطَ `execve`
+#    نفسِه ⇒ تُجمَع مفاتيحُ **كلّ** نداءٍ داخل الشجرة الفرعية (صياغتي الأولى
+#    قرأت `keywords` الخارجيّة وحدَها **فسقطت على كودٍ سليم** — «قفلٌ يمنع
+#    الصحيحَ ليس أشدَّ، هو مكسور»).
+_oel12_env = {_k.arg for _c in _oel12_exec for _n in _ast0.walk(_c)
+              if isinstance(_n, _ast0.Call)
+              for _k in _n.keywords if _k.arg}
+check("🔒 OEL12ب والعدّادُ **مُمرَّرٌ في `os.execve` نفسِه** (AST) — وإلّا صُفِّر",
+      len(_oel12_exec) == 1 and "OE_RESTARTS" in _oel12_env,
+      f"execve={len(_oel12_exec)} · {sorted(_oel12_env)[:6]}")
+_oel12_sum = [_c for _c in _ast0.walk(_oel12_tree)
+              if isinstance(_c, _ast0.Call)
+              and getattr(_c.func, "id", None) == "_log"
+              and any(isinstance(_x, _ast0.Constant)
+                      and isinstance(_x.value, str) and "انتهى" in _x.value
+                      for _x in _ast0.walk(_c))]
+check("🔒 OEL12ج وسطرُ «انتهى» يقرؤه من داخل نداء `_log` (AST لا نصّ)",
+      len(_oel12_sum) == 1
+      and any(getattr(_n, "id", None) == "_rs"
+              for _n in _ast0.walk(_oel12_sum[0])),
+      f"نداءات «انتهى»={len(_oel12_sum)}")
+
 # ══════ 💰 LIQ — «مضاربٌ أم قروب؟» (فيصل `IMG_1066`، 2026-08-17) ══════
 _liq_base = 1_755_000_000_000 // 1_800_000 * 1_800_000     # مصفوفٌ على 30 دقيقة
 

@@ -50,6 +50,19 @@ def _ny_minutes(now=None):
         return (n.hour * 60 + n.minute - 240) % 1440, n.date().isoformat()
 
 
+def _restarts(env=None) -> int:
+    """🔢 كم مرّةً أُعيد تشغيلُ هذي العملية بـ`_self_update`؟ **نقيّةٌ لتُقفَل
+    سلوكيًّا** (قفلٌ بنيويٌّ يُثبت الوصلَ ولا يرى دلالةَ العدّ) · وتُقرأ البيئةَ
+    **وقتَ النداء** لا وقتَ التعريف (سابقةُ `load_edges` المقيسة) · والتالفُ
+    والسالبُ ⇒ **صفر** (فاشلٌ-آمن: لا نُلحق سطرَ تحذيرٍ على قيمةٍ لا نفهمها)."""
+    src = os.environ if env is None else env
+    try:
+        n = int(str(src.get("OE_RESTARTS") or 0).strip())
+    except (TypeError, ValueError):
+        return 0
+    return n if n > 0 else 0
+
+
 def _budget(left_min, raw=None):
     """سقفُ العمل بالدقائق — و`OE_BUDGET_MIN` **يُقصّر ولا يُطيل** (بنيويًّا).
 
@@ -228,8 +241,14 @@ def _self_update(t0, budget):
         return False
     _log(f"♻️ حُدِّث الكودُ إلى {remote[:7]} — يُعاد التشغيل بميزانية {rem} دقيقة.")
     try:
+        # 🔢 **عدّادُ إعادات التشغيل يُمرَّر عبر البيئة** (أُضيف 2026-08-20):
+        #    `os.execve` يبدأ عمليةً جديدةً فتُصفَّر عدّاداتُ الدورات والرفعات،
+        #    **وسطرُ «انتهى» كان يطبعها كأنها عدّادُ المقطع كلِّه** — مقيسٌ
+        #    اليومَ: مقطعٌ عاش 5.5 ساعةٍ وطبع «2 دورة · 3 رفعة» لأنه أُعيد
+        #    تشغيلُه قبل نهايته بدقائق. ⇒ **عدّادٌ يُعلَن لا يُصمَت عنه.**
         os.execve(sys.executable, [sys.executable] + sys.argv,
-                  dict(os.environ, OE_BUDGET_MIN=str(rem)))
+                  dict(os.environ, OE_BUDGET_MIN=str(rem),
+                       OE_RESTARTS=str(_restarts() + 1)))
     except Exception as e:                                       # noqa: BLE001
         _log(f"⚠️ تعذّرت إعادةُ التشغيل ({e}) — يمضي بالكود المحدَّث في الذاكرة.")
     return False
@@ -458,8 +477,13 @@ def main():
         #    🔒 **رتيبٌ لا يُؤخّر أبدًا** — يساوي القديمَ حين يطول العمل، وأسرعُ
         #    منه حين يقصُر؛ ويستحيل عليه بنيويًّا أن يجعل دورةً أطولَ ممّا كانت.
         time.sleep(max(0.0, interval - (time.time() - _cyc)))
+    _rs = _restarts()
     _log(f"✅ انتهى [{role}]: {loops} دورة · {fired} دخولًا · {liq_hit} رفعةَ "
-         f"سيولة · تغطيةُ السيولة {liq_cov} قراءةً · {errs} خطأ.")
+         f"سيولة · تغطيةُ السيولة {liq_cov} قراءةً · {errs} خطأ."
+         # ⚠️ **والعدّاداتُ من آخر إعادةِ تشغيل لا من بدء المقطع** — تُقال
+         #    صراحةً وإلّا قُرئ «2 دورة» عن مقطعٍ عاش خمسَ ساعات.
+         + (f" ⚠️ العدّاداتُ **من آخر إعادةِ تشغيل** (أُعيد {_rs} مرّة)."
+            if _rs else ""))
     return 0
 
 
