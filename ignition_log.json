@@ -563,5 +563,35 @@
   "usd_eff": 6482,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "ONMD",
+  "date": "2026-08-20",
+  "sustain_min": 1,
+  "operator_ok": false,
+  "fired_at": "2026-08-20T20:00:37Z",
+  "break_level": 0.6,
+  "price": 0.6005,
+  "vol_x": 3.5,
+  "usd": 7211,
+  "candle_class": "group",
+  "usd_eff": 7211,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "TRON",
+  "date": "2026-08-20",
+  "sustain_min": 218,
+  "operator_ok": true,
+  "fired_at": "2026-08-20T20:00:38Z",
+  "break_level": 1.66,
+  "price": 1.665,
+  "vol_x": 3.1,
+  "usd": 5631,
+  "candle_class": "group",
+  "usd_eff": 5631,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
