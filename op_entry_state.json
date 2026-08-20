@@ -21,9 +21,9 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 1,
   "vol_x": 30.2,
-  "peak_usd": 4165804,
+  "peak_usd": 10104647,
   "last_eval_ms": 1787216400000,
   "pulse_ms": 1787228520000,
   "anchor_price": 1.95,
@@ -90,7 +90,7 @@
   "date": "2026-08-20"
  },
  "LIQ:AKAN": {
-  "last_eval_ms": 1787227980000,
+  "last_eval_ms": 1787228400000,
   "date": "2026-08-20"
  },
  "LIQ:PDSB": {
@@ -536,7 +536,7 @@
   "updates": 0,
   "vol_x": 9.0,
   "peak_usd": 652356,
-  "last_eval_ms": 1787227320000,
+  "last_eval_ms": 1787227380000,
   "pulse_ms": 1787228520000,
   "anchor_price": 0.768,
   "date": "2026-08-20"
@@ -701,7 +701,7 @@
   "date": "2026-08-20"
  },
  "LIQ:BZAI": {
-  "last_eval_ms": 1787228220000,
+  "last_eval_ms": 1787228520000,
   "date": "2026-08-20"
  },
  "LIQ:DARE": {
@@ -736,7 +736,7 @@
   "date": "2026-08-20"
  },
  "LIQ:GPRO": {
-  "last_eval_ms": 1787227620000,
+  "last_eval_ms": 1787228220000,
   "date": "2026-08-20"
  },
  "LIQ:MEDS": {
@@ -818,7 +818,7 @@
   "date": "2026-08-20"
  },
  "LIQ:OTLK": {
-  "last_eval_ms": 1787228340000,
+  "last_eval_ms": 1787228460000,
   "date": "2026-08-20"
  },
  "LIQ:SKYA": {
@@ -1054,7 +1054,7 @@
   "date": "2026-08-19"
  },
  "LIQ:IMNN": {
-  "last_eval_ms": 1787226240000,
+  "last_eval_ms": 1787224260000,
   "date": "2026-08-20"
  },
  "LIQ:APVO": {
@@ -1526,7 +1526,7 @@
   "date": "2026-08-20"
  },
  "LIQ:HCTI": {
-  "last_eval_ms": 1787227740000,
+  "last_eval_ms": 1787227920000,
   "date": "2026-08-20"
  },
  "LIQ:VERI": {
@@ -1687,9 +1687,9 @@
    "M5",
    "M30"
   ],
-  "updates": 3,
+  "updates": 2,
   "vol_x": 16.5,
-  "peak_usd": 2104684,
+  "peak_usd": 2066895,
   "last_eval_ms": 1787225820000,
   "pulse_ms": 1787228520000,
   "anchor_price": 4.12,
