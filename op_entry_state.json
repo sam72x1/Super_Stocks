@@ -1369,15 +1369,15 @@
  },
  "LIQ:RITR": {
   "anchor_ms": 1787212920000,
-  "last_ms": 1787212920000,
+  "last_ms": 1787212980000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 10.3,
-  "peak_usd": 202841,
+  "peak_usd": 845333,
   "last_eval_ms": 1787212980000,
-  "pulse_ms": 1787212920000,
+  "pulse_ms": 1787212980000,
   "anchor_price": 0.1261,
   "date": "2026-08-20"
  },
