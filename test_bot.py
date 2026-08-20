@@ -27403,8 +27403,11 @@ _k9_pub = {
            "بريماركت متأخر": (13.4, 15.9),
            "جلسة صباحية": (8.3, 9.1), "بعد الظهر": (7.6, 9.4)},
 }
-check("🌊 KAS9 النسبُ = المنشورةُ حرفيًّا · والسطرُ بلا علامات مقارنة",
-      S.KASIH_RATES == _k9_pub
+# 🔓 إقرارٌ مؤرَّخ 2026-08-20: كان القفلُ مساواةً على القاموس كاملًا فأمسك
+#    توسيعَ الوسم المأذون («وسع الوسم») وأدّى عملَه ⇒ صار مساواةً على أقسام
+#    kasih_result (f2/f5/f3) حرفيًّا، وأقسامُ kasih2_result يقفلها KAS14 بأرقامها.
+check("🌊 KAS9 النسبُ = المنشورةُ حرفيًّا (f2/f5/f3) · والسطرُ بلا علامات مقارنة",
+      all(S.KASIH_RATES[k] == _k9_pub[k] for k in ("f2", "f5", "f3"))
       and isinstance(_k7_l, str)
       and all(c not in _k7_l for c in "<>≥≤"),
       "")
@@ -27505,9 +27508,16 @@ _k2_bad = [getattr(n.func, "attr", getattr(n.func, "id", None))
            if (getattr(n.func, "attr", getattr(n.func, "id", "")) or "")
            in ("send_telegram", "save_watchlist", "save_op_entry_state",
                "git_save")]
-check("🌊② K2L3 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة · والإنتاجُ لا يستورد kasih2",
+# 🔓 إقرارٌ مؤرَّخ 2026-08-20: الإبرةُ النصيّة العريضة («kasih2» في الملف كلِّه)
+#    سقطت على اسم دالّة العرض `kasih2_wave_feats` («وسع الوسم») — والخطرُ
+#    الحقيقيّ **الاستيرادُ** ⇒ صار الفحصُ على أسطر الاستيراد حصرًا (درسُ
+#    «القفل النصّيّ لا يفرّق كودًا عن اسمٍ مشابه»).
+check("🌊② K2L3 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة · والإنتاجُ لا يستورد kasih2_scan",
       _k2_bad == []
-      and "kasih2" not in open("Super_stock.py", encoding="utf-8").read(),
+      and not any(_l.strip().startswith(("import kasih2_scan",
+                                         "from kasih2_scan"))
+                  for _l in open("Super_stock.py",
+                                 encoding="utf-8").read().splitlines()),
       f"سيئ={_k2_bad}")
 
 # K2L4 — وصلُ الـworkflow نحويًّا (نمطُ KAS5 حرفيًّا على kasih2.yml).
@@ -27548,6 +27558,123 @@ check("🌊② K2L5 k2_features يملأ المفاتيح الأحد عشر · �
       and all(_k2_feats[k] is not None for k in ("j1", "c1", "c2", "v2", "p1"))
       and _K2.k2_features(_k2_rows, 999, 1.29, "mid", 5.0, 1, 1) == {},
       f"مفاتيح={sorted(_k2_feats)}")
+
+# ═══ 🌊② «وسع الوسم» — KAS11-KAS14 (أمر المالك 2026-08-20 بعد حكم kasih2) ═══
+# مؤشّراتُ المواصلة الأربع (C3/C4/V2/V3) + شارةُ «التوليفة» على كرت M5 —
+# عرضٌ فقط: k2 حقلٌ إضافيٌّ بحت والإطلاقُ بت-بت.
+
+# KAS11 — تكافؤُ الإنتاج مع أداة القياس **سلوكيًّا** على عيّناتٍ مفرِّقة
+#   (المقياسُ واحدٌ وإن امتنع الاستيراد — عقد K2L3):
+def _kwb(t, o, c, v):
+    return {"t": t, "o": o, "h": max(o, c), "l": min(o, c), "c": c, "v": v}
+
+
+def _kwt(bars):
+    return [(int(b["t"]), b["o"], b["h"], b["l"], b["c"], b["v"])
+            for b in bars]
+
+
+_kw_a = 600_000
+_kw_rich = [_kwb(_kw_a, 1.00, 1.29, 40_000),
+            _kwb(_kw_a + 60_000, 1.29, 1.35, 44_100),
+            _kwb(_kw_a + 120_000, 1.35, 1.39, 50_000),
+            _kwb(_kw_a + 180_000, 1.39, 1.41, 60_000),
+            _kwb(_kw_a + 240_000, 1.41, 1.43, 70_000)]
+_kw_drain = [_kwb(_kw_a, 1.00, 1.29, 40_000),
+             _kwb(_kw_a + 60_000, 1.29, 1.26, 10_000),
+             _kwb(_kw_a + 120_000, 1.26, 1.21, 4_000)]
+_kw_gap = [_kwb(_kw_a, 1.00, 1.29, 40_000),
+           _kwb(_kw_a + 240_000, 1.29, 1.40, 50_000)]
+_kw_ok = True
+for _nm, _bars in (("غنية", _kw_rich), ("نازحة", _kw_drain),
+                   ("مفجوّة", _kw_gap)):
+    _p = S.kasih2_wave_feats(_bars, _kw_a, 1.29)
+    _t = {"c3": _K2.c3_bucket(_kwt(_bars), _kw_a, 1.29),
+          "c4": _K2.c4_bucket(_kwt(_bars), _kw_a),
+          "v2": None, "v3": _K2.v3_bucket(_kwt(_bars), _kw_a)}
+    _u5 = sum(b["c"] * b["v"] for b in _bars)
+    _t["v2"] = _K2.v2_bucket(_bars[0]["c"] * _bars[0]["v"], _u5)
+    if _p != _t:
+        _kw_ok = False
+        break
+_kw_legacy = S.kasih2_wave_feats(_kw_rich, _kw_a, None)
+check("🌊② KAS11 تكافؤُ الإنتاج مع kasih2_scan سلوكيًّا (غنية/نازحة/مفجوّة) · "
+      "وحالةٌ قديمة بلا سعر ⇒ c3 وحدها None",
+      _kw_ok and _kw_legacy.get("c3") is None
+      and _kw_legacy.get("c4") == "خضراء 3-4"
+      and "داخلة" in (_kw_legacy.get("v3") or ""),
+      f"تكافؤ={_kw_ok} قديمة={_kw_legacy}")
+
+# KAS12 — الوصلةُ الحيّة: حدثُ M5 من liq_stage_events يحمل k2 · وM30 لا يحمله ·
+#   والمراحلُ المُطلَقة كما هي (عرضٌ لا إطلاق).
+_kw_r1 = ([_kwb(i * 60_000, 1.0, 1.0, 1000) for i in range(10)]
+          + [_kwb(600_000, 1.0, 1.10, 300000),
+             _kwb(660_000, 1.10, 1.10, 10)])
+_kw_e1, _kw_st = S.liq_stage_events(_kw_r1, {})
+_kw_r2 = (_kw_r1[:-1]
+          + [_kwb(660_000, 1.10, 1.12, 330100),
+             _kwb(720_000, 1.12, 1.14, 380000),
+             _kwb(780_000, 1.14, 1.15, 420000),
+             _kwb(840_000, 1.15, 1.16, 460000),
+             _kwb(900_000, 1.16, 1.17, 10)])
+_kw_e2, _kw_st2 = S.liq_stage_events(_kw_r2, dict(_kw_st))
+_kw_m5 = next((e for e in _kw_e2 if e.get("stage") == "M5"), {})
+_kw_r3 = (_kw_r2[:-1]
+          + [_kwb((10 + k) * 60_000, 1.16, 1.16, 500)
+             for k in range(5, 31)]
+          + [_kwb(41 * 60_000, 1.16, 1.16, 10)])
+_kw_e3, _ = S.liq_stage_events(_kw_r3, dict(_kw_st2))
+_kw_m30 = next((e for e in _kw_e3 if e.get("stage") == "M30"), {})
+check("🌊② KAS12 حدثُ M5 يحمل k2 بمؤشّراته من مسار الإنتاج · وM30 بلا k2",
+      isinstance(_kw_m5.get("k2"), dict)
+      and _kw_m5["k2"].get("c4") == "خضراء 3-4"
+      and "داخلة" in (_kw_m5["k2"].get("v3") or "")
+      and _kw_m30.get("stage") == "M30" and "k2" not in _kw_m30,
+      f"M5.k2={_kw_m5.get('k2')} · M30 فيه k2؟ {'k2' in _kw_m30}")
+
+# KAS13 — العرضُ يفرّق: شارةُ «التوليفة» عند (قوي/مضارب × فجوة 30 فأكثر)
+#   **حصرًا** · ولاحقةُ أقوى خليةٍ عند (قوي × فوق 75) حصرًا · وسطرُ المؤشّرات
+#   يظهر مع k2 ويغيب بدونه · **والقراءةُ السالبة تُعرَض** (نقضت بنسبتها).
+_kw_ev = {"stage": "M5", "class": ("strong", "x"), "anchor_price": 1.29,
+          "prev_close": 0.70, "anchor_ms": _kw_a,
+          "k2": S.kasih2_wave_feats(_kw_rich, _kw_a, 1.29)}
+_kw_l1 = S.kasih_tag_line(_kw_ev)
+_kw_l2 = S.kasih_tag_line(dict(_kw_ev, prev_close=1.00))     # فجوة 29% ⇒ بلا شارة
+_kw_l3 = S.kasih_tag_line(dict(_kw_ev, **{"class": ("mid", "x")}))
+_kw_l4 = S.kasih_tag_line(dict(_kw_ev, prev_close=0.95))     # 35.8% ⇒ شارة بلا لاحقة
+_kw_l5 = S.kasih_tag_line({k: v for k, v in _kw_ev.items() if k != "k2"})
+_kw_l6 = S.kasih_tag_line(dict(_kw_ev,
+                               k2=S.kasih2_wave_feats(_kw_drain, _kw_a, 1.29)))
+check("🌊② KAS13 شارةُ التوليفة تفرّق (30% حدًّا · قوي/مضارب حصرًا) · واللاحقةُ "
+      "عند قوي×فوق75 حصرًا · والمؤشّراتُ مع k2 وحده · والسالبةُ تُعرَض",
+      "توليفةُ القوة" in _kw_l1 and "أقوى خلاياها" in _kw_l1
+      and "توليفةُ القوة" not in _kw_l2 and "توليفةُ القوة" not in _kw_l3
+      and "توليفةُ القوة" in _kw_l4 and "أقوى خلاياها" not in _kw_l4
+      and "مؤشّراتُ المواصلة" in _kw_l1
+      and "مؤشّراتُ المواصلة" not in _kw_l5
+      and "نقضت" in _kw_l6 and "5.3-6.3%" in _kw_l6)
+
+# KAS14 — النِّسبُ الجديدة مقفولةٌ ازدواجيًّا على أرقام kasih2_result المنشورة
+#   (نمطُ _k9_pub): تعديلُ أيٍّ منها بلا تعديل القفل = سقوط.
+_kw_pub = {
+    ("j1", "توليفة"): (19.7, 22.6), ("j1", "الباقي"): (7.7, 9.3),
+    ("c3", "صادقت (إغلاقٌ فوق المرساة)"): (18.5, 22.0),
+    ("c3", "حيّدت"): (9.5, 9.8), ("c3", "نقضت"): (5.3, 6.3),
+    ("c4", "خضراء 3-4"): (24.2, 29.3), ("c4", "خضراء 2"): (11.0, 14.1),
+    ("c4", "خضراء 0-1"): (4.8, 5.5),
+    ("v2", "المرساة دون 30% (سيولة تتوالى)"): (18.1, 22.2),
+    ("v2", "المرساة 30-60% من الخمس"): (6.5, 6.7),
+    ("v2", "المرساة فوق 60% من الخمس (اندفاعة وحيدة)"): (4.8, 6.0),
+    ("v3", "سيولةٌ داخلة (نبضٌ صافٍ موجب)"): (23.6, 32.6),
+    ("v3", "نبضٌ متعادل"): (11.2, 12.4),
+    ("v3", "سيولةٌ نازحة (نبضٌ صافٍ سالب)"): (6.5, 7.1),
+}
+_kw_dup = all(S.KASIH_RATES[f][b] == r for (f, b), r in _kw_pub.items())
+check("🌊② KAS14 نِسبُ التوسيع مقفولةٌ ازدواجيًّا على kasih2_result (‏14 صفًّا "
+      "+ أقوى خلية)",
+      _kw_dup and S.KASIH_RATES["j1_top"] == (27.9, 37.1)
+      and all(b in S.KASIH_RATES[f] for (f, b) in _kw_pub),
+      f"ازدواج={_kw_dup}")
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
