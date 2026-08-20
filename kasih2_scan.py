@@ -385,8 +385,12 @@ def main() -> int:                                                # noqa: C901
               f"{'✅' if n_evmis == 0 else '⛔ يُقرأ عطبَ أداةٍ لا نتيجة'}")
         print(f"   {'الرمز':7}{'مرساة':>7} {'سعرُ M1':>9}{'عن أمس':>9} "
               f"{'سعرُ M5':>9}{'عن أمس':>9} {'بعد M5':>8}  الوسمُ الذي كان سيصلك")
-        for r in sorted(rows_out, key=lambda x: -(x.get("_ev") or {})
-                        .get("mg5", -999)):
+        # ⚠️ `mg5` قد يكون `None` (سهمٌ بلا شمعةٍ بعد الدقيقة الخامسة) —
+        #    و`-None` يرمي: كُشف بالتشغيل لا بالقراءة.
+        for r in sorted(rows_out,
+                        key=lambda x: -(((x.get("_ev") or {}).get("mg5")
+                                         if (x.get("_ev") or {}).get("mg5")
+                                         is not None else -999.0))):
             e = r.get("_ev") or {}
             tag = ("🥇توليفة" if str(r.get("j1") or "").startswith("توليفة")
                    else "—")
