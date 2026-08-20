@@ -13825,6 +13825,32 @@ def polygon_prev_close(sym: str, day_iso: str = None):
     return px
 
 
+def _px_txt(v) -> str:
+    """💵 سعرٌ **بدقّةٍ لا تكذب**: ما دون الدولار بأربع خانات.
+
+    🔴 **عيبٌ مقيسٌ في الكرت القديم:** `$0.0763` كان يُطبَع «$0.08» و`$0.1261`
+    «$0.13» — وفي أسهم السنتات (وهي فئتُنا) هذا **فرقُ قرارٍ** لا تدوير:
+    الفرقُ بين 0.1261 و0.13 ‏≈3% من رأس المال في أمرٍ واحد. `""` لغير الرقم."""
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return ""
+    return f"${v:.4f}" if abs(v) < 1 else f"${v:.2f}"
+
+
+def _n_txt(v) -> str:
+    """🔢 رقمٌ مضغوطٌ يُقرأ بلمحة: 7,824,183 ⟶ «7.8م» · 845,333 ⟶ «845,333».
+
+    (المليونُ فأكثر يُختصَر — دونه تبقى الفواصلُ لأن الدقّةَ أقصرُ من الاختصار.)"""
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        return ""
+    if abs(v) >= 1e6:
+        return f"{v / 1e6:.1f}م"
+    return f"{int(round(v)):,}"
+
+
 def live_price_note(of):
     """📡 **السعرُ الآن** من الاقتباس المجلوب أصلًا — بصفرِ نداءٍ إضافيّ.
 
@@ -13880,9 +13906,10 @@ def bid_wall_line(of, min_usd=None):
         usd = b * sz
         if usd < floor:
             return ""
-        return (f"🧱 جدارُ طلباتٍ ضخم: {int(sz):,} سهم عند ${b:.2f} "
-                f"(${usd:,.0f}) — يُراقَب لا يُصدَّق: إلغاؤه المفاجئ مع "
-                f"نزول السعر بصمةُ كنس (حالة ZCMD)")
+        # 🔴 **مضغوطٌ بأمر الاختصار (2026-08-20):** شرحُ «حالة ZCMD» كان 60
+        #    محرفًا ثابتًا في كلّ إشعار — والتحذيرُ يبقى بثلاث كلمات.
+        return (f"🧱 جدارُ طلباتٍ ضخم {_n_txt(sz)} سهم عند {_px_txt(b)} "
+                f"(${_n_txt(usd)}) — يُراقَب لا يُصدَّق")
     except (TypeError, ValueError):
         return ""
 
@@ -14032,25 +14059,47 @@ def kasih_time_bucket(anchor_ms):
     return "بعد الظهر"
 
 
-def kasih_tag_line(ev: dict) -> str:
-    """🌊 سطرُ وسم الكاسح على كرت `M5` **حصرًا** (سلةُ F2 قِيست على مجموع خمس
-    دقائق فلا تُلبَس لدقيقةٍ واحدة ولا لثلاثين). يقرأ السلالَ الثلاث المستوفيةَ
-    معاييرَ `T-KASIH` بنسبها التاريخية (أدنى-أقصى السنوات الثلاث).
+def kasih_j1(ev: dict):
+    """🥇 **قاعدةُ «التوليفة» J1 — مصدرٌ واحدٌ لا نسختان** (‏`kasih2_result.md`):
+    سيولةُ الخمس بصنف «قوي/مضارب» **مع** فجوةٍ من إغلاق الأمس 30% فأكثر.
 
-    فاشلٌ-آمن: أيُّ مكوّنٍ تعذّر (حالةٌ قديمة بلا `anchor_price` · لا
-    `prev_close` · صنفٌ مجهول) **يسقط وحدَه**، ولا سطرَ إن لم يبقَ مكوّن.
+    ترجّع `(توليفة؟، أقوى خليّة؟)` — والثانيةُ «قوي × فوق 75%». وأُخرجت من
+    `kasih_tag_line` حين صار الوسمُ يُطبَع في **رأس الكرت** (أمرُ الاختصار
+    2026-08-20): قاعدةٌ في موضعين تتفرّق بصمت. فاشلةٌ-آمنة ⇒ `(False, False)`."""
+    try:
+        cls = (ev or {}).get("class")
+        key = cls[0] if isinstance(cls, (list, tuple)) and cls else None
+        if key not in ("strong", "operator"):
+            return (False, False)
+        gp = (float(ev["anchor_price"]) / float(ev["prev_close"]) - 1.0) * 100.0
+        if gp < 30.0:
+            return (False, False)
+        return (True, key == "strong" and gp >= 75.0)
+    except (TypeError, ValueError, KeyError, ZeroDivisionError):
+        return (False, False)
+
+
+def kasih_tag_line(ev: dict) -> str:
+    """🌊 سطرُ وسم الكاسح على كرت `M5` **حصرًا** — **مضغوطًا** (أمرُ المالك
+    2026-08-20 «اختصر الرساله هذا ربح جنوني ضاع علي بسبب طول الرسالة»).
+
+    🔴 **ما حُذف ولماذا:** النِّسَبُ التاريخية (‏«16.5-20.3%» …) **ثابتةٌ لكلّ
+    سلّةٍ ولا تتغيّر بين كرتٍ وآخر** ⇒ كانت تُطبَع 180 محرفًا في كلّ إشعارٍ
+    لتقول ما يُقرأ مرّةً واحدة. مكانُها `kasih2_result.md` — **والباقي هنا
+    السلالُ نفسُها** (المعلومةُ الفارقة بين كرتٍ وكرت).
+
+    وصنفُ الشمعة **لا يُكرَّر هنا** (صار شارةً في رأس الكرت)، ومؤشّراتُ
+    المواصلة الأربع تُضغَط إلى **عدّاد** «مواصلة ن/4» يُوسَم ⚠️ عند الصفر —
+    وسندُه مقيس: صفرُ مؤشّرٍ أخضر كاسحُه ‏3.4-4.0% مقابل 14-17% لغيره
+    (‏`red_mute_result.md`، والكتمُ سقط على الكلفة لا على الفصل).
+
+    فاشلٌ-آمن: أيُّ مكوّنٍ تعذّر يسقط وحدَه، ولا سطرَ إن لم يبقَ مكوّن.
     ⛔ **عرضٌ لا توصية**: «كاسح» = لمسُ ‏+30% تاريخيًّا قبل كسر قاع شمعة
     المِرساة — لا صفقةَ منفَّذة (حدود `kasih_result.md §⑦`)."""
     try:
         if str((ev or {}).get("stage") or "") != "M5":
             return ""
         parts = []
-        cls = ev.get("class")
-        key = cls[0] if isinstance(cls, (list, tuple)) and cls else None
-        r = KASIH_RATES["f2"].get(key or "")
-        if r:
-            parts.append(f"سيولةُ الخمس «{_KASIH_F2_AR.get(key, key)}» "
-                         f"{r[0]:.1f}-{r[1]:.1f}%")
         gb = None
         try:
             _ap = float(ev.get("anchor_price"))
@@ -14059,192 +14108,178 @@ def kasih_tag_line(ev: dict) -> str:
                 gb = kasih_gap_bucket((_ap / _pc - 1.0) * 100.0)
         except (TypeError, ValueError):
             gb = None
-        r = KASIH_RATES["f5"].get(gb or "")
-        if r:
-            parts.append(f"مِرساتُه من إغلاق الأمس «{gb}» "
-                         f"{r[0]:.1f}-{r[1]:.1f}%")
-        r = KASIH_RATES["f3"].get(kasih_time_bucket(ev.get("anchor_ms")) or "")
-        if r:
-            parts.append(f"وقتُها «{kasih_time_bucket(ev.get('anchor_ms'))}» "
-                         f"{r[0]:.1f}-{r[1]:.1f}%")
+        if gb and gb in KASIH_RATES["f5"]:
+            parts.append(f"فجوة {gb}")
+        tb = kasih_time_bucket(ev.get("anchor_ms"))
+        if tb and tb in KASIH_RATES["f3"]:
+            parts.append(tb)
+        # 🔎 مؤشّراتُ المواصلة ⟶ عدّادٌ (السلالُ الكاملةُ تبقى في `k2` للحصاد)
+        k2 = ev.get("k2") or {}
+        _TOP = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+                "v2": "المرساة دون 30% (سيولة تتوالى)",
+                "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)"}
+        got = [f for f in ("c3", "c4", "v2", "v3") if k2.get(f)]
+        if got:
+            green = sum(1 for f in got if k2.get(f) == _TOP[f])
+            parts.append(("⚠️ مواصلة صفر من " if green == 0 else
+                          f"مواصلة {green} من ") + str(len(got)))
         if not parts:
             return ""
-        base = ("🌊 وسمُ الكاسح تاريخيًّا (قياسُ 3 سنوات · 44,200 مِرساة · "
-                "الأساس 11% · لمسُ +30% لا تنفيذ): " + " · ".join(parts))
-        # 🌊② «وسع الوسم» (أمرُ المالك 2026-08-20 بعد حكم kasih2_result):
-        extra = []
-        # 🥇 سطرُ «التوليفة» (الحاكمة J1) — **شارةٌ عند استيفائها فقط**:
-        #    مكوّناها معروضان أعلاه أصلًا، وسطرُ «ليست توليفة» ضجيجٌ سالب.
-        try:
-            _gp = None
-            _ap, _pc = float(ev.get("anchor_price")), float(ev.get("prev_close"))
-            if _pc > 0:
-                _gp = (_ap / _pc - 1.0) * 100.0
-        except (TypeError, ValueError):
-            _gp = None
-        if key in ("strong", "operator") and _gp is not None and _gp >= 30.0:
-            r0, r1 = KASIH_RATES["j1"]["توليفة"], KASIH_RATES["j1"]["الباقي"]
-            ln = (f"🥇 توليفةُ القوة (قوي/مضارب × فجوة 30% فأكثر): تاريخيًّا "
-                  f"{r0[0]:.1f}-{r0[1]:.1f}% مقابل {r1[0]:.1f}-{r1[1]:.1f}% لغيرها")
-            if key == "strong" and _gp >= 75.0:
-                rt = KASIH_RATES["j1_top"]
-                ln += (f" — وهو في أقوى خلاياها (قوي × فوق 75%): "
-                       f"{rt[0]:.1f}-{rt[1]:.1f}%")
-            extra.append(ln)
-        # 🔎 مؤشّراتُ المواصلة الأربع (من نافذة الخمس · حدثُ M5 يحملها k2):
-        #    تُعرَض **بقراءتها الفعلية سالبةً أو موجبة** — لا أخبارَ طيّبةً فقط.
-        k2 = ev.get("k2") or {}
-        segs = []
-        for fk, lbl in (("c3", "الشمعةُ التالية"), ("c4", "خضراءُ الخمس"),
-                        ("v2", "السيولة"), ("v3", "💓 النبض")):
-            b = k2.get(fk)
-            r = KASIH_RATES.get(fk, {}).get(b or "")
-            if b and r:
-                segs.append(f"{lbl} «{_KASIH2_SHORT.get(b, b)}» "
-                            f"{r[0]:.1f}-{r[1]:.1f}%")
-        if segs:
-            extra.append("🔎 مؤشّراتُ المواصلة (الخمسُ الأولى): "
-                         + " · ".join(segs))
-        return base + "".join("\n      " + e for e in extra)
+        return "🌊 كاسح: " + " · ".join(parts)
     except Exception:                                            # noqa: BLE001
         return ""                     # كتمُ سطرِ عرضٍ خيرٌ من إسقاط الكرت كلِّه
 
+_LIQ_CLS_AR = {"strong": "شمعةٌ قوية", "operator": "شمعةُ مضارب",
+               "mid": "شمعةٌ وسط", "group": "قروب"}
+_LIQ_STAGE_SHORT = {"M0": "🚨🚨 دقيقةٌ قيد التكوين", "M1": "🚨 أوّلُ دقيقة",
+                    "Mu": "🔁 تحديث", "M5": "5️⃣ اكتملت 5د",
+                    "M30": "🕧 اكتملت 30د"}
+
 
 def build_liq_stage_alert(rows: list, now_ms=None) -> str:
-    """📩 رسالةُ التدرّج — **توقيتٌ لا توصية**، وتفصل «دخلت سيولة» عن «دخل المضارب».
+    """📩 رسالةُ التدرّج — **مضغوطةٌ ليُقرأ القرارُ في ثانية**.
 
-    ⚖️ **ولا تخلط النصّين:** الزنادُ **قفزةُ حجم** (‏`IGNITION_VOL_MULT`) وحكمُ
-    الهويّة **عتباتُ فيصل الدولاريّة** — فيُطبَعان سطرَين لا سطرًا واحدًا."""
+    🔴🔴 **ولماذا أُعيد بناؤها (بلاغُ المالك 2026-08-20 على `$RITR`):** الكرتُ
+    وصل في وقته — `M1` ثم `M5` عند ‏$0.1261 والسهمُ بلغ ‏$0.2321 بعدها بدقائق
+    (‏+84%) — **ولم يدخل**، وقال حرفيًّا: «**اختصر الرساله هذا ربح جنوني ضاع
+    علي بسبب طول الرسالة**». **والمقيسُ يُصدّقه: ‏1,460 محرفًا في 16 سطرًا
+    لسهمٍ واحدٍ بحدثٍ واحد، والسعرُ يقع عند المحرف ‏470 وسطَ سطرٍ طويل** ⇒
+    القناةُ عملت والتسليمُ فشل.
+
+    ⚖️ **مبدأُ البناء: السطرُ الأوّل يحمل القرار كاملًا** (الرمزُ · السعرُ ·
+    كم صعد عن أمسه · شاراتُ القوة) ⇒ يُقرأ من **إشعار تلغرام نفسِه بلا فتح
+    التطبيق**، وما تحته تفصيلٌ لمن أراد. ولا ترويسةَ فوقه: كانت 190 محرفًا
+    من شرحٍ ثابتٍ يدفع القرارَ إلى أسفل الشاشة.
+
+    ⚖️ **وضغطٌ لا حذفٌ لحارسِ صدق:** وسمُ الاقتباس البائت · «لم يُتحقّق من
+    طبعات المضارب» · تمييزُ «سيولة» عن «مضارب» · وتوفّرُ الشموع — كلُّها باقيةٌ
+    بأقصر صيغة. **والمحذوفُ إحصاءٌ ثابتٌ لا يتغيّر بين الكروت** (النِّسَبُ
+    التاريخية) — مكانُه ملفُّ النتائج يُقرأ مرّةً لا في كلّ إشعار."""
     if not rows:
         return ""
-    lines = ["⏫💰 <b>سيولةُ الشمعة — لحظةَ دخولها</b>",
-             "<i>قفزةُ حجمِ الدقيقة (زنادُ الرادار نفسُه) ‏+ أرضيةٌ دولاريّة "
-             "‏+ <b>رفعةُ الدقيقة</b> ⇒ إشعارٌ فوريّ · ثم تحديثٌ عند الزيادة · ثم "
-             "مجموعُ 5 و30 دقيقة من لحظة الدخول.</i>", ""]
+    lines = []
     for i, (row, evs) in enumerate(rows, 1):
         if i > 1:
             lines.append(DAILY_CARD_SEP)
-        lines.append(f"<b>{i}. ${esc(row.get('symbol'))}</b> "
-                     f"· {esc(row.get('src') or '')}")
-        for e in evs:
-            _k, _d = e.get("class") or ("", "")
+        evs = [e for e in (evs or [])]
+        if not evs:
+            continue
+        last = evs[-1]
+        _of_l = last.get("operator") if isinstance(last, dict) else None
+        _fv_l, _fa_l = quote_freshness(_of_l, now_ms=now_ms,
+                                       bar_ms=last.get("price_ms"))
+        _lp_l = live_price_note(_of_l)
+        # 💵 سعرُ الرأس: الحيُّ حين يُثبت طزاجتَه، وإلّا إغلاقُ الدقيقة موسومًا.
+        #    ⚖️ **ومصدرُ السعر يُسمّى دائمًا** — حارسُ صدقٍ لا يسقط بالاختصار:
+        #    «📡 الآن» للاقتباس الطازج · «⚠️ بائت» لمن سقطت طزاجتُه ·
+        #    و«إغلاق HH:MM» حين لا اقتباسَ (‏**لا يُخمَّن أنه سعرٌ حاليّ**).
+        _bc_l = bar_clock(last.get("price_ms"), now_ms=now_ms)
+        if _lp_l is not None and _fv_l != "stale":
+            _head_px = f"📡 الآن <b>{_px_txt(_lp_l)}</b>"
+        else:
+            # 🔴🔴 **الأحدثُ يتصدّر — لا «الحيُّ» شكلًا:** أمسك قفلُ `SHOW8`
+            #    عيبًا حقيقيًّا في أوّل صياغةٍ لي — كانت تطبع اقتباسًا **عمرُه
+            #    42 دقيقة** (‏$1.58) رأسًا للكرت بينما شمعةٌ عمرُها دقيقتان
+            #    تقول ‏$4.19، فيقود القرارَ برقمٍ تعدّاه السهمُ بأربعة أضعاف.
+            #    ⇒ حين تسقط طزاجةُ الاقتباس يُقارَن عمرُه بعمر الشمعة **ويتصدّر
+            #    الأحدثُ منهما مُسمًّى بمصدره** — والبائتُ يُوسَم بعمره.
+            _cand = [] if _bc_l is None else [(_bc_l[1], "شمعة")]
+            if _lp_l is not None and _fa_l is not None:
+                _cand.append((_fa_l, "اقتباس"))
+            _cand.sort()
+            _pick = _cand[0] if _cand else None
+            if _pick and _pick[1] == "اقتباس":
+                _head_px = (f"⚠️ بائت <b>{_px_txt(_lp_l)}</b> "
+                            f"({_fmt_age_s(_fa_l)})")
+            else:
+                _head_px = (f"<b>{_px_txt(last.get('price'))}</b> إغلاق"
+                            + (f" {_bc_l[0]}" if _bc_l else " الدقيقة")
+                            + (f" ⚠️ قبل {_fmt_age_s(_bc_l[1])}"
+                               if _bc_l and _bc_l[1] >= 120 else ""))
+        head = [f"🔥 <b>${esc(row.get('symbol'))}</b>", _head_px]
+        # 📊 «كم صعد عن أمسه» — مقياسُ التأخّر الذي طلبه المالك، في الرأس لا مدفونًا.
+        try:
+            _pc_l = float(last.get("prev_close"))
+            _ref_l = (_lp_l if (_lp_l is not None and _fv_l != "stale")
+                      else float(last.get("price")))
+            if _pc_l > 0 and _ref_l:
+                # ⚖️ **بالكلمة لا بالعلامة**: الإشارةُ (‏+/−) تطفو عن رقمها في
+                #    العربيّة (درسُ RTL الموثَّق في المستودع) ⇒ «صاعدٌ/هابطٌ».
+                _d = (_ref_l / _pc_l - 1.0) * 100.0
+                head.append(("صاعدٌ " if _d >= 0 else "هابطٌ ")
+                            + f"{abs(_d):.1f}% عن الأمس ({_px_txt(_pc_l)})")
+        except (TypeError, ValueError):
+            pass
+        _cls = last.get("class")
+        _ck = _cls[0] if isinstance(_cls, (list, tuple)) and _cls else None
+        if _ck in _LIQ_CLS_AR:
+            head.append("💪 " + _LIQ_CLS_AR[_ck])
+        # 🥇 شارةُ التوليفة (‏J1) من أيّ حدثِ M5 في الكرت — قاعدةٌ واحدة.
+        _j1 = [kasih_j1(e) for e in evs]
+        if any(a for a, _ in _j1):
+            head.append("🥇 توليفة"
+                        + (" (أقوى خلية)" if any(t for _, t in _j1) else ""))
+        if row.get("src"):
+            head.append(esc(row.get("src")))
+        lines.append(" · ".join(head))
+        for _ei, e in enumerate(evs):
+            seg = []
             if e.get("stage") == "Px":
-                # 💓 نبضُ السيولة — **علامةُ الاتجاه أوّلَ السطر وبالكلمة**
-                #    (أمرُ المالك 2026-08-19: «بعلامة واضحة اذا ارتفاع او
-                #    انخفاض» · وتصحيحُه: «نسبة ١٠٪ تخص السيولة مب الارتفاع»
-                #    ⇒ النسبةُ على **سيولة الدقيقة** لا سعرها).
+                # 💓 نبضُ السيولة — العلامةُ والاتجاهُ أوّلَ السطر (أمرُ المالك
+                #    2026-08-19) · والنسبةُ على **سيولة** الدقيقة لا سعرِها.
                 _pp = float(e.get("pulse_pct") or 0.0)
-                lines.append("   " + ("🟢⬆️ <b>نبضُ السيولة: ارتفاعٌ "
-                                      if _pp >= 0 else
-                                      "🔴⬇️ <b>نبضُ السيولة: انخفاضٌ ")
-                             + f"{abs(_pp):.1f}%</b> عن سيولة الشمعة السابقة"
-                             + (f" (${int(e['prev_usd']):,})"
-                                if e.get("prev_usd") else ""))
+                seg.append(("🟢⬆️ نبضُ سيولةٍ صاعد " if _pp >= 0
+                            else "🔴⬇️ نبضُ سيولةٍ هابط ") + f"{abs(_pp):.0f}%"
+                           + (f" (عن ${_n_txt(e['prev_usd'])})"
+                              if e.get("prev_usd") else ""))
             else:
-                lines.append("   "
-                             + _LIQ_STAGE_TXT.get(e["stage"], e["stage"]))
-            _vx = e.get("vol_x")
-            _mv = e.get("move")
-            # 🕐 **السعرُ يُنسَب إلى دقيقته وعمرِها** (بلاغُ المالك 2026-08-18):
-            #    هو **إغلاقُ شمعةٍ مضت** لا سعرٌ حيّ — فيُقال ذلك صراحةً.
-            _bc = bar_clock(e.get("price_ms"), now_ms=now_ms)
-            _age = ("" if not _bc else
-                    f" (قبل {_bc[1]}ث)" if _bc[1] < 90 else
-                    f" (قبل {_bc[1] // 60} دقيقة)")
-            # 📡 **والسعرُ الحيُّ يتصدّر حين يتوفّر** (أمرُ المالك 2026-08-18):
-            #    كان الكرتُ يقود بسعرِ شمعةٍ مضت فيُقرأ «سعرٌ تعدّاه السهم»؛
-            #    والاقتباسُ **مجلوبٌ أصلًا** في الطبقة الثانية ⇒ صفرُ نداءٍ إضافيّ.
-            #    وإغلاقُ الدقيقة **يبقى مطبوعًا بعمره** فلا يُخفى شيء.
-            _of_e = e.get("operator") if "operator" in e else None
-            _lp = live_price_note(_of_e)
-            # ⏱️ «الآن» مشروطةٌ بالطزاجة — حالة `$SAGT` (2026-08-18): طُبع
-            #    «السعرُ الآن $0.76» من اقتباسٍ أقدمَ من الشمعة ($0.81) بدقائق
-            #    والسهمُ فوقهما ⇒ البائتُ يُسمّى بائتًا بعمره، والمجهولُ يمرّ
-            #    بفائدة الشك (سلوكُ ما قبل الإصلاح بت-بت لغير الموسوم).
-            _fv, _fa = quote_freshness(_of_e, now_ms=now_ms,
-                                       bar_ms=e.get("price_ms"))
-            if _lp is None:
-                _live = ""
-            elif _fv == "stale":
-                _live = (f" · ⚠️ اقتباسٌ بائت ${_lp:.2f}"
-                         + (f" (عمرُه {_fmt_age_s(_fa)})"
-                            if _fa is not None else "")
-                         + " — لا يُقرأ سعرًا حاليًّا")
-            else:
-                _live = (f" · 📡 السعرُ الآن ${_lp:.2f}"
-                         + (f" (قبل {_fmt_age_s(_fa)})"
-                            if _fa is not None and _fa >= 5 else ""))
-            _px = (_live
-                   + (f" · إغلاقُ دقيقة {_bc[0]} ${e['price']:.2f}{_age}"
-                      if _bc else f" · إغلاقُ الدقيقة ${e['price']:.2f}"))
-            # 🔴 **و`vol_x` في المجاميع منسوخٌ من المِرساة** (‏`st.get("vol_x")`)
-            #    ⇒ يُوسَم بعمره بدل أن يُقرأ لحظيًّا.
-            _agg = str(e.get("stage") or "") in ("M5", "M30")
-            # 🕳️ في المجاميع: دقيقةٌ بلا صفقاتٍ لا شمعةَ لها ⇒ «سيولة 29
-            #    دقيقة» تحت ترويسة «اكتملت 30» تُقرأ غلطًا (بلاغ المالك
-            #    2026-08-19) — فتُسمّى النافذةُ كاملةً وعددُ الشموع المتوفّرة.
+                seg.append(_LIQ_STAGE_SHORT.get(e.get("stage"), str(e.get("stage"))))
+            # 🕳️ النافذةُ تُسمّى كاملةً وعددُ شموعها المتوفّرة (دقيقةٌ بلا
+            #    صفقاتٍ لا شمعةَ لها — بلاغُ المالك 2026-08-19).
             _mn = int(e.get("minutes") or 0)
-            _min_lbl = f"{_mn} دقيقة"
-            if str(e.get("stage") or "") in ("M5", "M30"):
-                _nstage = int(str(e["stage"])[1:])
-                _min_lbl = (f"{_nstage} دقيقة" if _mn == _nstage else
-                            f"{_nstage} دقيقة (توفّرت {_mn} شمعة)")
-            lines.append(f"      💰 سيولة {_min_lbl} "
-                         f"${e['usd']:,}" + _px
-                         + (f" · قفزةُ حجمٍ {float(_vx):.0f}×"
-                            + (" (عند المِرساة)" if _agg else "") if _vx else "")
-                         + (f" · 📈 رفعةُ الدقيقة {float(_mv):.1f}%"
-                            if _mv else ""))
-            # 📊 مقياسُ «التأخّر» (حكمُ `T-GATE`) في يد المالك داخل الرسالة —
-            #    حالتا `$SAGT`/`$AIXC` (‏2026-08-18): «رفعةُ الدقيقة 5.8%» والسهمُ
-            #    ‏+33% على يومه فقُرئت الرسالةُ «مب منطقي». تعذّرُ الإغلاق ⇒ لا سطر.
-            _pc = e.get("prev_close")
-            _ref = _lp if (_lp is not None and _fv != "stale") else e.get("price")
-            if _pc and _ref:
-                try:
-                    _dcp = (float(_ref) / float(_pc) - 1.0) * 100.0
-                    lines.append(
-                        f"      📊 من إغلاق الأمس (${float(_pc):.2f}): "
-                        + ("صاعدٌ " if _dcp >= 0 else "هابطٌ ")
-                        + f"{abs(_dcp):.1f}% حتى لحظة الإشعار")
-                except (TypeError, ValueError):
-                    pass
-            # 🌊 وسمُ الكاسح (أمرُ المالك «نفّذ الوسم» بعد نتيجة T-KASIH) —
-            #    الدالةُ تُقيِّد نفسَها بكرت `M5` وترجع "" لغيره (عرضٌ فقط).
+            _st = str(e.get("stage") or "")
+            if _st in ("M5", "M30"):
+                _ns = int(_st[1:])
+                if _mn and _mn != _ns:
+                    seg.append(f"({_mn} شمعة من {_ns})")
+            seg.append(f"💰 ${e['usd']:,}")
+            if e.get("vol_x"):
+                seg.append(f"{float(e['vol_x']):.0f}×"
+                           + ("(المِرساة)" if _st in ("M5", "M30") else ""))
+            if e.get("move"):
+                seg.append(f"رفعة {float(e['move']):.1f}%")
+            # 🕐 وقتُ إغلاق الشمعة يُطبَع دائمًا · **وعمرُه حين يصير مشكلة**
+            #    فقط (‏دقيقتان فأكثر): الشمعةُ الطازجة لا تحتاج تحذيرًا،
+            #    والبائتةُ تُقال بعمرها — حارسُ الصدق باقٍ بلا حشوٍ في كلّ كرت.
+            _bc = bar_clock(e.get("price_ms"), now_ms=now_ms)
+            if _bc:
+                seg.append(_bc[0] + (f" (قبل {_fmt_age_s(_bc[1])})"
+                                     if _bc[1] >= 120 else ""))
+            # 🕵️ المضاربُ **مرّةً واحدة للسهم** (آخرُ حدث): أرقامُه نافذةٌ
+            #    متدحرجةٌ واحدة، وتكرارُها في كلّ حدثٍ كان يُطيل بلا معلومة.
+            if "operator" in e and _ei == len(evs) - 1:
+                _of = e.get("operator")
+                if not _of:
+                    seg.append("⚠️ مضاربٌ لم يُقَس")
+                else:
+                    _ol = operator_line(_of, short=True)
+                    if _ol:
+                        seg.append(_ol)
+            lines.append("   " + " · ".join(seg))
             _kl = kasih_tag_line(e)
             if _kl:
-                lines.append("      " + _kl)
-            if _d:
-                lines.append(f"      🕵️ حكمُ الهوية بعتبات فيصل: {_d}")
-            if "operator" in e:
-                _of = e.get("operator")
-                # 📡 الحيُّ صار في سطر السيولة نفسِه (يتصدّر) فلا يُكرَّر هنا.
-                _ol = operator_line(_of) if _of else ""
-                # 🕐 جدارا الطلب/العرض مصدرُهما الاقتباسُ نفسُه — فإن كان
-                #    بائتًا وُسِما بعمره بدل أن يُقرآ وضعَ دفترٍ حاليًّا
-                #    (بلاغُ المالك 2026-08-19: السطرُ الأعلى يسمّي الاقتباسَ
-                #    بائتًا وجدارُه يُطبَع تحته كأنه الآن — تناقضٌ يكذب).
-                if (_ol and _fv == "stale"
-                        and ("طلب " in _ol or "عرض " in _ol)):
-                    _ol += (" · ⚠️ الجداران من لقطةٍ قديمة"
-                            + (f" (عمرُها {_fmt_age_s(_fa)})"
-                               if _fa is not None else ""))
-                lines.append("      " + (_ol if _ol else
-                                         ("🕵️ طبعاتُ مضاربٍ مؤكَّدة"
-                                          if _of else
-                                          "⚠️ لم يُتحقّق من طبعات المضارب "
-                                          "(تعذّر القياس — مرَّ بفائدة الشك)")))
-                # 🧱 رادار الجدار — والبائتُ لا يُطبَع جدارًا (نفسُ عقد «السعر
-                #    الآن»: stale ⇒ لا سطر · unknown يمرّ بفائدة الشك).
+                lines.append("   " + _kl)
+            # 🧱 جدارُ الطلبات — والبائتُ لا يُطبَع جدارًا (عقدُ «السعر الآن»).
+            if "operator" in e and e.get("operator"):
+                _fv, _fa = quote_freshness(e.get("operator"), now_ms=now_ms,
+                                           bar_ms=e.get("price_ms"))
                 if _fv != "stale":
-                    _wl = bid_wall_line(_of)
+                    _wl = bid_wall_line(e.get("operator"))
                     if _wl:
-                        lines.append("      " + _wl)
-    lines += ["", "⚠️ «دخلت سيولة» <b>ليست</b> «دخل المضارب» — الأولى قفزةُ حجمٍ "
-              "والثانيةُ عتبةُ فيصل الدولاريّة، وكلٌّ مطبوعٌ باسمه.",
-              "<i>إشعارُ توقيتٍ لا توصية — قيد الإثبات الأماميّ.</i>"]
+                        lines.append("   " + _wl)
+    lines.append("<i>⏫💰 سيولةُ الشمعة · توقيتٌ لا توصية · «دخلت سيولة» "
+                 "ليست «دخل المضارب»</i>")
     return _rtl_join(lines)
-
 
 def load_op_entry_state(path: str = None) -> dict:
     """دِدوبُ «هنا الدخول»: {رمز: تاريخ}. فاشلٌ-آمن ⇒ `{}` (بلا ذاكرةٍ يُعاد
@@ -15417,7 +15452,7 @@ def _price_level_tag(price, s) -> str:
         return ""
 
 
-def operator_line(of, s=None) -> str:
+def operator_line(of, s=None, short=False) -> str:
     """سطر «🕵️ المضارب» المختصر بلغة أوامر المتداول (طلب المستخدم 2026-07-09:
     «ابي شي مختصر جدا — المضارب طلب 1000 سهم فوق الدعم · عرض 5 آلاف عند
     المقاومة» — بلا فلسفة/نسب/حدود صدق؛ التفصيل والحدود بفحص اليد فقط):
@@ -15426,6 +15461,17 @@ def operator_line(of, s=None) -> str:
     if not of:
         return "🕵️ المضارب: —"
     parts = []
+    if short:
+        # 🔴 **وضعُ الاختصار (أمرُ المالك 2026-08-20):** كرتُ السيولة يحمل
+        #    **ما نفّذه المضارب** فقط بأرقامٍ مضغوطة — والجداران يغنيهما سطرُ
+        #    `bid_wall_line` حين يبلغان العتبة. **مصدرُ الأرقام واحدٌ** (نفسُ
+        #    الحقول) فلا يتفرّق كرتٌ عن كرت.
+        sh = []
+        if of.get("bid_block_shares"):
+            sh.append(f"شرى على الطلب {_n_txt(of['bid_block_shares'])} سهم")
+        if of.get("buy_block_shares"):
+            sh.append(f"رفع بشراء {_n_txt(of['buy_block_shares'])}")
+        return ("🕵️ " + " · ".join(sh)) if sh else "🕵️ لا صفقاتِ مضارب"
     if of.get("bid_block_shares"):       # الأهم عند المستخدم: الشراء على الطلب
         parts.append(f"شرى على الطلب ~{of['bid_block_shares']:,} سهم")
     if of.get("buy_block_shares"):

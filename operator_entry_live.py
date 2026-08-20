@@ -366,8 +366,12 @@ def main():
             _lsyms = [r[0]["symbol"] for r in lrows]
             _lstg = [e["stage"] for _r, _evs in lrows for e in _evs]
             try:
-                lok = bot.send_telegram(
-                    bot.build_liq_stage_alert(lrows) + "\n\n" + bot.FOOTER)
+                # 🔴 **بلا `FOOTER` (أمرُ الاختصار 2026-08-20):** الكرتُ يحمل
+                #    ذيلَه المضغوط («توقيتٌ لا توصية · «سيولة» ليست «مضارب»»)
+                #    ⇒ إلحاقُ الذيل العامّ تكرارُ تنويهٍ بمئة محرفٍ يدفع القرار
+                #    إلى أسفل الشاشة. **والتنويهُ باقٍ**، وختمُ الإصدار يُلحقه
+                #    `send_telegram` كما هو لكلّ رسالة.
+                lok = bot.send_telegram(bot.build_liq_stage_alert(lrows))
             except Exception as e:                               # noqa: BLE001
                 lok, _ = False, _log(f"⚠️ إرسال «سيولة الشمعة»: {e}")
             if lok:
