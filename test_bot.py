@@ -27431,6 +27431,124 @@ check("🌊 KAS10 الوسمُ خارج الجذور العشرة (AST) · وم�
       _k10_leak == [] and len(_k10_calls) == 1,
       f"تسرب={_k10_leak} نداءات={len(_k10_calls)}")
 
+# ═══════ 🌊② T-KASIH-2 — أقفال K2L1-K2L5 (عقد kasih2_prereg.md · 2026-08-19) ═══════
+# أداةُ «توليفة الدخول الأقوى» (أمر المالك: شموع/فوليوم/أي شي ثاني): مقياسٌ واحدٌ
+# مستوردٌ بالاسم (K2L1) · سلالٌ تفرّق على التخوم (K2L2) · قراءةٌ فقط (K2L3) ·
+# وصلُ الـworkflow (K2L4) · وعزلٌ عن الإنتاج (K2L5).
+_prev_sm2 = _os_hc.environ.get("SCREENER_MODE")
+_os_hc.environ["SCREENER_MODE"] = "BACKTEST"
+try:
+    import kasih2_scan as _K2
+finally:
+    if _prev_sm2 is None:
+        _os_hc.environ.pop("SCREENER_MODE", None)
+    else:
+        _os_hc.environ["SCREENER_MODE"] = _prev_sm2
+
+# K2L1 — مقياسٌ واحد: أدواتُ القياس تُنادى من kasih_scan بالاسم، وممنوعٌ تعريفُ
+#   أيٍّ منها محليًّا (وإلّا صار للمشروع مقياسان يتفرّقان بصمت).
+_k2_tree = _ast0.parse(_insp0.getsource(_K2))
+_k2_defs = {n.name for n in _ast0.walk(_k2_tree)
+            if isinstance(n, _ast0.FunctionDef)}
+_K2_PRIM = {"parse_day", "prescreen", "first_anchor", "resolve",
+            "f2_usd5", "f3_bucket", "f5_bucket", "bucket_table",
+            "wilson", "weekdays"}
+_k2_ks_calls = {getattr(n.func, "attr", None) for n in _ast0.walk(_k2_tree)
+                if isinstance(n, _ast0.Call)
+                and getattr(getattr(n.func, "value", None), "id", None) == "KS"}
+check("🌊② K2L1 مقياسٌ واحد: صفرُ تعريفٍ محليّ لأدوات القياس · وتُنادى KS.* بالاسم",
+      not (_k2_defs & _K2_PRIM)
+      and {"parse_day", "prescreen", "first_anchor", "resolve", "f2_usd5",
+           "bucket_table"} <= _k2_ks_calls,
+      f"محلي={sorted(_k2_defs & _K2_PRIM)} نداءات={sorted(_k2_ks_calls)[:8]}")
+
+# K2L2 — السلالُ تفرّق على التخوم (عيّناتٌ مبنيّةٌ تفصل كلَّ شرطٍ على حدة):
+#   J1 حدُّ 30% وعضويةُ الصنف · C3 قربُ الشمعة · V2 حدّا 30/60 · V3 اشتراطُ
+#   التتالي الفعليّ واتجاهُ الصافي.
+_k2b = lambda t, o, h, l, c, v: (t, o, h, l, c, v)                 # noqa: E731
+_k2M = 60_000
+_k2_rows = [_k2b(0, 1.0, 1.0, 1.0, 1.0, 500),
+            _k2b(10 * _k2M, 1.00, 1.30, 1.00, 1.29, 40_000),
+            _k2b(11 * _k2M, 1.29, 1.36, 1.28, 1.35, 44_000),
+            _k2b(12 * _k2M, 1.35, 1.40, 1.34, 1.39, 50_000)]
+_k2_gap = [_k2b(10 * _k2M, 1.00, 1.30, 1.00, 1.29, 40_000),
+           _k2b(14 * _k2M, 1.30, 1.40, 1.30, 1.40, 50_000)]
+_k2_drain = [_k2b(10 * _k2M, 1.00, 1.30, 1.00, 1.29, 40_000),
+             _k2b(11 * _k2M, 1.29, 1.30, 1.25, 1.26, 10_000),
+             _k2b(12 * _k2M, 1.26, 1.27, 1.20, 1.21, 4_000)]
+check("🌊② K2L2 J1 تفرّق: (strong·30)=توليفة · (strong·29.9)=الباقي · "
+      "(mid·80)=الباقي · (فجوة مجهولة)=None",
+      _K2.j1_bucket("strong", 30.0).startswith("توليفة")
+      and _K2.j1_bucket("strong", 29.9) == "الباقي"
+      and _K2.j1_bucket("mid", 80.0) == "الباقي"
+      and _K2.j1_bucket("operator", 45.0).startswith("توليفة")
+      and _K2.j1_bucket("strong", None) is None)
+check("🌊② K2L2ب C3 تفرّق: شمعةٌ خلال 3د تصادق/تنقض · وأبعدُ منها ⇒ None (تُستبعَد)",
+      (_K2.c3_bucket(_k2_rows, 10 * _k2M, 1.29) or "").startswith("صادقت")
+      and _K2.c3_bucket(_k2_gap, 10 * _k2M, 1.29) is None
+      and (_K2.c3_bucket(_k2_drain, 10 * _k2M, 1.29) or "") == "نقضت")
+check("🌊② K2L2ج V2 تفرّق على حدّي 30/60: ‏0.61 و0.45 و0.29 ثلاثُ سلالٍ مختلفة",
+      "فوق 60%" in (_K2.v2_bucket(61.0, 100.0) or "")
+      and "30-60%" in (_K2.v2_bucket(45.0, 100.0) or "")
+      and "دون 30%" in (_K2.v2_bucket(29.0, 100.0) or "")
+      and _K2.v2_bucket(1.0, 0.0) is None)
+check("🌊② K2L2د V3 يشترط التتالي الفعليّ: أزواجٌ مفجوّةٌ ⇒ None · "
+      "وداخلةٌ/نازحةٌ تفترقان بالاتجاه",
+      _K2.v3_bucket(_k2_gap, 10 * _k2M) is None
+      and "داخلة" in (_K2.v3_bucket(_k2_rows, 10 * _k2M) or "")
+      and "نازحة" in (_K2.v3_bucket(_k2_drain, 10 * _k2M) or ""))
+
+# K2L3 — قراءة/قياسٌ فقط: صفرُ إرسالٍ وصفرُ كتابةِ حالةٍ (AST) · والإنتاجُ لا
+#   يستورد الأداة (عزلٌ بنيويّ).
+_k2_bad = [getattr(n.func, "attr", getattr(n.func, "id", None))
+           for n in _ast0.walk(_k2_tree) if isinstance(n, _ast0.Call)
+           if (getattr(n.func, "attr", getattr(n.func, "id", "")) or "")
+           in ("send_telegram", "save_watchlist", "save_op_entry_state",
+               "git_save")]
+check("🌊② K2L3 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة · والإنتاجُ لا يستورد kasih2",
+      _k2_bad == []
+      and "kasih2" not in open("Super_stock.py", encoding="utf-8").read(),
+      f"سيئ={_k2_bad}")
+
+# K2L4 — وصلُ الـworkflow نحويًّا (نمطُ KAS5 حرفيًّا على kasih2.yml).
+_k22_wf = _fo_yaml.safe_load(open(".github/workflows/kasih2.yml",
+                                  encoding="utf-8"))
+_k22_on = (_k22_wf.get(True) or _k22_wf.get("on") or {})
+_k22_env = {}
+for _s in _k22_wf["jobs"]["kasih"]["steps"]:
+    if isinstance(_s.get("env"), dict):
+        _k22_env.update(_s["env"])
+_k22_reads = {n.args[0].value for n in _ast0.walk(_k2_tree)
+              if isinstance(n, _ast0.Call)
+              and getattr(n.func, "attr", None) == "get"
+              and getattr(getattr(n.func, "value", None), "attr", None) == "environ"
+              and n.args and isinstance(n.args[0], _ast0.Constant)}
+_k22_run = " ".join(str(_s.get("run") or "")
+                    for _s in _k22_wf["jobs"]["kasih"]["steps"])
+check("🌊② K2L4 kasih2.yml موصول: المدخلان ⟵ بيئةٌ يقرؤها السكربت · يشغّل "
+      "kasih2_scan · بلا كرون · قراءةُ contents فقط",
+      set(_k22_on.get("workflow_dispatch", {}).get("inputs", {}))
+      == {"year", "day"}
+      and "schedule" not in _k22_on
+      and _k22_wf.get("permissions") == {"contents": "read"}
+      and "inputs.year" in str(_k22_env.get("KASIH_YEAR"))
+      and "inputs.day" in str(_k22_env.get("KASIH_DAY"))
+      and "POLYGON_S3_KEY" in str(_k22_env.get("AWS_ACCESS_KEY_ID"))
+      and "kasih2_scan.py" in _k22_run
+      and {"KASIH_YEAR", "KASIH_DAY", "AWS_ACCESS_KEY_ID"} <= _k22_reads,
+      f"reads={sorted(_k22_reads & {'KASIH_YEAR', 'KASIH_DAY'})}")
+
+# K2L5 — الصفُّ يحمل الرفيقَ ومفاتيحَ الخصائص كلَّها (وصلةٌ حيّة لا متخيَّلة):
+#   k2_features على عيّنةٍ غنيّةٍ يملأ الأحد عشر مفتاحًا — والمِرساةُ الغائبة ⇒ {}.
+_k2_feats = _K2.k2_features(_k2_rows, 10 * _k2M, 1.29, "operator", 45.0,
+                            1.29 * 40_000, _K2.KS.f2_usd5(_k2_rows, 10 * _k2M))
+check("🌊② K2L5 k2_features يملأ المفاتيح الأحد عشر · ومِرساةٌ غائبة ⇒ {} بلا انهيار",
+      set(_k2_feats) == {"j1", "j1_cell", "c1", "c2", "c3", "c4",
+                         "v1", "v2", "v3", "p1", "p2"}
+      and all(_k2_feats[k] is not None for k in ("j1", "c1", "c2", "v2", "p1"))
+      and _K2.k2_features(_k2_rows, 999, 1.29, "mid", 5.0, 1, 1) == {},
+      f"مفاتيح={sorted(_k2_feats)}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
