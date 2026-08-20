@@ -535,7 +535,7 @@
   "updates": 0,
   "vol_x": 9.0,
   "peak_usd": 652356,
-  "last_eval_ms": 1787227320000,
+  "last_eval_ms": 1787227380000,
   "pulse_ms": 1787227500000,
   "anchor_price": 0.768,
   "date": "2026-08-20"
@@ -1679,9 +1679,9 @@
    "M5",
    "M30"
   ],
-  "updates": 3,
+  "updates": 2,
   "vol_x": 16.5,
-  "peak_usd": 2104684,
+  "peak_usd": 2066895,
   "last_eval_ms": 1787225820000,
   "pulse_ms": 1787227500000,
   "anchor_price": 4.12,
