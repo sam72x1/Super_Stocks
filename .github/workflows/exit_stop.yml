@@ -1,0 +1,46 @@
+name: "T-EXIT-STOP (🛑 وقفُ الشموع والتصنيف الثلاثيّ)"
+
+# 🔒 قياس/قراءة فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد exit_stop_prereg.md
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة المقيسة (2023/2024/2025)"
+        required: true
+        type: string
+
+jobs:
+  exitstop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🛑 قِس أذرعَ الوقف والفئات
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          STOP_YEAR: ${{ inputs.year }}
+        run: python exit_stop_arms.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exit-stop-rows-${{ inputs.year }}
+          path: exit_stop_rows_*.jsonl
+          retention-days: 90
+          if-no-files-found: warn

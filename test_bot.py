@@ -28117,6 +28117,168 @@ check("🛑 STOP4 الوقفُ عرضٌ لا قرار: خارج الجذور و�
       and S.CONFIG["STOP_BELOW_LOW_PCT"] == (5, 7),
       "")
 
+# STOP5 — 🔴🔴 **الوصلةُ الحيّة إلى كرت M5 — كشفَتها الطفرةُ لا القراءة**
+#   (‏2026-08-20): `STOP1` يفحص حدثَ `M1` و`STOP2` يفحص الدالّةَ على **قاموسٍ
+#   مصنوعٍ باليد** ⇒ **نزعُ `anchor_low` من حدث `M5`/`M30` كان يمرّ أخضر**
+#   بينما سطرُ الوقف **يختفي من الكرت الذي يصل المالكَ فعلًا** (‏كرتُ M5 هو
+#   حاملُ الوقف). صنفُ «الفِكستشرُ الذي يكذب» بعينه ⇒ القفلُ يبني الحدثَ
+#   **بدالّة الإنتاج نفسِها** بالنمط القانونيّ (نافذةٌ متنامية بحالةٍ محمولة —
+#   `kasih_scan.first_anchor` حرفيًّا) ثم يقرأ الكرتَ المبنيّ.
+_s5_bars = [{"t": _br_t - 60_000 * (12 - i), "o": 1.00, "h": 1.01, "l": 0.99,
+             "c": 1.00, "v": 500} for i in range(12)]
+_s5_bars += [{"t": _br_t, "o": 1.00, "h": 1.30, "l": 0.97, "c": 1.29,
+              "v": 40_000}]
+_s5_bars += [{"t": _br_t + 60_000 * _k, "o": 1.29, "h": 1.31, "l": 1.28,
+              "c": 1.30, "v": 20_000} for _k in range(1, 8)]
+_s5_st = {}
+_s5_evs = []
+for _s5_k in range(3, len(_s5_bars) + 1):
+    _s5_e, _s5_st = S.liq_stage_events(_s5_bars[:_s5_k], _s5_st)
+    _s5_evs += (_s5_e or [])
+_s5_m5 = next((e for e in _s5_evs if e.get("stage") == "M5"), {})
+_s5_msg = (S.build_liq_stage_alert(
+    [({"symbol": "TST", "src": "تحت المتابعة"}, [_s5_m5])],
+    now_ms=_br_t + 500_000) if _s5_m5 else "")
+check("🛑 STOP5 حدثُ M5 **الحيّ** يحمل anchor_low · والكرتُ يطبع سطرَ الوقف",
+      _s5_m5.get("anchor_low") == 0.97
+      and "🛑 وقفُ الجلسة" in _s5_msg and "$0.97" in _s5_msg,
+      f"M5={_s5_m5.get('anchor_low')} · مراحل="
+      f"{[e.get('stage') for e in _s5_evs]}")
+
+# ═══ 🛑📊 T-EXIT-STOP — أقفال أداةِ القياس ES1-ES8 (2026-08-20) ═══
+# 🔒 قراءة/قياسٌ فقط · العقد `exit_stop_prereg.md` مدفوعٌ قبل أيّ رقم.
+import ast as _es_ast
+import importlib.util as _es_iu
+
+_ES_SRC = open("exit_stop_arms.py", encoding="utf-8").read()
+_ES_TREE = _es_ast.parse(_ES_SRC)
+
+# ES1 — 🔒 **مقياسٌ واحدٌ لا اثنان**: كشفُ المِرساة والحسمُ من `kasih_scan`
+#   **بالاسم**، وخصائصُ التصنيف من `kasih2_scan` بالاسم. نسخُ أيٍّ منها هنا
+#   كان سيصنع مقياسًا ثانيًا يتفرّق عن أرقامنا المنشورة صامتًا.
+_es_calls = {
+    f"{getattr(n.func.value, 'id', '')}.{n.func.attr}"
+    for n in _es_ast.walk(_ES_TREE)
+    if isinstance(n, _es_ast.Call)
+    and isinstance(n.func, _es_ast.Attribute)
+    and isinstance(getattr(n.func, "value", None), _es_ast.Name)
+}
+check("🛑 ES1 مقياسٌ واحد: first_anchor/resolve/f2_usd5 من kasih_scan بالاسم",
+      {"KS.first_anchor", "KS.resolve", "KS.f2_usd5", "KS.prescreen",
+       "KS.parse_day", "KS.wilson"} <= _es_calls
+      and {"K2.j1_bucket", "K2.c3_bucket", "K2.c4_bucket", "K2.v2_bucket",
+           "K2.v3_bucket"} <= _es_calls,
+      str(sorted(x for x in _es_calls if x.startswith(("KS.", "K2."))))[:150])
+
+_es_spec = _es_iu.spec_from_file_location("_es_mod", "exit_stop_arms.py")
+_es_mod = _es_iu.module_from_spec(_es_spec)
+_es_spec.loader.exec_module(_es_mod)
+
+# ── عيّنةٌ مصطنعة: (t, o, h, lo, c, v) بدقائقَ متتالية ─────────────────────
+_A = 1_700_000_000_000                      # لحظةُ المِرساة
+_M = 60_000
+
+
+def _es_bar(k, o, h, lo, c, v=1000):
+    return (_A + k * _M, o, h, lo, c, v)
+
+
+# قبلَ المِرساة: قاعان (‏−15..−1) · ثم المِرساةُ · ثم نافذةُ الخمس · ثم مسار
+_ES_ROWS = (
+    [_es_bar(-15, 1.00, 1.02, 0.80, 1.00)]          # أعمقُ قاعٍ قبل المِرساة
+    + [_es_bar(k, 1.00, 1.02, 0.95, 1.00) for k in range(-14, -1)]
+    + [_es_bar(-1, 1.00, 1.02, 0.90, 1.00)]         # الشمعةُ السابقة (S2=0.90)
+    + [_es_bar(0, 1.00, 1.30, 0.97, 1.28)]          # المِرساة (S0=0.97)
+    + [_es_bar(1, 1.28, 1.30, 0.93, 1.29)]          # داخل الخمس (S1=0.93)
+    + [_es_bar(k, 1.29, 1.31, 1.20, 1.30) for k in (2, 3, 4)]
+    + [_es_bar(5, 1.30, 1.40, 1.25, 1.35)]
+    + [_es_bar(6, 1.35, 1.80, 1.30, 1.75)]          # لمسُ +30% من e5=1.30
+)
+
+# ES2 — 🔒 **الأذرعُ الأربعُ تفرّق فعلًا** (حارسُ `no-op` — بصمةُ `BT_CANDLE`)
+#   **والرتابةُ البنيوية** `S1 ≤ S0` و`S3 ≤ S2` مُثبَتةٌ سلوكيًّا لا موصوفة.
+_es_lv = _es_mod.stop_levels(_ES_ROWS, _A)
+check("🛑 ES2 الأذرعُ الأربعُ تفرّق · والرتابةُ S1≤S0 و S3≤S2 سلوكيًّا",
+      _es_lv is not None
+      and len({round(_es_lv[k], 4) for k in ("S0", "S1", "S2", "S3")}) == 4
+      and _es_lv["S1"] <= _es_lv["S0"] and _es_lv["S3"] <= _es_lv["S2"]
+      and round(_es_lv["S0"], 2) == 0.97 and round(_es_lv["S1"], 2) == 0.93
+      and round(_es_lv["S2"], 2) == 0.90 and round(_es_lv["S3"], 2) == 0.80,
+      str(_es_lv))
+
+# ES3 — 🔒 **الكسرُ بإغلاقِ دقيقةٍ لا بلمسةِ ذيل** (درسُ `T-LABEL-AUDIT`:
+#   ذيلُ الجلسة الممتدّة قد يكون طبعةً واحدة) — زوجٌ مفرِّق.
+_es_after_wick = [_es_bar(5, 1.30, 1.35, 0.50, 1.30)]     # ذيلٌ يخترق ويُغلق فوق
+_es_after_close = [_es_bar(5, 1.30, 1.35, 0.50, 0.60)]    # إغلاقٌ دون المستوى
+_h1, _l1, _c1, _b1 = _es_mod.walk(_es_after_wick, 1.30, {"S0": 0.97})
+_h2, _l2, _c2, _b2 = _es_mod.walk(_es_after_close, 1.30, {"S0": 0.97})
+check("🛑 ES3 الكسرُ بالإغلاق لا بالذيل (ذيلٌ يخترق ⇒ لا كسر · إغلاقٌ ⇒ كسر)",
+      _b1.get("S0") is None and _b2.get("S0") is not None,
+      f"ذيل={_b1.get('S0')} إغلاق={_b2.get('S0')}")
+
+# ES4 — 🔒 **`V0` مُبرهَنٌ سلوكيًّا**: `repro_resolve` تطابق `kasih_scan.resolve`
+#   في `exit` و`kasih30` — فإن تفرّقا فهو **عطبُ أداةٍ لا نتيجة**.
+import kasih_scan as _KS0                                        # noqa: E402
+_es_res = _KS0.resolve(_ES_ROWS, _A, 1.28)
+_es_ex, _es_k30 = _es_mod.repro_resolve(_ES_ROWS, _A, 1.28, _es_lv["S0"])
+check("🛑 ES4 V0: إعادةُ إنتاج resolve بت-بت (exit وkasih30)",
+      _es_res is not None and _es_ex == _es_res["exit"]
+      and bool(_es_k30) == bool(_es_res["kasih30"]),
+      f"أداة=({_es_ex},{_es_k30}) resolve=({_es_res['exit']},"
+      f"{_es_res['kasih30']})")
+
+# ES5 — 🔒 **قراءةٌ فقط**: صفرُ إرسالٍ وصفرُ كتابةِ حالةٍ في الأداة ·
+#   والإنتاجُ **لا يستوردها** (وإلّا صار مقياسُ بحثٍ داخل مسار التسليم).
+_es_names = {n.func.attr for n in _es_ast.walk(_ES_TREE)
+             if isinstance(n, _es_ast.Call)
+             and isinstance(n.func, _es_ast.Attribute)}
+check("🛑 ES5 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة · والإنتاجُ لا يستوردها",
+      not ({"send_telegram", "save_op_entry_state", "git_save",
+            "save_watchlist"} & _es_names)
+      and "exit_stop_arms" not in open("Super_stock.py", encoding="utf-8").read(),
+      str(sorted(_es_names))[:120])
+
+# ES6 — 🔒 **وصلُ الـworkflow نحويًّا** (درسُ `BT_CANDLE`: مدخلٌ لا يقرؤه
+#   السكربتُ = علمٌ ميّتٌ يخرج «لا فرق» وهو `no-op`).
+_es_wf = open(".github/workflows/exit_stop.yml", encoding="utf-8").read()
+check("🛑 ES6 مدخلُ السنة موصولٌ ببيئةٍ يقرؤها السكربت · وبلا كرون",
+      "STOP_YEAR: ${{ inputs.year }}" in _es_wf
+      and 'os.environ.get("STOP_YEAR")' in _ES_SRC
+      and "schedule:" not in _es_wf,
+      "")
+
+# ES7 — 🔒 **قراءةُ التعادل مُعلَنةٌ ومقفولة**: كسرٌ ولمسٌ في الدقيقة نفسِها
+#   ⇒ **نجاة** (ترتيبُ `resolve` نفسُه: `mx` يُحدَّث قبل فحص الإغلاق).
+_es_tie = [_es_bar(5, 1.30, 1.80, 0.50, 0.60)]     # لمسٌ وكسرٌ في شمعةٍ واحدة
+_ht, _lt, _ct, _bt = _es_mod.walk(_es_tie, 1.30, {"S0": 0.97})
+check("🛑 ES7 التعادلُ في الدقيقة نفسِها نجاة (مطابقٌ لترتيب resolve)",
+      _ht is not None and _bt["S0"] is not None and _bt["S0"] >= _ht,
+      f"لمس={_ht} كسر={_bt['S0']}")
+
+# ES8 — 🔒 **حدُّ الفئات واحدٌ في الأداة والإنتاج**: `tier_of` تطابق
+#   `S.liq_tier` في كلّ التوليفات — وإلّا صار على السهم تصنيفان.
+_es_top = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+           "v2": "المرساة دون 30% (سيولة تتوالى)",
+           "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)"}
+_es_bad = []
+for _j1 in (True, False):
+    for _g in range(5):
+        _keys = ("c3", "c4", "v2", "v3")
+        _row = {"j1": ("توليفة (قوي/مضارب × فجوة 30%+)" if _j1 else "الباقي")}
+        for _i, _kk in enumerate(_keys):
+            _row[_kk] = _es_top[_kk] if _i < _g else "نقضت"
+        _t_tool = _es_mod.tier_of(_row)
+        # ⚠️ `kasih_j1` تقرأ `class` **سلسلةً** (`cls[0]`) و`anchor_price` —
+        #    الشكلُ من نقطة النداء الحيّة لا من الذاكرة (درسُ wire-check §①).
+        _ev = {"stage": "M5", "k2": {k: _row[k] for k in _keys},
+               "class": (("strong", "") if _j1 else ("group", "")),
+               "prev_close": 1.0, "anchor_price": (2.0 if _j1 else 1.02)}
+        _t_prod = S.liq_tier(_ev)
+        if _t_prod is None or _t_tool[0] != _t_prod[0] or _t_tool[1] != _t_prod[1]:
+            _es_bad.append((_j1, _g, _t_tool, _t_prod))
+check("🛑 ES8 حدُّ الفئات واحدٌ في الأداة والإنتاج (عشرُ توليفاتٍ مفرِّقة)",
+      not _es_bad, str(_es_bad)[:150])
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
