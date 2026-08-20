@@ -184,15 +184,15 @@
  },
  "LIQ:SGLY": {
   "anchor_ms": 1787220000000,
-  "last_ms": 1787220000000,
+  "last_ms": 1787220060000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 35.6,
-  "peak_usd": 72835,
+  "peak_usd": 714703,
   "last_eval_ms": 1787220060000,
-  "pulse_ms": 1787220000000,
+  "pulse_ms": 1787220060000,
   "anchor_price": 3.76,
   "date": "2026-08-20"
  },
