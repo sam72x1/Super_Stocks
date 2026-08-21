@@ -28596,6 +28596,56 @@ _cal7_ok = (len(_cal7_days) == 1
 check("🗓️ CAL7 وإسنادُ days نفسُه مبنيٌّ بشرطِ is_trading_day (AST لا نصّ)",
       _cal7_ok and "HOLIDAY_COUNT_BY_YEAR" in _es_src2 and "prev_ok" in _es_src2,
       f"إسنادات days={len(_cal7_days)} · شرطيّ={_cal7_ok}")
+
+# 🐞 **CAL9/CAL10 — طفرتان نجتا فكشفتا عمًى مزدوجًا (2026-08-21):**
+#   `M3` (‏«‏if not prev_ok» ⟶ «‏if False») نجت لأن `CAL7` يفحص **ورودَ الاسم**
+#   والاسمُ باقٍ في الإسنادات ⇒ **حضورٌ بلا مشاركة** (الفخُّ النصّيُّ ثامنَ
+#   مرّة) · و`M4` (نزعُ حارس اكتمال التقويم) نجت لأنه **بلا قفلٍ أصلًا**.
+#   ⇒ الاثنان **بنيويّان على عقدة `If` نفسِها**: الشرطُ حرفيًّا `not prev_ok`
+#   (فتسقط `if False` و`if True` معًا) وجسمُه يزيد `n_stale` ثم `continue`.
+_es_main = next((_n for _n in _es_ast.walk(_ES_TREE)
+                 if isinstance(_n, _es_ast.FunctionDef) and _n.name == "main"),
+                None)
+
+
+def _es_if_nodes(fn):
+    return [_m for _m in _es_ast.walk(fn)
+            if isinstance(_m, _es_ast.If)] if fn is not None else []
+
+
+_cal9 = [_m for _m in _es_if_nodes(_es_main)
+         if isinstance(_m.test, _es_ast.UnaryOp)
+         and isinstance(_m.test.op, _es_ast.Not)
+         and isinstance(_m.test.operand, _es_ast.Name)
+         and _m.test.operand.id == "prev_ok"]
+_cal9_ok = (len(_cal9) == 1
+            and any(isinstance(_b, _es_ast.AugAssign)
+                    and getattr(_b.target, "id", None) == "n_stale"
+                    for _b in _es_ast.walk(_cal9[0]))
+            and any(isinstance(_b, _es_ast.Continue)
+                    for _b in _es_ast.walk(_cal9[0])))
+check("🗓️ CAL9 حارسُ «سابقُه مفقود» شرطُه `not prev_ok` حرفيًّا ويُسقط اليومَ "
+      "(AST — فتسقط `if False` و`if True` معًا)",
+      _cal9_ok, f"عقد={len(_cal9)}")
+
+# 🔒 CAL10 — حارسُ اكتمال التقويم: `len(hol) != _hy` ⇒ **خروج 6**.
+_cal10 = []
+for _m in _es_if_nodes(_es_main):
+    _t = _m.test
+    if (isinstance(_t, _es_ast.Compare)
+            and isinstance(_t.ops[0], _es_ast.NotEq)
+            and isinstance(_t.left, _es_ast.Call)
+            and getattr(_t.left.func, "id", None) == "len"
+            and any(isinstance(_r, _es_ast.Return)
+                    and isinstance(getattr(_r, "value", None), _es_ast.Constant)
+                    and _r.value.value == 6 for _r in _es_ast.walk(_m))):
+        _cal10.append(_m)
+check("🗓️ CAL10 وحارسُ اكتمالِ التقويم يُوقف بخروج 6 عند اختلافِ عدد العطلات "
+      "(AST — نجت منه طفرةٌ إذ كان بلا قفل)",
+      len(_cal10) == 1
+      and any(getattr(_n, "id", None) == "hol"
+              for _n in _es_ast.walk(_cal10[0].test)),
+      f"عقد={len(_cal10)}")
 # 🐞 **نصّيًّا كان يسقط على شرحي أنا** (الـdocstring يشرح «404 و403 و503 سواء»)
 #   ⇒ **بالـAST**: التعليقاتُ والشروحُ خارجَ الشجرة **بنيويًّا**، فلا يبقى إلّا
 #   ما يُنفَّذ فعلًا. (الفخُّ النصّيُّ الموثَّق — سادسَ مرّة.)
