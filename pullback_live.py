@@ -160,7 +160,7 @@ def main():
             bot.save_op_entry_state(_op_seen)
         bot.save_watchlist(wl)
         try:
-            bot.git_save([bot.WATCH_FILE])
+            bot.git_save([bot.WATCH_FILE] + _op_files)
         except Exception as e:                                   # noqa: BLE001
             bot.log(f"⚠️ استرجاع الأختام: {e}")
         return 1
