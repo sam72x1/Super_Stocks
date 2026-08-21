@@ -363,7 +363,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.58
+   "last_price": 2.58,
+   "live_alert": {}
   },
   {
    "symbol": "BRAI",
@@ -711,7 +712,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.44
+   "last_price": 5.44,
+   "live_alert": {
+    "buyzone": "2026-08-21"
+   }
   },
   {
    "symbol": "HCWB",
@@ -1083,7 +1087,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.18
+   "last_price": 2.18,
+   "live_alert": {
+    "buyzone": "2026-08-21"
+   }
   },
   {
    "symbol": "SSM",
@@ -1439,7 +1446,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.74
+   "last_price": 2.74,
+   "live_alert": {}
   },
   {
    "symbol": "BNR",
@@ -1803,7 +1811,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 9.78
+   "last_price": 9.78,
+   "live_alert": {}
   },
   {
    "symbol": "SLMT",
@@ -2160,7 +2169,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.28
+   "last_price": 4.28,
+   "live_alert": {}
   },
   {
    "symbol": "MTVA",
@@ -2521,7 +2531,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.46
+   "last_price": 1.46,
+   "live_alert": {
+    "buyzone": "2026-08-21"
+   }
   },
   {
    "symbol": "PSIG",
@@ -15505,8 +15518,8 @@
    "country": "United States",
    "float": 10143696,
    "last_price": 0.7713,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-08-21"
   },
   {
    "symbol": "YAAS",
