@@ -797,15 +797,15 @@
  },
  "LIQ:IBG": {
   "anchor_ms": 1787303400000,
-  "last_ms": 1787303400000,
+  "last_ms": 1787303460000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 150.5,
-  "peak_usd": 219376,
+  "peak_usd": 458390,
   "last_eval_ms": 1787303460000,
-  "pulse_ms": 1787303400000,
+  "pulse_ms": 1787303460000,
   "anchor_price": 1.13,
   "anchor_low": 0.95,
   "date": "2026-08-21"
