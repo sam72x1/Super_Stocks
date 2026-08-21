@@ -22,6 +22,7 @@ import Super_stock as bot                                          # noqa: E402
 import gate_probe as GP                                            # noqa: E402
 import liq_move_probe as LM                                        # noqa: E402
 import m0_probe as MZ                                              # noqa: E402
+import probe_common as PC                                          # noqa: E402
 
 # ⚙️ **الأذرعُ الأربع مثبَّتةٌ في `cumrise_prereg.md §④` — ولا تُزاد بعد الأرقام.**
 ARMS = {
@@ -210,6 +211,10 @@ def main():                                                       # noqa: C901
     if not data:
         print("⛔ صفرُ بيانات — لا قياس.")
         return 2
+    if PC.coverage_bad(len(data), len(syms), PC.MAX_MISS_FRAC):
+        print(f"⛔ تغطيةٌ ناقصة: {fails} من {len(syms)} تعذّرت "
+              f"(الحدّ {PC.MAX_MISS_FRAC:.0%}) ⇒ عطبُ أداةٍ لا نتيجة — لا حكم.")
+        return 3
 
     movers, day_gain = [], {}
     for s, bars in data.items():

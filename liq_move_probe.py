@@ -23,6 +23,7 @@ import time
 os.environ.setdefault("SCREENER_MODE", "PROBE")
 import Super_stock as bot                                          # noqa: E402
 import liq_noise_probe as NZ                                       # noqa: E402
+import probe_common as PC                                          # noqa: E402
 
 WINDOW_MIN = 480
 MOVER_PCT = 30.0            # 🔒 نفسُ تعريف `liq_noise_prereg` حرفيًّا — لا يُحرَّك
@@ -373,6 +374,10 @@ def main():
     if not data:
         print("⛔ صفرُ شموع — لا قياس.")
         return 2
+    if PC.coverage_bad(len(data), len(syms), PC.MAX_MISS_FRAC):
+        print(f"⛔ تغطيةٌ ناقصة: {fails} من {len(syms)} تعذّرت "
+              f"(الحدّ {PC.MAX_MISS_FRAC:.0%}) ⇒ عطبُ أداةٍ لا نتيجة — لا حكم.")
+        return 3
 
     refs, movers, no_ref = {}, [], 0
     for s, bars in data.items():

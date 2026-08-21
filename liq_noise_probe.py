@@ -27,6 +27,7 @@ import time
 
 os.environ.setdefault("SCREENER_MODE", "PROBE")
 import Super_stock as bot                                          # noqa: E402
+import probe_common as PC                                          # noqa: E402
 
 WINDOW_MIN = 480          # ‏8 ساعاتٍ رجعيًّا: تغطّي البريماركت والجلسة كاملةً
 MOVER_PCT = 30.0          # تعريفُ «المتحرّك» — مثبَّتٌ في التسجيل §③
@@ -368,6 +369,10 @@ def main():
     if not data:
         print("⛔ صفرُ شموع — لا قياس.")
         return 2
+    if PC.coverage_bad(len(data), len(syms), PC.MAX_MISS_FRAC):
+        print(f"⛔ تغطيةٌ ناقصة: {fails} من {len(syms)} تعذّرت "
+              f"(الحدّ {PC.MAX_MISS_FRAC:.0%}) ⇒ عطبُ أداةٍ لا نتيجة — لا حكم.")
+        return 3
 
     # 🏃 المتحرّكون **من الشموع نفسِها** لا من قائمةٍ مختارةٍ بعد الحدث
     refs, movers, no_ref = {}, [], 0
