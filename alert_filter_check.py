@@ -21,6 +21,7 @@ os.environ.setdefault("SCREENER_MODE", "PROBE")
 import Super_stock as bot                                          # noqa: E402
 import m0_probe as MZ                                              # noqa: E402
 import gate_probe as GP                                            # noqa: E402
+import probe_common as PC                                          # noqa: E402
 
 WORKERS = 8
 
@@ -174,6 +175,13 @@ def main():                                                       # noqa: C901
     if not rows:
         print("⛔ صفرُ حدثٍ في هذي الجلسة ⇒ لا مادّةَ تُقاس.")
         return 5
+    # 🛡️ **التغطيةُ على كونِ الجلبِ الحقيقيّ (‏`by_sym`) لا على `rows`**: `rows`
+    #    يفلتر بـ«وقع فيه حدث» وهو **مقياسُ أعمال** لا **مقياسَ جلب** — سهمٌ فُحص
+    #    بنجاح ولم يتحرّك ليس تعذّرًا. `fails` تُعَدّ فقط عند فشل `day_minutes`.
+    if PC.coverage_bad(len(by_sym) - fails, len(by_sym), PC.MAX_MISS_FRAC):
+        print(f"⛔ تغطيةٌ ناقصة: {fails} من {len(by_sym)} تعذّرت "
+              f"(الحدّ {PC.MAX_MISS_FRAC:.0%}) ⇒ عطبُ أداةٍ لا نتيجة — لا حكم.")
+        return 3
     # 🕵️ **حدُّ صدقٍ يُقال قبل الجدول:** لا تُجلَب صفقاتُ المضارب في الإعادة
     #    (نداءٌ لكلّ حدث) ⇒ محورُ «المضارب مؤكَّد» **لا يكتم شيئًا هنا** ويُوسَم.
     print("   ⚠️ ولا تُجلَب صفقاتُ المضارب في الإعادة ⇒ محورُ «المضاربُ مؤكَّد» "

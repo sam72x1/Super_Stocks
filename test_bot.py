@@ -28776,6 +28776,91 @@ check("📏 AH-HD1ب ولا يبتلع نصَّ الخطأ (يُسجّله بـ`
 check("📏 AH-HD1ج واليومُ المفقود يُسمَّى في سجلّ `exit_stop_arms` (لا عدَّ صامت)",
       "يومٌ مفقود" in _ES_SRC and "n_missing += 1" in _ES_SRC)
 
+# ═══ 🛡️📥 خطة 035 — حارسُ التغطية المشترك `probe_common.coverage_bad` ═══
+# ستُّ أدواتِ مِجَسٍّ حيّة (gate_probe · m0_probe · liq_move_probe ·
+# liq_noise_probe · cumrise_probe · alert_filter_check) كانت تجلب كونًا من
+# ~300+ رمزٍ وتطبع عددَ مَن تعذّر جلبُه ولا تُوقِف إلا عند الصفر المطلق ⇒
+# تشغيلةٌ خضراء على مجتمعٍ متحيّز. `coverage_bad` نقيّةٌ **تُقفَل سلوكيًّا**
+# (`lock-and-mutate`) لا بنيويًّا: طفرةُ قلبِ `>` إلى `<`/`>=` أو حذفِ الحارس
+# تُسقط أقفالَ التخوم PC1 — أُثبت يدويًّا وقتَ التنفيذ (لا subprocess حيّ هنا
+# نظير ES9/ES10 لأن `coverage_bad` دالّةٌ نقيّةٌ صغيرة لا تحتاج محاكاةَ سوق).
+import probe_common as _pc                                        # noqa: E402
+
+_pc_cases = {
+    "50% مفقود > 20% ⇒ سيّئة": (_pc.coverage_bad(50, 100, 0.20), True),
+    "15% مفقود ≤ 20% ⇒ سليمة": (_pc.coverage_bad(85, 100, 0.20), False),
+    "الحدُّ نفسُه 20% بالضبط (ليس >)": (_pc.coverage_bad(80, 100, 0.20), False),
+    "فوقه بواحد ⇒ 21% مفقود": (_pc.coverage_bad(79, 100, 0.20), True),
+    "كونٌ فارغ ⇒ يُرجَأ للبوّابة الصفرية": (_pc.coverage_bad(0, 0, 0.20), False),
+}
+check("🛡️ PC1 coverage_bad تُفرّق الاتّجاهَ والتخوم (50%·15%·20% بالضبط·21%·صفر)",
+      all(got is exp for got, exp in _pc_cases.values()),
+      str({k: v for k, v in _pc_cases.items() if v[0] is not v[1]}))
+
+# PC2 — 🔒 الدلالةُ نسبيّةٌ لا عدديّةٌ مطلقة: مقامٌ أكبر بنفس النسبة يعطي نفسَ
+#   الحكم (خلافًا لعتبةٍ مطلقةٍ كـ`exit_stop_arms.MAX_MISSING_DAYS`).
+check("🛡️ PC2 النسبةُ تحكم لا العدد المطلق (500/1000=50% تسقط كما 50/100)",
+      _pc.coverage_bad(500, 1000, 0.20) is True
+      and _pc.coverage_bad(850, 1000, 0.20) is False,
+      f"{_pc.coverage_bad(500, 1000, 0.20)} {_pc.coverage_bad(850, 1000, 0.20)}")
+
+
+def _pc_guard_present(path):
+    """AST: هل داخل الملفّ عقدةُ `If(coverage_bad(...))` تُرجع `3` في جسمها؟
+    بالـAST لا نصًّا — لا يفرّق تعليقًا عن كودٍ (درسُ «القفل النصّيّ»)."""
+    tree = _ast0.parse(open(path, encoding="utf-8").read())
+    for node in _ast0.walk(tree):
+        if not isinstance(node, _ast0.If):
+            continue
+        t = node.test
+        is_cov = (
+            isinstance(t, _ast0.Call)
+            and (
+                (isinstance(t.func, _ast0.Attribute) and t.func.attr == "coverage_bad")
+                or (isinstance(t.func, _ast0.Name) and t.func.id == "coverage_bad")
+            )
+        )
+        if not is_cov:
+            continue
+        for stmt in node.body:
+            if (isinstance(stmt, _ast0.Return)
+                    and isinstance(stmt.value, _ast0.Constant)
+                    and stmt.value.value == 3):
+                return True
+    return False
+
+
+_pc_probe_files = ["gate_probe.py", "m0_probe.py", "liq_move_probe.py",
+                    "liq_noise_probe.py", "cumrise_probe.py", "alert_filter_check.py"]
+_pc_missing = [f for f in _pc_probe_files if not _pc_guard_present(f)]
+check("🛡️ PC3 الستّةُ كلُّها: If(coverage_bad(...)) ⟶ return 3 (بالـAST لا نصًّا)",
+      not _pc_missing, str(_pc_missing))
+
+
+def _pc_floor5_present(path, floor_var):
+    """AST: هل عقدةُ `If(not floor_var)` تُرجع `5` في جسمها؟ (خطة 035 — kasih2_red_stats)"""
+    tree = _ast0.parse(open(path, encoding="utf-8").read())
+    for node in _ast0.walk(tree):
+        if not isinstance(node, _ast0.If):
+            continue
+        t = node.test
+        is_floor_not = (
+            isinstance(t, _ast0.UnaryOp) and isinstance(t.op, _ast0.Not)
+            and isinstance(t.operand, _ast0.Name) and t.operand.id == floor_var
+        )
+        if not is_floor_not:
+            continue
+        for stmt in node.body:
+            if (isinstance(stmt, _ast0.Return)
+                    and isinstance(stmt.value, _ast0.Constant)
+                    and stmt.value.value == 5):
+                return True
+    return False
+
+
+check("🛡️ PC4 kasih2_red_stats: If(not floors_ok) ⟶ return 5 (بالـAST — خطة 035)",
+      _pc_floor5_present("kasih2_red_stats.py", "floors_ok"))
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
