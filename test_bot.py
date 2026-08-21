@@ -28575,9 +28575,27 @@ check("🗓️ CAL6 والمدُّ للخلف **خاملٌ على الإنتاج
                  "2027-05-31", "2027-06-18", "2027-07-05", "2027-09-06",
                  "2027-11-25", "2027-12-24"]))
 _es_src2 = _ES_SRC
-check("🗓️ CAL7 وأداةُ القياس تبني أيامَها من `is_trading_day` لا من `weekdays` وحدها",
-      "MC.is_trading_day" in _es_src2 and "HOLIDAY_COUNT_BY_YEAR" in _es_src2
-      and "prev_ok" in _es_src2)
+# 🐞 **نصّيًّا نجت منه طفرةُ «المقامُ يعود أيامَ أسبوع»** (‏days = list(_wk))
+#   لأن اسمَ is_trading_day يبقى حاضرًا في سطر hol ⇒ **حضورٌ بلا مشاركة**
+#   (الفخُّ النصّيُّ سابعَ مرّة). ⇒ **بالـAST على إسنادِ days نفسِه**: قائمةٌ
+#   استيعابيّةٌ شرطُها نداءٌ لـis_trading_day — لا مجرّد ورودِ الاسم.
+_cal7_days = []
+for _n in _es_ast.walk(_ES_TREE):
+    if isinstance(_n, _es_ast.FunctionDef) and _n.name == "main":
+        for _m in _es_ast.walk(_n):
+            if isinstance(_m, _es_ast.Assign) and any(
+                    isinstance(_t, _es_ast.Name) and _t.id == "days"
+                    for _t in _m.targets):
+                _cal7_days.append(_m.value)
+_cal7_ok = (len(_cal7_days) == 1
+            and isinstance(_cal7_days[0], _es_ast.ListComp)
+            and any(getattr(_c.func, "attr", None) == "is_trading_day"
+                    for _g in _cal7_days[0].generators for _i in _g.ifs
+                    for _c in _es_ast.walk(_i)
+                    if isinstance(_c, _es_ast.Call)))
+check("🗓️ CAL7 وإسنادُ days نفسُه مبنيٌّ بشرطِ is_trading_day (AST لا نصّ)",
+      _cal7_ok and "HOLIDAY_COUNT_BY_YEAR" in _es_src2 and "prev_ok" in _es_src2,
+      f"إسنادات days={len(_cal7_days)} · شرطيّ={_cal7_ok}")
 # 🐞 **نصّيًّا كان يسقط على شرحي أنا** (الـdocstring يشرح «404 و403 و503 سواء»)
 #   ⇒ **بالـAST**: التعليقاتُ والشروحُ خارجَ الشجرة **بنيويًّا**، فلا يبقى إلّا
 #   ما يُنفَّذ فعلًا. (الفخُّ النصّيُّ الموثَّق — سادسَ مرّة.)
