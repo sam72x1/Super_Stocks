@@ -1292,24 +1292,40 @@ def _mw_run(rem: dict, loc: dict) -> dict:
 _mw_rem = {"week_start": "2026-08-21",
            "stocks": [{"symbol": "A"}, {"symbol": "C", "stop": 2.0}],
            "pullback": [{"symbol": "P1"}],
-           "removed": [{"symbol": "X", "added": "2026-08-01"}],
+           "removed": [{"symbol": "X", "added": "2026-08-01",
+                        "status": "stopped"}],
            "notes": [{"symbol": "A", "t": "n1", "date": "d"}],
            "remote_only_key": 1}
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-21 — الفِكستشرُ كان يصف حالةً يمنعها الإنتاج:**
+#   ① صفوفُ `removed` بلا `status` **إطلاقًا**، والإنتاجُ يملؤه دائمًا
+#      (`update_watchlist_status:12318` ينقل من `stocks` بحالتها، والحيُّ
+#      عشرةُ صفوفٍ كلُّها `status="stopped"`) ② والمشطوبُ `C` كان **باقيًا في
+#      `loc["stocks"]`** مع كونه في `loc["removed"]` — والإنتاجُ **ينقله لا
+#      ينسخه** (`wl["stocks"] = [s ... if s["status"] == "active"]`) ⇒ حالةٌ
+#      مستحيلة. صُحِّح الشكلُ، **والأقفالُ اشتدّت لا أُرخيت** (‏OPW2 صار
+#      يفرّق الاتجاهين بدل قصٍّ شامل).
 _mw_loc = {"week_start": "2026-08-14",
-           "stocks": [{"symbol": "B"}, {"symbol": "C", "stop": 9.9}],
+           "stocks": [{"symbol": "B"}],
            "pullback": [{"symbol": "C"}],
-           "removed": [{"symbol": "X", "added": "2026-08-01"},
-                       {"symbol": "C", "added": "2026-08-05"}],
+           "removed": [{"symbol": "X", "added": "2026-08-01",
+                        "status": "stopped"},
+                       {"symbol": "C", "added": "2026-08-05",
+                        "status": "stopped"}],
            "notes": [{"symbol": "A", "t": "n2", "date": "d"}],
            "future_field": "keep"}
 _mw_out = _mw_run(_mw_rem, _mw_loc)
 check("📋 OPW1 لا فقدَ عضوية: رمزُ التجديد ورمزُ المراقب **كلاهما** ينجو",
       sorted(s["symbol"] for s in _mw_out["stocks"]) == ["A", "B"])
-check("📋 OPW2 لا بعثَ لمشطوب: المشطوبُ محليًّا يُقصّ من `stocks` **و**"
-      "`pullback` ولو كان البعيدُ ما زال يحمله",
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-21 (مأخذُ المراجعة ح-3):** كان القصُّ شاملًا —
+#   اتّحادُ `removed` **بلا قيدِ حالةٍ ولا وقت** و`removed` مسقوفٌ بـ120 صفًّا
+#   ‏≈أشهر، بينما استبعادُ الإنتاج مقيَّدٌ بـ`status == "stopped"` **حصرًا**
+#   ⇒ رمزٌ أُعيد ترشيحُه شرعًا كان **يُحذَف صامتًا** والسجلُّ يطبع «✅ حُفظت».
+#   **القفلُ الآن يفرّق الاتجاهين** بدل تأكيد القصّ وحدَه: يُقصّ من القائمة
+#   التي **أسقطته** الجهةُ منها · ويبقى في القائمة التي **تحمله** فيها.
+check("📋 OPW2 لا بعثَ لمشطوب — **بالقائمة لا بالمجموع**: `C` يُقصّ من "
+      "`stocks` (أسقطته المحلّية) ويبقى في `pullback` (المحلّيةُ تحمله)",
       all(s.get("symbol") != "C" for s in _mw_out["stocks"])
-      and all(s.get("symbol") != "C" for s in _mw_out["pullback"])
-      and [s["symbol"] for s in _mw_out["pullback"]] == ["P1"])
+      and sorted(s["symbol"] for s in _mw_out["pullback"]) == ["C", "P1"])
 check("📋 OPW3 اتّحادُ المُلحَق بلا تكرار · **وبلا طيِّ محتوًى مختلف** "
       "(ملاحظتان لنفس الرمز واليوم تبقيان اثنتين)",
       [(e["symbol"], e["added"]) for e in _mw_out["removed"]]
@@ -1363,6 +1379,70 @@ check("🔒 OPW7 وصلةُ الفرع في `git_save` باسم `WATCH_FILE` · 
       and "os.path.basename(WATCH_FILE)" in _insp.getsource(S.git_save)
       and "_merge_op_entry(_remote, _b)" in _insp.getsource(S.git_save)
       and "_union_jsonl(_remote, _b)" in _insp.getsource(S.git_save))
+
+# 🔴🔴 **مآخذُ مراجعة 2026-08-21 — أقفالُ الإصلاح (‏WL8-WL10):**
+# WL8 — **القوائمُ الزمنيّة تُوحَّد بمفتاحها**: كانتا خارج `_WL_KEYED`
+#   و`_WL_APPEND` معًا فتسقطان على `out.update(_base)` ⇒ **تُمحى صفوفُ جهةٍ
+#   كاملةً** (مقيس: البعيدُ فيه صفُّ اليوم ونحن لا ⟶ يُمحى). و`tie_harvest`
+#   حصادُ `T-TIE-FWD` («يتراكم بالانتظار») و`reject_stats` شاهدُ الجدران.
+#   ⚖️ **وبمفتاحها لا بهويّة المحتوى** — كاتباهما يستبدلان صفَّ اليوم في
+#   مكانه ⇒ اتّحادُ المحتوى يُنتج **صفَّين لليوم نفسِه** فيكسر ثابتَهما.
+_wl8 = _mw_run(
+    {"week_start": "2026-08-21",
+     "reject_stats": [{"date": "08-20", "n": 1}, {"date": "08-21", "n": 2}],
+     "tie_harvest": [{"date": "08-21", "source": "daily", "c": 9}]},
+    {"week_start": "2026-08-21",
+     "reject_stats": [{"date": "08-20", "n": 1}],
+     "tie_harvest": [{"date": "08-20", "source": "daily", "c": 3}]})
+check("🗓️ WL8 القوائمُ الزمنيّة تتّحد بمفتاحها ولا تُمحى · مرتَّبةً بالتاريخ",
+      [e["date"] for e in _wl8["reject_stats"]] == ["08-20", "08-21"]
+      and [(e["date"], e["source"]) for e in _wl8["tie_harvest"]]
+      == [("08-20", "daily"), ("08-21", "daily")],
+      str(_wl8)[:110])
+# WL8ب — **صفٌّ واحدٌ لليوم عند التصادم** (المحلّيُّ يفوز) — لا صفّان.
+_wl8b = _mw_run({"week_start": "2026-08-21",
+                 "reject_stats": [{"date": "08-21", "n": 99}]},
+                {"week_start": "2026-08-21",
+                 "reject_stats": [{"date": "08-21", "n": 7}]})
+check("🗓️ WL8ب تصادمُ اليوم نفسِه ⇒ **صفٌّ واحد** والمحلّيُّ يفوز "
+      "(لا اتّحادَ بالمحتوى فيتكرّر اليوم)",
+      _wl8b["reject_stats"] == [{"date": "08-21", "n": 7}],
+      str(_wl8b.get("reject_stats"))[:80])
+# WL9 — **المُعادُ ترشيحُه ينجو**: حاضرٌ في نشِط الجهة نفسِها ⇒ ليس بعثًا.
+_wl9 = _mw_run({"week_start": "2026-08-21",
+                "removed": [{"symbol": "X", "status": "stopped"}],
+                "stocks": [{"symbol": "X"}, {"symbol": "A"}],
+                "pullback": [{"symbol": "X"}]},
+               {"week_start": "2026-08-21",
+                "removed": [{"symbol": "X", "status": "stopped"}],
+                "stocks": [{"symbol": "X"}, {"symbol": "A"}],
+                "pullback": [{"symbol": "X"}]})
+check("🔁 WL9 المُعادُ ترشيحُه **ينجو**: `X` في `removed` وفي نشِط الجهة "
+      "نفسِها ⇒ إعادةُ ترشيحٍ بعد الشطب لا بعثٌ",
+      sorted(e["symbol"] for e in _wl9["stocks"]) == ["A", "X"]
+      and [e["symbol"] for e in _wl9["pullback"]] == ["X"],
+      str(_wl9.get("stocks"))[:80])
+# WL10 — **قيدُ الحالة يفرّق**: مُخرَجُ `M14` يبقى `status="active"` في
+#   `removed` والإنتاجُ لا يستبعده ⇒ الدمجُ لا يقصّه (فاشلٌ-آمنٌ مفتوح).
+_wl10 = _mw_run({"week_start": "2026-08-21", "removed": [],
+                 "stocks": [{"symbol": "F"}, {"symbol": "A"}]},
+                {"week_start": "2026-08-21",
+                 "removed": [{"symbol": "F", "status": "active",
+                              "removal_reason": "فلوت كبير (M14 صلبة)"},
+                             {"symbol": "S", "status": "stopped"}],
+                 "stocks": [{"symbol": "A"}]})
+check("🔒 WL10 قيدُ الحالة يفرّق: `status=\"active\"` (مُخرَجُ M14) **يمرّ** "
+      "و`stopped` يُقصّ — بقاعدة الإنتاج نفسِها لا أشدَّ",
+      sorted(e["symbol"] for e in _wl10["stocks"]) == ["A", "F"],
+      str(_wl10.get("stocks"))[:80])
+_wl10b = _mw_run({"week_start": "2026-08-21", "removed": [],
+                  "stocks": [{"symbol": "S"}, {"symbol": "A"}]},
+                 {"week_start": "2026-08-21",
+                  "removed": [{"symbol": "S", "status": "stopped"}],
+                  "stocks": [{"symbol": "A"}]})
+check("🔒 WL10ب والاتجاهُ المقابل: `stopped` وغائبٌ عن نشِط جهته ⇒ **يُقصّ**",
+      sorted(e["symbol"] for e in _wl10b["stocks"]) == ["A"],
+      str(_wl10b.get("stocks"))[:80])
 
 # 4ط) 🔒 ④ (إصلاح تدقيق 2026-07-12): اختبارات **رفض** البوابات الصلبة M1-M5/M10 —
 #     كانت صفرًا: أي عتبة CONFIG يمكن تغييرها (أو عكس عامل مقارنة) والسويّة خضراء.
@@ -28561,6 +28641,52 @@ check("💓 PX4 وكرتٌ مصدرُه M1 وحده (class قويّة · فجو�
       and "🥇 توليفة" not in S.build_liq_stage_alert(
           [({"symbol": "PXT2", "src": "اختبار"}, [_px_m1_ev])]),
       "")
+
+# 🪟🪟 **WIN1-WIN4 — «‏💪 شمعةٌ قوية · 🥉 ضعيف» في كرتٍ واحد (بلاغُ المالك على
+#   `$SDOT`، مأخذُ المراجعة ح-1).** الوسمان **صادقان** وكلٌّ عن **نافذةٍ
+#   أخرى**: الصنفُ من مجموع نافذةِ حدثه (‏`M30` ثلاثون دقيقةً تقرأ `strong`
+#   بسهولة) والفئةُ من **الخمس** — والعلّةُ أنهما لم يُنسَبا إلى نافذتيهما،
+#   وأن الصنفَ كان من **آخر** حدثٍ والفئةَ من **أوّل** حاملٍ ⇒ **يتبدّل
+#   الوسمُ بترتيب الحدثين**. مقيسٌ قبل الإصلاح: `[M5, M30]` ⟶ «قوية · ضعيف»
+#   وعكسُه ⟶ «وسط · ضعيف».
+_wn_t = 1_755_000_000_000
+_wn_k2w = {"c3": "نقضت", "c4": "خضراء 0-1", "v2": "المرساة فوق 30%",
+           "v3": "سيولةٌ نازحة"}
+
+
+def _wn_ev(stage, usd, mn):
+    return {"stage": stage, "usd": usd, "minutes": mn, "span": mn,
+            "anchor_ms": _wn_t, "last_ms": _wn_t + (mn - 1) * 60_000,
+            "price": 1.10 + mn * 0.005, "price_ms": _wn_t + (mn - 1) * 60_000,
+            "vol_x": 4.0, "class": S._ignition_candle_class(usd),
+            "prev_close": 1.00, "anchor_price": 1.05, "anchor_low": 1.00,
+            "k2": dict(_wn_k2w)}
+
+
+_wn_m5, _wn_m30 = _wn_ev("M5", 60_000, 5), _wn_ev("M30", 400_000, 30)
+_wn_px = {"stage": "Px", "usd": 80_000, "minutes": 1, "anchor_ms": _wn_t,
+          "last_ms": _wn_t + 9 * 60_000, "price": 1.55,
+          "price_ms": _wn_t + 9 * 60_000, "prev_usd": 60_000,
+          "pulse_pct": 33.0, "k2": dict(_wn_k2w),
+          "anchor_price": 1.05, "anchor_low": 1.00}
+_wn_head = lambda evs: S.build_liq_stage_alert(          # noqa: E731
+    [({"symbol": "WNT"}, evs)], now_ms=_wn_t + 30 * 60_000).splitlines()[0]
+_wn_a, _wn_b = _wn_head([_wn_m5, _wn_m30]), _wn_head([_wn_m5])
+check("🪟 WIN1 **كلُّ صنفٍ يُنسَب إلى نافذته** — والعيّنةُ تفرّق: `[M5,M30]` "
+      "⟶ «30د» و`[M5]` وحدَه ⟶ «5د»",
+      "💪 شمعةٌ قوية 30د" in _wn_a and "⚖️ شمعةٌ وسط 5د" in _wn_b
+      and "30د" not in _wn_b, _wn_a[-70:])
+check("🪟 WIN2 والفئةُ تُسمّي نافذتَها (‏5د) — فلا يُقرأ الوسمان تناقضًا",
+      "🥉 ضعيف (5د)" in _wn_a and "🥉 ضعيف (5د)" in _wn_b, _wn_a[-70:])
+check("🪟 WIN3 الصنفُ من **أحدثِ حاملٍ** لا من آخر حدث: كرتُ `[M5, Px]` "
+      "يُبقي وسمَ الخمس (‏`Px` بلا `class` بالبناء) ولا يفقده",
+      "⚖️ شمعةٌ وسط 5د" in _wn_head([_wn_m5, _wn_px])
+      and S._ignition_candle_class is not None
+      and "class" not in _wn_px, _wn_head([_wn_m5, _wn_px])[-70:])
+check("🪟 WIN4 وكرتُ `Px` وحدَه: **بلا وسمِ صنفٍ إطلاقًا** (لا يُخترَع صنفٌ "
+      "لحدثٍ لا يحمله) والفئةُ تبقى",
+      not any(_c in _wn_head([_wn_px]) for _c in S._LIQ_CLS_AR.values())
+      and "🥉 ضعيف (5د)" in _wn_head([_wn_px]), _wn_head([_wn_px])[-70:])
 
 # STOP1 — **الوصلةُ من المِرساة إلى الكرت** (درسُ wire-check): `anchor_low`
 #   يُكتَب في الحالة وفي حدثَي M1 وM5 — ويُقرأ في السطر. فارقٌ محدَّد.
