@@ -106,7 +106,35 @@
   الدفعات الجديدة 2026-07-28: **صفر قاعدة جديدة**؛ 42 نسخة حرفية لصور موثّقة، والادّعاء
   الوحيد «رأس وكتفين» `TG_2197` **سقط بالطعن** لأن كل عنصر فيه منفَّذ سلفًا — والتغطية
   أشبعت).**
-- `.github/workflows/` — daily_screener.yml (10ص السعودية) · pullback_monitor.yml (كل 30د) · scan_earnings.yml (أداة الأرباح، يومي 06:00 UTC) · **hand_digest.yml (🕵️ تحديث نهاية اليوم، 22:00 UTC اثنين→جمعة — `SCREENER_MODE=DIGEST`)** · **acc_verify.yml (🔬 تجربة T-ACC، يدوي input=year — يلزم سرّ `POLYGON_API_KEY`)** · **ignition.yml (🔥 رادار الانطلاق، cron 11:11 UTC ⇒ يبدأ من الافتتاح فعليًّا — عامل جلسة، يلزم `POLYGON_API_KEY`)** · backtest.yml · analyze.yml/technical.yml (يدوي).
+- **🧱⛰️ `ceiling_arms.py`** (`ceiling.yml`، يدويّ) — أذرعُ `T-CEILING`: كم
+  يُكلّف رفعُ سقف الانهيار `MAX_DROP_PCT` الذي حجب `RUBI` سبعةَ أيام؟ (العقد
+  `ceiling_prereg.md`). **الحكم: الإبقاء** بقرار المالك «خلّ السقف».
+- **🔇 `liq_noise_probe.py`** (`liq_noise.yml`، يدويّ) — مِجَسُّ بوّابة الضجيج:
+  كم إشعارًا تقصّ كلُّ طبقة، وهل تُفقِد متحرّكًا؟ (العقد `liq_noise_prereg.md`
+  مدفوعٌ قبل أيّ رقم). هو مصدرُ أرقام «‏2,674 ⟶ 401 = قصٌّ 85%».
+- **🔎 `liq_case_probe.py`** (`liq_case.yml`، يدويّ) — «ليه ما وصلني تحديثٌ
+  لسهم كذا؟» يُعيد `liq_stage_events` **الإنتاجية** على شموع سهمٍ بعينه دقيقةً
+  دقيقة ويطبع فعلَ **كلِّ بوّابةٍ على حدة** ⇒ **سببُ الصمت يُقرأ بالأرقام لا
+  بالرأي** (أداةُ التشخيص الأولى عند أيّ بلاغ «ما جاني إشعار»).
+- **⛏️🔁 `sweep_reclaim_arms.py`** (`sweep_reclaim.yml`، يدويّ) — أذرعُ
+  `T-SWEEP-RECLAIM` («الستوب المكنوس»، العقد `sweep_reclaim_prereg.md`).
+  **الحكم: فشلت** — الاستعادةُ ظاهرةٌ عامّة (‏36.9% خلال 5 جلسات) لكنّ إعادةَ
+  الدخول الآلية **سالبةُ التوقّع** (‏−0.041R).
+- **🔬 `method_window_arms.py`** (`method_window.yml`، يدويّ) — أذرعُ نافذة
+  الحدث المؤسِّس وشرطِ RSI لصيّاد النهج العلميّ (العقد
+  `method_window_prereg.md`). **الحكم: طُبِّقا ثم ألغاهما المالك** في اليوم
+  نفسِه («ارجع 20» · «الغ شرط rsi») — والقياسُ محفوظٌ فإعادتُهما سطرٌ واحد.
+- `.github/workflows/` — **‏91 ملفًّا: 18 مجدولةٌ بكرون والباقي يدويٌّ
+  (`workflow_dispatch`)** ⇒ 🔴 **الجردُ الكامل من `ls .github/workflows/` لا من
+  هذا السطر** — تُضاف أدواتُ بحثٍ باستمرار وأيُّ تعدادٍ كاملٍ هنا يتعفّن
+  (وهو بعينه ما استدعى هذي المصالحة). **والمجدولةُ الثماني عشرة:**
+  daily_screener · pullback_monitor · operator_entry · ignition · press_radar ·
+  split_hunter · split_filter · method_hunter · envelope_hunter · hand_digest ·
+  hand_flow · scan_earnings · ctb_harvest · hunter_outcomes · cumrise ·
+  e2_recover · deps_smoke · cline_weekly_review. **وأبرزُ اليدويّ:** backtest ·
+  analyze/technical · hand_check · polygon_health · acc_verify · وأدواتُ
+  التجارب (`gate` · `kasih` · `kasih2` · `exit_stop` · `ceiling` · `liq_noise`
+  · `liq_case` · `sweep_reclaim` · `method_window` …).
 
 ## 🧭 قاعدة مُلزِمة دائمة: اختم كل ردّ بخيارات المالك مكتوبةً حرفيًّا (قرار المالك 2026-08-07)
 قال حرفيًّا: «ترا ما وصلنا لهذي النتيجة بعد الله الا انك كنت توضح لي وش اكتب
