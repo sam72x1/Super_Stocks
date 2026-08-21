@@ -41,6 +41,7 @@ from zoneinfo import ZoneInfo                                    # noqa: E402
 
 import ah_scan as AH                                             # noqa: E402
 import flatfiles_probe as FP                                     # noqa: E402
+import market_calendar as MC                                     # noqa: E402
 import Super_stock as S                                          # noqa: E402
 
 NY = ZoneInfo("America/New_York")
@@ -59,6 +60,54 @@ def weekdays(a: str, b: str) -> list:
             out.append(d.isoformat())
         d += dt.timedelta(days=1)
     return out
+
+# ── 🛡️ حارسُ التغطية (خطة 032، 2026-08-21) ────────────────────────────────
+# 🔴 **العلّة:** `main()` كانت ترجع **صفرًا** مهما سقط من الأيام ⇒ خنقُ S3
+#    (نمطُ الفشل الموثَّق) يحسب جداولَ ويلسون على **عيّنةٍ منحازةٍ زمنيًّا**
+#    — أو على صفرِ صفوف — والـworkflow يقرأ الخروجَ الصفريَّ «نتيجةً حقيقية».
+#    وهو بعينه ما وقع **مقيسًا** في الشقيقة `exit_stop_arms` (‏2024: فُقد 68
+#    يومًا من 194 و«طُبعت التغطيةُ ومضى») ولأجله وُلد حارسُها `V4`.
+# ⚖️ **ولا يُنسَخ حدُّها حرفيًّا بلا تكييف — الدلالةُ مختلفة:** هناك `days`
+#    مُصفّاةٌ بـ`MC.is_trading_day` فـ`n_missing` **إخفاقاتُ تنزيلٍ صرفة** ·
+#    وهنا `weekdays` **بلا تقويمٍ عمدًا** (عقدُ الدالّة أعلاه) فالعطلةُ ملفُّها
+#    غائبٌ وتُعَدّ «مفقودة» (‏≈9-11/سنة) ⇒ تطبيقُ الحدّ 3 كما هو كان
+#    **سيُسقط كلَّ تشغيلةٍ سليمة** = «قفلٌ يمنع الصحيحَ ليس أشدَّ، هو مكسور».
+#    فيُطرَح عددُ العطلات المتوقَّع من التقويم (‏يغطّي 2023-2027 بعد مدِّه
+#    للخلف 2026-08-21) ثم يُطبَّق الحدُّ **نفسُه**.
+# 🔒 **والحدُّ مُعادٌ لا مخترَع** — مقفولٌ بتطابقه مع `exit_stop_arms`؛ ولا
+#    يُستعمل `probe_common.coverage_bad` هنا (مقياسُها **حصّةُ رموزٍ في
+#    جلسة** لا **أيامًا عبر سنة** — وعقدُها ينصّ على عدم الخلط).
+MAX_MISSING_DAYS = 3
+
+
+def coverage_bad(n_files: int, n_missing: int, holidays: int = 0) -> bool:
+    """صحيحٌ حين لا تكفي التغطيةُ لنشر رقم — نقيّةٌ لتُقفَل **سلوكيًّا**.
+
+    صفرُ أيامٍ ⇒ **صحيح** (لا تُقرأ «تغطيةٌ تامّة») · وما زاد على العطلات
+    المتوقَّعة فوق `MAX_MISSING_DAYS` ⇒ **صحيح**. و`holidays=0` تعني
+    «العطلاتُ غيرُ معروفة» فيصير الحكمُ متشدّدًا — ولذلك تُمرَّر من التقويم
+    وحدَه، وعند جهله يُعلَن ولا يُحكَم (‏«تعذّرٌ ≠ مخالفة»)."""
+    if int(n_files or 0) + int(n_missing or 0) <= 0:
+        return True
+    return max(0, int(n_missing or 0) - int(holidays or 0)) > MAX_MISSING_DAYS
+
+
+def coverage_verdict(year: str, n_files: int, n_missing: int,
+                     n_anchored: int) -> tuple:
+    """(‏هل تسقط البوّابة؟ · سطرُ `V4` المطبوع) — مشتركةٌ بين الأداتين فلا
+    يتفرّق الحكمُ نسختين (درسُ «مقياسان لا واحد»)."""
+    hol = (MC.HOLIDAY_COUNT_BY_YEAR.get(int(year))
+           if str(year).strip().isdigit() else None)
+    bad = (coverage_bad(n_files, n_missing, hol) if hol is not None
+           else coverage_bad(n_files, 0))
+    txt = (str(hol) if hol is not None
+           else "غيرُ معروفة (سنةٌ خارج التقويم) ⇒ لا حكمَ على المفقود")
+    line = (f"🛡️ V4 التغطية: قِيست {n_files} · مفقودة {n_missing} · "
+            f"عطلاتٌ متوقَّعة {txt} · الحدُّ {MAX_MISSING_DAYS} · "
+            f"مراسٍ {n_anchored:,} "
+            + ("✅" if not (bad or n_anchored == 0) else "⛔"))
+    return (bad or n_anchored == 0), line
+
 
 # ── ثوابتُ العقد (مصادرُها في `kasih_prereg.md` §②/§④) ─────────────────────
 PRICE_LO = float(S.CONFIG.get("MIN_PRICE", 0.40))       # ظرفُ الكاتالوج النافذ
@@ -436,6 +485,17 @@ def main() -> int:
                       f"خروج {r['exit']} · F2 {r['f2']} (${r['usd5']:,})")
     print("\n⚠️ حدودُ الصدق (§⑧): لمسٌ لا تنفيذ · يومٌ واحد · مِرساةٌ/رمز/يوم ·"
           " إغلاقُ الأمس من الشموع · الحكمُ عبر السنوات الثلاث لا سنةً واحدة.")
+    # 🛡️ خطة 032 — **وضعُ السنة وحدَه**: `KASIH_DAY` عيّنتُه يومٌ بالتصميم
+    #    فيبقى أخضرَ (شرطُ الخطة الصريح). والبوّابةُ **إضافيّةٌ** لا بديلة:
+    #    `v2_anchors` تبقى كما هي.
+    if not one_day:
+        _cov_bad, _cov_line = coverage_verdict(year, n_files, n_missing,
+                                               n_anchored)
+        print(_cov_line)
+        if _cov_bad:
+            print("\n⛔ بوّابةُ صلاحية: تغطيةٌ ناقصة أو صفرُ مراسٍ ⇒ "
+                  "**عطبُ أداةٍ لا نتيجة** — لا حكم (ولا يُقرأ الخروجُ صفرًا).")
+            return 3
     if v2_anchors:
         return 3
     return 0

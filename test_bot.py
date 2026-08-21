@@ -28139,6 +28139,43 @@ check("🔴🔇 RED4 سلالُ TOP تطابق مُخرَجات kasih2_scan سل
       and _K2.v3_bucket(_k2_rows, 10 * _k2M) == _RS.TOP["v3"],
       f"c4={_K2.c4_bucket(_k2_sweep, _k2a2)}")
 
+# ═══ 🛡️ خطة 032: حارسُ تغطيةِ S3 في `kasih_scan`/`kasih2_scan` (KCV1-KCV5) ═══
+# 🔴 كانتا ترجعان **صفرًا** مهما سقط من الأيام ⇒ خنقُ S3 ينشر جداولَ ويلسون
+#    على عيّنةٍ منحازةٍ زمنيًّا و«الخروجُ الصفريُّ يُقرأ نتيجةً حقيقية» — نفسُ
+#    الحادثة المقيسة في `exit_stop_arms` (‏2024: 68 يومًا من 194).
+# ⚖️ **والدلالةُ تختلف عن الشقيقة:** `weekdays` هنا **بلا تقويمٍ عمدًا**
+#    فالعطلةُ تُعَدّ «مفقودة» (‏≈9-11/سنة) ⇒ الحدُّ يُطبَّق **بعد طرح عطلات
+#    التقويم**، وإلّا أسقط كلَّ تشغيلةٍ سليمة.
+import exit_stop_arms as _ES_ARMS                                 # noqa: E402
+check("🛡️ KCV1 الحدُّ **مُعادٌ لا مخترَع**: يطابق `exit_stop_arms` رقمًا",
+      _KAS.MAX_MISSING_DAYS == _ES_ARMS.MAX_MISSING_DAYS)
+check("🛡️ KCV2 صفرُ أيامٍ ⇒ لا حكم (لا تُقرأ «تغطيةٌ تامّة»)",
+      _KAS.coverage_bad(0, 0) is True)
+check("🛡️ KCV3 شكلُ الحادثة المقيسة (‏68 مفقودًا) ⇒ يسقط · والسليمُ يمرّ",
+      _KAS.coverage_bad(190, 68, 10) is True
+      and _KAS.coverage_bad(251, 10, 10) is False
+      and _KAS.coverage_bad(248, 13, 10) is False      # 3 إخفاقات = الحدّ
+      and _KAS.coverage_bad(247, 14, 10) is True)      # 4 ⇒ فوق الحدّ
+check("🛡️ KCV3ب العطلاتُ تُطرَح فعلًا: نفسُ الأرقام بلا طرحٍ كانت تسقط",
+      _KAS.coverage_bad(251, 10, 0) is True
+      and _KAS.coverage_bad(251, 10, 10) is False)
+check("🛡️ KCV4 الحكمُ المركَّب: صفرُ مراسٍ يُسقط · وسنةٌ خارج التقويم تُعلَن "
+      "ولا تُحكَم (تعذّرٌ ≠ مخالفة)",
+      _KAS.coverage_verdict("2024", 251, 10, 5000)[0] is False
+      and _KAS.coverage_verdict("2024", 251, 10, 0)[0] is True
+      and _KAS.coverage_verdict("1999", 251, 60, 5000)[0] is False
+      and "خارج التقويم" in _KAS.coverage_verdict("1999", 251, 60, 5000)[1])
+# KCV5 — الوصلُ في الأداتين: البوّابةُ **داخل** `if not one_day` (وضعُ اليوم
+#   يبقى أخضرَ بنصّ الخطة) · وبمقياسٍ واحدٍ لا نسختين (`kasih2` تنادي `KS`).
+_kcv_src1, _kcv_src2 = _insp0.getsource(_KAS.main), _insp0.getsource(_K2.main)
+check("🛡️ KCV5 موصولٌ في الأداتين خلف `not one_day` · و`kasih2` تنادي دالّةَ "
+      "`kasih_scan` نفسَها (مقياسٌ واحدٌ لا نسختان)",
+      "coverage_verdict(year, n_files, n_missing" in _kcv_src1
+      and "KS.coverage_verdict(year, n_files, n_missing" in _kcv_src2
+      and "if not one_day:" in _kcv_src1 and "if not one_day:" in _kcv_src2
+      and "coverage_verdict" not in _kcv_src2.split("KS.coverage_verdict")[0]
+      and "def coverage_verdict" not in _insp0.getsource(_K2))
+
 # ═══ 📏🔥 «اختصر الرسالة» — أقفال BRIEF1-BRIEF5 (بلاغ $RITR · 2026-08-20) ═══
 # 🔴 **العلّةُ المقيسة:** كرتُ `$RITR` وصل في وقته (‏M1 ثم M5 عند $0.1261 والسهمُ
 #    بلغ $0.2321 = ‏+84% بعده) **ولم يدخل المالك**: «اختصر الرساله هذا ربح جنوني
