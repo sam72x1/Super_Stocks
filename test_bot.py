@@ -28184,16 +28184,29 @@ check("📏 BRIEF7 **لكلّ صنفٍ أيقونتُه**: 💪 للقويّ · 
       and "💪 شمعةٌ قوية" in _br_one,
       _br_grp.splitlines()[0][:110])
 
-# BRIEF5 — **قاعدةُ J1 مصدرٌ واحد**: الشارةُ في الرأس تُحسَب من `kasih_j1`
+# BRIEF5 — **قاعدةُ J1 مصدرٌ واحد**: الشارةُ في الرأس تُحسَب من `_event_j1`
 #   وحدَها — و`kasih_tag_line` **لا تعرف الشارةَ إطلاقًا** (لا نسختان تتفرّقان).
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-21 (بلاغُ المالك: كرتُ نبضٍ `Px` قوّي يُعاد وسمُه
+#   متوسط/ضعيف وتختفي «🥇 توليفة»):** `kasih_j1` تقرأ `class`/`prev_close`
+#   الغائبين عن `Px` فترجع `(False, False)` دائمًا هناك؛ صار الرأسُ ينادي
+#   `_event_j1` (يحسب `M5` حيًّا بـ`kasih_j1` ويقرأ `Px` من `k2` المختوم من
+#   `scan_liq_stages`). **القفلُ اشتدّ لا اُرخي**: يُثبت أن `build_liq_stage_
+#   alert` **لا** ينادي `kasih_j1` مباشرةً بعد اليوم، وأن `_event_j1` وحدَها
+#   تناديه (لـ`M5`).
 _br_kt = _insp0.getsource(S.kasih_tag_line)
-check("📏 BRIEF5 قاعدةُ «التوليفة» في `kasih_j1` وحدها · والسطرُ لا يعيد بناءها",
+_br_bl_src = _insp0.getsource(S.build_liq_stage_alert)
+_br_ej1_src = _insp0.getsource(S._event_j1)
+_br_bl_calls = {getattr(c.func, "id", None)
+                for c in _ast0.walk(_ast0.parse(_br_bl_src))
+                if isinstance(c, _ast0.Call)}
+_br_ej1_calls = {getattr(c.func, "id", None)
+                 for c in _ast0.walk(_ast0.parse(_br_ej1_src))
+                 if isinstance(c, _ast0.Call)}
+check("📏 BRIEF5 قاعدةُ «التوليفة» في `_event_j1` وحدها · والسطرُ لا يعيد بناءها",
       "توليفة" not in _br_kt and "j1" not in _br_kt
-      and any(getattr(c.func, "id", None) == "kasih_j1"
-              for c in _ast0.walk(_ast0.parse(
-                  _insp0.getsource(S.build_liq_stage_alert)))
-              if isinstance(c, _ast0.Call)),
-      "")
+      and "_event_j1" in _br_bl_calls and "kasih_j1" not in _br_bl_calls
+      and "kasih_j1" in _br_ej1_calls,
+      f"{_br_bl_calls & {'_event_j1', 'kasih_j1'}}")
 
 # ═══ 🛑🥇 «التصنيف والوقف» — أقفال TIER1-TIER4 · STOP1-STOP4 (2026-08-20) ═══
 # أمرُ المالك: «تصنيف قوي و متوسط و ضعيف … و وقف خسارة حسب الشموع». العقد
@@ -28260,6 +28273,64 @@ _tr_doc = _insp0.getsource(S.liq_tier)
 check("🥇 TIER4 حدُّ الدائريّة مكتوبٌ في المصدر (وصفٌ لا تنبّؤ · واختبارُه أماميّ)",
       "وصفُ عيّنةٍ لا تنبّؤ" in _tr_doc and "أماميّ" in _tr_doc
       and "A/B" in _tr_doc)
+
+# ═══ 💓🥇 «نبضُ J1» — أقفال PX1-PX4 (خطة 034 · 2026-08-21) ═══
+# 🔴 **العلّةُ المقيسة:** كرتُ `M5` يُصنَّف قويًّا بحقّ (‏J1 مستوفاة) ثم يُعاد
+#   وسمُه متوسط/ضعيف على **كلّ** كرتِ نبضٍ (‏`Px`) تالٍ وتختفي «🥇 توليفة» —
+#   لأن `kasih_j1` تقرأ `class`/`prev_close` والنبضُ لا يحملهما (زنادُه دقيقةٌ
+#   منفردة لا سيولةُ خمسٍ). الآن `M5` تختم `j1`/`j1_top` في **نفس كائن** `k2`
+#   الذي يرثه النبضُ، و`_event_j1` تقرأ الختمَ لـ`Px`.
+
+# PX1 — نبضٌ `Px` **بلا `class` ولا `prev_close` إطلاقًا** (كما يصل حقًّا من
+#   `scan_liq_stages`) يحمل `k2` مختومًا `j1=True` من `M5` ⇒ يُصنَّف **قويًّا
+#   مثله بالضبط** — لا متوسطًا كما كان قبل الإصلاح.
+_px_k2_strong = dict(_tr_k2, j1=True, j1_top=True)
+_px_ev_strong = {"stage": "Px", "k2": _px_k2_strong, "anchor_ms": _br_t,
+                 "usd": 50_000, "minutes": 1, "pulse_pct": 12.0}
+_px_tier_strong = S.liq_tier(_px_ev_strong)
+_m5_tier_ref = S.liq_tier(_tr_ev(_tr_k2))          # نفسُ TIER1: قوي · 4
+check("💓 PX1 نبضٌ Px بلا class/prev_close يحمل J1 المختوم من M5 ⇒ قويٌّ مثله "
+      "(كان يعود متوسطًا لتعذّر حساب J1 من حقولٍ لا يحملها النبض)",
+      _m5_tier_ref[0] == "قوي"
+      and _px_tier_strong is not None and _px_tier_strong[0] == "قوي"
+      and _px_tier_strong[1] == _m5_tier_ref[1] == 4,
+      f"{_m5_tier_ref} · {_px_tier_strong}")
+
+# PX2 — وبلا ختمِ `j1` (حالةٌ قديمة قبل الإصلاح/تعذّرُ حساب على `M5`) الاحتياطُ
+#   **كما كان بت-بت**: متوسط لأخضرَ ‏4 بلا J1 · ضعيف لأخضرَ ‏0 بلا J1.
+_px_ev_nojo = {"stage": "Px", "k2": dict(_tr_k2), "anchor_ms": _br_t}
+_px_ev_weak = {"stage": "Px", "k2": dict(_tr_low), "anchor_ms": _br_t}
+_px_tier_nojo = S.liq_tier(_px_ev_nojo)
+_px_tier_weak = S.liq_tier(_px_ev_weak)
+check("💓 PX2 وبلا ختمِ J1 ⇒ الاحتياطُ لم يتغيّر: متوسط (أخضر بلا توليفة) · "
+      "ضعيف (صفرٌ أخضر بلا توليفة)",
+      _px_tier_nojo is not None and _px_tier_nojo[0] == "متوسط"
+      and _px_tier_weak is not None and _px_tier_weak[0] == "ضعيف",
+      f"{_px_tier_nojo} · {_px_tier_weak}")
+
+# PX3 — وشارةُ «🥇 توليفة» تظهر على كرتٍ **مصدرُه نبضٌ واحدٌ فقط** بختمِ J1
+#   (كانت **تختفي** — الرأسُ كان ينادي `kasih_j1` مباشرةً فيعود دائمًا زائفًا
+#   لغياب `class` عن `Px`).
+_px_card_msg = S.build_liq_stage_alert(
+    [({"symbol": "PXT1", "src": "اختبار"}, [_px_ev_strong])])
+check("💓 PX3 شارةُ 🥇 توليفة تظهر على كرتِ Px-فقط بختمِ J1 (كانت تختفي)",
+      "🥇 توليفة" in _px_card_msg, _px_card_msg[:200])
+
+# PX4 — وكرتٌ مصدرُه حدثُ `M1` وحده (مع `class` قويّة و`prev_close` تصنع فجوةً
+#   `≥75%` — نفسُ الحقول التي كانت تُطلق الشارةَ **مبكرًا** قبل قصر الرأس على
+#   `M5`/`Px`) **لا** يُطلق الشارةَ — J1 مقصورةٌ على `M5`/`Px`.
+_px_m1_ev = {"stage": "M1", "usd": 500_000, "minutes": 1,
+            "anchor_ms": _br_t, "last_ms": _br_t, "vol_x": 10.0,
+            "price": 1.29, "price_ms": _br_t, "move": 8.0,
+            "anchor_price": 1.29, "prev_close": 0.70,
+            "anchor_low": 1.10,
+            "class": ("strong", "شمعة مضارب قوية (فيصل: 300 ألف فأكثر)")}
+check("💓 PX4 وكرتٌ مصدرُه M1 وحده (class قويّة · فجوةٌ 84%) لا يُطلق الشارةَ "
+      "— J1 مقصورةٌ على M5/Px لا تنفلت لأيّ مرحلةٍ ثالثة",
+      S.kasih_j1(_px_m1_ev)[0] is True     # الحقولُ كافيةٌ لو نودي kasih_j1 مباشرةً
+      and "🥇 توليفة" not in S.build_liq_stage_alert(
+          [({"symbol": "PXT2", "src": "اختبار"}, [_px_m1_ev])]),
+      "")
 
 # STOP1 — **الوصلةُ من المِرساة إلى الكرت** (درسُ wire-check): `anchor_low`
 #   يُكتَب في الحالة وفي حدثَي M1 وM5 — ويُقرأ في السطر. فارقٌ محدَّد.

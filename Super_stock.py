@@ -13554,6 +13554,15 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
                 e["operator"] = of
                 if _pc:
                     e["prev_close"] = _pc
+                # 🥇 **يُختَم J1 على `k2` من `M5` وحدها** (أمرُ المالك
+                #    2026-08-20 «كل تحديث يوريني تصنيفه»): `_event_j1` يلزمه
+                #    `prev_close` الذي لا يصل الحدثَ إلا هنا — و`M5` وحدها
+                #    تحمل `class`. الختمُ على **نفس كائن** `k2` الذي يحمله
+                #    `st["k2"]` (تعيينٌ لا نسخ، `:13459`) فيرثه النبضُ `Px`
+                #    التالي **بلا إعادة حسابٍ** (مصدرٌ واحد لا نسختان —
+                #    القارئان اللاحقان يُستدعَيان به أيضًا).
+                if e.get("stage") == "M5" and isinstance(e.get("k2"), dict):
+                    e["k2"]["j1"], e["k2"]["j1_top"] = _event_j1(e)
             kept.append((row, ev))
         out = kept
     return (out, covered, round(float(tick() - t0), 1))
@@ -14100,6 +14109,29 @@ def kasih_time_bucket(anchor_ms):
     return "بعد الظهر"
 
 
+def _event_j1(ev: dict):
+    """🥇 **قراءةُ J1 حسب مرحلة الحدث — مصدرٌ واحدٌ لكلٍّ من `liq_tier` ورأس
+    الكرت** (إصلاحٌ 2026-08-21: كان الاثنان ينادي كلٌّ منهما `kasih_j1(ev)`
+    مباشرةً — وهي تقرأ `ev["class"]`/`ev["prev_close"]` **الغائبين عن `Px`**
+    فترجع `(False, False)` دائمًا ⇒ سهمٌ 🥇 قوي على `M5` يُعاد وسمُه 🥈/🥉 على
+    كلّ كرت نبضٍ تالٍ، وشارةُ «🥇 توليفة» تختفي).
+
+    `M5` تُحسَب حيًّا **بت-بت كما كانت** (`kasih_j1(ev)`) لأنها تحمل الحقول.
+    `Px` تقرأ الختمَ المخزَّن في `k2["j1"]`/`k2["j1_top"]` (‏`scan_liq_stages`
+    تختمه على `M5` فور توفّر `prev_close`، على **نفس كائن** `k2` الذي يرثه
+    النبضُ من الحالة — لا إعادة حساب). غيرُهما `(False, False)`."""
+    try:
+        stage = str((ev or {}).get("stage") or "")
+        if stage == "M5":
+            return kasih_j1(ev)
+        if stage == "Px":
+            k2 = (ev or {}).get("k2") or {}
+            return (bool(k2.get("j1")), bool(k2.get("j1_top")))
+        return (False, False)
+    except Exception:                                            # noqa: BLE001
+        return (False, False)
+
+
 def liq_tier(ev: dict):
     """🥇🥈🥉 **فئةُ القوّة الثلاثية** — أمرُ المالك 2026-08-20 («ابي يكون فيه
     تصنيف قوي و متوسط و ضعيف لو قرر البوت … اني ادخل»).
@@ -14133,7 +14165,7 @@ def liq_tier(ev: dict):
         if not got:
             return None
         green = sum(1 for f in got if k2.get(f) == top[f])
-        j1 = kasih_j1(ev)[0]
+        j1 = _event_j1(ev)[0]
         if j1 and green >= 3:
             return ("قوي", green, len(got))
         if (not j1) and green <= 1:
@@ -14356,8 +14388,10 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
             # 🔒 **بلا عدّادٍ هنا**: تفصيلُه في سطر 🌊 («مواصلة ن من م») ⇒
             #    طبعُه مرّتين حشوٌ في السطر الذي يُقرأ من الإشعار.
             head.append(_LIQ_TIER_AR[_tier[0]])
-        # 🥇 شارةُ التوليفة (‏J1) من أيّ حدثِ M5 في الكرت — قاعدةٌ واحدة.
-        _j1 = [kasih_j1(e) for e in evs]
+        # 🥇 شارةُ التوليفة (‏J1) من أيّ حدثِ `M5`/`Px` في الكرت — قاعدةٌ
+        #    واحدة عبر `_event_j1` (إصلاحٌ 2026-08-21: كانت تُنادي `kasih_j1`
+        #    مباشرةً فتختفي على كرتٍ `Px`-فقط، وتطلق مبكرًا على `M1`).
+        _j1 = [_event_j1(e) for e in evs if e.get("stage") in ("M5", "Px")]
         if any(a for a, _ in _j1):
             head.append("🥇 توليفة"
                         + (" (أقوى خلية)" if any(t for _, t in _j1) else ""))
