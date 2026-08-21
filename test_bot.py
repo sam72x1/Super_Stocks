@@ -28556,6 +28556,52 @@ check("⬇️ AH-DL1 تنزيلُ اليوم يُعيد المحاولة بتر�
       and _ahd_sleeps[-4:] == [15, 30, 60, 120],
       f"عابر=({_ahd_ok},{_ahd_n1}) دائم=({_ahd_bad},{_ahd_n2}) نوم={_ahd_sleeps}")
 
+# AH-HD1 — 🔒 **فحصُ الحجم `head_size_mb` يُعيد المحاولة ويُسجّل** (2026-08-21).
+#   🔴 كان يجرّب كلَّ منفذٍ **مرّةً** ويرمي نصَّ الخطأ ويرجع `(None,None)`
+#   **صامتًا** ⇒ تشغيلةُ `32430363501` فقدت **‏58 يومًا من 260** و**سجلُّها
+#   خالٍ من أيّ سطر عطل**، فشخّصتُ `download` وهي بريئة. **صنفُ «حكمٌ سالبٌ
+#   بلا سببٍ مُسمًّى يخفي تشخيصَه».**
+_ahh = {"n": 0}
+_ahh_sleeps = []
+_ahh_orig_api = AH.FP.aws_api
+_ahh_eps = list(AH.FP.ENDPOINTS)
+
+
+def _ahh_flaky(*a, **k):
+    _ahh["n"] += 1                       # ينجح بعد استنفاد المنافذ مرّةً كاملة
+    if _ahh["n"] > len(_ahh_eps):
+        return (0, '{"ContentLength": 27262976}', "")
+    return (1, "", "An error occurred (403) Forbidden")
+
+
+def _ahh_dead(*a, **k):
+    _ahh["n"] += 1
+    return (1, "", "An error occurred (403) Forbidden")
+
+
+try:
+    AH.FP.aws_api = _ahh_flaky
+    _ahh_ok = AH.head_size_mb("k", sleep=_ahh_sleeps.append)
+    _ahh_n1 = _ahh["n"]
+    _ahh["n"] = 0
+    AH.FP.aws_api = _ahh_dead
+    _ahh_bad = AH.head_size_mb("k", sleep=_ahh_sleeps.append)
+    _ahh_n2 = _ahh["n"]
+finally:
+    AH.FP.aws_api = _ahh_orig_api
+check("📏 AH-HD1 فحصُ الحجم يُعيد المحاولة (عابرٌ ينجح بحجمٍ ومنفذ · دائمٌ يرجع None)",
+      isinstance(_ahh_ok, tuple) and _ahh_ok[0] is not None
+      and _ahh_ok[1] in _ahh_eps and _ahh_n1 > len(_ahh_eps)
+      and _ahh_bad == (None, None)
+      and _ahh_n2 == 5 * len(_ahh_eps)
+      and _ahh_sleeps[-4:] == [15, 30, 60, 120],
+      f"عابر={_ahh_ok}/{_ahh_n1} دائم={_ahh_bad}/{_ahh_n2} نوم={_ahh_sleeps}")
+_ahh_src = _insp0.getsource(AH.head_size_mb)
+check("📏 AH-HD1ب ولا يبتلع نصَّ الخطأ (يُسجّله بـ`log`)",
+      "log(" in _ahh_src and "تعذّر فحصُ الحجم" in _ahh_src)
+check("📏 AH-HD1ج واليومُ المفقود يُسمَّى في سجلّ `exit_stop_arms` (لا عدَّ صامت)",
+      "يومٌ مفقود" in _ES_SRC and "n_missing += 1" in _ES_SRC)
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

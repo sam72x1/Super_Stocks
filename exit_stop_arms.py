@@ -174,8 +174,13 @@ def main() -> int:
         key = AH.day_key(day)
         mb, ep = AH.head_size_mb(key)
         if mb is None:
+            # 🔴 **اليومُ المفقود يُسمّى دائمًا** (أُضيف 2026-08-21): كان يُعَدّ
+            #    صامتًا فخرجت تشغيلةٌ بـ**‏58 يومًا مفقودًا وسجلٌّ خالٍ من أيّ
+            #    سطرِ عطل** ⇒ شخّصتُ الأنبوبةَ الخطأ. **العدُّ بلا سببٍ مُسمًّى
+            #    يخفي تشخيصَه.**
             if not seeding:
                 n_missing += 1
+                KS.log(f"   ⛔ يومٌ مفقود (تعذّر فحصُ الحجم): {day}")
             continue
         dest = f"/tmp/exitstop-{day}.csv.gz"
         if not AH.download(key, dest, ep):

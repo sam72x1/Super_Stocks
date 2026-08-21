@@ -396,16 +396,45 @@ def day_key(day: str) -> str:
     return f"{MIN_PATH}/{y}/{m}/{day}.csv.gz"
 
 
-def head_size_mb(key: str):
-    for ep in FP.ENDPOINTS:
-        rc, out, _ = FP.aws_api("head-object", "--bucket", FP.BUCKET,
-                                "--key", key, endpoint=ep)
-        if rc == 0:
-            try:
-                import json as _j
-                return float(_j.loads(out)["ContentLength"]) / (1024 * 1024), ep
-            except (ValueError, KeyError, TypeError):
-                continue
+def head_size_mb(key: str, tries: int = 5, sleep=None):
+    """📏 حجمُ اليوم ومنفذُه — **ببواطنِ تراجعٍ أُسّيّ وتسجيلٍ صريح**
+    (أُصلح 2026-08-21 بعد عطبٍ مقيس، وهو **الأخطرُ في هذي السلسلة**):
+
+    🔴🔴 كانت تجرّب كلَّ منفذٍ **مرّةً واحدة**، **وترمي نصَّ الخطأ** (`_`)،
+    وترجع `(None, None)` **صامتةً** — والمُنادي يَعُدّ اليومَ «مفقودًا» بلا
+    سطرٍ واحد. ⇒ في تشغيلة `32430363501` ضاع **‏58 يومًا من 260 (22.3%)**
+    و**سجلُّ الجوب كلُّه خالٍ من أيّ سطر «تعذّر التنزيل»** — لأن السقوطَ وقع
+    **قبل** `download` التي أضفنا لها التراجعَ أمس. **بحثتُ عن العطل في
+    الأنبوبة الخطأ لأن الأنبوبةَ الصحيحة لا تتكلّم.**
+
+    🧭 **والصنفُ موثَّقٌ عندنا: «حكمٌ سالبٌ بلا سببٍ مُسمًّى يخفي تشخيصَه»**
+    (درسُ مِجَسّ الملفّات المجمَّعة) · ونظيرُه «خطوةُ تشخيصٍ لا يجوز أن تُسقط
+    القياسَ الذي تسبقه».
+
+    ⚖️ **ولا تمسّ أيَّ قيمةٍ مقيسة**: تزيد الأيامَ المُحصَّلة ولا تغيّر حسابًا
+    ⚠️ لكنّ أرقامًا منشورةً قِيست قبلها **قد تكون أسقطت أيامًا صامتةً** —
+    تُقرأ كما نُشرت، وإعادةُ تشغيلها اليومَ قد تُدخل أيامًا لم تكن فيها.
+    """
+    _sl = sleep if sleep is not None else _time.sleep
+    for i in range(max(1, int(tries))):
+        err = ""
+        for ep in FP.ENDPOINTS:
+            rc, out, e = FP.aws_api("head-object", "--bucket", FP.BUCKET,
+                                    "--key", key, endpoint=ep)
+            if rc == 0:
+                try:
+                    import json as _j
+                    if i:
+                        log(f"   ↩️ نجح الفحصُ بعد {i + 1} محاولات: {key}")
+                    return (float(_j.loads(out)["ContentLength"])
+                            / (1024 * 1024), ep)
+                except (ValueError, KeyError, TypeError):
+                    continue
+            err = err or (e or "")
+        log(f"   ⛔ تعذّر فحصُ الحجم (محاولة {i + 1}/{tries}): {key} · "
+            f"{(err or 'بلا نصّ خطأ')[:160]}")
+        if i + 1 < max(1, int(tries)):
+            _sl(15 * (2 ** i))
     return None, None
 
 
