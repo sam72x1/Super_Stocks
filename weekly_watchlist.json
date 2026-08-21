@@ -14796,7 +14796,9 @@
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 2.12,
-   "live_alert": {}
+   "live_alert": {
+    "premarket": "2026-08-21"
+   }
   },
   {
    "symbol": "BBLG",
