@@ -21334,6 +21334,85 @@ def _union_jsonl(remote_bytes, local_bytes) -> bytes:
         return local_bytes
 
 
+def _merge_op_entry(remote_bytes, local_bytes) -> bytes:
+    """🎯 نقيّة (خطة 031): دمجُ ددوب «هنا الدخول» **بالمفتاح** بدل الدهس.
+
+    🔴 **العلّة المقيسة:** `op_entry_state.json` له **كاتبان متزامنان** —
+    `operator_entry_live` (عاملُ جلسةٍ يحفظ كلَّ دورة) و`pullback_live` (كلَّ
+    30د) — وهما في مجموعتَي تزامنٍ منفصلتين فيتداخلان داخل الجلسة. وحلقةُ حلّ
+    التعارض في `git_save` تدمج **`.jsonl` وحدها** (خطة 027) وما عداها
+    «آخر-كاتبٍ-يفوز» ⇒ `pullback_live` **لا يكتب مفاتيح `LIQ:` إطلاقًا**
+    (يكتب أختامَ الرموز النصّية فقط) **لكنه يدفع الملفَّ كاملًا** بقواميس
+    `LIQ:` البائتة من نسخته ⇒ **يدهس تقدّمَ مراحل السيولة** الذي كتبه العاملُ
+    الحيّ ⇒ رسائلُ `M1` مكرّرة و`M5`/`M30` تُعاد أو تُفقَد = عينُ الضجيج
+    الذي أمر المالكُ بإيقافه.
+
+    🔑 **والقيمتان مختلفتا الشكل في ملفٍّ واحد** (‏شرطُ `STOP` في الخطة وقع
+    فعلًا — الخطةُ كانت تفترض `{رمز: {date, sent}}` وهو غيرُ موجود):
+    `SYM` ⟵ **نصُّ تاريخٍ ISO** (`:13010`) · و`LIQ:SYM` ⟵ **قاموسٌ بلا مفتاح
+    `date` إطلاقًا** (`:13515`) مرجعُه `anchor_ms`.
+
+    ⚖️ **القاعدةُ الرباعية — بالشكل لا بالبادئة** (أسلمُ من افتراض تسمية):
+    ① مفتاحٌ في جهةٍ واحدة ⇒ يُبقى ② نصّان ⇒ **الأحدث** (‏ISO يُقارن نصًّا
+    فيصحّ ترتيبُه) ③ قاموسان ⇒ **أحدثُ `anchor_ms` تفوز كاملةً** (حلقةٌ
+    جديدة تُصفّر `sent` عمدًا)، وعند تساويها **دمجٌ حقلًا حقلًا**: `sent`
+    **اتّحادٌ محفوظُ الترتيب** (الثابتُ المنصوص: لا يُفقَد ختمٌ سجّله أيُّ
+    طرف) · وعلاماتُ المياه الرتيبة **الأكبر** · والوصفيّاتُ تصف المِرساةَ
+    نفسَها فالمحلّيُّ يعلو والبعيدُ يملأ الناقص ④ نوعان مختلفان لمفتاحٍ واحد
+    أو نصٌّ غيرُ قابلٍ للتحليل ⇒ **يُبقى المحلّيّ = سلوكُ اليوم حرفيًّا.**
+
+    ⚖️ **واتّجاهُ كلّ فرعٍ محافظ:** أقصى `updates` **كتمٌ أبكر** لا رسالةٌ
+    زائدة · واتّحادُ `sent` **عدمُ إعادةِ ما أُرسل**. وفاشلةٌ-آمنةٌ كنظيرتها
+    `_union_jsonl`: أيُّ عطبٍ ⇒ نسختُنا ⇒ **يستحيل أن يخسر الإصلاحُ شيئًا
+    عمّا يقع اليوم.** والشكلُ على القرص يطابق `save_op_entry_state`
+    (`ensure_ascii=False, indent=1`) فلا يتبدّل الملفُّ بالدمج."""
+    # 🔒 علاماتُ مياهٍ رتيبةٌ بالبناء ⇒ الأكبرُ هو الأصحّ (لا اجتهادَ فيها).
+    _WATER = ("last_ms", "last_eval_ms", "pulse_ms", "peak_usd", "updates")
+    try:
+        def _load(bs):
+            d = json.loads((bs or b"").decode("utf-8", "replace") or "{}")
+            return d if isinstance(d, dict) else None
+
+        def _num(v):
+            try:
+                return float(v)
+            except Exception:                                    # noqa: BLE001
+                return None
+
+        def _pick(r, l):
+            if isinstance(r, str) and isinstance(l, str):
+                return max(r, l)                    # ② ISO الأحدث
+            if not (isinstance(r, dict) and isinstance(l, dict)):
+                return l                            # ④ نوعان مختلفان
+            ra, la = _num(r.get("anchor_ms")), _num(l.get("anchor_ms"))
+            if ra is not None and la is not None and ra != la:
+                return r if ra > la else l          # ③ مِرساةٌ أحدث تفوز كاملةً
+            out = dict(r)
+            out.update(l)                           # المحلّيُّ يعلو
+            if ("sent" in r) or ("sent" in l):
+                sent = list(r.get("sent") or [])
+                for _t in (l.get("sent") or []):
+                    if _t not in sent:
+                        sent.append(_t)
+                out["sent"] = sent
+            for _k in _WATER:
+                rv, lv = _num(r.get(_k)), _num(l.get(_k))
+                if rv is not None and lv is not None:
+                    out[_k] = r[_k] if rv > lv else l[_k]
+            return out
+
+        rem, loc = _load(remote_bytes), _load(local_bytes)
+        if rem is None or loc is None:
+            return local_bytes
+        merged = dict(rem)
+        for _key, _lv in loc.items():
+            merged[_key] = _pick(rem[_key], _lv) if _key in rem else _lv   # ①
+        return json.dumps(merged, ensure_ascii=False,
+                          indent=1).encode("utf-8")
+    except Exception:                                            # noqa: BLE001
+        return local_bytes
+
+
 def git_save(filenames, runner=None, sender=None):
     """يرفع ملفات البيانات إلى الـ repo حتى لا تضيع بين تشغيلات GitHub Actions.
     ⑬ (إصلاح تدقيق 2026-07-12): عند تعارض rebase كان `--abort` يعيد الحالة كما
@@ -21404,6 +21483,22 @@ def git_save(filenames, runner=None, sender=None):
                                 log(f"🌱 اتّحادُ سجلٍّ مُلحَق: {fn}")
                             except Exception as _ue:             # noqa: BLE001
                                 log(f"⚠️ تعذّر اتّحاد {fn} ({_ue}) — أُبقيت نسختُنا")
+                        # 🎯 **خطة 031 (2026-08-21):** ددوبُ «هنا الدخول» ملفٌّ
+                        # قاموسيٌّ **ذو كاتبين متزامنين** (العاملُ الحيّ كلَّ
+                        # دورة · والمراقبُ كلَّ 30د) ⇒ «آخر-كاتبٍ-يفوز» يمحو
+                        # أختامَ الطرف الآخر في نافذة التداخل = رسائلُ مكرّرة.
+                        # يُدمَج **بالمفتاح** (`_merge_op_entry`) — وهو الملفُّ
+                        # الوحيد المستثنى؛ بقيّةُ القاموسيّة تبقى كما كانت
+                        # بت-بت (كاتبٌ واحدٌ أو خطرُها غيرُ مقيس).
+                        elif (str(fn) == OP_ENTRY_STATE_FILE
+                              and os.path.exists(fn)):
+                            try:
+                                with open(fn, "rb") as f:
+                                    _remote = f.read()
+                                _b = _merge_op_entry(_remote, _b)
+                                log(f"🎯 دمجُ ددوبٍ بالمفتاح: {fn}")
+                            except Exception as _me:             # noqa: BLE001
+                                log(f"⚠️ تعذّر دمج {fn} ({_me}) — أُبقيت نسختُنا")
                         with open(fn, "wb") as f:
                             f.write(_b)
                         run(f'git add "{fn}"')

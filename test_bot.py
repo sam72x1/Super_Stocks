@@ -1171,6 +1171,112 @@ try:
 finally:
     _os_hc.remove(_gs_tmp) if _os_hc.path.exists(_gs_tmp) else None
 
+# 4ط) 🎯 **خطة 031 (2026-08-21): `_merge_op_entry` — دمجُ الددوب بالمفتاح.**
+#     `op_entry_state.json` له كاتبان متزامنان، و«آخر-كاتبٍ-يفوز» كان يمحو
+#     أختامَ الطرف الآخر ⇒ رسائلُ مكرّرة. والقيمتان **مختلفتا الشكل**: نصُّ
+#     تاريخٍ للرموز (`:13010`) وقاموسٌ **بلا `date`** لمفاتيح `LIQ:` (`:13515`)
+#     ⇒ الأقفالُ تفرّق الشكلين ولا تفترض أحدَهما.
+_ope_tmp, _ope_other = "test_opentry_tmp.json", "test_opentry_other.json"
+_sv_ope_file, _sv_ope_sleep = S.OP_ENTRY_STATE_FILE, S.time.sleep
+try:
+    S.time.sleep = lambda *_: None
+    _mrg = S._merge_op_entry
+    # OPM1 — ② نصّان: الأحدثُ يفوز · ومفتاحٌ في جهةٍ واحدة يُبقى (①)
+    _o1 = S.json.loads(_mrg(b'{"AAA": "2026-08-21"}',
+                            b'{"AAA": "2026-08-20", "BBB": "2026-08-19"}'))
+    check("🎯 OPM1 دمجُ الددوب: نصّان ⇒ التاريخُ الأحدث · والوحيدُ يُبقى",
+          _o1 == {"AAA": "2026-08-21", "BBB": "2026-08-19"})
+    # OPM2 — ③ نفسُ المِرساة: اتّحادُ `sent` **محفوظُ الترتيب** وأقصى العلامات
+    _r2 = S.json.dumps({"LIQ:X": {"anchor_ms": 100, "sent": ["M1", "M5"],
+                                  "peak_usd": 900, "updates": 3,
+                                  "last_eval_ms": 500}}).encode()
+    _l2 = S.json.dumps({"LIQ:X": {"anchor_ms": 100, "sent": ["M1", "Px"],
+                                  "peak_usd": 500, "updates": 1,
+                                  "last_eval_ms": 700},
+                        "LIQ:Y": {"anchor_ms": 9, "sent": ["M1"]}}).encode()
+    _o2 = S.json.loads(_mrg(_r2, _l2))["LIQ:X"]
+    check("🎯 OPM2 نفسُ المِرساة ⇒ اتّحادُ `sent` بلا فقدِ ختمٍ من أيّ طرف",
+          _o2["sent"] == ["M1", "M5", "Px"]
+          and "LIQ:Y" in S.json.loads(_mrg(_r2, _l2)))
+    check("🎯 OPM2ب وعلاماتُ المياه الرتيبة تأخذ **الأكبر** لا الأخير",
+          _o2["peak_usd"] == 900 and _o2["updates"] == 3
+          and _o2["last_eval_ms"] == 700)
+    # OPM3 — ③ مِرساةٌ أحدث تفوز **كاملةً** (تصفيرُ `sent` مقصود)
+    _o3 = S.json.loads(_mrg(
+        S.json.dumps({"LIQ:X": {"anchor_ms": 100,
+                                "sent": ["M1", "M5", "M30"]}}).encode(),
+        S.json.dumps({"LIQ:X": {"anchor_ms": 200, "sent": ["M1"]}}).encode()))
+    check("🎯 OPM3 مِرساةٌ أحدث تفوز كاملةً (حلقةٌ جديدة تُصفّر `sent` عمدًا)",
+          _o3["LIQ:X"]["anchor_ms"] == 200 and _o3["LIQ:X"]["sent"] == ["M1"])
+    # OPM4 — ④ فاشلٌ-آمن: العطبُ ونوعان مختلفان ⇒ نسختُنا حرفيًّا (سلوكُ اليوم)
+    check("🎯 OPM4 فاشلٌ-آمن: نصٌّ تالف ⇒ نسختُنا **بايت-بايت** لا استثناء",
+          _mrg(b"not json", b'{"AAA": "x"}') == b'{"AAA": "x"}'
+          and _mrg(b'{"A": 1}', b"[]") == b"[]")
+    check("🎯 OPM4ب نوعان مختلفان لمفتاحٍ واحد ⇒ يُبقى المحلّيّ (لا تخمين)",
+          S.json.loads(_mrg(b'{"A": {"anchor_ms": 1}}',
+                            b'{"A": "2026-08-21"}'))["A"] == "2026-08-21")
+    # OPM5 — الشكلُ على القرص يطابق `save_op_entry_state` فلا يتبدّل الملفّ
+    check("🎯 OPM5 الشكلُ المكتوب يطابق `save_op_entry_state` (indent=1 · عربيّ خام)",
+          _mrg(b'{}', S.json.dumps({"ع": "1"}, ensure_ascii=False,
+                                   indent=1).encode())
+          == S.json.dumps({"ع": "1"}, ensure_ascii=False, indent=1).encode())
+    # OPM6 — **سلوكيّ عند طبقة `git_save`**: تعارضٌ محاكًى ⇒ الختمان ينجوان
+    S.OP_ENTRY_STATE_FILE = _ope_tmp
+    _ope_local = S.json.dumps({"AAA": "2026-08-21",
+                               "LIQ:XYZ": {"anchor_ms": 100, "sent": ["M1"],
+                                           "peak_usd": 500}})
+    _ope_remote = S.json.dumps({"BBB": "2026-08-21",
+                                "LIQ:XYZ": {"anchor_ms": 100,
+                                            "sent": ["M1", "M5"],
+                                            "peak_usd": 900}})
+
+    def _ope_runner(cmd, _f=_ope_tmp, _rem=_ope_remote):
+        if "git rebase FETCH_HEAD" in cmd:
+            return 1                                 # تعارض
+        if "reset --hard FETCH_HEAD" in cmd:
+            with open(_f, "w", encoding="utf-8") as _fh:
+                _fh.write(_rem)                      # القرصُ يصير نسخةَ الريموت
+            return 0
+        if "git diff --cached --quiet" in cmd:
+            return 1
+        return 0
+    with open(_ope_tmp, "w", encoding="utf-8") as _fh:
+        _fh.write(_ope_local)
+    S.git_save([_ope_tmp], runner=_ope_runner, sender=lambda m: None)
+    with open(_ope_tmp, encoding="utf-8") as _fh:
+        _ope_out = S.json.load(_fh)
+    check("🎯 OPM6 تعارضٌ حيّ: ختمُ الريموت وختمُنا **كلاهما ينجو** (لا دهس)",
+          _ope_out.get("AAA") == "2026-08-21"
+          and _ope_out.get("BBB") == "2026-08-21"
+          and set(_ope_out["LIQ:XYZ"]["sent"]) == {"M1", "M5"}
+          and _ope_out["LIQ:XYZ"]["peak_usd"] == 900)
+    # OPM7 — وملفٌّ قاموسيٌّ **آخر** يبقى «آخر-كاتبٍ-يفوز» بت-بت (لا تعميم)
+    with open(_ope_other, "w", encoding="utf-8") as _fh:
+        _fh.write(_ope_local)
+
+    def _oth_runner(cmd, _f=_ope_other, _rem=_ope_remote):
+        return _ope_runner(cmd, _f, _rem)
+    S.git_save([_ope_other], runner=_oth_runner, sender=lambda m: None)
+    with open(_ope_other, encoding="utf-8") as _fh:
+        _oth_out = _fh.read()
+    check("🎯 OPM7 ملفٌّ قاموسيٌّ آخر يبقى «آخر-كاتبٍ-يفوز» حرفيًّا (لا تعميم)",
+          _oth_out == _ope_local)
+finally:
+    S.OP_ENTRY_STATE_FILE, S.time.sleep = _sv_ope_file, _sv_ope_sleep
+    for _p in (_ope_tmp, _ope_other):
+        _os_hc.remove(_p) if _os_hc.path.exists(_p) else None
+
+# 🔒 OPM8: وصلةُ الفرع في `git_save` — يُسمّي `OP_ENTRY_STATE_FILE` صراحةً
+#     ويمرّ على `_merge_op_entry`، **ومسارُ `.jsonl` ما زال على `_union_jsonl`**.
+#     ⚠️ ولا يُشترَط `elif` نصًّا: الحارسان **متنافيان بالبناء** (لاحقةُ `.jsonl`
+#     لا تساوي `op_entry_state.json`) فاشتراطُه كان سيُسقط كودًا سليمًا —
+#     «قفلٌ يمنع الصحيحَ ليس أشدَّ، هو مكسور».
+_gs_src_031 = _insp.getsource(S.git_save)
+check("🔒 OPM8 فرعُ الدمج موصولٌ باسم `OP_ENTRY_STATE_FILE` · و`.jsonl` كما هي",
+      "str(fn) == OP_ENTRY_STATE_FILE" in _gs_src_031
+      and "_merge_op_entry(_remote, _b)" in _gs_src_031
+      and "_union_jsonl(_remote, _b)" in _gs_src_031)
+
 # 4ط) 🔒 ④ (إصلاح تدقيق 2026-07-12): اختبارات **رفض** البوابات الصلبة M1-M5/M10 —
 #     كانت صفرًا: أي عتبة CONFIG يمكن تغييرها (أو عكس عامل مقارنة) والسويّة خضراء.
 #     الآن كل رمز رفض حي له فحص يطعم إطارًا يكسره ويؤكّد None + الرمز الدقيق.
