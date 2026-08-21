@@ -24545,10 +24545,18 @@ check("🌙 AHY3 بلا شمعةِ افترٍ ⇒ مقياسُ الحارس `Non
 
 # ‏VY-CAL · لا تُختلَق عطلاتُ سنةٍ بلا تقويمٍ مُتحقَّق
 _ay_years = AH.calendar_years()
-check("🌙 AHY4 `VY-CAL` مدًى خارج سنوات التقويم المُتحقَّقة ⇒ **لا أيام** (ولا "
-      "تُخمَّن عطلات — وسنةٌ بلا تقويمٍ تَسِم الإغلاقَ المبكّر «نظاميًّا»)",
-      AH.trading_days("2025-01-02", "2025-01-31") == []
-      and AH.trading_days("2024-06-03", "2024-06-07") == []
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-21 — القفلُ أمسك تغييرًا مأذونًا فأدّى عملَه:**
+#   مُدّ التقويمُ للخلف إلى 2023 (ملحقُ العقد §⑩) فصارت 2024/2025 **مغطّاة**،
+#   وشاهدا القفل القديمان (‏«‏2025 و2024 بلا أيام») ماتا. **وغرضُه لم يتغيّر**
+#   — «لا تُختلَق عطلاتُ سنةٍ بلا تقويمٍ مُتحقَّق» — **فشُدَّ لا أُرخي**:
+#   يُختبَر **طرفا المدى** (‏2022 دونه · 2028 فوقه) ⇒ صفرُ أيام، **ومعهما
+#   العددُ الصحيحُ داخل المدى** في ثلاث سنواتٍ لا واحدة.
+check("🌙 AHY4 `VY-CAL` خارجَ سنوات التقويم ⇒ **لا أيام** · وداخلَها العددُ "
+      "الصحيح (طرفا المدى ‏2022/2028 · و2023/2025/2026 بعشرين يومًا)",
+      AH.trading_days("2022-06-01", "2022-06-30") == []
+      and AH.trading_days("2028-06-01", "2028-06-30") == []
+      and len(AH.trading_days("2023-01-02", "2023-01-31")) == 20
+      and len(AH.trading_days("2025-01-02", "2025-01-31")) == 20
       and len(AH.trading_days("2026-01-02", "2026-01-30")) == 20,
       f"سنواتُ التقويم={sorted(_ay_years)}")
 
@@ -28491,11 +28499,16 @@ for _n in _es_ast.walk(_ES_TREE):
                 _es10_tests.append({x.id for x in _es_ast.walk(_m.test)
                                     if isinstance(x, _es_ast.Name)})
 _es10_guards = set().union(*_es10_tests) if _es10_tests else set()
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-21 (ملحقُ العقد §⑩):** الحدُّ لم يعد نسبةً
+#   (‏`COVERAGE_MAX_MISS`=0.05 بمقامٍ منفوخٍ بالعطلات) بل **عدّادًا مطلقًا على
+#   أيام التداول** (‏`MAX_MISSING_DAYS`=3) — **تشديدٌ لا إرخاء**: كان يسمح
+#   بـ13 يومًا وصار يسمح بثلاثة.
 check("🛑 ES10 حارسُ التغطية V4 بقيمته · وداخلَ شرطِ الإيقاف نفسِه (لا مجرّد حاضر)",
-      getattr(_es_mod, "COVERAGE_MAX_MISS", None) == 0.05
+      getattr(_es_mod, "MAX_MISSING_DAYS", None) == 3
+      and not hasattr(_es_mod, "COVERAGE_MAX_MISS")
       and len(_es10_tests) == 1 and "cov_bad" in _es10_guards
       and {"v0_bad", "v0_bad5"} <= _es10_guards,
-      f"القيمة={getattr(_es_mod, 'COVERAGE_MAX_MISS', None)} · "
+      f"القيمة={getattr(_es_mod, 'MAX_MISSING_DAYS', None)} · "
       f"شروط={_es10_tests}")
 
 # ES10ب — 🔒🐞 **دلالةُ العتبة سلوكيًّا** — `ES10` بنيويٌّ فنجت منه طفرةُ قلبِ
@@ -28504,18 +28517,89 @@ check("🛑 ES10 حارسُ التغطية V4 بقيمته · وداخلَ شر�
 #   تمرّ · وتغطيةُ العطب (26%) تُوقِف · والحدُّ نفسُه (5%) يمرّ و5.1% يُوقِف ·
 #   **وصفرُ أيامٍ ⇒ إيقاف** (لا تُقرأ «تغطيةٌ تامّة» من قسمةٍ على صفر).
 _cb = _es_mod.coverage_bad
+# 🔴 **أُعيد بناؤه 2026-08-21 (ملحقُ العقد §⑩):** الحدُّ صار **عدّادًا مطلقًا
+#    على أيام التداول** لا نسبةً على أيام الأسبوع — والتخومُ تُختبَر عند 3/4.
 _es10b = {
-    "سليمة 10/262": (_cb(252, 10), False),
-    "سليمة 11/261": (_cb(250, 11), False),
-    "عطبُ 2024 68/262": (_cb(194, 68), True),
-    "عطبُ 2025 66/261": (_cb(195, 66), True),
-    "الحدُّ نفسُه 5/100": (_cb(95, 5), False),
-    "فوقه بشعرة 6/100": (_cb(94, 6), True),
+    "صفرُ مفقود": (_cb(250, 0), False),
+    "واحدٌ مفقود": (_cb(249, 1), False),
+    "الحدُّ نفسُه 3": (_cb(247, 3), False),
+    "فوقه بواحد 4": (_cb(246, 4), True),
+    "‏2023 الواقعيّة 4/250": (_cb(246, 4), True),
+    "عطبٌ جسيم 58": (_cb(192, 58), True),
     "صفرُ أيام": (_cb(0, 0), True),
+    "مقامٌ صغيرٌ لا يُرخي": (_cb(2, 4), True),
 }
-check("🛑 ES10ب دلالةُ الحدّ سلوكيًّا (الاتجاهُ والتخومُ وصفرُ الأيام)",
+check("🛑 ES10ب دلالةُ الحدّ سلوكيًّا (الاتجاهُ والتخومُ 3/4 وصفرُ الأيام)",
       all(got is exp for got, exp in _es10b.values()),
       str({k: v for k, v in _es10b.items() if v[0] is not v[1]}))
+check("🛑 ES10ج والحدُّ **مطلقٌ لا نسبيّ** (نفسُ العدد يسقط مهما كبر المقام)",
+      _cb(246, 4) is True and _cb(9_996, 4) is True
+      and _cb(20, 3) is False,
+      f"{_cb(246, 4)} {_cb(9_996, 4)} {_cb(20, 3)}")
+
+# ══════ 🗓️ CAL — تقويمُ التداول مقامًا للتغطية (ملحقُ العقد §⑩) ══════
+import market_calendar as _cal                                    # noqa: E402
+_cal_cnt = {}
+for _d in _cal.HOLIDAYS:
+    _cal_cnt[int(_d[:4])] = _cal_cnt.get(int(_d[:4]), 0) + 1
+check("🗓️ CAL1 عددُ عطلاتِ كلّ سنةٍ يطابق المثبَّت بالضبط (حارسُ اكتمالٍ لا زينة)",
+      _cal_cnt == dict(_cal.HOLIDAY_COUNT_BY_YEAR),
+      f"محسوب={dict(sorted(_cal_cnt.items()))} مثبَّت={dict(_cal.HOLIDAY_COUNT_BY_YEAR)}")
+import datetime as _cdt                                           # noqa: E402
+check("🗓️ CAL2 ولا عطلةَ في نهاية الأسبوع (تاريخٌ خاطئٌ يُنقص المقامَ صامتًا)",
+      all(_cdt.date.fromisoformat(_d).weekday() < 5 for _d in _cal.HOLIDAYS),
+      str(sorted(_d for _d in _cal.HOLIDAYS
+                 if _cdt.date.fromisoformat(_d).weekday() >= 5)))
+_cal_td = {}
+for _y in (2023, 2024, 2025):
+    _wkd = sum(1 for _i in range((_cdt.date(_y + 1, 1, 1)
+                                  - _cdt.date(_y, 1, 1)).days)
+               if (_cdt.date(_y, 1, 1) + _cdt.timedelta(days=_i)).weekday() < 5)
+    _cal_td[_y] = _wkd - _cal_cnt.get(_y, 0)
+check("🗓️ CAL3 أيامُ التداول 250/252/250 لسنوات 2023-2025 (أرقامُ NYSE المعروفة)",
+      _cal_td == {2023: 250, 2024: 252, 2025: 250}, str(_cal_td))
+check("🗓️ CAL4 و2025-01-09 (حدادُ كارتر) مثبَّتٌ صراحةً — لا تشتقّه قاعدةُ العطل",
+      "2025-01-09" in _cal.HOLIDAYS and not _cal.is_trading_day("2025-01-09"))
+check("🗓️ CAL5 والمدى مُدَّ للخلف إلى 2023 فلا تُوسَم سنواتُ القياس «خارج التقويم»",
+      _cal.CALENDAR_FIRST_YEAR <= 2023
+      and not _cal.beyond_calendar("2023-06-15")
+      and not _cal.beyond_calendar("2025-06-15"),
+      f"FIRST={_cal.CALENDAR_FIRST_YEAR}")
+# 🔒 **خاملٌ على الإنتاج:** المدُّ للخلف لا يغيّر حكمَ أيّ تاريخٍ حيّ (2026+).
+check("🗓️ CAL6 والمدُّ للخلف **خاملٌ على الإنتاج** (2026/2027 كما هما بت-بت)",
+      sorted(_d for _d in _cal.HOLIDAYS if _d[:4] in ("2026", "2027"))
+      == sorted(["2026-01-01", "2026-01-19", "2026-02-16", "2026-04-03",
+                 "2026-05-25", "2026-06-19", "2026-07-03", "2026-09-07",
+                 "2026-11-26", "2026-12-25",
+                 "2027-01-01", "2027-01-18", "2027-02-15", "2027-03-26",
+                 "2027-05-31", "2027-06-18", "2027-07-05", "2027-09-06",
+                 "2027-11-25", "2027-12-24"]))
+_es_src2 = _ES_SRC
+check("🗓️ CAL7 وأداةُ القياس تبني أيامَها من `is_trading_day` لا من `weekdays` وحدها",
+      "MC.is_trading_day" in _es_src2 and "HOLIDAY_COUNT_BY_YEAR" in _es_src2
+      and "prev_ok" in _es_src2)
+# 🐞 **نصّيًّا كان يسقط على شرحي أنا** (الـdocstring يشرح «404 و403 و503 سواء»)
+#   ⇒ **بالـAST**: التعليقاتُ والشروحُ خارجَ الشجرة **بنيويًّا**، فلا يبقى إلّا
+#   ما يُنفَّذ فعلًا. (الفخُّ النصّيُّ الموثَّق — سادسَ مرّة.)
+# ⚠️ **والـdocstring عقدةُ `Constant` في الشجرة** — فيسقط القفلُ على شرحٍ
+#   كتبتُه (وقع فعلًا). ⇒ تُستبعَد عقدُ التوثيق بهويّتها قبل الفحص.
+_cal8_docs = set()
+for _n in _es_ast.walk(_ES_TREE):
+    if isinstance(_n, (_es_ast.Module, _es_ast.FunctionDef,
+                       _es_ast.AsyncFunctionDef, _es_ast.ClassDef)):
+        _b0 = (getattr(_n, "body", None) or [None])[0]
+        if (isinstance(_b0, _es_ast.Expr)
+                and isinstance(_b0.value, _es_ast.Constant)
+                and isinstance(_b0.value.value, str)):
+            _cal8_docs.add(id(_b0.value))
+_cal8_lits = {str(_n.value) for _n in _es_ast.walk(_ES_TREE)
+              if isinstance(_n, _es_ast.Constant)
+              and isinstance(_n.value, str) and id(_n) not in _cal8_docs}
+check("🗓️ CAL8 ورمزُ الحالة **تشخيصٌ لا يُنقص المقام** — لا حرفيّةَ 404/403/503 "
+      "في كودِ الأداة (AST لا نصّ)",
+      not any(_c in _l for _l in _cal8_lits for _c in ("404", "403", "503")),
+      str(sorted(_l[:40] for _l in _cal8_lits
+                 if any(_c in _l for _c in ("404", "403", "503"))))) 
 
 # AH-DL1 — 🔒 **تراجعٌ أُسّيّ على تنزيل اليوم** (السببُ نفسُه: 503 من S3).
 #   **سلوكيّ ومفرِّق:** فشلٌ عابرٌ ثم نجاح ⇒ True بثلاث محاولات · وفشلٌ دائم ⇒

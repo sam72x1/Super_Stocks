@@ -18,6 +18,7 @@
 بإغلاق آخر شمعةٍ في اليوم**. وهي قراءةٌ **محايدةٌ بين الأذرع** لأنها لا تعتمد
 على المستوى إطلاقًا.
 """
+import datetime as _dt
 import gzip
 import json
 import os
@@ -26,6 +27,7 @@ import sys
 os.environ.setdefault("SCREENER_MODE", "BACKTEST")
 
 import ah_scan as AH                                              # noqa: E402
+import market_calendar as MC                                      # noqa: E402
 import kasih2_scan as K2                                          # noqa: E402
 import kasih_scan as KS                                           # noqa: E402
 import Super_stock as S                                           # noqa: E402
@@ -34,18 +36,34 @@ MIN2 = 60_000
 PRE_WIN_MIN = 15          # نافذةُ `S3` — §③ حرفيًّا
 ARMS = ("S0", "S1", "S2", "S3")
 FLOOR_TIER_YEAR = 40      # §⑥ — أرضيةُ المِرساة لكلّ فئةٍ في كلّ سنة
-COVERAGE_MAX_MISS = 0.05  # `V4` — أقصى نسبةِ أيامٍ مفقودةٍ يُقبَل معها حكم
+# `V4` — 🔴 **عدّادٌ مطلقٌ على أيام التداول لا نسبةٌ على أيام الأسبوع**
+#   (شُدِّد 2026-08-21 · ملحقُ العقد §⑩): النسبةُ القديمة 5% كانت تسمح بـ**‏13
+#   يومًا** ومقامُها منفوخٌ بعطلاتِ السوق ⇒ حارسٌ فضفاضٌ بمقامٍ خاطئ. والثلاثةُ
+#   ليست اختيارًا حرًّا: **كلُّ يومٍ مفقودٍ يُفسد `prev_close` لليوم التالي**
+#   ⇒ يُفسد فجوةَ `J1` ⇒ **يُفسد الفئةَ نفسَها**، فالسماحُ يبقى في حدود ما
+#   يمكن إسقاطُه بلا أثرٍ يُذكَر (‏3 من 250 = 1.2%).
+MAX_MISSING_DAYS = 3
 
 
 def coverage_bad(n_files: int, n_missing: int) -> bool:
-    """`V4` — هل التغطيةُ ناقصةٌ بما يُبطل الحكم؟ **نقيّةٌ لتُقفَل سلوكيًّا**:
-    قفلٌ بنيويٌّ يُثبت أن الاسمَ داخلَ شرط الإيقاف **ولا يرى دلالةَ العتبة**،
-    وقد نجت منه طفرةُ قلبِ `>` إلى `<`. ⚖️ **والمقامُ كلُّ أيام السنة المُدرَجة**
-    (مقيسةٌ + مفقودة) · وصفرُ أيامٍ ⇒ **لا حكم** (لا تُقرأ «تغطيةٌ تامّة»)."""
-    tot = int(n_files or 0) + int(n_missing or 0)
-    if tot <= 0:
+    """`V4` — هل التغطيةُ ناقصةٌ بما يُبطل الحكم؟ **نقيّةٌ لتُقفَل سلوكيًّا**
+    (قفلٌ بنيويٌّ يُثبت الوصلَ ولا يرى دلالةَ العتبة — نجت منه طفرةُ قلبِ `>`).
+
+    🔴 **أُعيد بناؤها 2026-08-21 بعد حكمٍ خصوميّ «خطر» على صياغتي الأولى:**
+    كانت **نسبةً** مقامُها **أيامُ الأسبوع** فتَعُدّ عطلةَ السوق «يومًا مفقودًا»
+    (مقيسٌ: 10 من 14 «مفقودًا» كانت عطلاتِ 2023 العشرَ). ⚖️ **والعلاجُ في
+    المقام لا في تفسير رمز HTTP**: العطلاتُ لا تدخل قائمةَ الأيام أصلًا
+    (‏`market_calendar`)، **وكلُّ إخفاقِ جلبٍ يبقى مفقودًا** — 404 و403 و503
+    سواء — فلا يُترَك للمزوّد يدٌ في تعريف مجتمع القياس.
+
+    ⇒ الآن **عدّادٌ مطلق**: أكثرُ من `MAX_MISSING_DAYS` يومَ تداولٍ مفقودٍ ⇒
+    لا حكم · **وصفرُ أيامٍ ⇒ لا حكم** (لا تُقرأ «تغطيةٌ تامّة»).
+    """
+    if int(n_files or 0) + int(n_missing or 0) <= 0:
         return True
-    return (int(n_missing or 0) / float(tot)) > COVERAGE_MAX_MISS
+    return int(n_missing or 0) > MAX_MISSING_DAYS
+
+
 FLOOR_TIER_SWEEP = 30     # §⑥ — أرضيةُ الكاسحين لكلّ فئةٍ مجمَّعًا (تُقرأ لاحقًا)
 
 TOP = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
@@ -155,15 +173,42 @@ def main() -> int:
     if not year:
         print("⛔ لا STOP_YEAR.")
         return 2
-    days = KS.weekdays(f"{year}-01-01", f"{year}-12-31")
-    seed = KS.weekdays(f"{int(year) - 1}-12-20", f"{int(year) - 1}-12-31")[-3:]
-    KS.log(f"🛑 T-EXIT-STOP — سنة {year} · أيام {len(days)} · "
+    # 🗓️ **المقامُ أيامُ تداولٍ لا أيامُ أسبوع** — والسؤالُ قَبْليٌّ يُجاب من
+    #    جدولِ المستودع لا من الشبكة (‏§⑩ من العقد · حكمُ التدقيق الخصوميّ).
+    _wk = KS.weekdays(f"{year}-01-01", f"{year}-12-31")
+    days = [d for d in _wk if MC.is_trading_day(d)]
+    hol = [d for d in _wk if not MC.is_trading_day(d)]
+    seed = [d for d in KS.weekdays(f"{int(year) - 1}-12-20",
+                                   f"{int(year) - 1}-12-31")
+            if MC.is_trading_day(d)][-3:]
+    # 🔒 **حارسُ اكتمالِ التقويم** — نقصُ تاريخٍ واحدٍ من الجدول يُزيح المقامَ
+    #    صامتًا ⇒ يُوقَف بدل أن يُقرأ «تغطيةٌ أفضل».
+    _hy = MC.HOLIDAY_COUNT_BY_YEAR.get(int(year))
+    if MC.beyond_calendar(f"{year}-06-15") or _hy is None:
+        print(f"⛔ سنةُ {year} خارج مدى التقويم "
+              f"({MC.CALENDAR_FIRST_YEAR}-{MC.CALENDAR_LAST_YEAR}) ⇒ لا حكم.")
+        return 6
+    if len(hol) != _hy:
+        print(f"⛔ عطلاتُ {year} في الجدول {len(hol)} والمثبَّت {_hy} ⇒ "
+              f"**عطبُ تقويمٍ لا نتيجة** — لا حكم.")
+        return 6
+    # 🔒 **وسنةٌ لم تكتمل بعدُ لا تُقاس** (وإلّا قُرئ نقصُ أيامها «فقدًا»).
+    if int(year) >= int(_dt.date.today().year):
+        print(f"⛔ سنةُ {year} لم تكتمل بعد ⇒ لا حكم.")
+        return 6
+    KS.log(f"🛑 T-EXIT-STOP — سنة {year} · أيامُ تداول {len(days)} "
+           f"(من {len(_wk)} يومَ أسبوع · استُبعدت {len(hol)} عطلةً: "
+           + " · ".join(hol) + ") · "
            f"كون [{KS.PRICE_LO}, {KS.PRICE_HI}]$ · هدفٌ {KS.KASIH_PCT}% · "
            f"أذرع {'/'.join(ARMS)}")
 
     prev_close: dict = {}
     rows_out: list = []
     n_files = n_missing = n_anchored = n_gapcap = n_no5 = 0
+    n_stale = 0                # أيامٌ أُسقطت لأن سابقتها مفقودة
+    miss_days: list = []
+    stale_days: list = []
+    prev_ok = True             # هل حُلّل يومُ التداول السابق؟
     v0_bad = v0_bad5 = 0
     n_k5 = k_k5 = 0            # 🔗 فحصُ تكاملٍ مع الرفيق المنشور في kasih_result
     out_path = f"exit_stop_rows_{year}.jsonl"
@@ -180,11 +225,17 @@ def main() -> int:
             #    يخفي تشخيصَه.**
             if not seeding:
                 n_missing += 1
+                miss_days.append(day)
                 KS.log(f"   ⛔ يومٌ مفقود (تعذّر فحصُ الحجم): {day}")
+            prev_ok = False
             continue
         dest = f"/tmp/exitstop-{day}.csv.gz"
         if not AH.download(key, dest, ep):
-            n_missing += 0 if seeding else 1
+            if not seeding:
+                n_missing += 1
+                miss_days.append(day)
+                KS.log(f"   ⛔ يومٌ مفقود (تعذّر التنزيل): {day}")
+            prev_ok = False
             continue
         universe = ({s for s, c in prev_close.items()
                      if KS.PRICE_LO <= c <= KS.PRICE_HI}
@@ -194,7 +245,10 @@ def main() -> int:
                 bars, closes = KS.parse_day(fh, universe)
         except (OSError, KeyError, ValueError) as e:
             KS.log(f"   ⛔ {day}: تعذّرت القراءة ({type(e).__name__}: {e})")
-            n_missing += 0 if seeding else 1
+            if not seeding:
+                n_missing += 1
+                miss_days.append(day)
+            prev_ok = False
             try:
                 os.remove(dest)
             except OSError:
@@ -206,6 +260,20 @@ def main() -> int:
             pass
         if seeding:
             prev_close.update(closes)
+            prev_ok = True
+            continue
+        # 🔴 **يومٌ سابقُه مفقودٌ يُسقَط ولا يُقاس** (أُضيف 2026-08-21):
+        #    `prev_close` حينها **من يومٍ أقدم** ⇒ فجوةُ «عن إغلاق الأمس»
+        #    خاطئة ⇒ **`J1` خاطئٌ ⇒ الفئةُ (قوي/متوسط/ضعيف) خاطئة**. وإسقاطُ
+        #    صفوفٍ **معلومةِ الفساد** أصدقُ من قياسها ثم الاعتذار عنها،
+        #    والكلفةُ مسقوفةٌ بنيويًّا بـ`MAX_MISSING_DAYS`.
+        if not prev_ok:
+            n_stale += 1
+            stale_days.append(day)
+            KS.log(f"   ⚠️ يومٌ أُسقط (سابقُه مفقودٌ ⇒ فجوةُ الأمس فاسدة): "
+                   f"{day}")
+            prev_close.update(closes)
+            prev_ok = True
             continue
         n_files += 1
         for sym, b in bars.items():
@@ -296,6 +364,7 @@ def main() -> int:
             fout.write(json.dumps(row, ensure_ascii=False) + "\n")
             rows_out.append(row)
         prev_close.update(closes)
+        prev_ok = True
         if n_files % 20 == 0:
             KS.log(f"   📦 {n_files}/{len(days)} يومًا · مراسٍ {n_anchored:,}")
     fout.close()
@@ -304,9 +373,16 @@ def main() -> int:
     print(f"🛑 T-EXIT-STOP — سنة {year} · العقد exit_stop_prereg.md "
           "(مدفوعٌ قبل أيّ رقم)")
     print("=" * 74)
-    print(f"📥 أيامٌ قِيست {n_files} · مفقودة {n_missing} · **مراسٍ "
+    print(f"📥 أيامُ تداول {len(days)} (عطلاتٌ مستبعَدةٌ {len(hol)}) · "
+          f"قِيست {n_files} · مفقودة {n_missing} · أُسقطت لفسادِ فجوةِ الأمس "
+          f"{n_stale} · **مراسٍ "
           f"{n_anchored:,}** · بلا شمعةٍ بعد الخمس {n_no5} · "
           f"تشويهُ تقسيم {n_gapcap} · صفوفٌ مقيسة {len(rows_out):,}")
+    # 🔎 **بالأسماء لا بالعدد** — «رقمٌ بلا أسماءٍ لا يُدقَّق».
+    if miss_days:
+        print("   ⛔ المفقودة: " + " · ".join(miss_days))
+    if stale_days:
+        print("   ⚠️ المُسقَطة (سابقُها مفقود): " + " · ".join(stale_days))
 
     # ── بوّاباتُ الصلاحية §⑥ ────────────────────────────────────────────────
     print("\n🔒 بوّاباتُ الصلاحية (سقوطُ أيٍّ منها ⇒ لا حكم)")
@@ -348,10 +424,10 @@ def main() -> int:
     #   صامتًا). ⚖️ **والأرضيةُ ‏5% رقمٌ مستدير**، والتشغيلاتُ الثلاثُ ذاتُ
     #   الجودة قِيست عند **‏3.8-4.2%** مفقودًا.
     cov_bad = coverage_bad(n_files, n_missing)
-    print(f"   V4  تغطيةُ الأيام: مفقودٌ {n_missing}/{n_files + n_missing} "
-          f"({n_missing / max(1, n_files + n_missing) * 100:.1f}%) "
+    print(f"   V4  أيامُ تداولٍ مفقودة: {n_missing} من {len(days)} "
+          f"(والمُسقَطُ لفسادِ فجوةِ الأمس {n_stale}) "
           + ("✅" if not cov_bad else
-             f"⛔ (الحدّ {COVERAGE_MAX_MISS * 100:.0f}%)"))
+             f"⛔ (الحدّ {MAX_MISSING_DAYS} يومًا)"))
     if v0_bad or v0_bad5 or not v1_ok or not v2_ok or cov_bad:
         print("\n⛔ بوّابةُ صلاحيةٍ ساقطة ⇒ **عطبُ أداةٍ لا نتيجة** — لا حكم.")
         return 3
