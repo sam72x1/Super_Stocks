@@ -8433,7 +8433,8 @@
     "breakout": "2026-08-19",
     "afterdump": "2026-08-17",
     "dump": "2026-08-18",
-    "buyzone": "2026-08-19"
+    "buyzone": "2026-08-19",
+    "premarket": "2026-08-21"
    },
    "spikes": [
     70.9,
@@ -14424,7 +14425,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.33
+   "last_price": 2.33,
+   "live_alert": {}
   },
   {
    "symbol": "HCWB",
@@ -14793,7 +14795,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.12
+   "last_price": 2.12,
+   "live_alert": {}
   },
   {
    "symbol": "BBLG",
@@ -18976,7 +18979,7 @@
    "sector": "Real Estate",
    "country": "United States",
    "float": 2547104,
-   "last_price": 5.0,
+   "last_price": 5.16,
    "status": "watching",
    "triggered_date": null
   },
