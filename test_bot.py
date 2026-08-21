@@ -1277,6 +1277,93 @@ check("🔒 OPM8 فرعُ الدمج موصولٌ باسم `OP_ENTRY_STATE_FILE`
       and "_merge_op_entry(_remote, _b)" in _gs_src_031
       and "_union_jsonl(_remote, _b)" in _gs_src_031)
 
+# 4ي) 📋 **خطة 036: `_merge_watchlist` — مصالحةُ القائمة الأسبوعية بالمفتاح.**
+#     للقائمة كتّابٌ مجدولون مستقلّون تتداخل نوافذُهم يومَ الجمعة، والدهسُ
+#     الأعمى يمحو عضويةَ أسبوعٍ كامل ويطبع «✅ حُفظت». ثلاثُ ضماناتٍ تُقفَل
+#     **كلٌّ بعيّنةٍ مفرِّقة**: لا فقدَ عضويةٍ · لا بعثَ لمشطوب · ولا تكرار.
+_mw = S._merge_watchlist
+
+
+def _mw_run(rem: dict, loc: dict) -> dict:
+    return S.json.loads(_mw(S.json.dumps(rem).encode(),
+                            S.json.dumps(loc).encode()))
+
+
+_mw_rem = {"week_start": "2026-08-21",
+           "stocks": [{"symbol": "A"}, {"symbol": "C", "stop": 2.0}],
+           "pullback": [{"symbol": "P1"}],
+           "removed": [{"symbol": "X", "added": "2026-08-01"}],
+           "notes": [{"symbol": "A", "t": "n1", "date": "d"}],
+           "remote_only_key": 1}
+_mw_loc = {"week_start": "2026-08-14",
+           "stocks": [{"symbol": "B"}, {"symbol": "C", "stop": 9.9}],
+           "pullback": [{"symbol": "C"}],
+           "removed": [{"symbol": "X", "added": "2026-08-01"},
+                       {"symbol": "C", "added": "2026-08-05"}],
+           "notes": [{"symbol": "A", "t": "n2", "date": "d"}],
+           "future_field": "keep"}
+_mw_out = _mw_run(_mw_rem, _mw_loc)
+check("📋 OPW1 لا فقدَ عضوية: رمزُ التجديد ورمزُ المراقب **كلاهما** ينجو",
+      sorted(s["symbol"] for s in _mw_out["stocks"]) == ["A", "B"])
+check("📋 OPW2 لا بعثَ لمشطوب: المشطوبُ محليًّا يُقصّ من `stocks` **و**"
+      "`pullback` ولو كان البعيدُ ما زال يحمله",
+      all(s.get("symbol") != "C" for s in _mw_out["stocks"])
+      and all(s.get("symbol") != "C" for s in _mw_out["pullback"])
+      and [s["symbol"] for s in _mw_out["pullback"]] == ["P1"])
+check("📋 OPW3 اتّحادُ المُلحَق بلا تكرار · **وبلا طيِّ محتوًى مختلف** "
+      "(ملاحظتان لنفس الرمز واليوم تبقيان اثنتين)",
+      [(e["symbol"], e["added"]) for e in _mw_out["removed"]]
+      == [("X", "2026-08-01"), ("C", "2026-08-05")]
+      and len(_mw_out["notes"]) == 2)
+check("📋 OPW4 فاشلٌ-آمن: تالفٌ أو غيرُ قاموسٍ ⇒ نسختُنا **بايت-بايت**",
+      _mw(b"not json", b'{"a": 1}') == b'{"a": 1}'
+      and _mw(b'{"a": 1}', b"[]") == b"[]")
+check("📋 OPW5 `week_start` الأحدثُ يعلو · وكلُّ مفتاحٍ لم يُعدَّد يبقى "
+      "(من الجهتين)",
+      _mw_out["week_start"] == "2026-08-21"
+      and _mw_out.get("future_field") == "keep"
+      and _mw_out.get("remote_only_key") == 1)
+# OPW5ب — الاتجاهُ المعاكس: لو كان **المحلّيُّ** أحدثَ فحقولُه هي التي تعلو
+_mw_rev = _mw_run({"week_start": "2026-08-14", "reject_stats": {"r": 1}},
+                  {"week_start": "2026-08-21", "reject_stats": {"l": 2}})
+check("📋 OPW5ب والاتجاهُ المعاكس يفرّق: المحلّيُّ الأحدثُ هو مَن يعلو",
+      _mw_rev["reject_stats"] == {"l": 2}
+      and _mw_rev["week_start"] == "2026-08-21")
+# OPW6 — **سلوكيّ عند `git_save`**: تعارضٌ محاكًى على اسم `WATCH_FILE`
+_mw_tmp, _sv_wf = "test_wl_tmp.json", S.WATCH_FILE
+try:
+    S.time.sleep = lambda *_: None
+    S.WATCH_FILE = _mw_tmp
+    _mw_lb = S.json.dumps(_mw_loc)
+
+    def _mw_runner(cmd, _f=_mw_tmp, _rem=S.json.dumps(_mw_rem)):
+        if "git rebase FETCH_HEAD" in cmd:
+            return 1
+        if "reset --hard FETCH_HEAD" in cmd:
+            with open(_f, "w", encoding="utf-8") as _fh:
+                _fh.write(_rem)
+            return 0
+        if "git diff --cached --quiet" in cmd:
+            return 1
+        return 0
+    with open(_mw_tmp, "w", encoding="utf-8") as _fh:
+        _fh.write(_mw_lb)
+    S.git_save([_mw_tmp], runner=_mw_runner, sender=lambda m: None)
+    with open(_mw_tmp, encoding="utf-8") as _fh:
+        _mw_disk = S.json.load(_fh)
+    check("📋 OPW6 تعارضٌ حيّ: العضويةُ تتّحد والمشطوبُ لا يُبعَث (لا دهس)",
+          sorted(s["symbol"] for s in _mw_disk["stocks"]) == ["A", "B"]
+          and _mw_disk["week_start"] == "2026-08-21")
+finally:
+    S.WATCH_FILE, S.time.sleep = _sv_wf, _sv_ope_sleep
+    _os_hc.remove(_mw_tmp) if _os_hc.path.exists(_mw_tmp) else None
+check("🔒 OPW7 وصلةُ الفرع في `git_save` باسم `WATCH_FILE` · والمسارانِ "
+      "السابقان (`.jsonl` · الددوب) كما هما",
+      "_merge_watchlist(_remote, _b)" in _insp.getsource(S.git_save)
+      and "os.path.basename(WATCH_FILE)" in _insp.getsource(S.git_save)
+      and "_merge_op_entry(_remote, _b)" in _insp.getsource(S.git_save)
+      and "_union_jsonl(_remote, _b)" in _insp.getsource(S.git_save))
+
 # 4ط) 🔒 ④ (إصلاح تدقيق 2026-07-12): اختبارات **رفض** البوابات الصلبة M1-M5/M10 —
 #     كانت صفرًا: أي عتبة CONFIG يمكن تغييرها (أو عكس عامل مقارنة) والسويّة خضراء.
 #     الآن كل رمز رفض حي له فحص يطعم إطارًا يكسره ويؤكّد None + الرمز الدقيق.

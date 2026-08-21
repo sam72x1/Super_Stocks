@@ -21413,6 +21413,103 @@ def _merge_op_entry(remote_bytes, local_bytes) -> bytes:
         return local_bytes
 
 
+_WL_KEYED = ("stocks", "pullback")        # مجموعاتٌ مفتاحُها "symbol"
+_WL_APPEND = ("removed", "history", "explosions", "replacements_log", "notes")
+
+
+def _merge_watchlist(remote_bytes, local_bytes) -> bytes:
+    """📋 نقيّة (خطة 036): مصالحةُ `weekly_watchlist.json` عند تعارض rebase.
+
+    🔴 **العلّة:** للقائمة **كتّابٌ متعدّدون مجدولون مستقلّين** — `pullback_live`
+    كلَّ ‏≈30د (‏13-23 UTC) ومسارُ التجديد (جمعةَ ‏≈22:07 UTC) — ونافذتاهما
+    تتداخلان يومَ الجمعة. وحلقةُ حلّ التعارض تدمج `.jsonl` (‏027) و
+    `op_entry_state.json` (‏031) فقط، وما عداهما **دهسٌ أعمى** ⇒ دفعةُ
+    المراقب تكتب نسختَه الأقدمَ فوق قائمةٍ **جدّدها التجديدُ للتوّ**
+    (مرشّحون جدد · تقريرُ المصير · `week_start` · `explosions` ·
+    `reject_stats`) **ويطبع «✅ حُفظت»** — فقدٌ صامتٌ لعضويةِ أسبوعٍ كامل.
+
+    ⚖️ **ثلاثُ ضماناتٍ يحرسها الدمج** (بترتيب الأذى): ① **لا يُفقَد رمزٌ
+    أضافه أيُّ طرف** (اتّحادُ عضويةٍ بالمفتاح) ② **ولا يُبعَث مشطوب**: كلُّ
+    رمزٍ في اتّحاد `removed` يُقصّ من `stocks`/`pullback` — قاعدةُ المستودع
+    «تُشطب بالستوب فقط»، وإحياءُ مشطوبٍ يُعيد تنبيهَ المالك على مركزٍ ميّت
+    ③ **والقوائمُ المُلحَقة تُوحَّد بلا تكرار**.
+
+    🔴 **ورصيدٌ مُعلَنٌ لا يُخفى:** صفوفُ `stocks` **بلا ختمِ وقتٍ لكلّ صفّ**
+    (‏`added` تاريخُ ترشيحٍ و`ref_bar` شمعةُ مرجع — لا يتحرّكان بالتعديل)
+    ⇒ عند تعديلِ **نفسِ الرمز** من الطرفين في اللحظة نفسِها **تفوز حقولُ
+    نسختنا**. رصيدٌ محدودٌ ومقصود، وأهونُ بمراتبَ من دهسِ الملفّ كلِّه —
+    **ولا يُخترَع ختمُ وقتٍ لعلاجه** (تغييرُ نطاقٍ يلزمه قرارُ مالك).
+
+    🔒 والحقولُ العليا: تفوز جهةُ **`week_start` الأحدث** (التجديدُ هو مَن
+    يُقدّمه) وعند التساوي/الغياب **المحلّيّ**، **وكلُّ مفتاحٍ لم يُعدَّد
+    يبقى** (لا يُسقَط حقلٌ لم نتوقّعه). وفاشلةٌ-آمنة كنظيرتيها: أيُّ عطبٍ ⇒
+    نسختُنا = سلوكُ اليوم حرفيًّا. والشكلُ يطابق `_atomic_write_json`
+    (`ensure_ascii=False, indent=1`) فلا يتضخّم الفرق."""
+    try:
+        def _load(bs):
+            d = json.loads((bs or b"").decode("utf-8", "replace") or "{}")
+            return d if isinstance(d, dict) else None
+
+        def _lst(d, k):
+            v = d.get(k)
+            return v if isinstance(v, list) else None
+
+        def _syms(lst):
+            return {str(e.get("symbol")) for e in (lst or [])
+                    if isinstance(e, dict) and e.get("symbol")}
+
+        rem, loc = _load(remote_bytes), _load(local_bytes)
+        if rem is None or loc is None:
+            return local_bytes
+        # ① الحقولُ العليا: الأحدثُ `week_start` يعلو · والغائبُ يُملأ من الآخر
+        _rw = str(rem.get("week_start") or "")
+        _lw = str(loc.get("week_start") or "")
+        _base, _other = ((rem, loc) if _rw > _lw else (loc, rem))
+        out = dict(_other)
+        out.update(_base)
+        # ② اتّحادُ المشطوبين **قبل** القصّ (المصدرُ الوحيد لمنع البعث)
+        gone = _syms(_lst(rem, "removed")) | _syms(_lst(loc, "removed"))
+        # ③ عضويةٌ بالمفتاح: المحلّيُّ أوّلًا (يفوز عند التكرار) ثم جديدُ البعيد
+        for _k in _WL_KEYED:
+            _rl, _ll = _lst(rem, _k), _lst(loc, _k)
+            if _rl is None and _ll is None:
+                continue
+            _seen, _mrg = set(), []
+            for _e in list(_ll or []) + list(_rl or []):
+                if not isinstance(_e, dict):
+                    _mrg.append(_e)                  # شكلٌ غيرُ متوقَّع: لا يُفقَد
+                    continue
+                _s = str(_e.get("symbol") or "")
+                if not _s or _s in _seen:
+                    continue
+                _seen.add(_s)
+                if _s in gone:
+                    continue                         # 🚫 لا بعثَ لمشطوب
+                _mrg.append(_e)
+            out[_k] = _mrg
+        # ④ القوائمُ المُلحَقة: البعيدُ أوّلًا (نظيرُ `_union_jsonl`) بلا تكرار.
+        #    والتمييزُ **بهويّةِ المحتوى كاملًا** لا بمفتاحٍ مختصَر: ملاحظتان
+        #    لنفس الرمز في اليوم نفسِه مختلفتان، وطيُّهما فقدُ بيانات — وهو
+        #    الأذى الذي وُلدت له الخطة.
+        for _k in _WL_APPEND:
+            _rl, _ll = _lst(rem, _k), _lst(loc, _k)
+            if _rl is None and _ll is None:
+                continue
+            _seen, _mrg = set(), []
+            for _e in list(_rl or []) + list(_ll or []):
+                _id = json.dumps(_e, ensure_ascii=False, sort_keys=True,
+                                 default=str)
+                if _id in _seen:
+                    continue
+                _seen.add(_id)
+                _mrg.append(_e)
+            out[_k] = _mrg
+        return json.dumps(out, ensure_ascii=False, indent=1,
+                          default=_json_default).encode("utf-8")
+    except Exception:                                            # noqa: BLE001
+        return local_bytes
+
+
 def git_save(filenames, runner=None, sender=None):
     """يرفع ملفات البيانات إلى الـ repo حتى لا تضيع بين تشغيلات GitHub Actions.
     ⑬ (إصلاح تدقيق 2026-07-12): عند تعارض rebase كان `--abort` يعيد الحالة كما
@@ -21499,6 +21596,22 @@ def git_save(filenames, runner=None, sender=None):
                                 log(f"🎯 دمجُ ددوبٍ بالمفتاح: {fn}")
                             except Exception as _me:             # noqa: BLE001
                                 log(f"⚠️ تعذّر دمج {fn} ({_me}) — أُبقيت نسختُنا")
+                        # 📋 **خطة 036 (2026-08-21):** القائمةُ الأسبوعية لها
+                        # كتّابٌ مجدولون مستقلّون تتداخل نوافذُهم يومَ الجمعة
+                        # (المراقبُ كلَّ 30د · والتجديدُ 22:07) ⇒ الدهسُ الأعمى
+                        # يمحو عضويةَ أسبوعٍ كامل ويطبع «✅ حُفظت». تُصالَح
+                        # بالمفتاح مع **قصِّ المشطوبين** (لا بعثَ لسهمٍ ضُرب
+                        # ستوبُه) — والملفّاتُ القاموسيّة الأخرى كما هي.
+                        elif (os.path.basename(str(fn))
+                              == os.path.basename(WATCH_FILE)
+                              and os.path.exists(fn)):
+                            try:
+                                with open(fn, "rb") as f:
+                                    _remote = f.read()
+                                _b = _merge_watchlist(_remote, _b)
+                                log(f"📋 دمجُ القائمة بالمفتاح: {fn}")
+                            except Exception as _we:             # noqa: BLE001
+                                log(f"⚠️ تعذّر دمج {fn} ({_we}) — أُبقيت نسختُنا")
                         with open(fn, "wb") as f:
                             f.write(_b)
                         run(f'git add "{fn}"')
