@@ -1,4 +1,445 @@
 {
+ "2026-08-19": {
+  "NWGL": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787160900000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "HUIZ": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787135340000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "CODX": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787168040000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "MSS": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787135760000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "CISS": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787146740000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "FEMY": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787144400000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "MIMI": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787151240000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "VRAX": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787140440000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "YXT": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787141100000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "INLF": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787128140000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "INHD": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787146680000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "ELAB": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787154360000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "QTEX": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787149020000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "AIXC": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787148600000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "LGHL": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787167260000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "XOS": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787171400000,
+   "anchor_price": 3.12,
+   "k2": null
+  },
+  "EHGO": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787135400000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "BAOS": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787146140000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "CHSN": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787168220000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "BTCT": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787158560000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "YHC": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787170320000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "FTFT": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787177520000,
+   "anchor_price": 1.03,
+   "k2": null
+  },
+  "HYPD": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787166720000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "CXAI": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787147820000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "TGL": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787138460000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "PSIG": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787157540000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "ARBK": {
+   "sent": [
+    "M1",
+    "M5"
+   ],
+   "anchor_ms": 1787168040000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "SUGP": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787164380000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "BRNX": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787153400000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "CDTG": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787146380000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "WXM": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787128500000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "TRUG": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787157540000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "LGCL": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787164620000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "BIVI": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787170920000,
+   "anchor_price": 1.5,
+   "k2": null
+  },
+  "SCKT": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787146500000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "ELPW": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787131680000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "YJ": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787133420000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "ZYBT": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787149560000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "IVDA": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787146260000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "AZI": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787131560000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "RDAC": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787129040000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "KWM": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787139000000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "EVAX": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787138220000,
+   "anchor_price": null,
+   "k2": null
+  },
+  "BDRX": {
+   "sent": [
+    "M1",
+    "M30",
+    "M5"
+   ],
+   "anchor_ms": 1787142600000,
+   "anchor_price": null,
+   "k2": null
+  }
+ },
  "2026-08-20": {
   "BAOS": {
    "anchor_ms": 1787225400000,
