@@ -13599,9 +13599,17 @@ ALERT_FILTER_AXES = {
     "min_move_pct": float, "min_vol_x": float,
     "require_operator": bool, "in_entry_band_only": bool,
     "entry_status": list, "float_max": float, "avail_max": float,
+    "update_tier": list,
 }
 ALERT_FILTER_STAGES = ("M0", "M1", "Mu", "M5", "M30", "Px")
 ALERT_FILTER_CLASSES = ("group", "mid", "operator", "strong")
+ALERT_FILTER_TIERS = ("قوي", "متوسط", "ضعيف")
+# 🔁 **مراحلُ «التحديث»** — أمرُ المالك 2026-08-22 («اشعارُ التحديث يوصلني
+#    للأسهم اللي تصنيفها قوي»): `Mu` (تحديثٌ متكرّر) و`Px` (نبضُ السيولة).
+#    ⚖️ **وأوّلُ إشعارٍ ومجاميعُه خارجَها عمدًا** (`M1`/`M5`/`M30`): المالكُ
+#    طلب تقييدَ **التحديث** لا كتمَ اكتشافِ السهم — و`M5` هو مَن يحمل
+#    التصنيفَ إليه أصلًا، فكتمُه يكتم الخبرَ الذي يبني عليه القرار.
+_ALERT_UPDATE_STAGES = ("Mu", "Px")
 
 
 def alert_filter_issues(cfg) -> list:
@@ -13639,7 +13647,8 @@ def alert_filter_issues(cfg) -> list:
         elif want is bool and not isinstance(v, bool):
             out.append(f"⛔ «{k}» يجب أن يكون صحيحًا/خطأً لا {type(v).__name__}")
     for k, allowed, lbl in (("stages", ALERT_FILTER_STAGES, "مرحلة"),
-                            ("classes", ALERT_FILTER_CLASSES, "صنف")):
+                            ("classes", ALERT_FILTER_CLASSES, "صنف"),
+                            ("update_tier", ALERT_FILTER_TIERS, "تصنيف")):
         v = cfg.get(k)
         if isinstance(v, (list, tuple)):
             bad = [str(x) for x in v if str(x) not in allowed]
@@ -13674,7 +13683,9 @@ def alert_filter_keep(row, ev, cfg=None, ctx=None):
 
     محاورُها كلُّها اختياريّة: `sources` · `stages` · `classes` · `price_min/max` ·
     `min_usd` · `min_move_pct` · `min_vol_x` · `require_operator` ·
-    `in_entry_band_only` · `entry_status` · `float_max` · `avail_max`."""
+    `in_entry_band_only` · `entry_status` · `float_max` · `avail_max` ·
+    **`update_tier`** (تصنيفاتٌ يُسمَح لها بـ**التحديث** — `Mu`/`Px` وحدَهما،
+    فأوّلُ إشعارٍ ومجاميعُه لا تُمَسّ)."""
     c = cfg if isinstance(cfg, dict) else {}
     if not c or c.get("enabled") is False:
         return (True, "")
@@ -13697,6 +13708,16 @@ def alert_filter_keep(row, ev, cfg=None, ctx=None):
         k = (e.get("class") or ("", ""))[0]
         if k and k not in c["classes"]:
             return (False, f"صنفُ الشمعة «{k}»")
+    if c.get("update_tier") and e.get("stage") in _ALERT_UPDATE_STAGES:
+        # 🔁🥇 **التحديثُ للمصنَّف الذي يختاره المالك وحدَه** (أمرُه 2026-08-22).
+        #    🔒 **وفاشلٌ-آمنٌ مفتوح كبقيّة المحاور:** تعذّرَ التصنيفُ (`None`)
+        #    ⇒ **يمرّ** — لا يُكتَم إشعارٌ بنقصِ بيانات (عقد ② أعلاه).
+        #    📌 وهي حالةٌ **شبهُ مستحيلةٍ بنيويًّا** لا كرمًا: فرعُ `Px` في
+        #    `liq_stage_events` يشترط `k2` **و**`anchor_cls` معًا، و`liq_tier`
+        #    لا تعود `None` إلّا بغياب `k2` ⇒ لا نبضَ بلا تصنيف. (مقفولةٌ.)
+        _t = liq_tier(e)
+        if _t and _t[0] not in c["update_tier"]:
+            return (False, f"تحديثٌ لتصنيفٍ «{_t[0]}»")
     px = _num(e.get("price"))
     if px is not None:
         if _num(c.get("price_min")) is not None and px < float(c["price_min"]):

@@ -25947,6 +25947,61 @@ check("🎛️ AF2ب **«المضاربُ مؤكَّد» يكتم غيرَ ال�
           _af_row, dict(_af_ev, operator=None), {"require_operator": True})[1],
       str(_af({"require_operator": True}, ev=dict(_af_ev, operator=None))))
 
+# 🔁🥇 **AF19-AF19د — «اشعارُ التحديث يوصلني للأسهم اللي تصنيفها قوي»**
+#      (أمرُ المالك 2026-08-22). المحورُ يقصّ **مراحلَ التحديث وحدَها**
+#      (`Mu`/`Px`) — وأوّلُ إشعارٍ ومجاميعُه (`M1`/`M5`/`M30`) **لا تُمَسّ**،
+#      لأن `M5` هو مَن يحمل التصنيفَ إليه أصلًا فكتمُه يكتم الخبرَ الذي يبني
+#      عليه القرار. وكلُّ حالةٍ أدناه **تفرّق** (تكتم هنا وتمرّ هناك).
+import json as _js_af19
+_af_k2_top = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+              "v2": "المرساة دون 30% (سيولة تتوالى)",
+              "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)", "j1": True}
+_af_k2_low = {"c3": "نقضت", "c4": "خضراء 0-1", "v2": "المرساة فوق 30%",
+              "v3": "سيولةٌ نازحة"}
+
+
+def _af_pulse(k2, stage="Px"):
+    return dict(_af_ev, stage=stage, k2=dict(k2) if k2 is not None else None)
+
+
+check("🔁 AF19 **التحديثُ للمصنَّف وحدَه**: نبضُ «قوي» يصل ونبضُ «ضعيف» يُكتَم "
+      "بسببٍ مُسمًّى",
+      _af({"update_tier": ["قوي"]}, ev=_af_pulse(_af_k2_top))[0]
+      and not _af({"update_tier": ["قوي"]}, ev=_af_pulse(_af_k2_low))[0]
+      and "ضعيف" in S.alert_filter_keep(
+          _af_row, _af_pulse(_af_k2_low), {"update_tier": ["قوي"]})[1],
+      str(S.alert_filter_keep(_af_row, _af_pulse(_af_k2_low),
+                              {"update_tier": ["قوي"]})))
+check("🔁 AF19ب **أوّلُ إشعارٍ ومجاميعُه خارجَ المحور**: `M1`/`M5`/`M30` تمرّ "
+      "بتصنيفٍ ضعيفٍ — والمحورُ لا يكتم إلّا التحديث",
+      all(_af({"update_tier": ["قوي"]}, ev=_af_pulse(_af_k2_low, _st))[0]
+          for _st in ("M1", "M5", "M30"))
+      and not _af({"update_tier": ["قوي"]}, ev=_af_pulse(_af_k2_low, "Px"))[0])
+check("🔁 AF19ج **فاشلٌ-آمنٌ مفتوح**: نبضٌ بلا `k2` (تعذّرَ التصنيف) **يمرّ** — "
+      "لا يُكتَم إشعارٌ بنقصِ بيانات (عقدُ الفلتر ②)",
+      S.liq_tier(_af_pulse(None)) is None
+      and _af({"update_tier": ["قوي"]}, ev=_af_pulse(None))[0]
+      and _af({}, ev=_af_pulse(_af_k2_low))[0])
+check("🔁 AF19د **القيمةُ تُدقَّق**: تصنيفٌ مجهولٌ يُبلَّغ عنه · والمعروفةُ "
+      "الثلاثةُ تمرّ بلا علّة",
+      any("update_tier" in _i for _i in S.alert_filter_issues(
+          {"update_tier": ["قويّ"]}))
+      and not S.alert_filter_issues({"update_tier": list(S.ALERT_FILTER_TIERS)}),
+      str(S.alert_filter_issues({"update_tier": ["قويّ"]})))
+# 🔒 **قراءةٌ محلّيّةٌ فاشلةٌ-آمنة** — `_af_ship` يُعرَّف لاحقًا في `AF7`،
+#    وقفلٌ ينهار بـ`NameError` **يكتم كلَّ قفلٍ بعده** (الصنفُ الأوّل في دستور
+#    الأقفال) ⇒ يُقرأ هنا بنفسه.
+try:
+    _af19_ship = _js_af19.load(open("alert_filter.json", encoding="utf-8"))
+except Exception as _e19:                                        # noqa: BLE001
+    _af19_ship = {"⛔": f"{type(_e19).__name__}"}
+check("🔁 AF19هـ **المشحونُ يحمل الأمرَ فعلًا** — ولولاه لكان المحورُ كودًا "
+      "بلا أثر (صنفُ «المحور الخامد»)",
+      isinstance(_af19_ship, dict)
+      and (_af19_ship.get("update_tier") or []) == ["قوي"]
+      and "Px" in (_af19_ship.get("stages") or []),
+      str(_af19_ship)[:90])
+
 # 🔒 AF3 — **السياقُ الغائب يمرّ** (تعذّرٌ ليس رفضًا) · تفريقيًّا مع سياقٍ حاضرٍ يكتم
 check("🎛️ AF3 **حقلُ سياقٍ غائبٌ ⇒ يمرّ · وحاضرٌ مخالفٌ ⇒ يكتم** (فاشلٌ-آمنٌ مفتوح)",
       _af({"in_entry_band_only": True}, ctx={"tranches": None})[0]
@@ -26151,8 +26206,11 @@ _af_used = {n.value for n in _af_ast.walk(_af_ast.parse(_af_src))
             if isinstance(n, _af_ast.Constant) and isinstance(n.value, str)
             and n.value in set(S.ALERT_FILTER_AXES) | {"enabled"}}
 check("🩺 AF13ج **جدولُ المحاور = ما يفحصه الكود بالضبط** (لا مجهولَ ولا خامد)",
+      # ⬆️ **إقرارٌ مؤرَّخ 2026-08-22:** ‏13 ⟶ **14** بإضافة `update_tier`
+      #    (أمرُ المالك «اشعارُ التحديث للمصنَّف قوي»). العددُ مثبَّتٌ عمدًا
+      #    كي **لا يُضاف محورٌ صامتًا** بلا قفلٍ يخصّه.
       _af_used - {"enabled"} == set(S.ALERT_FILTER_AXES)
-      and len(S.ALERT_FILTER_AXES) == 13,
+      and len(S.ALERT_FILTER_AXES) == 14,
       f"في الكود={len(_af_used) - 1} · في الجدول={len(S.ALERT_FILTER_AXES)} · "
       f"الفرق={sorted((_af_used - {'enabled'}) ^ set(S.ALERT_FILTER_AXES))}")
 
@@ -26180,9 +26238,14 @@ check("🥇 AF14 **المشحونُ يكتم التحديثَ `Mu` وحدَه ·
       #    يكتمها. وبرفعةٍ صفرٍ أيضًا: لا شرطَ رفعةٍ إطلاقًا.
       and _af_ship_keep("M1", 4.8) is True
       and _af_ship_keep("M1", 0.0) is True
-      # ③ والمحورُ المشحونُ **واحدٌ لا اثنان** — فلا تعود `min_move_pct` صامتةً
+      # ③ ⬆️ **إقرارٌ مؤرَّخ 2026-08-22:** صار المشحونُ **محورَين** بأمر
+      #    المالك (‏`update_tier`) ⇒ القفلُ **يُشدَّد لا يُرخى**: بدل مساواةٍ
+      #    هشّةٍ بمجموعةٍ تتقادم، يُسمّى **الخطرُ نفسُه** — `min_move_pct`
+      #    (وهو ما ألغاه المالك) **ممنوعٌ صراحةً**، والمشحونُ محصورٌ في
+      #    المحورَين المأذونَين فلا يتسلّل ثالثٌ بلا قرار.
+      and "min_move_pct" not in _af_live
       and set(_af_live) - {k for k in _af_live if str(k).startswith("_")}
-      == {"stages"}
+      == {"stages", "update_tier"}
       and S.alert_filter_issues(_af_live) == [],
       f"المشحون={sorted(k for k in _af_live if not str(k).startswith('_'))} · "
       f"Mu@12={_af_ship_keep('Mu', 12.0)} · M1@4.8={_af_ship_keep('M1', 4.8)} · "
@@ -27608,17 +27671,32 @@ check("💓 PLS13 السلسلةُ الحيّة M1⟶M5⟶Px: الحالةُ ت�
 
 # PLS8 — الفلترُ **المشحون فعلًا** يمرّر `Px` ويكتم `Mu` (القائمةُ البيضاء حيّة
 #   لا شكلية) وحارسُ الإعداد بصفر عِلّة — لولا إدراج `Px` لكُتم النبضُ صامتًا.
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-22 (أمرُ المالك «التحديثُ للمصنَّف قوي»):** صار
+#   `Px` مشروطًا بالتصنيف ⇒ عيّنةٌ بلا `k2` **تُكتَم بحقّ**. **والقفلُ يشتدّ:**
+#   يُثبت أن النبضَ **القويَّ يصل** و**الضعيفَ يُكتَم** و`Mu` مكتومٌ بمرحلته —
+#   ثلاثةُ فوارقَ بدل واحد، فيستحيل أن يُقرأ «مرَّ» من قائمةٍ بيضاءَ وحدها.
+_pls8_top = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+             "v2": "المرساة دون 30% (سيولة تتوالى)",
+             "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)", "j1": True}
+_pls8_low = {"c3": "نقضت", "c4": "خضراء 0-1", "v2": "المرساة فوق 30%",
+             "v3": "سيولةٌ نازحة"}
 try:
     _pls_cfg = S.load_alert_filter()
-    _pls_ok, _ = S.alert_filter_keep(_pls_row, _pls_dn, _pls_cfg, {})
+    _pls_ok, _ = S.alert_filter_keep(
+        _pls_row, dict(_pls_dn, k2=dict(_pls8_top)), _pls_cfg, {})
+    _pls_low_ok, _ = S.alert_filter_keep(
+        _pls_row, dict(_pls_dn, k2=dict(_pls8_low)), _pls_cfg, {})
     _pls_mu_ok, _w = S.alert_filter_keep(_pls_row, {"stage": "Mu", "price": 2.0},
                                          _pls_cfg, {})
     _pls_iss = S.alert_filter_issues(_pls_cfg)
 except Exception as _e:                                          # noqa: BLE001
-    _pls_ok, _pls_mu_ok, _pls_iss = f"⛔ {type(_e).__name__}", None, ["رمى"]
-check("💓 PLS8 المشحونُ يمرّر Px ويكتم Mu وبصفر عِلّة إعداد",
-      _pls_ok is True and _pls_mu_ok is False and _pls_iss == [],
-      f"px={_pls_ok} mu={_pls_mu_ok} iss={_pls_iss}")
+    _pls_ok = _pls_low_ok = f"⛔ {type(_e).__name__}"
+    _pls_mu_ok, _pls_iss = None, ["رمى"]
+check("💓 PLS8 المشحونُ يمرّر نبضَ «قوي» · ويكتم نبضَ «ضعيف» · ويكتم Mu "
+      "بمرحلته · وبصفر عِلّة إعداد",
+      _pls_ok is True and _pls_low_ok is False
+      and _pls_mu_ok is False and _pls_iss == [],
+      f"قوي={_pls_ok} ضعيف={_pls_low_ok} mu={_pls_mu_ok} iss={_pls_iss}")
 
 # PLS9 — بوّابةُ «لا مضارب»: النبضُ ينجو **وحالتُه تبقى** (لا M1 مكرَّرًا) ·
 #   وغيرُ النبض يُكتَم وتُفرَغ حالتُه (السلوكُ القائم بت-بت) — فارقان معًا.
@@ -28575,14 +28653,27 @@ check("🥇 TIER2 الوسمُ على M5 وPx حصرًا · وبلا k2 أو ب�
       and S.liq_tier({"stage": "M5", "k2": {}}) is None
       and S.liq_tier(None) is None and S.liq_tier({"stage": "M5"}) is None)
 
-# TIER3 — 🔒 **عرضٌ لا اختيار**: الفئةُ خارج الجذور وخارج الفلتر ⇒ مَن يُطلق
-#   ومَن يُكتَم **بت-بت**. (نفسُ عقد `k2` — حقلٌ إضافيٌّ بحت.)
+# TIER3 — 🔒 **عرضٌ لا اختيار**: الفئةُ خارج الجذور ⇒ مَن يُطلق **بت-بت**.
+#   🔴🔴 **إقرارٌ مؤرَّخ 2026-08-22 — القفلُ أدّى عملَه بالضبط:** كان يمنع
+#   `liq_tier` من `alert_filter_keep` تنفيذًا لنصّ `exit_stop_prereg §⑦`
+#   («**وأيُّ تحويلٍ للتصنيف إلى فلترٍ = قرارُ مالكٍ صريح**») — **وقد صدر
+#   القرارُ صريحًا** («اشعارُ التحديث يوصلني للأسهم اللي تصنيفها قوي»)، فسقط
+#   القفلُ على تنفيذه لا على خطأ. ⚖️ **والحدُّ الباقي يُشدَّد لا يُرخى:**
+#   الفئةُ تحكم **التسليمَ** وحدَه (‏`Mu`/`Px`) و**تبقى ممنوعةً من الاختيار
+#   ومن الإطلاق** — `liq_stage_events`/`scan_liq_stages` لا تعرفانها ⇒ مَن
+#   **يُطلق** ومتى بت-بت، والحالةُ تتقدّم كما هي (عقدُ الفلتر ③).
 _tr_src = _insp0.getsource(S)
-check("🥇 TIER3 الفئةُ عرضٌ لا اختيار: خارج الجذور وخارج `alert_filter_keep`",
+check("🥇 TIER3 الفئةُ **خارج الاختيار والإطلاق** — والتسليمُ وحدَه بقرار المالك",
       all("liq_tier" not in _insp0.getsource(getattr(S, _f))
           for _f in ("rank_key", "select_top", "classify_tier", "entry_status",
                      "analyze_ticker", "scan_market", "liq_stage_events",
-                     "alert_filter_keep", "scan_liq_stages")),
+                     "scan_liq_stages"))
+      # ✅ **وفي الفلتر: حاضرةٌ ومشارِكةٌ فعلًا** (لا «حضورٌ بلا مشاركة»)
+      and "liq_tier" in _insp0.getsource(S.alert_filter_keep)
+      # 🔒 **وبلا المحور: مُخرَجُ الفلتر بت-بت** — لا تضييقَ صامتًا
+      and S.alert_filter_keep(
+          {"symbol": "TR"}, {"stage": "Px", "price": 2.0, "k2": {"c3": "نقضت"}},
+          {"stages": ["Px"]})[0] is True,
       "")
 
 # TIER4 — **الدائريّةُ مُعلَنةٌ في المصدر** (‏`exit_stop_prereg §④`): مكوّناتُ
