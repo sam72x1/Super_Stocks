@@ -30126,6 +30126,11 @@ check("🥇 STR8 حدُّ الفجوة **من `f5_bucket` بنيويًّا** · 
 #      فيه **مربوطٌ بالإنتاج** فلا يطبع عتبةً بائتة.
 # ════════════════════════════════════════════════════════════════════════
 import sisters_probe as _SIS                                        # noqa: E402
+import io as _io_sis                                               # noqa: E402
+import kasih_scan as _KS0                                           # noqa: E402
+import kasih2_red_stats as _KRS                                     # noqa: E402
+from contextlib import redirect_stdout as _rd_sis                   # noqa: E402
+
 
 _sis_src = _insp0.getsource(_SIS)
 _sis_tree = _ast_t3.parse(_sis_src)
@@ -30195,6 +30200,36 @@ check("🔎 SIS4 حدُّ «قوي» = الإنتاج · والمجهولُ لي
       and _SIS._computed(_sis_unk) == 2 and _S2._green(_sis_unk) == 1,
       f"عند {_SIS.ADOPTED}={_sis_at} · دونه={_sis_bl} · "
       f"محسوب={_SIS._computed(_sis_unk)} أخضر={_S2._green(_sis_unk)}")
+
+
+# SIS5 — 🔒 **بارات النجاح من مصدرها لا مغروسة** · و**تُطبَع كلُّها معًا**
+#        فلا يُنتقى الأنسبُ بعد الأرقام (أمرُ المالك غيّر المعيارَ إلى
+#        «المهمّ يكون ربحان» — والحارسُ أن تبقى الخمسةُ مرئيّةً كلَّها).
+_sis_bars = [b[0] for b in _SIS.BARS]
+check("🔎 SIS5 البارات خمسةٌ من مصدرها (‏KASIH_PCT/KASIH_DESC) وتُطبَع معًا",
+      len(_SIS.BARS) == 5 and 0.0 in _sis_bars
+      and _KS0.KASIH_PCT in _sis_bars and _KS0.KASIH_DESC[0] in _sis_bars
+      and _SIS.OWNER_BAR in _sis_bars,
+      f"بارات={_sis_bars}")
+
+# SIS6 — 🔒 **الأساسُ يُطبَع مع كلّ بار** (وإلّا صار المضاعفُ غيرَ قابلٍ
+#        للقراءة، و«‏5 من 6 ربحوا» تُقرأ إنجازًا وهي قد تكون **دون** الأساس)
+#        · وسلوكيٌّ بعيّنةٍ تفرّق: صفٌّ رابحٌ وآخرُ خاسر.
+_sis_hi2 = {c: _tw_top[c] for c in ("c3", "c4", "v2", "v3")}
+_sis_lo2 = {c: _tw_low[c] for c in ("c3", "c4", "v2", "v3")}
+_sis_rows = ([dict(_sis_hi2, mg_after=45.0)] * 3
+             + [dict(_sis_lo2, mg_after=-5.0)] * 3)
+_sis_data = {y: list(_sis_rows) for y in _KRS.YEARS}
+_sis_buf = _io_sis.StringIO()
+with _rd_sis(_sis_buf):
+    _SIS.bars_by_tier(_sis_data)
+_sis_txt = _sis_buf.getvalue()
+_sis_lines = [ln for ln in _sis_txt.splitlines() if "فأكثر" in ln
+              or "أيّ ربح" in ln]
+check("🔎 SIS6 الأساسُ مطبوعٌ مع كلّ بارٍ من الخمسة · والفئةُ تفرّق",
+      len(_sis_lines) == 5 and "50.0" in _sis_txt
+      and "الأساس%" in _sis_txt and "المضاعفُ هو المعنى" in _sis_txt,
+      f"أسطر={len(_sis_lines)}")
 
 
 print("\n" + "=" * 50)
