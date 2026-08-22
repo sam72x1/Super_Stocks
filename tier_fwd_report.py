@@ -133,6 +133,26 @@ def outcome(row: dict, bars):
             mg5, res.get("exit"))
 
 
+def tier_of(row):
+    """🔁 **الفئةُ تُعاد اشتقاقُها من المكوّنات المخزَّنة لا من الوسم المكتوب.**
+
+    أمرُ المالك 2026-08-22 «اعتمد S2» بدّل تعريفَ «قوي» ⇒ صفوفٌ كُتبت قبله
+    تحمل وسمًا بتعريفٍ آخر. **ولو جُمّعت بالوسم المكتوب لخلط السجلُّ
+    تعريفَين** — وهو ما وعدتُ بمنعه حين قلتُ إن السجلَّ يخزّن المكوّناتِ
+    الخام فيُعاد تسجيلُه **بأثرٍ رجعيّ**.
+
+    ⇒ **محورٌ واحد** (عدّادُ المواصلة) مطابقٌ لـ`liq_tier` النافذة — مقفولٌ
+    **سلوكيًّا** في السويّة على القيم صفر إلى أربع."""
+    g = row.get("green")
+    if g is None:
+        return "غير مصنَّف"
+    try:
+        g = int(g)
+    except (TypeError, ValueError):
+        return "غير مصنَّف"
+    return "قوي" if g >= 3 else ("ضعيف" if g <= 1 else "متوسط")
+
+
 def _rate(k, n):
     return (k / n * 100.0) if n else 0.0
 
@@ -163,11 +183,13 @@ def main() -> int:
 
     tally = {t: {"k": 0, "n": 0, "pend": 0} for t in list(TIERS)
              + ["غير مصنَّف"]}
-    notes = {}
+    notes, restamped = {}, 0
     for i, r in enumerate(rows, 1):
         bars = fetch_day(r["symbol"], r["date"], key)
         st, mg5, why = outcome(r, bars)
-        t = r.get("tier") if r.get("tier") in tally else "غير مصنَّف"
+        t = tier_of(r)
+        if r.get("tier") and r.get("tier") != t:
+            restamped += 1
         if st == "pending":
             tally[t]["pend"] += 1
             notes[why] = notes.get(why, 0) + 1
@@ -188,6 +210,9 @@ def main() -> int:
           f"({_rate(tot_p, tot_n + tot_p):.1f}%)")
     for why, c in sorted(notes.items(), key=lambda x: -x[1]):
         print(f"     ↳ سببُ التعليق «{why}»: {c}")
+    if restamped:
+        print(f"  🔁 **أُعيد اشتقاقُ الفئة لـ{restamped} صفًّا** كُتب بتعريفٍ "
+              "سابق (أمرُ «اعتمد S2») — فالسجلُّ لا يخلط تعريفَين.")
 
     print(f"\n{'=' * 78}\n⚖️ المعيارُ الثلاثيّ (العقد §③ — لا يُحرَّك)\n{'=' * 78}")
     short = [t for t in TIERS if tally[t]["n"] < MIN_PER_TIER]

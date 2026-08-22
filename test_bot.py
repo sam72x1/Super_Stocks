@@ -28660,19 +28660,29 @@ def _tr_ev(k2, cls="strong", pc=0.70):
             "prev_close": pc, "anchor_ms": _br_t, "k2": dict(k2)}
 
 
-# TIER1 — الفئاتُ الثلاث **تفترق** على تخوم القاعدة: J1 وعدّادُ المواصلة.
-_tr_strong = S.liq_tier(_tr_ev(_tr_k2))                       # J1 ✓ · 4 خضراء
-_tr_mid_a = S.liq_tier(_tr_ev(dict(_tr_k2, c3="نقضت", c4="خضراء 0-1")))
-_tr_mid_b = S.liq_tier(_tr_ev(_tr_k2, cls="mid"))             # J1 ✗ · 4 خضراء
-_tr_weak = S.liq_tier(_tr_ev(_tr_low, cls="mid"))             # J1 ✗ · صفر
-_tr_edge = S.liq_tier(_tr_ev(dict(_tr_low, c3=_tr_k2["c3"]), cls="mid"))
-check("🥇 TIER1 الفئاتُ الثلاث تفترق على تخومها (‏J1 × عدّاد المواصلة) · "
-      "و«ضعيف» يشترط النفيَين معًا · وواحدٌ أخضرُ يبقى ضعيفًا",
+# TIER1 — ⚖️ **إقرارٌ مؤرَّخ 2026-08-22 (أمرُ المالك «اعتمد S2» · `T-STRONG-2`):**
+#   كان يقفل تخومَ **محورَين** (`J1` × العدّاد)؛ والتعريفُ المعتمَد **محورٌ
+#   واحد** ⇒ يُشدَّد لا يُرخى: يقفل التخومَ الأربعة **ويُثبت أن `J1` لا أثرَ
+#   لها إطلاقًا** (نفسُ العدّاد بصنفٍ قويٍّ وبصنفٍ وسط ⇒ **نفسُ الفئة**) —
+#   وهو شرطٌ **يستحيل** أن يمرّ بالتعريف القديم.
+_tr_strong = S.liq_tier(_tr_ev(_tr_k2))                       # 4 خضراء
+_tr_mid_a = S.liq_tier(_tr_ev(dict(_tr_k2, c3="نقضت", c4="خضراء 0-1")))  # 2
+_tr_mid_b = S.liq_tier(_tr_ev(_tr_k2, cls="mid"))             # 4 بلا J1
+_tr_weak = S.liq_tier(_tr_ev(_tr_low, cls="mid"))             # صفر
+_tr_edge = S.liq_tier(_tr_ev(dict(_tr_low, c3=_tr_k2["c3"]), cls="mid"))  # 1
+_tr_three = S.liq_tier(_tr_ev(dict(_tr_k2, c3="نقضت"), cls="mid"))       # 3
+check("🥇 TIER1 التخومُ على **محورٍ واحد** (0-1 ضعيف · 2 متوسط · 3-4 قوي) · "
+      "و`J1` **بلا أثرٍ إطلاقًا**",
       _tr_strong[0] == "قوي" and _tr_strong[1] == 4
-      and _tr_mid_a[0] == "متوسط" and _tr_mid_b[0] == "متوسط"
+      and _tr_three[0] == "قوي" and _tr_three[1] == 3
+      and _tr_mid_a[0] == "متوسط" and _tr_mid_a[1] == 2
       and _tr_weak[0] == "ضعيف" and _tr_weak[1] == 0
-      and _tr_edge[0] == "ضعيف" and _tr_edge[1] == 1,
-      f"{_tr_strong} · {_tr_mid_a} · {_tr_mid_b} · {_tr_weak} · {_tr_edge}")
+      and _tr_edge[0] == "ضعيف" and _tr_edge[1] == 1
+      # 🔒 الفارقُ الحاسم: نفسُ العدّاد بصنفَين ⇒ نفسُ الفئة (كان يفرّق قبلُ)
+      and _tr_mid_b[0] == _tr_strong[0] == "قوي"
+      and (S.liq_tier(_tr_ev(_tr_low)) or ("",))[0] == _tr_weak[0],
+      f"{_tr_strong} · {_tr_three} · {_tr_mid_a} · {_tr_weak} · {_tr_edge} "
+      f"· بلا J1 ⟶ {_tr_mid_b}")
 
 # TIER2 — ⚖️ **إقرارٌ مؤرَّخ 2026-08-20 (أمرُ المالك «ما يوصلني تحديث إلا
 #   للأسهم اللي لها تصنيف …»):** كان «`M5` حصرًا» فصار **`M5` و`Px`** — والنبضُ
@@ -28756,17 +28766,20 @@ check("💓 PX1 نبضٌ Px بلا class/prev_close يحمل J1 المختوم �
       and _px_tier_strong[1] == _m5_tier_ref[1] == 4,
       f"{_m5_tier_ref} · {_px_tier_strong}")
 
-# PX2 — وبلا ختمِ `j1` (حالةٌ قديمة قبل الإصلاح/تعذّرُ حساب على `M5`) الاحتياطُ
-#   **كما كان بت-بت**: متوسط لأخضرَ ‏4 بلا J1 · ضعيف لأخضرَ ‏0 بلا J1.
+# PX2 — ⚖️ **إقرارٌ مؤرَّخ 2026-08-22 («اعتمد S2»):** كان يقفل أن غيابَ ختمِ
+#   `j1` **يهبط** بالنبض إلى «متوسط»؛ وبعد الاعتماد **الختمُ بلا أثرٍ أصلًا**
+#   ⇒ يُشدَّد: **الفئةُ واحدةٌ بالختم وبدونه**، فيستحيل أن يعود التصنيفُ
+#   يعتمد على `J1` من باب النبض.
 _px_ev_nojo = {"stage": "Px", "k2": dict(_tr_k2), "anchor_ms": _br_t}
 _px_ev_weak = {"stage": "Px", "k2": dict(_tr_low), "anchor_ms": _br_t}
 _px_tier_nojo = S.liq_tier(_px_ev_nojo)
 _px_tier_weak = S.liq_tier(_px_ev_weak)
-check("💓 PX2 وبلا ختمِ J1 ⇒ الاحتياطُ لم يتغيّر: متوسط (أخضر بلا توليفة) · "
-      "ضعيف (صفرٌ أخضر بلا توليفة)",
-      _px_tier_nojo is not None and _px_tier_nojo[0] == "متوسط"
+check("💓 PX2 ختمُ J1 **بلا أثر**: النبضُ يُصنَّف بعدّاده وحدَه (قوي/ضعيف)",
+      _px_tier_nojo is not None and _px_tier_nojo[0] == "قوي"
+      and _px_tier_strong is not None
+      and _px_tier_nojo[0] == _px_tier_strong[0]
       and _px_tier_weak is not None and _px_tier_weak[0] == "ضعيف",
-      f"{_px_tier_nojo} · {_px_tier_weak}")
+      f"بلا ختم {_px_tier_nojo} · بختم {_px_tier_strong} · {_px_tier_weak}")
 
 # PX3 — وشارةُ «🥇 توليفة» تظهر على كرتٍ **مصدرُه نبضٌ واحدٌ فقط** بختمِ J1
 #   (كانت **تختفي** — الرأسُ كان ينادي `kasih_j1` مباشرةً فيعود دائمًا زائفًا
@@ -29040,9 +29053,19 @@ for _j1 in (True, False):
                "class": (("strong", "") if _j1 else ("group", "")),
                "prev_close": 1.0, "anchor_price": (2.0 if _j1 else 1.02)}
         _t_prod = S.liq_tier(_ev)
-        if _t_prod is None or _t_tool[0] != _t_prod[0] or _t_tool[1] != _t_prod[1]:
+        # ⚖️ **إقرارٌ مؤرَّخ 2026-08-22 («اعتمد S2»):** الأداةُ **مجمَّدةٌ على
+        #   التعريف الذي نُشرت به أرقامُها** (سابقةُ `CAP15`: «وظيفتُها إعادةُ
+        #   إنتاج المنشور لا مطابقةُ الحاضر»)، والإنتاجُ انتقل بأمر المالك ⇒
+        #   القفلُ لم يُرخَ بل **يثبّت التعريفَين معًا وموضعَ افتراقهما بالضبط**:
+        #   العدّادُ **‏3-4 بلا `J1`** يفترقان (الأداة «متوسط» · الإنتاج «قوي»)
+        #   و**‏0-1 مع `J1`** كذلك — وما عداهما **يجب أن يتطابق**.
+        _split = ((_g >= 3 and not _j1) or (_g <= 1 and _j1))
+        _same = (_t_prod is not None and _t_tool[0] == _t_prod[0]
+                 and _t_tool[1] == _t_prod[1])
+        if _same == _split:          # تطابقٌ حيث يجب الافتراق أو العكس
             _es_bad.append((_j1, _g, _t_tool, _t_prod))
-check("🛑 ES8 حدُّ الفئات واحدٌ في الأداة والإنتاج (عشرُ توليفاتٍ مفرِّقة)",
+check("🛑 ES8 الأداةُ مجمَّدةٌ على المنشور · والإنتاجُ على `S2` · "
+      "**وموضعُ افتراقهما مثبَّتٌ بالضبط** (عشرُ توليفات)",
       not _es_bad, str(_es_bad)[:150])
 
 # ES9 — 🔒🔴 **بلوغُ الهدف بصيغةِ `resolve` حرفيًّا لا بمكافئها الجبريّ.**
@@ -29530,14 +29553,20 @@ _tdy_ev = {"stage": "M5", "k2": _tdy_k2, _tdy_key: ("strong", ""),
 _tdy_bad = dict(_tdy_ev)
 _tdy_bad.pop(_tdy_key)
 _tdy_bad["anchor_cls"] = ("strong", "")
-check("🥇 TDY6 مفتاحُ الصنف **هو الذي يقرؤه `kasih_j1`** ⇒ 🥇 قوي فعلًا "
-      "(والمفتاحُ المتخيَّل يهبط بها إلى 🥈 متوسط — وهو عينُ ما وقع حيًّا "
-      "لـVIVK وTRON بعدّاد 4/4)",
-      (S.liq_tier(_tdy_ev) or ("",))[0] == "قوي"
-      and S.kasih_j1(_tdy_ev)[0] is True
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-22 («اعتمد S2»):** كان يقيس أثرَ المفتاح **عبر
+#   `liq_tier`** — والتصنيفُ بعد الاعتماد **لا يقرأ `J1` إطلاقًا** فصار ذاك
+#   الطريقُ أعمى. ⇒ يُشدَّد لا يُرخى: يُقاس على **`kasih_j1` مباشرةً** (وهي
+#   حاملةُ شارة «🥇 توليفة» في رأس الكرت) **ومعه شرطٌ جديد**: التصنيفُ
+#   **لا يتأثّر بالمفتاح أصلًا** — فيُقفَل الاثنان معًا.
+check("🥇 TDY6 مفتاحُ الصنف **هو الذي يقرؤه `kasih_j1`** (شارةُ التوليفة) · "
+      "**والتصنيفُ لا يتأثّر به بعد اعتماد S2**",
+      S.kasih_j1(_tdy_ev)[0] is True
       and S.kasih_j1(_tdy_bad)[0] is False
-      and (S.liq_tier(_tdy_bad) or ("",))[0] == "متوسط",
-      f"{_tdy_key} ⟶ {S.liq_tier(_tdy_ev)} · متخيَّل ⟶ {S.liq_tier(_tdy_bad)}")
+      and (S.liq_tier(_tdy_ev) or ("",))[0] == "قوي"
+      and (S.liq_tier(_tdy_bad) or ("",))[0] == "قوي",
+      f"{_tdy_key} ⟶ J1={S.kasih_j1(_tdy_ev)[0]} · "
+      f"متخيَّل ⟶ J1={S.kasih_j1(_tdy_bad)[0]} · "
+      f"فئة {S.liq_tier(_tdy_ev)} مقابل {S.liq_tier(_tdy_bad)}")
 
 # TDY7 — 🔻 **سعرُ كرت M5 الحقيقيّ**: `entry_view.e5` تنكسر عند الخروج
 #        البنيويّ فتُرجع إغلاقَ الدقيقة الثانية مسمّى «M5» و`mg5=None` ⇒
@@ -29912,6 +29941,25 @@ check("📏 TFW10 الأرضية 40/فئة · الفصل 2× · وكاسح30 م�
       f"floor={_TFW.MIN_PER_TIER} mult={_TFW.SEP_MULT} "
       f"pct={_TFW.KASIH_PCT}")
 
+# TFW11 — 🔒 **إعادةُ اشتقاق الفئة في التقرير = `liq_tier` بت-بت** (أمرُ
+#         «اعتمد S2» 2026-08-22): السجلُّ يحمل صفوفًا كُتبت بتعريفٍ سابق، فلو
+#         جُمّعت **بالوسم المكتوب** لخلط تعريفَين. القفلُ **سلوكيّ** على
+#         العدّاد صفر ⟶ أربع ومعه `None`.
+_tw_map = []
+for _g in range(5):
+    _k2g = {c: (_tw_top[c] if _i < _g else _tw_low[c])
+            for _i, c in enumerate(("c3", "c4", "v2", "v3"))}
+    _tp = S.liq_tier(_tw_ev(_k2g))
+    _tw_map.append((_TFW.tier_of({"green": _g}), _tp[0] if _tp else None))
+check("📏 TFW11 اشتقاقُ التقرير = `liq_tier` على العدّاد 0-4 · والمجهولُ "
+      "«غير مصنَّف»",
+      all(a == b for a, b in _tw_map)
+      and _TFW.tier_of({}) == "غير مصنَّف"
+      and _TFW.tier_of({"green": None}) == "غير مصنَّف"
+      and _TFW.tier_of({"green": "x"}) == "غير مصنَّف",
+      str(_tw_map))
+
+
 # ════════════════════════════════════════════════════════════════════════
 # 🥇🔁 **STR1-STR8 — إعادةُ تعريف «قوي»** (العقد `strong2_prereg.md` مدفوعٌ
 #      **قبل أيّ رقم** · أمرُ المالك 2026-08-22 «أعِد تعريف قوي و اتركه يجمع»).
@@ -29977,10 +30025,16 @@ def _s2_tier_of(row):
     return (_t[0] if _t else None)
 
 
-check("🥇 STR4 **`S0` يطابق `liq_tier` الإنتاجيّة** على أربع حالاتٍ حدّية",
-      all((_s2_p["S0"](r)) == (_s2_tier_of(r) == "قوي")
-          for r in (_s2_all, _s2_g3, _s2_g2, _s2_nj)),
-      str([(_s2_p["S0"](r), _s2_tier_of(r))
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-22 («اعتمد S2»):** كان يقفل أن **`S0`** يطابق
+#   الإنتاج (وهو ما كان صحيحًا قبل الاعتماد) ⇒ **انقلب عقدُه**: الآن **`S2`**
+#   هو الذي يطابق، **و`S0` يجب أن يفترق** — وهو **دليلُ نفاذِ الأمر نفسِه**
+#   لا مجرّدُ تحديثٍ (نمطُ `LS20`).
+check("🥇 STR4 **`S2` يطابق `liq_tier` الآن · و`S0` يفترق** (نفاذُ «اعتمد S2»)",
+      all((_s2_p["S2"](r)) == (_s2_tier_of(r) == "قوي")
+          for r in (_s2_all, _s2_g3, _s2_g2, _s2_nj))
+      and any((_s2_p["S0"](r)) != (_s2_tier_of(r) == "قوي")
+              for r in (_s2_all, _s2_g3, _s2_g2, _s2_nj)),
+      str([(_s2_p["S0"](r), _s2_p["S2"](r), _s2_tier_of(r))
            for r in (_s2_all, _s2_g3, _s2_g2, _s2_nj)]))
 
 # STR5 — 🔒 **عتباتُ العقد مثبَّتةٌ ولا تُحرَّك** (‏10% · 25% · 2×) + الهولد-آوت.
@@ -30007,13 +30061,24 @@ def _s2_fp(src, name):
 _s2_forbid = [w for w in ("send_telegram", "git_save", "save_watchlist",
                           "open(") if w in _s2_src]
 _s2_cur = open("Super_stock.py", encoding="utf-8").read()
-check("🥇 STR6 `liq_tier` **بت-بت** (اتركه يجمع) · وقراءةٌ فقط · وعزلٌ عن الإنتاج",
-      (not _s2_base
-       or _s2_fp(_s2_base, "liq_tier") == _s2_fp(_s2_cur, "liq_tier"))
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-22 («اعتمد S2»):** كان «`liq_tier` بت-بت» حارسًا
+#   لشقّ «اتركه يجمع» **أثناء القياس** — وقد أدّى عملَه (أمسك الاعتماد). وبعد
+#   أمرِه صار الحارسُ المطلوبُ أقوى: **صفرُ نداءٍ لـ`J1` داخل `liq_tier`**
+#   (‏`_event_j1`/`kasih_j1`) بالـAST ⇒ **يستحيل أن يعود المحورُ الثاني
+#   صامتًا** · **والسجلُّ لا يخلط تعريفَين** لأن التقرير **يُعيد الاشتقاق**.
+_s2_lt = _ast_t3.parse(_tx3.dedent(_insp0.getsource(S.liq_tier)))
+_s2_j1c = [n for n in _ast_t3.walk(_s2_lt) if isinstance(n, _ast_t3.Call)
+           and getattr(n.func, "id", None) in ("_event_j1", "kasih_j1")]
+_s2_rsrc2 = open("tier_fwd_report.py", encoding="utf-8").read()
+_s2_rederive = [n for n in _ast_t3.walk(_ast_t3.parse(_s2_rsrc2))
+                if isinstance(n, _ast_t3.Call)
+                and getattr(n.func, "id", None) == "tier_of"]
+check("🥇 STR6 `liq_tier` **بلا نداءِ J1 إطلاقًا** (محورٌ واحد) · والتقريرُ "
+      "**يُعيد اشتقاقَ الفئة** فلا يخلط السجلُّ تعريفَين · وقراءةٌ فقط",
+      not _s2_j1c and len(_s2_rederive) >= 1
       and not _s2_forbid and "strong2_scan" not in _insp0.getsource(S),
-      f"محظورٌ ظهر={_s2_forbid} · "
-      f"بصمة={_s2_fp(_s2_cur, 'liq_tier')} مقابل "
-      f"{_s2_fp(_s2_base, 'liq_tier') if _s2_base else 'لا أساس'}")
+      f"نداءات J1={len(_s2_j1c)} · إعادةُ اشتقاق={len(_s2_rederive)} · "
+      f"محظورٌ ظهر={_s2_forbid}")
 
 # STR7 — 🔒 **وصلةُ الـworkflow** (درسُ `BT_CANDLE`): المدخلُ يصل بيئةً
 #        يقرؤها المُنزِّل · وبلا كرون · وقراءةٌ فقط.
