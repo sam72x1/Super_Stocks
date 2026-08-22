@@ -30,6 +30,9 @@ import time
 import requests
 
 from kasih_scan import KASIH_PCT, resolve, wilson       # المقياسُ الواحد
+# 🔒 حدُّ «قوي» **من الإنتاج بالاسم** لا نسخةً — فلا يتفرّق تعريفان
+#    (أمرُ المالك «نزّل الحد لـ2» 2026-08-22 مساءً).
+from Super_stock import LIQ_TIER_STRONG_MIN as _STRONG_MIN
 
 LEDGER = os.environ.get("TIER_FWD_LEDGER", "tier_fwd_ledger.jsonl")
 TIERS = ("قوي", "متوسط", "ضعيف")
@@ -150,7 +153,8 @@ def tier_of(row):
         g = int(g)
     except (TypeError, ValueError):
         return "غير مصنَّف"
-    return "قوي" if g >= 3 else ("ضعيف" if g <= 1 else "متوسط")
+    return ("قوي" if g >= _STRONG_MIN
+            else ("ضعيف" if g <= _STRONG_MIN - 2 else "متوسط"))
 
 
 def _rate(k, n):

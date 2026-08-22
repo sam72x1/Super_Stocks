@@ -26,9 +26,12 @@ import sys
 from kasih_scan import KASIH_DESC, KASIH_PCT, wilson
 from kasih2_red_stats import COMPS, TOP, YEARS, load_all
 from strong2_scan import SISTERS, _green, _j1
+from Super_stock import LIQ_TIER_STRONG_MIN as _S_STRONG_MIN
 
 DAY = "2026-08-19"          # جلسةُ «رداك وخواتها» — يومُ سؤال المالك
-ADOPTED = 3                 # حدُّ «قوي» النافذُ بعد اعتماد `S2`
+# 🔒 حدُّ «قوي» **من الإنتاج** لا نسخةً — فلا يطبع المِجَسُّ عتبةً بائتة
+#    (‏`SIS4` يقفله سلوكيًّا).
+ADOPTED = _S_STRONG_MIN
 
 _AR = {"c3": "التصديق", "c4": "الخضراء", "v2": "التوالي", "v3": "النبض"}
 
