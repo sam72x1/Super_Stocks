@@ -58,6 +58,34 @@ def outcome(entry, mx_pct, ex_px, broke):
     return ("معلّقة", (ex_px / entry - 1.0) * 100.0 if ex_px else None)
 
 
+def true_e5(rows, a_ms: int, entry: float):
+    """💵 **سعرُ كرت M5 حرفيًّا** — آخرُ إغلاقٍ قبل `المِرساة+5د` **بلا قطعٍ
+    عند الخروج البنيويّ**.
+
+    🔴 **ولماذا لا يكفي `entry_view.e5`:** حلقتُها تنكسر عند أوّل إغلاقٍ دون
+    قاع المِرساة، فإن وقع الكسرُ في الدقيقة الثانية بقي `e5` **إغلاقَ الدقيقة
+    الثانية** ومُنع تجميدُه ⇒ يُطبَع «سعرُ M5» وهو ليس كذلك، و`mg5` يعود
+    `None` فيُقرأ «تعذّر» وهو **كسرٌ سابقٌ للخمس**. ⛔ ولا تُمَسّ `entry_view`
+    (أرقامُ `kasih2` منشورةٌ عليها) — يُحسَب هنا للعرض وحده.
+
+    يُرجع `(سعرُ الخمس، هل كُسر القاعُ قبل اكتمالها؟)`."""
+    ab = next((b for b in rows if b[0] == a_ms), None)
+    if ab is None or entry <= 0:
+        return (None, False)
+    alow, e5, broke5, seen = ab[3], entry, False, False
+    for b in rows:
+        t, _o, _h, _l, c, _v = b
+        if t <= a_ms:
+            continue
+        if t >= a_ms + KS.ENTRY5_MIN * 60_000:
+            break
+        seen = True
+        e5 = float(c)
+        if c < alow:
+            broke5 = True
+    return ((e5 if seen else None), broke5)
+
+
 def _med(xs):
     xs = [x for x in xs if x is not None]
     return round(st_.median(xs), 1) if xs else None
@@ -151,14 +179,24 @@ def main() -> int:                                               # noqa: C901
         f2key = S._ignition_candle_class(usd5)[0]
         gap = (entry / pc - 1.0) * 100.0 if pc else None
         k2 = K2.k2_features(b, a_ms, entry, f2key, gap, usd1, usd5)
-        tev = {"stage": "M5", "k2": k2, "anchor_cls": (f2key, ""),
+        # 🔴 **`kasih_j1` تقرأ `ev["class"]`** — وأوّلُ صياغةٍ لي مرّرت
+        #    `anchor_cls` (مفتاحٌ لا وجود له) ⇒ J1 صفرٌ في 60 صفًّا وعمودٌ
+        #    ميّت. صنفُ «المفتاحِ المتخيَّل» بعينه (‏wire-check §①).
+        tev = {"stage": "M5", "k2": k2, "class": (f2key, ""),
                "anchor_price": entry, "prev_close": pc}
         t = S.liq_tier(tev)
         alow = float(res["anchor_low"])
         ex_px, ex_ms, broke = exit_price(b, a_ms, alow)
-        e5 = float(ev["e5"]) if ev else None
+        e5, broke5 = true_e5(b, a_ms, entry)
         o1, p1 = outcome(entry, res.get("mg_after"), ex_px, broke)
+        # 🔴 **قصورُ صياغةٍ في عقدي أُعلنه ولا أستفيد من غموضه** (‏§④ لم ينصّ
+        #    على مَن يُكسَر قاعُه **قبل** اكتمال الخمس): `mg5` يعود `None`
+        #    فيُقرأ «تعذّر». والنصُّ الحرفيّ للعقد «خسرت = خروجٌ بنيويٌّ دون
+        #    بلوغ 30%» **ينطبق عليها**، فتُحسَب خسارةً وتُعَدّ **مُعلَنةً على
+        #    حدة** — والقراءةُ تُصعّب على الفئة ولا تُسهّل.
         o5, p5 = outcome(e5, (ev or {}).get("mg5"), ex_px, broke)
+        if o5 == "تعذّر" and broke and ex_px and e5:
+            o5, p5 = "خسرت", (ex_px / e5 - 1.0) * 100.0
         live = fired[sym]
         drift = (None if not live.get("anchor_ms")
                  else round((a_ms - int(live["anchor_ms"])) / 60_000))
@@ -166,6 +204,7 @@ def main() -> int:                                               # noqa: C901
             "sym": sym, "tier": (t[0] if t else "بلا تصنيف"),
             "green": (t[1] if t else None), "got": (t[2] if t else None),
             "j1": bool(S.kasih_j1(tev)[0]), "gap": gap, "f2": f2key,
+            "broke5": bool(broke5),
             "e1": entry, "e5": e5, "mg1": res.get("mg_after"),
             "mg5": (ev or {}).get("mg5"), "exit": res["exit"],
             "ex_px": ex_px, "o1": o1, "p1": p1, "o5": o5, "p5": p5,
@@ -197,6 +236,8 @@ def main() -> int:                                               # noqa: C901
         mg = f"{r['mg5']:.1f}" if r["mg5"] is not None else "—"
         pp = f"{r['p5']:+.1f}" if r["p5"] is not None else "—"
         dr = f"{r['drift']:+d}د" if r["drift"] is not None else "—"
+        if r.get("broke5"):
+            dr = "🔻" + dr
         print(f"{r['sym']:<7}{r['tier']:<8}{cnt:<8}{j1s:<4}{gp:>7}"
               f"{r['e1']:>8.4f}{e5s:>8}{mg:>8}{r['o5']:<9}{pp:>8}"
               f"{r['exit']:<7}{dr:>7}")
@@ -224,6 +265,16 @@ def main() -> int:                                               # noqa: C901
     print(f"{'المجموع':<10}{len(tot):>6}{len(w):>7}{len(l_):>7}"
           f"{len([r for r in tot if r['o5'] == 'معلّقة']):>7}")
 
+    _b5 = [r for r in tot if r.get("broke5")]
+    print(f"\n🔻 **كُسر قاعُ المِرساة قبل اكتمال الخمس: {len(_b5)}** "
+          f"(‏{', '.join(r['sym'] for r in _b5) or 'لا شيء'}) — وسمُ M5 يصل "
+          "**بعد** الخروج البنيويّ ⇒ تُحسَب «خسرت» بنصّ العقد §④ حرفيًّا، "
+          "وتُعلَن هنا لأن العقدَ لم ينصّ عليها (قصورُ صياغةٍ منّي).")
+    for _t in TIER_ORDER:
+        _g = [r for r in _b5 if r["tier"] == _t]
+        if _g:
+            print(f"   ↳ {_t}: {len(_g)}")
+
     print("\n③ وصفيّاتٌ تُنشَر ولا تحكم: "
           f"بلغ +50% ⟶ {sum(1 for r in tot if r['k50'])} · "
           f"+100% ⟶ {sum(1 for r in tot if r['k100'])}")
@@ -234,6 +285,8 @@ def main() -> int:                                               # noqa: C901
     print("   4) يومان متجاوران ⇒ سوقٌ واحدٌ لا تعميم.")
     print("   5) «انزياح» = فرقُ مِرساة الأداة عن الحيّة بالدقائق (يُطبَع لا يُخفى).")
     print("   6) 08-20 مقامُه أصغر: حقلُ k2 شُحن أثناءه ⇒ نقصُ تسجيلٍ لا نقصُ سوق.")
+    print("   7) 🔻 = كُسر القاعُ قبل الخمس ⇒ «سعرُ M5» فيها إغلاقُ الدقيقة "
+          "الرابعة **بعد** كسرٍ واقع ⇒ دخولٌ ورقيٌّ لا يُشترى.")
     with open(f"tier_days_{day}.jsonl", "w", encoding="utf-8") as fo:
         for r in rows_out:
             fo.write(json.dumps(r, ensure_ascii=False) + "\n")

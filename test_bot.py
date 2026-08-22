@@ -29465,6 +29465,50 @@ check("🥇 TDY5 مدخلُ `day` ⟶ بيئةُ `TIER_DAY` التي يقرؤه�
       and "cron" not in str(_tdy_wf.get(True) or _tdy_wf.get("on")),
       str(_tdy_env.get("TIER_DAY")))
 
+# TDY6 — 🔴🔴 **العيبُ الذي كشفته التشغيلةُ لا القراءة:** أوّلُ صياغةٍ للأداة
+#        مرّرت `anchor_cls` و`kasih_j1` تقرأ **`ev["class"]`** ⇒ J1 صفرٌ في
+#        **‏60 صفًّا** وعمودٌ ميّتٌ يُقرأ «صفرُ قوي» وهو أثرُ مفتاحٍ متخيَّل.
+#        القفلُ **سلوكيٌّ لا نصّيّ**: يبني الحدثَ **بشكل الأداة حرفيًّا** ثم
+#        يقرأ `liq_tier` — فيستحيل أن ينجو مفتاحٌ خاطئ. (‏wire-check §①)
+_tdy_k2 = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+           "v2": "المرساة دون 30% (سيولة تتوالى)",
+           "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)"}
+_tdy_key = next(k for k in ("class", "anchor_cls")
+                if f'"{k}": (f2key' in _tdy_src)
+_tdy_ev = {"stage": "M5", "k2": _tdy_k2, _tdy_key: ("strong", ""),
+           "anchor_price": 2.0, "prev_close": 1.0}
+_tdy_bad = dict(_tdy_ev)
+_tdy_bad.pop(_tdy_key)
+_tdy_bad["anchor_cls"] = ("strong", "")
+check("🥇 TDY6 مفتاحُ الصنف **هو الذي يقرؤه `kasih_j1`** ⇒ 🥇 قوي فعلًا "
+      "(والمفتاحُ المتخيَّل يهبط بها إلى 🥈 متوسط — وهو عينُ ما وقع حيًّا "
+      "لـVIVK وTRON بعدّاد 4/4)",
+      (S.liq_tier(_tdy_ev) or ("",))[0] == "قوي"
+      and S.kasih_j1(_tdy_ev)[0] is True
+      and S.kasih_j1(_tdy_bad)[0] is False
+      and (S.liq_tier(_tdy_bad) or ("",))[0] == "متوسط",
+      f"{_tdy_key} ⟶ {S.liq_tier(_tdy_ev)} · متخيَّل ⟶ {S.liq_tier(_tdy_bad)}")
+
+# TDY7 — 🔻 **سعرُ كرت M5 الحقيقيّ**: `entry_view.e5` تنكسر عند الخروج
+#        البنيويّ فتُرجع إغلاقَ الدقيقة الثانية مسمّى «M5» و`mg5=None` ⇒
+#        يُقرأ «تعذّر» وهو **كسرٌ سابقٌ للخمس**. العيّنةُ **تفرّق**: القاعُ
+#        يُكسَر في الدقيقة 2 ثم يرتفع — فـ`true_e5` تُرجع إغلاقَ الرابعة.
+_tdy_a = 1_000_000
+_tdy_rows = [(_tdy_a, 1.0, 1.10, 0.90, 1.00, 100),
+             (_tdy_a + 60_000, 1.0, 1.05, 0.80, 0.85, 100),
+             (_tdy_a + 120_000, 0.85, 1.30, 0.85, 1.20, 100),
+             (_tdy_a + 180_000, 1.2, 1.40, 1.10, 1.35, 100),
+             (_tdy_a + 240_000, 1.35, 1.50, 1.30, 1.45, 100),
+             (_tdy_a + 300_000, 1.45, 1.60, 1.40, 1.55, 100)]
+_tdy_e5, _tdy_br5 = _tdy.true_e5(_tdy_rows, _tdy_a, 1.00)
+_tdy_ev5 = _K2.entry_view(_tdy_rows, _tdy_a, 1.00, None)
+check("🥇 TDY7 `true_e5` = إغلاقُ الدقيقة الرابعة (1.45) وتَسِم الكسرَ قبل "
+      "الخمس · بينما `entry_view.e5` تقف عند 0.85 و`mg5=None`",
+      _tdy_e5 == 1.45 and _tdy_br5 is True
+      and _tdy_ev5["e5"] == 0.85 and _tdy_ev5["mg5"] is None,
+      f"true_e5={_tdy_e5}/{_tdy_br5} · entry_view={_tdy_ev5['e5']}/"
+      f"{_tdy_ev5['mg5']}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
