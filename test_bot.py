@@ -30117,6 +30117,86 @@ check("🥇 STR8 حدُّ الفجوة **من `f5_bucket` بنيويًّا** · 
       f"75={_S2._gap75({'gap_pct': 75.0})} 74.9={_S2._gap75({'gap_pct': 74.9})}"
       f" نداءات={len(_s2_calls)} مقارناتٌ عدديّة={len(_s2_numcmp)}")
 
+
+# ════════════════════════════════════════════════════════════════════════
+# 🔎🔟 **SIS1-SIS4 — مِجَسُّ «الستّةُ الباقون»** (سؤالُ المالك 2026-08-22:
+#      «بخصوص 6 الباقين … ما لقيت لهم حل؟»).
+#      ⚖️ **مِجَسُّ تشخيصٍ لا تجربةَ حكم** ⇒ بلا تسجيلٍ مسبق **وسقفُ نجاحه
+#      صفر** — والأقفالُ تحرس ذلك: قراءةٌ فقط · ومقياسٌ واحد · وحدُّ «قوي»
+#      فيه **مربوطٌ بالإنتاج** فلا يطبع عتبةً بائتة.
+# ════════════════════════════════════════════════════════════════════════
+import sisters_probe as _SIS                                        # noqa: E402
+
+_sis_src = _insp0.getsource(_SIS)
+_sis_tree = _ast_t3.parse(_sis_src)
+
+# SIS1 — 🔒 **قراءةٌ فقط بالـAST:** صفرُ إرسالٍ وصفرُ كتابةِ ملفّ ·
+#        والإنتاجُ لا يستوردها (وإلّا صار مِجَسٌّ جزءًا من مسارٍ حيّ).
+_sis_calls = {getattr(n.func, "id", None) or getattr(n.func, "attr", None)
+              for n in _ast_t3.walk(_sis_tree) if isinstance(n, _ast_t3.Call)}
+_sis_wopen = [n for n in _ast_t3.walk(_sis_tree)
+              if isinstance(n, _ast_t3.Call)
+              and getattr(n.func, "id", None) == "open"
+              and any(isinstance(a, _ast_t3.Constant)
+                      and isinstance(a.value, str)
+                      and ("w" in a.value or "a" in a.value)
+                      for a in n.args[1:])]
+check("🔎 SIS1 مِجَسٌّ قراءةٌ فقط · والإنتاجُ لا يستورده",
+      not ({"send_telegram", "git_save", "save_op_entry_state",
+            "record_tier_fwd"} & _sis_calls)
+      and not _sis_wopen
+      and "sisters_probe" not in open("Super_stock.py", encoding="utf-8").read(),
+      f"نداءات={sorted(x for x in _sis_calls if x)[:6]} كتابة={len(_sis_wopen)}")
+
+# SIS2 — 🔒 **مقياسٌ واحدٌ لا اثنان:** `_green`/`_j1`/`SISTERS` **تُستورَد**
+#        من `strong2_scan` ولا يُعاد تعريفُها هنا (نسخةٌ ثانية = تعريفان).
+_sis_imp = {a.name for n in _ast_t3.walk(_sis_tree)
+            if isinstance(n, _ast_t3.ImportFrom) and n.module == "strong2_scan"
+            for a in n.names}
+_sis_defs = {n.name for n in _ast_t3.walk(_sis_tree)
+             if isinstance(n, (_ast_t3.FunctionDef, _ast_t3.AsyncFunctionDef))}
+check("🔎 SIS2 `_green`/`_j1`/`SISTERS` مستورَدةٌ بالاسم ولا تُعاد تعريفًا",
+      {"_green", "_j1", "SISTERS"} <= _sis_imp
+      and not ({"_green", "_j1"} & _sis_defs)
+      and _SIS._green is _S2._green and _SIS._j1 is _S2._j1,
+      f"مستورَد={sorted(_sis_imp)} معرَّف={sorted(_sis_defs)}")
+
+# SIS3 — 🔒 **وصلةُ الـworkflow** (درسُ `BT_CANDLE`): المدخلُ يصل بيئةً
+#        يقرؤها المُنزِّل · وبلا كرون · وقراءةٌ فقط · ويشغّل المِجَسّ.
+_sis_wf = _imp_yaml.safe_load(open(".github/workflows/sisters_probe.yml",
+                                   encoding="utf-8"))
+_sis_steps = _sis_wf["jobs"]["sisters"]["steps"]
+_sis_env = next((st.get("env") or {} for st in _sis_steps
+                 if "S2_RUN_IDS" in str(st.get("env") or "")), {})
+check("🔎 SIS3 مدخلُ `run_ids` ⟶ بيئةٌ يقرؤها المُنزِّل · بلا كرون · قراءةٌ فقط",
+      "inputs.run_ids" in str(_sis_env.get("S2_RUN_IDS", ""))
+      and any("S2_RUN_IDS" in str(st.get("run") or "") for st in _sis_steps)
+      and "cron" not in str(_sis_wf.get(True) or _sis_wf.get("on"))
+      and _sis_wf.get("permissions", {}).get("contents") == "read"
+      and any("sisters_probe.py" in str(st.get("run") or "")
+              for st in _sis_steps),
+      f"env={_sis_env.get('S2_RUN_IDS')}")
+
+# SIS4 — 🔒 **حدُّ «قوي» في المِجَسّ مربوطٌ بالإنتاج** (وإلّا طبع عتبةً
+#        بائتةً بعد أيّ تبديلِ تعريف) · و«غيرُ المحسوب ليس سالبًا» **سلوكيًّا**
+#        بعيّنةٍ تفرّق: مجهولٌ ⟶ خارج العدّاد وخارج المحسوب · وسلّةٌ دنيا ⟶
+#        داخل المحسوب وخارج العدّاد.
+_sis_hi = {c: _tw_top[c] for c in ("c3", "c4", "v2", "v3")}
+_sis_at = S.liq_tier(_tw_ev({c: (_sis_hi[c] if _i < _SIS.ADOPTED
+                                 else _tw_low[c])
+                             for _i, c in enumerate(("c3", "c4", "v2", "v3"))}))
+_sis_bl = S.liq_tier(_tw_ev({c: (_sis_hi[c] if _i < _SIS.ADOPTED - 1
+                                 else _tw_low[c])
+                             for _i, c in enumerate(("c3", "c4", "v2", "v3"))}))
+_sis_unk = {"c3": _tw_top["c3"], "c4": None, "v2": _tw_low["v2"], "v3": None}
+check("🔎 SIS4 حدُّ «قوي» = الإنتاج · والمجهولُ ليس سالبًا (عيّنةٌ تفرّق)",
+      (_sis_at or ("", 0, 0))[0] == "قوي"
+      and (_sis_bl or ("", 0, 0))[0] != "قوي"
+      and _SIS._computed(_sis_unk) == 2 and _S2._green(_sis_unk) == 1,
+      f"عند {_SIS.ADOPTED}={_sis_at} · دونه={_sis_bl} · "
+      f"محسوب={_SIS._computed(_sis_unk)} أخضر={_S2._green(_sis_unk)}")
+
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
