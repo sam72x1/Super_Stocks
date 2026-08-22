@@ -240,6 +240,7 @@ def main() -> int:
           + ("**الكونُ كاملًا**" if all_mode else f"الرموز {syms}")
           + f" · الأيام {days}")
     print("⚖️ تشخيصٌ فقط — لا يُغيّر تعريفًا ولا رقمًا منشورًا.")
+    print(KS.MEASURE_CUT_NOTE)          # ✂️ مصدرٌ واحد — لا نسخةَ نصٍّ هنا
     for day in days:
         seed = KS.weekdays((dt.date.fromisoformat(day)
                             - dt.timedelta(days=7)).isoformat(),

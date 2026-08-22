@@ -30256,6 +30256,93 @@ check("🔎 SIS6 الأساسُ مطبوعٌ مع كلّ بارٍ من الخم�
       f"أسطر={len(_sis_lines)}")
 
 
+# ── ✂️ أقفالُ تنويه القصّ (‏CUT1-CUT4) — بلاغُ المالك على `HUIZ` 2026-08-22 ──
+# 🔴 **العيبُ الذي تحرسه:** كلُّ رقمٍ من `kasih_scan.resolve` **مقصوصٌ عند
+#    الخروج البنيويّ**، فوسمُ «خسرت» عاريًا يُقرأ «السهمُ خسر» — و`HUIZ` وُسِم
+#    «خسرت −13.6%» وقمّةُ يومه **‏+120.2%** من سعر كرت `M5`. الرقمُ صحيحٌ
+#    لمقياسه **والوسمُ العاري يكذب** ⇒ التنويهُ **مصدرٌ واحد** يُستورَد بالاسم.
+import ast as _cut_ast                                           # noqa: E402
+import inspect as _cut_ins                                       # noqa: E402
+import kasih_scan as _KSC                                        # noqa: E402
+import tier_days_report as _TDR                                  # noqa: E402
+import sym_day_probe as _SDP                                     # noqa: E402
+
+_cut = _KSC.MEASURE_CUT_NOTE
+check("✂️ CUT1 التنويهُ موجودٌ ويسمّي الخروجَ البنيويّ وقاعَ شمعة المِرساة",
+      isinstance(_cut, str) and "الخروج البنيويّ" in _cut
+      and "قاع شمعة المِرساة" in _cut and "بقاعدة الخروج" in _cut,
+      _cut[:60])
+
+# 🔒 CUT2 **بالـAST لا بالنصّ** (الفخُّ الموثَّق: النصُّ لا يفرّق كودًا عن
+#    تعليق) — كلُّ أداةٍ تطبع حصيلةً تُنادي `print` على **الثابت المستورَد**.
+def _prints_cut(mod):
+    # 🔒 محروسٌ: قفلٌ ينهار يكتم كلَّ قفلٍ بعده (دستورُ الأقفال §①)
+    try:
+        _t = _cut_ast.parse(_cut_ins.getsource(mod))
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+    for c in _cut_ast.walk(_t):
+        if not (isinstance(c, _cut_ast.Call)
+                and getattr(c.func, "id", None) == "print"):
+            continue
+        for a in c.args:
+            if (isinstance(a, _cut_ast.Attribute)
+                    and a.attr == "MEASURE_CUT_NOTE"):
+                return True
+    return False
+
+check("✂️ CUT2 `tier_days_report` يطبع التنويهَ بالثابت المستورَد (AST)",
+      _prints_cut(_TDR) is True, str(_prints_cut(_TDR)))
+check("✂️ CUT3 `sym_day_probe` يطبع التنويهَ بالثابت المستورَد (AST)",
+      _prints_cut(_SDP) is True, str(_prints_cut(_SDP)))
+
+# 🔒 CUT4 **مصدرٌ واحدٌ لا نسخةُ نصّ:** لا أداةَ تكتب جملةَ التنويه حرفيًّا
+#    في مصدرها (وإلّا تفرّقت النسختان بصمت — درسُ «مقياسان لا واحد»).
+# 🐞 **وإبرتي الأولى سقطت على docstring يشرح المفهومَ بحقّ** (‏`exit_price`
+#    تصف «أوّلُ إغلاقِ دقيقةٍ دون قاع شمعة المِرساة» وهو تعريفُها الصحيح) =
+#    الفخُّ النصّيُّ الموثَّق ⇒ **الإبرةُ فريدةٌ للثابت لا للمفهوم.**
+_needle = "**تنويهٌ إلزاميّ:**"
+_copies = [m.__name__ for m in (_TDR, _SDP)
+           if _needle in _cut_ins.getsource(m)]
+check("✂️ CUT4 صفرُ نسخةٍ نصّيّة للتنويه خارج `kasih_scan`",
+      not _copies, f"نُسخ={_copies}")
+
+# 🔒 CUT5 **حارسا الصمت اثنان لا واحد** — أضيفَ بعد أن **نجت** طفرةُ تعطيل
+#    حارس «الكونُ فارغ» في جولة 2026-08-22. ⚖️ **وليست باطلة:** تُغيّر
+#    التشخيصَ المطبوع فعلًا، ونجت لأن الحارسَ الثاني («صفرُ مِرساة») يلتقط
+#    الحالةَ فيبقى رمزُ الخروج 4. ⇒ **خاصّيةُ الأمان محفوظةٌ بالثاني،
+#    والأوّلُ يُسمّي السبب** — والاثنان يُقفلان بنيويًّا فلا يسقط أحدُهما صامتًا.
+# 🐞 **وصياغتي الأولى نجت منها الطفرةُ مرّتين:** كانت تعدّ عُقَدَ `return 4`
+#    فحسب، وطفرةُ `if False:` **تُبقي العقدةَ في فرعٍ ميّت** ⇒ العدُّ 2 والقفلُ
+#    أخضر = **«قفلٌ بنيويٌّ يُثبت الوصلَ ولا يُثبت المعنى»** (الدرسُ المدوَّن).
+#    ⇒ صار يفحص **شرطَ كلّ حارسٍ باسمه** لا مجرّدَ وجود الإرجاع.
+def _guard4(mod_fn, needle):
+    """هل ثمّة `If` شرطُه يذكر `needle` وجسمُه يُرجع 4؟"""
+    try:
+        _t = _cut_ast.parse(_cut_ins.getsource(mod_fn).lstrip())
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+    for nd in _cut_ast.walk(_t):
+        if not isinstance(nd, _cut_ast.If):
+            continue
+        names = {x.id for x in _cut_ast.walk(nd.test)
+                 if isinstance(x, _cut_ast.Name)}
+        names |= {x.func.id for x in _cut_ast.walk(nd.test)
+                  if isinstance(x, _cut_ast.Call)
+                  and isinstance(x.func, _cut_ast.Name)}
+        if needle not in names:
+            continue
+        if any(isinstance(b, _cut_ast.Return)
+               and isinstance(b.value, _cut_ast.Constant)
+               and b.value.value == 4 for b in nd.body):
+            return True
+    return False
+
+_g_uni, _g_batch = _guard4(_SDP.main, "uni"), _guard4(_SDP.main, "batch")
+check("✂️ CUT5 حارسا الصمت بشرطَيهما: «كونٌ فارغ» (uni) و«صفرُ مِرساة» (batch)",
+      _g_uni is True and _g_batch is True, f"uni={_g_uni} · batch={_g_batch}")
+
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

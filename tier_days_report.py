@@ -216,6 +216,7 @@ def main() -> int:                                               # noqa: C901
     print(f"🥇📅 حصيلةُ التصنيف — {day} · العقد tier_days_prereg.md "
           "(مدفوعٌ قبل أيّ رقم)")
     print("=" * 78)
+    print(KS.MEASURE_CUT_NOTE)          # ✂️ مصدرٌ واحد — لا نسخةَ نصٍّ هنا
     print(f"📥 أُطلق {len(fired)} · بلغ M5 **{len(m5)}** · قِيس "
           f"{len(rows_out)} · تعذّر {len(miss)}")
     for s, why in miss:
