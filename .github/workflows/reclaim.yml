@@ -1,0 +1,47 @@
+name: "T-RECLAIM-INTRADAY (⛏️🕐 الاستعادة داخل اليوم)"
+
+# 🔒 قياس/قراءة فقط — لا كرون · لا كتابة حالة · لا تلغرام
+#    العقد: intraday_reclaim_prereg.md (مدفوع قبل اي رقم)
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة المقيسة (2023/2024/2025)"
+        required: true
+        type: string
+
+jobs:
+  reclaim:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: ⛏️🕐 قِس أذرع الاستعادة
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          RC_YEAR: ${{ inputs.year }}
+        run: python reclaim_arms.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reclaim-rows-${{ inputs.year }}
+          path: reclaim_rows_*.jsonl
+          retention-days: 90
+          if-no-files-found: warn

@@ -30343,6 +30343,81 @@ check("✂️ CUT5 حارسا الصمت بشرطَيهما: «كونٌ فارغ
       _g_uni is True and _g_batch is True, f"uni={_g_uni} · batch={_g_batch}")
 
 
+# ── ⛏️🕐 أقفالُ `T-RECLAIM-INTRADAY` (‏RC1-RC7) — العقد
+#    `intraday_reclaim_prereg.md` مدفوعٌ **قبل** سطرِ كودٍ واحدٍ من الأداة.
+# 🐞 **استيرادٌ صريحٌ في الكتلة** — سقط قفلٌ هنا ثلاثَ مرّاتٍ في جلسةٍ واحدة
+#    بـ`NameError` (‏`ast`/`inspect` غيرُ معرَّفَين في هذا النطاق) = **القفلُ
+#    المنهار يكتم كلَّ قفلٍ بعده** (دستورُ الأقفال §①).
+import ast as _rc_ast                                            # noqa: E402
+import inspect as _rc_ins                                        # noqa: E402
+import yaml as _rc_yaml                                          # noqa: E402
+import reclaim_arms as _RCA                                      # noqa: E402
+
+# 🔒 RC1 **صفرُ رقمٍ مخترَع** — وقفا المسح من `CONFIG` لا مغروسين (‏§②)
+check("⛏️ RC1 وقفا المسح من `CONFIG` (‏13/10) لا رقمَين مغروسَين",
+      _RCA.SWEEP_MAX == float(S.CONFIG["SPLIT_SWEEP_MAX_PCT"])
+      and _RCA.SWEEP_MID == float(S.CONFIG["SPLIT_SWEEP_MID_PCT"])
+      and _RCA.SWEEP_MAX == 13.0 and _RCA.SWEEP_MID == 10.0,
+      f"{_RCA.SWEEP_MAX}/{_RCA.SWEEP_MID}")
+
+# 🔒 RC2 **خمسُ أذرعٍ ولا سادسة** (‏§② — ذراعٌ تُضاف بعد الأرقام = p-hacking)
+check("⛏️ RC2 الأذرعُ خمسٌ بالضبط وأسماؤها مثبَّتة",
+      _RCA.ARMS == ("X0", "X1", "X2", "X3", "X4"), str(_RCA.ARMS))
+
+# 🔒 RC3 **بوّابةُ V2 تفرّق فعلًا** — والعيّنةُ تُعطي خمسَ قيمٍ مختلفة
+_rc_ok, _rc_why = _RCA.v2_gate()
+check("⛏️ RC3 بوّابةُ V2: الأذرعُ الخمسُ تتفرّق على العيّنة",
+      _rc_ok is True, str(_rc_why)[:90])
+
+# 🔒 RC4 **وحدةُ مخاطرةٍ واحدة** (‏§③): مضاعفةُ `R₀` تُنصّف كلَّ الأذرع معًا
+_rc_b = _RCA._v2_sample()
+_rc_a = _RCA.arms_for(_rc_b, 0, 1.00, 0.90)
+_rc_b2 = [(t, o, h, lo, c, v) for (t, o, h, lo, c, v) in _rc_b]
+_rc_a2 = _RCA.arms_for(_rc_b2, 0, 1.00, 0.80)      # R0 يتضاعف 0.10 ⟶ 0.20
+_rc_same_unit = (_rc_a is not None and _rc_a2 is not None
+                 and abs(_rc_a2["_r0"] - 2 * _rc_a["_r0"]) < 1e-9)
+check("⛏️ RC4 `R₀ = entry − anchor_low` هي وحدةُ كلّ الأذرع",
+      _rc_same_unit and abs(_rc_a["_r0"] - 0.10) < 1e-9,
+      f"r0={_rc_a['_r0'] if _rc_a else None}")
+
+# 🔒 RC5 **الاستعادةُ متناظرةٌ مع الخروج** — إغلاقٌ **فوق** القاع لا لمسُ قمّة
+#    (طفرةُ «بالقمّة» تُغيّر لحظةَ الدخول جوهريًّا)
+_rc_px, _rc_ms, _rc_lo = _RCA.reclaim_point(_rc_b, 1 * 60_000, 0.90)
+check("⛏️ RC5 الاستعادةُ = أوّلُ **إغلاقٍ** فوق القاع (‏0.95 عند د4) وقاعُ "
+      "المسح 0.75",
+      _rc_px == 0.95 and _rc_ms == 4 * 60_000 and _rc_lo == 0.75,
+      f"px={_rc_px} ms={_rc_ms} lo={_rc_lo}")
+
+# 🔒 RC6 **قراءةٌ فقط:** صفرُ إرسالٍ وصفرُ كتابةِ حالةٍ إنتاجية · والإنتاجُ
+#    **لا يستورد** الأداة (بالـAST لا بالنصّ — الفخُّ الموثَّق)
+_rc_src = _rc_ins.getsource(_RCA)
+_rc_t = _rc_ast.parse(_rc_src)
+_rc_bad = [n.func.id if isinstance(n.func, _rc_ast.Name) else n.func.attr
+           for n in _rc_ast.walk(_rc_t) if isinstance(n, _rc_ast.Call)
+           and (getattr(n.func, "id", None) in ("send_telegram", "git_save")
+                or getattr(n.func, "attr", None)
+                in ("send_telegram", "git_save", "save_watchlist"))]
+_prod_t = _rc_ast.parse(_rc_ins.getsource(S))
+_rc_imported = [nd for nd in _rc_ast.walk(_prod_t)
+                if isinstance(nd, (_rc_ast.Import, _rc_ast.ImportFrom))
+                and "reclaim_arms" in (
+                    (nd.module or "") if isinstance(nd, _rc_ast.ImportFrom)
+                    else " ".join(a.name for a in nd.names))]
+check("⛏️ RC6 قراءةٌ فقط · والإنتاجُ لا يستورد `reclaim_arms` (AST)",
+      not _rc_bad and not _rc_imported, f"نداءات={_rc_bad} استيراد={len(_rc_imported)}")
+
+# 🔒 RC7 **الـworkflow موصولٌ ويدويٌّ بلا كرون** (بصمةُ `BT_CANDLE`: مدخلٌ
+#    لا يقرؤه السكربتُ = علمٌ ميّت)
+_rc_y = _rc_yaml.safe_load(open(".github/workflows/reclaim.yml", encoding="utf-8"))
+_rc_on = _rc_y.get(True, _rc_y.get("on", {}))
+_rc_env = " ".join(str(s.get("env", "")) for j in _rc_y["jobs"].values()
+                   for s in j["steps"])
+check("⛏️ RC7 `reclaim.yml` يدويٌّ بلا كرون · و`RC_YEAR` موصولٌ ويُقرأ",
+      "schedule" not in _rc_on and "workflow_dispatch" in _rc_on
+      and "RC_YEAR" in _rc_env and "RC_YEAR" in _rc_src,
+      f"on={list(_rc_on)}")
+
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
