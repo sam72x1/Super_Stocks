@@ -1,0 +1,52 @@
+name: "🥇 إعادة تعريف قوي (strong2_prereg)"
+
+# 🔒 قراءة/إحصاء فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد strong2_prereg.md
+# يُنزّل صفوف kasih2 من تشغيلاتها (المقياس الواحد) ثم يشغّل strong2_scan.py.
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_ids:
+        description: "معرّفات تشغيلات kasih2 حاملة الصفوف (بفواصل)"
+        required: true
+        type: string
+
+jobs:
+  strong2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📥 تنزيل صفوف kasih2 من التشغيلات
+        env:
+          GH_TOKEN: ${{ github.token }}
+          S2_RUN_IDS: ${{ inputs.run_ids }}
+        run: |
+          set -e
+          IFS=',' read -ra IDS <<< "$S2_RUN_IDS"
+          for id in "${IDS[@]}"; do
+            id="$(echo "$id" | tr -d '[:space:]')"
+            [ -z "$id" ] && continue
+            gh run download "$id" --repo "$GITHUB_REPOSITORY" \
+              --pattern 'kasih2-rows-*' --dir "/tmp/s2-dl/$id" \
+              || echo "⚠️ تعذّر تنزيل $id — يُعلَن ولا يُصمت"
+          done
+          find /tmp/s2-dl -name 'kasih2_rows_*.jsonl' -exec cp -v {} . \; || true
+          ls -la kasih2_rows_*.jsonl
+
+      - name: 🥇 الإحصاء والحكم
+        run: python strong2_scan.py

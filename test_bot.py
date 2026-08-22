@@ -29912,6 +29912,146 @@ check("📏 TFW10 الأرضية 40/فئة · الفصل 2× · وكاسح30 م�
       f"floor={_TFW.MIN_PER_TIER} mult={_TFW.SEP_MULT} "
       f"pct={_TFW.KASIH_PCT}")
 
+# ════════════════════════════════════════════════════════════════════════
+# 🥇🔁 **STR1-STR8 — إعادةُ تعريف «قوي»** (العقد `strong2_prereg.md` مدفوعٌ
+#      **قبل أيّ رقم** · أمرُ المالك 2026-08-22 «أعِد تعريف قوي و اتركه يجمع»).
+#      🔒 وشقُّ «اتركه يجمع» **يُقفَل بـSTR6**: `liq_tier` بت-بت.
+# ════════════════════════════════════════════════════════════════════════
+import hashlib as _s2_h                                           # noqa: E402
+import subprocess as _s2_sp                                       # noqa: E402
+import strong2_scan as _S2                                        # noqa: E402
+
+_s2_src = _insp0.getsource(_S2)
+_s2_tree = _ast_t3.parse(_s2_src)
+
+# STR1 — 🔒 **مقياسٌ واحدٌ لا اثنان:** الأدواتُ مستوردةٌ بالاسم وصفرُ إسنادٍ محلّيّ.
+_s2_names = {"KASIH_PCT", "wilson", "f5_bucket", "TOP", "COMPS", "j1_bucket"}
+_s2_imported = {a.name for n in _ast_t3.walk(_s2_tree)
+                if isinstance(n, _ast_t3.ImportFrom) for a in n.names}
+_s2_assigned = {t.id for n in _ast_t3.walk(_s2_tree)
+                if isinstance(n, _ast_t3.Assign) for t in n.targets
+                if isinstance(t, _ast_t3.Name)}
+check("🥇 STR1 الأدواتُ **مستوردةٌ بالاسم** · وصفرُ نسخةٍ محلّيّة",
+      _s2_names <= _s2_imported and not (_s2_names & _s2_assigned),
+      f"ناقص={sorted(_s2_names - _s2_imported)} "
+      f"مُسنَد={sorted(_s2_names & _s2_assigned)}")
+
+# STR2 — 🔒 **خمسُ أذرعٍ بالضبط** (العقد §① · «لا تُضاف ذراعٌ بعد الأرقام»)
+check("🥇 STR2 **خمسُ أذرعٍ بالضبط** (‏S0-S4)",
+      len(_S2.ARMS) == 5
+      and [a[0] for a in _S2.ARMS] == ["S0", "S1", "S2", "S3", "S4"],
+      str([a[0] for a in _S2.ARMS]))
+
+# STR3 — 🔒 **كلُّ ذراعٍ تفرّق** (لا ذراعَ `no-op`): صفٌّ لكلّ حالةٍ حدّية.
+_s2_top = {c: _RED.TOP[c] for c in _RED.COMPS}
+_s2_j1y = _K2.j1_bucket("strong", 40.0)
+_s2_j1n = _K2.j1_bucket("group", 5.0)
+_s2_all = dict(_s2_top, j1=_s2_j1y, f2="strong", gap_pct=40.0)      # 4 خضراء
+_s2_g2 = dict(_s2_all, c3="x", c4="x")                             # أخضر 2
+_s2_g3 = dict(_s2_all, c4="x")                                     # أخضر 3
+_s2_nj = dict(_s2_g3, j1=_s2_j1n, f2="group", gap_pct=5.0)         # 3 بلا J1
+_s2_c4 = dict({c: "x" for c in _RED.COMPS}, c4=_RED.TOP["c4"],
+              j1=_s2_j1n, f2="group", gap_pct=5.0)                 # C4 وحدَها
+_s2_75 = dict({c: "x" for c in _RED.COMPS}, j1=_s2_j1y, f2="operator",
+              gap_pct=90.0)                                        # فجوةٌ فوق 75
+_s2_p = {n: p for n, _d, p in _S2.ARMS}
+check("🥇 STR3 **كلُّ ذراعٍ تفرّق**: J1×3 · C4 وحدَها · 3 بلا J1 · فوق75 · J1×2",
+      _s2_p["S0"](_s2_g3) and not _s2_p["S0"](_s2_nj)
+      and not _s2_p["S0"](_s2_g2)
+      and _s2_p["S1"](_s2_c4) and not _s2_p["S1"](_s2_g2)
+      and _s2_p["S2"](_s2_nj) and not _s2_p["S2"](_s2_g2)
+      and _s2_p["S3"](_s2_75) and not _s2_p["S3"](_s2_g3)
+      and _s2_p["S4"](_s2_g2) and not _s2_p["S4"](_s2_c4),
+      f"S0(nj)={_s2_p['S0'](_s2_nj)} S2(nj)={_s2_p['S2'](_s2_nj)} "
+      f"S3(g3)={_s2_p['S3'](_s2_g3)} S4(g2)={_s2_p['S4'](_s2_g2)}")
+
+# STR4 — 🔒 **`S0` = تعريفُ الإنتاج سلوكيًّا** (لا نصًّا): يُبنى حدثُ `M5`
+#        بالشكل القانونيّ ويُقارَن بـ`liq_tier` **على الصفوف نفسِها**.
+def _s2_tier_of(row):
+    _ev = {"stage": "M5", "anchor_price": 1.40, "prev_close": 1.00,
+           "class": (row.get("f2") or "group", ""),
+           "k2": {c: row.get(c) for c in _RED.COMPS}}
+    if float(row.get("gap_pct") or 0) < 30:
+        _ev["anchor_price"] = 1.05        # فجوةٌ 5% ⇒ `J1` غيرُ مستوفاة
+    _t = S.liq_tier(_ev)
+    return (_t[0] if _t else None)
+
+
+check("🥇 STR4 **`S0` يطابق `liq_tier` الإنتاجيّة** على أربع حالاتٍ حدّية",
+      all((_s2_p["S0"](r)) == (_s2_tier_of(r) == "قوي")
+          for r in (_s2_all, _s2_g3, _s2_g2, _s2_nj)),
+      str([(_s2_p["S0"](r), _s2_tier_of(r))
+           for r in (_s2_all, _s2_g3, _s2_g2, _s2_nj)]))
+
+# STR5 — 🔒 **عتباتُ العقد مثبَّتةٌ ولا تُحرَّك** (‏10% · 25% · 2×) + الهولد-آوت.
+check("🥇 STR5 التغطية 10 · الاسترجاع 25 · الفصل 2× · وهولد-آوت 2025",
+      _S2.MIN_COVER == 10.0 and _S2.MIN_RECALL == 25.0
+      and _S2.SEP_MULT == 2.0 and _S2.HOLDOUT == "2025"
+      and _S2.TRAIN == ("2023", "2024"),
+      f"cover={_S2.MIN_COVER} recall={_S2.MIN_RECALL} "
+      f"mult={_S2.SEP_MULT} holdout={_S2.HOLDOUT}")
+
+# STR6 — 🔒 **«اتركه يجمع» يُقفَل بنيويًّا:** `liq_tier` **بت-بت** مقابل
+#        `origin/main` · وقراءةٌ فقط · والإنتاجُ لا يستورد الأداة.
+_s2_base = _s2_sp.run(["git", "show", "origin/main:Super_stock.py"],
+                      capture_output=True, text=True).stdout
+
+
+def _s2_fp(src, name):
+    for _n in _ast_t3.walk(_ast_t3.parse(src)):
+        if isinstance(_n, _ast_t3.FunctionDef) and _n.name == name:
+            return _s2_h.sha256(_ast_t3.dump(_n).encode()).hexdigest()[:12]
+    return None
+
+
+_s2_forbid = [w for w in ("send_telegram", "git_save", "save_watchlist",
+                          "open(") if w in _s2_src]
+_s2_cur = open("Super_stock.py", encoding="utf-8").read()
+check("🥇 STR6 `liq_tier` **بت-بت** (اتركه يجمع) · وقراءةٌ فقط · وعزلٌ عن الإنتاج",
+      (not _s2_base
+       or _s2_fp(_s2_base, "liq_tier") == _s2_fp(_s2_cur, "liq_tier"))
+      and not _s2_forbid and "strong2_scan" not in _insp0.getsource(S),
+      f"محظورٌ ظهر={_s2_forbid} · "
+      f"بصمة={_s2_fp(_s2_cur, 'liq_tier')} مقابل "
+      f"{_s2_fp(_s2_base, 'liq_tier') if _s2_base else 'لا أساس'}")
+
+# STR7 — 🔒 **وصلةُ الـworkflow** (درسُ `BT_CANDLE`): المدخلُ يصل بيئةً
+#        يقرؤها المُنزِّل · وبلا كرون · وقراءةٌ فقط.
+_s2_wf = _imp_yaml.safe_load(open(".github/workflows/strong2.yml",
+                                  encoding="utf-8"))
+_s2_steps = _s2_wf["jobs"]["strong2"]["steps"]
+_s2_env = next((st.get("env") or {} for st in _s2_steps
+                if "S2_RUN_IDS" in str(st.get("env") or "")), {})
+check("🥇 STR7 مدخلُ `run_ids` ⟶ بيئةٌ يقرؤها المُنزِّل · بلا كرون · قراءةٌ فقط",
+      "inputs.run_ids" in str(_s2_env.get("S2_RUN_IDS", ""))
+      and any("S2_RUN_IDS" in str(st.get("run") or "") for st in _s2_steps)
+      and "cron" not in str(_s2_wf.get(True) or _s2_wf.get("on"))
+      and _s2_wf.get("permissions", {}).get("contents") == "read"
+      and any("strong2_scan.py" in str(st.get("run") or "")
+              for st in _s2_steps),
+      f"env={_s2_env.get('S2_RUN_IDS')}")
+
+# STR8 — 🔒 **«فوق 75%» من `f5_bucket` لا بعتبةٍ مغروسة.**
+#        🔴 **وأوّلُ صياغةٍ لي سقطت على docstring‌ي نفسِه** (يذكر «75%» شرحًا)
+#        = الفخُّ النصّيُّ الموثَّق، في قفلٍ كتبتُه اليومَ لأمنعه ⇒ صار
+#        **بنيويًّا**: يُنادى `f5_bucket` **ولا مقارنةَ بعددٍ حرفيّ** داخلَه
+#        (‏`float(g) >= 75` هي بالضبط ما يُمنَع)، ومعه التخومُ سلوكيًّا.
+_s2_g75 = _ast_t3.parse(_tx3.dedent(_insp0.getsource(_S2._gap75)))
+_s2_calls = [n for n in _ast_t3.walk(_s2_g75) if isinstance(n, _ast_t3.Call)
+             and getattr(n.func, "id", None) == "f5_bucket"]
+_s2_numcmp = [n for n in _ast_t3.walk(_s2_g75)
+              if isinstance(n, _ast_t3.Compare)
+              and any(isinstance(c, _ast_t3.Constant)
+                      and isinstance(c.value, (int, float))
+                      and not isinstance(c.value, bool)
+                      for c in n.comparators)]
+check("🥇 STR8 حدُّ الفجوة **من `f5_bucket` بنيويًّا** · وصفرُ مقارنةٍ بعدد",
+      _S2._gap75({"gap_pct": 75.0}) and not _S2._gap75({"gap_pct": 74.9})
+      and not _S2._gap75({"gap_pct": None})
+      and len(_s2_calls) >= 1 and not _s2_numcmp,
+      f"75={_S2._gap75({'gap_pct': 75.0})} 74.9={_S2._gap75({'gap_pct': 74.9})}"
+      f" نداءات={len(_s2_calls)} مقارناتٌ عدديّة={len(_s2_numcmp)}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
