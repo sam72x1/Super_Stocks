@@ -29559,6 +29559,134 @@ check("🥇 TDY7 `true_e5` = إغلاقُ الدقيقة الرابعة (1.45) �
       f"true_e5={_tdy_e5}/{_tdy_br5} · entry_view={_tdy_ev5['e5']}/"
       f"{_tdy_ev5['mg5']}")
 
+# 🧹 **IMP1-IMP7 — أداةُ «فلتر الشوائب»** (العقد `impurity_prereg.md` مدفوعٌ
+#   قبل أيّ رقم · أمرُ المالك 2026-08-22 «سجّل فلتر الشوائب» ثم «شغّل»).
+#   🔴 وهي **إعادةُ فتحِ `red_mute`** بأمرِه الصريح ⇒ **مقياسٌ واحدٌ لا اثنان**
+#   والاتّجاهُ **تضييقٌ لا توسيع**، وبوّابةُ تكاملٍ تُسقط التشغيلةَ إن لم يُعد
+#   `Z2` المنشور.
+_prev_smi = _os_hc.environ.get("SCREENER_MODE")
+_os_hc.environ["SCREENER_MODE"] = "BACKTEST"
+try:
+    import impurity_stats as _IMP
+    import kasih2_red_stats as _RED
+    _imp_ok = True
+except Exception as _e:                                          # noqa: BLE001
+    _imp_ok = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    if _prev_smi is None:
+        _os_hc.environ.pop("SCREENER_MODE", None)
+    else:
+        _os_hc.environ["SCREENER_MODE"] = _prev_smi
+check("🧹 IMP0 الأداةُ تُستورَد بلا مفاتيحَ ولا شبكة (الحارسُ في `main`)",
+      _imp_ok is True, str(_imp_ok)[:110])
+
+import ast as _ast_i                                              # noqa: E402
+_imp_src = _insp0.getsource(_IMP)
+_imp_tree = _ast_i.parse(_imp_src)
+
+# IMP1 — 🔒 **مقياسٌ واحدٌ لا اثنان:** التعريفُ والعتباتُ **مستوردةٌ بالاسم**
+#        من مصدرها، و**صفرُ نسخةٍ محلّيّة** (لو نُسخت لتفرّق المقياسان بصمت —
+#        وهو العيبُ الذي وقع في المستودع من قبل).
+_imp_assigns = {t.id for n in _ast_i.walk(_imp_tree)
+                if isinstance(n, _ast_i.Assign)
+                for t in n.targets if isinstance(t, _ast_i.Name)}
+_imp_imported = {a.asname or a.name for n in _ast_i.walk(_imp_tree)
+                 if isinstance(n, _ast_i.ImportFrom) for a in n.names}
+_imp_shared = {"TOP", "COMPS", "RED_MIN_TOTAL", "RED_MIN_YEAR",
+               "SWEEP_SHARE_MAX", "RECENT_MIN_DAYS", "YEARS", "is_red",
+               "KASIH_PCT", "wilson"}
+check("🧹 IMP1 **التعريفُ والعتباتُ مستوردةٌ بالاسم · وصفرُ نسخةٍ محلّيّة**",
+      _imp_shared <= _imp_imported and not (_imp_shared & _imp_assigns),
+      f"مستورَد={sorted(_imp_shared - _imp_imported)} · "
+      f"مُسنَدٌ محلّيًّا={sorted(_imp_shared & _imp_assigns)}")
+
+# IMP2 — 🔒 **أربعُ أذرعٍ ولا خامسة** (العقد §① · «لا تُضاف ذراعٌ بعد الأرقام»)
+#        و`Z2` هو `is_red` **نفسُه** لا نسخةٌ منه.
+check("🧹 IMP2 **أربعُ أذرعٍ بالضبط** (‏Z1-Z4) · و`Z2` هو `is_red` نفسُه",
+      len(_IMP.ARMS) == 4
+      and [a[0] for a in _IMP.ARMS] == ["Z1", "Z2", "Z3", "Z4"]
+      and _IMP.ARMS[1][2] is _RED.is_red,
+      f"{[a[0] for a in _IMP.ARMS]} · Z2 is is_red؟ "
+      f"{_IMP.ARMS[1][2] is _RED.is_red}")
+
+# IMP3 — 🔒 **الأذرعُ تفرّق فعلًا** (لا ذراعَ `no-op`): صفٌّ لكلّ حالةٍ حدّية.
+_it, _il = _RED.TOP, {"c3": "نقضت", "c4": "خضراء 0-1",
+                      "v2": "المرساة فوق 30%", "v3": "سيولةٌ نازحة"}
+_r_all4 = dict(_il)                                   # صفرُ خضراء · 4 محسوبة
+_r_c3 = dict(_il, c3=None)                            # صفرُ خضراء · 3 محسوبة
+_r_c2 = dict(_il, c3=None, c4=None)                   # صفرُ خضراء · 2 محسوبة
+_r_grn = dict(_il, c4=_it["c4"])                      # أخضرُ واحد
+_r_j1 = dict(_il, j1=True)                            # صفرُ خضراء · توليفة
+_imp_p = {n: p for n, _d, p in _IMP.ARMS}
+check("🧹 IMP3 **كلُّ ذراعٍ تفرّق**: الأربعُ محسوبة · ثلاثٌ · اثنتان · "
+      "أخضرُ واحد · وتوليفة",
+      _imp_p["Z1"](_r_all4) and not _imp_p["Z1"](_r_c3)
+      and _imp_p["Z2"](_r_c3) and not _imp_p["Z2"](_r_c2)
+      and _imp_p["Z3"](_r_c2) and not _imp_p["Z3"](_r_grn)
+      and _imp_p["Z4"](_r_all4) and not _imp_p["Z4"](_r_j1)
+      and _imp_p["Z3"](_r_j1),
+      f"Z1(4)={_imp_p['Z1'](_r_all4)} Z1(3)={_imp_p['Z1'](_r_c3)} "
+      f"Z2(3)={_imp_p['Z2'](_r_c3)} Z2(2)={_imp_p['Z2'](_r_c2)} "
+      f"Z3(2)={_imp_p['Z3'](_r_c2)} Z4(j1)={_imp_p['Z4'](_r_j1)}")
+
+# IMP4 — 🔒 **عدُّ «الأخضر» هو عدُّ `liq_tier` نفسُه** (سلوكيًّا لا نصًّا):
+#        لو انحرف حرفٌ في سلّةٍ عليا لصار للشوائب تعريفان.
+def _imp_tier_green(row):
+    _ev = {"stage": "M5", "k2": {k: v for k, v in row.items() if v is not None},
+           "class": ("group", ""), "anchor_price": 1.0, "prev_close": 1.0}
+    _t = S.liq_tier(_ev)
+    return None if _t is None else _t[1]
+check("🧹 IMP4 **عدُّ الأخضر = عدُّ `liq_tier` بت-بت** على أربع حالات",
+      all(_IMP._green(r) == _imp_tier_green(r)
+          for r in (_r_all4, _r_c3, _r_grn, dict(_il, c3=_it["c3"],
+                                                 v3=_it["v3"]))),
+      str([( _IMP._green(r), _imp_tier_green(r))
+           for r in (_r_all4, _r_c3, _r_grn)]))
+
+# IMP5 — 🔒 **بوّابةُ التكامل منفَّذةٌ لا موصوفة** (درسُ «حارسٌ مكتوبٌ وغيرُ
+#        منفَّذٍ ليس حارسًا — هو نيّة»): عقدةُ `If` تُرجع 3 فعلًا.
+_imp_gate = any(
+    isinstance(_n, _ast_i.If)
+    and any(isinstance(_x, _ast_i.Return)
+            and isinstance(_x.value, _ast_i.Constant) and _x.value.value == 3
+            for _x in _ast_i.walk(_n))
+    for _n in _ast_i.walk(_imp_tree))
+check("🧹 IMP5 **بوّابةُ التكامل تُوقِف فعلًا** (‏`If` ⟶ خروج 3) · "
+      "وأرقامُ `red_mute_result` المنشورة مثبَّتة",
+      _imp_gate and _IMP.PUB_SHARE == 14.1
+      and _IMP.PUB_RED_RATE == {"2023": 3.4, "2024": 3.9, "2025": 4.0}
+      and _IMP.PUB_NRED_RATE == {"2023": 14.2, "2024": 17.1, "2025": 16.1},
+      f"بوّابة؟ {_imp_gate} · حصّة={_IMP.PUB_SHARE}")
+
+# IMP6 — 🔒 **قراءةٌ فقط**: صفرُ إرسالٍ وصفرُ كتابةِ حالة · والإنتاجُ لا يستوردها.
+_imp_bad = [w for w in ("send_telegram", "save_op_entry_state", "git_save",
+                        "save_watchlist", "requests.post")
+            if w in _imp_src]
+check("🧹 IMP6 **قراءةٌ فقط** · والإنتاجُ لا يستورد الأداة",
+      not _imp_bad
+      and "impurity_stats" not in _insp0.getsource(S),
+      f"محظورٌ ظهر={_imp_bad}")
+
+# IMP7 — 🔒 **وصلةُ الـworkflow** (درسُ `BT_CANDLE`): المدخلُ يصل بيئةً
+#        يقرؤها المُنزِّل · وبلا كرون · وقراءةٌ فقط بالصلاحيات.
+import yaml as _imp_yaml                                          # noqa: E402
+_imp_wf = _imp_yaml.safe_load(open(".github/workflows/impurity.yml",
+                                   encoding="utf-8"))
+_imp_steps = _imp_wf["jobs"]["impurity"]["steps"]
+_imp_env = next((st.get("env") or {} for st in _imp_steps
+                 if "IMP_RUN_IDS" in str(st.get("env") or "")), {})
+_imp_dl = next((str(st.get("run") or "") for st in _imp_steps
+                if "IMP_RUN_IDS" in str(st.get("run") or "")), "")
+check("🧹 IMP7 مدخلُ `run_ids` ⟶ بيئةٌ **يقرؤها المُنزِّل** · بلا كرون · "
+      "وصلاحياتُ قراءة",
+      "inputs.run_ids" in str(_imp_env.get("IMP_RUN_IDS", ""))
+      and "IMP_RUN_IDS" in _imp_dl
+      and "cron" not in str(_imp_wf.get(True) or _imp_wf.get("on"))
+      and _imp_wf.get("permissions", {}).get("contents") == "read"
+      and any("impurity_stats.py" in str(st.get("run") or "")
+              for st in _imp_steps),
+      f"env={_imp_env.get('IMP_RUN_IDS')}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
