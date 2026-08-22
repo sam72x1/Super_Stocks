@@ -3,7 +3,7 @@
   "YAAS": {
    "first_seen": "2026-08-14",
    "src": "قائمة الارتداد",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "plan": {
     "entry": [
      0.65,
@@ -14,15 +14,15 @@
      0.67,
      0.69
     ],
-    "pivot": 0.65,
+    "pivot": 0.657,
     "stop": 0.6045,
-    "t1": 3.08
+    "t1": 3.28
    }
   },
   "CMCT": {
    "first_seen": "2026-08-14",
    "src": "قائمة الارتداد",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "plan": {
     "entry": [
      2.29,
@@ -41,7 +41,7 @@
   "INBS": {
    "first_seen": "2026-08-14",
    "src": "قائمة الارتداد",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "plan": {
     "entry": [
      1.52,
@@ -60,51 +60,51 @@
   "BRAI": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "SLGB": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SPHL": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "CTNT": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "KSCP": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "AGMH": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "KITT": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SMXT": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MIMI": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CODX": {
    "first_seen": "2026-08-14",
@@ -115,52 +115,52 @@
   "FLYE": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "DFSC": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-19"
   },
   "TIL": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "QTI": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "XAIR": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-19"
   },
   "VHUB": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LFS": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "ARBK": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CLIK": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "CVKD": {
@@ -184,18 +184,18 @@
   "BBLG": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FUFU": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "SSM": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "FEMY": {
@@ -207,29 +207,29 @@
   "LPCN": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SDOT": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "KG": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "ENGN": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "PRHI": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "OLOX": {
    "first_seen": "2026-08-14",
@@ -260,13 +260,13 @@
   "SNAL": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "NXTC": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FTH": {
    "first_seen": "2026-08-14",
@@ -297,7 +297,7 @@
   "PYXS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ENGS": {
    "first_seen": "2026-08-14",
@@ -313,12 +313,12 @@
   "CLRO": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TVRD": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "RTB": {
@@ -329,7 +329,7 @@
   "GALT": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SOWG": {
    "first_seen": "2026-08-14",
@@ -350,12 +350,12 @@
   "FBRX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "VRAX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "GRPN": {
@@ -373,7 +373,8 @@
   "STAK": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
   },
   "ATPC": {
    "first_seen": "2026-08-14",
@@ -383,17 +384,18 @@
   "PHOE": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AARD": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LVLU": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
   },
   "VSTM": {
    "first_seen": "2026-08-14",
@@ -403,12 +405,12 @@
   "AGEN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ZTG": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "AIIO": {
@@ -420,7 +422,7 @@
   "ADVB": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TTRX": {
    "first_seen": "2026-08-14",
@@ -435,7 +437,7 @@
   "EHGO": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-19"
   },
   "ICCM": {
@@ -452,290 +454,305 @@
   "NIPG": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "PN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "SKYQ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "CMMB": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "DFNS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "EUDA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "TOP": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "RNAZ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "RYOJ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LCID": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "LHSW": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SPRC": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "AMIX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-19"
   },
   "MF": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "YARW": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TVGN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MTC": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "REPL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "UPC": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SGLY": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "GWAV": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AXTI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AAOI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "YXT": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "SUNE": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "JLHL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "OESX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "WYHG": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LEDS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
   },
   "ADIL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AEVA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "APPS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "FCUV": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NAMI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "LBGJ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "PCLA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "DSY": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "NXTT": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AEHL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TGHL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "STKH": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "POM": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FEAM": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "SXTC": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "SORA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "PEPG": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FUSE": {
    "first_seen": "2026-08-14",
-   "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "src": "قائمة الارتداد",
+   "last_seen": "2026-08-21",
+   "plan": {
+    "entry": [
+     0.75,
+     0.8
+    ],
+    "tranches": [
+     0.75,
+     0.77,
+     0.8
+    ],
+    "pivot": 0.751,
+    "stop": 0.6984,
+    "t1": 0.85
+   }
   },
   "AUUD": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "SUGP": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "HYFM": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "WXM": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "MWYN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "QNCX": {
    "first_seen": "2026-08-14",
    "src": "قائمة الارتداد",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "plan": {
     "entry": [
      16.07,
@@ -754,43 +771,43 @@
   "SATL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AIFA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SEGG": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
-   "last_alert": "2026-08-16"
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
   },
   "BOXL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "HTZ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "VELO": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FBLG": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AEMD": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "YHC": {
@@ -821,7 +838,7 @@
   "BIYA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FTFT": {
    "first_seen": "2026-08-14",
@@ -837,12 +854,12 @@
   "CRNX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "BLZE": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "VSME": {
@@ -853,7 +870,7 @@
   "OXBR": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "BOLD": {
    "first_seen": "2026-08-14",
@@ -878,12 +895,12 @@
   "CNEY": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "JEM": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FTHM": {
    "first_seen": "2026-08-14",
@@ -915,7 +932,7 @@
   "CBUS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "ISPR": {
@@ -932,7 +949,7 @@
   "NVVE": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "JTAI": {
    "first_seen": "2026-08-14",
@@ -948,12 +965,12 @@
   "ATAI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CDNA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "GNPX": {
    "first_seen": "2026-08-14",
@@ -969,7 +986,7 @@
   "JZXN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SLS": {
    "first_seen": "2026-08-14",
@@ -984,23 +1001,23 @@
   "CJMB": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "DYAI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "PRPL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "ZYBT": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TOMZ": {
    "first_seen": "2026-08-14",
@@ -1010,7 +1027,7 @@
   "HLP": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "QTTB": {
    "first_seen": "2026-08-14",
@@ -1026,12 +1043,12 @@
   "CCG": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "BANL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CDT": {
    "first_seen": "2026-08-14",
@@ -1046,13 +1063,13 @@
   "VIVK": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "FXHO": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "DWSN": {
    "first_seen": "2026-08-14",
@@ -1063,22 +1080,22 @@
   "KIDZ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "GREE": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "OMH": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ZCMD": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "TNMG": {
@@ -1089,565 +1106,579 @@
   "RPD": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "INLF": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "YOUL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "IDAI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LGCL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "PAVS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CIGL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "WBUY": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NVEC": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "WLDS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "YYAI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FFAI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "DBGI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "TRIB": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CWD": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ENTX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "VIP": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "JSPR": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "WRAP": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "BGMS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MYPS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CISS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "COSM": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "GIBO": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CNET": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "LHAI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CELZ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "WHLR": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NCRA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TDTH": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NEXR": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "HURN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "DCX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "GSUN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AGRZ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CYCU": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "GCTK": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NUWE": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "DGNX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "WETO": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FMFC": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MGRX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NDLS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TCX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "KWM": {
    "first_seen": "2026-08-14",
-   "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
-   "last_alert": "2026-08-19"
+   "src": "قائمة الارتداد",
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-19",
+   "plan": {
+    "entry": [
+     1.5,
+     1.59
+    ],
+    "tranches": [
+     1.5,
+     1.54,
+     1.59
+    ],
+    "pivot": 1.5,
+    "stop": 1.395,
+    "t1": 2.41
+   }
   },
   "MVIS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "OFAL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "LEXX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CSAI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "RITR": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "QNME": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MGN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LUNG": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "KUST": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ADGM": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ELPW": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-18"
   },
   "CDTG": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "SAIH": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "BYAH": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "GRNQ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-14"
   },
   "XHLD": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ENSC": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "GAUZ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AZI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LESL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "HELP": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "JUNS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "IPW": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "MB": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "TEAM": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CPIX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FNGR": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "IOVA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "YJ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "RCEL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ATGL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "AIRJ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ALOY": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TSAT": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AREC": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LPSN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LIFE": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TNON": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ONFO": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "THH": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SCKT": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "JWEL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MNST": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ALGS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ABCL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "VREX": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "OABI": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "BWMN": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "RUSHA": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "STIM": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AEHR": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "EDRY": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "BEEP": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "PLSE": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "QMCO": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MSGY": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "RMCF": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ZJYL": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CRWV": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SGHT": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "BUUU": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NBIS": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SHAZ": {
    "first_seen": "2026-08-14",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NWGL": {
    "first_seen": "2026-08-14",
    "src": "قائمة الارتداد",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "plan": {
     "entry": [
      0.22,
@@ -1686,24 +1717,24 @@
   "PSIG": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "RDAC": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MTVA": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "TRON": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "LNKS": {
    "first_seen": "2026-08-14",
@@ -1713,139 +1744,139 @@
   "MLEC": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "KMRK": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "HTCO": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-17"
   },
   "CELU": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ONMD": {
    "first_seen": "2026-08-14",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NEOV": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ZENA": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AIRO": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "INHD": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "BRNX": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CAPR": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "XHG": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FGI": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "IVDA": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "OMER": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "FIEE": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "ECOR": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "HAO": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MYSZ": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MBAI": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SLNG": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "MDXH": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "HTFL": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "HHS": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CAMP": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "KOPN": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "CSTE": {
    "first_seen": "2026-08-15",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "KPTI": {
    "first_seen": "2026-08-19",
@@ -1889,18 +1920,18 @@
   "SMX": {
    "first_seen": "2026-08-19",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-19"
   },
   "BYND": {
    "first_seen": "2026-08-19",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "DWTX": {
    "first_seen": "2026-08-20",
    "src": "قائمة الارتداد",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "plan": {
     "entry": [
      1.33,
@@ -1919,121 +1950,318 @@
   "ZNB": {
    "first_seen": "2026-08-20",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20",
+   "last_seen": "2026-08-21",
    "last_alert": "2026-08-20"
   },
   "KELYB": {
    "first_seen": "2026-08-20",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "YDDL": {
    "first_seen": "2026-08-20",
    "src": "قائمة الترشيح",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "RCON": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "PFSA": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
   },
   "IPST": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "XOS": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "YDES": {
    "first_seen": "2026-08-20",
-   "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "src": "قائمة الارتداد",
+   "last_seen": "2026-08-21",
+   "plan": {
+    "entry": [
+     1.94,
+     2.06
+    ],
+    "tranches": [
+     1.94,
+     2.0,
+     2.06
+    ],
+    "pivot": 1.94,
+    "stop": 1.8042,
+    "t1": 5.5
+   }
   },
   "OSRH": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AIXC": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "EJH": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
   },
   "INO": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SLE": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
   },
   "LUNR": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SENS": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SNDK": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AEI": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "NTHI": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "AMLX": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "TRUG": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "IVF": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "SNYR": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
   },
   "GNLN": {
    "first_seen": "2026-08-20",
    "src": "متحرّك حديث",
-   "last_seen": "2026-08-20"
+   "last_seen": "2026-08-21"
+  },
+  "ASST": {
+   "first_seen": "2026-08-21",
+   "src": "قائمة الارتداد",
+   "last_seen": "2026-08-21",
+   "plan": {
+    "entry": [
+     10.96,
+     11.62
+    ],
+    "tranches": [
+     10.96,
+     11.29,
+     11.62
+    ],
+    "pivot": 10.96,
+    "stop": 10.1928,
+    "t1": 19.75
+   }
+  },
+  "HWH": {
+   "first_seen": "2026-08-21",
+   "src": "قائمة الارتداد",
+   "last_seen": "2026-08-21",
+   "plan": {
+    "entry": [
+     1.15,
+     1.22
+    ],
+    "tranches": [
+     1.15,
+     1.18,
+     1.22
+    ],
+    "pivot": 1.19,
+    "stop": 1.0695,
+    "t1": 2.29
+   }
+  },
+  "ASPC": {
+   "first_seen": "2026-08-21",
+   "src": "قائمة الارتداد",
+   "last_seen": "2026-08-21",
+   "plan": {
+    "entry": [
+     10.51,
+     11.14
+    ],
+    "tranches": [
+     10.51,
+     10.83,
+     11.14
+    ],
+    "pivot": 10.51,
+    "stop": 9.7743,
+    "t1": 14.0
+   }
+  },
+  "FRGT": {
+   "first_seen": "2026-08-21",
+   "src": "قائمة الارتداد",
+   "last_seen": "2026-08-21",
+   "plan": {
+    "entry": [
+     1.5,
+     1.59
+    ],
+    "tranches": [
+     1.5,
+     1.54,
+     1.59
+    ],
+    "pivot": 1.5,
+    "stop": 1.395,
+    "t1": 3.15
+   },
+   "last_alert": "2026-08-21"
+  },
+  "HCWB": {
+   "first_seen": "2026-08-21",
+   "src": "قائمة الترشيح",
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
+  },
+  "BNR": {
+   "first_seen": "2026-08-21",
+   "src": "قائمة الترشيح",
+   "last_seen": "2026-08-21"
+  },
+  "SLMT": {
+   "first_seen": "2026-08-21",
+   "src": "قائمة الترشيح",
+   "last_seen": "2026-08-21"
+  },
+  "NTCL": {
+   "first_seen": "2026-08-21",
+   "src": "قائمة الترشيح",
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
+  },
+  "ZSTK": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "BTCT": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21",
+   "last_alert": "2026-08-21"
+  },
+  "CYPH": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "IVVD": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "GTEC": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "CXAI": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "MRNA": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "ARCT": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "MODD": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "AUTL": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "FDMT": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "REAX": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "APPN": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "AUGO": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "XGN": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
+  },
+  "CRDL": {
+   "first_seen": "2026-08-21",
+   "src": "متحرّك حديث",
+   "last_seen": "2026-08-21"
   }
  },
- "last_session": "2026-08-20",
+ "last_session": "2026-08-21",
  "notes": [
   {
    "date": "2026-08-14",
