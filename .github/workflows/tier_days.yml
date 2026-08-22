@@ -1,0 +1,47 @@
+name: "🥇📅 حصيلةُ التصنيف على جلسة (قوي/متوسط/ضعيف)"
+
+# 🔒 قياس/قراءة فقط — لا كرون · لا كتابة حالة · لا تلغرام
+#    العقد: tier_days_prereg.md (مدفوعٌ قبل أيّ رقم)
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "يومُ الجلسة (YYYY-MM-DD) — من tier_days_fired.json"
+        required: true
+        type: string
+
+jobs:
+  tier:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🥇 قِس الفئاتِ والحصيلة
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          TIER_DAY: ${{ inputs.day }}
+        run: python tier_days_report.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tier-days-${{ inputs.day }}
+          path: tier_days_*.jsonl
+          retention-days: 90
+          if-no-files-found: warn

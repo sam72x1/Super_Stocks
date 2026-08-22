@@ -29388,6 +29388,83 @@ def _pc_floor5_present(path, floor_var):
 check("🛡️ PC4 kasih2_red_stats: If(not floors_ok) ⟶ return 5 (بالـAST — خطة 035)",
       _pc_floor5_present("kasih2_red_stats.py", "floors_ok"))
 
+# 🥇📅 **TDY1-TDY5 — أداةُ «حصيلةِ التصنيف على جلسة»** (العقد
+#   `tier_days_prereg.md` مدفوعٌ قبل أيّ رقم · أمرُ المالك 2026-08-22).
+#   قراءةٌ فقط · مقياسٌ واحدٌ لا اثنان · وكلُّ عيّنةٍ **تفرّق**.
+import importlib.util as _tdy_iu                                 # noqa: E402
+_tdy_spec = _tdy_iu.spec_from_file_location("tier_days_report",
+                                            "tier_days_report.py")
+_tdy = _tdy_iu.module_from_spec(_tdy_spec)
+try:
+    _tdy_spec.loader.exec_module(_tdy)
+    _tdy_ok = True
+except Exception as _e:                                          # noqa: BLE001
+    _tdy_ok = f"⛔ {type(_e).__name__}: {_e}"
+check("🥇 TDY0 الأداةُ تُستورَد بلا مفاتيحَ ولا شبكة (الحارسُ في `main` لا الوحدة)",
+      _tdy_ok is True, str(_tdy_ok)[:110])
+
+# TDY1 — الحصيلةُ **تفرّق الثلاث**: واصلت (‏≥30%) · خسرت (كسرٌ دون 30%) ·
+#        معلّقة (لا كسرَ ولا 30%) — **بلا تعريفٍ جديد** (‏`KASIH_PCT`).
+check("🥇 TDY1 الحصيلةُ تفرّق واصلت/خسرت/معلّقة · والحدُّ هو `KASIH_PCT` لا رقمًا مغروسًا",
+      _tdy.outcome(1.0, 45.0, 0.8, True)[0] == "واصلت"
+      and _tdy.outcome(1.0, 12.0, 0.8, True)[0] == "خسرت"
+      and round(_tdy.outcome(1.0, 12.0, 0.8, True)[1], 1) == -20.0
+      and _tdy.outcome(1.0, 12.0, 1.05, False)[0] == "معلّقة"
+      and _tdy.outcome(1.0, 29.9, 0.9, True)[0] == "خسرت"
+      and _tdy.outcome(1.0, 30.0, 0.9, True)[0] == "واصلت"
+      and _tdy.outcome(0, 50.0, 1.0, True)[0] == "تعذّر",
+      str([_tdy.outcome(1.0, 45.0, .8, True), _tdy.outcome(1.0, 12.0, .8, True)]))
+
+# TDY2 — **الخروجُ البنيويّ = أوّلُ إغلاقٍ دون قاع المِرساة** (لا أدنى إغلاق
+#        ولا آخره) · وبلا كسرٍ ⇒ إغلاقُ آخر شمعةٍ ووسمُ `eod`. عيّنةٌ تفرّق.
+_tdy_rows = [(0, 1, 1, 1, 1.00, 9), (60_000, 1, 1.2, 0.9, 1.10, 9),
+             (120_000, 1, 1.1, 0.8, 0.85, 9), (180_000, 1, 1.0, 0.7, 0.70, 9)]
+check("🥇 TDY2 الخروجُ **أوّلُ** إغلاقٍ دون القاع (‏0.85 لا 0.70) · وبلا كسرٍ ⇒ eod",
+      _tdy.exit_price(_tdy_rows, 0, 0.90) == (0.85, 120_000, True)
+      and _tdy.exit_price(_tdy_rows, 0, 0.50) == (0.70, 180_000, False),
+      str(_tdy.exit_price(_tdy_rows, 0, 0.90)))
+
+# TDY3 — 🔒 **قراءةٌ فقط**: صفرُ إرسالٍ وصفرُ كتابةِ حالةٍ بالـAST ·
+#        **والإنتاجُ لا يستوردها**.
+_tdy_src = open("tier_days_report.py", encoding="utf-8").read()
+_tdy_bad = {getattr(n.func, "attr", None) or getattr(n.func, "id", None)
+            for n in _ast0.walk(_ast0.parse(_tdy_src))
+            if isinstance(n, _ast0.Call)} & {
+    "send_telegram", "git_save", "save_op_entry_state", "save_watchlist",
+    "save_near_watch", "save_hunter_watch"}
+check("🥇 TDY3 قراءةٌ فقط: صفرُ إرسالٍ/كتابةِ حالة · والإنتاجُ لا يستوردها",
+      not _tdy_bad
+      and "tier_days_report" not in _insp0.getsource(S).split("def main(")[0],
+      f"مخالفات={sorted(_tdy_bad)}")
+
+# TDY4 — 🔒 **مقياسٌ واحدٌ لا اثنان**: الفئةُ من `Super_stock.liq_tier`
+#        والحسمُ من `kasih_scan.resolve` والخصائصُ من `kasih2_scan.k2_features`
+#        — **بالاسم في الشجرة** (لا نسخةَ منطقٍ محلّيّة).
+_tdy_calls = {(getattr(n.func.value, "id", "") + "." + n.func.attr)
+              for n in _ast0.walk(_ast0.parse(_tdy_src))
+              if isinstance(n, _ast0.Call)
+              and isinstance(n.func, _ast0.Attribute)
+              and isinstance(getattr(n.func, "value", None), _ast0.Name)}
+check("🥇 TDY4 مقياسٌ واحد: liq_tier · resolve · first_anchor · k2_features "
+      "· entry_view — كلُّها بالاسم",
+      {"S.liq_tier", "KS.resolve", "KS.first_anchor", "K2.k2_features",
+       "K2.entry_view", "KS.f2_usd5", "S.kasih_j1"} <= _tdy_calls,
+      f"نداءات={sorted(x for x in _tdy_calls if x.split('.')[0] in ('S', 'KS', 'K2'))}")
+
+# TDY5 — 🔒 **وصلةُ الـworkflow** (درسُ `BT_CANDLE`: علمٌ يُمرَّر ولا يُقرأ):
+#        مدخلُ `day` يصل بيئةَ `TIER_DAY` التي يقرؤها السكربت · وبلا كرون.
+import yaml as _tdy_yaml                                          # noqa: E402
+_tdy_wf = _tdy_yaml.safe_load(open(".github/workflows/tier_days.yml",
+                                  encoding="utf-8"))
+_tdy_steps = _tdy_wf["jobs"]["tier"]["steps"]
+_tdy_env = next((st.get("env") or {} for st in _tdy_steps
+                 if "tier_days_report.py" in str(st.get("run") or "")), {})
+check("🥇 TDY5 مدخلُ `day` ⟶ بيئةُ `TIER_DAY` التي يقرؤها السكربت · وبلا كرون",
+      "inputs.day" in str(_tdy_env.get("TIER_DAY", ""))
+      and 'os.environ.get("TIER_DAY")' in _tdy_src
+      and "cron" not in str(_tdy_wf.get(True) or _tdy_wf.get("on")),
+      str(_tdy_env.get("TIER_DAY")))
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
