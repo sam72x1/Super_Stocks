@@ -27,7 +27,7 @@
 — ثم يعدّ **كم صفًّا وُسِم «خسرت» وقمّةُ يومه فوق 30% أو 50% أو 100%**.
 ⇒ **حجمُ الحدّ يصير رقمًا لا انطباعًا.**
 
-**رموز الخروج:** 0 طُبع · 2 مدخلاتٌ ناقصة · 3 تعذّر الملفّ.
+**رموز الخروج:** 0 طُبع · 2 مدخلاتٌ ناقصة · 3 تعذّر الملفّ · **4 صفرُ مِرساةٍ في يومِ تداول** (بصمةُ `no-op` ⇒ لا يُفسَّر رقم).
 """
 import datetime as dt
 import gzip
@@ -274,14 +274,29 @@ def main() -> int:
         if not AH.download(key, dest, ep):
             print(f"⛔ تعذّر تنزيلُ {day}.")
             return 3
+        # 🔴 **`parse_day` سطرُها `if sym not in universe: continue`** ⇒
+        #    المجموعةُ الفارغة تعني **«لا شيء» لا «الكلّ»**. وأوّلُ صياغةٍ لي
+        #    مرّرت `set()` فخرجت **صفرُ مِرساةٍ في يومين** — بصمةُ الـ`no-op`
+        #    بعينها. ⇒ الكونُ يُبنى من إغلاق الأمس **كما في `kasih_scan.run`**.
+        uni = ({s for s, c in prev_close.items()
+                if KS.PRICE_LO <= c <= KS.PRICE_HI}
+               if all_mode else set(syms))
+        if all_mode and not uni:
+            print(f"⛔ {day}: كونٌ فارغ (تعذّرت بذرةُ إغلاق الأمس) — لا قياس.")
+            return 4
         with gzip.open(dest, "rt") as fh:
-            bars, _c = KS.parse_day(fh, set() if all_mode else set(syms))
+            bars, _c = KS.parse_day(fh, uni)
         try:
             os.remove(dest)
         except OSError:
             pass
         if all_mode:
-            batch(day, bars, prev_close)
+            print(f"🩺 تغطيةُ {day}: كونُ إغلاق الأمس {len(uni):,} رمزًا · "
+                  f"شموعٌ لـ{len(bars):,} منها")
+            if not batch(day, bars, prev_close):
+                print("⛔ صفرُ مِرساةٍ في يومِ تداول — **عطبُ أداةٍ لا نتيجة**"
+                      " (بصمةُ الـno-op) ولا يُفسَّر رقمٌ منها.")
+                return 4
         else:
             for s in syms:
                 probe(s, day, bars, prev_close.get(s))
