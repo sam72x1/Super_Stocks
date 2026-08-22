@@ -29817,10 +29817,16 @@ check("📏 TFW4 **إلحاقٌ** يحفظ السابق · وعطبُ مسارٍ
 #        الرنر كلَّ يوم ⇒ يستحيل أيُّ حصادٍ أماميّ).
 _tw_gs = [n for n in _ast_t3.walk(_tw_tree) if isinstance(n, _ast_t3.Call)
           and getattr(n.func, "attr", None) == "git_save"]
-check("📏 TFW5 السجلُّ مُدرَجٌ في الدفع (`TIER_FWD_LEDGER_FILE`)",
-      "TIER_FWD_LEDGER_FILE" in _tw_live and len(_tw_gs) >= 1
+# 🔴 **بنيويٌّ لا نصّيّ** (درسُ «النصُّ لا يفرّق كودًا عن تعليق»): التعليقاتُ
+#   خارجَ الشجرة، فيستحيل أن يُرضيَ القفلَ شرحٌ كتبتُه.
+_tw_led = [n for n in _ast_t3.walk(_tw_tree)
+           if isinstance(n, _ast_t3.Attribute)
+           and n.attr == "TIER_FWD_LEDGER_FILE"]
+check("📏 TFW5 السجلُّ مُدرَجٌ في الدفع (`TIER_FWD_LEDGER_FILE` بالـAST)",
+      len(_tw_led) >= 1 and len(_tw_gs) >= 1
       and S.TIER_FWD_LEDGER_FILE == "tier_fwd_ledger.jsonl",
-      f"git_save={len(_tw_gs)} ملف={S.TIER_FWD_LEDGER_FILE}")
+      f"وصلات={len(_tw_led)} git_save={len(_tw_gs)} "
+      f"ملف={S.TIER_FWD_LEDGER_FILE}")
 
 # TFW6 — 🔒 **قراءةٌ فقط**: صفرُ إرسالٍ وصفرُ كتابةِ حالة · والإنتاجُ لا يستوردها.
 _tw_rsrc = open("tier_fwd_report.py", encoding="utf-8").read()
