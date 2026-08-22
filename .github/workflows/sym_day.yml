@@ -8,12 +8,18 @@ on:
   workflow_dispatch:
     inputs:
       syms:
-        description: "الرموز بفواصل (مثال: HUIZ,JZ)"
-        required: true
+        description: "الرموز بفواصل (مثال: HUIZ,JZ) — تُهمَل مع all=1"
+        required: false
+        default: ""
         type: string
       days:
         description: "الأيام بفواصل (YYYY-MM-DD)"
         required: true
+        type: string
+      all:
+        description: "‏1 = الكون كامل (اعادة قياس اليوم كله بعمودين)"
+        required: false
+        default: "0"
         type: string
 
 jobs:
@@ -39,4 +45,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
           PROBE_SYMS: ${{ inputs.syms }}
           PROBE_DAYS: ${{ inputs.days }}
+          PROBE_ALL: ${{ inputs.all }}
         run: python sym_day_probe.py

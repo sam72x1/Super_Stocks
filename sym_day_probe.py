@@ -20,6 +20,13 @@
 `kasih_scan.resolve` **بالاسم** — صفرُ منطقٍ مكرّر؛ والجديدُ **قراءةُ ما بعد
 الخروج** وهي غيرُ موجودةٍ في أيّ أداةٍ عندنا.
 
+🔴 **ووضعٌ ثانٍ `PROBE_ALL=1`** أضيفَ بعد أن أثبت `HUIZ` أن الحدَّ ليس
+حالةً مفردة: يُعيد قياسَ **كلّ مِرساةٍ في اليوم** بأنبوبة `kasih_scan` نفسِها
+(الكونُ من إغلاق الأمس · `prescreen` · `first_anchor` · `GAP_CAP`) ويطبع
+لكلّ صفٍّ **العمودَين معًا** — ما تقيسه أرقامُنا وما يراه المالكُ على الشارت
+— ثم يعدّ **كم صفًّا وُسِم «خسرت» وقمّةُ يومه فوق 30% أو 50% أو 100%**.
+⇒ **حجمُ الحدّ يصير رقمًا لا انطباعًا.**
+
 **رموز الخروج:** 0 طُبع · 2 مدخلاتٌ ناقصة · 3 تعذّر الملفّ.
 """
 import datetime as dt
@@ -32,6 +39,8 @@ os.environ.setdefault("SCREENER_MODE", "BACKTEST")
 import ah_scan as AH                                             # noqa: E402
 import kasih_scan as KS                                          # noqa: E402
 import kasih2_scan as K2                                         # noqa: E402
+import Super_stock as S                                          # noqa: E402
+from tier_days_report import exit_price, outcome, true_e5        # noqa: E402
 
 NY = KS.NY
 
@@ -134,6 +143,87 @@ def probe(sym, day, bars, prev_c):
         print(f"   … و{len(seg) - 28} شريحةً أخرى (قُصّت بإعلانٍ لا صمتًا)")
 
 
+BARS_ALL = (30.0, 50.0, 100.0)     # حدودُ العرض — 30 و50 من `KASIH_DESC`
+
+
+def batch(day, bars, prev_close):
+    """🔁 **إعادةُ قياس اليوم كلِّه** بأنبوبة `kasih_scan` نفسِها — عمودان
+    لكلّ صفّ: **قبل الخروج** (ما تقيسه أرقامُنا) و**اليومُ كاملًا بلا قطع**
+    (ما يراه المالك). يُرجع صفوفَ اليوم."""
+    universe = {s for s, c in prev_close.items()
+                if KS.PRICE_LO <= c <= KS.PRICE_HI}
+    out = []
+    for sym, b in bars.items():
+        if universe and sym not in universe:
+            continue
+        if not KS.prescreen(b):
+            continue
+        e = KS.first_anchor(b)
+        if e is None:
+            continue
+        a_ms, entry = int(e["anchor_ms"]), float(e["price"])
+        pc = prev_close.get(sym)
+        gap = (entry / pc - 1.0) * 100.0 if pc else None
+        if gap is not None and abs(gap) > KS.GAP_CAP:
+            continue
+        res = KS.resolve(b, a_ms, entry)
+        if res is None:
+            continue
+        usd5 = KS.f2_usd5(b, a_ms)
+        f2key = S._ignition_candle_class(usd5)[0]
+        k2 = K2.k2_features(b, a_ms, entry, f2key, gap,
+                            float(e.get("usd") or 0), usd5)
+        tev = {"stage": "M5", "k2": k2, "class": (f2key, ""),
+               "anchor_price": entry, "prev_close": pc}
+        tier = S.liq_tier(tev)
+        alow = float(res["anchor_low"])
+        ex_px, ex_ms, broke = exit_price(b, a_ms, alow)
+        e5, broke5 = true_e5(b, a_ms, entry)
+        ev = K2.entry_view(b, a_ms, entry, pc)
+        mg5 = (ev or {}).get("mg5")
+        o, pct = outcome(entry, res.get("mg_after"), ex_px, broke)
+        if o == "تعذّر" and broke5:
+            o = "خسرت"
+        m5_all, at5 = full_day_max(b, a_ms, e5) if e5 else (None, None)
+        m1_all, at1 = full_day_max(b, a_ms, entry)
+        out.append({
+            "sym": sym, "tier": (tier[0] if tier else None),
+            "green": (tier[1] if tier else None),
+            "entry": entry, "e5": e5, "mg5": mg5,
+            "res": pct, "outcome": o,
+            "ex_ms": ex_ms, "broke": broke,
+            "m5_all": m5_all, "at5": at5, "m1_all": m1_all, "at1": at1,
+            "after": bool(ex_ms and at5 and at5 > ex_ms),
+        })
+    out.sort(key=lambda r: -(r["m5_all"] if r["m5_all"] is not None else -1e9))
+    print("\n" + "=" * 78)
+    print(f"🔁 إعادةُ قياس اليوم كلِّه · {day} · {len(out)} مِرساة")
+    print("=" * 78)
+    print("الرمز    | الفئة  | أخضر | سعر M5  | 📏 قبل الخروج | الحصيلة "
+          "| 🔴 اليومُ كاملًا | وقتُ القمّة | بعد الخروج؟")
+    for r in out:
+        e5s = f"{r['e5']:.4f}" if r["e5"] else "—"
+        b4 = f"{r['mg5']:+.1f}%" if r["mg5"] is not None else "كُسر قبل5"
+        allp = f"{r['m5_all']:+.1f}%" if r["m5_all"] is not None else "—"
+        tt = _hm(r["at5"]) if r["at5"] else "—"
+        print(f"{r['sym']:<8} | {(r['tier'] or '—'):<6} | "
+              f"{(r['green'] if r['green'] is not None else '—'):>4} | "
+              f"{e5s:>7} | {b4:>13} | {r['outcome']:<7} | {allp:>14} | "
+              f"{tt:>10} | {'✅ نعم' if r['after'] else 'لا'}")
+    # 🔴 حجمُ الحدّ بالرقم
+    lost = [r for r in out if r["outcome"] in ("خسرت", "معلّقة")]
+    print(f"\n🔴 **حجمُ الحدّ في {day}:**")
+    for thr in BARS_ALL:
+        n = sum(1 for r in lost
+                if r["m5_all"] is not None and r["m5_all"] >= thr)
+        print(f"   ↳ وُسِمت «خسرت/معلّقة» وقمّةُ يومها **‏+{thr:.0f}% فأكثر**"
+              f" من سعر كرت M5: **{n}** من {len(lost)}")
+    naf = sum(1 for r in out if r["after"])
+    print(f"   ↳ وقعت قمّةُ اليوم **بعد** الخروج البنيويّ في **{naf}** من "
+          f"{len(out)} مِرساة")
+    return out
+
+
 def main() -> int:
     if not (os.environ.get("AWS_ACCESS_KEY_ID") or "").strip():
         print("⛔ لا مفاتيح S3 — لا قياس (ولا يُخمَّن رقم).")
@@ -142,10 +232,13 @@ def main() -> int:
             (os.environ.get("PROBE_SYMS") or "").split(",") if s.strip()]
     days = [d.strip() for d in
             (os.environ.get("PROBE_DAYS") or "").split(",") if d.strip()]
-    if not syms or not days:
-        print("⛔ يلزم PROBE_SYMS و PROBE_DAYS.")
+    all_mode = (os.environ.get("PROBE_ALL") or "").strip() == "1"
+    if (not syms and not all_mode) or not days:
+        print("⛔ يلزم PROBE_DAYS ومعه PROBE_SYMS أو PROBE_ALL=1.")
         return 2
-    print(f"🔬 مِجَسُّ سهمٍ في جلسة · الرموز {syms} · الأيام {days}")
+    print(f"🔬 مِجَسُّ سهمٍ في جلسة · "
+          + ("**الكونُ كاملًا**" if all_mode else f"الرموز {syms}")
+          + f" · الأيام {days}")
     print("⚖️ تشخيصٌ فقط — لا يُغيّر تعريفًا ولا رقمًا منشورًا.")
     for day in days:
         seed = KS.weekdays((dt.date.fromisoformat(day)
@@ -182,13 +275,16 @@ def main() -> int:
             print(f"⛔ تعذّر تنزيلُ {day}.")
             return 3
         with gzip.open(dest, "rt") as fh:
-            bars, _c = KS.parse_day(fh, set(syms))
+            bars, _c = KS.parse_day(fh, set() if all_mode else set(syms))
         try:
             os.remove(dest)
         except OSError:
             pass
-        for s in syms:
-            probe(s, day, bars, prev_close.get(s))
+        if all_mode:
+            batch(day, bars, prev_close)
+        else:
+            for s in syms:
+                probe(s, day, bars, prev_close.get(s))
     return 0
 
 
