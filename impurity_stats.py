@@ -42,6 +42,27 @@ def _green(row):
     return sum(1 for c in COMPS if row.get(c) == TOP[c])
 
 
+def _j1_combo(row):
+    """هل الصفُّ **توليفةُ `J1`**؟
+
+    🔴 **عيبُ نوعٍ أُصلح (2026-08-22):** `j1` في صفوف `kasih2_scan` **سلسلةُ
+    سلّةٍ لا بوليان** (‏`j1_bucket` تُرجع «توليفة (قوي/مضارب × فجوة 30%+)» أو
+    «الباقي» أو `None`) ⇒ صياغتي الأولى `not r.get("j1")` كانت **صفرًا أبدًا**
+    لأن السلسلتين كلتاهما صادقة ⇒ ذراعٌ خاملةٌ حجمُها 0.0% في 44 ألف صفّ.
+    **والقراءةُ الصحيحة هي قراءةُ `kasih2_scan` نفسِها** (بادئةُ «توليفة»).
+    """
+    return str(row.get("j1") or "").startswith("توليفة")
+
+
+def _j1_known(row):
+    """هل `J1` **محسوب**؟ (‏`None` = تعذّرت الفجوة ⇒ غيرُ معلوم).
+
+    ⚖️ وغيرُ المعلوم **خارج الذراع** — نفسُ سابقة `is_red` («ما دون ثلاثٍ
+    محسوبةً يمرّ بفائدة الشك»): **الكتمُ إزالة**، فلا يُكتَم ما لم يُقَس.
+    """
+    return row.get("j1") is not None
+
+
 def _computed(row):
     """عددُ المكوّنات المحسوبة (قيمتُها ليست `None`)."""
     return sum(1 for c in COMPS if row.get(c) is not None)
@@ -54,7 +75,7 @@ ARMS = (
     ("Z2", "تعريفُ «الأحمر» حرفيًّا (شاهدُ التكامل)", is_red),
     ("Z3", "صفرُ خضراء مهما كان المحسوب (الأوسع)", lambda r: _green(r) == 0),
     ("Z4", "صفرُ خضراء وبلا توليفة J1",
-     lambda r: _green(r) == 0 and not r.get("j1")),
+     lambda r: _green(r) == 0 and _j1_known(r) and not _j1_combo(r)),
 )
 
 
@@ -160,6 +181,10 @@ def main() -> int:                                               # noqa: C901
     print(f"🩺 تشخيصٌ يُطبَع ولا يغيّر تعريفًا: صفوفٌ **بلا مكوّنٍ محسوبٍ "
           f"واحد** = {zero_comp} ({_rate(zero_comp, total):.2f}%) — "
           "وهي داخلةٌ في `Z3` بنصّ تعريفه (‏«مهما كان المحسوب»).")
+    j1_na = sum(1 for v in data.values() for r in v if not _j1_known(r))
+    print(f"🩺 وصفوفٌ **بلا `j1` محسوب** = {j1_na} "
+          f"({_rate(j1_na, total):.2f}%) — **خارج `Z4`** بفائدة الشك "
+          "(سابقةُ `is_red`: ما لم يُقَس لا يُكتَم).")
 
     res = {n: judge(n, d, p, data, day_labels) for n, d, p in ARMS}
 
