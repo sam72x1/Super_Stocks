@@ -29711,6 +29711,201 @@ check("🧹 IMP7 مدخلُ `run_ids` ⟶ بيئةٌ **يقرؤها المُنز
               for st in _imp_steps),
       f"env={_imp_env.get('IMP_RUN_IDS')}")
 
+# ════════════════════════════════════════════════════════════════════════
+# 📏➡️ **TFW1-TFW10 — حصادُ التصنيف الأماميّ** (العقد `tier_fwd_prereg.md`
+#      مدفوعٌ **قبل أوّل صفّ** · أمرُ المالك 2026-08-22 «قِس التصنيف أماميًّا»).
+#      🥇 أوّلُ قياسٍ **غيرِ دائريٍّ** للتصنيف ⇒ سلامةُ التسجيل هي التجربةُ نفسُها.
+# ════════════════════════════════════════════════════════════════════════
+import tempfile as _tfw_tmpmod                                    # noqa: E402
+import tier_fwd_report as _TFW                                    # noqa: E402
+
+# — فِكستشراتٌ **بشكل الإنتاج حرفيًّا** (درسُ «الفِكستشرُ الذي يكذب»): سلالُ
+#   `k2` من `kasih2_scan` نفسِها، و`j1` **سلسلةُ سلّةٍ لا بوليان**.
+_tw_top = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+           "v2": "المرساة دون 30% (سيولة تتوالى)",
+           "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)"}
+_tw_low = {"c3": "نقضت", "c4": "خضراء 0-1",
+           "v2": "المرساة فوق 30%", "v3": "سيولةٌ نازحة"}
+
+
+def _tw_ev(k2=None, stage="M5", **kw):
+    _e = {"stage": stage, "anchor_ms": 1_000_000, "anchor_price": 1.00,
+          "anchor_low": 0.90, "price": 1.20, "price_ms": 1_300_000,
+          "prev_close": 0.70, "usd": 90_000, "vol_x": 4.0,
+          "class": ("strong", "💪")}
+    if k2 is not None:
+        _e["k2"] = dict(k2)
+    _e.update(kw)
+    return _e
+
+
+_tw_k_hi = dict(_tw_top, j1=_K2.j1_bucket("strong", 40.0), j1_top=False)
+_tw_k_lo = dict(_tw_low, j1=_K2.j1_bucket("group", 5.0), j1_top=False)
+_tw_row = {"symbol": "TFW"}
+
+# TFW1 — 🔒 **الإدراجُ بعد نجاح الإرسال حصرًا** (عقدُ الحصاد): النداءُ داخل
+#        فرع `if lok:` **وبعد** ختم الحالة — ولا نداءَ في أيّ موضعٍ آخر.
+_tw_live = open("operator_entry_live.py", encoding="utf-8").read()
+_tw_tree = _ast_t3.parse(_tw_live)
+_tw_calls = [n for n in _ast_t3.walk(_tw_tree) if isinstance(n, _ast_t3.Call)
+             and getattr(n.func, "attr", None) == "record_tier_fwd"]
+_tw_inlok = []
+for _n in _ast_t3.walk(_tw_tree):
+    if isinstance(_n, _ast_t3.If) and getattr(_n.test, "id", None) == "lok":
+        _tw_inlok = [c for c in _ast_t3.walk(_n)
+                     if isinstance(c, _ast_t3.Call)
+                     and getattr(c.func, "attr", None) == "record_tier_fwd"]
+check("📏 TFW1 الحصادُ **داخل `if lok:` وحدَه** (بعد نجاح الإرسال) · نداءٌ واحد",
+      len(_tw_calls) == 1 and len(_tw_inlok) == 1,
+      f"كلّ={len(_tw_calls)} داخل lok={len(_tw_inlok)}")
+
+# TFW2 — 🔒 **التصنيفُ من `liq_tier` الإنتاجيّة** لا يُعاد بناؤه (وإلّا صار
+#        للمشروع تصنيفان يتفرّقان بحرف).
+_tw_src = _insp0.getsource(S.tier_fwd_row)
+_tw_lt = [n for n in _ast_t3.walk(_ast_t3.parse(_tx3.dedent(_tw_src)))
+          if isinstance(n, _ast_t3.Call)
+          and getattr(n.func, "id", None) == "liq_tier"]
+check("📏 TFW2 التصنيفُ **من `liq_tier` نفسِها** · وصفرُ عتبةٍ محلّيّة",
+      len(_tw_lt) == 1 and "green >=" not in _tw_src
+      and ">= 3" not in _tw_src and "<= 1" not in _tw_src,
+      f"نداءات liq_tier={len(_tw_lt)}")
+
+# TFW3 — 🔒 **سلوكيٌّ مفرِّق**: خمسُ حالاتٍ لكلٍّ جوابٌ مختلف.
+_tw_hi = S.tier_fwd_row(_tw_row, _tw_ev(_tw_k_hi), "2026-08-22")
+# 🔴 **الفِكستشرُ يجب أن يفرّق ما يدّعيه:** أوّلُ صياغةٍ أعطت «متوسط» لا
+#   «ضعيف» — لأن `_event_j1` على `M5` **تحسب `J1` حيًّا** من `class` والفجوة
+#   عن `prev_close` (‏لا تقرأ الختمَ المخزَّن)، وفِكستشري كان `strong` بفجوة
+#   ‏42.9% ⇒ `J1` مستوفاة. ⇒ الحالةُ «ضعيف» تلزمها **قروبٌ وفجوةٌ صغيرة**،
+#   وبها صار القفلُ يُثبت أيضًا أن المصدرَ هو الحدثُ الحيّ لا الختم.
+_tw_lo = S.tier_fwd_row(_tw_row, _tw_ev(_tw_k_lo, prev_close=0.98,
+                                        **{"class": ("group", "⚠️")}),
+                        "2026-08-22")
+_tw_nok2 = S.tier_fwd_row(_tw_row, _tw_ev(None), "2026-08-22")
+_tw_m1 = S.tier_fwd_row(_tw_row, _tw_ev(_tw_k_hi, stage="M1"), "2026-08-22")
+_tw_nolow = S.tier_fwd_row(_tw_row, _tw_ev(_tw_k_hi, anchor_low=None),
+                           "2026-08-22")
+check("📏 TFW3 الصفُّ يفرّق: قوي · ضعيف · غيرُ مصنَّف · غيرُ M5 · بلا وقف",
+      (_tw_hi or {}).get("tier") == "قوي"
+      and (_tw_lo or {}).get("tier") == "ضعيف"
+      and (_tw_nok2 or {}).get("tier") == "غير مصنَّف"
+      and _tw_m1 is None and _tw_nolow is None
+      and (_tw_hi or {}).get("e5") == 1.20
+      and (_tw_hi or {}).get("anchor_low") == 0.90,
+      f"hi={(_tw_hi or {}).get('tier')} lo={(_tw_lo or {}).get('tier')} "
+      f"nok2={(_tw_nok2 or {}).get('tier')} m1={_tw_m1} nolow={_tw_nolow}")
+
+# TFW4 — 🔒 **إلحاقٌ لا كتابةٌ فوقية** · وفاشلٌ-آمنٌ مطلق (مسارٌ متعذّر ⇒ صفر).
+_tw_tmp = _os_hc.path.join(_tfw_tmpmod.gettempdir(),
+                           "tfw_ledger_test.jsonl")
+if _os_hc.path.exists(_tw_tmp):
+    _os_hc.remove(_tw_tmp)
+_tw_n1 = S.record_tier_fwd([(_tw_row, [_tw_ev(_tw_k_hi)])], "2026-08-22",
+                           path=_tw_tmp)
+_tw_n2 = S.record_tier_fwd([({"symbol": "TFW2"}, [_tw_ev(_tw_k_lo)])],
+                           "2026-08-23", path=_tw_tmp)
+_tw_lines = [_l for _l in open(_tw_tmp, encoding="utf-8").read().splitlines()
+             if _l.strip()]
+_tw_bad = S.record_tier_fwd([(_tw_row, [_tw_ev(_tw_k_hi)])], "2026-08-22",
+                            path="/proc/nonexistent-dir/x.jsonl")
+_os_hc.remove(_tw_tmp)
+check("📏 TFW4 **إلحاقٌ** يحفظ السابق · وعطبُ مسارٍ ⇒ صفرٌ بلا رمي",
+      _tw_n1 == 1 and _tw_n2 == 1 and len(_tw_lines) == 2
+      and _tw_bad == 0,
+      f"n1={_tw_n1} n2={_tw_n2} أسطر={len(_tw_lines)} عطب={_tw_bad}")
+
+# TFW5 — 🔒 **السجلُّ يُدفَع** (درسُ `near_watch.json`: ملفٌّ لا يُدفَع يموت مع
+#        الرنر كلَّ يوم ⇒ يستحيل أيُّ حصادٍ أماميّ).
+_tw_gs = [n for n in _ast_t3.walk(_tw_tree) if isinstance(n, _ast_t3.Call)
+          and getattr(n.func, "attr", None) == "git_save"]
+check("📏 TFW5 السجلُّ مُدرَجٌ في الدفع (`TIER_FWD_LEDGER_FILE`)",
+      "TIER_FWD_LEDGER_FILE" in _tw_live and len(_tw_gs) >= 1
+      and S.TIER_FWD_LEDGER_FILE == "tier_fwd_ledger.jsonl",
+      f"git_save={len(_tw_gs)} ملف={S.TIER_FWD_LEDGER_FILE}")
+
+# TFW6 — 🔒 **قراءةٌ فقط**: صفرُ إرسالٍ وصفرُ كتابةِ حالة · والإنتاجُ لا يستوردها.
+_tw_rsrc = open("tier_fwd_report.py", encoding="utf-8").read()
+_tw_forbid = [w for w in ("send_telegram", "git_save", "save_op_entry_state",
+                          "save_watchlist") if w in _tw_rsrc]
+check("📏 TFW6 **قراءةٌ فقط** · والإنتاجُ لا يستورد `tier_fwd_report`",
+      not _tw_forbid and "tier_fwd_report" not in _insp0.getsource(S),
+      f"محظورٌ ظهر={_tw_forbid}")
+
+# TFW7 — 🔒 **`adjusted=false` إلزامًا** (سلوكيًّا لا نصًّا): `e5` المخزَّن خام،
+#        وتقسيمًا عكسيًّا لاحقًا يُعيد Polygon تسعيرَ اليوم فيخالط مقياسان.
+_tw_seen = {}
+
+
+class _TwResp:
+    status_code = 200
+
+    @staticmethod
+    def json():
+        return {"results": [{"t": 1, "o": 1, "h": 1, "l": 1, "c": 1, "v": 1}]}
+
+
+def _tw_get(url, **kw):
+    _tw_seen["url"] = url
+    return _TwResp()
+
+
+_tw_rows = _TFW.fetch_day("ABC", "2026-08-22", "k", get=_tw_get)
+check("📏 TFW7 الجالبُ يطلب **`adjusted=false`** ويومًا محدَّدًا",
+      "adjusted=false" in _tw_seen.get("url", "")
+      and "adjusted=true" not in _tw_seen.get("url", "")
+      and "/range/1/minute/2026-08-22/2026-08-22" in _tw_seen.get("url", "")
+      and _tw_rows == [(1, 1.0, 1.0, 1.0, 1.0, 1.0)],
+      _tw_seen.get("url", "")[:110])
+
+# TFW8 — 🔒 **`outcome` يفرّق أربعَ حالاتٍ** بالتعريفات المسجَّلة.
+_tw_base = {"anchor_ms": 0, "e5": 1.00, "anchor_price": 1.00,
+            "anchor_low": 0.90}
+_tw_m = 60_000
+
+
+def _tw_bars(seq):
+    """‏`seq` = [(دقيقة، أعلى، إغلاق)] ⟶ صفوفُ `resolve` القانونية."""
+    return [(i * _tw_m, c, h, min(c, h) * 0.99, c, 1000.0)
+            for i, h, c in seq]
+
+
+# مِرساةٌ ثم خمسُ دقائقَ هادئة ثم قفزةٌ ‏+40% فوق `e5`
+_tw_win = _TFW.outcome(_tw_base, _tw_bars(
+    [(0, 1.05, 1.00)] + [(i, 1.02, 1.00) for i in range(1, 6)]
+    + [(6, 1.45, 1.40)]))
+# نفسُها بلا قفزة ⇒ خسرت
+_tw_ls = _TFW.outcome(_tw_base, _tw_bars(
+    [(0, 1.05, 1.00)] + [(i, 1.02, 1.00) for i in range(1, 8)]))
+# كسرُ قاع المِرساة **قبل** اكتمال الخمس ⇒ خسرت بسببٍ مُسمًّى (العقد)
+_tw_br = _TFW.outcome(_tw_base, _tw_bars(
+    [(0, 1.05, 1.00), (1, 1.01, 0.99), (2, 1.00, 0.85), (3, 1.60, 1.55)]))
+_tw_pd = _TFW.outcome(_tw_base, None)
+check("📏 TFW8 الحسمُ يفرّق: كاسح · خسرت · كُسر قبل الخمس · معلَّق",
+      _tw_win[0] == "kasih" and _tw_ls[0] == "lost"
+      and _tw_br[0] == "lost" and "قبل اكتمال الخمس" in str(_tw_br[2])
+      and _tw_pd[0] == "pending",
+      f"win={_tw_win[0]} lost={_tw_ls[0]} break={_tw_br} pend={_tw_pd[0]}")
+
+# TFW9 — 🔒 **وصلةُ الـworkflow**: يدويٌّ بلا كرون · صلاحيةُ قراءة · والسرُّ يصل.
+_tw_wf = _imp_yaml.safe_load(open(".github/workflows/tier_fwd.yml",
+                                  encoding="utf-8"))
+_tw_steps = _tw_wf["jobs"]["tier-fwd"]["steps"]
+_tw_run = next((st for st in _tw_steps
+                if "tier_fwd_report.py" in str(st.get("run") or "")), {})
+check("📏 TFW9 يدويٌّ بلا كرون · قراءةٌ فقط · و`POLYGON_API_KEY` يصل الأداة",
+      "cron" not in str(_tw_wf.get(True) or _tw_wf.get("on"))
+      and "workflow_dispatch" in str(_tw_wf.get(True) or _tw_wf.get("on"))
+      and _tw_wf.get("permissions", {}).get("contents") == "read"
+      and "POLYGON_API_KEY" in str((_tw_run.get("env") or {})),
+      f"env={list((_tw_run.get('env') or {}))}")
+
+# TFW10 — 🔒 **عتباتُ العقد مثبَّتة** · و`KASIH_PCT` **مستورَدٌ** لا مغروس.
+check("📏 TFW10 الأرضية 40/فئة · الفصل 2× · وكاسح30 مستورَدٌ من `kasih_scan`",
+      _TFW.MIN_PER_TIER == 40 and _TFW.SEP_MULT == 2.0
+      and _TFW.KASIH_PCT == _KAS.KASIH_PCT and _TFW.KASIH_PCT == 30.0
+      and "from kasih_scan import" in _tw_rsrc,
+      f"floor={_TFW.MIN_PER_TIER} mult={_TFW.SEP_MULT} "
+      f"pct={_TFW.KASIH_PCT}")
+
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

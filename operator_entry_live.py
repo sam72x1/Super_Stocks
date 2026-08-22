@@ -405,8 +405,25 @@ def main():
                 _log(f"💰 {len(_lstg)} حدثًا: {', '.join(_lsyms)} "
                      f"[{', '.join(_lstg)}]")
                 bot.save_op_entry_state(seen)     # الختمُ **بعد** الإرسال حصرًا
+                # 📏➡️ **حصادُ التصنيف الأماميّ** (العقد `tier_fwd_prereg.md`
+                #    مدفوعٌ قبل أوّل صفّ · أمرُ المالك «قِس التصنيف أماميًّا»):
+                #    يُسجَّل **هنا حصرًا** — بعد الفلتر وبعد نجاح الإرسال ⇒
+                #    المقامُ «ما وصله موسومًا» لا كونُ المسح. فاشلٌ-آمنٌ مطلق.
+                _tfwd = 0
                 try:
-                    bot.git_save([bot.OP_ENTRY_STATE_FILE])
+                    _tfwd = bot.record_tier_fwd(lrows, _today2)
+                    if _tfwd:
+                        _log(f"📏 حصادُ التصنيف: +{_tfwd} صفًّا")
+                except Exception as e:                           # noqa: BLE001
+                    _log(f"⚠️ حصادُ التصنيف: {e}")
+                try:
+                    # 🔴 **والسجلُّ يُدفَع مع الحالة** — درسُ `near_watch.json`:
+                    #    ملفٌّ لا يُدفَع **يموت مع الرنر كلَّ يوم** فيستحيل أيُّ
+                    #    حصادٍ أماميّ. و`git_save` يوحّد `.jsonl` عند التعارض.
+                    _files = [bot.OP_ENTRY_STATE_FILE]
+                    if _tfwd:
+                        _files.append(bot.TIER_FWD_LEDGER_FILE)
+                    bot.git_save(_files)
                 except Exception as e:                           # noqa: BLE001
                     _log(f"⚠️ دفعُ ددوب السيولة: {e}")
             else:

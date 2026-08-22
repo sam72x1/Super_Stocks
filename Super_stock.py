@@ -14193,6 +14193,79 @@ def liq_tier(ev: dict):
 _LIQ_TIER_AR = {"قوي": "🥇 قوي", "متوسط": "🥈 متوسط", "ضعيف": "🥉 ضعيف"}
 
 
+# 📏➡️ **سجلُّ الحصاد الأماميّ للتصنيف** (العقد `tier_fwd_prereg.md` مدفوعٌ
+#    **قبل أوّل صفّ**) — أمرُ المالك 2026-08-22 «قِس التصنيف أماميًّا».
+TIER_FWD_LEDGER_FILE = "tier_fwd_ledger.jsonl"
+
+
+def tier_fwd_row(row: dict, ev: dict, today_iso: str):
+    """صفُّ حصادٍ واحدٌ من كرت `M5` — **من حقول الحدث وحدَها**.
+
+    🔒 **صفرُ نداءٍ شبكيّ وصفرُ إعادةِ حساب:** التصنيفُ من `liq_tier`
+    **الإنتاجيّة نفسِها** (وإلّا صار للمشروع تصنيفان يتفرّقان بحرف)،
+    وبقيّةُ الحقول منسوخةٌ كما كتبها `liq_stage_events`.
+
+    ⚖️ **والصفوفُ بلا `k2` تُسجَّل بفئة «غير مصنَّف»** (العقد §①) فتُقرأ
+    التغطيةُ ولا تُخفى — والكتمُ ليس واردًا هنا أصلًا (حصادٌ لا تسليم).
+
+    ترجّع القاموسَ أو `None` لغير `M5` وللناقص — فاشلةٌ-آمنة."""
+    try:
+        if str((ev or {}).get("stage") or "") != "M5":
+            return None
+        sym = str((row or {}).get("symbol") or "").strip()
+        e5 = ev.get("price")
+        alow = ev.get("anchor_low")
+        if not sym or e5 is None or alow is None:
+            return None                # بلا دخولٍ أو وقفٍ لا يُحسَم صفّ
+        t = liq_tier(ev)
+        k2 = ev.get("k2") or {}
+        return {"date": str(today_iso), "symbol": sym,
+                "tier": (t[0] if t else "غير مصنَّف"),
+                "green": (t[1] if t else None),
+                "computed": (t[2] if t else None),
+                "j1": k2.get("j1"), "j1_top": k2.get("j1_top"),
+                "c3": k2.get("c3"), "c4": k2.get("c4"),
+                "v2": k2.get("v2"), "v3": k2.get("v3"),
+                "e5": float(e5), "price_ms": ev.get("price_ms"),
+                "anchor_ms": ev.get("anchor_ms"),
+                "anchor_price": ev.get("anchor_price"),
+                "anchor_low": float(alow),
+                "prev_close": ev.get("prev_close"),
+                "usd": ev.get("usd"), "vol_x": ev.get("vol_x"),
+                "cls": ev.get("cls") or ev.get("class")}
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def record_tier_fwd(rows, today_iso, path=None) -> int:
+    """يُلحق صفوفَ كروت `M5` في `tier_fwd_ledger.jsonl` — **إلحاقٌ فقط**.
+
+    🔴 **يُنادى بعد نجاح الإرسال حصرًا** (عقدُ «الإدراجُ بعد الإرسال») —
+    فما لم يصل المالكَ لا يُحسَب عليه.
+    🔁 **والتكرارُ يُدَبَّر عند الحسم لا هنا** (العقد §②): أوّلُ صفٍّ لكلّ
+    (تاريخ، رمز) يفوز ⇒ المسارُ الحيُّ بأدنى عمل.
+    ⚖️ **فاشلٌ-آمنٌ مطلق:** أيُّ عطبٍ ⇒ صفرٌ ولا يُسقط الإشعار.
+
+    `path` وسيطٌ للاختبار — يُحسَم **وقت النداء** لا وقت التعريف
+    (درسُ `load_edges`/`record_rejected_symbols`)."""
+    fp = TIER_FWD_LEDGER_FILE if path is None else path
+    try:
+        out = []
+        for _r, _evs in (rows or []):
+            for _e in (_evs or []):
+                _row = tier_fwd_row(_r, _e, today_iso)
+                if _row:
+                    out.append(_row)
+        if not out:
+            return 0
+        with open(fp, "a", encoding="utf-8") as fh:
+            for _row in out:
+                fh.write(json.dumps(_row, ensure_ascii=False) + "\n")
+        return len(out)
+    except Exception:                                            # noqa: BLE001
+        return 0
+
+
 def liq_stop_line(ev: dict):
     """🛑 **سطرُ الوقف البنيويّ** — أمرُ المالك 2026-08-20 («يكون معطيني وقف
     خسارة حسب الشموع لان ممكن السعر ينزل قبل يوصلني تنبية خروج»).

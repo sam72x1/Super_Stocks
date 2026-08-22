@@ -1,0 +1,32 @@
+name: "📏➡️ حصاد التصنيف الأمامي (tier_fwd_prereg)"
+
+# 🔒 قراءة/حسم فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد tier_fwd_prereg.md
+# السجلّ نفسه يمتلئ من العامل الحيّ (record_tier_fwd بعد نجاح الإرسال حصرًا)،
+# وهذي الأداة تقرؤه وتحسمه بشموع الدقيقة (adjusted=false) وتطبع المعيار الثلاثي.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tier-fwd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📏 الحسم والتقرير
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        run: python tier_fwd_report.py
