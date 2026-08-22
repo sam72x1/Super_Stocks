@@ -1948,3 +1948,4 @@
 {"key": "envelope|2026-08-21|WVE", "hunter": "envelope", "session": "2026-08-21", "symbol": "WVE", "kind": "candidate", "ref_close": 5.289999961853027, "fwd": 40, "outcome": null}
 {"key": "envelope|2026-08-21|ZCMD", "hunter": "envelope", "session": "2026-08-21", "symbol": "ZCMD", "kind": "candidate", "ref_close": 0.9284999966621399, "fwd": 40, "outcome": null}
 {"key": "envelope|2026-08-21|ZDAI", "hunter": "envelope", "session": "2026-08-21", "symbol": "ZDAI", "kind": "candidate", "ref_close": 1.690000057220459, "fwd": 40, "outcome": null}
+{"key": "split_filter|2026-08-21|XXII", "hunter": "split_filter", "session": "2026-08-21", "symbol": "XXII", "kind": "candidate", "ref_close": 3.75600004196167, "fwd": 40, "outcome": null, "price": 3.75600004196167, "half": 3.3, "ref": 6.6}
