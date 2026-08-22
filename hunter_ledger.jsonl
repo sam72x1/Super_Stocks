@@ -1875,3 +1875,4 @@
 {"key": "envelope|2026-08-20|YDDL", "hunter": "envelope", "session": "2026-08-20", "symbol": "YDDL", "kind": "candidate", "ref_close": 1.8200000524520874, "fwd": 40, "outcome": null, "float": 9945588.0}
 {"key": "envelope|2026-08-20|ZCMD", "hunter": "envelope", "session": "2026-08-20", "symbol": "ZCMD", "kind": "candidate", "ref_close": 0.9602000117301941, "fwd": 40, "outcome": null, "float": 14556.0}
 {"key": "envelope|2026-08-20|ZDAI", "hunter": "envelope", "session": "2026-08-20", "symbol": "ZDAI", "kind": "candidate", "ref_close": 1.600000023841858, "fwd": 40, "outcome": null, "float": 8103265.0}
+{"key": "split|2026-08-21|CHSN", "hunter": "split", "session": "2026-08-21", "symbol": "CHSN", "kind": "candidate", "ref_close": 1.1699999570846558, "fwd": 40, "outcome": null, "price": 1.17, "float": 387547.0, "half": 0.94, "ref": 1.88}
