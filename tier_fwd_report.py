@@ -31,7 +31,7 @@ import requests
 
 from kasih_scan import KASIH_PCT, resolve, wilson       # المقياسُ الواحد
 # 🔒 حدُّ «قوي» **من الإنتاج بالاسم** لا نسخةً — فلا يتفرّق تعريفان
-#    (أمرُ المالك «نزّل الحد لـ2» 2026-08-22 مساءً).
+#    (آخرُ أمرٍ: «ارفع الحد 3» 2026-08-23).
 from Super_stock import LIQ_TIER_STRONG_MIN as _STRONG_MIN
 
 LEDGER = os.environ.get("TIER_FWD_LEDGER", "tier_fwd_ledger.jsonl")
