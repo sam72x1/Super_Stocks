@@ -30343,6 +30343,82 @@ check("✂️ CUT5 حارسا الصمت بشرطَيهما: «كونٌ فارغ
       _g_uni is True and _g_batch is True, f"uni={_g_uni} · batch={_g_batch}")
 
 
+# ── 💵 أقفالُ الحصيلة المحقَّقة (‏PNL1-PNL3) — سؤالُ المالك 2026-08-23:
+#    «طيب القويّ هل فيه منها صفقةٌ خاسرة؟» ⇒ الجوابُ يلزمه **رقمٌ** لا وسم،
+#    والسجلُّ كان يحمل «خسرت» ولا يحمل **كم**.
+# 🔴 **والخطرُ الذي تحرسه PNL1 هو عينُ ما أخرجه بلاغُ `HUIZ`:** لو حُسب
+#    المحقَّقُ من **إغلاق المِرساة** بدل **سعر كرت `M5`** لأعطى رقمًا صحيحًا
+#    لمقياسٍ **لا يشتريه المالك** — وهو الخلطُ نفسُه في ثوبٍ جديد.
+# 🐞 **استيرادٌ صريحٌ مُنطَّق** — «القفلُ المنهار يكتم غيرَه» هو الصنفُ
+#    الأوّل في دستور الأقفال، وسقط في هذي السويّة **ثلاثَ مرّاتٍ** بـ
+#    `NameError` على `ast`/`inspect`؛ فلا يُعتمَد على استيرادٍ بعيد.
+import io as _pnl_io                                            # noqa: E402
+import contextlib as _pnl_cx                                    # noqa: E402
+_pnl_ok, _pnl_why = True, ""
+try:
+    _pnl_t = _cut_ast.parse(_cut_ins.getsource(_SDP.batch).lstrip())
+    _found = []
+    for _nd in _cut_ast.walk(_pnl_t):
+        if not (isinstance(_nd, _cut_ast.Assign) and len(_nd.targets) == 1):
+            continue
+        if getattr(_nd.targets[0], "id", None) != "ex5":
+            continue
+        _found.append({x.id for x in _cut_ast.walk(_nd.value)
+                       if isinstance(x, _cut_ast.Name)})
+    if len(_found) != 1:
+        _pnl_ok, _pnl_why = False, f"إسناداتُ ex5={len(_found)}"
+    elif "e5" not in _found[0]:
+        _pnl_ok, _pnl_why = False, f"لا يقرأ e5 · أسماء={sorted(_found[0])}"
+    elif "entry" in _found[0]:
+        _pnl_ok, _pnl_why = False, "يقرأ entry (إغلاقَ المِرساة) = الخلطُ نفسُه"
+    else:
+        _pnl_why = f"أسماء={sorted(_found[0])}"
+except Exception as _e:                                        # noqa: BLE001
+    _pnl_ok, _pnl_why = False, f"⛔ رمى: {type(_e).__name__}"
+check("💵 PNL1 المحقَّقُ يُحسب من **سعر كرت M5** لا من إغلاق المِرساة",
+      _pnl_ok is True, _pnl_why)
+
+# 🔒 PNL2 **سلوكيٌّ مفرِّق:** رابحةٌ وخاسرةٌ و«بلا كرت» ثلاثةُ أصنافٍ لا
+#    يختلط بعضُها ببعض — و«بلا كرت» **تُعَدّ ولا تدخل المقام** (دخولٌ ورقيٌّ
+#    لا يُشترى، الصنفُ المدوَّن في `tier_days_result §⑤`).
+def _pnl_rows():
+    return [
+        {"tier": "قوي", "mg5": 20.0, "ex5": +12.0, "outcome": "واصلت",
+         "e5": 1.0, "m5_all": 20.0, "at5": None, "after": False, "green": 3},
+        {"tier": "قوي", "mg5": 1.0, "ex5": -14.0, "outcome": "خسرت",
+         "e5": 1.0, "m5_all": 100.0, "at5": None, "after": False, "green": 2},
+        {"tier": "قوي", "mg5": None, "ex5": None, "outcome": "خسرت",
+         "e5": None, "m5_all": None, "at5": None, "after": False, "green": 2},
+        {"tier": "ضعيف", "mg5": 3.0, "ex5": -5.0, "outcome": "خسرت",
+         "e5": 1.0, "m5_all": 3.0, "at5": None, "after": False, "green": 0},
+    ]
+_pnl_out = _pnl_io.StringIO()
+try:
+    with _pnl_cx.redirect_stdout(_pnl_out):
+        _SDP._tier_pnl(_pnl_rows(), "2026-01-01")
+    _pt = _pnl_out.getvalue()
+except Exception as _e:                                        # noqa: BLE001
+    _pt = f"⛔ رمى: {type(_e).__name__}"
+_l_strong = next((ln for ln in _pt.splitlines() if ln.strip().startswith("قوي")), "")
+_l_weak = next((ln for ln in _pt.splitlines() if ln.strip().startswith("ضعيف")), "")
+check("💵 PNL2 «قوي» تُعَدّ رابحةً وخاسرةً و«بلا كرت» على حدة (سلوكيّ)",
+      ("| 1 |" in _l_strong.replace("  ", " ") or " 1 " in _l_strong)
+      and "50.0%" in _l_strong and "-14.0%" in _l_strong
+      and "100.0%" in _l_weak,
+      f"قوي={_l_strong.strip()[:90]} · ضعيف={_l_weak.strip()[:60]}")
+
+# 🔒 PNL3 **العمودُ يُطبَع فعلًا** — «شرطٌ بلا سطرٍ = دعوًى غيرُ قابلةٍ
+#    للفحص» ومقلوبُها «سطرُ عرضٍ بلا حقلٍ = كذبة». يُفحَص أن الترويسةَ
+#    تحمل العمودَ وأن الكتلةَ مُنادةٌ من `batch` (‏AST لا نصًّا).
+_pnl_calls = [n for n in _cut_ast.walk(
+    _cut_ast.parse(_cut_ins.getsource(_SDP.batch).lstrip()))
+    if isinstance(n, _cut_ast.Call)
+    and getattr(n.func, "id", None) == "_tier_pnl"]
+check("💵 PNL3 عمودُ «المحقَّق» في الترويسة و`_tier_pnl` مُنادةٌ من `batch`",
+      "💵 المحقَّق" in _cut_ins.getsource(_SDP.batch) and len(_pnl_calls) == 1,
+      f"نداءات={len(_pnl_calls)}")
+
+
 # ── ⛏️🕐 أقفالُ `T-RECLAIM-INTRADAY` (‏RC1-RC7) — العقد
 #    `intraday_reclaim_prereg.md` مدفوعٌ **قبل** سطرِ كودٍ واحدٍ من الأداة.
 # 🐞 **استيرادٌ صريحٌ في الكتلة** — سقط قفلٌ هنا ثلاثَ مرّاتٍ في جلسةٍ واحدة

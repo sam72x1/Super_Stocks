@@ -186,10 +186,17 @@ def batch(day, bars, prev_close):
             o = "خسرت"
         m5_all, at5 = full_day_max(b, a_ms, e5) if e5 else (None, None)
         m1_all, at1 = full_day_max(b, a_ms, entry)
+        # 💵 **المحقَّقُ من سعر كرت `M5`** — أي من السعر الذي يدفعه المالكُ
+        #    فعلًا، **لا** من إغلاق المِرساة. وهو عينُ الخلط الذي أخرجه بلاغُ
+        #    `HUIZ`: عمودُ «قبل الخروج» سقفٌ (لمسُ قمّة) وهذا **الحصيلة**.
+        #    ⚠️ وحين لا يقع الخروجُ البنيويّ (`broke=False`) فالمخرَجُ إغلاقُ
+        #    آخر شمعة — **اصطلاحٌ مُعلَنٌ لا توصية**.
+        ex5 = ((ex_px / e5 - 1.0) * 100.0
+               if (ex_px and e5 and e5 > 0) else None)
         out.append({
             "sym": sym, "tier": (tier[0] if tier else None),
             "green": (tier[1] if tier else None),
-            "entry": entry, "e5": e5, "mg5": mg5,
+            "entry": entry, "e5": e5, "mg5": mg5, "ex5": ex5,
             "res": pct, "outcome": o,
             "ex_ms": ex_ms, "broke": broke,
             "m5_all": m5_all, "at5": at5, "m1_all": m1_all, "at1": at1,
@@ -199,17 +206,18 @@ def batch(day, bars, prev_close):
     print("\n" + "=" * 78)
     print(f"🔁 إعادةُ قياس اليوم كلِّه · {day} · {len(out)} مِرساة")
     print("=" * 78)
-    print("الرمز    | الفئة  | أخضر | سعر M5  | 📏 قبل الخروج | الحصيلة "
-          "| 🔴 اليومُ كاملًا | وقتُ القمّة | بعد الخروج؟")
+    print("الرمز    | الفئة  | أخضر | سعر M5  | 📏 قبل الخروج | 💵 المحقَّق "
+          "| الحصيلة | 🔴 اليومُ كاملًا | وقتُ القمّة | بعد الخروج؟")
     for r in out:
         e5s = f"{r['e5']:.4f}" if r["e5"] else "—"
         b4 = f"{r['mg5']:+.1f}%" if r["mg5"] is not None else "كُسر قبل5"
+        rz = f"{r['ex5']:+.1f}%" if r["ex5"] is not None else "—"
         allp = f"{r['m5_all']:+.1f}%" if r["m5_all"] is not None else "—"
         tt = _hm(r["at5"]) if r["at5"] else "—"
         print(f"{r['sym']:<8} | {(r['tier'] or '—'):<6} | "
               f"{(r['green'] if r['green'] is not None else '—'):>4} | "
-              f"{e5s:>7} | {b4:>13} | {r['outcome']:<7} | {allp:>14} | "
-              f"{tt:>10} | {'✅ نعم' if r['after'] else 'لا'}")
+              f"{e5s:>7} | {b4:>13} | {rz:>10} | {r['outcome']:<7} | "
+              f"{allp:>14} | {tt:>10} | {'✅ نعم' if r['after'] else 'لا'}")
     # 🔴 حجمُ الحدّ بالرقم
     lost = [r for r in out if r["outcome"] in ("خسرت", "معلّقة")]
     print(f"\n🔴 **حجمُ الحدّ في {day}:**")
@@ -221,6 +229,36 @@ def batch(day, bars, prev_close):
     naf = sum(1 for r in out if r["after"])
     print(f"   ↳ وقعت قمّةُ اليوم **بعد** الخروج البنيويّ في **{naf}** من "
           f"{len(out)} مِرساة")
+    _tier_pnl(out, day)
+    return out
+
+
+def _tier_pnl(out, day):
+    """💵 **الحصيلةُ المحقَّقة بالفئة** — من سعر كرت `M5` إلى الخروج
+    البنيويّ. تُجيب «هل في «قوي» صفقةٌ خاسرة؟» **بالرقم لا بالوسم**.
+    ⚠️ ولا تُقاس إلّا على مَن وُجد له كرتُ `M5` (‏`ex5` غيرُ `None`) —
+    ومَن كُسر قاعُه قبل الدقيقة الخامسة **دخولُه ورقيٌّ لا يُشترى**
+    فيُعَدّ على حدةٍ ولا يُخلَط بالحصيلة."""
+    print(f"\n💵 **الحصيلةُ المحقَّقة بالفئة · {day}** "
+          f"(من سعر كرت M5 إلى الخروج البنيويّ):")
+    print("   الفئة   |  ن | رابحة | خاسرة | نسبةُ الخاسرة | وسيطُ المحقَّق "
+          "| أسوأ | أفضل | 🔻 بلا كرت")
+    for t in ("قوي", "متوسط", "ضعيف"):
+        g = [r for r in out if r["tier"] == t]
+        v = sorted(r["ex5"] for r in g if r["ex5"] is not None)
+        nc = sum(1 for r in g if r["mg5"] is None)
+        if not v:
+            print(f"   {t:<7} | {len(g):>2} | — لا صفَّ قابلٌ للقياس")
+            continue
+        win = sum(1 for x in v if x > 0)
+        los = len(v) - win
+        med = (v[len(v) // 2] if len(v) % 2
+               else (v[len(v) // 2 - 1] + v[len(v) // 2]) / 2.0)
+        print(f"   {t:<7} | {len(v):>2} | {win:>5} | {los:>5} | "
+              f"{100.0 * los / len(v):>12.1f}% | {med:>+13.1f}% | "
+              f"{v[0]:>+5.1f}% | {v[-1]:>+5.1f}% | {nc:>9}")
+    print("   ⚖️ «خاسرة» = **الخروجُ البنيويّ دون سعر كرت M5** — لا «السهمُ "
+          "خسر» (عمودُ «اليومُ كاملًا» يقول ما فعله السهم).")
     return out
 
 
