@@ -1,0 +1,40 @@
+name: Recover missed premarket alerts (2026-08-24)
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - codex/recover-missed-alerts-20260824-0800-0939
+
+concurrency:
+  group: recover-missed-alerts-20260824-0800-0939
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout the verified recovery snapshot
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install production dependencies
+        run: pip install -r requirements.txt
+
+      - name: Replay only the interrupted premarket interval
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RECOVERY_START_UTC: "2026-08-24T08:00:00Z"
+          RECOVERY_END_UTC: "2026-08-24T09:38:56Z"
+          SCREENER_MODE: PROBE
+        run: python recover_missed_alerts.py
