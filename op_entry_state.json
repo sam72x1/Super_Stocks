@@ -20,7 +20,8 @@
   "date": "2026-08-21"
  },
  "LIQ:YAAS": {
-  "date": "2026-08-24"
+  "date": "2026-08-21",
+  "last_eval_ms": 1787333940000
  },
  "LIQ:SPHL": {
   "date": "2026-08-24"
@@ -642,7 +643,7 @@
    "M1",
    "M5"
   ],
-  "updates": 2,
+  "updates": 3,
   "vol_x": 78.3,
   "peak_usd": 1564699,
   "last_eval_ms": 1787577420000,
@@ -687,7 +688,7 @@
   "date": "2026-08-24"
  },
  "LIQ:SXTP": {
-  "last_eval_ms": 1787574360000,
+  "last_eval_ms": 1787574540000,
   "date": "2026-08-24"
  },
  "LIQ:XCUR": {
@@ -1488,7 +1489,7 @@
   "updates": 0,
   "vol_x": 119.7,
   "peak_usd": 4940786,
-  "last_eval_ms": 1787577900000,
+  "last_eval_ms": 1787577960000,
   "pulse_ms": 1787578620000,
   "anchor_price": 8.8087,
   "anchor_low": 6.74,
@@ -2197,7 +2198,7 @@
   "updates": 0,
   "vol_x": 5.8,
   "peak_usd": 22114,
-  "last_eval_ms": 1787576280000,
+  "last_eval_ms": 1787576340000,
   "pulse_ms": 1787578620000,
   "anchor_price": 8.37,
   "anchor_low": 7.78,
@@ -2237,7 +2238,7 @@
   "updates": 0,
   "vol_x": 86.6,
   "peak_usd": 319486,
-  "last_eval_ms": 1787578200000,
+  "last_eval_ms": 1787578320000,
   "pulse_ms": 1787578620000,
   "anchor_price": 4.3812,
   "anchor_low": 4.03,
@@ -2337,5 +2338,6 @@
   "last_eval_ms": 1787578560000,
   "date": "2026-08-24"
  },
- "CCTG": "2026-08-24"
+ "CCTG": "2026-08-24",
+ "CAN": "2026-08-24"
 }
