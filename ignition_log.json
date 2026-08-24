@@ -683,5 +683,50 @@
   "usd_eff": 5460,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "MTVA",
+  "date": "2026-08-24",
+  "sustain_min": 20,
+  "operator_ok": true,
+  "fired_at": "2026-08-24T20:01:07Z",
+  "break_level": 1.49,
+  "price": 1.5001,
+  "vol_x": 8.8,
+  "usd": 6378,
+  "candle_class": "group",
+  "usd_eff": 6378,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "MIMI",
+  "date": "2026-08-24",
+  "sustain_min": 0,
+  "operator_ok": false,
+  "fired_at": "2026-08-24T20:01:08Z",
+  "break_level": 1.95,
+  "price": 1.96,
+  "vol_x": 3.4,
+  "usd": 1617,
+  "candle_class": "group",
+  "usd_eff": 1617,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "QTI",
+  "date": "2026-08-24",
+  "sustain_min": 17,
+  "operator_ok": true,
+  "fired_at": "2026-08-24T20:01:08Z",
+  "break_level": 2.94,
+  "price": 3.39,
+  "vol_x": 6.0,
+  "usd": 30444,
+  "candle_class": "group",
+  "usd_eff": 30444,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
