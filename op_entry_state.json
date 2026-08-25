@@ -562,7 +562,7 @@
   "updates": 1,
   "vol_x": 3.1,
   "peak_usd": 149059,
-  "last_eval_ms": 1787659860000,
+  "last_eval_ms": 1787659800000,
   "pulse_ms": 1787660400000,
   "anchor_price": 0.5298,
   "anchor_low": 0.5006,
@@ -751,8 +751,8 @@
   "date": "2026-08-25"
  },
  "LIQ:AHMA": {
-  "date": "2026-08-25",
-  "last_eval_ms": 1787660400000
+  "last_eval_ms": 1787660400000,
+  "date": "2026-08-25"
  },
  "LIQ:FTFT": {
   "last_eval_ms": 1787654820000,
