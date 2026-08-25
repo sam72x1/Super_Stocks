@@ -8600,7 +8600,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.97
+   "last_price": 2.97,
+   "live_alert": {}
   },
   {
    "symbol": "BENF",
@@ -8963,7 +8964,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.253
+   "last_price": 2.253,
+   "live_alert": {}
   },
   {
    "symbol": "SPHL",
@@ -12642,7 +12644,7 @@
    "last_price": 0.5,
    "live_alert": {
     "buyzone": "2026-08-24",
-    "premarket": "2026-08-19",
+    "premarket": "2026-08-25",
     "sweep": "2026-08-19"
    },
    "spikes": [
@@ -14152,7 +14154,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.766
+   "last_price": 0.766,
+   "live_alert": {}
   },
   {
    "symbol": "XXII",
@@ -14516,7 +14519,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.684
+   "last_price": 3.684,
+   "live_alert": {}
   },
   {
    "symbol": "KSCP",
@@ -17038,7 +17042,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.8
+   "last_price": 4.8,
+   "live_alert": {}
   }
  ],
  "removed": [
