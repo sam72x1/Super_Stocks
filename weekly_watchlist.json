@@ -2543,7 +2543,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.2,
-   "last_price": 21.8,
+   "last_price": 22.99,
    "live_alert": {},
    "borrow_hist": [
     [
@@ -7502,7 +7502,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 9.6,
-   "last_price": 2.4106,
+   "last_price": 2.41,
    "live_alert": {
     "buyzone": "2026-08-25",
     "breakout": "2026-08-24"
@@ -8603,7 +8603,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.01,
+   "last_price": 3.02,
    "live_alert": {
     "buyzone": "2026-08-25",
     "breakout": "2026-08-25"
