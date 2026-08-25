@@ -2156,3 +2156,4 @@
 {"key": "envelope|2026-08-24|XXII", "hunter": "envelope", "session": "2026-08-24", "symbol": "XXII", "kind": "candidate", "ref_close": 3.6835999488830566, "fwd": 40, "outcome": null, "float": 571474.0}
 {"key": "envelope|2026-08-24|ZCMD", "hunter": "envelope", "session": "2026-08-24", "symbol": "ZCMD", "kind": "candidate", "ref_close": 0.9308000206947327, "fwd": 40, "outcome": null, "float": 14489.0}
 {"key": "envelope|2026-08-24|ZDAI", "hunter": "envelope", "session": "2026-08-24", "symbol": "ZDAI", "kind": "candidate", "ref_close": 1.6699999570846558, "fwd": 40, "outcome": null, "float": 8103265.0}
+{"key": "split_filter|2026-08-24|XXII", "hunter": "split_filter", "session": "2026-08-24", "symbol": "XXII", "kind": "candidate", "ref_close": 3.6835999488830566, "fwd": 40, "outcome": null, "price": 3.6835999488830566, "half": 3.3, "ref": 6.6}
