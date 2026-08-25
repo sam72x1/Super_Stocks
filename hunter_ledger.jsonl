@@ -2082,3 +2082,4 @@
 {"key": "control|2026-08-21|ACGC", "hunter": "control", "session": "2026-08-21", "symbol": "ACGC", "kind": "control", "ref_close": null, "fwd": 40, "outcome": null}
 {"key": "control|2026-08-21|MBBC", "hunter": "control", "session": "2026-08-21", "symbol": "MBBC", "kind": "control", "ref_close": 15.119999885559082, "fwd": 40, "outcome": null}
 {"key": "control|2026-08-21|OSS", "hunter": "control", "session": "2026-08-21", "symbol": "OSS", "kind": "control", "ref_close": 11.399999618530273, "fwd": 40, "outcome": null}
+{"key": "split|2026-08-24|CHSN", "hunter": "split", "session": "2026-08-24", "symbol": "CHSN", "kind": "candidate", "ref_close": 1.100000023841858, "fwd": 40, "outcome": null, "price": 1.1, "float": 387547.0, "half": 0.94, "ref": 1.88}
