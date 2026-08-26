@@ -308,7 +308,7 @@
    "M5",
    "M30"
   ],
-  "updates": 1,
+  "updates": 2,
   "vol_x": 10.6,
   "peak_usd": 927334,
   "last_eval_ms": 1787741280000,
@@ -855,7 +855,7 @@
   "date": "2026-08-26"
  },
  "LIQ:WKSP": {
-  "last_eval_ms": 1787747100000,
+  "last_eval_ms": 1787747160000,
   "date": "2026-08-26"
  },
  "LIQ:YHC": {
