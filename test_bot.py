@@ -30634,6 +30634,19 @@ check("🎯 TGT7 حارس V0 يوقف بخروج 3 (AST) · وcoverage_verdict �
       _tg_v0_ret3 and _tg_cov,
       f"ifs={len(_tg_v0_ifs)} ret3={_tg_v0_ret3} cov={_tg_cov}")
 
+# 🔒 TGT8 **وضع اليوم لا يخضر بصفر أيام** (وقع فعلا: ملف 08-25 غائب 404
+#    والتشغيلة «نجحت» بصفر صفوف = no-op صامت): فرع If في main يفحص
+#    n_files ويرجع 3 (بنيويا).
+_tg_nf_ifs = [n for n in _tg_ast.walk(_tg_main)
+              if isinstance(n, _tg_ast.If)
+              and any(isinstance(x, _tg_ast.Name) and x.id == "n_files"
+                      for x in _tg_ast.walk(n.test))
+              and any(isinstance(x, _tg_ast.Return)
+                      and getattr(x.value, "value", None) == 3
+                      for x in _tg_ast.walk(n))]
+check("🎯 TGT8 وضع اليوم بصفر أيام مقيسة يوقف بخروج 3 (AST)",
+      len(_tg_nf_ifs) >= 1, f"ifs={len(_tg_nf_ifs)}")
+
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
