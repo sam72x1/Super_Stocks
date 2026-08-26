@@ -20569,6 +20569,16 @@ def _ls_bars(n_after, quiet_v=500, burst_v=30_000, forming=True):
     return out
 
 
+# 🕐 🔓 **إقرارٌ مؤرَّخ 2026-08-26 (أمرُ المالك «نفّذ» — إسقاطُ ساعة الحائط):**
+#    فكستشراتُ `scan_liq_stages` كانت تمثّل «قيد التكوين» **بالموضع** (آخرُ صفّ)
+#    وطوابعُها قديمة ⇒ بساعةِ الحائط الحقيقية تُعَدّ مغلقةً **فيكذب الفكستشر**
+#    (wire-check §③: فكستشرٌ يفعل ما يستحيل على الإنتاج). ⇒ تُحقَن ساعةٌ **داخل
+#    دقيقة الصفّ الأخير** فيبقى «قيد التكوين» زمنًا كما هو حيًّا، والسلوكُ
+#    المتوقَّع القديم يبقى بت-بت. (‏`_ls_bars(1)` و`_lsq([حدثٌ واحد])` جنكُهما
+#    عند الدقيقة 21 من `_ls_base` ⇒ ساعةٌ واحدةٌ تكفي الأربعة.)
+_LS_NOW21 = (_ls_base + 21 * 60_000 + 30_000) / 1000.0
+
+
 _ls_st, _ls_seq = {}, []
 for _n in (1, 2, 3, 6, 31):
     _e, _ls_st = S.liq_stage_events(_ls_bars(_n), _ls_st)
@@ -20656,7 +20666,7 @@ check("⏫ LS6 بلا قفزةٍ ⇒ **صفرُ حدثٍ وصمتٌ تامّ** �
 _ls_uni = [{"symbol": f"S{i}", "src": "تحت المتابعة"} for i in range(12)]
 _ls_seen = {}
 _ls_rows, _ls_cov, _ls_sec = S.scan_liq_stages(
-    _ls_uni, "2026-08-17", seen=_ls_seen, workers=4,
+    _ls_uni, "2026-08-17", seen=_ls_seen, workers=4, clock=lambda: _LS_NOW21,
     fetch_bars=lambda s, minutes=65: _ls_bars(1) if s in ("S1", "S7") else _ls_flat)
 check("⏫ LS7 **المسحُ متزامنٌ ويغطّي الكونَ كلَّه في دورةٍ واحدة** (وعدُ الدقيقة) · "
       "ويرجّع المطابقَ وحده · والتغطيةُ **تُرجَع** فتُطبَع ولا تُخفى",
@@ -20671,6 +20681,7 @@ check("⏫ LS8 **الحالةُ قاموسٌ بنطاق `LIQ:`** (لا ملفَ�
       and _ls_seen["LIQ:S1"]["sent"] == ["M1"]
       and S.scan_liq_stages(_ls_uni[:2], "2026-08-18",
                             seen={"LIQ:S1": "2026-08-17"}, workers=2,
+                            clock=lambda: _LS_NOW21,
                             fetch_bars=lambda s, minutes=65: _ls_bars(1)
                             )[0][0][1][0]["stage"] == "M1",
       str(_ls_seen.get("LIQ:S1"))[:110])
@@ -20929,6 +20940,7 @@ for _nm, _fo in (("no", lambda s: {"has_operator": False}),
                                     "bid_block_shares": 2000})):
     _lsq_res[_nm] = len(S.scan_liq_stages(_lsq_uni, "2026-08-17", seen={},
                                           fetch_bars=_lsq_fb, fetch_operator=_fo,
+                                          clock=lambda: _LS_NOW21,
                                           workers=2)[0])
 check("🔴 LS15 **تأكيدُ المضارب على الناجين وحدهم** (عتبةُ فيصل 1000 سهم): قِيس ولا "
       "مضارب ⇒ **يُكتَم** · تعذّر ⇒ **يمرّ بفائدة الشك** · ومضاربٌ ⇒ يمرّ — ونداءُ "
@@ -26818,7 +26830,7 @@ try:
     S.polygon_prev_close = lambda sym, day=None: 0.71
     _dch_rows, _dch_cov, _dch_sec = S.scan_liq_stages(
         [{"symbol": "S1", "src": "تحت المتابعة"}], "2026-08-18",
-        seen=_dch_seen, workers=1,
+        seen=_dch_seen, workers=1, clock=lambda: _LS_NOW21,
         fetch_bars=lambda s, minutes=65: _ls_bars(1),
         fetch_operator=lambda s, limit=None: {"has_operator": True,
                                               "bid": 1.0, "ask": 1.1})
@@ -27760,14 +27772,17 @@ check("💓🔼 PLS8 **«التحديثُ للقوي» نافذٌ في قناة 
 _pls_seen = {S.LIQ_STATE_PREFIX + "PXA": dict(_pls_anch, date="2026-08-19")}
 _pls_ba = [_cu_bar(100, 2.0, 2.0, 30000), _cu_bar(101, 2.0, 2.0, 26000),
            _cu_bar(102, 2.0, 2.0, 26000), _cu_bar(103, 2.0, 2.0, 10)]
-_pls_bb = [_cu_bar(200, 1.0, 1.0, 20000), _cu_bar(201, 1.0, 1.0, 20000),
-           _cu_bar(202, 1.0, 1.06, 900000), _cu_bar(203, 1.06, 1.06, 10)]
+# 🔓 إقرارٌ مؤرَّخ 2026-08-26 (ساعةُ الحائط): كانت PXB على الدقائق 200-203
+#    فتعذّر أن تكون ساعةٌ واحدة داخلَ دقيقتَي الجنك معًا ⇒ رُبِست إلى 100-103
+#    (القيمُ نفسُها — الفاصلُ كان اعتباطيًّا) والساعةُ المحقونة داخل الدقيقة 103.
+_pls_bb = [_cu_bar(100, 1.0, 1.0, 20000), _cu_bar(101, 1.0, 1.0, 20000),
+           _cu_bar(102, 1.0, 1.06, 900000), _cu_bar(103, 1.06, 1.06, 10)]
 try:
     _pls_rows, _c9, _s9 = S.scan_liq_stages(
         [{"symbol": "PXA", "src": "الترشيح"},
          {"symbol": "PXB", "src": "الترشيح"}], "2026-08-19",
         fetch_bars=lambda s, minutes=65: _pls_ba if s == "PXA" else _pls_bb,
-        seen=_pls_seen,
+        seen=_pls_seen, clock=lambda: 103 * 60 + 30,
         fetch_operator=lambda s, limit=None: {"has_operator": False})
     _pls_out = {r["symbol"]: [e["stage"] for e in evs] for r, evs in _pls_rows}
 except Exception as _e:                                          # noqa: BLE001
@@ -29128,6 +29143,87 @@ check("🕐 PGP5 مدخلا run_min/symbols ⟶ PG_RUN_MIN/PG_SYMS · بلا ك�
       and any("provider_gap_probe.py" in str(st.get("run") or "")
               for st in _pgp_steps),
       f"env={sorted(_pgp_env)}")
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 🕐 **WCD1-WCD4 — «الإسقاطُ بساعة الحائط لا بالموضع»** (أمرُ المالك «نفّذ»
+#    2026-08-26 بعد «قس فجوة المزود» — `provider_gap_result.md`): آخرُ صفٍّ في
+#    ردّ المزوّد أحدثُ **مكتملةٍ** تُنشَر خلال ‏≈2-3 ثوانٍ، وقاعدةُ `rows[:-1]`
+#    كانت تُسقطها موضعًا ⇒ ‏≈62ث ثابتةً لكلّ كشفٍ والرقيقُ يعلق دقائق.
+#    ⇒ المسارُ الحيّ (`scan_liq_stages`) يمرّر `now_ms` فتُسقَط المتكوّنةُ
+#    **زمنًا** · وبلا `now_ms` القاعدةُ القديمة **بت-بت** (أدواتُ الإعادة
+#    المجمّدة — أرقامُ ‏44,200 مِرساةً محسوبةٌ عليها).
+# ═══════════════════════════════════════════════════════════════════════════
+_wcd_t0 = 1_756_000_000_000
+_wcd_bars = [{"t": _wcd_t0 + _i * 60_000, "o": 1.0, "h": 1.1, "l": 0.99,
+              "c": 1.06, "v": 3000} for _i in range(7)]
+_wcd_last_t = _wcd_t0 + 7 * 60_000
+_wcd_bars.append({"t": _wcd_last_t, "o": 1.0, "h": 1.3, "l": 1.0,
+                  "c": 1.25, "v": 90_000})          # المؤهَّلةُ = آخرُ صفّ
+_wcd_close = _wcd_last_t + 60_000
+_wcd_g = int(S.LIQ_BAR_CLOSE_GUARD_MS)
+_wcd_none = [e["stage"] for e in S.liq_stage_events(_wcd_bars, {})[0]]
+_wcd_ev1, _wcd_st1 = S.liq_stage_events(
+    _wcd_bars, {}, now_ms=_wcd_close + _wcd_g + 1_000)
+_wcd_early = [e["stage"] for e in S.liq_stage_events(
+    _wcd_bars, {}, now_ms=_wcd_last_t + 30_000)[0]]
+check("🕐 WCD1 ثلاثةُ عوالم تفترق: بلا now_ms ⇒ آخرُ صفٍّ يُسقَط موضعًا (صمت "
+      "بت-بت) · بساعةٍ بعد الإغلاق+الهامش ⇒ **M1 يفير على آخر صفّ** (حالة "
+      "$CRE بعينها) · وبساعةٍ داخل دقيقتها ⇒ صمت (متكوّنةٌ زمنًا)",
+      _wcd_none == [] and [e["stage"] for e in _wcd_ev1] == ["M1"]
+      and _wcd_st1.get("anchor_ms") == _wcd_last_t and _wcd_early == [],
+      f"none={_wcd_none} wall={[e['stage'] for e in _wcd_ev1]} "
+      f"early={_wcd_early}")
+# WCD2 — 🔒 **فحصُ تخوم الهامش** (درسُ «القفلُ لا يحرس إلّا بقدر ما تُفرِّق
+#   عيّنتُه»): أغلقت قبل 4ث ⇒ ما زالت خارجًا · وعند الهامش بالضبط ⇒ داخلة
+#   (`<=`) — والهامشُ فوق أقصى نشرٍ مقيس (‏p90 ‏≈4.2ث) ودون 30ث.
+check("🕐 WCD2 تخومُ `LIQ_BAR_CLOSE_GUARD_MS`: إغلاقٌ قبل 4ث خارجٌ · وعند "
+      "الهامش بالضبط داخلٌ · والقيمةُ فوق أقصى النشر المقيس (‏4.2ث) ودون 30ث",
+      [e["stage"] for e in S.liq_stage_events(
+          _wcd_bars, {}, now_ms=_wcd_close + 4_000)[0]] == []
+      and [e["stage"] for e in S.liq_stage_events(
+          _wcd_bars, {}, now_ms=_wcd_close + _wcd_g)[0]] == ["M1"]
+      and 4_200 < _wcd_g <= 30_000,
+      f"هامش={_wcd_g}ms")
+# WCD3 — 🔒 **الوصلةُ من نقطة النداء الحيّة** (wire-check): `scan_liq_stages`
+#   يمرّر `now_ms` فعلًا (بالـAST) · وسلوكيًّا: مسحٌ بساعةٍ بعد الإغلاق يلتقط
+#   مِرساةً آخرَ صفٍّ (مستحيلٌ بالقاعدة القديمة) · وبساعةٍ داخل الدقيقة يصمت.
+_wcd_calls = [c for c in _ast0.walk(_ast0.parse(
+    _insp0.getsource(S.scan_liq_stages)))
+    if isinstance(c, _ast0.Call)
+    and getattr(c.func, "id", None) == "liq_stage_events"]
+_wcd_scan = S.scan_liq_stages(
+    [{"symbol": "WC1", "src": "تحت المتابعة"}], "2026-08-26", seen={},
+    workers=1, fetch_bars=lambda s, minutes=65: _wcd_bars,
+    clock=lambda: (_wcd_close + _wcd_g + 1_000) / 1000.0)
+_wcd_scan2 = S.scan_liq_stages(
+    [{"symbol": "WC1", "src": "تحت المتابعة"}], "2026-08-26", seen={},
+    workers=1, fetch_bars=lambda s, minutes=65: _wcd_bars,
+    clock=lambda: (_wcd_last_t + 30_000) / 1000.0)
+check("🕐 WCD3 المسحُ الحيّ يمرّر `now_ms` (بالـAST) ⇒ مِرساةُ آخرِ صفٍّ تُلتقَط "
+      "في الدورة نفسِها (‏كرتُ $CRE كان سيصل قبل ‏≈دقيقة) · وداخل الدقيقة يصمت",
+      len(_wcd_calls) == 1
+      and any(k.arg == "now_ms" for k in _wcd_calls[0].keywords)
+      and [e["stage"] for e in _wcd_scan[0][0][1]] == ["M1"]
+      and _wcd_scan2[0] == [],
+      f"نداءات={len(_wcd_calls)} · مسح={len(_wcd_scan[0])}")
+# WCD4 — 🔒 **أدواتُ الإعادة المجمّدة لا تعرف `now_ms`** (بالـAST على ملفَّيهما):
+#   `kasih_scan.resolve` وكلُّ رقمٍ منشورٍ (‏44,200 مِرساة) على قاعدة الموضع ⇒
+#   تمريرُ الساعة هناك يُبطل المقارنةَ مع كلّ ما نُشر (سابقة `CAP15`).
+_wcd_frozen_ok = True
+for _wcd_f in ("kasih_scan.py", "liq_case_probe.py", "m0_probe.py",
+               "gate_probe.py", "alert_filter_check.py"):
+    for _c in _ast0.walk(_ast0.parse(open(_wcd_f, encoding="utf-8").read())):
+        if (isinstance(_c, _ast0.Call)
+                and getattr(_c.func, "attr", getattr(_c.func, "id", None))
+                == "liq_stage_events"
+                and any(k.arg == "now_ms" or k.arg is None
+                        for k in _c.keywords)):
+            _wcd_frozen_ok = False
+check("🕐 WCD4 أدواتُ الإعادة (kasih_scan/liq_case_probe) **بلا `now_ms`** "
+      "بالـAST (ولا **kwargs) ⇒ قاعدةُ الموضع القديمة بت-بت فيهما",
+      _wcd_frozen_ok
+      and "rows[:-1]" in _insp0.getsource(S.liq_stage_events),
+      f"frozen_ok={_wcd_frozen_ok}")
 
 # 🪟🪟 **WIN1-WIN4 — «‏💪 شمعةٌ قوية · 🥉 ضعيف» في كرتٍ واحد (بلاغُ المالك على
 #   `$SDOT`، مأخذُ المراجعة ح-1).** الوسمان **صادقان** وكلٌّ عن **نافذةٍ
