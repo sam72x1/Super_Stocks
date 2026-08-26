@@ -34,6 +34,7 @@ import Super_stock as S                                           # noqa: E402
 MIN_MS = 60_000
 TARGETS = (10.0, 20.0, 30.0)      # سلّمُ العقد §② — T10 الحاكمة ولا ذراعَ خامسة
 FLOOR_ROWS = 150                  # أرضيةُ الحكم (العقد §④)
+WINSOR_R = 10.0                   # ملحق ⑩ — سقفُ التشذيب لكلّ صفّ (‏±10R)
 TIER_ORDER = ("قوي", "متوسط", "ضعيف", "بلا تصنيف")
 
 
@@ -282,24 +283,39 @@ def main() -> int:                                                # noqa: C901
         n = len(rows_out)
         print(f"\n① §A — الأذرعُ الأربع على {n:,} صفًّا مؤهَّلًا "
               f"({'أرضيةُ الحكم مستوفاة ✅' if n >= FLOOR_ROWS else '⛔ دون أرضية 150 ⇒ لا حكم'})")
-        print(f"  {'الذراع':8} {'ن(R)':>7} {'متوسط R':>9} {'وسيط %':>8} "
-              f"{'موجب %':>8} {'عبّأ الهدف %':>12}")
+        print(f"  {'الذراع':8} {'ن(R)':>7} {'متوسط R':>9} {'مشذّب±10':>9} "
+              f"{'وسيط R':>8} {'وسيط %':>8} {'موجب %':>8} {'عبّأ الهدف %':>12}")
         stats = {}
+        stats_w = {}
         for nm, ttl in (("t0", "T0"), ("t10", "T10"),
                         ("t20", "T20"), ("t30", "T30")):
             rs = [r[nm]["r"] for r in rows_out if r[nm]["r"] is not None]
+            rw = [max(-WINSOR_R, min(WINSOR_R, x)) for x in rs]
             ps = [r[nm]["pct"] for r in rows_out]
             wins = sum(1 for p in ps if p > 0)
             fills = sum(1 for r in rows_out if r[nm]["kind"] == "target")
             stats[nm] = _mean(rs)
+            stats_w[nm] = _mean(rw)
             print(f"  {ttl:8} {len(rs):>7,} {_fmt(_mean(rs)):>9} "
+                  f"{_fmt(_mean(rw)):>9} {_fmt(_med(rs)):>8} "
                   f"{_fmt(_med(ps), '+.1f'):>8} "
                   f"{100.0 * wins / len(ps):>7.1f}% "
                   f"{100.0 * fills / len(ps):>11.1f}%")
         if stats.get("t0") is not None and stats.get("t10") is not None:
             print(f"\n  ⚖️ الحاكم (العقد §④): متوسط R(T10) − متوسط R(T0) = "
-                  f"{stats['t10'] - stats['t0']:+.3f}R لهذي السنة — "
-                  "والحكمُ عبر السنوات الثلاث مجمَّعةً لا هنا.")
+                  f"{stats['t10'] - stats['t0']:+.3f}R خامًّا · "
+                  f"{stats_w['t10'] - stats_w['t0']:+.3f}R مشذَّبًا (ملحق ⑩)"
+                  " — والحكمُ عبر السنوات الثلاث مجمَّعةً لا هنا، واختلافُ"
+                  " إشارة الخام عن المشذَّب = «غيرُ قابلٍ للقراءة».")
+            # 🔎 ملحق ⑩ — فحصُ التركُّز: نصيبُ أكبر خمسة صفوف من فرق T10−T0
+            _dfs = [r["t10"]["r"] - r["t0"]["r"] for r in rows_out
+                    if r["t10"]["r"] is not None and r["t0"]["r"] is not None]
+            if _dfs:
+                _top5 = sorted(_dfs, key=abs, reverse=True)[:5]
+                print(f"  🔎 تركُّز الفرق (ملحق ⑩): مجموعُ فروق الصفوف "
+                      f"{sum(_dfs):+.1f}R · أكبرُ خمسة "
+                      f"{sum(_top5):+.1f}R "
+                      f"({', '.join(f'{d:+.1f}' for d in _top5)})")
 
         print("\n② تفصيلُ الفئات (وصفيٌّ يُنشَر ولا يحكم — «القوي فيه خاسرة؟»)")
         print(f"  {'الفئة':10} {'ن':>6} {'T0 متوسط R':>11} {'T0 موجب%':>9} "
