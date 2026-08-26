@@ -30744,6 +30744,112 @@ _tg_nf_ifs = [n for n in _tg_ast.walk(_tg_main)
 check("🎯 TGT8 وضع اليوم بصفر أيام مقيسة يوقف بخروج 3 (AST)",
       len(_tg_nf_ifs) >= 1, f"ifs={len(_tg_nf_ifs)}")
 
+# ═══ 🥇③ T-TIER-V3 — أقفال TV1-TV6 (عقد tier_v3_prereg.md · 2026-08-26) ═══
+# أمرُ المالك «سجل تصنيف v3»: أذرعُ تعريفٍ ثلاثيّ تضمّ J1 تُقاس خارج
+# الإنتاج — `liq_tier` لا تُمَسّ. الأقفال: منطقُ الأذرع فارقًا (TV1) ·
+# مقياسٌ واحدٌ بالاسم والحاكمُ from5 (TV2) · قراءةٌ فقط (TV3) · وصلُ
+# الـworkflow (TV4) · بوّاباتُ الصلاحية حقيقية (TV5) · والسلّم (TV6).
+import tier_v3_scan as _tv3
+
+# TV1 — **جدولُ المنطق الفارق**: 16 خانة (4 حالات × 4 أذرع) بقيمها الحرفية
+#   — كلُّ زوجِ ذراعين يفترق في حالةٍ منها (وإلّا فالبوّابةُ عمياء).
+_tv_SMIN = _tv3.SMIN
+_tv_cases = {
+    (_tv_SMIN, False, False): ("قوي", "قوي", "متوسط", "قوي"),
+    (0, True, False): ("ضعيف", "قوي", "قوي", "متوسط"),
+    (0, True, True): ("ضعيف", "قوي", "قوي", "قوي"),
+    (_tv_SMIN - 1, False, False): ("متوسط", "متوسط", "ضعيف", "متوسط"),
+}
+_tv_bad = [(c, a) for c, want in _tv_cases.items()
+           for a, w in zip(("V0", "V1", "V2", "V3"), want)
+           if _tv3.tier_of(a, *c) != w]
+check("🥇③ TV1 منطقُ الأذرع الأربعة على الجدول الفارق (16 خانة حرفيًّا)",
+      not _tv_bad, f"مخالف={_tv_bad}")
+
+# TV2 — **مقياسٌ واحدٌ بالاسم**: `_green`/`_j1` وثوابتُ المعايير من
+#   `strong2_scan` و`load_all` من `kasih2_red_stats` و`SMIN` من
+#   `Super_stock.LIQ_TIER_STRONG_MIN` (AST) · **والحاكمُ `from5` يفترق عن
+#   الرفيق سلوكيًّا** (صفٌّ يفرّقهما · وغيابُ from5 = خارج المقام لا صفر).
+_tv_src = _insp0.getsource(_tv3)
+_tv_tree = _ast0.parse(_tv_src)
+_tv_imports = {(n.module or ""): {a.name for a in n.names}
+               for n in _ast0.walk(_tv_tree)
+               if isinstance(n, _ast0.ImportFrom)}
+_tv_smin_ok = any(
+    isinstance(n, _ast0.Assign)
+    and any(getattr(t, "id", None) == "SMIN" for t in n.targets)
+    and "LIQ_TIER_STRONG_MIN" in _ast0.dump(n.value)
+    for n in _ast0.walk(_tv_tree))
+_tv_row = {"kasih30_from5": True, "kasih30": False}
+check("🥇③ TV2 الاستيرادُ بالاسم (strong2/kasih2_red_stats/SMIN من الإنتاج) "
+      "· والحاكمُ from5 يفترق عن الرفيق",
+      {"_green", "_j1", "MIN_COVER", "MIN_RECALL", "SEP_MULT",
+       "HOLDOUT"} <= _tv_imports.get("strong2_scan", set())
+      and {"load_all", "YEARS"} <= _tv_imports.get("kasih2_red_stats", set())
+      and _tv_smin_ok
+      and _tv3._gov_hit(_tv_row) is True
+      and _tv3._comp_hit(_tv_row) is False
+      and _tv3._gov_hit({"kasih30": True}) is None,
+      f"strong2={sorted(_tv_imports.get('strong2_scan', set()))}")
+
+# TV3 — 🔒 **قراءةٌ فقط**: صفرُ إرسالٍ/كتابةِ حالة (AST) · والإنتاجُ لا
+#   يستوردها (عُقدُ الاستيراد في شجرة Super_stock — النمطُ البنيويّ من TDY3).
+_tv_calls = {getattr(n.func, "attr", None) or getattr(n.func, "id", None)
+             for n in _ast0.walk(_tv_tree) if isinstance(n, _ast0.Call)}
+_tv_writes = _tv_calls & {"send_telegram", "git_save", "save_op_entry_state",
+                          "save_watchlist", "save_near_watch",
+                          "save_hunter_watch"}
+_tv_imported_in_S = any(
+    (isinstance(n, _ast0.Import)
+     and any(a.name == "tier_v3_scan" for a in n.names))
+    or (isinstance(n, _ast0.ImportFrom) and (n.module or "") == "tier_v3_scan")
+    for n in _ast0.walk(_tdy_S_tree))
+check("🥇③ TV3 قراءةٌ فقط · والإنتاجُ لا يستوردها (AST)",
+      not _tv_writes and not _tv_imported_in_S,
+      f"كتابات={sorted(_tv_writes)} · استيراد={_tv_imported_in_S}")
+
+# TV4 — **وصلُ الـworkflow**: dispatch بمدخل run_ids موصولٍ بالبيئة ·
+#   ينادي tier_v3_scan.py · **وبلا كرون** (قراءةٌ يدوية حصرًا).
+_tv_yml = open(".github/workflows/tier_v3.yml", encoding="utf-8").read()
+check("🥇③ TV4 الـworkflow موصول: run_ids ⟶ بيئة ⟶ tier_v3_scan.py · بلا كرون",
+      "workflow_dispatch" in _tv_yml and "run_ids" in _tv_yml
+      and "TV3_RUN_IDS: ${{ inputs.run_ids }}" in _tv_yml
+      and "python tier_v3_scan.py" in _tv_yml
+      and "schedule" not in _tv_yml and "cron" not in _tv_yml, "")
+
+# TV5 — **بوّاباتُ الصلاحية حقيقيةٌ تفرّق** (لا زينة): `g2_ok` يعبر على
+#   الإنتاج · `g4_ok` يعبر على الأذرع ويسقط على أذرعٍ عمياء · و`g1_ok`
+#   يعبر على أرقام `S2` المنشورة بالضبط ويسقط على انحرافٍ بعُشر.
+def _tv_blind(arm, g, j1, jt):
+    return (_tv3.tier_of("V0", g, j1, jt) if arm in ("V0", "V1")
+            else _tv3.tier_of(arm, g, j1, jt))
+
+
+_tv_g1_hit = {"agg": {"c_in": (357, 102), "n_all": 1000, "ck_all": 1000},
+              "per": {"2023": {"c_in": (340, 1000)},
+                      "2024": {"c_in": (415, 1000)},
+                      "2025": {"c_in": (385, 1000)}}}
+_tv_g1_off = {"agg": {"c_in": (357, 102), "n_all": 1000, "ck_all": 1000},
+              "per": {"2023": {"c_in": (341, 1000)},
+                      "2024": {"c_in": (415, 1000)},
+                      "2025": {"c_in": (385, 1000)}}}
+check("🥇③ TV5 البوّاباتُ تفرّق: g2 ✅ · g4 ✅ ويسقط على العمياء · g1 يعبر "
+      "على المنشور ويسقط على عُشرٍ منحرف",
+      _tv3.g2_ok() and _tv3.g4_ok() and not _tv3.g4_ok(_tv_blind)
+      and _tv3.g1_ok(_tv_g1_hit) and not _tv3.g1_ok(_tv_g1_off), "")
+
+# TV6 — **السلّم ⑤ يفرّق**: رتيبٌ بمقاماتٍ كافية ⇒ True · مقلوبٌ ⇒ False ·
+#   وفئةٌ دون MIN_TIER_ROWS في سنةٍ ⇒ False (سلّمٌ لا يُقرأ لا يُعتمَد).
+def _tv_py(rows3):
+    return {y: {"g_قوي": rows3[0], "g_متوسط": rows3[1], "g_ضعيف": rows3[2]}
+            for y in ("2023", "2024", "2025")}
+
+
+check("🥇③ TV6 السلّمُ يفرّق: رتيبٌ ✅ · مقلوبٌ 🔴 · ومقامٌ ناقص 🔴",
+      _tv3.ladder_ok(_tv_py([(30, 100), (15, 100), (5, 100)]))
+      and not _tv3.ladder_ok(_tv_py([(10, 100), (15, 100), (5, 100)]))
+      and not _tv3.ladder_ok(_tv_py([(10, 29), (8, 100), (2, 100)])), "")
+
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
