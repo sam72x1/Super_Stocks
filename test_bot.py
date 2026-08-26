@@ -28518,11 +28518,16 @@ _br_two = S.build_liq_stage_alert([(_br_row, [_br_m1, _br_m5])], now_ms=_br_now)
 #   في الكرت (سطرُ الوقف · وسمُ الفئة). **ويُشدَّد لا يُرخى:** الاتّساعُ **مشروطٌ
 #   بأنّ الزيادةَ هي المأمورُ بها بعينِها** — يُشترَط حضورُ سطر الوقف ووسم الفئة
 #   في العيّنة نفسِها، فلا تُشترى الميزانيةُ لحشوٍ آخر.
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-26 (أمرُ المالك «اعرض الهدف» بعد استيفاء
+#   `T-TARGET10`):** أُضيف سطرُ «🎯 هدفُ الربح» لكرت `M5` **داخل الميزانية
+#   القائمة بلا توسعة** (‏539 من 560 محرفًا · 6 من 7 أسطر) — **ويُشدَّد**:
+#   حضورُه صار شرطًا في العيّنة نفسِها كالوقف والفئة.
 check("📏 BRIEF1 كرتُ `$RITR` (سهمٌ · حدثٌ) تحت 560 محرفٍ و7 أسطر · "
-      "والزيادةُ هي المأمورُ بها (وقفٌ + فئة) "
+      "والزيادةُ هي المأمورُ بها (وقفٌ + فئة + هدف) "
       f"— الفعليّ {len(_br_one)}/{len(_br_one.splitlines())}",
       len(_br_one) < 560 and len(_br_one.splitlines()) <= 7
       and "🛑 وقفُ الجلسة" in _br_one
+      and "🎯 هدفُ الربح" in _br_one
       and any(_t in _br_one for _t in ("🥇 قوي", "🥈 متوسط", "🥉 ضعيف")),
       f"محارف={len(_br_one)} · أسطر={len(_br_one.splitlines())}")
 
@@ -28558,11 +28563,17 @@ _br_many = S.build_liq_stage_alert(
 #   ميزانية الكرت المفرد (‏560×3). **والتشديدُ:** يُشترَط أن يبقى **وسيطُ
 #   السهم الواحد دون 570 محرفًا** — فلا يتحوّل السقفُ الجماعيّ إلى بابٍ
 #   يتضخّم منه الكرتُ المفرد بلا أن يسقط `BRIEF1`.
-check("📏 BRIEF4 ثلاثةُ أسهمٍ بحدثين ⇒ ثلاثةُ رؤوسٍ وفاصلان وتحت 1,700 محرف "
-      "(ووسيطُ السهم دون 570)",
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-26 (أمرُ المالك «اعرض الهدف»):** سطرُ «🎯 هدفُ
+#   الربح» أضاف ‏48 محرفًا لكلّ كرت `M5` فتجاوز السقفُ بمحرفٍ واحد (‏1,701
+#   من 1,700) ⇒ اتّسع إلى **1,750**. **والتشديدُ كسوابقه:** الاتّساعُ مشروطٌ
+#   بأنّ الزيادةَ هي المأمورُ بها — سطرُ الهدف حاضرٌ **ثلاثًا** (مرّةً لكلّ
+#   سهم) في العيّنة نفسِها، ووسيطُ السهم يبقى دون 570.
+check("📏 BRIEF4 ثلاثةُ أسهمٍ بحدثين ⇒ ثلاثةُ رؤوسٍ وفاصلان وتحت 1,750 محرف "
+      "(ووسيطُ السهم دون 570 · وسطرُ الهدف ثلاثًا)",
       _br_many.count("🔥") == 3
       and _br_many.count(S.DAILY_CARD_SEP) == 2
-      and len(_br_many) < 1700 and (len(_br_many) / 3.0) < 570,
+      and len(_br_many) < 1750 and (len(_br_many) / 3.0) < 570
+      and _br_many.count("🎯 هدفُ الربح") == 3,
       f"محارف={len(_br_many)} · للسهم={len(_br_many) / 3.0:.0f}")
 
 # BRIEF8 — 📏 **مسافةٌ بين كلّ سهمٍ والثاني** (أمرُ المالك 2026-08-20: «يكون فيه
@@ -28652,6 +28663,75 @@ check("📏 BRIEF5 قاعدةُ «التوليفة» في `_event_j1` وحدها
       and "_event_j1" in _br_bl_calls and "kasih_j1" not in _br_bl_calls
       and "kasih_j1" in _br_ej1_calls,
       f"{_br_bl_calls & {'_event_j1', 'kasih_j1'}}")
+
+# ═══ 🎯 «اعرض الهدف» — أقفال TGT9-TGT12 (أمرُ المالك 2026-08-26) ═══
+# سقفُ نجاح `T-TARGET10` المثبَّت في العقد §⑦ نُفِّذ بأمره: سطرُ «🎯 هدفُ الربح
+# 10% = $X» على كرت `M5` **حصرًا** — عرضٌ لا أتمتةَ خروج. الأقفالُ تحرس:
+# الوصلَ الحيّ والحصرَ بـ`M5` (TGT9) · الأساسَ سعرَ الكرت لا `anchor_price`
+# (TGT10) · الرقمَ من الثابت والفاشلَ-الآمن (TGT11) · وأنه عرضٌ خارج
+# الإطلاق/الحالة (TGT12).
+
+# TGT9 — **فارقٌ محدَّد لا «أو»**: السطرُ حاضرٌ على كرت `M5` بقيمته المحسوبة
+#   (‏0.1261×1.1 = $0.1387) وباسم أساسه، وغائبٌ عن `M1` و`M30` و`Px` —
+#   فالهدفُ قِيس من `e5` (سعر كرت الخمس) ولا معنى له قبل اكتمالها.
+_t10_m1 = S.build_liq_stage_alert([(_br_row, [_br_m1])], now_ms=_br_now)
+_t10_m30 = S.build_liq_stage_alert(
+    [(_br_row, [_br_ev("M30", 2_000_000, 30, _br_t + 1_800_000)])],
+    now_ms=_br_t + 1_805_000)
+_t10_px = S.build_liq_stage_alert(
+    [(_br_row, [{"stage": "Px", "price": 0.1261, "usd": 50_000, "minutes": 1,
+                 "pulse_pct": -13.0, "prev_usd": 1_300_000,
+                 "price_ms": _br_t + 600_000}])], now_ms=_br_now)
+check("🎯 TGT9 سطرُ الهدف على كرت `M5` بقيمته ($0.1387 من $0.1261) · وغائبٌ "
+      "عن M1/M30/Px",
+      "🎯 هدفُ الربح 10% = $0.1387 (من سعر الكرت $0.1261)" in _br_one
+      and "🎯 هدفُ الربح" not in _t10_m1
+      and "🎯 هدفُ الربح" not in _t10_m30
+      and "🎯 هدفُ الربح" not in _t10_px,
+      next((ln for ln in _br_one.splitlines() if "🎯" in ln), "غائب"))
+
+# TGT10 — **الأساسُ سعرُ الكرت لا `anchor_price`** (عيّنةٌ مفرِّقة: يختلفان):
+#   الدخولُ المقيس في `T-TARGET10` هو `e5` = سعرُ كرت الخمس، و`anchor_price`
+#   إغلاقُ دقيقة المِرساة — والخلطُ يحرّك الهدفَ عن المستوى المقيس بصمت.
+_t10_d = S.target10_line(dict(_br_m5, price=2.00, anchor_price=1.80))
+check("🎯 TGT10 الأساسُ `price` (‏2.00 ⟶ $2.20) لا `anchor_price` (‏1.80 ⟶ $1.98)",
+      "$2.20" in _t10_d and "$1.98" not in _t10_d
+      and "(من سعر الكرت $2.00)" in _t10_d, _t10_d)
+
+# TGT11 — **الرقمُ من `LIQ_TARGET10_PCT` لا مغروسًا** (حقنُ 25 يغيّر السطر) ·
+#   والفاشلُ-الآمن `""` (سعرٌ غائب/صفريّ/نصّ تالف) · وبلا علاماتِ مقارنةٍ
+#   في النصّ المعروض (قاعدةُ 2026-06-23).
+_t10_old = S.LIQ_TARGET10_PCT
+try:
+    S.LIQ_TARGET10_PCT = 25.0
+    _t10_inj = S.target10_line(dict(_br_m5, price=2.00))
+finally:
+    S.LIQ_TARGET10_PCT = _t10_old
+_t10_line1 = S.target10_line(_br_m5)
+check("🎯 TGT11 الرقمُ من الثابت (حقنُ 25 ⟶ «هدفُ الربح 25% = $2.50») · "
+      "والفاشلُ-الآمن `\"\"` · وبلا علامات مقارنة",
+      "هدفُ الربح 25% = $2.50" in _t10_inj
+      and S.target10_line(dict(_br_m5, price=None)) == ""
+      and S.target10_line(dict(_br_m5, price=0)) == ""
+      and S.target10_line(dict(_br_m5, price="تالف")) == ""
+      and S.target10_line(None) == ""
+      and not any(cch in _t10_line1 for cch in ("≥", "≤", ">", "<")),
+      _t10_inj)
+
+# TGT12 — **عرضٌ خارج الإطلاق والحالة** (AST): `target10_line` تُنادى في
+#   `build_liq_stage_alert` **مرّةً واحدة** ولا تعرفها `liq_stage_events`
+#   (البوّابة/الحالة) ولا `scan_liq_stages` ولا `alert_filter_keep` — فمَن
+#   يُطلق ومتى وما يُكتَم بت-بت، والسطرُ تسليمُ عرضٍ بحت.
+_t10_in_card = [c for c in _ast0.walk(_ast0.parse(_br_bl_src))
+                if isinstance(c, _ast0.Call)
+                and getattr(c.func, "id", None) == "target10_line"]
+_t10_gates = {fn.__name__: any(
+    isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == "target10_line"
+    for c in _ast0.walk(_ast0.parse(_insp0.getsource(fn))))
+    for fn in (S.liq_stage_events, S.scan_liq_stages, S.alert_filter_keep)}
+check("🎯 TGT12 نداءٌ واحدٌ في بنّاء الكرت · وصفرٌ في البوّابة/المسح/الفلتر",
+      len(_t10_in_card) == 1 and not any(_t10_gates.values()),
+      f"كرت={len(_t10_in_card)} · بوّابات={_t10_gates}")
 
 # ═══ 🛑🥇 «التصنيف والوقف» — أقفال TIER1-TIER4 · STOP1-STOP4 (2026-08-20) ═══
 # أمرُ المالك: «تصنيف قوي و متوسط و ضعيف … و وقف خسارة حسب الشموع». العقد
@@ -29531,16 +29611,33 @@ check("🥇 TDY2 الخروجُ **أوّلُ** إغلاقٍ دون القاع (�
 
 # TDY3 — 🔒 **قراءةٌ فقط**: صفرُ إرسالٍ وصفرُ كتابةِ حالةٍ بالـAST ·
 #        **والإنتاجُ لا يستوردها**.
+# ⚖️ **إقرارٌ مؤرَّخ 2026-08-26 — الفخُّ النصّيُّ الموثَّق سقط هنا:** شقُّ
+#   «لا يستوردها» كان إبرةً نصّيّة (`"tier_days_report" not in getsource`)
+#   فسقط على **docstring** `target10_line` الذي يوثّق أن أساسَ الهدف هو
+#   `e5` المقيس عبر `tier_days_report.true_e5` — ذِكرٌ توثيقيّ لا استيراد.
+#   ⇒ صار **بنيويًّا بالـAST** (عُقد `Import`/`ImportFrom` + `__import__`)
+#   — **أشدُّ لا أرخى**: النصُّ لا يفرّق كودًا عن تعليق، والاستيرادُ الحقيقيّ
+#   يُمسَك مهما صيغ، والتعليقُ البريء لا يُسقط السويّة كذبًا.
 _tdy_src = open("tier_days_report.py", encoding="utf-8").read()
 _tdy_bad = {getattr(n.func, "attr", None) or getattr(n.func, "id", None)
             for n in _ast0.walk(_ast0.parse(_tdy_src))
             if isinstance(n, _ast0.Call)} & {
     "send_telegram", "git_save", "save_op_entry_state", "save_watchlist",
     "save_near_watch", "save_hunter_watch"}
+_tdy_S_tree = _ast0.parse(open("Super_stock.py", encoding="utf-8").read())
+_tdy_imported = any(
+    (isinstance(n, _ast0.Import)
+     and any(a.name == "tier_days_report" for a in n.names))
+    or (isinstance(n, _ast0.ImportFrom)
+        and (n.module or "") == "tier_days_report")
+    or (isinstance(n, _ast0.Call)
+        and getattr(n.func, "id", None) == "__import__"
+        and any(isinstance(x, _ast0.Constant) and x.value == "tier_days_report"
+                for x in n.args))
+    for n in _ast0.walk(_tdy_S_tree))
 check("🥇 TDY3 قراءةٌ فقط: صفرُ إرسالٍ/كتابةِ حالة · والإنتاجُ لا يستوردها",
-      not _tdy_bad
-      and "tier_days_report" not in _insp0.getsource(S).split("def main(")[0],
-      f"مخالفات={sorted(_tdy_bad)}")
+      not _tdy_bad and not _tdy_imported,
+      f"مخالفات={sorted(_tdy_bad)} · استيراد={_tdy_imported}")
 
 # TDY4 — 🔒 **مقياسٌ واحدٌ لا اثنان**: الفئةُ من `Super_stock.liq_tier`
 #        والحسمُ من `kasih_scan.resolve` والخصائصُ من `kasih2_scan.k2_features`
