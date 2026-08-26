@@ -1,0 +1,7102 @@
+{
+ "meta": {
+  "built": "2026-08-26",
+  "repo": "/home/user/Super_Stocks",
+  "denominators": {
+   "explosions": {
+    "rows": 600,
+    "unique_symbols": 302,
+    "unique_events": 600,
+    "expl_date_range": [
+     "2026-06-29",
+     "2026-08-25"
+    ],
+    "record_date_range": [
+     "2026-07-28",
+     "2026-08-26"
+    ]
+   },
+   "tier_fwd_ledger": {
+    "rows": 119,
+    "unique_symbols": 81,
+    "dates": {
+     "2026-08-24": 44,
+     "2026-08-25": 43,
+     "2026-08-26": 32
+    }
+   },
+   "op_entry_state_git": {
+    "commits_total": 3518,
+    "commit_days_used": [
+     "2026-08-18",
+     "2026-08-19",
+     "2026-08-20",
+     "2026-08-21",
+     "2026-08-22",
+     "2026-08-24",
+     "2026-08-25",
+     "2026-08-26"
+    ],
+    "per_commit_LIQ_and_sent": {
+     "2026-08-18": [
+      322,
+      31
+     ],
+     "2026-08-19": [
+      454,
+      51
+     ],
+     "2026-08-20": [
+      500,
+      47
+     ],
+     "2026-08-21": [
+      526,
+      35
+     ],
+     "2026-08-22": [
+      504,
+      34
+     ],
+     "2026-08-24": [
+      470,
+      41
+     ],
+     "2026-08-25": [
+      443,
+      44
+     ],
+     "2026-08-26": [
+      476,
+      38
+     ]
+    },
+    "unique_date_symbol_anchors_M1_M5": 244,
+    "unique_symbols": 158,
+    "anchors_by_state_date": {
+     "2026-08-17": 1,
+     "2026-08-18": 30,
+     "2026-08-19": 44,
+     "2026-08-20": 37,
+     "2026-08-21": 24,
+     "2026-08-24": 34,
+     "2026-08-25": 42,
+     "2026-08-26": 32
+    }
+   },
+   "alerts_history": {
+    "rows": 155,
+    "unique_symbols": 143,
+    "date_range": [
+     "2026-06-21",
+     "2026-08-25"
+    ],
+    "status": {
+     "stopped": 41,
+     "expired": 13,
+     "hit_t1": 57,
+     "hit_t2": 7,
+     "hit_t3": 3,
+     "open": 34
+    }
+   },
+   "hunter_ledger": {
+    "rows": 2226,
+    "split_alert_rows": 5,
+    "split_symbols": [
+     "CHSN"
+    ],
+    "split_filter_alert_rows": 2,
+    "split_filter_symbols": [
+     "XXII"
+    ],
+    "envelope_silent_rows": 1886,
+    "envelope_unique_symbols": 497,
+    "control_rows": 333,
+    "sessions_range": [
+     "2026-08-05",
+     "2026-08-25"
+    ]
+   },
+   "hunter_watchlist": {
+    "stocks": 1,
+    "symbols": [
+     "CHSN"
+    ],
+    "added": "2026-08-13"
+   },
+   "press_radar_ledger": {
+    "rows": 397,
+    "unique_symbols": 150,
+    "sessions": 10,
+    "sessions_range": [
+     "2026-08-14",
+     "2026-08-25"
+    ],
+    "ready_rows_hold_ge3": 159
+   }
+  },
+  "totals": {
+   "alerted_symbols_union": 332,
+   "exploded_symbols": 302,
+   "intersection_symbols": 135,
+   "gold_alert_on_or_before_expl": 25,
+   "alert_after_explosion_only": 110,
+   "alerted_no_explosion_record_symbols": 197,
+   "liq_anchored_symbols_without_explosion_record": 72
+  }
+ },
+ "gold_rows": [
+  {
+   "symbol": "AIXC",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-18",
+   "gain": 86.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 138.0
+    },
+    {
+     "date": "2026-08-18",
+     "gain": 86.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "BIVI",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-19",
+   "gain": 93.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-19",
+     "gain": 93.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "BTCT",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 7,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-19",
+   "gain": 83.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-19",
+     "gain": 83.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "CXAI",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-18",
+   "gain": 3738.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 4,
+   "all_expl_events": [
+    {
+     "date": "2026-07-27",
+     "gain": 7973.0
+    },
+    {
+     "date": "2026-07-28",
+     "gain": 7828.0
+    },
+    {
+     "date": "2026-07-30",
+     "gain": 7358.0
+    },
+    {
+     "date": "2026-08-18",
+     "gain": 3738.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "GIPR",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 7,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-24",
+   "gain": 151.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-24",
+     "gain": 151.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "JZ",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 🟢",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-20",
+   "gain": 95.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-20",
+     "gain": 95.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "PFSA",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 4,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-18",
+   "gain": 507.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-11",
+     "gain": 2827.0
+    },
+    {
+     "date": "2026-08-18",
+     "gain": 507.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "PRHI",
+   "first_alert": "2026-08-13",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "ترشيح القائمة"
+   ],
+   "expl_date": "2026-08-13",
+   "gain": 74.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-13",
+     "gain": 74.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-13",
+     "channel": "ترشيح القائمة",
+     "extra": "hit_t1"
+    }
+   ]
+  },
+  {
+   "symbol": "SLE",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-18",
+   "gain": 82.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-17",
+     "gain": 142.0
+    },
+    {
+     "date": "2026-08-18",
+     "gain": 82.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "SMXT",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "ترشيح القائمة"
+   ],
+   "expl_date": "2026-08-14",
+   "gain": 1030.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-29",
+     "gain": 1300.0
+    },
+    {
+     "date": "2026-08-14",
+     "gain": 1030.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "ترشيح القائمة",
+     "extra": "stopped"
+    }
+   ]
+  },
+  {
+   "symbol": "XPON",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-24",
+   "gain": 80.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-24",
+     "gain": 80.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "YJ",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-19",
+   "gain": 144.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 0,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 4,
+   "all_expl_events": [
+    {
+     "date": "2026-07-31",
+     "gain": 188.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 188.0
+    },
+    {
+     "date": "2026-08-07",
+     "gain": 224.0
+    },
+    {
+     "date": "2026-08-19",
+     "gain": 144.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "DFSC",
+   "first_alert": "2026-08-08",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-11",
+   "gain": 148.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": -3,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-11",
+     "gain": 148.0
+    },
+    {
+     "date": "2026-08-13",
+     "gain": 86.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-08",
+     "channel": "ترشيح القائمة",
+     "extra": "hit_t1"
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    }
+   ]
+  },
+  {
+   "symbol": "GRNQ",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-08-17",
+   "gain": 79.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": -3,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 1085.0
+    },
+    {
+     "date": "2026-08-06",
+     "gain": 781.0
+    },
+    {
+     "date": "2026-08-17",
+     "gain": 79.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "YYAI",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 4,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-17",
+   "gain": 2040.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": -3,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-10",
+     "gain": 2003.0
+    },
+    {
+     "date": "2026-08-17",
+     "gain": 2040.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "PSIG",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 10,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-18",
+   "gain": 89.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": -4,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-18",
+     "gain": 89.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "ترشيح القائمة",
+     "extra": "hit_t1"
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "CISS",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-19",
+   "gain": 3811.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": -5,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-05",
+     "gain": 4309.0
+    },
+    {
+     "date": "2026-08-19",
+     "gain": 3811.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "RDAC",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-19",
+   "gain": 50.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": -5,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-19",
+     "gain": 50.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "ترشيح القائمة",
+     "extra": "hit_t2"
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "DAIC",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-24",
+   "gain": 306.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": -6,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-24",
+     "gain": 306.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "BIAF",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-25",
+   "gain": 1197.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": -7,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-25",
+     "gain": 1197.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "SDOT",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 13,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-21",
+   "gain": 56.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": -7,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-06-29",
+     "gain": 236.0
+    },
+    {
+     "date": "2026-08-21",
+     "gain": 56.0
+    },
+    {
+     "date": "2026-08-24",
+     "gain": 76.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "ترشيح القائمة",
+     "extra": "stopped"
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "HTZ",
+   "first_alert": "2026-07-28",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "ترشيح القائمة"
+   ],
+   "expl_date": "2026-08-05",
+   "gain": 85.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": -8,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-05",
+     "gain": 85.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-07-28",
+     "channel": "ترشيح القائمة",
+     "extra": "stopped"
+    }
+   ]
+  },
+  {
+   "symbol": "JEM",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-25",
+   "gain": 78.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": -11,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-25",
+     "gain": 78.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "NAMI",
+   "first_alert": "2026-07-17",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 81.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": -13,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 81.0
+    },
+    {
+     "date": "2026-08-07",
+     "gain": 195.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-07-17",
+     "channel": "ترشيح القائمة",
+     "extra": "stopped"
+    },
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "AIXI",
+   "first_alert": "2026-08-11",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 7,
+   "all_channels": [
+    "ترشيح القائمة",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-25",
+   "gain": 186.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": -14,
+   "relation": "expl_after_or_on_alert",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-25",
+     "gain": 186.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-11",
+     "channel": "ترشيح القائمة",
+     "extra": "stopped"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    }
+   ]
+  }
+ ],
+ "alert_after_explosion_rows": [
+  {
+   "symbol": "AIFU",
+   "first_alert": "2026-08-21",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-20",
+   "gain": 78.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 1,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-20",
+     "gain": 78.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1"
+    }
+   ]
+  },
+  {
+   "symbol": "NCPL",
+   "first_alert": "2026-08-26",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-25",
+   "gain": 127.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 1,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-25",
+     "gain": 127.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "XOS",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-18",
+   "gain": 112.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 1,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 128.0
+    },
+    {
+     "date": "2026-08-18",
+     "gain": 112.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "ZSTK",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-19",
+   "gain": 170.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 1,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-19",
+     "gain": 170.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "OFAL",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-12",
+   "gain": 91.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 2,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-31",
+     "gain": 910.0
+    },
+    {
+     "date": "2026-08-12",
+     "gain": 91.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "TRUG",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-17",
+   "gain": 59.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 2,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-05",
+     "gain": 86.0
+    },
+    {
+     "date": "2026-08-17",
+     "gain": 59.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "AEMD",
+   "first_alert": "2026-08-07",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-08-04",
+   "gain": 433.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 3,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 564.0
+    },
+    {
+     "date": "2026-08-04",
+     "gain": 433.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-07",
+     "channel": "ترشيح القائمة",
+     "extra": "stopped"
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "HAO",
+   "first_alert": "2026-08-17",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-14",
+   "gain": 1666.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 3,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 2893.0
+    },
+    {
+     "date": "2026-08-14",
+     "gain": 1666.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-17",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "AEHL",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-08-10",
+   "gain": 1803.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 4,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-07",
+     "gain": 485.0
+    },
+    {
+     "date": "2026-08-10",
+     "gain": 1803.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "AUUD",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 7,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-10",
+   "gain": 61.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 4,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-10",
+     "gain": 61.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "OSRH",
+   "first_alert": "2026-08-21",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-17",
+   "gain": 87.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 4,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-14",
+     "gain": 108.0
+    },
+    {
+     "date": "2026-08-17",
+     "gain": 87.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "STKH",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 7,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-10",
+   "gain": 129.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 4,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-27",
+     "gain": 184.0
+    },
+    {
+     "date": "2026-08-10",
+     "gain": 129.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "BRNX",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-14",
+   "gain": 276.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 5,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-08-10",
+     "gain": 839.0
+    },
+    {
+     "date": "2026-08-13",
+     "gain": 679.0
+    },
+    {
+     "date": "2026-08-14",
+     "gain": 276.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "INHD",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-13",
+   "gain": 57.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 5,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-10",
+     "gain": 111.0
+    },
+    {
+     "date": "2026-08-13",
+     "gain": 57.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "BRLS",
+   "first_alert": "2026-08-26",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-20",
+   "gain": 92.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 6,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-20",
+     "gain": 92.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "FXHO",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-12",
+   "gain": 51.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 6,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-12",
+     "gain": 51.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "GNLN",
+   "first_alert": "2026-08-25",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-08-18",
+   "gain": 52.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 7,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 106.0
+    },
+    {
+     "date": "2026-08-18",
+     "gain": 52.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "IVF",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-17",
+   "gain": 57.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 7,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-17",
+     "gain": 57.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "LUNR",
+   "first_alert": "2026-08-06",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "ترشيح القائمة"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 79.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 7,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 79.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-06",
+     "channel": "ترشيح القائمة",
+     "extra": "hit_t1"
+    }
+   ]
+  },
+  {
+   "symbol": "RCON",
+   "first_alert": "2026-08-25",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-18",
+   "gain": 11033.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 7,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 24344.0
+    },
+    {
+     "date": "2026-08-17",
+     "gain": 1007.0
+    },
+    {
+     "date": "2026-08-18",
+     "gain": 11033.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    }
+   ]
+  },
+  {
+   "symbol": "SNYR",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-17",
+   "gain": 55.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 7,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-17",
+     "gain": 55.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "WXM",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-11",
+   "gain": 98.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 7,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-07-21",
+     "gain": 151.0
+    },
+    {
+     "date": "2026-07-30",
+     "gain": 148.0
+    },
+    {
+     "date": "2026-08-11",
+     "gain": 98.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "BOXL",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-12",
+   "gain": 169.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 8,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 188.0
+    },
+    {
+     "date": "2026-08-12",
+     "gain": 169.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "CELZ",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 🟢",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-06",
+   "gain": 79.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 8,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-04",
+     "gain": 117.0
+    },
+    {
+     "date": "2026-08-06",
+     "gain": 79.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "CLRO",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-08-06",
+   "gain": 149.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 8,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-06",
+     "gain": 114.0
+    },
+    {
+     "date": "2026-08-06",
+     "gain": 149.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "ELPW",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-10",
+   "gain": 3910.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 8,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-08-04",
+     "gain": 51.0
+    },
+    {
+     "date": "2026-08-07",
+     "gain": 1514.0
+    },
+    {
+     "date": "2026-08-10",
+     "gain": 3910.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "INBS",
+   "first_alert": "2026-08-07",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 94.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 8,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 94.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-07",
+     "channel": "ترشيح القائمة",
+     "extra": "hit_t1"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "MB",
+   "first_alert": "2026-08-15",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 4,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-08-07",
+   "gain": 225.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 8,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 5,
+   "all_expl_events": [
+    {
+     "date": "2026-07-24",
+     "gain": 143.0
+    },
+    {
+     "date": "2026-07-27",
+     "gain": 143.0
+    },
+    {
+     "date": "2026-07-28",
+     "gain": 143.0
+    },
+    {
+     "date": "2026-07-29",
+     "gain": 143.0
+    },
+    {
+     "date": "2026-08-07",
+     "gain": 225.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "SUGP",
+   "first_alert": "2026-08-07",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 10,
+   "all_channels": [
+    "ترشيح القائمة",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 398.0,
+   "kind": "تجمّع",
+   "suspect_split": true,
+   "diff_days": 8,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 398.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-07",
+     "channel": "ترشيح القائمة",
+     "extra": "hit_t1"
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    }
+   ]
+  },
+  {
+   "symbol": "SUPX",
+   "first_alert": "2026-08-07",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "ترشيح القائمة",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 81.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 8,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 81.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-07",
+     "channel": "ترشيح القائمة",
+     "extra": "hit_t1"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "INLF",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 🟢",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-05",
+   "gain": 97.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 9,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-28",
+     "gain": 62.0
+    },
+    {
+     "date": "2026-08-05",
+     "gain": 97.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "JLHL",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-08-05",
+   "gain": 73.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 9,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-05",
+     "gain": 73.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "PCLA",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-05",
+   "gain": 87.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 9,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 4,
+   "all_expl_events": [
+    {
+     "date": "2026-07-15",
+     "gain": 73.0
+    },
+    {
+     "date": "2026-07-20",
+     "gain": 92.0
+    },
+    {
+     "date": "2026-07-22",
+     "gain": 87.0
+    },
+    {
+     "date": "2026-08-05",
+     "gain": 87.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "RITR",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-05",
+   "gain": 79.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 9,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-03",
+     "gain": 500.0
+    },
+    {
+     "date": "2026-08-05",
+     "gain": 79.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "SCKT",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-10",
+   "gain": 446.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 9,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-07",
+     "gain": 446.0
+    },
+    {
+     "date": "2026-08-10",
+     "gain": 446.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "YXT",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 7,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-05",
+   "gain": 801.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 9,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-04",
+     "gain": 801.0
+    },
+    {
+     "date": "2026-08-05",
+     "gain": 801.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "CAPR",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-14",
+   "gain": 58.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 10,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-03",
+     "gain": 107.0
+    },
+    {
+     "date": "2026-08-14",
+     "gain": 58.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "EMAT",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-14",
+   "gain": 76.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 10,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-14",
+     "gain": 76.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    }
+   ]
+  },
+  {
+   "symbol": "SXTC",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-10",
+   "gain": 7704.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 10,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-06-30",
+     "gain": 79.0
+    },
+    {
+     "date": "2026-08-04",
+     "gain": 60.0
+    },
+    {
+     "date": "2026-08-10",
+     "gain": 7704.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "DSY",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-08-07",
+   "gain": 63.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 11,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-21",
+     "gain": 72.0
+    },
+    {
+     "date": "2026-08-07",
+     "gain": 63.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "FUSE",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 70.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 11,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 70.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 70.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "ترشيح القائمة",
+     "extra": "open"
+    }
+   ]
+  },
+  {
+   "symbol": "HYFM",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 4,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 298.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 11,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 285.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 298.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "KWM",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 3927.0,
+   "kind": "تجمّع",
+   "suspect_split": true,
+   "diff_days": 11,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-31",
+     "gain": 1927.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 3927.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "LBGJ",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 9,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 23178.0,
+   "kind": "تجمّع",
+   "suspect_split": true,
+   "diff_days": 11,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 6,
+   "all_expl_events": [
+    {
+     "date": "2026-07-10",
+     "gain": 98.0
+    },
+    {
+     "date": "2026-07-13",
+     "gain": 84.0
+    },
+    {
+     "date": "2026-07-14",
+     "gain": 83.0
+    },
+    {
+     "date": "2026-07-15",
+     "gain": 83.0
+    },
+    {
+     "date": "2026-07-31",
+     "gain": 55.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 23178.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "SEGG",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 596.0,
+   "kind": "تجمّع",
+   "suspect_split": true,
+   "diff_days": 11,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-31",
+     "gain": 308.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 596.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "UPC",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 105.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 11,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-03",
+     "gain": 105.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "ATGL",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-08-07",
+   "gain": 224.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 13,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-07",
+     "gain": 224.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "AZI",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-06",
+   "gain": 55.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 13,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-06",
+     "gain": 55.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "IPW",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-07",
+   "gain": 908.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 13,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-06",
+     "gain": 944.0
+    },
+    {
+     "date": "2026-08-07",
+     "gain": 908.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    }
+   ]
+  },
+  {
+   "symbol": "FMFC",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-31",
+   "gain": 142.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 14,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 143.0
+    },
+    {
+     "date": "2026-07-31",
+     "gain": 142.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "MSGY",
+   "first_alert": "2026-08-25",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-11",
+   "gain": 1170.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 14,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-05",
+     "gain": 1180.0
+    },
+    {
+     "date": "2026-08-11",
+     "gain": 1170.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "NXTT",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-10",
+   "gain": 10817.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 14,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-08-07",
+     "gain": 622.0
+    },
+    {
+     "date": "2026-08-10",
+     "gain": 10817.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "TCX",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-31",
+   "gain": 59.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 14,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-07-28",
+     "gain": 80.0
+    },
+    {
+     "date": "2026-07-29",
+     "gain": 73.0
+    },
+    {
+     "date": "2026-07-31",
+     "gain": 59.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "WYHG",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-06",
+   "gain": 265.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 14,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-06",
+     "gain": 265.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "ZYBT",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-05",
+   "gain": 84.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 14,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 92.0
+    },
+    {
+     "date": "2026-08-05",
+     "gain": 84.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "AMIX",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 8,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-04",
+   "gain": 434.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 15,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-29",
+     "gain": 66.0
+    },
+    {
+     "date": "2026-08-04",
+     "gain": 434.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    }
+   ]
+  },
+  {
+   "symbol": "FEAM",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 87.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 15,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 87.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "GCTK",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 174.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 15,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 174.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "NUWE",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 8,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 135.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 15,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 135.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    }
+   ]
+  },
+  {
+   "symbol": "PN",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 8,
+   "all_channels": [
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 121.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 15,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 6,
+   "all_expl_events": [
+    {
+     "date": "2026-07-13",
+     "gain": 187.0
+    },
+    {
+     "date": "2026-07-16",
+     "gain": 530.0
+    },
+    {
+     "date": "2026-07-17",
+     "gain": 520.0
+    },
+    {
+     "date": "2026-07-27",
+     "gain": 197.0
+    },
+    {
+     "date": "2026-07-29",
+     "gain": 160.0
+    },
+    {
+     "date": "2026-07-30",
+     "gain": 121.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "SORA",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 85.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 15,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 4,
+   "all_expl_events": [
+    {
+     "date": "2026-07-16",
+     "gain": 77.0
+    },
+    {
+     "date": "2026-07-22",
+     "gain": 78.0
+    },
+    {
+     "date": "2026-07-30",
+     "gain": 82.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 85.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "QNME",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-04",
+   "gain": 121.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 16,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-07-31",
+     "gain": 171.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 171.0
+    },
+    {
+     "date": "2026-08-04",
+     "gain": 121.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "SGLY",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 10,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-29",
+   "gain": 92.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 16,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 5,
+   "all_expl_events": [
+    {
+     "date": "2026-07-15",
+     "gain": 94.0
+    },
+    {
+     "date": "2026-07-24",
+     "gain": 144.0
+    },
+    {
+     "date": "2026-07-27",
+     "gain": 126.0
+    },
+    {
+     "date": "2026-07-28",
+     "gain": 113.0
+    },
+    {
+     "date": "2026-07-29",
+     "gain": 92.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    }
+   ]
+  },
+  {
+   "symbol": "SPRC",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-29",
+   "gain": 71.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 16,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 5,
+   "all_expl_events": [
+    {
+     "date": "2026-07-15",
+     "gain": 113.0
+    },
+    {
+     "date": "2026-07-21",
+     "gain": 93.0
+    },
+    {
+     "date": "2026-07-23",
+     "gain": 93.0
+    },
+    {
+     "date": "2026-07-28",
+     "gain": 81.0
+    },
+    {
+     "date": "2026-07-29",
+     "gain": 71.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "APPS",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 79.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 17,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-24",
+     "gain": 72.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 79.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "CNET",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-28",
+   "gain": 72.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 17,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-28",
+     "gain": 72.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-18",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "DFNS",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 122.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 17,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 5,
+   "all_expl_events": [
+    {
+     "date": "2026-07-24",
+     "gain": 2079.0
+    },
+    {
+     "date": "2026-07-27",
+     "gain": 201.0
+    },
+    {
+     "date": "2026-07-28",
+     "gain": 549.0
+    },
+    {
+     "date": "2026-07-29",
+     "gain": 254.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 122.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    }
+   ]
+  },
+  {
+   "symbol": "MGN",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 86.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 17,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-31",
+     "gain": 123.0
+    },
+    {
+     "date": "2026-08-03",
+     "gain": 86.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "LSTA",
+   "first_alert": "2026-08-21",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-08-03",
+   "gain": 78.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 18,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-08-03",
+     "gain": 78.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "MVIS",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-31",
+   "gain": 1243.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 18,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 1504.0
+    },
+    {
+     "date": "2026-07-31",
+     "gain": 1243.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "DBGI",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 80.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 19,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-21",
+     "gain": 4363.0
+    },
+    {
+     "date": "2026-07-30",
+     "gain": 80.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "BYAH",
+   "first_alert": "2026-08-26",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-08-06",
+   "gain": 858.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 20,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 892.0
+    },
+    {
+     "date": "2026-08-06",
+     "gain": 858.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "CDTG",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 79.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 20,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 79.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "FCUV",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-31",
+   "gain": 517.0,
+   "kind": "قفزة",
+   "suspect_split": true,
+   "diff_days": 20,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 548.0
+    },
+    {
+     "date": "2026-07-31",
+     "gain": 517.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "NWGL",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 78.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 20,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 78.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "TGHL",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-31",
+   "gain": 54.0,
+   "kind": "قفزة",
+   "suspect_split": false,
+   "diff_days": 20,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 7,
+   "all_expl_events": [
+    {
+     "date": "2026-07-13",
+     "gain": 142.0
+    },
+    {
+     "date": "2026-07-14",
+     "gain": 139.0
+    },
+    {
+     "date": "2026-07-15",
+     "gain": 130.0
+    },
+    {
+     "date": "2026-07-22",
+     "gain": 111.0
+    },
+    {
+     "date": "2026-07-23",
+     "gain": 108.0
+    },
+    {
+     "date": "2026-07-30",
+     "gain": 95.0
+    },
+    {
+     "date": "2026-07-31",
+     "gain": 54.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "ZTG",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-29",
+   "gain": 157.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 20,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 4,
+   "all_expl_events": [
+    {
+     "date": "2026-07-02",
+     "gain": 106.0
+    },
+    {
+     "date": "2026-07-06",
+     "gain": 147.0
+    },
+    {
+     "date": "2026-07-08",
+     "gain": 149.0
+    },
+    {
+     "date": "2026-07-29",
+     "gain": 157.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-20",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "AIRO",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 71.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 21,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 71.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "BLZE",
+   "first_alert": "2026-08-20",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 74.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 21,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 74.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-20",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "IVDA",
+   "first_alert": "2026-08-19",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-29",
+   "gain": 139.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 21,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-29",
+     "gain": 139.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "EJH",
+   "first_alert": "2026-08-21",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 4,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 84.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 22,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 84.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-21",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "ENTX",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-23",
+   "gain": 97.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 22,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 4,
+   "all_expl_events": [
+    {
+     "date": "2026-07-15",
+     "gain": 142.0
+    },
+    {
+     "date": "2026-07-16",
+     "gain": 120.0
+    },
+    {
+     "date": "2026-07-22",
+     "gain": 100.0
+    },
+    {
+     "date": "2026-07-23",
+     "gain": 97.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "PRPL",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-23",
+   "gain": 3262.0,
+   "kind": "تجمّع",
+   "suspect_split": true,
+   "diff_days": 22,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-23",
+     "gain": 3262.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "FFAI",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 7,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-21",
+   "gain": 9718.0,
+   "kind": "تجمّع",
+   "suspect_split": true,
+   "diff_days": 24,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-21",
+     "gain": 9718.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "متوسط"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "ZCMD",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 8,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-21",
+   "gain": 192.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 24,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-21",
+     "gain": 192.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-18",
+     "channel": "ترشيح القائمة",
+     "extra": "stopped"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-26",
+     "channel": "كرت M5",
+     "extra": "قوي"
+    }
+   ]
+  },
+  {
+   "symbol": "AAOI",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 72.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 25,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 72.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "AXTI",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 86.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 25,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-30",
+     "gain": 86.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "EUDA",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-20",
+   "gain": 80.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 25,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-07-14",
+     "gain": 84.0
+    },
+    {
+     "date": "2026-07-15",
+     "gain": 82.0
+    },
+    {
+     "date": "2026-07-20",
+     "gain": 80.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "LESL",
+   "first_alert": "2026-08-25",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-31",
+   "gain": 75.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 25,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-31",
+     "gain": 75.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "CMCT",
+   "first_alert": "2026-08-25",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-30",
+   "gain": 85.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 26,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 5,
+   "all_expl_events": [
+    {
+     "date": "2026-07-21",
+     "gain": 82.0
+    },
+    {
+     "date": "2026-07-23",
+     "gain": 92.0
+    },
+    {
+     "date": "2026-07-27",
+     "gain": 88.0
+    },
+    {
+     "date": "2026-07-28",
+     "gain": 87.0
+    },
+    {
+     "date": "2026-07-30",
+     "gain": 85.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "MF",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "n_alerts": 3,
+   "all_channels": [
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-29",
+   "gain": 171.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 26,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 6,
+   "all_expl_events": [
+    {
+     "date": "2026-07-09",
+     "gain": 123.0
+    },
+    {
+     "date": "2026-07-21",
+     "gain": 151.0
+    },
+    {
+     "date": "2026-07-22",
+     "gain": 251.0
+    },
+    {
+     "date": "2026-07-27",
+     "gain": 246.0
+    },
+    {
+     "date": "2026-07-28",
+     "gain": 193.0
+    },
+    {
+     "date": "2026-07-29",
+     "gain": 171.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "NCRA",
+   "first_alert": "2026-08-24",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-28",
+   "gain": 129.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 27,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-21",
+     "gain": 131.0
+    },
+    {
+     "date": "2026-07-28",
+     "gain": 129.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "NCTY",
+   "first_alert": "2026-08-25",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-27",
+   "gain": 80.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 29,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-27",
+     "gain": 80.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "STAK",
+   "first_alert": "2026-08-21",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-23",
+   "gain": 608.0,
+   "kind": "تجمّع",
+   "suspect_split": true,
+   "diff_days": 29,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-23",
+     "gain": 608.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-21",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "WLDS",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 4,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢",
+    "سيولة LIQ",
+    "كرت M5"
+   ],
+   "expl_date": "2026-07-20",
+   "gain": 188.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 29,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-20",
+     "gain": 188.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-25",
+     "channel": "كرت M5",
+     "extra": "ضعيف"
+    }
+   ]
+  },
+  {
+   "symbol": "TVRD",
+   "first_alert": "2026-08-07",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 7,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-07",
+   "gain": 149.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 31,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-07-01",
+     "gain": 163.0
+    },
+    {
+     "date": "2026-07-02",
+     "gain": 156.0
+    },
+    {
+     "date": "2026-07-07",
+     "gain": 149.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-07",
+     "channel": "ترشيح القائمة",
+     "extra": "open"
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "SKYQ",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-13",
+   "gain": 77.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 32,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-07-08",
+     "gain": 88.0
+    },
+    {
+     "date": "2026-07-13",
+     "gain": 77.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "LCID",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-15",
+   "gain": 72.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 34,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-15",
+     "gain": 72.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "BTOG",
+   "first_alert": "2026-08-21",
+   "first_alert_channels": [
+    "سيولة LIQ"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-17",
+   "gain": 412.0,
+   "kind": "تجمّع",
+   "suspect_split": true,
+   "diff_days": 35,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-17",
+     "gain": 412.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-21",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "LVLU",
+   "first_alert": "2026-08-21",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-17",
+   "gain": 90.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 35,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 6,
+   "all_expl_events": [
+    {
+     "date": "2026-06-29",
+     "gain": 142.0
+    },
+    {
+     "date": "2026-06-30",
+     "gain": 134.0
+    },
+    {
+     "date": "2026-07-01",
+     "gain": 133.0
+    },
+    {
+     "date": "2026-07-14",
+     "gain": 131.0
+    },
+    {
+     "date": "2026-07-15",
+     "gain": 108.0
+    },
+    {
+     "date": "2026-07-17",
+     "gain": 90.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-21",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "TRIB",
+   "first_alert": "2026-08-25",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-21",
+   "gain": 3835.0,
+   "kind": "تجمّع",
+   "suspect_split": true,
+   "diff_days": 35,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 3,
+   "all_expl_events": [
+    {
+     "date": "2026-07-15",
+     "gain": 3776.0
+    },
+    {
+     "date": "2026-07-20",
+     "gain": 3835.0
+    },
+    {
+     "date": "2026-07-21",
+     "gain": 3835.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "MTC",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 5,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-09",
+   "gain": 70.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 36,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-09",
+     "gain": 70.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "VRAX",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "رادار الضغط 🟢",
+    "سيولة LIQ"
+   ],
+   "expl_date": "2026-07-08",
+   "gain": 109.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 37,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-08",
+     "gain": 109.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-19",
+     "channel": "سيولة LIQ",
+     "extra": "M1+M5+M30"
+    }
+   ]
+  },
+  {
+   "symbol": "LEDS",
+   "first_alert": "2026-08-21",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-14",
+   "gain": 98.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 38,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-14",
+     "gain": 98.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-21",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "SUNE",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-09",
+   "gain": 82.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 40,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-09",
+     "gain": 82.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "SNAL",
+   "first_alert": "2026-08-13",
+   "first_alert_channels": [
+    "ترشيح القائمة"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "ترشيح القائمة",
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-02",
+   "gain": 70.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 42,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-06-29",
+     "gain": 71.0
+    },
+    {
+     "date": "2026-07-02",
+     "gain": 70.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-13",
+     "channel": "ترشيح القائمة",
+     "extra": "stopped"
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "CBUS",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀",
+    "رادار الضغط 🟢"
+   ],
+   "expl_date": "2026-07-06",
+   "gain": 72.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 43,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-06",
+     "gain": 72.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 🟢",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "WRAP",
+   "first_alert": "2026-08-18",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 2,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-06",
+   "gain": 74.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 43,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-06",
+     "gain": 74.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-18",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "RNAZ",
+   "first_alert": "2026-08-14",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 6,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-06-30",
+   "gain": 83.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 45,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 2,
+   "all_expl_events": [
+    {
+     "date": "2026-06-29",
+     "gain": 93.0
+    },
+    {
+     "date": "2026-06-30",
+     "gain": 83.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-14",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-15",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-16",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-17",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    },
+    {
+     "date": "2026-08-24",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  },
+  {
+   "symbol": "JZXN",
+   "first_alert": "2026-08-25",
+   "first_alert_channels": [
+    "رادار الضغط 👀"
+   ],
+   "n_alerts": 1,
+   "all_channels": [
+    "رادار الضغط 👀"
+   ],
+   "expl_date": "2026-07-06",
+   "gain": 94.0,
+   "kind": "تجمّع",
+   "suspect_split": false,
+   "diff_days": 50,
+   "relation": "expl_before_alert_only",
+   "n_expl_events": 1,
+   "all_expl_events": [
+    {
+     "date": "2026-07-06",
+     "gain": 94.0
+    }
+   ],
+   "all_alerts": [
+    {
+     "date": "2026-08-25",
+     "channel": "رادار الضغط 👀",
+     "extra": ""
+    }
+   ]
+  }
+ ],
+ "verify_documented_18": {
+  "AMIX": {
+   "liq_anchors": [
+    "2026-08-24 (M1+M5+M30)",
+    "2026-08-25 (M1+M5+M30)",
+    "2026-08-26 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-24 (قوي)",
+    "2026-08-25 (قوي)",
+    "2026-08-26 (متوسط)"
+   ],
+   "watchlist_alerts": [],
+   "press_radar": [
+    "2026-08-19 (🟢)",
+    "2026-08-24 (👀)"
+   ],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-11",
+    "2026-08-12"
+   ],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-07-29 (+66%)",
+    "2026-08-04 (+434%)"
+   ]
+  },
+  "HCWB": {
+   "liq_anchors": [
+    "2026-08-18 (M1+M5+M30)"
+   ],
+   "m5_cards": [],
+   "watchlist_alerts": [
+    "2026-08-06 (stopped)",
+    "2026-08-21 (hit_t1)"
+   ],
+   "press_radar": [
+    "2026-08-21 (👀)"
+   ],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-06",
+    "2026-08-07",
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-21",
+    "2026-08-24"
+   ],
+   "hunter_watchlist": [],
+   "explosions": []
+  },
+  "CRE": {
+   "liq_anchors": [
+    "2026-08-18 (M1+M5+M30)",
+    "2026-08-26 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-26 (قوي)"
+   ],
+   "watchlist_alerts": [],
+   "press_radar": [],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12"
+   ],
+   "hunter_watchlist": [],
+   "explosions": []
+  },
+  "RDAC": {
+   "liq_anchors": [
+    "2026-08-19 (M1+M5+M30)",
+    "2026-08-20 (M1+M5+M30)",
+    "2026-08-21 (M1+M5+M30)"
+   ],
+   "m5_cards": [],
+   "watchlist_alerts": [
+    "2026-08-14 (hit_t2)"
+   ],
+   "press_radar": [
+    "2026-08-25 (👀)"
+   ],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-25"
+   ],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-08-19 (+50%)"
+   ]
+  },
+  "JZ": {
+   "liq_anchors": [
+    "2026-08-20 (M1+M5+M30)"
+   ],
+   "m5_cards": [],
+   "watchlist_alerts": [],
+   "press_radar": [
+    "2026-08-25 (🟢)"
+   ],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-06",
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12"
+   ],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-08-20 (+95%)"
+   ]
+  },
+  "RITR": {
+   "liq_anchors": [
+    "2026-08-20 (M1+M5+M30)",
+    "2026-08-21 (M1+M5+M30)",
+    "2026-08-24 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-24 (ضعيف)"
+   ],
+   "watchlist_alerts": [],
+   "press_radar": [
+    "2026-08-14 (👀)"
+   ],
+   "hunters_alerted": [],
+   "envelope_silent": [],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-08-03 (+500%)",
+    "2026-08-05 (+79%)"
+   ]
+  },
+  "PFSA": {
+   "liq_anchors": [
+    "2026-08-18 (M1+M5+M30)",
+    "2026-08-25 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-25 (ضعيف)"
+   ],
+   "watchlist_alerts": [],
+   "press_radar": [
+    "2026-08-21 (👀)"
+   ],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12"
+   ],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-08-11 (+2827%)",
+    "2026-08-18 (+507%)"
+   ]
+  },
+  "WFF": {
+   "liq_anchors": [
+    "2026-08-18 (M1+M5+M30)"
+   ],
+   "m5_cards": [],
+   "watchlist_alerts": [],
+   "press_radar": [],
+   "hunters_alerted": [],
+   "envelope_silent": [],
+   "hunter_watchlist": [],
+   "explosions": []
+  },
+  "YJ": {
+   "liq_anchors": [
+    "2026-08-19 (M1+M5+M30)"
+   ],
+   "m5_cards": [],
+   "watchlist_alerts": [],
+   "press_radar": [],
+   "hunters_alerted": [],
+   "envelope_silent": [],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-07-31 (+188%)",
+    "2026-08-03 (+188%)",
+    "2026-08-07 (+224%)",
+    "2026-08-19 (+144%)"
+   ]
+  },
+  "LGHL": {
+   "liq_anchors": [
+    "2026-08-18 (M1+M5+M30)",
+    "2026-08-19 (M1+M5+M30)",
+    "2026-08-20 (M1+M5+M30)",
+    "2026-08-24 (M1+M5+M30)",
+    "2026-08-26 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-24 (قوي)",
+    "2026-08-24 (قوي)",
+    "2026-08-26 (متوسط)"
+   ],
+   "watchlist_alerts": [
+    "2026-08-08 (stopped)"
+   ],
+   "press_radar": [],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12"
+   ],
+   "hunter_watchlist": [],
+   "explosions": []
+  },
+  "SGLY": {
+   "liq_anchors": [
+    "2026-08-18 (M1+M5+M30)",
+    "2026-08-20 (M1+M5+M30)",
+    "2026-08-26 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-26 (قوي)"
+   ],
+   "watchlist_alerts": [],
+   "press_radar": [
+    "2026-08-14 (👀)",
+    "2026-08-14 (👀)",
+    "2026-08-15 (👀)",
+    "2026-08-16 (👀)",
+    "2026-08-17 (👀)",
+    "2026-08-24 (👀)"
+   ],
+   "hunters_alerted": [],
+   "envelope_silent": [],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-07-15 (+94%)",
+    "2026-07-24 (+144%)",
+    "2026-07-27 (+126%)",
+    "2026-07-28 (+113%)",
+    "2026-07-29 (+92%)"
+   ]
+  },
+  "HODO": {
+   "liq_anchors": [
+    "2026-08-26 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-26 (متوسط)"
+   ],
+   "watchlist_alerts": [],
+   "press_radar": [],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12"
+   ],
+   "hunter_watchlist": [],
+   "explosions": []
+  },
+  "MIMI": {
+   "liq_anchors": [
+    "2026-08-19 (M1+M5+M30)",
+    "2026-08-26 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-26 (متوسط)"
+   ],
+   "watchlist_alerts": [
+    "2026-08-14 (open)"
+   ],
+   "press_radar": [],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-06",
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12",
+    "2026-08-14",
+    "2026-08-17",
+    "2026-08-18",
+    "2026-08-19",
+    "2026-08-20",
+    "2026-08-24",
+    "2026-08-25"
+   ],
+   "hunter_watchlist": [],
+   "explosions": []
+  },
+  "WNW": {
+   "liq_anchors": [
+    "2026-08-26 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-26 (ضعيف)"
+   ],
+   "watchlist_alerts": [],
+   "press_radar": [],
+   "hunters_alerted": [],
+   "envelope_silent": [],
+   "hunter_watchlist": [],
+   "explosions": []
+  },
+  "MSS": {
+   "liq_anchors": [
+    "2026-08-18 (M1+M5+M30)",
+    "2026-08-19 (M1+M5+M30)"
+   ],
+   "m5_cards": [],
+   "watchlist_alerts": [],
+   "press_radar": [],
+   "hunters_alerted": [],
+   "envelope_silent": [
+    "2026-08-10",
+    "2026-08-11",
+    "2026-08-12"
+   ],
+   "hunter_watchlist": [],
+   "explosions": []
+  },
+  "DAIC": {
+   "liq_anchors": [
+    "2026-08-18 (M1+M5+M30)",
+    "2026-08-24 (M1+M5+M30)",
+    "2026-08-25 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-24 (متوسط)",
+    "2026-08-24 (متوسط)",
+    "2026-08-25 (ضعيف)"
+   ],
+   "watchlist_alerts": [],
+   "press_radar": [],
+   "hunters_alerted": [],
+   "envelope_silent": [],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-08-24 (+306%)"
+   ]
+  },
+  "STKH": {
+   "liq_anchors": [
+    "2026-08-20 (M1+M5+M30)",
+    "2026-08-24 (M1+M5+M30)",
+    "2026-08-25 (M1+M5+M30)"
+   ],
+   "m5_cards": [
+    "2026-08-24 (ضعيف)",
+    "2026-08-25 (متوسط)"
+   ],
+   "watchlist_alerts": [],
+   "press_radar": [
+    "2026-08-14 (👀)",
+    "2026-08-25 (🟢)"
+   ],
+   "hunters_alerted": [],
+   "envelope_silent": [],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-07-27 (+184%)",
+    "2026-08-10 (+129%)"
+   ]
+  },
+  "PCLA": {
+   "liq_anchors": [
+    "2026-08-20 (M1+M5+M30)"
+   ],
+   "m5_cards": [],
+   "watchlist_alerts": [],
+   "press_radar": [
+    "2026-08-14 (👀)",
+    "2026-08-14 (👀)",
+    "2026-08-15 (👀)",
+    "2026-08-16 (👀)",
+    "2026-08-17 (👀)"
+   ],
+   "hunters_alerted": [],
+   "envelope_silent": [],
+   "hunter_watchlist": [],
+   "explosions": [
+    "2026-07-15 (+73%)",
+    "2026-07-20 (+92%)",
+    "2026-07-22 (+87%)",
+    "2026-08-05 (+87%)"
+   ]
+  }
+ },
+ "liq_anchored_no_explosion_record": [
+  "AIHS",
+  "AMCI",
+  "ARBK",
+  "BAOS",
+  "BCTX",
+  "BDRX",
+  "CCHH",
+  "CHSN",
+  "CIRC",
+  "CLIK",
+  "CMND",
+  "CODX",
+  "CRE",
+  "DARE",
+  "DWSN",
+  "DXST",
+  "EHGO",
+  "ELAB",
+  "ENVX",
+  "EVAX",
+  "FEMY",
+  "FGL",
+  "FLZH",
+  "FRGT",
+  "FTFT",
+  "GITS",
+  "GMM",
+  "GNPX",
+  "HCWB",
+  "HODO",
+  "HUIZ",
+  "HYPD",
+  "IBG",
+  "ICCM",
+  "ILLR",
+  "INDP",
+  "IPDN",
+  "ISPC",
+  "LGCL",
+  "LGHL",
+  "MIMI",
+  "MSS",
+  "MTVA",
+  "NEXR",
+  "NNNN",
+  "NVX",
+  "NXTS",
+  "OLOX",
+  "PBK",
+  "PWCM",
+  "QTEX",
+  "RENX",
+  "SAGT",
+  "SBFM",
+  "SILO",
+  "SLGB",
+  "SMTK",
+  "SMX",
+  "SOBR",
+  "TENX",
+  "TGL",
+  "TRON",
+  "TWG",
+  "UCAR",
+  "VBIO",
+  "VIVK",
+  "WFF",
+  "WKSP",
+  "WNW",
+  "WSHP",
+  "YHC",
+  "YMT"
+ ]
+}
