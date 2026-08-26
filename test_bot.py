@@ -29019,6 +29019,116 @@ check("🥇 ADV4 بالمشحون حرفيًّا: `M30` ضعيفٌ يُكتَم 
       str(S.alert_filter_keep(_af_row, _af_pulse(_af_k2_low, "M30"),
                               _adv_ship)))
 
+# ════════════════════════════════════════════════════════════════════════
+# 🕐📡 **PGP1-PGP5 — مِجَسُّ «فجوة المزوّد»** (أمرُ المالك «قس فجوة المزود»
+#    2026-08-26 بعد حالة `$CRE`: شمعةٌ أغلقت 11:42:00 ومسحتانا لم تجداها
+#    والتُقطت 11:44:04). قراءةٌ فقط · جالبُ الإنتاج بالاسم · عيّنةٌ تفرّق.
+# ════════════════════════════════════════════════════════════════════════
+import provider_gap_probe as _PGP                                 # noqa: E402
+import io as _io_pg                                               # noqa: E402
+from contextlib import redirect_stdout as _rd_pg                  # noqa: E402
+import yaml as _yaml_pg                                           # noqa: E402
+
+# PGP1 — 🔒 قراءةٌ فقط بالـAST: صفرُ نداءِ إرسالٍ/كتابةِ حالةٍ وصفرُ open-كتابة.
+_pgp_src = _insp0.getsource(_PGP)
+_pgp_tree = _ast_t3.parse(_pgp_src)
+_pgp_bad = [getattr(c.func, "attr", None) or getattr(c.func, "id", None)
+            for c in _ast_t3.walk(_pgp_tree) if isinstance(c, _ast_t3.Call)
+            and (getattr(c.func, "attr", None) or getattr(c.func, "id", None))
+            in ("send_telegram", "git_save", "save_watchlist")]
+_pgp_wopen = [c for c in _ast_t3.walk(_pgp_tree) if isinstance(c, _ast_t3.Call)
+              and getattr(c.func, "id", None) == "open"
+              and any(isinstance(a, _ast_t3.Constant) and "w" in str(a.value)
+                      for a in c.args[1:2])]
+check("🕐 PGP1 المِجَسُّ قراءةٌ فقط (صفرُ إرسالٍ وكتابةِ حالةٍ بالـAST)",
+      not _pgp_bad and not _pgp_wopen,
+      f"نداءات={_pgp_bad} كتابة={len(_pgp_wopen)}")
+
+# PGP2 — 🔒 **مقياسٌ واحد**: الجالبُ جالبُ الإنتاج `polygon_minute_bars`
+#   بالاسم (Attribute بالـAST) — ولا URL محلّيًّا ولا `requests` (نسخةٌ ثانية
+#   من الجلب = ما يراه المِجَسُّ غيرُ ما يراه الإنتاج).
+_pgp_attr = [n for n in _ast_t3.walk(_pgp_tree)
+             if isinstance(n, _ast_t3.Attribute)
+             and n.attr == "polygon_minute_bars"]
+_pgp_imp = {a.name.split(".")[0] for n in _ast_t3.walk(_pgp_tree)
+            if isinstance(n, (_ast_t3.Import,))
+            for a in n.names} | {n.module.split(".")[0]
+                                 for n in _ast_t3.walk(_pgp_tree)
+                                 if isinstance(n, _ast_t3.ImportFrom)
+                                 and n.module}
+check("🕐 PGP2 الجالبُ `bot.polygon_minute_bars` بالاسم · ولا URL ولا requests",
+      len(_pgp_attr) >= 1 and "v2/aggs" not in _pgp_src
+      and "requests" not in _pgp_imp,
+      f"attr={len(_pgp_attr)} imports={sorted(_pgp_imp)}")
+
+# PGP3/PGP4 — 🔒 **سلوكيًّا بعيّنةٍ تفرّق** (مخطّطُ الدخان المثبَّت): البدء
+#   1060ث · A أغلقت 1000 (قبل البدء ⟸ خارج المقام) · B تظهر آخرَ صفٍّ (ظهور
+#   10ث) ثم تدخل rows[:-1] (تقييم 15ث — **بعد** الظهور بالبناء) · C تبقى
+#   آخرَ صفٍّ ⟸ «ظهرت ولم تصر قابلةً» = 1.
+_pgp_resp = [
+    [{"t": 940_000}],
+    [{"t": 940_000}, {"t": 1_000_000}],
+    [{"t": 940_000}, {"t": 1_000_000}, {"t": 1_060_000}],
+    [{"t": 1_000_000}, {"t": 1_060_000}],
+]
+_pgp_clk = {"t": 1060.0, "n": 0}
+
+
+def _pgp_clock():
+    return _pgp_clk["t"]
+
+
+def _pgp_sleep(s):
+    _pgp_clk["t"] += s
+
+
+def _pgp_fetch(sym, minutes=30):
+    i = min(_pgp_clk["n"], len(_pgp_resp) - 1)
+    _pgp_clk["n"] += 1
+    _pgp_clk["t"] += 5.0
+    return _pgp_resp[i]
+
+
+_pgp_buf = _io_pg.StringIO()
+try:
+    with _rd_pg(_pgp_buf):
+        _pgp_rc = _PGP.run(fetch=_pgp_fetch, clock=_pgp_clock,
+                           sleep=_pgp_sleep, syms=["T1"],
+                           run_min=(4 * 8) / 60.0, poll_sec=3.0)
+except Exception as _e:                                          # noqa: BLE001
+    _pgp_rc = f"⛔ رمى: {type(_e).__name__}"
+_pgp_out = _pgp_buf.getvalue()
+check("🕐 PGP3 التقييمُ (rows[:-1]) **بعد** الظهور: ظهورُ B عند 10ث وتقييمُها "
+      "عند 15ث · والعالقةُ آخرَ صفٍّ تُعَدّ «لم تصر قابلة»",
+      _pgp_rc == 0 and "أقصى 10.0ث" in _pgp_out
+      and "وسيط 15.0ث" in _pgp_out
+      and "ظهرت ولم تصر قابلةً للتقييم حتى النهاية: 1" in _pgp_out,
+      f"rc={_pgp_rc} · {_pgp_out[-260:]}")
+with _rd_pg(_io_pg.StringIO()):
+    _pgp_rc4 = _PGP._report({}, {}, {}, [1.0], ["T1"], 0.0, 60.0)
+check("🕐 PGP4 ما أغلق قبل البدء **خارج المقام** (A مستبعَدة ⟸ الظهور n=2 "
+      "لا 3) · وصفرُ قياسٍ = خروج 4 لا نتيجة",
+      "الظهور   (lag_pub) : n=2" in _pgp_out and _pgp_rc4 == 4,
+      _pgp_out[:200])
+
+# PGP5 — 🔒 وصلةُ الـworkflow (درسُ `BT_CANDLE`): المدخلان ⟶ بيئةٌ يقرؤها
+#   السكربت · بلا كرون · قراءةٌ فقط · والمفتاحُ يُمرَّر.
+_pgp_wf = _yaml_pg.safe_load(open(".github/workflows/provider_gap.yml",
+                                  encoding="utf-8"))
+_pgp_steps = _pgp_wf["jobs"]["gap"]["steps"]
+_pgp_env = next((st.get("env") or {} for st in _pgp_steps
+                 if "PG_RUN_MIN" in str(st.get("env") or "")), {})
+check("🕐 PGP5 مدخلا run_min/symbols ⟶ PG_RUN_MIN/PG_SYMS · بلا كرون · "
+      "قراءةٌ فقط · والمفتاحُ مُمرَّر",
+      "inputs.run_min" in str(_pgp_env.get("PG_RUN_MIN", ""))
+      and "inputs.symbols" in str(_pgp_env.get("PG_SYMS", ""))
+      and "POLYGON_API_KEY" in str(_pgp_env)
+      and "cron" not in str(_pgp_wf.get(True) or _pgp_wf.get("on"))
+      and _pgp_wf.get("permissions", {}).get("contents") == "read"
+      and any("provider_gap_probe.py" in str(st.get("run") or "")
+              for st in _pgp_steps),
+      f"env={sorted(_pgp_env)}")
+
 # 🪟🪟 **WIN1-WIN4 — «‏💪 شمعةٌ قوية · 🥉 ضعيف» في كرتٍ واحد (بلاغُ المالك على
 #   `$SDOT`، مأخذُ المراجعة ح-1).** الوسمان **صادقان** وكلٌّ عن **نافذةٍ
 #   أخرى**: الصنفُ من مجموع نافذةِ حدثه (‏`M30` ثلاثون دقيقةً تقرأ `strong`

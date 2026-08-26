@@ -1,0 +1,42 @@
+name: Provider Gap (🕐📡 فجوة المزوّد — متى تصير شمعةُ الدقيقة قابلةً للتقييم؟)
+
+# 🔒 **قراءةٌ/قياسٌ فقط**: لا كرون · لا كتابةَ حالة · لا رسالة تلغرام · لا مسَّ فرزٍ.
+#    أمرُ المالك «قس فجوة المزود» (2026-08-26، حالة $CRE).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_min:
+        description: "مدةُ القياس بالدقائق (الافتراض 25)"
+        required: false
+        type: string
+      symbols:
+        description: "رموزٌ بفاصلة (اختياري — الافتراضُ AAPL+CRE+عيّنة حتمية)"
+        required: false
+        type: string
+
+jobs:
+  gap:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🕐📡 قِس فجوةَ المزوّد
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PG_RUN_MIN: ${{ inputs.run_min }}
+          PG_SYMS: ${{ inputs.symbols }}
+        run: python provider_gap_probe.py
