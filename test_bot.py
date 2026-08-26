@@ -29199,13 +29199,17 @@ _wcd_scan2 = S.scan_liq_stages(
     [{"symbol": "WC1", "src": "تحت المتابعة"}], "2026-08-26", seen={},
     workers=1, fetch_bars=lambda s, minutes=65: _wcd_bars,
     clock=lambda: (_wcd_last_t + 30_000) / 1000.0)
+# ⚠️ وصولٌ محروس — قفلٌ يفهرس `[0][0][1]` مباشرةً **ينهار** على مسحٍ صامتٍ
+#    فيكتم كلَّ قفلٍ بعده (صنفُ «القفل المنهار» — أمسكته طفرةُ m1 فعلًا).
+_wcd_m1 = ([e["stage"] for e in _wcd_scan[0][0][1]]
+           if _wcd_scan[0] else ["⛔ مسحٌ صامت"])
 check("🕐 WCD3 المسحُ الحيّ يمرّر `now_ms` (بالـAST) ⇒ مِرساةُ آخرِ صفٍّ تُلتقَط "
       "في الدورة نفسِها (‏كرتُ $CRE كان سيصل قبل ‏≈دقيقة) · وداخل الدقيقة يصمت",
       len(_wcd_calls) == 1
       and any(k.arg == "now_ms" for k in _wcd_calls[0].keywords)
-      and [e["stage"] for e in _wcd_scan[0][0][1]] == ["M1"]
+      and _wcd_m1 == ["M1"]
       and _wcd_scan2[0] == [],
-      f"نداءات={len(_wcd_calls)} · مسح={len(_wcd_scan[0])}")
+      f"نداءات={len(_wcd_calls)} · مسح={_wcd_m1}")
 # WCD4 — 🔒 **أدواتُ الإعادة المجمّدة لا تعرف `now_ms`** (بالـAST على ملفَّيهما):
 #   `kasih_scan.resolve` وكلُّ رقمٍ منشورٍ (‏44,200 مِرساة) على قاعدة الموضع ⇒
 #   تمريرُ الساعة هناك يُبطل المقارنةَ مع كلّ ما نُشر (سابقة `CAP15`).
