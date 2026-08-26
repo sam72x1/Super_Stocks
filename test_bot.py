@@ -30514,6 +30514,117 @@ check("⛏️ RC7 `reclaim.yml` يدويٌّ بلا كرون · و`RC_YEAR` مو
       and "RC_YEAR" in _rc_env and "RC_YEAR" in _rc_src,
       f"on={list(_rc_on)}")
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 🎯 T-TARGET10 — «تجربة الهدف +10%» (العقد target10_prereg.md مدفوع قبل
+#    أي رقم · أمر المالك 2026-08-26 «سجل تجربة الهدف») — أقفال TGT1-TGT7
+# ═══════════════════════════════════════════════════════════════════════════
+import ast as _tg_ast                                            # noqa: E402
+import inspect as _tg_ins                                        # noqa: E402
+import target10_arms as _TGT                                     # noqa: E402
+
+_tg_anchor = (0, 1.00, 1.05, 0.90, 1.00, 1000.0)   # قاع المرساة 0.90
+_tg_M = 60_000
+
+# 🔒 TGT1 **الوقف يفحص أولا داخل الشمعة** (العقد §② — القراءة المتحفظة ضد
+#    أذرع الهدف): شمعة رأسها بلغ الهدف وإغلاقها دون القاع ⇒ break بالإغلاق
+#    لا target — وزوج مفرق: نفس الرأس بإغلاق فوق القاع ⇒ target بسعر الهدف.
+_tg_b1 = [_tg_anchor, (5 * _tg_M, 1.00, 1.15, 0.85, 0.85, 500.0)]
+_tg_b2 = [_tg_anchor, (5 * _tg_M, 1.00, 1.15, 0.95, 0.95, 500.0)]
+_tg_r1 = _TGT.arm_exit(_tg_b1, 0, 0.90, 1.00, 10.0)
+_tg_r2 = _TGT.arm_exit(_tg_b2, 0, 0.90, 1.00, 10.0)
+check("🎯 TGT1 الوقف أولا: (رأس فوق الهدف + إغلاق دون القاع) ⇒ break "
+      "بالإغلاق · والزوج المفرق ⇒ target بسعر الهدف",
+      _tg_r1 == (0.85, "break") and _tg_r2[1] == "target"
+      and abs(_tg_r2[0] - 1.10) < 1e-12,
+      f"r1={_tg_r1} r2={_tg_r2}")
+
+# 🔒 TGT2 **شموع نافذة الخمس مستبعدة من التقييم** («رأس شمعة التعبئة
+#    مستبعد»): رأس ضخم في الدقيقة 4 لا يعبئ الهدف — الحكم من t≥5د حصرا.
+_tg_b3 = [_tg_anchor, (4 * _tg_M, 1.00, 2.00, 0.90, 1.00, 500.0),
+          (5 * _tg_M, 1.00, 1.02, 0.95, 1.01, 500.0)]
+_tg_r3 = _TGT.arm_exit(_tg_b3, 0, 0.90, 1.00, 10.0)
+check("🎯 TGT2 رأس الدقيقة 4 (داخل الخمس) لا يعبئ الهدف ⇒ eod بإغلاق 1.01",
+      _tg_r3 == (1.01, "eod"), f"r3={_tg_r3}")
+
+# 🔒 TGT3 **T0 بلا هدف = الخروج البنيوي وحده**: لا يرجع target أبدا ·
+#    وبلا كسر ⇒ eod يطابق ذراع الهدف غير المعبأة بت-بت · ومع كسر ⇒ break.
+_tg_r4 = _TGT.arm_exit(_tg_b3, 0, 0.90, 1.00, None)
+_tg_b5 = [_tg_anchor, (5 * _tg_M, 1.00, 1.02, 0.80, 0.80, 500.0)]
+_tg_r5 = _TGT.arm_exit(_tg_b5, 0, 0.90, 1.00, None)
+check("🎯 TGT3 T0: بلا كسر ⇒ eod مطابق للذراع غير المعبأة · ومع كسر ⇒ "
+      "break بالإغلاق",
+      _tg_r4 == _tg_r3 and _tg_r4[1] == "eod" and _tg_r5 == (0.80, "break"),
+      f"r4={_tg_r4} r5={_tg_r5}")
+
+# 🔒 TGT5 **سلم الأهداف يفرق + تخوم اللمس**: رأس يساوي الهدف بالضبط يعبئ
+#    (طفرة `>=`⟵`>` تسقط هنا) · وكل هدف يعبأ عند شمعته هو (10 عند د5 ·
+#    20 عند د6 · 30 لا يبلغ ⇒ eod) — طفرة توحيد السلم تسقط.
+_tg_b6 = [_tg_anchor,
+          (5 * _tg_M, 1.00, 1.10, 1.00, 1.05, 500.0),
+          (6 * _tg_M, 1.05, 1.25, 1.05, 1.20, 500.0),
+          (7 * _tg_M, 1.20, 1.28, 1.15, 1.22, 500.0)]
+_tg_t10 = _TGT.arm_exit(_tg_b6, 0, 0.90, 1.00, 10.0)
+_tg_t20 = _TGT.arm_exit(_tg_b6, 0, 0.90, 1.00, 20.0)
+_tg_t30 = _TGT.arm_exit(_tg_b6, 0, 0.90, 1.00, 30.0)
+check("🎯 TGT5 اللمس المساوي يعبئ (1.10 بالضبط) · والسلم يفرق: "
+      "T10@د5 · T20@د6 · T30 eod",
+      _tg_t10 == (1.00 * 1.10, "target") and _tg_t20[1] == "target"
+      and abs(_tg_t20[0] - 1.20) < 1e-12 and _tg_t30 == (1.22, "eod"),
+      f"t10={_tg_t10} t20={_tg_t20} t30={_tg_t30}")
+
+# 🔒 TGT4 **قراءة فقط والإنتاج لا يستوردها** (نمط RC6 — بالـAST لا بالنص)
+_tg_src = _tg_ins.getsource(_TGT)
+_tg_tree = _tg_ast.parse(_tg_src)
+_tg_bad = [1 for n in _tg_ast.walk(_tg_tree) if isinstance(n, _tg_ast.Call)
+           and (getattr(n.func, "id", None)
+                in ("send_telegram", "git_save", "save_watchlist")
+                or getattr(n.func, "attr", None)
+                in ("send_telegram", "git_save", "save_watchlist"))]
+_tg_prod = _tg_ast.parse(_tg_ins.getsource(S))
+_tg_imp = [nd for nd in _tg_ast.walk(_tg_prod)
+           if isinstance(nd, (_tg_ast.Import, _tg_ast.ImportFrom))
+           and "target10_arms" in (
+               (nd.module or "") if isinstance(nd, _tg_ast.ImportFrom)
+               else " ".join(a.name for a in nd.names))]
+check("🎯 TGT4 قراءة فقط (صفر إرسال/كتابة حالة) · والإنتاج لا يستورد "
+      "`target10_arms` (AST)",
+      not _tg_bad and not _tg_imp,
+      f"نداءات={len(_tg_bad)} استيراد={len(_tg_imp)}")
+
+# 🔒 TGT6 **الـworkflow موصول ويدوي بلا كرون** (بصمة BT_CANDLE: مدخل لا
+#    يقرؤه السكربت = علم ميت): year⟵TGT_YEAR · day⟵TGT_DAY · والسكربت
+#    يقرؤهما بالاسم.
+_tg_y = _rc_yaml.safe_load(open(".github/workflows/target10.yml",
+                                encoding="utf-8"))
+_tg_on = _tg_y.get(True, _tg_y.get("on", {}))
+_tg_env = " ".join(str(s.get("env", "")) for j in _tg_y["jobs"].values()
+                   for s in j["steps"])
+check("🎯 TGT6 `target10.yml` يدوي بلا كرون · وTGT_YEAR/TGT_DAY موصولان "
+      "ويقرؤهما السكربت",
+      "schedule" not in _tg_on and "workflow_dispatch" in _tg_on
+      and "TGT_YEAR" in _tg_env and "TGT_DAY" in _tg_env
+      and "TGT_YEAR" in _tg_src and "TGT_DAY" in _tg_src,
+      f"on={list(_tg_on)}")
+
+# 🔒 TGT7 **بوابتا الصلاحية منفذتان لا موصوفتان** (درس «حارس مكتوب وغير
+#    منفذ ليس حارسا — هو نية»): في main() فرع If على `v0_bad` يرجع 3 ·
+#    ونداء `coverage_verdict` حاضر (بنيويا لا نصيا).
+_tg_main = next(n for n in _tg_ast.walk(_tg_tree)
+                if isinstance(n, _tg_ast.FunctionDef) and n.name == "main")
+_tg_v0_ifs = [n for n in _tg_ast.walk(_tg_main)
+              if isinstance(n, _tg_ast.If)
+              and any(isinstance(x, _tg_ast.Name) and x.id == "v0_bad"
+                      for x in _tg_ast.walk(n.test))]
+_tg_v0_ret3 = any(isinstance(x, _tg_ast.Return)
+                  and getattr(x.value, "value", None) == 3
+                  for i_ in _tg_v0_ifs for x in _tg_ast.walk(i_))
+_tg_cov = any(isinstance(n, _tg_ast.Call)
+              and getattr(n.func, "attr", None) == "coverage_verdict"
+              for n in _tg_ast.walk(_tg_main))
+check("🎯 TGT7 حارس V0 يوقف بخروج 3 (AST) · وcoverage_verdict منادى في main",
+      _tg_v0_ret3 and _tg_cov,
+      f"ifs={len(_tg_v0_ifs)} ret3={_tg_v0_ret3} cov={_tg_cov}")
+
 
 print("\n" + "=" * 50)
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
