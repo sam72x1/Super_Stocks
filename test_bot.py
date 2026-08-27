@@ -31553,14 +31553,31 @@ try:
         if isinstance(_n, _ast0.Call) and getattr(_n.func, "id", None) == "_log"
         for _a in _ast0.walk(_n) if isinstance(_a, _ast0.Constant)
         and isinstance(_a.value, str))
-    _gc_groups = {_c.value for _n in _ast0.walk(_gc_main)
-                  if isinstance(_n, _ast0.For)
-                  for _c in _ast0.walk(_n.iter)
-                  if isinstance(_c, _ast0.Constant) and _c.value in ("coh", "ctl")}
+    # 🐞🔴 **نجت الطفرةُ m15 أوّلًا (نزعُ الشاهد من حلقة التقرير):** كان
+    #    الجمعُ على **كلّ** حلقات `For` فتُرضيه حلقةُ القياس وحدَها ⇒ أعمى عن
+    #    الحلقة التي يدّعي حراستَها. الآن **كلُّ حلقةٍ على حدة**: حلقةُ العرض
+    #    (‏تنادي `_log`) وحلقةُ القياس (‏تنادي `machine_reads`) **كلتاهما**
+    #    يجب أن تحملا المجموعتين.
+    def _gc_for_keys(_pred):
+        for _n in _ast0.walk(_gc_main):
+            if not isinstance(_n, _ast0.For):
+                continue
+            if not any(isinstance(_c, _ast0.Call)
+                       and (getattr(_c.func, "id", None) == _pred
+                            or getattr(_c.func, "attr", None) == _pred)
+                       for _b in _n.body for _c in _ast0.walk(_b)):
+                continue
+            return {_c.value for _c in _ast0.walk(_n.iter)
+                    if isinstance(_c, _ast0.Constant)
+                    and _c.value in ("coh", "ctl")}
+        return set()
+    _gc_rep = _gc_for_keys("_log")
+    _gc_meas = _gc_for_keys("machine_reads")
+    _gc_groups = _gc_rep | _gc_meas
     _gc_both = ("الدائريّةُ مُعلَنة" in _gc_logs
                 and "تلوّثُ الشاهد" in _gc_logs
                 and "الشاهد" in _gc_logs and "الكوهورت" in _gc_logs
-                and _gc_groups == {"coh", "ctl"})
+                and _gc_rep == {"coh", "ctl"} and _gc_meas == {"coh", "ctl"})
     _gc_prod = ("gold_cohort_check" in open("Super_stock.py",
                                             encoding="utf-8").read())
 except Exception as _e:                                          # noqa: BLE001
@@ -31570,7 +31587,41 @@ check("🥇 GE15 المقياسان يُطبَعان معًا (كوهورتٌ و
       " وتلوّثِ الشاهد في المُخرَج · وقراءةٌ فقط والإنتاجُ لا يستوردها",
       not _gc_writes and _gc_both is True and _gc_prod is False,
       f"كتابات={_gc_writes} · إعلاناتٌ ومجموعتان={_gc_both}"
-      f" {sorted(_gc_groups)} · بالإنتاج={_gc_prod}")
+      f" عرض={sorted(_gc_rep)} قياس={sorted(_gc_meas)} · بالإنتاج={_gc_prod}")
+
+
+import io as _io0                                            # noqa: E402
+from contextlib import redirect_stdout as _redir0            # noqa: E402
+
+# ── GE16: عمودُ `R_win` لا يكذب — قيمةٌ واحدةٌ رقمًا وأكثرُ منها «متغيّر»
+try:
+    _ge_meta = {"hold": 3, "p3_ok": True, "p3b": "سلّم", "osc": 5.0,
+                "grp": False, "osc_raw": 5.0, "grp_raw": False,
+                "rsi_ok": False, "ma_ok": False}
+    _ge_same = [dict(_ge_meta, **{_a: (True, "win", 5.15) for _a in _GE.ARMS})
+                for _ in range(3)]
+    _ge_var = []
+    for _v in (17.17, 1.21, 3.40):
+        _r = dict(_ge_meta, **{_a: (True, "win", 5.15) for _a in _GE.ARMS})
+        _r["P3"] = (True, "win", _v)
+        _ge_var.append(_r)
+
+    def _ge_row(_recs, _arm):
+        _buf = _io0.StringIO()
+        with _redir0(_buf):
+            _GE.report(_recs, 10, 10, {}, 2025)
+        return next((_l for _l in _buf.getvalue().splitlines()
+                     if _l.startswith(_arm)), "")
+    _ge_r_same = _ge_row(_ge_same, "P3")
+    _ge_r_var = _ge_row(_ge_var, "P3")
+    _ge_rw_ok = ("5.15" in _ge_r_same and "متغيّر" not in _ge_r_same
+                 and "متغيّر" in _ge_r_var
+                 and not any(_t in _ge_r_var for _t in ("17.17", "1.21", "3.40")))
+except Exception as _e:                                          # noqa: BLE001
+    _ge_rw_ok, _ge_r_same, _ge_r_var = f"⛔ {type(_e).__name__}: {_e}", "", ""
+check("🥇 GE16 عمودُ `R_win` صادق: خطّةٌ واحدة ⇒ رقمُها · وخطّةٌ **متغيّرة**"
+      " (‏`P3`) ⇒ «متغيّر» لا أوّلُ قيمةٍ موجبة",
+      _ge_rw_ok is True, f"ثابت={_ge_r_same[40:56]!r} · متغيّر={_ge_r_var[40:56]!r}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

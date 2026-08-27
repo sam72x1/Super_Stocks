@@ -320,11 +320,18 @@ def report(recs, n_syms, n_uni, skipped, year) -> int:
     rows = {}
     for arm in ARMS:
         el, dec, k, ev, ev_ep = _arm_stats(recs, arm)
-        rw = next((e[arm][2] for e in recs if e[arm][2] > 0), 0.0)
+        # 🐞 **عيبُ عرضٍ أُصلح (‏`gold_entry_result.md §⑨-8`):** كان يطبع
+        #    **أوّلَ** قيمةٍ موجبة، و`P3` خطّتُه **متغيّرةٌ لكلّ حلقة** (فرعُ
+        #    السلّم ثابت · وفرعُ الانطلاق يتغيّر بسعر الإغلاق) ⇒ كان يطبع
+        #    رقمًا واحدًا لِما ليس واحدًا = **سطرُ عرضٍ يكذب**. الآن: قيمةٌ
+        #    واحدةٌ فقط تُطبَع رقمًا، وأكثرُ من قيمةٍ تُطبَع «متغيّر».
+        _rws = {round(e[arm][2], 6) for e in recs if e[arm][0] and e[arm][2] > 0}
+        rw = _rws.pop() if len(_rws) == 1 else None
+        rw_txt = f"{rw:>8.2f}" if rw is not None else f"{'متغيّر':>8}"
         d = (ev - base[3]) if (ev is not None and base[3] is not None) else None
         rows[arm] = (el, dec, k, ev, ev_ep, d)
         _log(f"{arm:<6}{el:>9}{dec:>9}{k:>8}"
-             f"{(100.0 * k / dec if dec else 0):>10.2f}%{rw:>8.2f}"
+             f"{(100.0 * k / dec if dec else 0):>10.2f}%{rw_txt}"
              f"{(f'{ev:+.3f}' if ev is not None else '—'):>10}"
              f"{(f'{ev_ep:+.3f}' if ev_ep is not None else '—'):>10}"
              f"{(f'{d:+.3f}' if d is not None else '—'):>10}")
