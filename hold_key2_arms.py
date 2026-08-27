@@ -100,7 +100,11 @@ def q5_grid_cal(sym, df, gset, min_pos):
             continue
         if not r:
             continue
-        mini = {k: r.get(k) for k in RANK_FIELDS}
+        # 🔴 **المفتاحُ الغائب يبقى غائبًا** — `analyze_ticker` لا يُصدر
+        #    `h4_confirm` إطلاقًا (يُضاف في `enrich` بعد الاختيار · قرار `D7`)
+        #    و`rank_key` يقرؤه بـ`.get("h4_confirm", 0)` ⇒ تخزينُه `None`
+        #    يُنتج `-None` ويُسقط التشغيلة، **ويخالف شكلَ الإنتاج**.
+        mini = {k: r[k] for k in RANK_FIELDS if k in r}
         mini["symbol"] = sym
         out.append((i, d, mini))
     return out

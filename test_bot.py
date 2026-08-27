@@ -33756,7 +33756,11 @@ try:
              "HK.live_pool", "HK.mover_days", "HK._arm_line", "HK._within",
              "PRA.ready_rows", "PRA.pv0_gate", "PRA.boot_ci",
              "PRA.dedupe_violations"}
-    _hk2_1 = _need <= _n1
+    _ra1 = [c for c in _hk2_ast.walk(_hk2_t) if isinstance(c, _hk2_ast.Call)
+            and isinstance(c.func, _hk2_ast.Attribute)
+            and c.func.attr == "run_arms"
+            and getattr(c.func.value, "id", "") == "HK"]
+    _hk2_1 = _need <= _n1 and len(_ra1) == 2      # 🔴 D_live2 و D_full كلاهما
 except Exception as _e:                                          # noqa: BLE001
     _hk2_1 = f"⛔ {type(_e).__name__}: {_e}"
 check("🕰️② HK2-1 مقياسٌ واحد: 12 دالّةً مُعادةً بالاسم من المجمَّدتين",
@@ -33767,9 +33771,30 @@ try:
     _real = {p: _hk2_hash.sha256(open(p, "rb").read()).hexdigest()
              for p in ("hold_key_arms.py", "press_rank_arms.py")}
     _fz = _HK2.hw2_frozen()
+    # 🔴 القفلُ يجب أن يُثبت أن البوّابةَ **تستطيع أن تقول لا** — لا أن تقول نعم.
+    #    بصمةٌ مغشوشة **تُشارك أوّلَ حرف** وتختلف بعده ⇒ مقارنةُ حرفٍ واحدٍ تُخدَع
+    #    ومقارنةُ ستّةَ عشرَ لا تُخدَع. ومسارُ الخروج يُختبَر بـ`main()` نفسِها.
+    _sv2 = dict(_HK2.FROZEN_SHA)
+    try:
+        _rh = _real["hold_key_arms.py"]
+        _bad2 = _rh[0] + ("0" if _rh[1] != "0" else "1") + _rh[2:]
+        _HK2.FROZEN_SHA["hold_key_arms.py"] = _bad2
+        _fz_bad = _HK2.hw2_frozen()
+        _buf2 = _hk2_io.StringIO()
+        with _hk2_ctx.redirect_stdout(_buf2):
+            _rc_bad2 = _HK2.main()
+        _out2 = _buf2.getvalue()
+    finally:
+        _HK2.FROZEN_SHA.clear()
+        _HK2.FROZEN_SHA.update(_sv2)
     _hk2_2 = (set(_HK2.FROZEN_SHA) == set(_real)
               and all(_HK2.FROZEN_SHA[p][:16] == _real[p][:16] for p in _real)
-              and all(v[0] for v in _fz.values()))
+              and all(v[0] for v in _fz.values())
+              and _bad2[0] == _rh[0] and _bad2 != _rh          # يشترك أوّلَ حرف
+              and _fz_bad["hold_key_arms.py"][0] is False      # ⇒ تقول «لا»
+              and _fz_bad["press_rank_arms.py"][0] is True     # والأخرى سليمة
+              and _rc_bad2 == 3 and "`HW2`" in _out2           # ومسارُ الخروج ينفُذ
+              and all(v[0] for v in _HK2.hw2_frozen().values()))
 except Exception as _e:                                          # noqa: BLE001
     _hk2_2 = f"⛔ {type(_e).__name__}: {_e}"
 check("🕰️② HK2-2 `HW2`: بصمتا `hold_key_arms`/`press_rank_arms` مثبَّتتان وتُقارَنان",
@@ -33886,6 +33911,79 @@ except Exception as _e:                                          # noqa: BLE001
 check("🕰️② HK2-8 الشبكةُ تُنادي `analyze_ticker` (فرزًا وارتدادًا) وتحفظ `RANK_FIELDS`",
       _hk2_8 is True, str(_hk2_8)[:170])
 
+# ── HK2-13: **شكلُ الإنتاج** — `analyze_ticker` بلا `h4_confirm` ⇒ لا `None`
+#    (‏🐞 عيبٌ حقيقيٌّ أسقط ثلاثَ تشغيلاتٍ: `-None` في `rank_key`)
+try:
+    class _HK2DF13:
+        def __init__(self, days):
+            self.index = list(days)
+            self.iloc = self
+
+        def __len__(self):
+            return len(self.index)
+
+        def __getitem__(self, k):
+            return self
+    _days13 = [f"2024-01-{d:02d}" for d in range(1, 11)]
+    _prod13 = {"symbol": "X", "readiness": 70, "score": 40, "rr": 1.4,
+               "price": 1.0, "tranches": [1.0, 1.05]}   # 🔴 بلا `h4_confirm`
+    _sv13 = S.analyze_ticker
+    try:
+        S.analyze_ticker = lambda sym, sl, pullback=False: dict(_prod13, symbol=sym)
+        _g13 = _HK2.q5_grid_cal("X", _HK2DF13(_days13), set(_days13), 0)
+        _mini13 = _g13[0][2] if _g13 else {}
+        _t13, _ = _HK2.top_by_date({"X": _g13})       # يجب ألّا يرمي
+    finally:
+        S.analyze_ticker = _sv13
+    _hk2_13 = (bool(_g13) and "h4_confirm" not in _mini13
+               and _mini13.get("readiness") == 70
+               and S.rank_key(_mini13) == S.rank_key(_prod13)
+               and "X" in _t13[_days13[0]])
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_13 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-13 شكلُ الإنتاج: المفتاحُ الغائب يبقى غائبًا (لا `None` يكسر `rank_key`)",
+      _hk2_13 is True, str(_hk2_13)[:170])
+
+# ── HK2-14: تمريرةٌ كاملةٌ **تعبر كلَّ البوّابات** ⇒ الأذرعُ تُحسَب فعلًا على
+#    `D_live2` (‏🐞 نجت طفرةُ استبدالِ `HK.run_arms` بجذعٍ لأن `D_full` كان يكفي)
+try:
+    _ss14 = [f"2024-{1 + i // 28:02d}-{1 + i % 28:02d}" for i in range(50)]
+
+    def _row14(sym, sess, hold, drop, oc):
+        return {"symbol": sym, "session": sess, "plan": None, "prev_q": None,
+                "wake": {"awake": True}, "oc": oc,
+                "read": {"hold_sessions": hold, "drop_pct": drop,
+                         "tested_level": None, "runup_pct": 0.0}}
+    # ‏20 صفًّا/جلسة ⇒ الوسيط داخل [8،40] · ورموزٌ فريدةٌ فلا يكتمها الدِدوب ·
+    # وترتيبُ `B0` (بالعمق) **معاكسٌ** لترتيب `B1` (بالحفظ) ⇒ `HV5` تتفرّق.
+    _live14 = [_row14(f"L{i}_{j}", _s, 20 - j, float(j),
+                      "win" if (i + j) % 3 == 0 else "loss")
+               for i, _s in enumerate(_ss14) for j in range(20)]
+    _full14 = [_row14(f"F{i}_{j}", _s, 20 - j, float(j),
+                      "win" if (i + j) % 4 == 0 else "loss")
+               for i, _s in enumerate(_ss14) for j in range(6)]
+    _sv14 = _HK2.HK.hv0_bridge
+    try:
+        _HK2.HK.hv0_bridge = lambda _rf, _rw, _yr: (True, 0.3102, 0.3102)
+        _b14 = _hk2_io.StringIO()
+        with _hk2_ctx.redirect_stdout(_b14):
+            _rc14 = _HK2.report2(_full14, _live14, 0, 100, 100, "2023",
+                                 (100.0, 150), 50.0, (True, 100, 10, 90.0), 15)
+        _o14 = _b14.getvalue()
+    except Exception as _e14:                                    # noqa: BLE001
+        _rc14, _o14 = f"⛔ {type(_e14).__name__}: {_e14}", ""
+    finally:
+        _HK2.HK.hv0_bridge = _sv14
+    _hk2_14 = (_rc14 == 0
+               and "`D_live2` الحاكم" in _o14 and "`D_full`" in _o14
+               and "\nDIFF2 " in "\n" + _o14 and "\nHOLD2 " in "\n" + _o14
+               and "`HV5`" in _o14 and "`HV6`" in _o14
+               and "`HV4` وسيطُ" in _o14)
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_14 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-14 تمريرةٌ كاملة: كلُّ البوّابات تعبر ⇒ خروج 0 وأذرعُ `D_live2` وDIFF2/HOLD2",
+      _hk2_14 is True, str(_hk2_14)[:200])
+
 # ── HK2-9: 📎 `D_full` يُطبَع **قبل** بوّابة `HV4` (أمرُ «طبع الكامل»)
 try:
     _f9 = next(n for n in _hk2_ast.walk(_hk2_t)
@@ -33900,8 +33998,29 @@ try:
     for _st in _hk2_ast.walk(_f9):
         if isinstance(_st, _hk2_ast.If) and "LIVE_MED_MIN" in _hk2_ast.dump(_st.test):
             _pos_hv4 = _st.lineno
+    # 🔴 والأهمّ **سلوكيًّا**: كثافةٌ خارج النطاق ⇒ خروج 4، ومع ذلك **يُطبَع
+    #    `D_full` كاملًا** — وترتيبُ الأسطر وحدَه لا يُثبت أنه نُفِّذ فعلًا.
+    _ss9 = [f"2024-0{1 + i // 28}-{1 + i % 28:02d}" for i in range(50)]
+    _full9 = [_hk2_row(f"F{j}", _s9, oc=("win" if (_i9 + j) % 4 == 0 else "loss"))
+              for _i9, _s9 in enumerate(_ss9) for j in range(3)]
+    _live9 = [_hk2_row(f"L{j}", _s9, oc="loss") for _s9 in _ss9 for j in range(100)]
+    _sv9 = _HK2.HK.hv0_bridge
+    try:
+        _HK2.HK.hv0_bridge = lambda _rf, _rw, _yr: (True, 0.3102, 0.3102)
+        _b9 = _hk2_io.StringIO()
+        with _hk2_ctx.redirect_stdout(_b9):
+            _rc9 = _HK2.report2(_full9, _live9, 0, 100, 100, "2023",
+                                (100.0, 150), 50.0, (True, 100, 10, 90.0), 15)
+        _o9 = _b9.getvalue()
+    except Exception as _e9:                                     # noqa: BLE001
+        _rc9, _o9 = f"⛔ {type(_e9).__name__}: {_e9}", ""
+    finally:
+        _HK2.HK.hv0_bridge = _sv9
     _hk2_9 = (_pos_full is not None and _pos_hv4 is not None
-              and _pos_full < _pos_hv4)
+              and _pos_full < _pos_hv4
+              and _rc9 == 4 and "`HV4` خارج" in _o9
+              and "`D_full`" in _o9 and "B1−B0" in _o9
+              and "لا يُنقَل إليه حكم" in _o9)
 except Exception as _e:                                          # noqa: BLE001
     _hk2_9 = f"⛔ {type(_e).__name__}: {_e}"
 check("🕰️② HK2-9 `D_full` يُحسَب ويُطبَع **قبل** `HV4` فلا يكتمه سقوطُها",
