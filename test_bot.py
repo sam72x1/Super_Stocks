@@ -32083,6 +32083,33 @@ check("📡 SN7 مقياسٌ واحد: الجلسةُ والزنادُ والم�
       " `slip_arms` **بالاسم** · و**لا تُعرَّف أيٌّ منها** في الأداة (لا نسختان)",
       _sn7 is True, f"مطلوبة⊆منداة={_n7need <= _n7calls if isinstance(_sn7, bool) else _sn7}")
 
+# ── SN7ب: **الموضعُ لا الحضور** — `R` في جدول `E` يُحسب بـ`SL.loss_r` حصرًا
+# 🔴 وُلد من طفرةٍ **نجت** (2026-08-27): استبدالُ نداءِ `loss_r` داخل `r_of`
+#    بحسابٍ محلّيّ مرّ أخضر، لأن `SN7` يفحص **حضورَ الاسم في الوحدة كلِّها**
+#    و`loss_r` تُنادى **مرّتين** (‏`r_of` وكتلةُ توزيع الانزلاق) ⇒ يُرضيه
+#    النداءُ الذي لا يحرسه. **نفسُ صنفِ `SL13` و`GE15` حرفيًّا** ⇒ يُقصَر على
+#    الدالّة التي تُنتج `R` لجدول الحكم، ويُمنَع أيُّ حسابٍ محلّيّ فيها.
+try:
+    _n7b = [_f for _f in _ast0.walk(_n7t)
+            if isinstance(_f, _ast0.FunctionDef) and _f.name == "r_of"]
+    if len(_n7b) != 1:
+        _sn7b = f"⛔ عددُ تعريفات r_of = {len(_n7b)}"
+    else:
+        _n7bcall = any(getattr(_a, "attr", None) == "loss_r"
+                       and getattr(getattr(_a, "value", None), "id", None)
+                       in ("SL", "_NBSL")
+                       for _a in _ast0.walk(_n7b[0])
+                       if isinstance(_a, _ast0.Attribute))
+        _n7bdiv = [_d for _d in _ast0.walk(_n7b[0])
+                   if isinstance(_d, _ast0.BinOp)
+                   and isinstance(_d.op, (_ast0.Div, _ast0.FloorDiv))]
+        _sn7b = _n7bcall and not _n7bdiv
+except Exception as _e:                                          # noqa: BLE001
+    _sn7b = f"⛔ {type(_e).__name__}"
+check("📡 SN7ب `r_of` (منتجةُ `R` لجدول الحكم) تنادي `SL.loss_r` **بالاسم**"
+      " و**صفرُ قسمةٍ محلّيّة** فيها — لا نسخةَ صيغةٍ ثانية",
+      _sn7b is True, str(_sn7b))
+
 # ── SN8: قراءةٌ فقط — لا إرسالَ ولا كتابةَ حالة · والإنتاجُ لا يستوردها
 try:
     _n8send = [_n for _n in _ast0.walk(_n7t) if isinstance(_n, _ast0.Call)
