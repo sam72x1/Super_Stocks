@@ -31356,8 +31356,21 @@ try:
             _ge_bad += 1
 except Exception as _e:                                          # noqa: BLE001
     _ge_bad = f"⛔ {type(_e).__name__}"
-check("🥇 GE5 `fill_index` يطابق حلقةَ التعبئة في `resolve_episode` على"
-      " ‏400 حالةٍ عشوائية (صفرُ تفرّق)", _ge_bad == 0, str(_ge_bad))
+# 🐞 **الطفرةُ m5 نجت أوّلًا** (‏`<=` ⟵ `<`) لأن ‏400 حالةٍ عشوائيةٍ من
+#    `uniform` **لا تلمس المساواة أبدًا** — «القفلُ لا يحرس إلّا بقدر ما
+#    تُفرِّق عيّنتُه». فأُضيفت تخومٌ صريحة: قاعٌ **يساوي** الدفعةَ بالضبط
+#    يجب أن يُعبِّئ (‏`resolve_episode` تستعمل `<=` فالتكافؤُ يلزمه).
+_ge_tie_lo = [2.00, 1.50, 1.20, 1.30]          # القاعُ عند الفهرس 2 = `top`
+try:
+    _ge_tie_f = _GE.fill_index(_ge_tie_lo, 0, 1.20, 40, 4)
+    _ge_tie_r = _RBA.resolve_episode([x + 0.5 for x in _ge_tie_lo],
+                                     _ge_tie_lo, 0, [1.20], 0.0, wait=40)
+except Exception as _e:                                          # noqa: BLE001
+    _ge_tie_f, _ge_tie_r = f"⛔ {type(_e).__name__}", "⛔"
+check("🥇 GE5 `fill_index` ≡ حلقةُ `resolve_episode`: ‏400 حالةٍ عشوائية"
+      " **وتخومُ المساواة** (قاعٌ يساوي الدفعةَ بالضبط يُعبِّئ في الاثنين)",
+      _ge_bad == 0 and _ge_tie_f == 2 and _ge_tie_r != "no_fill",
+      f"عشوائي={_ge_bad} · تخوم: fill={_ge_tie_f} resolve={_ge_tie_r}")
 
 # ── GE6: محرّكُ حسمٍ **واحد** لا ثانيَ له
 try:
@@ -31452,18 +31465,95 @@ try:
     _ge_raw = open(".github/workflows/gold_entry.yml", encoding="utf-8").read()
     _ge_ins = set((_ge_yml[True]["workflow_dispatch"]["inputs"] or {}).keys())
     _ge_src_all = _insp0.getsource(_GE)
-    _ge_envs = {"BACKTEST_YEAR", "BT_FROZEN_PATH"}
+    # 🐞 **الطفرةُ m12 نجت أوّلًا:** نزعُ `BT_FROZEN_PATH` من الـworkflow
+    #    مرَّ لأن القفلَ كان يقرأ **مصدرَ السكربت** (وفيه الاسمُ دائمًا) لا
+    #    كتلةَ `env` في الـworkflow ⇒ **أعمى في الاتّجاه الذي يدّعي حراستَه**.
+    #    الآن الجهتان: كلُّ متغيّرٍ يقرؤه السكربت من البيئة **مضبوطٌ في
+    #    الـworkflow**، وكلُّ مضبوطٍ فيه **مقروءٌ في السكربت** (لا بيئةَ ميتة).
+    _ge_env_read = {_n.args[0].value for _n in _ast0.walk(_ast0.parse(_ge_src_all))
+                    if isinstance(_n, _ast0.Call)
+                    and getattr(_n.func, "attr", None) == "get"
+                    and getattr(getattr(_n.func, "value", None), "attr", None)
+                    == "environ" and _n.args
+                    and isinstance(_n.args[0], _ast0.Constant)}
+    _ge_env_set = set((_ge_yml["jobs"]["gold_entry"]["steps"][-1]
+                       .get("env") or {}).keys())
+    _ge_read = bool(_ge_env_read) and _ge_env_read == _ge_env_set
     _ge_wired = all(f"inputs.{k}" in _ge_raw for k in _ge_ins)
-    _ge_read = all(e in _ge_src_all for e in _ge_envs)
     _ge_nocron = "schedule:" not in _ge_raw
 except Exception as _e:                                          # noqa: BLE001
     _ge_ins, _ge_wired, _ge_read, _ge_nocron = set(), False, False, False
+    _ge_env_read = set()
 check("🥇 GE12 وصلُ الـworkflow: مدخلاه {year, frozen_run_id} موصولان"
       " ومقروءان · بلا كرون (يدويٌّ حصرًا) · ولا مدخلَ ميتًا",
       _ge_ins == {"year", "frozen_run_id"} and _ge_wired and _ge_read
       and _ge_nocron,
-      f"مدخلات={sorted(_ge_ins)} · موصول={_ge_wired} · مقروء={_ge_read}")
+      f"مدخلات={sorted(_ge_ins)} · موصول={_ge_wired} · "
+      f"بيئةُ السكربت={sorted(_ge_env_read) if _ge_read is not False or _ge_env_read else '⛔'} "
+      f"= بيئةُ الـworkflow؟ {_ge_read}")
 
+
+
+# ═════════ 🥇🔎 تحقّقُ الكوهورت — أقفال GE13-GE15 ═════════
+import gold_cohort_check as _GC
+
+
+def _gc_df(lows, ref_i):
+    """إطارٌ صغير: القيعانُ مُعطاةٌ صراحةً ⇒ التعبئةُ محسومةٌ بالبناء."""
+    import pandas as _pd
+    n = len(lows)
+    return _pd.DataFrame(
+        {"Open": [x + 0.1 for x in lows], "High": [x + 0.2 for x in lows],
+         "Low": list(lows), "Close": [x + 0.1 for x in lows],
+         "Volume": [1e6] * n},
+        index=_pd.date_range("2026-01-01", periods=n, freq="B"))
+
+
+# ── GE13: لا نظرَ مستقبليّ — المرجعُ **صارم** والتعبئةُ لا تتعدّاه
+try:
+    _gc_d = _gc_df([2.0] * 10, 5)
+    _gc_i = _GC._idx_before(_gc_d, str(_gc_d.index[5])[:10])
+    _gc_strict = (_gc_i == 4)          # اليومُ المرجعيُّ نفسُه **غيرُ** مشمول
+    _gc_src = _insp0.getsource(_GC.machine_reads)
+    _gc_cap = "int(ref_idx) + 1" in _gc_src and "WINDOW, int(ref_idx) + 1" in _gc_src
+except Exception as _e:                                          # noqa: BLE001
+    _gc_strict = _gc_cap = f"⛔ {type(_e).__name__}"
+check("🥇 GE13 لا نظرَ مستقبليّ: `_idx_before` **صارمة** (يومُ المرجع غيرُ"
+      " مشمول) · والتعبئةُ مسقوفةٌ ببارِ المرجع فلا تُقرأ شمعةُ الانفجار",
+      _gc_strict is True and _gc_cap is True, f"{_gc_strict} · {_gc_cap}")
+
+# ── GE14: مرجعُ الشاهد حتميٌّ ومن **توزيع الكوهورت نفسِه**
+try:
+    _gc_rows_src = _insp0.getsource(_GC.main)
+    _gc_det = ("hashlib.sha256" in _gc_rows_src
+               and "_dates[h % len(_dates)]" in _gc_rows_src
+               and '_dates = sorted({r["expl_date"]' in _gc_rows_src)
+except Exception as _e:                                          # noqa: BLE001
+    _gc_det = f"⛔ {type(_e).__name__}"
+check("🥇 GE14 مرجعُ الشاهد **حتميٌّ** (`sha256`) ومسحوبٌ من توزيع تواريخ"
+      " انفجارات الكوهورت — تعرّضٌ تقويميٌّ متكافئ وقابليةُ إعادةِ إنتاج",
+      _gc_det is True, str(_gc_det))
+
+# ── GE15: المقياسان معًا · إعلانُ الدائرية · وقراءةٌ فقط
+try:
+    _gc_all = _insp0.getsource(_GC)
+    _gc_tree = _ast0.parse(_gc_all)
+    _gc_writes = [_n for _n in _ast0.walk(_gc_tree)
+                  if isinstance(_n, _ast0.Call)
+                  and (getattr(_n.func, "id", None) == "send_telegram"
+                       or getattr(_n.func, "attr", None)
+                       in ("send_telegram", "save_watchlist", "git_save"))]
+    _gc_both = ("الشاهد" in _gc_all and "الكوهورت" in _gc_all
+                and "الدائريّةُ مُعلَنة" in _gc_all
+                and "تلوّثُ الشاهد" in _gc_all)
+    _gc_prod = ("gold_cohort_check" in open("Super_stock.py",
+                                            encoding="utf-8").read())
+except Exception as _e:                                          # noqa: BLE001
+    _gc_writes, _gc_both, _gc_prod = [f"⛔ {type(_e).__name__}"], False, True
+check("🥇 GE15 المقياسان يُطبَعان معًا (كوهورتٌ وشاهد) · وإعلانا الدائرية"
+      " وتلوّثِ الشاهد في المُخرَج · وقراءةٌ فقط والإنتاجُ لا يستوردها",
+      not _gc_writes and _gc_both is True and _gc_prod is False,
+      f"كتابات={_gc_writes} · نصّ={_gc_both} · بالإنتاج={_gc_prod}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

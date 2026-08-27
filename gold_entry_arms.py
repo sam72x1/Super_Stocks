@@ -242,6 +242,7 @@ def walk_symbol_gold(sym, df, year=None):
             "sym": sym, "i": i, "hold": hold, "osc": round(osc, 2),
             "grp": grp, "p3b": p3_branch, "p3_ok": p3_ok,
             "osc_raw": round(osc_raw, 2), "grp_raw": grp_raw,
+            "rsi_ok": bool(rsi_ok), "ma_ok": bool(ma_ok),
             "P0": (h3, oc0, rw0),
             "P1": (h3, oc1, rw1),
             "P2": (h3, oc2, rw2),
@@ -362,6 +363,15 @@ def report(recs, n_syms, n_uni, skipped, year) -> int:
          f" تذبذّب={sum(1 for e in p3 if e['osc_raw'] > GROUP_OSC_MAX)} · "
          f"شمعة={sum(1 for e in p3 if e['grp_raw'])} · "
          f"خالٍ={sum(1 for e in p3 if e['osc_raw'] <= GROUP_OSC_MAX and not e['grp_raw'])}")
+    # 📌 تشخيصُ شرطَي الترويسة السباعية (‏P5) — **وصفيٌّ لا يحكم**: إن خرج
+    #    P5 فارغًا فالسببُ يُقرأ بالرقم لا بالادّعاء (هل الشرطان نادران في
+    #    مجتمعِ القيعان أصلًا؟ وهو سؤالٌ عن **بنية** الوصفة لا عن ذراع).
+    _log(f"📌 شرطا الترويسة على HOLD3: RSI دون {RSI_MAX} = "
+         f"{sum(1 for e in p3 if e['rsi_ok'])} · "
+         f"الإغلاقُ فوق متوسّطَي {MA_FAST}/{MA_SLOW} = "
+         f"{sum(1 for e in p3 if e['ma_ok'])} · "
+         f"الاثنان معًا = {sum(1 for e in p3 if e['rsi_ok'] and e['ma_ok'])} "
+         f"من {len(p3)}")
     _log("\n⚠️ الهدفُ ثابتٌ في كلّ الأذرع (‏1.5×) — التجربةُ عن الدخول ·"
          " و«التعبئة» لمسٌ لا تنفيذ · و«الشمعةُ الغبيّة» تقريبٌ يوميّ مُعلَن.")
     return rc

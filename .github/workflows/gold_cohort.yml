@@ -1,0 +1,32 @@
+name: 🥇🔎 تحقّق الكوهورت — الالتقاط مقابل الشاهد
+
+# §⑥ من OPUS_GOLD_ENTRY_PACKAGE.md · تصديقٌ رجعيٌّ لا معدَّل إصابة.
+# بحث/قياس فقط · يدوي بلا كرون · صفر مسّ إنتاج.
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      window:
+        description: "نافذةُ الفحص قبل المرجع (جلسات) — الافتراض 40"
+        required: false
+        default: "40"
+jobs:
+  gold_cohort:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run cohort check
+        env:
+          # 🔴 مدخل بلا env = مدخل ميت (قاعدة P1)
+          GC_WINDOW: ${{ github.event.inputs.window }}
+        run: python gold_cohort_check.py
