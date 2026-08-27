@@ -32797,6 +32797,166 @@ check("🚦 RD8 قائمةُ `RV0` تشمل حقولَ المحرّك كلَّه
       _rd8 is True, str(_rd8))
 
 
+# ═══ 🛑 T-PIVOT-BOTTOM — أقفال PS1-PS6 (العقد: `pivot_stop_prereg.md` وملحقُه
+#     §⑨ مدفوعان قبل أيّ رقم). بحث/قياس · صفر مسّ إنتاج. ══════════════════════
+import pivot_stop_arms as _PS
+
+_ps_src = _insp0.getsource(_PS)
+_ps_t = _ast_rd.parse(_ps_src)
+
+# ── PS1: **وحدةُ مخاطرةٍ واحدة** — عائدُ `B1` يُقسَم على مخاطرة **الإنتاج**
+#    لا على مخاطرته هو (الفخُّ المقيس في `T-RECLAIM-INTRADAY`) · وغيرُ الموجبة
+#    ⇒ None يُعَدّ ولا ينهار
+try:
+    # ① الصيغةُ نفسُها: مخاطرةُ 7% وعائدُ 7% ⇒ ‏1.0R بالضبط
+    # ② والأهمّ بنيويًّا: `r0_of` **لا تعرف وقفَ `B1` إطلاقًا** (ثلاثةُ وسائطَ
+    #    لا رابع) و`report` تُمرّر `stop0` للذراعين — فيستحيل أن يُكافأ وقفُ
+    #    القاع بصِغَر مقامه، وهو الفخُّ المقيس في `T-RECLAIM-INTRADAY`.
+    _ps_rep = _insp0.getsource(_PS.report)
+    _ps1 = (abs(_PS.r0_of(7.0, 2.0, 1.86) - 1.0) < 1e-9
+            and abs(_PS.r0_of(-14.0, 2.0, 1.86) + 2.0) < 1e-9
+            and _PS.r0_of(10.0, 2.0, 2.0) is None               # مخاطرةٌ صفر
+            and _PS.r0_of(10.0, 2.0, 2.5) is None               # سالبة
+            and _PS.r0_of(None, 2.0, 1.86) is None
+            and _PS.r0_of("س", 2.0, 1.86) is None
+            and len(_insp0.signature(_PS.r0_of).parameters) == 3
+            and _ps_rep.count('r0_of(r[key_r], r["entry"], r["stop0"])') == 1
+            and '"pivot"]' not in _ps_rep.split("def agg")[1].split("return {")[0])
+except Exception as _e:                                          # noqa: BLE001
+    _ps1 = f"⛔ {type(_e).__name__}"
+check("🛑 PS1 `R₀` بوحدة مخاطرة الإنتاج وحدها (وقفان مختلفان ⇒ نفسُ المقام) ·"
+      " والمخاطرةُ غيرُ الموجبة ⇒ None بلا انهيار", _ps1 is True, str(_ps1))
+
+# ── PS2: بوّابةُ `BV0` سلوكيًّا — إعادةُ الحسم تطابق محرّك الإنتاج **بت-بت**،
+#    و`B1` **تتفرّق** فعلًا (وإلّا كانت الذراعُ زينة)
+try:
+    _ps_df = _rd_df()
+    _sv_ps = {k: S.CONFIG.get(k) for k in ("BT_REPLAY10", "BT_ENVVALS")}
+    S.CONFIG["BT_REPLAY10"] = 1
+    S.CONFIG["BT_ENVVALS"] = 1
+    try:
+        _ps_tr = S.backtest_symbol("TSTX", _ps_df,
+                                   date_window=("2022-06-01", "2024-12-31"),
+                                   splits=None)
+        _ps_rows = []
+        for _t in _ps_tr:
+            _r, _w = _PS.arms_for(S, "TSTX", _ps_df, _t,
+                                  int(S.CONFIG["BACKTEST_FORWARD_DAYS"]), 0.0)
+            if _r:
+                _ps_rows.append(_r)
+    finally:
+        S.CONFIG.update(_sv_ps)
+    _ps_mis = [r for r in _ps_rows
+               if r["o0"] != r["prod_o"] or r["ret0"] != r["prod_ret"]]
+    _ps_diff = [r for r in _ps_rows
+                if r.get("o1") is not None and r["o1"] != r["o0"]]
+    _ps2 = (len(_ps_rows) >= 3 and not _ps_mis and len(_ps_diff) >= 1
+            and all(r["pivot"] is None or r["pivot"] > r["stop0"]
+                    for r in _ps_rows))
+except Exception as _e:                                          # noqa: BLE001
+    _ps2 = f"⛔ {type(_e).__name__}: {_e}"
+if _ps2 is not True:
+    _ps2 = (f"صفوف={len(_ps_rows) if '_ps_rows' in dir() else '?'} · "
+            f"تفرّق BV0={len(_ps_mis) if '_ps_mis' in dir() else '?'} · "
+            f"B1 يختلف في={len(_ps_diff) if '_ps_diff' in dir() else '?'}")
+check("🛑 PS2 `BV0`: إعادةُ الحسم مطابقةٌ بت-بت للإنتاج على صفقاتٍ حقيقية ·"
+      " و`B1` تتفرّق فعلًا · والمِرساةُ فوق وقف الإنتاج دائمًا",
+      _ps2 is True, str(_ps2)[:180])
+
+# ── PS3: البوّاباتُ توقف **باسمها** (درسُ `CD6`)
+def _ps_report(rows, year):
+    _b = _io_rd.StringIO()
+    with _ctx_rd.redirect_stdout(_b):
+        _rc = _PS.report(rows, year, {})
+    return _rc, _b.getvalue()
+
+
+def _ps_row(i, o0="win", ret0=10.0, o1=None, ret1=None, pivot=1.95):
+    return {"symbol": f"S{i}", "date": f"2025-01-{i % 28 + 1:02d}",
+            "entry": 2.0, "stop0": 1.86, "t1": 2.4, "pivot": pivot,
+            "o0": o0, "ret0": ret0, "prod_o": o0, "prod_ret": ret0,
+            "rr0": 1.2, "o1": (o1 or o0),
+            "ret1": (ret0 if ret1 is None else ret1), "rr1": 4.0}
+
+
+try:
+    _ps_ok = [_ps_row(i, o1=("loss" if i % 4 == 0 else None),
+                      ret1=(-8.0 if i % 4 == 0 else None)) for i in range(140)]
+    _rc_ok, _out_ok = _ps_report(_ps_ok, "2025")
+    _bad = _ps_row(1); _bad["prod_o"] = "loss"
+    _rc_b0, _out_b0 = _ps_report([_bad] + _ps_ok, "2025")
+    _nocov = [dict(r, pivot=None, o1=None) for r in _ps_ok]
+    _rc_cv, _out_cv = _ps_report(_nocov, "2025")
+    _noop = [_ps_row(i) for i in range(140)]
+    _rc_np, _out_np = _ps_report(_noop, "2025")
+    _rc_fl, _out_fl = _ps_report(_ps_ok[:5], "2025")
+    _ps3 = (_rc_ok == 0 and "B1 (" in _out_ok and "PAIRS " in _out_ok
+            and _rc_b0 == 3 and "`BV0` تفرّق" in _out_b0
+            and _rc_cv == 3 and "`BV2`" in _out_cv
+            and _rc_np == 4 and "`BV1`" in _out_np
+            and _rc_fl == 4 and "الأرضية" in _out_fl
+            and _PS.report([], "2025", {}) == 4)
+except Exception as _e:                                          # noqa: BLE001
+    _ps3 = f"⛔ {type(_e).__name__}: {_e}"
+check("🛑 PS3 البوّابات: تفرّقُ الحسم ⇒ 3 باسم `BV0` · مِرساةٌ غائبة ⇒ 3 باسم"
+      " `BV2` · لا تفرّق ⇒ 4 باسم `BV1` · وأرضيةٌ ناقصة ⇒ 4",
+      _ps3 is True, str(_ps3)[:180])
+
+# ── PS4: الخطّةُ من `analyze_ticker` **بالاسم** لا من الحقول المدوَّرة
+#    (التدويرُ يُزيح `filled` في الحالات الحدّية فتنكسر `BV0` صامتةً)
+try:
+    _ps_pl = _ast_rd.parse(_insp0.getsource(_PS.plan_at))
+    _ps4_calls = {getattr(n.func, "attr", None) for n in _ast_rd.walk(_ps_pl)
+                  if isinstance(n, _ast_rd.Call)}
+    _ps_af = _insp0.getsource(_PS.arms_for)
+    _ps4 = ("analyze_ticker" in _ps4_calls
+            and "plan_at(" in _ps_af
+            and 'tr["entry"]' not in _ps_af and 'tr["stop"]' not in _ps_af
+            and "_resolve_arm" in _ps_af)
+except Exception as _e:                                          # noqa: BLE001
+    _ps4 = f"⛔ {type(_e).__name__}"
+check("🛑 PS4 الخطّةُ تُعاد من `analyze_ticker` الإنتاجيّ والحسمُ بـ`_resolve_arm`"
+      " — ولا يُقرأ `entry`/`stop` المدوَّران من الصفقة", _ps4 is True, str(_ps4))
+
+# ── PS5: الأرقامُ المحميّة لم تُمَسّ — `STOP_BELOW_LOW_PCT` كما هي، والأداةُ
+#    لا تكتب فيها (‏§⑦: ممنوعٌ مهما كانت الأرقام)
+try:
+    # الكتاباتُ في `CONFIG` وحدَها (لا كتاباتُ القواميس المحلّية)
+    _ps5_w = [n for n in _ast_rd.walk(_ps_t)
+              if isinstance(n, _ast_rd.Subscript)
+              and isinstance(getattr(n, "ctx", None), _ast_rd.Store)
+              and getattr(getattr(n, "value", None), "attr", None) == "CONFIG"]
+    _ps5_keys = {getattr(getattr(n, "slice", None), "value", None)
+                 for n in _ps5_w}
+    _ps5 = (tuple(S.CONFIG["STOP_BELOW_LOW_PCT"]) == (5, 7)
+            and _ps5_keys == {"BT_REPLAY10", "BT_ENVVALS"}
+            and "STOP_BELOW_LOW_PCT" not in _ps5_keys)
+except Exception as _e:                                          # noqa: BLE001
+    _ps5 = f"⛔ {type(_e).__name__}"
+check("🛑 PS5 وقفُ الإنتاج (5,7) كما هو · والأداةُ لا تكتب إلّا علمَي الإلحاق",
+      _ps5 is True, str(_ps5))
+
+# ── PS6: قراءةٌ فقط + الإنتاجُ لا يستوردها + وصلُ الـworkflow بلا كرون
+try:
+    _ps_send = [_n for _n in _ast_rd.walk(_ps_t) if isinstance(_n, _ast_rd.Call)
+                and (getattr(_n.func, "id", None)
+                     in ("send_telegram", "save_watchlist", "git_save")
+                     or getattr(_n.func, "attr", None)
+                     in ("send_telegram", "save_watchlist", "git_save"))]
+    _ps_y = open(".github/workflows/pivot_stop.yml", encoding="utf-8").read()
+    _ps_prod = "pivot_stop_arms" in open("Super_stock.py", encoding="utf-8").read()
+    _ps6 = (not _ps_send and _ps_prod is False
+            and "workflow_dispatch" in _ps_y and "schedule" not in _ps_y
+            and "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _ps_y
+            and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _ps_y
+            and "python pivot_stop_arms.py" in _ps_y
+            and "BACKTEST_YEAR" in _ps_src and "BT_FROZEN_PATH" in _ps_src)
+except Exception as _e:                                          # noqa: BLE001
+    _ps6 = f"⛔ {type(_e).__name__}"
+check("🛑 PS6 قراءةٌ فقط · الإنتاجُ لا يستوردها · والمدخلان موصولان ببيئةٍ"
+      " يقرؤها السكربت بلا كرون", _ps6 is True, str(_ps6))
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
