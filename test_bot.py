@@ -31915,9 +31915,16 @@ try:
                                      and r["plan"][a]["sb"] == r["plan"][a]["fb"])
         for r in _s13 for a in ("P0", "P1", "P2"))
     # ومصدرُ `fb` هو `fill_index` نفسُها (لا حلقةَ ثانية) — بالـAST
+    # 🔴 **داخل كتلة `with_plan` حصرًا:** `walk_symbol_gold` تنادي `fill_index`
+    #    أيضًا لبديل الانطلاق (‏`P3`) ⇒ فحصُ الدالّة كلِّها **قفلٌ أجوف** يُرضيه
+    #    نداءٌ لا علاقةَ له بالوسم (صنفُ `GE15` — مقيسٌ: 2 نداء، واحدٌ خارجها).
     _s13_src = _ast0.parse(_insp0.getsource(_SL13.walk_symbol_gold))
-    _s13_fi = any(getattr(_n.func, "id", None) == "fill_index"
-                  for _n in _ast0.walk(_s13_src) if isinstance(_n, _ast0.Call))
+    _s13_blk = [_n for _n in _ast0.walk(_s13_src) if isinstance(_n, _ast0.If)
+                and getattr(_n.test, "id", None) == "with_plan"]
+    _s13_fi = (len(_s13_blk) == 1
+               and any(getattr(_n.func, "id", None) == "fill_index"
+                       for _n in _ast0.walk(_s13_blk[0])
+                       if isinstance(_n, _ast0.Call)))
 except Exception as _e:                                          # noqa: BLE001
     _s13_keys = _s13_ok = _s13_fi = f"⛔ {type(_e).__name__}"
 check("🩸 SL13 `same_bar`: تُشتقّ من `fill_index` **المقفولة** (لا حلقةَ"
