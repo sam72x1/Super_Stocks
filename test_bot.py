@@ -33533,6 +33533,164 @@ except Exception as _e:                                          # noqa: BLE001
 check("🗜️ PR14 قراءةٌ فقط · الإنتاجُ لا يستوردها · والمدخلان موصولان بلا كرون",
       _pr14 is True, str(_pr14)[:200])
 
+
+# ════════════════════ 🕰️🥇 T-HOLD-KEY — أقفال HK1-HK13 ════════════════════
+# العقد hold_key_prereg.md (مدفوعٌ قبل أيّ سطرِ كودِ أداة · وملحقُه §⑨ قبل أيّ رقم).
+import ast as _hk_ast
+import importlib as _hk_il
+import json as _hk_json
+import random as _hk_rnd
+import subprocess as _hk_sub
+import sys as _hk_sys
+import textwrap as _hk_tw
+import yaml as _hk_yaml
+
+_HK_SRC = open("hold_key_arms.py", encoding="utf-8").read()
+_HK_T = _hk_ast.parse(_HK_SRC)
+HK = _hk_il.import_module("hold_key_arms")
+
+
+def _hk_fn(name):
+    for n in _hk_ast.walk(_HK_T):
+        if isinstance(n, _hk_ast.FunctionDef) and n.name == name:
+            return n
+    return None
+
+
+def _hk_row(sym, s, hold, tested, drop, swept=False, awake=False, oc="win"):
+    return {"session": s, "symbol": sym, "oc": oc, "swept": swept,
+            "wake": {"awake": awake}, "plan": None, "prev_q": None,
+            "read": {"hold_sessions": hold, "tested_level": tested,
+                     "drop_pct": drop, "runup_pct": 0.0, "swept_hold": swept}}
+
+
+# HK1 — مقياسٌ واحدٌ لا اثنان: كلُّ المُعاد يُستورَد بالاسم من press_rank_arms
+_hk_attrs = {n.attr for n in _hk_ast.walk(_HK_T)
+             if isinstance(n, _hk_ast.Attribute)
+             and isinstance(n.value, _hk_ast.Name) and n.value.id == "PRA"}
+check("🕰️ HK1 مقياسٌ واحد: r_of·boot_ci·ready_rows·deliver·order_a0/a3·pv0_gate "
+      "من press_rank_arms بالاسم",
+      "import press_rank_arms as PRA" in _HK_SRC and
+      {"r_of", "boot_ci", "ready_rows", "deliver", "order_a0", "order_a3",
+       "pv0_gate", "dedupe_violations"} <= _hk_attrs,
+      f"غائب={sorted({'r_of','boot_ci','ready_rows','deliver','order_a0','order_a3','pv0_gate','dedupe_violations'} - _hk_attrs)}")
+
+# HK2 — B0 تعبيرُ الإنتاج · وبلا تجزئةِ المستيقظين (§⑨-4)
+_hk_b0 = _hk_ast.dump(_hk_fn("order_b0"))
+check("🕰️ HK2 B0 = sorted(rows, key=PR.alert_rank) بلا تجزئةِ المستيقظين",
+      "attr='alert_rank'" in _hk_b0 and "'sorted'" in _hk_b0
+      and "awake" not in _hk_b0,
+      _hk_b0[:120])
+
+# HK3 — B1 سلوكيًّا: hold مفتاحًا أوّلَ وترتيبُ B0 فاصلَ تعادل · والثلاثةُ تتفرّق
+_hk_rows = [_hk_row("X", "d1", 1, 9.0, 10.0), _hk_row("Y", "d1", 9, None, 50.0),
+            _hk_row("Z", "d1", 9, 9.0, 20.0)]
+_hk_o0 = [r["symbol"] for r in HK.order_b0(_hk_rows)]
+_hk_o1 = [r["symbol"] for r in HK.order_b1(_hk_rows)]
+_hk_o3 = [r["symbol"] for r in HK.order_b3(_hk_rows)]
+check("🕰️ HK3 B1 يقدّم hold ثم يفصل بترتيب B0 — والأذرعُ الثلاثُ تتفرّق",
+      _hk_o0 == ["Z", "X", "Y"] and _hk_o1 == ["Z", "Y", "X"]
+      and _hk_o3 == ["Y", "Z", "X"],
+      f"B0={_hk_o0} B1={_hk_o1} B3={_hk_o3}")
+
+# HK4 — deliver_prod قاعدةُ عددِ كروت الإنتاج (المستيقظون حصرًا بلا إكمال)
+_hk_fire = [_hk_row(f"A{i}", "d1", 5, 9.0, 20.0, awake=(i < 2)) for i in range(6)]
+_hk_quiet = [_hk_row(f"B{i}", "d1", 5, 9.0, 20.0) for i in range(6)]
+_hk_df = HK.deliver_prod({"d1": _hk_fire}, ["d1"], HK.order_b0, 5.15)
+_hk_dq = HK.deliver_prod({"d1": _hk_quiet}, ["d1"], HK.order_b0, 5.15)
+check("🕰️ HK4 مستيقظان من ستّة ⇒ كرتان بلا إكمال · وبلا مستيقظ ⇒ حتى السقف",
+      len(_hk_df["cards"]) == 2 and len(_hk_dq["cards"]) == 6,
+      f"fire={len(_hk_df['cards'])} quiet={len(_hk_dq['cards'])}")
+
+# HK5 — enrich: prev_q داخل النافذة وبفجوة 3 · live_q بـMEMORY_DAYS · live_mv
+import press_radar as _hk_pr
+_hk_g = {"X": [(10, "2024-01-10"), (60, "2024-03-20")], "Y": [], "W": [(69, "2024-03-29")]}
+_hk_p = {k: {"2024-04-01": 70} for k in ("X", "Y", "W")}
+_hk_m = {"X": [], "Y": ["2024-03-25"], "W": []}
+_hk_rs = [_hk_row(k, "2024-04-01", 5, 9.0, 20.0) for k in ("X", "Y", "W")]
+HK.enrich(_hk_rs, _hk_g, _hk_m, _hk_p)
+_hk_got = {r["symbol"]: (r["prev_q"], r["live_q"], r["live_mv"]) for r in _hk_rs}
+check("🕰️ HK5 enrich: X ترشيحٌ حيّ · Y متحرّكٌ فقط · W داخلَ فجوةِ 3 فيُستبعَد",
+      _hk_got["X"] == (True, True, False) and _hk_got["Y"] == (False, False, True)
+      and _hk_got["W"] == (False, False, False),
+      str(_hk_got))
+
+# HK6 — live_pool يقصر على البِركة ويطبّق POOL_CAP
+_hk_big = [_hk_row(f"S{i:04d}", "d1", 5, 9.0, 20.0) for i in range(_hk_pr.POOL_CAP + 7)]
+for r in _hk_big:
+    r["live_q"], r["live_mv"] = True, False
+_hk_out = _hk_row("OUT", "d1", 5, 9.0, 20.0)
+_hk_out["live_q"] = _hk_out["live_mv"] = False
+_hk_lp, _hk_cut = HK.live_pool(_hk_big + [_hk_out])
+check("🕰️ HK6 live_pool: غيرُ المؤهَّل يُسقَط · وPOOL_CAP يقصّ ويُعلَن بعدّاده",
+      len(_hk_lp) == _hk_pr.POOL_CAP and _hk_cut == 7
+      and all(r["symbol"] != "OUT" for r in _hk_lp),
+      f"n={len(_hk_lp)} cut={_hk_cut}")
+
+# HK7 — §⑨-1: العتبةُ بالاسم وصفرُ نداءٍ لـscan_explosions
+_hk_mv = _hk_ast.dump(_hk_fn("mover_days"))
+check("🕰️ HK7 mover_days: CONFIG[EXPLOSION_PCT] بالاسم · وصفرُ scan_explosions",
+      "EXPLOSION_PCT" in _hk_mv and "scan_explosions" not in _HK_SRC.replace(
+          "`scan_explosions`", "").replace("scan_explosions (ماسحُ", "x ("),
+      "ذُكرت scan_explosions في الكود")
+
+# HK8 — §⑨-7: الشبكةُ تنادي analyze_ticker بالوضعين وتخطو Q5_STRIDE
+_hk_q5 = _hk_ast.dump(_hk_fn("q5_grid"))
+check("🕰️ HK8 q5_grid: analyze_ticker بالوضعين (فرزًا وارتدادًا) وبخطوة Q5_STRIDE",
+      _hk_q5.count("attr='analyze_ticker'") == 2
+      and "id='Q5_STRIDE'" in _hk_q5 and "arg='pullback'" in _hk_q5,
+      f"نداءات={_hk_q5.count(chr(39)+'analyze_ticker'+chr(39))}")
+
+# HK9 — ثوابتُ العقد مثبَّتة
+check("🕰️ HK9 ثوابتُ العقد: أربعُ أذرع · فائزو §⑬ · جسرُ الأمس · نطاقُ الكثافة",
+      HK.ARM_NAMES == ("B0", "B1", "B2", "B3")
+      and HK.PV0_WINNERS == {"2023": 351, "2024": 333, "2025": 341}
+      and HK.HV0_NET == {"2023": 0.3102, "2024": 0.7353, "2025": 1.9946}
+      and (HK.LIVE_MED_MIN, HK.LIVE_MED_MAX) == (8.0, 40.0)
+      and HK.Q5_STRIDE == 5 and HK.PQ_MAX_BACK == 120
+      and HK.HV8_MIN_AGREE == 90.0,
+      f"{HK.ARM_NAMES} {HK.Q5_STRIDE} {HK.PQ_MAX_BACK}")
+
+# HK10 — §⑨-6: HV0 يعمل على prev_q=None وبدوالِّ الأمس
+_hk_h0 = _hk_ast.dump(_hk_fn("hv0_bridge"))
+check("🕰️ HK10 HV0: prev_q=None صراحةً · وPRA.deliver مع PRA.order_a0",
+      "arg='prev_q'" in _hk_h0 and "attr='deliver'" in _hk_h0
+      and "attr='order_a0'" in _hk_h0,
+      _hk_h0[:120])
+
+# HK11 — §⑨-5: الفاصلُ يُصدَّر للحاكمة وللوصفيّة معًا
+_hk_rep = _hk_ast.dump(_hk_fn("report"))
+check("🕰️ HK11 DIFFS تصدّر d1 وd3 معًا · وboot_ci يُنادى مرّتين",
+      "'d1'" in _hk_rep and "'d3'" in _hk_rep
+      and _hk_rep.count("attr='boot_ci'") == 2,
+      f"boot_ci={_hk_rep.count(chr(39)+'boot_ci'+chr(39))}")
+
+# HK12 — بوّاباتٌ منفَّذةٌ برموزِ خروجها (لا موصوفة)
+_hk_codes = {c.value.value for c in _hk_ast.walk(_hk_fn("report"))
+             if isinstance(c, _hk_ast.Return) and isinstance(c.value, _hk_ast.Constant)}
+_hk_mcodes = {c.value.value for c in _hk_ast.walk(_hk_fn("main"))
+              if isinstance(c, _hk_ast.Return) and isinstance(c.value, _hk_ast.Constant)}
+check("🕰️ HK12 بوّاباتُ الصلاحية منفَّذة: report تُرجع 3 و4 · وmain تُرجع 2 و3 و6",
+      {3, 4} <= _hk_codes and {2, 3, 6} <= _hk_mcodes,
+      f"report={sorted(_hk_codes)} main={sorted(_hk_mcodes)}")
+
+# HK13 — قراءةٌ فقط · الإنتاجُ لا يستوردها · المدخلان موصولان بلا كرون
+_hk_bad = [n.func.attr for n in _hk_ast.walk(_HK_T)
+           if isinstance(n, _hk_ast.Call) and isinstance(n.func, _hk_ast.Attribute)
+           and n.func.attr in ("send_telegram", "git_save", "save_watchlist",
+                               "save_op_entry_state", "to_csv")]
+_hk_wf = _hk_yaml.safe_load(open(".github/workflows/hold_key.yml", encoding="utf-8"))
+_hk_on = _hk_wf.get(True, _hk_wf.get("on"))
+_hk_env = _hk_wf["jobs"]["hold_key"]["steps"][-1].get("env", {})
+_hk_prod = open("Super_stock.py", encoding="utf-8").read()
+check("🕰️ HK13 قراءةٌ فقط · الإنتاجُ لا يستوردها · والمدخلان موصولان بلا كرون",
+      not _hk_bad and "hold_key_arms" not in _hk_prod
+      and "schedule" not in _hk_on and set(_hk_on) == {"workflow_dispatch"}
+      and "BACKTEST_YEAR" in _hk_env and "BT_FROZEN_PATH" in _hk_env
+      and "inputs.year" in str(_hk_env),
+      f"كتابة={_hk_bad} env={sorted(_hk_env)}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
