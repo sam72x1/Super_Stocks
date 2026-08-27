@@ -33718,6 +33718,244 @@ check("🕰️ HK13 قراءةٌ فقط · الإنتاجُ لا يستورده�
       f"كتابة={_hk_bad} env={sorted(_hk_env)}")
 
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🕰️🥇② T-HOLD-KEY-2 — أقفال HK2-1..HK2-12
+#   العقد `hold_key2_prereg.md` مدفوعٌ `8afd57ee` قبل أيّ سطرِ كودِ أداة.
+#   🔒 المتغيّرُ الوحيد: عضويّةُ البِركة من `select_top` — وما عداه بالاسم.
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _hk2_ast
+import hashlib as _hk2_hash
+import importlib as _hk2_imp
+import io as _hk2_io
+import contextlib as _hk2_ctx
+import inspect as _hk2_insp
+import yaml as _hk2_yaml
+
+_HK2 = _hk2_imp.import_module("hold_key2_arms")
+_hk2_src = _hk2_insp.getsource(_HK2)
+_hk2_t = _hk2_ast.parse(_hk2_src)
+
+
+def _hk2_mini(sym, rdy, sc=50, rr=1.5, px=1.0, tr=(1.0, 1.1)):
+    return {"symbol": sym, "readiness": rdy, "score": sc, "rr": rr,
+            "price": px, "tranches": list(tr), "h4_confirm": 0}
+
+
+def _hk2_row(sym, sess, hold=4, awake=True, oc="win"):
+    return {"symbol": sym, "session": sess, "read": {"hold_sessions": hold},
+            "wake": {"awake": awake}, "oc": oc,
+            "plan": None, "prev_q": None}
+
+
+# ── HK2-1: مقياسٌ واحدٌ لا اثنان — إعادةُ الاستعمال **بالاسم** من المجمَّدتين
+try:
+    _n1 = {f"{getattr(n.value,'id','')}.{n.attr}"
+           for n in _hk2_ast.walk(_hk2_t) if isinstance(n, _hk2_ast.Attribute)}
+    _need = {"HK.enrich", "HK.run_arms", "HK.hv0_bridge", "HK.hv8_agree",
+             "HK.live_pool", "HK.mover_days", "HK._arm_line", "HK._within",
+             "PRA.ready_rows", "PRA.pv0_gate", "PRA.boot_ci",
+             "PRA.dedupe_violations"}
+    _hk2_1 = _need <= _n1
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_1 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-1 مقياسٌ واحد: 12 دالّةً مُعادةً بالاسم من المجمَّدتين",
+      _hk2_1 is True, str(_hk2_1)[:170])
+
+# ── HK2-2: `HW2` بصمتا التجميد **حقيقيّتان** ويُقارَنان فعلًا (‏CAP15)
+try:
+    _real = {p: _hk2_hash.sha256(open(p, "rb").read()).hexdigest()
+             for p in ("hold_key_arms.py", "press_rank_arms.py")}
+    _fz = _HK2.hw2_frozen()
+    _hk2_2 = (set(_HK2.FROZEN_SHA) == set(_real)
+              and all(_HK2.FROZEN_SHA[p][:16] == _real[p][:16] for p in _real)
+              and all(v[0] for v in _fz.values()))
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_2 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-2 `HW2`: بصمتا `hold_key_arms`/`press_rank_arms` مثبَّتتان وتُقارَنان",
+      _hk2_2 is True, str(_hk2_2)[:170])
+
+# ── HK2-3: `top_by_date` — `rank_key` و`select_top` **بالاسم** والسعةُ حيّة
+try:
+    _g3 = {f"S{j}": [(10, "2024-03-01", _hk2_mini(f"S{j}", 100 - j))]
+           for j in range(20)}
+    _t3, _cap3 = _HK2.top_by_date(_g3)
+    _f3 = next(n for n in _hk2_ast.walk(_hk2_t)
+               if isinstance(n, _hk2_ast.FunctionDef) and n.name == "top_by_date")
+    _d3s = _hk2_ast.dump(_f3)
+    _sv3 = S.CONFIG["WATCHLIST_SIZE"]           # 🔴 سلوكيّ: السعةُ تُقرأ حيّةً
+    try:
+        S.CONFIG["WATCHLIST_SIZE"] = 4
+        _t3b, _cap3b = _HK2.top_by_date(_g3)
+    finally:
+        S.CONFIG["WATCHLIST_SIZE"] = _sv3
+    _hk2_3 = (_cap3 == int(_sv3)
+              and len(_t3["2024-03-01"]) == _cap3
+              and "S0" in _t3["2024-03-01"] and "S19" not in _t3["2024-03-01"]
+              and _cap3b == 4 and len(_t3b["2024-03-01"]) == 4
+              and _t3b["2024-03-01"] == {"S0", "S1", "S2", "S3"}
+              and "attr='rank_key'" in _d3s and "attr='select_top'" in _d3s
+              and "'WATCHLIST_SIZE'" in _d3s)
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_3 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-3 `select_top` يقصّ عند السعة الحيّة والأعلى رتبةً يبقى",
+      _hk2_3 is True, str(_hk2_3)[:170])
+
+# ── HK2-4: عضويّةُ البِركة **تتبع `select_top`** لا التأهّلَ الخام (فارقٌ سلوكيّ)
+try:
+    _rows4 = [_hk2_row(f"S{j}", "2024-03-05") for j in range(20)]
+    _pos4 = {f"S{j}": {"2024-03-01": 10, "2024-03-05": 12} for j in range(20)}
+    _HK2.enrich2(_rows4, _g3, {f"S{j}": [] for j in range(20)}, _pos4, _t3)
+    _in4 = {r["symbol"] for r in _rows4 if r["live_q"]}
+    _old4 = {r["symbol"] for r in _rows4 if r["live_q_old"]}
+    _hk2_4 = (len(_old4) == 20 and len(_in4) == 15
+              and "S0" in _in4 and "S19" not in _in4
+              and _in4 == _t3["2024-03-01"])
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_4 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-4 العضويّة = مُخرَجُ `select_top` (‏20 خام ⟶ 15 مُسلَّم)",
+      _hk2_4 is True, str(_hk2_4)[:170])
+
+# ── HK2-5: `prev_q` **بت-بت من `HK.enrich`** — العضويّةُ لا تلوّثه
+try:
+    _g5 = {"X": [(10, "2024-03-01", _hk2_mini("X", 90))]}
+    _t5, _ = _HK2.top_by_date(_g5)
+    _r5a = [_hk2_row("X", "2024-03-05")]          # فجوة 2 ⇒ prev_q False
+    _r5b = [_hk2_row("X", "2024-03-20")]          # فجوة 10 ⇒ prev_q True
+    _p5 = {"X": {"2024-03-01": 10, "2024-03-05": 12, "2024-03-20": 20}}
+    _HK2.enrich2(_r5a, _g5, {"X": []}, _p5, _t5)
+    _HK2.enrich2(_r5b, _g5, {"X": []}, _p5, _t5)
+    _hk2_5 = (_r5a[0]["prev_q"] is False and _r5b[0]["prev_q"] is True
+              and _r5a[0]["live_q"] is True)     # العضويّةُ بلا فجوة
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_5 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-5 `prev_q` بفجوة الثلاث · والعضويّةُ بلا فجوة (مفصولتان)",
+      _hk2_5 is True, str(_hk2_5)[:170])
+
+# ── HK2-6: `HW1` حارسُ الـ`no-op` — يعبر بالقصّ ويسقط بلاه
+try:
+    _rows6 = [_hk2_row(f"S{j}", "2024-03-05") for j in range(20)]
+    _HK2.enrich2(_rows6, _g3, {f"S{j}": [] for j in range(20)}, _pos4, _t3)
+    for _r in _rows6:                       # قصٌّ مصطنعٌ 80% (يعبر الحدّ 30)
+        _r["live_q_old"] = True
+    for _r in _rows6[4:]:
+        _r["live_q"] = False
+    _ok6a, _o6a, _n6a, _d6a = _HK2.hw1_gate(_rows6)
+    _rows6b = [dict(r, live_q=True, live_q_old=True) for r in _rows6]
+    _ok6b, _, _, _d6b = _HK2.hw1_gate(_rows6b)
+    _hk2_6 = (_ok6a is True and abs(_d6a - 80.0) < 1e-9
+              and _ok6b is False and _d6b == 0.0
+              and _HK2.HW1_MIN_DROP_PCT == 30.0)
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_6 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-6 `HW1`: قصٌّ 80% يعبر · وصفرُ قصٍّ يسقط (الحدّ 30)",
+      _hk2_6 is True, str(_hk2_6)[:170])
+
+# ── HK2-7: شبكةُ `Q5` **بتقويمٍ مشترك** — نفسُ التواريخ لكلّ الرموز
+try:
+    class _HK2DF:
+        def __init__(self, days):
+            self.index = list(days)
+
+        def __len__(self):
+            return len(self.index)
+    _days = [f"2024-01-{d:02d}" for d in range(1, 29)]
+    _hist7 = {"A": _HK2DF(_days), "B": _HK2DF(_days[3:])}
+    _gd7 = _HK2.grid_dates(_hist7, "2024")
+    _hk2_7 = (len(_gd7) == len(set(_gd7))
+              and _gd7 == sorted(_gd7)
+              and all(d in _days for d in _gd7)
+              and len(_gd7) == len(_days[::_HK2.HK.Q5_STRIDE]))
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_7 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-7 الشبكةُ تقويمٌ مشتركٌ واحدٌ للكون (خطوة `Q5_STRIDE`)",
+      _hk2_7 is True, str(_hk2_7)[:170])
+
+# ── HK2-8: `q5_grid_cal` يحفظ **حقولَ `rank_key` وحدَها** (‏§⑨-3)
+try:
+    _f8 = next(n for n in _hk2_ast.walk(_hk2_t)
+               if isinstance(n, _hk2_ast.FunctionDef) and n.name == "q5_grid_cal")
+    _d8 = _hk2_ast.dump(_f8)
+    _hk2_8 = (_HK2.RANK_FIELDS == ("symbol", "readiness", "score", "rr",
+                                   "price", "tranches", "h4_confirm")
+              and "attr='analyze_ticker'" in _d8
+              and "id='RANK_FIELDS'" in _d8
+              and "pullback" in _d8)
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_8 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-8 الشبكةُ تُنادي `analyze_ticker` (فرزًا وارتدادًا) وتحفظ `RANK_FIELDS`",
+      _hk2_8 is True, str(_hk2_8)[:170])
+
+# ── HK2-9: 📎 `D_full` يُطبَع **قبل** بوّابة `HV4` (أمرُ «طبع الكامل»)
+try:
+    _f9 = next(n for n in _hk2_ast.walk(_hk2_t)
+               if isinstance(n, _hk2_ast.FunctionDef) and n.name == "report2")
+    _lines9 = _hk2_src.splitlines()
+    _b9 = _f9.body
+    _pos_full = _pos_hv4 = None
+    for _st in _hk2_ast.walk(_f9):
+        _sg = _hk2_ast.dump(_st) if isinstance(_st, _hk2_ast.Assign) else ""
+        if "attr='run_arms'" in _sg and "D_full" in _sg and _pos_full is None:
+            _pos_full = _st.lineno
+    for _st in _hk2_ast.walk(_f9):
+        if isinstance(_st, _hk2_ast.If) and "LIVE_MED_MIN" in _hk2_ast.dump(_st.test):
+            _pos_hv4 = _st.lineno
+    _hk2_9 = (_pos_full is not None and _pos_hv4 is not None
+              and _pos_full < _pos_hv4)
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_9 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-9 `D_full` يُحسَب ويُطبَع **قبل** `HV4` فلا يكتمه سقوطُها",
+      _hk2_9 is True, str(_hk2_9)[:170])
+
+# ── HK2-10: ثوابتُ العقد مثبَّتة — ولا ذراعَ خامسة ولا نطاقٌ مبدَّل
+try:
+    _hk2_10 = (_HK2.HK.ARM_NAMES == ("B0", "B1", "B2", "B3")
+               and (_HK2.HK.LIVE_MED_MIN, _HK2.HK.LIVE_MED_MAX) == (8.0, 40.0)
+               and _HK2.HK.HV8_MIN_AGREE == 90.0
+               and _HK2.PRA.N_SEEDS == 200
+               and _HK2.PRA.FLOOR_SESSIONS == 40
+               and _HK2.PRA.FLOOR_CARDS == 150
+               and _HK2.HW1_PUBLISHED_2023 == 9181)
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_10 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-10 ثوابتُ العقد: 4 أذرع · نطاق [8،40] · 200 بذرة · أرضيّات 40/150",
+      _hk2_10 is True, str(_hk2_10)[:170])
+
+# ── HK2-11: قراءةٌ فقط — صفرُ إرسالٍ وصفرُ كتابةِ حالة · والإنتاجُ لا يستوردها
+try:
+    _bad11 = [n for n in _hk2_ast.walk(_hk2_t) if isinstance(n, _hk2_ast.Call)
+              and getattr(n.func, "attr", getattr(n.func, "id", "")) in
+              ("send_telegram", "git_save", "save_watchlist", "save_op_entry_state",
+               "record_ignition_fires", "save_near_watch")]
+    _src_prod = _hk2_insp.getsource(S)
+    _hk2_11 = (not _bad11 and "hold_key2_arms" not in _src_prod
+               and "open(" not in _hk2_src.split("def hw2_frozen")[1].split("def ")[1])
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_11 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-11 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة · والإنتاجُ لا يستوردها",
+      _hk2_11 is True, str(_hk2_11)[:170])
+
+# ── HK2-12: الـworkflow موصولٌ (كلُّ مدخلٍ في بيئةٍ يقرؤها السكربت) وبلا كرون
+try:
+    _y12 = _hk2_yaml.safe_load(
+        open(".github/workflows/hold_key2.yml", encoding="utf-8"))
+    _on12 = _y12.get(True) or _y12.get("on")
+    _ins12 = set((_on12.get("workflow_dispatch") or {}).get("inputs") or {})
+    _step12 = [st for st in _y12["jobs"]["hold_key2"]["steps"]
+               if st.get("run", "").strip().endswith("hold_key2_arms.py")][0]
+    _env12 = " ".join(str(v) for v in (_step12.get("env") or {}).values())
+    _dl12 = [st for st in _y12["jobs"]["hold_key2"]["steps"]
+             if "download-artifact" in str(st.get("uses", ""))][0]
+    _wired = all(f"inputs.{k}" in _env12 + str(_dl12.get("with", "")) for k in _ins12)
+    _hk2_12 = (_ins12 == {"year", "frozen_run_id"} and _wired
+               and "schedule" not in _on12
+               and "BACKTEST_YEAR" in (_step12.get("env") or {})
+               and "BT_FROZEN_PATH" in (_step12.get("env") or {}))
+except Exception as _e:                                          # noqa: BLE001
+    _hk2_12 = f"⛔ {type(_e).__name__}: {_e}"
+check("🕰️② HK2-12 الـworkflow: مدخلان موصولان ببيئةٍ يقرؤها السكربت · وبلا كرون",
+      _hk2_12 is True, str(_hk2_12)[:170])
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
