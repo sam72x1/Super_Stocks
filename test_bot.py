@@ -33400,14 +33400,40 @@ try:
     _fn9 = next(n for n in _ast_ct.walk(_prk_t)
                 if isinstance(n, _ast_ct.FunctionDef) and n.name == "pv0_gate")
     _d9 = _ast_ct.dump(_fn9)
+    import rebound_arms as _rb9                                  # noqa: E402
+    _n9 = _rb9.MIN_BARS + 5
+
+    def _pw9(nd):
+        """جذعٌ يُرجع `nd` حلقةً محسومةً بحفظٍ ثلاثٍ فأكثر — لا أكثر ولا أقلّ."""
+        _m = _types_ml.ModuleType("press_wake_arms")
+        _m.walk_symbol_wake = (lambda sym, df, year=None, _k=nd:
+                               [{"hold": 3, "oc": ("win" if i % 3 == 0 else "loss")}
+                                for i in range(_k)])
+        return _m
+
+    _pw_real9 = _sys.modules.get("press_wake_arms")
+    try:                       # ⚖️ تطابقٌ ⇒ ok · وتفرّقُ صفٍّ واحد ⇒ ⛔ (لا `True` عمياء)
+        _sys.modules["press_wake_arms"] = _pw9(1660)
+        _ok_hit, _dec_hit, _k_hit = _PRK.pv0_gate({"X": [0] * _n9}, "2023")
+        _sys.modules["press_wake_arms"] = _pw9(1659)
+        _ok_mis, _dec_mis, _ = _PRK.pv0_gate({"X": [0] * _n9}, "2023")
+        _sys.modules["press_wake_arms"] = _pw9(1660)
+        _ok_yr, _, _ = _PRK.pv0_gate({"X": [0] * _n9}, "2099")   # سنةٌ بلا نشر ⇒ ⛔
+    finally:
+        if _pw_real9 is None:
+            _sys.modules.pop("press_wake_arms", None)
+        else:
+            _sys.modules["press_wake_arms"] = _pw_real9
     _pr9 = (_PRK.PV0_RESOLVED == {"2023": 1660, "2024": 1857, "2025": 1854}
             and sum(_PRK.PV0_RESOLVED.values()) == 5371
             and "attr='walk_symbol_wake'" in _d9
             and "attr='READY_HOLD'" in _d9
-            and "Eq()" in _d9 and "id='exp'" in _d9)   # مقارنةٌ فعليّة لا `True`
+            and _ok_hit is True and _dec_hit == 1660 and _k_hit == 554
+            and _ok_mis is False and _dec_mis == 1659      # 🔴 مقارنةٌ فعليّة لا `True`
+            and _ok_yr is False)
 except Exception as _e:                                          # noqa: BLE001
     _pr9 = f"⛔ {type(_e).__name__}: {_e}"
-check("🗜️ PR9 `PV0`: 1660+1857+1854=5371 · والمِشيةُ `walk_symbol_wake` بالاسم",
+check("🗜️ PR9 `PV0` سلوكيًّا: تطابقُ 1660 يمرّ · و1659 يسقط · وسنةٌ بلا نشرٍ تسقط",
       _pr9 is True, str(_pr9)[:170])
 
 # ── PR10: ثوابتُ §③/§④ مثبَّتة — ولا ذراعَ خامسة
@@ -33473,11 +33499,12 @@ try:
     with _ctx_ct.redirect_stdout(_buf):
         _rc_fl = _PRK.report(_rows_fl, 100, 100, "TEST")
     _o_fl = _buf.getvalue()
-    _pr12 = (_rc_cov == 3 and "`PV3`" in _o_cov
-             and _rc_fl == 4 and "الأرضية" in _o_fl and "كروت" in _o_fl
-             and _rc_few == 4 and "الجلسات" in _o_few
-             and _rc_pv1 == 4 and "`PV1`" in _o_pv1
-             and _rc_pv2 == 4 and "`PV2`" in _o_pv2)
+    # 🔴 الإبرةُ على سطر ⛔ **حصرًا** — سطرُ التشخيص يُطبَع بلا شرطٍ فيُرضي الأعمى
+    _pr12 = (_rc_cov == 3 and "⛔ `PV3` دون" in _o_cov
+             and _rc_fl == 4 and "⛔ الأرضية: كروتُ" in _o_fl
+             and _rc_few == 4 and "⛔ الأرضية: الجلسات" in _o_few
+             and _rc_pv1 == 4 and "⛔ `PV1` دون" in _o_pv1
+             and _rc_pv2 == 4 and "لم تتفرّق" in _o_pv2)
 except Exception as _e:                                          # noqa: BLE001
     _pr12 = f"⛔ {type(_e).__name__}: {_e}"
 check("🗜️ PR12 `report`: PV3/الأرضية/PV1/PV2 تُوقِف برموزها المسمّاة",
