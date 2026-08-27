@@ -32567,6 +32567,236 @@ check("🕯️ CD7 قراءةٌ فقط · الإنتاجُ لا يستوردها
       " يقرؤها السكربت بلا كرون", _cd7 is True, str(_cd7))
 
 
+# ═══ 🚦 T-RANK-DENSE — أقفال RD1-RD8 (العقد: `ranker_dense_prereg.md` مدفوعٌ
+#     `2e5ddd9e` قبل الأداة). بحث/قياس · صفر مسّ إنتاج. ═══════════════════════
+import ast as _ast_rd
+import contextlib as _ctx_rd
+import io as _io_rd
+
+import numpy as _np_rd
+import pandas as _pd_rd
+
+import ranker_dense as _RD
+import replay10 as _RP_rd
+
+_rd_src = _insp0.getsource(_RD)
+_rd_t = _ast_rd.parse(_rd_src)
+
+
+def _rd_df(n=520, seed=7, base=2.2, peak=15.0, vol=300000.0):
+    """فِكستشرُ ارتكازٍ حقيقيّ: هدوء ⟶ انفجارٌ ‏1400% ⟶ انهيارٌ ‏85% ⟶ قاعدةٌ ضيّقة.
+    **مبنيٌّ ليجتاز `analyze_ticker` فعلًا** — وإلّا كان القفلُ يحرس صفرًا.
+    🔒 ومُعايَرٌ **ليمرّ ببوّاباتِ البوت وببوّابات فيصل معًا** (السويّةُ تعمل بـ
+    `FAISAL_ONLY=0` والإنتاجُ بـ1 — درسُ `HCG7b`): سعرٌ فوق 1.5 وسيولةٌ ‏$660 ألفًا
+    فوق أرضيةِ الـ200 ألف، وهبوطٌ ‏85% فوق الأرضيتين (40 و71.72)."""
+    rng = _np_rd.random.default_rng(seed)
+    px = []
+    for i in range(n):
+        if i < 60:
+            p = 1.0
+        elif i < 90:
+            p = 1.0 + (peak - 1.0) * (i - 60) / 30.0
+        elif i < 160:
+            p = peak - (peak - base) * (i - 90) / 70.0
+        else:
+            p = base + 0.07 * base * _np_rd.sin(i / 9.0)
+        px.append(p * (1 + rng.normal(0, 0.004)))
+    px = _np_rd.array(px)
+    return _pd_rd.DataFrame(
+        {"Open": px * 0.995, "High": px * 1.02, "Low": px * 0.98,
+         "Close": px, "Volume": _np_rd.full(n, vol)},
+        index=_pd_rd.bdate_range("2022-01-03", periods=n))
+
+
+# ── RD1: بوّابةُ `RV0` — الأداةُ تُعيد إنتاجَ `backtest_symbol` **بت-بت**،
+#    وبالمِشية الكثيفة **تُنتج أكثرَ منها فعلًا** (فليست وضعًا واحدًا بمسمّيَين)
+try:
+    _rd_hist = {"TSTX": _rd_df()}
+    # 🔒 الأعلامُ تُستعاد إلى **قيمتها قبل النداء** لا إلى صفرٍ مغروس — فالسويّةُ
+    #    قد تكون رفعتها في قفلٍ سابق (وقع فعلًا: `BT_REPLAY10` كان 1 هنا)
+    _rd_flags0 = (S.CONFIG.get("BT_REPLAY10"), S.CONFIG.get("BT_ENVVALS"))
+    _rd_n, _rd_bad = _RD.rv0(S, ["TSTX"], _rd_hist, {}, "2022-06-01", "2024-12-31")
+    _rd_dense = _RD.walk_symbol(S, "TSTX", _rd_hist["TSTX"], None,
+                                "2022-06-01", "2024-12-31",
+                                step=_RD.DENSE_STEP, jump=False, heavy=False)
+    _rd1_ok = (_rd_bad is None and _rd_n >= 3 and len(_rd_dense) > _rd_n * 3
+               and (S.CONFIG.get("BT_REPLAY10"),
+                    S.CONFIG.get("BT_ENVVALS")) == _rd_flags0)
+    _rd1 = _rd1_ok or (f"تفرّق={_rd_bad} · قورن={_rd_n} · كثيفة={len(_rd_dense)}"
+                       f" · أعلام={_rd_flags0} ⟶ "
+                       f"{(S.CONFIG.get('BT_REPLAY10'), S.CONFIG.get('BT_ENVVALS'))}")
+except Exception as _e:                                          # noqa: BLE001
+    _rd1 = f"⛔ {type(_e).__name__}: {_e}"
+check("🚦 RD1 `RV0`: مُطابقةٌ بت-بت لمحرّك الإنتاج على صفقاتٍ حقيقية · والمِشيةُ"
+      " الكثيفة تُنتج أضعافَها · والأعلامُ تُستعاد",
+      _rd1 is True, str(_rd1)[:220])
+
+# ── RD2: الأذرعُ أربعٌ مسمّاةٌ بترتيب العقد + شاهدُ الصدفة · والسعةُ من الإنتاج
+try:
+    _rd_names = [n for n, _ in _RD.arms()]
+    _rd2 = (_rd_names == ["Q0", "Q1", "Q2", "Q4"]
+            and _RD.N_SEEDS == 200
+            and _RD.CAP == int(S.CONFIG["WATCHLIST_SIZE"]) == _RP_rd.CAPACITY
+            and _RD.DENSITY_MIN == 40.0 and _RD.FLOOR_TAKEN == 150)
+except Exception as _e:                                          # noqa: BLE001
+    _rd2 = f"⛔ {type(_e).__name__}"
+check("🚦 RD2 أربعُ أذرعٍ بأسمائها وترتيبها + 200 بذرة · والسعةُ 15 مربوطةٌ"
+      " بالإنتاج وبـ`replay10`", _rd2 is True, str(_rd2))
+
+# ── RD3: `Q1` و`Q2` **تتفرّقان** فعلًا — والعيّنةُ تفرّق (درسُ «القفلُ لا يحرس
+#    إلّا بقدر ما تُفرِّق عيّنتُه»): مرشّحان بخليّتين مختلفتين وبمفاتيح إنتاجٍ
+#    تضع `F1` أوّلًا لو أُهملت البنية.
+try:
+    _rd_c_f2 = _RP_rd.Candidate(session=0, symbol="AAA", readiness=50.0,
+                                score=5.0, rr=1.0, seq=1,
+                                payload={"press_cell": "F2",
+                                         "env_vals": {"in_band": True}})
+    _rd_c_f1 = _RP_rd.Candidate(session=0, symbol="BBB", readiness=90.0,
+                                score=9.0, rr=2.0, seq=0,
+                                payload={"press_cell": "F1",
+                                         "env_vals": {"in_band": True}})
+    _rd_pool = [_rd_c_f2, _rd_c_f1]
+    _o0 = [c.symbol for c in sorted(_rd_pool, key=_RP_rd.rank_live)]
+    _o1 = [c.symbol for c in sorted(_rd_pool, key=_RD.rank_press)]
+    _o2 = [c.symbol for c in sorted(_rd_pool, key=_RD.rank_fresh)]
+    _rd3 = (_o0 == ["BBB", "AAA"] and _o1 == ["AAA", "BBB"]
+            and _o2 == ["BBB", "AAA"] and _o1 != _o0)
+except Exception as _e:                                          # noqa: BLE001
+    _rd3 = f"⛔ {type(_e).__name__}"
+check("🚦 RD3 `Q1` تُقدّم `F2` على مرشّحٍ أعلى جاهزيةً · و`Q2` تُقدّم `F1` ·"
+      " والثلاثةُ تتفرّق على العيّنة نفسها", _rd3 is True, str(_rd3))
+
+# ── RD4: **الفكُّ لا الاستبدال** — عند تساوي الخليّة يعود الترتيبُ إلى مفاتيح
+#    الإنتاج **حرفيًّا** (فلا تُلغى `T-PROX` ولا الجاهزية بحجّة البنية)
+try:
+    # 🐞 العيّنةُ **تفرّق عمدًا**: ترتيبُ `seq` (‏AAA ثم BBB ثم CCC) **يناقض**
+    #    ترتيبَ مفاتيح الإنتاج (‏BBB ثم AAA ثم CCC) — وبلا هذا التناقض كانت
+    #    طفرةُ «استبدالُ المفاتيح بـ`seq`» **تنجو** (وقعت فعلًا في جولة الطفرات).
+    _rd_a = _RP_rd.Candidate(session=0, symbol="AAA", readiness=50.0, score=5.0,
+                             rr=1.0, seq=0,
+                             payload={"press_cell": "F4",
+                                      "env_vals": {"in_band": True}})
+    _rd_b = _RP_rd.Candidate(session=0, symbol="BBB", readiness=90.0, score=9.0,
+                             rr=2.0, seq=1,
+                             payload={"press_cell": "F4",
+                                      "env_vals": {"in_band": True}})
+    _rd_c = _RP_rd.Candidate(session=0, symbol="CCC", readiness=90.0, score=9.0,
+                             rr=2.0, seq=2,
+                             payload={"press_cell": "F4",
+                                      "env_vals": {"in_band": False}})
+    _rd_p2 = [_rd_a, _rd_b, _rd_c]
+    _rd4 = ([c.symbol for c in sorted(_rd_p2, key=_RD.rank_press)]
+            == [c.symbol for c in sorted(_rd_p2, key=_RP_rd.rank_live)]
+            == [c.symbol for c in sorted(_rd_p2, key=_RD.rank_fresh)]
+            == ["BBB", "AAA", "CCC"]
+            != [c.symbol for c in sorted(_rd_p2, key=lambda c: c.seq)])
+except Exception as _e:                                          # noqa: BLE001
+    _rd4 = f"⛔ {type(_e).__name__}"
+check("🚦 RD4 عند تساوي الخليّة: `Q1`/`Q2` = مفاتيحُ الإنتاج حرفيًّا (نطاقٌ ←"
+      " جاهزية ← نقاط ← rr ← seq)", _rd4 is True, str(_rd4))
+
+# ── RD5: البوّاباتُ توقف **باسمها** لا برمز الخروج وحده (درسُ `CD6`: قفلٌ يقرأ
+#    الرمزَ وحده يُقرأ «تعمل» وهي ميّتة لأن بوّابةً أخرى تُنتج الرمزَ نفسَه)
+def _rd_report(rows, year, n_syms, n_seen, n_cmp):
+    _b = _io_rd.StringIO()
+    with _ctx_rd.redirect_stdout(_b):
+        _rc = _RD.report(rows, year, n_syms, n_seen, n_cmp)
+    return _rc, _b.getvalue()
+
+
+try:
+    _rc_e, _out_e = _rd_report([], "2025", 10, 10, 5)          # صفرُ صفقات
+    _rc_c, _out_c = _rd_report([{"date": "2025-01-02"}], "2025", 5, 100, 5)  # تغطية
+    _rc_d, _out_d = _rd_report(                                # كثافةٌ رقيقة
+        [{"symbol": f"S{i}", "date": f"2025-01-{i + 1:02d}",
+          "exit_date": f"2025-01-{i + 2:02d}", "entry": 2.0, "stop": 1.8,
+          "ret_a": 5.0, "outcome": "win", "readiness": 50.0, "score": 5.0,
+          "rr": 1.0} for i in range(9)], "2025", 10, 10, 5)
+    _rd5 = (_rc_e == 4 and "`no-op`" in _out_e
+            and _rc_c == 3 and "`RV3`" in _out_c
+            and _rc_d == 4 and "`RV1`" in _out_d and "`RV3`" not in _out_d)
+except Exception as _e:                                          # noqa: BLE001
+    _rd5 = f"⛔ {type(_e).__name__}: {_e}"
+check("🚦 RD5 البوّابات: صفرُ صفقاتٍ ⇒ 4 · تغطيةٌ ناقصة ⇒ 3 باسم `RV3` ·"
+      " كثافةٌ رقيقة ⇒ 4 باسم `RV1` (‏كلٌّ يُسمّي بوّابتَه)",
+      _rd5 is True, str(_rd5)[:150])
+
+# ── RD6: `press_cell_at` تُعيد استعمالَ الثلاثة **بالاسم** (صفرُ منطقٍ منسوخ)
+#    وفاشلةٌ-آمنة: مُدخَلٌ تالفٌ ⇒ `None` بلا انهيار
+try:
+    _rd_pc = _ast_rd.parse(_insp0.getsource(_RD.press_cell_at))
+    _rd_calls = {getattr(n.func, "attr", None) for n in _ast_rd.walk(_rd_pc)
+                 if isinstance(n, _ast_rd.Call)}
+    _rd6 = ({"press_read", "cell_of"} <= _rd_calls
+            and _RD.press_cell_at(None) is None
+            and _RD.press_cell_at(_pd_rd.DataFrame()) is None)
+except Exception as _e:                                          # noqa: BLE001
+    _rd6 = f"⛔ {type(_e).__name__}"
+check("🚦 RD6 خليّةُ الضغط من `press_read` و`cell_of` بالاسم · وتعذّرٌ ⇒ None"
+      " بلا انهيار", _rd6 is True, str(_rd6))
+
+# ── RD9: سطرُ `DIFFS` — فروقُ **الجلسات** لا متوسّطٌ سنويّ (المعيار §④-2 عنقودُه
+#    الجلسة، والفاصلُ المجمَّع يُبنى منها؛ بلاها يستحيل حسابُه من ثلاث تشغيلات)
+try:
+    # عيّنةٌ **تعبر بوّابتَي الكثافة والأرضية معًا** (‏50 جلسة × 45 مرشّحًا) —
+    # وإلّا رجع التقريرُ 4 قبل أن يطبع `DIFFS` أصلًا (وقع في أوّل صياغة).
+    _rd9_dates = [f"2025-{1 + k // 25:02d}-{k % 25 + 1:02d}" for k in range(50)]
+    # 🔑 رمزٌ فريدٌ لكلّ (جلسة، مرشّح): الرابحُ يبقى **محمولًا** في `live` بعقد
+    #    `hit_held` فتكرارُ الرمز يُرفَض `dup` وتسقط الأرضيةُ زورًا (وقع فعلًا).
+    _rd9_rows = [{"symbol": f"S{_d[-5:]}_{j}", "date": _d, "exit_date": _d,
+                  "entry": 2.0, "stop": 1.8, "ret_a": 5.0, "outcome": "win",
+                  "readiness": 50.0 + (j % 7), "score": 5.0, "rr": 1.0,
+                  "press_cell": ("F2" if j % 3 == 0 else "F1")}
+                 for _d in _rd9_dates for j in range(45)]
+    _rc9, _out9 = _rd_report(_rd9_rows, "2025", 10, 10, 5)
+    _rd9_line = next((ln for ln in _out9.splitlines()
+                      if ln.startswith("DIFFS ")), "")
+    _rd9_n = len(json.loads(_rd9_line[6:]).get("d") or []) if _rd9_line else 0
+    _rd9_s = int((_out9.split("الجلسات ")[1].split(" ")[0])
+                 if "الجلسات " in _out9 else -1)
+    _rd9 = (_rc9 == 0 and _rd9_line != "" and _rd9_n == _rd9_s == 50
+            and "SUMMARY " in _out9)
+except Exception as _e:                                          # noqa: BLE001
+    _rd9 = f"⛔ {type(_e).__name__}: {_e}"
+if _rd9 is not True:
+    _rd9 = f"rc={_rc9 if '_rc9' in dir() else '?'} · "\
+           f"طولُ الفروق={_rd9_n if '_rd9_n' in dir() else '?'} · "\
+           f"جلسات={_rd9_s if '_rd9_s' in dir() else '?'}"
+check("🚦 RD9 سطرُ `DIFFS` مطبوعٌ وطولُه = عددُ الجلسات بالضبط (فرقٌ لكلّ جلسة"
+      " لا متوسّطٌ سنويّ)", _rd9 is True, str(_rd9)[:150])
+
+# ── RD7: قراءةٌ فقط + الإنتاجُ لا يستوردها + وصلُ الـworkflow (درسُ `BT_CANDLE`)
+try:
+    _rd_send = [_n for _n in _ast_rd.walk(_rd_t) if isinstance(_n, _ast_rd.Call)
+                and (getattr(_n.func, "id", None)
+                     in ("send_telegram", "save_watchlist", "git_save")
+                     or getattr(_n.func, "attr", None)
+                     in ("send_telegram", "save_watchlist", "git_save"))]
+    _rd_y = open(".github/workflows/ranker_dense.yml", encoding="utf-8").read()
+    _rd_prod = "ranker_dense" in open("Super_stock.py", encoding="utf-8").read()
+    _rd7 = (not _rd_send and _rd_prod is False
+            and "workflow_dispatch" in _rd_y and "schedule" not in _rd_y
+            and "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _rd_y
+            and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _rd_y
+            and "BACKTEST_YEAR" in _rd_src and "BT_FROZEN_PATH" in _rd_src)
+except Exception as _e:                                          # noqa: BLE001
+    _rd7 = f"⛔ {type(_e).__name__}"
+check("🚦 RD7 قراءةٌ فقط · الإنتاجُ لا يستوردها · والمدخلان موصولان ببيئةٍ"
+      " يقرؤها السكربت بلا كرون", _rd7 is True, str(_rd7))
+
+# ── RD8: `RV0` تفحص **كلَّ** حقلٍ يُنتجه المحرّك — فلا يُستثنى حقلٌ صامتًا
+#    (لولاه لكان حذفُ حقلٍ من قائمة المقارنة يُمرّر تفرّقًا حقيقيًّا)
+try:
+    _rd8 = (len(_RD.RV0_FIELDS) == len(set(_RD.RV0_FIELDS)) >= 26
+            and {"env_vals", "exit_date", "outcome", "ret_a", "entry", "stop",
+                 "t1", "behav_score", "fsto_chop", "exploded"}
+            <= set(_RD.RV0_FIELDS))
+except Exception as _e:                                          # noqa: BLE001
+    _rd8 = f"⛔ {type(_e).__name__}"
+check("🚦 RD8 قائمةُ `RV0` تشمل حقولَ المحرّك كلَّها (‏26 فأكثر بلا تكرار)",
+      _rd8 is True, str(_rd8))
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
