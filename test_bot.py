@@ -33006,27 +33006,47 @@ def _ct_run(rows, year="TEST"):
     return rc, buf.getvalue()
 
 
-# ── CT1: `CV0` — إعادةُ أرقام `Q0` المنشورة بت-بت وإلّا خروج 3 **باسم البوّابة**
-#    (الأرقامُ الأربعةُ معًا — وأيُّ واحدٍ يكفي للسقوط)
+# ── CT1: `CV0` — **كلُّ حقلٍ من الأربعة يُفحَص على حدة**
+#    🐞 صياغةٌ أولى نجت منها طفرةُ «‏CV0 يفحص `taken` وحدَه» (‏2026-08-27):
+#    كانت تُخطئ الحقولَ الأربعةَ **معًا** فيكفي حقلٌ واحدٌ ليسقط ⇒ **عيّنةٌ لا
+#    تفرّق** (درسُ «القفلُ لا يحرس إلّا بقدر ما تُفرِّق عيّنتُه») — والطفرةُ
+#    كشفته لا القراءة. الآن أربعُ حالاتٍ كلٌّ منها يُخطئ **حقلًا واحدًا** ⇒
+#    نزعُ فحصِ أيّ حقلٍ يُسقط القفل، **ومطابقٌ تمامًا يمضي**.
 try:
     _ct_r = _ct_rows()
     _ct_rc0, _ct_o0 = _ct_run(_ct_r, "TEST")            # سنةٌ بلا نشرٍ ⇒ تُتخطّى
+    # 🐞 السطرُ يُلتقَط بـ`startswith` كما في `CT7` — لأن «‏COUNT » يطابق داخل
+    #    ترويسة «‏📐 T-COUNT · سنة» فالفصلُ بالنصّ يعطي جسمًا غيرَ JSON.
+    _ct_ln0 = [l for l in _ct_o0.splitlines() if l.startswith("COUNT ")]
+    _ct_l15 = _json_ct.loads(_ct_ln0[0][6:])["grid"]["L"]["15"]
+    _ct_base = {"net_r_day": round(_ct_l15["net_r_day"], 4),
+                "taken": _ct_l15["taken"], "expl": _ct_l15["expl"],
+                "cap": _ct_l15["cap"]}
     _sv_pub = dict(_CT.Q0_PUBLISHED)
     _sv_exp = dict(_CT.ROWS_EXPECTED)
+    _ct_each, _ct_rcok, _ct_ook = {}, None, ""
     try:
-        # نُثبّت التوقّعَ على قيمةٍ **خاطئة** فتسقط البوّابة
         _CT.ROWS_EXPECTED = {"CV0X": len(_ct_r)}
-        _CT.Q0_PUBLISHED = {"CV0X": {"net_r_day": -9.9999, "taken": 1,
-                                     "expl": 1, "cap": 1}}
-        _ct_rc1, _ct_o1 = _ct_run(_ct_r, "CV0X")
+        for _f in ("net_r_day", "taken", "expl", "cap"):
+            _bad = dict(_ct_base)
+            _bad[_f] = (round(_ct_base[_f] - 1.0, 4) if _f == "net_r_day"
+                        else _ct_base[_f] - 1)
+            _CT.Q0_PUBLISHED = {"CV0X": _bad}
+            _rcf, _of = _ct_run(_ct_r, "CV0X")
+            _ct_each[_f] = (_rcf == 3 and "`CV0`" in _of and _f in _of)
+        _CT.Q0_PUBLISHED = {"CV0X": dict(_ct_base)}   # مطابقٌ تمامًا ⇒ يمضي
+        _ct_rcok, _ct_ook = _ct_run(_ct_r, "CV0X")
     finally:
         _CT.Q0_PUBLISHED, _CT.ROWS_EXPECTED = _sv_pub, _sv_exp
     _ct1 = (_ct_rc0 == 0 and "`CV0`" not in _ct_o0
-            and _ct_rc1 == 3 and "`CV0`" in _ct_o1)
+            and sorted(_ct_each) == ["cap", "expl", "net_r_day", "taken"]
+            and all(_ct_each.values())
+            and _ct_rcok == 0 and "بت-بت" in _ct_ook)
 except Exception as _e:                                          # noqa: BLE001
     _ct1 = f"⛔ {type(_e).__name__}: {_e}"
-check("📐 CT1 `CV0`: أرقامٌ منشورةٌ مخالفة ⇒ خروج 3 باسم البوّابة · وسنةٌ بلا"
-      " نشرٍ تمضي", _ct1 is True, str(_ct1)[:180])
+check("📐 CT1 `CV0`: كلُّ حقلٍ من الأربعة يُسقِط وحدَه ⇒ خروج 3 باسمه ·"
+      " والمطابقُ تمامًا يمضي", _ct1 is True,
+      str(_ct1 if _ct1 is True else (_ct_each if isinstance(_ct1, bool) else _ct1))[:200])
 
 # ── CT2: `CV1` — عددُ الصفوف يخالف المنشور ⇒ خروج 3 (وليس تفسيرَ نتيجة)
 try:
@@ -33088,6 +33108,30 @@ except Exception as _e:                                          # noqa: BLE001
     _ct5 = f"⛔ {type(_e).__name__}"
 check("📐 CT5 `CV4` الاستيفاء: خطّيٌّ داخل المدى · و`None` خارجَه (لا استقراء)",
       _ct5 is True, str(_ct5))
+
+# ── CT5-ب: حارسُ المدى في `interp_at` **خامدٌ سلوكيًّا** ⇒ يُقفَل بنيويًّا
+#    🐞 كشفته طفرةُ «‏`CV4` يستقرئ خارج المدى» (‏2026-08-27): نُزع الحارسُ
+#    **فلم يتغيّر مُخرَجٌ واحد** — لأن `return None` في نهاية الحلقة هو الفاعل.
+#    **مُبرهَنٌ على 200,000 إطارٍ مرتَّبٍ عشوائيّ: صفرُ تفرّق** ⇒ **طفرةٌ باطلة**
+#    (الصنفُ الثالث: بلا أثرٍ سلوكيّ) لا قفلٌ أعمى. والحارسُ يبقى حرزًا لمنحنًى
+#    **غيرِ مرتَّب**، ودعوى خمودِه تقوم على أن `report` **يُرتّبه** ⇒ يُقفَل
+#    الاثنان معًا فلا يُنزَع أحدُهما صامتًا.
+try:
+    _f5 = next(n for n in _ast_ct.walk(_ct_t)
+               if isinstance(n, _ast_ct.FunctionDef) and n.name == "interp_at")
+    _d5 = _ast_ct.dump(_f5)
+    _f5r = next(n for n in _ast_ct.walk(_ct_t)
+                if isinstance(n, _ast_ct.FunctionDef) and n.name == "report")
+    _srt = [n for n in _ast_ct.walk(_f5r)
+            if isinstance(n, _ast_ct.Assign)
+            and any(getattr(t, "id", None) == "curve" for t in n.targets)
+            and isinstance(n.value, _ast_ct.Call)
+            and getattr(n.value.func, "id", None) == "sorted"]
+    _ct5b = ("Lt()" in _d5 and "Gt()" in _d5 and len(_srt) == 1)
+except Exception as _e:                                          # noqa: BLE001
+    _ct5b = f"⛔ {type(_e).__name__}: {_e}"
+check("📐 CT5-ب حارسُ مدى `interp_at` قائمٌ بنيويًّا (خامدٌ سلوكيًّا) ·"
+      " و`report` يُرتّب المنحنى", _ct5b is True, str(_ct5b)[:170])
 
 # ── CT6: `CV4` موصولةٌ فعلًا — `T_R` خارجَ مدى سلّم `L` ⇒ خروج 5 لا تفكيك
 try:
@@ -33202,6 +33246,292 @@ except Exception as _e:                                          # noqa: BLE001
 check("📐 CT11 قراءةٌ فقط · `replay10` بالاسم · الإنتاجُ لا يستوردها · والمدخلان"
       " موصولان بلا كرون", _ct11 is True, str(_ct11)[:200])
 
+
+
+
+# ═══════════════ 🗜️🥇 T-PRESS-RANK — أقفال PR1-PR14 (العقد press_rank_prereg.md) ═══════
+# بحث/قياس فقط · قراءةٌ فقط · صفرُ مسٍّ بالإنتاج · الأداةُ لا يستوردها البوت.
+import yaml as _prk_yaml                                          # noqa: E402
+
+_PRK = _imp_ct.import_module("press_rank_arms")
+_prk_src = _insp0.getsource(_PRK)
+_prk_t = _ast_ct.parse(_prk_src)
+
+
+def _prk_row(sym, sess, *, hold=5, swept=False, awake=False, oc="loss",
+             tested=None, drop=40.0, runup=0.0):
+    """صفٌّ جاهزٌ بشكلِ `ready_rows` حرفيًّا (‏`plan`/`prev_q` غائبان §⑨)."""
+    return {"session": sess, "symbol": sym,
+            "read": {"close": 2.0, "high_w": 5.0, "press_low": 1.9,
+                     "imp_head": 2.2, "drop_pct": drop,
+                     "hold_sessions": hold, "swept_hold": swept,
+                     "prev_hold": 0, "runup_pct": runup,
+                     "tested_level": tested},
+            "plan": None, "prev_q": None,
+            "wake": {"awake": awake}, "oc": oc, "swept": swept}
+
+
+# ── PR1: المِشيةُ تقرأ بـ`ALERT_W` وتشترط `READY_HOLD` — بالـAST لا بالنصّ
+try:
+    _fn = next(n for n in _ast_ct.walk(_prk_t)
+               if isinstance(n, _ast_ct.FunctionDef) and n.name == "ready_rows")
+    _d = _ast_ct.dump(_fn)
+    _pr1 = ("attr='press_read'" in _d and "attr='ALERT_W'" in _d
+            and "attr='READY_HOLD'" in _d and "attr='wake_read'" in _d
+            and "attr='mirror_plan'" in _d and "attr='resolve_episode'" in _d
+            and "attr='MIN_BARS'" in _d)
+except Exception as _e:                                          # noqa: BLE001
+    _pr1 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR1 `ready_rows`: `press_read(ALERT_W)` + شرطُ `READY_HOLD` + الخطّةُ"
+      " والحسمُ بالاسم", _pr1 is True, str(_pr1)[:170])
+
+# ── PR2: `A0` = ترتيبُ الإنتاج حرفيًّا (‏`alert_rank` ثم المستيقظُ أوّلًا)
+try:
+    import press_radar as _PRp
+    _rs = [_prk_row("A", "2024-01-03", hold=9, awake=False, tested=1.8),
+           _prk_row("B", "2024-01-03", hold=2, awake=True),
+           _prk_row("C", "2024-01-03", hold=7, awake=True, tested=1.7),
+           _prk_row("D", "2024-01-03", hold=1, awake=False)]
+    _xs = sorted(_rs, key=_PRp.alert_rank)
+    _exp = ([r for r in _xs if (r.get("wake") or {}).get("awake")]
+            + [r for r in _xs if not (r.get("wake") or {}).get("awake")])
+    _got = _PRK.order_a0(_rs)
+    _pr2 = ([r["symbol"] for r in _got] == [r["symbol"] for r in _exp]
+            and [r["symbol"] for r in _got][0] == "C")   # مستيقظٌ بمستوًى مُختبَر
+except Exception as _e:                                          # noqa: BLE001
+    _pr2 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR2 `A0` يطابق تعبيرَ الإنتاج (‏`alert_rank` ثم المستيقظُ أوّلًا)",
+      _pr2 is True, str(_pr2)[:170])
+
+# ── PR3: `A1` = 🩸 المكنوسُ أوّلًا **ثم ترتيبُ `A0` حرفيًّا** — بعيّنةٍ **تفرّق**
+try:
+    # 🐞 العيّنةُ تُفرِّق **ترتيبَ `A0`** عن ترتيبِ المُدخَل: بلا ذلك تنجو
+    #    طفرةُ «‏`A1` تُلغي ترتيبَ `A0` الثانويّ» لأن الترتيبين يتصادفان.
+    _rs3 = [_prk_row("X", "2024-01-03", hold=1, tested=None, drop=10.0),
+            _prk_row("Y", "2024-01-03", hold=9, tested=1.7, drop=50.0),
+            _prk_row("B", "2024-01-03", hold=1, tested=None, drop=5.0, swept=True)]
+    _a0 = [r["symbol"] for r in _PRK.order_a0(_rs3)]
+    _a1 = [r["symbol"] for r in _PRK.order_a1(_rs3)]
+    # المكنوسُ B آخرُ الترتيب عند A0 وأوّلُه عند A1 · والباقي بترتيب A0 نفسِه
+    _pr3 = (_a0 == ["Y", "X", "B"] and _a1 == ["B", "Y", "X"]
+            and _a1[1:] == [s for s in _a0 if s != "B"] and _a0 != _a1
+            and [r["symbol"] for r in _rs3] != _a0)   # الترتيبان يفترقان
+except Exception as _e:                                          # noqa: BLE001
+    _pr3 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR3 `A1` المكنوسُ أوّلًا ثم ترتيبُ `A0` — والعيّنةُ تفرّق",
+      _pr3 is True, str(_pr3)[:170])
+
+# ── PR4: `A3` فيفو = الأقدمُ جاهزيّةً (‏`hold` الأكبر) وفاصلُ تعادلٍ حتميّ
+try:
+    _rs4 = [_prk_row("Z", "2024-01-03", hold=4), _prk_row("A", "2024-01-03", hold=4),
+            _prk_row("M", "2024-01-03", hold=11)]
+    _pr4 = ([r["symbol"] for r in _PRK.order_a3(_rs4)] == ["M", "A", "Z"]
+            and [r["symbol"] for r in _PRK.order_a3(list(reversed(_rs4)))]
+            == ["M", "A", "Z"])
+except Exception as _e:                                          # noqa: BLE001
+    _pr4 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR4 `A3` فيفو: الأقدمُ جاهزيّةً أوّلًا وترتيبٌ حتميّ",
+      _pr4 is True, str(_pr4)[:170])
+
+# ── PR5: `deliver` — الدِدوبُ **قبل** الترتيب والسقفُ **بعده** (فوارقُ محدّدة)
+try:
+    import press_radar as _PRp
+    _sess5 = [f"2024-01-{d:02d}" for d in (3, 4, 5, 8, 9, 10, 11, 12)]
+    _by5 = {s: [_prk_row("X", s, hold=9)] for s in _sess5}
+    _out5 = _PRK.deliver(_by5, _sess5, _PRK.order_a0, 5.0)
+    _days = [c["s"] for c in _out5["cards"]]
+    # X يُسلَّم أوّلَ جلسةٍ ثم يُكتَم حتى تمرّ REALERT_DAYS
+    _gap_ok = all(_PRp._days_between(_days[i], _days[i + 1]) >= _PRp.REALERT_DAYS
+                  for i in range(len(_days) - 1))
+    # والسقفُ يقصّ: جلسةٌ بها ضعفُ السقف ⇒ كروتُها = ALERT_CAP بالضبط
+    _big = {"2024-02-01": [_prk_row(f"S{k}", "2024-02-01", hold=3 + k)
+                           for k in range(_PRp.ALERT_CAP * 2)]}
+    _o6 = _PRK.deliver(_big, ["2024-02-01"], _PRK.order_a0, 5.0)
+    _pr5 = (len(_days) >= 2 and _gap_ok and len(_o6["cards"]) == _PRp.ALERT_CAP
+            and _o6["bind"] == 1 and _out5["bind"] == 0)
+except Exception as _e:                                          # noqa: BLE001
+    _pr5 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR5 `deliver`: دِدوبٌ نافذٌ ثم سقفُ `ALERT_CAP` وعدّادُ التبنيد",
+      _pr5 is True, str(_pr5)[:170])
+
+# ── PR6: `r_of` — فائزةٌ +r_win · خاسرةٌ −1 · وغيرُهما صفرٌ **ويستهلك كرتًا**
+try:
+    _r6 = [_PRK.r_of("win", 5.1), _PRK.r_of("loss", 5.1),
+           _PRK.r_of("no_fill", 5.1), _PRK.r_of("open", 5.1)]
+    _b6 = {"2024-03-01": [_prk_row("N1", "2024-03-01", oc="no_fill"),
+                          _prk_row("N2", "2024-03-01", oc="open")]}
+    _o7 = _PRK.deliver(_b6, ["2024-03-01"], _PRK.order_a0, 5.1)
+    _pr6 = (_r6 == [5.1, -1.0, 0.0, 0.0]
+            and len(_o7["cards"]) == 2            # استهلكا كرتَين
+            and _o7["per_sess"]["2024-03-01"] == 0.0)
+except Exception as _e:                                          # noqa: BLE001
+    _pr6 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR6 `r_of`: +r_win/−1/صفر · وغيرُ المحسوم يستهلك كرتًا",
+      _pr6 is True, str(_pr6)[:170])
+
+# ── PR7: `boot_ci` عنقودُه الجلسة · حتميٌّ بالبذرة · ويلتفّ حول الصفر عند التعادل
+try:
+    _c1 = _PRK.boot_ci([0.5] * 60)
+    _c2 = _PRK.boot_ci([-0.4, 0.4] * 40)
+    _c3 = _PRK.boot_ci([-0.4, 0.4] * 40)
+    _pr7 = (abs(_c1["lo"] - 0.5) < 1e-9 and abs(_c1["hi"] - 0.5) < 1e-9
+            and _c2["lo"] < 0.0 < _c2["hi"]
+            and (_c2["lo"], _c2["hi"]) == (_c3["lo"], _c3["hi"])
+            and _c1["n"] == 60 and _PRK.BOOT_SEED == 54321
+            and _PRK.BOOT_N == 10_000)
+except Exception as _e:                                          # noqa: BLE001
+    _pr7 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR7 `boot_ci`: عنقودُ الجلسة · حتميٌّ · يلمس الصفرَ عند التعادل",
+      _pr7 is True, str(_pr7)[:170])
+
+# ── PR8: `dedupe_violations` يمسك الخرقَ ويُصفّر النظيف
+try:
+    _pr8 = (_PRK.dedupe_violations([{"s": "2024-01-03", "sym": "X", "oc": "win"},
+                                    {"s": "2024-01-04", "sym": "X", "oc": "win"}]) == 1
+            and _PRK.dedupe_violations([{"s": "2024-01-03", "sym": "X", "oc": "win"},
+                                        {"s": "2024-01-10", "sym": "X", "oc": "win"}]) == 0
+            and _PRK.dedupe_violations([]) == 0)
+except Exception as _e:                                          # noqa: BLE001
+    _pr8 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR8 `PV4` كاشفُ خرقِ الدِدوب يفرّق", _pr8 is True, str(_pr8)[:170])
+
+# ── PR9: `PV0` أرقامُ §⑬ السنويّة مثبَّتة · والمِشيةُ مستدعاةٌ بالاسم (AST)
+try:
+    _fn9 = next(n for n in _ast_ct.walk(_prk_t)
+                if isinstance(n, _ast_ct.FunctionDef) and n.name == "pv0_gate")
+    _d9 = _ast_ct.dump(_fn9)
+    _pr9 = (_PRK.PV0_RESOLVED == {"2023": 1660, "2024": 1857, "2025": 1854}
+            and sum(_PRK.PV0_RESOLVED.values()) == 5371
+            and "attr='walk_symbol_wake'" in _d9
+            and "attr='READY_HOLD'" in _d9
+            and "Eq()" in _d9 and "id='exp'" in _d9)   # مقارنةٌ فعليّة لا `True`
+except Exception as _e:                                          # noqa: BLE001
+    _pr9 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR9 `PV0`: 1660+1857+1854=5371 · والمِشيةُ `walk_symbol_wake` بالاسم",
+      _pr9 is True, str(_pr9)[:170])
+
+# ── PR10: ثوابتُ §③/§④ مثبَّتة — ولا ذراعَ خامسة
+try:
+    _pr10 = (_PRK.ARM_NAMES == ("A0", "A1", "A2", "A3")
+             and _PRK.N_SEEDS == 200 and _PRK.FLOOR_SESSIONS == 40
+             and _PRK.FLOOR_CARDS == 150 and _PRK.COVERAGE_MIN == 95.0
+             and _PRK.PV1_MEDIAN_MIN == 3.0)
+except Exception as _e:                                          # noqa: BLE001
+    _pr10 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR10 ثوابتُ العقد مثبَّتة (‏4 أذرع · 200 بذرة · أرضيّات 40/150/95/3)",
+      _pr10 is True, str(_pr10)[:170])
+
+# ── PR11: §⑨-1/2 — `plan` و`prev_q` **حرفيًّا None** في كلّ صفّ (لا يُخمَّنان)
+try:
+    _fn11 = next(n for n in _ast_ct.walk(_prk_t)
+                 if isinstance(n, _ast_ct.FunctionDef) and n.name == "ready_rows")
+    _keys = []
+    for _n in _ast_ct.walk(_fn11):
+        if isinstance(_n, _ast_ct.Dict):
+            for _k, _v in zip(_n.keys, _n.values):
+                if isinstance(_k, _ast_ct.Constant) and _k.value in ("plan", "prev_q"):
+                    _keys.append((_k.value, isinstance(_v, _ast_ct.Constant)
+                                  and _v.value is None))
+    _pr11 = (sorted(k for k, _ in _keys) == ["plan", "prev_q"]
+             and all(v for _, v in _keys))
+except Exception as _e:                                          # noqa: BLE001
+    _pr11 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR11 §⑨: `plan` و`prev_q` ثابتان None للأذرع الأربع بالتساوي",
+      _pr11 is True, str(_pr11)[:170])
+
+# ── PR12: `report` — بوّاباتُ PV1/PV2/PV3 والأرضيّاتُ **تُوقِف فعلًا** برموزها
+try:
+    _mk = lambda s, sy, **kw: _prk_row(sy, s, **kw)
+    _ss = [f"2024-0{1 + i // 28}-{1 + i % 28:02d}" for i in range(50)]
+    _rows12 = [_mk(s, f"P{j}", hold=3 + j, swept=(j == 0)) for s in _ss for j in range(9)]
+    _buf = _io_ct.StringIO()
+    with _ctx_ct.redirect_stdout(_buf):
+        _rc_cov = _PRK.report(_rows12, 10, 100, "TEST")        # تغطية 10% ⇒ 3
+    _o_cov = _buf.getvalue()
+    _buf = _io_ct.StringIO()
+    with _ctx_ct.redirect_stdout(_buf):
+        _rc_few = _PRK.report(_rows12[:9 * 5], 100, 100, "TEST")  # 5 جلسات ⇒ 4
+    _o_few = _buf.getvalue()
+    _rows_thin = [_mk(s, f"Q{j}", hold=3 + j) for s in _ss for j in range(2)]
+    _buf = _io_ct.StringIO()
+    with _ctx_ct.redirect_stdout(_buf):
+        _rc_pv1 = _PRK.report(_rows_thin, 100, 100, "TEST")    # وسيط 2 ⇒ 4
+    _o_pv1 = _buf.getvalue()
+    _rows_same = [_mk(s, f"R{j}", hold=3 + j) for s in _ss for j in range(9)]
+    _buf = _io_ct.StringIO()
+    with _ctx_ct.redirect_stdout(_buf):
+        _rc_pv2 = _PRK.report(_rows_same, 100, 100, "TEST")    # صفرُ مكنوس ⇒ PV2
+    _o_pv2 = _buf.getvalue()
+    # أرضيةُ الكروت: 40 جلسةً بثلاثة + ثلاثُ جلساتٍ مزدحمةٍ تُبنّد السقفَ
+    _ss2 = [f"2024-05-{1 + i:02d}" for i in range(28)] + \
+           [f"2024-06-{1 + i:02d}" for i in range(15)]
+    _rows_fl = [_mk(_ss2[i], f"F{i}_{j}", hold=3 + j, swept=(j == 0))
+                for i in range(40) for j in range(3)]
+    _rows_fl += [_mk(_ss2[40 + i], f"G{i}_{j}", hold=3 + j, swept=(j % 2 == 0))
+                 for i in range(3) for j in range(20)]
+    _buf = _io_ct.StringIO()
+    with _ctx_ct.redirect_stdout(_buf):
+        _rc_fl = _PRK.report(_rows_fl, 100, 100, "TEST")
+    _o_fl = _buf.getvalue()
+    _pr12 = (_rc_cov == 3 and "`PV3`" in _o_cov
+             and _rc_fl == 4 and "الأرضية" in _o_fl and "كروت" in _o_fl
+             and _rc_few == 4 and "الجلسات" in _o_few
+             and _rc_pv1 == 4 and "`PV1`" in _o_pv1
+             and _rc_pv2 == 4 and "`PV2`" in _o_pv2)
+except Exception as _e:                                          # noqa: BLE001
+    _pr12 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR12 `report`: PV3/الأرضية/PV1/PV2 تُوقِف برموزها المسمّاة",
+      _pr12 is True, str(_pr12)[:200])
+
+# ── PR13: تشغيلةٌ كاملةٌ تُخرج `DIFFS` و`PRANK` ومقارنةَ المئين
+try:
+    _rows13 = []
+    for _i, _s in enumerate(_ss):
+        for _j in range(11):
+            _rows13.append(_prk_row(f"T{_i}_{_j}", _s, hold=3 + _j,
+                                    swept=(_j % 3 == 0),
+                                    awake=(_j % 4 == 0),
+                                    oc=("win" if (_i + _j) % 5 == 0 else "loss")))
+    _buf = _io_ct.StringIO()
+    with _ctx_ct.redirect_stdout(_buf):
+        _rc13 = _PRK.report(_rows13, 100, 100, "TEST")
+    _o13 = _buf.getvalue()
+    _ln13 = [l for l in _o13.splitlines() if l.startswith("PRANK ")]
+    _ld13 = [l for l in _o13.splitlines() if l.startswith("DIFFS ")]
+    _j13 = _json_ct.loads(_ln13[0][6:])
+    _pv4_line = next((l for l in _o13.splitlines() if "`PV4`" in l), "")
+    _pr13 = (_rc13 == 0 and "DIFFS " in _o13
+             and all(f"{a}=0" in _pv4_line for a in ("A0", "A1", "A2", "A3"))
+             and _j13["sessions"] == 50 and set(_j13["arms"]) == {"A0", "A1", "A3"}
+             and _j13["only1"] > 0
+             and len(_json_ct.loads(_ld13[0][6:])["d"]) == 50
+             and _j13["arms"]["A0"]["cards"] >= _PRK.FLOOR_CARDS)
+except Exception as _e:                                          # noqa: BLE001
+    _pr13 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR13 تشغيلةٌ كاملة: `DIFFS` بطول الجلسات و`PRANK` بالأذرع الثلاث",
+      _pr13 is True, str(_pr13)[:200])
+
+# ── PR14: قراءةٌ فقط · الاستيرادُ بالاسم · الـworkflow موصولٌ بلا كرون
+try:
+    _bad_w = [n for n in _ast_ct.walk(_prk_t)
+              if isinstance(n, _ast_ct.Call)
+              and getattr(n.func, "id", None) == "open"
+              and any(isinstance(a, _ast_ct.Constant) and "w" in str(a.value)
+                      for a in n.args[1:])]
+    _yml = _prk_yaml.safe_load(open(".github/workflows/press_rank.yml",
+                                encoding="utf-8"))
+    _on = _yml.get("on") or _yml.get(True)
+    _envs = str(_yml["jobs"]["press_rank"]["steps"][-1].get("env", {}))
+    _pr14 = (not _bad_w and "send_telegram" not in _prk_src
+             and "press_rank_arms" not in open("Super_stock.py",
+                                               encoding="utf-8").read()
+             and "schedule" not in _on and set(_on["workflow_dispatch"]["inputs"])
+             == {"year", "frozen_run_id"}
+             and "BACKTEST_YEAR" in _envs and "BT_FROZEN_PATH" in _envs)
+except Exception as _e:                                          # noqa: BLE001
+    _pr14 = f"⛔ {type(_e).__name__}: {_e}"
+check("🗜️ PR14 قراءةٌ فقط · الإنتاجُ لا يستوردها · والمدخلان موصولان بلا كرون",
+      _pr14 is True, str(_pr14)[:200])
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
