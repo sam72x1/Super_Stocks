@@ -31951,6 +31951,274 @@ check("🩸 SL14 فاشلٌ-آمنٌ صريح: مقامٌ فارغ (‏`E is Non
       _s14_ok is True, str(_s14_ok))
 
 
+# ═════════ 📡🩸 T-SLIP-NBBO — أقفال SN1-SN14 (الانزلاق على العرض القائم) ═════════
+# العقد: `slip_nbbo_prereg.md` (مدفوعٌ قبل أيّ سطرٍ من الأداة).
+# 🔴 كلُّ قفلٍ **يسقط نظيفًا** لا ينهار (درسُ «القفل المنهار يكتم غيره»).
+import slip_nbbo_arms as _NB
+import slip_arms as _NBSL
+
+_NB_BAR = {"t": 1_700_000_000_000, "o": 3.0, "h": 3.2, "l": 2.8, "c": 3.1}
+_NB_F30 = 1.0 / 30.0
+
+
+def _nb_mk(fac):
+    """فِكستشرُ نافذةٍ **بشكل الإنتاج**: صفقاتٌ وأسعارٌ خامّةٌ مضروبةٌ بالمعامل
+    (فالخامُّ = المعدَّل × factor) — واقتباسٌ في نافذة الرجوع لا داخل الدقيقة."""
+    tr = [{"t": _NB_BAR["t"] + i * 100, "p": round(v * fac, 8), "s": 100}
+          for i, v in enumerate([3.0, 2.8, 3.2, 3.1])]
+    qs = [{"t": _NB_BAR["t"] - 200_000, "bid": 3.05 * fac, "ask": 3.15 * fac,
+           "bid_size": 5},
+          {"t": _NB_BAR["t"] + 50, "bid": 2.90 * fac, "ask": 3.00 * fac,
+           "bid_size": 2},
+          {"t": _NB_BAR["t"] + 2000, "bid": 2.70 * fac, "ask": 2.85 * fac,
+           "bid_size": 9}]
+    return tr, qs
+
+
+# ── SN1: `raw_factor` (‏`V2b`) — الحارسُ الذي كشفه مِجَسُّ الجدوى
+try:
+    _n1a = _NB.raw_factor(_NB_BAR, _nb_mk(1.0)[0])
+    _n1b = _NB.raw_factor(_NB_BAR, _nb_mk(_NB_F30)[0])
+    _n1c = _NB.raw_factor(_NB_BAR, [{"t": 1, "p": 3.1, "s": 1},
+                                    {"t": 2, "p": 0.5, "s": 1}])
+    _n1d = _NB.raw_factor(_NB_BAR, [])
+    _sn1 = (_n1a[1] is True and abs(_n1a[0] - 1.0) < 1e-9
+            and _n1b[1] is True and abs(_n1b[0] - _NB_F30) < 1e-4
+            and _n1c[1] is False and _n1d == (None, False))
+except Exception as _e:                                          # noqa: BLE001
+    _sn1 = f"⛔ {type(_e).__name__}"
+check("📡 SN1 `raw_factor` (‏V2b): بلا تقسيم ⇒ 1 · تقسيمٌ 1:30 ⇒ 0.0333 ·"
+      " ونِسَبٌ غيرُ متّسقة ⇒ **غيرُ متحقَّق** · وصفرُ صفقاتٍ ⇒ (None, False)",
+      _sn1 is True, str(_sn1))
+
+# ── SN2: `trigger_ms` — المساواةُ تُطلق · والأوّلُ زمنيًّا هو الزناد
+try:
+    _tr = _nb_mk(1.0)[0]
+    _sn2 = (_NB.trigger_ms(_tr, 2.9) == _NB_BAR["t"] + 100
+            and _NB.trigger_ms(_tr, 2.8) == _NB_BAR["t"] + 100
+            and _NB.trigger_ms(_tr, 1.0) is None
+            and _NB.trigger_ms([], 2.9) is None)
+except Exception as _e:                                          # noqa: BLE001
+    _sn2 = f"⛔ {type(_e).__name__}"
+check("📡 SN2 `trigger_ms`: أوّلُ صفقةٍ عند الوقف أو دونه · **والمساواةُ"
+      " تُطلق** · ولا صفقةَ ⇒ None (‏`no_trade_trigger` يُعَدّ ولا يُفتَرض)",
+      _sn2 is True, str(_sn2))
+
+# ── SN3: `prevailing` — `NBBO` دالّةٌ درجيّة ونافذةُ الرجوع تُنقذ الصامتة
+try:
+    _qs = _nb_mk(1.0)[1]
+    _p_before = _NB.prevailing(_qs, _NB_BAR["t"] - 999_999)
+    _p_in = _NB.prevailing(_qs, _NB_BAR["t"] + 100)
+    _p_look = _NB.prevailing(_qs, _NB_BAR["t"] + 10)
+    _sn3 = (_p_before is None
+            and _p_in is not None and abs(_p_in["bid"] - 2.90) < 1e-9
+            and _p_look is not None and abs(_p_look["bid"] - 3.05) < 1e-9)
+except Exception as _e:                                          # noqa: BLE001
+    _sn3 = f"⛔ {type(_e).__name__}"
+check("📡 SN3 `prevailing`: آخرُ اقتباسٍ عند الطابع أو قبله · **ونافذةُ الرجوع"
+      " تُنقذ الدقيقةَ الصامتة** (‏المِجَسّ: 3 من 30 بصفر اقتباسٍ داخلها)",
+      _sn3 is True, str(_sn3))
+
+# ── SN4: النهاية-إلى-النهاية بمعاملٍ حقيقيّ — الخامُّ يُردّ لفضاء الخطة
+try:
+    _st4, _fl4 = _NB.nbbo_fills(_NB_BAR, *_nb_mk(_NB_F30), 2.9)
+    _st4b, _fl4b = _NB.nbbo_fills(_NB_BAR, *_nb_mk(1.0), 2.9)
+    _sn4 = (_st4 == "ok" and _st4b == "ok"
+            and _fl4["N0"] == 2.9                      # الوقفُ بالضبط
+            and abs(_fl4["N1"] - _fl4b["N1"]) < 1e-3   # المعاملُ لا يغيّر الفضاء
+            and abs(_fl4["N1"] - 2.90) < 1e-3
+            and _fl4["N3"] <= _fl4["N1"] + 1e-12
+            and abs(_fl4["N3"] - 2.70) < 1e-3
+            and _fl4["bid_above_stop"] is False)
+except Exception as _e:                                          # noqa: BLE001
+    _sn4 = f"⛔ {type(_e).__name__}"
+check("📡 SN4 `nbbo_fills`: `N0` عند الوقف بالضبط · و`N1` **في فضاء الخطة"
+      " مهما كان المعامل** (تقسيمُ 1:30 يعطي نفسَ السعر) · و`N3` أدنى أو يساوي",
+      _sn4 is True, str(_sn4))
+
+# ── SN5: الحالاتُ **مُسمّاةٌ ومتفرّقة** — لا حالةَ تبتلع أخرى
+try:
+    _s5 = {_NB.nbbo_fills(_NB_BAR, [{"t": 1, "p": 3.1, "s": 1},
+                                    {"t": 2, "p": 0.5, "s": 1}],
+                          _nb_mk(1.0)[1], 2.9)[0],
+           _NB.nbbo_fills(_NB_BAR, _nb_mk(1.0)[0], _nb_mk(1.0)[1], 1.0)[0],
+           _NB.nbbo_fills(_NB_BAR, _nb_mk(1.0)[0], [], 2.9)[0]}
+    _sn5 = _s5 == {"raw_scale_unverified", "no_trade_trigger", "no_quotes"}
+except Exception as _e:                                          # noqa: BLE001
+    _sn5 = f"⛔ {type(_e).__name__}"
+check("📡 SN5 حالاتٌ مسمّاةٌ متفرّقة: `raw_scale_unverified` ·"
+      " `no_trade_trigger` · `no_quotes` — ثلاثتُها تُميَّز ولا تُخلَط",
+      _sn5 is True, str(_sn5))
+
+# ── SN6: ثوابتُ العقد كما سُجِّلت (‏§②/§③/§⑥)
+try:
+    _sn6 = (_NB.NARMS == ("N0", "N1", "N2", "N3") and _NB.GOV_N == "N1"
+            and _NB.LOOKBACK_MS == 300_000 and _NB.LAT_MS == 1000
+            and abs(_NB.RAW_TOL - 0.02) < 1e-12
+            and _NB.EVN == {"2023": 4255, "2024": 4902, "2025": 4895})
+except Exception as _e:                                          # noqa: BLE001
+    _sn6 = f"⛔ {type(_e).__name__}"
+check("📡 SN6 ثوابتُ العقد: أربعُ أذرعٍ ولا خامسة · الحاكمة `N1` · نافذةُ"
+      " رجوعٍ 300ث · توجيهٌ 1000مِلّي · حارسُ خامٍّ 2% · ومِرساةُ `V4` المنشورة",
+      _sn6 is True, str(_sn6))
+
+# ── SN7: **مقياسٌ واحدٌ لا اثنان** — منطقُ القياس من `slip_arms` بالاسم حصرًا
+try:
+    _n7src = _insp0.getsource(_NB)
+    _n7t = _ast0.parse(_n7src)
+    _n7need = {"session_slice", "trigger_index", "scale_ok", "loss_r",
+               "_stats", "_paired", "fetch_day"}
+    # 🔴 «بالاسم» = وصولُ سمةٍ على `SL` لا **نداءٌ** فقط: `fetch_day` تُمرَّر
+    #    إلى `ThreadPoolExecutor.submit` كدالّةٍ لا تُنادى في موضعها ⇒ مُطابِقٌ
+    #    يقتصر على `Call.func` **يُسقط استعمالًا مشروعًا** (أوقعني فعلًا).
+    _n7calls = {_a.attr for _a in _ast0.walk(_n7t)
+                if isinstance(_a, _ast0.Attribute)
+                and getattr(_a.value, "id", None) in ("SL", "_NBSL")}
+    _n7defs = {_d.name for _d in _ast0.walk(_n7t)
+               if isinstance(_d, _ast0.FunctionDef)}
+    _sn7 = (_n7need <= _n7calls) and not (_n7need & _n7defs)
+except Exception as _e:                                          # noqa: BLE001
+    _sn7 = f"⛔ {type(_e).__name__}"
+check("📡 SN7 مقياسٌ واحد: الجلسةُ والزنادُ والمقياسُ و`R` والإحصاءُ من"
+      " `slip_arms` **بالاسم** · و**لا تُعرَّف أيٌّ منها** في الأداة (لا نسختان)",
+      _sn7 is True, f"مطلوبة⊆منداة={_n7need <= _n7calls if isinstance(_sn7, bool) else _sn7}")
+
+# ── SN8: قراءةٌ فقط — لا إرسالَ ولا كتابةَ حالة · والإنتاجُ لا يستوردها
+try:
+    _n8send = [_n for _n in _ast0.walk(_n7t) if isinstance(_n, _ast0.Call)
+               and (getattr(_n.func, "id", None)
+                    in ("send_telegram", "save_watchlist", "git_save",
+                        "save_op_entry_state")
+                    or getattr(_n.func, "attr", None)
+                    in ("send_telegram", "save_watchlist", "git_save"))]
+    _n8w = [_ast0.unparse(_n) for _n in _ast0.walk(_n7t)
+            if isinstance(_n, _ast0.Call)
+            and getattr(_n.func, "id", None) == "open"
+            and len(_n.args) > 1 and isinstance(_n.args[1], _ast0.Constant)
+            and "w" in str(_n.args[1].value)]
+    _n8prod = ("slip_nbbo_arms" in open("Super_stock.py", encoding="utf-8").read())
+    _sn8 = (not _n8send and len(_n8w) == 1 and "out_p" in _n8w[0]
+            and _n8prod is False)
+except Exception as _e:                                          # noqa: BLE001
+    _sn8 = f"⛔ {type(_e).__name__}"
+check("📡 SN8 قراءةٌ فقط: صفرُ إرسالٍ وصفرُ كتابةِ حالة · والكتابةُ الوحيدةُ"
+      " صفوفُ القياس · والإنتاجُ لا يستورد الأداة",
+      _sn8 is True, str(_sn8))
+
+# ── SN9: وصلُ الـworkflow باتّجاهين — لا مدخلَ ميتًا ولا بيئةً ناقصة ولا كرون
+try:
+    _n9raw = open(".github/workflows/slip_nbbo.yml", encoding="utf-8").read()
+    _n9y = _yaml1.safe_load(_n9raw)
+    _n9in = set((_n9y[True]["workflow_dispatch"]["inputs"] or {}).keys())
+    _n9steps = _n9y["jobs"]["slip_nbbo"]["steps"]
+    _n9env = set((next(s for s in _n9steps if (s.get("env") or {}))
+                  .get("env") or {}).keys())
+    _n9chain = _n7src + _insp0.getsource(__import__("event_exec"))
+    _n9read = {_n.args[0].value for _n in _ast0.walk(_ast0.parse(_n9chain))
+               if isinstance(_n, _ast0.Call)
+               and getattr(_n.func, "attr", None) == "get"
+               and getattr(getattr(_n.func, "value", None), "attr", None)
+               == "environ" and _n.args
+               and isinstance(_n.args[0], _ast0.Constant)}
+    _sn9 = (_n9in == {"year", "frozen_run_id"}
+            and _n9env <= _n9read
+            and {"BACKTEST_YEAR", "BT_FROZEN_PATH", "POLYGON_API_KEY"} <= _n9env
+            and all(f"inputs.{k}" in _n9raw for k in _n9in)
+            and any("upload-artifact" in str(s.get("uses", ""))
+                    for s in _n9steps)
+            and "schedule:" not in _n9raw)
+except Exception as _e:                                          # noqa: BLE001
+    _sn9 = f"⛔ {type(_e).__name__}"
+check("📡 SN9 وصلُ الـworkflow: مدخلاه موصولان · وكلُّ بيئةٍ **مقروءةٌ** في"
+      " السلسلة · ومفتاحُ Polygon حاضر · ورفعُ الصفوف · وبلا كرون",
+      _sn9 is True, str(_sn9))
+
+# ── SN10: آليّةُ `V0` — `N0` تُرجع ‏−1.0 **بنيويًّا** قبل قراءة أيّ اقتباس
+try:
+    _n10main = _ast0.parse(_insp0.getsource(_NB.main))
+    _n10r = next(_n for _n in _ast0.walk(_n10main)
+                 if isinstance(_n, _ast0.FunctionDef) and _n.name == "r_of")
+    _n10cmp = any(isinstance(_n, _ast0.Compare)
+                  and getattr(_n.left, "id", None) == "q"
+                  and _n.comparators
+                  and isinstance(_n.comparators[0], _ast0.Constant)
+                  and _n.comparators[0].value == "N0"
+                  for _n in _ast0.walk(_n10r))
+    _n10neg = any(isinstance(_n, _ast0.Return)
+                  and isinstance(_n.value, _ast0.UnaryOp)
+                  and isinstance(_n.value.op, _ast0.USub)
+                  and isinstance(_n.value.operand, _ast0.Constant)
+                  and float(_n.value.operand.value) == 1.0
+                  for _n in _ast0.walk(_n10r))
+    _sn10 = bool(_n10cmp and _n10neg)
+except Exception as _e:                                          # noqa: BLE001
+    _sn10 = f"⛔ {type(_e).__name__}"
+check("📡 SN10 آليّةُ `V0`: `N0` تُرجع ‏−1.0 بنيويًّا **قبل قراءة أيّ اقتباس**"
+      " ⇒ تُعيد المنشورَ بت-بت",
+      _sn10 is True, str(_sn10))
+
+# ── SN11: `V4` تكاملٌ عبر الأدوات — تفرّقُ أحداث الوقف ⇒ **خروج 3** لا نتيجة
+try:
+    _sn11 = any(
+        isinstance(_n, _ast0.If)
+        and any(getattr(_x, "id", None) == "exp" for _x in _ast0.walk(_n.test))
+        and any(isinstance(_r, _ast0.Return)
+                and isinstance(_r.value, _ast0.Constant)
+                and _r.value.value == 3 for _r in _ast0.walk(_n))
+        for _n in _ast0.walk(_n10main))
+except Exception as _e:                                          # noqa: BLE001
+    _sn11 = f"⛔ {type(_e).__name__}"
+check("📡 SN11 `V4`: عددُ أحداث الوقف يخالف المنشورَ في `slip_result` ⇒"
+      " **خروج 3 (عطبُ أداةٍ لا نتيجة)** — لا يُقرأ رقمٌ على مجتمعٍ مختلف",
+      _sn11 is True, str(_sn11))
+
+# ── SN12: **عطلُ الجلب ≠ غيابُ السوق** — اسمان لا يُخلطان
+try:
+    _n12src = _insp0.getsource(_NB.main)
+    _n12i = _n12src.find('w = wins.get(key) or {}')
+    _n12j = _n12src.find('cache[ck] = (st, fl)', _n12i + 1)
+    _n12b = _n12src[_n12i:_n12j] if 0 <= _n12i < _n12j else ""
+    _sn12 = ("fetch_failed" in _n12b and "no_quotes" in _n12b
+             and 'is None' in _n12b
+             and _n12b.find("fetch_failed") < _n12b.find("no_quotes")
+             and "fetch_failed" in _insp0.getsource(_NB.main))
+except Exception as _e:                                          # noqa: BLE001
+    _sn12 = f"⛔ {type(_e).__name__}"
+check("📡 SN12 عطلُ الجلب (`None`) يُفصَل عن النافذة الصامتة (`[]`) باسمَين"
+      " **ويُفحَص أوّلًا** — «حكمٌ سالبٌ بلا سببٍ مُسمًّى يخفي تشخيصَه»",
+      _sn12 is True, str(_sn12))
+
+# ── SN13: الجالبان **بطابعٍ زمنيّ** ولا يُنادى المجرَّدان (يُسقطانه)
+try:
+    _n13ts = ('"t": int(ts) // 1_000_000' in _insp0.getsource(_NB.fetch_quotes)
+              and '"t": int(ts) // 1_000_000'
+              in _insp0.getsource(_NB.fetch_trades))
+    _n13old = [getattr(_c.func, "attr", None) for _c in _ast0.walk(_n7t)
+               if isinstance(_c, _ast0.Call)
+               and getattr(_c.func, "attr", None)
+               in ("hist_quotes", "hist_trades")]
+    _sn13 = bool(_n13ts) and not _n13old
+except Exception as _e:                                          # noqa: BLE001
+    _sn13 = f"⛔ {type(_e).__name__}"
+check("📡 SN13 الجالبان يحملان `sip_timestamp` · و**لا يُنادى**"
+      " `hist_quotes`/`hist_trades` لأنهما يُسقطان الطابع (ولا تُمَسّان)",
+      _sn13 is True, str(_sn13))
+
+# ── SN14: `slip_arms` مجمَّدةٌ سلوكيًّا على ما نُشرت به (سابقةُ `CAP15`)
+try:
+    _sn14 = (_NBSL.loss_r(3.0, 2.9, 2.9) == -1.0
+             and _NBSL.PUB["2023"]["P0"] == (1660, 0.300)
+             and _NBSL.PUB["2024"]["P1"] == (1862, 0.707)
+             and _NBSL.PUB["2025"]["P2"] == (1842, 0.460)
+             and abs(_NBSL.COV_MIN - 90.0) < 1e-12
+             and _NBSL.PARMS == ("P0", "P1", "P2"))
+except Exception as _e:                                          # noqa: BLE001
+    _sn14 = f"⛔ {type(_e).__name__}"
+check("📡 SN14 `slip_arms` مجمَّدةٌ سلوكيًّا: التعبئةُ عند الوقف ‏−1.0 بالضبط ·"
+      " ومِرساةُ المنشور وأرضيةُ التغطية والأذرعُ كما نُشرت (سابقةُ `CAP15`)",
+      _sn14 is True, str(_sn14))
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
