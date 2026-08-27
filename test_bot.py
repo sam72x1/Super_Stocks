@@ -31212,6 +31212,259 @@ check("🥇③ TV6 السلّمُ يفرّق: رتيبٌ ✅ · مقلوبٌ �
 
 
 print("\n" + "=" * 50)
+
+# ═══════════════ 🥇🎯 T-GOLD-ENTRY — أقفال GE1-GE12 ═══════════════
+# العقد `gold_entry_prereg.md` + ملحق ① (كلاهما مدفوعٌ قبل الأداة وقبل أيّ
+# تشغيلة). بحث/قياسٌ فقط — والأقفالُ تحرس: مقياسًا واحدًا · محرّكَ حسمٍ
+# واحدًا · كادنسَ الشاسيه · حارسَ الـ`no-op` · وقراءةً فقط.
+import gold_entry_arms as _GE
+import press_wake_arms as _PW
+import press_backtest as _PBT
+import rebound_arms as _RBA
+
+
+def _ge_df(tail, *, quiet_sit=False):
+    """فِكستشرُ نموذج الضغط: هادئ ⟶ ركضة ⟶ **شمعةُ انهيارٍ واحدة** ذيلُها
+    2.00 وإغلاقُها 2.40 (‏+20% فوق القاع ⇒ لا تُطلق) ⟶ ثلاثُ جلساتِ حفظ ⟶
+    شمعةُ القراءة (تُطلق بـ`hold=4`) ⟶ الذيل.
+    🔴 **الشكلُ من `press_read` الحقيقية لا من الرأس:** الإطارُ يحمل
+    Open/High/Low/Close/Volume كما يُصدِّرها `_extract_into` الإنتاجية."""
+    import pandas as _pd
+    L, H, C = [], [], []
+
+    def add(l, h, c):
+        L.append(l)
+        H.append(h)
+        C.append(c)
+    for _ in range(210):
+        add(1.98, 2.04, 2.00)
+    for k in range(12):
+        add(2.0 + k * 0.33, 2.1 + k * 0.33, 2.05 + k * 0.33)
+    add(2.00, 6.10, 2.40)                       # ← قاعُ الضغط 2.00
+    if quiet_sit:                               # جلوسٌ هادئ ⇒ بوّابةُ القروبات تمرّ
+        for k in range(3):
+            add(2.30 + 0.01 * k, 2.42, 2.40)
+        add(2.24, 2.30, 2.25)
+    else:                                       # جلوسٌ صاخب ⇒ البوّابةُ تُقصي
+        for k in range(3):
+            add(2.05 + 0.01 * k, 2.50, 2.40)
+        add(2.08, 2.30, 2.15)
+    for (l, h, c) in tail:
+        add(l, h, c)
+    n = len(C)
+    return _pd.DataFrame(
+        {"Open": C, "High": H, "Low": L, "Close": C, "Volume": [1e6] * n},
+        index=_pd.date_range("2023-06-01", periods=n, freq="B"))
+
+
+# ثلاثةُ عوالمَ **تفرّق** (لولاها لكان القفلُ أعمى):
+#  A: نزولٌ تحت القاع ثم انطلاق ⇒ يعزل أثرَ **الوقف** (P0 يربح · P1/P2 يخسران)
+#  B: بلا نزول وأدنى قاعٍ 2.11 ⇒ يعزل أثرَ **السلّم** (P1 يُعبَّأ · P2 لا)
+#     ويُشغّل فرعَ الانطلاق في P3
+#  C: جلوسٌ هادئ ⇒ **بوّابةُ القروبات تمرّ** (P4 مؤهَّل)
+_ge_A = _ge_df([(1.95, 2.15, 2.05)]
+               + [(2.2 + 0.35 * k, 2.5 + 0.4 * k, 2.45 + 0.38 * k)
+                  for k in range(12)])
+_ge_B = _ge_df([(2.11, 2.25, 2.20)] * 8
+               + [(2.5 + 0.4 * k, 2.9 + 0.5 * k, 2.8 + 0.45 * k)
+                  for k in range(14)])
+_ge_C = _ge_df([(2.05, 2.30, 2.20)]
+               + [(2.4 + 0.3 * k, 2.7 + 0.35 * k, 2.65 + 0.33 * k)
+                  for k in range(10)], quiet_sit=True)
+
+
+def _ge_ep(df):
+    try:
+        r = _GE.walk_symbol_gold("GEFIX", df)
+        return r[0] if r else None
+    except Exception as _e:                                      # noqa: BLE001
+        return {"⛔": f"رمى: {type(_e).__name__}"}
+
+
+_ge_a, _ge_b, _ge_c = _ge_ep(_ge_A), _ge_ep(_ge_B), _ge_ep(_ge_C)
+
+
+def _ge_oc(ep, arm):
+    try:
+        return ep[arm][1]
+    except Exception:                                            # noqa: BLE001
+        return "⛔"
+
+
+def _ge_el(ep, arm):
+    try:
+        return bool(ep[arm][0])
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+# ── GE1: وحدةُ المخاطرة نقيّةٌ وفاشلةٌ-آمنة
+check("🥇 GE1 `r_win_of` نقيّة: ‏0.5×المتوسّط ÷ (المتوسّط − الوقف) ·"
+      " ومخاطرةٌ غيرُ موجبة ⇒ 0.0",
+      abs(_GE.r_win_of([1.0, 1.03, 1.06], 0.93) - 5.15) < 1e-9
+      and _GE.r_win_of([1.0], 1.0) == 0.0
+      and _GE.r_win_of([1.0], 2.0) == 0.0
+      and _GE.r_win_of([], 0.5) == 0.0,
+      f"{_GE.r_win_of([1.0, 1.03, 1.06], 0.93)}")
+
+# ── GE2: سلّمُ فيصل — دفعاتٌ فوق القاع **والوقفُ القاعُ نفسُه**
+_ge_tr, _ge_st = _GE.faisal_ladder(1.50)
+check("🥇 GE2 سلّمُ فيصل: ‏1.515/1.545/1.575 فوق القاع · **والوقفُ القاعُ"
+      " نفسُه 1.50** («وقفه قاعه») — لا 7% تحته",
+      _ge_st == 1.50 and _ge_tr == [1.515, 1.545, 1.575]
+      and min(_ge_tr) > _ge_st,
+      f"{_ge_tr} · وقف {_ge_st}")
+
+# ── GE3: مقياسٌ واحد — ورقمُ P0 هو رقمُ الإنتاج **حرفيًّا**
+_ge_tr0, _ge_st0 = _RBA.mirror_plan(1.50)
+_ge_rw_src = _insp0.getsource(_GE.walk_symbol_gold)
+check("🥇 GE3 مقياسٌ واحد: `r_win_of`(خطة الإنتاج) = `r_win_value()` ضمن"
+      " ‏1e-9 · **ورقمُ P0 مأخوذٌ من `PB.r_win_value()` نفسِه** (تكاملُ V0"
+      " بت-بت — درسُ ES9: مكافئٌ جبريًّا ≠ مطابقٌ عائمًا)",
+      abs(_GE.r_win_of(_ge_tr0, _ge_st0) - _PBT.r_win_value()) < 1e-9
+      and "PB.r_win_value()" in _ge_rw_src
+      and "rw0, rw1 = PB.r_win_value()" in _ge_rw_src,
+      f"فرق={abs(_GE.r_win_of(_ge_tr0, _ge_st0) - _PBT.r_win_value()):.2e}")
+
+# ── GE4: تعريفُ «المتوسّط» واحدٌ وسببيّ
+try:
+    import pandas as _ge_pd
+    _ge_cl = [1.0 + 0.013 * k for k in range(260)]
+    _ge_es = _GE.ema_series(_ge_cl, 50)
+    # 🐞 `numpy.bool_` ليس `bool` ⇒ `is True` يسقط على قيمةٍ صحيحة (قفلٌ
+    #    مكسور لا كودٌ مكسور) — لذلك `bool(...)` صراحةً.
+    _ge_same = bool(_ge_es[-1] == S.ema(_ge_pd.Series(_ge_cl), 50))
+    _ge_cut = _GE.ema_series(_ge_cl[:180], 50)          # بلا البارات اللاحقة
+    _ge_causal = bool(abs(_ge_cut[179] - _ge_es[179]) < 1e-12)
+except Exception as _e:                                          # noqa: BLE001
+    _ge_same = _ge_causal = f"⛔ {type(_e).__name__}"
+check("🥇 GE4 `ema_series` = تعريفُ الإنتاج `S.ema` بت-بت · **وسببيّةٌ"
+      " مُثبَتة**: قيمتُها عند بارٍ لا تتغيّر بحذف ما بعده (لا نظر مستقبليّ)",
+      _ge_same is True and _ge_causal is True, f"{_ge_same} · {_ge_causal}")
+
+# ── GE5: تعبئةٌ واحدة — `fill_index` ≡ حلقةُ `resolve_episode`
+_ge_bad = 0
+try:
+    import random as _ge_rnd
+    _r = _ge_rnd.Random(11)
+    for _ in range(400):
+        _lo = [round(_r.uniform(0.5, 2.0), 4) for _ in range(60)]
+        _hi = [x + 0.2 for x in _lo]
+        _fj = _GE.fill_index(_lo, 5, 1.2, 40, 60)
+        _oc = _RBA.resolve_episode(_hi, _lo, 5, [1.2], 0.0, wait=40)
+        if (_fj is None) != (_oc == "no_fill"):
+            _ge_bad += 1
+except Exception as _e:                                          # noqa: BLE001
+    _ge_bad = f"⛔ {type(_e).__name__}"
+check("🥇 GE5 `fill_index` يطابق حلقةَ التعبئة في `resolve_episode` على"
+      " ‏400 حالةٍ عشوائية (صفرُ تفرّق)", _ge_bad == 0, str(_ge_bad))
+
+# ── GE6: محرّكُ حسمٍ **واحد** لا ثانيَ له
+try:
+    _ge_tree = _ast0.parse(_insp0.getsource(_GE))
+    _ge_calls = sum(1 for _n in _ast0.walk(_ge_tree)
+                    if isinstance(_n, _ast0.Call)
+                    and getattr(_n.func, "attr", None) == "resolve_episode")
+    _ge_ret_lit = [_n for _n in _ast0.walk(_ge_tree)
+                   if isinstance(_n, _ast0.Return)
+                   and isinstance(getattr(_n, "value", None), _ast0.Constant)
+                   and _n.value.value in ("win", "loss")]
+except Exception as _e:                                          # noqa: BLE001
+    _ge_calls, _ge_ret_lit = -1, [f"⛔ {type(_e).__name__}"]
+check("🥇 GE6 محرّكُ الحسم واحد: كلُّ ذراعٍ تمرّ بـ`RB.resolve_episode`"
+      " (‏4 نداءاتٍ فأكثر) · **وصفرُ دالّةٍ تُرجع 'win'/'loss' بنفسها**"
+      " (لا محرّكَ ثانيَ في المستودع)",
+      _ge_calls >= 4 and not _ge_ret_lit, f"نداءات={_ge_calls} · إرجاع={_ge_ret_lit}")
+
+# ── GE7: الكادنسُ والقراءةُ = الشاسيه المنشور **سلوكيًّا** لا نصًّا
+try:
+    _ge_i_gold = [e["i"] for e in _GE.walk_symbol_gold("X", _ge_A)]
+    _ge_w = _PW.walk_symbol_wake("X", _ge_A)
+    _ge_i_wake = [e["i"] for e in _ge_w]
+    _ge_oc_same = all(a["P0"][1] == b["oc"] for a, b
+                      in zip(_GE.walk_symbol_gold("X", _ge_A), _ge_w))
+except Exception as _e:                                          # noqa: BLE001
+    _ge_i_gold, _ge_i_wake, _ge_oc_same = [1], [2], f"⛔ {type(_e).__name__}"
+check("🥇 GE7 مِرساةُ التكامل سلوكيًّا: فهارسُ الحلقات **مطابقةٌ** لِمِشية"
+      " `press_wake_arms` وحصيلةُ P0 = حصيلةُ الشاسيه (كادنسٌ وقراءةٌ واحدة)",
+      _ge_i_gold == _ge_i_wake and _ge_i_gold and _ge_oc_same is True,
+      f"gold={_ge_i_gold} wake={_ge_i_wake} · P0≡chassis={_ge_oc_same}")
+
+# ── GE8: `V2` الأذرعُ تتفرّق فعلًا (ثلاثةُ أجوبةٍ على المدخل نفسِه)
+check("🥇 GE8 V2 الأذرعُ تتفرّق: عالمُ الوقف (‏P0 يربح · P1/P2 يخسران) ·"
+      " وعالمُ السلّم (‏P1 يُعبَّأ ويربح · P2 لا يُعبَّأ · P3 يدخل بالانطلاق)",
+      _ge_oc(_ge_a, "P0") == "win" and _ge_oc(_ge_a, "P1") == "loss"
+      and _ge_oc(_ge_a, "P2") == "loss"
+      and _ge_oc(_ge_b, "P1") == "win" and _ge_oc(_ge_b, "P2") == "no_fill"
+      and _ge_oc(_ge_b, "P3") == "win"
+      and (_ge_b or {}).get("p3b") == "انطلاق",
+      f"A:{[_ge_oc(_ge_a, x) for x in _GE.ARMS]} · "
+      f"B:{[_ge_oc(_ge_b, x) for x in _GE.ARMS]} · p3b={(_ge_b or {}).get('p3b')}")
+
+# ── GE9: حارسُ `V1` يقرأ **الأهلية** أيضًا — وإلّا قُرئ P6 `no-op` كذبًا
+try:
+    _ge_recs = [_ge_a, _ge_b, _ge_c]
+    _ge_p6 = _GE._diff_counts(_ge_recs, "P6")
+    _ge_p4 = _GE._diff_counts(_ge_recs, "P4")
+    _ge_v1src = _insp0.getsource(_GE._diff_counts)
+except Exception as _e:                                          # noqa: BLE001
+    _ge_p6 = _ge_p4 = (-1, -1)
+    _ge_v1src = f"⛔ {type(_e).__name__}"
+check("🥇 GE9 V1 يفرّق بالأهلية لا بالحصيلة وحدَها: P6 خطتُه خطةُ P0"
+      " (‏حصيلةٌ متطابقة) **وأهليتُه تختلف** ⇒ لا يُقرأ `no-op` كذبًا",
+      _ge_p6[1] == 0 and _ge_p6[0] > 0 and 'e["P0"][0]' in _ge_v1src,
+      f"P6=(أهلية {_ge_p6[0]} · حصيلة {_ge_p6[1]}) · P4={_ge_p4}")
+
+# ── GE10: ملحق ① — نافذةُ الجلوس بعد القاع · والقراءةُ الأولى وصفيّةٌ تُطبَع
+try:
+    _ge_rep = _insp0.getsource(_GE.report)
+    _ge_walk = _insp0.getsource(_GE.walk_symbol_gold)
+except Exception as _e:                                          # noqa: BLE001
+    _ge_rep = _ge_walk = f"⛔ {type(_e).__name__}"
+check("🥇 GE10 ملحق ①: البوّابةُ الحاكمة على نافذةِ الجلوس **بعد** يوم"
+      " القاع (تفرّقٌ مقيس: هادئٌ يمرّ · صاخبٌ يُقصى) · والقراءةُ المسجَّلة"
+      " أوّلًا محسوبةٌ **ومطبوعةٌ** وصفيًّا",
+      _ge_el(_ge_c, "P4") is True and _ge_el(_ge_a, "P4") is False
+      and (_ge_c or {}).get("osc_raw", 0) > (_ge_c or {}).get("osc", 1)
+      and "a_sit = min(j_low + 1, i)" in _ge_walk
+      and "osc_raw" in _ge_rep and "وصفيًّا لا حكمًا" in _ge_rep,
+      f"C: osc={(_ge_c or {}).get('osc')} raw={(_ge_c or {}).get('osc_raw')} "
+      f"P4={_ge_el(_ge_c, 'P4')} · A: P4={_ge_el(_ge_a, 'P4')}")
+
+# ── GE11: قراءةٌ فقط — صفرُ إرسالٍ وصفرُ كتابةِ حالةٍ والإنتاجُ لا يستوردها
+try:
+    _ge_send = [_n for _n in _ast0.walk(_ge_tree) if isinstance(_n, _ast0.Call)
+                and (getattr(_n.func, "id", None) in ("send_telegram", "open")
+                     or getattr(_n.func, "attr", None)
+                     in ("send_telegram", "save_watchlist", "git_save",
+                         "save_op_entry_state"))]
+    _ge_prod = ("gold_entry_arms" in open("Super_stock.py", encoding="utf-8").read())
+except Exception as _e:                                          # noqa: BLE001
+    _ge_send, _ge_prod = [f"⛔ {type(_e).__name__}"], True
+check("🥇 GE11 قراءةٌ فقط: صفرُ `send_telegram`/`open`/كتابةِ حالةٍ في"
+      " الأداة · **والإنتاج لا يستوردها إطلاقًا**",
+      not _ge_send and _ge_prod is False, f"نداءات={_ge_send} · بالإنتاج={_ge_prod}")
+
+# ── GE12: كلُّ مدخلٍ في الـworkflow موصولٌ ببيئةٍ يقرؤها السكربت (درس BT_CANDLE)
+try:
+    _ge_yml = _yaml0.safe_load(open(".github/workflows/gold_entry.yml",
+                                    encoding="utf-8"))
+    _ge_raw = open(".github/workflows/gold_entry.yml", encoding="utf-8").read()
+    _ge_ins = set((_ge_yml[True]["workflow_dispatch"]["inputs"] or {}).keys())
+    _ge_src_all = _insp0.getsource(_GE)
+    _ge_envs = {"BACKTEST_YEAR", "BT_FROZEN_PATH"}
+    _ge_wired = all(f"inputs.{k}" in _ge_raw for k in _ge_ins)
+    _ge_read = all(e in _ge_src_all for e in _ge_envs)
+    _ge_nocron = "schedule:" not in _ge_raw
+except Exception as _e:                                          # noqa: BLE001
+    _ge_ins, _ge_wired, _ge_read, _ge_nocron = set(), False, False, False
+check("🥇 GE12 وصلُ الـworkflow: مدخلاه {year, frozen_run_id} موصولان"
+      " ومقروءان · بلا كرون (يدويٌّ حصرًا) · ولا مدخلَ ميتًا",
+      _ge_ins == {"year", "frozen_run_id"} and _ge_wired and _ge_read
+      and _ge_nocron,
+      f"مدخلات={sorted(_ge_ins)} · موصول={_ge_wired} · مقروء={_ge_read}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
