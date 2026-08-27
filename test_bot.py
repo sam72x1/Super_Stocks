@@ -31543,17 +31543,34 @@ try:
                   and (getattr(_n.func, "id", None) == "send_telegram"
                        or getattr(_n.func, "attr", None)
                        in ("send_telegram", "save_watchlist", "git_save"))]
-    _gc_both = ("الشاهد" in _gc_all and "الكوهورت" in _gc_all
-                and "الدائريّةُ مُعلَنة" in _gc_all
-                and "تلوّثُ الشاهد" in _gc_all)
+    # 🔒 **بنيويًّا لا نصًّا** (درسُ m12 نفسِه · ونمطُ `OEL11`): الإعلاناتُ
+    #    تُقرأ من **وسائط `_log` داخل `main`** — فالتعليقُ وdocstring خارج
+    #    الشجرة، ولا يُرضي القفلَ شرحٌ كتبتُه. ومجموعتا التقرير تُقرآن من
+    #    حلقة العرض نفسِها فلا تمرّ إزالةُ الشاهد بصمت.
+    _gc_main = _ast0.parse(_insp0.getsource(_GC.main))
+    _gc_logs = " ".join(
+        _a.value for _n in _ast0.walk(_gc_main)
+        if isinstance(_n, _ast0.Call) and getattr(_n.func, "id", None) == "_log"
+        for _a in _ast0.walk(_n) if isinstance(_a, _ast0.Constant)
+        and isinstance(_a.value, str))
+    _gc_groups = {_c.value for _n in _ast0.walk(_gc_main)
+                  if isinstance(_n, _ast0.For)
+                  for _c in _ast0.walk(_n.iter)
+                  if isinstance(_c, _ast0.Constant) and _c.value in ("coh", "ctl")}
+    _gc_both = ("الدائريّةُ مُعلَنة" in _gc_logs
+                and "تلوّثُ الشاهد" in _gc_logs
+                and "الشاهد" in _gc_logs and "الكوهورت" in _gc_logs
+                and _gc_groups == {"coh", "ctl"})
     _gc_prod = ("gold_cohort_check" in open("Super_stock.py",
                                             encoding="utf-8").read())
 except Exception as _e:                                          # noqa: BLE001
     _gc_writes, _gc_both, _gc_prod = [f"⛔ {type(_e).__name__}"], False, True
+    _gc_groups = set()
 check("🥇 GE15 المقياسان يُطبَعان معًا (كوهورتٌ وشاهد) · وإعلانا الدائرية"
       " وتلوّثِ الشاهد في المُخرَج · وقراءةٌ فقط والإنتاجُ لا يستوردها",
       not _gc_writes and _gc_both is True and _gc_prod is False,
-      f"كتابات={_gc_writes} · نصّ={_gc_both} · بالإنتاج={_gc_prod}")
+      f"كتابات={_gc_writes} · إعلاناتٌ ومجموعتان={_gc_both}"
+      f" {sorted(_gc_groups)} · بالإنتاج={_gc_prod}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
