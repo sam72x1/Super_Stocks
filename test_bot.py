@@ -31623,6 +31623,327 @@ check("🥇 GE16 عمودُ `R_win` صادق: خطّةٌ واحدة ⇒ رقمُ
       " (‏`P3`) ⇒ «متغيّر» لا أوّلُ قيمةٍ موجبة",
       _ge_rw_ok is True, f"ثابت={_ge_r_same[40:56]!r} · متغيّر={_ge_r_var[40:56]!r}")
 
+
+
+# ═════════ 🩸📏 T-SLIP — أقفال SL1-SL12 (قياسُ الانزلاق على الوقف) ═════════
+import slip_arms as _SL
+import io as _io1
+import yaml as _yaml1
+
+
+def _sl_bar(t_ms, o, h, lo, c):
+    return {"t": t_ms, "o": o, "h": h, "l": lo, "c": c}
+
+
+def _sl_ms(hh, mm):
+    """طابعُ ملّي لدقيقةٍ في 2025-06-02 بتوقيت نيويورك (يومُ تداولٍ عاديّ)."""
+    from datetime import datetime
+    import event_exec as _EX
+    return int(datetime(2025, 6, 2, hh, mm, tzinfo=_EX.NY).timestamp() * 1000)
+
+
+# ── SL1: `stop_bar` مرآةُ `resolve_episode` — كلُّ خسارةٍ لها فهرسٌ صالح
+try:
+    import rebound_arms as _SL_RB
+    _sl_rnd = __import__("random").Random(97)
+    _sl_bad = _sl_none = 0
+    for _ in range(400):
+        _n = _sl_rnd.randint(95, 140)
+        _lo = [round(_sl_rnd.uniform(0.5, 3.0), 4) for _ in range(_n)]
+        _hi = [round(x + _sl_rnd.uniform(0.01, 0.9), 4) for x in _lo]
+        _i = _sl_rnd.randint(60, _n - 25)
+        _pl = round(min(_lo[max(_i - 5, 0):_i + 1]), 4)
+        _tr, _st = _SL_RB.mirror_plan(_pl)
+        _oc = _SL_RB.resolve_episode(_hi, _lo, _i, _tr, _st)
+        _sb = _SL.__dict__ and __import__("gold_entry_arms").stop_bar(
+            _hi, _lo, _i, _tr, _st)
+        if _oc == "loss":
+            if not isinstance(_sb, int) or float(_lo[_sb]) > _st:
+                _sl_bad += 1
+        elif _sb is not None:
+            _sl_none += 1
+except Exception as _e:                                          # noqa: BLE001
+    _sl_bad = _sl_none = f"⛔ {type(_e).__name__}"
+check("🩸 SL1 `stop_bar` ≡ `resolve_episode`: ‏400 حالةٍ عشوائية — كلُّ"
+      " «خسارة» لها فهرسٌ قاعُه يبلغ الوقف، وكلُّ ما ليس خسارةً `None`",
+      _sl_bad == 0 and _sl_none == 0, f"فهارسُ خاطئة={_sl_bad} · زائدة={_sl_none}")
+
+# ── SL2: `with_plan=False` ⇒ المُخرَجُ **بت-بت** (لا يتحرّك رقمٌ منشور)
+try:
+    import gold_entry_arms as _SLGE
+    import pandas as _sl_pd
+    _sl_nb = 130
+    _sl_base = [3.0] * 60 + [3.0 - 0.03 * k for k in range(40)] + [1.85] * 30
+    _sl_df = _sl_pd.DataFrame(
+        {"Open": [x for x in _sl_base],
+         "High": [x * 1.02 for x in _sl_base],
+         "Low": [x * 0.985 for x in _sl_base],
+         "Close": _sl_base, "Volume": [1e6] * _sl_nb},
+        index=_sl_pd.date_range("2025-01-01", periods=_sl_nb, freq="B"))
+    _sl_a = _SLGE.walk_symbol_gold("TST", _sl_df)
+    _sl_b = _SLGE.walk_symbol_gold("TST", _sl_df, with_plan=True)
+    _sl_noplan = all("plan" not in r for r in _sl_a)
+    _sl_hasplan = bool(_sl_b) and all("plan" in r for r in _sl_b)
+    _sl_same = ([{k: v for k, v in r.items() if k != "plan"} for r in _sl_b]
+                == _sl_a)
+except Exception as _e:                                          # noqa: BLE001
+    _sl_noplan = _sl_hasplan = _sl_same = f"⛔ {type(_e).__name__}"
+check("🩸 SL2 `with_plan` قناةُ قياسٍ **إضافيّةٌ بحتة**: الافتراضُ بلا `plan`"
+      " والمُخرَجُ بت-بت مع `plan` بعد إسقاطه (‏لا يتحرّك رقمٌ منشور)",
+      _sl_noplan is True and _sl_hasplan is True and _sl_same is True,
+      f"بلا={_sl_noplan} · مع={_sl_hasplan} · تطابق={_sl_same}")
+
+# ── SL3: `session_slice` — الجلسةُ النظاميّة وحدَها ومرتَّبةً وبلا تالف
+try:
+    _sl_raw = [_sl_bar(_sl_ms(16, 5), 2, 2, 2, 2),      # بعد الإغلاق
+               _sl_bar(_sl_ms(9, 45), 3, 3.1, 2.9, 3.0),
+               _sl_bar(_sl_ms(4, 10), 9, 9, 9, 9),      # بريماركت
+               _sl_bar(_sl_ms(9, 30), 4, 4.1, 3.9, 4.0),
+               _sl_bar(_sl_ms(10, 0), 0, 1, 1, 1),      # صفرٌ تالف
+               _sl_bar(_sl_ms(15, 59), 5, 5.1, 4.9, 5.0)]
+    _sl_ss = _SL.session_slice(_sl_raw)
+    _sl_s_ok = ([round(b["o"], 2) for b in _sl_ss] == [4.0, 3.0, 5.0])
+except Exception as _e:                                          # noqa: BLE001
+    _sl_s_ok = f"⛔ {type(_e).__name__}"
+check("🩸 SL3 `session_slice`: ‏09:30-16:00 نيويورك حصرًا (بريماركتٌ وأفترٌ"
+      " يُسقَطان) · مرتَّبةً زمنيًّا · والتالفُ يُسقَط",
+      _sl_s_ok is True, str(_sl_s_ok))
+
+# ── SL4: `trigger_index` — أوّلُ دقيقةٍ **قاعُها يبلغ** الوقف (المساواةُ تُطلق)
+try:
+    _sl_t = [_sl_bar(_sl_ms(9, 30), 5, 5.2, 4.9, 5.0),
+             _sl_bar(_sl_ms(9, 31), 5, 5.1, 4.50, 4.6),
+             _sl_bar(_sl_ms(9, 32), 4.6, 4.7, 4.0, 4.1)]
+    _sl_t1 = _SL.trigger_index(_sl_t, 4.50)      # مساواةٌ بالضبط ⇒ الدقيقة 1
+    _sl_t2 = _SL.trigger_index(_sl_t, 4.49)      # دونها ⇒ الدقيقة 2
+    _sl_t3 = _SL.trigger_index(_sl_t, 1.00)      # لا زناد
+    _sl_t_ok = (_sl_t1 == 1 and _sl_t2 == 2 and _sl_t3 is None)
+except Exception as _e:                                          # noqa: BLE001
+    _sl_t_ok = f"⛔ {type(_e).__name__}"
+check("🩸 SL4 `trigger_index`: أوّلُ دقيقةٍ قاعُها يبلغ الوقف · **وتخومُ"
+      " المساواة تُطلق** · ولا زنادَ ⇒ `None`",
+      _sl_t_ok is True, f"{_sl_t1} · {_sl_t2} · {_sl_t3}")
+
+# ── SL5: `fills` — الأذرعُ الأربع **تتفرّق** · والفجوةُ تُغلِّبُ الافتتاح
+try:
+    _sl_ng = [_sl_bar(_sl_ms(9, 30), 5.0, 5.2, 4.95, 5.10),
+              _sl_bar(_sl_ms(9, 31), 5.1, 5.15, 4.40, 4.70),
+              _sl_bar(_sl_ms(9, 32), 4.7, 4.8, 4.30, 4.35)]
+    _sl_f1 = _SL.fills(_sl_ng, 4.50)             # بلا فجوة · زنادُه الدقيقة 1
+    _sl_gp = [_sl_bar(_sl_ms(9, 30), 3.90, 4.00, 3.70, 3.80),
+              _sl_bar(_sl_ms(9, 31), 3.8, 3.9, 3.60, 3.65)]
+    _sl_f2 = _SL.fills(_sl_gp, 4.50)             # فجوةٌ كاملة
+    _sl_f3 = _SL.fills(_sl_ng, 1.00)             # لا زناد
+    _sl_up = [_sl_bar(_sl_ms(9, 30), 5.0, 5.2, 4.40, 5.10)]   # ارتدَّ فوق الوقف
+    _sl_f4 = _SL.fills(_sl_up, 4.50)
+    _sl_f_ok = (
+        _sl_f1 is not None and not _sl_f1["gap"]
+        and abs(_sl_f1["Q0"] - 4.50) < 1e-9 and abs(_sl_f1["Q1"] - 4.50) < 1e-9
+        and abs(_sl_f1["Q2"] - 4.70) < 1e-9 and abs(_sl_f1["Q3"] - 4.40) < 1e-9
+        and _sl_f2 is not None and _sl_f2["gap"]
+        and all(abs(_sl_f2[q] - 3.90) < 1e-9 for q in ("Q1", "Q2", "Q3"))
+        and abs(_sl_f2["Q0"] - 4.50) < 1e-9
+        and _sl_f3 is None
+        and _sl_f4 is not None and abs(_sl_f4["Q2"] - 5.10) < 1e-9
+        and abs(_sl_f4["Q2c"] - 4.50) < 1e-9)
+except Exception as _e:                                          # noqa: BLE001
+    _sl_f_ok = f"⛔ {type(_e).__name__}"
+check("🩸 SL5 `fills` تفرّقُ الأذرع: بلا فجوة (‏Q1=الوقف · Q2=إغلاقُ الزناد ·"
+      " Q3=قاعُه) · وبفجوةٍ الثلاثةُ = الافتتاح · ولا زنادَ ⇒ `None` ·"
+      " و`Q2c` مقصوصةٌ عند الوقف وحدَها",
+      _sl_f_ok is True, str(_sl_f_ok))
+
+# ── SL6: `loss_r` — التعبئةُ عند الوقف = **‏−1.0 بالضبط** (آليّةُ `W0`)
+try:
+    _sl_l1 = _SL.loss_r(1.03, 1.00, 1.00)        # عند الوقف
+    _sl_l2 = _SL.loss_r(1.03, 1.00, 0.97)        # انزلاقٌ 3 سنتات
+    _sl_l3 = _SL.loss_r(1.03, 0.93, 0.90)        # مخاطرةٌ أوسع · نفسُ الانزلاق
+    _sl_l4 = _SL.loss_r(1.00, 1.00, 0.90)        # مخاطرةٌ صفر ⇒ فاشلٌ-آمن
+    _sl_l_ok = (_sl_l1 == -1.0 and abs(_sl_l2 + 2.0) < 1e-9
+                and abs(_sl_l3 + 1.3) < 1e-9 and _sl_l4 == -1.0
+                and _sl_l2 < _sl_l3)             # الأضيقُ مخاطرةً يتضرّر أكثر
+except Exception as _e:                                          # noqa: BLE001
+    _sl_l_ok = f"⛔ {type(_e).__name__}"
+check("🩸 SL6 `loss_r`: عند الوقف **‏−1.0 بالضبط** · والانزلاقُ نفسُه يعمّق"
+      " الخسارةَ **أكثر** كلّما ضاقت المخاطرة (‏−2.00 مقابل −1.30) · وصفرُ"
+      " مخاطرةٍ ⇒ ‏−1.0 فاشلٌ-آمن",
+      _sl_l_ok is True, f"{_sl_l1} · {_sl_l2} · {_sl_l3} · {_sl_l4}")
+
+# ── SL7: `scale_ok` — حارسُ المقياس (‏W2)
+try:
+    _sl_k_ok = (_SL.scale_ok(4.00, 4.02) is True
+                and _SL.scale_ok(4.00, 8.00) is False
+                and _SL.scale_ok(float("nan"), 4.0) is False
+                and _SL.scale_ok(4.0, 0) is False
+                and _SL.scale_ok(None, 4.0) is False)
+except Exception as _e:                                          # noqa: BLE001
+    _sl_k_ok = f"⛔ {type(_e).__name__}"
+check("🩸 SL7 `scale_ok` (‏W2): داخل التسامح ✅ · وتقسيمٌ يضاعف السعر ❌ ·"
+      " و`NaN`/صفر/`None` ❌ (يُستبعَد ويُعَدّ — لا يُخمَّن ولا يُصحَّح)",
+      _sl_k_ok is True, str(_sl_k_ok))
+
+# ── SL8: قراءةٌ فقط — لا إرسالَ ولا كتابةَ حالةٍ إنتاجيّة · والإنتاجُ لا يستوردها
+try:
+    _sl_src = _insp0.getsource(_SL)
+    _sl_tree = _ast0.parse(_sl_src)
+    _sl_send = [_n for _n in _ast0.walk(_sl_tree)
+                if isinstance(_n, _ast0.Call)
+                and (getattr(_n.func, "id", None)
+                     in ("send_telegram", "save_watchlist", "git_save",
+                         "save_op_entry_state")
+                     or getattr(_n.func, "attr", None)
+                     in ("send_telegram", "save_watchlist", "git_save"))]
+    _sl_writes = [_ast0.unparse(_n) for _n in _ast0.walk(_sl_tree)
+                  if isinstance(_n, _ast0.Call)
+                  and getattr(_n.func, "id", None) == "open"
+                  and len(_n.args) > 1
+                  and isinstance(_n.args[1], _ast0.Constant)
+                  and "w" in str(_n.args[1].value)]
+    _sl_only_out = (len(_sl_writes) == 1 and "out_p" in _sl_writes[0])
+    _sl_prod = ("slip_arms" in open("Super_stock.py", encoding="utf-8").read())
+except Exception as _e:                                          # noqa: BLE001
+    _sl_send, _sl_only_out, _sl_prod = [f"⛔ {type(_e).__name__}"], False, True
+check("🩸 SL8 قراءةٌ فقط: صفرُ `send_telegram`/`git_save`/كتابةِ حالة ·"
+      " والكتابةُ الوحيدةُ صفوفُ القياس (`SLIP_OUT`) · والإنتاجُ لا يستوردها",
+      not _sl_send and _sl_only_out is True and _sl_prod is False,
+      f"إرسال={_sl_send} · كتابةٌ واحدةٌ للمُخرَج={_sl_only_out} · بالإنتاج={_sl_prod}")
+
+# ── SL9: وصلُ الـworkflow — لا مدخلَ ميتًا ولا بيئةً ميتة ولا كرون
+try:
+    _sl_raw_y = open(".github/workflows/slip.yml", encoding="utf-8").read()
+    _sl_y = _yaml1.safe_load(_sl_raw_y)
+    _sl_ins = set((_sl_y[True]["workflow_dispatch"]["inputs"] or {}).keys())
+    _sl_steps = _sl_y["jobs"]["slip"]["steps"]
+    _sl_run = next(s for s in _sl_steps if (s.get("env") or {}))
+    _sl_env = set((_sl_run.get("env") or {}).keys())
+    # كلُّ بيئةٍ يضبطها الـworkflow **مقروءةٌ** في سلسلة القياس (لا بيئةَ ميتة)
+    _sl_chain = _sl_src + _insp0.getsource(__import__("event_exec"))
+    _sl_read = {_n.args[0].value for _n in _ast0.walk(_ast0.parse(_sl_chain))
+                if isinstance(_n, _ast0.Call)
+                and getattr(_n.func, "attr", None) == "get"
+                and getattr(getattr(_n.func, "value", None), "attr", None)
+                == "environ" and _n.args
+                and isinstance(_n.args[0], _ast0.Constant)}
+    # 🔴 اتّجاهان: لا بيئةَ ميتة (‏`env ⊆ read`) **ولا بيئةً ناقصة** — الأداةُ
+    #    بلا `POLYGON_API_KEY` تجلب صفرَ دقيقةٍ فتخرج «تغطية 0%» بلا سببٍ بيّن.
+    _sl_alive = (_sl_env <= _sl_read
+                 and {"BACKTEST_YEAR", "BT_FROZEN_PATH",
+                      "POLYGON_API_KEY"} <= _sl_env)
+    _sl_wired = all(f"inputs.{k}" in _sl_raw_y for k in _sl_ins)
+    _sl_up = any("upload-artifact" in str(s.get("uses", "")) for s in _sl_steps)
+    _sl_nocron = "schedule:" not in _sl_raw_y
+except Exception as _e:                                          # noqa: BLE001
+    _sl_ins, _sl_alive, _sl_wired, _sl_up, _sl_nocron = set(), False, False, False, False
+    _sl_env = _sl_read = set()
+check("🩸 SL9 وصلُ الـworkflow: مدخلاه {year, frozen_run_id} موصولان · وكلُّ"
+      " بيئةٍ يضبطها **مقروءةٌ** في سلسلة القياس · ورفعُ الصفوف · وبلا كرون",
+      _sl_ins == {"year", "frozen_run_id"} and _sl_alive and _sl_wired
+      and _sl_up and _sl_nocron,
+      f"مدخلات={sorted(_sl_ins)} · بيئة={sorted(_sl_env)} ⊆ مقروء؟ {_sl_alive}"
+      f" · رفع={_sl_up} · بلا كرون={_sl_nocron}")
+
+# ── SL10: `Q0` **مسارٌ بنيويّ** لا يقرأ الدقائق (آليّةُ `W0` بت-بت)
+try:
+    _sl_main = _ast0.parse(_insp0.getsource(_SL.main))
+    _sl_rof = next(_n for _n in _ast0.walk(_sl_main)
+                   if isinstance(_n, _ast0.FunctionDef) and _n.name == "r_of")
+    # 🔒 بنيويًّا لا نصًّا (‏`ast.unparse` يُبدّل نوعَ الاقتباس — الفخُّ المدوَّن):
+    #    مقارنةُ `q` بالثابت "Q0" **وإرجاعُ ‏−1.0** داخل `r_of` نفسِها.
+    _sl_cmp = any(isinstance(_n, _ast0.Compare)
+                  and getattr(_n.left, "id", None) == "q"
+                  and _n.comparators
+                  and isinstance(_n.comparators[0], _ast0.Constant)
+                  and _n.comparators[0].value == "Q0"
+                  for _n in _ast0.walk(_sl_rof))
+    _sl_neg1 = any(isinstance(_n, _ast0.Return)
+                   and isinstance(_n.value, _ast0.UnaryOp)
+                   and isinstance(_n.value.op, _ast0.USub)
+                   and isinstance(_n.value.operand, _ast0.Constant)
+                   and float(_n.value.operand.value) == 1.0
+                   for _n in _ast0.walk(_sl_rof))
+    _sl_q0 = bool(_sl_cmp and _sl_neg1)
+    _sl_pub = (_SL.PUB["2023"]["P0"] == (1660, 0.300)
+               and _SL.PUB["2024"]["P1"] == (1862, 0.707)
+               and _SL.PUB["2025"]["P2"] == (1842, 0.460))
+except Exception as _e:                                          # noqa: BLE001
+    _sl_q0 = _sl_pub = f"⛔ {type(_e).__name__}"
+check("🩸 SL10 آليّةُ `W0`: `Q0` تُرجع ‏−1.0 **بنيويًّا** قبل قراءة أيّ دقيقة ·"
+      " ومِرساةُ المنشور مثبَّتةٌ بأرقامها الثلاث",
+      _sl_q0 is True and _sl_pub is True, f"{_sl_q0} · {_sl_pub}")
+
+# ── SL11: ثوابتُ العقد مثبَّتةٌ كما سُجِّلت (‏§②/§③/§④/§⑥)
+try:
+    _sl_c_ok = (_SL.QARMS == ("Q0", "Q1", "Q2", "Q3")
+                and _SL.PARMS == ("P0", "P1", "P2")
+                and (_SL.GOV_Q, _SL.GOV_A, _SL.GOV_B) == ("Q2", "P1", "P0")
+                and _SL.SESS_OPEN == (9, 30) and _SL.SESS_CLOSE == (16, 0)
+                and abs(_SL.SCALE_TOL - 0.02) < 1e-12
+                and abs(_SL.COV_MIN - 90.0) < 1e-12)
+except Exception as _e:                                          # noqa: BLE001
+    _sl_c_ok = f"⛔ {type(_e).__name__}"
+check("🩸 SL11 ثوابتُ العقد: أربعُ أذرعِ تنفيذٍ ولا خامسة · ثلاثُ أذرعٍ مقيسة"
+      " · الحاكم `Q2`/`P1`/`P0` · الجلسة 9:30-16:00 · تسامحُ المقياس 2% ·"
+      " أرضيةُ التغطية 90%",
+      _sl_c_ok is True, str(_sl_c_ok))
+
+# ── SL12: مصدرٌ واحدٌ للدقائق — `hist_minute_bars` بالاسم ولا نداءَ HTTP خاصّ
+try:
+    _sl_uses = any(getattr(_n.func, "attr", None) == "hist_minute_bars"
+                   for _n in _ast0.walk(_sl_tree)
+                   if isinstance(_n, _ast0.Call))
+    _sl_http = [_ast0.unparse(_n)[:40] for _n in _ast0.walk(_sl_tree)
+                if isinstance(_n, _ast0.Call)
+                and getattr(_n.func, "attr", None) in ("get", "post")
+                and getattr(getattr(_n.func, "value", None), "id", None)
+                in ("requests", "urllib", "httpx")]
+except Exception as _e:                                          # noqa: BLE001
+    _sl_uses, _sl_http = False, [f"⛔ {type(_e).__name__}"]
+check("🩸 SL12 مصدرٌ واحدٌ للدقائق: `event_exec.hist_minute_bars` **بالاسم** ·"
+      " وصفرُ نداءِ HTTP خاصٍّ في الأداة (لا جالبَ ثانٍ يتفرّق)",
+      _sl_uses is True and not _sl_http, f"بالاسم={_sl_uses} · HTTP={_sl_http}")
+
+# ── SL13: `same_bar` من `fill_index` **المقفولة** — الوقفُ في شمعة الدخول نفسِها
+try:
+    import gold_entry_arms as _SL13
+    _s13 = _SLGE.walk_symbol_gold("TST", _sl_df, with_plan=True)
+    _s13_keys = all(all(k in (r["plan"][a]) for k in ("fb", "same_bar"))
+                    for r in _s13 for a in ("P0", "P1", "P2"))
+    # الوسمُ = تطابقُ فهرسَي الوقف والتعبئة، لا شيءَ آخر
+    _s13_ok = all(
+        r["plan"][a]["same_bar"] is (r["plan"][a]["sb"] is not None
+                                     and r["plan"][a]["fb"] is not None
+                                     and r["plan"][a]["sb"] == r["plan"][a]["fb"])
+        for r in _s13 for a in ("P0", "P1", "P2"))
+    # ومصدرُ `fb` هو `fill_index` نفسُها (لا حلقةَ ثانية) — بالـAST
+    _s13_src = _ast0.parse(_insp0.getsource(_SL13.walk_symbol_gold))
+    _s13_fi = any(getattr(_n.func, "id", None) == "fill_index"
+                  for _n in _ast0.walk(_s13_src) if isinstance(_n, _ast0.Call))
+except Exception as _e:                                          # noqa: BLE001
+    _s13_keys = _s13_ok = _s13_fi = f"⛔ {type(_e).__name__}"
+check("🩸 SL13 `same_bar`: تُشتقّ من `fill_index` **المقفولة** (لا حلقةَ"
+      " ثانية) وتساوي تطابقَ فهرسَي الوقف والتعبئة بالضبط",
+      _s13_keys is True and _s13_ok is True and _s13_fi is True,
+      f"مفاتيح={_s13_keys} · تعريف={_s13_ok} · بالاسم={_s13_fi}")
+
+# ── SL14: حارسُ المقام الفارغ — `E` غيرُ محسوبٍ ⇒ خروج 4 لا انهيار
+try:
+    _s14 = _ast0.parse(_insp0.getsource(_SL.main))
+    _s14_ok = any(
+        isinstance(_n, _ast0.If)
+        and any(isinstance(_c, _ast0.Compare)
+                and any(isinstance(_x, _ast0.Constant) and _x.value is None
+                        for _x in _c.comparators)
+                for _c in _ast0.walk(_n.test))
+        and any(isinstance(_r, _ast0.Return) and isinstance(_r.value, _ast0.Constant)
+                and _r.value.value == 4 for _r in _ast0.walk(_n))
+        for _n in _ast0.walk(_s14))
+except Exception as _e:                                          # noqa: BLE001
+    _s14_ok = f"⛔ {type(_e).__name__}"
+check("🩸 SL14 فاشلٌ-آمنٌ صريح: مقامٌ فارغ (‏`E is None`) ⇒ **خروج 4** لا"
+      " انهيارٌ يُضيّع تشغيلةً كاملة",
+      _s14_ok is True, str(_s14_ok))
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

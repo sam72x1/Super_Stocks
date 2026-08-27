@@ -64,6 +64,41 @@ def r_win_of(tranches, stop):
         return 0.0
 
 
+def stop_bar(hi, lo, i, tranches, stop, wait=None, target_x=None):
+    """نقيّة: **فهرسُ الشمعة التي ضُرب فيها الوقف** — مرآةُ
+    `rebound_arms.resolve_episode` حرفيًّا (نفسُ التعبئة بلمس أعلى دفعة خلال
+    `wait`، ونفسُ أولويّة **الوقف أوّلًا داخل الشمعة**). ترجع `None` لِما ليس
+    خسارة (‏`no_fill`/`win`/`open`).
+
+    🔒 لماذا مرآةٌ لا تعديل: `resolve_episode` تُرجع الحكمَ ولا تُرجع **متى**،
+    وهي دالّةٌ حُسبت عليها أرقامٌ منشورة ⇒ **لا تُمَسّ** (سابقةُ `CAP15`).
+    و`SL1` يقفل توافقَ هذي معها: كلُّ خسارةٍ لها فهرس، وكلُّ غيرِ خسارةٍ `None`.
+    """
+    import rebound_arms as RB                                    # noqa: PLC0415
+    w = RB.WAIT if wait is None else wait
+    tx = RB.TARGET_X if target_x is None else target_x
+    try:
+        top = max(tranches)
+        avg = sum(tranches) / len(tranches)
+        n = len(lo)
+        fill = None
+        for j in range(i + 1, min(i + 1 + w, n)):
+            if float(lo[j]) <= top:
+                fill = j
+                break
+        if fill is None:
+            return None
+        tgt = avg * tx
+        for j in range(fill, n):
+            if float(lo[j]) <= stop:
+                return j                       # الوقفُ أوّلًا — كما في المحرّك
+            if float(hi[j]) >= tgt:
+                return None
+        return None
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
 def faisal_ladder(bottom):
     """نقيّة: سلّمُ فيصل — دفعاتٌ **فوق القاع** والوقفُ **القاعُ نفسُه**
     («‏1.50 قاع دخوله طلبات من 1.60 ل 1.70 **وقفه قاعه**» · وأرقامُ AMIX)."""
@@ -147,10 +182,16 @@ def wilson(k, n, z=1.96):
 
 
 # ═══════════════════ المِشية ═══════════════════
-def walk_symbol_gold(sym, df, year=None):
+def walk_symbol_gold(sym, df, year=None, with_plan=False):
     """مِشيةُ §⑬ نفسُها (كادنسًا وقراءةً) + حصيلةُ الأذرع السبع لكلّ حلقة.
 
     ترجع قائمةَ قواميس: لكلّ ذراعٍ `(eligible, outcome, rwin)`.
+
+    🩸 `with_plan=True` (‏`T-SLIP` وحدَها) يُلحق مفتاحًا **إضافيًّا بحتًا**
+    `plan` فيه لكلّ ذراعٍ من `P0/P1/P2`: متوسّطُ الدفعات · الوقف · **فهرسُ
+    شمعةِ ضربِ الوقف وتاريخُها** وقيمُها اليوميّة. **والافتراضُ `False` ⇒
+    المُخرَجُ بت-بت كما شُغِّلت به أرقامُ `gold_entry_result.md`** (مقفولٌ
+    `SL2`)، فلا يتحرّك رقمٌ منشورٌ بإضافةِ قناةِ قياس.
     """
     import press_backtest as PB                                  # noqa: PLC0415
     import press_radar as PR                                     # noqa: PLC0415
@@ -251,6 +292,26 @@ def walk_symbol_gold(sym, df, year=None):
             "P5": (h3 and group_free and rsi_ok and ma_ok, oc2, rw2),
             "P6": (hold >= HOLD5, oc0, rw0),
         })
+        if with_plan:
+            _pl = {}
+            for _a, _tr, _st in (("P0", tr0, st0), ("P1", tr0, pl),
+                                 ("P2", trF, stF)):
+                _sb = stop_bar(hi, lo, i, _tr, _st)
+                # 🔒 فهرسُ التعبئة من `fill_index` **المقفولة** (`GE5` تثبت
+                #    تطابقَها مع حلقة `resolve_episode`) — لا حلقةَ ثانية.
+                _fb = fill_index(lo, i, max(_tr), RB.WAIT, n)
+                _pl[_a] = {
+                    "avg": sum(_tr) / len(_tr), "stop": float(_st),
+                    "sb": _sb, "fb": _fb,
+                    "same_bar": bool(_sb is not None and _fb is not None
+                                     and _sb == _fb),
+                    "date": (str(df.index[_sb])[:10] if _sb is not None
+                             else None),
+                    "dclose": (float(cl[_sb]) if _sb is not None else None),
+                    "dopen": (float(op[_sb]) if _sb is not None else None),
+                    "dlow": (float(lo[_sb]) if _sb is not None else None),
+                }
+            recs[-1]["plan"] = _pl
         i += RB.WAIT
     return recs
 
