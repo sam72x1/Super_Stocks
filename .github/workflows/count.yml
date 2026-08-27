@@ -1,0 +1,37 @@
+name: 📐 T-COUNT — قس عدد الصفقات
+# العقد: count_prereg.md (مدفوع قبل أي سطر من الأداة).
+# بحث/قياس فقط · يدويّ بلا كرون · صفر مسّ إنتاج · سقف النجاح جواب وتقرير.
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (2023 · 2024 · 2025) — الحكم يلزمه الثلاث"
+        required: true
+        default: ""
+      rows_run_id:
+        description: "تشغيلة T-RANK-DENSE: 2023=33087529806 · 2024=33087537982 · 2025=33087546312"
+        required: true
+        default: ""
+jobs:
+  count:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: ranker-rows-${{ github.event.inputs.year }}
+          run-id: ${{ github.event.inputs.rows_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run count arms
+        env:
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+        run: python count_arms.py

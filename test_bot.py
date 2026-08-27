@@ -32957,6 +32957,252 @@ check("🛑 PS6 قراءةٌ فقط · الإنتاجُ لا يستوردها ·
       " يقرؤها السكربت بلا كرون", _ps6 is True, str(_ps6))
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 📐 T-COUNT — «قس عدد الصفقات» (العقد `count_prereg.md` مدفوعٌ قبل الأداة)
+#    بحث/قياس · صفرُ مسٍّ بالإنتاج · سقفُ النجاح جوابٌ وتقرير.
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _ast_ct
+import importlib as _imp_ct
+import io as _io_ct
+import json as _json_ct
+import contextlib as _ctx_ct
+
+import replay10 as _RP_ct
+
+_CT = _imp_ct.import_module("count_arms")
+_ct_src = _insp0.getsource(_CT)
+_ct_t = _ast_ct.parse(_ct_src)
+
+
+def _ct_rows(n_sess=24, per=40, win_p=0.22, seed=7):
+    """صفوفٌ اصطناعيّةٌ بكثافةٍ حيّةٍ وتوقّعٍ سالب — بشكلِ صفوف الإنتاج حرفيًّا."""
+    import random as _r
+    rng = _r.Random(seed)
+    dates = [f"2099-01-{d:02d}" for d in range(1, n_sess + 8)]
+    out = []
+    for si in range(n_sess):
+        for k in range(per):
+            win = rng.random() < win_p
+            out.append({"symbol": f"S{si:02d}{k:02d}", "date": dates[si],
+                        "exit_date": dates[min(si + (2 if win else 1), len(dates) - 1)],
+                        "entry": 10.0, "stop": 9.0, "t1": 12.0,
+                        "outcome": "win" if win else "loss",
+                        "ret_a": 18.0 if win else -10.0,
+                        "readiness": rng.choice([50, 60, 70, 70, 70, 80]),
+                        "score": rng.randrange(20, 90),
+                        "rr": round(rng.uniform(0.8, 3.0), 2),
+                        "exploded": win and rng.random() < 0.4})
+    return out
+
+
+def _ct_run(rows, year="TEST"):
+    """يُشغّل `report` ويرجّع (رمزُ الخروج، المُخرَجُ نصًّا)."""
+    buf = _io_ct.StringIO()
+    with _ctx_ct.redirect_stdout(buf):
+        try:
+            rc = _CT.report(year, rows)
+        except Exception as _e:                                  # noqa: BLE001
+            return -1, f"⛔ {type(_e).__name__}: {_e}"
+    return rc, buf.getvalue()
+
+
+# ── CT1: `CV0` — إعادةُ أرقام `Q0` المنشورة بت-بت وإلّا خروج 3 **باسم البوّابة**
+#    (الأرقامُ الأربعةُ معًا — وأيُّ واحدٍ يكفي للسقوط)
+try:
+    _ct_r = _ct_rows()
+    _ct_rc0, _ct_o0 = _ct_run(_ct_r, "TEST")            # سنةٌ بلا نشرٍ ⇒ تُتخطّى
+    _sv_pub = dict(_CT.Q0_PUBLISHED)
+    _sv_exp = dict(_CT.ROWS_EXPECTED)
+    try:
+        # نُثبّت التوقّعَ على قيمةٍ **خاطئة** فتسقط البوّابة
+        _CT.ROWS_EXPECTED = {"CV0X": len(_ct_r)}
+        _CT.Q0_PUBLISHED = {"CV0X": {"net_r_day": -9.9999, "taken": 1,
+                                     "expl": 1, "cap": 1}}
+        _ct_rc1, _ct_o1 = _ct_run(_ct_r, "CV0X")
+    finally:
+        _CT.Q0_PUBLISHED, _CT.ROWS_EXPECTED = _sv_pub, _sv_exp
+    _ct1 = (_ct_rc0 == 0 and "`CV0`" not in _ct_o0
+            and _ct_rc1 == 3 and "`CV0`" in _ct_o1)
+except Exception as _e:                                          # noqa: BLE001
+    _ct1 = f"⛔ {type(_e).__name__}: {_e}"
+check("📐 CT1 `CV0`: أرقامٌ منشورةٌ مخالفة ⇒ خروج 3 باسم البوّابة · وسنةٌ بلا"
+      " نشرٍ تمضي", _ct1 is True, str(_ct1)[:180])
+
+# ── CT2: `CV1` — عددُ الصفوف يخالف المنشور ⇒ خروج 3 (وليس تفسيرَ نتيجة)
+try:
+    _sv_exp = dict(_CT.ROWS_EXPECTED)
+    try:
+        _CT.ROWS_EXPECTED = {"CV1X": len(_ct_r) + 1}
+        _ct_rc2, _ct_o2 = _ct_run(_ct_r, "CV1X")
+    finally:
+        _CT.ROWS_EXPECTED = _sv_exp
+    _ct2 = _ct_rc2 == 3 and "`CV1`" in _ct_o2
+except Exception as _e:                                          # noqa: BLE001
+    _ct2 = f"⛔ {type(_e).__name__}"
+check("📐 CT2 `CV1`: عددُ الصفوف يخالف المنشور ⇒ خروج 3", _ct2 is True, str(_ct2)[:160])
+
+# ── CT3: `CV2` الرتابة — دالّةٌ نقيّةٌ بعيّنةٍ **تفرّق** (‏لا «كلُّها صاعدة»)
+try:
+    _ct3 = (_CT._monotone_ok([19, 37, 52, 70, 106, 139, 175, 217, 274]) is True
+            and _CT._monotone_ok([19, 37, 52, 52, 106]) is True      # مساواةٌ مقبولة
+            and _CT._monotone_ok([19, 37, 30, 70]) is False          # نقصانٌ يُرفَض
+            and _CT._monotone_ok([274, 19]) is False)
+except Exception as _e:                                          # noqa: BLE001
+    _ct3 = f"⛔ {type(_e).__name__}"
+check("📐 CT3 `CV2` الرتابة: المساواةُ تمرّ والنقصانُ يُرفَض", _ct3 is True, str(_ct3))
+
+# ── CT4: `CV3` — لو تداول العشوائيُّ **أكثرَ** فالسؤالُ منتفٍ ⇒ خروج 5 بسببه
+#    المُسمّى (لا يُفسَّر «العددُ يفسّر» على مجموعةٍ لا تسمح بالمطابقة)
+try:
+    _sv_rand = _CT.random_cell
+    try:
+        def _fake_more(cands, outcome_of, sessions, capacity):
+            g = _CT.cell(cands, outcome_of, sessions, _RP_ct.rank_live, capacity)
+            g.update({"taken": g["taken"] + 50, "net_r_day": g["net_r_day"] + 1.0,
+                      "taken_lo": g["taken"], "taken_hi": g["taken"],
+                      "r_lo": g["net_r_day"], "r_hi": g["net_r_day"]})
+            return g
+        _CT.random_cell = _fake_more
+        _ct_rc4, _ct_o4 = _ct_run(_ct_r, "TEST")
+    finally:
+        _CT.random_cell = _sv_rand
+    _ct4 = (_ct_rc4 == 5 and "`CV3`" in _ct_o4
+            and '"cv3_random_not_fewer"' in _ct_o4)
+except Exception as _e:                                          # noqa: BLE001
+    _ct4 = f"⛔ {type(_e).__name__}: {_e}"
+check("📐 CT4 `CV3`: العشوائيُّ يتداول أكثرَ ⇒ خروج 5 بسببٍ مُسمًّى لا تفكيك",
+      _ct4 is True, str(_ct4)[:180])
+
+# ── CT5: `interp_at` — استيفاءٌ خطّيٌّ داخل المدى و**`None` خارجَه**
+#    (الاستقراءُ ممنوعٌ بنصّ `CV4`؛ وعيّنةٌ تفرّق: النقطةُ الوسطى ليست طرفًا)
+try:
+    _c5 = [(10.0, -1.0), (20.0, -2.0), (40.0, -6.0)]
+    _ct5 = (abs(_CT.interp_at(_c5, 15.0) - (-1.5)) < 1e-9
+            and abs(_CT.interp_at(_c5, 30.0) - (-4.0)) < 1e-9
+            and _CT.interp_at(_c5, 10.0) == -1.0
+            and _CT.interp_at(_c5, 40.0) == -6.0
+            and _CT.interp_at(_c5, 9.99) is None
+            and _CT.interp_at(_c5, 40.01) is None
+            and _CT.interp_at([], 5.0) is None)
+except Exception as _e:                                          # noqa: BLE001
+    _ct5 = f"⛔ {type(_e).__name__}"
+check("📐 CT5 `CV4` الاستيفاء: خطّيٌّ داخل المدى · و`None` خارجَه (لا استقراء)",
+      _ct5 is True, str(_ct5))
+
+# ── CT6: `CV4` موصولةٌ فعلًا — `T_R` خارجَ مدى سلّم `L` ⇒ خروج 5 لا تفكيك
+try:
+    _sv_rand = _CT.random_cell
+    try:
+        def _fake_tiny(cands, outcome_of, sessions, capacity):
+            g = _CT.cell(cands, outcome_of, sessions, _RP_ct.rank_live, capacity)
+            g.update({"taken": 1, "net_r_day": g["net_r_day"] + 1.0,
+                      "taken_lo": 1, "taken_hi": 1,
+                      "r_lo": g["net_r_day"], "r_hi": g["net_r_day"]})
+            return g
+        _CT.random_cell = _fake_tiny
+        _ct_rc6, _ct_o6 = _ct_run(_ct_r, "TEST")
+    finally:
+        _CT.random_cell = _sv_rand
+    _ct6 = (_ct_rc6 == 5 and "`CV4`" in _ct_o6
+            and '"cv4_extrapolation"' in _ct_o6)
+except Exception as _e:                                          # noqa: BLE001
+    _ct6 = f"⛔ {type(_e).__name__}: {_e}"
+check("📐 CT6 `CV4` موصولة: `T_R` خارجَ مدى السلّم ⇒ خروج 5 لا استقراء",
+      _ct6 is True, str(_ct6)[:180])
+
+# ── CT7: التفكيكُ **حسابيًّا** كما نصّ §④-5 — `share_count = 1 − Δm/Δraw`
+#    (يُقرأ من مُخرَج `COUNT` الحقيقيّ لا من إعادةِ حسابٍ في القفل)
+try:
+    _ct_rc7, _ct_o7 = _ct_run(_ct_r, "TEST")
+    _ln = [l for l in _ct_o7.splitlines() if l.startswith("COUNT ")]
+    _pay = _json_ct.loads(_ln[0][6:]) if _ln else {}
+    _dr, _dm = _pay.get("d_raw"), _pay.get("d_matched")
+    _sh, _ls = _pay.get("share_count"), _pay.get("l_star")
+    _curve = sorted((float(_pay["grid"]["L"][str(c)]["taken"]),
+                     _pay["grid"]["L"][str(c)]["net_r_day"]) for c in _CT.CAPS)
+    _ct7 = (_ct_rc7 == 0 and _dr is not None and _dr > 0
+            and abs(_sh - (1.0 - _dm / _dr)) < 1e-12
+            and abs(_ls - _CT.interp_at(_curve, _pay["T_R"])) < 1e-9
+            and abs(_dm - (_pay["grid"]["R"]["15"]["net_r_day"] - _ls)) < 1e-9
+            and _pay["T_R"] < _pay["T_L"])
+except Exception as _e:                                          # noqa: BLE001
+    _ct7 = f"⛔ {type(_e).__name__}: {_e}"
+check("📐 CT7 التفكيك: `share_count = 1 − Δm/Δraw` و`L*` استيفاءٌ عند `T_R`"
+      " — من المُخرَج لا من إعادةِ حساب", _ct7 is True, str(_ct7)[:180])
+
+# ── CT8: `taken` للعشوائيّ **مسجَّلٌ ومطبوع** — وهو سببُ وجود التجربة كلِّها
+#    (‏`ranker_dense_result §④`: «‏`taken` للعشوائيّ لم يُسجَّل — قصورُ تصميم»)
+try:
+    _r15 = _pay["grid"]["R"]["15"]
+    _ct8 = (all(k in _r15 for k in ("taken", "taken_lo", "taken_hi", "r_lo", "r_hi"))
+            and _r15["taken_lo"] <= _r15["taken"] <= _r15["taken_hi"]
+            and "مأخوذ وسيطًا" in _ct_o7 and "المدى" in _ct_o7
+            and "median" in _insp0.getsource(_CT.random_cell))
+except Exception as _e:                                          # noqa: BLE001
+    _ct8 = f"⛔ {type(_e).__name__}"
+check("📐 CT8 `taken` للعشوائيّ مسجَّلٌ وسيطًا **بمداه** ومطبوعٌ في المُخرَج",
+      _ct8 is True, str(_ct8)[:160])
+
+# ── CT9: حارسُ الـ`no-op` — سلّمُ سعةٍ بلا أثرٍ ⇒ خروج 3 (بصمةُ `BT_CANDLE`)
+try:
+    _sv_caps = _CT.CAPS
+    try:
+        _CT.CAPS = (15, 15, 15)
+        _ct_rc9, _ct_o9 = _ct_run(_ct_r, "TEST")
+    finally:
+        _CT.CAPS = _sv_caps
+    _ct9 = _ct_rc9 == 3 and "no-op" in _ct_o9
+except Exception as _e:                                          # noqa: BLE001
+    _ct9 = f"⛔ {type(_e).__name__}"
+check("📐 CT9 سلّمٌ بلا أثر ⇒ خروج 3 ببصمة `no-op` — لا يُفسَّر",
+      _ct9 is True, str(_ct9)[:160])
+
+# ── CT10: ثوابتُ العقد §③ لم تُحرَّك — تسعُ سعاتٍ مثبَّتةٌ و15 هي الحيّة
+try:
+    _ct10 = (tuple(_CT.CAPS) == (15, 12, 10, 8, 6, 4, 3, 2, 1)
+             and _CT.LIVE_CAP == 15
+             and int(S.CONFIG["WATCHLIST_SIZE"]) == _CT.LIVE_CAP
+             and _CT.N_SEEDS == 200
+             and set(_CT.ROWS_EXPECTED) == {"2023", "2024", "2025"}
+             and _CT.ROWS_EXPECTED["2023"] == 21257
+             and _CT.ROWS_EXPECTED["2024"] == 21745
+             and _CT.ROWS_EXPECTED["2025"] == 21470)
+except Exception as _e:                                          # noqa: BLE001
+    _ct10 = f"⛔ {type(_e).__name__}"
+check("📐 CT10 ثوابتُ §③ مثبَّتة: تسعُ سعات · 15 = السعةُ الحيّة · 200 بذرة"
+      " · وأعدادُ الصفوف المنشورة", _ct10 is True, str(_ct10))
+
+# ── CT11: قراءةٌ فقط — لا `Super_stock` ولا كتابةَ ملفّ ولا إرسال · والمحرّكُ
+#    `replay10` بالاسم بلا نسخةٍ ثانية · والـworkflow موصولٌ بلا كرون
+try:
+    _ct_imp = {getattr(n, "module", None) for n in _ast_ct.walk(_ct_t)
+               if isinstance(n, _ast_ct.ImportFrom)}
+    _ct_imp |= {a.name for n in _ast_ct.walk(_ct_t)
+                if isinstance(n, _ast_ct.Import) for a in n.names}
+    _ct_open = [n for n in _ast_ct.walk(_ct_t) if isinstance(n, _ast_ct.Call)
+                and getattr(n.func, "id", None) == "open"]
+    _ct_wmode = any(len(n.args) > 1 and getattr(n.args[1], "value", "") != "r"
+                    and "r" not in str(getattr(n.args[1], "value", ""))
+                    for n in _ct_open)
+    _ct_calls = {getattr(n.func, "attr", None) for n in _ast_ct.walk(_ct_t)
+                 if isinstance(n, _ast_ct.Call)}
+    _ct_y = open(".github/workflows/count.yml", encoding="utf-8").read()
+    _ct11 = ("Super_stock" not in _ct_imp and "replay10" in _ct_imp
+             and not _ct_wmode
+             and {"replay", "net_r_per_day", "candidates_from_trades"} <= _ct_calls
+             and not ({"send_telegram", "save_watchlist", "git_save"} & _ct_calls)
+             and "workflow_dispatch" in _ct_y and "schedule" not in _ct_y
+             and "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _ct_y
+             and "run-id: ${{ github.event.inputs.rows_run_id }}" in _ct_y
+             and "name: ranker-rows-${{ github.event.inputs.year }}" in _ct_y
+             and "python count_arms.py" in _ct_y
+             and "count_arms" not in open("Super_stock.py", encoding="utf-8").read())
+except Exception as _e:                                          # noqa: BLE001
+    _ct11 = f"⛔ {type(_e).__name__}: {_e}"
+check("📐 CT11 قراءةٌ فقط · `replay10` بالاسم · الإنتاجُ لا يستوردها · والمدخلان"
+      " موصولان بلا كرون", _ct11 is True, str(_ct11)[:200])
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
