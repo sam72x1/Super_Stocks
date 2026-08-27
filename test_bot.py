@@ -8817,6 +8817,10 @@ check("🧾 الجامع·يكتب تقريرًا **مقروءًا** (سجلّ A
 #  أُضيفت بادئة ثالثة **صارمة**: `X_` + تاريخ 8 أرقام + `_` حصرًا
 #  (`X_20260827_*.{jpg,jpeg,png}` نمط أرشفة لقطات X المؤرَّخة) — فما زال
 #  `X_abc.jpg` أو `Xz.png` يسقط، ولا يُرخى القفل لأي اسم حرّ.)
+# (🔒 إقرار مؤرَّخ 2026-08-27ب: أمسك دفعة القناة التعليمية الثمانية (EDU_0827_*
+#  غير المؤرَّخة بالكامل) فأدّى عمله ثانيةً — أُعيدت التسمية إلى النمط الصارم
+#  `EDU_YYYYMMDD_*` وأُضيفت البادئة الرابعة بنفس صرامة `X_`: تاريخ 8 أرقام
+#  إلزامي، فما زال `EDU_0827_x.png` أو `EDU_abc.png` يسقط.)
 check("🧼 قفل·لا ملفّ دخيل داخل مجلّد الصور الإنتاجي (`faisal_images/`)",
       not [_f for _f in __import__("os").listdir("faisal_images")
            if not (_f == "README.md"
@@ -8825,6 +8829,9 @@ check("🧼 قفل·لا ملفّ دخيل داخل مجلّد الصور الإ
                        and _f.lower().endswith((".jpg", ".jpeg", ".png")))
                    or (_f.startswith("X_") and len(_f) > 11
                        and _f[2:10].isdigit() and _f[10] == "_"
+                       and _f.lower().endswith((".jpg", ".jpeg", ".png")))
+                   or (_f.startswith("EDU_") and len(_f) > 13
+                       and _f[4:12].isdigit() and _f[12] == "_"
                        and _f.lower().endswith((".jpg", ".jpeg", ".png"))))])
 check("🔍 الجامع·يفصل «وسائط لم نقبلها» عن «رسالة بلا وسائط» (الصمت غير ملتبس)",
       (lambda _s: "وسائط لم نقبلها" in _s and "بلا وسائط" in _s
@@ -32244,6 +32251,158 @@ except Exception as _e:                                          # noqa: BLE001
 check("📡 SN14 `slip_arms` مجمَّدةٌ سلوكيًّا: التعبئةُ عند الوقف ‏−1.0 بالضبط ·"
       " ومِرساةُ المنشور وأرضيةُ التغطية والأذرعُ كما نُشرت (سابقةُ `CAP15`)",
       _sn14 is True, str(_sn14))
+
+# ═══ 🔥🩸 T-FUSE — أقفال FU1-FU8 (العقد: `fuse_prereg.md` مدفوعٌ 323b474f قبل الأداة) ═══
+import fuse_arms as _FU                                          # noqa: E402
+
+# ── FU1: المِشيةُ من `press_wake_arms.walk_symbol_wake` **بالاسم** — لا مِشيةَ منسوخة
+try:
+    _fu_src = _insp0.getsource(_FU)
+    _fu_t = _ast0.parse(_fu_src)
+    _fu1_call = any(getattr(_a, "attr", None) == "walk_symbol_wake"
+                    for _a in _ast0.walk(_fu_t)
+                    if isinstance(_a, _ast0.Attribute))
+    _fu1_defs = {_d.name for _d in _ast0.walk(_fu_t)
+                 if isinstance(_d, _ast0.FunctionDef)}
+    _fu1 = (_fu1_call and not ({"walk_symbol_wake", "press_read", "mirror_plan",
+                                "resolve_episode", "swept_after_hold"}
+                               & _fu1_defs))
+except Exception as _e:                                          # noqa: BLE001
+    _fu1 = f"⛔ {type(_e).__name__}"
+check("🔥 FU1 المِشيةُ `walk_symbol_wake` بالاسم · ولا تُعرَّف أيٌّ من دوالّ"
+      " المحرّك المجمَّد محلّيًّا (مقياسٌ واحدٌ لا اثنان)",
+      _fu1 is True, str(_fu1))
+
+# ── FU2: الخلايا تقسيمٌ تامٌّ منفصل + التخوم (hold=2 ⟶ F1 · hold=3 ⟶ F2)
+try:
+    _fu2 = (_FU.cell_of(True, 2) == "F1" and _FU.cell_of(True, 3) == "F2"
+            and _FU.cell_of(False, 2) == "F3" and _FU.cell_of(False, 3) == "F4"
+            and _FU.cell_of(True, 0) == "F1" and _FU.cell_of(False, 0) == "F3"
+            and _FU.cell_of(None, "x") is None
+            and _FU.cell_of(True, -1) is None)
+except Exception as _e:                                          # noqa: BLE001
+    _fu2 = f"⛔ {type(_e).__name__}"
+check("🔥 FU2 `cell_of`: التخومُ تفرّق (‏hold=2 فتيلٌ · hold=3 عاد فحفظ) ·"
+      " والتالفُ يُعَدّ None لا خليّة", _fu2 is True, str(_fu2))
+
+# ── FU3: `age_of` بسطر `press_read` الحرفيّ — القمّةُ في وسط النافذة تفرّق
+try:
+    _hi = [1.0] * 60
+    _hi[30] = 9.0                       # قمّةٌ في الوسط لا الحافّة
+    _a1, _t1 = _FU.age_of(_hi, 50, 40)
+    _hi2 = list(_hi)
+    _hi2[45] = 9.5                      # قمّةٌ أحدث ⟶ عمرٌ أصغر
+    _a2, _t2 = _FU.age_of(_hi2, 50, 40)
+    _fu3 = (_a1 == 20 and _t1 == 9.0 and _a2 == 5 and _t2 == 9.5
+            and _FU.age_of(_hi, 10, 40) == (None, None))
+except Exception as _e:                                          # noqa: BLE001
+    _fu3 = f"⛔ {type(_e).__name__}"
+check("🔥 FU3 `age_of` (عمرُ الهبوط من قمّة النافذة): يفرّق موضعَ القمّة"
+      " ويرجع قمّتها للتحقّق بت-بت · وقصورُ التاريخ ⇒ (None, None)",
+      _fu3 is True, f"a1={_a1 if isinstance(_fu3, bool) else _fu3}")
+
+# ── FU4: قراءةٌ فقط — صفرُ إرسال/كتابةِ حالة · والإنتاجُ لا يستوردها
+try:
+    _fu4_send = [_n for _n in _ast0.walk(_fu_t) if isinstance(_n, _ast0.Call)
+                 and (getattr(_n.func, "id", None)
+                      in ("send_telegram", "save_watchlist", "git_save")
+                      or getattr(_n.func, "attr", None)
+                      in ("send_telegram", "save_watchlist", "git_save"))]
+    _fu4_w = [_ast0.unparse(_n) for _n in _ast0.walk(_fu_t)
+              if isinstance(_n, _ast0.Call)
+              and getattr(_n.func, "id", None) == "open"
+              and len(_n.args) > 1 and isinstance(_n.args[1], _ast0.Constant)
+              and "w" in str(_n.args[1].value)]
+    _fu4_prod = "fuse_arms" in open("Super_stock.py", encoding="utf-8").read()
+    _fu4 = (not _fu4_send and len(_fu4_w) == 1 and "OUT_ROWS" in _fu4_w[0]
+            and _fu4_prod is False)
+except Exception as _e:                                          # noqa: BLE001
+    _fu4 = f"⛔ {type(_e).__name__}"
+check("🔥 FU4 قراءةٌ فقط: صفرُ إرسالٍ وكتابةُ الصفوف وحدها · والإنتاجُ لا"
+      " يستورد الأداة", _fu4 is True, str(_fu4))
+
+# ── FU5: وصلُ الـworkflow — المدخلان موصولان ببيئةٍ يقرؤها السكربت · بلا كرون
+try:
+    _fu5_y = open(".github/workflows/fuse.yml", encoding="utf-8").read()
+    _fu5 = ("workflow_dispatch" in _fu5_y and "schedule" not in _fu5_y
+            and "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _fu5_y
+            and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _fu5_y
+            and "BT_FROZEN_PATH" in _fu5_y and "fuse_rows.jsonl" in _fu5_y
+            and all(("BACKTEST_YEAR" in _fu_src, "BT_FROZEN_PATH" in _fu_src)))
+except Exception as _e:                                          # noqa: BLE001
+    _fu5 = f"⛔ {type(_e).__name__}"
+check("🔥 FU5 وصلُ الـworkflow: المدخلان ⟶ بيئةٌ يقرؤها السكربت (درسُ"
+      " `BT_CANDLE`) · بلا كرون · ورفعُ الصفوف", _fu5 is True, str(_fu5))
+
+# ── FU6: ثوابتُ العقد + الخليّةُ الحاكمة الفارغة ⇒ خروج 4 (سلوكيًّا)
+try:
+    _fu6_c = (_FU.FRESH_MAX == 2 and _FU.AGE_MIN == 20
+              and _FU.GOV_CELL == "F1" and _FU.W_ALERT == 40
+              and _FU.PUB13 == {"decided": 5371, "win_pct": 19.08,
+                                "ev": 0.174})
+    _fu6_rows = [{"cell": "F4", "hold": 5, "swept": False, "oc": "loss",
+                  "age": 25, "rev": None, "vol": False, "tl": False}]
+    _fu6_rc = _FU.report(_fu6_rows, 1, "9999", {})
+    _fu6 = _fu6_c and _fu6_rc == 4 and _FU.report([], 0, "9999", {}) == 4
+except Exception as _e:                                          # noqa: BLE001
+    _fu6 = f"⛔ {type(_e).__name__}"
+check("🔥 FU6 ثوابتُ العقد (‏FRESH_MAX=2 · AGE_MIN=20 · الحاكمة F1 · w=40 ·"
+      " مِرساة §⑬) · والحاكمةُ الفارغة/صفرُ الحلقات ⇒ خروج 4",
+      _fu6 is True, str(_fu6))
+
+# ── FU7: فحصُ الاتّساق `FV0`-أ يفرّق فعلًا — حلقةٌ بحقلٍ مغلوطٍ تُوسم mismatch
+try:
+    import numpy as _np_fu
+    import pandas as _pd_fu
+    _n = 140
+    _idx = _pd_fu.date_range("2025-01-02", periods=_n, freq="B")
+    _cl = _np_fu.full(_n, 10.0)
+    _cl[40] = 20.0
+    for _k in range(41, _n):
+        _cl[_k] = max(20.0 * (1 - 0.02 * (_k - 40)), 6.0)
+    _lo = _cl * 0.98
+    _hi_a = _cl * 1.02
+    _hi_a[40] = 20.4
+    _lo[100] = 5.5
+    _cl[100] = 6.1
+    _df_fu = _pd_fu.DataFrame({"Open": _cl, "High": _hi_a, "Low": _lo,
+                               "Close": _cl,
+                               "Volume": _np_fu.full(_n, 1e6)}, index=_idx)
+    _hiv = _df_fu["High"].values.astype(float)
+    _st_ok, _ex_ok = _FU.enrich_episode(_df_fu, _hiv,
+                                        {"i": 100, "hold": 0, "swept": True})
+    _st_bad, _ = _FU.enrich_episode(_df_fu, _hiv,
+                                    {"i": 100, "hold": 7, "swept": True})
+    _st_bad2, _ = _FU.enrich_episode(_df_fu, _hiv,
+                                     {"i": 100, "hold": 0, "swept": False})
+    _fu7 = (_st_ok == "ok" and _ex_ok and _ex_ok["age"] == 39
+            and _st_bad == "mismatch" and _st_bad2 == "mismatch")
+except Exception as _e:                                          # noqa: BLE001
+    _fu7 = f"⛔ {type(_e).__name__}"
+check("🔥 FU7 فحصُ الاتّساق يفرّق: حلقةٌ صحيحة ⇒ ok بعمرٍ محسوب · وحقلُ"
+      " hold أو swept مغلوطٌ ⇒ mismatch (لا يمرّ صامتًا)",
+      _fu7 is True, str(_fu7))
+
+# ── FU8: «خارج الخلايا» يُطبع ولو صفرًا (لا قصَّ صامتًا — FV3)
+try:
+    import contextlib as _ctx_fu
+    import io as _io_fu
+    _buf = _io_fu.StringIO()
+    _rows8 = [{"cell": "F1", "hold": 1, "swept": True, "oc": "win",
+               "age": 30, "rev": None, "vol": False, "tl": False},
+              {"cell": "F4", "hold": 9, "swept": False, "oc": "loss",
+               "age": 10, "rev": "همر", "vol": True, "tl": True}]
+    with _ctx_fu.redirect_stdout(_buf):
+        _rc8 = _FU.report(_rows8, 2, "9999", {"gone": 1})
+    _out8 = _buf.getvalue()
+    _fu8 = (_rc8 == 0 and "خارج الخلايا: 0" in _out8
+            and "F̄1 (المُكمِّل)" in _out8 and "رزق لم يكتب" in _out8
+            and "gone" in _out8)
+except Exception as _e:                                          # noqa: BLE001
+    _fu8 = f"⛔ {type(_e).__name__}"
+check("🔥 FU8 التقرير: «خارج الخلايا» يُطبع ولو صفرًا · والمُكمِّلُ"
+      " والاستكشافياتُ وأسبابُ عدم الإثراء كلُّها مطبوعة",
+      _fu8 is True, str(_fu8))
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
