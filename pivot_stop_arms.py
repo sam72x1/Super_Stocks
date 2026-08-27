@@ -163,7 +163,7 @@ def report(rows, year, issues):
     _log(f"   📐 B1−B0 بـR₀ = {a1['r0'] - a0['r0']:+.4f}")
     rr_up = [r for r in use if r.get("rr1") is not None and r.get("rr0") is not None]
     lifted = sum(1 for r in rr_up if r["rr0"] < 0.5 <= r["rr1"])
-    _log(f"   📈 حدُّ `B2` الأدنى (‏§⑨ — لا يُقاس بل يُوصَف): وسيطُ الارتفاع في "
+    _log(f"   📈 حدُّ `B2` الأدنى (‏§⑨ — لا يُقاس بل يُوصَف): **متوسّطُ** الارتفاع في "
          f"`rr` = ×{(sum(r['rr1'] / max(r['rr0'], 1e-9) for r in rr_up) / len(rr_up)) if rr_up else 0:.2f}"
          f" · و{lifted} صفقةً كان `rr` يَسِمها نقصًا فرفعه الجديدُ فوق الحدّ")
     _log("SUMMARY " + json.dumps(
