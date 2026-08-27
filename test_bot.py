@@ -32425,6 +32425,132 @@ check("🔥 FU8 التقرير: «خارج الخلايا» يُطبع ولو ص
       _fu8 is True, str(_fu8))
 
 
+# ═══ 🕯️ T-CANDLE — أقفال CD1-CD7 (العقد: `candle_prereg.md` مدفوعٌ قبل الأداة) ═══
+import candle_arms as _CD                                        # noqa: E402
+
+# ── CD1: المِشيةُ من `fuse_arms.walk` بالاسم — ولا تُعرَّف دالّةُ محرّكٍ محلّيًّا
+try:
+    _cd_src = _insp0.getsource(_CD)
+    _cd_t = _ast0.parse(_cd_src)
+    _cd1_call = any(getattr(_a, "attr", None) == "walk"
+                    for _a in _ast0.walk(_cd_t) if isinstance(_a, _ast0.Attribute))
+    _cd1_defs = {_d.name for _d in _ast0.walk(_cd_t)
+                 if isinstance(_d, _ast0.FunctionDef)}
+    _cd1 = (_cd1_call and not ({"walk_symbol_wake", "press_read", "wake_read",
+                                "reversal_candle", "extra_candle",
+                                "enrich_episode", "mirror_plan",
+                                "resolve_episode"} & _cd1_defs))
+except Exception as _e:                                          # noqa: BLE001
+    _cd1 = f"⛔ {type(_e).__name__}"
+check("🕯️ CD1 المِشيةُ `fuse_arms.walk` بالاسم · ولا يُعرَّف أيٌّ من دوالّ"
+      " المحرّك/الشموع محلّيًّا (مقياسٌ واحدٌ لا اثنان — `CV3`)",
+      _cd1 is True, str(_cd1))
+
+# ── CD2: الأنماطُ الستّة بترتيب فيصل المنصوص + الحاكمةُ «همر» + بونفيروني ×6
+try:
+    _cd2 = (_CD.FAISAL_ORDER == ("همر", "نجمة صباح", "هرامي", "وت")
+            and _CD.EXTRA == ("همر مقلوب", "دوجي")
+            and _CD.GOV == "همر" and _CD.N_COMPARE == 6
+            and len(_CD.PATTERNS) == 6 and len(set(_CD.PATTERNS)) == 6
+            and _CD.Z_BONF > _CD.Z95)
+except Exception as _e:                                          # noqa: BLE001
+    _cd2 = f"⛔ {type(_e).__name__}"
+check("🕯️ CD2 ثوابتُ العقد: ترتيبُ فيصل حرفيًّا (‏IMG_0448) · المضافتان ·"
+      " الحاكمة «همر» · وبونفيروني ×6 أوسعُ من 95%", _cd2 is True, str(_cd2))
+
+# ── CD3: الأنماطُ الستّة **تطابق مُخرَجات الإنتاج** سلوكيًّا (لا نصًّا)
+#    — انحرافُ حرفٍ في اسمٍ يجعل سلّةً فارغةً صامتة، فتُقرأ «النمط لا يفصل»
+try:
+    _cd3_names = set()
+    for _fn in (S.reversal_candle, S.extra_candle if hasattr(S, "extra_candle")
+                else _PRD.extra_candle):
+        pass
+    # همر: ذيلٌ سفليٌّ طويل · نجمة صباح · هرامي · وت (ابتلاع)
+    _cd3_names.add(S.reversal_candle([(10, 10, 10, 10, 1), (10, 10, 10, 10, 1),
+                                      (9.9, 10.05, 8.0, 10.0, 1)]))
+    _cd3_names.add(S.reversal_candle([(10, 10, 9, 9, 1), (9, 9.1, 8.9, 9.02, 1),
+                                      (9.0, 10.0, 9.0, 9.8, 1)]))
+    _cd3_names.add(S.reversal_candle([(10, 10, 9, 9.5, 1), (10, 10.2, 8.5, 9.0, 1),
+                                      (9.3, 9.6, 9.2, 9.6, 1)]))
+    _cd3_names.add(S.reversal_candle([(10, 10, 9, 9.5, 1), (10, 10.1, 8.9, 9.0, 1),
+                                      (8.9, 10.3, 8.8, 10.2, 1)]))
+    _cd3_names.add(_PRD.extra_candle([(10, 12.0, 9.95, 10.05, 1)]))
+    _cd3_names.add(_PRD.extra_candle([(10, 10.5, 9.5, 10.01, 1)]))
+    _cd3_names.discard(None)
+    _cd3 = _cd3_names.issubset(set(_CD.PATTERNS)) and len(_cd3_names) >= 5
+except Exception as _e:                                          # noqa: BLE001
+    _cd3 = f"⛔ {type(_e).__name__}"
+check("🕯️ CD3 أسماءُ الأنماط تطابق مُخرَجَ الإنتاج سلوكيًّا (لا نصًّا) —"
+      " فلا سلّةٌ فارغةٌ صامتةٌ تُقرأ «لا يفصل»",
+      _cd3 is True, f"{_cd3} · {sorted(_cd3_names) if isinstance(_cd3, bool) else ''}")
+
+# ── CD4: `wilson` و`ev_of` نقيّتان وتفرّقان · والمقامُ الصفريّ لا ينهار
+try:
+    _lo1, _hi1 = _CD.wilson(50, 100)
+    _lo2, _hi2 = _CD.wilson(50, 100, _CD.Z_BONF)
+    _cd4 = (_lo2 < _lo1 and _hi2 > _hi1                # بونفيروني أوسع
+            and _CD.wilson(0, 0) == (0.0, 0.0)
+            and _CD.ev_of([], 5.15) is None
+            and abs(_CD.ev_of([{"oc": "win"}, {"oc": "loss"}], 5.15)
+                    - 2.075) < 1e-9
+            and _CD.ev_of([{"oc": "no_fill"}], 5.15) is None)
+except Exception as _e:                                          # noqa: BLE001
+    _cd4 = f"⛔ {type(_e).__name__}"
+check("🕯️ CD4 `wilson`/`ev_of`: بونفيروني أوسعُ فعلًا · والمقامُ الصفريّ"
+      " يرجع None/صفر بلا انهيار · وغيرُ المحسوم خارجَ المقام",
+      _cd4 is True, str(_cd4))
+
+# ── CD5: `candle_color` حقيقةٌ لا عتبة — تفرّق الأخضر من الأحمر والتالفُ None
+try:
+    import pandas as _pd_cd
+    _df_cd = _pd_cd.DataFrame({"Open": [1.0, 2.0], "Close": [1.5, 1.5]})
+    _cd5 = (_CD.candle_color(_df_cd, 0) == "أخضر"
+            and _CD.candle_color(_df_cd, 1) == "أحمر"
+            and _CD.candle_color(_df_cd, 99) is None
+            and _CD.candle_color(None, 0) is None)
+except Exception as _e:                                          # noqa: BLE001
+    _cd5 = f"⛔ {type(_e).__name__}"
+check("🕯️ CD5 `candle_color`: يفرّق اللونين (سندُ «همر حمرا = صعود قصير"
+      " الأمد») · وخارجُ المدى/التالفُ ⇒ None", _cd5 is True, str(_cd5))
+
+# ── CD6: `CV0`-أ مِرساةُ T-FUSE تُوقف فعلًا عند التفرّق (سلوكيًّا بخروج 3)
+try:
+    import contextlib as _ctx_cd
+    import io as _io_cd
+    _r_ok = [{"cell": "F1", "hold": 1, "oc": "win", "rev": "همر",
+              "color": "أخضر", "tl": False, "i": 5}]
+    _buf_cd = _io_cd.StringIO()
+    with _ctx_cd.redirect_stdout(_buf_cd):
+        _rc_bad = _CD.report(_r_ok, 1, "2023", {})     # 2023 لها مِرساةٌ منشورة
+        _rc_ok = _CD.report(_r_ok, 1, "9999", {})      # سنةٌ بلا مِرساة ⇒ تمضي
+    _out_cd = _buf_cd.getvalue()
+    _cd6 = (_rc_bad == 3 and "`CV0`-أ" in _out_cd and _rc_ok == 0
+            and _CD.report([], 0, "9999", {}) == 4)
+except Exception as _e:                                          # noqa: BLE001
+    _cd6 = f"⛔ {type(_e).__name__}"
+check("🕯️ CD6 `CV0`-أ سلوكيًّا: شريحةٌ تخالف مِرساةَ `T-FUSE` ⇒ خروج 3 مع"
+      " تسميةِ البوّابة · وصفرُ حلقاتٍ ⇒ خروج 4", _cd6 is True, str(_cd6))
+
+# ── CD7: قراءةٌ فقط + وصلُ الـworkflow (درسُ `BT_CANDLE`) + الإنتاجُ لا يستورد
+try:
+    _cd7_send = [_n for _n in _ast0.walk(_cd_t) if isinstance(_n, _ast0.Call)
+                 and (getattr(_n.func, "id", None)
+                      in ("send_telegram", "save_watchlist", "git_save")
+                      or getattr(_n.func, "attr", None)
+                      in ("send_telegram", "save_watchlist", "git_save"))]
+    _cd7_y = open(".github/workflows/candle.yml", encoding="utf-8").read()
+    _cd7_prod = "candle_arms" in open("Super_stock.py", encoding="utf-8").read()
+    _cd7 = (not _cd7_send and _cd7_prod is False
+            and "workflow_dispatch" in _cd7_y and "schedule" not in _cd7_y
+            and "BACKTEST_YEAR: ${{ github.event.inputs.year }}" in _cd7_y
+            and "run-id: ${{ github.event.inputs.frozen_run_id }}" in _cd7_y
+            and "BACKTEST_YEAR" in _cd_src and "BT_FROZEN_PATH" in _cd_src)
+except Exception as _e:                                          # noqa: BLE001
+    _cd7 = f"⛔ {type(_e).__name__}"
+check("🕯️ CD7 قراءةٌ فقط · الإنتاجُ لا يستوردها · والمدخلان موصولان ببيئةٍ"
+      " يقرؤها السكربت بلا كرون", _cd7 is True, str(_cd7))
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
