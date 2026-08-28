@@ -34424,6 +34424,94 @@ _wk_ord_ok = (len(_wk_dw) == 1 and len(_wk_dw[0].args) >= 3
 check("🔔 WK19 نقطةُ النداء تمرّر `HK.order_b0` نفسَه (لا جذعًا — AST)",
       _wk_ord_ok, f"n={len(_wk_dw)}")
 
+# ═════ 🧹 بوّابةُ `F821` — أقفال LNT1-LNT4 (أمرُ المالك «صلّح اللنت» 2026-08-28) ═════
+# 🔴 **العيبُ:** `sym_day_probe.probe` يقرأ `last_c`/`last_t` في `seg.append`
+#    **لفظيًّا قبل** إسنادهما ⇒ `ruff F821` يُحمّر البوّابة الضيّقة. والكودُ
+#    **سليمٌ وقتَ التشغيل** (القراءةُ محروسةٌ بـ`cur is not None`) ⇒ العلاجُ
+#    **تهيئةٌ ميتةٌ** لا إعادةُ صياغةٍ للمنطق: الأداةُ لها **أرقامٌ منشورة**
+#    (`exit_cut_result.md` · حصيلةُ الفئات) فمُخرَجُها يجب أن يبقى بت-بت.
+import ast as _lnt_ast
+import inspect as _lnt_insp
+import yaml as _lnt_yaml
+
+_LNT_SRC = _lnt_insp.getsource(_SDP.probe)
+_LNT_FN = _lnt_ast.parse(_LNT_SRC).body[0]
+
+
+def _lnt_lines(name, ctx):
+    """أسطرُ كلِّ ورودٍ للاسم في `probe` بسياقٍ محدَّد (تخزينٌ أو قراءة)."""
+    return sorted(n.lineno for n in _lnt_ast.walk(_LNT_FN)
+                  if isinstance(n, _lnt_ast.Name) and n.id == name
+                  and isinstance(n.ctx, ctx))
+
+
+# ① `LNT1` — **عينُ ما تفحصه البوّابة:** لكلّ اسمٍ **إسنادٌ يسبق أوّلَ قراءة**
+_lnt_ok, _lnt_det = True, []
+for _nm in ("last_c", "last_t"):
+    _st, _ld = _lnt_lines(_nm, _lnt_ast.Store), _lnt_lines(_nm, _lnt_ast.Load)
+    _good = bool(_st) and bool(_ld) and _st[0] < _ld[0]
+    _lnt_ok = _lnt_ok and _good
+    _lnt_det.append(f"{_nm}: تخزين={_st[:2]} قراءة={_ld[:2]}")
+check("🧹 LNT1 `F821`: `last_c`/`last_t` لهما إسنادٌ **يسبق** أوّلَ قراءة",
+      _lnt_ok, " · ".join(_lnt_det))
+
+# ② `LNT2` — **التهيئةُ تبقى ميتةً:** القراءةُ محروسةٌ بـ`cur is not None`
+#    (‏وهو ما يجعل `None` غيرَ قابلةٍ للملاحظة ⇒ المُخرَجُ بت-بت). نزعُ الحارس
+#    يجعلها **تُقرأ** فيتغيّر السلوك ⇒ يسقط القفل.
+_lnt_guarded = 0
+for _n in _lnt_ast.walk(_LNT_FN):
+    if not isinstance(_n, _lnt_ast.If):
+        continue
+    _t = _lnt_ast.dump(_n.test)
+    if "'cur'" not in _t or "IsNot" not in _t or "Constant(value=None)" not in _t:
+        continue
+    _body = _lnt_ast.dump(_lnt_ast.Module(body=_n.body, type_ignores=[]))
+    if "last_c" in _body and "last_t" in _body:
+        _lnt_guarded += 1
+check("🧹 LNT2 كلُّ قراءةٍ للاسمين محروسةٌ بـ`cur is not None` (التهيئةُ ميتة)",
+      _lnt_guarded == 2 and len(_lnt_lines("last_c", _lnt_ast.Load)) == 2,
+      f"محروسة={_lnt_guarded} قراءات={_lnt_lines('last_c', _lnt_ast.Load)}")
+
+# ③ `LNT3` — **سلوكيّ:** الحلقةُ **من مصدر الملفّ الحيّ** تُنفَّذ على حالاتٍ
+#    حدّيّةٍ وتُطابق مرجعًا محسوبًا بالورقة ⇒ أيُّ تغييرٍ في دلالتها يسقط هنا،
+#    **لا في تهيئةٍ ميتة**. (‏🔴 وبلا هذا القفل يكون LNT1/LNT2 موضعيَّين فقط.)
+_lnt_body = [n for n in _LNT_FN.body
+             if isinstance(n, (_lnt_ast.Assign, _lnt_ast.For, _lnt_ast.If))]
+_lnt_seg = next(i for i, n in enumerate(_lnt_body)
+                if isinstance(n, _lnt_ast.Assign)
+                and "seg" in _lnt_ast.dump(n.targets[0]))
+_lnt_src = "\n".join(
+    "    " + ln
+    for n in _lnt_body[_lnt_seg:_lnt_seg + 4]
+    for ln in _lnt_ast.unparse(n).splitlines())
+_lnt_ns = {}
+exec("def _lnt_loop(b, a_ms):\n" + _lnt_src + "\n    return seg",  # noqa: S102
+     _lnt_ns)
+_lnt_loop = _lnt_ns["_lnt_loop"]
+_Q = 15 * 60_000
+_lnt_cases = [
+    ([], 0, []),                                        # فارغة
+    ([(0, 1, 1, 1, 1, 1)], 0, []),                      # كلُّها عند المِرساة
+    ([(_Q, 0, 2.0, 0, 1.5, 9)], 0, [(1, 2.0, 1.5, _Q)]),   # صفٌّ واحدٌ يعبر
+    ([(60_000, 0, 2.0, 0, 1.1, 9), (120_000, 0, 3.0, 0, 1.2, 9),
+      (_Q + 60_000, 0, 4.0, 0, 1.3, 9)], 0,
+     [(0, 3.0, 1.2, 120_000), (1, 4.0, 1.3, _Q + 60_000)]),   # شريحتان
+]
+_lnt_bad = [(c[1], _lnt_loop(c[0], c[1]), c[2])
+            for c in _lnt_cases if _lnt_loop(c[0], c[1]) != c[2]]
+check("🧹 LNT3 دلالةُ حلقة مسار الدقيقة (من المصدر الحيّ) تطابق المرجعَ",
+      not _lnt_bad, str(_lnt_bad)[:150])
+
+# ④ `LNT4` — **البوّابةُ تبقى بوّابة:** `F821` مُنتقاةٌ في خطوةٍ **بلا**
+#    `continue-on-error` (وإلّا صارت تقريريّةً فيعود الصنفُ صامتًا).
+_lnt_wf = _lnt_yaml.safe_load(open(".github/workflows/lint.yml", encoding="utf-8"))
+_lnt_steps = _lnt_wf["jobs"]["lint"]["steps"]
+_lnt_hard = [st for st in _lnt_steps
+             if "F821" in str(st.get("run", ""))
+             and not st.get("continue-on-error")]
+check("🧹 LNT4 `F821` بوّابةٌ حمراءُ حقيقيّة (بلا `continue-on-error`)",
+      len(_lnt_hard) == 1, f"صارمة={len(_lnt_hard)} من {len(_lnt_steps)}")
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
