@@ -1,0 +1,76 @@
+name: 🪞⏱️🔓💧 أذرع العقود الثلاثة (T-MIRROR · T-CADENCE · T-LIBVOL)
+# العقود: mirror_prereg.md · cadence_prereg.md · libvol_prereg.md
+# (ثلاثتُها مدفوعةٌ قبل أيّ سطرِ كودِ أداة). بحث/قياس فقط · يدويٌّ بلا كرون ·
+# صفرُ مسٍّ بالإنتاج (الأعلامُ الثلاثة مطفأةٌ في `CONFIG` وتُقرأ في وضع
+# BACKTEST حصريًا) · وسقفُ النجاح في الثلاثة: **اقتراحٌ + سطرُ عرض**.
+#
+# ⚖️ **ولماذا workflow مستقلّ لا مدخلاتٌ في `backtest.yml`:** ذاك بلغ **‏25
+#    مدخلًا = سقفُ GitHub** (سابقةُ إسقاط `bt_watch_max_fails`) ⇒ لا يسع ثلاثةً
+#    أخرى. ومعها `BT_LIBERATION` **بلا مدخلٍ أصلًا** (أُسقط بعد حكم
+#    `T-LIBERATION`) وبوّابةُ `LV0` تشترط تشغيلَه ⇒ يُثبَّت هنا قيمةً صريحة
+#    فيستحيل أن تُشغَّل `T-LIBVOL` بلا شاهدِ إعادة الإنتاج.
+# 🔒 و`BT_POTENTIAL` مثبَّتٌ أيضًا: بدونه لا `mg_pre_stop` ولا `bars_to_50`،
+#    فيصمت المقياسُ المساند في العقدين ويُقرأ صمتُه «لا فرق» وهو **لم يُقَس**.
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (2023 · 2024 · 2025) — الحكم يلزمه الثلاث"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "لقطة PIT: 2023=31574165523 · 2024=31199493957 · 2025=31191327731"
+        required: true
+        default: ""
+      faisal_only:
+        description: "بوّابات الفرز: 1 (الافتراض = الإنتاج) · 0 = بوّابات البوت القديمة"
+        required: false
+        default: "1"
+jobs:
+  arms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run the three arms
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SCREENER_MODE: BACKTEST
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          FAISAL_ONLY: ${{ github.event.inputs.faisal_only || '1' }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+          # 🪞⏱️🔓💧 أعلامُ العقود الثلاثة
+          BT_MIRROR: "1"
+          BT_CADENCE: "1"
+          BT_LIBVOL: "1"
+          # 🚪 `LV0` — إعادةُ إنتاج `L1` بت-بت (شرطُ صلاحيةٍ لا خيار)
+          BT_LIBERATION: "1"
+          # 📊 المقياسُ المساند (‏`mg_pre_stop` · `bars_to_50`)
+          BT_POTENTIAL: "1"
+        run: python Super_stock.py
+      - name: Upload backtest CSV
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arms4-report-${{ github.event.inputs.year }}
+          path: backtest_*.csv
+          if-no-files-found: ignore
+          retention-days: 90

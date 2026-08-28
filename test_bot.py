@@ -34777,6 +34777,34 @@ check("🔌 AUG3 `vo` من `fut[\"Volume\"]` · و`vol_prev` من عشرين س�
       and '_cadence_augment(trade, df["Close"].iloc[:i].values)' in _bt_src)
 
 
+
+# ④ `AUG4` — **الـworkflow موصولٌ فعلًا**: يدويٌّ بلا كرون · `permissions`
+#    صريحة · وكلُّ مدخلٍ يصل بيئةً يقرؤها السكربت (بصمةُ `BT_CANDLE` الميّت).
+#    🔴 **والأهمّ: `BT_LIBERATION` و`BT_POTENTIAL` مثبَّتان قيمةً صريحة** —
+#    الأوّلُ شرطُ بوّابة `LV0` (إعادةُ إنتاج `L1` بت-بت) والثاني شرطُ المقياس
+#    المساند (`mg_pre_stop` · `bars_to_50`)؛ ونزعُ أيٍّ منهما يجعل الشاهدَ
+#    يصمت **ويُقرأ صمتُه «لا فرق» وهو لم يُقَس**.
+import yaml as _y4
+_a4 = _y4.safe_load(open(".github/workflows/arms4.yml", encoding="utf-8"))
+_a4_on = _a4[[_k for _k in _a4 if str(_k) in ("on", "True")][0]]
+_a4_env = _a4["jobs"]["arms"]["steps"][-2]["env"]
+_a4_txt = open(".github/workflows/arms4.yml", encoding="utf-8").read()
+_a4_ins = set(_a4_on["workflow_dispatch"]["inputs"])
+# 🐞 والخطرُ المقيس «مدخلٌ لا يظهر في أيّ موضع» (بصمةُ `BT_CANDLE`) لا
+#    «مدخلٌ خارج بيئة خطوةٍ بعينها» — و`frozen_run_id` موصولٌ بخطوة التنزيل
+#    بحقّ. فالفحصُ على **الملفّ كلِّه** (والتصريحُ نفسُه لا يحوي النمط).
+_a4_wired = {i for i in _a4_ins if f"github.event.inputs.{i}" in _a4_txt}
+check("🔌 AUG4 `arms4.yml`: يدويٌّ بلا كرون · صلاحياتٌ صريحة · مدخلاتٌ موصولة · "
+      "و`BT_LIBERATION`/`BT_POTENTIAL` مثبَّتان",
+      "cron" not in _a4_txt and "permissions" in _a4
+      and _a4_ins == _a4_wired
+      and all(str(_a4_env.get(_k)) == "1" for _k in
+              ("BT_MIRROR", "BT_CADENCE", "BT_LIBVOL",
+               "BT_LIBERATION", "BT_POTENTIAL"))
+      and _a4_env.get("SCREENER_MODE") == "BACKTEST",
+      f"مدخلات={sorted(_a4_ins)} · موصولة={sorted(_a4_wired)}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
