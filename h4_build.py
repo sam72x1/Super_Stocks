@@ -129,6 +129,45 @@ def _live_buckets(sym):
     return out or None
 
 
+def _diag_ctrl(mine):
+    """🔬 **تشخيصُ سقوط `HV0` بالأرقام لا بالتخمين** — يطبع لشاهد الضبط شبكةَ
+    ياهو **الساعيّة** الخام ودلاءَه الأربعيّة ودلاءَنا. طباعةٌ فقط: لا يحكم
+    ولا يغيّر شيئًا.
+
+    ⚖️ والحاجةُ إليه من قاعدةٍ عندنا: أوّلُ تفسيرٍ خطر لي (شبكةُ ياهو مُزاحةٌ
+    نصفَ ساعةٍ عند الافتتاح) **فرضيةٌ لا قياس** — ونشرُها سببًا هو عينُ ما
+    تمنعه قواعدُنا."""
+    try:
+        import Super_stock as S                                  # noqa: PLC0415
+        h4, h1 = S.fetch_4h(CTRL, with_h1=True)
+    except Exception as _e:                                      # noqa: BLE001
+        print(f"   🔬 تعذّر التشخيص: {type(_e).__name__}")
+        return
+    print(f"\n🔬 تشخيصُ `HV0` على شاهد الضبط {CTRL}:")
+    for nm, fr in (("الساعيّة h1", h1), ("الأربعيّة h4", h4)):
+        if fr is None or getattr(fr, "empty", True):
+            print(f"   {nm}: — (فارغ)")
+            continue
+        idx = list(fr.index)
+        try:
+            idx = [t.tz_convert("America/New_York") if t.tzinfo else t
+                   for t in idx]
+        except Exception:                                        # noqa: BLE001
+            pass
+        last_day = idx[-1].strftime("%Y-%m-%d")
+        same = [t for t in idx if t.strftime("%Y-%m-%d") == last_day]
+        print(f"   {nm} · آخرُ يوم {last_day} ({len(same)} شمعة): "
+              + " · ".join(t.strftime("%H:%M") for t in same))
+    if not mine:
+        print("   دلاؤنا: — (لم تُبنَ)")
+        return
+    days = sorted({d for d, _b in mine})
+    d = days[-1]
+    bl = sorted(b for (dd, b) in mine if dd == d)
+    print("   دلاؤنا · " + d + ": "
+          + " · ".join(f"{4 + 4 * b:02d}:00" for b in bl))
+
+
 def verify_main() -> int:
     """يبني أيامًا حديثةً لعيّنةٍ صغيرة ويقارنها بـ`fetch_4h` — بوّابةُ `HV0`."""
     import datetime as _dt
@@ -185,6 +224,7 @@ def verify_main() -> int:
 
     tot_cmp = tot_ok = 0
     day_cnt_ok = day_cnt_all = 0
+    per_b = {b: [0, 0] for b in range(4)}      # 🔬 تشخيص: دلوًا دلوًا
     used, skipped = [], []
     for s in syms:
         mine = built.get(s) or {}
@@ -207,9 +247,11 @@ def verify_main() -> int:
         ok = 0
         for k in common:
             a, b_ = mine[k], live[k]
-            if all(b_[j] > 0 and abs(a[j] * scale - b_[j]) / b_[j] * 100.0
-                   <= VERIFY_TOL_PCT for j in range(4)):
-                ok += 1
+            _hit = all(b_[j] > 0 and abs(a[j] * scale - b_[j]) / b_[j] * 100.0
+                       <= VERIFY_TOL_PCT for j in range(4))
+            per_b[k[1]][1] += 1
+            per_b[k[1]][0] += int(_hit)
+            ok += int(_hit)
         tot_cmp += len(common)
         tot_ok += ok
         dm, dl = {}, {}
@@ -224,6 +266,12 @@ def verify_main() -> int:
                 day_cnt_ok += int(dm[d] == dl[d])
         used.append(f"{s}({ok}/{len(common)})")
 
+    print("\n🔬 دلوًا دلوًا (يفصل «الممتدّةُ تختلف» عن «شبكةٌ مُزاحة»):")
+    for _b in range(4):
+        _o, _t = per_b[_b]
+        print(f"   {4 + 4 * _b:02d}:00-{8 + 4 * _b:02d}:00 ⟵ "
+              f"{_o}/{_t} = {(100.0 * _o / _t) if _t else 0:.1f}%")
+    _diag_ctrl(built.get(CTRL) or {})
     p_ok = (tot_ok / tot_cmp * 100.0) if tot_cmp else 0.0
     p_cnt = (day_cnt_ok / day_cnt_all * 100.0) if day_cnt_all else 0.0
     print(f"\n🚪 `HV0` — الأيامُ المبنيّة {len(got)}/{len(days)}")

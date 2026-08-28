@@ -20533,12 +20533,19 @@ def backtest_dormant_compare(trades: list) -> list:
     yrs = sorted({str(t.get("date") or "")[:4] for t in base} - {""})
     ykey = (yrs[0] if len(yrs) == 1 else None)
     exp0 = DORMANT_BASE_PUBLISHED.get(ykey or "")
+    # 🔴 **تصليدٌ كشفته الطفرةُ لا القراءة (2026-08-28):** كان الفرعان
+    #    **متتاليَين** فيعتمد الثاني على أن الأوّلَ **يرفع** — ولو عاد
+    #    `_dv_stop` يومًا (أو أُعيدت هيكلتُه) لَانهار `{exp0:+.3f}` على
+    #    `None` ⇒ **برنامجٌ منهارٌ لا سلوكٌ بديل**، وهو صنفُ «القفل المنهار»
+    #    في دستورنا. ⇒ تدفّقٌ صريحٌ `if/elif/else` لا يعتمد على الاستثناء.
     if exp0 is None:
         _dv_stop(out, 3, f"`DV0`: سنةٌ غيرُ منشورةٍ للمقارنة ({yrs or '—'})")
-    if s0[0] is None or round(float(s0[0]), 3) != exp0:
-        _dv_stop(out, 3, f"`DV0`: الأساسُ {s0[0]} لا يطابق المنشورَ {exp0:+.3f} "
-                         f"لسنة {ykey}")
-    out.append(f"   🚪 `DV0` الأساسُ يطابق `cadence_result.md` ({exp0:+.3f}) ✅")
+    elif s0[0] is None or round(float(s0[0]), 3) != exp0:
+        _dv_stop(out, 3, f"`DV0`: الأساسُ {s0[0]} لا يطابق المنشورَ "
+                         f"{exp0:+.3f} لسنة {ykey}")
+    else:
+        out.append(f"   🚪 `DV0` الأساسُ يطابق `cadence_result.md` "
+                   f"({exp0:+.3f}) ✅")
 
     # 🚪 `DV2` — تغطيةُ المقياس الحاكم
     have0 = [t for t in base if t.get("q_range") is not None]
