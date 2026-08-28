@@ -21780,6 +21780,17 @@ def run_backtest(symbols=None) -> list:
     lines += liber
     for _ll in liber:
         log("باكتيست·" + _ll.strip().replace("\n", " "))
+    # 🪞⏱️🔓💧 العقودُ الثلاثة (`mirror_prereg` · `cadence_prereg` · `libvol_prereg`):
+    # كلٌّ ترجّع [] ما لم يُفعَّل علمُها ⇒ صفرُ أثرٍ على التقرير العاديّ.
+    # 🔴 **ونداؤها هنا هو الميزة:** بُنيت الدوالُّ الثلاث ولم تُوصَل في أوّل
+    #    دفعة، فنجحت ثلاثُ تشغيلاتٍ كاملةٍ وأنتجت الحقولَ **بلا سطرِ حكمٍ
+    #    واحد** — «دالّةٌ موجودةٌ ولا تُنادى» (`wire-check`). مقفولٌ `AUG5`.
+    for _fn4 in (backtest_mirror_compare, backtest_cadence_compare,
+                 backtest_libvol_compare):
+        _ln4 = _fn4(all_trades)
+        lines += _ln4
+        for _l4 in _ln4:
+            log("باكتيست·" + _l4.strip().replace("\n", " "))
     # 🕯️ T-CANDLE (`candle_readiness_prereg.md`): ترجّع [] ما لم يُفعَّل BT_CANDLE
     cand = backtest_candle_compare(all_trades)
     lines += cand

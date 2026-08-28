@@ -34805,6 +34805,27 @@ check("🔌 AUG4 `arms4.yml`: يدويٌّ بلا كرون · صلاحياتٌ �
       f"مدخلات={sorted(_a4_ins)} · موصولة={sorted(_a4_wired)}")
 
 
+
+# ⑤ `AUG5` — 🔴 **دوالُّ الحكم الثلاث مُنادةٌ من `run_backtest`** (AST).
+#    وُلد هذا القفلُ من عطبٍ مقيس: بُنيت الثلاثُ ولم تُوصَل، **فنجحت ثلاثُ
+#    تشغيلاتٍ كاملةٍ على لقطات PIT وأنتجت الحقولَ ولم تطبع سطرَ حكمٍ واحدًا**
+#    — «دالّةٌ موجودةٌ ولا تُنادى» (‏`wire-check`)، وكشفَه قراءةُ السجلّ لا
+#    السويّة. ⚖️ و`AUG2` كان يحرس **الإلحاق** ولا يحرس **الحكم**.
+_aug5_t = _ast0.parse(_insp0.getsource(S.run_backtest))
+_aug5_names = {getattr(_n, "id", None) for _n in _ast0.walk(_aug5_t)
+               if isinstance(_n, _ast0.Name)}
+check("🔌 AUG5 دوالُّ الحكم الثلاث مُنادةٌ من `run_backtest` (AST)",
+      {"backtest_mirror_compare", "backtest_cadence_compare",
+       "backtest_libvol_compare"} <= _aug5_names,
+      f"مفقود={sorted({'backtest_mirror_compare','backtest_cadence_compare','backtest_libvol_compare'} - _aug5_names)}")
+
+# ⑥ `AUG6` — والثلاثُ **صامتةٌ بلا علمها** (‏[] ⇒ صفرُ أثرٍ على التقرير العاديّ).
+check("🔌 AUG6 الثلاثُ ترجّع [] بلا علمِها (صفرُ أثرٍ على التقرير العاديّ)",
+      S.backtest_mirror_compare([{"outcome": "win"}]) == []
+      and S.backtest_cadence_compare([{"outcome": "win"}]) == []
+      and S.backtest_libvol_compare([{"outcome": "win"}]) == [])
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
