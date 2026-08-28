@@ -1,5 +1,6 @@
-name: 🪞⏱️🔓💧 أذرع العقود الثلاثة (T-MIRROR · T-CADENCE · T-LIBVOL)
-# العقود: mirror_prereg.md · cadence_prereg.md · libvol_prereg.md
+name: 🪞⏱️🔓💧😴 أذرع العقود الأربعة (T-MIRROR · T-CADENCE · T-LIBVOL · T-DORMANT)
+# العقود: mirror_prereg.md · cadence_prereg.md · libvol_prereg.md ·
+#         dormant_prereg.md
 # (ثلاثتُها مدفوعةٌ قبل أيّ سطرِ كودِ أداة). بحث/قياس فقط · يدويٌّ بلا كرون ·
 # صفرُ مسٍّ بالإنتاج (الأعلامُ الثلاثة مطفأةٌ في `CONFIG` وتُقرأ في وضع
 # BACKTEST حصريًا) · وسقفُ النجاح في الثلاثة: **اقتراحٌ + سطرُ عرض**.
@@ -9,8 +10,12 @@ name: 🪞⏱️🔓💧 أذرع العقود الثلاثة (T-MIRROR · T-CAD
 #    أخرى. ومعها `BT_LIBERATION` **بلا مدخلٍ أصلًا** (أُسقط بعد حكم
 #    `T-LIBERATION`) وبوّابةُ `LV0` تشترط تشغيلَه ⇒ يُثبَّت هنا قيمةً صريحة
 #    فيستحيل أن تُشغَّل `T-LIBVOL` بلا شاهدِ إعادة الإنتاج.
-# 🔒 و`BT_POTENTIAL` مثبَّتٌ أيضًا: بدونه لا `mg_pre_stop` ولا `bars_to_50`،
-#    فيصمت المقياسُ المساند في العقدين ويُقرأ صمتُه «لا فرق» وهو **لم يُقَس**.
+# 🔒 و`BT_POTENTIAL` مثبَّتٌ أيضًا: بدونه لا `mg_pre_stop`، فيصمت المقياسُ
+#    المساند ويُقرأ صمتُه «لا فرق» وهو **لم يُقَس**.
+# 🔴 **وتصحيحٌ مؤرَّخ 2026-08-28:** كان مكتوبًا هنا أن `BT_POTENTIAL` يملأ
+#    `bars_to_50` **وهو خطأ** — مالئُه `_candle_augment` خلف **`BT_CANDLE`**،
+#    فطُبع `None` في ثلاث تشغيلاتٍ كاملة وسمّى سطرُ العرض العلمَ الخطأ
+#    (`cadence_result §⑤-3`). ⇒ `BT_CANDLE` مشحونٌ الآن و`DRM10` يقفله.
 permissions:
   contents: read
   actions: read
@@ -49,7 +54,7 @@ jobs:
           name: frozen-dataset
           run-id: ${{ github.event.inputs.frozen_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Run the three arms
+      - name: Run the four arms
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -57,14 +62,17 @@ jobs:
           BACKTEST_YEAR: ${{ github.event.inputs.year }}
           FAISAL_ONLY: ${{ github.event.inputs.faisal_only || '1' }}
           BT_FROZEN_PATH: frozen_backtest.pkl.gz
-          # 🪞⏱️🔓💧 أعلامُ العقود الثلاثة
+          # 🪞⏱️🔓💧😴 أعلامُ العقود الأربعة
           BT_MIRROR: "1"
           BT_CADENCE: "1"
           BT_LIBVOL: "1"
+          BT_DORMANT: "1"
           # 🚪 `LV0` — إعادةُ إنتاج `L1` بت-بت (شرطُ صلاحيةٍ لا خيار)
           BT_LIBERATION: "1"
-          # 📊 المقياسُ المساند (‏`mg_pre_stop` · `bars_to_50`)
+          # 📊 المقياسُ المساند: `mg_pre_stop` من `BT_POTENTIAL` ·
+          #    و`bars_to_50`/`soon_50` من **`BT_CANDLE`** (لا من الأوّل)
           BT_POTENTIAL: "1"
+          BT_CANDLE: "1"
         run: python Super_stock.py
       - name: Upload backtest CSV
         if: always()

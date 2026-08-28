@@ -34646,10 +34646,23 @@ _CAD_SER = ([1.0] * 40 + [1.4, 2.0] + [2.0] * 40 + [2.8, 4.0]
             + [4.0] * 40 + [5.6, 8.0] + [8.0] * 10)
 _cad_hist = S.spike_history(_CAD_SER)
 _cad_gaps, _cad_ends = S.spike_gaps(_CAD_SER)
-check("⏱️ CAD2 مقياسٌ واحد: عناقيدُ `spike_gaps` = عناقيدُ `spike_history`",
+# 🔴 **تشديدٌ مؤرَّخ 2026-08-28 — الطفرةُ كشفته لا القراءة:** طفرةُ «فجوةُ
+#    العناقيد 20 ⟶ 5» **نجت** لأن فواصلَ `_CAD_SER` كلَّها (‏42 و34) أكبرُ من
+#    الحدَّين ⇒ العيّنةُ **لا تفرّق** («القفلُ لا يحرس إلّا بقدر ما تُفرِّق
+#    عيّنتُه»). و`_CAD_SER2` قفزتاها الأوليان **متقاربتان عمدًا** فتندمجان
+#    عند 20 وتنفصلان عند 5 ⇒ يصير عددُ العناقيد نفسُه دليلًا فارقًا.
+_CAD_SER2 = ([1.0] * 30 + [1.6] * 30 + [2.6] * 80 + [4.2] * 41)
+_cad_hist2 = S.spike_history(_CAD_SER2)
+_cad_gaps2, _cad_ends2 = S.spike_gaps(_CAD_SER2)
+check("⏱️ CAD2 مقياسٌ واحد: عناقيدُ `spike_gaps` = عناقيدُ `spike_history` "
+      "(‏وعيّنةٌ **تفرّق** فجوةَ العشرين)",
       len(_cad_hist) >= 3 and len(_cad_ends) == len(_cad_hist)
-      and len(_cad_gaps) == len(_cad_hist) - 1,
-      f"عناقيد={len(_cad_hist)} · نهايات={len(_cad_ends)} · فواصل={_cad_gaps}")
+      and len(_cad_gaps) == len(_cad_hist) - 1
+      and len(_cad_hist2) == 2 and len(_cad_ends2) == 2
+      and len(_cad_gaps2) == 1,
+      f"عناقيد={len(_cad_hist)} · نهايات={len(_cad_ends)} · فواصل={_cad_gaps}"
+      f" ‖ فارقة: عناقيد={len(_cad_hist2)} · نهايات={len(_cad_ends2)} · "
+      f"فواصل={_cad_gaps2}")
 
 # ③ `CAD3` — **وسيطٌ لا متوسّط**: العيّنةُ تفرّقهما (‏فواصل [42, 34] ⇒ وسيطٌ 42
 #    ومتوسّطٌ 38) فطفرةُ «المتوسّط» تسقط هنا لا تمرّ.
@@ -34744,16 +34757,23 @@ check("🔓💧 LBV6 كسرٌ بآخر شمعةٍ ⇒ `break_at_end` (بلا ح�
       and S._liberation_fill([1.0, 1.0, 1.4], 1.2, 4)[0] == "break_at_end")
 
 # ── 🔌 الوصلُ المشترك للثلاثة ─────────────────────────────────────────────
-_AUG_KEYS = ("BT_MIRROR", "BT_CADENCE", "BT_LIBVOL")
+# 🔒 **إقرارٌ مؤرَّخ 2026-08-28:** أقفال `AUG1`/`AUG2`/`AUG4`/`AUG5`/`AUG6`
+#    **سقطت على العلم الرابع `BT_DORMANT` فأدّت عملَها** — فحُدِّثت **تشديدًا لا
+#    إرخاءً**: العددُ صار **أربعةً بالضبط** (لا «يحوي») فيستحيل أن يتسلّل علمٌ
+#    خامسٌ صامتًا، **و`BT_CANDLE` صار مثبَّتًا في `AUG4`** بعد أن اكتشف
+#    `dormant_prereg §③` أن `bars_to_50` غاب في الثلاث لأن `arms4.yml` كان
+#    يشحن `BT_POTENTIAL` وحدَه — «سطرُ عرضٍ سمّى العلمَ الخطأ».
+_AUG_KEYS = ("BT_MIRROR", "BT_CADENCE", "BT_LIBVOL", "BT_DORMANT")
 _aug_ovr = _insp0.getsource(S._apply_backtest_overrides)
-check("🔌 AUG1 الأعلامُ الثلاثة مطفأةٌ افتراضًا · ولكلٍّ صفٌّ في جدول التجاوز",
+check("🔌 AUG1 الأعلامُ الأربعة مطفأةٌ افتراضًا · ولكلٍّ صفٌّ في جدول التجاوز",
       all(S.CONFIG.get(k) == 0 for k in _AUG_KEYS)
       and all(f'("{k}", "{k}", int)' in _aug_ovr for k in _AUG_KEYS),
       str({k: S.CONFIG.get(k) for k in _AUG_KEYS}))
 
 _bt_src = _insp0.getsource(S.backtest_symbol)
 _bt_tree = _ast0.parse(_bt_src)
-_AUG_FN = {"_mirror_augment", "_cadence_augment", "_libvol_augment"}
+_AUG_FN = {"_mirror_augment", "_cadence_augment", "_libvol_augment",
+           "_dormant_augment"}
 _aug_guard = {}
 for _n in _ast0.walk(_bt_tree):
     if isinstance(_n, _ast0.If):
@@ -34764,17 +34784,19 @@ for _n in _ast0.walk(_bt_tree):
                                   for c in _ast0.walk(_n) if isinstance(c, _ast0.Call)}
 _aug_total = len([c for c in _ast0.walk(_bt_tree) if isinstance(c, _ast0.Call)
                   and getattr(c.func, "id", None) in _AUG_FN])
-check("🔌 AUG2 كلُّ إلحاقٍ داخل `if CONFIG.get(علمه)` وحدَه · وثلاثةُ نداءاتٍ لا رابع (AST)",
+check("🔌 AUG2 كلُّ إلحاقٍ داخل `if CONFIG.get(علمه)` وحدَه · وأربعةُ نداءاتٍ لا خامس (AST)",
       "_mirror_augment" in _aug_guard.get("BT_MIRROR", set())
       and "_cadence_augment" in _aug_guard.get("BT_CADENCE", set())
       and "_libvol_augment" in _aug_guard.get("BT_LIBVOL", set())
-      and _aug_total == 3, f"نداءات={_aug_total}")
+      and "_dormant_augment" in _aug_guard.get("BT_DORMANT", set())
+      and _aug_total == 4, f"نداءات={_aug_total}")
 
 check("🔌 AUG3 `vo` من `fut[\"Volume\"]` · و`vol_prev` من عشرين سابقة (لا حجمٌ مُختلَق)",
       'vo = fut["Volume"]' in _bt_src
       and 'df["Volume"].iloc[max(0, i - 20):i].values' in _bt_src
       and '_mirror_augment(trade, r, df.iloc[:i])' in _bt_src
-      and '_cadence_augment(trade, df["Close"].iloc[:i].values)' in _bt_src)
+      and '_cadence_augment(trade, df["Close"].iloc[:i].values)' in _bt_src
+      and '_dormant_augment(trade, df["High"].iloc[:i].values,' in _bt_src)
 
 
 
@@ -34799,8 +34821,8 @@ check("🔌 AUG4 `arms4.yml`: يدويٌّ بلا كرون · صلاحياتٌ �
       "cron" not in _a4_txt and "permissions" in _a4
       and _a4_ins == _a4_wired
       and all(str(_a4_env.get(_k)) == "1" for _k in
-              ("BT_MIRROR", "BT_CADENCE", "BT_LIBVOL",
-               "BT_LIBERATION", "BT_POTENTIAL"))
+              ("BT_MIRROR", "BT_CADENCE", "BT_LIBVOL", "BT_DORMANT",
+               "BT_LIBERATION", "BT_POTENTIAL", "BT_CANDLE"))
       and _a4_env.get("SCREENER_MODE") == "BACKTEST",
       f"مدخلات={sorted(_a4_ins)} · موصولة={sorted(_a4_wired)}")
 
@@ -34814,17 +34836,331 @@ check("🔌 AUG4 `arms4.yml`: يدويٌّ بلا كرون · صلاحياتٌ �
 _aug5_t = _ast0.parse(_insp0.getsource(S.run_backtest))
 _aug5_names = {getattr(_n, "id", None) for _n in _ast0.walk(_aug5_t)
                if isinstance(_n, _ast0.Name)}
-check("🔌 AUG5 دوالُّ الحكم الثلاث مُنادةٌ من `run_backtest` (AST)",
-      {"backtest_mirror_compare", "backtest_cadence_compare",
-       "backtest_libvol_compare"} <= _aug5_names,
-      f"مفقود={sorted({'backtest_mirror_compare','backtest_cadence_compare','backtest_libvol_compare'} - _aug5_names)}")
+_AUG5_FN = {"backtest_mirror_compare", "backtest_cadence_compare",
+            "backtest_libvol_compare", "backtest_dormant_compare"}
+check("🔌 AUG5 دوالُّ الحكم الأربع مُنادةٌ من `run_backtest` (AST)",
+      _AUG5_FN <= _aug5_names, f"مفقود={sorted(_AUG5_FN - _aug5_names)}")
 
 # ⑥ `AUG6` — والثلاثُ **صامتةٌ بلا علمها** (‏[] ⇒ صفرُ أثرٍ على التقرير العاديّ).
-check("🔌 AUG6 الثلاثُ ترجّع [] بلا علمِها (صفرُ أثرٍ على التقرير العاديّ)",
+check("🔌 AUG6 الأربعُ ترجّع [] بلا علمِها (صفرُ أثرٍ على التقرير العاديّ)",
       S.backtest_mirror_compare([{"outcome": "win"}]) == []
       and S.backtest_cadence_compare([{"outcome": "win"}]) == []
-      and S.backtest_libvol_compare([{"outcome": "win"}]) == [])
+      and S.backtest_libvol_compare([{"outcome": "win"}]) == []
+      and S.backtest_dormant_compare([{"outcome": "win"}]) == [])
 
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 😴 `T-DORMANT` — **طولُ السكون** (`dormant_prereg.md`، أمرُ المالك «سجل
+#    الهدوء»). أحدَ عشرَ قفلًا · **وكلُّ بوّابةٍ تُثبَت أنها توقف فعلًا** —
+#    🔴 درسُ `libvol_result §④`: «حارسٌ مكتوبٌ وغيرُ منفَّذٍ ليس حارسًا».
+# ══════════════════════════════════════════════════════════════════════════
+import numpy as _np_d
+
+_DRM_H = _np_d.array([10.0] * 80)
+_DRM_L = _np_d.array([8.0] * 80)
+_DRM_C = _np_d.array([9.0] * 80)
+_DRM_H2 = _DRM_H.copy(); _DRM_H2[-1] = 20.0
+
+
+def _drm_row(i, qr, oc, year="2023", due=None, t1=2.4):
+    """صفُّ صفقةٍ اصطناعيٌّ بشكل الإنتاج (‏`date`/`entry`/`stop`/`t1`/`outcome`)."""
+    return {"date": f"{year}-01-{(i % 27) + 1:02d}", "entry": 2.0, "stop": 1.8,
+            "t1": t1, "outcome": oc, "q_range": qr, "due": due,
+            "bars_to_50": 7, "soon_50": False}
+
+
+def _drm_run(rows, base=None, year="2023"):
+    """يشغّل الحكمَ بعلمٍ مُجبَر ويُرجع ‏(الأسطر، رمزُ الخروج) — ويستعيد الحالة."""
+    _o_flag = S.CONFIG.get("BT_DORMANT")
+    _o_pub = dict(S.DORMANT_BASE_PUBLISHED)
+    try:
+        S.CONFIG["BT_DORMANT"] = 1
+        if base is not None:
+            S.DORMANT_BASE_PUBLISHED[year] = base
+        return (S.backtest_dormant_compare(rows), 0)
+    except SystemExit as _e:
+        return ([], int(_e.code))
+    finally:
+        S.CONFIG["BT_DORMANT"] = _o_flag
+        S.DORMANT_BASE_PUBLISHED.clear()
+        S.DORMANT_BASE_PUBLISHED.update(_o_pub)
+
+
+# ① `DRM1` — `quiet_metrics` نقيّةٌ بتعريف `§①` حرفيًّا: أقصى قمّةٍ ÷ أدنى
+#    قاعٍ − 1 · تفرّق الهادئ عن العنيف · **وتاريخٌ أقصرُ من النافذة ⇒ `None`
+#    لا تخمين** · والتالفُ `(None, None)` (فاشلٌ-آمن).
+check("😴 DRM1 `quiet_metrics`: النطاق = أقصى÷أدنى−1 · يفرّق · والقصيرُ `None`",
+      S.quiet_metrics(_DRM_H, _DRM_L, _DRM_C)[0] == 0.25
+      and S.quiet_metrics(_DRM_H2, _DRM_L, _DRM_C)[0] == 1.5
+      and S.quiet_metrics(_DRM_H[:10], _DRM_L[:10], _DRM_C[:10]) == (None, None)
+      and S.quiet_metrics(None, None, None) == (None, None),
+      f"هادئ={S.quiet_metrics(_DRM_H, _DRM_L, _DRM_C)} · "
+      f"عنيف={S.quiet_metrics(_DRM_H2, _DRM_L, _DRM_C)}")
+
+# ② `DRM2` — إلحاقٌ فقط · والنافذةُ من `CONFIG["DORMANT_WIN"]` لا مغروسة ·
+#    و`q_since` **من `spike_gaps` بالاسم** (شاهدٌ يعيد إنتاج `T-CADENCE`).
+_drm_t = {"entry": 2.0, "outcome": "win"}
+S._dormant_augment(_drm_t, _DRM_H2, _DRM_L, _DRM_C)
+_drm_names = {getattr(_n, "id", None) for _n in
+              _ast0.walk(_ast0.parse(_insp0.getsource(S._dormant_augment)))
+              if isinstance(_n, _ast0.Name)}
+check("😴 DRM2 إلحاقٌ فقط · النافذةُ من `CONFIG` · و`q_since` من `spike_gaps` بالاسم",
+      _drm_t["entry"] == 2.0 and _drm_t["outcome"] == "win"
+      and _drm_t["q_range"] == 1.5
+      and {"quiet_metrics", "spike_gaps"} <= _drm_names
+      and 'CONFIG["DORMANT_WIN"]' in _insp0.getsource(S.quiet_metrics),
+      f"أسماء={sorted(x for x in _drm_names if x)}")
+
+# ③ `DRM3` — **الأثلاثُ داخل كلّ سنة** (`§②`) لا على المجموع. والعيّنةُ
+#    **تفرّق بنيويًّا**: سنةٌ مقاييسُها كلُّها صغيرةٌ وأخرى كلُّها كبيرة —
+#    فالتجميعُ العالميّ يضع سنةً كاملةً في `D1`، والتقسيمُ داخل السنة يأخذ
+#    من كلتيهما.
+_drm_yy = ([_drm_row(i, 0.10 + i * 0.01, "loss", "2023") for i in range(9)]
+           + [_drm_row(i, 10.0 + i * 0.1, "loss", "2024") for i in range(9)])
+_d1y, _d1cy, _d2y, _havey, _yrsy = S._dormant_buckets(_drm_yy)
+_d1_years = {r["date"][:4] for r in _d1y}
+check("😴 DRM3 الأثلاثُ **داخل كلّ سنة** — لا تجميعٌ عالميّ",
+      _d1_years == {"2023", "2024"} and len(_d1y) == 6 and len(_d1cy) == 12
+      and len(_d2y) == 6 and _yrsy == ["2023", "2024"],
+      f"سنواتُ D1={sorted(_d1_years)} · أحجام={len(_d1y)}/{len(_d1cy)}/{len(_d2y)}")
+
+# ④ `DRM4` — 🚪 **`DV0` توقف فعلًا بخروج 3** عند عدم مطابقة الأساس المنشور
+#    أو عند سنةٍ غيرِ منشورة · وتمرّ عند المطابقة. (وهي **قابلةٌ للاستيفاء
+#    بالبناء**: تُقارن برقمِ نفسِ اليوم ونفسِ اللقطات — بخلاف `LV0`.)
+_drm9 = [_drm_row(i, 0.1 + i * 0.1, "win" if i < 3 else "loss") for i in range(9)]
+_drm_base = round(float(S._arm_stats(_drm9)[0]), 3)
+_l_ok, _rc_ok = _drm_run(_drm9, base=_drm_base)
+_l_bad, _rc_bad = _drm_run(_drm9, base=_drm_base + 0.5)
+_l_yr, _rc_yr = _drm_run([_drm_row(i, 0.1 + i * 0.1, "loss", "2019")
+                          for i in range(9)])
+check("😴 DRM4 `DV0` توقف بخروج 3 (عدمُ مطابقة · وسنةٌ غيرُ منشورة) وتمرّ عند المطابقة",
+      _rc_ok == 0 and _l_ok and _rc_bad == 3 and _rc_yr == 3,
+      f"مطابق={_rc_ok} · مخالف={_rc_bad} · سنةٌ مجهولة={_rc_yr}")
+
+# ⑤ `DRM5` — 🚪 **`DV1` توقف بخروج 4** (‏`no-op`): سلّةٌ فارغة · **و`q_range`
+#    ثابتٌ للجميع** (فالأثلاثُ حينها بترتيبِ الإدراج لا بالهدوء).
+_drm2 = [_drm_row(0, 0.1, "win"), _drm_row(1, 0.9, "loss")]
+_l_e, _rc_e = _drm_run(_drm2, base=round(float(S._arm_stats(_drm2)[0]), 3))
+_drm_flat = [_drm_row(i, 0.5, "win" if i < 3 else "loss") for i in range(9)]
+_l_f, _rc_f = _drm_run(_drm_flat,
+                       base=round(float(S._arm_stats(_drm_flat)[0]), 3))
+check("😴 DRM5 `DV1` توقف بخروج 4: سلّةٌ فارغة · و`q_range` ثابتٌ للجميع",
+      _rc_e == 4 and _rc_f == 4, f"فارغة={_rc_e} · ثابت={_rc_f}")
+
+# ⑥ `DRM6` — 🚪 **`DV2` توقف بخروج 3** عند تغطيةِ `q_range` دون 90% · وتمرّ
+#    عندها بالضبط (تخوم).
+_drm_c8 = [_drm_row(i, (0.1 + i * 0.1 if i < 8 else None),
+                    "win" if i < 3 else "loss") for i in range(10)]
+_drm_c9 = [_drm_row(i, (0.1 + i * 0.1 if i < 9 else None),
+                    "win" if i < 3 else "loss") for i in range(10)]
+_bC = round(float(S._arm_stats(_drm_c8)[0]), 3)
+_l_c8, _rc_c8 = _drm_run(_drm_c8, base=_bC)
+_l_c9, _rc_c9 = _drm_run(_drm_c9, base=_bC)
+check("😴 DRM6 `DV2` توقف بخروج 3 دون 90% تغطية · وتمرّ عند 90% (تخوم)",
+      _rc_c8 == 3 and _rc_c9 == 0, f"‏80%={_rc_c8} · 90%={_rc_c9}")
+
+# ⑦ `DRM7` — 🚪 **`DV4`: الفاصلُ المطبوعُ للفرق نفسِه** من `_arm_diff_ci`
+#    بالاسم — لا تقديرٌ من فاصلَي ذراعَين. 🔴 **وهذا عينُ ما نقص في
+#    `T-CADENCE`** (‏`cadence_result §⑤-2`: «الفاصلُ تقديرٌ لا مطبوع»).
+#    القفلُ **عدديّ**: الرقمان في السطر يطابقان `_arm_diff_ci` حسابًا.
+_drm_var = [_drm_row(i, 0.1 + i * 0.05, "win" if (i % 3 == 0) else "loss",
+                     due=(i % 2 == 0), t1=2.2 + (i % 5) * 0.1)
+            for i in range(60)]
+_l_v, _rc_v = _drm_run(_drm_var, base=round(float(S._arm_stats(_drm_var)[0]), 3))
+_d1v, _d1cv, _d2v, _hv, _yv = S._dormant_buckets(_drm_var)
+_dv, _lov, _hiv = S._arm_diff_ci(S._arm_rvals(_d1v), S._arm_rvals(_d1cv))
+_gapline = next((x for x in _l_v if "الفارقُ `D1 − D̄1`" in x), "")
+_diffnames = {getattr(_n, "id", None) for _n in
+              _ast0.walk(_ast0.parse(_insp0.getsource(S.backtest_dormant_compare)))
+              if isinstance(_n, _ast0.Name)}
+check("😴 DRM7 `DV4` فاصلُ **الفرق** مطبوعٌ فعلًا (‏`_arm_diff_ci` بالاسم · وأرقامُه في السطر)",
+      _rc_v == 0 and _lov is not None
+      and f"{_dv:+.3f}R" in _gapline
+      and f"{_lov:+.3f}" in _gapline and f"{_hiv:+.3f}" in _gapline
+      and "_arm_diff_ci" in _diffnames,
+      f"السطر={_gapline[:110]}")
+
+# ⑧ `DRM8` — **مصدرٌ واحدٌ لقيم `R`**: `_arm_stats` تستدعي `_arm_rvals`
+#    بالاسم (‏لا حسابان للتوقّع) · والقيمُ من `_bt_realized_r` الإنتاجيّة.
+_drm_st = {getattr(_n, "id", None) for _n in
+           _ast0.walk(_ast0.parse(_insp0.getsource(S._arm_stats)))
+           if isinstance(_n, _ast0.Name)}
+_drm_rv = {getattr(_n, "id", None) for _n in
+           _ast0.walk(_ast0.parse(_insp0.getsource(S._arm_rvals)))
+           if isinstance(_n, _ast0.Name)}
+check("😴 DRM8 مصدرٌ واحدٌ لقيم `R`: `_arm_stats` ⟵ `_arm_rvals` ⟵ `_bt_realized_r`",
+      "_arm_rvals" in _drm_st and "_bt_realized_r" in _drm_rv
+      and "_bt_realized_r" not in _drm_st
+      and S._arm_rvals(_drm9) == [2.0, 2.0, 2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+      f"stats={sorted(x for x in _drm_st if x)}")
+
+# ⑨ `DRM9` — 🔴 **الأساسُ المنشورُ يُقرأ من `cadence_result.md` نفسِه** فلا
+#    يُبدَّل الرقمُ في الكود لإرضاء `DV0`. (وهو ما يجعل البوّابةَ حارسًا لا
+#    زينة: تحريكُ الرقم يُسقط هذا القفل.)
+import re as _re_d
+_cad_txt = open("cadence_result.md", encoding="utf-8").read()
+_cad_pub = {}
+for _m in _re_d.finditer(r"^\|\s*(20\d\d)\s*\|\s*[‎‏]*([−\-+]?\d+\.\d+)",
+                         _cad_txt, _re_d.M):
+    _cad_pub[_m.group(1)] = float(_m.group(2).replace("−", "-"))
+check("😴 DRM9 `DORMANT_BASE_PUBLISHED` يطابق `cadence_result.md` حرفيًّا",
+      len(_cad_pub) == 3 and S.DORMANT_BASE_PUBLISHED == _cad_pub,
+      f"الكود={S.DORMANT_BASE_PUBLISHED} · الملفّ={_cad_pub}")
+
+# ⑩ `DRM10` — 🚪 **`DV5`: كلُّ حقلٍ يُطبَع يُسمّي علمَه الصحيح.** وُلد هذا
+#    القفلُ من عيبٍ مقيسٍ لي: سطرُ `CD-P3` في `T-CADENCE` كان يقول «يلزمه
+#    `BT_POTENTIAL`» **والمالئُ `_candle_augment` خلف `BT_CANDLE`** ⇒ طُبع
+#    `None` في ثلاث تشغيلات — «سطرُ عرضٍ يكذب».
+_drm_dsrc = _insp0.getsource(S.backtest_dormant_compare)
+_drm_csrc = _insp0.getsource(S.backtest_cadence_compare)
+# 🐞 **ودرسٌ من بناء القفل نفسِه:** أوّلُ صياغةٍ كانت `"BT_POTENTIAL" not in
+#    _drm_csrc` **فسقطت على نصّي أنا** — لأن سطرَ التصحيح يقول «يلزمه
+#    `BT_CANDLE` … **لا** `BT_POTENTIAL`»، والنصُّ لا يفرّق **دعوًى** من
+#    **تصحيحٍ لها** (الفخُّ النصّيُّ الموثَّق). ⇒ القفلُ على **صيغة الدعوى**:
+#    «يلزمه/يلزمهما <b>العلم</b>» — فطفرةُ التبديل تسقط والتصحيحُ يمرّ.
+_DRM_CLAIM = "يلزمه{s} <b>`{f}`</b>"
+check("😴 DRM10 `DV5` دعوى «يلزمه العلم» تسمّي `BT_CANDLE` لا `BT_POTENTIAL`",
+      _DRM_CLAIM.format(s="ما", f="BT_CANDLE") in _drm_dsrc
+      and _DRM_CLAIM.format(s="", f="BT_CANDLE") in _drm_csrc
+      and _DRM_CLAIM.format(s="ما", f="BT_POTENTIAL") not in _drm_dsrc
+      and _DRM_CLAIM.format(s="", f="BT_POTENTIAL") not in _drm_csrc
+      and "_candle_augment" in _drm_csrc)
+
+# ⑪ `DRM11` — **المعيار ⑤ (`§④-5`) يُقاس داخل `due=False` وحدَها** ويفرّق:
+#    مع `due` مملوءةٍ يُطبَع رقمٌ، وبدونها **يُعلَن «غيرُ قابلٍ للتقييم»**
+#    ولا يُخمَّن (‏وهو مسارُ «يلزمه `BT_CADENCE` مشحونًا»).
+_drm_nodue = [_drm_row(i, 0.1 + i * 0.05, "win" if (i % 3 == 0) else "loss",
+                       t1=2.2 + (i % 5) * 0.1) for i in range(60)]
+_l_nd, _rc_nd = _drm_run(_drm_nodue,
+                         base=round(float(S._arm_stats(_drm_nodue)[0]), 3))
+_line5_v = next((x for x in _l_v if "المعيار ⑤" in x), "")
+_line5_n = next((x for x in _l_nd if "المعيار ⑤" in x), "")
+check("😴 DRM11 المعيار ⑤ داخل `due=False` — يُطبَع رقمًا مع `due` ويُعلَن تعذّرَه بدونها",
+      "غيرُ قابلٍ للتقييم" not in _line5_v and "R" in _line5_v
+      and "غيرُ قابلٍ للتقييم" in _line5_n,
+      f"مع={_line5_v[:80]} · بلا={_line5_n[:80]}")
+
+
+# ── 🕓 T-H4 ───────────────────────────────────────────────────────────────
+# ① `H4L1` — **اتفاقيةُ الدلاء مثبَّتة** (‏`h4_prereg §①`): الحدودُ الخمسة
+#    بالدقائق، والدلوُ يُحسب بها حصرًا · وخارجُ النافذة `None` (لا دلوَ خامس).
+import h4_build as H4B
+check("🕓 H4L1 حدودُ الدلاء 04/08/12/16/20 مثبَّتةٌ · وخارجُها لا دلو",
+      H4B.H4_EDGES == (240, 480, 720, 960, 1200)
+      and [H4B.bucket_of(m) for m in (240, 479, 480, 719, 720, 959, 960, 1199)]
+      == [0, 0, 1, 1, 2, 2, 3, 3]
+      and H4B.bucket_of(239) is None and H4B.bucket_of(1200) is None
+      and H4B.bucket_of(None) is None)
+
+# ② `H4L2` — **إعادةُ استعمالٍ لا نسخ**: التنزيلُ والقراءةُ من `ah_scan`
+#    بالاسم (AST) — فلا يصير للمشروع محلّلا ملفّاتٍ مجمّعة.
+_h4_src = _insp0.getsource(H4B)
+_h4_t = _ast0.parse(_h4_src)
+_h4_attrs = {_ast0.unparse(_n) for _n in _ast0.walk(_h4_t)
+             if isinstance(_n, _ast0.Attribute)}
+check("🕓 H4L2 `ah_scan` بالاسم: `day_key` · `head_size_mb` · `download` · "
+      "`ny_minute` · `_pick`",
+      {"AH.day_key", "AH.head_size_mb", "AH.download", "AH.ny_minute",
+       "AH._pick"} <= _h4_attrs)
+
+# ③ `H4L3` — الطيُّ صحيحٌ سلوكيًّا: `O` أوّلُ دقيقةٍ · `C` آخرُها · `H`/`L`
+#    التطرّفان · `V` المجموع — **وبترتيبِ ورودٍ مبعثرٍ عمدًا** (الملفُّ ليس
+#    مضمونَ الترتيب، وافتراضُ ترتيبِه هو الفخّ).
+import io as _h4_io
+_h4_csv = ("ticker,volume,open,close,high,low,window_start\n"
+           # الدلو 1 (‏08:00-12:00) بترتيبٍ مقلوب: 11:00 ثم 09:00 ثم 10:00
+           "ZZZ,10,5.0,5.5,5.6,4.9,{t1}\n"
+           "ZZZ,20,3.0,3.2,3.3,2.8,{t0}\n"
+           "ZZZ,30,4.0,4.1,9.9,1.1,{t2}\n").format(
+    t0=int(__import__("datetime").datetime(
+        2026, 3, 3, 9, 0, tzinfo=__import__("zoneinfo").ZoneInfo(
+            "America/New_York")).timestamp() * 1e9),
+    t1=int(__import__("datetime").datetime(
+        2026, 3, 3, 11, 0, tzinfo=__import__("zoneinfo").ZoneInfo(
+            "America/New_York")).timestamp() * 1e9),
+    t2=int(__import__("datetime").datetime(
+        2026, 3, 3, 10, 0, tzinfo=__import__("zoneinfo").ZoneInfo(
+            "America/New_York")).timestamp() * 1e9))
+_h4_f, _h4_seen = H4B.fold_day(_h4_io.StringIO(_h4_csv), {"ZZZ"})
+_h4_b = _h4_f.get("ZZZ", {}).get(1)
+check("🕓 H4L3 الطيّ: فتحُ أوّلِ دقيقةٍ · إغلاقُ آخرِها · تطرّفان · مجموعُ حجم "
+      "— ولو ورد الملفُّ مبعثرًا",
+      _h4_b is not None and _h4_b[0] == 3.0 and _h4_b[3] == 5.5
+      and _h4_b[1] == 9.9 and _h4_b[2] == 1.1 and _h4_b[4] == 60.0
+      and _h4_seen == {1}, str(_h4_b))
+
+# ④ `H4L4` — **قراءةٌ فقط**: لا إرسالَ ولا كتابةَ حالةِ إنتاج · والإنتاجُ
+#    لا يستوردها (‏§⑧).
+import h4_arms as H4A
+_h4a_src = _insp0.getsource(H4A)
+check("🕓 H4L4 قراءةٌ فقط · والإنتاجُ لا يستورد قناةَ 4س",
+      "send_telegram" not in _h4_src and "send_telegram" not in _h4a_src
+      and "git_save" not in _h4_src and "git_save" not in _h4a_src
+      and "h4_build" not in _insp0.getsource(S)
+      and "h4_arms" not in _insp0.getsource(S))
+
+# ⑤ `H4L5` — **المحرّكُ واحدٌ بالاسم**: `h4_arms` ينادي `fuse_arms.walk`
+#    (وهي `walk_symbol_wake` المجمَّدة) على **الإطار** — صفرُ مِشيةٍ منسوخة.
+_h4a_t2 = _ast0.parse(_h4a_src)
+_h4a_attrs = {_ast0.unparse(_n) for _n in _ast0.walk(_h4a_t2)
+              if isinstance(_n, _ast0.Attribute)}
+# 🐞 **ودرسٌ من بناء القفل:** أوّلُ صياغةٍ منعت `press_read` **نصًّا** فسقطت
+#    على **حدِّ الصدق في الـdocstring** الذي يشرح أن نافذتَها أربعون شمعةً لا
+#    أربعون يومًا — والنصُّ لا يفرّق كودًا عن تعليق. ⇒ القفلُ **بنيويٌّ**: لا
+#    اسمَ مِشيةٍ منسوخةٍ في شجرة الوحدة (والشرحُ يبقى).
+_h4a_names = {getattr(_n, "id", None) for _n in _ast0.walk(_h4a_t2)
+              if isinstance(_n, _ast0.Name)} | {
+    _n.attr for _n in _ast0.walk(_h4a_t2) if isinstance(_n, _ast0.Attribute)}
+check("🕓 H4L5 محرّكٌ واحد: `FU.walk` بالاسم · و`press_backtest.r_win_value` "
+      "· وصفرُ مِشيةٍ منسوخة (AST)",
+      "FU.walk" in _h4a_attrs and "PB.r_win_value" in _h4a_attrs
+      and "press_read" not in _h4a_names and "wake_read" not in _h4a_names,
+      f"أسماء={sorted(x for x in _h4a_names if x and 'read' in str(x))}")
+
+# ⑥ `H4L6` — **الحدُّ +0.15R والأرضياتُ مُعادةٌ لا مخترَعة** · والـworkflow
+#    موصولٌ يدويٌّ بلا كرون.
+_h4_wf = open(".github/workflows/h4.yml", encoding="utf-8").read()
+check("🕓 H4L6 الحدُّ +0.15R وأرضيتا 30/150 مُعادةٌ · وworkflow يدويٌّ موصول",
+      abs(H4A.GATE_MIN_R - 0.15) < 1e-12 and H4A.FLOOR_YEAR == 30
+      and H4A.FLOOR_TOTAL == 150
+      and "cron" not in _h4_wf and "H4_YEAR" in _h4_wf
+      and "H4_MODE" in _h4_wf
+      and "python h4_build.py" in _h4_wf and "python h4_arms.py" in _h4_wf)
+
+# ⑦ `H4L7` — 🚪 **`HV4` مِرساتُها من `candle_result.md` نفسِه** فلا يُبدَّل
+#    الرقمُ في الكود لإرضاء البوّابة · **وتوقف فعلًا بخروج 3** عند التفرّق أو
+#    عند سنةٍ غيرِ منشورة. 🔴 **درسُ `libvol_result §④` مطبَّقٌ لا مقتبَس:**
+#    `LV0` كُتبت حارسًا وأُخرجت سطرًا إخباريًّا.
+import re as _h4_re
+_h4_cand = open("candle_result.md", encoding="utf-8").read()
+_h4_pub = {}
+for _y, _m in zip(("2023", "2024", "2025"),
+                  _h4_re.finditer(r"(\d{4})/(\d{3})\s*✅", _h4_cand)):
+    _h4_pub[_y] = (int(_m.group(1)), int(_m.group(2)))
+_h4a_t = _ast0.parse(_h4a_src)
+_h4_exits = {_ast0.unparse(_n.value) for _n in _ast0.walk(_h4a_t)
+             if isinstance(_n, _ast0.Return) and _n.value is not None}
+check("🕓 H4L7 `HV4` مِرساتُها من `candle_result.md` · وتوقف بخروج 3 (وسنةٌ مجهولة كذلك)",
+      len(_h4_pub) == 3 and H4A.HV4_PUBLISHED == _h4_pub
+      and "3" in _h4_exits and "4" in _h4_exits
+      and _h4a_src.count("HV4_PUBLISHED") >= 2,
+      f"الكود={H4A.HV4_PUBLISHED} · الملفّ={_h4_pub} · خروج={sorted(_h4_exits)}")
+
+# ⑧ `H4L8` — 🚪 **`HV0` منفَّذةٌ لا موصوفة**: وضعُ `verify` موجودٌ ومُوجَّهٌ
+#    من `H4_MODE`، وثوابتُ التسامح مثبَّتة، والعيّنةُ **حتميّةٌ بالهاش**
+#    (سابقةُ `control_panel`) لا عشوائية. ⚖️ **ولماذا وضعٌ مستقلّ:**
+#    `fetch_4h` يقرأ **ستّين يومًا فقط** فيستحيل تشغيلُها داخل مسار السنة.
+check("🕓 H4L8 `HV0` وضعُ `verify` منفَّذٌ · وثوابتُه مثبَّتة · وعيّنتُه حتميّةٌ بالهاش",
+      hasattr(H4B, "verify_main") and hasattr(H4B, "_verify_sample")
+      and hasattr(H4B, "_live_buckets")
+      and H4B.VERIFY_TOL_PCT == 0.5 and H4B.VERIFY_SCALE_TOL == 0.02
+      and H4B.VERIFY_DAYS == 10 and H4B.VERIFY_SYMS == 8
+      and 'H4_MODE' in _h4_src
+      and 'verify_main() if _mode ==' in _h4_src
+      and "sha256" in _h4_src and "random" not in _h4_src
+      and "S.fetch_4h" in _h4_src,
+      f"tol={H4B.VERIFY_TOL_PCT} · scale={H4B.VERIFY_SCALE_TOL}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

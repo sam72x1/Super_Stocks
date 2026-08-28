@@ -372,6 +372,8 @@ CONFIG = {
     "BT_MIRROR": 0,                       # 🪞 T-MIRROR (`mirror_prereg.md`) — مطفأ
     "BT_CADENCE": 0,                      # ⏱️ T-CADENCE (`cadence_prereg.md`) — مطفأ
     "BT_LIBVOL": 0,                       # 🔓💧 T-LIBVOL (`libvol_prereg.md`) — مطفأ
+    "BT_DORMANT": 0,                      # 😴 T-DORMANT (`dormant_prereg.md`) — مطفأ
+    "DORMANT_WIN": 60,                    # نافذةُ السكون بالجلسات — `engineering`
     "BT_CANDLE": 0,                       # 1 = احسب trigger_state وسجّله مع كل إشارة
     "CANDLE_SOON_BARS": 10,               # نافذة «فترة وجيزة جدًّا» (مُثبَّتة بالتسجيل)
     "CANDLE_RSI_LO": 20.0,                # أرضية نطاق «rsi جاهز للانفجار» (TG_1870)
@@ -758,6 +760,7 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_MIRROR", "BT_MIRROR", int),          # 🪞 T-MIRROR
             ("BT_CADENCE", "BT_CADENCE", int),        # ⏱️ T-CADENCE
             ("BT_LIBVOL", "BT_LIBVOL", int),          # 🔓💧 T-LIBVOL
+            ("BT_DORMANT", "BT_DORMANT", int),        # 😴 T-DORMANT
             ("BT_ENVVALS", "BT_ENVVALS", int),
             ("BT_ACTVALS", "BT_ACTVALS", int),        # 🕵️ T-RANKER3
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
@@ -19506,6 +19509,57 @@ def _cadence_augment(trade, close):
     return trade
 
 
+def quiet_metrics(high, low, close, win=None):
+    """😴 **مقاييسُ السكون** — `dormant_prereg.md §①`. نقيّةٌ فاشلةٌ-آمنة.
+
+    - **`q_range`** (الحاكم) = `max(High آخرَ نافذة) ÷ min(Low آخرَ نافذة) − 1`
+      ⇒ **مستقلٌّ تمامًا عن `EXPLOSION_PCT`** (بخلاف عناقيد `T-CADENCE`).
+    - `q_absret` (وصفيّ) = **وسيطُ** |عائد الإغلاق اليوميّ| على النافذة نفسِها.
+
+    ترجّع `(q_range, q_absret)` — و`(None, None)` عند التعذّر أو قصرِ التاريخ.
+    ⛔ **ولا تقرأ إلّا ما مُرِّر إليها** (المُنادي يمرّر `df.iloc[:i]` = `DV3`)."""
+    w = int(CONFIG["DORMANT_WIN"] if win is None else win)
+    try:
+        h = np.asarray(high, dtype=float).ravel()[-w:]
+        lo = np.asarray(low, dtype=float).ravel()[-w:]
+        c = np.asarray(close, dtype=float).ravel()[-w:]
+    except Exception:                                            # noqa: BLE001
+        return (None, None)
+    if h.size < w or lo.size < w or c.size < w:
+        return (None, None)                # تاريخٌ أقصرُ من النافذة ⇒ لا يُخمَّن
+    hi_m, lo_m = float(np.nanmax(h)), float(np.nanmin(lo))
+    if not (lo_m > 0) or not (hi_m > 0) or hi_m != hi_m or lo_m != lo_m:
+        return (None, None)
+    qr = hi_m / lo_m - 1.0
+    with np.errstate(divide="ignore", invalid="ignore"):
+        rets = np.abs(c[1:] / np.where(c[:-1] > 0, c[:-1], np.nan) - 1.0)
+    rets = rets[np.isfinite(rets)]
+    qa = (float(np.median(rets)) if rets.size else None)
+    return (float(qr), qa)
+
+
+def _dormant_augment(trade, high, low, close):
+    """😴 يُلحِق حقولَ `T-DORMANT`: `q_range` (الحاكم) · `q_absret` ·
+    `q_range20`/`q_range120` (**وصفيّان لا يُرقَّيان** — `§①`) · و`q_since`
+    شاهدًا من `spike_gaps` **بالاسم** (يعيد إنتاج ما قاسته `T-CADENCE`).
+
+    إلحاقٌ فقط · فاشلٌ-آمن · مطفأ ⇒ الصفقةُ بت-بت."""
+    trade["q_range"] = trade["q_absret"] = None
+    trade["q_range20"] = trade["q_range120"] = trade["q_since"] = None
+    try:
+        qr, qa = quiet_metrics(high, low, close)
+        trade["q_range"], trade["q_absret"] = qr, qa
+        trade["q_range20"] = quiet_metrics(high, low, close, 20)[0]
+        trade["q_range120"] = quiet_metrics(high, low, close, 120)[0]
+        _g, ends = spike_gaps(close)
+        n = int(np.asarray(close, dtype=float).ravel().size)
+        if ends:
+            trade["q_since"] = int(n - 1 - ends[-1])
+    except Exception:                                            # noqa: BLE001
+        pass
+    return trade
+
+
 def _libvol_break(cl, vol, level, wait, mult, vol_prev=()):
     """🔓💧 أوّلُ **إغلاقٍ** فوق المستوى **بحجمٍ** ‏≥ `mult` × متوسّطِ عشرين سابقة.
 
@@ -19835,6 +19889,12 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         if CONFIG.get("BT_LIBVOL"):
             _libvol_augment(trade, r, hi, lo, cl, op, vo, stop, t1,
                             df["Volume"].iloc[max(0, i - 20):i].values)
+        # 😴 T-DORMANT (`dormant_prereg.md`): طولُ السكون — `q_range` على
+        # `df.iloc[:i]` حصرًا (ما قبل شمعة الإشارة) = صفرُ تسريب (`DV3`).
+        if CONFIG.get("BT_DORMANT"):
+            _dormant_augment(trade, df["High"].iloc[:i].values,
+                             df["Low"].iloc[:i].values,
+                             df["Close"].iloc[:i].values)
         # 🏦 قوة البوت (BT_POTENTIAL): أقصى صعود من الدخول **قبل الوقف** + يوم الذروة.
         # إلحاق فقط (كنمط المسح) — صفقة الأساس بلا تغيير. مطفأ = صفر حقول.
         if CONFIG.get("BT_POTENTIAL"):
@@ -20255,12 +20315,10 @@ def backtest_liberation_compare(trades: list) -> list:
     return out
 
 
-def _arm_stats(rows, key_out="outcome", key_ent="entry"):
-    """📐 توقّعُ `R` لمجموعةِ صفقاتٍ بذراعٍ محدَّد (دخولُه ونتيجتُه) + عددُ
-    المحسومة + فاصلُ ثقةٍ 95% للمتوسّط. يرجّع ‏(exp, n, lo, hi).
-
-    **مصدرٌ واحدٌ لثلاث تجارب** (`T-MIRROR` · `T-CADENCE` · `T-LIBVOL`) فلا
-    يتفرّق حسابُ التوقّع بينها — والحسمُ من `_bt_realized_r` الإنتاجيّة."""
+def _arm_rvals(rows, key_out="outcome", key_ent="entry"):
+    """📐 **قيمُ `R` الخام** لذراعٍ محدَّد — المصدرُ الواحد الذي يقرأ منه
+    `_arm_stats` **وفاصلُ الفرق** في `T-DORMANT` (‏`DV4`)، فلا يصير للتوقّع
+    حسابان. نقيّة."""
     vals = []
     for t in rows:
         o = t.get(key_out)
@@ -20270,6 +20328,32 @@ def _arm_stats(rows, key_out="outcome", key_ent="entry"):
         r_ = _bt_realized_r({**t, "entry": e, "outcome": o}) if e else None
         if r_ is not None:
             vals.append(float(r_))
+    return vals
+
+
+def _arm_diff_ci(a, b):
+    """📐 فرقُ متوسّطَي مجموعتين **مستقلّتين** وفاصلُ ثقته 95% (تباينٌ غيرُ
+    متساوٍ): `SE = √(var₁/n₁ + var₂/n₂)`. يرجّع ‏(diff, lo, hi) أو ثلاثةَ
+    `None`. 🔴 **وهذا ما نقص أمسِ في `T-CADENCE`** فطُبع فاصلا ذراعَين
+    وقُدِّر الفرقُ منهما — `DV4` تمنع تكرارَه."""
+    if len(a) < 2 or len(b) < 2:
+        return (None, None, None)
+    ma, mb = sum(a) / len(a), sum(b) / len(b)
+    va = sum((v - ma) ** 2 for v in a) / (len(a) - 1)
+    vb = sum((v - mb) ** 2 for v in b) / (len(b) - 1)
+    se = (va / len(a) + vb / len(b)) ** 0.5
+    if not se > 0:
+        return (ma - mb, None, None)
+    return (ma - mb, (ma - mb) - 1.96 * se, (ma - mb) + 1.96 * se)
+
+
+def _arm_stats(rows, key_out="outcome", key_ent="entry"):
+    """📐 توقّعُ `R` لمجموعةِ صفقاتٍ بذراعٍ محدَّد (دخولُه ونتيجتُه) + عددُ
+    المحسومة + فاصلُ ثقةٍ 95% للمتوسّط. يرجّع ‏(exp, n, lo, hi).
+
+    **مصدرٌ واحدٌ لثلاث تجارب** (`T-MIRROR` · `T-CADENCE` · `T-LIBVOL`) فلا
+    يتفرّق حسابُ التوقّع بينها — والحسمُ من `_bt_realized_r` الإنتاجيّة."""
+    vals = _arm_rvals(rows, key_out, key_ent)
     n = len(vals)
     if not n:
         return (None, 0, None, None)
@@ -20381,8 +20465,150 @@ def backtest_cadence_compare(trades: list) -> list:
     out.append(f"   📊 `CD-P3` الجوابُ المباشر «خلال أسبوع؟»: وسيطُ `bars_to_50` — "
                f"الأساس {_arm_med(base, 'bars_to_50')} · "
                f"حان إيقاعُه {_arm_med(c1, 'bars_to_50')} "
-               f"(‏يلزمه `BT_POTENTIAL`؛ ومَن لم يبلغ +50% غائبٌ عن الوسيط)")
+               f"(‏يلزمه <b>`BT_CANDLE`</b> — يملؤه `_candle_augment` لا "
+               f"`BT_POTENTIAL`؛ ومَن لم يبلغ +50% غائبٌ عن الوسيط)")
     out.append("   ⏳ <b>سنةٌ واحدة</b>: المعيارُ أربعةٌ معًا في ثلاث سنوات.")
+    out.append("   🔒 سقفُ النجاح: <b>اقتراحٌ + سطرُ عرض</b> — لا بوّابةَ ولا وزن.")
+    return out
+
+
+DORMANT_BASE_PUBLISHED = {"2023": -0.198, "2024": -0.123, "2025": -0.094}
+
+
+def _dv_stop(out, code, why):
+    """🚪 بوّابةُ `T-DORMANT` **توقف فعلًا** بخروجٍ غيرِ صفريّ — لا سطرًا
+    إخباريًّا. 🔴 **درسُ `libvol_result §④` حرفيًّا:** `LV0` كُتبت حارسًا
+    وأُخرجت سطرًا، و«حارسٌ مكتوبٌ وغيرُ منفَّذٍ ليس حارسًا — هو نيّة».
+    تطبع الأسطرَ بنفسها (فالمُنادي لن يبلغها) ثم ترفع `SystemExit`."""
+    out.append(f"   ⛔ {why} ⇒ خروج {code} (عطبُ أداةٍ لا نتيجة).")
+    for _l in out:
+        log("باكتيست·" + _l.strip().replace("\n", " "))
+    raise SystemExit(code)
+
+
+def _dormant_buckets(rows):
+    """😴 أثلاثُ `q_range` **داخل كلّ سنة** (‏`§②` — مئيناتٌ لا عتبةٌ مخترَعة).
+    يرجّع ‏(d1 أهدأُ ثلث، d1c المُكمِّل، d2 أعنفُ ثلث، have، سنواتٌ مقيسة)."""
+    by_year = {}
+    for t in rows:
+        if t.get("q_range") is None:
+            continue
+        by_year.setdefault(str(t.get("date") or "")[:4], []).append(t)
+    d1, d1c, d2, have = [], [], [], []
+    for _y, lst in sorted(by_year.items()):
+        lst = sorted(lst, key=lambda t: float(t["q_range"]))
+        k = len(lst) // 3
+        if k < 1:
+            have.extend(lst)
+            continue
+        d1.extend(lst[:k])
+        d2.extend(lst[-k:])
+        d1c.extend(lst[k:])
+        have.extend(lst)
+    return (d1, d1c, d2, have, sorted(by_year))
+
+
+def backtest_dormant_compare(trades: list) -> list:
+    """😴 **حكم `T-DORMANT` بالمعيار المسجَّل مسبقًا** (`dormant_prereg.md`):
+    هل **طولُ السكون** (`q_range`) يميّز — وهل يُضيف **فوق** `due`؟
+
+    الأذرع: `D0` الأساس · **`D1` أهدأُ ثلث (الحاكمة)** · `D̄1` المُكمِّل ·
+    `D2` أعنفُ ثلث **وصفيّ**. ترجّع [] ما لم يُفعَّل `BT_DORMANT`.
+
+    🚪 **وبوّاباتُها تُوقِف بخروجٍ صريح** (`DV0`/`DV1`/`DV2` عبر `_dv_stop`)
+    — لا أسطرًا إخبارية. **تحليل/طباعة فقط · لا تمسّ صفقةً ولا عتبة.**"""
+    if not CONFIG.get("BT_DORMANT"):
+        return []
+    base = [t for t in trades if t.get("outcome") in ("win", "loss")]
+    if not base:
+        return []
+    out = ["\n😴 <b>تجربة T-DORMANT: هل طولُ السكون يميّز؟</b>",
+           "   المعيار: `dormant_prereg.md` · `q_range` مستقلٌّ عن "
+           "`EXPLOSION_PCT` · الأثلاثُ داخل كلّ سنة"]
+    s0 = _arm_stats(base)
+    out.append(f"   `D0` الأساس: {_arm_fmt(s0)}")
+
+    # 🚪 `DV0` — الأساسُ يُعيد رقمَ `cadence_result.md` بت-بت (نفسُ اليوم
+    #    ونفسُ اللقطات ونفسُ الإعداد ⇒ **قابلةٌ للاستيفاء بالبناء**).
+    yrs = sorted({str(t.get("date") or "")[:4] for t in base} - {""})
+    ykey = (yrs[0] if len(yrs) == 1 else None)
+    exp0 = DORMANT_BASE_PUBLISHED.get(ykey or "")
+    if exp0 is None:
+        _dv_stop(out, 3, f"`DV0`: سنةٌ غيرُ منشورةٍ للمقارنة ({yrs or '—'})")
+    if s0[0] is None or round(float(s0[0]), 3) != exp0:
+        _dv_stop(out, 3, f"`DV0`: الأساسُ {s0[0]} لا يطابق المنشورَ {exp0:+.3f} "
+                         f"لسنة {ykey}")
+    out.append(f"   🚪 `DV0` الأساسُ يطابق `cadence_result.md` ({exp0:+.3f}) ✅")
+
+    # 🚪 `DV2` — تغطيةُ المقياس الحاكم
+    have0 = [t for t in base if t.get("q_range") is not None]
+    cov = (len(have0) / len(base) * 100.0) if base else 0.0
+    if cov < 90.0:
+        _dv_stop(out, 3, f"`DV2`: `q_range` محسوبٌ لـ{cov:.1f}% فقط (الحدُّ 90%)")
+    out.append(f"   🚪 `DV2` تغطيةُ `q_range`: {cov:.1f}% ✅")
+
+    d1, d1c, d2, have, _yl = _dormant_buckets(base)
+    if not d1 or not d1c or not d2:
+        _dv_stop(out, 4, "`DV1`: سلّةٌ فارغة (‏`no-op`)")
+    v1, v1c = _arm_rvals(d1), _arm_rvals(d1c)
+    if not v1 or not v1c or (len(v1) == len(v1c) and v1 == v1c):
+        _dv_stop(out, 4, "`DV1`: السلّتان لا تفترقان (‏`no-op`)")
+    qs = {round(float(t["q_range"]), 10) for t in have}
+    if len(qs) < 2:
+        _dv_stop(out, 4, "`DV1`: `q_range` ثابتٌ للجميع ⇒ الأثلاثُ بترتيبِ "
+                         "الإدراج لا بالهدوء (‏`no-op`)")
+    s1, sc, s2 = _arm_stats(d1), _arm_stats(d1c), _arm_stats(d2)
+    out.append(f"   `D1` أهدأُ ثلث (الحاكمة): {_arm_fmt(s1)}")
+    out.append(f"   `D̄1` المُكمِّل: {_arm_fmt(sc)}")
+    out.append(f"   `D2` أعنفُ ثلث — وصفيّ: {_arm_fmt(s2)}")
+
+    # 🚪 `DV4` — **فاصلُ الفرق مطبوعٌ فعلًا** لا مُقدَّرًا من فاصلَي ذراعَين
+    dif, dlo, dhi = _arm_diff_ci(v1, v1c)
+    out.append(f"   ▸ الفارقُ `D1 − D̄1`: "
+               f"{(f'{dif:+.3f}R' if dif is not None else '—')}"
+               + (f" [‏{dlo:+.3f} · {dhi:+.3f}]" if dlo is not None else "")
+               + f" · الحدُّ المسجَّل +0.15R "
+               + ("✅" if (dif is not None and dif >= 0.15) else "❌"))
+    out.append("   🚪 `DV4` الفاصلُ أعلاه **للفرق نفسِه** (‏`_arm_diff_ci`) — "
+               "لا تقديرٌ من فاصلَي ذراعَين (درسُ `T-CADENCE §⑤-2`)")
+
+    # ⑤ الإضافةُ فوق `due` — داخل شريحة `due=False` وحدَها
+    nd1 = [t for t in d1 if t.get("due") is False]
+    nd1c = [t for t in d1c if t.get("due") is False]
+    if not nd1 or not nd1c:
+        out.append("   🔴 المعيار ⑤ **غيرُ قابلٍ للتقييم**: شريحةُ `due=False` "
+                   "فارغة (‏يلزمه `BT_CADENCE` مشحونًا) — يُعلَن ولا يُخمَّن.")
+    else:
+        e5, l5, h5 = _arm_diff_ci(_arm_rvals(nd1), _arm_rvals(nd1c))
+        out.append(f"   🔴 المعيار ⑤ (داخل `due=False` وحدَها): "
+                   f"`D1 − D̄1` = {(f'{e5:+.3f}R' if e5 is not None else '—')}"
+                   + (f" [‏{l5:+.3f} · {h5:+.3f}]" if l5 is not None else "")
+                   + f" · ‏{len(nd1)} مقابل {len(nd1c)} — "
+                   + ("موجب" if (e5 is not None and e5 > 0) else "غيرُ موجب")
+                   + " (سقوطُه ⇒ «المقياسان واحد» **نتيجةً لا عيبًا**)")
+
+    # 📊 الوصفيّات — ولا تُرقَّى مهما كانت (`§①`)
+    out.append(f"   📊 وصفيٌّ لا يُرقَّى: وسيطُ `q_range` = "
+               f"{_arm_med(have, 'q_range')} · أهدأُ ثلث "
+               f"{_arm_med(d1, 'q_range')} · أعنفُه {_arm_med(d2, 'q_range')}")
+    out.append(f"   📊 نوافذُ أخرى **وصفيّةٌ فقط**: وسيطُ `q_range20` = "
+               f"{_arm_med(have, 'q_range20')} · `q_range120` = "
+               f"{_arm_med(have, 'q_range120')} (‏النافذةُ المسجَّلة "
+               f"{CONFIG['DORMANT_WIN']} ولا تُبدَّل بعد الأرقام)")
+    n_b50 = sum(1 for t in base if t.get("bars_to_50") is not None)
+    n_s50 = sum(1 for t in base if t.get("soon_50") is True)
+    out.append(f"   📊 `DM-P3`/`DM-P4` (يلزمهما <b>`BT_CANDLE`</b>): "
+               f"وسيطُ `bars_to_50` — الأساس {_arm_med(base, 'bars_to_50')} · "
+               f"أهدأُ ثلث {_arm_med(d1, 'bars_to_50')} · "
+               f"مملوءٌ في {n_b50} من {len(base)} · و`soon_50` في {n_s50}")
+    out.append(f"   📊 `DM-P5` ارتباطُ السعر: وسيطُ الدخول — أهدأُ ثلث "
+               f"{_arm_med(d1, 'entry')} · المُكمِّل {_arm_med(d1c, 'entry')} "
+               f"· أعنفُ ثلث {_arm_med(d2, 'entry')}")
+    out.append(f"   📊 الشاهدُ `q_since` (من `spike_gaps`): وسيطًا "
+               f"{_arm_med(have, 'q_since')} جلسة")
+    out.append("   🔴 <b>الدائريّةُ مُعلَنة</b> (‏`§⓪-ب`): الفرضيةُ وُلدت من هذي "
+               "اللقطات ⇒ تثبيتٌ لا اكتشاف — والمعيار ⑤ يخفّفها ولا ينفيها.")
+    out.append("   ⏳ <b>سنةٌ واحدة</b>: المعيارُ خمسةٌ معًا في ثلاث سنوات.")
     out.append("   🔒 سقفُ النجاح: <b>اقتراحٌ + سطرُ عرض</b> — لا بوّابةَ ولا وزن.")
     return out
 
@@ -21785,8 +22011,10 @@ def run_backtest(symbols=None) -> list:
     # 🔴 **ونداؤها هنا هو الميزة:** بُنيت الدوالُّ الثلاث ولم تُوصَل في أوّل
     #    دفعة، فنجحت ثلاثُ تشغيلاتٍ كاملةٍ وأنتجت الحقولَ **بلا سطرِ حكمٍ
     #    واحد** — «دالّةٌ موجودةٌ ولا تُنادى» (`wire-check`). مقفولٌ `AUG5`.
+    # 😴 و`backtest_dormant_compare` **آخرًا عمدًا**: بوّاباتُها تُوقِف
+    #    بخروجٍ صريح، فوضعُها أخيرًا يضمن أن أحكامَ الثلاث قبلها قد طُبعت.
     for _fn4 in (backtest_mirror_compare, backtest_cadence_compare,
-                 backtest_libvol_compare):
+                 backtest_libvol_compare, backtest_dormant_compare):
         _ln4 = _fn4(all_trades)
         lines += _ln4
         for _l4 in _ln4:

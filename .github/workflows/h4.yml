@@ -1,0 +1,68 @@
+name: 🕓 T-H4 — فريمُ الأربع ساعات (بناءٌ ثم قياس)
+# العقد: h4_prereg.md (مدفوعٌ قبل أيّ سطرِ كودِ أداة).
+# بحث/قياس فقط · يدويٌّ بلا كرون · صفرُ مسٍّ بالإنتاج (`Super_stock.py` لا
+# يستورد `h4_build`/`h4_arms` — مقفولٌ §⑧) · سقفُ النجاح اقتراحٌ + سطرُ عرض.
+#
+# 🔴 **ولماذا خطوتان في جوبٍ واحد:** `h4_build` يبني الشموعَ من ملفّات الدقائق
+#    (‏≈27MB/يوم) و`h4_arms` يقرؤها — وفصلُهما جوبين يفرض رفعَ ملفٍّ ضخمٍ
+#    وتنزيلَه، والبناءُ نفسُه أرخصُ من نقله.
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (2023 · 2024 · 2025) — الحكم يلزمه الثلاث"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "لقطة PIT: 2023=31574165523 · 2024=31199493957 · 2025=31191327731"
+        required: true
+        default: ""
+      mode:
+        description: "build = بناءٌ وقياس · verify = بوّابة HV0 وحدها (أيامٌ حديثة مقابل fetch_4h)"
+        required: false
+        default: "build"
+jobs:
+  h4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: بناء شموع 4س من ملفّات الدقائق
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          H4_YEAR: ${{ github.event.inputs.year }}
+          H4_MODE: ${{ github.event.inputs.mode || 'build' }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python h4_build.py
+      - name: قياس الذراعين D0 ⟵⟶ H1
+        # 🚪 وضعُ `verify` يقيس `HV0` وحدَها ⇒ لا أذرعَ ولا رقمَ حكم
+        if: ${{ (github.event.inputs.mode || 'build') != 'verify' }}
+        env:
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+          H4_PATH: h4_${{ github.event.inputs.year }}.pkl.gz
+        run: python h4_arms.py
+      - name: رفعُ الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: h4-${{ github.event.inputs.mode || 'build' }}-${{ github.event.inputs.year }}
+          path: |
+            h4_rows.jsonl
+            h4_*.pkl.gz
+          if-no-files-found: ignore
+          retention-days: 90
