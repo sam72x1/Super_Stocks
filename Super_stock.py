@@ -369,6 +369,9 @@ CONFIG = {
     # بدل التعبئة الفورية. **باكتيست حصريًّا · مطفأ افتراضيًّا ⇒ صفقة الأساس بت-بت.**
     # 🕯️ T-CANDLE (`candle_readiness_prereg.md`، 2026-07-30): «حالة الزناد» في آخر
     # الشموع — هل تميّز **الانفجار الوشيك**؟ **باكتيست حصريًّا · مطفأ ⇒ الصفقة بت-بت.**
+    "BT_MIRROR": 0,                       # 🪞 T-MIRROR (`mirror_prereg.md`) — مطفأ
+    "BT_CADENCE": 0,                      # ⏱️ T-CADENCE (`cadence_prereg.md`) — مطفأ
+    "BT_LIBVOL": 0,                       # 🔓💧 T-LIBVOL (`libvol_prereg.md`) — مطفأ
     "BT_CANDLE": 0,                       # 1 = احسب trigger_state وسجّله مع كل إشارة
     "CANDLE_SOON_BARS": 10,               # نافذة «فترة وجيزة جدًّا» (مُثبَّتة بالتسجيل)
     "CANDLE_RSI_LO": 20.0,                # أرضية نطاق «rsi جاهز للانفجار» (TG_1870)
@@ -752,6 +755,9 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             # **تاريخ الخروج الفعليّ** (‏`P0-02`: تحرير الخانة بجلسات لا `ordinals`)
             # و`rr` (المحور الرابع في `rank_key`، لم يكن يُخزَّن قطّ). باكتيست حصريًّا.
             ("BT_REPLAY10", "BT_REPLAY10", int),
+            ("BT_MIRROR", "BT_MIRROR", int),          # 🪞 T-MIRROR
+            ("BT_CADENCE", "BT_CADENCE", int),        # ⏱️ T-CADENCE
+            ("BT_LIBVOL", "BT_LIBVOL", int),          # 🔓💧 T-LIBVOL
             ("BT_ENVVALS", "BT_ENVVALS", int),
             ("BT_ACTVALS", "BT_ACTVALS", int),        # 🕵️ T-RANKER3
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
@@ -19363,6 +19369,195 @@ def _liberation_augment(trade, r, hi, lo, cl, op, stop, t1):
     return trade
 
 
+# ═══ 🪞⏱️🔓💧 أدواتُ العقود الأربعة (2026-08-28، أمرُ المالك «اعتماد ١ ٢ ٣ ٤») ═══
+#     `mirror_prereg.md` · `cadence_prereg.md` · `libvol_prereg.md`
+#     **إلحاقُ حقولٍ فقط** خلف أعلامٍ مطفأة ⇒ صفقةُ الأساس **بت-بت**.
+
+MIRROR_TOL = 0.04          # تسامحُ المرآة — **مثبَّتٌ من القياس** (‏p=0.036 عنده)
+MIRROR_RATIO = 2.0         # النسبةُ من قاعدة فيصل «÷2» الموثَّقة — لا تُنقَّب
+
+
+def mirror_pairs(supports, resistances, tol: float = None, ratio: float = None):
+    """🪞 **مرايا ×2** بين الدعوم والمقاومات — `mirror_prereg.md §①` حرفيًّا.
+
+    زوجٌ نظيف = `|Rj/Si − ratio| / ratio <= tol`. يرجّع قائمةَ ‏(دعم، مقاومة، نسبة)
+    مرتّبةً بقربها من `ratio`. **نقيّة · فاشلة-آمنة ⇒ `[]`.**
+
+    ⚖️ **الاتجاهُ صاعدٌ عمدًا:** كلُّ ÷2 في المستودع نازلة (`_split_day_value` ·
+    `SPLIT_RADAR_BAND_LOW` · `half_down_target` المتقاعدة)؛ وهذي **أوّلُ** استعمالٍ
+    صاعدٍ — وهو الفرقُ الذي وَلَّد العقد."""
+    t = float(MIRROR_TOL if tol is None else tol)
+    q = float(MIRROR_RATIO if ratio is None else ratio)
+    out = []
+    try:
+        ss = [float(x) for x in (supports or []) if x and float(x) > 0]
+        rr = [float(x) for x in (resistances or []) if x and float(x) > 0]
+    except (TypeError, ValueError):
+        return []
+    for a in ss:
+        for b in rr:
+            k = b / a
+            if abs(k - q) / q <= t:
+                out.append((round(a, 4), round(b, 4), round(k, 4)))
+    out.sort(key=lambda x: abs(x[2] - q))
+    return out
+
+
+def _mirror_augment(trade, r, dfp=None):
+    """🪞 يُلحِق حقولَ `T-MIRROR`: `mirror_n` · `mirror_best` · `mirror_ok`.
+
+    **الدعوم** من `key_levels` الإنتاجيّة (`sup_major`/`sup_minor`) و`pivot`،
+    **والمقاومات** من `resistance_levels` الإنتاجيّة **بالاسم** على `dfp`
+    (= `df.iloc[:i]` ⇒ صفرُ تسريب) ومعها `res_major`/`res_minor` — تنفيذًا
+    لـ`MV4` («من دوالّ الإنتاج لا نسخةٍ منها»). إلحاقٌ فقط · فاشلٌ-آمن.
+
+    🐞 **وثلاثةُ مفاتيحَ متخيَّلة أُمسكت قبل أيّ تشغيل** (`wire-check §①`):
+    كتبتُ أوّلًا `support_major`/`support_minor` والحقيقيّ `sup_major`/`sup_minor`،
+    و`r["resistance_levels"]` **حقلٌ لا وجود له** في صفّ `analyze_ticker` أصلًا
+    ⇒ كانت قائمةُ الدعوم `pivot` وحده والمقاوماتُ شبهَ فارغة."""
+    sup, res = [], []
+    try:
+        kl = r.get("key_levels") or {}
+        for k in ("sup_major", "sup_minor"):
+            v = kl.get(k)
+            if v:
+                sup.append(v)
+        if r.get("pivot"):
+            sup.append(r["pivot"])
+        for k in ("res_major", "res_minor"):
+            v = kl.get(k)
+            if v:
+                res.append(v)
+    except (AttributeError, TypeError):
+        pass
+    if dfp is not None and r.get("price"):
+        try:
+            res += [float(x) for x in resistance_levels(dfp, float(r["price"]))]
+        except Exception:                                        # noqa: BLE001
+            pass                       # تعذّرَ الحساب ⇒ يبقى `res_*` وحدَه
+    ps = mirror_pairs(sup, res)
+    trade["mirror_n"] = len(ps)
+    trade["mirror_best"] = (ps[0][2] if ps else None)
+    trade["mirror_ok"] = bool(ps)
+    return trade
+
+
+def spike_gaps(close) -> tuple:
+    """⏱️ **الفواصلُ بالجلسات بين رفعات السهم** — `cadence_prereg.md §①`.
+
+    🔑 نفسُ عناقيد `spike_history` حرفيًّا (نفسُ العتبة والنافذة وفجوةِ العشرين)،
+    **والمختلفُ أنها تُرجع الفواصل** بدل المقادير. و`spike_history` تحسب
+    `i - last >= 20` ثم **ترمي الفهرس** — فهذي تُخرج ما كان يُهمَل.
+
+    ترجّع **زوجًا دائمًا** ‏`(الفواصل، نهاياتُ العناقيد)` — وفي كلّ مسارات الفشل
+    ‏`([], [])` لا `[]`، وإلّا انهار `gaps, ends = spike_gaps(...)` عند التعذّر
+    (وهو فخُّ «الجواب بشكلين» الذي يخفيه `isinstance` عند المُنادي). نقيّة."""
+    try:
+        c = np.asarray(close, dtype=float).ravel()
+    except Exception:                                            # noqa: BLE001
+        return ([], [])
+    n = int(c.size)
+    if n < 15:
+        return ([], [])
+    w_max = int(CONFIG["PRIOR_SPIKE_WINDOW"])
+    thr = float(CONFIG["EXPLOSION_PCT"]) / 100.0
+    best_at = {}
+    for w in range(1, w_max + 1):
+        if n <= w:
+            break
+        with np.errstate(divide="ignore", invalid="ignore"):
+            ratio = c[w:] / np.where(c[:-w] > 0, c[:-w], np.nan) - 1.0
+        for j, i in enumerate(range(w, n)):
+            v = float(ratio[j])
+            if v == v and v >= thr and v > best_at.get(i, 0.0):
+                best_at[i] = v
+    if not best_at:
+        return ([], [])
+    ends, cur_end, last = [], None, -10_000
+    for i in sorted(best_at):
+        if i - last >= 20 and cur_end is not None:
+            ends.append(cur_end)
+            cur_end = None
+        cur_end = i
+        last = i
+    if cur_end is not None:
+        ends.append(cur_end)
+    return [int(ends[k] - ends[k - 1]) for k in range(1, len(ends))], ends
+
+
+def _cadence_augment(trade, close):
+    """⏱️ يُلحِق حقولَ `T-CADENCE`: `cadence` (وسيطُ الفواصل) · `since_last` ·
+    `due`. مَن له أقلُّ من رفعتين ⇒ `cadence = None` ولا يدخل الذراعَ الحاكمة.
+    إلحاقٌ فقط · فاشلٌ-آمن."""
+    trade["cadence"] = trade["since_last"] = None
+    trade["due"] = None
+    try:
+        gaps, ends = spike_gaps(close)
+        n = int(np.asarray(close, dtype=float).ravel().size)
+        if gaps:
+            g = sorted(gaps)
+            trade["cadence"] = int(g[len(g) // 2])
+        if ends:
+            trade["since_last"] = int(n - 1 - ends[-1])
+        if trade["cadence"] is not None and trade["since_last"] is not None:
+            trade["due"] = bool(trade["since_last"] >= trade["cadence"])
+    except Exception:                                            # noqa: BLE001
+        pass
+    return trade
+
+
+def _libvol_break(cl, vol, level, wait, mult, vol_prev=()):
+    """🔓💧 أوّلُ **إغلاقٍ** فوق المستوى **بحجمٍ** ‏≥ `mult` × متوسّطِ عشرين سابقة.
+
+    ⚖️ **الكسرُ بتعريف `_liberation_fill` حرفيًّا** (إغلاقٌ لا ذيل، ونافذةُ `wait`
+    نفسُها) — **والمضافُ شرطُ الحجم وحدَه** فيُعزَل أثرُه. يرجّع
+    ‏(reason, idx, entry). نقيّة.
+
+    🔑 **و`vol_prev` = أحجامُ ما قبل شريحة الأمام** (‏`df["Volume"].iloc[i-20:i]`):
+    بدونها يكون المرجعُ عند `k=0` **فارغًا** فتُقصى كلُّ إشارةٍ كُسر حاجزُها في
+    شمعتها الأولى — وذاك يخالف نصَّ العقد «متوسّط **عشرين جلسةً سابقة**».
+    والمرجعُ عند كلّ `k` = آخرُ عشرين من `vol_prev + vol[:k]`."""
+    if level is None or level <= 0:
+        return ("no_level", None, None)
+    try:
+        prev = [float(x) for x in (vol_prev or []) if x and float(x) > 0]
+    except (TypeError, ValueError):
+        prev = []
+    horizon = min(int(wait), len(cl) - 1)
+    for k in range(0, max(horizon, 0) + 1):
+        if float(cl[k]) > level:
+            base = (prev + [float(x) for x in vol[:k] if x and float(x) > 0])[-20:]
+            if not base:
+                return ("no_volref", None, None)
+            if float(vol[k]) < float(mult) * (sum(base) / len(base)):
+                continue                       # كسرٌ بلا سيولة ⇒ لا يُعتدّ به
+            if k + 1 >= len(cl):
+                return ("break_at_end", None, None)
+            return ("filled", k, float(cl[k]))
+    return ("no_break", None, None)
+
+
+def _libvol_augment(trade, r, hi, lo, cl, op, vol, stop, t1, vol_prev=()):
+    """🔓💧 يُلحِق ذراعَ `T-LIBVOL`: كسرُ `L1` **مع سيولة**، بوقف الأساس بلا تغيير
+    وبـ`_resolve_arm` نفسِها ⇒ محرّكٌ واحد. الحقول: `libv_level` · `libv_fill` ·
+    `entry_libv` · `outcome_libv` · `ret_libv`. إلحاقٌ فقط · مطفأ ⇒ بت-بت."""
+    level = _liberation_levels(r)[0]
+    trade["libv_level"] = (round(level, 4) if level else None)
+    fr, idx, e = _libvol_break(cl, vol, level, CONFIG["BT_LIB_WAIT"],
+                               CONFIG["VOL_SPIKE_MULT"], vol_prev)
+    trade["libv_fill"] = fr
+    trade["entry_libv"] = (round(e, 2) if e else None)
+    if fr != "filled":
+        trade["outcome_libv"] = "no_fill"
+        trade["ret_libv"] = None
+        return trade
+    ow, rw, _oc, _rc = _resolve_arm(hi, lo, cl, op, e, stop, t1,
+                                    idx + 1, entry_intrabar=False)
+    trade["outcome_libv"] = ow
+    trade["ret_libv"] = (round(rw, 1) if rw is not None else None)
+    return trade
+
+
 def _sweep_augment(trade, r, hi, lo, cl, op, stop, t1):
     """🔬 يُلحِق حقول تجربة «الدخول المؤكَّد بالمسح» بصفقة الأساس (باكتيست حصريًا،
     مطفأة افتراضيًا). على **نفس الإشارة**: نموذج دخول بديل = مسح تحت الدعم ثم استعادة
@@ -19567,6 +19762,7 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         lo = fut["Low"].values.astype(float)
         cl = fut["Close"].values.astype(float)
         op = fut["Open"].values.astype(float)
+        vo = fut["Volume"].values.astype(float)
         filled = next((k for k in range(len(fut)) if lo[k] <= entry), None)
         fwd_max = max_draw = 0.0
         if filled is not None and entry > 0:
@@ -19625,6 +19821,20 @@ def backtest_symbol(sym: str, df: pd.DataFrame, reasons: dict = None,
         # (ما قبل شمعة الإشارة) = صفر تسريب بنيويًّا. إلحاق فقط · مطفأ = بت-بت.
         if CONFIG.get("BT_CANDLE"):
             _candle_augment(trade, df.iloc[:i], hi, lo, cl, entry, stop, filled)
+        # 🪞 T-MIRROR (`mirror_prereg.md`): مرايا ×2 بين الدعوم والمقاومات عند
+        # لحظة الإشارة — من حقول الفارز نفسِها (‏`r` مُحتسَبٌ على `df.iloc[:i]`)
+        # ⇒ صفرُ تسريب. إلحاقٌ فقط · مطفأ ⇒ بت-بت.
+        if CONFIG.get("BT_MIRROR"):
+            _mirror_augment(trade, r, df.iloc[:i])
+        # ⏱️ T-CADENCE (`cadence_prereg.md`): إيقاعُ السهم بالجلسات — العناقيدُ
+        # على `df["Close"].iloc[:i]` حصرًا (ما قبل شمعة الإشارة) = صفرُ تسريب.
+        if CONFIG.get("BT_CADENCE"):
+            _cadence_augment(trade, df["Close"].iloc[:i].values)
+        # 🔓💧 T-LIBVOL (`libvol_prereg.md`): كسرُ `L1` **مع سيولة** — الشقُّ الذي
+        # لم تختبره `T-LIBERATION` (عقدُها بصفر ورودٍ لسيولةٍ أو حجم).
+        if CONFIG.get("BT_LIBVOL"):
+            _libvol_augment(trade, r, hi, lo, cl, op, vo, stop, t1,
+                            df["Volume"].iloc[max(0, i - 20):i].values)
         # 🏦 قوة البوت (BT_POTENTIAL): أقصى صعود من الدخول **قبل الوقف** + يوم الذروة.
         # إلحاق فقط (كنمط المسح) — صفقة الأساس بلا تغيير. مطفأ = صفر حقول.
         if CONFIG.get("BT_POTENTIAL"):
@@ -20042,6 +20252,188 @@ def backtest_liberation_compare(trades: list) -> list:
                "<b>ثلاث سنوات</b> + لا انقلاب مجمَّعًا — لا حكم من تشغيلة واحدة.")
     out.append("   🔒 وسقف النجاح مُحدَّد سلفًا: <b>اقتراح للمالك + سطر عرض</b> — "
                "لا مسّ ببوّابة ولا بوقف ولا بأهداف.")
+    return out
+
+
+def _arm_stats(rows, key_out="outcome", key_ent="entry"):
+    """📐 توقّعُ `R` لمجموعةِ صفقاتٍ بذراعٍ محدَّد (دخولُه ونتيجتُه) + عددُ
+    المحسومة + فاصلُ ثقةٍ 95% للمتوسّط. يرجّع ‏(exp, n, lo, hi).
+
+    **مصدرٌ واحدٌ لثلاث تجارب** (`T-MIRROR` · `T-CADENCE` · `T-LIBVOL`) فلا
+    يتفرّق حسابُ التوقّع بينها — والحسمُ من `_bt_realized_r` الإنتاجيّة."""
+    vals = []
+    for t in rows:
+        o = t.get(key_out)
+        if o not in ("win", "loss"):
+            continue
+        e = t.get(key_ent)
+        r_ = _bt_realized_r({**t, "entry": e, "outcome": o}) if e else None
+        if r_ is not None:
+            vals.append(float(r_))
+    n = len(vals)
+    if not n:
+        return (None, 0, None, None)
+    m = sum(vals) / n
+    if n < 2:
+        return (m, n, None, None)
+    var = sum((v - m) ** 2 for v in vals) / (n - 1)
+    se = (var ** 0.5) / (n ** 0.5)
+    return (m, n, m - 1.96 * se, m + 1.96 * se)
+
+
+def _arm_med(rows, key):
+    """وسيطُ حقلٍ عدديٍّ (متجاهلًا الغائب) — وصفيٌّ لا يحكم. `None` عند الفراغ."""
+    xs = sorted(float(t[key]) for t in rows
+                if t.get(key) is not None and t.get(key) == t.get(key))
+    return (xs[len(xs) // 2] if xs else None)
+
+
+def _arm_fmt(st):
+    """عرضُ ‏(exp, n, lo, hi) بصيغةٍ واحدة — بلا علامات مقارنة."""
+    m, n, lo, hi = st
+    if m is None:
+        return f"— (‏{n} محسومة)"
+    ci = (f" [‏{lo:+.2f} · {hi:+.2f}]" if lo is not None else "")
+    return f"{m:+.3f}R{ci} · {n} محسومة"
+
+
+def backtest_mirror_compare(trades: list) -> list:
+    """🪞 **حكم `T-MIRROR` بالمعيار المسجَّل مسبقًا** (`mirror_prereg.md §③/§④`):
+    هل المرآةُ ×2 (‏مقاومةٌ عند ضِعف دعمٍ) تميّز السهمَ الذي ينفجر؟
+
+    الأذرع: `M0` كلُّ الإشارات · **`M1` الحاكمة** (`mirror_ok`) · `M̄1` مُكمِّلُها
+    **شاهدَ تكذيبٍ إلزاميّ**. والمقياسُ الحاكم `R` — والمساندُ **وصفيّ**
+    (‏`mg_pre_stop`). ترجّع [] ما لم يُفعَّل `BT_MIRROR` ⇒ صفرُ أثرٍ على التقرير.
+    **تحليل/طباعة فقط** — خارج الجذور، لا وزنَ ولا بوّابة (سقفُ النجاح §⑦)."""
+    if not CONFIG.get("BT_MIRROR"):
+        return []
+    base = [t for t in trades if t.get("outcome") in ("win", "loss")]
+    if not base:
+        return []
+    have = [t for t in base if t.get("mirror_n") is not None]
+    m1 = [t for t in have if t.get("mirror_ok")]
+    m1c = [t for t in have if not t.get("mirror_ok")]
+    share = (len(m1) / len(have) * 100.0) if have else 0.0
+    s0, s1, sc = _arm_stats(base), _arm_stats(m1), _arm_stats(m1c)
+    out = ["\n🪞 <b>تجربة T-MIRROR: هل المرآةُ ×2 تميّز المنفجر؟</b>",
+           f"   المعيار: `mirror_prereg.md` · تسامح {MIRROR_TOL:.2f} · "
+           f"نسبة {MIRROR_RATIO:.1f} (‏مثبَّتان قبل الأرقام)",
+           f"   `M0` الأساس: {_arm_fmt(s0)}",
+           f"   `M1` فيه مرآة: {_arm_fmt(s1)}",
+           f"   `M̄1` بلا مرآة: {_arm_fmt(sc)}"]
+    gap = ((s1[0] - sc[0]) if (s1[0] is not None and sc[0] is not None) else None)
+    out.append(f"   ▸ الفارقُ `M1 − M̄1`: "
+               f"{(f'{gap:+.3f}R' if gap is not None else '—')}")
+    out.append(f"   🚪 `MV1` تفترقان: "
+               f"{'✅' if (m1 and m1c) else '❌ (‏إحداهما فارغة ⇒ خروج 4)'} · "
+               f"`MV2` حصّةُ المرآة {share:.1f}% "
+               f"{'✅' if 5.0 <= share <= 60.0 else '⚠️ خارج النطاق المسجَّل (‏5-60%)'}")
+    out.append(f"   📊 وصفيّ: وسيطُ أقصى صعودٍ قبل الوقف — "
+               f"مرآة {_arm_med(m1, 'mg_pre_stop')} · "
+               f"بلاها {_arm_med(m1c, 'mg_pre_stop')} "
+               f"(‏`mg_pre_stop` يلزمه `BT_POTENTIAL`)")
+    out.append(f"   📊 وصفيّ: `mirror_n` وسيطًا = {_arm_med(have, 'mirror_n')} · "
+               f"و`mirror_n` اثنتان فأكثر: "
+               f"{_arm_fmt(_arm_stats([t for t in have if (t.get('mirror_n') or 0) >= 2]))}")
+    out.append("   ⏳ <b>سنةٌ واحدة</b>: المعيارُ يشترط الأربعةَ معًا في ثلاث سنوات "
+               "(‏+0.15R · بلا انقلاب · فاصلٌ لا يلمس الصفر · أرضية 150 و30/سنة).")
+    out.append("   🔒 وسقفُ النجاح مثبَّت: <b>اقتراحٌ + سطرُ عرض</b> — لا بوّابةَ "
+               "رفضٍ ولا وزنَ ترتيبٍ ولا هدفَ خروج.")
+    return out
+
+
+def backtest_cadence_compare(trades: list) -> list:
+    """⏱️ **حكم `T-CADENCE` بالمعيار المسجَّل مسبقًا** (`cadence_prereg.md §③/§④`):
+    هل «حان إيقاعُه» (`due`) يميّز؟ والمساندُ الأهمُّ عمليًّا **وسيطُ
+    `bars_to_50`** — الجوابُ المباشر لسؤال المالك «خلال أسبوع؟».
+
+    الأذرع: `C0` · **`C1` الحاكمة** (`due`) · `C̄1` شاهدُ التكذيب · `C2` إيقاعٌ
+    قصير (‏10 جلساتٍ فأقلّ) **وصفيٌّ لا يحكم**. ترجّع [] ما لم يُفعَّل
+    `BT_CADENCE`. **تحليل/طباعة فقط.**"""
+    if not CONFIG.get("BT_CADENCE"):
+        return []
+    base = [t for t in trades if t.get("outcome") in ("win", "loss")]
+    if not base:
+        return []
+    known = [t for t in base if t.get("cadence") is not None]
+    c1 = [t for t in known if t.get("due") is True]
+    c1c = [t for t in known if t.get("due") is False]
+    c2 = [t for t in known if float(t["cadence"]) <= 10.0]
+    share = (len(known) / len(base) * 100.0) if base else 0.0
+    s0, s1, sc, s2 = (_arm_stats(base), _arm_stats(c1),
+                      _arm_stats(c1c), _arm_stats(c2))
+    med_cad = _arm_med(known, "cadence")
+    out = ["\n⏱️ <b>تجربة T-CADENCE: هل «حان إيقاعُه» يميّز؟</b>",
+           "   المعيار: `cadence_prereg.md` · العناقيدُ من `spike_history` نفسِها",
+           f"   `C0` الأساس: {_arm_fmt(s0)}",
+           f"   `C1` حان إيقاعُه: {_arm_fmt(s1)}",
+           f"   `C̄1` لم يحن: {_arm_fmt(sc)}",
+           f"   `C2` إيقاعٌ قصير (‏10 فأقلّ) — وصفيّ: {_arm_fmt(s2)}"]
+    gap = ((s1[0] - sc[0]) if (s1[0] is not None and sc[0] is not None) else None)
+    out.append(f"   ▸ الفارقُ `C1 − C̄1`: "
+               f"{(f'{gap:+.3f}R' if gap is not None else '—')}")
+    out.append(f"   🚪 `CV1` تفترقان: "
+               f"{'✅' if (c1 and c1c) else '❌ (‏إحداهما فارغة ⇒ خروج 4)'} · "
+               f"`CV3` نصيبُ الإيقاع المعلوم {share:.1f}% "
+               f"{'✅' if share >= 30.0 else '⚠️ دون 30% ⇒ المقياسُ خامدٌ ويُعلَن'}")
+    out.append(f"   📊 `CD-P2`: وسيطُ الإيقاع = {med_cad} جلسة "
+               f"(‏النطاقُ المسجَّل 15-40)")
+    out.append(f"   📊 `CD-P3` الجوابُ المباشر «خلال أسبوع؟»: وسيطُ `bars_to_50` — "
+               f"الأساس {_arm_med(base, 'bars_to_50')} · "
+               f"حان إيقاعُه {_arm_med(c1, 'bars_to_50')} "
+               f"(‏يلزمه `BT_POTENTIAL`؛ ومَن لم يبلغ +50% غائبٌ عن الوسيط)")
+    out.append("   ⏳ <b>سنةٌ واحدة</b>: المعيارُ أربعةٌ معًا في ثلاث سنوات.")
+    out.append("   🔒 سقفُ النجاح: <b>اقتراحٌ + سطرُ عرض</b> — لا بوّابةَ ولا وزن.")
+    return out
+
+
+def backtest_libvol_compare(trades: list) -> list:
+    """🔓💧 **حكم `T-LIBVOL` بالمعيار المسجَّل مسبقًا** (`libvol_prereg.md §③/§④`):
+    الشقُّ الثاني من قاعدة فيصل «اختراق 3.26 **بسيوله** ممكن يواصل» — الذي لم
+    تختبره `T-LIBERATION` (عقدُها بصفر ورودٍ لسيولةٍ أو حجم).
+
+    الأذرع: **`V1` الحاكمة** (كسرٌ + سيولة) · `V2` كسرٌ بلا سيولة
+    (**إعادةُ إنتاجٍ لـ`L1`** — بوّابةُ `LV0`) · و**`V0` مقترنٌ إلزاميًّا**
+    (الأساسُ على نفس المُعبَّأين) إسقاطًا لفخّ الامتناع. ترجّع [] ما لم يُفعَّل
+    `BT_LIBVOL`. **تحليل/طباعة فقط.**"""
+    if not CONFIG.get("BT_LIBVOL"):
+        return []
+    base = [t for t in trades if t.get("outcome") in ("win", "loss")]
+    if not base:
+        return []
+    has_lv = [t for t in base if t.get("libv_level")]
+    fil = [t for t in base if t.get("outcome_libv") in ("win", "loss")]
+    reasons = {}
+    for t in base:
+        k = t.get("libv_fill") or "?"
+        reasons[k] = reasons.get(k, 0) + 1
+    v1 = _arm_stats(fil, "outcome_libv", "entry_libv")
+    v0 = _arm_stats(fil)                       # 🔴 مقترنٌ: نفسُ المُعبَّأين
+    out = ["\n🔓💧 <b>تجربة T-LIBVOL: الكسرُ بسيولة</b>",
+           f"   المعيار: `libvol_prereg.md` · حاجز `L1` · نافذة "
+           f"{CONFIG['BT_LIB_WAIT']} جلسة · سيولةٌ {CONFIG['VOL_SPIKE_MULT']}× "
+           f"متوسّطَ عشرين · الوقفُ = وقفُ الأساس (معزول)",
+           f"   مستوًى متاحٌ لـ{len(has_lv)} · أسبابُ التعبئة: "
+           + " · ".join(f"{k}={v}" for k, v in sorted(reasons.items())),
+           f"   `V1` كسرٌ بسيولة: {_arm_fmt(v1)}",
+           f"   🔴 `V0` مقترنٌ (الأساسُ على نفس المُعبَّأين): {_arm_fmt(v0)}"]
+    gap = ((v1[0] - v0[0]) if (v1[0] is not None and v0[0] is not None) else None)
+    out.append(f"   ▸ الفارقُ `V1 − V0`: "
+               f"{(f'{gap:+.3f}R' if gap is not None else '—')} · "
+               f"الحدُّ المسجَّل +0.15R "
+               f"{'✅' if (gap is not None and gap >= 0.15) else '❌'} · "
+               f"العيّنة (‏30 فأكثر) {'✅' if v1[1] >= 30 else '❌'}")
+    if CONFIG.get("BT_LIBERATION"):
+        v2 = _arm_stats([t for t in base if t.get("outcome_lib_l1") in ("win", "loss")],
+                        "outcome_lib_l1", "entry_lib_l1")
+        out.append(f"   🚪 `LV0` إعادةُ إنتاج `L1` (كسرٌ بلا سيولة): {_arm_fmt(v2)} "
+                   "— يُقارَن بالمنشور ‏−0.62/−0.59/−0.48R")
+    else:
+        out.append("   🚪 `LV0` **لم تُفحَص**: `BT_LIBERATION` مطفأ ⇒ شغّلهما معًا "
+                   "وإلّا فالمقارنةُ بالمنشور غيرُ مُتحقَّقة في هذي التشغيلة.")
+    out.append("   ⏳ <b>سنةٌ واحدة</b>: المعيارُ أربعةٌ معًا في ثلاث سنوات.")
+    out.append("   🔒 سقفُ النجاح: <b>اقتراحٌ + سطرُ عرض</b> — لا بوّابةَ ولا وقفَ "
+               "ولا هدف.")
     return out
 
 

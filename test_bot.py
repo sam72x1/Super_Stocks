@@ -8821,6 +8821,10 @@ check("🧾 الجامع·يكتب تقريرًا **مقروءًا** (سجلّ A
 #  غير المؤرَّخة بالكامل) فأدّى عمله ثانيةً — أُعيدت التسمية إلى النمط الصارم
 #  `EDU_YYYYMMDD_*` وأُضيفت البادئة الرابعة بنفس صرامة `X_`: تاريخ 8 أرقام
 #  إلزامي، فما زال `EDU_0827_x.png` أو `EDU_abc.png` يسقط.)
+# (🔒 إقرار مؤرَّخ 2026-08-28: أمسك دفعةَ الخمسَ عشرةَ صورةً (‏`_incoming_20260828/`
+#  مجلّدًا باسمٍ حرّ) فأدّى عمله **للمرّة الثالثة** — و**لم يُرخَ بحرف**: أُعيدت
+#  التسميةُ إلى `X_20260828_01..15.jpg` وأُزيل المجلّد. والدرسُ أن القفلَ يحرس
+#  المجلّدَ كما يحرس الملفّ: `listdir` يرى الدليلَ اسمًا فيسقط عليه.)
 check("🧼 قفل·لا ملفّ دخيل داخل مجلّد الصور الإنتاجي (`faisal_images/`)",
       not [_f for _f in __import__("os").listdir("faisal_images")
            if not (_f == "README.md"
@@ -34537,6 +34541,241 @@ _lnt_hard = [st for st in _lnt_steps
              and not st.get("continue-on-error")]
 check("🧹 LNT4 `F821` بوّابةٌ حمراءُ حقيقيّة (بلا `continue-on-error`)",
       len(_lnt_hard) == 1, f"صارمة={len(_lnt_hard)} من {len(_lnt_steps)}")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🪞⏱️🔓💧 أقفال العقود الأربعة (2026-08-28، أمرُ المالك «اعتماد ١ ٢ ٣ ٤»)
+#    `mirror_prereg.md` · `cadence_prereg.md` · `libvol_prereg.md`
+#    كلُّها **إلحاقُ حقولٍ خلف أعلامٍ مطفأة** ⇒ صفقةُ الأساس بت-بت.
+# ══════════════════════════════════════════════════════════════════════════
+
+# ── 🪞 T-MIRROR ───────────────────────────────────────────────────────────
+# ① `MIR1` = **بوّابة `MV3`** حرفيًّا بتعريف الملحق ⑨ المؤرَّخ: كلُّ سلّمٍ
+#    يُمرَّر **قائمةً واحدة** (غيرَ مقسَّم) ⇒ 12 مرآةً بتوزيع 2/3/3/4، ومجموعُ
+#    الأزواج الممكنة 121. **والعددان يُقفلان معًا** فلا يُرضيه مجموعٌ صحيحٌ
+#    بتوزيعٍ خاطئ — وهو بعينه ما أمسك فِكستشري الأوّل (‏8 بدل 12).
+_MIR_LAD = {
+    "CUPR":    [2.502, 2.854, 3.489, 3.963, 4.297, 4.974, 5.392, 5.782, 6.609],
+    "PPCB_D":  [0.950, 1.969, 4.088, 4.986, 5.712, 6.780, 8.739, 10.120],
+    "PPCB_4H": [0.9473, 1.511, 1.945, 2.260, 3.023, 4.440, 4.986],
+    "HCWB":    [2.050, 2.390, 2.591, 2.897, 3.262, 4.186, 5.190, 5.819, 6.462],
+}
+try:
+    _mir_cnt = {k: len(S.mirror_pairs(v, v)) for k, v in _MIR_LAD.items()}
+except Exception as _e:                                          # noqa: BLE001
+    _mir_cnt = {"⛔": type(_e).__name__}
+_mir_poss = sum(len(v) * (len(v) - 1) // 2 for v in _MIR_LAD.values())
+check("🪞 MIR1 `MV3`: 12 مرآةً بتوزيع 2/3/3/4 على سلالم فيصل · و121 زوجًا ممكنًا",
+      _mir_cnt == {"CUPR": 2, "PPCB_D": 3, "PPCB_4H": 3, "HCWB": 4}
+      and _mir_poss == 121,
+      f"{_mir_cnt} · أزواج={_mir_poss}")
+
+# ② `MIR2` — التسامحُ والنسبةُ **مثبَّتان من التسجيل المسبق** (‏`p=0.036` عندهما)
+#    والحدُّ **ملزِمٌ** يفرّق مرورًا من سقوط · وتخومُه تُفحَص بتسامحٍ محقونٍ
+#    بكسرٍ ثنائيٍّ تامّ (‏0.25) فلا يحكم عائمٌ على القفل.
+check("🪞 MIR2 التسامح 0.04 والنسبة 2.0 مثبَّتان · والحدُّ ملزِمٌ عند التخوم",
+      abs(S.MIRROR_TOL - 0.04) < 1e-12 and abs(S.MIRROR_RATIO - 2.0) < 1e-12
+      and len(S.mirror_pairs([1.0], [2.03])) == 1
+      and len(S.mirror_pairs([1.0], [2.10])) == 0
+      and len(S.mirror_pairs([1.0], [1.95])) == 1
+      and len(S.mirror_pairs([1.0], [1.90])) == 0
+      and len(S.mirror_pairs([1.0], [2.5], tol=0.25)) == 1
+      and len(S.mirror_pairs([1.0], [2.5], tol=0.24)) == 0)
+
+# ③ `MIR3` — فاشلٌ-آمن: تالفٌ/فارغٌ/سالبٌ/صفرٌ ⇒ `[]` **بلا انهيار**.
+try:
+    _mir_safe = (S.mirror_pairs(None, None) == [] and S.mirror_pairs([], [4.0]) == []
+                 and S.mirror_pairs(["x"], [2.0]) == []
+                 and S.mirror_pairs([-1.0, 0.0, 1.0], [2.0]) == [(1.0, 2.0, 2.0)])
+except Exception as _e:                                          # noqa: BLE001
+    _mir_safe = f"⛔ {type(_e).__name__}"
+check("🪞 MIR3 فاشلٌ-آمن: تالفٌ/فارغٌ/سالبٌ ⇒ [] · والموجبُ وحدَه يُحسَب",
+      _mir_safe is True, str(_mir_safe))
+
+# ④ `MIR4` — الترتيبُ **بالأقرب إلى ×2** (‏`mirror_best` أوّلُ عنصرٍ فيه معنًى).
+check("🪞 MIR4 الترتيبُ بالأقرب إلى ×2 (‏2.0 قبل 2.03)",
+      [pp[2] for pp in S.mirror_pairs([1.0, 2.0], [2.03, 4.0])] == [2.0, 2.03])
+
+# ⑤ `MIR5` = **بوّابة `MV4`**: `resistance_levels` الإنتاجيّة **بالاسم** (AST) ·
+#    والمفاتيحُ **الحقيقيّة** لا المتخيَّلة (‏`sup_major` لا `support_major`،
+#    و`resistance_levels` حقلًا **لا وجودَ له** في صفّ `analyze_ticker`).
+_mir_tree = _ast0.parse(_insp0.getsource(S._mirror_augment))
+_mir_calls = {getattr(c.func, "id", None) for c in _ast0.walk(_mir_tree)
+              if isinstance(c, _ast0.Call)}
+_mir_str = {n.value for n in _ast0.walk(_mir_tree)
+            if isinstance(n, _ast0.Constant) and isinstance(n.value, str)}
+check("🪞 MIR5 `MV4`: `resistance_levels` بالاسم · والمفاتيحُ الحقيقيّة الأربعة",
+      "resistance_levels" in _mir_calls
+      and {"sup_major", "sup_minor", "res_major", "res_minor",
+           "key_levels", "pivot", "price"} <= _mir_str
+      and "support_major" not in _mir_str and "support_minor" not in _mir_str,
+      f"نداءات={sorted(x for x in _mir_calls if x)}")
+
+# ⑥ `MIR6` — **يفرّق سلوكيًّا** (سلّمٌ فيه مرآةٌ ⟵⟶ سلّمٌ بلاها) · و**إلحاقٌ فقط**
+#    (‏لا يمسّ مفتاحًا قائمًا ولا يضيف خامسًا).
+_mir_hit = {"key_levels": {"sup_major": 2.05, "sup_minor": 2.591,
+                           "res_major": 4.186, "res_minor": 5.19},
+            "pivot": 2.05, "price": 3.0}
+_mir_non = {"key_levels": {"sup_major": 1.00, "sup_minor": 1.10,
+                           "res_major": 1.30, "res_minor": 1.45},
+            "pivot": 1.00, "price": 1.2}
+_t_hit, _t_non = {"x": 1}, {"x": 1}
+S._mirror_augment(_t_hit, _mir_hit)
+S._mirror_augment(_t_non, _mir_non)
+check("🪞 MIR6 يفرّق: سلّمٌ بمرآةٍ ⟵⟶ سلّمٌ بلاها · وإلحاقٌ فقط",
+      _t_hit["mirror_ok"] is True and _t_non["mirror_ok"] is False
+      and _t_hit["mirror_n"] >= 2 and _t_non["mirror_n"] == 0
+      and _t_hit["mirror_best"] is not None and _t_non["mirror_best"] is None
+      and _t_hit["x"] == 1
+      and set(_t_hit) - {"x"} == {"mirror_n", "mirror_best", "mirror_ok"},
+      f"مرآة={_t_hit['mirror_n']} · بلا={_t_non['mirror_n']}")
+
+# ── ⏱️ T-CADENCE ──────────────────────────────────────────────────────────
+# ① `CAD1` — تُرجع **زوجًا دائمًا**: مسارُ الفشل `([], [])` لا `[]`، وإلّا انهار
+#    `gaps, ends = spike_gaps(...)` عند التعذّر (فخُّ «الجواب بشكلين»).
+_cad_none, _cad_short = S.spike_gaps(None), S.spike_gaps([1.0] * 5)
+check("⏱️ CAD1 `spike_gaps` زوجٌ دائمًا — والتعذّرُ `([], [])` لا `[]`",
+      isinstance(_cad_none, tuple) and _cad_none == ([], [])
+      and isinstance(_cad_short, tuple) and _cad_short == ([], []),
+      f"{_cad_none} · {_cad_short}")
+
+# ② `CAD2` = **مقياسٌ واحد لا اثنان**: عناقيدُ `spike_gaps` هي عناقيدُ
+#    `spike_history` نفسُها (‏n عنقودًا ⇒ n−1 فاصلًا) — فلا يتفرّق تعريفُ
+#    «الرفعة» بين الدالّتين.
+_CAD_SER = ([1.0] * 40 + [1.4, 2.0] + [2.0] * 40 + [2.8, 4.0]
+            + [4.0] * 40 + [5.6, 8.0] + [8.0] * 10)
+_cad_hist = S.spike_history(_CAD_SER)
+_cad_gaps, _cad_ends = S.spike_gaps(_CAD_SER)
+check("⏱️ CAD2 مقياسٌ واحد: عناقيدُ `spike_gaps` = عناقيدُ `spike_history`",
+      len(_cad_hist) >= 3 and len(_cad_ends) == len(_cad_hist)
+      and len(_cad_gaps) == len(_cad_hist) - 1,
+      f"عناقيد={len(_cad_hist)} · نهايات={len(_cad_ends)} · فواصل={_cad_gaps}")
+
+# ③ `CAD3` — **وسيطٌ لا متوسّط**: العيّنةُ تفرّقهما (‏فواصل [42, 34] ⇒ وسيطٌ 42
+#    ومتوسّطٌ 38) فطفرةُ «المتوسّط» تسقط هنا لا تمرّ.
+_t_cad = {"y": 2}
+S._cadence_augment(_t_cad, _CAD_SER)
+_cad_sorted = sorted(_cad_gaps)
+_cad_med = _cad_sorted[len(_cad_sorted) // 2]
+_cad_mean = int(sum(_cad_gaps) / len(_cad_gaps))
+check("⏱️ CAD3 `cadence` وسيطٌ لا متوسّط · و`since_last` من آخر عنقود · وإلحاقٌ فقط",
+      _t_cad["cadence"] == _cad_med and _cad_med != _cad_mean
+      and _t_cad["since_last"] == len(_CAD_SER) - 1 - _cad_ends[-1]
+      and _t_cad["y"] == 2
+      and set(_t_cad) - {"y"} == {"cadence", "since_last", "due"},
+      f"وسيط={_cad_med} · متوسّط={_cad_mean} · {_t_cad}")
+
+# ④ `CAD4` — رفعةٌ واحدة ⇒ لا إيقاع: `cadence`/`due` = None (لا تدخل الحاكمة)
+#    **و`since_last` يبقى محسوبًا** (تعذّرُ الإيقاع ليس تعذّرَ كلّ شيء).
+_t_one = {}
+S._cadence_augment(_t_one, [1.0] * 40 + [1.4, 2.0] + [2.0] * 20)
+check("⏱️ CAD4 رفعةٌ واحدة ⇒ `cadence`/`due` = None و`since_last` محسوب",
+      _t_one["cadence"] is None and _t_one["due"] is None
+      and isinstance(_t_one["since_last"], int), str(_t_one))
+
+# ⑤ `CAD5` — `due` **يفرّق**: نفسُ الإيقاع وذيلٌ أطول ⇒ ينقلب من False إلى True.
+_t_a, _t_b = {}, {}
+S._cadence_augment(_t_a, _CAD_SER)
+S._cadence_augment(_t_b, _CAD_SER + [8.0] * 60)
+check("⏱️ CAD5 `due` يفرّق: ذيلٌ أطول بنفس الإيقاع ⇒ True",
+      _t_a["cadence"] == _t_b["cadence"]
+      and _t_a["due"] is False and _t_b["due"] is True,
+      f"A={_t_a} · B={_t_b}")
+
+# ── 🔓💧 T-LIBVOL ─────────────────────────────────────────────────────────
+_LBV_M = float(S.CONFIG["VOL_SPIKE_MULT"])
+_LBV_CL = [1.0, 1.1, 1.3, 0.9, 1.4]
+_LBV_P20 = [1.0] * 20
+# ① `LBV1` — **عزلُ الأثر**: بحجمٍ مؤهَّلٍ دائمًا يُعيد `_libvol_break` جوابَ
+#    `_liberation_fill` **بت-بت** على خمس حالاتٍ متفرّقة ⇒ المضافُ شرطُ الحجم
+#    وحدَه لا تعريفُ كسرٍ ثانٍ.
+_lbv_eq = []
+for _lvl, _w in [(1.2, 4), (1.2, 1), (5.0, 4), (1.05, 4), (None, 4)]:
+    _a = S._liberation_fill(_LBV_CL, _lvl, _w)
+    _b = S._libvol_break(_LBV_CL, [100.0] * 5, _lvl, _w, _LBV_M, _LBV_P20)
+    if _a != _b:
+        _lbv_eq.append((_lvl, _w, _a, _b))
+check("🔓💧 LBV1 تكافؤٌ بت-بت مع `_liberation_fill` عند حجمٍ مؤهَّل (5 حالات)",
+      not _lbv_eq, str(_lbv_eq)[:140])
+
+# ② `LBV2` — **الحجمُ ملزِم**: نفسُ الإغلاقات وحجمٌ ضعيف ⇒ `no_break` حيث
+#    يُعبّئ `_liberation_fill`.
+check("🔓💧 LBV2 الحجمُ ملزِم: إغلاقاتٌ تكسر وحجمٌ ضعيف ⇒ لا تعبئة",
+      S._liberation_fill(_LBV_CL, 1.2, 4)[0] == "filled"
+      and S._libvol_break(_LBV_CL, [1.0] * 5, 1.2, 4, _LBV_M,
+                          [100.0] * 20)[0] == "no_break")
+
+# ③ `LBV3` — **`continue` لا `return`**: كسرٌ أوّلُ بلا سيولةٍ ثم كسرٌ لاحقٌ
+#    بسيولة ⇒ يُعبَّأ **عند اللاحق**؛ و`return` كانت ستُعطي `no_break`.
+_LBV_C3 = [1.3, 0.9, 1.4, 1.0, 1.0]
+check("🔓💧 LBV3 كسرٌ بلا سيولةٍ لا يُنهي البحث (‏`continue`) — يُعبَّأ عند اللاحق",
+      S._liberation_fill(_LBV_C3, 1.2, 4) == ("filled", 0, 1.3)
+      and S._libvol_break(_LBV_C3, [1.0, 1.0, 100.0, 1.0, 1.0], 1.2, 4,
+                          _LBV_M, _LBV_P20) == ("filled", 2, 1.4))
+
+# ④ `LBV4` — مرجعُ العشرين **حقيقيّ**: `vol_prev` يُستعمَل عند `k=0` (وإلّا
+#    أُقصيت كلُّ إشارةٍ كُسر حاجزُها في شمعتها الأولى — مخالفةً لنصّ العقد)
+#    · و`no_volref` تبقى لِمن لا تاريخَ له إطلاقًا.
+check("🔓💧 LBV4 `vol_prev` مرجعٌ عند k=0 · وبلا تاريخٍ إطلاقًا ⇒ `no_volref`",
+      S._libvol_break([1.3, 1.0, 1.0], [100.0, 1.0, 1.0], 1.2, 4,
+                      _LBV_M, _LBV_P20) == ("filled", 0, 1.3)
+      and S._libvol_break([1.3, 1.0, 1.0], [5.0, 1.0, 1.0], 1.2, 4,
+                          _LBV_M, ())[0] == "no_volref")
+
+# ⑤ `LBV5` — **محرّكٌ واحد**: `_libvol_augment` ينادي `_liberation_levels`
+#    و`_resolve_arm` **بالاسم**، والدخولُ بإغلاقٍ (‏`entry_intrabar=False`)
+#    كما في `T-LIBERATION` حرفيًّا — فلا يصير للحسم تعريفان.
+_lbv_tree = _ast0.parse(_insp0.getsource(S._libvol_augment))
+_lbv_calls = {getattr(c.func, "id", None) for c in _ast0.walk(_lbv_tree)
+              if isinstance(c, _ast0.Call)}
+_lbv_kw = {kw.arg: _ast0.dump(kw.value) for c in _ast0.walk(_lbv_tree)
+           if isinstance(c, _ast0.Call)
+           and getattr(c.func, "id", None) == "_resolve_arm" for kw in c.keywords}
+check("🔓💧 LBV5 محرّكٌ واحد: `_liberation_levels` و`_resolve_arm` بالاسم · الدخولُ بإغلاق",
+      {"_liberation_levels", "_resolve_arm", "_libvol_break"} <= _lbv_calls
+      and "False" in _lbv_kw.get("entry_intrabar", ""),
+      f"نداءات={sorted(x for x in _lbv_calls if x)} · {_lbv_kw}")
+
+# ⑥ `LBV6` — كسرٌ بآخر شمعةٍ ⇒ `break_at_end` (لا حسمَ أماميّ) — نفسُ عقد
+#    `_liberation_fill` حرفيًّا.
+check("🔓💧 LBV6 كسرٌ بآخر شمعةٍ ⇒ `break_at_end` (بلا حسمٍ أماميّ)",
+      S._libvol_break([1.0, 1.0, 1.4], [1.0, 1.0, 100.0], 1.2, 4,
+                      _LBV_M, _LBV_P20)[0] == "break_at_end"
+      and S._liberation_fill([1.0, 1.0, 1.4], 1.2, 4)[0] == "break_at_end")
+
+# ── 🔌 الوصلُ المشترك للثلاثة ─────────────────────────────────────────────
+_AUG_KEYS = ("BT_MIRROR", "BT_CADENCE", "BT_LIBVOL")
+_aug_ovr = _insp0.getsource(S._apply_backtest_overrides)
+check("🔌 AUG1 الأعلامُ الثلاثة مطفأةٌ افتراضًا · ولكلٍّ صفٌّ في جدول التجاوز",
+      all(S.CONFIG.get(k) == 0 for k in _AUG_KEYS)
+      and all(f'("{k}", "{k}", int)' in _aug_ovr for k in _AUG_KEYS),
+      str({k: S.CONFIG.get(k) for k in _AUG_KEYS}))
+
+_bt_src = _insp0.getsource(S.backtest_symbol)
+_bt_tree = _ast0.parse(_bt_src)
+_AUG_FN = {"_mirror_augment", "_cadence_augment", "_libvol_augment"}
+_aug_guard = {}
+for _n in _ast0.walk(_bt_tree):
+    if isinstance(_n, _ast0.If):
+        _tst = _ast0.dump(_n.test)
+        for _k in _AUG_KEYS:
+            if f"'{_k}'" in _tst:
+                _aug_guard[_k] = {getattr(c.func, "id", None)
+                                  for c in _ast0.walk(_n) if isinstance(c, _ast0.Call)}
+_aug_total = len([c for c in _ast0.walk(_bt_tree) if isinstance(c, _ast0.Call)
+                  and getattr(c.func, "id", None) in _AUG_FN])
+check("🔌 AUG2 كلُّ إلحاقٍ داخل `if CONFIG.get(علمه)` وحدَه · وثلاثةُ نداءاتٍ لا رابع (AST)",
+      "_mirror_augment" in _aug_guard.get("BT_MIRROR", set())
+      and "_cadence_augment" in _aug_guard.get("BT_CADENCE", set())
+      and "_libvol_augment" in _aug_guard.get("BT_LIBVOL", set())
+      and _aug_total == 3, f"نداءات={_aug_total}")
+
+check("🔌 AUG3 `vo` من `fut[\"Volume\"]` · و`vol_prev` من عشرين سابقة (لا حجمٌ مُختلَق)",
+      'vo = fut["Volume"]' in _bt_src
+      and 'df["Volume"].iloc[max(0, i - 20):i].values' in _bt_src
+      and '_mirror_augment(trade, r, df.iloc[:i])' in _bt_src
+      and '_cadence_augment(trade, df["Close"].iloc[:i].values)' in _bt_src)
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
