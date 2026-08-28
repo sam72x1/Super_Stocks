@@ -34075,6 +34075,223 @@ except Exception as _e:                                          # noqa: BLE001
 check("🕰️② HK2-12 الـworkflow: مدخلان موصولان ببيئةٍ يقرؤها السكربت · وبلا كرون",
       _hk2_12 is True, str(_hk2_12)[:170])
 
+
+# ═════════ 🔔 T-WAKE — أقفال WK1-WK12 (‏`wake_prereg.md` · 2026-08-28) ═════════
+# 🔒 بحث/قياسٌ فقط · صفرُ مسٍّ بالإنتاج. وكلُّ قفلٍ هنا **يجب أن يستطيع السقوط**
+#    (جولةُ الطفرات تُثبته)، ولا قفلَ نصّيٍّ على ما يمكن أن يقع في تعليق.
+import ast as _wk_ast
+import hashlib as _wk_hash
+import importlib as _wk_imp
+import io as _wk_io
+import contextlib as _wk_ctx
+import inspect as _wk_insp
+import types as _wk_types
+import yaml as _wk_yaml
+
+_WK = _wk_imp.import_module("wake_arms")
+_WK_HK = _wk_imp.import_module("hold_key_arms")
+_WK_HK2 = _wk_imp.import_module("hold_key2_arms")
+_WK_PRA = _wk_imp.import_module("press_rank_arms")
+_WK_SRC = open("wake_arms.py", encoding="utf-8").read()
+_WK_TREE = _wk_ast.parse(_WK_SRC)
+
+
+def _wk_row(sess, sym, hold=3, tl=1, ran=0.0, drop=50.0, awake=False, oc="loss"):
+    """شكلُ صفّ `press_rank_arms.ready_rows` الإنتاجيّ حرفيًّا (لا فِكستشرَ يكذب)."""
+    return {"session": sess, "symbol": sym,
+            "read": {"hold_sessions": hold, "tested_level": tl,
+                     "runup_pct": ran, "drop_pct": drop, "press_low": 1.0,
+                     "close": 1.2},
+            "plan": None, "prev_q": None,
+            "wake": ({"awake": True, "vol_x": 6.0} if awake else {}),
+            "oc": oc, "swept": False}
+
+
+def _wk_rows(n_days=20, n_syms=12):
+    out = []
+    for i in range(n_days):
+        d = f"2024-01-{i + 1:02d}"
+        for j in range(n_syms):
+            out.append(_wk_row(d, f"S{j}", drop=90.0 - j,
+                               awake=(j < 2 and i % 3 == 0),
+                               oc=("win" if (i + j) % 7 == 0 else "loss")))
+    return out
+
+
+_wk_all = _wk_rows()
+_wk_by = {}
+for _r in _wk_all:
+    _wk_by.setdefault(_r["session"], []).append(_r)
+_wk_sess = sorted(_wk_by)
+_WK_RW = 5.15
+
+# ① `WV0` — الموسَّعة عند القيم الإنتاجية تُعيد `deliver_prod` **بت-بت**
+_wk_pr0 = _wk_imp.import_module("press_radar")
+_wk_a = _WK.deliver_wake(_wk_by, _wk_sess, _WK_HK.order_b0, _WK_RW,
+                         _wk_pr0.REALERT_DAYS, False)
+_wk_b = _WK_HK.deliver_prod(_wk_by, _wk_sess, _WK_HK.order_b0, _WK_RW)
+check("🔔 WK1 `WV0`: `deliver_wake(5, False)` تُعيد `deliver_prod` بت-بت",
+      _wk_a["per_sess"] == _wk_b["per_sess"] and _wk_a["cards"] == _wk_b["cards"]
+      and _wk_a["bind"] == _wk_b["bind"],
+      f"per_sess={_wk_a['per_sess'] == _wk_b['per_sess']} "
+      f"cards={_wk_a['cards'] == _wk_b['cards']} bind={_wk_a['bind'] == _wk_b['bind']}")
+
+# ② `WK2` — `wake_should_alert` عند النافذة الإنتاجية = `press_radar.should_alert`
+#    **وتفرّق عند نافذةٍ أخرى** (وإلّا فالوسيطُ خامدٌ والذراعان no-op)
+_wk_pr = _wk_pr0
+_wk_cases = [({}, "2024-01-05"), ({"last_alert": "2024-01-01"}, "2024-01-03"),
+             ({"last_alert": "2024-01-01"}, "2024-01-06"),
+             ({"last_alert": None}, "2024-01-05"),
+             ({"last_alert": "bad"}, "2024-01-05")]
+_wk_eq = all(_WK.wake_should_alert(e, t, _wk_pr.REALERT_DAYS)
+             == _wk_pr.should_alert(e, t) for e, t in _wk_cases)
+_wk_dif = (_WK.wake_should_alert({"last_alert": "2024-01-01"}, "2024-01-03", 1)
+           is True
+           and _WK.wake_should_alert({"last_alert": "2024-01-01"},
+                                     "2024-01-03", 10) is False)
+check("🔔 WK2 نافذةُ الدِدوب: تطابقُ الإنتاج عند 5 · وتفرّقٌ عند 1 و10",
+      _wk_eq and _wk_dif, f"eq={_wk_eq} dif={_wk_dif}")
+
+# ③ `WK3` — `dedupe_viol_win` عند 5 = `press_rank_arms.dedupe_violations`
+#    **ويكشف خرقًا عند نافذةٍ أوسع** (وإلّا فهو عدّادٌ لا حارس)
+_wk_cards = [{"s": "2024-01-01", "sym": "A", "oc": "loss"},
+             {"s": "2024-01-04", "sym": "A", "oc": "loss"},
+             {"s": "2024-01-20", "sym": "A", "oc": "loss"}]
+check("🔔 WK3 خرقُ الدِدوب: يطابق المجمَّدة عند 5 · ويكشف عند 10",
+      _WK.dedupe_viol_win(_wk_cards, _wk_pr.REALERT_DAYS)
+      == _WK_PRA.dedupe_violations(_wk_cards)
+      and _WK.dedupe_viol_win(_wk_cards, 10) > _WK.dedupe_viol_win(_wk_cards, 1),
+      f"5={_WK.dedupe_viol_win(_wk_cards, 5)} "
+      f"10={_WK.dedupe_viol_win(_wk_cards, 10)} 1={_WK.dedupe_viol_win(_wk_cards, 1)}")
+
+# ④ `WK4` — الأذرعُ **أربعٌ ولا خامسة** وبتعريفاتها المسجَّلة حرفيًّا (‏§③)
+check("🔔 WK4 الأذرعُ أربعٌ بتعريفِ `§③` حرفيًّا (لا تُضاف ذراعٌ بعد الأرقام)",
+      _WK.ARMS == (("W0", 5, False), ("W1", 1, False), ("W2", 10, False),
+                   ("W3", 5, True)), str(_WK.ARMS))
+
+# ⑤ `WK5` — `W3` يُكمل من الهادئين **ويُبقي تقدّمَ المستيقظ** (عيّنةٌ مفرِّقة:
+#    مستيقظان فقط وسقفُ 8 ⇒ `W0` يُسلّم اثنين و`W3` ثمانيةً أوّلُهما المستيقظان)
+_wk_one = {"2024-02-01": [_wk_row("2024-02-01", f"T{j}", drop=90.0 - j,
+                                  awake=(j < 2)) for j in range(12)]}
+_wk_w0 = _WK.deliver_wake(_wk_one, ["2024-02-01"], _WK_HK.order_b0, _WK_RW, 5, False)
+_wk_w3 = _WK.deliver_wake(_wk_one, ["2024-02-01"], _WK_HK.order_b0, _WK_RW, 5, True)
+_wk_s0 = [c["sym"] for c in _wk_w0["cards"]]
+_wk_s3 = [c["sym"] for c in _wk_w3["cards"]]
+check("🔔 WK5 `W3` يُكمل من الهادئين ويُبقي تقدّمَ المستيقظ (2 ⟶ 8 وأوّلاهما هما)",
+      len(_wk_s0) == 2 and len(_wk_s3) == _wk_pr.ALERT_CAP
+      and _wk_s3[:2] == _wk_s0,
+      f"W0={_wk_s0} W3={_wk_s3}")
+
+# ⑥ `WK6` — بصماتُ التجميد الثلاث **تُقارَن فعلًا وتسقط عند التبديل**
+#    (بصمةٌ تشارك أوّلَ حرفٍ وتختلف بعده ⇒ مقارنةُ حرفٍ واحد تُخدَع وستّةَ عشرَ لا)
+_wk_real = {p: _WK._sha(p) for p in _WK.FROZEN_SHA}
+_wk_fz_ok = _WK.ww1_frozen()
+_wk_keep = dict(_WK.FROZEN_SHA)
+try:
+    _wk_t = _wk_real["hold_key2_arms.py"]
+    _WK.FROZEN_SHA["hold_key2_arms.py"] = (
+        _wk_t[0] + ("0" if _wk_t[1] != "0" else "1") + _wk_t[2:])
+    _wk_fz_bad = _WK.ww1_frozen()
+    _wk_buf = _wk_io.StringIO()
+    with _wk_ctx.redirect_stdout(_wk_buf):
+        _wk_rc_bad = _WK.main()
+    _wk_out_bad = _wk_buf.getvalue()
+finally:
+    _WK.FROZEN_SHA.clear()
+    _WK.FROZEN_SHA.update(_wk_keep)
+check("🔔 WK6 `WW1`: البصماتُ الثلاثُ تُقارَن · وتبديلُ حرفٍ يُوقف بخروج 3",
+      all(v[0] for v in _wk_fz_ok.values())
+      and _wk_fz_bad["hold_key2_arms.py"][0] is False
+      and _wk_fz_bad["hold_key_arms.py"][0] is True
+      and _wk_rc_bad == 3 and "`WW1`" in _wk_out_bad,
+      f"ok={ {k: v[0] for k, v in _wk_fz_ok.items()} } rc={_wk_rc_bad}")
+
+# ⑦ `WK7` — الحدّان **مُعادان حرفيًّا** ولا يُحرَّكان (‏§④-1 و§④-3)
+check("🔔 WK7 الحدّان مُعادان: جودةٌ 0.02R وكلفةٌ 50% (لا يُحرَّكان بعد الأرقام)",
+      _WK.QUAL_TOL_R == 0.02 and _WK.COST_MAX_PCT == 50.0,
+      f"tol={_WK.QUAL_TOL_R} cost={_WK.COST_MAX_PCT}")
+
+# ⑧ `WK8` — قراءةٌ فقط: صفرُ إرسالٍ وصفرُ كتابةِ حالة (بالـAST لا بالنصّ)
+_wk_bad_calls = []
+for _n in _wk_ast.walk(_WK_TREE):
+    if isinstance(_n, _wk_ast.Call):
+        _f = _n.func
+        _nm = getattr(_f, "attr", None) or getattr(_f, "id", None)
+        if _nm in ("send_telegram", "git_save", "save_watchlist",
+                   "save_op_entry_state", "save_hunter_stamp"):
+            _wk_bad_calls.append(_nm)
+_wk_opens = [_n for _n in _wk_ast.walk(_WK_TREE)
+             if isinstance(_n, _wk_ast.Call)
+             and getattr(_n.func, "id", None) == "open"
+             and any(isinstance(a, _wk_ast.Constant) and "w" in str(a.value)
+                     for a in _n.args[1:])]
+check("🔔 WK8 قراءةٌ فقط: صفرُ إرسالٍ/حفظِ حالةٍ وصفرُ فتحٍ للكتابة (AST)",
+      not _wk_bad_calls and not _wk_opens,
+      f"calls={_wk_bad_calls} opens={len(_wk_opens)}")
+
+# ⑨ `WK9` — الإنتاجُ لا يستورد الأداة (عزلٌ تامّ)
+check("🔔 WK9 عزل: `Super_stock`/`press_radar` لا يستوردان `wake_arms`",
+      "wake_arms" not in open("Super_stock.py", encoding="utf-8").read()
+      and "wake_arms" not in open("press_radar.py", encoding="utf-8").read())
+
+# ⑩ `WK10` — المجتمعُ يُبنى بدوالِّ المجمَّدتين **بالاسم** لا بنسخةٍ ثانية
+# 🔴 **إشارةُ الاسم لا نداؤه:** `HK.order_b0` **يُمرَّر وسيطًا** لا يُنادى ⇒
+# قفلٌ يقصر نفسَه على `Call` **يعمى عن أهمّ إعادةِ استعمال**. أمسكه القفلُ
+# نفسُه عند أوّل تشغيل، فوُسّع إلى كلّ إشارةٍ إلى وحدةٍ مجمَّدة.
+_wk_names = {f"{n.value.id}.{n.attr}"
+             for n in _wk_ast.walk(_WK_TREE)
+             if isinstance(n, _wk_ast.Attribute)
+             and isinstance(n.value, _wk_ast.Name)
+             and n.value.id in ("HK", "HK2", "PRA")}
+_wk_need = {"HK2.grid_dates", "HK2.q5_grid_cal", "HK2.top_by_date",
+            "HK2.enrich2", "HK.live_pool", "HK.mover_days", "HK.order_b0",
+            "HK.hv8_agree", "HK.deliver_prod", "PRA.ready_rows", "PRA.r_of"}
+check("🔔 WK10 مقياسٌ واحد: إحدى عشرة دالّةً مُعادةً بالاسم من المجمَّدات",
+      _wk_need <= _wk_names, f"ناقص={sorted(_wk_need - _wk_names)}")
+
+# ⑪ `WK11` — الـworkflow: مدخلان **موصولان ببيئةٍ يقرؤها السكربت** · وبلا كرون
+_wk_wf = _wk_yaml.safe_load(open(".github/workflows/wake.yml", encoding="utf-8"))
+_wk_on = _wk_wf.get(True, _wk_wf.get("on", {}))
+_wk_env = {}
+for _st in _wk_wf["jobs"]["wake"]["steps"]:
+    _wk_env.update(_st.get("env", {}) or {})
+_wk_wired = all(any(f"inputs.{k}" in str(v) for v in _wk_env.values())
+                for k in _wk_on["workflow_dispatch"]["inputs"]
+                if k != "frozen_run_id")
+_wk_reads = {"BACKTEST_YEAR", "BT_FROZEN_PATH"} <= set(_wk_env)
+check("🔔 WK11 الـworkflow: مدخلٌ موصولٌ ببيئةٍ يقرؤها السكربت · وبلا كرون",
+      "schedule" not in _wk_on and _wk_wired and _wk_reads
+      and "BACKTEST_YEAR" in _WK_SRC and "BT_FROZEN_PATH" in _WK_SRC,
+      f"env={sorted(_wk_env)} wired={_wk_wired}")
+
+# ⑫ `WK12` — تمريرةٌ كاملة: كلُّ البوّابات تعبر ⇒ خروج 0 وجدولُ الأذرع وسطرُ WAKE
+_wk_big = _wk_rows(n_days=60, n_syms=20)
+_wk_bb = {}
+for _r in _wk_big:
+    _wk_bb.setdefault(_r["session"], []).append(_r)
+_wk_med = __import__("statistics").median([len(v) for v in _wk_bb.values()])
+_wk_aw = 100.0 * sum(1 for v in _wk_bb.values()
+                     if any((r.get("wake") or {}).get("awake") for r in v)) \
+    / max(1, len(_wk_bb))
+_wk_keep_pub = (dict(_WK.PUB_B0_NET), dict(_WK.PUB_B0_CARDS), dict(_WK.PUB_B0_BIND))
+try:
+    for _d in (_WK.PUB_B0_NET, _WK.PUB_B0_CARDS, _WK.PUB_B0_BIND):
+        _d.clear()                      # سنةٌ اختباريّةٌ بلا مرجعٍ منشور
+    _wk_b2 = _wk_io.StringIO()
+    with _wk_ctx.redirect_stdout(_wk_b2):
+        _wk_rc = _WK.report(_wk_big, 100, 100, "9999",
+                            (99.0, 150), _wk_med, _wk_aw)
+    _wk_o = _wk_b2.getvalue()
+finally:
+    _WK.PUB_B0_NET.update(_wk_keep_pub[0])
+    _WK.PUB_B0_CARDS.update(_wk_keep_pub[1])
+    _WK.PUB_B0_BIND.update(_wk_keep_pub[2])
+check("🔔 WK12 تمريرةٌ كاملة ⇒ خروج 0 · جدولُ الأذرع الأربع · وسطرُ `WAKE`",
+      _wk_rc == 0 and "\nWAKE " in _wk_o and "`WV0`" in _wk_o
+      and "`WV5`" in _wk_o and "`WV2`" in _wk_o
+      and all(f"│ {n} (دِدوب" in _wk_o for n, _d, _f in _WK.ARMS),
+      f"rc={_wk_rc} " + _wk_o[-160:].replace("\n", " | "))
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
