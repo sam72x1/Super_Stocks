@@ -34171,8 +34171,11 @@ check("🔔 WK4 الأذرعُ أربعٌ بتعريفِ `§③` حرفيًّا 
 
 # ⑤ `WK5` — `W3` يُكمل من الهادئين **ويُبقي تقدّمَ المستيقظ** (عيّنةٌ مفرِّقة:
 #    مستيقظان فقط وسقفُ 8 ⇒ `W0` يُسلّم اثنين و`W3` ثمانيةً أوّلُهما المستيقظان)
+# 🔴 **عيّنةٌ تفرّق:** المستيقظان يقعان **آخرًا** بترتيب `alert_rank` (أدنى
+# `drop_pct`) — وإلّا تصدّرا صدفةً فاستوى «المستيقظُ أوّلًا» و«الترتيبُ الخام»
+# ⇒ قفلٌ أعمى (أمسكته الطفرةُ m4 لا القراءة).
 _wk_one = {"2024-02-01": [_wk_row("2024-02-01", f"T{j}", drop=90.0 - j,
-                                  awake=(j < 2)) for j in range(12)]}
+                                  awake=(j >= 10)) for j in range(12)]}
 _wk_w0 = _WK.deliver_wake(_wk_one, ["2024-02-01"], _WK_HK.order_b0, _WK_RW, 5, False)
 _wk_w3 = _WK.deliver_wake(_wk_one, ["2024-02-01"], _WK_HK.order_b0, _WK_RW, 5, True)
 _wk_s0 = [c["sym"] for c in _wk_w0["cards"]]
@@ -34291,6 +34294,127 @@ check("🔔 WK12 تمريرةٌ كاملة ⇒ خروج 0 · جدولُ الأذ
       and "`WV5`" in _wk_o and "`WV2`" in _wk_o
       and all(f"│ {n} (دِدوب" in _wk_o for n, _d, _f in _WK.ARMS),
       f"rc={_wk_rc} " + _wk_o[-160:].replace("\n", " | "))
+
+# ═════ 🔔 T-WAKE — أقفال WK13-WK19 (‏2026-08-28، **أخرجتها الطفرةُ لا القراءة**) ═════
+# 🔴 **ثمانٍ من سبعَ عشرةَ طفرةً نجت في الجولة الأولى، وكلُّها صنفٌ واحد:** أقفالي
+#    أثبتت أن الحارسَ **يمرّر الصحيح** ولم تُثبت أنه **يوقف الخطأ** — فمسارُ الإيقاف
+#    نفسُه كان بلا قفل. وهذي السبعةُ تُغلقها بمسارِ إيقافٍ صريحٍ لكلّ حارس.
+
+def _wk_pub_clear():
+    """تُفرّغ المراجعَ المنشورة وتُعيد لقطتَها (سنةٌ اختباريّةٌ بلا مرجعٍ منشور)."""
+    keep = (dict(_WK.PUB_B0_NET), dict(_WK.PUB_B0_CARDS), dict(_WK.PUB_B0_BIND))
+    for _d in (_WK.PUB_B0_NET, _WK.PUB_B0_CARDS, _WK.PUB_B0_BIND):
+        _d.clear()
+    return keep
+
+
+def _wk_pub_restore(keep):
+    for _d, _k in zip((_WK.PUB_B0_NET, _WK.PUB_B0_CARDS, _WK.PUB_B0_BIND), keep):
+        _d.clear()
+        _d.update(_k)
+
+
+def _wk_report(rows, med, year="9999", pub=None):
+    """يشغّل `report` بمخرَجٍ ملتقَط ويُعيد (رمزُ الخروج، النصّ)."""
+    _keep = _wk_pub_clear()
+    try:
+        if pub:
+            _WK.PUB_B0_NET.update(pub[0])
+            _WK.PUB_B0_CARDS.update(pub[1])
+            _WK.PUB_B0_BIND.update(pub[2])
+        _bb = {}
+        for _r in rows:
+            _bb.setdefault(_r["session"], []).append(_r)
+        _aw = 100.0 * sum(1 for _v in _bb.values()
+                          if any((x.get("wake") or {}).get("awake") for x in _v)) \
+            / max(1, len(_bb))
+        _buf = _wk_io.StringIO()
+        with _wk_ctx.redirect_stdout(_buf):
+            _rc = _WK.report(rows, 100, 100, year, (99.0, 150), med, _aw)
+        return _rc, _buf.getvalue()
+    finally:
+        _wk_pub_restore(_keep)
+
+
+# ⑬ `WK13` — **مسارُ إيقاف `WV0`**: مرجعٌ منشورٌ مخالفٌ ⇒ خروج 3 ولا جدولَ أذرع
+#    (‏`WV0` جسرُ التكامل؛ وبلا هذا القفل كان إلغاؤها يمرّ أخضرَ — الطفرة m1.)
+_wk_rc13, _wk_o13 = _wk_report(
+    _wk_big, 20.0, pub=({"9999": 99.0}, {"9999": 1}, {"9999": 1}))
+check("🔔 WK13 `WV0` **توقف**: مرجعٌ منشورٌ مخالفٌ ⇒ خروج 3 (عطبُ أداة لا نتيجة)",
+      _wk_rc13 == 3 and "`WV0`" in _wk_o13 and "الأذرعُ الأربع" not in _wk_o13,
+      f"rc={_wk_rc13} " + _wk_o13[-140:].replace("\n", " | "))
+
+# ⑭ `WK14` — **مسارُ إيقاف `WV5`**: رموزٌ فريدةٌ عالميًّا ⇒ الدِدوبُ لا يكتم شيئًا
+#    ⇒ `no-op` بنيويّ (خروج 4). وبلاه كان الدِدوبُ المنحلّ يمرّ (الطفرة m8).
+_wk_uniq = [_wk_row(f"2024-03-{i + 1:02d}", f"U{i}_{j}", drop=90.0 - j)
+            for i in range(20) for j in range(12)]
+_wk_rc14, _wk_o14 = _wk_report(_wk_uniq, 12.0)
+check("🔔 WK14 `WV5` **توقف**: دِدوبٌ منحلٌّ (صفرُ كتم) ⇒ خروج 4",
+      _wk_rc14 == 4 and "`WV5`" in _wk_o14,
+      f"rc={_wk_rc14} " + _wk_o14[-140:].replace("\n", " | "))
+
+# ⑮ `WK15` — **`WV2` يقارن قائمةَ الكروت لا عددَها**: عيّنةٌ بسقفٍ مُلزِمٍ دائمًا
+#    ⇒ الأذرعُ الأربع تُسلّم **العددَ نفسَه بالضبط** وتفترق في **مَن** تُسلّم.
+#    ⇒ بالقائمة يمرّ (خروج 0) وبالعدد يصير `no-op` كاذبًا (خروج 4) — الطفرة m9.
+_wk_d15 = __import__("datetime")
+_wk_days15 = [(_wk_d15.date(2024, 1, 1) + _wk_d15.timedelta(days=3 * i)).isoformat()
+              for i in range(42)]
+_wk_r15 = [_wk_row(_d, f"V{j}", drop=90.0 - j,
+                   oc=("win" if (i + j) % 9 == 0 else "loss"))
+           for i, _d in enumerate(_wk_days15) for j in range(36)]
+_wk_rc15, _wk_o15 = _wk_report(_wk_r15, 36.0)
+_wk_res15 = _WK.run_wake(_wk_r15, _WK_RW)
+_wk_n15 = {n: len(_wk_res15[n]["cards"]) for n, _d, _f in _WK.ARMS}
+_wk_same_n = len(set(_wk_n15.values())) == 1
+_wk_dif_l = _wk_res15["W1"]["cards"] != _wk_res15["W0"]["cards"]
+check("🔔 WK15 `WV2` بالقائمة لا بالعدد: أعدادٌ متساويةٌ ومحتوًى مختلف ⇒ خروج 0",
+      _wk_rc15 == 0 and _wk_same_n and _wk_dif_l and "`WV2`" in _wk_o15,
+      f"rc={_wk_rc15} n={_wk_n15} same_n={_wk_same_n} dif={_wk_dif_l}")
+
+# ⑯ `WK16` — `WV6` يقيس **بنافذة كلّ ذراع** لا بثابتٍ (وإلّا فهو حارسٌ خامد:
+#    `deliver_wake` تفرض النافذةَ نفسَها التي يفحصها لاحقًا ⇒ لا يسقط سلوكيًّا)
+_wk_rep_t = _wk_ast.parse(_wk_insp.getsource(_WK.report))
+_wk_dv = [c for c in _wk_ast.walk(_wk_rep_t)
+          if isinstance(c, _wk_ast.Call)
+          and getattr(c.func, "id", None) == "dedupe_viol_win"]
+check("🔔 WK16 `WV6` بنافذة كلّ ذراع (وسيطٌ متغيّرٌ لا ثابت — AST)",
+      len(_wk_dv) == 1 and len(_wk_dv[0].args) == 2
+      and isinstance(_wk_dv[0].args[1], _wk_ast.Name),
+      f"n={len(_wk_dv)} arg1="
+      + (type(_wk_dv[0].args[1]).__name__ if _wk_dv else "—"))
+
+# ⑰ `WK17` — **مسارُ إيقاف `WV4`**: كثافةٌ خارج [8,40] ⇒ خروج 4 (الطفرة m12)
+_wk_rc17, _wk_o17 = _wk_report(_wk_big, 3.0)
+check("🔔 WK17 `WV4` **توقف**: وسيطُ الجاهزين خارج النطاق ⇒ خروج 4",
+      _wk_rc17 == 4 and "`WV4`" in _wk_o17,
+      f"rc={_wk_rc17} " + _wk_o17[-140:].replace("\n", " | "))
+
+# ⑱ `WK18` — **الحاكمُ `R` لكلّ كرت لا لكلّ جلسة** (‏§④): مقامان مختلفان بالبناء
+#    ⇒ الحاصلُ واحدٌ (المجموع) والقيمتان تفترقان. وبلاه كان تبديلُ الحاكم صامتًا.
+_wk_d18 = {"per_sess": {"a": 2.0, "b": 4.0},
+           "cards": [{"s": "a", "sym": "X", "oc": "win"},
+                     {"s": "a", "sym": "Y", "oc": "loss"},
+                     {"s": "b", "sym": "Z", "oc": "loss"}],
+           "bind": 0, "seen": 10, "muted": 1}
+_wk_st18 = _WK.arm_stats(_wk_d18, ["a", "b"], _WK_RW)
+check("🔔 WK18 الحاكمُ `R`/كرت: مقامُه الكروتُ لا الجلسات (‏2.00 مقابل 3.00)",
+      abs(_wk_st18["r_card"] * _wk_st18["cards"] - 6.0) < 1e-9
+      and abs(_wk_st18["r_sess"] * 2 - 6.0) < 1e-9
+      and abs(_wk_st18["r_card"] - _wk_st18["r_sess"]) > 1e-9,
+      f"r_card={_wk_st18['r_card']} r_sess={_wk_st18['r_sess']}")
+
+# ⑲ `WK19` — `run_wake` يمرّر **مُرتِّبَ الإنتاج `HK.order_b0`** لا جذعًا
+#    (‏`WK10` يرى الاسمَ في الوحدة كلِّها ⇒ يعمى عن استبداله في نقطة النداء)
+_wk_run_t = _wk_ast.parse(_wk_insp.getsource(_WK.run_wake))
+_wk_dw = [c for c in _wk_ast.walk(_wk_run_t)
+          if isinstance(c, _wk_ast.Call)
+          and getattr(c.func, "id", None) == "deliver_wake"]
+_wk_ord_ok = (len(_wk_dw) == 1 and len(_wk_dw[0].args) >= 3
+              and isinstance(_wk_dw[0].args[2], _wk_ast.Attribute)
+              and getattr(_wk_dw[0].args[2].value, "id", None) == "HK"
+              and _wk_dw[0].args[2].attr == "order_b0")
+check("🔔 WK19 نقطةُ النداء تمرّر `HK.order_b0` نفسَه (لا جذعًا — AST)",
+      _wk_ord_ok, f"n={len(_wk_dw)}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
