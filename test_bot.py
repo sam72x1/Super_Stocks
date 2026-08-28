@@ -34475,19 +34475,36 @@ check("🧹 LNT2 كلُّ قراءةٍ للاسمين محروسةٌ بـ`cur is
 # ③ `LNT3` — **سلوكيّ:** الحلقةُ **من مصدر الملفّ الحيّ** تُنفَّذ على حالاتٍ
 #    حدّيّةٍ وتُطابق مرجعًا محسوبًا بالورقة ⇒ أيُّ تغييرٍ في دلالتها يسقط هنا،
 #    **لا في تهيئةٍ ميتة**. (‏🔴 وبلا هذا القفل يكون LNT1/LNT2 موضعيَّين فقط.)
-_lnt_body = [n for n in _LNT_FN.body
-             if isinstance(n, (_lnt_ast.Assign, _lnt_ast.For, _lnt_ast.If))]
-_lnt_seg = next(i for i, n in enumerate(_lnt_body)
-                if isinstance(n, _lnt_ast.Assign)
-                and "seg" in _lnt_ast.dump(n.targets[0]))
-_lnt_src = "\n".join(
-    "    " + ln
-    for n in _lnt_body[_lnt_seg:_lnt_seg + 4]
-    for ln in _lnt_ast.unparse(n).splitlines())
-_lnt_ns = {}
-exec("def _lnt_loop(b, a_ms):\n" + _lnt_src + "\n    return seg",  # noqa: S102
-     _lnt_ns)
-_lnt_loop = _lnt_ns["_lnt_loop"]
+# 🔴 **والانتقاءُ بالنوع لا بعدَدٍ ثابت** — صيغتي الأولى قصّت `[seg : seg+4]`
+#    فحذفُ سطرٍ يُدخل جملةً أجنبيّة ⇒ **انهيارٌ يكتم كلَّ قفلٍ بعده** (دستورُ
+#    الأقفال §①، أمسكته الطفرةُ n1 لا القراءة) ⇒ صار **محروسًا** ويُنتقى
+#    بالبنية: تهيئةُ `seg` · تهيئةُ الاسمين إن وُجدت · حلقةُ الشموع · وذيلُها.
+def _lnt_build():
+    """يُركّب حلقةَ مسار الدقيقة من المصدر الحيّ — أو يُرجع سببَ التعذّر."""
+    try:
+        body = _LNT_FN.body
+        i_seg = next(i for i, n in enumerate(body)
+                     if isinstance(n, _lnt_ast.Assign)
+                     and "'seg'" in _lnt_ast.dump(n.targets[0]))
+        i_for = next(i for i, n in enumerate(body)
+                     if isinstance(n, _lnt_ast.For)
+                     and "'_o'" in _lnt_ast.dump(n.target))
+        picked = body[i_seg:i_for + 1]
+        tail = body[i_for + 1]
+        if not (isinstance(tail, _lnt_ast.If)
+                and "'cur'" in _lnt_ast.dump(tail.test)):
+            return "⛔ ذيلُ الحلقة ليس حارسَ `cur`"
+        picked = picked + [tail]
+        src = "\n".join("    " + ln for n in picked
+                         for ln in _lnt_ast.unparse(n).splitlines())
+        ns = {}
+        exec("def _f(b, a_ms):\n" + src + "\n    return seg", ns)  # noqa: S102
+        return ns["_f"]
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}: {_e}"
+
+
+_lnt_loop = _lnt_build()
 _Q = 15 * 60_000
 _lnt_cases = [
     ([], 0, []),                                        # فارغة
@@ -34497,8 +34514,17 @@ _lnt_cases = [
       (_Q + 60_000, 0, 4.0, 0, 1.3, 9)], 0,
      [(0, 3.0, 1.2, 120_000), (1, 4.0, 1.3, _Q + 60_000)]),   # شريحتان
 ]
-_lnt_bad = [(c[1], _lnt_loop(c[0], c[1]), c[2])
-            for c in _lnt_cases if _lnt_loop(c[0], c[1]) != c[2]]
+if not callable(_lnt_loop):
+    _lnt_bad = [_lnt_loop]                       # تعذّرَ التركيبُ ⇒ فشلٌ نظيف
+else:
+    _lnt_bad = []
+    for _c in _lnt_cases:
+        try:
+            _got = _lnt_loop(_c[0], _c[1])
+        except Exception as _e:                                  # noqa: BLE001
+            _got = f"⛔ {type(_e).__name__}"
+        if _got != _c[2]:
+            _lnt_bad.append((_c[1], _got, _c[2]))
 check("🧹 LNT3 دلالةُ حلقة مسار الدقيقة (من المصدر الحيّ) تطابق المرجعَ",
       not _lnt_bad, str(_lnt_bad)[:150])
 
