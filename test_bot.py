@@ -8477,11 +8477,20 @@ if _PS2 is not None:
 check("🛑②🔒 RVS3 وحدةُ `R₀` مطابقةٌ سلوكيًّا للأداة السابقة (مقياسٌ واحد)",
       _ps2_ok3, "6 حالاتٍ متفرّقة")
 
-# 🔒 RVS4 — `RV4` تختبر دعوى «`tested ≤ pivot`» **وتوقف** عند تكذيبها
-check("🛑②🔒 RVS4 دعوى «المِرساة ≤ pivot» تُختبَر لا تُفترَض · وتكذيبُها يوقف بخروج 3",
+# 🔒 RVS4 — **إقرارٌ مؤرَّخ 2026-08-29 وتشديدٌ لا إرخاء:** كان عقدُه «تكذيبُها
+#    **يوقف** بخروج 3» **فسقط على تنفيذ ملحق §⑩** — إذ كُذّبت `RV4` في
+#    التشغيلات الثلاث **قبل أيّ رقمِ ذراع** وأوقفت القياسَ كلَّه. وهي **دعوًى
+#    تُكذَّب** لا **بوّابةَ صلاحيةِ أداة** (بوّاباتُ الأداة `RV0`/`RV3`/`RV7`
+#    وقد عبرت 1591/1591) ⇒ صارت **تُقاس وتُعلَن بطرفيها**.
+#    والتشديد: لا يكفي حضورُ النصّ — يُشترَط **عدّادٌ ونسبةٌ ووسيطُ فجوة**
+#    فلا يُختزَل التكذيبُ إلى بوليانٍ يُقرأ «حصل/لم يحصل».
+check("🛑②🔒 RVS4 دعوى «المِرساة ≤ pivot» تُقاس وتُعلَن بطرفيها بعدّادٍ ونسبةٍ ووسيط",
       'viol = [r for r in both if r["tr0"] > r["pivot"] + 1e-9]' in _ps2_src
-      and "`RV4` مكذَّبة" in _ps2_src
-      and 'return 3' in _ps2_src.split("`RV4` مكذَّبة")[-1][:300],
+      and "`RV4` **مكذَّبة**" in _ps2_src
+      and "استدلالُ `§①` صامد" in _ps2_src
+      and "{len(viol)}" in _ps2_src
+      and "len(viol) / len(both) * 100" in _ps2_src
+      and "وسيطُ فجوتها" in _ps2_src,
       "OK")
 
 # 🔒 RVS5 — **مقامان لا واحد** (‏§④): البوّابةُ على صفوف الأداة السابقة
@@ -8560,6 +8569,51 @@ if _PS2 is not None:
         _ps2_dbg9 = f"لا صفّ: {_ps2_why}"
 check("🛑②🔒 RVS9 سلوكيّ: `C0`=7% تحت · `C1`=أدنى دفعة · `C2`=`pivot` — ثلاثةٌ متفرّقة",
       _ps2_ok9, _ps2_dbg9)
+
+# 🔒 RVS10 — **بنيويّ**: `RV4` صارت دعوًى **تُقاس وتُطبَع ولا توقف** (ملحق §⑩
+#    المؤرَّخ 2026-08-29 — كُذّبت في التشغيلات الثلاث **قبل أيّ رقمِ ذراع**).
+#    الشرطان معًا: صفرُ `return 3` داخل كتلة `viol` · وسطرُ التكذيب يُطبَع
+#    بلفظه «مكذَّبة» ومعه **الاتجاهان** (فلا يُقرأ الانحرافُ اتجاهًا واحدًا).
+_ps2_ok10 = False
+_ps2_dbg10 = "لم يُقرأ"
+try:
+    _ps2_t10 = _trn_ast.parse(_ps2_src)
+    _ps2_if = [n for n in _trn_ast.walk(_ps2_t10)
+               if isinstance(n, _trn_ast.If)
+               and getattr(n.test, "id", None) == "viol"]
+    _ps2_ret3 = [n for f in _ps2_if for n in _trn_ast.walk(f)
+                 if isinstance(n, _trn_ast.Return)]
+    _ps2_ok10 = (len(_ps2_if) == 1 and not _ps2_ret3
+                 and "`RV4` **مكذَّبة**" in _ps2_src
+                 and "اتجاهين** لا اتجاهٍ واحد" in _ps2_src
+                 and "استدلالُ `§①` صامد" in _ps2_src)
+    _ps2_dbg10 = f"فروع viol={len(_ps2_if)} · return={len(_ps2_ret3)}"
+except Exception as _e:                                          # noqa: BLE001
+    _ps2_dbg10 = f"⛔ رمى: {type(_e).__name__}"
+check("🛑②🔒 RVS10 `RV4` دعوًى تُقاس ولا توقف · والتكذيبُ يُطبَع بالاتجاهين",
+      _ps2_ok10, _ps2_dbg10)
+
+# 🔒 SNAP1 — **بوّابةُ اللقطة في الأداتين معًا** (‏2026-08-29): سنةُ اللقطة
+#    تطابق سنةَ القياس وإلّا **خروج 4**. وُلدت من عطبٍ تشغيليٍّ حقيقيّ: مرّرتُ
+#    لقطةَ 2024 للسنوات الثلاث ⇒ سنةُ 2025 أعطت **153 صفقة** مقابل **1606**
+#    بلقطتها = **عشرُ مرّاتٍ فرقًا بخروجٍ صفريٍّ صامت**، والبوّابةُ الوحيدةُ
+#    التي كانت ستمسكه (`RV0` إعادةُ المنشور) تقع **بعد** `RV4` فحجبها تكذيبُها.
+_snap_ok = True
+_snap_dbg = []
+for _snap_f in ("tranche_arms.py", "pivot_stop2_arms.py"):
+    _snap_s = _trn_io.open(_snap_f, encoding="utf-8").read()
+    _snap_t = _trn_ast.parse(_snap_s)
+    _snap_hit = [n for n in _trn_ast.walk(_snap_t)
+                 if isinstance(n, _trn_ast.If)
+                 and "asof" in _trn_ast.dump(n.test)
+                 and "year" in _trn_ast.dump(n.test)
+                 and any(isinstance(x, _trn_ast.Return)
+                         and getattr(x.value, "value", None) == 4
+                         for x in _trn_ast.walk(n))]
+    _snap_dbg.append(f"{_snap_f}:{len(_snap_hit)}")
+    _snap_ok = _snap_ok and len(_snap_hit) == 1
+check("🛑📦🔒 SNAP1 سنةُ اللقطة تطابق سنةَ القياس وإلّا خروج 4 — في الأداتين",
+      _snap_ok, " · ".join(_snap_dbg))
 
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)

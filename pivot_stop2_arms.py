@@ -215,9 +215,18 @@ def report(rows, year, issues):
          f"{(gaps[-1] if gaps else 0.0):.2f}%")
     if viol:
         v = viol[0]
-        _log(f"   ⛔ `RV4` مكذَّبة — {v['symbol']}/{v['date']}: "
-             f"tr0={v['tr0']} pivot={v['pivot']} ⇒ استدلالُ `§①` خاطئ")
-        return 3
+        vg = sorted(abs(r["pivot"] / r["tr0"] - 1.0) * 100.0
+                    for r in viol if r["tr0"])
+        _log(f"   🔴 `RV4` **مكذَّبة** (ملحق §⑩ · تُقاس ولا توقف): {len(viol)} "
+             f"من {len(both)} ({len(viol) / len(both) * 100:.1f}%) وقفُ `C1` "
+             f"**فوق** وقف `C2` · وسيطُ فجوتها "
+             f"{(vg[len(vg) // 2] if vg else 0.0):.2f}% · أقصاها "
+             f"{(vg[-1] if vg else 0.0):.2f}%")
+        _log(f"      مثالٌ {v['symbol']}/{v['date']}: tr0={v['tr0']} "
+             f"pivot={v['pivot']} ⇒ استدلالُ `§①` خاطئ · والانحرافُ **ذو "
+             f"اتجاهين** لا اتجاهٍ واحد")
+    else:
+        _log("   🔒 `RV4`: صفرُ مخالفة — استدلالُ `§①` صامد")
 
     # ═══ المقامُ (1): بوّابتا الإعادة على صفوف الأداة السابقة حرفيًّا ═══
     use = [r for r in rows if r.get("oC2") is not None]
@@ -309,6 +318,14 @@ def main() -> int:
     fwd = int(S.CONFIG["BACKTEST_FORWARD_DAYS"])
     spread = S.CONFIG.get("BT_SPREAD_PCT", 0.0) or 0.0
     lo_d, hi_d = f"{year}-01-01", f"{year}-12-31"
+    # 🔒 بوّابةُ اللقطة (‏2026-08-29): سنةُ اللقطة **تطابق** سنةَ القياس — وإلّا
+    #    قِيست سنةٌ على مجتمعِ سنةٍ أخرى (تسرّبُ كونٍ للماضي · وتاريخٌ مبتورٌ
+    #    للمستقبل). مقيسٌ حيًّا: لقطةُ 2024 على سنة 2025 أعطت **153 صفقة**
+    #    مقابل **1606** بلقطتها ⇒ عشرُ مرّاتٍ فرقًا **وخروجٌ صفريّ صامت**.
+    if str(asof or "")[:4] != str(year):
+        _log(f"⛔ اللقطة as-of {asof} لا تطابق سنةَ القياس {year} — "
+             "مجتمعٌ مختلف، لا تُقاس")
+        return 4
     syms = sorted(hist)
     _log(f"📦 اللقطة as-of {asof} · رموز {len(syms)} · وقفُ المرجع "
          f"{S.CONFIG['STOP_BELOW_LOW_PCT']} · الأذرع C0/C1/C2")
