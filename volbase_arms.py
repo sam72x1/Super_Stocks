@@ -333,8 +333,11 @@ def main():                                                       # noqa: C901
         hi = max(float(b["c"]) for b in bars)
         if (hi / pc[s] - 1.0) * 100.0 >= GP.MOVER_PCT:
             movers.append(s)
+    _mv_show = sorted(movers)[:14]
+    _mv_rest = len(movers) - len(_mv_show)
     print(f"🏃 المتحرّكون (‏+{GP.MOVER_PCT:.0f}% فأكثر): **{len(movers)}** — "
-          f"{', '.join(sorted(movers)[:14])}"
+          f"{', '.join(_mv_show)}"
+          + (f" · و**{_mv_rest}** آخرون لم يُسمَّوا (سقفُ عرضٍ 14)" if _mv_rest > 0 else "")
           + (f"\n   ⚠️ **دون {MOVER_MIN_N} ⇒ المعيار ④ غيرُ مقيس**"
              if len(movers) < MOVER_MIN_N else "") + "\n")
 
