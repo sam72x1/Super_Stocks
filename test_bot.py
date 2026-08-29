@@ -8241,16 +8241,59 @@ check("📐🔒 TRN0 أداةُ الدفعات تُحمَّل بلا استير�
 _trn_df = synth_pivot(seed=2)
 _trn_r = S.analyze_ticker("TRNX", _trn_df)
 _trn_ok1 = bool(_trn_r) and _TRN is not None
+_trn_l0 = None
 if _trn_ok1:
-    _trn_anch = float(_trn_r["rr_stop"]) / (
-        1.0 - float(S.CONFIG["STOP_BELOW_LOW_PCT"][1]) / 100.0)
-    _trn_l0 = _TRN.ladder(_trn_anch, 0.0, S.CONFIG["ENTRY_TRANCHES"],
-                          S.CONFIG["ENTRY_STEP_PCT"])
+    # 🔑 المِرساةُ من **دالّة الأداة** التي تنادي دوالَّ الإنتاج بالاسم — لا
+    #    باسترجاعٍ بالقسمة. (‏2026-08-29: القفلُ القديم كان يستعمل **نفسَ**
+    #    الاسترجاع المعطوب فيستحيل عليه أن يمسكه = «عيّنةٌ لا تفرّق» في القفل.)
+    _trn_anch = _TRN.anchor_at(S, _trn_df, {"pivot": _trn_r.get("pivot")})
+    _trn_l0 = (_TRN.ladder(_trn_anch, 0.0, S.CONFIG["ENTRY_TRANCHES"],
+                           S.CONFIG["ENTRY_STEP_PCT"])
+               if _trn_anch is not None else None)
     _trn_ok1 = _trn_l0 == [round(float(x), 2) for x in _trn_r["tranches"]]
-check("📐🔒 TRN1 سلّمُ `P0` (إزاحة 0) = دفعاتُ الإنتاج بت-بت — من مِرساةٍ مستردَّة",
+check("📐🔒 TRN1 سلّمُ `P0` (إزاحة 0) = دفعاتُ الإنتاج بت-بت — بمِرساةِ الإنتاج",
       _trn_ok1,
       (f"{_trn_l0} مقابل {_trn_r['tranches']}" if _trn_ok1 is not True
        and bool(_trn_r) and _TRN is not None else "OK"))
+
+# 🔒 TRN1ب — **بنيويّ**: `anchor_at` تنادي دالّتَي الإنتاج بالاسم · وصفرُ
+#    استرجاعٍ للمِرساة بقسمةِ `rr_stop` في الأداة كلِّها (الصنفُ الذي أسقط
+#    `TV1` في ثلاث تشغيلاتٍ حيّة قبل أيّ رقمِ ذراع).
+_trn_ok1b = False
+_trn_why1b = "لم تُحمَّل"
+if _TRN is not None:
+    _trn_src = _trn_io.open("tranche_arms.py", encoding="utf-8").read()
+    _trn_t = _trn_ast.parse(_trn_src)
+    _trn_fn = next((n for n in _trn_ast.walk(_trn_t)
+                    if isinstance(n, _trn_ast.FunctionDef)
+                    and n.name == "anchor_at"), None)
+    _trn_names = ({getattr(c.func, "attr", None)
+                   for c in _trn_ast.walk(_trn_fn) if isinstance(c, _trn_ast.Call)}
+                  if _trn_fn is not None else set())
+    # صفرُ قسمةٍ على `rr_stop` في أيّ موضعٍ من الأداة (تعبيرُ القسمة نحويًّا)
+    _trn_div = [n for n in _trn_ast.walk(_trn_t)
+                if isinstance(n, _trn_ast.BinOp)
+                and isinstance(n.op, _trn_ast.Div)
+                and "rr_stop" in _trn_ast.dump(n.left)]
+    _trn_ok1b = (_trn_fn is not None and "_anchor_mode" in _trn_names
+                 and "tested_level" in _trn_names and not _trn_div)
+    _trn_why1b = (f"دوالّ={sorted(x for x in _trn_names if x)} "
+                  f"قسماتُ rr_stop={len(_trn_div)}")
+check("📐🔒 TRN1ب المِرساةُ من دوالّ الإنتاج بالاسم · صفرُ استرجاعٍ بقسمة `rr_stop`",
+      _trn_ok1b, _trn_why1b)
+
+# 🔒 TRN1ج — **العيّنةُ التي تفرّق** (حالةُ `ADTH/2023-01-05` الحيّة حرفيًّا):
+#    مِرساةٌ 1.50 ⇒ `1.50 × 1.03 = 1.545` **على حدّ التدوير بالضبط**، والاسترجاعُ
+#    بالقسمة يُزيحها **بوحدةِ ULP واحدة** فتعبر الحدَّ: ‏1.54 ⟶ 1.55.
+#    ⇒ هذا هو الصنفُ الذي أسقط `TV1` — ولا تفرّقه العيّنةُ الصناعية إطلاقًا.
+_trn_a0 = 1.50
+_trn_rt = (_trn_a0 * (1 - 7 / 100.0)) / (1 - 7 / 100.0)          # الاسترجاعُ المعطوب
+_trn_L_ok = [round(_trn_a0 * (1 + 0.03 * i), 2) for i in range(3)]
+_trn_L_bad = [round(_trn_rt * (1 + 0.03 * i), 2) for i in range(3)]
+check("📐🔒 TRN1ج عيّنةٌ **تفرّق**: الاسترجاعُ بالقسمة يعبر حدَّ التدوير (1.54 ⟶ 1.55)",
+      (_trn_L_ok == [1.5, 1.54, 1.59] and _trn_L_bad == [1.5, 1.55, 1.59]
+       and _trn_a0 != _trn_rt),
+      f"سليم={_trn_L_ok} · مسترجَع={_trn_L_bad}")
 
 # 🔒 TRN2 — الإزاحةُ ترفع السلّمَ فعلًا · وأدنى دفعةٍ تفارق الوقفَ (جوهرُ التجربة)
 _trn_ok2 = False

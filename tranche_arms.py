@@ -97,7 +97,34 @@ def plan_at(S, sym, df, i):
         return None
 
 
-def arms_for(S, sym, df, tr, fwd, spread, n_tr, step_pct, s_hi):
+def anchor_at(S, df_slice, pl):
+    """مِرساةُ الدفعات كما يبنيها الإنتاجُ حرفيًّا (`Super_stock.py:3733-3742`):
+    وضعُ المِرساة من `_anchor_mode` النقيّة ⟵ فإن كان نافذًا فـ`tested_level`
+    على **الشريحة نفسِها** التي مُرِّرت لـ`analyze_ticker`، وإلّا `pivot`.
+
+    🔴 **صفرُ إعادةِ بناءٍ بالقسمة** — القاعدة: «لا تسترجع كمّيةً بالقسمة إن
+    كانت الدالّةُ التي أنتجتها متاحةً بالاسم»."""
+    try:
+        amode = S._anchor_mode(S.CONFIG.get("BT_ANCHOR"),
+                               S.CONFIG.get("ANCHOR_MODE"))
+    except Exception:                                            # noqa: BLE001
+        return None
+    if amode:
+        try:
+            tl = S.tested_level(df_slice)
+        except Exception:                                        # noqa: BLE001
+            return None
+        if tl:
+            try:
+                return float(tl["level"])
+            except (TypeError, ValueError, KeyError):
+                return None
+        if amode == "tested_strict":
+            return None
+    return pl.get("pivot")
+
+
+def arms_for(S, sym, df, tr, fwd, spread, n_tr, step_pct):
     """يحسم الأذرعَ الأربع على **نفس الشموع ونفس الوقف** — المتغيّرُ بدايةُ
     السلّم وحدَها. يرجّع (صفّ، None) أو (None، سبب)."""
     try:
@@ -111,11 +138,13 @@ def arms_for(S, sym, df, tr, fwd, spread, n_tr, step_pct, s_hi):
         return None, "تعذّرت إعادةُ الخطّة"
     if pl["rr_stop"] is None:
         return None, "بلا `rr_stop`"
-    # 🔑 استرجاعُ المِرساة غيرِ المدوَّرة: `rr_stop = _anchor × (1 − s_hi/100)`
-    denom = 1.0 - float(s_hi) / 100.0
-    if denom <= 0:
-        return None, "أساسٌ تالف"
-    anchor = pl["rr_stop"] / denom
+    # 🔑 المِرساةُ **من دوالّ الإنتاج بالاسم** لا باسترجاعٍ بالقسمة (درسُ `TV1`
+    #    2026-08-29: `rr_stop / (1 − s_hi/100)` **إعادةُ بناءٍ** تُخطئ حين
+    #    يتدخّل الضمانُ الذهبيّ أو يتبدّل أساسُ الوقف — والدالّةُ التي أنتجت
+    #    المِرساةَ متاحةٌ بالاسم فتُنادى).
+    anchor = anchor_at(S, df.iloc[:i], pl)
+    if anchor is None:
+        return None, "بلا مِرساة"
     stop = pl["stop"]
     t1 = pl["t1"]
     fut = df.iloc[i:i + fwd]
@@ -352,7 +381,7 @@ def main() -> int:
                 continue
             for tr in trs:
                 row, why = arms_for(S, sym, df, tr, fwd, spread, n_tr,
-                                    step_pct, s_hi)
+                                    step_pct)
                 if row is None:
                     issues[why] = issues.get(why, 0) + 1
                     continue
