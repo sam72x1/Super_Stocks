@@ -26794,7 +26794,10 @@ check("📏 VB8 **`volbase.yml` يدويٌّ بلا كرون · بلا ابتل�
 #    **بالاسم** فيستحيل أن تتباعد وتبطل المقارنةُ صامتةً · و`V0_REF` صفُّ `R0`
 #    المنشورُ في `cumrise_result.md §①` حرفيًّا.
 _vb_r0 = open("cumrise_result.md", encoding="utf-8").read()
-check("📏 VB9 **الحدودُ مُعادةٌ بالاسم** · و`V0_REF` يطابق صفَّ `R0` المنشور",
+# 🗓️ **إقرارٌ مؤرَّخ 2026-08-29 (ملحق ⑪):** `V0_REF` **لم يعد حارسًا نافذًا** —
+#    صار **شاهدًا تاريخيًّا** على ما قِيس في `T-CUMRISE`، وحارسُ الصلاحية اليوم
+#    `V0-ب` (‏`VB10`). ويبقى القفلُ عليه لئلّا يتعفّن الرقمُ المنشورُ في الملفّ.
+check("📏 VB9 **الحدودُ مُعادةٌ بالاسم** · و`V0_REF` (شاهدٌ تاريخيّ) يطابق `R0`",
       (VB.LATE_GAIN_MIN, VB.ALERT_MAX_GROWTH, VB.FRUIT_MIN_N,
        VB.LATE_MIN_N, VB.MOVER_MIN_N)
       == (CR.LATE_GAIN_MIN, CR.ALERT_MAX_GROWTH, CR.FRUIT_MIN_N,
@@ -26803,6 +26806,33 @@ check("📏 VB9 **الحدودُ مُعادةٌ بالاسم** · و`V0_REF` ي�
       and VB.V0_REF["alerts"] == 80 and VB.V0_REF["fired"] == 29
       and "**‏+20.5%**" in _vb_r0 and "**80**" in _vb_r0,
       f"V0_REF={VB.V0_REF['late_med']}/{VB.V0_REF['alerts']}")
+
+# 🔒 VB10 — **`V0-ب` يقارن بدالّة الإنتاج لا بنسخةٍ منها** (ملحق ⑪).
+#    🔴 **ولماذا حلَّ محلَّ `V0`:** الكونُ يُبنى من حالةٍ حيّةٍ تتغيّر يوميًّا
+#    فمطابقةُ رقمٍ منشورٍ **مستحيلةٌ بنيويًّا** — والتشغيلةُ `33241951710`
+#    أثبتته (‏382 سهمًا مقابل 314) وخرجت **قبل الجدول** فلم يُقرَأ رقمُ ذراع.
+#    ⚖️ **والقفلُ تفريقيّ:** يمرّ على بياناتٍ سليمة · **ويسقط** حين يُبدَّل
+#    مُخرَجُ الإنتاج (وإلّا كان حارسًا يُرضيه أيُّ شيء).
+_vb_data = {"AAA": _vb_hot, "BBB": _vb_base + [
+    _vb_b(8, 1.00, 1.01, 0.99, 1.00, 400), _vb_b(9, 1.0, 1.0, 0.99, 1.0, 100)]}
+_vb_fired = {"AAA": 8}
+_vb_ok1, _vb_n1, _vb_nf1, _vb_d1 = VB._v0b_check(_vb_data, _vb_fired)
+_vb_orig_lse = S.liq_stage_events
+try:                                  # 🔴 مُخرَجُ إنتاجٍ مُبدَّلٌ ⇒ يجب أن يسقط
+    S.liq_stage_events = lambda bars, st, **k: ([], dict(st))
+    _vb_ok2 = VB._v0b_check(_vb_data, _vb_fired)[0]
+finally:
+    S.liq_stage_events = _vb_orig_lse
+_vb_pa = _vb_ast.parse(_insp0.getsource(VB._prod_anchor))
+_vb_prod_call = any(getattr(n.func, "attr", None) == "liq_stage_events"
+                    for n in _vb_ast.walk(_vb_pa)
+                    if isinstance(n, _vb_ast.Call))
+check("📏 VB10 **`V0-ب` يقارن بدالّة الإنتاج `liq_stage_events` نفسِها** — "
+      "يمرّ على السليم **ويسقط** حين يُبدَّل مُخرَجُها (شاهدٌ تفريقيّ)",
+      _vb_ok1 and (not _vb_ok2) and _vb_prod_call and _vb_n1 == 2
+      and _vb_nf1 == 1 and "range(4, len(bars) + 1)" in _insp0.getsource(
+          VB._prod_anchor),
+      f"سليم={_vb_ok1} مُبدَّل={_vb_ok2} قُورن={_vb_n1} تفرّق={_vb_d1}")
 
 # 🔒 CR6 — 🗓️ **إقرارٌ مؤرَّخ 2026-08-18 (T-CUMRISE-FWD):** كان «بلا كرون»
 #    فأمسك إضافةَ الحصاد الأماميّ وأدّى عملَه ⇒ حُدِّث **وشُدِّد**: كرونا ما بعد

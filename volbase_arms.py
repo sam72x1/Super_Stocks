@@ -55,7 +55,10 @@ MOVER_MIN_N = CR.MOVER_MIN_N
 NEAR_VX_LO, NEAR_VX_HI = 2.0, 3.0   # عدّادٌ وصفيّ «كادت» (‏§⑧)
 _NY = zoneinfo.ZoneInfo("America/New_York")
 
-# 🔒 مرجعُ `V0` — صفُّ `R0` في `cumrise_result.md §①` (الشاسيه المعتمَد).
+# 📌 **[تاريخٌ — غيرُ نافذ]** كان مرجعَ `V0` الأصليّ: صفُّ `R0` في
+#    `cumrise_result.md §①`. **سقط بنيويًّا** لأن الكونَ حالةٌ حيّةٌ
+#    تتغيّر يوميًّا (‏382 مقابل 314) ⇒ حلَّ محلَّه `V0-ب` (ملحق ⑪).
+#    ويبقى مكتوبًا **شاهدًا على ما قِيس هناك** لا حارسًا هنا.
 V0_REF = {"fired": 29, "late_med": 20.5, "fruit_pct": 44.8, "fruit_n": 29,
           "alerts": 80, "movers_hit": 13, "movers": 15, "data": 307, "uni": 314}
 
@@ -196,19 +199,47 @@ def _lock_arms():
     return ok, notes
 
 
-def _v0_check(r, n_data, n_uni, movers_hit, n_movers):
-    """🔒 `V0` — `B0` يُعيد صفَّ `R0` المنشورَ في `cumrise_result.md §①` بت-بت.
+def _prod_anchor(bars):
+    """🏭 مِرساةُ **دالّة الإنتاج** `liq_stage_events` بإعادةِ تشغيلٍ تدريجيّة.
 
-    وتفرّقٌ واحدٌ ⇒ **خروج 3 ولا يُنشَر رقم** («عطبُ أداةٍ لا نتيجة»)."""
-    got = {"fired": len(r["fired"]), "alerts": r["alerts"],
-           "fruit_n": r["fruit_n"], "movers_hit": movers_hit,
-           "movers": n_movers, "data": n_data, "uni": n_uni,
-           "late_med": (round(r["late_med"], 1)
-                        if r["late_med"] is not None else None),
-           "fruit_pct": (round(r["fruit_pct"], 1)
-                         if r["fruit_pct"] is not None else None)}
-    bad = [k for k, v in V0_REF.items() if got.get(k) != v]
-    return (not bad), got, bad
+    ⚖️ **ولماذا تدريجيّة:** بحالةٍ فارغةٍ تُقيّم الدالّةُ **آخرَ شمعةٍ مغلقة
+    وحدَها** («أوّلُ رؤيةٍ بلا رشٍّ رجعيّ») ⇒ تمريرُ اليوم كاملًا مرّةً واحدةً
+    يفحص دقيقةً واحدةً لا الجلسة. والبدءُ من `k=4` ليكون أوّلُ مُقيَّمٍ
+    `bars[2]` — **وهو أوّلُ ما يفحصه `anchor_of`** فيتطابق المجالان."""
+    st = {}
+    for k in range(4, len(bars) + 1):
+        try:
+            ev, st = bot.liq_stage_events(bars[:k], st)
+        except Exception:                                        # noqa: BLE001
+            return "رمى"
+        for e in (ev or []):
+            if e.get("stage") == "M1":
+                return int(e["last_ms"])
+    return None
+
+
+def _v0b_check(data, fired, sample_n=40):
+    """🔒 `V0-ب` (ملحق ⑪ · 2026-08-29) — `B0` يطابق **دالّةَ الإنتاج** على
+    **بياناتِ السوق الحقيقيّة** رمزًا رمزًا. وتفرّقٌ واحدٌ ⇒ **خروج 3**.
+
+    🔴 **وحلَّ محلَّ `V0` الأصليّ لأنه غيرُ قابلٍ للاستيفاء بنيويًّا:** الكونُ
+    يُبنى من حالةٍ حيّةٍ يعيد البوتُ كتابتها كلَّ دقائق ⇒ إعادةُ الجلسة نفسِها
+    لا تُعيد الكونَ نفسَه (‏382 مقابل 314). **والسببُ والبديلُ معلنان في العقد.**
+
+    ⚖️ **والعيّنةُ تُعلَن بعددها** (درسُ `RV0`): **كلُّ** مَن له مِرساةٌ تحت
+    `B0` — وهم موضعُ الخطر — **زائدَ** عيّنةٍ حتميّةٍ ممّن لا مِرساةَ لهم
+    (فالمطابقةُ تشمل «صمتَ الطرفين» لا «إطلاقَهما» فقط)."""
+    quiet = sorted(s for s in data if s not in fired)[:int(sample_n)]
+    syms = sorted(fired) + quiet
+    diff = []
+    for s in syms:
+        bars = data[s]
+        i, _t = GP.anchor_of(bars, ARMS["B0"])
+        mine = int(bars[i]["t"]) if i is not None else None
+        prod = _prod_anchor(bars)
+        if prod != mine:
+            diff.append((s, prod, mine))
+    return (not diff), len(syms), len(fired), diff[:6]
 
 
 def main():                                                       # noqa: C901
@@ -338,17 +369,20 @@ def main():                                                       # noqa: C901
         return 4
 
     b = res["B0"]
-    mv0 = sum(1 for s in movers if s in b["fired"])
-    okv, got, bad = _v0_check(b, len(data), len(syms), mv0, len(movers))
     print("=" * 76)
-    print("⓪ `V0` — هل يُعيد `B0` صفَّ `R0` المنشور؟")
+    print("⓪ `V0-ب` — هل يطابق `B0` **دالّةَ الإنتاج** على بياناتِ السوق؟")
     print("=" * 76)
-    print(f"   المنشور: {V0_REF}")
-    print(f"   المقيس : {got}")
+    _t0 = time.time()
+    okv, n_cmp, n_fire, diff = _v0b_check(data, b["fired"])
+    print(f"   قُورن **{n_cmp}** رمزًا حقيقيًّا (‏{n_fire} منها له مِرساة "
+          f"و{n_cmp - n_fire} صامت) · {round(time.time() - _t0, 1)}ث")
     if not okv:
-        print(f"   🔴 تفرّقٌ في: {bad} ⇒ **عطبُ أداةٍ لا نتيجة** (خروج 3).")
+        print(f"   🔴 تفرّقٌ في {len(diff)} فأكثر — أوّلُها {diff} ⇒ "
+              "**عطبُ أداةٍ لا نتيجة** (خروج 3).")
         return 3
-    print("   ✅ مطابقٌ بت-بت — الأرقامُ التالية قابلةٌ للمقارنة بـ`T-CUMRISE`.\n")
+    print("   ✅ مطابقٌ رمزًا رمزًا — إضافةُ `vol_ref` لم تُزحزح الإنتاج بحرف.")
+    print("   🔴 **ولا تُقارَن هذي الأرقامُ عدديًّا بـ`cumrise_result.md`** — "
+          "الكونُ حالةٌ حيّةٌ تغيّرت (ملحق ⑪).\n")
 
     print("=" * 76)
     print("① الجدولُ — التأخّرُ والإثمارُ والإشعارات")
