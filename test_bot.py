@@ -18846,6 +18846,73 @@ check("🗜️📡 PRD5 عقدُ «فُحص وسُلّم»: فشلُ الإرس�
       "نجاحُه ⇒ ختمٌ وسجلٌّ فيه TSTX · وإعادةُ الجلسة دِدوبٌ صامت",
       _rc_fail == 1 and _no_stamp and _rc_ok == 0 and _stamped and _rc_dedup == 0)
 
+# 🔒 PRD26 — 🔴 **دِدوبُ الرادار يمضي للأمام فقط (2026-08-29)، وهذا القفلُ وُلد
+#    من طفرةٍ نجت:** بعد فرع الاستدراك في `session_gate` صار تأخّرٌ يتجاوز يومًا
+#    قد يحسب جلسةً **أقدمَ** من المختوم ⇒ إعادةُ تسليمٍ ليومٍ مضى. و`>=` **تشديدٌ
+#    لا إرخاء**: الختمُ لا يرجع للخلف فالجديدُ أحدثُ منه دائمًا.
+#    ⚖️ **ومشروعيّتُه هنا وحدَه:** الختمُ في الرادار **نفسُ كمّية الجلسة**
+#    (`state["last_session"] = session_iso`) — بخلاف صيّاد المقسّم حيث يُكتب
+#    بجلسة البيانات ويُقارَن بتاريخ نيويورك (مقياسان) فبقيت المساواةُ هناك.
+#    🐞 والعيّنةُ **تفرّق في الاتّجاهين** وإلّا لم تُسقط الطفرة: ختمٌ **أحدث**
+#    ⇒ صمتٌ · وختمٌ **أقدم** ⇒ يُرسَل (فلا يُقرأ الصمتُ نجاحًا).
+_prd26_new = _os_hc.path.join(__import__("tempfile").mkdtemp(), "st.json")
+_prd26_old = _os_hc.path.join(__import__("tempfile").mkdtemp(), "st.json")
+_prd26_lp = _os_hc.path.join(_os_hc.path.dirname(_prd26_new), "led.jsonl")
+_PRD.save_state({"last_session": "2026-08-20"}, _prd26_new)   # أحدثُ من 08-13
+_PRD.save_state({"last_session": "2026-08-01"}, _prd26_old)   # أقدمُ منها
+_prd_wl_saved2 = S.load_watchlist
+S.load_watchlist = lambda: {"pullback": [{"symbol": "TSTX", "entry": [2.7, 2.86],
+                                          "tranches": [2.7, 2.78, 2.86],
+                                          "pivot": 2.7, "stop": 2.51, "t1": 5.5}],
+                            "stocks": [], "removed": [], "explosions": []}
+_prd26_sent = []
+try:
+    _prd26_fwd = _PRD.run(now_utc=_prd_now, fetch_hist=_prd_fetch,
+                          sender=lambda m: (_ for _ in ()).throw(
+                              AssertionError("أُرسل عن جلسةٍ أقدمَ من الختم")),
+                          state_path=_prd26_new, ledger_path=_prd26_lp,
+                          saver=lambda f: None)
+    # 🐞 **اللقطةُ هنا لا بعد الذراع الثانية:** صياغتي الأولى فحصت `_prd26_sent`
+    #    بعد تشغيل الاثنتين فكانت `[1]` دائمًا ⇒ سقط القفلُ على كودٍ سليم.
+    _prd26_sent_fwd = list(_prd26_sent)
+    _prd26_back = _PRD.run(now_utc=_prd_now, fetch_hist=_prd_fetch,
+                           sender=lambda m: (_prd26_sent.append(1), True)[-1],
+                           state_path=_prd26_old, ledger_path=_prd26_lp,
+                           saver=lambda f: None)
+finally:
+    S.load_watchlist = _prd_wl_saved2
+check("🗜️📡 PRD26 دِدوبٌ يمضي للأمام: ختمٌ **أحدث** ⇒ صمتٌ بلا إرسال · وختمٌ "
+      "**أقدم** ⇒ يُرسَل (ليلةُ صمتٍ ممنوعة) — الاتّجاهان معًا",
+      _prd26_fwd == 0 and _prd26_sent_fwd == [],
+      f"rc={_prd26_fwd} · أُرسل={_prd26_sent_fwd}")
+check("🗜️📡 PRD26ب والاتجاهُ المقابل: ختمٌ أقدمُ ⇒ **يُرسِل** فعلًا",
+      _prd26_back == 0 and _prd26_sent == [1])
+
+# 🔒 PRD27 — 🩺 **سطرُ «الجلسة المختارة» (2026-08-29) — وُلد من عطلٍ صامت:**
+#    خمسُ أدواتٍ ماتت ثلاثةَ أيامٍ وكلُّ تشغيلةٍ خضراء، **ولا سطرَ يقول أيَّ
+#    جلسةٍ اختارت.** والطفرةُ التي تنزعه كانت تنجو ⇒ القفلُ يشترط أن يُطبَع
+#    **التاريخُ بعينه** لا مجرّدَ وجودِ نداء (فلا يُرضيه نصٌّ عامّ).
+_prd27_out = []
+_prd27_sv = _PRD._log
+try:
+    _PRD._log = lambda m: _prd27_out.append(str(m))
+    S.load_watchlist = lambda: {"pullback": [], "stocks": [], "removed": [],
+                                "explosions": []}
+    _PRD.run(now_utc=_prd_now, fetch_hist=lambda syms: {},
+             sender=lambda m: True,
+             state_path=_os_hc.path.join(
+                 __import__("tempfile").mkdtemp(), "st.json"),
+             ledger_path=_os_hc.path.join(
+                 __import__("tempfile").mkdtemp(), "l.jsonl"),
+             saver=lambda f: None)
+finally:
+    _PRD._log = _prd27_sv
+    S.load_watchlist = _prd_wl_saved2
+check("🗜️📡 PRD27 السجلُّ يقول **أيَّ جلسةٍ اختار** بتاريخها (لا تشغيلةَ خضراءَ "
+      "صامتةٍ بعد اليوم)",
+      any("2026-08-13" in x and "الجلسة المختارة" in x for x in _prd27_out),
+      " | ".join(_prd27_out[:3])[:120])
+
 # PRD13 — 🔓 التشغيلُ اليدويّ (`PRESS_RADAR_FORCE=1`) يتخطّى **دِدوب السهم**
 # أيضًا لا دِدوبَ الجلسة وحده (2026-08-15): الـworkflow يَعِد بذلك نصًّا، وبلا
 # هذا يخرج زرُّ المالك **أخضرَ بصفر رسالة** كلَّما نُبِّه السهمُ خلال المهلة.
