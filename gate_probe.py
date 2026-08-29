@@ -103,7 +103,7 @@ def prev_close(sym, day):
         return None
 
 
-def gate_trace(bars, i, arm, w=None):
+def gate_trace(bars, i, arm, w=None, prev_vpm=None):
     """🔬 يفكّك بوّابةَ المِرساة عند الدقيقة `i` بأعلامِ الذراع.
 
     يطابق `liq_stage_events` (فرعُ «لا مِرساةَ بعد») **شرطًا شرطًا** — ومقفولٌ
@@ -116,6 +116,26 @@ def gate_trace(bars, i, arm, w=None):
     last = bars[i]
     prior = [float(b["v"]) for b in closed[:-1]]
     avg = (sum(prior) / len(prior)) if prior else 0.0
+    # 📏🔊 **مرجعُ الحجم** (`T-VOLBASE` · أمرُ المالك 2026-08-29) — إضافةٌ
+    #    **مطفأةٌ افتراضيًّا**: بلا `vol_ref` يبقى المقامُ متوسّطَ النافذة
+    #    ⇒ أذرعُ `gate_result.md` (‏G0-G6) و`cumrise_result.md` (‏R0-R3)
+    #    **بت-بت** وتبقى قابلةً لإعادة الإنتاج (مقفولٌ `CR4`/`VB1`).
+    #    ⚖️ **ولا رقمَ جديد:** المضاعفُ يبقى `IGNITION_VOL_MULT` (رقمُ المالك)
+    #    والنافذةُ `LIQ_WINDOW_MIN` — والمتغيّرُ **إحصاءُ المقام** وحدَه.
+    #    🔴 **والعطبُ الذي وُلدت له:** `prior` نافذةٌ متدحرجة تدخلها شمعاتُ
+    #    الركضة نفسُها ⇒ يُبتلَع المرجعُ فينهار `vx` تحت العتبة بعد ‏≈11 دقيقة.
+    _vr = arm.get("vol_ref")
+    if _vr:
+        _pv = float(prev_vpm) if prev_vpm else 0.0
+        if _vr == "median":
+            avg = stt.median(prior) if prior else 0.0
+        elif _vr == "prev":
+            avg = _pv
+        elif _vr == "min":
+            _cand = [x for x in (avg, _pv) if x > 0]
+            avg = min(_cand) if _cand else 0.0
+        else:
+            raise ValueError(f"مرجعُ حجمٍ مجهول: {_vr}")
     vx = (float(last["v"]) / avg) if avg > 0 else 0.0
     n = max(1, int(arm.get("cum_n", bot.LIQ_CUM_MINUTES)))
     floor = float(arm.get("floor", bot.LIQ_MIN_USD))
@@ -176,19 +196,20 @@ def first_wall(t):
     return None
 
 
-def anchor_of(bars, arm):
+def anchor_of(bars, arm, prev_vpm=None):
     """🚩 أوّلُ دقيقةٍ تعبر كلَّ الشروط = المِرساة (الرسالةُ الأولى)."""
     for i in range(2, len(bars) - 1):
-        t = gate_trace(bars, i, arm)
+        t = gate_trace(bars, i, arm, prev_vpm=prev_vpm)
         if t and first_wall(t) is None:
             return (i, t)
     return (None, None)
 
 
-def all_fires(bars, arm):
+def all_fires(bars, arm, prev_vpm=None):
     """📩 كلُّ دقيقةٍ تعبر (لقياس الكلفة) — عبورُ دقائقَ لا رسائل (‏§⑨-7)."""
     return [i for i in range(2, len(bars) - 1)
-            if first_wall(gate_trace(bars, i, arm)) is None]
+            if first_wall(gate_trace(bars, i, arm,
+                                     prev_vpm=prev_vpm)) is None]
 
 
 def _med(xs):

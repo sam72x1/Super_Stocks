@@ -26659,6 +26659,143 @@ check("🔒 CR5 **`LOCK-ARMS` يعبر · ويشمل شاهدَ `K2`** (‏`R1` 
       and "return 3" in _cr_src,
       f"عبر؟ {_cr_ok} · شواهد={len(_cr_notes)}")
 
+# ═══════════ 📏🔊 مرجعُ الحجم `T-VOLBASE` (‏VB1-VB9) ═══════════
+# 🔴 **العطبُ الذي وُلدت له:** مقامُ `vx` نافذةٌ متدحرجة **تدخلها شمعاتُ الركضة
+#    نفسُها** ⇒ يُبتلَع المرجعُ فينهار `vx` تحت العتبة بعد ‏≈11 دقيقةَ ركض.
+#    والعقدُ `volbase_prereg.md` مدفوعٌ **قبل** أيّ سطرِ أداة.
+import ast as _vb_ast                                            # noqa: E402
+import volbase_arms as VB                                        # noqa: E402
+_vb_src = _insp0.getsource(VB)
+
+
+def _vb_b(i, o, h, l, c, v):
+    return {"t": i * 60_000, "o": o, "h": h, "l": l, "c": c, "v": v}
+
+
+# 🔒 VB1 — **مطفأةٌ افتراضيًّا**: بلا `vol_ref` المُخرَجُ بت-بت **مهما كان
+#    `prev_vpm`** ⇒ أرقامُ `gate_result` (‏G0-G6) و`cumrise_result` (‏R0-R3)
+#    تبقى قابلةً لإعادة الإنتاج. **سلوكيًّا لا نصًّا** (فخُّ القفل النصّيّ).
+_vb_base = [_vb_b(i, 1.0, 1.005, 0.995, 1.0, 500) for i in range(8)]
+_vb_hot = _vb_base + [_vb_b(8, 1.00, 1.30, 1.00, 1.29, 40_000),
+                      _vb_b(9, 1.29, 1.30, 1.28, 1.29, 100)]
+_vb_t0 = _cr_gp.gate_trace(_vb_hot, 8, VB.ARMS["B0"])
+_vb_t1 = _cr_gp.gate_trace(_vb_hot, 8, VB.ARMS["B0"], prev_vpm=999_999.0)
+_vb_t2 = _cr_gp.gate_trace(_vb_hot, 8, _GT.ARMS["G0"], prev_vpm=1.0)
+check("📏 VB1 **بلا `vol_ref` المُخرَجُ بت-بت** مهما كان `prev_vpm` ⇒ "
+      "`G0`-`G6` و`R0`-`R3` قابلةٌ لإعادة الإنتاج",
+      _vb_t0 == _vb_t1 == _vb_t2 and _vb_t0 is not None,
+      f"vx={_vb_t0 and round(_vb_t0['vx'], 2)}")
+
+# 🔒 VB2 — **أربعُ أذرعٍ لا خامسة** (ذراعٌ تُضاف بعد الأرقام = `p-hacking`)
+#    وقيمُ `vol_ref` من المجموعة المسمّاة حصرًا.
+check("📏 VB2 **الأذرعُ أربعٌ مثبَّتة** وقيمُ `vol_ref` مسمّاة",
+      list(VB.ARMS) == ["B0", "B1", "B2", "B3"]
+      and VB.ARMS["B0"] == {}
+      and {VB.ARMS[a].get("vol_ref") for a in ("B1", "B2", "B3")}
+      == {"median", "prev", "min"}
+      and set(VB.ARM_DESC) == set(VB.ARMS),
+      f"أذرع={list(VB.ARMS)}")
+
+# 🔒 VB3 — **الابتلاعُ مُثبَتٌ سلوكيًّا**: ركضةٌ 20 دقيقةً تبتلع **المتوسّط**
+#    ولا تبتلع **الوسيط** ⇒ `B0` تسقط على الحجم والبقيّةُ تعبر.
+#    ⚖️ الأحجامُ معزولةٌ عمدًا لتكون الأرضيةُ الدولاريّةُ مستوفاةً في الحالين
+#    فالفارقُ **قفزةُ الحجم وحدَها** (عيبُ `G2` الموثَّق).
+_vb_quiet = [_vb_b(i, 1.0, 1.005, 0.995, 1.0, 2_000) for i in range(40)]
+_vb_ramp, _vb_px = list(_vb_quiet), 1.0
+for _k in range(40, 60):
+    _o, _vb_px = _vb_px, round(_vb_px * 1.008, 4)
+    _vb_ramp.append(_vb_b(_k, _o, _vb_px, _o, _vb_px, 12_000))
+_vb_o, _vb_p2 = _vb_px, round(_vb_px * 1.06, 4)
+_vb_ramp.append(_vb_b(60, _vb_o, _vb_p2, _vb_o, _vb_p2, 12_000))
+_vb_ramp.append(_vb_b(61, _vb_p2, _vb_p2, _vb_p2 * 0.999, _vb_p2, 100))
+_vb_got = {a: _cr_gp.anchor_of(_vb_ramp, VB.ARMS[a], prev_vpm=1_000.0)[0]
+           for a in VB.ARMS}
+_vb_vx0 = _cr_gp.gate_trace(_vb_ramp, 60, VB.ARMS["B0"])["vx"]
+_vb_vx1 = _cr_gp.gate_trace(_vb_ramp, 60, VB.ARMS["B1"])["vx"]
+check("📏 VB3 **الركضةُ تبتلع المتوسّطَ ولا تبتلع الوسيط** — `B0` تسقط على "
+      "قفزة الحجم وحدَها و`B1`/`B2`/`B3` تعبر",
+      _vb_got["B0"] != 60
+      and _vb_got["B1"] == _vb_got["B2"] == _vb_got["B3"] == 60
+      and _vb_vx0 < 3.0 <= _vb_vx1
+      and _cr_gp.first_wall(_cr_gp.gate_trace(_vb_ramp, 60,
+                                              VB.ARMS["B0"])) == "قفزةُ الحجم",
+      f"{_vb_got} · vx: B0={_vb_vx0:.2f} B1={_vb_vx1:.2f}")
+
+# 🔒 VB4 — **وليست تخفيفًا رتيبًا**: بمرجعٍ عالٍ من جلسةٍ سابقةٍ كثيفة يصير
+#    `B2` **أشدَّ** من الإنتاج ⇒ اتّجاهُه يُقاس ولا يُفترَض (‏`VB-P2`/`VB-P3`).
+_vb_hi = {a: _cr_gp.anchor_of(_vb_hot, VB.ARMS[a], prev_vpm=100_000.0)[0]
+          for a in VB.ARMS}
+check("📏 VB4 **`B2` يشدّ بمرجعٍ عالٍ** (فليس تخفيفًا رتيبًا) · و`B3` يبقى رتيبًا",
+      _vb_hi["B0"] == 8 and _vb_hi["B2"] is None and _vb_hi["B3"] == 8
+      and set(_cr_gp.all_fires(_vb_hot, VB.ARMS["B0"], prev_vpm=100_000.0))
+      <= set(_cr_gp.all_fires(_vb_hot, VB.ARMS["B3"], prev_vpm=100_000.0)),
+      str(_vb_hi))
+
+# 🔒 VB5 — **مرجعٌ مجهولٌ يرمي ولا يمرّ صامتًا كمتوسّط** (يمنع «المحورَ الخامد»:
+#    خطأٌ إملائيٌّ في اسم المرجع كان سيُقرأ «لا فرق» وهو `no-op`).
+try:
+    _cr_gp.gate_trace(_vb_hot, 8, {"vol_ref": "mediann"})
+    _vb_raise = False
+except ValueError:
+    _vb_raise = True
+except Exception:                                                # noqa: BLE001
+    _vb_raise = False
+check("📏 VB5 **`vol_ref` مجهولٌ يرمي `ValueError`** ولا يرتدّ للمتوسّط صامتًا",
+      _vb_raise, f"رمى؟ {_vb_raise}")
+
+# 🔒 VB6 — **غيابُ حجمِ الأمس لا يرتدّ للمتوسّط**: `B2` بلا `prev_vpm` مقامُه
+#    صفرٌ ⇒ `vx=0` ⇒ لا يفير — والمُقصَون **يُعَدّون ويُعلَنون** لا يُخمَّنون.
+_vb_np = _cr_gp.gate_trace(_vb_hot, 8, VB.ARMS["B2"])
+check("📏 VB6 **`B2` بلا حجمِ أمسٍ لا يفير ولا يرتدّ للمتوسّط**",
+      _vb_np is not None and _vb_np["vx"] == 0.0 and not _vb_np["g_vol"]
+      and _cr_gp.anchor_of(_vb_hot, VB.ARMS["B2"])[0] is None
+      and "بلا حجمِ أمسٍ" in _vb_src,
+      f"vx={_vb_np and _vb_np['vx']}")
+
+# 🔒 VB7 — **قراءةٌ/قياسٌ فقط** (بالـAST): صفرُ إرسالٍ وصفرُ كتابةِ حالة ·
+#    والإنتاجُ لا يستورد الأداة.
+_vb_tree = _vb_ast.parse(_vb_src)
+_vb_calls = {getattr(n.func, "id", None) or getattr(n.func, "attr", None)
+             for n in _vb_ast.walk(_vb_tree) if isinstance(n, _vb_ast.Call)}
+check("📏 VB7 **قراءةٌ فقط**: لا `send_telegram` ولا `git_save` ولا كتابةَ ملفّ · "
+      "والإنتاجُ لا يستوردها",
+      not ({"send_telegram", "git_save", "save_watchlist", "save_op_entry_state"}
+           & _vb_calls)
+      and "volbase_arms" not in _insp0.getsource(S),
+      f"نداءات={sorted(x for x in _vb_calls if x and 'save' in str(x))}")
+
+# 🔒 VB8 — **الـworkflow يدويٌّ · بلا ابتلاعِ فشل · والمدخلُ موصول** (بصمةُ
+#    `BT_CANDLE`: مدخلٌ لا يقرؤه السكربتُ = علمٌ ميّت).
+_vb_yml = _af_yaml.safe_load(open(".github/workflows/volbase.yml",
+                                  encoding="utf-8"))
+_vb_on = _vb_yml.get(True) or _vb_yml.get("on")
+_vb_on = list(_vb_on) if isinstance(_vb_on, dict) else list(_vb_on or [])
+_vb_steps = list((_vb_yml.get("jobs") or {}).values())[0].get("steps") or []
+_vb_env = {}
+for _st in _vb_steps:
+    _vb_env.update(_st.get("env") or {})
+check("📏 VB8 **`volbase.yml` يدويٌّ بلا كرون · بلا ابتلاعِ فشل · ومدخلُه موصول**",
+      _vb_on == ["workflow_dispatch"]
+      and all("continue-on-error" not in _x for _x in _vb_steps)
+      and _vb_env.get("POLYGON_API_KEY") == "${{ secrets.POLYGON_API_KEY }}"
+      and _vb_env.get("GATE_DAY") == "${{ inputs.day }}"
+      and "GATE_DAY" in _vb_src,
+      f"on={_vb_on} env={sorted(_vb_env)}")
+
+# 🔒 VB9 — **مسطرةٌ واحدةٌ لا اثنتان**: الحدودُ الأربعةُ تُقرأ من `cumrise_probe`
+#    **بالاسم** فيستحيل أن تتباعد وتبطل المقارنةُ صامتةً · و`V0_REF` صفُّ `R0`
+#    المنشورُ في `cumrise_result.md §①` حرفيًّا.
+_vb_r0 = open("cumrise_result.md", encoding="utf-8").read()
+check("📏 VB9 **الحدودُ مُعادةٌ بالاسم** · و`V0_REF` يطابق صفَّ `R0` المنشور",
+      (VB.LATE_GAIN_MIN, VB.ALERT_MAX_GROWTH, VB.FRUIT_MIN_N,
+       VB.LATE_MIN_N, VB.MOVER_MIN_N)
+      == (CR.LATE_GAIN_MIN, CR.ALERT_MAX_GROWTH, CR.FRUIT_MIN_N,
+          CR.LATE_MIN_N, CR.MOVER_MIN_N)
+      and VB.V0_REF["late_med"] == 20.5 and VB.V0_REF["fruit_pct"] == 44.8
+      and VB.V0_REF["alerts"] == 80 and VB.V0_REF["fired"] == 29
+      and "**‏+20.5%**" in _vb_r0 and "**80**" in _vb_r0,
+      f"V0_REF={VB.V0_REF['late_med']}/{VB.V0_REF['alerts']}")
+
 # 🔒 CR6 — 🗓️ **إقرارٌ مؤرَّخ 2026-08-18 (T-CUMRISE-FWD):** كان «بلا كرون»
 #    فأمسك إضافةَ الحصاد الأماميّ وأدّى عملَه ⇒ حُدِّث **وشُدِّد**: كرونا ما بعد
 #    الافتر بالفصلين حصرًا · السجلُّ **مشروطٌ بالمجدول** فلا يكتب اليدويُّ حالةً ·
