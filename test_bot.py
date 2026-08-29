@@ -26823,15 +26823,19 @@ try:                                  # 🔴 مُخرَجُ إنتاجٍ مُب�
     _vb_ok2 = VB._v0b_check(_vb_data, _vb_fired)[0]
 finally:
     S.liq_stage_events = _vb_orig_lse
-_vb_pa = _vb_ast.parse(_insp0.getsource(VB._prod_anchor))
+_vb_pa_src = _insp0.getsource(VB._prod_anchor)
+_vb_pa = _vb_ast.parse(_vb_pa_src)
 _vb_prod_call = any(getattr(n.func, "attr", None) == "liq_stage_events"
                     for n in _vb_ast.walk(_vb_pa)
                     if isinstance(n, _vb_ast.Call))
 check("📏 VB10 **`V0-ب` يقارن بدالّة الإنتاج `liq_stage_events` نفسِها** — "
       "يمرّ على السليم **ويسقط** حين يُبدَّل مُخرَجُها (شاهدٌ تفريقيّ)",
       _vb_ok1 and (not _vb_ok2) and _vb_prod_call and _vb_n1 == 2
-      and _vb_nf1 == 1 and "range(4, len(bars) + 1)" in _insp0.getsource(
-          VB._prod_anchor),
+      and _vb_nf1 == 1 and "range(4, len(bars) + 1)" in _vb_pa_src
+      # 🔴 **والنافذةُ تُقصّ كما يقصّها المُنادي** — بلاها يقارن مرجعَ يومٍ
+      #    بمرجعِ 65 دقيقة (‏3 تفرّقاتٍ حيّة في التشغيلة `33243937802`).
+      and "bars[max(0, k - W):k]" in _vb_pa_src
+      and "LIQ_WINDOW_MIN" in _vb_pa_src,
       f"سليم={_vb_ok1} مُبدَّل={_vb_ok2} قُورن={_vb_n1} تفرّق={_vb_d1}")
 
 # 🔒 CR6 — 🗓️ **إقرارٌ مؤرَّخ 2026-08-18 (T-CUMRISE-FWD):** كان «بلا كرون»
