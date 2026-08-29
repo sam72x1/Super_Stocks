@@ -770,12 +770,20 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
         _now = now_utc or _dt.datetime.now(_dt.timezone.utc)
         session_date = _now.astimezone(_zi.ZoneInfo("America/New_York")).date()
     elif not ok:
-        _log("⏰ بوّابة التوقيت: الافتر لم يُغلق بعد — لا مسح (الكرون الثاني سيلتقط).")
+        # 🔴 **مسارٌ صار غيرَ قابلٍ للبلوغ في الإنتاج (2026-08-29)** — بعد فرع
+        #    الاستدراك في `session_gate` لا تُرجَع `False` إلّا بطلبٍ صريح. ويبقى
+        #    مكتوبًا لأن البوّابةَ **تُحقَن** في الاختبار، وحذفُه يجعل الحقنَ ينهار.
+        _log("⏰ بوّابة التوقيت رفضت صراحةً — لا مسح.")
         return 0
     session_iso = str(session_date)
+    # 🩺 **سطرُ تشخيصٍ وُلد من عطلٍ صامت:** خمسُ أدواتٍ ماتت ثلاثةَ أيامٍ وكلُّ
+    #    تشغيلةٍ خضراء، ولا سطرَ يقول **أيَّ جلسةٍ** اختارت ولا **لماذا**.
+    _log(f"⏰ الجلسة المختارة: {session_iso} (ساعةُ نيويورك تحسم · استدراكٌ عند "
+         f"وقوع التشغيلة قبل إغلاق الافتر).")
     state = load_state(state_path)
-    if state.get("last_session") == session_iso and not force:
-        _log(f"🔁 دِدوب: جلسة {session_iso} فُحصت وسُلّمت — لا إعادة.")
+    _last = state.get("last_session")
+    if isinstance(_last, str) and _last >= session_iso and not force:
+        _log(f"🔁 دِدوب: جلسة {session_iso} سُلّمت سلفًا (الختم {_last}) — لا إعادة.")
         return 0
     wl = S.load_watchlist() or {}
     pool, cut = build_pool(wl, state, session_iso)
