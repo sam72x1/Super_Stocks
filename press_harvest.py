@@ -119,18 +119,23 @@ def resolve_row(row, df, mirror=None, resolve=None):
             i = idx.index(want)
         else:
             import datetime as _dt                               # noqa: PLC0415
+            # 🔎🔴 **الفحصُ قبل الرَّدِّ لا بعده — عيبٌ كشفه هذا العدّادُ نفسُه:**
+            # ختمٌ **بعد** آخرِ بارٍ متاح يعني **أن الجلسةَ لم تصل بعد**، ولو
+            # سُمح بالرَّدِّ لَوقع على بار **الأمس** (داخلَ مدى الاستدراك) فحُسم
+            # الصفُّ على **مِرساةٍ أقدمَ بجلسةٍ كاملة** — **وحارسُ المقياس لا
+            # يمسكه** (تسامحُه 15% يبتلع فرقَ يومٍ واحد). ⇒ يُعلَن ولا يُردّ،
+            # ويُحسَم بإعادة التشغيل غدًا. **ومقيسٌ حيًّا:** تشغيلةُ 08-29 ردَّت
+            # 55 صفًّا ختمُها 2026-08-28 إلى بارٍ أقدم بلا أن يعترضها شيء.
+            if want > idx[-1]:
+                out["outcome"] = out["outcome_low"] = "session_ahead"
+                return out
             w = _dt.date.fromisoformat(want)
             cand = [k for k, d in enumerate(idx)
                     if 0 <= (w - _dt.date.fromisoformat(d)).days
                     <= SESSION_BACKSTEP_DAYS]
             if not cand:
-                # 🔎 **سببٌ مُسمًّى لا حكمٌ صامت** (درسُ «حكمٌ سالبٌ بلا سببٍ
-                # مُسمًّى يخفي تشخيصَه»): ختمٌ **بعد** آخرِ بارٍ في البيانات يعني
-                # **أن الجلسةَ لم تصل بعد** لا أن الختمَ باطل — وهما حالتان
-                # يجب ألّا تختلطا، فأولاهما تُحلّ بإعادة التشغيل غدًا والثانيةُ
-                # عطبُ ختمٍ حقيقيّ. **وهذا بعينه ما فرّق تشغيلتَي 08-29.**
-                out["outcome"] = out["outcome_low"] = (
-                    "session_ahead" if want > idx[-1] else "session_missing")
+                # ختمٌ **داخل** المدى بلا بارٍ قريب = عطبُ ختمٍ حقيقيّ
+                out["outcome"] = out["outcome_low"] = "session_missing"
                 return out
             i = max(cand)
             out["session_used"] = idx[i]

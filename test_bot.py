@@ -19371,9 +19371,15 @@ check("📅 PHV14ب الرَّدُّ **يُعلَن بعدده** ولا يمرّ
 # بإعادة التشغيل غدًا، وختمٌ داخل المدى بلا بارٍ **عطبُ ختمٍ حقيقيّ**.
 # والعيّنةُ **تفرّق**: بعديٌّ (2027) · وقبليٌّ (2020) على الفهرس نفسِه.
 _ph_ahead = _PH.resolve_row(dict(_ph_rw, session="2027-01-04"), _ph_dfw)
+# 🔴 والعيّنةُ الحاسمة **يومٌ واحدٌ بعد آخر بار** — داخلَ مدى الاستدراك: لو فُحص
+# بعد الرَّدِّ لَرُدَّ إلى بار الأمس وحُسم على مِرساةٍ خاطئة (وقع حيًّا في 55 صفًّا).
+_ph_next = str((_ph_dfw.index[-1] + pd.Timedelta(days=1)).date())
+_ph_ahead1 = _PH.resolve_row(dict(_ph_rw, session=_ph_next), _ph_dfw)
 check("🔎 PHV15 سببٌ مُسمًّى: `session_ahead` للجلسة التي لم تصل · `session_missing` لغيرها",
       _ph_ahead["outcome"] == "session_ahead"
       and _ph_ahead["outcome_low"] == "session_ahead"
+      and _ph_ahead1["outcome"] == "session_ahead"
+      and _ph_ahead1["session_used"] is None
       and _ph_far["outcome"] == "session_missing"
       and _ph_far["outcome_low"] == "session_missing")
 
