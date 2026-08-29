@@ -60,6 +60,16 @@ MEMORY_DAYS = 45          # احتفاظ الذاكرة بالاسم منذ آخ
 REALERT_DAYS = 5          # لا إعادة تنبيه لنفس السهم قبلها
 POOL_CAP = 250            # سقف البِركة — القصّ يُعلَن بعدّاده لا صمتًا
 ALERT_CAP = 8             # سقف أسطر الرسالة — الباقي يُذكَر عددًا لا يُطوى
+# 🔥🔴 **حصرُ الكرت بالمستيقظين — أُلغي بأمر المالك «شغّل W3» (2026-08-29).**
+# `T-WAKE` قاست الذراعَ `W3` (بلا حصر) على ثلاث سنوات: تُسلّم **‏+295 فائزًا (‏+35.9%)**
+# و**‏+158.2R**، و`R`/جلسة أعلى **في السنوات الثلاث بلا استثناء**.
+# ⚠️ **وثمنُها مكتوبٌ ولا يُطوى:** المقياسُ الحاكمُ المثبَّت **قبل** الأرقام كان
+# `R`/كرت — وفيه `W3` **أدنى** (‏+0.1820 مقابل +0.2170)، **وبلوغُ الهدف ينزل في
+# الثلاث** ⇒ الزيادةُ **حجمٌ لا جودة**، والرسائلُ ترتفع من ‏≈5.7 إلى ‏≈7.9 لكلّ جلسة.
+# ⇒ لذلك كان **قرارَ مالكٍ** لا استنتاجَ قياس، وقد أمر به صراحةً.
+# 🔒 `True` يُعيد السلوكَ السابق بت-بت (بسطرٍ واحد) — والأرقامُ المنشورة تبقى قابلةً
+# لإعادة الإنتاج بتمرير `wake_first=True` صراحةً.
+WAKE_FIRST_ONLY = False   # W3: الكروتُ لأعلى الجاهزين رتبةً لا للمستيقظين وحدهم
 MIN_COVERAGE_PCT = 60.0   # 🩺 أرضية تغطية البِركة (أقلّ منها = لم نفحص شيئًا)
 #                           نفسُ رقم الصيّادين الأربعة حرفيًّا (split/method/
 #                           envelope/split_filter) — لا رقمَ جديدًا يُخترَع.
@@ -510,6 +520,24 @@ def _src_label(src) -> str:
     return SRC_LABELS.get(str(src or "؟"), str(src or "؟"))
 
 
+def card_base(ready, fire, wake_first=None):
+    """🃏 **أساسُ الكروت — مصدرٌ واحدٌ يقرؤه العرضُ والإثراءُ معًا.**
+
+    🔴 **ولماذا دالّةٌ لا سطران:** الإثراءُ (اقتراض/فلوت) كان يبني قائمتَه **بنفسه**
+    (`مستيقظ ثم هادئ`) والعرضُ يبني قائمتَه، فأيُّ تغييرٍ في أحدهما **يُجوّف الآخر
+    صامتًا**: كروتٌ بلا اقتراضٍ ولا فلوت، أو نداءاتٌ تُهدَر على رموزٍ لا تُعرَض.
+    الآن الاثنان يقرآن هذي — فيستحيل أن يتفرّقا.
+
+    `wake_first=True` ⇒ السلوكُ السابق (`W0`: المستيقظون وحدهم ما داموا موجودين) ·
+    `False` ⇒ `W3` بأمر المالك: **أعلى الجاهزين رتبةً** (‏`alert_rank` رتّبهم سلفًا).
+    ⚖️ و«الجاهز» لم يُمَسّ: `READY_HOLD` كما هي، والمتغيّرُ **مَن يأخذ كرتًا** لا مَن
+    يُعَدّ جاهزًا."""
+    wf = WAKE_FIRST_ONLY if wake_first is None else bool(wake_first)
+    if wf and fire:
+        return list(fire)
+    return list(ready)
+
+
 def _ready_card(i: int, r: dict) -> list:
     """كرتُ سهمٍ جاهز — **بترتيب كرت التقرير الأسبوعي حرفيًّا**: رأسٌ ⟵ الصغائرُ
     في سطر 💰 ⟵ السياق ⟵ 📥 الدخول والوقف ⟵ 🎯 الهدف ⟵ المستويات ⟵ 🔗 المصدر.
@@ -607,39 +635,36 @@ def build_alert(rows, session_iso: str) -> str:
     # مضغوطة — **ترتيبُ انتباهٍ لا فلتر** (لا اسمَ يُسقَط — درسُ WETO)، وصفرُ
     # صحوةٍ ⇒ الشكلُ السابق حرفيًّا (الجاهزون كلُّهم كروتًا حتى السقف).
     fire = [r for r in ready if (r.get("wake") or {}).get("awake")]
-    quiet = [r for r in ready if not (r.get("wake") or {}).get("awake")]
     sep = _card_sep()
     lines = [f"🗜️📡 <b>رادار الضغط</b> — {session_iso}",
              (f"🔥 {len(fire)} يتحرّك الآن · " if fire else "")
              + f"🟢 {len(ready)} جاهز · 👀 {len(watch)} قيد المتابعة "
              "(نموذج فيصل: «اذا حافظ ع ادنى قاع طبق النموذج»)",
              ""]
-    if fire:
-        shown = fire[:ALERT_CAP]
-        lines.append("🔥 <b>يتحرّك الآن — حافظٌ وعليه سلوكُ مضاربٍ في آخر "
-                     f"جلستين</b> ({len(fire)})")
+    base = card_base(ready, fire)
+    shown = base[:ALERT_CAP]
+    if shown:
+        _n_fire_shown = sum(1 for r in shown if (r.get("wake") or {}).get("awake"))
+        lines.append(f"🟢 <b>جاهز — حافظ قاعه {READY_HOLD} جلسات فأكثر</b> "
+                     f"({len(ready)}"
+                     + (f" · منهم {_n_fire_shown} 🔥 في الكروت" if _n_fire_shown else "")
+                     + ")")
     else:
-        shown = ready[:ALERT_CAP]
-        if shown:
-            lines.append(f"🟢 <b>جاهز — حافظ قاعه {READY_HOLD} جلسات فأكثر</b> "
-                         f"({len(ready)})")
-        else:
-            lines.append(f"🟢 لا سهم حافظ قاعه {READY_HOLD} جلسات هذي الجلسة — "
-                         f"{len(watch)} تحت المتابعة (يظهرون أدناه).")
+        lines.append(f"🟢 لا سهم حافظ قاعه {READY_HOLD} جلسات هذي الجلسة — "
+                     f"{len(watch)} تحت المتابعة (يظهرون أدناه).")
     for i, r in enumerate(shown, 1):
         if i > 1:                       # فاصلُ الكروت (نفسُ التقرير الأسبوعي)
             lines += ["", sep, ""]
         lines += _ready_card(i, r)
-    if fire:
-        _rest = fire[len(shown):] + quiet
-        _rest_title = (f"🟢 <b>جاهزون هادئون — حافظوا قاعهم بلا صحوةٍ بعد</b> "
-                       f"({len(quiet)})")
-        if len(fire) > len(shown):      # فائضُ النار يتقدّم بإعلانٍ لا صمت
-            _rest_title = (f"🟢 <b>البقية</b> ({len(_rest)} — منهم "
-                           f"{len(fire) - len(shown)} 🔥 فوق سقف الكروت)")
-    else:
-        _rest = ready[len(shown):]
-        _rest_title = f"🟢 <b>باقي الجاهزين</b> ({len(_rest)}) — سطرٌ لكل سهم:"
+    # 🔴 **«لا اسمَ يُسقَط» (درسُ WETO):** الباقي = كلُّ **جاهزٍ** لم يأخذ كرتًا — لا
+    # `base[len(shown):]`. الفرقُ يظهر عند `W0` حيث الأساسُ المستيقظون وحدهم: قصُّ
+    # الأساس كان **يُخفي الجاهزَ الهادئ من الرسالة كلِّها** (رجعةٌ أمسكها قفلٌ قائم).
+    _shown_ids = {id(r) for r in shown}
+    _rest = [r for r in ready if id(r) not in _shown_ids]
+    _n_fire_rest = sum(1 for r in _rest if (r.get("wake") or {}).get("awake"))
+    _rest_title = (f"🟢 <b>باقي الجاهزين</b> ({len(_rest)}"
+                   + (f" — منهم {_n_fire_rest} 🔥 فوق سقف الكروت" if _n_fire_rest else "")
+                   + ") — سطرٌ لكل سهم:")
     if _rest:
         lines += ["", _rest_title]
         for r in _rest[:ALERT_CAP * 2]:
@@ -854,9 +879,8 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
     # فاشلٌ-آمنٌ حقلًا حقلًا: التعذّر غيابُ سطرٍ لا صفرٌ ولا انهيار.
     _rdy = [r for r in rows
             if int((r.get("read") or {}).get("hold_sessions") or 0) >= READY_HOLD]
-    _card_rows = ([r for r in _rdy if (r.get("wake") or {}).get("awake")]
-                  + [r for r in _rdy
-                     if not (r.get("wake") or {}).get("awake")])[:ALERT_CAP]
+    _card_rows = card_base(_rdy, [r for r in _rdy
+                                  if (r.get("wake") or {}).get("awake")])[:ALERT_CAP]
     for r in _card_rows:
         try:
             _b = S.ce_borrow_info(r["symbol"]) or {}

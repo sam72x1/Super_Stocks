@@ -332,6 +332,59 @@ def _segment_window(role, t0=None):
             "session_type": _cal["session_type"], "calendar_version": _cal["calendar_version"]}
 
 
+def _start_plan(window, now=None):
+    """⏰ **خطّةُ البدء** — نقيّةٌ قابلةٌ للاختبار: ماذا يفعل المقطعُ لحظةَ إقلاعه؟
+    ترجّع `("run"|"wait"|"skip", دقائق_الانتظار, سبب)`.
+
+    🔴 **لماذا وُلدت (2026-08-29، أمرُ المالك «صلّح رادار الانطلاق»):** تأخّرُ كرون
+    GitHub **مقيسٌ متغيّرًا** على ثلاثين تشغيلةً مجدولة — **‏24-28 دقيقة في أغلب
+    أغسطس · ‏234-278 دقيقة في يوليو · و588-609 دقيقة يومَي 08-27/08-28** (وسيط 109) ⇒
+    **لا يُصلَح بإزاحة كرونٍ واحد**: الإزاحةُ التي تُنقذ العشرَ ساعاتٍ تكسر الحالةَ
+    الشائعة. العلاجُ كرونات احتياطٍ **وبدءٌ فاشلٌ-آمن يعرف ماذا يفعل متى أقلع**.
+
+    ⚖️ **وهي أشدُّ من السلوك السابق لا أرخى:** كان الانتظارُ مشروطًا بـ
+    `0 < فجوة ≤ PRE_OPEN_WAIT_MAX_MIN` فما تجاوز السقفَ **يمسح البريماركت** بلا انتظار
+    (وهو ما كان سينشط فورَ إضافة كرونٍ مبكّر)، و`close` **لا ينتظر إطلاقًا** فبدءُه
+    مبكّرًا يمسح ما قبل نافذته. الآن **لا مسحَ قبل `segment_start` بحال**، والمقطعُ
+    الذي تنتهي ميزانيتُه قبل نافذته **يخرج معلنًا** بدل أن يمسح خارجها.
+
+    🔒 **وفي الوضع القائم بت-بت:** `open`/`single` يقلعان بعد الكرون بدقائق فالفجوةُ
+    إلى الجرس دون الميزانية ⇒ **ينتظران كما كانا**؛ و`close` يقلع عند `split` تقريبًا
+    فالفجوةُ صفرٌ أو دونه ⇒ **يمضي كما كان**.
+    """
+    now = now or bot.dt.datetime.utcnow()
+    # 🔑 **المِرساةُ الجرسُ لا بدايةُ المقطع** — والفرقُ يظهر في `close` وحدَه: لو انتهى
+    # `open` مبكّرًا (سقفُ التشغيل يقصّه قبل `split`) فإن `close` يقلع **قبل نافذته
+    # الاسميّة**، والصوابُ أن **يملأ الفجوة** لا أن ينتظرها. ولو أُرسيَ على
+    # `segment_start` لضاعت تلك الدقائقُ صامتةً — وهي بعينُها ما بُني المقطعان لتغطيته.
+    # والشرطُ الحقيقيّ **«لا مسحَ قبل الجرس»** لا «لا مسحَ قبل نافذتك».
+    target, deadline = window["open"], window["deadline"]
+    if now >= deadline:
+        return ("skip", 0.0, "window_past")          # النافذةُ مضت (بدءٌ بعد الإغلاق)
+    if now >= target:
+        return ("run", 0.0, "in_window")
+    gap = (target - now).total_seconds() / 60.0
+    budget = (deadline - now).total_seconds() / 60.0
+    if gap >= budget:
+        return ("skip", 0.0, "no_budget_before_open")
+    return ("wait", gap, "before_open")
+
+
+def _write_skip_marker(role, reason, session_day, root="e2_measurement"):
+    """📋 **أثرٌ صريحٌ للتخطّي** — «يُبلَّغ ولا يُصمَت». بلاه يخرج المقطعُ المتخطّي
+    **بلا مجلّد جلسة**، فيسقط المدقّقُ الصارم أحمرَ على **كرونِ احتياطٍ لم يلزم**
+    ويختلط ذلك بعطبِ قياسٍ حقيقيّ (وهو عينُ «كلُّ تشغيلةٍ خضراء» مقلوبًا).
+    فاشلٌ-آمن: أيُّ عطلِ قرصٍ يُتجاهَل — التخطّي نفسُه لا يعتمد على نجاح الكتابة."""
+    try:
+        os.makedirs(root, exist_ok=True)
+        with open(os.path.join(root, "skipped_%s.json" % (role or "single")),
+                  "w", encoding="utf-8") as fh:
+            json.dump({"role": role or "single", "reason": reason,
+                       "session_date": session_day, "at": _iso(bot.dt.datetime.utcnow())}, fh)
+    except Exception:                                            # noqa: BLE001
+        pass
+
+
 def _load_handoff(path):
     """🔬 (ب+): يحمّل handoff المقطع السابق (فاشل-آمن → None)."""
     try:
@@ -418,18 +471,21 @@ def main():
     # 🔬 P1-6: عطلة سوق ⇒ لا جلسة (لا تُعدّ session). فاشل-آمن (بلا تقويم = regular).
     if window.get("session_type") == "holiday":
         bot.log(f"📅 اليوم عطلة سوق (تقويم {window.get('calendar_version')}) — لا جلسة رادار.")
+        _write_skip_marker(role, "holiday", session_day)
         return
-    # 🔬 P0-2: المقطع `open`/single ينتظران الجرس (حتى 90د لتغطية بدء الصيف والشتاء)؛ close يبدأ فورًا.
-    if role != "close":
-        try:
-            _open_m = bot.market_session_now()["open"]
-            _now = bot.dt.datetime.utcnow()
-            _gap = _open_m - (_now.hour * 60 + _now.minute)
-            if 0 < _gap <= PRE_OPEN_WAIT_MAX_MIN:
-                bot.log(f"⏳ قبل الافتتاح — انتظار {_gap} دقيقة حتى الجرس (تغطية البداية).")
-                time.sleep(_gap * 60)
-        except Exception:
-            pass
+    # ⏰ **خطّةُ البدء (2026-08-29)** — تحلّ محلّ انتظارِ الجرس المشروط بسقفٍ ثابت.
+    # `run` يمضي · `wait` ينتظر حتى بداية نافذته · `skip` يخرج معلنًا بأثرٍ مقروء.
+    _act, _wait_min, _why = _start_plan(window)
+    bot.log(f"⏰ خطّةُ البدء [{window['role']}]: {_act} (سبب={_why} · نافذة "
+            f"{window['segment_start'].strftime('%H:%M')}–{window['segment_end'].strftime('%H:%M')} "
+            f"· مهلة {window['deadline'].strftime('%H:%M')} UTC).")
+    if _act == "skip":
+        bot.log("📋 خارج الجلسة أو بلا ميزانيةٍ تبلغ الجرس — لا مسح (فاشل-آمن).")
+        _write_skip_marker(role, _why, session_day)
+        return
+    if _act == "wait":
+        bot.log(f"⏳ قبل الجرس — انتظار {_wait_min:.0f} دقيقة (لا مسحَ قبله).")
+        time.sleep(_wait_min * 60)
     deadline = window["deadline"]
     # 🔬 (ب+): استعادة أختام الدِدوب من handoff المقطع السابق (المقطع close فقط) — لا تنبيه مكرّر.
     handoff_in = None

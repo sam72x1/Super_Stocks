@@ -3768,13 +3768,75 @@ _ig_yml = open(".github/workflows/ignition.yml", encoding="utf-8").read()
 _ig_cron_min = next((int(x.split('"')[1].split()[1]) * 60 + int(x.split('"')[1].split()[0])
                      for x in _ig_yml.splitlines() if "- cron:" in x), None)
 import ignition_live as _IGL
-check("⏳ رادار: الكرون + سقف الانتظار يغطّيان الافتتاح في الفصلين رغم تأخّر GitHub",
-      # تأخّر مرصود 95-152د · افتتاح صيفي 13:30 (810د) وشتوي 14:30 (870د)
-      all(0 < (_open - (_ig_cron_min + _lag)) <= _IGL.PRE_OPEN_WAIT_MAX_MIN
-          or (_ig_cron_min + _lag) >= _open
-          for _open in (810, 870) for _lag in (95, 119, 152))
-      # وبأسوأ تأخّر لا يتجاوز البدء الافتتاح الصيفي بأكثر من نصف ساعة
-      and (_ig_cron_min + 152) - 810 <= 30)
+# 🔴 **إقرارٌ مؤرَّخ (2026-08-29) وتشديدٌ لا إرخاء:** عقدُ هذا القفل القديم كان
+# «كرونٌ واحد + سقفُ انتظارٍ ثابت يغطّيان تأخّرًا 95-152د». **والقياسُ نسخه:**
+# ثلاثون تشغيلةً مجدولة تُعطي تأخّرًا **24-609 دقيقة** (وسيط 109) ⇒ لا سقفَ ثابتًا
+# يغطّيه، ولا كرونَ واحدًا يُنقذه. فصار العقدُ **أقوى**: مجموعةُ الكرونات كلُّها
+# تُقرأ من الـworkflow، ويُشترَط أن **كلَّ تأخّرٍ في المدى المقيس** يجد كرونًا يبلغ
+# به المقطعُ نافذتَه — في الفصلين معًا.
+_ig_crons = sorted(int(x.split('"')[1].split()[1]) * 60 + int(x.split('"')[1].split()[0])
+                   for x in _ig_yml.splitlines() if "- cron:" in x)
+_ig_mr = next((int(l.split('"')[1]) for l in _ig_yml.splitlines()
+               if "IGNITION_MAX_RUNTIME_MIN:" in l), 0)
+_ig_sp = next((int(l.split('"')[1]) for l in _ig_yml.splitlines()
+               if "IGNITION_SEGMENT_SPLIT_MIN:" in l), 0)
+
+
+def _ig_covered(delay, open_min):
+    """هل يوجد كرونٌ يجعل المقطعَ يغطّي الافتتاح عند هذا التأخّر؟ إمّا يقلع قبل الجرس
+    وميزانيتُه تبلغه، أو يقلع داخل نافذة مقطع الافتتاح نفسِها."""
+    return any((0 < (open_min - (t + delay)) < _ig_mr)
+               or (open_min <= (t + delay) < open_min + _ig_sp) for t in _ig_crons)
+
+
+check("⏳🔴 IGF4: كرونات الرادار تغطّي **كلَّ** تأخّرٍ مقيس (0-660د) في الفصلين",
+      len(_ig_crons) >= 4 and _ig_mr > 0 and _ig_sp > 0
+      and all(_ig_covered(_lag, _open) for _open in (810, 870)
+              for _lag in range(0, 661)))
+check("⏳ IGF4ب: التغطية ليست تحصيلَ حاصل — تأخّرٌ خارج المدى المقيس يكسرها",
+      not all(_ig_covered(_lag, 810) for _lag in range(0, 1201)))
+
+
+def _ig_win(open_min_ahead, deadline_min_ahead, now=None, seg_start_ahead=None):
+    """نافذةٌ مصنوعةٌ لاختبار خطّة البدء: الجرسُ بعد N دقيقة والمهلةُ بعد M.
+    `seg_start_ahead` يُمرَّر حين نريد بدايةَ مقطعٍ **تخالف** الجرس (حالةُ `close`)."""
+    now = now or S.dt.datetime(2026, 8, 31, 9, 0)
+    _ss = open_min_ahead if seg_start_ahead is None else seg_start_ahead
+    return {"role": "open", "open": now + S.dt.timedelta(minutes=open_min_ahead),
+            "segment_start": now + S.dt.timedelta(minutes=_ss),
+            "segment_end": now + S.dt.timedelta(minutes=deadline_min_ahead),
+            "deadline": now + S.dt.timedelta(minutes=deadline_min_ahead)}, now
+
+
+_igw_run, _ig_n0 = _ig_win(-10, 200)
+_igw_wait, _ig_n1 = _ig_win(30, 300)
+_igw_past, _ig_n2 = _ig_win(-400, -60)
+_igw_nb, _ig_n3 = _ig_win(400, 330)
+check("⏰ IGF1: خطّةُ البدء تفرّق الحالاتِ الأربع بأسبابها المُسمّاة",
+      _IGL._start_plan(_igw_run, _ig_n0) == ("run", 0.0, "in_window")
+      and _IGL._start_plan(_igw_wait, _ig_n1) == ("wait", 30.0, "before_open")
+      and _IGL._start_plan(_igw_past, _ig_n2)[0::2] == ("skip", "window_past")
+      and _IGL._start_plan(_igw_nb, _ig_n3)[0::2] == ("skip", "no_budget_before_open"))
+# 🔴 **القفلُ الفارق:** بالسلوك السابق كانت فجوةٌ تتجاوز `PRE_OPEN_WAIT_MAX_MIN` **تمضي بلا
+# انتظار فتمسح البريماركت**. الآن الفجوةُ الكبيرة إمّا تُنتظَر (إن كفت الميزانية) أو يُخرَج
+# معلنًا — **ولا مسحَ قبل بداية النافذة بحال**. هذا هو الشرطُ الذي يسمح بكرونٍ مبكّر أصلًا.
+check("⏰ IGF2: لا مسحَ قبل بداية النافذة — فجوةٌ فوق السقف القديم تُنتظَر أو تُتخطّى",
+      all(_IGL._start_plan(*_ig_win(_g, 330))[0] in ("wait", "skip")
+          for _g in (151, 200, 329, 400, 700))
+      and _IGL._start_plan(*_ig_win(200, 330))[0] == "wait"
+      and _IGL._start_plan(*_ig_win(400, 330))[0] == "skip")
+# 🔒 بت-بت في الوضع القائم: `open` يقلع قبل الجرس بدقائقَ فينتظر · `close` يقلع عند `split`.
+check("⏰ IGF3: الوضعُ القائم بت-بت (open ينتظر الجرس · close يمضي عند نافذته)",
+      _IGL._start_plan(*_ig_win(139, 330)) == ("wait", 139.0, "before_open")
+      and _IGL._start_plan(*_ig_win(0, 195))[0] == "run")
+# 🔑 IGF3ب — **الفجوةُ تُملأ لا تُنتظَر:** `close` يقلع بعد الجرس وقبل نافذته الاسميّة
+# (لأن `open` انتهى مبكّرًا بسقف التشغيل) ⇒ **يمضي فورًا**. ولو أُرسيَ على
+# `segment_start` لانتظر فضاعت تلك الدقائقُ صامتةً — وهي بعينُها ما بُني المقطعان له.
+check("⏰ IGF3ب `close` بعد الجرس وقبل نافذته يمضي (يملأ فجوةَ انتهاءِ `open` مبكّرًا)",
+      _IGL._start_plan(*_ig_win(-130, 200, seg_start_ahead=65))[0] == "run"
+      # وقبل الجرس ينتظره هو لا نافذتَه (فلا مسحَ بريماركت بحال)
+      and _IGL._start_plan(*_ig_win(40, 300, seg_start_ahead=235))
+      == ("wait", 40.0, "before_open"))
 # 🔓 T-LIBERATION (liberation_prereg.md): ذراع الدخول بعد كسر التحرر
 # اختبارات سلوكية على أرقام فيصل الحقيقية (DSY 1.85→3.20 · JZ 2.56→4).
 _lib_sv = dict(S.CONFIG)
@@ -5643,6 +5705,55 @@ check("🔬 Codex5 قفل: صفر عمل قياسي داخل _fresh_watchlist (�
 check("🔬 P1-8: manifest نقيّ + canonical JSON حتمي (نفس المدخل = نفس الـhash)",
       _MAN.manifest_sha256({"a": 1, "b": 2}) == _MAN.manifest_sha256({"b": 2, "a": 1})
       and _MAN.sha256_hex("x") == _MAN.sha256_hex("x") and _MAN.manifest_sha256({}) is not None)
+
+# ⏰🔴 IGF5-IGF7 (2026-08-29): خطّةُ البدء موصولةٌ **من نقطة النداء الحيّة** لا موجودةً فقط —
+# ومقطعٌ خارج نافذته **لا يمسح ولا يُرسل** ويترك **أثرًا مقروءًا** (وإلّا صبغ المدقّقُ
+# الصارم كرونَ الاحتياط أحمرَ فاختلط بعطبِ قياسٍ حقيقيّ).
+check("⏰ IGF5: main تنادي _start_plan فعلًا (AST — لا وجودَ دالّةٍ فقط)",
+      any(getattr(c.func, "id", None) == "_start_plan"
+          for c in _ast0.walk(_ast0.parse(_insp0.getsource(IG.main))) if isinstance(c, _ast0.Call)))
+_igs_out = _os.path.join(_e2_out, "skipmark")
+_igs_scanned, _igs_sent = [], []
+_igs_env = {k: _os.environ.get(k) for k in ("POLYGON_API_KEY", "IGNITION_SEGMENT")}
+_os.environ.update({"POLYGON_API_KEY": "TEST_KEY_NOT_USED", "IGNITION_SEGMENT": "open"})
+_igs_saved = (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+              IG.bot.send_telegram, IG.time.sleep, IG._write_skip_marker)
+_igs_now = S.dt.datetime.utcnow()
+IG._segment_window = lambda role, t0=None: {
+    # الجرسُ بعد 400 دقيقة والمهلةُ بعد 330 ⇒ **الميزانيةُ لا تبلغ الجرس**
+    "role": role, "open": _igs_now + S.dt.timedelta(minutes=400),
+    "close": _igs_now + S.dt.timedelta(minutes=800),
+    "segment_start": _igs_now + S.dt.timedelta(minutes=400),
+    "segment_end": _igs_now + S.dt.timedelta(minutes=595),
+    "deadline": _igs_now + S.dt.timedelta(minutes=330), "reason": "test",
+    "session_type": "regular", "calendar_version": "test"}
+IG.bot.load_watchlist = lambda: {"stocks": [{"symbol": "IGN", "status": "active"}]}
+IG.bot.scan_ignition = lambda wl, today, trace=None: (_igs_scanned.append(1), [])[1]
+IG.bot.send_telegram = lambda m: _igs_sent.append(m)
+IG.time.sleep = lambda *_a: (_ for _ in ()).throw(AssertionError("نام خارج نافذته"))
+IG._write_skip_marker = lambda role, reason, day, root="e2_measurement": \
+    _igs_saved[5](role, reason, day, root=_igs_out)
+try:
+    IG.main()
+except Exception as _e:
+    _igs_scanned.append("انهار:%s" % type(_e).__name__)
+finally:
+    (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+     IG.bot.send_telegram, IG.time.sleep, IG._write_skip_marker) = _igs_saved
+    for _k, _v in _igs_env.items():
+        _os.environ.pop(_k, None) if _v is None else _os.environ.update({_k: _v})
+_igs_mark = _os.path.join(_igs_out, "skipped_open.json")
+check("⏰ IGF6: مقطعٌ خارج نافذته لا يمسح ولا يُرسل — صفرُ مسحٍ وصفرُ رسالة",
+      _igs_scanned == [] and _igs_sent == [])
+check("⏰ IGF7: التخطّي يترك أثرًا مقروءًا بسببه المُسمّى (لا صمت)",
+      _os.path.exists(_igs_mark)
+      and _json0.load(open(_igs_mark, encoding="utf-8")).get("reason") == "no_budget_before_open")
+# 🔒 والبوّابةُ الصارمة تفرّق الحالاتِ الثلاث نصًّا: جلسةٌ ⇒ المدقّق · أثرُ تخطٍّ ⇒ يُعلَن
+# ويمضي · لا هذا ولا ذاك ⇒ **يسقط**. (لا تُرخى: الفرعُ الثالث يبقى `exit 1`.)
+check("⏰ IGF8: بوّابةُ المدقّق تفرّق الجلسةَ عن التخطّي عن العطب الصامت",
+      (lambda g: "session_*" in g and "skipped_*.json" in g
+       and "--strict" in g and "exit 1" in g)(
+          _ig_yml.split("Analyzer strict gate")[1][:900]))
 # ── 🔬 P1-6: التقويم (عطلة/إغلاق مبكر/عادي) ──
 import market_calendar as _CAL
 check("🔬 P1-6: التقويم — عطلة (لا جلسة) · إغلاق مبكر (close مقصوص) · عادي",
@@ -19035,16 +19146,194 @@ _wk_msg = _PRD.build_alert([_wk_fire_row, _wk_quiet_row], "2026-08-15")
 _wk_fire_seg = _wk_msg.split("🟢 <b>")[0]
 _wk_msg_off = _PRD.build_alert(
     [dict(_wk_fire_row, wake={}), dict(_wk_quiet_row, wake={})], "2026-08-15")
-check("🔥 PRD16 قسمُ «يتحرّك الآن»: FIRY كرتٌ أول بسطر الصحوة (حجم+همر+افتر "
-      "بأسمائها) · QUIT سطرٌ مضغوطٌ تحت «جاهزون هادئون» · وشرحُ 🔥 مرّةً "
-      "واحدة · وصفرُ صحوةٍ ⇒ لا 🔥 في الرسالة كلِّها",
-      "🔥 <b>يتحرّك الآن" in _wk_msg and "1) 🗜️ <b>$FIRY</b>" in _wk_fire_seg
+# 🔴 **إقرارٌ مؤرَّخ (2026-08-29، أمرُ المالك «شغّل W3») وتشديدٌ لا إرخاء:** عقدُ هذا
+# القفل كان «المستيقظُ وحده يأخذ كرتًا والهادئُ سطرٌ مضغوط». والمالكُ ألغى الحصرَ بعد
+# أن قاسته `T-WAKE` (‏+295 فائزًا · +158.2R · وثمنُه `R`/كرت أدنى ورسائلُ أكثر) ⇒ صار
+# العقدُ **أقوى**: يُثبت أن الهادئَ **يأخذ كرتًا فعلًا** (وهو الفارقُ الحيّ)، وأن سطرَ
+# الصحوة باقٍ لمن استيقظ، وأن الترويسةَ **ما زالت تقول كم منهم يتحرّك** (لا معلومةَ
+# فُقدت) — **ومعه شاهدُ تفريقٍ صريح**: بإعادة `WAKE_FIRST_ONLY=True` يعود كرتٌ واحد.
+_wk_w0_saved = _PRD.WAKE_FIRST_ONLY
+try:
+    _PRD.WAKE_FIRST_ONLY = True
+    _wk_msg_w0 = _PRD.build_alert([_wk_fire_row, _wk_quiet_row], "2026-08-15")
+finally:
+    _PRD.WAKE_FIRST_ONLY = _wk_w0_saved
+check("🔥🔴 PRD16 (W3): الهادئُ يأخذ كرتًا أيضًا · سطرُ الصحوة باقٍ للمستيقظ · "
+      "الترويسةُ تقول كم منهم يتحرّك · ولا قسمَ «يتحرّك الآن» · وصفرُ صحوةٍ ⇒ لا 🔥",
+      "1) 🗜️ <b>$FIRY</b>" in _wk_msg and "2) 🗜️ <b>$QUIT</b>" in _wk_msg
       and "صحوة آخر جلستين: قفزة حجم ×6.0 · شمعة انعكاسية (همر) · "
-          "حركة افتر +12.0%" in _wk_fire_seg
-      and "جاهزون هادئون" in _wk_msg
-      and "• <b>$QUIT</b>" in _wk_msg and "2) 🗜️" not in _wk_msg
+          "حركة افتر +12.0%" in _wk_msg
+      and "منهم 1 🔥 في الكروت" in _wk_msg
+      and "🔥 <b>يتحرّك الآن" not in _wk_msg
       and _wk_msg.count("🔥 <b>الصحوة</b>") == 1
       and "🔥" not in _wk_msg_off)
+check("🔥🔴 PRD16ب شاهدُ التفريق: بإعادة الحصر (W0) يعود كرتٌ واحدٌ فقط — "
+      "فالفارقُ حيٌّ لا ادّعاء",
+      "2) 🗜️" not in _wk_msg_w0 and "1) 🗜️ <b>$FIRY</b>" in _wk_msg_w0
+      # 🔒 وحتى في `W0` **لا اسمَ يُسقَط**: الهادئُ يبقى سطرًا مضغوطًا (درسُ WETO)
+      and "• <b>$QUIT</b>" in _wk_msg_w0 and _PRD.WAKE_FIRST_ONLY is False)
+
+# 🃏 W3L1-W3L3 — «أساسُ الكروت» مصدرٌ واحد، والمشحونُ W3 بأمر المالك.
+_w3_rd = [{"symbol": "Q1", "wake": {}}, {"symbol": "F1", "wake": {"awake": True}}]
+_w3_fr = [_w3_rd[1]]
+check("🃏 W3L1 card_base تفرّق الذراعين: W3 يُبقي الترتيبَ كاملًا · W0 يحصره "
+      "بالمستيقظين · وصفرُ مستيقظٍ ⇒ الجاهزون في الحالتين (بت-بت)",
+      [r["symbol"] for r in _PRD.card_base(_w3_rd, _w3_fr, wake_first=False)] == ["Q1", "F1"]
+      and [r["symbol"] for r in _PRD.card_base(_w3_rd, _w3_fr, wake_first=True)] == ["F1"]
+      and [r["symbol"] for r in _PRD.card_base(_w3_rd, [], wake_first=True)] == ["Q1", "F1"])
+# 🔴 **مصدرٌ واحدٌ لا اثنان:** الإثراءُ كان يبني قائمتَه بنفسه («مستيقظ ثم هادئ») ⇒ لو
+# تغيّر العرضُ وحده لصارت الكروتُ بلا اقتراضٍ ولا فلوت **صامتةً**. القفلُ بالـAST.
+_w3_src_all = _insp0.getsource(_PRD)
+check("🃏 W3L2 العرضُ والإثراءُ يقرآن `card_base` نفسَها (AST) · وصفرُ قائمةِ كروتٍ "
+      "مبنيّةٍ باليد",
+      all(any(getattr(c.func, "id", None) == "card_base"
+              for c in _ast0.walk(_ast0.parse(_insp0.getsource(_f)))
+              if isinstance(c, _ast0.Call))
+          for _f in (_PRD.build_alert, _PRD.run))
+      and 'if not (r.get("wake") or {}).get("awake")])[:ALERT_CAP]' not in _w3_src_all)
+check("🃏 W3L3 المشحونُ W3 (قرارُ المالك) · و«الجاهز» لم يُمَسّ (READY_HOLD كما هي)",
+      _PRD.WAKE_FIRST_ONLY is False and _PRD.READY_HOLD == 3
+      and "hold_sessions" in _insp0.getsource(_PRD.build_alert))
+
+# ═══════ 📒 حاصِدُ قناة الضغط (PHV1-PHV8 · 2026-08-29 «سجل حصاد الضغط») ═══════
+import press_harvest as _PH
+
+
+def _ph_df(lows_after, highs_after, n_before=31):
+    """إطارٌ اصطناعيّ: الجلسةُ عند الفهرس `n_before-1` وإغلاقُها 2.10.
+    🐞 القمّةُ **تُمرَّر صراحةً** لا تُشتقّ من القاع: أوّلُ صياغةٍ جعلتها `قاع×1.6`
+    فبلغت **قمّةُ شمعة التعبئة** الهدفَ ⇒ خرجت حالةُ «الخسارة» **فوزًا**، وهو
+    «الفِكستشرُ الذي يكذب» بعينه — أمسكه القفلُ نفسُه."""
+    lo = [3.0] * n_before + list(lows_after)
+    hi = [3.2] * n_before + list(highs_after)
+    cl = [2.10] * n_before + [x * 1.05 for x in lows_after]
+    idx = pd.date_range("2026-07-01", periods=len(lo), freq="B")
+    return pd.DataFrame({"Open": cl, "High": hi, "Low": lo, "Close": cl}, index=idx)
+
+
+_ph_sess = str(pd.date_range("2026-07-01", periods=31, freq="B")[-1].date())
+_ph_row = {"symbol": "PHX", "session": _ph_sess, "close": 2.10, "press_low": 2.00,
+           "hold_sessions": 5, "awake": True, "swept_hold": False, "src": "اختبار"}
+# فوز: تعبئةٌ (قاع 2.10 دون أعلى دفعة 2.1218) ثم قمّةٌ تبلغ 3.09 (‏3.0×1.6=4.8) قبل 1.86
+_ph_win = _PH.resolve_row(_ph_row, _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40))
+# خسارة: تعبئةٌ ثم قاعٌ 1.50 دون الوقف 1.86 — والقمّةُ في تلك الشمعة 2.4 دون الهدف
+_ph_loss = _PH.resolve_row(_ph_row, _ph_df([2.10, 1.50] + [1.0] * 40, [2.50] * 42))
+# بلا تعبئة: القيعانُ كلُّها فوق أعلى دفعة طوال النافذة
+_ph_nofill = _PH.resolve_row(_ph_row, _ph_df([9.0] * 45, [9.5] * 45))
+check("📒 PHV1 الحسمُ يفرّق فوزًا وخسارةً وبلا-تعبئة بدوالّ الإنتاج",
+      (_ph_win["outcome"], _ph_loss["outcome"], _ph_nofill["outcome"])
+      == ("win", "loss", "no_fill"))
+check("📒 PHV2 حارسُ المقياس ثلاثيُّ الحالة (متّسق · متفرّق · تعذّر) عند الحدّ",
+      _PH.scale_verdict(2.10, 2.10) is True
+      and _PH.scale_verdict(2.10, 2.10 * 1.15) is True
+      and _PH.scale_verdict(2.10, 2.10 * 1.20) is False
+      and _PH.scale_verdict(2.10, 0) is None and _PH.scale_verdict("سيء", 1) is None)
+check("📒 PHV3 المقسَّمُ بعد التسجيل يُستبعَد **بسببٍ مُسمًّى** لا يُصحَّح ولا يُدفَن",
+      _PH.resolve_row(dict(_ph_row, close=21.0),
+                      _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40))["outcome"] == "scale_mismatch")
+check("📒 PHV4 أسبابُ الاستبعاد مُسمّاةٌ كلُّها (لا بيانات · جلسةٌ غائبة · بلا مِرساة)",
+      _PH.resolve_row(_ph_row, None)["outcome"] == "no_data"
+      and _PH.resolve_row(dict(_ph_row, session="1999-01-04"),
+                          _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40))["outcome"] == "session_missing"
+      and _PH.resolve_row(dict(_ph_row, press_low=0),
+                          _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40))["outcome"] == "no_anchor")
+# 🔒 **بلا نظرٍ مستقبليّ بالبناء:** المِرساةُ من الصفّ المسجَّل ليلتَها — والأداةُ
+# **لا تنادي `press_read` إطلاقًا** (وإلّا صارت تُعيد حساب القراءة بمعطيات اليوم).
+_ph_src = open("press_harvest.py", encoding="utf-8").read()
+_ph_tree = _ast0.parse(_ph_src)
+_ph_calls = {getattr(getattr(c, "func", None), "attr", None) for c in _ast0.walk(_ph_tree)
+             if isinstance(c, _ast0.Call)} | {
+    getattr(getattr(c, "func", None), "id", None) for c in _ast0.walk(_ph_tree)
+    if isinstance(c, _ast0.Call)}
+check("📒 PHV5 صفرُ إعادةِ قراءةٍ (لا `press_read`) وصفرُ إرسالٍ وصفرُ كتابةِ حالة",
+      "press_read" not in _ph_calls and "send_telegram" not in _ph_calls
+      and "git_save" not in _ph_calls
+      and not any(isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == "open"
+                  and len(c.args) > 1 and getattr(c.args[1], "value", "") in ("w", "a")
+                  for c in _ast0.walk(_ph_tree)))
+check("📒 PHV6 مقياسٌ واحدٌ لا اثنان: الخطّةُ والحسمُ من `rebound_arms` بالاسم",
+      "rebound_arms" in _ph_src and "mirror_plan" in _ph_src
+      and "resolve_episode" in _ph_src
+      and "def resolve_episode" not in _ph_src and "def mirror_plan" not in _ph_src)
+_ph_bad = _prd_tmp.mkdtemp(prefix="ph_")
+_ph_f = _os_hc.path.join(_ph_bad, "l.jsonl")
+open(_ph_f, "w", encoding="utf-8").write(
+    _json0.dumps({"symbol": "A"}) + "\n{ تالف\n\n" + _json0.dumps({"symbol": "B"}) + "\n")
+check("📒 PHV7 القارئُ يَعُدّ السطرَ التالف ولا يدفنه · والملفُّ الغائب يُميَّز",
+      _PH.load_ledger(_ph_f) == ([{"symbol": "A"}, {"symbol": "B"}], 1)
+      and _PH.load_ledger(_os_hc.path.join(_ph_bad, "لا_وجود.jsonl")) == ([], -1))
+_ph_rep_out = []
+_ph_pr_saved = __builtins__.print if hasattr(__builtins__, "print") else print
+import io as _io_ph
+import contextlib as _ctx_ph
+_ph_buf = _io_ph.StringIO()
+with _ctx_ph.redirect_stdout(_ph_buf):
+    _ph_summ = _PH.report([_ph_win, _ph_loss, _ph_nofill,
+                           _PH.resolve_row(dict(_ph_row, close=21.0),
+                                           _ph_df([2.10] + [3.0] * 40,
+                                                  [2.50] + [4.0] * 40))])
+_ph_txt = _ph_buf.getvalue()
+check("📒 PHV8 التقريرُ يطبع «لا حكم» دائمًا · ويُسمّي المستبعَدين · ويفصل المعلَّق",
+      "لا حكم" in _ph_txt and "scale_mismatch=1" in _ph_txt
+      and "المستبعَدون" in _ph_txt and "معلّقة" in _ph_txt
+      and _ph_summ["resolved"] == 2 and _ph_summ["usable"] == 3)
+_ph_wf = open(".github/workflows/press_harvest.yml", encoding="utf-8").read()
+check("📒 PHV9 الـworkflow يدويٌّ بلا كرون · وموصولٌ بالسكربت · وبطباعةٍ حيّة",
+      "workflow_dispatch" in _ph_wf and "cron" not in _ph_wf
+      and "python press_harvest.py" in _ph_wf and "PYTHONUNBUFFERED" in _ph_wf)
+
+# 🛑 PHV10-PHV12 — **ذراعا الوقف** (‏2026-08-29، عيبٌ أُمسك بالقراءة قبل التسليم):
+# `mirror_plan` تضع الوقفَ ‏7% تحت القاع وهو **وقفُ القياس** الذي أنتج `HOLD3`،
+# **والمالكُ اعتمد 08-27 وقفَ القاع نفسِه لقناة الضغط** ⇒ حسمٌ بواحدٍ فقط إمّا لا
+# يقارَن بالمنشور أو لا يصف ما يستعمله المالك.
+# العيّنةُ **تفرّق بالبناء**: قاعٌ 1.95 دون وقف القاع (‏2.00) وفوق وقف القياس
+# (‏1.86) ثم قمّةٌ تبلغ الهدفَ ⇒ `B0` فوزٌ و`B1` خسارة.
+_ph_two = _PH.resolve_row(_ph_row, _ph_df([2.10, 1.95] + [3.0] * 40,
+                                          [2.50, 2.50] + [4.0] * 40))
+check("🛑 PHV10 ذراعا الوقف حيّتان وتفترقان (‏B0 فوزٌ · B1 خسارةٌ بوقف القاع)",
+      _ph_two["outcome"] == "win" and _ph_two["outcome_low"] == "loss")
+_ph_excl = [
+    _PH.resolve_row(_ph_row, None),
+    _PH.resolve_row(dict(_ph_row, session="2020-01-01"),
+                    _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40)),
+    _PH.resolve_row(dict(_ph_row, press_low=0),
+                    _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40)),
+    _PH.resolve_row(dict(_ph_row, press_low="س"),
+                    _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40)),
+    _PH.resolve_row(dict(_ph_row, close=9.0),
+                    _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40)),
+]
+check("🛑 PHV11 سببُ الاستبعاد يُكتَب في الذراعين معًا ⇒ **مقامٌ واحد** لا مقامان",
+      all(r["outcome"] == r["outcome_low"] for r in _ph_excl)
+      and {r["outcome"] for r in _ph_excl} ==
+      {"no_data", "session_missing", "no_anchor", "scale_mismatch"})
+_ph_buf2 = _io_ph.StringIO()
+with _ctx_ph.redirect_stdout(_ph_buf2):
+    _ph_s2 = _PH.report([_ph_two])
+_ph_t2 = _ph_buf2.getvalue()
+check("🛑 PHV12 التقريرُ يطبع الذراعين باسمَيهما وسطرَ الصدق · والمُرجَعُ يعدّهما",
+      "B0" in _ph_t2 and "B1" in _ph_t2 and "وقفُ القاع المعتمَد" in _ph_t2
+      and "الفارقُ **الوقفُ وحدَه**" in _ph_t2
+      and _ph_s2["resolved"] == 1 and _ph_s2["resolved_low"] == 1
+      and "لا حكم" in _ph_t2)
+
+# ⏳🔴 PHV13 — «بلا تعبئة» قبل اكتمال النافذة **ليست نتيجة**: المحرّكُ المجمَّد
+# يمسح `min(i+1+wait, n)` فينفد التاريخُ قبل النافذة فيرجّع `no_fill`. والسجلُّ
+# عمرُه جلساتٌ معدودة ⇒ بلا هذا الوسم كان كلُّ صفٍّ غيرِ مُعبَّأ يُقرأ «الخطّةُ
+# لا تُعبَّأ» وهو باطل. **والعيّنةُ تفرّق**: تاريخٌ قصيرٌ مقابل تاريخٍ يتجاوز النافذة.
+_ph_prem = _PH.resolve_row(_ph_row, _ph_df([9.0] * 10, [9.5] * 10))
+check("⏳ PHV13 وسمُ اكتمالِ النافذة يفرّق القصيرَ من الكامل (ونفسُ الوسم للذراعين)",
+      _ph_prem["outcome"] == "no_fill" and _ph_prem["window_full"] is False
+      and _ph_prem["outcome_low"] == "no_fill"
+      and _ph_nofill["outcome"] == "no_fill" and _ph_nofill["window_full"] is True)
+_ph_buf3 = _io_ph.StringIO()
+with _ctx_ph.redirect_stdout(_ph_buf3):
+    _ph_s3 = _PH.report([_ph_prem, _ph_nofill])
+_ph_t3 = _ph_buf3.getvalue()
+check("⏳ PHV13ب التقريرُ يُعلنها صراحةً ولا يدفنها في «بلا تعبئة»",
+      "لا تُقرأ «الخطّةُ لا تُعبَّأ»" in _ph_t3
+      and "B0=1" in _ph_t3 and "B1=1" in _ph_t3
+      and _ph_s3["premature_nofill"] == 1 and _ph_s3["usable"] == 2)
 
 # PRD17 — الحصادُ يحمل حقولَ الصحوة (فيصير «هل الصحوة تتنبّأ؟» قابلًا للقياس
 # من السجل لا مُدَّعًى)

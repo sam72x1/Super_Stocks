@@ -1,0 +1,32 @@
+name: Press Harvest (حاصِد قناة الضغط)
+
+# 📒 يقرأ `press_radar_ledger.jsonl` ويحسم صفوفَه بدوالّ الإنتاج — **قراءةٌ لا حكم**.
+# يدويٌّ بلا كرون: أداةُ بحثٍ تُشغَّل عند الطلب، ولا تكتب حالةً ولا ترسل تلغرام.
+
+# قراءةٌ فقط — لا يكتب في المستودع ولا يدفع شيئًا
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-press-harvest
+  cancel-in-progress: false
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Resolve pressure ledger
+        env:
+          PYTHONUNBUFFERED: "1"      # 🐞 درسٌ مقيس: بلا هذا يضيع المُخرَجُ عند أيّ قتل
+        run: python press_harvest.py
