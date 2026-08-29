@@ -19400,6 +19400,29 @@ check("🧩 PHV16 غيابُ حقل الصحوة يُميَّز عن حضوره 
       and "**بالافتراض لا بالقياس**" in _ph_t5
       and _ph_s5["no_wake_fields"] == 1)
 
+# 🧮🔴 PHV17 — **الحسابُ يُغلق: صالحٌ + مستبعَدٌ = الكلّ.** التشغيلةُ الحيّة
+# الرابعة طبعت «صالحة 394 من 452» والمُعلَنُ من الأسباب `scale_mismatch=3`
+# وحدَه ⇒ **‏55 صفًّا (`session_ahead`) استُبعد صامتًا** لأن عدّادَ الأسباب كان
+# **قائمةً بيضاء** نسيتُ تمديدَها حين سمّيتُ السببَ الجديد. ⇒ صار المستبعَدُ
+# **مُكمِّلَ** الصالح بالبناء، فيُعَدّ أيُّ سببٍ جديدٍ ويُعلَن تلقائيًّا.
+# والقفلُ يُثبته بسببٍ **لم يكن موجودًا يومَ كتابته** فلا يكون قائمةً بيضاء أخرى.
+_ph_mix = [dict(_ph_rw, session="2020-01-06"),                    # session_missing
+           dict(_ph_rw, session="2027-01-04"),                    # session_ahead
+           dict(_ph_rw)]                                          # صالح
+_ph_res = [_PH.resolve_row(r, _ph_dfw) for r in _ph_mix]
+_ph_res.append(dict(_ph_res[0], outcome="سببٌ_طارئ", outcome_low="سببٌ_طارئ"))
+_ph_b6 = _io_ph.StringIO()
+with _ctx_ph.redirect_stdout(_ph_b6):
+    _ph_s6 = _PH.report(_ph_res)
+_ph_t6 = _ph_b6.getvalue()
+check("🧮 PHV17 المستبعَدُ مُكمِّلُ الصالح — سببٌ طارئٌ يُعَدّ ويُعلَن · والحسابُ يُغلق",
+      sum(_ph_s6["excluded"].values()) + _ph_s6["usable"] == _ph_s6["rows"]
+      and _ph_s6["excluded"].get("سببٌ_طارئ") == 1
+      and _ph_s6["excluded"].get("session_ahead") == 1
+      and _ph_s6["excluded"].get("session_missing") == 1
+      and "سببٌ_طارئ=1" in _ph_t6 and "session_ahead=1" in _ph_t6
+      and f"(\u200f{_ph_s6['usable']} + 3 = {_ph_s6['rows']})" in _ph_t6)
+
 # PRD17 — الحصادُ يحمل حقولَ الصحوة (فيصير «هل الصحوة تتنبّأ؟» قابلًا للقياس
 # من السجل لا مُدَّعًى)
 _wk_dir = _prd_tmp.mkdtemp(prefix="wk_")

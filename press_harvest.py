@@ -43,6 +43,9 @@ LEDGER = os.environ.get("PRESS_LEDGER", "press_radar_ledger.jsonl")
 SCALE_TOL = 0.15          # 🩺 حدُّ تفرّق المقياس — مُعادٌ من حارس `T-SLIP` لا مخترَع
 READY_HOLD_DEFAULT = 3    # يُقرأ من الإنتاج؛ هذا ارتدادٌ فاشل-آمن فقط
 SESSION_BACKSTEP_DAYS = 4  # 📅 مدى ردِّ ختمِ نهاية الأسبوع (عطلةٌ ممتدّة)
+# 🔒 الحالاتُ القابلةُ للحسم — **مصدرٌ واحد**: ما ليس منها فهو استبعادٌ يُعَدّ
+# ويُعلَن، فأيُّ سببٍ جديدٍ يُسمّى تلقائيًّا ولا يُسقَط صامتًا.
+_RESOLVABLE = ("win", "loss", "no_fill", "open")
 
 
 def load_ledger(path=LEDGER):
@@ -184,12 +187,14 @@ def report(results, bad_lines=0):
         hold_min = int(PR.READY_HOLD)
     except Exception:                                            # noqa: BLE001
         hold_min = READY_HOLD_DEFAULT
+    # 🔴 المستبعَدُ **مُكمِّلُ** الصالح لا قائمةً بيضاء — قائمةٌ بيضاءُ تنسى سببًا
+    # جديدًا فتُسقط صفوفًا **صامتةً** (وقع: `session_ahead` لم يُعَدّ فبقي
+    # 452−394=58 والمُعلَنُ 3). فالحسابُ يُغلق بالبناء: صالحٌ + مستبعَدٌ = الكلّ.
+    usable = [r for r in results if r["outcome"] in _RESOLVABLE]
     excl = {}
     for r in results:
-        if r["outcome"] in ("no_data", "session_missing", "scale_mismatch",
-                            "scale_unknown", "no_anchor"):
+        if r["outcome"] not in _RESOLVABLE:
             excl[r["outcome"]] = excl.get(r["outcome"], 0) + 1
-    usable = [r for r in results if r["outcome"] in ("win", "loss", "no_fill", "open")]
     done = [r for r in usable if r["outcome"] in ("win", "loss")]
     print("=" * 78)
     print("📒 حاصِدُ قناة الضغط — قراءةٌ لا حكم")
@@ -208,7 +213,9 @@ def report(results, bad_lines=0):
               "وحارسُ المقياس يُصادق الرَّدّ.")
     if excl:
         print("   المستبعَدون بأسبابهم: "
-              + " · ".join(f"{k}={v}" for k, v in sorted(excl.items())))
+              + " · ".join(f"{k}={v}" for k, v in sorted(excl.items()))
+              + f" · المجموع {sum(excl.values())}"
+              + f" (‏{len(usable)} + {sum(excl.values())} = {len(results)})")
     else:
         print("   المستبعَدون: صفر")
     _SL = [("الكلّ", usable),
