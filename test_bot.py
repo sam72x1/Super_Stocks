@@ -20399,11 +20399,21 @@ check("🔒 OEL5 النافذةُ من توقيت نيويورك (لا ثواب�
 # 🔒 OEL6 — الـworkflow: ثلاثةُ مقاطعَ · وكلُّ كرونٍ موصولٌ بقيمةِ `OE_SEGMENT`
 _oel_wf = open(".github/workflows/operator_entry.yml", encoding="utf-8").read()
 _oel_crons = _re10.findall(r'- cron: "([^"]+)"', _oel_wf)
-check("⚡ OEL6 ثلاثةُ مقاطع · وكلُّ كرونٍ **موصولٌ** بقيمةِ `OE_SEGMENT` "
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-28 (أمرُ المالك «طول جلسة التداول ما كان واصلني
+#    اي اشعار»):** أُضيفت ثلاثةُ كرونات احتياط بعد أن أسقط GitHub كرونَي
+#    `pre` و`open` يوم 2026-08-28 (‏صفرُ عاملٍ حيٍّ من 01:13 إلى 18:32 UTC).
+#    **والقفلُ يشتدّ لا يُرخى:** ستّةٌ **كلُّها** موصولةٌ **بقيمٍ متمايزة**
+#    (فلا يسقط كرونٌ إلى `manual` صامتًا) · والثلاثةُ الأصلية **باقيةٌ نصًّا**.
+_oel_segs = [_c for _c in _oel_crons if f"'{_c}'" in _oel_wf]
+check("⚡ OEL6 ستّةُ كرونات · كلُّها **موصولةٌ** بقيمِ `OE_SEGMENT` متمايزة "
       "(وإلّا صار مدخلًا ميّتًا — بصمةُ `BT_CANDLE`)",
-      len(_oel_crons) == 3
-      and all(f"'{_c}'" in _oel_wf for _c in _oel_crons)
-      and "OE_SEGMENT" in _oel_wf and "POLYGON_API_KEY" in _oel_wf)
+      len(_oel_crons) == 6 and len(_oel_segs) == 6
+      and len(set(_oel_crons)) == 6
+      and {"1 6 * * 1-5", "31 11 * * 1-5", "1 17 * * 1-5"} <= set(_oel_crons)
+      and len({_re10.search(r"== '" + _re10.escape(_c) + r"' && '([^']+)'",
+                            _oel_wf).group(1) for _c in _oel_crons}) == 6
+      and "OE_SEGMENT" in _oel_wf and "POLYGON_API_KEY" in _oel_wf,
+      str(_oel_crons))
 check("🔒 OEL7 سقفُ الجوب فوق سقف السكربت (‏345 مقابل 330) فينتهي رشيقًا",
       "timeout-minutes: 345" in _oel_wf and "MAX_RUNTIME_MIN = 330" in _oel_src)
 # 🔒 OEL8 — **والمراقبُ الدوريّ يبقى شبكةَ أمان** (لا يُلغى بالعامل السريع)
@@ -27711,19 +27721,35 @@ check("💓 PLS11 أرضيةُ النبض: الصغيرتان تُكتَمان �
       and float(S.LIQ_PULSE_MIN_USD) == 30_000.0,
       f"tiny={str(_pls_tiny)[:40]} exit={str(_pls_exit)[:60]}")
 
-# PLS12 — 🥇🥈🥉 **لا تحديثَ لسهمٍ بلا تصنيف** (أمرُ المالك نفسُه): الحالةُ
-#   بلا `k2` ⇒ **صفرُ نبض** · ومعه ⇒ نبضٌ **يحمل التصنيفَ وقرارَ الدخول**
-#   (`k2` و`anchor_low` و`anchor_price`) فيطبع الكرتُ الفئةَ وسطرَ الوقف.
+# PLS12 — 🔴🔴 **العقدُ انقلب بأمر المالك 2026-08-28** («السهم ارتفع فوق 250٪
+#   … التحديث اللي بعده كان على فريم 5 دقايق … **بسبب غلطة برمجية**»): كان
+#   القفلُ يشترط «بلا `k2` ⇒ **صفرُ نبض**» وهو ما جعل الدقائقَ الأربعَ الأولى
+#   **صامتةً بنيويًّا** (‏`k2` لا يُكتَب إلّا عند `M5`). ⇒ **يُقلَب ويُشدَّد
+#   لا يُرخى:** بلا `k2` **يفير** ومعه وسمُ `pre_m5` وقراءةُ لحظته `k2_live`
+#   (فيُعرَف جزءًا من الاكتشاف لا تحديثًا) · ومع `k2` يحمل قرارَ الدخول
+#   **وبلا `pre_m5`** — فارقان متعاكسان لا «أو».
+# 🐞 **والفارقُ بتبديل `sent` وحدَه:** `_pls_anch` حالةٌ مصنوعةٌ باليد فيها
+#    `k2` و`sent=["M1"]` معًا — **وهي مستحيلةٌ في الإنتاج** (`k2` لا يُكتَب
+#    إلّا مع إلحاق `M5` بـ`sent`) ⇒ قراءةُ «ما بعد M5» تُؤخَذ من نسخةٍ
+#    `sent=["M1","M5"]` (صنفُ «الفِكستشرُ الذي يكذب» — أمسكه القفلُ نفسُه).
 _pls_nok2 = {k: v for k, v in _pls_anch.items() if k != "k2"}
 _pls_e12, _ = _cu_run(_pls_bars, _pls_nok2)
-_pls_tier = S.liq_tier(_pls_up) if _pls_up else None
-check("💓 PLS12 بلا تصنيفٍ لا نبض · ومعه يحمل الفئة وقرار الدخول",
-      not [e for e in _pls_e12 if e.get("stage") == "Px"]
-      and _pls_up.get("k2") == _pls_k2
-      and _pls_up.get("anchor_low") == 1.86
-      and _pls_up.get("anchor_price") == 2.0
+_pls_px12 = [e for e in _pls_e12 if e.get("stage") == "Px"]
+_pls_e12b, _ = _cu_run(_pls_bars, dict(_pls_anch, sent=["M1", "M5"]))
+_pls_px12b = [e for e in _pls_e12b if e.get("stage") == "Px"]
+_pls_tier = S.liq_tier(_pls_px12b[0]) if _pls_px12b else None
+check("💓 PLS12 نبضُ ما قبل M5 يفير موسومًا `pre_m5` بقراءةِ لحظته · "
+      "وما بعده يحمل قرارَ الدخول بلا الوسم",
+      len(_pls_px12) == 2 and len(_pls_px12b) == 2
+      and all(e.get("pre_m5") is True and not e.get("k2")
+              and e.get("k2_live") for e in _pls_px12)
+      and all(not e.get("pre_m5") and e.get("k2") == _pls_k2
+              and e.get("anchor_low") == 1.86 and e.get("anchor_price") == 2.0
+              for e in _pls_px12b)
       and _pls_tier is not None and _pls_tier[0] in ("قوي", "متوسط", "ضعيف"),
-      f"e12={str(_pls_e12)[:40]} tier={_pls_tier}")
+      f"قبل={[(e.get('pre_m5'), bool(e.get('k2_live'))) for e in _pls_px12]} "
+      f"بعد={[(e.get('pre_m5'), bool(e.get('k2'))) for e in _pls_px12b]} "
+      f"tier={_pls_tier}")
 
 # PLS13 — 🔴🔴 **الوصلةُ الحيّة: `k2` يُحفَظ في الحالة عند `M5` فعلًا** —
 #   كشفَتها الطفرةُ لا القراءة (ثالثُ «قفلٍ أعمى» اليوم): `PLS12` يفحص حالةً
@@ -27754,10 +27780,19 @@ _p13_px = [e for e in _p13_evs if e.get("stage") == "Px"]
 _p13_msg = (S.build_liq_stage_alert(
     [({"symbol": "P13", "src": "تحت المتابعة"}, [_p13_px[0]])],
     now_ms=_p13_t + 60_000 * 9) if _p13_px else "")
-check("💓 PLS13 السلسلةُ الحيّة M1⟶M5⟶Px: الحالةُ تحمل k2 · والكرتُ يطبع "
-      "الفئةَ وسطرَ الوقف",
-      bool(_p13_st.get("k2")) and len(_p13_px) >= 1
-      and bool(_p13_px[0].get("k2"))
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-28:** بعد رفع حجب ما قبل `M5` صار أوّلُ `Px` في
+#    السلسلة **سابقًا** لـ`M5` (وهو المطلوب) ⇒ القفلُ يقرأ **آخرَ** نبضٍ
+#    (بعد `M5`) لفحص الختم، **ويشتدّ**: يُثبت أن السلسلة تحوي نبضًا قبل `M5`
+#    ونبضًا بعده — أي أن الفجوةَ الصامتة زالت فعلًا لا نظريًّا.
+_p13_pre = [e for e in _p13_px if e.get("pre_m5")]
+_p13_post = [e for e in _p13_px if not e.get("pre_m5")]
+_p13_msg = (S.build_liq_stage_alert(
+    [({"symbol": "P13", "src": "تحت المتابعة"}, [_p13_post[0]])],
+    now_ms=_p13_t + 60_000 * 9) if _p13_post else _p13_msg)
+check("💓 PLS13 السلسلةُ الحيّة M1⟶Px(قبل M5)⟶M5⟶Px: الحالةُ تحمل k2 · "
+      "والكرتُ يطبع الفئةَ وسطرَ الوقف",
+      bool(_p13_st.get("k2")) and len(_p13_pre) >= 1 and len(_p13_post) >= 1
+      and bool(_p13_post[0].get("k2"))
       and any(_b in _p13_msg for _b in ("🥇 قوي", "🥈 متوسط", "🥉 ضعيف"))
       and "🛑 وقفُ الجلسة" in _p13_msg,
       f"مراحل={[e.get('stage') for e in _p13_evs]} · "
@@ -27783,26 +27818,40 @@ _pls8_top = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خ�
              "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)", "j1": True}
 _pls8_low = {"c3": "نقضت", "c4": "خضراء 0-1", "v2": "المرساة فوق 30%",
              "v3": "سيولةٌ نازحة"}
+# 🔴 **إقرارٌ مؤرَّخ 2026-08-28 (أمرُ المالك برفع حجب ما قبل `M5`):** نبضُ
+#    الاكتشاف يُوسَم `pre_m5` **ويُستثنى** من محور «التحديثُ للقوي» ⇒ القياسُ
+#    هنا على نبضِ **ما بعد** `M5` (الوسمُ يُنزَع)، **ويشتدّ القفلُ بشقٍّ ثالث**:
+#    نفسُ الضعيف **مع** الوسم **يمرّ** بالمشحون نفسِه = فارقٌ حيٌّ يُثبت النفاذ.
+_pls8_post = {k: v for k, v in _pls_dn.items() if k != "pre_m5"}
 try:
     _pls_cfg = S.load_alert_filter()
     _pls_ok, _ = S.alert_filter_keep(
-        _pls_row, dict(_pls_dn, k2=dict(_pls8_top)), _pls_cfg, {})
+        _pls_row, dict(_pls8_post, k2=dict(_pls8_top)), _pls_cfg, {})
     _pls_low_ok, _ = S.alert_filter_keep(
-        _pls_row, dict(_pls_dn, k2=dict(_pls8_low)), _pls_cfg, {})
+        _pls_row, dict(_pls8_post, k2=dict(_pls8_low)), _pls_cfg, {})
+    _pls_pre_ok, _ = S.alert_filter_keep(
+        _pls_row, dict(_pls8_post, k2=dict(_pls8_low), pre_m5=True),
+        _pls_cfg, {})
+    # 🔒 والفاشلُ-الآمنُ المفتوح صار **أضيق** (وهو تشديدٌ لا إرخاء): الحدثُ
+    #    بلا ختمٍ **وبلا قراءةٍ آنيّة** هو وحدَه غيرُ المصنَّف ⇒ يمرّ.
     _pls_nok_ok, _ = S.alert_filter_keep(
-        _pls_row, dict(_pls_dn, k2=None), _pls_cfg, {})
+        _pls_row, {k: v for k, v in _pls8_post.items()
+                   if k not in ("k2", "k2_live")}, _pls_cfg, {})
     _pls_mu_ok, _w = S.alert_filter_keep(_pls_row, {"stage": "Mu", "price": 2.0},
                                          _pls_cfg, {})
     _pls_iss = S.alert_filter_issues(_pls_cfg)
 except Exception as _e:                                          # noqa: BLE001
     _pls_ok = _pls_low_ok = _pls_nok_ok = f"⛔ {type(_e).__name__}"
+    _pls_pre_ok = f"⛔ {type(_e).__name__}"
     _pls_mu_ok, _pls_iss = None, ["رمى"]
 check("💓🔼 PLS8 **«التحديثُ للقوي» نافذٌ في قناة النبض**: قويٌّ يصل · ضعيفٌ "
-      "يُكتَم بالمشحون · بلا k2 يمرّ (فاشل-آمن) · وMu بمرحلته · وبصفر عِلّة",
-      _pls_ok is True and _pls_low_ok is False and _pls_nok_ok is True
+      "يُكتَم بالمشحون · وضعيفُ ما قبل M5 يمرّ · بلا k2 يمرّ (فاشل-آمن) · "
+      "وMu بمرحلته · وبصفر عِلّة",
+      _pls_ok is True and _pls_low_ok is False and _pls_pre_ok is True
+      and _pls_nok_ok is True
       and _pls_mu_ok is False and _pls_iss == [],
-      f"قوي={_pls_ok} ضعيف={_pls_low_ok} بلا-k2={_pls_nok_ok} "
-      f"mu={_pls_mu_ok} iss={_pls_iss}")
+      f"قوي={_pls_ok} ضعيف={_pls_low_ok} قبل-M5={_pls_pre_ok} "
+      f"بلا-k2={_pls_nok_ok} mu={_pls_mu_ok} iss={_pls_iss}")
 
 # PLS9 — بوّابةُ «لا مضارب»: النبضُ ينجو **وحالتُه تبقى** (لا M1 مكرَّرًا) ·
 #   وغيرُ النبض يُكتَم وتُفرَغ حالتُه (السلوكُ القائم بت-بت) — فارقان معًا.
@@ -27845,6 +27894,187 @@ check("💓 PLS10 النبضُ الهابط بلا `move`/`class` عمدًا ⇒
       and _pls_dn and "move" not in _pls_dn and "class" not in _pls_dn,
       f"px={_pls_ok2} mu={_pls_mu2} keys={sorted(_pls_dn)}")
 
+
+# ═══════════ 🔁 «القوّةُ الآن» + الفجوةُ الصامتة — أقفال LIVE1-LIVE10 ═══════════
+# **أمرُ المالك 2026-08-28 بأربع مشاكلَ من كروتٍ حيّة:** ① «السهم ارتفع فوق 250٪
+# وكان معطيني تنبية لحظي اول ما بدأ يرتفع لكن التحديث اللي بعده كان على فريم 5
+# دقايق و النتيجة طار السهم فوق 100٪ **بسبب غلطة برمجية**» ② «المفروض يتعدل
+# تصنيفُ قوةِ السهم **مع كل اشعارٍ جديد** … لو تصنيفُه قوي، الاشعارُ اللي بعده
+# يكون متوسط بسبب ان السهم صار اضعف» ③ «معطيني تنبية أول دقيقة وانه مرتفع 70٪
+# وهذا الكلام مب صحيح لانه **مرتفع أصلا من قبل**».
+# 🔴 **والعلّتان الأوليان بنيويّتان مقيستان في الكود لا مُفترَضتَين:** حجبُ
+#    `if not _k2p: continue` كان يُسقط **كلَّ** نبضٍ قبل `M5` · و`st["k2"]`
+#    يُحسَب مرّةً واحدةً ثم يرثه كلُّ `Px` وكلُّ `M30` ⇒ فئةٌ مجمّدة.
+# ⚖️ **وحدُّ صدقٍ يُقفَل هنا لا يُطوى:** القراءةُ المتدحرجة (`k2_live`) **غيرُ
+#    مقيسة** — كلُّ ما نُشر عن الفئة قِيس على نافذة المِرساة ⇒ الكرتُ يسمّي
+#    نافذتَه («آخر 5د» مقابل «5د») فلا تُقرأ بأرقام الأولى.
+
+# LIVE1 — `liq_live_feats` = `kasih2_wave_feats` **نفسُها** بنافذةٍ متدحرجة
+#   (صفرُ منطقٍ جديد) · وحارساها: دون شمعتين ⟶ `{}` · وكلُّها `None` ⟶ `{}`
+#   (وإلّا قُرئ القاموسُ الفارغُ من المعنى في `liq_tier` **قبل** الختم فترجع
+#   `None` ⇒ كرتٌ بلا فئةٍ كان يحملها = ارتدادٌ صامت). **زوجٌ مفرِّق**: نفسُ
+#   الشكل بحجمٍ موجب ⟶ قراءةٌ حقيقية.
+_lv_b = [_cu_bar(200 + i, 1.0, 1.0 + i * 0.01, 1000 + i * 100) for i in range(8)]
+_lv_direct = S.kasih2_wave_feats(_lv_b[-5:], _lv_b[-5]["t"], _lv_b[-5]["c"])
+_lv_zero = [{"t": 0, "o": 1.0, "c": 1.0, "h": 1.0, "l": 1.0, "v": 0},
+            {"t": 6 * 60_000, "o": 1.0, "c": 1.0, "h": 1.0, "l": 1.0, "v": 0}]
+_lv_pos = [dict(_b, v=1000) for _b in _lv_zero]
+check("🔁 LIVE1 `liq_live_feats` نافذةٌ متدحرجة بدالّة الإنتاج · ودون شمعتين "
+      "أو بلا مؤشّرٍ محسوب ⟶ {} (وبحجمٍ موجبٍ تعطي قراءة — زوجٌ مفرِّق)",
+      S.liq_live_feats(_lv_b) == _lv_direct and _lv_direct
+      and S.liq_live_feats(_lv_b[:1]) == {}
+      and S.liq_live_feats([]) == {}
+      and S.liq_live_feats(_lv_zero) == {}
+      and S.liq_live_feats(_lv_pos) != {},
+      f"live={S.liq_live_feats(_lv_b)} zero={S.liq_live_feats(_lv_zero)} "
+      f"pos={S.liq_live_feats(_lv_pos)}")
+
+# LIVE2 — `liq_tier` تقرأ `k2_live` على `Px`/`M30` **وتتجاهله على `M5`**:
+#   حدثٌ واحدٌ بختمٍ **قويّ** وقراءةٍ **ضعيفة** ⇒ `M5` قوي · `Px`/`M30` ضعيف.
+#   (‏`M5` كرتُ القرار: نافذةُ المِرساة وهي وحدَها المقيسة ⇒ **بت-بت**.)
+_lv_top = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+           "v2": "المرساة دون 30% (سيولة تتوالى)",
+           "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)"}
+_lv_low = {"c3": "نقضت", "c4": "خضراء 0-1",
+           "v2": "المرساة فوق 60% من الخمس (اندفاعة وحيدة)",
+           "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)"}
+def _lv_ev(stage, k2=None, live=None, **kw):
+    d = {"stage": stage, "usd": 50_000, "minutes": 1, "anchor_ms": 0,
+         "last_ms": 0, "price": 1.30, "price_ms": 0, "prev_close": 0.80,
+         "anchor_price": 1.29, "anchor_open": 1.00, "anchor_low": 0.97}
+    if k2 is not None:
+        d["k2"] = dict(k2)
+    if live is not None:
+        d["k2_live"] = dict(live)
+    d.update(kw)
+    return d
+_lv_m5 = S.liq_tier(_lv_ev("M5", _lv_top, _lv_low))
+_lv_px = S.liq_tier(_lv_ev("Px", _lv_top, _lv_low))
+_lv_m30 = S.liq_tier(_lv_ev("M30", _lv_top, _lv_low))
+check("🔁 LIVE2 الفئةُ من القراءة الآنيّة على التحديث · ومن ختم المِرساة على "
+      "`M5` (كرتُ القرار بت-بت) — ثلاثةُ أجوبةٍ من حدثٍ واحد",
+      _lv_m5 and _lv_m5[0] == "قوي"
+      and _lv_px and _lv_px[0] == "ضعيف"
+      and _lv_m30 and _lv_m30[0] == "ضعيف",
+      f"M5={_lv_m5} Px={_lv_px} M30={_lv_m30}")
+
+# LIVE3 — **الاتجاهان معًا** (نصُّ أمر المالك: «يكون متوسط بسبب ان السهم صار
+#   اضعف») — والقوّةُ ترتفع أيضًا حين يقوى: نفسُ الختم الضعيف مع قراءةٍ قوية
+#   ⟶ قوي. فارقان متعاكسان لا «أو» — ولا ترتدّ للختم إلّا حين تغيب القراءة.
+_lv_up = S.liq_tier(_lv_ev("Px", _lv_low, _lv_top))
+_lv_back = S.liq_tier(_lv_ev("Px", _lv_top))
+check("🔁 LIVE3 الفئةُ تنزل وترتفع مع كلّ كرت · وبلا قراءةٍ آنيّة ترتدّ للختم",
+      _lv_up and _lv_up[0] == "قوي"
+      and _lv_px and _lv_px[0] == "ضعيف"
+      and _lv_back and _lv_back[0] == "قوي",
+      f"up={_lv_up} down={_lv_px} fallback={_lv_back}")
+
+# LIVE4 — الكرتُ يأخذ **أحدثَ** حاملٍ لا أوّلَه، **ويسمّي نافذتَه** (فارقٌ
+#   محدَّد: كرتُ `M5` وحدَه «(5د)» · ومعه نبضٌ ضعيفٌ الآن «(آخر 5د)» وبلا «قوي»).
+_lv_row = {"symbol": "LIVE", "src": "تحت المتابعة"}
+try:
+    _lv_msg1 = S.build_liq_stage_alert(
+        [(_lv_row, [_lv_ev("M5", _lv_top, minutes=5, usd=200_000)])],
+        now_ms=60_000)
+    _lv_msg2 = S.build_liq_stage_alert(
+        [(_lv_row, [_lv_ev("M5", _lv_top, minutes=5, usd=200_000),
+                    _lv_ev("Px", _lv_top, _lv_low, pulse_pct=-30.0,
+                           prev_usd=90_000)])], now_ms=60_000)
+except Exception as _e:                                          # noqa: BLE001
+    _lv_msg1 = _lv_msg2 = f"⛔ رمى {type(_e).__name__}"
+check("🔁 LIVE4 الكرتُ يعرض فئةَ **أحدثِ** حاملٍ ومعها نافذتُها المسمّاة",
+      "🥇 قوي (5د)" in _lv_msg1 and "آخر 5د" not in _lv_msg1
+      and "🥉 ضعيف (آخر 5د)" in _lv_msg2 and "🥇 قوي" not in _lv_msg2,
+      f"m1={_lv_msg1[:90]!r} m2={_lv_msg2[:90]!r}")
+
+# LIVE5 — 📉 سطرُ «قبل المِرساة» (المشكلةُ الثالثة): بفارقٍ محدَّد (حاضرٌ مع
+#   `anchor_open` وغائبٌ بدونه) · وبقيمته المحسوبة · وبالاتجاهين لا بعلامة.
+_lv_no_ao = _lv_ev("M5", _lv_top, minutes=5, usd=200_000)
+_lv_no_ao.pop("anchor_open")
+try:
+    _lv_msg3 = S.build_liq_stage_alert([(_lv_row, [_lv_no_ao])], now_ms=60_000)
+    _lv_msg4 = S.build_liq_stage_alert(
+        [(_lv_row, [_lv_ev("M5", _lv_top, minutes=5, usd=200_000,
+                           anchor_open=0.60)])], now_ms=60_000)
+except Exception as _e:                                          # noqa: BLE001
+    _lv_msg3 = _lv_msg4 = f"⛔ رمى {type(_e).__name__}"
+check("🔁 LIVE5 «كان صاعدًا X% قبل المِرساة» بقيمته · ويغيب بلا الحقل · "
+      "وبالكلمة لا بالعلامة في الاتجاهين",
+      "وكان صاعدًا 25.0% قبل المِرساة" in _lv_msg1
+      and "قبل المِرساة" not in _lv_msg3
+      and "وكان هابطًا 25.0% قبل المِرساة" in _lv_msg4,
+      f"مع={('قبل المِرساة' in _lv_msg1)} بلا={('قبل المِرساة' in _lv_msg3)} "
+      f"هابط={_lv_msg4[:90]!r}")
+
+# LIVE6 — `pre_m5` **جزءٌ من الاكتشاف لا تحديث**: بالمشحون نفسِه (`update_tier`)
+#   نبضٌ ضعيفٌ موسومٌ `pre_m5` **يمرّ** وبلا الوسم **يُكتَم** — فارقٌ واحدٌ فقط.
+_lv_cfg = {"stages": ["M0", "M1", "M5", "M30", "Px"], "update_tier": ["قوي"]}
+try:
+    _lv_pre_ok, _ = S.alert_filter_keep(
+        _lv_row, _lv_ev("Px", _lv_top, _lv_low, pre_m5=True), _lv_cfg, {})
+    _lv_post_ok, _lv_why = S.alert_filter_keep(
+        _lv_row, _lv_ev("Px", _lv_top, _lv_low), _lv_cfg, {})
+except Exception as _e:                                          # noqa: BLE001
+    _lv_pre_ok = _lv_post_ok = f"⛔ {type(_e).__name__}"
+    _lv_why = ""
+check("🔁 LIVE6 نبضُ ما قبل M5 يمرّ محورَ «التحديثُ للقوي» · والضعيفُ بعده يُكتَم",
+      _lv_pre_ok is True and _lv_post_ok is False,
+      f"pre={_lv_pre_ok} post={_lv_post_ok} why={_lv_why}")
+
+# LIVE7-LIVE9 — **السلسلةُ الحيّة بدالّة الإنتاج وحدَها حتى `M30`**: `M5` يحمل
+#   الختمَ **وبلا قراءةٍ آنيّة** (بت-بت) · و`M30` يحمل **الاثنين** (الختمَ لأجل
+#   `J1` والقراءةَ للفئة) · و`anchor_open` في الحالة وعلى الأحداث الثلاثة.
+#   🥇 **وهي تُظهر النزولَ فعلًا:** ختمُ الخمسِ «قوي» ومجموعُ الثلاثين «متوسط».
+_lv_t = 1_800_000_000_000
+_lv_bars = [{"t": _lv_t + 60_000 * (k - 12), "o": 1.00, "h": 1.01, "l": 0.99,
+             "c": 1.00, "v": 500} for k in range(12)]
+_lv_bars += [{"t": _lv_t, "o": 1.00, "h": 1.30, "l": 0.97, "c": 1.29,
+              "v": 60_000}]
+_lv_bars += [{"t": _lv_t + 60_000 * k, "o": 1.29, "h": 1.36, "l": 1.28,
+              "c": 1.31, "v": 30_000 if k % 2 else 40_000} for k in range(1, 33)]
+_lv_st, _lv_evs = {}, []
+for _lv_k in range(3, len(_lv_bars) + 1):
+    _lv_e, _lv_st = _cu_run(_lv_bars[:_lv_k], _lv_st)
+    _lv_evs += (_lv_e or [])
+_lv_by = {}
+for _e2 in _lv_evs:
+    _lv_by.setdefault(_e2["stage"], _e2)
+_lv_five, _lv_thirty = _lv_by.get("M5", {}), _lv_by.get("M30", {})
+check("🔁 LIVE7 `M5` بت-بت: يحمل ختمَ المِرساة **وبلا** قراءةٍ آنيّة",
+      bool(_lv_five.get("k2")) and "k2_live" not in _lv_five
+      and bool(_lv_by.get("M1")),
+      f"m5={sorted(_lv_five)}")
+check("🔁 LIVE8 `M30` يحمل الختمَ **والقراءةَ الآنيّة** معًا · والفئةُ تنزل فعلًا",
+      bool(_lv_thirty.get("k2")) and bool(_lv_thirty.get("k2_live"))
+      and (S.liq_tier(_lv_five) or ("",))[0] == "قوي"
+      and (S.liq_tier(_lv_thirty) or ("",))[0] == "متوسط",
+      f"m5={S.liq_tier(_lv_five)} m30={S.liq_tier(_lv_thirty)}")
+check("🔁 LIVE9 `anchor_open` في الحالة وعلى `M1`/`M5`/`M30` من دالّة الإنتاج",
+      _lv_st.get("anchor_open") == 1.0
+      and all(_lv_by.get(_s2, {}).get("anchor_open") == 1.0
+              for _s2 in ("M1", "M5", "M30")),
+      f"st={_lv_st.get('anchor_open')} "
+      f"evs={[(k, v.get('anchor_open')) for k, v in _lv_by.items()]}")
+
+# LIVE10 — 🔒 **عرضٌ لا اختيار**: `liq_live_feats` **لا تُنادى** في أيٍّ من
+#   جذور الاختيار (بالـAST لا بالنصّ — التعليقُ لا يفرّق كودًا عن شرح).
+_lv_roots = ("rank_key", "select_top", "classify_tier", "entry_status",
+             "analyze_ticker", "scan_market", "backtest_symbol",
+             "apply_short_gate", "apply_float_gate")
+import ast as _lv_ast                                             # noqa: E402
+import inspect as _lv_insp                                       # noqa: E402
+_lv_leak = []
+for _rn in _lv_roots:
+    try:
+        _rt = _lv_ast.parse(_lv_insp.getsource(getattr(S, _rn)))
+    except Exception:                                            # noqa: BLE001
+        continue
+    if any(getattr(_c.func, "id", None) == "liq_live_feats"
+           or getattr(_c.func, "attr", None) == "liq_live_feats"
+           for _c in _lv_ast.walk(_rt) if isinstance(_c, _lv_ast.Call)):
+        _lv_leak.append(_rn)
+check("🔒 LIVE10 «القوّةُ الآن» عرضٌ لا اختيار — صفرُ نداءٍ في جذور الاختيار",
+      not _lv_leak, str(_lv_leak))
 
 # ═══════════ 🕐 صدقُ الكرت مع الاقتباس البائت — SHOW8/SHOW9 (بلاغ المالك 2026-08-19) ═══════════
 # كرتُ ZYBT/CXAI الحيّ: السطرُ الأعلى يسمّي الاقتباسَ بائتًا (42.6د) وجدارا

@@ -13366,7 +13366,9 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                       "sent": ["M1"], "updates": 0, "vol_x": round(fvx, 1),
                       "peak_usd": round(_usd(form)), "early": True,
                       "last_eval_ms": last_ms, "pulse_ms": fms,
-                      "anchor_price": round(float(form["c"]), 4)}
+                      "anchor_price": round(float(form["c"]), 4),
+                      "anchor_open": round(float(form.get("o")
+                                                 or form["c"]), 4)}
                 ev.append({"stage": "M0", "usd": round(_usd(form)),
                            "minutes": 1, "anchor_ms": fms, "last_ms": fms,
                            "vol_x": round(fvx, 1),
@@ -13394,6 +13396,17 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                   "peak_usd": round(_usd(_ab)), "last_eval_ms": last_ms,
                   "pulse_ms": _ams,
                   "anchor_price": round(float(_ab["c"]), 4),
+                  # 📉 **`anchor_open` = فتحُ شمعة المِرساة** (أمرُ المالك
+                  #    2026-08-28: «معطيني تنبية أول دقيقة وانه مرتفع 70٪ وهذا
+                  #    الكلام مب صحيح لانه مرتفع أصلا من قبل»). **وهو محقّ:**
+                  #    البوّابةُ تشترط دقيقةً واحدةً ترتفع 5% بسيولةِ ‏$30 ألفًا
+                  #    وحجمٍ ‏3× ⇒ الزاحفُ الهادئ لا يُطلقها حتى تأتيه دقيقةٌ
+                  #    عنيفة، **وقد صعد قبلها**. ⚖️ **وليس عطلًا يُصلَح بعتبة**
+                  #    (‏`T-GATE` قاس التأخّرَ ‏+17.1% وسيطًا · و`T-CUMRISE`
+                  #    جرّبت توسيعَ النافذة **ففشلت**: إثمارٌ ‏−9.7..−13.9 نقطة
+                  #    وضجيجٌ ‏+80..+111%) ⇒ العلاجُ الصادقُ بصفر عتبةٍ جديدة:
+                  #    **يُطبَع كم صعد قبل المِرساة** فيقرأ المالكُ الرقمَ بعينه.
+                  "anchor_open": round(float(_ab.get("o") or _ab["c"]), 4),
                   "anchor_low": round(float(_ab["l"]), 4)}
             ev.append({"stage": "M1", "usd": round(_usd(_ab)), "minutes": 1,
                        "anchor_ms": _ams, "last_ms": _ams,
@@ -13401,6 +13414,8 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                        "price_ms": _ams,
                        "move": round(_rise(_ab), 2),
                        "anchor_price": round(float(_ab["c"]), 4),
+                       "anchor_open": round(float(_ab.get("o")
+                                                  or _ab["c"]), 4),
                        "anchor_low": round(float(_ab["l"]), 4),
                        "class": _ignition_candle_class(_usd(_ab))})
             return (ev, st)
@@ -13446,25 +13461,41 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 #    فنزوحُ السيولة سيولتُه الجديدة صغيرةٌ بالتعريف.
                 if max(_usd(_b), _pu) < float(LIQ_PULSE_MIN_USD):
                     continue
-                # 🥇🥈🥉 **ولا تحديثَ لسهمٍ بلا تصنيف** (أمرُه نفسُه: «ما
-                #    يوصلني تحديث إلا للأسهم اللي لها تصنيف قوي متوسط ضعيف
-                #    **ومع قرار الدخول**»): التصنيفُ لا يُعرَف إلّا بحلول
-                #    `M5` (سلالُه على نافذة الخمس) ⇒ النبضُ قبله **يُسقَط**،
-                #    وبعده يحمل `k2` و`anchor_low`/`anchor_price` فيطبع
-                #    الكرتُ **الفئةَ وسطرَ الوقف** معه.
+                # 🔴🔴 **رُفع حجبُ ما قبل `M5` بأمر المالك 2026-08-28** («السهم
+                #    ارتفع فوق 250٪ وكان معطيني تنبيهًا لحظيًّا أوّل ما بدأ
+                #    يرتفع، لكن التحديث اللي بعده كان على فريم 5 دقايق —
+                #    والنتيجة طار السهم فوق 100٪ **بسبب غلطة برمجية**»).
+                #    **والعطبُ مقيسٌ في الكود لا مُفترَض:** كان هنا
+                #    `_k2p = st.get("k2"); if not _k2p: continue` و`k2` لا
+                #    يُكتَب إلّا عند `M5` ⇒ **استحالةٌ بنيويّة** لأيّ تحديثٍ في
+                #    الدقائق الأربع الأولى. شاهدُه الحيّ `$FTFTS`: كرتُ `M1`
+                #    عند ‏$0.6766 ثم `M5` عند ‏$1.17 — **‏+73% في الفجوة الصامتة**.
+                #    ⚖️ **والفئةُ لم تعد شرطًا للإرسال بل وصفًا يُحمَل معه:**
+                #    قبل `M5` يُوسَم الحدثُ `pre_m5` فيُعامَل جزءًا من إشعار
+                #    الاكتشاف (نظيرُ `M1`) لا «تحديثًا للقوي فقط» — ولو كُتم
+                #    بالتصنيف لعاد الحجبُ من بابٍ آخر.
                 _k2p = st.get("k2")
-                if not _k2p:
-                    continue
-                ev.append({"stage": "Px", "usd": round(_usd(_b)),
-                           "minutes": 1, "anchor_ms": anchor,
-                           "last_ms": int(_b["t"]),
-                           "price": round(float(_b["c"]), 4),
-                           "price_ms": int(_b["t"]),
-                           "prev_usd": round(_pu),
-                           "pulse_pct": _chg,
-                           "k2": _k2p,
-                           "anchor_price": st.get("anchor_price"),
-                           "anchor_low": st.get("anchor_low")})
+                _evp = {"stage": "Px", "usd": round(_usd(_b)),
+                        "minutes": 1, "anchor_ms": anchor,
+                        "last_ms": int(_b["t"]),
+                        "price": round(float(_b["c"]), 4),
+                        "price_ms": int(_b["t"]),
+                        "prev_usd": round(_pu),
+                        "pulse_pct": _chg,
+                        "anchor_price": st.get("anchor_price"),
+                        "anchor_open": st.get("anchor_open"),
+                        "anchor_low": st.get("anchor_low")}
+                if _k2p:
+                    _evp["k2"] = _k2p          # ختمُ الاكتشاف (‏J1) كما هو
+                if "M5" not in (st.get("sent") or []):
+                    _evp["pre_m5"] = True
+                # 🔁 **«القوّةُ الآن»** (أمرُه الثاني): نافذةُ آخر خمس دقائقَ
+                #    **منتهيةً عند شمعة هذا الكرت** — فكلُّ كرتٍ يحمل قراءةَ
+                #    لحظته لا ختمَ لحظةٍ مضت.
+                _kl = liq_live_feats(closed[:_i + 1])
+                if _kl:
+                    _evp["k2_live"] = _kl
+                ev.append(_evp)
             st["pulse_ms"] = last_ms
         if last_ms > int(st.get("last_ms") or 0):
             st["last_ms"] = last_ms
@@ -13511,6 +13542,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                     "price_ms": last_ms,
                     "win_price": round(float(win[-1]["c"]), 4),
                     "anchor_price": st.get("anchor_price"),
+                    "anchor_open": st.get("anchor_open"),
                     "anchor_low": st.get("anchor_low"),
                     "class": _ignition_candle_class(tot)}
             # 🌊② «وسع الوسم» (أمرُ المالك 2026-08-20): مؤشّراتُ المواصلة
@@ -13530,6 +13562,12 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 #    **منفذٌ خامدٌ كان يفتح التحديثات للجميع** فسُدّ بالوراثة
                 #    لا بالكتم الأعمى (تعذُّرُ الختم يُبقيه مارًّا بفائدة الشك).
                 _evd["k2"] = st["k2"]
+            if tag == "M30":
+                # 🔁 **وكرتُ الثلاثين تحديثٌ أيضًا** ⇒ يحمل قراءةَ لحظته
+                #    (‏`k2` يبقى ختمَ الاكتشاف لأجل `J1`).
+                _kl30 = liq_live_feats(closed)
+                if _kl30:
+                    _evd["k2_live"] = _kl30
             ev.append(_evd)
         st["sent"] = sent
         return (ev, st)
@@ -13789,13 +13827,17 @@ def alert_filter_keep(row, ev, cfg=None, ctx=None):
         k = (e.get("class") or ("", ""))[0]
         if k and k not in c["classes"]:
             return (False, f"صنفُ الشمعة «{k}»")
-    if c.get("update_tier") and e.get("stage") in _ALERT_UPDATE_STAGES:
+    if (c.get("update_tier") and e.get("stage") in _ALERT_UPDATE_STAGES
+            and not e.get("pre_m5")):
         # 🔁🥇 **التحديثُ للمصنَّف الذي يختاره المالك وحدَه** (أمرُه 2026-08-22).
         #    🔒 **وفاشلٌ-آمنٌ مفتوح كبقيّة المحاور:** تعذّرَ التصنيفُ (`None`)
         #    ⇒ **يمرّ** — لا يُكتَم إشعارٌ بنقصِ بيانات (عقد ② أعلاه).
-        #    📌 وهي حالةٌ **شبهُ مستحيلةٍ بنيويًّا** لا كرمًا: فرعُ `Px` في
-        #    `liq_stage_events` يشترط `k2` **و**`anchor_cls` معًا، و`liq_tier`
-        #    لا تعود `None` إلّا بغياب `k2` ⇒ لا نبضَ بلا تصنيف. (مقفولةٌ.)
+        #    🔴 **و`pre_m5` مستثنًى بأمر المالك 2026-08-28:** نبضُ الدقائق
+        #    الأربع الأولى **جزءٌ من إشعار الاكتشاف** (نظيرُ `M1`/`M5`
+        #    المستثنيَين أصلًا) لا تحديثًا لسهمٍ سبق قرارُه — وقبل `M5` لا
+        #    تصنيفَ مِرساةٍ أصلًا، فكتمُه بالتصنيف يُعيد الفجوةَ الصامتة
+        #    التي أمر برفعها من بابٍ آخر. **(وكان التعليقُ هنا يقول «لا نبضَ
+        #    بلا تصنيف» — صار بائتًا بذاك الأمر فيُصحَّح لا يُطوى.)**
         _t = liq_tier(e)
         if _t and _t[0] not in c["update_tier"]:
             return (False, f"تحديثٌ لتصنيفٍ «{_t[0]}»")
@@ -14172,6 +14214,39 @@ def kasih2_wave_feats(win, anchor_ms, anchor_price):
         return {}
 
 
+def liq_live_feats(closed, n: int = 5):
+    """🔁 **«القوّةُ الآن»** — أمرُ المالك 2026-08-28: «المفروض يتعدل تصنيفُ قوةِ
+    السهم مع كل اشعارٍ جديد … لو تصنيفُه قوي، الاشعارُ اللي بعده يكون متوسط
+    بسبب ان السهم صار اضعف».
+
+    🔴 **والعطبُ الذي تُصلحه مقيسٌ في الكود لا مُفترَض:** `st["k2"]` يُحسَب
+    **مرّةً واحدة** عند `M5` ثم يرثه كلُّ `Px` وكلُّ `M30` (‏`تعيينٌ لا نسخ`)
+    ⇒ كرتُ سهمٍ ينهار بعد نصف ساعة يظلّ يطبع «🥇 قوي» إلى الأبد.
+
+    ⚖️ **ولا منطقَ جديد ولا رقمَ مخترَع:** هي `kasih2_wave_feats` **نفسُها**
+    بمؤشّراتها الأربعة وسلالها الحرفيّة — والمتغيّرُ **النافذةُ وحدَها**:
+    آخرُ `n` دقيقةٍ مغلقة، ومرجعُها أوّلُ شمعةٍ فيها (نظيرُ المِرساة).
+
+    🔴🔴 **حدُّ صدقٍ يُقرأ مع كلّ رقمٍ منها: هذي القراءةُ غيرُ مقيسة.** كلُّ ما
+    نُشر عن الفئة (‏`kasih2_result` ‏34.0/41.5/38.5% · `tier_v3_result` استرجاع
+    44.0%) قِيس على **نافذة الخمس من المِرساة** حصرًا ⇒ الفئةُ المتدحرجة
+    **وصفُ حالةٍ آنيّة لا تَرِث تلك الأرقام**، ولذلك يُسمّى الكرتُ نافذتَها.
+
+    فاشلةٌ-آمنة: دون شمعتين ⟶ `{}` (فلا وسمَ مخترَع). 🔒 **وكذلك حين تسقط
+    المؤشّراتُ الأربعةُ كلُّها** (`None`) — وإلّا لصار القاموسُ الفارغُ من
+    المعنى **صادقًا منطقيًّا** فيُقرأ في `liq_tier` قبل الختم فترجع `None`
+    ⇒ **كرتٌ بلا فئةٍ كان يحملها**: ارتدادٌ صامتٌ لا فائدةَ شكّ."""
+    try:
+        seg = sorted((closed or []), key=lambda b: int(b["t"]))[-int(n):]
+        if len(seg) < 2:
+            return {}
+        out = kasih2_wave_feats(seg, int(seg[0]["t"]),
+                                float(seg[0]["c"])) or {}
+        return out if any(out.get(f) for f in ("c3", "c4", "v2", "v3")) else {}
+    except Exception:                                            # noqa: BLE001
+        return {}
+
+
 def kasih_gap_bucket(gap_pct):
     """🌊 سلةُ «المسافة من إغلاق الأمس» — **نفسُ حدود `kasih_scan.f5_bucket`**."""
     try:
@@ -14299,9 +14374,16 @@ def liq_tier(ev: dict):
         #    و`M30` أُضيفت 2026-08-26 (أمرُه «والثلاثين للقوي» — بلا تصنيفٍ
         #    كانت تمرّ بوّابةَ «القوي فقط» بفائدة الشكّ فتفتح منفذًا للجميع)؛
         #    و`M1`/`Mu` تبقى بلا وسمٍ كما كانت.
-        if str((ev or {}).get("stage") or "") not in ("M5", "Px", "M30"):
+        _stg = str((ev or {}).get("stage") or "")
+        if _stg not in ("M5", "Px", "M30"):
             return None
-        k2 = (ev or {}).get("k2") or {}
+        # 🔁 **الفئةُ تتعدّل مع كلّ كرت** (أمرُ المالك 2026-08-28): على كروت
+        #    **التحديث** (`Px`/`M30`) تُقرأ من `k2_live` — نافذةُ آخر خمس
+        #    دقائق — فينزل الوسمُ حين يضعف السهم ويرتفع حين يقوى.
+        #    ⚖️ **و`M5` بت-بت كما كانت** (كرتُ القرار: نافذةُ المِرساة، وهي
+        #    وحدَها التي قِيست) · وغيابُ `k2_live` يرتدّ للختم (ذاتيُّ الشفاء).
+        k2 = (((ev or {}).get("k2_live") if _stg in ("Px", "M30") else None)
+              or (ev or {}).get("k2") or {})
         top = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
                "v2": "المرساة دون 30% (سيولة تتوالى)",
                "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)"}
@@ -14637,6 +14719,19 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                 if _d >= float(LIQ_GAP_SPLIT_CAP):
                     head.append(f"⚠️ فجوةٌ فوق {float(LIQ_GAP_SPLIT_CAP):.0f}%"
                                 " — قد يشوّهها تقسيمٌ عكسيٌّ (خارج المقيس)")
+                # 📉 **كم صعد قبل المِرساة** (أمرُ المالك 2026-08-28: «معطيني
+                #    تنبية أول دقيقة وانه مرتفع 70٪ وهذا الكلام مب صحيح لانه
+                #    مرتفع أصلا من قبل»). **صفرُ عتبةٍ وصفرُ رقمٍ مخترَع:**
+                #    فتحُ شمعة المِرساة مقابل إغلاق الأمس — يُطبَع كلَّما
+                #    أمكن حسابُه، فيقرأ المالكُ نصيبَ ما سبق المِرساة من
+                #    الرقم أعلاه. ⚖️ **ولا يمسّ إطلاقًا ولا عتبة** (‏`T-GATE`
+                #    قاس التأخّرَ و`T-CUMRISE` جرّبت العلاجَ بالعتبة ففشلت).
+                _ao_l = next((e.get("anchor_open") for e in evs
+                              if e.get("anchor_open")), None)
+                if _ao_l:
+                    _dp = (float(_ao_l) / _pc_l - 1.0) * 100.0
+                    head.append(("وكان صاعدًا " if _dp >= 0 else "وكان هابطًا ")
+                                + f"{abs(_dp):.1f}% قبل المِرساة")
         except (TypeError, ValueError):
             pass
         # 💪 **صنفُ الشمعة — من أحدثِ حاملٍ ومعه نافذتُه مُسمّاة** (إصلاحٌ
@@ -14656,13 +14751,22 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                         + _LIQ_WIN_AR.get(str(_cev.get("stage") or ""), ""))
         # 🥇🥈🥉 **فئةُ القوّة** (أمرُ المالك 2026-08-20) — تسميةُ سلالٍ
         #    منشورة، ووصفٌ لا تنبّؤ (‏`exit_stop_prereg.md §④`).
-        _tier = next((t for t in (liq_tier(e) for e in evs) if t), None)
-        if _tier:
+        # 🔁 **من أحدثِ حاملٍ لا أوّلِه** (أمرُ المالك 2026-08-28: «المفروض
+        #    يتعدل تصنيفُ قوةِ السهم **مع كل اشعارٍ جديد**») — نظيرُ `_cev`
+        #    أعلاه حرفيًّا: كان `next(... for e in evs)` يأخذ **أوّلَ** حاملٍ
+        #    فيطبع كرتُ `[M5, Px]` فئةَ الخمسِ الأولى لا فئةَ لحظته.
+        _tp = next(((e, t) for e, t in ((e, liq_tier(e))
+                                        for e in reversed(evs)) if t), None)
+        if _tp:
+            _tev, _tier = _tp
             # 🔒 **بلا عدّادٍ هنا**: تفصيلُه في سطر 🌊 («مواصلة ن من م») ⇒
             #    طبعُه مرّتين حشوٌ في السطر الذي يُقرأ من الإشعار.
-            # 🪟 **وتُسمّي نافذتَها هي أيضًا**: مكوّناتُها (`J1` ومؤشّراتُ
-            #    المواصلة) كلُّها كمّياتُ **نافذة الخمس** — و`Px` يرث ختمَها.
-            head.append(_LIQ_TIER_AR[_tier[0]] + " (5د)")
+            # 🪟 **وتُسمّي نافذتَها هي أيضًا:** «‏(5د)» = نافذةُ المِرساة —
+            #    وهي وحدَها المقيسة (‏`kasih2_result` ‏34.0/41.5/38.5% ·
+            #    `tier_v3_result` استرجاع 44.0%) · و«‏(آخر 5د)» = القراءةُ
+            #    المتدحرجة **غيرُ المقيسة** فلا تُقرأ بأرقام الأولى.
+            head.append(_LIQ_TIER_AR[_tier[0]]
+                        + (" (آخر 5د)" if _tev.get("k2_live") else " (5د)"))
         # 🥇 شارةُ التوليفة (‏J1) من أيّ حدثِ `M5`/`Px` في الكرت — قاعدةٌ
         #    واحدة عبر `_event_j1` (إصلاحٌ 2026-08-21: كانت تُنادي `kasih_j1`
         #    مباشرةً فتختفي على كرتٍ `Px`-فقط، وتطلق مبكرًا على `M1`).
