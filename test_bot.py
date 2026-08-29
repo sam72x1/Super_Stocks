@@ -8378,6 +8378,146 @@ check("📐🔒 TRN8 `P0` يشترط وقفَ القاع المشحون (لا إ
       and 'S.CONFIG["PIVOT_STOP_AT_LOW"] = False' not in _trn_src,
       "OK")
 
+# ═══════════════════════════════════════════════════════════
+# 🛑② T-PIVOT-BOTTOM-2 — «قس الوقف من جديد» (العقد `pivot_stop2_prereg.md`)
+#    الأداةُ تُصحّح عيبَ وصلٍ: السابقةُ استعملت `r["pivot"]` (نافذة 25) وقفًا
+#    والمِرساةُ `tested_level` (نافذة 30) ⇒ ما قِيس ليس ما شُحن.
+# ═══════════════════════════════════════════════════════════
+_ps2_spec = _trn_imp.spec_from_file_location("pivot_stop2_arms",
+                                             "pivot_stop2_arms.py")
+_PS2 = _trn_imp.module_from_spec(_ps2_spec)
+try:
+    _ps2_spec.loader.exec_module(_PS2)
+    _ps2_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _PS2, _ps2_load = None, f"{type(_e).__name__}: {_e}"
+_ps2_src = _pbs_io.open("pivot_stop2_arms.py", encoding="utf-8").read()
+
+check("🛑②🔒 RVS0 أداةُ القياس المصحَّحة تُحمَّل معزولةً",
+      _PS2 is not None, _ps2_load or "OK")
+
+# 🔒 RVS1 — الأداةُ السابقة **لا تُمَسّ بحرف** (سابقةُ CAP15: أرقامُها منشورة)
+_ps2_prev = _pbs_io.open("pivot_stop_arms.py", encoding="utf-8").read()
+check("🛑②🔒 RVS1 `pivot_stop_arms.py` مجمَّدة: لا `C1`/`tranches[0]` ولا ذراعَ ثالثة",
+      "tranches[0]" not in _ps2_prev and "oC1" not in _ps2_prev
+      and _ps2_prev.count("_resolve_arm(") == 2,
+      f"نداءات _resolve_arm={_ps2_prev.count('_resolve_arm(')}")
+
+# 🔒 RVS2 — أرقامُ المنشور مثبَّتةٌ في الأداة (البوّابتان تقارنان بها فعلًا)
+check("🛑②🔒 RVS2 أرقامُ `B0`/`B1` المنشورة مثبَّتةٌ وتُقارَن بها البوّابتان",
+      _PS2 is not None
+      and _PS2.PUB_B0 == {"2023": -0.2010, "2024": -0.1243, "2025": -0.0912}
+      and _PS2.PUB_B1 == {"2023": -0.0906, "2024": -0.0621, "2025": -0.0715}
+      and _PS2.FLOOR_DECIDED == 100
+      and 'return 3' in _ps2_src.split("`RV0` لا يُعيد")[-1][:200],
+      (f"B0={_PS2.PUB_B0}" if _PS2 is not None else "لم تُحمَّل"))
+
+# 🔒 RVS3 — الوحدةُ الحاكمة **منقولةٌ حرفيًّا**: `r0_of` تطابق الأداةَ السابقة
+#    سلوكيًّا على حالاتٍ متفرّقة (مقياسٌ واحدٌ لا اثنان)
+_ps2_ok3 = False
+if _PS2 is not None:
+    _ps2_prev_mod = _trn_imp.module_from_spec(
+        _trn_imp.spec_from_file_location("pivot_stop_arms",
+                                         "pivot_stop_arms.py"))
+    try:
+        _trn_imp.spec_from_file_location(
+            "pivot_stop_arms", "pivot_stop_arms.py").loader.exec_module(
+                _ps2_prev_mod)
+        _cases = [(10.0, 1.03, 0.93), (-5.0, 2.0, 1.86), (0.0, 1.5, 1.4),
+                  (33.3, 0.8, 0.744), (None, 1.0, 0.93), (10.0, 1.0, 1.0)]
+        _ps2_ok3 = all(
+            (_PS2.r0_of(a, b, c) is None and _ps2_prev_mod.r0_of(a, b, c) is None)
+            or abs(_PS2.r0_of(a, b, c) - _ps2_prev_mod.r0_of(a, b, c)) < 1e-12
+            for a, b, c in _cases)
+    except Exception as _e:                                      # noqa: BLE001
+        _ps2_ok3 = False
+check("🛑②🔒 RVS3 وحدةُ `R₀` مطابقةٌ سلوكيًّا للأداة السابقة (مقياسٌ واحد)",
+      _ps2_ok3, "6 حالاتٍ متفرّقة")
+
+# 🔒 RVS4 — `RV4` تختبر دعوى «`tested ≤ pivot`» **وتوقف** عند تكذيبها
+check("🛑②🔒 RVS4 دعوى «المِرساة ≤ pivot» تُختبَر لا تُفترَض · وتكذيبُها يوقف بخروج 3",
+      'viol = [r for r in both if r["tr0"] > r["pivot"] + 1e-9]' in _ps2_src
+      and "`RV4` مكذَّبة" in _ps2_src
+      and 'return 3' in _ps2_src.split("`RV4` مكذَّبة")[-1][:300],
+      "OK")
+
+# 🔒 RVS5 — **مقامان لا واحد** (‏§④): البوّابةُ على صفوف الأداة السابقة
+#    والحكمُ على الصفوف كلِّها — والخلطُ يلوّث الحكم بشرطٍ خاصٍّ بـ`C2`.
+check("🛑②🔒 RVS5 مقامُ البوّابة (`@use`) غيرُ مقام الحكم (الصفوفُ كلُّها) — ويُطبَعان",
+      'use = [r for r in rows if r.get("oC2") is not None]' in _ps2_src
+      and 'd0 = [r for r in rows if r["o0"] != "no_fill"]' in _ps2_src
+      and "C0@use" in _ps2_src,
+      "OK")
+
+# 🔒 RVS6 — الأداةُ تُرجع الأساسَ قسرًا (سابقةُ CAP15) وإلّا صار `C0` هو المشحون
+check("🛑②🔒 RVS6 وقفُ الإنتاج يُرجَع ‏7% قسرًا فيُعيد `C0` المنشورَ بت-بت",
+      'S.CONFIG["PIVOT_STOP_AT_LOW"] = False' in _ps2_src
+      and 'S.CONFIG["PIVOT_STOP_AT_LOW"] = True' not in _ps2_src,
+      "OK")
+
+# 🔒 RVS7 — قراءةٌ فقط · حارسٌ ذاتيٌّ عامل · والإنتاجُ لا يستوردها
+_ps2_hits = [(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+             for n in _trn_ast.walk(_trn_ast.parse(_ps2_src))
+             if isinstance(n, _trn_ast.Call)]
+check("🛑②🔒 RVS7 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة · حارسٌ ذاتيٌّ عامل",
+      not (_trn_banned & set(_ps2_hits))
+      and _PS2 is not None and _PS2._selfcheck_readonly() is True
+      and "pivot_stop2_arms" not in _pbs_io.open("Super_stock.py",
+                                                 encoding="utf-8").read(),
+      f"مخالفات={sorted(_trn_banned & set(_ps2_hits))}")
+
+# 🔒 RVS8 — الـworkflow موصولٌ: المدخلان يصلان بيئةً يقرؤها السكربت · بلا كرون
+_ps2_wf = _trn_yaml.safe_load(_pbs_io.open(".github/workflows/pivot_stop2.yml",
+                                           encoding="utf-8"))
+_ps2_steps = _ps2_wf["jobs"]["pivot-stop2"]["steps"]
+_ps2_env = {}
+for _s in _ps2_steps:
+    _ps2_env.update(_s.get("env") or {})
+check("🛑②🔒 RVS8 مدخلا الـworkflow موصولان · يدويٌّ بلا كرون · قراءةٌ فقط",
+      "schedule" not in _ps2_wf[True]
+      and "workflow_dispatch" in _ps2_wf[True]
+      and _ps2_wf["permissions"]["contents"] == "read"
+      and "inputs.year" in str(_ps2_env.get("BACKTEST_YEAR", ""))
+      and "BT_FROZEN_PATH" in _ps2_env
+      and "BACKTEST_YEAR" in _ps2_src and "BT_FROZEN_PATH" in _ps2_src
+      and any("pivot_stop2_arms.py" in str(_s.get("run", ""))
+              for _s in _ps2_steps),
+      f"env={sorted(_ps2_env)}")
+
+# 🔒 RVS9 — سلوكيّ: `C1` وقفُه **أدنى دفعة** و`C2` وقفُه `pivot` — على حدثٍ
+#    واحدٍ تُبنى فيه الحالتان بيدٍ، فيستحيل أن يُخلط الحقلان.
+_ps2_ok9, _ps2_dbg9 = False, "لم تُحمَّل"
+if _PS2 is not None:
+    class _Ps2Stub:
+        CONFIG = {}
+
+        @staticmethod
+        def analyze_ticker(sym, d):
+            return {"tranches": [1.00, 1.03, 1.06], "stop": (0.93, 0.95),
+                    "t1": 1.40, "pivot": 1.02}
+
+        @staticmethod
+        def _resolve_arm(hi, lo, cl, op, entry, stop, t1, filled, spread=0.0):
+            return (f"stop={round(stop, 4)}", round(stop * 100, 1), None, None)
+    _ps2_idx = pd.date_range("2025-01-02", periods=6, freq="B")
+    _ps2_df = pd.DataFrame({"Open": [1.1] * 6, "High": [1.2] * 6,
+                            "Low": [0.9] * 6, "Close": [1.1] * 6,
+                            "Volume": [1e6] * 6}, index=_ps2_idx)
+    _ps2_row, _ps2_why = _PS2.arms_for(_Ps2Stub, "X", _ps2_df,
+                                       {"date": _ps2_idx[0], "outcome": None,
+                                        "ret_a": None}, 4, 0.0)
+    if _ps2_row:
+        _ps2_ok9 = (_ps2_row["o0"] == "stop=0.93"
+                    and _ps2_row.get("oC1") == "stop=1.0"
+                    and _ps2_row.get("oC2") == "stop=1.02"
+                    and _ps2_row["tr0"] == 1.0)
+        _ps2_dbg9 = (f"C0={_ps2_row['o0']} C1={_ps2_row.get('oC1')} "
+                     f"C2={_ps2_row.get('oC2')}")
+    else:
+        _ps2_dbg9 = f"لا صفّ: {_ps2_why}"
+check("🛑②🔒 RVS9 سلوكيّ: `C0`=7% تحت · `C1`=أدنى دفعة · `C2`=`pivot` — ثلاثةٌ متفرّقة",
+      _ps2_ok9, _ps2_dbg9)
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
