@@ -8216,6 +8216,168 @@ check("🛑🔒 PBS6 مرآةُ الفحص اليدويّ تحمل الشرطَ 
       in _pbs_io.open("analyze_one.py", encoding="utf-8").read()
       and "_rr_stop_ao" in _pbs_io.open("analyze_one.py", encoding="utf-8").read())
 
+# ═══════════════════════════════════════════════════════════
+# 📐 T-TRANCHE — «سجّل تجربة الدفعات» (العقد `tranche_prereg.md` + ملحق §⑨)
+#    بحث/قياس فقط · الإنتاجُ لا يستوردها · الأقفال تحرس **عقدَ الأداة** لا رقمًا.
+# ═══════════════════════════════════════════════════════════
+import ast as _trn_ast
+import contextlib as _trn_ctx
+import importlib.util as _trn_imp
+import io as _trn_io
+import yaml as _trn_yaml
+
+_trn_spec = _trn_imp.spec_from_file_location("tranche_arms", "tranche_arms.py")
+_TRN = _trn_imp.module_from_spec(_trn_spec)
+try:
+    _trn_spec.loader.exec_module(_TRN)
+    _trn_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _TRN, _trn_load = None, f"{type(_e).__name__}: {_e}"
+
+check("📐🔒 TRN0 أداةُ الدفعات تُحمَّل بلا استيراد الإنتاج (بحث معزول)",
+      _TRN is not None, _trn_load or "OK")
+
+# 🔒 TRN1 — سلّمُ `P0` يطابق دفعاتِ الإنتاج **بت-بت** (وإلّا فالأساسُ مفبرَك)
+_trn_df = synth_pivot(seed=2)
+_trn_r = S.analyze_ticker("TRNX", _trn_df)
+_trn_ok1 = bool(_trn_r) and _TRN is not None
+if _trn_ok1:
+    _trn_anch = float(_trn_r["rr_stop"]) / (
+        1.0 - float(S.CONFIG["STOP_BELOW_LOW_PCT"][1]) / 100.0)
+    _trn_l0 = _TRN.ladder(_trn_anch, 0.0, S.CONFIG["ENTRY_TRANCHES"],
+                          S.CONFIG["ENTRY_STEP_PCT"])
+    _trn_ok1 = _trn_l0 == [round(float(x), 2) for x in _trn_r["tranches"]]
+check("📐🔒 TRN1 سلّمُ `P0` (إزاحة 0) = دفعاتُ الإنتاج بت-بت — من مِرساةٍ مستردَّة",
+      _trn_ok1,
+      (f"{_trn_l0} مقابل {_trn_r['tranches']}" if _trn_ok1 is not True
+       and bool(_trn_r) and _TRN is not None else "OK"))
+
+# 🔒 TRN2 — الإزاحةُ ترفع السلّمَ فعلًا · وأدنى دفعةٍ تفارق الوقفَ (جوهرُ التجربة)
+_trn_ok2 = False
+if _TRN is not None:
+    _a, _n, _st = 1.50, 3, 3.0
+    _L0 = _TRN.ladder(_a, 0.0, _n, _st)
+    _L1 = _TRN.ladder(_a, 2.0, _n, _st)
+    _L3 = _TRN.ladder(_a, 7.0, _n, _st)
+    # 🥇 و`P3` على مِرساةِ 1.50 يُعيد **مثالَ فيصل المنصوص حرفيًّا**:
+    #    «‏1.50 قاع دخوله طلبات من **1.60 ل 1.70**» ⇒ [1.6, 1.65, 1.7].
+    _trn_ok2 = (_L0 == [1.5, 1.54, 1.59] and _L1[0] > _L0[0]
+                and _L3[0] > _L1[0] and abs(_L0[0] - round(_a, 2)) < 1e-9
+                and _L3 == [1.6, 1.65, 1.7])
+check("📐🔒 TRN2 الإزاحةُ ترفع بدايةَ السلّم · و`P0` يبدأ عند المِرساة بالضبط",
+      _trn_ok2,
+      (f"L0={_L0} L1={_L1} L3={_L3}" if _TRN is not None else "لم تُحمَّل"))
+
+# 🔒 TRN3 — الوحدةُ الحاكمة **ثابتة**: مقامُها `entry(P0)` لا `entry` الذراع
+#    (‏§④ — وإلّا كوفئت الإزاحةُ الأوسع بصِغَر مقامها = فخُّ T-RECLAIM-INTRADAY)
+_trn_ok3 = False
+if _TRN is not None:
+    _fx = _TRN.r_fixed(10.0, 1.10, 1.03, 1.00)      # ذراعٌ أوسعُ دخولًا
+    _ow = _TRN.r_own(10.0, 1.10, 1.00)
+    _trn_ok3 = (abs(_fx - (0.10 * 1.10) / 0.03) < 1e-9
+                and abs(_ow - (0.10 * 1.10) / 0.10) < 1e-9
+                and _fx > _ow * 3)                   # الثابتةُ تعاقب الأوسع
+check("📐🔒 TRN3 `r_fixed` مقامُها `entry(P0)` · و`r_own` مقامُها الذراع — وتفترقان",
+      _trn_ok3,
+      (f"fixed={_fx:.4f} own={_ow:.4f}" if _TRN is not None else "لم تُحمَّل"))
+
+
+def _trn_rows(n_fill=100, n_nofill=20):
+    """صفوفٌ صناعيّة بشكل الأداة الحقيقيّ: مِرساة 1.00 ⇒ `P0`=[1.00,1.03,1.06]
+    ومتوسّطُه 1.03 ⇒ `R₀` = 0.03. تُستعمل لقفل معالجة `no_fill`."""
+    out = []
+    for k in range(n_fill + n_nofill):
+        row = {"symbol": f"S{k}", "date": "2025-01-02", "stop": 1.00,
+               "t1": 1.30, "anchor": 1.0, "pivot": 1.0,
+               "prod_tr": [1.0, 1.03, 1.06], "tr0": [1.0, 1.03, 1.06],
+               "prod_o": "win", "prod_ret": 3.0}
+        for nm, off in _TRN.ARMS:
+            L = _TRN.ladder(1.0, off, 3, 3.0)
+            row[f"e_{nm}"] = round(sum(L) / len(L), 4)
+            row[f"lo_{nm}"] = L[0]
+            if k < n_fill:
+                row[f"o_{nm}"] = "win"
+                row[f"ret_{nm}"] = 3.0 + off        # تفرّقٌ حقيقيّ بين الأذرع
+            else:
+                row[f"o_{nm}"] = "no_fill"
+                row[f"ret_{nm}"] = None
+        out.append(row)
+    return out
+
+
+# 🔒 TRN4 — `no_fill` = صفرُ عائدٍ **ويدخل المقام** (‏§⑨-4): فالمقامُ واحدٌ
+#    للأذرع الأربع وزيادةُ التعبئة تُحسَب لا تُخفى.
+_trn_ok4, _trn_dbg4 = False, "لم تُحمَّل"
+if _TRN is not None:
+    _buf = _trn_io.StringIO()
+    with _trn_ctx.redirect_stdout(_buf):
+        _rc4 = _TRN.report(_trn_rows(), "2025", {},
+                           {"n": 120, "n_diff": 0, "pct": 0.0,
+                            "median_pct": 0.0, "max_pct": 0.0})
+    _txt4 = _buf.getvalue()
+    _sm4 = [ln for ln in _txt4.splitlines() if ln.strip().startswith("SUMMARY ")]
+    if _rc4 == 0 and _sm4:
+        _j4 = json.loads(_sm4[0].strip()[len("SUMMARY "):])
+        _p0 = _j4["arms"]["P0"]
+        _trn_ok4 = (_p0["n"] == 120 and _p0["n_fill"] == 100
+                    and abs(_p0["fill_pct"] - 100 / 120 * 100) < 1e-6
+                    and abs(_p0["r_fixed"] - (100 * (0.03 * 1.03 / 0.03)) / 120)
+                    < 1e-6)
+        _trn_dbg4 = (f"n={_p0['n']} fill={_p0['n_fill']} "
+                     f"R0={_p0['r_fixed']:.6f}")
+    else:
+        _trn_dbg4 = f"rc={_rc4} summary={bool(_sm4)}"
+check("📐🔒 TRN4 `no_fill`=0R **ويدخل المقام** — المقامُ واحدٌ للأذرع الأربع",
+      _trn_ok4, _trn_dbg4)
+
+# 🔒 TRN5 — أربعُ أذرعٍ ولا خامسة · والحاكمةُ `P1` (+2%) كما سُجِّل قبل الأرقام
+check("📐🔒 TRN5 الأذرعُ الأربعُ مثبَّتةٌ بقيمها · والحاكمة `P1`",
+      _TRN is not None and _TRN.ARMS == (("P0", 0.0), ("P1", 2.0),
+                                         ("P2", 5.0), ("P3", 7.0))
+      and _TRN.GOV == "P1" and _TRN.FLOOR_DECIDED == 100,
+      (f"{_TRN.ARMS} gov={_TRN.GOV} floor={_TRN.FLOOR_DECIDED}"
+       if _TRN is not None else "لم تُحمَّل"))
+
+# 🔒 TRN6 — `TV6` قراءةٌ فقط: صفرُ إرسالٍ وصفرُ كتابةِ حالة (بالـAST) ·
+#    وحارسُها الذاتيُّ يعمل · والإنتاجُ لا يستوردها.
+_trn_src = _pbs_io.open("tranche_arms.py", encoding="utf-8").read()
+_trn_banned = {"send_telegram", "git_save", "save_watchlist",
+               "save_op_entry_state", "record_new_alerts"}
+_trn_hits = [(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+             for n in _trn_ast.walk(_trn_ast.parse(_trn_src))
+             if isinstance(n, _trn_ast.Call)]
+check("📐🔒 TRN6 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة · حارسٌ ذاتيٌّ عامل · الإنتاجُ لا يستوردها",
+      not (_trn_banned & set(_trn_hits))
+      and _TRN is not None and _TRN._selfcheck_readonly() is True
+      and "tranche_arms" not in _pbs_io.open("Super_stock.py",
+                                             encoding="utf-8").read(),
+      f"مخالفات={sorted(_trn_banned & set(_trn_hits))}")
+
+# 🔒 TRN7 — الـworkflow موصولٌ فعلًا: كلُّ مدخلٍ يصل بيئةً يقرؤها السكربت
+#    (بصمةُ `BT_CANDLE`: علمٌ مُمرَّرٌ بلا قارئ) · يدويٌّ بلا كرون · قراءةٌ فقط.
+_trn_wf = _trn_yaml.safe_load(_pbs_io.open(".github/workflows/tranche.yml",
+                                           encoding="utf-8"))
+_trn_steps = _trn_wf["jobs"]["tranche-arms"]["steps"]
+_trn_env = {}
+for _s in _trn_steps:
+    _trn_env.update(_s.get("env") or {})
+check("📐🔒 TRN7 مدخلا الـworkflow موصولان ببيئةٍ يقرؤها السكربت · يدويٌّ بلا كرون",
+      "schedule" not in _trn_wf[True]
+      and "workflow_dispatch" in _trn_wf[True]
+      and _trn_wf["permissions"]["contents"] == "read"
+      and "inputs.year" in str(_trn_env.get("BACKTEST_YEAR", ""))
+      and "BT_FROZEN_PATH" in _trn_env
+      and 'BACKTEST_YEAR' in _trn_src and 'BT_FROZEN_PATH' in _trn_src
+      and any("tranche_arms.py" in str(_s.get("run", "")) for _s in _trn_steps),
+      f"env={sorted(_trn_env)}")
+
+# 🔒 TRN8 — `P0` = الخطّةُ **المشحونة** (‏§⑨-1): تسقط الأداةُ إن كان وقفُ القاع
+#    مُطفأً — وإلّا صار المرجعُ إعادةَ بناءٍ لا واقعًا يراه المالك.
+check("📐🔒 TRN8 `P0` يشترط وقفَ القاع المشحون (لا إجبارَ ولا إعادةَ بناء)",
+      'if not S.CONFIG.get("PIVOT_STOP_AT_LOW"):' in _trn_src
+      and 'S.CONFIG["PIVOT_STOP_AT_LOW"] = False' not in _trn_src,
+      "OK")
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
