@@ -19348,7 +19348,8 @@ _ph_dfw = _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40, n_before=33)
 _ph_rw = dict(_ph_row, session=_ph_fri)
 _ph_remap = _PH.resolve_row(dict(_ph_rw, session=_ph_sat), _ph_dfw)
 _ph_exact = _PH.resolve_row(_ph_rw, _ph_dfw)
-_ph_far = _PH.resolve_row(dict(_ph_rw, session="2027-01-04"), _ph_dfw)
+# (‏2026-08-29) الشاهدُ **قبليٌّ** عمدًا: البعديُّ صار له سببُه المُسمّى في `PHV15`
+_ph_far = _PH.resolve_row(dict(_ph_rw, session="2020-01-06"), _ph_dfw)
 check("📅 PHV14 ختمُ العطلة يُردّ لآخر جلسةٍ قبله · والبعيدُ يبقى `session_missing`",
       _ph_remap["session_used"] == _ph_fri
       and _ph_remap["outcome"] == _ph_exact["outcome"] != "session_missing"
@@ -19363,6 +19364,35 @@ _ph_t4 = _ph_buf4.getvalue()
 check("📅 PHV14ب الرَّدُّ **يُعلَن بعدده** ولا يمرّ صامتًا · والمطابقُ لا يُعَدّ ردًّا",
       "رُدَّ ختمُها إلى آخر جلسةٍ قبله: 1" in _ph_t4
       and _ph_s4["remapped"] == 1 and _ph_exact["session_used"] is None)
+
+# 🔎🔴 PHV15 — **«لم تصل بعد» ليست «ختمًا باطلًا»**: تشغيلتا 08-29 اختلفتا في
+# ‏55 صفًّا ختمُها 2026-08-28، والقارئُ كان يسمّي الحالتين `session_missing` — وهو
+# **حكمٌ سالبٌ بلا سببٍ مُسمًّى يخفي تشخيصَه**: ختمٌ **بعد** آخرِ بارٍ متاح يُحسَم
+# بإعادة التشغيل غدًا، وختمٌ داخل المدى بلا بارٍ **عطبُ ختمٍ حقيقيّ**.
+# والعيّنةُ **تفرّق**: بعديٌّ (2027) · وقبليٌّ (2020) على الفهرس نفسِه.
+_ph_ahead = _PH.resolve_row(dict(_ph_rw, session="2027-01-04"), _ph_dfw)
+check("🔎 PHV15 سببٌ مُسمًّى: `session_ahead` للجلسة التي لم تصل · `session_missing` لغيرها",
+      _ph_ahead["outcome"] == "session_ahead"
+      and _ph_ahead["outcome_low"] == "session_ahead"
+      and _ph_far["outcome"] == "session_missing"
+      and _ph_far["outcome_low"] == "session_missing")
+
+# 🧩🔴 PHV16 — **تغطيةُ حقول الصحوة تُعلَن**: السجلُّ الحيّ يحمل `awake`/`swept_hold`
+# في **‏274 صفًّا من 452 فقط** (شُحنت 2026-08-16) ⇒ الأقدمُ يُقرأ `False` بالافتراض
+# فتخلط شريحتا «هادئ» و«لم يُكنس» **مقيسًا بغير مقيس**. فيُعلَن العدد ولا يُدفَن.
+# والعيّنةُ **تفرّق بالحضور لا بالقيمة**: صفٌّ بلا الحقل · وصفٌّ يحمله سالبًا.
+_ph_nw = _PH.resolve_row({k: v for k, v in _ph_rw.items() if k != "awake"}, _ph_dfw)
+_ph_hw = _PH.resolve_row(dict(_ph_rw, awake=False), _ph_dfw)
+_ph_buf5 = _io_ph.StringIO()
+with _ctx_ph.redirect_stdout(_ph_buf5):
+    _ph_s5 = _PH.report([_ph_nw, _ph_hw])
+_ph_t5 = _ph_buf5.getvalue()
+check("🧩 PHV16 غيابُ حقل الصحوة يُميَّز عن حضوره بقيمةٍ سالبة · ويُعلَن بعدده",
+      _ph_nw["has_wake"] is False and _ph_hw["has_wake"] is True
+      and _ph_nw["awake"] is False and _ph_hw["awake"] is False
+      and "حقولُ الصحوة غائبةٌ عن 1 صفًّا" in _ph_t5
+      and "**بالافتراض لا بالقياس**" in _ph_t5
+      and _ph_s5["no_wake_fields"] == 1)
 
 # PRD17 — الحصادُ يحمل حقولَ الصحوة (فيصير «هل الصحوة تتنبّأ؟» قابلًا للقياس
 # من السجل لا مُدَّعًى)

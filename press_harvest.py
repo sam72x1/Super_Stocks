@@ -80,7 +80,8 @@ def resolve_row(row, df, mirror=None, resolve=None):
     `outcome` (‏B0 = وقفُ `mirror_plan`، ‏7% تحت القاع — يقارَن بالمنشور) و
     `outcome_low` (‏B1 = **وقفُ القاع المعتمَد**). كلٌّ من `resolve_episode`:
     win | loss | no_fill | open — أو سببُ استبعادٍ مُسمًّى **يُكتَب في الذراعين
-    معًا** فلا يختلف مقامُهما: `no_data` · `session_missing` · `scale_mismatch` ·
+    معًا** فلا يختلف مقامُهما: `no_data` · `session_missing` · **`session_ahead`**
+    (الجلسةُ بعد آخر بارٍ متاح ⇒ تُحسَم لاحقًا لا عطب) · `scale_mismatch` ·
     `scale_unknown` · `no_anchor`."""
     import rebound_arms as RB                                    # noqa: PLC0415
     mirror = mirror or RB.mirror_plan
@@ -89,7 +90,8 @@ def resolve_row(row, df, mirror=None, resolve=None):
            "hold": int(row.get("hold_sessions") or 0),
            "awake": bool(row.get("awake")), "swept": bool(row.get("swept_hold")),
            "src": row.get("src"), "outcome": None, "outcome_low": None,
-           "bars_after": None, "window_full": None, "session_used": None}
+           "bars_after": None, "window_full": None, "session_used": None,
+           "has_wake": ("awake" in row)}
     try:
         anchor = float(row.get("press_low"))
         if anchor <= 0:
@@ -122,7 +124,13 @@ def resolve_row(row, df, mirror=None, resolve=None):
                     if 0 <= (w - _dt.date.fromisoformat(d)).days
                     <= SESSION_BACKSTEP_DAYS]
             if not cand:
-                out["outcome"] = out["outcome_low"] = "session_missing"
+                # 🔎 **سببٌ مُسمًّى لا حكمٌ صامت** (درسُ «حكمٌ سالبٌ بلا سببٍ
+                # مُسمًّى يخفي تشخيصَه»): ختمٌ **بعد** آخرِ بارٍ في البيانات يعني
+                # **أن الجلسةَ لم تصل بعد** لا أن الختمَ باطل — وهما حالتان
+                # يجب ألّا تختلطا، فأولاهما تُحلّ بإعادة التشغيل غدًا والثانيةُ
+                # عطبُ ختمٍ حقيقيّ. **وهذا بعينه ما فرّق تشغيلتَي 08-29.**
+                out["outcome"] = out["outcome_low"] = (
+                    "session_ahead" if want > idx[-1] else "session_missing")
                 return out
             i = max(cand)
             out["session_used"] = idx[i]
@@ -183,6 +191,11 @@ def report(results, bad_lines=0):
     print("=" * 78)
     print(f"🩺 التغطية: صفوفٌ {len(results)} · صالحةٌ للحسم {len(usable)} · "
           f"محسومةٌ {len(done)} · سطورٌ تالفة {bad_lines}")
+    _nowake = [r for r in results if r.get("has_wake") is False]
+    if _nowake:
+        print(f"🧩 حقولُ الصحوة غائبةٌ عن {len(_nowake)} صفًّا (سُجّلت قبل شحنها) "
+              "⇒ تُعَدّ «هادئ» و«لم يُكنس» **بالافتراض لا بالقياس** — "
+              "فشريحتاهما تخلطان مقيسًا بغير مقيس.")
     _remap = [r for r in results if r.get("session_used")]
     if _remap:
         print(f"📅 صفوفٌ رُدَّ ختمُها إلى آخر جلسةٍ قبله: {len(_remap)} — ختمُ "
@@ -227,7 +240,8 @@ def report(results, bad_lines=0):
     return {"rows": len(results), "usable": len(usable), "resolved": len(done),
             "resolved_low": len(done_low), "excluded": excl,
             "young": len(young), "premature_nofill": len(_prem),
-            "remapped": len(_remap), "hold_min": hold_min}
+            "remapped": len(_remap), "no_wake_fields": len(_nowake),
+            "hold_min": hold_min}
 
 
 def main() -> int:
