@@ -27738,16 +27738,20 @@ _pls_px12 = [e for e in _pls_e12 if e.get("stage") == "Px"]
 _pls_e12b, _ = _cu_run(_pls_bars, dict(_pls_anch, sent=["M1", "M5"]))
 _pls_px12b = [e for e in _pls_e12b if e.get("stage") == "Px"]
 _pls_tier = S.liq_tier(_pls_px12b[0]) if _pls_px12b else None
-check("💓 PLS12 نبضُ ما قبل M5 يفير موسومًا `pre_m5` بقراءةِ لحظته · "
+# ⚖️ **وقبل اكتمال الخمس لا فئةَ تُعرَض أصلًا** (‏`LIVE11`): الكرتُ يُسلّم
+#    اتجاهَ النبض وسعرَه وسطرَ «قبل المِرساة» — **ولا يفبرك وسمًا** يستحيل أن
+#    يكون عادلًا على نافذةٍ ناقصة.
+check("💓 PLS12 نبضُ ما قبل M5 يفير موسومًا `pre_m5` وبلا فئةٍ مفبركة · "
       "وما بعده يحمل قرارَ الدخول بلا الوسم",
       len(_pls_px12) == 2 and len(_pls_px12b) == 2
       and all(e.get("pre_m5") is True and not e.get("k2")
-              and e.get("k2_live") for e in _pls_px12)
+              and not e.get("k2_live") and S.liq_tier(e) is None
+              for e in _pls_px12)
       and all(not e.get("pre_m5") and e.get("k2") == _pls_k2
               and e.get("anchor_low") == 1.86 and e.get("anchor_price") == 2.0
               for e in _pls_px12b)
       and _pls_tier is not None and _pls_tier[0] in ("قوي", "متوسط", "ضعيف"),
-      f"قبل={[(e.get('pre_m5'), bool(e.get('k2_live'))) for e in _pls_px12]} "
+      f"قبل={[(e.get('pre_m5'), S.liq_tier(e)) for e in _pls_px12]} "
       f"بعد={[(e.get('pre_m5'), bool(e.get('k2'))) for e in _pls_px12b]} "
       f"tier={_pls_tier}")
 
@@ -27916,18 +27920,39 @@ check("💓 PLS10 النبضُ الهابط بلا `move`/`class` عمدًا ⇒
 #   الشكل بحجمٍ موجب ⟶ قراءةٌ حقيقية.
 _lv_b = [_cu_bar(200 + i, 1.0, 1.0 + i * 0.01, 1000 + i * 100) for i in range(8)]
 _lv_direct = S.kasih2_wave_feats(_lv_b[-5:], _lv_b[-5]["t"], _lv_b[-5]["c"])
-_lv_zero = [{"t": 0, "o": 1.0, "c": 1.0, "h": 1.0, "l": 1.0, "v": 0},
-            {"t": 6 * 60_000, "o": 1.0, "c": 1.0, "h": 1.0, "l": 1.0, "v": 0}]
+_lv_zero = [{"t": i * 6 * 60_000, "o": 1.0, "c": 1.0, "h": 1.0, "l": 1.0,
+             "v": 0} for i in range(5)]
 _lv_pos = [dict(_b, v=1000) for _b in _lv_zero]
-check("🔁 LIVE1 `liq_live_feats` نافذةٌ متدحرجة بدالّة الإنتاج · ودون شمعتين "
+check("🔁 LIVE1 `liq_live_feats` نافذةٌ متدحرجة بدالّة الإنتاج · ونافذةٌ ناقصة "
       "أو بلا مؤشّرٍ محسوب ⟶ {} (وبحجمٍ موجبٍ تعطي قراءة — زوجٌ مفرِّق)",
       S.liq_live_feats(_lv_b) == _lv_direct and _lv_direct
-      and S.liq_live_feats(_lv_b[:1]) == {}
+      and S.liq_live_feats(_lv_b[:4]) == {}
       and S.liq_live_feats([]) == {}
       and S.liq_live_feats(_lv_zero) == {}
       and S.liq_live_feats(_lv_pos) != {},
       f"live={S.liq_live_feats(_lv_b)} zero={S.liq_live_feats(_lv_zero)} "
       f"pos={S.liq_live_feats(_lv_pos)}")
+
+# LIVE11 — 🔴🔴 **حارسا الانحياز** (أُمسِكا بالقراءة قبل الشحن، لا بالطفرة):
+#   ① النافذةُ **من المِرساة فصاعدًا**: بلا `since_ms` تصير آخرُ خمسِ دقائقَ
+#      عند لحظة الاكتشاف = أربعُ دقائقَ **هادئة** ‏+ المِرساة ⇒ مرجعٌ ميّتٌ
+#      وقراءةٌ تقول «ضعيف» عن سهمٍ توّه عبَر قفزةَ حجمٍ ‏3×.
+#   ② والنافذةُ **تكتمل أو لا تُقرأ**: سلّةُ `c4` العليا («خضراء 3-4») تحتاج
+#      أربعَ شمعاتٍ بعد المِرساة ⇒ نافذةٌ من شمعتين **يستحيل** أن تبلغها =
+#      انحيازٌ بنيويٌّ نحو «ضعيف». **زوجٌ مفرِّق يُثبت الأثر عدديًّا.**
+_lv11_q = [_cu_bar(300 + i, 1.0, 1.0, 500) for i in range(4)]
+_lv11_a = _cu_bar(304, 1.00, 1.20, 60_000)
+_lv11_p = [_cu_bar(305 + i, 1.20, 1.22, 30_000) for i in range(4)]
+_lv11_all = _lv11_q + [_lv11_a] + _lv11_p
+_lv11_anchored = S.liq_live_feats(_lv11_all, since_ms=_lv11_a["t"])
+_lv11_straddle = S.liq_live_feats(_lv11_all[:6])          # يتخطّى المِرساة
+_lv11_partial = S.liq_live_feats(_lv11_all[:6], since_ms=_lv11_a["t"])
+check("🔁 LIVE11 النافذةُ من المِرساة فصاعدًا **وتكتمل أو لا تُقرأ** — وإلّا "
+      "قرأت الهدوءَ الذي سبق الاكتشاف فوسمت القويَّ ضعيفًا",
+      _lv11_anchored and _lv11_partial == {}
+      and _lv11_straddle and _lv11_straddle != _lv11_anchored,
+      f"مِرساة={_lv11_anchored} ناقصة={_lv11_partial} "
+      f"متخطّية={_lv11_straddle}")
 
 # LIVE2 — `liq_tier` تقرأ `k2_live` على `Px`/`M30` **وتتجاهله على `M5`**:
 #   حدثٌ واحدٌ بختمٍ **قويّ** وقراءةٍ **ضعيفة** ⇒ `M5` قوي · `Px`/`M30` ضعيف.
