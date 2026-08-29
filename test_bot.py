@@ -19274,7 +19274,7 @@ with _ctx_ph.redirect_stdout(_ph_buf):
                                                   [2.50] + [4.0] * 40))])
 _ph_txt = _ph_buf.getvalue()
 check("📒 PHV8 التقريرُ يطبع «لا حكم» دائمًا · ويُسمّي المستبعَدين · ويفصل المعلَّق",
-      "لا حكم" in _ph_txt and "scale_mismatch=1" in _ph_txt
+      "⚖️ **لا حكم**: هذي قراءةٌ للسجلّ" in _ph_txt and "scale_mismatch=1" in _ph_txt
       and "المستبعَدون" in _ph_txt and "معلّقة" in _ph_txt
       and _ph_summ["resolved"] == 2 and _ph_summ["usable"] == 3)
 _ph_wf = open(".github/workflows/press_harvest.yml", encoding="utf-8").read()
@@ -19315,7 +19315,7 @@ check("🛑 PHV12 التقريرُ يطبع الذراعين باسمَيهما 
       "B0" in _ph_t2 and "B1" in _ph_t2 and "وقفُ القاع المعتمَد" in _ph_t2
       and "الفارقُ **الوقفُ وحدَه**" in _ph_t2
       and _ph_s2["resolved"] == 1 and _ph_s2["resolved_low"] == 1
-      and "لا حكم" in _ph_t2)
+      and "⚖️ **لا حكم**: هذي قراءةٌ للسجلّ" in _ph_t2)
 
 # ⏳🔴 PHV13 — «بلا تعبئة» قبل اكتمال النافذة **ليست نتيجة**: المحرّكُ المجمَّد
 # يمسح `min(i+1+wait, n)` فينفد التاريخُ قبل النافذة فيرجّع `no_fill`. والسجلُّ
@@ -19334,6 +19334,35 @@ check("⏳ PHV13ب التقريرُ يُعلنها صراحةً ولا يدفن�
       "لا تُقرأ «الخطّةُ لا تُعبَّأ»" in _ph_t3
       and "B0=1" in _ph_t3 and "B1=1" in _ph_t3
       and _ph_s3["premature_nofill"] == 1 and _ph_s3["usable"] == 2)
+
+# 📅🔴 PHV14 — **ختمُ نهايةِ الأسبوع**: عيبٌ كشفته التشغيلةُ الحيّة لا الاختبار.
+# قبل إصلاح الاستدراك كان الرادارُ يختم بـ**تاريخ التشغيل** (كرونٌ 00:25 UTC ⇒ جلسةُ
+# الجمعة تُختَم السبت) ⇒ **118 صفًّا من 452 (‏26%) بختمِ عطلة** كان الحاصدُ يُسقطها
+# صامتةً. والرَّدُّ **مقيَّدٌ ومُصادَقٌ بحارس المقياس** (ردٌّ إلى بارٍ خاطئ يسقط
+# `scale_mismatch` لا يمرّ) — والعيّنةُ **تفرّق**: سبتٌ يُردّ · وتاريخٌ بعيدٌ لا يُردّ.
+# جلسةُ الفهرس عند 33 بارًا = **جمعة** (‏`freq="B"`) ⇒ السبتُ بعدها ليس في الفهرس
+_ph_fri = str(pd.date_range("2026-07-01", periods=33, freq="B")[-1].date())
+_ph_sat = str((pd.Timestamp(_ph_fri) + pd.Timedelta(days=1)).date())
+assert pd.Timestamp(_ph_fri).weekday() == 4, "الفِكستشرُ يفترض جمعةً"
+_ph_dfw = _ph_df([2.10] + [3.0] * 40, [2.50] + [4.0] * 40, n_before=33)
+_ph_rw = dict(_ph_row, session=_ph_fri)
+_ph_remap = _PH.resolve_row(dict(_ph_rw, session=_ph_sat), _ph_dfw)
+_ph_exact = _PH.resolve_row(_ph_rw, _ph_dfw)
+_ph_far = _PH.resolve_row(dict(_ph_rw, session="2027-01-04"), _ph_dfw)
+check("📅 PHV14 ختمُ العطلة يُردّ لآخر جلسةٍ قبله · والبعيدُ يبقى `session_missing`",
+      _ph_remap["session_used"] == _ph_fri
+      and _ph_remap["outcome"] == _ph_exact["outcome"] != "session_missing"
+      and _ph_exact["session_used"] is None
+      and _ph_far["outcome"] == "session_missing"
+      and _ph_far["outcome_low"] == "session_missing"
+      and _PH.SESSION_BACKSTEP_DAYS == 4)
+_ph_buf4 = _io_ph.StringIO()
+with _ctx_ph.redirect_stdout(_ph_buf4):
+    _ph_s4 = _PH.report([_ph_remap, _ph_exact])
+_ph_t4 = _ph_buf4.getvalue()
+check("📅 PHV14ب الرَّدُّ **يُعلَن بعدده** ولا يمرّ صامتًا · والمطابقُ لا يُعَدّ ردًّا",
+      "رُدَّ ختمُها إلى آخر جلسةٍ قبله: 1" in _ph_t4
+      and _ph_s4["remapped"] == 1 and _ph_exact["session_used"] is None)
 
 # PRD17 — الحصادُ يحمل حقولَ الصحوة (فيصير «هل الصحوة تتنبّأ؟» قابلًا للقياس
 # من السجل لا مُدَّعًى)

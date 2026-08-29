@@ -42,6 +42,7 @@ import sys
 LEDGER = os.environ.get("PRESS_LEDGER", "press_radar_ledger.jsonl")
 SCALE_TOL = 0.15          # 🩺 حدُّ تفرّق المقياس — مُعادٌ من حارس `T-SLIP` لا مخترَع
 READY_HOLD_DEFAULT = 3    # يُقرأ من الإنتاج؛ هذا ارتدادٌ فاشل-آمن فقط
+SESSION_BACKSTEP_DAYS = 4  # 📅 مدى ردِّ ختمِ نهاية الأسبوع (عطلةٌ ممتدّة)
 
 
 def load_ledger(path=LEDGER):
@@ -88,7 +89,7 @@ def resolve_row(row, df, mirror=None, resolve=None):
            "hold": int(row.get("hold_sessions") or 0),
            "awake": bool(row.get("awake")), "swept": bool(row.get("swept_hold")),
            "src": row.get("src"), "outcome": None, "outcome_low": None,
-           "bars_after": None, "window_full": None}
+           "bars_after": None, "window_full": None, "session_used": None}
     try:
         anchor = float(row.get("press_low"))
         if anchor <= 0:
@@ -100,9 +101,31 @@ def resolve_row(row, df, mirror=None, resolve=None):
     if df is None or len(df) == 0:
         out["outcome"] = out["outcome_low"] = "no_data"
         return out
+    # 🔴📅 **ختمُ نهايةِ الأسبوع — عيبٌ كشفته التشغيلةُ الحيّة لا الاختبار:** قبل
+    # إصلاح الاستدراك (2026-08-29) كان الرادارُ يختم الصفَّ بـ**تاريخ التشغيل** لا
+    # بجلسة البيانات، وكرونُه 00:25/01:25 UTC ⇒ جلسةُ الجمعة تُختَم **السبت**.
+    # والمقيسُ على السجلّ: **118 صفًّا من 452 (‏26%) بختمِ نهايةِ أسبوع** ⇒ كان
+    # الحاصدُ يُسقط ربعَ السجلّ صامتًا تحت `session_missing`.
+    # ✅ فيُردّ الختمُ إلى **آخر جلسةٍ في الفهرس عندها أو قبلها** بقيدٍ مُعلَن
+    # (‏`SESSION_BACKSTEP_DAYS` أيامًا تقويميّة — يكفي عطلةَ نهاية أسبوعٍ ممتدّة)،
+    # **وحارسُ المقياس يُصادق الرَّدَّ** (إغلاقُ الصفّ يجب أن يطابق إغلاقَ البار)
+    # فردٌّ إلى بارٍ خاطئ يسقط `scale_mismatch` لا يمرّ. والعددُ **يُطبَع**.
     try:
         idx = [str(d)[:10] for d in df.index]
-        i = idx.index(str(row.get("session"))[:10])
+        want = str(row.get("session"))[:10]
+        if want in idx:
+            i = idx.index(want)
+        else:
+            import datetime as _dt                               # noqa: PLC0415
+            w = _dt.date.fromisoformat(want)
+            cand = [k for k, d in enumerate(idx)
+                    if 0 <= (w - _dt.date.fromisoformat(d)).days
+                    <= SESSION_BACKSTEP_DAYS]
+            if not cand:
+                out["outcome"] = out["outcome_low"] = "session_missing"
+                return out
+            i = max(cand)
+            out["session_used"] = idx[i]
     except Exception:                                            # noqa: BLE001
         out["outcome"] = out["outcome_low"] = "session_missing"
         return out
@@ -160,6 +183,11 @@ def report(results, bad_lines=0):
     print("=" * 78)
     print(f"🩺 التغطية: صفوفٌ {len(results)} · صالحةٌ للحسم {len(usable)} · "
           f"محسومةٌ {len(done)} · سطورٌ تالفة {bad_lines}")
+    _remap = [r for r in results if r.get("session_used")]
+    if _remap:
+        print(f"📅 صفوفٌ رُدَّ ختمُها إلى آخر جلسةٍ قبله: {len(_remap)} — ختمُ "
+              "**تاريخِ التشغيل** قبل إصلاح الاستدراك (جلسةُ الجمعة تُختَم السبت)، "
+              "وحارسُ المقياس يُصادق الرَّدّ.")
     if excl:
         print("   المستبعَدون بأسبابهم: "
               + " · ".join(f"{k}={v}" for k, v in sorted(excl.items())))
@@ -199,7 +227,7 @@ def report(results, bad_lines=0):
     return {"rows": len(results), "usable": len(usable), "resolved": len(done),
             "resolved_low": len(done_low), "excluded": excl,
             "young": len(young), "premature_nofill": len(_prem),
-            "hold_min": hold_min}
+            "remapped": len(_remap), "hold_min": hold_min}
 
 
 def main() -> int:
