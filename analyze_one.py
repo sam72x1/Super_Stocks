@@ -500,6 +500,13 @@ def analyze_on_demand(sym: str):
     if stop_lo >= stop_hi:
         stop_lo = round(entry_floor * (1 - s_hi / 100.0), 2)
 
+    # 🛑🥇 مرآةُ وقف القاع (اعتمادُ المالك 2026-08-29) — «الفحصُ اليدويّ =
+    #     الأساسيّ»: نفسُ الشرط ونفسُ التدوير. و`_rr_stop` يُبقي `rr` على أساس
+    #     المخاطرة القديم كما في الجذر (العضويّةُ لا تتبدّل).
+    _rr_stop_ao = stop_lo
+    if C.get("PIVOT_STOP_AT_LOW"):
+        stop_lo = stop_hi = round(float(_anchor1), 2)   # بدقّة الدفعات نفسِها
+
     # الأهداف (مقاومات حقيقية + فجوات-هدف — نفس منطق البوت، لا SMA عشوائي)
     resist = bot.resistance_levels(df, price)
     raw_t1 = bot.first_target(df)
@@ -605,7 +612,7 @@ def analyze_on_demand(sym: str):
         targets_kind = None
 
     entry_ref = round(sum(tranches) / len(tranches), 4)  # متوسط الدفعات (فيصل يمتّع)
-    risk = max(entry_ref - stop_lo, 1e-9)
+    risk = max(entry_ref - _rr_stop_ao, 1e-9)
     rr = (t1 - entry_ref) / risk
     rr2 = (t2 - entry_ref) / risk
     # 🎯 صدقُ RR — **مرآةُ `analyze_ticker` حرفيًّا** (أ-1، 2026-08-13): فوق نطاق
@@ -613,7 +620,7 @@ def analyze_on_demand(sym: str):
     #    ينكسر قفلُ «الفحص اليدوي = الأساسي (RR بالضبط)». داخل النطاق ⇒ بت-بت.
     _band_top = max(tranches) * (1 + C.get("ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
     if price > _band_top:
-        _risk_now = max(price - stop_lo, 1e-9)
+        _risk_now = max(price - _rr_stop_ao, 1e-9)
         rr = (t1 - price) / _risk_now
         rr2 = (t2 - price) / _risk_now
     if rr < C["MIN_RR_T1"]:

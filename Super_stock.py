@@ -334,6 +334,22 @@ CONFIG = {
     "STABILITY_TOL_PCT": 2.0,    # القيعان بعد القاع ضمن 2% منه
 
     # ---- مستويات مقترحة ----
+    # 🛑🥇 وقفُ القاع للارتكاز — **اعتمادُ المالك 2026-08-29** («‏1-2 و3 إذا كان
+    #      ايجابي ف نفذة»): الوقفُ = المِرساةُ نفسُها لا 7% تحتها.
+    #      📊 سندُه `T-PIVOT-BOTTOM` (‏`pivot_stop_result.md`): الفرقُ **موجبٌ في
+    #      السنوات الثلاث** (‏+0.110 · +0.062 · +0.020) ومجمَّعًا **‏+0.0644R**
+    #      وفاصلُه ‏[+0.027 · +0.100] **لا يلمس الصفر** = أوّلُ أثرِ وقفٍ نظيفٍ
+    #      إحصائيًّا في المشروع. 🔴 **ودون البار المسجَّل ‏+0.15** ⇒ **قرارُ مالكٍ
+    #      لا استنتاجَ قياس** (سابقةُ `W3`) — والبارُ **لم يُحرَّك** بعد الأرقام.
+    #      ⚠️ وثمنُه مكتوب: نسبةُ الربح تنهار ‏≈29% ⟶ ‏≈11% (سبعٌ من كلّ ثمانٍ
+    #      تخرج بالوقف وكلُّ خروجٍ يكلّف ثُلثَ ما كان) · والذراعان **سالبتان**
+    #      (يُصغّر الخسارة ولا يجعل النظامَ رابحًا).
+    #      🔒 **ولا يمسّ `rr` عمدًا** (‏`_rr_stop` أدناه): المقياسُ أعاد تشغيلَ
+    #      **صفقات الإنتاج** فالعضويّةُ كانت مثبَّتة، وتبديلُ أساس `rr` يشحن ما
+    #      **لم يُقَس** (‏`B2` «غيرُ قابلةٍ للتقييم» · العضويّةُ تتبدّل في
+    #      ‏305/291/319 صفقةً سنويًّا) ⇒ المشحونُ **الخروجُ وحدَه** كما قِيس.
+    #      🔓 وإرجاعُه سطرٌ واحد: `False` ⇒ السلوكُ السابق بت-بت.
+    "PIVOT_STOP_AT_LOW": True,
     "STOP_BELOW_LOW_PCT": (5.0, 7.0),    # الوقف 5-7% تحت القاع (فيصل: تحت
                                          # منطقة سحب السيولة، لا 1-2% الضيقة)
     # (D1، تدقيق 2026-07-03: حُذف ENTRY_ABOVE_PIVOT_PCT — كان ثابتًا ميتًا غير
@@ -763,6 +779,9 @@ def _apply_backtest_overrides(mode: str, env=None) -> list:
             ("BT_DORMANT", "BT_DORMANT", int),        # 😴 T-DORMANT
             ("BT_ENVVALS", "BT_ENVVALS", int),
             ("BT_ACTVALS", "BT_ACTVALS", int),        # 🕵️ T-RANKER3
+            # 🛑 إرجاعُ وقف الارتكاز إلى 7% لإعادة إنتاج ما نُشر قبل الاعتماد
+            #    (سابقةُ `CAP15`: أداةُ القياس تُعيد المنشور بت-بت أو تُبطله).
+            ("BT_PIVOT_STOP", "PIVOT_STOP_AT_LOW", int),
             ("BT_RAW_PRICE", "BT_RAW_PRICE", int)):        # 🕰️ point-in-time
         v = (env.get(bt_env) or "").strip()
         if not v:
@@ -1025,7 +1044,7 @@ def _anchor_mode(bt, prod) -> str:
     return bt or str(prod or "")
 
 
-LOGIC_VERSION = "2026.08.14-reboundhold2+listsplit+rrtruth+cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+anchorb2+tranches+4h+keylevels+avgRR"
+LOGIC_VERSION = "2026.08.14-reboundhold2+listsplit+rrtruth+cap15+borrow20+fillpicks+shutdoor+borrowgate+base120+minfloor100+d15cat2+proxfirst+nf8slot+faisalonly+faisalsoft+opendoor+m14hard+bluetargets+redheads.dw+noskip+anchorb2+tranches+4h+keylevels+avgRR+pivotstoplow"
 
 UA = {"User-Agent": "Mozilla/5.0 (pivot-screener; personal research)"}
 # SEC تتطلب User-Agent فيه وسيلة تواصل حقيقية — يُضبط بسرّ SEC_CONTACT في الـ
@@ -3740,6 +3759,17 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         if stop_lo >= stop_hi:
             stop_lo = round(entry_floor * (1 - s_hi / 100.0), 2)
 
+        # 🛑🥇 وقفُ القاع (اعتمادُ المالك 2026-08-29) — **الخروجُ وحدَه يتغيّر.**
+        #     `_rr_stop` يحتفظ بأساس المخاطرة القديم (‏7% تحت المِرساة) فيبقى
+        #     `rr` و`soft_fails` و`classify_tier` **بت-بت** ⇒ العضويّةُ لا تتبدّل،
+        #     وهو عينُ ما قاسته `T-PIVOT-BOTTOM` (أعادت تشغيلَ صفقات الإنتاج
+        #     بعضويّةٍ مثبَّتة). وتبديلُ `rr` معه يشحن `B2` **التي لم تُقَس**.
+        _rr_stop = stop_lo
+        if CONFIG.get("PIVOT_STOP_AT_LOW"):
+            # 🔴 بدقّة الدفعات نفسِها (‏2) — بدقّةٍ أعلى يعلو الوقفُ أدنى دفعةٍ
+            #    بفارق تدويرٍ في نصف الحالات ⇒ «الوقفُ فوق الدخول» الكارثة.
+            stop_lo = stop_hi = round(float(_anchor), 2)
+
         # ---- الأهداف الثلاثة (من مستويات الشارت الحقيقية، لا عشوائية) ----
         # مصادر الأهداف كلها من الشارت (كخطوط فيصل الأفقية):
         #   1) مقاومات سوينغ أفقية فوق السعر (قمم ارتد منها)
@@ -3907,7 +3937,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         # الحقيقي يُقاس من نقطة الشراء الفعلية (يصحّح ظلم الأسهم المرتدّة فوق دخولها).
         # مرجع RR موحّد = متوسط الدفعات (فيصل يمتّع → تعبئته الفعلية ≈ المتوسط).
         entry_ref = round(sum(tranches) / len(tranches), 4)
-        risk = max(entry_ref - stop_lo, 1e-9)
+        risk = max(entry_ref - _rr_stop, 1e-9)
         rr = (t1 - entry_ref) / risk
         rr2 = (t2 - entry_ref) / risk
         # 🎯 صدقُ RR (أمر المالك 2026-08-13 «نفّذ أ» — `entry_points_audit.md §③-1`):
@@ -3922,7 +3952,7 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
         _band_top = max(tranches) * (1 + CONFIG.get(
             "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
         if price > _band_top:
-            _risk_now = max(price - stop_lo, 1e-9)
+            _risk_now = max(price - _rr_stop, 1e-9)
             rr = (t1 - price) / _risk_now
             rr2 = (t2 - price) / _risk_now
         # v2.7: ضعف RR = نقص (ينقل لقائمة B المراقبة) بدل الرفض النهائي —
@@ -3976,6 +4006,9 @@ def analyze_ticker(sym: str, df: pd.DataFrame, pullback: bool = False):
             "gain5": gain5, "ma_above": ma_above, "gap_above_dist": gap_above_dist,
             "vol_today": float(vol.iloc[-1]),   # D10: لحساب تدوير الفلوت في enrich
             "pivot": pivot, "stop": (stop_lo, stop_hi),
+            # 🛑 أساسُ مخاطرة `rr` (‏7% تحت المِرساة) — يُصدَّر كي يكون الفرقُ
+            #    بين «وقفِ الخروج» و«أساسِ الاختيار» **مقروءًا لا مضمرًا**.
+            "rr_stop": float(_rr_stop),
             "entry": (entry_lo, entry_hi), "tranches": tranches,
             "key_levels": key_levels(df, price, pivot),
             "sweep": (sweep_lo, sweep_hi),  # محفوظ للمستقبل — غير معروض؛ حماية الوقف
@@ -9292,7 +9325,20 @@ def build_message(results: list, splits: list,
 
         # ===== مجموعة العائد / البوابات / التنبيهات =====
         lines.append("")
-        lines.append(f"⚖️ ربح/مخاطرة: {r['rr']:.1f}×")
+        # 🛑 وبوقفِ القاع المشحون يصير خطرُك الفعليّ أصغرَ من أساس البوّابة ⇒
+        #    يُعرَض الرقمان بأساسيهما فلا يقرأ المالكُ رقمًا لا يطابق وقفَه
+        #    (سطرُ عرضٍ يكذب). وبلا العلم يبقى السطرُ **بت-بت**.
+        _rr_true = None
+        try:
+            _rs, _sl = float(r.get("rr_stop") or 0.0), float(r["stop"][0])
+            if _rs > 0 and abs(_sl - _rs) > 1e-6:
+                _rf = float(r["price"]) if float(r["price"]) > max(r["entry"]) else (
+                    sum(r["entry"]) / len(r["entry"]))
+                _rr_true = (float(r["t1"]) - _rf) / max(_rf - _sl, 1e-9)
+        except Exception:                                        # noqa: BLE001
+            _rr_true = None
+        lines.append(f"⚖️ ربح/مخاطرة: {r['rr']:.1f}×"
+                     + (f" · بوقفك الفعليّ {_rr_true:.1f}×" if _rr_true else ""))
         if tier == "B":
             sf = r.get("soft_fails", [])
             if sf:

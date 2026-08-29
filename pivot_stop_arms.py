@@ -195,6 +195,11 @@ def main() -> int:
         return 2
     S.CONFIG["BT_REPLAY10"] = 1
     S.CONFIG["BT_ENVVALS"] = 1
+    # 🛑🔒 وقفُ الارتكاز يُرجَع إلى ‏7% **قسرًا** (سابقةُ `CAP15`): بعد اعتماد
+    #     المالك (2026-08-29) صار وقفُ الإنتاج = المِرساة، وبه يصير `B0 ≡ B1`
+    #     فتُصبح الأداةُ `no-op` ويُسقطها حارسُها `BV1`. فتُعاد الأرقامُ
+    #     المنشورة بت-بت بإرجاع الأساس هنا صراحةً لا بالصمت.
+    S.CONFIG["PIVOT_STOP_AT_LOW"] = False
     fwd = int(S.CONFIG["BACKTEST_FORWARD_DAYS"])
     spread = S.CONFIG.get("BT_SPREAD_PCT", 0.0) or 0.0
     lo_d, hi_d = f"{year}-01-01", f"{year}-12-31"

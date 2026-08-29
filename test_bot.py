@@ -325,7 +325,14 @@ except Exception as e:
 if r0:
     check("مُصنّف A أو B", r0["tier"] in ("A", "B"), f"tier={r0['tier']} soft={r0['soft_fails']}")
     check("نواقصه ضمن الحد", len(r0["soft_fails"]) <= S.CONFIG["WATCH_MAX_FAILS"])
-    check("ستوب < القاع", r0["stop"][0] < r0["pivot"])
+    # 🛑 **إقرارٌ مؤرَّخ 2026-08-29 (اعتمادُ المالك «وقفُ القاع للارتكاز»):**
+    #    عقدُ هذا القفل انقلب — الوقفُ لم يعد **تحت** القاع بل **هو المِرساةُ
+    #    نفسُها** (‏= أدنى دفعة). فيُثبَّت العقدُ الجديد **بتشديدٍ لا إرخاء**:
+    #    الطرفان متساويان **و**يطابقان أدنى دفعة (لا «أقلّ من» فضفاضة).
+    check("🛑 ستوب = المِرساة (وقفُ القاع المعتمَد) — الطرفان متساويان ويطابقان أدنى دفعة",
+          abs(r0["stop"][0] - r0["stop"][1]) < 1e-9
+          and abs(r0["stop"][0] - min(r0["tranches"])) <= 0.011,
+          f"stop={r0['stop']} أدنى_دفعة={min(r0['tranches'])}")
     check("الأهداف تصاعدية t1<t2<t3",
           r0["t1"] < r0["t2"] < r0["t3"], f"{r0['t1']}/{r0['t2']}/{r0['t3']}")
     check("t1 فوق السعر", r0["t1"] > r0["price"])
@@ -340,9 +347,12 @@ if r0:
     check("القاب فوق السعر (إن وُجد)",
           r0["qab"] is None or r0["qab"]["bottom"] > r0["price"])
     # قاعدة فيصل: الوقف ~7% تحت الدعم — لا أعمق بكثير (لا ATR يعمّقه)
-    check("الوقف ~7% تحت الدعم (لا عميق شاذ)",
-          r0["pivot"] * 0.90 <= r0["stop"][0] <= r0["pivot"] * 0.95 + 1e-6,
-          f"stop={r0['stop'][0]:.2f} pivot={r0['pivot']:.2f}")
+    # 🛑 **إقرارٌ مؤرَّخ 2026-08-29:** الوقفُ صار المِرساة، **وأساسُ `rr` وحدَه**
+    #    بقي 7% تحتها (‏`rr_stop`) — فيُفحَص الاثنان كلٌّ بمعناه.
+    check("🛑 أساسُ `rr` ما زال ~7% تحت المِرساة · والوقفُ المشحونُ فوقه",
+          r0["pivot"] * 0.90 <= r0["rr_stop"] <= r0["pivot"] * 0.95 + 1e-6
+          and r0["stop"][0] > r0["rr_stop"],
+          f"stop={r0['stop'][0]:.2f} rr_stop={r0['rr_stop']:.2f} pivot={r0['pivot']:.2f}")
 
 # ==========================================================
 # 🎯 إعادة بناء الأهداف الكبرى (2026-07-20، DXST/TRUG/SPRC) — t2/t3 على الدورة الكاملة
@@ -381,8 +391,11 @@ if _tg:
     _btop = max(_tg["tranches"]) * (1 + S.CONFIG.get(
         "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
     _ref_used = _tg["price"] if _tg["price"] > _btop else _eref
-    _rr_from_t1 = (_t1 - _ref_used) / max(_ref_used - _tg["stop"][0], 1e-9)
-    check("rr مُشتقّ من t1 حصرًا (العضوية byte-identical)",
+    # 🛑 **إقرارٌ مؤرَّخ 2026-08-29:** المقامُ صار `rr_stop` (أساسُ 7%) لا الوقفَ
+    #    المشحون — **عمدًا**: المقياسُ أعاد صفقاتِ الإنتاج بعضويّةٍ مثبَّتة، فلو
+    #    قرأ `rr` وقفَ القاع لتبدّلت العضويّةُ (‏`B2` الذي لم يُقَس).
+    _rr_from_t1 = (_t1 - _ref_used) / max(_ref_used - _tg["rr_stop"], 1e-9)
+    check("rr مُشتقّ من t1 حصرًا بأساس 7% (العضوية byte-identical)",
           abs(_tg["rr"] - _rr_from_t1) < 1e-6 and _t1 > _tg["price"],
           f"t1={_t1} rr={_tg['rr']:.4f} من_t1={_rr_from_t1:.4f} "
           f"مرجع={'السعر (فوق النطاق)' if _ref_used == _tg['price'] else 'المتوسط'}")
@@ -440,7 +453,11 @@ check("🔒 جذر: t1/rr/الوقف/الدفعات مثبَّتة للبذرة 
       r0["t1"] == 3.99 and round(r0["rr"], 4) == 0.7341
       and r0["tranches"] == [3.3, 3.4, 3.5]
       and round(r0["pivot"], 6) == 3.299692
-      and tuple(round(_s, 4) for _s in r0["stop"]) == (3.0687, 3.1347),
+      # 🛑 **إقرارٌ مؤرَّخ 2026-08-29:** الوقفُ المثبَّت انتقل من (‏3.0687، 3.1347)
+      #    إلى المِرساة (‏3.2997) باعتماد المالك — **و`rr`=0.7341 و`t1`=3.99
+      #    والدفعاتُ والقاعُ بت-بت** ⇒ العضويّةُ لم تتحرّك، وهو عينُ ما يُثبته.
+      and tuple(round(_s, 4) for _s in r0["stop"]) == (3.3, 3.3)
+      and round(r0["rr_stop"], 4) == 3.0687,
       f"t1={r0['t1']} rr={round(r0['rr'], 4)} pivot={round(r0['pivot'], 6)}")
 # 🔒 قفل الجذور: الأهداف الكبرى الجديدة لا تدخل جذور الاختيار
 for _rt in (S.rank_key, S.select_top, S.classify_tier, S.entry_status):
@@ -7767,10 +7784,14 @@ for sd in range(6):
             continue
         _stop_seen += 1
         lo = rr["entry"][0]
-        if not (rr["stop"][0] < lo and rr["stop"][1] < lo):
+        # 🛑 **إقرارٌ مؤرَّخ 2026-08-29:** الوقفُ = أدنى دفعةٍ بالبناء ⇒ «تحت»
+        #    صارت «عند أو تحت»، **والكارثةُ المحروسة هي الوقفُ فوق الدخول** وهي
+        #    ما زالت ممنوعة. وتشديدٌ: يُشترط أن يكون الطرفان متساويين.
+        if not (rr["stop"][0] <= lo + 1e-9 and rr["stop"][1] <= lo + 1e-9
+                and abs(rr["stop"][0] - rr["stop"][1]) < 1e-9):
             _stop_ok = False
             print(f"   ✗ بذرة {sd} سعر {cur}: stop={rr['stop']} entry_lo={lo}")
-check("الوقف دائمًا تحت أدنى الدخول (لا كارثة)", _stop_ok)
+check("الوقف لا يعلو أدنى الدخول أبدًا (لا كارثة) · والطرفان متساويان", _stop_ok)
 check(f"③ حارس الكارثة فحص كل التكرارات فعلًا ({_stop_seen}/18 — لا لا-عملية صامتة)",
       _stop_seen == 18)
 
@@ -7941,7 +7962,8 @@ for sd in range(6):
         ok_asc = all(_tr[i] < _tr[i + 1] for i in range(len(_tr) - 1))
         ok_step = all(abs((_tr[i + 1] / _tr[i] - 1.0) - _step) < 0.01
                       for i in range(len(_tr) - 1))
-        ok_stop = _stop < _tr[0]                     # ضمان ذهبي: وقف تحت أدنى دفعة
+        # 🛑 إقرارٌ مؤرَّخ 2026-08-29: الوقفُ = أدنى دفعة ⇒ «عند أو تحت»
+        ok_stop = _stop <= _tr[0] + 1e-9             # ضمان ذهبي: لا يعلو أدنى دفعة
         if not (ok_n and ok_lo and ok_asc and ok_step and ok_stop):
             _entry_ok = False
             print(f"   ✗ بذرة {sd} سعر {cur}: دفعات {_tr} دعم {_piv} وقف {_stop}")
@@ -7964,7 +7986,7 @@ for sd in range(6):
         continue
     _rr_seen += 1
     _avg = sum(_rt["tranches"]) / len(_rt["tranches"])
-    _slo, _t1 = _rt["stop"][0], _rt["t1"]
+    _slo, _t1 = _rt["rr_stop"], _rt["t1"]        # 🛑 أساسُ rr لا وقفُ الخروج
     _bt = max(_rt["tranches"]) * (1 + S.CONFIG.get(
         "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
     _above = _rt["price"] > _bt
@@ -8129,6 +8151,71 @@ print("\n=== 9) حُرّاس القرارات المقفولة (Invariants) ==="
 check("قفل: الوقف ثابت 5-7% (لا ATR)",
       S.CONFIG["USE_ATR_STOP"] is False
       and tuple(S.CONFIG["STOP_BELOW_LOW_PCT"]) == (5.0, 7.0))
+
+# ═══ 🛑🥇 PBS — وقفُ القاع للارتكاز (اعتمادُ المالك 2026-08-29) ═══
+# `T-PIVOT-BOTTOM` قاست `B1` موجبًا في الثلاث وفاصلُه لا يلمس الصفر **ودون البار
+# المسجَّل +0.15** ⇒ شُحن **بقرار المالك لا باستنتاج قياس** (سابقةُ `W3`).
+# 🔒 والمشحونُ **الخروجُ وحدَه**: `rr` يبقى على أساس ‏7% فالعضويّةُ بت-بت.
+import ast as _pbs_ast                                            # noqa: E402
+import io as _pbs_io                                              # noqa: E402
+_pbs_src = _insp.getsource(S.analyze_ticker)
+check("🛑 PBS1 المشحونُ وقفُ القاع (‏`PIVOT_STOP_AT_LOW`) — قرارُ مالكٍ مؤرَّخ",
+      S.CONFIG.get("PIVOT_STOP_AT_LOW") is True
+      and tuple(S.CONFIG["STOP_BELOW_LOW_PCT"]) == (5.0, 7.0),
+      f"flag={S.CONFIG.get('PIVOT_STOP_AT_LOW')} · pair={S.CONFIG['STOP_BELOW_LOW_PCT']}")
+
+# 🔑 القفلُ الحاسم: `rr` **لا يقرأ الوقفَ الجديد**. لو قرأه لتبدّلت العضويّةُ
+#    في 305/291/319 صفقةً سنويًّا وهو `B2` **الذي لم يُقَس**.
+_pbs_rr = [n for n in _pbs_ast.walk(_pbs_ast.parse(_pbs_src.strip()))
+           if isinstance(n, _pbs_ast.Assign)
+           and any(getattr(t, "id", "") == "risk" for t in n.targets)]
+_pbs_rr_src = [_pbs_ast.dump(n) for n in _pbs_rr]
+check("🛑🔒 PBS2 `rr` على أساس المخاطرة القديم (‏`_rr_stop`) لا على وقف القاع",
+      len(_pbs_rr) == 1 and "_rr_stop" in _pbs_rr_src[0]
+      and "stop_lo" not in _pbs_rr_src[0].replace("_rr_stop", ""),
+      str(_pbs_rr_src)[:110])
+
+# 🔒 الأنظمةُ الثلاثةُ الأخرى لا تعرف العلم (أربعةُ أوقافٍ لا تُخلَط)
+_pbs_others = {}
+for _f in ("scan_split_hunter", "scan_method_hunter", "scan_split_filter"):
+    _fn = getattr(S, _f, None)
+    _pbs_others[_f] = ("PIVOT_STOP_AT_LOW" in _insp.getsource(_fn)) if _fn else "غائبة"
+check("🛑🔒 PBS3 وقفُ القاع للارتكاز وحدَه — الأنظمةُ الثلاثةُ الأخرى لا تعرف العلم",
+      all(v is False for v in _pbs_others.values()), str(_pbs_others))
+
+# 🔒 سلوكيّ: الوقفُ يساوي المِرساةَ مع العلم · و7% تحتها بدونه — على **نفس** الشمعات
+_pbs_lv = S.CONFIG.get("PIVOT_STOP_AT_LOW")
+try:
+    S.CONFIG["PIVOT_STOP_AT_LOW"] = True
+    _pbs_on = S.analyze_ticker("PBSX", synth_pivot(seed=2))
+    S.CONFIG["PIVOT_STOP_AT_LOW"] = False
+    _pbs_off = S.analyze_ticker("PBSX", synth_pivot(seed=2))
+finally:
+    S.CONFIG["PIVOT_STOP_AT_LOW"] = _pbs_lv
+_pbs_ok = bool(_pbs_on) and bool(_pbs_off)
+if _pbs_ok:
+    _pbs_a = float(min(_pbs_on["tranches"]))
+    _pbs_ok = (abs(_pbs_on["stop"][0] - _pbs_on["stop"][1]) < 1e-6
+               and _pbs_on["stop"][0] == _pbs_a
+               and _pbs_off["stop"][0] < _pbs_on["stop"][0] * 0.96
+               and abs(_pbs_on["rr"] - _pbs_off["rr"]) < 1e-6
+               and _pbs_on["soft_fails"] == _pbs_off["soft_fails"])
+check("🛑🔒 PBS4 سلوكيّ: الوقفُ = المِرساة مع العلم و7% تحتها بدونه · و`rr`/النواقص بت-بت",
+      _pbs_ok,
+      (f"on={_pbs_on['stop']} off={_pbs_off['stop']} rr={_pbs_on['rr']:.3f}/"
+       f"{_pbs_off['rr']:.3f}" if bool(_pbs_on) and bool(_pbs_off) else "تعذّر البناء"))
+
+check("🛑🔒 PBS5 أداةُ القياس تُرجع الأساسَ قسرًا (تُعيد المنشور بت-بت — سابقةُ CAP15)",
+      'S.CONFIG["PIVOT_STOP_AT_LOW"] = False'
+      in _pbs_io.open("pivot_stop_arms.py", encoding="utf-8").read()
+      and 'S.CONFIG["PIVOT_STOP_AT_LOW"] = True'
+      not in _pbs_io.open("pivot_stop_arms.py", encoding="utf-8").read())
+
+check("🛑🔒 PBS6 مرآةُ الفحص اليدويّ تحمل الشرطَ نفسَه (الفحصُ = الأساسيّ)",
+      'C.get("PIVOT_STOP_AT_LOW")'
+      in _pbs_io.open("analyze_one.py", encoding="utf-8").read()
+      and "_rr_stop_ao" in _pbs_io.open("analyze_one.py", encoding="utf-8").read())
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
@@ -10849,12 +10936,17 @@ for _sd in range(12):
 
         def _bad(msg):
             _inv_fail.append(f"بذرة {_sd} سعر {_cur}: {msg}")
-        # (1) الضمان الذهبي: الوقف دائمًا تحت أدنى دفعة
-        if not (_shi < _tr[0] and _slo <= _shi):
+        # (1) الضمان الذهبي — 🛑 **إقرارٌ مؤرَّخ 2026-08-29** (وقفُ القاع
+        #     المعتمَد): الوقفُ صار **أدنى دفعةٍ بالضبط** لا تحتها ⇒ «أقلّ من»
+        #     صارت «لا يعلو»، **والكارثةُ المحروسة (وقفٌ فوق الدخول) ما زالت
+        #     ممنوعة** — وتشديدٌ: الطرفان **متساويان** والوقفُ **يطابق** أدنى
+        #     دفعةٍ فلا ينزلق بفارق تدوير.
+        if not (_shi <= _tr[0] and _slo == _shi == _tr[0]):
             _bad(f"وقف فوق الدخول {_slo}/{_shi} ≥ {_tr[0]}")
-        # (2) الوقف تحت الدعم وضمن نطاق معقول (≤ ~15% تحت)
-        if not (_piv * 0.84 <= _shi < _piv):
-            _bad(f"وقف خارج النطاق {_shi} مقابل دعم {_piv}")
+        # (2) 🛑 وأساسُ `rr` (‏7% تحت المِرساة) هو الذي يبقى داخل النطاق —
+        #     يُفحَص باسمه لا بوقف الخروج.
+        if not (_piv * 0.84 <= _r["rr_stop"] < _piv):
+            _bad(f"أساسُ rr خارج النطاق {_r['rr_stop']} مقابل دعم {_piv}")
         # (3) الدفعات: العدد · أدنى=الدعم · تصاعدية · الخطوة
         if len(_tr) != _N or abs(_tr[0] - round(_piv, 2)) > 0.02:
             _bad(f"دفعات {_tr} لا تبدأ من الدعم {_piv}")
@@ -10874,7 +10966,7 @@ for _sd in range(12):
         _bt5 = max(_r["tranches"]) * (1 + S.CONFIG.get(
             "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
         _ref5 = _r["price"] if _r["price"] > _bt5 else _eavg
-        _exp_rr = (_t1 - _ref5) / max(_ref5 - _slo, 1e-9)
+        _exp_rr = (_t1 - _ref5) / max(_ref5 - _r["rr_stop"], 1e-9)
         if abs(_r["rr"] - _exp_rr) > 0.05:
             _bad(f"RR {_r['rr']} ≠ {_exp_rr:.2f}")
 if _inv_fail:
@@ -18215,12 +18307,14 @@ _et_r = S.analyze_ticker("ET", _et_df_in)
 _et_top = max(_et_r["tranches"]) * (1 + S.CONFIG.get(
     "ENTRY_READY_BAND_TOL_PCT", 0.0) / 100.0)
 _et_avg = round(sum(_et_r["tranches"]) / len(_et_r["tranches"]), 4)
-_et_rr_planned = (_et_r["t1"] - _et_avg) / max(_et_avg - _et_r["stop"][0], 1e-9)
+# 🛑 إقرارٌ مؤرَّخ 2026-08-29 (وقفُ القاع): مقامُ `rr` هو `rr_stop` (أساسُ 7%)
+#    لا وقفُ الخروج — والعقدُ نفسُه (صدقُ نقطة الدخول) لم يتغيّر بحرف.
+_et_rr_planned = (_et_r["t1"] - _et_avg) / max(_et_avg - _et_r["rr_stop"], 1e-9)
 
 check("🎯 ET1 داخل النطاق ⇒ `rr` **بت-بت** بالمتوسط · وفوقه يُقاس من السعر",
       _et_r["price"] > _et_top
       and abs(_et_r["rr"] - (_et_r["t1"] - _et_r["price"])
-              / max(_et_r["price"] - _et_r["stop"][0], 1e-9)) < 1e-6,
+              / max(_et_r["price"] - _et_r["rr_stop"], 1e-9)) < 1e-6,
       f"price={_et_r['price']:.3f} سقف={_et_top:.3f} rr={_et_r['rr']:.4f}")
 
 # ET2 — عيّنةٌ **تفاضلية**: فوق النطاق بهامشٍ رفيع ⇒ الصادقُ يسقط والمخطَّطُ كان يمرّ
@@ -18283,7 +18377,7 @@ if _et_e and _et_e.get("tranches"):
     _ea = round(sum(_et_e["tranches"]) / len(_et_e["tranches"]), 4)
     _et_e_ok = (abs(float(_et_e["price"]) - max(_et_e["tranches"])) < 1e-9
                 and abs(_et_e["rr"] - (_et_e["t1"] - _ea)
-                        / max(_ea - _et_e["stop"][0], 1e-9)) < 1e-6)
+                        / max(_ea - _et_e["rr_stop"], 1e-9)) < 1e-6)
 check("🎯 ET1ب تخومُ الجذر: السعرُ **عند** سقف النطاق ⇒ المرجعُ المتوسطُ "
       "(المقارنة `>` الصارمة — طفرةُ `>=` تسقط هنا)",
       _et_e_ok,
@@ -19278,8 +19372,12 @@ check("📒 PHV8 التقريرُ يطبع «لا حكم» دائمًا · وي�
       and "المستبعَدون" in _ph_txt and "معلّقة" in _ph_txt
       and _ph_summ["resolved"] == 2 and _ph_summ["usable"] == 3)
 _ph_wf = open(".github/workflows/press_harvest.yml", encoding="utf-8").read()
-check("📒 PHV9 الـworkflow يدويٌّ بلا كرون · وموصولٌ بالسكربت · وبطباعةٍ حيّة",
-      "workflow_dispatch" in _ph_wf and "cron" not in _ph_wf
+# 🛑 **إقرارٌ مؤرَّخ 2026-08-29 (أمرُ المالك «سو كرون للحصاد»):** عقدُ «بلا كرون»
+#    انقلب — والتشديدُ أن الكرونَ **مُسمًّى** (بعد الرادار وقبل الفجر) وأن
+#    الصلاحيةَ تبقى **قراءةً فقط** (`contents: read`) فلا يكتب ولا يدفع.
+check("📒 PHV9 الـworkflow بكرونٍ ليليٍّ مُسمًّى · يدويٌّ أيضًا · قراءةٌ فقط · وبطباعةٍ حيّة",
+      "workflow_dispatch" in _ph_wf and 'cron: "43 2 * * 2-6"' in _ph_wf
+      and _ph_wf.count("cron:") == 1 and "contents: read" in _ph_wf
       and "python press_harvest.py" in _ph_wf and "PYTHONUNBUFFERED" in _ph_wf)
 
 # 🛑 PHV10-PHV12 — **ذراعا الوقف** (‏2026-08-29، عيبٌ أُمسك بالقراءة قبل التسليم):
@@ -33813,9 +33911,14 @@ check("🛑 PS1 `R₀` بوحدة مخاطرة الإنتاج وحدها (وقف
 #    و`B1` **تتفرّق** فعلًا (وإلّا كانت الذراعُ زينة)
 try:
     _ps_df = _rd_df()
-    _sv_ps = {k: S.CONFIG.get(k) for k in ("BT_REPLAY10", "BT_ENVVALS")}
+    # 🛑 إقرارٌ مؤرَّخ 2026-08-29: بعد اعتماد وقف القاع صار وقفُ الإنتاج =
+    #    المِرساة، والأداةُ تُرجعه قسرًا في `main` (سابقةُ `CAP15`) — فتُحاكي
+    #    الحالةُ بيئتَها نفسَها وإلّا صار `B0 ≡ B1` وسقط `BV1` بحقّ.
+    _sv_ps = {k: S.CONFIG.get(k)
+              for k in ("BT_REPLAY10", "BT_ENVVALS", "PIVOT_STOP_AT_LOW")}
     S.CONFIG["BT_REPLAY10"] = 1
     S.CONFIG["BT_ENVVALS"] = 1
+    S.CONFIG["PIVOT_STOP_AT_LOW"] = False
     try:
         _ps_tr = S.backtest_symbol("TSTX", _ps_df,
                                    date_window=("2022-06-01", "2024-12-31"),
@@ -33911,7 +34014,11 @@ try:
     _ps5_keys = {getattr(getattr(n, "slice", None), "value", None)
                  for n in _ps5_w}
     _ps5 = (tuple(S.CONFIG["STOP_BELOW_LOW_PCT"]) == (5, 7)
-            and _ps5_keys == {"BT_REPLAY10", "BT_ENVVALS"}
+            # 🛑 إقرارٌ مؤرَّخ 2026-08-29: أُضيف مفتاحٌ ثالثٌ **مُسمًّى**
+            #    (‏`PIVOT_STOP_AT_LOW=False`) لتُعيد الأداةُ المنشورَ بت-بت.
+            #    والمجموعةُ تبقى **مساواةً تامّة** فلا يتسلّل رابعٌ صامتًا،
+            #    و`STOP_BELOW_LOW_PCT` يبقى ممنوعًا صراحةً.
+            and _ps5_keys == {"BT_REPLAY10", "BT_ENVVALS", "PIVOT_STOP_AT_LOW"}
             and "STOP_BELOW_LOW_PCT" not in _ps5_keys)
 except Exception as _e:                                          # noqa: BLE001
     _ps5 = f"⛔ {type(_e).__name__}"
