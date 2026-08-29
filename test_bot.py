@@ -18867,9 +18867,12 @@ S.load_watchlist = lambda: {"pullback": [{"symbol": "TSTX", "entry": [2.7, 2.86]
                             "stocks": [], "removed": [], "explosions": []}
 _prd26_sent = []
 try:
+    # 🐞 **ومُرسِلٌ يَعُدّ لا مُرسِلٌ يرمي (درسُ «القفل المنهار»):** صياغتي
+    #    الأولى رمت `AssertionError` من داخل المُرسِل، فلمّا أُعيدت الطفرةُ
+    #    **انهارت السويّةُ ولم يسقط القفلُ مقروءًا** — والانهيارُ يكتم كلَّ قفلٍ
+    #    بعده. الآن يُسجَّل الإرسالُ ويُحكَم عليه في `check`.
     _prd26_fwd = _PRD.run(now_utc=_prd_now, fetch_hist=_prd_fetch,
-                          sender=lambda m: (_ for _ in ()).throw(
-                              AssertionError("أُرسل عن جلسةٍ أقدمَ من الختم")),
+                          sender=lambda m: (_prd26_sent.append("مقدَّم"), True)[-1],
                           state_path=_prd26_new, ledger_path=_prd26_lp,
                           saver=lambda f: None)
     # 🐞 **اللقطةُ هنا لا بعد الذراع الثانية:** صياغتي الأولى فحصت `_prd26_sent`
