@@ -563,7 +563,7 @@
  },
  "LIQ:MEDS": {
   "anchor_ms": 1788179040000,
-  "last_ms": 1788209880000,
+  "last_ms": 1788209940000,
   "sent": [
    "M1",
    "M5",
@@ -573,7 +573,7 @@
   "vol_x": 49.7,
   "peak_usd": 803932,
   "last_eval_ms": 1788179040000,
-  "pulse_ms": 1788209880000,
+  "pulse_ms": 1788209940000,
   "anchor_price": 1.29,
   "anchor_open": 1.195,
   "anchor_low": 1.1,
