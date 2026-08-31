@@ -75,7 +75,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 22.3,
+  "vol_x": 22.7,
   "peak_usd": 962563,
   "last_eval_ms": 1788183420000,
   "pulse_ms": 1788189420000,
@@ -617,7 +617,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 19.7,
+  "vol_x": 20.0,
   "peak_usd": 214256,
   "last_eval_ms": 1788183060000,
   "pulse_ms": 1788189420000,
@@ -911,7 +911,7 @@
   ],
   "updates": 1,
   "vol_x": 3.9,
-  "peak_usd": 866472,
+  "peak_usd": 2308155,
   "pulse_ms": 1788189420000,
   "anchor_price": 2.17,
   "anchor_low": 2.06,
@@ -934,7 +934,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 24.3,
+  "vol_x": 24.5,
   "peak_usd": 53205,
   "last_eval_ms": 1788187680000,
   "pulse_ms": 1788189360000,
@@ -1521,7 +1521,7 @@
    "M30"
   ],
   "updates": 1,
-  "vol_x": 12.0,
+  "vol_x": 12.1,
   "peak_usd": 934537,
   "last_eval_ms": 1788185160000,
   "pulse_ms": 1788189420000,
@@ -2152,7 +2152,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 3.8,
+  "vol_x": 3.9,
   "peak_usd": 2067933,
   "last_eval_ms": 1788183060000,
   "pulse_ms": 1788189420000,
