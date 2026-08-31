@@ -541,7 +541,7 @@
  },
  "LIQ:MEDS": {
   "anchor_ms": 1788179040000,
-  "last_ms": 1788198780000,
+  "last_ms": 1788198840000,
   "sent": [
    "M1",
    "M5",
@@ -551,7 +551,7 @@
   "vol_x": 49.7,
   "peak_usd": 803932,
   "last_eval_ms": 1788179040000,
-  "pulse_ms": 1788198780000,
+  "pulse_ms": 1788198840000,
   "anchor_price": 1.29,
   "anchor_open": 1.195,
   "anchor_low": 1.1,
@@ -1977,7 +1977,7 @@
  },
  "LIQ:KXIN": {
   "anchor_ms": 1788184800000,
-  "last_ms": 1788198480000,
+  "last_ms": 1788198840000,
   "sent": [
    "M1",
    "M5",
@@ -1987,7 +1987,7 @@
   "vol_x": 9.0,
   "peak_usd": 45677,
   "last_eval_ms": 1788184800000,
-  "pulse_ms": 1788198480000,
+  "pulse_ms": 1788198840000,
   "anchor_price": 1.55,
   "anchor_open": 1.47,
   "anchor_low": 1.47,
