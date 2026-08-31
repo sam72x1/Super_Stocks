@@ -50,6 +50,15 @@ on:
     - cron: "21 13 * * 1-5"   # ⟶ open-b (احتياطُ الجرس)
     - cron: "21 18 * * 1-5"   # ⟶ post-b (احتياطُ ما قبل الإغلاق)
 
+    # 🛟 **إصلاح 2026-08-31 — سُلّم تأخّر:** رادار الانطلاق المقرر 02:11 UTC
+    #    بدأ اليوم 08:35 (≈384د تأخّر)، بينما تشغيلات هذا العامل المبكرة لم تصل.
+    #    نضيف فتحات أسبق؛ إن وصلت قبل جلسة نيويورك يخرج السكربت بحارس «لا جلسة»،
+    #    وإن أخّرها GitHub تهبط داخل البريماركت/السوق وتتحول إلى عامل حي كامل.
+    #    نفس منطق الدخول ونفس الدِدوب — لا تغيير في شروط الأسهم أو الرسائل.
+    - cron: "21 0,2,4 * * 1-5" # ⟶ delay-ladder
+    # بذرة مساء اليوم السابق؛ مفيدة خصوصًا للاثنين عند تأخّر شديد (~10س).
+    - cron: "21 22 * * 0-4"    # ⟶ prev-day seed
+
 # مجموعةُ تزامنٍ مستقلّة: لا يكتب قائمةَ الفرز فلا يزاحم `super-stocks-state`.
 concurrency:
   group: super-stocks-operator-entry-${{ github.event.schedule || 'manual' }}
@@ -90,6 +99,8 @@ jobs:
                 || (github.event.schedule == '21 8 * * 1-5' && 'pre-b')
                 || (github.event.schedule == '21 13 * * 1-5' && 'open-b')
                 || (github.event.schedule == '21 18 * * 1-5' && 'post-b')
+                || (github.event.schedule == '21 0,2,4 * * 1-5' && 'delay-ladder')
+                || (github.event.schedule == '21 22 * * 0-4' && 'prev-day-seed')
                 || 'manual' }}
           OE_INTERVAL: ${{ github.event.inputs.interval }}
           OE_BUDGET_MIN: ${{ github.event.inputs.budget }}
