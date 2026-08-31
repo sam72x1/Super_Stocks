@@ -292,7 +292,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 3.1,
+  "vol_x": 3.0,
   "peak_usd": 17836,
   "last_eval_ms": 1788203040000,
   "pulse_ms": 1788212400000,
@@ -584,7 +584,7 @@
  },
  "LIQ:MEDS": {
   "anchor_ms": 1788179040000,
-  "last_ms": 1788212400000,
+  "last_ms": 1788212460000,
   "sent": [
    "M1",
    "M5",
@@ -594,7 +594,7 @@
   "vol_x": 49.7,
   "peak_usd": 803932,
   "last_eval_ms": 1788179040000,
-  "pulse_ms": 1788212400000,
+  "pulse_ms": 1788212460000,
   "anchor_price": 1.29,
   "anchor_open": 1.195,
   "anchor_low": 1.1,
@@ -1034,7 +1034,7 @@
  "LIQ:TRUG": {
   "last_eval_ms": 1788174840000,
   "anchor_ms": 1787947740000,
-  "last_ms": 1788212400000,
+  "last_ms": 1788212460000,
   "sent": [
    "M1",
    "M5",
@@ -1043,7 +1043,7 @@
   "updates": 1,
   "vol_x": 127.3,
   "peak_usd": 238941,
-  "pulse_ms": 1788212400000,
+  "pulse_ms": 1788212460000,
   "anchor_price": 0.6102,
   "anchor_low": 0.5101,
   "k2": {
@@ -2088,7 +2088,7 @@
  },
  "LIQ:KXIN": {
   "anchor_ms": 1788184800000,
-  "last_ms": 1788212220000,
+  "last_ms": 1788212460000,
   "sent": [
    "M1",
    "M5",
@@ -2098,7 +2098,7 @@
   "vol_x": 9.0,
   "peak_usd": 45677,
   "last_eval_ms": 1788184800000,
-  "pulse_ms": 1788212220000,
+  "pulse_ms": 1788212460000,
   "anchor_price": 1.55,
   "anchor_open": 1.47,
   "anchor_low": 1.47,
@@ -2127,7 +2127,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 4.4,
+  "vol_x": 4.6,
   "peak_usd": 58156,
   "last_eval_ms": 1788199860000,
   "pulse_ms": 1788206340000,
