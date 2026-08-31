@@ -39,6 +39,15 @@ on:
     #    إضافيةٍ = ‏12 فتحةً/يوم ⇒ ‏≈3 تشغيلاتٍ فعلية بمعدّل التسليم المقيس.
     - cron: "13,43 8-23 * * 1-5"
     - cron: "28,58 8-23 * * 1-5"
+
+    # 🛟 **إصلاح 2026-08-31 — سُلّم تأخّر للكرون:** اليوم لم تصل أي فتحة من
+    #    08:13→10:43 UTC، بينما رادار الانطلاق المقرر 02:11 لم يبدأ إلا 08:35
+    #    (≈384د تأخّر). لذلك نزرع فتحات قبل النافذة؛ إن وصلت مبكرًا تُغلق بالبوابة
+    #    أدناه بلا فحص أو تنبيه، وإن أخّرها GitHub عدة ساعات تهبط داخل 08–23 UTC.
+    #    لا تغيير في شروط الأسهم أو الإرسال — جدولة فقط.
+    - cron: "13 0,2,4,6 * * 1-5"
+    # بذرة الاثنين ضد تأخّرٍ شديد يبدأ من مساء الأحد؛ الوصول الفوري يوم الأحد يُغلق.
+    - cron: "13 22 * * 0"
   workflow_dispatch: {}
 
 # مجموعة تزامن مشتركة مع daily_screener: كلاهما يكتب weekly_watchlist.json،
@@ -55,19 +64,42 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Delay-ladder window gate
+        id: gate
+        shell: bash
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          run=1
+          if [[ "$SCHEDULE" == "13 0,2,4,6 * * 1-5" || "$SCHEDULE" == "13 22 * * 0" ]]; then
+            hour=$((10#$(date -u +%H)))
+            dow=$(date -u +%u)
+            # فتحات السُلّم لا تفحص بياناتٍ بايتة: تعمل فقط داخل نافذة المراقبة
+            # الفعلية وفي يوم عمل UTC. وصولها مبكرًا = نجاح رخيص بلا أي تنبيه.
+            if (( hour < 8 || hour > 23 || dow > 5 )); then
+              run=0
+            fi
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          echo "delay-ladder gate: run=$run schedule='$SCHEDULE' utc=$(date -u +%FT%TZ)"
+
       - name: Checkout
+        if: steps.gate.outputs.run == '1'
         uses: actions/checkout@v4
 
       - name: Setup Python
+        if: steps.gate.outputs.run == '1'
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip          # 🧊 خطة 025
 
       - name: Install dependencies
+        if: steps.gate.outputs.run == '1'
         run: pip install -r requirements.txt
 
       - name: Monitor pullback list
+        if: steps.gate.outputs.run == '1'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
