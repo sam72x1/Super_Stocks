@@ -75,7 +75,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 22.3,
+  "vol_x": 22.7,
   "peak_usd": 962563,
   "last_eval_ms": 1788183420000,
   "pulse_ms": 1788187140000,
@@ -616,7 +616,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 19.7,
+  "vol_x": 20.0,
   "peak_usd": 214256,
   "last_eval_ms": 1788183060000,
   "pulse_ms": 1788187140000,
@@ -907,9 +907,9 @@
    "M5",
    "M30"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 3.9,
-  "peak_usd": 80748,
+  "peak_usd": 2308155,
   "pulse_ms": 1788187140000,
   "anchor_price": 2.17,
   "anchor_low": 2.06,
@@ -1496,7 +1496,7 @@
    "M30"
   ],
   "updates": 1,
-  "vol_x": 12.0,
+  "vol_x": 12.1,
   "peak_usd": 934537,
   "last_eval_ms": 1788185160000,
   "pulse_ms": 1788187140000,
@@ -2127,7 +2127,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 3.8,
+  "vol_x": 3.9,
   "peak_usd": 2067933,
   "last_eval_ms": 1788183060000,
   "pulse_ms": 1788187140000,
@@ -2307,5 +2307,6 @@
  "LIQ:XCH": {
   "last_eval_ms": 1788187140000,
   "date": "2026-08-31"
- }
+ },
+ "KXIN": "2026-08-31"
 }
