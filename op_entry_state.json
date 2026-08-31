@@ -271,7 +271,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 3.1,
+  "vol_x": 3.0,
   "peak_usd": 17836,
   "last_eval_ms": 1788203040000,
   "pulse_ms": 1788211140000,
@@ -511,7 +511,7 @@
   "date": "2026-08-31"
  },
  "LIQ:AIIO": {
-  "last_eval_ms": 1788211020000,
+  "last_eval_ms": 1788211200000,
   "date": "2026-08-31"
  },
  "LIQ:CUPR": {
@@ -531,7 +531,7 @@
   "date": "2026-08-28"
  },
  "LIQ:DARE": {
-  "last_eval_ms": 1788210780000,
+  "last_eval_ms": 1788211200000,
   "date": "2026-08-31"
  },
  "LIQ:GIPR": {
@@ -563,7 +563,7 @@
  },
  "LIQ:MEDS": {
   "anchor_ms": 1788179040000,
-  "last_ms": 1788211140000,
+  "last_ms": 1788211200000,
   "sent": [
    "M1",
    "M5",
@@ -573,7 +573,7 @@
   "vol_x": 49.7,
   "peak_usd": 803932,
   "last_eval_ms": 1788179040000,
-  "pulse_ms": 1788211140000,
+  "pulse_ms": 1788211200000,
   "anchor_price": 1.29,
   "anchor_open": 1.195,
   "anchor_low": 1.1,
@@ -851,7 +851,7 @@
   "date": "2026-08-31"
  },
  "LIQ:TWG": {
-  "last_eval_ms": 1788210720000,
+  "last_eval_ms": 1788211200000,
   "date": "2026-08-31"
  },
  "LIQ:CALC": {
@@ -1394,7 +1394,7 @@
   "date": "2026-08-28"
  },
  "LIQ:XAIR": {
-  "last_eval_ms": 1788211080000,
+  "last_eval_ms": 1788211200000,
   "date": "2026-08-31"
  },
  "LIQ:TREO": {
@@ -1746,7 +1746,7 @@
  },
  "LIQ:DCX": {
   "anchor_ms": 1788204780000,
-  "last_ms": 1788206340000,
+  "last_ms": 1788210540000,
   "sent": [
    "M1",
    "M5"
@@ -1755,7 +1755,7 @@
   "vol_x": 10.6,
   "peak_usd": 32244,
   "last_eval_ms": 1788204840000,
-  "pulse_ms": 1788206340000,
+  "pulse_ms": 1788210540000,
   "anchor_price": 0.7,
   "anchor_open": 0.6414,
   "anchor_low": 0.6303,
@@ -2067,7 +2067,7 @@
  },
  "LIQ:KXIN": {
   "anchor_ms": 1788184800000,
-  "last_ms": 1788211080000,
+  "last_ms": 1788211200000,
   "sent": [
    "M1",
    "M5",
@@ -2077,7 +2077,7 @@
   "vol_x": 9.0,
   "peak_usd": 45677,
   "last_eval_ms": 1788184800000,
-  "pulse_ms": 1788211080000,
+  "pulse_ms": 1788211200000,
   "anchor_price": 1.55,
   "anchor_open": 1.47,
   "anchor_low": 1.47,
@@ -2106,7 +2106,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 4.4,
+  "vol_x": 4.6,
   "peak_usd": 58156,
   "last_eval_ms": 1788199860000,
   "pulse_ms": 1788206340000,
