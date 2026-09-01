@@ -1799,15 +1799,15 @@
  },
  "LIQ:KALA": {
   "anchor_ms": 1788263100000,
-  "last_ms": 1788263100000,
+  "last_ms": 1788263160000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 286.3,
-  "peak_usd": 170307,
+  "peak_usd": 1168297,
   "last_eval_ms": 1788263160000,
-  "pulse_ms": 1788263100000,
+  "pulse_ms": 1788263160000,
   "anchor_price": 0.82,
   "anchor_open": 0.705,
   "anchor_low": 0.6902,
