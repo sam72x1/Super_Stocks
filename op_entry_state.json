@@ -1201,7 +1201,7 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 15.5,
+  "vol_x": 15.3,
   "peak_usd": 2995748,
   "last_eval_ms": 1788269640000,
   "pulse_ms": 1788279900000,
@@ -1641,7 +1641,7 @@
   "updates": 0,
   "vol_x": 13.4,
   "peak_usd": 133734,
-  "last_eval_ms": 1788279000000,
+  "last_eval_ms": 1788279060000,
   "pulse_ms": 1788279660000,
   "anchor_price": 3.19,
   "anchor_open": 2.99,
@@ -2024,7 +2024,7 @@
    "M30"
   ],
   "updates": 2,
-  "vol_x": 13.7,
+  "vol_x": 13.1,
   "peak_usd": 1406267,
   "last_eval_ms": 1788269640000,
   "pulse_ms": 1788279900000,
