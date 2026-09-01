@@ -803,5 +803,35 @@
   "usd_eff": 1804,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "SSM",
+  "date": "2026-09-01",
+  "sustain_min": 387,
+  "operator_ok": true,
+  "fired_at": "2026-09-01T20:00:33Z",
+  "break_level": 2.71,
+  "price": 3.76,
+  "vol_x": 3.4,
+  "usd": 129660,
+  "candle_class": "operator",
+  "usd_eff": 129660,
+  "candle_class_eff": "operator",
+  "frames_usd": null
+ },
+ {
+  "symbol": "CLIK",
+  "date": "2026-09-01",
+  "sustain_min": 1,
+  "operator_ok": false,
+  "fired_at": "2026-09-01T20:00:33Z",
+  "break_level": 1.4,
+  "price": 1.44,
+  "vol_x": 3.3,
+  "usd": 4668,
+  "candle_class": "group",
+  "usd_eff": 4668,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
