@@ -24,10 +24,10 @@
     }
    ],
    "status": "active",
-   "last_price": 1.0601,
-   "last_bar": "2026-08-28",
-   "dollar_vol": 175436.0,
-   "move_pct": 5.0
+   "last_price": 1.05,
+   "last_bar": "2026-08-31",
+   "dollar_vol": 177324.0,
+   "move_pct": 4.0
   },
   {
    "symbol": "IPW",
@@ -53,7 +53,10 @@
     }
    ],
    "status": "active",
-   "last_price": 1.96
+   "last_price": 1.96,
+   "last_bar": "2026-08-31",
+   "dollar_vol": 2013114.0,
+   "move_pct": 0.0
   },
   {
    "symbol": "RCON",
@@ -79,7 +82,10 @@
     }
    ],
    "status": "active",
-   "last_price": 1.54
+   "last_price": 1.54,
+   "last_bar": "2026-08-31",
+   "dollar_vol": 5476404.0,
+   "move_pct": -0.0
   }
  ],
  "added_last": [
