@@ -2274,3 +2274,6 @@
 {"key": "control|2026-08-25|ACGC", "hunter": "control", "session": "2026-08-25", "symbol": "ACGC", "kind": "control", "ref_close": null, "fwd": 40, "outcome": null}
 {"key": "control|2026-08-25|MBBC", "hunter": "control", "session": "2026-08-25", "symbol": "MBBC", "kind": "control", "ref_close": 15.050000190734863, "fwd": 40, "outcome": null}
 {"key": "control|2026-08-25|OSS", "hunter": "control", "session": "2026-08-25", "symbol": "OSS", "kind": "control", "ref_close": 11.109999656677246, "fwd": 40, "outcome": null}
+{"key": "split|2026-08-31|IPW", "hunter": "split", "session": "2026-08-31", "symbol": "IPW", "kind": "candidate", "ref_close": 1.9600000381469727, "fwd": 40, "outcome": null, "price": 1.96, "float": 65069.0, "half": 1.98, "ref": 3.95}
+{"key": "split|2026-08-31|RCON", "hunter": "split", "session": "2026-08-31", "symbol": "RCON", "kind": "candidate", "ref_close": 1.5399999618530273, "fwd": 40, "outcome": null, "price": 1.54, "float": 317842.0, "half": 2.19, "ref": 4.38}
+{"key": "split|2026-08-31|CHSN", "hunter": "split", "session": "2026-08-31", "symbol": "CHSN", "kind": "candidate", "ref_close": 1.0499999523162842, "fwd": 40, "outcome": null, "price": 1.05, "float": 387547.0, "half": 0.94, "ref": 1.88}

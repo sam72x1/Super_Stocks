@@ -28,8 +28,63 @@
    "last_bar": "2026-08-28",
    "dollar_vol": 175436.0,
    "move_pct": 5.0
+  },
+  {
+   "symbol": "IPW",
+   "added": "2026-08-31",
+   "ref_price": 1.96,
+   "half": 1.98,
+   "ref": 3.95,
+   "event_kind": "split",
+   "split_date": "2026-08-07",
+   "float": 65069,
+   "avail": 100000,
+   "borrow_fee": 35.09,
+   "stop": 0.33,
+   "hold_above": 2.0,
+   "targets": [
+    {
+     "price": 2.11,
+     "src": "رأس شمعة حمراء"
+    },
+    {
+     "price": 2.27,
+     "src": "رأس شمعة حمراء"
+    }
+   ],
+   "status": "active",
+   "last_price": 1.96
+  },
+  {
+   "symbol": "RCON",
+   "added": "2026-08-31",
+   "ref_price": 1.54,
+   "half": 2.19,
+   "ref": 4.38,
+   "event_kind": "split",
+   "split_date": "2026-08-18",
+   "float": 317842,
+   "avail": 150000,
+   "borrow_fee": 193.91,
+   "stop": 0.03,
+   "hold_above": 1.74,
+   "targets": [
+    {
+     "price": 1.81,
+     "src": "رأس شمعة حمراء"
+    },
+    {
+     "price": 2.0,
+     "src": "مقاومة"
+    }
+   ],
+   "status": "active",
+   "last_price": 1.54
   }
  ],
- "added_last": [],
+ "added_last": [
+  "IPW",
+  "RCON"
+ ],
  "pruned": []
 }
