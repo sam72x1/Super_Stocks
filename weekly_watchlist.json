@@ -2288,7 +2288,7 @@
    "live_alert": {
     "breakout": "2026-08-31",
     "buyzone": "2026-08-28",
-    "premarket": "2026-08-31"
+    "premarket": "2026-09-01"
    },
    "borrow_hist": [
     [
@@ -2658,7 +2658,8 @@
    "max_gain_pct": 16.8,
    "last_price": 2.68,
    "live_alert": {
-    "breakout": "2026-08-24"
+    "breakout": "2026-08-24",
+    "premarket": "2026-09-01"
    },
    "borrow_hist": [
     [
