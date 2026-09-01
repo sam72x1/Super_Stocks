@@ -1192,7 +1192,7 @@
    "M5"
   ],
   "updates": 0,
-  "vol_x": 15.3,
+  "vol_x": 15.5,
   "peak_usd": 2995748,
   "last_eval_ms": 1788269640000,
   "pulse_ms": 1788271260000,
@@ -1750,7 +1750,7 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 3,
   "vol_x": 5.6,
   "peak_usd": 7149160,
   "last_eval_ms": 1788262260000,
@@ -1934,9 +1934,9 @@
    "M1",
    "M5"
   ],
-  "updates": 1,
-  "vol_x": 13.1,
-  "peak_usd": 431717,
+  "updates": 2,
+  "vol_x": 13.7,
+  "peak_usd": 1406267,
   "last_eval_ms": 1788269640000,
   "pulse_ms": 1788271260000,
   "anchor_price": 3.555,
