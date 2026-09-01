@@ -489,7 +489,7 @@
   "updates": 0,
   "vol_x": 14.6,
   "peak_usd": 170737,
-  "last_eval_ms": 1788270120000,
+  "last_eval_ms": 1788270180000,
   "pulse_ms": 1788271740000,
   "anchor_price": 18.16,
   "anchor_open": 16.52,
@@ -799,7 +799,7 @@
   "updates": 1,
   "vol_x": 3.8,
   "peak_usd": 120415,
-  "last_eval_ms": 1788270360000,
+  "last_eval_ms": 1788270420000,
   "pulse_ms": 1788272220000,
   "anchor_price": 4.64,
   "anchor_open": 4.35,
@@ -910,7 +910,7 @@
   "updates": 0,
   "vol_x": 3.9,
   "peak_usd": 54024,
-  "last_eval_ms": 1788270540000,
+  "last_eval_ms": 1788270600000,
   "pulse_ms": 1788271920000,
   "anchor_price": 5.94,
   "anchor_open": 5.41,
@@ -1197,7 +1197,7 @@
   "updates": 0,
   "vol_x": 15.5,
   "peak_usd": 2995748,
-  "last_eval_ms": 1788269580000,
+  "last_eval_ms": 1788269640000,
   "pulse_ms": 1788272220000,
   "anchor_price": 8.385,
   "anchor_open": 7.89,
@@ -1864,7 +1864,8 @@
   "date": "2026-09-01"
  },
  "LIQ:SLSN": {
-  "date": "2026-09-01"
+  "date": "2026-08-31",
+  "last_eval_ms": 1788206340000
  },
  "LIQ:NIKI": {
   "last_eval_ms": 1788272040000,
@@ -1970,7 +1971,7 @@
   "updates": 2,
   "vol_x": 13.7,
   "peak_usd": 1406267,
-  "last_eval_ms": 1788269580000,
+  "last_eval_ms": 1788269640000,
   "pulse_ms": 1788272220000,
   "anchor_price": 3.555,
   "anchor_open": 3.3101,
