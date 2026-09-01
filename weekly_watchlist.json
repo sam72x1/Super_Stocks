@@ -803,7 +803,7 @@
    "hit": "t2",
    "hit_date": "2026-08-27",
    "max_gain_pct": 69.8,
-   "last_price": 3.425,
+   "last_price": 3.4594,
    "live_alert": {
     "buyzone": "2026-08-24",
     "breakout": "2026-08-31"
@@ -2284,7 +2284,7 @@
    "hit": "t2",
    "hit_date": "2026-08-31",
    "max_gain_pct": 52.5,
-   "last_price": 1.8775,
+   "last_price": 1.8799,
    "live_alert": {
     "breakout": "2026-08-31",
     "buyzone": "2026-08-28",
@@ -2657,7 +2657,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 16.8,
-   "last_price": 3.9373,
+   "last_price": 3.97,
    "live_alert": {
     "breakout": "2026-09-01",
     "premarket": "2026-09-01"
@@ -5312,7 +5312,7 @@
    "hit": "t2",
    "hit_date": "2026-08-28",
    "max_gain_pct": 37.7,
-   "last_price": 0.8729,
+   "last_price": 0.84,
    "live_alert": {
     "buyzone": "2026-08-21",
     "break": "2026-08-18",
@@ -6081,7 +6081,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.5,
-   "last_price": 7.685,
+   "last_price": 7.74,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -8765,7 +8765,7 @@
    "hit": "t1",
    "hit_date": "2026-08-19",
    "max_gain_pct": 15.8,
-   "last_price": 0.887,
+   "last_price": 0.8854,
    "live_alert": {
     "breakout": "2026-08-19"
    },
@@ -9149,7 +9149,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 183.3,
-   "last_price": 1.64,
+   "last_price": 1.645,
    "live_alert": {
     "breakout": "2026-08-14",
     "buyzone": "2026-08-12",
@@ -9960,9 +9960,9 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 1.88,
+   "last_price": 1.9,
    "live_alert": {
-    "breakout": "2026-08-26",
+    "breakout": "2026-09-01",
     "dump": "2026-08-28"
    },
    "spikes": [
@@ -12991,7 +12991,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.9,
-   "last_price": 0.8017,
+   "last_price": 0.8014,
    "live_alert": {
     "breakout": "2026-08-25",
     "buyzone": "2026-09-01",
@@ -13735,7 +13735,7 @@
    "hit": "t2",
    "hit_date": "2026-08-19",
    "max_gain_pct": 262.2,
-   "last_price": 6.115,
+   "last_price": 6.09,
    "live_alert": {
     "premarket": "2026-08-20",
     "breakout": "2026-08-21",
@@ -20138,7 +20138,7 @@
    "sector": "Financial Services",
    "country": "United States",
    "float": 72886215,
-   "last_price": 23.87,
+   "last_price": 23.92,
    "status": "watching",
    "triggered_date": null
   },
@@ -20582,7 +20582,7 @@
    "sector": "Healthcare",
    "country": "Australia",
    "float": 1172062,
-   "last_price": 1.195,
+   "last_price": 1.19,
    "status": "watching",
    "triggered_date": null
   },
