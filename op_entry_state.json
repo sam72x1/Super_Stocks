@@ -1632,15 +1632,15 @@
  },
  "LIQ:UPC": {
   "anchor_ms": 1788300540000,
-  "last_ms": 1788300540000,
+  "last_ms": 1788300600000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 93.7,
-  "peak_usd": 158448,
+  "peak_usd": 198827,
   "last_eval_ms": 1788300600000,
-  "pulse_ms": 1788300540000,
+  "pulse_ms": 1788300600000,
   "anchor_price": 5.22,
   "anchor_open": 4.732,
   "anchor_low": 4.65,
