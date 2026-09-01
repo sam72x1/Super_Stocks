@@ -18506,13 +18506,60 @@ check("🩹 PB6 موصولةٌ فعلًا في `run_daily_watchlist` (AST لا �
       f"وُجدت={'repair_stale_pullback' in _pb_calls}")
 
 # ── ③ كرونُ مراقب الارتداد: الفتحاتُ تضاعفت ────────────────────────────────
+# 🔴 **إقرارٌ مؤرَّخ 2026-09-01 — القفلُ أمسك تغييرَ المالك فأدّى عملَه:**
+#    كوميت `e870f4fc` (‏08-31) أضاف **سُلَّمَ تأخّرٍ** كرونيًّا بعد أن أسقط
+#    GitHub فتحاتِ يومٍ كامل. **والقفلُ يشتدّ لا يُرخى:** كان يعدّ «فتحتان»
+#    وحدَه — والعدُّ **يمنع كلَّ إضافةٍ ولا يحرس شيئًا** عند الإضافة المشروعة.
+#    الآن يحرس **الثابتَ الحقيقيّ** بثلاث طبقات: ① الفتحتان المقيستان
+#    **باقيتان نصًّا** ② وكلُّ فتحةٍ زائدةٍ **مذكورةٌ حرفيًّا في شرط البوّابة**
+#    (فلا تُضاف فتحةٌ غيرُ مبوَّبة صامتة) ③ **ووصولُها في وقتها يُغلَق دائمًا**
+#    (ساعتُها خارج 8-23 أو يومُها خارج 1-5) ⇒ **الإيقاعُ المقيس لا يتضاعف إلّا
+#    حين يكون GitHub قد أسقط الأصل** — وهو غرضُ السُلَّم بعينه.
 _cr = open(".github/workflows/pullback_monitor.yml", encoding="utf-8").read()
 _cr_lines = [ln.strip() for ln in _cr.splitlines()
              if ln.strip().startswith("- cron:")]
-check("⏰ CR1 فتحتان كرونيّتان لا واحدة (مضاعفةُ التسليم المقيس 27%)",
-      len(_cr_lines) == 2 and any("13,43" in x for x in _cr_lines)
-      and any("28,58" in x for x in _cr_lines),
-      f"crons={_cr_lines}")
+_cr_exprs = _re10.findall(r'- cron: "([^"]+)"', _cr)
+_CR_BASE = {"13,43 8-23 * * 1-5", "28,58 8-23 * * 1-5"}
+_cr_extra = [c for c in _cr_exprs if c not in _CR_BASE]
+_cr_gate = _cr.split("Delay-ladder window gate")[-1].split("- name:")[0]
+
+
+def _cr_field(tok, lo, hi):
+    """يفكّ حقلَ كرونٍ إلى مجموعةِ قيمه (يكفي `*` والقوائمَ والمدَيات)."""
+    if tok == "*":
+        return set(range(lo, hi + 1))
+    out = set()
+    for part in tok.split(","):
+        if "-" in part:
+            a, b = part.split("-")
+            out |= set(range(int(a), int(b) + 1))
+        else:
+            out.add(int(part))
+    return out
+
+
+def _cr_always_gated(expr):
+    """هل تُغلق البوّابةُ هذي الفتحةَ عند وصولها **في وقتها**؟
+    البوّابةُ تُغلق حين `hour < 8 or hour > 23 or dow > 5`.
+    🔴 **ووحدةُ اليوم تُحوَّل قبل المقارنة:** الكرونُ يعدّ **‏0=الأحد** و
+    `date -u +%u` يعدّ **‏7=الأحد** ⇒ مقارنتُهما خامّتين تجعل `* * 0` تبدو
+    غيرَ مبوَّبةٍ وهي مبوَّبة. (‏وقع في هذا القفل نفسِه 2026-09-01 —
+    صنفُ «رقمان يُقارَنان يُدوَّران/يُوحَّدان بالوحدة نفسِها».)"""
+    f = expr.split()
+    if len(f) != 5:
+        return False
+    hours = _cr_field(f[1], 0, 23)
+    dows = {7 if d in (0, 7) else d for d in _cr_field(f[4], 0, 7)}
+    return all(h < 8 or h > 23 or d > 5 for h in hours for d in dows)
+
+
+check("⏰ CR1 الفتحتان المقيستان باقيتان · وكلُّ زائدةٍ مبوَّبةٌ ومُغلَقةٌ في "
+      "وقتها (‏العدُّ يمنع الإضافةَ ولا يحرس — والثابتُ هو الإيقاع)",
+      _CR_BASE <= set(_cr_exprs)
+      and all(f'"{c}"' in _cr_gate for c in _cr_extra)
+      and all(_cr_always_gated(c) for c in _cr_extra)
+      and "run=0" in _cr_gate and "hour < 8 || hour > 23 || dow > 5" in _cr_gate,
+      f"أساس={sorted(_CR_BASE & set(_cr_exprs))} · زائدة={_cr_extra}")
 
 # ── 🚪 فتحُ الباب: المحمولُ «exited» لا يحجز خانة (أمرُ المالك 2026-08-06) ────
 import ast as _od_ast
@@ -21382,16 +21429,26 @@ _oel_crons = _re10.findall(r'- cron: "([^"]+)"', _oel_wf)
 #    `pre` و`open` يوم 2026-08-28 (‏صفرُ عاملٍ حيٍّ من 01:13 إلى 18:32 UTC).
 #    **والقفلُ يشتدّ لا يُرخى:** ستّةٌ **كلُّها** موصولةٌ **بقيمٍ متمايزة**
 #    (فلا يسقط كرونٌ إلى `manual` صامتًا) · والثلاثةُ الأصلية **باقيةٌ نصًّا**.
-_oel_segs = [_c for _c in _oel_crons if f"'{_c}'" in _oel_wf]
-check("⚡ OEL6 ستّةُ كرونات · كلُّها **موصولةٌ** بقيمِ `OE_SEGMENT` متمايزة "
-      "(وإلّا صار مدخلًا ميّتًا — بصمةُ `BT_CANDLE`)",
-      len(_oel_crons) == 6 and len(_oel_segs) == 6
-      and len(set(_oel_crons)) == 6
-      and {"1 6 * * 1-5", "31 11 * * 1-5", "1 17 * * 1-5"} <= set(_oel_crons)
-      and len({_re10.search(r"== '" + _re10.escape(_c) + r"' && '([^']+)'",
-                            _oel_wf).group(1) for _c in _oel_crons}) == 6
+# 🔴 **إقرارٌ مؤرَّخ 2026-09-01 — القفلُ أمسك تغييرَ المالك فأدّى عملَه:**
+#    كوميت `ee1b1ea5` (‏08-31) أضاف كرونَي **سُلَّم تأخّرٍ** بعد إسقاطِ GitHub.
+#    **والقفلُ يشتدّ لا يُرخى:** «ستّةٌ بالضبط» عدٌّ **يمنع الإضافةَ ولا يحرس
+#    الثابت**؛ الثابتُ أن **لا كرونَ يسقط إلى `manual` صامتًا**. فصار يُلزم:
+#    ① الثلاثةُ الأصلية والثلاثةُ الاحتياطية **باقيةٌ نصًّا** ② و**كلُّ** كرونٍ
+#    في الملفّ — مهما بلغ عددُه — موصولٌ بقيمةٍ **متمايزة** ③ ولا قيمةَ تتكرّر.
+#    ⇒ يحرس **أيَّ** عددٍ بدل أن يمنع أيَّ عدد.
+_OEL_BASE = {"1 6 * * 1-5", "31 11 * * 1-5", "1 17 * * 1-5"}
+_OEL_BKUP = {"21 8 * * 1-5", "21 13 * * 1-5", "21 18 * * 1-5"}
+_oel_map = {_c: (_re10.search(r"== '" + _re10.escape(_c) + r"' && '([^']+)'",
+                              _oel_wf) or [None, None])[1]
+            for _c in _oel_crons}
+check("⚡ OEL6 كلُّ كرونٍ **موصولٌ** بقيمةِ `OE_SEGMENT` متمايزة ولا يسقط إلى "
+      "`manual` صامتًا (‏العدُّ يمنع الإضافةَ ولا يحرس — والثابتُ هو الوصل)",
+      len(_oel_crons) >= 6 and len(set(_oel_crons)) == len(_oel_crons)
+      and (_OEL_BASE | _OEL_BKUP) <= set(_oel_crons)
+      and all(_oel_map.values())
+      and len(set(_oel_map.values())) == len(_oel_crons)
       and "OE_SEGMENT" in _oel_wf and "POLYGON_API_KEY" in _oel_wf,
-      str(_oel_crons))
+      str(_oel_map))
 check("🔒 OEL7 سقفُ الجوب فوق سقف السكربت (‏345 مقابل 330) فينتهي رشيقًا",
       "timeout-minutes: 345" in _oel_wf and "MAX_RUNTIME_MIN = 330" in _oel_src)
 # 🔒 OEL8 — **والمراقبُ الدوريّ يبقى شبكةَ أمان** (لا يُلغى بالعامل السريع)
