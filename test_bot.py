@@ -8295,6 +8295,46 @@ check("📐🔒 TRN1ج عيّنةٌ **تفرّق**: الاسترجاعُ بال�
        and _trn_a0 != _trn_rt),
       f"سليم={_trn_L_ok} · مسترجَع={_trn_L_bad}")
 
+# 🔒 TRN1د — **نقطةُ النداء الحيّة** (‏أُضيف 2026-09-01 بعد أن **نجت طفرةٌ**):
+#    🔴 `TRN1`/`TRN1ب`/`TRN1ج` ثلاثتُها تحرس **الدالّةَ** `anchor_at` — وطفرةٌ
+#    استبدلت **سطرَ ندائها** في `arms_for` باسترجاعٍ بالقسمة (‏`stop / 0.93`)
+#    **نجت من الثلاثة**: جسمُ الدالّة سليمٌ فيمرّ `TRN1ب`، والقفلان الآخران
+#    ينادِيانها **مباشرةً** فلا يمرّان بالمُنادي أصلًا. ⇒ **«الميزةُ موصولة»
+#    تُثبَت من نقطة النداء لا من وجود الدالّة** (‏`wire-check` — والدرسُ وقع
+#    في الجلسة التي وُثِّق فيها). فيُلزم هنا: `arms_for` تُسند `anchor` من
+#    **نداءِ `anchor_at` وحدَه** (لا تعبيرَ حسابيّ) · وصفرُ قسمةٍ في جسمها.
+_trn_ok1d = False
+_trn_why1d = "لم تُحمَّل"
+if _TRN is not None:
+    _trn_af = next((n for n in _trn_ast.walk(_trn_ast.parse(_trn_src))
+                    if isinstance(n, _trn_ast.FunctionDef)
+                    and n.name == "arms_for"), None)
+    if _trn_af is not None:
+        _trn_asg = [n for n in _trn_ast.walk(_trn_af)
+                    if isinstance(n, _trn_ast.Assign)
+                    and any(getattr(t, "id", None) == "anchor" for t in n.targets)]
+        # 🐞 **وتضييقٌ في اليوم نفسِه:** أوّلُ صياغةٍ منعت **كلَّ** قسمةٍ في
+        #    `arms_for` فسقطت على `sum(trs) / len(trs)` — وهي **متوسّطُ الدفعات
+        #    المشروع**. «قفلٌ يمنع الصحيحَ ليس أشدَّ — هو مكسور» ⇒ يُمنع
+        #    **استرجاعُ مِرساةٍ** وحدَه: قسمةٌ طرفُها الأيسرُ يذكر وقفًا أو مِرساة.
+        _trn_afdiv = [n for n in _trn_ast.walk(_trn_af)
+                      if isinstance(n, _trn_ast.BinOp)
+                      and isinstance(n.op, _trn_ast.Div)
+                      and any(k in _trn_ast.dump(n.left)
+                              for k in ("stop", "anchor", "rr_stop"))]
+        _trn_ok1d = (len(_trn_asg) == 1
+                     and isinstance(_trn_asg[0].value, _trn_ast.Call)
+                     and getattr(_trn_asg[0].value.func, "id", None) == "anchor_at"
+                     and not _trn_afdiv)
+        _trn_why1d = (f"إسنادات anchor={len(_trn_asg)} · "
+                      f"نوع={type(_trn_asg[0].value).__name__ if _trn_asg else '—'} "
+                      f"· قسماتٌ في arms_for={len(_trn_afdiv)}")
+    else:
+        _trn_why1d = "arms_for غيرُ موجودة"
+check("📐🔒 TRN1د نقطةُ النداء: `arms_for` تُسند المِرساةَ من `anchor_at` وحدَها "
+      "(‏وصفرُ قسمةٍ فيها) — قفلُ الدالّةِ لا يحرس مُنادِيَها",
+      _trn_ok1d, _trn_why1d)
+
 # 🔒 TRN2 — الإزاحةُ ترفع السلّمَ فعلًا · وأدنى دفعةٍ تفارق الوقفَ (جوهرُ التجربة)
 _trn_ok2 = False
 if _TRN is not None:
