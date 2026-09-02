@@ -187,7 +187,13 @@ def report(S, rows, year, issues):
     for r in rows:
         reasons[r.get("fill") or "?"] = reasons.get(r.get("fill") or "?", 0) + 1
     _log("   📦 أسبابُ التعبئة: " + " · ".join(f"{k}={v}" for k, v in sorted(reasons.items())))
-    fil = [r for r in rows if r.get("fill") == "filled"]
+    # مجتمعُ `T-LIBVOL` = صفقاتُ الأساس **المحسومة** حصرًا (`backtest_libvol_compare`
+    # يقرأ `outcome in (win, loss)`) ⇒ يُعاد بناؤه بحرفه وإلّا سقط `LW0` على مجتمعٍ آخر
+    base = [r for r in rows if r["o0"] in ("win", "loss")]
+    fil = [r for r in base if r.get("fill") == "filled"]
+    und = sum(1 for r in rows if r["o0"] not in ("win", "loss") and r.get("fill") == "filled")
+    _log(f"   📐 مجتمعُ `T-LIBVOL`: {len(base)} محسومةً في الأساس من {len(rows)} · "
+         f"كسورٌ بسيولةٍ خارجَه (أساسٌ غيرُ محسوم) {und} — تُعَدّ ولا تدخل الأذرع")
     # `LW0`: `V1` يُعيد `libvol_result.md` بت-بت بـ`_arm_stats` نفسِها
     shaped = [{"entry_libv": r["entry_v"], "stop": r["stop_r"], "t1": r["t1_r"],
                "outcome_libv": r["oV"]} for r in fil]
@@ -240,9 +246,9 @@ def report(S, rows, year, issues):
     _log(f"   📐 الحاكم `W1 − W0` (مقترنٌ · n={len(d0)}) = {fmt(g0)} R₀ · الحدُّ +0.15")
     _log(f"   📐 الثانويّ `W1 − V1` (أثرُ الوقف وحدَه · n={len(dV)}) = {fmt(gV)} R₀")
     # §⑨ — الذراعان الوصفيّتان بالمرجع المصحَّح (لا تحكمان)
-    usec = [r for r in rows if r.get("oWc") is not None]
+    usec = [r for r in base if r.get("oWc") is not None]
     decWc = [r for r in usec if r["oWc"] in ("win", "loss")]
-    decVc = [r for r in rows if r.get("oVc") in ("win", "loss")]
+    decVc = [r for r in base if r.get("oVc") in ("win", "loss")]
     pair0c = [r for r in decWc if r["o0"] in ("win", "loss")]
     aWc2 = _agg(pair0c, "oWc", "retWc", "entry_c")
     a0c = _agg(pair0c, "o0", "ret0", "entry")
