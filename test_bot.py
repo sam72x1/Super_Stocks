@@ -36618,26 +36618,32 @@ check("🔓💧🛑 LW7 خروجُ `report`: فارغٌ ⇒ 4 · تفرّقُ ا
       _lw_rc_empty == 4 and _lw_rc_prod == 3 and _lw_rc_lw0 == 3,
       f"empty={_lw_rc_empty} prod={_lw_rc_prod} lw0={_lw_rc_lw0}")
 
-# `LW8` — 🔴 العيبُ الموثَّق في `libvol2_prereg.md §⑨`: مرجعُ العشرين في `_libvol_break`
-#    **يموت** حين يُمرَّر مصفوفةَ numpy (كما يفعل الإنتاج) ويعيش بقائمة — تفريقيٌّ على
-#    الدالّة الإنتاجيّة نفسِها. يوثّق العيبَ حتى يُحسَم إصلاحُه بقرار المالك؛ ولو أُصلح
-#    انقلب هذا القفلُ **فيُحدَّث بإقرارٍ مؤرَّخ** لا يُرخى. والأداةُ تمرّر المصفوفةَ
-#    لـ`V1`/`W1` (إعادةُ الإنتاج) والقائمةَ لـ`V1c`/`W1c` (الوصفيّ).
+# `LW8` — 🔴 كان يوثّق عيبَ `libvol2_prereg.md §⑨` (مرجعُ العشرين **يموت** على مصفوفةِ
+#    numpy) — **وانقلب عقدُه بإقرارٍ مؤرَّخ 2026-09-02 بأمر المالك «صلّح مرجع العشرين»**:
+#    المصفوفةُ والقائمةُ **تعطيان الجوابَ نفسَه** (`filled`) على نفس المدخلات، ومصفوفةٌ
+#    مرجعُها فارغٌ حقًّا ⇒ `no_volref` (فلا يكون التطابقُ عن إماتةٍ مشتركة). والأداةُ
+#    تنادي `_libvol_break` مرّتين: **`()` صراحةً** لإعادة إنتاج المنشور (‏`LW0` — المرجعُ
+#    الميّت الذي قِيس به) و`list(vol_prev)` للوصفيّ — فلا يعتمد الاستنساخُ على عيبٍ أُصلح.
 import numpy as _lw_np
 _lw_nd = S._libvol_break([1.15, 1.10, 1.55], [1000.0, 100.0, 100.0], 1.10, 20, 5.0,
                          _lw_np.array([100.0] * 20))
 _lw_li = S._libvol_break([1.15, 1.10, 1.55], [1000.0, 100.0, 100.0], 1.10, 20, 5.0,
                          [100.0] * 20)
+_lw_nd0 = S._libvol_break([1.15, 1.10, 1.55], [1000.0, 100.0, 100.0], 1.10, 20, 5.0,
+                          _lw_np.array([], dtype=float))
 _lw_af = _lw_ast.parse(_lw_src)
 _lw_calls_lb = [n for n in _lw_ast.walk(_lw_af) if isinstance(n, _lw_ast.Call)
                 and getattr(n.func, "attr", None) == "_libvol_break"]
 _lw_list_wrapped = sum(1 for c in _lw_calls_lb if c.args and isinstance(c.args[-1], _lw_ast.Call)
                        and getattr(c.args[-1].func, "id", None) == "list")
-check("🔓💧🛑 LW8 العيبُ الموثَّق: `_libvol_break` بمصفوفةِ numpy ⇒ `no_volref` وبقائمةٍ ⇒ `filled` "
-      "(نفسُ المدخلات) · والأداةُ تناديها مرّتين: مصفوفةً للإعادة وقائمةً للوصفيّ",
-      _lw_nd[0] == "no_volref" and _lw_li[0] == "filled"
-      and len(_lw_calls_lb) == 2 and _lw_list_wrapped == 1,
-      f"nd={_lw_nd} li={_lw_li} calls={len(_lw_calls_lb)} wrapped={_lw_list_wrapped}")
+_lw_empty_repro = sum(1 for c in _lw_calls_lb if c.args and isinstance(c.args[-1], _lw_ast.Tuple)
+                      and not c.args[-1].elts)
+check("🔓💧🛑 LW8 مرجعُ العشرين حيٌّ على المصفوفة (‏2026-09-02): numpy وقائمة ⇒ `filled` معًا · "
+      "ومصفوفةٌ فارغة ⇒ `no_volref` · والأداةُ تمرّر `()` صراحةً للإعادة وقائمةً للوصفيّ",
+      _lw_nd == _lw_li and _lw_nd[0] == "filled" and _lw_nd0[0] == "no_volref"
+      and len(_lw_calls_lb) == 2 and _lw_list_wrapped == 1 and _lw_empty_repro == 1,
+      f"nd={_lw_nd} li={_lw_li} nd0={_lw_nd0} calls={len(_lw_calls_lb)} "
+      f"wrapped={_lw_list_wrapped} repro={_lw_empty_repro}")
 
 _lw_y = _lw_yaml.safe_load(open(".github/workflows/libvol2.yml", encoding="utf-8"))
 _lw_on = _lw_y.get("on") or _lw_y.get(True) or {}

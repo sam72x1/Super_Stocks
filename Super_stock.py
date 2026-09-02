@@ -19736,8 +19736,14 @@ def _libvol_break(cl, vol, level, wait, mult, vol_prev=()):
     والمرجعُ عند كلّ `k` = آخرُ عشرين من `vol_prev + vol[:k]`."""
     if level is None or level <= 0:
         return ("no_level", None, None)
+    # 🔴 إصلاحٌ مؤرَّخ 2026-09-02 (أمرُ المالك «صلّح مرجع العشرين»، `libvol2_prereg.md §⑨`):
+    #   كان `(vol_prev or [])` — و`or` على مصفوفةِ numpy بأكثر من عنصرٍ يرمي `ValueError`
+    #   فيُبتلَع ويصير المرجعُ فارغًا ⇒ «متوسّطُ عشرين سابقة» لم يُنفَّذ قطّ في `T-LIBVOL`
+    #   (الإنتاجُ يمرّر `df["Volume"].iloc[i-20:i].values`). التحويلُ إلى قائمةٍ أوّلًا
+    #   يقبل المصفوفةَ والقائمةَ والصفَّ سواء؛ وأرقامُ `libvol_result.md` تُعاد بتمرير `()`.
     try:
-        prev = [float(x) for x in (vol_prev or []) if x and float(x) > 0]
+        prev = [float(x) for x in (list(vol_prev) if vol_prev is not None else [])
+                if x and float(x) > 0]
     except (TypeError, ValueError):
         prev = []
     horizon = min(int(wait), len(cl) - 1)

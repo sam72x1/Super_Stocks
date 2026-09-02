@@ -100,8 +100,11 @@ def arms_for(S, sym, df, tr, fwd, spread):
            "prod_o": tr.get("outcome"), "prod_ret": tr.get("ret_a")}
     level = S._liberation_levels(r)[0]
     row["level"] = (round(level, 4) if level else None)
+    # 🔒 إعادةُ إنتاج المنشور (`LW0`): مرجعُ ما قبل الأمام كان **ميّتًا** في `T-LIBVOL`
+    #    (§⑨) ⇒ يُعاد بتمرير `()` صراحةً — لا بالاعتماد على العيب، فقد أُصلح في الإنتاج
+    #    2026-09-02 («صلّح مرجع العشرين») والأداةُ مجمَّدةٌ على ما قِيس به المنشور (CAP15).
     fr, idx, e = S._libvol_break(cl, vo, level, S.CONFIG["BT_LIB_WAIT"],
-                                 S.CONFIG["VOL_SPIKE_MULT"], vol_prev)
+                                 S.CONFIG["VOL_SPIKE_MULT"], ())
     row["fill"] = fr
     corrected_arms(S, row, hi, lo, cl, op, vo, stop0, t1, level, vol_prev)   # §⑨ وصفيّ
     if fr != "filled":
@@ -125,8 +128,9 @@ def arms_for(S, sym, df, tr, fwd, spread):
 
 
 def corrected_arms(S, row, hi, lo, cl, op, vo, stop0, t1, level, vol_prev):
-    """§⑨ — ذراعان **وصفيّتان** بالمرجع المصحَّح (`list(vol_prev)` بدل المصفوفة
-    التي تُميت المرجع): `V1c` بوقف الأساس · `W1c` بوقف قاع شمعة الكسر.
+    """§⑨ — ذراعان **وصفيّتان** بالمرجع الحقيقيّ (عشرون سابقة — `list(vol_prev)`؛
+    كان الإنتاجُ يُميته على المصفوفة حتى إصلاح 2026-09-02): `V1c` بوقف الأساس ·
+    `W1c` بوقف قاع شمعة الكسر.
     **لا تحكمان** — تُطبَعان فقط. إلحاقٌ على الصفّ نفسِه."""
     frc, idxc, ec = S._libvol_break(cl, vo, level, S.CONFIG["BT_LIB_WAIT"],
                                     S.CONFIG["VOL_SPIKE_MULT"], list(vol_prev))
