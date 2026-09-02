@@ -13944,7 +13944,14 @@ def alert_filter_keep(row, ev, cfg=None, ctx=None):
     if c.get("sources") and src and src not in c["sources"]:
         return (False, f"المصدر «{src}»")
     if c.get("stages") and e.get("stage") and e["stage"] not in c["stages"]:
-        return (False, f"المرحلة {e['stage']}")
+        # 💓🔓 **نبضُ ما قبل `M5` جزءٌ من إشعار الاكتشاف لا تحديثٌ** (أمرُ المالك
+        #    2026-08-28 بعد فجوة `$FTFT` 0.68⟶1.17 الصامتة، وبلاغُه 2026-09-02
+        #    «ما وصلني اي تحديث من الاشعار الاول الين وصل فوق 100٪»): محورُ
+        #    `stages` يعامله **كأسرة `M1`** — يمرّ إن مرّ `M1`، ويُكتَم معه.
+        #    ⚖️ محدودٌ بالبناء: ‏≤4 نبضاتٍ قبل الخامسة، ونبضُ ما بعد `M5` يبقى
+        #    محكومًا بحرف `Px` في القائمة (المشحونُ بلا `Px` ⇒ مكتوم).
+        if not (e["stage"] == "Px" and e.get("pre_m5") and "M1" in c["stages"]):
+            return (False, f"المرحلة {e['stage']}")
     if c.get("classes"):
         k = (e.get("class") or ("", ""))[0]
         if k and k not in c["classes"]:

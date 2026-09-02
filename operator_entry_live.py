@@ -32,6 +32,9 @@ MAX_RUNTIME_MIN = 330          # سقفُ أمانٍ تحت حدّ GitHub (‏6 
 REFRESH_EVERY = 10             # كلَّ ~10 دقائق: تحديثُ القوائم من origin/main
 EXT_CLOSE_NY = 20 * 60         # نهايةُ الجلسة الممتدّة (‏20:00 نيويورك)
 EXT_OPEN_NY = 4 * 60           # بدءُ الجلسة الممتدّة (‏04:00 نيويورك)
+CHAIN_MIN_LEFT = 6             # 🔗 دقائقُ قبل نهاية الميزانية يُطلَق فيها الخلَف (تداخلٌ لا فجوة)
+CHAIN_LAST_NY = 19 * 60 + 30   # 🔗 لا خلَفَ بعد 19:30 نيويورك (الجلسةُ الممتدّة تنتهي 20:00)
+CHAIN_WORKFLOW = "operator_entry.yml"
 
 
 def _log(msg):
@@ -78,6 +81,139 @@ def _budget(left_min, raw=None):
         cap = MAX_RUNTIME_MIN
     cap = max(1, min(MAX_RUNTIME_MIN, cap))
     return max(0, min(cap, int(left_min)))
+
+
+def _gh_api(method, path, body=None, timeout=25):
+    """🔗 نداءُ GitHub API بمفتاح الرنر `GITHUB_TOKEN` — `None` بلا مفتاحٍ أو
+    مستودع (بيئةٌ محلّية) · ويرمي عند فشل HTTP (المُنادي يقرّر الفاشل-الآمن)."""
+    tok = (os.environ.get("GITHUB_TOKEN") or "").strip()
+    repo = (os.environ.get("GITHUB_REPOSITORY") or "").strip()
+    if not tok or not repo:
+        return None
+    import requests                          # في `requirements.txt` (يستعمله البوت)
+    r = requests.request(method, f"https://api.github.com/repos/{repo}{path}",
+                         json=body, timeout=timeout,
+                         headers={"Authorization": f"Bearer {tok}",
+                                  "Accept": "application/vnd.github+json",
+                                  "X-GitHub-Api-Version": "2022-11-28"})
+    if r.status_code >= 400:
+        raise RuntimeError(f"HTTP {r.status_code}: {r.text[:120]}")
+    return r.json() if (r.text or "").strip() else {}
+
+
+def alive_runs(runs, my_id, now) -> list:
+    """🔗 **نقيّة**: مَن من تشغيلات هذا الـworkflow **حيٌّ فعلًا غيري**؟
+    حيٌّ = `in_progress` **وبدأ قبل أقلَّ من `MAX_RUNTIME_MIN − CHAIN_MIN_LEFT`
+    دقيقة** — فمَن تجاوزها **ينتهي هو الآخر الآن** ولا يُعوَّل عليه للتغطية
+    (وإلّا رأى عاملان متزامنان بعضَهما فامتنعا معًا وفُتحت فجوة). التالفُ يُتخطّى."""
+    out = []
+    for r in runs or []:
+        try:
+            rid = int(r.get("id"))
+            if str(rid) == str(my_id or ""):
+                continue
+            if str(r.get("status") or "") != "in_progress":
+                continue
+            st = str(r.get("run_started_at") or r.get("created_at") or "")[:19]
+            t = bot.dt.datetime.strptime(st, "%Y-%m-%dT%H:%M:%S").replace(
+                tzinfo=bot.dt.timezone.utc)
+            age_min = (now - t).total_seconds() / 60.0
+            if age_min < (MAX_RUNTIME_MIN - CHAIN_MIN_LEFT):
+                out.append(rid)
+        except Exception:                                        # noqa: BLE001
+            continue
+    return out
+
+
+def chain_decision(ny_min, session_ok, others, already):
+    """🔗 **نقيّة** — هل يُطلَق خلَفٌ الآن؟ ⟶ `(نعم/لا, رمزٌ, نصّ)`.
+
+    الرموز: `already` (أُطلق سلفًا) · `no_session` · `late` (بعد 19:30 نيويورك)
+    · `api_fail` (تعذّر فحصُ الأحياء ⇒ **يُطلَق احتياطًا** — فاشلٌ-آمنٌ نحو
+    التغطية: الخلَفُ المكرَّر تُسكته الدِدوبُ المشتركة، والفجوةُ لا يُسكتها شيء)
+    · `others` (عاملٌ آخر حيّ ⇒ لا حاجة) · `go`."""
+    if already:
+        return (False, "already", "أُطلق خلَفٌ من هذي العملية سلفًا")
+    if not session_ok:
+        return (False, "no_session", "لا جلسةَ سوقٍ اليوم")
+    if int(ny_min) >= CHAIN_LAST_NY:
+        return (False, "late",
+                f"بعد {CHAIN_LAST_NY // 60:02d}:{CHAIN_LAST_NY % 60:02d} نيويورك")
+    if others is None:
+        return (True, "api_fail", "تعذّر فحصُ العمّال الأحياء ⇒ يُطلَق احتياطًا")
+    if others:
+        return (False, "others",
+                "عاملٌ آخر حيّ: " + ", ".join(str(x) for x in others))
+    return (True, "go", "لا عاملَ حيًّا غيري")
+
+
+def _chain_next(extra_inputs=None, api=None) -> bool:
+    """🔗 يطلب من GitHub تشغيلةً جديدة (`workflow_dispatch`) لهذا الـworkflow
+    بوسم `segment=chain`. `True` إن أُرسل الطلب (‏204) · `False` بلا مفتاح."""
+    api = api or _gh_api
+    body = {"ref": (os.environ.get("GITHUB_REF_NAME") or "main"),
+            "inputs": dict({"segment": "chain"}, **(extra_inputs or {}))}
+    res = api("POST", f"/actions/workflows/{CHAIN_WORKFLOW}/dispatches", body)
+    return res is not None
+
+
+def _maybe_chain(left_min, api=None, now=None, force_test=False) -> bool:
+    """🔗🔗 **الخلَف — العاملُ يُعيد إطلاقَ نفسه ولا ينتظر الكرون** (بلاغُ المالك
+    2026-09-02 بصور 08-28: «التأخير … نسبة الارتفاع خلال هذا الوقت مب منطقية»).
+
+    🔴 **والعطبُ مقيسٌ من سجلّ التشغيلات لا مُفترَض:** يوم 08-28 لم يُنتج هذا
+    الـworkflow أيَّ تشغيلةٍ بين 01:12 و**18:32 UTC** — كرونا `pre` و`open`
+    **سقطا كلاهما** ⇒ أوّلُ رؤيةٍ لـ`$CHAI` و`$FTFT` كانت **14:27-14:31 نيويورك**
+    و`CHAI` صاعدٌ 70% قبلها. وتكرّر يوم 08-31 (‏3 كرونات صباحيّة لم تُنتج شيئًا).
+    GitHub يُسقط الكرونَ تحت الحمل (موثَّقٌ منذ 07-28) — **ولا كرونَ احتياطيٍّ
+    يضمن**؛ أمّا `workflow_dispatch` فليس في طابور الكرون ويبدأ خلال ثوانٍ.
+    ⚙️ **العقد:** قبل `CHAIN_MIN_LEFT` دقائقَ من نهاية الميزانية يُفحَص: جلسةٌ
+    قائمة · قبل 19:30 نيويورك · **ولا عاملَ آخر حيًّا** (من API — فلا تتوالد
+    السلاسلُ: كلُّ عمليةٍ تُطلق مرّةً واحدةً على الأكثر) ⇒ يُطلَق خلَفٌ يبدأ
+    **قبل** أن ينتهي السلف (تداخلٌ ‏≈6 دقائق = صفرُ فجوة، والدِدوبُ المشتركة
+    تمنع التكرار). تعذّرُ الـAPI ⇒ **يُطلَق** (الفجوةُ أغلى من التكرار)، وفشلُ
+    الإطلاق **يُسجَّل ولا يُوقف** — الكرونُ يبقى شبكةَ أمان. والعلمُ `OE_CHAINED`
+    في البيئة فينجو من `os.execve` في `_self_update`.
+    🧪 `force_test` (مدخلُ `chain_test`): إطلاقٌ فوريٌّ لخلَفٍ بميزانيةِ دقيقةٍ
+    واحدة — فحصُ دخانٍ لمسار الإذن والطلب من نقطة النداء الحيّة."""
+    if os.environ.get("OE_CHAINED") == "1":
+        return False
+    if not force_test and float(left_min) > CHAIN_MIN_LEFT:
+        return False
+    api = api or _gh_api
+    now = now or bot.dt.datetime.now(bot.dt.timezone.utc)
+    mins, day = _ny_minutes(now)
+    if force_test:
+        do, code, why = True, "test", "فحصُ دخانٍ يدويّ (chain_test)"
+    else:
+        others = None
+        try:
+            res = api("GET", f"/actions/workflows/{CHAIN_WORKFLOW}/runs"
+                             "?status=in_progress&per_page=50")
+            if res is not None:
+                others = alive_runs(res.get("workflow_runs") or [],
+                                    os.environ.get("GITHUB_RUN_ID"), now)
+        except Exception as e:                                   # noqa: BLE001
+            _log(f"⚠️ فحصُ العمّال الأحياء: {e}")
+            others = None
+        do, code, why = chain_decision(mins, not _no_session(day), others, False)
+    if not do:
+        if code in ("no_session", "late"):        # قرارٌ لا يتغيّر اليوم
+            os.environ["OE_CHAINED"] = "1"
+        _log(f"🔗 لا خلَف — {why}")
+        return False
+    try:
+        sent = _chain_next({"budget": "1"} if force_test else None, api=api)
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⚠️ إطلاقُ الخلَف فشل: {e} — يبقى الكرونُ شبكةَ أمان.")
+        return False
+    if not sent:
+        _log("🔗 لا مفتاحَ GitHub في البيئة — لا خلَف (بيئةٌ محلّية).")
+        os.environ["OE_CHAINED"] = "1"
+        return False
+    os.environ["OE_CHAINED"] = "1"
+    _log(f"🔗 أُطلق الخلَف (segment=chain) — {why}")
+    return True
 
 
 def _no_session(date_iso) -> bool:
@@ -435,9 +571,19 @@ def main():
                         seen.pop(_k, None)
                 _log(f"⚠️ تيليجرام رفض «سيولة الشمعة» ({len(lrows)}) — "
                      "أُرجعت الحالةُ لتُعاد المحاولة.")
+    if str(os.environ.get("OE_CHAIN_TEST") or "").strip() in ("1", "true"):
+        try:
+            _maybe_chain(0, force_test=True)
+        except Exception as e:                                   # noqa: BLE001
+            _log(f"⚠️ فحصُ دخان الخلَف: {e}")
     while (time.time() - t0) < budget * 60:
         loops += 1
         _cyc = time.time()
+        # 🔗 الخلَفُ قبل نهاية الميزانية (تداخلٌ لا فجوة) — انظر `_maybe_chain`.
+        try:
+            _maybe_chain(budget - (time.time() - t0) / 60.0)
+        except Exception as e:                                   # noqa: BLE001
+            _log(f"⚠️ الخلَف (دورة {loops}): {e}")
         if loops % REFRESH_EVERY == 0:
             try:
                 uni, _c, _s, uni_all = _load_universe()

@@ -1,8 +1,13 @@
 name: Operator Entry (🎯 هنا الدخول — عاملُ جلسةٍ حيّ)
 
 # 🔐 يكتب ملفَّ الدِدوب وحدَه (`op_entry_state.json`) — لا يمسّ قائمةً ولا فرزًا.
+# 🔗 و`actions: write` **لإطلاق خلَفِه** (`workflow_dispatch` عبر GITHUB_TOKEN —
+#    الاستثناءُ الوحيد الذي يسمح به GitHub لتوليد تشغيلةٍ من داخل تشغيلة)؛
+#    بلاغُ المالك 2026-09-02: كرونا `pre`/`open` سقطا يوم 08-28 فغاب العاملُ
+#    ‏13 ساعة. انظر `_maybe_chain` في `operator_entry_live.py`.
 permissions:
   contents: write
+  actions: write
 
 on:
   workflow_dispatch:
@@ -17,6 +22,10 @@ on:
         type: string
       budget:
         description: "دقائقُ العمل (فحصُ دخان — يُقصّر ولا يُطيل)"
+        required: false
+        type: string
+      chain_test:
+        description: "1 = فحصُ دخانِ الخلَف: يُطلق خلَفًا بميزانيةِ دقيقةٍ فورًا"
         required: false
         type: string
   schedule:
@@ -60,8 +69,11 @@ on:
     - cron: "21 22 * * 0-4"    # ⟶ prev-day seed
 
 # مجموعةُ تزامنٍ مستقلّة: لا يكتب قائمةَ الفرز فلا يزاحم `super-stocks-state`.
+# 🔗 والخلَفُ (dispatch) مجموعتُه **معرِّفُ تشغيلته** فلا يقف في طابور سلفه:
+#    يبدأ وسلفُه ما زال يعمل دقائقَه الأخيرة ⇒ تداخلٌ لا فجوة (كان `manual`
+#    مجموعةً واحدة ⇒ الخلَفُ ينتظر انتهاءَ السلف = فجوةُ دقيقةٍ أو أكثر).
 concurrency:
-  group: super-stocks-operator-entry-${{ github.event.schedule || 'manual' }}
+  group: super-stocks-operator-entry-${{ github.event.schedule || github.run_id }}
   cancel-in-progress: false
 
 jobs:
@@ -104,4 +116,6 @@ jobs:
                 || 'manual' }}
           OE_INTERVAL: ${{ github.event.inputs.interval }}
           OE_BUDGET_MIN: ${{ github.event.inputs.budget }}
+          OE_CHAIN_TEST: ${{ github.event.inputs.chain_test }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: python operator_entry_live.py

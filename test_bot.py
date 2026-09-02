@@ -29132,6 +29132,12 @@ _pls8_low = {"c3": "نقضت", "c4": "خضراء 0-1", "v2": "المرساة ف�
 #    والفارقُ الحيُّ بالتصنيف يُقاس على `M30` (قويٌّ يصل · ضعيفٌ يُكتَم) ·
 #    و**`Xs` يصل مهما كان التصنيف** (خروجٌ لا يُكتَم — كخطر كسر الوقف) ·
 #    و`Tg` يصل · و`Mu` بمرحلته · وبصفر عِلّة.
+# 💓🔓 **إقرارٌ مؤرَّخ خامس 2026-09-02 (مساءً) — بلاغُ المالك بصور 08-28 «ما وصلني
+#    اي تحديث من الاشعار الاول الين وصل فوق 100٪» (`$FTFT` 0.68⟶1.17 في أربع
+#    دقائق):** نبضُ **ما قبل** `M5` عاد **أسرةَ الاكتشاف** في محور `stages`
+#    (يمرّ إن مرّ `M1` — عقدُ 08-28 نفسُه) ⇒ شقُّ «قبل-M5 يُكتَم» **ينقلب**: يمرّ
+#    الآن بالمشحون نفسِه، **ويبقى نبضُ ما بعد `M5` مكتومًا بمرحلته** = الفارقُ
+#    الذي يُثبت أن المسموحَ هو الفجوةُ وحدَها (‏≤4 نبضاتٍ بالبناء) لا النبضُ كلُّه.
 _pls8_post = {k: v for k, v in _pls_dn.items() if k != "pre_m5"}
 try:
     _pls_cfg = S.load_alert_filter()
@@ -29160,11 +29166,11 @@ except Exception as _e:                                          # noqa: BLE001
     _pls_ok = _pls_low_ok = _pls_nok_ok = f"⛔ {type(_e).__name__}"
     _pls_pre_ok = _pls_px_top = _pls_xs_ok = _pls_tg_ok = f"⛔ {type(_e).__name__}"
     _pls_px_why, _pls_mu_ok, _pls_iss = "", None, ["رمى"]
-check("🛑🎯 PLS8 **المشحون بعد «اطلع مع الوقف» (2026-09-02)**: النبضُ مكتومٌ بمرحلته "
-      "حتى للقوي · M30 قويٌّ يصل وضعيفٌ يُكتَم · Xs وTg يصلان مهما كان التصنيف · "
-      "بلا k2 يمرّ · Mu بمرحلته · وبصفر عِلّة",
+check("🛑🎯 PLS8 **المشحون بعد «اطلع مع الوقف» (2026-09-02)**: نبضُ ما بعد M5 مكتومٌ بمرحلته "
+      "حتى للقوي · ونبضُ ما قبل M5 يمرّ (أسرةُ الاكتشاف) · M30 قويٌّ يصل وضعيفٌ يُكتَم · "
+      "Xs وTg يصلان مهما كان التصنيف · بلا k2 يمرّ · Mu بمرحلته · وبصفر عِلّة",
       _pls_px_top is False and "المرحلة" in str(_pls_px_why)
-      and _pls_pre_ok is False
+      and _pls_pre_ok is True
       and _pls_ok is True and _pls_low_ok is False
       and _pls_xs_ok is True and _pls_tg_ok is True
       and _pls_nok_ok is True
@@ -37175,6 +37181,152 @@ check("📏 JPM4 الحصّادُ الأماميّ: يصنّف A/Ā/؟ بتعر�
       "· ثوابتُ العقد (‏60/150/2×/+50) · workflow قراءةٌ بلا كرون ومدخلُه موصول · بالاسم من "
       "tier_fwd_report/sym_day_probe · بلا تلغرام ولا حالة · والإنتاجُ لا يستورده",
       _jpm_ok is True, str(_jpm_ok))
+
+
+# ==========================================================
+# 🔗🔗 «الخلَف» — العاملُ يُعيد إطلاقَ نفسه (بلاغُ المالك 2026-09-02 بصور 08-28:
+#    التأخير) · أقفال CH1-CH7 · و💓 AF20 نبضُ ما قبل الخمس أسرةُ الاكتشاف
+# ==========================================================
+import operator_entry_live as _ch_L
+import ast as _ch_ast, os as _ch_os
+_ch_now = _ch_L.bot.dt.datetime(2026, 9, 2, 14, 0, tzinfo=_ch_L.bot.dt.timezone.utc)
+_ch_runs = [{"id": 1, "status": "in_progress", "run_started_at": "2026-09-02T13:00:00Z"},
+            {"id": 2, "status": "in_progress", "run_started_at": "2026-09-02T08:20:00Z"},
+            {"id": 3, "status": "queued", "run_started_at": "2026-09-02T13:59:00Z"},
+            {"id": 7, "status": "in_progress", "run_started_at": "2026-09-02T13:50:00Z"},
+            {"id": "x", "status": "in_progress"}]
+check("🔗 CH1 `alive_runs` نقيّة تفرّق: تستبعد نفسي · والمُنتهيَ (بدأ قبل 324 دقيقة فأكثر) · "
+      "والمطابور · والتالف — وتُبقي الحيَّ الحقيقيّ",
+      _ch_L.alive_runs(_ch_runs, 7, _ch_now) == [1]
+      and _ch_L.alive_runs(_ch_runs, "1", _ch_now) == [7]
+      and _ch_L.alive_runs([], 7, _ch_now) == [] and _ch_L.alive_runs(None, 7, _ch_now) == [],
+      f"{_ch_L.alive_runs(_ch_runs, 7, _ch_now)}")
+_ch_d = _ch_L.chain_decision
+check("🔗 CH2 `chain_decision` مصفوفةُ القرار: go · others · late (‏19:30 بالضبط) · no_session · "
+      "api_fail ⇒ يُطلَق (فاشلٌ-آمن نحو التغطية) · already — وبلا انهيار",
+      _ch_d(600, True, [], False)[:2] == (True, "go")
+      and _ch_d(600, True, [1, 2], False)[:2] == (False, "others")
+      and _ch_d(19 * 60 + 30, True, [], False)[:2] == (False, "late")
+      and _ch_d(19 * 60 + 29, True, [], False)[:2] == (True, "go")
+      and _ch_d(600, False, [], False)[:2] == (False, "no_session")
+      and _ch_d(600, True, None, False)[:2] == (True, "api_fail")
+      and _ch_d(600, True, [], True)[:2] == (False, "already"),
+      str([_ch_d(600, True, [], False), _ch_d(19 * 60 + 30, True, [], False)]))
+# سلوكيّ — `_maybe_chain` من نقطة النداء: إطلاقٌ واحدٌ · لا إطلاقَ قبل الحدّ · حضورُ عاملٍ يمنع
+_ch_calls = []
+def _ch_api(runs):
+    def _f(m, p, b=None):
+        _ch_calls.append((m, p, b))
+        return {"workflow_runs": runs} if m == "GET" else {}
+    return _f
+_ch_env0 = dict(_ch_os.environ)
+try:
+    _ch_os.environ.pop("OE_CHAINED", None); _ch_os.environ["GITHUB_RUN_ID"] = "9"
+    _ch_r1 = _ch_L._maybe_chain(30, api=_ch_api([]), now=_ch_now)          # فوق الحدّ ⇒ لا نداءَ أصلًا
+    _ch_n1 = len(_ch_calls)
+    _ch_r2 = _ch_L._maybe_chain(5, api=_ch_api(_ch_runs[:1]), now=_ch_now)  # عاملٌ حيّ ⇒ لا إطلاق
+    _ch_post2 = [c for c in _ch_calls if c[0] == "POST"]
+    _ch_flag2 = _ch_os.environ.get("OE_CHAINED")
+    _ch_r3 = _ch_L._maybe_chain(5, api=_ch_api([]), now=_ch_now)           # لا أحد ⇒ إطلاق
+    _ch_post3 = [c for c in _ch_calls if c[0] == "POST"]
+    _ch_r4 = _ch_L._maybe_chain(5, api=_ch_api([]), now=_ch_now)           # مرّةً واحدة
+    _ch_post4 = [c for c in _ch_calls if c[0] == "POST"]
+finally:
+    _ch_os.environ.clear(); _ch_os.environ.update(_ch_env0)
+check("🔗 CH3 `_maybe_chain` سلوكيًّا: فوق الحدّ صفرُ نداء · عاملٌ حيّ ⇒ لا إطلاقَ ولا علم · "
+      "لا أحد ⇒ إطلاقٌ واحد بـsegment=chain · والثانية لا تُطلق (‏OE_CHAINED)",
+      _ch_r1 is False and _ch_n1 == 0
+      and _ch_r2 is False and not _ch_post2 and _ch_flag2 is None
+      and _ch_r3 is True and len(_ch_post3) == 1
+      and _ch_post3[0][1].endswith("/dispatches")
+      and _ch_post3[0][2] == {"ref": "main", "inputs": {"segment": "chain"}}
+      and _ch_r4 is False and len(_ch_post4) == 1,
+      f"r={_ch_r1, _ch_r2, _ch_r3, _ch_r4} posts={len(_ch_post4)}")
+# فاشلٌ-آمن: API ترمي عند الفحص ⇒ يُطلَق · وترمي عند الإطلاق ⇒ لا انهيار ولا علم
+_ch_env0 = dict(_ch_os.environ)
+def _ch_api_raise_get(m, p, b=None):
+    if m == "GET":
+        raise RuntimeError("HTTP 500")
+    _ch_calls.append((m, p, b)); return {}
+def _ch_api_raise_post(m, p, b=None):
+    if m == "POST":
+        raise RuntimeError("HTTP 403")
+    return {"workflow_runs": []}
+try:
+    _ch_os.environ.pop("OE_CHAINED", None); _ch_os.environ["GITHUB_RUN_ID"] = "9"
+    _ch_calls.clear()
+    _ch_r5 = _ch_L._maybe_chain(5, api=_ch_api_raise_get, now=_ch_now)
+    _ch_os.environ.pop("OE_CHAINED", None)
+    _ch_r6 = _ch_L._maybe_chain(5, api=_ch_api_raise_post, now=_ch_now)
+    _ch_flag6 = _ch_os.environ.get("OE_CHAINED")
+    # 🧪 فحصُ الدخان: يُطلق فورًا خلَفًا بميزانية دقيقة
+    _ch_os.environ.pop("OE_CHAINED", None); _ch_calls.clear()
+    _ch_r7 = _ch_L._maybe_chain(300, api=_ch_api([]), now=_ch_now, force_test=True)
+    _ch_post7 = [c for c in _ch_calls if c[0] == "POST"]
+    # لا مفتاحَ (بيئةٌ محلّية): `_gh_api` ترجع None ⇒ لا خلَف ولا انهيار
+    _ch_os.environ.pop("OE_CHAINED", None); _ch_os.environ.pop("GITHUB_TOKEN", None)
+    _ch_r8 = _ch_L._maybe_chain(5, now=_ch_now)
+finally:
+    _ch_os.environ.clear(); _ch_os.environ.update(_ch_env0)
+check("🔗 CH4 فاشلٌ-آمن: فشلُ فحص الأحياء ⇒ يُطلَق · فشلُ الإطلاق ⇒ لا انهيار ولا علم (يُعاد) · "
+      "chain_test ⇒ خلَفٌ فوريّ بميزانية «1» · وبلا مفتاحٍ صفرُ عمل",
+      _ch_r5 is True and _ch_r6 is False and _ch_flag6 is None
+      and _ch_r7 is True and _ch_post7[0][2]["inputs"] == {"segment": "chain", "budget": "1"}
+      and _ch_r8 is False,
+      f"r5={_ch_r5} r6={_ch_r6} r7={_ch_r7} r8={_ch_r8}")
+# 🔒 الوصلُ من نقطة النداء الحيّة (AST): `main` تنادي `_maybe_chain` داخل حلقة العمل
+_ch_src = open("operator_entry_live.py", encoding="utf-8").read()
+_ch_tree = _ch_ast.parse(_ch_src)
+_ch_main = next(n for n in _ch_ast.walk(_ch_tree) if isinstance(n, _ch_ast.FunctionDef) and n.name == "main")
+_ch_in_loop = [c for w in _ch_ast.walk(_ch_main) if isinstance(w, _ch_ast.While)
+               for c in _ch_ast.walk(w) if isinstance(c, _ch_ast.Call)
+               and getattr(c.func, "id", None) == "_maybe_chain"]
+_ch_selfupd = next(n for n in _ch_ast.walk(_ch_tree) if isinstance(n, _ch_ast.FunctionDef) and n.name == "_self_update")
+check("🔒 CH5 (AST) `_maybe_chain` مُنادًى داخل حلقة `main` · والعلمُ `OE_CHAINED` يُكتَب في البيئة "
+      "(فينجو من execve الذي يمرّر `os.environ`)",
+      len(_ch_in_loop) == 1
+      and 'os.environ["OE_CHAINED"] = "1"' in _ch_src
+      and "dict(os.environ" in _ch_ast.get_source_segment(_ch_src, _ch_selfupd),
+      f"in_loop={len(_ch_in_loop)}")
+# 🔒 الـworkflow موصول: إذنُ actions:write · GITHUB_TOKEN في البيئة · مدخلُ chain_test · مجموعةُ التزامن بمعرِّف التشغيلة
+import yaml as _ch_yaml
+_ch_wf = _ch_yaml.safe_load(open(".github/workflows/operator_entry.yml", encoding="utf-8"))
+_ch_step = [s for s in _ch_wf["jobs"]["entry"]["steps"] if "operator_entry_live.py" in str(s.get("run", ""))][0]
+_ch_wf_txt = open(".github/workflows/operator_entry.yml", encoding="utf-8").read()
+check("🔒 CH6 الـworkflow: `actions: write` · `GITHUB_TOKEN: github.token` و`OE_CHAIN_TEST` في بيئة خطوة "
+      "العامل · مدخلُ `chain_test` · ومجموعةُ التزامن تسقط إلى `github.run_id` (لا طابورَ للخلَف)",
+      _ch_wf.get("permissions", {}).get("actions") == "write"
+      and _ch_wf.get("permissions", {}).get("contents") == "write"
+      and "github.token" in str(_ch_step["env"].get("GITHUB_TOKEN"))
+      and "chain_test" in str(_ch_step["env"].get("OE_CHAIN_TEST"))
+      and "chain_test" in (_ch_wf.get(True) or _ch_wf.get("on"))["workflow_dispatch"]["inputs"]
+      and "github.run_id" in str(_ch_wf["concurrency"]["group"])
+      and "'manual'" not in str(_ch_wf["concurrency"]["group"]),
+      str(_ch_wf.get("permissions")))
+check("🔒 CH7 إشعارٌ لا اختيار: الخلَفُ لا يُنادى من `Super_stock` ولا يكتب حالةً · "
+      "و`CHAIN_LAST_NY`=19:30 قبل نهاية الجلسة الممتدّة (‏20:00) بهامشٍ يسع الخلَفَ خلَفًا",
+      "_maybe_chain" not in open("Super_stock.py", encoding="utf-8").read()
+      and "chain_decision" not in open("Super_stock.py", encoding="utf-8").read()
+      and _ch_L.CHAIN_LAST_NY < _ch_L.EXT_CLOSE_NY
+      and _ch_L.CHAIN_MIN_LEFT < _ch_L.MAX_RUNTIME_MIN
+      and "save_op_entry_state" not in _ch_ast.get_source_segment(
+          _ch_src, next(n for n in _ch_ast.walk(_ch_tree)
+                        if isinstance(n, _ch_ast.FunctionDef) and n.name == "_maybe_chain")),
+      "")
+# 💓 AF20 — نبضُ ما قبل M5 أسرةُ الاكتشاف في محور `stages` (المشحونُ بلا Px)
+_af20_cfg = {"stages": ["M0", "M1", "M5", "M30", "Xs", "Tg"]}
+_af20_pre = {"stage": "Px", "pre_m5": True, "price": 1.0, "anchor_ms": 1, "pulse_pct": 40.0}
+_af20_post = {"stage": "Px", "price": 1.0, "anchor_ms": 1, "pulse_pct": 40.0}
+_af20_ship = S.load_alert_filter()
+check("💓 AF20 نبضُ ما قبل `M5` يمرّ مع المشحون (أسرةُ `M1`) · ونبضُ ما بعده يُكتَم بمرحلته · "
+      "وبلا `M1` في القائمة يُكتَم الاثنان · والمشحونُ حيًّا بلا `Px` ومع `M1`",
+      S.alert_filter_keep({"symbol": "A"}, _af20_pre, _af20_cfg)[0] is True
+      and S.alert_filter_keep({"symbol": "A"}, _af20_post, _af20_cfg)[0] is False
+      and S.alert_filter_keep({"symbol": "A"}, _af20_pre, {"stages": ["M5"]})[0] is False
+      and "Px" not in (_af20_ship.get("stages") or []) and "M1" in (_af20_ship.get("stages") or [])
+      and S.alert_filter_keep({"symbol": "A"}, _af20_pre, _af20_ship)[0] is True,
+      str([S.alert_filter_keep({"symbol": "A"}, _af20_pre, _af20_cfg),
+           S.alert_filter_keep({"symbol": "A"}, _af20_post, _af20_cfg)]))
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
