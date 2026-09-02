@@ -36522,6 +36522,135 @@ check("🔗 TLK7 الـworkflow: permissions=read · بلا كرون · المد
       and 'os.environ.get("TIERLINK_SINCE"' in _tl_src
       and any(s.get("with", {}).get("fetch-depth") == 0 for s in _tl_wf["jobs"]["tierlink"]["steps"]),
       str(_tl_wf.get("permissions")))
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 🔓💧🛑 T-LIBVOL-2 — أقفال `LW4`-`LW7` (العقد `libvol2_prereg.md` §⑤ · 2026-09-02)
+# ═══════════════════════════════════════════════════════════════════════════════
+import ast as _lw_ast
+import types as _lw_types
+import yaml as _lw_yaml
+import pandas as _lw_pd
+import libvol2_arms as _LW
+
+_lw_src = open("libvol2_arms.py", encoding="utf-8").read()
+_lw_tree = _lw_ast.parse(_lw_src)
+_lw_attrs = {n.attr for n in _lw_ast.walk(_lw_tree) if isinstance(n, _lw_ast.Attribute)}
+_lw_calls = {getattr(n.func, "id", None) for n in _lw_ast.walk(_lw_tree)
+             if isinstance(n, _lw_ast.Call)}
+_lw_bs = next(n for n in _lw_tree.body
+              if isinstance(n, _lw_ast.FunctionDef) and n.name == "break_stop")
+_lw_bs_sub = any(isinstance(n, _lw_ast.Subscript) for n in _lw_ast.walk(_lw_bs))
+_lw_bs_div = any(isinstance(n, _lw_ast.BinOp) and isinstance(n.op, _lw_ast.Div)
+                 for n in _lw_ast.walk(_lw_bs))
+_lw_writes = [n for n in _lw_ast.walk(_lw_tree) if isinstance(n, _lw_ast.Call)
+              and getattr(n.func, "id", None) == "open"
+              and any(isinstance(a, _lw_ast.Constant) and a.value == "w" for a in n.args)]
+_lw_pin = any(isinstance(n, _lw_ast.Assign) and isinstance(n.targets[0], _lw_ast.Subscript)
+              and getattr(n.targets[0].slice, "value", None) == "PIVOT_STOP_AT_LOW"
+              and isinstance(n.value, _lw_ast.Constant) and n.value.value is False
+              for n in _lw_ast.walk(_lw_tree))
+check("🔓💧🛑 LW4 محرّكٌ واحدٌ بالاسم (AST): _resolve_arm · _libvol_break · _liberation_levels "
+      "· analyze_ticker · backtest_symbol · _arm_stats · والوقفُ الجديد من lo[idx] بلا قسمة "
+      "· والكتابةُ لملفّ الصفوف وحدَه · وPIVOT_STOP_AT_LOW يُرجَع قسرًا (CAP15)",
+      {"_resolve_arm", "_libvol_break", "_liberation_levels", "analyze_ticker",
+       "backtest_symbol", "_arm_stats", "load_frozen_dataset"} <= _lw_attrs
+      and _lw_bs_sub and not _lw_bs_div
+      and "send_telegram" not in _lw_attrs and "git_save" not in _lw_attrs
+      and len(_lw_writes) == 1 and _lw_pin
+      and "libvol2_arms" not in open("Super_stock.py", encoding="utf-8").read()
+      and _LW.PUBLISHED_V1 == {"2023": (-0.395, 201), "2024": (-0.392, 260),
+                               "2025": (-0.402, 241)},
+      f"attrs={sorted(a for a in _lw_attrs if a.startswith('_'))} sub={_lw_bs_sub} "
+      f"div={_lw_bs_div} writes={len(_lw_writes)} pin={_lw_pin}")
+
+
+def _lw_fixture(break_low, k1_low):
+    """عيّنةٌ **تفرّق** (‏§⑤ `LW5`): خطّةٌ دخولُها 1.00 ووقفُها 0.90 وهدفُها 1.50 ·
+    حاجزٌ 1.10 · شمعةُ كسرٍ k=0 تُغلق 1.15 بحجمٍ 10× وقاعُها `break_low` ·
+    ثم k=1 قاعُها `k1_low` (يلمس قاعَ الكسر ولا يلمس وقفَ الأساس) · ثم k=2 رأسُها 1.60."""
+    n = 12
+    idx = _lw_pd.date_range("2025-03-03", periods=n, freq="B")
+    hi = [1.0] * n; lo = [0.95] * n; cl = [0.98] * n; op = [0.98] * n; vo = [100.0] * n
+    j = 7                                     # الكسرُ في k=1 (‏k=0 مرجعُ حجمه —
+    #   لأن مرجعَ ما قبل الأمام **ميّتٌ في الإنتاج**: §⑨ في العقد و`LW8` أدناه)
+    hi[j], lo[j], cl[j], op[j], vo[j] = 1.18, break_low, 1.15, 1.02, 1000.0
+    hi[j + 1], lo[j + 1], cl[j + 1], op[j + 1] = 1.20, k1_low, 1.10, 1.14
+    hi[j + 2], lo[j + 2], cl[j + 2], op[j + 2] = 1.60, 1.05, 1.55, 1.10
+    df = _lw_pd.DataFrame({"Open": op, "High": hi, "Low": lo, "Close": cl,
+                           "Volume": vo}, index=idx)
+    plan = {"tranches": [0.97, 1.00, 1.03], "stop": [0.90], "t1": 1.50}
+    S2 = _lw_types.SimpleNamespace(
+        analyze_ticker=lambda sym, d: dict(plan),
+        _liberation_levels=lambda r: (1.10, None),
+        _libvol_break=S._libvol_break, _resolve_arm=S._resolve_arm,
+        CONFIG={"BT_LIB_WAIT": 20, "VOL_SPIKE_MULT": 5.0})
+    tr = {"date": str(idx[j - 2].date()), "outcome": "win", "ret_a": 50.0}
+    row, why = _LW.arms_for(S2, "LWX", df, tr, 40, 0.0)
+    return row, why
+
+
+_lw_r, _lw_w = _lw_fixture(break_low=0.98, k1_low=0.97)
+check("🔓💧🛑 LW5 عيّنةٌ تفرّق: W0 يربح · V1 يربح · W1 يخسر بلمسة قاع شمعة الكسر "
+      "(‏stop2=0.98 فوق وقف الأساس 0.90) · وليس أرخى",
+      _lw_r is not None and _lw_r.get("fill") == "filled"
+      and _lw_r.get("o0") == "win" and _lw_r.get("oV") == "win"
+      and _lw_r.get("oW") == "loss" and _lw_r.get("stop2") == 0.98
+      and _lw_r.get("loose") is False and _lw_r.get("entry_v") == 1.15
+      and _lw_r.get("skip") is None,
+      f"row={_lw_r} why={_lw_w}")
+_lw_r2, _ = _lw_fixture(break_low=1.15, k1_low=0.97)
+check("🔓💧🛑 LW5ب شمعةُ كسرٍ تُغلق على قاعها ⇒ «الوقفُ عند الدخول» تُستبعَد وتُعَدّ (لا W1)",
+      _lw_r2 is not None and _lw_r2.get("skip") == "الوقفُ عند الدخول"
+      and _lw_r2.get("oW") is None and _lw_r2.get("oV") == "win",
+      f"row={_lw_r2}")
+_lw_r3, _ = _lw_fixture(break_low=0.85, k1_low=0.97)
+check("🔓💧🛑 LW5ج قاعُ الكسر دون وقف الأساس ⇒ `loose=True` وW1 يستمرّ (يربح)",
+      _lw_r3 is not None and _lw_r3.get("loose") is True and _lw_r3.get("oW") == "win",
+      f"row={_lw_r3}")
+
+# `LW7` — بوّاباتُ `report` رموزُ خروجٍ لا أسطر
+_lw_row_ok = dict(_lw_r, prod_o="win", prod_ret=50.0)
+_lw_rc_empty = _LW.report(S, [], "2025", {})
+_lw_rc_prod = _LW.report(S, [dict(_lw_row_ok, prod_o="loss")], "2025", {})
+_lw_rc_lw0 = _LW.report(S, [_lw_row_ok], "2025", {})
+check("🔓💧🛑 LW7 خروجُ `report`: فارغٌ ⇒ 4 · تفرّقُ الأساس عن الإنتاج ⇒ 3 · "
+      "`V1` لا يُعيد المنشور ⇒ 3 (رمزُ خروجٍ لا سطر)",
+      _lw_rc_empty == 4 and _lw_rc_prod == 3 and _lw_rc_lw0 == 3,
+      f"empty={_lw_rc_empty} prod={_lw_rc_prod} lw0={_lw_rc_lw0}")
+
+# `LW8` — 🔴 العيبُ الموثَّق في `libvol2_prereg.md §⑨`: مرجعُ العشرين في `_libvol_break`
+#    **يموت** حين يُمرَّر مصفوفةَ numpy (كما يفعل الإنتاج) ويعيش بقائمة — تفريقيٌّ على
+#    الدالّة الإنتاجيّة نفسِها. يوثّق العيبَ حتى يُحسَم إصلاحُه بقرار المالك؛ ولو أُصلح
+#    انقلب هذا القفلُ **فيُحدَّث بإقرارٍ مؤرَّخ** لا يُرخى. والأداةُ تمرّر المصفوفةَ
+#    لـ`V1`/`W1` (إعادةُ الإنتاج) والقائمةَ لـ`V1c`/`W1c` (الوصفيّ).
+import numpy as _lw_np
+_lw_nd = S._libvol_break([1.15, 1.10, 1.55], [1000.0, 100.0, 100.0], 1.10, 20, 5.0,
+                         _lw_np.array([100.0] * 20))
+_lw_li = S._libvol_break([1.15, 1.10, 1.55], [1000.0, 100.0, 100.0], 1.10, 20, 5.0,
+                         [100.0] * 20)
+_lw_af = _lw_ast.parse(_lw_src)
+_lw_calls_lb = [n for n in _lw_ast.walk(_lw_af) if isinstance(n, _lw_ast.Call)
+                and getattr(n.func, "attr", None) == "_libvol_break"]
+_lw_list_wrapped = sum(1 for c in _lw_calls_lb if c.args and isinstance(c.args[-1], _lw_ast.Call)
+                       and getattr(c.args[-1].func, "id", None) == "list")
+check("🔓💧🛑 LW8 العيبُ الموثَّق: `_libvol_break` بمصفوفةِ numpy ⇒ `no_volref` وبقائمةٍ ⇒ `filled` "
+      "(نفسُ المدخلات) · والأداةُ تناديها مرّتين: مصفوفةً للإعادة وقائمةً للوصفيّ",
+      _lw_nd[0] == "no_volref" and _lw_li[0] == "filled"
+      and len(_lw_calls_lb) == 2 and _lw_list_wrapped == 1,
+      f"nd={_lw_nd} li={_lw_li} calls={len(_lw_calls_lb)} wrapped={_lw_list_wrapped}")
+
+_lw_y = _lw_yaml.safe_load(open(".github/workflows/libvol2.yml", encoding="utf-8"))
+_lw_on = _lw_y.get("on") or _lw_y.get(True) or {}
+_lw_steps = _lw_y["jobs"]["libvol2"]["steps"]
+_lw_run = next(s for s in _lw_steps if "libvol2_arms.py" in str(s.get("run", "")))
+check("🔓💧🛑 LW6 الـworkflow: permissions=read · بلا كرون · مدخلا year/frozen_run_id "
+      "موصولان بـBACKTEST_YEAR/BT_FROZEN_PATH اللذين يقرؤهما السكربت",
+      _lw_y["permissions"]["contents"] == "read" and "schedule" not in _lw_on
+      and {"year", "frozen_run_id"} <= set(_lw_on["workflow_dispatch"]["inputs"])
+      and _lw_run["env"]["BACKTEST_YEAR"] == "${{ github.event.inputs.year }}"
+      and _lw_run["env"]["BT_FROZEN_PATH"] == "frozen_backtest.pkl.gz"
+      and 'os.environ.get("BACKTEST_YEAR")' in _lw_src
+      and 'os.environ.get("BT_FROZEN_PATH")' in _lw_src)
 # ══════════════════════════════════════════════════════════════════════════
 # 😴 `T-DORMANT` — **طولُ السكون** (`dormant_prereg.md`، أمرُ المالك «سجل
 #    الهدوء»). أحدَ عشرَ قفلًا · **وكلُّ بوّابةٍ تُثبَت أنها توقف فعلًا** —
