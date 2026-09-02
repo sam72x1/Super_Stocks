@@ -36438,6 +36438,90 @@ check("🔌 AUG6 الأربعُ ترجّع [] بلا علمِها (صفرُ أث
 
 
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🔗🔬 T-TIERLINK — أقفالُ أداة «الرابط المشترك» (tierlink_prereg.md · 2026-09-02)
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _tl_ast
+import yaml as _tl_yaml
+import tierlink_probe as _TL
+_tl_src = open("tierlink_probe.py", encoding="utf-8").read()
+_tl_tree = _tl_ast.parse(_tl_src)
+_tl_imports = {(n.module, a.name) for n in _tl_ast.walk(_tl_tree)
+               if isinstance(n, _tl_ast.ImportFrom) for a in n.names}
+check("🔗 TLK1 مقياسٌ واحد: الحسمُ والجلبُ مستورَدان بالاسم من أدوات الإنتاج (AST)",
+      {("tier_fwd_report", "fetch_day"), ("tier_fwd_report", "tier_of"),
+       ("sym_day_probe", "full_day_max"), ("sym_day_probe", "exit_point"),
+       ("tier_days_report", "true_e5"), ("kasih_scan", "wilson")} <= _tl_imports,
+      str(sorted(_tl_imports)))
+_tl_calls = {getattr(n.func, "id", getattr(n.func, "attr", None))
+             for n in _tl_ast.walk(_tl_tree) if isinstance(n, _tl_ast.Call)}
+_tl_writes = [n for n in _tl_ast.walk(_tl_tree) if isinstance(n, _tl_ast.Call)
+              and getattr(n.func, "id", None) == "open"
+              and any(isinstance(a, _tl_ast.Constant) and "w" in str(a.value) for a in n.args[1:2])]
+check("🔗 TLK2 قراءةٌ فقط: صفرُ إرسالٍ وصفرُ كتابةِ ملفّ (AST)",
+      "send_telegram" not in _tl_calls and not _tl_writes and "git_save" not in _tl_calls,
+      f"كتابات={len(_tl_writes)}")
+check("🔗 TLK3 الإنتاجُ لا يستورد الأداة",
+      "tierlink_probe" not in open("Super_stock.py", encoding="utf-8").read())
+# سلوكيّ — الحكمُ الرباعيّ يفرّق الحالات الأربع
+def _tl_rows(spec):
+    out = []
+    for i, (val, day, hit) in enumerate(spec):
+        out.append({"date": day, "symbol": f"S{i}", "f": {"x": val},
+                    "o": {"exploded50": hit, "exploded100": False, "kasih30_cut": hit,
+                          "mg_day": 60.0 if hit else 5.0, "close_ret": 0.0, "mg_5d": None}})
+    return out
+def _tl_mk(pa, pb, na=30, nb=30, split=True):
+    rows = []
+    for j in range(na):
+        rows.append(("A", "2026-08-20" if (j % 2 == 0 or not split) else "2026-08-28", j < round(na * pa)))
+    for j in range(nb):
+        rows.append(("B", "2026-08-20" if (j % 2 == 0 or not split) else "2026-08-28", j < round(nb * pb)))
+    return _tl_rows(rows)
+_, _v_pass = _TL.judge(_tl_mk(0.60, 0.10), "x")
+_, _v_c1 = _TL.judge(_tl_mk(0.30, 0.20), "x")            # فصلٌ دون الضِعفَين
+_, _v_c2 = _TL.judge(_tl_mk(0.25, 0.10, na=24, nb=24), "x")  # ‏2.5× لكنّ الفواصل تتداخل
+_, _v_c4 = _TL.judge(_tl_mk(0.60, 0.10, split=False), "x")   # كلُّه في نصفٍ واحد ⇒ H2 فارغ
+_, _v_n = _TL.judge(_tl_mk(0.60, 0.10, na=12, nb=12), "x")   # دون 20
+check("🔗 TLK4 الحكمُ الرباعيّ سلوكيًّا: يمرّ · يسقط ① · يسقط ② · يسقط ④ · ولا حكم دون 20",
+      _v_pass["ok"] and _v_pass["why"] == "رابط"
+      and not _v_c1["ok"] and _v_c1["c1"] is False
+      and not _v_c2["ok"] and _v_c2["c1"] and _v_c2["c2"] is False
+      and not _v_c4["ok"] and _v_c4["c1"] and _v_c4["c2"] and _v_c4["c4"] is False
+      and _v_c4["why"] == "فصلٌ غيرُ متكرّر"
+      and _v_n["best"] is None and _v_n["why"].startswith("لا حكم"),
+      f"{_v_pass['why']}/{_v_c1['why']}/{_v_c2['why']}/{_v_c4['why']}/{_v_n['why']}")
+# سلوكيّ — اشتقاقُ الفئة لصفوفٍ بلا سجلّ يطابق liq_tier/tier_of (مساواةٌ تامّة)
+_tl_a = {"anchor_ms": 1787565600000, "anchor_price": 2.0, "anchor_low": 1.8,
+         "k2": {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+                "v2": "المرساة دون 30% (سيولة تتوالى)", "v3": "نبضٌ متعادل", "j1": False}}
+_tl_f3 = _TL.features(_tl_a, None)
+_tl_a2 = dict(_tl_a, k2=dict(_tl_a["k2"], c3="صادقت", c4="خضراء 2"))   # مطابقةٌ جزئيّة لا تُحسب
+_tl_f1 = _TL.features(_tl_a2, None)
+check("🔗 TLK5 خضراءُ الصفوف بلا سجلّ = مساواةٌ تامّة بنصّ liq_tier (‏3 ⇒ قوي · جزئيّة ⇒ 1 ضعيف)",
+      _tl_f3["green"] == "3" and _tl_f3["tier"] == "قوي" and _tl_f3["V1"] == "نعم"
+      and _tl_f1["green"] == "1" and _tl_f1["tier"] == "ضعيف",
+      f"{_tl_f3['green']}/{_tl_f3['tier']} · {_tl_f1['green']}/{_tl_f1['tier']}")
+# سلوكيّ — mg_day من سعر الكرت وبعد الدقيقة الخامسة (لا من المِرساة ولا قبل الكرت)
+_tl_ms = 1787565600000
+_tl_bars = [(_tl_ms + i * 60000, 1.0, (3.0 if i == 2 else (1.6 if i == 8 else 1.05)), 0.95, 1.0 + i * 0.01, 1000)
+            for i in range(12)]
+_tl_o = _TL.measure({"anchor_ms": _tl_ms, "anchor_price": 1.0, "anchor_low": 0.9, "date": "2026-08-20"},
+                    {"e5": 1.04, "anchor_price": 1.0}, _tl_bars, [("2026-08-21", 2.08, 2.0)])
+check("🔗 TLK6 mg_day من سعر الكرت وبعد الخامسة: يتجاهل قمّةَ الدقيقة 3 (‏3.0) ويقرأ 1.6 ⇒ +53.8% · و5ج=+100%",
+      _tl_o is not None and abs(_tl_o["mg_day"] - (1.6 / 1.04 - 1) * 100) < 1e-6
+      and _tl_o["exploded50"] and abs(_tl_o["mg_5d"] - 100.0) < 1e-6,
+      str(_tl_o))
+_tl_wf = _tl_yaml.safe_load(open(".github/workflows/tierlink.yml", encoding="utf-8"))
+_tl_step = next(s for s in _tl_wf["jobs"]["tierlink"]["steps"] if "tierlink_probe" in str(s.get("run", "")))
+check("🔗 TLK7 الـworkflow: permissions=read · بلا كرون · المدخلُ since موصولٌ بـTIERLINK_SINCE الذي يقرؤه السكربت · fetch-depth 0",
+      _tl_wf["permissions"]["contents"] == "read" and "schedule" not in _tl_wf[True]
+      and "since" in _tl_wf[True]["workflow_dispatch"]["inputs"]
+      and "inputs.since" in str(_tl_step["env"]["TIERLINK_SINCE"])
+      and 'os.environ.get("TIERLINK_SINCE"' in _tl_src
+      and any(s.get("with", {}).get("fetch-depth") == 0 for s in _tl_wf["jobs"]["tierlink"]["steps"]),
+      str(_tl_wf.get("permissions")))
 # ══════════════════════════════════════════════════════════════════════════
 # 😴 `T-DORMANT` — **طولُ السكون** (`dormant_prereg.md`، أمرُ المالك «سجل
 #    الهدوء»). أحدَ عشرَ قفلًا · **وكلُّ بوّابةٍ تُثبَت أنها توقف فعلًا** —

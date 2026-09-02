@@ -1,0 +1,39 @@
+name: "🔗 T-TIERLINK — الرابط المشترك للمنفجرين (tierlink_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد tierlink_prereg.md
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "أوّلُ يومٍ يُقاس (YYYY-MM-DD)"
+        required: false
+        default: "2026-08-18"
+
+jobs:
+  tierlink:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات op_entry_state)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔗 القياس
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          TIERLINK_SINCE: ${{ inputs.since }}
+        run: python tierlink_probe.py
