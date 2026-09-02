@@ -13466,6 +13466,77 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                        "class": _ignition_candle_class(_usd(_ab))})
             return (ev, st)
         anchor = int(anchor)
+        # 🛑🎯 **قرارُ الخروج والهدف — حدثان لا نبض** (أمرُ المالك 2026-09-02:
+        #    «ما ابي يوصلني إلا اشعار اولي بعدها التحديث يقول استمر اطلع مع
+        #    الوقف … لاحظت ان الوقف يكون اعلى بعض الأحيان من سعر الدخول»).
+        #    🔴 **والعطبُ مقيسٌ من سجلّ المقطع الحيّ `33513880987`:** ‏90 رسالةً
+        #    في 86 دقيقة، ‏228 من 232 حدثًا (‏98%) نبضُ `Px` — `FLYE` وحدَه
+        #    71 نبضة — **ولا حدثَ واحدٌ يقول «أُغلق تحت الوقف»** فكانت الكروتُ
+        #    تطبع وقفًا **فوق** السعر الحاليّ بعد كسره صامتةً.
+        #    ⇒ **`Xs`** = أوّلُ إغلاقِ دقيقةٍ **دون `anchor_low`** بعد المِرساة
+        #    (عينُ تعريف الخروج في `kasih_scan.resolve` — `exit_point`) **مرّةً
+        #    واحدة** ثم **تصمت القناةُ لهذي المِرساة** (لا نبضَ ولا ثلاثين ولا هدف).
+        #    **`Tg`** = أوّلُ إغلاقٍ ‏≥ `e5 × (1 + LIQ_TARGET10_PCT/100)` بعد `M5`
+        #    (رقمُ المالك المقيسُ `T-TARGET10`) **مرّةً واحدة**. كلاهما **يُعَدّ
+        #    ولا يُخترَع رقمٌ**، وخارجَ `_ALERT_UPDATE_STAGES` (خروجٌ لا يُكتَم
+        #    بالتصنيف — واجبٌ كخطر كسر الوقف).
+        _alow = st.get("anchor_low")
+        _xb = None
+        _tg_late = None
+        if _alow and not st.get("exit_ms"):
+            _xb = next((b for b in closed if int(b["t"]) > anchor
+                        and float(b["c"]) < float(_alow)), None)
+        # 🎯 الهدفُ **قبل** الخروج زمنيًّا إن سبقه (نفسُ المسحة قد تحمل الاثنين):
+        #    شمعةُ الهدف تُقرأ من الشموع **السابقة** لشمعة الخروج حصرًا.
+        _e5 = st.get("e5")
+        if _e5 and not st.get("tgt_ms") and "M5" in (st.get("sent") or []):
+            _lvl = float(_e5) * (1.0 + float(LIQ_TARGET10_PCT) / 100.0)
+            _xt = int(_xb["t"]) if _xb is not None else None
+            _tb = next((b for b in closed if int(b["t"]) > anchor
+                        and (_xt is None or int(b["t"]) < _xt)
+                        and float(b["c"]) >= _lvl), None)
+            if _tb is not None:
+                st["tgt_ms"] = int(_tb["t"])
+                _evt = {"stage": "Tg", "usd": round(_usd(_tb)), "minutes": 1,
+                        "anchor_ms": anchor, "last_ms": int(_tb["t"]),
+                        "price": round(float(_tb["c"]), 4),
+                        "price_ms": int(_tb["t"]),
+                        "anchor_price": st.get("anchor_price"),
+                        "anchor_open": st.get("anchor_open"),
+                        "anchor_low": _alow, "e5": _e5,
+                        "target": round(_lvl, 4)}
+                if st.get("k2"):
+                    _evt["k2"] = st["k2"]
+                _klt = liq_live_feats([b for b in closed
+                                       if int(b["t"]) <= int(_tb["t"])],
+                                      since_ms=anchor)
+                if _klt:
+                    _evt["k2_live"] = _klt
+                # ⏫ يُلحَق **بعد** أحداث المراحل (‏Mu/M5/M30) في المسحة نفسِها —
+                #    فلا يتقدّم قرارٌ على مرحلةٍ في وقتها (عقدُ `LS1`)؛ وعند
+                #    الخروج يُلحَق قبل `Xs` مباشرةً (الترتيبُ الزمنيّ).
+                _tg_late = _evt
+        if _xb is not None:
+            if _tg_late is not None:
+                ev.append(_tg_late)
+                _tg_late = None
+            st["exit_ms"] = int(_xb["t"])
+            _evx = {"stage": "Xs", "usd": round(_usd(_xb)), "minutes": 1,
+                    "anchor_ms": anchor, "last_ms": int(_xb["t"]),
+                    "price": round(float(_xb["c"]), 4),
+                    "price_ms": int(_xb["t"]),
+                    "anchor_price": st.get("anchor_price"),
+                    "anchor_open": st.get("anchor_open"),
+                    "anchor_low": _alow, "e5": st.get("e5")}
+            if st.get("k2"):
+                _evx["k2"] = st["k2"]
+            ev.append(_evx)
+        if st.get("exit_ms"):
+            # 🔇 بعد الخروج البنيويّ **لا تحديثَ** — المِرساةُ انتهت بقرارها.
+            if last_ms > int(st.get("last_ms") or 0):
+                st["last_ms"] = last_ms
+            st["pulse_ms"] = last_ms
+            return (ev, st)
         # 💓 **«نبضُ السيولة» (أمرُ المالك 2026-08-19: «تحديث للشمعة الدقيقه
         #    في حال ارتفعت او انخفضت ب10٪ عن الشمعة السابقه … بعلامة واضحة
         #    … عشان اعرف استمر ولا لا» · 🔴 وتصحيحُه مساءً: «**نسبة ١٠٪ تخص
@@ -13601,6 +13672,9 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 #    المالك «ما يوصلني تحديث إلا للأسهم اللي لها تصنيف …
                 #    **ومع قرار الدخول**». وقبل `M5` لا تصنيفَ ⇒ لا نبض.
                 st["k2"] = _evd["k2"]
+                # 🎯 **`e5` = سعرُ كرت `M5` يُحفَظ** (أمرُ المالك 2026-09-02) —
+                #    مرجعُ هدف الربح `Tg` أدناه (نفسُ أساس `target10_line`).
+                st["e5"] = round(float(last["c"]), 4)
             elif tag == "M30" and st.get("k2"):
                 # 🥇 **كرتُ الثلاثين يرث الختمَ** (أمرُ المالك «والثلاثين
                 #    للقوي» 2026-08-26): بِلاه كان `M30` بلا `k2` ⇒ `liq_tier`
@@ -13615,6 +13689,8 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 if _kl30:
                     _evd["k2_live"] = _kl30
             ev.append(_evd)
+        if _tg_late is not None:
+            ev.append(_tg_late)
         st["sent"] = sent
         return (ev, st)
     except Exception:                                            # noqa: BLE001
@@ -13763,7 +13839,7 @@ ALERT_FILTER_AXES = {
     "entry_status": list, "float_max": float, "avail_max": float,
     "update_tier": list,
 }
-ALERT_FILTER_STAGES = ("M0", "M1", "Mu", "M5", "M30", "Px")
+ALERT_FILTER_STAGES = ("M0", "M1", "Mu", "M5", "M30", "Px", "Xs", "Tg")
 ALERT_FILTER_CLASSES = ("group", "mid", "operator", "strong")
 ALERT_FILTER_TIERS = ("قوي", "متوسط", "ضعيف")
 # 🔁 **مراحلُ «التحديث»** — أمرُ المالك 2026-08-22 («اشعارُ التحديث يوصلني
@@ -14691,7 +14767,60 @@ _LIQ_WIN_AR = {"M0": " دقيقة", "M1": " دقيقة", "Mu": " دقيقة",
                "M5": " 5د", "M30": " 30د"}
 _LIQ_STAGE_SHORT = {"M0": "🚨🚨 دقيقةٌ قيد التكوين", "M1": "🚨 أوّلُ دقيقة",
                     "Mu": "🔁 تحديث", "M5": "5️⃣ اكتملت 5د",
-                    "M30": "🕧 اكتملت 30د"}
+                    "M30": "🕧 اكتملت 30د",
+                    "Xs": "🔴 اطلع — أُغلق تحت الوقف",
+                    "Tg": "🎯 بلغ هدفَ الربح"}
+
+
+def liq_verdict_line(ev: dict) -> str:
+    """🟢🔴 **سطرُ القرار على كلّ كرتِ تحديث** — أمرُ المالك 2026-09-02 («التحديث
+    يقول استمر اطلع مع الوقف»). يقارن **سعرَ الكرت بالوقف** فلا يُطبَع وقفٌ فوق
+    السعر بلا حكم (بلاغُه «الوقف يكون اعلى بعض الأحيان من سعر الدخول»).
+    `Xs` ⇒ اطلع دائمًا · وغيرُه: فوق الوقف ⇒ استمر بمسافته · دونه ⇒ اطلع.
+    `""` بلا وقفٍ أو سعر (لا يُخمَّن). **لكروت التحديث وحدَها** (بنصّه:
+    «اشعار اولي **بعدها** التحديث يقول استمر اطلع») — الاكتشافُ (‏M0/M1/Mu)
+    وكرتُ القرار `M5` بلا سطر: الوقفُ فيه يُطبَع أصلًا والسعرُ فوقه بالبناء
+    (كسرُه قبل الخمس يُخرج `Xs` ولا يُخرج `M5`)، وميزانيةُ `BRIEF1` تبقى."""
+    try:
+        stg = str((ev or {}).get("stage") or "")
+        if stg in ("M0", "M1", "Mu", "M5"):
+            return ""
+        lo = float(ev.get("anchor_low"))
+        px = float(ev.get("price"))
+        if lo <= 0 or px <= 0:
+            return ""
+        if stg == "Xs" or px < lo:
+            return (f"🔴 اطلع — أُغلق {_px_txt(px)} تحت الوقف {_px_txt(lo)}"
+                    f" (‏{abs(px / lo - 1.0) * 100.0:.1f}% دونه)")
+        return (f"🟢 استمر — فوق الوقف {_px_txt(lo)} بـ"
+                f"{(px / lo - 1.0) * 100.0:.1f}%")
+    except (TypeError, ValueError):
+        return ""
+
+
+def j1_premarket_flag(evs) -> bool:
+    """🌅 **«J1 في البريماركت»** — أمرُ المالك 2026-09-02 («الثنتين») بعد
+    `T-TIERLINK`: الرابطُ الوحيد العابر (‏29.2% مقابل أساس 10.3% · وJ1 خارج
+    البريماركت 0 من 9). **شارةُ عرضٍ فقط** — لا كتمَ ولا ترتيب (سقفُ النجاح
+    المسجَّل)، والحكمُ الأماميّ في `j1pm_prereg.md`. الحقولُ محسوبةٌ أصلًا:
+    `_event_j1` على `M5` + `anchor_ms` ⟶ ساعةُ نيويورك **قبل 09:30**
+    (تعريفُ `tod == "pre"` في أداة `T-TIERLINK` حرفيًّا)."""
+    try:
+        from zoneinfo import ZoneInfo
+        for e in (evs or []):
+            if not isinstance(e, dict) or e.get("stage") != "M5":
+                continue
+            if not _event_j1(e)[0]:
+                return False
+            ms = float(e.get("anchor_ms") or 0)
+            if ms <= 0:
+                return False
+            t = dt.datetime.fromtimestamp(ms / 1000.0,
+                                          tz=ZoneInfo("America/New_York"))
+            return (t.hour + t.minute / 60.0) < 9.5
+        return False
+    except Exception:                                            # noqa: BLE001
+        return False
 
 
 def build_liq_stage_alert(rows: list, now_ms=None) -> str:
@@ -14833,6 +14962,8 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
         if any(a for a, _ in _j1):
             head.append("🥇 توليفة"
                         + (" (أقوى خلية)" if any(t for _, t in _j1) else ""))
+        if j1_premarket_flag(evs):
+            head.append("🌅 J1 في البريماركت")
         if row.get("src"):
             head.append(esc(row.get("src")))
         lines.append(" · ".join(head))
@@ -14894,6 +15025,9 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                 _sl = liq_stop_line(e)
                 if _sl:
                     lines.append("   " + _sl)
+                _vl = liq_verdict_line(e)
+                if _vl:
+                    lines.append("   " + _vl)
             # 🧱 جدارُ الطلبات — والبائتُ لا يُطبَع جدارًا (عقدُ «السعر الآن»).
             if "operator" in e and e.get("operator"):
                 _fv, _fa = quote_freshness(e.get("operator"), now_ms=now_ms,

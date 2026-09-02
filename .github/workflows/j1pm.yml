@@ -1,0 +1,37 @@
+name: "🌅 T-J1PM — حصاد «J1 في البريماركت» (j1pm_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد j1pm_prereg.md
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "بدايةُ الفترة الأمامية (YYYY-MM-DD) — العقد §②"
+        required: false
+        default: "2026-09-03"
+
+jobs:
+  j1pm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌅 الحصاد
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          J1PM_SINCE: ${{ inputs.since }}
+        run: python j1pm_harvest.py

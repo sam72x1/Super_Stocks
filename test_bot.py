@@ -27158,10 +27158,15 @@ except Exception as _e19:                                        # noqa: BLE001
 #      بالمشحون نفسِه**: نبضُ «قوي» **يصل** ونبضُ «ضعيف» **يُكتَم** بالكونفِج
 #      المشحون حرفيًّا — و`Px` باقيةٌ في مراحله (فالكتمُ بالتصنيف لا بغياب
 #      المرحلة، وإلّا مات النبضُ كلُّه صامتًا حتى للقوي).
-_af19_low_ship = S.alert_filter_keep(_af_row, _af_pulse(_af_k2_low),
+# 🛑🎯 **إقرارٌ مؤرَّخ رابع 2026-09-02 (أمرُ المالك «ما ابي يوصلني إلا اشعار اولي
+#    بعدها التحديث يقول استمر اطلع مع الوقف … الاشعارات كثيرة مره و مستفزه»):**
+#    أُسقط `Px` من المشحون (‏98% من 232 حدثًا في مقطعٍ حيٍّ كانت نبضًا) ⇒ الفارقُ
+#    الحيُّ بالتصنيف يُقاس على **`M30`** — آخرِ مرحلةِ تحديثٍ باقية — **ويشتدّ**:
+#    `Px` غائبٌ عن المشحون **و`Xs`/`Tg` حاضران** (قرارُ الخروج والهدف لا يُكتمان).
+_af19_low_ship = S.alert_filter_keep(_af_row, _af_pulse(_af_k2_low, "M30"),
                                      _af19_ship if isinstance(_af19_ship, dict)
                                      else {})
-_af19_top_ship = S.alert_filter_keep(_af_row, _af_pulse(_af_k2_top),
+_af19_top_ship = S.alert_filter_keep(_af_row, _af_pulse(_af_k2_top, "M30"),
                                      _af19_ship if isinstance(_af19_ship, dict)
                                      else {})
 check("🔁🥇 AF19هـ **«التحديثُ للقوي» نافذٌ بفارقٍ يُثبته**: بالمشحون حرفيًّا "
@@ -27176,7 +27181,8 @@ check("🔁🥇 AF19هـ **«التحديثُ للقوي» نافذٌ بفارق
       and _af19_top_ship[0] is True
       and _af19_low_ship[0] is False
       and "تصنيف" in _af19_low_ship[1]
-      and "Px" in (_af19_ship.get("stages") or []),
+      and "Px" not in (_af19_ship.get("stages") or [])
+      and {"Xs", "Tg", "M30"} <= set(_af19_ship.get("stages") or []),
       f"مشحون={sorted(k for k in _af19_ship if not str(k).startswith('_'))} · "
       f"ضعيف/بالمشحون={_af19_low_ship} · "
       f"ضعيف/بالإجبار={_af({'update_tier': ['قوي']}, ev=_af_pulse(_af_k2_low))}")
@@ -27590,9 +27596,11 @@ _show_keys = [k for d in _af_ast.walk(_show_tree)
 # 💓 إقرارٌ مؤرَّخ 2026-08-19: صار خامسًا — قاموسُ حدثِ نبض `Px` (أمرُ المالك)
 #    يكتب `price_ms` أيضًا، والعقدُ نفسُه باقٍ بل أوسع: **خمسُ كتاباتٍ وصفرُ
 #    قراءةٍ** ⇒ القرارُ بت-بت.
-check("🔒 SHOW6 **`price_ms` مفتاحُ كتابةٍ في خمسةِ قواميسَ ولا يُقرأ قطّ** "
+# 🛑🎯 إقرارٌ مؤرَّخ 2026-09-02 («اطلع مع الوقف»): صار سابعًا — قاموسا `Tg`
+#    و`Xs` يكتبانه أيضًا. العقدُ نفسُه: **سبعُ كتاباتٍ وصفرُ قراءةٍ** ⇒ بت-بت.
+check("🔒 SHOW6 **`price_ms` مفتاحُ كتابةٍ في سبعةِ قواميسَ ولا يُقرأ قطّ** "
       "(القرارُ بت-بت)",
-      len(_show_keys) == 5 and len(_show_all) == len(_show_keys)
+      len(_show_keys) == 7 and len(_show_all) == len(_show_keys)
       and '["price_ms"]' not in _show_src
       and '.get("price_ms")' not in _show_src
       and "price_ms" not in _af_insp.getsource(S.alert_filter_keep),
@@ -29116,35 +29124,53 @@ _pls8_low = {"c3": "نقضت", "c4": "خضراء 0-1", "v2": "المرساة ف�
 #    الاكتشاف يُوسَم `pre_m5` **ويُستثنى** من محور «التحديثُ للقوي» ⇒ القياسُ
 #    هنا على نبضِ **ما بعد** `M5` (الوسمُ يُنزَع)، **ويشتدّ القفلُ بشقٍّ ثالث**:
 #    نفسُ الضعيف **مع** الوسم **يمرّ** بالمشحون نفسِه = فارقٌ حيٌّ يُثبت النفاذ.
+# 🛑🎯 **إقرارٌ مؤرَّخ رابع 2026-09-02 — أمرُ المالك «ما ابي يوصلني إلا اشعار
+#    اولي بعدها التحديث يقول استمر اطلع مع الوقف»:** النبضُ `Px` **أُسقط من
+#    المشحون كلُّه** (ومعه نبضُ ما قبل الخمس) بعد قياس المقطع الحيّ `33513880987`
+#    (‏90 رسالةً في 86 دقيقة · 98% نبض) ⇒ عقدُ القفل ينقلب **ويُشدَّد**: النبضُ
+#    القويُّ والضعيفُ **كلاهما يُكتَم بالمرحلة** (سببٌ مُسمًّى «المرحلة») ·
+#    والفارقُ الحيُّ بالتصنيف يُقاس على `M30` (قويٌّ يصل · ضعيفٌ يُكتَم) ·
+#    و**`Xs` يصل مهما كان التصنيف** (خروجٌ لا يُكتَم — كخطر كسر الوقف) ·
+#    و`Tg` يصل · و`Mu` بمرحلته · وبصفر عِلّة.
 _pls8_post = {k: v for k, v in _pls_dn.items() if k != "pre_m5"}
 try:
     _pls_cfg = S.load_alert_filter()
-    _pls_ok, _ = S.alert_filter_keep(
+    _pls_px_top, _pls_px_why = S.alert_filter_keep(
         _pls_row, dict(_pls8_post, k2=dict(_pls8_top)), _pls_cfg, {})
+    _pls_ok, _ = S.alert_filter_keep(
+        _pls_row, dict(_pls8_post, stage="M30", k2=dict(_pls8_top)), _pls_cfg, {})
     _pls_low_ok, _ = S.alert_filter_keep(
-        _pls_row, dict(_pls8_post, k2=dict(_pls8_low)), _pls_cfg, {})
+        _pls_row, dict(_pls8_post, stage="M30", k2=dict(_pls8_low)), _pls_cfg, {})
     _pls_pre_ok, _ = S.alert_filter_keep(
         _pls_row, dict(_pls8_post, k2=dict(_pls8_low), pre_m5=True),
         _pls_cfg, {})
+    _pls_xs_ok, _ = S.alert_filter_keep(
+        _pls_row, dict(_pls8_post, stage="Xs", k2=dict(_pls8_low)), _pls_cfg, {})
+    _pls_tg_ok, _ = S.alert_filter_keep(
+        _pls_row, dict(_pls8_post, stage="Tg", k2=dict(_pls8_low)), _pls_cfg, {})
     # 🔒 والفاشلُ-الآمنُ المفتوح صار **أضيق** (وهو تشديدٌ لا إرخاء): الحدثُ
     #    بلا ختمٍ **وبلا قراءةٍ آنيّة** هو وحدَه غيرُ المصنَّف ⇒ يمرّ.
     _pls_nok_ok, _ = S.alert_filter_keep(
-        _pls_row, {k: v for k, v in _pls8_post.items()
-                   if k not in ("k2", "k2_live")}, _pls_cfg, {})
+        _pls_row, dict({k: v for k, v in _pls8_post.items()
+                        if k not in ("k2", "k2_live")}, stage="M30"), _pls_cfg, {})
     _pls_mu_ok, _w = S.alert_filter_keep(_pls_row, {"stage": "Mu", "price": 2.0},
                                          _pls_cfg, {})
     _pls_iss = S.alert_filter_issues(_pls_cfg)
 except Exception as _e:                                          # noqa: BLE001
     _pls_ok = _pls_low_ok = _pls_nok_ok = f"⛔ {type(_e).__name__}"
-    _pls_pre_ok = f"⛔ {type(_e).__name__}"
-    _pls_mu_ok, _pls_iss = None, ["رمى"]
-check("💓🔼 PLS8 **«التحديثُ للقوي» نافذٌ في قناة النبض**: قويٌّ يصل · ضعيفٌ "
-      "يُكتَم بالمشحون · وضعيفُ ما قبل M5 يمرّ · بلا k2 يمرّ (فاشل-آمن) · "
-      "وMu بمرحلته · وبصفر عِلّة",
-      _pls_ok is True and _pls_low_ok is False and _pls_pre_ok is True
+    _pls_pre_ok = _pls_px_top = _pls_xs_ok = _pls_tg_ok = f"⛔ {type(_e).__name__}"
+    _pls_px_why, _pls_mu_ok, _pls_iss = "", None, ["رمى"]
+check("🛑🎯 PLS8 **المشحون بعد «اطلع مع الوقف» (2026-09-02)**: النبضُ مكتومٌ بمرحلته "
+      "حتى للقوي · M30 قويٌّ يصل وضعيفٌ يُكتَم · Xs وTg يصلان مهما كان التصنيف · "
+      "بلا k2 يمرّ · Mu بمرحلته · وبصفر عِلّة",
+      _pls_px_top is False and "المرحلة" in str(_pls_px_why)
+      and _pls_pre_ok is False
+      and _pls_ok is True and _pls_low_ok is False
+      and _pls_xs_ok is True and _pls_tg_ok is True
       and _pls_nok_ok is True
       and _pls_mu_ok is False and _pls_iss == [],
-      f"قوي={_pls_ok} ضعيف={_pls_low_ok} قبل-M5={_pls_pre_ok} "
+      f"px-قوي={_pls_px_top}({_pls_px_why}) قبل-M5={_pls_pre_ok} m30-قوي={_pls_ok} "
+      f"m30-ضعيف={_pls_low_ok} xs={_pls_xs_ok} tg={_pls_tg_ok} "
       f"بلا-k2={_pls_nok_ok} mu={_pls_mu_ok} iss={_pls_iss}")
 
 # PLS9 — بوّابةُ «لا مضارب»: النبضُ ينجو **وحالتُه تبقى** (لا M1 مكرَّرًا) ·
@@ -30215,12 +30241,19 @@ _br_many = S.build_liq_stage_alert(
 #   من 1,700) ⇒ اتّسع إلى **1,750**. **والتشديدُ كسوابقه:** الاتّساعُ مشروطٌ
 #   بأنّ الزيادةَ هي المأمورُ بها — سطرُ الهدف حاضرٌ **ثلاثًا** (مرّةً لكلّ
 #   سهم) في العيّنة نفسِها، ووسيطُ السهم يبقى دون 570.
-check("📏 BRIEF4 ثلاثةُ أسهمٍ بحدثين ⇒ ثلاثةُ رؤوسٍ وفاصلان وتحت 1,750 محرف "
-      "(ووسيطُ السهم دون 570 · وسطرُ الهدف ثلاثًا)",
+# ⚖️ **إقرارٌ مؤرَّخ 2026-09-02 (أمرُ المالك «الثنتين» — شارةُ «🌅 J1 في
+#   البريماركت» على كرت `M5`):** مِرساةُ `$RITR` عند 04:02 نيويورك ⇒ الشارةُ
+#   تظهر (‏+19 محرفًا لكلّ كرت) فبلغت العيّنةُ 1,758 ⇒ اتّسع السقفُ إلى **1,800**
+#   والوسيطُ إلى **600**. **والتشديدُ كسوابقه:** مشروطٌ بأن تكون الزيادةُ هي
+#   المأمورُ بها — الشارةُ حاضرةٌ **ثلاثًا** في العيّنة نفسِها؛ و`BRIEF1` (كرتُ
+#   `M5` المفرد) بقي **داخل** ميزانيته 560 بلا توسعة (‏558).
+check("📏 BRIEF4 ثلاثةُ أسهمٍ بحدثين ⇒ ثلاثةُ رؤوسٍ وفاصلان وتحت 1,800 محرف "
+      "(ووسيطُ السهم دون 600 · وسطرُ الهدف ثلاثًا · وشارةُ J1-البريماركت ثلاثًا)",
       _br_many.count("🔥") == 3
       and _br_many.count(S.DAILY_CARD_SEP) == 2
-      and len(_br_many) < 1750 and (len(_br_many) / 3.0) < 570
-      and _br_many.count("🎯 هدفُ الربح") == 3,
+      and len(_br_many) < 1800 and (len(_br_many) / 3.0) < 600
+      and _br_many.count("🎯 هدفُ الربح") == 3
+      and _br_many.count("🌅 J1 في البريماركت") == 3,
       f"محارف={len(_br_many)} · للسهم={len(_br_many) / 3.0:.0f}")
 
 # BRIEF8 — 📏 **مسافةٌ بين كلّ سهمٍ والثاني** (أمرُ المالك 2026-08-20: «يكون فيه
@@ -36968,6 +37001,165 @@ check("🕓 H4L8 `HV0` وضعُ `verify` منفَّذٌ · وثوابتُه مث
       and "sha256" in _h4_src and "random" not in _h4_src
       and "S.fetch_4h" in _h4_src,
       f"tol={H4B.VERIFY_TOL_PCT} · scale={H4B.VERIFY_SCALE_TOL}")
+
+
+# ==========================================================
+# 🛑🎯 «اطلع مع الوقف» — أمرُ المالك 2026-09-02 (أقفال LQX1-LQX7)
+#    «ما ابي يوصلني إلا اشعار اولي بعدها التحديث يقول استمر اطلع مع الوقف …
+#     لاحظت ان الوقف يكون اعلى بعض الأحيان من سعر الدخول»
+# ==========================================================
+import ast as _lqx_ast, inspect as _lqx_inspect
+
+
+def _lqx_bar(t, c, lo=None, v=1000.0):
+    return {"t": t, "o": c, "h": c * 1.01, "l": (lo if lo is not None else c * 0.99),
+            "c": c, "v": v}
+
+
+_LQX_A, _LQX_M = 1_700_000_000_000, 60_000
+_lqx_st0 = {"anchor_ms": _LQX_A, "last_ms": _LQX_A, "sent": ["M1", "M5"], "updates": 0,
+            "vol_x": 3.0, "peak_usd": 100000, "last_eval_ms": _LQX_A, "pulse_ms": _LQX_A,
+            "anchor_price": 1.0, "anchor_open": 0.98, "anchor_low": 0.95, "e5": 1.02,
+            "k2": {"c3": "نقضت"}}
+# عيّنةٌ **تفرّق**: الهدف (‏1.13 ≥ 1.02×1.10) في الدقيقة 5 · ثم إغلاقٌ 0.90 تحت الوقف 0.95
+_lqx_bars = ([_lqx_bar(_LQX_A + i * _LQX_M, 1.0) for i in range(5)]
+             + [_lqx_bar(_LQX_A + 5 * _LQX_M, 1.13), _lqx_bar(_LQX_A + 6 * _LQX_M, 0.90, 0.88),
+                _lqx_bar(_LQX_A + 7 * _LQX_M, 0.85, 0.80)])
+try:
+    _lqx_ev, _lqx_st1 = S.liq_stage_events(_lqx_bars, dict(_lqx_st0), 3.0)
+    _lqx_stages = [e.get("stage") for e in _lqx_ev]
+    # مسحةٌ تالية بشمعةٍ صاخبة (سيولة ×9 وارتفاع) ⇒ **صفرُ حدثٍ** بعد الخروج
+    _lqx_ev2, _ = S.liq_stage_events(_lqx_bars + [_lqx_bar(_LQX_A + 8 * _LQX_M, 1.5, 1.4, 9000.0)],
+                                     _lqx_st1, 3.0)
+    # وبلا كسرٍ: لا `Xs` ولا هدفٍ إن لم يُبلَغ
+    _lqx_quiet = [_lqx_bar(_LQX_A + i * _LQX_M, 1.0) for i in range(8)]
+    _lqx_ev3, _lqx_st3 = S.liq_stage_events(_lqx_quiet, dict(_lqx_st0), 3.0)
+except Exception as _e:                                          # noqa: BLE001
+    _lqx_ev = _lqx_ev2 = _lqx_ev3 = [f"⛔ {type(_e).__name__}"]
+    _lqx_stages, _lqx_st1, _lqx_st3 = [], {}, {}
+check("🛑🎯 LQX1 `Tg` ثم `Xs` بترتيب الزمن من مسحةٍ واحدة · وكلٌّ مرّةً واحدة (‏tgt_ms/exit_ms) "
+      "· وبلا كسرٍ ولا بلوغٍ ⇒ لا شيء",
+      _lqx_stages == ["Tg", "Xs"]
+      and _lqx_st1.get("tgt_ms") == _LQX_A + 5 * _LQX_M
+      and _lqx_st1.get("exit_ms") == _LQX_A + 6 * _LQX_M
+      and _lqx_ev3 == [] and not _lqx_st3.get("exit_ms") and not _lqx_st3.get("tgt_ms"),
+      f"stages={_lqx_stages} st={ {k: _lqx_st1.get(k) for k in ('tgt_ms', 'exit_ms')} } quiet={_lqx_ev3}")
+check("🔇 LQX2 بعد الخروج البنيويّ **تصمت المِرساة**: شمعةٌ صاخبة (‏×9 سيولةً و+67%) ⇒ صفرُ نبضٍ "
+      "وصفرُ ثلاثين وصفرُ هدف",
+      _lqx_ev2 == [], f"ev2={_lqx_ev2}")
+_lqx_x = next((e for e in _lqx_ev if isinstance(e, dict) and e.get("stage") == "Xs"), {})
+_lqx_t = next((e for e in _lqx_ev if isinstance(e, dict) and e.get("stage") == "Tg"), {})
+check("🟢🔴 LQX3 سطرُ القرار يفرّق: `Xs` ⇒ «اطلع» بالسعر والوقف · `Tg` فوق الوقف ⇒ «استمر» "
+      "بمسافته · وسعرٌ تحت الوقف على `M30` ⇒ «اطلع» · و`M1` بلا سطر · وبلا وقفٍ بلا سطر",
+      "🔴 اطلع" in S.liq_verdict_line(_lqx_x) and "$0.9000" in S.liq_verdict_line(_lqx_x)
+      and "🟢 استمر" in S.liq_verdict_line(_lqx_t) and "بـ" in S.liq_verdict_line(_lqx_t)
+      and "🔴 اطلع" in S.liq_verdict_line({"stage": "M30", "anchor_low": 0.95, "price": 0.94})
+      and S.liq_verdict_line({"stage": "M1", "anchor_low": 0.95, "price": 0.80}) == ""
+      and S.liq_verdict_line({"stage": "M30", "price": 0.80}) == "",
+      f"xs={S.liq_verdict_line(_lqx_x)!r} tg={S.liq_verdict_line(_lqx_t)!r}")
+_lqx_card = S.build_liq_stage_alert([({"symbol": "LQX", "src": "x"}, _lqx_ev)])
+_lqx_card_ok = S.build_liq_stage_alert([({"symbol": "LQX", "src": "x"},
+                                         [dict(_lqx_t, stage="M30")])])
+check("🧾 LQX4 الكرتُ يحمل سطرَ القرار **وسطرَ الوقف معًا** (لا وقفٌ فوق السعر بلا حكم): "
+      "كرتُ الخروج فيه «اطلع» وكرتُ الثلاثين فوق الوقف فيه «استمر» · والعناوينُ الجديدة تُطبَع",
+      "🔴 اطلع" in _lqx_card and "🛑 وقفُ الجلسة" in _lqx_card and "🎯 بلغ هدفَ الربح" in _lqx_card
+      and "🟢 استمر" in _lqx_card_ok and "🔴 اطلع" not in _lqx_card_ok,
+      f"card={_lqx_card[-200:]!r}")
+_lqx_src = _lqx_inspect.getsource(S.liq_stage_events)
+_lqx_tree = _lqx_ast.parse(_lqx_src)
+check("🔒 LQX5 (AST) `Xs`/`Tg` خارج `_ALERT_UPDATE_STAGES` (لا يُكتمان بالتصنيف) · وداخل "
+      "`ALERT_FILTER_STAGES` (الحارسُ يعرفهما) · والهدفُ من `LIQ_TARGET10_PCT` بالاسم لا رقمٍ مغروس",
+      "Xs" not in S._ALERT_UPDATE_STAGES and "Tg" not in S._ALERT_UPDATE_STAGES
+      and {"Xs", "Tg"} <= set(S.ALERT_FILTER_STAGES)
+      and any(isinstance(n, _lqx_ast.Name) and n.id == "LIQ_TARGET10_PCT"
+              for n in _lqx_ast.walk(_lqx_tree))
+      and "1.1" not in _lqx_src.split("_lvl = ")[1].split("\n")[0])
+_lqx_cfg = S.load_alert_filter()
+check("🎛️ LQX6 المشحون بأمر 2026-09-02: `Px` غائب · `Xs`/`Tg`/`M30`/`M5`/`M1` حاضرة · "
+      "و`update_tier` بحرفه · وبصفر عِلّة",
+      "Px" not in (_lqx_cfg.get("stages") or [])
+      and {"M1", "M5", "M30", "Xs", "Tg"} <= set(_lqx_cfg.get("stages") or [])
+      and _lqx_cfg.get("update_tier") == ["قوي"] and S.alert_filter_issues(_lqx_cfg) == [],
+      f"stages={_lqx_cfg.get('stages')} iss={S.alert_filter_issues(_lqx_cfg)}")
+# 🔒 LQX7 — `e5` يُحفَظ في الحالة عند `M5` (مرجعُ الهدف) — من الوصلة الحيّة لا الفِكستشر
+_lqx_st5 = {"anchor_ms": _LQX_A, "last_ms": _LQX_A, "sent": ["M1"], "updates": 0, "vol_x": 3.0,
+            "peak_usd": 1000, "last_eval_ms": _LQX_A, "pulse_ms": _LQX_A, "anchor_price": 1.0,
+            "anchor_open": 0.98, "anchor_low": 0.95}
+try:
+    _lqx_ev5, _lqx_st5b = S.liq_stage_events(
+        [_lqx_bar(_LQX_A + i * _LQX_M, 1.0 + 0.01 * i) for i in range(6)], dict(_lqx_st5), 3.0)
+except Exception as _e:                                          # noqa: BLE001
+    _lqx_ev5, _lqx_st5b = [f"⛔ {type(_e).__name__}"], {}
+check("🎯 LQX7 `e5` يُكتَب في الحالة لحظةَ `M5` = سعرُ كرت M5 نفسُه (أساسُ `target10_line`)",
+      any(isinstance(e, dict) and e.get("stage") == "M5" for e in _lqx_ev5)
+      and _lqx_st5b.get("e5") == next((e.get("price") for e in _lqx_ev5
+                                       if isinstance(e, dict) and e.get("stage") == "M5"), None),
+      f"ev={[e.get('stage') if isinstance(e, dict) else e for e in _lqx_ev5]} e5={_lqx_st5b.get('e5')}")
+
+# ==========================================================
+# 🌅🥇 «J1 في البريماركت» — أمرُ المالك 2026-09-02 «الثنتين» (أقفال JPM1-JPM4)
+# ==========================================================
+_jpm_pre_ms = 1788251700000            # 2026-09-01 04:35 نيويورك (بريماركت)
+_jpm_reg_ms = _jpm_pre_ms + 6 * 3600 * 1000     # 10:35 نيويورك (جلسةٌ نظاميّة)
+
+
+def _jpm_m5(ms, j1=True):
+    return {"stage": "M5", "anchor_ms": ms, "anchor_price": (2.0 if j1 else 1.1),
+            "prev_close": 1.0, "price": 2.0, "price_ms": ms + 4 * 60_000,
+            "class": ["strong", "x"], "usd": 500000, "minutes": 5, "anchor_low": 1.9,
+            "k2": {"c3": "نقضت"}}
+
+
+check("🌅 JPM1 الشارةُ **تفرّق**: J1 في البريماركت ⇒ True · J1 في الجلسة ⇒ False · "
+      "بلا J1 في البريماركت ⇒ False · بلا M5 ⇒ False",
+      S.j1_premarket_flag([_jpm_m5(_jpm_pre_ms)]) is True
+      and S.j1_premarket_flag([_jpm_m5(_jpm_reg_ms)]) is False
+      and S.j1_premarket_flag([_jpm_m5(_jpm_pre_ms, j1=False)]) is False
+      and S.j1_premarket_flag([dict(_jpm_m5(_jpm_pre_ms), stage="M1")]) is False
+      and S.j1_premarket_flag(None) is False)
+_jpm_card_pre = S.build_liq_stage_alert([({"symbol": "JPM", "src": "x"}, [_jpm_m5(_jpm_pre_ms)])])
+_jpm_card_reg = S.build_liq_stage_alert([({"symbol": "JPM", "src": "x"}, [_jpm_m5(_jpm_reg_ms)])])
+check("🌅 JPM2 الكرتُ يطبع «🌅 J1 في البريماركت» مع المِرساة الفجريّة **وحدَها** — وشارةُ "
+      "«🥇 توليفة» في الاثنين",
+      "🌅 J1 في البريماركت" in _jpm_card_pre and "🌅 J1 في البريماركت" not in _jpm_card_reg
+      and "🥇 توليفة" in _jpm_card_pre and "🥇 توليفة" in _jpm_card_reg)
+_jpm_roots = [S.alert_filter_keep, S.liq_stage_events, S.scan_liq_stages, S.liq_tier,
+              S.rank_key, S.select_top, S.analyze_ticker]
+check("🔒 JPM3 (AST) الشارةُ عرضٌ لا اختيار ولا كتم: `j1_premarket_flag` لا تُنادى في الفلتر "
+      "ولا البوّابة ولا التصنيف ولا الجذور",
+      not any(any(getattr(getattr(c, "func", None), "id", None) == "j1_premarket_flag"
+                  or getattr(getattr(c, "func", None), "attr", None) == "j1_premarket_flag"
+                  for c in _lqx_ast.walk(_lqx_ast.parse(_lqx_inspect.getsource(f)))
+                  if isinstance(c, _lqx_ast.Call)) for f in _jpm_roots))
+try:
+    import j1pm_harvest as _jpm_h
+    import yaml as _jpm_yaml
+    _jpm_y = _jpm_yaml.safe_load(open(".github/workflows/j1pm.yml", encoding="utf-8"))
+    _jpm_on = _jpm_y.get("on") or _jpm_y.get(True) or {}
+    _jpm_run = next(s_ for s_ in _jpm_y["jobs"]["j1pm"]["steps"] if "j1pm_harvest.py" in str(s_.get("run", "")))
+    _jpm_hsrc = open("j1pm_harvest.py", encoding="utf-8").read()
+    _jpm_ok = (
+        _jpm_h.classify({"j1": True, "anchor_ms": _jpm_pre_ms}) == "A"
+        and _jpm_h.classify({"j1": True, "anchor_ms": _jpm_reg_ms}) == "Ā"
+        and _jpm_h.classify({"j1": False, "anchor_ms": _jpm_pre_ms}) == "Ā"
+        and _jpm_h.classify({}) == "?"
+        and _jpm_h.judge(59, 30, 100, 5, True)[0] == "لا حكم"
+        and _jpm_h.judge(60, 18, 100, 9, True)[0] == "عبرت"
+        and _jpm_h.judge(60, 9, 100, 9, True)[0] == "فشلت"
+        and _jpm_h.judge(60, 18, 100, 9, False)[0] == "فشلت"
+        and (_jpm_h.MIN_A, _jpm_h.MIN_ALL, _jpm_h.SEP, _jpm_h.EXPL) == (60, 150, 2.0, 50.0)
+        and _jpm_y.get("permissions") == {"contents": "read"} and "schedule" not in _jpm_on
+        and _jpm_run["env"]["J1PM_SINCE"] == "${{ inputs.since }}" and "J1PM_SINCE" in _jpm_hsrc
+        and "send_telegram" not in _jpm_hsrc and "op_entry_state" not in _jpm_hsrc
+        and "from tier_fwd_report import fetch_day, load_ledger" in _jpm_hsrc
+        and "from sym_day_probe import full_day_max, exit_point" in _jpm_hsrc
+        and "j1pm_harvest" not in open("Super_stock.py", encoding="utf-8").read())
+except Exception as _e:                                          # noqa: BLE001
+    _jpm_ok = f"⛔ {type(_e).__name__}: {_e}"
+check("📏 JPM4 الحصّادُ الأماميّ: يصنّف A/Ā/؟ بتعريف العقد · «لا حكم» دون 60 · يعبر/يفشل بالأربعة "
+      "· ثوابتُ العقد (‏60/150/2×/+50) · workflow قراءةٌ بلا كرون ومدخلُه موصول · بالاسم من "
+      "tier_fwd_report/sym_day_probe · بلا تلغرام ولا حالة · والإنتاجُ لا يستورده",
+      _jpm_ok is True, str(_jpm_ok))
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
