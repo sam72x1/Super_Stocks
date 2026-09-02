@@ -196,7 +196,7 @@
   "date": "2026-09-02"
  },
  "LIQ:FFAI": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:RAYA": {
@@ -260,7 +260,7 @@
   "date": "2026-09-02"
  },
  "LIQ:REKR": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:ZSQR": {
@@ -295,7 +295,7 @@
   "date": "2026-09-02"
  },
  "LIQ:MVST": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:PARA": {
@@ -395,7 +395,7 @@
   "date": "2026-09-02"
  },
  "LIQ:INV": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:BCAB": {
@@ -502,7 +502,7 @@
   "date": "2026-09-02"
  },
  "LIQ:GOGO": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:AHMA": {
@@ -716,11 +716,11 @@
   "date": "2026-09-02"
  },
  "LIQ:SLNH": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:PROP": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:ENVX": {
@@ -1305,7 +1305,7 @@
  },
  "LIQ:EOSE": {
   "anchor_ms": 1788350340000,
-  "last_ms": 1788360780000,
+  "last_ms": 1788360840000,
   "sent": [
    "M1",
    "M5",
@@ -1315,7 +1315,7 @@
   "vol_x": 179.4,
   "peak_usd": 1469391,
   "last_eval_ms": 1788350340000,
-  "pulse_ms": 1788360780000,
+  "pulse_ms": 1788360840000,
   "anchor_price": 3.3854,
   "anchor_open": 3.02,
   "anchor_low": 3.02,
@@ -1557,7 +1557,7 @@
   "date": "2026-09-02"
  },
  "LIQ:EHTH": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:LOOP": {
@@ -1957,7 +1957,7 @@
   "date": "2026-09-02"
  },
  "LIQ:MRLN": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:NVNI": {
@@ -2173,15 +2173,15 @@
   "date": "2026-09-02"
  },
  "LIQ:FBYD": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:LWLG": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:OPEN": {
-  "last_eval_ms": 1788360780000,
+  "last_eval_ms": 1788360840000,
   "date": "2026-09-02"
  },
  "LIQ:FEED": {
