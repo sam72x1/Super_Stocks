@@ -37328,14 +37328,14 @@ check("💓 AF20 نبضُ ما قبل `M5` يمرّ مع المشحون (أسر�
       str([S.alert_filter_keep({"symbol": "A"}, _af20_pre, _af20_cfg),
            S.alert_filter_keep({"symbol": "A"}, _af20_post, _af20_cfg)]))
 
-# ═══ 🔁⚓ T-REARM — أقفال RA1-RA9 (عقد rearm_prereg.md · 2026-09-02) ═══
+# ═══ 🔁⚓ T-REARM — أقفال RA1-RA11 (عقد rearm_prereg.md · 2026-09-02) ═══
 # أمرُ المالك «سجّل إعادة المِرساة»: أداةُ قياسٍ خارج الإنتاج تُعيد المِرساةَ
 # **بعد الخروج البنيويّ** بدالّة الإنتاج نفسِها بحالةٍ مصفَّرة. الأقفال: الإعادةُ
 # بعد الخروج لا قبله (RA1/RA2) · سلسلةُ A2 وسقفُها (RA3) · مقياسٌ واحدٌ بالاسم
 # وصفرُ عتبةٍ جديدة (RA4) · قراءةٌ فقط (RA5) · وصلُ الـworkflow (RA6) · بوّاباتُ
 # الصلاحية منفَّذةٌ وأرقامُ V0 من kasih_result (RA7) · شاهدُ V3 و«مسترجَع»
 # يفرّقان (RA8) · وثوابتُ العقد في الأداة (RA9).
-print("\n=== 🔁⚓ T-REARM — أقفال RA1-RA9 ===")
+print("\n=== 🔁⚓ T-REARM — أقفال RA1-RA11 ===")
 import rearm_arms as _RA
 _ra_NY = __import__("zoneinfo").ZoneInfo("America/New_York")
 _ra_T0 = int(__import__("datetime").datetime(
@@ -37561,6 +37561,58 @@ check("🔁 RA9 ثوابتُ العقد: 50% · 3.6 · 1.0% · 150 · CHAI 11:50
                                      "11:50 و12:15", "`V0`", "`V3`")),
       "")
 
+
+# RA10 — **خروجُ T10 بالاسم وفي موضعه** (درسُ SN7ب/SL13: قفلٌ على «هل الاسمُ
+#   مستعمَل؟» لا يحرس حين يُنادى الاسمُ مرّتين — طفرةٌ استبدلت نداءَ T10 بنسخةٍ
+#   محلّية نجت من RA4). AST: نداءان لـ`arm_exit` داخل `anchor_record` **بالضبط**
+#   (T0 بـ`None` · T10 بـ`T10.TARGETS[0]`) · وسلوكيًّا على العيّنة: الأولى تُحسم
+#   `break` بـR سالب · والثانية تبلغ الهدف (`target`) بـR موجب دون R(T0) الممتدّ.
+_ra_arec = next(n for n in _ast0.walk(_ra_tree)
+                if isinstance(n, _ast0.FunctionDef) and n.name == "anchor_record")
+_ra_ax = [n for n in _ast0.walk(_ra_arec)
+          if isinstance(n, _ast0.Call) and getattr(n.func, "attr", None) == "arm_exit"]
+_ra_ax_args = sorted(_ast0.unparse(c.args[4]) if len(c.args) > 4 else "?"
+                     for c in _ra_ax)
+check("🔁 RA10 خروجُ T10 بالاسم وفي موضعه: نداءا arm_exit داخل anchor_record "
+      "(None · T10.TARGETS[0]) · والعيّنة: الأولى break/R سالب · الثانية target/R "
+      "موجب دون R(T0)",
+      len(_ra_ax) == 2 and _ra_ax_args == ["None", "T10.TARGETS[0]"]
+      and _ra_A[0]["t10_kind"] == "break" and _ra_A[0]["r_t10"] is not None
+      and _ra_A[0]["r_t10"] < 0
+      and _ra_A[1]["t10_kind"] == "target" and _ra_A[1]["t0_kind"] == "eod"
+      and _ra_A[1]["r_t10"] is not None and _ra_A[1]["r_t10"] > 0
+      and abs(_ra_A[1]["r_t10"] - 0.5333) < 1e-3
+      and _ra_A[1]["r_t0"] > _ra_A[1]["r_t10"],
+      f"calls={len(_ra_ax)} {_ra_ax_args} kinds={[a['t10_kind'] for a in _ra_A]} "
+      f"r10={[a['r_t10'] for a in _ra_A]}")
+
+# RA11 — **حارسُ V2 يسقط على الشرط الذي يدّعيه** (طفرةُ إسقاطه نجت لأن الحارس
+#   خامدٌ بالبناء على كودٍ سليم — فيُحقَن العطلُ عمدًا): `next_anchor` تُبدَل
+#   مرّةً واحدةً بمِرساةٍ **قبل** خروج الأولى (43 على العيّنة B) ⇒ يجب أن يعدّ
+#   `chain_anchors` تفرّقًا واحدًا في V2 — وبلا الحقن صفر (العيّنةُ تفرّق).
+_ra_na_old = _RA.next_anchor
+_ra_once = {"n": 0}
+
+
+def _ra_next_bad(rows, after_ms):
+    _ra_once["n"] += 1
+    return _ra_wrong if _ra_once["n"] == 1 else None
+
+
+try:
+    _RA.next_anchor = _ra_next_bad
+    _ra_inj = _RA.chain_anchors(_ra_Bbars, _ra_e1, 1.0)
+finally:
+    _RA.next_anchor = _ra_na_old
+_ra_clean = _RA.chain_anchors(_ra_Bbars, _ra_e1, 1.0)
+check("🔁 RA11 حارسُ V2 يسقط على شرطه: مِرساةٌ محقونة قبل الخروج (43) ⇒ v2_bad=1 "
+      "والسلسلة 2 · وبلا الحقن v2_bad=0 والسلسلة 1",
+      _ra_wrong is not None and len(_ra_inj[0]) == 2 and _ra_inj[3] == 1
+      and (int(_ra_inj[0][1]["anchor_ms"]) - _ra_T0) // 60_000 == 43
+      and _ra_inj[0][1]["anchor_ms"] <= _ra_inj[0][0]["exit_ms"]
+      and len(_ra_clean[0]) == 1 and _ra_clean[3] == 0
+      and _RA.next_anchor is _ra_na_old,
+      f"inj n={len(_ra_inj[0])} v2={_ra_inj[3]} · clean n={len(_ra_clean[0])} v2={_ra_clean[3]}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
