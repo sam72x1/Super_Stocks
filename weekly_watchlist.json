@@ -5787,7 +5787,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.78
+   "last_price": 2.78,
+   "live_alert": {}
   },
   {
    "symbol": "GDHG",
@@ -6146,7 +6147,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.27
+   "last_price": 1.27,
+   "live_alert": {}
   },
   {
    "symbol": "SLMT",
@@ -7666,7 +7668,7 @@
     "breakout": "2026-08-14",
     "buyzone": "2026-08-12",
     "sweep": "2026-08-11",
-    "premarket": "2026-08-20",
+    "premarket": "2026-09-02",
     "dump": "2026-08-18"
    },
    "borrow_hist": [
@@ -9582,7 +9584,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.649
+   "last_price": 0.649,
+   "live_alert": {}
   },
   {
    "symbol": "APVO",
@@ -11828,7 +11831,7 @@
     "afterdump": "2026-08-17",
     "dump": "2026-08-18",
     "buyzone": "2026-09-01",
-    "premarket": "2026-08-21"
+    "premarket": "2026-09-02"
    },
    "spikes": [
     70.9,
