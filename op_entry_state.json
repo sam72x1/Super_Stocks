@@ -68,7 +68,7 @@
   "date": "2026-09-02"
  },
  "LIQ:TENX": {
-  "last_eval_ms": 1788393000000,
+  "last_eval_ms": 1788393060000,
   "date": "2026-09-02"
  },
  "LIQ:KSCP": {
@@ -384,7 +384,7 @@
  },
  "LIQ:GIPR": {
   "anchor_ms": 1788380940000,
-  "last_ms": 1788393000000,
+  "last_ms": 1788393060000,
   "sent": [
    "M1"
   ],
@@ -392,7 +392,7 @@
   "vol_x": 24.1,
   "peak_usd": 24352,
   "last_eval_ms": 1788380940000,
-  "pulse_ms": 1788393000000,
+  "pulse_ms": 1788393060000,
   "anchor_price": 0.437,
   "anchor_open": 0.4048,
   "anchor_low": 0.4048,
@@ -404,7 +404,7 @@
   "date": "2026-09-02"
  },
  "LIQ:LX": {
-  "last_eval_ms": 1788392880000,
+  "last_eval_ms": 1788393060000,
   "date": "2026-09-02"
  },
  "LIQ:PWCM": {
@@ -428,7 +428,7 @@
   "date": "2026-09-02"
  },
  "LIQ:BAOS": {
-  "last_eval_ms": 1788392700000,
+  "last_eval_ms": 1788393060000,
   "date": "2026-09-02"
  },
  "LIQ:INV": {
@@ -695,12 +695,12 @@
   "date": "2026-09-02"
  },
  "LIQ:BRNX": {
-  "last_eval_ms": 1788392940000,
+  "last_eval_ms": 1788393060000,
   "date": "2026-09-02"
  },
  "LIQ:RITR": {
   "anchor_ms": 1788360720000,
-  "last_ms": 1788393000000,
+  "last_ms": 1788393060000,
   "sent": [
    "M1"
   ],
@@ -708,7 +708,7 @@
   "vol_x": 10.1,
   "peak_usd": 330756,
   "last_eval_ms": 1788360720000,
-  "pulse_ms": 1788393000000,
+  "pulse_ms": 1788393060000,
   "anchor_price": 0.112,
   "anchor_open": 0.1053,
   "anchor_low": 0.1053,
@@ -1106,7 +1106,7 @@
   "date": "2026-09-02"
  },
  "LIQ:ASST": {
-  "last_eval_ms": 1788393000000,
+  "last_eval_ms": 1788393060000,
   "date": "2026-09-02"
  },
  "LIQ:VWAV": {
@@ -1114,7 +1114,7 @@
   "date": "2026-09-02"
  },
  "LIQ:WETO": {
-  "last_eval_ms": 1788393000000,
+  "last_eval_ms": 1788393060000,
   "date": "2026-09-02"
  },
  "LIQ:RCON": {
@@ -1512,11 +1512,11 @@
   "date": "2026-08-31"
  },
  "LIQ:WHLR": {
-  "last_eval_ms": 1788392880000,
+  "last_eval_ms": 1788393060000,
   "date": "2026-09-02"
  },
  "LIQ:PPCB": {
-  "last_eval_ms": 1788393000000,
+  "last_eval_ms": 1788393060000,
   "date": "2026-09-02"
  },
  "LIQ:FWDI": {
@@ -1929,7 +1929,7 @@
   "date": "2026-09-02"
  },
  "LIQ:AAOI": {
-  "last_eval_ms": 1788393000000,
+  "last_eval_ms": 1788393060000,
   "date": "2026-09-02"
  },
  "LIQ:PCLA": {
