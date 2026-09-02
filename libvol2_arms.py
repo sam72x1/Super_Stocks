@@ -316,7 +316,10 @@ def main() -> int:
     with open(OUT_ROWS, "w", encoding="utf-8") as fh:
         for k, sym in enumerate(syms):
             df = hist.get(sym)
-            if df is None or len(df) < int(S.CONFIG["MIN_BARS"]) + 60:
+            # 🔒 فلترُ الطول = فلترُ `run_backtest` الإنتاجيّ **حرفيًّا**
+            #    (‏`MIN_BARS + BACKTEST_FORWARD_DAYS`) — كان `+60` فأسقط رمزًا
+            #    مشى الإنتاجُ عليه ⇒ `LW0` سقط في 2025 بصفقةٍ واحدة (‏240/241).
+            if df is None or len(df) < int(S.CONFIG["MIN_BARS"]) + fwd:
                 continue
             try:
                 trs = S.backtest_symbol(sym, df, date_window=(lo_d, hi_d),
