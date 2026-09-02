@@ -384,7 +384,7 @@
  },
  "LIQ:GIPR": {
   "anchor_ms": 1788380940000,
-  "last_ms": 1788380940000,
+  "last_ms": 1788381000000,
   "sent": [
    "M1"
   ],
@@ -392,10 +392,11 @@
   "vol_x": 24.1,
   "peak_usd": 24352,
   "last_eval_ms": 1788381000000,
-  "pulse_ms": 1788380940000,
+  "pulse_ms": 1788381000000,
   "anchor_price": 0.437,
   "anchor_open": 0.4048,
   "anchor_low": 0.4048,
+  "exit_ms": 1788381000000,
   "date": "2026-09-02"
  },
  "LIQ:LESL": {
