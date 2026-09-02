@@ -214,15 +214,15 @@
  },
  "LIQ:FAMI": {
   "anchor_ms": 1788379200000,
-  "last_ms": 1788379260000,
+  "last_ms": 1788379200000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 4.2,
   "peak_usd": 229074,
-  "last_eval_ms": 1788379200000,
-  "pulse_ms": 1788379260000,
+  "last_eval_ms": 1788379260000,
+  "pulse_ms": 1788379200000,
   "anchor_price": 0.1688,
   "anchor_open": 0.1539,
   "anchor_low": 0.1503,
@@ -749,19 +749,18 @@
  },
  "LIQ:UCL": {
   "anchor_ms": 1788379200000,
-  "last_ms": 1788379260000,
+  "last_ms": 1788379200000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 8.9,
   "peak_usd": 21718,
-  "last_eval_ms": 1788379200000,
-  "pulse_ms": 1788379260000,
+  "last_eval_ms": 1788379260000,
+  "pulse_ms": 1788379200000,
   "anchor_price": 0.4149,
   "anchor_open": 0.3868,
   "anchor_low": 0.3868,
-  "exit_ms": 1788379260000,
   "date": "2026-09-02"
  },
  "LIQ:BOXL": {
