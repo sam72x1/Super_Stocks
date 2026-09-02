@@ -1,0 +1,61 @@
+name: "T-REARM (🔁⚓ إعادة المِرساة بعد الخروج البنيويّ)"
+
+# 🔒 قياس/قراءة فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد rearm_prereg.md
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة المقيسة (2023/2024/2025)"
+        required: false
+        type: string
+      day:
+        description: "يوم تحقق واحد (YYYY-MM-DD — يتقدم على السنة)"
+        required: false
+        type: string
+      syms:
+        description: "رموز بفاصلة مع day (وضع الشاهد — بلا فلتر سعر) مثل CHAI,FTFT"
+        required: false
+        type: string
+      expect:
+        description: "شاهد V3 رمز:يوم:من-إلى (الافتراض CHAI:2026-08-28:11:50-12:15)"
+        required: false
+        type: string
+
+jobs:
+  rearm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔁⚓ قِس الأذرع الثلاث
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          REARM_YEAR: ${{ inputs.year }}
+          REARM_DAY: ${{ inputs.day }}
+          REARM_SYMS: ${{ inputs.syms }}
+          REARM_EXPECT: ${{ inputs.expect }}
+        run: python rearm_arms.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rearm-rows-${{ inputs.year || inputs.day }}
+          path: rearm_rows_*.jsonl
+          retention-days: 90
+          if-no-files-found: warn

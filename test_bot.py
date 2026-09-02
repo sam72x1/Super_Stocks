@@ -37328,6 +37328,240 @@ check("💓 AF20 نبضُ ما قبل `M5` يمرّ مع المشحون (أسر�
       str([S.alert_filter_keep({"symbol": "A"}, _af20_pre, _af20_cfg),
            S.alert_filter_keep({"symbol": "A"}, _af20_post, _af20_cfg)]))
 
+# ═══ 🔁⚓ T-REARM — أقفال RA1-RA9 (عقد rearm_prereg.md · 2026-09-02) ═══
+# أمرُ المالك «سجّل إعادة المِرساة»: أداةُ قياسٍ خارج الإنتاج تُعيد المِرساةَ
+# **بعد الخروج البنيويّ** بدالّة الإنتاج نفسِها بحالةٍ مصفَّرة. الأقفال: الإعادةُ
+# بعد الخروج لا قبله (RA1/RA2) · سلسلةُ A2 وسقفُها (RA3) · مقياسٌ واحدٌ بالاسم
+# وصفرُ عتبةٍ جديدة (RA4) · قراءةٌ فقط (RA5) · وصلُ الـworkflow (RA6) · بوّاباتُ
+# الصلاحية منفَّذةٌ وأرقامُ V0 من kasih_result (RA7) · شاهدُ V3 و«مسترجَع»
+# يفرّقان (RA8) · وثوابتُ العقد في الأداة (RA9).
+print("\n=== 🔁⚓ T-REARM — أقفال RA1-RA9 ===")
+import rearm_arms as _RA
+_ra_NY = __import__("zoneinfo").ZoneInfo("America/New_York")
+_ra_T0 = int(__import__("datetime").datetime(
+    2026, 8, 28, 9, 30, tzinfo=_ra_NY).timestamp() * 1000)
+
+
+def _ra_bars(spike_in_life=False, spike2=True, third=False):
+    """شموعُ دقيقةٍ مصطنعة (6-tuple كصفوف kasih_scan): مِرساةٌ أولى عند 40
+    تخرج بنيويًّا عند 45 · سبايكُ إعادةٍ عند 71 (يبلغ +30% من e5 ثم eod) ·
+    وفي الوضع الثالث خروجُ الثانية عند 80 ومِرساةٌ ثالثة عند 90."""
+    rows, c_prev = [], 1.00
+    for i in range(100):
+        t = _ra_T0 + i * 60_000
+        v = 12_000
+        if i < 40:
+            o, h, l, c = 1.00, 1.01, 0.99, 1.00
+        elif i == 40:
+            o, h, l, c, v = 1.00, 1.08, 0.995, 1.06, 60_000
+        elif i in (41, 42, 43, 44):
+            c = {41: 1.05, 42: 1.04, 43: 1.04, 44: 1.03}[i]
+            o, h, l = c_prev, c + 0.01, c - 0.005
+            if spike_in_life and i == 43:
+                o, h, l, c, v = 1.04, 1.11, 1.035, 1.10, 70_000
+        elif i == 45:
+            o, h, l, c = 1.03, 1.03, 0.97, 0.98
+        elif i < 71:
+            o, h, l, c = 0.98, 0.99, 0.97, 0.98
+        elif i == 71 and spike2:
+            o, h, l, c, v = 0.98, 1.06, 0.975, 1.04, 70_000
+        elif 72 <= i <= 75 and spike2:
+            c = {72: 1.08, 73: 1.12, 74: 1.16, 75: 1.20}[i]
+            o, h, l = c_prev, c + 0.01, c - 0.01
+        elif spike2 and not third and i > 75:
+            c = min(1.60, 1.20 + (i - 75) * 0.02)
+            o, h, l = c_prev, c + 0.02, c - 0.01
+        elif spike2 and third and 76 <= i <= 79:
+            c, o, h, l = 1.20, c_prev, 1.21, 1.19
+        elif spike2 and third and i == 80:
+            o, h, l, c = 1.20, 1.20, 0.95, 0.96
+        elif spike2 and third and 81 <= i <= 89:
+            o, h, l, c = 0.96, 0.97, 0.95, 0.96
+        elif spike2 and third and i == 90:
+            o, h, l, c, v = 0.96, 1.05, 0.955, 1.02, 80_000
+        elif spike2 and third and i > 90:
+            c = 1.02 + (i - 90) * 0.01
+            o, h, l = c_prev, c + 0.01, c - 0.005
+        else:
+            o, h, l, c = 0.98, 0.99, 0.97, 0.98
+        rows.append((t, o, h, l, c, v))
+        c_prev = c
+    return rows
+
+
+def _ra_chain(rows):
+    e = _RA.KS.first_anchor(rows)
+    return _RA.chain_anchors(rows, e, 0.95)
+
+
+# RA1 — الإعادةُ **بعد** الخروج البنيويّ: مِرساةٌ ثانية عند 71 (> شمعة الخروج 45)
+#   بالبوّابات الإنتاجية نفسِها · و«مسترجَع» لأن الأولى لم تبلغ +30% من e5.
+_ra_A, _ra_capA, _ra_g2A, _ra_v2A, _ra_v5A = _ra_chain(_ra_bars())
+check("🔁 RA1 إعادةُ مِرساةٍ بعد الخروج البنيويّ: [40 ⟶ خروج 45] ثم 71 · "
+      "الثانيةُ بعد شمعة الخروج · «مسترجَع» · V2/V5 صفر",
+      len(_ra_A) == 2 and (_ra_A[0]["anchor_ms"] - _ra_T0) // 60_000 == 40
+      and _ra_A[0]["exit"] == "break"
+      and (_ra_A[0]["exit_ms"] - _ra_T0) // 60_000 == 45
+      and (_ra_A[1]["anchor_ms"] - _ra_T0) // 60_000 == 71
+      and _ra_A[1]["anchor_ms"] > _ra_A[0]["exit_ms"]
+      and _ra_A[1]["gap_min"] == 26 and _ra_A[1]["exit"] == "eod"
+      and _ra_A[1]["kasih30_from5"] is True and _RA.recovered(_ra_A)
+      and not _ra_capA and _ra_v2A == 0 and _ra_v5A == 0,
+      str([((a["anchor_ms"] - _ra_T0) // 60_000, a["exit"]) for a in _ra_A]))
+
+# RA2 — **لا إعادةَ قبل الخروج**: سبايكٌ مؤهَّل داخل حياة الأولى (43) ليس مِرساةً
+#   ثانية (السلسلةُ واحدة) — والشاهدُ المفرِّق: بدءُ الإعادة من المِرساة بدل
+#   الخروج **كان سيُنتج 43** (فالعيّنة تفرّق الطفرة، لا قفلٌ أعمى).
+_ra_Bbars = _ra_bars(spike_in_life=True, spike2=False)
+_ra_B, *_ = _ra_chain(_ra_Bbars)
+_ra_e1 = _RA.KS.first_anchor(_ra_Bbars)
+_ra_wrong = _RA.next_anchor(_ra_Bbars, int(_ra_e1["anchor_ms"]))
+check("🔁 RA2 سبايكٌ داخل حياة الأولى لا يُعيد المِرساة (السلسلة 1) · والبدءُ من "
+      "المِرساة لا الخروج كان سيُنتج 43 (العيّنةُ تفرّق)",
+      len(_ra_B) == 1 and _ra_B[0]["exit"] == "break"
+      and _ra_wrong is not None
+      and (int(_ra_wrong["anchor_ms"]) - _ra_T0) // 60_000 == 43,
+      f"chain={len(_ra_B)} wrong={_ra_wrong and (int(_ra_wrong['anchor_ms']) - _ra_T0) // 60_000}")
+
+# RA3 — سلسلةُ A2 (ثلاثُ مراسٍ · كلٌّ بعد خروج سابقتها) · وسقفُ REARM_CAP يقصّ
+#   ويُعلن (capped) — بحقن السقف 2.
+_ra_C, _ra_capC, *_ = _ra_chain(_ra_bars(third=True))
+_ra_cap_old = _RA.REARM_CAP
+try:
+    _RA.REARM_CAP = 2
+    _ra_C2, _ra_capC2, *_ = _ra_chain(_ra_bars(third=True))
+finally:
+    _RA.REARM_CAP = _ra_cap_old
+check("🔁 RA3 A2: ثلاثُ مراسٍ (40·71·90) كلٌّ بعد خروج سابقتها (45·80) · وبسقف 2 "
+      "تُقصّ الثالثة ويُعلَن capped",
+      len(_ra_C) == 3 and not _ra_capC
+      and (_ra_C[1]["exit_ms"] - _ra_T0) // 60_000 == 80
+      and _ra_C[2]["anchor_ms"] > _ra_C[1]["exit_ms"]
+      and (_ra_C[2]["anchor_ms"] - _ra_T0) // 60_000 == 90
+      and len(_ra_C2) == 2 and _ra_capC2 is True,
+      f"n={len(_ra_C)} cap2={len(_ra_C2)}/{_ra_capC2}")
+
+# RA4 — **مقياسٌ واحدٌ بالاسم وصفرُ عتبةٍ جديدة** (AST): الكشفُ بـ
+#   `liq_stage_events` داخل `next_anchor` · الحسمُ `KS.resolve` · الدخولُ
+#   `TD.true_e5` · الخروجُ `T10.arm_exit` · وصفرُ تعريفٍ محلّيّ للكشف/الحسم
+#   وصفرُ ذكرٍ لعتبات المالك (لا نسخةَ منطقٍ ثانية).
+_ra_src = _insp0.getsource(_RA)
+_ra_tree = _ast0.parse(_ra_src)
+_ra_attr_calls = {getattr(n.func, "attr", None) for n in _ast0.walk(_ra_tree)
+                  if isinstance(n, _ast0.Call)}
+_ra_next = next(n for n in _ast0.walk(_ra_tree)
+                if isinstance(n, _ast0.FunctionDef) and n.name == "next_anchor")
+_ra_next_calls = {getattr(n.func, "attr", None) for n in _ast0.walk(_ra_next)
+                  if isinstance(n, _ast0.Call)}
+_ra_defs = {n.name for n in _ast0.walk(_ra_tree)
+            if isinstance(n, _ast0.FunctionDef)}
+check("🔁 RA4 مقياسٌ واحد (AST): liq_stage_events داخل next_anchor · resolve/"
+      "true_e5/arm_exit/first_anchor/prescreen/coverage_verdict بالاسم · ولا "
+      "تعريفَ محلّيّ للكشف/الحسم ولا ذكرَ لعتبات المالك",
+      "liq_stage_events" in _ra_next_calls
+      and {"resolve", "true_e5", "arm_exit", "first_anchor", "prescreen",
+           "parse_day", "coverage_verdict"} <= _ra_attr_calls
+      and not ({"resolve", "first_anchor", "liq_stage_events", "true_e5",
+                "arm_exit"} & _ra_defs)
+      and not any(k in _ra_src for k in ("LIQ_MIN_USD", "LIQ_MIN_MOVE_PCT",
+                                          "IGNITION_VOL_MULT",
+                                          "LIQ_CUM_MINUTES")),
+      str(sorted(_ra_attr_calls & {"resolve", "true_e5", "arm_exit"})))
+
+# RA5 — **قراءةٌ فقط والإنتاجُ لا يستوردها** (نمط TGT4 — بالـAST لا بالنصّ)
+_ra_bad = [1 for n in _ast0.walk(_ra_tree) if isinstance(n, _ast0.Call)
+           and (getattr(n.func, "id", None)
+                in ("send_telegram", "git_save", "save_watchlist")
+                or getattr(n.func, "attr", None)
+                in ("send_telegram", "git_save", "save_watchlist"))]
+_ra_prod = _ast0.parse(_insp0.getsource(S))
+_ra_imp = [nd for nd in _ast0.walk(_ra_prod)
+           if isinstance(nd, (_ast0.Import, _ast0.ImportFrom))
+           and "rearm_arms" in (
+               (nd.module or "") if isinstance(nd, _ast0.ImportFrom)
+               else " ".join(a.name for a in nd.names))]
+check("🔁 RA5 قراءةٌ فقط (صفرُ إرسال/كتابةِ حالة) · والإنتاجُ لا يستورد "
+      "`rearm_arms` (AST)", not _ra_bad and not _ra_imp,
+      f"نداءات={len(_ra_bad)} استيراد={len(_ra_imp)}")
+
+# RA6 — **الـworkflow موصولٌ ويدويٌّ بلا كرون** (بصمة BT_CANDLE): المدخلاتُ
+#   الأربعة تصل بيئةً يقرؤها السكربت بالاسم · و`permissions` صريحة.
+_ra_y = _rc_yaml.safe_load(open(".github/workflows/rearm.yml", encoding="utf-8"))
+_ra_on = _ra_y.get(True, _ra_y.get("on", {}))
+_ra_env = " ".join(str(s.get("env", "")) for j in _ra_y["jobs"].values()
+                   for s in j["steps"])
+check("🔁 RA6 `rearm.yml` يدويٌّ بلا كرون · REARM_YEAR/DAY/SYMS/EXPECT موصولةٌ "
+      "ويقرؤها السكربت · permissions صريحة",
+      "schedule" not in _ra_on and "workflow_dispatch" in _ra_on
+      and all(k in _ra_env and k in _ra_src for k in
+              ("REARM_YEAR", "REARM_DAY", "REARM_SYMS", "REARM_EXPECT"))
+      and _ra_y.get("permissions") == {"contents": "read"},
+      f"on={list(_ra_on)}")
+
+# RA7 — **بوّاباتُ الصلاحية منفَّذةٌ لا موصوفة** (درس «حارسٌ مكتوبٌ وغيرُ منفَّذ
+#   ليس حارسًا»): V0/V2/V5 ⇒ return 3 · V1 (n2 == 0) ⇒ return 4 · V3 ⇒ return 3
+#   · coverage_verdict مُنادى · **وأرقامُ V0 هي المنشورةُ في kasih_result.md**.
+_ra_main = next(n for n in _ast0.walk(_ra_tree)
+                if isinstance(n, _ast0.FunctionDef) and n.name == "main")
+
+
+def _ra_if_ret(name, code):
+    for n in _ast0.walk(_ra_main):
+        if isinstance(n, _ast0.If) and any(
+                isinstance(x, _ast0.Name) and x.id == name
+                for x in _ast0.walk(n.test)):
+            if any(isinstance(x, _ast0.Return)
+                   and getattr(x.value, "value", None) == code
+                   for x in _ast0.walk(n)):
+                return True
+    return False
+
+
+_ra_pub = {}
+for _m in _re10.finditer(
+        r"\|\s*(202\d)\s*\|[^|]*\|[^|]*\|\s*([\d,]+)\s*\|\s*\*\*([\d,]+)\s*\(",
+        open("kasih_result.md", encoding="utf-8").read()):
+    _ra_pub[_m.group(1)] = (int(_m.group(2).replace(",", "")),
+                            int(_m.group(3).replace(",", "")))
+check("🔁 RA7 بوّاباتُ الصلاحية منفَّذة (AST): v0_bad⇒3 · n2⇒4 · v3⇒3 · "
+      "coverage_verdict مُنادى · وPUBLISHED = جدولُ kasih_result.md بت-بت",
+      _ra_if_ret("v0_bad", 3) and _ra_if_ret("n2", 4) and _ra_if_ret("v3", 3)
+      and "coverage_verdict" in {getattr(n.func, "attr", None)
+                                 for n in _ast0.walk(_ra_main)
+                                 if isinstance(n, _ast0.Call)}
+      and _ra_pub == _RA.PUBLISHED and len(_ra_pub) == 3,
+      f"pub={_ra_pub}")
+
+# RA8 — **شاهدُ V3 و«مسترجَع» يفرّقان** (سلوكيًّا بأربع حالاتٍ لكلّ منهما).
+_ra_exp = _RA.parse_expect
+_ra_ok, _ = _RA.v3_check(_ra_exp("CHAI:2026-08-28:10:40-10:45"), {"CHAI": _ra_A})
+_ra_no, _ = _RA.v3_check(_ra_exp("CHAI:2026-08-28:11:50-12:15"), {"CHAI": _ra_A})
+_ra_abs, _ = _RA.v3_check(_ra_exp("CHAI:2026-08-28:10:40-10:45"), {"FTFT": _ra_A})
+_ra_one, _ = _RA.v3_check(_ra_exp("CHAI:2026-08-28:10:40-10:45"), {"CHAI": _ra_B})
+check("🔁 RA8 V3: داخل النافذة True · خارجها False · رمزٌ غائب None · بلا ثانية "
+      "False · وparse تالف None · و«مسترجَع» يشترط سقوطَ الأولى وبلوغَ الثانية",
+      _ra_ok is True and _ra_no is False and _ra_abs is None
+      and _ra_one is False and _ra_exp("تالف") is None
+      and _RA.recovered([{"kasih30_from5": None}, {"kasih30_from5": True}])
+      and not _RA.recovered([{"kasih30_from5": True}, {"kasih30_from5": True}])
+      and not _RA.recovered([{"kasih30_from5": False}, {"kasih30_from5": False}])
+      and not _RA.recovered([{"kasih30_from5": False}]),
+      f"{_ra_ok}/{_ra_no}/{_ra_abs}/{_ra_one}")
+
+# RA9 — **ثوابتُ العقد في الأداة حرفيًّا** (لا تُحرَّك بعد الأرقام): الكلفة 50 ·
+#   التسامح 3.6 (JITTER_PP) · الاسترجاع 1.0 · الأرضية 150 · وشاهدُ CHAI بنافذته
+#   — وكلُّها مكتوبةٌ في `rearm_prereg.md`.
+_ra_pre = open("rearm_prereg.md", encoding="utf-8").read()
+check("🔁 RA9 ثوابتُ العقد: 50% · 3.6 · 1.0% · 150 · CHAI 11:50-12:15 — في الأداة "
+      "وفي العقد معًا",
+      _RA.COST_MAX_PCT == 50.0 and _RA.QUALITY_TOL_PP == 3.6
+      and _RA.RECOVER_MIN_PCT == 1.0 and _RA.FLOOR_SECOND == 150
+      and _RA.V3_DEFAULT == "CHAI:2026-08-28:11:50-12:15"
+      and all(t in _ra_pre for t in ("50%", "3.6", "1.0%", "150",
+                                     "11:50 و12:15", "`V0`", "`V3`")),
+      "")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
