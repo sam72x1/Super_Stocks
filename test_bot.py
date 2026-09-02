@@ -37029,7 +37029,11 @@ try:
     _lqx_ev, _lqx_st1 = S.liq_stage_events(_lqx_bars, dict(_lqx_st0), 3.0)
     _lqx_stages = [e.get("stage") for e in _lqx_ev]
     # مسحةٌ تالية بشمعةٍ صاخبة (سيولة ×9 وارتفاع) ⇒ **صفرُ حدثٍ** بعد الخروج
-    _lqx_ev2, _ = S.liq_stage_events(_lqx_bars + [_lqx_bar(_LQX_A + 8 * _LQX_M, 1.5, 1.4, 9000.0)],
+    # 🐞 الشمعةُ الصاخبة **مغلقة** (يليها صفٌّ) وسيولتُها فوق أرضية النبض (‏1.5×40,000=$60k) —
+    #    وإلّا كانت آخرَ صفٍّ لا يُقرأ (‏`rows[:-1]`) أو دون الأرضية فيُكتَم النبضُ **بحارسٍ آخر**
+    #    = عيّنةٌ لا تفرّق (طفرةُ حذفِ الصمت نجت بها 2026-09-02).
+    _lqx_ev2, _ = S.liq_stage_events(_lqx_bars + [_lqx_bar(_LQX_A + 8 * _LQX_M, 1.5, 1.4, 40000.0),
+                                                  _lqx_bar(_LQX_A + 9 * _LQX_M, 1.5, 1.4, 40000.0)],
                                      _lqx_st1, 3.0)
     # وبلا كسرٍ: لا `Xs` ولا هدفٍ إن لم يُبلَغ
     _lqx_quiet = [_lqx_bar(_LQX_A + i * _LQX_M, 1.0) for i in range(8)]
@@ -37039,7 +37043,8 @@ try:
     #    تُقرأ من الشموع **السابقة** لشمعة الخروج حصرًا). العيّنةُ الأولى كان هدفُها قبل
     #    خروجها فكان نزعُ حارس `_xt` بلا أثرٍ عليها = «عيّنةٌ لا تفرّق».
     _lqx_late = ([_lqx_bar(_LQX_A + i * _LQX_M, 1.0) for i in range(5)]
-                 + [_lqx_bar(_LQX_A + 5 * _LQX_M, 0.90, 0.88), _lqx_bar(_LQX_A + 6 * _LQX_M, 1.13)])
+                 + [_lqx_bar(_LQX_A + 5 * _LQX_M, 0.90, 0.88), _lqx_bar(_LQX_A + 6 * _LQX_M, 1.13),
+                    _lqx_bar(_LQX_A + 7 * _LQX_M, 1.0)])   # صفٌّ تالٍ كي تكون شمعةُ 1.13 مغلقة
     _lqx_ev4, _lqx_st4 = S.liq_stage_events(_lqx_late, dict(_lqx_st0), 3.0)
     _lqx_stages4 = [e.get("stage") for e in _lqx_ev4]
 except Exception as _e:                                          # noqa: BLE001
