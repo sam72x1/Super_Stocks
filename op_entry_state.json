@@ -376,7 +376,7 @@
  },
  "LIQ:FGL": {
   "anchor_ms": 1788352200000,
-  "last_ms": 1788352200000,
+  "last_ms": 1788352260000,
   "sent": [
    "M1"
   ],
@@ -384,7 +384,7 @@
   "vol_x": 69.5,
   "peak_usd": 125120,
   "last_eval_ms": 1788352260000,
-  "pulse_ms": 1788352200000,
+  "pulse_ms": 1788352260000,
   "anchor_price": 17.99,
   "anchor_open": 16.38,
   "anchor_low": 16.38,
