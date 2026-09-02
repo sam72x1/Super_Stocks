@@ -391,7 +391,7 @@
   "updates": 0,
   "vol_x": 24.1,
   "peak_usd": 24352,
-  "last_eval_ms": 1788380940000,
+  "last_eval_ms": 1788381000000,
   "pulse_ms": 1788381360000,
   "anchor_price": 0.437,
   "anchor_open": 0.4048,
@@ -1097,7 +1097,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.65,
+  "e5": 0.68,
   "date": "2026-09-02"
  },
  "LIQ:NIPG": {
