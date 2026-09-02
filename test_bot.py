@@ -37034,16 +37034,26 @@ try:
     # وبلا كسرٍ: لا `Xs` ولا هدفٍ إن لم يُبلَغ
     _lqx_quiet = [_lqx_bar(_LQX_A + i * _LQX_M, 1.0) for i in range(8)]
     _lqx_ev3, _lqx_st3 = S.liq_stage_events(_lqx_quiet, dict(_lqx_st0), 3.0)
+    # 🐞 عيّنةٌ **تفرّق** أضافتها طفرةٌ نجت (2026-09-02): الخروجُ في الدقيقة 5 ثم إغلاقٌ
+    #    عند مستوى الهدف في الدقيقة 6 **بعد** الخروج ⇒ `Xs` وحدَه ولا `Tg` (شمعةُ الهدف
+    #    تُقرأ من الشموع **السابقة** لشمعة الخروج حصرًا). العيّنةُ الأولى كان هدفُها قبل
+    #    خروجها فكان نزعُ حارس `_xt` بلا أثرٍ عليها = «عيّنةٌ لا تفرّق».
+    _lqx_late = ([_lqx_bar(_LQX_A + i * _LQX_M, 1.0) for i in range(5)]
+                 + [_lqx_bar(_LQX_A + 5 * _LQX_M, 0.90, 0.88), _lqx_bar(_LQX_A + 6 * _LQX_M, 1.13)])
+    _lqx_ev4, _lqx_st4 = S.liq_stage_events(_lqx_late, dict(_lqx_st0), 3.0)
+    _lqx_stages4 = [e.get("stage") for e in _lqx_ev4]
 except Exception as _e:                                          # noqa: BLE001
-    _lqx_ev = _lqx_ev2 = _lqx_ev3 = [f"⛔ {type(_e).__name__}"]
-    _lqx_stages, _lqx_st1, _lqx_st3 = [], {}, {}
+    _lqx_ev = _lqx_ev2 = _lqx_ev3 = _lqx_ev4 = [f"⛔ {type(_e).__name__}"]
+    _lqx_stages, _lqx_stages4, _lqx_st1, _lqx_st3, _lqx_st4 = [], [], {}, {}, {}
 check("🛑🎯 LQX1 `Tg` ثم `Xs` بترتيب الزمن من مسحةٍ واحدة · وكلٌّ مرّةً واحدة (‏tgt_ms/exit_ms) "
-      "· وبلا كسرٍ ولا بلوغٍ ⇒ لا شيء",
+      "· وبلا كسرٍ ولا بلوغٍ ⇒ لا شيء · وهدفٌ **بعد** الخروج لا يُعَدّ",
       _lqx_stages == ["Tg", "Xs"]
       and _lqx_st1.get("tgt_ms") == _LQX_A + 5 * _LQX_M
       and _lqx_st1.get("exit_ms") == _LQX_A + 6 * _LQX_M
-      and _lqx_ev3 == [] and not _lqx_st3.get("exit_ms") and not _lqx_st3.get("tgt_ms"),
-      f"stages={_lqx_stages} st={ {k: _lqx_st1.get(k) for k in ('tgt_ms', 'exit_ms')} } quiet={_lqx_ev3}")
+      and _lqx_ev3 == [] and not _lqx_st3.get("exit_ms") and not _lqx_st3.get("tgt_ms")
+      and _lqx_stages4 == ["Xs"] and not _lqx_st4.get("tgt_ms"),
+      f"stages={_lqx_stages} st={ {k: _lqx_st1.get(k) for k in ('tgt_ms', 'exit_ms')} } "
+      f"quiet={_lqx_ev3} late={_lqx_stages4}")
 check("🔇 LQX2 بعد الخروج البنيويّ **تصمت المِرساة**: شمعةٌ صاخبة (‏×9 سيولةً و+67%) ⇒ صفرُ نبضٍ "
       "وصفرُ ثلاثين وصفرُ هدف",
       _lqx_ev2 == [], f"ev2={_lqx_ev2}")
