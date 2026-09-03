@@ -38343,6 +38343,48 @@ check("🌙 PS22 `PRESESSION_SEND` موصولٌ في خطوة تشغيل الع�
       f"خطوات={len(_pm_env)} قيمة={[e.get('PRESESSION_SEND') for e in _pm_env]}")
 
 
+# PS23 — 🔴🔴 **تصحيحُ المالك 2026-09-03: النافذةُ التي يريدها الجلسةُ كاملةً** —
+#   و«‏10 دقائق» في أمره **وقتُ وصول الإشعار** لا مدّةُ التوقّع. ⇒ جدولُ `S0`
+#   يُخرج الترتيبَ بمفتاحٍ منفردٍ **لنافذة الجلسة أيضًا** بمقياس `eval_scores`
+#   نفسِه (لا مقياسَ ثانٍ)، وعيّنةٌ **تفرّق**: وسمُ الجلسة يرتّب `post_hi_ret`
+#   أوّلًا و`usd_day` صفرًا، ووسمُ العشر دقائق صفرُ إصابات.
+_s0_rows = []
+for _s0_day in ("2023-01-03", "2023-01-04"):
+    for _i in range(20):
+        _r0 = {_PFm.ROW_DAY: _s0_day, _PFm.ROW_SESS: "PM", _PFm.ROW_SYM: f"S{_i:02d}"}
+        _r0.update({f: 0.0 for f in _RP.FEATS})
+        _r0["post_hi_ret"], _r0["usd_day"] = float(_i), float(19 - _i)
+        _r0.update({k: 0 for k in _RP.LABEL_KEYS.values()})
+        _r0["hit80_s"] = 1 if _i >= 18 else 0
+        _s0_rows.append(_r0)
+with _tf.TemporaryDirectory() as _s0_d:
+    _s0_p = _os_hc.path.join(_s0_d, "presession_rows_s0.jsonl")
+    open(_s0_p, "w", encoding="utf-8").write(
+        "\n".join(json.dumps(_x) for _x in _s0_rows))
+    try:
+        _s0_dd = _RP.load_cols([_s0_p], _RP.FEATS)
+        _s0_m = (_s0_dd["year"] == "2023") & (_s0_dd["slot"] == "PM")
+        _s0_sess = _RP.s0_table(_s0_dd, _RP.FEATS, _s0_m, 0)
+        _s0_ten = _RP.s0_table(_s0_dd, _RP.FEATS, _s0_m, 10)
+        _s0_ok = (_s0_sess[0][0] == "post_hi_ret" and _s0_sess[0][1]["hits"] == 4
+                  and dict(_s0_sess)["usd_day"]["p"] == 0.0
+                  and _s0_ten[0][1]["hits"] == 0)
+    except Exception as _e:                                      # noqa: BLE001
+        _s0_ok, _s0_sess = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+_s0_src = _ps_ast.parse(_rp_src2 := open("presession_report.py", encoding="utf-8").read())
+_s0_fn = next((n for n in _ps_ast.walk(_s0_src)
+               if isinstance(n, _ps_ast.FunctionDef) and n.name == "s0_table"), None)
+_s0_uses = _s0_fn is not None and any(
+    isinstance(c, _ps_ast.Call) and getattr(c.func, "id", "") == "eval_scores"
+    for c in _ps_ast.walk(_s0_fn))
+check("🌙 PS23 نافذةُ الجلسة (تصحيحُ المالك) مقيسةٌ بمفتاحٍ منفرد: `S0_WINDOWS` "
+      "تحوي الجلسة · و`s0_table` تقيس بـ`eval_scores` نفسِها (لا مقياسَ ثانٍ) · "
+      "وعيّنةٌ **تفرّق** بين وسم الجلسة ووسم العشر دقائق",
+      0 in _RP.S0_WINDOWS and 10 in _RP.S0_WINDOWS and _s0_uses and _s0_ok,
+      f"نوافذ={_RP.S0_WINDOWS} eval_scores={_s0_uses} "
+      f"أعلى={_s0_sess[0][0] if isinstance(_s0_sess, list) else _s0_sess}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

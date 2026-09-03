@@ -159,6 +159,31 @@ def eval_scores(score, gid, sym, y, k=TOPK, asc=False):
             "hits": hits, "taken": taken, "expl": expl, "uni": uni}
 
 
+# 🔴🔴 **تصحيحُ المالك 2026-09-03: النافذةُ التي يريدها هي الجلسةُ كاملةً.**
+#    «‏10 دقائق» في أمره **وقتُ وصول الإشعار قبل بدء الجلسة**، لا مدّةُ التوقّع —
+#    وأنا قرأتُها مدّةَ توقّعٍ فكتبتُ العقدَ على نافذة العشر دقائق. ✅ **والنافذةُ
+#    الكاملة مقيسةٌ في الجدول نفسِه منذ أوّل تشغيلة** (‏`hit80_s`) فلا انتقاءَ بعديّ.
+#    ⇒ هذي الجدولةُ تُخرج **الترتيبَ بمفتاحٍ منفردٍ لكلّ نافذة** كي يُختار مفتاحُ
+#    الجلسة **بالقاعدة نفسِها: من سنتَي المعايرة وحدهما**.
+S0_WINDOWS = (10, 0)
+
+
+def s0_table(d, feats, mask, w, k=TOPK):
+    """‏`P@10` لكلّ ميزةٍ منفردةً على شريحةٍ — بالمصدر الواحد وبمقياس `eval_scores`
+    نفسِه (لا مقياسَ ثانٍ يتفرّق). يُرجع قائمةً مرتَّبةً تنازليًّا."""
+    if not mask.any():
+        return []
+    gid, sym, y = d["gid"][mask], d["sym"][mask], d["y"][w][mask]
+    asc_set = set(PF.FEATS_ASC)
+    out = []
+    for i, f in enumerate(feats):
+        v = np.nan_to_num(d["X"][mask][:, i], nan=(np.inf if f in asc_set else -np.inf))
+        r = eval_scores(v, gid, sym, y, k=k, asc=(f in asc_set))
+        out.append((f, r))
+    out.sort(key=lambda kv: (-kv[1]["p"], kv[0]))
+    return out
+
+
 def verdict(res_s1, res_b1, res_b2, expl, signs_ok):
     if expl < MIN_EXPLODERS:
         return "لا حكم", [f"⑤ الأرضيةُ ساقطة: {expl} منفجرًا دون {MIN_EXPLODERS}"]
@@ -244,9 +269,33 @@ def main() -> int:
                 log("      🔴 " + x)
             log("      🔢 أقوى ثلاث: " + " · ".join(f"{nm}={c:+.3f}" for nm, c in top3)
                 + f" · ثباتُ الإشارة: {'✅' if signs_ok else '🔴'}")
+    # ── `S0` — الترتيبُ بمفتاحٍ منفردٍ لكلّ نافذةٍ وسنة (اختيارُ مفتاح الحيّ) ──
+    log("")
+    log("=" * 78)
+    log("🔑 `S0` — الترتيبُ بمفتاحٍ منفردٍ (لا نموذج) · **يُختار من سنتَي المعايرة "
+        "وحدهما** · سنةُ التقييم تُطبَع للقراءة لا للاختيار")
+    log("=" * 78)
+    for w in S0_WINDOWS:
+        wname = f"{w}د" if w else "الجلسة"
+        for slot in ("AH", "PM"):
+            for yr in list(TRAIN_YEARS) + [EVAL_YEAR]:
+                m = (d["year"] == yr) & (d["slot"] == slot)
+                tab = s0_table(d, feats, m, w)
+                if not tab:
+                    continue
+                base = tab[0][1]["base"]
+                tag = "معايرة" if yr in TRAIN_YEARS else "تقييم (خارج العيّنة)"
+                log(f"\n【{slot} · نافذة {wname} · {yr} — {tag}】 كون={tab[0][1]['uni']:,}"
+                    f" · منفجرون={tab[0][1]['expl']} · base={base*100:.3f}%")
+                for f, r in tab[:8]:
+                    bt = next((b for b, ff in PF.BASELINES.items() if ff == f), "")
+                    log(f"      {f:14} {'(' + bt + ')' if bt else '':5} إصابات "
+                        f"{r['hits']:4} من {r['taken']:6} ⇒ P@10 {r['p']*100:.3f}% · "
+                        f"lift {r['lift']:5.1f}× · R@10 {r['r']*100:.1f}%")
     log("")
     log("📌 ترتيبُ التراجع المقفول: تُقرأ نافذةُ 10 أوّلًا، ولا يُقرأ حكمُ نافذةٍ "
-        "أوسعَ حكمًا على الأضيق.")
+        "أوسعَ حكمًا على الأضيق. **والنافذةُ التي يريدها المالك هي الجلسةُ كاملةً "
+        "(تصحيحُه 2026-09-03) — وحكمُها مطبوعٌ أعلاه ولم يُنتقَ بعد الأرقام.**")
     return 0
 
 
