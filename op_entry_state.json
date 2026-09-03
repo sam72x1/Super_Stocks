@@ -24,7 +24,7 @@
   "date": "2026-09-03"
  },
  "LIQ:SSM": {
-  "last_eval_ms": 1788478020000,
+  "last_eval_ms": 1788479580000,
   "date": "2026-09-03"
  },
  "LIQ:CISS": {
@@ -428,7 +428,7 @@
   "date": "2026-09-03"
  },
  "LIQ:GIPR": {
-  "last_eval_ms": 1788479520000,
+  "last_eval_ms": 1788479580000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788442320000,
@@ -868,7 +868,7 @@
   "date": "2026-09-03"
  },
  "LIQ:DBGI": {
-  "last_eval_ms": 1788478860000,
+  "last_eval_ms": 1788479580000,
   "date": "2026-09-03"
  },
  "LIQ:YJ": {
@@ -1103,7 +1103,7 @@
  },
  "LIQ:DFNS": {
   "anchor_ms": 1788442200000,
-  "last_ms": 1788479520000,
+  "last_ms": 1788479580000,
   "sent": [
    "M1",
    "M5",
@@ -1113,7 +1113,7 @@
   "vol_x": 25.1,
   "peak_usd": 214183,
   "last_eval_ms": 1788442260000,
-  "pulse_ms": 1788479520000,
+  "pulse_ms": 1788479580000,
   "anchor_price": 9.715,
   "anchor_open": 9.24,
   "anchor_low": 9.24,
@@ -1204,7 +1204,7 @@
   "date": "2026-09-03"
  },
  "LIQ:CAN": {
-  "last_eval_ms": 1788479400000,
+  "last_eval_ms": 1788479580000,
   "date": "2026-09-03"
  },
  "LIQ:AIFC": {
@@ -1212,7 +1212,7 @@
   "date": "2026-09-03"
  },
  "LIQ:BTAI": {
-  "last_eval_ms": 1788479520000,
+  "last_eval_ms": 1788479580000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788422640000,
@@ -1283,7 +1283,7 @@
   "date": "2026-09-02"
  },
  "LIQ:AXTI": {
-  "last_eval_ms": 1788479520000,
+  "last_eval_ms": 1788479580000,
   "date": "2026-09-03"
  },
  "LIQ:WLDS": {
@@ -1495,7 +1495,7 @@
   "date": "2026-09-03"
  },
  "LIQ:WHLR": {
-  "last_eval_ms": 1788479520000,
+  "last_eval_ms": 1788479580000,
   "date": "2026-09-03"
  },
  "LIQ:PPCB": {
@@ -1661,11 +1661,11 @@
   "date": "2026-09-02"
  },
  "LIQ:MGN": {
-  "last_eval_ms": 1788479520000,
+  "last_eval_ms": 1788479580000,
   "date": "2026-09-03"
  },
  "LIQ:VVOS": {
-  "last_eval_ms": 1788478980000,
+  "last_eval_ms": 1788479580000,
   "date": "2026-09-03"
  },
  "LIQ:BZAI": {
@@ -1808,7 +1808,7 @@
  },
  "LIQ:APVO": {
   "anchor_ms": 1788462240000,
-  "last_ms": 1788477840000,
+  "last_ms": 1788479580000,
   "sent": [
    "M1",
    "M5",
@@ -1818,7 +1818,7 @@
   "vol_x": 4.4,
   "peak_usd": 110570,
   "last_eval_ms": 1788462300000,
-  "pulse_ms": 1788477840000,
+  "pulse_ms": 1788479580000,
   "anchor_price": 1.72,
   "anchor_open": 1.53,
   "anchor_low": 1.5,
@@ -1886,7 +1886,7 @@
   "date": "2026-09-03"
  },
  "LIQ:AAOI": {
-  "last_eval_ms": 1788479520000,
+  "last_eval_ms": 1788479580000,
   "date": "2026-09-03"
  },
  "LIQ:PCLA": {
