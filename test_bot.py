@@ -37614,6 +37614,238 @@ check("🔁 RA11 حارسُ V2 يسقط على شرطه: مِرساةٌ محقو
       and _RA.next_anchor is _ra_na_old,
       f"inj n={len(_ra_inj[0])} v2={_ra_inj[3]} · clean n={len(_ra_clean[0])} v2={_ra_clean[3]}")
 
+
+# ═══ 🔁⚓ إعادةُ المِرساة في الإنتاج — أقفال RM1-RM9 (أمر المالك «نفّذ إعادة المِرساة» 2026-09-03) ═══
+# `T-REARM` استوفت 3 من 3 ⇒ شُحن `A1` وحدَه: وسيطٌ `rearm` في `liq_stage_events` افتراضُه
+# **مطفأ** (بت-بت لأدوات الإعادة) يمرّره `scan_liq_stages` وحدَه · التصفيرُ إلى
+# `{last_eval_ms: exit_ms}` = عينُ ما قِيس في `rearm_arms.next_anchor` · السقفُ `LIQ_REARM_MAX=1`
+# · الكرتُ موسوم · والدمجُ لا يُحيي مِرساةَ الأمس فوق حالةِ إعادة.
+print("\n=== 🔁⚓ إعادةُ المِرساة — أقفال RM1-RM9 ===")
+_rm_T0 = _ra_T0
+
+
+def _rm_sweep(rows, rearm=None, cap=None):
+    """يحاكي مسحاتِ الإنتاج على نافذة 65 دقيقة؛ يُرجع (قائمةَ M1 كـ(دقيقة، rearm_n)،
+    الحالةَ الأخيرة، عددَ الأحداث بعد آخر خروج)."""
+    _bd = _RA.KS._dicts(rows)
+    _st, _m1, _after_exit = {}, [], 0
+    _old = S.LIQ_REARM_MAX
+    if cap is not None:
+        S.LIQ_REARM_MAX = cap
+    try:
+        for _k in range(3, len(_bd) + 1):
+            _kw = {} if rearm is None else {"rearm": rearm}
+            _ev, _st = S.liq_stage_events(_bd[max(0, _k - 65):_k], _st, **_kw)
+            for _e in _ev:
+                if _e.get("stage") == "M1":
+                    _m1.append(((int(_e["anchor_ms"]) - _rm_T0) // 60_000,
+                                _st.get("rearm_n"), _e.get("rearm")))
+            if _st.get("exit_ms") and _k > 85:
+                _after_exit += len(_ev)
+    finally:
+        S.LIQ_REARM_MAX = _old
+    return _m1, _st, _after_exit
+
+
+try:
+    _rm_off_a, _rm_st_off_a, _ = _rm_sweep(_ra_bars())
+    _rm_off_b, _rm_st_off_b, _ = _rm_sweep(_ra_bars(), rearm=False)
+    _rm_on, _rm_st_on, _rm_tail = _rm_sweep(_ra_bars(), rearm=True)
+    _rm_third, _rm_st_third, _rm_tail3 = _rm_sweep(_ra_bars(third=True), rearm=True)
+    _rm_cap2, _, _ = _rm_sweep(_ra_bars(third=True), rearm=True, cap=2)
+    _rm_life, _, _ = _rm_sweep(_ra_bars(spike_in_life=True), rearm=True)
+except Exception as _e:                                          # noqa: BLE001
+    _rm_off_a = _rm_off_b = _rm_on = _rm_third = _rm_cap2 = _rm_life = [f"⛔ {type(_e).__name__}: {_e}"]
+    _rm_st_off_a = _rm_st_off_b = _rm_st_on = _rm_st_third = {}
+    _rm_tail = _rm_tail3 = -1
+
+# RM1 — الافتراضُ بت-بت: بلا الوسيط = `rearm=False` = مِرساةٌ واحدة والحالةُ تبقى على
+#   `exit_ms` (لا تصفير) — أدواتُ الإعادة (44,200 مِرساة منشورة) لا تتحرّك.
+check("🔁 RM1 الافتراضُ مطفأ وبت-بت: بلا الوسيط وبـFalse مِرساةٌ واحدة (40) والحالةُ تحمل exit_ms "
+      "بلا rearm_n",
+      _rm_off_a == [(40, None, None)] and _rm_off_b == [(40, None, None)]
+      and bool(_rm_st_off_a.get("exit_ms")) and bool(_rm_st_off_b.get("exit_ms"))
+      and not _rm_st_off_a.get("rearm_n") and not _rm_st_off_b.get("rearm_n"),
+      f"{_rm_off_a} {_rm_off_b}")
+
+# RM2 — الإعادةُ بعد الخروج لا قبله: M1 عند 40 ثم عند 71 (بعد خروج 45) والعدّادُ 1 و
+#   `rearm_prev` يحمل المِرساةَ الأولى وخروجَها.
+_rm_prev = (_rm_st_on or {}).get("rearm_prev") or {}
+check("🔁 RM2 إعادةٌ بعد الخروج: [40, 71] · الثانيةُ بعد exit_ms · rearm_n=1 · rearm_prev = الأولى",
+      isinstance(_rm_on, list) and len(_rm_on) == 2 and _rm_on[0][0] == 40 and _rm_on[1][0] == 71
+      and _rm_on[1][1] == 1
+      and (_rm_prev.get("anchor_ms") or 0) == _rm_T0 + 40 * 60_000
+      and (_rm_prev.get("exit_ms") or 0) == _rm_T0 + 45 * 60_000
+      and (_rm_prev.get("exit_ms") or 0) < _rm_T0 + 71 * 60_000
+      and _rm_prev.get("anchor_low") is not None,
+      f"{_rm_on} prev={_rm_prev}")
+
+# RM3 — السقفُ يحكم: بعد خروج الثانية (80) لا ثالثة عند 90 · وبرفع السقف إلى 2 تظهر ⇒
+#   الثابتُ هو الحاكم لا الصدفة · وبعد الخروج الأخير صمتٌ تامّ (لا رشّ).
+check("🔁 RM3 السقفُ LIQ_REARM_MAX يحكم: بسقف 1 لا ثالثة [40,71] وبعد خروجها صمت · بسقف 2 "
+      "ثالثةٌ عند 90",
+      isinstance(_rm_third, list) and [m for m, _, _ in _rm_third] == [40, 71]
+      and bool(_rm_st_third.get("exit_ms")) and _rm_st_third.get("rearm_n") == 1
+      and _rm_tail3 == 0
+      and isinstance(_rm_cap2, list) and [m for m, _, _ in _rm_cap2] == [40, 71, 90]
+      and _rm_cap2[2][1] == 2,
+      f"third={_rm_third} tail={_rm_tail3} cap2={_rm_cap2}")
+
+# RM4 — نقطةُ النداء (AST): `rearm=True` في نداء `liq_stage_events` داخل `scan_liq_stages`
+#   **وحدَه** في Super_stock.py · وصفرُ `rearm=` في أدوات الإعادة المجمّدة.
+def _rm_rearm_calls(src):
+    out = []
+    for n in _ast0.walk(_ast0.parse(src)):
+        if isinstance(n, _ast0.Call):
+            fn = getattr(n.func, "attr", None) or getattr(n.func, "id", None)
+            if fn == "liq_stage_events":
+                out.append([k.arg for k in n.keywords if k.arg == "rearm"])
+    return out
+
+
+try:
+    _rm_scan_src = _insp0.getsource(S.scan_liq_stages)
+    _rm_scan_calls = _rm_rearm_calls(_rm_scan_src)
+    _rm_scan_kw = [k for n in _ast0.walk(_ast0.parse(_rm_scan_src))
+                   if isinstance(n, _ast0.Call) for k in n.keywords
+                   if k.arg == "rearm"]
+    _rm_scan_true = (len(_rm_scan_kw) == 1 and isinstance(_rm_scan_kw[0].value, _ast0.Constant)
+                     and _rm_scan_kw[0].value.value is True)
+    _rm_all_src = open("Super_stock.py", encoding="utf-8").read()
+    _rm_all_calls = [c for c in _rm_rearm_calls(_rm_all_src) if c]
+    _rm_tools_bad = []
+    for _f in ("kasih_scan.py", "liq_case_probe.py", "rearm_arms.py", "alert_filter_check.py",
+               "gate_probe.py", "m0_probe.py", "volbase_arms.py", "sym_day_probe.py"):
+        try:
+            # أيُّ نداءٍ لـliq_stage_events في الأداة يمرّر `rearm=` ⇒ تسرّبٌ (كلُّ عنصرٍ
+            # قائمةُ وسائط `rearm` لنداءٍ واحد؛ غيرُ الفارغة = مرَّر).
+            if any(_c for _c in _rm_rearm_calls(open(_f, encoding="utf-8").read())):
+                _rm_tools_bad.append(_f)
+        except FileNotFoundError:
+            pass
+except Exception as _e:                                          # noqa: BLE001
+    _rm_scan_calls, _rm_scan_true, _rm_all_calls, _rm_tools_bad = [], False, [], [f"⛔ {_e}"]
+check("🔁 RM4 نقطةُ النداء: rearm=True في scan_liq_stages وحدَه (AST) · وأدواتُ الإعادة المجمّدة "
+      "لا تمرّره (بت-بت)",
+      _rm_scan_calls == [["rearm"]] and _rm_scan_true and len(_rm_all_calls) == 1
+      and _rm_tools_bad == [],
+      f"scan={_rm_scan_calls} true={_rm_scan_true} all={_rm_all_calls} tools={_rm_tools_bad}")
+
+# RM5 — الكرت: «مِرساة #2» مع سعر الأولى وقاعها **مع** الوسم وغائبٌ بدونه (فارقٌ محدَّد).
+try:
+    _rm_ev_base = {"stage": "M1", "usd": 60000, "minutes": 1, "anchor_ms": _rm_T0 + 71 * 60_000,
+                   "last_ms": _rm_T0 + 71 * 60_000, "vol_x": 5.0, "price": 1.04,
+                   "price_ms": _rm_T0 + 71 * 60_000, "move": 6.1, "anchor_price": 1.04,
+                   "anchor_open": 0.98, "anchor_low": 0.975, "class": ("group", 0)}
+    _rm_ev_tag = dict(_rm_ev_base, rearm=1,
+                      rearm_prev={"anchor_ms": _rm_T0 + 40 * 60_000, "anchor_price": 1.06,
+                                  "anchor_low": 0.995, "e5": 1.03,
+                                  "exit_ms": _rm_T0 + 45 * 60_000})
+    _rm_card_tag = S.build_liq_stage_alert([({"symbol": "RM"}, [_rm_ev_tag])])
+    _rm_card_base = S.build_liq_stage_alert([({"symbol": "RM"}, [_rm_ev_base])])
+except Exception as _e:                                          # noqa: BLE001
+    _rm_card_tag = _rm_card_base = f"⛔ {type(_e).__name__}: {_e}"
+check("🔁 RM5 الكرت: «🔁 مِرساة #2 بعد خروجٍ بنيويّ (الأولى $1.06 · خرجت تحت $0.995)» مع الوسم "
+      "وغائبٌ بدونه",
+      "مِرساة #2 بعد خروجٍ بنيويّ" in _rm_card_tag and "$1.06" in _rm_card_tag
+      and "0.995" in _rm_card_tag and "مِرساة #" not in _rm_card_base,
+      _rm_card_tag[:160])
+
+# RM6 — المشحونُ = المقيس: المِرساةُ الثانية في الإنتاج هي نفسُها التي أعادتها أداةُ
+#   `T-REARM` (`chain_anchors`) على العيّنة نفسِها · وسبايكٌ داخل حياة الأولى لا يُعيد.
+try:
+    _rm_first = _RA.KS.first_anchor(_ra_bars())
+    _rm_ch = _RA.chain_anchors(_ra_bars(), _rm_first, 0.95)[0]
+    _rm_tool_second = (int(_rm_ch[1]["anchor_ms"]) - _rm_T0) // 60_000
+except Exception as _e:                                          # noqa: BLE001
+    _rm_tool_second = f"⛔ {_e}"
+check("🔁 RM6 المشحونُ = المقيس: الثانيةُ في الإنتاج (71) = ثانيةُ chain_anchors (71) · وسبايكٌ "
+      "داخل حياة الأولى (43) لا يُعيد",
+      _rm_tool_second == 71 and isinstance(_rm_on, list) and _rm_on[1][0] == 71
+      and isinstance(_rm_life, list) and [m for m, _, _ in _rm_life] == [40, 71],
+      f"tool={_rm_tool_second} prod={_rm_on} life={_rm_life}")
+
+# RM7 — الدمجُ لا يُحيي مِرساةَ الأمس فوق حالةِ إعادة (في الاتّجاهين) · وبلا rearm_n
+#   سلوكُ الدمج القديم بت-بت (اتّحادُ sent).
+try:
+    _rm_old_state = {"date": "2026-09-03", "anchor_ms": _rm_T0 + 40 * 60_000, "last_ms": _rm_T0 + 45 * 60_000,
+                     "sent": ["M1", "M5"], "exit_ms": _rm_T0 + 45 * 60_000, "anchor_low": 0.995,
+                     "last_eval_ms": _rm_T0 + 46 * 60_000}
+    _rm_reset = {"date": "2026-09-03", "last_eval_ms": _rm_T0 + 45 * 60_000, "rearm_n": 1,
+                 "rearm_prev": {"anchor_ms": _rm_T0 + 40 * 60_000}}
+    _rm_m1 = json.loads(S._merge_op_entry(json.dumps({"LIQ:RM": _rm_old_state}).encode(),
+                                          json.dumps({"LIQ:RM": _rm_reset}).encode()))["LIQ:RM"]
+    _rm_m2 = json.loads(S._merge_op_entry(json.dumps({"LIQ:RM": _rm_reset}).encode(),
+                                          json.dumps({"LIQ:RM": _rm_old_state}).encode()))["LIQ:RM"]
+    _rm_a = dict(_rm_old_state, sent=["M1"]); _rm_b = dict(_rm_old_state, sent=["M5"])
+    _rm_m3 = json.loads(S._merge_op_entry(json.dumps({"LIQ:RM": _rm_a}).encode(),
+                                          json.dumps({"LIQ:RM": _rm_b}).encode()))["LIQ:RM"]
+except Exception as _e:                                          # noqa: BLE001
+    _rm_m1 = _rm_m2 = _rm_m3 = {"⛔": str(_e)}
+check("🔁 RM7 الدمج: حالةُ الإعادة تعلو مِرساةَ الأمس في الاتّجاهين (لا anchor_ms ولا exit_ms "
+      "يعودان) · وبلا rearm_n اتّحادُ sent كما كان",
+      _rm_m1.get("rearm_n") == 1 and "anchor_ms" not in _rm_m1 and "exit_ms" not in _rm_m1
+      and _rm_m2.get("rearm_n") == 1 and "anchor_ms" not in _rm_m2
+      and _rm_m3.get("sent") == ["M1", "M5"] and "rearm_n" not in _rm_m3,
+      f"m1={sorted(_rm_m1)} m2={sorted(_rm_m2)} m3={_rm_m3.get('sent')}")
+
+# RM8 — الثابتُ بنصّ العقد (A1 وحدَها ⇒ 1) والافتراضُ مطفأ في التوقيع.
+try:
+    _rm_sig = _insp0.signature(S.liq_stage_events).parameters["rearm"].default
+except Exception:                                                # noqa: BLE001
+    _rm_sig = "⛔"
+check("🔁 RM8 LIQ_REARM_MAX == 1 (A1 وحدَها بنصّ rearm_prereg §⑥) · وافتراضُ rearm=False في التوقيع",
+      S.LIQ_REARM_MAX == 1 and _rm_sig is False, f"max={S.LIQ_REARM_MAX} default={_rm_sig}")
+
+# RM9 — من نقطة النداء الحيّة: `scan_liq_stages` (بساعة الحائط) يُصدر M1 ثم Xs ثم يصفّر
+#   ثم M1 مُعادةً **موسومةً** rearm=1 وrearm_prev، وM5 الثانية موسومةٌ كذلك.
+try:
+    _rm_bd = _RA.KS._dicts(_ra_bars())
+    _rm_seen = {}
+    _rm_seq = []
+    for _k in (41, 47, 48, 73, 78):
+        _fb = (lambda kk: (lambda sym, minutes=65: _rm_bd[max(0, kk - 65):kk]))(_k)
+        _ck = (lambda kk: (lambda: (_rm_bd[kk - 1]["t"] + 60_000 + S.LIQ_BAR_CLOSE_GUARD_MS
+                                    + 1_000) / 1000.0))(_k)
+        _rows, _cov, _secs = S.scan_liq_stages([{"symbol": "RM"}], "2026-08-28",
+                                               fetch_bars=_fb, seen=_rm_seen, clock=_ck)
+        _rm_seq.append([(e["stage"], e.get("rearm"), bool(e.get("rearm_prev")))
+                        for _r, _evs in _rows for e in _evs])
+    _rm_live_st = _rm_seen.get("LIQ:RM") or {}
+    # النبضُ `Px` قبل `M5` مشروعٌ (`pre_m5` منذ 2026-08-28) فلا يُثبَّت غيابُه؛ يُثبَّت
+    # التسلسلُ بلا `Px`، **وأن كلَّ حدثٍ بعد الإعادة — بما فيه `Px` — موسومٌ**، وقبلها لا.
+    _rm_seq_nopx = [[t for t in sw if t[0] != "Px"] for sw in _rm_seq]
+    _rm_tag_after = all(t[1] == 1 and t[2] for sw in _rm_seq[3:] for t in sw)
+    _rm_tag_before = all(t[1] is None and not t[2] for sw in _rm_seq[:3] for t in sw)
+except Exception as _e:                                          # noqa: BLE001
+    _rm_seq, _rm_live_st = [f"⛔ {type(_e).__name__}: {_e}"], {}
+    _rm_seq_nopx, _rm_tag_after, _rm_tag_before = [], False, False
+check("🔁 RM9 من نقطة النداء الحيّة: M1 ⟶ Xs ⟶ صمت ⟶ M1 موسومة rearm=1 مع rearm_prev ⟶ M5 موسومة "
+      "(وكلُّ حدثٍ بعد الإعادة موسومٌ حتى Px · وقبلها لا) · والحالةُ rearm_n=1 وdate",
+      _rm_seq_nopx == [[("M1", None, False)], [("Xs", None, False)], [],
+                       [("M1", 1, True)], [("M5", 1, True)]]
+      and _rm_tag_after and _rm_tag_before
+      and _rm_live_st.get("rearm_n") == 1 and _rm_live_st.get("date") == "2026-08-28",
+      f"{_rm_seq} st={sorted(_rm_live_st)}")
+
+
+# RM10 — «لا دقيقةَ تُقفز» بعد الإعادة: التصفيرُ يبذر `last_eval_ms = exit_ms` فسبايكٌ وقع
+#   بين مسحتين متباعدتين (خروج 45 ⟵ مسحةٌ واحدة عند 90 تغطّي 46..88) يُلتقَط عند 71 ·
+#   وبذرةٌ غائبة (None) تجعل المسحةَ «أوّلَ رؤية» فتقرأ آخرَ شمعةٍ وحدَها فيضيع 71 صامتًا ·
+#   وبذرةٌ صفر تُعيد فحصَ المِرساة القديمة (40) فتُحييها بدل الإعادة الحقيقية.
+try:
+    _rm10_bd = _RA.KS._dicts(_ra_bars())
+    _rm10_st, _rm10_m1 = {}, []
+    for _k in (42, 47, 90):        # 42: M1 عند 40 · 47: Xs عند 45 · 90: مسحةٌ واحدة تغطّي 46..88
+        _ev, _rm10_st = S.liq_stage_events(_rm10_bd[max(0, _k - 65):_k], _rm10_st, rearm=True)
+        _rm10_m1 += [((int(_e["anchor_ms"]) - _rm_T0) // 60_000, _rm10_st.get("rearm_n"))
+                     for _e in _ev if _e.get("stage") == "M1"]
+except Exception as _e:                                          # noqa: BLE001
+    _rm10_m1 = [f"⛔ {type(_e).__name__}: {_e}"]
+check("🔁 RM10 لا دقيقةَ تُقفز بعد الإعادة: مسحةٌ واحدة بعد الخروج (46..89) تلتقط 71 بعدّاد 1 "
+      "(البذرةُ last_eval_ms = exit_ms — لا None ولا صفر)",
+      _rm10_m1 == [(40, None), (71, 1)], f"{_rm10_m1}")
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

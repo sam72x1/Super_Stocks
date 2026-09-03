@@ -12948,6 +12948,13 @@ LIQ_OPERATOR_TRADES = 20_000   # engineering — مقيسٌ لا مخترَع (�
 #    📌 **والكودُ يبقى خلف العلم لا يُحذَف:** قِيس ومُوثَّقٌ ومُقفَل، وإعادتُه
 #    قرارُ مالكٍ بسطرٍ واحد — **وحذفُه يُضيّع أداةَ قياسٍ عبرت 10 طفرات**.
 #    ⚙️ **والإطفاءُ يرجع بالسلوك بت-بت إلى ما قبل `M0`** (‏`M1` وحده) — مقفولٌ.
+# 🔁⚓ **إعادةُ المِرساة بعد الخروج البنيويّ — مرّةً واحدة** (أمرُ المالك «نفّذ إعادة
+#    المِرساة» 2026-09-03 بعد `T-REARM`: استوفت 3 من 3 — الثانيةُ ‏14.5-15.3% من الأولى ·
+#    كاسح30-من-د5 ‏14.10% مقابل 10.06% · مسترجَع 748 يومًا). **`A1` وحدَها** — `A2` (ثالثةٌ
+#    فأكثر) خارج الاقتراح بنصّ العقد §⑥ ⇒ الرقمُ 1 من العقد لا من عندنا.
+#    الافتراضُ في `liq_stage_events` **مطفأ** (`rearm=False` ⇒ بت-بت لأدوات الإعادة
+#    وكلّ رقمٍ منشور) و`scan_liq_stages` **وحدَه** يمرّره.
+LIQ_REARM_MAX = 1
 LIQ_EARLY = False              # 🔴 مُطفأ — أمرُ المالك 2026-08-18 (`m0_result.md`)
 
 # ترتيبُ الأولوية **مُعلَنٌ لا ضمنيّ**: الأقربُ إلى خطّةِ دخولٍ محفوظة أوّلًا،
@@ -13242,7 +13249,8 @@ def liquidity_lines(cl: dict, vd: dict = None) -> list:
     return out
 
 def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
-                     stages=None, update_cap: int = None, now_ms: int = None):
+                     stages=None, update_cap: int = None, now_ms: int = None,
+                     rearm: bool = False):
     """⏫💰 **الإشعارُ المتدرّجُ بنصّ المالك** — نقيّة، بلا شبكة، قابلة للاختبار.
 
     عقدُها `liq_stages_prereg.md`. أربعُ مراحل: **`M1`** أوّلُ دقيقةٍ **مكتملة**
@@ -13283,6 +13291,20 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
     `{"stage","usd","minutes","anchor_ms","last_ms","vol_x","price","class"}`.
     فاشلةٌ-آمنة ⇒ `([], state)`."""
     st = dict(state or {})
+    # 🔁⚓ **إعادةُ المِرساة (`rearm=True` من `scan_liq_stages` وحدَه):** عند أوّل
+    #    مسحةٍ **بعد** `Xs` تُصفَّر الحالةُ إلى `{"last_eval_ms": exit_ms}` — **عينُ**
+    #    ما قِيس في `rearm_arms.next_anchor` (‏`T-REARM`) — فتُفحَص الشموعُ التي بعد
+    #    الخروج بالبوّابات الثلاث نفسِها (صفرُ عتبةٍ جديدة) ومِرساةٌ ثانية `M1` بأختامٍ
+    #    مستقلّة. `rearm_n` يعدّ الإعادات (سقفُه `LIQ_REARM_MAX`) و`rearm_prev` ملخّصُ
+    #    السابقة للكرت. **بلا `rearm` الفرعُ لا يُنفَّذ إطلاقًا ⇒ بت-بت.**
+    _rn_keep = int(st.get("rearm_n") or 0)
+    _rprev_keep = st.get("rearm_prev")
+    if rearm and st.get("exit_ms") and _rn_keep < int(LIQ_REARM_MAX):
+        _rprev_keep = {k: st.get(k) for k in ("anchor_ms", "anchor_price",
+                                              "anchor_low", "e5", "exit_ms")}
+        _rn_keep += 1
+        st = {"last_eval_ms": int(st["exit_ms"]), "rearm_n": _rn_keep,
+              "rearm_prev": _rprev_keep}
     try:
         vm = float(vol_mult if vol_mult is not None
                    else CONFIG["IGNITION_VOL_MULT"])
@@ -13415,6 +13437,8 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                       "anchor_price": round(float(form["c"]), 4),
                       "anchor_open": round(float(form.get("o")
                                                  or form["c"]), 4)}
+                if _rn_keep:
+                    st["rearm_n"], st["rearm_prev"] = _rn_keep, _rprev_keep
                 ev.append({"stage": "M0", "usd": round(_usd(form)),
                            "minutes": 1, "anchor_ms": fms, "last_ms": fms,
                            "vol_x": round(fvx, 1),
@@ -13454,6 +13478,8 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                   #    **يُطبَع كم صعد قبل المِرساة** فيقرأ المالكُ الرقمَ بعينه.
                   "anchor_open": round(float(_ab.get("o") or _ab["c"]), 4),
                   "anchor_low": round(float(_ab["l"]), 4)}
+            if _rn_keep:
+                st["rearm_n"], st["rearm_prev"] = _rn_keep, _rprev_keep
             ev.append({"stage": "M1", "usd": round(_usd(_ab)), "minutes": 1,
                        "anchor_ms": _ams, "last_ms": _ams,
                        "vol_x": round(vx, 1), "price": round(float(_ab["c"]), 4),
@@ -13741,8 +13767,17 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
         #    الإعادة المجمّدة لا تمرّرها ⇒ قاعدتُها القديمة بت-بت.
         ev, st = liq_stage_events(bars, {k: v for k, v in cur.items()
                                         if k != "date"},
-                                  now_ms=int(tick() * 1000))
+                                  now_ms=int(tick() * 1000),
+                                  # 🔁⚓ المسارُ الحيّ وحدَه يُعيد المِرساة
+                                  #    (أمرُ المالك 2026-09-03 · `T-REARM`).
+                                  rearm=True)
         st["date"] = today_iso
+        # 🔁 وسمُ الكرت: كلُّ حدثٍ لمِرساةٍ مُعادة يحمل `rearm` (رقمَ الإعادة)
+        #    و`rearm_prev` (ملخّصَ السابقة) — عرضٌ لا اختيار.
+        if st.get("rearm_n"):
+            for _e in (ev or []):
+                _e.setdefault("rearm", int(st["rearm_n"]))
+                _e.setdefault("rearm_prev", st.get("rearm_prev"))
         return (row, ev, st)
 
     out, covered = [], 0
@@ -14971,6 +15006,19 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                         + (" (أقوى خلية)" if any(t for _, t in _j1) else ""))
         if j1_premarket_flag(evs):
             head.append("🌅 J1 في البريماركت")
+        # 🔁⚓ **مِرساةٌ مُعادة** (أمرُ المالك «نفّذ إعادة المِرساة» 2026-09-03):
+        #    الوسمُ في الرأس ومعه سعرُ السابقة وخروجُها فيُقرأ أن الأولى انتهت.
+        _rn = next((e.get("rearm") for e in evs if e.get("rearm")), None)
+        if _rn:
+            _rp = next((e.get("rearm_prev") for e in evs
+                        if isinstance(e.get("rearm_prev"), dict)), None) or {}
+            _rtxt = f"🔁 مِرساة #{int(_rn) + 1} بعد خروجٍ بنيويّ"
+            if _rp.get("anchor_price"):
+                _rtxt += f" (الأولى {_px_txt(_rp.get('anchor_price'))}"
+                if _rp.get("anchor_low"):
+                    _rtxt += f" · خرجت تحت {_px_txt(_rp.get('anchor_low'))}"
+                _rtxt += ")"
+            head.append(_rtxt)
         if row.get("src"):
             head.append(esc(row.get("src")))
         lines.append(" · ".join(head))
@@ -22603,6 +22651,14 @@ def _merge_op_entry(remote_bytes, local_bytes) -> bytes:
                 return max(r, l)                    # ② ISO الأحدث
             if not (isinstance(r, dict) and isinstance(l, dict)):
                 return l                            # ④ نوعان مختلفان
+            # 🔁⚓ **حالةُ إعادةٍ تعلو حالةَ ما قبلها** (2026-09-03): الحالةُ
+            #    المصفَّرة بعد `Xs` **بلا `anchor_ms`** فكان الدمجُ الحقليُّ
+            #    يُعيد إليها مِرساةَ الأمس من النسخة البعيدة ⇒ `rearm_n` يبقى
+            #    و`exit_ms` يعود ⇒ **تموت الإعادةُ صامتةً**. العدّادُ رتيبٌ
+            #    بالبناء ⇒ الأكبرُ هو الأحدث (وقبل الإعادة كلاهما صفر ⇒ بت-بت).
+            rr_, lr_ = _num(r.get("rearm_n")), _num(l.get("rearm_n"))
+            if (rr_ or 0) != (lr_ or 0):
+                return r if (rr_ or 0) > (lr_ or 0) else l
             ra, la = _num(r.get("anchor_ms")), _num(l.get("anchor_ms"))
             if ra is not None and la is not None and ra != la:
                 return r if ra > la else l          # ③ مِرساةٌ أحدث تفوز كاملةً
