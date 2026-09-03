@@ -1,0 +1,58 @@
+name: "T-PRESESSION — الحكم (presession_prereg §⑥)"
+
+# 🔒 قراءة/حساب فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد presession_prereg.md
+# يُنزّل صفوفَ التشغيلات (المقياسُ الواحد) ثم يشغّل presession_report.py.
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_ids:
+        description: "معرّفات تشغيلات T-PRESESSION حاملة الصفوف (بفواصل)"
+        required: true
+        type: string
+      feats:
+        description: "ميزاتُ الدرجة S1 (بفواصل — الافتراض: كلُّ العدديّة)"
+        required: false
+        type: string
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📥 تنزيل الصفوف من التشغيلات
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRESESSION_RUN_IDS: ${{ inputs.run_ids }}
+        run: |
+          set -e
+          IFS=',' read -ra IDS <<< "$PRESESSION_RUN_IDS"
+          for id in "${IDS[@]}"; do
+            id="$(echo "$id" | tr -d '[:space:]')"
+            [ -z "$id" ] && continue
+            gh run download "$id" --repo "$GITHUB_REPOSITORY" \
+              --pattern 'presession-rows-*' --dir "/tmp/pre-dl/$id" \
+              || echo "⚠️ تعذّر تنزيل $id — يُعلَن ولا يُصمت"
+          done
+          find /tmp/pre-dl -name 'presession_rows_*.jsonl.gz' -exec cp -v {} . \; || true
+          ls -la presession_rows_*.jsonl.gz
+
+      - name: 🌙 الحكم
+        env:
+          PRESESSION_FEATS: ${{ inputs.feats }}
+        run: python presession_report.py

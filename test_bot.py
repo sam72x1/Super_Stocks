@@ -37846,6 +37846,290 @@ check("🔁 RM10 لا دقيقةَ تُقفز بعد الإعادة: مسحةٌ 
       "(البذرةُ last_eval_ms = exit_ms — لا None ولا صفر)",
       _rm10_m1 == [(40, None), (71, 1)], f"{_rm10_m1}")
 
+# ══ 🌙⏱️ T-PRESESSION — أقفالُ أداة القياس PS1-PS8 (2026-09-03، أمرُ المالك) ══
+# العقد `presession_prereg.md` مدفوعٌ **قبل أيّ رقم**. الأقفالُ تحرس: قراءةً فقط
+# (PS1) · عزلَ الإنتاج عنها (PS2) · حارسَ «لا نظرَ مستقبليّ» V1 سلوكيًّا (PS3) ·
+# ثوابتَ العقد الحرفيّة (PS4) · وسمَ الوسم بثلاث حالاتٍ مفرِّقة (PS5) · ترتيبَ
+# أعلى-k في الاتّجاهين واستبعادَ الشاهد (PS6) · الأنبوبةَ بالاسم لا نسخةً (PS7) ·
+# ووصلَ الـworkflow ومدخلاتِه ببيئةٍ يقرؤها السكربت (PS8).
+import ast as _ps_ast                                            # noqa: E402
+import importlib.util as _ps_ilu                                 # noqa: E402
+import inspect as _ps_insp                                       # noqa: E402
+import os as _ps_os                                              # noqa: E402
+import yaml as _ps_yaml                                          # noqa: E402
+
+_ps_src = open("presession_scan.py", encoding="utf-8").read()
+_ps_tree = _ps_ast.parse(_ps_src)
+_ps_env_had = "SCREENER_MODE" in _ps_os.environ
+_ps_spec = _ps_ilu.spec_from_file_location("presession_scan_t", "presession_scan.py")
+_PS = _ps_ilu.module_from_spec(_ps_spec)
+_ps_spec.loader.exec_module(_PS)
+if not _ps_env_had:
+    _ps_os.environ.pop("SCREENER_MODE", None)   # setdefault الاستيراد لا يلوّث السويّة
+
+# PS1 — قراءةٌ فقط: صفرُ إرسالٍ وصفرُ كتابةِ حالة (بالـAST لا بالنصّ).
+_ps_forbidden = {"send_telegram", "git_save", "save_watchlist", "save_op_entry_state",
+                 "save_near_watch", "save_hunter_watch", "record_new_alerts",
+                 "record_reject_stats", "record_tie_cohort", "save_alerts"}
+_ps_calls = {n.func.attr if isinstance(n.func, _ps_ast.Attribute)
+             else getattr(n.func, "id", "")
+             for n in _ps_ast.walk(_ps_tree) if isinstance(n, _ps_ast.Call)}
+_ps_state_write = [n for n in _ps_ast.walk(_ps_tree)
+                   if isinstance(n, _ps_ast.Call) and getattr(n.func, "id", "") == "open"
+                   and len(n.args) > 1 and isinstance(n.args[1], _ps_ast.Constant)
+                   and "w" in str(n.args[1].value)
+                   and not (isinstance(n.args[0], _ps_ast.JoinedStr)
+                            or (isinstance(n.args[0], _ps_ast.Constant)
+                                and str(n.args[0].value).startswith("/tmp/")))]
+check("🌙 PS1 قراءةٌ/قياسٌ فقط: صفرُ إرسالٍ وصفرُ نداءٍ يكتب حالةَ البوت · "
+      "ولا فتحَ ملفٍّ للكتابة خارج المُخرَج المؤقَّت",
+      not (_ps_forbidden & _ps_calls) and not _ps_state_write,
+      f"ممنوعة={sorted(_ps_forbidden & _ps_calls)} · كتابات={len(_ps_state_write)}")
+
+# PS2 — العزل: الإنتاجُ لا يستورد الأداة (وإلّا صار القياسُ جزءًا من الفرز).
+check("🌙 PS2 عزلٌ: `Super_stock` لا يستورد `presession_scan`",
+      "import presession_scan" not in open("Super_stock.py", encoding="utf-8").read())
+
+# PS3 — `V1` سلوكيًّا: شمعةٌ دقيقتُها **عند** لحظة القرار أو بعدها ⇒ ترمي `LookAhead`.
+def _ps_bar(mod, c=1.0, v=1000.0, n=10.0):
+    return (mod * 60_000, c, c * 1.02, c * 0.98, c, v, n, mod)
+
+_ps_reg_ok = [_ps_bar(m, 1.0 + m * 0.0001) for m in range(570, 950)]
+_ps_reg_bad = _ps_reg_ok + [_ps_bar(950, 2.0)]
+try:
+    _ps_v1_ok = _PS.core_feats(_ps_reg_ok, [], 1.0, 950) is not None
+except _PS.LookAhead:
+    _ps_v1_ok = "⛔ رمى على شموعٍ سليمة"
+try:
+    _PS.core_feats(_ps_reg_bad, [], 1.0, 950)
+    _ps_v1_bad = False
+except _PS.LookAhead:
+    _ps_v1_bad = True
+check("🌙 PS3 حارسُ «لا نظرَ مستقبليّ» (V1) يفرّق: شموعٌ كلُّها قبل القرار تمرّ · "
+      "وشمعةٌ عند دقيقة القرار ترمي LookAhead",
+      _ps_v1_ok is True and _ps_v1_bad is True, f"سليمة={_ps_v1_ok} · خارقة={_ps_v1_bad}")
+
+# PS4 — ثوابتُ العقد الحرفيّة (تحريكُ أيٍّ منها بعد الأرقام = تحريكُ هدف).
+check("🌙 PS4 ثوابتُ العقد: ‏+80% رقمُ المالك · أرضيةُ الوسم $20,000 · القرارُ قبل "
+      "الجلسة بعشر دقائق · النوافذ (10,30,60) · سقفُ القائمة 10 · والكونُ من "
+      "`kasih_scan` بالاسم",
+      (_PS.HIT_PCT == 80.0 and _PS.LABEL_MIN_USD == 20_000.0
+       and _PS.DECISION_LEAD == 10 and _PS.WINDOWS == (10, 30, 60)
+       and _PS.TOPK == 10 and _PS.LADDER == (30.0, 50.0, 100.0)
+       and (_PS.PRICE_LO, _PS.PRICE_HI) == (_KAS.PRICE_LO, _KAS.PRICE_HI)),
+      f"{_PS.HIT_PCT}/{_PS.LABEL_MIN_USD}/{_PS.DECISION_LEAD}/{_PS.WINDOWS}/"
+      f"{_PS.TOPK}/{_PS.LADDER}/{(_PS.PRICE_LO, _PS.PRICE_HI)}")
+
+# PS5 — الوسمُ يفرّق ثلاثَ حالات: بلغ ‏+80% بدولارٍ كافٍ ⇒ 1 · بلغها بدولارٍ دون
+# الأرضية ⇒ 0 (فالسعرُ وحده لا يكفي) · وبلغ ‏+79.9% ⇒ 0 (حدُّ التخوم).
+_ps_ref = 1.0
+_ps_win_hit = [(0, 1.0, 1.9, 1.0, 1.85, 30_000.0, 50.0, 960),
+               (0, 1.85, 1.9, 1.8, 1.88, 5_000.0, 20.0, 961)]
+_ps_win_thin = [(0, 1.0, 1.9, 1.0, 1.85, 100.0, 5.0, 960)]
+_ps_win_near = [(0, 1.0, 1.799, 1.0, 1.79, 30_000.0, 50.0, 960)]
+_ps_lbl = (_PS.window_label(_ps_win_hit, 960, 970, _ps_ref)["hit80"],
+           _PS.window_label(_ps_win_thin, 960, 970, _ps_ref)["hit80"],
+           _PS.window_label(_ps_win_near, 960, 970, _ps_ref)["hit80"],
+           _PS.window_label(_ps_win_hit, 960, 970, _ps_ref)["t80"])
+check("🌙 PS5 الوسمُ `hit80_10` يفرّق: بلوغٌ بدولارٍ كافٍ ⇒ 1 · بلوغٌ بدولارٍ دون "
+      "$20,000 ⇒ 0 · و‏+79.9% ⇒ 0 · وزمنُ أوّل بلوغٍ يُسجَّل",
+      _ps_lbl == (1, 0, 0, 0), f"{_ps_lbl}")
+
+# PS6 — أعلى-k: تنازليٌّ للميزات الوصفيّة · تصاعديٌّ لعائلة `FEATS_ASC` · والشاهدُ
+# لا يدخل الترتيب (وإلّا صار ضبطُ القياس مرشَّحًا).
+_ps_rows = [{"sym": "A", "x": 3.0, "hit80_10": 1}, {"sym": "B", "x": 2.0, "hit80_10": 0},
+            {"sym": "C", "x": 1.0, "hit80_10": 1},
+            {"sym": "W", "x": 9.0, "hit80_10": 1, "wit": 1},
+            {"sym": "D", "x": None, "hit80_10": 1}]
+_ps_top = (_PS.topk_hits(_ps_rows, "x", k=1), _PS.topk_hits(_ps_rows, "x", k=1, asc=True),
+           _PS.topk_hits(_ps_rows, "x", k=3))
+check("🌙 PS6 ترتيبُ أعلى-k: تنازليًّا يأخذ A(3.0) ⇒ إصابة · تصاعديًّا يأخذ C(1.0) ⇒ "
+      "إصابة · والمقامُ 3 (الشاهدُ مستبعَدٌ والقيمةُ الغائبة لا تُرتَّب)",
+      _ps_top == ((1, 3), (1, 3), (2, 3)), f"{_ps_top}")
+
+# PS7 — مقياسٌ واحد: الأنبوبةُ وبوّابةُ المِرساة **بالاسم**، وصفرُ نداءٍ مباشرٍ
+# لـ`liq_stage_events` (وإلّا صار على المِرساة قراءتان).
+_ps_attrs = {f"{getattr(n.func.value, 'id', '')}.{n.func.attr}"
+             for n in _ps_ast.walk(_ps_tree)
+             if isinstance(n, _ps_ast.Call) and isinstance(n.func, _ps_ast.Attribute)
+             and isinstance(n.func.value, _ps_ast.Name)}
+_ps_need = {"AH.day_key", "AH.head_size_mb", "AH.download", "AH.ny_minute",
+            "KS.prescreen", "KS.first_anchor", "KS.weekdays", "MC.session_info"}
+check("🌙 PS7 مقياسٌ واحد: الأنبوبةُ (`AH.*`) وبوّابةُ المِرساة (`KS.prescreen`/"
+      "`KS.first_anchor`) والتقويمُ بالاسم · وصفرُ نداءٍ مباشرٍ لـ`S.liq_stage_events`",
+      _ps_need <= _ps_attrs and "S.liq_stage_events" not in _ps_attrs,
+      f"ناقص={sorted(_ps_need - _ps_attrs)} · مباشر={'S.liq_stage_events' in _ps_attrs}")
+
+# PS8 — الـworkflow: قراءةٌ فقط · بلا كرون · بايثون 3.11 · وكلُّ مدخلٍ موصولٌ
+# بمتغيّرِ بيئةٍ **يقرؤه السكربت** (بصمةُ `BT_CANDLE`: مدخلٌ لا يقرؤه أحد = علمٌ ميّت).
+_ps_wf = _ps_yaml.safe_load(open(".github/workflows/presession.yml", encoding="utf-8"))
+_ps_on = _ps_wf.get(True) or _ps_wf.get("on") or {}
+_ps_inputs = set((_ps_on.get("workflow_dispatch") or {}).get("inputs") or {})
+_ps_step = [s for s in _ps_wf["jobs"]["presession"]["steps"] if s.get("env")]
+_ps_wenv = set().union(*[set(s["env"]) for s in _ps_step]) if _ps_step else set()
+_ps_read = {m.slice.value for m in _ps_ast.walk(_ps_tree)
+            if isinstance(m, _ps_ast.Subscript) and isinstance(m.slice, _ps_ast.Constant)}
+_ps_read |= {a.args[0].value for a in _ps_ast.walk(_ps_tree)
+             if isinstance(a, _ps_ast.Call) and isinstance(a.func, _ps_ast.Attribute)
+             and a.func.attr == "get" and a.args and isinstance(a.args[0], _ps_ast.Constant)}
+_ps_unwired = {f"PRESESSION_{i.upper()}" for i in _ps_inputs} - _ps_wenv
+_ps_unread = {e for e in _ps_wenv if e.startswith("PRESESSION_")} - _ps_read
+check("🌙 PS8 الـworkflow: `contents: read` وبلا كرون وبايثون 3.11 · والمدخلاتُ "
+      "الأربعةُ موصولةٌ ببيئةٍ يقرؤها السكربت (لا مدخلَ ميّت) · وبلا أعلام BT_*",
+      (_ps_wf.get("permissions") == {"contents": "read"} and "schedule" not in _ps_on
+       and _ps_inputs == {"year", "day", "syms", "witness"}
+       and not _ps_unwired and not _ps_unread
+       and not [e for e in _ps_wenv if e.startswith("BT_")]
+       and any((s.get("with") or {}).get("python-version") == "3.11"
+               for s in _ps_wf["jobs"]["presession"]["steps"])),
+      f"غيرُ موصول={sorted(_ps_unwired)} · غيرُ مقروء={sorted(_ps_unread)} · "
+      f"مدخلات={sorted(_ps_inputs)}")
+
+
+# ── 🌙 الرادارُ الحيّ (PS9-PS13) ───────────────────────────────────────────────
+_pr_src = open("presession_radar.py", encoding="utf-8").read()
+_pr_tree = _ps_ast.parse(_pr_src)
+_pr_spec = _ps_ilu.spec_from_file_location("presession_radar_t", "presession_radar.py")
+_PR = _ps_ilu.module_from_spec(_pr_spec)
+_pr_spec.loader.exec_module(_PR)
+
+# PS9 — بوّابةُ التوقيت تفرّق بالدقيقة: [15:50،15:56) افتر · [03:50،03:56) بري.
+_ps_slots = tuple(_PR.slot_now(m) for m in (949, 950, 955, 956, 229, 230, 235, 236))
+check("🌙 PS9 بوّابةُ القرار بالدقيقة: 15:49 صمت · 15:50-15:55 «AH» · 15:56 صمت · "
+      "03:49 صمت · 03:50-03:55 «PM» · 03:56 صمت · والختمُ يفرّق القرارين",
+      _ps_slots == (None, "AH", "AH", None, None, "PM", "PM", None)
+      and _PR.stamp_key("2026-09-04", "AH") != _PR.stamp_key("2026-09-04", "PM")
+      and _PR.stamp_key("2026-09-04", "AH").startswith("PRE:"), f"{_ps_slots}")
+
+# PS10 — المرشِّحُ الرخيص: كونُ السعر ثم أعلى دولارِ يوم — ويفرّق ثلاثَ حالات.
+_ps_g = [{"T": "A", "c": 2.0, "v": 100_000}, {"T": "B", "c": 50.0, "v": 100_000},
+         {"T": "C", "c": 1.0, "v": 50_000}, {"T": "D", "c": 3.0, "v": 400_000}]
+_ps_pf = [r["sym"] for r in _PR.prefilter(_ps_g, 0.40, 10.0, cap=10)]
+check("🌙 PS10 المرشِّح: خارجُ كون السعر يسقط · ودون أرضيةِ الدولار يسقط · "
+      "والترتيبُ بأعلى دولارِ يوم (D ثم A)",
+      _ps_pf == ["D", "A"], f"{_ps_pf}")
+
+# PS11 — **تكافؤٌ سلوكيّ**: `anchor_via` تقرأ المِرساةَ كما تقرؤها
+# `kasih_scan.first_anchor` (كلتاهما ⟶ `S.liq_stage_events` الإنتاجيّة) — وإلّا
+# صارت على المِرساة قراءتان: واحدةٌ تُقاس وأخرى تُرسَل.
+def _ps_ab(i, o, h, lo, c, v):
+    return (1_700_000_000_000 + i * 60_000, o, h, lo, c, v, 10.0, 570 + i)
+
+_ps_fire = ([_ps_ab(i, 1.0, 1.001, 0.999, 1.0, 100.0) for i in range(40)]
+            + [_ps_ab(40, 1.0, 1.12, 1.0, 1.10, 300_000.0)]
+            + [_ps_ab(i, 1.10, 1.11, 1.09, 1.10, 5_000.0) for i in range(41, 60)])
+_ps_quiet = [_ps_ab(i, 1.0, 1.001, 0.999, 1.0, 100.0) for i in range(60)]
+_ps_six = lambda bs: [(b[0], b[1], b[2], b[3], b[4], b[5]) for b in bs]   # noqa: E731
+_ps_eq = (int(bool(_KAS.first_anchor(_ps_six(_ps_fire)))),
+          _PR.anchor_via(_ps_fire, S.liq_stage_events, int(S.LIQ_WINDOW_MIN)),
+          int(bool(_KAS.first_anchor(_ps_six(_ps_quiet)))),
+          _PR.anchor_via(_ps_quiet, S.liq_stage_events, int(S.LIQ_WINDOW_MIN)),
+          _PR.anchor_via(_ps_fire, None, 65))
+check("🌙 PS11 تكافؤٌ سلوكيّ: `anchor_via` = `kasih_scan.first_anchor` على "
+      "مِرساةٍ حقيقية (1,1) وعلى يومٍ هادئ (0,0) · وبلا حاقنِ الدالّة الإنتاجيّة "
+      "ترجع صفرًا (فاشلٌ-آمن لا ادّعاء)",
+      _ps_eq == (1, 1, 0, 0, 0), f"{_ps_eq}")
+
+# PS12 — الرسالةُ تحمل حدَّ الصدق ومفتاحَ الترتيب واسمَه (‏«قيد الإثبات الأماميّ»).
+_ps_row = {"sym": "X", "ref": 1.5, "day_ret": 0.4, "usd_day": 500_000.0, "n5": 2}
+_ps_msg = _PR.build_presession_alert([_ps_row], "AH", "2026-09-04", 40, 60)
+check("🌙 PS12 الرسالةُ تُعلن «قيد الإثبات الأماميّ» وتسمّي مفتاحَ الترتيب "
+      "وتقول إنها ليست توصيةَ دخول · والقائمةُ الفارغة رسالةٌ فارغة (لا ضجيج)",
+      ("قيد الإثبات الأماميّ" in _ps_msg and _PR.PF.RANK_KEY in _ps_msg
+       and "لا تُقرأ توصيةَ دخول" in _ps_msg
+       and _PR.build_presession_alert([], "AH", "2026-09-04", 0, 0) == ""),
+      _ps_msg[:60])
+
+# PS13 — **الوصلةُ الحيّة**: الافتراضُ صامت · والإرسالُ بأمرِ المالك · والختمُ
+# **بعد** التسليم حصرًا (رفضُ تلغرام ⇒ لا ختمَ ولا سجلّ ⇒ تُعاد المحاولة).
+_ps_hooked = any(getattr(c.func, "id", "") == "_maybe_presession"
+                 for c in _ps_ast.walk(_ps_ast.parse(
+                     open("operator_entry_live.py", encoding="utf-8").read()))
+                 if isinstance(c, _ps_ast.Call))
+
+
+class _PsFakePre:
+    LEDGER_FILE = "/tmp/_ps_ledger.jsonl"
+
+    def __init__(self):
+        self.ledger = []
+
+    slot_now = staticmethod(lambda m: "AH")
+    stamp_key = staticmethod(lambda d, s: f"PRE:{d}:{s}")
+
+    def run_presession(self, *a, **k):
+        return [{"sym": "X", "ref": 1.0}], "رسالة", {"cov": 1}
+
+    def append_ledger(self, rows, slot, day, sent=False, **k):
+        self.ledger.append((slot, day, sent, len(rows)))
+        return len(rows)
+
+
+class _PsFakeBot:
+    FOOTER, OP_ENTRY_STATE_FILE = "", "/tmp/_ps_state.json"
+    CONFIG = {"MIN_PRICE": 0.4, "SPLIT_RADAR_PRICE_MAX": 10.0}
+    LIQ_WINDOW_MIN = 65
+    dt = __import__("datetime")
+    liq_stage_events = staticmethod(lambda *a, **k: ([], {}))
+
+    def __init__(self, ok=True):
+        self.ok, self.sent = ok, []
+
+    def send_telegram(self, msg, **k):
+        self.sent.append(msg)
+        return self.ok
+
+    def save_op_entry_state(self, s):
+        pass
+
+    def git_save(self, files):
+        pass
+
+
+def _ps_hook(send=None, ok=True):
+    _pre_bak, _bot_bak, _log_bak = _oel_mod._PRE, _oel_mod.bot, _oel_mod._log
+    _env_bak = _ps_os.environ.get("PRESESSION_SEND")
+    fake_pre, fake_bot, seen = _PsFakePre(), _PsFakeBot(ok), {}
+    try:
+        _oel_mod._PRE, _oel_mod.bot = fake_pre, fake_bot
+        _oel_mod._log = lambda *a, **k: None
+        if send is None:
+            _ps_os.environ.pop("PRESESSION_SEND", None)
+        else:
+            _ps_os.environ["PRESESSION_SEND"] = send
+        _oel_mod._maybe_presession(seen, 950, "2026-09-04")
+    finally:
+        _oel_mod._PRE, _oel_mod.bot, _oel_mod._log = _pre_bak, _bot_bak, _log_bak
+        if _env_bak is None:
+            _ps_os.environ.pop("PRESESSION_SEND", None)
+        else:
+            _ps_os.environ["PRESESSION_SEND"] = _env_bak
+    return len(fake_bot.sent), len(fake_pre.ledger), ("PRE:2026-09-04:AH" in seen)
+
+
+try:
+    _ps_h = (_ps_hook(None), _ps_hook("1"), _ps_hook("1", ok=False))
+except Exception as _e:                                          # noqa: BLE001
+    _ps_h = f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙 PS13 الوصلةُ الحيّة موصولةٌ من الحلقة (AST) · والافتراضُ **صامتٌ** "
+      "(صفرُ إرسالٍ · سجلٌّ · ختم) · وبأمر المالك يُرسَل ويُختَم · ورفضُ تلغرام "
+      "⇒ لا ختمَ ولا سجلّ (تُعاد المحاولة)",
+      _ps_hooked and _ps_h == ((0, 1, True), (1, 1, True), (1, 0, False)),
+      f"موصول={_ps_hooked} · {_ps_h}")
+
+# PS14 — **مصدرٌ واحدٌ للميزات**: الأداتان تقرآن `presession_feats` ولا تُعرّف
+# أيٌّ منهما `core_feats` بنفسها (وإلّا قِيس شيءٌ وأُرسل غيرُه).
+_ps_defs = lambda t: {n.name for n in _ps_ast.walk(t)                # noqa: E731
+                      if isinstance(n, _ps_ast.FunctionDef)}
+check("🌙 PS14 مصدرٌ واحدٌ للميزات: `presession_feats` يعرّف `core_feats` وحدَه · "
+      "والأداتان (القياسُ والرادار) تستورانه ولا تُعرّفانه",
+      "core_feats" not in _ps_defs(_ps_tree) and "core_feats" not in _ps_defs(_pr_tree)
+      and "import presession_feats" in _ps_src and "import presession_feats" in _pr_src
+      and "core_feats" in _ps_defs(_ps_ast.parse(
+          open("presession_feats.py", encoding="utf-8").read())),
+      "")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

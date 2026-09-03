@@ -27,6 +27,11 @@ try:
 except ImportError:                                              # pragma: no cover
     import super_stock as bot
 
+try:
+    import presession_radar as _PRE                              # 🌙⏱️ قائمةُ ما قبل الجلسة
+except Exception:                                                # noqa: BLE001
+    _PRE = None            # فاشلٌ-آمن: انكسارُ الاستيراد لا يمسّ العاملَ الحيّ
+
 INTERVAL_DEFAULT = 60          # ثانيةً بين الدورات
 MAX_RUNTIME_MIN = 330          # سقفُ أمانٍ تحت حدّ GitHub (‏6 ساعات)
 REFRESH_EVERY = 10             # كلَّ ~10 دقائق: تحديثُ القوائم من origin/main
@@ -337,6 +342,57 @@ def _stamps_covered():
     return True
 
 
+def _maybe_presession(seen, mod, day) -> bool:
+    """🌙⏱️ **قائمةُ ما قبل الافتر/البري بعشر دقائق** (أمرُ المالك 2026-09-03).
+
+    مرّةً واحدةً لكلّ قرارٍ في اليوم (ختمٌ `PRE:<يوم>:<AH|PM>` داخل ددوب «هنا
+    الدخول» — لا ملفَّ حالةٍ جديد). **والافتراضُ صامت**: يُكتَب السجلُّ الأماميّ
+    ولا تُرسَل رسالة، حتى يأمر المالكُ (`PRESESSION_SEND=1`) أو يصدر حكمُ
+    `T-PRESESSION` باستيفاء §⑥ — لأن الادّعاءَ قبل الرقم ممنوعٌ عندنا.
+
+    🔒 **الختمُ بعد التسليم حصرًا** (عقدُ «فُحِص وسُلِّم»): رفضُ تلغرام ⇒ لا ختمَ
+    ولا سجلّ ⇒ تُعاد المحاولةُ في الدورة التالية داخل نافذة القرار.
+    🔒 **وفاشلٌ-آمنٌ مطلق:** أيُّ عطلٍ ⇒ يُسجَّل ويمضي العاملُ كما هو.
+    """
+    if _PRE is None:
+        return False
+    slot = _PRE.slot_now(mod)
+    if not slot:
+        return False
+    key = _PRE.stamp_key(day, slot)
+    if key in seen:
+        return False
+    rows, msg, diag = _PRE.run_presession(
+        slot, day, int(time.time() * 1000), log=_log,
+        price_lo=float(bot.CONFIG["MIN_PRICE"]),
+        price_hi=float(bot.CONFIG["SPLIT_RADAR_PRICE_MAX"]),
+        liq_fn=bot.liq_stage_events, win=int(bot.LIQ_WINDOW_MIN))
+    _log(f"🌙 قرارُ {slot} {day}: {diag}")
+    if not rows:
+        return False
+    send = str(os.environ.get("PRESESSION_SEND") or "").strip() in ("1", "true")
+    ok = True
+    if send and msg:
+        try:
+            ok = bool(bot.send_telegram(msg + "\n\n" + bot.FOOTER))
+        except Exception as e:                                   # noqa: BLE001
+            ok = False
+            _log(f"⚠️ إرسالُ قائمة ما قبل الجلسة: {e}")
+        if not ok:
+            _log("⚠️ تيليجرام رفض القائمة — لا ختمَ ولا سجلّ، تُعاد المحاولة.")
+            return False
+    n = _PRE.append_ledger(rows, slot, day, sent=bool(send and ok))
+    seen[key] = bot.dt.datetime.now(bot.dt.timezone.utc).isoformat()
+    try:
+        bot.save_op_entry_state(seen)
+        bot.git_save([bot.OP_ENTRY_STATE_FILE, _PRE.LEDGER_FILE])
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⚠️ دفعُ ختم ما قبل الجلسة: {e}")
+    _log(f"🌙⏱️ قائمةُ {slot}: {len(rows)} اسمًا · سُجِّل {n} · "
+         + ("أُرسلت" if (send and ok) else "صامتة (بلا PRESESSION_SEND)"))
+    return True
+
+
 def _self_update(t0, budget):
     """🔄 يُحدّث الكودَ حيًّا حين تتغيّر **ملفّاتُ الكود** على origin ثم يُعيد تشغيل نفسه.
 
@@ -633,6 +689,11 @@ def main():
                 _log(f"⚠️ تيليجرام رفض «هنا الدخول» ({len(rows)}) — "
                      "نُزع الختمُ لتُعاد المحاولة.")
         _liq_sweep()
+        # 🌙⏱️ قائمةُ ما قبل الافتر/البري (نافذةٌ ستُّ دقائقَ مرّتين في اليوم).
+        try:
+            _maybe_presession(seen, *_ny_minutes())
+        except Exception as e:                                   # noqa: BLE001
+            _log(f"⚠️ قائمةُ ما قبل الجلسة (دورة {loops}): {e}")
         # ⏱️ **إيقاعٌ لا إضافة** (مع رفع السقف 2026-08-18): كان يُضاف `interval`
         #    **فوق** زمن العمل ⇒ دورةٌ = عملٌ ‏+ 60ث. ومع كونٍ أكبرَ يصير المسحُ
         #    التسلسليُّ أطولَ فتتضخّم الدورةُ **فتتأخّر إشعاراتُ السيولة** — وهي
