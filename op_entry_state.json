@@ -75,7 +75,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 4.2,
+  "e5": 4.1485,
   "date": "2026-09-03"
  },
  "LIQ:PDSB": {
@@ -184,7 +184,7 @@
   "date": "2026-09-03"
  },
  "LIQ:CNTX": {
-  "last_eval_ms": 1788469680000,
+  "last_eval_ms": 1788470400000,
   "date": "2026-09-03"
  },
  "LIQ:EDBL": {
@@ -210,7 +210,7 @@
    "anchor_ms": 1788467580000,
    "anchor_price": 4.59,
    "anchor_low": 4.11,
-   "e5": 4.34,
+   "e5": 4.35,
    "exit_ms": 1788468000000
   },
   "date": "2026-09-03"
@@ -273,7 +273,7 @@
   "date": "2026-09-03"
  },
  "LIQ:FAMI": {
-  "last_eval_ms": 1788470340000,
+  "last_eval_ms": 1788470400000,
   "date": "2026-09-03"
  },
  "LIQ:MB": {
@@ -574,7 +574,7 @@
    "anchor_ms": 1788465360000,
    "anchor_price": 1.9525,
    "anchor_low": 1.83,
-   "e5": 1.87,
+   "e5": null,
    "exit_ms": 1788465720000
   },
   "date": "2026-09-03"
@@ -760,11 +760,11 @@
   "date": "2026-09-03"
  },
  "LIQ:BRNX": {
-  "last_eval_ms": 1788470280000,
+  "last_eval_ms": 1788470400000,
   "date": "2026-09-03"
  },
  "LIQ:RITR": {
-  "last_eval_ms": 1788470340000,
+  "last_eval_ms": 1788470400000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788427200000,
@@ -1495,7 +1495,7 @@
   "date": "2026-09-03"
  },
  "LIQ:WHLR": {
-  "last_eval_ms": 1788469800000,
+  "last_eval_ms": 1788470400000,
   "date": "2026-09-03"
  },
  "LIQ:PPCB": {
@@ -1597,7 +1597,7 @@
   "date": "2026-09-03"
  },
  "LIQ:FNGR": {
-  "last_eval_ms": 1788470340000,
+  "last_eval_ms": 1788470400000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788435000000,
@@ -1961,7 +1961,7 @@
   "date": "2026-09-03"
  },
  "LIQ:STAK": {
-  "last_eval_ms": 1788470040000,
+  "last_eval_ms": 1788470400000,
   "date": "2026-09-03"
  },
  "LIQ:WKSP": {
@@ -1972,7 +1972,7 @@
   "date": "2026-09-02"
  },
  "LIQ:DAIC": {
-  "last_eval_ms": 1788470280000,
+  "last_eval_ms": 1788470400000,
   "date": "2026-09-03"
  },
  "LIQ:CAST": {
@@ -2182,7 +2182,7 @@
   "date": "2026-09-03"
  },
  "LIQ:CRWV": {
-  "last_eval_ms": 1788470340000,
+  "last_eval_ms": 1788470400000,
   "date": "2026-09-03"
  },
  "LIQ:YDDL": {
