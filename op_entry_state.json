@@ -81,7 +81,7 @@
   "updates": 0,
   "vol_x": 28.7,
   "peak_usd": 926936,
-  "last_eval_ms": 1788436800000,
+  "last_eval_ms": 1788436860000,
   "pulse_ms": 1788441720000,
   "anchor_price": 0.8488,
   "anchor_open": 0.7731,
@@ -110,7 +110,7 @@
   "date": "2026-09-03"
  },
  "LIQ:SKYQ": {
-  "last_eval_ms": 1788441120000,
+  "last_eval_ms": 1788441720000,
   "date": "2026-09-03"
  },
  "LIQ:CRE": {
@@ -742,7 +742,7 @@
   "date": "2026-09-03"
  },
  "LIQ:CAPR": {
-  "last_eval_ms": 1788441600000,
+  "last_eval_ms": 1788441720000,
   "date": "2026-09-03"
  },
  "LIQ:DBGI": {
@@ -997,7 +997,7 @@
   "date": "2026-09-02"
  },
  "LIQ:ASST": {
-  "last_eval_ms": 1788441660000,
+  "last_eval_ms": 1788441720000,
   "date": "2026-09-03"
  },
  "LIQ:VWAV": {
