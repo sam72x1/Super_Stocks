@@ -38530,15 +38530,27 @@ for _n in _ps_ast.walk(_ym_tree):
     if isinstance(_n, _ps_ast.Assign) and len(_n.targets) == 1 \
             and getattr(_n.targets[0], "id", "") in ("tr_m", "ev_m"):
         _ym_asg[_n.targets[0].id] = _ps_ast.dump(_n.value)
+_ym_fors = [_n for _n in _ps_ast.walk(_ym_tree) if isinstance(_n, _ps_ast.For)
+            and "_seen" in _ps_ast.dump(_n.iter)]
+_ym_for_n = len(_ym_fors)
+_ym_for_ok = bool(_ym_fors) and all("_extra" in _ps_ast.dump(_f.iter)
+                                    for _f in _ym_fors)
 _ym_ok = (set(_ym_asg) == {"tr_m", "ev_m"}
           and "TRAIN_YEARS" in _ym_asg["tr_m"] and "EVAL_YEAR" in _ym_asg["ev_m"]
           and not any(("_extra" in v or "year_lists" in v or "year_tag" in v)
                       for v in _ym_asg.values())
           # والوصفيّةُ موصولةٌ فعلًا بحلقات العرض (وإلّا كانت ميّتة)
-          and _ym_src.count("_seen + _extra") == 3)
+          #
+          # 🔒 إقرارٌ مؤرَّخ (2026-09-03، `T-TOPK`): كان الشرطُ **عدًّا** (`== 3`)
+          #    فسقط على إضافة حلقةِ منحنى الكلفة الرابعة — **والعدُّ يمنع
+          #    الإضافةَ ولا يحرس الثابت**. صار **بنيويًّا وأشدَّ**: كلُّ حلقةِ
+          #    سنواتٍ في `main` — مهما بلغ عددُها — تمرّ على `_seen + _extra`،
+          #    ⇒ **يستحيل** أن تُضاف حلقةٌ تقرأ `_seen` وحدَها فتُسقط الوصفيّةَ
+          #    صامتةً (وهي الثغرةُ التي كان العدُّ يمرّرها).
+          and _ym_for_ok and _ym_for_n >= 3)
 check("🌙 PS27-ب مِرساتا النموذج من ثابتَي العقد حصرًا (صفرُ سنةٍ وصفيّة) · "
-      "والوصفيّةُ موصولةٌ بحلقات العرض الثلاث", _ym_ok,
-      f"إسنادات={sorted(_ym_asg)} وصل={_ym_src.count('_seen + _extra')}")
+      "و**كلُّ** حلقةِ سنواتٍ تمرّ على الوصفيّة (بنيويّ — لا عدّ)", _ym_ok,
+      f"إسنادات={sorted(_ym_asg)} حلقات={_ym_for_n} كلُّها_وصفيّة={_ym_for_ok}")
 
 # PS28 — 🗓️ **السنةُ الجزئيّة تُعلَن ولا تُخمَّن.** بلا `PRESESSION_END` يبقى
 #        المدى **السنةَ كاملةً بت-بت** فأرقامُ 2023/2024/2025 قابلةٌ للإعادة؛
@@ -38681,6 +38693,144 @@ check("🌙 PS29-ب التشخيصُ **مُنادًى من `main`** · وحدُ�
       f"نداءات={sorted(_mw_calls & {'miss_report', 'miss_key_tally'})} "
       f"ليه_فات={'ليه فات' in _mw_txt} وصفيّ={'وصفيٌّ صرف' in _mw_txt} "
       f"تحذير={'ولا يُبدَّل به مفتاحٌ' in _mw_txt} phack={'p-hacking' in _mw_txt}")
+
+
+# ── 📦 `T-TOPK` — «كم اسمًا يصل المالك؟» (العقد `topk_prereg.md`) ────────────
+# PS30 — 🪜 **سلّمُ الرتبة رتيبٌ بالبناء · و`K10` يُعيد الحكمَ المنشور بت-بت.**
+#   العيّنةُ **تفرّق**: أربعةُ قرارات × 12 صفًّا · إصابةٌ في الرتبة 1 وأخرى في
+#   الرتبة 6 ⇒ `hits@1 < hits@10` فعلًا (لا تساوٍ يُخفي انكسارَ الرتابة).
+_tk_rows = []
+_tk_vals = {                       # (يوم ⟶ قيمُ المفتاح بترتيب الإدراج)
+    "2023-05-01": [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+    "2023-05-02": [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+    "2023-05-03": [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+    "2023-05-04": [11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+    # 🔒 سنةُ التقييم **مزاحةٌ عمدًا** ⇒ أرضيةُ المعايرة تُطبَّق كما هي فيختلف
+    #    عددُ الأسماء عن الهدف — ولو أُعيدت المعايرةُ عليها لعاد إلى 3 بالضبط.
+    "2025-05-01": [20, 19, 18, 17, 16, 0, -1, -2, -3, -4, -5, -6],
+    "2025-05-02": [20, 19, 0, -1, -2, -3, -4, -5, -6, -7, -8, -9],
+    "2025-05-03": [0, -1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11],
+    "2025-05-04": [20, 19, 18, 17, 0, -1, -2, -3, -4, -5, -6, -7],
+}
+_tk_hits = {("2025-05-01", 0), ("2025-05-03", 0), ("2025-05-01", 5)}
+for _dy, _vs in _tk_vals.items():
+    for _i, _v in enumerate(_vs):
+        _r = {_PFm.ROW_DAY: _dy, _PFm.ROW_SESS: "PM", _PFm.ROW_SYM: f"T{_i:02d}"}
+        _r.update({f: 0.0 for f in _RP.FEATS})
+        _r["post_hi_ret"] = float(_v)
+        _r.update({k: 0 for k in _RP.LABEL_KEYS.values()})
+        _r.update({k: 0.0 for k in _RP.MAX_KEYS.values()})
+        if (_dy, _i) in _tk_hits:
+            _r["hit80_s"], _r["maxs"] = 1, 150.0
+        _tk_rows.append(_r)
+with _tf.TemporaryDirectory() as _tk_d:
+    _tk_p = _os_hc.path.join(_tk_d, "presession_rows_tk.jsonl")
+    open(_tk_p, "w", encoding="utf-8").write(
+        "\n".join(json.dumps(_x) for _x in _tk_rows))
+    try:
+        _tk_dd = _RP.load_cols([_tk_p], _RP.FEATS)
+        _tk_ki = _RP.FEATS.index("post_hi_ret")
+        _tk_tr = (_tk_dd["year"] == "2023") & (_tk_dd["slot"] == "PM")
+        _tk_ev = (_tk_dd["year"] == "2025") & (_tk_dd["slot"] == "PM")
+        _tk_sctr = _RP.np.nan_to_num(_tk_dd["X"][_tk_tr][:, _tk_ki],
+                                     nan=-_RP.np.inf)
+        _tk_ntr = int(_RP.np.unique(_tk_dd["gid"][_tk_tr]).size)
+        _tk_thrs = [(t, _RP.floor_value(_tk_sctr, _tk_ntr, t, asc=False))
+                    for t in _RP.FLOOR_TARGETS]
+        _tk_rr = _RP.delivery_rows(_tk_dd, _tk_ev, 0, _tk_ki, False, _tk_thrs)
+        _tk_K = {st["arm"]: st for st in _tk_rr["K"]}
+        _tk_F = {st["arm"]: st for st in _tk_rr["F"]}
+        _tk_tk = [st["taken"] for st in _tk_rr["K"]]
+        _tk_hh = [st["hits"] for st in _tk_rr["K"]]
+        # فحصُ تكاملٍ: `K10` = `eval_scores` عند k=10 حرفيًّا
+        _tk_scev = _RP.np.nan_to_num(_tk_dd["X"][_tk_ev][:, _tk_ki],
+                                     nan=-_RP.np.inf)
+        _tk_es = _RP.eval_scores(_tk_scev, _tk_dd["gid"][_tk_ev],
+                                 _tk_dd["sym"][_tk_ev], _tk_dd["y"][0][_tk_ev])
+        _tk_ok = (all(a <= b for a, b in zip(_tk_tk, _tk_tk[1:]))
+                  and all(a <= b for a, b in zip(_tk_hh, _tk_hh[1:]))
+                  and _tk_K["K1"]["hits"] < _tk_K["K10"]["hits"]   # عيّنةٌ تفرّق
+                  and _tk_K["K1"]["taken"] == 4 and _tk_K["K3"]["taken"] == 12
+                  and _tk_K["K10"]["taken"] == _tk_es["taken"]
+                  and _tk_K["K10"]["hits"] == _tk_es["hits"]
+                  and _tk_rr["n_dec"] == 4 and _tk_rr["expl"] == 3)
+    except Exception as _e:                                      # noqa: BLE001
+        _tk_ok = False
+        _tk_K, _tk_F, _tk_rr = {}, {}, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📦 PS30 سلّمُ الرتبة **رتيبٌ** في المأخوذ والإصابات (بعيّنةٍ تفرّق: "
+      "`hits@1` أقلُّ من `hits@10`) · و`K10` يُعيد `eval_scores` **بت-بت** "
+      "(فحصُ تكاملٍ مع مسار الحكم المنشور)",
+      _tk_ok,
+      f"K={_tk_rr if isinstance(_tk_rr, str) else [(s['arm'], s['taken'], s['hits']) for s in _tk_rr['K']]}")
+
+# PS31 — 🎚️ **الأرضيةُ مُعايَرةٌ على المعايرة وحدَها وتُطبَّق كما هي.**
+#   ① على عيّنة المعايرة تعطي متوسّطَ الهدف بالضبط ② وعلى سنةٍ **مزاحة** تعطي
+#   عددًا مختلفًا (‏لو أُعيدت المعايرةُ لعاد إلى 3) ③ والمفتاحُ الصاعد **يقلب
+#   الاتّجاه** (الأدنى أفضل) ④ والحسابُ في `main` من `TRAIN_YEARS` حصرًا (AST).
+try:
+    _tk_thr3 = dict(_tk_thrs)[3.0]
+    _tk_self = _RP.delivery_rows(_tk_dd, _tk_tr, 0, _tk_ki, False, _tk_thrs)
+    _tk_selfF3 = {s["arm"]: s for s in _tk_self["F"]}["F3"]
+    # لو أُعيدت المعايرةُ على سنةِ التقييم (الخطأُ الذي نحرس منه)
+    _tk_thr_ev = _RP.floor_value(_tk_scev, 4, 3.0, asc=False)
+    _tk_ev_taken = int(_RP.floor_sel(_tk_scev, _tk_thr_ev).sum())
+    _tk_asc = _RP.floor_value(_RP.np.array([0.0, 1, 2, 3, 4, 5, 6, 7]), 2, 2.0,
+                              asc=True)
+    _tk_ascsel = _RP.floor_sel(_RP.np.array([0.0, 1, 2, 3, 4, 5, 6, 7]),
+                               _tk_asc, asc=True)
+    _tk_dscsel = _RP.floor_sel(_RP.np.array([0.0, 1, 2, 3, 4, 5, 6, 7]),
+                               _tk_asc, asc=False)
+    _tk_f_ok = (abs(_tk_thr3 - 9.0) < 1e-9
+                and abs(_tk_selfF3["per_mean"] - 3.0) < 1e-9      # ① على المعايرة
+                # ② على السنة المزاحة **تُطبَّق كما هي**: 5+2+0+4 = 11 اسمًا
+                #    (لا 12 التي يعطيها الهدفُ 3×4) — والدليلُ الحاسم أن إعادةَ
+                #    المعايرة على العيّنة نفسِها **تعطي عددًا آخر**، فلو تسرّبت
+                #    سنةُ التقييم إلى الحساب لانكسر هذا السطرُ بعينه.
+                and _tk_F["F3"]["taken"] == 11
+                and abs(_tk_F["F3"]["per_mean"] - 11 / 4) < 1e-9
+                and _tk_ev_taken != 11
+                and _tk_F["F3"]["zero"] == 25.0                   # يومٌ بلا اسم
+                and abs(_tk_asc - 3.0) < 1e-9                     # ③ الصاعد
+                and list(_tk_ascsel) == [True] * 4 + [False] * 4
+                and list(_tk_dscsel) == [False] * 3 + [True] * 5)
+except Exception as _e:                                          # noqa: BLE001
+    _tk_f_ok, _tk_thr3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+_tk_msrc = _ps_insp.getsource(_RP.main)
+_tk_asg = {}
+for _n in _ps_ast.walk(_ps_ast.parse(_tk_msrc.lstrip())):
+    if isinstance(_n, _ps_ast.Assign) and len(_n.targets) == 1 \
+            and getattr(_n.targets[0], "id", "") in ("tr_d", "sc_tr", "n_tr", "thrs"):
+        _tk_asg[_n.targets[0].id] = _ps_ast.dump(_n.value)
+_tk_ast_ok = (set(_tk_asg) == {"tr_d", "sc_tr", "n_tr", "thrs"}
+              and "TRAIN_YEARS" in _tk_asg["tr_d"]
+              and "floor_value" in _tk_asg["thrs"]
+              and "sc_tr" in _tk_asg["thrs"] and "n_tr" in _tk_asg["thrs"]
+              and not any(("EVAL_YEAR" in v or "_extra" in v or "_seen" in v)
+                          for v in _tk_asg.values()))
+check("📦 PS31 الأرضيةُ: على المعايرة تعطي الهدفَ بالضبط · وعلى سنةٍ مزاحةٍ "
+      "**تُطبَّق كما هي فيختلف العدد** (لا إعادةَ معايرة) · والصاعدُ يقلب "
+      "الاتّجاه · وحسابُها في `main` من `TRAIN_YEARS` حصرًا (AST)",
+      _tk_f_ok and _tk_ast_ok,
+      f"thr3={_tk_thr3} إسنادات={sorted(_tk_asg)} f_ok={_tk_f_ok} ast={_tk_ast_ok}")
+
+# PS32 — 🔗 **`C3` تقاطعٌ لا اتّحاد** — ومجموعُ الأدنى **يوميًّا** أقلُّ من
+#   أدنى المجموعَين ⇒ عيّنةٌ تفرّق بين التقاطع والاتّحاد وبين التقاطع و`min`.
+try:
+    _tk_C = _tk_rr["C"]
+    _tk_c_ok = (_tk_C is not None
+                and _tk_C["taken"] == 8                    # 3+2+0+3
+                and _tk_C["taken"] < _tk_K["K3"]["taken"]  # أقلُّ من الرتبة
+                and _tk_C["taken"] < _tk_F["F3"]["taken"]  # وأقلُّ من الأرضية
+                and _tk_C["hits"] == 1                     # الإصابةُ خارج الأرضية تسقط
+                and _tk_K["K3"]["hits"] == 2
+                and _tk_C["zero"] == 25.0)
+except Exception as _e:                                          # noqa: BLE001
+    _tk_c_ok, _tk_C = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📦 PS32 `C3` = `K3` ∩ `F3` **تقاطعٌ** (‏8 من 12 و11) · وإصابةُ اليوم "
+      "الهادئ تسقط منها وتبقى في `K3` ⇒ الفارقُ سلوكيٌّ لا اسميّ",
+      _tk_c_ok,
+      f"C={_tk_C if isinstance(_tk_C, str) else (_tk_C['taken'], _tk_C['hits'])} "
+      f"K3={_tk_K.get('K3', {}).get('taken')} F3={_tk_F.get('F3', {}).get('taken')}")
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")

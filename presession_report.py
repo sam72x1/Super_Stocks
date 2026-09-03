@@ -32,6 +32,7 @@ from __future__ import annotations
 import glob
 import gzip
 import json
+import math
 import os
 import sys
 
@@ -306,6 +307,102 @@ def miss_key_tally(rows, feats, k=TOPK):
                            key=lambda kv: (-kv[0], kv[1]))
 
 
+# ── 📦 `T-TOPK` — «كم اسمًا يصل المالك؟» (العقد `topk_prereg.md`) ──────────
+#    🔒 **قرارُ تسليمٍ لا حكمُ تجربة:** يُخرِج منحنى كلفةٍ للمالك — ولا يمسّ
+#    الحكمَ الرسميّ عند `TOPK`=10 ولا المفتاحَ المشحون ولا عتبةً حيّة.
+LADDER_KS = (1, 2, 3, 5, 10, 15, 20)       # §③ — مثبَّتٌ قبل أيّ رقم
+FLOOR_TARGETS = (1.0, 3.0, 5.0)            # متوسّطُ الأسماء لكلّ قرار
+COMBO_K = 3                                # `C3` = `K3` ∩ `F3`
+
+
+def wilson(k, n, z=1.96):
+    """فاصلُ ثقةٍ 95% لنسبةٍ — إلزاميٌّ هنا لأن المقامات تصغر عند `k`=1..3."""
+    if n <= 0:
+        return (0.0, 0.0)
+    p = k / n
+    dn = 1 + z * z / n
+    c = p + z * z / (2 * n)
+    h = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+    return (max(0.0, (c - h) / dn) * 100, min(1.0, (c + h) / dn) * 100)
+
+
+def cut_stats(sel, inv, y, n_dec, base):
+    """مقاييسُ **قطعٍ واحد** — مصدرٌ واحدٌ لكلّ الأذرع (رتبةً كانت أو أرضية)
+    فلا يتفرّق حسابُ ذراعٍ عن أخرى. `sel` قناعُ الاختيار · `inv` رقمُ القرار."""
+    taken = int(sel.sum())
+    hits = int(y[sel].sum())
+    expl = int(y.sum())
+    per = (np.bincount(inv[sel], minlength=n_dec) if taken
+           else np.zeros(max(n_dec, 1), dtype=np.int64))
+    p = (hits / taken) if taken else 0.0
+    lo, hi = wilson(hits, taken)
+    return {"taken": taken, "hits": hits, "p": p,
+            "r": (hits / expl) if expl else 0.0,
+            "lift": (p / base) if base else 0.0,
+            "per_mean": (float(per.mean()) if n_dec else 0.0),
+            "per_med": (float(np.median(per)) if n_dec else 0.0),
+            "zero": ((float((per == 0).sum()) / n_dec * 100) if n_dec else 0.0),
+            "lo": lo, "hi": hi}
+
+
+def floor_value(sc, n_dec, target, asc=False):
+    """أرضيةٌ **مطلقة** تُعطي متوسّطَ `target` اسمًا لكلّ قرار **على العيّنة
+    التي تُعايَر عليها** — ثم تُطبَّق كما هي حرفيًّا خارج العيّنة (‏§③).
+
+    🔒 المفتاحُ الصاعد يقلب الاتّجاه: الأدنى أفضل ⇒ الأرضيةُ سقفٌ لا قاع.
+    """
+    if sc.size == 0 or n_dec <= 0:
+        return None
+    m = int(round(float(target) * n_dec))
+    if m <= 0:
+        return None
+    m = min(m, int(sc.size))
+    srt = np.sort(sc)
+    return float(srt[m - 1] if asc else srt[-m])
+
+
+def floor_sel(sc, thr, asc=False):
+    """قناعُ الأرضية — والصاعدُ يُقارَن بالعكس (مقفولٌ سلوكيًّا)."""
+    if thr is None:
+        return np.zeros(sc.shape, dtype=bool)
+    return (sc <= thr) if asc else (sc >= thr)
+
+
+def delivery_rows(d, mask, w, ki, asc, thrs, ks=LADDER_KS):
+    """صفوفُ منحنى الكلفة لسنةٍ/جلسةٍ واحدة: سلّمُ الرتبة ‏+ سلّمُ الأرضية ‏+
+    المركَّبة — **كلُّها من `group_ranks` و`cut_stats` نفسِهما**.
+
+    🔒 السلّمُ **رتيبٌ بالبناء** (‏`rank < k` متداخلة) فلا يمكن أن ينقص المأخوذُ
+    ولا الإصاباتُ برفع `k` — وهو ما يقفله `PS30`.
+    """
+    sc = np.nan_to_num(d["X"][mask][:, ki], nan=(np.inf if asc else -np.inf))
+    gid, sym, y = d["gid"][mask], d["sym"][mask], d["y"][w][mask]
+    _, inv = np.unique(gid, return_inverse=True)
+    n_dec = int(inv.max()) + 1 if inv.size else 0
+    expl, uni = int(y.sum()), int(y.size)
+    base = (expl / uni) if uni else 0.0
+    r = group_ranks(sc, gid, sym, asc=asc)
+    out = {"n_dec": n_dec, "expl": expl, "uni": uni, "base": base,
+           "expl_per": (expl / n_dec) if n_dec else 0.0,
+           "K": [], "F": [], "C": None}
+    for k in ks:
+        st = cut_stats(r < k, inv, y, n_dec, base)
+        st["arm"] = f"K{k}"
+        out["K"].append(st)
+    for tg, thr in thrs:
+        st = cut_stats(floor_sel(sc, thr, asc), inv, y, n_dec, base)
+        st["arm"] = f"F{tg:g}"
+        st["thr"] = thr
+        out["F"].append(st)
+    thr3 = next((t for tg, t in thrs if abs(tg - 3.0) < 1e-9), None)
+    if thr3 is not None:
+        st = cut_stats((r < COMBO_K) & floor_sel(sc, thr3, asc), inv, y,
+                       n_dec, base)
+        st["arm"] = f"C{COMBO_K}"
+        out["C"] = st
+    return out
+
+
 def verdict(res_s1, res_b1, res_b2, expl, signs_ok):
     if expl < MIN_EXPLODERS:
         return "لا حكم", [f"⑤ الأرضيةُ ساقطة: {expl} منفجرًا دون {MIN_EXPLODERS}"]
@@ -548,6 +645,54 @@ def main() -> int:
                     + (" · ".join(f"{f}={n}" for n, f in tal[:8]) or "لا مفتاح")
                     + " 🔴 **ولا يُبدَّل به مفتاحٌ**: عدٌّ على سهمٍ واحدٍ بعد رؤية "
                       "نتيجته هو `p-hacking` بحرفه.")
+    # ── 📦 `T-TOPK` — منحنى كلفة «كم اسمًا يصل المالك؟» (لا حكم) ──────────
+    log("")
+    log("=" * 78)
+    log("📦 T-TOPK — «كم اسمًا يصل المالك؟» **منحنى كلفةٍ لقرار تسليم لا حكم** "
+        "(العقد `topk_prereg.md` · النافذةُ الحاكمة: الجلسةُ كاملةً)")
+    log("=" * 78)
+    log("🔒 الحكمُ الرسميّ «فشلت» عند TOPK=10 **لا يتغيّر** · والمفتاحُ المشحون "
+        "**لا يُبدَّل** · وصفرُ مسٍّ بعتبةٍ حيّة — ولا شحنَ بلا أمر المالك.")
+    _tw = 0                       # النافذةُ الحاكمة = الجلسةُ كاملةً
+    for slot in ("PM", "AH"):
+        key = PF.rank_key(slot)
+        if key not in feats:
+            log(f"\n【{slot}】 ⛔ المفتاحُ المشحون `{key}` خارج الميزات — لا جدول.")
+            continue
+        ki = feats.index(key)
+        asc = key in set(PF.FEATS_ASC)
+        # 🔒 الأرضياتُ **مُعايَرةٌ على سنتَي المعايرة وحدهما** ثم تُطبَّق كما هي
+        tr_d = (d["slot"] == slot) & np.isin(d["year"], list(TRAIN_YEARS))
+        thrs = []
+        if tr_d.any():
+            sc_tr = np.nan_to_num(d["X"][tr_d][:, ki],
+                                  nan=(np.inf if asc else -np.inf))
+            n_tr = int(np.unique(d["gid"][tr_d]).size)
+            thrs = [(t, floor_value(sc_tr, n_tr, t, asc=asc))
+                    for t in FLOOR_TARGETS]
+        log(f"\n【{slot} · المفتاحُ المشحون `{key}`】 أرضياتٌ مُعايَرةٌ على "
+            f"{'+'.join(TRAIN_YEARS)} حصرًا: "
+            + " · ".join(f"F{t:g}={'—' if v is None else f'{v:.5g}'}"
+                         for t, v in thrs))
+        for yr in _seen + _extra:
+            m = (d["year"] == yr) & (d["slot"] == slot)
+            if not m.any():
+                continue
+            rr = delivery_rows(d, m, _tw, ki, asc, thrs)
+            log(f"\n  ── {yr} — {year_tag(yr)} · قرارات {rr['n_dec']} · "
+                f"منفجرون {rr['expl']} (**{rr['expl_per']:.2f} لكلّ قرار** = "
+                f"سقفُ العرّاف) · الأساس {rr['base']*100:.3f}%")
+            log("     ذراع │ أسماء/قرار │ صفرُ أسماء │ مأخوذ │ إصابات │  P    "
+                "│ Wilson95      │  R    │ lift")
+            for st in rr["K"] + rr["F"] + ([rr["C"]] if rr["C"] else []):
+                log(f"     {st['arm']:<5}│ {st['per_mean']:9.2f}  │ "
+                    f"{st['zero']:8.1f}% │{st['taken']:6} │{st['hits']:7} │"
+                    f"{st['p']*100:6.3f}%│ [{st['lo']:5.2f},{st['hi']:6.2f}] │"
+                    f"{st['r']*100:6.2f}%│{st['lift']:6.1f}×")
+    log("")
+    log("📌 **يُقرأ منحنى كلفةٍ لا حكمًا** — ولا تُرقّى ذراعٌ منه إلى قرارٍ إلّا "
+        "بأمر المالك الصريح (سقفُ النجاح في `topk_prereg §⑤`).")
+
     log("")
     log("📌 ترتيبُ التراجع المقفول: تُقرأ نافذةُ 10 أوّلًا، ولا يُقرأ حكمُ نافذةٍ "
         "أوسعَ حكمًا على الأضيق. **والنافذةُ التي يريدها المالك هي الجلسةُ كاملةً "
