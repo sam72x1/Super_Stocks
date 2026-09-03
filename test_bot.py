@@ -38442,17 +38442,22 @@ check("🌙 PS25 ترتيبٌ واحدٌ لا اثنان: `eval_scores` و`hit_n
 #   بالبناء · واليومُ والرمزُ يُقرآن من `gkey`/`names` (‏فلو انقطع أحدُهما ظهر
 #   رمزٌ أو تاريخٌ خطأ) · ورمزٌ خارج الكون **يُعلَن ولا يُخمَّن**.
 _hn_rows = []
+# 🔒 **عيّنةٌ تفرّق في أربعة محاور معًا:** ① الرموزُ تُدرَج **معكوسةً** (‏S19 ⟶ S00)
+#    فخريطةُ `names` الأبجديّة **تُختبَر فعلًا** (بترتيب الإدراج يُسمّى رمزٌ آخر) ②
+#    والإصابةُ **داخل** العشرة في يومٍ واحدٍ فقط فخريطةُ `gkey` تُختبَر (يومٌ خطأ
+#    يُكشَف) ③ ومنفجرٌ **خارج** العشرة في اليومين فقصرُ التسمية على `topk` يُختبَر
+#    ④ و`maxs` مختلفةٌ بين الاثنين فعمودُ النسبة يُختبَر.
 for _hd in ("2025-02-03", "2025-02-04"):
-    for _i in range(20):
+    for _i in range(19, -1, -1):
         _rh = {_PFm.ROW_DAY: _hd, _PFm.ROW_SESS: "PM", _PFm.ROW_SYM: f"S{_i:02d}"}
         _rh.update({f: 0.0 for f in _RP.FEATS})
         _rh["post_hi_ret"] = float(_i)                 # S19 أعلى ⇒ العشرةُ S10..S19
         _rh.update({k: 0 for k in _RP.LABEL_KEYS.values()})
         _rh.update({k: 0.0 for k in _RP.MAX_KEYS.values()})
-        if _i == 19:
-            _rh["hit80_s"], _rh["maxs"] = 1, 111.0     # داخل القائمة
+        if _i == 19 and _hd == "2025-02-03":
+            _rh["hit80_s"], _rh["maxs"] = 1, 111.0     # داخل القائمة · يومٌ واحد
         if _i == 0:
-            _rh["hit80_s"], _rh["maxs"] = 1, 999.0     # خارجها
+            _rh["hit80_s"], _rh["maxs"] = 1, 999.0     # خارجها · اليومان
         _hn_rows.append(_rh)
 with _tf.TemporaryDirectory() as _hn_d:
     _hn_p = _os_hc.path.join(_hn_d, "presession_rows_hn.jsonl")
@@ -38466,19 +38471,18 @@ with _tf.TemporaryDirectory() as _hn_d:
         _hn_res = _RP.eval_scores(_hn_sc, _hn_dd["gid"][_hn_m],
                                   _hn_dd["sym"][_hn_m], _hn_dd["y"][0][_hn_m])
         _hn_nm = _RP.hit_names(_hn_dd, _hn_sc, _hn_m, 0)
-        _hn_syms = sorted({r["sym"] for r in _hn_nm})
-        _hn_days = sorted({r["day"] for r in _hn_nm})
-        _hn_ok = (len(_hn_nm) == _hn_res["hits"] == 2
-                  and _hn_syms == ["S19"]
-                  and _hn_days == ["2025-02-03", "2025-02-04"]
-                  and all(abs((r["max"] or 0) - 111.0) < 1e-6 for r in _hn_nm)
-                  and int(_hn_dd["y"][0][_hn_m].sum()) == 4      # منفجرون 4 · مُسلَّم 2
+        _hn_ok = (len(_hn_nm) == _hn_res["hits"] == 1
+                  and _hn_nm[0]["sym"] == "S19"
+                  and _hn_nm[0]["day"] == "2025-02-03"
+                  and abs((_hn_nm[0]["max"] or 0) - 111.0) < 1e-6
+                  and int(_hn_dd["y"][0][_hn_m].sum()) == 3   # منفجرون 3 · مُسلَّم 1
+                  and _hn_res["taken"] == 20
                   and not _RP.np.where(_hn_dd["names"] == "NOPE")[0].size)
     except Exception as _e:                                      # noqa: BLE001
         _hn_ok, _hn_nm, _hn_res = False, f"⛔ رمى: {type(_e).__name__}: {_e}", {}
 check("🌙 PS26 أسماءُ الإصابات: **الداخلُ في العشرة وحدَه يُسمّى** (`S19` لا "
-      "`S00`) · وعددُها = `hits` · واليومُ والرمزُ من `gkey`/`names` · ورمزٌ "
-      "خارج الكون لا يُختلَق",
+      "`S00`) · وعددُها = `hits` · و**اليومُ من `gkey` والرمزُ من `names`** "
+      "(عيّنةٌ معكوسةُ الإدراج ويومٌ واحدٌ للإصابة) · ورمزٌ خارج الكون لا يُختلَق",
       _hn_ok,
       f"أسماء={_hn_nm if isinstance(_hn_nm, str) else [(r['day'], r['sym'], r['max']) for r in _hn_nm]} "
       f"hits={_hn_res.get('hits')}")
