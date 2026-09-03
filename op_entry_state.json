@@ -82,7 +82,7 @@
   "updates": 0,
   "vol_x": 28.7,
   "peak_usd": 926936,
-  "last_eval_ms": 1788436800000,
+  "last_eval_ms": 1788436860000,
   "pulse_ms": 1788443220000,
   "anchor_price": 0.8488,
   "anchor_open": 0.7731,
@@ -998,7 +998,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 10.0,
+  "e5": 9.94,
   "date": "2026-09-03"
  },
  "LIQ:JEM": {
