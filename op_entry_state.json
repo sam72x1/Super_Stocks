@@ -561,7 +561,7 @@
    "anchor_ms": 1788465360000,
    "anchor_price": 1.9525,
    "anchor_low": 1.83,
-   "e5": 1.87,
+   "e5": 1.85,
    "exit_ms": 1788465720000
   },
   "date": "2026-09-03"
@@ -1718,9 +1718,9 @@
    "M1"
   ],
   "updates": 0,
-  "vol_x": 16.1,
+  "vol_x": 15.0,
   "peak_usd": 82844,
-  "last_eval_ms": 1788465480000,
+  "last_eval_ms": 1788465600000,
   "pulse_ms": 1788465600000,
   "anchor_price": 2.27,
   "anchor_open": 2.15,
