@@ -372,8 +372,14 @@ def _maybe_presession(seen, mod, day) -> bool:
         price_hi=float(bot.CONFIG["SPLIT_RADAR_PRICE_MAX"]),
         liq_fn=bot.liq_stage_events, win=int(bot.LIQ_WINDOW_MIN))
     _log(f"🌙 قرارُ {slot} {day}: {diag}")
-    if not rows:
+    # 🔴 **تمييزُ «فشلَ المسحُ» عن «لم يعبر أحدٌ الأرضية»** (‏2026-09-04): بعد
+    #    أرضية التسليم صارت الليلةُ الصامتة **حالةً طبيعيةً في رُبع الليالي** لا
+    #    عطلًا. فلو بقيت بلا ختمٍ لأُعيد مسحُ السوق كلِّه **ستَّ مرّاتٍ** في نافذة
+    #    القرار، **وضاع صفُّها من السجلّ الأماميّ** فيصير الحصادُ أعمى عن الليالي
+    #    التي صمتنا فيها. ⇒ **عطلُ الجلب وحدَه يرجع بلا ختم.**
+    if diag.get("reason"):
         return False
+    deliver = list(diag.get("deliver") or [])
     send = _PRE.send_enabled(slot, os.environ.get("PRESESSION_SEND"))
     ok = True
     if send and msg:
@@ -385,16 +391,26 @@ def _maybe_presession(seen, mod, day) -> bool:
         if not ok:
             _log("⚠️ تيليجرام رفض القائمة — لا ختمَ ولا سجلّ، تُعاد المحاولة.")
             return False
-    n = _PRE.append_ledger(rows, slot, day, sent=bool(send and ok))
+    # 🔒 **المقصوصُ بالأرضية يُسجَّل أيضًا** (بحقل `floor_ok`) و`sent` لكلّ صفٍّ
+    #    لا للدفعة — وإلّا استحال قياسُ كلفةِ الأرضية أماميًّا.
+    n = _PRE.append_ledger(rows, slot, day, sent=bool(send and ok),
+                           delivered=deliver)
     seen[key] = bot.dt.datetime.now(bot.dt.timezone.utc).isoformat()
     try:
         bot.save_op_entry_state(seen)
         bot.git_save([bot.OP_ENTRY_STATE_FILE, _PRE.LEDGER_FILE])
     except Exception as e:                                       # noqa: BLE001
         _log(f"⚠️ دفعُ ختم ما قبل الجلسة: {e}")
-    _log(f"🌙⏱️ قائمةُ {slot}: {len(rows)} اسمًا · سُجِّل {n} · "
-         + ("أُرسلت" if (send and ok)
-            else f"صامتة (‏PRESESSION_SEND لا تشمل {slot})"))
+    if not send:
+        _why = f"صامتة (‏PRESESSION_SEND لا تشمل {slot})"
+    elif not rows:
+        _why = "صامتة — لا مرشَّحَ مرتَّبًا"
+    elif not deliver:
+        _why = "صامتة — لا اسمَ يعبر الأرضية"
+    else:
+        _why = "أُرسلت"
+    _log(f"🌙⏱️ قائمةُ {slot}: {len(rows)} مرتَّبًا · عبَر الأرضيةَ "
+         f"{len(deliver)} · سُجِّل {n} · " + _why)
     return True
 
 

@@ -38852,6 +38852,200 @@ check("📦 PS32 `C3` = `K3` ∩ `F3` **تقاطعٌ** (‏8 من 12 و11) · و
       f"K3={_tk_K.get('K3', {}).get('taken')} F3={_tk_F.get('F3', {}).get('taken')}")
 
 
+
+# ══ 🎚️ أرضيةُ التسليم — أمرُ المالك «شغّل الأرضية» (PS34-PS39، 2026-09-04) ══
+# نصُّه قبلها: «المفروض يوصلني 3 أسهم واهي اللي تعتبر **توب التوب**» ⇒ لا عددٌ
+# ثابتٌ بل **قراءةٌ متطرّفةٌ فقط**، والليلةُ التي لا متطرّفَ فيها تُسلَّم صفرًا.
+_flPF = _PR.PF                       # 🔒 وحدةُ الإنتاج نفسُها لا نسخةٌ منها
+
+# PS34 — **سلوكُ الأرضية**: تفرّق فوق/عند/تحت · والمعدومُ **يُسقَط لا يمرّ**
+#   (خلافًا لعُرف «فاشلٌ-آمنٌ مفتوح» **وعمدًا**: هو عينُ ما قِيس، وغيابُ
+#   `post_hi_ret` يعني «لا افترَ لأمسه» = نقيضُ الشرط لا نقصَ قياس) ·
+#   **والافترُ بلا أرضية بت-بت** · والمفتاحُ الصاعدُ **يقلب المقارنة**.
+try:
+    _fl_thr = _flPF.rank_floor("PM")
+    _fl_pm = tuple(_flPF.floor_ok(r, "PM") for r in (
+        {"post_hi_ret": 0.8}, {"post_hi_ret": _fl_thr},
+        {"post_hi_ret": _fl_thr - 1e-5}, {}, {"post_hi_ret": float("nan")},
+        {"post_hi_ret": "س"}, {"post_hi_ret": None}))
+    _fl_ah = tuple(_flPF.floor_ok(r, "AH") for r in (
+        {"usd_day": 1.0}, {}, {"usd_day": float("nan")}))
+    _fl_rb, _fl_fb = dict(_flPF.RANK_BY_SLOT), dict(_flPF.FLOOR_BY_SLOT)
+    try:                     # مفتاحٌ صاعد (‏`price` في `FEATS_ASC`) ⇒ تنقلب
+        _flPF.RANK_BY_SLOT["ZZ"], _flPF.FLOOR_BY_SLOT["ZZ"] = "price", 5.0
+        _fl_asc = tuple(_flPF.floor_ok(r, "ZZ")
+                        for r in ({"price": 4.0}, {"price": 5.0}, {"price": 6.0}))
+    finally:
+        _flPF.RANK_BY_SLOT.clear(); _flPF.RANK_BY_SLOT.update(_fl_rb)
+        _flPF.FLOOR_BY_SLOT.clear(); _flPF.FLOOR_BY_SLOT.update(_fl_fb)
+    _fl34 = (abs(_fl_thr - 0.69492) < 1e-12
+             and _fl_pm == (True, True, False, False, False, False, False)
+             and _fl_ah == (True, True, True)          # بلا أرضية ⇒ الكلُّ يمرّ
+             and _flPF.rank_floor("AH") is None
+             and _fl_asc == (True, True, False))       # الصاعدُ معكوس
+except Exception as _e:                                          # noqa: BLE001
+    _fl34, _fl_pm, _fl_ah, _fl_asc = False, f"⛔ {type(_e).__name__}: {_e}", "", ""
+check("🎚️ PS34 الأرضيةُ (‏0.69492 للبريماركت) تفرّق فوق/عند/تحت · والمعدومُ "
+      "والتالفُ **يُسقَطان** · والافترُ بلا أرضية يمرّ الكلُّ بت-بت · والمفتاحُ "
+      "الصاعدُ يقلب المقارنة",
+      _fl34, f"PM={_fl_pm} AH={_fl_ah} ASC={_fl_asc}")
+
+# PS35 — 🔒 **الترشيحُ قبل القطع = الترشيحُ بعده** — وهو ما يجعل المُرسَلَ عينَ
+#   ما قِيس (الأرضيةُ على **مفتاح الترتيب نفسِه** فكلُّ عابرٍ يسبق كلَّ ساقط).
+#   ومعه **شاهدُ ضبط**: مرشِّحٌ بمفتاحٍ آخر **يكسر** التكافؤ على العيّنة نفسِها
+#   ⇒ العيّنةُ تفرّق فعلًا ولا يمرّ القفلُ على تكافؤٍ تافه.
+try:
+    _fl_rows = [{"sym": f"S{i:02d}", "post_hi_ret": round(1.4 - 0.1 * i, 4),
+                 "usd_day": 1000.0 * (i + 1)} for i in range(14)]
+    _fl_a = [r["sym"] for r in _flPF.apply_floor(
+        _flPF.order_rows(_fl_rows, "post_hi_ret", _flPF.TOPK, False), "PM")]
+    _fl_b = [r["sym"] for r in _flPF.order_rows(
+        _flPF.apply_floor(_fl_rows, "PM"), "post_hi_ret", _flPF.TOPK, False)]
+    _fl_ca = [r["sym"] for r in _flPF.order_rows(
+        _fl_rows, "post_hi_ret", _flPF.TOPK, False) if r["usd_day"] >= 9000.0]
+    _fl_cb = [r["sym"] for r in _flPF.order_rows(
+        [r for r in _fl_rows if r["usd_day"] >= 9000.0],
+        "post_hi_ret", _flPF.TOPK, False)]
+    _fl35 = (_fl_a == _fl_b and len(_fl_a) == 8      # 1.40 ⟶ 0.70
+             and len(_fl_rows) > _flPF.TOPK          # القطعُ مُلزِمٌ فعلًا
+             and _fl_ca != _fl_cb)                   # شاهدُ الضبط يكسرها
+except Exception as _e:                                          # noqa: BLE001
+    _fl35, _fl_a, _fl_b, _fl_ca, _fl_cb = False, f"⛔ {type(_e).__name__}", "", "", ""
+check("🎚️ PS35 الترشيحُ قبل القطع ≡ بعده (‏8 من 14 والقطعُ عند 10) ⇒ المُرسَلُ "
+      "عينُ ما قِيس · وشاهدُ الضبط بمفتاحٍ آخر يكسر التكافؤ ⇒ العيّنةُ تفرّق",
+      _fl35, f"a={_fl_a} b={_fl_b} ctl={len(_fl_ca)}≠{len(_fl_cb)}")
+
+# PS36 — **الوصلةُ من نقطة النداء** (‏AST): الرسالةُ تُبنى من مُخرَج `apply_floor`
+#   لا من `top` · و`top` **يُرجَع كما هو** فيبقى السجلُّ يرى المقصوص.
+try:
+    _fl_fn = next(n for n in _ps_ast.walk(_pr_tree)
+                  if isinstance(n, _ps_ast.FunctionDef) and n.name == "run_presession")
+    _fl_af = [c for c in _ps_ast.walk(_fl_fn) if isinstance(c, _ps_ast.Call)
+              and getattr(c.func, "attr", None) == "apply_floor"]
+    _fl_nm = next((t.id for a in _ps_ast.walk(_fl_fn)
+                   if isinstance(a, _ps_ast.Assign) and any(a.value is c for c in _fl_af)
+                   for t in a.targets if isinstance(t, _ps_ast.Name)), None)
+    _fl_bc = next((c for c in _ps_ast.walk(_fl_fn) if isinstance(c, _ps_ast.Call)
+                   and getattr(c.func, "id", None) == "build_presession_alert"), None)
+    _fl_a0 = getattr(_fl_bc.args[0], "id", None) if (_fl_bc and _fl_bc.args) else None
+    # 🔴 `ast.walk` **عرضيٌّ لا مصدريّ** ⇒ يُرتَّب بالسطر، وإلّا التُقط `return`
+    #    مسارِ العطل (‏`[], "", {...}`) فقُرئ «لا يُرجع top» على كودٍ سليم.
+    _fl_rt = sorted([n for n in _ps_ast.walk(_fl_fn) if isinstance(n, _ps_ast.Return)
+                     and isinstance(n.value, _ps_ast.Tuple)], key=lambda n: n.lineno)
+    _fl_r0 = getattr(_fl_rt[-1].value.elts[0], "id", None) if _fl_rt else None
+    _fl36 = (len(_fl_af) == 1 and _fl_nm and _fl_nm == _fl_a0
+             and _fl_a0 != "top" and _fl_r0 == "top")
+except Exception as _e:                                          # noqa: BLE001
+    _fl36, _fl_nm, _fl_a0, _fl_r0 = False, f"⛔ {type(_e).__name__}: {_e}", "", ""
+check("🎚️ PS36 الرسالةُ تُبنى من مُخرَج الأرضية لا من `top` (‏AST) · و`top` "
+      "يُرجَع كما هو فيبقى المقصوصُ في السجلّ",
+      _fl36, f"اسم={_fl_nm} وسيط={_fl_a0} مُرجَع={_fl_r0} نداءات={len(_fl_af) if isinstance(_fl_af, list) else _fl_af}")
+
+# PS37 — **الرسالةُ تقول شرطَها** — وحدُّ الصدق **يتبع الشكلَ المشحون**: بالأرضية
+#   يقول أرقامَها (‏47 من 435) وبلاها يعود لأرقام العشرة (‏100 من 2,500) ⇒ فلا
+#   يبقى سطرٌ يصف تسليمًا لا نُسلّمه («سطرُ عرضٍ يكذب»). والافترُ بلا سطرِ أرضية.
+try:
+    _fl_r1 = {"sym": "X", "ref": 1.5, "day_ret": 0.4, "usd_day": 5e5,
+              "post_hi_ret": 0.9, "n5": 2}
+    _fl_bak2 = dict(_flPF.FLOOR_BY_SLOT)
+    try:
+        _fl_on = _PR.build_presession_alert([_fl_r1], "PM", "2026-09-04", 40, 60)
+        _fl_ahm = _PR.build_presession_alert([_fl_r1], "AH", "2026-09-04", 40, 60)
+        _fl_zero = _PR.build_presession_alert([], "PM", "2026-09-04", 40, 60)
+        _flPF.FLOOR_BY_SLOT.pop("PM", None)
+        _fl_off = _PR.build_presession_alert([_fl_r1], "PM", "2026-09-04", 40, 60)
+    finally:
+        _flPF.FLOOR_BY_SLOT.clear(); _flPF.FLOOR_BY_SLOT.update(_fl_bak2)
+    _fl37 = ("افترُ أمسِه 69.5% فأكثر" in _fl_on and "تُسلَّم صفرًا" in _fl_on
+             and "47 من 435" in _fl_on and "100 من 2,500" not in _fl_on
+             and _fl_zero == ""                       # لا يعبر أحدٌ ⇒ صمتٌ تامّ
+             and "الأرضية:" not in _fl_ahm and "47 من 435" not in _fl_ahm
+             and "الأرضية:" not in _fl_off            # بلا أرضية ⇒ لا سطرَ ولا رقمَها
+             and "100 من 2,500" in _fl_off and "47 من 435" not in _fl_off)
+except Exception as _e:                                          # noqa: BLE001
+    _fl37, _fl_on = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎚️ PS37 الرسالةُ تُعلن الأرضيةَ برقمها وتقول إن ليلةً بلا عابرٍ تُسلَّم "
+      "صفرًا · وحدُّ الصدق يحمل أرقامَ المشحون (‏47/435) لا أرقامَ العشرة · "
+      "والافترُ بلا سطرِ أرضية · وصفرُ عابرٍ ⇒ رسالةٌ فارغة",
+      _fl37, str(_fl_on)[:90])
+
+# PS38 — **السجلُّ يرى المقصوص**: `floor_ok` لكلّ صفّ و`sent` **لكلّ صفٍّ لا
+#   للدفعة** ⇒ كلفةُ الأرضية تُقاس أماميًّا · و`delivered=None` **بت-بت**.
+try:
+    _fl_lp = "/tmp/_fl_ledger.jsonl"
+    for _p in (_fl_lp,):
+        if _ps_os.path.exists(_p):
+            _ps_os.remove(_p)
+    _fl_lr = [{"sym": "A", "post_hi_ret": 0.8}, {"sym": "B", "post_hi_ret": 0.2}]
+    _PR.append_ledger(_fl_lr, "PM", "2026-09-04", path=_fl_lp, sent=True,
+                      delivered=["A"])
+    _PR.append_ledger(_fl_lr, "PM", "2026-09-04", path=_fl_lp, sent=True)
+    _fl_ln = [json.loads(x) for x in open(_fl_lp, encoding="utf-8") if x.strip()]
+    _ps_os.remove(_fl_lp)
+    _fl38 = (len(_fl_ln) == 4
+             and [r["sent"] for r in _fl_ln] == [True, False, True, True]
+             and [r["floor_ok"] for r in _fl_ln] == [True, False, True, False]
+             and all(abs(r["floor"] - 0.69492) < 1e-12 for r in _fl_ln)
+             and all(r["key"] == "post_hi_ret" for r in _fl_ln))
+except Exception as _e:                                          # noqa: BLE001
+    _fl38, _fl_ln = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎚️ PS38 السجلُّ يُسجّل المقصوصَ بحقل `floor_ok` و`sent` **لكلّ صفّ** "
+      "(‏A أُرسل وB لا) · و`delivered=None` يُبقي السلوكَ السابق بت-بت",
+      _fl38, str(_fl_ln)[:100])
+
+# PS39 — 🔴 **«فشلَ المسحُ» ≠ «لم يعبر أحدٌ الأرضية»**: الليلةُ الصامتةُ
+#   **تُختَم وتُسجَّل** (وإلّا أُعيد مسحُ السوق ستَّ مرّاتٍ وضاع صفُّها من
+#   السجلّ الأماميّ) · **وعطلُ الجلب وحدَه يرجع بلا ختم**.
+try:
+    class _flFakePre(_PsFakePre):
+        def __init__(self, rows, msg, diag):
+            super().__init__()
+            self._r, self._m, self._d = rows, msg, diag
+            self.deliv = []
+
+        def run_presession(self, *a, **k):
+            return self._r, self._m, self._d
+
+        def append_ledger(self, rows, slot, day, sent=False, delivered=None, **k):
+            self.ledger.append((slot, day, sent, len(rows)))
+            self.deliv.append(delivered)
+            return len(rows)
+
+    def _fl_hook(rows, msg, diag):
+        _pb, _bb, _lb = _oel_mod._PRE, _oel_mod.bot, _oel_mod._log
+        _eb = _ps_os.environ.get("PRESESSION_SEND")
+        fp, fb, seen = _flFakePre(rows, msg, diag), _PsFakeBot(True), {}
+        try:
+            _oel_mod._PRE, _oel_mod.bot = fp, fb
+            _oel_mod._log = lambda *a, **k: None
+            _ps_os.environ["PRESESSION_SEND"] = "1"
+            _oel_mod._maybe_presession(seen, 950, "2026-09-04")
+        finally:
+            _oel_mod._PRE, _oel_mod.bot, _oel_mod._log = _pb, _bb, _lb
+            if _eb is None:
+                _ps_os.environ.pop("PRESESSION_SEND", None)
+            else:
+                _ps_os.environ["PRESESSION_SEND"] = _eb
+        return (len(fb.sent), len(fp.ledger), ("PRE:2026-09-04:AH" in seen),
+                fp.deliv)
+
+    _fl_q = (
+        _fl_hook([{"sym": "X"}], "", {"deliver": []}),           # صامتةٌ: عابرٌ صفر
+        _fl_hook([{"sym": "X"}, {"sym": "Y"}], "م", {"deliver": ["X"]}),
+        _fl_hook([], "", {"cov": 3}),                            # صفرُ صفٍّ بلا عطل
+        _fl_hook([], "", {"reason": "grouped_missing"}))         # عطلُ الجلب
+    _fl39 = (_fl_q[0] == (0, 1, True, [[]])
+             and _fl_q[1] == (1, 1, True, [["X"]])
+             and _fl_q[2] == (0, 1, True, [[]])
+             and _fl_q[3] == (0, 0, False, []))
+except Exception as _e:                                          # noqa: BLE001
+    _fl39, _fl_q = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎚️ PS39 الليلةُ الصامتة (صفرُ عابرٍ · أو صفرُ صفٍّ بلا عطل) **تُختَم "
+      "وتُسجَّل** ولا تُرسَل · والمُسلَّم يُمرَّر للسجلّ · **وعطلُ الجلب وحدَه** "
+      "يرجع بلا ختمٍ ولا سجلّ (تُعاد المحاولة)",
+      _fl39, str(_fl_q)[:130])
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

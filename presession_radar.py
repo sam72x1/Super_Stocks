@@ -247,9 +247,25 @@ def build_presession_alert(rows: list, slot: str, day_iso: str, cov: int,
     #    مختارٌ من سنتَي المعايرة وأرقامُه خارجَ العيّنة تُقال كما هي · والافترُ
     #    على خطّ الأساس. **وفي الحالتين: الحكمُ «فشلت» على النافذة الحاكمة.**
     _rk = PF.rank_key(slot)
-    why = ("الأوّلُ في سنتَي المعايرة 2023-2024 · وعلى 2025 خارج العيّنة أصاب "
-           "‏100 من 2,500 اسمًا (‏4.0%) = ‏100 من 878 منفجرًا"
-           if _rk != PF.RANK_KEY else "خطُّ الأساس نفسُه")
+    _thr = PF.rank_floor(slot)
+    if _thr is not None:
+        # 🎚️ **الشرطُ يُقال بالعربية لا يُترَك ضمنيًّا** — وإلّا رأى المالكُ اسمًا
+        #    واحدًا (أو صفرًا) ولا يعرف لماذا. وبلا علامات مقارنة (قاعدة العرض).
+        out += ["", f"‏🎚️ <b>الأرضية:</b> لا يصلك إلّا مَن ارتفع <b>افترُ أمسِه "
+                f"{_thr * 100:.1f}% فأكثر</b> — والليلةُ التي لا يعبرها أحدٌ "
+                "<b>تُسلَّم صفرًا</b> (‏26% من ليالي 2025). مُعايَرةٌ على "
+                "2023-2024 وحدهما · <code>topk_result.md</code>."]
+    # 🔴 **وحدُّ الصدق يتبع الشكلَ المشحون لا شكلًا سابقًا:** أرقامُ «‏100 من 2,500»
+    #    تصف تسليمَ **عشرةِ أسماءٍ بالرتبة** — وبعد شحن الأرضية صار المُسلَّم غيرَه،
+    #    فإبقاؤها كان سيجعل السطرَ **يصف تسليمًا لا نُسلّمه** (‏«سطرُ عرضٍ يكذب»).
+    if _thr is not None:
+        why = ("الأوّلُ في سنتَي المعايرة 2023-2024 · وبأرضيته على 2025 خارج "
+               "العيّنة أصاب ‏47 من 435 اسمًا (‏10.8%) = ‏47 من 878 منفجرًا")
+    elif _rk != PF.RANK_KEY:
+        why = ("الأوّلُ في سنتَي المعايرة 2023-2024 · وعلى 2025 خارج العيّنة أصاب "
+               "‏100 من 2,500 اسمًا (‏4.0%) = ‏100 من 878 منفجرًا")
+    else:
+        why = "خطُّ الأساس نفسُه"
     out += ["", f"‏⚠️ <b>قيد الإثبات الأماميّ</b> — الترتيبُ بـ<code>{_rk}</code> "
             f"({why}). <b>وحكمُ <code>T-PRESESSION</code> بمقياسه المسجَّل: فشلت.</b> "
             "لا تُقرأ توصيةَ دخول.",
@@ -362,20 +378,43 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
     if cut_off:
         _log(f"⚠️ ميزانيةُ {budget_sec:g}ث قصّت {cut_off} مرشَّحًا — يُعلَن ولا يُصمت.")
     top = PF.order_rows(rows, PF.rank_key(slot), PF.TOPK, PF.RANK_ASC)
-    msg = build_presession_alert(top, slot, day_iso, cov, len(cands))
+    # 🎚️ **أرضيةُ التسليم** (أمرُ المالك «شغّل الأرضية» 2026-09-04): لا تُرسَل
+    #    إلّا القراءةُ المتطرّفة — والليلةُ التي لا متطرّفَ فيها **تُسلَّم صفرًا**.
+    # 🔒 وهي على **مفتاح الترتيب نفسِه** ⇒ ترشيحُها بعد القطع يكافئ ترشيحَها قبله
+    #    بالبناء (مقفولٌ سلوكيًّا) ⇒ **المُرسَلُ هو عينُ ما قِيس في `topk_result`**.
+    # 🔒 و`top` **يُرجَع كما هو** فيبقى السجلُّ الأماميّ يرى **المقصوصَ أيضًا**
+    #    (بحقل `floor_ok`) — وإلّا صار الحصادُ أعمى عن كلفة القرار نفسِه.
+    deliver = PF.apply_floor(top, slot)
+    msg = build_presession_alert(deliver, slot, day_iso, cov, len(cands))
     return top, msg, {"scanned": len(cands), "cov": cov, "rows": len(rows),
-                      "src_day": src_day, "cut_off": cut_off}
+                      "src_day": src_day, "cut_off": cut_off,
+                      "floor": PF.rank_floor(slot),
+                      "deliver": [r[PF.ROW_SYM] for r in deliver],
+                      "floor_cut": len(top) - len(deliver)}
 
 
 def append_ledger(rows: list, slot: str, day_iso: str, path: str = LEDGER_FILE,
-                  sent: bool = False) -> int:
-    """السجلُّ الأماميّ — يُلحَق فقط (حصادُه يحكم لاحقًا). فاشلٌ-آمن ⟶ 0."""
+                  sent: bool = False, delivered=None) -> int:
+    """السجلُّ الأماميّ — يُلحَق فقط (حصادُه يحكم لاحقًا). فاشلٌ-آمن ⟶ 0.
+
+    🎚️ **و`sent` لكلّ صفٍّ لا للدفعة** (‏2026-09-04): بعد أرضيةِ التسليم صار
+    بعضُ المرتَّبين **يُسجَّل ولا يُرسَل** ⇒ `delivered` مجموعةُ الرموز المُسلَّمة
+    فعلًا، ومعها `floor_ok` لكلّ صفّ. **وبلاها يبقى السلوكُ السابق بت-بت**
+    (`delivered=None` ⇒ الكلُّ) — فالسجلُّ القديمُ يُقرأ كما هو.
+    🔒 **والمقصوصُ يُسجَّل**: بلاه يستحيل قياسُ كلفةِ الأرضية أماميًّا.
+    """
+    dl = None if delivered is None else {str(x).upper() for x in delivered}
     try:
         with open(path, "a", encoding="utf-8") as fh:
             for i, r in enumerate(rows, 1):
+                _ok = PF.floor_ok(r, slot)
+                _sym = str(r.get(PF.ROW_SYM) or "").upper()
                 fh.write(json.dumps({PF.ROW_DAY: day_iso, PF.ROW_SESS: slot,
                                      "rank": i,
-                                     "sent": bool(sent),
+                                     "sent": bool(sent) and (dl is None
+                                                             or _sym in dl),
+                                     "floor": PF.rank_floor(slot),
+                                     "floor_ok": bool(_ok),
                                      "key": PF.rank_key(slot),
                                      "ts": int(time.time()),
                                      **{k: v for k, v in r.items()
