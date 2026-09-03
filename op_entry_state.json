@@ -556,7 +556,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 1.87
+  "e5": 1.85
  },
  "LIQ:GOGO": {
   "last_eval_ms": 1788465600000,
@@ -1710,7 +1710,7 @@
    "M1"
   ],
   "updates": 0,
-  "vol_x": 16.1,
+  "vol_x": 15.0,
   "peak_usd": 82844,
   "last_eval_ms": 1788465600000,
   "pulse_ms": 1788465600000,
