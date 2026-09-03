@@ -37974,10 +37974,16 @@ _ps_read |= {a.args[0].value for a in _ps_ast.walk(_ps_tree)
              and a.func.attr == "get" and a.args and isinstance(a.args[0], _ps_ast.Constant)}
 _ps_unwired = {f"PRESESSION_{i.upper()}" for i in _ps_inputs} - _ps_wenv
 _ps_unread = {e for e in _ps_wenv if e.startswith("PRESESSION_")} - _ps_read
+# 🔒 **إقرارٌ مؤرَّخ 2026-09-03:** كان يعدّ «المدخلاتَ الأربعة» فسقط على إضافة
+# `end` (السنةُ الجزئيّة) — والعدُّ يمنع الإضافةَ ولا يحرس الثابت. فصار **بنيويًّا
+# وأشدَّ**: المدخلاتُ الخمسةُ **مذكورةٌ بأسمائها** (فلا يُسقَط `end` صامتًا) ·
+# وكلُّ مدخلٍ — مهما بلغ عددُه — موصولٌ ببيئةٍ **يقرؤها السكربت**.
 check("🌙 PS8 الـworkflow: `contents: read` وبلا كرون وبايثون 3.11 · والمدخلاتُ "
-      "الأربعةُ موصولةٌ ببيئةٍ يقرؤها السكربت (لا مدخلَ ميّت) · وبلا أعلام BT_*",
+      "الخمسةُ بأسمائها موصولةٌ ببيئةٍ يقرؤها السكربت (لا مدخلَ ميّت) · "
+      "و`PRESESSION_END` حاضرةٌ · وبلا أعلام BT_*",
       (_ps_wf.get("permissions") == {"contents": "read"} and "schedule" not in _ps_on
-       and _ps_inputs == {"year", "day", "syms", "witness"}
+       and {"year", "day", "end", "syms", "witness"} <= _ps_inputs
+       and "PRESESSION_END" in _ps_wenv
        and not _ps_unwired and not _ps_unread
        and not [e for e in _ps_wenv if e.startswith("BT_")]
        and any((s.get("with") or {}).get("python-version") == "3.11"
@@ -38486,6 +38492,69 @@ check("🌙 PS26 أسماءُ الإصابات: **الداخلُ في العشر
       _hn_ok,
       f"أسماء={_hn_nm if isinstance(_hn_nm, str) else [(r['day'], r['sym'], r['max']) for r in _hn_nm]} "
       f"hits={_hn_res.get('hits')}")
+
+
+# PS27 — 📅 **السنةُ الوصفيّةُ خارج العقد لا تدخل الاختيارَ ولا الحكم.** «قِس
+#        2026» يلزمه طباعةُ سنةٍ ليست في `TRAIN_YEARS` ولا `EVAL_YEAR` —
+#        والخطرُ أن تتسلّل إلى المعايرة أو التقييم فتُحرّك حكمًا منشورًا.
+_yl_seen, _yl_extra = _RP.year_lists(["2024", "2026", "2023", "2025", "2027"])
+_yl_none = _RP.year_lists(["2023", "2024", "2025"])
+check("🌙 PS27 سنواتُ العقد أوّلًا بترتيبها · والزائدةُ **بعدها موسومةً "
+      "«وصفيّ»** لا «معايرة» ولا «تقييم» · وبلا زائدةٍ تبقى القائمةُ كما هي",
+      _yl_seen == ["2023", "2024", "2025"] and _yl_extra == ["2026", "2027"]
+      and _yl_none[0] == ["2023", "2024", "2025"] and _yl_none[1] == []
+      and _RP.year_tag("2023") == "معايرة"
+      and "تقييم" in _RP.year_tag("2025")
+      and "وصفيّ" in _RP.year_tag("2026")
+      and "معايرة" not in _RP.year_tag("2026")
+      and "تقييم" not in _RP.year_tag("2026"),
+      f"عقد={_yl_seen} زائدة={_yl_extra} وسم2026={_RP.year_tag('2026')}")
+
+# PS27-ب — 🔒 **بنيويًّا (AST):** مِرساتا النموذج (`tr_m`/`ev_m`) مبنيّتان على
+#          ثابتَي العقد حصرًا — صفرُ ذِكرٍ للقائمة الوصفيّة فيهما ⇒ يستحيل أن
+#          تمسّ سنةٌ زائدةٌ `S1` أو `verdict`.
+_ym_src = _ps_insp.getsource(_RP.main)
+_ym_tree = _ps_ast.parse(_ym_src.lstrip())
+_ym_asg = {}
+for _n in _ps_ast.walk(_ym_tree):
+    if isinstance(_n, _ps_ast.Assign) and len(_n.targets) == 1 \
+            and getattr(_n.targets[0], "id", "") in ("tr_m", "ev_m"):
+        _ym_asg[_n.targets[0].id] = _ps_ast.dump(_n.value)
+_ym_ok = (set(_ym_asg) == {"tr_m", "ev_m"}
+          and "TRAIN_YEARS" in _ym_asg["tr_m"] and "EVAL_YEAR" in _ym_asg["ev_m"]
+          and not any(("_extra" in v or "year_lists" in v or "year_tag" in v)
+                      for v in _ym_asg.values())
+          # والوصفيّةُ موصولةٌ فعلًا بحلقات العرض (وإلّا كانت ميّتة)
+          and _ym_src.count("_seen + _extra") == 3)
+check("🌙 PS27-ب مِرساتا النموذج من ثابتَي العقد حصرًا (صفرُ سنةٍ وصفيّة) · "
+      "والوصفيّةُ موصولةٌ بحلقات العرض الثلاث", _ym_ok,
+      f"إسنادات={sorted(_ym_asg)} وصل={_ym_src.count('_seen + _extra')}")
+
+# PS28 — 🗓️ **السنةُ الجزئيّة تُعلَن ولا تُخمَّن.** بلا `PRESESSION_END` يبقى
+#        المدى **السنةَ كاملةً بت-بت** فأرقامُ 2023/2024/2025 قابلةٌ للإعادة؛
+#        ومعها ينتهي عند آخرِ يومٍ نُشر ملفُّه فما بعده **ليس مفقودًا**.
+_yr_full = _PS.year_range("2023", "")
+_yr_part = _PS.year_range("2026", "2026-09-02")
+_yr_blank = _PS.year_range("2026", "   ")
+_yr_main = _ps_insp.getsource(_PS.main)
+_yr_days_ok = False
+for _n in _ps_ast.walk(_ps_ast.parse(_yr_main.lstrip())):
+    if isinstance(_n, _ps_ast.Assign) and len(_n.targets) == 1 \
+            and getattr(_n.targets[0], "id", "") == "days" \
+            and isinstance(_n.value, _ps_ast.Call) \
+            and getattr(_n.value.func, "attr", "") == "weekdays" \
+            and len(_n.value.args) == 2 \
+            and all(isinstance(a, _ps_ast.Name) for a in _n.value.args):
+        _yr_days_ok = True
+_yr_ok = (_yr_full == ("2023-01-01", "2023-12-31")
+          and _yr_part == ("2026-01-01", "2026-09-02")
+          and _yr_blank == ("2026-01-01", "2026-12-31")
+          and "PRESESSION_END" in _yr_main and _yr_days_ok)
+check("🌙 PS28 مدى السنة: الافتراضُ كاملٌ بت-بت · و`days` من `year_range` "
+      "بوسيطَين **باسمهما** لا بتاريخٍ مغروس · و`PRESESSION_END` موصولةٌ من `main`",
+      _yr_ok,
+      f"كامل={_yr_full} جزئي={_yr_part} فارغ={_yr_blank} "
+      f"وصلُ_days={_yr_days_ok} END={'PRESESSION_END' in _yr_main}")
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")

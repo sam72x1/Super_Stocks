@@ -15,6 +15,10 @@ on:
         description: "يومٌ واحد للدخان (YYYY-MM-DD — يتقدّم على السنة)"
         required: false
         type: string
+      end:
+        description: "آخرُ يومٍ للسنة الجزئيّة (YYYY-MM-DD — فارغٌ = السنةُ كاملةً)"
+        required: false
+        type: string
       syms:
         description: "رموزٌ تُطبَع رتبتُها في وضع اليوم الواحد (بفواصل)"
         required: false
@@ -47,6 +51,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
           PRESESSION_YEAR: ${{ inputs.year }}
           PRESESSION_DAY: ${{ inputs.day }}
+          # 🔒 كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها السكربت (بصمةُ `BT_CANDLE`)
+          PRESESSION_END: ${{ inputs.end }}
           PRESESSION_SYMS: ${{ inputs.syms }}
           PRESESSION_WITNESS: ${{ inputs.witness }}
         run: python presession_scan.py

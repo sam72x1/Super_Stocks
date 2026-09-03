@@ -355,6 +355,17 @@ class Acc:
             f"V3 شاهدُ الضبط {WITNESS}: صفوفٌ منفجرة {self.wit_bad} (يجب 0)")
 
 
+def year_range(year: str, end_env: str = "") -> tuple:
+    """(‏أوّلُ يومٍ · آخرُه) لسنةٍ مقيسة — و`end_env` فارغٌ ⇒ **السنةُ كاملةً**.
+
+    🔒 الافتراضُ بت-بت: أرقامُ 2023/2024/2025 المنشورة تبقى قابلةً للإعادة
+    حرفيًّا. و«السنةُ الجزئيّة» **تُعلَن ولا تُخمَّن** (‏`PRESESSION_END`) —
+    فسنةٌ جارية تنتهي عند آخرِ يومٍ نُشر ملفُّه، وما بعده ليس «مفقودًا».
+    """
+    end = (end_env or "").strip() or f"{year}-12-31"
+    return f"{year}-01-01", end
+
+
 def main() -> int:
     if not (os.environ.get("AWS_ACCESS_KEY_ID") or "").strip():
         print("⛔ لا مفاتيح S3 — لا قياس (ولا يُخمَّن رقم).")
@@ -369,7 +380,8 @@ def main() -> int:
             (dt.date.fromisoformat(one_day) - dt.timedelta(days=45)).isoformat(),
             (dt.date.fromisoformat(one_day) - dt.timedelta(days=1)).isoformat())[-SEED_DAYS:]
     elif year:
-        days = KS.weekdays(f"{year}-01-01", f"{year}-12-31")
+        d0, d1 = year_range(year, os.environ.get("PRESESSION_END") or "")
+        days = KS.weekdays(d0, d1)
         seed_days = KS.weekdays(f"{int(year) - 1}-11-15", f"{int(year) - 1}-12-31")[-SEED_DAYS:]
     else:
         print("⛔ لا PRESESSION_YEAR ولا PRESESSION_DAY.")
@@ -378,6 +390,10 @@ def main() -> int:
     log(f"🌙⏱️ T-PRESESSION — {'يوم ' + one_day if one_day else 'سنة ' + year} · أيام {len(days)} · "
         f"بذرة {len(seed_days)} · كون [{PRICE_LO}, {PRICE_HI}]$ · القرارُ قبل الجلسة بـ{DECISION_LEAD} دقائق · "
         f"الوسمُ +{HIT_PCT:g}% بأرضية ${LABEL_MIN_USD:,.0f} · النوافذ {WINDOWS} · الشاهد {WITNESS}")
+    if year and (os.environ.get("PRESESSION_END") or "").strip():
+        log(f"⚠️ **سنةٌ جزئيّة**: المدى {days[0] if days else '—'} ⟶ {days[-1] if days else '—'} "
+            f"(‏آخرُ يومٍ نُشر ملفُّه) — وما بعده **ليس مفقودًا**. وعطلاتُ البوّابة "
+            f"مأخوذةٌ للسنة **كاملةً** ⇒ التغطيةُ هنا **متساهلة** ولا تُقرأ تصديقًا.")
     log(f"🔒 بوّابةُ المِرساة الإنتاجيّة بالاسم: رفعةٌ {S.LIQ_MIN_MOVE_PCT:g}% · "
         f"${S.LIQ_MIN_USD:,.0f} تراكميًّا على {S.LIQ_CUM_MINUTES} دقائق · "
         f"قفزةُ حجمٍ {S.CONFIG['IGNITION_VOL_MULT']:g}× · نافذةٌ {PROD_WIN} دقيقة — أرقامُ المالك لا تُمَسّ")

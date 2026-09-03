@@ -241,6 +241,27 @@ def verdict(res_s1, res_b1, res_b2, expl, signs_ok):
     return ("استوفت" if not bad else "فشلت"), bad
 
 
+def year_lists(years) -> tuple:
+    """(‏سنواتُ العقد بترتيبها · أيُّ سنةٍ زائدةٍ **وصفيّةً** خارجَه).
+
+    🔒 الزائدةُ **لا تدخل الاختيارَ ولا الحكم بنيويًّا**: `tr_m`/`ev_m`
+    مبنيّان على `TRAIN_YEARS`/`EVAL_YEAR` حرفيًّا فلا يبلغهما شيءٌ من هنا،
+    وسقفُ ما تفعله هذي القائمةُ **طباعةُ صفوفها** (تسميةٌ لا حكم).
+    """
+    seen = list(TRAIN_YEARS) + [EVAL_YEAR]
+    extra = sorted({str(y) for y in years} - set(seen))
+    return seen, extra
+
+
+def year_tag(yr: str) -> str:
+    """وسمُ السنة في العرض — والزائدةُ تُسمّى «وصفيّ» صريحًا لا تُخلَط."""
+    if yr in TRAIN_YEARS:
+        return "معايرة"
+    if yr == EVAL_YEAR:
+        return "تقييم (خارج العيّنة)"
+    return "وصفيّ خارج العقد — لا اختيارَ ولا حكم"
+
+
 def main() -> int:
     paths = sorted(glob.glob("presession_rows_*.jsonl.gz")) + \
         sorted(glob.glob("presession_rows_*.jsonl"))
@@ -261,6 +282,14 @@ def main() -> int:
         return 4
     for w in WINDOWS:
         log(f"   وسمُ {w or 'الجلسة'}: منفجرون {int(d['y'][w].sum()):,}")
+    _yu, _yc = np.unique(d["year"], return_counts=True)
+    _seen, _extra = year_lists(_yu)
+    log("📅 صفوفٌ بالسنة: " + " · ".join(f"{a}={int(b):,}" for a, b in zip(_yu, _yc))
+        + (f" — ومنها **وصفيّةٌ خارج العقد**: {', '.join(_extra)} "
+           "(تُطبَع ولا تدخل نموذجًا ولا حكمًا)" if _extra else ""))
+    if _extra:
+        log("   ⚠️ ومجاميعُ «منفجرون» أعلاه **تشمل السنةَ الوصفيّة** — تُقرأ بالسنة "
+            "من الجداول أدناه لا من المجموع.")
     tr_m = np.isin(d["year"], TRAIN_YEARS)
     ev_m = d["year"] == EVAL_YEAR
     log(f"📚 معايرة {int(tr_m.sum()):,} · تقييم {int(ev_m.sum()):,}")
@@ -318,13 +347,13 @@ def main() -> int:
     for w in S0_WINDOWS:
         wname = f"{w}د" if w else "الجلسة"
         for slot in ("AH", "PM"):
-            for yr in list(TRAIN_YEARS) + [EVAL_YEAR]:
+            for yr in _seen + _extra:
                 m = (d["year"] == yr) & (d["slot"] == slot)
                 tab = s0_table(d, feats, m, w)
                 if not tab:
                     continue
                 base = tab[0][1]["base"]
-                tag = "معايرة" if yr in TRAIN_YEARS else "تقييم (خارج العيّنة)"
+                tag = year_tag(yr)
                 log(f"\n【{slot} · نافذة {wname} · {yr} — {tag}】 كون={tab[0][1]['uni']:,}"
                     f" · منفجرون={tab[0][1]['expl']} · base={base*100:.3f}%")
                 for f, r in tab[:8]:
@@ -352,7 +381,7 @@ def main() -> int:
         asc = key in set(PF.FEATS_ASC)
         for w in S0_WINDOWS:
             wname = f"{w}د" if w else "الجلسة"
-            for yr in list(TRAIN_YEARS) + [EVAL_YEAR]:
+            for yr in _seen + _extra:
                 m = (d["year"] == yr) & (d["slot"] == slot)
                 if not m.any():
                     continue
@@ -361,7 +390,7 @@ def main() -> int:
                 res = eval_scores(sc, d["gid"][m], d["sym"][m], d["y"][w][m], asc=asc)
                 names = hit_names(d, sc, m, w, asc=asc)
                 ok = "✅" if len(names) == res["hits"] else "🔴 تفرّق"
-                tag = "معايرة" if yr in TRAIN_YEARS else "تقييم (خارج العيّنة)"
+                tag = year_tag(yr)
                 log(f"\n【{slot} · `{key}` · نافذة {wname} · {yr} — {tag}】 "
                     f"إصابات {res['hits']} من {res['taken']} مأخوذًا "
                     f"(‏P@10 {res['p']*100:.3f}% · lift {res['lift']:.1f}×) · "
@@ -390,7 +419,7 @@ def main() -> int:
             for w in S0_WINDOWS:
                 wname = f"{w}د" if w else "الجلسة"
                 hit_days = []
-                for yr in list(TRAIN_YEARS) + [EVAL_YEAR]:
+                for yr in _seen + _extra:
                     m = (d["year"] == yr) & (d["slot"] == slot)
                     if not m.any():
                         continue
