@@ -38159,6 +38159,55 @@ check("🌙 PS15 عقدُ الجالب مُوحَّد: الثمانيُّ بت-�
       f"تالف={len(_pr_bad)} موصول={_pr_uses}")
 
 
+# ── 🌙 أداةُ الحكم (PS16-PS17) ─────────────────────────────────────────────────
+# 🔴🔴 **عيبان قاتلان كُشفا قبل أيّ رقم، وهذان القفلان يمنعان عودتَهما:**
+# ① **تسريبٌ عبر قائمةٍ سوداء:** الانتقاءُ الآليّ كان يستبعد `hit*`/`max_*`/`t80*`
+#    **ومفاتيحُ الوسم اسمُها `max10`/`maxs`/`usd10`…`usds`** ⇒ كانت ستدخل ميزاتٍ
+#    فيعرف النموذجُ قمّةَ النافذة التي يتنبّأ بها. ⇒ **قائمةٌ بيضاء من العقد**،
+#    **والقائمةُ السوداء تنسى والبيضاءُ يستحيل عليها أن تنسى.**
+# ② **وسمٌ متخيَّل:** قرأتُ اسمًا غيرَ الذي يكتبه الماسحُ فعلًا ⇒ نافذةُ الجلسة
+#    تُقرأ **صفرًا دائمًا** (صنفُ «المفتاح المتخيَّل» في `wire-check §①`).
+# ⚖️ ومجموعةُ مفاتيح الوسم تُبنى هنا **بالطريقة التي يبنيها بها الماسحُ نفسُه**
+#    (من `WINDOWS` و`LADDER`) لا قائمةً مكتوبةً بيدي فتتعفّن.
+_rp_src = open("presession_report.py", encoding="utf-8").read()
+_rp_spec = _ps_ilu.spec_from_file_location("presession_report_t", "presession_report.py")
+_RP = _ps_ilu.module_from_spec(_rp_spec)
+_rp_spec.loader.exec_module(_RP)
+_pf_spec = _ps_ilu.spec_from_file_location("presession_feats_t", "presession_feats.py")
+_PFm = _ps_ilu.module_from_spec(_pf_spec)
+_pf_spec.loader.exec_module(_PFm)
+_sc_src2 = open("presession_scan.py", encoding="utf-8").read()
+_rp_out = ({f"max{w}" for w in _PFm.WINDOWS} | {f"usd{w}" for w in _PFm.WINDOWS}
+           | {f"hit80_{w}" for w in _PFm.WINDOWS}
+           | {f"hit{int(x)}_10" for x in _PFm.LADDER}
+           | {"maxs", "usds", "hit80_s", "t80_10"})
+_rp_white = list(_PFm.FEATS_DESC) + list(_PFm.FEATS_ASC)
+# 🔒 بنيويٌّ لا نصّيّ: إسنادُ `FEATS` واحدٌ ومصدرُه سمتان من `PF` حصرًا —
+#    فالـdocstring الذي يشرح العيبَ القديم لا يُرضيه (فخُّ القفل النصّيّ).
+_rp_asg = [n for n in _ps_ast.walk(_ps_ast.parse(_rp_src))
+           if isinstance(n, _ps_ast.Assign)
+           and any(getattr(t, "id", None) == "FEATS" for t in n.targets)]
+_rp_attrs = sorted({a.attr for a in _ps_ast.walk(_rp_asg[0])
+                    if isinstance(a, _ps_ast.Attribute)
+                    and getattr(a.value, "id", None) == "PF"}) if _rp_asg else []
+check("🌙 PS16 قائمةٌ بيضاء لا سوداء: ميزاتُ الحكم = ظرفُ العقد حرفيًّا · صفرُ "
+      "تقاطعٍ مع مفاتيح الوسم · والإسنادُ من `PF` وحدَه (AST لا نصّ)",
+      _RP.FEATS == _rp_white and not (set(_RP.FEATS) & _rp_out)
+      and len(_rp_asg) == 1 and _rp_attrs == ["FEATS_ASC", "FEATS_DESC"],
+      f"مطابقة={_RP.FEATS == _rp_white} تسريب={sorted(set(_RP.FEATS) & _rp_out)} "
+      f"إسنادات={len(_rp_asg)} سمات={_rp_attrs}")
+check("🌙 PS17 وسمٌ حيٌّ لا متخيَّل: مفاتيحُ `LABEL_KEYS` الأربعةُ يكتبها الماسحُ "
+      "فعلًا · ونافذةُ الجلسة `hit80_s` لا `hit80_sess` · والنوافذُ من العقد",
+      set(_RP.LABEL_KEYS.values()) <= _rp_out and _RP.LABEL_KEYS[0] == "hit80_s"
+      and '"hit80_s"' in _sc_src2
+      and tuple(w for w in _RP.WINDOWS if w) == tuple(_PFm.WINDOWS),
+      f"وسوم={sorted(_RP.LABEL_KEYS.values())} جلسة={_RP.LABEL_KEYS.get(0)} "
+      f"نوافذ={_RP.WINDOWS}")
+# 🐞 **وصياغتي الأولى لـPS17 سقطت على docstring أداةِ الحكم نفسِها** (تشرح العيبَ
+#    فتذكر الاسمَ الخاطئ) ⇒ نُزع الشرطُ النصّيّ، **والاحتواءُ في `_rp_out` يغنيه
+#    بنيويًّا**: أيُّ اسمٍ لا يكتبه الماسحُ يسقط. (الفخُّ النصّيّ · `lock-and-mutate §②`.)
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

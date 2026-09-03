@@ -2,140 +2,170 @@
 """🌙⏱️ `T-PRESESSION` — الحكمُ من الصفوف المرفوعة (العقد `presession_prereg.md`).
 
 يقرأ `presession_rows_*.jsonl.gz` (مُخرَجَ `presession_scan.py`) ويُنفّذ §⑤ و§⑥
-حرفيًّا: ترتيبٌ لكلّ قرار ⟶ `P@10`/`R@10`/`base`/`lift` ⟶ الدرجاتُ `S0`/`S1`
-وشاهدا الضبط `B1`/`B2` ⟶ متانةُ `leave-one-year-out` ⟶ **حكمٌ بإحدى ثلاثٍ**:
-«استوفت» · «فشلت» · «لا حكم» (مع ترتيب التراجع المقفول 10 ⟵ 30 ⟵ 60 ⟵ الجلسة).
+حرفيًّا: ترتيبٌ لكلّ قرار ⟶ `P@10`/`R@10`/`base`/`lift` ⟶ الدرجةُ `S1` وشاهدا
+الضبط `B1`/`B2` ⟶ ثباتُ الإشارة عبر سنتَي المعايرة ⟶ **حكمٌ بإحدى ثلاثٍ**:
+«استوفت» · «فشلت» · «لا حكم» (بترتيب التراجع المقفول 10 ⟵ 30 ⟵ 60 ⟵ الجلسة).
 
 🔒 قراءةٌ/حسابٌ فقط · بلا شبكة · بلا كتابةِ حالة · لا يستورده الإنتاج.
 🔒 **ولا عتبةَ تتحرّك هنا:** كلُّ حدٍّ يُقرأ من العقد ويُطبَع مع الرقم.
+
+🔴🔴 **عيبان قاتلان أُصلحا قبل أيّ رقم (2026-09-03) — يُدوَّنان لا يُطويان:**
+
+**① تسريبٌ كامل.** كان اختيارُ الميزات **آليًّا** بقائمةٍ سوداء
+(`not k.startswith("hit"|"max_"|"t80")`)، **ومفاتيحُ الوسم في الصفّ اسمُها
+`max10`/`max30`/`max60`/`maxs` و`usd10`…`usds`** — ولا واحدٌ منها يبدأ بـ`max_`
+⇒ **كانت ستدخل ميزاتٍ فيعرف النموذجُ قمّةَ النافذة التي يتنبّأ بها**، فيخرج
+`P@10` خياليًّا. ✅ العلاج **قائمةٌ بيضاء من المصدر الواحد** `presession_feats`
+(‏`FEATS_DESC + FEATS_ASC` المثبَّتة في العقد قبل الأرقام) — **والقائمةُ السوداء
+تنسى، والبيضاءُ يستحيل عليها أن تنسى** (درسُ «عدّادُ الأسباب يُكتَب مُكمِّلًا»).
+
+**② وسمُ الجلسة ميّت.** `label_of` كان يقرأ `hit80_sess` **والصفُّ يكتب
+`hit80_s`** ⇒ نافذةُ الجلسة كانت تُقرأ **صفرًا دائمًا** (صنفُ «المفتاح
+المتخيَّل»). ✅ وُحِّد على `hit80_s`.
+
+**③ وعطبٌ تشغيليّ:** النسخةُ الأولى حمّلت 4 ملايين **قاموس** ودرّبت بحلقةٍ
+بايثونية خالصة ⇒ **قتل الرنر** (‏`shutdown signal` في التشغيلة `33729925821`).
+✅ الآن انسيابٌ إلى مصفوفات `numpy` وتدريبٌ متّجه.
 """
 from __future__ import annotations
 
 import glob
 import gzip
 import json
-import math
 import os
 import sys
+
+import numpy as np
+
+import presession_feats as PF                 # 🔒 المصدرُ الواحد للميزات
 
 TRAIN_YEARS = ("2023", "2024")     # §⑤-2: المعايرةُ عليهما وحدَهما
 EVAL_YEAR = "2025"                 # §⑥: الحكمُ خارج العيّنة
 WINDOWS = (10, 30, 60, 0)          # 0 = الجلسةُ كاملةً (ترتيبُ التراجع المقفول)
-TOPK = 10
+TOPK = PF.TOPK
 MIN_EXPLODERS = 30                 # §⑥-⑤
 LIFT_MIN, P_MIN, R_MIN = 10.0, 0.01, 0.10
 L2 = 1.0
 ITERS, LR = 400, 0.5
+
+# 🔒 **قائمةٌ بيضاء لا سوداء** — من العقد حصرًا. أيُّ مفتاحٍ خارجها لا يدخل
+#    النموذجَ مهما كان اسمُه، فيستحيل أن يتسرّب وسمٌ إلى الميزات.
+FEATS = list(PF.FEATS_DESC) + list(PF.FEATS_ASC)
+LABEL_KEYS = {10: "hit80_10", 30: "hit80_30", 60: "hit80_60", 0: "hit80_s"}
 
 
 def log(m=""):
     print(m, flush=True)
 
 
-def load_rows(paths):
-    rows = []
+def load_cols(paths, feats):
+    """انسيابٌ إلى أعمدةٍ رقميّة — بلا الاحتفاظ بالقواميس (‏4 ملايين صفّ)."""
+    F = len(feats)
+    xs = [[] for _ in range(F)]
+    ys = {w: [] for w in WINDOWS}
+    gid, syms, years, slots = [], [], [], []
+    gmap, smap = {}, {}
+    n_wit = 0
     for p in paths:
         op = gzip.open if p.endswith(".gz") else open
         with op(p, "rt", encoding="utf-8") as fh:
             for ln in fh:
-                ln = ln.strip()
-                if not ln:
+                if not ln.strip():
                     continue
                 try:
                     r = json.loads(ln)
                 except ValueError:
                     continue
-                if r.get("wit"):          # شاهدُ الضبط لا يدخل الترتيب ولا الحكم
+                if r.get("wit"):        # شاهدُ الضبط خارج الترتيب والحكم
+                    n_wit += 1
                     continue
-                rows.append(r)
-    return rows
+                day, slot = r.get("day"), r.get("slot")
+                k = (day, slot)
+                if k not in gmap:
+                    gmap[k] = len(gmap)
+                gid.append(gmap[k])
+                sym = r.get("sym") or ""
+                if sym not in smap:
+                    smap[sym] = len(smap)
+                syms.append(smap[sym])
+                years.append(str(day or "")[:4])
+                slots.append(slot)
+                for i, f in enumerate(feats):
+                    v = r.get(f)
+                    xs[i].append(float(v) if isinstance(v, (int, float)) else np.nan)
+                for w in WINDOWS:
+                    ys[w].append(int(r.get(LABEL_KEYS[w]) or 0))
+    X = np.array(xs, dtype=np.float64).T if xs else np.zeros((0, F))
+    # 🔒 رتبةُ الرمز **أبجديّةٌ** لا رتبةُ الظهور — كسرُ التعادل يطابق
+    #    `PF.order_rows` (‏`r["sym"]`) حرفيًّا.
+    order = {s: i for i, s in enumerate(sorted(smap))}
+    sym_ord = np.array([order[s] for s in sorted(smap, key=lambda z: smap[z])],
+                       dtype=np.int64)
+    return {"X": X, "y": {w: np.array(v, dtype=np.int8) for w, v in ys.items()},
+            "gid": np.array(gid, dtype=np.int64),
+            "sym": sym_ord[np.array(syms, dtype=np.int64)] if syms else np.zeros(0, int),
+            "year": np.array(years), "slot": np.array(slots), "wit": n_wit}
 
 
-def label_of(r, w):
-    return int(r.get(f"hit80_{w}" if w else "hit80_sess") or 0)
-
-
-def groups(rows):
-    """قراراتٌ = (يوم، جلسة) — لكلٍّ كونُه ووسمُه."""
-    g = {}
-    for r in rows:
-        g.setdefault((r.get("day"), r.get("slot")), []).append(r)
-    return g
-
-
-def _feat_vec(r, feats):
-    return [float(r.get(f) or 0.0) for f in feats]
-
-
-def zstats(rows, feats):
-    n = max(1, len(rows))
-    mu = [sum(float(r.get(f) or 0.0) for r in rows) / n for f in feats]
-    sd = []
-    for i, f in enumerate(feats):
-        v = sum((float(r.get(f) or 0.0) - mu[i]) ** 2 for r in rows) / n
-        sd.append(math.sqrt(v) or 1.0)
+def zfit(X):
+    mu = np.nanmean(X, axis=0)
+    mu = np.where(np.isfinite(mu), mu, 0.0)
+    sd = np.nanstd(X, axis=0)
+    sd = np.where(np.isfinite(sd) & (sd > 0), sd, 1.0)
     return mu, sd
 
 
-def fit_logistic(rows, feats, w, mu, sd, iters=ITERS, lr=LR, l2=L2):
+def zapply(X, mu, sd):
+    Z = (np.nan_to_num(X, nan=0.0) - mu) / sd
+    return np.clip(Z, -8.0, 8.0)
+
+
+def fit_logistic(Z, y, iters=ITERS, lr=LR, l2=L2):
     """انحدارٌ لوجستيٌّ بتنظيم L2 — نزولٌ حتميّ (بلا عشوائيةٍ ولا بذرة)."""
-    X = [[(v - mu[i]) / sd[i] for i, v in enumerate(_feat_vec(r, feats))] for r in rows]
-    y = [label_of(r, w) for r in rows]
-    n, d = len(X), len(feats)
+    n, d = Z.shape
     if not n:
-        return [0.0] * d, 0.0
-    b, b0 = [0.0] * d, 0.0
+        return np.zeros(d), 0.0
+    b, b0 = np.zeros(d), 0.0
+    yv = y.astype(np.float64)
     for _ in range(iters):
-        gb, g0 = [0.0] * d, 0.0
-        for xi, yi in zip(X, y):
-            z = b0 + sum(b[j] * xi[j] for j in range(d))
-            p = 1.0 / (1.0 + math.exp(-max(-30.0, min(30.0, z))))
-            e = p - yi
-            g0 += e
-            for j in range(d):
-                gb[j] += e * xi[j]
-        b0 -= lr * g0 / n
-        for j in range(d):
-            b[j] -= lr * (gb[j] / n + l2 * b[j] / n)
+        z = Z @ b + b0
+        p = 1.0 / (1.0 + np.exp(-np.clip(z, -30.0, 30.0)))
+        e = p - yv
+        b0 -= lr * e.mean()
+        b -= lr * ((Z.T @ e) / n + l2 * b / n)
     return b, b0
 
 
-def score_rows(rows, feats, mu, sd, b, b0):
-    for r in rows:
-        x = [(v - mu[i]) / sd[i] for i, v in enumerate(_feat_vec(r, feats))]
-        r["_s1"] = b0 + sum(b[j] * x[j] for j in range(len(feats)))
-    return rows
-
-
-def eval_key(gs, key, w, asc=False, k=TOPK):
-    """`P@10` · `R@10` · `base` على مجموعةِ قرارات."""
-    hits = taken = expl = uni = 0
-    for _, rs in sorted(gs.items()):
-        cand = [r for r in rs if r.get(key) is not None]
-        if not cand:
-            continue
-        cand.sort(key=lambda r: ((r[key] if asc else -r[key]), r.get("sym") or ""))
-        top = cand[:k]
-        hits += sum(label_of(r, w) for r in top)
-        taken += len(top)
-        expl += sum(label_of(r, w) for r in rs)
-        uni += len(rs)
+def eval_scores(score, gid, sym, y, k=TOPK, asc=False):
+    """`P@10` · `R@10` · `base` — الترتيبُ داخل كلّ قرارٍ وكسرُ التعادل بالرمز."""
+    if score.size == 0:
+        return {"p": 0.0, "r": 0.0, "base": 0.0, "lift": 0.0,
+                "hits": 0, "taken": 0, "expl": 0, "uni": 0}
+    s = score if asc else -score
+    idx = np.lexsort((sym, s, gid))          # gid ⟶ الدرجة ⟶ الرمز
+    g = gid[idx]
+    rank = np.arange(len(g)) - np.searchsorted(g, g, side="left")
+    top = idx[rank < k]
+    hits = int(y[top].sum())
+    taken = int(top.size)
+    expl = int(y.sum())
+    uni = int(y.size)
     p = (hits / taken) if taken else 0.0
     base = (expl / uni) if uni else 0.0
-    rec = (hits / expl) if expl else 0.0
-    return {"p": p, "r": rec, "base": base, "lift": (p / base) if base else 0.0,
+    return {"p": p, "r": (hits / expl) if expl else 0.0, "base": base,
+            "lift": (p / base) if base else 0.0,
             "hits": hits, "taken": taken, "expl": expl, "uni": uni}
 
 
 def verdict(res_s1, res_b1, res_b2, expl, signs_ok):
     if expl < MIN_EXPLODERS:
-        return "لا حكم", [f"⑤ الأرضيةُ ساقطة: {expl} منفجرًا < {MIN_EXPLODERS}"]
+        return "لا حكم", [f"⑤ الأرضيةُ ساقطة: {expl} منفجرًا دون {MIN_EXPLODERS}"]
     bad = []
     if not (res_s1["lift"] >= LIFT_MIN and res_s1["p"] >= P_MIN):
         bad.append(f"① P@10={res_s1['p']*100:.2f}% · lift={res_s1['lift']:.1f}× "
                    f"(الحدّ {LIFT_MIN:g}× و{P_MIN*100:g}%)")
     if res_s1["r"] < R_MIN:
-        bad.append(f"② R@10={res_s1['r']*100:.1f}% < {R_MIN*100:g}%")
+        bad.append(f"② R@10={res_s1['r']*100:.1f}% دون {R_MIN*100:g}%")
     if not (res_s1["p"] > res_b1["p"] and res_s1["p"] > res_b2["p"]):
         bad.append(f"③ لا يتفوّق على الشاهدين (B1={res_b1['p']*100:.2f}% · "
                    f"B2={res_b2['p']*100:.2f}%)")
@@ -150,63 +180,68 @@ def main() -> int:
     if not paths:
         log("⛔ لا صفوف — نزّل artifacts أوّلًا (لا يُخمَّن رقم).")
         return 2
-    rows = load_rows(paths)
-    log(f"🌙 صفوف: {len(rows)} من {len(paths)} ملفًّا")
-    if not rows:
-        return 4
     feats = [f for f in (os.environ.get("PRESESSION_FEATS") or "").split(",") if f]
-    if not feats:
-        skip = {"sym", "day", "slot", "wit", "ref", "_s1"}
-        feats = sorted({k for r in rows[:2000] for k, v in r.items()
-                        if k not in skip and not k.startswith("hit")
-                        and not k.startswith("max_") and not k.startswith("t80")
-                        and isinstance(v, (int, float))})
-    log(f"🔢 ميزاتُ الدرجة S1 ({len(feats)}): {', '.join(feats)}")
-    tr = [r for r in rows if str(r.get("day", ""))[:4] in TRAIN_YEARS]
-    ev = [r for r in rows if str(r.get("day", ""))[:4] == EVAL_YEAR]
-    log(f"📚 معايرة {len(tr)} · تقييم {len(ev)}")
-    if not tr or not ev:
+    bad_env = [f for f in feats if f not in FEATS]
+    if bad_env:
+        log(f"⛔ ميزةٌ خارج قائمة العقد البيضاء: {bad_env} — لا حكم.")
+        return 3
+    feats = feats or FEATS
+    log(f"🔢 ميزاتُ `S1` ({len(feats)}) — **قائمةٌ بيضاء من العقد**: {', '.join(feats)}")
+    d = load_cols(paths, feats)
+    n = d["X"].shape[0]
+    log(f"🌙 صفوف: {n:,} من {len(paths)} ملفًّا · شاهدُ الضبط المستبعَد {d['wit']:,}")
+    if not n:
+        return 4
+    for w in WINDOWS:
+        log(f"   وسمُ {w or 'الجلسة'}: منفجرون {int(d['y'][w].sum()):,}")
+    tr_m = np.isin(d["year"], TRAIN_YEARS)
+    ev_m = d["year"] == EVAL_YEAR
+    log(f"📚 معايرة {int(tr_m.sum()):,} · تقييم {int(ev_m.sum()):,}")
+    if not tr_m.any() or not ev_m.any():
         log("⛔ لا معايرةَ أو لا تقييم — لا حكم.")
         return 3
-    out_lines = []
+    i_b1 = feats.index("usd_day") if "usd_day" in feats else None
+    i_b2 = feats.index("day_ret") if "day_ret" in feats else None
     for w in WINDOWS:
         wname = f"{w}د" if w else "الجلسة"
         for slot in ("AH", "PM"):
-            trs = [r for r in tr if r.get("slot") == slot]
-            evs = [r for r in ev if r.get("slot") == slot]
-            if not trs or not evs:
+            tm = tr_m & (d["slot"] == slot)
+            em = ev_m & (d["slot"] == slot)
+            if not tm.any() or not em.any():
                 continue
-            mu, sd = zstats(trs, feats)
-            b, b0 = fit_logistic(trs, feats, w, mu, sd)
-            score_rows(evs, feats, mu, sd, b, b0)
-            gs = groups(evs)
-            s1 = eval_key(gs, "_s1", w)
-            b1 = eval_key(gs, "usd_day", w)
-            b2 = eval_key(gs, "day_ret", w)
-            order = sorted(range(len(feats)), key=lambda j: -abs(b[j]))[:3]
-            top3 = [(feats[j], b[j]) for j in order]
-            # ④ ثباتُ الإشارة عبر سنتَي المعايرة
+            Xtr, Xev = d["X"][tm], d["X"][em]
+            mu, sd = zfit(Xtr)
+            Ztr, Zev = zapply(Xtr, mu, sd), zapply(Xev, mu, sd)
+            b, b0 = fit_logistic(Ztr, d["y"][w][tm])
+            sc = Zev @ b + b0
+            gid, sym, y = d["gid"][em], d["sym"][em], d["y"][w][em]
+            s1 = eval_scores(sc, gid, sym, y)
+            b1 = eval_scores(np.nan_to_num(Xev[:, i_b1]), gid, sym, y) if i_b1 is not None \
+                else {"p": 0.0}
+            b2 = eval_scores(np.nan_to_num(Xev[:, i_b2]), gid, sym, y) if i_b2 is not None \
+                else {"p": 0.0}
+            order = list(np.argsort(-np.abs(b))[:3])
+            top3 = [(feats[j], float(b[j])) for j in order]
             signs_ok = True
             for yr in TRAIN_YEARS:
-                sub = [r for r in trs if str(r.get("day", ""))[:4] == yr]
-                if len(sub) < 50:
+                sm = (d["year"] == yr) & (d["slot"] == slot)
+                if int(sm.sum()) < 50:
                     continue
-                m2, s2 = zstats(sub, feats)
-                bb, _ = fit_logistic(sub, feats, w, m2, s2)
-                for j, _c in zip(order, top3):
+                m2, s2 = zfit(d["X"][sm])
+                bb, _ = fit_logistic(zapply(d["X"][sm], m2, s2), d["y"][w][sm])
+                for j in order:
                     if bb[j] * b[j] < 0:
                         signs_ok = False
             v, why = verdict(s1, b1, b2, s1["expl"], signs_ok)
-            line = (f"‏[{slot} · نافذة {wname}] الحكم: **{v}** · "
-                    f"P@10={s1['p']*100:.2f}% · base={s1['base']*100:.3f}% · "
-                    f"lift={s1['lift']:.1f}× · R@10={s1['r']*100:.1f}% · "
-                    f"منفجرون={s1['expl']} · كون={s1['uni']} · "
-                    f"B1={b1['p']*100:.2f}% · B2={b2['p']*100:.2f}%")
-            log(line)
+            log(f"‏[{slot} · نافذة {wname}] الحكم: **{v}** · "
+                f"P@10={s1['p']*100:.2f}% · base={s1['base']*100:.3f}% · "
+                f"lift={s1['lift']:.1f}× · R@10={s1['r']*100:.1f}% · "
+                f"إصابات={s1['hits']} · منفجرون={s1['expl']} · كون={s1['uni']:,} · "
+                f"B1={b1['p']*100:.2f}% · B2={b2['p']*100:.2f}%")
             for x in why:
                 log("      🔴 " + x)
-            log("      🔢 أقوى ثلاث: " + " · ".join(f"{n}={c:+.3f}" for n, c in top3))
-            out_lines.append((w, slot, v, line))
+            log("      🔢 أقوى ثلاث: " + " · ".join(f"{nm}={c:+.3f}" for nm, c in top3)
+                + f" · ثباتُ الإشارة: {'✅' if signs_ok else '🔴'}")
     log("")
     log("📌 ترتيبُ التراجع المقفول: تُقرأ نافذةُ 10 أوّلًا، ولا يُقرأ حكمُ نافذةٍ "
         "أوسعَ حكمًا على الأضيق.")
