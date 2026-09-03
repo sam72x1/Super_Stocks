@@ -17,6 +17,10 @@ on:
         description: "ميزاتُ الدرجة S1 (بفواصل — الافتراض: كلُّ العدديّة)"
         required: false
         type: string
+      syms:
+        description: "رموزٌ لتتبُّعها: هل دخلت القائمةَ؟ وهل انفجرت؟ (بفواصل)"
+        required: false
+        type: string
 
 jobs:
   report:
@@ -55,4 +59,7 @@ jobs:
       - name: 🌙 الحكم
         env:
           PRESESSION_FEATS: ${{ inputs.feats }}
+          # 🔒 كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها السكربت — وإلّا كان المدخلُ ميّتًا
+          #    (بصمةُ `BT_CANDLE`). `PRESESSION_SYMS` يقرؤها `main()`.
+          PRESESSION_SYMS: ${{ inputs.syms }}
         run: python presession_report.py

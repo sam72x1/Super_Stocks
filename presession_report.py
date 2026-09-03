@@ -52,6 +52,7 @@ ITERS, LR = 400, 0.5
 #    النموذجَ مهما كان اسمُه، فيستحيل أن يتسرّب وسمٌ إلى الميزات.
 FEATS = list(PF.FEATS_DESC) + list(PF.FEATS_ASC)
 LABEL_KEYS = {10: "hit80_10", 30: "hit80_30", 60: "hit80_60", 0: "hit80_s"}
+MAX_KEYS = {10: "max10", 30: "max30", 60: "max60", 0: "maxs"}
 
 
 def log(m=""):
@@ -64,6 +65,9 @@ def load_cols(paths, feats):
     xs = [[] for _ in range(F)]
     ys = {w: [] for w in WINDOWS}
     gid, syms, years, slots = [], [], [], []
+    # 🔴 **للتسمية لا للحكم:** أعلى نسبةٍ في النافذة (`maxs`/`max10`) تُحمَل
+    #    `float32` كي تُطبَع أسماءُ الإصابات بنسبها — ولا تدخل درجةً ولا ترتيبًا.
+    mxs = {w: [] for w in WINDOWS}
     gmap, smap = {}, {}
     n_wit = 0
     for p in paths:
@@ -97,15 +101,23 @@ def load_cols(paths, feats):
                     xs[i].append(float(v) if isinstance(v, (int, float)) else np.nan)
                 for w in WINDOWS:
                     ys[w].append(int(r.get(LABEL_KEYS[w]) or 0))
+                    mv = r.get(MAX_KEYS[w])
+                    mxs[w].append(float(mv) if isinstance(mv, (int, float)) else np.nan)
     X = np.array(xs, dtype=np.float64).T if xs else np.zeros((0, F))
     # 🔒 رتبةُ الرمز **أبجديّةٌ** لا رتبةُ الظهور — كسرُ التعادل يطابق
     #    `PF.order_rows` (‏`r["sym"]`) حرفيًّا.
     order = {s: i for i, s in enumerate(sorted(smap))}
     sym_ord = np.array([order[s] for s in sorted(smap, key=lambda z: smap[z])],
                        dtype=np.int64)
+    # 🔒 `names[d["sym"][i]]` = رمزُ الصفّ (‏`sym_ord` رتبةٌ أبجديّة) · و`gkey[gid]`
+    #    = (يومٌ، جلسة) — كلاهما **للتسمية**، وصفرُ أثرٍ على درجةٍ أو ترتيبٍ أو حكم.
+    gkey = [k for k, _ in sorted(gmap.items(), key=lambda kv: kv[1])]
     return {"X": X, "y": {w: np.array(v, dtype=np.int8) for w, v in ys.items()},
+            "mx": {w: np.array(v, dtype=np.float32) for w, v in mxs.items()},
             "gid": np.array(gid, dtype=np.int64),
             "sym": sym_ord[np.array(syms, dtype=np.int64)] if syms else np.zeros(0, int),
+            "names": np.array(sorted(smap)) if smap else np.zeros(0, dtype="<U1"),
+            "gkey": gkey,
             "year": np.array(years), "slot": np.array(slots), "wit": n_wit}
 
 
@@ -138,16 +150,25 @@ def fit_logistic(Z, y, iters=ITERS, lr=LR, l2=L2):
     return b, b0
 
 
+def topk_idx(score, gid, sym, k=TOPK, asc=False):
+    """فهارسُ أعلى `k` **داخل كلّ قرار** — **المصدرُ الواحد للترتيب**: يقرؤه
+    الحكمُ (`eval_scores`) وتسميةُ الإصابات (`hit_names`) معًا، فلا يُحكَم بترتيبٍ
+    وتُسمّى إصاباتُ ترتيبٍ آخر. كسرُ التعادل بالرمز (يطابق `PF.order_rows`)."""
+    if score.size == 0:
+        return np.zeros(0, dtype=np.int64)
+    s = score if asc else -score
+    idx = np.lexsort((sym, s, gid))          # gid ⟶ الدرجة ⟶ الرمز
+    g = gid[idx]
+    rank = np.arange(len(g)) - np.searchsorted(g, g, side="left")
+    return idx[rank < k]
+
+
 def eval_scores(score, gid, sym, y, k=TOPK, asc=False):
     """`P@10` · `R@10` · `base` — الترتيبُ داخل كلّ قرارٍ وكسرُ التعادل بالرمز."""
     if score.size == 0:
         return {"p": 0.0, "r": 0.0, "base": 0.0, "lift": 0.0,
                 "hits": 0, "taken": 0, "expl": 0, "uni": 0}
-    s = score if asc else -score
-    idx = np.lexsort((sym, s, gid))          # gid ⟶ الدرجة ⟶ الرمز
-    g = gid[idx]
-    rank = np.arange(len(g)) - np.searchsorted(g, g, side="left")
-    top = idx[rank < k]
+    top = topk_idx(score, gid, sym, k=k, asc=asc)
     hits = int(y[top].sum())
     taken = int(top.size)
     expl = int(y.sum())
@@ -166,6 +187,25 @@ def eval_scores(score, gid, sym, y, k=TOPK, asc=False):
 #    ⇒ هذي الجدولةُ تُخرج **الترتيبَ بمفتاحٍ منفردٍ لكلّ نافذة** كي يُختار مفتاحُ
 #    الجلسة **بالقاعدة نفسِها: من سنتَي المعايرة وحدهما**.
 S0_WINDOWS = (10, 0)
+
+
+def hit_names(d, score, mask, w, k=TOPK, asc=False):
+    """**أسماءُ الإصابات**: مَن كانت ستصله القائمةُ (أعلى `k` في قراره) وانفجر
+    فعلًا (‏`+80%` بالوسم) — سؤالُ المالك «وش الأسهم اللي كانت بتوصلني وفعلًا
+    تنفجر؟». تُبنى من **`topk_idx` نفسِه** الذي يحكم به `eval_scores` ⇒ عددُها
+    يساوي `hits` بالبناء (فحصُ اتّساقٍ مجّانيّ)، وهي **تسميةٌ لا حكم**."""
+    gid, sym, y = d["gid"][mask], d["sym"][mask], d["y"][w][mask]
+    mx = d["mx"][w][mask]
+    top = topk_idx(score, gid, sym, k=k, asc=asc)
+    out = []
+    for i in top:
+        if not y[i]:
+            continue
+        day, slot = d["gkey"][int(gid[i])]
+        out.append({"day": day, "slot": slot, "sym": str(d["names"][int(sym[i])]),
+                    "max": (None if not np.isfinite(mx[i]) else float(mx[i]))})
+    out.sort(key=lambda r: (-(r["max"] or 0.0), r["day"], r["sym"]))
+    return out
 
 
 def s0_table(d, feats, mask, w, k=TOPK):
@@ -292,6 +332,82 @@ def main() -> int:
                     log(f"      {f:14} {'(' + bt + ')' if bt else '':5} إصابات "
                         f"{r['hits']:4} من {r['taken']:6} ⇒ P@10 {r['p']*100:.3f}% · "
                         f"lift {r['lift']:5.1f}× · R@10 {r['r']*100:.1f}%")
+    # ── 🎯 أسماءُ الإصابات — «وش الأسهم اللي كانت بتوصلني وفعلًا تنفجر؟» ──
+    #    بالمفتاح **المشحون حيًّا** لكلّ جلسة (`PF.rank_key`) لا بمفتاحٍ مختار
+    #    الآن، وبـ`topk_idx` نفسِه الذي يحكم به `eval_scores` ⇒ عددُ الأسماء
+    #    **يساوي `hits`** بالبناء. تسميةٌ لا حكم.
+    log("")
+    log("=" * 78)
+    log("🎯 أسماءُ الإصابات بالمفتاح **المشحون حيًّا** — مَن كانت ستصله القائمةُ "
+        "(أعلى عشرة في قراره) وانفجر فعلًا ‏+80%")
+    log("=" * 78)
+    syms_env = [x.strip().upper() for x in
+                (os.environ.get("PRESESSION_SYMS") or "").replace(",", " ").split() if x.strip()]
+    for slot in ("PM", "AH"):
+        key = PF.rank_key(slot)
+        if key not in feats:
+            log(f"\n【{slot}】 ⛔ المفتاحُ المشحون `{key}` خارج قائمة الميزات — لا تسمية.")
+            continue
+        ki = feats.index(key)
+        asc = key in set(PF.FEATS_ASC)
+        for w in S0_WINDOWS:
+            wname = f"{w}د" if w else "الجلسة"
+            for yr in list(TRAIN_YEARS) + [EVAL_YEAR]:
+                m = (d["year"] == yr) & (d["slot"] == slot)
+                if not m.any():
+                    continue
+                sc = np.nan_to_num(d["X"][m][:, ki],
+                                   nan=(np.inf if asc else -np.inf))
+                res = eval_scores(sc, d["gid"][m], d["sym"][m], d["y"][w][m], asc=asc)
+                names = hit_names(d, sc, m, w, asc=asc)
+                ok = "✅" if len(names) == res["hits"] else "🔴 تفرّق"
+                tag = "معايرة" if yr in TRAIN_YEARS else "تقييم (خارج العيّنة)"
+                log(f"\n【{slot} · `{key}` · نافذة {wname} · {yr} — {tag}】 "
+                    f"إصابات {res['hits']} من {res['taken']} مأخوذًا "
+                    f"(‏P@10 {res['p']*100:.3f}% · lift {res['lift']:.1f}×) · "
+                    f"اتّساقُ التسمية {ok}")
+                if not names:
+                    log("      لا إصابةَ واحدة.")
+                for r in names[:40]:
+                    mv = "—" if r["max"] is None else f"+{r['max']:.0f}%"
+                    log(f"      {r['day']}  {r['sym']:<8} {mv}")
+                if len(names) > 40:
+                    log(f"      … و{len(names) - 40} إصابةً أخرى (قُصّت للعرض — "
+                        f"المجموعُ {len(names)}).")
+        # 🔎 تتبُّعُ رموزٍ يطلبها المالك: هل كانت في القائمة؟ وهل انفجرت؟
+        for sym_q in syms_env:
+            idx = np.where(d["names"] == sym_q)[0]
+            if not idx.size:
+                log(f"\n   🔎 {sym_q}: **خارج كون القياس كلِّه** (لا صفَّ واحدًا) — "
+                    "لا يُخمَّن حكمٌ عليه.")
+                continue
+            code = int(idx[0])
+            sm = (d["slot"] == slot) & (d["sym"] == code)
+            if not sm.any():
+                log(f"\n   🔎 {sym_q} [{slot}]: بلا صفٍّ في هذي الجلسة.")
+                continue
+            rows_n = int(sm.sum())
+            for w in S0_WINDOWS:
+                wname = f"{w}د" if w else "الجلسة"
+                hit_days = []
+                for yr in list(TRAIN_YEARS) + [EVAL_YEAR]:
+                    m = (d["year"] == yr) & (d["slot"] == slot)
+                    if not m.any():
+                        continue
+                    sc = np.nan_to_num(d["X"][m][:, ki],
+                                       nan=(np.inf if asc else -np.inf))
+                    top = topk_idx(sc, d["gid"][m], d["sym"][m], asc=asc)
+                    ss, gg, yy = d["sym"][m], d["gid"][m], d["y"][w][m]
+                    for i in top:
+                        if int(ss[i]) != code:
+                            continue
+                        day, _ = d["gkey"][int(gg[i])]
+                        hit_days.append(f"{day}{'✅' if yy[i] else '·'}")
+                expl = int(d["y"][w][sm].sum())
+                log(f"\n   🔎 {sym_q} [{slot} · {wname}]: صفوفٌ {rows_n} · "
+                    f"انفجر ‏+80% في {expl} يومًا · **دخل القائمةَ** في "
+                    f"{len(hit_days)} يومًا"
+                    + (": " + ", ".join(hit_days[:20]) if hit_days else " (ولا مرّة)"))
     log("")
     log("📌 ترتيبُ التراجع المقفول: تُقرأ نافذةُ 10 أوّلًا، ولا يُقرأ حكمُ نافذةٍ "
         "أوسعَ حكمًا على الأضيق. **والنافذةُ التي يريدها المالك هي الجلسةُ كاملةً "
