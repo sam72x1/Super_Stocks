@@ -1,14 +1,14 @@
 {
   "schema_version": 3,
-  "session_date": "2026-09-02",
+  "session_date": "2026-09-03",
   "termination": "normal",
-  "loops_completed": 491,
-  "loops_started": 491,
-  "n_symbols": 26,
+  "loops_completed": 482,
+  "loops_started": 482,
+  "n_symbols": 22,
   "n_raw_candidates": 4,
   "n_emitted": 4,
   "n_delivered": 4,
-  "n_recall_eligible_symbol_sessions": 13,
+  "n_recall_eligible_symbol_sessions": 10,
   "ended_before_expected_close": false,
   "minutes_short_of_close": 0.0,
   "operator_pass": 4,
@@ -18,8 +18,8 @@
   "fallback_fail": 0,
   "measurement_enabled": true,
   "alert_logic_version": "unchanged",
-  "expected_open_iso": "2026-09-02T13:30:00Z",
-  "expected_close_iso": "2026-09-02T20:00:00Z",
-  "source_commit": "b5da2f55a1048b5aa694de63348c6cc10208ed49",
-  "workflow_run_id": "33614755173"
+  "expected_open_iso": "2026-09-03T13:30:00Z",
+  "expected_close_iso": "2026-09-03T20:00:00Z",
+  "source_commit": "e3b768bc97fe777291625d37493cc2062eabbf83",
+  "workflow_run_id": "33740347247"
 }
