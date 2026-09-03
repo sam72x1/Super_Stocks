@@ -38208,6 +38208,54 @@ check("🌙 PS17 وسمٌ حيٌّ لا متخيَّل: مفاتيحُ `LABEL_KE
 #    بنيويًّا**: أيُّ اسمٍ لا يكتبه الماسحُ يسقط. (الفخُّ النصّيّ · `lock-and-mutate §②`.)
 
 
+# ── 🌙 مفتاحُ هويّة الصفّ (PS18-PS19) ─────────────────────────────────────────
+# 🔴🔴 **ثالثُ «مفتاحٍ متخيَّل» في هذا الملفّ، وأخبثُها لأنه لم يرمِ ولم يُحمِّر:**
+# الماسحُ يكتب `sess` وأداةُ الحكم كانت تقرأ `slot` والسجلُّ الأماميُّ يكتب `slot`
+# ⇒ التشغيلةُ `33731829233` حمّلت **3,928,716 صفًّا** وقرأت الأوسامَ صحيحةً
+# **ثم تخطّت الخلايا الثمانَ كلَّها بصمت** (‏`if not tm.any(): continue`) فخرجت
+# **خضراءَ بلا سطرِ حكمٍ واحد**. 🧭 **ولم يمسكه فحصُ الدخان لأنّي بنيتُ عيّنته
+# من رأسي لا من مُخرَج المنتِج** — «الفِكستشرُ الذي يكذب» بحرفه (`wire-check §③`).
+# ⇒ العلاجُ **بنيويّ**: الاسمُ من `presession_feats` حصرًا في الملفّات الثلاثة.
+_rk_row = {_PFm.ROW_DAY: "2026-01-02", _PFm.ROW_SESS: "AH", _PFm.ROW_SYM: "ZZZ"}
+_rk_row.update({f: 1.0 for f in _RP.FEATS})
+_rk_row.update({k: 0 for k in _RP.LABEL_KEYS.values()})
+_rk_bad = dict(_rk_row)
+_rk_bad.pop(_PFm.ROW_SESS)
+_rk_bad["slot"] = "AH"                      # الاسمُ القديم — يجب ألّا يُقرأ
+with _tf.TemporaryDirectory() as _rk_d:
+    _rk_p1 = _os_hc.path.join(_rk_d, "presession_rows_a.jsonl")
+    _rk_p2 = _os_hc.path.join(_rk_d, "presession_rows_b.jsonl")
+    open(_rk_p1, "w", encoding="utf-8").write(json.dumps(_rk_row) + "\n")
+    open(_rk_p2, "w", encoding="utf-8").write(json.dumps(_rk_bad) + "\n")
+    try:
+        _rk_ok = _RP.load_cols([_rk_p1], _RP.FEATS)
+        _rk_no = _RP.load_cols([_rk_p2], _RP.FEATS)
+        _rk_a = list(_rk_ok["slot"]) == ["AH"] and _rk_ok["X"].shape[0] == 1
+        _rk_b = list(_rk_no["slot"]) == [None]
+    except Exception as _e:                                          # noqa: BLE001
+        _rk_a = _rk_b = False
+        _rk_ok = {"err": f"{type(_e).__name__}"}
+check("🌙 PS18 مفتاحُ الجلسة يُقرأ من `PF` فعلًا: صفٌّ باسم الماسح يُصنَّف · "
+      "وصفٌّ بالاسم القديم `slot` **لا يُصنَّف** (عيّنةٌ تفرّق لا تجامل)",
+      _rk_a and _rk_b, f"بالاسم الصحيح={_rk_a} بالاسم القديم-لا-يُقرأ={_rk_b}")
+_rk_sc_t = _ps_ast.parse(_sc_src2)
+_rk_sc_use = {a.attr for a in _ps_ast.walk(_rk_sc_t)
+              if isinstance(a, _ps_ast.Attribute) and getattr(a.value, "id", None) == "PF"}
+_rk_rp_use = {a.attr for a in _ps_ast.walk(_ps_ast.parse(_rp_src))
+              if isinstance(a, _ps_ast.Attribute) and getattr(a.value, "id", None) == "PF"}
+_rk_pr_use = {a.attr for a in _ps_ast.walk(_ps_ast.parse(_pr_src))
+              if isinstance(a, _ps_ast.Attribute) and getattr(a.value, "id", None) == "PF"}
+_rk_need = {"ROW_DAY", "ROW_SESS", "ROW_SYM", "ROW_WIT"}
+_rk_lit = [m for m, src in (("scan", _sc_src2), ("report", _rp_src), ("radar", _pr_src))
+           if '"sess"' in src or "'sess'" in src]
+check("🌙 PS19 الثلاثةُ تشتقّ اسمَ الجلسة من `PF` (AST) · وصفرُ اسمٍ حرفيٍّ "
+      "`sess` في أيٍّ منها ⇒ التفرّقُ مستحيلٌ بنيويًّا لا بالوعد",
+      "ROW_SESS" in _rk_sc_use and _rk_need <= (_rk_rp_use | {"ROW_SESS"})
+      and "ROW_SESS" in _rk_rp_use and "ROW_SESS" in _rk_pr_use and not _rk_lit,
+      f"ماسح={sorted(_rk_sc_use & _rk_need)} حكم={sorted(_rk_rp_use & _rk_need)} "
+      f"رادار={sorted(_rk_pr_use & _rk_need)} حرفيّ={_rk_lit}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

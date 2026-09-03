@@ -159,7 +159,7 @@ def ladder(sess_bars: list, start: int, end: int, ref: float) -> dict:
 def topk_hits(rows: list, key: str, k: int = TOPK, label: str = "hit80_10",
               asc: bool = False) -> tuple:
     """(إصاباتُ أعلى k بالمفتاح · عددُ المرشَّحين المرتَّبين) — كسرُ التعادل بالرمز."""
-    cand = [r for r in rows if r.get(key) is not None and not r.get("wit")]
+    cand = [r for r in rows if r.get(key) is not None and not r.get(PF.ROW_WIT)]
     if not cand:
         return 0, 0
     top = PF.order_rows(cand, key, k, asc)      # 🔒 الترتيبُ من المصدر الواحد
@@ -192,8 +192,8 @@ def _decision_rows_ah(day: str, info: dict, bars: dict, prev_close: dict,
         f.update(rolling_feats(hist.get(sym, []), ref, f["usd_day"]))
         f.update({"post_usd": None, "post_ret": None, "post_hi_ret": None,
                   "post_share": None})
-        row = {"day": day, "sess": "AH", "sym": sym, "ref": ref,
-               "wit": 1 if sym == witness else 0}
+        row = {PF.ROW_DAY: day, PF.ROW_SESS: "AH", PF.ROW_SYM: sym, "ref": ref,
+               PF.ROW_WIT: 1 if sym == witness else 0}
         row.update({k: _r(v) for k, v in f.items()})
         for w in WINDOWS:
             lab = window_label(post, close_min, close_min + w, ref)
@@ -237,7 +237,7 @@ def _pending_pm(day: str, info: dict, bars: dict, prev_close: dict,
         f.update(rolling_feats(hist_after.get(sym, []), ref, f["usd_day"]))
         f["price"] = ref
         out[sym] = {"prev_day": day, "ref": ref,
-                    "wit": 1 if sym == witness else 0,
+                    PF.ROW_WIT: 1 if sym == witness else 0,
                     "f": {k: _r(v) for k, v in f.items()}}
     return out
 
@@ -250,7 +250,8 @@ def _resolve_pm(day: str, info: dict, bars: dict, pending: dict) -> list:
         b = bars.get(sym) or []
         pre = [x for x in b if PRE_OPEN <= x[7] < open_min]
         ref = p["ref"]
-        row = {"day": day, "sess": "PM", "sym": sym, "ref": ref, "wit": p["wit"],
+        row = {PF.ROW_DAY: day, PF.ROW_SESS: "PM", PF.ROW_SYM: sym, "ref": ref,
+               PF.ROW_WIT: p["wit"],
                "prev_day": p["prev_day"]}
         row.update(p["f"])
         for w in WINDOWS:
@@ -298,9 +299,9 @@ class Acc:
         self.lookahead = 0
 
     def add_decision(self, sess: str, rows: list):
-        real = [r for r in rows if not r.get("wit")]
+        real = [r for r in rows if not r.get(PF.ROW_WIT)]
         for r in rows:
-            if r.get("wit") and (r["hit80_10"] or r["hit80_s"]):
+            if r.get(PF.ROW_WIT) and (r["hit80_10"] or r["hit80_s"]):
                 self.wit_bad += 1
         if not real:
             return
@@ -473,7 +474,7 @@ def main() -> int:
     # ④ وضعُ اليوم الواحد: أسماءُ المنفجرين وترتيبُ الرموز المطلوبة (تشخيصٌ لا حكم)
     if one_day:
         for s in ("AH", "PM"):
-            rows = [r for r in last_day_rows[s] if not r.get("wit")]
+            rows = [r for r in last_day_rows[s] if not r.get(PF.ROW_WIT)]
             hits = sorted((r for r in rows if r["hit80_10"] or r["hit80_s"]),
                           key=lambda r: -(r["maxs"] or 0))
             log(f"\n【{s} {one_day}】 كون {len(rows)} · منفجرون +80% (10د/الجلسة): "

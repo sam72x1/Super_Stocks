@@ -78,10 +78,10 @@ def prefilter(grouped: list, lo: float, hi: float, cap: int = PREFILTER_CAP,
         usd = c * v
         if usd < min_usd:
             continue
-        out.append({"sym": sym, "close": c, "usd": usd,
+        out.append({PF.ROW_SYM: sym, "close": c, "usd": usd,
                     "o": g.get("o"), "h": g.get("h"), "l": g.get("l"),
                     "n": g.get("n"), "v": v})
-    out.sort(key=lambda r: (-r["usd"], r["sym"]))
+    out.sort(key=lambda r: (-r["usd"], r[PF.ROW_SYM]))
     return out[:cap] if cap else out
 
 
@@ -174,7 +174,7 @@ def feature_row(sym: str, bars8: list, prev_close: float, slot: str, cut: int,
         ref = reg_cut[-1][4]
     if liq_fn is not None:
         f["anchor"] = anchor_via([b for b in bars8 if b[7] < cut], liq_fn, win)
-    f.update({"sym": sym, "ref": ref, "slot": slot})
+    f.update({PF.ROW_SYM: sym, "ref": ref, PF.ROW_SESS: slot})
     return f
 
 
@@ -311,18 +311,18 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
         if budget_sec and (_now() - _t0) >= float(budget_sec):
             cut_off = len(cands) - cands.index(c)
             break
-        bars = as_bars8(fm(c["sym"], frm, now_ms))
+        bars = as_bars8(fm(c[PF.ROW_SYM], frm, now_ms))
         if not bars:
             continue
         bars = [b for b in bars if ny_mod(b[0])[0] == src_day]
         if not bars:
             continue
         cov += 1
-        pc = (prev_closes or {}).get(c["sym"])
+        pc = (prev_closes or {}).get(c[PF.ROW_SYM])
         if not pc:
             pre, reg, _ = split_bars(bars, src_day)
             pc = (reg[0][1] if reg else (pre[0][1] if pre else None))
-        r = feature_row(c["sym"], bars, pc, slot, cut, liq_fn=liq_fn, win=win)
+        r = feature_row(c[PF.ROW_SYM], bars, pc, slot, cut, liq_fn=liq_fn, win=win)
         if r:
             rows.append(r)
     if cut_off:
@@ -339,10 +339,12 @@ def append_ledger(rows: list, slot: str, day_iso: str, path: str = LEDGER_FILE,
     try:
         with open(path, "a", encoding="utf-8") as fh:
             for i, r in enumerate(rows, 1):
-                fh.write(json.dumps({"day": day_iso, "slot": slot, "rank": i,
+                fh.write(json.dumps({PF.ROW_DAY: day_iso, PF.ROW_SESS: slot,
+                                     "rank": i,
                                      "sent": bool(sent), "key": PF.RANK_KEY,
                                      "ts": int(time.time()),
-                                     **{k: v for k, v in r.items() if k != "slot"}},
+                                     **{k: v for k, v in r.items()
+                                        if k != PF.ROW_SESS}},
                                     ensure_ascii=False) + "\n")
         return len(rows)
     except Exception:                                            # noqa: BLE001

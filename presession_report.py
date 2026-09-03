@@ -76,15 +76,17 @@ def load_cols(paths, feats):
                     r = json.loads(ln)
                 except ValueError:
                     continue
-                if r.get("wit"):        # شاهدُ الضبط خارج الترتيب والحكم
+                if r.get(PF.ROW_WIT):   # شاهدُ الضبط خارج الترتيب والحكم
                     n_wit += 1
                     continue
-                day, slot = r.get("day"), r.get("slot")
+                # 🔒 مفاتيحُ الهويّة من `PF` لا مكتوبةً هنا — العطبُ الذي تخطّى
+                #    الخلايا الثمانَ صامتًا كان `slot` مقابل `sess`.
+                day, slot = r.get(PF.ROW_DAY), r.get(PF.ROW_SESS)
                 k = (day, slot)
                 if k not in gmap:
                     gmap[k] = len(gmap)
                 gid.append(gmap[k])
-                sym = r.get("sym") or ""
+                sym = r.get(PF.ROW_SYM) or ""
                 if sym not in smap:
                     smap[sym] = len(smap)
                 syms.append(smap[sym])
