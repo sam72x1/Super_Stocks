@@ -377,20 +377,26 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
             rows.append(r)
     if cut_off:
         _log(f"⚠️ ميزانيةُ {budget_sec:g}ث قصّت {cut_off} مرشَّحًا — يُعلَن ولا يُصمت.")
-    top = PF.order_rows(rows, PF.rank_key(slot), PF.TOPK, PF.RANK_ASC)
+    # 🔭 **السجلُّ يرى كلَّ مرتَّبٍ لا العشرةَ وحدَهم** (‏2026-09-03، عقد
+    #    `presession_dev_prereg §⑥-1`): كان يُرجَع `top` فيستحيل أن يُجاب
+    #    «هل انفجر اسمٌ لم يدخل العشرة؟» — وهو **سؤالُ صحّةِ المفتاح نفسِه**.
+    #    الترتيبُ كاملًا يُرجَع، و`top` **شريحتُه الأولى بت-بت** (‏`order_rows`
+    #    بـ`k=0` تُرجع كلَّ المرتَّبين ثم القطعُ شريحةٌ ⇒ صفرُ تغييرٍ في القرار).
+    ordered = PF.order_rows(rows, PF.rank_key(slot), 0, PF.RANK_ASC)
+    top = ordered[:PF.TOPK]
     # 🎚️ **أرضيةُ التسليم** (أمرُ المالك «شغّل الأرضية» 2026-09-03): لا تُرسَل
     #    إلّا القراءةُ المتطرّفة — والليلةُ التي لا متطرّفَ فيها **تُسلَّم صفرًا**.
     # 🔒 وهي على **مفتاح الترتيب نفسِه** ⇒ ترشيحُها بعد القطع يكافئ ترشيحَها قبله
     #    بالبناء (مقفولٌ سلوكيًّا) ⇒ **المُرسَلُ هو عينُ ما قِيس في `topk_result`**.
-    # 🔒 و`top` **يُرجَع كما هو** فيبقى السجلُّ الأماميّ يرى **المقصوصَ أيضًا**
-    #    (بحقل `floor_ok`) — وإلّا صار الحصادُ أعمى عن كلفة القرار نفسِه.
     deliver = PF.apply_floor(top, slot)
     msg = build_presession_alert(deliver, slot, day_iso, cov, len(cands))
-    return top, msg, {"scanned": len(cands), "cov": cov, "rows": len(rows),
-                      "src_day": src_day, "cut_off": cut_off,
-                      "floor": PF.rank_floor(slot),
-                      "deliver": [r[PF.ROW_SYM] for r in deliver],
-                      "floor_cut": len(top) - len(deliver)}
+    return ordered, msg, {"scanned": len(cands), "cov": cov, "rows": len(rows),
+                          "ranked": len(ordered),
+                          "src_day": src_day, "cut_off": cut_off,
+                          "floor": PF.rank_floor(slot),
+                          "top": [r[PF.ROW_SYM] for r in top],
+                          "deliver": [r[PF.ROW_SYM] for r in deliver],
+                          "floor_cut": len(top) - len(deliver)}
 
 
 def append_ledger(rows: list, slot: str, day_iso: str, path: str = LEDGER_FILE,
@@ -402,6 +408,10 @@ def append_ledger(rows: list, slot: str, day_iso: str, path: str = LEDGER_FILE,
     فعلًا، ومعها `floor_ok` لكلّ صفّ. **وبلاها يبقى السلوكُ السابق بت-بت**
     (`delivered=None` ⇒ الكلُّ) — فالسجلُّ القديمُ يُقرأ كما هو.
     🔒 **والمقصوصُ يُسجَّل**: بلاه يستحيل قياسُ كلفةِ الأرضية أماميًّا.
+    🔭 **و`in_top` يفصل العشرةَ عمّن دونهم** (‏2026-09-03): الصفوفُ تصل **مرتَّبةً**
+    فالرتبةُ تكفي حكمًا، ومَن دون القطع يُسجَّل **شاهدًا مضادًّا للمفتاح نفسِه**
+    (‏«هل انفجر اسمٌ لم نرتّبه في العشرة؟») — والقديمُ الذي مرّر العشرةَ وحدَهم
+    يقرأ `in_top=True` للجميع وهو **صادقٌ لِما مُرِّر**.
     """
     dl = None if delivered is None else {str(x).upper() for x in delivered}
     try:
@@ -411,6 +421,7 @@ def append_ledger(rows: list, slot: str, day_iso: str, path: str = LEDGER_FILE,
                 _sym = str(r.get(PF.ROW_SYM) or "").upper()
                 fh.write(json.dumps({PF.ROW_DAY: day_iso, PF.ROW_SESS: slot,
                                      "rank": i,
+                                     "in_top": i <= PF.TOPK,
                                      "sent": bool(sent) and (dl is None
                                                              or _sym in dl),
                                      "floor": PF.rank_floor(slot),

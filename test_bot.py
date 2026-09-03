@@ -38920,7 +38920,12 @@ check("🎚️ PS35 الترشيحُ قبل القطع ≡ بعده (‏8 من 1
       _fl35, f"a={_fl_a} b={_fl_b} ctl={len(_fl_ca)}≠{len(_fl_cb)}")
 
 # PS36 — **الوصلةُ من نقطة النداء** (‏AST): الرسالةُ تُبنى من مُخرَج `apply_floor`
-#   لا من `top` · و`top` **يُرجَع كما هو** فيبقى السجلُّ يرى المقصوص.
+#   لا من `top` · والمُرجَعُ **الترتيبُ كاملًا** فيبقى السجلُّ يرى المقصوص.
+# 🔴 **إقرارٌ مؤرَّخ 2026-09-03 (تشديدٌ لا إرخاء):** كان يشترط أن المُرجَع `top`
+#   فسقط على توسيع السجلّ (`presession_dev_prereg §⑥-1`) **فأدّى عملَه**. صار
+#   يشترط **ثلاثةَ أسماءٍ وعلاقتَها**: المُرجَعُ `ordered` · و`top` **شريحتُه**
+#   · والرسالةُ من `apply_floor(top)` — ومعها أن `order_rows` تُنادى بـ`k=0`
+#   (كلُّ المرتَّبين). ⇒ إرجاعُ `top` ثانيةً (تضييقُ السجلّ) **يسقط هنا**.
 try:
     _fl_fn = next(n for n in _ps_ast.walk(_pr_tree)
                   if isinstance(n, _ps_ast.FunctionDef) and n.name == "run_presession")
@@ -38937,13 +38942,28 @@ try:
     _fl_rt = sorted([n for n in _ps_ast.walk(_fl_fn) if isinstance(n, _ps_ast.Return)
                      and isinstance(n.value, _ps_ast.Tuple)], key=lambda n: n.lineno)
     _fl_r0 = getattr(_fl_rt[-1].value.elts[0], "id", None) if _fl_rt else None
+    # `top` شريحةٌ من المُرجَع نفسِه — لا نداءُ ترتيبٍ ثانٍ بمفتاحٍ آخر.
+    _fl_sl = next((a for a in _ps_ast.walk(_fl_fn) if isinstance(a, _ps_ast.Assign)
+                   and any(getattr(t, "id", None) == "top" for t in a.targets)), None)
+    _fl_sv = _fl_sl.value if _fl_sl is not None else None
+    _fl_top_ok = (isinstance(_fl_sv, _ps_ast.Subscript)
+                  and getattr(_fl_sv.value, "id", None) == _fl_r0
+                  and isinstance(_fl_sv.slice, _ps_ast.Slice))
+    # `order_rows` بـ`k=0` ⇒ كلُّ المرتَّبين (‏لا العشرةُ وحدَهم).
+    _fl_or = [c for c in _ps_ast.walk(_fl_fn) if isinstance(c, _ps_ast.Call)
+              and getattr(c.func, "attr", None) == "order_rows"]
+    _fl_k0 = (len(_fl_or) == 1 and len(_fl_or[0].args) >= 3
+              and getattr(_fl_or[0].args[2], "value", None) == 0)
     _fl36 = (len(_fl_af) == 1 and _fl_nm and _fl_nm == _fl_a0
-             and _fl_a0 != "top" and _fl_r0 == "top")
+             and _fl_a0 != "top" and _fl_r0 == "ordered"
+             and _fl_top_ok and _fl_k0)
 except Exception as _e:                                          # noqa: BLE001
     _fl36, _fl_nm, _fl_a0, _fl_r0 = False, f"⛔ {type(_e).__name__}: {_e}", "", ""
-check("🎚️ PS36 الرسالةُ تُبنى من مُخرَج الأرضية لا من `top` (‏AST) · و`top` "
-      "يُرجَع كما هو فيبقى المقصوصُ في السجلّ",
-      _fl36, f"اسم={_fl_nm} وسيط={_fl_a0} مُرجَع={_fl_r0} نداءات={len(_fl_af) if isinstance(_fl_af, list) else _fl_af}")
+    _fl_top_ok = _fl_k0 = False
+check("🎚️ PS36 الرسالةُ من مُخرَج الأرضية لا من `top` (‏AST) · والمُرجَعُ "
+      "**الترتيبُ كاملًا** و`top` شريحتُه و`order_rows` بـ`k=0` ⇒ السجلُّ يرى "
+      "المقصوصَ **ومَن دون العشرة**",
+      _fl36, f"اسم={_fl_nm} وسيط={_fl_a0} مُرجَع={_fl_r0} شريحة={_fl_top_ok} k0={_fl_k0}")
 
 # PS37 — **الرسالةُ تقول شرطَها** — وحدُّ الصدق **يتبع الشكلَ المشحون**: بالأرضية
 #   يقول أرقامَها (‏47 من 435) وبلاها يعود لأرقام العشرة (‏100 من 2,500) ⇒ فلا
@@ -39049,6 +39069,145 @@ check("🎚️ PS39 الليلةُ الصامتة (صفرُ عابرٍ · أو �
       "يرجع بلا ختمٍ ولا سجلّ (تُعاد المحاولة)",
       _fl39, str(_fl_q)[:130])
 
+
+# ── PD1 — 🔭 **السجلُّ يرى كلَّ مرتَّبٍ ومَن دون العشرة موسومٌ `in_top=False`**
+#   (عقد `presession_dev_prereg §⑥-1`). سلوكيٌّ لا نصّيّ: نبني 14 صفًّا وننادي
+#   `run_presession` بجالبٍ محقون، ثم نكتب السجلَّ ونقرؤه.
+#   🔒 **والقرارُ بت-بت**: الرسالةُ والمُسلَّمُ لا يتغيّران بتوسيع السجلّ.
+try:
+    _pd_rows = [{"sym": f"T{13 - i:02d}", "post_hi_ret": round(1.4 - 0.1 * i, 4),
+                 "day": "2026-09-03", "sess": "PM"} for i in range(14)]
+    _pd_ord = _flPF.order_rows(_pd_rows, "post_hi_ret", 0, False)
+    _pd_top = _pd_ord[:_flPF.TOPK]
+    _pd_old = _flPF.order_rows(_pd_rows, "post_hi_ret", _flPF.TOPK, False)
+    _pd_f = "/tmp/_pd1_ledger.jsonl"
+    _ps_os.path.exists(_pd_f) and _ps_os.remove(_pd_f)
+    _pd_n = _PR.append_ledger(_pd_ord, "PM", "2026-09-03", path=_pd_f,
+                              sent=True,
+                              delivered=[r["sym"] for r in _flPF.apply_floor(_pd_top, "PM")])
+    _pd_ln = [json.loads(x) for x in open(_pd_f, encoding="utf-8") if x.strip()]
+    _pd_in = [r["in_top"] for r in _pd_ln]
+    _pd1 = (_pd_n == 14 and len(_pd_ln) == 14
+            and _pd_top == _pd_old                    # القطعُ بت-بت مع القديم
+            and _pd_in == [True] * 10 + [False] * 4   # مَن دون العشرة موسوم
+            and [r["rank"] for r in _pd_ln] == list(range(1, 15))
+            and all(not r["sent"] for r in _pd_ln[10:])  # لا يُرسَل ما دون القطع
+            and any(r["sent"] for r in _pd_ln[:10]))
+except Exception as _e:                                          # noqa: BLE001
+    _pd1, _pd_in = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔭 PD1 السجلُّ يُسجّل **كلَّ مرتَّب** (‏14) بحقل `in_top` يفصل العشرةَ "
+      "عمّن دونهم · والقطعُ بت-بت مع `order_rows(TOPK)` · ولا `sent` تحت القطع",
+      _pd1, str(_pd_in)[:110])
+
+# ── PD2 — 📒 **التقريرُ يحسم بنافذة العقد وحدَها ومقياسٍ واحد** (‏`window_label`
+#   من `presession_scan` بالاسم). سلوكيّ: نافذةُ `PM` بريماركتُ اليوم و`AH` افترُه
+#   (‏**تتفرّقان**) · وأرضيةُ التنفيذ تحكم (‏قمّةٌ تبلغ ‏+80% بسيولةٍ دون الأرضية
+#   ⇒ **لا إصابة**) · و«النظاميّة» **وصفٌ خارج العقد** لا يدخل `hit`.
+try:
+    import presession_digest as _dg
+    _dg_pm, _dg_ah = _dg.window_bounds("PM"), _dg.window_bounds("AH")
+    _dg_row = {"day": "2026-09-03", "sess": "PM", "sym": "z", "rank": 1,
+               "in_top": True, "sent": True, "floor_ok": True, "ref": 1.0}
+    # شمعةُ بريماركت (‏mod=300) تبلغ ‏+100% بسيولةٍ فوق الأرضية ⇒ إصابة
+    _dg_hi = [(0, 1.0, 2.0, 1.0, 1.9, 20000.0, 5, 300)]
+    # نفسُها بسيولةٍ تافهة ⇒ **لا إصابة** (الأرضيةُ تحكم)
+    _dg_lo = [(0, 1.0, 2.0, 1.0, 1.9, 10.0, 5, 300)]
+    # شمعةٌ **نظاميّة** (‏mod=600) تبلغ ‏+100% ⇒ نافذةُ العقد فارغة ⇒ لا حسم،
+    # والوصفيُّ يراها.
+    _dg_rg = [(0, 1.0, 2.0, 1.0, 1.9, 20000.0, 5, 600)]
+    _dg_a = _dg.resolve_row(_dg_row, _dg_hi)
+    _dg_b = _dg.resolve_row(_dg_row, _dg_lo)
+    _dg_c = _dg.resolve_row(_dg_row, _dg_rg)
+    _dg_d = _dg.resolve_row({**_dg_row, "sess": "AH"}, _dg_hi)
+    # 🔒 مصدرٌ واحد **بالـAST لا بالنصّ**: أوّلُ صياغةٍ كانت نصّيّةً فسقطت على
+    #   **docstring‌ي نفسِه** (يذكر `HIT_PCT` شرحًا) — الفخُّ الموثَّق. الآن:
+    #   صفرُ اسمٍ محلّيٍّ للعتبتين، ونداءُ `PS.window_label` حاضرٌ فعلًا.
+    _dg_tree = _ps_ast.parse(open("presession_digest.py", encoding="utf-8").read())
+    _dg_ids = {getattr(n, "id", None) for n in _ps_ast.walk(_dg_tree)
+               if isinstance(n, _ps_ast.Name)}
+    _dg_ids |= {getattr(n, "attr", None) for n in _ps_ast.walk(_dg_tree)
+                if isinstance(n, _ps_ast.Attribute)}
+    _dg_wl = [c for c in _ps_ast.walk(_dg_tree) if isinstance(c, _ps_ast.Call)
+              and getattr(c.func, "attr", None) == "window_label"
+              and getattr(getattr(c.func, "value", None), "id", None) == "PS"]
+    _dg_own = ("HIT_PCT" not in _dg_ids and "LABEL_MIN_USD" not in _dg_ids
+               and len(_dg_wl) >= 1)
+    _pd2 = (_dg_pm == (_flPF.PRE_OPEN, _PR.REG_OPEN)
+            and _dg_ah == (_PR.REG_CLOSE, _flPF.EXT_CLOSE)
+            and _dg_pm != _dg_ah
+            and _dg_a and _dg_a["hit"] == 1 and abs(_dg_a["max_pct"] - 100.0) < 1e-9
+            and _dg_b and _dg_b["hit"] == 0        # الأرضيةُ تحكم
+            and _dg_c is None                      # نافذةُ العقد فارغة ⇒ لا حسم
+            and _dg_d is None                      # الافترُ لا يرى شمعةَ البريماركت
+            and _dg_own)
+except Exception as _e:                                          # noqa: BLE001
+    _pd2, _dg_pm, _dg_ah = False, f"⛔ {type(_e).__name__}: {_e}", ""
+check("📒 PD2 الحصادُ بنافذة العقد وحدَها (‏PM بريماركت · AH افتر · **تتفرّقان**) "
+      "· وأرضيةُ التنفيذ تحكم · و«النظاميّة» وصفٌ لا يدخل الحكم · ومقياسٌ واحدٌ "
+      "من `presession_scan` (صفرُ عتبةٍ منسوخة)",
+      _pd2, f"pm={_dg_pm} ah={_dg_ah}")
+
+# ── PD3 — ⚖️ **«لا حكم» تحت الأرضية** (عقد §⑥): الأعدادُ تُطبَع (حقائق) و**لا
+#   يُطبَع فرقٌ/دقّةٌ** قبل `MIN_DELIVERED` و`MIN_ROWS` — سابقةُ `T-TIE-FWD`.
+#   ومعها: «دون العشرة» **يُعلَن باقيه بعدده** (لا قصَّ صامتًا).
+try:
+    _pd_r = lambda i, sent, ftop, hit: {                          # noqa: E731
+        "day": "2026-09-03", "sess": "PM", "sym": f"S{i}", "rank": i,
+        "in_top": ftop, "sent": sent, "floor_ok": sent, "ref": 1.0,
+        "hit": hit, "max_pct": 12.5, "reg_max": 3.0}
+    _pd_today = ([_pd_r(i, True, True, 1 if i == 1 else 0) for i in range(1, 3)]
+                 + [_pd_r(i, False, True, 0) for i in range(3, 5)]
+                 + [_pd_r(i, False, False, 0) for i in range(5, 20)])
+    _pd_low = {"deliv": (5, 1), "cut": (4, 0), "below": (9, 1), "all": (18, 2)}
+    _pd_hi = {"deliv": (_dg.MIN_DELIVERED, 9), "cut": (30, 2),
+              "below": (90, 3), "all": (max(_dg.MIN_ROWS, 160), 14)}
+    _pd_m1 = _dg.build_digest("2026-09-03", _pd_today, _pd_low, (18, 20), 2)
+    _pd_m2 = _dg.build_digest("2026-09-03", _pd_today, _pd_hi, (18, 20), 2)
+    _pd3 = (not _dg.verdict_ready(_pd_low) and _dg.verdict_ready(_pd_hi)
+            and "لا حكم" in _pd_m1 and "دقّةُ المُسلَّم" not in _pd_m1
+            and "دقّةُ المُسلَّم" in _pd_m2 and "لا حكم" not in _pd_m2
+            and "آخرون" in _pd_m1                  # الباقي يُعلَن بعدده
+            and "وصفٌ خارج العقد" in _pd_m1        # حدُّ الصدق مطبوع
+            and "الشاهدُ المضادّ" in _pd_m1        # المقصوصُ يُعرَض
+            # الوسومُ المسموحة تُنزَع أوّلًا (قائمةٌ بيضاء — نمطُ `PRD4`)، ثم
+            # **صفرُ علامةِ مقارنة** في النصّ المعروض.
+            and all(c not in _pd_m1.replace("<b>", "").replace("</b>", "")
+                    .replace("<i>", "").replace("</i>", "")
+                    for c in ("≥", "≤", ">", "<")))
+except Exception as _e:                                          # noqa: BLE001
+    _pd3, _pd_m1 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("⚖️ PD3 «لا حكم» تحت الأرضية (لا دقّةَ ولا فرق) · وتُطبَع فوقها · وباقي "
+      "«دون العشرة» يُعلَن بعدده · وحدُّ الصدق مطبوع · وبلا علامات مقارنة",
+      _pd3, str(_pd_m1)[:90])
+
+# ── PD7 — 🔌 **كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها السكربت** (بصمةُ `BT_CANDLE`
+#   الميّت) · وكرونان بخانة أيامٍ 2-6 (جلسةُ الاثنين ينتهي افترها فجرَ الثلاثاء
+#   UTC) · و`contents: write` وإلّا فشل الدفعُ صامتًا فلا يتراكم حصاد.
+try:
+    import yaml as _pd_yaml
+    _pd_wf = _pd_yaml.safe_load(open(".github/workflows/presession_digest.yml",
+                                     encoding="utf-8"))
+    _pd_on = _pd_wf.get("on") or _pd_wf.get(True)
+    _pd_cr = [c["cron"] for c in (_pd_on.get("schedule") or [])]
+    _pd_ins = list(((_pd_on.get("workflow_dispatch") or {}).get("inputs") or {}))
+    _pd_step = next(st for j in _pd_wf["jobs"].values() for st in j["steps"]
+                    if "presession_digest.py" in str(st.get("run") or ""))
+    _pd_env = _pd_step.get("env") or {}
+    _pd_dsrc = open("presession_digest.py", encoding="utf-8").read()
+    _pd_wired = all(any(f"inputs.{i}" in str(v) for v in _pd_env.values())
+                    for i in _pd_ins)
+    _pd_read = all(f'"{k}"' in _pd_dsrc for k in ("DIGEST_DAY", "DIGEST_FORCE",
+                                                  "POLYGON_API_KEY"))
+    _pd7 = (len(_pd_cr) == 2 and all(c.endswith(" * * 2-6") for c in _pd_cr)
+            and _pd_ins and _pd_wired and _pd_read
+            and (_pd_wf.get("permissions") or {}).get("contents") == "write"
+            and "POLYGON_API_KEY" in _pd_env
+            and "TELEGRAM_BOT_TOKEN" in _pd_env)
+except Exception as _e:                                          # noqa: BLE001
+    _pd7, _pd_cr, _pd_ins = False, f"⛔ {type(_e).__name__}: {_e}", ""
+check("🔌 PD7 حصادُ ما قبل الجلسة: كرونان (‏2-6) · كلُّ مدخلٍ موصولٌ ببيئةٍ "
+      "يقرؤها السكربت · `contents: write` · وأسرارُ Polygon وتلغرام موصولة",
+      _pd7, f"cron={_pd_cr} inputs={_pd_ins}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

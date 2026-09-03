@@ -1,0 +1,55 @@
+name: Presession Digest (حصادُ قائمة ما قبل الجلسة)
+
+# 🔐 يكتب حصادَه وختمَه (`presession_outcomes.jsonl` · `presession_digest_stamp.json`)
+# ويدفعهما بـ`git_save` ⇒ `write` إلزاميّة. تضييقُها يُفشِل الدفع صامتًا ⇒ يُعاد
+# حسمُ نفس الصفوف كلَّ ليلة ولا يتراكم شيء.
+permissions:
+  contents: write
+# 📒 أمرُ المالك (2026-09-03): «ابي كل يوم بعد الافتر يوصلني تقرير لها — الهدف منه
+# تطويرها من جميع النواحي». يقرأ السجلَّ الأماميّ ويحسمه بوسم العقد نفسِه
+# (`presession_scan.window_label`) ثم يرسل التقرير. حصادٌ/عرضٌ فقط — لا فرزَ ولا
+# حالةَ بوتٍ ولا `LOGIC_VERSION`.
+on:
+  schedule:
+    # ⏰ **بعد إغلاق الافتر** — ونفسُ حيلة الصيّاد: كرونان و`session_gate` تحسم
+    #   أيّهما يعمل بقراءة ساعة نيويورك، فتصيب الفصلين ذاتيًّا.
+    #   · صيفًا: ‏00:31 UTC = 20:31 ET ✅ · و01:31 = 21:31 ET يجده مختومًا فيصمت.
+    #   · شتاءً: ‏00:31 = 19:31 ET ⛔ (داخل الافتر) · و01:31 = 20:31 ET ✅.
+    # ⚠️ خانة الأيام **2-6 (ثلاثاء→سبت)**: جلسةُ الاثنين ET ينتهي افترها فجرَ
+    #    الثلاثاء UTC. تغييرُها مع الساعة إلزاميّ.
+    # 🔁 وأُزيحت عن كرونات الصيّادين (‏13/37/51) بدقائقَ غير مستديرة فلا تتزاحم
+    #    على ياهو/Polygon في اللحظة نفسها.
+    - cron: "31 0 * * 2-6"
+    - cron: "31 1 * * 2-6"
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "يومُ الحصاد (YYYY-MM-DD) — فارغٌ = جلسةُ البوّابة"
+        required: false
+        default: ""
+jobs:
+  presession-digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run presession digest
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 📡 بلا هذا المفتاح **لا حسمَ إطلاقًا** — والأداةُ تخرج بخروجٍ غيرِ
+          #    صفريّ ورسالةٍ صريحة («عطلٌ صريحٌ لا صمت»).
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          DIGEST_DAY: ${{ github.event.inputs.day }}
+          # 🔓 التشغيلُ اليدويّ يتخطّى بوّابةَ التوقيت والدِدوب معًا — وإلّا خرج
+          #    الفحصُ الفوريُّ نهارًا **أخضرَ بصفر عمل** (صنفُ «أخضرَ بلا رسالة»).
+          DIGEST_FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+        run: python presession_digest.py
