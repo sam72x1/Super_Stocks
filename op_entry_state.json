@@ -78,7 +78,7 @@
    "M1"
   ],
   "updates": 0,
-  "vol_x": 28.9,
+  "vol_x": 28.7,
   "peak_usd": 926936,
   "last_eval_ms": 1788436860000,
   "pulse_ms": 1788442800000,
@@ -573,7 +573,7 @@
    "anchor_ms": 1788438600000,
    "anchor_price": 1.08,
    "anchor_low": 1.018,
-   "e5": 1.02,
+   "e5": 1.03,
    "exit_ms": 1788439140000
   },
   "date": "2026-09-03"
@@ -974,7 +974,7 @@
    "M5"
   ],
   "updates": 0,
-  "vol_x": 24.4,
+  "vol_x": 25.1,
   "peak_usd": 214183,
   "last_eval_ms": 1788442260000,
   "pulse_ms": 1788442800000,
@@ -1430,7 +1430,7 @@
   "updates": 0,
   "vol_x": 27.3,
   "peak_usd": 68720,
-  "last_eval_ms": 1788442740000,
+  "last_eval_ms": 1788442800000,
   "pulse_ms": 1788442800000,
   "anchor_price": 4.09,
   "anchor_open": 3.89,
