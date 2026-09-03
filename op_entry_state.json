@@ -83,7 +83,7 @@
   "updates": 0,
   "vol_x": 28.9,
   "peak_usd": 926936,
-  "last_eval_ms": 1788436860000,
+  "last_eval_ms": 1788436800000,
   "pulse_ms": 1788443760000,
   "anchor_price": 0.8488,
   "anchor_open": 0.7731,
@@ -2399,20 +2399,20 @@
   "date": "2026-09-03"
  },
  "AUID": "2026-09-03",
- "LIQ:MNST": {
+ "LIQ:AVXL": {
   "last_eval_ms": 1788443760000,
   "date": "2026-09-03"
  },
- "LIQ:AVXL": {
+ "LIQ:SHPH": {
+  "last_eval_ms": 1788443760000,
+  "date": "2026-09-03"
+ },
+ "LIQ:MNST": {
   "last_eval_ms": 1788443760000,
   "date": "2026-09-03"
  },
  "LIQ:DOGZ": {
   "last_eval_ms": 1788443100000,
-  "date": "2026-09-03"
- },
- "LIQ:SHPH": {
-  "last_eval_ms": 1788443760000,
   "date": "2026-09-03"
  },
  "LIQ:AZI": {
