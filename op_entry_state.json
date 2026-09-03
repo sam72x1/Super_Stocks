@@ -53,7 +53,7 @@
  },
  "LIQ:AKAN": {
   "anchor_ms": 1788465780000,
-  "last_ms": 1788467100000,
+  "last_ms": 1788467160000,
   "sent": [
    "M1",
    "M5"
@@ -62,7 +62,7 @@
   "vol_x": 37.1,
   "peak_usd": 47826,
   "last_eval_ms": 1788465840000,
-  "pulse_ms": 1788467100000,
+  "pulse_ms": 1788467160000,
   "anchor_price": 4.08,
   "anchor_open": 3.7321,
   "anchor_low": 3.66,
@@ -74,7 +74,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 4.2,
+  "e5": 4.1485,
   "date": "2026-09-03"
  },
  "LIQ:PDSB": {
@@ -99,7 +99,7 @@
  },
  "LIQ:MIMI": {
   "anchor_ms": 1788436800000,
-  "last_ms": 1788467100000,
+  "last_ms": 1788467160000,
   "sent": [
    "M1"
   ],
@@ -107,7 +107,7 @@
   "vol_x": 28.7,
   "peak_usd": 926936,
   "last_eval_ms": 1788436860000,
-  "pulse_ms": 1788467100000,
+  "pulse_ms": 1788467160000,
   "anchor_price": 0.8488,
   "anchor_open": 0.7731,
   "anchor_low": 0.7731,
@@ -240,7 +240,7 @@
   "date": "2026-09-02"
  },
  "LIQ:FFAI": {
-  "last_eval_ms": 1788466740000,
+  "last_eval_ms": 1788467160000,
   "date": "2026-09-03"
  },
  "LIQ:RAYA": {
@@ -276,7 +276,7 @@
   "date": "2026-09-03"
  },
  "LIQ:SMTK": {
-  "last_eval_ms": 1788465720000,
+  "last_eval_ms": 1788467160000,
   "date": "2026-09-03"
  },
  "LIQ:VCIG": {
@@ -571,7 +571,7 @@
    "anchor_ms": 1788465360000,
    "anchor_price": 1.9525,
    "anchor_low": 1.83,
-   "e5": 1.85,
+   "e5": null,
    "exit_ms": 1788465720000
   },
   "date": "2026-09-03"
@@ -660,7 +660,7 @@
  },
  "LIQ:TWG": {
   "anchor_ms": 1788450000000,
-  "last_ms": 1788467100000,
+  "last_ms": 1788467160000,
   "sent": [
    "M1",
    "M5"
@@ -669,7 +669,7 @@
   "vol_x": 8.4,
   "peak_usd": 70827,
   "last_eval_ms": 1788450120000,
-  "pulse_ms": 1788467100000,
+  "pulse_ms": 1788467160000,
   "anchor_price": 0.5405,
   "anchor_open": 0.5039,
   "anchor_low": 0.5039,
@@ -1590,7 +1590,7 @@
   "date": "2026-09-02"
  },
  "LIQ:CYCU": {
-  "last_eval_ms": 1788467100000,
+  "last_eval_ms": 1788467160000,
   "date": "2026-09-03"
  },
  "LIQ:FNGR": {
@@ -1633,7 +1633,7 @@
   "date": "2026-09-03"
  },
  "LIQ:RGTI": {
-  "last_eval_ms": 1788466980000,
+  "last_eval_ms": 1788467160000,
   "date": "2026-09-03"
  },
  "LIQ:EHTH": {
@@ -1729,7 +1729,7 @@
    "M5"
   ],
   "updates": 0,
-  "vol_x": 15.0,
+  "vol_x": 16.1,
   "peak_usd": 82844,
   "last_eval_ms": 1788465600000,
   "pulse_ms": 1788466620000,
@@ -2004,7 +2004,7 @@
   "date": "2026-09-03"
  },
  "LIQ:LGHL": {
-  "last_eval_ms": 1788467040000,
+  "last_eval_ms": 1788467160000,
   "date": "2026-09-03"
  },
  "LIQ:BNAI": {
