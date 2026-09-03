@@ -38430,13 +38430,23 @@ def _hn_attr(fn_name, attr):
         for a in _ps_ast.walk(fn))
 
 
+# 🔒 **إقرارٌ مؤرَّخ 2026-09-04:** أُخرج الترتيبُ إلى `group_ranks` كي يقرأه
+# تشخيصُ الفوت (`miss_report`) أيضًا ⇒ سقط شقُّ «`lexsort` في `topk_idx`» فأدّى
+# عملَه. **وشُدِّد لا أُرخي:** `lexsort` صارت في **دالّةٍ واحدةٍ في الوحدة كلِّها**،
+# والثلاثةُ (الحكمُ · التسميةُ · التشخيص) يصلون إليها عبرها حصرًا.
+_hn_lex = [n for n, fn in _hn_fns.items()
+           if any(isinstance(a, _ps_ast.Attribute) and a.attr == "lexsort"
+                  for a in _ps_ast.walk(fn))]
 _hn_single = (_hn_calls("eval_scores", "topk_idx")
               and _hn_calls("hit_names", "topk_idx")
+              and _hn_calls("topk_idx", "group_ranks")
+              and _hn_calls("miss_report", "group_ranks")
               and not _hn_attr("eval_scores", "lexsort")
-              and _hn_attr("topk_idx", "lexsort"))
-check("🌙 PS25 ترتيبٌ واحدٌ لا اثنان: `eval_scores` و`hit_names` كلتاهما تنادي "
-      "`topk_idx` · و`lexsort` في `topk_idx` وحدَها (صفرُ ترتيبٍ محلّيّ في الحكم)",
+              and _hn_lex == ["group_ranks"])
+check("🌙 PS25 ترتيبٌ واحدٌ لا اثنان: الحكمُ والتسميةُ عبر `topk_idx` وتشخيصُ "
+      "الفوت عبر `group_ranks` · و`lexsort` في `group_ranks` **وحدَها** بالوحدة",
       _hn_single,
+      f"lexsort_in={_hn_lex} miss→gr={_hn_calls('miss_report', 'group_ranks')} "
       f"eval→topk={_hn_calls('eval_scores', 'topk_idx')} "
       f"names→topk={_hn_calls('hit_names', 'topk_idx')} "
       f"lexsort_في_الحكم={_hn_attr('eval_scores', 'lexsort')}")
@@ -38555,6 +38565,122 @@ check("🌙 PS28 مدى السنة: الافتراضُ كاملٌ بت-بت · �
       _yr_ok,
       f"كامل={_yr_full} جزئي={_yr_part} فارغ={_yr_blank} "
       f"وصلُ_days={_yr_days_ok} END={'PRESESSION_END' in _yr_main}")
+
+
+# PS29 — ⛔ **«ليه فات؟» يُشخَّص بترتيبِ الحكم نفسِه — وبلا قصٍّ صامت.**
+#   عيّنةٌ **تفرّق في خمسة محاور معًا:** ① يومُ انفجارٍ الرمزُ فيه **خارج**
+#   العشرة بالمفتاح المشحون (‏رتبةُ 20) ② ويومُ قائمةٍ **بلا** انفجار (‏رتبةُ 1)
+#   ③ ويومُ انفجارٍ **مفتاحُه معدوم** (‏`None` ⇒ يُدفَع إلى الذيل بالبناء)
+#   ④ ومفتاحٌ **ملتقِطٌ رتبتُه السادسة** — يسقط من `best` المقصوصة بـ`best_n`
+#      ويبقى في `top_keys` ⇒ **العدُّ الوصفيّ لا يُخفي مفتاحًا كان سيلتقط**
+#   ⑤ وصفُّ جلسةٍ أخرى (‏AH) لليوم نفسِه **لا يتسرّب** إلى تشخيص `PM`
+#      — 🔴 **وهذا مضمونٌ بالبناء لا بالفلتر:** `gid` مفتاحُه (يومٌ، جلسة) ⇒
+#      طفرةُ نزعِ فلترِ الجلسة من `sm` **بلا أثرٍ سلوكيّ** (‏«طفرةٌ باطلة» —
+#      حارسٌ خامدٌ يحميه حارسٌ أسبق)، **والذي يُسقط هذا المحور فعلًا** طفرةُ
+#      `k = (day, slot)` ⟶ `k = day` في `load_cols` — وقد سقطت
+#   ⑥ **والهدفُ يُدرَج أوّلًا واسمُه أبجديًّا أخير** ⇒ كسرُ التعادل **بالرمز**
+#      يعطيه الذيلَ في الميزات المتساوية، وكسرُه بترتيب الإدراج يعطيه الصدارةَ
+#      فيمتلئ `best` بميزاتٍ صفريّة ⇒ **الطفرةُ تسقط** (‏نجت أوّلَ مرّةٍ لأن
+#      إدراجَ الهدف أخيرًا كان يوافق ترتيبَه الأبجديّ — عيّنةٌ لا تفرّق).
+_mr_rows = []
+_mr_dec = ("day_ret", "gap_open", "ret_30", "vol_accel", "n5")   # رتبةُ الهدف 1
+_mr_cat = "usd_day"                                              # رتبتُه 6
+for _md, _mslot in (("2025-03-03", "PM"), ("2025-03-04", "PM"),
+                    ("2025-03-05", "PM"), ("2025-03-03", "AH")):
+    _rt = {_PFm.ROW_DAY: _md, _PFm.ROW_SESS: _mslot, _PFm.ROW_SYM: "TGT"}
+    _rt.update({f: 0.0 for f in _RP.FEATS})
+    _rt.update({k: 0 for k in _RP.LABEL_KEYS.values()})
+    _rt.update({k: 0.0 for k in _RP.MAX_KEYS.values()})
+    if _mslot == "AH":                    # جلسةٌ أخرى: رتبةُ 1 وانفجار — لا تتسرّب
+        _rt["post_hi_ret"], _rt["hit80_s"], _rt["maxs"] = 100.0, 1, 999.0
+    elif _md == "2025-03-03":             # ① انفجارٌ خارجَ العشرة
+        _rt["post_hi_ret"], _rt["hit80_s"], _rt["maxs"] = 0.0, 1, 250.0
+        for _f in _mr_dec:
+            _rt[_f] = 100.0
+        _rt[_mr_cat] = 50.0
+    elif _md == "2025-03-04":             # ② قائمةٌ بلا انفجار
+        _rt["post_hi_ret"], _rt["hit80_s"], _rt["maxs"] = 100.0, 0, 12.0
+    else:                                 # ③ انفجارٌ والمفتاحُ معدوم
+        _rt.pop("post_hi_ret")
+        _rt["hit80_s"], _rt["maxs"] = 1, 88.0
+    _mr_rows.append(_rt)                  # ⑥ الهدفُ **أوّلًا** واسمُه أبجديًّا أخير
+    for _i in range(18, -1, -1):          # إدراجٌ معكوس: الخريطةُ الأبجديّة تُختبَر
+        _sy = f"A{_i:02d}"                # 19 حشوًا + الهدف = كونُ 20 (‏k = 10)
+        _rm = {_PFm.ROW_DAY: _md, _PFm.ROW_SESS: _mslot, _PFm.ROW_SYM: _sy}
+        _rm.update({f: 0.0 for f in _RP.FEATS})
+        _rm["post_hi_ret"] = float(19 - _i)          # A00 أعلى … A18 أدنى
+        if _mslot == "PM" and _md == "2025-03-03" and _i < 5:
+            _rm[_mr_cat] = 100.0                     # خمسةٌ فوق الهدف ⇒ رتبتُه 6
+        _rm.update({k: 0 for k in _RP.LABEL_KEYS.values()})
+        _rm.update({k: 0.0 for k in _RP.MAX_KEYS.values()})
+        _mr_rows.append(_rm)
+with _tf.TemporaryDirectory() as _mr_d:
+    _mr_p = _os_hc.path.join(_mr_d, "presession_rows_mr.jsonl")
+    open(_mr_p, "w", encoding="utf-8").write(
+        "\n".join(json.dumps(_x) for _x in _mr_rows))
+    try:
+        _mr_dd = _RP.load_cols([_mr_p], _RP.FEATS)
+        _mr_code = int(_RP.np.where(_mr_dd["names"] == "TGT")[0][0])
+        _mr = _RP.miss_report(_mr_dd, _RP.FEATS, _mr_code, "PM", 0, "post_hi_ret")
+        _mr_nx, _mr_tal = _RP.miss_key_tally(_mr, _RP.FEATS)
+        _mr_td = {f: n for n, f in _mr_tal}
+        _mr_best = [f for _r, f in _mr[0]["best"]]
+        _mr_top = [f for _r, f in _mr[0]["top_keys"]]
+        _mr_ok = (
+            [r["day"] for r in _mr] == ["2025-03-03", "2025-03-04", "2025-03-05"]
+            and all(r["uni"] == 20 for r in _mr)
+            # ① خارجَ العشرة يومَ انفجاره — بترتيب الحكم نفسِه
+            and _mr[0]["hit"] and _mr[0]["rank"] == 20 and not _mr[0]["in_list"]
+            and abs((_mr[0]["max"] or 0) - 250.0) < 1e-6 and _mr[0]["val"] == 0.0
+            # ② قائمةٌ بلا انفجار
+            and (not _mr[1]["hit"]) and _mr[1]["rank"] == 1 and _mr[1]["in_list"]
+            and abs((_mr[1]["max"] or 0) - 12.0) < 1e-6
+            # ③ مفتاحٌ معدوم ⇒ `None` لا صفرًا · ويُدفَع إلى الذيل
+            and _mr[2]["hit"] and _mr[2]["val"] is None and _mr[2]["rank"] == 20
+            # ④ الملتقِطُ الرتبةُ 6: خارج `best` وداخل `top_keys` والعدّاد
+            and _mr_cat not in _mr_best and _mr_cat in _mr_top
+            and _mr_td.get(_mr_cat) == 1 and set(_mr_dec) <= set(_mr_best)
+            and "post_hi_ret" not in _mr_td and _mr_nx == 2
+            # ⑤ صفُّ `AH` لا يتسرّب (‏999 وسمُه)
+            and all(abs((r["max"] or 0) - 999.0) > 1.0 for r in _mr))
+    except Exception as _e:                                      # noqa: BLE001
+        _mr_ok = False
+        _mr, _mr_td, _mr_best = f"⛔ رمى: {type(_e).__name__}: {_e}", {}, []
+check("🌙 PS29 تشخيصُ الفوت بترتيبِ الحكم نفسِه: خارجَ العشرة يومَ انفجاره · "
+      "وقائمةٌ بلا انفجار · ومفتاحٌ معدومٌ يُدفَع للذيل · **والملتقِطُ رتبةَ 6 "
+      "لا يسقط من العدّاد** (‏`top_keys` لا `best` المقصوصة) · وجلسةُ `AH` لا تتسرّب",
+      _mr_ok,
+      f"أيام={_mr if isinstance(_mr, str) else [(r['day'], r['rank'], r['hit']) for r in _mr]} "
+      f"عدّاد={_mr_td} best={_mr_best}")
+
+
+# PS29-ب — 🔒 **الوصلُ من نقطة النداء الحيّة · وحدُّ الصدق داخل `log` لا في
+#          تعليق.** النصُّ لا يفرّق كودًا عن تعليق (وقع خمس مرّات) ⇒ تُجمَع
+#          سلاسلُ **نداءات `log` وحدَها** بالـAST، فشرحٌ في تعليقٍ أو docstring
+#          لا يُرضي القفل. ومعه: `miss_report` و`miss_key_tally` **مُنادَتان
+#          فعلًا** من `main` — وجودُ الدالّة ليس دليلَ وصلها.
+_mw_src = _ps_insp.getsource(_RP.main)
+_mw_tree = _ps_ast.parse(_mw_src.lstrip())
+_mw_calls = {getattr(c.func, "id", "") for c in _ps_ast.walk(_mw_tree)
+             if isinstance(c, _ps_ast.Call)}
+_mw_logs = []
+for _c in _ps_ast.walk(_mw_tree):
+    if isinstance(_c, _ps_ast.Call) and getattr(_c.func, "id", "") == "log":
+        _mw_logs += [n.value for n in _ps_ast.walk(_c)
+                     if isinstance(n, _ps_ast.Constant) and isinstance(n.value, str)]
+_mw_txt = "\n".join(_mw_logs)
+_mw_ok = ("miss_report" in _mw_calls and "miss_key_tally" in _mw_calls
+          and "ليه فات" in _mw_txt
+          and "وصفيٌّ صرف" in _mw_txt
+          and "ولا يُبدَّل به مفتاحٌ" in _mw_txt
+          and "p-hacking" in _mw_txt)
+check("🌙 PS29-ب التشخيصُ **مُنادًى من `main`** · وحدُّ الصدق («وصفيٌّ صرف» و"
+      "«ولا يُبدَّل به مفتاحٌ … `p-hacking`») **داخل نداءات `log`** بالـAST "
+      "(لا في تعليقٍ ولا docstring)",
+      _mw_ok,
+      f"نداءات={sorted(_mw_calls & {'miss_report', 'miss_key_tally'})} "
+      f"ليه_فات={'ليه فات' in _mw_txt} وصفيّ={'وصفيٌّ صرف' in _mw_txt} "
+      f"تحذير={'ولا يُبدَّل به مفتاحٌ' in _mw_txt} phack={'p-hacking' in _mw_txt}")
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")

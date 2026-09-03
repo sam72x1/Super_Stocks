@@ -150,17 +150,28 @@ def fit_logistic(Z, y, iters=ITERS, lr=LR, l2=L2):
     return b, b0
 
 
-def topk_idx(score, gid, sym, k=TOPK, asc=False):
-    """فهارسُ أعلى `k` **داخل كلّ قرار** — **المصدرُ الواحد للترتيب**: يقرؤه
-    الحكمُ (`eval_scores`) وتسميةُ الإصابات (`hit_names`) معًا، فلا يُحكَم بترتيبٍ
-    وتُسمّى إصاباتُ ترتيبٍ آخر. كسرُ التعادل بالرمز (يطابق `PF.order_rows`)."""
-    if score.size == 0:
-        return np.zeros(0, dtype=np.int64)
+def group_ranks(score, gid, sym, asc=False):
+    """رتبةُ **كلّ صفٍّ داخل قراره** (‏0 = الأوّل) — **المصدرُ الواحد للترتيب**.
+
+    🔒 يقرؤه `topk_idx` (ومنه الحكمُ والتسمية) و`miss_report` معًا، فيستحيل أن
+    يُحكَم بترتيبٍ ويُشخَّص فوتٌ بترتيبٍ آخر. كسرُ التعادل بالرمز (يطابق
+    `PF.order_rows`)، و`lexsort` **هنا وحدَها** في الوحدة كلِّها.
+    """
     s = score if asc else -score
     idx = np.lexsort((sym, s, gid))          # gid ⟶ الدرجة ⟶ الرمز
     g = gid[idx]
-    rank = np.arange(len(g)) - np.searchsorted(g, g, side="left")
-    return idx[rank < k]
+    r = np.arange(len(g)) - np.searchsorted(g, g, side="left")
+    out = np.empty(len(g), dtype=np.int64)
+    out[idx] = r
+    return out
+
+
+def topk_idx(score, gid, sym, k=TOPK, asc=False):
+    """فهارسُ أعلى `k` **داخل كلّ قرار** — يقرؤه الحكمُ (`eval_scores`) وتسميةُ
+    الإصابات (`hit_names`) معًا، وكلاهما من `group_ranks` نفسِها."""
+    if score.size == 0:
+        return np.zeros(0, dtype=np.int64)
+    return np.where(group_ranks(score, gid, sym, asc=asc) < k)[0]
 
 
 def eval_scores(score, gid, sym, y, k=TOPK, asc=False):
@@ -222,6 +233,77 @@ def s0_table(d, feats, mask, w, k=TOPK):
         out.append((f, r))
     out.sort(key=lambda kv: (-kv[1]["p"], kv[0]))
     return out
+
+
+def miss_report(d, feats, code, slot, w, key, k=TOPK, best_n=5):
+    """**«ليه فات؟»** — تشخيصُ رمزٍ بعينه يومًا يومًا داخل قرارِ ذلك اليوم.
+
+    لكلّ يومٍ للرمز في هذي الجلسة: هل انفجر ‏+80%؟ · **رتبتُه بالمفتاح المشحون**
+    وكمُ كونُ القرار · قيمةُ المفتاح (‏أو **معدومة** ⇒ يُدفَع إلى الذيل بالبناء) ·
+    وأفضلُ `best_n` رتبٍ عبر ميزات العقد كلِّها.
+
+    🔒 **وصفٌ لا اختيار:** يُقرأ تشخيصًا لسهمٍ بعينه — **ولا يُبدَّل به مفتاحُ
+    ترتيبٍ ولا حدّ**، فاختيارُ مفتاحٍ بعد رؤية نتيجة سهمٍ هو `p-hacking` بحرفه.
+    والرتبُ من `group_ranks` **نفسِها** التي يحكم بها `eval_scores`.
+    """
+    asc_set = set(PF.FEATS_ASC)
+    ki = feats.index(key)
+    sm = (d["slot"] == slot) & (d["sym"] == code)
+    # 🔒 فهرسةٌ مرّةً واحدة: مسحُ الكونِ كلِّه لكلّ يومٍ كان يقرأ ملايينَ الصفوف
+    #    مرّاتٍ بعدد أيام الرمز — والنتيجةُ نفسُها بترتيبٍ مستقرّ.
+    sl = np.where(d["slot"] == slot)[0]
+    gs = d["gid"][sl]
+    o = np.argsort(gs, kind="stable")
+    sl, gs = sl[o], gs[o]
+    out = []
+    for g in sorted({int(x) for x in d["gid"][sm]}):
+        lo = int(np.searchsorted(gs, g, side="left"))
+        hi = int(np.searchsorted(gs, g, side="right"))
+        rows = sl[lo:hi]
+        tgt = np.where(d["sym"][rows] == code)[0]
+        if not tgt.size:
+            continue
+        t, gsym, ggid = int(tgt[0]), d["sym"][rows], d["gid"][rows]
+        Xr = d["X"][rows]
+        ranks = []
+        for j, f in enumerate(feats):
+            a = f in asc_set
+            v = np.nan_to_num(Xr[:, j], nan=(np.inf if a else -np.inf))
+            ranks.append((int(group_ranks(v, ggid, gsym, asc=a)[t]) + 1, f))
+        kv = float(Xr[t, ki])
+        mx = d["mx"][w][rows][t]
+        day, _ = d["gkey"][g]
+        out.append({
+            "day": day, "uni": int(rows.size),
+            "hit": bool(d["y"][w][rows][t]),
+            "rank": next(r for r, f in ranks if f == key),
+            "val": (None if not np.isfinite(kv) else kv),
+            "max": (None if not np.isfinite(mx) else float(mx)),
+            "in_list": next(r for r, f in ranks if f == key) <= k,
+            "best": sorted(ranks)[:best_n],
+            # 🔴 **كلُّ** مفتاحٍ رتبتُه داخل العشرة — لا أفضلُ `best_n` فقط:
+            #    القصُّ هنا كان سيُسقط مفاتيحَ ملتقِطةً من عدّاد §الوصفيّ.
+            "in_top": sorted(r for r, f in ranks if r <= k),
+            "top_keys": sorted((r, f) for r, f in ranks if r <= k),
+        })
+    out.sort(key=lambda r: r["day"])
+    return out
+
+
+def miss_key_tally(rows, feats, k=TOPK):
+    """**وصفيٌّ صرف:** كم يومَ انفجارٍ كان كلُّ مفتاحٍ سيلتقطه (رتبةٌ ≤ `k`).
+
+    🔴 **لا يُختار منه مفتاح**: هو عدٌّ على **سهمٍ واحدٍ بعد رؤية نتيجته** —
+    وترقيتُه قرارًا هي `p-hacking` بحرفه. يُنشَر تشخيصًا ويُوسَم كذلك.
+    """
+    ex = [r for r in rows if r["hit"]]
+    tally = {f: 0 for f in feats}
+    for r in ex:
+        for rank, f in r["top_keys"]:     # لا `best` — كانت مقصوصةً بـ`best_n`
+            if rank <= k:
+                tally[f] += 1
+    return len(ex), sorted(((n, f) for f, n in tally.items() if n),
+                           key=lambda kv: (-kv[0], kv[1]))
 
 
 def verdict(res_s1, res_b1, res_b2, expl, signs_ok):
@@ -437,6 +519,35 @@ def main() -> int:
                     f"انفجر ‏+80% في {expl} يومًا · **دخل القائمةَ** في "
                     f"{len(hit_days)} يومًا"
                     + (": " + ", ".join(hit_days[:20]) if hit_days else " (ولا مرّة)"))
+            # ⛔ «ليه فات؟» — يومًا يومًا داخل قرارِ ذلك اليوم (وصفٌ لا اختيار)
+            for w in S0_WINDOWS:
+                wname = f"{w}د" if w else "الجلسة"
+                mr = miss_report(d, feats, code, slot, w, key)
+                ex = [r for r in mr if r["hit"]]
+                if not ex:
+                    continue
+                log(f"\n   ⛔ **ليه فات {sym_q}؟** [{slot} · {wname}] — "
+                    f"أيامُ الانفجار {len(ex)} · المفتاحُ المشحون `{key}`")
+                for r in ex:
+                    v = "**معدومة**" if r["val"] is None else f"{r['val']:.4g}"
+                    mv = "—" if r["max"] is None else f"+{r['max']:.0f}%"
+                    tag = "✅ دخل القائمة" if r["in_list"] else "🔴 خارجها"
+                    log(f"      {r['day']}  رتبتُه {r['rank']:,} من {r['uni']:,} "
+                        f"({tag}) · `{key}`={v} · أعلى نسبة {mv}")
+                    log("         أفضلُ رتبٍ: " + " · ".join(
+                        f"{f}#{rk}" for rk, f in r["best"]))
+                lst = [r for r in mr if r["in_list"] and not r["hit"]]
+                if lst:
+                    log(f"      🟡 وأيامُ القائمة بلا انفجار ({len(lst)}): " + " · ".join(
+                        f"{r['day']} رتبة {r['rank']}"
+                        + ("" if r["max"] is None else f" · أعلى نسبته {r['max']:+.0f}%")
+                        for r in lst[:12]))
+                n_ex, tal = miss_key_tally(mr, feats)
+                log(f"      📊 **وصفيٌّ صرف** — كم يومَ انفجارٍ كان كلُّ مفتاحٍ "
+                    f"سيلتقطه (من {n_ex}): "
+                    + (" · ".join(f"{f}={n}" for n, f in tal[:8]) or "لا مفتاح")
+                    + " 🔴 **ولا يُبدَّل به مفتاحٌ**: عدٌّ على سهمٍ واحدٍ بعد رؤية "
+                      "نتيجته هو `p-hacking` بحرفه.")
     log("")
     log("📌 ترتيبُ التراجع المقفول: تُقرأ نافذةُ 10 أوّلًا، ولا يُقرأ حكمُ نافذةٍ "
         "أوسعَ حكمًا على الأضيق. **والنافذةُ التي يريدها المالك هي الجلسةُ كاملةً "
