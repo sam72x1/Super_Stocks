@@ -347,8 +347,12 @@ def _maybe_presession(seen, mod, day) -> bool:
 
     مرّةً واحدةً لكلّ قرارٍ في اليوم (ختمٌ `PRE:<يوم>:<AH|PM>` داخل ددوب «هنا
     الدخول» — لا ملفَّ حالةٍ جديد). **والافتراضُ صامت**: يُكتَب السجلُّ الأماميّ
-    ولا تُرسَل رسالة، حتى يأمر المالكُ (`PRESESSION_SEND=1`) أو يصدر حكمُ
-    `T-PRESESSION` باستيفاء §⑥ — لأن الادّعاءَ قبل الرقم ممنوعٌ عندنا.
+    ولا تُرسَل رسالة.
+    🔴 **والإرسالُ لجلسةٍ بعينها بأمر المالك «شغّل البريماركت» (2026-09-03):**
+    `PRESESSION_SEND` تقبل اسمَ الجلسة (`PM`) أو أكثرَ (`PM,AH`) أو `1` للجميع —
+    والبوّابةُ **دالّةٌ نقيّةٌ واحدة** في `presession_radar.send_enabled` فلا تُكتَب
+    مقارنةُ البيئة هنا وهناك فتتفرّق. المشحونُ اليوم **`PM`** (والافترُ صامتٌ لأن
+    رافعتَه المقيسة ‏4.2× مقابل 29.8× للبريماركت).
 
     🔒 **الختمُ بعد التسليم حصرًا** (عقدُ «فُحِص وسُلِّم»): رفضُ تلغرام ⇒ لا ختمَ
     ولا سجلّ ⇒ تُعاد المحاولةُ في الدورة التالية داخل نافذة القرار.
@@ -370,7 +374,7 @@ def _maybe_presession(seen, mod, day) -> bool:
     _log(f"🌙 قرارُ {slot} {day}: {diag}")
     if not rows:
         return False
-    send = str(os.environ.get("PRESESSION_SEND") or "").strip() in ("1", "true")
+    send = _PRE.send_enabled(slot, os.environ.get("PRESESSION_SEND"))
     ok = True
     if send and msg:
         try:
@@ -389,7 +393,8 @@ def _maybe_presession(seen, mod, day) -> bool:
     except Exception as e:                                       # noqa: BLE001
         _log(f"⚠️ دفعُ ختم ما قبل الجلسة: {e}")
     _log(f"🌙⏱️ قائمةُ {slot}: {len(rows)} اسمًا · سُجِّل {n} · "
-         + ("أُرسلت" if (send and ok) else "صامتة (بلا PRESESSION_SEND)"))
+         + ("أُرسلت" if (send and ok)
+            else f"صامتة (‏PRESESSION_SEND لا تشمل {slot})"))
     return True
 
 

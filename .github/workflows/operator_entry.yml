@@ -119,5 +119,9 @@ jobs:
           OE_INTERVAL: ${{ github.event.inputs.interval }}
           OE_BUDGET_MIN: ${{ github.event.inputs.budget }}
           OE_CHAIN_TEST: ${{ github.event.inputs.chain_test }}
+          # 🌙⏱️ قائمةُ ما قبل الجلسة — **البريماركتُ وحدَه** بأمر المالك
+          #    «شغّل البريماركت» (2026-09-03). الافترُ يبقى صامتًا يكتب السجلَّ
+          #    الأماميّ (رافعتُه المقيسة ‏4.2× مقابل 29.8×). تُقبل `PM,AH` أو `1`.
+          PRESESSION_SEND: PM
           GITHUB_TOKEN: ${{ github.token }}
         run: python operator_entry_live.py

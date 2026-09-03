@@ -38035,7 +38035,7 @@ _ps_row = {"sym": "X", "ref": 1.5, "day_ret": 0.4, "usd_day": 500_000.0, "n5": 2
 _ps_msg = _PR.build_presession_alert([_ps_row], "AH", "2026-09-04", 40, 60)
 check("🌙 PS12 الرسالةُ تُعلن «قيد الإثبات الأماميّ» وتسمّي مفتاحَ الترتيب "
       "وتقول إنها ليست توصيةَ دخول · والقائمةُ الفارغة رسالةٌ فارغة (لا ضجيج)",
-      ("قيد الإثبات الأماميّ" in _ps_msg and _PR.PF.RANK_KEY in _ps_msg
+      ("قيد الإثبات الأماميّ" in _ps_msg and _PR.PF.rank_key("AH") in _ps_msg
        and "لا تُقرأ توصيةَ دخول" in _ps_msg
        and _PR.build_presession_alert([], "AH", "2026-09-04", 0, 0) == ""),
       _ps_msg[:60])
@@ -38056,6 +38056,8 @@ class _PsFakePre:
 
     slot_now = staticmethod(lambda m: "AH")
     stamp_key = staticmethod(lambda d, s: f"PRE:{d}:{s}")
+    # 🔒 البوّابةُ **الحقيقية** لا جذعٌ — وإلّا صار القفلُ يختبر نفسَه.
+    send_enabled = staticmethod(_PR.send_enabled)
 
     def run_presession(self, *a, **k):
         return [{"sym": "X", "ref": 1.0}], "رسالة", {"cov": 1}
@@ -38254,6 +38256,91 @@ check("🌙 PS19 الثلاثةُ تشتقّ اسمَ الجلسة من `PF` (AS
       and "ROW_SESS" in _rk_rp_use and "ROW_SESS" in _rk_pr_use and not _rk_lit,
       f"ماسح={sorted(_rk_sc_use & _rk_need)} حكم={sorted(_rk_rp_use & _rk_need)} "
       f"رادار={sorted(_rk_pr_use & _rk_need)} حرفيّ={_rk_lit}")
+
+
+# ── 🌙 «شغّل البريماركت» — مفتاحٌ لكلّ جلسة وإرسالٌ لجلسةٍ بعينها (PS20-PS22) ──
+# أمرُ المالك 2026-09-03 بعد صدور الحكم: الترتيبُ بعائلة الافتر · والإرسالُ
+# للبريماركت وحدَه. **والمفتاحُ اختير من سنتَي المعايرة (2023-2024) لا من سنة
+# التقييم** — `post_hi_ret` أوّلُ السنتين، وعلى 2025 خارج العيّنة ‏26 من 2,500.
+_pm_msg = _PR.build_presession_alert([_ps_row], "PM", "2026-09-04", 40, 60)
+_pm_ah = _PR.build_presession_alert([_ps_row], "AH", "2026-09-04", 40, 60)
+check("🌙 PS20 مفتاحُ الترتيب **لكلّ جلسةٍ مفتاحُه** من `PF`: البريماركتُ "
+      "`post_hi_ret` والافترُ خطُّ الأساس · والرسالةُ تسمّي مفتاحَ جلستها "
+      "**فتفرّق** · وكلتاهما تقول إن الحكمَ «فشلت»",
+      (_PFm.rank_key("PM") == "post_hi_ret" and _PFm.rank_key("pm") == "post_hi_ret"
+       and _PFm.rank_key("AH") == _PFm.RANK_KEY == "usd_day"
+       and _PFm.rank_key(None) == "usd_day"
+       and "post_hi_ret" in _pm_msg and "post_hi_ret" not in _pm_ah
+       and "usd_day" in _pm_ah and "فشلت" in _pm_msg and "فشلت" in _pm_ah),
+      f"PM={_PFm.rank_key('PM')} AH={_PFm.rank_key('AH')}")
+
+# PS20-ب — **الوصلُ لا التعريف**: الترتيبُ والسجلُّ يقرآن مفتاحَ الجلسة فعلًا.
+#   🔴 عيّنةٌ **تفرّق**: صفٌّ أعلى في `usd_day` وأدنى في `post_hi_ret` والعكس ⇒
+#   ترتيبُ الجلستين ينقلب، ولو بقي المفتاحُ عامًّا لتطابقا.
+_pm_rows = [{"sym": "AAA", "ref": 1.0, "usd_day": 9e8, "post_hi_ret": 0.01},
+            {"sym": "BBB", "ref": 1.0, "usd_day": 1e5, "post_hi_ret": 0.90}]
+_pm_ord_pm = [r["sym"] for r in _PR.PF.order_rows(
+    _pm_rows, _PR.PF.rank_key("PM"), 2, _PR.PF.RANK_ASC)]
+_pm_ord_ah = [r["sym"] for r in _PR.PF.order_rows(
+    _pm_rows, _PR.PF.rank_key("AH"), 2, _PR.PF.RANK_ASC)]
+_pm_ord_ast = [c for c in _ps_ast.walk(_ps_ast.parse(_pr_src))
+               if isinstance(c, _ps_ast.Call)
+               and isinstance(c.func, _ps_ast.Attribute) and c.func.attr == "order_rows"]
+_pm_ord_ok = bool(_pm_ord_ast) and all(
+    any(isinstance(a, _ps_ast.Call) and getattr(a.func, "attr", "") == "rank_key"
+        for a in c.args) for c in _pm_ord_ast)
+with _tf.TemporaryDirectory() as _pm_d:
+    _pm_lp = _os_hc.path.join(_pm_d, "led.jsonl")
+    _PR.append_ledger([_pm_rows[0]], "PM", "2026-09-04", path=_pm_lp)
+    _PR.append_ledger([_pm_rows[0]], "AH", "2026-09-04", path=_pm_lp)
+    _pm_keys = [json.loads(ln)["key"] for ln in open(_pm_lp, encoding="utf-8")]
+check("🌙 PS20-ب الوصلُ حيّ: `order_rows` تُنادى بـ`rank_key(slot)` (AST) · "
+      "والترتيبُ **ينقلب** بين الجلستين على عيّنةٍ تفرّق · والسجلُّ يكتب مفتاحَ "
+      "جلسته لا مفتاحًا عامًّا",
+      _pm_ord_ok and _pm_ord_pm == ["BBB", "AAA"] and _pm_ord_ah == ["AAA", "BBB"]
+      and _pm_keys == ["post_hi_ret", "usd_day"],
+      f"AST={_pm_ord_ok} PM={_pm_ord_pm} AH={_pm_ord_ah} سجلّ={_pm_keys}")
+
+# PS21 — بوّابةُ الإرسال **لجلسةٍ بعينها**، دالّةٌ نقيّةٌ واحدة (لا مقارنةَ بيئةٍ
+#   منسوخة في نقطة النداء). والفارقُ الحيُّ يُثبَت من `_maybe_presession` نفسِها:
+#   بـ`PRESESSION_SEND=PM` ⇒ الافترُ **يُسجَّل ولا يُرسَل** (والفِكستشرُ افترٌ).
+_pm_gate = (_PR.send_enabled("PM", "PM"), _PR.send_enabled("AH", "PM"),
+            _PR.send_enabled("PM", "pm"), _PR.send_enabled("PM", ""),
+            _PR.send_enabled("PM", None), _PR.send_enabled("AH", "1"),
+            _PR.send_enabled("AH", "PM,AH"), _PR.send_enabled("PM", "0"))
+_pm_oel = _ps_ast.parse(open("operator_entry_live.py", encoding="utf-8").read())
+_pm_fn = next((n for n in _ps_ast.walk(_pm_oel)
+               if isinstance(n, _ps_ast.FunctionDef) and n.name == "_maybe_presession"), None)
+_pm_uses = _pm_fn is not None and any(
+    isinstance(c, _ps_ast.Call) and getattr(c.func, "attr", "") == "send_enabled"
+    for c in _ps_ast.walk(_pm_fn))
+_pm_cmp = _pm_fn is not None and not any(
+    isinstance(n, _ps_ast.Compare) and any(
+        isinstance(x, _ps_ast.Tuple) for x in n.comparators)
+    for n in _ps_ast.walk(_pm_fn))
+try:
+    _pm_live = (_ps_hook("PM"), _ps_hook("AH"))     # الفِكستشرُ جلستُه «AH»
+except Exception as _e:                                          # noqa: BLE001
+    _pm_live = f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙 PS21 الإرسالُ لجلسةٍ بعينها: `PM` تُرسل للبريماركت **ولا تُرسل للافتر** · "
+      "و`1` تُرسل للجميع (توافقٌ خلفيّ) · والفارغُ صامت · والوصلةُ الحيّة تنادي "
+      "الدالّةَ النقيّة (‏AST) ولا تنسخ مقارنةَ البيئة",
+      _pm_gate == (True, False, True, False, False, True, True, False)
+      and _pm_uses and _pm_cmp
+      and _pm_live == ((0, 1, True), (1, 1, True)),
+      f"بوّابة={_pm_gate} نداء={_pm_uses} بلا-نسخة={_pm_cmp} حيّ={_pm_live}")
+
+# PS22 — 🔴 **الوصلُ في الـworkflow وإلّا كان كلُّ ما فوق `no-op`**: العاملُ الحيُّ
+#   لا يرى المتغيّرَ ما لم يُصرَّح في خطوة التشغيل. (بصمةُ `BT_CANDLE`: علمٌ يُمرَّر
+#   في الـworkflow وليس له صفٌّ يقرؤه ⇒ ثلاثُ تشغيلاتٍ خضراءُ بصفر أثر.)
+import yaml as _pm_yaml                                          # noqa: E402
+_pm_wf = _pm_yaml.safe_load(open(".github/workflows/operator_entry.yml", encoding="utf-8"))
+_pm_env = [st.get("env", {}) for j in _pm_wf["jobs"].values() for st in j["steps"]
+           if "operator_entry_live.py" in str(st.get("run", ""))]
+check("🌙 PS22 `PRESESSION_SEND` موصولٌ في خطوة تشغيل العامل بقيمة `PM` "
+      "(البريماركتُ وحدَه بأمر المالك) — وبلاه كان الشحنُ كلُّه بلا أثر",
+      len(_pm_env) == 1 and str(_pm_env[0].get("PRESESSION_SEND", "")).strip() == "PM",
+      f"خطوات={len(_pm_env)} قيمة={[e.get('PRESESSION_SEND') for e in _pm_env]}")
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")

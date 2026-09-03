@@ -12,12 +12,16 @@
 **للمرشَّحين وحدَهم** ③ والميزاتُ من `presession_feats` — **المصدرِ الواحد الذي
 يقيسه `presession_scan`** فلا يُقاس شيءٌ ويُرسَل غيرُه.
 
-🔴 **حدُّ صدقٍ يسبق أوّلَ رسالة: الحكمُ لم يصدر بعد.** العقدُ `presession_prereg.md`
-مدفوعٌ قبل أيّ رقم، والقياسُ التاريخيُّ (‏2023-2025) قيدُ التشغيل ⇒ **الافتراضُ
-`صامت`**: يُكتب السجلُّ الأماميُّ ولا تُرسَل رسالة، حتى يأمر المالك بالإرسال
-(‏`PRESESSION_SEND=1`) أو يصدر الحكمُ باستيفاء §⑥.
-🔴 **ومفتاحُ الترتيب مؤقّتٌ ومُعلَن** — `presession_feats.RANK_KEY` = خطُّ الأساس
-`B1` نفسُه (‏`usd_day`)، لا مفتاحٌ مُعايَرٌ ولا مخترَع؛ يُبدَّل بسطرٍ واحد بعد الحكم.
+🔴 **حدُّ صدقٍ يُقرأ مع كلّ رسالة: الحكمُ صدر و«فشلت» على النافذة الحاكمة.**
+`presession_result.md`: ‏`PM · 10د` رافعتُها **‏29.8×** و`R@10` **‏11.5%** وتعبر
+ثلاثةً من أربعة — **والساقطُ `P@10` المطلق** (دون 1%). ⇒ القائمةُ **قيد الإثبات
+الأماميّ** ولا تُقرأ توصيةَ دخول.
+🔴 **والإرسالُ لجلسةٍ بعينها بأمر المالك «شغّل البريماركت» (2026-09-03):**
+`PRESESSION_SEND` تقبل اسمَ الجلسة (`PM` · `AH` · `PM,AH`) أو `1`/`all` للجميع،
+والفارغُ **صامتٌ يكتب السجلَّ الأماميّ وحدَه**. المشحونُ اليوم **`PM`**.
+🔴 **ومفتاحُ الترتيب لكلّ جلسةٍ مفتاحُه** (`presession_feats.rank_key`): البريماركتُ
+`post_hi_ret` **مختارًا من سنتَي المعايرة وحدهما**، والافترُ يبقى على خطّ الأساس
+`usd_day` لأن `post_*` معدومةٌ بالتعريف في قرار 15:50.
 
 🔒 **إشعارٌ/عرضٌ فقط:** خارج الفرز والجذور · لا يكتب قائمةً ولا يمسّ حالةَ البوت
 (الدِدوبُ نطاقٌ داخل ددوب «هنا الدخول» القائم) · **فاشلٌ-آمنٌ مطلق**: بلا مفتاحِ
@@ -60,6 +64,23 @@ def slot_now(mod_ny: int) -> str | None:
 
 def stamp_key(day_iso: str, slot: str) -> str:
     return f"{STAMP_PREFIX}{day_iso}:{slot}"
+
+
+def send_enabled(slot: str, env_val: str | None) -> bool:
+    """هل تُرسَل قائمةُ **هذي الجلسة**؟ (أمرُ المالك «شغّل البريماركت» 2026-09-03)
+
+    `PRESESSION_SEND` تقبل: أسماءَ جلساتٍ (`PM` · `AH` · `PM,AH`) — أو `1`/`true`/
+    `all`/`yes` **للجميع** (توافقٌ خلفيّ مع الشكل القديم). **والفارغُ صامت**:
+    يُكتَب السجلُّ الأماميّ ولا تُرسَل رسالة.
+    🔒 **دالّةٌ نقيّةٌ واحدة** — فالبوّابةُ تُختبَر بالورقة، ولا تُكتَب مقارنةُ
+    البيئة في نقطة النداء فتتفرّق قراءتان (درسُ «مقياسٌ واحدٌ لا اثنان»)."""
+    v = str(env_val or "").strip().upper()
+    if not v:
+        return False
+    parts = {p for p in v.replace(",", " ").replace(";", " ").split() if p}
+    if parts & {"1", "TRUE", "ALL", "YES"}:
+        return True
+    return str(slot or "").strip().upper() in parts
 
 
 def prefilter(grouped: list, lo: float, hi: float, cap: int = PREFILTER_CAP,
@@ -222,9 +243,16 @@ def build_presession_alert(rows: list, slot: str, day_iso: str, cov: int,
         if r.get("n5"):
             line.append(f"‏{int(r['n5'])} دقيقةَ رفعة")
         out.append(" · ".join(line))
-    out += ["", "‏⚠️ <b>قيد الإثبات الأماميّ</b> — الترتيبُ بخطّ الأساس "
-            f"(<code>{PF.RANK_KEY}</code>) ولم يصدر حكمُ <code>T-PRESESSION</code> بعد؛ "
-            "لا تُقرأ توصيةَ دخول.",
+    # 🔴 **حدُّ الصدق يتبع مفتاحَ الجلسة لا رقمًا مغروسًا**: البريماركتُ مفتاحُه
+    #    مختارٌ من سنتَي المعايرة وأرقامُه خارجَ العيّنة تُقال كما هي · والافترُ
+    #    على خطّ الأساس. **وفي الحالتين: الحكمُ «فشلت» على النافذة الحاكمة.**
+    _rk = PF.rank_key(slot)
+    why = ("مختارٌ من سنتَي المعايرة (2023-2024) · وأصاب في 2025 خارج العيّنة "
+           "‏26 اسمًا من 2,500 (‏1.04%) ومنها 26 من 87 منفجرًا"
+           if _rk != PF.RANK_KEY else "خطُّ الأساس نفسُه")
+    out += ["", f"‏⚠️ <b>قيد الإثبات الأماميّ</b> — الترتيبُ بـ<code>{_rk}</code> "
+            f"({why}). <b>وحكمُ <code>T-PRESESSION</code> على هذي النافذة: فشلت</b> "
+            "بمعيارٍ مطلقٍ واحد. لا تُقرأ توصيةَ دخول.",
             f"‏🗓️ قرارُ {day_iso} · النافذةُ المقيسة: أوّلُ {PF.WINDOWS[0]} دقائق من الجلسة."]
     return "\n".join(out)
 
@@ -327,7 +355,7 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
             rows.append(r)
     if cut_off:
         _log(f"⚠️ ميزانيةُ {budget_sec:g}ث قصّت {cut_off} مرشَّحًا — يُعلَن ولا يُصمت.")
-    top = PF.order_rows(rows, PF.RANK_KEY, PF.TOPK, PF.RANK_ASC)
+    top = PF.order_rows(rows, PF.rank_key(slot), PF.TOPK, PF.RANK_ASC)
     msg = build_presession_alert(top, slot, day_iso, cov, len(cands))
     return top, msg, {"scanned": len(cands), "cov": cov, "rows": len(rows),
                       "src_day": src_day, "cut_off": cut_off}
@@ -341,7 +369,8 @@ def append_ledger(rows: list, slot: str, day_iso: str, path: str = LEDGER_FILE,
             for i, r in enumerate(rows, 1):
                 fh.write(json.dumps({PF.ROW_DAY: day_iso, PF.ROW_SESS: slot,
                                      "rank": i,
-                                     "sent": bool(sent), "key": PF.RANK_KEY,
+                                     "sent": bool(sent),
+                                     "key": PF.rank_key(slot),
                                      "ts": int(time.time()),
                                      **{k: v for k, v in r.items()
                                         if k != PF.ROW_SESS}},
