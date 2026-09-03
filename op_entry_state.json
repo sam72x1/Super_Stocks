@@ -99,7 +99,7 @@
  },
  "LIQ:MIMI": {
   "anchor_ms": 1788436800000,
-  "last_ms": 1788467400000,
+  "last_ms": 1788467460000,
   "sent": [
    "M1"
   ],
@@ -107,7 +107,7 @@
   "vol_x": 28.7,
   "peak_usd": 926936,
   "last_eval_ms": 1788436860000,
-  "pulse_ms": 1788467400000,
+  "pulse_ms": 1788467460000,
   "anchor_price": 0.8488,
   "anchor_open": 0.7731,
   "anchor_low": 0.7731,
@@ -277,18 +277,28 @@
  },
  "LIQ:SMTK": {
   "anchor_ms": 1788467220000,
-  "last_ms": 1788467400000,
+  "last_ms": 1788467460000,
   "sent": [
-   "M1"
+   "M1",
+   "M5"
   ],
   "updates": 0,
   "vol_x": 77.3,
   "peak_usd": 96008,
   "last_eval_ms": 1788467280000,
-  "pulse_ms": 1788467400000,
+  "pulse_ms": 1788467460000,
   "anchor_price": 2.97,
   "anchor_open": 2.52,
   "anchor_low": 2.52,
+  "k2": {
+   "c3": "نقضت",
+   "c4": "خضراء 0-1",
+   "v2": "المرساة دون 30% (سيولة تتوالى)",
+   "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)",
+   "j1": false,
+   "j1_top": false
+  },
+  "e5": 2.65,
   "date": "2026-09-03"
  },
  "LIQ:VCIG": {
@@ -658,7 +668,7 @@
  },
  "LIQ:TWG": {
   "anchor_ms": 1788450000000,
-  "last_ms": 1788467400000,
+  "last_ms": 1788467460000,
   "sent": [
    "M1",
    "M5"
@@ -667,7 +677,7 @@
   "vol_x": 8.4,
   "peak_usd": 70827,
   "last_eval_ms": 1788450120000,
-  "pulse_ms": 1788467400000,
+  "pulse_ms": 1788467460000,
   "anchor_price": 0.5405,
   "anchor_open": 0.5039,
   "anchor_low": 0.5039,
@@ -1631,7 +1641,7 @@
   "date": "2026-09-03"
  },
  "LIQ:RGTI": {
-  "last_eval_ms": 1788467280000,
+  "last_eval_ms": 1788467460000,
   "date": "2026-09-03"
  },
  "LIQ:EHTH": {
@@ -1672,7 +1682,7 @@
   "date": "2026-09-03"
  },
  "LIQ:BLNK": {
-  "last_eval_ms": 1788467280000,
+  "last_eval_ms": 1788467460000,
   "date": "2026-09-03"
  },
  "LIQ:SHMD": {
@@ -1730,7 +1740,7 @@
   "updates": 0,
   "vol_x": 16.1,
   "peak_usd": 82844,
-  "last_eval_ms": 1788465600000,
+  "last_eval_ms": 1788465480000,
   "pulse_ms": 1788467400000,
   "anchor_price": 2.27,
   "anchor_open": 2.15,
@@ -2546,7 +2556,7 @@
   "date": "2026-09-03"
  },
  "LIQ:RZLV": {
-  "last_eval_ms": 1788467400000,
+  "last_eval_ms": 1788467460000,
   "date": "2026-09-03"
  },
  "LIQ:RPID": {
