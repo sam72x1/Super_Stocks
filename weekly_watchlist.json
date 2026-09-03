@@ -1503,7 +1503,8 @@
    "last_price": 2.6,
    "live_alert": {
     "buyzone": "2026-09-02",
-    "breakout": "2026-09-02"
+    "breakout": "2026-09-02",
+    "premarket": "2026-09-03"
    },
    "borrow_hist": [
     [
@@ -3032,7 +3033,8 @@
    "max_gain_pct": 0.0,
    "last_price": 4.8,
    "live_alert": {
-    "breakout": "2026-09-02"
+    "breakout": "2026-09-02",
+    "premarket": "2026-09-03"
    },
    "borrow_hist": [
     [
@@ -11958,7 +11960,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.4
+   "last_price": 2.4,
+   "live_alert": {}
   },
   {
    "symbol": "ELAB",
@@ -14156,7 +14159,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.77
+   "last_price": 4.77,
+   "live_alert": {}
   },
   {
    "symbol": "KITT",
