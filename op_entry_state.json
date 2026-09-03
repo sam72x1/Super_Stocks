@@ -1711,7 +1711,7 @@
   "date": "2026-09-03"
  },
  "LIQ:NTCL": {
-  "last_eval_ms": 1788459840000,
+  "last_eval_ms": 1788461940000,
   "date": "2026-09-03"
  },
  "LIQ:LVLU": {
@@ -1735,7 +1735,7 @@
   "updates": 0,
   "vol_x": 4.4,
   "peak_usd": 110570,
-  "last_eval_ms": 1788462300000,
+  "last_eval_ms": 1788462240000,
   "pulse_ms": 1788462360000,
   "anchor_price": 1.72,
   "anchor_open": 1.53,
@@ -1948,7 +1948,6 @@
   "date": "2026-09-02"
  },
  "LIQ:INTJ": {
-  "last_eval_ms": 1788376740000,
   "date": "2026-09-03"
  },
  "LIQ:CMND": {
@@ -2241,9 +2240,9 @@
    "M5",
    "M30"
   ],
-  "updates": 1,
+  "updates": 0,
   "vol_x": 13.5,
-  "peak_usd": 85053,
+  "peak_usd": 54780,
   "last_eval_ms": 1788456960000,
   "pulse_ms": 1788459900000,
   "anchor_price": 8.1,
