@@ -38129,6 +38129,35 @@ check("🌙 PS14 مصدرٌ واحدٌ للميزات: `presession_feats` يعر
           open("presession_feats.py", encoding="utf-8").read())),
       "")
 
+# PS15 — 🔴 **عقدُ الجالب المحقون مُوحَّدٌ لا مضمر.** كشفه تشغيلٌ من طرفٍ إلى طرف
+# (لا القراءة): جالبٌ يُرجع صفوفَ Polygon الخام أو سباعيًّا بلا `mod` كان يُسقط
+# `run_presession` بـ`IndexError` داخل `split_bars`. الإنتاجُ لم يكن مصابًا،
+# والقفلُ يُثبت **ثلاثة أشياء**: الأشكالُ الثلاثة تُقرأ · الثمانيُّ **بت-بت** ·
+# والتالفُ يُسقَط بلا انهيار. **وأنّ `run_presession` ينادي المُوحِّد فعلًا** (AST).
+_pr_b8 = (1_700_000_000_000, 1.0, 1.2, 0.9, 1.1, 500.0, 5.0, 600)
+_pr_dict = {"t": _pr_b8[0], "o": 1.0, "h": 1.2, "l": 0.9, "c": 1.1, "v": 500, "n": 5}
+_pr_b7 = _pr_b8[:7]
+try:
+    _pr_n8 = _PR.as_bars8([_pr_b8])
+    _pr_nd = _PR.as_bars8([_pr_dict])
+    _pr_n7 = _PR.as_bars8([_pr_b7])
+    _pr_bad = _PR.as_bars8([None, 5, {"t": "x"}, (1, 2)])
+    _pr_ident = _pr_n8 == [_pr_b8]
+except Exception as _e:                                              # noqa: BLE001
+    _pr_n8 = _pr_nd = _pr_n7 = _pr_bad = []
+    _pr_ident = False
+_pr_call = [n for n in _ps_ast.walk(_ps_ast.parse(_pr_src))
+            if isinstance(n, _ps_ast.FunctionDef) and n.name == "run_presession"]
+_pr_uses = bool(_pr_call) and any(
+    getattr(c.func, "id", None) == "as_bars8"
+    for c in _ps_ast.walk(_pr_call[0]) if isinstance(c, _ps_ast.Call))
+check("🌙 PS15 عقدُ الجالب مُوحَّد: الثمانيُّ بت-بت · القاموسُ والسباعيُّ يُقرآن · "
+      "التالفُ يُسقَط بلا انهيار · و`run_presession` ينادي المُوحِّد (AST)",
+      _pr_ident and len(_pr_nd) == 1 and len(_pr_n7) == 1 and len(_pr_n7[0]) == 8
+      and _pr_bad == [] and _pr_uses,
+      f"ثمانيّ={_pr_ident} قاموس={len(_pr_nd)} سباعيّ={len(_pr_n7)} "
+      f"تالف={len(_pr_bad)} موصول={_pr_uses}")
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

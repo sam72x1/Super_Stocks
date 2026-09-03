@@ -116,6 +116,33 @@ def to_bars8(res: list) -> list:
     return out
 
 
+def as_bars8(res: list) -> list:
+    """🔒 **مُوحِّدُ عقدِ الجالب.** `run_presession` يقبل جالبًا محقونًا، وعقدُ
+    الثمانيّ `(ms,o,h,l,c,v,n,mod)` كان **مضمرًا**: جالبٌ يُرجع صفوفَ Polygon
+    الخام (قواميس) أو سباعيًّا بلا `mod` كان **ينهار** بـ`IndexError` داخل
+    `split_bars` — وهو صنفُ «الشكل المتخيَّل» بعينه، كشفه تشغيلٌ من طرفٍ إلى طرف
+    لا القراءة. الإنتاجُ لم يكن مصابًا (`polygon_minutes` تُوحّد بنفسها) ⇒
+    **توسيعٌ لا تغييرُ سلوك**: الثمانيُّ يمرّ **كما هو بت-بت**.
+    """
+    out = []
+    for b in (res or []):
+        if isinstance(b, dict):
+            out.extend(to_bars8([b]))
+            continue
+        try:
+            n = len(b)
+        except TypeError:
+            continue
+        if n >= 8:
+            out.append(b)
+        elif n == 7:
+            day, mod = ny_mod(b[0])
+            if day is not None:
+                out.append(tuple(b) + (mod,))
+    out.sort(key=lambda x: x[0])
+    return out
+
+
 def split_bars(bars8: list, day_iso: str) -> tuple:
     """(بريماركت، نظاميّ، افتر) ليومٍ بعينه — بدقيقة نيويورك لا بالساعة UTC."""
     pre = [b for b in bars8 if PF.PRE_OPEN <= b[7] < REG_OPEN]
@@ -284,7 +311,7 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
         if budget_sec and (_now() - _t0) >= float(budget_sec):
             cut_off = len(cands) - cands.index(c)
             break
-        bars = fm(c["sym"], frm, now_ms)
+        bars = as_bars8(fm(c["sym"], frm, now_ms))
         if not bars:
             continue
         bars = [b for b in bars if ny_mod(b[0])[0] == src_day]
