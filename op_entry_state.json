@@ -2223,7 +2223,7 @@
  "QNME": "2026-09-02",
  "LIQ:PTLE": {
   "anchor_ms": 1788456900000,
-  "last_ms": 1788456900000,
+  "last_ms": 1788456960000,
   "sent": [
    "M1"
   ],
@@ -2231,7 +2231,7 @@
   "vol_x": 13.5,
   "peak_usd": 54780,
   "last_eval_ms": 1788456960000,
-  "pulse_ms": 1788456900000,
+  "pulse_ms": 1788456960000,
   "anchor_price": 8.1,
   "anchor_open": 7.45,
   "anchor_low": 7.45,
