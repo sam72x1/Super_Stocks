@@ -21,6 +21,11 @@ on:
         description: "رموزٌ لتتبُّعها: هل دخلت القائمةَ؟ وهل انفجرت؟ (بفواصل)"
         required: false
         type: string
+      dev:
+        description: "‏1 = وضعُ التطوير (T-PRECAP + T-PREFLOOR2 · عقد presession_dev_prereg)"
+        required: false
+        default: ""
+        type: string
 
 jobs:
   report:
@@ -62,4 +67,6 @@ jobs:
           # 🔒 كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها السكربت — وإلّا كان المدخلُ ميّتًا
           #    (بصمةُ `BT_CANDLE`). `PRESESSION_SYMS` يقرؤها `main()`.
           PRESESSION_SYMS: ${{ inputs.syms }}
+          # 🔬 وضعُ التطوير — مطفأٌ افتراضًا ⇒ **مُخرَجُ الحكم المنشور بت-بت**.
+          PRESESSION_DEV: ${{ inputs.dev }}
         run: python presession_report.py

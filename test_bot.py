@@ -39167,6 +39167,11 @@ try:
             and "لا حكم" in _pd_m1 and "دقّةُ المُسلَّم" not in _pd_m1
             and "دقّةُ المُسلَّم" in _pd_m2 and "لا حكم" not in _pd_m2
             and "آخرون" in _pd_m1                  # الباقي يُعلَن بعدده
+            # 🐞 **شُدِّد بعد نجاة طفرة (‏2026-09-04):** كان يفحص «وصفٌ خارج
+            #    العقد» وحدَها، وهي في **الشقّ الثاني** من سطرٍ مبنيٍّ من
+            #    قطعتين ⇒ طفرةٌ محت **تعريفَ الوسم** (‏+80% وأرضيةَ التنفيذ)
+            #    ونجت. ⇒ يُشترَط **الشقّان معًا**: التعريفُ والتحفّظ.
+            and "+80%" in _pd_m1 and "$20,000" in _pd_m1
             and "وصفٌ خارج العقد" in _pd_m1        # حدُّ الصدق مطبوع
             and "الشاهدُ المضادّ" in _pd_m1        # المقصوصُ يُعرَض
             # الوسومُ المسموحة تُنزَع أوّلًا (قائمةٌ بيضاء — نمطُ `PRD4`)، ثم
@@ -39208,6 +39213,95 @@ except Exception as _e:                                          # noqa: BLE001
 check("🔌 PD7 حصادُ ما قبل الجلسة: كرونان (‏2-6) · كلُّ مدخلٍ موصولٌ ببيئةٍ "
       "يقرؤها السكربت · `contents: write` · وأسرارُ Polygon وتلغرام موصولة",
       _pd7, f"cron={_pd_cr} inputs={_pd_ins}")
+
+# ── PD4 — 🔬 **بوّابةُ `V0` تُوقِف فعلًا** ومِرساتُها **أرقامٌ منشورةٌ سلفًا**
+#   (‏`topk_result.md §④`: 435 اسمًا · 47 إصابة). ونحويًّا: وضعُ التطوير خلف
+#   علمٍ مطفأٍ افتراضًا ⇒ **مُخرَجُ التقرير المنشور بت-بت** بلا العلم.
+try:
+    import presession_report as _rp
+    _rp_src = open("presession_report.py", encoding="utf-8").read()
+    _rp_t = _ps_ast.parse(_rp_src)
+    _rp_main = next(n for n in _ps_ast.walk(_rp_t)
+                    if isinstance(n, _ps_ast.FunctionDef) and n.name == "main")
+    # كلُّ كتلةِ التطوير داخل `if DEV_ON:` — لا سطرَ منها خارجها.
+    _rp_ifs = [n for n in _rp_main.body
+               if isinstance(n, _ps_ast.If)
+               and getattr(n.test, "id", None) == "DEV_ON"]
+    _rp_dev = _rp_ifs[0] if _rp_ifs else None
+    _rp_txt = _ps_ast.dump(_rp_dev) if _rp_dev is not None else ""
+    _pd4 = (_rp.DEV_ON is False                      # مطفأٌ افتراضًا
+            and (_rp.V0_TAKEN, _rp.V0_HITS) == (435, 47)
+            and _rp.PRECAP_KS == (60, 120, 240, 0)
+            and _rp.PRECAP_OK == 0.90
+            and _rp.PREFLOOR_USD == (0.0, 50000.0, 100000.0, 250000.0)
+            and _rp_dev is not None
+            and "V0_TAKEN" in _rp_txt and "precap_rows" in _rp_txt
+            and "prefloor_rows" in _rp_txt
+            # 🔒 الأذرعُ **لا تُنادى خارج** كتلة التطوير (‏لا تلوّث المنشور)
+            and _rp_src.count("precap_rows(") == 2      # التعريفُ ونداءٌ واحد
+            and _rp_src.count("prefloor_rows(") == 3)   # التعريفُ ونداءان
+except Exception as _e:                                          # noqa: BLE001
+    _pd4, _rp_txt = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬 PD4 وضعُ التطوير خلف `DEV_ON` المطفأ (المنشورُ بت-بت) · ومِرساةُ `V0` "
+      "أرقامٌ منشورةٌ سلفًا (‏435/47) · وثوابتُ العقد مثبَّتة",
+      _pd4, str(_rp_txt)[:60])
+
+# ── PD5 — 🔬 **الأذرعُ تتفرّق فعلًا** (وإلّا `no-op` يُقرأ حكمًا) · والمعيارُ
+#   الرباعيّ يُسقط ما يجب. سلوكيّ على بياناتٍ مصنوعة.
+try:
+    _pd_np = _rp.np
+    # بِركةٌ من قرارَين × 4 رموز: `usd_day` يفرّق البِركةَ الحيّة عن الكلّ.
+    _pd_sc = _pd_np.array([1.0, 0.9, 0.8, 0.7, 1.0, 0.9, 0.8, 0.7])
+    _pd_us = _pd_np.array([9e5, 8e5, 5e4, 4e4, 9e5, 8e5, 5e4, 4e4])
+    _pd_gid = _pd_np.array([0, 0, 0, 0, 1, 1, 1, 1])
+    _pd_sy = _pd_np.array([0, 1, 2, 3, 0, 1, 2, 3])
+    _pd_l2 = _rp.live_pool(_pd_us, _pd_gid, _pd_sy, 2)      # سقفُ 2 + أرضية
+    _pd_l0 = _rp.live_pool(_pd_us, _pd_gid, _pd_sy, 0)      # بلا سقف
+    # المعيارُ الرباعيّ: ذراعٌ بدقّةٍ مساوية **تسقط** بالبند ①
+    _pd_g0 = {"p": 0.10, "hits": 40, "lo": 8.0, "hi": 12.0, "arm": "G0"}
+    _pd_g1 = {"p": 0.20, "hits": 35, "lo": 16.0, "hi": 25.0, "arm": "G1"}
+    _pd_g2 = {"p": 0.105, "hits": 39, "lo": 9.0, "hi": 12.5, "arm": "G2"}
+    _pd_v = _rp.prefloor_verdict([_pd_g0, _pd_g1, _pd_g2],
+                                 [[True, True], [True, True]])
+    _pd5 = (list(_pd_l2) == [True, True, False, False] * 2
+            and list(_pd_l0) == [True, True, False, False] * 2
+            and int(_pd_l2.sum()) != 8            # البِركةُ تفرّق عن الكلّ
+            and len(_pd_v) == 2 and not _pd_v[0][1]      # G1 يستوفي
+            and _pd_v[1][1]                              # G2 يسقط
+            and any("①" in b for b in _pd_v[1][1]))
+except Exception as _e:                                          # noqa: BLE001
+    _pd5, _pd_v = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬 PD5 البِركةُ الحيّة تفرّق (سقفٌ ‏+ أرضيةُ دولار) · والمعيارُ الرباعيّ "
+      "يُمرّر المستوفيَ ويُسقط ما دقّتُه دون ثلاثِ نقاط",
+      _pd5, str(_pd_v)[:90])
+
+# ── PD8 — 🔌 **`presession_report.yml`: كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها
+#   السكربت** (بصمةُ `BT_CANDLE` الميّت). كان بلا قفلٍ إطلاقًا، ومدخلُ التطوير
+#   الجديد بلا وصلٍ يعني **وضعًا لا يُفعَّل أبدًا** وتشغيلةً خضراءَ بصفر عمل.
+try:
+    import yaml as _p8y
+    _p8 = _p8y.safe_load(open(".github/workflows/presession_report.yml",
+                              encoding="utf-8"))
+    _p8on = _p8.get("on") or _p8.get(True)
+    _p8in = list(((_p8on.get("workflow_dispatch") or {}).get("inputs") or {}))
+    _p8st = [st for j in _p8["jobs"].values() for st in j["steps"]]
+    _p8env = {}
+    for st in _p8st:
+        _p8env.update(st.get("env") or {})
+    _p8src = open("presession_report.py", encoding="utf-8").read()
+    _p8bad = [i for i in _p8in
+              if not any(f"inputs.{i}" in str(v) for v in _p8env.values())]
+    # ولا كرونَ عليه (أداةُ حكمٍ يدويّة) ولا كتابة.
+    _pd8 = (bool(_p8in) and not _p8bad
+            and "PRESESSION_DEV" in _p8env
+            and '"PRESESSION_DEV"' in _p8src
+            and not (_p8on.get("schedule"))
+            and (_p8.get("permissions") or {}).get("contents") == "read")
+except Exception as _e:                                          # noqa: BLE001
+    _pd8, _p8bad, _p8in = False, f"⛔ {type(_e).__name__}: {_e}", ""
+check("🔌 PD8 `presession_report.yml`: كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها السكربت "
+      "(ومنها `PRESESSION_DEV`) · بلا كرون · وقراءةٌ فقط",
+      _pd8, f"inputs={_p8in} غيرُ موصول={_p8bad}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

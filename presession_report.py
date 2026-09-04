@@ -441,6 +441,94 @@ def year_tag(yr: str) -> str:
     return "وصفيّ خارج العقد — لا اختيارَ ولا حكم"
 
 
+# ── 🔬 وضعُ التطوير `PRESESSION_DEV=1` — `T-PRECAP` و`T-PREFLOOR2` ───────────
+#   العقد: `presession_dev_prereg.md` (مدفوعٌ **قبل أيّ رقم**). كلُّ ثابتٍ هنا
+#   مثبَّتٌ في العقد ولا يُحرَّك بعد الأرقام.
+DEV_ON = (os.environ.get("PRESESSION_DEV") or "").strip() == "1"
+PRECAP_KS = (60, 120, 240, 0)      # §② — `0` = بلا سقف · و60 هو الحيُّ اليوم
+PRECAP_MIN_USD = 100_000.0         # أرضيةُ البِركة الحيّة (`radar.MIN_DAY_USD`)
+PRECAP_OK = 0.90                   # §②: النسبةُ 0.90 فأكثر ⇒ السقفُ بريء
+PREFLOOR_USD = (0.0, 50_000.0, 100_000.0, 250_000.0)   # §③ — G0..G3
+PREFLOOR_P_GAIN = 3.0              # §③-① نقاطُ دقّةٍ فأكثر
+PREFLOOR_KEEP = 0.75               # §③-② الإصاباتُ لا تنقص فوق 25%
+# 🔒 مِرساةُ `V0` — **منشورةٌ في `topk_result.md §④` قبل هذي التجربة**: أرضيةُ
+#   `F1` على 2025 خارج العيّنة تأخذ 435 اسمًا وتصيب 47. تفرّقُها ⇒ **عطبُ أداةٍ
+#   لا نتيجة** (خروج 3) — فلا يُقرأ رقمُ ذراعٍ على أداةٍ لا تُعيد المنشور.
+V0_TAKEN, V0_HITS = 435, 47
+
+
+def live_pool(sc_usd, gid, sym, cap, min_usd=PRECAP_MIN_USD):
+    """قناعُ **البِركة الحيّة**: رتبةُ الدولار داخل السقف ‏**و** أرضيةُ الدولار.
+
+    ⚠️ **تقريبٌ مُعلَنٌ لا إعادةُ إنتاج** (‏§②): الرادارُ الحيُّ يرتّب بـ`c×v`
+    من الشمعة اليوميّة المجمَّعة (وهي **تشمل الجلسة الممتدّة**)، وهذي `usd_day`
+    النظاميّةُ حتى القطع ⇒ الترتيبُ متقاربٌ لا متطابق. والرقمُ يُقرأ مؤشّرًا
+    على حجم القصّ لا نسخةً من الحيّ.
+    """
+    ok = sc_usd >= float(min_usd)
+    if cap:
+        ok = ok & (group_ranks(sc_usd, gid, sym, asc=False) < int(cap))
+    return ok
+
+
+def precap_rows(d, mask, w, ki, asc, thr, i_usd):
+    """`T-PRECAP` — إصاباتُ `F1` على كلّ الصفوف (`Q0`) مقابل البِركة الحيّة."""
+    sc = np.nan_to_num(d["X"][mask][:, ki], nan=(np.inf if asc else -np.inf))
+    su = np.nan_to_num(d["X"][mask][:, i_usd], nan=0.0)
+    gid, sym, y = d["gid"][mask], d["sym"][mask], d["y"][w][mask]
+    _, inv = np.unique(gid, return_inverse=True)
+    n_dec = int(inv.max()) + 1 if inv.size else 0
+    base = (float(y.sum()) / y.size) if y.size else 0.0
+    q0 = floor_sel(sc, thr, asc)
+    out = {"n_dec": n_dec, "Q0": cut_stats(q0, inv, y, n_dec, base), "arms": []}
+    out["Q0"]["arm"] = "Q0"
+    for cap in PRECAP_KS:
+        st = cut_stats(q0 & live_pool(su, gid, sym, cap), inv, y, n_dec, base)
+        st["arm"] = f"Q1@{cap or '∞'}"
+        st["cap"] = cap
+        h0 = out["Q0"]["hits"]
+        st["ratio"] = (st["hits"] / h0) if h0 else 0.0
+        out["arms"].append(st)
+    return out
+
+
+def prefloor_rows(d, mask, w, ki, asc, thr, i_post):
+    """`T-PREFLOOR2` — `F1` وحدها (`G0`) مقابل `F1` ‏∧ أرضيةِ دولارِ الافتر."""
+    sc = np.nan_to_num(d["X"][mask][:, ki], nan=(np.inf if asc else -np.inf))
+    pu = np.nan_to_num(d["X"][mask][:, i_post], nan=0.0)
+    gid, y = d["gid"][mask], d["y"][w][mask]
+    _, inv = np.unique(gid, return_inverse=True)
+    n_dec = int(inv.max()) + 1 if inv.size else 0
+    base = (float(y.sum()) / y.size) if y.size else 0.0
+    g0 = floor_sel(sc, thr, asc)
+    out = []
+    for i, u in enumerate(PREFLOOR_USD):
+        st = cut_stats(g0 & (pu >= u) if u else g0, inv, y, n_dec, base)
+        st["arm"] = f"G{i}"
+        st["usd"] = u
+        out.append(st)
+    return out
+
+
+def prefloor_verdict(ev, tr_dirs):
+    """حكمُ `T-PREFLOOR2` بالمعيار الرباعيّ المسجَّل — قبل أيّ رقم."""
+    g0 = ev[0]
+    rows = []
+    for st, dirs in zip(ev[1:], tr_dirs):
+        bad = []
+        if (st["p"] - g0["p"]) * 100.0 < PREFLOOR_P_GAIN:
+            bad.append(f"① دقّةٌ ‏{(st['p']-g0['p'])*100:+.2f} نقطة دون "
+                       f"{PREFLOOR_P_GAIN:g}")
+        if st["hits"] < g0["hits"] * PREFLOOR_KEEP:
+            bad.append(f"② إصاباتٌ {st['hits']} من {g0['hits']} "
+                       f"(دون {PREFLOOR_KEEP*100:g}%)")
+        if not all(dirs):
+            bad.append("③ الاتّجاهُ ينقلب في سنةٍ من سنتَي المعايرة")
+        if not (st["lo"] > g0["hi"]):
+            bad.append("④ فاصلا Wilson متداخلان")
+        rows.append((st, bad))
+    return rows
+
 def main() -> int:
     paths = sorted(glob.glob("presession_rows_*.jsonl.gz")) + \
         sorted(glob.glob("presession_rows_*.jsonl"))
@@ -692,6 +780,112 @@ def main() -> int:
     log("")
     log("📌 **يُقرأ منحنى كلفةٍ لا حكمًا** — ولا تُرقّى ذراعٌ منه إلى قرارٍ إلّا "
         "بأمر المالك الصريح (سقفُ النجاح في `topk_prereg §⑤`).")
+
+    # ── 🔬 `PRESESSION_DEV=1` — `T-PRECAP` و`T-PREFLOOR2` (عقد `presession_dev_prereg`)
+    if DEV_ON:
+        log("")
+        log("=" * 78)
+        log("🔬 **وضعُ التطوير** — `T-PRECAP` و`T-PREFLOOR2` (العقد "
+            "`presession_dev_prereg.md` مدفوعٌ قبل أيّ رقم)")
+        log("=" * 78)
+        _slot, _dw = "PM", 0            # الجلسةُ الحاكمة والنافذةُ الحاكمة
+        _key = PF.rank_key(_slot)
+        if _key not in feats or "usd_day" not in feats or "post_usd" not in feats:
+            log("⛔ `V-DEV` ميزةٌ لازمةٌ غائبةٌ عن القائمة البيضاء — لا حكم.")
+            return 3
+        _ki = feats.index(_key)
+        _asc = _key in set(PF.FEATS_ASC)
+        _iu, _ip = feats.index("usd_day"), feats.index("post_usd")
+        _trm = np.isin(d["year"], list(TRAIN_YEARS)) & (d["slot"] == _slot)
+        _evm = (d["year"] == EVAL_YEAR) & (d["slot"] == _slot)
+        if not _trm.any() or not _evm.any():
+            log("⛔ `V-DEV` لا معايرةَ أو لا تقييم — لا حكم.")
+            return 3
+        _sctr = np.nan_to_num(d["X"][_trm][:, _ki],
+                              nan=(np.inf if _asc else -np.inf))
+        _thr = floor_value(_sctr, int(np.unique(d["gid"][_trm]).size), 1.0,
+                           asc=_asc)
+        log(f"🎚️ الأرضيةُ المُعايَرة على {'+'.join(TRAIN_YEARS)}: "
+            f"`{_key}` ‏{_thr:.6g} · والمشحونةُ حيًّا {PF.rank_floor(_slot)}")
+        # ── V0: إعادةُ إنتاج `F1` المنشورة بت-بت — **قبل أيّ رقمِ ذراع**
+        _pc = precap_rows(d, _evm, _dw, _ki, _asc, _thr, _iu)
+        _q0 = _pc["Q0"]
+        log(f"🔒 **V0** `F1` على {EVAL_YEAR}: مأخوذ {_q0['taken']} · إصابات "
+            f"{_q0['hits']} · المنشور {V0_TAKEN}/{V0_HITS}")
+        if (_q0["taken"], _q0["hits"]) != (V0_TAKEN, V0_HITS):
+            log("⛔ **V0 ساقطة** — الأداةُ لا تُعيد المنشورَ بت-بت ⇒ **عطبُ "
+                "أداةٍ لا نتيجة**، ولا يُقرأ رقمُ ذراعٍ واحد.")
+            return 3
+        # 🔎 وأثرُ **تدوير** الأرضية المشحونة — حقيقةٌ تُعلَن لا تُطوى.
+        _shp = PF.rank_floor(_slot)
+        if _shp is not None:
+            _scev = np.nan_to_num(d["X"][_evm][:, _ki],
+                                  nan=(np.inf if _asc else -np.inf))
+            _gid2, _y2 = d["gid"][_evm], d["y"][_dw][_evm]
+            _, _inv2 = np.unique(_gid2, return_inverse=True)
+            _nd2 = int(_inv2.max()) + 1 if _inv2.size else 0
+            _b2 = (float(_y2.sum()) / _y2.size) if _y2.size else 0.0
+            _sh = cut_stats(floor_sel(_scev, _shp, _asc), _inv2, _y2, _nd2, _b2)
+            log(f"   🔎 وبالأرضية **المشحونة** ({_shp}): مأخوذ {_sh['taken']} · "
+                f"إصابات {_sh['hits']} — "
+                + ("مطابقٌ للمُعايَر (التدويرُ لم يغيّر تسليمًا)."
+                   if (_sh["taken"], _sh["hits"]) == (_q0["taken"], _q0["hits"])
+                   else "**مختلفٌ عن المُعايَر ⇒ التدويرُ يغيّر التسليم فعلًا.**"))
+        # ── T-PRECAP
+        log("")
+        log("📦 **T-PRECAP** — هل سقفُ البِركة الحيّة يُسقط إصاباتٍ يراها القياس؟")
+        log("   ذراع      │ مأخوذ │ إصابات │   P    │ نسبةُ الإصابات إلى Q0")
+        log(f"   {'Q0':<10}│{_q0['taken']:6} │{_q0['hits']:7} │"
+            f"{_q0['p']*100:6.3f}%│ 1.000 (المرجع)")
+        _live = None
+        for st in _pc["arms"]:
+            log(f"   {st['arm']:<10}│{st['taken']:6} │{st['hits']:7} │"
+                f"{st['p']*100:6.3f}%│ {st['ratio']:.3f}")
+            if st["cap"] == 60:
+                _live = st
+        if _live is None or _live["taken"] == _q0["taken"]:
+            log("⛔ **V1 ساقطة** — البِركةُ الحيّة لا تفرّق عن `Q0` ⇒ `no-op` "
+                "لا نتيجة (لا يُفسَّر صفرُ فرقٍ حكمًا).")
+        else:
+            _ok = _live["ratio"] >= PRECAP_OK
+            log(f"   ⚖️ **الحكم**: النسبةُ {_live['ratio']:.3f} "
+                + (f"تبلغ {PRECAP_OK:.2f} ⇒ **السقفُ بريء** — يُغلَق المحور."
+                   if _ok else
+                   f"دون {PRECAP_OK:.2f} ⇒ **السقفُ يُكلّف** — يُعرَض منحنى "
+                   "الكلفة أعلاه على المالك، ولا يُرفَع رقمٌ بلا أمره."))
+        # ── T-PREFLOOR2
+        log("")
+        log("💧 **T-PREFLOOR2** — هل أرضيةُ دولارِ الافتر تُنقّي `F1`؟ "
+            "(‏`G1`-`G3` أرقامٌ `engineering` مثبَّتةٌ في العقد)")
+        _ev = prefloor_rows(d, _evm, _dw, _ki, _asc, _thr, _ip)
+        _dirs = []
+        for i in range(1, len(PREFLOOR_USD)):
+            _d2 = []
+            for yr in TRAIN_YEARS:
+                _m = (d["year"] == yr) & (d["slot"] == _slot)
+                if not _m.any():
+                    _d2.append(False)
+                    continue
+                _rr = prefloor_rows(d, _m, _dw, _ki, _asc, _thr, _ip)
+                _d2.append(_rr[i]["p"] > _rr[0]["p"])
+            _dirs.append(_d2)
+        log("   ذراع │ أرضيةُ الافتر │ مأخوذ │ إصابات │   P    │ Wilson95")
+        for st in _ev:
+            log(f"   {st['arm']:<5}│ ${st['usd']:>11,.0f} │{st['taken']:6} │"
+                f"{st['hits']:7} │{st['p']*100:6.3f}%│ "
+                f"[{st['lo']:5.2f},{st['hi']:6.2f}]")
+        if all(st["taken"] == _ev[0]["taken"] for st in _ev[1:]):
+            log("⛔ **V1 ساقطة** — أذرعُ الأرضية لا تتفرّق عن `G0` ⇒ `no-op`.")
+        else:
+            for st, bad in prefloor_verdict(_ev, _dirs):
+                log(f"   ⚖️ {st['arm']}: "
+                    + ("**يستوفي المعيار الرباعيّ**" if not bad
+                       else "**يسقط** — " + " · ".join(bad)))
+        log("")
+        log("📌 **حدودُ صدقٍ تُقرأ مع الأرقام:** البِركةُ الحيّة **تقريبٌ** لا "
+            "نسخة (‏`usd_day` النظاميّة مقابل `c×v` المجمَّعة) · وسنةُ تقييمٍ "
+            "واحدة · والوسمُ **لمسُ قمّةٍ** لا عائدٌ مقيس · **والحكمُ الرسميُّ "
+            "«فشلت» لا يتغيّر بأيٍّ من هذي الأذرع.**")
 
     log("")
     log("📌 ترتيبُ التراجع المقفول: تُقرأ نافذةُ 10 أوّلًا، ولا يُقرأ حكمُ نافذةٍ "
