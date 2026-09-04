@@ -100,9 +100,12 @@ def pre_anchor_report(bars, anchor, prev_close=None):
     pc = f" = {(hi_h / prev_close - 1) * 100:+.1f}% عن الأمس" if prev_close else ""
     print(f"   ‏{len(rng)} دقيقةً · أوّلُها {ny_clock(bars[rng[0]]['t'])} "
           f"وآخرُها {ny_clock(bars[rng[-1]]['t'])}")
+    tot = sum(float(bars[i]["c"]) * float(bars[i]["v"]) for i in rng)
     print(f"   📈 أعلى قمّةٍ قبل المِرساة: {hi_h:.4f} عند "
           f"{ny_clock(bars[i_hi]['t'])}{pc} · أعلى إغلاق {hi_c:.4f} · "
           f"أدنى إغلاق {lo_c:.4f}")
+    print(f"   💰 سيولةُ ما قبل المِرساة: ${tot:,.0f} في {len(rng)} دقيقة "
+          f"(وسيطُ الدقيقة ${tot / max(1, len(rng)):,.0f})")
     passed, reasons = [], {}
     for i in rng:
         t = gate_trace(bars, i)
