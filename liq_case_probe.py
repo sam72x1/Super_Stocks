@@ -10,12 +10,22 @@
 التشغيل: `LIQ_CASE=XOS,AUUD python3 liq_case_probe.py`
 """
 import os
+import re
 import sys
 
 os.environ.setdefault("SCREENER_MODE", "PROBE")
 import Super_stock as bot                                          # noqa: E402
 
 WINDOW_MIN = 480
+# ‏📉 إغلاقُ الأمس اختياريٌّ من البيئة (‏LIQ_CASE_PREV="ANPA:3.80")
+_PREV_CLOSE = {}
+for _kv in (os.environ.get("LIQ_CASE_PREV") or "").split(","):
+    if ":" in _kv:
+        _s, _v = _kv.split(":", 1)
+        try:
+            _PREV_CLOSE[_s.strip().upper()] = float(_v)
+        except ValueError:
+            pass
 
 
 def gate_trace(bars, i):
@@ -57,6 +67,70 @@ def why(t):
     return "—"
 
 
+def ny_clock(ms):
+    """⏰ ساعةُ نيويورك لطابعٍ بالملّي — فاشلةٌ-آمنة (‏«??:??» عند التعذّر)."""
+    try:
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        return datetime.fromtimestamp(int(ms) / 1000.0,
+                                      ZoneInfo("America/New_York")).strftime("%H:%M")
+    except Exception:                                            # noqa: BLE001
+        return "??:??"
+
+
+def pre_anchor_report(bars, anchor, prev_close=None):
+    """🕰️ **ما قبل المِرساة** — أينَ ذهب السعرُ ولماذا صمتت البوّابةُ دقيقةً دقيقة.
+
+    الأصلُ كان يبدأ التفكيكَ **من المِرساة** فيَعمى عن السؤال الذي يسأله المالكُ
+    عادةً: «السهمُ صعد قبل الإشعار ولم يصلني شيء». هذي الكتلةُ **إضافةٌ محضة**
+    (لا تمسّ سطرًا قائمًا): تطبع القمّةَ قبل المِرساة ووقتَها · وكم دقيقةً
+    **عبرت كلَّ البوّابات** قبلها (يجب أن تكون **صفرًا**، وإلّا فالحيُّ فوّت
+    مِرساةً أبكر) · وجدولَ الأسباب المسمّاة.
+    """
+    end = (anchor if anchor is not None else len(bars) - 1)
+    rng = list(range(3, max(3, end)))
+    print("\n🕰️ ما قبل المِرساة — سببُ الصمت دقيقةً دقيقة")
+    if not rng:
+        print("   (لا دقائقَ قبلها)")
+        return
+    hi_c = max(float(bars[i]["c"]) for i in rng)
+    hi_h = max(float(bars[i].get("h") or bars[i]["c"]) for i in rng)
+    i_hi = max(rng, key=lambda i: float(bars[i].get("h") or bars[i]["c"]))
+    lo_c = min(float(bars[i]["c"]) for i in rng)
+    pc = f" = {(hi_h / prev_close - 1) * 100:+.1f}% عن الأمس" if prev_close else ""
+    print(f"   ‏{len(rng)} دقيقةً · أوّلُها {ny_clock(bars[rng[0]]['t'])} "
+          f"وآخرُها {ny_clock(bars[rng[-1]]['t'])}")
+    print(f"   📈 أعلى قمّةٍ قبل المِرساة: {hi_h:.4f} عند "
+          f"{ny_clock(bars[i_hi]['t'])}{pc} · أعلى إغلاق {hi_c:.4f} · "
+          f"أدنى إغلاق {lo_c:.4f}")
+    passed, reasons = [], {}
+    for i in rng:
+        t = gate_trace(bars, i)
+        if all(t[k] for k in ("g_vol", "g_floor", "g_green", "g_rise", "g_cpos")):
+            passed.append((i, t))
+        else:
+            r = why(t).split("(")[0].split("$")[0].strip()
+            r = re.sub(r"[-+]?\d[\d,.]*", "N", r)
+            reasons[r] = reasons.get(r, 0) + 1
+    print(f"   🚦 عبرت كلَّ البوّابات قبل المِرساة: **{len(passed)}** دقيقة "
+          + ("⇒ ✅ متّسقٌ مع الحيّ (لا مِرساةَ أبكر ممكنة)"
+             if not passed else "⇒ 🔴 الحيُّ فوّت مِرساةً أبكر!"))
+    for i, t in passed[:8]:
+        print(f"      [{ny_clock(bars[i]['t'])}] سعر {t['price']:.4f} · "
+              f"${t['usd']:,.0f} · {t['vx']:.1f}× · رفعة {t['rise']:.1f}%")
+    print("   🔴 أسبابُ الصمت (مُكمِّلةٌ للعابرات — المجموع = عددُ الدقائق):")
+    for r, n in sorted(reasons.items(), key=lambda kv: -kv[1]):
+        print(f"      {n:>4} × {r}")
+    # 🥇 أعنفُ عشرِ دقائقَ رفعةً قبل المِرساة — لِمَ لم تُطلق أيٌّ منها؟
+    top = sorted(rng, key=lambda i: -gate_trace(bars, i)["rise"])[:10]
+    print("   🥇 أعنفُ الدقائق رفعةً قبل المِرساة (ولماذا صمتت):")
+    print("      وقت | سعر | سيولة | قفزة | رفعة | السبب")
+    for i in sorted(top):
+        t = gate_trace(bars, i)
+        print(f"      {ny_clock(bars[i]['t'])} | {t['price']:.4f} | "
+              f"${t['usd']:>9,.0f} | {t['vx']:>5.1f}× | {t['rise']:>5.1f}% | {why(t)}")
+
+
 def run(sym):
     bars = bot.polygon_minute_bars(sym, minutes=WINDOW_MIN)
     if not bars or len(bars) < 5:
@@ -79,6 +153,7 @@ def run(sym):
         print("   (لا شيء)")
 
     anchor = evs[0][0] if evs else None
+    pre_anchor_report(bars, anchor, prev_close=_PREV_CLOSE.get(sym))
     if anchor is None:
         return
     a = gate_trace(bars, anchor)
