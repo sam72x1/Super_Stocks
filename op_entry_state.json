@@ -685,7 +685,7 @@
    "M5",
    "M30"
   ],
-  "updates": 1,
+  "updates": 2,
   "vol_x": 5.9,
   "peak_usd": 555873,
   "last_eval_ms": 1788529020000,
@@ -1448,7 +1448,7 @@
   "date": "2026-09-04"
  },
  "LIQ:AFJK": {
-  "last_eval_ms": 1788543060000,
+  "last_eval_ms": 1788543120000,
   "date": "2026-09-04"
  },
  "LIQ:BMGL": {
@@ -2761,7 +2761,7 @@
   "date": "2026-09-04"
  },
  "LIQ:SILO": {
-  "last_eval_ms": 1788539580000,
+  "last_eval_ms": 1788543300000,
   "date": "2026-09-04"
  },
  "LIQ:ACON": {
