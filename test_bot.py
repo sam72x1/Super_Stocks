@@ -40927,6 +40927,25 @@ check("🔒 EXM13ج·حرزُ `IndexError` حاضرٌ ومُعلَنٌ خامد�
       f"إسناداتُ stop={len(_xm_stop_assigns)} · خامد={_xm_dormant} · "
       f"الالتقاط={sorted(x for x in _xm_handlers if x)}")
 
+# ── EXM14 · **تمثيلُ العائد المخزَّن مُجمَّدٌ على مُنتِج الرقم المنشور**
+#    (سابقةُ `CAP15`). `tranche_arms` هي التي أنتجت −0.2602 و`t1move_arms`
+#    أعادتها بت-بت — وكلتاهما `round(rt, 1)`. وبستّ خاناتٍ صارت `V1`
+#    **مستحيلةَ الاستيفاء بالبناء** (‏−0.2620 · تشغيلة 33923455849).
+#    🔴 والدقّةُ تُقرأ **من الأداتين المرجعيّتين** لا مغروسةً هنا، فلو تحرّكتا
+#    يومًا سقط القفلُ بدل أن يمضي على تعريفٍ متعفّن.
+_xm_retnd = lambda _src, _f: [c.args[1].value
+    for c in _ast0.walk(_ast0.parse(_cut(_src, _f).strip()))
+    if isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == "round"
+    and len(c.args) == 2 and isinstance(c.args[0], _ast0.Name)
+    and c.args[0].id == "rt" and isinstance(c.args[1], _ast0.Constant)]
+_xm_trn = _io0.open("tranche_arms.py", encoding="utf-8").read()
+_xm_nd_a = _xm_retnd(_xm_asrc, "arms_for")
+_xm_nd_t = _xm_retnd(_xm_t1m, "arms_for")
+_xm_nd_r = _xm_retnd(_xm_trn, "arms_for")
+check("🔒 EXM14·تدويرُ العائد = تدويرُ مُنتِج المنشور (`tranche`/`t1move`) بت-بت",
+      _xm_nd_r == [1] and _xm_nd_t == _xm_nd_r and _xm_nd_a == _xm_nd_r,
+      f"exitmgmt={_xm_nd_a} · t1move={_xm_nd_t} · tranche={_xm_nd_r}")
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

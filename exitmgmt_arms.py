@@ -229,7 +229,14 @@ def arms_for(S, sym, df, tr, fwd, spread, n_tr, step_pct, pct10):
                                    take=take, level=lvl, move_be=be,
                                    spread=spread)
         row[f"o_{name}"] = o
-        row[f"ret_{name}"] = (round(rt, 6) if rt is not None else None)
+        # 🧊 **خانةٌ واحدة — مُجمَّدةٌ على `T-TRANCHE` (سابقةُ `CAP15`)**:
+        #    `tranche_arms:179` و`t1move_arms:204` كلاهما `round(rt, 1)`،
+        #    وبستّ خاناتٍ صارت `V1` **مستحيلةَ الاستيفاء بالبناء**
+        #    (‏−0.2620 مقابل −0.2602 · تشغيلة 33923455849 · 2026-09-04).
+        #    ⚠️ وثمنُها مُعلَن: تكميمُ 0.1 نقطةٍ مئوية ‏≈0.034R₀ يقع
+        #    **متماسكًا** على خسائر `X0` (تتكدّس عند سعر الوقف) و**مبعثرًا**
+        #    على `X1` ⇒ يرفع `X0` قليلًا ⇒ **يضرّ الحاكمةَ لا يحابيها.**
+        row[f"ret_{name}"] = (round(rt, 1) if rt is not None else None)
         row[f"hit_{name}"] = bool(info.get("hit"))
         if info.get("degen"):
             row[f"degen_{name}"] = True
