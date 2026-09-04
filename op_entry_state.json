@@ -700,6 +700,10 @@
    "j1_top": false
   },
   "e5": 0.728,
+  "pre_done": true,
+  "pre_hi": 0.7091,
+  "pre_usd": 67913,
+  "pre_n": 24,
   "date": "2026-09-04"
  },
  "LIQ:SCKT": {
@@ -1633,6 +1637,10 @@
    "j1_top": false
   },
   "e5": 3.78,
+  "pre_done": true,
+  "pre_hi": 3.8,
+  "pre_usd": 207911,
+  "pre_n": 17,
   "date": "2026-09-04"
  },
  "LIQ:CAST": {
@@ -2373,6 +2381,7 @@
    "j1_top": false
   },
   "e5": 0.09,
+  "pre_done": true,
   "date": "2026-09-04"
  },
  "LIQ:SPWR": {
