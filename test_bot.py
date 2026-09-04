@@ -40860,6 +40860,73 @@ _xm_p10_ok = (len(_xm_p10) == 1
 check("🔒 EXM12·مستوى `X2` = `S.LIQ_TARGET10_PCT` بالاسم (صفرُ رقمٍ مغروس)",
       _xm_p10_ok, f"إسنادات={len(_xm_p10)}")
 
+# ── EXM13 · **الشكلُ المتخيَّل** (أخو «المفتاح المتخيَّل»): المفتاحُ موجودٌ
+#    و**شكلُ قيمته** مُختلَق. 🐞 وُلد من عطلٍ حيّ (التشغيلةُ 33919805503 مشت
+#    13 دقيقةً ثم `⛔ صفرُ صفوف` — **1,620 من 1,620 «تعذّرت إعادةُ الخطّة»**)
+#    لأنّي قرأتُ `r["stop"]` **عددًا** وهو **صفٌّ** `(stop_lo, stop_hi)` في
+#    الإنتاج ⇒ `TypeError` يُبتلَع ⇒ `None` صامتة في **كلّ** صفقة.
+# 🔒 والقفلُ **يبني الجذعَ من شكل الإنتاج نفسِه** (يُقرأ بالـAST من
+#    `analyze_ticker`) فيستحيل اختراعُ الشكل — نمطُ `EXM10ب`.
+_xm_ret = next((n for n in _ast0.walk(_ast0.parse(_insp0.getsource(S.analyze_ticker)))
+                if isinstance(n, _ast0.Dict)
+                and any(isinstance(k, _ast0.Constant) and k.value == "stop"
+                        for k in n.keys)), None)
+_xm_stop_v = (_xm_ret.values[[k.value for k in _xm_ret.keys
+                              if isinstance(k, _ast0.Constant)].index("stop")]
+              if _xm_ret else None)
+_xm_stop_is_seq = isinstance(_xm_stop_v, (_ast0.Tuple, _ast0.List))
+_xm_stub_plan = {"tranches": [1.00, 1.03, 1.06],
+                 "stop": ((1.00, 1.07) if _xm_stop_is_seq else 1.00),
+                 "t1": 1.25, "pivot": 1.00}
+_xm_saved_at = S.analyze_ticker
+try:
+    S.analyze_ticker = lambda *a, **k: _xm_stub_plan
+    _xm_got = _XM.plan_at(S, "AAA", pd.DataFrame({"Close": [1.0] * 5}), 3)
+finally:
+    S.analyze_ticker = _xm_saved_at
+check("🔒 EXM13·`plan_at` تقرأ **شكلَ الإنتاج** للوقف (صفٌّ لا عدد) فتُرجع خطّة",
+      _xm_stop_is_seq and isinstance(_xm_got, dict)
+      and abs(float(_xm_got["stop"]) - 1.00) < 1e-9,
+      f"الإنتاجُ صفّ={_xm_stop_is_seq} · الراجع={_xm_got}")
+
+# ── EXM13ب · **مصدرٌ مرجعيٌّ مُثبَت**: `t1move_arms.plan_at` أنتجت أرقامًا
+#    منشورة (‏4,817 زوجًا) ⇒ أيُّ تفرّقٍ في قراءة حقلٍ بينهما **عيبٌ مرشَّح**.
+_xm_keyreads = lambda _src: sorted(
+    _ast0.dump(n) for n in _ast0.walk(_ast0.parse(_src.strip()))
+    if isinstance(n, _ast0.Subscript) and isinstance(n.value, _ast0.Name)
+    and n.value.id == "r")
+_xm_t1m = _io0.open("t1move_arms.py", encoding="utf-8").read()
+_cut = lambda _s, _f: (lambda b: b[:b.find("\ndef ", 1)])(_s[_s.find("def " + _f + "("):])
+_xm_a_reads, _xm_t_reads = (_xm_keyreads(_cut(_xm_asrc, "plan_at")),
+                            _xm_keyreads(_cut(_xm_t1m, "plan_at")))
+check("🔒 EXM13ب·قراءةُ حقول الخطّة مطابقةٌ للأداة التي أثبتت نفسها (`t1move`)",
+      _xm_a_reads == _xm_t_reads and len(_xm_a_reads) >= 4,   # المقيس: 4
+      f"exitmgmt={len(_xm_a_reads)} · t1move={len(_xm_t_reads)} · "
+      f"فروق={[x for x in _xm_a_reads if x not in _xm_t_reads][:2]}")
+
+# ── EXM13ج · حرزُ `IndexError` **خامدٌ بالبناء** فيُقفَل بنيويًّا لا بطفرة
+#    (قاعدةُ «الحارسُ الخامد لا يُطفَر»). البرهان: `analyze_ticker` تُسند
+#    `"stop"` **إسنادًا واحدًا** وهو صفٌّ بعنصرين حرفيًّا ⇒ يستحيل الفراغ.
+#    🐞 وطفرةُ نزعِه (`m19`) **نجت وهي باطلة** — تُعلَن ولا تُحتسَب ناجية.
+_xm_stop_assigns = [v for n in _ast0.walk(_ast0.parse(_insp0.getsource(S.analyze_ticker)))
+                    if isinstance(n, _ast0.Dict)
+                    for k, v in zip(n.keys, n.values)
+                    if isinstance(k, _ast0.Constant) and k.value == "stop"]
+_xm_dormant = (len(_xm_stop_assigns) == 1
+               and isinstance(_xm_stop_assigns[0], (_ast0.Tuple, _ast0.List))
+               and len(_xm_stop_assigns[0].elts) == 2)
+_xm_plan_fn = next((n for n in _ast0.walk(_ast0.parse(_xm_asrc))
+                    if isinstance(n, _ast0.FunctionDef) and n.name == "plan_at"), None)
+_xm_handlers = {getattr(x, "id", None)
+                for h in (_ast0.walk(_xm_plan_fn) if _xm_plan_fn else [])
+                if isinstance(h, _ast0.ExceptHandler) and h.type is not None
+                for x in _ast0.walk(h.type)}
+check("🔒 EXM13ج·حرزُ `IndexError` حاضرٌ ومُعلَنٌ خامدٌ بالبناء (صفٌّ بعنصرين)",
+      _xm_dormant and {"TypeError", "ValueError", "KeyError",
+                       "IndexError"} <= _xm_handlers,
+      f"إسناداتُ stop={len(_xm_stop_assigns)} · خامد={_xm_dormant} · "
+      f"الالتقاط={sorted(x for x in _xm_handlers if x)}")
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

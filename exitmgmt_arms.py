@@ -145,11 +145,15 @@ def plan_at(S, sym, df, i):
     if not r or not r.get("tranches"):
         return None
     try:
+        # 🔴 `r["stop"]` **صفٌّ** `(stop_lo, stop_hi)` في الإنتاج
+        #    (`Super_stock.py:4008`) — والوقفُ النافذ `[0]`. منقولةٌ حرفيًّا من
+        #    `t1move_arms.plan_at` (الأداةُ التي أنتجت أرقامًا منشورة) فيبقى
+        #    `X0` مطابقًا لأساسِ `T-TRANCHE` بت-بت.
         return {"tranches": [float(x) for x in r["tranches"]],
-                "stop": float(r["stop"]), "t1": float(r["t1"]),
+                "stop": float(r["stop"][0]), "t1": float(r["t1"]),
                 "pivot": (None if r.get("pivot") is None
                           else float(r["pivot"]))}
-    except (TypeError, ValueError, KeyError):
+    except (TypeError, ValueError, KeyError, IndexError):
         return None
 
 
