@@ -1715,7 +1715,7 @@
   "updates": 0,
   "vol_x": 4.6,
   "peak_usd": 620398,
-  "last_eval_ms": 1788532140000,
+  "last_eval_ms": 1788532080000,
   "pulse_ms": 1788535200000,
   "anchor_price": 8.7515,
   "anchor_open": 8.3,
@@ -2328,8 +2328,8 @@
    "j1_top": false
   },
   "e5": 1.4545,
-  "date": "2026-09-04",
-  "tgt_ms": 1788532620000
+  "tgt_ms": 1788532620000,
+  "date": "2026-09-04"
  },
  "LIQ:TCRX": {
   "last_eval_ms": 1788535200000,
