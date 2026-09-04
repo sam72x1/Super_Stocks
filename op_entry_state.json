@@ -693,7 +693,7 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 1,
   "vol_x": 5.9,
   "peak_usd": 555873,
   "last_eval_ms": 1788529020000,
@@ -2770,7 +2770,7 @@
   "date": "2026-09-04"
  },
  "LIQ:SILO": {
-  "last_eval_ms": 1788543300000,
+  "last_eval_ms": 1788539580000,
   "date": "2026-09-04"
  },
  "LIQ:ACON": {
