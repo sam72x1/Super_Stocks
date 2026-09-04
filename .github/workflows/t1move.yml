@@ -1,0 +1,45 @@
+name: 🎯 T-T1MOVE — الهدف يتحرّك مع الدخول
+# العقد: t1move_prereg.md (مدفوع قبل أي سطر من الأداة).
+# بحث/قياس فقط · يدويّ بلا كرون · صفر مسّ إنتاج (Super_stock.py لا يُمَسّ).
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (2023 · 2024 · 2025) — الحكم يلزمه الثلاث"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "لقطة PIT: 2023=31574165523 · 2024=31199493957 · 2025=31191327731"
+        required: true
+        default: ""
+jobs:
+  t1move-arms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run t1move arms
+        env:
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python t1move_arms.py
+      - name: Upload t1move rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: t1move-rows-${{ github.event.inputs.year }}
+          path: t1move_rows.jsonl
+          retention-days: 90

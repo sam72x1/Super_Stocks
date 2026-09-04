@@ -40290,6 +40290,162 @@ check("🔒 J1U6·كلُّ مرحلةِ تحديثٍ مشحونةٍ تحمل k2 
       f"مشحونٌ يحتاج={_j1u_need} · النطاق={_j1u_lst}")
 
 
+# ═══════════════════════════════════════════════════════════════════════
+# 🔒 T1M1-T1M11 — أقفال `T-T1MOVE` (العقد `t1move_prereg.md` مدفوعٌ قبل
+#    الأداة). بحث/قياس: الأداةُ خارج الإنتاج · والأقفالُ نقيّةٌ بلا شبكة.
+# ═══════════════════════════════════════════════════════════════════════
+import ast as _t1a
+import importlib as _t1i
+import inspect as _t1n
+import re as _re_t1
+
+_T1 = _t1i.import_module("t1move_arms")
+
+# 🔒 T1M1 — خمسُ أذرعٍ ولا سادسة، بأسمائها وإزاحاتها وأوضاعها، والحاكمة `M2`.
+#    (إضافةُ ذراعٍ أو تحريكُ إزاحةٍ بعد الأرقام ممنوعٌ بالعقد §②.)
+check("🔒 T1M1·الأذرعُ الخمسُ مثبَّتةٌ والحاكمةُ M2",
+      tuple(_T1.ARMS) == (("A0", 0.0, "fixed"), ("M1", 2.0, "fixed"),
+                          ("M2", 2.0, "r"), ("M3", 7.0, "r"),
+                          ("M4", 2.0, "ratio")) and _T1.GOV == "M2",
+      f"{_T1.ARMS} · gov={_T1.GOV}")
+
+# 🔒 T1M2 — «متحرّكٌ بالـR» يحفظ نسبةَ العائد إلى المخاطرة **بالضبط**، وهو
+#    تعريفُ العقد الحرفيّ. عيّنةٌ تفرّق: الهدفُ يتحرّك فعلًا (لا يساوي الثابت).
+_t1_eb, _t1_e1, _t1_stop, _t1_t1b = 1.5433333333, 1.5766666667, 1.50, 2.10
+_t1_r = _T1.t1_for("r", _t1_t1b, _t1_e1, _t1_eb, _t1_stop)
+_t1_rr_b = (_t1_t1b - _t1_eb) / (_t1_eb - _t1_stop)
+_t1_rr_k = (_t1_r - _t1_e1) / (_t1_e1 - _t1_stop)
+check("🔒 T1M2·هدفُ `r` يحفظ نسبةَ العائد/المخاطرة بالضبط ويتحرّك فعلًا",
+      abs(_t1_rr_k - _t1_rr_b) < 1e-9 and _t1_r > _t1_t1b + 1e-6,
+      f"RR={_t1_rr_b:.6f}/{_t1_rr_k:.6f} · t1'={_t1_r:.4f} مقابل {_t1_t1b}")
+
+# 🔒 T1M3 — الأوضاعُ الثلاثة **تتفرّق** على العيّنة نفسِها (وإلّا كانت ذراعٌ
+#    منها `no-op`)، والفاشلُ يرجع None لا رقمًا مخترَعًا.
+_t1_fx = _T1.t1_for("fixed", _t1_t1b, _t1_e1, _t1_eb, _t1_stop)
+_t1_rt = _T1.t1_for("ratio", _t1_t1b, _t1_e1, _t1_eb, _t1_stop)
+check("🔒 T1M3·الأوضاعُ الثلاثة تتفرّق · والمقامُ غيرُ الموجب وk≤0 يرجعان None",
+      _t1_fx == _t1_t1b
+      and abs(_t1_rt - _t1_t1b * (_t1_e1 / _t1_eb)) < 1e-12
+      and len({round(_t1_fx, 6), round(_t1_rt, 6), round(_t1_r, 6)}) == 3
+      and _T1.t1_for("r", 1.0, _t1_e1, _t1_eb, _t1_stop) is None
+      and _T1.t1_for("r", _t1_t1b, _t1_e1, _t1_eb, _t1_eb) is None,
+      f"fixed={_t1_fx} ratio={_t1_rt:.4f} r={_t1_r:.4f}")
+
+# 🔒 T1M4 — وحدةُ المخاطرة **واحدةٌ لكلّ الأذرع** (`R₀ = entry(A0) − stop`):
+#    المقامُ من `entry_base` لا من `entry_k`. عيّنةٌ تفرّق بالبناء.
+_t1_v = _T1.r_fixed(10.0, _t1_e1, _t1_eb, _t1_stop)
+_t1_own = (10.0 / 100.0 * _t1_e1) / (_t1_e1 - _t1_stop)
+check("🔒 T1M4·`r_fixed` مقامُه وحدةُ `A0` لا وحدةُ الذراع",
+      abs(_t1_v - (10.0 / 100.0 * _t1_e1) / (_t1_eb - _t1_stop)) < 1e-12
+      and abs(_t1_v - _t1_own) > 0.5,
+      f"موحَّد={_t1_v:.4f} · بوحدتها={_t1_own:.4f}")
+
+# 🔒 T1M5 — **سلوكيّ من طرفٍ إلى طرف** بمحرّك الإنتاج `_resolve_arm` نفسِه:
+#    شموعٌ تبلغ هدفَ `M1` الثابت ولا تبلغ هدفَ `M2` المتحرّك ⇒ **الحصيلةُ
+#    تنقلب** (win ⟵⟶ غير win) ⇒ تحريكُ الهدف يغيّر النتيجة فعلًا لا اسمًا.
+class _T1Stub:
+    CONFIG = {"BT_ANCHOR": None, "ANCHOR_MODE": ""}
+    _resolve_arm = staticmethod(S._resolve_arm)
+    _anchor_mode = staticmethod(S._anchor_mode)
+
+    @staticmethod
+    def tested_level(_df):
+        return None
+
+    @staticmethod
+    def analyze_ticker(_sym, _df):
+        return {"tranches": [1.5, 1.54, 1.59], "stop": [1.50, 1.50],
+                "t1": 2.10, "pivot": 1.50}
+
+
+import pandas as _t1pd                                       # noqa: E402
+_t1_idx = _t1pd.date_range("2026-01-01", periods=8, freq="D")
+# الشمعةُ 3 تبلغ 2.20 (فوق هدفِ الثابت 2.10 ودون هدفِ المتحرّك ‏≈2.56)
+_t1_df = _t1pd.DataFrame({
+    "Open": [1.60, 1.55, 1.60, 2.00, 1.90, 1.90, 1.90, 1.90],
+    "High": [1.62, 1.58, 1.70, 2.20, 1.95, 1.95, 1.95, 1.95],
+    "Low":  [1.58, 1.50, 1.55, 1.85, 1.85, 1.85, 1.85, 1.85],
+    "Close": [1.60, 1.52, 1.65, 2.05, 1.90, 1.90, 1.90, 1.90],
+    "Volume": [1e6] * 8}, index=_t1_idx)
+_t1_row, _t1_why = _T1.arms_for(_T1Stub, "TST", _t1_df,
+                                {"date": _t1_idx[1]}, 6, 0.0, 3, 3.0)
+check("🔒 T1M5·سلوكيّ: هدفُ `M2` المتحرّك يقلب الحصيلة عن `M1` الثابت",
+      _t1_row is not None
+      and _t1_row.get("o_M1") == "win" and _t1_row.get("o_M2") != "win"
+      and _t1_row.get("e_M1") == _t1_row.get("e_M2")
+      and _t1_row.get("t1_M2") > _t1_row.get("t1_M1"),
+      f"why={_t1_why} · row={None if _t1_row is None else {k: _t1_row.get(k) for k in ('o_M1', 'o_M2', 't1_M1', 't1_M2', 'e_M1', 'e_M2')}}")
+
+# 🔒 T1M6 — الوقفُ **واحدٌ لكلّ الأذرع** (عزلُ أثر الهدف عن أثر الوقف شرطُ
+#    صلاحيةٍ منصوصٌ في §①) — بالـAST على نداء `_resolve_arm`: الوسيطُ السادس
+#    هو الاسم `stop` حرفيًّا، وصفرُ حسابٍ عليه داخل الحلقة.
+_t1_src = _t1n.getsource(_T1.arms_for)
+_t1_calls = [n for n in _t1a.walk(_t1a.parse(_t1_src))
+             if isinstance(n, _t1a.Call)
+             and getattr(n.func, "attr", None) == "_resolve_arm"]
+check("🔒 T1M6·الوقفُ يُمرَّر اسمًا واحدًا لكلّ الأذرع (بالـAST)",
+      len(_t1_calls) == 1
+      and len(_t1_calls[0].args) >= 6
+      and getattr(_t1_calls[0].args[5], "id", None) == "stop",
+      f"نداءات={len(_t1_calls)}")
+
+# 🔒 T1M7 — `pair_diff` يعامل `no_fill` **صفرَ عائدٍ ويدخل المقام** (§⑨-4
+#    المُعادة من `T-TRANCHE`) — وإلّا اختلف المقامُ بين الأذرع فانتفت المقارنة.
+_t1_nf = {"symbol": "X", "stop": 1.5, "e_A0": 1.5433, "e_M2": 1.5767,
+          "o_A0": "no_fill", "ret_A0": None, "o_M2": "loss", "ret_M2": -3.0}
+_t1_d = _T1.pair_diff(_t1_nf, "M2")
+check("🔒 T1M7·`no_fill` = صفرُ عائدٍ يدخل المقام لا يُسقَط",
+      _t1_d is not None and _t1_d < 0
+      and abs(_t1_d - _T1.r_fixed(-3.0, 1.5767, 1.5433, 1.5)) < 1e-9,
+      f"diff={_t1_d}")
+
+# 🔒 T1M8 — البوتستراب **عنقودُه الرمز** وحتميّ: نفسُ البذرة ⇒ نفسُ الفاصل ·
+#    ورمزٌ واحدٌ بصفقاتٍ كثيرة لا يُنتج فاصلًا (عنقودٌ واحد ⇒ عرضٌ صفر).
+_t1_g = {"A": (3, -0.6), "B": (2, 0.4), "C": (5, -1.0)}
+_t1_c1 = _T1.boot_ci(_t1_g, n=400)
+_t1_c2 = _T1.boot_ci(_t1_g, n=400)
+_t1_one = _T1.boot_ci({"A": (50, -5.0)}, n=400)
+check("🔒 T1M8·البوتستراب حتميٌّ وعنقودُه الرمز",
+      _t1_c1 == _t1_c2 and _t1_c1["k"] == 3 and _t1_c1["n"] == 10
+      and abs(_t1_one["hi"] - _t1_one["lo"]) < 1e-12,
+      f"ci={_t1_c1} · one={_t1_one}")
+
+# 🔒 T1M9 — أرقامُ `T-TRANCHE` المنشورة **تُقرأ من ملفّ النتيجة** لا تُنسَخ
+#    بيدي: كلُّ رقمٍ في `PUBLISHED` حاضرٌ نصًّا في `tranche_result.md`.
+_t1_pub = open("tranche_result.md", encoding="utf-8").read()
+_t1_miss = [f"{y}:{k}={v}" for y, d in _T1.PUBLISHED.items()
+            for k, v in d.items()
+            if f"{abs(v):.4f}" not in _t1_pub]
+check("🔒 T1M9·أرقامُ `V0`/`V1` مطابقةٌ لِما نُشر في `tranche_result.md`",
+      not _t1_miss and len(_T1.PUBLISHED) == 3,
+      f"غائب={_t1_miss}")
+
+# 🔒 T1M10 — البوّاباتُ الثلاثُ **منفَّذةٌ في الكود** لا موصوفةٌ في العقد
+#    (درسُ `envelope_prereg §⑦`: «حارسٌ مكتوبٌ وغيرُ منفَّذٍ ليس حارسًا — هو
+#    نيّة»): كلٌّ منها فرعٌ يُرجع رمزَ خروجٍ حقيقيًّا.
+_t1_rep = _t1n.getsource(_T1.report)
+_t1_rt3 = [n for n in _t1a.walk(_t1a.parse(_t1_rep))
+           if isinstance(n, _t1a.Return) and isinstance(n.value, _t1a.Constant)]
+_t1_c3 = sum(1 for n in _t1_rt3 if n.value.value == 3)
+_t1_c4 = sum(1 for n in _t1_rt3 if n.value.value == 4)
+check("🔒 T1M10·`V0`/`V1`/`V3`/`V4` تُرجع 3 و`V2`/الأرضية تُرجع 4 فعلًا",
+      _t1_c3 >= 4 and _t1_c4 >= 3
+      and "V3" in _t1_rep and "V0" in _t1_rep and "V4" in _t1_rep,
+      f"return3={_t1_c3} return4={_t1_c4}")
+
+# 🔒 T1M11 — قراءةٌ فقط · والإنتاجُ لا يستوردها · وكلُّ مدخلٍ في الـworkflow
+#    موصولٌ ببيئةٍ يقرؤها السكربت (بصمةُ `BT_CANDLE`: علمٌ يُمرَّر ولا يُقرأ).
+_t1_wf = open(".github/workflows/t1move.yml", encoding="utf-8").read()
+_t1_ins = set(_re_t1.findall(r"^      (\w+):$", _t1_wf, _re_t1.M))
+_t1_env = set(_re_t1.findall(r"\$\{\{ github\.event\.inputs\.(\w+) \}\}", _t1_wf))
+_t1_prod = open("Super_stock.py", encoding="utf-8").read()
+check("🔒 T1M11·قراءةٌ فقط · الإنتاجُ لا يستوردها · ومدخلاتُ الـworkflow موصولة",
+      _T1._selfcheck_readonly()
+      and "t1move_arms" not in _t1_prod
+      and _t1_ins and _t1_ins <= _t1_env,
+      f"مدخلات={sorted(_t1_ins)} · موصول={sorted(_t1_env)}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
