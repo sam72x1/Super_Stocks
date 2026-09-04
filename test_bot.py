@@ -40493,18 +40493,26 @@ def _t1_calls(fn, name):
                if isinstance(n, _t1a.FunctionDef) and n.name == fn), None)
     if _f is None:
         return -1
+    # 🔴 الاسمُ يُقرأ **مباشرًا وموصوفًا معًا** (`f()` و`S.f()`) — وإلّا صار
+    #    شرطُ «صفرُ نداء» تحصيلَ حاصلٍ لأن `S.backtest_symbol` عقدةُ Attribute.
     return sum(1 for c in _t1a.walk(_f)
                if isinstance(c, _t1a.Call)
-               and getattr(c.func, "id", None) == name)
+               and name in (getattr(c.func, "id", None),
+                            getattr(c.func, "attr", None)))
 
 
 check("🔒 T1M12·`_measure` مصدرٌ واحد: يُنادى من `main` ومن `_pool` بلا نسخة",
       _t1_calls("main", "_measure") == 1
       and _t1_calls("_pool", "_measure") == 1
+      and _t1_calls("_pool", "pool_clusters") == 1
+      and _t1_calls("_pool", "boot_ci") == 1
+      # شاهدُ ضبط: النداءُ الحقيقيّ يُعَدّ فعلًا ⇒ «صفرٌ» أدناه ليس عمًى
+      and _t1_calls("_measure", "backtest_symbol") == 1
       and _t1_calls("main", "backtest_symbol") == 0
       and _t1_calls("_pool", "backtest_symbol") == 0
       and _t1_calls("_measure", "report") == 0,
-      f"main={_t1_calls('main', '_measure')} pool={_t1_calls('_pool', '_measure')}")
+      f"main={_t1_calls('main', '_measure')} pool={_t1_calls('_pool', '_measure')}"
+      f" meas_bt={_t1_calls('_measure', 'backtest_symbol')}")
 
 # 🔒 T1M13 — **التجميعُ بالرمز عبر السنوات** (‏`T-TRANCHE`: «4,817 زوجًا ·
 #    1,375 رمزًا» لا 2,222): رمزٌ في سنتين **عنقودٌ واحد**، والمتوسّطُ المجمَّع
@@ -40522,14 +40530,27 @@ check("🔒 T1M13·التجميعُ بالرمز: عنقودٌ واحدٌ للر
       f"pooled={_t1_pooled} ci={_t1_pci}")
 
 # 🔒 T1M14 — **البارُ والأرضياتُ أرقامُ العقد ولا تُحرَّك بعد الأرقام**،
-#    والحكمُ المجمَّع يقارن بالبار نفسِه (لا بقيمةٍ مغروسةٍ أرخى).
-_t1_pool_src = _t1n.getsource(_T1._pool)
-check("🔒 T1M14·البارُ 0.15 والأرضيتان 150/30 · والحكمُ يقارن بالبار لا بغيره",
+#    والحكمُ المجمَّع يقارن بها **في تعبير الشرط نفسِه**.
+# 🔴 نصّيًّا كان أعمى: سطرُ العرض `_log(f"… ({FLOOR_TOTAL} مجمَّعًا …")` يُرضي
+#    شرطَ «الاسمُ حاضر» فنجت طفرةُ `tot_rows >= 0` — «قفلٌ يُرضيه سطرٌ لا
+#    يحرسه» (صنفُ `AF10`/`TGT9`). ⇒ الحكمُ من **عقدة الإسناد** بالـAST.
+_t1_pool_fn = next(n for n in _t1a.walk(_t1_tree)
+                   if isinstance(n, _t1a.FunctionDef) and n.name == "_pool")
+_t1_crit = {}
+for _n in _t1a.walk(_t1_pool_fn):
+    if (isinstance(_n, _t1a.Assign) and len(_n.targets) == 1
+            and getattr(_n.targets[0], "id", "").startswith("c")
+            and _n.targets[0].id in ("c1", "c2", "c3", "c4")):
+        _t1_crit[_n.targets[0].id] = {
+            _x.id for _x in _t1a.walk(_n.value) if isinstance(_x, _t1a.Name)}
+check("🔒 T1M14·البارُ 0.15 والأرضيتان 150/30 · وتعبيرُ الشرط يقرؤها بأسمائها",
       _T1.BAR_R == 0.15 and _T1.FLOOR_TOTAL == 150 and _T1.FLOOR_YEAR == 30
-      and 'ci["mean"] >= BAR_R' in _t1_pool_src
-      and "FLOOR_TOTAL" in _t1_pool_src and "FLOOR_YEAR" in _t1_pool_src
-      and "0.15" not in _t1_pool_src and "150" not in _t1_pool_src,
-      f"BAR_R={_T1.BAR_R} FLOOR={_T1.FLOOR_TOTAL}/{_T1.FLOOR_YEAR}")
+      and set(_t1_crit) == {"c1", "c2", "c3", "c4"}
+      and "BAR_R" in _t1_crit["c1"]
+      and {"FLOOR_TOTAL", "FLOOR_YEAR"} <= _t1_crit["c4"]
+      and 'ci["mean"] >= BAR_R' in _t1n.getsource(_T1._pool),
+      f"BAR_R={_T1.BAR_R} FLOOR={_T1.FLOOR_TOTAL}/{_T1.FLOOR_YEAR} "
+      f"c1={sorted(_t1_crit.get('c1', ()))} c4={sorted(_t1_crit.get('c4', ()))}")
 
 # 🔒 T1M15 — الـworkflow المجمَّع: **كلُّ لقطةٍ موصولةٌ بسنتها** — مدخلُ
 #    `snap_YYYY` ⟶ خطوةُ تنزيلٍ مسارُها `snapYYYY` ⟶ وتلك السنةُ في
