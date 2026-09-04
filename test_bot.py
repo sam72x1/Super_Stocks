@@ -39263,7 +39263,9 @@ try:
                 == sum(1 for _c in _ps_ast.walk(_rp_dev)
                        if isinstance(_c, _ps_ast.Call)
                        and getattr(_c.func, "id", None) == _fn)
-                for _fn in ("precap_rows", "prefloor_rows")
+                #    (‏2026-09-04) وأُضيفت `prerank_rows` بذراع §⑨ — **تشديدٌ
+                #    لا إرخاء**: ثلاثُ أذرعٍ محبوسةٌ كلُّها في كتلة التطوير.
+                for _fn in ("precap_rows", "prefloor_rows", "prerank_rows")
                 for _scope in (_rp_t,)))
 except Exception as _e:                                          # noqa: BLE001
     _pd4, _rp_txt = False, f"⛔ {type(_e).__name__}: {_e}"
@@ -39355,6 +39357,147 @@ except Exception as _e:                                          # noqa: BLE001
 check("🔬 PD9 نموذجا البِركة (‏`P-reg` الحاكم · `P-all` سقفًا) معرَّفان من ظرف "
       "العقد · **ويتفرّقان سلوكيًّا** (دولارُ الافتر يقلب المختار) · وكلاهما يُطبَع",
       _p9, str(_p9_names)[:70])
+
+# ── PD10 — 🚦 **`T-PRERANK`: خمسُ أذرعٍ ولا سادسة · وشاهدٌ حتميّ** (‏العقد
+#   `presession_dev_prereg §⑨` مدفوعٌ قبل أيّ رقم). أربعةُ مفاتيحَ = أربعُ
+#   مقارنات ⇒ **بلا شاهدِ ضبطٍ يكون أفضلُها صدفةً**؛ والأرضيةُ والسقفُ ثابتان
+#   في الخمس فلا يختلط أثرُ الترتيب بأثر الميزانية.
+try:
+    _pa = _rp.PRERANK_ARMS
+    _pa_np = _rp.np
+    _pa_feats = set(_PFm.FEATS_DESC) | set(_PFm.FEATS_ASC)
+    # ① خمسٌ ولا سادسة · بأسمائها ومفاتيحها · والمفاتيحُ من ظرف الميزات.
+    _pa_shape = (len(_pa) == 5
+                 and [n for n, _ in _pa] == ["R0", "R1", "R2", "R3", "R4"]
+                 and dict(_pa)["R0"] == "usd_day"
+                 and dict(_pa)["R1"] == "day_ret"
+                 and dict(_pa)["R2"] == "range_pos"
+                 and dict(_pa)["R3"] == "vwap_rel"
+                 and dict(_pa)["R4"] is None          # 🔒 شاهدُ الضبط
+                 and all(k in _pa_feats for _, k in _pa if k is not None)
+                 # 🔒 السقفُ والحدُّ مثبَّتان في العقد ولا يُحرَّكان بعد الأرقام
+                 and _rp.PRERANK_CAP == 60
+                 and _rp.PRERANK_MIN_RATIO == 0.30)
+    # ② الشاهدُ **حتميٌّ قابلٌ لإعادة الإنتاج** — لا مولّدَ عشوائيٍّ حرّ:
+    #    نداءان متتاليان يعطيان الشيءَ نفسَه، وبذرتُه من المعرّفات النصّية
+    #    (فتبديلُ الرمز يبدّل الدرجة).
+    _pa_d = ["2025-01-02:PM"] * 4
+    _pa_t = ["AAA", "BBB", "CCC", "DDD"]
+    _pa_c1 = _rp.prerank_control(_pa_d, _pa_t)
+    _pa_c2 = _rp.prerank_control(_pa_d, _pa_t)
+    _pa_c3 = _rp.prerank_control(_pa_d, ["AAA", "BBB", "CCC", "ZZZ"])
+    #    🐞 والقفلُ **بنيويٌّ لا نصّيّ**: صياغتي الأولى فحصت `"random" not in
+    #    src` **فسقطت على docstring‌ي نفسِه** («لا `Math.random`») — الفخُّ
+    #    النصّيُّ الموثَّق. ⇒ يُفحَص **جسمُ الدالّة بالـAST**: نداءُ
+    #    `hashlib.sha256` حاضرٌ وصفرُ ذِكرٍ لـ`random` في الشجرة.
+    _pa_cf = next(_n for _n in _ps_ast.walk(_rp_t)
+                  if isinstance(_n, _ps_ast.FunctionDef)
+                  and _n.name == "prerank_control")
+    _pa_hash = any(getattr(_n, "attr", None) == "sha256"
+                   for _n in _ps_ast.walk(_pa_cf))
+    _pa_rnd = any(getattr(_n, "attr", None) == "random"
+                  or getattr(_n, "id", None) == "random"
+                  for _n in _ps_ast.walk(_pa_cf))
+    _pa_det = (list(_pa_c1) == list(_pa_c2)
+               and list(_pa_c1)[:3] == list(_pa_c3)[:3]
+               and _pa_c1[3] != _pa_c3[3]
+               and _pa_hash and not _pa_rnd)
+    # ③ `R0` ≡ `live_pool` بت-بت (المشحونُ حيًّا) · والأرضيةُ والسقفُ واحدٌ
+    #    للخمس ⇒ الفارقُ الوحيدُ **مفتاحُ الترتيب**.
+    _pa_u = _pa_np.array([9e5, 8e5, 7e5, 6e5, 5e5])
+    _pa_k = _pa_np.array([1.0, 2.0, 3.0, 4.0, 5.0])   # ترتيبٌ **معاكس**
+    _pa_g = _pa_np.zeros(5, dtype=int)
+    _pa_s = _pa_np.arange(5)
+    _pa_a = _rp.prerank_pool(_pa_u, _pa_u, _pa_g, _pa_s, 2)
+    _pa_b = _rp.prerank_pool(_pa_u, _pa_k, _pa_g, _pa_s, 2)
+    _pa_ref = _rp.live_pool(_pa_u, _pa_g, _pa_s, 2)
+    _pa_flip = (list(_pa_a) == list(_pa_ref) == [True, True, False, False,
+                                                 False]
+                and list(_pa_b) == [False, False, False, True, True])
+    # ④ **الأرضيةُ ثابتةٌ في الخمس**: مفتاحُ ترتيبٍ ضخمٌ لا يُدخل مَن هو تحت
+    #    أرضية الدولار (وإلّا اختلط أثرُ الترتيب بأثر الميزانية).
+    _pa_lo = _pa_np.array([9e5, 1e3])
+    _pa_hi = _pa_np.array([1.0, 9e9])
+    _pa_fl = list(_rp.prerank_pool(_pa_lo, _pa_hi, _pa_np.zeros(2, dtype=int),
+                                   _pa_np.arange(2), 2)) == [True, False]
+    # ⑤ والأذرعُ **تتفرّق سلوكيًّا** على صفوفٍ حقيقيّة (مفتاحان يقلبان المختار)
+    #    · و`R0` يُعيد `live_pool` على نفس الصفوف · والحسابُ حتميٌّ بالتكرار.
+    _pa_w = list(_PFm.FEATS_DESC) + list(_PFm.FEATS_ASC)
+    _pa_iu, _pa_ik = _pa_w.index("usd_day"), _pa_w.index("post_hi_ret")
+    _pa_n = 120
+    _pa_rs = _pa_np.random.RandomState(11)
+    _pa_X = _pa_rs.rand(_pa_n, len(_pa_w)) * 10.0
+    _pa_X[:, _pa_iu] = _pa_rs.rand(_pa_n) * 1e6 + 2e5
+    _pa_gid = _pa_np.repeat(_pa_np.arange(3), 40)
+    _pa_sym = _pa_np.arange(_pa_n) % 40
+    _pa_y = (_pa_rs.rand(_pa_n) < 0.2).astype("int8")
+    _pa_D = {"X": _pa_X, "y": {0: _pa_y}, "gid": _pa_gid, "sym": _pa_sym,
+             "names": _pa_np.array([f"S{_i:02d}" for _i in range(40)]),
+             "gkey": [(f"2025-01-0{_i+1}", "PM") for _i in range(3)],
+             "year": _pa_np.array(["2025"] * _pa_n),
+             "slot": _pa_np.array(["PM"] * _pa_n)}
+    _pa_m = _pa_np.ones(_pa_n, dtype=bool)
+    _pa_ia = [(_a, None if _k is None else _pa_w.index(_k)) for _a, _k in _pa]
+    _pa_thr = _rp.floor_value(_pa_X[:, _pa_ik], 3, 30.0)
+    _pa_r1 = _rp.prerank_rows(_pa_D, _pa_m, 0, _pa_ik, False, _pa_thr,
+                              _pa_iu, _pa_ia, cap=5)
+    _pa_r2 = _rp.prerank_rows(_pa_D, _pa_m, 0, _pa_ik, False, _pa_thr,
+                              _pa_iu, _pa_ia, cap=5)
+    _pa_sc = _pa_np.nan_to_num(_pa_X[:, _pa_ik], nan=-_pa_np.inf)
+    _pa_su = _pa_np.nan_to_num(_pa_X[:, _pa_iu], nan=0.0)
+    _pa_r0ref = (_rp.floor_sel(_pa_sc, _pa_thr, False)
+                 & _rp.live_pool(_pa_su, _pa_gid, _pa_sym, 5))
+    _pa_live = (len(_pa_r1) == 5
+                and [_s["arm"] for _s in _pa_r1] == ["R0", "R1", "R2", "R3",
+                                                     "R4"]
+                and bool(_pa_np.array_equal(_pa_r1[0]["sel"], _pa_r0ref))
+                and not all(bool(_pa_np.array_equal(_s["sel"],
+                                                    _pa_r1[0]["sel"]))
+                            for _s in _pa_r1[1:])
+                and all(bool(_pa_np.array_equal(_x["sel"], _z["sel"]))
+                        for _x, _z in zip(_pa_r1, _pa_r2)))
+    # ⑥ وسقفُ النجاح **عرضٌ بلا تنفيذ** (§⑨-④): أداةُ الحكم **لا تُسنِد** إلى
+    #    أيّ مفتاحٍ من مفاتيح الرادار الحيّة — و`TOPK` إن أُسند فهو **تسميةٌ**
+    #    تقرأ `PF` لا رقمٌ جديد. (بنيويًّا بالـAST: النصُّ لا يفرّق إسنادًا عن
+    #    ذِكرٍ في تعليقٍ أو سطرِ عرضٍ عربيّ.)
+    _pa_names = {"PREFILTER_CAP", "BUDGET_SEC", "MIN_DAY_USD", "FLOOR_BY_SLOT",
+                 "RANK_BY_SLOT", "PRICE_LO", "PRICE_HI"}
+    _pa_asg = [_n for _n in _ps_ast.walk(_rp_t)
+               if isinstance(_n, _ps_ast.Assign)
+               for _t in _n.targets if getattr(_t, "id", None) in _pa_names]
+    _pa_tk = [_n for _n in _ps_ast.walk(_rp_t)
+              if isinstance(_n, _ps_ast.Assign)
+              and any(getattr(_t, "id", None) == "TOPK" for _t in _n.targets)]
+    _pa_safe = (not _pa_asg
+                and all(isinstance(_n.value, _ps_ast.Attribute)
+                        and getattr(_n.value.value, "id", None) == "PF"
+                        for _n in _pa_tk))
+    # ⑦ **المعدومُ إلى ذيل الترتيب لا رأسه** — متّسقٌ مع قرار الأرضية
+    #    المشحون («المعدومُ يُسقَط لا يمرّ»). صفٌّ دولارُه أكبر ومفتاحُه معدوم
+    #    يخسر عند سقفِ 1 أمام صفٍّ مفتاحُه **سالبٌ لكنه محسوب**.
+    _pa_iv = _pa_w.index("vwap_rel")
+    _pa_nX = _pa_np.zeros((2, len(_pa_w)))
+    _pa_nX[:, _pa_iu] = [9e5, 8e5]
+    _pa_nX[:, _pa_ik] = [5.0, 5.0]
+    _pa_nX[0, _pa_iv] = _pa_np.nan
+    _pa_nX[1, _pa_iv] = -9.0
+    _pa_nD = {"X": _pa_nX, "y": {0: _pa_np.zeros(2, dtype="int8")},
+              "gid": _pa_np.zeros(2, dtype=int), "sym": _pa_np.arange(2),
+              "names": _pa_np.array(["AAA", "BBB"]),
+              "gkey": [("2025-01-02", "PM")],
+              "year": _pa_np.array(["2025"] * 2),
+              "slot": _pa_np.array(["PM"] * 2)}
+    _pa_nr = _rp.prerank_rows(_pa_nD, _pa_np.ones(2, dtype=bool), 0, _pa_ik,
+                              False, 0.0, _pa_iu, _pa_ia, cap=1)
+    _pa_tail = list(next(_s for _s in _pa_nr
+                         if _s["arm"] == "R3")["sel"]) == [False, True]
+    _pa10 = (_pa_shape and _pa_det and _pa_flip and _pa_fl and _pa_live
+             and _pa_safe and _pa_tail)
+except Exception as _e:                                          # noqa: BLE001
+    _pa10, _pa_shape = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚦 PD10 `T-PRERANK` خمسُ أذرعٍ ولا سادسة · شاهدُ ضبطٍ **حتميّ** · "
+      "`R0` ≡ `live_pool` · الأرضيةُ والسقفُ ثابتان · والأذرعُ تتفرّق سلوكيًّا",
+      _pa10, str(_pa_shape)[:70])
 
 # ── PD8 — 🔌 **`presession_report.yml`: كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها
 #   السكربت** (بصمةُ `BT_CANDLE` الميّت). كان بلا قفلٍ إطلاقًا، ومدخلُ التطوير

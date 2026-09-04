@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import glob
 import gzip
+import hashlib
 import json
 import math
 import os
@@ -539,6 +540,107 @@ def prefloor_verdict(ev, tr_dirs):
         rows.append((st, bad))
     return rows
 
+# ── 🚦 `T-PRERANK` (‏`presession_dev_prereg §⑨`) — بأيّ مفتاحٍ يُرتَّب المرشِّح؟
+#   الأذرعُ **خمسٌ ولا سادسة** ومثبَّتةٌ قبل أيّ رقم · والأرضيةُ والسقفُ **ثابتان
+#   في الخمس** فلا يختلط أثرُ الترتيب بأثر الميزانية · و`R4` **شاهدُ ضبطٍ
+#   إلزاميّ** (أربعةُ مفاتيحَ = أربعُ مقارنات ⇒ بلاه يكون أفضلُها صدفةً).
+PRERANK_ARMS = (("R0", "usd_day"), ("R1", "day_ret"), ("R2", "range_pos"),
+                ("R3", "vwap_rel"), ("R4", None))     # `None` = شاهدُ الضبط
+PRERANK_CAP = 60                   # سقفُ المرشِّح الحيّ — واحدٌ للخمس
+PRERANK_MIN_RATIO = 0.30           # §③-① النسبةُ 0.30 فأكثر
+
+
+def prerank_control(days, ticks):
+    """شاهدُ ضبطٍ **حتميٌّ قابلٌ لإعادة الإنتاج** — بذرةٌ من (القرار، الرمز).
+
+    🔒 لا مولّدَ عشوائيٍّ حرّ ولا `Math.random` ولا بذرةَ وقت: نفسُ الصفوف
+    ⇒ نفسُ الترتيب في كلّ تشغيلة (سابقةُ `control_panel`: `sha256("شهر:رمز")`).
+    والبذرةُ من **المعرّفات النصّية** (يومٌ · جلسةٌ · رمز) لا من فهارسَ داخلية
+    تتحرّك بتغيّر ملفّات المُدخَل.
+    """
+    out = np.empty(len(ticks), dtype=float)
+    for i in range(len(ticks)):
+        h = hashlib.sha256(f"{days[i]}:{ticks[i]}".encode("utf-8")).hexdigest()
+        out[i] = int(h[:12], 16) / float(1 << 48)
+    return out
+
+
+def prerank_pool(sc_usd, sc_key, gid, sym, cap, min_usd=PRECAP_MIN_USD):
+    """قناعُ البِركة الحيّة بمفتاحِ ترتيبٍ **مرشَّح**: الأرضيةُ على الدولار
+    (كما في الحيّ) والرتبةُ على المفتاح.
+
+    🔒 بتمرير `sc_key = sc_usd` يصير **`live_pool` حرفيًّا** ⇒ `R0` تُعيد
+    صفَّ `Q1@60` من `T-PRECAP` بت-بت (مقفولٌ سلوكيًّا).
+    """
+    ok = sc_usd >= float(min_usd)
+    if cap:
+        ok = ok & (group_ranks(sc_key, gid, sym, asc=False) < int(cap))
+    return ok
+
+
+def prerank_rows(d, mask, w, ki, asc, thr, i_usd, i_arms, cap=PRERANK_CAP):
+    """`T-PRERANK` — خمسُ أذرعٍ **بميزانيةٍ واحدة**: نفسُ الأرضية ونفسُ السقف
+    ونفسُ الصفوف، والمتغيّرُ **مفتاحُ ترتيب المرشِّح** وحدَه (§⑨-②).
+
+    `i_arms` تتابعُ `(الاسم، عمودٌ أو None)` — و`None` هو شاهدُ الضبط.
+    🔒 والمعدومُ يُدفَع إلى **ذيل** الترتيب (‏`-inf`) لا إلى رأسه — متّسقٌ مع
+    قرار الأرضية المشحون («المعدومُ يُسقَط لا يمرّ»).
+    """
+    sc = np.nan_to_num(d["X"][mask][:, ki], nan=(np.inf if asc else -np.inf))
+    _ix = list(i_usd) if isinstance(i_usd, (tuple, list)) else [i_usd]
+    su = np.zeros(sc.shape, dtype=float)
+    for _j in _ix:
+        su = su + np.nan_to_num(d["X"][mask][:, _j], nan=0.0)
+    gid, sym, y = d["gid"][mask], d["sym"][mask], d["y"][w][mask]
+    _, inv = np.unique(gid, return_inverse=True)
+    n_dec = int(inv.max()) + 1 if inv.size else 0
+    base = (float(y.sum()) / y.size) if y.size else 0.0
+    q0 = floor_sel(sc, thr, asc)
+    h0 = int(y[q0].sum())
+    _gk, _nm = d["gkey"], d["names"]
+    _days = [f"{_gk[g][0]}:{_gk[g][1]}" for g in gid]
+    _ctl = prerank_control(_days, _nm[d["sym"][mask]])
+    out = []
+    for nm, col in i_arms:
+        kv = _ctl if col is None else np.nan_to_num(
+            d["X"][mask][:, col], nan=-np.inf)
+        selm = q0 & prerank_pool(su, kv, gid, sym, cap)
+        st = cut_stats(selm, inv, y, n_dec, base)
+        st["arm"] = nm
+        st["sel"] = selm
+        st["ratio"] = (st["hits"] / h0) if h0 else 0.0
+        out.append(st)
+    return out
+
+
+def prerank_verdict(ev, tr_ctl, tr_base):
+    """المعيارُ الرباعيّ المسجَّل (§⑨-③) — مثبَّتٌ قبل أيّ رقم.
+
+    ⚖️ **وقصورُ صياغةٍ يُعلَن ولا يُستفاد من غموضه:** المعيار ③ يقول «الاتّجاهُ
+    نفسُه في 2023 و2024» ولم يُسمِّ طرفَ المقارنة. فالحاكمُ **علاقةُ ② نفسُها**
+    (تفوّقٌ على الشاهد `R4`) موصوفةً في سنتَي المعايرة، **ويُطبَع معه** الاتّجاهُ
+    مقابل `R0` المشحون فلا تُخفى القراءةُ الأخرى ولا تُختار بعد الأرقام.
+    """
+    ctl = next((s for s in ev if s["arm"] == "R4"), None)
+    r0 = next((s for s in ev if s["arm"] == "R0"), None)
+    rows = []
+    for st in ev:
+        if st["arm"] in ("R0", "R4"):
+            continue
+        bad = []
+        if st["ratio"] < PRERANK_MIN_RATIO:
+            bad.append(f"① النسبةُ {st['ratio']:.3f} دون {PRERANK_MIN_RATIO:.2f}")
+        if ctl is not None and not (st["hits"] > ctl["hits"]):
+            bad.append(f"② لا تتفوّق على الشاهد `R4` ({st['hits']} مقابل "
+                       f"{ctl['hits']})")
+        if not all(tr_ctl.get(st["arm"], [False, False])):
+            bad.append("③ الاتّجاهُ (مقابل الشاهد) ينقلب في سنةٍ من سنتَي "
+                       "المعايرة")
+        rows.append((st, bad, tr_base.get(st["arm"], []),
+                     (r0["hits"] if r0 else 0)))
+    return rows
+
+
 def main() -> int:
     paths = sorted(glob.glob("presession_rows_*.jsonl.gz")) + \
         sorted(glob.glob("presession_rows_*.jsonl"))
@@ -915,6 +1017,64 @@ def main() -> int:
                 log(f"   ⚖️ {st['arm']}: "
                     + ("**يستوفي المعيار الرباعيّ**" if not bad
                        else "**يسقط** — " + " · ".join(bad)))
+        # ── T-PRERANK (§⑨)
+        log("")
+        log("🚦 **T-PRERANK** — بأيّ مفتاحٍ يُرتَّب المرشِّحُ الرخيص؟ "
+            "(‏خمسُ أذرعٍ بميزانيةٍ واحدة: نفسُ الأرضية ونفسُ السقف "
+            f"{PRERANK_CAP} · المتغيّرُ **مفتاحُ الترتيب** وحدَه)")
+        _ia = []
+        for _an, _ak in PRERANK_ARMS:
+            if _ak is not None and _ak not in feats:
+                log(f"⛔ `V-DEV` ذراعُ {_an} مفتاحُها `{_ak}` غائبٌ عن "
+                    "الميزات — لا حكم.")
+                return 3
+            _ia.append((_an, None if _ak is None else feats.index(_ak)))
+        _pr = prerank_rows(d, _evm, _dw, _ki, _asc, _thr, _iu, _ia)
+        _msel = [st["sel"] for st in _pr]
+        if all(bool(np.array_equal(m, _msel[0])) for m in _msel[1:]):
+            log("⛔ **V1 ساقطة** — الأذرعُ الخمسُ لا تتفرّق ⇒ `no-op` لا "
+                "نتيجة (لا يُفسَّر صفرُ فرقٍ حكمًا).")
+        else:
+            _r0 = next(s for s in _pr if s["arm"] == "R0")
+            _c4 = next(s for s in _pr if s["arm"] == "R4")
+            # 🔒 اتّجاهُ سنتَي المعايرة — **وصفيًّا لا اختيارًا** (§⑨-③)
+            _tc, _tb = {}, {}
+            for yr in TRAIN_YEARS:
+                _m = (d["year"] == yr) & (d["slot"] == _slot)
+                if not _m.any():
+                    for _an, _ in _ia:
+                        _tc.setdefault(_an, []).append(False)
+                        _tb.setdefault(_an, []).append(False)
+                    continue
+                _rr = prerank_rows(d, _m, _dw, _ki, _asc, _thr, _iu, _ia)
+                _y0 = next(s for s in _rr if s["arm"] == "R0")["hits"]
+                _y4 = next(s for s in _rr if s["arm"] == "R4")["hits"]
+                for st in _rr:
+                    _tc.setdefault(st["arm"], []).append(st["hits"] > _y4)
+                    _tb.setdefault(st["arm"], []).append(st["hits"] > _y0)
+            log("   ذراع │ مفتاحُ الترتيب │ مأخوذ │ إصابات │   P    │ نسبةٌ إلى Q0")
+            for st, (_an, _) in zip(_pr, _ia):
+                _kn = dict(PRERANK_ARMS)[_an] or "شاهدٌ حتميّ"
+                log(f"   {st['arm']:<5}│ {_kn:<13}│{st['taken']:6} │"
+                    f"{st['hits']:7} │{st['p']*100:6.3f}%│ {st['ratio']:.3f}")
+            log(f"   📌 والمرجع `Q0` (‏كلُّ صفوف `F1`): إصابات {_q0['hits']} — "
+                f"و`R0` هو **المشحونُ حيًّا** ({_r0['hits']}) و`R4` شاهدُ "
+                f"الضبط ({_c4['hits']}).")
+            log(f"   🎲 و`R0` مقابل الشاهد: "
+                + ("**أسوأُ من العشوائيّ**" if _r0["hits"] < _c4["hits"]
+                   else ("مساوٍ له" if _r0["hits"] == _c4["hits"]
+                         else "أفضلُ منه")))
+            for st, bad, dirs_b, h0r in prerank_verdict(_pr, _tc, _tb):
+                _db = "".join("✅" if x else "🔴" for x in dirs_b) or "—"
+                log(f"   ⚖️ {st['arm']}: "
+                    + ("**تستوفي المعيار الرباعيّ ⇒ تُعرَض اقتراحًا للمالك**"
+                       if not bad else "**تسقط** — " + " · ".join(bad))
+                    + f" · ④ الكلفةُ بالأسماء {st['taken']} في السنة"
+                    + f" · (وصفيًّا مقابل `R0` في سنتَي المعايرة: {_db})")
+        log("")
+        log("🔒 **سقفُ نجاح `T-PRERANK` كما ثُبِّت (§⑨-④): عرضٌ للمالك بلا "
+            "تنفيذ** — لا يُبدَّل مفتاحُ المرشِّح ولا السقفُ ولا الأرضيةُ ولا "
+            "`BUDGET_SEC` بلا أمرٍ صريح، لأنّ ذلك يبدّل ما يصل المالك.")
         log("")
         log("📌 **حدودُ صدقٍ تُقرأ مع الأرقام:** البِركةُ الحيّة **تقريبٌ** لا "
             "نسخة (‏`usd_day` النظاميّة مقابل `c×v` المجمَّعة) · وسنةُ تقييمٍ "
