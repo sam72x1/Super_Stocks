@@ -11,6 +11,10 @@ on:
         description: "رموزٌ بفاصلة (مثال: XOS,AUUD,SNYR)"
         required: false
         type: string
+      prev:
+        description: "إغلاقُ الأمس اختياريًّا (مثال: ANPA:3.80) — للنسب قبل المِرساة"
+        required: false
+        type: string
 
 jobs:
   case:
@@ -33,4 +37,5 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           LIQ_CASE: ${{ inputs.symbols }}
+          LIQ_CASE_PREV: ${{ inputs.prev }}
         run: python liq_case_probe.py
