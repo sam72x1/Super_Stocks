@@ -39641,13 +39641,28 @@ try:
                 and getattr(_b.value, "value", None) == 3
                 for _b in _ps_ast.walk(_n))
         for _n in _ps_ast.walk(_rp_dev))
+    # ⑧ 🔴 **ولا شبكةَ مبنيّةٌ باليد داخل الكتلة** — كشفَتها الطفرةُ لا
+    #    القراءة (‏2026-09-04): طفرةُ `m53` استبدلت نداءَ `prerank_grid` في
+    #    نقطة الحكم بـ`{c: prerank_rows(..., cap=c) for c in PRECAP_KS}`
+    #    **فمُخرَجُها مطابقٌ بت-بت** (مُبرهَنٌ على 300 صفّ) ⇒ **طفرةٌ باطلةٌ
+    #    بالتعريف المدوَّن** (بلا أثرٍ سلوكيّ) — **لكنها كشفت أن `_pg_wired`
+    #    يقنع بـ`any` فيُرضيه موضعُ نداءٍ آخر**، وأن نسخةً يدويّةً تُنشئ
+    #    **مصدرَ حقيقةٍ ثانيًا للسقوف** يمكن أن ينحرف عن `prerank_grid` لاحقًا.
+    #    ⇒ حارسٌ **بنيويّ** (لا طفرة، فالخطرُ صيانةٌ لا سلوك): صفرُ
+    #    `DictComp` في كتلة التطوير قيمتُها نداءُ `prerank_rows`.
+    _pg_hand = not any(
+        isinstance(_n, _ps_ast.DictComp)
+        and any(isinstance(_c, _ps_ast.Call)
+                and getattr(_c.func, "id", None) == "prerank_rows"
+                for _c in _ps_ast.walk(_n.value))
+        for _n in _ps_ast.walk(_rp_dev))
     _pg11 = (_pg_shape and _pg_cells and _pg_gate and _pg_floor and _pg_own
-             and _pg_edge and _pg_wired and _pg_stop)
+             and _pg_edge and _pg_wired and _pg_stop and _pg_hand)
 except Exception as _e:                                          # noqa: BLE001
     _pg11, _pg_shape = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🧮 PD11 `T-PRERANK-2` شبكةُ 5×4 من ثابتَي العقد · عمودُ ∞ يتطابق "
       "(وفحصُه يفرّق **ويُوقِف**) · الأرضيةُ واحدةٌ في العشرين · والشاهدُ "
-      "**بسقفه هو** · والثلاثةُ موصولةٌ من نقطة النداء",
+      "**بسقفه هو** · والثلاثةُ موصولةٌ من نقطة النداء · ولا شبكةَ يدويّة",
       _pg11, str(_pg_shape)[:70])
 
 # ── PD8 — 🔌 **`presession_report.yml`: كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها
