@@ -1,0 +1,52 @@
+name: "🌙▶️ رادار ما قبل الجلسة — تشغيلٌ يدويّ"
+
+# 🔒 يدويٌّ حصرًا (لا كرون) · إشعارٌ/عرضٌ فقط · **لا يكتب السجلَّ الأماميّ**
+#    ولا حالةَ البوت ⇒ لا `contents: write`. القرارُ المجدولُ يبقى في العامل الحيّ.
+
+on:
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "الجلسة: PM (بريماركت) · AH (افتر) · فارغٌ = تُشتقّ من ساعة نيويورك"
+        required: false
+        default: ""
+      day:
+        description: "يومُ القرار (YYYY-MM-DD) — فارغٌ = اليومُ بتوقيت نيويورك"
+        required: false
+        default: ""
+      send:
+        description: "الإرسال: PM · AH · PM,AH · 1 للجميع · فارغٌ = عرضٌ في السجلّ بلا إرسال"
+        required: false
+        default: "PM,AH"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: presession-now
+  cancel-in-progress: false
+
+jobs:
+  presession-now:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run presession radar (manual)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PRESESSION_SLOT: ${{ github.event.inputs.slot }}
+          PRESESSION_DAY: ${{ github.event.inputs.day }}
+          PRESESSION_SEND: ${{ github.event.inputs.send }}
+        run: python presession_now.py

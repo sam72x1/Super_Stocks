@@ -38054,11 +38054,21 @@ check("🌙 PS11 تكافؤٌ سلوكيّ: `anchor_via` = `kasih_scan.first_anc
 # PS12 — الرسالةُ تحمل حدَّ الصدق ومفتاحَ الترتيب واسمَه (‏«قيد الإثبات الأماميّ»).
 _ps_row = {"sym": "X", "ref": 1.5, "day_ret": 0.4, "usd_day": 500_000.0, "n5": 2}
 _ps_msg = _PR.build_presession_alert([_ps_row], "AH", "2026-09-04", 40, 60)
+# 🔄 **إقرارٌ مؤرَّخ 2026-09-04 (أمرُ المالك «تأكّد أن كلَّ إشعارات البوت
+#    توصلني»):** كان يشترط أن القائمةَ الفارغة **رسالةٌ فارغة** — وهو بعينه
+#    العيبُ الذي أمر بإصلاحه في صيّاد المقسّم (‏«يرسل «لا يوجد» عند غيابه»)
+#    ⇒ **الصمتُ لا يفرّق «لم يعبر أحدٌ» عن «سقطت التشغيلة»**. ⇒ انقلب الشرطُ
+#    **وشُدِّد**: الفارغةُ تُنتج رسالةَ حياةٍ تحمل **حدَّ الصدق نفسَه** (لا
+#    نصًّا مختصرًا يسقط منه التحفّظ) وتُعلن أنها ليست توصية.
+_ps_zero = _PR.build_presession_alert([], "AH", "2026-09-04", 0, 0)
 check("🌙 PS12 الرسالةُ تُعلن «قيد الإثبات الأماميّ» وتسمّي مفتاحَ الترتيب "
-      "وتقول إنها ليست توصيةَ دخول · والقائمةُ الفارغة رسالةٌ فارغة (لا ضجيج)",
+      "وتقول إنها ليست توصيةَ دخول · **والليلةُ الصامتة تحمل حدَّ الصدق نفسَه**",
       ("قيد الإثبات الأماميّ" in _ps_msg and _PR.PF.rank_key("AH") in _ps_msg
        and "لا تُقرأ توصيةَ دخول" in _ps_msg
-       and _PR.build_presession_alert([], "AH", "2026-09-04", 0, 0) == ""),
+       and _ps_zero.strip() != ""
+       and "قيد الإثبات الأماميّ" in _ps_zero
+       and "لا تُقرأ توصيةَ دخول" in _ps_zero
+       and _PR.PF.rank_key("AH") in _ps_zero),
       _ps_msg[:60])
 
 # PS13 — **الوصلةُ الحيّة**: الافتراضُ صامت · والإرسالُ بأمرِ المالك · والختمُ
@@ -39098,7 +39108,11 @@ try:
         _flPF.FLOOR_BY_SLOT.clear(); _flPF.FLOOR_BY_SLOT.update(_fl_bak2)
     _fl37 = ("افترُ أمسِه 69.5% فأكثر" in _fl_on and "تُسلَّم صفرًا" in _fl_on
              and "47 من 435" in _fl_on and "100 من 2,500" not in _fl_on
-             and _fl_zero == ""                       # لا يعبر أحدٌ ⇒ صمتٌ تامّ
+             # 🔄 **إقرارٌ مؤرَّخ 2026-09-04**: كان «لا يعبر أحدٌ ⇒ صمتٌ تامّ»
+             #    ⇒ صار **رسالةَ حياةٍ تُعلن الأرضيةَ نفسَها** (فيقرأ المالكُ
+             #    لماذا صمتت) — وشرطُ الأرضية باقٍ في الرسالتين معًا.
+             and _fl_zero.strip() != "" and "افترُ أمسِه 69.5% فأكثر" in _fl_zero
+             and "رسالةُ حياةٍ لا توصية" in _fl_zero
              and "الأرضية:" not in _fl_ahm and "47 من 435" not in _fl_ahm
              and "الأرضية:" not in _fl_off            # بلا أرضية ⇒ لا سطرَ ولا رقمَها
              and "100 من 2,500" in _fl_off and "47 من 435" not in _fl_off)
@@ -39106,7 +39120,7 @@ except Exception as _e:                                          # noqa: BLE001
     _fl37, _fl_on = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🎚️ PS37 الرسالةُ تُعلن الأرضيةَ برقمها وتقول إن ليلةً بلا عابرٍ تُسلَّم "
       "صفرًا · وحدُّ الصدق يحمل أرقامَ المشحون (‏47/435) لا أرقامَ العشرة · "
-      "والافترُ بلا سطرِ أرضية · وصفرُ عابرٍ ⇒ رسالةٌ فارغة",
+      "والافترُ بلا سطرِ أرضية · **وصفرُ عابرٍ ⇒ رسالةُ حياةٍ تُعلن الأرضية**",
       _fl37, str(_fl_on)[:90])
 
 # PS38 — **السجلُّ يرى المقصوص**: `floor_ok` لكلّ صفّ و`sent` **لكلّ صفٍّ لا
@@ -39184,6 +39198,159 @@ check("🎚️ PS39 الليلةُ الصامتة (صفرُ عابرٍ · أو �
       "وتُسجَّل** ولا تُرسَل · والمُسلَّم يُمرَّر للسجلّ · **وعطلُ الجلب وحدَه** "
       "يرجع بلا ختمٍ ولا سجلّ (تُعاد المحاولة)",
       _fl39, str(_fl_q)[:130])
+
+
+# ══ 🔔 الليلةُ الصامتة تتكلّم + التشغيلُ اليدويّ (PZ1-PZ4 · PNW1-PNW4، 2026-09-04) ══
+#   أمرُ المالك: «شغّل الأداة … وتأكّد أن كلَّ إشعارات البوت توصلني» — في يومٍ
+#   عبَر فيه القرارُ المجدولُ في وقته وسلّم صفرًا، **فوصله لا شيء**. وهو عينُ
+#   العيب الذي أمر بإصلاحه في صيّاد المقسّم (‏2026-07-31) ⇒ تُطبَّق قاعدتُه هنا.
+
+# PZ1 — 🔔 **الليلةُ الصامتة رسالةُ حياة**: غيرُ فارغة · تُعلن المسحَ والتغطية ·
+#   وتقول إنها ليست توصية · **وتفرّق** عن رسالة القائمة (فلا تُقرأ قائمةً).
+try:
+    _pz_top = [{"sym": "A", "post_hi_ret": 0.3333},
+               {"sym": "B", "post_hi_ret": 0.29}]
+    _pz_zero = _PR.build_presession_alert([], "PM", "2026-09-04", 53, 340,
+                                          top=_pz_top)
+    _pz_list = _PR.build_presession_alert(
+        [{"sym": "X", "ref": 1.5, "day_ret": 0.4, "usd_day": 5e5, "n5": 2}],
+        "PM", "2026-09-04", 53, 340)
+    _pz1 = ("لا اسمَ يعبر الأرضية" in _pz_zero
+            and "رسالةُ حياةٍ لا توصية" in _pz_zero
+            and "‏🩺 مسحٌ: 340 رمزًا" in _pz_zero and "53 بشموعِ دقيقة" in _pz_zero
+            and "33.3%" in _pz_zero                  # أعلى قراءةٍ تُقال بالرقم
+            and "لا اسمَ يعبر الأرضية" not in _pz_list
+            and "رسالةُ حياةٍ لا توصية" not in _pz_list
+            and "$X" in _pz_list and "$A" not in _pz_zero)   # لا تُسرَّب أسماء
+except Exception as _e:                                          # noqa: BLE001
+    _pz1, _pz_zero = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔔 PZ1 الليلةُ الصامتة **تتكلّم**: رسالةٌ غيرُ فارغة تُعلن المسحَ والتغطية "
+      "وأعلى قراءةٍ بالرقم وأنها ليست توصية · وتفرّق عن رسالة القائمة · "
+      "**ولا تُسرَّب أسماءُ مَن لم يعبر**",
+      _pz1, str(_pz_zero)[:110])
+
+# PZ2 — `best_rank_val` نقيّة: الأعلى · تتخطّى التالفَ و`NaN` · `None` عند
+#   الفراغ · **وتقرأ مفتاحَ الجلسة** (فتفرّق `PM` عن `AH`).
+try:
+    _pz_rows = [{"post_hi_ret": 0.2, "usd_day": 9.0},
+                {"post_hi_ret": "س", "usd_day": 1.0},
+                {"post_hi_ret": float("nan"), "usd_day": 2.0},
+                {"post_hi_ret": 0.5, "usd_day": 3.0}]
+    _pz2 = (_PR.best_rank_val(_pz_rows, "PM") == 0.5
+            and _PR.best_rank_val([], "PM") is None
+            and _PR.best_rank_val(None, "PM") is None
+            and _PR.best_rank_val([{"q": 1}], "PM") is None
+            # 🔑 مفتاحُ الجلسة لا مفتاحٌ مغروس — والعيّنةُ **تفرّق**
+            and _PR.best_rank_val(_pz_rows, "AH")
+            == max(r["usd_day"] for r in _pz_rows)
+            and _PR.PF.rank_key("PM") != _PR.PF.rank_key("AH"))
+except Exception as _e:                                          # noqa: BLE001
+    _pz2 = False
+check("🔔 PZ2 `best_rank_val` نقيّة: الأعلى · تتخطّى التالفَ وNaN · `None` عند "
+      "الفراغ · **وبمفتاح الجلسة** (عيّنةٌ تفرّق PM عن AH)", _pz2)
+
+# PZ3 — **ذيلُ الصدق مصدرٌ واحد**: الفرعان يناديان `_presession_tail` (بالـAST)
+#   ⇒ يستحيل أن تحمل إحدى الرسالتين تحفّظًا لا تحمله الأخرى.
+try:
+    _pz_src = _ps_insp.getsource(_PR.build_presession_alert)
+    _pz_t = _ps_ast.parse(_pz_src.lstrip())
+    _pz_calls = [n for n in _ps_ast.walk(_pz_t)
+                 if isinstance(n, _ps_ast.Call)
+                 and getattr(n.func, "id", None) == "_presession_tail"]
+    _pz3 = (len(_pz_calls) == 2
+            and "قيد الإثبات الأماميّ" not in _pz_src)   # النصُّ في الذيل وحدَه
+except Exception as _e:                                          # noqa: BLE001
+    _pz3, _pz_calls = False, []
+check("🔔 PZ3 ذيلُ الصدق **مصدرٌ واحد**: الفرعان يناديان `_presession_tail` "
+      "ونصُّ التحفّظ ليس مكرَّرًا في البناء", _pz3, f"نداءات={len(_pz_calls)}")
+
+# PZ4 — 🔒 **السجلُّ لا يتأثّر**: ليلةٌ صامتة تُرسَل ⇒ `sent=False` لكلّ صفّ
+#   (لأن `delivered` فارغة) ⇒ كلفةُ الأرضية تبقى مقروءةً أماميًّا بت-بت.
+try:
+    _pz_lp = "/tmp/_pz_ledger.jsonl"
+    if _ps_os.path.exists(_pz_lp):
+        _ps_os.remove(_pz_lp)
+    _PR.append_ledger([{"sym": "A", "post_hi_ret": 0.33},
+                       {"sym": "B", "post_hi_ret": 0.29}],
+                      "PM", "2026-09-04", path=_pz_lp, sent=True, delivered=[])
+    _pz_read = [json.loads(x) for x in
+                open(_pz_lp, encoding="utf-8").read().splitlines() if x.strip()]
+    _pz4 = (len(_pz_read) == 2
+            and all(r["sent"] is False for r in _pz_read)
+            and all(r["floor_ok"] is False for r in _pz_read))
+except Exception as _e:                                          # noqa: BLE001
+    _pz4, _pz_read = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔔 PZ4 الليلةُ الصامتة المُرسَلة **لا تلوّث السجلّ**: `sent=False` لكلّ "
+      "صفّ (‏`delivered` فارغة) ⇒ كلفةُ الأرضية تبقى مقروءة",
+      _pz4, str(_pz_read)[:90])
+
+# PNW1 — 🔴 **الأداةُ اليدويّة لا تكتب شيئًا**: صفرُ `append_ledger` وصفرُ
+#   `git_save`/`save_op_entry_state` (بالـAST لا بالنصّ — التعليقُ يذكرها شرحًا).
+try:
+    import presession_now as _PNW
+    _pnw_src = _ps_insp.getsource(_PNW)
+    _pnw_t = _ps_ast.parse(_pnw_src)
+    _pnw_names = {(getattr(n.func, "attr", None) or getattr(n.func, "id", None))
+                  for n in _ps_ast.walk(_pnw_t) if isinstance(n, _ps_ast.Call)}
+    _pnw1 = not ({"append_ledger", "git_save", "save_op_entry_state"}
+                 & _pnw_names)
+except Exception as _e:                                          # noqa: BLE001
+    _pnw1, _pnw_names = False, set()
+check("🌙▶️ PNW1 التشغيلُ اليدويّ **لا يكتب السجلَّ الأماميّ ولا الحالة** "
+      "(صفرُ `append_ledger`/`git_save`/`save_op_entry_state` بالـAST)", _pnw1)
+
+# PNW2 — ينادي `run_presession` **الإنتاجيّة** (لا نسخةً) وبوّابةَ الإرسال
+#   النقيّة `send_enabled` نفسَها ⇒ صفرُ مقياسٍ ثانٍ.
+try:
+    _pnw_ext = {f"{getattr(n.func.value, 'id', '')}.{n.func.attr}"
+                for n in _ps_ast.walk(_pnw_t) if isinstance(n, _ps_ast.Call)
+                and isinstance(n.func, _ps_ast.Attribute)}
+    _pnw2 = ("PRE.run_presession" in _pnw_ext and "PRE.send_enabled" in _pnw_ext
+             and "bot.send_telegram" in _pnw_ext
+             and "def run_presession" not in _pnw_src)
+except Exception as _e:                                          # noqa: BLE001
+    _pnw2, _pnw_ext = False, set()
+check("🌙▶️ PNW2 اليدويّةُ تنادي `run_presession` و`send_enabled` **الإنتاجيّتين** "
+      "ولا تُعيد بناءهما", _pnw2, str(sorted(_pnw_ext))[:90])
+
+# PNW3 — `resolve_slot` نقيّة: **صريحُ البيئة يعلو** · والاشتقاقُ عند الظهر ·
+#   والترويسةُ تقول «يدويّ» و«لا يُكتَب في السجلّ» (فلا تُقرأ قرارَ اليوم).
+try:
+    _pnw3 = (_PNW.resolve_slot(None, 230) == "PM"
+             and _PNW.resolve_slot(None, 950) == "AH"
+             and _PNW.resolve_slot(None, 12 * 60) == "AH"
+             and _PNW.resolve_slot(None, 12 * 60 - 1) == "PM"
+             and _PNW.resolve_slot("AH", 230) == "AH"      # الصريحُ يعلو
+             and _PNW.resolve_slot("pm", 950) == "PM"
+             and _PNW.resolve_slot("سين", 230) == "PM"     # مجهولٌ ⇒ الاشتقاق
+             and "تشغيلٌ يدويّ" in _PNW.manual_header("PM", 261)
+             and "لا يُكتَب في السجلّ" in _PNW.manual_header("PM", 261)
+             and "04:21" in _PNW.manual_header("PM", 261))
+except Exception as _e:                                          # noqa: BLE001
+    _pnw3 = False
+check("🌙▶️ PNW3 `resolve_slot` نقيّة (الصريحُ يعلو · والاشتقاقُ عند الظهر) · "
+      "والترويسةُ تُعلن أنها يدويّةٌ ولا تُكتَب في السجلّ", _pnw3)
+
+# PNW4 — الـworkflow: **بلا كرون** · `contents: read` (لا يكتب) · وكلُّ مدخلٍ
+#   موصولٌ ببيئةٍ **يقرؤها السكربت** (بصمةُ `BT_CANDLE`: مدخلٌ ميّتٌ يُقرأ تنفيذًا).
+try:
+    _pnw_y = _ps_yaml.safe_load(
+        open(".github/workflows/presession_now.yml", encoding="utf-8").read())
+    _pnw_on = _pnw_y.get(True) or _pnw_y.get("on")
+    _pnw_env = (_pnw_y["jobs"]["presession-now"]["steps"][-1]["env"])
+    _pnw_ins = set((_pnw_on.get("workflow_dispatch") or {}).get("inputs") or {})
+    _pnw_wired = {k for k, v in _pnw_env.items()
+                  if "github.event.inputs." in str(v)}
+    _pnw_reads = {k for k in _pnw_wired if f'"{k}"' in _pnw_src}
+    _pnw4 = ("schedule" not in _pnw_on
+             and _pnw_y["permissions"] == {"contents": "read"}
+             and _pnw_ins == {"slot", "day", "send"}
+             and len(_pnw_wired) == len(_pnw_ins) == len(_pnw_reads))
+except Exception as _e:                                          # noqa: BLE001
+    _pnw4, _pnw_ins, _pnw_reads = False, set(), set()
+check("🌙▶️ PNW4 الـworkflow يدويٌّ بلا كرون · `contents: read` · وكلُّ مدخلٍ "
+      "موصولٌ ببيئةٍ **يقرؤها السكربت**",
+      _pnw4, f"مدخلات={sorted(_pnw_ins)} · مقروءة={sorted(_pnw_reads)}")
 
 
 # ── PD1 — 🔭 **السجلُّ يرى كلَّ مرتَّبٍ ومَن دون العشرة موسومٌ `in_top=False`**

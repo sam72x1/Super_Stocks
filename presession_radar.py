@@ -276,12 +276,49 @@ def anchor_via(bars8: list, liq_fn, win: int) -> int:
         return 0
 
 
+def best_rank_val(rows: list, slot: str):
+    """أعلى قراءةٍ على مفتاح الجلسة بين المرتَّبين — نقيّةٌ وفاشلةٌ-آمنة ⟶ `None`.
+
+    تُستعمل في **الليلة الصامتة** وحدَها: بلاها يقرأ المالكُ «لا أحد» ولا يعرف
+    أقريبًا كان أم بعيدًا. وهي **عرضٌ بحت** — لا تدخل ترتيبًا ولا قرارًا.
+    """
+    k = PF.rank_key(slot)
+    best = None
+    for r in (rows or []):
+        try:
+            v = float((r or {}).get(k))
+        except (TypeError, ValueError):
+            continue
+        if v != v:                                   # NaN — لا يُقارَن
+            continue
+        if best is None or v > best:
+            best = v
+    return best
+
+
 def build_presession_alert(rows: list, slot: str, day_iso: str, cov: int,
-                           scanned: int) -> str:
-    """رسالةُ القائمة — بشكل كروت البوت المضغوطة، وبحدّ صدقٍ في ذيلها."""
-    if not rows:
-        return ""
+                           scanned: int, top: list = None) -> str:
+    """رسالةُ القائمة — بشكل كروت البوت المضغوطة، وبحدّ صدقٍ في ذيلها.
+
+    🔔 **والليلةُ الصامتة تتكلّم** (‏2026-09-04، أمرُ المالك «تأكّد أن كلَّ
+    إشعارات البوت توصلني»): كانت `rows` الفارغة تُرجع نصًّا فارغًا ⇒ **صفرُ
+    رسالة في رُبع الليالي** ⇒ لا يفرّق المالكُ «لم يعبر أحدٌ الأرضية» عن «سقطت
+    التشغيلة». وهو **عينُ العيب الذي أمره بإصلاحه في صيّاد المقسّم 2026-07-31**
+    («يرسل «لا يوجد سهم يطابق الشروط» عند غيابه») ⇒ تُطبَّق قاعدتُه هنا.
+    🔒 **والسجلُّ لا يتأثّر:** `sent` لكلّ صفٍّ يبقى `False` لأن `delivered`
+    فارغة ⇒ كلفةُ الأرضية تبقى مقروءةً أماميًّا بت-بت.
+    """
     name = "الافتر (16:00)" if slot == "AH" else "البريماركت (04:00)"
+    if not rows:
+        out = [f"🌙⏱️ <b>قبل {name} بعشر دقائق</b> — "
+               "<b>لا اسمَ يعبر الأرضية اليوم</b>",
+               f"‏🩺 مسحٌ: {scanned} رمزًا في كون السعر · {cov} بشموعِ دقيقة"]
+        _b = best_rank_val(top, slot)
+        if _b is not None:
+            out.append(f"‏📉 أعلى قراءةٍ اليوم: <b>{_b * 100:.1f}%</b> على "
+                       f"<code>{PF.rank_key(slot)}</code>")
+        out.append("‏🔔 رسالةُ حياةٍ لا توصية — الأداةُ عملت وسلّمت صفرًا.")
+        return "\n".join(out + _presession_tail(slot, day_iso))
     out = [f"🌙⏱️ <b>قبل {name} بعشر دقائق</b> — {len(rows)} اسمًا",
            f"‏🩺 مسحٌ: {scanned} رمزًا في كون السعر · {cov} بشموعِ دقيقة", ""]
     for i, r in enumerate(rows, 1):
@@ -296,6 +333,13 @@ def build_presession_alert(rows: list, slot: str, day_iso: str, cov: int,
         if r.get("n5"):
             line.append(f"‏{int(r['n5'])} دقيقةَ رفعة")
         out.append(" · ".join(line))
+    return "\n".join(out + _presession_tail(slot, day_iso))
+
+
+def _presession_tail(slot: str, day_iso: str) -> list:
+    """ذيلُ الصدق — **مصدرٌ واحدٌ** للقائمة وللّيلة الصامتة معًا (وإلّا صارت
+    رسالتان بحدَّي صدقٍ مختلفَين، وهو «مقياسان لا واحد» في ثوبِ عرض)."""
+    out = []
     # 🔴 **حدُّ الصدق يتبع مفتاحَ الجلسة لا رقمًا مغروسًا**: البريماركتُ مفتاحُه
     #    مختارٌ من سنتَي المعايرة وأرقامُه خارجَ العيّنة تُقال كما هي · والافترُ
     #    على خطّ الأساس. **وفي الحالتين: الحكمُ «فشلت» على النافذة الحاكمة.**
@@ -329,7 +373,7 @@ def build_presession_alert(rows: list, slot: str, day_iso: str, cov: int,
             + ("(‏16:00 ⟶ 20:00 نيويورك)" if slot == "AH"
                else "(‏04:00 ⟶ 09:30 نيويورك)")
             + " — والعشرُ دقائقُ موعدُ الرسالة لا مدّةُ التوقّع."]
-    return "\n".join(out)
+    return out
 
 
 # ── الجلبُ (فاشلٌ-آمنٌ مطلق) ──────────────────────────────────────────────────
@@ -457,7 +501,8 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
     # 🔒 وهي على **مفتاح الترتيب نفسِه** ⇒ ترشيحُها بعد القطع يكافئ ترشيحَها قبله
     #    بالبناء (مقفولٌ سلوكيًّا) ⇒ **المُرسَلُ هو عينُ ما قِيس في `topk_result`**.
     deliver = PF.apply_floor(top, slot)
-    msg = build_presession_alert(deliver, slot, day_iso, cov, len(cands))
+    msg = build_presession_alert(deliver, slot, day_iso, cov,
+                                 len(cands), top=top)
     return ordered, msg, {"scanned": len(cands), "cov": cov, "rows": len(rows),
                           "ranked": len(ordered),
                           "pf_key": pf_key, "pf_prev": len(pcm),
