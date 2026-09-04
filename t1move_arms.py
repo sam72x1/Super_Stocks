@@ -417,7 +417,7 @@ def report(rows, year, issues):
     gg = clusters(rows, GOV)
     _log("CLUSTERS " + json.dumps(
         {"year": year, "gov": GOV,
-         "c": [[v[0], round(v[1], 6)] for _s, v in sorted(gg.items())]},
+         "c": [[_s, v[0], round(v[1], 6)] for _s, v in sorted(gg.items())]},
         ensure_ascii=False))
     return 0
 

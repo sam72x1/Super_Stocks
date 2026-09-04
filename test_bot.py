@@ -40401,14 +40401,22 @@ check("🔒 T1M7·`no_fill` = صفرُ عائدٍ يدخل المقام لا ي�
 
 # 🔒 T1M8 — البوتستراب **عنقودُه الرمز** وحتميّ: نفسُ البذرة ⇒ نفسُ الفاصل ·
 #    ورمزٌ واحدٌ بصفقاتٍ كثيرة لا يُنتج فاصلًا (عنقودٌ واحد ⇒ عرضٌ صفر).
-_t1_g = {"A": (3, -0.6), "B": (2, 0.4), "C": (5, -1.0)}
+#    🐞 العيّنةُ الأولى كانت **ثلاثةَ عناقيد** ⇒ 27 توليفةً ممكنة ⇒ طرفا
+#    الفاصل ثابتان مهما تبدّلت البذرة ⇒ نجت طفرةُ «بلا بذرة». أُعيد بناؤها
+#    بأربعين عنقودًا متمايزة (تُفرِّق فعلًا) ومعها قفلٌ بنيويٌّ على البذرة.
+_t1_g = {f"S{_i:02d}": (1 + _i % 4, (_i - 20) * 0.37) for _i in range(40)}
 _t1_c1 = _T1.boot_ci(_t1_g, n=400)
 _t1_c2 = _T1.boot_ci(_t1_g, n=400)
 _t1_one = _T1.boot_ci({"A": (50, -5.0)}, n=400)
-check("🔒 T1M8·البوتستراب حتميٌّ وعنقودُه الرمز",
-      _t1_c1 == _t1_c2 and _t1_c1["k"] == 3 and _t1_c1["n"] == 10
-      and abs(_t1_one["hi"] - _t1_one["lo"]) < 1e-12,
-      f"ci={_t1_c1} · one={_t1_one}")
+_t1_rnd = [_n for _n in _t1a.walk(_t1a.parse(_t1n.getsource(_T1.boot_ci)))
+           if isinstance(_n, _t1a.Call)
+           and getattr(_n.func, "attr", None) == "Random"]
+check("🔒 T1M8·البوتستراب حتميٌّ ببذرةٍ صريحة وعنقودُه الرمز",
+      _t1_c1 == _t1_c2 and _t1_c1["k"] == 40 and _t1_c1["n"] == 100
+      and abs(_t1_one["hi"] - _t1_one["lo"]) < 1e-12
+      and len(_t1_rnd) == 1 and len(_t1_rnd[0].args) == 1
+      and getattr(_t1_rnd[0].args[0], "id", None) == "seed",
+      f"ci={_t1_c1} · Random.args={len(_t1_rnd[0].args) if _t1_rnd else None}")
 
 # 🔒 T1M9 — أرقامُ `T-TRANCHE` المنشورة **تُقرأ من ملفّ النتيجة** لا تُنسَخ
 #    بيدي: كلُّ رقمٍ في `PUBLISHED` حاضرٌ نصًّا في `tranche_result.md`.
@@ -40435,15 +40443,44 @@ check("🔒 T1M10·`V0`/`V1`/`V3`/`V4` تُرجع 3 و`V2`/الأرضية تُر
 
 # 🔒 T1M11 — قراءةٌ فقط · والإنتاجُ لا يستوردها · وكلُّ مدخلٍ في الـworkflow
 #    موصولٌ ببيئةٍ يقرؤها السكربت (بصمةُ `BT_CANDLE`: علمٌ يُمرَّر ولا يُقرأ).
-_t1_wf = open(".github/workflows/t1move.yml", encoding="utf-8").read()
-_t1_ins = set(_re_t1.findall(r"^      (\w+):$", _t1_wf, _re_t1.M))
-_t1_env = set(_re_t1.findall(r"\$\{\{ github\.event\.inputs\.(\w+) \}\}", _t1_wf))
+import yaml as _yml_t1                                       # noqa: E402
+_t1_wf = _yml_t1.safe_load(
+    open(".github/workflows/t1move.yml", encoding="utf-8"))
+_t1_ins = set((_t1_wf.get(True) or _t1_wf.get("on") or {})
+              .get("workflow_dispatch", {}).get("inputs", {}))
+_t1_steps = _t1_wf["jobs"]["t1move-arms"]["steps"]
+_t1_bind = {}                       # قيمةٌ فعليّةٌ تُستهلَك ⟶ المدخلُ المربوط
+
+
+def _t1_ref(_v):
+    _m = _re_t1.fullmatch(r"\$\{\{ github\.event\.inputs\.(\w+) \}\}",
+                          str(_v).strip())
+    return _m.group(1) if _m else None
+
+
+for _st in _t1_steps:
+    for _k, _v in (_st.get("env") or {}).items():
+        _r = _t1_ref(_v)
+        if _r:
+            _t1_bind[f"env:{_k}"] = _r
+    for _k, _v in (_st.get("with") or {}).items():
+        _r = _t1_ref(_v)
+        if _r:
+            _t1_bind[f"with:{_k}"] = _r
+_t1_src_arms = open("t1move_arms.py", encoding="utf-8").read()
 _t1_prod = open("Super_stock.py", encoding="utf-8").read()
-check("🔒 T1M11·قراءةٌ فقط · الإنتاجُ لا يستوردها · ومدخلاتُ الـworkflow موصولة",
+# 🔴 «مدخلٌ يُعلَن ولا يصل إلى ما يستهلكه» = بصمةُ `BT_CANDLE` (علمٌ يُمرَّر
+#    ولا يُقرأ) — واسمُ الـartifact **ليس** استهلاكًا فلا يُرضي الشرط.
+check("🔒 T1M11·قراءةٌ فقط · الإنتاجُ لا يستوردها · وكلُّ مدخلٍ موصولٌ بمستهلِك",
       _T1._selfcheck_readonly()
       and "t1move_arms" not in _t1_prod
-      and _t1_ins and _t1_ins <= _t1_env,
-      f"مدخلات={sorted(_t1_ins)} · موصول={sorted(_t1_env)}")
+      and _t1_ins == {"year", "frozen_run_id"}
+      and _t1_bind.get("env:BACKTEST_YEAR") == "year"
+      and _t1_bind.get("with:run-id") == "frozen_run_id"
+      and set(_t1_bind.values()) == _t1_ins
+      and '"BACKTEST_YEAR"' in _t1_src_arms
+      and '"BT_FROZEN_PATH"' in _t1_src_arms,
+      f"مدخلات={sorted(_t1_ins)} · وصلات={_t1_bind}")
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
