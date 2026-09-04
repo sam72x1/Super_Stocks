@@ -953,5 +953,16 @@
   "usd_eff": 6025,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "HCWB",
+  "date": "2026-08-31",
+  "fired_at": "2026-08-31T19:52:14Z",
+  "break_level": 3.33,
+  "price": 3.46,
+  "vol_x": 10.0,
+  "usd": 15667,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
  }
 ]
