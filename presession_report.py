@@ -446,7 +446,12 @@ def year_tag(yr: str) -> str:
 #   مثبَّتٌ في العقد ولا يُحرَّك بعد الأرقام.
 DEV_ON = (os.environ.get("PRESESSION_DEV") or "").strip() == "1"
 PRECAP_KS = (60, 120, 240, 0)      # §② — `0` = بلا سقف · و60 هو الحيُّ اليوم
-PRECAP_MIN_USD = 100_000.0         # أرضيةُ البِركة الحيّة (`radar.MIN_DAY_USD`)
+PRECAP_MIN_USD = 100_000.0
+# 🔒 نموذجا البِركة (‏`presession_dev_prereg §⑧`) — حدّان لا تقديرٌ واحد.
+#    `P-reg` متشائمٌ **وهو الحاكم** · `P-all` متفائلٌ يُنشَر سقفًا.
+#    والأسماءُ من `PF` حصرًا فلا تتفرّق عن الماسح.
+PRECAP_POOLS = (("P-reg", ("usd_day",)),
+                ("P-all", ("usd_day", "pre_usd", "post_usd")))         # أرضيةُ البِركة الحيّة (`radar.MIN_DAY_USD`)
 PRECAP_OK = 0.90                   # §②: النسبةُ 0.90 فأكثر ⇒ السقفُ بريء
 PREFLOOR_USD = (0.0, 50_000.0, 100_000.0, 250_000.0)   # §③ — G0..G3
 PREFLOOR_P_GAIN = 3.0              # §③-① نقاطُ دقّةٍ فأكثر
@@ -472,9 +477,14 @@ def live_pool(sc_usd, gid, sym, cap, min_usd=PRECAP_MIN_USD):
 
 
 def precap_rows(d, mask, w, ki, asc, thr, i_usd):
-    """`T-PRECAP` — إصاباتُ `F1` على كلّ الصفوف (`Q0`) مقابل البِركة الحيّة."""
+    """`T-PRECAP` — إصاباتُ `F1` على كلّ الصفوف (`Q0`) مقابل البِركة الحيّة.
+
+    `i_usd` فهرسٌ واحدٌ أو **تتابعُ فهارسَ تُجمَع** (نموذجُ البِركة، §⑧)."""
     sc = np.nan_to_num(d["X"][mask][:, ki], nan=(np.inf if asc else -np.inf))
-    su = np.nan_to_num(d["X"][mask][:, i_usd], nan=0.0)
+    _ix = list(i_usd) if isinstance(i_usd, (tuple, list)) else [i_usd]
+    su = np.zeros(sc.shape, dtype=float)
+    for _j in _ix:
+        su = su + np.nan_to_num(d["X"][mask][:, _j], nan=0.0)
     gid, sym, y = d["gid"][mask], d["sym"][mask], d["y"][w][mask]
     _, inv = np.unique(gid, return_inverse=True)
     n_dec = int(inv.max()) + 1 if inv.size else 0
@@ -795,7 +805,16 @@ def main() -> int:
             return 3
         _ki = feats.index(_key)
         _asc = _key in set(PF.FEATS_ASC)
-        _iu, _ip = feats.index("usd_day"), feats.index("post_usd")
+        _ip = feats.index("post_usd")
+        # 🔒 فهارسُ نموذجَي البِركة من `PRECAP_POOLS` حصرًا (§⑧) — وأيُّ مفتاحٍ
+        #    غائبٍ عن الميزات يُعلَن ويوقف، فلا يُقاس نموذجٌ ناقصٌ بصمت.
+        _pools = []
+        for _nm, _ks in PRECAP_POOLS:
+            if any(k not in feats for k in _ks):
+                log(f"⛔ `V-DEV` نموذجُ البِركة {_nm} ينقصه مفتاح — لا حكم.")
+                return 3
+            _pools.append((_nm, tuple(feats.index(k) for k in _ks), _ks))
+        _iu = _pools[0][1]
         _trm = np.isin(d["year"], list(TRAIN_YEARS)) & (d["slot"] == _slot)
         _evm = (d["year"] == EVAL_YEAR) & (d["slot"] == _slot)
         if not _trm.any() or not _evm.any():
@@ -834,25 +853,40 @@ def main() -> int:
         # ── T-PRECAP
         log("")
         log("📦 **T-PRECAP** — هل سقفُ البِركة الحيّة يُسقط إصاباتٍ يراها القياس؟")
-        log("   ذراع      │ مأخوذ │ إصابات │   P    │ نسبةُ الإصابات إلى Q0")
-        log(f"   {'Q0':<10}│{_q0['taken']:6} │{_q0['hits']:7} │"
-            f"{_q0['p']*100:6.3f}%│ 1.000 (المرجع)")
-        _live = None
-        for st in _pc["arms"]:
-            log(f"   {st['arm']:<10}│{st['taken']:6} │{st['hits']:7} │"
-                f"{st['p']*100:6.3f}%│ {st['ratio']:.3f}")
-            if st["cap"] == 60:
-                _live = st
-        if _live is None or _live["taken"] == _q0["taken"]:
+        log("   🔒 نموذجان بحكم §⑧: **`P-reg` متشائمٌ وهو الحاكم** · و`P-all` "
+            "متفائلٌ يُنشَر سقفًا — والحقيقةُ بينهما، ولا يُختار طرفٌ بعد الأرقام.")
+        _live = {}
+        for _nm, _idx, _ks in _pools:
+            _pcx = _pc if _idx == _iu else precap_rows(d, _evm, _dw, _ki, _asc,
+                                                       _thr, _idx)
+            log("")
+            log(f"   ── نموذج {_nm} (‏{' + '.join(_ks)})")
+            log("   ذراع      │ مأخوذ │ إصابات │   P    │ نسبةُ الإصابات إلى Q0")
+            log(f"   {'Q0':<10}│{_pcx['Q0']['taken']:6} │"
+                f"{_pcx['Q0']['hits']:7} │{_pcx['Q0']['p']*100:6.3f}%│ "
+                "1.000 (المرجع)")
+            for st in _pcx["arms"]:
+                log(f"   {st['arm']:<10}│{st['taken']:6} │{st['hits']:7} │"
+                    f"{st['p']*100:6.3f}%│ {st['ratio']:.3f}")
+                if st["cap"] == 60:
+                    _live[_nm] = st
+        _lv = _live.get("P-reg")
+        log("")
+        if _lv is None or _lv["taken"] == _q0["taken"]:
             log("⛔ **V1 ساقطة** — البِركةُ الحيّة لا تفرّق عن `Q0` ⇒ `no-op` "
                 "لا نتيجة (لا يُفسَّر صفرُ فرقٍ حكمًا).")
         else:
-            _ok = _live["ratio"] >= PRECAP_OK
-            log(f"   ⚖️ **الحكم**: النسبةُ {_live['ratio']:.3f} "
+            _hi = _live.get("P-all") or _lv
+            _ok = _lv["ratio"] >= PRECAP_OK
+            log(f"   ⚖️ **الحكم بالحاكم `P-reg`**: النسبةُ {_lv['ratio']:.3f} "
                 + (f"تبلغ {PRECAP_OK:.2f} ⇒ **السقفُ بريء** — يُغلَق المحور."
                    if _ok else
                    f"دون {PRECAP_OK:.2f} ⇒ **السقفُ يُكلّف** — يُعرَض منحنى "
                    "الكلفة أعلاه على المالك، ولا يُرفَع رقمٌ بلا أمره."))
+            log(f"   📏 والمدى بين الحدَّين عند السقف المشحون: "
+                f"{_lv['ratio']:.3f} (متشائم) ⟶ {_hi['ratio']:.3f} (متفائل) "
+                f"· إصاباتٌ {_lv['hits']} ⟶ {_hi['hits']} من "
+                f"{_q0['hits']}.")
         # ── T-PREFLOOR2
         log("")
         log("💧 **T-PREFLOOR2** — هل أرضيةُ دولارِ الافتر تُنقّي `F1`؟ "

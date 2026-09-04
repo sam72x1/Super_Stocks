@@ -39237,9 +39237,34 @@ try:
             and _rp_dev is not None
             and "V0_TAKEN" in _rp_txt and "precap_rows" in _rp_txt
             and "prefloor_rows" in _rp_txt
-            # 🔒 الأذرعُ **لا تُنادى خارج** كتلة التطوير (‏لا تلوّث المنشور)
-            and _rp_src.count("precap_rows(") == 2      # التعريفُ ونداءٌ واحد
-            and _rp_src.count("prefloor_rows(") == 3)   # التعريفُ ونداءان
+            # 🔒🔴 (‏2026-09-04) **البوّابةُ تُوقِف فعلًا** — لا مجرّدَ ثابتٍ
+            #    معرَّف. طفرةٌ استبدلت شرطَها بـ`if False:` **نجت** من كلّ ما
+            #    فوق: الثوابتُ باقيةٌ والكتلةُ باقية والحارسُ ميّت. ⇒ يُشترَط
+            #    وجودُ `If` تختبر المِرساتين **ويُرجع جسمُها 3**.
+            and any(
+                isinstance(_n, _ps_ast.If)
+                and {"V0_TAKEN", "V0_HITS"} <= {
+                    getattr(_x, "id", None)
+                    for _x in _ps_ast.walk(_n.test)
+                    if isinstance(_x, _ps_ast.Name)}
+                and any(isinstance(_b, _ps_ast.Return)
+                        and getattr(_b.value, "value", None) == 3
+                        for _b in _ps_ast.walk(_n))
+                for _n in _ps_ast.walk(_rp_dev))
+            # 🔒🔴 الأذرعُ **لا تُنادى خارج** كتلة التطوير (‏لا تلوّث المنشور).
+            #    (‏2026-09-04) كان **عدًّا** (‏2 و3) فسقط على إضافةِ نموذجِ
+            #    بِركةٍ ثانٍ مشروعة — «العدُّ يمنع الإضافةَ ولا يحرس الثابت».
+            #    ⇒ صار **بنيويًّا وأشدّ**: كلُّ نداءٍ للذراعين في الملفّ كلِّه
+            #    يقع **داخل** كتلة التطوير، مهما بلغ عددُه.
+            and all(
+                sum(1 for _c in _ps_ast.walk(_scope)
+                    if isinstance(_c, _ps_ast.Call)
+                    and getattr(_c.func, "id", None) == _fn)
+                == sum(1 for _c in _ps_ast.walk(_rp_dev)
+                       if isinstance(_c, _ps_ast.Call)
+                       and getattr(_c.func, "id", None) == _fn)
+                for _fn in ("precap_rows", "prefloor_rows")
+                for _scope in (_rp_t,)))
 except Exception as _e:                                          # noqa: BLE001
     _pd4, _rp_txt = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🔬 PD4 وضعُ التطوير خلف `DEV_ON` المطفأ (المنشورُ بت-بت) · ومِرساةُ `V0` "
@@ -39257,6 +39282,15 @@ try:
     _pd_sy = _pd_np.array([0, 1, 2, 3, 0, 1, 2, 3])
     _pd_l2 = _rp.live_pool(_pd_us, _pd_gid, _pd_sy, 2)      # سقفُ 2 + أرضية
     _pd_l0 = _rp.live_pool(_pd_us, _pd_gid, _pd_sy, 0)      # بلا سقف
+    # 🔒🔴 (‏2026-09-04) **عيّنةٌ تعزل السقفَ وحدَه**: أرضيةُ الدولار تمرّر
+    #    الخمسةَ كلَّهم ⇒ الفارقُ الوحيدُ هو السقف. وبلا هذي العيّنة نجت طفرةٌ
+    #    ألغت السقفَ (‏`< 10**9`) لأن العيّنةَ الأولى أرضيتُها تقصّ الصغارَ
+    #    أصلًا فيستوي وجودُ السقف وغيابُه — «عيّنةٌ لا تفرّق» بحرفها.
+    _cp_us = _pd_np.array([5e5, 4e5, 3e5, 2e5, 1.5e5])
+    _cp_g = _pd_np.array([0, 0, 0, 0, 0])
+    _cp_s = _pd_np.array([0, 1, 2, 3, 4])
+    _cp2 = _rp.live_pool(_cp_us, _cp_g, _cp_s, 2)
+    _cp0 = _rp.live_pool(_cp_us, _cp_g, _cp_s, 0)
     # المعيارُ الرباعيّ: ذراعٌ بدقّةٍ مساوية **تسقط** بالبند ①
     _pd_g0 = {"p": 0.10, "hits": 40, "lo": 8.0, "hi": 12.0, "arm": "G0"}
     _pd_g1 = {"p": 0.20, "hits": 35, "lo": 16.0, "hi": 25.0, "arm": "G1"}
@@ -39266,6 +39300,9 @@ try:
     _pd5 = (list(_pd_l2) == [True, True, False, False] * 2
             and list(_pd_l0) == [True, True, False, False] * 2
             and int(_pd_l2.sum()) != 8            # البِركةُ تفرّق عن الكلّ
+            # السقفُ وحدَه يفرّق: الخمسةُ فوق الأرضية · وبسقفِ 2 يبقى اثنان
+            and list(_cp0) == [True] * 5
+            and list(_cp2) == [True, True, False, False, False]
             and len(_pd_v) == 2 and not _pd_v[0][1]      # G1 يستوفي
             and _pd_v[1][1]                              # G2 يسقط
             and any("①" in b for b in _pd_v[1][1]))
@@ -39274,6 +39311,50 @@ except Exception as _e:                                          # noqa: BLE001
 check("🔬 PD5 البِركةُ الحيّة تفرّق (سقفٌ ‏+ أرضيةُ دولار) · والمعيارُ الرباعيّ "
       "يُمرّر المستوفيَ ويُسقط ما دقّتُه دون ثلاثِ نقاط",
       _pd5, str(_pd_v)[:90])
+
+# ── PD9 — 🔬 **نموذجا البِركة حدّان لا تقديرٌ واحد** (‏`presession_dev_prereg
+#   §⑧`، ملحقٌ مدفوعٌ قبل أيّ رقمٍ من الذراع الجديدة). المرشِّحُ الحيُّ يرتّب
+#   بـ`c × v` من الشمعة المجمَّعة وأداةُ القياس بـ`usd_day` النظاميّة — فإن
+#   شملت المجمَّعةُ الجلسةَ الممتدّة كان القصُّ أرحمَ. **والمنفذُ محجوبٌ عن
+#   هذي البيئة ⇒ يُقاس الطرفان ولا يُخمَّن أحدُهما.**
+try:
+    _p9_pools = _rp.PRECAP_POOLS
+    _p9_names = [n for n, _ in _p9_pools]
+    _p9_keys = {n: k for n, k in _p9_pools}
+    # ① الأسماءُ من ظرف العقد حصرًا — لا مفتاحَ مخترَع.
+    _p9_feats = set(_PFm.FEATS_DESC) | set(_PFm.FEATS_ASC)
+    _p9_ok_keys = all(k in _p9_feats for _, ks in _p9_pools for k in ks)
+    # ② **يتفرّقان سلوكيًّا**: صفٌّ دولارُ افترِه يقلب ترتيبَ البِركة.
+    #    `A` نظاميُّه أكبر · `B` مجموعُه أكبر ⇒ بسقفِ 1 يختلف المختار.
+    _p9_np = _rp.np
+    _p9_reg = _p9_np.array([9e5, 4e5])
+    _p9_ext = _p9_np.array([0.0, 8e5])
+    _p9_g = _p9_np.array([0, 0])
+    _p9_s = _p9_np.array([0, 1])
+    _p9_a = _rp.live_pool(_p9_reg, _p9_g, _p9_s, 1)               # P-reg
+    _p9_b = _rp.live_pool(_p9_reg + _p9_ext, _p9_g, _p9_s, 1)     # P-all
+    # ③ `precap_rows` تجمع فهارسَ متعدّدة (نموذجٌ لا مفتاحٌ واحد).
+    _p9_src = _rp_src[_rp_src.index("def precap_rows"):
+                      _rp_src.index("def prefloor_rows")]
+    _p9 = (_p9_names == ["P-reg", "P-all"]
+           and _p9_keys["P-reg"] == ("usd_day",)
+           and _p9_keys["P-all"] == ("usd_day", "pre_usd", "post_usd")
+           and _p9_ok_keys
+           and list(_p9_a) == [True, False]
+           and list(_p9_b) == [False, True]        # 🔒 الترتيبُ ينقلب فعلًا
+           and "for _j in _ix" in _p9_src
+           # ④ والنموذجان **كلاهما يُطبَع** — لا يُنشَر حدٌّ بلا صاحبه.
+           #    (‏بنيويًّا: حلقةٌ تمشي على `_pools` داخل كتلة التطوير — و`dump`
+           #    لا يعطي نصَّ المصدر فالفحصُ النصّيُّ عليه باطلٌ بالبناء.)
+           and any(isinstance(_n, _ps_ast.For)
+                   and getattr(_n.iter, "id", None) == "_pools"
+                   for _n in _ps_ast.walk(_rp_dev))
+           and "متشائم" in _rp_txt and "متفائل" in _rp_txt)
+except Exception as _e:                                          # noqa: BLE001
+    _p9, _p9_names = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬 PD9 نموذجا البِركة (‏`P-reg` الحاكم · `P-all` سقفًا) معرَّفان من ظرف "
+      "العقد · **ويتفرّقان سلوكيًّا** (دولارُ الافتر يقلب المختار) · وكلاهما يُطبَع",
+      _p9, str(_p9_names)[:70])
 
 # ── PD8 — 🔌 **`presession_report.yml`: كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها
 #   السكربت** (بصمةُ `BT_CANDLE` الميّت). كان بلا قفلٍ إطلاقًا، ومدخلُ التطوير
