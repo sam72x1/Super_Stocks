@@ -40291,7 +40291,7 @@ check("🔒 J1U6·كلُّ مرحلةِ تحديثٍ مشحونةٍ تحمل k2 
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# 🔒 T1M1-T1M11 — أقفال `T-T1MOVE` (العقد `t1move_prereg.md` مدفوعٌ قبل
+# 🔒 T1M1-T1M15 — أقفال `T-T1MOVE` (العقد `t1move_prereg.md` مدفوعٌ قبل
 #    الأداة). بحث/قياس: الأداةُ خارج الإنتاج · والأقفالُ نقيّةٌ بلا شبكة.
 # ═══════════════════════════════════════════════════════════════════════
 import ast as _t1a
@@ -40481,6 +40481,81 @@ check("🔒 T1M11·قراءةٌ فقط · الإنتاجُ لا يستوردها
       and '"BACKTEST_YEAR"' in _t1_src_arms
       and '"BT_FROZEN_PATH"' in _t1_src_arms,
       f"مدخلات={sorted(_t1_ins)} · وصلات={_t1_bind}")
+
+# 🔒 T1M12 — **مصدرٌ واحدٌ للقياس:** مسارُ السنة المفردة ومسارُ التجميع
+#    ينادِيان `_measure` **نفسَها** (لا نسخةً منها) — وإلّا صار على المجتمع
+#    نفسِه مقياسان يتفرّقان بلا أن يقول أحدٌ أيُّهما نُشر.
+_t1_tree = _t1a.parse(_t1n.getsource(_T1))
+
+
+def _t1_calls(fn, name):
+    _f = next((n for n in _t1a.walk(_t1_tree)
+               if isinstance(n, _t1a.FunctionDef) and n.name == fn), None)
+    if _f is None:
+        return -1
+    return sum(1 for c in _t1a.walk(_f)
+               if isinstance(c, _t1a.Call)
+               and getattr(c.func, "id", None) == name)
+
+
+check("🔒 T1M12·`_measure` مصدرٌ واحد: يُنادى من `main` ومن `_pool` بلا نسخة",
+      _t1_calls("main", "_measure") == 1
+      and _t1_calls("_pool", "_measure") == 1
+      and _t1_calls("main", "backtest_symbol") == 0
+      and _t1_calls("_pool", "backtest_symbol") == 0
+      and _t1_calls("_measure", "report") == 0,
+      f"main={_t1_calls('main', '_measure')} pool={_t1_calls('_pool', '_measure')}")
+
+# 🔒 T1M13 — **التجميعُ بالرمز عبر السنوات** (‏`T-TRANCHE`: «4,817 زوجًا ·
+#    1,375 رمزًا» لا 2,222): رمزٌ في سنتين **عنقودٌ واحد**، والمتوسّطُ المجمَّع
+#    مرجَّحٌ بالأزواج لا متوسّطُ متوسّطات.
+_t1_g1 = {"AAA": (2, 4.0), "BBB": (1, -1.0)}
+_t1_g2 = {"AAA": (3, -1.0), "CCC": (4, 8.0)}
+_t1_pooled = _T1.pool_clusters([_t1_g1, _t1_g2])
+_t1_pci = _T1.boot_ci(_t1_pooled)
+check("🔒 T1M13·التجميعُ بالرمز: عنقودٌ واحدٌ للرمز ومتوسّطٌ مرجَّحٌ بالأزواج",
+      _t1_pooled["AAA"] == (5, 3.0)
+      and set(_t1_pooled) == {"AAA", "BBB", "CCC"}
+      and _t1_pci["k"] == 3 and _t1_pci["n"] == 10
+      and abs(_t1_pci["mean"] - (3.0 - 1.0 + 8.0) / 10.0) < 1e-12
+      and _t1_g1 == {"AAA": (2, 4.0), "BBB": (1, -1.0)},
+      f"pooled={_t1_pooled} ci={_t1_pci}")
+
+# 🔒 T1M14 — **البارُ والأرضياتُ أرقامُ العقد ولا تُحرَّك بعد الأرقام**،
+#    والحكمُ المجمَّع يقارن بالبار نفسِه (لا بقيمةٍ مغروسةٍ أرخى).
+_t1_pool_src = _t1n.getsource(_T1._pool)
+check("🔒 T1M14·البارُ 0.15 والأرضيتان 150/30 · والحكمُ يقارن بالبار لا بغيره",
+      _T1.BAR_R == 0.15 and _T1.FLOOR_TOTAL == 150 and _T1.FLOOR_YEAR == 30
+      and 'ci["mean"] >= BAR_R' in _t1_pool_src
+      and "FLOOR_TOTAL" in _t1_pool_src and "FLOOR_YEAR" in _t1_pool_src
+      and "0.15" not in _t1_pool_src and "150" not in _t1_pool_src,
+      f"BAR_R={_T1.BAR_R} FLOOR={_T1.FLOOR_TOTAL}/{_T1.FLOOR_YEAR}")
+
+# 🔒 T1M15 — الـworkflow المجمَّع: **كلُّ لقطةٍ موصولةٌ بسنتها** — مدخلُ
+#    `snap_YYYY` ⟶ خطوةُ تنزيلٍ مسارُها `snapYYYY` ⟶ وتلك السنةُ في
+#    `T1MOVE_POOL` بمسارها بعينه. (‏لقطةُ سنةٍ على سنةٍ أخرى أعطت 153 صفقةً
+#    مقابل 1606 **بخروجٍ صفريّ صامت** — درسُ 2026-08-29.)
+_t1_wp = _yml_t1.safe_load(
+    open(".github/workflows/t1move_pool.yml", encoding="utf-8"))
+_t1_pins = set((_t1_wp.get(True) or _t1_wp.get("on") or {})
+               .get("workflow_dispatch", {}).get("inputs", {}))
+_t1_psteps = _t1_wp["jobs"]["t1move-pool"]["steps"]
+_t1_dl = {}                     # مسارُ التنزيل ⟶ المدخلُ المربوط بـrun-id
+_t1_spec = ""
+for _st in _t1_psteps:
+    _w = _st.get("with") or {}
+    _r = _t1_ref(_w.get("run-id"))
+    if _r and _w.get("path"):
+        _t1_dl[str(_w["path"])] = _r
+    _t1_spec += str((_st.get("env") or {}).get("T1MOVE_POOL") or "")
+_t1_ok = _t1_pins == {"snap_2023", "snap_2024", "snap_2025"}
+for _y in ("2023", "2024", "2025"):
+    _t1_ok = (_t1_ok and _t1_dl.get(f"snap{_y}") == f"snap_{_y}"
+              and f"{_y}:snap{_y}/frozen_backtest.pkl.gz" in _t1_spec)
+check("🔒 T1M15·الـworkflow المجمَّع: كلُّ لقطةٍ موصولةٌ بسنتها ومقروءةٌ فعلًا",
+      _t1_ok and len(_t1_dl) == 3
+      and '"T1MOVE_POOL"' in _t1_src_arms,
+      f"تنزيل={_t1_dl} · مدخلات={sorted(_t1_pins)}")
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")

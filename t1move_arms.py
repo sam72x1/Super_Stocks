@@ -28,7 +28,8 @@ import sys
 
 OUT_ROWS = "t1move_rows.jsonl"
 FLOOR_YEAR = 30              # §④-4 — أرضيةُ السنة (رقمُ العقد)
-FLOOR_TOTAL = 150            # §④-4 — الأرضيةُ المجمَّعة (تُقرأ خارج التشغيلة)
+FLOOR_TOTAL = 150            # §④-4 — الأرضيةُ المجمَّعة
+BAR_R = 0.15                 # §④-1 — البارُ المُعادُ حرفيًّا (لا يُحرَّك)
 BOOT_N = 10000
 BOOT_SEED = 99991
 
@@ -264,6 +265,18 @@ def pair_diff(r, name):
     return vk - vb
 
 
+def pool_clusters(gs):
+    """يجمع عناقيدَ السنوات **بالرمز** — رمزٌ يظهر في سنتين يبقى **عنقودًا
+    واحدًا** لا اثنين، وإلّا انكسر استقلالُ العنقود وضاق الفاصلُ كذبًا.
+    (‏`T-TRANCHE` جمعت هكذا: «4,817 زوجًا · **1,375 رمزًا**» لا 2,222.)"""
+    out = {}
+    for g in gs:
+        for sym, v in g.items():
+            cur = out.get(sym, (0, 0.0))
+            out[sym] = (cur[0] + v[0], cur[1] + v[1])
+    return out
+
+
 def boot_ci(g, n=BOOT_N, seed=BOOT_SEED, level=0.95):
     """فاصلُ 95% لمتوسّطِ الفرق — بوتستراب **عنقودُه الرمز** (§④-3)، حتميٌّ
     ببذرةٍ ثابتة."""
@@ -422,30 +435,20 @@ def report(rows, year, issues):
     return 0
 
 
-def main() -> int:
-    if not _selfcheck_readonly():
-        _log("⛔ `V6` الأداةُ ليست قراءةً فقط")
-        return 3
-    year = (os.environ.get("BACKTEST_YEAR") or "").strip()
-    if not year.isdigit():
-        _log("⛔ BACKTEST_YEAR مطلوب")
-        return 2
-    frozen = (os.environ.get("BT_FROZEN_PATH") or "").strip()
-    if not frozen or not os.path.exists(frozen):
-        _log("⛔ BT_FROZEN_PATH مطلوب (لقطةٌ مجمَّدة)")
-        return 2
-    os.environ["SCREENER_MODE"] = "BACKTEST"
-    import Super_stock as S                                      # noqa: PLC0415
+def _measure(S, year, frozen):
+    """يقيس سنةً واحدةً على لقطتها ويُرجع `(rc, rows, issues)`.
+    🔒 **مصدرٌ واحد**: مسارُ السنة المفردة ومسارُ التجميع ينادِيانه معًا فلا
+    يتفرّق مقياسان على المجتمع نفسِه (درسُ «مقياسٌ واحدٌ لا اثنان»)."""
     hist, splits_map, asof = S.load_frozen_dataset(frozen)
     if not hist:
         _log("⛔ تعذّر تحميل اللقطة")
-        return 2
+        return 2, [], {}
     S.CONFIG["BT_REPLAY10"] = 1
     S.CONFIG["BT_ENVVALS"] = 1
     # §② — الوقفُ المشحون لا يُمَسّ (عزلُ أثر الهدف عن أثر الوقف شرطُ صلاحية)
     if not S.CONFIG.get("PIVOT_STOP_AT_LOW"):
         _log("⛔ `A0` يشترط وقفَ القاع المشحون (`PIVOT_STOP_AT_LOW`) — مُطفأ")
-        return 3
+        return 3, [], {}
     n_tr = max(1, int(S.CONFIG["ENTRY_TRANCHES"]))
     step_pct = float(S.CONFIG["ENTRY_STEP_PCT"])
     fwd = int(S.CONFIG["BACKTEST_FORWARD_DAYS"])
@@ -456,7 +459,7 @@ def main() -> int:
     if str(asof or "")[:4] != str(year):
         _log(f"⛔ اللقطة as-of {asof} لا تطابق سنةَ القياس {year} — "
              "مجتمعٌ مختلف، لا تُقاس")
-        return 4
+        return 4, [], {}
     syms = sorted(hist)
     _log(f"📦 اللقطة as-of {asof} · رموز {len(syms)} · دفعات {n_tr}×{step_pct}% "
          "· الأذرع " + " · ".join(f"{n}{o:+.0f}%/{m}" for n, o, m in ARMS))
@@ -489,6 +492,94 @@ def main() -> int:
                 _log(f"   … {k + 1}/{len(syms)} · صفوف {len(rows)}")
     if missing:
         _log("   🔍 `V4` عيّنةٌ من المفقود بتواريخه: " + " · ".join(missing))
+    return 0, rows, issues
+
+
+def _pool(S, spec):
+    """§④ **مجمَّعًا**: يقيس السنوات في تشغيلةٍ واحدة ثم يجمع عناقيدَ البوتستراب
+    **بالرمز عبر السنوات** — كما فعلت `T-TRANCHE` («4,817 زوجًا · 1,375 رمزًا»
+    = رموزٌ مجمَّعة لا سنةً سنة) — فيصدر فاصلُ ثقةٍ واحدٌ لا ثلاثة.
+    ⚖️ **والميزانيةُ واحدةٌ بالبناء**: السنواتُ الثلاث في تشغيلةٍ واحدة بنفس
+    الكود ونفس السقوف (قاعدةُ `karpathy/autoresearch` المدوَّنة)."""
+    items = []
+    for part in spec.split(","):
+        part = part.strip()
+        if not part:
+            continue
+        year, _sep, path = part.partition(":")
+        items.append((year.strip(), path.strip()))
+    if len(items) < 2:
+        _log("⛔ `T1MOVE_POOL` يلزمه سنتان فأكثر بصيغة سنة:مسار")
+        return 2
+    pooled, per_year, tot_rows = {}, [], 0
+    for year, path in items:
+        if not path or not os.path.exists(path):
+            _log(f"⛔ لقطةُ {year} غيرُ موجودة: {path}")
+            return 2
+        rc, rows, issues = _measure(S, year, path)
+        if rc:
+            return rc
+        rc = report(rows, year, issues)
+        if rc:
+            return rc
+        pooled = pool_clusters([pooled, clusters(rows, GOV)])
+        d = agg(rows, GOV)["r_fixed"] - agg(rows, "A0")["r_fixed"]
+        per_year.append((year, d, len(rows)))
+        tot_rows += len(rows)
+    ci = boot_ci(pooled)
+    _log("\n" + "=" * 62)
+    _log(f"🎯 T-T1MOVE · الحكمُ المجمَّع · {GOV} − A0 (وحدةُ المخاطرة R₀)")
+    _log("   " + " · ".join(f"{y} {d:+.4f}" for y, d, _n in per_year))
+    _log(f"   📐 مجمَّعًا {ci['mean']:+.4f}R "
+         f"[{ci['lo']:+.4f} · {ci['hi']:+.4f}] "
+         f"· أزواج {ci['n']} · رموز {ci['k']}")
+    c1 = ci["mean"] >= BAR_R
+    c2 = all(d > 0 for _y, d, _n in per_year)
+    c3 = (ci["lo"] > 0) or (ci["hi"] < 0)
+    c4 = tot_rows >= FLOOR_TOTAL and all(n >= FLOOR_YEAR
+                                         for _y, _d, n in per_year)
+    ok = "✅"
+    bad = "🔴"
+    _log(f"   ① الفرقُ يبلغ {BAR_R:+.2f}R فأكثر: "
+         f"{ci['mean']:+.4f} {ok if c1 else bad}")
+    _log(f"   ② موجبُ الإشارة في السنوات كلِّها: {ok if c2 else bad}")
+    _log(f"   ③ الفاصلُ لا يلمس الصفر: {ok if c3 else bad}")
+    _log(f"   ④ الأرضية ({FLOOR_TOTAL} مجمَّعًا · {FLOOR_YEAR} لكلّ سنة): "
+         f"{tot_rows} · {ok if c4 else bad}")
+    n_ok = sum(1 for x in (c1, c2, c3, c4) if x)
+    _log(f"   ⇒ **{n_ok} من 4** — "
+         + ("تُوصى" if n_ok == 4 else "لا تُوصى"))
+    _log("=" * 62)
+    _log("POOLED " + json.dumps(
+        {"gov": GOV, "mean": round(ci["mean"], 6),
+         "lo": round(ci["lo"], 6), "hi": round(ci["hi"], 6),
+         "pairs": ci["n"], "symbols": ci["k"],
+         "per_year": [[y, round(d, 6), n] for y, d, n in per_year],
+         "criteria": [c1, c2, c3, c4], "passed": n_ok},
+        ensure_ascii=False))
+    return 0 if n_ok == 4 else 1
+
+
+def main() -> int:
+    if not _selfcheck_readonly():
+        _log("⛔ `V6` الأداةُ ليست قراءةً فقط")
+        return 3
+    os.environ["SCREENER_MODE"] = "BACKTEST"
+    import Super_stock as S                                      # noqa: PLC0415
+    spec = (os.environ.get("T1MOVE_POOL") or "").strip()
+    if spec:
+        return _pool(S, spec)
+    year = (os.environ.get("BACKTEST_YEAR") or "").strip()
+    if not year.isdigit():
+        _log("⛔ BACKTEST_YEAR مطلوب")
+        return 2
+    frozen = (os.environ.get("BT_FROZEN_PATH") or "").strip()
+    if not frozen or not os.path.exists(frozen):
+        _log("⛔ BT_FROZEN_PATH مطلوب (لقطةٌ مجمَّدة)")
+        return 2
+    rc, rows, issues = _measure(S, year, frozen)
+    if rc:
+        return rc
     return report(rows, year, issues)
 
 
