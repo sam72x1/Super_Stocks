@@ -13772,6 +13772,41 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
                                   #    (أمرُ المالك 2026-09-03 · `T-REARM`).
                                   rearm=True)
         st["date"] = today_iso
+        # 🔺💰 **«كم بلغ وكم تداول قبل المِرساة»** (بلاغُ المالك 2026-09-04 على
+        #    `$ANPA`: «كيف يوصلني اول تنبية على اساس توها تدخل السيولة و السهم
+        #    أصلا ارتفع … بدون اي تنبية»). **وكان محقًّا في شقٍّ مقيس:** الكرتُ
+        #    يطبع `anchor_open` وحدَه = **نقطةٌ واحدة** (أين كان السعرُ لحظةَ فتح
+        #    شمعة المِرساة) فيُخفي أن السهمَ **بلغ قمّةً أعلى وارتدّ** قبلها.
+        #    المقيسُ في `ANPA` (تشغيلة `33861884229`): المِرساةُ 04:50 عند 5.00
+        #    و`anchor_open` يقول ‏+23.6% — **والقمّةُ قبلها 5.14 (‏+35.3%) عند
+        #    04:26** ⇒ «توها تدخل السيولة» قراءةٌ صحيحةٌ **للسطر** وخاطئةٌ
+        #    **للواقع**. ⚖️ **عرضٌ فقط:** صفرُ عتبةٍ وصفرُ نداءٍ إضافيّ (الشموعُ
+        #    في اليد) — ولا يمسّ إطلاقًا ولا كتمًا ولا تصنيفًا ولا حالةَ قرار.
+        #    🔒 **ويُجمَّد عند المِرساة مرّةً واحدة:** نافذةُ `LIQ_WINDOW_MIN`
+        #    **متدحرجة**، فإعادةُ حسابه كلَّ دورةٍ تجعل الرقمَ **ينكمش** كلّما
+        #    خرجت الدقائقُ القديمة = سطرُ عرضٍ يكذب. وإعادةُ المِرساة تُصفّره
+        #    فتُحسَب للثانية إحصاؤُها هي.
+        #    ⚠️ **وحدُّه مُعلَنٌ لا مطويّ:** «قبل المِرساة» = ما دخل نافذةَ الجلب
+        #    وحدَها؛ وما سبقها لا نراه أصلًا.
+        try:
+            _am = st.get("anchor_ms")
+            if _am and not st.get("pre_done"):
+                _pb = [b for b in bars
+                       if b.get("t") is not None and b.get("c") is not None
+                       and b.get("v") is not None and int(b["t"]) < int(_am)]
+                st["pre_done"] = True
+                if _pb:
+                    st["pre_hi"] = round(max(float(b.get("h") or b["c"])
+                                             for b in _pb), 4)
+                    st["pre_usd"] = round(sum(float(b["c"]) * float(b["v"])
+                                              for b in _pb))
+                    st["pre_n"] = len(_pb)
+        except (TypeError, ValueError):
+            pass
+        for _e in (ev or []):
+            for _k in ("pre_hi", "pre_usd", "pre_n"):
+                if st.get(_k) is not None:
+                    _e.setdefault(_k, st[_k])
         # 🔁 وسمُ الكرت: كلُّ حدثٍ لمِرساةٍ مُعادة يحمل `rearm` (رقمَ الإعادة)
         #    و`rearm_prev` (ملخّصَ السابقة) — عرضٌ لا اختيار.
         if st.get("rearm_n"):
@@ -14958,10 +14993,26 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                 #    قاس التأخّرَ و`T-CUMRISE` جرّبت العلاجَ بالعتبة ففشلت).
                 _ao_l = next((e.get("anchor_open") for e in evs
                               if e.get("anchor_open")), None)
+                _ph_l = next((e.get("pre_hi") for e in evs
+                               if e.get("pre_hi")), None)
+                _pu_l = next((e.get("pre_usd") for e in evs
+                              if e.get("pre_usd")), None)
                 if _ao_l:
                     _dp = (float(_ao_l) / _pc_l - 1.0) * 100.0
-                    head.append(("وكان صاعدًا " if _dp >= 0 else "وكان هابطًا ")
-                                + f"{abs(_dp):.1f}% قبل المِرساة")
+                    if _ph_l and _pu_l:
+                        # 🔺 **القمّةُ قبل المِرساة وسيولتُها** — الجوابُ المباشر
+                        #    على «توها تدخل السيولة؟»: نقطةٌ واحدة لا تكفي.
+                        _hp = (float(_ph_l) / _pc_l - 1.0) * 100.0
+                        head.append(
+                            "وقبل المِرساة: "
+                            + ("صعد " if _dp >= 0 else "هبط ")
+                            + f"{abs(_dp):.1f}% · وقمّتُه {abs(_hp):.1f}% "
+                            + ("فوق" if _hp >= 0 else "تحت")
+                            + f" الأمس بسيولة ${_n_txt(_pu_l)}")
+                    else:
+                        head.append(("وكان صاعدًا " if _dp >= 0
+                                     else "وكان هابطًا ")
+                                    + f"{abs(_dp):.1f}% قبل المِرساة")
         except (TypeError, ValueError):
             pass
         # 💪 **صنفُ الشمعة — من أحدثِ حاملٍ ومعه نافذتُه مُسمّاة** (إصلاحٌ

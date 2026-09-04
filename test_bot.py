@@ -39976,6 +39976,169 @@ check("🔌 PD8 `presession_report.yml`: كلُّ مدخلٍ موصولٌ ببي
       "(ومنها `PRESESSION_DEV`) · بلا كرون · وقراءةٌ فقط",
       _pd8, f"inputs={_p8in} غيرُ موصول={_p8bad}")
 
+
+# ══════ 🔺 PRE — «ما قبل المِرساة»: القمّةُ والسيولة (بلاغُ `$ANPA` 2026-09-04) ══════
+# 🔴 **بلاغُ المالك:** «كيف يوصلني اول تنبية على اساس **توها تدخل السيولة** و السهم
+#    أصلا ارتفع … بدون اي تنبية». **والمقيسُ يُصدّق شقًّا:** الكرتُ كان يطبع
+#    `anchor_open` وحدَه = **نقطةٌ واحدة** (أين كان السعرُ لحظةَ فتحِ شمعة المِرساة)
+#    فيُخفي أن السهمَ **بلغ قمّةً أعلى وارتدّ** قبلها. المقيسُ في `ANPA`: المِرساةُ
+#    04:50 عند 5.00 و`anchor_open` يقول ‏+23.6% — **والقمّةُ قبلها 5.14 (‏+35.3%)
+#    عند 04:26 · **وسيولةُ الأربعِ والعشرين دقيقةً قبلها ‏$4,332,010** (تشغيلة
+#    `33862509928`) بينما الكرتُ يتصدّره «أوّلُ دقيقة · $609,480» ⇒ «توها تدخل
+#    السيولة» صحيحةٌ **للسطر** خاطئةٌ **للواقع** بمقدارِ سبعةِ أضعاف.
+#    ⚖️ **عرضٌ فقط:** صفرُ عتبةٍ وصفرُ نداءٍ إضافيّ ولا يمسّ إطلاقًا ولا كتمًا
+#    ولا تصنيفًا.
+_pre_base = 1_755_000_000_000 // 60_000 * 60_000
+
+
+def _pre_bar(i, o, c, v, h=None, l=None):
+    return {"t": _pre_base + i * 60_000, "o": o, "c": c, "v": v,
+            "h": h if h is not None else max(o, c),
+            "l": l if l is not None else min(o, c)}
+
+
+# ⛰️ **عيّنةٌ تفرّق بالبناء:** قمّةٌ قبل المِرساة أعلى من قمّة المِرساة نفسِها
+#    (‏1.40 مقابل 1.22) — وتُحجَب **بالأرضية الدولاريّة وحدَها** ($21.5K دون
+#    $30,000) فلا تصير مِرساة · وشمعةٌ **بعد** المِرساة قمّتُها 2.50 فيستحيل أن
+#    يمرّ فلترُ «ما قبل المِرساة» وهو مرفوع.
+_pre_quiet = [_pre_bar(i, 1.00, 1.00, 1000) for i in range(10)]
+_pre_spike = _pre_bar(10, 1.00, 1.30, 15_000, h=1.40)
+_pre_back = _pre_bar(11, 1.30, 1.05, 2_000)
+_pre_calm = _pre_bar(12, 1.05, 1.05, 1_000)
+_pre_anchor = _pre_bar(13, 1.05, 1.20, 40_000, h=1.22)   # رفعة 14.3% · حجم 18.6×
+_pre_after = _pre_bar(14, 1.20, 1.20, 1, h=2.50)
+_pre_pre = _pre_quiet + [_pre_spike, _pre_back, _pre_calm]
+_pre_uni = [{"symbol": "PRE", "src": "تحت المتابعة"}]
+_pre_seen = {}
+try:
+    _pre_n1 = (_pre_base + 12 * 60_000 + 30_000) / 1000.0
+    _pre_r1, _, _ = S.scan_liq_stages(
+        _pre_uni, "2026-09-04", seen=_pre_seen, workers=1,
+        clock=lambda: _pre_n1, fetch_bars=lambda s, minutes=65: list(_pre_pre))
+    _pre_st1 = dict(_pre_seen.get("LIQ:PRE") or {})
+    _pre_n2 = (_pre_base + 14 * 60_000 + 30_000) / 1000.0
+    _pre_r2, _, _ = S.scan_liq_stages(
+        _pre_uni, "2026-09-04", seen=_pre_seen, workers=1,
+        clock=lambda: _pre_n2,
+        fetch_bars=lambda s, minutes=65: _pre_pre + [_pre_anchor, _pre_after])
+    _pre_ev2 = (_pre_r2[0][1][0] if _pre_r2 and _pre_r2[0][1] else {})
+    _pre_stg2 = [e.get("stage") for r in _pre_r2 for e in r[1]]
+    _pre_stt = dict(_pre_seen.get("LIQ:PRE") or {})
+    # 🔒 المرجعُ: `liq_stage_events` وحدَها على **نفس** الشموع والحالة والساعة
+    #    ⇒ الإثراءُ لا يبدّل حدثًا واحدًا (عرضٌ لا اختيار).
+    _pre_ref, _ = S.liq_stage_events(
+        _pre_pre + [_pre_anchor, _pre_after],
+        {k: v for k, v in _pre_st1.items() if k != "date"},
+        now_ms=int(_pre_n2 * 1000), rearm=True)
+    _pre_refs = [e.get("stage") for e in _pre_ref]
+    _pre_refk = any(k in e for e in _pre_ref
+                    for k in ("pre_hi", "pre_usd", "pre_n"))
+    # 🧊 نافذةٌ **متدحرجة** تُسقط الدقائقَ القديمة: بلا التجميد يعود الرقمُ
+    #    ‏1.30/$3,150/2 (‏= سطرُ عرضٍ ينكمش كلَّ دورة).
+    _pre_n3 = (_pre_base + 16 * 60_000 + 30_000) / 1000.0
+    _pre_r3, _, _ = S.scan_liq_stages(
+        _pre_uni, "2026-09-04", seen=_pre_seen, workers=1,
+        clock=lambda: _pre_n3,
+        fetch_bars=lambda s, minutes=65: [
+            _pre_back, _pre_calm, _pre_anchor, _pre_after,
+            _pre_bar(15, 1.20, 1.21, 900), _pre_bar(16, 1.21, 1.21, 50)])
+    _pre_st3 = dict(_pre_seen.get("LIQ:PRE") or {})
+except Exception as _e:                                          # noqa: BLE001
+    _pre_ev2 = _pre_stt = _pre_st3 = {"⛔": f"{type(_e).__name__}: {_e}"}
+    _pre_r1 = _pre_stg2 = _pre_refs = []
+    _pre_refk = True
+
+check("🔺 PRE1 **القمّةُ والسيولةُ قبل المِرساة** تُحسبان من الشموع التي **قبل** "
+      "`anchor_ms` حصرًا — والحدثُ يحملها: قمّةٌ 1.40 (أعلى من قمّة المِرساة "
+      "1.22 ومن كلّ ما قبلها) · سيولةٌ $32,650 · 13 دقيقة · وصمتٌ في الرؤية الأولى",
+      _pre_r1 == [] and _pre_stg2 == ["M1"]
+      and _pre_ev2.get("pre_hi") == 1.4
+      and _pre_ev2.get("pre_usd") == 32_650
+      and _pre_ev2.get("pre_n") == 13
+      and _pre_ev2.get("anchor_ms") == _pre_base + 13 * 60_000,
+      f"حدث={ {k: _pre_ev2.get(k) for k in ('pre_hi', 'pre_usd', 'pre_n')} } "
+      f"رؤية1={len(_pre_r1)}")
+
+check("🧊 PRE2 **تُجمَّد عند المِرساة مرّةً واحدة** (`pre_done`): نافذةٌ متدحرجةٌ "
+      "تُسقط القديمَ ⇒ الرقمُ **لا ينكمش** (يبقى 1.40/$32,650/13 ولا يصير "
+      "1.30/$3,150/2)",
+      _pre_stt.get("pre_done") is True
+      and _pre_stt.get("pre_hi") == 1.4 and _pre_stt.get("pre_usd") == 32_650
+      and _pre_st3.get("pre_hi") == 1.4 and _pre_st3.get("pre_usd") == 32_650
+      and _pre_st3.get("pre_n") == 13,
+      f"بعد={ {k: _pre_st3.get(k) for k in ('pre_hi', 'pre_usd', 'pre_n')} }")
+
+# PRE3 — الكرت: **بفارقٍ محدَّد** (السطرُ الجديد مع الحقلين · والصياغةُ القديمة
+#   حرفيًّا بدونهما) · وبالاتجاهين لا بعلامة.
+try:
+    _pre_msg_a = S.build_liq_stage_alert(
+        [(_lv_row, [_lv_ev("M5", _lv_top, minutes=5, usd=200_000,
+                           pre_hi=1.40, pre_usd=32_650, pre_n=13)])],
+        now_ms=60_000)
+    _pre_msg_b = S.build_liq_stage_alert(
+        [(_lv_row, [_lv_ev("M5", _lv_top, minutes=5, usd=200_000)])],
+        now_ms=60_000)
+    _pre_msg_c = S.build_liq_stage_alert(
+        [(_lv_row, [_lv_ev("M5", _lv_top, minutes=5, usd=200_000,
+                           pre_hi=0.60, pre_usd=9_000, pre_n=4)])],
+        now_ms=60_000)
+except Exception as _e:                                          # noqa: BLE001
+    _pre_msg_a = _pre_msg_b = _pre_msg_c = f"⛔ رمى {type(_e).__name__}"
+check("🔺 PRE3 الكرتُ يقول **القمّةَ وسيولتَها** لا نقطةً واحدة: «وقبل المِرساة: "
+      "صعد 25.0% · وقمّتُه 75.0% فوق الأمس بسيولة $32,650» · وبلا الحقلين تعود "
+      "الصياغةُ القديمة **حرفيًّا** · والقمّةُ دون الأمس تُقال «تحت»",
+      ("وقبل المِرساة: صعد 25.0% · وقمّتُه 75.0% فوق الأمس بسيولة $32,650"
+       in _pre_msg_a)
+      and "وكان صاعدًا" not in _pre_msg_a
+      and "وكان صاعدًا 25.0% قبل المِرساة" in _pre_msg_b
+      and "وقبل المِرساة:" not in _pre_msg_b
+      and "وقمّتُه 25.0% تحت الأمس بسيولة $9,000" in _pre_msg_c,
+      f"أ={_pre_msg_a.splitlines()[0][-95:]!r} ب={('وكان صاعدًا' in _pre_msg_b)}")
+
+# PRE4 — **عرضٌ لا اختيار**: `liq_stage_events` لا تعرف الحقولَ إطلاقًا (فالقرارُ
+#   بت-بت) · والفلترُ لا يقرؤها · والأحداثُ نفسُها تفير مع الإثراء وبدونه.
+try:
+    _pre_lse = _ast0.unparse(_ast0.parse(_insp0.getsource(S.liq_stage_events)))
+    _pre_afk = _ast0.unparse(_ast0.parse(_insp0.getsource(S.alert_filter_keep)))
+    _pre_bld = _insp0.getsource(S.build_liq_stage_alert)
+except Exception as _e:                                          # noqa: BLE001
+    _pre_lse = _pre_afk = f"pre_hi ⛔ {type(_e).__name__}"
+    _pre_bld = ""
+check("🔒 PRE4 **عرضٌ لا اختيار**: صفرُ ذِكرٍ للحقول في `liq_stage_events` "
+      "(القرارُ بت-بت) وفي `alert_filter_keep` (لا كتمَ ولا تمرير) · وتُقرأ في "
+      "`build_liq_stage_alert` وحدَها · **وقائمةُ الأحداث مطابقةٌ للمرجع**",
+      all(k not in _pre_lse for k in ("pre_hi", "pre_usd", "pre_n", "pre_done"))
+      and all(k not in _pre_afk for k in ("pre_hi", "pre_usd", "pre_n"))
+      and "pre_hi" in _pre_bld and "pre_usd" in _pre_bld
+      and _pre_stg2 == _pre_refs and _pre_refs == ["M1"] and not _pre_refk,
+      f"مراحل={_pre_stg2} مرجع={_pre_refs} مفاتيحُ المرجع={_pre_refk}")
+
+# PRE5 — **إعادةُ المِرساة تُصفّرها** فتُحسَب للثانية إحصاؤها هي (وإلّا حمل كرتُ
+#   المِرساة الثانية قمّةَ الأولى وسيولتَها = سطرُ عرضٍ يكذب). فارقٌ واحد: `rearm`.
+_pre_rst = {"anchor_ms": _pre_base + 13 * 60_000, "anchor_price": 1.20,
+            "anchor_low": 1.05, "e5": 1.20,
+            "exit_ms": _pre_base + 14 * 60_000,
+            "last_eval_ms": _pre_base + 14 * 60_000,
+            "pre_done": True, "pre_hi": 1.40, "pre_usd": 32_650, "pre_n": 13}
+try:
+    _, _pre_ron = S.liq_stage_events(
+        _pre_pre + [_pre_anchor, _pre_after], dict(_pre_rst),
+        now_ms=int((_pre_base + 14 * 60_000 + 30_000)), rearm=True)
+    _, _pre_roff = S.liq_stage_events(
+        _pre_pre + [_pre_anchor, _pre_after], dict(_pre_rst),
+        now_ms=int((_pre_base + 14 * 60_000 + 30_000)), rearm=False)
+except Exception as _e:                                          # noqa: BLE001
+    _pre_ron = _pre_roff = {"pre_done": f"⛔ {type(_e).__name__}"}
+check("🔁 PRE5 **إعادةُ المِرساة تُصفّر إحصاءَ ما قبلها** (فلا يرث الثاني قمّةَ "
+      "الأوّل) · **وبلا `rearm` تبقى بت-بت** — فارقٌ واحدٌ لا «أو»",
+      all(_pre_ron.get(k) is None
+          for k in ("pre_done", "pre_hi", "pre_usd", "pre_n"))
+      and int(_pre_ron.get("rearm_n") or 0) == 1
+      and _pre_roff.get("pre_done") is True
+      and _pre_roff.get("pre_hi") == 1.40,
+      f"مع={ {k: _pre_ron.get(k) for k in ('pre_done', 'pre_hi', 'rearm_n')} } "
+      f"بلا={_pre_roff.get('pre_hi')}")
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
