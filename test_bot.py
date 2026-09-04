@@ -39491,8 +39491,26 @@ try:
                               False, 0.0, _pa_iu, _pa_ia, cap=1)
     _pa_tail = list(next(_s for _s in _pa_nr
                          if _s["arm"] == "R3")["sel"]) == [False, True]
+    # ⑧ 🔴 **السقفُ واحدٌ للخمس** — كشفَته الطفرةُ لا القراءة (‏2026-09-04):
+    #    طفرةُ `cap if nm != "R1" else cap * 3` **نجت** من كلّ ما فوق، لأن
+    #    `R0` يبقى ≡ `live_pool` والأذرعُ تبقى تتفرّق — **والميزانيةُ اختلفت**
+    #    فيختلط أثرُ الترتيب بأثر السقف، وهو **نصُّ العقد §⑨-② بحرفه**.
+    #    ⇒ بنيويًّا: نداءُ `prerank_pool` داخل `prerank_rows` يمرّر **الاسمَ
+    #    المجرَّد `cap`** لا تعبيرًا · وسلوكيًّا: مأخوذُ كلّ ذراعٍ **محدودٌ
+    #    بالسقف × عددِ القرارات**.
+    _pa_rf = next(_n for _n in _ps_ast.walk(_rp_t)
+                  if isinstance(_n, _ps_ast.FunctionDef)
+                  and _n.name == "prerank_rows")
+    _pa_pc = [_c for _c in _ps_ast.walk(_pa_rf) if isinstance(_c, _ps_ast.Call)
+              and getattr(_c.func, "id", None) == "prerank_pool"]
+    _pa_cap1 = (len(_pa_pc) == 1
+                and len(_pa_pc[0].args) >= 5
+                and isinstance(_pa_pc[0].args[4], _ps_ast.Name)
+                and _pa_pc[0].args[4].id == "cap"
+                and not _pa_pc[0].keywords
+                and all(_s["taken"] <= 5 * 3 for _s in _pa_r1))
     _pa10 = (_pa_shape and _pa_det and _pa_flip and _pa_fl and _pa_live
-             and _pa_safe and _pa_tail)
+             and _pa_safe and _pa_tail and _pa_cap1)
 except Exception as _e:                                          # noqa: BLE001
     _pa10, _pa_shape = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🚦 PD10 `T-PRERANK` خمسُ أذرعٍ ولا سادسة · شاهدُ ضبطٍ **حتميّ** · "
