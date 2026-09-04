@@ -24,7 +24,7 @@
   "date": "2026-09-03"
  },
  "LIQ:SSM": {
-  "last_eval_ms": 1788546480000,
+  "last_eval_ms": 1788546600000,
   "date": "2026-09-04"
  },
  "LIQ:CISS": {
@@ -685,7 +685,7 @@
    "M5",
    "M30"
   ],
-  "updates": 1,
+  "updates": 2,
   "vol_x": 5.9,
   "peak_usd": 555873,
   "last_eval_ms": 1788529020000,
@@ -1107,7 +1107,7 @@
   "date": "2026-09-04"
  },
  "LIQ:ASST": {
-  "last_eval_ms": 1788546540000,
+  "last_eval_ms": 1788546600000,
   "date": "2026-09-04"
  },
  "LIQ:VWAV": {
@@ -1809,7 +1809,7 @@
   "date": "2026-09-04"
  },
  "LIQ:MVIS": {
-  "last_eval_ms": 1788546540000,
+  "last_eval_ms": 1788546600000,
   "date": "2026-09-04"
  },
  "LIQ:BYAH": {
@@ -2331,7 +2331,7 @@
   "date": "2026-09-04"
  },
  "LIQ:ACTU": {
-  "last_eval_ms": 1788546540000,
+  "last_eval_ms": 1788546600000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788532320000,
@@ -2762,7 +2762,7 @@
   "date": "2026-09-04"
  },
  "LIQ:SILO": {
-  "last_eval_ms": 1788539580000,
+  "last_eval_ms": 1788543300000,
   "date": "2026-09-04"
  },
  "LIQ:ACON": {
