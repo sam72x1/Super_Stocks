@@ -86,8 +86,63 @@
    "last_bar": "2026-09-02",
    "dollar_vol": 5105829.0,
    "move_pct": -0.0
+  },
+  {
+   "symbol": "AEMD",
+   "added": "2026-09-03",
+   "ref_price": 1.93,
+   "half": 1.85,
+   "ref": 3.7,
+   "event_kind": "split",
+   "split_date": "2026-08-04",
+   "float": 706407,
+   "avail": 100000,
+   "borrow_fee": 131.23,
+   "stop": 0.53,
+   "hold_above": 2.0,
+   "targets": [
+    {
+     "price": 2.13,
+     "src": "رأس شمعة حمراء"
+    },
+    {
+     "price": 2.49,
+     "src": "رأس شمعة حمراء"
+    }
+   ],
+   "status": "active",
+   "last_price": 1.93
+  },
+  {
+   "symbol": "YHC",
+   "added": "2026-09-03",
+   "ref_price": 1.49,
+   "half": 1.22,
+   "ref": 2.43,
+   "event_kind": "split",
+   "split_date": "2026-07-13",
+   "float": 1277897,
+   "avail": 150000,
+   "borrow_fee": 12.0,
+   "stop": 1.27,
+   "hold_above": 1.63,
+   "targets": [
+    {
+     "price": 1.71,
+     "src": "رأس شمعة حمراء"
+    },
+    {
+     "price": 1.79,
+     "src": "مقاومة"
+    }
+   ],
+   "status": "active",
+   "last_price": 1.49
   }
  ],
- "added_last": [],
+ "added_last": [
+  "AEMD",
+  "YHC"
+ ],
  "pruned": []
 }
