@@ -40781,6 +40781,25 @@ check("🔒 EXM10·كلُّ لقطةٍ موصولةٌ **بسنتها** ومقر�
       and '"EXITMGMT_POOL"' in _xm_src,
       f"مدخلات={_xm_ins} · وصلُ السنوات={_xm_dl}")
 
+# ── EXM10ب · اسمُ الأداة **يُقرأ من مُنتِجها لا يُخترَع**: `pit_snapshot.yml`
+#    هو مَن يرفع اللقطة، فاسمُ التنزيل يجب أن يطابقه حرفيًّا.
+#    🐞 وُلد من عطلٍ حيّ: كتبتُ `frozen-backtest` والاسمُ `frozen-dataset`
+#    ⇒ سقطت التشغيلةُ `33915475073` في 28 ثانية — صنفُ «المفتاح المتخيَّل».
+try:
+    _xm_pit = _trn_yaml.safe_load(open(".github/workflows/pit_snapshot.yml",
+                                  encoding="utf-8"))
+    _xm_up = {(st.get("with") or {}).get("name")
+              for j in (_xm_pit.get("jobs") or {}).values()
+              for st in (j.get("steps") or [])
+              if "upload-artifact" in str(st.get("uses", ""))}
+except Exception as _e:                                          # noqa: BLE001
+    _xm_up = {f"⛔ {type(_e).__name__}"}
+_xm_names = {(st.get("with") or {}).get("name") for st in _xm_steps
+             if "download-artifact" in str(st.get("uses", ""))}
+check("🔒 EXM10ب·اسمُ اللقطة مقروءٌ من مُنتِجها (`pit_snapshot.yml`) لا مخترَعًا",
+      len(_xm_names) == 1 and _xm_names <= _xm_up and _xm_up,
+      f"تنزيل={sorted(_xm_names)} · رفعُ المُنتِج={sorted(_xm_up)}")
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

@@ -37,21 +37,21 @@ jobs:
       - name: تنزيل لقطة 2023
         uses: actions/download-artifact@v4
         with:
-          name: frozen-backtest
+          name: frozen-dataset
           path: snap2023
           run-id: ${{ inputs.snap_2023 }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: تنزيل لقطة 2024
         uses: actions/download-artifact@v4
         with:
-          name: frozen-backtest
+          name: frozen-dataset
           path: snap2024
           run-id: ${{ inputs.snap_2024 }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: تنزيل لقطة 2025
         uses: actions/download-artifact@v4
         with:
-          name: frozen-backtest
+          name: frozen-dataset
           path: snap2025
           run-id: ${{ inputs.snap_2025 }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
