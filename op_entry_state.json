@@ -698,7 +698,6 @@
    "j1_top": false
   },
   "e5": 0.66,
-  "tgt_ms": 1788530700000,
   "date": "2026-09-04"
  },
  "LIQ:BRNX": {
@@ -742,7 +741,6 @@
    "j1_top": false
   },
   "e5": 1.35,
-  "tgt_ms": 1788529200000,
   "date": "2026-09-04"
  },
  "LIQ:WXM": {
@@ -1706,11 +1704,11 @@
   "anchor_price": 9.06,
   "anchor_open": 8.44,
   "anchor_low": 8.44,
-  "date": "2026-09-04",
   "pre_done": true,
   "pre_hi": 8.4,
   "pre_usd": 2497839,
-  "pre_n": 53
+  "pre_n": 53,
+  "date": "2026-09-04"
  },
  "LIQ:GDEV": {
   "date": "2026-09-04"
