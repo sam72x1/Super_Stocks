@@ -1,0 +1,70 @@
+name: T-EXITMGMT (🎚️🚪 إدارة الخروج — مجمَّعة)
+
+# يدويٌّ · بلا كرون · قراءةٌ فقط. السنواتُ الثلاث في **تشغيلةٍ واحدة**
+# (ميزانيةٌ واحدةٌ بالبناء — قاعدةُ `karpathy/autoresearch`).
+on:
+  workflow_dispatch:
+    inputs:
+      snap_2023:
+        description: "run-id للقطة 2023"
+        required: true
+        default: "31574165523"
+      snap_2024:
+        description: "run-id للقطة 2024"
+        required: true
+        default: "31199493957"
+      snap_2025:
+        description: "run-id للقطة 2025"
+        required: true
+        default: "31191327731"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  exitmgmt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: تنزيل لقطة 2023
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-backtest
+          path: snap2023
+          run-id: ${{ inputs.snap_2023 }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: تنزيل لقطة 2024
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-backtest
+          path: snap2024
+          run-id: ${{ inputs.snap_2024 }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: تنزيل لقطة 2025
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-backtest
+          path: snap2025
+          run-id: ${{ inputs.snap_2025 }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: 🎚️ قِس الأذرع الخمس (السنوات الثلاث · ميزانيةٌ واحدة)
+        env:
+          EXITMGMT_POOL: >-
+            2023:snap2023/frozen_backtest.pkl.gz,2024:snap2024/frozen_backtest.pkl.gz,2025:snap2025/frozen_backtest.pkl.gz
+        run: python exitmgmt_arms.py
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exitmgmt-rows
+          path: exitmgmt_rows.jsonl
+          retention-days: 90
+          if-no-files-found: warn

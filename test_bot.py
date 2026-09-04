@@ -40594,6 +40594,194 @@ check("🔒 T1M15·الـworkflow المجمَّع: كلُّ لقطةٍ موصو
       f"تنزيل={_t1_dl} · مدخلات={sorted(_t1_pins)}")
 
 
+# ═══════════════════════════════════════════════════════════════════════
+# 🎚️🚪 T-EXITMGMT — إدارةُ الخروج (العقد `exitmgmt_prereg.md` مدفوعٌ قبلها)
+#     بحث/قياس: قراءةٌ فقط · الإنتاجُ لا يستوردها · لا `LOGIC_VERSION`.
+# ═══════════════════════════════════════════════════════════════════════
+import ast as _xma
+import exitmgmt_arms as _XM
+
+_xm_src = _insp0.getsource(_XM)
+_xm_tree = _xma.parse(_xm_src)
+
+
+def _xm_r(hi, lo, cl, op, e, st, t1, filled, **kw):
+    """يُرجع (النتيجة، R₀) من `resolve_exit` — مختصرٌ للعيّنات."""
+    o, rt, info = _XM.resolve_exit(hi, lo, cl, op, e, st, t1, filled, **kw)
+    return o, (None if rt is None else round(_XM.r_of(rt, e, st), 6)), info
+
+
+# ── EXM1 · `V0` بوّابةُ المِقياس الواحد: بلا إدارةٍ ≡ `_resolve_arm` بت-بت.
+#    🔴 وليست تحصيلَ حاصل: العيّنةُ **تفرّق** (بالإدارة يختلف الجواب).
+_xm_bad = _XM.selfcheck_v0(S, n=1200, seed=4242)
+_xm_hi = [110.0, 150.0, 200.0]
+_xm_lo = [99.0, 120.0, 150.0]
+_xm_cl = [105.0, 140.0, 190.0]
+_xm_op = [100.0, 105.0, 145.0]
+_XM_E, _XM_S, _XM_T = 100.0, 90.0, 187.0
+_XM_MID = _XM_E + (_XM_T - _XM_E) / 2.0
+_xm_o0, _xm_v0, _ = _xm_r(_xm_hi, _xm_lo, _xm_cl, _xm_op, _XM_E, _XM_S,
+                          _XM_T, 0)
+_xm_o1, _xm_v1, _xm_i1 = _xm_r(_xm_hi, _xm_lo, _xm_cl, _xm_op, _XM_E, _XM_S,
+                               _XM_T, 0, take=0.5, level=_XM_MID)
+check("🔒 EXM1·V0: المُصيِّرُ بلا إدارةٍ يُعيد `_resolve_arm` بت-بت "
+      "(والعيّنةُ تفرّق بالإدارة)",
+      _xm_bad == 0 and _xm_v0 != _xm_v1,
+      f"تفرّق={_xm_bad} · بلا={_xm_v0} · بجني={_xm_v1}")
+
+# ── EXM2 · حسابُ الجني الجزئيّ **بالورقة**: رابحٌ ‏= ½(k/2)+½k · وبالغُ
+#    المنتصفِ ثم خاسرٌ ‏= ½(k/2)+½(−1). عيّنتان **تفرّقان في الاتّجاهين**.
+_xm2_hi = [110.0, 150.0, 120.0]
+_xm2_lo = [99.0, 120.0, 88.0]
+_xm2_cl = [105.0, 140.0, 90.0]
+_xm2_op = [100.0, 105.0, 119.0]
+_xm_oL, _xm_vL, _ = _xm_r(_xm2_hi, _xm2_lo, _xm2_cl, _xm2_op, _XM_E, _XM_S,
+                          _XM_T, 0)
+_xm_oP, _xm_vP, _ = _xm_r(_xm2_hi, _xm2_lo, _xm2_cl, _xm2_op, _XM_E, _XM_S,
+                          _XM_T, 0, take=0.5, level=_XM_MID)
+check("🔒 EXM2·الجنيُ الجزئيّ يطابق الحسابَ بالورقة في الاتّجاهين",
+      abs(_xm_v0 - 8.7) < 1e-9 and abs(_xm_v1 - 6.525) < 1e-9
+      and abs(_xm_vL + 1.0) < 1e-9 and abs(_xm_vP - 1.675) < 1e-9,
+      f"رابح {_xm_v0}⟶{_xm_v1} · خاسر {_xm_vL}⟶{_xm_vP}")
+
+# ── EXM3 · وقفُ التعادل **من الشمعة التالية** لا من شمعة البلوغ (لا يُحرَّك
+#    وقفٌ إلى الماضي). العيّنةُ تفرّق: قاعُ شمعة البلوغ **تحت** الدخول.
+_xm3_hi = [110.0, 150.0, 120.0]
+_xm3_lo = [99.0, 95.0, 88.0]      # ← 95 تحت الدخول 100 داخل شمعة البلوغ
+_xm3_cl = [105.0, 140.0, 90.0]
+_xm3_op = [100.0, 105.0, 119.0]
+_xm_oB, _xm_vB, _xm_iB = _xm_r(_xm3_hi, _xm3_lo, _xm3_cl, _xm3_op, _XM_E,
+                               _XM_S, _XM_T, 0, level=_XM_MID, move_be=True)
+check("🔒 EXM3·وقفُ التعادل يسري من الشمعة **التالية** (لا داخل شمعة البلوغ)",
+      _xm_iB["be"] and abs(_xm_vB - 0.0) < 1e-9,
+      f"be={_xm_iB['be']} · R={_xm_vB} (لو سرى داخلها لخرج سالبًا)")
+
+# ── EXM3ب · قفلٌ **بنيويّ** لحارسٍ **خامد**: `st` يُحسَب في رأس الدورة قبل فحص
+#    المستوى ⇒ `be_from = k` و`k + 1` لا يفترقان سلوكيًّا (صفرُ تفرّقٍ في 90,000
+#    حالة) ⇒ لا تُطفَر الدلالةُ بل تُقفَل بالـAST — «الحارسُ الخامد لا يُطفَر».
+_xm_bf = [n for n in _xma.walk(_xma.parse(_insp0.getsource(_XM.resolve_exit)))
+          if isinstance(n, _xma.Assign)
+          and any(getattr(t, "id", None) == "be_from" for t in n.targets)]
+_xm_bf_plus = [n for n in _xm_bf
+               if isinstance(n.value, _xma.BinOp)
+               and isinstance(n.value.op, _xma.Add)
+               and getattr(n.value.left, "id", None) == "k"
+               and getattr(n.value.right, "value", None) == 1]
+_xm_bf_bare = [n for n in _xm_bf if getattr(n.value, "id", None) == "k"]
+check("🔒 EXM3ب·التسليحُ مكتوبٌ `k + 1` صراحةً (بنيويًّا · حارسٌ خامدٌ مُعلَن)",
+      len(_xm_bf_plus) == 1 and not _xm_bf_bare and len(_xm_bf) == 2,
+      f"k+1={len(_xm_bf_plus)} · k={len(_xm_bf_bare)} · إسنادات={len(_xm_bf)}")
+
+# ── EXM4 · الترتيبُ المحافظ: الوقفُ أوّلًا في الشمعة الواحدة — شمعةٌ تلمس
+#    الوقفَ **والمنتصفَ والهدف** تُحسم **وقفًا** ولا يُحتسب جنيٌ.
+_xm4_hi = [110.0, 200.0]
+_xm4_lo = [99.0, 85.0]
+_xm4_cl = [105.0, 190.0]
+_xm4_op = [100.0, 105.0]
+_xm_oS, _xm_vS, _xm_iS = _xm_r(_xm4_hi, _xm4_lo, _xm4_cl, _xm4_op, _XM_E,
+                               _XM_S, _XM_T, 0, take=0.5, level=_XM_MID)
+check("🔒 EXM4·الوقفُ أوّلًا: شمعةٌ تلمس الوقفَ والهدفَ معًا ⇒ وقفٌ بلا جني",
+      _xm_oS == "loss" and abs(_xm_vS + 1.0) < 1e-9 and not _xm_iS["hit"],
+      f"{_xm_oS} · R={_xm_vS} · بلغ={_xm_iS['hit']}")
+
+# ── EXM5 · حارسُ `F-L1` يسري على المنتصف كما يسري على الهدف: لا يُحسم أيٌّ
+#    منهما على **شمعة التعبئة**. العيّنةُ تفرّق (رأسُ شمعة التعبئة يتجاوزهما).
+_xm5_hi = [200.0, 110.0]
+_xm5_lo = [95.0, 88.0]
+_xm5_cl = [105.0, 90.0]
+_xm5_op = [100.0, 109.0]
+_xm_oF, _xm_vF, _xm_iF = _xm_r(_xm5_hi, _xm5_lo, _xm5_cl, _xm5_op, _XM_E,
+                               _XM_S, _XM_T, 0, take=0.5, level=_XM_MID)
+check("🔒 EXM5·`F-L1`: رأسُ شمعة التعبئة لا يحسم المنتصفَ ولا الهدف",
+      not _xm_iF["hit"] and abs(_xm_vF + 1.0) < 1e-9,
+      f"بلغ={_xm_iF['hit']} · R={_xm_vF}")
+
+# ── EXM6 · الحارسُ ضدّ «جنيٍ فوق الهدف»: مستوًى ‏≥ `t1` ⇒ الذراعُ تؤول إلى
+#    `X0` ويُوسَم `degen` (ولا يُحتسب خروجٌ بسعرٍ أعلى من الهدف).
+_xm_oD, _xm_vD, _xm_iD = _xm_r(_xm_hi, _xm_lo, _xm_cl, _xm_op, _XM_E, _XM_S,
+                               _XM_T, 0, take=0.5, level=_XM_T + 5.0)
+check("🔒 EXM6·مستوى الجني فوق الهدف ⇒ تؤول إلى X0 وتُوسَم",
+      _xm_iD["degen"] and _xm_vD == _xm_v0,
+      f"degen={_xm_iD['degen']} · R={_xm_vD} مقابل X0={_xm_v0}")
+
+# ── EXM7 · بنيويّ: **خمسُ أذرعٍ ولا سادسة** والحاكمةُ `X1` · وأرقامُ العقد
+#    تُقرأ في **تعابير المعايير** لا في سطرِ عرضٍ (درسُ `AF10`/`TGT9`/`T1M14`).
+_xm_pool_fn = next((n for n in _xma.walk(_xm_tree)
+                    if isinstance(n, _xma.FunctionDef) and n.name == "_pool"),
+                   None)
+_xm_crit = {}
+for _n in _xma.walk(_xm_pool_fn) if _xm_pool_fn else []:
+    if (isinstance(_n, _xma.Assign) and len(_n.targets) == 1
+            and getattr(_n.targets[0], "id", None) in ("c1", "c2", "c3", "c4")):
+        _xm_crit[_n.targets[0].id] = {
+            _x.id for _x in _xma.walk(_n.value) if isinstance(_x, _xma.Name)}
+check("🔒 EXM7·خمسُ أذرعٍ · الحاكمةُ X1 · وأرقامُ العقد داخل تعابير المعايير",
+      len(_XM.ARMS) == 5 and _XM.GOV == "X1"
+      and [a[0] for a in _XM.ARMS] == ["X0", "X1", "X2", "X3", "X4"]
+      and _XM.BAR_R == 0.15 and _XM.FLOOR_TOTAL == 150
+      and _XM.FLOOR_YEAR == 30 and _XM.HALF == 0.5
+      and "BAR_R" in _xm_crit.get("c1", set())
+      and {"FLOOR_TOTAL", "FLOOR_YEAR"} <= _xm_crit.get("c4", set()),
+      f"أذرع={[a[0] for a in _XM.ARMS]} · معايير={ {k: sorted(v) for k, v in _xm_crit.items()} }")
+
+# ── EXM8 · رقمُ `X2` **مُعادٌ من الإنتاج لا مخترَع**: يُقرأ من
+#    `CONFIG["LIQ_TARGET10_PCT"]` بالـAST — لا ثابتَ مغروسٌ في الأداة.
+_xm_pct_read = any(
+    isinstance(n, _xma.Subscript)
+    and isinstance(getattr(n, "slice", None), _xma.Constant)
+    and n.slice.value == "LIQ_TARGET10_PCT"
+    for n in _xma.walk(_xm_tree))
+_xm_af = next((n for n in _xma.walk(_xm_tree)
+               if isinstance(n, _xma.FunctionDef) and n.name == "arms_for"),
+              None)
+# 🔴 بالـAST لا بالنصّ: «10.0» سلسلةٌ جزئيّةٌ من «100.0» فالفحصُ النصّيُّ كان
+#    **يسقط على كودٍ سليم** — «قفلٌ يمنع الصحيحَ ليس أشدَّ، هو مكسور».
+_xm_lit10 = [n for n in (_xma.walk(_xm_af) if _xm_af else [])
+             if isinstance(n, _xma.Constant)
+             and isinstance(n.value, (int, float))
+             and not isinstance(n.value, bool) and float(n.value) == 10.0]
+check("🔒 EXM8·مستوى X2 من `LIQ_TARGET10_PCT` الإنتاجيّ (رقمٌ مُعادٌ لا مخترَع)",
+      _xm_pct_read and not _xm_lit10 and _XM.OPEN_FLOOR_PCT == 5.0,
+      f"مقروءٌ من CONFIG={_xm_pct_read} · ثوابتُ 10 في arms_for={len(_xm_lit10)}")
+
+# ── EXM9 · قراءةٌ فقط · والإنتاجُ لا يعرف الأداة (عزلٌ بالاتّجاهين).
+_xm_prod = _insp0.getsource(S)
+check("🔒 EXM9·قراءةٌ فقط · والإنتاجُ لا يستورد الأداة",
+      _XM._selfcheck_readonly() and "exitmgmt_arms" not in _xm_prod,
+      f"ro={_XM._selfcheck_readonly()}")
+
+# ── EXM10 · وصلُ الـworkflow: كلُّ مدخلٍ موصولٌ ببيئةٍ **يقرؤها السكربت**
+#    (بصمةُ `BT_CANDLE`: علمٌ يُمرَّر ولا يُقرأ).
+try:
+    _xm_wf = _trn_yaml.safe_load(open(".github/workflows/exitmgmt.yml",
+                                 encoding="utf-8"))
+except Exception as _e:                                          # noqa: BLE001
+    _xm_wf = {"⛔": f"{type(_e).__name__}"}
+_xm_env = json.dumps(_xm_wf, ensure_ascii=False)
+_xm_ins = sorted((((_xm_wf.get(True) or _xm_wf.get("on") or {})
+                   .get("workflow_dispatch") or {}).get("inputs") or {}))
+_xm_steps = [st for j in (_xm_wf.get("jobs") or {}).values()
+             for st in (j.get("steps") or [])]
+_xm_pool_env = ""
+for _st in _xm_steps:
+    _e = (_st.get("env") or {}).get("EXITMGMT_POOL")
+    if _e:
+        _xm_pool_env = str(_e)
+_xm_dl = []
+for _y in ("2023", "2024", "2025"):
+    _hit = any((st.get("with") or {}).get("path") == f"snap{_y}"
+               and f"inputs.snap_{_y}" in str((st.get("with") or {})
+                                              .get("run-id", ""))
+               for st in _xm_steps)
+    _xm_dl.append(_hit and f"{_y}:snap{_y}/frozen_backtest.pkl.gz"
+                  in _xm_pool_env)
+check("🔒 EXM10·كلُّ لقطةٍ موصولةٌ **بسنتها** ومقروءةٌ فعلًا (بصمةُ `BT_CANDLE`)",
+      bool(_xm_ins) and all(_xm_dl)
+      and all(f"inputs.{i}" in _xm_env for i in _xm_ins)
+      and '"EXITMGMT_POOL"' in _xm_src,
+      f"مدخلات={_xm_ins} · وصلُ السنوات={_xm_dl}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
