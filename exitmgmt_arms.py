@@ -478,7 +478,7 @@ def _measure(S, year, frozen):
     fwd = int(S.CONFIG["BACKTEST_FORWARD_DAYS"])
     spread = S.CONFIG.get("BT_SPREAD_PCT", 0.0) or 0.0
     # §② — رقمُ `X2` **مُعادٌ من الإنتاج لا مخترَع** (`LIQ_TARGET10_PCT`)
-    pct10 = float(S.CONFIG["LIQ_TARGET10_PCT"])
+    pct10 = float(S.LIQ_TARGET10_PCT)   # ثابتُ وحدةٍ لا مفتاحُ CONFIG
     lo_d, hi_d = f"{year}-01-01", f"{year}-12-31"
     if str(asof or "")[:4] != str(year):
         _log(f"⛔ اللقطة as-of {asof} لا تطابق سنةَ القياس {year} — "

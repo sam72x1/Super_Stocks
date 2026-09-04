@@ -40725,12 +40725,21 @@ check("🔒 EXM7·خمسُ أذرعٍ · الحاكمةُ X1 · وأرقامُ �
       f"أذرع={[a[0] for a in _XM.ARMS]} · معايير={ {k: sorted(v) for k, v in _xm_crit.items()} }")
 
 # ── EXM8 · رقمُ `X2` **مُعادٌ من الإنتاج لا مخترَع**: يُقرأ من
-#    `CONFIG["LIQ_TARGET10_PCT"]` بالـAST — لا ثابتَ مغروسٌ في الأداة.
+#    `LIQ_TARGET10_PCT` بالـAST — لا ثابتَ مغروسٌ في الأداة.
+# 🔴 **إقرارٌ مؤرَّخ 2026-09-04 — تشديدٌ لا إرخاء:** كان يشترط `Subscript`
+#    (‏`CONFIG["LIQ_TARGET10_PCT"]`) وهي **الصيغةُ المعطوبة نفسُها** — والمفتاحُ
+#    **غيرُ موجودٍ في `CONFIG`** (ثابتُ وحدةٍ عند `Super_stock.py:12898`، والإنتاجُ
+#    يقرؤه مباشرةً) ⇒ القفلُ كان **يُثبّت العطب** وسقطت التشغيلةُ 33916672500 عليه
+#    بـ`KeyError`. صار يشترط **الموضعَ الصحيح** (سمةَ وحدةٍ على `S`) **ويمنع
+#    `Subscript` صراحةً** ⇒ أشدُّ: يستحيل أن يمرّ المفتاحُ المتخيَّلُ ثانيةً.
 _xm_pct_read = any(
-    isinstance(n, _xma.Subscript)
-    and isinstance(getattr(n, "slice", None), _xma.Constant)
-    and n.slice.value == "LIQ_TARGET10_PCT"
+    isinstance(n, _xma.Attribute) and n.attr == "LIQ_TARGET10_PCT"
+    and isinstance(n.value, _xma.Name) and n.value.id == "S"
     for n in _xma.walk(_xm_tree))
+_xm_pct_sub = [n for n in _xma.walk(_xm_tree)
+               if isinstance(n, _xma.Subscript)
+               and isinstance(getattr(n, "slice", None), _xma.Constant)
+               and n.slice.value == "LIQ_TARGET10_PCT"]
 _xm_af = next((n for n in _xma.walk(_xm_tree)
                if isinstance(n, _xma.FunctionDef) and n.name == "arms_for"),
               None)
@@ -40741,8 +40750,12 @@ _xm_lit10 = [n for n in (_xma.walk(_xm_af) if _xm_af else [])
              and isinstance(n.value, (int, float))
              and not isinstance(n.value, bool) and float(n.value) == 10.0]
 check("🔒 EXM8·مستوى X2 من `LIQ_TARGET10_PCT` الإنتاجيّ (رقمٌ مُعادٌ لا مخترَع)",
-      _xm_pct_read and not _xm_lit10 and _XM.OPEN_FLOOR_PCT == 5.0,
-      f"مقروءٌ من CONFIG={_xm_pct_read} · ثوابتُ 10 في arms_for={len(_xm_lit10)}")
+      _xm_pct_read and not _xm_pct_sub and not _xm_lit10
+      and _XM.OPEN_FLOOR_PCT == 5.0
+      and "LIQ_TARGET10_PCT" not in S.CONFIG   # ⇐ الموضعُ الحقيقيّ: ثابتُ وحدة
+      and float(S.LIQ_TARGET10_PCT) == 10.0,
+      f"سمةُ S={_xm_pct_read} · Subscript معطوب={len(_xm_pct_sub)} · "
+      f"ثوابتُ 10 في arms_for={len(_xm_lit10)}")
 
 # ── EXM9 · قراءةٌ فقط · والإنتاجُ لا يعرف الأداة (عزلٌ بالاتّجاهين).
 _xm_prod = _insp0.getsource(S)
@@ -40799,6 +40812,53 @@ _xm_names = {(st.get("with") or {}).get("name") for st in _xm_steps
 check("🔒 EXM10ب·اسمُ اللقطة مقروءٌ من مُنتِجها (`pit_snapshot.yml`) لا مخترَعًا",
       len(_xm_names) == 1 and _xm_names <= _xm_up and _xm_up,
       f"تنزيل={sorted(_xm_names)} · رفعُ المُنتِج={sorted(_xm_up)}")
+
+# ── EXM11 · **المفتاحُ المتخيَّل**: كلُّ ما تقرؤه الأداة من الإنتاج موجودٌ فعلًا.
+#    🐞 وُلد من عطلٍ حيّ (التشغيلة 33916672500 سقطت على `S.CONFIG["LIQ_TARGET10_PCT"]`
+#    وهو **ثابتُ وحدةٍ** لا مفتاحُ `CONFIG`). والسويّةُ كانت خضراء لأن **صفرَ قفلٍ
+#    يمرّ بـ`_measure`** ⇒ القفلُ **بنيويٌّ يمسك الصنفَ كلَّه** لا هذي الحالة وحدها.
+_xm_asrc = open("exitmgmt_arms.py", encoding="utf-8").read()
+_xm_at = _ast0.parse(_xm_asrc)
+_xm_cfg_keys = {n.slice.value: n.lineno for n in _ast0.walk(_xm_at)
+                if isinstance(n, _ast0.Subscript)
+                and isinstance(n.value, _ast0.Attribute) and n.value.attr == "CONFIG"
+                and isinstance(n.slice, _ast0.Constant)}
+_xm_cfg_bad = sorted(k for k in _xm_cfg_keys if k not in S.CONFIG)
+_xm_attrs = {n.attr for n in _ast0.walk(_xm_at)
+             if isinstance(n, _ast0.Attribute)
+             and isinstance(n.value, _ast0.Name) and n.value.id == "S"}
+_xm_attr_bad = sorted(a for a in _xm_attrs if not hasattr(S, a))
+check("🔒 EXM11·صفرُ مفتاحٍ/سمةٍ متخيَّلة (كلُّ `S.CONFIG[k]` و`S.attr` موجودٌ حقًّا)",
+      not _xm_cfg_bad and not _xm_attr_bad and len(_xm_cfg_keys) >= 5 and len(_xm_attrs) >= 5,
+      f"مفاتيحُ مفقودة={_xm_cfg_bad} · سماتٌ مفقودة={_xm_attr_bad} · "
+      f"فُحص {len(_xm_cfg_keys)} مفتاحًا و{len(_xm_attrs)} سمة")
+
+# ── EXM11ب · شاهدُ ضبطٍ: القفلُ أعلاه **يسقط فعلًا** على مفتاحٍ متخيَّل
+#    (وإلّا كان عدميًّا يمرّ على أيّ شيء — درسُ «القفلُ الذي لم يسقط ليس قفلًا»).
+_xm_probe = "S.CONFIG[\"__لا_وجود_له__\"]"
+_xm_probe_bad = [k for k in {n.slice.value for n in _ast0.walk(_ast0.parse(_xm_probe))
+                             if isinstance(n, _ast0.Subscript)
+                             and isinstance(n.value, _ast0.Attribute)
+                             and n.value.attr == "CONFIG"
+                             and isinstance(n.slice, _ast0.Constant)}
+                 if k not in S.CONFIG]
+check("🔒 EXM11ب·شاهدُ ضبط: الكاشفُ يمسك مفتاحًا متخيَّلًا (ليس عدميًّا)",
+      _xm_probe_bad == ["__لا_وجود_له__"], f"شاهد={_xm_probe_bad}")
+
+# ── EXM12 · رقمُ `X2` **رقمُ المالك مقروءًا بالاسم** لا عددًا مغروسًا في الأداة.
+_xm_m = _xm_asrc[_xm_asrc.find("def _measure("):]
+_xm_m = _xm_m[:_xm_m.find("\ndef ", 1)]
+_xm_p10 = [n for n in _ast0.walk(_ast0.parse(_xm_m.strip()))
+           if isinstance(n, _ast0.Assign) and n.targets
+           and isinstance(n.targets[0], _ast0.Name) and n.targets[0].id == "pct10"]
+_xm_p10_ok = (len(_xm_p10) == 1
+              and any(isinstance(a, _ast0.Attribute) and a.attr == "LIQ_TARGET10_PCT"
+                      and isinstance(a.value, _ast0.Name) and a.value.id == "S"
+                      for a in _ast0.walk(_xm_p10[0].value))
+              and not any(isinstance(c, _ast0.Constant) and isinstance(c.value, (int, float))
+                          for c in _ast0.walk(_xm_p10[0].value)))
+check("🔒 EXM12·مستوى `X2` = `S.LIQ_TARGET10_PCT` بالاسم (صفرُ رقمٍ مغروس)",
+      _xm_p10_ok, f"إسنادات={len(_xm_p10)}")
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
