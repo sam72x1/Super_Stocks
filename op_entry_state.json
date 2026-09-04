@@ -120,7 +120,7 @@
   "date": "2026-09-03"
  },
  "LIQ:SLGB": {
-  "last_eval_ms": 1788552780000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:RNAZ": {
@@ -132,7 +132,7 @@
   "date": "2026-09-04"
  },
  "LIQ:KITT": {
-  "last_eval_ms": 1788553980000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:MBRX": {
@@ -144,7 +144,7 @@
   "date": "2026-09-04"
  },
  "LIQ:SGLY": {
-  "last_eval_ms": 1788554340000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:YXT": {
@@ -325,7 +325,7 @@
   "date": "2026-09-04"
  },
  "LIQ:PARA": {
-  "last_eval_ms": 1788554340000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:PMAX": {
@@ -491,7 +491,7 @@
   "date": "2026-09-04"
  },
  "LIQ:MOBX": {
-  "last_eval_ms": 1788554340000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:OTLK": {
@@ -639,7 +639,7 @@
   "date": "2026-09-04"
  },
  "LIQ:TWG": {
-  "last_eval_ms": 1788554280000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:BRAI": {
@@ -695,7 +695,7 @@
  },
  "LIQ:ZTG": {
   "anchor_ms": 1788528960000,
-  "last_ms": 1788554340000,
+  "last_ms": 1788554400000,
   "sent": [
    "M1",
    "M5",
@@ -705,7 +705,7 @@
   "vol_x": 5.9,
   "peak_usd": 555873,
   "last_eval_ms": 1788529020000,
-  "pulse_ms": 1788554340000,
+  "pulse_ms": 1788554400000,
   "anchor_price": 0.6626,
   "anchor_open": 0.63,
   "anchor_low": 0.63,
@@ -1128,7 +1128,7 @@
   "date": "2026-09-04"
  },
  "LIQ:JAGX": {
-  "last_eval_ms": 1788554220000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:MSGY": {
@@ -1156,7 +1156,7 @@
   "date": "2026-09-04"
  },
  "LIQ:WETO": {
-  "last_eval_ms": 1788554340000,
+  "last_eval_ms": 1788554400000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788529440000,
@@ -1216,7 +1216,7 @@
   "date": "2026-09-04"
  },
  "LIQ:RGC": {
-  "last_eval_ms": 1788553080000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:ASPC": {
@@ -1431,7 +1431,7 @@
   "date": "2026-09-04"
  },
  "LIQ:EOSE": {
-  "last_eval_ms": 1788554340000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:ZCMD": {
@@ -1609,7 +1609,7 @@
   "date": "2026-09-04"
  },
  "LIQ:ANPA": {
-  "last_eval_ms": 1788554280000,
+  "last_eval_ms": 1788554400000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788511800000,
@@ -1641,7 +1641,7 @@
   "date": "2026-09-04"
  },
  "LIQ:RGTI": {
-  "last_eval_ms": 1788554340000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:EHTH": {
@@ -1796,7 +1796,7 @@
  },
  "LIQ:NIKI": {
   "anchor_ms": 1788532080000,
-  "last_ms": 1788554340000,
+  "last_ms": 1788554400000,
   "sent": [
    "M1",
    "M5"
@@ -1805,7 +1805,7 @@
   "vol_x": 4.6,
   "peak_usd": 620398,
   "last_eval_ms": 1788532140000,
-  "pulse_ms": 1788554340000,
+  "pulse_ms": 1788554400000,
   "anchor_price": 8.7515,
   "anchor_open": 8.3,
   "anchor_low": 8.3,
@@ -1919,7 +1919,7 @@
   "date": "2026-09-02"
  },
  "LIQ:DAIC": {
-  "last_eval_ms": 1788554340000,
+  "last_eval_ms": 1788554400000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788520440000,
@@ -2185,7 +2185,7 @@
   "date": "2026-09-04"
  },
  "LIQ:LAES": {
-  "last_eval_ms": 1788554160000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:RKTO": {
@@ -2448,7 +2448,7 @@
  },
  "LIQ:OFAL": {
   "anchor_ms": 1788523320000,
-  "last_ms": 1788554340000,
+  "last_ms": 1788554400000,
   "sent": [
    "M1",
    "M5",
@@ -2458,7 +2458,7 @@
   "vol_x": 15.8,
   "peak_usd": 1238088,
   "last_eval_ms": 1788523320000,
-  "pulse_ms": 1788554340000,
+  "pulse_ms": 1788554400000,
   "anchor_price": 0.8623,
   "anchor_open": 0.7416,
   "anchor_low": 0.7416,
@@ -2557,7 +2557,7 @@
   "date": "2026-09-04"
  },
  "LIQ:WVE": {
-  "last_eval_ms": 1788552000000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:XXII": {
@@ -2774,7 +2774,7 @@
   "date": "2026-09-04"
  },
  "LIQ:NCT": {
-  "last_eval_ms": 1788554340000,
+  "last_eval_ms": 1788554400000,
   "date": "2026-09-04"
  },
  "LIQ:PSNY": {
