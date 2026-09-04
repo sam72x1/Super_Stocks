@@ -414,7 +414,7 @@
   "date": "2026-09-04"
  },
  "LIQ:PWCM": {
-  "last_eval_ms": 1788528960000,
+  "last_eval_ms": 1788529020000,
   "date": "2026-09-04"
  },
  "LIQ:SLE": {
@@ -654,17 +654,17 @@
    "M1"
   ],
   "updates": 0,
-  "vol_x": 6.0,
+  "vol_x": 5.9,
   "peak_usd": 9327,
-  "last_eval_ms": 1788528960000,
+  "last_eval_ms": 1788529020000,
   "pulse_ms": 1788529020000,
   "anchor_price": 0.6626,
   "anchor_open": 0.63,
   "anchor_low": 0.63,
   "pre_done": true,
   "pre_hi": 0.74,
-  "pre_usd": 81778,
-  "pre_n": 50,
+  "pre_usd": 81706,
+  "pre_n": 49,
   "date": "2026-09-04"
  },
  "LIQ:BRNX": {
@@ -1278,7 +1278,7 @@
   "date": "2026-09-04"
  },
  "LIQ:ABTC": {
-  "last_eval_ms": 1788528960000,
+  "last_eval_ms": 1788529020000,
   "date": "2026-09-04"
  },
  "LIQ:LRHC": {
@@ -1405,7 +1405,7 @@
   "date": "2026-09-04"
  },
  "LIQ:KXIN": {
-  "last_eval_ms": 1788528960000,
+  "last_eval_ms": 1788529020000,
   "date": "2026-09-04"
  },
  "AVAT": "2026-09-02",
@@ -1681,7 +1681,7 @@
   "date": "2026-09-04"
  },
  "LIQ:STAK": {
-  "last_eval_ms": 1788528960000,
+  "last_eval_ms": 1788529020000,
   "date": "2026-09-04"
  },
  "LIQ:WKSP": {
