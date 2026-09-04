@@ -359,7 +359,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.4,
-   "last_price": 5.62,
+   "last_price": 5.76,
    "live_alert": {
     "buyzone": "2026-08-28",
     "sweep": "2026-08-24",
@@ -744,7 +744,7 @@
    "hit": "t2",
    "hit_date": "2026-08-31",
    "max_gain_pct": 52.5,
-   "last_price": 1.71,
+   "last_price": 1.8,
    "live_alert": {
     "breakout": "2026-08-31",
     "buyzone": "2026-09-03",
@@ -1131,7 +1131,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 11.1,
-   "last_price": 2.82,
+   "last_price": 2.93,
    "live_alert": {
     "buyzone": "2026-09-03",
     "breakout": "2026-08-25",
@@ -1502,7 +1502,7 @@
    "hit": "t1",
    "hit_date": "2026-09-02",
    "max_gain_pct": 17.1,
-   "last_price": 1.5885,
+   "last_price": 2.6,
    "live_alert": {
     "buyzone": "2026-09-02",
     "breakout": "2026-09-02",
@@ -1836,7 +1836,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 167.9,
-   "last_price": 1.83,
+   "last_price": 1.99,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -2269,7 +2269,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.165,
+   "last_price": 1.21,
    "live_alert": {
     "buyzone": "2026-09-03",
     "break": "2026-09-03",
@@ -2649,7 +2649,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.68,
+   "last_price": 2.7,
    "live_alert": {
     "buyzone": "2026-09-03"
    },
@@ -3037,7 +3037,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.56,
+   "last_price": 4.8,
    "live_alert": {
     "breakout": "2026-09-02",
     "premarket": "2026-09-03",
@@ -3453,7 +3453,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.095,
+   "last_price": 1.07,
    "live_alert": {
     "breakout": "2026-09-02"
    },
@@ -3838,7 +3838,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.37,
+   "last_price": 1.3,
    "live_alert": {
     "dump": "2026-09-02"
    },
@@ -4219,7 +4219,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.4,
-   "last_price": 1.3702,
+   "last_price": 1.37,
    "borrow_hist": [
     [
      "2026-08-13",
@@ -4618,7 +4618,7 @@
    "hit": "t1",
    "hit_date": "2026-08-20",
    "max_gain_pct": 11.0,
-   "last_price": 2.955,
+   "last_price": 2.94,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -5038,7 +5038,7 @@
    "hit": "t2",
    "hit_date": "2026-08-27",
    "max_gain_pct": 79.7,
-   "last_price": 2.85,
+   "last_price": 3.355,
    "live_alert": {
     "buyzone": "2026-08-24",
     "breakout": "2026-08-31",
@@ -5407,7 +5407,7 @@
    "hit": "t1",
    "hit_date": "2026-08-26",
    "max_gain_pct": 8.3,
-   "last_price": 1.82,
+   "last_price": 1.89,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -5807,7 +5807,7 @@
    "hit": "t2",
    "hit_date": "2026-08-28",
    "max_gain_pct": 37.7,
-   "last_price": 0.7953,
+   "last_price": 0.82,
    "live_alert": {
     "buyzone": "2026-08-21",
     "break": "2026-08-18",
@@ -6200,7 +6200,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.5,
-   "last_price": 7.7,
+   "last_price": 7.685,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -6632,7 +6632,7 @@
    "hit": "t1",
    "hit_date": "2026-08-25",
    "max_gain_pct": 21.9,
-   "last_price": 1.83,
+   "last_price": 1.82,
    "live_alert": {
     "buyzone": "2026-08-21",
     "breakout": "2026-09-02"
@@ -6972,7 +6972,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 91.1,
-   "last_price": 7.5,
+   "last_price": 6.45,
    "borrow_hist": [
     [
      "2026-08-13",
@@ -7386,7 +7386,7 @@
    "hit": "t1",
    "hit_date": "2026-08-25",
    "max_gain_pct": 20.8,
-   "last_price": 16.8322,
+   "last_price": 16.112,
    "live_alert": {
     "breakout": "2026-08-21"
    },
@@ -7760,7 +7760,7 @@
    "hit": "t1",
    "hit_date": "2026-08-25",
    "max_gain_pct": 31.1,
-   "last_price": 2.815,
+   "last_price": 2.77,
    "live_alert": {
     "buyzone": "2026-09-01",
     "breakout": "2026-08-24"
@@ -8141,7 +8141,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 1.87,
+   "last_price": 1.86,
    "live_alert": {
     "breakout": "2026-09-01",
     "dump": "2026-08-28"
@@ -8523,7 +8523,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.1,
-   "last_price": 23.265,
+   "last_price": 24.1,
    "live_alert": {
     "breakout": "2026-08-31"
    },
@@ -8885,7 +8885,7 @@
    "hit": "t2",
    "hit_date": "2026-08-20",
    "max_gain_pct": 58.2,
-   "last_price": 1.611,
+   "last_price": 1.55,
    "live_alert": {
     "breakout": "2026-08-25",
     "dump": "2026-08-31"
@@ -9284,7 +9284,7 @@
    "hit": "t1",
    "hit_date": "2026-08-25",
    "max_gain_pct": 11.4,
-   "last_price": 10.4,
+   "last_price": 9.15,
    "live_alert": {
     "breakout": "2026-09-03"
    },
@@ -9648,7 +9648,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 183.3,
-   "last_price": 1.58,
+   "last_price": 1.56,
    "live_alert": {
     "breakout": "2026-08-14",
     "buyzone": "2026-08-12",
@@ -10074,7 +10074,7 @@
    "hit": "t2",
    "hit_date": "2026-08-19",
    "max_gain_pct": 262.2,
-   "last_price": 6.27,
+   "last_price": 6.57,
    "live_alert": {
     "premarket": "2026-08-20",
     "breakout": "2026-08-21",
@@ -10464,7 +10464,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.3,
-   "last_price": 0.6801,
+   "last_price": 0.633,
    "live_alert": {
     "buyzone": "2026-09-02",
     "breakout": "2026-09-03"
@@ -10814,7 +10814,7 @@
    "hit": "t1",
    "hit_date": "2026-08-19",
    "max_gain_pct": 15.8,
-   "last_price": 0.884,
+   "last_price": 0.914,
    "live_alert": {
     "breakout": "2026-08-19"
    },
@@ -11216,7 +11216,7 @@
    "hit": "t1",
    "hit_date": "2026-08-17",
    "max_gain_pct": -10.6,
-   "last_price": 0.5951,
+   "last_price": 0.568,
    "live_alert": {
     "premarket": "2026-08-18",
     "dump": "2026-08-18",
@@ -11577,7 +11577,7 @@
    "hit": "t2",
    "hit_date": "2026-08-17",
    "max_gain_pct": 29.3,
-   "last_price": 7.11,
+   "last_price": 6.81,
    "live_alert": {
     "breakout": "2026-08-19",
     "afterdump": "2026-08-17",
@@ -11971,7 +11971,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.465,
+   "last_price": 2.4,
    "live_alert": {
     "buyzone": "2026-09-03",
     "breakout": "2026-09-03"
@@ -12326,7 +12326,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -0.1,
-   "last_price": 5.29,
+   "last_price": 5.09,
    "live_alert": {
     "buyzone": "2026-08-28",
     "break": "2026-09-03"
@@ -13075,7 +13075,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.37,
+   "last_price": 2.35,
    "live_alert": {
     "buyzone": "2026-09-03",
     "break": "2026-09-02"
@@ -13422,7 +13422,7 @@
    "hit": "t2",
    "hit_date": "2026-08-14",
    "max_gain_pct": 91.2,
-   "last_price": 2.24,
+   "last_price": 2.15,
    "borrow_hist": [
     [
      "2026-08-14",
@@ -13779,7 +13779,7 @@
    "hit": "t1",
    "hit_date": "2026-08-13",
    "max_gain_pct": 26.9,
-   "last_price": 1.34,
+   "last_price": 1.23,
    "borrow_hist": [
     [
      "2026-08-11",
@@ -14173,7 +14173,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.875,
+   "last_price": 4.77,
    "live_alert": {}
   },
   {
@@ -14521,7 +14521,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.9,
-   "last_price": 0.7017,
+   "last_price": 0.738,
    "live_alert": {
     "breakout": "2026-08-25",
     "buyzone": "2026-09-01",
@@ -14979,7 +14979,7 @@
    "sector": "Financial Services",
    "country": "United States",
    "float": 72869981,
-   "last_price": 26.671,
+   "last_price": 24.32,
    "status": "watching",
    "triggered_date": null
   },
