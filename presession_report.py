@@ -641,6 +641,47 @@ def prerank_verdict(ev, tr_ctl, tr_base):
     return rows
 
 
+def prerank_grid(d, mask, w, ki, asc, thr, i_usd, i_arms, caps=PRECAP_KS):
+    """`T-PRERANK-2` (‏§⑩) — شبكةُ **(مفتاحٍ × سقف)** بأرضيةٍ واحدةٍ في العشرين.
+
+    🔒 مصدراها الثابتان المسجَّلان (`PRERANK_ARMS` و`PRECAP_KS`) ⇒ **صفرُ ذراعٍ
+    مضافةٍ بعد الأرقام** · و`prerank_rows` **مصدرٌ واحد** لكلّ خليّة فلا يتفرّق
+    حسابُ خليّةٍ عن أخرى. تُرجع `{سقف: [صفوفُ الأذرع]}`.
+    """
+    return {c: prerank_rows(d, mask, w, ki, asc, thr, i_usd, i_arms, cap=c)
+            for c in caps}
+
+
+def prerank_grid_ok(cells, cap_free=0):
+    """فحصُ صلاحيةٍ **مجّانيٌّ بالبناء** (‏§⑩-③): عند **∞** لا يُقرأ مفتاحُ
+    الترتيب إطلاقًا ⇒ الخلايا الخمسُ **تتطابق حرفيًّا**. تفرّقُها ⇒ عطبُ أداة."""
+    ev = cells.get(cap_free) or []
+    if len(ev) < 2:
+        return False
+    a = (ev[0]["taken"], ev[0]["hits"])
+    return all((s["taken"], s["hits"]) == a for s in ev[1:])
+
+
+def prerank_grid_verdict(cells, tr_dirs):
+    """المعيارُ الرباعيّ لكلّ خليّة (‏§⑩-④) — والشاهدُ يُقارَن **بسقفه هو**."""
+    out = []
+    for cap, ev in cells.items():
+        ctl = next((s for s in ev if s["arm"] == "R4"), None)
+        for st in ev:
+            if st["arm"] == "R4":
+                continue
+            bad = []
+            if st["ratio"] < PRERANK_MIN_RATIO:
+                bad.append(f"① {st['ratio']:.3f} دون {PRERANK_MIN_RATIO:.2f}")
+            if ctl is not None and not (st["hits"] > ctl["hits"]):
+                bad.append(f"② لا تتفوّق على شاهدِ سقفِها ({st['hits']} مقابل "
+                           f"{ctl['hits']})")
+            if not all(tr_dirs.get((cap, st["arm"]), [False, False])):
+                bad.append("③ الاتّجاهُ ينقلب في سنةٍ من سنتَي المعايرة")
+            out.append((cap, st, bad))
+    return out
+
+
 def main() -> int:
     paths = sorted(glob.glob("presession_rows_*.jsonl.gz")) + \
         sorted(glob.glob("presession_rows_*.jsonl"))
@@ -1071,6 +1112,58 @@ def main() -> int:
                        if not bad else "**تسقط** — " + " · ".join(bad))
                     + f" · ④ الكلفةُ بالأسماء {st['taken']} في السنة"
                     + f" · (وصفيًّا مقابل `R0` في سنتَي المعايرة: {_db})")
+            # ── T-PRERANK-2 (§⑩): شبكةُ (مفتاحٍ × سقف)
+            log("")
+            log("🧮 **T-PRERANK-2** — هل تتضاعف الرافعتان؟ شبكةُ "
+                f"{len(PRERANK_ARMS)}×{len(PRECAP_KS)} (مفتاحٌ × سقف) "
+                "بأرضيةٍ واحدةٍ في العشرين (§⑩)")
+            _gc = prerank_grid(d, _evm, _dw, _ki, _asc, _thr, _iu, _ia)
+            if not prerank_grid_ok(_gc):
+                log("⛔ `V-GRID` عمودُ ∞ لا يتطابق عبر المفاتيح ⇒ **عطبُ "
+                    "أداةٍ لا نتيجة** (المفتاحُ لا يُقرأ بلا سقف).")
+                return 3
+            log("   ✅ فحصُ الصلاحية: عمودُ ∞ متطابقٌ في الخمسة "
+                f"({_gc[0][0]['taken']}/{_gc[0][0]['hits']}) ⇒ المفتاحُ لا "
+                "يُقرأ بلا سقفٍ كما يقتضي البناء.")
+            _gh = " │ ".join(f"{('∞' if not c else c):>13}" for c in PRECAP_KS)
+            log(f"   مفتاح        │ {_gh}")
+            for _ai, (_an, _) in enumerate(_ia):
+                _kn = dict(PRERANK_ARMS)[_an] or "شاهدٌ حتميّ"
+                _row = " │ ".join(
+                    f"{_gc[c][_ai]['taken']:4}/{_gc[c][_ai]['hits']:3}"
+                    f" ({_gc[c][_ai]['ratio']:.3f})" for c in PRECAP_KS)
+                log(f"   {_kn:<13}│ {_row}")
+            log("   📌 كلُّ خليّة: مأخوذ/إصابات (النسبةُ إلى `Q0` = "
+                f"{_q0['hits']}).")
+            # 🔒 اتّجاهُ سنتَي المعايرة **لكلّ خليّة** — وصفيًّا لا اختيارًا
+            _gd = {}
+            for yr in TRAIN_YEARS:
+                _m = (d["year"] == yr) & (d["slot"] == _slot)
+                _gy = (prerank_grid(d, _m, _dw, _ki, _asc, _thr, _iu, _ia)
+                       if _m.any() else None)
+                for c in PRECAP_KS:
+                    _c4y = (next(s for s in _gy[c] if s["arm"] == "R4")["hits"]
+                            if _gy else 0)
+                    for st in (_gy[c] if _gy else _gc[c]):
+                        _gd.setdefault((c, st["arm"]), []).append(
+                            bool(_gy) and st["hits"] > _c4y)
+            _gp = [(c, st, bad)
+                   for c, st, bad in prerank_grid_verdict(_gc, _gd) if not bad]
+            if not _gp:
+                log("   ⚖️ **لا خليّةَ تستوفي المعيار الرباعيّ ⇒ فشلت** — ولا "
+                    "يُحرَّك حدٌّ ولا سقفٌ بعد رؤية الشبكة.")
+            for c, st, _b in _gp:
+                log(f"   ⚖️ **{dict(PRERANK_ARMS)[st['arm']]} × سقف "
+                    f"{c or '∞'} تستوفي الأربعة** ⇒ تُعرَض اقتراحًا · "
+                    f"④ الكلفةُ {st['taken']} اسمًا في السنة **وسقفُ جلبٍ "
+                    f"{c or 'بلا حدّ'}**.")
+            log("   🔴 **وحدُّ صدقٍ مسجَّلٌ قبل الأرقام (§⑩-⑤): السقفُ ميزانيةُ "
+                f"وقتٍ لا رقمٌ حرّ** — الجلبُ تسلسليٌّ داخل `BUDGET_SEC` ⇒ "
+                "خلايا 120/240/∞ **افتراضيّةٌ ما لم يُوازَ الجلب**، وذلك "
+                "تغييرٌ هندسيٌّ لا يُقاس هنا.")
+            log("   ⚠️ ودائريّةٌ جزئيّةٌ مُعلَنة: `day_ret` اختير في §⑨ على سنة "
+                "التقييم نفسِها ⇒ رقمُه هنا يرث ذلك الاختيار، والشبكةُ تُقرأ "
+                "سؤالًا عن **تفاعل السقف** لا إعادةَ تصديقٍ للمفتاح.")
         log("")
         log("🔒 **سقفُ نجاح `T-PRERANK` كما ثُبِّت (§⑨-④): عرضٌ للمالك بلا "
             "تنفيذ** — لا يُبدَّل مفتاحُ المرشِّح ولا السقفُ ولا الأرضيةُ ولا "

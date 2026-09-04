@@ -39256,17 +39256,34 @@ try:
             #    بِركةٍ ثانٍ مشروعة — «العدُّ يمنع الإضافةَ ولا يحرس الثابت».
             #    ⇒ صار **بنيويًّا وأشدّ**: كلُّ نداءٍ للذراعين في الملفّ كلِّه
             #    يقع **داخل** كتلة التطوير، مهما بلغ عددُه.
-            and all(
-                sum(1 for _c in _ps_ast.walk(_scope)
-                    if isinstance(_c, _ps_ast.Call)
-                    and getattr(_c.func, "id", None) == _fn)
+            #    (‏2026-09-04) وأُضيفت `prerank_rows` بذراع §⑨ ثم
+            #    `prerank_grid` بشبكة §⑩. 🔴 **والشبكةُ تنادي `prerank_rows`
+            #    من جسمها** (وهي دالّةٌ على مستوى الوحدة) ⇒ المساواةُ الحرفيّة
+            #    تسقط على بناءٍ سليم. ⇒ **تشديدٌ لا إرخاء**: النطاقُ المسموح
+            #    هو كتلةُ التطوير **‏+ جسمُ الشبكة**، **وبشرطٍ أن الشبكةَ
+            #    نفسَها محبوسةٌ في كتلة التطوير بمساواةٍ حرفيّة** (فلا يصير
+            #    الاستثناءُ بابًا خلفيًّا).
+            and (lambda _gridf: (
+                _gridf is not None
+                and sum(1 for _c in _ps_ast.walk(_rp_t)
+                        if isinstance(_c, _ps_ast.Call)
+                        and getattr(_c.func, "id", None) == "prerank_grid")
                 == sum(1 for _c in _ps_ast.walk(_rp_dev)
                        if isinstance(_c, _ps_ast.Call)
-                       and getattr(_c.func, "id", None) == _fn)
-                #    (‏2026-09-04) وأُضيفت `prerank_rows` بذراع §⑨ — **تشديدٌ
-                #    لا إرخاء**: ثلاثُ أذرعٍ محبوسةٌ كلُّها في كتلة التطوير.
-                for _fn in ("precap_rows", "prefloor_rows", "prerank_rows")
-                for _scope in (_rp_t,)))
+                       and getattr(_c.func, "id", None) == "prerank_grid")
+                and all(
+                    sum(1 for _c in _ps_ast.walk(_rp_t)
+                        if isinstance(_c, _ps_ast.Call)
+                        and getattr(_c.func, "id", None) == _fn)
+                    == sum(1 for _sc in (_rp_dev, _gridf)
+                           for _c in _ps_ast.walk(_sc)
+                           if isinstance(_c, _ps_ast.Call)
+                           and getattr(_c.func, "id", None) == _fn)
+                    for _fn in ("precap_rows", "prefloor_rows", "prerank_rows",
+                                "prerank_grid"))))(
+                next((_n for _n in _ps_ast.walk(_rp_t)
+                      if isinstance(_n, _ps_ast.FunctionDef)
+                      and _n.name == "prerank_grid"), None)))
 except Exception as _e:                                          # noqa: BLE001
     _pd4, _rp_txt = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🔬 PD4 وضعُ التطوير خلف `DEV_ON` المطفأ (المنشورُ بت-بت) · ومِرساةُ `V0` "
@@ -39516,6 +39533,122 @@ except Exception as _e:                                          # noqa: BLE001
 check("🚦 PD10 `T-PRERANK` خمسُ أذرعٍ ولا سادسة · شاهدُ ضبطٍ **حتميّ** · "
       "`R0` ≡ `live_pool` · الأرضيةُ والسقفُ ثابتان · والأذرعُ تتفرّق سلوكيًّا",
       _pa10, str(_pa_shape)[:70])
+
+# ── PD11 — 🧮 **`T-PRERANK-2`: الشبكةُ 5×4 لا أكثر · وعمودُ ∞ يتطابق ·
+#   والأرضيةُ واحدةٌ في العشرين · والشاهدُ يُقارَن بسقفه هو** (‏العقد
+#   `presession_dev_prereg §⑩` مدفوعٌ قبل أيّ رقم). الرافعتان (المفتاحُ
+#   والسقف) تُقاسان معًا، **وأخطرُ ما يمكن أن يقع أن يُقارَن مفتاحٌ بشاهدِ
+#   سقفٍ آخر** فيبدو متفوّقًا وهو ليس كذلك.
+try:
+    _pg_np = _rp.np
+    # ① الشبكةُ من الثابتَين المسجَّلَين لا من رقمٍ مضافٍ بعد رؤية §⑨:
+    #    السقوفُ الأربعةُ بقيمها · والأذرعُ الخمس · والافتراضُ **اسمٌ مجرَّد**
+    #    لا قائمةٌ مغروسة · و`prerank_rows` **مصدرٌ واحدٌ لكلّ خليّة** (صفرُ
+    #    إعادةِ بناءٍ للبِركة داخل الشبكة). بالـAST — النصُّ لا يفرّق كودًا
+    #    عن تعليقٍ عربيّ.
+    _pg_gf = next(_n for _n in _ps_ast.walk(_rp_t)
+                  if isinstance(_n, _ps_ast.FunctionDef)
+                  and _n.name == "prerank_grid")
+    _pg_dflt = _pg_gf.args.defaults[-1] if _pg_gf.args.defaults else None
+    _pg_calls = [_c for _c in _ps_ast.walk(_pg_gf)
+                 if isinstance(_c, _ps_ast.Call)]
+    _pg_shape = (tuple(_rp.PRECAP_KS) == (60, 120, 240, 0)
+                 and len(_rp.PRERANK_ARMS) == 5
+                 and isinstance(_pg_dflt, _ps_ast.Name)
+                 and _pg_dflt.id == "PRECAP_KS"
+                 and len(_pg_calls) == 1
+                 and getattr(_pg_calls[0].func, "id", None) == "prerank_rows"
+                 and [_k.arg for _k in _pg_calls[0].keywords] == ["cap"])
+    # ② الشبكةُ تُنتج **خمسَ أذرعٍ لكلّ سقفٍ بأسمائها** ولا سادسة.
+    _pg_c = _rp.prerank_grid(_pa_D, _pa_m, 0, _pa_ik, False, _pa_thr,
+                             _pa_iu, _pa_ia, caps=(2, 0))
+    _pg_cells = (set(_pg_c) == {2, 0}
+                 and all(len(_v) == 5 for _v in _pg_c.values())
+                 and all([_s["arm"] for _s in _v]
+                         == ["R0", "R1", "R2", "R3", "R4"]
+                         for _v in _pg_c.values())
+                 # 🔒 والسقفُ يفرّق فعلًا (وإلّا كانت الشبكةُ `no-op`)
+                 and _pg_c[2][0]["taken"] < _pg_c[0][0]["taken"])
+    # ③ **فحصُ صلاحيةِ عمود ∞** (§⑩-③): بلا سقفٍ لا يُقرأ مفتاحُ الترتيب
+    #    إطلاقًا ⇒ الخلايا الخمسُ متطابقة. والفحصُ **يفرّق**: تفرّقٌ مصطنعٌ
+    #    يُسقطه، وعمودٌ ناقصٌ لا يمرّ (وإلّا كان حارسًا عدميًّا).
+    _pg_ok1 = _rp.prerank_grid_ok(_pg_c)
+    _pg_same = {0: [{"taken": 9, "hits": 3} for _ in range(5)]}
+    _pg_diff = {0: ([{"taken": 9, "hits": 3} for _ in range(4)]
+                    + [{"taken": 9, "hits": 2}])}
+    _pg_gate = (_pg_ok1
+                and _rp.prerank_grid_ok(_pg_same)
+                and not _rp.prerank_grid_ok(_pg_diff)
+                and not _rp.prerank_grid_ok({0: []})
+                and not _rp.prerank_grid_ok({}))
+    # ④ **الأرضيةُ واحدةٌ في العشرين** — صفٌّ تحت أرضية الدولار يُستبعَد في
+    #    كلّ خليّةٍ من العشرين، ولو حاباه مفتاحُ الترتيب.
+    _pg_fX = _pg_np.zeros((2, len(_pa_w)))
+    _pg_fX[:, _pa_iu] = [9e5, 1e3]
+    _pg_fX[:, _pa_ik] = [1.0, 9.0]
+    _pg_fD = {"X": _pg_fX, "y": {0: _pg_np.zeros(2, dtype="int8")},
+              "gid": _pg_np.zeros(2, dtype=int), "sym": _pg_np.arange(2),
+              "names": _pg_np.array(["AAA", "BBB"]),
+              "gkey": [("2025-01-02", "PM")],
+              "year": _pg_np.array(["2025"] * 2),
+              "slot": _pg_np.array(["PM"] * 2)}
+    _pg_fc = _rp.prerank_grid(_pg_fD, _pg_np.ones(2, dtype=bool), 0, _pa_ik,
+                              False, 0.0, _pa_iu, _pa_ia)
+    _pg_floor = (len(_pg_fc) == 4
+                 and sum(len(_v) for _v in _pg_fc.values()) == 20
+                 and all(list(_s["sel"]) == [True, False]
+                         for _v in _pg_fc.values() for _s in _v))
+    # ⑤ 🔴 **الشاهدُ يُقارَن بسقفه هو** — عيّنةٌ **تفرّق في الاتّجاهين**:
+    #    ذراعٌ واحدةٌ بأرقامٍ متطابقة، وشاهدٌ قويٌّ عند سقفٍ وضعيفٌ عند آخر.
+    #    شاهدٌ عالميٌّ (أيًّا كان) يُعطي الجوابَ الخطأ في أحد الطرفين.
+    def _pg_mk(_a, _h, _r):
+        return {"arm": _a, "hits": _h, "taken": 10, "ratio": _r}
+    _pg_two = {60: [_pg_mk("R1", 5, 0.50), _pg_mk("R4", 9, 0.90)],
+               240: [_pg_mk("R1", 5, 0.50), _pg_mk("R4", 1, 0.10)]}
+    _pg_dirs = {(60, "R1"): [True, True], (240, "R1"): [True, True]}
+    _pg_v = _rp.prerank_grid_verdict(_pg_two, _pg_dirs)
+    _pg_own = ({(_c, _s["arm"]) for _c, _s, _b in _pg_v if not _b}
+               == {(240, "R1")}
+               # والشاهدُ نفسُه لا يُحكَم عليه (ليس ذراعَ اقتراح)
+               and all(_s["arm"] != "R4" for _c, _s, _b in _pg_v)
+               and len(_pg_v) == 2)
+    # ⑥ والمعايرُ الثلاثةُ **موصولةٌ فعلًا** ولا يُحرَّك حدُّ §⑨ (‏0.30 يمرّ
+    #    عند التخوم بالضبط · ودونه يسقط · وانقلابُ الاتّجاه يُسقط).
+    _pg_one = {240: [_pg_mk("R1", 5, 0.30), _pg_mk("R4", 1, 0.10)]}
+    _pg_lo = {240: [_pg_mk("R1", 5, 0.29), _pg_mk("R4", 1, 0.10)]}
+    _pg_edge = (not _rp.prerank_grid_verdict(
+        _pg_one, {(240, "R1"): [True, True]})[0][2]
+        and _rp.prerank_grid_verdict(
+            _pg_lo, {(240, "R1"): [True, True]})[0][2]
+        and _rp.prerank_grid_verdict(
+            _pg_one, {(240, "R1"): [True, False]})[0][2]
+        and _rp.prerank_grid_verdict(_pg_one, {})[0][2])
+    # ⑦ 🔴 **الميزةُ موصولةٌ من نقطة النداء الحيّة** لا بوجود الدالّة
+    #    (‏`wire-check §①`): الثلاثةُ مُنادَاةٌ فعلًا **داخل كتلة التطوير**،
+    #    وحارسُ ∞ يُوقِف بخروج 3 (لا مجرّدَ دالّةٍ معرَّفة). PD4 يمنع تسرّبَ
+    #    النداء خارجها، **وصفرُ نداءٍ يمرّ منه** (‏0 == 0) ⇒ الوصلُ هنا.
+    _pg_wired = all(
+        any(isinstance(_c, _ps_ast.Call)
+            and getattr(_c.func, "id", None) == _fn
+            for _c in _ps_ast.walk(_rp_dev))
+        for _fn in ("prerank_grid", "prerank_grid_ok", "prerank_grid_verdict"))
+    _pg_stop = any(
+        isinstance(_n, _ps_ast.If)
+        and any(isinstance(_x, _ps_ast.Call)
+                and getattr(_x.func, "id", None) == "prerank_grid_ok"
+                for _x in _ps_ast.walk(_n.test))
+        and any(isinstance(_b, _ps_ast.Return)
+                and getattr(_b.value, "value", None) == 3
+                for _b in _ps_ast.walk(_n))
+        for _n in _ps_ast.walk(_rp_dev))
+    _pg11 = (_pg_shape and _pg_cells and _pg_gate and _pg_floor and _pg_own
+             and _pg_edge and _pg_wired and _pg_stop)
+except Exception as _e:                                          # noqa: BLE001
+    _pg11, _pg_shape = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧮 PD11 `T-PRERANK-2` شبكةُ 5×4 من ثابتَي العقد · عمودُ ∞ يتطابق "
+      "(وفحصُه يفرّق **ويُوقِف**) · الأرضيةُ واحدةٌ في العشرين · والشاهدُ "
+      "**بسقفه هو** · والثلاثةُ موصولةٌ من نقطة النداء",
+      _pg11, str(_pg_shape)[:70])
 
 # ── PD8 — 🔌 **`presession_report.yml`: كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها
 #   السكربت** (بصمةُ `BT_CANDLE` الميّت). كان بلا قفلٍ إطلاقًا، ومدخلُ التطوير
