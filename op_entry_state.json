@@ -449,7 +449,7 @@
    "anchor_ms": 1788525660000,
    "anchor_price": 0.3663,
    "anchor_low": 0.3453,
-   "e5": 0.3617,
+   "e5": 0.3596,
    "exit_ms": 1788526140000
   },
   "date": "2026-09-04"
@@ -553,7 +553,7 @@
    "anchor_ms": 1788529320000,
    "anchor_price": 1.85,
    "anchor_low": 1.76,
-   "e5": 1.81,
+   "e5": 1.82,
    "exit_ms": 1788531240000
   },
   "date": "2026-09-04"
@@ -606,7 +606,7 @@
   "date": "2026-09-04"
  },
  "LIQ:SPRC": {
-  "last_eval_ms": 1788530820000,
+  "last_eval_ms": 1788533640000,
   "date": "2026-09-04"
  },
  "LIQ:SDST": {
@@ -687,7 +687,7 @@
   "updates": 0,
   "vol_x": 5.9,
   "peak_usd": 9327,
-  "last_eval_ms": 1788528960000,
+  "last_eval_ms": 1788529020000,
   "pulse_ms": 1788535800000,
   "anchor_price": 0.6626,
   "anchor_open": 0.63,
@@ -704,8 +704,8 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.6448,
-  "tgt_ms": 1788530700000,
+  "e5": 0.66,
+  "tgt_ms": 1788532140000,
   "date": "2026-09-04"
  },
  "LIQ:BRNX": {
@@ -728,9 +728,9 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 5,
   "vol_x": 4.9,
-  "peak_usd": 2198784,
+  "peak_usd": 4129091,
   "last_eval_ms": 1788529080000,
   "pulse_ms": 1788535800000,
   "anchor_price": 1.0501,
@@ -748,8 +748,8 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 1.09,
-  "tgt_ms": 1788529200000,
+  "e5": 1.35,
+  "tgt_ms": 1788533640000,
   "date": "2026-09-04"
  },
  "LIQ:WXM": {
@@ -1314,7 +1314,7 @@
   "date": "2026-09-04"
  },
  "LIQ:VRAX": {
-  "last_eval_ms": 1788531540000,
+  "last_eval_ms": 1788534120000,
   "date": "2026-09-04"
  },
  "LIQ:LHAI": {
@@ -2328,8 +2328,9 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 1.61,
-  "date": "2026-09-04"
+  "e5": 1.4545,
+  "date": "2026-09-04",
+  "tgt_ms": 1788532620000
  },
  "LIQ:TCRX": {
   "last_eval_ms": 1788535740000,
@@ -2367,9 +2368,9 @@
    "M5",
    "M30"
   ],
-  "updates": 1,
+  "updates": 3,
   "vol_x": 15.8,
-  "peak_usd": 1093810,
+  "peak_usd": 1238088,
   "last_eval_ms": 1788523320000,
   "pulse_ms": 1788535800000,
   "anchor_price": 0.8623,
@@ -2474,7 +2475,7 @@
   "date": "2026-09-04"
  },
  "LIQ:XXII": {
-  "last_eval_ms": 1788533340000,
+  "last_eval_ms": 1788535680000,
   "date": "2026-09-04"
  },
  "LIQ:SPPL": {
@@ -2644,9 +2645,9 @@
    "M5",
    "M30"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 7.5,
-  "peak_usd": 16128,
+  "peak_usd": 29380,
   "last_eval_ms": 1788514260000,
   "pulse_ms": 1788535680000,
   "anchor_price": 0.0916,
