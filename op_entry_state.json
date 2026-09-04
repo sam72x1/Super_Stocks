@@ -676,7 +676,7 @@
    "M5"
   ],
   "updates": 0,
-  "vol_x": 5.9,
+  "vol_x": 6.0,
   "peak_usd": 9327,
   "last_eval_ms": 1788529020000,
   "pulse_ms": 1788529500000,
@@ -685,8 +685,8 @@
   "anchor_low": 0.63,
   "pre_done": true,
   "pre_hi": 0.74,
-  "pre_usd": 81706,
-  "pre_n": 49,
+  "pre_usd": 81778,
+  "pre_n": 50,
   "k2": {
    "c3": "صادقت (إغلاقٌ فوق المرساة)",
    "c4": "خضراء 3-4",
@@ -1096,14 +1096,14 @@
   "last_eval_ms": 1788529500000,
   "date": "2026-09-04",
   "anchor_ms": 1788529440000,
-  "last_ms": 1788529440000,
+  "last_ms": 1788529500000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 4.5,
   "peak_usd": 1189106,
-  "pulse_ms": 1788529440000,
+  "pulse_ms": 1788529500000,
   "anchor_price": 2.72,
   "anchor_open": 2.59,
   "anchor_low": 2.59,
