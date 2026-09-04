@@ -549,6 +549,10 @@ def _pool(S, spec):
     n_ok = sum(1 for x in (c1, c2, c3, c4) if x)
     _log(f"   ⇒ **{n_ok} من 4** — "
          + ("تُوصى" if n_ok == 4 else "لا تُوصى"))
+    # 🔴 **الحكمُ في النصّ لا في رمز الخروج:** «لا تُوصى» نتيجةٌ صحيحةٌ لا عطب،
+    #    ورمزٌ غيرُ صفريٍّ لها يجعل التشغيلةَ حمراءَ فلا تُميَّز عن عطبِ أداة
+    #    (درسُ «‏`ignition.yml` أحمرُ منذ 07-15 والسببُ ليس ما ظننت»). ⇒ صفرٌ
+    #    دائمًا ما دام القياسُ سليمًا، و3/4 وحدَهما للأعطاب.
     _log("=" * 62)
     _log("POOLED " + json.dumps(
         {"gov": GOV, "mean": round(ci["mean"], 6),
@@ -557,7 +561,7 @@ def _pool(S, spec):
          "per_year": [[y, round(d, 6), n] for y, d, n in per_year],
          "criteria": [c1, c2, c3, c4], "passed": n_ok},
         ensure_ascii=False))
-    return 0 if n_ok == 4 else 1
+    return 0
 
 
 def main() -> int:
