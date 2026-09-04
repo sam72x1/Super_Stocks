@@ -41,6 +41,13 @@ LEDGER_FILE = "presession_ledger.jsonl"
 GATE_WIDTH = 6                 # عرضُ نافذة القرار بالدقائق (دورةُ العامل ‏≈60ث)
 PREFILTER_CAP = 60             # كم مرشَّحًا تُجلَب لهم شموعُ الدقيقة (كلفةٌ مُعلَنة)
 MIN_DAY_USD = 100_000.0        # engineering — أرضيةُ مرشِّحٍ رخيصة (تُعلَن لا تُخفى)
+# 🚦 **مفتاحُ ترتيب المرشِّح** — أمرُ المالك 2026-09-04 «بدّل مفتاح المرشِّح»
+#    بعد `T-PRERANK`/`T-PRERANK-2`: بالأرضية نفسِها والسقف نفسِه (60) وبنفس عددِ
+#    نداءات جلب الدقيقة، يعطي `day_ret` **‏7 إصاباتٍ مقابل 1** ودقّةً 12.3%
+#    مقابل 8.3% (‏2025 خارج العيّنة). ⇒ **المتغيّرُ الترتيبُ وحدَه** — الأرضيةُ
+#    والسقفُ وكونُ السعر بت-بت.
+PREFILTER_KEY = "day_ret"      # قرارُ مالك · و`"usd_day"` يُعيد السلوكَ السابق
+PREFILTER_KEYS = ("usd_day", "day_ret")
 BUDGET_SEC = 45.0              # ميزانيةُ الجلب — تُعلَن ويُطبَع ما قُصّ بها
 AH_OPEN, REG_OPEN, REG_CLOSE = 16 * 60, 9 * 60 + 30, 16 * 60
 
@@ -83,10 +90,46 @@ def send_enabled(slot: str, env_val: str | None) -> bool:
     return str(slot or "").strip().upper() in parts
 
 
+def prev_bday(day_iso: str) -> str:
+    """يومُ العملِ السابق (يتخطّى السبتَ والأحد). نقيّة — **وهي عينُ الخطوة التي
+    كانت مضمرةً في `run_presession`** فلا يصير للاختيار مصدران."""
+    d = dt.date.fromisoformat(str(day_iso)) - dt.timedelta(days=1)
+    while d.weekday() >= 5:
+        d -= dt.timedelta(days=1)
+    return d.isoformat()
+
+
+def closes_map(grouped: list) -> dict:
+    """`{رمز: إغلاق}` من نداءٍ مجمَّعٍ واحد. نقيّةٌ وفاشلةٌ-آمنة (الصفُّ التالف
+    يُتخطّى ولا يُسقط الخريطة)."""
+    out = {}
+    for g in (grouped or []):
+        try:
+            sym = str(g.get("T") or "").strip().upper()
+            c = float(g.get("c"))
+        except (TypeError, ValueError):
+            continue
+        if sym and c > 0:
+            out[sym] = c
+    return out
+
+
 def prefilter(grouped: list, lo: float, hi: float, cap: int = PREFILTER_CAP,
-              min_usd: float = MIN_DAY_USD) -> list:
-    """المرشِّحُ الرخيص من نداءٍ واحدٍ لكلّ السوق: كونُ السعر ثم أعلى دولارِ يوم.
-    نقيّة. `grouped` صفوفُ Polygon (`T,o,h,l,c,v,n,vw`). تُرجع قائمةَ قواميس."""
+              min_usd: float = MIN_DAY_USD, prev_close: dict = None,
+              key: str = PREFILTER_KEY) -> list:
+    """المرشِّحُ الرخيص من نداءٍ واحدٍ لكلّ السوق: كونُ السعر ثم **الترتيب**.
+
+    نقيّة. `grouped` صفوفُ Polygon (`T,o,h,l,c,v,n,vw`). تُرجع قائمةَ قواميس.
+
+    🚦 **والمتغيّرُ الترتيبُ وحدَه** (‏أمرُ المالك 2026-09-04): كونُ السعر
+    وأرضيةُ `min_usd` والسقفُ `cap` **بت-بت في المفتاحين** — تمامًا كما قِيس في
+    `T-PRERANK` (‏`prerank_pool` أبقت الأرضيةَ وبدّلت الرتبةَ وحدَها).
+    🔒 و`key="usd_day"` يُعيد السلوكَ السابق **حرفيًّا** (مقفولٌ سلوكيًّا).
+    🔴 **والمجهولُ إلى ذيل الترتيب لا رأسه** — متّسقٌ مع قرار الأرضية المشحون
+    ومع تعامُلِ `prerank_rows` مع المعدوم (‏`-inf`)، فلا يتصدّر سهمٌ **لأنّنا
+    نجهله**.
+    """
+    pcm = prev_close or {}
     out = []
     for g in (grouped or []):
         try:
@@ -99,10 +142,20 @@ def prefilter(grouped: list, lo: float, hi: float, cap: int = PREFILTER_CAP,
         usd = c * v
         if usd < min_usd:
             continue
+        try:
+            _pc = float(pcm.get(sym))
+        except (TypeError, ValueError):
+            _pc = 0.0
         out.append({PF.ROW_SYM: sym, "close": c, "usd": usd,
                     "o": g.get("o"), "h": g.get("h"), "l": g.get("l"),
-                    "n": g.get("n"), "v": v})
-    out.sort(key=lambda r: (-r["usd"], r[PF.ROW_SYM]))
+                    "n": g.get("n"), "v": v,
+                    "day_ret": (c / _pc - 1.0) if _pc > 0 else None})
+    if str(key) == "day_ret":
+        #    المعلومُ أوّلًا (0) والمجهولُ ذيلًا (1) · ثم الأعلى عائدًا · ثم الرمز.
+        out.sort(key=lambda r: (0 if r["day_ret"] is not None else 1,
+                                -(r["day_ret"] or 0.0), r[PF.ROW_SYM]))
+    else:
+        out.sort(key=lambda r: (-r["usd"], r[PF.ROW_SYM]))
     return out[:cap] if cap else out
 
 
@@ -331,7 +384,7 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
                    fetch_minutes=None, prev_closes: dict = None, price_lo: float = None,
                    price_hi: float = None, cap: int = PREFILTER_CAP, log=None,
                    liq_fn=None, win: int = 65, budget_sec: float = BUDGET_SEC,
-                   clock=None):
+                   clock=None, prefilter_key: str = None):
     """يُرجع `(rows, msg, diag)`. لا يرسل ولا يكتب — القرارُ للمُنادي."""
     _log = log or (lambda *_a, **_k: None)
     fg = fetch_grouped or polygon_grouped
@@ -341,15 +394,30 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
     # قرارُ البريماركت يقرأ **يومَ التداول السابق** (اليومُ الحاليُّ لم يبدأ بعد).
     src_day = day_iso
     if slot == "PM":
-        d = dt.date.fromisoformat(day_iso) - dt.timedelta(days=1)
-        while d.weekday() >= 5:
-            d -= dt.timedelta(days=1)
-        src_day = d.isoformat()
+        src_day = prev_bday(day_iso)
     grouped = fg(src_day)
     if not grouped:
         return [], "", {"reason": "grouped_missing", "src_day": src_day}
-    cands = prefilter(grouped, lo, hi, cap)
-    _log(f"🌙 {slot}: كون {len(grouped)} ⟶ مرشَّحون {len(cands)} (يوم {src_day})")
+    # 🚦 **مفتاحُ ترتيب المرشِّح** (‏أمرُ المالك 2026-09-04): `day_ret` يحتاج
+    #    إغلاقَ الجلسة **السابقة** لـ`src_day` — **نداءٌ مجمَّعٌ ثانٍ واحدٌ لكلّ
+    #    السوق**، خارج حلقة الجلب فلا يمسّ `BUDGET_SEC` ولا يزيد نداءات الدقيقة.
+    # 🔴 **وفاشلٌ-آمنٌ مُعلَن:** تعذّرُ الإغلاقات ⇒ **رجوعٌ إلى `usd_day`
+    #    المشحون سابقًا** ويُطبَع السبب — لا صمتٌ ولا ترتيبٌ على مجهول.
+    pf_key, pcm = str(prefilter_key or PREFILTER_KEY), {}
+    if pf_key == "day_ret":
+        try:
+            pcm = closes_map(fg(prev_bday(src_day)))
+        except Exception:                                        # noqa: BLE001
+            pcm = {}
+        if not pcm:
+            pf_key = "usd_day"
+            _log("⚠️ تعذّرت إغلاقاتُ الجلسة السابقة ⇒ مفتاحُ المرشِّح يرجع "
+                 "إلى `usd_day` (يُعلَن ولا يُصمت).")
+    cands = prefilter(grouped, lo, hi, cap, prev_close=pcm, key=pf_key)
+    pf_unknown = sum(1 for c in cands if c.get("day_ret") is None)
+    _log(f"🌙 {slot}: كون {len(grouped)} ⟶ مرشَّحون {len(cands)} "
+         f"(يوم {src_day} · مفتاحُ المرشِّح {pf_key} · إغلاقاتٌ سابقة "
+         f"{len(pcm)} · بلا عائدٍ معلومٍ {pf_unknown})")
     cut = PF.EXT_CLOSE if slot == "PM" else REG_CLOSE - PF.DECISION_LEAD
     frm = now_ms - 36 * 3600 * 1000
     rows, cov, cut_off = [], 0, 0
@@ -392,6 +460,8 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
     msg = build_presession_alert(deliver, slot, day_iso, cov, len(cands))
     return ordered, msg, {"scanned": len(cands), "cov": cov, "rows": len(rows),
                           "ranked": len(ordered),
+                          "pf_key": pf_key, "pf_prev": len(pcm),
+                          "pf_unknown": pf_unknown,
                           "src_day": src_day, "cut_off": cut_off,
                           "floor": PF.rank_floor(slot),
                           "top": [r[PF.ROW_SYM] for r in top],

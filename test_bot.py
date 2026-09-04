@@ -38007,13 +38007,28 @@ check("🌙 PS9 بوّابةُ القرار بالدقيقة: 15:49 صمت · 15
       and _PR.stamp_key("2026-09-04", "AH") != _PR.stamp_key("2026-09-04", "PM")
       and _PR.stamp_key("2026-09-04", "AH").startswith("PRE:"), f"{_ps_slots}")
 
-# PS10 — المرشِّحُ الرخيص: كونُ السعر ثم أعلى دولارِ يوم — ويفرّق ثلاثَ حالات.
+# PS10 — المرشِّحُ الرخيص: كونُ السعر ثم **الترتيب** — ويفرّق ثلاثَ حالات.
+#   🔒🔴 **إقرارٌ مؤرَّخ (2026-09-04): هذا القفلُ أمسك تبديلَ مفتاح المرشِّح
+#   (أمرُ المالك «بدّل مفتاح المرشِّح») فأدّى عملَه** — وكان يقرأ الافتراضَ
+#   ويُثبّت ترتيبَ الدولار. ⇒ **يُشدَّد لا يُرخى**: يبقى ترتيبُ الدولار مقفولًا
+#   **باسمه الصريح**، ويُضاف أن **كونَ السعر وأرضيةَ الدولار بت-بت في المفتاحين**
+#   وأن **المشحونَ يفرّق فعلًا** (وإلّا صار التبديلُ `no-op` يُقرأ تنفيذًا).
 _ps_g = [{"T": "A", "c": 2.0, "v": 100_000}, {"T": "B", "c": 50.0, "v": 100_000},
          {"T": "C", "c": 1.0, "v": 50_000}, {"T": "D", "c": 3.0, "v": 400_000}]
-_ps_pf = [r["sym"] for r in _PR.prefilter(_ps_g, 0.40, 10.0, cap=10)]
+_ps_pc = {"A": 1.0, "D": 2.9, "B": 1.0, "C": 0.5}   # A يقفز · D يكاد لا يتحرّك
+_ps_pf = [r["sym"] for r in _PR.prefilter(_ps_g, 0.40, 10.0, cap=10,
+                                          key="usd_day")]
+_ps_pfd = [r["sym"] for r in _PR.prefilter(_ps_g, 0.40, 10.0, cap=10,
+                                           prev_close=_ps_pc, key="day_ret")]
+_ps_pfl = [r["sym"] for r in _PR.prefilter(_ps_g, 0.40, 10.0, cap=10,
+                                           prev_close=_ps_pc,
+                                           key=_PR.PREFILTER_KEY)]
 check("🌙 PS10 المرشِّح: خارجُ كون السعر يسقط · ودون أرضيةِ الدولار يسقط · "
-      "والترتيبُ بأعلى دولارِ يوم (D ثم A)",
-      _ps_pf == ["D", "A"], f"{_ps_pf}")
+      "و`usd_day` يبقى (D ثم A) بت-بت · والمشحونُ `day_ret` **يفرّق** (A ثم D) "
+      "· وكونُ السعر والأرضيةُ **واحدةٌ في المفتاحين**",
+      _ps_pf == ["D", "A"] and _ps_pfd == ["A", "D"] and _ps_pfl == _ps_pfd
+      and sorted(_ps_pf) == sorted(_ps_pfd),
+      f"usd={_ps_pf} ret={_ps_pfd} live={_ps_pfl}")
 
 # PS11 — **تكافؤٌ سلوكيّ**: `anchor_via` تقرأ المِرساةَ كما تقرؤها
 # `kasih_scan.first_anchor` (كلتاهما ⟶ `S.liq_stage_events` الإنتاجيّة) — وإلّا
@@ -38165,6 +38180,107 @@ check("🌙 PS15 عقدُ الجالب مُوحَّد: الثمانيُّ بت-�
       and _pr_bad == [] and _pr_uses,
       f"ثمانيّ={_pr_ident} قاموس={len(_pr_nd)} سباعيّ={len(_pr_n7)} "
       f"تالف={len(_pr_bad)} موصول={_pr_uses}")
+
+
+# ── 🚦 مفتاحُ ترتيب المرشِّح (PRK1-PRK8) ───────────────────────────────────────
+#   أمرُ المالك 2026-09-04 «بدّل مفتاح المرشِّح» بعد `T-PRERANK`/`T-PRERANK-2`.
+#   🔴 **والخطرُ الأكبرُ ليس الترتيبَ بل ما قد يتسلّل معه:** الأرضيةُ والسقفُ
+#   وكونُ السعر **يجب أن تبقى بت-بت** — وإلّا صار المقيسُ شيئًا والمشحونُ آخر.
+_prk_G = [{"T": f"S{_i}", "o": 1.0, "h": 2.0, "l": 0.9, "c": 1.0 + _i * 0.1,
+           "v": 1e6 * (10 - _i), "n": 500} for _i in range(10)]
+#   عيّنةٌ **تفرّق بالبناء**: الدولارُ تنازليٌّ مع الرمز والعائدُ تصاعديٌّ معه
+#   ⇒ الترتيبان **متعاكسان تمامًا** فيستحيل أن ينجو مفتاحٌ بمصادفةِ تشابه.
+_prk_P = [{"T": f"S{_i}", "c": (1.0 + _i * 0.1) / (1.0 + _i * 0.5)}
+          for _i in range(10)]
+try:
+    _prk_pcm = _PR.closes_map(_prk_P)
+    _prk_u = [r[_PR.PF.ROW_SYM] for r in _PR.prefilter(_prk_G, .4, 10., 5,
+                                                     key="usd_day")]
+    _prk_d = [r[_PR.PF.ROW_SYM] for r in _PR.prefilter(_prk_G, .4, 10., 5,
+                                                     prev_close=_prk_pcm,
+                                                     key="day_ret")]
+    # PRK1 — الثابتُ المشحونُ هو أمرُ المالك · والأرضيةُ والسقفُ والميزانيةُ
+    #        **لم تُمَسّ** (المتغيّرُ الترتيبُ وحدَه، بنصّ العقد).
+    _prk1 = (_PR.PREFILTER_KEY == "day_ret"
+             and tuple(_PR.PREFILTER_KEYS) == ("usd_day", "day_ret")
+             and _PR.PREFILTER_CAP == 60
+             and _PR.MIN_DAY_USD == 100_000.0
+             and _PR.BUDGET_SEC == 45.0)
+    # PRK2 — `usd_day` **يُعيد السلوكَ السابق حرفيًّا** (مرجعٌ محسوبٌ باليد).
+    _prk_ref = [g["T"] for g in sorted(
+        _prk_G, key=lambda g: (-(g["c"] * g["v"]), g["T"]))][:5]
+    _prk2 = _prk_u == _prk_ref
+    # PRK3 — `day_ret` يرتّب بالعائد فعلًا · والترتيبان **يتفرّقان**.
+    _prk_ref2 = [g["T"] for g in sorted(
+        _prk_G, key=lambda g: (-(g["c"] / dict(
+            (x["T"], x["c"]) for x in _prk_P)[g["T"]] - 1.0), g["T"]))][:5]
+    _prk3 = _prk_d == _prk_ref2 and _prk_d != _prk_u
+    # PRK4 — 🔴 **المجهولُ إلى الذيل لا الرأس** (لا يتصدّر سهمٌ لأنّنا نجهله).
+    _prk_one = _PR.closes_map([{"T": "S9", "c": 0.10}])
+    _prk_o = _PR.prefilter(_prk_G, .4, 10., 0, prev_close=_prk_one,
+                           key="day_ret")
+    _prk4 = (_prk_o[0][_PR.PF.ROW_SYM] == "S9"
+             and all(r["day_ret"] is None for r in _prk_o[1:])
+             and len(_prk_o) == len(_prk_G))
+    # PRK5 — **الأرضيةُ وكونُ السعر ثابتان في المفتاحين**: صفٌّ تحت أرضية
+    #        الدولار يُسقَط **ولو كان عائدُه الأعلى**، وصفٌّ خارج كون السعر كذلك.
+    _prk_Gf = [{"T": "LOW", "c": 1.0, "v": 1.0, "o": 1, "h": 1, "l": 1, "n": 1},
+               {"T": "HIP", "c": 99.0, "v": 1e7, "o": 1, "h": 1, "l": 1, "n": 1},
+               {"T": "OK", "c": 1.0, "v": 1e6, "o": 1, "h": 1, "l": 1, "n": 1}]
+    _prk_Pf = _PR.closes_map([{"T": "LOW", "c": 0.01}, {"T": "HIP", "c": 1.0},
+                              {"T": "OK", "c": 0.99}])
+    _prk5 = all([r[_PR.PF.ROW_SYM] for r in _PR.prefilter(
+        _prk_Gf, .4, 10., 0, prev_close=_prk_Pf, key=_k)] == ["OK"]
+        for _k in ("usd_day", "day_ret"))
+    # PRK6 — النداءُ المجمَّعُ الثاني **خارج حلقة الجلب** ⇒ لا يمسّ `BUDGET_SEC`
+    #        ولا يزيد نداءات الدقيقة. بنيويًّا: صفرُ نداءٍ لـ`fg` داخل الحلقة.
+    _prk_fn = next(_n for _n in _ps_ast.walk(_pr_tree)
+                   if isinstance(_n, _ps_ast.FunctionDef)
+                   and _n.name == "run_presession")
+    _prk_loop = next(_n for _n in _ps_ast.walk(_prk_fn)
+                     if isinstance(_n, _ps_ast.For)
+                     and getattr(_n.iter, "id", None) == "cands")
+    _prk6 = not any(isinstance(_c, _ps_ast.Call)
+                    and getattr(_c.func, "id", None) in ("fg", "closes_map",
+                                                         "prev_bday")
+                    for _c in _ps_ast.walk(_prk_loop))
+    # PRK7 — 🔴 **فاشلٌ-آمنٌ مُعلَن**: إغلاقاتٌ فارغة ⇒ رجوعٌ إلى `usd_day`
+    #        **ويُطبَع السبب** — والصمتُ هنا أسوأُ من الخطأ.
+    _prk_log = []
+    _prk_r1 = _PR.run_presession(
+        "PM", "2026-09-04", 1_700_000_000_000,
+        fetch_grouped=lambda d: (_prk_G if d == "2026-09-03" else _prk_P),
+        fetch_minutes=lambda *_a: [], log=_prk_log.append)[2]
+    _prk_r2 = _PR.run_presession(
+        "PM", "2026-09-04", 1_700_000_000_000,
+        fetch_grouped=lambda d: (_prk_G if d == "2026-09-03" else []),
+        fetch_minutes=lambda *_a: [], log=_prk_log.append)[2]
+    _prk7 = (_prk_r1["pf_key"] == "day_ret" and _prk_r1["pf_prev"] == 10
+             and _prk_r2["pf_key"] == "usd_day" and _prk_r2["pf_prev"] == 0
+             and any("usd_day" in _m and "يرجع" in _m for _m in _prk_log)
+             #    والمشحونُ يُقرأ من الثابت لا يُغرَس في نقطة النداء
+             and _prk_r1["pf_key"] == _PR.PREFILTER_KEY)
+    # PRK8 — `prev_bday` **مصدرٌ واحد**: سلوكيّةٌ (اثنين ⟶ جمعة) · و
+    #        `run_presession` تناديها **ولا تكرّر خطوةَ التقويم** (صفرُ
+    #        `timedelta` في جسمها) · واختيارُ `src_day` **لم يتغيّر**.
+    _prk8 = (_PR.prev_bday("2026-09-07") == "2026-09-04"        # اثنين ⟶ جمعة
+             and _PR.prev_bday("2026-09-04") == "2026-09-03"
+             and _PR.prev_bday("2026-09-06") == "2026-09-04"    # أحد ⟶ جمعة
+             and _prk_r1["src_day"] == "2026-09-03"
+             and not any(getattr(_c.func, "attr", None) == "timedelta"
+                         for _c in _ps_ast.walk(_prk_fn)
+                         if isinstance(_c, _ps_ast.Call))
+             and any(isinstance(_c, _ps_ast.Call)
+                     and getattr(_c.func, "id", None) == "prev_bday"
+                     for _c in _ps_ast.walk(_prk_fn)))
+    _prk = (_prk1 and _prk2 and _prk3 and _prk4 and _prk5 and _prk6 and _prk7
+            and _prk8)
+except Exception as _e:                                          # noqa: BLE001
+    _prk, _prk1 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚦 PRK مفتاحُ ترتيب المرشِّح = `day_ret` (أمرُ المالك) · و`usd_day` يُعيد "
+      "السابقَ حرفيًّا · والمجهولُ ذيلًا · والأرضيةُ والسقفُ وكونُ السعر بت-بت · "
+      "والنداءُ الثاني خارج الميزانية · وفاشلٌ-آمنٌ مُعلَن",
+      _prk, str(_prk1)[:80])
 
 
 # ── 🌙 أداةُ الحكم (PS16-PS17) ─────────────────────────────────────────────────
