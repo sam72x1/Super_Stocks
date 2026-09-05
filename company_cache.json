@@ -2091,20 +2091,6 @@
   "short_interest": 538452,
   "days_to_cover": 0.97
  },
- "AMCI": {
-  "sector": "Technology",
-  "industry": "Computer Hardware",
-  "business": "AMC Robotics Corporation manufactures and sells autonomous robots and AI-driven security and safety technology solutions in the United States, Canada, and Europ…",
-  "country": "United States",
-  "cash": 6632619,
-  "revenue": 5372938,
-  "shares_out": 22595384,
-  "short_pct": 1.0,
-  "float": 4720086,
-  "company_name": "AMC Robotics Corporation",
-  "short_interest": 11350,
-  "days_to_cover": 0.05
- },
  "LICN": {
   "sector": "Industrials",
   "industry": "Specialty Business Services",
@@ -3266,19 +3252,6 @@
   "short_pct": 0.0,
   "float": 1000000.0
  },
- "SMX": {
-  "sector": "Industrials",
-  "industry": "Specialty Business Services",
-  "business": "SMX (Security Matters) Public Limited Company provides brand protection, authentication and track and trace technology for the anti-counterfeit market. Its prop…",
-  "country": "Ireland",
-  "cash": 33540000,
-  "shares_out": 1088608,
-  "short_pct": 7.1,
-  "float": 791704,
-  "company_name": "SMX (Security Matters) Public L",
-  "short_interest": 76894,
-  "days_to_cover": 1.56
- },
  "AIXI": {
   "sector": "Technology",
   "industry": "Software - Application",
@@ -3677,35 +3650,6 @@
   "short_interest": 709382,
   "days_to_cover": 2.97
  },
- "VHUB": {
-  "sector": "Consumer Defensive",
-  "industry": "Grocery Stores",
-  "business": "VenHub Global, Inc. operates as a provider of autonomous retail solutions, offering technology-driven smart stores and support services for automated retail ope…",
-  "country": "United States",
-  "cash": 2563439,
-  "revenue": 505285,
-  "shares_out": 91392857,
-  "short_pct": 0.8,
-  "float": 23858105,
-  "finra_short": 31052,
-  "company_name": "VenHub Global, Inc.",
-  "short_interest": 230846,
-  "days_to_cover": 2.27
- },
- "TIL": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Instil Bio, Inc., a biopharmaceutical company, focuses on identifying and advancing therapeutic opportunities. It seeks to in-license or acquire and develop add…",
-  "country": "United States",
-  "cash": 69678000,
-  "shares_out": 6781976,
-  "short_pct": 4.7,
-  "float": 3621440,
-  "finra_short": 298,
-  "company_name": "Instil Bio, Inc.",
-  "short_interest": 189165,
-  "days_to_cover": 15.58
- },
  "NEGG": {
   "sector": "Consumer Cyclical",
   "industry": "Internet Retail",
@@ -3719,35 +3663,6 @@
   "company_name": "Newegg Commerce, Inc.",
   "short_interest": 426996,
   "days_to_cover": 6.1
- },
- "HCWB": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "HCW Biologics Inc., a clinical-stage biopharmaceutical company, focuses on discovering and developing novel immunotherapies for chronic, low-grade inflammation,…",
-  "country": "United States",
-  "cash": 1228879,
-  "revenue": 6592168,
-  "shares_out": 1836324,
-  "short_pct": 1.4,
-  "float": 946939,
-  "finra_short": 9963,
-  "company_name": "HCW Biologics Inc.",
-  "short_interest": 20979,
-  "days_to_cover": 0.33
- },
- "QTI": {
-  "sector": "Healthcare",
-  "industry": "Medical Devices",
-  "business": "QT Imaging Holdings, Inc. engages in the research, development, and commercialization of body imaging systems with low frequency sound waves for detection, diag…",
-  "country": "United States",
-  "cash": 10924000,
-  "revenue": 26432000,
-  "shares_out": 14636524,
-  "short_pct": 1.8,
-  "float": 10362513,
-  "company_name": "QT Imaging Holdings, Inc.",
-  "short_interest": 211221,
-  "days_to_cover": 5.7
  },
  "AGMH": {
   "sector": "Technology",
@@ -3763,20 +3678,6 @@
   "company_name": "AGM Group Holdings Inc.",
   "short_interest": 55709,
   "days_to_cover": 0.88
- },
- "MTVA": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "MetaVia Inc., a clinical-stage biotechnology company, focuses on developing novel pharmaceuticals to treat cardiometabolic diseases. The company develops DA-124…",
-  "country": "United States",
-  "cash": 12636000,
-  "shares_out": 6588101,
-  "short_pct": 4.7,
-  "float": 4805163,
-  "finra_short": 8122,
-  "company_name": "MetaVia Inc.",
-  "short_interest": 160464,
-  "days_to_cover": 0.31
  },
  "YAAS": {
   "sector": "Technology",
@@ -4192,21 +4093,6 @@
   "company_name": "NuCana plc",
   "short_interest": 134388,
   "days_to_cover": 3.49
- },
- "ANNA": {
-  "sector": "Energy",
-  "industry": "Oil & Gas E&P",
-  "business": "AleAnna, Inc., a development-stage natural gas resource company, focuses on delivering critical natural gas supplies in Europe and Italy. It operates in two seg…",
-  "country": "United States",
-  "cash": 32619508,
-  "revenue": 39919364,
-  "shares_out": 40940000,
-  "short_pct": 5.1,
-  "float": 9582826,
-  "finra_short": 34871,
-  "company_name": "AleAnna, Inc.",
-  "short_interest": 198207,
-  "days_to_cover": 0.78
  },
  "HTCR": {
   "sector": "Technology",
@@ -4893,21 +4779,6 @@
   "short_interest": 81745,
   "days_to_cover": 2.78
  },
- "ARBK": {
-  "sector": "Financial Services",
-  "industry": "Capital Markets",
-  "business": "Argo Blockchain plc, together with its subsidiaries, engages in bitcoin and other crypto assets buisiness. It is also involved in cryptocurrencies mining activi…",
-  "country": "United Kingdom",
-  "cash": 16389443,
-  "revenue": 15521000,
-  "shares_out": 14634897,
-  "short_pct": 0.0,
-  "float": 395190,
-  "finra_short": 1815,
-  "company_name": "Argo Blockchain plc",
-  "short_interest": 4802,
-  "days_to_cover": 0.4
- },
  "PN": {
   "sector": "Technology",
   "industry": "Solar",
@@ -4922,21 +4793,6 @@
   "company_name": "PN Smart Energy Limited",
   "short_interest": 65935,
   "days_to_cover": 0.04
- },
- "CLIK": {
-  "sector": "Consumer Cyclical",
-  "industry": "Personal Services",
-  "business": "Click Holdings Limited provides human resources solutions in Hong Kong. It operates through three segments: Professional Solution Services, Nursing Solution Ser…",
-  "country": "Hong Kong",
-  "cash": 1301867,
-  "revenue": 13464102,
-  "shares_out": 7435986,
-  "short_pct": 0.3,
-  "float": 258171,
-  "finra_short": 22859,
-  "company_name": "CLICK HOLDINGS LIMITED",
-  "short_interest": 25056,
-  "days_to_cover": 0.08
  },
  "NIVF": {
   "sector": "Healthcare",
@@ -5011,21 +4867,6 @@
   "company_name": "Burning Rock Biotech Limited",
   "short_interest": 39450,
   "days_to_cover": 5.55
- },
- "ONMD": {
-  "sector": "Healthcare",
-  "industry": "Health Information Services",
-  "business": "OneMedNet Corporation, a healthcare software company, provides digital medical image management, exchange, and sharing solutions in the Americas, Europe, and th…",
-  "country": "United States",
-  "cash": 358000,
-  "revenue": 1455000,
-  "shares_out": 59286450,
-  "short_pct": 2.2,
-  "float": 18819891,
-  "finra_short": 7239,
-  "company_name": "OneMedNet Corp",
-  "short_interest": 721823,
-  "days_to_cover": 0.32
  },
  "TRNR": {
   "sector": "Consumer Cyclical",
@@ -5130,47 +4971,6 @@
   "short_interest": 1686597,
   "days_to_cover": 4.85
  },
- "ACTU": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Actuate Therapeutics, Inc., a clinical-stage biopharmaceutical company, develops therapies for the treatment of cancers in the United States. The company's lead…",
-  "country": "United States",
-  "cash": 4425841,
-  "shares_out": 24014202,
-  "short_pct": 6.6,
-  "float": 8604048,
-  "company_name": "Actuate Therapeutics, Inc.",
-  "short_interest": 695971,
-  "days_to_cover": 2.43
- },
- "ASST": {
-  "sector": "Financial Services",
-  "industry": "Asset Management",
-  "business": "Strive, Inc. is a privately owned investment manager. It primarily provides its services to investment companies. The firm is a large advisory firm, an investme…",
-  "country": "United States",
-  "cash": 188320000,
-  "revenue": 8501000,
-  "shares_out": 83470035,
-  "short_pct": 24.2,
-  "float": 72869981,
-  "company_name": "Strive, Inc.",
-  "short_interest": 18195212,
-  "days_to_cover": 6.82
- },
- "PPCB": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Propanc Biopharma, Inc., a development-stage biopharmaceutical healthcare company, engages in the development of cancer treatments for patients with pancreatic,…",
-  "country": "Australia",
-  "cash": 443702,
-  "shares_out": 2278371,
-  "short_pct": 2.8,
-  "float": 1272060,
-  "finra_short": 6221,
-  "company_name": "Propanc Biopharma, Inc.",
-  "short_interest": 56255,
-  "days_to_cover": 0.36
- },
  "MVIS": {
   "sector": "Technology",
   "industry": "Scientific & Technical Instruments",
@@ -5184,20 +4984,6 @@
   "company_name": "Microvision, Inc.",
   "short_interest": 4832187,
   "days_to_cover": 3.71
- },
- "EHGO": {
-  "sector": "Industrials",
-  "industry": "Business Equipment & Supplies",
-  "business": "Eshallgo Inc. engages in the sale, leasing, and maintenance of printers and copiers in the People's Republic of China. It sells office furniture, IT products, w…",
-  "country": "China",
-  "cash": 5089321,
-  "revenue": 16318923,
-  "shares_out": 2861577,
-  "short_pct": 2.9,
-  "float": 1748910,
-  "company_name": "Eshallgo Inc.",
-  "short_interest": 83060,
-  "days_to_cover": 0.02
  },
  "OLOX": {
   "sector": "Industrials",
@@ -5301,21 +5087,6 @@
   "company_name": "Mobix Labs, Inc.",
   "short_interest": 1409472,
   "days_to_cover": 0.88
- },
- "SPHL": {
-  "sector": "Consumer Cyclical",
-  "industry": "Residential Construction",
-  "business": "Springview Holdings Ltd, through its subsidiary, designs and constructs residential and commercial buildings in Singapore. The company undertakes new constructi…",
-  "country": "Singapore",
-  "cash": 3818808,
-  "revenue": 7808860,
-  "shares_out": 2261980,
-  "short_pct": 3.0,
-  "float": 1011981,
-  "finra_short": 574,
-  "company_name": "SPRINGVIEW HOLDINGS LTD",
-  "short_interest": 37395,
-  "days_to_cover": 1.27
  },
  "CNEY": {
   "sector": "Basic Materials",
@@ -5435,6 +5206,34 @@
   "short_interest": 58435,
   "days_to_cover": 1.63
  },
+ "AMST": {
+  "sector": "Technology",
+  "industry": "Software - Application",
+  "business": "Amesite Inc., a technology company, engages in the marketing and development of B2C and B2B AI-driven solutions in the United States. Its products include Amesi…",
+  "country": "United States",
+  "cash": 640711,
+  "revenue": 341437,
+  "shares_out": 6549851,
+  "short_pct": 0.2,
+  "float": 3279310,
+  "finra_short": 13633,
+  "company_name": "Amesite Inc.",
+  "short_interest": 7028,
+  "days_to_cover": 0.08
+ },
+ "LITS": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Lite Strategy, Inc. a clinical-stage pharmaceutical company, focuses on the development of novel and differentiated therapies for the treatment of cancer. The c…",
+  "country": "United States",
+  "cash": 7544000,
+  "shares_out": 34025200,
+  "short_pct": 0.5,
+  "float": 31820367,
+  "company_name": "Lite Strategy, Inc.",
+  "short_interest": 156379,
+  "days_to_cover": 1.23
+ },
  "ONEG": {
   "sector": "Industrials",
   "industry": "Engineering & Construction",
@@ -5445,7 +5244,7 @@
   "shares_out": 16000000,
   "short_pct": 0.3,
   "float": 7000000,
-  "finra_short": 1199,
+  "finra_short": 694,
   "company_name": "OneConstruction Group Limited",
   "short_interest": 19352,
   "days_to_cover": 0.41
@@ -5460,7 +5259,7 @@
   "shares_out": 37764932,
   "short_pct": 2.4,
   "float": 18483728,
-  "finra_short": 1467,
+  "finra_short": 6584,
   "company_name": "Here Group Limited",
   "short_interest": 494755,
   "days_to_cover": 9.87
@@ -5489,11 +5288,26 @@
   "revenue": 227629,
   "shares_out": 655185,
   "short_pct": 1.6,
-  "float": 652073,
-  "finra_short": 2810,
+  "float": 588402,
+  "finra_short": 5795,
   "company_name": "Decoy Therapeutics Inc.",
   "short_interest": 10675,
   "days_to_cover": 0.15
+ },
+ "CLIK": {
+  "sector": "Consumer Cyclical",
+  "industry": "Personal Services",
+  "business": "Click Holdings Limited provides human resources solutions in Hong Kong. It operates through three segments: Professional Solution Services, Nursing Solution Ser…",
+  "country": "Hong Kong",
+  "cash": 1301867,
+  "revenue": 13464102,
+  "shares_out": 7435986,
+  "short_pct": 0.3,
+  "float": 258171,
+  "finra_short": 29,
+  "company_name": "CLICK HOLDINGS LIMITED",
+  "short_interest": 25056,
+  "days_to_cover": 0.08
  },
  "CAR": {
   "sector": "Industrials",
@@ -5518,10 +5332,24 @@
   "shares_out": 2337481,
   "short_pct": 7.4,
   "float": 552581,
-  "finra_short": 3941,
+  "finra_short": 3,
   "company_name": "A SPAC III Acquisition Corp.",
   "short_interest": 15686,
   "days_to_cover": 8.64
+ },
+ "AMCI": {
+  "sector": "Technology",
+  "industry": "Computer Hardware",
+  "business": "AMC Robotics Corporation manufactures and sells autonomous robots and AI-driven security and safety technology solutions in the United States, Canada, and Europ…",
+  "country": "United States",
+  "cash": 4544353,
+  "revenue": 4912840,
+  "shares_out": 23206423,
+  "short_pct": 1.4,
+  "float": 4720312,
+  "company_name": "AMC Robotics Corporation",
+  "short_interest": 16567,
+  "days_to_cover": 0.1
  },
  "IQST": {
   "sector": "Communication Services",
@@ -5533,7 +5361,7 @@
   "shares_out": 10915859,
   "short_pct": 5.3,
   "float": 10870558,
-  "finra_short": 51754,
+  "finra_short": 23009,
   "company_name": "iQSTEL Inc.",
   "short_interest": 533525,
   "days_to_cover": 0.07
@@ -5547,7 +5375,7 @@
   "shares_out": 1034715,
   "short_pct": 5.3,
   "float": 4377260,
-  "finra_short": 41011,
+  "finra_short": 20990,
   "company_name": "Bluejay Diagnostics, Inc.",
   "short_interest": 51809,
   "days_to_cover": 0.01
@@ -5589,7 +5417,7 @@
   "shares_out": 3426715,
   "short_pct": 1.8,
   "float": 2200671,
-  "finra_short": 2671,
+  "finra_short": 13236,
   "company_name": "IceCure Medical Ltd.",
   "short_interest": 40780,
   "days_to_cover": 0.5
@@ -5604,7 +5432,7 @@
   "shares_out": 19050000,
   "short_pct": 1.6,
   "float": 4760409,
-  "finra_short": 27532,
+  "finra_short": 31382,
   "company_name": "SAGTEC GLOBAL LIMITED",
   "short_interest": 133998,
   "days_to_cover": 0.33
@@ -5618,7 +5446,7 @@
   "shares_out": 351577182,
   "short_pct": 0.0,
   "float": 4030216,
-  "finra_short": 4985,
+  "finra_short": 46842,
   "company_name": "Digital Currency X Technology I",
   "short_interest": 125635,
   "days_to_cover": 0.15
@@ -5633,10 +5461,39 @@
   "shares_out": 8663493,
   "short_pct": 23.4,
   "float": 5696892,
-  "finra_short": 36975,
+  "finra_short": 34302,
   "company_name": "America's Car-Mart, Inc.",
   "short_interest": 1460520,
   "days_to_cover": 2.79
+ },
+ "QTI": {
+  "sector": "Healthcare",
+  "industry": "Medical Devices",
+  "business": "QT Imaging Holdings, Inc. engages in the research, development, and commercialization of body imaging systems with low frequency sound waves for detection, diag…",
+  "country": "United States",
+  "cash": 10924000,
+  "revenue": 26432000,
+  "shares_out": 14636524,
+  "short_pct": 1.8,
+  "float": 10298258,
+  "company_name": "QT Imaging Holdings, Inc.",
+  "short_interest": 222231,
+  "days_to_cover": 5.11
+ },
+ "ONMD": {
+  "sector": "Healthcare",
+  "industry": "Health Information Services",
+  "business": "OneMedNet Corporation, a healthcare software company, provides digital medical image management, exchange, and sharing solutions in the Americas, Europe, and th…",
+  "country": "United States",
+  "cash": 358000,
+  "revenue": 1455000,
+  "shares_out": 59286450,
+  "short_pct": 2.2,
+  "float": 18819891,
+  "finra_short": 90389,
+  "company_name": "OneMedNet Corp",
+  "short_interest": 721823,
+  "days_to_cover": 0.32
  },
  "SNAL": {
   "sector": "Communication Services",
@@ -5663,7 +5520,7 @@
   "shares_out": 26411433,
   "short_pct": 0.4,
   "float": 26409801,
-  "finra_short": 6410,
+  "finra_short": 14209,
   "company_name": "Token Cat Limited",
   "short_interest": 113328,
   "days_to_cover": 0.12
@@ -5678,7 +5535,7 @@
   "shares_out": 796988,
   "short_pct": 3.0,
   "float": 529040,
-  "finra_short": 26071,
+  "finra_short": 6105,
   "company_name": "Virax Biolabs Group Limited",
   "short_interest": 23357,
   "days_to_cover": 0.04
@@ -5693,7 +5550,7 @@
   "shares_out": 4126507,
   "short_pct": 1.1,
   "float": 3947582,
-  "finra_short": 1704,
+  "finra_short": 1118,
   "company_name": "Foresight Autonomous Holdings L",
   "short_interest": 43777,
   "days_to_cover": 0.82
@@ -5736,7 +5593,7 @@
   "shares_out": 5529189,
   "short_pct": 2.1,
   "float": 5453937,
-  "finra_short": 761,
+  "finra_short": 1820,
   "company_name": "Yueda Digital Holding",
   "short_interest": 116123,
   "days_to_cover": 3.95
@@ -5751,7 +5608,7 @@
   "shares_out": 997340,
   "short_pct": 1.2,
   "float": 866629,
-  "finra_short": 8443,
+  "finra_short": 2795,
   "company_name": "Change Agents Corporation",
   "short_interest": 11342,
   "days_to_cover": 0.13
@@ -5766,7 +5623,7 @@
   "shares_out": 1356613,
   "short_pct": 0.8,
   "float": 45448,
-  "finra_short": 43339,
+  "finra_short": 12703,
   "company_name": "Linkers Industries Limited",
   "short_interest": 11158,
   "days_to_cover": 0.04
@@ -5795,40 +5652,25 @@
   "shares_out": 2875332,
   "short_pct": 2.0,
   "float": 1352229,
-  "finra_short": 567,
+  "finra_short": 44,
   "company_name": "SKK Holdings Limited",
   "short_interest": 26957,
   "days_to_cover": 2.77
  },
- "AIRE": {
-  "sector": "Real Estate",
-  "industry": "Real Estate Services",
-  "business": "reAlpha Tech Corp., a real estate technology company, develops an end-to-end homebuying platform. It operates through two segments, Homebuying Services and Tech…",
-  "country": "United States",
-  "cash": 2230607,
-  "revenue": 4291888,
-  "shares_out": 6004178,
-  "short_pct": 8.6,
-  "float": 4452454,
-  "finra_short": 10835,
-  "company_name": "reAlpha Tech Corp.",
-  "short_interest": 403133,
-  "days_to_cover": 6.17
- },
- "AMST": {
-  "sector": "Technology",
-  "industry": "Software - Application",
-  "business": "Amesite Inc., a technology company, engages in the marketing and development of B2C and B2B AI-driven solutions in the United States. Its products include Amesi…",
-  "country": "United States",
-  "cash": 640711,
-  "revenue": 341437,
-  "shares_out": 6549851,
-  "short_pct": 0.2,
-  "float": 3279310,
-  "finra_short": 13633,
-  "company_name": "Amesite Inc.",
-  "short_interest": 7028,
-  "days_to_cover": 0.08
+ "ARBK": {
+  "sector": "Financial Services",
+  "industry": "Capital Markets",
+  "business": "Argo Blockchain plc, together with its subsidiaries, engages in bitcoin and other crypto assets buisiness. It is also involved in cryptocurrencies mining activi…",
+  "country": "United Kingdom",
+  "cash": 16389443,
+  "revenue": 15521000,
+  "shares_out": 14634897,
+  "short_pct": 0.0,
+  "float": 395190,
+  "finra_short": 1585,
+  "company_name": "Argo Blockchain plc",
+  "short_interest": 4802,
+  "days_to_cover": 0.4
  },
  "PAVM": {
   "sector": "Healthcare",
@@ -5855,7 +5697,7 @@
   "shares_out": 47113236,
   "short_pct": 0.1,
   "float": 27095245,
-  "finra_short": 1394,
+  "finra_short": 9102,
   "company_name": "Metalpha Technology Holding Lim",
   "short_interest": 36526,
   "days_to_cover": 1.09
@@ -5870,7 +5712,7 @@
   "shares_out": 820948,
   "short_pct": 9.5,
   "float": 811847,
-  "finra_short": 16759,
+  "finra_short": 10143,
   "company_name": "Reliance Global Group, Inc.",
   "short_interest": 74750,
   "days_to_cover": 0.02
@@ -5881,12 +5723,27 @@
   "business": "Polaryx Therapeutics, Inc., a clinical-stage biotechnology company, engages in the discovery, development, and commercialization of disease-modifying therapies…",
   "country": "United States",
   "cash": 11542000,
-  "shares_out": 47343297,
+  "shares_out": 49845993,
   "short_pct": 1.1,
   "float": 6777560,
   "company_name": "Polaryx Therapeutics, Inc.",
   "short_interest": 249038,
   "days_to_cover": 2.51
+ },
+ "AIRE": {
+  "sector": "Real Estate",
+  "industry": "Real Estate Services",
+  "business": "reAlpha Tech Corp., a real estate technology company, develops an end-to-end homebuying platform. It operates through two segments, Homebuying Services and Tech…",
+  "country": "United States",
+  "cash": 2230607,
+  "revenue": 4291888,
+  "shares_out": 6004178,
+  "short_pct": 8.6,
+  "float": 4452454,
+  "finra_short": 7372,
+  "company_name": "reAlpha Tech Corp.",
+  "short_interest": 403133,
+  "days_to_cover": 6.17
  },
  "PASG": {
   "sector": "Healthcare",
@@ -5897,7 +5754,7 @@
   "shares_out": 3217810,
   "short_pct": 5.3,
   "float": 3201817,
-  "finra_short": 1367,
+  "finra_short": 593,
   "company_name": "Passage Bio, Inc.",
   "short_interest": 136935,
   "days_to_cover": 5.14
@@ -5916,6 +5773,20 @@
   "short_interest": 1274425,
   "days_to_cover": 3.91
  },
+ "SMX": {
+  "sector": "Industrials",
+  "industry": "Specialty Business Services",
+  "business": "SMX (Security Matters) Public Limited Company provides brand protection, authentication and track and trace technology for the anti-counterfeit market. Its prop…",
+  "country": "Ireland",
+  "cash": 33540000,
+  "shares_out": 1088608,
+  "short_pct": 5.8,
+  "float": 791704,
+  "finra_short": 2072,
+  "company_name": "SMX (Security Matters) Public L",
+  "short_interest": 62591,
+  "days_to_cover": 1.72
+ },
  "BETR": {
   "sector": "Financial Services",
   "industry": "Mortgage Finance",
@@ -5925,10 +5796,23 @@
   "revenue": 193058000,
   "shares_out": 13243928,
   "short_pct": 26.5,
-  "float": 8505854,
+  "float": 8482866,
   "company_name": "Better Home & Finance Holding C",
   "short_interest": 2853416,
   "days_to_cover": 4.68
+ },
+ "ACTU": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Actuate Therapeutics, Inc., a clinical-stage biopharmaceutical company, develops therapies for the treatment of cancers in the United States. The company's lead…",
+  "country": "United States",
+  "cash": 4425841,
+  "shares_out": 24014202,
+  "short_pct": 6.6,
+  "float": 8604048,
+  "company_name": "Actuate Therapeutics, Inc.",
+  "short_interest": 695971,
+  "days_to_cover": 2.43
  },
  "NCEL": {
   "sector": "Healthcare",
@@ -5939,10 +5823,24 @@
   "shares_out": 5776128,
   "short_pct": 1.1,
   "float": 2483586,
-  "finra_short": 447,
+  "finra_short": 311,
   "company_name": "NewcelX Ltd.",
   "short_interest": 36949,
   "days_to_cover": 2.68
+ },
+ "TIL": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Instil Bio, Inc., a biopharmaceutical company, focuses on identifying and advancing therapeutic opportunities. It seeks to in-license or acquire and develop add…",
+  "country": "United States",
+  "cash": 69678000,
+  "shares_out": 6781976,
+  "short_pct": 4.4,
+  "float": 3621440,
+  "finra_short": 531,
+  "company_name": "Instil Bio, Inc.",
+  "short_interest": 176320,
+  "days_to_cover": 17.93
  },
  "AVX": {
   "sector": "Technology",
@@ -5969,6 +5867,7 @@
   "shares_out": 76802872,
   "short_pct": 1.1,
   "float": 64574319,
+  "finra_short": 105639,
   "company_name": "Sui Group Holdings Limited",
   "short_interest": 688429,
   "days_to_cover": 2.57
@@ -5983,10 +5882,25 @@
   "shares_out": 49045623,
   "short_pct": 0.1,
   "float": 49045507,
-  "finra_short": 54792,
+  "finra_short": 1855,
   "company_name": "mF International Limited",
   "short_interest": 33144,
   "days_to_cover": 6.01
+ },
+ "ANNA": {
+  "sector": "Energy",
+  "industry": "Oil & Gas E&P",
+  "business": "AleAnna, Inc., a development-stage natural gas resource company, focuses on delivering critical natural gas supplies in Europe and Italy. It operates in two seg…",
+  "country": "United States",
+  "cash": 32619508,
+  "revenue": 39919364,
+  "shares_out": 40940000,
+  "short_pct": 5.1,
+  "float": 9582826,
+  "finra_short": 34871,
+  "company_name": "AleAnna, Inc.",
+  "short_interest": 198207,
+  "days_to_cover": 0.78
  },
  "SEGG": {
   "sector": "Consumer Cyclical",
@@ -6017,6 +5931,36 @@
   "short_interest": 177218,
   "days_to_cover": 3.59
  },
+ "VHUB": {
+  "sector": "Consumer Defensive",
+  "industry": "Grocery Stores",
+  "business": "VenHub Global, Inc. operates as a provider of autonomous retail solutions, offering technology-driven smart stores and support services for automated retail ope…",
+  "country": "United States",
+  "cash": 2563439,
+  "revenue": 505285,
+  "shares_out": 91392857,
+  "short_pct": 0.9,
+  "float": 23858105,
+  "finra_short": 9146,
+  "company_name": "VenHub Global, Inc.",
+  "short_interest": 266618,
+  "days_to_cover": 3.76
+ },
+ "SPHL": {
+  "sector": "Consumer Cyclical",
+  "industry": "Residential Construction",
+  "business": "Springview Holdings Ltd, through its subsidiary, designs and constructs residential and commercial buildings in Singapore. The company undertakes new constructi…",
+  "country": "Singapore",
+  "cash": 3818808,
+  "revenue": 7808860,
+  "shares_out": 2261980,
+  "short_pct": 3.0,
+  "float": 1011981,
+  "finra_short": 3246,
+  "company_name": "SPRINGVIEW HOLDINGS LTD",
+  "short_interest": 37395,
+  "days_to_cover": 1.27
+ },
  "DXST": {
   "sector": "Industrials",
   "industry": "Waste Management",
@@ -6027,7 +5971,7 @@
   "shares_out": 1615128,
   "short_pct": 7.3,
   "float": 998066,
-  "finra_short": 7493,
+  "finra_short": 4942,
   "company_name": "Decent Holding Inc.",
   "short_interest": 65092,
   "days_to_cover": 0.04
@@ -6046,6 +5990,21 @@
   "short_interest": 2145164,
   "days_to_cover": 3.28
  },
+ "HCWB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "HCW Biologics Inc., a clinical-stage biopharmaceutical company, focuses on discovering and developing novel immunotherapies for chronic, low-grade inflammation,…",
+  "country": "United States",
+  "cash": 741324,
+  "revenue": 6721186,
+  "shares_out": 1836324,
+  "short_pct": 0.8,
+  "float": 1649790,
+  "finra_short": 9963,
+  "company_name": "HCW Biologics Inc.",
+  "short_interest": 14348,
+  "days_to_cover": 0.2
+ },
  "GVH": {
   "sector": "Industrials",
   "industry": "Integrated Freight & Logistics",
@@ -6061,18 +6020,19 @@
   "short_interest": 107527,
   "days_to_cover": 0.06
  },
- "LITS": {
-  "sector": "Healthcare",
-  "industry": "Biotechnology",
-  "business": "Lite Strategy, Inc. a clinical-stage pharmaceutical company, focuses on the development of novel and differentiated therapies for the treatment of cancer. The c…",
+ "ASST": {
+  "sector": "Financial Services",
+  "industry": "Asset Management",
+  "business": "Strive, Inc. is a privately owned investment manager. It primarily provides its services to investment companies. The firm is a large advisory firm, an investme…",
   "country": "United States",
-  "cash": 7544000,
-  "shares_out": 34025200,
-  "short_pct": 0.5,
-  "float": 31820367,
-  "company_name": "Lite Strategy, Inc.",
-  "short_interest": 156379,
-  "days_to_cover": 1.23
+  "cash": 188320000,
+  "revenue": 8501000,
+  "shares_out": 83470035,
+  "short_pct": 24.2,
+  "float": 72869981,
+  "company_name": "Strive, Inc.",
+  "short_interest": 18195212,
+  "days_to_cover": 6.82
  },
  "ZOOZ": {
   "sector": "Industrials",
@@ -6088,6 +6048,49 @@
   "company_name": "ZOOZ Strategy Ltd.",
   "short_interest": 10074,
   "days_to_cover": 2.12
+ },
+ "PPCB": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "Propanc Biopharma, Inc., a development-stage biopharmaceutical healthcare company, engages in the development of cancer treatments for patients with pancreatic,…",
+  "country": "Australia",
+  "cash": 443702,
+  "shares_out": 2278371,
+  "short_pct": 2.8,
+  "float": 1272060,
+  "finra_short": 22167,
+  "company_name": "Propanc Biopharma, Inc.",
+  "short_interest": 56255,
+  "days_to_cover": 0.36
+ },
+ "MTVA": {
+  "sector": "Healthcare",
+  "industry": "Biotechnology",
+  "business": "MetaVia Inc., a clinical-stage biotechnology company, focuses on developing novel pharmaceuticals to treat cardiometabolic diseases. The company develops DA-124…",
+  "country": "United States",
+  "cash": 12636000,
+  "shares_out": 6588101,
+  "short_pct": 4.4,
+  "float": 4805163,
+  "finra_short": 15377,
+  "company_name": "MetaVia Inc.",
+  "short_interest": 211343,
+  "days_to_cover": 1.89
+ },
+ "EHGO": {
+  "sector": "Industrials",
+  "industry": "Business Equipment & Supplies",
+  "business": "Eshallgo Inc. engages in the sale, leasing, and maintenance of printers and copiers in the People's Republic of China. It sells office furniture, IT products, w…",
+  "country": "China",
+  "cash": 5089321,
+  "revenue": 16318923,
+  "shares_out": 2861577,
+  "short_pct": 2.9,
+  "float": 1748910,
+  "finra_short": 47289,
+  "company_name": "Eshallgo Inc.",
+  "short_interest": 83060,
+  "days_to_cover": 0.02
  },
  "FGL": {
   "sector": "Industrials",
