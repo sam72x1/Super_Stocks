@@ -37906,6 +37906,155 @@ check("🔁 RM10 لا دقيقةَ تُقفز بعد الإعادة: مسحةٌ 
       "(البذرةُ last_eval_ms = exit_ms — لا None ولا صفر)",
       _rm10_m1 == [(40, None), (71, 1)], f"{_rm10_m1}")
 
+# ══ 🔁📜 «طبع الوسم في السجلّ» — RM11-RM15 (أمرُ المالك 2026-09-05) ══
+# 🔴 **الفجوةُ التي تُغلقها:** كان الوسمُ مضمَّنًا في `build_liq_stage_alert` وحدَها
+#    والسجلُّ الحيُّ يطبع **أسماءَ المراحل لا نصَّ الرسالة** ⇒ حدُّ الصدق المدوَّن
+#    «‏مقفولٌ بالسويّة (`RM5`) وغيرُ مُتحقَّقٍ من سجلٍّ حيّ». الآن الوسمُ دالّةٌ نقيّةٌ
+#    **واحدة** يناديها الكرتُ والعاملُ الحيُّ معًا.
+_rm11_ev_tag = dict(_rm_ev_base, rearm=1,
+                    rearm_prev={"anchor_price": 1.06, "anchor_low": 0.995})
+_rm11_ev_np = dict(_rm_ev_base, rearm=1)                 # إعادةٌ بلا ملخّصِ سابقة
+_rm11_ev_nl = dict(_rm_ev_base, rearm=1, rearm_prev={"anchor_price": 1.06})
+_rm11_ev_bad = dict(_rm_ev_base, rearm=1, rearm_prev="tALF")     # تالفٌ ⇒ فاشلٌ-آمن
+_rm11_ev_z = dict(_rm_ev_base, rearm=0)                  # صفرٌ = مِرساةٌ أولى
+
+# RM11 — الدالّةُ النقيّة **تفرّق** خمسَ حالاتٍ ولا تُرضيها واحدة (درسُ «العيّنةُ
+#   التي لا تفرّق»): وسمٌ كاملٌ · وسمٌ بلا قوسَين · وسمٌ بلا قاع · تالفٌ يُوسَم
+#   بلا قوسَين · وفراغٌ للأولى وللصفر.
+try:
+    _rm11 = [S.liq_rearm_tag([_rm_ev_base]), S.liq_rearm_tag([_rm11_ev_tag]),
+             S.liq_rearm_tag([_rm11_ev_np]), S.liq_rearm_tag([_rm11_ev_nl]),
+             S.liq_rearm_tag([_rm11_ev_bad]), S.liq_rearm_tag([_rm11_ev_z]),
+             S.liq_rearm_tag(None),
+             S.liq_rearm_tag([dict(_rm_ev_base, rearm=2,
+                                   rearm_prev={"anchor_price": 1.06,
+                                               "anchor_low": 0.995})])]
+except Exception as _e:                                          # noqa: BLE001
+    _rm11 = [f"⛔ {type(_e).__name__}: {_e}"]
+check("🔁 RM11 وسمُ الإعادة دالّةٌ نقيّةٌ تفرّق: كاملٌ · بلا قوسَين · بلا قاع · تالفٌ "
+      "فاشلٌ-آمن · وفراغٌ للمِرساة الأولى وللصفر · و#3 عند العدّاد 2",
+      _rm11 == ["",
+                "🔁 مِرساة #2 بعد خروجٍ بنيويّ (الأولى $1.06 · خرجت تحت $0.9950)",
+                "🔁 مِرساة #2 بعد خروجٍ بنيويّ",
+                "🔁 مِرساة #2 بعد خروجٍ بنيويّ (الأولى $1.06)",
+                "🔁 مِرساة #2 بعد خروجٍ بنيويّ",
+                "", "",
+                "🔁 مِرساة #3 بعد خروجٍ بنيويّ (الأولى $1.06 · خرجت تحت $0.9950)"],
+      f"{_rm11}")
+
+# RM11ب — **مصدرٌ واحدٌ لا اثنان**: نصُّ الدالّة يظهر **حرفيًّا** في الكرت، و
+#   `build_liq_stage_alert` لا تبني الوسمَ بنفسها (لا نصَّ «بعد خروجٍ بنيويّ» في
+#   مصدرها) بل **تناديها بالاسم** (AST) ⇒ يستحيل أن يتفرّق ما يُطبَع عمّا يصل.
+import ast as _rm_ast                                            # noqa: E402
+import inspect as _rm_insp                                       # noqa: E402
+_rm11b_src = _rm_insp.getsource(S.build_liq_stage_alert)
+_rm11b_calls = [c for c in _rm_ast.walk(_rm_ast.parse(_rm11b_src.lstrip()))
+                if isinstance(c, _rm_ast.Call)
+                and getattr(c.func, "id", None) == "liq_rearm_tag"]
+try:
+    _rm11b_card = S.build_liq_stage_alert([({"symbol": "RM"}, [_rm11_ev_tag])])
+except Exception as _e:                                          # noqa: BLE001
+    _rm11b_card = f"⛔ {type(_e).__name__}: {_e}"
+check("🔁 RM11ب مصدرٌ واحد: نصُّ `liq_rearm_tag` **حرفيًّا** في الكرت · والكرتُ يناديها "
+      "بالاسم (AST) ولا يبني الوسمَ بنفسه",
+      _rm11[1] in _rm11b_card and len(_rm11b_calls) == 1
+      and "بعد خروجٍ بنيويّ" not in _rm11b_src,
+      f"calls={len(_rm11b_calls)} in_card={_rm11[1] in _rm11b_card}")
+
+# RM12 — `liq_rearm_marks`: يسبق الرمزُ الوسمَ · صفٌّ بلا إعادةٍ لا يُنتج سطرًا ·
+#   وصفٌّ تالفٌ يُتخطّى **ولا يُسقط** بقيّةَ الوسوم (فاشلٌ-آمن).
+try:
+    _rm12 = [S.liq_rearm_marks([({"symbol": "A"}, [_rm11_ev_tag]),
+                                ({"symbol": "B"}, [_rm_ev_base]),
+                                ("تالف",),
+                                ({"symbol": "C"}, [_rm11_ev_np])]),
+             S.liq_rearm_marks([({"symbol": "B"}, [_rm_ev_base])]),
+             S.liq_rearm_marks([]), S.liq_rearm_marks(None)]
+except Exception as _e:                                          # noqa: BLE001
+    _rm12 = [f"⛔ {type(_e).__name__}: {_e}"]
+check("🔁 RM12 وسومُ السجلّ: الرمزُ ثم الوسم · بلا إعادةٍ لا سطر · وصفٌّ تالفٌ يُتخطّى "
+      "ولا يُسقط ما بعده",
+      _rm12 == [[f"A: {_rm11[1]}", f"C: {_rm11[2]}"], [], [], []], f"{_rm12}")
+
+# RM13 — **الوصلُ من نقطة النداء الحيّة** (درسُ `wire-check §①`): العاملُ ينادي
+#   `liq_rearm_marks` مرّةً واحدة · ونتيجتُها (`_lmarks`) تدخل نداءَ `_log` فعلًا
+#   (AST لا نصّ — نمطُ `OEL11`) · **والالتقاطُ قبل الفلتر** فيُطبَع المكتومُ أيضًا
+#   (وإلّا غاب الوسمُ كلَّما كتم الفلترُ أحداثَ الإعادة — وقع حيًّا مع `GIPR`).
+_rm13_src = open("operator_entry_live.py", encoding="utf-8").read()
+_rm13_tree = _rm_ast.parse(_rm13_src)
+_rm13_calls = [c for c in _rm_ast.walk(_rm13_tree) if isinstance(c, _rm_ast.Call)
+               and getattr(c.func, "attr", None) == "liq_rearm_marks"]
+_rm13_logs = [c for c in _rm_ast.walk(_rm13_tree) if isinstance(c, _rm_ast.Call)
+              and getattr(c.func, "id", None) == "_log"
+              and any(getattr(n, "id", None) == "_lmarks"
+                      for n in _rm_ast.walk(c))]
+_rm13_i_marks = _rm13_src.find("_lmarks = bot.liq_rearm_marks")
+_rm13_i_filt = _rm13_src.find("bot.apply_alert_filter")
+check("🔁 RM13 العاملُ موصولٌ: نداءٌ واحدٌ لـ`liq_rearm_marks` · و`_lmarks` داخل نداءَي "
+      "`_log` (المُسلَّم والمكتوم) · والالتقاطُ **قبل** الفلتر",
+      len(_rm13_calls) == 1 and len(_rm13_logs) == 2
+      and 0 < _rm13_i_marks < _rm13_i_filt,
+      f"calls={len(_rm13_calls)} logs={len(_rm13_logs)} "
+      f"marks@{_rm13_i_marks} filter@{_rm13_i_filt}")
+
+# RM14 — **عرضٌ لا اختيار**: لا القرارُ ولا المسحُ ولا الفلترُ ولا التصنيف يعرف
+#   الدالّتين — وإلّا صار وسمُ عرضٍ بوّابةَ تسليمٍ صامتة.
+_rm14_tree = _rm_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+_rm14_dump = {n.name: _rm_ast.dump(n) for n in _rm_ast.walk(_rm14_tree)
+              if isinstance(n, _rm_ast.FunctionDef)}
+_rm14_bad = [f for f in ("liq_stage_events", "scan_liq_stages", "alert_filter_keep",
+                         "liq_tier", "_event_j1", "rank_key", "select_top",
+                         "analyze_ticker", "entry_status")
+             for x in ("liq_rearm_tag", "liq_rearm_marks")
+             if x in _rm14_dump.get(f, "")]
+check("🔁 RM14 عرضٌ لا اختيار: صفرُ ذِكرٍ للوسم في القرار/المسح/الفلتر/التصنيف/الجذور",
+      _rm14_bad == [], f"{_rm14_bad}")
+
+# RM15 — **الكرتُ بت-بت**: استخراجُ الوسم لم يبدّل حرفًا من مُخرَج الكرت في تسع
+#   حالاتٍ (منها `GIPR` الحيّة · تالفٌ · صفرٌ · صفّان) مقارنةً بالبناء المضمَّن.
+def _rm15_inline(evs):                 # البناءُ المضمَّن كما كان قبل الاستخراج
+    _rn = next((e.get("rearm") for e in evs if e.get("rearm")), None)
+    if not _rn:
+        return ""
+    _rp = next((e.get("rearm_prev") for e in evs
+                if isinstance(e.get("rearm_prev"), dict)), None) or {}
+    _t = f"🔁 مِرساة #{int(_rn) + 1} بعد خروجٍ بنيويّ"
+    if _rp.get("anchor_price"):
+        _t += f" (الأولى {S._px_txt(_rp.get('anchor_price'))}"
+        if _rp.get("anchor_low"):
+            _t += f" · خرجت تحت {S._px_txt(_rp.get('anchor_low'))}"
+        _t += ")"
+    return _t
+_rm15_cases = [[_rm_ev_base], [_rm11_ev_tag], [_rm11_ev_np], [_rm11_ev_nl],
+               [_rm11_ev_bad], [_rm11_ev_z],
+               [dict(_rm_ev_base, rearm=1, rearm_prev={"anchor_price": 0.5240,
+                                                       "anchor_low": 0.4870})],
+               [_rm_ev_base, _rm11_ev_tag],
+               [dict(_rm_ev_base, rearm=3,
+                     rearm_prev={"anchor_price": 2.0, "anchor_low": 1.5})]]
+_rm15_diff = [i for i, c in enumerate(_rm15_cases)
+              if S.liq_rearm_tag(c) != _rm15_inline(c)]
+check("🔁 RM15 الكرتُ بت-بت: الدالّةُ تُعيد البناءَ المضمَّن حرفيًّا في تسع حالات "
+      "(صفرُ تفرّق)",
+      _rm15_diff == [], f"تفرّقت: {_rm15_diff}")
+
+# RM16 — **الترويسةُ تُعلن الإعادةَ بسقفها** (نمطُ `OEL11` بالـAST): الوسمُ لا يظهر
+#   إلّا يومَ تقع إعادة ⇒ صمتُ السجلّ **لا يفرّق** «لا إعادةَ اليوم» عن «الوسمُ غيرُ
+#   موصول». **وداخلَ نداء `_log` حصرًا** فلا يُرضيه شرحٌ في تعليق (الفخُّ النصّيّ).
+_rm16_names = set()
+for _c in _rm_ast.walk(_rm13_tree):
+    if isinstance(_c, _rm_ast.Call) and getattr(_c.func, "id", None) == "_log":
+        for _a in _rm_ast.walk(_c):
+            if isinstance(_a, _rm_ast.Attribute):
+                _rm16_names.add(_a.attr)
+_rm16_txt = "مِرساة #N" in "".join(
+    _n.value for _n in _rm_ast.walk(_rm13_tree)
+    if isinstance(_n, _rm_ast.Constant) and isinstance(_n.value, str))
+check("🔁 RM16 الترويسةُ تُعلن سقفَ الإعادة (`LIQ_REARM_MAX`) ووسمَ «مِرساة #N» من "
+      "داخل نداء `_log` (AST)",
+      "LIQ_REARM_MAX" in _rm16_names and _rm16_txt,
+      f"داخل _log: {sorted(n for n in _rm16_names if 'REARM' in n)} · نصّ={_rm16_txt}")
+
 # ══ 🌙⏱️ T-PRESESSION — أقفالُ أداة القياس PS1-PS8 (2026-09-03، أمرُ المالك) ══
 # العقد `presession_prereg.md` مدفوعٌ **قبل أيّ رقم**. الأقفالُ تحرس: قراءةً فقط
 # (PS1) · عزلَ الإنتاج عنها (PS2) · حارسَ «لا نظرَ مستقبليّ» V1 سلوكيًّا (PS3) ·

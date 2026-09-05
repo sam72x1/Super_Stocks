@@ -14911,6 +14911,63 @@ def j1_premarket_flag(evs) -> bool:
         return False
 
 
+def liq_rearm_tag(evs) -> str:
+    """🔁⚓ **وسمُ «مِرساة #N» — مصدرٌ واحدٌ للكرت وللسجلّ** (أمرُ المالك
+    2026-09-05 «طبع الوسم في السجلّ»).
+
+    🔴 **ولماذا استُخرج:** حتى أمس كان الوسمُ **مضمَّنًا في
+    `build_liq_stage_alert`** وحدَها، والسجلُّ الحيُّ يطبع **أسماءَ المراحل لا
+    نصَّ الرسالة** ⇒ فكان حدُّ الصدق المدوَّن: «‏وسمُ «🔁 مِرساة #2» مقفولٌ
+    بالسويّة (`RM5`) **وغيرُ مُتحقَّقٍ من سجلٍّ حيّ**» — وشاهدُ `GIPR` كان
+    **إعادةَ بناءٍ محلّيّةً بمدخلاتٍ حيّة** لا التقاطًا من سجلّ. ⇒ صار الوسمُ
+    دالّةً نقيّةً **يناديها الكرتُ والعاملُ الحيُّ معًا** فلا يصير على السهم
+    وسمان (قاعدةُ «مقياسٌ واحدٌ لا اثنان»).
+
+    🔒 **عرضٌ لا اختيار:** لا تُقرأ في بوّابةٍ ولا فلترٍ ولا ترتيب — الحقولُ
+    (`rearm` · `rearm_prev`) يُلحقها `scan_liq_stages` بعد القرار، و`liq_tier`
+    و`alert_filter_keep` لا تعرفانها. **والمُخرَجُ بت-بت** لِما كان يبنيه
+    الكرتُ حرفيًّا (مقفولٌ `RM11ب`).
+
+    ترجع `""` للمِرساة الأولى (‏`rearm` غائبٌ أو صفر) — **فارقٌ يُفرِّق**،
+    وليست فراغًا مهذَّبًا: أوّلُ مِرساةٍ لا وسمَ لها بالتعريف."""
+    try:
+        _rn = next((e.get("rearm") for e in (evs or [])
+                    if isinstance(e, dict) and e.get("rearm")), None)
+        if not _rn:
+            return ""
+        _rp = next((e.get("rearm_prev") for e in (evs or [])
+                    if isinstance(e, dict)
+                    and isinstance(e.get("rearm_prev"), dict)), None) or {}
+        _rtxt = f"🔁 مِرساة #{int(_rn) + 1} بعد خروجٍ بنيويّ"
+        if _rp.get("anchor_price"):
+            _rtxt += f" (الأولى {_px_txt(_rp.get('anchor_price'))}"
+            if _rp.get("anchor_low"):
+                _rtxt += f" · خرجت تحت {_px_txt(_rp.get('anchor_low'))}"
+            _rtxt += ")"
+        return _rtxt
+    except Exception:                                            # noqa: BLE001
+        return ""
+
+
+def liq_rearm_marks(rows) -> list:
+    """🔁📜 **وسومُ الإعادة للسجلّ الحيّ** — `["GIPR: 🔁 مِرساة #2 …", …]`.
+
+    تقرأ **نفسَ** `liq_rearm_tag` التي يبنيها الكرت ⇒ ما يُطبَع في سجلّ العامل
+    هو **نصُّ الوسم الذي وصل المالك** لا وصفٌ مكافئ. وترجع `[]` حين لا مِرساةَ
+    مُعادة (‏فلا سطرَ ضجيجٍ في اليوم العاديّ). فاشلةٌ-آمنة: صفٌّ تالفٌ يُتخطّى
+    ولا يُسقط السجلَّ كلَّه."""
+    out = []
+    for _r in (rows or []):
+        try:
+            _row, _evs = _r[0], _r[1]
+            _t = liq_rearm_tag(_evs)
+            if _t:
+                out.append(f"{_row.get('symbol')}: {_t}")
+        except Exception:                                        # noqa: BLE001
+            continue
+    return out
+
+
 def build_liq_stage_alert(rows: list, now_ms=None) -> str:
     """📩 رسالةُ التدرّج — **مضغوطةٌ ليُقرأ القرارُ في ثانية**.
 
@@ -15081,16 +15138,8 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
             head.append("🌅 J1 في البريماركت")
         # 🔁⚓ **مِرساةٌ مُعادة** (أمرُ المالك «نفّذ إعادة المِرساة» 2026-09-03):
         #    الوسمُ في الرأس ومعه سعرُ السابقة وخروجُها فيُقرأ أن الأولى انتهت.
-        _rn = next((e.get("rearm") for e in evs if e.get("rearm")), None)
-        if _rn:
-            _rp = next((e.get("rearm_prev") for e in evs
-                        if isinstance(e.get("rearm_prev"), dict)), None) or {}
-            _rtxt = f"🔁 مِرساة #{int(_rn) + 1} بعد خروجٍ بنيويّ"
-            if _rp.get("anchor_price"):
-                _rtxt += f" (الأولى {_px_txt(_rp.get('anchor_price'))}"
-                if _rp.get("anchor_low"):
-                    _rtxt += f" · خرجت تحت {_px_txt(_rp.get('anchor_low'))}"
-                _rtxt += ")"
+        _rtxt = liq_rearm_tag(evs)
+        if _rtxt:
             head.append(_rtxt)
         if row.get("src"):
             head.append(esc(row.get("src")))
