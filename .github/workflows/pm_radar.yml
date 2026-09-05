@@ -1,0 +1,53 @@
+name: "T-PM-RADAR (🌅📡 رادار البريماركت على السوق)"
+
+# 🔒 قياس/قراءة فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد premarket_radar_prereg.md
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: "أوّل يوم (YYYY-MM-DD) — الافتراض 2026-08-17"
+        required: false
+        type: string
+      to:
+        description: "آخر يوم (YYYY-MM-DD) — الافتراض 2026-09-04"
+        required: false
+        type: string
+
+jobs:
+  pm_radar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # تاريخُ op_entry_state.json لبناء كون القوائم
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌅 قِس الرادار
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          PMR_FROM: ${{ inputs.from }}
+          PMR_TO: ${{ inputs.to }}
+        run: python pm_radar_scan.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pm-radar-rows
+          path: pm_radar_rows.jsonl
+          retention-days: 90
+          if-no-files-found: warn

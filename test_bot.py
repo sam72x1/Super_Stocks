@@ -41179,6 +41179,175 @@ check("🔒 EXM14·تدويرُ العائد = تدويرُ مُنتِج الم�
       f"exitmgmt={_xm_nd_a} · t1move={_xm_nd_t} · tranche={_xm_nd_r}")
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 🌅📡 T-PM-RADAR — أقفال أداة القياس `pm_radar_scan.py` (العقد
+#    `premarket_radar_prereg.md` مدفوعٌ قبل الأداة · أمرُ المالك «ابنِ رادار البري»
+#    2026-09-05). قراءةٌ فقط · مقياسٌ واحدٌ (دالّة الإنتاج بالاسم) · `R1 ⊇ R0`
+#    بالبناء · والمرشِّحُ أرضيةُ المالك نفسُها لا رقمٌ جديد.
+# ═══════════════════════════════════════════════════════════════════════════
+import datetime as _pmr_dt                                       # noqa: E402
+import pm_radar_scan as _PMR                                     # noqa: E402
+
+_pmr_base = int(_pmr_dt.datetime(2026, 9, 4, 4, 0, tzinfo=_PMR.NY).timestamp() * 1000)
+
+
+def _pmr_rows(quiet=30, n=40, spike_usd=60_000):
+    """هدوءٌ ثم اندفاعةٌ عند `quiet` (سيولةُ الدقيقة ≥ الأرضية وقفزةُ حجمٍ) ثم صعودٌ
+    يبلغ +35% — عيّنةٌ **تفرّق**: بلا الاندفاعة لا مرشِّحَ ولا مِرساة."""
+    out = []
+    for i in range(n):
+        t = _pmr_base + i * 60_000
+        if i < quiet:
+            out.append((t, 1.0, 1.01, 0.99, 1.0, 1000))
+        elif i == quiet:
+            out.append((t, 1.0, 1.12, 1.0, 1.10, spike_usd / 1.10))
+        else:
+            out.append((t, 1.10, 1.35, 1.09, 1.30, 80_000))
+    return out
+
+
+_pmr_r = _pmr_rows()
+_pmr_quiet = [(_pmr_base + i * 60_000, 1.0, 1.01, 0.99, 1.0, 1000) for i in range(40)]
+# PMR1 — تعريفُ «المتحرّك» (العقد §⑤): +30% **وسيولةٌ تراكميّةٌ** ≥ الأرضية · وإلّا None
+_pmr_t30 = _PMR.mover_t30(_pmr_r, 1.0)
+check("🌅 PMR1 المتحرّك: أوّلُ دقيقةٍ تبلغ +30% مع سيولةٍ تراكميّة ≥ $100k · "
+      "والهادئُ والفقيرُ سيولةً ليسا متحرّكَين",
+      _pmr_t30 == _pmr_base + 31 * 60_000
+      and _PMR.mover_t30(_pmr_quiet, 1.0) is None
+      and _PMR.mover_t30(_pmr_r, 1.0, usd_floor=10 ** 9) is None
+      and _PMR.mover_t30(_pmr_r, 0.0) is None,
+      f"t30={_pmr_t30}")
+# PMR2 — مرشِّحُ اللقطة = أوّلُ دقيقةٍ `c×v ≥ LIQ_MIN_USD` (**الأرضيةُ نفسُها**)،
+#    و`R2` يشترط فوقها صعودًا عن إغلاق الأمس
+check("🌅 PMR2 مرشِّحُ الرادار: أوّلُ دقيقةٍ سيولتُها ≥ LIQ_MIN_USD (لا رقمَ جديد) · "
+      "والهادئُ بلا مرشِّح · وشرطُ R2 يُسقط مَن لم يصعد عن إغلاق الأمس",
+      _PMR.USD_FLOOR == float(S.LIQ_MIN_USD)
+      and _PMR.candidate_index(_pmr_r) == 30
+      and _PMR.candidate_index(_pmr_quiet) is None
+      and _PMR.candidate_index(_pmr_r, _PMR.USD_FLOOR, 1.0, 5.0) == 30
+      and _PMR.candidate_index(_pmr_r, _PMR.USD_FLOOR, 1.30, 5.0) is None,
+      f"floor={_PMR.USD_FLOOR} · idx={_PMR.candidate_index(_pmr_r)}")
+# PMR3 — الأذرع: `R0` قوائمُنا فقط (خارجَها None) · `R1 ⊇ R0` بالدقيقة نفسِها ·
+#    `R3` مقصورةٌ على near_watch · **ولا نظرَ مستقبليّ**: مِرساةُ الرادار لا تسبق
+#    الدقيقةَ التي جعلته مرشَّحًا
+_pmr_in = _PMR.arm_anchor("X", _pmr_r, True, 1.0, "R0", set())
+_pmr_out = {a: _PMR.arm_anchor("X", _pmr_r, False, 1.0, a, set()) for a in ("R0", "R1", "R2", "R3")}
+_pmr_r3n = _PMR.arm_anchor("X", _pmr_r, False, 1.0, "R3", {"X"})
+_pmr_cand_ms = _pmr_r[_PMR.candidate_index(_pmr_r)][0]
+check("🌅 PMR3 الأذرع: R0 = القوائم فقط · R1 تُنتج للخارج المِرساةَ نفسَها التي "
+      "تُنتجها للداخل · R3 تشترط near_watch · ولا مِرساةَ رادارٍ قبل دقيقة الترشيح",
+      _pmr_in and _pmr_out["R0"] is None
+      and _pmr_out["R1"] and _pmr_out["R1"]["anchor_ms"] == _pmr_in["anchor_ms"]
+      and _pmr_out["R2"] and _pmr_out["R3"] is None
+      and _pmr_r3n and _pmr_r3n["anchor_ms"] == _pmr_in["anchor_ms"]
+      and _pmr_out["R1"]["anchor_ms"] >= _pmr_cand_ms,
+      f"in={_pmr_in and _pmr_in.get('anchor_ms')} · out={ {k: (v or {}).get('anchor_ms') for k, v in _pmr_out.items()} }")
+# PMR3ب — لا نظرَ مستقبليّ **بفارق**: اندفاعةٌ ثم هدوءٌ ثم اندفاعةٌ أعنف — المرشِّحُ
+#    يُلتقَط عند الأولى، والإعادةُ من `i0+1` تُرسي عند الأولى لا الثانية؛ وبدءُ
+#    الإعادة من الصفر (نظرٌ مستقبليّ للرادار) **يختلف** عن بدئها من `i0+1` حين
+#    تسبق الاندفاعةَ الأولى سيولةٌ لا تبلغ الأرضية.
+#    🔴 والفارقُ الحقيقيُّ بين الفلترين مقيسٌ لا مفترَض: الإنتاجُ يقبل المِرساةَ
+#    بمجموع ثلاث دقائق (`LIQ_CUM_MINUTES`) والمرشِّحُ الرخيص يقرأ الدقيقةَ وحدَها ⇒
+#    ‏10k+10k+12k = 32k تُرسي عند 10 وتظلّ غيرَ مرئيّةٍ للمرشِّح (أوّلُ عيّنةٍ
+#    بـ$20k منفردة كانت لا تفرّق: الفلتران يرفضانها معًا)
+_pmr_r2 = [(_pmr_base + i * 60_000, 1.0, 1.01, 0.99, 1.0, 1000) for i in range(8)]
+_pmr_r2 += [(_pmr_base + i * 60_000, 1.0, 1.01, 0.99, 1.0, 10_000) for i in (8, 9)]  # $10k بلا حركة
+_pmr_r2 += [(_pmr_base + 10 * 60_000, 1.0, 1.12, 1.0, 1.10, 12_000 / 1.10)]   # $12k منفردة · التراكميّ $32k
+_pmr_r2 += [(_pmr_base + i * 60_000, 1.10, 1.11, 1.09, 1.10, 500) for i in range(11, 30)]
+_pmr_r2 += [(_pmr_base + 30 * 60_000, 1.10, 1.50, 1.10, 1.45, 60_000)]
+_pmr_r2 += [(_pmr_base + i * 60_000, 1.45, 1.46, 1.44, 1.45, 500) for i in range(31, 40)]
+_pmr_i0b = _PMR.candidate_index(_pmr_r2)
+_pmr_a_full = _PMR.replay_anchor(_pmr_r2, 3)
+_pmr_a_rad = _PMR.replay_anchor(_pmr_r2, _pmr_i0b + 1)
+check("🌅 PMR3ب لا نظرَ مستقبليّ: المرشِّحُ عند الاندفاعة الثانية (الأولى دون الأرضية) "
+      "· وإعادةُ الرادار من i0+1 لا ترى مِرساةَ الأولى التي تراها الإعادةُ الكاملة",
+      _pmr_i0b == 30
+      and _pmr_a_full and _pmr_a_full["anchor_ms"] == _pmr_base + 10 * 60_000
+      and _pmr_a_rad and _pmr_a_rad["anchor_ms"] == _pmr_base + 30 * 60_000,
+      f"i0={_pmr_i0b} · full={(_pmr_a_full or {}).get('anchor_ms')} · rad={(_pmr_a_rad or {}).get('anchor_ms')}")
+# PMR4 — مقياسٌ واحد: الإعادةُ تنادي `S.liq_stage_events` **بالاسم** (بالـAST) ·
+#    وقراءةٌ فقط: صفرُ `send_telegram`/`save_op_entry_state`/`open(..., "w")` على
+#    ملفّ حالة · والإنتاجُ لا يستورد الأداة
+_pmr_src = _io0.open("pm_radar_scan.py", encoding="utf-8").read()
+_pmr_tree = _ast0.parse(_pmr_src)
+_pmr_calls = {getattr(c.func, "attr", None) or getattr(c.func, "id", None)
+              for c in _ast0.walk(_pmr_tree) if isinstance(c, _ast0.Call)}
+_pmr_ra = next(n for n in _ast0.walk(_pmr_tree)
+               if isinstance(n, _ast0.FunctionDef) and n.name == "replay_anchor")
+_pmr_ra_calls = [c for c in _ast0.walk(_pmr_ra) if isinstance(c, _ast0.Call)
+                 and isinstance(c.func, _ast0.Attribute)
+                 and c.func.attr == "liq_stage_events"
+                 and getattr(c.func.value, "id", None) == "S"]
+_pmr_opens = [c for c in _ast0.walk(_pmr_tree) if isinstance(c, _ast0.Call)
+              and getattr(c.func, "id", None) == "open"
+              and any(isinstance(a, _ast0.Constant) and a.value == "w" for a in c.args)]
+check("🌅 PMR4 مقياسٌ واحدٌ وقراءةٌ فقط: replay_anchor تنادي S.liq_stage_events بالاسم · "
+      "ولا send_telegram ولا save_op_entry_state · والكتابةُ الوحيدة ملفُّ الصفوف · "
+      "والإنتاجُ لا يستورد الأداة",
+      len(_pmr_ra_calls) == 1
+      and not ({"send_telegram", "save_op_entry_state", "git_save"} & _pmr_calls)
+      and len(_pmr_opens) == 1
+      and "pm_radar_scan" not in _io0.open("Super_stock.py", encoding="utf-8").read(),
+      f"calls={len(_pmr_ra_calls)} · opens={len(_pmr_opens)}")
+# PMR5 — الحكمُ على R1 بالمعايير الأربعة **تلزم معًا** وأرضيةُ 20 متحرّكًا ⇒ «لا حكم»
+def _pmr_res(cap1, m1_0, m1_1, d0, d1, sup=True, n=25):
+    return {"n_movers": n, "n_days": 5, "r1_superset": sup, "live_agree": (0, 0),
+            "arms": {"R0": {"capture_pct": 20.0, "m1_median": m1_0, "delay_median": d0,
+                            "captured": 5, "m1_total": 0},
+                     "R1": {"capture_pct": cap1, "m1_median": m1_1, "delay_median": d1,
+                            "captured": 0, "m1_total": 0}}}
+_pmr_v_ok = _PMR.verdict(_pmr_res(75.0, 2, 5, 15.0, 18.0))
+_pmr_v_cost = _PMR.verdict(_pmr_res(75.0, 2, 7, 15.0, 18.0))
+_pmr_v_cap = _PMR.verdict(_pmr_res(60.0, 2, 5, 15.0, 18.0))
+_pmr_v_delay = _PMR.verdict(_pmr_res(75.0, 2, 5, 15.0, 21.0))
+_pmr_v_sup = _PMR.verdict(_pmr_res(75.0, 2, 5, 15.0, 18.0, sup=False))
+_pmr_v_floor = _PMR.verdict(_pmr_res(75.0, 2, 5, 15.0, 18.0, n=19))
+check("🌅 PMR5 الحكم: الأربعةُ ✅ حين تُستوفى · وكلُّ معيارٍ يسقط وحده (الكلفة ×3.5 · "
+      "الالتقاط 60% · التأخّر +6 · R1⊉R0) · ودون 20 متحرّكًا «لا حكم»",
+      all("✅" in v for _, v in _pmr_v_ok)
+      and "🔴" in _pmr_v_cost[1][1] and "🔴" in _pmr_v_cap[0][1]
+      and "🔴" in _pmr_v_delay[2][1] and "🔴" in _pmr_v_sup[3][1]
+      and len(_pmr_v_floor) == 1 and "لا حكم" in _pmr_v_floor[0][1],
+      f"ok={_pmr_v_ok}")
+# PMR6 — `summarize`: الالتقاطُ يشترط مِرساةً **قبل** +30% · و`r1_superset` يسقط
+#    حين تختلف R1 عن R0 بالدقيقة · والتكافؤُ الحيّ يُعدّ
+_pmr_rows_s = [
+    {"day": "d1", "symbol": "A", "t30": 100, "anchor": {"R0": 90, "R1": 90, "R2": None, "R3": None},
+     "anchor_price": {"R0": 1.1, "R1": 1.1}, "prev_close": 1.0},
+    {"day": "d1", "symbol": "B", "t30": 100, "anchor": {"R0": None, "R1": 120, "R2": None, "R3": None},
+     "anchor_price": {"R1": 1.4}, "prev_close": 1.0},
+    {"day": "d1", "symbol": "C", "t30": None, "anchor": {"R0": None, "R1": 50, "R2": None, "R3": None},
+     "anchor_price": {"R1": 1.0}, "prev_close": 1.0},
+]
+_pmr_sm = _PMR.summarize(_pmr_rows_s, ["d1"], {("d1", "A"): 90})
+_pmr_rows_bad = [dict(_pmr_rows_s[0], anchor={"R0": 90, "R1": 95, "R2": None, "R3": None})]
+_pmr_sm_bad = _PMR.summarize(_pmr_rows_bad, ["d1"], {})
+check("🌅 PMR6 summarize: متحرّكان · R0 التقط 1 · R1 التقط 1 (B مِرساتُه بعد +30% لا تُعدّ) · "
+      "M1/جلسة R1=3 · R1⊇R0 ✅ · التكافؤ الحيّ 1/1 · واختلافُ دقيقةٍ يُسقط ④",
+      _pmr_sm["n_movers"] == 2 and _pmr_sm["arms"]["R0"]["captured"] == 1
+      and _pmr_sm["arms"]["R1"]["captured"] == 1 and _pmr_sm["arms"]["R1"]["m1_median"] == 3
+      and _pmr_sm["r1_superset"] is True and _pmr_sm["live_agree"] == (1, 1)
+      and _pmr_sm_bad["r1_superset"] is False,
+      f"{_pmr_sm}")
+# PMR7 — الـworkflow موصول: يدويٌّ بلا كرون · `contents: read` · المدخلان مربوطان
+#    ببيئةٍ يقرؤها السكربت (`PMR_FROM`/`PMR_TO`) · و`fetch-depth: 0` (كونُ القوائم
+#    من تاريخ الحالة)
+_pmr_wf = _pm_yaml.safe_load(_io0.open(".github/workflows/pm_radar.yml", encoding="utf-8"))
+_pmr_on = _pmr_wf.get(True) or _pmr_wf.get("on") or {}
+_pmr_steps = [st for j in _pmr_wf["jobs"].values() for st in j["steps"]]
+_pmr_run = next((st for st in _pmr_steps if "pm_radar_scan.py" in str(st.get("run", ""))), {})
+_pmr_co = next((st for st in _pmr_steps if "checkout" in str(st.get("uses", ""))), {})
+check("🌅 PMR7 الـworkflow: dispatch بلا كرون · contents: read · PMR_FROM/PMR_TO موصولان "
+      "بمدخلَي from/to ويقرؤهما السكربت · fetch-depth 0",
+      "schedule" not in _pmr_on and "workflow_dispatch" in _pmr_on
+      and _pmr_wf.get("permissions", {}).get("contents") == "read"
+      and "inputs.from" in str(_pmr_run.get("env", {}).get("PMR_FROM", ""))
+      and "inputs.to" in str(_pmr_run.get("env", {}).get("PMR_TO", ""))
+      and 'os.environ.get("PMR_FROM")' in _pmr_src and 'os.environ.get("PMR_TO")' in _pmr_src
+      and (_pmr_co.get("with") or {}).get("fetch-depth") == 0,
+      f"on={list(_pmr_on)} · env={_pmr_run.get('env')}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
