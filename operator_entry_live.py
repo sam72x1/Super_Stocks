@@ -262,6 +262,22 @@ def _fetch_state(paths):
     return out
 
 
+def _remote_seen(key, state_file) -> bool:
+    """🔒 **حارسُ القرار الواحد عبر العمّال المتزامنين** (أمرُ المالك «وحّد قرار
+    الافتر» 2026-09-05). ثلاثةُ عمّالٍ متداخلين (‏`post` · `post-b` · الخلَف) نفّذوا
+    قرارَ الافتر يوم 09-04 كلٌّ بـ`seen` محلّيّ ⇒ صفوفٌ مكرّرة في السجلّ الأماميّ
+    ورسالةٌ قد تتكرّر لو شُغِّل الافتر. الددوبُ المحلّيُّ يُقرأ من origin كلَّ
+    `REFRESH_EVERY` دورة فقط، ونافذةُ القرار ستُّ دقائق ⇒ يُقرأ الختمُ **من origin
+    مباشرةً** قبل القرار وقبل الإرسال.
+    **فاشلٌ-آمنٌ مفتوح:** تعذّرُ الجلب ⇒ `False` (يمضي القرار — فوتُ رسالةٍ أسوأ من
+    تكرارها، والددوبُ المحلّيُّ يبقى)."""
+    try:
+        st = _fetch_state([state_file]).get(state_file) or {}
+        return key in st
+    except Exception:                                            # noqa: BLE001
+        return False
+
+
 def _git_out(args, timeout=15):
     """مُخرَجُ git نصًّا — فاشلٌ-آمن ⇒ سلسلةٌ فارغة."""
     try:
@@ -366,6 +382,11 @@ def _maybe_presession(seen, mod, day) -> bool:
     key = _PRE.stamp_key(day, slot)
     if key in seen:
         return False
+    # 🔒 قرارٌ واحدٌ عبر العمّال: الختمُ على origin يعلو الددوبَ المحلّيَّ البائت.
+    if _remote_seen(key, bot.OP_ENTRY_STATE_FILE):
+        seen[key] = "remote"
+        _log(f"🌙 قرارُ {slot} {day} سبق من عاملٍ آخر (ختمٌ على origin) — يُتخطّى")
+        return False
     rows, msg, diag = _PRE.run_presession(
         slot, day, int(time.time() * 1000), log=_log,
         price_lo=float(bot.CONFIG["MIN_PRICE"]),
@@ -381,6 +402,12 @@ def _maybe_presession(seen, mod, day) -> bool:
         return False
     deliver = list(diag.get("deliver") or [])
     send = _PRE.send_enabled(slot, os.environ.get("PRESESSION_SEND"))
+    # 🔒 فحصٌ ثانٍ **بعد** المسح (‏≈45ث) وقبل الإرسال — يُضيّق سباقَ عاملَين بلغا
+    #    النافذةَ معًا: مَن ختم أوّلًا يفوز والثاني يتخطّى بلا رسالةٍ ولا صفّ.
+    if _remote_seen(key, bot.OP_ENTRY_STATE_FILE):
+        seen[key] = "remote"
+        _log(f"🌙 قرارُ {slot} {day}: ختمه عاملٌ آخر أثناء المسح — لا إرسالَ ولا سجلّ")
+        return False
     ok = True
     if send and msg:
         try:

@@ -38379,12 +38379,14 @@ class _PsFakeBot:
         pass
 
 
-def _ps_hook(send=None, ok=True):
+def _ps_hook(send=None, ok=True, remote=False):
     _pre_bak, _bot_bak, _log_bak = _oel_mod._PRE, _oel_mod.bot, _oel_mod._log
+    _rs_bak = _oel_mod._remote_seen          # 2026-09-05: حارسُ القرار الواحد يُحقَن
     _env_bak = _ps_os.environ.get("PRESESSION_SEND")
     fake_pre, fake_bot, seen = _PsFakePre(), _PsFakeBot(ok), {}
     try:
         _oel_mod._PRE, _oel_mod.bot = fake_pre, fake_bot
+        _oel_mod._remote_seen = lambda k, f: bool(remote)
         _oel_mod._log = lambda *a, **k: None
         if send is None:
             _ps_os.environ.pop("PRESESSION_SEND", None)
@@ -38393,6 +38395,7 @@ def _ps_hook(send=None, ok=True):
         _oel_mod._maybe_presession(seen, 950, "2026-09-04")
     finally:
         _oel_mod._PRE, _oel_mod.bot, _oel_mod._log = _pre_bak, _bot_bak, _log_bak
+        _oel_mod._remote_seen = _rs_bak
         if _env_bak is None:
             _ps_os.environ.pop("PRESESSION_SEND", None)
         else:
@@ -38730,11 +38733,36 @@ import yaml as _pm_yaml                                          # noqa: E402
 _pm_wf = _pm_yaml.safe_load(open(".github/workflows/operator_entry.yml", encoding="utf-8"))
 _pm_env = [st.get("env", {}) for j in _pm_wf["jobs"].values() for st in j["steps"]
            if "operator_entry_live.py" in str(st.get("run", ""))]
-check("🌙 PS22 `PRESESSION_SEND` موصولٌ في خطوة تشغيل العامل بقيمة `PM` "
-      "(البريماركتُ وحدَه بأمر المالك) — وبلاه كان الشحنُ كلُّه بلا أثر",
-      len(_pm_env) == 1 and str(_pm_env[0].get("PRESESSION_SEND", "")).strip() == "PM",
+# 2026-09-05 «شغّل الافتر»: القيمةُ صارت `PM,AH` — والقفلُ القديم (`== "PM"`) أمسك
+# التغييرَ فحُدِّث بإقرارٍ مؤرَّخ: **الجلستان معًا بالاسم** لا `1` المبهمة.
+_pm_val = {x.strip() for x in str(_pm_env[0].get("PRESESSION_SEND", "")).split(",")} \
+    if len(_pm_env) == 1 else set()
+check("🌙 PS22 `PRESESSION_SEND` موصولٌ في خطوة تشغيل العامل بقيمة `PM,AH` "
+      "(البريماركتُ والافترُ معًا بأمر المالك 2026-09-05) — وبلاه كان الشحنُ كلُّه بلا أثر",
+      len(_pm_env) == 1 and _pm_val == {"PM", "AH"},
       f"خطوات={len(_pm_env)} قيمة={[e.get('PRESESSION_SEND') for e in _pm_env]}")
 
+
+# PS40 — 🔒 **قرارٌ واحدٌ عبر العمّال المتزامنين** («وحّد قرار الافتر» 2026-09-05):
+#   ثلاثةُ عمّالٍ نفّذوا قرارَ AH يوم 09-04 (ددوبٌ محلّيّ بائت + نافذةُ 6 دقائق
+#   أقصرُ من دورة التحديث). الحارسُ يقرأ الختمَ من origin **قبل** المسح **وقبل**
+#   الإرسال. فارقٌ حيّ: ختمٌ على origin ⇒ صفرُ إرسالٍ وصفرُ صفٍّ **ويُختَم محلّيًّا**؛
+#   وبلاه ⇒ السلوكُ السابق بت-بت (‏PS13/PS21 تمرّان بحاقنِ `False`).
+try:
+    _ps40 = (_ps_hook("1", remote=True), _ps_hook("1", remote=False))
+except Exception as _e:                                          # noqa: BLE001
+    _ps40 = f"⛔ رمى: {type(_e).__name__}: {_e}"
+_ps40_calls = _pm_fn is not None and sum(
+    1 for c in _ps_ast.walk(_pm_fn)
+    if isinstance(c, _ps_ast.Call) and getattr(c.func, "id", "") == "_remote_seen")
+_ps40_fs = any(isinstance(c, _ps_ast.Call) and getattr(c.func, "id", "") == "_fetch_state"
+               for c in _ps_ast.walk(next(n for n in _ps_ast.walk(_pm_oel)
+               if isinstance(n, _ps_ast.FunctionDef) and n.name == "_remote_seen")))
+check("🌙 PS40 حارسُ القرار الواحد: ختمٌ على origin ⇒ لا إرسالَ ولا صفَّ ويُختَم محلّيًّا "
+      "· وبلاه يُرسَل ويُسجَّل · ويُقرأ من origin **مرّتين** (قبل المسح وقبل الإرسال) "
+      "عبر `_fetch_state`",
+      _ps40 == ((0, 0, True), (1, 1, True)) and _ps40_calls == 2 and _ps40_fs,
+      f"{_ps40} · نداءات={_ps40_calls} · fetch={_ps40_fs}")
 
 # PS23 — 🔴🔴 **تصحيحُ المالك 2026-09-03: النافذةُ التي يريدها الجلسةُ كاملةً** —
 #   و«‏10 دقائق» في أمره **وقتُ وصول الإشعار** لا مدّةُ التوقّع. ⇒ جدولُ `S0`
