@@ -41265,6 +41265,15 @@ check("🌅 PMR3ب لا نظرَ مستقبليّ: المرشِّحُ عند ا�
       and _pmr_a_full and _pmr_a_full["anchor_ms"] == _pmr_base + 10 * 60_000
       and _pmr_a_rad and _pmr_a_rad["anchor_ms"] == _pmr_base + 30 * 60_000,
       f"i0={_pmr_i0b} · full={(_pmr_a_full or {}).get('anchor_ms')} · rad={(_pmr_a_rad or {}).get('anchor_ms')}")
+# PMR3ج — «الميزةُ موصولة» من نقطة النداء لا من الدالّة: `arm_anchor` نفسُها (خارج
+#    القوائم · `R1`) على العيّنة المفرِّقة تُرسي عند 30 لا 10 — 🐞 طفرةُ «الإعادة من 0
+#    داخل `arm_anchor`» نجت من `PMR3`/`PMR3ب` لأنهما يناديان `replay_anchor` بيدهما
+_pmr_arm_r2 = _PMR.arm_anchor("ZZZ", _pmr_r2, False, 1.0, "R1", set())
+check("🌅 PMR3ج نقطةُ النداء: arm_anchor(R1 · خارج القوائم) تُرسي عند الاندفاعة الثانية "
+      "(لا نظرَ مستقبليّ) — وتختلف عن الإعادة الكاملة التي تُرسي عند الأولى",
+      _pmr_arm_r2 and _pmr_arm_r2["anchor_ms"] == _pmr_base + 30 * 60_000
+      and _pmr_a_full["anchor_ms"] != _pmr_arm_r2["anchor_ms"],
+      f"arm={(_pmr_arm_r2 or {}).get('anchor_ms')} · full={(_pmr_a_full or {}).get('anchor_ms')}")
 # PMR4 — مقياسٌ واحد: الإعادةُ تنادي `S.liq_stage_events` **بالاسم** (بالـAST) ·
 #    وقراءةٌ فقط: صفرُ `send_telegram`/`save_op_entry_state`/`open(..., "w")` على
 #    ملفّ حالة · والإنتاجُ لا يستورد الأداة
@@ -41332,20 +41341,24 @@ check("🌅 PMR6 summarize: متحرّكان · R0 التقط 1 · R1 التقط
 # PMR7 — الـworkflow موصول: يدويٌّ بلا كرون · `contents: read` · المدخلان مربوطان
 #    ببيئةٍ يقرؤها السكربت (`PMR_FROM`/`PMR_TO`) · و`fetch-depth: 0` (كونُ القوائم
 #    من تاريخ الحالة)
-_pmr_wf = _pm_yaml.safe_load(_io0.open(".github/workflows/pm_radar.yml", encoding="utf-8"))
+try:   # ⚠️ ملفٌّ تالفٌ يُسقط القفلَ نظيفًا لا ينهار (صنفُ «القفل المنهار»)
+    _pmr_wf = _pm_yaml.safe_load(_io0.open(".github/workflows/pm_radar.yml", encoding="utf-8")) or {}
+except Exception as _e:                      # noqa: BLE001
+    _pmr_wf = {"_broken": type(_e).__name__}
 _pmr_on = _pmr_wf.get(True) or _pmr_wf.get("on") or {}
-_pmr_steps = [st for j in _pmr_wf["jobs"].values() for st in j["steps"]]
+_pmr_steps = [st for j in (_pmr_wf.get("jobs") or {}).values() for st in (j.get("steps") or [])]
 _pmr_run = next((st for st in _pmr_steps if "pm_radar_scan.py" in str(st.get("run", ""))), {})
 _pmr_co = next((st for st in _pmr_steps if "checkout" in str(st.get("uses", ""))), {})
 check("🌅 PMR7 الـworkflow: dispatch بلا كرون · contents: read · PMR_FROM/PMR_TO موصولان "
       "بمدخلَي from/to ويقرؤهما السكربت · fetch-depth 0",
-      "schedule" not in _pmr_on and "workflow_dispatch" in _pmr_on
-      and _pmr_wf.get("permissions", {}).get("contents") == "read"
+      "_broken" not in _pmr_wf
+      and "schedule" not in _pmr_on and "workflow_dispatch" in _pmr_on
+      and (_pmr_wf.get("permissions") or {}).get("contents") == "read"
       and "inputs.from" in str(_pmr_run.get("env", {}).get("PMR_FROM", ""))
       and "inputs.to" in str(_pmr_run.get("env", {}).get("PMR_TO", ""))
       and 'os.environ.get("PMR_FROM")' in _pmr_src and 'os.environ.get("PMR_TO")' in _pmr_src
       and (_pmr_co.get("with") or {}).get("fetch-depth") == 0,
-      f"on={list(_pmr_on)} · env={_pmr_run.get('env')}")
+      f"on={list(_pmr_on)} · env={_pmr_run.get('env')} · broken={_pmr_wf.get('_broken')}")
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
