@@ -22711,13 +22711,25 @@ def _union_jsonl(remote_bytes, local_bytes) -> bytes:
                 return str(d.get("key")) if isinstance(d, dict) and d.get("key") else ln
             except Exception:                                    # noqa: BLE001
                 return ln
+        r_rows, l_rows = _rows(remote_bytes), _rows(local_bytes)
+        # 🔴 حارسُ الهويّة (2026-09-05): `key` هويّةٌ **فقط إن كان فريدًا في كلّ
+        # طرفٍ على حدة**؛ وإلّا فهو حقلٌ عاديّ (مثل اسمِ مفتاح الترتيب في سجلّ
+        # ما قبل الجلسة) والهويّةُ السطرُ الخام — وإلّا طُوي السجلُّ صفًّا واحدًا.
+        def _dup_keys(rows):
+            ks = [_k(ln) for ln in rows]
+            return len(ks) != len(set(ks))
+        use_key = not (_dup_keys(r_rows) or _dup_keys(l_rows))
         out, seen = [], set()
-        for ln in _rows(remote_bytes) + _rows(local_bytes):
-            kk = _k(ln)
+        for ln in r_rows + l_rows:
+            kk = _k(ln) if use_key else ln
             if kk in seen:
                 continue
             seen.add(kk)
             out.append(ln)
+        if len(out) < len(l_rows):
+            # 🔴 حارسُ الانكماش: الاتّحادُ لا يُرجع أقلَّ من صفوفنا أبدًا —
+            # فوظيفتُه ألّا يفقد؛ وأيُّ نقصٍ عطبُ هويّةٍ ⇒ نرتدّ لنسختنا.
+            return local_bytes
         return ("\n".join(out) + "\n").encode("utf-8")
     except Exception:                                            # noqa: BLE001
         return local_bytes

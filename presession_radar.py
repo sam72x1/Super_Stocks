@@ -541,7 +541,11 @@ def append_ledger(rows: list, slot: str, day_iso: str, path: str = LEDGER_FILE,
                                                              or _sym in dl),
                                      "floor": PF.rank_floor(slot),
                                      "floor_ok": bool(_ok),
-                                     "key": PF.rank_key(slot),
+                                     # 🔴 `rank_key` لا `key` (2026-09-05): حقلُ `key`
+                                     # هويّةُ الصفّ عند `_union_jsonl` في `git_save`،
+                                     # وكان اسمُ المفتاح يحمله فيُطوى السجلُّ كلُّه
+                                     # صفًّا واحدًا عند كلّ تعارضِ دفع (وقع مرّتين).
+                                     "rank_key": PF.rank_key(slot),
                                      "ts": int(time.time()),
                                      **{k: v for k, v in r.items()
                                         if k != PF.ROW_SESS}},

@@ -20858,6 +20858,45 @@ _pl27_src = _insp0.getsource(S.git_save)
 check("🌱 PL27ب الاتّحادُ موصولٌ من `git_save` نفسِه ومشروطٌ بـ`.jsonl` "
       "(ملفّاتُ الحالة تبقى «آخر-كاتبٍ-يفوز» كما كانت — لا تعميمَ أعمى)",
       "_union_jsonl(" in _pl27_src and '.endswith(".jsonl")' in _pl27_src)
+
+# PL27ج — 🔴 (2026-09-05) سجلُّ ما قبل الجلسة كان يحمل **اسمَ مفتاح الترتيب**
+#   في حقل `key` (‏"post_hi_ret" لكلّ الصفوف) و`_union_jsonl` يقرأ `key` هويّةً
+#   ⇒ عند كلّ تعارضِ دفعٍ طُوي السجلُّ كلُّه صفًّا واحدًا (‏174 ⟶ 2 يوم 09-04 ·
+#   ‏10 ⟶ 1 يوم 09-03). الحارس: `key` هويّةٌ **فقط إن كان فريدًا في كلّ طرف**.
+_pl27c_rows = [json.dumps({"day": "2026-09-04", "sess": "PM", "sym": f"S{i:02d}",
+                           "rank": i, "key": "post_hi_ret"}) for i in range(1, 54)]
+_pl27c_remote = ("\n".join(_pl27c_rows) + "\n").encode("utf-8")
+_pl27c_local = ("\n".join(_pl27c_rows + [json.dumps({"day": "2026-09-04",
+                "sess": "AH", "sym": "S01", "rank": 1, "key": "usd_day"})])
+                + "\n").encode("utf-8")
+_pl27c_u = [ln for ln in S._union_jsonl(_pl27c_remote, _pl27c_local)
+            .decode("utf-8").split("\n") if ln.strip()]
+check("🌱 PL27ج صفوفٌ تتشارك قيمةَ `key` (اسمُ مفتاحٍ لا هويّة) **تبقى كلُّها**: "
+      "‏53 من البعيد + صفٌّ محلّيّ جديد = 54 · لا تُطوى صفًّا واحدًا",
+      len(_pl27c_u) == 54 and _pl27c_u[:53] == _pl27c_rows,
+      f"n={len(_pl27c_u)}")
+# PL27د — حارسُ الانكماش: الاتّحادُ لا يُرجع أقلَّ من صفوفنا (وإلّا ارتدّ إليها).
+_pl27d_local = b'{"key":"k"}\n{"key":"k"}\n{"key":"k"}\n'
+check("🌱 PL27د الاتّحادُ **لا ينكمش دون نسختنا**: ثلاثةُ صفوفٍ محلّيّة بمفتاحٍ "
+      "مكرّر تعود ثلاثةً لا واحدًا",
+      S._union_jsonl(b'{"key":"k"}\n', _pl27d_local) == _pl27d_local
+      and "len(out) < len(l_rows)" in _insp0.getsource(S._union_jsonl))
+# PL27هـ — `append_ledger` تكتب `rank_key` و**لا تكتب `key` إطلاقًا** (سلوكيًّا).
+import presession_radar as _PL27PR
+with _tf.TemporaryDirectory() as _pl27_d:
+    _pl27_lp = _os_hc.path.join(_pl27_d, "l.jsonl")
+    _PL27PR.append_ledger([{"sym": "A", "post_hi_ret": 0.9},
+                           {"sym": "B", "post_hi_ret": 0.8}], "PM", "2026-09-04",
+                          path=_pl27_lp)
+    _pl27e_rows = [json.loads(x) for x in open(_pl27_lp, encoding="utf-8")
+                   if x.strip()]
+    _pl27e_u = S._union_jsonl(open(_pl27_lp, "rb").read(),
+                              open(_pl27_lp, "rb").read())
+check("🌱 PL27هـ سجلُّ ما قبل الجلسة يكتب `rank_key` ولا يكتب `key` · واتّحادُه "
+      "بنفسه يُعيد صفّيه كليهما (لا يُطوى)",
+      all("key" not in r and r.get("rank_key") == "post_hi_ret" for r in _pl27e_rows)
+      and _pl27e_u.decode("utf-8").count("\n") == 2,
+      f"rows={[sorted(r) for r in _pl27e_rows][:1]}")
 import hunter_ledger as _PL27HL
 _pl27_dir = _prd_tmp.mkdtemp(prefix="pl27_")
 _pl27_p = _os_hc.path.join(_pl27_dir, "led.jsonl")
@@ -38634,7 +38673,7 @@ with _tf.TemporaryDirectory() as _pm_d:
     _pm_lp = _os_hc.path.join(_pm_d, "led.jsonl")
     _PR.append_ledger([_pm_rows[0]], "PM", "2026-09-04", path=_pm_lp)
     _PR.append_ledger([_pm_rows[0]], "AH", "2026-09-04", path=_pm_lp)
-    _pm_keys = [json.loads(ln)["key"] for ln in open(_pm_lp, encoding="utf-8")]
+    _pm_keys = [json.loads(ln)["rank_key"] for ln in open(_pm_lp, encoding="utf-8")]
 check("🌙 PS20-ب الوصلُ حيّ: `order_rows` تُنادى بـ`rank_key(slot)` (AST) · "
       "والترتيبُ **ينقلب** بين الجلستين على عيّنةٍ تفرّق · والسجلُّ يكتب مفتاحَ "
       "جلسته لا مفتاحًا عامًّا",
@@ -39349,7 +39388,10 @@ try:
              and [r["sent"] for r in _fl_ln] == [True, False, True, True]
              and [r["floor_ok"] for r in _fl_ln] == [True, False, True, False]
              and all(abs(r["floor"] - 0.69492) < 1e-12 for r in _fl_ln)
-             and all(r["key"] == "post_hi_ret" for r in _fl_ln))
+             # 2026-09-05: الحقلُ صار `rank_key` (كان `key` فاصطدم بدِدوب
+             # `_union_jsonl` فمحا السجلّ) — والقفلُ القديم أمسك التغييرَ فحُدِّث بإقرار.
+             and all(r["rank_key"] == "post_hi_ret" and "key" not in r
+                     for r in _fl_ln))
 except Exception as _e:                                          # noqa: BLE001
     _fl38, _fl_ln = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🎚️ PS38 السجلُّ يُسجّل المقصوصَ بحقل `floor_ok` و`sent` **لكلّ صفّ** "
