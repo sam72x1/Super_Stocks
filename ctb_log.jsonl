@@ -685,3 +685,12 @@
 {"schema": 2, "date": "2026-09-04", "symbol": "CCHH", "cohort": "faisal_wait", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 80000, "borrow_fee": 146.96, "source": "chartexchange"}
 {"schema": 2, "date": "2026-09-04", "symbol": "EDBL", "cohort": "faisal_wait", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 55000, "borrow_fee": 232.11, "source": "chartexchange"}
 {"schema": 2, "date": "2026-09-04", "symbol": "EHGO", "cohort": "faisal_wait", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 75000, "borrow_fee": 235.12, "source": "chartexchange"}
+{"schema": 2, "date": "2026-09-05", "symbol": "GWAV", "cohort": "faisal_negative", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 60000, "borrow_fee": 9.83, "source": "chartexchange"}
+{"schema": 2, "date": "2026-09-05", "symbol": "YYAI", "cohort": "faisal_negative", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 6000, "borrow_fee": 38.56, "source": "chartexchange"}
+{"schema": 2, "date": "2026-09-05", "symbol": "AZI", "cohort": "faisal_exec", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 60000, "borrow_fee": 111.91, "source": "chartexchange"}
+{"schema": 2, "date": "2026-09-05", "symbol": "DSY", "cohort": "faisal_exec", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 4000, "borrow_fee": 290.78, "source": "chartexchange"}
+{"schema": 2, "date": "2026-09-05", "symbol": "LABT", "cohort": "faisal_exec", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 0, "borrow_fee": 690.64, "source": "chartexchange"}
+{"schema": 2, "date": "2026-09-05", "symbol": "PPCB", "cohort": "faisal_exec", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 35000, "borrow_fee": 571.15, "source": "chartexchange"}
+{"schema": 2, "date": "2026-09-05", "symbol": "SPRC", "cohort": "faisal_exec", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 100, "borrow_fee": 64.04, "source": "chartexchange"}
+{"schema": 2, "date": "2026-09-05", "symbol": "CCHH", "cohort": "faisal_wait", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 45000, "borrow_fee": 146.96, "source": "chartexchange"}
+{"schema": 2, "date": "2026-09-05", "symbol": "EDBL", "cohort": "faisal_wait", "label_kind": "decision", "label_source": "faisal_text", "shares_available": 55000, "borrow_fee": 232.51, "source": "chartexchange"}
