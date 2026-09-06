@@ -355,15 +355,18 @@ class Acc:
             f"V3 شاهدُ الضبط {WITNESS}: صفوفٌ منفجرة {self.wit_bad} (يجب 0)")
 
 
-def year_range(year: str, end_env: str = "") -> tuple:
+def year_range(year: str, end_env: str = "", start_env: str = "") -> tuple:
     """(‏أوّلُ يومٍ · آخرُه) لسنةٍ مقيسة — و`end_env` فارغٌ ⇒ **السنةُ كاملةً**.
 
     🔒 الافتراضُ بت-بت: أرقامُ 2023/2024/2025 المنشورة تبقى قابلةً للإعادة
     حرفيًّا. و«السنةُ الجزئيّة» **تُعلَن ولا تُخمَّن** (‏`PRESESSION_END`) —
     فسنةٌ جارية تنتهي عند آخرِ يومٍ نُشر ملفُّه، وما بعده ليس «مفقودًا».
+    و`start_env` (‏`PRESESSION_START` · T-TIERLINK-2) يقصّ **البداية** لمدًى
+    قصيرٍ داخل السنة — فارغٌ ⇒ أوّلُ السنة بت-بت.
     """
     end = (end_env or "").strip() or f"{year}-12-31"
-    return f"{year}-01-01", end
+    start = (start_env or "").strip() or f"{year}-01-01"
+    return start, end
 
 
 def main() -> int:
@@ -380,9 +383,16 @@ def main() -> int:
             (dt.date.fromisoformat(one_day) - dt.timedelta(days=45)).isoformat(),
             (dt.date.fromisoformat(one_day) - dt.timedelta(days=1)).isoformat())[-SEED_DAYS:]
     elif year:
-        d0, d1 = year_range(year, os.environ.get("PRESESSION_END") or "")
+        d0, d1 = year_range(year, os.environ.get("PRESESSION_END") or "",
+                            os.environ.get("PRESESSION_START") or "")
         days = KS.weekdays(d0, d1)
-        seed_days = KS.weekdays(f"{int(year) - 1}-11-15", f"{int(year) - 1}-12-31")[-SEED_DAYS:]
+        if (os.environ.get("PRESESSION_START") or "").strip():
+            # بذرةٌ من الأيام التي تسبق البداية المقصوصة (نمطُ وضع اليوم الواحد)
+            seed_days = KS.weekdays(
+                (dt.date.fromisoformat(d0) - dt.timedelta(days=45)).isoformat(),
+                (dt.date.fromisoformat(d0) - dt.timedelta(days=1)).isoformat())[-SEED_DAYS:]
+        else:
+            seed_days = KS.weekdays(f"{int(year) - 1}-11-15", f"{int(year) - 1}-12-31")[-SEED_DAYS:]
     else:
         print("⛔ لا PRESESSION_YEAR ولا PRESESSION_DAY.")
         return 2

@@ -1,0 +1,66 @@
+name: "🔗② T-TIERLINK-2 — +100% بالجلسة والفئة · والقائمة الجديدة (tierlink2_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد tierlink2_prereg.md
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "أوّلُ يومِ مِرساة (YYYY-MM-DD)"
+        required: false
+        default: "2026-08-18"
+      until:
+        description: "آخرُ يومِ مِرساة (فارغٌ = حتى اليوم · 2026-09-01 = بوّابة G4)"
+        required: false
+        default: ""
+      scan_end:
+        description: "آخرُ يومٍ للمسح (YYYY-MM-DD — آخرُ يومٍ نُشر ملفُّه)"
+        required: true
+        default: "2026-09-05"
+
+jobs:
+  tierlink2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات op_entry_state)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌙 مسحُ ما قبل الجلسة على المدى (الصفوفُ لِـ§④)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          PRESESSION_YEAR: "2026"
+          PRESESSION_START: ${{ inputs.since }}
+          PRESESSION_END: ${{ inputs.scan_end }}
+        run: python presession_scan.py
+
+      - name: 🔗② القياس
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          TIERLINK_SINCE: ${{ inputs.since }}
+          TIERLINK_UNTIL: ${{ inputs.until }}
+        run: python tierlink2_probe.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tierlink2-rows-${{ github.run_id }}
+          path: presession_rows_*.jsonl.gz
+          retention-days: 90
+          if-no-files-found: warn
