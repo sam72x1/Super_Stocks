@@ -41589,6 +41589,136 @@ check("🌅 PMR15 §⑩ التسجيلُ يطابق الكود: `COVERAGE_MIN = 
       f"len={len(_pmr_s10)}")
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🔗② T-TIERLINK-2 — أقفالُ أداة «+100% بالجلسة والفئة · والقائمة الجديدة»
+#    (tierlink2_prereg.md · 2026-09-06 · TL2-1..TL2-8)
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _t2_ast
+import datetime as _t2_dt
+import yaml as _t2_yaml
+import tierlink2_probe as _T2
+import presession_feats as _T2PF
+import presession_radar as _T2PR
+import presession_scan as _T2PS
+_t2_src = open("tierlink2_probe.py", encoding="utf-8").read()
+_t2_tree = _t2_ast.parse(_t2_src)
+_t2_imports = {(n.module, a.name) for n in _t2_ast.walk(_t2_tree)
+               if isinstance(n, _t2_ast.ImportFrom) for a in n.names}
+_t2_calls = {getattr(n.func, "id", getattr(n.func, "attr", None))
+             for n in _t2_ast.walk(_t2_tree) if isinstance(n, _t2_ast.Call)}
+_t2_writes = [n for n in _t2_ast.walk(_t2_tree) if isinstance(n, _t2_ast.Call)
+              and getattr(n.func, "id", None) == "open"
+              and any(isinstance(a, _t2_ast.Constant) and "w" in str(a.value) for a in n.args[1:2])]
+# TL2-1 — مقياسٌ واحدٌ بالاسم (AST) · قراءةٌ فقط · والإنتاجُ لا يستوردها
+check("🔗② TL2-1 مقياسٌ واحد بالاسم: anchor_history/measure/features/daily_range من "
+      "tierlink_probe و fetch_day من tier_fwd_report · صفرُ إرسال/كتابة/git · الإنتاجُ لا يستوردها",
+      {("tierlink_probe", "anchor_history"), ("tierlink_probe", "measure"),
+       ("tierlink_probe", "features"), ("tierlink_probe", "daily_range"),
+       ("tier_fwd_report", "fetch_day")} <= _t2_imports
+      and "send_telegram" not in _t2_calls and "git_save" not in _t2_calls
+      and not _t2_writes
+      and "tierlink2_probe" not in open("Super_stock.py", encoding="utf-8").read()
+      and _T2.MIN_COVER == 0.80 and _T2.MAX_UNSCANNED == 0.20,
+      f"imports={sorted(_t2_imports)} · writes={len(_t2_writes)}")
+# TL2-2 — الجلسةُ من ساعة نيويورك: التخومُ 09:29/09:30 و15:59/16:00 تفرّق
+def _t2_ms(h, m):
+    return int(_t2_dt.datetime(2026, 8, 20, h, m, tzinfo=_T2.NY).timestamp() * 1000)
+check("🔗② TL2-2 session_of: 09:29 pre · 09:30 reg · 15:59 reg · 16:00 after · 04:00 pre · 19:59 after",
+      (_T2.session_of(_t2_ms(9, 29)), _T2.session_of(_t2_ms(9, 30)), _T2.session_of(_t2_ms(15, 59)),
+       _T2.session_of(_t2_ms(16, 0)), _T2.session_of(_t2_ms(4, 0)), _T2.session_of(_t2_ms(19, 59)))
+      == ("pre", "reg", "reg", "after", "pre", "after"))
+# TL2-3 — الافترُ الممتدّ: بريماركتُ اليوم التالي وحدَه (قبل 09:30) · وفارغٌ ⇒ None
+_t2_bn = [[_t2_ms(4, 5), 1.0, 1.50, 1.4, 100], [_t2_ms(9, 29), 1.0, 1.80, 1.7, 100],
+          [_t2_ms(9, 30), 1.0, 9.00, 8.0, 100], [_t2_ms(12, 0), 1.0, 9.50, 9.0, 100]]
+check("🔗② TL2-3 ext_max: يقرأ 04:05 و09:29 ويتجاهل 09:30 فما بعد (1.80/1.00 ⇒ +80%) · فارغٌ/بلا e5 ⇒ None",
+      abs(_T2.ext_max(_t2_bn, 1.0) - 80.0) < 1e-9
+      and _T2.ext_max([], 1.0) is None and _T2.ext_max(_t2_bn, 0) is None
+      and _T2.ext_max(_t2_bn[2:], 1.0) is None)
+# TL2-4 — محاكاةُ المرشِّح: أرضيةُ الدولار · أعلى cap بـday_ret تنازليًّا · المجهولُ إلى الذيل
+def _t2_row(sym, usd, dr, phr=None):
+    d = {_T2PF.ROW_DAY: "2026-08-20", _T2PF.ROW_SESS: "PM", _T2PF.ROW_SYM: sym, "usd_day": usd}
+    if dr is not None: d["day_ret"] = dr
+    if phr is not None: d["post_hi_ret"] = phr
+    return d
+_t2_rows = [_t2_row("A", 5e5, 0.10), _t2_row("B", 5e5, 0.50), _t2_row("C", 50_000.0, 0.90),
+            _t2_row("D", 5e5, None), _t2_row("E", "x", 0.99), _t2_row("F", 5e5, 0.30)]
+_t2_pf = [r[_T2PF.ROW_SYM] for r in _T2.emulate_prefilter(_t2_rows, cap=3)]
+_t2_pf_all = [r[_T2PF.ROW_SYM] for r in _T2.emulate_prefilter(_t2_rows, cap=10)]
+check("🔗② TL2-4 emulate_prefilter: C دون الأرضية وE تالفٌ يُستبعدان · الترتيب B,F,A ثم D (المجهولُ ذيلًا) · cap=3 يقصّ D",
+      _t2_pf == ["B", "F", "A"] and _t2_pf_all == ["B", "F", "A", "D"]
+      and _T2PR.PREFILTER_KEY == "day_ret",
+      f"{_t2_pf} · {_t2_pf_all}")
+# TL2-5 — radar_verdict تفرّق (أ) المقيس عن (ب) الحيّ: صفٌّ فوق الأرضية لكن خارج سقف المرشِّح
+#         ⇒ meas=True و live=False · وتحت الأرضية ⇒ الاثنان False · وبلا صفٍّ ⇒ row=False ·
+#         وبلا مسحٍ ⇒ scanned=False · والافتر بأعلى TOPK بـusd_day
+_t2_fl = _T2PF.FLOOR_BY_SLOT["PM"]
+_t2_pm = [_t2_row("HI", 5e5, 0.01, _t2_fl + 0.1)] + \
+         [_t2_row(f"Z{i:02d}", 5e5, 0.90 - i * 0.001, 0.0) for i in range(_T2PR.PREFILTER_CAP)] + \
+         [_t2_row("LO", 5e5, 0.95, _t2_fl - 0.1), _t2_row("OK", 5e5, 0.96, _t2_fl + 0.2)]
+_t2_ah = [{_T2PF.ROW_DAY: "2026-08-20", _T2PF.ROW_SESS: "AH", _T2PF.ROW_SYM: f"Q{i:02d}",
+           "usd_day": 1e6 - i * 1000.0, "day_ret": 0.1} for i in range(_T2PF.TOPK + 2)]
+_t2_scan = {("2026-08-20", "PM"): _t2_pm, ("2026-08-20", "AH"): _t2_ah}
+_t2_v_hi = _T2.radar_verdict("2026-08-20", "HI", "pre", _t2_scan)
+_t2_v_lo = _T2.radar_verdict("2026-08-20", "LO", "pre", _t2_scan)
+_t2_v_ok = _T2.radar_verdict("2026-08-20", "OK", "pre", _t2_scan)
+_t2_v_no = _T2.radar_verdict("2026-08-20", "NOPE", "pre", _t2_scan)
+_t2_v_ns = _T2.radar_verdict("2026-08-21", "HI", "pre", _t2_scan)
+_t2_v_a0 = _T2.radar_verdict("2026-08-20", "Q00", "after", _t2_scan)
+_t2_v_a9 = _T2.radar_verdict("2026-08-20", f"Q{_T2PF.TOPK - 1:02d}", "after", _t2_scan)
+_t2_v_a10 = _T2.radar_verdict("2026-08-20", f"Q{_T2PF.TOPK:02d}", "after", _t2_scan)
+_t2_v_reg = _T2.radar_verdict("2026-08-20", "HI", "reg", _t2_scan)
+check("🔗② TL2-5 radar_verdict: HI (فوق الأرضية · خارج سقف المرشِّح) ⇒ meas=True/live=False · "
+      "OK ⇒ True/True · LO ⇒ False/False · NOPE ⇒ row=False · يومٌ بلا مسح ⇒ scanned=False · "
+      "الافتر: Q00 وQ09 داخل TOPK وQ10 خارجه · reg ⇒ لا وسم",
+      (_t2_v_hi["meas"], _t2_v_hi["live"], _t2_v_hi["row"]) == (True, False, True)
+      and (_t2_v_ok["meas"], _t2_v_ok["live"]) == (True, True)
+      and (_t2_v_lo["meas"], _t2_v_lo["live"]) == (False, False)
+      and _t2_v_no["scanned"] is True and _t2_v_no["row"] is False and _t2_v_no["meas"] is None
+      and _t2_v_ns["scanned"] is False
+      and _t2_v_hi["rank"] == 2 and _t2_v_ok["rank"] == 1
+      and _t2_v_a0["ah"] is True and _t2_v_a9["ah"] is True and _t2_v_a10["ah"] is False
+      and _t2_v_reg["scanned"] is False and _t2_v_reg["meas"] is None,
+      f"hi={_t2_v_hi} ok={_t2_v_ok} lo={_t2_v_lo} a10={_t2_v_a10}")
+# TL2-6 — الـworkflow: قراءةٌ فقط · بلا كرون · 3.11 · كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها سكربتٌ
+_t2_wf = _t2_yaml.safe_load(open(".github/workflows/tierlink2.yml", encoding="utf-8"))
+_t2_on = _t2_wf.get("on") or _t2_wf.get(True) or {}
+_t2_env = {}
+for _s in _t2_wf["jobs"]["tierlink2"]["steps"]:
+    _t2_env.update(_s.get("env") or {})
+_t2_inputs = set((_t2_on.get("workflow_dispatch") or {}).get("inputs") or {})
+_t2_wired = {k for k in _t2_inputs if any(f"inputs.{k}" in str(v) for v in _t2_env.values())}
+_t2_scan_src = open("presession_scan.py", encoding="utf-8").read()
+check("🔗② TL2-6 tierlink2.yml: contents: read · بلا schedule · 3.11 · المدخلاتُ الثلاثة (since/until/scan_end) "
+      "موصولةٌ ببيئةٍ يقرؤها السكربتان · و`start` في presession.yml موصولٌ بـPRESESSION_START",
+      _t2_wf["permissions"] == {"contents": "read"} and "schedule" not in _t2_on
+      and _t2_inputs == {"since", "until", "scan_end"} and _t2_wired == _t2_inputs
+      and any('python-version: "3.11"' in l for l in open(".github/workflows/tierlink2.yml", encoding="utf-8"))
+      and "TIERLINK_SINCE" in _t2_env and "TIERLINK_UNTIL" in _t2_env
+      and "PRESESSION_START" in _t2_env and "PRESESSION_END" in _t2_env
+      and all(k in _t2_src for k in ("TIERLINK_SINCE", "TIERLINK_UNTIL"))
+      and all(k in _t2_scan_src for k in ("PRESESSION_START", "PRESESSION_END"))
+      and "PRESESSION_START: ${{ inputs.start }}" in open(".github/workflows/presession.yml", encoding="utf-8").read(),
+      f"inputs={_t2_inputs} wired={_t2_wired}")
+# TL2-7 — التسجيلُ يطابق الكود: الأرضيةُ والسقفُ والدولارُ وTOPK بأرقامها · التنبّؤات · الحرّاس
+_t2_pre = open("tierlink2_prereg.md", encoding="utf-8").read()
+check("🔗② TL2-7 tierlink2_prereg.md: 0.69492 · 60 · 100,000 · 10 نصًّا = الثوابت · TL2-P1..P6 · G1..G4 · ≥80%",
+      f"{_T2PF.FLOOR_BY_SLOT['PM']}" in _t2_pre and f"(‏{_T2PR.PREFILTER_CAP})" in _t2_pre
+      and f"(‏{_T2PR.MIN_DAY_USD:,.0f})" in _t2_pre and f"(‏{_T2PF.TOPK})" in _t2_pre
+      and all(f"TL2-P{i}" in _t2_pre for i in range(1, 7))
+      and all(f"`G{i}`" in _t2_pre for i in range(1, 5)) and "≥80%" in _t2_pre
+      and _T2PF.FLOOR_BY_SLOT == {"PM": 0.69492} and _T2PR.PREFILTER_CAP == 60
+      and _T2PR.MIN_DAY_USD == 100_000.0 and _T2PF.TOPK == 10)
+# TL2-8 — PRESESSION_START: الافتراضُ بت-بت (السنةُ من أوّلها) · وبه يُقصّ البدءُ وتُبذَر الأيامُ من قبله
+_t2_yr_main = _ps_insp.getsource(_T2PS.main)
+check("🔗② TL2-8 year_range: بلا start ⇒ أوّلُ السنة بت-بت · start فارغٌ ⇒ كذلك · start ⇒ يُقصّ · "
+      "و`main` يقرأ PRESESSION_START ويبذر من 45 يومًا قبله",
+      _T2PS.year_range("2026", "2026-09-05") == ("2026-01-01", "2026-09-05")
+      and _T2PS.year_range("2026", "2026-09-05", "  ") == ("2026-01-01", "2026-09-05")
+      and _T2PS.year_range("2026", "2026-09-05", "2026-08-10") == ("2026-08-10", "2026-09-05")
+      and _T2PS.year_range("2023") == ("2023-01-01", "2023-12-31")
+      and "PRESESSION_START" in _t2_yr_main and "timedelta(days=45)" in _t2_yr_main)
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

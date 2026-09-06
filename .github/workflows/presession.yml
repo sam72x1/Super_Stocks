@@ -19,6 +19,10 @@ on:
         description: "آخرُ يومٍ للسنة الجزئيّة (YYYY-MM-DD — فارغٌ = السنةُ كاملةً)"
         required: false
         type: string
+      start:
+        description: "أوّلُ يومٍ للمدى المقصوص داخل السنة (YYYY-MM-DD — فارغٌ = أوّلُ السنة)"
+        required: false
+        type: string
       syms:
         description: "رموزٌ تُطبَع رتبتُها في وضع اليوم الواحد (بفواصل)"
         required: false
@@ -53,6 +57,7 @@ jobs:
           PRESESSION_DAY: ${{ inputs.day }}
           # 🔒 كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها السكربت (بصمةُ `BT_CANDLE`)
           PRESESSION_END: ${{ inputs.end }}
+          PRESESSION_START: ${{ inputs.start }}
           PRESESSION_SYMS: ${{ inputs.syms }}
           PRESESSION_WITNESS: ${{ inputs.witness }}
         run: python presession_scan.py
