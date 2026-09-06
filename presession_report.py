@@ -462,6 +462,20 @@ PREFLOOR_KEEP = 0.75               # §③-② الإصاباتُ لا تنقص 
 #   لا نتيجة** (خروج 3) — فلا يُقرأ رقمُ ذراعٍ على أداةٍ لا تُعيد المنشور.
 V0_TAKEN, V0_HITS = 435, 47
 
+# ── 🧠 `T-PRE-CEIL` (العقد `presession_ceiling_prereg.md §③`) — سقفُ الاختيار عند 03:50 ──
+#    خلف علمٍ **مطفأٍ افتراضًا** ⇒ المُخرَجُ المنشور بت-بت بلاه (سابقةُ `DEV_ON`).
+CEIL_ON = (os.environ.get("PRESESSION_CEIL") or "").strip() == "1"
+CEIL_KS = (10, 60, 100)            # أعلى 10 (القائمة) · 60 (سقفُ الجلب الحيّ) · 100
+CEIL_RRF_C = 60                    # ثابتُ الدمج المتبادل `1/(c+rank)` (Cormack 2009 — engineering)
+CEIL_TOPN = 5                      # `K-RRF5`: أفضلُ خمسةٍ من سنتَي المعايرة وحدهما
+CEIL_HUNDRED = 100.0               # وسمٌ وصفيّ: `maxs ≥ 100` (رقمُ المالك «‏+100%»)
+CEIL_ORACLE_MIN = 50.0             # C1: سقفُ العرّاف R@60 على سنة التقييم
+CEIL_RRF_GAIN = 3.0                # C2: نقاطُ الاسترجاع الزائدة للدمج فوق المفتاح
+CEIL_NAN_MIN = 50.0                # C3: حصّةُ المعدوم بين المنفجرين
+CEIL_MIN_EXPL = 30                 # أرضيةُ الحكم لكلّ خليّة
+# `V-C0`: المفتاحُ المشحون على 2025·PM·الجلسة يُعيد المنشور (‏`presession_result §④-4`)
+VC0_HITS, VC0_EXPL = 100, 878
+
 
 def live_pool(sc_usd, gid, sym, cap, min_usd=PRECAP_MIN_USD):
     """قناعُ **البِركة الحيّة**: رتبةُ الدولار داخل السقف ‏**و** أرضيةُ الدولار.
@@ -679,6 +693,95 @@ def prerank_grid_verdict(cells, tr_dirs):
             if not all(tr_dirs.get((cap, st["arm"]), [False, False])):
                 bad.append("③ الاتّجاهُ ينقلب في سنةٍ من سنتَي المعايرة")
             out.append((cap, st, bad))
+    return out
+
+
+def ceil_feat_ranks(X, gid, sym, feats):
+    """رتبةُ **كلّ صفٍّ لكلّ ميزة** داخل قراره — بـ`group_ranks` المصدرِ الواحد
+    وباتّجاه الميزة المسجَّل (‏`FEATS_ASC` تصاعديًّا) والمعدومُ إلى الذيل. مصفوفةٌ
+    `(n, F)`. لا مقياسَ ثانٍ: الحكمُ والسقفُ والدمجُ كلُّها من هذي الرتب."""
+    asc_set = set(PF.FEATS_ASC)
+    R = np.empty(X.shape, dtype=np.int64)
+    for i, f in enumerate(feats):
+        a = f in asc_set
+        v = np.nan_to_num(X[:, i], nan=(np.inf if a else -np.inf))
+        R[:, i] = group_ranks(v, gid, sym, asc=a)
+    return R
+
+
+def ceil_recall(rank, y, ks=CEIL_KS):
+    """`{k: (hits, expl)}` — كم منفجرًا رتبتُه دون `k`. للعرّاف تُمرَّر أدنى رتبةٍ
+    عبر الميزات (سقفٌ لا ترتيبٌ يُشحَن: صفوفٌ كثيرة قد تحمل الرتبةَ 0 معًا)."""
+    expl = int(y.sum())
+    return {k: (int(((rank < k) & (y == 1)).sum()), expl) for k in ks}
+
+
+def rrf_score(R, cols, c=CEIL_RRF_C):
+    """دمجُ رتبٍ متبادل: `Σ 1/(c+rank)` على الأعمدة المختارة — أعلى = أفضل."""
+    out = np.zeros(R.shape[0], dtype=np.float64)
+    for j in cols:
+        out += 1.0 / (c + R[:, j].astype(np.float64))
+    return out
+
+
+def ceil_pick(R, y, feats, n=CEIL_TOPN, k=TOPK):
+    """أفضلُ `n` ميزاتٍ بـ`R@k` على الصفوف المُمرَّرة (**سنتا المعايرة وحدهما**) —
+    كسرُ التعادل بالاسم فيكون الاختيارُ حتميًّا. يُرجع فهارسَ الأعمدة."""
+    sc = [(int(((R[:, j] < k) & (y == 1)).sum()), feats[j], j) for j in range(len(feats))]
+    sc.sort(key=lambda t: (-t[0], t[1]))
+    return [j for _, _, j in sc[:n]]
+
+
+def ceil_arms(R, gid, sym, y, feats, i_key, cols5, ks=CEIL_KS):
+    """جدولُ الأذرع الأربع على شريحةٍ: `K0` المفتاحُ المشحون · `K-RRF5` · `K-RRF-ALL`
+    · `K-ORACLE` (أدنى رتبةٍ لكلّ صفّ). كلُّ ذراعٍ تُرتَّب بـ`group_ranks` ثم تُقرأ
+    `ceil_recall` — والعرّافُ يُقرأ من الرتب مباشرةً (سقف)."""
+    out = {}
+    out["K0"] = ceil_recall(R[:, i_key], y, ks)
+    r5 = group_ranks(rrf_score(R, cols5), gid, sym)
+    out["K-RRF5"] = ceil_recall(r5, y, ks)
+    ra = group_ranks(rrf_score(R, range(len(feats))), gid, sym)
+    out["K-RRF-ALL"] = ceil_recall(ra, y, ks)
+    out["K-ORACLE"] = ceil_recall(R.min(axis=1), y, ks)
+    return out
+
+
+def ceil_miss(X, R, y, i_key, i_usd):
+    """تشريحُ الفوت (‏C3): بين المنفجرين — حصّةُ مَن مفتاحُه **معدوم** (لا افترَ أمس)
+    · ومَن `post_usd` صفرٌ/معدوم · ووسيطُ رتبة المفتاح بين غير المعدومين."""
+    m = y == 1
+    n = int(m.sum())
+    if not n:
+        return {"n": 0, "nan_pct": None, "usd0_pct": None, "rank_med": None}
+    kv = X[m, i_key]
+    nan = ~np.isfinite(kv)
+    uv = X[m, i_usd]
+    usd0 = (~np.isfinite(uv)) | (uv <= 0)
+    rk = R[m, i_key][~nan]
+    return {"n": n, "nan_pct": round(100.0 * float(nan.sum()) / n, 1),
+            "usd0_pct": round(100.0 * float(usd0.sum()) / n, 1),
+            "rank_med": (float(np.median(rk)) if rk.size else None)}
+
+
+def ceil_verdict(ev, tr_diffs, miss):
+    """C1/C2/C3 بحرفها (§③) — تُرجع قائمةَ (اسم، ✅/🔴/⏸️، تفصيل)."""
+    out = []
+    h, e = ev["K-ORACLE"][60]
+    if e < CEIL_MIN_EXPL:
+        return [("الأرضية", "⏸️", f"منفجرون {e} < {CEIL_MIN_EXPL} ⇒ لا حكم")]
+    o60 = 100.0 * h / e
+    out.append(("C1 سقفُ العرّاف R@60 ≥ 50%", "✅" if o60 >= CEIL_ORACLE_MIN else "🔴",
+                f"{o60:.1f}%"))
+    h5, _ = ev["K-RRF5"][10]
+    h0, _ = ev["K0"][10]
+    gain = 100.0 * (h5 - h0) / e
+    ok2 = gain >= CEIL_RRF_GAIN and all(dd >= 0 for dd in tr_diffs)
+    out.append(("C2 الدمجُ يضيف ≥ +3.0 نقطة R@10 (وغيرُ سالبٍ في المعايرة)",
+                "✅" if ok2 else "🔴",
+                f"{gain:+.1f} · المعايرة {['%+.1f' % x for x in tr_diffs]}"))
+    nan = miss.get("nan_pct")
+    out.append(("C3 المعدومُ بين المنفجرين ≥ 50%",
+                "✅" if (nan is not None and nan >= CEIL_NAN_MIN) else "🔴", f"{nan}%"))
     return out
 
 
@@ -1174,6 +1277,71 @@ def main() -> int:
             "واحدة · والوسمُ **لمسُ قمّةٍ** لا عائدٌ مقيس · **والحكمُ الرسميُّ "
             "«فشلت» لا يتغيّر بأيٍّ من هذي الأذرع.**")
 
+
+    # ── 🧠 `PRESESSION_CEIL=1` — `T-PRE-CEIL` (العقد `presession_ceiling_prereg.md §③`)
+    if CEIL_ON:
+        log("")
+        log("=" * 78)
+        log("🧠 **T-PRE-CEIL** — سقفُ الاختيار عند 03:50: العرّافُ · الدمجُ · تشريحُ الفوت "
+            "(العقد `presession_ceiling_prereg.md` مدفوعٌ قبل أيّ رقم)")
+        log("=" * 78)
+        _cs, _cw = "PM", 0
+        _ck = PF.rank_key(_cs)
+        if _ck not in feats or "post_usd" not in feats:
+            log("⛔ `V-CEIL` ميزةٌ لازمةٌ غائبةٌ عن القائمة البيضاء — لا حكم.")
+            return 3
+        _cki, _cui = feats.index(_ck), feats.index("post_usd")
+        _cm = {yr: (d["year"] == yr) & (d["slot"] == _cs)
+               for yr in list(TRAIN_YEARS) + [EVAL_YEAR]}
+        if any(not m.any() for m in _cm.values()):
+            log("⛔ `V-CEIL` سنةٌ بلا صفوفٍ — لا حكم.")
+            return 3
+        _cR = {yr: ceil_feat_ranks(d["X"][m], d["gid"][m], d["sym"][m], feats)
+               for yr, m in _cm.items()}
+        _cy = {yr: d["y"][_cw][m] for yr, m in _cm.items()}
+        _c100 = {yr: (np.nan_to_num(d["mx"][_cw][m], nan=-1.0) >= CEIL_HUNDRED).astype(np.int8)
+                 for yr, m in _cm.items()}
+        # 🔒 V-C0: المفتاحُ المشحون يُعيد المنشور (‏100 من 878) — قبل أيّ رقمِ ذراع
+        _cv = ceil_recall(_cR[EVAL_YEAR][:, _cki], _cy[EVAL_YEAR], (TOPK,))[TOPK]
+        log(f"🔒 **V-C0** `{_ck}` على {EVAL_YEAR}·{_cs}·الجلسة: إصابات {_cv[0]} من "
+            f"{_cv[1]} · المنشور {VC0_HITS}/{VC0_EXPL}")
+        if _cv != (VC0_HITS, VC0_EXPL):
+            log("⛔ **V-C0 ساقطة** — عطبُ أداةٍ لا نتيجة، ولا يُقرأ رقمٌ.")
+            return 3
+        # 🔒 الاختيارُ من سنتَي المعايرة **مجمَّعتَين** — لا من سنة التقييم
+        _trR = np.vstack([_cR[yr] for yr in TRAIN_YEARS])
+        _try = np.concatenate([_cy[yr] for yr in TRAIN_YEARS])
+        _c5 = ceil_pick(_trR, _try, feats)
+        log(f"🔑 `K-RRF5` من {'+'.join(TRAIN_YEARS)}: {', '.join(feats[j] for j in _c5)}")
+        _cev, _ctr = {}, {}
+        for _lab, _yy in (("+80% (الحاكم)", _cy), ("+100% (وصفيّ)", _c100)):
+            log(f"\n【{_lab}】")
+            log("   سنة │ ذراع      │ منفجرون │  R@10  │  R@60  │ R@100")
+            for yr in list(TRAIN_YEARS) + [EVAL_YEAR]:
+                _a = ceil_arms(_cR[yr], d["gid"][_cm[yr]], d["sym"][_cm[yr]], _yy[yr],
+                               feats, _cki, _c5)
+                if _lab.startswith("+80"):
+                    (_cev if yr == EVAL_YEAR else _ctr)[yr] = _a
+                for _an in ("K0", "K-RRF5", "K-RRF-ALL", "K-ORACLE"):
+                    _r = _a[_an]
+                    _e = _r[CEIL_KS[0]][1]
+                    _cells = " │ ".join(
+                        f"{(100.0 * _r[k][0] / _e if _e else 0.0):5.1f}%" for k in CEIL_KS)
+                    log(f"   {yr} │ {_an:<9} │ {_e:7} │ {_cells}")
+        _miss = ceil_miss(d["X"][_cm[EVAL_YEAR]], _cR[EVAL_YEAR], _cy[EVAL_YEAR], _cki, _cui)
+        log(f"\n🔎 تشريحُ الفوت على {EVAL_YEAR} (منفجرو +80%: {_miss['n']}): `{_ck}` معدومٌ "
+            f"لـ{_miss['nan_pct']}% · `post_usd` صفرٌ/معدومٌ لـ{_miss['usd0_pct']}% · "
+            f"وسيطُ رتبة المفتاح بين غير المعدومين {_miss['rank_med']}")
+        _tdiff = []
+        for yr in TRAIN_YEARS:
+            _a = _ctr[yr]
+            _e = _a["K0"][10][1]
+            _tdiff.append(100.0 * (_a["K-RRF5"][10][0] - _a["K0"][10][0]) / _e if _e else 0.0)
+        log("\n⚖️ الحكم (§③ — المعايير كما كُتبت):")
+        for nm, mark, det in ceil_verdict(_cev[EVAL_YEAR], _tdiff, _miss):
+            log(f"   {mark} {nm}: {det}")
+        log("📌 `K-ORACLE` **سقفٌ لا ذراعٌ تُشحَن** (اختيارٌ بأثرٍ رجعيّ) · و+100% وصفيٌّ "
+            "لا حاكم · وسقفُ النجاح **اقتراحٌ للمالك** (§③) — لا مفتاحَ يُبدَّل هنا.")
     log("")
     log("📌 ترتيبُ التراجع المقفول: تُقرأ نافذةُ 10 أوّلًا، ولا يُقرأ حكمُ نافذةٍ "
         "أوسعَ حكمًا على الأضيق. **والنافذةُ التي يريدها المالك هي الجلسةُ كاملةً "

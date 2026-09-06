@@ -41719,6 +41719,196 @@ check("🔗② TL2-8 year_range: بلا start ⇒ أوّلُ السنة بت-ب�
       and "PRESESSION_START" in _t2_yr_main and "timedelta(days=45)" in _t2_yr_main)
 
 
+# ═══════════ 🧠 أقفال T-PRE-CEIL (presession_ceiling_prereg.md §③ · CE1-CE6) ═══════════
+import presession_report as _CE
+import pm_curve_scan as _PC
+_ce_src = open("presession_report.py", encoding="utf-8").read()
+_ce_t = _ps_ast.parse(_ce_src)
+_ce_main = next(n for n in _ps_ast.walk(_ce_t)
+                if isinstance(n, _ps_ast.FunctionDef) and n.name == "main")
+_ce_ifs = [n for n in _ce_main.body if isinstance(n, _ps_ast.If)
+           and getattr(n.test, "id", None) == "CEIL_ON"]
+_ce_blk = _ce_ifs[0] if _ce_ifs else None
+def _ce_calls(node, fn):
+    return sum(1 for c in _ps_ast.walk(node) if isinstance(c, _ps_ast.Call)
+               and getattr(c.func, "id", None) == fn)
+_ce_fns = ("ceil_feat_ranks", "ceil_arms", "ceil_miss", "ceil_verdict", "ceil_pick")
+# CE1 — مطفأٌ افتراضًا · الثوابتُ مثبَّتة · كلُّ نداءٍ للأذرع داخل `if CEIL_ON` ·
+#   و`V-C0` **تُوقِف** (If تقرأ VC0_* ويُرجع جسمُها 3) · والاختيارُ من TRAIN_YEARS
+check("🧠 CE1 T-PRE-CEIL خلف `CEIL_ON` المطفأ (المنشورُ بت-بت) · الثوابتُ مثبَّتة (10/60/100 · "
+      "c=60 · n=5 · 50/3.0/50 · V-C0=100/878) · الأذرعُ لا تُنادى خارج الكتلة · V-C0 تُوقِف · "
+      "والاختيارُ من سنتَي المعايرة",
+      _CE.CEIL_ON is False and _CE.CEIL_KS == (10, 60, 100) and _CE.CEIL_RRF_C == 60
+      and _CE.CEIL_TOPN == 5 and _CE.CEIL_ORACLE_MIN == 50.0 and _CE.CEIL_RRF_GAIN == 3.0
+      and _CE.CEIL_NAN_MIN == 50.0 and _CE.CEIL_HUNDRED == 100.0
+      and (_CE.VC0_HITS, _CE.VC0_EXPL) == (100, 878)
+      and _ce_blk is not None
+      and all(_ce_calls(_ce_t, f) == _ce_calls(_ce_blk, f) for f in _ce_fns)
+      and any(isinstance(n, _ps_ast.If)
+              and {"VC0_HITS", "VC0_EXPL"} <= {getattr(x, "id", None) for x in _ps_ast.walk(n.test)
+                                               if isinstance(x, _ps_ast.Name)}
+              and any(isinstance(b, _ps_ast.Return) and getattr(b.value, "value", None) == 3
+                      for b in _ps_ast.walk(n))
+              for n in _ps_ast.walk(_ce_blk))
+      and "_trR = np.vstack([_cR[yr] for yr in TRAIN_YEARS])" in _ce_src
+      and "ceil_pick(_trR, _try, feats)" in _ce_src
+      and "EVAL_YEAR" not in _ce_src.split("_trR = np.vstack")[1].split("ceil_pick(")[0],
+      f"blk={_ce_blk is not None}")
+# CE2 — سلوكيًّا على عيّنةٍ تفرّق: العرّافُ ≥ كلِّ مفتاحٍ عند كلّ k · الدمجُ يختلف عن K0 ·
+#   والميزةُ التصاعديّة (`price`) تُرتَّب تصاعديًّا · والمعدومُ إلى الذيل
+_ce_g = np.array([0]*6 + [1]*6); _ce_s = np.arange(12); _ce_f = ["post_hi_ret", "post_usd", "price"]
+_ce_X = np.array([[5, 1, 9.0], [np.nan, 0, 0.5], [3, 1, 2.0], [1, 1, 3.0], [2, 1, 4.0], [4, 1, 5.0],
+                  [np.nan, 0, 0.6], [9, 1, 1.0], [8, 1, 2.0], [7, 1, 7.0], [1, 1, 6.0], [2, 1, 1.5]])
+_ce_y = np.array([0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0], np.int8)
+_ce_R = _CE.ceil_feat_ranks(_ce_X, _ce_g, _ce_s, _ce_f)
+_ce_a = _CE.ceil_arms(_ce_R, _ce_g, _ce_s, _ce_y, _ce_f, 0, [0, 2], ks=(1, 2, 3))
+check("🧠 CE2 العرّافُ ≥ كلِّ مفتاحٍ عند كلّ k · الدمجُ يفترق عن K0 (عند k=3: 2 مقابل 1) · `price` تصاعديًّا (الأرخصُ رتبة 0) "
+      "· والمعدومُ إلى الذيل (رتبة 5 من 6)",
+      all(_ce_a["K-ORACLE"][k][0] >= max(_ce_a["K0"][k][0], _ce_a["K-RRF5"][k][0]) for k in (1, 2, 3))
+      and _ce_a["K-ORACLE"][2] == (3, 3) and _ce_a["K0"][1] == (0, 3)
+      and _ce_a["K-RRF5"][3][0] != _ce_a["K0"][3][0] and _ce_a["K-RRF5"] != _ce_a["K0"]
+      and int(_ce_R[1, 2]) == 0 and int(_ce_R[6, 2]) == 0 and int(_ce_R[7, 2]) == 1
+      and int(_ce_R[1, 0]) == 5
+      and int(_ce_R[6, 0]) == 5,
+      f"{_ce_a}")
+# CE3 — `ceil_pick` حتميٌّ ويقرأ الصفوفَ المُمرَّرة وحدَها (عيّنتان تعطيان اختيارًا مختلفًا)
+_ce_p1 = _CE.ceil_pick(_ce_R[:6], _ce_y[:6], _ce_f, n=1, k=2)
+_ce_p2 = _CE.ceil_pick(_ce_R[6:], _ce_y[6:], _ce_f, n=1, k=2)
+check("🧠 CE3 ceil_pick يختار من الصفوف المُمرَّرة وحدَها (النصفان يعطيان مفتاحًا مختلفًا) · وحتميّ",
+      _ce_p1 != _ce_p2 and _ce_p1 == _CE.ceil_pick(_ce_R[:6], _ce_y[:6], _ce_f, n=1, k=2),
+      f"{_ce_p1} vs {_ce_p2}")
+# CE4 — الحكمُ بحرفه: C1 عند الحدّ يمرّ ودونه بشعرة يسقط · C2 يشترط عدمَ السلب في المعايرة ·
+#   C3 المعدوم · والأرضيةُ ⏸️
+def _ce_ev(o60, h5, h0, e=100):
+    return {"K-ORACLE": {60: (o60, e)}, "K-RRF5": {10: (h5, e)}, "K0": {10: (h0, e)}}
+_ce_v1 = _CE.ceil_verdict(_ce_ev(50, 13, 10), [0.0, 1.0], {"nan_pct": 50.0})
+_ce_v2 = _CE.ceil_verdict(_ce_ev(49, 13, 10), [0.0, -0.5], {"nan_pct": 49.9})
+_ce_v3 = _CE.ceil_verdict(_ce_ev(5, 1, 0, e=10), [0.0], {"nan_pct": 90.0})
+check("🧠 CE4 ceil_verdict: 50%/+3.0/50% تمرّ · 49%/معايرةٌ سالبة/49.9% تسقط · والأرضية ⏸️",
+      [m for _, m, _ in _ce_v1] == ["✅", "✅", "✅"] and [m for _, m, _ in _ce_v2] == ["🔴", "🔴", "🔴"]
+      and _ce_v3[0][1] == "⏸️" and len(_ce_v3) == 1, f"{_ce_v1} {_ce_v2} {_ce_v3}")
+# CE5 — تشريحُ الفوت: المعدومُ يُعَدّ · وصفرُ `post_usd` يُعَدّ · والوسيطُ بلا المعدومين
+_ce_m = _CE.ceil_miss(_ce_X, _ce_R, _ce_y, 0, 1)
+check("🧠 CE5 ceil_miss: منفجرون 3 · معدوم 66.7% · usd0 66.7% · ووسيطُ الرتبة من غير المعدوم (1.0)",
+      _ce_m == {"n": 3, "nan_pct": 66.7, "usd0_pct": 66.7, "rank_med": 1.0}, f"{_ce_m}")
+# CE6 — العقدُ يطابق الكود (الحدود والتنبّؤات) · والـworkflow يوصل `PRESESSION_CEIL`
+_ce_pre = open("presession_ceiling_prereg.md", encoding="utf-8").read()
+_ce_wf = open(".github/workflows/presession_report.yml", encoding="utf-8").read()
+check("🧠 CE6 presession_ceiling_prereg.md: C1 50% · C2 +3.0 · C3 50% · CE-P1..P5 · PC-P1..P5 · "
+      "والـworkflow يوصل PRESESSION_CEIL بمدخل ceil",
+      "‏**≥ 50%**" in _ce_pre and "≥ +3.0 نقطة" in _ce_pre
+      and all(f"`CE-P{i}`" in _ce_pre for i in range(1, 6))
+      and all(f"`PC-P{i}`" in _ce_pre for i in range(1, 6))
+      and "PRESESSION_CEIL: ${{ inputs.ceil }}" in _ce_wf and '"PRESESSION_CEIL"' in _ce_src)
+
+# ═══════════ 🌅📈 أقفال T-PM-CURVE (presession_ceiling_prereg.md §④ · PC1-PC7) ═══════════
+_pc_src = open("pm_curve_scan.py", encoding="utf-8").read()
+_pc_t = _ps_ast.parse(_pc_src)
+_pc_calls = {(getattr(c.func, "attr", None) or getattr(c.func, "id", None)) for c in _ps_ast.walk(_pc_t)
+             if isinstance(c, _ps_ast.Call)}
+_pc_opens = [c for c in _ps_ast.walk(_pc_t) if isinstance(c, _ps_ast.Call)
+             and getattr(c.func, "id", None) == "open"
+             and any(getattr(k, "value", None) == "w" for k in c.args[1:2])]
+_pc_defs = {n.name for n in _ps_ast.walk(_pc_t) if isinstance(n, _ps_ast.FunctionDef)}
+_pc_r1 = next(n for n in _ps_ast.walk(_pc_t) if isinstance(n, _ps_ast.FunctionDef) and n.name == "r1_anchor")
+_pc_r1_calls = {(getattr(c.func, "value", None) and getattr(c.func.value, "id", None), getattr(c.func, "attr", None))
+                for c in _ps_ast.walk(_pc_r1) if isinstance(c, _ps_ast.Call)}
+# PC1 — قراءةٌ فقط · بلا نسخٍ من دوالّ pm_radar (تُستورَد بالاسم) · r1_anchor تنادي PMR.candidate_index/replay_anchor · الإنتاجُ لا يستوردها
+check("🌅📈 PC1 pm_curve_scan: صفرُ send_telegram/save_op_entry_state/subprocess · الكتابةُ الوحيدة pm_curve_rows.jsonl · "
+      "لا نسخَ من parse_pre/mover_t30/candidate_index/replay_anchor · r1_anchor عبر PMR بالاسم · الإنتاجُ لا يستوردها",
+      not ({"send_telegram", "save_op_entry_state", "git_save", "run", "check_output"} & _pc_calls)
+      and len(_pc_opens) == 1 and "pm_curve_rows.jsonl" in _ps_ast.dump(_pc_opens[0])
+      and not ({"parse_pre", "mover_t30", "candidate_index", "replay_anchor"} & _pc_defs)
+      and {("PMR", "candidate_index"), ("PMR", "replay_anchor")} <= _pc_r1_calls
+      and "pm_curve" not in open("Super_stock.py", encoding="utf-8").read()
+      and "pm_curve" not in open("pm_radar_scan.py", encoding="utf-8").read(),
+      f"calls∩={ {'send_telegram','save_op_entry_state'} & _pc_calls } defs={_pc_defs & {'parse_pre'} }")
+# PC2 — trigger_ms: **تراكميٌّ** (‏3×$10k لا تبلغ 30k · الرابعة تبلغ) · الرفعةُ على **الإغلاق** لا القمّة · بلا pc ⇒ None
+_pc_b = 7_000_000
+_pc_rows = [(_pc_b + i * 60_000, 1.0, 1.30, 0.99, 1.0, 10_000) for i in range(3)]     # قمّةٌ +30% وإغلاقٌ 1.0
+_pc_rows += [(_pc_b + 3 * 60_000, 1.0, 1.15, 1.0, 1.12, 10_000 / 1.12)]                 # التراكميّ ≥30k · +12%
+_pc_ta = _PC.trigger_ms(_pc_rows, 1.0, _PC.USD_FLOOR, 10.0)
+_pc_tb = _PC.trigger_ms(_pc_rows, 1.0, _PC.MOVER_USD, 10.0)
+_pc_td = _PC.trigger_ms(_pc_rows, 1.0, _PC.USD_FLOOR, 5.0)
+check("🌅📈 PC2 trigger_ms تراكميٌّ لا دقيقةً وحدَها (يُطلق عند $40k لا $10k) · على الإغلاق لا القمّة "
+      "(قمّةُ +30% بإغلاق 1.0 لا تُطلق) · $100k لا يُطلق · بلا إغلاق أمسٍ ⇒ None",
+      _pc_ta == (_pc_b + 3 * 60_000, 1.12) and _pc_td == _pc_ta and _pc_tb is None
+      and _PC.trigger_ms(_pc_rows, None, 1.0, 1.0) is None
+      and _PC.trigger_ms(_pc_rows, 1.0, 5_000.0, 25.0) is None,
+      f"ta={_pc_ta} tb={_pc_tb} td={_pc_td}")
+# PC3 — chain_ok يفرّق: سلسلةٌ سليمة True · وT-A بلا T-D False · وT-B قبل T-A False
+_pc_ok = [{"arm": {"R1": None, "T-A": [5, 1.1], "T-B": [6, 1.2], "T-C": [7, 1.3], "T-D": [5, 1.1]}}]
+_pc_bad1 = [{"arm": {"R1": None, "T-A": [5, 1.1], "T-B": None, "T-C": None, "T-D": None}}]
+_pc_bad2 = [{"arm": {"R1": None, "T-A": [6, 1.1], "T-B": [5, 1.2], "T-C": None, "T-D": [6, 1.1]}}]
+check("🌅📈 PC3 chain_ok: سليمة ✓ · T-A بلا T-D ✗ · T-B تسبق T-A ✗",
+      _PC.chain_ok(_pc_ok) and not _PC.chain_ok(_pc_bad1) and not _PC.chain_ok(_pc_bad2))
+# PC4 — summarize: الالتقاطُ **قبل** الحدّ حصرًا (المساوي لا يُحتسَب) · الرسائل/جلسة · الإثمار · وverdict بالأرضية ⏸️ ثم C4/C5
+def _pc_row(day, sym, m30, m100, r1, ta):
+    return {"day": day, "symbol": sym, "prev_close": 1.0, "first_ret": 0.0,
+            "mover": {"30": m30, "50": None, "100": m100},
+            "arm": {"R1": r1, "T-A": ta, "T-B": None, "T-C": None, "T-D": ta}, "pre_usd": 1}
+_pc_days = ["2025-01-02", "2025-01-03"]
+_pc_rs = [_pc_row("2025-01-02", "A", 100, 200, [50, 1.1], [40, 1.05]),   # R1 وT-A قبل +30 و+100
+          _pc_row("2025-01-02", "B", 100, 200, [100, 1.3], [150, 1.4]),  # R1 يساوي +30 (لا يُحتسَب) · T-A بعد +30 قبل +100
+          _pc_row("2025-01-03", "C", 100, None, [300, 1.5], None)]       # +30 بلا +100 · R1 بعده (لا إثمار)
+_pc_res = _PC.summarize(_pc_rs, _pc_days)
+_pc_c100 = _pc_res["ladder"]["100"]["arms"]
+check("🌅📈 PC4 summarize: R1 يلتقط +100% 2/2 وقبل +30% 1/2 (المساوي لا يُحتسَب) · T-A 2/2 و1/2 · "
+      "رسائل R1 وسيط 1.5 ومجموع 3 · إثمار R1 33.3% · تأخّر R1 وسيط 20.0",
+      _pc_res["ladder"]["100"]["n"] == 2 and _pc_c100["R1"]["captured"] == 2
+      and _pc_c100["R1"]["cap30_pct"] == 50.0 and _pc_c100["T-A"]["cap30_pct"] == 50.0
+      and _pc_res["arms"]["R1"]["msgs_median"] == 1.5 and _pc_res["arms"]["R1"]["msgs_total"] == 3
+      and _pc_res["arms"]["R1"]["fruit30_pct"] == 33.3 and _pc_c100["R1"]["delay_median"] == 20.0
+      and _PC.verdict(_pc_res)[0][1] == "⏸️", f"{_pc_c100} {_pc_res['arms']['R1']}")
+# PC5 — verdict بحرفه: C4 عند 60 يمرّ ودونه يسقط · C5 يشترط الالتقاطَ والكلفةَ معًا
+def _pc_mk(cap100, cap30_b, cost_b):
+    arms = {a: {"msgs_median": 10.0, "msgs_total": 0, "fruit30_pct": 0, "fired": 0} for a in _PC.ARMS}
+    arms["T-B"]["msgs_median"] = 10.0 * cost_b
+    cell = {"n": 100, "arms": {a: {"captured": 0, "cap_pct": 0.0, "cap30_pct": 0.0, "delay_median": None}
+                               for a in _PC.ARMS}}
+    cell["arms"]["R1"]["cap_pct"] = cap100
+    cell["arms"]["T-B"]["cap30_pct"] = cap30_b
+    return {"n_days": 1, "arms": arms, "ladder": {"30": cell, "50": cell, "100": cell}}
+_pc_v1 = _PC.verdict(_pc_mk(60.0, 40.0, 3.0))
+_pc_v2 = _PC.verdict(_pc_mk(59.9, 40.0, 3.01))
+_pc_v3 = _PC.verdict(_pc_mk(70.0, 39.9, 1.0))
+check("🌅📈 PC5 verdict: 60/40×3.0 تمرّ · 59.9 و×3.01 تسقط · 39.9% تسقط C5 وحدها",
+      [m for _, m, _ in _pc_v1] == ["✅", "✅"] and [m for _, m, _ in _pc_v2] == ["🔴", "🔴"]
+      and [m for _, m, _ in _pc_v3] == ["✅", "🔴"], f"{_pc_v1} {_pc_v2} {_pc_v3}")
+# PC6 — الأرقامُ مُعادةٌ لا مخترَعة: الأرضياتُ من الإنتاج · الزناداتُ الأربعة مثبَّتة · السلّم · الأرضياتُ والحدود
+check("🌅📈 PC6 الثوابت: USD_FLOOR=LIQ_MIN_USD · MOVER_USD=IGNITION_USD_OPERATOR · 4 زنادات مثبَّتة · "
+      "سلّم (30,50,100) · MIN_MOVERS=100 · C4=60 · C5=40/3× · التغطية 95",
+      _PC.USD_FLOOR == float(S.LIQ_MIN_USD) and _PC.MOVER_USD == float(S.CONFIG["IGNITION_USD_OPERATOR"])
+      and _PC.TRIGS == (("T-A", _PC.USD_FLOOR, 10.0), ("T-B", _PC.MOVER_USD, 10.0),
+                        ("T-C", _PC.MOVER_USD, 20.0), ("T-D", _PC.USD_FLOOR, float(S.LIQ_MIN_MOVE_PCT)))
+      and _PC.LADDER == (30.0, 50.0, 100.0) and _PC.ARMS == ("R1", "T-A", "T-B", "T-C", "T-D")
+      and _PC.MIN_MOVERS == 100 and _PC.R1_CAP100_MIN == 60.0
+      and (_PC.TRIG_CAP_MIN, _PC.TRIG_COST_MAX) == (40.0, 3.0) and _PC.COVERAGE_MIN == 95.0)
+# PC7 — الـworkflow: يدويٌّ بلا كرون · contents: read · PMC_FROM/PMC_TO موصولان ويقرؤهما main · يرفع الصفوف
+try:
+    import yaml as _pc_y
+    _pc_wf = _pc_y.safe_load(open(".github/workflows/pm_curve.yml", encoding="utf-8")) or {}
+    _pc_on = _pc_wf.get("on") or _pc_wf.get(True) or {}
+    _pc_in = list(((_pc_on.get("workflow_dispatch") or {}).get("inputs") or {}))
+    _pc_env = {}
+    for j in _pc_wf["jobs"].values():
+        for st in j["steps"]:
+            _pc_env.update(st.get("env") or {})
+    _pc_main = _ps_insp.getsource(_PC.main)
+    _pc7 = (set(_pc_in) == {"from", "to"} and not _pc_on.get("schedule")
+            and (_pc_wf.get("permissions") or {}).get("contents") == "read"
+            and all(any(f"inputs.{i}" in str(v) for v in _pc_env.values()) for i in _pc_in)
+            and {"PMC_FROM", "PMC_TO", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"} <= set(_pc_env)
+            and all(k in _pc_main for k in ('"PMC_FROM"', '"PMC_TO"', '"AWS_ACCESS_KEY_ID"'))
+            and "pm_curve_rows.jsonl" in open(".github/workflows/pm_curve.yml", encoding="utf-8").read())
+except Exception as _e:                                          # noqa: BLE001
+    _pc7 = False; _pc_in = f"⛔ {type(_e).__name__}: {_e}"
+check("🌅📈 PC7 pm_curve.yml: dispatch بلا كرون · contents: read · from/to ⟶ PMC_FROM/PMC_TO يقرؤهما main · "
+      "المفاتيح من Secrets · ويرفع pm_curve_rows.jsonl", _pc7, f"inputs={_pc_in}")
+
+
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

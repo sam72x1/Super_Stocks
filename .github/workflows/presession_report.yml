@@ -26,6 +26,11 @@ on:
         required: false
         default: ""
         type: string
+      ceil:
+        description: "‏1 = T-PRE-CEIL (سقفُ الاختيار عند 03:50 · عقد presession_ceiling_prereg §③)"
+        required: false
+        default: ""
+        type: string
 
 jobs:
   report:
@@ -69,4 +74,6 @@ jobs:
           PRESESSION_SYMS: ${{ inputs.syms }}
           # 🔬 وضعُ التطوير — مطفأٌ افتراضًا ⇒ **مُخرَجُ الحكم المنشور بت-بت**.
           PRESESSION_DEV: ${{ inputs.dev }}
+          # 🧠 سقفُ الاختيار — مطفأٌ افتراضًا ⇒ المنشورُ بت-بت.
+          PRESESSION_CEIL: ${{ inputs.ceil }}
         run: python presession_report.py

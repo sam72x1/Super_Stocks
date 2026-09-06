@@ -1,0 +1,51 @@
+name: "T-PM-CURVE (🌅📈 منحنى الرادار الحيّ على سنة)"
+
+# 🔒 قياس/قراءة فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد presession_ceiling_prereg.md §④
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: "أوّل يوم (YYYY-MM-DD) — الافتراض 2025-01-02"
+        required: false
+        type: string
+      to:
+        description: "آخر يوم (YYYY-MM-DD) — الافتراض 2025-12-31"
+        required: false
+        type: string
+
+jobs:
+  pm_curve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌅 قِس المنحنى
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          PMC_FROM: ${{ inputs.from }}
+          PMC_TO: ${{ inputs.to }}
+        run: python pm_curve_scan.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pm-curve-rows
+          path: pm_curve_rows.jsonl
+          retention-days: 90
+          if-no-files-found: warn
