@@ -23,6 +23,14 @@
 
 المخرَج: `pm_radar_rows.jsonl` (سطر/رمز-يوم للمتحرّكين والمراسي) + جدولُ الأذرع
 بالمعايير الأربعة + فحوصُ `V0` — وخروجٌ 3 عند سقوط بوّابة صلاحية (لا يُقرأ رقم).
+
+🔴 **الملحق §⑨ (‏2026-09-05، بعد صدور الحكم):** `PMR_MODE` — الافتراضُ `legacy`
+**بت-بت مع التشغيلة `33997013910`** (‏24.0% · 263 متحرّكًا · 149/298 رسالة) فيبقى
+الرقمُ المنشور قابلًا للمقارنة · و`minc` يبدّل بوّابةَ النطاق السعريّ إلى **إغلاق
+الدقيقة** كما تفعل اللقطةُ الحيّة، فيدخل كونَ المرشَّحين مَن لا إغلاقَ أمسٍ **باسمه**
+(‏`SGRX` يوم 09-04). **ومقامُ المتحرّك مجمَّدٌ في الوضعين** (`mover_for`) ⇒ البسطُ
+وحدَه ينمو. والتشخيصُ (‏أسبابٌ مُسمّاة · عدّادُ العمى · مرجعٌ بائت) **يعمل في
+الوضعين ولا يمسّ رقمًا**.
 """
 import csv
 import gzip
@@ -50,7 +58,9 @@ PRICE_LO = float(S.CONFIG.get("MIN_PRICE", 1.65))
 PRICE_HI = float(S.CONFIG.get("SPLIT_RADAR_PRICE_MAX", 10.0))
 USD_FLOOR = float(S.LIQ_MIN_USD)              # أرضيةُ المالك — المرشِّحُ نفسُه
 MOVE_PCT = float(S.LIQ_MIN_MOVE_PCT)          # 5% — `R2` بدلالةٍ يوميّة (engineering)
-DEFAULT_FROM, DEFAULT_TO = "2026-08-17", "2026-09-04"   # 14 جلسة (العقد §⑤)
+# ⚠️ العقد §⑤ يقول «‏14 جلسة» والمقيسُ **‏15** (سطرُ عرضٍ يكذب بواحدة — `result §⑦`)
+# ⇒ العددُ يُطبَع من `len(days)`/`n_files` لا من رقمٍ مغروس (الملحق §⑨-2-3).
+DEFAULT_FROM, DEFAULT_TO = "2026-08-17", "2026-09-04"
 MIN_MOVERS = 20               # أرضيةُ الحكم (العقد §⑤)
 CAPTURE_MIN, COST_MAX, DELAY_MAX = 70.0, 3.0, 5.0        # المعايير 1-3
 # شاهدُ الضبط `V0-ب`: المِرساةُ الحيّةُ المسجَّلة يجب أن تُعاد بالدقيقة نفسها
@@ -59,6 +69,18 @@ CONTROL = {"ANPA": "2026-09-04"}
 # `SGRX` بعدها — يُقرأ ما تراه الأداة عنهما (أمرُ المالك 2026-09-05)
 DIAG = {"BTOG": ("2026-09-03", "2026-09-04"), "SGRX": ("2026-09-04",)}
 STATE_FILE = "op_entry_state.json"
+# وضعُ القياس (الملحق §⑨-1): `legacy` = **الافتراض** وبت-بت مع التشغيلة
+# `33997013910` · `minc` = بوّابةُ النطاق السعريّ من **إغلاق الدقيقة** كما تفعل
+# اللقطةُ الحيّة ⇒ يدخل كونَ المرشَّحين مَن لا إغلاقَ أمسٍ **باسمه** (`SGRX`).
+# ومقامُ «المتحرّك» مجمَّدٌ في الوضعين (`mover_for`) ⇒ البسطُ وحدَه ينمو.
+MODES = ("legacy", "minc")
+
+
+def _mode(env=None) -> str:
+    """وضعُ القياس من البيئة — المجهولُ يرتدّ إلى `legacy` (فاشلٌ-آمنٌ نحو المنشور)."""
+    src = os.environ if env is None else env
+    m = (src.get("PMR_MODE") or "legacy").strip().lower()
+    return m if m in MODES else "legacy"
 
 
 def log(msg: str):
@@ -66,10 +88,19 @@ def log(msg: str):
 
 
 # ── قراءةُ ملفّ اليوم: شموعُ البريماركت لكلّ السوق + إغلاقاتُ الجميع ──────────
-def parse_pre(fh, prev_close: dict, want_all: bool):
-    """`bars[sym]` = شموعُ 04:00-09:30 لمن إغلاقُ أمسِه داخل النطاق (أو الكلّ عند
+def parse_pre(fh, prev_close: dict, want_all: bool, mode: str = "legacy"):
+    """`bars[sym]` = شموعُ 04:00-09:30 لمن يجتاز بوّابةَ النطاق السعريّ (أو الكلّ عند
     `want_all` — يومُ البذرة يحتاج الإغلاقاتِ فقط). `closes` = إغلاقُ الجلسة
-    النظاميّة (‏≤16:00) للجميع = «إغلاقُ الأمس» ليوم الغد."""
+    النظاميّة (‏≤16:00) للجميع = «إغلاقُ الأمس» ليوم الغد.
+
+    البوّابة: **`legacy`** إغلاقُ الأمس داخل النطاق — فمَن لا إغلاقَ أمسٍ **باسمه**
+    تُسقَط شموعُه كلُّها (وهو عمى `SGRX` المُعلَن في `result §⑥`) · **`minc`** يقبل
+    أيضًا الدقيقةَ التي إغلاقُها داخل النطاق (= ما تراه اللقطةُ الحيّة).
+    ⇒ **شموعُ `legacy` مجموعةٌ فرعيّةٌ من شموع `minc` لكلّ رمز** (بت-بت لمن إغلاقُ
+    أمسِه داخل النطاق، فذاك يقبل كلَّ دقائقه في الوضعين).
+
+    ويُرجع `diag` — **تشخيصٌ لا يمسّ رقمًا** (العقد §⑨-2): مجموعاتُ الرموز وسيولةُ
+    بريِّ مَن أُسقط، بسببٍ **مُسمًّى** بدل «أو» الواحدة."""
     rd = csv.reader(fh)
     header = next(rd)
     i_t = AH._pick(header, "ticker", "symbol")
@@ -80,6 +111,7 @@ def parse_pre(fh, prev_close: dict, want_all: bool):
     if min(i_t, i_o, i_h, i_l, i_c, i_v, i_w) < 0:
         raise KeyError(f"ترويسةٌ ناقصة: {header}")
     bars, closes = {}, {}
+    file_syms, pre_syms, no_prev, out_range = set(), set(), {}, {}
     for row in rd:
         try:
             sym = row[i_t].strip().upper()
@@ -93,19 +125,27 @@ def parse_pre(fh, prev_close: dict, want_all: bool):
         day, mod = AH.ny_minute(ns)
         if day is None:
             continue
+        file_syms.add(sym)
         if mod <= 16 * 60:
             pc = closes.get(sym)
             if pc is None or mod > pc[0]:
                 closes[sym] = (mod, c)
         if want_all or not (PRE_START <= mod < PRE_END):
             continue
+        pre_syms.add(sym)
         pc = prev_close.get(sym)
-        if pc is None or not (PRICE_LO <= pc <= PRICE_HI):
+        pc_ok = pc is not None and PRICE_LO <= pc <= PRICE_HI
+        if not pc_ok:                      # يُعَدُّ بسببه المُسمّى ولو دخل بـ`minc`
+            tgt = no_prev if pc is None else out_range
+            tgt[sym] = tgt.get(sym, 0.0) + c * v
+        if not (pc_ok or (mode == "minc" and PRICE_LO <= c <= PRICE_HI)):
             continue
         bars.setdefault(sym, []).append((int(ns / 1e6), o, h, lo, c, v))
     for b in bars.values():
         b.sort(key=lambda x: x[0])
-    return bars, {k: v[1] for k, v in closes.items()}
+    diag = {"file_syms": file_syms, "pre_syms": pre_syms,
+            "no_prev": no_prev, "out_range": out_range}
+    return bars, {k: v[1] for k, v in closes.items()}, diag
 
 
 # ── الدوالُّ النقيّة (مقفولةٌ في السويّة) ─────────────────────────────────────
@@ -123,6 +163,29 @@ def mover_t30(rows, prev_close: float, pct: float = MOVER_PCT,
         if b[2] >= lvl:
             return b[0]
     return None
+
+
+def mover_for(rows, pc):
+    """«المتحرّك» بمقامٍ **مجمَّد** (الملحق §⑨-3): يشترط إغلاقَ أمسٍ **باسمه**
+    وداخلَ النطاق — **في الوضعين** ⇒ مجموعةُ المتحرّكين هي هي، فالبسطُ وحدَه ينمو
+    والمقارنةُ على المقام نفسِه. (‏`SGRX` يبقى خارجَ المقام — العقد §⑨-4.)"""
+    if pc is None or not (PRICE_LO <= pc <= PRICE_HI):
+        return None
+    return mover_t30(rows, pc)
+
+
+def _no_row_reason(sym: str, dg: dict) -> str:
+    """سببٌ **مُسمّى** لغياب الصفّ (العقد §⑨-2-1) — «حكمٌ سالبٌ بلا سببٍ مُسمًّى
+    يخفي تشخيصَه»، وقد أخفاه على `SGRX` بالذات."""
+    if sym not in (dg.get("file_syms") or ()):
+        return "بلا شمعةِ بريماركت (لا وجودَ له في ملفّ اليوم باسمه)"
+    if sym not in (dg.get("pre_syms") or ()):
+        return "بلا شمعةِ بريماركت"
+    if sym in (dg.get("no_prev") or {}):
+        return "بلا إغلاقِ أمسٍ باسمه"
+    if sym in (dg.get("out_range") or {}):
+        return "خارجَ النطاق السعريّ"
+    return "بلا مرشِّحٍ ولا قوائمَ ولا متحرّك"
 
 
 def candidate_index(rows, usd_floor: float = USD_FLOOR, prev_close=None,
@@ -307,10 +370,12 @@ def main() -> int:
         return 2
     d_from = (os.environ.get("PMR_FROM") or DEFAULT_FROM).strip()
     d_to = (os.environ.get("PMR_TO") or DEFAULT_TO).strip()
+    mode = _mode()
     days = KS.weekdays(d_from, d_to)
     seed = KS.weekdays((dt.date.fromisoformat(d_from) - dt.timedelta(days=7)).isoformat(),
                        (dt.date.fromisoformat(d_from) - dt.timedelta(days=1)).isoformat())[-3:]
-    log(f"🌅📡 T-PM-RADAR — {d_from} ⟶ {d_to} · {len(days)} يوم أسبوع · كون "
+    log(f"🌅📡 T-PM-RADAR — {d_from} ⟶ {d_to} · {len(days)} يوم أسبوع · وضع "
+        f"«{mode}»{'' if mode == 'legacy' else ' (النطاقُ من إغلاق الدقيقة — §⑨-3)'} · كون "
         f"[{PRICE_LO}, {PRICE_HI}]$ · مرشِّح الرادار: سيولةُ آخر دقيقة ≥ ${USD_FLOOR:,.0f} "
         f"(= LIQ_MIN_USD) · متحرّك: +{MOVER_PCT}% وسيولة ≥ ${MOVER_USD:,.0f} · "
         f"بوّابات الإنتاج: رفعة {MOVE_PCT}% · قفزة {S.CONFIG['IGNITION_VOL_MULT']}×")
@@ -320,6 +385,10 @@ def main() -> int:
     live_anchor = {(d, s): am for d, m in lists.items() for s, am in m.items() if am}
 
     prev_close: dict = {}
+    pc_src: dict = {}          # ‏§⑨-2-4: من أيّ جلسةٍ جاء إغلاقُ الأمس (بائتٌ أم لا)
+    day_diag: dict = {}        # تشخيصُ الأيام التي يُسأل عنها بالاسم
+    diag_days = {d for dys in DIAG.values() for d in dys} | set(CONTROL.values())
+    prior_day = None
     rows_out, n_files, n_missing = [], 0, 0
     fout = open("pm_radar_rows.jsonl", "w", encoding="utf-8")
     for di, day in enumerate(seed + days):
@@ -335,7 +404,7 @@ def main() -> int:
             continue
         try:
             with gzip.open(dest, "rt") as fh:
-                bars, closes = parse_pre(fh, prev_close, seeding)
+                bars, closes, dg = parse_pre(fh, prev_close, seeding, mode)
         except (OSError, KeyError, ValueError) as e:
             log(f"   ⛔ {day}: تعذّرت القراءة ({type(e).__name__}: {e})")
             n_missing += 0 if seeding else 1
@@ -347,16 +416,20 @@ def main() -> int:
                 pass
         if seeding:
             prev_close.update(closes)
+            pc_src.update({k: day for k in closes})
+            prior_day = day
             log(f"🌱 بذرة إغلاق الأمس من {day}: {len(closes):,} رمزًا")
             continue
         n_files += 1
         uni = lists.get(day, {})
         near = near_watch_symbols(day)
-        n_cand = n_mov = 0
+        if day in diag_days:
+            day_diag[day] = dg
+        n_cand = n_mov = n_stale = n_rows = 0
         for sym, rws in bars.items():
             pc = prev_close.get(sym)
             in_lists = sym in uni
-            t30 = mover_t30(rws, pc)
+            t30 = mover_for(rws, pc)
             i0 = candidate_index(rws, USD_FLOOR)
             if not in_lists and i0 is None and t30 is None:
                 continue
@@ -374,10 +447,20 @@ def main() -> int:
                    "live_anchor": live_anchor.get((day, sym)),
                    "pre_usd": round(sum(b[4] * b[5] for b in rws))}
             rows_out.append(row)
+            n_rows += 1
+            n_stale += int(pc is not None and pc_src.get(sym) != prior_day)
             fout.write(json.dumps(row, ensure_ascii=False) + "\n")
         log(f"📅 {day}: رموز {len(bars):,} · قوائم {len(uni)} · مرشَّحو الرادار "
             f"{n_cand} · متحرّكون {n_mov}")
+        # ‏§⑨-2: حجمُ العمى يُقاس لا يُفترَض — ومرجعُ الأمس البائت يُعَدّ
+        top = sorted(dg["no_prev"].items(), key=lambda kv: -kv[1])[:5]
+        tops = " · ".join(f"{s} ${u:,.0f}" for s, u in top) or "—"
+        log(f"   🕳️ بلا إغلاقِ أمسٍ باسمه: {len(dg['no_prev'])} رمزًا (أعلاها سيولةَ "
+            f"بريٍّ: {tops}) · خارجَ النطاق: {len(dg['out_range'])} · "
+            f"مرجعٌ بائتٌ (أقدمُ من {prior_day}): {n_stale} من {n_rows} صفًّا")
         prev_close.update(closes)
+        pc_src.update({k: day for k in closes})
+        prior_day = day
     fout.close()
     log(f"\n📦 ملفّات {n_files} · مفقود {n_missing} · صفوف {len(rows_out)}")
     if n_files == 0 or not rows_out:
@@ -398,7 +481,7 @@ def main() -> int:
         for day in dys:
             r = next((x for x in rows_out if x["symbol"] == sym and x["day"] == day), None)
             if r is None:
-                log(f"🔎 {sym} {day}: لا صفَّ (خارج النطاق السعريّ أو بلا شموعِ بري أو بلا مرشِّح)")
+                log(f"🔎 {sym} {day}: لا صفَّ — {_no_row_reason(sym, day_diag.get(day) or {})}")
             else:
                 log(f"🔎 {sym} {day}: قوائم={r['in_lists']} · إغلاق الأمس={r['prev_close']} · "
                     f"مرشَّح={_hm(r['cand_ms'])} · +30%={_hm(r['t30'])} · "
@@ -418,8 +501,11 @@ def main() -> int:
         log(f"   {name}: {val}")
     if not res["r1_superset"]:
         rc = 3
-    log("\n⚠️ حدود: لمسٌ لا تنفيذ · 14 جلسة لا ثلاث سنوات · المرشِّحُ تقريبٌ لِما ستراه "
-        "اللقطة · الرقيقُ دون MIN_PRICE خارج الكون · سقفُ النجاح اقتراحٌ للمالك.")
+    log(f"\n⚠️ حدود: لمسٌ لا تنفيذ · {n_files} جلسةً مقيسةً لا ثلاث سنوات · المرشِّحُ "
+        f"تقريبٌ لِما ستراه اللقطة · الرقيقُ دون MIN_PRICE خارج الكون · سقفُ النجاح "
+        f"اقتراحٌ للمالك · الوضع «{mode}»"
+        + ("." if mode == "legacy" else
+           " ⇒ كونُ المرشَّحين أوسعُ فلا تُقارَن كلفتُه مباشرةً بـ«legacy» (§⑨-3)."))
     return rc
 
 

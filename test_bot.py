@@ -41361,6 +41361,101 @@ check("🌅 PMR7 الـworkflow: dispatch بلا كرون · contents: read · P
       f"on={list(_pmr_on)} · env={_pmr_run.get('env')} · broken={_pmr_wf.get('_broken')}")
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 🌅📡 الملحق §⑨ لرادار البريماركت (‏2026-09-05، **بعد** صدور الحكم): الوضعُ
+#    الافتراضيّ `legacy` بت-بت مع التشغيلة 33997013910 · و`minc` يُدخل مَن لا
+#    إغلاقَ أمسٍ **باسمه** (‏`SGRX`) · ومقامُ المتحرّك مجمَّدٌ في الوضعين ·
+#    وأسبابُ الغياب **مُسمّاة** · ولا عددَ جلساتٍ مغروس.
+# ═══════════════════════════════════════════════════════════════════════════
+_pmr_d0 = int(_pmr_dt.datetime(2026, 9, 4, 4, 0, tzinfo=_PMR.NY).timestamp() * 1e9)
+
+
+def _pmr_csv():
+    """ملفُّ يومٍ مصطنعٌ **يفرّق**: `INR` إغلاقُ أمسِه داخل النطاق · `NEW` **بلا
+    إغلاقِ أمسٍ باسمه** وسعرُ دقيقته داخل النطاق (حالةُ `SGRX`) · `EXP` إغلاقُ
+    أمسِه وسعرُه خارج النطاق · `NOPRE` بلا شمعةِ بريماركت."""
+    out = ["ticker,volume,open,close,high,low,window_start"]
+    for i in range(3):
+        t = _pmr_d0 + i * 60_000_000_000
+        out.append(f"INR,30000,2.0,2.0,{2.8 if i == 2 else 2.05},1.99,{t}")
+        out.append(f"NEW,20000,3.0,3.0,3.1,2.9,{t}")
+        out.append(f"EXP,20000,60.0,60.0,61.0,59.0,{t}")
+    out.append(f"NOPRE,10000,4.0,4.0,4.1,3.9,{_pmr_d0 + 6 * 3600 * 1_000_000_000}")
+    return "\n".join(out) + "\n"
+
+
+_pmr_pc0 = {"INR": 2.0, "EXP": 50.0}
+_pmr_lg = _PMR.parse_pre(_io0.StringIO(_pmr_csv()), _pmr_pc0, False, "legacy")
+_pmr_mc = _PMR.parse_pre(_io0.StringIO(_pmr_csv()), _pmr_pc0, False, "minc")
+# PMR8 — §⑨-1: الافتراضُ `legacy` **بت-بت** (بوّابةُ إغلاق الأمس كما نُشر) · وشموعُ
+#    مَن إغلاقُ أمسِه داخل النطاق **متطابقةٌ** في الوضعين · والمجهولُ يرتدّ إلى legacy
+check("🌅 PMR8 §⑨-1 الافتراضُ legacy بت-بت: مَن لا إغلاقَ أمسٍ باسمه لا شموعَ له · "
+      "وشموعُ/إغلاقاتُ مَن هو داخل النطاق متطابقةٌ في الوضعين · والمجهولُ يرتدّ legacy",
+      set(_pmr_lg[0]) == {"INR"}
+      and _pmr_lg[0]["INR"] == _pmr_mc[0]["INR"]
+      and _pmr_lg[1] == _pmr_mc[1]
+      and _PMR._mode({}) == "legacy" and _PMR._mode({"PMR_MODE": ""}) == "legacy"
+      and _PMR._mode({"PMR_MODE": "junk"}) == "legacy"
+      and _PMR._mode({"PMR_MODE": " MINC "}) == "minc",
+      f"legacy={sorted(_pmr_lg[0])} · minc={sorted(_pmr_mc[0])}")
+# PMR9 — §⑨-3: `minc` **يفرّق** — حالةُ `SGRX` تدخل كونَ المرشَّحين وتصير مرشَّحًا
+_pmr_new_i0 = _PMR.candidate_index(_pmr_mc[0].get("NEW") or [])
+check("🌅 PMR9 §⑨-3 وضعُ minc يفرّق: مَن لا إغلاقَ أمسٍ باسمه (حالةُ SGRX) يدخل كونَ "
+      "المرشَّحين ويصير مرشَّحًا — وهو غائبٌ تمامًا في legacy",
+      "NEW" not in _pmr_lg[0] and "NEW" in _pmr_mc[0]
+      and set(_pmr_mc[0]) == {"INR", "NEW"} and _pmr_new_i0 == 0
+      and "EXP" not in _pmr_mc[0],
+      f"minc={sorted(_pmr_mc[0])} · i0={_pmr_new_i0}")
+# PMR10 — §⑨-3: مقامُ «المتحرّك» **مجمَّد** ⇒ البسطُ وحدَه ينمو، فالمقارنةُ على
+#    المقام نفسِه (‏`SGRX` يبقى خارجَ المقام — §⑨-4)
+_pmr_mov_lg = {s for s, r in _pmr_lg[0].items() if _PMR.mover_for(r, _pmr_pc0.get(s))}
+_pmr_mov_mc = {s for s, r in _pmr_mc[0].items() if _PMR.mover_for(r, _pmr_pc0.get(s))}
+check("🌅 PMR10 §⑨-3 مقامٌ مجمَّد: mover_for يشترط إغلاقَ أمسٍ باسمه وداخلَ النطاق ⇒ "
+      "المتحرّكون هم هم في الوضعين · وخارجُ النطاق يُرفَض ولو بلغ +30% · ونقطةُ النداء "
+      "الحيّة تستعملها لا mover_t30",
+      _pmr_mov_lg == _pmr_mov_mc == {"INR"}
+      and _PMR.mover_for(_pmr_mc[0]["NEW"], None) is None
+      and _PMR.mover_for(_pmr_r, 1.0) is None
+      and _PMR.mover_t30(_pmr_r, 1.0) is not None
+      and _PMR.mover_for(_pmr_lg[0]["INR"], 2.0) is not None
+      and _PMR.mover_for(_pmr_lg[0]["INR"], 2.0) == _PMR.mover_t30(_pmr_lg[0]["INR"], 2.0)
+      and "t30 = mover_for(rws, pc)" in _pmr_src,
+      f"lg={_pmr_mov_lg} · mc={_pmr_mov_mc}")
+# PMR11 — §⑨-2-1: أسبابٌ **مُسمّاة** بدل «أو» الواحدة («حكمٌ سالبٌ بلا سببٍ مُسمًّى
+#    يخفي تشخيصَه» — وقد أخفاه على `SGRX` بالذات)
+_pmr_why = {s: _PMR._no_row_reason(s, _pmr_lg[2])
+            for s in ("NEW", "EXP", "NOPRE", "GHOST", "INR")}
+check("🌅 PMR11 §⑨-2 أسبابٌ مُسمّاة تتفرّق: بلا إغلاقِ أمسٍ باسمه · خارجَ النطاق · بلا "
+      "شمعةِ بريماركت · غيرُ موجودٍ في الملفّ · بلا مرشِّح — وعدّادُ العمى يحمل سيولتَه",
+      _pmr_why["NEW"] == "بلا إغلاقِ أمسٍ باسمه"
+      and _pmr_why["EXP"] == "خارجَ النطاق السعريّ"
+      and _pmr_why["NOPRE"] == "بلا شمعةِ بريماركت"
+      and "لا وجودَ له" in _pmr_why["GHOST"]
+      and len(set(_pmr_why.values())) == 5
+      and _pmr_lg[2]["no_prev"].get("NEW") == 180000.0
+      and "NEW" not in _pmr_lg[2]["out_range"] and "EXP" in _pmr_lg[2]["out_range"],
+      f"{_pmr_why}")
+# PMR12 — §⑨-2-3: لا عددَ جلساتٍ مغروس · والوضعُ **موصولٌ من نقطة النداء الحيّة**
+#    (‏درسُ `BT_CANDLE`: مدخلٌ في الـworkflow بلا قراءةٍ في السكربت = علمٌ ميّت)
+_pmr_lim = [ln for ln in _pmr_src.splitlines() if "لمسٌ لا تنفيذ" in ln]
+_pmr_wf_in = ((_pmr_on.get("workflow_dispatch") or {}).get("inputs") or {})
+_pmr_os = __import__("os")
+_pmr_os.environ["PMR_MODE"] = "minc"
+_pmr_env_live = _PMR._mode() == "minc"
+_pmr_os.environ.pop("PMR_MODE", None)
+_pmr_env_live = _pmr_env_live and _PMR._mode() == "legacy"
+check("🌅 PMR12 §⑨-2-3 لا رقمٌ مغروس + الوضعُ موصول: سطرُ الحدود يطبع n_files لا «14» · "
+      "parse_pre تُنادى بالوضع · inputs.mode ⟶ PMR_MODE ⟶ _mode() من البيئة الحيّة",
+      bool(_pmr_lim) and "14 جلسة" not in _pmr_lim[0]
+      and "{n_files} جلسةً مقيسةً" in _pmr_lim[0]
+      and "parse_pre(fh, prev_close, seeding, mode)" in _pmr_src
+      and "mode = _mode()" in _pmr_src
+      and "mode" in _pmr_wf_in
+      and "inputs.mode" in str(_pmr_run.get("env", {}).get("PMR_MODE", ""))
+      and _pmr_env_live,
+      f"lim={_pmr_lim[:1]} · wf_inputs={sorted(_pmr_wf_in)} · env_live={_pmr_env_live}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

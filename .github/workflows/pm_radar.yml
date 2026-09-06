@@ -15,6 +15,12 @@ on:
         description: "آخر يوم (YYYY-MM-DD) — الافتراض 2026-09-04"
         required: false
         type: string
+      mode:
+        description: "وضع القياس — legacy (بت-بت مع الحكم المنشور) أو minc (§⑨-3)"
+        required: false
+        default: "legacy"
+        type: choice
+        options: ["legacy", "minc"]
 
 jobs:
   pm_radar:
@@ -41,6 +47,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
           PMR_FROM: ${{ inputs.from }}
           PMR_TO: ${{ inputs.to }}
+          PMR_MODE: ${{ inputs.mode }}
         run: python pm_radar_scan.py
 
       - name: 📤 رفع الصفوف
