@@ -41456,6 +41456,118 @@ check("🌅 PMR12 §⑨-2-3 لا رقمٌ مغروس + الوضعُ موصول: 
       and _pmr_env_live,
       f"lim={_pmr_lim[:1]} · wf_inputs={sorted(_pmr_wf_in)} · env_live={_pmr_env_live}")
 
+# ═══════════════════════════════════════════════════════════════════════════
+# 🌅📐 الملحق §⑩ لرادار البريماركت (‏2026-09-06، أمرا المالك «قِس مرجع المرشِّح» ·
+#    «حارسٌ مكتوبٌ غيرُ منفَّذٍ ليس حارسا»): `t30_wide` بالشرط الخام يفرّق حزامَ
+#    ‏[PRICE_LO/1.3، PRICE_LO) · وحارسُ التغطية §⑦-4 منفَّذٌ بعتبةٍ من ثابتٍ **يُوقِف**
+#    قبل جدول الأذرع · والتسجيلُ يطابق الكود.
+# ═══════════════════════════════════════════════════════════════════════════
+def _pmr_csv_low():
+    """‏`INR` داخل النطاق (إغلاق أمس 2.0) · `LOW` إغلاقُ أمسِه **0.35 < PRICE_LO**
+    ودقائقُه 0.46 داخل النطاق تبلغ +30% بسيولةٍ ‏≥$100k — عيّنةٌ **تفرّق** المقامَين."""
+    out = ["ticker,volume,open,close,high,low,window_start"]
+    for i in range(3):
+        t = _pmr_d0 + i * 60_000_000_000
+        out.append(f"INR,30000,2.0,2.0,2.05,1.99,{t}")
+        _lo = _PMR.PRICE_LO           # الحزامُ نسبيٌّ إلى الأرضية النافذة (السويّةُ FAISAL_ONLY=0)
+        out.append(f"LOW,300000,{_lo * 1.12:.4f},{_lo * 1.15:.4f},{_lo * 1.18:.4f},{_lo * 1.10:.4f},{t}")
+    return "\n".join(out) + "\n"
+
+
+_pmr_pcL = {"INR": 2.0, "LOW": round(_PMR.PRICE_LO * 0.85, 4)}   # داخل [PRICE_LO/1.3، PRICE_LO)
+_pmr_lgL = _PMR.parse_pre(_io0.StringIO(_pmr_csv_low()), _pmr_pcL, False, "legacy")
+_pmr_mcL = _PMR.parse_pre(_io0.StringIO(_pmr_csv_low()), _pmr_pcL, False, "minc")
+_pmr_lowb = _pmr_mcL[0].get("LOW") or []
+_pmr_rw = _PMR.ref_wide([
+    {"day": "d", "symbol": "A", "prev_close": 2.0, "t30": 100, "t30_wide": 100,
+     "anchor": {"R1": 50}},                                  # مجمَّدٌ ومُلتقَط
+    {"day": "d", "symbol": "B", "prev_close": 0.35, "t30": None, "t30_wide": 200,
+     "anchor": {"R1": 150}},                                 # زائدٌ (الحزام) ومُلتقَط
+    {"day": "d", "symbol": "C", "prev_close": 0.35, "t30": None, "t30_wide": 200,
+     "anchor": {"R1": 260}},                                 # زائدٌ والمِرساةُ بعد +30% ⇒ لا
+    {"day": "d", "symbol": "D", "prev_close": None, "t30": None, "t30_wide": None,
+     "anchor": {"R1": 10}},                                  # بلا أمسٍ وله R1 ⇒ غيرُ قابلٍ للوسم
+])
+_pmr_sum_fn = next(n for n in _ast0.walk(_ast0.parse(_io0.open("pm_radar_scan.py",
+                                                              encoding="utf-8").read()))
+                   if isinstance(n, _ast0.FunctionDef) and n.name == "summarize")
+_pmr_sum_consts = {c.value for c in _ast0.walk(_pmr_sum_fn)
+                   if isinstance(c, _ast0.Constant) and isinstance(c.value, str)}
+_pmr_srcN = _io0.open("pm_radar_scan.py", encoding="utf-8").read()
+_pmr_lg_same = all(_PMR.mover_t30(r, _pmr_pcL.get(s)) == _PMR.mover_for(r, _pmr_pcL.get(s))
+                   for s, r in _pmr_lgL[0].items())
+check("🌅 PMR13 §⑩-1 مرجعُ المرشِّح يفرّق: LOW (0.35 < PRICE_LO) لا شموعَ له في legacy "
+      "وله في minc · mover_for يرفضه وmover_t30 يقبله · ref_wide تعدّ الزائد والمُلتقَط "
+      "وغيرَ القابل للوسم · legacy: الواسع = المجمَّد بت-بت · summarize لا تقرأ t30_wide "
+      "· ونقطةُ النداء الحيّة تحمله",
+      _PMR.PRICE_LO > 0 and "LOW" not in _pmr_lgL[0] and "LOW" in _pmr_mcL[0]
+      and _PMR.mover_for(_pmr_lowb, _pmr_pcL["LOW"]) is None
+      and _PMR.mover_t30(_pmr_lowb, _pmr_pcL["LOW"]) is not None
+      and _pmr_pcL["LOW"] >= _PMR.PRICE_LO / 1.3
+      and _pmr_lg_same
+      and _pmr_rw == {"n_frozen": 1, "n_wide": 3, "n_extra": 2, "captured_wide": 2,
+                      "capture_wide": 66.7, "n_unlabeled": 1}
+      and _PMR.ref_wide([])["capture_wide"] is None
+      and "t30_wide" not in _pmr_sum_consts
+      and "t30w = mover_t30(rws, pc)" in _pmr_srcN
+      and '"t30_wide": t30w' in _pmr_srcN
+      and "t30 is None and t30w is None:" in _pmr_srcN,
+      f"lg={sorted(_pmr_lgL[0])} · mc={sorted(_pmr_mcL[0])} · rw={_pmr_rw}")
+# PMR14 — §⑩-2 حارسُ التغطية: الطبقةُ A بسببٍ مُسمّى خارجَ المقام · الطبقةُ B على مَن
+#    داخل الكون · النافذةُ 04:00-09:30 · العتبةُ من الثابت (مُعادٌ من T-SLIP W3) ·
+#    والإيقافُ **قبل** جدول الأذرع (بوّابةُ صلاحيةٍ لا إعلام — درسُ RV4)
+_pmr_ms0 = _pmr_d0 // 1_000_000
+_pmr_cov = _PMR.coverage_v0(
+    rows=[{"day": "2026-09-04", "symbol": "A", "anchor": {"R0": 1}},
+          {"day": "2026-09-04", "symbol": "D", "anchor": {"R0": None}}],
+    live_anchor={("2026-09-04", "A"): _pmr_ms0 + 30 * 60_000,     # داخل الكون ومُغطًّى
+                 ("2026-09-04", "D"): _pmr_ms0 + 30 * 60_000,     # داخل الكون بلا إعادة
+                 ("2026-09-04", "B"): _pmr_ms0 + 30 * 60_000,     # بلا إغلاق أمس
+                 ("2026-09-04", "C"): _pmr_ms0 + 30 * 60_000,     # دون MIN_PRICE
+                 ("2026-09-04", "E"): _pmr_ms0 + 30 * 60_000,     # بلا شمعة بريماركت
+                 ("2026-09-04", "F"): _pmr_ms0 + 6 * 3_600_000,   # 10:00 خارج النافذة
+                 ("2026-09-03", "A"): _pmr_ms0 + 30 * 60_000},    # يومٌ خارج المدى
+    day_diag={"2026-09-04": {"pre_syms": {"A", "B", "C", "D"}}},
+    days=["2026-09-04"],
+    live_pc={("2026-09-04", "A"): 2.0, ("2026-09-04", "D"): 2.0,
+             ("2026-09-04", "B"): None, ("2026-09-04", "C"): 0.30,
+             ("2026-09-04", "E"): 2.0})
+_pmr_main = _pmr_srcN[_pmr_srcN.index("def main()"):]
+_pmr_i_cov = _pmr_main.index("cov = coverage_v0(rows_out, live_anchor, day_diag, days, live_pc)")
+_pmr_i_sum = _pmr_main.index("res = summarize(rows_out, days, live_anchor)")
+_pmr_i_ret3 = _pmr_main.index("return 3", _pmr_i_cov)
+_pmr_slip = _io0.open("slip_prereg.md", encoding="utf-8").read()
+check("🌅 PMR14 §⑩-2 حارسُ التغطية: 2 داخل الكون · 1 مُغطًّى ⇒ 50% · 3 مستبعَدون بأسبابٍ "
+      "مُسمّاة · 1 خارجَ النافذة · يومٌ خارج المدى يُهمَل · العتبة 90 من ثابتٍ (T-SLIP W3) · "
+      "والحكمُ `< COVERAGE_MIN ⇒ return 3` **قبل** summarize · وday_diag لكلّ يوم",
+      _pmr_cov["measurable"] == 2 and _pmr_cov["covered"] == 1 and _pmr_cov["pct"] == 50.0
+      and _pmr_cov["outside_window"] == 1
+      and sorted(_pmr_cov["excluded"].values()) == [1, 1, 1]
+      and any("دون MIN_PRICE" in k for k in _pmr_cov["excluded"])
+      and any("بلا شمعةِ بريماركت" in k for k in _pmr_cov["excluded"])
+      and any("بلا إغلاقِ أمسٍ" in k for k in _pmr_cov["excluded"])
+      and any(n.startswith("D@") and "بلا مِرساة إعادة" in n for n in _pmr_cov["names"])
+      and _PMR.coverage_v0([], {}, {}, [], {})["pct"] is None
+      and _PMR.COVERAGE_MIN == 90.0
+      and 'cov["pct"] < COVERAGE_MIN' in _pmr_main
+      and _pmr_i_cov < _pmr_i_ret3 < _pmr_i_sum
+      and "        day_diag[day] = dg\n" in _pmr_main
+      and "if day in diag_days" not in _pmr_main
+      and "≥90%" in _pmr_slip,
+      f"cov={_pmr_cov} · order={(_pmr_i_cov, _pmr_i_ret3, _pmr_i_sum)}")
+# PMR15 — التسجيلُ §⑩ مدفوعٌ قبل الكود ويطابقه: العتبةُ في النصّ = الثابت · وقاعدةُ
+#    القراءة (أرضيةٌ/سقف) وتنبّؤاتُها مكتوبة · ولا عتبةَ حكمٍ تحرّكت
+_pmr_prereg = _io0.open("premarket_radar_prereg.md", encoding="utf-8").read()
+_pmr_s10 = _pmr_prereg[_pmr_prereg.index("## ⑩ ملحقٌ مؤرَّخ (2026-09-06"):]
+check("🌅 PMR15 §⑩ التسجيلُ يطابق الكود: `COVERAGE_MIN = 90.0` نصًّا = الثابت · "
+      "capture_wide وقاعدةُ ≥24.0 أرضية · RF-P1..RF-P5 · والمعاييرُ الأربعة لم تتحرّك",
+      f"`COVERAGE_MIN = {_PMR.COVERAGE_MIN}`" in _pmr_s10
+      and "capture_wide" in _pmr_s10 and "≥ 24.0" in _pmr_s10
+      and all(f"RF-P{i}" in _pmr_s10 for i in range(1, 6))
+      and (_PMR.CAPTURE_MIN, _PMR.COST_MAX, _PMR.DELAY_MAX, _PMR.MIN_MOVERS)
+          == (70.0, 3.0, 5.0, 20),
+      f"len={len(_pmr_s10)}")
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

@@ -63,6 +63,7 @@ MOVE_PCT = float(S.LIQ_MIN_MOVE_PCT)          # 5% — `R2` بدلالةٍ يو�
 DEFAULT_FROM, DEFAULT_TO = "2026-08-17", "2026-09-04"
 MIN_MOVERS = 20               # أرضيةُ الحكم (العقد §⑤)
 CAPTURE_MIN, COST_MAX, DELAY_MAX = 70.0, 3.0, 5.0        # المعايير 1-3
+COVERAGE_MIN = 90.0           # §⑩-2 الطبقة B — رقمٌ مُعادٌ من T-SLIP W3 (لا مخترَع)
 # شاهدُ الضبط `V0-ب`: المِرساةُ الحيّةُ المسجَّلة يجب أن تُعاد بالدقيقة نفسها
 CONTROL = {"ANPA": "2026-09-04"}
 # تشخيصٌ مُسمًّى (بلا معيار): `BTOG` حصل على `M1` يوم 09-03 وهو في قوائمنا، وسُمّي
@@ -305,6 +306,65 @@ def near_watch_symbols(day: str) -> set:
     return set()
 
 
+def ref_wide(rows: list) -> dict:
+    """§⑩-1 قياسُ مرجع المرشِّح: `D_frozen` = `t30` (المقامُ المجمَّد بالنطاق على
+    إغلاق الأمس) · `D_wide` = `t30_wide` (الشرطُ الخام بلا بوّابة نطاقٍ على إغلاق
+    الأمس) ⇒ `D_wide ⊇ D_frozen` بالبناء. `capture_wide` = مُلتقَطو `R1` في `D_wide`.
+    ومَن **بلا إغلاقِ أمس** وأرسى له `R1` = «غيرُ قابلٍ للوسم» (لا مرجعَ مخترَع). نقيّة."""
+    frozen = [r for r in rows if r.get("t30")]
+    wide = [r for r in rows if r.get("t30_wide")]
+    cap = sum(1 for r in wide if (r.get("anchor") or {}).get("R1")
+              and r["anchor"]["R1"] < r["t30_wide"])
+    unl = sum(1 for r in rows if r.get("prev_close") is None
+              and (r.get("anchor") or {}).get("R1"))
+    return {"n_frozen": len(frozen), "n_wide": len(wide),
+            "n_extra": len(wide) - len(frozen), "captured_wide": cap,
+            "capture_wide": round(100.0 * cap / len(wide), 1) if wide else None,
+            "n_unlabeled": unl}
+
+
+def coverage_v0(rows: list, live_anchor: dict, day_diag: dict, days: list,
+                live_pc: dict) -> dict:
+    """§⑩-2 حارسُ التغطية (‏`§⑦-4` منفَّذًا): المراسي الحيّة **داخل نافذة البريماركت**
+    وحدَها. الطبقة A تستبعد بسببٍ مُسمّى (بلا شمعةِ بريماركت · بلا إغلاقِ أمس · خارجَ
+    النطاق) ولا تدخل المقام · الطبقة B: نسبةُ مَن أعطته الإعادةُ مِرساةَ `R0` بين
+    مَن داخل الكون. نقيّة — الحكمُ (‏≥ `COVERAGE_MIN`) عند نقطة النداء."""
+    r0 = {(r["day"], r["symbol"]): (r.get("anchor") or {}).get("R0") for r in rows}
+    dset = set(days)
+    excluded: dict = {}
+    names: list = []
+    measurable = covered = outside = 0
+    for (day, sym), ms in sorted(live_anchor.items()):
+        if day not in dset or not ms:
+            continue
+        d, mod = AH.ny_minute(int(ms) * 1_000_000)
+        if d is None or not (PRE_START <= mod < PRE_END):
+            outside += 1
+            continue
+        dg = day_diag.get(day) or {}
+        pc = live_pc.get((day, sym))
+        reason = None
+        if sym not in (dg.get("pre_syms") or ()):
+            reason = "بلا شمعةِ بريماركت"
+        elif pc is None:
+            reason = "بلا إغلاقِ أمسٍ باسمه"
+        elif not (PRICE_LO <= pc <= PRICE_HI):
+            reason = ("خارجَ النطاق (دون MIN_PRICE)" if pc < PRICE_LO
+                      else "خارجَ النطاق (فوق السقف)")
+        if reason:
+            excluded[reason] = excluded.get(reason, 0) + 1
+            names.append(f"{sym}@{day}: {reason}")
+            continue
+        measurable += 1
+        if r0.get((day, sym)):
+            covered += 1
+        else:
+            names.append(f"{sym}@{day}: داخل الكون بلا مِرساة إعادة")
+    pct = round(100.0 * covered / measurable, 1) if measurable else None
+    return {"measurable": measurable, "covered": covered, "pct": pct,
+            "outside_window": outside, "excluded": excluded, "names": names}
+
+
 # ── التقرير ─────────────────────────────────────────────────────────────────
 def summarize(rows: list, days: list, live_anchor: dict) -> dict:
     """يحسب المعاييرَ الأربعة لكلّ ذراعٍ من صفوف (رمز، يوم). نقيّة."""
@@ -386,8 +446,8 @@ def main() -> int:
 
     prev_close: dict = {}
     pc_src: dict = {}          # ‏§⑨-2-4: من أيّ جلسةٍ جاء إغلاقُ الأمس (بائتٌ أم لا)
-    day_diag: dict = {}        # تشخيصُ الأيام التي يُسأل عنها بالاسم
-    diag_days = {d for dys in DIAG.values() for d in dys} | set(CONTROL.values())
+    day_diag: dict = {}        # تشخيصُ كلّ يوم (‏§⑩-2 يقرؤه حارسُ التغطية)
+    live_pc: dict = {}         # ‏§⑩-2: إغلاقُ الأمس لرموز المراسي الحيّة
     prior_day = None
     rows_out, n_files, n_missing = [], 0, 0
     fout = open("pm_radar_rows.jsonl", "w", encoding="utf-8")
@@ -423,15 +483,17 @@ def main() -> int:
         n_files += 1
         uni = lists.get(day, {})
         near = near_watch_symbols(day)
-        if day in diag_days:
-            day_diag[day] = dg
+        day_diag[day] = dg
+        for _s in uni:
+            live_pc[(day, _s)] = prev_close.get(_s)
         n_cand = n_mov = n_stale = n_rows = 0
         for sym, rws in bars.items():
             pc = prev_close.get(sym)
             in_lists = sym in uni
             t30 = mover_for(rws, pc)
+            t30w = mover_t30(rws, pc)        # ‏§⑩-1 الشرطُ الخام (بلا بوّابةِ نطاقٍ على الأمس)
             i0 = candidate_index(rws, USD_FLOOR)
-            if not in_lists and i0 is None and t30 is None:
+            if not in_lists and i0 is None and t30 is None and t30w is None:
                 continue
             n_cand += int(i0 is not None and not in_lists)
             n_mov += int(t30 is not None)
@@ -442,7 +504,7 @@ def main() -> int:
                 if e:
                     aprice[a] = float(e.get("anchor_price") or e.get("price") or 0)
             row = {"day": day, "symbol": sym, "in_lists": in_lists, "prev_close": pc,
-                   "t30": t30, "cand_ms": rws[i0][0] if i0 is not None else None,
+                   "t30": t30, "t30_wide": t30w, "cand_ms": rws[i0][0] if i0 is not None else None,
                    "anchor": anchors, "anchor_price": aprice,
                    "live_anchor": live_anchor.get((day, sym)),
                    "pre_usd": round(sum(b[4] * b[5] for b in rws))}
@@ -487,6 +549,19 @@ def main() -> int:
                     f"مرشَّح={_hm(r['cand_ms'])} · +30%={_hm(r['t30'])} · "
                     f"R0={_hm(r['anchor']['R0'])} · R1={_hm(r['anchor']['R1'])} · "
                     f"سيولة البري=${r['pre_usd']:,}")
+    # ‏§⑩-2 حارسُ التغطية — بوّابةُ صلاحيةٍ **قبل** جدول الأذرع (خروج 3 عند سقوطها)
+    cov = coverage_v0(rows_out, live_anchor, day_diag, days, live_pc)
+    exc = " · ".join(f"{k}: {v}" for k, v in sorted(cov["excluded"].items())) or "—"
+    log(f"\n🧪 V0-ج (§⑩-2) تغطيةُ الإعادة للمراسي الحيّة داخل البريماركت: "
+        f"{cov['covered']}/{cov['measurable']} = {cov['pct']}% (الحدّ {COVERAGE_MIN}%) · "
+        f"الطبقة A مستبعَدون بسببٍ مُسمّى: {exc} · خارجَ النافذة: {cov['outside_window']}")
+    for nm in cov["names"][:40]:
+        log(f"   • {nm}")
+    if cov["measurable"] == 0:
+        log("   ⚠️ لا مقامَ للتغطية (صفرُ مِرساةٍ حيّة داخل البريماركت في المدى) — يُعلَن ولا يُحكَم")
+    elif cov["pct"] < COVERAGE_MIN:
+        log(f"⛔ التغطية {cov['pct']}% < {COVERAGE_MIN}% ⇒ عطبُ أداةٍ لا نتيجة — لا جدولَ أذرع (خروج 3)")
+        return 3
     res = summarize(rows_out, days, live_anchor)
     ag, tot = res["live_agree"]
     log(f"\n🧪 V0-ب (عامّ): تكافؤُ المِرساة الحيّة مع الإعادة {ag}/{tot}")
@@ -496,6 +571,14 @@ def main() -> int:
     for a, v in res["arms"].items():
         log(f"{a:<5}{v['captured']:>10}{str(v['capture_pct']):>8}{v['m1_median']:>16}"
             f"{v['m1_total']:>9}{str(v['delay_median']):>14}")
+    rw = ref_wide(rows_out)
+    tag = ("أرضيةٌ" if (rw["capture_wide"] or 0) >= (res["arms"]["R1"]["capture_pct"] or 0)
+           else "سقفٌ") if rw["capture_wide"] is not None else "—"
+    log(f"\n📐 §⑩-1 مرجعُ المرشِّح: المقامُ المجمَّد {rw['n_frozen']} · الواسع {rw['n_wide']} "
+        f"(زائد {rw['n_extra']}) · التقاطُ R1 على الواسع {rw['captured_wide']} = "
+        f"{rw['capture_wide']}% ⇒ الرقمُ المنشور {tag} · غيرُ قابلٍ للوسم (بلا إغلاقِ أمسٍ "
+        f"وله R1): {rw['n_unlabeled']}"
+        + ("" if mode != "legacy" else " · (في «legacy» الواسع = المجمَّد بالبناء — يُقاس بـ«minc»)"))
     log("\n⚖️ الحكم على R1 (المعايير الأربعة تلزم معًا):")
     for name, val in verdict(res):
         log(f"   {name}: {val}")
