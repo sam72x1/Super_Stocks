@@ -41801,7 +41801,7 @@ check("🧠 CE6 presession_ceiling_prereg.md: C1 50% · C2 +3.0 · C3 50% · CE-
       and all(f"`PC-P{i}`" in _ce_pre for i in range(1, 6))
       and "PRESESSION_CEIL: ${{ inputs.ceil }}" in _ce_wf and '"PRESESSION_CEIL"' in _ce_src)
 
-# ═══════════ 🌅📈 أقفال T-PM-CURVE (presession_ceiling_prereg.md §④ · PC1-PC7) ═══════════
+# ═══════════ 🌅📈 أقفال T-PM-CURVE (presession_ceiling_prereg.md §④ · PMC1-PMC7) ═══════════
 _pc_src = open("pm_curve_scan.py", encoding="utf-8").read()
 _pc_t = _ps_ast.parse(_pc_src)
 _pc_calls = {(getattr(c.func, "attr", None) or getattr(c.func, "id", None)) for c in _ps_ast.walk(_pc_t)
@@ -41814,7 +41814,7 @@ _pc_r1 = next(n for n in _ps_ast.walk(_pc_t) if isinstance(n, _ps_ast.FunctionDe
 _pc_r1_calls = {(getattr(c.func, "value", None) and getattr(c.func.value, "id", None), getattr(c.func, "attr", None))
                 for c in _ps_ast.walk(_pc_r1) if isinstance(c, _ps_ast.Call)}
 # PC1 — قراءةٌ فقط · بلا نسخٍ من دوالّ pm_radar (تُستورَد بالاسم) · r1_anchor تنادي PMR.candidate_index/replay_anchor · الإنتاجُ لا يستوردها
-check("🌅📈 PC1 pm_curve_scan: صفرُ send_telegram/save_op_entry_state/subprocess · الكتابةُ الوحيدة pm_curve_rows.jsonl · "
+check("🌅📈 PMC1 pm_curve_scan: صفرُ send_telegram/save_op_entry_state/subprocess · الكتابةُ الوحيدة pm_curve_rows.jsonl · "
       "لا نسخَ من parse_pre/mover_t30/candidate_index/replay_anchor · r1_anchor عبر PMR بالاسم · الإنتاجُ لا يستوردها",
       not ({"send_telegram", "save_op_entry_state", "git_save", "run", "check_output"} & _pc_calls)
       and len(_pc_opens) == 1 and "pm_curve_rows.jsonl" in _ps_ast.dump(_pc_opens[0])
@@ -41830,7 +41830,7 @@ _pc_rows += [(_pc_b + 3 * 60_000, 1.0, 1.15, 1.0, 1.12, 10_000 / 1.12)]         
 _pc_ta = _PC.trigger_ms(_pc_rows, 1.0, _PC.USD_FLOOR, 10.0)
 _pc_tb = _PC.trigger_ms(_pc_rows, 1.0, _PC.MOVER_USD, 10.0)
 _pc_td = _PC.trigger_ms(_pc_rows, 1.0, _PC.USD_FLOOR, 5.0)
-check("🌅📈 PC2 trigger_ms تراكميٌّ لا دقيقةً وحدَها (يُطلق عند $40k لا $10k) · على الإغلاق لا القمّة "
+check("🌅📈 PMC2 trigger_ms تراكميٌّ لا دقيقةً وحدَها (يُطلق عند $40k لا $10k) · على الإغلاق لا القمّة "
       "(قمّةُ +30% بإغلاق 1.0 لا تُطلق) · $100k لا يُطلق · بلا إغلاق أمسٍ ⇒ None",
       _pc_ta == (_pc_b + 3 * 60_000, 1.12) and _pc_td == _pc_ta and _pc_tb is None
       and _PC.trigger_ms(_pc_rows, None, 1.0, 1.0) is None
@@ -41840,7 +41840,7 @@ check("🌅📈 PC2 trigger_ms تراكميٌّ لا دقيقةً وحدَها (
 _pc_ok = [{"arm": {"R1": None, "T-A": [5, 1.1], "T-B": [6, 1.2], "T-C": [7, 1.3], "T-D": [5, 1.1]}}]
 _pc_bad1 = [{"arm": {"R1": None, "T-A": [5, 1.1], "T-B": None, "T-C": None, "T-D": None}}]
 _pc_bad2 = [{"arm": {"R1": None, "T-A": [6, 1.1], "T-B": [5, 1.2], "T-C": None, "T-D": [6, 1.1]}}]
-check("🌅📈 PC3 chain_ok: سليمة ✓ · T-A بلا T-D ✗ · T-B تسبق T-A ✗",
+check("🌅📈 PMC3 chain_ok: سليمة ✓ · T-A بلا T-D ✗ · T-B تسبق T-A ✗",
       _PC.chain_ok(_pc_ok) and not _PC.chain_ok(_pc_bad1) and not _PC.chain_ok(_pc_bad2))
 # PC4 — summarize: الالتقاطُ **قبل** الحدّ حصرًا (المساوي لا يُحتسَب) · الرسائل/جلسة · الإثمار · وverdict بالأرضية ⏸️ ثم C4/C5
 def _pc_row(day, sym, m30, m100, r1, ta):
@@ -41853,7 +41853,7 @@ _pc_rs = [_pc_row("2025-01-02", "A", 100, 200, [50, 1.1], [40, 1.05]),   # R1 و
           _pc_row("2025-01-03", "C", 100, None, [300, 1.5], None)]       # +30 بلا +100 · R1 بعده (لا إثمار)
 _pc_res = _PC.summarize(_pc_rs, _pc_days)
 _pc_c100 = _pc_res["ladder"]["100"]["arms"]
-check("🌅📈 PC4 summarize: R1 يلتقط +100% 2/2 وقبل +30% 1/2 (المساوي لا يُحتسَب) · T-A 2/2 و1/2 · "
+check("🌅📈 PMC4 summarize: R1 يلتقط +100% 2/2 وقبل +30% 1/2 (المساوي لا يُحتسَب) · T-A 2/2 و1/2 · "
       "رسائل R1 وسيط 1.5 ومجموع 3 · إثمار R1 33.3% · تأخّر R1 وسيط 20.0",
       _pc_res["ladder"]["100"]["n"] == 2 and _pc_c100["R1"]["captured"] == 2
       and _pc_c100["R1"]["cap30_pct"] == 50.0 and _pc_c100["T-A"]["cap30_pct"] == 50.0
@@ -41872,11 +41872,11 @@ def _pc_mk(cap100, cap30_b, cost_b):
 _pc_v1 = _PC.verdict(_pc_mk(60.0, 40.0, 3.0))
 _pc_v2 = _PC.verdict(_pc_mk(59.9, 40.0, 3.01))
 _pc_v3 = _PC.verdict(_pc_mk(70.0, 39.9, 1.0))
-check("🌅📈 PC5 verdict: 60/40×3.0 تمرّ · 59.9 و×3.01 تسقط · 39.9% تسقط C5 وحدها",
+check("🌅📈 PMC5 verdict: 60/40×3.0 تمرّ · 59.9 و×3.01 تسقط · 39.9% تسقط C5 وحدها",
       [m for _, m, _ in _pc_v1] == ["✅", "✅"] and [m for _, m, _ in _pc_v2] == ["🔴", "🔴"]
       and [m for _, m, _ in _pc_v3] == ["✅", "🔴"], f"{_pc_v1} {_pc_v2} {_pc_v3}")
 # PC6 — الأرقامُ مُعادةٌ لا مخترَعة: الأرضياتُ من الإنتاج · الزناداتُ الأربعة مثبَّتة · السلّم · الأرضياتُ والحدود
-check("🌅📈 PC6 الثوابت: USD_FLOOR=LIQ_MIN_USD · MOVER_USD=IGNITION_USD_OPERATOR · 4 زنادات مثبَّتة · "
+check("🌅📈 PMC6 الثوابت: USD_FLOOR=LIQ_MIN_USD · MOVER_USD=IGNITION_USD_OPERATOR · 4 زنادات مثبَّتة · "
       "سلّم (30,50,100) · MIN_MOVERS=100 · C4=60 · C5=40/3× · التغطية 95",
       _PC.USD_FLOOR == float(S.LIQ_MIN_USD) and _PC.MOVER_USD == float(S.CONFIG["IGNITION_USD_OPERATOR"])
       and _PC.TRIGS == (("T-A", _PC.USD_FLOOR, 10.0), ("T-B", _PC.MOVER_USD, 10.0),
@@ -41903,7 +41903,7 @@ try:
             and "pm_curve_rows.jsonl" in open(".github/workflows/pm_curve.yml", encoding="utf-8").read())
 except Exception as _e:                                          # noqa: BLE001
     _pc7 = False; _pc_in = f"⛔ {type(_e).__name__}: {_e}"
-check("🌅📈 PC7 pm_curve.yml: dispatch بلا كرون · contents: read · from/to ⟶ PMC_FROM/PMC_TO يقرؤهما main · "
+check("🌅📈 PMC7 pm_curve.yml: dispatch بلا كرون · contents: read · from/to ⟶ PMC_FROM/PMC_TO يقرؤهما main · "
       "المفاتيح من Secrets · ويرفع pm_curve_rows.jsonl", _pc7, f"inputs={_pc_in}")
 
 
