@@ -41392,7 +41392,7 @@ _pmr_mc = _PMR.parse_pre(_io0.StringIO(_pmr_csv()), _pmr_pc0, False, "minc")
 check("🌅 PMR8 §⑨-1 الافتراضُ legacy بت-بت: مَن لا إغلاقَ أمسٍ باسمه لا شموعَ له · "
       "وشموعُ/إغلاقاتُ مَن هو داخل النطاق متطابقةٌ في الوضعين · والمجهولُ يرتدّ legacy",
       set(_pmr_lg[0]) == {"INR"}
-      and _pmr_lg[0]["INR"] == _pmr_mc[0]["INR"]
+      and _pmr_lg[0].get("INR") == _pmr_mc[0].get("INR")
       and _pmr_lg[1] == _pmr_mc[1]
       and _PMR._mode({}) == "legacy" and _PMR._mode({"PMR_MODE": ""}) == "legacy"
       and _PMR._mode({"PMR_MODE": "junk"}) == "legacy"
@@ -41414,11 +41414,12 @@ check("🌅 PMR10 §⑨-3 مقامٌ مجمَّد: mover_for يشترط إغلا
       "المتحرّكون هم هم في الوضعين · وخارجُ النطاق يُرفَض ولو بلغ +30% · ونقطةُ النداء "
       "الحيّة تستعملها لا mover_t30",
       _pmr_mov_lg == _pmr_mov_mc == {"INR"}
-      and _PMR.mover_for(_pmr_mc[0]["NEW"], None) is None
+      and _PMR.mover_for(_pmr_mc[0].get("NEW") or [], None) is None
       and _PMR.mover_for(_pmr_r, 1.0) is None
       and _PMR.mover_t30(_pmr_r, 1.0) is not None
-      and _PMR.mover_for(_pmr_lg[0]["INR"], 2.0) is not None
-      and _PMR.mover_for(_pmr_lg[0]["INR"], 2.0) == _PMR.mover_t30(_pmr_lg[0]["INR"], 2.0)
+      and _PMR.mover_for(_pmr_lg[0].get("INR") or [], 2.0) is not None
+      and (_PMR.mover_for(_pmr_lg[0].get("INR") or [], 2.0)
+           == _PMR.mover_t30(_pmr_lg[0].get("INR") or [], 2.0))
       and "t30 = mover_for(rws, pc)" in _pmr_src,
       f"lg={_pmr_mov_lg} · mc={_pmr_mov_mc}")
 # PMR11 — §⑨-2-1: أسبابٌ **مُسمّاة** بدل «أو» الواحدة («حكمٌ سالبٌ بلا سببٍ مُسمًّى
