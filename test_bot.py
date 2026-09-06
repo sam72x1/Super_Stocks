@@ -41535,7 +41535,28 @@ _pmr_cov = _PMR.coverage_v0(
 _pmr_main = _pmr_srcN[_pmr_srcN.index("def main()"):]
 _pmr_i_cov = _pmr_main.index("cov = coverage_v0(rows_out, live_anchor, day_diag, days, live_pc)")
 _pmr_i_sum = _pmr_main.index("res = summarize(rows_out, days, live_anchor)")
-_pmr_i_ret3 = _pmr_main.index("return 3", _pmr_i_cov)
+_pmr_i_ret3 = _pmr_main.find("return 3", _pmr_i_cov)   # find لا index: غيابُه سقوطٌ لا انهيار (طفرة m6)
+# PMR14ب — بنيويّ (AST): إسنادُ day_diag[day] جملةٌ مباشرة في جسم حلقة for day — لا تحت If
+#    (طفرة m9 نجت من الإبرة النصّية: substring يتجاهل المسافات، والحارسُ حينها أعمى ⇒ measurable=0
+#    ⇒ «لا مقام — يُعلَن ولا يُحكَم» بدل خروج 3 — «القفلُ النصّيّ لا يفرّق كودًا عن شرط»)
+_pmr_treeN = _ast0.parse(_pmr_srcN)
+_pmr_mainN = next(n for n in _ast0.walk(_pmr_treeN)
+                  if isinstance(n, _ast0.FunctionDef) and n.name == "main")
+def _pmr_dd_direct(fn):
+    for f in _ast0.walk(fn):
+        if not isinstance(f, _ast0.For):
+            continue
+        _tg = [f.target] if isinstance(f.target, _ast0.Name) else list(getattr(f.target, "elts", []))
+        if not any(isinstance(t, _ast0.Name) and t.id == "day" for t in _tg):   # for di, day in …
+            continue
+        for st in f.body:
+            if (isinstance(st, _ast0.Assign) and len(st.targets) == 1
+                    and isinstance(st.targets[0], _ast0.Subscript)
+                    and isinstance(st.targets[0].value, _ast0.Name)
+                    and st.targets[0].value.id == "day_diag"):
+                return True
+    return False
+_pmr_dd_ok = _pmr_dd_direct(_pmr_mainN)
 _pmr_slip = _io0.open("slip_prereg.md", encoding="utf-8").read()
 check("🌅 PMR14 §⑩-2 حارسُ التغطية: 2 داخل الكون · 1 مُغطًّى ⇒ 50% · 3 مستبعَدون بأسبابٍ "
       "مُسمّاة · 1 خارجَ النافذة · يومٌ خارج المدى يُهمَل · العتبة 90 من ثابتٍ (T-SLIP W3) · "
@@ -41551,10 +41572,9 @@ check("🌅 PMR14 §⑩-2 حارسُ التغطية: 2 داخل الكون · 1 
       and _PMR.COVERAGE_MIN == 90.0
       and 'cov["pct"] < COVERAGE_MIN' in _pmr_main
       and _pmr_i_cov < _pmr_i_ret3 < _pmr_i_sum
-      and "        day_diag[day] = dg\n" in _pmr_main
-      and "if day in diag_days" not in _pmr_main
+      and _pmr_dd_ok
       and "≥90%" in _pmr_slip,
-      f"cov={_pmr_cov} · order={(_pmr_i_cov, _pmr_i_ret3, _pmr_i_sum)}")
+      f"cov={_pmr_cov} · order={(_pmr_i_cov, _pmr_i_ret3, _pmr_i_sum)} · dd_direct={_pmr_dd_ok}")
 # PMR15 — التسجيلُ §⑩ مدفوعٌ قبل الكود ويطابقه: العتبةُ في النصّ = الثابت · وقاعدةُ
 #    القراءة (أرضيةٌ/سقف) وتنبّؤاتُها مكتوبة · ولا عتبةَ حكمٍ تحرّكت
 _pmr_prereg = _io0.open("premarket_radar_prereg.md", encoding="utf-8").read()
