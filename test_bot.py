@@ -11,6 +11,28 @@ import inspect as _insp0
 import random as _rnd0
 import json
 import os as _os_hc
+# ══════════════════════════════════════════════════════════════════════════
+# 🌐 **نظافةُ البيئة — السويّةُ لا تقرأ بيئةَ الرنر** (عيبٌ مقيس 2026-09-07)
+# ══════════════════════════════════════════════════════════════════════════
+# 🔴🔴 قفلُ `CH3` كان يثبّت `{"ref": "main"}` **مغروسًا**، و`_chain_next` يقرأ
+# `GITHUB_REF_NAME` من البيئة (‏`or "main"`). فعلى الرنر تكون قيمتُه **اسمَ
+# الفرع** ⇒ القفلُ يسقط على كودٍ سليم. **والأثرُ مقيسٌ من سجلّ `tests.yml`:**
+# كلُّ تشغيلةٍ على فرعٍ `claude/*` منذ 2026-09-02 **فاشلة**، وكلُّ تشغيلةٍ على
+# `main` **ناجحة** ⇒ البوّابةُ حمراءُ خمسةَ أيامٍ والسويّةُ خضراءُ محلّيًّا.
+# 🧭 **«السويّةُ خضراء عندي» ليست «البوّابةُ خضراء» — للمرّة الثانية.**
+# ⚙️ **والعلاجُ صنفيٌّ لا حالة:** الإنتاجُ يقرأ ستّةَ متغيّراتِ `GITHUB_*`
+# (‏`REF_NAME` · `REPOSITORY` · `RUN_ID` · `RUN_ATTEMPT` · `SHA` · `TOKEN`)
+# وأيُّها قد يتسرّب ⇒ **تُمحى كلُّها بالبادئة** فتصير السويّةُ مستقلّةً عن
+# البيئة **بالبناء**، وكلُّ قفلٍ يحتاج قيمةً **يضبطها بنفسه** (‏CVS1 · CH3-CH5).
+# 🔒 وبالبادئة لا بقائمةٍ مُعدَّدة — «القائمةُ تنسى» (درسُ عدّاد الأسباب).
+def _env_hygiene(env=None):
+    """يمحو كلَّ `GITHUB_*` من البيئة ⟶ قائمةُ أسماء ما مُحي (‏قد تكون فارغة)."""
+    env = _os_hc.environ if env is None else env
+    gone = sorted(k for k in list(env) if k.startswith("GITHUB_"))
+    for k in gone:
+        env.pop(k, None)
+    return gone
+_ENV_WIPED = _env_hygiene()
 # 🛡️ حارس حادثة 2026-07-14: يمنع أي git_save حقيقي أثناء الاختبارات (اختبار E2 شغّل
 # ignition_live.main() فنفّذ git حقيقيًّا ودفع بيانات وهمية على main). يُقرأ وقت النداء.
 _os_hc.environ["SUPER_STOCKS_TESTING"] = "1"
@@ -37306,6 +37328,40 @@ _ch_runs = [{"id": 1, "status": "in_progress", "run_started_at": "2026-09-02T13:
             {"id": 3, "status": "queued", "run_started_at": "2026-09-02T13:59:00Z"},
             {"id": 7, "status": "in_progress", "run_started_at": "2026-09-02T13:50:00Z"},
             {"id": "x", "status": "in_progress"}]
+# 🌐 نظافةُ البيئة: مِجَسّان يحرسان الصنفَ لا الحالة (‏2026-09-07)
+_env_probe = {"GITHUB_ZZZ_SENTINEL": "leak", "GITHUB_REF_NAME": "claude/x",
+              "NOT_GITHUB": "keep"}
+_env_gone = _env_hygiene(_env_probe)          # على قاموسٍ معزولٍ لا على البيئة
+check("🌐 ENV1 `_env_hygiene` بالبادئة: يمحو **أيَّ** `GITHUB_*` (بما فيه اسمٌ لم "
+      "يوجد يومَ كتابتِه) ويُبقي غيرَه · ويُرجع المحذوفَ · وبيئةُ السويّة نظيفةٌ "
+      "الآن مهما كانت بيئةُ الرنر",
+      _env_gone == ["GITHUB_REF_NAME", "GITHUB_ZZZ_SENTINEL"]
+      and _env_probe == {"NOT_GITHUB": "keep"}
+      and not [k for k in _ch_os.environ if k.startswith("GITHUB_")],
+      f"gone={_env_gone} rest={sorted(_env_probe)} "
+      f"live={[k for k in _ch_os.environ if k.startswith('GITHUB_')]}")
+# 🔒 بنيويّ: النداءُ في رأس الملفّ **قبل** استيراد الإنتاج وقبل أوّل `check(` —
+#    فلو نُقل أو حُذف لَعادت بيئةُ الرنر تُقرأ قبل أن تُمحى.
+_env_tree = _ch_ast.parse(open("test_bot.py", encoding="utf-8").read())
+# ⚠️ **بلا وسائطَ حصرًا**: النداءُ الحقيقيّ يعمل على البيئة، ومِجَسُّ ENV1 يمرّر
+#    قاموسًا معزولًا — ولولا هذا القيدِ لعدَّ القفلُ المِجَسَّ نداءً ثانيًا فسقط
+#    على كودٍ سليم (وقع فعلًا: `hygiene=[35, 37334]`).
+_env_ln = [n.lineno for n in _env_tree.body
+           if isinstance(n, _ch_ast.Assign)
+           and isinstance(n.value, _ch_ast.Call)
+           and getattr(n.value.func, "id", "") == "_env_hygiene"
+           and not n.value.args and not n.value.keywords]
+_env_imp = [n.lineno for n in _ch_ast.walk(_env_tree)
+            if isinstance(n, _ch_ast.Import)
+            for a in n.names if a.name == "Super_stock"]
+_env_chk = [n.lineno for n in _ch_ast.walk(_env_tree)
+            if isinstance(n, _ch_ast.Call) and getattr(n.func, "id", "") == "check"]
+check("🌐 ENV2 النداءُ في رأس الملفّ: `_env_hygiene()` إسنادٌ على مستوى الوحدة "
+      "**قبل** `import Super_stock` وقبل أوّل `check(` — فلا تُقرأ بيئةُ الرنر قبل محوها",
+      len(_env_ln) == 1 and _env_imp and _env_chk
+      and _env_ln[0] < min(_env_imp) and _env_ln[0] < min(_env_chk),
+      f"hygiene={_env_ln} import_S={min(_env_imp) if _env_imp else None} "
+      f"first_check={min(_env_chk) if _env_chk else None}")
 check("🔗 CH1 `alive_runs` نقيّة تفرّق: تستبعد نفسي · والمُنتهيَ (بدأ قبل 324 دقيقة فأكثر) · "
       "والمطابور · والتالف — وتُبقي الحيَّ الحقيقيّ",
       _ch_L.alive_runs(_ch_runs, 7, _ch_now) == [1]
@@ -37330,9 +37386,20 @@ def _ch_api(runs):
         _ch_calls.append((m, p, b))
         return {"workflow_runs": runs} if m == "GET" else {}
     return _f
+# 🔴🔴 **إقرارٌ مؤرَّخ 2026-09-07 — فِكستشرٌ يسرّب بيئةَ CI (وتشديدٌ لا إرخاء):**
+# كان هذا القفلُ يثبّت `{"ref": "main"}` مغروسًا **ولا يضبط `GITHUB_REF_NAME`**،
+# و`_chain_next` يقرؤه من البيئة (‏`or "main"`). فعلى الرنر يكون قيمتُه **اسمَ
+# الفرع** ⇒ القفلُ يسقط على كودٍ سليم. **والأثرُ مقيسٌ من سجلّ التشغيلات:** كلُّ
+# تشغيلةِ `tests.yml` على فرعٍ `claude/*` منذ 2026-09-02 **فاشلة**، وكلُّ تشغيلةٍ
+# على `main` **ناجحة** — فبقيت البوّابةُ حمراءَ خمسةَ أيامٍ بينما السويّةُ خضراءُ
+# محلّيًّا. 🧭 **«السويّةُ خضراء عندي» ليست «البوّابةُ خضراء» — للمرّة الثانية.**
+# ✅ **والعلاجُ يشدّد:** يُضبَط المتغيّرُ صراحةً في الحالتين، **ويُقفَل السلوكُ
+# الذي لم يكن مقفولًا أصلًا**: الخلَفُ يُطلَق على **مرجع السلف نفسِه** (وإلّا شغّل
+# الخلَفُ كودًا غيرَ الذي يعمل الآن) — بلا المتغيّر ⇒ `main`، ومعه ⇒ اسمُ الفرع.
 _ch_env0 = dict(_ch_os.environ)
 try:
     _ch_os.environ.pop("OE_CHAINED", None); _ch_os.environ["GITHUB_RUN_ID"] = "9"
+    _ch_os.environ.pop("GITHUB_REF_NAME", None)   # ⬅️ الافتراضُ `main` لا بيئةُ الرنر
     _ch_r1 = _ch_L._maybe_chain(30, api=_ch_api([]), now=_ch_now)          # فوق الحدّ ⇒ لا نداءَ أصلًا
     _ch_n1 = len(_ch_calls)
     _ch_r2 = _ch_L._maybe_chain(5, api=_ch_api(_ch_runs[:1]), now=_ch_now)  # عاملٌ حيّ ⇒ لا إطلاق
@@ -37342,17 +37409,27 @@ try:
     _ch_post3 = [c for c in _ch_calls if c[0] == "POST"]
     _ch_r4 = _ch_L._maybe_chain(5, api=_ch_api([]), now=_ch_now)           # مرّةً واحدة
     _ch_post4 = [c for c in _ch_calls if c[0] == "POST"]
+    # 🔗 والمرجعُ يتبع السلفَ: فرعٌ في البيئة ⇒ الخلَفُ عليه لا على `main`
+    _ch_os.environ.pop("OE_CHAINED", None)
+    _ch_os.environ["GITHUB_REF_NAME"] = "claude/some-branch"
+    _ch_r5 = _ch_L._maybe_chain(5, api=_ch_api([]), now=_ch_now)
+    _ch_post5 = [c for c in _ch_calls if c[0] == "POST"]
 finally:
     _ch_os.environ.clear(); _ch_os.environ.update(_ch_env0)
 check("🔗 CH3 `_maybe_chain` سلوكيًّا: فوق الحدّ صفرُ نداء · عاملٌ حيّ ⇒ لا إطلاقَ ولا علم · "
-      "لا أحد ⇒ إطلاقٌ واحد بـsegment=chain · والثانية لا تُطلق (‏OE_CHAINED)",
+      "لا أحد ⇒ إطلاقٌ واحد بـsegment=chain · والثانية لا تُطلق (‏OE_CHAINED) · "
+      "**والمرجعُ يتبع السلف**: بلا `GITHUB_REF_NAME` ⇒ `main` · ومعه ⇒ اسمُ الفرع",
       _ch_r1 is False and _ch_n1 == 0
       and _ch_r2 is False and not _ch_post2 and _ch_flag2 is None
       and _ch_r3 is True and len(_ch_post3) == 1
       and _ch_post3[0][1].endswith("/dispatches")
       and _ch_post3[0][2] == {"ref": "main", "inputs": {"segment": "chain"}}
-      and _ch_r4 is False and len(_ch_post4) == 1,
-      f"r={_ch_r1, _ch_r2, _ch_r3, _ch_r4} posts={len(_ch_post4)}")
+      and _ch_r4 is False and len(_ch_post4) == 1
+      and _ch_r5 is True and len(_ch_post5) == 2
+      and _ch_post5[1][2] == {"ref": "claude/some-branch",
+                              "inputs": {"segment": "chain"}},
+      f"r={_ch_r1, _ch_r2, _ch_r3, _ch_r4, _ch_r5} posts={len(_ch_post5)} "
+      f"ref5={_ch_post5[1][2].get('ref') if len(_ch_post5) > 1 else None}")
 # فاشلٌ-آمن: API ترمي عند الفحص ⇒ يُطلَق · وترمي عند الإطلاق ⇒ لا انهيار ولا علم
 _ch_env0 = dict(_ch_os.environ)
 def _ch_api_raise_get(m, p, b=None):
