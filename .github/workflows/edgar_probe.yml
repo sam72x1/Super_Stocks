@@ -1,0 +1,59 @@
+name: "T-PRE-EDGAR — المرحلة صفر (🔬📰 مِجَسُّ جدوى المصدر)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد `edgar_prereg.md` §②.
+# 🔒 مِجَسُّ جدوى لا تجربةَ حكم ⇒ **سقفُ نجاحه صفر**: لا رقمَ دراسةٍ ولا EG1/EG2.
+# 🔒 يُشغَّل في Actions حصرًا — بيئةُ التطوير تحجب SEC (‏403 على نفق CONNECT)
+#    فسقوطُه محلّيًّا ليس حكمًا على المصدر (درسُ `flatfiles_probe`).
+permissions:
+  contents: read
+  actions: read      # لازمٌ لـ`gh run download` (صفوفُ E1 من الـartifacts)
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_ids:
+        description: "معرّفات تشغيلات T-PRESESSION حاملة صفوفَ 2025 (بفواصل)"
+        required: true
+        type: string
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📥 تنزيل صفوف E1 من التشغيلات
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRESESSION_RUN_IDS: ${{ inputs.run_ids }}
+        run: |
+          set -e
+          IFS=',' read -ra IDS <<< "$PRESESSION_RUN_IDS"
+          for id in "${IDS[@]}"; do
+            id="$(echo "$id" | tr -d '[:space:]')"
+            [ -z "$id" ] && continue
+            gh run download "$id" --repo "$GITHUB_REPOSITORY" \
+              --pattern 'presession-rows-*' --dir "/tmp/edgar-dl/$id" \
+              || echo "⚠️ تعذّر تنزيل $id — يُعلَن ولا يُصمت"
+          done
+          find /tmp/edgar-dl -name 'presession_rows_*.jsonl.gz' -exec cp -v {} . \; || true
+          ls -la presession_rows_*.jsonl.gz || echo "⚠️ لا صفوف — المِجَسُّ سيخرج بـ2"
+
+      - name: 🔬 المرحلة صفر
+        env:
+          # 🔒 V-E8: بلا هذا السرّ يرتدّ `SEC_UA` إلى بريدٍ وهميّ فتحجب SEC،
+          #    ويُقرأ الحجبُ «المصدرُ لا يعمل» — عطبُ إعدادٍ لا حكمٌ على المصدر
+          #    (بصمةُ `BT_CANDLE`). والمِجَسُّ يخرج بـ2 إن وصل فارغًا.
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+        run: python edgar_probe.py

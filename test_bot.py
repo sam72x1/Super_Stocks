@@ -42222,6 +42222,205 @@ check("🚦 TCA14 tc_arms.yml: dispatch بلا كرون · contents: read · fro
       f"inputs={_tca_in}")
 
 
+# ═══ 🔬📰 T-PRE-EDGAR · المرحلة صفر — أقفال المِجَسّ (العقد edgar_prereg.md §②/§⑥) ═══
+# 🔒 مِجَسُّ جدوى لا تجربةَ حكم ⇒ سقفُ نجاحه صفر. الأقفال تحرس **صلاحيةَ الأداة**:
+#    V-E3 (‏filingDate ممنوع) · V-E6 (قراءةٌ فقط) · V-E7 (‏sec_recent_filings ممنوعة)
+#    · V-E8 (‏SEC_CONTACT موصول) · وحتميّةَ العيّنة وحدودَ العقد.
+import edgar_probe as _EGP                                        # noqa: E402
+import ast as _egp_ast                                            # noqa: E402
+import inspect as _egp_insp                                       # noqa: E402
+import tempfile as _egp_tf                                        # noqa: E402
+import gzip as _egp_gz                                            # noqa: E402
+import json as _egp_js                                            # noqa: E402
+import os as _egp_os                                              # noqa: E402
+
+_egp_src = _egp_insp.getsource(_EGP)
+try:
+    _egp_tree = _egp_ast.parse(_egp_src)
+    _egp_calls = {(n.func.attr if isinstance(n.func, _egp_ast.Attribute)
+                   else getattr(n.func, "id", ""))
+                  for n in _egp_ast.walk(_egp_tree)
+                  if isinstance(n, _egp_ast.Call)}
+    # 🔒 **بنيويٌّ بالـAST لا بالسلسلة الخام** (إقرارٌ مؤرَّخ 2026-09-07): الصيغةُ
+    #    الأولى كانت تفحص `"sec_recent_filings" not in _egp_src` **فسقطت على
+    #    docstring المِجَسّ نفسِه** الذي يُعلن V-E7 باسمها — «النصُّ لا يفرّق كودًا
+    #    عن تعليق» (‏DRM10 · TLK3 · FIB5). فصار الحكمُ من الشجرة: صفرُ نداءٍ ·
+    #    وصفرُ إشارةٍ بالاسم (‏Attribute/Name) · وصفرُ سلسلةٍ مطابقة (‏getattr).
+    _egp_ids = {n.attr for n in _egp_ast.walk(_egp_tree)
+                if isinstance(n, _egp_ast.Attribute)} | \
+               {n.id for n in _egp_ast.walk(_egp_tree)
+                if isinstance(n, _egp_ast.Name)}
+    _egp_konst = {n.value for n in _egp_ast.walk(_egp_tree)
+                  if isinstance(n, _egp_ast.Constant)
+                  and isinstance(n.value, str)}
+    _egp1 = ("sec_recent_filings" not in _egp_calls
+             and "sec_recent_filings" not in _egp_ids
+             and "sec_recent_filings" not in _egp_konst
+             and "sec_cik_map" in _egp_calls)     # المسموحُ يُنادى فعلًا
+except Exception as _e:                                           # noqa: BLE001
+    _egp1 = False; _egp_calls = f"⛔ {type(_e).__name__}: {_e}"
+check("🔬 EGP1 V-E7: المِجَسُّ لا يعرف sec_recent_filings إطلاقًا (قصُّها 75 يومًا "
+      "يُعميها عن 2025) — ويُنادي sec_cik_map الإنتاجية بالاسم", _egp1)
+
+# V-E6: قراءةٌ فقط — صفرُ إرسالٍ وصفرُ كتابةِ حالة
+try:
+    _egp_wr = [n for n in _egp_ast.walk(_egp_ast.parse(_egp_src))
+               if isinstance(n, _egp_ast.Call)
+               and getattr(n.func, "id", "") in ("open",)
+               and any(isinstance(a, _egp_ast.Constant)
+                       and isinstance(a.value, str) and "w" in a.value
+                       for a in n.args[1:2])]
+    _egp2 = (not _egp_wr and "send_telegram" not in _egp_src
+             and "save_" not in _egp_src and "git_save" not in _egp_src)
+except Exception as _e:                                           # noqa: BLE001
+    _egp2 = False
+check("🔬 EGP2 V-E6: قراءةٌ فقط — صفرُ send_telegram وصفرُ كتابةِ ملفٍّ/حالة "
+      "(بالـAST على وضع open)", _egp2)
+
+# V-E3 (شقُّ المِجَسّ): filingDate ممنوعٌ منعًا باتًّا · acceptanceDateTime مقروءٌ فعلًا
+try:
+    _egp_strs = {n.value for n in _egp_ast.walk(_egp_ast.parse(_egp_src))
+                 if isinstance(n, _egp_ast.Constant)
+                 and isinstance(n.value, str)}
+    # إقرارٌ مؤرَّخ 2026-09-07: `filingTo` **أُزيل من القرار** (شرائحُ `files[]`
+    # متلاصقة ⇒ اشتراطُه كان يقصّ تغطيةً حقيقية) ⇒ يُشترَط `filingFrom` وحدَه،
+    # **وتشديدٌ لا إرخاء**: `filingTo` ممنوعٌ الآن أن يعود قرارًا صامتًا.
+    _egp4 = ("filingDate" not in _egp_strs
+             and "acceptanceDateTime" in _egp_strs
+             and "filingFrom" in _egp_strs
+             and "filingTo" not in _egp_strs)     # التغطيةُ بحقلٍ واحد
+except Exception as _e:                                           # noqa: BLE001
+    _egp4 = False; _egp_strs = f"⛔ {type(_e).__name__}: {_e}"
+check("🔬 EGP4 V-E3: صفرُ سلسلةٍ اسمُها filingDate (تُسنَد ليوم العمل التالي فتُسرّب "
+      "وتُخفي) · وacceptanceDateTime مقروءٌ فعلًا · وfiles[] بحقلِ filingFrom وحدَه "
+      "(‏filingTo ممنوعٌ أن يعود قرارًا — التلاصق)", _egp4)
+
+# حتميّةُ العيّنة — وعيّنةٌ **تفرّق** عن أوّل-N الأبجديّة (وإلّا كان القفلُ تافهًا)
+try:
+    _egp_pool = [f"S{i:03d}" for i in range(400)]
+    _egp_a = _EGP.sample_symbols(_egp_pool, 60)
+    _egp_b = _EGP.sample_symbols(list(reversed(_egp_pool)), 60)
+    _egp5 = (_egp_a == _egp_b                       # حتميٌّ بالبناء
+             and len(_egp_a) == 60
+             and _egp_a != sorted(_egp_pool)[:60]   # يفرّق عن الأبجديّة
+             and _EGP.sample_symbols(_egp_pool, 60, "other:") != _egp_a)
+except Exception as _e:                                           # noqa: BLE001
+    _egp5 = False
+check("🔬 EGP5 حتميّةُ العيّنة: sha256('edgar-probe:'+رمز) أدنى 60 — نفسُها مهما "
+      "اختلف ترتيبُ المدخل · وتفرّق عن الأبجديّة وعن ملحٍ آخر", _egp5)
+
+# recent_depth سلوكيّ — ثلاثُ حالاتٍ تفرّق
+try:
+    _egp_deep = {"filings": {"recent": {"acceptanceDateTime":
+                 ["2026-05-01T16:00:00.000Z", "2024-12-30T16:00:00.000Z"]}}}
+    _egp_shal = {"filings": {"recent": {"acceptanceDateTime":
+                 ["2026-05-01T16:00:00.000Z"]}}, }
+    _egp_shal["filings"]["files"] = []
+    _egp_cov = {"filings": {"recent": {"acceptanceDateTime":
+                ["2026-05-01T16:00:00.000Z"]},
+                "files": [{"filingFrom": "2019-01-01", "filingTo": "2025-06-01"}]}}
+    # 🔒 **الشريحةُ المنتهيةُ قبل يوم العمق تُغطّي أيضًا** (التلاصق) — والحالةُ
+    #    التي كان شرطُ `filingTo >= DEPTH_DAY` يقصّها: عيّنةٌ **تفرّق**.
+    _egp_old = {"filings": {"recent": {"acceptanceDateTime":
+                ["2026-05-01T16:00:00.000Z"]},
+                "files": [{"filingFrom": "2019-01-01", "filingTo": "2020-06-01"}]}}
+    # 🔒 وشريحةٌ تبدأ **بعد** يوم العمق لا تُغطّي (وإلّا صار القفلُ تحصيلَ حاصل)
+    _egp_lat = {"filings": {"recent": {"acceptanceDateTime":
+                ["2026-05-01T16:00:00.000Z"]},
+                "files": [{"filingFrom": "2025-06-01", "filingTo": "2026-01-01"}]}}
+    _d1, _c1 = _EGP.recent_depth(_egp_deep)
+    _d2, _c2 = _EGP.recent_depth(_egp_shal)
+    _d3, _c3 = _EGP.recent_depth(_egp_cov)
+    _d4, _c4 = _EGP.recent_depth(_egp_old)
+    _d5, _c5 = _EGP.recent_depth(_egp_lat)
+    _egp6 = (_d1 == "2024-12-30" and _d1 <= _EGP.DEPTH_DAY and _c1 is False
+             and _d2 == "2026-05-01" and _d2 > _EGP.DEPTH_DAY and _c2 is False
+             and _d3 > _EGP.DEPTH_DAY and _c3 is True
+             and _c4 is True and _c5 is False)
+except Exception as _e:                                           # noqa: BLE001
+    _egp6 = False; _d1 = f"⛔ {type(_e).__name__}: {_e}"
+check("🔬 EGP6 recent_depth تفرّق خمسًا: recent يبلغ 2025-01-02 · لا يبلغ ولا "
+      "files تغطّي · شريحةٌ تشمله · شريحةٌ **تنتهي قبله** تغطّي (تلاصق) · "
+      "وشريحةٌ تبدأ بعده لا تغطّي", _egp6, f"d1={_d1}")
+
+# حدودُ العقد — لا تُخفَّض صامتةً
+_egp7 = (_EGP.SAMPLE_N == 60 and _EGP.SAMPLE_SALT == "edgar-probe:"
+         and _EGP.YEAR == "2025" and _EGP.DEPTH_DAY == "2025-01-02"
+         and _EGP.F1_MIN_PCT == 70.0 and _EGP.F2_MIN_PCT == 100.0
+         and _EGP.F3_MIN_PCT == 90.0 and _EGP.F4_MIN_RATE == 5.0
+         and _EGP.SEC_MIN_INTERVAL >= 0.10)   # سقفُ SEC 10/ث — لا يُتجاوَز
+check("🔬 EGP7 حدودُ §② مثبَّتة (‏70/100/90/5 · عيّنة 60 · عمق 2025-01-02) والكبحُ "
+      "لا ينزل تحت سقف SEC المُعلَن 10/ث", _egp7)
+
+# قصُّ السنة — عيّنةٌ تفرّق (صفٌّ من 2024 وآخرُ من 2025 وثالثٌ بلا يوم)
+try:
+    _egp_d = _egp_tf.mkdtemp(prefix="egp_")
+    _egp_f = _egp_os.path.join(_egp_d, "presession_rows_x.jsonl.gz")
+    with _egp_gz.open(_egp_f, "wt", encoding="utf-8") as _fh:
+        for _r in ({"day": "2025-03-04", "sym": "aaa"},
+                   {"day": "2024-03-04", "sym": "BBB"},
+                   {"day": "2025-07-01", "sym": "CCC"},
+                   {"sym": "DDD"}):
+            _fh.write(_egp_js.dumps(_r) + "\n")
+    _egp_sy, _egp_nf, _egp_nr, _egp_ny = _EGP.load_year_symbols(paths=[_egp_f])
+    _egp8 = (_egp_sy == {"AAA", "CCC"} and _egp_nr == 4 and _egp_ny == 2
+             and _egp_nf == 1)
+except Exception as _e:                                           # noqa: BLE001
+    _egp8 = False; _egp_sy = f"⛔ {type(_e).__name__}: {_e}"
+check("🔬 EGP8 قصُّ السنة: 2025 وحدها تدخل · الرمزُ يُرفَع لحروفٍ كبيرة · وصفٌّ "
+      "بلا يومٍ يُتخطّى — والعدّاداتُ تفرّق", _egp8, f"syms={_egp_sy}")
+
+# V-E8 سلوكيًّا: SEC_CONTACT فارغ ⇒ خروج 2 **قبل** أيّ نداءِ شبكة
+try:
+    _egp_old = _egp_os.environ.get("SEC_CONTACT")
+    _egp_os.environ["SEC_CONTACT"] = ""
+    _egp_bomb = [0]
+
+    def _egp_boom(*_a, **_k):                       # أيُّ نداءٍ = سقوطُ القفل
+        _egp_bomb[0] += 1
+        raise AssertionError("نداءُ شبكةٍ قبل بوّابة SEC_CONTACT")
+
+    _egp_sv_get, _egp_sv_map = _EGP.requests.get, _EGP.S.sec_cik_map
+    _EGP.requests.get, _EGP.S.sec_cik_map = _egp_boom, _egp_boom
+    try:
+        _egp_rc = _EGP.main()
+    finally:
+        _EGP.requests.get, _EGP.S.sec_cik_map = _egp_sv_get, _egp_sv_map
+        if _egp_old is None:
+            _egp_os.environ.pop("SEC_CONTACT", None)
+        else:
+            _egp_os.environ["SEC_CONTACT"] = _egp_old
+    _egp9 = (_egp_rc == 2 and _egp_bomb[0] == 0)
+except Exception as _e:                                           # noqa: BLE001
+    _egp9 = False; _egp_rc = f"⛔ {type(_e).__name__}: {_e}"
+check("🔬 EGP9 V-E8 سلوكيًّا: SEC_CONTACT فارغ ⇒ خروج 2 بصفرِ نداءِ شبكة — عطبُ "
+      "إعدادٍ لا يُقرأ «المصدرُ لا يعمل» (بصمةُ BT_CANDLE)", _egp9, f"rc={_egp_rc}")
+
+# V-E8 نصًّا: الـworkflow يُصرّح SEC_CONTACT · dispatch بلا كرون · قراءةٌ فقط
+try:
+    import yaml as _egp_y                                         # noqa: E402
+    _egp_wf = _egp_y.safe_load(open(".github/workflows/edgar_probe.yml",
+                                    encoding="utf-8"))
+    _egp_on = _egp_wf.get(True) or _egp_wf.get("on") or {}
+    _egp_in = list(((_egp_on.get("workflow_dispatch") or {}).get("inputs")
+                    or {}).keys())
+    _egp_steps = _egp_wf["jobs"]["probe"]["steps"]
+    _egp_env = _egp_steps[-1].get("env") or {}
+    _egp_allenv = " ".join(str(_s.get("env") or "") for _s in _egp_steps)
+    _egp3 = ("SEC_CONTACT" in _egp_env
+             and "secrets.SEC_CONTACT" in str(_egp_env["SEC_CONTACT"])
+             and not _egp_on.get("schedule")
+             and (_egp_wf.get("permissions") or {}).get("contents") == "read"
+             # 🔒 كلُّ مدخلٍ موصولٌ ببيئةٍ يقرؤها السكربت (بصمةُ BT_CANDLE)
+             and all(f"inputs.{_i}" in _egp_allenv for _i in _egp_in)
+             and "python edgar_probe.py" in str(_egp_steps[-1].get("run")))
+except Exception as _e:                                           # noqa: BLE001
+    _egp3 = False; _egp_in = f"⛔ {type(_e).__name__}: {_e}"
+check("🔬 EGP3 V-E8 نصًّا: edgar_probe.yml يُصرّح SEC_CONTACT من Secrets · "
+      "dispatch بلا كرون · contents: read · وكلُّ مدخلٍ موصولٌ ببيئة", _egp3,
+      f"inputs={_egp_in}")
+
+
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
