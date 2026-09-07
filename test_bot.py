@@ -9427,6 +9427,32 @@ check("🧠 MEM4: فهرسُ الأحكام حاضرٌ في CLAUDE.md ويحيل
       and "DECISIONS_ARCHIVE.md" in _mem_cl
       and _mem_cl.count("| `") >= 200)
 
+# 🔴 MEM5 — أُضيف 2026-09-07 بعد عيبٍ حقيقيٍّ كشفه الفحصُ لا القراءة: أرقامُ سطر
+# الفهرس كانت **‏243 من 243 خاطئة** لأنها حُسبت على الكتلة المنقولة *قبل* إدراج
+# ترويسة الأرشيف (‏انزياحٌ ثابتٌ 15 سطرًا). و`MEM4` لا يمسكه (يعدّ ولا يتحقّق) ⇒
+# «فهرسٌ يحيل إلى سطرٍ خاطئ» = سطرُ عرضٍ يكذب، وأخطرُ ما فيه أنه يُفشِل الغرضَ
+# الوحيد للفهرس (‏ألّا تُعاد تجربةٌ مُغلَقة). القفلُ يتحقّق **سلوكيًّا**: كلُّ
+# إحالةٍ تقع على سطرٍ يبدأ بندًا (`- **`) ومقتطعُ الفهرس **داخله**.
+import re as _mem_re
+_mem_ar_lines = open("DECISIONS_ARCHIVE.md", encoding="utf-8").read().splitlines()
+_mem_rows = [_l for _l in _mem_cl.splitlines() if _mem_re.match(r"^\| \d+ \|", _l)]
+_mem_bad = []
+for _row in _mem_rows:
+    _pp = _row.split("|")
+    try:
+        _ln = int(_pp[-2].strip().strip("`"))
+    except (ValueError, IndexError):
+        _mem_bad.append(_row[:40])
+        continue
+    _key = _pp[2].strip().lstrip("*").strip()[:22]
+    _tgt = _mem_ar_lines[_ln - 1] if 0 < _ln <= len(_mem_ar_lines) else ""
+    if not (_tgt.startswith("- **") and _key in _tgt):
+        _mem_bad.append(f"#{_pp[1].strip()}⟶{_ln}")
+check(f"🧠 MEM5: كلُّ إحالةِ فهرسٍ تقع على بندِها في الأرشيف ({len(_mem_rows)} بندًا · "
+      f"خاطئة {len(_mem_bad)}) — وإلّا فالفهرسُ يكذب ويسقط غرضُه",
+      len(_mem_rows) >= 200 and not _mem_bad,
+      f"أوّلُ الخاطئة: {_mem_bad[:5]}" if _mem_bad else "")
+
 
 # 📚 **حارس انحراف التوثيق** (تدقيق 2026-07-27): CLAUDE.md أوّل ما تقرأه كل جلسة، فخطؤه
 # **يتكاثر**. وُجد أربعة كرونات عتيقة فيه — منها كرون أُصلح في اليوم نفسه. الحارس يقارن
