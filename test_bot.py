@@ -11,6 +11,28 @@ import inspect as _insp0
 import random as _rnd0
 import json
 import os as _os_hc
+# ══════════════════════════════════════════════════════════════════════════
+# 🌐 **نظافةُ البيئة — السويّةُ لا تقرأ بيئةَ الرنر** (عيبٌ مقيس 2026-09-07)
+# ══════════════════════════════════════════════════════════════════════════
+# 🔴🔴 قفلُ `CH3` كان يثبّت `{"ref": "main"}` **مغروسًا**، و`_chain_next` يقرأ
+# `GITHUB_REF_NAME` من البيئة (‏`or "main"`). فعلى الرنر تكون قيمتُه **اسمَ
+# الفرع** ⇒ القفلُ يسقط على كودٍ سليم. **والأثرُ مقيسٌ من سجلّ `tests.yml`:**
+# كلُّ تشغيلةٍ على فرعٍ `claude/*` منذ 2026-09-02 **فاشلة**، وكلُّ تشغيلةٍ على
+# `main` **ناجحة** ⇒ البوّابةُ حمراءُ خمسةَ أيامٍ والسويّةُ خضراءُ محلّيًّا.
+# 🧭 **«السويّةُ خضراء عندي» ليست «البوّابةُ خضراء» — للمرّة الثانية.**
+# ⚙️ **والعلاجُ صنفيٌّ لا حالة:** الإنتاجُ يقرأ ستّةَ متغيّراتِ `GITHUB_*`
+# (‏`REF_NAME` · `REPOSITORY` · `RUN_ID` · `RUN_ATTEMPT` · `SHA` · `TOKEN`)
+# وأيُّها قد يتسرّب ⇒ **تُمحى كلُّها بالبادئة** فتصير السويّةُ مستقلّةً عن
+# البيئة **بالبناء**، وكلُّ قفلٍ يحتاج قيمةً **يضبطها بنفسه** (‏CVS1 · CH3-CH5).
+# 🔒 وبالبادئة لا بقائمةٍ مُعدَّدة — «القائمةُ تنسى» (درسُ عدّاد الأسباب).
+def _env_hygiene(env=None):
+    """يمحو كلَّ `GITHUB_*` من البيئة ⟶ قائمةُ أسماء ما مُحي (‏قد تكون فارغة)."""
+    env = _os_hc.environ if env is None else env
+    gone = sorted(k for k in list(env) if k.startswith("GITHUB_"))
+    for k in gone:
+        env.pop(k, None)
+    return gone
+_ENV_WIPED = _env_hygiene()
 # 🛡️ حارس حادثة 2026-07-14: يمنع أي git_save حقيقي أثناء الاختبارات (اختبار E2 شغّل
 # ignition_live.main() فنفّذ git حقيقيًّا ودفع بيانات وهمية على main). يُقرأ وقت النداء.
 _os_hc.environ["SUPER_STOCKS_TESTING"] = "1"
@@ -37306,6 +37328,40 @@ _ch_runs = [{"id": 1, "status": "in_progress", "run_started_at": "2026-09-02T13:
             {"id": 3, "status": "queued", "run_started_at": "2026-09-02T13:59:00Z"},
             {"id": 7, "status": "in_progress", "run_started_at": "2026-09-02T13:50:00Z"},
             {"id": "x", "status": "in_progress"}]
+# 🌐 نظافةُ البيئة: مِجَسّان يحرسان الصنفَ لا الحالة (‏2026-09-07)
+_env_probe = {"GITHUB_ZZZ_SENTINEL": "leak", "GITHUB_REF_NAME": "claude/x",
+              "NOT_GITHUB": "keep"}
+_env_gone = _env_hygiene(_env_probe)          # على قاموسٍ معزولٍ لا على البيئة
+check("🌐 ENV1 `_env_hygiene` بالبادئة: يمحو **أيَّ** `GITHUB_*` (بما فيه اسمٌ لم "
+      "يوجد يومَ كتابتِه) ويُبقي غيرَه · ويُرجع المحذوفَ · وبيئةُ السويّة نظيفةٌ "
+      "الآن مهما كانت بيئةُ الرنر",
+      _env_gone == ["GITHUB_REF_NAME", "GITHUB_ZZZ_SENTINEL"]
+      and _env_probe == {"NOT_GITHUB": "keep"}
+      and not [k for k in _ch_os.environ if k.startswith("GITHUB_")],
+      f"gone={_env_gone} rest={sorted(_env_probe)} "
+      f"live={[k for k in _ch_os.environ if k.startswith('GITHUB_')]}")
+# 🔒 بنيويّ: النداءُ في رأس الملفّ **قبل** استيراد الإنتاج وقبل أوّل `check(` —
+#    فلو نُقل أو حُذف لَعادت بيئةُ الرنر تُقرأ قبل أن تُمحى.
+_env_tree = _ch_ast.parse(open("test_bot.py", encoding="utf-8").read())
+# ⚠️ **بلا وسائطَ حصرًا**: النداءُ الحقيقيّ يعمل على البيئة، ومِجَسُّ ENV1 يمرّر
+#    قاموسًا معزولًا — ولولا هذا القيدِ لعدَّ القفلُ المِجَسَّ نداءً ثانيًا فسقط
+#    على كودٍ سليم (وقع فعلًا: `hygiene=[35, 37334]`).
+_env_ln = [n.lineno for n in _env_tree.body
+           if isinstance(n, _ch_ast.Assign)
+           and isinstance(n.value, _ch_ast.Call)
+           and getattr(n.value.func, "id", "") == "_env_hygiene"
+           and not n.value.args and not n.value.keywords]
+_env_imp = [n.lineno for n in _ch_ast.walk(_env_tree)
+            if isinstance(n, _ch_ast.Import)
+            for a in n.names if a.name == "Super_stock"]
+_env_chk = [n.lineno for n in _ch_ast.walk(_env_tree)
+            if isinstance(n, _ch_ast.Call) and getattr(n.func, "id", "") == "check"]
+check("🌐 ENV2 النداءُ في رأس الملفّ: `_env_hygiene()` إسنادٌ على مستوى الوحدة "
+      "**قبل** `import Super_stock` وقبل أوّل `check(` — فلا تُقرأ بيئةُ الرنر قبل محوها",
+      len(_env_ln) == 1 and _env_imp and _env_chk
+      and _env_ln[0] < min(_env_imp) and _env_ln[0] < min(_env_chk),
+      f"hygiene={_env_ln} import_S={min(_env_imp) if _env_imp else None} "
+      f"first_check={min(_env_chk) if _env_chk else None}")
 check("🔗 CH1 `alive_runs` نقيّة تفرّق: تستبعد نفسي · والمُنتهيَ (بدأ قبل 324 دقيقة فأكثر) · "
       "والمطابور · والتالف — وتُبقي الحيَّ الحقيقيّ",
       _ch_L.alive_runs(_ch_runs, 7, _ch_now) == [1]
@@ -37330,9 +37386,20 @@ def _ch_api(runs):
         _ch_calls.append((m, p, b))
         return {"workflow_runs": runs} if m == "GET" else {}
     return _f
+# 🔴🔴 **إقرارٌ مؤرَّخ 2026-09-07 — فِكستشرٌ يسرّب بيئةَ CI (وتشديدٌ لا إرخاء):**
+# كان هذا القفلُ يثبّت `{"ref": "main"}` مغروسًا **ولا يضبط `GITHUB_REF_NAME`**،
+# و`_chain_next` يقرؤه من البيئة (‏`or "main"`). فعلى الرنر يكون قيمتُه **اسمَ
+# الفرع** ⇒ القفلُ يسقط على كودٍ سليم. **والأثرُ مقيسٌ من سجلّ التشغيلات:** كلُّ
+# تشغيلةِ `tests.yml` على فرعٍ `claude/*` منذ 2026-09-02 **فاشلة**، وكلُّ تشغيلةٍ
+# على `main` **ناجحة** — فبقيت البوّابةُ حمراءَ خمسةَ أيامٍ بينما السويّةُ خضراءُ
+# محلّيًّا. 🧭 **«السويّةُ خضراء عندي» ليست «البوّابةُ خضراء» — للمرّة الثانية.**
+# ✅ **والعلاجُ يشدّد:** يُضبَط المتغيّرُ صراحةً في الحالتين، **ويُقفَل السلوكُ
+# الذي لم يكن مقفولًا أصلًا**: الخلَفُ يُطلَق على **مرجع السلف نفسِه** (وإلّا شغّل
+# الخلَفُ كودًا غيرَ الذي يعمل الآن) — بلا المتغيّر ⇒ `main`، ومعه ⇒ اسمُ الفرع.
 _ch_env0 = dict(_ch_os.environ)
 try:
     _ch_os.environ.pop("OE_CHAINED", None); _ch_os.environ["GITHUB_RUN_ID"] = "9"
+    _ch_os.environ.pop("GITHUB_REF_NAME", None)   # ⬅️ الافتراضُ `main` لا بيئةُ الرنر
     _ch_r1 = _ch_L._maybe_chain(30, api=_ch_api([]), now=_ch_now)          # فوق الحدّ ⇒ لا نداءَ أصلًا
     _ch_n1 = len(_ch_calls)
     _ch_r2 = _ch_L._maybe_chain(5, api=_ch_api(_ch_runs[:1]), now=_ch_now)  # عاملٌ حيّ ⇒ لا إطلاق
@@ -37342,17 +37409,27 @@ try:
     _ch_post3 = [c for c in _ch_calls if c[0] == "POST"]
     _ch_r4 = _ch_L._maybe_chain(5, api=_ch_api([]), now=_ch_now)           # مرّةً واحدة
     _ch_post4 = [c for c in _ch_calls if c[0] == "POST"]
+    # 🔗 والمرجعُ يتبع السلفَ: فرعٌ في البيئة ⇒ الخلَفُ عليه لا على `main`
+    _ch_os.environ.pop("OE_CHAINED", None)
+    _ch_os.environ["GITHUB_REF_NAME"] = "claude/some-branch"
+    _ch_r5 = _ch_L._maybe_chain(5, api=_ch_api([]), now=_ch_now)
+    _ch_post5 = [c for c in _ch_calls if c[0] == "POST"]
 finally:
     _ch_os.environ.clear(); _ch_os.environ.update(_ch_env0)
 check("🔗 CH3 `_maybe_chain` سلوكيًّا: فوق الحدّ صفرُ نداء · عاملٌ حيّ ⇒ لا إطلاقَ ولا علم · "
-      "لا أحد ⇒ إطلاقٌ واحد بـsegment=chain · والثانية لا تُطلق (‏OE_CHAINED)",
+      "لا أحد ⇒ إطلاقٌ واحد بـsegment=chain · والثانية لا تُطلق (‏OE_CHAINED) · "
+      "**والمرجعُ يتبع السلف**: بلا `GITHUB_REF_NAME` ⇒ `main` · ومعه ⇒ اسمُ الفرع",
       _ch_r1 is False and _ch_n1 == 0
       and _ch_r2 is False and not _ch_post2 and _ch_flag2 is None
       and _ch_r3 is True and len(_ch_post3) == 1
       and _ch_post3[0][1].endswith("/dispatches")
       and _ch_post3[0][2] == {"ref": "main", "inputs": {"segment": "chain"}}
-      and _ch_r4 is False and len(_ch_post4) == 1,
-      f"r={_ch_r1, _ch_r2, _ch_r3, _ch_r4} posts={len(_ch_post4)}")
+      and _ch_r4 is False and len(_ch_post4) == 1
+      and _ch_r5 is True and len(_ch_post5) == 2
+      and _ch_post5[1][2] == {"ref": "claude/some-branch",
+                              "inputs": {"segment": "chain"}},
+      f"r={_ch_r1, _ch_r2, _ch_r3, _ch_r4, _ch_r5} posts={len(_ch_post5)} "
+      f"ref5={_ch_post5[1][2].get('ref') if len(_ch_post5) > 1 else None}")
 # فاشلٌ-آمن: API ترمي عند الفحص ⇒ يُطلَق · وترمي عند الإطلاق ⇒ لا انهيار ولا علم
 _ch_env0 = dict(_ch_os.environ)
 def _ch_api_raise_get(m, p, b=None):
@@ -41905,6 +41982,244 @@ except Exception as _e:                                          # noqa: BLE001
     _pc7 = False; _pc_in = f"⛔ {type(_e).__name__}: {_e}"
 check("🌅📈 PC7 pm_curve.yml: dispatch بلا كرون · contents: read · from/to ⟶ PMC_FROM/PMC_TO يقرؤهما main · "
       "المفاتيح من Secrets · ويرفع pm_curve_rows.jsonl", _pc7, f"inputs={_pc_in}")
+
+
+# ═══════════ 🚦📈 أقفال T-C-TRIGGER (tc_trigger_prereg.md · TCA1-TCA14) ═══════════
+# 🔒 العقدُ مدفوعٌ **قبل** الأداة · وكلُّ بوّابةٍ في §⑦ يلزمها سطرُ كودٍ يُوقِف وقفلٌ يُثبت
+#    أنه يُوقِف (درسُ «حارسٌ مكتوبٌ غيرُ منفَّذٍ ليس حارسًا»).
+import tc_arms as _TCA                                           # noqa: E402
+
+# TCA1 — الأذرعُ سبعٌ بأسمائها · والضابطاتُ الثلاث مُسمّاة · والمستويات **مُعادةٌ لا مخترَعة**
+check("🚦 TCA1 الأذرعُ سبعٌ بالضبط (R1·T-C·T-B·T-E·R1|T-C·C-0·C-NULL) · ضابطاتٌ ثلاث · "
+      "LVL_HI=SPLIT_ROSE_MAX_PCT · LVL_LO=LIQ_PULSE_PCT · MOVER=IGNITION_USD_OPERATOR · "
+      "FLOOR=LIQ_MIN_USD · سلّمٌ وأرضيةٌ من pm_curve_scan",
+      _TCA.ARMS == ("R1", "T-C", "T-B", "T-E", "R1|T-C", "C-0", "C-NULL")
+      and _TCA.CONTROL_ARMS == ("C-0", "C-NULL", "T-E")
+      and _TCA.LVL_HI == float(S.CONFIG["SPLIT_ROSE_MAX_PCT"])
+      and _TCA.LVL_LO == float(S.LIQ_PULSE_PCT)
+      and _TCA.MOVER_USD == float(S.CONFIG["IGNITION_USD_OPERATOR"])
+      and _TCA.USD_FLOOR == float(S.LIQ_MIN_USD)
+      and (_TCA.LADDER, _TCA.MIN_MOVERS, _TCA.COVERAGE_MIN)
+      == (_PC.LADDER, _PC.MIN_MOVERS, _PC.COVERAGE_MIN),
+      f"arms={_TCA.ARMS} · hi={_TCA.LVL_HI} · lo={_TCA.LVL_LO}")
+
+# TCA2 — 🔒 **مقياسٌ واحدٌ لا اثنان (سلوكيّ):** `summarize` تُعيد `PC.summarize` بت-بت
+_tca_days = ["2025-01-02", "2025-01-03"]
+_tca_rows = [{"day": d, "symbol": f"S{j}", "prev_close": 2.0, "last_ms": 9000,
+              "mover": {"30": 5000 if j % 2 == 0 else None,
+                        "50": 6000 if j % 3 == 0 else None,
+                        "100": 7000 if j == 0 else None},
+              "arm": {a: ([4000 + 100 * k, 2.5] if (j + k) % 3 else None)
+                      for k, a in enumerate(_PC.ARMS)}}
+             for d in _tca_days for j in range(6)]
+check("🚦 TCA2 مقياسٌ واحد: tc_arms.summarize(..., PC.ARMS) = pm_curve_scan.summarize بت-بت",
+      _TCA.summarize(_tca_rows, _tca_days, _PC.ARMS) == _PC.summarize(_tca_rows, _tca_days))
+
+
+# TCA3 — V-T0 شاهدُ الضبط: الثوابتُ حرفيّةٌ · و`ctrl_ok` **يسقط** على انحرافِ 0.1
+def _tca_res(cap100_r1=54.8, fruit_tc=19.4):
+    return {"arms": {"R1": {"msgs_median": 22.5, "msgs_total": 6084, "fruit30_pct": 12.5},
+                     "T-C": {"msgs_median": 18.0, "msgs_total": 4826, "fruit30_pct": fruit_tc}},
+            "ladder": {"100": {"arms": {"R1": {"cap_pct": cap100_r1},
+                                        "T-C": {"cap_pct": 64.0}}}}}
+
+
+check("🚦 TCA3 V-T0 ثوابتُ 2025 حرفيّة (22.5/6,084/12.5/54.8 · 18.0/4,826/19.4/64.0) · "
+      "و ctrl_ok يعبر المطابقَ ويسقط على انحرافِ 0.1 في الطرفين",
+      _TCA.V_T0_2025["R1"] == {"msgs_median": 22.5, "msgs_total": 6084,
+                               "fruit30_pct": 12.5, "cap100": 54.8}
+      and _TCA.V_T0_2025["T-C"] == {"msgs_median": 18.0, "msgs_total": 4826,
+                                    "fruit30_pct": 19.4, "cap100": 64.0}
+      and (_TCA.CTRL_FROM, _TCA.CTRL_TO) == ("2025-01-02", "2025-12-31")
+      and _TCA.ctrl_ok(_tca_res()) == []
+      and _TCA.ctrl_ok(_tca_res(cap100_r1=54.9))
+      and _TCA.ctrl_ok(_tca_res(fruit_tc=19.5)))
+
+# TCA4 — V-T6 الاتّحادُ = الأبكرُ بالضبط · و`union_ok` يسقط على اتّحادٍ مُختلَق (عيّنةٌ تفرّق)
+_tca_u_ok = [{"arm": {"R1": [900, 2.0], "T-C": [500, 2.5], "R1|T-C": [500, 2.5]}},
+             {"arm": {"R1": [700, 2.0], "T-C": None, "R1|T-C": [700, 2.0]}},
+             {"arm": {"R1": None, "T-C": [300, 1.5], "R1|T-C": [300, 1.5]}},
+             {"arm": {"R1": None, "T-C": None, "R1|T-C": None}}]
+_tca_u_bad = [{"arm": {"R1": [900, 2.0], "T-C": [500, 2.5], "R1|T-C": [900, 2.0]}}]
+_tca_u_bad2 = [{"arm": {"R1": None, "T-C": [300, 1.5], "R1|T-C": None}}]
+check("🚦 TCA4 V-T6 union_arm الأبكرُ بالضبط · union_ok يعبر الأربعَ حالاتٍ ويسقط على "
+      "الأبطأ وعلى الغياب المُختلَق",
+      _TCA.union_arm((9, 1.0), (5, 2.0)) == (5, 2.0)
+      and _TCA.union_arm((5, 2.0), (9, 1.0)) == (5, 2.0)
+      and _TCA.union_arm(None, (5, 2.0)) == (5, 2.0)
+      and _TCA.union_arm((5, 2.0), None) == (5, 2.0)
+      and _TCA.union_arm(None, None) is None
+      and _TCA.union_ok(_tca_u_ok) and not _TCA.union_ok(_tca_u_bad)
+      and not _TCA.union_ok(_tca_u_bad2))
+
+# TCA5 — V-T5 `T-E ⊇ R1` **سلوكيًّا من دالّة الإنتاج**: `vol_mult=0.0` يفير أبكر ولا يُنقص
+_tca_bars = []
+for _i in range(40):
+    _o, _c, _v = 2.0, 2.01, 20000
+    if _i == 10:                       # رفعةُ 6% بلا قفزةِ حجم ⇒ T-E وحدَها
+        _o, _c, _v = 2.0, 2.12, 20000
+    if _i == 25:                       # رفعةُ 10% مع قفزةِ حجمٍ ⇒ R1 و T-E
+        _o, _c, _v = 2.0, 2.20, 400000
+    _tca_bars.append([1_700_000_000_000 + 60000 * _i, _o, max(_o, _c) + 0.01,
+                      min(_o, _c) - 0.01, _c, _v])
+_tca_r1 = _PC.r1_anchor(_tca_bars)
+_tca_te = _TCA.e_anchor(_tca_bars)
+check("🚦 TCA5 V-T5 T-E ⊇ R1 سلوكيًّا: بإطفاء قفزة الحجم (vol_mult=0.0) تفير المِرساةُ "
+      "**أبكر** ولا تختفي · و superset_ok يسقط على R1 بلا T-E",
+      bool(_tca_r1) and bool(_tca_te) and _tca_te[0] < _tca_r1[0]
+      and _TCA.superset_ok([{"arm": {"R1": list(_tca_r1), "T-E": list(_tca_te)}}])
+      and not _TCA.superset_ok([{"arm": {"R1": [1, 2.0], "T-E": None}}])
+      and _TCA.superset_ok([{"arm": {"R1": None, "T-E": None}}]),
+      f"R1={_tca_r1} · T-E={_tca_te}")
+
+# TCA6 — V-T4 السلسلةُ الرتيبة T-C⇒T-B⇒C-0⇒C-NULL · والخرقُ يسقط
+_tca_c_ok = [{"arm": {"T-C": [900, 2.4], "T-B": [700, 2.2], "C-0": [500, 2.1],
+                      "C-NULL": [300, 1.9]}}]
+_tca_c_bad = [{"arm": {"T-C": [500, 2.4], "T-B": [700, 2.2], "C-0": [500, 2.1],
+                       "C-NULL": [300, 1.9]}}]
+_tca_c_gap = [{"arm": {"T-C": [900, 2.4], "T-B": None, "C-0": [500, 2.1],
+                       "C-NULL": [300, 1.9]}}]
+check("🚦 TCA6 V-T4 السلسلةُ الرتيبة (T-C⇒T-B⇒C-0⇒C-NULL) تعبر · والأبطأُ والغيابُ يسقطان",
+      _TCA.chain_ok(_tca_c_ok) and not _TCA.chain_ok(_tca_c_bad)
+      and not _TCA.chain_ok(_tca_c_gap))
+
+
+# TCA7 — V-T8 حارسُ الـ`no-op`: كلُّ ضابطةٍ تفترق عن قرينتها — **ثلاثُ حالاتٍ منفصلة**
+def _tca_tot(c0=90, cn=80, te=70, tb=100, r1=60):
+    return {"arms": {"C-0": {"msgs_total": c0}, "C-NULL": {"msgs_total": cn},
+                     "T-E": {"msgs_total": te}, "T-B": {"msgs_total": tb},
+                     "R1": {"msgs_total": r1}, "T-C": {"msgs_total": 50},
+                     "R1|T-C": {"msgs_total": 55}}}
+
+
+check("🚦 TCA7 V-T8 noop_ok يعبر المفترقَ ويسقط على كلٍّ من الثلاث على حدة "
+      "(C-0=T-B · C-NULL=C-0 · T-E=R1)",
+      _TCA.noop_ok(_tca_tot()) and not _TCA.noop_ok(_tca_tot(c0=100))
+      and not _TCA.noop_ok(_tca_tot(cn=90)) and not _TCA.noop_ok(_tca_tot(te=60)))
+
+
+# TCA8 — §⑤ الحكمان بحدودهما الحرفيّة · و TC4 يُرجع «لا حكم» تحت الأرضية · وتخومٌ على الحدود
+def _tca_full(n=150, m_tc=20.0, m_r1=20.0, m_un=25.0, cap_tc=(50.0, 50.0, 50.0),
+              cap_r1=(50.0, 50.0, 50.0), cap_un=55.0, f_tc=10.0, f_r1=10.0):
+    lad = {}
+    for _k, _t, _r in zip(("30", "50", "100"), cap_tc, cap_r1):
+        lad[_k] = {"n": n, "arms": {"T-C": {"cap_pct": _t}, "R1": {"cap_pct": _r},
+                                    "R1|T-C": {"cap_pct": cap_un}}}
+    return {"n_days": 250, "ladder": lad,
+            "arms": {"R1": {"msgs_median": m_r1, "fruit30_pct": f_r1},
+                     "T-C": {"msgs_median": m_tc, "fruit30_pct": f_tc},
+                     "R1|T-C": {"msgs_median": m_un}}}
+
+
+def _tca_mark(res, name):
+    return next(m for n, m, _ in _TCA.verdict(res) if n.startswith(name))
+
+
+check("🚦 TCA8 الحكمان: TC1 ≤1.00 · TC2 السلالمُ الثلاثة · TC3 · TC5 ≤1.50 · TC6 ≥+5.0 — "
+      "وتخومُ الحدود تمرّ والخرقُ بأقلّ قدرٍ يسقط",
+      _tca_mark(_tca_full(), "TC1") == "✅"
+      and _tca_mark(_tca_full(m_tc=20.1), "TC1") == "🔴"
+      and _tca_mark(_tca_full(cap_tc=(50.0, 50.0, 49.9)), "TC2") == "🔴"
+      and _tca_mark(_tca_full(cap_tc=(50.0, 50.0, 50.0)), "TC2") == "✅"
+      and _tca_mark(_tca_full(f_tc=9.9), "TC3") == "🔴"
+      and _tca_mark(_tca_full(m_un=30.0), "TC5") == "✅"
+      and _tca_mark(_tca_full(m_un=30.1), "TC5") == "🔴"
+      and _tca_mark(_tca_full(cap_un=55.0), "TC6") == "✅"
+      and _tca_mark(_tca_full(cap_un=54.9), "TC6") == "🔴")
+check("🚦 TCA8ب TC4 الأرضية: سلّمٌ واحدٌ دون MIN_MOVERS ⇒ «لا حكم» ⏸️ **وحدَها بلا أيّ فرق**",
+      len(_TCA.verdict(_tca_full(n=99))) == 1
+      and _TCA.verdict(_tca_full(n=99))[0][1] == "⏸️"
+      and _TCA.verdict(_tca_full(n=99))[0][0].startswith("TC4")
+      and len(_TCA.verdict(_tca_full(n=100))) > 1)
+
+# TCA9 — قراءةٌ فقط (بالـAST): صفرُ إرسالٍ وصفرُ كتابةِ حالة · كتابةٌ واحدةٌ لملفّ الصفوف ·
+#        والإنتاجُ لا يستورد الأداة
+_tca_src = _io0.open("tc_arms.py", encoding="utf-8").read()
+_tca_tree = _ast0.parse(_tca_src)
+_tca_calls = {getattr(c.func, "attr", None) or getattr(c.func, "id", None)
+              for c in _ast0.walk(_tca_tree) if isinstance(c, _ast0.Call)}
+_tca_opens = [c for c in _ast0.walk(_tca_tree) if isinstance(c, _ast0.Call)
+              and getattr(c.func, "id", None) == "open"
+              and any(isinstance(a, _ast0.Constant) and a.value == "w" for a in c.args)]
+check("🚦 TCA9 قراءةٌ فقط: صفرُ send_telegram/save_op_entry_state/git_save · كتابةٌ واحدةٌ "
+      "لملفّ الصفوف · والإنتاجُ لا يستورد tc_arms",
+      not ({"send_telegram", "save_op_entry_state", "git_save"} & _tca_calls)
+      and len(_tca_opens) == 1
+      and "tc_arms" not in _io0.open("Super_stock.py", encoding="utf-8").read()
+      and "tc_arms_rows.jsonl" in _tca_src,
+      f"opens={len(_tca_opens)}")
+
+# TCA10 — 🔒 **CAP15:** `replay_anchor` بلا الوسيط **بت-بت** · و`vol_mult=0.0` **يفرّق فعلًا**
+#         · و`PMR4` عددُ نداءات `S.liq_stage_events` واحدٌ كما هو
+_tca_ra = _ast0.parse(_io0.open("pm_radar_scan.py", encoding="utf-8").read())
+_tca_ra_fn = next(n for n in _ast0.walk(_tca_ra)
+                  if isinstance(n, _ast0.FunctionDef) and n.name == "replay_anchor")
+_tca_ra_args = [a.arg for a in _tca_ra_fn.args.args]
+_tca_ra_calls = [c for c in _ast0.walk(_tca_ra_fn) if isinstance(c, _ast0.Call)
+                 and getattr(c.func, "attr", None) == "liq_stage_events"]
+check("🚦 TCA10 CAP15: replay_anchor(vol_mult=None) وسيطٌ اختياريّ · وبدونه المُخرَجُ **بت-بت** "
+      "· و vol_mult=0.0 **يفرّق** · ونداءُ liq_stage_events واحدٌ كما يشترط PMR4",
+      _tca_ra_args == ["rows", "start_k", "vol_mult"]
+      and _tca_ra_fn.args.defaults[-1].value is None
+      and len(_tca_ra_calls) == 1
+      and _PMR.replay_anchor(_tca_bars, 3) == _PMR.replay_anchor(_tca_bars, 3, vol_mult=None)
+      and _PMR.replay_anchor(_tca_bars, 3) != _PMR.replay_anchor(_tca_bars, 3, vol_mult=0.0),
+      f"args={_tca_ra_args}")
+
+# TCA11 — `pm_curve_scan.py` بت-بت (‏PC6 يشترط ARMS مساواةً تامّة) · و`Super_stock` تقبل vol_mult
+check("🚦 TCA11 pm_curve_scan لم يُمَسّ: ARMS خمسٌ كما هي · و tc_arms **لا يُذكر فيه** · "
+      "و liq_stage_events تقبل vol_mult أصلًا فلا سطرَ إنتاجيًّا يتغيّر",
+      _PC.ARMS == ("R1", "T-A", "T-B", "T-C", "T-D")
+      and "tc_arms" not in _io0.open("pm_curve_scan.py", encoding="utf-8").read()
+      and "vol_mult" in _ps_insp.signature(S.liq_stage_events).parameters)
+
+# TCA12 — ⛔ الضابطاتُ **ممنوعةُ الشحن**: `verdict` لا يذكر أيًّا منها (بالـAST على مصدرها)
+_tca_v_src = _ps_insp.getsource(_TCA.verdict)
+check("🚦 TCA12 ⛔ الضابطاتُ ممنوعةُ الشحن: verdict لا يذكر C-0 ولا C-NULL ولا T-E إطلاقًا "
+      "(سوابقُ K-ORACLE · E-PSEUDO · R2/R3)",
+      not any(f'"{a}"' in _tca_v_src or f"'{a}'" in _tca_v_src
+              for a in ("C-0", "C-NULL", "T-E")),
+      "verdict نظيفة")
+
+# TCA13 — V-T7 عدّادُ الشمعة الأخيرة **مطبوعٌ فعلًا** (بالـAST داخل نداء `log` لا في تعليق)
+_tca_main = next(n for n in _ast0.walk(_tca_tree)
+                 if isinstance(n, _ast0.FunctionDef) and n.name == "main")
+_tca_logs = [c for c in _ast0.walk(_tca_main) if isinstance(c, _ast0.Call)
+             and getattr(c.func, "id", None) == "log"]
+_tca_lb_used = any("last_bar_counts" in _ast0.dump(c) for c in _ast0.walk(_tca_main)
+                   if isinstance(c, _ast0.Call))
+_tca_lb_logged = any("الشمعة الأخيرة" in _ast0.dump(c) for c in _tca_logs)
+check("🚦 TCA13 V-T7 عدّادُ الشمعة الأخيرة **يُحسَب ويُطبَع** داخل نداء log (لا في تعليق) — "
+      "شرطٌ بلا سطرٍ = دعوًى غيرُ قابلةٍ للفحص",
+      _tca_lb_used and _tca_lb_logged
+      and _TCA.last_bar_counts([{"last_ms": 5, "arm": {"T-C": [5, 1.0], "R1": [4, 1.0]}}])["T-C"] == 1
+      and _TCA.last_bar_counts([{"last_ms": 5, "arm": {"T-C": [5, 1.0], "R1": [4, 1.0]}}])["R1"] == 0)
+
+# TCA14 — الـworkflow: يدويٌّ بلا كرون · contents: read · المدخلان موصولان ويقرؤهما main
+try:
+    _tca_wf = _pc_y.safe_load(open(".github/workflows/tc_arms.yml", encoding="utf-8")) or {}
+    _tca_on = _tca_wf.get("on") or _tca_wf.get(True) or {}
+    _tca_in = list(((_tca_on.get("workflow_dispatch") or {}).get("inputs") or {}))
+    _tca_env = {}
+    for _j in _tca_wf["jobs"].values():
+        for _st in _j["steps"]:
+            _tca_env.update(_st.get("env") or {})
+    _tca_msrc = _ps_insp.getsource(_TCA.main)
+    _tca14 = (set(_tca_in) == {"from", "to"} and not _tca_on.get("schedule")
+              and (_tca_wf.get("permissions") or {}).get("contents") == "read"
+              and all(any(f"inputs.{_i}" in str(_v) for _v in _tca_env.values())
+                      for _i in _tca_in)
+              and {"TCA_FROM", "TCA_TO", "AWS_ACCESS_KEY_ID",
+                   "AWS_SECRET_ACCESS_KEY"} <= set(_tca_env)
+              and all(_k in _tca_msrc for _k in ('"TCA_FROM"', '"TCA_TO"',
+                                                 '"AWS_ACCESS_KEY_ID"'))
+              and "tc_arms_rows.jsonl" in open(".github/workflows/tc_arms.yml",
+                                               encoding="utf-8").read())
+except Exception as _e:                                          # noqa: BLE001
+    _tca14 = False; _tca_in = f"⛔ {type(_e).__name__}: {_e}"
+check("🚦 TCA14 tc_arms.yml: dispatch بلا كرون · contents: read · from/to ⟶ TCA_FROM/TCA_TO "
+      "يقرؤهما main · المفاتيح من Secrets · ويرفع tc_arms_rows.jsonl", _tca14,
+      f"inputs={_tca_in}")
 
 
 

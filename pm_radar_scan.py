@@ -204,15 +204,21 @@ def candidate_index(rows, usd_floor: float = USD_FLOOR, prev_close=None,
     return None
 
 
-def replay_anchor(rows, start_k: int = 3):
+def replay_anchor(rows, start_k: int = 3, vol_mult=None):
     """المِرساةُ بدالّة الإنتاج — إعادةُ التشغيل التدريجيّ (نمطُ `first_anchor`)
     بدءًا من الشريحة `k = start_k` ⇒ للرادار `start_k = i0 + 1`: أوّلُ دورةٍ بعد
-    أن أظهرت اللقطةُ الدقيقةَ `i0` مغلقةً (لا نظرَ مستقبليّ). تُرجع `M1` أو `None`."""
+    أن أظهرت اللقطةُ الدقيقةَ `i0` مغلقةً (لا نظرَ مستقبليّ). تُرجع `M1` أو `None`.
+
+    🔒 **`vol_mult=None` افتراضًا ⇒ السلوكُ المنشور بت-بت** (سابقةُ `CAP15`
+    و`now_ms`): الإنتاجُ يقرأ `IGNITION_VOL_MULT` من `CONFIG` داخل
+    `liq_stage_events` نفسِها فلا سطرَ إنتاجيًّا يتغيّر. الوسيطُ لأداةِ
+    `T-C-TRIGGER` وحدَها (ذراعُ `T-E` تُطفئ قفزةَ الحجم بـ`0.0` لعزلِ أثرها
+    وصفًا — **ممنوعةُ الشحن** بنصّ `tc_trigger_prereg.md §⑥-3`)."""
     st: dict = {}
     win = int(S.LIQ_WINDOW_MIN)
     bd = KS._dicts(rows)
     for k in range(max(3, int(start_k)), len(bd) + 1):
-        evs, st = S.liq_stage_events(bd[max(0, k - win):k], st)
+        evs, st = S.liq_stage_events(bd[max(0, k - win):k], st, vol_mult=vol_mult)
         for e in (evs or []):
             if e.get("stage") == "M1":
                 return e

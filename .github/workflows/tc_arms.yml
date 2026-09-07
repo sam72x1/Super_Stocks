@@ -1,0 +1,51 @@
+name: "T-C-TRIGGER (🚦📈 هل T-C طبقةُ تسليمٍ أفضل من R1؟)"
+
+# 🔒 قياس/قراءة فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد tc_trigger_prereg.md
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      from:
+        description: "أوّل يوم (YYYY-MM-DD) — الافتراض 2025-01-02 (شاهدُ الضبط V-T0)"
+        required: false
+        type: string
+      to:
+        description: "آخر يوم (YYYY-MM-DD) — الافتراض 2025-12-31"
+        required: false
+        type: string
+
+jobs:
+  tc_arms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🚦 قِس الأذرع السبع
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          TCA_FROM: ${{ inputs.from }}
+          TCA_TO: ${{ inputs.to }}
+        run: python tc_arms.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tc-arms-rows
+          path: tc_arms_rows.jsonl
+          retention-days: 90
+          if-no-files-found: warn
