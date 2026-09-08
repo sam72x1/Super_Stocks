@@ -1024,5 +1024,35 @@
   "usd_eff": 1790,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "VHUB",
+  "date": "2026-09-08",
+  "sustain_min": 155,
+  "operator_ok": true,
+  "fired_at": "2026-09-08T20:00:37Z",
+  "break_level": 0.87,
+  "price": 0.93,
+  "vol_x": 35.1,
+  "usd": 17680,
+  "candle_class": "group",
+  "usd_eff": 17680,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "WSHP",
+  "date": "2026-09-08",
+  "sustain_min": 19,
+  "operator_ok": true,
+  "fired_at": "2026-09-08T20:00:37Z",
+  "break_level": 5.19,
+  "price": 5.3774,
+  "vol_x": 6.7,
+  "usd": 10179,
+  "candle_class": "group",
+  "usd_eff": 10179,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
