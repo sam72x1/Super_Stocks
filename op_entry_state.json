@@ -583,7 +583,7 @@
   "date": "2026-09-08"
  },
  "LIQ:VWAV": {
-  "last_eval_ms": 1788873900000,
+  "last_eval_ms": 1788874080000,
   "date": "2026-09-08"
  },
  "LIQ:WETO": {
@@ -913,7 +913,7 @@
   "date": "2026-09-08"
  },
  "LIQ:CMND": {
-  "last_eval_ms": 1788874020000,
+  "last_eval_ms": 1788874080000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788867840000,
