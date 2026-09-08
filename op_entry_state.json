@@ -542,17 +542,17 @@
    "M30"
   ],
   "updates": 0,
-  "vol_x": 10.8,
+  "vol_x": 10.7,
   "peak_usd": 1028365,
-  "last_eval_ms": 1788866340000,
+  "last_eval_ms": 1788866400000,
   "pulse_ms": 1788868260000,
   "anchor_price": 0.858,
   "anchor_open": 0.814,
   "anchor_low": 0.8006,
   "pre_done": true,
   "pre_hi": 0.83,
-  "pre_usd": 5308389,
-  "pre_n": 62,
+  "pre_usd": 5290462,
+  "pre_n": 61,
   "k2": {
    "c3": "نقضت",
    "c4": "خضراء 2",
@@ -561,8 +561,8 @@
    "j1": true,
    "j1_top": false
   },
-  "e5": 0.867,
-  "tgt_ms": 1788868080000,
+  "e5": 0.8755,
+  "tgt_ms": 1788868140000,
   "date": "2026-09-08"
  },
  "LIQ:GDC": {
@@ -829,7 +829,7 @@
    "anchor_ms": 1788867840000,
    "anchor_price": 1.29,
    "anchor_low": 1.17,
-   "e5": 1.2102,
+   "e5": null,
    "exit_ms": 1788868140000
   },
   "date": "2026-09-08"
