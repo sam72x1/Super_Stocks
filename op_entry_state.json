@@ -296,7 +296,7 @@
   "updates": 0,
   "vol_x": 3.9,
   "peak_usd": 175349,
-  "last_eval_ms": 1788900000000,
+  "last_eval_ms": 1788900060000,
   "pulse_ms": 1788903000000,
   "anchor_price": 10.59,
   "anchor_open": 9.81,
@@ -1577,8 +1577,9 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 2.7,
-  "date": "2026-09-08"
+  "e5": 2.66,
+  "date": "2026-09-08",
+  "tgt_ms": 1788899280000
  },
  "LIQ:HOUR": {
   "last_eval_ms": 1788878460000,
@@ -2122,7 +2123,7 @@
   "date": "2026-09-08"
  },
  "LIQ:OIO": {
-  "last_eval_ms": 1788894180000,
+  "last_eval_ms": 1788897540000,
   "date": "2026-09-08"
  },
  "LIQ:SPRC": {
