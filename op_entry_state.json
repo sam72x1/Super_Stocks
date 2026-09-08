@@ -1136,7 +1136,7 @@
  },
  "LIQ:TANH": {
   "anchor_ms": 1788897420000,
-  "last_ms": 1788897420000,
+  "last_ms": 1788897480000,
   "sent": [
    "M1"
   ],
@@ -1144,15 +1144,15 @@
   "vol_x": 8.2,
   "peak_usd": 173647,
   "last_eval_ms": 1788897480000,
-  "pulse_ms": 1788897420000,
+  "pulse_ms": 1788897480000,
   "anchor_price": 19.9,
   "anchor_open": 18.78,
   "anchor_low": 18.59,
-  "date": "2026-09-08",
   "pre_done": true,
   "pre_hi": 18.9531,
   "pre_usd": 388195,
-  "pre_n": 20
+  "pre_n": 20,
+  "date": "2026-09-08"
  },
  "LIQ:OFAL": {
   "last_eval_ms": 1788897480000,
