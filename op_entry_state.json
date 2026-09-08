@@ -104,7 +104,7 @@
   "date": "2026-09-08"
  },
  "LIQ:SGLY": {
-  "last_eval_ms": 1788906420000,
+  "last_eval_ms": 1788906480000,
   "date": "2026-09-08"
  },
  "LIQ:YXT": {
@@ -216,7 +216,7 @@
   "date": "2026-09-08"
  },
  "LIQ:HCWB": {
-  "last_eval_ms": 1788906360000,
+  "last_eval_ms": 1788906480000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788871980000,
@@ -260,7 +260,7 @@
   "date": "2026-09-08"
  },
  "LIQ:EHGO": {
-  "last_eval_ms": 1788906240000,
+  "last_eval_ms": 1788906480000,
   "date": "2026-09-08"
  },
  "LIQ:GIPR": {
@@ -289,7 +289,7 @@
  },
  "LIQ:FGL": {
   "anchor_ms": 1788900000000,
-  "last_ms": 1788906300000,
+  "last_ms": 1788906480000,
   "sent": [
    "M1"
   ],
@@ -297,7 +297,7 @@
   "vol_x": 3.9,
   "peak_usd": 175349,
   "last_eval_ms": 1788900060000,
-  "pulse_ms": 1788906300000,
+  "pulse_ms": 1788906480000,
   "anchor_price": 10.59,
   "anchor_open": 9.81,
   "anchor_low": 9.79,
@@ -486,7 +486,7 @@
  },
  "LIQ:CDTG": {
   "anchor_ms": 1788874200000,
-  "last_ms": 1788906420000,
+  "last_ms": 1788906480000,
   "sent": [
    "M1",
    "M5",
@@ -496,7 +496,7 @@
   "vol_x": 12.7,
   "peak_usd": 542148,
   "last_eval_ms": 1788874200000,
-  "pulse_ms": 1788906420000,
+  "pulse_ms": 1788906480000,
   "anchor_price": 1.4352,
   "anchor_open": 1.35,
   "anchor_low": 1.35,
@@ -522,7 +522,7 @@
  },
  "LIQ:TRUG": {
   "anchor_ms": 1788868800000,
-  "last_ms": 1788906420000,
+  "last_ms": 1788906480000,
   "sent": [
    "M1",
    "M5",
@@ -532,7 +532,7 @@
   "vol_x": 51.1,
   "peak_usd": 1373964,
   "last_eval_ms": 1788868860000,
-  "pulse_ms": 1788906420000,
+  "pulse_ms": 1788906480000,
   "anchor_price": 0.4552,
   "anchor_open": 0.3745,
   "anchor_low": 0.3745,
@@ -776,7 +776,7 @@
   "date": "2026-09-08"
  },
  "LIQ:CDT": {
-  "last_eval_ms": 1788905820000,
+  "last_eval_ms": 1788906480000,
   "date": "2026-09-08"
  },
  "LIQ:SUPX": {
@@ -844,7 +844,7 @@
   "date": "2026-09-08"
  },
  "LIQ:WHLR": {
-  "last_eval_ms": 1788906300000,
+  "last_eval_ms": 1788906480000,
   "date": "2026-09-08"
  },
  "LIQ:PPCB": {
@@ -1032,7 +1032,7 @@
   "date": "2026-09-08"
  },
  "LIQ:LGHL": {
-  "last_eval_ms": 1788906420000,
+  "last_eval_ms": 1788906480000,
   "date": "2026-09-08"
  },
  "LIQ:BTQ": {
@@ -1577,7 +1577,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 2.7,
+  "e5": 2.66,
   "tgt_ms": 1788899280000,
   "date": "2026-09-08"
  },
