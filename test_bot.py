@@ -9493,8 +9493,15 @@ check("📚 HND4: فهرسُ بنود الأرشيف حاضرٌ في HANDOFF.md 
       and _hnd_hd.count("| `") >= 200)
 
 # 🔒 HND5 — سلوكيٌّ لا عدديّ (درسُ MEM5): كلُّ إحالةٍ تقع على **مطلعِ بندٍ فعليّ**
-#    في الأرشيف — سطرُ اقتباسٍ يبدأ فقرةً (يسبقه فراغ) ومقتطعُ الفهرس داخله.
+#    في الأرشيف — سطرُ اقتباسٍ يبدأ فقرةً (يسبقه فراغ) ومقتطعُ الفهرس داخله،
+#    **وبعد ترويسة الأرشيف** (أوّلِ فاصلٍ `---`).
+#    🔴 والشرطُ الأخير وُلد من عيبٍ حقيقيّ أمسكه فحصُ «هل يُوصِل الفهرسُ فعلًا؟»
+#    لا القراءة: كاشفُ المطالع التقط **فقرةَ الترويسة نفسَها** بندًا (‏#1 ⟶ سطر 3)
+#    فصار في الفهرس صفٌّ يحيل إلى شرحِ الأرشفة لا إلى حكم — والقفلُ بصيغته الأولى
+#    **يمرّ عليه** لأن الترويسةَ فقرةُ اقتباسٍ صحيحةُ الشكل. ⇒ الشكلُ الصحيح لا
+#    يكفي: يلزم **الموضعُ** أيضًا. (‏252 بندًا لا 253.)
 _hnd_lines = _hnd_ar.splitlines()
+_hnd_sep = next((_i for _i, _l in enumerate(_hnd_lines, 1) if _l.strip() == "---"), 0)
 _hnd_rows = [_l for _l in _hnd_hd.splitlines() if _mem_re.match(r"^\| \d+ \|", _l)]
 _hnd_bad = []
 for _row in _hnd_rows:
@@ -9507,7 +9514,8 @@ for _row in _hnd_rows:
     _key = _pp[2].strip().lstrip("*").strip()[:22]
     _tgt = _hnd_lines[_ln - 1] if 0 < _ln <= len(_hnd_lines) else ""
     _pv = _hnd_lines[_ln - 2] if 1 < _ln <= len(_hnd_lines) else "x"
-    if not (_tgt.startswith("> ") and _pv.strip() == "" and _key in _tgt):
+    if not (_ln > _hnd_sep > 0 and _tgt.startswith("> ")
+            and _pv.strip() == "" and _key in _tgt):
         _hnd_bad.append(f"#{_pp[1].strip()}⟶{_ln}")
 check(f"📚 HND5: كلُّ إحالةِ فهرسٍ تقع على مطلعِ بندٍ في أرشيف الهاندوف "
       f"({len(_hnd_rows)} بندًا · خاطئة {len(_hnd_bad)})",
