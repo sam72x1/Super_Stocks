@@ -168,7 +168,8 @@
    "j1_top": false
   },
   "e5": 0.1013,
-  "date": "2026-09-08"
+  "date": "2026-09-08",
+  "tgt_ms": 1788887220000
  },
  "LIQ:SMTK": {
   "last_eval_ms": 1788886620000,
@@ -497,7 +498,7 @@
   "updates": 2,
   "vol_x": 51.1,
   "peak_usd": 1373964,
-  "last_eval_ms": 1788868800000,
+  "last_eval_ms": 1788868860000,
   "pulse_ms": 1788887220000,
   "anchor_price": 0.4552,
   "anchor_open": 0.3745,
@@ -1741,7 +1742,7 @@
   "updates": 0,
   "vol_x": 4.5,
   "peak_usd": 39802,
-  "last_eval_ms": 1788876060000,
+  "last_eval_ms": 1788876120000,
   "pulse_ms": 1788887160000,
   "anchor_price": 3.35,
   "anchor_open": 3.18,
