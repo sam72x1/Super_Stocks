@@ -167,7 +167,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.1013,
+  "e5": 0.1015,
   "date": "2026-09-08"
  },
  "LIQ:SMTK": {
@@ -478,7 +478,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 1.5368,
+  "e5": 1.505,
   "date": "2026-09-08"
  },
  "LIQ:YYAI": {
@@ -1674,14 +1674,14 @@
   },
   "date": "2026-09-08",
   "anchor_ms": 1788876060000,
-  "last_ms": 1788876060000,
+  "last_ms": 1788876120000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 4.5,
   "peak_usd": 39802,
-  "pulse_ms": 1788876060000,
+  "pulse_ms": 1788876120000,
   "anchor_price": 3.35,
   "anchor_open": 3.18,
   "anchor_low": 3.17,
