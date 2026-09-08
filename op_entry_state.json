@@ -434,7 +434,7 @@
   "updates": 2,
   "vol_x": 51.1,
   "peak_usd": 1373964,
-  "last_eval_ms": 1788868800000,
+  "last_eval_ms": 1788868860000,
   "pulse_ms": 1788872940000,
   "anchor_price": 0.4552,
   "anchor_open": 0.3745,
@@ -638,7 +638,7 @@
    "anchor_ms": 1788866340000,
    "anchor_price": 0.858,
    "anchor_low": 0.8006,
-   "e5": 0.867,
+   "e5": 0.8755,
    "exit_ms": 1788871080000
   },
   "date": "2026-09-08"
@@ -815,7 +815,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.1868,
+  "e5": 0.185,
   "date": "2026-09-08"
  },
  "LIQ:BZAI": {
@@ -936,7 +936,7 @@
    "anchor_ms": 1788867840000,
    "anchor_price": 1.29,
    "anchor_low": 1.17,
-   "e5": 1.2102,
+   "e5": null,
    "exit_ms": 1788868140000
   },
   "date": "2026-09-08"
