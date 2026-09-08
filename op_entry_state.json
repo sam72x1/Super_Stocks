@@ -1029,7 +1029,7 @@
    "M1"
   ],
   "updates": 0,
-  "vol_x": 35.9,
+  "vol_x": 36.3,
   "peak_usd": 106216,
   "last_eval_ms": 1788898200000,
   "pulse_ms": 1788899160000,
@@ -1046,8 +1046,8 @@
   },
   "pre_done": true,
   "pre_hi": 1.09,
-  "pre_usd": 103795,
-  "pre_n": 43,
+  "pre_usd": 104923,
+  "pre_n": 44,
   "exit_ms": 1788898320000,
   "date": "2026-09-08"
  },
@@ -1532,7 +1532,7 @@
   "updates": 0,
   "vol_x": 37.9,
   "peak_usd": 134173,
-  "last_eval_ms": 1788897960000,
+  "last_eval_ms": 1788898020000,
   "pulse_ms": 1788899160000,
   "anchor_price": 2.77,
   "anchor_open": 2.49,
@@ -1549,7 +1549,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 2.7,
+  "e5": 2.66,
   "date": "2026-09-08"
  },
  "LIQ:HOUR": {
