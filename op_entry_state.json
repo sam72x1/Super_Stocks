@@ -458,9 +458,9 @@
    "M5",
    "M30"
   ],
-  "updates": 1,
+  "updates": 0,
   "vol_x": 12.7,
-  "peak_usd": 542148,
+  "peak_usd": 113683,
   "last_eval_ms": 1788874200000,
   "pulse_ms": 1788884460000,
   "anchor_price": 1.4352,
@@ -479,8 +479,7 @@
    "j1_top": false
   },
   "e5": 1.5368,
-  "date": "2026-09-08",
-  "tgt_ms": 1788876240000
+  "date": "2026-09-08"
  },
  "LIQ:YYAI": {
   "last_eval_ms": 1788884280000,
@@ -497,7 +496,7 @@
   "updates": 2,
   "vol_x": 51.1,
   "peak_usd": 1373964,
-  "last_eval_ms": 1788868860000,
+  "last_eval_ms": 1788868800000,
   "pulse_ms": 1788884460000,
   "anchor_price": 0.4552,
   "anchor_open": 0.3745,
@@ -2091,5 +2090,6 @@
  "LIQ:ATXG": {
   "last_eval_ms": 1788880020000,
   "date": "2026-09-08"
- }
+ },
+ "CTNT": "2026-09-08"
 }
