@@ -82,7 +82,7 @@
   "date": "2026-09-09"
  },
  "LIQ:UZX": {
-  "last_eval_ms": 1788952680000,
+  "last_eval_ms": 1788952800000,
   "date": "2026-09-09"
  },
  "LIQ:KITT": {
@@ -366,7 +366,7 @@
   "date": "2026-09-09"
  },
  "LIQ:CHAI": {
-  "last_eval_ms": 1788952200000,
+  "last_eval_ms": 1788952800000,
   "date": "2026-09-09"
  },
  "LIQ:SLNH": {
@@ -505,7 +505,7 @@
   "date": "2026-09-08"
  },
  "LIQ:CAN": {
-  "last_eval_ms": 1788952740000,
+  "last_eval_ms": 1788952800000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788949920000,
@@ -986,7 +986,7 @@
   "date": "2026-09-08"
  },
  "LIQ:SPWR": {
-  "last_eval_ms": 1788952740000,
+  "last_eval_ms": 1788952800000,
   "date": "2026-09-09"
  },
  "LIQ:DUO": {
