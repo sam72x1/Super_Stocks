@@ -1054,5 +1054,20 @@
   "usd_eff": 10179,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "VHUB",
+  "date": "2026-09-09",
+  "sustain_min": 161,
+  "operator_ok": true,
+  "fired_at": "2026-09-09T20:01:13Z",
+  "break_level": 0.82,
+  "price": 0.9,
+  "vol_x": 4.1,
+  "usd": 5471,
+  "candle_class": "group",
+  "usd_eff": 5471,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
