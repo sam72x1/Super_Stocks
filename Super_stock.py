@@ -13103,6 +13103,18 @@ LIQ_PULSE_MIN_USD = 30_000.0   # 💵 **أرضيةُ النبض** — أمرُ �
 #   الجديدة صغيرةٌ **بالتعريف**، فقياسُها وحدَها كان سيكتم **إشارةَ الخروج
 #   بالذات** — وهي عينُ ما بُني النبضُ له.
 LIQ_CUM_MINUTES = 3            # `A1` — مجموعُ ثلاثِ دقائقَ (‏`liq_move_result.md`)
+
+# 🚦📈 **الزنادُ الثاني `T-C` — «الطبقةُ الموازية» (أمرُ المالك «شغّل R1» 2026-09-09
+#    بعد استيفاء `T-C-TRIGGER` عقدَها: `TC5` ‏×1.40/×1.27 · `TC6` ‏+10.5/+7.9 نقطة).**
+#    ⚖️ **الاتّحادُ لا الاستبدال:** `R1` تبقى **بحرفها** (بوّاباتُها الثلاث بت-بت)
+#    ويُضاف مسارٌ ثانٍ، والمِرساةُ **أبكرُ العابرَين** — وهو عينُ `R1∪T-C` المقيس
+#    (‏`V-T6`). والذراعان **متقاطعتان لا متداخلتان** (‏2024: `T-C` وحدَه 1,236 ·
+#    `R1` وحدَه 1,640) فالضمُّ يزيد مجموعةً لا يبتلع أضعف.
+#    📌 **ورقمُ الدولار مُعادٌ من فيصل لا مخترَع** (`IGNITION_USD_OPERATOR`
+#    «مضاربٌ فوق 100 ألف دولار») · و**‏+20% مقيسٌ في `T-C-TRIGGER`** (`engineering`).
+LIQ_TC_ON = True               # مفتاحُ الطبقة الموازية — إطفاؤه يرجع `R1` بت-بت
+LIQ_TC_USD = CONFIG["IGNITION_USD_OPERATOR"]   # $100,000 تراكميًّا
+LIQ_TC_PCT = 20.0              # ‏+20% عن **إغلاق الأمس** (لا فتحِ الشمعة)
 LIQ_TARGET10_PCT = 10.0        # 🎯 **هدفُ الربح على كرت `M5`** — أمرُ المالك
 #   «اعرض الهدف» (‏2026-08-26) بعد أن استوفت `T-TARGET10` معاييرَها كاملةً —
 #   **أوّلُ ذراعِ سياسةِ خروجٍ تعبر عقدَها في تاريخ المشروع** (‏`target10_result.md`:
@@ -13458,7 +13470,7 @@ def liquidity_lines(cl: dict, vd: dict = None) -> list:
 
 def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                      stages=None, update_cap: int = None, now_ms: int = None,
-                     rearm: bool = False):
+                     rearm: bool = False, tc: dict = None):
     """⏫💰 **الإشعارُ المتدرّجُ بنصّ المالك** — نقيّة، بلا شبكة، قابلة للاختبار.
 
     عقدُها `liq_stages_prereg.md`. أربعُ مراحل: **`M1`** أوّلُ دقيقةٍ **مكتملة**
@@ -13495,9 +13507,19 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
       الموثَّق في إصلاح 2026-08-17) فساعةُ الحائط تُسقطها أيضًا — القاعدةُ
       أدقُّ من الموضع دائمًا.
 
+    🚦 **`tc` — الزنادُ الثاني (الطبقةُ الموازية `R1∪T-C`، أمرُ المالك «شغّل R1»
+    2026-09-09):** قاموسٌ `{"usd", "pct", "prev_close"}`؛ المِرساةُ تقع عند **أبكرِ**
+    شمعةٍ تعبر **إمّا** بوّابات `R1` الثلاث **أو** الشرطَ التراكميّ (‏سيولةٌ مجمَّعةٌ
+    ‏≥`usd` **و**إغلاقٌ ‏≥ إغلاقِ الأمس ×(1+`pct`/100)) — **بلا قفزة حجمٍ ولا رفعةِ
+    دقيقةٍ ولا موضعِ إغلاق**. 🔒 **و`tc=None` (الافتراض) ⇒ الفرعُ لا يُنفَّذ إطلاقًا
+    ⇒ بت-بت** لأدوات الإعادة المجمّدة ولكلّ رقمٍ منشور (نفسُ عقد `rearm`).
+    ⚠️ **وحدُّ صدقٍ يُعلَن:** التراكمُ المقيس كان **من فتح البريماركت**، وهنا يُجمَع
+    عبر المسحات من **أوّل رؤيةٍ للسهم** (‏`tc_cum`) وبذرتُه نافذةُ الجلب وحدَها ⇒
+    **أقلُّ أو يساوي** المقيسَ ⇒ الانحرافُ في اتّجاه التشدّد (رسائلُ أقلُّ لا أكثر).
+
     ترجّع `(events, new_state)`؛ و`events` قائمةٌ من
-    `{"stage","usd","minutes","anchor_ms","last_ms","vol_x","price","class"}`.
-    فاشلةٌ-آمنة ⇒ `([], state)`."""
+    `{"stage","usd","minutes","anchor_ms","last_ms","vol_x","price","class"}`
+    (و`trig` على `M1` حين تفتحها الطبقةُ الموازية). فاشلةٌ-آمنة ⇒ `([], state)`."""
     st = dict(state or {})
     # 🔁⚓ **إعادةُ المِرساة (`rearm=True` من `scan_liq_stages` وحدَه):** عند أوّل
     #    مسحةٍ **بعد** `Xs` تُصفَّر الحالةُ إلى `{"last_eval_ms": exit_ms}` — **عينُ**
@@ -13612,11 +13634,40 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                 cands = [i for i in range(1, len(closed))
                          if int(closed[i]["t"]) > int(_seen_ms)]
             st["last_eval_ms"] = last_ms
+            # 🚦 **الزنادُ الثاني (`T-C`)** — يُبنى قبل الحلقة فيُقرأ لكلّ شمعةٍ
+            #    بكلفةِ O(n). التراكمُ **عبر المسحات**: كلُّ مغلقةٍ جديدةٍ تُضاف
+            #    مرّةً واحدةً (‏`t > tc_seen_ms` صارمة ⇒ إعادةُ نشرِ شمعةٍ لا
+            #    تُضاعف)، وبذرةُ أوّلِ رؤيةٍ نافذةُ الجلب. و`tc_at[i]` = التراكمُ
+            #    **حتى الشمعة i** (بطرح ذيلها) فالشرطُ يُقاس على لحظتها لا على الآن.
+            _tc_at = _tc_usd = _tc_lvl = None
+            if tc:
+                try:
+                    _u, _p = float(tc.get("usd") or 0), float(tc.get("pct") or 0)
+                    _pc0 = float(tc.get("prev_close") or 0)
+                    if _u > 0 and _p > 0 and _pc0 > 0:
+                        _sm = st.get("tc_seen_ms")
+                        st["tc_cum"] = float(st.get("tc_cum") or 0.0) + sum(
+                            _usd(b) for b in closed
+                            if _sm is None or int(b["t"]) > int(_sm))
+                        st["tc_seen_ms"] = last_ms
+                        _tc_at, _suf = [0.0] * len(closed), 0.0
+                        for _j in range(len(closed) - 1, -1, -1):
+                            _tc_at[_j] = float(st["tc_cum"]) - _suf
+                            _suf += _usd(closed[_j])
+                        _tc_usd, _tc_lvl = _u, _pc0 * (1.0 + _p / 100.0)
+                except (TypeError, ValueError):
+                    _tc_at = _tc_usd = _tc_lvl = None
             hit = None
             for i in cands:                      # الأقدمُ أوّلًا — مِرساةُ الحقّ
                 ok, vx_, b = _bar_gates(i)
                 if ok:
-                    hit = (vx_, b)
+                    hit = (vx_, b, None)
+                    break
+                # 🚦 الطبقةُ الموازية: **أبكرُ العابرَين** — فالحلقةُ من الأقدم
+                #    والمطابقُ الأوّل يفوز أيًّا كان مصدرُه (‏`V-T6` بعينه).
+                if (_tc_at is not None and _tc_at[i] >= _tc_usd
+                        and float(b["c"]) >= _tc_lvl):
+                    hit = (vx_, b, "T-C")
                     break
             if hit is None:
                 # 🚨 `M0`: المكتملةُ لم تعبر ⇒ تُجرَّب **المتكوّنة** (أشدُّ بالبناء)
@@ -13655,7 +13706,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                            "move": round(_rise(form), 2),
                            "class": _ignition_candle_class(_usd(form))})
                 return (ev, st)
-            vx, _ab = hit
+            vx, _ab, _trig = hit
             _ams = int(_ab["t"])
             # 🌊 `anchor_price` = دخولُ المِرساة (إغلاقُ شمعتها) — حقلُ **عرضٍ**
             #    يغذّي وسمَ الكاسح (T-KASIH قاست F5 من هذا السعر بعينه).
@@ -13698,6 +13749,9 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
                                                   or _ab["c"]), 4),
                        "anchor_low": round(float(_ab["l"]), 4),
                        "class": _ignition_candle_class(_usd(_ab))})
+            if _trig:
+                st["trig"] = _trig
+                ev[-1]["trig"] = _trig
             return (ev, st)
         anchor = int(anchor)
         # 🛑🎯 **قرارُ الخروج والهدف — حدثان لا نبض** (أمرُ المالك 2026-09-02:
@@ -13933,7 +13987,7 @@ def liq_stage_events(bars: list, state: dict = None, vol_mult: float = None,
 
 def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None,
                     window_min: int = None, workers: int = None, clock=None,
-                    fetch_operator=None):
+                    fetch_operator=None, fetch_prev_close=None):
     """⏫💰 يمسح كونَ المتابعة **بلا استثناء** ويرجّع أحداثَ التدرّج.
 
     ⚖️ **«بلا اي استثناء» بالعضوية *وبحبيبةِ الدقيقة***: ‏319 نداءً تسلسليًّا ‏≈96ث
@@ -13949,6 +14003,9 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
     اختيار.** فاشلةٌ-آمنة لكلّ سهمٍ على حدة."""
     import concurrent.futures as _cf
     fb = fetch_bars or polygon_minute_bars
+    # 🚦 إغلاقُ الأمس للزناد الثاني — **مكشوفٌ للحقن** كـ`fetch_bars` (فبلا مفتاحٍ
+    #    يرجع `None` ⇒ `tc=None` ⇒ سلوكُ `R1` بت-بت، والاختبارُ يحقنه).
+    fpc = fetch_prev_close or polygon_prev_close
     win = int(window_min if window_min is not None else LIQ_WINDOW_MIN)
     nw = max(1, int(workers if workers is not None else LIQ_WORKERS))
     tick = clock or time.time
@@ -13973,8 +14030,22 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
         #    — `provider_gap_result.md`): المغلقةُ تُقيَّم فورَ ظهورها ولو كانت
         #    آخرَ صفٍّ (كانت قاعدةُ الموضع تُكلّف ‏≈62ث لكلّ كشف). وأدواتُ
         #    الإعادة المجمّدة لا تمرّرها ⇒ قاعدتُها القديمة بت-بت.
+        # 🚦📈 **الطبقةُ الموازية `R1∪T-C`** (أمرُ المالك «شغّل R1» 2026-09-09):
+        #    يُجلَب إغلاقُ الأمس **قبل المِرساة وحدَها** (بعدها لا يُستعمل الزناد)
+        #    ونداؤُه **مكاشٌ لكلّ رمزٍ في اليوم** فكلفتُه نداءٌ واحدٌ لا نداءٌ لكلّ
+        #    مسحة. فاشلٌ-آمن: `None` ⇒ `tc=None` ⇒ `R1` وحدَها بت-بت.
+        _tc = None
+        if LIQ_TC_ON and not cur.get("anchor_ms"):
+            try:
+                _pcv = fpc(sym, today_iso)
+            except Exception:                                    # noqa: BLE001
+                _pcv = None
+            if _pcv:
+                _tc = {"usd": LIQ_TC_USD, "pct": LIQ_TC_PCT,
+                       "prev_close": float(_pcv)}
         ev, st = liq_stage_events(bars, {k: v for k, v in cur.items()
                                         if k != "date"},
+                                  tc=_tc,
                                   now_ms=int(tick() * 1000),
                                   # 🔁⚓ المسارُ الحيّ وحدَه يُعيد المِرساة
                                   #    (أمرُ المالك 2026-09-03 · `T-REARM`).
@@ -15119,6 +15190,26 @@ def j1_premarket_flag(evs) -> bool:
         return False
 
 
+def liq_trigger_tag(evs) -> str:
+    """🚦 **وسمُ «الطبقة الموازية»** — يظهر حين تفتح المِرساةَ ذراعُ `T-C`
+    (سيولةٌ تراكميّةٌ ‏≥`LIQ_TC_USD` مع ارتفاعٍ ‏≥`LIQ_TC_PCT`% عن إغلاق الأمس)
+    لا بوّاباتُ `R1` الثلاث. **فارقٌ يُفرِّق**: `R1` لا وسمَ لها بالتعريف — فلا
+    يُقرأ الوسمُ زينةً بل جوابًا عن «أيُّ زنادٍ أرسل هذا؟».
+
+    ⚖️ **ولماذا يُطبَع أصلًا:** الاتّحادُ مقيسٌ على **رسائلَ لا تسليم** (حدُّ صدق
+    `T-C-TRIGGER §⑨`)، والحصادُ الأماميُّ الوحيدُ الممكن أن يُقرأ من الكرت والسجلّ
+    **أيُّ الذراعين أطلق** ⇒ بلا الوسم لا يُقاس المكسبُ حيًّا أبدًا.
+
+    🔒 **عرضٌ لا اختيار:** لا تُقرأ في بوّابةٍ ولا فلترٍ ولا ترتيب."""
+    try:
+        for e in (evs or []):
+            if isinstance(e, dict) and e.get("trig"):
+                return "🚦 زنادٌ موازٍ (سيولةٌ تراكميّةٌ ‏+ ارتفاعٌ عن الأمس)"
+    except Exception:                                            # noqa: BLE001
+        pass
+    return ""
+
+
 def liq_rearm_tag(evs) -> str:
     """🔁⚓ **وسمُ «مِرساة #N» — مصدرٌ واحدٌ للكرت وللسجلّ** (أمرُ المالك
     2026-09-05 «طبع الوسم في السجلّ»).
@@ -15168,9 +15259,11 @@ def liq_rearm_marks(rows) -> list:
     for _r in (rows or []):
         try:
             _row, _evs = _r[0], _r[1]
-            _t = liq_rearm_tag(_evs)
-            if _t:
-                out.append(f"{_row.get('symbol')}: {_t}")
+            # 🚦 والزنادُ الموازي معه بنفس القاعدة (مصدرٌ واحدٌ للكرت وللسجلّ) —
+            #    وإلّا صار المكسبُ المقيسُ غيرَ مرصودٍ حيًّا (‏`T-C-TRIGGER §⑨`).
+            for _t in (liq_rearm_tag(_evs), liq_trigger_tag(_evs)):
+                if _t:
+                    out.append(f"{_row.get('symbol')}: {_t}")
         except Exception:                                        # noqa: BLE001
             continue
     return out
@@ -15349,6 +15442,10 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
         _rtxt = liq_rearm_tag(evs)
         if _rtxt:
             head.append(_rtxt)
+        # 🚦 أيُّ زنادٍ فتح المِرساة — يُقرأ من الكرت ومن السجلّ بمصدرٍ واحد.
+        _ttxt = liq_trigger_tag(evs)
+        if _ttxt:
+            head.append(_ttxt)
         if row.get("src"):
             head.append(esc(row.get("src")))
         lines.append(" · ".join(head))

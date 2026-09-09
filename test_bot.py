@@ -43449,6 +43449,147 @@ check("⏳🔒 WSK10 الـworkflow موصول: لقطتان بمدخلَيهم�
                                      "34331756534", "34331758846")),
       f"env={sorted(_ws_env)} dl={len(_ws_dl)}")
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🚦📈 `R1 ∪ T-C` — الطبقةُ الموازية (أمرُ المالك «شغّل R1» 2026-09-09)
+# ══════════════════════════════════════════════════════════════════════════
+# الأقفالُ **سلوكيّةٌ أوّلًا**: مِرساةٌ تتحرّك أو لا تتحرّك — لا وجودُ دالّة.
+# والفِكستشرُ واحدٌ لكلّ الحالات فيُقرأ الفرقُ من مدخلٍ واحدٍ متغيّر.
+_TB = 1_700_000_000_000
+def _tc_bar(i, o, h, l, c, v):
+    return {"t": _TB + i * 60_000, "o": o, "h": h, "l": l, "c": c, "v": v}
+# ‏3 دقائقَ هادئةً · ثمّ **شمعةُ `T-C`** (‏$130k وسعرٌ ‏+30% عن الأمس · رفعتُها
+# الداخليّة 0.78% ⇒ `R1` ترفضها) · ثمّ **شمعةُ `R1`** (‏3× حجمًا و+30% فتحًا⟶إغلاقًا).
+_TC_BARS = [_tc_bar(0, 1.09, 1.11, 1.08, 1.10, 1000),
+            _tc_bar(1, 1.09, 1.11, 1.08, 1.10, 1000),
+            _tc_bar(2, 1.09, 1.11, 1.08, 1.10, 1000),
+            _tc_bar(3, 1.29, 1.31, 1.28, 1.30, 100000),
+            _tc_bar(4, 1.00, 1.30, 1.00, 1.30, 100000),
+            _tc_bar(5, 1.30, 1.31, 1.29, 1.30, 100)]
+_TC_ST = {"last_eval_ms": _TB - 1}          # لا «أوّلُ رؤية» فتُفحَص كلُّ الشموع
+_TC_ON = {"usd": 100_000, "pct": 20.0, "prev_close": 1.0}
+def _tc_ev(bars, st, tc=None):
+    e, s2 = S.liq_stage_events(list(bars), dict(st), tc=tc)
+    return ([(x["stage"], (int(x["anchor_ms"]) - _TB) // 60_000, x.get("trig"))
+             for x in e], s2)
+_tc_r1, _ = _tc_ev(_TC_BARS, _TC_ST)
+_tc_un, _tc_s = _tc_ev(_TC_BARS, _TC_ST, _TC_ON)
+check("🚦 TCU1 **الاتّحادُ يُبكِّر المِرساة**: `R1` وحدَها تُرسي عند الدقيقة 4 · "
+      "ومع `T-C` عند **الدقيقة 3** موسومةً `trig=T-C` (والحالةُ تحمل الوسم) · "
+      "و`tc=None` (الافتراض) **بت-بت**",
+      _tc_r1 == [("M1", 4, None)] and _tc_un == [("M1", 3, "T-C")]
+      and _tc_s.get("trig") == "T-C",
+      f"R1={_tc_r1} · اتّحاد={_tc_un}")
+
+# TCU2 — **أبكرُ العابرَين** في الاتّجاه المعاكس: حين تسبق `R1` لا يُوسَم الحدث.
+_TC_B2 = [_tc_bar(0, 1.0, 1.0, 1.0, 1.0, 1000),
+          _tc_bar(1, 1.00, 1.10, 1.00, 1.10, 100000),      # `R1` تعبر هنا
+          _tc_bar(2, 1.09, 1.11, 1.08, 1.10, 1000),
+          _tc_bar(3, 1.29, 1.31, 1.28, 1.30, 200000),      # `T-C` تعبر هنا
+          _tc_bar(4, 1.3, 1.3, 1.3, 1.3, 100)]
+_tc_first, _ = _tc_ev(_TC_B2, _TC_ST, _TC_ON)
+check("🚦 TCU2 **الأبكرُ يفوز أيًّا كان مصدرُه**: `R1` تسبق ⇒ المِرساةُ عند الدقيقة 1 "
+      "**بلا وسم** (فالوسمُ فارقٌ يُفرِّق لا زينةٌ على كلّ حدث)",
+      _tc_first == [("M1", 1, None)], str(_tc_first))
+
+# TCU3 — **الشرطان معًا لا أحدُهما** · والرقمان مصدرُهما مُعلَن.
+_tc_px, _ = _tc_ev(_TC_BARS, _TC_ST, {"usd": 100_000, "pct": 50.0, "prev_close": 1.0})
+_tc_usd, _ = _tc_ev(_TC_BARS, _TC_ST, {"usd": 10 ** 9, "pct": 20.0, "prev_close": 1.0})
+_tc_bad, _ = _tc_ev(_TC_BARS, _TC_ST, {"usd": 100_000, "pct": 20.0, "prev_close": 0})
+check("🚦 TCU3 السيولةُ وحدَها لا تكفي والسعرُ وحدَه لا يكفي (كلاهما ⇒ `R1` عند 4) · "
+      "و`prev_close` غائبٌ ⇒ الفرعُ خامد · والرقمان: $100,000 = `IGNITION_USD_OPERATOR` "
+      "(رقمُ فيصل) و‏+20% من `T-C-TRIGGER`",
+      _tc_px == [("M1", 4, None)] and _tc_usd == [("M1", 4, None)]
+      and _tc_bad == [("M1", 4, None)]
+      and S.LIQ_TC_USD == S.CONFIG["IGNITION_USD_OPERATOR"] == 100_000
+      and S.LIQ_TC_PCT == 20.0 and S.LIQ_TC_ON is True,
+      f"سعر={_tc_px} سيولة={_tc_usd} بلا مرجع={_tc_bad}")
+
+# TCU4 — التراكمُ عبر المسحات: كلُّ شمعةٍ **مرّةً واحدة** · والذيلُ لا يُرجِّع.
+_tc_flat = [_tc_bar(i, 1.0, 1.0, 1.0, 1.0, 500) for i in range(6)]
+_TC_HI = {"usd": 10 ** 9, "pct": 20.0, "prev_close": 1.0}
+_, _tcs1 = S.liq_stage_events(list(_tc_flat), {}, tc=_TC_HI)
+_, _tcs2 = S.liq_stage_events(list(_tc_flat), dict(_tcs1), tc=_TC_HI)
+_, _tcs3 = S.liq_stage_events(_tc_flat + [_tc_bar(6, 1.0, 1.0, 1.0, 1.0, 500),
+                                          _tc_bar(7, 1.0, 1.0, 1.0, 1.0, 500)],
+                              dict(_tcs2), tc=_TC_HI)
+# ذيلٌ ضخمٌ متأخّرٌ وأسعارٌ مبكّرةٌ فوق المستوى ⇒ المِرساةُ عند شمعة المال لا قبلها
+_TC_TAIL = [_tc_bar(0, 1.29, 1.31, 1.28, 1.30, 10),
+            _tc_bar(1, 1.29, 1.31, 1.28, 1.30, 10),
+            _tc_bar(2, 1.29, 1.31, 1.28, 1.30, 10),
+            _tc_bar(3, 1.29, 1.31, 1.28, 1.30, 200000),
+            _tc_bar(4, 1.3, 1.3, 1.3, 1.3, 10)]
+_tc_tail, _ = _tc_ev(_TC_TAIL, _TC_ST, _TC_ON)
+check("🚦 TCU4 التراكمُ عبر المسحات **بلا تكرار** (‏2500 ⟶ 2500 ⟶ 3500 بشمعتين "
+      "جديدتين) · و`tc_at[i]` يطرح الذيلَ فلا تُرجِّع قفزةٌ متأخّرةٌ شمعةً مبكّرة "
+      "(المِرساةُ عند الدقيقة **3** لا 0)",
+      _tcs1.get("tc_cum") == 2500.0 and _tcs2.get("tc_cum") == 2500.0
+      and _tcs3.get("tc_cum") == 3500.0
+      and _tcs2.get("tc_seen_ms") == _TB + 4 * 60_000
+      and _tc_tail == [("M1", 3, "T-C")],
+      f"cum={_tcs1.get('tc_cum')}/{_tcs2.get('tc_cum')}/{_tcs3.get('tc_cum')} ذيل={_tc_tail}")
+
+# TCU5/TCU6 — الوصلُ الحيّ: مسحتان (أوّلُ رؤيةٍ تفحص الأخيرةَ وحدَها بالتصميم).
+def _tc_scan(fpc, on=True):
+    _old = S.LIQ_TC_ON
+    S.LIQ_TC_ON = on
+    _seen, _rows = {}, []
+    try:
+        for _n in (4, 6):
+            _rows, _c, _s = S.scan_liq_stages(
+                [{"symbol": "AAA", "src": "تحت المتابعة"}], "2026-09-09",
+                seen=_seen, workers=1, clock=lambda _n=_n: (_TB + _n * 60_000) / 1000.0,
+                fetch_bars=lambda s, minutes=65, _n=_n: _TC_BARS[:_n],
+                fetch_prev_close=fpc)
+    finally:
+        S.LIQ_TC_ON = _old
+    return _rows
+def _tc_stages(rows):
+    return [(e["stage"], (int(e["anchor_ms"]) - _TB) // 60_000, e.get("trig"))
+            for _r, evs in (rows or []) for e in (evs or [])]
+_tc_none = _tc_stages(_tc_scan(lambda *a, **k: None))
+_tc_live = _tc_scan(lambda *a, **k: 1.0)
+_tc_off = _tc_stages(_tc_scan(lambda *a, **k: 1.0, on=False))
+check("🚦 TCU5 **الوصلُ الحيُّ من نقطة النداء**: بلا إغلاقِ أمسٍ ⇒ `R1` عند 4 **بت-بت** · "
+      "ومعه ⇒ الدقيقة 3 موسومة · **و`LIQ_TC_ON=False` يرجع `R1` بت-بت** (مفتاحٌ يعمل لا يُدَّعى)",
+      _tc_none == [("M1", 4, None)] and _tc_stages(_tc_live) == [("M1", 3, "T-C")]
+      and _tc_off == [("M1", 4, None)],
+      f"بلا={_tc_none} · مع={_tc_stages(_tc_live)} · مطفأ={_tc_off}")
+_tc_tag = S.liq_trigger_tag(_tc_live[0][1])
+_tc_calls = lambda f: {(getattr(c.func, "id", None) or getattr(c.func, "attr", None))
+                       for c in _bk_ast.walk(_bk_ast.parse(_insp0.getsource(f)))
+                       if isinstance(c, _bk_ast.Call)}
+check("🚦 TCU6 **مصدرٌ واحدٌ للكرت وللسجلّ** (درسُ `liq_rearm_tag`): الوسمُ نفسُه في "
+      "`build_liq_stage_alert` و`liq_rearm_marks` (‏AST + نصًّا) · و`R1` بلا وسم",
+      "🚦" in _tc_tag and "🚦" in S.build_liq_stage_alert(_tc_live)
+      and any(_tc_tag in m for m in S.liq_rearm_marks(_tc_live))
+      and "liq_trigger_tag" in _tc_calls(S.build_liq_stage_alert)
+      and "liq_trigger_tag" in _tc_calls(S.liq_rearm_marks)
+      and S.liq_trigger_tag([{"stage": "M1"}]) == "" and S.liq_trigger_tag(None) == "",
+      _tc_tag)
+
+# TCU7 — خارج الاختيار والفلتر (AST): طبقةُ تسليمٍ لا فرز.
+_tc_roots = (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
+             S.analyze_ticker, S.backtest_symbol, S.build_interpretation,
+             S.alert_filter_keep, S.liq_tier)
+_tc_names = {"liq_trigger_tag", "LIQ_TC_ON", "LIQ_TC_USD", "LIQ_TC_PCT"}
+_tc_leak = [f.__name__ for f in _tc_roots
+            if _tc_names & ({n.id for n in _bk_ast.walk(
+                _bk_ast.parse(_insp0.getsource(f))) if isinstance(n, _bk_ast.Name)}
+                | _tc_calls(f))]
+check("🚦 TCU7 الطبقةُ الموازيةُ **خارج** الاختيار والحسم والفلتر والتصنيف "
+      "(rank_key/select_top/classify_tier/entry_status/analyze_ticker/backtest_symbol/"
+      "build_interpretation/alert_filter_keep/liq_tier)",
+      not _tc_leak, f"تسرّب: {_tc_leak}")
+
+# TCU8 — الوثيقة: العقدُ والنتيجةُ يحملان أرقامَ الحكم فلا يُشحَن رقمٌ بلا سند.
+_tc_res = open("tc_trigger_result.md", encoding="utf-8").read()
+check("🚦 TCU8 سندُ الشحن مكتوبٌ لا مرويّ: `tc_trigger_result.md` يحمل `TC5`/`TC6` "
+      "وعتبتَي الاتّحاد · و`liq_stage_events` تُعلن حدَّ التراكم",
+      all(t in _tc_res for t in ("TC5", "TC6", "R1∪T-C"))
+      and "من فتح البريماركت" in _insp0.getsource(S.liq_stage_events)
+      and "tc=None" in _insp0.getsource(S.liq_stage_events))
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
