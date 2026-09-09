@@ -1,0 +1,49 @@
+name: T-RSI40 (بوّابة RSI الآن)
+
+# 📉🚪 يقيس: كم يُكلّف شدُّ `RSI_NOW_HARD` من **‏71.12** (ظرفُ الكاتالوج النافذ)
+#    إلى **‏40** (نصُّ دليل فيصل في خمسة مواضع)؟ العقد: `rsi40_prereg.md`
+#    (مدفوعٌ **قبل** أيّ سطرِ أداةٍ وقبل أيّ رقم · ملحقا §⑦/§⑧ قبل أوّل تشغيلة).
+# 🔒 بحث/قياس فقط · بلا كرون · و`Super_stock.py` **لا تُمَسّ بحرف**: كلُّ ذراعٍ
+#    تضبط `CONFIG` **بعد الاستيراد** في عمليتها وحدها (‏`V-R4` يُثبتها ببصمة الملفّ).
+# ⚠️ خمسُ عملياتٍ لا أربع: الأذرعُ الأربع **وشاهدُ الضبط `HC`** (‏`V-R0`).
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (2023 · 2024 · 2025 للحكم · 2026 وصفيّة)"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "لقطة PIT: 2023=31574165523 · 2024=31199493957 · 2025=31191327731"
+        required: true
+        default: ""
+jobs:
+  rsi40:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # 🔒 `V-R4` يقرأ `origin/main` — بلا التاريخ يسقط
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Download frozen dataset
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run RSI40 arms
+        env:
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python rsi40_arms.py

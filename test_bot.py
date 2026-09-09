@@ -43686,6 +43686,231 @@ check("🚦📜 TRD4 حدودُ الصدق الأربعة وختمُ الشحن 
           _trn_yaml.safe_load(open(".github/workflows/liq_trig_read.yml",
                                encoding="utf-8"))))
 
+# ═══ 📉 T-RSI40 — أقفال RSK0-RSK8 (العقد rsi40_prereg.md · 2026-09-09) ═══
+# تجربةُ **بوّابة**: شدُّ `RSI_NOW_HARD` من ظرف الكاتالوج (‏71.12) إلى نصّ دليل
+# فيصل (‏40). والأقفالُ تحرس ثلاثةَ أشياءَ قبل أيّ رقم: **الآليةُ ليست `no-op`**
+# (‏الظرفُ يدهس أعلامَ البيئة) · **الإنتاجُ لا يُمَسّ** · **والحارسُ الذي يسقط على
+# الصحيح نُزِّل إلى رصد** بدل أن يُسقط تشغيلةً سليمة.
+import ast as _rs_ast
+import importlib.util as _rs_imp
+import io as _rs_io
+import yaml as _rs_yaml
+
+_rs_spec = _rs_imp.spec_from_file_location("rsi40_arms", "rsi40_arms.py")
+_RS = _rs_imp.module_from_spec(_rs_spec)
+try:
+    _rs_spec.loader.exec_module(_RS)
+    _rs_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _RS, _rs_load = None, f"{type(_e).__name__}: {_e}"
+check("📉🔒 RSK0 أداةُ RSI40 تُحمَّل بلا استيراد الإنتاج (الوالدُ لا يستورد Super_stock)",
+      _RS is not None, _rs_load or "OK")
+
+_rs_src = _rs_io.open("rsi40_arms.py", encoding="utf-8").read()
+_rs_tree = _rs_ast.parse(_rs_src)
+
+# RSK1 — الأذرعُ الأربعُ وقيمُها **كالعقد حرفيًّا**، وشاهدُ الضبط `HC` **خارجها**،
+#    و`H0` = القيمةُ الحيّةُ في الظرف نفسِه (لا رقمٌ منقولٌ بيدي).
+_rs_env = None
+try:
+    import json as _rs_json
+    _rs_env = (_rs_json.load(_rs_io.open("envelope_p100.json", encoding="utf-8"))
+               .get("edges") or {}).get("rsi_now")
+except Exception:                                                # noqa: BLE001
+    _rs_env = None
+check("📉🔒 RSK1 الأذرعُ أربعٌ كالعقد (H0=71.1186 الحيّ · H40 الحاكمة · H50 · H30) · "
+      "و`HC` شاهدُ ضبطٍ **ليس ذراعًا** · و`H0` = قيمةُ الظرف نفسِها لا رقمًا منقولًا",
+      _RS is not None
+      and list(_RS.ARMS) == ["H0", "H40", "H50", "H30"]
+      and _RS.ARMS["H40"] == 40.0 and _RS.ARMS["H50"] == 50.0
+      and _RS.ARMS["H30"] == 30.0
+      and _RS.BASE_ARM == "H0" and _RS.CTRL_ARM == "HC"
+      and _RS.CTRL_ARM not in _RS.ARMS
+      and _RS.FLOOR_FILLED == 100
+      and _rs_env is not None and abs(_RS.ARMS["H0"] - float(_rs_env)) <= 1e-9,
+      f"env_rsi_now={_rs_env} H0={_RS.ARMS['H0'] if _RS else '?'}")
+
+# RSK2 — 🔴 **الحارسُ الذي وُلد من العيب:** الضبطُ **بعد الاستيراد** لا بعَلَمِ بيئة.
+#    `RSI_NOW_HARD` من مفاتيح الظرف (`CRITERIA: rsi_now → RSI_NOW_HARD`)، و
+#    `apply_faisal_only` تنفّذ `cfg.update(ov)` **بعد** `_apply_backtest_overrides`
+#    ⇒ أيُّ `BT_RSI_NOW_HARD` يُدهَس صامتًا فتتطابق الأذرعُ بت-بت = **غيابُ قياس**.
+#    يُقفَل بالـAST: الإسنادُ إلى `CONFIG["RSI_NOW_HARD"]` داخل `run_child` **بعد**
+#    سطرِ `import Super_stock` — ولا أثرَ لعَلَمِ بيئةٍ باسم `BT_RSI_NOW_HARD`.
+_rs_child = next((n for n in _rs_ast.walk(_rs_tree)
+                  if isinstance(n, _rs_ast.FunctionDef) and n.name == "run_child"),
+                 None)
+_rs_imp_ln = min([n.lineno for n in _rs_ast.walk(_rs_child or _rs_ast.Module(body=[]))
+                  if isinstance(n, _rs_ast.Import)
+                  and any(a.name == "Super_stock" for a in n.names)] or [10 ** 9])
+_rs_set_ln = [n.lineno for n in _rs_ast.walk(_rs_child or _rs_ast.Module(body=[]))
+              if isinstance(n, _rs_ast.Assign)
+              for t in n.targets
+              if isinstance(t, _rs_ast.Subscript)
+              and isinstance(t.slice, _rs_ast.Constant)
+              and t.slice.value == "RSI_NOW_HARD"]
+_rs_cfg_read = ('CONFIG["RSI_NOW_HARD"]' in _rs_src)
+check("📉🔒 RSK2 الضبطُ **بعد الاستيراد** داخل `run_child` (لا عَلَمَ بيئةٍ يدهسه الظرفُ) "
+      "· ولا ذكرَ لـ`BT_RSI_NOW_HARD` في الأداة ولا في الـworkflow",
+      _rs_child is not None and bool(_rs_set_ln)
+      and min(_rs_set_ln) > _rs_imp_ln and _rs_cfg_read
+      and "BT_RSI_NOW_HARD" not in _rs_src
+      and "BT_RSI_NOW_HARD" not in _rs_io.open(".github/workflows/rsi40.yml",
+                                               encoding="utf-8").read(),
+      f"import@{_rs_imp_ln} set@{_rs_set_ln}")
+
+# RSK3 — `V-R5` يسقط على **الدهس** (نافذٌ ≠ اسميّ) بخروج **4**، ويمرّ على السليم.
+_rs_LIVE = _RS.ARMS["H0"] if _RS else 0.0
+
+
+def _rs_row(arm, sig=300, d100=10, hard=None, **kw):
+    d = {"arm": arm, "hard": (hard if hard is not None
+                              else (_RS.ARMS.get(arm) or _rs_LIVE)),
+         "live": _rs_LIVE, "snap": {"asof": "2026-08-06", "n": 25},
+         "signals": sig, "decided": sig, "wins": 1, "losses": 1, "no_fill": 0,
+         "win_rate": 50.0, "wf": sig, "taken": sig, "d50": d100, "d100": d100,
+         "per_trade": 0.1, "axis": 100, "rejected_cap": 0,
+         "set100": [f"S{i}" for i in range(d100)], "set50": [],
+         "keys": [f"K{i}" for i in range(sig)]}
+    d.update(kw)
+    return d
+
+
+_rs_good = {"H0": _rs_row("H0"), "H50": _rs_row("H50", 250),
+            "H40": _rs_row("H40", 200), "H30": _rs_row("H30", 120, 9),
+            "HC": _rs_row("HC", hard=_rs_LIVE)}
+_rs_hits = {"H0": 5, "H50": 50, "H40": 80, "H30": 200, "HC": 5}
+_rs_ok0, _rs_l0, _rs_rc0 = (_RS.validity(_rs_good, _rs_hits) if _RS
+                            else (False, [], 9))
+_rs_stomp = dict(_rs_good)
+_rs_stomp["H40"] = _rs_row("H40", 200, hard=_rs_LIVE)
+_rs_ok1, _, _rs_rc1 = (_RS.validity(_rs_stomp, _rs_hits) if _RS else (True, [], 0))
+_rs_noop = {a: _rs_row(a, hard=_rs_LIVE) for a in ["H0", "H40", "H50", "H30", "HC"]}
+_rs_ok2, _, _rs_rc2 = (_RS.validity(_rs_noop, {a: 5 for a in _rs_noop}) if _RS
+                       else (True, [], 0))
+check("📉🔒 RSK3 `V-R5`/`V-R2` **يسقطان على الدهس وعلى الـno-op بخروج 4** ويمرّان على "
+      "السليم — فلا تُقرأ «لا فرق» نتيجةً وهي غيابُ قياس",
+      _rs_ok0 is True and _rs_rc0 == 0
+      and _rs_ok1 is False and _rs_rc1 == 4
+      and _rs_ok2 is False and _rs_rc2 == 4,
+      f"سليم=({_rs_ok0},{_rs_rc0}) دهس=({_rs_ok1},{_rs_rc1}) noop=({_rs_ok2},{_rs_rc2})")
+
+# RSK4 — `V-R0` شاهدُ الضبط: `H0 ≡ HC` **بت-بت** — يسقط على أيّ فارقٍ بخروج **3**.
+_rs_c = dict(_rs_good)
+_rs_c["HC"] = _rs_row("HC", 299, hard=_rs_LIVE)
+_rs_okc, _, _rs_rcc = (_RS.validity(_rs_c, _rs_hits) if _RS else (True, [], 0))
+_rs_c2 = dict(_rs_good)
+_rs_c2["HC"] = _rs_row("HC", hard=40.0)
+_rs_okd, _, _ = (_RS.validity(_rs_c2, _rs_hits) if _RS else (True, [], 0))
+check("📉🔒 RSK4 `V-R0` شاهدُ الضبط بت-بت: فارقٌ في أيّ مقياسٍ ⇒ **خروج 3** · وشاهدٌ "
+      "يضبط قيمةً ⇒ يسقط أيضًا (فهو **شاهدُ ضبطٍ لا ذراع**)",
+      _rs_okc is False and _rs_rcc == 3 and _rs_okd is False
+      and _RS is not None and len(_RS._CMP_KEYS) >= 12
+      and {"signals", "d100", "taken", "per_trade"} <= set(_RS._CMP_KEYS),
+      f"شاهدٌ مختلف=({_rs_okc},{_rs_rcc}) شاهدٌ يضبط={_rs_okd}")
+
+# RSK5 — 🔴 **`V-R1` نُزِّل إلى رصدٍ عمدًا** (‏§⑧-ب): `i += fwd` يجعل الأذرعَ غيرَ
+#    متداخلة، فصفٌّ يدخل في الأشدّ **سلوكٌ صحيح**. القفلُ سلوكيّ: تشغيلةٌ يدخل فيها
+#    صفٌّ جديدٌ في `H40` **تمرّ** — وحارسٌ يمنع الصحيح قفلٌ مكسورٌ لا أشدّ.
+_rs_inv = dict(_rs_good)
+_rs_inv["H40"] = _rs_row("H40", 200, keys=[f"K{i}" for i in range(199)] + ["NEW"])
+_rs_oki, _rs_li, _rs_rci = (_RS.validity(_rs_inv, _rs_hits) if _RS else (False, [], 9))
+_rs_rn = [ln for ln in _rs_li if ln[0].startswith("R-N/")]
+check("📉🔒 RSK5 دخولُ صفٍّ جديدٍ في الذراع الأشدّ **لا يُسقط** التشغيلة (رصدٌ لا بوّابة) "
+      "· و`R-N` يُعلن الداخلَ بالاسم · ووسمُه `ℹ️` لا ✅/⛔",
+      _rs_oki is True and _rs_rci == 0
+      and len(_rs_rn) == 3 and all(ln[1] is None for ln in _rs_rn)
+      and any("NEW" in ln[2] and "دخل 1" in ln[2] for ln in _rs_rn)
+      and all(ln[1] is None for ln in _rs_li if ln[0] in ("R-M",)),
+      f"ok={_rs_oki} rc={_rs_rci} rn={[ln[2][:40] for ln in _rs_rn]}")
+
+# RSK6 — قراءةٌ فقط: صفرُ نداءٍ يكتب حالةً أو يُرسل · والإنتاجُ لا يستوردها ·
+#    وإعادةُ الاستعمال **بالاسم** من `ceiling_arms`/`replay10` (ميزانيةٌ واحدةٌ بالبناء).
+_rs_banned = {"send_telegram", "git_save", "save_watchlist", "save_op_entry_state",
+              "record_new_alerts", "save_alerts"}
+_rs_calls = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+             for n in _rs_ast.walk(_rs_tree) if isinstance(n, _rs_ast.Call)}
+_rs_reuse = {"child_env", "rates", "snapshot_id", "frozen_missing",
+             "_live_capacity", "_mark"}
+_rs_used = {n.attr for n in _rs_ast.walk(_rs_tree)
+            if isinstance(n, _rs_ast.Attribute)
+            and isinstance(n.value, _rs_ast.Name) and n.value.id == "CA"}
+check("📉🔒 RSK6 قراءةٌ فقط (صفرُ إرسالٍ/كتابةِ حالة) · الإنتاجُ لا يستورد الأداة · "
+      "وإعادةُ استعمالٍ بالاسم من `ceiling_arms` (child_env/rates/snapshot_id/"
+      "frozen_missing) ⇒ الميزانيةُ واحدةٌ بالبناء لا بالدعوى",
+      not (_rs_banned & _rs_calls)
+      and _rs_reuse <= _rs_used
+      and "rsi40_arms" not in _rs_io.open("Super_stock.py", encoding="utf-8").read()
+      and "replay10" in _rs_src and "rank_live" in _rs_src,
+      f"banned={sorted(_rs_banned & _rs_calls)} CA={sorted(_rs_used)}")
+
+# RSK7 — `V-R4` **بصمةُ الملفّ** لا نيّة: `Super_stock.py` = `origin/main` بت-بت،
+#    وتعذّرُ القراءة **يُسقط ولا يُدَّعى نجاحًا** (عكسُ عرفِ «بلا ريموت ⇒ لا يُسقِط»
+#    عمدًا: هنا البصمةُ **هي** الحارس، فتعذّرُها = غيابُ الحارس).
+#    🔴 **وصيغتُه الأولى كانت نصّيّةً فنجت منها طفرةٌ حقيقية (`r7`):** اشترطت وجودَ
+#    عبارة «لا يُدَّعى نجاح» في المصدر — وهي **في الدوكسترنغ أيضًا** (3 مواضع) فبقي
+#    الشرطُ راضيًا بعد قلب سطر الكود إلى `return True`. وهو **§② من دليل الأقفال**
+#    حرفيًّا: «القفلُ النصّيّ لا يفرّق كودًا عن تعليق». ⇒ صار **سلوكيًّا**: يُجبَر
+#    مسارا الفشل (استثناءٌ · ورمزُ خروجٍ غيرُ صفريّ) ويُشترَط `False` في كليهما.
+_rs_u_ok, _rs_u_why = (_RS._untouched() if _RS else (False, "?"))
+
+
+class _RsBoom:
+    def run(self, *a, **k):
+        raise OSError("لا ريموت")
+
+
+class _RsRc1:
+    def run(self, *a, **k):
+        return type("P", (), {"returncode": 1, "stdout": b""})()
+
+
+def _rs_forced(stub):
+    """يُجبر مسارَ الفشل ويُرجع ما يقوله `_untouched` — واستعادةٌ في `finally`."""
+    _orig = _RS.subprocess
+    try:
+        _RS.subprocess = stub
+        return _RS._untouched()
+    finally:
+        _RS.subprocess = _orig
+
+
+_rs_boom_ok, _rs_boom_why = _rs_forced(_RsBoom()) if _RS else (True, "")
+_rs_rc1_ok, _rs_rc1_why = _rs_forced(_RsRc1()) if _RS else (True, "")
+check("📉🔒 RSK7 `V-R4` بصمةُ `Super_stock.py` مقابل `origin/main` · **وكِلا مسارَي "
+      "الفشل (استثناءٌ · رمزُ خروجٍ غيرُ صفريّ) يُرجع `False`** سلوكيًّا لا نصًّا "
+      "(لا يُدَّعى نجاحٌ عند غياب الحارس) · والـworkflow يجلب التاريخَ كاملًا",
+      isinstance(_rs_u_ok, bool) and "بصمة" in _rs_u_why + " "
+      and _rs_boom_ok is False and _rs_rc1_ok is False
+      and "fetch-depth" in _rs_io.open(".github/workflows/rsi40.yml",
+                                       encoding="utf-8").read(),
+      f"حيّ={_rs_u_ok} · استثناء={_rs_boom_ok} · rc1={_rs_rc1_ok}")
+
+# RSK8 — الـworkflow موصولٌ فعلًا (مدخلٌ بلا `env` = مدخلٌ ميّت) · يدويٌّ بلا كرون ·
+#    قراءةٌ فقط · والعقدُ يحمل الأذرعَ والمعاييرَ والملحقين.
+_rs_wf = _rs_yaml.safe_load(_rs_io.open(".github/workflows/rsi40.yml",
+                                        encoding="utf-8"))
+_rs_steps = _rs_wf["jobs"]["rsi40"]["steps"]
+_rs_wenv = {}
+for _st in _rs_steps:
+    _rs_wenv.update(_st.get("env") or {})
+_rs_pre = _rs_io.open("rsi40_prereg.md", encoding="utf-8").read()
+check("📉🔒 RSK8 الـworkflow موصول (year ⟶ BACKTEST_YEAR · لقطةٌ ⟶ download-artifact) · "
+      "يدويٌّ بلا كرون · صلاحيةُ قراءة · والعقدُ يحمل الأذرعَ والمعاييرَ والملحقين",
+      "schedule" not in _rs_wf[True] and "workflow_dispatch" in _rs_wf[True]
+      and _rs_wf["permissions"]["contents"] == "read"
+      and "inputs.year" in str(_rs_wenv.get("BACKTEST_YEAR", ""))
+      and any("inputs.frozen_run_id" in str(_st.get("with", {}).get("run-id", ""))
+              for _st in _rs_steps)
+      and any(str(_st.get("with", {}).get("fetch-depth")) == "0"
+              for _st in _rs_steps)
+      and any("rsi40_arms.py" in str(_st.get("run", "")) for _st in _rs_steps)
+      and all(t in _rs_pre for t in ("`H0`", "`H40`", "`H50`", "`H30`", "`RS1`",
+                                     "`RS2`", "`V-R0`", "`V-R5`", "`HC`",
+                                     "31574165523", "31199493957", "31191327731",
+                                     "ملحقٌ مؤرَّخ", "ملحقٌ مؤرَّخ ثانٍ")),
+      f"env={sorted(_rs_wenv)}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
