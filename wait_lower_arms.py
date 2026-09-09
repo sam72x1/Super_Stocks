@@ -106,7 +106,9 @@ def arms_for(S, sym, df, tr, fwd, spread):
            "prod_o": tr.get("outcome"), "prod_ret": tr.get("ret_a")}
     for name in ARMS:
         entry = ents[name]
-        stop = stop_for(entry, entry0, stop0)
+        # `W0` وقفُها `stop0` **حرفيًّا** (لا `entry0×(stop0/entry0)` — تطابقٌ بت-بت مع الإنتاج ·
+        #  ملحق §④ 2026-09-09) · والأذرعُ الأخرى بنفس النسبة.
+        stop = stop0 if name == "W0" else stop_for(entry, entry0, stop0)
         if stop is None or entry - stop <= 0:
             return None, "وقفٌ غيرُ صالح"
         filled = next((k for k in range(len(fut)) if lo[k] <= entry), None)
@@ -248,12 +250,15 @@ def report(rows, year, issues):
         _log("   ⛔ `V-W1` مخالفة — القيدُ `min(·, entry0)` لا يعمل")
         return 3
 
-    # `V-W2` — التفرّق
+    # `V-W2` — تفرّقُ **الحاكمة** عن `W0` (ملحق §④ 2026-09-09): الوصفيُّ المتطابق
+    #  يُطبَع ولا يُسقط القياس — وإلّا حجب ذراعٌ وصفيٌّ متدهور الحاكمةَ.
     same = [name for name in ARMS[1:]
             if all(r.get(f"o_{name}") == r.get("o_W0")
                    and r.get(f"ret_{name}") == r.get("ret_W0") for r in rows)]
     if same:
-        _log(f"   ⛔ `V-W2` لم تتفرّق عن `W0`: {' · '.join(same)} ⇒ `no-op`")
+        _log(f"   ℹ️ أذرعٌ لم تتفرّق عن `W0`: {' · '.join(same)}")
+    if GOV in same:
+        _log(f"   ⛔ `V-W2` الحاكمةُ `{GOV}` لم تتفرّق عن `W0` ⇒ `no-op`")
         return 4
 
     if a["W0"]["n_fill"] < FLOOR_DECIDED or a[GOV]["n_fill"] < FLOOR_DECIDED:
