@@ -392,7 +392,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 2.46
+  "e5": 2.455
  },
  "LIQ:RITR": {
   "last_eval_ms": 1788960660000,
@@ -680,14 +680,14 @@
   "last_eval_ms": 1788960660000,
   "date": "2026-09-09",
   "anchor_ms": 1788960600000,
-  "last_ms": 1788960600000,
+  "last_ms": 1788960660000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 71.5,
   "peak_usd": 235283,
-  "pulse_ms": 1788960600000,
+  "pulse_ms": 1788960660000,
   "anchor_price": 2.095,
   "anchor_open": 1.92,
   "anchor_low": 1.89,
@@ -2233,7 +2233,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.4518,
+  "e5": 0.4506,
   "tgt_ms": 1788958980000,
   "date": "2026-09-09"
  },
