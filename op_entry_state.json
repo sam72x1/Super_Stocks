@@ -149,7 +149,7 @@
   ],
   "updates": 1,
   "vol_x": 38.5,
-  "peak_usd": 557305,
+  "peak_usd": 194906,
   "last_eval_ms": 1788955020000,
   "pulse_ms": 1788957060000,
   "anchor_price": 0.143,
@@ -326,8 +326,8 @@
   "date": "2026-09-09"
  },
  "LIQ:CCTG": {
-  "date": "2026-09-09",
-  "last_eval_ms": 1788957060000
+  "last_eval_ms": 1788957060000,
+  "date": "2026-09-09"
  },
  "LIQ:AEMD": {
   "last_eval_ms": 1788954660000,
@@ -429,7 +429,6 @@
   "date": "2026-09-08"
  },
  "LIQ:CELZ": {
-  "last_eval_ms": 1788955800000,
   "date": "2026-09-09"
  },
  "LIQ:CAPR": {
@@ -1065,7 +1064,7 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 1,
   "vol_x": 24.6,
   "peak_usd": 1093100,
   "last_eval_ms": 1788955260000,
@@ -1281,11 +1280,11 @@
   "anchor_price": 4.3,
   "anchor_open": 3.92,
   "anchor_low": 3.92,
-  "date": "2026-09-09",
   "pre_done": true,
   "pre_hi": 4.21,
   "pre_usd": 30217,
-  "pre_n": 13
+  "pre_n": 13,
+  "date": "2026-09-09"
  },
  "LIQ:GAUZ": {
   "date": "2026-09-09"
@@ -1580,8 +1579,8 @@
   "date": "2026-09-08"
  },
  "LIQ:DARE": {
-  "date": "2026-09-09",
-  "last_eval_ms": 1788899280000
+  "last_eval_ms": 1788899280000,
+  "date": "2026-09-09"
  },
  "LIQ:WATR": {
   "last_eval_ms": 1788898680000,
@@ -2107,10 +2106,10 @@
   "last_eval_ms": 1788956340000,
   "date": "2026-09-09"
  },
+ "VHUB": "2026-09-09",
  "LIQ:ERNA": {
   "date": "2026-09-09"
  },
- "VHUB": "2026-09-09",
  "LIQ:NTHI": {
   "last_eval_ms": 1788956460000,
   "date": "2026-09-09"
