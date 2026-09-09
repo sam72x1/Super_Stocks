@@ -163,9 +163,9 @@
    "M1",
    "M5"
   ],
-  "updates": 1,
+  "updates": 0,
   "vol_x": 38.5,
-  "peak_usd": 557305,
+  "peak_usd": 73301,
   "last_eval_ms": 1788955020000,
   "pulse_ms": 1788955860000,
   "anchor_price": 0.143,
@@ -1074,7 +1074,7 @@
    "M1",
    "M5"
   ],
-  "updates": 2,
+  "updates": 1,
   "vol_x": 24.6,
   "peak_usd": 1093100,
   "last_eval_ms": 1788955260000,
