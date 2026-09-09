@@ -1,0 +1,45 @@
+name: ⏳ T-WAIT-RSI27 — الدخول عند سعر RSI 27 (سحب السيولة المتوقّع عند فيصل)
+# العقد: wait_rsi27_prereg.md (مدفوع c3437f3 قبل أي سطر من الأداة).
+# بحث/قياس فقط · يدويّ بلا كرون · صفر مسّ إنتاج (Super_stock.py لا يُمَسّ).
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (2023 · 2024 · 2025 = الحكم · 2026 = وصفيّة خارج العيّنة)"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "لقطة: 2023=31574165523 · 2024=31199493957 · 2025=31191327731 · 2026=34322427155 (freeze as-of 2026-09-09)"
+        required: true
+        default: ""
+jobs:
+  wait-rsi27-arms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run wait-rsi27 arms
+        env:
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python wait_rsi27_arms.py
+      - name: Upload rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wait-rsi27-rows-${{ github.event.inputs.year }}
+          path: wait_rsi27_rows.jsonl
+          retention-days: 90

@@ -42900,6 +42900,243 @@ check("⏳🔒 WLK7 الـworkflow موصول: inputs.year⟶BACKTEST_YEAR · BT
                                      "+0.05R", "30%", "`V-W0`", "min(", "0.90")),
       f"env={sorted(_wl_env)} dl={len(_wl_dl)}")
 
+# ═══ ⏳ T-WAIT-RSI27 — أقفال WRK0-WRK8 (العقد wait_rsi27_prereg.md مدفوع c3437f3 · 2026-09-09) ═══
+# «سحب السيوله المتوقع من 2.70 يمثل هدف الشورت = RSI 27» (فيصل على GWAV، الدليل ص91 —
+# شارتٌ أسبوعيّ) · «RSI بين 23-27» (TG_2043) · أداةُ قياسٍ معزولةٌ عن الإنتاج، حاكمتُها
+# R27 داخلَ العيّنة (= W27) فبوّابةُ V-R4 تُلزمها إعادةَ المنشور بت-بت.
+import ast as _wr_ast
+import contextlib as _wr_ctx
+import importlib.util as _wr_imp
+import io as _wr_io
+import pandas as _wr_pd
+import yaml as _wr_yaml
+
+_wr_spec = _wr_imp.spec_from_file_location("wait_rsi27_arms", "wait_rsi27_arms.py")
+_WR = _wr_imp.module_from_spec(_wr_spec)
+try:
+    _wr_spec.loader.exec_module(_WR)
+    _wr_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _WR, _wr_load = None, f"{type(_e).__name__}: {_e}"
+check("⏳🔒 WRK0 أداةُ RSI 27 تُحمَّل بلا استيراد الإنتاج (بحث معزول)",
+      _WR is not None, _wr_load or "OK")
+
+# WRK1 — الأذرعُ الخمس وأرقامُ فيصل ثابتةٌ كالعقد (27 · 23 · الحاكمة R27 · سنواتُ الحكم) ·
+#    وأرقامُ `V-R4` المرجعيّة هي المنشورةُ في `wait_lower_result.md` حرفيًّا (لا تُخترَع).
+_wr_res = _wr_io.open("wait_lower_result.md", encoding="utf-8").read()
+_wr_ref_ok = (_WR is not None and set(_WR.REF) == {"2023", "2024", "2025"}
+              and all(f"{_WR.REF[y][k]:.4f}".replace("-", "−") in _wr_res
+                      for y in _WR.REF for k in ("r0", "r27"))
+              and [_WR.REF[y]["n"] for y in ("2023", "2024", "2025")] == [1620, 1591, 1606]
+              and [_WR.REF[y]["fill27"] for y in ("2023", "2024", "2025")] == [779, 680, 678])
+check("⏳🔒 WRK1 الأذرعُ R0·R27·R23·R27w·R27abs · RSI 27/23 · الحاكمة R27 · سنواتُ الحكم 2023-2025 · الأرضية 100 · V-R0 99% · WR2 30% · WR3 50 · بوتستراب 2000/بذرة 27 · وREF = المنشور",
+      _WR is not None and _WR.ARMS == ("R0", "R27", "R23", "R27w", "R27abs")
+      and _WR.RSI_TARGET == 27.0 and _WR.RSI_LOW == 23.0 and _WR.GOV == "R27"
+      and _WR.CONTRACT_YEARS == ("2023", "2024", "2025") and _WR.FLOOR_DECIDED == 100
+      and _WR.V_R0_MIN_PCT == 99.0 and _WR.WR2_MIN_FILL_RATIO == 0.30
+      and _WR.WR1_MIN_R == 0.05 and _WR.WR3_MIN_FILL == 50
+      and _WR.BOOT_N == 2000 and _WR.BOOT_SEED == 27 and _wr_ref_ok,
+      (f"{_WR.ARMS} gov={_WR.GOV} ref_ok={_wr_ref_ok}" if _WR is not None else "لم تُحمَّل"))
+
+# WRK2 — القيدُ `min(·, entry0)` **يبنّد ولا يبنّد** · `None` ⇒ خطّةُ الإنتاج · `R27abs` دخولُ
+#    `R27` · الوقفُ بنفس النسبة · والأسبوعيُّ **يُسقط الأسبوعَ الناقص** لغير الجمعة ويُبقيه للجمعة
+#    (فارقٌ محدَّد: طولُ 1 مقابل 2) وبلا فهرسٍ زمنيٍّ يرجّع فارغًا.
+_wr_r9 = lambda d: {k: round(float(v), 9) for k, v in d.items()}
+_wr_idx = _wr_pd.bdate_range("2025-01-02", periods=8)      # خميس · جمعة · اثنين … · جمعة(6) · اثنين
+_wr_close = _wr_pd.Series([3.3, 3.3, 3.3, 3.30, 3.10, 3.00, 2.80, 4.00], index=_wr_idx)
+try:
+    _wr_e1 = _wr_r9(_WR.wr_entries(9.5, 8.7, 8.1, None))
+    _wr_e2 = _wr_r9(_WR.wr_entries(8.5, None, None, 9.0))
+    _wr_sf = _WR.stop_for(9.0, 9.5, 8.55)
+    _wr_wk_tue = _WR.weekly_closes(_wr_close.iloc[:4], _wr_idx[3])    # الثلاثاء ⇒ يُسقَط الناقص
+    _wr_wk_fri = _WR.weekly_closes(_wr_close.iloc[:7], _wr_idx[6])    # الجمعة ⇒ يُبقى
+    _wr_wk_none = _WR.weekly_closes([3.3, 3.2, 3.1], None)            # بلا فهرسٍ زمنيّ ⇒ فارغ
+except Exception as _e:                                          # noqa: BLE001
+    _wr_e1, _wr_e2, _wr_sf = {}, {}, f"⛔ {type(_e).__name__}"
+    _wr_wk_tue = _wr_wk_fri = _wr_wk_none = None
+check("⏳🔒 WRK2 القيدُ يبنّد (R27 8.7 · R23 8.1 · R27w None⇒9.5 · R27abs=R27) ولا يبنّد فوق 8.5 · وقفٌ بنفس النسبة · الأسبوعيُّ: الثلاثاء [3.3] · الجمعة [3.3, 2.8] · بلا فهرس فارغ",
+      _wr_e1 == {"R0": 9.5, "R27": 8.7, "R23": 8.1, "R27w": 9.5, "R27abs": 8.7}
+      and _wr_e2 == {"R0": 8.5, "R27": 8.5, "R23": 8.5, "R27w": 8.5, "R27abs": 8.5}
+      and isinstance(_wr_sf, float) and abs(_wr_sf - 8.1) < 1e-9
+      and _wr_wk_tue is not None and list(_wr_wk_tue.round(2)) == [3.3]
+      and list(_wr_wk_fri.round(2)) == [3.3, 2.8] and len(_wr_wk_none) == 0,
+      f"e1={_wr_e1} e2={_wr_e2} stop={_wr_sf} tue={None if _wr_wk_tue is None else list(_wr_wk_tue)} fri={None if _wr_wk_fri is None else list(_wr_wk_fri)}")
+
+# WRK3 — **سلوكيّ من نقطة النداء**: `arms_for` على شموعٍ مصنوعةٍ بمحرّك الإنتاج `_resolve_arm`
+#    الحقيقيّ: R0 يُوقَف (loss) · R27 يتعبّأ ثالثًا ووقفُه النسبيّ أدنى فيربح · R23 لا يتعبّأ ·
+#    R27w (الأسبوعيُّ من الأسبوع المكتمل وحدَه = طول 1) يتعبّأ أوّلًا ويخسر · R27abs بوقف فيصل
+#    المطلق يخسر على شمعة التعبئة — فالفرقُ بين الوقفين مقيسٌ لا مُدَّعًى.
+class _WRStub:
+    CONFIG = {}
+
+    @staticmethod
+    def analyze_ticker(sym, dfs):
+        return {"tranches": [3.00, 3.09, 3.18], "stop": [2.79], "t1": 4.00,
+                "pivot": 3.0, "rr_stop": 3.0}
+
+    @staticmethod
+    def rsi_target_price(close, target=27.0, period=14):
+        if target == 23.0:
+            return 2.70
+        return 3.05 if len(close) <= 2 else 2.90          # الأسبوعيُّ (طول 1) مقابل اليوميّ (4)
+
+    _resolve_arm = staticmethod(S._resolve_arm)
+
+
+_wr_df = _wr_pd.DataFrame(
+    {"Open": [3.3, 3.3, 3.3, 3.25, 3.20, 3.10, 2.98, 2.95],
+     "High": [3.4, 3.4, 3.4, 3.35, 3.30, 3.15, 3.00, 4.10],
+     "Low": [3.2, 3.2, 3.2, 3.20, 3.05, 2.95, 2.75, 2.90],
+     "Close": [3.3, 3.3, 3.3, 3.30, 3.10, 3.00, 2.80, 4.00],
+     "Volume": [1e5] * 8}, index=_wr_idx)
+try:
+    _wr_row, _wr_why = _WR.arms_for(
+        _WRStub, "WRX", _wr_df,
+        {"date": str(_wr_idx[3].date()), "outcome": "loss", "ret_a": -9.7},
+        fwd=6, spread=0.0)
+except Exception as _e:                                          # noqa: BLE001
+    _wr_row, _wr_why = None, f"⛔ {type(_e).__name__}: {_e}"
+_wr_g = (_wr_row or {}).get
+check("⏳🔒 WRK3 سلوكيًّا بمحرّك الإنتاج: R0 loss · R27 win (وقفٌ نسبيّ 2.6184 · k=2) · R23 no_fill · R27w loss (3.05 · وقف 2.7539 · k=0) · R27abs loss بوقف 2.79 (−3.8%) · rsi27w=3.05",
+      _wr_row is not None and _wr_g("o_R0") == "loss" and _wr_g("o_R27") == "win"
+      and _wr_g("o_R23") == "no_fill" and _wr_g("o_R27w") == "loss"
+      and _wr_g("o_R27abs") == "loss"
+      and _wr_g("e_R27") == 2.90 and _wr_g("s_R27") == 2.6184
+      and _wr_g("e_R0") == 3.09 and _wr_g("s_R0") == 2.79
+      and _wr_g("e_R27w") == 3.05 and _wr_g("s_R27w") == 2.7539
+      and _wr_g("e_R27abs") == 2.90 and _wr_g("s_R27abs") == 2.79
+      and _wr_g("ret_R27") == 37.9 and _wr_g("ret_R0") == -9.7
+      and _wr_g("ret_R27abs") == -3.8 and _wr_g("rsi27w") == 3.05
+      and _wr_g("bite_R27") is True and _wr_g("bite_R0") is False
+      and (_wr_g("k_R0"), _wr_g("k_R27"), _wr_g("k_R27w"), _wr_g("k_R23")) == (0, 2, 0, None),
+      (f"why={_wr_why}" if _wr_row is None else
+       f"o={_wr_g('o_R0')}/{_wr_g('o_R27')}/{_wr_g('o_R23')}/{_wr_g('o_R27w')}/{_wr_g('o_R27abs')} "
+       f"s27={_wr_g('s_R27')} sw={_wr_g('s_R27w')} k={_wr_g('k_R0')},{_wr_g('k_R27')},{_wr_g('k_R27w')}"))
+
+# WRK4 — بوّاباتُ الصلاحية **تفرّق** (لا زينة): سليمٌ ⇒ 0 · V-R0 على 3 من 120 ⇒ 3 · الحاكمةُ
+#    لا تتفرّق ⇒ 4 · 50 صفًّا ⇒ 4 (أرضية) · الوصفيُّ المتطابق وحدَه ⇒ 0 · `V-R4` مرجعٌ لا يُعاد
+#    ⇒ 3 · وسنةٌ وصفيّة (2026) بـ50 صفًّا ⇒ 0 **بلا أرضية** (تُطبَع ولا تحكم).
+def _wr_rc(rows, year="2025", ref=None):
+    try:
+        with _wr_ctx.redirect_stdout(_wr_io.StringIO()):
+            return _WR.report(rows, year, {}, ref=ref)
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+if _wr_row is not None:
+    _wr_rows = [dict(_wr_row) for _ in range(120)]
+    _wr_bad = [dict(r) for r in _wr_rows]
+    for _r in _wr_bad[:3]:
+        _r["prod_o"] = "win"
+    _wr_same = [dict(r) for r in _wr_rows]
+    for _r in _wr_same:
+        for _n in ("R27", "R23", "R27w", "R27abs"):
+            _r[f"o_{_n}"], _r[f"ret_{_n}"] = _r["o_R0"], _r["ret_R0"]
+    _wr_desc = [dict(r) for r in _wr_rows]
+    for _r in _wr_desc:
+        _r["o_R23"], _r["ret_R23"] = _r["o_R0"], _r["ret_R0"]
+    _wr_rcs = (_wr_rc(_wr_rows), _wr_rc(_wr_bad), _wr_rc(_wr_same), _wr_rc(_wr_rows[:50]),
+               _wr_rc(_wr_desc), _wr_rc(_wr_rows, ref=_WR.REF["2025"]),
+               _wr_rc(_wr_rows[:50], year="2026"))
+else:
+    _wr_rcs = ("لا صفّ",) * 7
+check("⏳🔒 WRK4 البوّاباتُ تفرّق: سليم⇒0 · V-R0 (3/120)⇒3 · الحاكمةُ لا تتفرّق⇒4 · دون الأرضية⇒4 · R23 وحدَه متطابق⇒0 · V-R4 لا يُعيد المنشور⇒3 · 2026 وصفيّة بلا أرضية⇒0",
+      _wr_rcs == (0, 3, 4, 4, 0, 3, 0), f"rc={_wr_rcs}")
+
+# WRK5 — قراءةٌ فقط (AST) · حارسٌ ذاتيٌّ عامل · الإنتاجُ لا يستوردها · وإعادةُ الاستعمال
+#    **بالاسم** (plan_at/r_fixed/r_own/FLOOR_DECIDED من tranche_arms · و_resolve_arm/
+#    rsi_target_price/plan_at/weekly_closes تُنادى داخل arms_for).
+_wr_src = _wr_io.open("wait_rsi27_arms.py", encoding="utf-8").read()
+_wr_tree = _wr_ast.parse(_wr_src)
+_wr_banned = {"send_telegram", "git_save", "save_watchlist", "save_op_entry_state",
+              "record_new_alerts"}
+_wr_calls = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+             for n in _wr_ast.walk(_wr_tree) if isinstance(n, _wr_ast.Call)}
+_wr_imports = {a.name for n in _wr_ast.walk(_wr_tree)
+               if isinstance(n, _wr_ast.ImportFrom) and n.module == "tranche_arms"
+               for a in n.names}
+_wr_af = next((n for n in _wr_ast.walk(_wr_tree)
+               if isinstance(n, _wr_ast.FunctionDef) and n.name == "arms_for"), None)
+_wr_af_calls = ({(getattr(c.func, "id", None) or getattr(c.func, "attr", None))
+                 for c in _wr_ast.walk(_wr_af) if isinstance(c, _wr_ast.Call)}
+                if _wr_af is not None else set())
+check("⏳🔒 WRK5 قراءةٌ فقط · حارسٌ ذاتيّ · الإنتاجُ لا يستوردها · إعادةُ استعمالٍ بالاسم (tranche_arms + _resolve_arm/rsi_target_price/plan_at/weekly_closes في arms_for)",
+      not (_wr_banned & _wr_calls)
+      and _WR is not None and _WR._selfcheck_readonly() is True
+      and "wait_rsi27_arms" not in _wr_io.open("Super_stock.py", encoding="utf-8").read()
+      and {"plan_at", "r_fixed", "r_own", "FLOOR_DECIDED"} <= _wr_imports
+      and {"_resolve_arm", "rsi_target_price", "plan_at", "weekly_closes"} <= _wr_af_calls,
+      f"مخالفات={sorted(_wr_banned & _wr_calls)} imports={sorted(_wr_imports)} af={sorted(x for x in _wr_af_calls if x)}")
+
+# WRK6 — بوّابةُ اللقطة (`V-R3` · نمطُ SNAP1): سنةُ اللقطة تطابق سنةَ القياس وإلّا **خروج 4**.
+_wr_snap = [n for n in _wr_ast.walk(_wr_tree)
+            if isinstance(n, _wr_ast.If)
+            and "asof" in _wr_ast.dump(n.test) and "year" in _wr_ast.dump(n.test)
+            and any(isinstance(x, _wr_ast.Return)
+                    and getattr(x.value, "value", None) == 4
+                    for x in _wr_ast.walk(n))]
+check("⏳🔒 WRK6 `V-R3` سنةُ اللقطة تطابق سنةَ القياس وإلّا خروج 4 (كـSNAP1)",
+      len(_wr_snap) == 1, f"hits={len(_wr_snap)}")
+
+# WRK7 — الـworkflow موصولٌ فعلًا (كلُّ مدخلٍ يصل بيئةً يقرؤها السكربت) · يدويٌّ بلا كرون ·
+#    قراءةٌ فقط · اللقطةُ تُنزَّل بـrun-id من المدخل · والعقدُ يحمل الأذرعَ الخمس والحكمَ الثلاثيّ
+#    (`WR1` بفاصل البوتستراب · `WR2` · `WR3` خارج العيّنة) و`V-R4` ولقطةَ 2026 المجمَّدة قبل الأرقام.
+_wr_wf = _wr_yaml.safe_load(_wr_io.open(".github/workflows/wait_rsi27.yml",
+                                        encoding="utf-8"))
+_wr_steps = _wr_wf["jobs"]["wait-rsi27-arms"]["steps"]
+_wr_env = {}
+for _s in _wr_steps:
+    _wr_env.update(_s.get("env") or {})
+_wr_dl = [_s for _s in _wr_steps
+          if "download-artifact" in str(_s.get("uses", ""))]
+_wr_pre = _wr_io.open("wait_rsi27_prereg.md", encoding="utf-8").read()
+check("⏳🔒 WRK7 الـworkflow موصول: inputs.year⟶BACKTEST_YEAR · BT_FROZEN_PATH · run-id من المدخل · يدويٌّ بلا كرون · قراءة · والعقدُ يحمل الأذرعَ الخمس وWR1-3 وV-R4 ولقطةَ 2026",
+      "schedule" not in _wr_wf[True] and "workflow_dispatch" in _wr_wf[True]
+      and _wr_wf["permissions"]["contents"] == "read"
+      and "inputs.year" in str(_wr_env.get("BACKTEST_YEAR", ""))
+      and "BT_FROZEN_PATH" in _wr_env
+      and "BACKTEST_YEAR" in _wr_src and "BT_FROZEN_PATH" in _wr_src
+      and any("wait_rsi27_arms.py" in str(_s.get("run", "")) for _s in _wr_steps)
+      and len(_wr_dl) == 1
+      and "inputs.frozen_run_id" in str(_wr_dl[0].get("with", {}).get("run-id", ""))
+      and all(t in _wr_pre for t in ("`R0`", "`R27`", "`R23`", "`R27w`", "`R27abs`", "`WR1`",
+                                     "`WR2`", "`WR3`", "`V-R4`", "+0.05R", "30%", "min(",
+                                     "بوتستراب", "34322427155", "2026")),
+      f"env={sorted(_wr_env)} dl={len(_wr_dl)}")
+
+# WRK8 — تفكيكُ الحافة **هويّةٌ** (مجموعُ السلال = الفرقُ الكلّيّ) بسلالٍ صحيحة ومصفوفةِ انتقال ·
+#    والبوتستراب حتميٌّ بالبذرة، ثابتٌ على فروقٍ ثابتة، ويحوي المتوسّط.
+def _wr_mk(bite, o0, r0, og, rg, eg=2.90):
+    return {"o_R0": o0, "ret_R0": r0, "e_R0": 3.09, "stop0": 2.79,
+            "bite_R27": bite, "o_R27": og, "ret_R27": rg, "e_R27": eg}
+
+
+try:
+    _wr_dc = _WR.decomp([
+        _wr_mk(False, "win", 10.0, "win", 10.0, eg=3.09),      # B0: لا تبنيد ⇒ صفر
+        _wr_mk(True, "win", 10.0, "win", 20.0),                # B1 win→win
+        _wr_mk(True, "loss", -9.7, "no_fill", None),           # B2: تجنُّبُ خسارة ⇒ +R₀
+        _wr_mk(True, "no_fill", None, "no_fill", None),        # B3
+        _wr_mk(True, "win", 10.0, "loss", -9.0)])              # B1 win→loss
+    _wr_b = _wr_dc["buckets"]
+    _wr_ci1 = _WR.bootstrap_ci([1.0] * 10)
+    _wr_d = [0.1, -0.2, 0.3, 0.05, -0.1]
+    _wr_ci2, _wr_ci3 = _WR.bootstrap_ci(_wr_d, 200, 27), _WR.bootstrap_ci(_wr_d, 200, 27)
+except Exception as _e:                                          # noqa: BLE001
+    _wr_dc, _wr_b, _wr_ci1, _wr_ci2, _wr_ci3 = None, {}, None, None, "⛔"
+_wr_b2 = (_wr_b.get("B2") or {}).get("sum")
+check("⏳🔒 WRK8 التفكيكُ هويّة: B0=0 · B1 n=2 (win→win, win→loss) · B2 = −R₀(R0) موجبٌ للخسارة المُتجنَّبة · B3 صفر · والبوتستراب حتميٌّ ويحوي المتوسّط وثابتٌ على الثابت",
+      _wr_dc is not None and _wr_dc["identity_ok"] is True
+      and [_wr_b[k]["n"] for k in ("B0", "B1", "B2", "B3")] == [1, 2, 1, 1]
+      and abs(_wr_b["B0"]["sum"]) < 1e-9 and abs(_wr_b["B3"]["sum"]) < 1e-9
+      and _wr_b2 is not None and abs(_wr_b2 - 0.9991) < 1e-3
+      and _wr_dc["transitions"] == {"win->win": 1, "win->loss": 1}
+      and _wr_ci1 == (1.0, 1.0, 1.0) and _wr_ci2 == _wr_ci3
+      and _wr_ci2 is not None and _wr_ci2[0] <= _wr_ci2[1] <= _wr_ci2[2]
+      and abs(_wr_ci2[1] - sum(_wr_d) / len(_wr_d)) < 1e-12,
+      f"dc={_wr_dc and {k: v['n'] for k, v in _wr_b.items()}} B2={_wr_b2} trans={_wr_dc and _wr_dc['transitions']} ci={_wr_ci2}")
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
