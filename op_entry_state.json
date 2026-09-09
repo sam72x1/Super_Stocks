@@ -2753,7 +2753,7 @@
  },
  "LIQ:PTLE": {
   "anchor_ms": 1788981900000,
-  "last_ms": 1788981900000,
+  "last_ms": 1788981960000,
   "sent": [
    "M1"
   ],
@@ -2761,15 +2761,15 @@
   "vol_x": 3.6,
   "peak_usd": 80563,
   "last_eval_ms": 1788981960000,
-  "pulse_ms": 1788981900000,
+  "pulse_ms": 1788981960000,
   "anchor_price": 7.35,
   "anchor_open": 6.875,
   "anchor_low": 6.875,
-  "date": "2026-09-09",
   "pre_done": true,
   "pre_hi": 7.2499,
   "pre_usd": 21679,
-  "pre_n": 1
+  "pre_n": 1,
+  "date": "2026-09-09"
  },
  "LIQ:CMTL": {
   "last_eval_ms": 1788981300000,
