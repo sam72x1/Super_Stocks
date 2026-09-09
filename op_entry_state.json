@@ -149,7 +149,7 @@
   ],
   "updates": 1,
   "vol_x": 38.5,
-  "peak_usd": 194906,
+  "peak_usd": 557305,
   "last_eval_ms": 1788955020000,
   "pulse_ms": 1788957180000,
   "anchor_price": 0.143,
@@ -430,7 +430,8 @@
   "date": "2026-09-08"
  },
  "LIQ:CELZ": {
-  "date": "2026-09-09"
+  "date": "2026-09-09",
+  "last_eval_ms": 1788955800000
  },
  "LIQ:CAPR": {
   "last_eval_ms": 1788956940000,
@@ -1081,7 +1082,7 @@
    "M5",
    "M30"
   ],
-  "updates": 1,
+  "updates": 2,
   "vol_x": 24.6,
   "peak_usd": 1093100,
   "last_eval_ms": 1788955260000,
