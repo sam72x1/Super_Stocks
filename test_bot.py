@@ -42678,6 +42678,183 @@ check("📘 BK9: سطرُ rsi27_price داخل كتلة try الإثراء (فا
       and _bk_sm.find('r["rsi27_price"]') < _bk_sm.find("except Exception as _e:",
                                                          _bk_sm.find('r["behav"] = behavior_rise_profile(df)')))
 
+
+# ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
+# «اذا حللنا سهم ارتكاز ممنوع الدخول … انتظر اقل سعر 10% او 20% تحت» (فيصل، دليلُ
+# طريقة فيصل ص54) · أداةُ قياسٍ معزولةٌ عن الإنتاج تُقاس بها الجملةُ قبل أيّ شحن.
+import ast as _wl_ast
+import contextlib as _wl_ctx
+import importlib.util as _wl_imp
+import io as _wl_io
+import pandas as _wl_pd
+import yaml as _wl_yaml
+
+_wl_spec = _wl_imp.spec_from_file_location("wait_lower_arms", "wait_lower_arms.py")
+_WL = _wl_imp.module_from_spec(_wl_spec)
+try:
+    _wl_spec.loader.exec_module(_WL)
+    _wl_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _WL, _wl_load = None, f"{type(_e).__name__}: {_e}"
+check("⏳🔒 WLK0 أداةُ الانتظار تُحمَّل بلا استيراد الإنتاج (بحث معزول)",
+      _WL is not None, _wl_load or "OK")
+
+# WLK1 — الأذرعُ الأربع ونِسَبُ فيصل ثابتةٌ كالعقد (إضافةُ ذراعٍ بعد الأرقام ممنوعة)
+check("⏳🔒 WLK1 الأذرعُ W0·W10·W20·W27 · النِّسَب 10/20 · RSI 27 · الحاكمة W10 · الأرضية 100 · V-W0 99% · WL2 30%",
+      _WL is not None and _WL.ARMS == ("W0", "W10", "W20", "W27")
+      and _WL.WAIT_PCT == {"W10": 10.0, "W20": 20.0} and _WL.RSI_TARGET == 27.0
+      and _WL.GOV == "W10" and _WL.FLOOR_DECIDED == 100
+      and _WL.V_W0_MIN_PCT == 99.0 and _WL.WL2_MIN_FILL_RATIO == 0.30
+      and _WL.WL1_MIN_R == 0.05,
+      (f"{_WL.ARMS} {_WL.WAIT_PCT} gov={_WL.GOV}" if _WL is not None else "لم تُحمَّل"))
+
+# WLK2 — القيدُ `min(·, entry0)` **يبنّد ولا يبنّد** (فارقٌ محدَّد لا «أو») ·
+#    `W27=None` ⇒ خطّةُ الإنتاج · والوقفُ بنفس النسبة `entry_w × stop0/entry0`.
+_wl_r9 = lambda d: {k: round(float(v), 9) for k, v in d.items()}
+try:
+    _wl_e1 = _wl_r9(_WL.wl_entries(10.0, 9.5, 8.7))
+    _wl_e2 = _wl_r9(_WL.wl_entries(10.0, 8.5, None))
+    _wl_sf = _WL.stop_for(9.0, 9.5, 8.55)
+except Exception as _e:                                          # noqa: BLE001
+    _wl_e1, _wl_e2, _wl_sf = {}, {}, f"⛔ {type(_e).__name__}"
+check("⏳🔒 WLK2 القيدُ يبنّد (10⇒9.0/8.0/8.7 تحت 9.5) ولا يبنّد فوق 8.5 · W27=None⇒entry0 · وقفٌ بنفس النسبة",
+      _wl_e1 == {"W0": 9.5, "W10": 9.0, "W20": 8.0, "W27": 8.7}
+      and _wl_e2 == {"W0": 8.5, "W10": 8.5, "W20": 8.0, "W27": 8.5}
+      and isinstance(_wl_sf, float) and abs(_wl_sf - 8.1) < 1e-9,
+      f"e1={_wl_e1} e2={_wl_e2} stop={_wl_sf}")
+
+# WLK3 — **سلوكيّ من نقطة النداء**: `arms_for` على شموعٍ مصنوعةٍ بمحرّك الإنتاج
+#    `_resolve_arm` الحقيقيّ: W0 يُوقَف (loss) · W10 يتعبّأ متأخّرًا ووقفُه النسبيّ
+#    أدنى فينجو ويبلغ t1 (win) · W20 لا يتعبّأ · W27 يتعبّأ ثالثًا ويربح · والقراءةُ
+#    الثانية (وقفٌ مطلق) تخسر — فالفرقُ بين القراءتين مقيسٌ لا مُدَّعًى.
+class _WLStub:
+    CONFIG = {}
+
+    @staticmethod
+    def analyze_ticker(sym, dfs):
+        return {"tranches": [3.00, 3.09, 3.18], "stop": [2.79], "t1": 4.00,
+                "pivot": 3.0, "rr_stop": 3.0}
+
+    @staticmethod
+    def rsi_target_price(close, target=27.0, period=14):
+        return 2.90
+
+    _resolve_arm = staticmethod(S._resolve_arm)
+
+
+_wl_idx = _wl_pd.bdate_range("2025-01-02", periods=8)
+_wl_df = _wl_pd.DataFrame(
+    {"Open": [3.3, 3.3, 3.3, 3.25, 3.20, 3.10, 2.98, 2.95],
+     "High": [3.4, 3.4, 3.4, 3.35, 3.30, 3.15, 3.00, 4.10],
+     "Low": [3.2, 3.2, 3.2, 3.20, 3.05, 2.95, 2.75, 2.90],
+     "Close": [3.3, 3.3, 3.3, 3.30, 3.10, 3.00, 2.80, 4.00],
+     "Volume": [1e5] * 8}, index=_wl_idx)
+try:
+    _wl_row, _wl_why = _WL.arms_for(
+        _WLStub, "WLX", _wl_df,
+        {"date": str(_wl_idx[3].date()), "outcome": "loss", "ret_a": -9.7},
+        fwd=6, spread=0.0)
+except Exception as _e:                                          # noqa: BLE001
+    _wl_row, _wl_why = None, f"⛔ {type(_e).__name__}: {_e}"
+_wl_g = (_wl_row or {}).get
+check("⏳🔒 WLK3 سلوكيًّا بمحرّك الإنتاج: W0 loss · W10 win (وقفٌ نسبيّ 2.6817) · W20 no_fill · W27 win · الوقفُ المطلق loss · التعبئة k=0/1/2",
+      _wl_row is not None and _wl_g("o_W0") == "loss" and _wl_g("o_W10") == "win"
+      and _wl_g("o_W20") == "no_fill" and _wl_g("o_W27") == "win"
+      and _wl_g("o_GOVabs") == "loss"
+      and _wl_g("e_W10") == 2.97 and _wl_g("s_W10") == 2.6817
+      and _wl_g("e_W0") == 3.09 and _wl_g("s_W0") == 2.79
+      and _wl_g("ret_W10") == 34.7 and _wl_g("ret_W0") == -9.7
+      and _wl_g("bite_W10") is True and _wl_g("bite_W20") is True
+      and (_wl_g("k_W0"), _wl_g("k_W10"), _wl_g("k_W27")) == (0, 1, 2),
+      (f"why={_wl_why}" if _wl_row is None else
+       f"o={_wl_g('o_W0')}/{_wl_g('o_W10')}/{_wl_g('o_W20')}/{_wl_g('o_W27')}/abs={_wl_g('o_GOVabs')} "
+       f"s10={_wl_g('s_W10')} k={_wl_g('k_W0')},{_wl_g('k_W10')},{_wl_g('k_W27')}"))
+
+# WLK4 — بوّاباتُ الصلاحية **تفرّق** (لا زينة): سليمٌ ⇒ 0 · V-W0 على 3 من 120
+#    مختلفةٍ عن الإنتاج ⇒ 3 · أذرعٌ تساوي W0 ⇒ 4 (no-op) · 50 صفًّا ⇒ 4 (أرضية).
+def _wl_rc(rows):
+    try:
+        with _wl_ctx.redirect_stdout(_wl_io.StringIO()):
+            return _WL.report(rows, "2025", {})
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+if _wl_row is not None:
+    _wl_rows = [dict(_wl_row) for _ in range(120)]
+    _wl_bad = [dict(r) for r in _wl_rows]
+    for _r in _wl_bad[:3]:
+        _r["prod_o"] = "win"
+    _wl_same = [dict(r) for r in _wl_rows]
+    for _r in _wl_same:
+        for _n in ("W10", "W20", "W27"):
+            _r[f"o_{_n}"], _r[f"ret_{_n}"] = _r["o_W0"], _r["ret_W0"]
+    _wl_rcs = (_wl_rc(_wl_rows), _wl_rc(_wl_bad), _wl_rc(_wl_same), _wl_rc(_wl_rows[:50]))
+else:
+    _wl_rcs = ("لا صفّ",) * 4
+check("⏳🔒 WLK4 البوّاباتُ تفرّق: سليم⇒0 · V-W0 (3/120 مخالفة)⇒3 · لا تفرّق⇒4 · دون الأرضية⇒4",
+      _wl_rcs == (0, 3, 4, 4), f"rc={_wl_rcs}")
+
+# WLK5 — قراءةٌ فقط (AST) · حارسٌ ذاتيٌّ عامل · الإنتاجُ لا يستوردها · وإعادةُ
+#    الاستعمال **بالاسم** (plan_at/r_fixed/r_own/FLOOR_DECIDED من tranche_arms ·
+#    و_resolve_arm/rsi_target_price/plan_at تُنادى داخل arms_for).
+_wl_src = _wl_io.open("wait_lower_arms.py", encoding="utf-8").read()
+_wl_tree = _wl_ast.parse(_wl_src)
+_wl_banned = {"send_telegram", "git_save", "save_watchlist", "save_op_entry_state",
+              "record_new_alerts"}
+_wl_calls = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+             for n in _wl_ast.walk(_wl_tree) if isinstance(n, _wl_ast.Call)}
+_wl_imports = {a.name for n in _wl_ast.walk(_wl_tree)
+               if isinstance(n, _wl_ast.ImportFrom) and n.module == "tranche_arms"
+               for a in n.names}
+_wl_af = next((n for n in _wl_ast.walk(_wl_tree)
+               if isinstance(n, _wl_ast.FunctionDef) and n.name == "arms_for"), None)
+_wl_af_calls = ({(getattr(c.func, "id", None) or getattr(c.func, "attr", None))
+                 for c in _wl_ast.walk(_wl_af) if isinstance(c, _wl_ast.Call)}
+                if _wl_af is not None else set())
+check("⏳🔒 WLK5 قراءةٌ فقط · حارسٌ ذاتيّ · الإنتاجُ لا يستوردها · إعادةُ استعمالٍ بالاسم (tranche_arms + _resolve_arm/rsi_target_price/plan_at في arms_for)",
+      not (_wl_banned & _wl_calls)
+      and _WL is not None and _WL._selfcheck_readonly() is True
+      and "wait_lower_arms" not in _wl_io.open("Super_stock.py", encoding="utf-8").read()
+      and {"plan_at", "r_fixed", "r_own", "FLOOR_DECIDED"} <= _wl_imports
+      and {"_resolve_arm", "rsi_target_price", "plan_at"} <= _wl_af_calls,
+      f"مخالفات={sorted(_wl_banned & _wl_calls)} imports={sorted(_wl_imports)} af={sorted(x for x in _wl_af_calls if x)}")
+
+# WLK6 — بوّابةُ اللقطة (`V-W3` · نمطُ SNAP1): سنةُ اللقطة تطابق سنةَ القياس وإلّا
+#    **خروج 4** — إذا عبرت لقطةُ 2024 على سنة 2025 قِيس مجتمعٌ آخر بصمت (153 مقابل 1606).
+_wl_snap = [n for n in _wl_ast.walk(_wl_tree)
+            if isinstance(n, _wl_ast.If)
+            and "asof" in _wl_ast.dump(n.test) and "year" in _wl_ast.dump(n.test)
+            and any(isinstance(x, _wl_ast.Return)
+                    and getattr(x.value, "value", None) == 4
+                    for x in _wl_ast.walk(n))]
+check("⏳🔒 WLK6 `V-W3` سنةُ اللقطة تطابق سنةَ القياس وإلّا خروج 4 (كـSNAP1)",
+      len(_wl_snap) == 1, f"hits={len(_wl_snap)}")
+
+# WLK7 — الـworkflow موصولٌ فعلًا (كلُّ مدخلٍ يصل بيئةً يقرؤها السكربت) · يدويٌّ بلا
+#    كرون · قراءةٌ فقط · اللقطةُ تُنزَّل بـrun-id من المدخل · والعقدُ حاضرٌ بأذرعه وحكمه.
+_wl_wf = _wl_yaml.safe_load(_wl_io.open(".github/workflows/wait_lower.yml",
+                                        encoding="utf-8"))
+_wl_steps = _wl_wf["jobs"]["wait-lower-arms"]["steps"]
+_wl_env = {}
+for _s in _wl_steps:
+    _wl_env.update(_s.get("env") or {})
+_wl_dl = [_s for _s in _wl_steps
+          if "download-artifact" in str(_s.get("uses", ""))]
+_wl_pre = _wl_io.open("wait_lower_prereg.md", encoding="utf-8").read()
+check("⏳🔒 WLK7 الـworkflow موصول: inputs.year⟶BACKTEST_YEAR · BT_FROZEN_PATH · run-id من المدخل · يدويٌّ بلا كرون · قراءة · والعقدُ يحمل الأذرعَ والحكم",
+      "schedule" not in _wl_wf[True] and "workflow_dispatch" in _wl_wf[True]
+      and _wl_wf["permissions"]["contents"] == "read"
+      and "inputs.year" in str(_wl_env.get("BACKTEST_YEAR", ""))
+      and "BT_FROZEN_PATH" in _wl_env
+      and "BACKTEST_YEAR" in _wl_src and "BT_FROZEN_PATH" in _wl_src
+      and any("wait_lower_arms.py" in str(_s.get("run", "")) for _s in _wl_steps)
+      and len(_wl_dl) == 1
+      and "inputs.frozen_run_id" in str(_wl_dl[0].get("with", {}).get("run-id", ""))
+      and all(t in _wl_pre for t in ("`W0`", "`W10`", "`W20`", "`W27`", "`WL1`", "`WL2`",
+                                     "+0.05R", "30%", "`V-W0`", "min(", "0.90")),
+      f"env={sorted(_wl_env)} dl={len(_wl_dl)}")
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
