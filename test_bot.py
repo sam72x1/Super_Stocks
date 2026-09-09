@@ -42606,16 +42606,46 @@ check("📘 BK2: RSI تحت 27 أصلًا ⇒ None (لا سعرَ انتظارٍ
       S.rsi_target_price(_bk_down) is None
       and S.rsi_target_price(_bk_pd.Series([1.0, 1.1])) is None)
 
-# BK3 — فارقٌ محدَّد: اللاحقةُ تظهر للمتابعة وتغيب عند الجاهز وعند «كسر الوقف»
-_bk_s = {"symbol": "X", "last_price": 2.0, "pivot": 1.0, "rsi27_price": 1.71}
+# BK3 — فارقٌ محدَّد (مراجعة 2026-09-09): المرجعُ **سعرُ التحليل الثابت** `entry_ref`
+#   (2.00 ⇒ 1.60-1.80) **لا** السعرُ الحيّ (2.10 ⇒ 1.68-1.89) · تظهر للجاهز وللمتابعة
+#   سواء · وتغيب عند «كسر الوقف» وبلا مرجع.
+_bk_s = {"symbol": "X", "last_price": 2.1, "price": 2.1, "entry_ref": 2.0, "pivot": 1.0,
+         "rsi27_price": 1.71, "stop": 1.50, "tranches": [1.9, 1.96, 2.02]}
 _bk_w = S.faisal_wait_suffix(_bk_s, {"status": "watch", "reason": "بعيد"})
-check("📘 BK3: ⏳ سعر انتظار فيصل = 10-20% تحت + سعر RSI 27 — للمتابعة فقط",
+_bk_rdy = S.faisal_wait_suffix(_bk_s, {"status": "ready_now", "reason": ""})
+check("📘 BK3: ⏳ منطقةُ 10-20% من سعر التحليل الثابت ($2.00 ⇒ $1.60-$1.80) + RSI 27 — للجاهز والمتابعة · تغيب عند كسر الوقف وبلا مرجع",
       "⏳" in _bk_w and "$1.60" in _bk_w and "$1.80" in _bk_w and "$1.71" in _bk_w
-      and S.faisal_wait_suffix(_bk_s, {"status": "ready_now", "reason": ""}) == ""
+      and "$2.00" in _bk_w and "$1.89" not in _bk_w and "$1.68" not in _bk_w
+      and "فأعلى" in _bk_w and _bk_rdy == _bk_w
       and S.faisal_wait_suffix(_bk_s, {"status": "watch",
-                                       "reason": "كسر الوقف — ملغاة"}) == ""
-      and S.faisal_wait_suffix({"symbol": "X"}, {"status": "watch", "reason": ""}) == "",
-      _bk_w[:70])
+                                       "reason": "كسر الوقف — الفكرة ملغاة"}) == ""
+      and S.faisal_wait_suffix({"symbol": "X"}, {"status": "watch", "reason": "x"}) == "",
+      _bk_w)
+# BK3ب — قواعدُ الصمت والقصّ (كلٌّ على حدة): تحت الوقف ⇒ «» · الوقفُ يقطع ⇒ قصٌّ مُعلَن
+#   وRSI 27 يُخفى إن كان تحت الوقف · خطّةُ الإنتاج أدنى ⇒ «» · السعرُ داخل المنطقة ⇒
+#   «بلغ» بنسبته · RSI 27 فوق السعر الحيّ ⇒ يُخفى · وزوجُ الوقف (التحليل الطازج) يُقرأ.
+_bk_es = {"status": "watch", "reason": "بعيد"}
+_bk_e = S.faisal_wait_suffix(dict(_bk_s, stop=1.85), _bk_es)
+_bk_f1 = S.faisal_wait_suffix(dict(_bk_s, stop=1.70), _bk_es)
+_bk_f2 = S.faisal_wait_suffix(dict(_bk_s, stop=1.72), _bk_es)
+_bk_g = S.faisal_wait_suffix(dict(_bk_s, tranches=[1.40, 1.44, 1.48]), _bk_es)
+_bk_h = S.faisal_wait_suffix(dict(_bk_s, last_price=1.74), _bk_es)
+_bk_i = S.faisal_wait_suffix(dict(_bk_s, rsi27_price=2.6), _bk_es)
+_bk_t = S.faisal_wait_suffix(dict(_bk_s, stop=(1.50, 1.55)), _bk_es)
+_bk_n = S.faisal_wait_suffix(dict(_bk_s, stop=1.76), _bk_es)       # يبقى 1.76-1.80 = 2% < 3% ⇒ «»
+_bk_o = S.faisal_wait_suffix(dict(_bk_s, last_price=2.21), _bk_es)  # 2.21 > 2.00×1.10 ⇒ مرجعٌ بائت ⇒ «»
+_bk_p = S.faisal_wait_suffix(dict(_bk_s, last_price=2.19), _bk_es)  # 2.19 ≤ 2.20 ⇒ تبقى
+check("📘 BK3ب: تحت الوقف «» · قصٌّ عند الوقف مُعلَن (RSI 27 يُخفى تحته) · خطّةٌ أدنى «» · داخل المنطقة «بلغ 13%» · RSI فوق السعر يُخفى · زوجُ الوقف يُقرأ · شريحةٌ أضيق من 3% «» · مرجعٌ بائت فوق 10% «»",
+      _bk_e == ""
+      and "$1.70 إلى $1.80" in _bk_f1 and "مقصوصة" in _bk_f1 and "$1.71" in _bk_f1
+      and "$1.71" not in _bk_f2 and "مقصوصة" in _bk_f2
+      and _bk_g == ""
+      and "بلغ منطقة انتظار فيصل" in _bk_h and "13%" in _bk_h and "إلى $1.80" not in _bk_h
+      and "RSI 27" not in _bk_i and "⏳" in _bk_i
+      and _bk_t == _bk_w
+      and _bk_n == "" and _bk_o == "" and "⏳" in _bk_p
+      and S.WAIT_ZONE_MIN_WIDTH_PCT == 3.0 and S.WAIT_REF_STALE_PCT == 10.0,
+      f"e={_bk_e!r} f1={_bk_f1[:60]!r} g={_bk_g!r} h={_bk_h[:60]!r} n={_bk_n!r} o={_bk_o!r}")
 check("📘 BK4: 🔺 ارتدادٌ أوّل يظهر عند 50% فأكثر من القاع ويغيب تحته",
       "🔺" in S.first_rise_suffix({"pivot": 1.0, "last_price": 1.5})
       and S.first_rise_suffix({"pivot": 1.0, "last_price": 1.49}) == ""
@@ -42638,11 +42668,12 @@ check("📘 BK5: ذيولُ الحمرا 1.25/0.95 وبدايةُ الصاعدة
 def _bk_calls(src):
     return {(getattr(c.func, "id", None) or getattr(c.func, "attr", None))
             for c in _bk_ast.walk(_bk_ast.parse(src)) if isinstance(c, _bk_ast.Call)}
-_bk_sites = (S.build_message, S.build_hand_section, S.build_hand_digest, S.build_live_alert)
+_bk_sites = (S.build_message, S.build_hand_section, S.build_hand_digest, S.build_live_alert,
+             S.build_daily_message)   # + التقريرُ اليوميّ (مراجعة 2026-09-09: كان بلا اللاحقتين)
 _bk_miss = [f.__name__ for f in _bk_sites
             if not {"faisal_wait_suffix", "first_rise_suffix"} <= _bk_calls(_insp0.getsource(f))]
 _bk_hc = _bk_calls(open("hand_check.py", encoding="utf-8").read())
-check("📘 BK6: اللاحقتان مناداتان في build_message/hand_section/hand_digest/live_alert وفحص اليد",
+check("📘 BK6: اللاحقتان مناداتان في build_message/hand_section/hand_digest/live_alert/daily_message وفحص اليد",
       not _bk_miss and {"faisal_wait_suffix", "first_rise_suffix", "candle_supports_line",
                         "faisal_candle_supports", "rsi_target_price"} <= _bk_hc,
       f"ناقص: {_bk_miss}")
@@ -42671,12 +42702,22 @@ _bk_leak = [f.__name__ for f in _bk_roots if _bk_new & _bk_calls(_insp0.getsourc
 check("📘 BK8: دوالُّ الدليل الستّ خارج rank_key/select_top/classify_tier/entry_status/"
       "analyze_ticker/backtest_symbol/build_interpretation",
       not _bk_leak, f"تسرّب: {_bk_leak}")
-# 🔒 وعضويّةُ scan_market لم تتحرّك: `results.append(r)` خارج حارس الإثراء (كما كان)
-_bk_sm = _insp0.getsource(S.scan_market)
-check("📘 BK9: سطرُ rsi27_price داخل كتلة try الإثراء (فاشل-آمن) لا خارجها",
-      _bk_sm.find('r["rsi27_price"]') > _bk_sm.find('r["behav"] = behavior_rise_profile(df)') > 0
-      and _bk_sm.find('r["rsi27_price"]') < _bk_sm.find("except Exception as _e:",
-                                                         _bk_sm.find('r["behav"] = behavior_rise_profile(df)')))
+# 🔒 BK9 بالـAST (مراجعة 2026-09-09 — كان نصّيًّا فيُرضيه تعليق): كلُّ إسنادٍ إلى
+#    r["rsi27_price"] في scan_market يقع داخل **نفس** كتلة try التي تحمل r["behav"]
+#    (حارسُ الإثراء الأصليّ) — لا خارجها ولا في try مستقلّة.
+def _bk_assign_key(n, key):
+    return (isinstance(n, _bk_ast.Assign)
+            and any(isinstance(t, _bk_ast.Subscript) and isinstance(t.slice, _bk_ast.Constant)
+                    and t.slice.value == key for t in n.targets))
+_bk_sm_t = _bk_ast.parse(_insp0.getsource(S.scan_market))
+_bk_r27_all = [n for n in _bk_ast.walk(_bk_sm_t) if _bk_assign_key(n, "rsi27_price")]
+_bk_r27_try = [t for t in _bk_ast.walk(_bk_sm_t) if isinstance(t, _bk_ast.Try)
+               and any(_bk_assign_key(n, "rsi27_price") for n in _bk_ast.walk(t))
+               and any(_bk_assign_key(n, "behav") for n in _bk_ast.walk(t))]
+_bk_r27_in = [n for t in _bk_r27_try for n in _bk_ast.walk(t) if _bk_assign_key(n, "rsi27_price")]
+check("📘 BK9: إسنادُ rsi27_price داخل كتلة try الإثراء نفسِها (التي تحمل behav) — بالـAST",
+      len(_bk_r27_all) >= 1 and len(_bk_r27_in) == len(_bk_r27_all) and len(_bk_r27_try) >= 1,
+      f"all={len(_bk_r27_all)} in_try={len(_bk_r27_in)} trys={len(_bk_r27_try)}")
 
 
 # ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
@@ -42789,11 +42830,15 @@ if _wl_row is not None:
     for _r in _wl_same:
         for _n in ("W10", "W20", "W27"):
             _r[f"o_{_n}"], _r[f"ret_{_n}"] = _r["o_W0"], _r["ret_W0"]
-    _wl_rcs = (_wl_rc(_wl_rows), _wl_rc(_wl_bad), _wl_rc(_wl_same), _wl_rc(_wl_rows[:50]))
+    _wl_w27 = [dict(r) for r in _wl_rows]          # ملحق §④-أ: الوصفيُّ المتطابق يُطبَع ولا يُسقط
+    for _r in _wl_w27:
+        _r["o_W27"], _r["ret_W27"] = _r["o_W0"], _r["ret_W0"]
+    _wl_rcs = (_wl_rc(_wl_rows), _wl_rc(_wl_bad), _wl_rc(_wl_same), _wl_rc(_wl_rows[:50]),
+               _wl_rc(_wl_w27))
 else:
-    _wl_rcs = ("لا صفّ",) * 4
-check("⏳🔒 WLK4 البوّاباتُ تفرّق: سليم⇒0 · V-W0 (3/120 مخالفة)⇒3 · لا تفرّق⇒4 · دون الأرضية⇒4",
-      _wl_rcs == (0, 3, 4, 4), f"rc={_wl_rcs}")
+    _wl_rcs = ("لا صفّ",) * 5
+check("⏳🔒 WLK4 البوّاباتُ تفرّق: سليم⇒0 · V-W0 (3/120 مخالفة)⇒3 · الحاكمةُ لا تتفرّق⇒4 · دون الأرضية⇒4 · W27 وحدَه متطابق⇒0",
+      _wl_rcs == (0, 3, 4, 4, 0), f"rc={_wl_rcs}")
 
 # WLK5 — قراءةٌ فقط (AST) · حارسٌ ذاتيٌّ عامل · الإنتاجُ لا يستوردها · وإعادةُ
 #    الاستعمال **بالاسم** (plan_at/r_fixed/r_own/FLOOR_DECIDED من tranche_arms ·

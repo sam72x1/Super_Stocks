@@ -4411,28 +4411,85 @@ def faisal_wait_zone(price):
     return (round(p * 0.80, 4), round(p * 0.90, 4))
 
 
-def faisal_wait_suffix(s: dict, es: dict) -> str:
-    """لاحقةٌ عرضية على سطر «👀 متابعة»: أين ينتظر فيصل؟ منطقةُ 10-20% تحت السعر (ص54)
-    ‏+ سعرُ RSI 27 التقريبيّ (‏`GWAV` ص91) إن كان محسوبًا. «» عند `ready_now`، أو عند
-    «كسر الوقف» (فكرةٌ ملغاة لا انتظار)، أو بلا سعر. عرضٌ فقط — لا تمسّ `entry_status`."""
+def _stop_price(s: dict):
+    """وقفُ السجلّ/التحليل سعرًا: `stop` رقمٌ في القائمة، وزوجٌ `(lo, hi)` في التحليل الطازج."""
+    st = s.get("stop")
     try:
-        if not es or es.get("status") == "ready_now":
+        if isinstance(st, (list, tuple)):
+            st = st[0] if st else None
+        if st is None:
+            return None
+        v = float(st)
+        return v if v > 0 else None
+    except (TypeError, ValueError):
+        return None
+
+
+WAIT_ZONE_MIN_WIDTH_PCT = 3.0   # ⏳ ما بقي من المنطقة فوق الوقف أضيقُ من 3% من سعر التحليل ⇒ الوقفُ هو المنطقة ⇒ صمت
+WAIT_REF_STALE_PCT = 10.0       # ⏳ السعرُ الحيّ فوق سعر التحليل بأكثر من 10% ⇒ التحليلُ القديم لم يعد مرجعَ انتظار ⇒ صمت
+
+
+def faisal_wait_suffix(s: dict, es: dict) -> str:
+    """⏳ لاحقةٌ عرضية على سطر الحالة: أين ينتظر فيصل؟ «اذا حللنا سهم ارتكاز ممنوع الدخول …
+    انتظر اقل سعر 10% او 20% تحت» (ص54). **المرجعُ سعرُ التحليل الثابت** (`entry_ref` = سعرُ
+    الترشيح · أو `price` لتحليلٍ طازج) **لا السعرُ الحيّ** — وإلّا انزلقت المنطقةُ مع كلّ هبوط
+    (مراجعةٌ خصومية 2026-09-09) وهو نفسُ مرجع `T-WAIT-LOWER`. تظهر للجاهز وللمتابعة سواء (النصُّ
+    يخاطب السهمَ المحلَّل «الجاهز» أصلًا). **قواعدُ الصمت** (لا «أو» ضمنيّ):
+      • «كسر الوقف» في السبب ⇒ «» (فكرةٌ ملغاة) · بلا مرجع ⇒ «».
+      • أعلى دفعةٍ في خطّة الإنتاج **أدنى من المنطقة أصلًا** ⇒ «» (لا منطقةَ ثانية تخالف الدفعات).
+      • حدُّ المنطقة الأعلى **عند الوقف أو تحته** ⇒ «» (ما تحت الوقف ليس دخولًا) — وإن قطع الوقفُ
+        المنطقةَ قُصّت عنده **ويُقال**.
+      • السعرُ الحيّ داخلَ المنطقة أو تحتها ⇒ «بلغ منطقة انتظار فيصل» بنسبة الهبوط.
+      • ما بقي فوق الوقف بعد القصّ **أضيقُ من `WAIT_ZONE_MIN_WIDTH_PCT`** ⇒ «» (على القائمة الحيّة 2026-09-09
+        كان 9 من 16 سطرًا شرائحَ 1-3% فوق الوقف — ضجيجٌ لا معلومة) · والسعرُ الحيّ **فوق سعر التحليل بأكثر من
+        `WAIT_REF_STALE_PCT`** ⇒ «» (مرجعٌ بائت — سهمٌ صعد 180% لا يُنتظَر عند 20% تحت ترشيحه؛ وسمُ 🔺 يكفيه).
+    وسعرُ RSI 27 (`GWAV` ص91 — شارتُه **أسبوعيّ** والحسابُ هنا يوميّ · تقريبُ شمعةٍ واحدة = **الحدُّ
+    الأعمق** فيُقال «فأعلى») يُعرَض فقط إن كان **تحت السعر الحيّ وفوق الوقف**. عرضٌ فقط — لا تمسّ
+    `entry_status`."""
+    try:
+        if not es:
             return ""
         if "كسر الوقف" in str(es.get("reason") or ""):
             return ""
-        z = faisal_wait_zone(s.get("last_price") or s.get("price"))
+        ref = s.get("entry_ref") or s.get("price") or s.get("last_price")
+        z = faisal_wait_zone(ref)
         if not z:
             return ""
-        out = f" · ⏳ سعر انتظار فيصل ${z[0]:.2f} إلى ${z[1]:.2f} (أقل بـ10% إلى 20%)"
+        ref = float(ref)
+        lo, hi = z
+        try:
+            top = max(float(x) for x in (s.get("tranches") or []) if x)
+        except (TypeError, ValueError):
+            top = None
+        if top is not None and top <= lo:
+            return ""
+        stop = _stop_price(s)
+        if stop is not None and hi <= stop:
+            return ""
+        clip = ""
+        if stop is not None and lo < stop:
+            lo, clip = stop, " — مقصوصةٌ عند الوقف"
+        if (hi - lo) / ref * 100.0 < WAIT_ZONE_MIN_WIDTH_PCT:
+            return ""
+        cur = s.get("last_price") or s.get("price")
+        cur = float(cur) if cur else None
+        if cur and cur > ref * (1.0 + WAIT_REF_STALE_PCT / 100.0):
+            return ""
+        if cur and cur <= hi:
+            out = (f" · ⏳ السعر بلغ منطقة انتظار فيصل (أقل بـ{(1 - cur / ref) * 100:.0f}% "
+                   f"من سعر التحليل ${ref:.2f})")
+        else:
+            out = (f" · ⏳ سعر انتظار فيصل ${lo:.2f} إلى ${hi:.2f} (أقل بـ10% إلى 20% من "
+                   f"سعر التحليل ${ref:.2f}{clip})")
         r27 = s.get("rsi27_price")
-        if r27:
-            out += f" · سعر RSI 27 ≈ ${float(r27):.2f}"
+        if r27 and cur and float(r27) < cur and (stop is None or float(r27) > stop):
+            out += f" · سعر RSI 27 (يوميّ) ≈ ${float(r27):.2f} فأعلى"
         return out
     except Exception:                    # noqa: BLE001
         return ""
 
 
-FIRST_RISE_PCT = 50.0   # فيصل `HTCR` (ص90): «50% تمت بصعود اول ✅ · انتظار اختبار دعم او سحب سيوله»
+FIRST_RISE_PCT = 50.0   # `HTCR` (ص90) «50% تمت بصعود اول ✅ · انتظار اختبار دعم او سحب سيوله» — حالةٌ واحدة؛ التعميمُ من الصديق ص70/ص73 ⇒ `faisal_adopted`
 
 
 def first_rise_suffix(s: dict) -> str:
@@ -4458,7 +4515,9 @@ def faisal_candle_supports(df, price, span: int = 130, k: int = 3):
     """🕯️ دعومُ الشموع عند فيصل (‏`GDHG` — الدليل ص22/ص34/ص58، نصُّه حرفيًّا):
     «شمعة السقوط بالماركت **راس وذيل** … **ذيل** الشمعه الهابطه 1.85 … السهم هبط
     بعد ذيل الشمعه الهابطه **ليختبر شمعة الصعود** … دعم الشمعه الصاعده 1.63».
-    ⇒ مصدران للدعم **لم يكونا عندنا** (كان عندنا رأسُ الحمرا مقاومةً فقط):
+    ⇒ على اليوميّ: ذيلُ الحمرا كان عندنا **على 4س فقط** (`four_hour_levels` بشرط «بعده
+    صعود») وبدايةُ الصاعدة **جديدة** — وإطارُ GDHG عند فيصل 15د/جلسة فالنقلُ لليوميّ **مُعلَن**
+    (مراجعةٌ خصومية 2026-09-09):
       • `red_tails`: **ذيولُ (Low)** الشموع الحمراء المعتبرة **تحت** السعر.
       • `green_origins`: **بدايةُ (Open)** الشموع الصاعدة القوية **تحت** السعر.
     الاعتبارُ بنفس عتبة رؤوس الحمرا (`RES_RED_HEAD_MIN_DROP` — هندسيّةٌ موسومة)،
@@ -17800,7 +17859,8 @@ def build_daily_message(wl: dict, splits: list,
                      f"قوة {s.get('score', '?')}")
         else:
             head += f"قوة {s.get('score', '?')}"
-        lines.append(head + _ready_war_suffix(s, _es))
+        lines.append(head + _ready_war_suffix(s, _es) + faisal_wait_suffix(s, _es)
+                     + first_rise_suffix(s))   # ⏳/🔺 لواحقُ فيصل (كما في كرت التجديد)
         # سطر السبب لأسهم المتابعة فقط (ما الذي يحوّلها جاهزة) — الجاهز يكفيه عنوان القسم
         if _sec == "watch" and _es.get("reason"):
             lines.append(f"   👀 {_es['reason']}")
