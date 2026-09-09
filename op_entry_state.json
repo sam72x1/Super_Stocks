@@ -18,7 +18,7 @@
   "date": "2026-09-08"
  },
  "LIQ:AKAN": {
-  "last_eval_ms": 1788957900000,
+  "last_eval_ms": 1788958080000,
   "date": "2026-09-09"
  },
  "LIQ:PDSB": {
@@ -502,7 +502,7 @@
   "date": "2026-09-09"
  },
  "LIQ:SDA": {
-  "last_eval_ms": 1788958020000,
+  "last_eval_ms": 1788958080000,
   "date": "2026-09-09"
  },
  "LIQ:ASST": {
@@ -510,7 +510,7 @@
   "date": "2026-09-09"
  },
  "LIQ:VWAV": {
-  "last_eval_ms": 1788958020000,
+  "last_eval_ms": 1788958080000,
   "date": "2026-09-09"
  },
  "LIQ:WETO": {
@@ -570,7 +570,7 @@
   "date": "2026-09-08"
  },
  "LIQ:ARBE": {
-  "last_eval_ms": 1788958020000,
+  "last_eval_ms": 1788958080000,
   "date": "2026-09-09"
  },
  "LIQ:GDC": {
@@ -582,7 +582,7 @@
   "date": "2026-09-09"
  },
  "LIQ:HUMA": {
-  "last_eval_ms": 1788957960000,
+  "last_eval_ms": 1788958080000,
   "date": "2026-09-09"
  },
  "LIQ:AVAT": {
@@ -670,7 +670,7 @@
  },
  "LIQ:TNON": {
   "anchor_ms": 1788957180000,
-  "last_ms": 1788958020000,
+  "last_ms": 1788958080000,
   "sent": [
    "M1",
    "M5"
@@ -679,7 +679,7 @@
   "vol_x": 116.9,
   "peak_usd": 343063,
   "last_eval_ms": 1788957180000,
-  "pulse_ms": 1788958020000,
+  "pulse_ms": 1788958080000,
   "anchor_price": 3.91,
   "anchor_open": 3.47,
   "anchor_low": 3.47,
@@ -862,7 +862,7 @@
   "date": "2026-09-09"
  },
  "LIQ:BTQ": {
-  "last_eval_ms": 1788957960000,
+  "last_eval_ms": 1788958080000,
   "date": "2026-09-09"
  },
  "LIQ:MRLN": {
@@ -1002,7 +1002,7 @@
   "date": "2026-09-09"
  },
  "LIQ:RZLV": {
-  "last_eval_ms": 1788958020000,
+  "last_eval_ms": 1788958080000,
   "date": "2026-09-09"
  },
  "LIQ:WVE": {
@@ -1279,7 +1279,7 @@
   "date": "2026-09-09"
  },
  "LIQ:FEED": {
-  "last_eval_ms": 1788957960000,
+  "last_eval_ms": 1788958080000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788957000000,
@@ -1392,7 +1392,7 @@
   "date": "2026-09-09"
  },
  "LIQ:TLRY": {
-  "last_eval_ms": 1788957300000,
+  "last_eval_ms": 1788958080000,
   "date": "2026-09-09"
  },
  "LIQ:PROP": {
@@ -1957,7 +1957,7 @@
   "date": "2026-09-09"
  },
  "LIQ:LHSW": {
-  "last_eval_ms": 1788958020000,
+  "last_eval_ms": 1788958080000,
   "date": "2026-09-09"
  },
  "LIQ:REBN": {
