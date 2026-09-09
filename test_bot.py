@@ -43219,14 +43219,18 @@ check("⏳🔒 WSK2 العمقُ الخام (0.3 · None⇒0 · سعرٌ فوق 
 _ws_mk = [{"ref": 10.0, "e_R0": 10.0, "minlow": 10.0 - i} for i in range(10)]
 _ws_f0 = _WS.fill_count(_ws_mk, 0.0) if _WS else None          # الكلُّ يتعبّأ
 _ws_f9 = _WS.fill_count(_ws_mk, 0.95) if _WS else None         # لا أحد
-_ws_sol = _WS.solve_match_depth(_ws_mk, 5) if _WS else None
-_ws_sol2 = _WS.solve_match_depth(_ws_mk, 5) if _WS else None
-check("⏳🔒 WSK3 `fill_count` رتيبةٌ (10 عند عمق 0 · 0 عند 0.95) · والتنصيفُ يبلغ الهدف 5 "
-      "بخطأٍ صفر · وحتميٌّ (نداءان متطابقان)",
+# 🔴 هدفان **لا يبلغهما أوّلُ منتصف** (‏0.495 يعطي 5) فيلزم تنصيفٌ صحيحُ الاتّجاه —
+#    وهدفُ 5 وحدَه كان يمرّ حتى باتّجاهٍ مقلوب (نجت منه طفرةُ `x4`): «قفلٌ لا يسقط زينة».
+_ws_sol8 = _WS.solve_match_depth(_ws_mk, 8) if _WS else None
+_ws_sol2 = _WS.solve_match_depth(_ws_mk, 2) if _WS else None
+_ws_sol8b = _WS.solve_match_depth(_ws_mk, 8) if _WS else None
+check("⏳🔒 WSK3 `fill_count` رتيبةٌ (10 عند 0 · 0 عند 0.95) · والتنصيفُ يبلغ هدفَي 8 و2 "
+      "بخطأٍ صفر · وعمقُ الهدف الأكبر **أضحل** (اتّجاهٌ صحيح) · وحتميّ",
       _WS is not None and _ws_f0 == 10 and _ws_f9 == 0
-      and _ws_sol[1] == 0 and _WS.fill_count(_ws_mk, _ws_sol[0]) == 5
-      and _ws_sol == _ws_sol2,
-      f"f0={_ws_f0} f9={_ws_f9} sol={_ws_sol}")
+      and _ws_sol8[1] == 0 and _WS.fill_count(_ws_mk, _ws_sol8[0]) == 8
+      and _ws_sol2[1] == 0 and _WS.fill_count(_ws_mk, _ws_sol2[0]) == 2
+      and _ws_sol8[0] < _ws_sol2[0] and _ws_sol8 == _ws_sol8b,
+      f"f0={_ws_f0} f9={_ws_f9} sol8={_ws_sol8} sol2={_ws_sol2}")
 
 
 # WSK4 — **سلوكيّ من نقطة النداء** بمحرّك الإنتاج `_resolve_arm` الحقيقيّ:
