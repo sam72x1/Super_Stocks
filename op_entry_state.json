@@ -172,7 +172,7 @@
   "date": "2026-09-09"
  },
  "LIQ:GMEX": {
-  "last_eval_ms": 1788962460000,
+  "last_eval_ms": 1788962520000,
   "date": "2026-09-09"
  },
  "LIQ:FUSE": {
@@ -402,7 +402,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 2.455,
+  "e5": 2.46,
   "date": "2026-09-09"
  },
  "LIQ:RITR": {
@@ -523,7 +523,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.127,
+  "e5": 0.1249,
   "date": "2026-09-09"
  },
  "LIQ:BYRN": {
@@ -583,7 +583,7 @@
   "date": "2026-09-09"
  },
  "LIQ:ASST": {
-  "last_eval_ms": 1788962460000,
+  "last_eval_ms": 1788962520000,
   "date": "2026-09-09"
  },
  "LIQ:VWAV": {
@@ -728,7 +728,7 @@
   "updates": 0,
   "vol_x": 71.5,
   "peak_usd": 235283,
-  "last_eval_ms": 1788960600000,
+  "last_eval_ms": 1788960660000,
   "pulse_ms": 1788962520000,
   "anchor_price": 2.095,
   "anchor_open": 1.92,
@@ -745,7 +745,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 2.1484,
+  "e5": 2.1076,
   "date": "2026-09-09"
  },
  "LIQ:AMOD": {
@@ -813,7 +813,7 @@
   "date": "2026-09-08"
  },
  "LIQ:CYCU": {
-  "last_eval_ms": 1788962340000,
+  "last_eval_ms": 1788962520000,
   "date": "2026-09-09"
  },
  "LIQ:FNGR": {
@@ -837,7 +837,7 @@
   "date": "2026-09-09"
  },
  "LIQ:VVOS": {
-  "last_eval_ms": 1788962460000,
+  "last_eval_ms": 1788962520000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1788946380000,
@@ -853,7 +853,7 @@
   "date": "2026-09-09"
  },
  "LIQ:BLNK": {
-  "last_eval_ms": 1788962460000,
+  "last_eval_ms": 1788962520000,
   "date": "2026-09-09"
  },
  "LIQ:PBK": {
@@ -1326,7 +1326,7 @@
   "date": "2026-09-09"
  },
  "LIQ:YAAS": {
-  "last_eval_ms": 1788962460000,
+  "last_eval_ms": 1788962520000,
   "date": "2026-09-09"
  },
  "LIQ:BNAI": {
@@ -2103,17 +2103,17 @@
    "M5"
   ],
   "updates": 0,
-  "vol_x": 4.4,
+  "vol_x": 4.3,
   "peak_usd": 59273,
-  "last_eval_ms": 1788960960000,
+  "last_eval_ms": 1788961020000,
   "pulse_ms": 1788962520000,
   "anchor_price": 0.9983,
   "anchor_open": 0.95,
   "anchor_low": 0.93,
   "pre_done": true,
   "pre_hi": 1.18,
-  "pre_usd": 835795,
-  "pre_n": 61,
+  "pre_usd": 832898,
+  "pre_n": 60,
   "k2": {
    "c3": "نقضت",
    "c4": "خضراء 0-1",
@@ -2324,9 +2324,9 @@
    "M5",
    "M30"
   ],
-  "updates": 3,
+  "updates": 4,
   "vol_x": 79.9,
-  "peak_usd": 2435888,
+  "peak_usd": 3504799,
   "last_eval_ms": 1788958920000,
   "pulse_ms": 1788962520000,
   "anchor_price": 0.2803,
@@ -2344,7 +2344,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.4506,
+  "e5": 0.4518,
   "tgt_ms": 1788958980000,
   "date": "2026-09-09"
  },
