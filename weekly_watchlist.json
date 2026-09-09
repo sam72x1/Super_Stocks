@@ -747,10 +747,10 @@
    "hit": "t2",
    "hit_date": "2026-08-31",
    "max_gain_pct": 52.5,
-   "last_price": 1.6401,
+   "last_price": 1.65,
    "live_alert": {
     "breakout": "2026-08-31",
-    "buyzone": "2026-09-08",
+    "buyzone": "2026-09-09",
     "premarket": "2026-09-01",
     "dump": "2026-09-01",
     "break": "2026-09-09"
@@ -1907,7 +1907,7 @@
    "hit": "t2",
    "hit_date": "2026-08-19",
    "max_gain_pct": 262.2,
-   "last_price": 5.92,
+   "last_price": 5.76,
    "live_alert": {
     "premarket": "2026-08-20",
     "breakout": "2026-08-21",
@@ -2708,7 +2708,7 @@
    "hit": "t1",
    "hit_date": "2026-08-17",
    "max_gain_pct": -8.4,
-   "last_price": 0.6516,
+   "last_price": 0.652,
    "live_alert": {
     "premarket": "2026-08-18",
     "dump": "2026-08-18",
@@ -3544,7 +3544,7 @@
    "hit": "t1",
    "hit_date": "2026-09-03",
    "max_gain_pct": 11.7,
-   "last_price": 1.05,
+   "last_price": 1.055,
    "live_alert": {
     "breakout": "2026-09-02"
    },
@@ -7753,7 +7753,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -2.7,
-   "last_price": 1.3606,
+   "last_price": 1.37,
    "live_alert": {},
    "rsi27_price": 0.4022
   },
@@ -8905,7 +8905,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 79.0,
-   "last_price": 2.22,
+   "last_price": 2.2547,
    "live_alert": {
     "breakout": "2026-09-02",
     "premarket": "2026-09-03",
@@ -11965,7 +11965,7 @@
    "hit": "t2",
    "hit_date": "2026-08-20",
    "max_gain_pct": 58.2,
-   "last_price": 1.635,
+   "last_price": 1.64,
    "live_alert": {
     "breakout": "2026-09-08",
     "dump": "2026-08-31"
@@ -14228,7 +14228,7 @@
    "sector": "Financial Services",
    "country": "United States",
    "float": 72869981,
-   "last_price": 26.64,
+   "last_price": 26.66,
    "status": "watching",
    "triggered_date": null
   },
@@ -14330,7 +14330,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 4805163,
-   "last_price": 1.761,
+   "last_price": 1.74,
    "status": "watching",
    "triggered_date": null
   },
@@ -14432,7 +14432,7 @@
    "sector": "Industrials",
    "country": "China",
    "float": 2766994,
-   "last_price": 1.3301,
+   "last_price": 1.3365,
    "status": "watching",
    "triggered_date": null
   },
@@ -14602,7 +14602,7 @@
    "sector": "Utilities",
    "country": "Israel",
    "float": 23843,
-   "last_price": 2.56,
+   "last_price": 2.53,
    "status": "watching",
    "triggered_date": null
   }
