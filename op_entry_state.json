@@ -401,7 +401,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 2.46,
+  "e5": 2.455,
   "date": "2026-09-09"
  },
  "LIQ:RITR": {
@@ -505,7 +505,7 @@
   "updates": 0,
   "vol_x": 106.6,
   "peak_usd": 61612,
-  "last_eval_ms": 1788961740000,
+  "last_eval_ms": 1788961800000,
   "pulse_ms": 1788962160000,
   "anchor_price": 0.125,
   "anchor_open": 0.1174,
@@ -522,7 +522,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.1249,
+  "e5": 0.127,
   "date": "2026-09-09"
  },
  "LIQ:BYRN": {
@@ -742,7 +742,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 2.1076,
+  "e5": 2.1484,
   "date": "2026-09-09"
  },
  "LIQ:AMOD": {
@@ -1166,9 +1166,9 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 3,
   "vol_x": 24.6,
-  "peak_usd": 1093100,
+  "peak_usd": 3102841,
   "last_eval_ms": 1788955260000,
   "pulse_ms": 1788962160000,
   "anchor_price": 9.9225,
@@ -2097,7 +2097,7 @@
    "M5"
   ],
   "updates": 0,
-  "vol_x": 4.3,
+  "vol_x": 4.4,
   "peak_usd": 59273,
   "last_eval_ms": 1788961020000,
   "pulse_ms": 1788962160000,
@@ -2106,8 +2106,8 @@
   "anchor_low": 0.93,
   "pre_done": true,
   "pre_hi": 1.18,
-  "pre_usd": 832898,
-  "pre_n": 60,
+  "pre_usd": 835795,
+  "pre_n": 61,
   "k2": {
    "c3": "نقضت",
    "c4": "خضراء 0-1",
@@ -2338,7 +2338,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.4518,
+  "e5": 0.4506,
   "tgt_ms": 1788958980000,
   "date": "2026-09-09"
  },
