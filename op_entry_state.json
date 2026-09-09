@@ -1269,7 +1269,7 @@
  },
  "LIQ:FEED": {
   "anchor_ms": 1788957000000,
-  "last_ms": 1788957000000,
+  "last_ms": 1788957060000,
   "sent": [
    "M1"
   ],
@@ -1277,7 +1277,7 @@
   "vol_x": 12.3,
   "peak_usd": 30999,
   "last_eval_ms": 1788957060000,
-  "pulse_ms": 1788957000000,
+  "pulse_ms": 1788957060000,
   "anchor_price": 4.3,
   "anchor_open": 3.92,
   "anchor_low": 3.92,
