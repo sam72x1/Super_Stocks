@@ -396,7 +396,7 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 2.46,
+  "e5": 2.455,
   "date": "2026-09-09"
  },
  "LIQ:RITR": {
@@ -1130,9 +1130,9 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 3,
   "vol_x": 24.6,
-  "peak_usd": 1093100,
+  "peak_usd": 3102841,
   "last_eval_ms": 1788955260000,
   "pulse_ms": 1788961320000,
   "anchor_price": 9.9225,
