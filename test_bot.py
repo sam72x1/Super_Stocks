@@ -9370,6 +9370,159 @@ import analyze_one as _AO
 import telegram_collect as TC
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🧠 **الذاكرة الدائمة = ملفّان لا ملفّ** (‏2026-09-07، أمرُ المالك «حل لي المشكلة»)
+# ══════════════════════════════════════════════════════════════════════════
+# `CLAUDE.md` بلغ **849,213 محرفًا ≈ 386 ألف توكن** وهو يُحقَن كاملًا في أوّل رسالةٍ
+# من كلّ جلسة ⇒ ينفجر السياقُ **قبل أن يكتب المالكُ حرفًا** (انضغطت الجلسةُ مرّتين
+# ثم «Prompt is too long»). فنُقل السجلُّ التاريخيّ إلى `DECISIONS_ARCHIVE.md`
+# **نقلًا لا حذفًا** (صفرُ سطرٍ ضاع — مُتحقَّقٌ بمقارنة Counter).
+#
+# ⚖️ وكلُّ قفلٍ كان يقرأ `CLAUDE.md` يقرأ **الاثنين معًا** الآن — وهذا **تشديدٌ لا
+#    إرخاء**: النطاقُ يتّسع فيشمل ما كان يُفلت لو بقي القفلُ على ملفٍّ واحد.
+#    (مُثبَتٌ على الكرونات: 5 كرونًا موثّقًا ⟶ 8 · وصفرُ عتيقٍ في الحالتين.)
+def _memory_text():
+    """نصُّ الذاكرة الدائمة كاملًا: `CLAUDE.md` + `DECISIONS_ARCHIVE.md`."""
+    _parts = []
+    for _p in ("CLAUDE.md", "DECISIONS_ARCHIVE.md"):
+        try:
+            with open(_p, encoding="utf-8") as _fh:
+                _parts.append(_fh.read())
+        except OSError:
+            pass
+    return "\n".join(_parts)
+
+
+# 🔴🧠 **حارسُ انفجار السياق** — العلاجُ الوقائيُّ لا الوصفيّ.
+#    المشكلةُ التي وقعت (‏2026-09-07) لم تكن خطأَ كود: `CLAUDE.md` نما تراكميًّا حتى
+#    صار **يستهلك سياقَ الجلسة كلَّه قبل أوّل حرفٍ يكتبه المالك**. فبلا حدٍّ مقفول
+#    **ستتكرّر حتمًا** بعد بضعة أشهرٍ من التراكم. الحدُّ هنا يُسقط السويّةَ فيُجبِر
+#    الجلسةَ القادمة على **الأرشفة** بدل أن تكتشف المالكُ الانفجارَ بنفسه.
+#    ⚖️ والحدُّ **هندسيّ مُعلَن** (‏`engineering`): 250,000 محرفًا ‏≈114 ألف توكن —
+#    ضِعفُ الحجم الحاليّ تقريبًا فيتّسع للنموّ الطبيعيّ، ودون ثُلثِ ما انفجر عنده.
+_MEM_CAP = 250_000
+_mem_cl = open("CLAUDE.md", encoding="utf-8").read()
+check(f"🧠 MEM1: CLAUDE.md تحت حدّ السياق ({len(_mem_cl):,} من {_MEM_CAP:,} محرف) "
+      "— وإلّا أُرشِف السجلّ قبل أن ينفجر سياقُ الجلسة",
+      len(_mem_cl) <= _MEM_CAP)
+
+import os as _mem_os
+check("🧠 MEM2: الأرشيفُ موجودٌ ويحمل السجلَّ المنقول (نقلٌ لا حذف)",
+      _mem_os.path.exists("DECISIONS_ARCHIVE.md")
+      and len(open("DECISIONS_ARCHIVE.md", encoding="utf-8").read()) > 400_000)
+
+# 🔒 وسلوكيًّا لا نصًّا: `_memory_text()` تقرأ **الاثنين** — عيّنةٌ تفرّق (نصٌّ لا
+#    يوجد إلّا في الأرشيف). لو رجعت الدالّةُ إلى ملفٍّ واحدٍ سقط هذا القفل.
+_mem_ar = open("DECISIONS_ARCHIVE.md", encoding="utf-8").read()
+_mem_only_ar = "أرشيف القرارات والأحكام"
+check("🧠 MEM3: _memory_text تقرأ الذاكرةَ كاملةً (الملفّان) لا CLAUDE.md وحده",
+      _mem_only_ar in _mem_ar and _mem_only_ar not in _mem_cl
+      and _mem_only_ar in _memory_text()
+      and len(_memory_text()) >= len(_mem_cl) + 400_000)
+
+# 🔒 وفهرسُ الأحكام يبقى في `CLAUDE.md` — فبلا الفهرس تصير الأحكامُ المُغلَقة
+#    غيرَ معروفةِ الوجود فتُعاد تجربتُها. (وهو الضمانةُ الوحيدة بعد النقل.)
+check("🧠 MEM4: فهرسُ الأحكام حاضرٌ في CLAUDE.md ويحيل إلى الأرشيف",
+      "📇 فهرس الأحكام والقرارات المؤرَّخة" in _mem_cl
+      and "DECISIONS_ARCHIVE.md" in _mem_cl
+      and _mem_cl.count("| `") >= 200)
+
+# 🔴 MEM5 — أُضيف 2026-09-07 بعد عيبٍ حقيقيٍّ كشفه الفحصُ لا القراءة: أرقامُ سطر
+# الفهرس كانت **‏243 من 243 خاطئة** لأنها حُسبت على الكتلة المنقولة *قبل* إدراج
+# ترويسة الأرشيف (‏انزياحٌ ثابتٌ 15 سطرًا). و`MEM4` لا يمسكه (يعدّ ولا يتحقّق) ⇒
+# «فهرسٌ يحيل إلى سطرٍ خاطئ» = سطرُ عرضٍ يكذب، وأخطرُ ما فيه أنه يُفشِل الغرضَ
+# الوحيد للفهرس (‏ألّا تُعاد تجربةٌ مُغلَقة). القفلُ يتحقّق **سلوكيًّا**: كلُّ
+# إحالةٍ تقع على سطرٍ يبدأ بندًا (`- **`) ومقتطعُ الفهرس **داخله**.
+import re as _mem_re
+_mem_ar_lines = open("DECISIONS_ARCHIVE.md", encoding="utf-8").read().splitlines()
+_mem_rows = [_l for _l in _mem_cl.splitlines() if _mem_re.match(r"^\| \d+ \|", _l)]
+_mem_bad = []
+for _row in _mem_rows:
+    _pp = _row.split("|")
+    try:
+        _ln = int(_pp[-2].strip().strip("`"))
+    except (ValueError, IndexError):
+        _mem_bad.append(_row[:40])
+        continue
+    _key = _pp[2].strip().lstrip("*").strip()[:22]
+    _tgt = _mem_ar_lines[_ln - 1] if 0 < _ln <= len(_mem_ar_lines) else ""
+    if not (_tgt.startswith("- **") and _key in _tgt):
+        _mem_bad.append(f"#{_pp[1].strip()}⟶{_ln}")
+check(f"🧠 MEM5: كلُّ إحالةِ فهرسٍ تقع على بندِها في الأرشيف ({len(_mem_rows)} بندًا · "
+      f"خاطئة {len(_mem_bad)}) — وإلّا فالفهرسُ يكذب ويسقط غرضُه",
+      len(_mem_rows) >= 200 and not _mem_bad,
+      f"أوّلُ الخاطئة: {_mem_bad[:5]}" if _mem_bad else "")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 📚 **والهاندوفُ أُرشِف مثلَه** (‏2026-09-08، أمرُ المالك «أرشف الهاندوف»)
+# ══════════════════════════════════════════════════════════════════════════
+# `HANDOFF.md` **لا يُحقَن تلقائيًّا** فلم يكن سببَ انفجار 09-07 — لكنّ نصَّ التشغيل
+# يأمر بقراءته **أوّلَ ملفٍّ في كلّ جلسةٍ جديدة**، وكان **‏500,818 محرفًا ‏و94.3% منه
+# سجلٌّ تاريخيّ** ⇒ ثمنٌ يُدفع يدويًّا كلَّ مرّة. فنُقل السجلُّ إلى `HANDOFF_ARCHIVE.md`
+# **نقلًا لا حذفًا** (صفرُ سطرٍ مفقود غيرِ مقصود — والمقصودُ سطران يُعلَنان).
+#
+# 🧭 **ودرسُ الأمس مُطبَّقٌ من البداية لا بعد الوقوع:** أرقامُ الفهرس اشتُقّت من
+#    **الملفّ النهائيّ** بعد إدراج الترويسة (لا من الكتلة المنقولة) — وهو بعينه
+#    الانزياحُ الذي أفسد 243 إحالةً في `DECISIONS_ARCHIVE.md` ومرّ على `MEM4`
+#    لأنه **يَعُدّ ولا يتحقّق**. فـ`HND5` هنا **سلوكيٌّ من أوّل سطر**.
+_HND_CAP = 150_000
+_hnd_hd = open("HANDOFF.md", encoding="utf-8").read()
+check(f"📚 HND1: HANDOFF.md تحت حدّ القراءة اليدويّة ({len(_hnd_hd):,} من "
+      f"{_HND_CAP:,} محرف) — وإلّا أُرشِف السجلُّ قبل أن يلتهم الجلسة",
+      len(_hnd_hd) <= _HND_CAP)
+
+# 🔒 والنقلُ يُثبَت بعيّنةٍ **تفرّق**: عنوانُ الأرشيف لا يوجد إلّا فيه ⇒ لو نُسخ
+#    بدل أن يُنقَل، أو أُفرِغ الأرشيف، سقط القفل.
+_hnd_ar = (open("HANDOFF_ARCHIVE.md", encoding="utf-8").read()
+           if _mem_os.path.exists("HANDOFF_ARCHIVE.md") else "")
+_hnd_only = "أرشيف الهاندوف"
+check("📚 HND2: أرشيفُ الهاندوف موجودٌ ويحمل السجلَّ المنقول (نقلٌ لا حذف)",
+      len(_hnd_ar) > 400_000 and _hnd_only in _hnd_ar and _hnd_only not in _hnd_hd)
+
+# 🔴 HND3 — **الضمانةُ الحقيقية للنقل**: نصُّ التشغيل هو ما ينسخه المالكُ في كلّ
+#    محادثةٍ جديدة. فإن لم يُسمِّ الأرشيفين صارا **مجهولَي الوجود** للجلسة القادمة،
+#    وإن أمر بقراءتهما كاملَين **أعاد المشكلةَ التي حُلّت**. فالشرطان معًا.
+_hnd_boot = _hnd_hd.split("## 🔑 نص التشغيل")[-1].split("```")[1] if "## 🔑 نص التشغيل" in _hnd_hd else ""
+check("📚 HND3: نصُّ التشغيل يُسمّي الأرشيفين ويأمر بالـgrep لا بقراءتهما كاملَين",
+      "HANDOFF_ARCHIVE.md" in _hnd_boot and "DECISIONS_ARCHIVE.md" in _hnd_boot
+      and "grep" in _hnd_boot)
+
+check("📚 HND4: فهرسُ بنود الأرشيف حاضرٌ في HANDOFF.md ويحيل إليه",
+      "📇 فهرس بنود الأرشيف" in _hnd_hd and "HANDOFF_ARCHIVE.md" in _hnd_hd
+      and _hnd_hd.count("| `") >= 200)
+
+# 🔒 HND5 — سلوكيٌّ لا عدديّ (درسُ MEM5): كلُّ إحالةٍ تقع على **مطلعِ بندٍ فعليّ**
+#    في الأرشيف — سطرُ اقتباسٍ يبدأ فقرةً (يسبقه فراغ) ومقتطعُ الفهرس داخله،
+#    **وبعد ترويسة الأرشيف** (أوّلِ فاصلٍ `---`).
+#    🔴 والشرطُ الأخير وُلد من عيبٍ حقيقيّ أمسكه فحصُ «هل يُوصِل الفهرسُ فعلًا؟»
+#    لا القراءة: كاشفُ المطالع التقط **فقرةَ الترويسة نفسَها** بندًا (‏#1 ⟶ سطر 3)
+#    فصار في الفهرس صفٌّ يحيل إلى شرحِ الأرشفة لا إلى حكم — والقفلُ بصيغته الأولى
+#    **يمرّ عليه** لأن الترويسةَ فقرةُ اقتباسٍ صحيحةُ الشكل. ⇒ الشكلُ الصحيح لا
+#    يكفي: يلزم **الموضعُ** أيضًا. (‏252 بندًا لا 253.)
+_hnd_lines = _hnd_ar.splitlines()
+_hnd_sep = next((_i for _i, _l in enumerate(_hnd_lines, 1) if _l.strip() == "---"), 0)
+_hnd_rows = [_l for _l in _hnd_hd.splitlines() if _mem_re.match(r"^\| \d+ \|", _l)]
+_hnd_bad = []
+for _row in _hnd_rows:
+    _pp = _row.split("|")
+    try:
+        _ln = int(_pp[-2].strip().strip("`"))
+    except (ValueError, IndexError):
+        _hnd_bad.append(_row[:40])
+        continue
+    _key = _pp[2].strip().lstrip("*").strip()[:22]
+    _tgt = _hnd_lines[_ln - 1] if 0 < _ln <= len(_hnd_lines) else ""
+    _pv = _hnd_lines[_ln - 2] if 1 < _ln <= len(_hnd_lines) else "x"
+    if not (_ln > _hnd_sep > 0 and _tgt.startswith("> ")
+            and _pv.strip() == "" and _key in _tgt):
+        _hnd_bad.append(f"#{_pp[1].strip()}⟶{_ln}")
+check(f"📚 HND5: كلُّ إحالةِ فهرسٍ تقع على مطلعِ بندٍ في أرشيف الهاندوف "
+      f"({len(_hnd_rows)} بندًا · خاطئة {len(_hnd_bad)})",
+      len(_hnd_rows) >= 200 and not _hnd_bad,
+      f"أوّلُ الخاطئة: {_hnd_bad[:5]}" if _hnd_bad else "")
+
+
 # 📚 **حارس انحراف التوثيق** (تدقيق 2026-07-27): CLAUDE.md أوّل ما تقرأه كل جلسة، فخطؤه
 # **يتكاثر**. وُجد أربعة كرونات عتيقة فيه — منها كرون أُصلح في اليوم نفسه. الحارس يقارن
 # كل كرون مذكور في الوثيقة بملفّات الـyml فعليًّا.
@@ -9382,7 +9535,7 @@ def _doc_crons():
         with open(p, encoding="utf-8") as _fh:
             return _fh.read()
 
-    doc = set(_re.findall(r'`(\d[\d,*/ -]*(?: [\d,*/A-Za-z-]+){4})`', _rd("CLAUDE.md")))
+    doc = set(_re.findall(r'`(\d[\d,*/ -]*(?: [\d,*/A-Za-z-]+){4})`', _memory_text()))
     real = set()
     for _f in _g.glob(".github/workflows/*.yml"):
         real |= set(_re.findall(r'cron:\s*"([^"]+)"', _rd(_f)))
@@ -13120,7 +13273,7 @@ check("🧹 011·لا مرجع متبقٍّ لأي محذوفة (حتى في ا�
 #       ويشترط علامة **فريدة في الملفّ كلّه**؛
 #    ② ويتحقّق أن **ادّعاء الفقرة صحيح في الكود** — فلو أُعيد وصل D9 باليومي لصار
 #       التوثيق كاذبًا ويسقط القفل. (تقاطع توثيق↔كود بدل مطابقة نصّ.)
-_c11_claude = open("CLAUDE.md", encoding="utf-8").read()
+_c11_claude = _memory_text()   # 2026-09-07: الذاكرة ملفّان (نقل السجلّ للأرشيف)
 _C11_D9_MARK = "هذا الوصل مقطوع منذ 2026-07-09"
 _c11_i = _c11_claude.find("D9 **قسم «مراقبة التقسيم العكسي»**")
 _c11_j = _c11_claude.find("D10 **«تدوير", _c11_i + 1)
@@ -17952,7 +18105,7 @@ check("🧪 ABL🔒 والتسجيلُ المسبق مدفوعٌ ويحمل ال
 # ══════════════════════════════════════════════════════════════════════════
 # الغرض: ألّا يُعاد فتحُ المحور **سهوًا** في جلسةٍ قادمة بحسن نيّة، وألّا يتبخّر
 # شرطُ إعادة الفتح المؤرَّخ فيصير «مُغلَقٌ للأبد» — وهو ما لم يقرّره المالك.
-_cl_md = open("CLAUDE.md", encoding="utf-8").read()
+_cl_md = _memory_text()        # 2026-09-07: الذاكرة ملفّان (نقل السجلّ للأرشيف)
 check("🔒📐 CLOSE: قرارُ الإغلاق مُثبَّتٌ في الذاكرة الدائمة",
       "إغلاقُ محور «ظرف الكاتالوج»" in _cl_md)
 check("🔒📐 CLOSE: وشرطُ إعادة الفتح **مؤرَّخٌ ورقميّ** (لا «مُغلَقٌ للأبد»)",
@@ -42422,6 +42575,285 @@ check("🔬 EGP3 V-E8 نصًّا: edgar_probe.yml يُصرّح SEC_CONTACT من 
 
 
 
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 📘 **دليلُ طريقة فيصل (‏94 صفحة · 2026-09-08) — أقفالُ ما شُحن منه** (عرضٌ فقط)
+# ══════════════════════════════════════════════════════════════════════════
+# المصدر: ص54 «انتظر اقل سعر 10% او 20% تحت» · GWAV ص91 «هدف الشورت = RSI 27» ·
+# HTCR ص90 «50% تمت بصعود اول ✅ انتظار اختبار دعم او سحب» · GDHG ص22 «ذيل …
+# يختبر شمعة الصعود». كلُّها لواحقُ/أسطرُ عرضٍ خارج الجذور — والأقفالُ سلوكيّةٌ
+# (دورةٌ كاملة) وبنيويّةٌ بالـAST (نقطةُ النداء الحيّة) لا نصّيّة.
+import ast as _bk_ast
+import numpy as _bk_np
+import pandas as _bk_pd
+
+# BK1 — سلوكيّ: السعرُ المُرجَع يُنزل RSI(14) إلى 27.0 **بالضبط** عند إلحاقه (دورةٌ كاملة)
+_bk_rng = _bk_np.random.default_rng(7)
+_bk_close = _bk_pd.Series(100 * _bk_np.cumprod(1 + _bk_rng.normal(-0.004, 0.03, 120)))
+_bk_px = S.rsi_target_price(_bk_close, 27.0)
+try:
+    _bk_after = float(S.rsi(_bk_pd.concat([_bk_close, _bk_pd.Series([_bk_px])],
+                                          ignore_index=True)).iloc[-1]) if _bk_px else None
+except Exception as _e:                                          # noqa: BLE001
+    _bk_after = f"⛔ {type(_e).__name__}"
+check("📘 BK1: rsi_target_price دورةٌ كاملة — إلحاقُ السعر يعطي RSI 27.00",
+      isinstance(_bk_after, float) and abs(_bk_after - 27.0) < 0.05
+      and _bk_px < float(_bk_close.iloc[-1]),
+      f"px={_bk_px} rsi_after={_bk_after}")
+_bk_down = _bk_pd.Series(_bk_np.linspace(10, 3, 60))
+check("📘 BK2: RSI تحت 27 أصلًا ⇒ None (لا سعرَ انتظارٍ فوق السعر)",
+      S.rsi_target_price(_bk_down) is None
+      and S.rsi_target_price(_bk_pd.Series([1.0, 1.1])) is None)
+
+# BK3 — فارقٌ محدَّد: اللاحقةُ تظهر للمتابعة وتغيب عند الجاهز وعند «كسر الوقف»
+_bk_s = {"symbol": "X", "last_price": 2.0, "pivot": 1.0, "rsi27_price": 1.71}
+_bk_w = S.faisal_wait_suffix(_bk_s, {"status": "watch", "reason": "بعيد"})
+check("📘 BK3: ⏳ سعر انتظار فيصل = 10-20% تحت + سعر RSI 27 — للمتابعة فقط",
+      "⏳" in _bk_w and "$1.60" in _bk_w and "$1.80" in _bk_w and "$1.71" in _bk_w
+      and S.faisal_wait_suffix(_bk_s, {"status": "ready_now", "reason": ""}) == ""
+      and S.faisal_wait_suffix(_bk_s, {"status": "watch",
+                                       "reason": "كسر الوقف — ملغاة"}) == ""
+      and S.faisal_wait_suffix({"symbol": "X"}, {"status": "watch", "reason": ""}) == "",
+      _bk_w[:70])
+check("📘 BK4: 🔺 ارتدادٌ أوّل يظهر عند 50% فأكثر من القاع ويغيب تحته",
+      "🔺" in S.first_rise_suffix({"pivot": 1.0, "last_price": 1.5})
+      and S.first_rise_suffix({"pivot": 1.0, "last_price": 1.49}) == ""
+      and S.first_rise_suffix({"pivot": 0, "last_price": 3.0}) == ""
+      and S.FIRST_RISE_PCT == 50.0)
+
+# BK5 — دعومُ الشموع: ذيلُ الحمرا وبدايةُ الصاعدة **تحت السعر فقط**
+_bk_df = _bk_pd.DataFrame({"Open": [1.0, 1.5, 1.4, 1.2, 1.3], "High": [1.55, 1.52, 1.42, 1.31, 1.35],
+                           "Low": [0.98, 1.25, 0.95, 1.18, 1.29], "Close": [1.5, 1.3, 1.0, 1.28, 1.32],
+                           "Volume": [1e5] * 5})
+_bk_cs = S.faisal_candle_supports(_bk_df, 1.32)
+check("📘 BK5: ذيولُ الحمرا 1.25/0.95 وبدايةُ الصاعدة 1.20/1.00 — تحت السعر · لا شيءَ فوقه",
+      _bk_cs == {"red_tails": [1.25, 0.95], "green_origins": [1.2, 1.0]}
+      and S.faisal_candle_supports(_bk_df, 0.5) == {"red_tails": [], "green_origins": []}
+      and "$1.25" in S.candle_supports_line(_bk_cs)
+      and S.candle_supports_line({"red_tails": [], "green_origins": []}) == "",
+      str(_bk_cs))
+
+# BK6 — الوصلُ من نقطة النداء الحيّة (AST لا نصّ): أربعُ دوالّ عرضٍ + فحصُ اليد
+def _bk_calls(src):
+    return {(getattr(c.func, "id", None) or getattr(c.func, "attr", None))
+            for c in _bk_ast.walk(_bk_ast.parse(src)) if isinstance(c, _bk_ast.Call)}
+_bk_sites = (S.build_message, S.build_hand_section, S.build_hand_digest, S.build_live_alert)
+_bk_miss = [f.__name__ for f in _bk_sites
+            if not {"faisal_wait_suffix", "first_rise_suffix"} <= _bk_calls(_insp0.getsource(f))]
+_bk_hc = _bk_calls(open("hand_check.py", encoding="utf-8").read())
+check("📘 BK6: اللاحقتان مناداتان في build_message/hand_section/hand_digest/live_alert وفحص اليد",
+      not _bk_miss and {"faisal_wait_suffix", "first_rise_suffix", "candle_supports_line",
+                        "faisal_candle_supports", "rsi_target_price"} <= _bk_hc,
+      f"ناقص: {_bk_miss}")
+
+# BK7 — التخزين: `rsi27_price` يُحسب في scan_market (كتلة الإثراء) ويتجدّد يوميًّا ويُحمَل في السجلّ
+def _bk_assigns(f, key):
+    t = _bk_ast.parse(_insp0.getsource(f))
+    return any(isinstance(n, _bk_ast.Assign) and isinstance(n.targets[0], _bk_ast.Subscript)
+               and isinstance(getattr(n.targets[0], "slice", None), _bk_ast.Constant)
+               and n.targets[0].slice.value == key
+               and isinstance(n.value, _bk_ast.Call)
+               and getattr(n.value.func, "id", None) == "rsi_target_price"
+               for n in _bk_ast.walk(t))
+_bk_mwe = any(isinstance(n, _bk_ast.Constant) and n.value == "rsi27_price"
+              for n in _bk_ast.walk(_bk_ast.parse(_insp0.getsource(S.make_watch_entry))))
+check("📘 BK7: rsi27_price يُحسب في scan_market وupdate_watchlist_status ويُحمَل في make_watch_entry",
+      _bk_assigns(S.scan_market, "rsi27_price") and _bk_assigns(S.update_watchlist_status, "rsi27_price")
+      and _bk_mwe)
+
+# BK8 — خارج الجذور: لا نداءَ لأيٍّ منها في الاختيار/الحسم (AST)
+_bk_new = {"rsi_target_price", "faisal_wait_suffix", "faisal_wait_zone", "first_rise_suffix",
+           "faisal_candle_supports", "candle_supports_line"}
+_bk_roots = (S.rank_key, S.select_top, S.classify_tier, S.entry_status, S.analyze_ticker,
+             S.backtest_symbol, S.build_interpretation)
+_bk_leak = [f.__name__ for f in _bk_roots if _bk_new & _bk_calls(_insp0.getsource(f))]
+check("📘 BK8: دوالُّ الدليل الستّ خارج rank_key/select_top/classify_tier/entry_status/"
+      "analyze_ticker/backtest_symbol/build_interpretation",
+      not _bk_leak, f"تسرّب: {_bk_leak}")
+# 🔒 وعضويّةُ scan_market لم تتحرّك: `results.append(r)` خارج حارس الإثراء (كما كان)
+_bk_sm = _insp0.getsource(S.scan_market)
+check("📘 BK9: سطرُ rsi27_price داخل كتلة try الإثراء (فاشل-آمن) لا خارجها",
+      _bk_sm.find('r["rsi27_price"]') > _bk_sm.find('r["behav"] = behavior_rise_profile(df)') > 0
+      and _bk_sm.find('r["rsi27_price"]') < _bk_sm.find("except Exception as _e:",
+                                                         _bk_sm.find('r["behav"] = behavior_rise_profile(df)')))
+
+
+# ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
+# «اذا حللنا سهم ارتكاز ممنوع الدخول … انتظر اقل سعر 10% او 20% تحت» (فيصل، دليلُ
+# طريقة فيصل ص54) · أداةُ قياسٍ معزولةٌ عن الإنتاج تُقاس بها الجملةُ قبل أيّ شحن.
+import ast as _wl_ast
+import contextlib as _wl_ctx
+import importlib.util as _wl_imp
+import io as _wl_io
+import pandas as _wl_pd
+import yaml as _wl_yaml
+
+_wl_spec = _wl_imp.spec_from_file_location("wait_lower_arms", "wait_lower_arms.py")
+_WL = _wl_imp.module_from_spec(_wl_spec)
+try:
+    _wl_spec.loader.exec_module(_WL)
+    _wl_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _WL, _wl_load = None, f"{type(_e).__name__}: {_e}"
+check("⏳🔒 WLK0 أداةُ الانتظار تُحمَّل بلا استيراد الإنتاج (بحث معزول)",
+      _WL is not None, _wl_load or "OK")
+
+# WLK1 — الأذرعُ الأربع ونِسَبُ فيصل ثابتةٌ كالعقد (إضافةُ ذراعٍ بعد الأرقام ممنوعة)
+check("⏳🔒 WLK1 الأذرعُ W0·W10·W20·W27 · النِّسَب 10/20 · RSI 27 · الحاكمة W10 · الأرضية 100 · V-W0 99% · WL2 30%",
+      _WL is not None and _WL.ARMS == ("W0", "W10", "W20", "W27")
+      and _WL.WAIT_PCT == {"W10": 10.0, "W20": 20.0} and _WL.RSI_TARGET == 27.0
+      and _WL.GOV == "W10" and _WL.FLOOR_DECIDED == 100
+      and _WL.V_W0_MIN_PCT == 99.0 and _WL.WL2_MIN_FILL_RATIO == 0.30
+      and _WL.WL1_MIN_R == 0.05,
+      (f"{_WL.ARMS} {_WL.WAIT_PCT} gov={_WL.GOV}" if _WL is not None else "لم تُحمَّل"))
+
+# WLK2 — القيدُ `min(·, entry0)` **يبنّد ولا يبنّد** (فارقٌ محدَّد لا «أو») ·
+#    `W27=None` ⇒ خطّةُ الإنتاج · والوقفُ بنفس النسبة `entry_w × stop0/entry0`.
+_wl_r9 = lambda d: {k: round(float(v), 9) for k, v in d.items()}
+try:
+    _wl_e1 = _wl_r9(_WL.wl_entries(10.0, 9.5, 8.7))
+    _wl_e2 = _wl_r9(_WL.wl_entries(10.0, 8.5, None))
+    _wl_sf = _WL.stop_for(9.0, 9.5, 8.55)
+except Exception as _e:                                          # noqa: BLE001
+    _wl_e1, _wl_e2, _wl_sf = {}, {}, f"⛔ {type(_e).__name__}"
+check("⏳🔒 WLK2 القيدُ يبنّد (10⇒9.0/8.0/8.7 تحت 9.5) ولا يبنّد فوق 8.5 · W27=None⇒entry0 · وقفٌ بنفس النسبة",
+      _wl_e1 == {"W0": 9.5, "W10": 9.0, "W20": 8.0, "W27": 8.7}
+      and _wl_e2 == {"W0": 8.5, "W10": 8.5, "W20": 8.0, "W27": 8.5}
+      and isinstance(_wl_sf, float) and abs(_wl_sf - 8.1) < 1e-9,
+      f"e1={_wl_e1} e2={_wl_e2} stop={_wl_sf}")
+
+# WLK3 — **سلوكيّ من نقطة النداء**: `arms_for` على شموعٍ مصنوعةٍ بمحرّك الإنتاج
+#    `_resolve_arm` الحقيقيّ: W0 يُوقَف (loss) · W10 يتعبّأ متأخّرًا ووقفُه النسبيّ
+#    أدنى فينجو ويبلغ t1 (win) · W20 لا يتعبّأ · W27 يتعبّأ ثالثًا ويربح · والقراءةُ
+#    الثانية (وقفٌ مطلق) تخسر — فالفرقُ بين القراءتين مقيسٌ لا مُدَّعًى.
+class _WLStub:
+    CONFIG = {}
+
+    @staticmethod
+    def analyze_ticker(sym, dfs):
+        return {"tranches": [3.00, 3.09, 3.18], "stop": [2.79], "t1": 4.00,
+                "pivot": 3.0, "rr_stop": 3.0}
+
+    @staticmethod
+    def rsi_target_price(close, target=27.0, period=14):
+        return 2.90
+
+    _resolve_arm = staticmethod(S._resolve_arm)
+
+
+_wl_idx = _wl_pd.bdate_range("2025-01-02", periods=8)
+_wl_df = _wl_pd.DataFrame(
+    {"Open": [3.3, 3.3, 3.3, 3.25, 3.20, 3.10, 2.98, 2.95],
+     "High": [3.4, 3.4, 3.4, 3.35, 3.30, 3.15, 3.00, 4.10],
+     "Low": [3.2, 3.2, 3.2, 3.20, 3.05, 2.95, 2.75, 2.90],
+     "Close": [3.3, 3.3, 3.3, 3.30, 3.10, 3.00, 2.80, 4.00],
+     "Volume": [1e5] * 8}, index=_wl_idx)
+try:
+    _wl_row, _wl_why = _WL.arms_for(
+        _WLStub, "WLX", _wl_df,
+        {"date": str(_wl_idx[3].date()), "outcome": "loss", "ret_a": -9.7},
+        fwd=6, spread=0.0)
+except Exception as _e:                                          # noqa: BLE001
+    _wl_row, _wl_why = None, f"⛔ {type(_e).__name__}: {_e}"
+_wl_g = (_wl_row or {}).get
+check("⏳🔒 WLK3 سلوكيًّا بمحرّك الإنتاج: W0 loss · W10 win (وقفٌ نسبيّ 2.6817) · W20 no_fill · W27 win · الوقفُ المطلق loss · التعبئة k=0/1/2",
+      _wl_row is not None and _wl_g("o_W0") == "loss" and _wl_g("o_W10") == "win"
+      and _wl_g("o_W20") == "no_fill" and _wl_g("o_W27") == "win"
+      and _wl_g("o_GOVabs") == "loss"
+      and _wl_g("e_W10") == 2.97 and _wl_g("s_W10") == 2.6817
+      and _wl_g("e_W0") == 3.09 and _wl_g("s_W0") == 2.79
+      and _wl_g("ret_W10") == 34.7 and _wl_g("ret_W0") == -9.7
+      and _wl_g("bite_W10") is True and _wl_g("bite_W20") is True
+      and (_wl_g("k_W0"), _wl_g("k_W10"), _wl_g("k_W27")) == (0, 1, 2),
+      (f"why={_wl_why}" if _wl_row is None else
+       f"o={_wl_g('o_W0')}/{_wl_g('o_W10')}/{_wl_g('o_W20')}/{_wl_g('o_W27')}/abs={_wl_g('o_GOVabs')} "
+       f"s10={_wl_g('s_W10')} k={_wl_g('k_W0')},{_wl_g('k_W10')},{_wl_g('k_W27')}"))
+
+# WLK4 — بوّاباتُ الصلاحية **تفرّق** (لا زينة): سليمٌ ⇒ 0 · V-W0 على 3 من 120
+#    مختلفةٍ عن الإنتاج ⇒ 3 · أذرعٌ تساوي W0 ⇒ 4 (no-op) · 50 صفًّا ⇒ 4 (أرضية).
+def _wl_rc(rows):
+    try:
+        with _wl_ctx.redirect_stdout(_wl_io.StringIO()):
+            return _WL.report(rows, "2025", {})
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+if _wl_row is not None:
+    _wl_rows = [dict(_wl_row) for _ in range(120)]
+    _wl_bad = [dict(r) for r in _wl_rows]
+    for _r in _wl_bad[:3]:
+        _r["prod_o"] = "win"
+    _wl_same = [dict(r) for r in _wl_rows]
+    for _r in _wl_same:
+        for _n in ("W10", "W20", "W27"):
+            _r[f"o_{_n}"], _r[f"ret_{_n}"] = _r["o_W0"], _r["ret_W0"]
+    _wl_rcs = (_wl_rc(_wl_rows), _wl_rc(_wl_bad), _wl_rc(_wl_same), _wl_rc(_wl_rows[:50]))
+else:
+    _wl_rcs = ("لا صفّ",) * 4
+check("⏳🔒 WLK4 البوّاباتُ تفرّق: سليم⇒0 · V-W0 (3/120 مخالفة)⇒3 · لا تفرّق⇒4 · دون الأرضية⇒4",
+      _wl_rcs == (0, 3, 4, 4), f"rc={_wl_rcs}")
+
+# WLK5 — قراءةٌ فقط (AST) · حارسٌ ذاتيٌّ عامل · الإنتاجُ لا يستوردها · وإعادةُ
+#    الاستعمال **بالاسم** (plan_at/r_fixed/r_own/FLOOR_DECIDED من tranche_arms ·
+#    و_resolve_arm/rsi_target_price/plan_at تُنادى داخل arms_for).
+_wl_src = _wl_io.open("wait_lower_arms.py", encoding="utf-8").read()
+_wl_tree = _wl_ast.parse(_wl_src)
+_wl_banned = {"send_telegram", "git_save", "save_watchlist", "save_op_entry_state",
+              "record_new_alerts"}
+_wl_calls = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+             for n in _wl_ast.walk(_wl_tree) if isinstance(n, _wl_ast.Call)}
+_wl_imports = {a.name for n in _wl_ast.walk(_wl_tree)
+               if isinstance(n, _wl_ast.ImportFrom) and n.module == "tranche_arms"
+               for a in n.names}
+_wl_af = next((n for n in _wl_ast.walk(_wl_tree)
+               if isinstance(n, _wl_ast.FunctionDef) and n.name == "arms_for"), None)
+_wl_af_calls = ({(getattr(c.func, "id", None) or getattr(c.func, "attr", None))
+                 for c in _wl_ast.walk(_wl_af) if isinstance(c, _wl_ast.Call)}
+                if _wl_af is not None else set())
+check("⏳🔒 WLK5 قراءةٌ فقط · حارسٌ ذاتيّ · الإنتاجُ لا يستوردها · إعادةُ استعمالٍ بالاسم (tranche_arms + _resolve_arm/rsi_target_price/plan_at في arms_for)",
+      not (_wl_banned & _wl_calls)
+      and _WL is not None and _WL._selfcheck_readonly() is True
+      and "wait_lower_arms" not in _wl_io.open("Super_stock.py", encoding="utf-8").read()
+      and {"plan_at", "r_fixed", "r_own", "FLOOR_DECIDED"} <= _wl_imports
+      and {"_resolve_arm", "rsi_target_price", "plan_at"} <= _wl_af_calls,
+      f"مخالفات={sorted(_wl_banned & _wl_calls)} imports={sorted(_wl_imports)} af={sorted(x for x in _wl_af_calls if x)}")
+
+# WLK6 — بوّابةُ اللقطة (`V-W3` · نمطُ SNAP1): سنةُ اللقطة تطابق سنةَ القياس وإلّا
+#    **خروج 4** — إذا عبرت لقطةُ 2024 على سنة 2025 قِيس مجتمعٌ آخر بصمت (153 مقابل 1606).
+_wl_snap = [n for n in _wl_ast.walk(_wl_tree)
+            if isinstance(n, _wl_ast.If)
+            and "asof" in _wl_ast.dump(n.test) and "year" in _wl_ast.dump(n.test)
+            and any(isinstance(x, _wl_ast.Return)
+                    and getattr(x.value, "value", None) == 4
+                    for x in _wl_ast.walk(n))]
+check("⏳🔒 WLK6 `V-W3` سنةُ اللقطة تطابق سنةَ القياس وإلّا خروج 4 (كـSNAP1)",
+      len(_wl_snap) == 1, f"hits={len(_wl_snap)}")
+
+# WLK7 — الـworkflow موصولٌ فعلًا (كلُّ مدخلٍ يصل بيئةً يقرؤها السكربت) · يدويٌّ بلا
+#    كرون · قراءةٌ فقط · اللقطةُ تُنزَّل بـrun-id من المدخل · والعقدُ حاضرٌ بأذرعه وحكمه.
+_wl_wf = _wl_yaml.safe_load(_wl_io.open(".github/workflows/wait_lower.yml",
+                                        encoding="utf-8"))
+_wl_steps = _wl_wf["jobs"]["wait-lower-arms"]["steps"]
+_wl_env = {}
+for _s in _wl_steps:
+    _wl_env.update(_s.get("env") or {})
+_wl_dl = [_s for _s in _wl_steps
+          if "download-artifact" in str(_s.get("uses", ""))]
+_wl_pre = _wl_io.open("wait_lower_prereg.md", encoding="utf-8").read()
+check("⏳🔒 WLK7 الـworkflow موصول: inputs.year⟶BACKTEST_YEAR · BT_FROZEN_PATH · run-id من المدخل · يدويٌّ بلا كرون · قراءة · والعقدُ يحمل الأذرعَ والحكم",
+      "schedule" not in _wl_wf[True] and "workflow_dispatch" in _wl_wf[True]
+      and _wl_wf["permissions"]["contents"] == "read"
+      and "inputs.year" in str(_wl_env.get("BACKTEST_YEAR", ""))
+      and "BT_FROZEN_PATH" in _wl_env
+      and "BACKTEST_YEAR" in _wl_src and "BT_FROZEN_PATH" in _wl_src
+      and any("wait_lower_arms.py" in str(_s.get("run", "")) for _s in _wl_steps)
+      and len(_wl_dl) == 1
+      and "inputs.frozen_run_id" in str(_wl_dl[0].get("with", {}).get("run-id", ""))
+      and all(t in _wl_pre for t in ("`W0`", "`W10`", "`W20`", "`W27`", "`WL1`", "`WL2`",
+                                     "+0.05R", "30%", "`V-W0`", "min(", "0.90")),
+      f"env={sorted(_wl_env)} dl={len(_wl_dl)}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
