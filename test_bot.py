@@ -42607,15 +42607,15 @@ check("📘 BK2: RSI تحت 27 أصلًا ⇒ None (لا سعرَ انتظارٍ
       and S.rsi_target_price(_bk_pd.Series([1.0, 1.1])) is None)
 
 # BK3 — فارقٌ محدَّد (مراجعة 2026-09-09): المرجعُ **سعرُ التحليل الثابت** `entry_ref`
-#   (2.00 ⇒ 1.60-1.80) **لا** السعرُ الحيّ (2.50 ⇒ 2.00-2.25) · تظهر للجاهز وللمتابعة
+#   (2.00 ⇒ 1.60-1.80) **لا** السعرُ الحيّ (2.10 ⇒ 1.68-1.89) · تظهر للجاهز وللمتابعة
 #   سواء · وتغيب عند «كسر الوقف» وبلا مرجع.
-_bk_s = {"symbol": "X", "last_price": 2.5, "price": 2.5, "entry_ref": 2.0, "pivot": 1.0,
+_bk_s = {"symbol": "X", "last_price": 2.1, "price": 2.1, "entry_ref": 2.0, "pivot": 1.0,
          "rsi27_price": 1.71, "stop": 1.50, "tranches": [1.9, 1.96, 2.02]}
 _bk_w = S.faisal_wait_suffix(_bk_s, {"status": "watch", "reason": "بعيد"})
 _bk_rdy = S.faisal_wait_suffix(_bk_s, {"status": "ready_now", "reason": ""})
 check("📘 BK3: ⏳ منطقةُ 10-20% من سعر التحليل الثابت ($2.00 ⇒ $1.60-$1.80) + RSI 27 — للجاهز والمتابعة · تغيب عند كسر الوقف وبلا مرجع",
       "⏳" in _bk_w and "$1.60" in _bk_w and "$1.80" in _bk_w and "$1.71" in _bk_w
-      and "$2.00" in _bk_w and "$2.25" not in _bk_w and "$2.50" not in _bk_w
+      and "$2.00" in _bk_w and "$1.89" not in _bk_w and "$1.68" not in _bk_w
       and "فأعلى" in _bk_w and _bk_rdy == _bk_w
       and S.faisal_wait_suffix(_bk_s, {"status": "watch",
                                        "reason": "كسر الوقف — الفكرة ملغاة"}) == ""
@@ -42632,15 +42632,20 @@ _bk_g = S.faisal_wait_suffix(dict(_bk_s, tranches=[1.40, 1.44, 1.48]), _bk_es)
 _bk_h = S.faisal_wait_suffix(dict(_bk_s, last_price=1.74), _bk_es)
 _bk_i = S.faisal_wait_suffix(dict(_bk_s, rsi27_price=2.6), _bk_es)
 _bk_t = S.faisal_wait_suffix(dict(_bk_s, stop=(1.50, 1.55)), _bk_es)
-check("📘 BK3ب: تحت الوقف «» · قصٌّ عند الوقف مُعلَن (RSI 27 يُخفى تحته) · خطّةٌ أدنى «» · داخل المنطقة «بلغ 13%» · RSI فوق السعر يُخفى · زوجُ الوقف يُقرأ",
+_bk_n = S.faisal_wait_suffix(dict(_bk_s, stop=1.76), _bk_es)       # يبقى 1.76-1.80 = 2% < 3% ⇒ «»
+_bk_o = S.faisal_wait_suffix(dict(_bk_s, last_price=2.21), _bk_es)  # 2.21 > 2.00×1.10 ⇒ مرجعٌ بائت ⇒ «»
+_bk_p = S.faisal_wait_suffix(dict(_bk_s, last_price=2.19), _bk_es)  # 2.19 ≤ 2.20 ⇒ تبقى
+check("📘 BK3ب: تحت الوقف «» · قصٌّ عند الوقف مُعلَن (RSI 27 يُخفى تحته) · خطّةٌ أدنى «» · داخل المنطقة «بلغ 13%» · RSI فوق السعر يُخفى · زوجُ الوقف يُقرأ · شريحةٌ أضيق من 3% «» · مرجعٌ بائت فوق 10% «»",
       _bk_e == ""
       and "$1.70 إلى $1.80" in _bk_f1 and "مقصوصة" in _bk_f1 and "$1.71" in _bk_f1
       and "$1.71" not in _bk_f2 and "مقصوصة" in _bk_f2
       and _bk_g == ""
       and "بلغ منطقة انتظار فيصل" in _bk_h and "13%" in _bk_h and "إلى $1.80" not in _bk_h
       and "RSI 27" not in _bk_i and "⏳" in _bk_i
-      and _bk_t == _bk_w,
-      f"e={_bk_e!r} f1={_bk_f1[:60]!r} g={_bk_g!r} h={_bk_h[:60]!r}")
+      and _bk_t == _bk_w
+      and _bk_n == "" and _bk_o == "" and "⏳" in _bk_p
+      and S.WAIT_ZONE_MIN_WIDTH_PCT == 3.0 and S.WAIT_REF_STALE_PCT == 10.0,
+      f"e={_bk_e!r} f1={_bk_f1[:60]!r} g={_bk_g!r} h={_bk_h[:60]!r} n={_bk_n!r} o={_bk_o!r}")
 check("📘 BK4: 🔺 ارتدادٌ أوّل يظهر عند 50% فأكثر من القاع ويغيب تحته",
       "🔺" in S.first_rise_suffix({"pivot": 1.0, "last_price": 1.5})
       and S.first_rise_suffix({"pivot": 1.0, "last_price": 1.49}) == ""
