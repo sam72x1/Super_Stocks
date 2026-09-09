@@ -140,35 +140,15 @@
   "date": "2026-09-09"
  },
  "LIQ:FAMI": {
-  "anchor_ms": 1788955020000,
-  "last_ms": 1788957660000,
-  "sent": [
-   "M1",
-   "M5",
-   "M30"
-  ],
-  "updates": 1,
-  "vol_x": 38.5,
-  "peak_usd": 557305,
-  "last_eval_ms": 1788955020000,
-  "pulse_ms": 1788957660000,
-  "anchor_price": 0.143,
-  "anchor_open": 0.1209,
-  "anchor_low": 0.1208,
-  "pre_done": true,
-  "pre_hi": 0.1223,
-  "pre_usd": 68580,
-  "pre_n": 44,
-  "k2": {
-   "c3": "نقضت",
-   "c4": "خضراء 2",
-   "v2": "المرساة دون 30% (سيولة تتوالى)",
-   "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)",
-   "j1": false,
-   "j1_top": false
+  "last_eval_ms": 1788957660000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1788955020000,
+   "anchor_price": 0.143,
+   "anchor_low": 0.1208,
+   "e5": 0.1494,
+   "exit_ms": 1788957600000
   },
-  "e5": 0.1494,
-  "exit_ms": 1788957600000,
   "date": "2026-09-09"
  },
  "LIQ:SMTK": {
