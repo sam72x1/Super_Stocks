@@ -13310,7 +13310,17 @@ for _k, _v in _p1_cfg_save.items():
 # يُمرَّر في بيئة `backtest.yml` يجب أن يكون له صفٌّ في جدول `_apply_backtest_overrides`.
 # الاستثناء الوحيد المسموح `BT_FROZEN_PATH` (مسار ملف يُقرأ مباشرةً من os.environ في
 # run_backtest، ليس عتبة CONFIG) — والاستثناء نفسه **مُبرهَن** أدناه فلا يتعفّن.
-_P1_DIRECT_ENV = {"BT_FROZEN_PATH"}
+_P1_DIRECT_ENV = {"BT_FROZEN_PATH", "BT_FROZEN_PATHS", "BT_YEARS"}
+# 🔒 وتشديدٌ لا إرخاء: كلُّ عضوٍ في قائمة «القراءة المباشرة» يجب أن **يُقرأ فعلًا**
+#    في أداةِ بحثٍ بالمستودع (`os.environ.get("KEY")`) — وإلّا صارت القائمةُ بابًا
+#    خلفيًّا يمرّ منه علمٌ ميّتٌ باسم «مقروءٌ مباشرة»، وهو عينُ ما يمنعه قفلُ P1.
+_p1_direct_read = {
+    _k for _k in _P1_DIRECT_ENV
+    if any(f'os.environ.get("{_k}")' in open(_f, encoding="utf-8").read()
+           for _f in __import__("glob").glob("*.py"))}
+check("🔁 REPLAY10🔒 كلُّ مفتاحٍ في قائمة القراءة المباشرة مقروءٌ فعلًا في أداةِ بحث",
+      _p1_direct_read == _P1_DIRECT_ENV,
+      f"غيرُ مقروء={sorted(_P1_DIRECT_ENV - _p1_direct_read)}")
 _p1_yml = open(".github/workflows/backtest.yml", encoding="utf-8").read()
 _p1_env_keys = set(__import__("re").findall(r"^\s+(BT_[A-Z0-9_]+):\s*\$\{\{",
                                             _p1_yml, __import__("re").M))
@@ -13327,9 +13337,11 @@ check("P1-①🔒: كل مفتاح BT_* في backtest.yml له صفّ في جد�
       _p1_env_keys and not _p1_dead, f"ميّت={_p1_dead}")
 check("P1-①🔒: العلم المركَّب مُبرهَنٌ أن الدالّة تقرأه (لا «مركَّب» اسمًا فقط)",
       "BT_CORE5" in _p1_composite)
+# 🔒 `BT_FROZEN_PATH` يبقى مُبرهَنًا **في موضعه الأصليّ** (`run_backtest` الإنتاجيّة).
+#    وبقيّةُ أعضاء القائمة مفاتيحُ **أدواتِ بحثٍ** لا تمرّ بـ`run_backtest` أصلًا، وبرهانُها
+#    في القفل الأوسع أعلاه (يمسح كلَّ ملفّات المستودع) — **توسيعُ نطاقِ برهانٍ لا إسقاطُه**.
 check("P1-①🔒: استثناء BT_FROZEN_PATH مُبرهَن (يُقرأ فعلًا من os.environ في run_backtest)",
-      all(f'os.environ.get("{k}"' in _insp0.getsource(S.run_backtest)
-          for k in _P1_DIRECT_ENV))
+      'os.environ.get("BT_FROZEN_PATH"' in _insp0.getsource(S.run_backtest))
 
 # --- ② توزيع أسباب الرفض: دمج المتشظّي + بلا بتر + سقوف مُعلَنة ---
 _p1_reasons = {"بعيد_عن_الدخول(43%)": 30, "بعيد_عن_الدخول(47%)": 25,
@@ -43136,6 +43148,293 @@ check("⏳🔒 WRK8 التفكيكُ هويّة: B0=0 · B1 n=2 (win→win, win�
       and _wr_ci2 is not None and _wr_ci2[0] <= _wr_ci2[1] <= _wr_ci2[2]
       and abs(_wr_ci2[1] - sum(_wr_d) / len(_wr_d)) < 1e-12,
       f"dc={_wr_dc and {k: v['n'] for k, v in _wr_b.items()}} B2={_wr_b2} trans={_wr_dc and _wr_dc['transitions']} ci={_wr_ci2}")
+
+# ═══ ⏳ T-WAIT-23W — أقفال WSK0-WSK10 (العقد wait_rsi23w_prereg.md · 2026-09-09) ═══
+# اختبارٌ **تأكيديّ** لذراعَي فيصل `R23` (‏TG_2043 «‏RSI بين 23-27») و`R27w` (‏GWAV ص91
+# الأسبوعيّ) بضبطٍ **مطابَقِ التعبئة** يُبطل التباسَ «التداولُ الأقلّ يرفع المتوسّط»،
+# وعلى مجتمعاتٍ غيرِ مرئيّة (‏2021/2022 خلفيًّا · وما بعد 2026-07-10 أماميًّا).
+import ast as _ws_ast
+import contextlib as _ws_ctx
+import importlib.util as _ws_imp
+import io as _ws_io
+import subprocess as _ws_sub
+import pandas as _ws_pd
+import yaml as _ws_yaml
+
+_ws_spec = _ws_imp.spec_from_file_location("wait_rsi23w_arms", "wait_rsi23w_arms.py")
+_WS = _ws_imp.module_from_spec(_ws_spec)
+try:
+    _ws_spec.loader.exec_module(_WS)
+    _ws_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _WS, _ws_load = None, f"{type(_e).__name__}: {_e}"
+check("⏳🔒 WSK0 أداةُ 23/الأسبوعيّ تُحمَّل بلا استيراد الإنتاج (بحث معزول)",
+      _WS is not None, _ws_load or "OK")
+
+# WSK1 — الأذرعُ والثوابتُ مثبَّتةٌ كالعقد · و`REF23` هي **المنشورُ فعلًا** في ملفّ
+#    النتيجة (‏نصًّا) — فبوّابةُ `V-S0` قابلةٌ للتدقيق من ملفٍّ منشور لا من ذاكرة.
+_ws_res = _ws_io.open("wait_rsi27_result.md", encoding="utf-8").read()
+_ws_ref_ok = (_WS is not None
+              and set(_WS.REF23) == {"2023", "2024", "2025"}
+              and all(f"{_WS.REF23[y][k]:.4f}".replace("-", "−") in _ws_res
+                      for y in _WS.REF23 for k in ("r0", "r23", "r27w"))
+              and all(str(_WS.REF23[y][k]) in _ws_res
+                      for y in _WS.REF23 for k in ("n", "f0", "f23", "f27w")))
+check("⏳🔒 WSK1 الأذرعُ السبع + الناتجان · الحاكمتان R23/R27w · الضبطُ المطابق M · ROT 3 · "
+      "بذرة 23 · 2000 · 97.5% · G1 0.05 · G2 0.025 · G3 0.30 · V-S1 0.20 · V-S2 0.80 · "
+      "V-S8 0.02 · أرضية 100 · وREF23 منشورٌ نصًّا في ملفّ النتيجة",
+      _WS is not None
+      and _WS.ARMS == ("R0", "R23", "R27w", "M23", "M27w", "C23", "C27w")
+      and _WS.BYPRODUCT == ("R27", "R27abs") and _WS.GOV == ("R23", "R27w")
+      and _WS.MATCH == {"R23": "M23", "R27w": "M27w"}
+      and _WS.ROTC == {"R23": "C23", "R27w": "C27w"}
+      and _WS.ROT_DEN == 3 and _WS.BOOT_N == 2000 and _WS.BOOT_SEED == 23
+      and _WS.CI_PCT == 97.5 and _WS.G1_MIN_R == 0.05 and _WS.G2_MIN_R == 0.025
+      and _WS.G3_MIN_FILL_RATIO == 0.30 and _WS.V_S1_MIN_DIFF == 0.20
+      and _WS.V_S2_MIN_CHANGED == 0.80 and _WS.V_S8_FILL_TOL == 0.02
+      and _WS.FLOOR_DECIDED == 100 and _WS.SEEN_YEARS == ("2023", "2024", "2025")
+      and _ws_ref_ok,
+      (f"arms={_WS.ARMS} ref_ok={_ws_ref_ok}" if _WS is not None else "لم تُحمَّل"))
+
+# WSK2 — الدوالُّ النقيّة: العمقُ الخام · **`entry_at` عند عمقٍ صفر يرجع `entry0` حرفيًّا
+#    حتى لو كان `ref` تحته** (العيبُ الذي كان يمنح الضبطَ خصمًا لا تناله الذراع) ·
+#    والإزاحةُ **تبديلٌ** غيرُ محايدٍ يحفظ التوزيع.
+_ws_d1 = _WS.raw_depth({"ref": 10.0, "rsi23": 7.0, "rsi27w": None}, "R23") if _WS else None
+_ws_d2 = _WS.raw_depth({"ref": 10.0, "rsi23": 7.0, "rsi27w": None}, "R27w") if _WS else None
+_ws_d3 = _WS.raw_depth({"ref": 10.0, "rsi23": 12.0, "rsi27w": None}, "R23") if _WS else None
+_ws_e0 = _WS.entry_at(3.00, 3.09, 0.0) if _WS else None       # ref تحت entry0 · عمقٌ صفر
+_ws_e1 = _WS.entry_at(10.0, 9.5, 0.10) if _WS else None       # يبنّد
+_ws_e2 = _WS.entry_at(10.0, 8.5, 0.10) if _WS else None       # القيدُ يبنّد
+_ws_rot = _WS.rotate([1.0, 2.0, 3.0, 4.0, 5.0, 6.0]) if _WS else None
+check("⏳🔒 WSK2 العمقُ الخام (0.3 · None⇒0 · سعرٌ فوق ref⇒0) · `entry_at(3.00, 3.09, 0)` = "
+      "**3.09** لا 3.00 · القيدُ min · والإزاحةُ تبديلٌ يحفظ التوزيع ولا يطابق الأصل",
+      _WS is not None and abs(_ws_d1 - 0.3) < 1e-12 and _ws_d2 == 0.0 and _ws_d3 == 0.0
+      and _ws_e0 == 3.09 and abs(_ws_e1 - 9.0) < 1e-12 and abs(_ws_e2 - 8.5) < 1e-12
+      and sorted(_ws_rot) == [1.0, 2.0, 3.0, 4.0, 5.0, 6.0] and _ws_rot != [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+      and len(_ws_rot) == 6,
+      f"d={_ws_d1}/{_ws_d2}/{_ws_d3} e={_ws_e0}/{_ws_e1}/{_ws_e2} rot={_ws_rot}")
+
+# WSK3 — حلُّ الضبط المطابق: `fill_count` متناقصةٌ رتيبًا في العمق، والتنصيفُ **يبلغ
+#    الهدفَ بالضبط** على مجموعةٍ مبنيّة، وهو **حتميّ** (نداءان ⇒ القيمة نفسُها).
+_ws_mk = [{"ref": 10.0, "e_R0": 10.0, "minlow": 10.0 - i} for i in range(10)]
+_ws_f0 = _WS.fill_count(_ws_mk, 0.0) if _WS else None          # الكلُّ يتعبّأ
+_ws_f9 = _WS.fill_count(_ws_mk, 0.95) if _WS else None         # لا أحد
+_ws_sol = _WS.solve_match_depth(_ws_mk, 5) if _WS else None
+_ws_sol2 = _WS.solve_match_depth(_ws_mk, 5) if _WS else None
+check("⏳🔒 WSK3 `fill_count` رتيبةٌ (10 عند عمق 0 · 0 عند 0.95) · والتنصيفُ يبلغ الهدف 5 "
+      "بخطأٍ صفر · وحتميٌّ (نداءان متطابقان)",
+      _WS is not None and _ws_f0 == 10 and _ws_f9 == 0
+      and _ws_sol[1] == 0 and _WS.fill_count(_ws_mk, _ws_sol[0]) == 5
+      and _ws_sol == _ws_sol2,
+      f"f0={_ws_f0} f9={_ws_f9} sol={_ws_sol}")
+
+
+# WSK4 — **سلوكيّ من نقطة النداء** بمحرّك الإنتاج `_resolve_arm` الحقيقيّ:
+#    `arms_for` تُنتج الصفَّ، ثم `build_controls` تبني `C`/`M` وتُسقط الصفَّ الذي
+#    يتعذّر بناءُ ضبطه (‏**مقامٌ واحد** — `V-S7`).
+class _WSStub:
+    CONFIG = {}
+
+    @staticmethod
+    def analyze_ticker(sym, dfs):
+        return {"tranches": [3.00, 3.09, 3.18], "stop": [2.79], "t1": 4.00,
+                "pivot": 3.0, "rr_stop": 3.0}
+
+    @staticmethod
+    def rsi_target_price(close, target=27.0, period=14):
+        if target == 23.0:
+            return 2.70
+        return 3.05 if len(close) <= 2 else 2.90
+
+    _resolve_arm = staticmethod(S._resolve_arm)
+
+
+_ws_idx = _ws_pd.bdate_range("2022-01-03", periods=8)
+_ws_df = _ws_pd.DataFrame(
+    {"Open": [3.3, 3.3, 3.3, 3.25, 3.20, 3.10, 2.98, 2.95],
+     "High": [3.4, 3.4, 3.4, 3.35, 3.30, 3.15, 3.00, 4.10],
+     "Low": [3.2, 3.2, 3.2, 3.20, 3.05, 2.95, 2.75, 2.90],
+     "Close": [3.3, 3.3, 3.3, 3.30, 3.10, 3.00, 2.80, 4.00],
+     "Volume": [1e5] * 8}, index=_ws_idx)
+import wait_rsi27_arms as _ws_r27                                  # نفسُ المُنتِج المنشور
+try:
+    _ws_row, _ws_why = _ws_r27.arms_for(
+        _WSStub, "WSX", _ws_df,
+        {"date": str(_ws_idx[3].date()), "outcome": "loss", "ret_a": -9.7},
+        fwd=6, spread=0.0)
+except Exception as _e:                                          # noqa: BLE001
+    _ws_row, _ws_why = None, f"⛔ {type(_e).__name__}: {_e}"
+_ws_base = dict(_ws_row) if _ws_row else None
+if _ws_base:
+    _ws_rows = []
+    for _i in range(6):
+        _r = dict(_ws_base)
+        _r["symbol"] = f"S{_i}"
+        _r["rsi23"] = [2.70, 2.40, 3.05][_i % 3]
+        _ws_rows.append(_r)
+    _ws_ghost = dict(_ws_base)
+    _ws_ghost["symbol"] = "GHOST"                 # ليس في hist ⇒ يجب أن يُسقَط
+    _ws_rows.append(_ws_ghost)
+    _ws_hist = {f"S{_i}": _ws_df for _i in range(6)}
+    try:
+        _ws_kept, _ws_st = _WS.build_controls(_WSStub, _ws_hist, list(_ws_rows), 6, 0.0)
+    except Exception as _e:                                      # noqa: BLE001
+        _ws_kept, _ws_st = None, {"err": f"{type(_e).__name__}: {_e}"}
+else:
+    _ws_kept, _ws_st = None, {}
+_ws_g = (_ws_kept[0] if _ws_kept else {}).get
+check("⏳🔒 WSK4 سلوكيًّا: `build_controls` تُسقط صفَّ الرمز الغائب (‏7⟶6 · مقامٌ واحد) · "
+      "تبني C23/C27w/M23/M27w بمحرّك `_resolve_arm` · وتحسب `minlow` وعمقَ المطابقة",
+      _ws_kept is not None and len(_ws_kept) == 6 and _ws_st.get("dropped") == 1
+      and all(f"o_{n}" in _ws_kept[0] for n in ("C23", "C27w", "M23", "M27w"))
+      and _ws_g("minlow") == 2.75
+      and set(_ws_st.get("match_depth", {})) == {"R23", "R27w"}
+      and all(0.0 <= v <= 0.99 for v in _ws_st.get("match_depth", {}).values()),
+      f"kept={_ws_kept and len(_ws_kept)} st={ {k: v for k, v in _ws_st.items() if k != 'diff'} }"[:200])
+
+# WSK5 — البوّاباتُ **تفرّق** (لا زينة): سليمٌ ⇒ 0 · `V-S6` ⇒ 3 · `V-S7` ⇒ 3 ·
+#    `V-S5` (لا تفرّق) ⇒ 4 · `V-S1` (ضبطٌ عديمُ الأثر) ⇒ 3 · `V-S0` (مرجعٌ مخالف) ⇒ 3.
+def _ws_stats(n, diff=0.9, same=0.0, live=100):
+    return {"dropped": 0, "same": {g: int(same * live) for g in _WS.GOV},
+            "live": {g: live for g in _WS.GOV},
+            "match_depth": {g: 0.3 for g in _WS.GOV},
+            "match_err": {g: 0 for g in _WS.GOV},
+            "diff": {c: diff for c in ("C23", "C27w", "M23", "M27w")}, "n": n}
+
+
+def _ws_rc(rows, year="2022", role="H-BACK", st=None):
+    try:
+        with _ws_ctx.redirect_stdout(_ws_io.StringIO()):
+            return _WS.year_report(rows, year, {}, role, st or _ws_stats(len(rows)))[0]
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}: {_e}"
+
+
+if _ws_kept:
+    _ws_pop = [dict(_ws_kept[_i % len(_ws_kept)]) for _i in range(120)]
+    for _i, _r in enumerate(_ws_pop):
+        _r["symbol"] = f"P{_i % 20}"
+        if _i % 2 == 0:            # ‏`R27w` يجب أن تتفرّق عن `R0` وإلّا سبقت `V-S5` غيرَها
+            _r["o_R27w"], _r["ret_R27w"] = "win", 30.0
+    _ws_bad6 = [dict(r) for r in _ws_pop]
+    for _r in _ws_bad6[:3]:
+        _r["prod_o"] = "win"
+    _ws_bad7 = [dict(r) for r in _ws_pop]
+    for _r in _ws_bad7[:5]:
+        _r["o_C23"] = None
+    _ws_same = [dict(r) for r in _ws_pop]
+    for _r in _ws_same:
+        for _n in ("R23", "R27w"):
+            _r[f"o_{_n}"], _r[f"ret_{_n}"] = _r["o_R0"], _r["ret_R0"]
+    _ws_rcs = (_ws_rc(_ws_pop), _ws_rc(_ws_bad6), _ws_rc(_ws_bad7), _ws_rc(_ws_same),
+               _ws_rc(_ws_pop, st=_ws_stats(120, diff=0.05)),
+               _ws_rc(_ws_pop, year="2023", role="seen"))
+else:
+    _ws_rcs = ("لا صفّ",) * 6
+check("⏳🔒 WSK5 البوّاباتُ تفرّق: سليم⇒0 · V-S6 (3/120)⇒3 · V-S7 (مقامٌ مختلف)⇒3 · "
+      "V-S5 (لا تفرّق)⇒4 · V-S1 (ضبطٌ يختلف 5% فقط)⇒3 · V-S0 (مرجعٌ لا يُعاد)⇒3",
+      _ws_rcs == (0, 3, 3, 4, 3, 3), f"rc={_ws_rcs}")
+
+# WSK6 — `role_of` جدولُ حقيقة · **وسنةٌ مرئيّةٌ لا تصير حصادًا بمجرّد تمرير حدٍّ زمنيّ**
+_ws_roles = ([_WS.role_of(y, "") for y in ("2021", "2022", "2023", "2026")]
+             + [_WS.role_of(y, "2026-07-10") for y in ("2023", "2026", "2021")]
+             if _WS else [])
+check("⏳🔒 WSK6 `role_of`: بلا حصاد ⇒ H-BACK/H-BACK/seen/desc · ومع حصاد ⇒ **seen** لسنةٍ "
+      "مرئيّة (لا H-FWD) · H-FWD لـ2026 · H-FWD لـ2021",
+      _ws_roles == ["H-BACK", "H-BACK", "seen", "desc", "seen", "H-FWD", "H-FWD"],
+      f"roles={_ws_roles}")
+
+# WSK7 — قراءةٌ فقط · الإنتاجُ لا يستوردها · إعادةُ استعمالٍ بالاسم ·
+#    🔒 **و`wait_rsi27_arms.py` بت-بت مع `origin/main`** (وإلّا سقطت بت-بتيّة المنشور).
+_ws_src = _ws_io.open("wait_rsi23w_arms.py", encoding="utf-8").read()
+_ws_tree = _ws_ast.parse(_ws_src)
+_ws_banned = {"send_telegram", "git_save", "save_watchlist", "save_op_entry_state",
+              "record_new_alerts"}
+_ws_calls = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+             for n in _ws_ast.walk(_ws_tree) if isinstance(n, _ws_ast.Call)}
+_ws_imports = {a.name for n in _ws_ast.walk(_ws_tree)
+               if isinstance(n, _ws_ast.ImportFrom) and n.module == "wait_rsi27_arms"
+               for a in n.names}
+try:
+    _ws_head = _ws_sub.run(["git", "show", "origin/main:wait_rsi27_arms.py"],
+                           capture_output=True, text=True, timeout=30).stdout
+    _ws_now = _ws_io.open("wait_rsi27_arms.py", encoding="utf-8").read()
+    _ws_untouched = (bool(_ws_head) and _ws_head == _ws_now)
+except Exception:                                                # noqa: BLE001
+    _ws_untouched = True                                         # بلا ريموت ⇒ لا يُسقِط
+check("⏳🔒 WSK7 قراءةٌ فقط · حارسٌ ذاتيّ · الإنتاجُ لا يستوردها · إعادةُ استعمالٍ بالاسم "
+      "(arms_for/agg/decomp/r0_of/bootstrap_ci/stop_for) · و`wait_rsi27_arms.py` لم يُمَسّ",
+      not (_ws_banned & _ws_calls)
+      and _WS is not None and _WS._selfcheck_readonly() is True
+      and "wait_rsi23w_arms" not in _ws_io.open("Super_stock.py", encoding="utf-8").read()
+      and {"arms_for", "agg", "decomp", "r0_of", "bootstrap_ci", "stop_for"} <= _ws_imports
+      and _ws_untouched,
+      f"banned={sorted(_ws_banned & _ws_calls)} imports={sorted(_ws_imports)} "
+      f"untouched={_ws_untouched}")
+
+# WSK8 — المقدِّرُ الحاكم **عنقوديٌّ بالرمز**: على بياناتٍ عنقوديّةٍ صرفة (رمزٌ واحدٌ =
+#    عنقودٌ واحد) يكون الفاصلُ **أوسعَ** من الصفّيّ — وهو سببُ وجوده؛ وحتميٌّ بالبذرة.
+def _ws_mkrow(sym, v):
+    return {"symbol": sym, "e_R0": 10.0, "e_R23": 10.0, "stop0": 9.0,
+            "o_R0": "win", "ret_R0": 0.0, "o_R23": "win", "ret_R23": v}
+
+
+_ws_cl = [_ws_mkrow(f"C{i // 10}", 10.0 if i // 10 % 2 == 0 else -10.0)
+          for i in range(60)]
+_ws_c1 = _WS.cluster_ci(_ws_cl, "R0", "R23") if _WS else None
+_ws_c2 = _WS.cluster_ci(_ws_cl, "R0", "R23") if _WS else None
+_ws_rw = _WS.boot_rows([_WS.r0_of(r, "R23") - _WS.r0_of(r, "R0") for r in _ws_cl]) \
+    if _WS else None
+check("⏳🔒 WSK8 الفاصلُ العنقوديُّ بالرمز: 6 عناقيد · حتميٌّ بالبذرة · **وأوسعُ من الصفّيّ** "
+      "على بياناتٍ عنقوديّة (وهو سببُ اعتماده حاكمًا)",
+      _WS is not None and _ws_c1 is not None and _ws_c1["n_sym"] == 6
+      and _ws_c1 == _ws_c2
+      and (_ws_c1["hi"] - _ws_c1["lo"]) > (_ws_rw[2] - _ws_rw[0]) * 1.5,
+      f"cluster={_ws_c1 and (round(_ws_c1['lo'], 3), round(_ws_c1['hi'], 3))} "
+      f"row={_ws_rw and (round(_ws_rw[0], 3), round(_ws_rw[2], 3))}")
+
+# WSK9 — `pooled` يرفض سنةً واحدة (‏«لا قياس» = 4) · و`per_fill_mean` تتجاهل غيرَ المُعبَّأ
+_ws_pf = _WS.per_fill_mean(
+    [{"o_R23": "no_fill", "ret_R23": None, "e_R23": 9.0, "e_R0": 10.0, "stop0": 9.0},
+     {"o_R23": "win", "ret_R23": 10.0, "e_R23": 10.0, "e_R0": 10.0, "stop0": 9.0}],
+    "R23") if _WS else None
+try:
+    with _ws_ctx.redirect_stdout(_ws_io.StringIO()):
+        _ws_p1 = _WS.pooled([("2022", _ws_pop)]) if _ws_kept else None
+        _ws_p2 = _WS.pooled([("2022", _ws_pop), ("2021", _ws_pop)]) if _ws_kept else None
+except Exception as _e:                                          # noqa: BLE001
+    _ws_p1, _ws_p2 = f"⛔{type(_e).__name__}", None
+check("⏳🔒 WSK9 `pooled` يرفض سنةً واحدةً (4) ويقبل سنتين (0) · و`per_fill_mean` تتجاهل "
+      "`no_fill` (‏1.0R من صفٍّ واحدٍ مُعبَّأ لا 0.5)",
+      _ws_p1 == 4 and _ws_p2 == 0 and _ws_pf is not None and abs(_ws_pf - 1.0) < 1e-9,
+      f"p1={_ws_p1} p2={_ws_p2} pf={_ws_pf}")
+
+# WSK10 — الـworkflow موصولٌ فعلًا: مدخلان للقطتين ⟶ خطوةُ تركيبٍ ⟶ بيئةُ السكربت ·
+#    يدويٌّ بلا كرون · قراءةٌ فقط · والعقدُ يحمل الأذرعَ والمعاييرَ والمجتمعات.
+_ws_wf = _ws_yaml.safe_load(_ws_io.open(".github/workflows/wait_rsi23w.yml",
+                                        encoding="utf-8"))
+_ws_steps = _ws_wf["jobs"]["wait-23w-arms"]["steps"]
+_ws_env = {}
+for _s in _ws_steps:
+    _ws_env.update(_s.get("env") or {})
+_ws_dl = [_s for _s in _ws_steps if "download-artifact" in str(_s.get("uses", ""))]
+_ws_pre = _ws_io.open("wait_rsi23w_prereg.md", encoding="utf-8").read()
+check("⏳🔒 WSK10 الـworkflow موصول: لقطتان بمدخلَيهما ⟶ compose ⟶ BT_YEARS/BT_FROZEN_PATHS "
+      "· HOLDOUT_AFTER · يدويٌّ بلا كرون · قراءة · والعقدُ يحمل الأذرعَ والمعايير والمجتمعات",
+      "schedule" not in _ws_wf[True] and "workflow_dispatch" in _ws_wf[True]
+      and _ws_wf["permissions"]["contents"] == "read"
+      and len(_ws_dl) == 2
+      and "inputs.run_a" in str(_ws_dl[0].get("with", {}).get("run-id", ""))
+      and "inputs.run_b" in str(_ws_dl[1].get("with", {}).get("run-id", ""))
+      and "compose.outputs.years" in str(_ws_env.get("BT_YEARS", ""))
+      and "compose.outputs.paths" in str(_ws_env.get("BT_FROZEN_PATHS", ""))
+      and "inputs.holdout_after" in str(_ws_env.get("HOLDOUT_AFTER", ""))
+      and any("wait_rsi23w_arms.py" in str(_s.get("run", "")) for _s in _ws_steps)
+      and all(t in _ws_pre for t in ("`R23`", "`R27w`", "`M23`", "`M27w`", "`C23`",
+                                     "`G1`", "`G2`", "`G3`", "`G4`", "`H-BACK`",
+                                     "`H-FWD`", "+0.05R", "+0.025R", "97.5%",
+                                     "34331756534", "34331758846")),
+      f"env={sorted(_ws_env)} dl={len(_ws_dl)}")
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
