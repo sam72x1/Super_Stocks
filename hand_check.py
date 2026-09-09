@@ -186,8 +186,13 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
                  + ("🟢 جاهز للدخول الآن" if es["status"] == "ready_now"
                     else "👀 متابعة")
                  + (f" — {es['reason']}" if es["reason"] else "")
-                 + bot._ready_war_suffix(r, es))   # ⚠️ تعارض «جاهز» فوق «حرب وتصريف» (كرت NAMI)
+                 + bot._ready_war_suffix(r, es)    # ⚠️ تعارض «جاهز» فوق «حرب وتصريف» (كرت NAMI)
+                 + bot.faisal_wait_suffix(r, es)    # ⏳ سعر انتظار فيصل (ص54 · GWAV)
+                 + bot.first_rise_suffix(r))        # 🔺 ارتدادٌ أوّل 50% (HTCR)
         L += bot.interp_card_lines(r["interp"])      # 🧭 الإعداد · 🎯 الرقم الحرج · 🕓 4س · ⚠️
+        _csl = bot.candle_supports_line(r.get("candle_supports") or {})  # 🕯️ ذيل الحمرا/بداية الصاعدة (GDHG)
+        if _csl:
+            L.append(_csl)
         if r.get("tranches") and r.get("stop"):
             trs = r["tranches"]
             stop0 = r["stop"][0] if isinstance(r["stop"], (list, tuple)) else r["stop"]
@@ -338,6 +343,8 @@ def hand_check(sym: str):
             # (أُزيل سطران ميّتان كانا يكتبان h4_levels على `official` بينما التفسير
             #  يُبنى من `r`، و`official` لا يُقرأ بعدها إطلاقًا.)
             r["interp"] = bot.build_interpretation(r)
+            r["rsi27_price"] = bot.rsi_target_price(df["Close"])          # ⏳ (عرض فقط)
+            r["candle_supports"] = bot.faisal_candle_supports(df, r.get("price") or 0)  # 🕯️ (عرض فقط)
         elif getattr(bot, "_REJECT_STATS", None):
             r["reject_reason"] = " · ".join(f"{k}={v}"
                                             for k, v in bot._REJECT_STATS.items())

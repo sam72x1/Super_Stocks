@@ -4364,6 +4364,146 @@ def _ready_war_suffix(s: dict, es: dict) -> str:
     return ""
 
 
+def rsi_target_price(close, target: float = 27.0, period: int = 14):
+    """⏳ **سعرُ RSI الهدف** — عند أيّ إغلاقٍ **في الشمعة القادمة** يبلغ RSI(14) القيمةَ
+    `target`؟ (فيصل على `GWAV`، الدليل ص91/ص70-71: «سحب السيوله المتوقع من 2.70
+    **يمثل هدف الشورت = RSI 27** · يتم تحليله بعد سحب السيوله» ⇒ منطقةُ السحب
+    المتوقّعة = السعرُ الذي يُنزل RSI إلى 27).
+
+    عكسُ صيغة Wilder نفسِها التي تستعملها `rsi()` (‏`ewm(alpha=1/period,
+    adjust=False)`): بشمعةٍ هابطةٍ مقدارُها x ⇒ G' = G(1−α) · L' = L(1−α) + αx،
+    وشرطُ RSI'=target ⇒ L' = G'·(100−target)/target ⇒ x محلولةٌ مباشرة.
+    ⚠️ **تقريبُ شمعةٍ واحدة** (هبوطٌ تدريجيٌّ يبلغ 27 عند سعرٍ آخر) — يُعرَض «≈».
+    يرجّع None إذا كان RSI عند/تحت الهدف أصلًا أو تعذّر الحساب. **نقيّة · عرض فقط.**"""
+    try:
+        c = pd.Series(close).astype(float).dropna()
+        if len(c) < period + 2 or not (0.0 < float(target) < 100.0):
+            return None
+        d = c.diff()
+        g = d.clip(lower=0.0)
+        lo = (-d).clip(lower=0.0)
+        a = 1.0 / period
+        G = float(g.ewm(alpha=a, min_periods=period, adjust=False).mean().iloc[-1])
+        L = float(lo.ewm(alpha=a, min_periods=period, adjust=False).mean().iloc[-1])
+        p = float(c.iloc[-1])
+        if not (np.isfinite(G) and np.isfinite(L) and p > 0):
+            return None
+        lp = G * (1.0 - a) * (100.0 - float(target)) / float(target)
+        x = (lp - L * (1.0 - a)) / a
+        if x <= 0:                       # RSI عند الهدف أو تحته أصلًا
+            return None
+        px = p - x
+        return round(px, 4) if px > 0 else None
+    except Exception:                    # noqa: BLE001 — عرضٌ فاشل-آمن
+        return None
+
+
+def faisal_wait_zone(price):
+    """⏳ منطقةُ انتظار فيصل لسهم الارتكاز **المحلَّل**: «اذا حللنا سهم ارتكاز
+    **ممنوع الدخول** · تابع السهم اقل سعر … انتظر اقل دخول … **انتظر اقل سعر 10%
+    او 20% تحت**» (فيصل حرفيًّا 13/06/2026 — الدليل ص54). يرجّع (‏−20%، ‏−10%) أو None."""
+    try:
+        p = float(price)
+    except (TypeError, ValueError):
+        return None
+    if p <= 0:
+        return None
+    return (round(p * 0.80, 4), round(p * 0.90, 4))
+
+
+def faisal_wait_suffix(s: dict, es: dict) -> str:
+    """لاحقةٌ عرضية على سطر «👀 متابعة»: أين ينتظر فيصل؟ منطقةُ 10-20% تحت السعر (ص54)
+    ‏+ سعرُ RSI 27 التقريبيّ (‏`GWAV` ص91) إن كان محسوبًا. «» عند `ready_now`، أو عند
+    «كسر الوقف» (فكرةٌ ملغاة لا انتظار)، أو بلا سعر. عرضٌ فقط — لا تمسّ `entry_status`."""
+    try:
+        if not es or es.get("status") == "ready_now":
+            return ""
+        if "كسر الوقف" in str(es.get("reason") or ""):
+            return ""
+        z = faisal_wait_zone(s.get("last_price") or s.get("price"))
+        if not z:
+            return ""
+        out = f" · ⏳ سعر انتظار فيصل ${z[0]:.2f} إلى ${z[1]:.2f} (أقل بـ10% إلى 20%)"
+        r27 = s.get("rsi27_price")
+        if r27:
+            out += f" · سعر RSI 27 ≈ ${float(r27):.2f}"
+        return out
+    except Exception:                    # noqa: BLE001
+        return ""
+
+
+FIRST_RISE_PCT = 50.0   # فيصل `HTCR` (ص90): «50% تمت بصعود اول ✅ · انتظار اختبار دعم او سحب سيوله»
+
+
+def first_rise_suffix(s: dict) -> str:
+    """🔺 وسمُ «الارتدادِ الأوّل»: إذا ارتفع السهمُ عن قاعه (pivot) بـ`FIRST_RISE_PCT`
+    فأكثر فهو **ليس دخولًا عند فيصل** («لا يطارد الصعود الأول: إذا حقّق 50%+ ينتظر
+    Retest أو سحب سيولة» — الدليل ص73 · `HTCR` ص90). وسمٌ عرضيٌّ لا فلترة — بوّابةُ
+    الملاحقة الفرزية (`RECENT_RISE_BLOCK_PCT`) لم تُمَسّ."""
+    try:
+        pv = float(s.get("pivot") or 0)
+        lp = float(s.get("last_price") or s.get("price") or 0)
+        if pv <= 0 or lp <= 0:
+            return ""
+        rise = (lp / pv - 1.0) * 100.0
+        if rise >= FIRST_RISE_PCT:
+            return (f" · 🔺 ارتدادٌ أوّل {rise:.0f}% من القاع — فيصل ينتظر إعادة "
+                    "اختبار الدعم أو سحب سيولة لا المطاردة")
+        return ""
+    except Exception:                    # noqa: BLE001
+        return ""
+
+
+def faisal_candle_supports(df, price, span: int = 130, k: int = 3):
+    """🕯️ دعومُ الشموع عند فيصل (‏`GDHG` — الدليل ص22/ص34/ص58، نصُّه حرفيًّا):
+    «شمعة السقوط بالماركت **راس وذيل** … **ذيل** الشمعه الهابطه 1.85 … السهم هبط
+    بعد ذيل الشمعه الهابطه **ليختبر شمعة الصعود** … دعم الشمعه الصاعده 1.63».
+    ⇒ مصدران للدعم **لم يكونا عندنا** (كان عندنا رأسُ الحمرا مقاومةً فقط):
+      • `red_tails`: **ذيولُ (Low)** الشموع الحمراء المعتبرة **تحت** السعر.
+      • `green_origins`: **بدايةُ (Open)** الشموع الصاعدة القوية **تحت** السعر.
+    الاعتبارُ بنفس عتبة رؤوس الحمرا (`RES_RED_HEAD_MIN_DROP` — هندسيّةٌ موسومة)،
+    ويُؤخذ أقوى `k` جسمًا ثم يُرتَّب الأقربُ للسعر أوّلًا. **نقيّة · عرض فقط** —
+    لا تدخل الدعم/الوقف/الأهداف المقفولة."""
+    try:
+        o = df["Open"].values.astype(float)
+        c = df["Close"].values.astype(float)
+        lw = df["Low"].values.astype(float)
+        n = len(c)
+        thr = CONFIG.get("RES_RED_HEAD_MIN_DROP", 3.0) / 100.0
+        px = float(price)
+        if n < 5 or px <= 0:
+            return {"red_tails": [], "green_origins": []}
+        reds, greens = [], []
+        for i in range(max(0, n - span), n):
+            if o[i] <= 0:
+                continue
+            body = (c[i] - o[i]) / o[i]
+            if body <= -thr and lw[i] < px:
+                reds.append((-body, float(lw[i])))
+            elif body >= thr and o[i] < px:
+                greens.append((body, float(o[i])))
+        pick = lambda xs: sorted({round(v, 4) for _, v in
+                                  sorted(xs, reverse=True)[:k]}, reverse=True)
+        return {"red_tails": pick(reds), "green_origins": pick(greens)}
+    except Exception:                    # noqa: BLE001
+        return {"red_tails": [], "green_origins": []}
+
+
+def candle_supports_line(cs: dict) -> str:
+    """سطرُ «🕯️ دعوم الشموع» (فحص اليد/التقرير الفنيّ) — «» إن لم يوجد شيء."""
+    if not cs:
+        return ""
+    parts = []
+    if cs.get("red_tails"):
+        parts.append("ذيول الحمرا " + " · ".join(f"${v:.2f}" for v in cs["red_tails"]))
+    if cs.get("green_origins"):
+        parts.append("بداية الصاعدة القوية "
+                     + " · ".join(f"${v:.2f}" for v in cs["green_origins"]))
+    if not parts:
+        return ""
+    return "🕯️ دعوم الشموع (فيصل GDHG: الذيل والبداية تُختبَر): " + " — ".join(parts)
+
+
 def borrow_line(r: dict) -> str:
     """سطر «🔒 اقتراض» **مفسَّر ذاتيًّا** بلغة مبتدئ — **على إطار فيصل الموثّق فقط**
     (⚖️ تصحيح 2026-07-10 بعد تشكيك المستخدم «متأكد من معلومة الوقود؟»: سردية
@@ -8811,7 +8951,8 @@ def build_hand_digest(wl: dict, history: dict) -> str:
             lp = s.get("last_price")
             es = entry_status(s)             # الأهم: جاهز للدخول أم متابعة؟
             tag = "🟢 جاهز للدخول" if es["status"] == "ready_now" else "👀 متابعة"
-            head = f"{tag} · <b>${s['symbol']}</b>" + _ready_war_suffix(s, es)
+            head = (f"{tag} · <b>${s['symbol']}</b>" + _ready_war_suffix(s, es)
+                    + faisal_wait_suffix(s, es) + first_rise_suffix(s))
             if lp:
                 head += f" · ${lp:.2f}"
             lines.append(head)
@@ -9164,7 +9305,8 @@ def build_message(results: list, splits: list,
         # 🟢👀 حالة الدخول العملية (جاهز للدخول الآن / متابعة + السبب) — من موقع السعر
         _es = entry_status(r)
         lines.append(_es["label"] + (f" — {_es['reason']}" if _es["reason"] else "")
-                     + _ready_war_suffix(r, _es))
+                     + _ready_war_suffix(r, _es) + faisal_wait_suffix(r, _es)
+                     + first_rise_suffix(r))
         _bn = band_note(r)                # 🎯 أين السعرُ من الدفعات المطبوعة؟
         if _bn:
             lines.append(_bn)
@@ -10474,6 +10616,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "key_levels": r.get("key_levels"),                # دعوم/مقاومات أساسي/فرعي
         "h4_confirm": r.get("h4_confirm", 0),             # قوة تأكيد 4س (ترتيب)
         "behav": r.get("behav"),                          # 🧬 بصمة طريقة الارتفاع (عرض فقط)
+        "rsi27_price": r.get("rsi27_price"),              # ⏳ سعر RSI 27 (فيصل GWAV — عرض فقط)
         "fsto_osc": r.get("fsto_osc"),                    # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
         "klinger": r.get("klinger"),                      # 📊 كلنجر (حجم، فيصل — عرض فقط)
         "spikes": r.get("spikes"),                        # 🔁 رفعاته السابقة (T-REPEAT — عرض فقط)
@@ -11703,6 +11846,7 @@ def scan_market():
                 # 🔁 رفعاتُ السهم السابقة (‏`T-REPEAT` — سقفُ نجاحه سطرُ عرضٍ فقط)
                 r["spikes"] = spike_history(df["Close"].values)
                 r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
+                r["rsi27_price"] = rsi_target_price(df["Close"])  # ⏳ سعر RSI 27 (فيصل GWAV — حيّ، عرض فقط)
             except Exception as _e:
                 log(f"⚠️ إثراء عرض {sym}: {type(_e).__name__}: {_e} — تُخطّى حقول "
                     "العرض · السهم يبقى في نتائج الفرز (العضوية غير متأثّرة).")
@@ -12239,6 +12383,7 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
             if _psn:
                 s["bars_after"] = int(_psn["bars_after"])
             s["pump_scar"] = group_pump_scar(df)   # 🕵️ N1 يتجدّد يوميًا (عرض فقط)
+            s["rsi27_price"] = rsi_target_price(df["Close"])  # ⏳ سعر RSI 27 يتجدّد يوميًا (عرض فقط)
         except Exception:
             pass
         # 🧭 تجديد التفسير يوميًا بالسعر الجديد (عرض فقط — الرقم الحرج/وضع الدخول
@@ -12665,7 +12810,8 @@ def build_hand_section(wl: dict) -> str:
         tag = (("🟢 جاهز للدخول" if es["status"] == "ready_now" else "👀 متابعة")
                if _cand else _ct)
         lines.append(f"• {tag} · <b>${s['symbol']}</b>{px} — {signs}{extra}"
-                     + _ready_war_suffix(s, es))
+                     + _ready_war_suffix(s, es) + faisal_wait_suffix(s, es)
+                     + first_rise_suffix(s))
     return _rtl_join(lines)
 
 
@@ -16251,7 +16397,8 @@ def build_live_alert(rows: list, quotes: dict = None) -> str:
         lp = s.get("last_price")
         px = f" ${lp:.2f}" if lp else ""
         lines.append(f"{icon} <b>${s['symbol']}</b>{px} · {tag} — {desc}"
-                     + _ready_war_suffix(s, es))
+                     + _ready_war_suffix(s, es) + faisal_wait_suffix(s, es)
+                     + first_rise_suffix(s))
     return _rtl_join(lines)
 
 

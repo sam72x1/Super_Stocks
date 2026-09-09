@@ -42576,6 +42576,108 @@ check("🔬 EGP3 V-E8 نصًّا: edgar_probe.yml يُصرّح SEC_CONTACT من 
 
 
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 📘 **دليلُ طريقة فيصل (‏94 صفحة · 2026-09-08) — أقفالُ ما شُحن منه** (عرضٌ فقط)
+# ══════════════════════════════════════════════════════════════════════════
+# المصدر: ص54 «انتظر اقل سعر 10% او 20% تحت» · GWAV ص91 «هدف الشورت = RSI 27» ·
+# HTCR ص90 «50% تمت بصعود اول ✅ انتظار اختبار دعم او سحب» · GDHG ص22 «ذيل …
+# يختبر شمعة الصعود». كلُّها لواحقُ/أسطرُ عرضٍ خارج الجذور — والأقفالُ سلوكيّةٌ
+# (دورةٌ كاملة) وبنيويّةٌ بالـAST (نقطةُ النداء الحيّة) لا نصّيّة.
+import ast as _bk_ast
+import numpy as _bk_np
+import pandas as _bk_pd
+
+# BK1 — سلوكيّ: السعرُ المُرجَع يُنزل RSI(14) إلى 27.0 **بالضبط** عند إلحاقه (دورةٌ كاملة)
+_bk_rng = _bk_np.random.default_rng(7)
+_bk_close = _bk_pd.Series(100 * _bk_np.cumprod(1 + _bk_rng.normal(-0.004, 0.03, 120)))
+_bk_px = S.rsi_target_price(_bk_close, 27.0)
+try:
+    _bk_after = float(S.rsi(_bk_pd.concat([_bk_close, _bk_pd.Series([_bk_px])],
+                                          ignore_index=True)).iloc[-1]) if _bk_px else None
+except Exception as _e:                                          # noqa: BLE001
+    _bk_after = f"⛔ {type(_e).__name__}"
+check("📘 BK1: rsi_target_price دورةٌ كاملة — إلحاقُ السعر يعطي RSI 27.00",
+      isinstance(_bk_after, float) and abs(_bk_after - 27.0) < 0.05
+      and _bk_px < float(_bk_close.iloc[-1]),
+      f"px={_bk_px} rsi_after={_bk_after}")
+_bk_down = _bk_pd.Series(_bk_np.linspace(10, 3, 60))
+check("📘 BK2: RSI تحت 27 أصلًا ⇒ None (لا سعرَ انتظارٍ فوق السعر)",
+      S.rsi_target_price(_bk_down) is None
+      and S.rsi_target_price(_bk_pd.Series([1.0, 1.1])) is None)
+
+# BK3 — فارقٌ محدَّد: اللاحقةُ تظهر للمتابعة وتغيب عند الجاهز وعند «كسر الوقف»
+_bk_s = {"symbol": "X", "last_price": 2.0, "pivot": 1.0, "rsi27_price": 1.71}
+_bk_w = S.faisal_wait_suffix(_bk_s, {"status": "watch", "reason": "بعيد"})
+check("📘 BK3: ⏳ سعر انتظار فيصل = 10-20% تحت + سعر RSI 27 — للمتابعة فقط",
+      "⏳" in _bk_w and "$1.60" in _bk_w and "$1.80" in _bk_w and "$1.71" in _bk_w
+      and S.faisal_wait_suffix(_bk_s, {"status": "ready_now", "reason": ""}) == ""
+      and S.faisal_wait_suffix(_bk_s, {"status": "watch",
+                                       "reason": "كسر الوقف — ملغاة"}) == ""
+      and S.faisal_wait_suffix({"symbol": "X"}, {"status": "watch", "reason": ""}) == "",
+      _bk_w[:70])
+check("📘 BK4: 🔺 ارتدادٌ أوّل يظهر عند 50% فأكثر من القاع ويغيب تحته",
+      "🔺" in S.first_rise_suffix({"pivot": 1.0, "last_price": 1.5})
+      and S.first_rise_suffix({"pivot": 1.0, "last_price": 1.49}) == ""
+      and S.first_rise_suffix({"pivot": 0, "last_price": 3.0}) == ""
+      and S.FIRST_RISE_PCT == 50.0)
+
+# BK5 — دعومُ الشموع: ذيلُ الحمرا وبدايةُ الصاعدة **تحت السعر فقط**
+_bk_df = _bk_pd.DataFrame({"Open": [1.0, 1.5, 1.4, 1.2, 1.3], "High": [1.55, 1.52, 1.42, 1.31, 1.35],
+                           "Low": [0.98, 1.25, 0.95, 1.18, 1.29], "Close": [1.5, 1.3, 1.0, 1.28, 1.32],
+                           "Volume": [1e5] * 5})
+_bk_cs = S.faisal_candle_supports(_bk_df, 1.32)
+check("📘 BK5: ذيولُ الحمرا 1.25/0.95 وبدايةُ الصاعدة 1.20/1.00 — تحت السعر · لا شيءَ فوقه",
+      _bk_cs == {"red_tails": [1.25, 0.95], "green_origins": [1.2, 1.0]}
+      and S.faisal_candle_supports(_bk_df, 0.5) == {"red_tails": [], "green_origins": []}
+      and "$1.25" in S.candle_supports_line(_bk_cs)
+      and S.candle_supports_line({"red_tails": [], "green_origins": []}) == "",
+      str(_bk_cs))
+
+# BK6 — الوصلُ من نقطة النداء الحيّة (AST لا نصّ): أربعُ دوالّ عرضٍ + فحصُ اليد
+def _bk_calls(src):
+    return {(getattr(c.func, "id", None) or getattr(c.func, "attr", None))
+            for c in _bk_ast.walk(_bk_ast.parse(src)) if isinstance(c, _bk_ast.Call)}
+_bk_sites = (S.build_message, S.build_hand_section, S.build_hand_digest, S.build_live_alert)
+_bk_miss = [f.__name__ for f in _bk_sites
+            if not {"faisal_wait_suffix", "first_rise_suffix"} <= _bk_calls(_insp0.getsource(f))]
+_bk_hc = _bk_calls(open("hand_check.py", encoding="utf-8").read())
+check("📘 BK6: اللاحقتان مناداتان في build_message/hand_section/hand_digest/live_alert وفحص اليد",
+      not _bk_miss and {"faisal_wait_suffix", "first_rise_suffix", "candle_supports_line",
+                        "faisal_candle_supports", "rsi_target_price"} <= _bk_hc,
+      f"ناقص: {_bk_miss}")
+
+# BK7 — التخزين: `rsi27_price` يُحسب في scan_market (كتلة الإثراء) ويتجدّد يوميًّا ويُحمَل في السجلّ
+def _bk_assigns(f, key):
+    t = _bk_ast.parse(_insp0.getsource(f))
+    return any(isinstance(n, _bk_ast.Assign) and isinstance(n.targets[0], _bk_ast.Subscript)
+               and isinstance(getattr(n.targets[0], "slice", None), _bk_ast.Constant)
+               and n.targets[0].slice.value == key
+               and isinstance(n.value, _bk_ast.Call)
+               and getattr(n.value.func, "id", None) == "rsi_target_price"
+               for n in _bk_ast.walk(t))
+_bk_mwe = any(isinstance(n, _bk_ast.Constant) and n.value == "rsi27_price"
+              for n in _bk_ast.walk(_bk_ast.parse(_insp0.getsource(S.make_watch_entry))))
+check("📘 BK7: rsi27_price يُحسب في scan_market وupdate_watchlist_status ويُحمَل في make_watch_entry",
+      _bk_assigns(S.scan_market, "rsi27_price") and _bk_assigns(S.update_watchlist_status, "rsi27_price")
+      and _bk_mwe)
+
+# BK8 — خارج الجذور: لا نداءَ لأيٍّ منها في الاختيار/الحسم (AST)
+_bk_new = {"rsi_target_price", "faisal_wait_suffix", "faisal_wait_zone", "first_rise_suffix",
+           "faisal_candle_supports", "candle_supports_line"}
+_bk_roots = (S.rank_key, S.select_top, S.classify_tier, S.entry_status, S.analyze_ticker,
+             S.backtest_symbol, S.build_interpretation)
+_bk_leak = [f.__name__ for f in _bk_roots if _bk_new & _bk_calls(_insp0.getsource(f))]
+check("📘 BK8: دوالُّ الدليل الستّ خارج rank_key/select_top/classify_tier/entry_status/"
+      "analyze_ticker/backtest_symbol/build_interpretation",
+      not _bk_leak, f"تسرّب: {_bk_leak}")
+# 🔒 وعضويّةُ scan_market لم تتحرّك: `results.append(r)` خارج حارس الإثراء (كما كان)
+_bk_sm = _insp0.getsource(S.scan_market)
+check("📘 BK9: سطرُ rsi27_price داخل كتلة try الإثراء (فاشل-آمن) لا خارجها",
+      _bk_sm.find('r["rsi27_price"]') > _bk_sm.find('r["behav"] = behavior_rise_profile(df)') > 0
+      and _bk_sm.find('r["rsi27_price"]') < _bk_sm.find("except Exception as _e:",
+                                                         _bk_sm.find('r["behav"] = behavior_rise_profile(df)')))
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
