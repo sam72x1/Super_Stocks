@@ -43590,6 +43590,65 @@ check("🚦 TCU8 سندُ الشحن مكتوبٌ لا مرويّ: `tc_trigger_r
       and "من فتح البريماركت" in _insp0.getsource(S.liq_stage_events)
       and "tc=None" in _insp0.getsource(S.liq_stage_events))
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🚦📜 قراءةُ الزناد الموازي — أقفال TRD1-TRD4 (أمرُ المالك «اقرأ الزناد» 2026-09-09)
+# ══════════════════════════════════════════════════════════════════════════
+import importlib as _trd_il
+try:
+    _TRD = _trd_il.import_module("liq_trig_read")
+except Exception as _e:                                          # noqa: BLE001
+    _TRD = None
+    print(f"⛔ تعذّر استيراد liq_trig_read: {type(_e).__name__}")
+_trd_src = open("liq_trig_read.py", encoding="utf-8").read()
+check("🚦📜 TRD1 قراءةٌ فقط (حارسٌ ذاتيٌّ عامل) · والإنتاجُ لا يستوردها",
+      _TRD is not None and _TRD._selfcheck_readonly() is True
+      and "liq_trig_read" not in open("Super_stock.py", encoding="utf-8").read()
+      and "liq_trig_read" not in open("operator_entry_live.py", encoding="utf-8").read())
+
+# TRD2 — `collect` سلوكيًّا: المفتاحُ ثلاثيّ (رمز·يوم·لحظة) فإعادةُ الرسوّ تُعدّ
+#   موضعًا آخر · وأعمقُ `sent` يفوز · و`alive` من **آخر لقطةٍ وحدَها**.
+_trd_s1 = {"LIQ:A": {"date": "d", "anchor_ms": 100, "trig": "T-C", "sent": ["M1"]},
+           "LIQ:B": {"date": "d", "anchor_ms": 100, "sent": ["M1"]}}
+_trd_s2 = {"LIQ:A": {"date": "d", "anchor_ms": 100, "trig": "T-C",
+                     "sent": ["M1", "M5"]},
+           "LIQ:B": {"date": "d", "anchor_ms": 100, "sent": ["M1"]}}
+_trd_s3 = {"LIQ:A": {"date": "d", "anchor_ms": 200, "trig": "T-C", "sent": ["M1"]}}
+_trd_r = (_TRD.collect([("t1", _trd_s1), ("t2", _trd_s2), ("t3", _trd_s3)])
+          if _TRD else {"anchors": {}})
+_trd_a = _trd_r["anchors"]
+check("🚦📜 TRD2 مفتاحٌ ثلاثيّ (‏3 مواضع من رمزين) · أعمقُ `sent` يفوز · "
+      "و`alive` من **آخر لقطةٍ وحدَها** (‏`A@200` باقيةٌ · `A@100` و`B@100` اختفتا)",
+      set(_trd_a) == {("A", "d", 100), ("B", "d", 100), ("A", "d", 200)}
+      and _trd_a[("A", "d", 100)]["sent"] == ["M1", "M5"]
+      and _trd_a[("A", "d", 200)]["alive"] is True
+      and _trd_a[("A", "d", 100)]["alive"] is False
+      and _trd_a[("B", "d", 100)]["alive"] is False
+      and _trd_a[("A", "d", 100)]["trig"] == "T-C"
+      and _trd_a[("B", "d", 100)]["trig"] is None,
+      str(sorted(_trd_a))[:120])
+
+# TRD3 — التقرير يحمل **الحاكمَ ومواضعَ الخام وفصلَ الكتم** (ثلاثتَها لا اثنين).
+_trd_txt = "\n".join(_TRD.report(_trd_r, 0, "origin/main")) if _TRD else ""
+check("🚦📜 TRD3 التقريرُ يفصل **الرموزَ (الحاكم)** عن **مواضع الرسوّ** عن **الكتم** — "
+      "فلا يُقرأ تكرارُ الرسوّ بعد الكتم كلفةً جديدة",
+      "رموزٌ رست/اليوم" in _trd_txt and "مواضعُ رسوٍّ خام" in _trd_txt
+      and "باقيةٌ في آخر لقطة" in _trd_txt and "كُتمت" in _trd_txt
+      and "origin/main" in _trd_txt,
+      _trd_txt[:90])
+
+# TRD4 — حدودُ الصدق الأربعةُ وختمُ الشحن **تُطبَع دائمًا** (لا تسقط بالاختصار).
+check("🚦📜 TRD4 حدودُ الصدق الأربعة وختمُ الشحن في كلّ تقرير · والـworkflow يدويٌّ "
+      "بقراءةٍ فقط وبتاريخٍ كامل",
+      all(t in _trd_txt for t in ("① لا يُفصَل", "② الحالةُ لقطةٌ",
+                                  "③ ", "④ ", _TRD.SHIP_ISO if _TRD else "?"))
+      and (lambda w: "schedule" not in w[True] and "workflow_dispatch" in w[True]
+           and w["permissions"]["contents"] == "read"
+           and any(str(st.get("with", {}).get("fetch-depth")) == "0"
+                   for st in w["jobs"]["read"]["steps"]))(
+          _trn_yaml.safe_load(open(".github/workflows/liq_trig_read.yml",
+                               encoding="utf-8"))))
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
