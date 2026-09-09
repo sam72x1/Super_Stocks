@@ -343,7 +343,6 @@ def hand_check(sym: str):
             # (أُزيل سطران ميّتان كانا يكتبان h4_levels على `official` بينما التفسير
             #  يُبنى من `r`، و`official` لا يُقرأ بعدها إطلاقًا.)
             r["interp"] = bot.build_interpretation(r)
-            r["rsi27_price"] = bot.rsi_target_price(df["Close"])          # ⏳ (عرض فقط)
             r["candle_supports"] = bot.faisal_candle_supports(df, r.get("price") or 0)  # 🕯️ (عرض فقط)
         elif getattr(bot, "_REJECT_STATS", None):
             r["reject_reason"] = " · ".join(f"{k}={v}"

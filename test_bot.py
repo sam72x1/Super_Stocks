@@ -42625,10 +42625,10 @@ _bk_s = {"symbol": "X", "last_price": 2.1, "price": 2.1, "entry_ref": 2.0, "pivo
          "rsi27_price": 1.71, "stop": 1.50, "tranches": [1.9, 1.96, 2.02]}
 _bk_w = S.faisal_wait_suffix(_bk_s, {"status": "watch", "reason": "بعيد"})
 _bk_rdy = S.faisal_wait_suffix(_bk_s, {"status": "ready_now", "reason": ""})
-check("📘 BK3: ⏳ منطقةُ 10-20% من سعر التحليل الثابت ($2.00 ⇒ $1.60-$1.80) + RSI 27 — للجاهز والمتابعة · تغيب عند كسر الوقف وبلا مرجع",
-      "⏳" in _bk_w and "$1.60" in _bk_w and "$1.80" in _bk_w and "$1.71" in _bk_w
+check("📘 BK3: ⏳ منطقةُ 10-20% من سعر التحليل الثابت ($2.00 ⇒ $1.60-$1.80) — للجاهز والمتابعة · تغيب عند كسر الوقف وبلا مرجع · **ولا سعرَ RSI فيها** رغم أن السجلّ يحمله (اقفل RSI)",
+      "⏳" in _bk_w and "$1.60" in _bk_w and "$1.80" in _bk_w and "$1.71" not in _bk_w
       and "$2.00" in _bk_w and "$1.89" not in _bk_w and "$1.68" not in _bk_w
-      and "فأعلى" in _bk_w and _bk_rdy == _bk_w
+      and "RSI" not in _bk_w and "فأعلى" not in _bk_w and _bk_rdy == _bk_w
       and S.faisal_wait_suffix(_bk_s, {"status": "watch",
                                        "reason": "كسر الوقف — الفكرة ملغاة"}) == ""
       and S.faisal_wait_suffix({"symbol": "X"}, {"status": "watch", "reason": "x"}) == "",
@@ -42642,18 +42642,20 @@ _bk_f1 = S.faisal_wait_suffix(dict(_bk_s, stop=1.70), _bk_es)
 _bk_f2 = S.faisal_wait_suffix(dict(_bk_s, stop=1.72), _bk_es)
 _bk_g = S.faisal_wait_suffix(dict(_bk_s, tranches=[1.40, 1.44, 1.48]), _bk_es)
 _bk_h = S.faisal_wait_suffix(dict(_bk_s, last_price=1.74), _bk_es)
-_bk_i = S.faisal_wait_suffix(dict(_bk_s, rsi27_price=2.6), _bk_es)
+_bk_i = S.faisal_wait_suffix(dict(_bk_s, rsi27_price=2.6), _bk_es)   # حقلٌ بائتٌ في سجلٍّ قديم
 _bk_t = S.faisal_wait_suffix(dict(_bk_s, stop=(1.50, 1.55)), _bk_es)
 _bk_n = S.faisal_wait_suffix(dict(_bk_s, stop=1.76), _bk_es)       # يبقى 1.76-1.80 = 2% < 3% ⇒ «»
 _bk_o = S.faisal_wait_suffix(dict(_bk_s, last_price=2.21), _bk_es)  # 2.21 > 2.00×1.10 ⇒ مرجعٌ بائت ⇒ «»
 _bk_p = S.faisal_wait_suffix(dict(_bk_s, last_price=2.19), _bk_es)  # 2.19 ≤ 2.20 ⇒ تبقى
-check("📘 BK3ب: تحت الوقف «» · قصٌّ عند الوقف مُعلَن (RSI 27 يُخفى تحته) · خطّةٌ أدنى «» · داخل المنطقة «بلغ 13%» · RSI فوق السعر يُخفى · زوجُ الوقف يُقرأ · شريحةٌ أضيق من 3% «» · مرجعٌ بائت فوق 10% «»",
+check("📘 BK3ب: تحت الوقف «» · قصٌّ عند الوقف مُعلَن · خطّةٌ أدنى «» · داخل المنطقة «بلغ 13%» · زوجُ الوقف يُقرأ · شريحةٌ أضيق من 3% «» · مرجعٌ بائت فوق 10% «» · **وصفرُ ذكرٍ لـRSI في الاثنتي عشرة حالة**",
       _bk_e == ""
-      and "$1.70 إلى $1.80" in _bk_f1 and "مقصوصة" in _bk_f1 and "$1.71" in _bk_f1
-      and "$1.71" not in _bk_f2 and "مقصوصة" in _bk_f2
+      and "$1.70 إلى $1.80" in _bk_f1 and "مقصوصة" in _bk_f1
+      and "مقصوصة" in _bk_f2
+      and not any("RSI" in x or "فأعلى" in x for x in
+                  (_bk_w, _bk_rdy, _bk_e, _bk_f1, _bk_f2, _bk_g, _bk_h, _bk_i, _bk_t, _bk_n, _bk_o, _bk_p))
       and _bk_g == ""
       and "بلغ منطقة انتظار فيصل" in _bk_h and "13%" in _bk_h and "إلى $1.80" not in _bk_h
-      and "RSI 27" not in _bk_i and "⏳" in _bk_i
+      and "⏳" in _bk_i
       and _bk_t == _bk_w
       and _bk_n == "" and _bk_o == "" and "⏳" in _bk_p
       and S.WAIT_ZONE_MIN_WIDTH_PCT == 3.0 and S.WAIT_REF_STALE_PCT == 10.0,
@@ -42687,23 +42689,22 @@ _bk_miss = [f.__name__ for f in _bk_sites
 _bk_hc = _bk_calls(open("hand_check.py", encoding="utf-8").read())
 check("📘 BK6: اللاحقتان مناداتان في build_message/hand_section/hand_digest/live_alert/daily_message وفحص اليد",
       not _bk_miss and {"faisal_wait_suffix", "first_rise_suffix", "candle_supports_line",
-                        "faisal_candle_supports", "rsi_target_price"} <= _bk_hc,
+                        "faisal_candle_supports"} <= _bk_hc
+      and "rsi_target_price" not in _bk_hc,      # 🔒 أُغلق المحور: لا نداءَ في فحص اليد
       f"ناقص: {_bk_miss}")
 
-# BK7 — التخزين: `rsi27_price` يُحسب في scan_market (كتلة الإثراء) ويتجدّد يوميًّا ويُحمَل في السجلّ
-def _bk_assigns(f, key):
-    t = _bk_ast.parse(_insp0.getsource(f))
-    return any(isinstance(n, _bk_ast.Assign) and isinstance(n.targets[0], _bk_ast.Subscript)
-               and isinstance(getattr(n.targets[0], "slice", None), _bk_ast.Constant)
-               and n.targets[0].slice.value == key
-               and isinstance(n.value, _bk_ast.Call)
-               and getattr(n.value.func, "id", None) == "rsi_target_price"
-               for n in _bk_ast.walk(t))
-_bk_mwe = any(isinstance(n, _bk_ast.Constant) and n.value == "rsi27_price"
-              for n in _bk_ast.walk(_bk_ast.parse(_insp0.getsource(S.make_watch_entry))))
-check("📘 BK7: rsi27_price يُحسب في scan_market وupdate_watchlist_status ويُحمَل في make_watch_entry",
-      _bk_assigns(S.scan_market, "rsi27_price") and _bk_assigns(S.update_watchlist_status, "rsi27_price")
-      and _bk_mwe)
+# 🔒 BK7 — **مقلوبٌ بأمر المالك «اقفل RSI» (2026-09-09)**: كان يُثبت أن `rsi27_price`
+#    يُحسب ويُخزَّن؛ وبعد حكم `T-WAIT-23W` (`G2` ساقطة) صار يُثبت **صفرَ إسنادٍ وصفرَ ذكرٍ**
+#    في المسارات الحيّة الثلاثة — فالحقلُ الميّت يُغري بإعادة العرض. (سابقةُ `T-ACC`:
+#    الإشارةُ التي فشلت باختبارها تُنزَع من العرض **ومن الجلب** لا تُترك نائمة.)
+def _bk_mentions(f, key):
+    return any(isinstance(n, _bk_ast.Constant) and n.value == key
+               for n in _bk_ast.walk(_bk_ast.parse(_insp0.getsource(f))))
+_bk_dead = [f.__name__ for f in (S.scan_market, S.update_watchlist_status, S.make_watch_entry,
+                                 S.faisal_wait_suffix) if _bk_mentions(f, "rsi27_price")]
+check("📘 BK7: 🔒 اقفل RSI — صفرُ ذكرٍ لـ`rsi27_price` في scan_market/update_watchlist_status/"
+      "make_watch_entry/faisal_wait_suffix",
+      not _bk_dead, f"باقٍ في: {_bk_dead}")
 
 # BK8 — خارج الجذور: لا نداءَ لأيٍّ منها في الاختيار/الحسم (AST)
 _bk_new = {"rsi_target_price", "faisal_wait_suffix", "faisal_wait_zone", "first_rise_suffix",
@@ -42714,22 +42715,30 @@ _bk_leak = [f.__name__ for f in _bk_roots if _bk_new & _bk_calls(_insp0.getsourc
 check("📘 BK8: دوالُّ الدليل الستّ خارج rank_key/select_top/classify_tier/entry_status/"
       "analyze_ticker/backtest_symbol/build_interpretation",
       not _bk_leak, f"تسرّب: {_bk_leak}")
-# 🔒 BK9 بالـAST (مراجعة 2026-09-09 — كان نصّيًّا فيُرضيه تعليق): كلُّ إسنادٍ إلى
-#    r["rsi27_price"] في scan_market يقع داخل **نفس** كتلة try التي تحمل r["behav"]
-#    (حارسُ الإثراء الأصليّ) — لا خارجها ولا في try مستقلّة.
-def _bk_assign_key(n, key):
-    return (isinstance(n, _bk_ast.Assign)
-            and any(isinstance(t, _bk_ast.Subscript) and isinstance(t.slice, _bk_ast.Constant)
-                    and t.slice.value == key for t in n.targets))
-_bk_sm_t = _bk_ast.parse(_insp0.getsource(S.scan_market))
-_bk_r27_all = [n for n in _bk_ast.walk(_bk_sm_t) if _bk_assign_key(n, "rsi27_price")]
-_bk_r27_try = [t for t in _bk_ast.walk(_bk_sm_t) if isinstance(t, _bk_ast.Try)
-               and any(_bk_assign_key(n, "rsi27_price") for n in _bk_ast.walk(t))
-               and any(_bk_assign_key(n, "behav") for n in _bk_ast.walk(t))]
-_bk_r27_in = [n for t in _bk_r27_try for n in _bk_ast.walk(t) if _bk_assign_key(n, "rsi27_price")]
-check("📘 BK9: إسنادُ rsi27_price داخل كتلة try الإثراء نفسِها (التي تحمل behav) — بالـAST",
-      len(_bk_r27_all) >= 1 and len(_bk_r27_in) == len(_bk_r27_all) and len(_bk_r27_try) >= 1,
-      f"all={len(_bk_r27_all)} in_try={len(_bk_r27_in)} trys={len(_bk_r27_try)}")
+# 🔒 BK9 — **أُعيد توجيهُه** (2026-09-09، «اقفل RSI»): كان يُثبت أن إسنادَ `rsi27_price`
+#    يقع داخل كتلة try الإثراء؛ وقد زال الإسنادُ كلُّه، **والحارسُ الذي زال موضوعُه يُعاد
+#    توجيهُه أو يُحذف — لا يُترك زينة**. فصار يُثبت الإغلاقَ نفسَه من طرفيه:
+#    (أ) بنيويًّا: `rsi_target_price` **معرَّفةٌ ولا تُنادى** في `Super_stock.py` ولا في
+#        `hand_check.py` — بنيةُ بحثٍ تستوردها أدواتُ التجارب بالاسم وحدَها؛
+#    (ب) سلوكيًّا: `faisal_wait_suffix` لا تطبع «RSI» **مهما كان الحقلُ في السجلّ**
+#        (سجلٌّ قديمٌ يحمله · قيمةٌ تحت السعر وفوق الوقف = الحالةُ التي كانت تطبع).
+_bk_src_ss = open("Super_stock.py", encoding="utf-8").read()
+_bk_calls_ss = _bk_calls(_bk_src_ss)
+_bk_defs_ss = {n.name for n in _bk_ast.walk(_bk_ast.parse(_bk_src_ss))
+               if isinstance(n, (_bk_ast.FunctionDef, _bk_ast.AsyncFunctionDef))}
+_bk_live = S.faisal_wait_suffix({"symbol": "X", "last_price": 2.1, "price": 2.1,
+                                 "entry_ref": 2.0, "pivot": 1.0, "rsi27_price": 1.71,
+                                 "stop": 1.50, "tranches": [1.9, 1.96, 2.02]},
+                                {"status": "watch", "reason": "بعيد"})
+_bk_arms = {m: ("rsi_target_price" in open(m + ".py", encoding="utf-8").read())
+            for m in ("wait_lower_arms", "wait_rsi27_arms")}
+check("📘 BK9: 🔒 اقفل RSI — `rsi_target_price` معرَّفةٌ ولا تُنادى في الإنتاج (بحثٌ فقط) · "
+      "واللاحقةُ لا تطبع RSI ولو حمله السجلّ",
+      "rsi_target_price" in _bk_defs_ss and "rsi_target_price" not in _bk_calls_ss
+      and "rsi_target_price" not in _bk_calls(open("hand_check.py", encoding="utf-8").read())
+      and "⏳" in _bk_live and "RSI" not in _bk_live and "1.71" not in _bk_live
+      and all(_bk_arms.values()),
+      f"live={_bk_live[:70]!r} arms={_bk_arms}")
 
 
 # ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
