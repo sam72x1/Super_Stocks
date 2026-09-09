@@ -112,8 +112,7 @@
   "date": "2026-09-09"
  },
  "LIQ:YXT": {
-  "date": "2026-09-08",
-  "last_eval_ms": 1788890640000
+  "date": "2026-09-09"
  },
  "LIQ:CNTX": {
   "last_eval_ms": 1788906600000,
@@ -829,8 +828,7 @@
   "date": "2026-09-09"
  },
  "LIQ:UCAR": {
-  "date": "2026-09-08",
-  "last_eval_ms": 1788911280000
+  "date": "2026-09-09"
  },
  "LIQ:HCAI": {
   "last_eval_ms": 1788960780000,
@@ -2043,7 +2041,7 @@
   "updates": 0,
   "vol_x": 4.4,
   "peak_usd": 59273,
-  "last_eval_ms": 1788961020000,
+  "last_eval_ms": 1788960960000,
   "pulse_ms": 1788961200000,
   "anchor_price": 0.9983,
   "anchor_open": 0.95,
