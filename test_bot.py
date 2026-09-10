@@ -43911,6 +43911,72 @@ check("📉🔒 RSK8 الـworkflow موصول (year ⟶ BACKTEST_YEAR · لقط
       f"env={sorted(_rs_wenv)}")
 
 
+# RSK9 — 🔒 **الإغلاق سلوكيٌّ لا نصّيّ** (أمر المالك «اقفل RSI 40» · 2026-09-09).
+#    الحكمُ صدر (`RS1` ساقطة · الإشارةُ تنقلب) ⇒ المحورُ مُغلَق. و**أغلى خطأٍ يقع
+#    بسبب قِصَر الذاكرة هو إعادةُ تجربةٍ مُغلَقة** ⇒ لا يُترَك سطرًا في وثيقة.
+#    القفلُ يُثبت الطرفين: (أ) مُغلَقًا ⇒ خروج **6** و**صفرُ عمليةٍ تُطلَق** (لا
+#    لقطةٌ تُقرأ ولا رنرٌ يُستهلَك) · (ب) بالإقرار ⇒ الحارسُ **يُرفَع فعلًا** فيمضي
+#    إلى فحص اللقطة — فحارسٌ لا يُرفَع أبدًا كان سيمرّ على شقٍّ واحدٍ ويكذب.
+#    و(ج) نصُّ الإغلاق يحمل **شروطَ الفتح الثلاثة** لا مجرّد «مُغلَق».
+_rs_calls = []
+_rs_orig_run = _RS.subprocess.run if _RS else None
+
+
+def _rs_parent(env_over=None, closed=None):
+    """يشغّل الوالدَ بجذعٍ لـ`subprocess.run` — فلا تُطلَق عمليةٌ حقيقيّة مهما كان
+    الفرع (درسُ `lock-and-mutate §①-مكرر`: قفلٌ ينادي كودًا يُطلق عمليّاتٍ
+    يُبدّلها بجذعٍ يُسجَّل ولا يُنفَّذ)."""
+    _rs_calls.clear()
+    _prev_closed = _RS.AXIS_CLOSED
+    _prev_env = _rs_os.environ.get(_RS.REOPEN_ENV)
+    _RS.subprocess.run = lambda *a, **k: (_rs_calls.append(a), _rs_io_stub())[1]
+    try:
+        if closed is not None:
+            _RS.AXIS_CLOSED = closed
+        if env_over is None:
+            _rs_os.environ.pop(_RS.REOPEN_ENV, None)
+        else:
+            _rs_os.environ[_RS.REOPEN_ENV] = env_over
+        _rs_os.environ["BT_FROZEN_PATH"] = "/nonexistent/rsk9.pkl.gz"
+        return _RS.run_parent()
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ رمى: {type(_e).__name__}"
+    finally:
+        _RS.subprocess.run = _rs_orig_run
+        _RS.AXIS_CLOSED = _prev_closed
+        _rs_os.environ.pop("BT_FROZEN_PATH", None)
+        if _prev_env is None:
+            _rs_os.environ.pop(_RS.REOPEN_ENV, None)
+        else:
+            _rs_os.environ[_RS.REOPEN_ENV] = _prev_env
+
+
+import os as _rs_os
+import types as _rs_types
+
+
+def _rs_io_stub():
+    return _rs_types.SimpleNamespace(returncode=1, stdout="", stderr="")
+
+
+_rs_rc_closed = _rs_parent() if _RS else None
+_rs_n_closed = len(_rs_calls)
+# بالإقرار: الحارسُ يُرفَع ⇒ يمضي لفحص اللقطة المفقودة ⇒ **‏4 لا 6**
+_rs_rc_open = _rs_parent(env_over="1") if _RS else None
+_rs_txt = "\n".join(_RS.closure_notice()) if _RS else ""
+check("📉🔒 RSK9 الإغلاقُ **يُنفَّذ لا يُكتَب**: مُغلَقًا ⇒ خروج 6 و**صفرُ عمليةٍ تُطلَق** · "
+      "وبالإقرار `RSI40_REOPEN` يُرفَع الحارسُ فعلًا (‏4 = لقطةٌ مفقودة لا 6) · ونصُّ "
+      "الإغلاق يحمل **شروطَ الفتح الثلاثة**",
+      _RS is not None and _RS.AXIS_CLOSED is True and _RS.CLOSED_RC == 6
+      and _rs_rc_closed == 6 and _rs_n_closed == 0
+      and _rs_rc_open == 4
+      and all(t in _rs_txt for t in ("مُغلَق", "محورٌ جديدٌ لم يُقَس",
+                                     "انحيازَ البقاء", "تسجيلٌ مسبقٌ جديد",
+                                     "إذنُ المالك", _RS.REOPEN_ENV))
+      and "rsi40_result.md" in _rs_txt,
+      f"مُغلَق=({_rs_rc_closed}, عمليّات={_rs_n_closed}) · بالإقرار={_rs_rc_open}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
