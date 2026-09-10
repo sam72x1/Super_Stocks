@@ -10081,6 +10081,16 @@ check("🧠 MEM4: فهرسُ الأحكام حاضرٌ في CLAUDE.md ويحيل
 import re as _mem_re
 _mem_ar_lines = open("DECISIONS_ARCHIVE.md", encoding="utf-8").read().splitlines()
 _mem_rows = [_l for _l in _mem_cl.splitlines() if _mem_re.match(r"^\| \d+ \|", _l)]
+# 🔴 **شُدِّد 2026-09-10 بدرسِ اليوم «القفلُ يحرس جارَ ما يدّعيه»:** كان يقارن
+#    **‏22 محرفًا** بـ**سطر المطلع وحدَه**، والبنودُ **ملفوفةٌ على أسطر** فمطلعُ
+#    البند قد يكون أقصرَ من المقتطع ⇒ نافذةٌ ضيّقةٌ اضطرارًا. ⇒ يُبنى **نصُّ
+#    البند كاملًا** (من مطلعه حتى مطلع التالي) فتتّسع النافذةُ إلى **‏90 محرفًا**
+#    = مقارنةٌ **‏4× أقوى** بلا إنذارٍ كاذب (‏مقيسٌ: صفرُ خاطئةٍ على 256 صفًّا).
+_mem_starts = [_i for _i, _l in enumerate(_mem_ar_lines) if _l.startswith("- **")]
+_mem_full = {}
+for _i, _k in enumerate(_mem_starts):
+    _end = _mem_starts[_i + 1] if _i + 1 < len(_mem_starts) else len(_mem_ar_lines)
+    _mem_full[_k + 1] = " ".join(_x.strip() for _x in _mem_ar_lines[_k:_end])
 _mem_bad = []
 for _row in _mem_rows:
     _pp = _row.split("|")
@@ -10089,11 +10099,10 @@ for _row in _mem_rows:
     except (ValueError, IndexError):
         _mem_bad.append(_row[:40])
         continue
-    _key = _pp[2].strip().lstrip("*").strip()[:22]
-    _tgt = _mem_ar_lines[_ln - 1] if 0 < _ln <= len(_mem_ar_lines) else ""
-    if not (_tgt.startswith("- **") and _key in _tgt):
+    _key = _pp[2].strip().lstrip("*").strip().split("…")[0][:90]
+    if not (_ln in _mem_full and _key and _key in _mem_full[_ln]):
         _mem_bad.append(f"#{_pp[1].strip()}⟶{_ln}")
-check(f"🧠 MEM5: كلُّ إحالةِ فهرسٍ تقع على بندِها في الأرشيف ({len(_mem_rows)} بندًا · "
+check(f"🧠 MEM5: كلُّ إحالةٍ تقع على بندِها ومقتطعُها داخلَ **البند كاملًا** ({len(_mem_rows)} بندًا · "
       f"خاطئة {len(_mem_bad)}) — وإلّا فالفهرسُ يكذب ويسقط غرضُه",
       len(_mem_rows) >= 200 and not _mem_bad,
       f"أوّلُ الخاطئة: {_mem_bad[:5]}" if _mem_bad else "")
