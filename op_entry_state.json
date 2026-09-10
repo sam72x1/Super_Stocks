@@ -2681,7 +2681,7 @@
   "updates": 0,
   "vol_x": 1.7,
   "peak_usd": 4253,
-  "last_eval_ms": 1789055460000,
+  "last_eval_ms": 1789055400000,
   "pulse_ms": 1789063080000,
   "anchor_price": 0.7587,
   "anchor_open": 0.7364,
@@ -3213,10 +3213,10 @@
   "date": "2026-09-10"
  },
  "LIQ:BKYI": {
-  "date": "2026-09-10",
   "last_eval_ms": 1788986040000,
   "tc_cum": 29548.4295,
-  "tc_seen_ms": 1788986040000
+  "tc_seen_ms": 1788986040000,
+  "date": "2026-09-10"
  },
  "LIQ:CURX": {
   "last_eval_ms": 1789063020000,
