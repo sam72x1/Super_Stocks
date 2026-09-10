@@ -240,17 +240,24 @@ def minutes_range(sym: str, frm_ms: int, to_ms: int):
     return bars or None
 
 
-def measure(sym: str, prev_date: str, date: str):
+def measure(sym: str, prev_date: str, date: str,
+            fetch_close=None, fetch_bars=None):
     """صفٌّ واحدٌ مقيس: `prev_close` رسميّ · `ah_rise` · `pm_peak`.
 
     نافذةُ الافتر `D-1 16:00→20:00` ونافذةُ البري `D 04:00→09:30` **بتوقيت
-    نيويورك** — والجلبةُ واحدةٌ تغطّيهما (‏`V-A3` لا تسرّبَ بين الجلستين)."""
-    pc = official_close(sym, prev_date)
+    نيويورك** — والجلبةُ واحدةٌ تغطّيهما (‏`V-A3` لا تسرّبَ بين الجلستين).
+
+    🔒 **الجالبان محقونان للاختبار** (نمطُ `fetch_hist`/`fetch_bars` المدوَّن):
+    القيمُ الافتراضيّةُ هي دوالُّ الشبكة نفسُها ⇒ **مسارُ الإنتاج بت-بت**،
+    والسويّةُ تختبر **هذا المسارَ بعينه** لا دالّةً مجاورة. وُلد هذا الحقنُ من
+    عيبٍ مقيس: قفلُ `AHX6` الأوّل كان يفحص `classify_arm` **والقرارُ هنا**،
+    فنجت منه طفرةٌ أعادت زرعَ العيب الحقيقيّ."""
+    pc = (fetch_close or official_close)(sym, prev_date)
     if not pc:
         return None
     ah_f, ah_t = et_ms(prev_date, 16, 0), et_ms(prev_date, 20, 0)
     pm_f, pm_t = et_ms(date, 4, 0), et_ms(date, 9, 30)
-    bars = minutes_range(sym, ah_f, pm_t)
+    bars = (fetch_bars or minutes_range)(sym, ah_f, pm_t)
     if bars is None:
         return None
     ah_hi, pm_hi = window_peak(bars, ah_f, ah_t), window_peak(bars, pm_f, pm_t)
