@@ -1,0 +1,54 @@
+name: T-AHEXT-2 (مجتمعٌ غيرُ منحاز)
+
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "سنةُ القياس (2023/2024/2025 حاكمة · 2026 وصفيّة)"
+        required: true
+      frozen_run_id:
+        description: "معرّفُ تشغيلةِ اللقطة المجمَّدة (as-of نفسِ السنة)"
+        required: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  ahext:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: تنزيلُ اللقطة المجمَّدة
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FROZEN_RUN_ID: ${{ github.event.inputs.frozen_run_id }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$FROZEN_RUN_ID" | grep -Eq '^[0-9]{6,20}$' \
+            || { echo "⛔ frozen_run_id ليس رقمًا"; exit 2; }
+          gh run download "$FROZEN_RUN_ID" -D frozen -R "$GITHUB_REPOSITORY"
+          find frozen -name '*.pkl.gz' | head -1 > .frozen_path
+          test -s .frozen_path || { echo "⛔ لا لقطة"; exit 2; }
+      - name: تشغيلُ الأذرع
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          AHEXT2_YEAR: ${{ github.event.inputs.year }}
+          SCREENER_MODE: BACKTEST
+        run: |
+          set -euo pipefail
+          printf '%s' "$AHEXT2_YEAR" | grep -Eq '^20(2[3-6])$' \
+            || { echo "⛔ سنةٌ غيرُ مسموحة"; exit 2; }
+          AHEXT2_FROZEN="$(cat .frozen_path)" python3 ahext2_arms.py
+      - name: رفعُ الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ahext2-${{ github.event.inputs.year }}-${{ github.run_id }}
+          path: ahext2_rows.jsonl
+          if-no-files-found: warn

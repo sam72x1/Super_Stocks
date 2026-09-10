@@ -8681,7 +8681,8 @@ check("🛑②🔒 RVS10 `RV4` دعوًى تُقاس ولا توقف · والت
 _snap_ok = True
 _snap_dbg = []
 for _snap_f in ("tranche_arms.py", "pivot_stop2_arms.py",
-                "universe_arms.py", "ahext_arms.py"):
+                "universe_arms.py", "ahext_arms.py",
+                "ahext2_arms.py"):
     _snap_s = _trn_io.open(_snap_f, encoding="utf-8").read()
     _snap_t = _trn_ast.parse(_snap_s)
     _snap_hit = [n for n in _trn_ast.walk(_snap_t)
@@ -9144,6 +9145,194 @@ if _AHX is not None:
         _ahx_ok9, _ahx_why9 = False, f"⛔ رمى: {type(_e).__name__}"
 check("🌙🔒 AHX9 `CAP_HI` مقياسٌ لا مرشِّح · والعقدُ يحمل ملاحقَه الأربعة ووسمَ المصدر",
       _ahx_ok9, _ahx_why9)
+
+# ═══════════════════════════════════════════════════════════
+# 🌙⛰️② T-AHEXT-2 — إعادةُ التصميم بمجتمعٍ غيرِ منحاز (العقد
+#    `ahext2_prereg.md` مدفوعٌ **قبل الأداة** · كوميت `7918149`).
+# ═══════════════════════════════════════════════════════════
+_ax2_spec = _trn_imp.spec_from_file_location("ahext2_arms", "ahext2_arms.py")
+_AX2 = _trn_imp.module_from_spec(_ax2_spec)
+try:
+    _ax2_spec.loader.exec_module(_AX2)
+    _ax2_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _AX2, _ax2_load = None, f"{type(_e).__name__}: {_e}"
+check("🌙②🔒 BX0 أداةُ النسخة الثانية تُحمَّل", _AX2 is not None,
+      _ax2_load or "OK")
+
+_ax2_src = _trn_io.open("ahext2_arms.py", encoding="utf-8").read()
+_ax2_t = _trn_ast.parse(_ax2_src)
+_ax2_pre = _trn_io.open("ahext2_prereg.md", encoding="utf-8").read()
+
+# 🔒 BX1 — `V-B1` **التجميدُ بالبناء لا بالنسخ**: العتباتُ والدوالُّ تُستورَد
+#    من `ahext_arms` بالاسم ⇒ **لا يمكن أن تنحرف عن النسخة الأولى**. وهذا هو
+#    الحارسُ الوحيدُ ضدّ مطاردة النتيجة بعد أن رأيتُ أرقامَ الأولى: لو أُعيد
+#    تعريفُ `CAP_HI` هنا لصار الاختيارُ نفسُه هو النتيجة.
+_ax2_imp1 = [n for n in _trn_ast.walk(_ax2_t)
+             if isinstance(n, _trn_ast.ImportFrom) and n.module == "ahext_arms"]
+_ax2_names1 = {a.name for n in _ax2_imp1 for a in n.names}
+_ax2_assigns = {t.id for n in _trn_ast.walk(_ax2_t)
+                if isinstance(n, _trn_ast.Assign)
+                for t in n.targets if isinstance(t, _trn_ast.Name)}
+check("🌙②🔒 BX1 `V-B1` العتباتُ مستوردةٌ من النسخة الأولى ولا يُعاد تعريفُها",
+      {"CAP_HI", "AH_MIN", "PM_MIN", "GAP_MIN", "PRICE_LO", "PRICE_HI",
+       "classify_arm", "measure", "screen_symbol",
+       "det_order"}.issubset(_ax2_names1)
+      and not ({"CAP_HI", "AH_MIN", "PM_MIN", "GAP_MIN", "PRICE_LO",
+                "PRICE_HI"} & _ax2_assigns)
+      and _AX2 is not None and _AX2.CAP_HI == 120.0 and _AX2.AH_MIN == 20.0
+      and _AX2.PM_MIN == 20.0 and _AX2.GAP_MIN == 15.0,
+      f"مستوردة={len(_ax2_names1)} · مُعاد تعريفُه="
+      f"{sorted({'CAP_HI', 'AH_MIN', 'PM_MIN', 'GAP_MIN'} & _ax2_assigns)}")
+
+# 🔒 BX2 — `V-B6` **الطبقاتُ تستوعب الكونَ سلوكيًّا**: المجموعُ = المدخل،
+#    والحدودُ عند 15.0 و0.0 بالضبط (‏`gap < 0` طبقةٌ قائمةٌ لا مُهمَلة — وهي
+#    التي غابت عن العقد الأوّل فأنتجت انحيازًا لم يُحسَب).
+_ax2_ok2, _ax2_why2 = False, "لم تُحمَّل"
+if _AX2 is not None:
+    try:
+        _r2 = [{"gap_pct": g} for g in
+               (99.0, 15.0, 14.999, 0.0, -0.001, -50.0)]
+        _h2, _l2, _z2 = _AX2.strata(_r2)
+        _ax2_ok2 = ([len(_h2), len(_l2), len(_z2)] == [2, 2, 2]
+                    and len(_h2) + len(_l2) + len(_z2) == len(_r2)
+                    and _h2[-1]["gap_pct"] == 15.0
+                    and _l2[-1]["gap_pct"] == 0.0
+                    and _z2[0]["gap_pct"] == -0.001)
+        _ax2_why2 = f"H={len(_h2)} L={len(_l2)} Z={len(_z2)} من {len(_r2)}"
+    except Exception as _e:                                      # noqa: BLE001
+        _ax2_ok2, _ax2_why2 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌙②🔒 BX2 `V-B6` الطبقاتُ الثلاثُ تستوعب الكونَ · وحدودُها 15.0 و0.0 بالضبط",
+      _ax2_ok2, _ax2_why2)
+
+# 🔒 BX3 — 🔴 **أخطرُ ما في التصميم الموزون**: `n_eff` بكيش لا العدد الموزون.
+#    صفٌّ وزنُه 1000 ليس ألفَ مشاهدة، وحسابُ ويلسون على الموزون **يُضيّق
+#    الفاصلَ كذبًا** فيصنع ثقةً بلا سند. سلوكيٌّ بثلاثة شواهد.
+_ax2_ok3, _ax2_why3 = False, "لم تُحمَّل"
+if _AX2 is not None:
+    try:
+        _k_flat = _AX2.kish([1.0] * 10)
+        _k_skew = _AX2.kish([1000.0] + [1.0] * 99)
+        _rw = _AX2.w_rate([200.0, 50.0, 50.0, 50.0], [100.0, 1.0, 1.0, 1.0],
+                          120.0)
+        _wid = _rw["wilson"][1] - _rw["wilson"][0]
+        _ax2_ok3 = (abs(_k_flat - 10.0) < 1e-6 and _k_skew < 2.0
+                    and _rw["pct"] > 90.0 and _rw["n_raw"] == 4
+                    and _rw["n_eff"] < 2.0 and _wid > 50.0)
+        _ax2_why3 = (f"kish متساوية={_k_flat} منحرفة={round(_k_skew, 2)} · "
+                     f"موزون={_rw['pct']}% n_eff={_rw['n_eff']} "
+                     f"عرضُ الفاصل={round(_wid, 1)}")
+    except Exception as _e:                                      # noqa: BLE001
+        _ax2_ok3, _ax2_why3 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌙②🔒 BX3 `n_eff` بكيش · والفاصلُ يتّسع مع انحراف الوزن لا يضيق كذبًا",
+      _ax2_ok3, _ax2_why3)
+
+# 🔒 BX4 — الوزنُ يصحّح الانحياز فعلًا: نسبةٌ موزونةٌ تختلف عن الخام حين
+#    تختلف الأوزان، **وتساويها حين تتساوى** (شاهدُ ضبطٍ يمنع قفلًا خامدًا).
+_ax2_ok4, _ax2_why4 = False, "لم تُحمَّل"
+if _AX2 is not None:
+    try:
+        _v4 = [200.0, 50.0, 50.0, 50.0]
+        _skew4 = _AX2.w_rate(_v4, [100.0, 1.0, 1.0, 1.0], 120.0)["pct"]
+        _flat4 = _AX2.w_rate(_v4, [1.0, 1.0, 1.0, 1.0], 120.0)["pct"]
+        _p90w = _AX2.w_pctile([10.0, 20.0, 30.0], [1.0, 1.0, 98.0], 90)
+        _p50w = _AX2.w_pctile([10.0, 20.0, 30.0], [98.0, 1.0, 1.0], 50)
+        _ax2_ok4 = (_skew4 > 90.0 and abs(_flat4 - 25.0) < 1e-6
+                    and _p90w == 30.0 and _p50w == 10.0)
+        _ax2_why4 = (f"منحرف={_skew4}% متساوٍ={_flat4}% · "
+                     f"مئينٌ موزون 90={_p90w} 50={_p50w}")
+    except Exception as _e:                                      # noqa: BLE001
+        _ax2_ok4, _ax2_why4 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌙②🔒 BX4 الوزنُ يصحّح الانحياز · ويساوي الخامَ عند تساوي الأوزان",
+      _ax2_ok4, _ax2_why4)
+
+# 🔒 BX5 — المعاينةُ **حتميّةٌ** والوزنُ `N/n` بالضبط · والقصُّ يُعلَن بعدده.
+_ax2_ok5, _ax2_why5 = False, "لم تُحمَّل"
+if _AX2 is not None:
+    try:
+        _rows5 = [{"symbol": f"S{i}", "date": "2025-01-02"} for i in range(1000)]
+        _p5a, _w5, _n5 = _AX2.plan_stratum(_rows5, 100)
+        _p5b, _, _ = _AX2.plan_stratum(list(reversed(_rows5)), 100)
+        _p5c, _w5c, _ = _AX2.plan_stratum(_rows5[:50], 100)
+        _ax2_ok5 = (len(_p5a) == 100 and abs(_w5 - 10.0) < 1e-9 and _n5 == 1000
+                    and [x["symbol"] for x in _p5a] == [x["symbol"] for x in _p5b]
+                    and len(_p5c) == 50 and abs(_w5c - 1.0) < 1e-9
+                    and "مُسقَطٌ" in _ax2_src)
+        _ax2_why5 = (f"وزنٌ={_w5} · حتميّةٌ مع عكس المدخل="
+                     f"{[x['symbol'] for x in _p5a] == [x['symbol'] for x in _p5b]}"
+                     f" · بلا قصٍّ وزنُه={_w5c}")
+    except Exception as _e:                                      # noqa: BLE001
+        _ax2_ok5, _ax2_why5 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌙②🔒 BX5 المعاينةُ حتميّةٌ · والوزنُ N/n بالضبط · والقصُّ مُعلَنٌ بعدده",
+      _ax2_ok5, _ax2_why5)
+
+# 🔒 BX6 — `V-A7` قراءةٌ فقط · والإنتاجُ لا يستوردها · والتوازي **كلفةٌ لا
+#    منهج**: `ThreadPoolExecutor` حاضرٌ و`max_workers` مثبَّتٌ لا مُدخَل.
+_ax2_calls = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+              for n in _trn_ast.walk(_ax2_t) if isinstance(n, _trn_ast.Call)}
+check("🌙②🔒 BX6 قراءةٌ فقط · الإنتاجُ لا يستوردها · وخيوطُ التوازي مثبَّتة",
+      not ({"send_telegram", "git_save", "save_watchlist",
+            "save_op_entry_state", "record_new_alerts"} & _ax2_calls)
+      and "ahext2_arms" not in _trn_io.open("Super_stock.py",
+                                            encoding="utf-8").read()
+      and "ThreadPoolExecutor" in _ax2_src
+      and "max_workers=THREADS" in _ax2_src
+      and _AX2 is not None and isinstance(_AX2.THREADS, int),
+      f"خيوط={_AX2.THREADS if _AX2 is not None else '—'}")
+
+# 🔒 BX7 — الـworkflow يدويٌّ بلا كرون · ويتحقّق من **شكل** المدخلين.
+_ax2_wf = _trn_yaml.safe_load(_trn_io.open(".github/workflows/ahext2.yml",
+                                           encoding="utf-8"))
+_ax2_on = _ax2_wf.get(True, _ax2_wf.get("on", {}))
+_ax2_wtxt = _trn_io.open(".github/workflows/ahext2.yml", encoding="utf-8").read()
+check("🌙②🔒 BX7 الـworkflow يدويٌّ بلا كرون · والمدخلان يُتحقَّق من شكلهما",
+      isinstance(_ax2_on, dict) and "workflow_dispatch" in _ax2_on
+      and "schedule" not in _ax2_on
+      and "^20(2[3-6])$" in _ax2_wtxt
+      and "^[0-9]{6,20}$" in _ax2_wtxt
+      and "ahext2_arms.py" in _ax2_wtxt,
+      f"on={sorted(_ax2_on) if isinstance(_ax2_on, dict) else _ax2_on} · "
+      f"شكلُ السنة={'^20(2[3-6])$' in _ax2_wtxt} · "
+      f"شكلُ المعرّف={'^[0-9]{6,20}$' in _ax2_wtxt}")
+
+# 🔒 BX8 — 🔴 **إقرارُ التلوّث حاضرٌ بأرقامه**: العقدُ يجب أن يسرد ما رأيتُه
+#    قبل كتابته (‏−3.5 · 22.64 · 19.14 · 183.6 · 63.7) وأن يُعلن أن التجربة
+#    «تأكيديّةٌ مشروطة». عقدٌ ثانٍ بلا هذا الإقرار **يدّعي عمًى لا يملكه**.
+# 🔴 كان يقارن `"-3.5"` بـASCII **والعقدُ يكتبها بناقصِ الطرح U+2212** ⇒
+#    يُطبَّع النصُّ مرّةً واحدةً بدل مقارنةٍ هشّةٍ أو شرطِ «أو».
+_ax2_pre_n = _ax2_pre.replace("\u2212", "-").replace("\u200f", "")
+check("🌙②🔒 BX8 العقدُ يحمل إقرارَ التلوّث بأرقامه وبوسمِ «تأكيديّةٌ مشروطة»",
+      all(k in _ax2_pre_n for k in ("-3.5", "22.64", "19.14", "183.6", "63.7"))
+      and "تأكيديّة" in _ax2_pre
+      and "رأيتُ أرقامَ التشغيلة الأولى" in _ax2_pre
+      # 🔴 كانت العبارةُ مكتوبةً **من ذاكرتي** («المجتمعُ وحدَه») ولا وجودَ
+      #    لها في العقد — ثالثُ وقوعٍ اليوم لنمط «قفلٌ يقتبس ما لم يُكتَب».
+      #    ⇒ العبارةُ أدناه **مستخرَجةٌ من العقد نفسِه** لا مصوغة.
+      and "يتغيّر شيءٌ واحدٌ فقط: المجتمع" in _ax2_pre_n,
+      f"أرقامٌ={sum(1 for k in ('-3.5', '22.64', '19.14', '183.6', '63.7') if k in _ax2_pre_n)}/5")
+
+# 🔒 BX9 — **`AX5` سقط بزوال موضوعه** لا بإخفائه: الأداةُ الثانيةُ لا تُقدّر
+#    «فائتًا» أصلًا، وحدُّ الدقّة `NEFF_MIN` هو الحارسُ البديل — والعقدُ يقول
+#    ذلك صراحةً. (‏حارسٌ يُنزَع بلا بديلٍ = تجربةٌ بلا مكابح.)
+# 🔴🔴 **صياغتي الأولى سقطت بعيبين في كتابتي لا في الأداة** (‏وهما رابعُ
+#    وخامسُ وقوعٍ للصنف ② اليوم): اشترطت **غيابَ** كلمة `AX5` من مصدر الأداة
+#    **وتوثيقي نفسُه يذكرها** شرحًا · واشترطت اسمَ `NEFF_MIN` في العقد **ولم
+#    أكتبه فيه قطّ**. ⇒ صار القفلُ **بالـAST على الكود** (لا تقديرَ فواتٍ
+#    يُحسَب) **وبعبارةٍ موجودةٍ فعلًا** في العقد.
+_ax2_fade = {t.id for n in _trn_ast.walk(_ax2_t)
+             if isinstance(n, _trn_ast.Assign)
+             for t in n.targets if isinstance(t, _trn_ast.Name)
+             and ("fade" in t.id.lower() or "missed" in t.id.lower())}
+_ax2_gate = any(isinstance(n, _trn_ast.Compare)
+                and any(getattr(c, "id", None) == "NEFF_MIN"
+                        for c in [n.left] + list(n.comparators))
+                for n in _trn_ast.walk(_ax2_t))
+check("🌙②🔒 BX9 لا تقديرَ فواتٍ في الكود · وNEFF_MIN حارسٌ **حيٌّ** لا ثابتٌ زينة",
+      _AX2 is not None and _AX2.NEFF_MIN == 150
+      and not _ax2_fade and _ax2_gate
+      and "يسقط `AX5`" in _ax2_pre and "حدُّ الدقّة" in _ax2_pre,
+      f"NEFF_MIN={_AX2.NEFF_MIN if _AX2 is not None else '—'} · "
+      f"متغيّراتُ فواتٍ={sorted(_ax2_fade)} · مُستعمَلٌ في مقارنة={_ax2_gate}")
 
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
