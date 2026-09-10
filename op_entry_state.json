@@ -148,10 +148,6 @@
   "date": "2026-09-10"
  },
  "LIQ:CTNT": {
-  "last_eval_ms": 1789068480000,
-  "tc_cum": 1191823.81726715,
-  "tc_seen_ms": 1789068240000,
-  "date": "2026-09-10",
   "anchor_ms": 1789068420000,
   "last_ms": 1789068480000,
   "sent": [
@@ -160,6 +156,7 @@
   "updates": 0,
   "vol_x": 15.5,
   "peak_usd": 101475,
+  "last_eval_ms": 1789068480000,
   "pulse_ms": 1789068480000,
   "anchor_price": 1.14,
   "anchor_open": 1.06,
@@ -167,7 +164,8 @@
   "pre_done": true,
   "pre_hi": 1.06,
   "pre_usd": 149470,
-  "pre_n": 25
+  "pre_n": 25,
+  "date": "2026-09-10"
  },
  "LIQ:SGLY": {
   "last_eval_ms": 1789068480000,
