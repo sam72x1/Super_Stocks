@@ -8981,7 +8981,10 @@ check("🌙🔒 AHX2 `V-A7` قراءةٌ فقط · حارسٌ ذاتيٌّ عا�
       and _AHX is not None and _AHX._selfcheck_readonly() is True
       and "ahext_arms" not in _trn_io.open("Super_stock.py",
                                            encoding="utf-8").read(),
-      f"مخالفات={sorted(_ahx_banned & _ahx_calls)}")
+      (f"مخالفات={sorted(_ahx_banned & _ahx_calls)} · "
+       f"حارسٌ ذاتيّ={_AHX._selfcheck_readonly() if _AHX is not None else '—'}"
+       f" · الإنتاجُ يستوردها="
+       f"{'ahext_arms' in _trn_io.open('Super_stock.py', encoding='utf-8').read()}"))
 
 # 🔒 AHX3 — الـworkflow يدويٌّ **بلا كرون** · ويتحقّق من **شكل** السنة والمعرّف
 #    قبل استعمالهما (‏درسُ قفل «‏010·لا مدخل `workflow_dispatch` داخل كتلة `run`»
@@ -8996,7 +8999,9 @@ check("🌙🔒 AHX3 الـworkflow يدويٌّ بلا كرون · والسنة
       and "^20(2[3-6])$" in _ahx_wtxt
       and "^[0-9]{6,20}$" in _ahx_wtxt
       and "ahext_arms.py" in _ahx_wtxt,
-      f"on={sorted(_ahx_on) if isinstance(_ahx_on, dict) else _ahx_on}")
+      (f"on={sorted(_ahx_on) if isinstance(_ahx_on, dict) else _ahx_on} · "
+       f"شكلُ السنة={'^20(2[3-6])$' in _ahx_wtxt} · "
+       f"شكلُ المعرّف={'^[0-9]{6,20}$' in _ahx_wtxt}"))
 
 # 🔒 AHX4 — `V-A2` **سلوكيًّا**: 09:30 نيويورك = 13:30Z صيفًا و14:30Z شتاءً.
 #    (‏UTC المثبَّتُ عطبٌ مقيسٌ عندنا مرّتين ⇒ لا يُقفَل بفحصٍ نصّيّ.)
@@ -9040,6 +9045,11 @@ check("🌙🔒 AHX5 `V-A4` شمعةُ 09:30 خارجَ النافذة · وال
 # 🔒 AHX6 — `V-A5` الذراعان **مُفكَّكتان ومستوفيتان** · و🔴 **صفرٌ = طازج**
 #    (ملحقُ العقد §⑨-2): «لا شمعةَ افتر» بعد جلبةٍ ناجحة = لا تداولَ = صعودٌ
 #    صفر. وعدُّها «تعذّرَ قياس» يُقصي **أنقى الطازجين** فيقلب معنى الذراع.
+# 🔴🔴 **قُوِّي 2026-09-10 بعد أن نجت طفرتُه:** الصياغةُ الأولى كانت تفحص
+#    `classify_arm` **والقرارُ في `measure`** ⇒ طفرةٌ أعادت زرعَ العيب الحقيقيّ
+#    (‏`ah_rise = None` بدل `0.0`) **مرّت بلا أن يرمش**، والشرطُ النصّيُّ
+#    «صعودٌ صفر» أرضاه **تعليقٌ** لم تمسّه الطفرة (الصنفُ ②، ثالثُ وقوعٍ له
+#    اليوم). ⇒ صار القفلُ **سلوكيًّا على مسار النداء الحيّ** بحقنِ الجالبَين.
 _ahx_ok6, _ahx_why6 = False, "لم تُحمَّل"
 if _AHX is not None:
     try:
@@ -9047,12 +9057,32 @@ if _AHX is not None:
         _pop6 = [0.0, 0.05, 0.25, 0.9, 0.19]
         _n_ah6 = sum(1 for x in _pop6 if _AHX.classify_arm(x) == "E-AH")
         _n_fr6 = sum(1 for x in _pop6 if _AHX.classify_arm(x) == "E-FRESH")
+        # ── الشاهدُ الحاسم: يومٌ **بلا تداولٍ في الافتر** وبقمّةِ بريٍّ +50% ──
+        _pmf6 = _AHX.et_ms("2025-07-15", 4, 0)
+        _bars6 = [{"t": _pmf6, "h": 1.5, "c": 1.4},
+                  {"t": _pmf6 + 60000, "h": 1.2, "c": 1.2}]
+        _m6 = _AHX.measure("ZZZ", "2025-07-14", "2025-07-15",
+                           fetch_close=lambda *_a, **_k: 1.0,
+                           fetch_bars=lambda *_a, **_k: _bars6)
+        _fresh6 = (_m6 is not None and _m6["ah_rise"] == 0.0
+                   and _m6["ah_bars"] == 0
+                   and _AHX.classify_arm(_m6["ah_rise"]) == "E-FRESH"
+                   and abs(_m6["pm_peak"] - 0.5) < 1e-9)
+        # وشاهدُ ضبطٍ سالب: افترٌ صاعدٌ +30% ⇒ `E-AH` (وإلّا فالقفلُ خامد)
+        _ahf6 = _AHX.et_ms("2025-07-14", 16, 0)
+        _m6b = _AHX.measure("ZZZ", "2025-07-14", "2025-07-15",
+                            fetch_close=lambda *_a, **_k: 1.0,
+                            fetch_bars=lambda *_a, **_k: (
+                                [{"t": _ahf6, "h": 1.3, "c": 1.3}] + _bars6))
+        _ah6b = (_m6b is not None
+                 and _AHX.classify_arm(_m6b["ah_rise"]) == "E-AH")
         _ahx_ok6 = (_cls6 == ["E-FRESH", "E-FRESH", "E-AH", "E-AH", None]
                     and _n_ah6 + _n_fr6 == len(_pop6)
-                    and "صعودٌ صفر" in _ahx_src)
-        _ahx_why6 = f"{_cls6} · {_n_ah6}+{_n_fr6}={len(_pop6)}"
+                    and _fresh6 and _ah6b)
+        _ahx_why6 = (f"{_cls6} · مجموع={_n_ah6}+{_n_fr6}={len(_pop6)} · "
+                     f"بلا افترٍ⇒طازج={_fresh6} · بافترٍ⇒امتداد={_ah6b}")
     except Exception as _e:                                      # noqa: BLE001
-        _ahx_ok6, _ahx_why6 = False, f"⛔ رمى: {type(_e).__name__}"
+        _ahx_ok6, _ahx_why6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🌙🔒 AHX6 `V-A5` الذراعان مُفكَّكتان مستوفيتان · وصفرُ افترٍ = طازجٌ لا مجهول",
       _ahx_ok6, _ahx_why6)
 
