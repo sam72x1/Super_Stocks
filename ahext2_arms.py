@@ -45,11 +45,29 @@ NEFF_MIN = 150      # `V-B4` حدُّ الدقّة لكلّ ذراع (حجمُ �
 WSUM_TOL = 0.01     # `V-B6` هامشُ مجموع الأوزان
 THREADS = 8         # كلفةٌ لا منهج — لا تمسّ أيَّ رقم
 SEED_TAG = "T-AHEXT2-20260910"
+FIRST_RUN_YEAR = 2025      # `AX7` مجتمعُ التشغيلة الأولى — سنةٌ واحدةٌ لا غير
+FIRST_RUN_REF = (22.64, 19.14)   # `E-AH` · `E-FRESH` في طبقتها H
 OUT_ROWS = "ahext2_rows.jsonl"
 
 
 def _log(m):
     print(m, flush=True)
+
+
+def ax7_line(year, ax7):
+    """سطرُ `AX7`: مرجعُ التشغيلة الأولى يُطبَع لسنتها وحدَها.
+
+    الطبقةُ `H` **هي** مجتمعُ التشغيلة الأولى — لكن لسنةِ تلك التشغيلة
+    بعينها؛ فطبعُ رقمَيها بجانب سنةٍ أخرى مقارنةٌ بلا معنى، وهو صنفُ
+    «سطرِ عرضٍ يكذب» المدوَّن عندنا. فالمرجعُ مشروطٌ والقيمُ المحسوبةُ دائمة.
+    """
+    head = ("📊 `AX7` شاهدُ الصحّة — الطبقة H وحدَها: `E-AH` "
+            f"{ax7['E_AH']['pct']}% · `E-FRESH` {ax7['E_FRESH']['pct']}%")
+    if int(year) == FIRST_RUN_YEAR:
+        return head + (f" (التشغيلةُ الأولى: {FIRST_RUN_REF[0]}% · "
+                       f"{FIRST_RUN_REF[1]}%)")
+    return head + (f" — ولا مرجعَ للتشغيلة الأولى هنا (مجتمعُها "
+                   f"{FIRST_RUN_YEAR} وحدَها) ⇒ وصفيٌّ لا شاهد")
 
 
 # ══════════════════ دوالُّ نقيّة (تُقفَل سلوكيًّا) ══════════════════
@@ -255,9 +273,7 @@ def main() -> int:                                               # noqa: PLR0911
     _log(f"📊 الفرقُ (FRESH−AH) = **{d:+} نقطة** · σ={se} · {sig}σ")
     _log(f"📊 `AX3` المئينُ 90 الموزون لـ`E-AH` = **{ax3}%**")
     _log(f"📊 `AX4` القراءةُ الثانية (مرجعُ إغلاق الافتر) = {ax4}%")
-    _log(f"📊 `AX7` شاهدُ الصحّة — الطبقة H وحدَها: `E-AH` "
-         f"{ax7['E_AH']['pct']}% · `E-FRESH` {ax7['E_FRESH']['pct']}% "
-         f"(التشغيلةُ الأولى: 22.64% · 19.14%)")
+    _log(ax7_line(year, ax7))
     _log(f"🔒 `V-B4` حدُّ الدقّة {NEFF_MIN}/ذراع: "
          f"{'✅' if floor_ok else '⛔ لا تدخل AX1'}")
 
@@ -272,6 +288,7 @@ def main() -> int:                                               # noqa: PLR0911
          "AX1": {"E_AH": r_ah, "E_FRESH": r_fr, "diff": d, "se": se,
                  "sigma": sig},
          "AX3_p90_ah": ax3, "AX4_p90_alt": ax4, "AX7_H_only": ax7,
+         "AX7_is_witness": int(year) == FIRST_RUN_YEAR,
          "floor_ok": floor_ok, "no_verdict": not floor_ok},
         ensure_ascii=False))
     return 0 if floor_ok else 9
