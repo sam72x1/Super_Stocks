@@ -619,10 +619,10 @@
   "date": "2026-09-10"
  },
  "LIQ:DBGI": {
-  "date": "2026-09-10",
   "last_eval_ms": 1789038720000,
   "tc_cum": 9213.2301,
-  "tc_seen_ms": 1789038720000
+  "tc_seen_ms": 1789038720000,
+  "date": "2026-09-10"
  },
  "LIQ:YJ": {
   "last_eval_ms": 1789038420000,
@@ -660,15 +660,15 @@
  },
  "LIQ:IPDN": {
   "anchor_ms": 1789038660000,
-  "last_ms": 1789038660000,
+  "last_ms": 1789038720000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 4.4,
-  "peak_usd": 83334,
+  "peak_usd": 380275,
   "last_eval_ms": 1789038720000,
-  "pulse_ms": 1789038660000,
+  "pulse_ms": 1789038720000,
   "anchor_price": 0.1457,
   "anchor_open": 0.1378,
   "anchor_low": 0.1378,
