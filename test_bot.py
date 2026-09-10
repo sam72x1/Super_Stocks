@@ -8680,7 +8680,8 @@ check("🛑②🔒 RVS10 `RV4` دعوًى تُقاس ولا توقف · والت
 #    التي كانت ستمسكه (`RV0` إعادةُ المنشور) تقع **بعد** `RV4` فحجبها تكذيبُها.
 _snap_ok = True
 _snap_dbg = []
-for _snap_f in ("tranche_arms.py", "pivot_stop2_arms.py"):
+for _snap_f in ("tranche_arms.py", "pivot_stop2_arms.py",
+                "universe_arms.py"):
     _snap_s = _trn_io.open(_snap_f, encoding="utf-8").read()
     _snap_t = _trn_ast.parse(_snap_s)
     _snap_hit = [n for n in _trn_ast.walk(_snap_t)
@@ -8694,6 +8695,206 @@ for _snap_f in ("tranche_arms.py", "pivot_stop2_arms.py"):
     _snap_ok = _snap_ok and len(_snap_hit) == 1
 check("🛑📦🔒 SNAP1 سنةُ اللقطة تطابق سنةَ القياس وإلّا خروج 4 — في الأداتين",
       _snap_ok, " · ".join(_snap_dbg))
+
+
+# ═══════════════════════════════════════════════════════════
+# 🧭 T-UNIVERSE — «اعزل الكون» (العقد `universe_prereg.md` مدفوعٌ قبل الأداة)
+#    بحث/قياس فقط · الإنتاجُ لا يستوردها · الأقفال تحرس **عقدَ الأداة** لا رقمًا.
+# ═══════════════════════════════════════════════════════════
+_uni_spec = _trn_imp.spec_from_file_location("universe_arms", "universe_arms.py")
+_UNI = _trn_imp.module_from_spec(_uni_spec)
+try:
+    _uni_spec.loader.exec_module(_UNI)
+    _uni_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _UNI, _uni_load = None, f"{type(_e).__name__}: {_e}"
+check("🧭🔒 UNI0 أداةُ الكون تُحمَّل بلا استيراد الإنتاج (بحث معزول)",
+      _UNI is not None, _uni_load or "OK")
+
+_uni_src = _trn_io.open("universe_arms.py", encoding="utf-8").read()
+_uni_t = _trn_ast.parse(_uni_src)
+
+# 🔒 UNI1 — العقدُ حاضرٌ وثوابتُ الأداة **هي هي** المكتوبةُ فيه (بذرةٌ · بوتستراب
+#    · حدُّ العيّنة · والأذرعُ الثلاث بأسمائها). عقدٌ يقول شيئًا وأداةٌ تفعل غيرَه
+#    = تسجيلٌ مسبقٌ بلا أثر.
+_uni_pre = _trn_io.open("universe_prereg.md", encoding="utf-8").read()
+check("🧭🔒 UNI1 العقدُ حاضرٌ وثوابتُ الأداة تطابقه (بذرة · بوتستراب · حدّ 30 · الأذرع)",
+      _UNI is not None and _UNI.SEED == 20260910 and _UNI.BOOT == 5000
+      and _UNI.FLOOR_DECIDED == 30
+      and all(k in _uni_pre for k in ("U-ALL", "U-SURV", "U-DEL", "G1", "G2"))
+      and "20260910" in _uni_pre and "5,000" in _uni_pre
+      and "أقلُّ من 30" in _uni_pre,
+      (f"seed={_UNI.SEED} boot={_UNI.BOOT} floor={_UNI.FLOOR_DECIDED}"
+       if _UNI is not None else "لم تُحمَّل"))
+
+# 🔒 UNI2 — قراءةٌ فقط: صفرُ إرسالٍ/كتابةِ حالة (AST) · الحارسُ الذاتيُّ يعمل ·
+#    والإنتاجُ لا يستوردها.
+_uni_banned = {"send_telegram", "git_save", "save_watchlist",
+               "save_op_entry_state", "record_new_alerts"}
+_uni_calls = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+              for n in _trn_ast.walk(_uni_t) if isinstance(n, _trn_ast.Call)}
+check("🧭🔒 UNI2 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة · حارسٌ ذاتيٌّ عامل · الإنتاجُ لا يستوردها",
+      not (_uni_banned & _uni_calls)
+      and _UNI is not None and _UNI._selfcheck_readonly() is True
+      and "universe_arms" not in _pbs_io.open("Super_stock.py",
+                                              encoding="utf-8").read(),
+      f"مخالفات={sorted(_uni_banned & _uni_calls)}")
+
+# 🔒 UNI3 — الـworkflow موصولٌ فعلًا (بصمةُ `BT_CANDLE`: علمٌ مُمرَّرٌ بلا قارئ) ·
+#    يدويٌّ بلا كرون · **وإعدادا `V-U5` مثبَّتان في الملفّ لا مُدخَلَين** فلا
+#    يُضبطان خطأً (‏`faisal_only=0` + `bt_potential=1` = `pit_prereg §④`).
+_uni_wf = _trn_yaml.safe_load(_trn_io.open(".github/workflows/universe.yml",
+                                           encoding="utf-8"))
+_uni_steps = _uni_wf["jobs"]["universe-arms"]["steps"]
+_uni_env = {}
+for _s in _uni_steps:
+    _uni_env.update(_s.get("env") or {})
+check("🧭🔒 UNI3 الـworkflow موصولٌ · يدويٌّ بلا كرون · FAISAL_ONLY=0 وBT_POTENTIAL=1 مثبَّتان",
+      "schedule" not in _uni_wf[True]
+      and "workflow_dispatch" in _uni_wf[True]
+      and _uni_wf["permissions"]["contents"] == "read"
+      and _uni_wf["permissions"]["actions"] == "read"
+      and str(_uni_env.get("FAISAL_ONLY")) == "0"
+      and str(_uni_env.get("BT_POTENTIAL")) == "1"
+      and "inputs.year" in str(_uni_env.get("BACKTEST_YEAR", ""))
+      and "BT_FROZEN_PATH" in _uni_env
+      and "BACKTEST_YEAR" in _uni_src and "BT_FROZEN_PATH" in _uni_src
+      and any("universe_arms.py" in str(_s.get("run", "")) for _s in _uni_steps),
+      f"env={sorted(_uni_env)}")
+
+# 🔒 UNI4 — شرطُ التخطّي **مطابقٌ لـ`run_backtest` حرفيًّا**
+#    (`MIN_BARS + BACKTEST_FORWARD_DAYS`) — لا رقمَ موازٍ. لولاه لَما أمكن أن
+#    يعبر `V-U1` أصلًا، ولمشت الأداةُ كونًا غيرَ الذي مشته التشغيلةُ المنشورة.
+#    (‏`tranche_arms` تستعمل `+60` وهو صحيحٌ لغرضها وخطأٌ هنا — الفرقُ مقصود.)
+_uni_minbars = ('int(S.CONFIG["MIN_BARS"]) + int(S.CONFIG["BACKTEST_FORWARD_DAYS"])'
+                in _uni_src)
+_uni_prod = _trn_io.open("Super_stock.py", encoding="utf-8").read()
+check("🧭🔒 UNI4 شرطُ التخطّي = MIN_BARS + BACKTEST_FORWARD_DAYS (نفسُ run_backtest)",
+      _uni_minbars
+      and 'CONFIG["MIN_BARS"] + CONFIG["BACKTEST_FORWARD_DAYS"]' in _uni_prod,
+      f"tool={_uni_minbars}")
+
+# 🔒 UNI5 — **التقسيمُ سلوكيٌّ لا مفترَض**: `arm_stats` على مدخلٍ مُصطنَع تُجمَّع
+#    ذراعاه فتساوي الكلَّ، **وتسريبُ صفقةٍ واحدةٍ يُسقط المساواة**. (‏`V-U2` في
+#    الأداة يقرأ هذي المساواة نفسَها.)
+_uni_ok5 = False
+_uni_why5 = "لم تُحمَّل"
+if _UNI is not None:
+    def _uni_rr(t):
+        return (float(t["t1"]) - float(t["entry"])) / (float(t["entry"]) - float(t["stop"])) \
+            if t["outcome"] == "win" else (-1.0 if t["outcome"] == "loss" else None)
+    _uni_rows = [
+        {"symbol": "AAA", "date": "2025-01-06", "outcome": "win",
+         "entry": 2.0, "stop": 1.0, "t1": 4.0, "surv": True},
+        {"symbol": "AAA", "date": "2025-03-11", "outcome": "loss",
+         "entry": 2.0, "stop": 1.0, "t1": 4.0, "surv": True},
+        {"symbol": "BBB", "date": "2025-02-04", "outcome": "loss",
+         "entry": 3.0, "stop": 2.0, "t1": 5.0, "surv": False},
+        {"symbol": "CCC", "date": "2025-05-19", "outcome": "open",
+         "entry": 3.0, "stop": 2.0, "t1": 5.0, "surv": False},
+        {"symbol": "DDD", "date": "2025-07-22", "outcome": "no_fill",
+         "entry": 3.0, "stop": 2.0, "t1": 5.0, "surv": True},
+    ]
+    _a_all = _UNI.arm_stats(_uni_rows, _uni_rr)
+    _a_s = _UNI.arm_stats([r for r in _uni_rows if r["surv"]], _uni_rr)
+    _a_d = _UNI.arm_stats([r for r in _uni_rows if not r["surv"]], _uni_rr)
+    _sum_ok = (_a_s["signals"] + _a_d["signals"] == _a_all["signals"]
+               and _a_s["decided"] + _a_d["decided"] == _a_all["decided"]
+               and _a_s["wins"] + _a_d["wins"] == _a_all["wins"])
+    # شاهدُ الضبط: صفقةٌ مُسرَّبةٌ للذراعين ⇒ المساواةُ **تسقط**
+    _leak = [r for r in _uni_rows if not r["surv"]] + [_uni_rows[0]]
+    _a_leak = _UNI.arm_stats(_leak, _uni_rr)
+    _leak_ok = not (_a_s["signals"] + _a_leak["signals"] == _a_all["signals"])
+    _uni_ok5 = (_sum_ok and _leak_ok and _a_all["decided"] == 3
+                and _a_all["wins"] == 1 and _a_all["open"] == 1
+                and _a_all["no_fill"] == 1 and _a_all["symbols"] == 4)
+    _uni_why5 = f"sum={_sum_ok} leak_falls={_leak_ok} all={_a_all['signals']}/{_a_all['decided']}"
+check("🧭🔒 UNI5 التقسيمُ سلوكيّ: مجموعُ الذراعين = الكلّ · وتسريبُ صفقةٍ يُسقطه",
+      _uni_ok5, _uni_why5)
+
+# 🔒 UNI6 — بوّاباتُ الصحّة **توقف فعلًا** (بالـAST): كونُ اليوم الفارغُ يخرج 6 ·
+#    وإعدادٌ مخالفٌ يخرج 5 · ولقطةٌ بسنةٍ أخرى تخرج 4 (‏`SNAP1` يحرس الأخيرة).
+#    فشلُ `get_universe` بلا هذي البوّابة = **الجميعُ «مشطوب»** بصمت.
+_uni_rets = {c.value.value for n in _trn_ast.walk(_uni_t)
+             if isinstance(n, _trn_ast.If)
+             for c in _trn_ast.walk(n)
+             if isinstance(c, _trn_ast.Return)
+             and isinstance(getattr(c, "value", None), _trn_ast.Constant)}
+check("🧭🔒 UNI6 بوّاباتُ الصحّة توقف: كونٌ فارغ ⇒ 6 · إعدادٌ مخالف ⇒ 5 · تقسيمٌ مكسور ⇒ 8",
+      {4, 5, 6, 7, 8}.issubset(_uni_rets)
+      and "len(surv) < 1000" in _uni_src
+      and "fo != 0 or bp != 1" in _uni_src,
+      f"رموزُ الخروج={sorted(x for x in _uni_rets if isinstance(x, int))}")
+
+# 🔒 UNI7 — `V-U7`: بصمتا الإصدارين محفوظتان · و`V-U1` **لا تُبطل إلا مع كود
+#    المنشور** (‏ملحقُ 2026-09-10: انتماءٌ لا صحّة — `G1` داخلَ التشغيلة الواحدة).
+check("🧭🔒 UNI7 بصماتُ الكود الثلاث · كودُ المنشور **لكلّ سنة** · وV-U1 مُبطِلةٌ به وحدَه",
+      _UNI is not None
+      and set(_UNI.CODE_FP) == {"d8e8fb0408c4a502", "fe4b89ca307fe7d6",
+                                "5b82b71b052d62be"}
+      and _UNI.PIT_CODE_BY_YEAR == {"2023": "fe4b89ca307fe7d6",
+                                    "2024": "d8e8fb0408c4a502",
+                                    "2025": "d8e8fb0408c4a502"}
+      and "is_pit_code = (_fp == PIT_CODE_BY_YEAR.get(year))" in _uni_src
+      and "if v_u1 is False and is_pit_code:" in _uni_src
+      and "انتماءٌ لا صحّة" in _uni_pre,
+      (f"fp={sorted(_UNI.CODE_FP)}" if _UNI is not None else "لم تُحمَّل"))
+
+# 🔒 UNI8 — البوتستراب **عنقوديٌّ بالرمز وحتميّ**: المعاينةُ على الرموز لا
+#    الصفقات (درسُ `T-WAIT-23W`) · ونداءان بالبذرة نفسِها يعطيان الرقمَ نفسَه.
+# 🔴 **والعيّنةُ تفرّق عمدًا:** ثلاثةُ رموزٍ لكلّ ذراعٍ بقيمٍ مختلفة — بعنقودٍ
+#    واحدٍ لكلّ ذراعٍ يخرج الفرقُ **ثابتًا مهما كانت البذرة** فتنجو طفرةُ نزعِ
+#    البذرة كذبًا (الصنفُ ④-3: طفرةٌ بلا أثرٍ سلوكيّ).
+_uni_ok8, _uni_why8 = False, "لم تُحمَّل"
+if _UNI is not None:
+    def _uni_row(sym, out, ent, stp, t1):
+        return {"symbol": sym, "date": f"2025-01-0{len(sym)}", "outcome": out,
+                "entry": ent, "stop": stp, "t1": t1, "surv": True}
+    _uni_ga = [_uni_row("S1", "win", 2.0, 1.0, 5.0),
+               _uni_row("S2", "loss", 2.0, 1.0, 4.0),
+               _uni_row("S3", "win", 2.0, 1.0, 3.0)]
+    _uni_gb = [_uni_row("D1", "loss", 3.0, 2.0, 9.0),
+               _uni_row("D2", "win", 3.0, 2.0, 4.0),
+               _uni_row("D3", "loss", 3.0, 2.0, 7.0)]
+    try:
+        _b1 = _UNI.boot_diff_r(_uni_ga, _uni_gb, _uni_rr, n_boot=300)
+        _b2 = _UNI.boot_diff_r(_uni_ga, _uni_gb, _uni_rr, n_boot=300)
+    except Exception as _e:                                      # noqa: BLE001
+        _b1 = _b2 = f"⛔ {type(_e).__name__}"
+    _uni_fn8 = next((n for n in _trn_ast.walk(_uni_t)
+                     if isinstance(n, _trn_ast.FunctionDef)
+                     and n.name == "boot_diff_r"), None)
+    # شاهدُ ضبط: التوزيعُ **غيرُ منحلّ** (لو تساوى الحدّان فالعيّنةُ لا تفرّق
+    # وحتميّتُها بلا معنى — تُرفَض قبل أن تُقرأ «نجحت»).
+    _uni_ok8 = (isinstance(_b1, dict) and _b1 == _b2 and _b1["lo"] < _b1["hi"]
+                and _uni_fn8 is not None
+                and "by_sym" in _trn_ast.dump(_uni_fn8))
+    _uni_why8 = f"{_b1} · مطابقٌ للنداء الثاني={_b1 == _b2}"
+check("🧭🔒 UNI8 بوتستراب عنقوديٌّ بالرمز وحتميٌّ بالبذرة · وتوزيعٌ غيرُ منحلّ",
+      _uni_ok8, _uni_why8)
+
+# 🔒 UNI9 — `V-U1ب` **بصمةُ القائمة لا المجاميع**: مجاميعُ متساويةٌ قد تُخفي
+#    قائمتين مختلفتين ⇒ البصمةُ تفرّق. سلوكيّةٌ بثلاثة شواهد: الترتيبُ لا يغيّر
+#    البصمة المرتّبة · وتبديلُ نتيجةِ صفقةٍ واحدة يغيّرها · و`first_n` يقصّ
+#    **بترتيب المشي** لا مرتّبًا (وإلّا استحال مقابلةُ سجلٍّ مقصوصٍ عند 200).
+_uni_ok9, _uni_why9 = False, "لم تُحمَّل"
+if _UNI is not None:
+    try:
+        _d_a = _UNI.trades_digest(_uni_rows)
+        _d_shuf = _UNI.trades_digest(list(reversed(_uni_rows)))
+        _flip = [dict(r) for r in _uni_rows]
+        _flip[0]["outcome"] = "loss"
+        _d_flip = _UNI.trades_digest(_flip)
+        _d_n2 = _UNI.trades_digest(_uni_rows, first_n=2)
+        _d_n2r = _UNI.trades_digest(list(reversed(_uni_rows)), first_n=2)
+        _uni_ok9 = (_d_a == _d_shuf and _d_a != _d_flip and _d_n2 != _d_n2r
+                    and len(_d_a) == 16)
+        _uni_why9 = (f"مرتّبة={_d_a} · معكوسة={_d_shuf} · مقلوبةُ نتيجة={_d_flip}"
+                     f" · أوّل2={_d_n2}/{_d_n2r}")
+    except Exception as _e:                                      # noqa: BLE001
+        _uni_ok9, _uni_why9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭🔒 UNI9 بصمةُ الصفقات: الترتيبُ لا يغيّرها · وتبديلُ نتيجةٍ يغيّرها · وfirst_n بترتيب المشي",
+      _uni_ok9, _uni_why9)
 
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)

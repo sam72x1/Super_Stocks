@@ -1,0 +1,70 @@
+name: 🧭 T-UNIVERSE — اعزل الكون
+# العقد: universe_prereg.md (مدفوعٌ قبل أيّ سطرٍ من الأداة وقبل أيّ رقم · dab2d19)
+# بحث/قياس فقط · يدويٌّ بلا كرون · صفرُ مسٍّ بالإنتاج (Super_stock.py لا يُعدَّل —
+# يُثبَّت عند إصدارٍ سابقٍ فقط عند الطلب، وهو **قراءةُ إصدارٍ** لا تعديل).
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: "السنة (2023 · 2024 · 2025) — الحكم يلزمه الثلاث"
+        required: true
+        default: ""
+      frozen_run_id:
+        description: "لقطة PIT: 2023=31574165523 · 2024=31199493957 · 2025=31191327731"
+        required: true
+        default: ""
+      code_sha:
+        description: "تثبيتُ إصدار Super_stock.py — فارغ = كودُ اليوم · كودُ المنشور لكلّ سنة: 2023=4e0d26818d2e39b37390cf2a73fb6cecb0525636 · 2024/2025=c15d5e14cbdb94ee58a09869027522edf798115d (V-U1 لا تعبر إلا بكود سنتها)"
+        required: false
+        default: ""
+jobs:
+  universe-arms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pin Super_stock.py to a named code version
+        # 🔒 قفلُ «‏010·لا مدخل workflow_dispatch داخل أيّ كتلة run» أمسك الصياغةَ
+        #    الأولى (‏`${{ }}` داخل السكربت = ناقلُ حقنٍ) ⇒ المدخلُ يمرّ **بيئةً**
+        #    مقتبسة، والسكربتُ يتحقّق أنه بصمةُ git ستّينيّةٌ قبل استعماله.
+        if: ${{ github.event.inputs.code_sha != '' }}
+        env:
+          CODE_SHA: ${{ github.event.inputs.code_sha }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$CODE_SHA" | grep -Eq '^[0-9a-f]{40}$' \
+            || { echo "⛔ code_sha ليس بصمةَ git كاملة"; exit 2; }
+          git fetch --depth=1 origin "$CODE_SHA"
+          git checkout "$CODE_SHA" -- Super_stock.py
+          echo "📌 Super_stock.py مثبَّتٌ عند $CODE_SHA"
+          sha256sum Super_stock.py
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ github.event.inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Run universe arms
+        env:
+          SCREENER_MODE: BACKTEST
+          # 🔒 V-U5 — إعداداتُ تشغيلات PIT المنشورة حرفيًّا (pit_prereg §④):
+          # مثبَّتةٌ هنا لا مُدخَلةً، فلا تُضبط خطأً؛ والأداةُ تتحقّق وتقف.
+          FAISAL_ONLY: "0"
+          BT_POTENTIAL: "1"
+          BACKTEST_YEAR: ${{ github.event.inputs.year }}
+          BT_FROZEN_PATH: frozen_backtest.pkl.gz
+        run: python universe_arms.py
+      - name: Upload universe rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: universe-rows-${{ github.event.inputs.year }}-${{ github.event.inputs.code_sha == '' && 'main' || 'pit' }}
+          path: universe_rows.jsonl
+          retention-days: 90
