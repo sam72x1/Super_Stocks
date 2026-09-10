@@ -266,7 +266,7 @@
  },
  "LIQ:EHGO": {
   "anchor_ms": 1789028220000,
-  "last_ms": 1789028220000,
+  "last_ms": 1789028280000,
   "sent": [
    "M1"
   ],
@@ -274,15 +274,15 @@
   "vol_x": 82.5,
   "peak_usd": 150369,
   "last_eval_ms": 1789028280000,
-  "pulse_ms": 1789028220000,
+  "pulse_ms": 1789028280000,
   "anchor_price": 1.125,
   "anchor_open": 1.07,
   "anchor_low": 1.0204,
-  "date": "2026-09-10",
   "pre_done": true,
   "pre_hi": 1.07,
   "pre_usd": 15341,
-  "pre_n": 9
+  "pre_n": 9,
+  "date": "2026-09-10"
  },
  "LIQ:GIPR": {
   "last_eval_ms": 1789027860000,
