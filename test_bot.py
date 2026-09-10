@@ -8681,7 +8681,7 @@ check("🛑②🔒 RVS10 `RV4` دعوًى تُقاس ولا توقف · والت
 _snap_ok = True
 _snap_dbg = []
 for _snap_f in ("tranche_arms.py", "pivot_stop2_arms.py",
-                "universe_arms.py"):
+                "universe_arms.py", "ahext_arms.py"):
     _snap_s = _trn_io.open(_snap_f, encoding="utf-8").read()
     _snap_t = _trn_ast.parse(_snap_s)
     _snap_hit = [n for n in _trn_ast.walk(_snap_t)
@@ -8842,20 +8842,44 @@ check("🧭🔒 UNI7 بصماتُ الكود الثلاث · كودُ المنش
 
 # 🔒 UNI8 — البوتستراب **عنقوديٌّ بالرمز وحتميّ**: المعاينةُ على الرموز لا
 #    الصفقات (درسُ `T-WAIT-23W`) · ونداءان بالبذرة نفسِها يعطيان الرقمَ نفسَه.
-# 🔴 **والعيّنةُ تفرّق عمدًا:** ثلاثةُ رموزٍ لكلّ ذراعٍ بقيمٍ مختلفة — بعنقودٍ
-#    واحدٍ لكلّ ذراعٍ يخرج الفرقُ **ثابتًا مهما كانت البذرة** فتنجو طفرةُ نزعِ
-#    البذرة كذبًا (الصنفُ ④-3: طفرةٌ بلا أثرٍ سلوكيّ).
+# 🔴🔴 **قُوِّي 2026-09-10 بعد أن نجت طفرتُه — والضعفُ قِيس لا خُمِّن:** الفِكستشرُ
+#    الأوّل كان **صفًّا واحدًا لكلّ رمز** وثلاثةَ رموزٍ لكلّ ذراع ⇒ سَنَدُ البوتستراب
+#    ‏10 تركيباتٍ فقط، فالمئينان يستقرّان على القيمة نفسِها في **‏90%** من البذور
+#    (قياسٌ على 400 بذرة: ‏94.8% منها تعطي `(-0.6667, 3.3333)`) ⇒ **قوّةُ القفل ضدّ
+#    طفرةِ «بوتستراب بلا بذرة» = ‏10% فقط**، ونجاةُ الطفرة كانت **النتيجةَ المتوقَّعة
+#    لا مصادفة**. وأسوأُ منه: صفٌّ واحدٌ لكلّ رمز يجعل «العنقودَ بالرمز» و«العنقودَ
+#    بالصفّ» **متطابقين سلوكيًّا** ⇒ القفلُ كان يسند العنقوديّةَ إلى فحصٍ نصّيٍّ
+#    بالـAST وحدَه (الصنفُ ②). **الفِكستشرُ الجديد: خمسةُ رموزٍ لكلّ ذراعٍ بصفوفٍ
+#    متعدّدةٍ وارتباطٍ داخلَ الرمز** ⇒ القوّةُ **‏99.7%** مقيسة، **والعنقوديّةُ صارت
+#    قابلةً للقياس سلوكيًّا** (فاصلُ الرمز أوسعُ من فاصل الصفّ في ‏99.5% من البذور).
 _uni_ok8, _uni_why8 = False, "لم تُحمَّل"
 if _UNI is not None:
-    def _uni_row(sym, out, ent, stp, t1):
-        return {"symbol": sym, "date": f"2025-01-0{len(sym)}", "outcome": out,
+    def _uni_row(sym, out, ent, stp, t1, mth=1):
+        return {"symbol": sym, "date": f"2025-0{mth}-01", "outcome": out,
                 "entry": ent, "stop": stp, "t1": t1, "surv": True}
-    _uni_ga = [_uni_row("S1", "win", 2.0, 1.0, 5.0),
-               _uni_row("S2", "loss", 2.0, 1.0, 4.0),
-               _uni_row("S3", "win", 2.0, 1.0, 3.0)]
-    _uni_gb = [_uni_row("D1", "loss", 3.0, 2.0, 9.0),
-               _uni_row("D2", "win", 3.0, 2.0, 4.0),
-               _uni_row("D3", "loss", 3.0, 2.0, 7.0)]
+    _uni_ga = [_uni_row("S1", "win", 2.0, 1.0, 8.0, 1),
+               _uni_row("S1", "win", 2.0, 1.0, 7.0, 2),
+               _uni_row("S1", "win", 2.0, 1.0, 9.0, 3),
+               _uni_row("S2", "loss", 2.0, 1.0, 4.0, 1),
+               _uni_row("S2", "loss", 2.0, 1.0, 4.0, 2),
+               _uni_row("S2", "loss", 2.0, 1.0, 4.0, 3),
+               _uni_row("S3", "win", 2.0, 1.0, 3.0, 1),
+               _uni_row("S3", "loss", 2.0, 1.0, 4.0, 2),
+               _uni_row("S4", "win", 2.0, 1.0, 5.0, 1),
+               _uni_row("S4", "win", 2.0, 1.0, 2.5, 2),
+               _uni_row("S5", "loss", 2.0, 1.0, 4.0, 1),
+               _uni_row("S5", "win", 2.0, 1.0, 6.0, 2)]
+    _uni_gb = [_uni_row("D1", "loss", 2.0, 1.0, 4.0, 1),
+               _uni_row("D1", "loss", 2.0, 1.0, 4.0, 2),
+               _uni_row("D1", "loss", 2.0, 1.0, 4.0, 3),
+               _uni_row("D2", "win", 2.0, 1.0, 4.0, 1),
+               _uni_row("D2", "win", 2.0, 1.0, 3.0, 2),
+               _uni_row("D3", "loss", 2.0, 1.0, 4.0, 1),
+               _uni_row("D3", "win", 2.0, 1.0, 2.0, 2),
+               _uni_row("D4", "loss", 2.0, 1.0, 4.0, 1),
+               _uni_row("D4", "loss", 2.0, 1.0, 4.0, 2),
+               _uni_row("D5", "win", 2.0, 1.0, 11.0, 1),
+               _uni_row("D5", "loss", 2.0, 1.0, 4.0, 2)]
     try:
         _b1 = _UNI.boot_diff_r(_uni_ga, _uni_gb, _uni_rr, n_boot=300)
         _b2 = _UNI.boot_diff_r(_uni_ga, _uni_gb, _uni_rr, n_boot=300)
@@ -8866,10 +8890,30 @@ if _UNI is not None:
                      and n.name == "boot_diff_r"), None)
     # شاهدُ ضبط: التوزيعُ **غيرُ منحلّ** (لو تساوى الحدّان فالعيّنةُ لا تفرّق
     # وحتميّتُها بلا معنى — تُرفَض قبل أن تُقرأ «نجحت»).
+    # شاهدٌ سلوكيٌّ للعنقوديّة: بوتستراب **بالصفّ** (الخطأُ الذي نحرسه) يعطي
+    # فاصلًا **أضيق** لأنه يكسر الارتباطَ داخلَ الرمز. فرقٌ يُرصَد لا يُدَّعى.
+    def _uni_row_boot(a, b, seed, n=300):
+        _rnd = __import__("random").Random(seed)
+        _st = __import__("statistics")
+        va = [x for x in (_uni_rr(r) for r in a) if x is not None]
+        vb = [x for x in (_uni_rr(r) for r in b) if x is not None]
+        d = []
+        for _ in range(n):
+            d.append(_st.fmean([_rnd.choice(va) for _ in va])
+                     - _st.fmean([_rnd.choice(vb) for _ in vb]))
+        d.sort()
+        return d[int(0.975 * n)] - d[int(0.025 * n)]
+    try:
+        _w_row = _uni_row_boot(_uni_ga, _uni_gb, _UNI.SEED)
+        _w_sym = (_b1["hi"] - _b1["lo"]) if isinstance(_b1, dict) else -1.0
+    except Exception as _e:                                      # noqa: BLE001
+        _w_row, _w_sym = 0.0, -1.0
     _uni_ok8 = (isinstance(_b1, dict) and _b1 == _b2 and _b1["lo"] < _b1["hi"]
                 and _uni_fn8 is not None
-                and "by_sym" in _trn_ast.dump(_uni_fn8))
-    _uni_why8 = f"{_b1} · مطابقٌ للنداء الثاني={_b1 == _b2}"
+                and "by_sym" in _trn_ast.dump(_uni_fn8)
+                and _w_sym > _w_row)
+    _uni_why8 = (f"{_b1} · مطابقٌ للنداء الثاني={_b1 == _b2} · "
+                 f"عرضُ الرمز {_w_sym:.3f} > عرضُ الصفّ {_w_row:.3f}")
 check("🧭🔒 UNI8 بوتستراب عنقوديٌّ بالرمز وحتميٌّ بالبذرة · وتوزيعٌ غيرُ منحلّ",
       _uni_ok8, _uni_why8)
 
@@ -8895,6 +8939,181 @@ if _UNI is not None:
         _uni_ok9, _uni_why9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧭🔒 UNI9 بصمةُ الصفقات: الترتيبُ لا يغيّرها · وتبديلُ نتيجةٍ يغيّرها · وfirst_n بترتيب المشي",
       _uni_ok9, _uni_why9)
+
+# ═══════════════════════════════════════════════════════════
+# 🌙⛰️ T-AHEXT — «المشتعلُ في الافتر مسقوفٌ في البري» (العقد `ahext_prereg.md`
+#    مدفوعٌ **قبل الأداة** · كوميت `541bacb`) · بحث/قياس فقط.
+# ═══════════════════════════════════════════════════════════
+_ahx_spec = _trn_imp.spec_from_file_location("ahext_arms", "ahext_arms.py")
+_AHX = _trn_imp.module_from_spec(_ahx_spec)
+try:
+    _ahx_spec.loader.exec_module(_AHX)
+    _ahx_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _AHX, _ahx_load = None, f"{type(_e).__name__}: {_e}"
+check("🌙🔒 AHX0 أداةُ السقف تُحمَّل", _AHX is not None, _ahx_load or "OK")
+
+_ahx_src = _trn_io.open("ahext_arms.py", encoding="utf-8").read()
+_ahx_t = _trn_ast.parse(_ahx_src)
+_ahx_pre = _trn_io.open("ahext_prereg.md", encoding="utf-8").read()
+
+# 🔒 AHX1 — ثوابتُ الأداة **هي هي** المكتوبةُ في العقد. عقدٌ يقول رقمًا وأداةٌ
+#    تفعل غيرَه = تسجيلٌ مسبقٌ بلا أثر.
+check("🌙🔒 AHX1 ثوابتُ الأداة تطابق العقد (15/20/20/120/2000/300/25/100/80)",
+      _AHX is not None and _AHX.GAP_MIN == 15.0 and _AHX.PM_MIN == 20.0
+      and _AHX.AH_MIN == 20.0 and _AHX.CAP_HI == 120.0
+      and _AHX.CAND_CAP == 2000 and _AHX.FADE_PROBE == 300
+      and _AHX.FADE_MAX == 25.0 and _AHX.FLOOR_ROWS == 100
+      and _AHX.COVER_MIN == 80.0
+      and (_AHX.PRICE_LO, _AHX.PRICE_HI) == (0.30, 20.0)
+      and all(k in _ahx_pre for k in ("E-AH", "E-FRESH", "AX1", "AX3", "AX5")),
+      (f"{_AHX.GAP_MIN}/{_AHX.PM_MIN}/{_AHX.AH_MIN}/{_AHX.CAP_HI}/"
+       f"{_AHX.CAND_CAP}/{_AHX.FADE_MAX}" if _AHX is not None else "لم تُحمَّل"))
+
+# 🔒 AHX2 — `V-A7` قراءةٌ فقط: صفرُ إرسالٍ/كتابةِ حالة · حارسٌ ذاتيٌّ **يعمل**
+#    · والإنتاجُ لا يستوردها.
+_ahx_banned = {"send_telegram", "git_save", "save_watchlist",
+               "save_op_entry_state", "record_new_alerts"}
+_ahx_calls = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+              for n in _trn_ast.walk(_ahx_t) if isinstance(n, _trn_ast.Call)}
+check("🌙🔒 AHX2 `V-A7` قراءةٌ فقط · حارسٌ ذاتيٌّ عامل · الإنتاجُ لا يستوردها",
+      not (_ahx_banned & _ahx_calls)
+      and _AHX is not None and _AHX._selfcheck_readonly() is True
+      and "ahext_arms" not in _trn_io.open("Super_stock.py",
+                                           encoding="utf-8").read(),
+      f"مخالفات={sorted(_ahx_banned & _ahx_calls)}")
+
+# 🔒 AHX3 — الـworkflow يدويٌّ **بلا كرون** · ويتحقّق من **شكل** السنة والمعرّف
+#    قبل استعمالهما (‏درسُ قفل «‏010·لا مدخل `workflow_dispatch` داخل كتلة `run`»
+#    الذي أسقط صياغتي الأولى لـ`universe.yml` — ناقلُ حقن).
+_ahx_wf = _trn_yaml.safe_load(_trn_io.open(".github/workflows/ahext.yml",
+                                           encoding="utf-8"))
+_ahx_on = _ahx_wf.get(True, _ahx_wf.get("on", {}))
+_ahx_wtxt = _trn_io.open(".github/workflows/ahext.yml", encoding="utf-8").read()
+check("🌙🔒 AHX3 الـworkflow يدويٌّ بلا كرون · والسنةُ والمعرّفُ يُتحقَّق من شكلهما",
+      isinstance(_ahx_on, dict) and "workflow_dispatch" in _ahx_on
+      and "schedule" not in _ahx_on
+      and "^20(2[3-6])$" in _ahx_wtxt
+      and "^[0-9]{6,20}$" in _ahx_wtxt
+      and "ahext_arms.py" in _ahx_wtxt,
+      f"on={sorted(_ahx_on) if isinstance(_ahx_on, dict) else _ahx_on}")
+
+# 🔒 AHX4 — `V-A2` **سلوكيًّا**: 09:30 نيويورك = 13:30Z صيفًا و14:30Z شتاءً.
+#    (‏UTC المثبَّتُ عطبٌ مقيسٌ عندنا مرّتين ⇒ لا يُقفَل بفحصٍ نصّيّ.)
+_ahx_ok4, _ahx_why4 = False, "لم تُحمَّل"
+if _AHX is not None:
+    try:
+        _dtm = __import__("datetime")
+        _su = _dtm.datetime.utcfromtimestamp(
+            _AHX.et_ms("2025-07-15", 9, 30) / 1000)
+        _wi = _dtm.datetime.utcfromtimestamp(
+            _AHX.et_ms("2025-01-15", 9, 30) / 1000)
+        _ahx_ok4 = ((_su.hour, _su.minute) == (13, 30)
+                    and (_wi.hour, _wi.minute) == (14, 30))
+        _ahx_why4 = f"صيف={_su:%H:%M}Z شتاء={_wi:%H:%M}Z"
+    except Exception as _e:                                      # noqa: BLE001
+        _ahx_ok4, _ahx_why4 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌙🔒 AHX4 `V-A2` النافذةُ بتوقيت نيويورك تتصيّف وتتشتّى (13:30Z / 14:30Z)",
+      _ahx_ok4, _ahx_why4)
+
+# 🔒 AHX5 — `V-A4` **صفرُ نظرٍ مستقبليّ**: شمعةُ 09:30 نفسُها خارجَ النافذة
+#    (طابعُ Polygon `t` = بدايةُ الشمعة) · ونافذتا الافتر والبري لا تتقاطعان.
+_ahx_ok5, _ahx_why5 = False, "لم تُحمَّل"
+if _AHX is not None:
+    try:
+        _f5 = _AHX.et_ms("2025-07-15", 4, 0)
+        _t5 = _AHX.et_ms("2025-07-15", 9, 30)
+        _b5 = [{"t": _f5, "h": 1.0, "c": 1.0},
+               {"t": _t5 - 60000, "h": 2.0, "c": 2.0},
+               {"t": _t5, "h": 99.0, "c": 99.0}]
+        _peak5 = _AHX.window_peak(_b5, _f5, _t5)
+        _aht5 = _AHX.et_ms("2025-07-14", 20, 0)
+        _ahx_ok5 = (_peak5 == 2.0 and _aht5 <= _f5
+                    and _AHX.window_last_close(_b5, _f5, _t5) == 2.0)
+        _ahx_why5 = (f"قمّة={_peak5} (يجب 2.0 لا 99.0) · "
+                     f"الافترُ ينتهي قبل البري={_aht5 <= _f5}")
+    except Exception as _e:                                      # noqa: BLE001
+        _ahx_ok5, _ahx_why5 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌙🔒 AHX5 `V-A4` شمعةُ 09:30 خارجَ النافذة · والنافذتان لا تتقاطعان",
+      _ahx_ok5, _ahx_why5)
+
+# 🔒 AHX6 — `V-A5` الذراعان **مُفكَّكتان ومستوفيتان** · و🔴 **صفرٌ = طازج**
+#    (ملحقُ العقد §⑨-2): «لا شمعةَ افتر» بعد جلبةٍ ناجحة = لا تداولَ = صعودٌ
+#    صفر. وعدُّها «تعذّرَ قياس» يُقصي **أنقى الطازجين** فيقلب معنى الذراع.
+_ahx_ok6, _ahx_why6 = False, "لم تُحمَّل"
+if _AHX is not None:
+    try:
+        _cls6 = [_AHX.classify_arm(x) for x in (0.0, 0.1999, 0.20, 3.0, None)]
+        _pop6 = [0.0, 0.05, 0.25, 0.9, 0.19]
+        _n_ah6 = sum(1 for x in _pop6 if _AHX.classify_arm(x) == "E-AH")
+        _n_fr6 = sum(1 for x in _pop6 if _AHX.classify_arm(x) == "E-FRESH")
+        _ahx_ok6 = (_cls6 == ["E-FRESH", "E-FRESH", "E-AH", "E-AH", None]
+                    and _n_ah6 + _n_fr6 == len(_pop6)
+                    and "صعودٌ صفر" in _ahx_src)
+        _ahx_why6 = f"{_cls6} · {_n_ah6}+{_n_fr6}={len(_pop6)}"
+    except Exception as _e:                                      # noqa: BLE001
+        _ahx_ok6, _ahx_why6 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌙🔒 AHX6 `V-A5` الذراعان مُفكَّكتان مستوفيتان · وصفرُ افترٍ = طازجٌ لا مجهول",
+      _ahx_ok6, _ahx_why6)
+
+# 🔒 AHX7 — `V-A1`/`V-A6` **مصدرٌ واحدٌ لكلّ رقمٍ مقيس**: الإغلاقُ الرسميُّ من
+#    `/v1/open-close` · و`polygon_prev_close` **لا تُنادى** (توثيقُها يمنع
+#    نفسَه من القياس التاريخيّ) · وكلُّ نداءٍ بـ`adjusted=true` (عطبُ `SPRB`:
+#    دخولٌ 52.42 مقابل 3,933.96 من مزجِ مصدرين).
+check("🌙🔒 AHX7 `V-A1` الإغلاقُ الرسميُّ من open-close · ولا prev_close · adjusted",
+      "/v1/open-close/" in _ahx_src
+      and "polygon_prev_close" not in _ahx_calls
+      and _ahx_src.count("adjusted=true") >= 2,
+      f"open-close={'/v1/open-close/' in _ahx_src} · "
+      f"prev_close_call={'polygon_prev_close' in _ahx_calls} · "
+      f"adjusted={_ahx_src.count('adjusted=true')}")
+
+# 🔒 AHX8 — الحتميّة: القصُّ عند السقف بترتيبِ `sha256` **لا عشوائيًّا** ·
+#    وصفرُ نداءِ `random` في الأداة كلِّها.
+_ahx_ok8, _ahx_why8 = False, "لم تُحمَّل"
+if _AHX is not None:
+    try:
+        _r8 = [{"symbol": f"S{i}", "date": "2025-01-02"} for i in range(8)]
+        _o1 = [x["symbol"] for x in _AHX.det_order(_r8)]
+        _o2 = [x["symbol"] for x in _AHX.det_order(list(reversed(_r8)))]
+        # 🔴 كان `"random" not in _ahx_src` فسقط على **شرحٍ** يذكرها نثرًا
+        #    (الصنفُ ②) — وبُدّل بفحصِ AST وهو **أشدّ**: يمسك أيضًا
+        #    `from random import choice` الذي كان النصُّ يمرّ عليه.
+        _ahx_rand = any(
+            (isinstance(_n, _trn_ast.Import)
+             and any(_a.name.split(".")[0] == "random" for _a in _n.names))
+            or (isinstance(_n, _trn_ast.ImportFrom)
+                and str(_n.module or "").split(".")[0] == "random")
+            for _n in _trn_ast.walk(_ahx_t))
+        _ahx_ok8 = (_o1 == _o2 and _o1 != [x["symbol"] for x in _r8]
+                    and not _ahx_rand
+                    and "sha256" in _ahx_src)
+        _ahx_why8 = (f"حتميٌّ={_o1 == _o2} · "
+                     f"يُعيد الترتيب={_o1 != [x['symbol'] for x in _r8]} · "
+                     f"استيرادُ random={_ahx_rand}")
+    except Exception as _e:                                      # noqa: BLE001
+        _ahx_ok8, _ahx_why8 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌙🔒 AHX8 القصُّ حتميٌّ بـsha256 · وصفرُ عشوائيّةٍ بلا بذرة",
+      _ahx_ok8, _ahx_why8)
+
+# 🔒 AHX9 — **`CAP_HI` يُقاس ولا يُشحَن**: الرقمُ 120 مقياسٌ داخلَ `arm_rate`
+#    لا مرشِّحٌ يُسقط صفوفًا (المجتمعُ يبقى كاملًا) · والعقدُ يحمل ملاحقَه
+#    الأربعةَ ووسمَ المصدر `faisal_adopted`.
+_ahx_ok9, _ahx_why9 = False, "لم تُحمَّل"
+if _AHX is not None:
+    try:
+        _rt9 = _AHX.arm_rate([50.0, 130.0, 200.0, 119.9, 120.0], _AHX.CAP_HI)
+        _amend9 = sum(1 for k in ("مقدِّرُ", "صعودٌ صفر", "خارج العيّنة",
+                                  "إغلاقُ الافتر") if k in _ahx_pre)
+        _ahx_ok9 = (_rt9["n"] == 5 and _rt9["above"] == 2
+                    and _amend9 == 4
+                    and "faisal_adopted" in _ahx_pre
+                    and "لا يُشحنان عتبةً" in _ahx_pre)
+        _ahx_why9 = f"{_rt9} · ملاحقٌ={_amend9}/4"
+    except Exception as _e:                                      # noqa: BLE001
+        _ahx_ok9, _ahx_why9 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌙🔒 AHX9 `CAP_HI` مقياسٌ لا مرشِّح · والعقدُ يحمل ملاحقَه الأربعة ووسمَ المصدر",
+      _ahx_ok9, _ahx_why9)
 
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
