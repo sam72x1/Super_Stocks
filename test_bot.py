@@ -9340,6 +9340,21 @@ check("🌙②🔒 BX9 لا تقديرَ فواتٍ في الكود · وNEFF_MI
       f"NEFF_MIN={_AX2.NEFF_MIN if _AX2 is not None else '—'} · "
       f"متغيّراتُ فواتٍ={sorted(_ax2_fade)} · مُستعمَلٌ في مقارنة={_ax2_gate}")
 
+_ax7_fake = {"E_AH": {"pct": 11.11}, "E_FRESH": {"pct": 22.22}}
+try:
+    _ax7_25 = _AX2.ax7_line(2025, _ax7_fake) if _AX2 else ""
+    _ax7_23 = _AX2.ax7_line(2023, _ax7_fake) if _AX2 else ""
+except Exception as _e:                                        # noqa: BLE001
+    _ax7_25 = _ax7_23 = f"⛔ رمى: {type(_e).__name__}"
+# مرجعُ التشغيلة الأولى مجتمعُه 2025 وحدَها ⇒ يظهر لها ويغيب عن غيرها،
+# **والقيمُ المحسوبةُ تظهر في الحالتين** (وإلّا صار الإصلاحُ كتمانًا).
+_ax7_ok = ("22.64" in _ax7_25 and "19.14" in _ax7_25
+           and "22.64" not in _ax7_23 and "19.14" not in _ax7_23
+           and "11.11" in _ax7_25 and "22.22" in _ax7_25
+           and "11.11" in _ax7_23 and "22.22" in _ax7_23)
+check("🌙②🔒 BX10 مرجعُ التشغيلة الأولى لسنتها وحدَها · والقيمُ تُطبَع دائمًا",
+      _ax7_ok, f"2025={_ax7_25[-60:]} | 2023={_ax7_23[-60:]}")
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
