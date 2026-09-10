@@ -454,7 +454,7 @@
  },
  "LIQ:FTFT": {
   "anchor_ms": 1789038000000,
-  "last_ms": 1789038000000,
+  "last_ms": 1789038060000,
   "sent": [
    "M1"
   ],
@@ -462,15 +462,15 @@
   "vol_x": 25.8,
   "peak_usd": 61732,
   "last_eval_ms": 1789038060000,
-  "pulse_ms": 1789038000000,
+  "pulse_ms": 1789038060000,
   "anchor_price": 2.05,
   "anchor_open": 1.95,
   "anchor_low": 1.945,
-  "date": "2026-09-10",
   "pre_done": true,
   "pre_hi": 2.01,
   "pre_usd": 95663,
-  "pre_n": 42
+  "pre_n": 42,
+  "date": "2026-09-10"
  },
  "LIQ:WSHP": {
   "last_eval_ms": 1788983940000,
