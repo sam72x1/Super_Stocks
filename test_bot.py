@@ -9668,6 +9668,65 @@ except Exception as _e:                                          # noqa: BLE001
 check("🌅⏱️🔒 PGA11 شطرُ `C-MOM` يصمد على **قيمٍ متساويةٍ كلِّها** وحتميٌّ مع عكس الإدخال",
       _pgm_ok, _pgm_why)
 
+# 🔒🔴 PGA12 — **الإغلاقُ يُنفَّذ لا يُكتَب** (سابقةُ `T-RSI40`/`RSK9`). قفلٌ
+#    **سلوكيٌّ من طرفيه**: مُغلَقًا ⇒ خروجُ `CLOSED_RC` و**صفرُ عمليةٍ تُطلَق**
+#    (لا فحصُ «قراءةٌ فقط» ولا قياسُ سنةٍ ولا تحميلُ لقطة) · وبالإقرار
+#    `PMGATE_REOPEN` **يُرفَع الحارسُ فعلًا** فيصل إلى الفحص التالي (‏2 = مدخلٌ
+#    ناقصٌ لا 8). ونصُّ الإغلاق يحمل **شروطَ الفتح الثلاثة** و**`C-MOM` حاكمًا**.
+# 🔢 ورمزُ الإغلاق **يُشترَط تميّزُه** عن رموز العطب داخل القياس — رمزٌ مشترَكٌ
+#    يجعل الإغلاقَ غيرَ مميَّزٍ عن سقوط `V-P5` في السجلّ.
+import ast as _pgz_ast                                             # noqa: E402
+import inspect as _pgz_insp                                        # noqa: E402
+import os as _pgz_os                                               # noqa: E402
+_pgz_env = {k: _pgz_os.environ.get(k) for k in
+            ("PMGATE_REOPEN", "PMGATE_YEARS", "PMGATE_FROZEN", "PMGATE_DRY")}
+_pgz_orig = (_PGA._log, _PGA._selfcheck_readonly, _PGA._measure_year,
+             _PGA.S.load_frozen_dataset)
+_pgz_ops, _pgz_out = [], []
+try:
+    _PGA._log = lambda m: _pgz_out.append(str(m))
+    _PGA._selfcheck_readonly = lambda *a, **k: _pgz_ops.append("selfcheck") or True
+    _PGA._measure_year = lambda *a, **k: _pgz_ops.append("measure")
+    _PGA.S.load_frozen_dataset = lambda *a, **k: _pgz_ops.append("frozen") or ({}, {}, "")
+    for _k in _pgz_env:
+        _pgz_os.environ.pop(_k, None)
+    _pgz_closed = _PGA.main()
+    _pgz_ops_closed = list(_pgz_ops)
+    _pgz_txt = "\n".join(_pgz_out) + "\n" + "\n".join(_PGA.closure_notice())
+    _pgz_os.environ["PMGATE_REOPEN"] = "1"
+    _pgz_open = _PGA.main()
+    # كلُّ ثابتٍ عدديٍّ يُرجعه `main` — **بما فيه ما داخل `return X if … else Y`**
+    # (‏رمزُ «لا حكم» ‏9 يسكن هناك، وحصرُ الفحص بـ`Return` المباشر يُعميه).
+    _pgz_codes = {c.value for r in _pgz_ast.walk(_pgz_ast.parse(
+        _pgz_insp.getsource(_PGA.main)))
+        if isinstance(r, _pgz_ast.Return) and r.value is not None
+        for c in _pgz_ast.walk(r.value)
+        if isinstance(c, _pgz_ast.Constant) and isinstance(c.value, int)}
+    _pgz_ok = (
+        _PGA.AXIS_CLOSED is True
+        and _pgz_closed == _PGA.CLOSED_RC != 0
+        and not _pgz_ops_closed                     # صفرُ عمليةٍ تُطلَق
+        and _pgz_open == 2                          # الحارسُ رُفع فعلًا
+        and _PGA.CLOSED_RC not in _pgz_codes        # مميَّزٌ عن رموز العطب
+        and all(_c in _pgz_txt for _c in ("①", "②", "③"))
+        and "C-MOM" in _pgz_txt and "حاكمًا" in _pgz_txt
+        and _PGA.REOPEN_ENV in _pgz_txt)
+    _pgz_why = (f"مُغلَق={_pgz_closed} · عمليات={_pgz_ops_closed} · "
+                f"بالإقرار={_pgz_open} · رموزُ القياس={sorted(_pgz_codes)}")
+except Exception as _e:                                          # noqa: BLE001
+    _pgz_ok, _pgz_why = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    (_PGA._log, _PGA._selfcheck_readonly, _PGA._measure_year,
+     _PGA.S.load_frozen_dataset) = _pgz_orig
+    for _k, _v in _pgz_env.items():
+        if _v is None:
+            _pgz_os.environ.pop(_k, None)
+        else:
+            _pgz_os.environ[_k] = _v
+check("🌅⏱️🔒 PGA12 الإغلاقُ **يُنفَّذ لا يُكتَب**: خروجٌ مميَّزٌ و**صفرُ عملية** · "
+      "وبالإقرار يُرفَع الحارسُ فعلًا · والنصُّ يحمل الشروطَ الثلاثة و`C-MOM` حاكمًا",
+      _pgz_ok, _pgz_why)
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
