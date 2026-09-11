@@ -1069,5 +1069,50 @@
   "usd_eff": 5471,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "BTCS",
+  "date": "2026-09-11",
+  "sustain_min": 5,
+  "operator_ok": false,
+  "fired_at": "2026-09-11T20:00:33Z",
+  "break_level": 1.41,
+  "price": 1.415,
+  "vol_x": 3.3,
+  "usd": 57484,
+  "candle_class": "mid",
+  "usd_eff": 57484,
+  "candle_class_eff": "mid",
+  "frames_usd": null
+ },
+ {
+  "symbol": "GVH",
+  "date": "2026-09-11",
+  "sustain_min": 38,
+  "operator_ok": true,
+  "fired_at": "2026-09-11T20:00:33Z",
+  "break_level": 1.02,
+  "price": 1.04,
+  "vol_x": 3.2,
+  "usd": 4194,
+  "candle_class": "group",
+  "usd_eff": 4194,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "VHUB",
+  "date": "2026-09-11",
+  "sustain_min": 0,
+  "operator_ok": false,
+  "fired_at": "2026-09-11T20:00:33Z",
+  "break_level": 0.89,
+  "price": 0.898,
+  "vol_x": 6.8,
+  "usd": 5110,
+  "candle_class": "group",
+  "usd_eff": 5110,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
