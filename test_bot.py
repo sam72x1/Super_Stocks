@@ -9727,6 +9727,119 @@ check("🌅⏱️🔒 PGA12 الإغلاقُ **يُنفَّذ لا يُكتَب*
       "وبالإقرار يُرفَع الحارسُ فعلًا · والنصُّ يحمل الشروطَ الثلاثة و`C-MOM` حاكمًا",
       _pgz_ok, _pgz_why)
 
+# ═══════════════════════════════════════════════════════════
+# 📉🚦 `T-RSI-RANK` — أقفالُ العقد (‏`RKK0`-`RKK2`، 2026-09-11، أمرُ المالك
+#    «سجّل RSI ص65»). الوثيقةُ مدموجةٌ **قبل أيّ سطرِ أداة**، وهذي الأقفالُ
+#    تحرسها من التعديل بعد الدمج. 🔴 **و`RKK2` أثمنُها**: يُثبت أن **الآليّةَ
+#    التي يعدُ بها العقدُ موجودةٌ في الكود فعلًا** — وهو عينُ العيب الذي أسقط
+#    آليّةَ `T-RSI40` قبل أوّل تشغيلة (عَلَمٌ يُعلن تجربةً والنافذُ غيرُه =
+#    **تأكيدٌ كاذبٌ أن التجربة اشتغلت**).
+# ═══════════════════════════════════════════════════════════
+try:
+    _rk_pre = _trn_io.open("rsi_rank_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _rk_pre = f"⛔ رمى: {type(_e).__name__}"
+
+# النطاقُ محدودٌ بقسم الفروع وحدَه — قفلٌ يمدّ نطاقَه للملفّ كلِّه يمرّ على
+# ذكرٍ عابرٍ في مكانٍ آخر (الصنفُ ③ المدوَّن: «أو» يمرّ بمفتاحٍ وهميّ).
+_rk_i = _rk_pre.find("### الفروع الثلاثة")
+_rk_br = _rk_pre[_rk_i:_rk_i + 700] if _rk_i >= 0 else ""
+_rk_crit = ("`RK1`", "`RK2`", "`RK3`")
+_rk_guards = tuple(f"`V-K{_i}`" for _i in range(1, 9))
+# 🔴 صياغتي الأولى فحصت **عضويّةَ** الكلمات في نافذةِ 700 محرف — وطفرةُ `r1`
+#    (حذفُ الفرع الثالث) **نجت** لأن «لا حكم» تتكرّر في السطر التالي («ليس «لا
+#    حكم» بل الفرعُ 2») ⇒ **الصنفُ ③ المدوَّن: فحصٌ يُرضيه ذكرٌ عابر.** فصار
+#    القفلُ **بنيويًّا**: ثلاثةُ أسطرٍ مرقّمةٍ بالضبط، وكلُّ كلمةٍ في سطرها.
+_rk_num = [_l for _l in _rk_br.splitlines() if _l[:3] in ("1. ", "2. ", "3. ")]
+_rk_br_ok = (len(_rk_num) == 3
+             and "تُوصى" in _rk_num[0]
+             and "فشلت" in _rk_num[1]
+             and "لا حكم" in _rk_num[2])
+_rk_ok0 = (_rk_i >= 0
+           and _rk_br_ok
+           and all(c in _rk_pre for c in _rk_crit)
+           and all(g in _rk_pre for g in _rk_guards)
+           # الضبطان **حاكمان** بنصّ العقد لا وصفيّان — وهو درسُ `C-MOM`
+           and "حاكمان لا وصفيّان" in _rk_pre
+           and "`C-DEPTH`" in _rk_pre and "`C-RAND`" in _rk_pre)
+check("📉🚦🔒 RKK0 العقدُ يحمل الفروعَ الثلاثة والمعاييرَ الثلاثة وحرّاسَه الثمانية "
+      "· والضبطان **حاكمان لا وصفيّان**",
+      _rk_ok0,
+      f"أسطرٌ مرقّمة={len(_rk_num)}/3 · فروعٌ في موضعها={_rk_br_ok} · "
+      f"معايير={sum(1 for c in _rk_crit if c in _rk_pre)}/3 · "
+      f"حرّاس={sum(1 for g in _rk_guards if g in _rk_pre)}/8")
+
+# `RKK1` — نفيُ إعادةِ الفتح **بالبحث لا بالدعوى**، ومعه إثباتٌ سلوكيٌّ أن
+#    المحورَ المُغلَق `T-RSI40` **ما زال حارسُه منصوبًا** (‏العقدُ الجديد لا
+#    يرفعه ولا يلتفّ عليه).
+try:
+    import rsi40_arms as _RK40                                   # noqa: PLC0415
+    _rk40_armed = (_RK40.AXIS_CLOSED is True
+                   and int(_RK40.CLOSED_RC) != 0)
+except Exception as _e:                                          # noqa: BLE001
+    _RK40, _rk40_armed = None, False
+_rk_j = _rk_pre.find("## ① التعريفات")
+_rk_head = _rk_pre[:_rk_j] if _rk_j >= 0 else ""
+_rk_ok1 = (_rk40_armed
+           and "`T-RSI40`" in _rk_head
+           and "بوّابةُ رفض" in _rk_head and "مفتاحُ ترتيب" in _rk_head
+           and "faisal_adopted" in _rk_head
+           # 🔴 لا تُقتبَس زخرفةُ عبارة (الصنفُ ② المدوَّن) — بل **مضمونُ البحث**:
+           #    صفرُ ذكرٍ لـRSI ‏+ تسميةُ ما بُحث فيه.
+           and "صفرُ ذكرٍ" in _rk_head and "T-PRERANK" in _rk_head)
+check("📉🚦🔒 RKK1 §⓪ يُسمّي المحورَ المُغلَق ويفصل «بوّابةَ رفض» عن «مفتاحِ ترتيب» "
+      "بوسمِ المصدر وبحثٍ مُعلَن · وحارسُ `T-RSI40` ما زال منصوبًا",
+      _rk_ok1,
+      f"حارسُ RSI40={_rk40_armed} · رأسُ العقد={len(_rk_head)} محرفًا")
+
+# 🔴 `RKK2` — **الآليّةُ مُثبَتةٌ من الكود الحيّ لا من نصّ العقد.** ثلاثةُ عقودٍ
+#    يعِد بها §⓪-ج، وكلٌّ يُختبَر عند مصدره: حقنُ المُرتِّب · بعثُ `rsi_now` ·
+#    وحتميّةُ شاهد العشوائيّ. لو سقط أحدُها فالعقدُ يَعِد بما لا يُنفَّذ.
+try:
+    import replay10 as _RKP                                      # noqa: PLC0415
+    # 🔴 صياغتي الأولى فحصت **التوقيع** وحدَه — وطفرةُ `r6` كشفت أن ذلك بنيويٌّ
+    #    لا سلوكيّ: لو قَبِل `replay` المُرتِّبَ **وتجاهله** لمرَّ القفل. فصار
+    #    **نداءً حيًّا**: مُرتِّبان متعاكسان بسعةِ خانةٍ واحدة ⇒ المأخوذُ يتبدّل
+    #    فعلًا، وإلّا فالحقنُ زينة (قاعدةُ `wire-check`: من نقطة النداء لا من
+    #    وجود الوسيط).
+    _rk_cs = [_RKP.Candidate(session=0, symbol="LO", readiness=10.0, score=1,
+                             rr=1.0, seq=0,
+                             payload={"env_vals": {"rsi_now": 25.0}}),
+              _RKP.Candidate(session=0, symbol="HI", readiness=90.0, score=9,
+                             rr=9.0, seq=1,
+                             payload={"env_vals": {"rsi_now": 60.0}})]
+
+    def _rk_run(_fn):
+        _r = _RKP.replay(_rk_cs, outcome_of=lambda c: ("window", 1),
+                         ranker=_fn, capacity=1, sessions=range(0, 1))
+        return [c.symbol for c in _r["taken"]]
+
+    _rk_low = _rk_run(lambda c: ((c.payload.get("env_vals") or {})
+                                 .get("rsi_now", 999.0), c.seq))
+    _rk_rdy = _rk_run(lambda c: (-(c.readiness or -1.0), c.seq))
+    _rk_sig = (_rk_low == ["LO"] and _rk_rdy == ["HI"])
+    _rk_rnd = _RKP.make_rank_tie_random(7)
+    _rk_c = _RKP.Candidate(session=0, symbol="AAA", readiness=50.0,
+                           score=5, rr=1.0, seq=0,
+                           payload={"env_vals": {"rsi_now": 25.0,
+                                                 "drop_pct": 80.0}})
+    _rk_det = _rk_rnd(_rk_c) == _RKP.make_rank_tie_random(7)(_rk_c)
+    _rk_alt = _rk_rnd(_rk_c) != _RKP.make_rank_tie_random(8)(_rk_c)
+    _rk_emit = ('"rsi_now": r.get("rsi")'
+                in _pgz_insp.getsource(S.backtest_symbol))
+    _rk_depth = ('"drop_pct": r.get("drop_pct")'
+                 in _pgz_insp.getsource(S.backtest_symbol))
+    _rk_ok2 = bool(_rk_sig and _rk_det and _rk_alt and _rk_emit and _rk_depth)
+    _rk_why2 = (f"الحقنُ يغيّر المأخوذ={_rk_low}/{_rk_rdy} · حتميّ={_rk_det} · "
+                f"بذرةٌ تفرّق={_rk_alt} · "
+                f"rsi_now مبعوث={_rk_emit} · drop_pct مبعوث={_rk_depth}")
+except Exception as _e:                                          # noqa: BLE001
+    _rk_ok2, _rk_why2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📉🚦🔒 RKK2 آليّةُ العقد **منفَّذةٌ في الكود الحيّ**: المُرتِّبُ المحقون "
+      "**يغيّر المأخوذَ فعلًا** (نداءٌ حيّ) · و`backtest_symbol` يبعث `rsi_now` و`drop_pct` "
+      "· وشاهدُ العشوائيّ حتميٌّ وبذرتُه تفرّق",
+      _rk_ok2, _rk_why2)
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
