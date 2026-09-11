@@ -638,7 +638,7 @@
   "updates": 0,
   "vol_x": 1.0,
   "peak_usd": 10177,
-  "last_eval_ms": 1789134540000,
+  "last_eval_ms": 1789134480000,
   "pulse_ms": 1789147620000,
   "anchor_price": 1.56,
   "anchor_open": 1.555,
@@ -800,7 +800,7 @@
   "date": "2026-09-11"
  },
  "LIQ:NAMI": {
-  "last_eval_ms": 1789143120000,
+  "last_eval_ms": 1789135080000,
   "tc_cum": 1170.66316,
   "tc_seen_ms": 1789135080000,
   "date": "2026-09-11"
@@ -1166,7 +1166,7 @@
  },
  "LIQ:UPC": {
   "anchor_ms": 1789147560000,
-  "last_ms": 1789147560000,
+  "last_ms": 1789147620000,
   "sent": [
    "M1"
   ],
@@ -1174,7 +1174,7 @@
   "vol_x": 0.4,
   "peak_usd": 2323,
   "last_eval_ms": 1789147620000,
-  "pulse_ms": 1789147560000,
+  "pulse_ms": 1789147620000,
   "anchor_price": 4.8,
   "anchor_open": 4.61,
   "anchor_low": 4.61,
@@ -1187,11 +1187,12 @@
    "exit_ms": 1789147140000
   },
   "trig": "T-C",
-  "date": "2026-09-11",
   "pre_done": true,
   "pre_hi": 4.8394,
   "pre_usd": 225755,
-  "pre_n": 39
+  "pre_n": 39,
+  "exit_ms": 1789147620000,
+  "date": "2026-09-11"
  },
  "LIQ:INDP": {
   "anchor_ms": 1789049400000,
@@ -2074,19 +2075,19 @@
   "date": "2026-09-11"
  },
  "LIQ:SGRX": {
-  "anchor_ms": 1789136520000,
+  "anchor_ms": 1789136460000,
   "last_ms": 1789147560000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
-  "vol_x": 12.4,
+  "updates": 1,
+  "vol_x": 1.6,
   "peak_usd": 85888,
   "last_eval_ms": 1789136520000,
   "pulse_ms": 1789147560000,
-  "anchor_price": 1.8699,
-  "anchor_open": 1.745,
-  "anchor_low": 1.7405,
+  "anchor_price": 1.75,
+  "anchor_open": 1.735,
+  "anchor_low": 1.735,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1789136100000,
@@ -2095,11 +2096,12 @@
    "e5": null,
    "exit_ms": 1789136280000
   },
+  "trig": "T-C",
   "pre_done": true,
   "pre_hi": 1.75,
-  "pre_usd": 243112,
-  "pre_n": 40,
-  "exit_ms": 1789136640000,
+  "pre_usd": 233018,
+  "pre_n": 39,
+  "exit_ms": 1789136700000,
   "date": "2026-09-11"
  },
  "LIQ:RDIB": {
@@ -4606,13 +4608,13 @@
  },
  "THH": "2026-09-11",
  "LIQ:XHG": {
-  "last_eval_ms": 1789144920000,
+  "last_eval_ms": 1789142460000,
   "tc_cum": 26929.1335,
   "tc_seen_ms": 1789142460000,
   "date": "2026-09-11"
  },
- "BDRX": "2026-09-11",
  "SCKT": "2026-09-11",
+ "BDRX": "2026-09-11",
  "LIQ:VEEE": {
   "last_eval_ms": 1789146780000,
   "tc_cum": 7039.7064,
