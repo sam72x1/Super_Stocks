@@ -655,7 +655,7 @@
   "updates": 0,
   "vol_x": 1.0,
   "peak_usd": 10177,
-  "last_eval_ms": 1789134540000,
+  "last_eval_ms": 1789134480000,
   "pulse_ms": 1789142340000,
   "anchor_price": 1.56,
   "anchor_open": 1.555,
@@ -1509,7 +1509,19 @@
   "date": "2026-09-11"
  },
  "LIQ:AEHL": {
+  "anchor_ms": 1789142400000,
+  "last_ms": 1789142460000,
+  "sent": [
+   "M1"
+  ],
+  "updates": 0,
+  "vol_x": 0.5,
+  "peak_usd": 20681,
   "last_eval_ms": 1789142460000,
+  "pulse_ms": 1789142460000,
+  "anchor_price": 9.29,
+  "anchor_open": 9.08,
+  "anchor_low": 9.08,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1789141800000,
@@ -1518,26 +1530,12 @@
    "e5": 9.0,
    "exit_ms": 1789142160000
   },
-  "tc_cum": 1852142.8929550657,
-  "tc_seen_ms": 1789142340000,
-  "date": "2026-09-11",
-  "anchor_ms": 1789142400000,
-  "last_ms": 1789142400000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 0.5,
-  "peak_usd": 20681,
-  "pulse_ms": 1789142400000,
-  "anchor_price": 9.29,
-  "anchor_open": 9.08,
-  "anchor_low": 9.08,
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 9.49,
   "pre_usd": 1852143,
-  "pre_n": 54
+  "pre_n": 54,
+  "date": "2026-09-11"
  },
  "LIQ:STAK": {
   "last_eval_ms": 1789142220000,
@@ -2032,19 +2030,19 @@
   "date": "2026-09-11"
  },
  "LIQ:SGRX": {
-  "anchor_ms": 1789136520000,
-  "last_ms": 1789142280000,
+  "anchor_ms": 1789136460000,
+  "last_ms": 1789142460000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
-  "vol_x": 12.4,
+  "updates": 1,
+  "vol_x": 1.6,
   "peak_usd": 85888,
   "last_eval_ms": 1789136520000,
-  "pulse_ms": 1789142280000,
-  "anchor_price": 1.8699,
-  "anchor_open": 1.745,
-  "anchor_low": 1.7405,
+  "pulse_ms": 1789142460000,
+  "anchor_price": 1.75,
+  "anchor_open": 1.735,
+  "anchor_low": 1.735,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1789136100000,
@@ -2053,11 +2051,12 @@
    "e5": null,
    "exit_ms": 1789136280000
   },
+  "trig": "T-C",
   "pre_done": true,
   "pre_hi": 1.75,
-  "pre_usd": 243112,
-  "pre_n": 40,
-  "exit_ms": 1789136640000,
+  "pre_usd": 233018,
+  "pre_n": 39,
+  "exit_ms": 1789136700000,
   "date": "2026-09-11"
  },
  "LIQ:RDIB": {
@@ -4359,8 +4358,7 @@
    "j1_top": false
   },
   "e5": 2.7611,
-  "date": "2026-09-11",
-  "tgt_ms": 1789141320000
+  "date": "2026-09-11"
  },
  "LIQ:RGC": {
   "last_eval_ms": 1789141920000,
