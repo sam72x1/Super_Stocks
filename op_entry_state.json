@@ -363,7 +363,7 @@
  },
  "LIQ:FGL": {
   "anchor_ms": 1789158420000,
-  "last_ms": 1789162380000,
+  "last_ms": 1789162440000,
   "sent": [
    "M1",
    "M5"
@@ -372,7 +372,7 @@
   "vol_x": 8.8,
   "peak_usd": 56205,
   "last_eval_ms": 1789158420000,
-  "pulse_ms": 1789162380000,
+  "pulse_ms": 1789162440000,
   "anchor_price": 6.15,
   "anchor_open": 5.9,
   "anchor_low": 5.8984,
@@ -665,7 +665,7 @@
  },
  "LIQ:CDTG": {
   "anchor_ms": 1789134480000,
-  "last_ms": 1789162260000,
+  "last_ms": 1789162440000,
   "sent": [
    "M1"
   ],
@@ -673,7 +673,7 @@
   "vol_x": 1.0,
   "peak_usd": 10177,
   "last_eval_ms": 1789134540000,
-  "pulse_ms": 1789162260000,
+  "pulse_ms": 1789162440000,
   "anchor_price": 1.56,
   "anchor_open": 1.555,
   "anchor_low": 1.5351,
@@ -701,7 +701,7 @@
  },
  "LIQ:TRUG": {
   "anchor_ms": 1789124880000,
-  "last_ms": 1789162380000,
+  "last_ms": 1789162440000,
   "sent": [
    "M1",
    "M5",
@@ -711,7 +711,7 @@
   "vol_x": 10.7,
   "peak_usd": 3342219,
   "last_eval_ms": 1789124880000,
-  "pulse_ms": 1789162380000,
+  "pulse_ms": 1789162440000,
   "anchor_price": 0.4129,
   "anchor_open": 0.3889,
   "anchor_low": 0.3875,
