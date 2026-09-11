@@ -196,6 +196,31 @@ def boot_delta(cl, reps: int = BOOT, seed: int = BOOT_SEED):
             "se": round(var ** 0.5, 2), "reps": len(out)}
 
 
+def read_verdict(per_year, boot, years):
+    """قاعدةُ القراءة الثلاثيّة **بنصّ العقد §⑤** — نقيّةٌ تُقفَل بجدول حقيقة.
+
+    🔴 **العيبُ الذي وُلدت منه:** أداتي الأولى حسبت `Δ` **مجمَّعًا فقط**،
+    والعقدُ يشترط `Δ` موجبًا **في السنوات الثلاث** (`PG1`) وعشرَ نقاطٍ **في
+    سنتين** (`PG2`) و`V-P4` **لكلّ سنةٍ على حدة** ⇒ **الأداةُ لم تكن تقيس
+    معاييرَ عقدها**، وكشفه تشغيلُ الجدوى قبل إنفاق الساعات الثلاث.
+
+    وسنةٌ تسقط على `V-P4` **لا تدخل** `PG1`/`PG2`، والفرعُ 3 يشترط سقوطَها في
+    **سنتين فأكثر** لا في واحدة. ⇒ سقوطُ سنةٍ واحدةٍ يُبقي الحكمَ ممكنًا
+    **لكن `PG1` يستحيل** (يشترط الثلاث) ⇒ **الفرعُ 2** — وهو بعينه ما وقع في
+    `T-AHEXT-2` حين سقطت 2023 وحدَها."""
+    bad = [y for y in years if not (per_year.get(y) or {}).get("floor_ok")]
+    if len(bad) >= 2:
+        return {"branch": 3, "pg1": None, "pg2": None, "dropped": bad}
+    ok = [y for y in years if y not in bad]
+    ds = [per_year[y]["delta"] for y in ok
+          if (per_year.get(y) or {}).get("delta") is not None]
+    pg1 = (len(ds) == len(years) and all(d > 0 for d in ds)
+           and bool(boot) and boot.get("lo") is not None and boot["lo"] > 0)
+    pg2 = sum(1 for d in ds if d >= 10.0) >= 2
+    return {"branch": 1 if (pg1 and pg2) else 2,
+            "pg1": pg1, "pg2": pg2, "dropped": bad}
+
+
 def _selfcheck_readonly() -> bool:
     """`V-P1` — قراءةٌ فقط بالـAST على مصدر هذي الأداة: صفرُ إرسالٍ وصفرُ
     كتابةِ حالة، والملفُّ الوحيد المسموحُ فتحُه للكتابة هو `OUT_ROWS`."""
@@ -421,13 +446,44 @@ def main() -> int:                                               # noqa: PLR0911
              f"{mrate['top']['pct']}% · أدنى نصفٍ {mrate['bot']['pct']}% "
              f"⇒ Δ={md:+.2f} — **وصفيٌّ بنصّ العقد**")
 
-    main_ok = out["gates"][GATE_MAIN]["floor_ok"]
+    # ── ④ التفكيكُ **السنويّ** — بلا هذا لا تُقاس معاييرُ العقد أصلًا ──
+    per_year = {}
+    for y in years:
+        py = [m for m in pop if m["year"] == y]
+        rr = {}
+        for b in ("G-YES", "G-NO"):
+            sel = [m for m in py if m["gates"][GATE_MAIN]["bucket"] == b
+                   and m["gates"][GATE_MAIN]["fwd"] is not None]
+            rr[b] = w_rate([m["gates"][GATE_MAIN]["fwd"] * 100.0 for m in sel],
+                           [m["w"] for m in sel], PM_MIN)
+        dy = delta_of(clusters_of(py, GATE_MAIN))
+        fo = min(rr["G-YES"]["n_eff"], rr["G-NO"]["n_eff"]) >= NEFF_MIN
+        per_year[y] = {"n_raw": len(py),
+                       "n_eff": {b: rr[b]["n_eff"] for b in rr},
+                       "hit": {b: rr[b]["pct"] for b in rr},
+                       "delta": None if dy is None else round(dy, 2),
+                       "floor_ok": fo}
+        _log(f"📅 [{y}] خام {len(py)} · n_eff {per_year[y]['n_eff']} · "
+             f"`V-P4` {'✅' if fo else '⛔ لا تدخل الحكم'}"
+             + ("" if dry else f" · Δ={per_year[y]['delta']}"))
+    out["per_year"] = per_year
+
+    if dry:
+        _log("")
+        _log("🧪 وضعُ الجدوى: **لا حكمَ ولا `Δ`** — الجوابُ عن الدقّة وحدَها.")
+        out["no_verdict"] = None
+        print("PMGATE_JSON " + json.dumps(out, ensure_ascii=False))
+        return 0
+
+    v = read_verdict(per_year, out["gates"][GATE_MAIN].get("boot"), years)
+    out["verdict"] = v
+    out["no_verdict"] = v["branch"] == 3
     _log("")
-    _log(f"🔒 `V-P4` حدُّ الدقّة {NEFF_MIN}/دلوٍ عند الحاكمة: "
-         f"{'✅' if main_ok else '⛔ لا تدخل PG1/PG2'}")
-    out["no_verdict"] = not main_ok
+    _log(f"⚖️ **الحكم: الفرعُ {v['branch']}** · `PG1`={v['pg1']} · "
+         f"`PG2`={v['pg2']}" + (f" · سنواتٌ ساقطةٌ على `V-P4`: {v['dropped']}"
+                                if v["dropped"] else ""))
     print("PMGATE_JSON " + json.dumps(out, ensure_ascii=False))
-    return 0 if main_ok else 9
+    return 9 if v["branch"] == 3 else 0
 
 
 if __name__ == "__main__":

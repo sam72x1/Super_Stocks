@@ -9616,6 +9616,33 @@ except Exception as _e:                                          # noqa: BLE001
 check("🌅⏱️🔒 PGA9 الـworkflow يدويٌّ بلا كرون · قراءةٌ فقط · وصفرُ مدخلٍ داخل `run`",
       _pgw_ok, _pgw_why)
 
+# 🔴 PGA10 — قاعدةُ القراءة الثلاثيّة بجدول حقيقة. وُلد القفلُ من عيبٍ حقيقيّ:
+#    الأداةُ الأولى حسبت `Δ` **مجمَّعًا فقط** والعقدُ يشترط معاييرَه **سنةً
+#    سنةً** ⇒ لم تكن تقيس معاييرَ عقدها. وكشفه تشغيلُ الجدوى قبل الساعات الثلاث.
+def _pgv(fo=(True, True, True), d=(20.0, 15.0, 12.0), lo=5.0):
+    py = {y: {"floor_ok": f, "delta": dd}
+          for y, f, dd in zip(("2023", "2024", "2025"), fo, d)}
+    return _PGA.read_verdict(py, {"lo": lo}, ["2023", "2024", "2025"])
+
+
+_pgv_tt = []
+try:
+    _pgv_tt = [
+        (_pgv()["branch"], 1),                       # الثلاثةُ تعبر ⇒ الفرع 1
+        (_pgv(lo=-1.0)["branch"], 2),                # الفاصلُ يلمس الصفر
+        (_pgv(d=(20.0, -3.0, 12.0))["branch"], 2),   # سنةٌ سالبة
+        (_pgv(d=(20.0, 4.0, 3.0))["branch"], 2),     # ماديّةٌ في سنةٍ واحدة
+        (_pgv(fo=(True, False, False))["branch"], 3),  # سنتان تسقطان ⇒ لا حكم
+        (_pgv(fo=(True, True, False))["branch"], 2),   # **واحدةٌ فقط ⇒ ليست 3**
+        (_pgv(fo=(True, True, False))["pg1"], False),  # ولا يمكن أن تعبر PG1
+        (_pgv(fo=(True, False, False))["pg1"], None),  # الفرعُ 3 لا يحكم عليها
+    ]
+    _pgv_ok = all(g == e for g, e in _pgv_tt)
+except Exception as _e:                                          # noqa: BLE001
+    _pgv_ok, _pgv_tt = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅⏱️🔒 PGA10 قاعدةُ القراءة الثلاثيّة بجدول حقيقة · وسقوطُ سنةٍ واحدةٍ **ليس** «لا حكم»",
+      _pgv_ok, str(_pgv_tt))
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
