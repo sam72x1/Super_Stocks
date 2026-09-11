@@ -196,6 +196,22 @@ def boot_delta(cl, reps: int = BOOT, seed: int = BOOT_SEED):
             "se": round(var ** 0.5, 2), "reps": len(out)}
 
 
+def mom_split(rows, key: str):
+    """`C-MOM` — يشطر الصفوفَ نصفين بعائد **لحظة القرار** (زخمٌ صرف).
+
+    🔴 **وُلدت من انهيارٍ حقيقيّ في تشغيلةٍ دامت 67 دقيقة:** كانت الصياغةُ
+    `sorted((قيمة, قاموس) …)` ⇒ عند **تساوي قيمتين** يسقط بايثون إلى مقارنة
+    القاموسين فيرمي `TypeError`. **ووضعُ الجدوى لم يكشفه لأن هذي الكتلةَ لا
+    تعمل فيه** — ودرسُه: *وضعُ الجدوى يُجيز ما يمرّ به وحدَه.*
+
+    والمفتاحُ الآن دالّةٌ صريحة، وثانويُّه `(رمز · تاريخ)` ⇒ **الشطرُ حتميٌّ
+    ولا يتعلّق بترتيب الإدخال حتى عند التساوي التامّ.**"""
+    ok = [m for m in rows if (m["gates"].get(key) or {}).get("gate_ret") is not None]
+    ok.sort(key=lambda m: (m["gates"][key]["gate_ret"], m["symbol"], m["date"]))
+    half = len(ok) // 2
+    return {"bot": ok[:half], "top": ok[half:]}
+
+
 def read_verdict(per_year, boot, years):
     """قاعدةُ القراءة الثلاثيّة **بنصّ العقد §⑤** — نقيّةٌ تُقفَل بجدول حقيقة.
 
@@ -426,10 +442,7 @@ def main() -> int:                                               # noqa: PLR0911
         _log("🔎 §③-ب حساسيّة (‏`G-NONE` مضمومةٌ بمرجع إغلاق الافتر) — "
              "تُطبَع ولا تحكم")
         # `C-MOM` — بوّابةُ زخمٍ صرفٍ عند اللحظة نفسِها (وصفيّة).
-        gr = sorted((m["gates"][GATE_MAIN]["gate_ret"], m) for m in pop
-                    if m["gates"][GATE_MAIN]["gate_ret"] is not None)
-        half = len(gr) // 2
-        mom = {"top": [m for _, m in gr[half:]], "bot": [m for _, m in gr[:half]]}
+        mom = mom_split(pop, GATE_MAIN)
         mrate = {}
         for b, rows in mom.items():
             v = [m["gates"][GATE_MAIN]["fwd"] * 100.0 for m in rows
