@@ -9643,6 +9643,31 @@ except Exception as _e:                                          # noqa: BLE001
 check("🌅⏱️🔒 PGA10 قاعدةُ القراءة الثلاثيّة بجدول حقيقة · وسقوطُ سنةٍ واحدةٍ **ليس** «لا حكم»",
       _pgv_ok, str(_pgv_tt))
 
+# 🔴 PGA11 — وُلد من **انهيارٍ حقيقيّ في تشغيلةٍ دامت 67 دقيقة**: كان الشطرُ
+#    `sorted((قيمة, قاموس) …)` فيسقط بايثون عند **التساوي** إلى مقارنة
+#    القاموسين ويرمي. والفِكستشرُ هنا **كلُّه متساوٍ عمدًا** — وهو الحالةُ التي
+#    لم يمرّ بها وضعُ الجدوى (تلك الكتلةُ لا تعمل فيه) ⇒ *وضعُ الجدوى يُجيز ما
+#    يمرّ به وحدَه.*
+_pgm_rows = [{"symbol": f"S{i % 3}", "date": f"2025-0{i % 9 + 1}-01",
+              "gates": {"0430": {"gate_ret": 0.10}}} for i in range(9)]
+_pgm_rows += [{"symbol": "T9", "date": "2025-05-05",
+               "gates": {"0430": {"gate_ret": None}}},
+              {"symbol": "T8", "date": "2025-05-06", "gates": {}}]
+try:
+    _pgm_a = _PGA.mom_split(_pgm_rows, "0430")
+    _pgm_b = _PGA.mom_split(list(reversed(_pgm_rows)), "0430")
+    _pgm_key = lambda d: [(m["symbol"], m["date"]) for m in d["bot"] + d["top"]]  # noqa: E731
+    _pgm_ok = (len(_pgm_a["bot"]) == 4 and len(_pgm_a["top"]) == 5
+               and _pgm_key(_pgm_a) == _pgm_key(_pgm_b)
+               and all(m["gates"].get("0430", {}).get("gate_ret") is not None
+                       for m in _pgm_a["bot"] + _pgm_a["top"]))
+    _pgm_why = (f"أسفل={len(_pgm_a['bot'])} · أعلى={len(_pgm_a['top'])} · "
+                f"حتميٌّ مع عكس الإدخال={_pgm_key(_pgm_a) == _pgm_key(_pgm_b)}")
+except Exception as _e:                                          # noqa: BLE001
+    _pgm_ok, _pgm_why = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅⏱️🔒 PGA11 شطرُ `C-MOM` يصمد على **قيمٍ متساويةٍ كلِّها** وحتميٌّ مع عكس الإدخال",
+      _pgm_ok, _pgm_why)
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
