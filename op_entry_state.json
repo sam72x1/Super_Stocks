@@ -1147,19 +1147,19 @@
   "date": "2026-09-09"
  },
  "LIQ:UPC": {
-  "anchor_ms": 1789147560000,
+  "anchor_ms": 1789147260000,
   "last_ms": 1789152420000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 0.4,
-  "peak_usd": 2323,
-  "last_eval_ms": 1789147620000,
+  "peak_usd": 2529,
+  "last_eval_ms": 1789147260000,
   "pulse_ms": 1789152420000,
-  "anchor_price": 4.8,
-  "anchor_open": 4.61,
-  "anchor_low": 4.61,
+  "anchor_price": 4.7095,
+  "anchor_open": 4.7,
+  "anchor_low": 4.7,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1789147080000,
@@ -1170,10 +1170,10 @@
   },
   "trig": "T-C",
   "pre_done": true,
-  "pre_hi": 4.8394,
-  "pre_usd": 225755,
-  "pre_n": 39,
-  "exit_ms": 1789147620000,
+  "pre_hi": 4.81,
+  "pre_usd": 207250,
+  "pre_n": 35,
+  "exit_ms": 1789147320000,
   "date": "2026-09-11"
  },
  "LIQ:INDP": {
@@ -4204,7 +4204,7 @@
   "tc_seen_ms": 1789152180000,
   "date": "2026-09-11"
  },
- "EHGO": "2026-09-10",
+ "EHGO": "2026-09-11",
  "LIQ:SEV": {
   "last_eval_ms": 1789070340000,
   "tc_cum": 573833.8057451984,
