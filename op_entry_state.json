@@ -607,7 +607,7 @@
   "updates": 0,
   "vol_x": 1.4,
   "peak_usd": 5716,
-  "last_eval_ms": 1789155840000,
+  "last_eval_ms": 1789155780000,
   "pulse_ms": 1789156740000,
   "anchor_price": 2.24,
   "anchor_open": 2.23,
@@ -4641,13 +4641,11 @@
   "anchor_price": 3.6516,
   "anchor_open": 3.425,
   "anchor_low": 3.425,
-  "date": "2026-09-11",
   "pre_done": true,
   "pre_hi": 3.55,
   "pre_usd": 36749,
   "pre_n": 8,
-  "tc_cum": 82464.021122,
-  "tc_seen_ms": 1789156620000
+  "date": "2026-09-11"
  },
  "LIQ:VTIX": {
   "last_eval_ms": 1789156740000,
