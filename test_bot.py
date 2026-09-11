@@ -9980,18 +9980,48 @@ _rka3_ok, _rka3_why = False, _rka_imp
 if _RKA is not None:
     from replay10 import replay as _RKrep
 
-    _rka3_cs = [_rka_c(i, f"S{i}", 20.0 + i, float(i)) for i in range(12)]
+    # 🔴🔴 **شُدِّد بعد أن نجت طفرةُ «الأذرعُ كلُّها مفتاحٌ واحد»:** كان القفلُ
+    #    يكتفي بـ«المفاتيحُ تفرّق» — وإسنادُ `K27`/`KC`/`KR` إلى `k_base` يُبقي
+    #    `C-DEPTH`/`C-RAND`/`D-RAND` متمايزةً **فيمرّ**، بينما الذراعُ الحاكمةُ
+    #    صارت الأساسَ نفسَه و`Δ` ≡ صفرٌ **صامتًا** = صنفُ `no-op` بعينه.
+    #    ⇒ الآن **تُفحَص الخريطةُ سلوكيًّا**: كلُّ اسمٍ يُرتّب كدالّته المستقلّة،
+    #    والخمسُ الحتميّةُ **متمايزةٌ بعضُها عن بعض** على فِكستشرٍ يفصلها.
+    def _rka3_mk(rsi, rdy, drop):
+        return _RKC(session=0, symbol=f"S{rsi:.0f}_{rdy:.0f}", readiness=rdy,
+                    score=0.0, rr=0.0, seq=int(rdy),
+                    payload={"env_vals": {"in_band": False, "rsi_now": rsi,
+                                          "drop_pct": drop}})
+
+    _rka3_cs = [_rka3_mk(60.0, 90.0, 95.0), _rka3_mk(25.0, 10.0, 45.0),
+                _rka3_mk(24.0, 80.0, 50.0), _rka3_mk(70.0, 95.0, 41.0),
+                _rka3_mk(26.0, 30.0, 88.0), _rka3_mk(55.0, 70.0, 60.0)]
+
+    def _rka3_ord(_fn):
+        return tuple(c.symbol for c in sorted(_rka3_cs, key=_fn))
+
+    _rka3_map = _RKA.rankers()
+    _rka3_want = {"K0": _RKA.k_base, "K27": _RKA.k_band, "KC": _RKA.k_cont,
+                  "KR": _RKA.k_inv, "C-DEPTH": _RKA.c_depth}
+    _rka3_wrong = sorted(n for n, f in _rka3_want.items()
+                         if n not in _rka3_map
+                         or _rka3_ord(_rka3_map[n]) != _rka3_ord(f))
+    _rka3_uniq = len({_rka3_ord(_rka3_map[n]) for n in _rka3_want})
     _rka3_takes, _rka3_sets = set(), set()
-    for _nm, _fn in _RKA.rankers().items():
+    for _nm, _fn in _rka3_map.items():
         _r = _RKrep(_rka3_cs, outcome_of=lambda c: ("window", 1), ranker=_fn,
-                    capacity=4, sessions=range(0, 1))
+                    capacity=3, sessions=range(0, 1))
         _rka3_takes.add(len(_r["taken"]))
         _rka3_sets.add(tuple(sorted(c.symbol for c in _r["taken"])))
-    _rka3_ok = (len(_rka3_takes) == 1 and _rka3_takes.pop() == 4
-                and len(_rka3_sets) > 1)
-    _rka3_why = f"مجموعاتٌ مختلفة={len(_rka3_sets)}"
+    _rka3_ok = (len(_rka3_takes) == 1 and _rka3_takes.pop() == 3
+                and len(_rka3_sets) > 1 and not _rka3_wrong
+                and _rka3_uniq == 5
+                and set(_rka3_map) == set(_RKA.GOV_ARMS) | set(_RKA.DESC_ARMS))
+    _rka3_why = (f"خريطةٌ خاطئة={_rka3_wrong} · متمايزة={_rka3_uniq}/5 · "
+                 f"مجموعات={len(_rka3_sets)}")
 check("📉🚦🔒 RKA3 كلُّ ذراعٍ تأخذ **الميزانيةَ نفسَها بت-بت** من **المجموعة "
-      "نفسِها** (ترتيبٌ لا إقصاء) · والمفاتيحُ تفرّق فعلًا", _rka3_ok, _rka3_why)
+      "نفسِها** (ترتيبٌ لا إقصاء) · **وخريطةُ الأسماء تُفحَص سلوكيًّا**: كلُّ اسمٍ "
+      "يُرتّب كدالّته والخمسُ الحتميّةُ متمايزة ⇒ **لا `no-op` صامت**",
+      _rka3_ok, _rka3_why)
 
 # ── `RKA4` — شاهدُ `C-RAND`: حتميٌّ · وبذرتان تفرّقان · والانحلالُ يُرصَد ──
 _rka4_ok, _rka4_why = False, _rka_imp
@@ -10164,6 +10194,54 @@ check("📉🚦🔒 RKA9 `rsi_rank.yml` **يدويٌّ بلا كرون** · **ب
       "(فالإرسالُ مستحيلٌ بنيويًّا) · ومدخلاتُه **متحقَّقةُ الشكل** · و`fetch-depth: 0` "
       "· **ولقطاتُه هي لقطاتُ المرجع المنشور** فمقارنةُ `V-K2` بين مجتمعٍ واحد",
       _rka9_ok, _rka9_why)
+
+# ── `RKA10` — §⑧ عند **زمن التشغيل**: صفرُ إسنادٍ إلى `CONFIG` ──
+#    🔑 وهو ما يفرّق هذي التجربةَ عن `T-RSI40` بنيويًّا: هناك **كلُّ ذراعٍ تضبط
+#    `CONFIG` بعد الاستيراد** فلزمها طفلٌ لكلّ ذراع، وهنا **لا ذراعَ تمسّها**
+#    فالطفلُ للسنة وحدَها. و`V-K1` يقارن **ملفَّ** الإنتاج ولا يرى ضبطًا في
+#    الذاكرة ⇒ **الحارسُ غائبٌ لولا هذا القفل**.
+_rka10_ok, _rka10_why = False, _rka_imp
+if _RKA is not None:
+    _rka10_tree = _ast0.parse(open("rsi_rank_arms.py", encoding="utf-8").read())
+    _rka10_hits = []
+    for _n in _ast0.walk(_rka10_tree):
+        _tgts = []
+        if isinstance(_n, _ast0.Assign):
+            _tgts = list(_n.targets)
+        elif isinstance(_n, (_ast0.AugAssign, _ast0.AnnAssign)):
+            _tgts = [_n.target]
+        for _tg in _tgts:
+            # `CONFIG[...] = ` أو `S.CONFIG[...] = `
+            if isinstance(_tg, _ast0.Subscript):
+                _b = _tg.value
+                _nm = getattr(_b, "id", None) or getattr(_b, "attr", None)
+                if _nm == "CONFIG":
+                    _rka10_hits.append("CONFIG[...]")
+            # `S.CONFIG = ` أو `CONFIG = `
+            if getattr(_tg, "attr", None) == "CONFIG" or \
+                    getattr(_tg, "id", None) == "CONFIG":
+                _rka10_hits.append("CONFIG")
+    # ونداءاتُ التحديث المبطَّنة كذلك (`CONFIG.update(...)`/`setdefault`)
+    for _n in _ast0.walk(_rka10_tree):
+        if isinstance(_n, _ast0.Call) and isinstance(_n.func, _ast0.Attribute):
+            _o = _n.func.value
+            if (getattr(_o, "id", None) or getattr(_o, "attr", None)) == "CONFIG" \
+                    and _n.func.attr in ("update", "setdefault", "pop", "clear"):
+                _rka10_hits.append(f"CONFIG.{_n.func.attr}()")
+    # وشاهدُ ضبطٍ: القفلُ يمسك الإسنادَ فعلًا لو وُجد (سالبٌ يُثبَت).
+    _rka10_probe = _ast0.parse("import x\nx.CONFIG['RSI_NOW_HARD'] = 40.0\n")
+    _rka10_caught = any(
+        isinstance(_n, _ast0.Assign)
+        and isinstance(_n.targets[0], _ast0.Subscript)
+        and (getattr(_n.targets[0].value, "id", None)
+             or getattr(_n.targets[0].value, "attr", None)) == "CONFIG"
+        for _n in _ast0.walk(_rka10_probe))
+    _rka10_ok = (not _rka10_hits and _rka10_caught)
+    _rka10_why = f"إسنادات={sorted(set(_rka10_hits))} شاهد={_rka10_caught}"
+check("📉🚦🔒 RKA10 §⑧ عند التشغيل: **صفرُ إسنادٍ إلى `CONFIG`** (ولا `update`) "
+      "⇒ لا `RSI_NOW_HARD` تتحرّك ولا عتبةَ فرزٍ — **وهو ما يفرّقها عن `T-RSI40`** "
+      "الذي كانت كلُّ ذراعٍ فيه تضبط `CONFIG`", _rka10_ok, _rka10_why)
+
 
 
 check("قفل: دفعات الدخول 3 بخطوة 3%",
