@@ -1988,11 +1988,11 @@
   "anchor_price": 1.5,
   "anchor_open": 1.41,
   "anchor_low": 1.41,
-  "date": "2026-09-11",
   "pre_done": true,
   "pre_hi": 1.62,
   "pre_usd": 435690,
-  "pre_n": 44
+  "pre_n": 44,
+  "date": "2026-09-11"
  },
  "RIME": "2026-09-08",
  "LIQ:FTCI": {
