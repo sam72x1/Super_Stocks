@@ -9408,6 +9408,214 @@ check("🌅⏱️🔒 PGK2 بذرةُ العيّنة تُقرأ من الوحد�
       f"بذرة={_pg_seed} · في العقد={bool(_pg_seed) and _pg_seed in _pg_pre} · "
       f"لقطات={sum(1 for x in _pg_snaps if x in _pg_pre and x in _pg_res)}/3")
 
+# ═══════════════════════════════════════════════════════════
+# 🌅⏱️ T-PMGATE — أقفالُ الأداة (العقد `pmgate_prereg.md` مدموجٌ قبلها).
+#    كلُّها **سلوكيّةٌ أو بالـAST**: القفلُ النصّيُّ يمرّ على تعليقٍ ويسقط على
+#    شرحٍ — وهو الصنفُ ② الذي تكرّر عندنا ستَّ مرّاتٍ في يومٍ واحد.
+# ═══════════════════════════════════════════════════════════
+_pga_spec = _trn_imp.spec_from_file_location("pmgate_arms", "pmgate_arms.py")
+_PGA = _trn_imp.module_from_spec(_pga_spec)
+try:
+    _pga_spec.loader.exec_module(_PGA)
+    _pga_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _PGA, _pga_load = None, f"{type(_e).__name__}: {_e}"
+check("🌅⏱️🔒 PGA0 أداةُ البوّابة تُحمَّل", _PGA is not None, _pga_load or "OK")
+
+_pga_src = _trn_io.open("pmgate_arms.py", encoding="utf-8").read()
+_pga_t = _trn_ast.parse(_pga_src)
+
+
+# ── فِكستشرُ شموعٍ واحد: الافتر `D-1` ثمّ البري `D` ──
+def _pga_bars(kind="A"):
+    """🔴 **أرقامٌ غيرُ مستديرةٍ عمدًا:** فِكستشري الأوّل كان `1.30`/`1.80`
+    فتساوت الخانتان الثالثةُ والرابعة ⇒ طفرةُ «خانةُ تقريبٍ أقلّ» **نجت بلا
+    أن تغيّر سلوكًا** (الصنف ④-3). والأرقامُ الآن تفرّق: `0.3007` مقابل `0.301`.
+
+    و`kind="B"` فِكستشرٌ قمّةُ `PM-a` فيه **أعلى** من `PM-b` — وبدونه لا يُكشَف
+    تقاطعُ النافذتين لأن المُخرَجين يتساويان."""
+    e = _AHX.et_ms
+    pv, dt = "2025-03-10", "2025-03-11"
+    b = []
+    if kind == "B":
+        b.append({"t": e(pv, 16, 30), "h": 1.3007, "c": 1.25})
+        b.append({"t": e(dt, 4, 10), "h": 2.0, "c": 1.90})
+        b.append({"t": e(dt, 5, 0), "h": 1.50, "c": 1.45})
+        return pv, dt, b
+    for hh, mm, hi, cl in ((16, 30, 1.3007, 1.25), (19, 0, 1.25, 1.2003)):
+        b.append({"t": e(pv, hh, mm), "h": hi, "c": cl})
+    for hh, mm, hi, cl in ((4, 5, 1.20, 1.15), (4, 20, 1.25, 1.2207),
+                           (5, 0, 1.60, 1.55), (9, 29, 1.8009, 1.75)):
+        b.append({"t": e(dt, hh, mm), "h": hi, "c": cl})
+    # 🔴 شمعةُ الجرس نفسِها — **يجب أن تُقصى** (‏`V-P2` نافذةٌ `[frm, to)`).
+    b.append({"t": e(dt, 9, 30), "h": 9.99, "c": 9.99})
+    return pv, dt, b
+
+
+try:
+    _pgx_pv, _pgx_dt, _pgx_bars = _pga_bars()
+    _pgx_fc = lambda *_a, **_k: 1.0                                  # noqa: E731
+    _pgx_fb = lambda *_a, **_k: _pgx_bars                                # noqa: E731
+    _pgx_ref = _AHX.measure("ZZZ", _pgx_pv, _pgx_dt, fetch_close=_pgx_fc, fetch_bars=_pgx_fb)
+    _pgx_new = _PGA.gate_measure("ZZZ", _pgx_pv, _pgx_dt, fetch_close=_pgx_fc,
+                               fetch_bars=_pgx_fb) if _PGA else None
+    _pvb, _dtb, _barsb = _pga_bars("B")
+    _pgx_nb = _PGA.gate_measure("ZZZ", _pvb, _dtb, fetch_close=_pgx_fc,
+                                fetch_bars=lambda *_a, **_k: _barsb) if _PGA else None
+except Exception as _e:                                          # noqa: BLE001
+    _pgx_ref = _pgx_new = _pgx_nb = {"⛔": f"رمى: {type(_e).__name__}"}
+
+# `V-P7` — الحقولُ المشتركةُ **بت-بت** مع الأصل، والأصلُ لا يُمَسّ.
+_pga_keys = ("prev_close", "ah_rise", "ah_close_rise", "ah_bars",
+             "pm_peak", "n_bars")
+_pga_same = (isinstance(_pgx_ref, dict) and isinstance(_pgx_new, dict)
+             and all(k in _pgx_ref and k in _pgx_new
+                     and _pgx_ref[k] == _pgx_new[k] for k in _pga_keys))
+check("🌅⏱️🔒 PGA1 `V-P7` الأداةُ تُعيد حقولَ `measure` الستّة **بت-بت** على الشموع نفسِها",
+      _pga_same,
+      f"مرجع={[_pgx_ref.get(k) for k in _pga_keys] if isinstance(_pgx_ref, dict) else _pgx_ref}"
+      f" | جديد={[_pgx_new.get(k) for k in _pga_keys] if isinstance(_pgx_new, dict) else _pgx_new}")
+
+# `V-P2` — صفرُ نظرٍ مستقبليّ: شمعةُ 09:30 مُقصاةٌ (وإلّا لصار `pm_peak` 8.99)
+#          · و`PM-a`/`PM-b` لا تتقاطعان (‏`hi_a` ≤ قمّةُ الافتر و`hi_b` أعلى).
+_pgx_g = (_pgx_new.get("gates", {}).get("0430") if isinstance(_pgx_new, dict) else {}) or {}
+_pgx_gb = (_pgx_nb.get("gates", {}).get("0430")
+           if isinstance(_pgx_nb, dict) else {}) or {}
+# 🔑 الشرطُ الفارق: في فِكستشر B قمّةُ `PM-a` = 2.0 وقمّةُ `PM-b` = 1.5 ⇒ لو
+#    تقاطعت النافذتان لصار `hi_b` = 2.0. **وبدون هذا الفِكستشر يمرّ التقاطعُ**
+#    لأن قمّةَ `PM-a` في الفِكستشر الأوّل أدنى أصلًا (طفرةٌ نجت فكشفته).
+_pga_ok2 = (isinstance(_pgx_new, dict) and _pgx_new.get("pm_peak") == 0.8009
+            and _pgx_g.get("hi_a") == 1.25 and _pgx_g.get("hi_b") == 1.8009
+            and _pgx_g.get("px_gate") == 1.2207 and _pgx_g.get("n_a") == 2
+            and _pgx_gb.get("hi_a") == 2.0 and _pgx_gb.get("hi_b") == 1.5
+            and _pgx_gb.get("bucket") == "G-YES")
+check("🌅⏱️🔒 PGA2 `V-P2` شمعةُ الجرس مُقصاة · والنافذتان لا تتقاطعان عند البوّابة",
+      _pga_ok2,
+      f"A: pm_peak={_pgx_new.get('pm_peak') if isinstance(_pgx_new, dict) else '—'}"
+      f" hi_b={_pgx_g.get('hi_b')} | B: hi_a={_pgx_gb.get('hi_a')} "
+      f"hi_b={_pgx_gb.get('hi_b')}")
+
+# الدلاءُ **ثلاثةٌ** — جدولُ حقيقةٍ سلوكيّ (‏`G-NONE` ليست «تعذّرَ قياس»).
+_pga_tt = [((1.30, 1.40, 2), "G-YES"), ((1.30, 1.25, 2), "G-NO"),
+           ((1.30, 1.30, 2), "G-NO"),  # التساوي ليس تجاوزًا
+           ((1.30, None, 0), "G-NONE"), ((1.30, 1.40, 0), "G-NONE"),
+           ((None, 1.40, 2), "G-NONE")]
+try:
+    _pga_ok3 = all(_PGA.bucket_of(*a) == e for a, e in _pga_tt)
+    _pga_got3 = [_PGA.bucket_of(*a) for a, _ in _pga_tt]
+except Exception as _e:                                          # noqa: BLE001
+    _pga_ok3, _pga_got3 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅⏱️🔒 PGA3 ثلاثةُ دلاءٍ بجدول حقيقة · والتساوي ليس تجاوزًا",
+      _pga_ok3, str(_pga_got3))
+
+# 🔑 `FWD` من **سعرِ لحظة القرار** لا من إغلاق الأمس — والفِكستشرُ يفرّق:
+#    من `px_gate` = 1.80/1.22−1 = 0.4754 · ومن إغلاق الأمس = 0.80.
+_pga_ok4 = (_pgx_g.get("fwd") == round(1.8009 / 1.2207 - 1.0, 4)
+            and _pgx_g.get("fwd") != _pgx_new.get("pm_peak")
+            and _pgx_g.get("gate_ret") == round(1.2207 / 1.0 - 1.0, 4)
+            and _pgx_g.get("fwd_alt") == round(1.8009 / 1.2207 - 1.0, 4))
+check("🌅⏱️🔒 PGA4 `FWD` مرجعُه سعرُ لحظة القرار لا إغلاقُ الأمس (يفرّقان في الفِكستشر)",
+      _pga_ok4, f"fwd={_pgx_g.get('fwd')} · pm_peak={_pgx_new.get('pm_peak') if isinstance(_pgx_new, dict) else '—'}"
+      f" · gate_ret={_pgx_g.get('gate_ret')}")
+
+# البوتستراب **عنقوديٌّ بالرمز**: فِكستشرٌ يربط صفوفَ الرمز الواحد ⇒ عنقدةُ
+# الرمز تُوسّع الفاصلَ مقابل عنقدةِ الصفّ. وحتميّةٌ ببذرةٍ ثابتة.
+def _pga_rows():
+    """فِكستشرٌ **يفرّق فعلًا**: `Δ` داخلَ كلّ رمزٍ يختلف اختلافًا حادًّا، وعشرةُ
+    صفوفٍ لكلّ رمز ⇒ إعادةُ معاينةِ الرموز تُحرّك `Δ` كثيرًا وإعادةُ معاينةِ
+    الصفوف تُنعّمه. 🔴 **وصياغتي الأولى كانت فِكستشرًا ميّتًا**: جعلتُ الإصابةَ
+    تابعةً للرمز وحدَه فتساوى الدلوان داخلَ كلّ رمزٍ ⇒ `Δ ≡ 0` في كلّ إعادة
+    و`σ = 0` — **فسقط القفلُ على فِكستشرٍ لا على كود**."""
+    out = []
+    for si in range(5):
+        for ri in range(10):
+            b = "G-YES" if ri < 5 else "G-NO"
+            hit = (si < 3) if b == "G-YES" else (si < 1)
+            out.append({"symbol": f"S{si}", "w": 1.0,
+                        "gates": {"0430": {"bucket": b,
+                                           "fwd": 0.50 if hit else 0.01}}})
+    return out
+
+
+try:
+    _pgx_pr = _pga_rows()
+    _pgx_cls = _PGA.clusters_of(_pgx_pr, "0430")
+    _pgx_clr = _PGA.clusters_of(
+        [dict(r, symbol=f'{r["symbol"]}#{i}') for i, r in enumerate(_pgx_pr)], "0430")
+    _pgx_bs = _PGA.boot_delta(_pgx_cls, reps=400, seed=7)
+    _pgx_br = _PGA.boot_delta(_pgx_clr, reps=400, seed=7)
+    _pgx_ba = _PGA.boot_delta(_pgx_cls, reps=400, seed=7)
+    _pga_ok5 = (len(_pgx_cls) == 5 and len(_pgx_clr) == 50
+                and _pgx_bs["se"] > _pgx_br["se"] and _pgx_bs == _pgx_ba)
+    _pga_why5 = f"عناقيد {len(_pgx_cls)}/{len(_pgx_clr)} · σ {_pgx_bs['se']} مقابل {_pgx_br['se']}"
+except Exception as _e:                                          # noqa: BLE001
+    _pga_ok5, _pga_why5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅⏱️🔒 PGA5 البوتستراب عنقوديٌّ بالرمز (يُوسّع الفاصلَ) وحتميٌّ ببذرةٍ ثابتة",
+      _pga_ok5, _pga_why5)
+
+# 🔴 **أخطرُ ما يمكن أن يقع في هذي التجربة:** اشتراطُ حركةٍ في البري لدخول
+#    المجتمع = **اشتراطُ النتيجة نفسِها** فيُقصي الذائبين، وهم بعينهم مَن
+#    تتكلّم عنهم الدعوى. يُقرأ بالـAST على إسنادِ `pop` داخل `main` وحدَه.
+_pga_pop = []
+for _n in _trn_ast.walk(_pga_t):
+    if isinstance(_n, _trn_ast.FunctionDef) and _n.name == "main":
+        for _k in _trn_ast.walk(_n):
+            if (isinstance(_k, _trn_ast.Assign)
+                    and any(getattr(t, "id", None) == "pop" for t in _k.targets)):
+                _pga_pop.append(_trn_ast.dump(_k.value))
+_pga_ok9 = (len(_pga_pop) == 1 and "pm_peak" not in _pga_pop[0]
+            and "E-AH" in _pga_pop[0])
+check("🌅⏱️🔒 PGA6 المجتمعُ `E-AH` وحدَه **بلا أيّ شرطٍ على مُخرَج البري** (لا اشتراطَ للنتيجة)",
+      _pga_ok9, f"إسنادات pop={len(_pga_pop)}")
+
+# العتباتُ والميزانيةُ **مستوردةٌ لا مُعادُ تعريفِها** (نمطُ `BX1`).
+_pga_frozen = {"PM_MIN", "AH_MIN", "GAP_MIN", "PRICE_LO", "PRICE_HI",
+               "COVER_MIN", "H_CAP", "L_N", "Z_N", "NEFF_MIN", "SEED_TAG",
+               "THREADS", "WSUM_TOL"}
+_pga_redef = {t.id for _n in _trn_ast.walk(_pga_t)
+              if isinstance(_n, _trn_ast.Assign)
+              for t in _n.targets
+              if isinstance(t, _trn_ast.Name) and t.id in _pga_frozen}
+_pga_imported = {a.asname or a.name for _n in _trn_ast.walk(_pga_t)
+                 if isinstance(_n, _trn_ast.ImportFrom) for a in _n.names}
+check("🌅⏱️🔒 PGA7 العتباتُ والميزانيةُ تُستورَد بالاسم ولا يُعاد تعريفُها",
+      not _pga_redef and _pga_frozen <= _pga_imported,
+      f"مُعادٌ تعريفُه={sorted(_pga_redef)} · ناقصٌ من الاستيراد="
+      f"{sorted(_pga_frozen - _pga_imported)}")
+
+# قراءةٌ فقط · الإنتاجُ لا يستوردها · والخيوطُ **ليست من البيئة**.
+_pga_env = {getattr(_k.args[0], "value", None)
+            for _k in _trn_ast.walk(_pga_t)
+            if isinstance(_k, _trn_ast.Call)
+            and getattr(_k.func, "attr", None) == "get"
+            and getattr(getattr(_k.func, "value", None), "attr", None) == "environ"
+            and _k.args}
+try:
+    _pga_ro = bool(_PGA._selfcheck_readonly()) if _PGA else False
+except Exception as _e:                                          # noqa: BLE001
+    _pga_ro = False
+check("🌅⏱️🔒 PGA8 `V-P1` قراءةٌ فقط · الإنتاجُ لا يستوردها · والخيوطُ لا تُقرأ من البيئة",
+      _pga_ro and "pmgate_arms" not in _src
+      and not any("THREAD" in str(x).upper() for x in _pga_env),
+      f"قراءةٌ فقط={_pga_ro} · بيئة={sorted(str(x) for x in _pga_env if x)}")
+
+# الـworkflow: يدويٌّ بلا كرون · صلاحيةٌ مقروءة · وصفرُ مدخلٍ داخلَ كتلة `run`.
+try:
+    _pgw_raw = _trn_io.open(".github/workflows/pmgate.yml", encoding="utf-8").read()
+    _pgw = _trn_yaml.safe_load(_pgw_raw)
+    _pgw_on = _pgw.get(True) or _pgw.get("on") or {}
+    _pgw_runs = [st.get("run", "") for st in _pgw["jobs"]["pmgate"]["steps"]]
+    _pgw_ok = (list(_pgw_on.keys()) == ["workflow_dispatch"]
+               and _pgw.get("permissions", {}).get("contents") == "read"
+               and not any("inputs" in r for r in _pgw_runs)
+               and "grep -Eq '^20(2[3-6])(,20(2[3-6]))*$'" in _pgw_raw
+               and "grep -Eq '^[0-9]{6,20}(,[0-9]{6,20})*$'" in _pgw_raw)
+    _pgw_why = f"on={list(_pgw_on.keys())} · صلاحية={_pgw.get('permissions')}"
+except Exception as _e:                                          # noqa: BLE001
+    _pgw_ok, _pgw_why = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅⏱️🔒 PGA9 الـworkflow يدويٌّ بلا كرون · قراءةٌ فقط · وصفرُ مدخلٍ داخل `run`",
+      _pgw_ok, _pgw_why)
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
