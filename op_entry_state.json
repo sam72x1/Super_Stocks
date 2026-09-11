@@ -1087,7 +1087,7 @@
  },
  "LIQ:PPCB": {
   "last_eval_ms": 1789130820000,
-  "tc_cum": 8191.653300000001,
+  "tc_cum": 8191.6533,
   "tc_seen_ms": 1789130820000,
   "date": "2026-09-11"
  },
@@ -3049,7 +3049,7 @@
  },
  "LIQ:YDDL": {
   "last_eval_ms": 1789127400000,
-  "tc_cum": 11617.715600000001,
+  "tc_cum": 11617.7156,
   "tc_seen_ms": 1789127400000,
   "date": "2026-09-11"
  },
@@ -3323,25 +3323,15 @@
   "date": "2026-09-10"
  },
  "LIQ:BTCT": {
-  "anchor_ms": 1789130880000,
-  "last_ms": 1789131000000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 22.4,
-  "peak_usd": 185846,
-  "last_eval_ms": 1789130880000,
-  "pulse_ms": 1789131000000,
-  "anchor_price": 1.56,
-  "anchor_open": 1.5101,
-  "anchor_low": 1.51,
-  "trig": "T-C",
-  "pre_done": true,
-  "pre_hi": 1.53,
-  "pre_usd": 330110,
-  "pre_n": 43,
-  "exit_ms": 1789131000000,
+  "last_eval_ms": 1789131000000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1789130880000,
+   "anchor_price": 1.56,
+   "anchor_low": 1.51,
+   "e5": null,
+   "exit_ms": 1789131000000
+  },
   "date": "2026-09-11"
  },
  "LIQ:GPRO": {
