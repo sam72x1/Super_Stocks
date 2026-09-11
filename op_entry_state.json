@@ -383,7 +383,7 @@
    "M5",
    "M30"
   ],
-  "updates": 4,
+  "updates": 3,
   "vol_x": 17.9,
   "peak_usd": 466544,
   "last_eval_ms": 1789138620000,
@@ -530,9 +530,9 @@
    "M5",
    "M30"
   ],
-  "updates": 3,
+  "updates": 2,
   "vol_x": 6.4,
-  "peak_usd": 7360316,
+  "peak_usd": 1894925,
   "last_eval_ms": 1789132380000,
   "pulse_ms": 1789141860000,
   "anchor_price": 2.47,
@@ -886,7 +886,7 @@
    "M5",
    "M30"
   ],
-  "updates": 5,
+  "updates": 4,
   "vol_x": 466.8,
   "peak_usd": 2659968,
   "last_eval_ms": 1789113720000,
@@ -1792,7 +1792,7 @@
   "updates": 0,
   "vol_x": 0.9,
   "peak_usd": 19984,
-  "last_eval_ms": 1789137060000,
+  "last_eval_ms": 1789137000000,
   "pulse_ms": 1789141620000,
   "anchor_price": 29.0,
   "anchor_open": 28.9985,
@@ -2498,7 +2498,7 @@
   "updates": 0,
   "vol_x": 3.8,
   "peak_usd": 19997,
-  "last_eval_ms": 1789135500000,
+  "last_eval_ms": 1789135440000,
   "pulse_ms": 1789141380000,
   "anchor_price": 7.0043,
   "anchor_open": 6.5,
@@ -4512,8 +4512,8 @@
   "tc_seen_ms": 1789141080000,
   "date": "2026-09-11"
  },
- "SCKT": "2026-09-11",
  "BDRX": "2026-09-11",
+ "SCKT": "2026-09-11",
  "LIQ:VEEE": {
   "date": "2026-09-11"
  },
