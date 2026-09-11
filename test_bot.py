@@ -9840,6 +9840,410 @@ check("📉🚦🔒 RKK2 آليّةُ العقد **منفَّذةٌ في الك�
       "· وشاهدُ العشوائيّ حتميٌّ وبذرتُه تفرّق",
       _rk_ok2, _rk_why2)
 
+# ══════════════════════════════════════════════════════════════════════════
+# 📉🚦 `T-RSI-RANK` — أقفالُ **الأداة** (‏`RKA0`-`RKA8`، 2026-09-11، أمرُ المالك
+#    «ابن الاداة»). العقدُ مقفولٌ أعلاه بـ`RKK0`-`RKK2`؛ وهذي تحرس **ما تفعله
+#    `rsi_rank_arms.py` فعلًا**. 🔒 **ولا تلمس شيئًا من الإنتاج** — الأداةُ
+#    قراءةٌ فقط، وهذي الأقفالُ تُثبت ذلك بالـAST وبالسلوك لا بالدعوى.
+# ⚠️ **وحذرُ ①-مكرر مطبَّق:** كلُّ قفلٍ يقترب من `main()` **يُبدّل `_measure_year`
+#    بجذعٍ** فلا يُطلَق باكتيستٌ ولا شبكةٌ داخل السويّة — ويُقفَل **عدمُ ندائه**
+#    شرطًا صريحًا لا أثرًا جانبيًّا.
+# ══════════════════════════════════════════════════════════════════════════
+# 🔴 **أسماءٌ فريدةٌ عمدًا (‏`_rka_*`)**: `os`/`re`/`yaml` **غيرُ مربوطةٍ** عند
+#    هذي النقطة من السويّة، واستعمالُ الاسم العاري كان سيرمي `NameError`
+#    **فيُسقط السويّةَ كلَّها ويكتم كلَّ قفلٍ بعده** — صنفُ ① بعينه.
+import os as _rka_os                                             # noqa: E402
+import re as _rka_re                                             # noqa: E402
+import yaml as _rka_yaml                                         # noqa: E402
+
+try:
+    import rsi_rank_arms as _RKA
+except Exception as _e:                                          # noqa: BLE001
+    _RKA = None
+    _rka_imp = f"⛔ الاستيرادُ رمى: {type(_e).__name__}"
+else:
+    _rka_imp = "ok"
+
+# ── `RKA0` — جدولُ حقيقةٍ لـ`read_verdict` بحرف §④ (سابقةُ `PGA10`) ──
+#    🔴 وأثمنُ صفٍّ فيه: **سنةٌ واحدةٌ ساقطةٌ على الأرضية ⇒ الفرعُ 2 لا «لا حكم»**
+#    — وهو بعينه ما وقع في `T-AHEXT-2`، ولأن `RK1`/`RK3` نصُّهما «في السنوات
+#    الثلاث» فسنةٌ لا يُقرأ لها رقمٌ **تُسقطهما بالتعريف**.
+def _rka_py(d1, d2, d3, floor, dead=False):
+    return {"floor_ok": floor, "rand_dead": dead,
+            "delta": {"K27-K0": d1, "K27-C-DEPTH": d2, "K27-C-RAND": d3}}
+
+
+def _rka_b(lo):
+    return {"lo": lo, "hi": 99.0, "delta": 1, "n_clusters": 5}
+
+
+def _rka_v(per_year, b1, b2):
+    return _RKA.read_verdict(per_year,
+                             {"K27-K0": _rka_b(b1), "K27-C-DEPTH": _rka_b(b2)})
+
+
+_RKA_Y = ("2023", "2024", "2025")
+_rka_rows, _rka_bad = [], []
+if _RKA is not None:
+    _rka_all = {y: _rka_py(3, 2, 1, True) for y in _RKA_Y}
+    _rka_cases = [
+        # (الاسم, per_year, فاصل RK1, فاصل RK2, الفرعُ المتوقَّع, rk1, rk2, rk3)
+        ("الثلاثةُ تعبر", _rka_all, 0.5, 0.5, 1, True, True, True),
+        ("`RK2` بسنتين",
+         {"2023": _rka_py(3, 2, 1, True), "2024": _rka_py(2, 2, 1, True),
+          "2025": _rka_py(1, -1, 1, True)}, 0.5, 0.5, 1, True, True, True),
+        ("فاصلُ `RK1` يلمس الصفر", _rka_all, 0.0, 0.5, 2, False, True, True),
+        ("فاصلُ `RK2` يلمس الصفر", _rka_all, 0.5, 0.0, 2, True, False, True),
+        ("سنةٌ ساقطة ⇒ **الفرعُ 2**",
+         {"2023": _rka_py(3, 2, 1, True), "2024": _rka_py(3, 2, 1, True),
+          "2025": _rka_py(3, 2, 1, False)}, 0.5, 0.5, 2, False, True, False),
+        ("سنةٌ **غائبةٌ أصلًا** ⇒ الفرعُ 2",
+         {"2023": _rka_py(3, 2, 1, True), "2024": _rka_py(3, 2, 1, True)},
+         0.5, 0.5, 2, False, True, False),
+        ("سنتان ساقطتان ⇒ **الفرعُ 3**",
+         {"2023": _rka_py(3, 2, 1, True), "2024": _rka_py(3, 2, 1, False),
+          "2025": _rka_py(3, 2, 1, False)}, 0.5, 0.5, 3, None, None, None),
+        ("`RK1` سالبٌ في سنة",
+         {"2023": _rka_py(3, 2, 1, True), "2024": _rka_py(-1, 2, 1, True),
+          "2025": _rka_py(3, 2, 1, True)}, 0.5, 0.5, 2, False, True, True),
+        ("`RK3` سالبٌ في سنة",
+         {"2023": _rka_py(3, 2, 1, True), "2024": _rka_py(3, 2, -1, True),
+          "2025": _rka_py(3, 2, 1, True)}, 0.5, 0.5, 2, True, True, False),
+        ("وصفيّةٌ زائدة **لا تُنقذ ولا تُسقط**",
+         {**_rka_all, "2026": _rka_py(-9, -9, -9, True)},
+         0.5, 0.5, 1, True, True, True),
+    ]
+    for _nm, _py, _b1, _b2, _br, _r1, _r2, _r3 in _rka_cases:
+        try:
+            _v = _rka_v(_py, _b1, _b2)
+        except Exception as _e:                                  # noqa: BLE001
+            _rka_bad.append(f"{_nm}: ⛔ رمى {type(_e).__name__}")
+            continue
+        if (_v["branch"], _v["rk1"], _v["rk2"], _v["rk3"]) != (_br, _r1, _r2, _r3):
+            _rka_bad.append(f"{_nm}: {_v['branch']}/{_v['rk1']}/{_v['rk2']}"
+                            f"/{_v['rk3']} ≠ {_br}/{_r1}/{_r2}/{_r3}")
+        _rka_rows.append(_nm)
+    # وسمُ الانحلال: يُرفَع حين يكون `C-RAND` ≡ `K0` في كلّ سنةٍ مؤهَّلة، ويسقط
+    # حين لا يكون — **شاهدٌ يُعلَن ولا يُطوى** (درسُ `C-MOM`).
+    _rka_deg = _rka_v({y: _rka_py(3, 2, 1, True, dead=True)
+                       for y in _RKA_Y}, 0.5, 0.5).get("rk3_degenerate")
+    _rka_ndeg = _rka_v(_rka_all, 0.5, 0.5).get("rk3_degenerate")
+    if not (_rka_deg is True and _rka_ndeg is False):
+        _rka_bad.append(f"وسمُ الانحلال: {_rka_deg}/{_rka_ndeg}")
+check("📉🚦🔒 RKA0 جدولُ حقيقةِ `read_verdict` بحرف §④ — **‏10 حالاتٍ** ومنها "
+      "«سنةٌ ساقطةٌ ⇒ الفرعُ 2 لا «لا حكم»» و«الوصفيّةُ لا تُنقذ» ووسمُ انحلال `RK3`",
+      _RKA is not None and len(_rka_rows) == 10 and not _rka_bad,
+      f"{_rka_imp} · فشل={_rka_bad[:3]}")
+
+# ── `RKA1` — `V-K5` **سلوكيّ**: `K27` ترتيبٌ لا إقصاء ──
+#    داخلَ كلّ فئةٍ التسلسلُ ≡ `K0` بت-بت · **وعبرَ الفئتين يتبدّل فعلًا**
+#    (وإلّا فالمفتاحُ خاملٌ والقفلُ زينة).
+_rka1_ok, _rka1_why = False, _rka_imp
+if _RKA is not None:
+    from replay10 import Candidate as _RKC
+
+    def _rka_c(seq, sym, rsi, rdy):
+        return _RKC(session=0, symbol=sym, readiness=rdy, score=0.0, rr=0.0,
+                    seq=seq, payload={"env_vals": {"in_band": False,
+                                                   "rsi_now": rsi}})
+
+    _rka1_cs = [_rka_c(0, "A", 60.0, 90.0), _rka_c(1, "B", 25.0, 10.0),
+                _rka_c(2, "C", 24.0, 80.0), _rka_c(3, "D", 70.0, 95.0)]
+    _rka1_k0 = [c.symbol for c in sorted(_rka1_cs, key=_RKA.k_base)]
+    _rka1_k27 = [c.symbol for c in sorted(_rka1_cs, key=_RKA.k_band)]
+    _rka1_ok = (_RKA.class_order_ok(_rka1_cs, _RKA.k_band, _RKA.k_base)
+                and _rka1_k27 != _rka1_k0
+                and sorted(_rka1_k27) == sorted(_rka1_k0)
+                and _rka1_k27[:2] == ["C", "B"])
+    _rka1_why = f"K0={_rka1_k0} K27={_rka1_k27}"
+check("📉🚦🔒 RKA1 `V-K5` سلوكيّ: `K27` **داخلَ كلّ فئةٍ ≡ `K0` بت-بت** ويتقدّم "
+      "أهلُ المنطقة · **وصفرُ مُقصًى** (المجموعةُ نفسُها)", _rka1_ok, _rka1_why)
+
+# ── `RKA2` — حدّا فيصل **شاملان** والغيابُ لا يُخمَّن ──
+_rka2_ok, _rka2_why = False, _rka_imp
+if _RKA is not None:
+    _rka2_got = [_RKA.band_of(_rka_c(0, "X", r, 50.0))
+                 for r in (22.99, 23.0, 25.0, 27.0, 27.01)]
+    _rka2_miss = _RKA.band_of(_RKC(session=0, symbol="M", readiness=1.0, seq=0,
+                                   payload={"env_vals": {}}))
+    _rka2_nan = _RKA.band_of(_rka_c(0, "N", float("nan"), 50.0))
+    _rka2_ok = (_rka2_got == [1, 0, 0, 0, 1] and _rka2_miss == 1
+                and _rka2_nan == 1
+                and (_RKA.BAND_LO, _RKA.BAND_HI) == (23.0, 27.0))
+    _rka2_why = f"{_rka2_got} miss={_rka2_miss} nan={_rka2_nan}"
+check("📉🚦🔒 RKA2 المنطقةُ ‏[23, 27] **شاملةُ الطرفين** (حدّا فيصل) · والغائبُ "
+      "و`NaN` **خارجها** ولا يُدَّعى قرب", _rka2_ok, _rka2_why)
+
+# ── `RKA3` — **ترتيبٌ لا إقصاء**: الأذرعُ السبع على مجموعةٍ واحدةٍ تأخذ العددَ
+#    نفسَه وتعرض المرشّحين أنفسَهم (‏`V-K3`/`V-K4` سلوكيًّا لا بالدعوى) ──
+_rka3_ok, _rka3_why = False, _rka_imp
+if _RKA is not None:
+    from replay10 import replay as _RKrep
+
+    # 🔴🔴 **شُدِّد بعد أن نجت طفرةُ «الأذرعُ كلُّها مفتاحٌ واحد»:** كان القفلُ
+    #    يكتفي بـ«المفاتيحُ تفرّق» — وإسنادُ `K27`/`KC`/`KR` إلى `k_base` يُبقي
+    #    `C-DEPTH`/`C-RAND`/`D-RAND` متمايزةً **فيمرّ**، بينما الذراعُ الحاكمةُ
+    #    صارت الأساسَ نفسَه و`Δ` ≡ صفرٌ **صامتًا** = صنفُ `no-op` بعينه.
+    #    ⇒ الآن **تُفحَص الخريطةُ سلوكيًّا**: كلُّ اسمٍ يُرتّب كدالّته المستقلّة،
+    #    والخمسُ الحتميّةُ **متمايزةٌ بعضُها عن بعض** على فِكستشرٍ يفصلها.
+    def _rka3_mk(rsi, rdy, drop):
+        return _RKC(session=0, symbol=f"S{rsi:.0f}_{rdy:.0f}", readiness=rdy,
+                    score=0.0, rr=0.0, seq=int(rdy),
+                    payload={"env_vals": {"in_band": False, "rsi_now": rsi,
+                                          "drop_pct": drop}})
+
+    _rka3_cs = [_rka3_mk(60.0, 90.0, 95.0), _rka3_mk(25.0, 10.0, 45.0),
+                _rka3_mk(24.0, 80.0, 50.0), _rka3_mk(70.0, 95.0, 41.0),
+                _rka3_mk(26.0, 30.0, 88.0), _rka3_mk(55.0, 70.0, 60.0)]
+
+    def _rka3_ord(_fn):
+        return tuple(c.symbol for c in sorted(_rka3_cs, key=_fn))
+
+    _rka3_map = _RKA.rankers()
+    _rka3_want = {"K0": _RKA.k_base, "K27": _RKA.k_band, "KC": _RKA.k_cont,
+                  "KR": _RKA.k_inv, "C-DEPTH": _RKA.c_depth}
+    _rka3_wrong = sorted(n for n, f in _rka3_want.items()
+                         if n not in _rka3_map
+                         or _rka3_ord(_rka3_map[n]) != _rka3_ord(f))
+    _rka3_uniq = len({_rka3_ord(_rka3_map[n]) for n in _rka3_want})
+    _rka3_takes, _rka3_sets = set(), set()
+    for _nm, _fn in _rka3_map.items():
+        _r = _RKrep(_rka3_cs, outcome_of=lambda c: ("window", 1), ranker=_fn,
+                    capacity=3, sessions=range(0, 1))
+        _rka3_takes.add(len(_r["taken"]))
+        _rka3_sets.add(tuple(sorted(c.symbol for c in _r["taken"])))
+    _rka3_ok = (len(_rka3_takes) == 1 and _rka3_takes.pop() == 3
+                and len(_rka3_sets) > 1 and not _rka3_wrong
+                and _rka3_uniq == 5
+                and set(_rka3_map) == set(_RKA.GOV_ARMS) | set(_RKA.DESC_ARMS))
+    _rka3_why = (f"خريطةٌ خاطئة={_rka3_wrong} · متمايزة={_rka3_uniq}/5 · "
+                 f"مجموعات={len(_rka3_sets)}")
+check("📉🚦🔒 RKA3 كلُّ ذراعٍ تأخذ **الميزانيةَ نفسَها بت-بت** من **المجموعة "
+      "نفسِها** (ترتيبٌ لا إقصاء) · **وخريطةُ الأسماء تُفحَص سلوكيًّا**: كلُّ اسمٍ "
+      "يُرتّب كدالّته والخمسُ الحتميّةُ متمايزة ⇒ **لا `no-op` صامت**",
+      _rka3_ok, _rka3_why)
+
+# ── `RKA4` — شاهدُ `C-RAND`: حتميٌّ · وبذرتان تفرّقان · والانحلالُ يُرصَد ──
+_rka4_ok, _rka4_why = False, _rka_imp
+if _RKA is not None:
+    _rka4_tied = [_rka_c(i, f"T{i}", 50.0, 50.0) for i in range(8)]  # تعادلٌ تامّ
+    _r1 = [c.symbol for c in sorted(_rka4_tied, key=_RKA.make_c_rand(1))]
+    _r1b = [c.symbol for c in sorted(_rka4_tied, key=_RKA.make_c_rand(1))]
+    _r2 = [c.symbol for c in sorted(_rka4_tied, key=_RKA.make_c_rand(2))]
+    _k0t = [c.symbol for c in sorted(_rka4_tied, key=_RKA.k_base)]
+    # وعند **انعدام التعادل** ينحلّ إلى `K0` — وهذا ما يرصده وسمُ الانحلال.
+    _rka4_uniq = [_rka_c(i, f"U{i}", 50.0, float(i)) for i in range(8)]
+    _ru = [c.symbol for c in sorted(_rka4_uniq, key=_RKA.make_c_rand(1))]
+    _ku = [c.symbol for c in sorted(_rka4_uniq, key=_RKA.k_base)]
+    _rka4_ok = (_r1 == _r1b and _r1 != _r2 and _r1 != _k0t and _ru == _ku)
+    _rka4_why = f"حتميّ={_r1 == _r1b} تفرّق={_r1 != _r2} ينحلّ={_ru == _ku}"
+check("📉🚦🔒 RKA4 `C-RAND` **حتميٌّ** وبذرتان تفرّقان ويكسر التعادلَ فعلًا · "
+      "**وينحلّ إلى `K0` بلا تعادل** — وهو ما يرصده وسمُ الانحلال",
+      _rka4_ok, _rka4_why)
+
+# ── `RKA5` — `V-K7` **صفرُ نظرٍ مستقبليّ** + «قراءةٌ فقط» ──
+#    والقفلُ **سالبٌ يُثبَت**: مُرتِّبٌ ملوَّثٌ يُسقط `rankers_blind` فعلًا.
+_rka5_ok, _rka5_why = False, _rka_imp
+if _RKA is not None:
+    _rka5_blind = _RKA.rankers_blind()
+    _rka5_ro = _RKA.selfcheck_readonly()
+    _rka5_orig = _RKA.k_cont
+
+    def _rka5_dirty(c):
+        return ((c.payload or {}).get("mg_pre_stop") or 0.0,)
+
+    try:
+        _RKA.k_cont = _rka5_dirty
+        _rka5_catch = not _RKA.rankers_blind()
+    finally:
+        _RKA.k_cont = _rka5_orig
+    # 🔒 **ومسحٌ مستقلٌّ في القفل نفسِه** — لا نكتفي بحارسِ الأداة يشهد لنفسه:
+    #    لو أُفرِغ `banned` عنده لبقي هذا المسحُ يمسك الإرسالَ وكتابةَ الحالة.
+    _rka5_tree = _ast0.parse(open("rsi_rank_arms.py", encoding="utf-8").read())
+    _rka5_bad = {"send_telegram", "git_save", "save_watchlist",
+                 "save_op_entry_state", "record_new_alerts"}
+    _rka5_seen = set()
+    for _n in _ast0.walk(_rka5_tree):
+        if isinstance(_n, _ast0.Call):
+            _f = getattr(_n.func, "id", None) or getattr(_n.func, "attr", None)
+            if _f in _rka5_bad:
+                _rka5_seen.add(_f)
+    _rka5_ok = (_rka5_blind and _rka5_ro and _rka5_catch
+                and not _rka5_seen and "mg_pre_stop" in _RKA.BANNED_FWD)
+    _rka5_why = (f"عمياء={_rka5_blind} قراءة={_rka5_ro} "
+                 f"تمسكُ الملوَّث={_rka5_catch} محظورٌ منادًى={sorted(_rka5_seen)}")
+check("📉🚦🔒 RKA5 `V-K7` المُرتِّباتُ **عمياءُ عن النتيجة** (والحارسُ يمسك "
+      "مُرتِّبًا ملوَّثًا فعلًا) · و«قراءةٌ فقط»: **صفرُ إرسالٍ وصفرُ كتابةِ حالة**",
+      _rka5_ok, _rka5_why)
+
+# ── `RKA6` — `FWD` **نفسُ شرط `ceiling_arms._d(100)`** حرفًا بحرف ──
+_rka6_ok, _rka6_why = False, _rka_imp
+if _RKA is not None:
+    _rka6_cases = [
+        ({"mg_outcome": "win", "mg_pre_stop": 100.0}, True),
+        ({"mg_outcome": "win", "mg_pre_stop": 99.99}, False),
+        ({"mg_outcome": "no_fill", "mg_pre_stop": 500.0}, False),
+        ({"mg_outcome": None, "mg_pre_stop": 500.0}, False),
+        ({"mg_outcome": "stop", "mg_pre_stop": None}, False),
+        ({"mg_outcome": "stop", "mg_pre_stop": "بلا"}, False),
+    ]
+    _rka6_ok = (all(_RKA._hit100(p) is e for p, e in _rka6_cases)
+                and _RKA.D100 == 100.0)
+    _rka6_why = str([_RKA._hit100(p) for p, _ in _rka6_cases])
+check("📉🚦🔒 RKA6 `FWD` = **مُسلَّمٌ بلغ ‏+100%** بنفس شرط `_d(100)`: "
+      "`no_fill`/`None`/غيرُ رقمٍ ⇒ **لا** · و‏99.99 ⇒ لا · و‏100.0 ⇒ نعم",
+      _rka6_ok, _rka6_why)
+
+# ── `RKA7` — مرجعُ `V-K2` **مقروءٌ من `rsi40_result.md` لا مكتوبٌ من الذاكرة** ──
+_rka7_ok, _rka7_why = False, _rka_imp
+_rka7_txt = ""
+if _RKA is not None:
+    try:
+        _rka7_txt = open("rsi40_result.md", encoding="utf-8").read()
+    except Exception as _e:                                      # noqa: BLE001
+        _rka7_txt = ""
+    _rka7_pub = {}
+    for _y in ("2023", "2024", "2025"):
+        _m = _rka_re.search(r"^\|\s*" + _y + r"\s*\|\s*(\d+)\s*\|",
+                        _rka7_txt, _rka_re.M)
+        if _m:
+            _rka7_pub[_y] = int(_m.group(1))
+    _rka7_ok = (len(_rka7_pub) == 3 and _rka7_pub == _RKA.PUBLISHED_K0_D100)
+    _rka7_why = f"المقروء={_rka7_pub} المكتوب={_RKA.PUBLISHED_K0_D100}"
+check("📉🚦🔒 RKA7 مرجعُ `V-K2` (‏`K0` d100) **مطابقٌ لما نُشر في "
+      "`rsi40_result.md §②`** — فلا يدرج رقمٌ من الذاكرة", _rka7_ok, _rka7_why)
+
+# ── `RKA8` — بوّابةُ «السنواتِ الثلاث» في `main()` **سلوكيًّا** ──
+#    ⚠️ ①-مكرر: `_measure_year` **مُبدَّلٌ بجذع** فلا باكتيستَ ولا شبكةَ داخل
+#    السويّة، **ويُقفَل عدمُ ندائه** — فلو زالت البوّابةُ لظهر النداء.
+_rka8_ok, _rka8_why = False, _rka_imp
+if _RKA is not None:
+    import io as _rka_io
+    import contextlib as _rka_cx
+
+    _rka8_calls = []
+    _rka8_my, _rka8_pu = _RKA._measure_year, _RKA.production_untouched
+    try:
+        _RKA._measure_year = lambda *a, **k: _rka8_calls.append(a) or {}
+        _RKA.production_untouched = lambda: (True, "x", "x")
+
+        def _rka8_run(years, frozen, dry):
+            _env = {"RSIRANK_YEARS": years, "RSIRANK_FROZEN": frozen,
+                    "RSIRANK_DRY": dry}
+            _old = {k: _rka_os.environ.get(k) for k in _env}
+            _rka_os.environ.update(_env)
+            try:
+                with _rka_cx.redirect_stdout(_rka_io.StringIO()):
+                    return _RKA.main()
+            finally:
+                for k, v in _old.items():
+                    if v is None:
+                        _rka_os.environ.pop(k, None)
+                    else:
+                        _rka_os.environ[k] = v
+
+        _rka8_one = _rka8_run("2023", "p1", "0")          # سنةٌ واحدة ⇒ يُرفَض
+        _rka8_two = _rka8_run("2023,2024", "p1,p2", "0")  # سنتان ⇒ يُرفَض
+        _rka8_bad = _rka8_run("2027", "p1", "0")          # سنةٌ غيرُ مسموحة
+        _rka8_mis = _rka8_run("2023,2024", "p1", "0")     # عددٌ غيرُ متطابق
+    finally:
+        _RKA._measure_year, _RKA.production_untouched = _rka8_my, _rka8_pu
+    _rka8_ok = (_rka8_one == 2 and _rka8_two == 2 and _rka8_bad == 2
+                and _rka8_mis == 2 and not _rka8_calls
+                and _RKA.GOV_YEARS == ("2023", "2024", "2025"))
+    _rka8_why = (f"{_rka8_one}/{_rka8_two}/{_rka8_bad}/{_rka8_mis} "
+                 f"نداءات={len(_rka8_calls)}")
+check("📉🚦🔒 RKA8 الحكمُ **يلزمه السنواتُ الثلاث بعينها** (§④): سنةٌ أو سنتان "
+      "أو سنةٌ غيرُ مسموحة أو عددٌ غيرُ متطابق ⇒ **خروج 2 وصفرُ باكتيست**",
+      _rka8_ok, _rka8_why)
+
+# ── `RKA9` — الـworkflow: **يدويٌّ بلا كرون · بلا سرِّ تلغرام · بشكلٍ مُتحقَّق** ──
+_rka9_ok, _rka9_why = False, "?"
+try:
+    _rka9_raw = open(".github/workflows/rsi_rank.yml", encoding="utf-8").read()
+    _rka9_d = _rka_yaml.safe_load(_rka9_raw)
+except Exception as _e:                                          # noqa: BLE001
+    _rka9_raw, _rka9_d = "", None
+    _rka9_why = f"⛔ {type(_e).__name__}"
+if _rka9_d:
+    _rka9_on = _rka9_d.get(True, _rka9_d.get("on", {})) or {}
+    # 🔒 **ولقطاتُ الافتراض = لقطاتُ المرجع المنشور نفسُها** — وإلّا صارت مقارنةُ
+    #    `V-K2` بين مجتمعَين مختلفَين **وهي تبدو صحيحة**: الرقمُ يُقرأ من
+    #    `rsi40_result.md` لا من الذاكرة.
+    # 🔴 **اللقطةُ بين قوسين والتشغيلةُ خارجهما** — وتعبيرٌ يلتقط كلَّ رقمٍ
+    #    بين علامتين خلفيّتين كان يخلط الاثنين فيسقط القفلُ على `yml` سليم.
+    _rka9_pub_ids = _rka_re.findall(
+        r"\(\s*(?:لقطة\s*)?`(\d{8,12})`\s*\)", _rka7_txt[:2000])
+    _rka9_def = ((_rka9_d.get(True, _rka9_d.get("on", {})) or {})
+                 .get("workflow_dispatch", {}).get("inputs", {}))
+    _rka9_ids = str(_rka9_def.get("frozen_run_ids", {}).get("default", ""))
+    _rka9_yrs = str(_rka9_def.get("years", {}).get("default", ""))
+    _rka9_same = (len(_rka9_pub_ids) >= 3
+                  and all(i in _rka9_ids for i in _rka9_pub_ids[:3])
+                  and _rka9_yrs == "2023,2024,2025")
+    _rka9_ok = ("schedule" not in _rka9_on
+                and "workflow_dispatch" in _rka9_on
+                and "TELEGRAM" not in _rka9_raw
+                and "fetch-depth: 0" in _rka9_raw
+                and "grep -Eq" in _rka9_raw
+                and _rka9_same
+                and _rka9_d["jobs"]["rsi_rank"]["steps"][0].get("with", {})
+                .get("fetch-depth") == 0)
+    _rka9_why = f"on={sorted(_rka9_on)} لقطاتٌ منشورة={_rka9_pub_ids[:3]}"
+check("📉🚦🔒 RKA9 `rsi_rank.yml` **يدويٌّ بلا كرون** · **بلا سرِّ تلغرام** "
+      "(فالإرسالُ مستحيلٌ بنيويًّا) · ومدخلاتُه **متحقَّقةُ الشكل** · و`fetch-depth: 0` "
+      "· **ولقطاتُه هي لقطاتُ المرجع المنشور** فمقارنةُ `V-K2` بين مجتمعٍ واحد",
+      _rka9_ok, _rka9_why)
+
+# ── `RKA10` — §⑧ عند **زمن التشغيل**: صفرُ إسنادٍ إلى `CONFIG` ──
+#    🔑 وهو ما يفرّق هذي التجربةَ عن `T-RSI40` بنيويًّا: هناك **كلُّ ذراعٍ تضبط
+#    `CONFIG` بعد الاستيراد** فلزمها طفلٌ لكلّ ذراع، وهنا **لا ذراعَ تمسّها**
+#    فالطفلُ للسنة وحدَها. و`V-K1` يقارن **ملفَّ** الإنتاج ولا يرى ضبطًا في
+#    الذاكرة ⇒ **الحارسُ غائبٌ لولا هذا القفل**.
+_rka10_ok, _rka10_why = False, _rka_imp
+if _RKA is not None:
+    _rka10_tree = _ast0.parse(open("rsi_rank_arms.py", encoding="utf-8").read())
+    _rka10_hits = []
+    for _n in _ast0.walk(_rka10_tree):
+        _tgts = []
+        if isinstance(_n, _ast0.Assign):
+            _tgts = list(_n.targets)
+        elif isinstance(_n, (_ast0.AugAssign, _ast0.AnnAssign)):
+            _tgts = [_n.target]
+        for _tg in _tgts:
+            # `CONFIG[...] = ` أو `S.CONFIG[...] = `
+            if isinstance(_tg, _ast0.Subscript):
+                _b = _tg.value
+                _nm = getattr(_b, "id", None) or getattr(_b, "attr", None)
+                if _nm == "CONFIG":
+                    _rka10_hits.append("CONFIG[...]")
+            # `S.CONFIG = ` أو `CONFIG = `
+            if getattr(_tg, "attr", None) == "CONFIG" or \
+                    getattr(_tg, "id", None) == "CONFIG":
+                _rka10_hits.append("CONFIG")
+    # ونداءاتُ التحديث المبطَّنة كذلك (`CONFIG.update(...)`/`setdefault`)
+    for _n in _ast0.walk(_rka10_tree):
+        if isinstance(_n, _ast0.Call) and isinstance(_n.func, _ast0.Attribute):
+            _o = _n.func.value
+            if (getattr(_o, "id", None) or getattr(_o, "attr", None)) == "CONFIG" \
+                    and _n.func.attr in ("update", "setdefault", "pop", "clear"):
+                _rka10_hits.append(f"CONFIG.{_n.func.attr}()")
+    # وشاهدُ ضبطٍ: القفلُ يمسك الإسنادَ فعلًا لو وُجد (سالبٌ يُثبَت).
+    _rka10_probe = _ast0.parse("import x\nx.CONFIG['RSI_NOW_HARD'] = 40.0\n")
+    _rka10_caught = any(
+        isinstance(_n, _ast0.Assign)
+        and isinstance(_n.targets[0], _ast0.Subscript)
+        and (getattr(_n.targets[0].value, "id", None)
+             or getattr(_n.targets[0].value, "attr", None)) == "CONFIG"
+        for _n in _ast0.walk(_rka10_probe))
+    _rka10_ok = (not _rka10_hits and _rka10_caught)
+    _rka10_why = f"إسنادات={sorted(set(_rka10_hits))} شاهد={_rka10_caught}"
+check("📉🚦🔒 RKA10 §⑧ عند التشغيل: **صفرُ إسنادٍ إلى `CONFIG`** (ولا `update`) "
+      "⇒ لا `RSI_NOW_HARD` تتحرّك ولا عتبةَ فرزٍ — **وهو ما يفرّقها عن `T-RSI40`** "
+      "الذي كانت كلُّ ذراعٍ فيه تضبط `CONFIG`", _rka10_ok, _rka10_why)
+
+
+
 check("قفل: دفعات الدخول 3 بخطوة 3%",
       S.CONFIG["ENTRY_TRANCHES"] == 3 and S.CONFIG["ENTRY_STEP_PCT"] == 3.0)
 check("قفل: حد الشورت 40 ألف · الفلوت 50م",
