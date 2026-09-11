@@ -1380,7 +1380,7 @@
  },
  "LIQ:SXTC": {
   "anchor_ms": 1789115580000,
-  "last_ms": 1789115580000,
+  "last_ms": 1789115640000,
   "sent": [
    "M1"
   ],
@@ -1388,7 +1388,7 @@
   "vol_x": 3.9,
   "peak_usd": 242761,
   "last_eval_ms": 1789115640000,
-  "pulse_ms": 1789115580000,
+  "pulse_ms": 1789115640000,
   "anchor_price": 2.45,
   "anchor_open": 2.26,
   "anchor_low": 2.25,
@@ -1400,11 +1400,11 @@
    "e5": null,
    "exit_ms": 1789115160000
   },
-  "date": "2026-09-11",
   "pre_done": true,
   "pre_hi": 2.7399,
   "pre_usd": 934642,
-  "pre_n": 16
+  "pre_n": 16,
+  "date": "2026-09-11"
  },
  "LIQ:ONFO": {
   "date": "2026-09-11"
