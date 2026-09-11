@@ -1,0 +1,76 @@
+name: T-PMGATE (بوّابةُ فتحِ البري + 30 دقيقة)
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "السنواتُ مفصولةً بفاصلة (مثال 2023,2024,2025)"
+        required: true
+      frozen_run_ids:
+        description: "أرقامُ تشغيلات اللقطات **بالترتيب نفسِه**، مفصولةً بفاصلة"
+        required: true
+      dry:
+        description: "وضعُ الجدوى: 1 = الطبقة H وحدَها بلا أيّ Δ · 0 = القياسُ الكامل"
+        required: false
+        default: "0"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  pmgate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+
+      - name: تنزيلُ اللقطات المجمَّدة وبناءُ مسارِها بالترتيب
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IN_YEARS: ${{ github.event.inputs.years }}
+          IN_IDS: ${{ github.event.inputs.frozen_run_ids }}
+          IN_DRY: ${{ github.event.inputs.dry }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$IN_YEARS" | grep -Eq '^20(2[3-6])(,20(2[3-6]))*$' \
+            || { echo "⛔ سنواتٌ غيرُ مسموحة"; exit 2; }
+          printf '%s' "$IN_IDS" | grep -Eq '^[0-9]{6,20}(,[0-9]{6,20})*$' \
+            || { echo "⛔ أرقامُ اللقطات ليست أرقامًا"; exit 2; }
+          printf '%s' "${IN_DRY:-0}" | grep -Eq '^[01]$' \
+            || { echo "⛔ dry إمّا 0 أو 1"; exit 2; }
+          ny=$(printf '%s' "$IN_YEARS" | tr ',' '\n' | wc -l)
+          ni=$(printf '%s' "$IN_IDS" | tr ',' '\n' | wc -l)
+          test "$ny" -eq "$ni" \
+            || { echo "⛔ عددُ السنوات $ny ≠ عددُ اللقطات $ni"; exit 2; }
+          : > .frozen_paths
+          for rid in $(printf '%s' "$IN_IDS" | tr ',' ' '); do
+            gh run download "$rid" -D "frozen/$rid" -R "$GITHUB_REPOSITORY"
+            p="$(find "frozen/$rid" -name '*.pkl.gz' | head -1)"
+            test -n "$p" || { echo "⛔ لا لقطة في $rid"; exit 2; }
+            printf '%s,' "$p" >> .frozen_paths
+          done
+          sed -i 's/,$//' .frozen_paths
+          echo "📌 مساراتُ اللقطات: $(cat .frozen_paths)"
+
+      - name: تشغيلُ الأذرع
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PMGATE_YEARS: ${{ github.event.inputs.years }}
+          PMGATE_DRY: ${{ github.event.inputs.dry }}
+          SCREENER_MODE: BACKTEST
+        run: |
+          set -euo pipefail
+          PMGATE_FROZEN="$(cat .frozen_paths)" python3 pmgate_arms.py
+
+      - name: رفعُ الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmgate-${{ github.run_id }}
+          path: pmgate_rows.jsonl
+          if-no-files-found: warn
