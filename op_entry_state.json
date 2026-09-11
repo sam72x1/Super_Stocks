@@ -626,7 +626,7 @@
   "updates": 0,
   "vol_x": 1.0,
   "peak_usd": 10177,
-  "last_eval_ms": 1789134540000,
+  "last_eval_ms": 1789134480000,
   "pulse_ms": 1789136760000,
   "anchor_price": 1.56,
   "anchor_open": 1.555,
@@ -1118,7 +1118,7 @@
   "updates": 2,
   "vol_x": 39.2,
   "peak_usd": 897269,
-  "last_eval_ms": 1789134900000,
+  "last_eval_ms": 1789134840000,
   "pulse_ms": 1789136820000,
   "anchor_price": 1.455,
   "anchor_open": 1.4399,
@@ -1252,7 +1252,7 @@
  },
  "LIQ:TNON": {
   "anchor_ms": 1789117200000,
-  "last_ms": 1789136820000,
+  "last_ms": 1789136760000,
   "sent": [
    "M1",
    "M5",
@@ -1262,7 +1262,7 @@
   "vol_x": 0.5,
   "peak_usd": 3415619,
   "last_eval_ms": 1789117200000,
-  "pulse_ms": 1789136820000,
+  "pulse_ms": 1789136760000,
   "anchor_price": 6.3949,
   "anchor_open": 6.3487,
   "anchor_low": 6.31,
@@ -1992,19 +1992,20 @@
   "date": "2026-09-11"
  },
  "LIQ:SGRX": {
-  "anchor_ms": 1789136520000,
+  "anchor_ms": 1789136400000,
   "last_ms": 1789136820000,
   "sent": [
-   "M1"
+   "M1",
+   "M5"
   ],
-  "updates": 0,
-  "vol_x": 12.4,
+  "updates": 1,
+  "vol_x": 0.6,
   "peak_usd": 85888,
-  "last_eval_ms": 1789136520000,
+  "last_eval_ms": 1789136400000,
   "pulse_ms": 1789136820000,
-  "anchor_price": 1.8699,
-  "anchor_open": 1.745,
-  "anchor_low": 1.7405,
+  "anchor_price": 1.72,
+  "anchor_open": 1.705,
+  "anchor_low": 1.705,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1789136100000,
@@ -2013,11 +2014,20 @@
    "e5": null,
    "exit_ms": 1789136280000
   },
+  "trig": "T-C",
   "pre_done": true,
   "pre_hi": 1.75,
-  "pre_usd": 243112,
-  "pre_n": 40,
-  "exit_ms": 1789136640000,
+  "pre_usd": 229344,
+  "pre_n": 38,
+  "k2": {
+   "c3": "صادقت (إغلاقٌ فوق المرساة)",
+   "c4": "خضراء 2",
+   "v2": "المرساة دون 30% (سيولة تتوالى)",
+   "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)",
+   "j1": false,
+   "j1_top": false
+  },
+  "e5": 1.7401,
   "date": "2026-09-11"
  },
  "LIQ:RDIB": {
@@ -3933,7 +3943,6 @@
   "pre_hi": 1.97,
   "pre_usd": 1256646,
   "pre_n": 56,
-  "date": "2026-09-11",
   "k2": {
    "c3": "صادقت (إغلاقٌ فوق المرساة)",
    "c4": "خضراء 2",
@@ -3942,7 +3951,8 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 1.933
+  "e5": 1.933,
+  "date": "2026-09-11"
  },
  "LIQ:AMCI": {
   "last_eval_ms": 1789135740000,
