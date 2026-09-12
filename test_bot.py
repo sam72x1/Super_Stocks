@@ -9925,6 +9925,273 @@ check("🚦💵🔒 TYK3 شرطُ الإغلاق §⑫ مكتوبٌ قبل ال�
       f"موضع={_ty_j} · يُسمّي TY2={'`TY2`' in _ty_cl}")
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🚦💵 `T-TC-YIELD` — أقفالُ **الأداة** (‏`TYA0`-`TYA9`، 2026-09-12، أمرُ المالك
+#    «ابن الاداة»). العقدُ مقفولٌ بـ`TYK0`-`TYK3`؛ وهذي تحرس **ما تفعله الأداة**.
+#    🔴 وأثمنُها `TYA5` (الحكمُ يطبّق العقدَ بحرفه — الصنفُ الذي وقع في `T-PMGATE`
+#    و`T-RSI-RANK`) و`TYA7` (الحارسُ **يوقف** لا يطبع — طفرةُ `n4`).
+# ═══════════════════════════════════════════════════════════
+# 🐞 الصنفُ ①: `_rka_yaml`/`_pgz_sys` تُربَط **بعد** هذي الكتلة ⇒ الاسمُ العاري
+#    كان يرمي `NameError`. أسماءٌ خاصّةٌ بالكتلة تمنع تكرارَه.
+import sys as _tya_sys
+import yaml as _tya_yaml
+import os as _tya_os
+import io as _tya_io
+import ast as _tya_ast
+import inspect as _tya_insp
+_tya_imp = "⛔ تعذّر الاستيراد"
+try:
+    import tc_yield_arms as _TYA
+except Exception as _e:                                          # noqa: BLE001
+    _TYA, _tya_imp = None, f"⛔ {type(_e).__name__}: {_e}"
+
+# `TYA0` — الوثيقةُ والأداةُ والـworkflow حاضرةٌ · **ويدويٌّ بلا كرون وبلا تلغرام**
+_tya0_ok, _tya0_why = False, _tya_imp
+try:
+    _ty_wf = _tya_io.open(".github/workflows/tc_yield.yml", encoding="utf-8").read()
+    _ty_wd = _tya_yaml.safe_load(_ty_wf)
+    _ty_on = _ty_wd.get(True, _ty_wd.get("on")) or {}
+    # 🔴 «قراءةٌ فقط» تُقفَل **بنيويًّا لا بالنيّة** — وطفرةُ `u1` (`contents: write`)
+    #    نجت من صياغتي الأولى لأنها لم تفحص `permissions` إطلاقًا ⇒ شُدَّ القفل:
+    #    الأعلى **حصرًا** `{contents: read}`، ولا جوبَ يُوسّعه بصلاحيةِ كتابة.
+    _ty_perm = _ty_wd.get("permissions")
+    _ty_jobs = (_ty_wd.get("jobs") or {}).values()
+    _ty_jperm = [j.get("permissions") for j in _ty_jobs if isinstance(j, dict)]
+    _ty_ro = (_ty_perm == {"contents": "read"}
+              and all(q is None or (isinstance(q, dict)
+                                    and "write" not in str(q).lower()
+                                    and "write-all" != str(q).lower())
+                      for q in _ty_jperm)
+              and str(_ty_perm).lower().find("write") < 0)
+    _tya0_ok = (_TYA is not None
+                and _tya_os.path.exists("tc_yield_prereg.md")
+                and "workflow_dispatch" in _ty_on
+                and "schedule" not in _ty_on          # بلا كرون
+                and "TELEGRAM" not in _ty_wf          # الإرسالُ مستحيلٌ بنيويًّا
+                and _ty_ro                            # قراءةٌ فقط (‏`V-Y2`)
+                and "fetch-depth: 0" in _ty_wf)       # التاريخُ كلُّه + origin/main
+    _tya0_why = (f"dispatch={'workflow_dispatch' in _ty_on} · "
+                 f"كرون={'schedule' in _ty_on} · تلغرام={'TELEGRAM' in _ty_wf} · "
+                 f"صلاحيات={_ty_perm} · قراءةٌ فقط={_ty_ro}")
+except Exception as _e:                                          # noqa: BLE001
+    _tya0_why = f"⛔ {type(_e).__name__}: {_e}"
+check("🚦💵🔒 TYA0 الأداةُ والعقدُ والـworkflow حاضرة · **يدويٌّ بلا كرون وبلا سرِّ "
+      "تلغرام** · **وقراءةٌ فقط بالصلاحيات** · وبتاريخٍ كامل", _tya0_ok, _tya0_why)
+
+# `TYA1` — **إعادةُ استعمالٍ لا بناء** (‏`V-Y3`): المراسي من `liq_trig_read`
+#    والمُخرَجُ من `tierlink_probe` — بالـAST على الاستيراد لا بنصٍّ في تعليق.
+_tya1_ok, _tya1_why = False, _tya_imp
+try:
+    _ty_tree = _tya_ast.parse(_tya_io.open("tc_yield_arms.py", encoding="utf-8").read())
+    _ty_mods = set()
+    for _n in _tya_ast.walk(_ty_tree):
+        if isinstance(_n, _tya_ast.Import):
+            _ty_mods |= {a.name for a in _n.names}
+        elif isinstance(_n, _tya_ast.ImportFrom) and _n.module:
+            _ty_mods.add(_n.module)
+    _tya1_ok = ({"liq_trig_read", "tierlink_probe"} <= _ty_mods
+                and _TYA is not None
+                and _TYA.LTR is _tya_sys.modules["liq_trig_read"]
+                and _TYA.TLP is _tya_sys.modules["tierlink_probe"])
+    _tya1_why = f"وحدات={sorted(_ty_mods & {'liq_trig_read', 'tierlink_probe'})}"
+except Exception as _e:                                          # noqa: BLE001
+    _tya1_why = f"⛔ {type(_e).__name__}: {_e}"
+check("🚦💵🔒 TYA1 المادّةُ **تُستورَد ولا تُعاد بناؤها** (`V-Y3`): المراسي من "
+      "`liq_trig_read` والمُخرَجُ من `tierlink_probe` — بالـAST", _tya1_ok, _tya1_why)
+
+# `TYA2` — `split_arms` **سلوكيًّا**: `A1` اتّحادٌ بالبناء · والوسمُ يفصل
+_tya2_ok, _tya2_why = False, _tya_imp
+if _TYA is not None:
+    _ty_a = {("X", "2026-09-10", 1): {"trig": None, "sent": ["M1"], "alive": True},
+             ("Y", "2026-09-10", 2): {"trig": "T-C", "sent": ["M1"], "alive": True},
+             ("Z", "2026-09-11", 3): {"trig": "T-C", "sent": [], "alive": False}}
+    _ty_sp = _TYA.split_arms(_ty_a)
+    _tya2_ok = (set(_ty_sp["A0"]) == {("X", "2026-09-10", 1)}
+                and set(_ty_sp["A-TC"]) == {("Y", "2026-09-10", 2),
+                                            ("Z", "2026-09-11", 3)}
+                and set(_ty_sp["A1"]) == set(_ty_a)
+                and len(_ty_sp["A1"]) == len(_ty_sp["A0"]) + len(_ty_sp["A-TC"]))
+    _tya2_why = (f"A0={len(_ty_sp['A0'])} · A-TC={len(_ty_sp['A-TC'])} · "
+                 f"A1={len(_ty_sp['A1'])}")
+check("🚦💵🔒 TYA2 `split_arms` يفصل بالوسم و`A1` **اتّحادٌ بالبناء** لا جمعًا "
+      "مكرّرًا", _tya2_ok, _tya2_why)
+
+# `TYA3` — «مُسلَّمة» = عمقُ مراحلَ **و**باقيةٌ في آخر لقطة (جدولُ حقيقة)
+_tya3_ok, _tya3_why = False, _tya_imp
+if _TYA is not None:
+    _ty_tt = [({"sent": ["M1"], "alive": True}, True),
+              ({"sent": ["M1"], "alive": False}, False),   # كُتمت
+              ({"sent": [], "alive": True}, False),        # رست ولم تُرسِل
+              ({"sent": [], "alive": False}, False),
+              ({}, False)]
+    _ty_bad = [r for r, want in _ty_tt if bool(_TYA.delivered(r)) is not want]
+    _tya3_ok = not _ty_bad
+    _tya3_why = f"حالات={len(_ty_tt)} · مخالف={len(_ty_bad)}"
+check("🚦💵🔒 TYA3 «مُسلَّمة» = مراحلُ **و**نجاةٌ من بوّابة الكتم — جدولُ حقيقةٍ من "
+      "خمس حالات", _tya3_ok, _tya3_why)
+
+# 🔴 `TYA4` — الضبطُ يعزل نصفَي الشرط **فعلًا**: `C-MOM` يتجاهل السيولة
+#    و`C-USD` يتجاهل الارتفاع — على الشموع نفسِها، سلوكيًّا لا بالوصف.
+_tya4_ok, _tya4_why = False, _tya_imp
+if _TYA is not None:
+    # دقائق: سعرٌ يقفز عند t=3 (‏+25%) بحجمٍ ضئيل · وسيولةٌ تتراكم ببطء
+    _ty_bars = [(1, 1.0, 1.0, 1.0, 1.00, 1_000),
+                (2, 1.0, 1.0, 1.0, 1.05, 1_000),
+                (3, 1.0, 1.4, 1.0, 1.25, 1_000),      # ‏+25% وحجمٌ ضئيل
+                (4, 1.0, 1.4, 1.0, 1.26, 900_000)]    # سيولةٌ ضخمةٌ متأخّرة
+    _ty_mom = _TYA.ctrl_anchor(_ty_bars, 1.00, 100_000, 20.0, "mom")
+    _ty_usd = _TYA.ctrl_anchor(_ty_bars, 1.00, 100_000, 20.0, "usd")
+    _ty_none = _TYA.ctrl_anchor(_ty_bars, 1.00, 100_000, 20.0, "زائف")
+    _ty_nopc = _TYA.ctrl_anchor(_ty_bars, None, 100_000, 20.0, "mom")
+    _tya4_ok = (_ty_mom == 3 and _ty_usd == 4 and _ty_mom != _ty_usd
+                and _ty_none is None and _ty_nopc is None
+                and _TYA.ctrl_anchor([], 1.0, 1, 1, "mom") is None)
+    _ty_why4 = f"mom={_ty_mom} · usd={_ty_usd} · وضعٌ زائف={_ty_none}"
+    _tya4_why = _ty_why4
+check("🚦💵🔒 TYA4 الضبطُ **يعزل نصفَي شرط `T-C`**: `C-MOM` يرسو على الارتفاع "
+      "وحدَه (t=3) و`C-USD` على السيولة وحدَها (t=4) — والوضعُ المجهول `None`",
+      _tya4_ok, _tya4_why)
+
+# 🔴🔴 `TYA5` — **الحكمُ يطبّق العقدَ بحرفه**: الأرضيّةُ أوّلًا، ثمّ الثلاثةُ
+#    الحاكمة، وفاصلٌ يلمس الصفر **لا يعبر**. جدولُ حقيقةٍ من سبع حالات.
+_tya5_ok, _tya5_why = False, _tya_imp
+if _TYA is not None:
+    _ty_pass = {n: (0.5, 9.0, 4.0) for n in _TYA.GOV}
+    _ty_full = {"resolved": _TYA.FLOOR_RESOLVED, "tc": _TYA.FLOOR_TC}
+    _ty_cases = [
+        (_ty_pass, _ty_full, 1),                                  # الثلاثةُ تعبر
+        (_ty_pass, {"resolved": _TYA.FLOOR_RESOLVED - 1,
+                    "tc": _TYA.FLOOR_TC}, 3),                     # الأرضيّةُ ناقصة
+        (_ty_pass, {"resolved": _TYA.FLOOR_RESOLVED,
+                    "tc": _TYA.FLOOR_TC - 1}, 3),                 # شريحةُ A-TC ناقصة
+        ({**_ty_pass, "TY2": (-0.1, 9.0, 4.0)}, _ty_full, 2),     # فاصلٌ يلمس الصفر
+        ({**_ty_pass, "TY1": (0.5, 9.0, -1.0)}, _ty_full, 2),     # دلتا سالبة
+        ({**_ty_pass, "TY3": (None, None, None)}, _ty_full, 2),   # بلا فاصل
+        ({}, _ty_full, 2),                                        # لا معيارَ أصلًا
+    ]
+    _ty_bad5 = [i for i, (c, f, want) in enumerate(_ty_cases)
+                if _TYA.read_verdict(c, f)["branch"] != want]
+    # والأرضيّةُ **تسبق** المعايير: ناقصةٌ ⇒ لا يُقرأ أيُّ معيار
+    _ty_v3 = _TYA.read_verdict(_ty_pass, {"resolved": 0, "tc": 0})
+    _tya5_ok = (not _ty_bad5 and _ty_v3["branch"] == 3
+                and _ty_v3["passed"] == {} and _ty_v3["floor_ok"] is False)
+    _tya5_why = (f"حالات={len(_ty_cases)} · مخالف={len(_ty_bad5)} · "
+                 f"الأرضيّةُ تسبق={_ty_v3['passed'] == {}}")
+check("🚦💵🔒 TYA5 **الحكمُ يقيس معاييرَ عقده**: الأرضيّةُ أوّلًا (ولا يُقرأ معيارٌ "
+      "دونها) · والثلاثةُ الحاكمة · وفاصلٌ يلمس الصفر **لا يعبر** — سبعُ حالات",
+      _tya5_ok, _tya5_why)
+
+# `TYA6` — البوتستراب **عنقوديٌّ بالرمز** · حتميٌّ · وبذرتُه حيّة · **والكونُ
+#    المُعلَن يُحترَم** (‏رمزٌ بلا صفوفٍ يغيّر الفاصلَ ⇒ يُعاين الكونَ لا الصفوف).
+# 🔴 وصياغتي الأولى ادّعت شيئين خاطئين وأسقطها القياس: «كونٌ أوسعُ يوسّع الفاصل»
+#    (‏**مقلوب**: عناقيدُ أكثر = تباينٌ أقلّ) و«بذورٌ مختلفةٌ تفرّق عند 300 إعادة»
+#    (‏الحُصَيصةُ تستقرّ فتتطابق ثمانُ بذور). ⇒ يُقفَل **ما هو صحيحٌ فعلًا**.
+_tya6_ok, _tya6_why = False, _tya_imp
+if _TYA is not None:
+    _ty_A = [(f"s{_i}", _i % 3 == 0) for _i in range(1, 13)]
+    _ty_B = [(f"s{_i}", _i % 4 == 0) for _i in range(1, 13)]
+    _ty_uni = [f"s{_i}" for _i in range(1, 13)]
+    _ty_r1 = _TYA.boot_delta(_ty_A, _ty_B, _ty_uni, reps=400, seed=1)
+    _ty_r2 = _TYA.boot_delta(_ty_A, _ty_B, _ty_uni, reps=400, seed=1)
+    # بذرةٌ حيّة: عند إعاداتٍ قليلةٍ تقع الحُصَيصةُ على سحبةٍ بعينها فتفرّق
+    _ty_seeds = {tuple(_TYA.boot_delta(_ty_A, _ty_B, _ty_uni, reps=7, seed=_s))
+                 for _s in range(1, 6)}
+    # 🔑 الكونُ المُعلَن يُحترَم: رمزٌ **بلا صفوف** يغيّر الفاصل
+    _ty_r4 = _TYA.boot_delta(_ty_A, _ty_B, _ty_uni + ["zzz"], reps=400, seed=1)
+    _tya6_ok = (_ty_r1 == _ty_r2                      # حتميّ
+                and len(_ty_seeds) >= 3               # والبذرةُ حيّة
+                and _ty_r1 != _ty_r4                  # والكونُ يُحترَم
+                and _ty_r1[0] <= _ty_r1[2] <= _ty_r1[1]
+                and _TYA.boot_delta(_ty_A, _ty_B, [], reps=10)[2] is None
+                and _TYA.BOOT == 5000 and _TYA.BOOT_SEED == 20260912)
+    _tya6_why = (f"حتميّ={_ty_r1 == _ty_r2} · بذورٌ تفرّق={len(_ty_seeds)}/5 · "
+                 f"الكونُ يُحترَم={_ty_r1 != _ty_r4} · "
+                 f"Δ={None if _ty_r1[2] is None else round(_ty_r1[2], 2)}")
+check("🚦💵🔒 TYA6 البوتستراب **عنقوديٌّ بالرمز** · حتميٌّ · وبذرتُه حيّة · "
+      "**والكونُ المُعلَن يُحترَم** (رمزٌ بلا صفوفٍ يغيّر الفاصل) ⇒ لا يُنتقى "
+      "بالنتيجة · وثوابتُ العقد 5000/20260912", _tya6_ok, _tya6_why)
+
+# 🔴 `TYA7` — الحرّاسُ **توقف لا تطبع**: `V-Y4` و`V-Y2` و`V-Y7` لها رمزٌ يُرجَع،
+#    والرموزُ **متمايزة**. بالـAST على `_judge`/`main` (‏صفرُ شبكةٍ في السويّة).
+_tya7_ok, _tya7_why = False, _tya_imp
+if _TYA is not None:
+    try:
+        _ty_j = _tya_ast.parse(_tya_insp.getsource(_TYA._judge))
+        _ty_rets = [n for n in _tya_ast.walk(_ty_j) if isinstance(n, _tya_ast.Return)]
+        # حارسُ `V-Y4` يُرجع **قبل** أن يُنادى `read_verdict`
+        _ty_names = [getattr(n.value, "id", None) for n in _ty_rets]
+        _ty_body = _tya_insp.getsource(_TYA._judge)
+        _ty_i_g = _ty_body.find("return RC_VY4")
+        _ty_i_v = _ty_body.find("read_verdict(")
+        _ty_codes = {_TYA.RC_INPUT, _TYA.RC_PROD, _TYA.RC_READONLY,
+                     _TYA.RC_NOMAT, _TYA.RC_COVER, _TYA.RC_VY4,
+                     _TYA.RC_NOVERDICT}
+        _tya7_ok = ("RC_VY4" in _ty_names
+                    and 0 <= _ty_i_g < _ty_i_v
+                    and len(_ty_codes) == 7          # متمايزةٌ كلُّها
+                    and 0 not in _ty_codes           # ولا يصادم رمزَ النجاح
+                    and 8 not in _ty_codes)          # و‏8 **محجوزٌ للإغلاق**
+        _tya7_why = (f"يُرجع={'RC_VY4' in _ty_names} · قبل الحكم="
+                     f"{0 <= _ty_i_g < _ty_i_v} · رموز={sorted(_ty_codes)}")
+    except Exception as _e:                                      # noqa: BLE001
+        _tya7_why = f"⛔ {type(_e).__name__}: {_e}"
+check("🚦💵🔒 TYA7 `V-Y4` **حارسٌ يوقف قبل الحكم** لا يطبع بعده · ورموزُ الخروج "
+      "السبعةُ متمايزةٌ ولا تصادم 0 ولا 8 (المحجوزَ للإغلاق)", _tya7_ok, _tya7_why)
+
+# `TYA8` — `C-CNT` **مطابَقُ العدد وأعمى عن شرط `T-C`**: الأسبقيّةُ الزمنيّة وحدَها
+#    وحتميٌّ عند التساوي التامّ (‏درسُ `T-PMGATE`: فرزٌ يسقط لمقارنة قواميس).
+_tya8_ok, _tya8_why = False, _tya_imp
+if _TYA is not None:
+    _ty_pool = [("B", "2026-09-10", 30), ("A", "2026-09-10", 10),
+                ("C", "2026-09-10", 20), ("D", "2026-09-10", 10)]
+    _ty_pick = _TYA.count_matched(_ty_pool, 2)
+    _ty_tie = _TYA.count_matched([("B", "d", 5), ("A", "d", 5)], 2)
+    _tya8_ok = (_ty_pick == [("A", "2026-09-10", 10), ("D", "2026-09-10", 10)]
+                and _ty_tie == [("A", "d", 5), ("B", "d", 5)]   # حتميٌّ بالتعادل
+                and _TYA.count_matched(_ty_pool, 0) == []
+                and _TYA.count_matched([], 5) == []
+                and len(_TYA.count_matched(_ty_pool, 99)) == len(_ty_pool))
+    _tya8_why = f"المأخوذ={[p[0] for p in _ty_pick]} · تعادل={[p[0] for p in _ty_tie]}"
+check("🚦💵🔒 TYA8 `C-CNT` **بالأسبقيّة الزمنيّة وحدَها** (أعمى عن شرط `T-C`) · "
+      "وحتميٌّ عند التساوي التامّ · ويأخذ العددَ المطلوبَ لا أكثر",
+      _tya8_ok, _tya8_why)
+
+# `TYA9` — العتباتُ **تُقرأ من الإنتاج ولا تُضبَط**: صفرُ إسنادٍ إلى `LIQ_TC_*`
+#    أو `CONFIG` في الأداة (‏بالـAST — درسُ `RKA10`: `V-Y7` يقارن ملفًّا ولا يرى
+#    ضبطًا في الذاكرة) ‏+ **شاهدُ ضبطٍ** يُثبت أن الفحصَ يمسك الإسنادَ لو وُقع.
+_tya9_ok, _tya9_why = False, _tya_imp
+if _TYA is not None:
+    def _tya9_assigns(src: str) -> set:
+        found = set()
+        for _n in _tya_ast.walk(_tya_ast.parse(src)):
+            tgts = []
+            if isinstance(_n, _tya_ast.Assign):
+                tgts = _n.targets
+            elif isinstance(_n, (_tya_ast.AugAssign, _tya_ast.AnnAssign)):
+                tgts = [_n.target]
+            for _t in tgts:
+                if isinstance(_t, _tya_ast.Attribute):
+                    found.add(_t.attr)
+                elif isinstance(_t, _tya_ast.Subscript):
+                    _v = _t.value
+                    if isinstance(_v, _tya_ast.Attribute):
+                        found.add(_v.attr)
+                    elif isinstance(_v, _tya_ast.Name):
+                        found.add(_v.id)
+        return found
+    _ty_src = _tya_io.open("tc_yield_arms.py", encoding="utf-8").read()
+    _ty_asg = _tya9_assigns(_ty_src)
+    _ty_hits = {n for n in _ty_asg
+                if n in {"CONFIG", "LIQ_TC_ON", "LIQ_TC_USD", "LIQ_TC_PCT"}}
+    # شاهدُ ضبطٍ: لو وُجد الإسنادُ لأمسكه الفحصُ نفسُه
+    _ty_ctl = _tya9_assigns("import x\nx.CONFIG['A'] = 1\nx.LIQ_TC_ON = False\n")
+    _tya9_ok = (not _ty_hits
+                and {"CONFIG", "LIQ_TC_ON"} <= _ty_ctl
+                and "LIQ_TC_USD" in _ty_src)   # تُقرأ فعلًا
+    _tya9_why = f"إسنادات={sorted(_ty_hits) or 'صفر'} · شاهدُ الضبط={sorted(_ty_ctl)}"
+check("🚦💵🔒 TYA9 العتباتُ **تُقرأ من الإنتاج ولا تُضبَط** في الذاكرة (AST) — "
+      "ومعه شاهدُ ضبطٍ يُثبت أن الفحصَ يمسك الإسنادَ لو وقع", _tya9_ok, _tya9_why)
+
+# ══════════════════════════════════════════════════════════════════════════
 # 📉🚦 `T-RSI-RANK` — أقفالُ **الأداة** (‏`RKA0`-`RKA8`، 2026-09-11، أمرُ المالك
 #    «ابن الاداة»). العقدُ مقفولٌ أعلاه بـ`RKK0`-`RKK2`؛ وهذي تحرس **ما تفعله
 #    `rsi_rank_arms.py` فعلًا**. 🔒 **ولا تلمس شيئًا من الإنتاج** — الأداةُ
