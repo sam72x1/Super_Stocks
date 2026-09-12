@@ -2386,3 +2386,4 @@
 {"key": "control|2026-09-04|WHLRD", "hunter": "control", "session": "2026-09-04", "symbol": "WHLRD", "kind": "control", "ref_close": 36.0, "fwd": 40, "outcome": null}
 {"key": "split|2026-09-08|YHC", "hunter": "split", "session": "2026-09-08", "symbol": "YHC", "kind": "candidate", "ref_close": 1.4199999570846558, "fwd": 40, "outcome": null, "price": 1.42, "float": 1277897.0, "half": 1.22, "ref": 2.43}
 {"key": "split|2026-09-09|YHC", "hunter": "split", "session": "2026-09-09", "symbol": "YHC", "kind": "candidate", "ref_close": 1.3700000047683716, "fwd": 40, "outcome": null, "price": 1.37, "float": 1277897.0, "half": 1.22, "ref": 2.43}
+{"key": "split|2026-09-11|YHC", "hunter": "split", "session": "2026-09-11", "symbol": "YHC", "kind": "candidate", "ref_close": 1.4049999713897705, "fwd": 40, "outcome": null, "price": 1.4, "float": 1277897.0, "half": 1.22, "ref": 2.43}
