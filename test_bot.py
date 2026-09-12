@@ -10164,8 +10164,10 @@ if _RKA is not None:
         _RKA.production_untouched = lambda: (True, "x", "x")
 
         def _rka8_run(years, frozen, dry):
+            # 🔓 الإقرارُ صريحٌ: المحورُ **مُغلَقٌ** منذ 2026-09-12، وهذا القفلُ
+            #    يفحص آلةَ القياس **تحت** الحارس — فيرفعه بالإقرار لا يلتفّ عليه.
             _env = {"RSIRANK_YEARS": years, "RSIRANK_FROZEN": frozen,
-                    "RSIRANK_DRY": dry}
+                    "RSIRANK_DRY": dry, _RKA.REOPEN_ENV: "1"}
             _old = {k: _rka_os.environ.get(k) for k in _env}
             _rka_os.environ.update(_env)
             try:
@@ -10326,8 +10328,10 @@ if _RKA is not None:
                _RKA.PUBLISHED_K0_D100, _RKA.FLOOR_FILLED)
         _gov0 = _RKA.GOV_YEARS          # 🔴 يُقرأ في `finally` فيُسنَد **قبل** try
         _cwd = _rka_os.getcwd()
+        # 🔓 إقرارٌ صريح: المحورُ مُغلَقٌ منذ 2026-09-12 وهذا القفلُ يفحص آلةَ
+        #    القياس **تحت** الحارس.
         _env = {"RSIRANK_YEARS": "2023", "RSIRANK_FROZEN": "p1",
-                "RSIRANK_DRY": ("1" if dry else "0")}
+                "RSIRANK_DRY": ("1" if dry else "0"), _RKA.REOPEN_ENV: "1"}
         _old = {k: _rka_os.environ.get(k) for k in _env}
         try:
             _RKA._measure_year = lambda y, f: {
@@ -10511,13 +10515,28 @@ if _RKA is not None and _rkf_arms:
         _gate_ok = (_v13a.get("rk4") is True and _v13a.get("branch") == 1
                     and _v13b.get("rk4") is False and _v13b.get("branch") == 2
                     and _v13b.get("match_ok") is False)
+        # 🔴 **شُدِّد بعد نجاة طفرة «الحدُّ يُرفَع إلى 999»:** فِكستشرُ القفل
+        #    فجوتُه 2% فلا يقترب من الحدّ ⇒ رفعُه **بلا أثرٍ على ما يفحصه**
+        #    (الصنف ④-3). ⇒ ① الحدُّ **قيمتُه** هي المنصوصةُ في §⑩-ب
+        #    ② و**حيٌّ سلوكيًّا**: بخفضه يقلب `match_ok` على الفِكستشر نفسِه.
+        _sv13 = _RKA.MATCH_MAX_GAP_PCT
+        try:
+            _RKA.MATCH_MAX_GAP_PCT = 0.5          # أضيقُ من فجوة الفِكستشر
+            _tight, _, _ = _RKA.measure(_rkf_rows, 50.0)
+            _live = (_tight["M27"]["match_ok"] is False)
+        except Exception:                                        # noqa: BLE001
+            _live = False
+        finally:
+            _RKA.MATCH_MAX_GAP_PCT = _sv13
+        _thr_ok = (_RKA.MATCH_MAX_GAP_PCT == 10.0 and _live)
         _rka13_ok = (_differs and _matched and _cap_free and _rate_ok
-                     and _gate_ok)
+                     and _gate_ok and _thr_ok)
         _rka13_why = (f"تعبئة={sorted(set(_fills.values()))} · هدف={_tgt} "
                       f"K0 فجوة={abs(_fills['K0'] - _tgt)} · M27="
                       f"{_m.get('filled')} فجوة={_m.get('match_gap')} "
                       f"({_m.get('match_gap_pct')}%) سعة={_m.get('cap_used')} "
-                      f"· بوّابةُ الصلاحية={_gate_ok}")
+                      f"· بوّابةُ الصلاحية={_gate_ok} · الحدّ="
+                      f"{_RKA.MATCH_MAX_GAP_PCT} حيٌّ={_live}")
     except Exception as _e:                                      # noqa: BLE001
         _rka13_why = f"⛔ {type(_e).__name__}: {_e}"
 check("📉🚦🔒 RKA13 **`V-K4` مكذوبٌ بالقياس فصار مقيسًا**: التعبئةُ تختلف عبر "
@@ -10555,6 +10574,68 @@ if _RKA is not None and _rkf_arms:
                       f"{_ea['K0']['d100']} d50={_ea['K0']['d50']}")
     except Exception as _e:                                      # noqa: BLE001
         _rka14_why = f"⛔ {type(_e).__name__}: {_e}"
+# 🔴 **وُلد من نجاة طفرة «شاهدُ حياة `K27` يُنزَع»:** الحارسُ `if k27_dead:
+#    return 7` **لم يكن مختبَرًا** — فِكستشرُ الأقفال `K27` فيه يفرّق دائمًا.
+#    وهو حارسُ `no-op` صريح: لو طابقت الحاكمةُ الأساسَ فـ`Δ` ≡ صفرٌ بنيويًّا
+#    والتجربةُ بلا موضوع.
+_rka14b_ok, _rka14b_why = False, _rka_imp
+if _RKA is not None:
+    import contextlib as _r14_cx
+    import io as _r14_io
+    import tempfile as _r14_tf
+    import shutil as _r14_sh
+
+    # صفقاتٌ **كلُّها خارج منطقة فيصل** ⇒ `band_of` واحدٌ للجميع ⇒ `K27` ≡ `K0`
+    _r14_rows = [{"symbol": f"Z{_i:02d}", "date": "2023-04-03",
+                  "exit_date": "2023-04-04", "readiness": float(_i),
+                  "score": 1.0, "rr": 1.0, "outcome": "loss",
+                  "mg_outcome": "stop", "mg_pre_stop": 5.0, "ret_a": -0.1,
+                  "entry": 1.0, "stop": 0.9,
+                  "env_vals": {"in_band": False, "rsi_now": 55.0 + _i,
+                               "drop_pct": float(40 + _i)}}
+                 for _i in range(30)]
+    _r14_tmp = _r14_tf.mkdtemp(prefix="rka14b_")
+    _r14_tp = _rka_os.path.join(_r14_tmp, "tr.json")
+    with open(_r14_tp, "w", encoding="utf-8") as _fh:
+        _json0.dump(_r14_rows, _fh)
+    _r14_sv = (_RKA._measure_year, _RKA.production_untouched,
+               _RKA.PUBLISHED_K0_D100, _RKA.FLOOR_FILLED, _RKA.GOV_YEARS)
+    # 🔓 إقرارٌ صريح: المحورُ مُغلَقٌ منذ 2026-09-12 وهذا القفلُ يفحص الحاكمةَ
+    #    الخامدة **تحت** الحارس.
+    _r14_env = {"RSIRANK_YEARS": "2023", "RSIRANK_FROZEN": "p1",
+                "RSIRANK_DRY": "0", _RKA.REOPEN_ENV: "1"}
+    _r14_old = {k: _rka_os.environ.get(k) for k in _r14_env}
+    try:
+        _RKA._measure_year = lambda y, f: {
+            "year": y, "snap": {"asof": f"{y}-06-01", "n": 9}, "wf": 30,
+            "path": _r14_tp, "expl": 50.0, "rsi_now_hard": 50.0,
+            "rsi_max_now": 40.0}
+        _RKA.production_untouched = lambda: (True, "x", "x")
+        _RKA.PUBLISHED_K0_D100 = {}
+        _RKA.FLOOR_FILLED = 1
+        _RKA.GOV_YEARS = ("2023",)
+        _rka_os.environ.update(_r14_env)
+        with _r14_cx.redirect_stdout(_r14_io.StringIO()) as _r14_buf:
+            _r14_rc = _RKA.main()
+        _r14_txt = _r14_buf.getvalue()
+    except Exception as _e:                                      # noqa: BLE001
+        _r14_rc, _r14_txt = -1, f"⛔{type(_e).__name__}: {_e}"
+    finally:
+        (_RKA._measure_year, _RKA.production_untouched,
+         _RKA.PUBLISHED_K0_D100, _RKA.FLOOR_FILLED,
+         _RKA.GOV_YEARS) = _r14_sv
+        for _k, _v in _r14_old.items():
+            if _v is None:
+                _rka_os.environ.pop(_k, None)
+            else:
+                _rka_os.environ[_k] = _v
+        _r14_sh.rmtree(_r14_tmp, ignore_errors=True)
+    _rka14b_ok = (_r14_rc == 7 and "خامدة" in _r14_txt)
+    _rka14b_why = f"rc={_r14_rc} · يُعلن={'خامدة' in str(_r14_txt)}"
+check("📉🚦🔒 RKA14ب **الحاكمةُ الخامدة توقف التجربة**: مجتمعٌ كلُّه خارج منطقة "
+      "فيصل ⇒ `K27` ≡ `K0` ⇒ `Δ` ≡ صفرٌ بنيويًّا ⇒ **خروج 7 وإعلانٌ صريح** لا "
+      "حكمٌ على `no-op`", _rka14b_ok, _rka14b_why)
+
 check("📉🚦🔒 RKA14 `V-K3` **مقيسٌ من `measure` نفسِها** (سعةٌ ومحورٌ واحدان لكلّ "
       "ذراعٍ مُرتِّبة) · و`d100` **مبنيٌّ بـ`_hit100` حصرًا**: صفٌّ عند ‏99.99 "
       "يُعَدّ في `d50` ولا يُعَدّ في `d100`", _rka14_ok, _rka14_why)
@@ -10601,6 +10682,86 @@ check("📉🚦🔒 RKA15 **بيئةُ الطفل مجرَّدةٌ من مفات
       "المُشغِّل ⇒ الإرسالُ مستحيلٌ **بنيويًّا** لا اتّكالًا على غيابِ سرٍّ في "
       "workflow واحد · و`BACKTEST_YEAR`/`BT_FROZEN_PATH`/`BT_ENVVALS` تصل فعلًا",
       _rka15_ok, _rka15_why)
+
+# ── `RKA16` — 🔒🔴 **الإغلاقُ يُنفَّذ لا يُكتَب** (شرطُ العقد §⑨) ──
+#    سلوكيٌّ من طرفيه كسابقتَيه `RSK9`/`PGA12`، **وأشدُّ منهما بشقٍّ ثالث**:
+#    نقطةُ الدخول هنا تتفرّع إلى `run_child` **قبل** `main`، والطفلُ ينادي
+#    `run_backtest` وفيها إرسالٌ ووثائقُ CSV بلا حارس ⇒ **حارسٌ في `main`
+#    وحدَه يُلتَفّ عليه بـ`--child`**. فيُفحَص المساران معًا.
+_rka16_ok, _rka16_why = False, _rka_imp
+if _RKA is not None:
+    import contextlib as _r16_cx
+    import io as _r16_io
+
+    _r16_keys = ("RSIRANK_REOPEN", "RSIRANK_YEARS", "RSIRANK_FROZEN",
+                 "RSIRANK_DRY")
+    _r16_old = {k: _rka_os.environ.get(k) for k in _r16_keys}
+    _r16_sv = (_RKA.subprocess.run, _RKA.production_untouched,
+               _RKA.selfcheck_readonly, _RKA.measure)
+    _r16_ops = []
+    try:
+        _RKA.subprocess.run = lambda *a, **k: _r16_ops.append("proc")
+        _RKA.production_untouched = lambda: _r16_ops.append("vk1") or (True, "x", "x")
+        _RKA.selfcheck_readonly = lambda: _r16_ops.append("selfcheck") or True
+        _RKA.measure = lambda *a, **k: _r16_ops.append("measure") or ({}, {}, [])
+        for _k in _r16_keys:
+            _rka_os.environ.pop(_k, None)
+        _r16_buf = _r16_io.StringIO()
+        with _r16_cx.redirect_stdout(_r16_buf):
+            _r16_main = _RKA.main()
+            _r16_child = _RKA.run_child("2023")
+        _r16_ops_closed = list(_r16_ops)
+        _r16_txt = (_r16_buf.getvalue() + "\n"
+                    + "\n".join(_RKA.closure_notice()))
+        # 🔓 وبالإقرار **يُرفَع الحارسُ فعلًا** — فحارسٌ لا يُرفَع أبدًا كان
+        #    سيمرّ على شقٍّ واحدٍ ويكذب على الشقّ الآخر.
+        _rka_os.environ["RSIRANK_REOPEN"] = "1"
+        with _r16_cx.redirect_stdout(_r16_io.StringIO()):
+            _r16_open = _RKA.main()
+        # 🔢 رمزُ الإغلاق **مميَّزٌ** عن كلّ رمزٍ يُرجعه القياسُ في المسارين —
+        #    بما فيه ما يسكن داخل `return X if … else Y` (‏9 = «لا حكم»).
+        # 🔴 **صُحِّح بعد نجاة طفرةِ `CLOSED_RC = 9`:** كان الفهمُ يُقصي
+        #    `c.value != CLOSED_RC` ⇒ الرقمُ الذي يصادمه **يُحذَف بالفلتر
+        #    نفسِه** فيصير الشرطُ **خاويًا لا يُكذَّب** (الصنف ③). والإقصاءُ
+        #    كان بلا موضوعٍ أصلًا: `return CLOSED_RC` **اسمٌ لا ثابت** فلا
+        #    يُسهم بشيء — فأُسقط الفلتر، وصار الشرطُ يُكذَّب فعلًا.
+        def _r16_codes(fn):
+            return {c.value for r in _ast0.walk(
+                _ast0.parse(_insp.getsource(fn)))
+                if isinstance(r, _ast0.Return) and r.value is not None
+                for c in _ast0.walk(r.value)
+                if isinstance(c, _ast0.Constant) and isinstance(c.value, int)}
+        _r16_all = _r16_codes(_RKA.main) | _r16_codes(_RKA.run_child)
+        _rka16_ok = (
+            _RKA.AXIS_CLOSED is True
+            and _r16_main == _RKA.CLOSED_RC != 0
+            and _r16_child == _RKA.CLOSED_RC          # 🔴 الشقُّ الثالث
+            and not _r16_ops_closed                   # صفرُ عمليةٍ تُطلَق
+            and _r16_open == 2                        # الحارسُ رُفع فعلًا
+            and _RKA.CLOSED_RC not in _r16_all        # مميَّزٌ عن رموز القياس
+            and all(_c in _r16_txt for _c in ("①", "②", "③"))
+            and "مصدرٌ ثانٍ" in _r16_txt
+            and "rsi_rank_result.md" in _r16_txt
+            and _RKA.REOPEN_ENV in _r16_txt
+            and "إقرارٌ لا التفاف" in _r16_txt)
+        _rka16_why = (f"main={_r16_main} · child={_r16_child} · "
+                      f"عمليات={_r16_ops_closed} · بالإقرار={_r16_open} · "
+                      f"رموزُ القياس={sorted(_r16_all)}")
+    except Exception as _e:                                      # noqa: BLE001
+        _rka16_why = f"⛔ رمى: {type(_e).__name__}: {_e}"
+    finally:
+        (_RKA.subprocess.run, _RKA.production_untouched,
+         _RKA.selfcheck_readonly, _RKA.measure) = _r16_sv
+        for _k, _v in _r16_old.items():
+            if _v is None:
+                _rka_os.environ.pop(_k, None)
+            else:
+                _rka_os.environ[_k] = _v
+check("📉🚦🔒 RKA16 الإغلاقُ **يُنفَّذ لا يُكتَب** (§⑨): **المساران معًا** "
+      "(`main` و`run_child`) ⇒ خروجٌ مميَّزٌ و**صفرُ عملية** · وبالإقرار يُرفَع "
+      "الحارسُ فعلًا (‏2 = مدخلٌ ناقص) · والنصُّ يحمل الشروطَ الثلاثة واسمَ ملفّ "
+      "النتيجة و«إقرارٌ لا التفاف»", _rka16_ok, _rka16_why)
+
 
 
 
@@ -45943,6 +46104,32 @@ _rs_n_closed = len(_rs_calls)
 # بالإقرار: الحارسُ يُرفَع ⇒ يمضي لفحص اللقطة المفقودة ⇒ **‏4 لا 6**
 _rs_rc_open = _rs_parent(env_over="1") if _RS else None
 _rs_txt = "\n".join(_RS.closure_notice()) if _RS else ""
+# 🔴🔴 **وشقٌّ ثالثٌ أُضيف 2026-09-12** بعد أن كشف تدقيقُ `T-RSI-RANK` أن
+#    `__main__` يتفرّع إلى `run_child` **قبل** `run_parent` ⇒ `--child` كان
+#    **يلتفّ على إغلاقٍ مشحون** ويُشغّل الباكتيستَ على محورٍ مُغلَق.
+_rsk9c_ok, _rsk9c_why = False, "?"
+try:
+    import io as _rsk9_io
+    import contextlib as _rsk9_cx
+    _rsk9_e = {k: _os.environ.get(k) for k in ("RSI40_REOPEN",)}
+    _os.environ.pop("RSI40_REOPEN", None)
+    with _rsk9_cx.redirect_stdout(_rsk9_io.StringIO()):
+        _rsk9_child = _RS.run_child("H0")
+    _os.environ["RSI40_REOPEN"] = "1"
+    _rsk9c_ok = (_RS is not None and _rsk9_child == _RS.CLOSED_RC)
+    _rsk9c_why = f"run_child مُغلَقًا ⇒ {_rsk9_child} (المتوقَّع {_RS.CLOSED_RC})"
+except Exception as _e:                                          # noqa: BLE001
+    _rsk9c_why = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    for _k, _v in _rsk9_e.items():
+        if _v is None:
+            _os.environ.pop(_k, None)
+        else:
+            _os.environ[_k] = _v
+check("📉🔒 RSK9ب **الطفلُ لا يلتفّ على الإغلاق**: `run_child` مُغلَقًا يُرجع رمزَ "
+      "الإغلاق **قبل استيراد الإنتاج** — وكان مسارًا مفتوحًا حتى 2026-09-12",
+      _rsk9c_ok, _rsk9c_why)
+
 check("📉🔒 RSK9 الإغلاقُ **يُنفَّذ لا يُكتَب**: مُغلَقًا ⇒ خروج 6 و**صفرُ عمليةٍ تُطلَق** · "
       "وبالإقرار `RSI40_REOPEN` يُرفَع الحارسُ فعلًا (‏4 = لقطةٌ مفقودة لا 6) · ونصُّ "
       "الإغلاق يحمل **شروطَ الفتح الثلاثة**",

@@ -72,7 +72,20 @@ def gate_hits(text: str) -> int:
                            text or ""))
 
 
+def _rsi40_closed_now() -> bool:
+    """أمُغلَقٌ الآن؟ — يُقرأ المفتاحُ **وقت النداء**."""
+    return AXIS_CLOSED and not (os.environ.get(REOPEN_ENV) or "").strip()
+
+
 def run_child(arm: str) -> int:
+    # 🔒🔴 **ثغرةٌ كشفها تدقيقُ `T-RSI-RANK` (2026-09-12) وأُصلحت:** الحارسُ كان
+    #    في `run_parent` وحدَه، و`__main__` يتفرّع إلى هنا **قبله** ⇒
+    #    `--child` كان **يلتفّ على إغلاقٍ مشحون** ويُشغّل الباكتيستَ على محورٍ
+    #    مُغلَق. الحارسُ الآن **قبل استيراد الإنتاج** في المسارين معًا.
+    if _rsi40_closed_now():
+        for _ln in closure_notice():
+            print(_ln)
+        return CLOSED_RC
     import Super_stock as S                                      # noqa: PLC0415
     live = float(S.CONFIG["RSI_NOW_HARD"])
     if arm != CTRL_ARM:
@@ -261,7 +274,7 @@ def run_parent() -> int:
           f"\n{'=' * 78}", flush=True)
     # 🔒 **الإغلاقُ أوّلًا** — قبل اللقطة وقبل إطلاق أيّ عمليةٍ ابنة، فلا يُستهلَك
     #    رنرٌ ولا تُقرأ أرقامٌ لمحورٍ حُكم عليه.
-    if AXIS_CLOSED and not (os.environ.get(REOPEN_ENV) or "").strip():
+    if _rsi40_closed_now():
         for _ln in closure_notice():
             print(_ln)
         return CLOSED_RC
