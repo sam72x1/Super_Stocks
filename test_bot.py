@@ -10242,6 +10242,116 @@ check("📉🚦🔒 RKA10 §⑧ عند التشغيل: **صفرُ إسنادٍ �
       "⇒ لا `RSI_NOW_HARD` تتحرّك ولا عتبةَ فرزٍ — **وهو ما يفرّقها عن `T-RSI40`** "
       "الذي كانت كلُّ ذراعٍ فيه تضبط `CONFIG`", _rka10_ok, _rka10_why)
 
+# ── `RKA11` — **وضعُ الجدوى عاجزٌ بنيويًّا عن تسريب `Δ` حاكم** ──
+#    🔴 **وُلد من عيبٍ حقيقيّ:** البانرُ كان يقول «`K0` وحدَه · صفرُ `Δ`» بينما
+#    الكودُ يحسب **الأذرعَ السبع** ويطبع سطرَ `Δ` كاملًا لتلك السنة — أي يُطلع
+#    على `K27−K0` **وهو عينُ الكمّيّة الحاكمة في `RK1`** قبل القياس. وهو أثقلُ
+#    من حالة `T-PMGATE` (هناك كان المُطَّلَعُ عليه وصفيًّا). ⇒ الآن `measure`
+#    تقبل `only` **فلا تُبنى ذراعٌ أخرى أصلًا**.
+#    🔒 **والقفلُ سلوكيٌّ من طرفيه:** الجدوى **لا** تُخرج `Δ` ولا `d100` لغير
+#    `K0`، و**غيرُ الجدوى يُخرجهما** على الفِكستشر نفسِه (وإلّا كان القفلُ خاويًا).
+_rka11_ok, _rka11_why = False, _rka_imp
+if _RKA is not None:
+    import contextlib as _rka11_cx
+    import io as _rka11_io
+    import tempfile as _rka11_tf
+
+    _rka11_rows = []
+    _rka11_days = [f"2023-01-{_d:02d}" for _d in range(3, 9)]
+    for _di, _dd in enumerate(_rka11_days):
+        for _i in range(40):
+            _rka11_rows.append({
+                "symbol": f"S{_i:02d}", "date": _dd,
+                "exit_date": _rka11_days[min(_di + 1, len(_rka11_days) - 1)],
+                "readiness": float((_i * 7) % 100), "score": float(_i % 9),
+                "rr": float(_i % 4),
+                "outcome": "win" if _i % 6 == 0 else "loss",
+                "mg_outcome": "win" if _i % 6 == 0 else "stop",
+                "mg_pre_stop": 150.0 if _i % 6 == 0 else 10.0,
+                "ret_a": 0.5, "entry": 1.0, "stop": 0.9,
+                "env_vals": {"in_band": _i % 3 == 0,
+                             "rsi_now": 24.0 if _i % 5 == 0 else 45.0 + _i,
+                             "drop_pct": float(40 + _i)}})
+
+    def _rka11_run(dry):
+        _tmp = _rka11_tf.mkdtemp(prefix="rka11_")
+        _tp = _rka_os.path.join(_tmp, "tr.json")
+        with open(_tp, "w", encoding="utf-8") as _fh:
+            _json0.dump(_rka11_rows, _fh)
+        _sv = (_RKA._measure_year, _RKA.production_untouched,
+               _RKA.PUBLISHED_K0_D100, _RKA.FLOOR_FILLED)
+        _gov0 = _RKA.GOV_YEARS          # 🔴 يُقرأ في `finally` فيُسنَد **قبل** try
+        _cwd = _rka_os.getcwd()
+        _env = {"RSIRANK_YEARS": "2023", "RSIRANK_FROZEN": "p1",
+                "RSIRANK_DRY": ("1" if dry else "0")}
+        _old = {k: _rka_os.environ.get(k) for k in _env}
+        try:
+            _RKA._measure_year = lambda y, f: {
+                "year": y, "snap": {"asof": f"{y}-06-01", "n": 99},
+                "wf": len(_rka11_rows), "path": _tp, "expl": 50.0,
+                "rsi_now_hard": 50.0, "rsi_max_now": 40.0}
+            _RKA.production_untouched = lambda: (True, "x", "x")
+            _RKA.PUBLISHED_K0_D100 = {}
+            _RKA.FLOOR_FILLED = 10
+            if not dry:
+                _RKA.GOV_YEARS = ("2023",)      # سنةٌ واحدةٌ لفِكستشرٍ سريع
+            _rka_os.environ.update(_env)
+            _rka_os.chdir(_tmp)                 # لا يُلوَّث المستودع
+            _buf = _rka11_io.StringIO()
+            with _rka11_cx.redirect_stdout(_buf):
+                _rc = _RKA.main()
+            _txt = _buf.getvalue()
+        finally:
+            _rka_os.chdir(_cwd)
+            (_RKA._measure_year, _RKA.production_untouched,
+             _RKA.PUBLISHED_K0_D100, _RKA.FLOOR_FILLED) = _sv
+            _RKA.GOV_YEARS = _gov0
+            for k, v in _old.items():
+                if v is None:
+                    _rka_os.environ.pop(k, None)
+                else:
+                    _rka_os.environ[k] = v
+        _js = [l for l in _txt.splitlines() if l.startswith("RSIRANK_JSON")]
+        return _rc, (_json0.loads(_js[-1].split(" ", 1)[1]) if _js else {})
+
+    try:
+        _rc_d, _d_dry = _rka11_run(True)
+        _rc_f, _d_full = _rka11_run(False)
+    except Exception as _e:                                      # noqa: BLE001
+        _rc_d = _rc_f = -1
+        _d_dry = _d_full = {}
+        _rka11_why = f"⛔ رمى: {type(_e).__name__}: {_e}"
+    _py_d = (_d_dry.get("per_year") or {}).get("2023", {})
+    _py_f = (_d_full.get("per_year") or {}).get("2023", {})
+    # الجدوى: لا Δ · ولا d100 لغير K0 · ولا حكمَ ولا فاصل
+    _dry_clean = (_py_d.get("delta") is None
+                  and set((_py_d.get("d100") or {})) == {"K0"}
+                  and "verdict" not in _d_dry
+                  and not isinstance(_d_dry.get("boot"), dict))
+    # وغيرُ الجدوى على **الفِكستشر نفسِه** يُخرجهما ⇒ القفلُ ليس خاويًا
+    _full_has = (isinstance(_py_f.get("delta"), dict)
+                 and "K27-K0" in (_py_f.get("delta") or {})
+                 and set((_py_f.get("d100") or {})) >= {"K0", "K27", "C-DEPTH"}
+                 and isinstance(_d_full.get("verdict"), dict))
+    # و`measure(only=)` تُبنى ذراعًا واحدةً فقط (بنيةٌ لا وعد)
+    _one = None
+    try:
+        _one, _, _ = _RKA.measure(_rka11_rows, 50.0, only={"K0"})
+    except Exception:                                            # noqa: BLE001
+        _one = None
+    _rka11_ok = (_rc_d == 0 and _rc_f in (0, 9) and _dry_clean and _full_has
+                 and isinstance(_one, dict) and set(_one) == {"K0"})
+    if _rka11_why == _rka_imp:
+        _rka11_why = (f"جدوى: Δ={_py_d.get('delta')} d100="
+                      f"{sorted((_py_d.get('d100') or {}))} · كامل: "
+                      f"d100={len(_py_f.get('d100') or {})} · "
+                      f"only={sorted(_one) if isinstance(_one, dict) else _one}")
+check("📉🚦🔒 RKA11 **وضعُ الجدوى عاجزٌ بنيويًّا عن `Δ`**: `measure(only=)` تبني "
+      "`K0` وحدَها ⇒ صفرُ `Δ` وصفرُ `d100` لغيرها وصفرُ حكمٍ وفاصل · **وغيرُ "
+      "الجدوى على الفِكستشر نفسِه يُخرجها** فالقفلُ ليس خاويًا",
+      _rka11_ok, _rka11_why)
+
+
 
 
 check("قفل: دفعات الدخول 3 بخطوة 3%",

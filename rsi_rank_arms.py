@@ -165,9 +165,13 @@ def _hit(p: dict, thr: float) -> bool:
         return False
 
 
-def measure(trades, expl: float, seed: int = RAND_SEED):
+def measure(trades, expl: float, seed: int = RAND_SEED, only=None):
     """يقيس **كلَّ الأذرع على مجموعةِ مرشّحين واحدة** ⇒ الميزانيةُ والمحورُ
-    والكونُ متطابقةٌ بالبناء. يُرجع `(نتائج, معلومات)`."""
+    والكونُ متطابقةٌ بالبناء. يُرجع `(نتائج, معلومات, مرشّحون)`.
+
+    🔒 **و`only` ليست تحسينَ سرعة بل حاجزُ اطّلاع:** وضعُ الجدوى يمرّر
+    `{"K0"}` ⇒ **لا ذراعَ أخرى تُحسَب أصلًا** فيستحيل أن يتسرّب `Δ` حاكمٌ
+    من طباعةٍ سهوًا. «‏`K0` وحدَه» تصير **بنيةً لا وعدًا**."""
     dates = set()
     for t in trades:
         if t.get("date"):
@@ -177,6 +181,8 @@ def measure(trades, expl: float, seed: int = RAND_SEED):
     cands, idx, oc = candidates_from_trades(trades, extra_dates=sorted(dates))
     out = {}
     for name, fn in rankers(seed).items():
+        if only is not None and name not in only:
+            continue
         res = replay(cands, outcome_of=oc, ranker=fn, capacity=CAPACITY,
                      sessions=range(0, len(idx)))
         taken = res["taken"]
@@ -439,8 +445,9 @@ def main() -> int:                                               # noqa: PLR0911
         _log("⛔ `V-K1` سقط — الإنتاجُ ليس بت-بت مع main")
         return 3
     if dry:
-        _log("🧪 **وضعُ الجدوى:** سنةٌ واحدة · `K0` وحدَه · **صفرُ `Δ`** — "
-             "الجوابُ: هل تعبر الأرضيةُ وكم حجمُ `FWD` أصلًا؟")
+        _log("🧪 **وضعُ الجدوى:** سنةٌ واحدة · **`K0` وحدَه تُحسَب** (‏`only`) "
+             "⇒ **صفرُ `Δ` بنيويًّا لا وعدًا** — الجوابُ: هل تعبر الأرضيةُ وكم "
+             "حجمُ `FWD` أصلًا؟ **ولا يُقرأ منه رقمٌ حاكم.**")
 
     per_year, meta_all, rows = {}, {}, []
     for y, fz in zip(years, frozen):
@@ -456,7 +463,10 @@ def main() -> int:                                               # noqa: PLR0911
         meta_all[y] = meta
         with open(meta["path"], encoding="utf-8") as fh:
             trades = json.load(fh)
-        arms, info, cands = measure(trades, float(meta["expl"]))
+        # 🔒 **حاجزُ الاطّلاع:** في الجدوى تُحسَب `K0` **وحدَها** — لا ذراعَ
+        #    أخرى تُبنى فيستحيل `Δ` بنيويًّا لا بالوعد.
+        arms, info, cands = measure(trades, float(meta["expl"]),
+                                    only=({"K0"} if dry else None))
 
         # ── `V-K2` مرجعُ الأساس المنشور ──
         pub = PUBLISHED_K0_D100.get(y)
@@ -479,11 +489,36 @@ def main() -> int:                                               # noqa: PLR0911
             _log(f"⛔ [{y}] حارسٌ ساقط ⇒ لا يُقرأ رقمٌ من هذي السنة")
             return 5
 
+        floor_ok = arms["K0"]["filled"] >= FLOOR_FILLED
+        if dry:
+            # ══ وضعُ الجدوى: **الأرضيةُ والحجمُ وحدَهما** ══
+            # 🔒 صفرُ `Δ` · صفرُ ذراعٍ غيرِ `K0` · وصفرُ صفٍّ يحمل فرقًا.
+            # 🩺 وشاهدُ الحياة يُقاس هنا **ترتيبًا لا تسليمًا**: مقارنةُ ترتيبَين
+            #    نقيَّين على المرشّحين — **لا تمسّ نتيجةً ولا تعبئة**، واختلافُهما
+            #    شرطٌ لازمٌ لحياة `C-RAND` لا كافٍ (يُقال كما هو).
+            _dry_a = tuple(c.symbol for c in sorted(cands,
+                                                    key=make_c_rand(RAND_SEED)))
+            _dry_b = tuple(c.symbol for c in sorted(cands, key=k_base))
+            _v = arms["K0"]
+            _log(f"  K0       مأخوذ {_v['taken']:>4} · مُعبَّأ {_v['filled']:>4} · "
+                 f"d50 {_v['d50']:>3} · **d100 {_v['d100']:>3}**")
+            _log(f"  الأرضية (‏{FLOOR_FILLED} مُعبَّأة في `K0`) "
+                 f"{CA._mark(floor_ok)}")
+            _log("  🩺 `C-RAND` يفرّق عن `K0` **ترتيبًا**؟ "
+                 + ("✅ نعم (شرطٌ لازمٌ لا كافٍ)" if _dry_a != _dry_b
+                    else "🔴 **لا — شاهدٌ ميّتٌ على الترتيب**"))
+            rows.append({"year": y, "info": info, "floor_ok": floor_ok,
+                         "rsi_cov": cov, "dry": True,
+                         "K0": {k: v for k, v in _v.items() if k != "order"},
+                         "rand_order_differs": _dry_a != _dry_b})
+            per_year[y] = {"arms": arms, "info": info, "floor_ok": floor_ok,
+                           "rsi_cov": cov}
+            break
+
         same = arms["C-RAND"]["order"] == arms["K0"]["order"]
         _log("🩺 شاهدُ الحياة: `C-RAND` ≡ `K0`؟ "
              + ("🔴 **نعم — شاهدٌ ميّت**" if same else "✅ لا (يفرّق)"))
 
-        floor_ok = arms["K0"]["filled"] >= FLOOR_FILLED
         d = {f"K27-{a}": arms["K27"]["d100"] - arms[a]["d100"]
              for a in ("K0", "C-DEPTH", "C-RAND", "D-RAND")}
         per_year[y] = {"arms": arms, "info": info, "floor_ok": floor_ok,
@@ -501,8 +536,6 @@ def main() -> int:                                               # noqa: PLR0911
                      "rand_dead": same, "rsi_cov": cov,
                      "arms": {a: {k: v for k, v in arms[a].items()
                                   if k != "order"} for a in arms}})
-        if dry:
-            break
 
     with open(OUT_ROWS, "w", encoding="utf-8") as fh:
         for r in rows:
@@ -511,8 +544,9 @@ def main() -> int:                                               # noqa: PLR0911
     out = {"years": years, "dry": dry, "capacity": int(CAPACITY),
            "band": [BAND_LO, BAND_HI], "boot": BOOT, "boot_seed": BOOT_SEED,
            "rand_seed": RAND_SEED, "floor": FLOOR_FILLED,
-           "per_year": {y: {"delta": v["delta"], "floor_ok": v["floor_ok"],
-                            "rand_dead": v["rand_dead"],
+           "per_year": {y: {"delta": v.get("delta"),
+                            "floor_ok": v["floor_ok"],
+                            "rand_dead": v.get("rand_dead"),
                             "d100": {a: v["arms"][a]["d100"] for a in v["arms"]},
                             "filled": {a: v["arms"][a]["filled"]
                                        for a in v["arms"]}}
