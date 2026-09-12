@@ -2,7 +2,7 @@
  "ABAT": {
   "symbol": "ABAT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.559999942779541,
@@ -14,7 +14,7 @@
  "ABTC": {
   "symbol": "ABTC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -28,11 +28,11 @@
  "ACON": {
   "symbol": "ACON",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.5399999618530273,
-  "rsi_now": 53.74429846603888,
+  "rsi_now": 53.74429846603897,
   "readiness": 35,
   "score": 70,
   "n_criteria": 15
@@ -40,7 +40,7 @@
  "ACXP": {
   "symbol": "ACXP",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.399999976158142,
@@ -52,7 +52,7 @@
  "ADGM": {
   "symbol": "ADGM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5799999833106995,
@@ -64,7 +64,7 @@
  "AGRZ": {
   "symbol": "AGRZ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -79,7 +79,7 @@
  "AHMA": {
   "symbol": "AHMA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -93,7 +93,7 @@
  "AIDX": {
   "symbol": "AIDX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -108,7 +108,7 @@
  "AIFA": {
   "symbol": "AIFA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -122,13 +122,13 @@
  "AIFC": {
   "symbol": "AIFC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 0.5099999904632568,
-  "rsi_now": 46.51506434780451,
+  "rsi_now": 46.515064347804504,
   "readiness": 35,
   "score": 50,
   "n_criteria": 15
@@ -136,7 +136,7 @@
  "AIFU": {
   "symbol": "AIFU",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 12.40999984741211,
@@ -148,11 +148,11 @@
  "AIXC": {
   "symbol": "AIXC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7400000095367432,
-  "rsi_now": 44.288567272690585,
+  "rsi_now": 44.28856727269058,
   "readiness": 25,
   "score": 80,
   "n_criteria": 15
@@ -160,11 +160,11 @@
  "AKAN": {
   "symbol": "AKAN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.0,
-  "rsi_now": 31.045271761488834,
+  "rsi_now": 31.045271761488863,
   "readiness": 10,
   "score": 40,
   "n_criteria": 15
@@ -172,7 +172,7 @@
  "AKTX": {
   "symbol": "AKTX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -186,7 +186,7 @@
  "ALPS": {
   "symbol": "ALPS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -201,7 +201,7 @@
  "AMIX": {
   "symbol": "AMIX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.385000228881836,
@@ -213,7 +213,7 @@
  "AMOD": {
   "symbol": "AMOD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.0899999141693115,
@@ -225,7 +225,7 @@
  "ANGI": {
   "symbol": "ANGI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -239,7 +239,7 @@
  "ANPA": {
   "symbol": "ANPA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.7699999809265137,
@@ -251,13 +251,13 @@
  "ANY": {
   "symbol": "ANY",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 2.5399999618530273,
-  "rsi_now": 56.548624143545915,
+  "rsi_now": 56.54862414354593,
   "readiness": 35,
   "score": 85,
   "n_criteria": 15
@@ -265,7 +265,7 @@
  "AQMS": {
   "symbol": "AQMS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.2200000286102295,
@@ -277,7 +277,7 @@
  "ARAI": {
   "symbol": "ARAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -291,13 +291,13 @@
  "ARBE": {
   "symbol": "ARBE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 0.7590000033378601,
-  "rsi_now": 56.1544858687104,
+  "rsi_now": 56.15448586871041,
   "readiness": 50,
   "score": 60,
   "n_criteria": 15
@@ -305,7 +305,7 @@
  "ASTC": {
   "symbol": "ASTC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 7.210000038146973,
@@ -317,7 +317,7 @@
  "ATCX": {
   "symbol": "ATCX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -332,13 +332,13 @@
  "ATOS": {
   "symbol": "ATOS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
   ],
   "price": 2.3399999141693115,
-  "rsi_now": 40.682237616561764,
+  "rsi_now": 40.68223761656177,
   "readiness": 15,
   "score": 30,
   "n_criteria": 15
@@ -346,11 +346,11 @@
  "ATPC": {
   "symbol": "ATPC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.369999885559082,
-  "rsi_now": 45.56005914473801,
+  "rsi_now": 45.56005914473802,
   "readiness": 60,
   "score": 85,
   "n_criteria": 15
@@ -358,7 +358,7 @@
  "ATXG": {
   "symbol": "ATXG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.440000057220459,
@@ -370,7 +370,7 @@
  "AUID": {
   "symbol": "AUID",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -384,13 +384,13 @@
  "AUUD": {
   "symbol": "AUUD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 0.9800000190734863,
-  "rsi_now": 43.929592329978924,
+  "rsi_now": 43.9295923299789,
   "readiness": 45,
   "score": 65,
   "n_criteria": 15
@@ -398,7 +398,7 @@
  "AZI": {
   "symbol": "AZI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.2200000286102295,
@@ -410,7 +410,7 @@
  "BAOS": {
   "symbol": "BAOS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -424,7 +424,7 @@
  "BDRX": {
   "symbol": "BDRX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6600000262260437,
@@ -436,7 +436,7 @@
  "BGDE": {
   "symbol": "BGDE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 6.210000038146973,
@@ -448,7 +448,7 @@
  "BGL": {
   "symbol": "BGL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -463,13 +463,13 @@
  "BGLC": {
   "symbol": "BGLC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M5 السيولة الدولارية (دون الحدّ)"
   ],
   "price": 1.4800000190734863,
-  "rsi_now": 45.81590003696626,
+  "rsi_now": 45.81590003696627,
   "readiness": 35,
   "score": 55,
   "n_criteria": 15
@@ -477,7 +477,7 @@
  "BHST": {
   "symbol": "BHST",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -491,7 +491,7 @@
  "BIOX": {
   "symbol": "BIOX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -505,7 +505,7 @@
  "BIYA": {
   "symbol": "BIYA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.2699999809265137,
@@ -517,7 +517,7 @@
  "BLNK": {
   "symbol": "BLNK",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5379999876022339,
@@ -529,7 +529,7 @@
  "BMGL": {
   "symbol": "BMGL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.579999923706055,
@@ -541,7 +541,7 @@
  "BNAI": {
   "symbol": "BNAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 8.239999771118164,
@@ -553,7 +553,7 @@
  "BNC": {
   "symbol": "BNC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "RSI الآن (فوق الحدّ)",
@@ -568,13 +568,13 @@
  "BNGO": {
   "symbol": "BNGO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
   ],
   "price": 1.2000000476837158,
-  "rsi_now": 51.18102449694031,
+  "rsi_now": 51.181024496940324,
   "readiness": 25,
   "score": 50,
   "n_criteria": 15
@@ -582,13 +582,13 @@
  "BOXL": {
   "symbol": "BOXL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 5.670000076293945,
-  "rsi_now": 51.19255556831224,
+  "rsi_now": 51.19255556831222,
   "readiness": 35,
   "score": 70,
   "n_criteria": 15
@@ -596,7 +596,7 @@
  "BTTC": {
   "symbol": "BTTC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -611,7 +611,7 @@
  "BYRN": {
   "symbol": "BYRN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.5299999713897705,
@@ -623,7 +623,7 @@
  "BZAI": {
   "symbol": "BZAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -637,7 +637,7 @@
  "CAPR": {
   "symbol": "CAPR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -651,7 +651,7 @@
  "CAPS": {
   "symbol": "CAPS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -666,7 +666,7 @@
  "CCHH": {
   "symbol": "CCHH",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.2100000381469727,
@@ -678,13 +678,13 @@
  "CCOI": {
   "symbol": "CCOI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
   ],
   "price": 9.09000015258789,
-  "rsi_now": 39.010557080832584,
+  "rsi_now": 39.01055709673123,
   "readiness": 30,
   "score": 35,
   "n_criteria": 15
@@ -692,7 +692,7 @@
  "CD": {
   "symbol": "CD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -706,7 +706,7 @@
  "CDIO": {
   "symbol": "CDIO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -720,14 +720,14 @@
  "CDT": {
   "symbol": "CDT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
    "M2 الهبوط من قمة 52أ (فوق السقف)"
   ],
   "price": 0.3449999988079071,
-  "rsi_now": 18.411293851402263,
+  "rsi_now": 18.41129385145257,
   "readiness": 0,
   "score": 20,
   "n_criteria": 15
@@ -735,7 +735,7 @@
  "CDTG": {
   "symbol": "CDTG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -749,7 +749,7 @@
  "CELZ": {
   "symbol": "CELZ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9502000212669373,
@@ -761,7 +761,7 @@
  "CGTL": {
   "symbol": "CGTL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -775,13 +775,13 @@
  "CHAI": {
   "symbol": "CHAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.25699999928474426,
-  "rsi_now": 38.10268354365848,
+  "rsi_now": 38.10268354365865,
   "readiness": 70,
   "score": 95,
   "n_criteria": 15
@@ -789,11 +789,11 @@
  "CHR": {
   "symbol": "CHR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.6699999570846558,
-  "rsi_now": 37.04435971122345,
+  "rsi_now": 37.044359711223414,
   "readiness": 0,
   "score": 10,
   "n_criteria": 15
@@ -801,11 +801,11 @@
  "CHSN": {
   "symbol": "CHSN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0399999618530273,
-  "rsi_now": 35.11060317325422,
+  "rsi_now": 35.110603173250084,
   "readiness": 35,
   "score": 75,
   "n_criteria": 15
@@ -813,7 +813,7 @@
  "CIRC": {
   "symbol": "CIRC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -827,7 +827,7 @@
  "CISO": {
   "symbol": "CISO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -842,7 +842,7 @@
  "CMND": {
   "symbol": "CMND",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9819999933242798,
@@ -854,7 +854,7 @@
  "CNCK": {
   "symbol": "CNCK",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.9500000476837158,
@@ -866,7 +866,7 @@
  "CNTX": {
   "symbol": "CNTX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -880,7 +880,7 @@
  "COOT": {
   "symbol": "COOT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.4650000035762787,
@@ -892,7 +892,7 @@
  "COSM": {
   "symbol": "COSM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -907,7 +907,7 @@
  "CPOP": {
   "symbol": "CPOP",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -921,7 +921,7 @@
  "CUPR": {
   "symbol": "CUPR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.0,
@@ -933,7 +933,7 @@
  "CWD": {
   "symbol": "CWD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5170000195503235,
@@ -945,7 +945,7 @@
  "CYCU": {
   "symbol": "CYCU",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.5,
@@ -957,7 +957,7 @@
  "DLXY": {
   "symbol": "DLXY",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.4180000126361847,
@@ -969,7 +969,7 @@
  "DOGZ": {
   "symbol": "DOGZ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9301000237464905,
@@ -981,11 +981,11 @@
  "DRMA": {
   "symbol": "DRMA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.2000000476837158,
-  "rsi_now": 42.32064484618288,
+  "rsi_now": 42.32064484618287,
   "readiness": 25,
   "score": 40,
   "n_criteria": 15
@@ -993,7 +993,7 @@
  "DVLT": {
   "symbol": "DVLT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -1007,7 +1007,7 @@
  "EHGO": {
   "symbol": "EHGO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0700000524520874,
@@ -1019,11 +1019,11 @@
  "EJH": {
   "symbol": "EJH",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.149999976158142,
-  "rsi_now": 40.65529143720616,
+  "rsi_now": 40.65529143719959,
   "readiness": 25,
   "score": 45,
   "n_criteria": 15
@@ -1031,7 +1031,7 @@
  "EMAT": {
   "symbol": "EMAT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1045,7 +1045,7 @@
  "ENGN": {
   "symbol": "ENGN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.7699999809265137,
@@ -1057,7 +1057,7 @@
  "ENGS": {
   "symbol": "ENGS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.9000000953674316,
@@ -1069,7 +1069,7 @@
  "ENSC": {
   "symbol": "ENSC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1083,7 +1083,7 @@
  "EOSE": {
   "symbol": "EOSE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1097,11 +1097,11 @@
  "ERNA": {
   "symbol": "ERNA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.019999980926514,
-  "rsi_now": 39.04822214416435,
+  "rsi_now": 39.0482221441643,
   "readiness": 0,
   "score": 10,
   "n_criteria": 15
@@ -1109,7 +1109,7 @@
  "ESLA": {
   "symbol": "ESLA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6729999780654907,
@@ -1121,7 +1121,7 @@
  "EVAX": {
   "symbol": "EVAX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.0999999046325684,
@@ -1133,7 +1133,7 @@
  "FAMI": {
   "symbol": "FAMI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -1148,13 +1148,13 @@
  "FBLG": {
   "symbol": "FBLG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.7300000190734863,
-  "rsi_now": 61.81401908868604,
+  "rsi_now": 61.81401908868602,
   "readiness": 45,
   "score": 70,
   "n_criteria": 15
@@ -1162,7 +1162,7 @@
  "FCHL": {
   "symbol": "FCHL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
@@ -1176,7 +1176,7 @@
  "FEAM": {
   "symbol": "FEAM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.5,
@@ -1188,13 +1188,13 @@
  "FEMY": {
   "symbol": "FEMY",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 2.740000009536743,
-  "rsi_now": 44.67347097894366,
+  "rsi_now": 44.67347097894367,
   "readiness": 45,
   "score": 60,
   "n_criteria": 15
@@ -1202,7 +1202,7 @@
  "FGL": {
   "symbol": "FGL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
@@ -1216,7 +1216,7 @@
  "FLD": {
   "symbol": "FLD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -1231,7 +1231,7 @@
  "FLUX": {
   "symbol": "FLUX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5720000267028809,
@@ -1243,7 +1243,7 @@
  "FMFC": {
   "symbol": "FMFC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -1257,7 +1257,7 @@
  "FNGR": {
   "symbol": "FNGR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -1271,7 +1271,7 @@
  "FOFO": {
   "symbol": "FOFO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.200000047683716,
@@ -1283,11 +1283,11 @@
  "FRGT": {
   "symbol": "FRGT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9800000190734863,
-  "rsi_now": 23.746951438980076,
+  "rsi_now": 23.74695143898012,
   "readiness": 55,
   "score": 70,
   "n_criteria": 15
@@ -1295,7 +1295,7 @@
  "FRMI": {
   "symbol": "FRMI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -1309,7 +1309,7 @@
  "FRMM": {
   "symbol": "FRMM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.53000020980835,
@@ -1321,7 +1321,7 @@
  "FTCI": {
   "symbol": "FTCI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.309999942779541,
@@ -1333,13 +1333,13 @@
  "FTFT": {
   "symbol": "FTFT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 2.049999952316284,
-  "rsi_now": 35.26184807004584,
+  "rsi_now": 35.26184807004583,
   "readiness": 25,
   "score": 55,
   "n_criteria": 15
@@ -1347,13 +1347,13 @@
  "FXHO": {
   "symbol": "FXHO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 13.40999984741211,
-  "rsi_now": 58.66803947756763,
+  "rsi_now": 58.66803947757593,
   "readiness": 45,
   "score": 60,
   "n_criteria": 15
@@ -1361,7 +1361,7 @@
  "GAIA": {
   "symbol": "GAIA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -1376,13 +1376,13 @@
  "GAUZ": {
   "symbol": "GAUZ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
-  "price": 7.0960001945495605,
-  "rsi_now": 44.491931055112055,
+  "price": 7.199999809265137,
+  "rsi_now": 45.752808568974096,
   "readiness": 25,
   "score": 40,
   "n_criteria": 15
@@ -1390,11 +1390,11 @@
  "GDC": {
   "symbol": "GDC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.3300000429153442,
-  "rsi_now": 31.548277830473268,
+  "rsi_now": 31.548277830473253,
   "readiness": 35,
   "score": 85,
   "n_criteria": 15
@@ -1402,7 +1402,7 @@
  "GDTC": {
   "symbol": "GDTC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8100000023841858,
@@ -1414,7 +1414,7 @@
  "GEMI": {
   "symbol": "GEMI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -1429,7 +1429,7 @@
  "GIPR": {
   "symbol": "GIPR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1443,7 +1443,7 @@
  "GLE": {
   "symbol": "GLE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1457,13 +1457,13 @@
  "GMEX": {
   "symbol": "GMEX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
   ],
   "price": 0.5210000276565552,
-  "rsi_now": 18.800840516282094,
+  "rsi_now": 18.80084051623203,
   "readiness": 10,
   "score": 35,
   "n_criteria": 15
@@ -1471,13 +1471,13 @@
  "GNLN": {
   "symbol": "GNLN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 2.5799999237060547,
-  "rsi_now": 48.80395231072157,
+  "rsi_now": 48.80395231072237,
   "readiness": 35,
   "score": 45,
   "n_criteria": 15
@@ -1485,7 +1485,7 @@
  "GRAN": {
   "symbol": "GRAN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1499,13 +1499,13 @@
  "GRI": {
   "symbol": "GRI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.940000057220459,
-  "rsi_now": 50.66668396156107,
+  "rsi_now": 50.666683961561105,
   "readiness": 25,
   "score": 65,
   "n_criteria": 15
@@ -1513,7 +1513,7 @@
  "GRSD": {
   "symbol": "GRSD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -1527,7 +1527,7 @@
  "GSUN": {
   "symbol": "GSUN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -1541,13 +1541,13 @@
  "GWAV": {
   "symbol": "GWAV",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 4.510000228881836,
-  "rsi_now": 51.434364047645005,
+  "rsi_now": 51.43436404764501,
   "readiness": 25,
   "score": 60,
   "n_criteria": 15
@@ -1555,7 +1555,7 @@
  "HCAI": {
   "symbol": "HCAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.5899999141693115,
@@ -1567,11 +1567,11 @@
  "HCTI": {
   "symbol": "HCTI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7440000176429749,
-  "rsi_now": 32.09998458782941,
+  "rsi_now": 32.099984587829454,
   "readiness": 35,
   "score": 75,
   "n_criteria": 15
@@ -1579,13 +1579,13 @@
  "HKIT": {
   "symbol": "HKIT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
   ],
   "price": 2.5299999713897705,
-  "rsi_now": 33.778102177378216,
+  "rsi_now": 33.77810217737827,
   "readiness": 20,
   "score": 45,
   "n_criteria": 15
@@ -1593,7 +1593,7 @@
  "HKPD": {
   "symbol": "HKPD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -1607,7 +1607,7 @@
  "HODO": {
   "symbol": "HODO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -1622,7 +1622,7 @@
  "HPAI": {
   "symbol": "HPAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -1636,7 +1636,7 @@
  "HRTX": {
   "symbol": "HRTX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -1651,13 +1651,13 @@
  "HUBC": {
   "symbol": "HUBC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
   ],
   "price": 0.41600000858306885,
-  "rsi_now": 26.042878435850525,
+  "rsi_now": 26.042878435848266,
   "readiness": 10,
   "score": 50,
   "n_criteria": 15
@@ -1665,7 +1665,7 @@
  "HUDI": {
   "symbol": "HUDI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -1680,13 +1680,13 @@
  "HYPD": {
   "symbol": "HYPD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 3.5899999141693115,
-  "rsi_now": 61.41203094033275,
+  "rsi_now": 61.41203094033274,
   "readiness": 35,
   "score": 60,
   "n_criteria": 15
@@ -1694,7 +1694,7 @@
  "IBG": {
   "symbol": "IBG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1708,7 +1708,7 @@
  "IMMP": {
   "symbol": "IMMP",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -1723,7 +1723,7 @@
  "IMSR": {
   "symbol": "IMSR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.260000228881836,
@@ -1735,7 +1735,7 @@
  "INLF": {
   "symbol": "INLF",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.3499999046325684,
@@ -1747,7 +1747,7 @@
  "INTJ": {
   "symbol": "INTJ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1761,7 +1761,7 @@
  "INV": {
   "symbol": "INV",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0299999713897705,
@@ -1773,7 +1773,7 @@
  "INVZ": {
   "symbol": "INVZ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -1787,13 +1787,13 @@
  "IPDN": {
   "symbol": "IPDN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.14000000059604645,
-  "rsi_now": 32.0888189523734,
+  "rsi_now": 32.088818952373416,
   "readiness": 65,
   "score": 100,
   "n_criteria": 15
@@ -1801,7 +1801,7 @@
  "IPW": {
   "symbol": "IPW",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M9 بُعد الفجوة (فوق الحدّ)"
@@ -1815,7 +1815,7 @@
  "ITOC": {
   "symbol": "ITOC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -1830,7 +1830,7 @@
  "IVDA": {
   "symbol": "IVDA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -1844,11 +1844,11 @@
  "IVF": {
   "symbol": "IVF",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9639999866485596,
-  "rsi_now": 42.29120550634311,
+  "rsi_now": 42.291205506343026,
   "readiness": 25,
   "score": 60,
   "n_criteria": 15
@@ -1856,11 +1856,11 @@
  "IXHL": {
   "symbol": "IXHL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.25,
-  "rsi_now": 45.6902127787313,
+  "rsi_now": 45.69021277873129,
   "readiness": 25,
   "score": 55,
   "n_criteria": 15
@@ -1868,7 +1868,7 @@
  "IZM": {
   "symbol": "IZM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -1882,7 +1882,7 @@
  "JBDI": {
   "symbol": "JBDI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.2400000095367432,
@@ -1894,7 +1894,7 @@
  "JDZG": {
   "symbol": "JDZG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1908,7 +1908,7 @@
  "JEM": {
   "symbol": "JEM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.940000057220459,
@@ -1934,7 +1934,7 @@
  "JLHL": {
   "symbol": "JLHL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 6.03000020980835,
@@ -1946,7 +1946,7 @@
  "JSPR": {
   "symbol": "JSPR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7009999752044678,
@@ -1958,11 +1958,11 @@
  "JTAI": {
   "symbol": "JTAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.25,
-  "rsi_now": 38.507530109576315,
+  "rsi_now": 38.507530109575946,
   "readiness": 30,
   "score": 45,
   "n_criteria": 15
@@ -1970,7 +1970,7 @@
  "JZ": {
   "symbol": "JZ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M9 بُعد الفجوة (فوق الحدّ)"
@@ -1984,7 +1984,7 @@
  "KRRO": {
   "symbol": "KRRO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -1998,7 +1998,7 @@
  "LBGJ": {
   "symbol": "LBGJ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
@@ -2012,7 +2012,7 @@
  "LCID": {
   "symbol": "LCID",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -2026,7 +2026,7 @@
  "LENZ": {
   "symbol": "LENZ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -2040,11 +2040,11 @@
  "LGCL": {
   "symbol": "LGCL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.069999933242798,
-  "rsi_now": 25.73272347768527,
+  "rsi_now": 25.732723477685212,
   "readiness": 20,
   "score": 50,
   "n_criteria": 15
@@ -2052,7 +2052,7 @@
  "LGO": {
   "symbol": "LGO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -2066,7 +2066,7 @@
  "LICN": {
   "symbol": "LICN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0800000429153442,
@@ -2078,7 +2078,7 @@
  "LIQT": {
   "symbol": "LIQT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -2093,7 +2093,7 @@
  "LNAI": {
   "symbol": "LNAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.434999942779541,
@@ -2105,11 +2105,11 @@
  "LNZA": {
   "symbol": "LNZA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.880000114440918,
-  "rsi_now": 42.007728375578296,
+  "rsi_now": 42.0077283755783,
   "readiness": 15,
   "score": 35,
   "n_criteria": 15
@@ -2117,7 +2117,7 @@
  "LX": {
   "symbol": "LX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8069999814033508,
@@ -2129,7 +2129,7 @@
  "LZMH": {
   "symbol": "LZMH",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -2143,7 +2143,7 @@
  "MAMO": {
   "symbol": "MAMO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -2157,7 +2157,7 @@
  "MBRX": {
   "symbol": "MBRX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -2171,11 +2171,11 @@
  "MCRB": {
   "symbol": "MCRB",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.099999904632568,
-  "rsi_now": 48.8157308321071,
+  "rsi_now": 48.81573083210711,
   "readiness": 45,
   "score": 55,
   "n_criteria": 15
@@ -2183,7 +2183,7 @@
  "MDCX": {
   "symbol": "MDCX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -2197,7 +2197,7 @@
  "MEDS": {
   "symbol": "MEDS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8920000195503235,
@@ -2209,7 +2209,7 @@
  "MERC": {
   "symbol": "MERC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -2224,7 +2224,7 @@
  "METC": {
   "symbol": "METC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -2238,7 +2238,7 @@
  "MGRX": {
   "symbol": "MGRX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -2252,7 +2252,7 @@
  "MKZR": {
   "symbol": "MKZR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.4600000381469727,
@@ -2264,7 +2264,7 @@
  "MLTX": {
   "symbol": "MLTX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -2278,7 +2278,7 @@
  "MODD": {
   "symbol": "MODD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -2292,7 +2292,7 @@
  "MREO": {
   "symbol": "MREO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -2306,7 +2306,7 @@
  "MRM": {
   "symbol": "MRM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8799999952316284,
@@ -2318,13 +2318,13 @@
  "MRNO": {
   "symbol": "MRNO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.20499999821186066,
-  "rsi_now": 42.504567625709036,
+  "rsi_now": 42.50456762570906,
   "readiness": 25,
   "score": 55,
   "n_criteria": 15
@@ -2332,7 +2332,7 @@
  "MSAI": {
   "symbol": "MSAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.659999847412109,
@@ -2344,7 +2344,7 @@
  "MSS": {
   "symbol": "MSS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.690000057220459,
@@ -2356,7 +2356,7 @@
  "MTEN": {
   "symbol": "MTEN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
@@ -2370,7 +2370,7 @@
  "MVST": {
   "symbol": "MVST",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6230000257492065,
@@ -2382,7 +2382,7 @@
  "NAMM": {
   "symbol": "NAMM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.3350000381469727,
@@ -2394,7 +2394,7 @@
  "NCI": {
   "symbol": "NCI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 12.6899995803833,
@@ -2406,7 +2406,7 @@
  "NEON": {
   "symbol": "NEON",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8199999928474426,
@@ -2418,34 +2418,19 @@
  "NEXR": {
   "symbol": "NEXR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.559999942779541,
-  "rsi_now": 29.716899177158652,
+  "rsi_now": 29.716899177158737,
   "readiness": 20,
   "score": 40,
-  "n_criteria": 15
- },
- "NFE": {
-  "symbol": "NFE",
-  "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
-  "n_out": 2,
-  "outside": [
-   "M1 السعر (دون الحدّ)",
-   "العائد/المخاطرة (دون الحدّ)"
-  ],
-  "price": 0.329800009727478,
-  "rsi_now": 41.02083755450167,
-  "readiness": 55,
-  "score": 80,
   "n_criteria": 15
  },
  "NIPG": {
   "symbol": "NIPG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -2459,13 +2444,13 @@
  "NNOX": {
   "symbol": "NNOX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
   ],
   "price": 0.7300000190734863,
-  "rsi_now": 38.17289251534857,
+  "rsi_now": 38.17289251534859,
   "readiness": 25,
   "score": 45,
   "n_criteria": 15
@@ -2473,7 +2458,7 @@
  "NOMA": {
   "symbol": "NOMA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -2487,7 +2472,7 @@
  "NRSN": {
   "symbol": "NRSN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -2501,11 +2486,11 @@
  "NUWE": {
   "symbol": "NUWE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7699999809265137,
-  "rsi_now": 30.21517341742249,
+  "rsi_now": 30.215173417422548,
   "readiness": 60,
   "score": 70,
   "n_criteria": 15
@@ -2513,7 +2498,7 @@
  "NXTS": {
   "symbol": "NXTS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.690000057220459,
@@ -2525,13 +2510,13 @@
  "NXXT": {
   "symbol": "NXXT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.15299999713897705,
-  "rsi_now": 28.06814149287294,
+  "rsi_now": 28.06814149287291,
   "readiness": 0,
   "score": 10,
   "n_criteria": 15
@@ -2539,7 +2524,7 @@
  "NYXH": {
   "symbol": "NYXH",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -2553,7 +2538,7 @@
  "OBAI": {
   "symbol": "OBAI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -2567,13 +2552,13 @@
  "OCG": {
   "symbol": "OCG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
   ],
   "price": 1.5099999904632568,
-  "rsi_now": 41.99420767258119,
+  "rsi_now": 41.99420767258114,
   "readiness": 30,
   "score": 40,
   "n_criteria": 15
@@ -2581,7 +2566,7 @@
  "ODD": {
   "symbol": "ODD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -2595,7 +2580,7 @@
  "OIO": {
   "symbol": "OIO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.6799999475479126,
@@ -2607,14 +2592,14 @@
  "OLB": {
   "symbol": "OLB",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 0.29499998688697815,
-  "rsi_now": 48.36667154526397,
+  "rsi_now": 48.366671545263955,
   "readiness": 45,
   "score": 80,
   "n_criteria": 15
@@ -2622,11 +2607,11 @@
  "OLOX": {
   "symbol": "OLOX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.875,
-  "rsi_now": 17.033124356472996,
+  "rsi_now": 17.03312435647301,
   "readiness": 50,
   "score": 70,
   "n_criteria": 15
@@ -2634,7 +2619,7 @@
  "OMEX": {
   "symbol": "OMEX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7419999837875366,
@@ -2646,7 +2631,7 @@
  "ORGO": {
   "symbol": "ORGO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.5299999713897705,
@@ -2658,7 +2643,7 @@
  "OTLK": {
   "symbol": "OTLK",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6610000133514404,
@@ -2670,7 +2655,7 @@
  "OWLS": {
   "symbol": "OWLS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -2684,13 +2669,13 @@
  "PAVS": {
   "symbol": "PAVS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
   ],
   "price": 4.599999904632568,
-  "rsi_now": 33.27853601501687,
+  "rsi_now": 33.27853601501778,
   "readiness": 40,
   "score": 65,
   "n_criteria": 15
@@ -2698,14 +2683,14 @@
  "PBM": {
   "symbol": "PBM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "RSI الآن (فوق الحدّ)",
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 4.96999979019165,
-  "rsi_now": 74.50699684988602,
+  "rsi_now": 74.50699684988649,
   "readiness": 45,
   "score": 75,
   "n_criteria": 15
@@ -2713,7 +2698,7 @@
  "PCSA": {
   "symbol": "PCSA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.850000023841858,
@@ -2725,7 +2710,7 @@
  "PDSB": {
   "symbol": "PDSB",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -2739,7 +2724,7 @@
  "PHOE": {
   "symbol": "PHOE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 18.979999542236328,
@@ -2751,7 +2736,7 @@
  "PMAX": {
   "symbol": "PMAX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9190000295639038,
@@ -2763,7 +2748,7 @@
  "POM": {
   "symbol": "POM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -2777,7 +2762,7 @@
  "PPBT": {
   "symbol": "PPBT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -2791,11 +2776,11 @@
  "PWCM": {
   "symbol": "PWCM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.100000023841858,
-  "rsi_now": 35.46517877931393,
+  "rsi_now": 35.46517877931397,
   "readiness": 55,
   "score": 80,
   "n_criteria": 15
@@ -2803,13 +2788,13 @@
  "QNME": {
   "symbol": "QNME",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.32499998807907104,
-  "rsi_now": 43.68750894132257,
+  "rsi_now": 43.687508941322555,
   "readiness": 35,
   "score": 60,
   "n_criteria": 15
@@ -2817,7 +2802,7 @@
  "QNRX": {
   "symbol": "QNRX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -2831,7 +2816,7 @@
  "QSI": {
   "symbol": "QSI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7390000224113464,
@@ -2843,7 +2828,7 @@
  "RAIN": {
   "symbol": "RAIN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7630000114440918,
@@ -2855,11 +2840,11 @@
  "RAYA": {
   "symbol": "RAYA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.190000057220459,
-  "rsi_now": 39.910717553535356,
+  "rsi_now": 39.910717553535406,
   "readiness": 45,
   "score": 45,
   "n_criteria": 15
@@ -2867,7 +2852,7 @@
  "RBNE": {
   "symbol": "RBNE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.6700000762939453,
@@ -2879,7 +2864,7 @@
  "RCT": {
   "symbol": "RCT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -2893,11 +2878,11 @@
  "RDGT": {
   "symbol": "RDGT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8399999737739563,
-  "rsi_now": 41.15585646459306,
+  "rsi_now": 41.15585646459303,
   "readiness": 35,
   "score": 60,
   "n_criteria": 15
@@ -2905,7 +2890,7 @@
  "REFR": {
   "symbol": "REFR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -2920,7 +2905,7 @@
  "REKR": {
   "symbol": "REKR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.4749999940395355,
@@ -2932,7 +2917,7 @@
  "RETO": {
   "symbol": "RETO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.41100001335144043,
@@ -2944,11 +2929,11 @@
  "REVB": {
   "symbol": "REVB",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9990000128746033,
-  "rsi_now": 44.1065128328479,
+  "rsi_now": 44.10651283284799,
   "readiness": 35,
   "score": 40,
   "n_criteria": 15
@@ -2956,7 +2941,7 @@
  "RGC": {
   "symbol": "RGC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.635000228881836,
@@ -2968,13 +2953,13 @@
  "RIME": {
   "symbol": "RIME",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.23999999463558197,
-  "rsi_now": 33.22342667135314,
+  "rsi_now": 33.223426671352954,
   "readiness": 50,
   "score": 55,
   "n_criteria": 15
@@ -2982,7 +2967,7 @@
  "RITR": {
   "symbol": "RITR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -2997,7 +2982,7 @@
  "RKDA": {
   "symbol": "RKDA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -3011,7 +2996,7 @@
  "RMSG": {
   "symbol": "RMSG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -3025,7 +3010,7 @@
  "RNAZ": {
   "symbol": "RNAZ",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.690000057220459,
@@ -3037,7 +3022,7 @@
  "RR": {
   "symbol": "RR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.6200000047683716,
@@ -3049,7 +3034,7 @@
  "RUBI": {
   "symbol": "RUBI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)",
@@ -3064,11 +3049,11 @@
  "SBFM": {
   "symbol": "SBFM",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0800000429153442,
-  "rsi_now": 34.78704329899536,
+  "rsi_now": 34.78704329899534,
   "readiness": 45,
   "score": 70,
   "n_criteria": 15
@@ -3076,7 +3061,7 @@
  "SCAG": {
   "symbol": "SCAG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -3090,7 +3075,7 @@
  "SDOT": {
   "symbol": "SDOT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -3104,7 +3089,7 @@
  "SGLY": {
   "symbol": "SGLY",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -3118,13 +3103,13 @@
  "SHFS": {
   "symbol": "SHFS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.15399999916553497,
-  "rsi_now": 36.36732473589773,
+  "rsi_now": 36.36732473589772,
   "readiness": 35,
   "score": 65,
   "n_criteria": 15
@@ -3132,11 +3117,11 @@
  "SHPH": {
   "symbol": "SHPH",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.5299999713897705,
-  "rsi_now": 47.13387999361098,
+  "rsi_now": 47.133879993610975,
   "readiness": 35,
   "score": 65,
   "n_criteria": 15
@@ -3144,7 +3129,7 @@
  "SION": {
   "symbol": "SION",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -3158,13 +3143,13 @@
  "SKYA": {
   "symbol": "SKYA",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.2999999523162842,
-  "rsi_now": 50.486147246708754,
+  "rsi_now": 50.48614724670844,
   "readiness": 45,
   "score": 70,
   "n_criteria": 15
@@ -3172,7 +3157,7 @@
  "SLE": {
   "symbol": "SLE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -3186,7 +3171,7 @@
  "SLNH": {
   "symbol": "SLNH",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.159999966621399,
@@ -3198,11 +3183,11 @@
  "SLXN": {
   "symbol": "SLXN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.4230000078678131,
-  "rsi_now": 27.242488974789097,
+  "rsi_now": 27.24248897478951,
   "readiness": 65,
   "score": 100,
   "n_criteria": 15
@@ -3210,7 +3195,7 @@
  "SMTK": {
   "symbol": "SMTK",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.2899999618530273,
@@ -3222,7 +3207,7 @@
  "SNTG": {
   "symbol": "SNTG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.75,
@@ -3234,13 +3219,13 @@
  "SNTI": {
   "symbol": "SNTI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.30000001192092896,
-  "rsi_now": 28.137444051608895,
+  "rsi_now": 28.13744405160888,
   "readiness": 45,
   "score": 60,
   "n_criteria": 15
@@ -3248,7 +3233,7 @@
  "SNWV": {
   "symbol": "SNWV",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -3262,7 +3247,7 @@
  "SNYR": {
   "symbol": "SNYR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -3277,13 +3262,13 @@
  "SOWG": {
   "symbol": "SOWG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 3.4200000762939453,
-  "rsi_now": 54.05082151834244,
+  "rsi_now": 54.05082151834241,
   "readiness": 45,
   "score": 100,
   "n_criteria": 15
@@ -3291,13 +3276,13 @@
  "SPRB": {
   "symbol": "SPRB",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 54.349998474121094,
-  "rsi_now": 49.272856802653095,
+  "rsi_now": 49.27285680265308,
   "readiness": 25,
   "score": 35,
   "n_criteria": 15
@@ -3305,7 +3290,7 @@
  "SPRC": {
   "symbol": "SPRC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.949999809265137,
@@ -3317,7 +3302,7 @@
  "SPWR": {
   "symbol": "SPWR",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -3332,7 +3317,7 @@
  "SQFT": {
   "symbol": "SQFT",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.3450000286102295,
@@ -3344,7 +3329,7 @@
  "STAK": {
   "symbol": "STAK",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.2400000095367432,
@@ -3356,7 +3341,7 @@
  "STEX": {
   "symbol": "STEX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6830000281333923,
@@ -3368,7 +3353,7 @@
  "STFS": {
   "symbol": "STFS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.119999885559082,
@@ -3380,7 +3365,7 @@
  "STKE": {
   "symbol": "STKE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -3394,7 +3379,7 @@
  "STKH": {
   "symbol": "STKH",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -3408,11 +3393,11 @@
  "SUGP": {
   "symbol": "SUGP",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6179999709129333,
-  "rsi_now": 25.92048517571277,
+  "rsi_now": 25.920485175712756,
   "readiness": 50,
   "score": 55,
   "n_criteria": 15
@@ -3420,7 +3405,7 @@
  "SUPX": {
   "symbol": "SUPX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -3434,13 +3419,13 @@
  "SURG": {
   "symbol": "SURG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.16500000655651093,
-  "rsi_now": 36.9255892264421,
+  "rsi_now": 36.925589226442085,
   "readiness": 25,
   "score": 55,
   "n_criteria": 15
@@ -3448,13 +3433,13 @@
  "SVRN": {
   "symbol": "SVRN",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 10.390000343322754,
-  "rsi_now": 60.96820280148524,
+  "rsi_now": 60.968202801485255,
   "readiness": 35,
   "score": 80,
   "n_criteria": 15
@@ -3462,7 +3447,7 @@
  "TAOP": {
   "symbol": "TAOP",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7400000095367432,
@@ -3474,7 +3459,7 @@
  "TDIC": {
   "symbol": "TDIC",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.240000009536743,
@@ -3486,7 +3471,7 @@
  "TENX": {
   "symbol": "TENX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -3501,13 +3486,13 @@
  "TGL": {
   "symbol": "TGL",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 2.9800000190734863,
-  "rsi_now": 56.352256611366656,
+  "rsi_now": 56.352256611366464,
   "readiness": 55,
   "score": 85,
   "n_criteria": 15
@@ -3515,7 +3500,7 @@
  "THRY": {
   "symbol": "THRY",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -3529,7 +3514,7 @@
  "TLRY": {
   "symbol": "TLRY",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.139999866485596,
@@ -3541,7 +3526,7 @@
  "TPST": {
   "symbol": "TPST",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -3555,7 +3540,7 @@
  "TRAW": {
   "symbol": "TRAW",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5299999713897705,
@@ -3567,13 +3552,13 @@
  "TRUG": {
   "symbol": "TRUG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.3709999918937683,
-  "rsi_now": 32.948976022540364,
+  "rsi_now": 32.948976022540336,
   "readiness": 30,
   "score": 45,
   "n_criteria": 15
@@ -3581,7 +3566,7 @@
  "TTD": {
   "symbol": "TTD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -3595,7 +3580,7 @@
  "TVRD": {
   "symbol": "TVRD",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.8350000381469727,
@@ -3607,7 +3592,7 @@
  "TWG": {
   "symbol": "TWG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -3621,7 +3606,7 @@
  "TYGO": {
   "symbol": "TYGO",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0299999713897705,
@@ -3633,7 +3618,7 @@
  "UFG": {
   "symbol": "UFG",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -3647,7 +3632,7 @@
  "UK": {
   "symbol": "UK",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -3661,7 +3646,7 @@
  "UPB": {
   "symbol": "UPB",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -3676,7 +3661,7 @@
  "UPXI": {
   "symbol": "UPXI",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -3690,13 +3675,13 @@
  "UZX": {
   "symbol": "UZX",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.08900000154972076,
-  "rsi_now": 19.550231722915086,
+  "rsi_now": 19.550231722915115,
   "readiness": 20,
   "score": 50,
   "n_criteria": 15
@@ -3704,7 +3689,7 @@
  "VEEE": {
   "symbol": "VEEE",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 9.75,
@@ -4021,13 +4006,13 @@
  "BNKK": {
   "symbol": "BNKK",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.3600000143051147,
-  "rsi_now": 58.46851377722868,
+  "rsi_now": 58.46851377722867,
   "readiness": 45,
   "score": 80,
   "n_criteria": 15
@@ -4035,7 +4020,7 @@
  "INTS": {
   "symbol": "INTS",
   "first_seen": "2026-08-16",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.039999961853027,
@@ -4047,7 +4032,7 @@
  "AZIO": {
   "symbol": "AZIO",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.1799999475479126,
@@ -4059,7 +4044,7 @@
  "BCTX": {
   "symbol": "BCTX",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.5999999046325684,
@@ -4071,13 +4056,13 @@
  "BRFH": {
   "symbol": "BRFH",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
   ],
   "price": 1.2300000190734863,
-  "rsi_now": 35.864494895419966,
+  "rsi_now": 35.86449489541998,
   "readiness": 45,
   "score": 80,
   "n_criteria": 15
@@ -4085,7 +4070,7 @@
  "CODX": {
   "symbol": "CODX",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.100000023841858,
@@ -4097,7 +4082,7 @@
  "EPOW": {
   "symbol": "EPOW",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -4112,7 +4097,7 @@
  "HYFM": {
   "symbol": "HYFM",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -4126,7 +4111,7 @@
  "LHAI": {
   "symbol": "LHAI",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -4140,7 +4125,7 @@
  "MDXH": {
   "symbol": "MDXH",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -4154,7 +4139,7 @@
  "OFAL": {
   "symbol": "OFAL",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6420000195503235,
@@ -4166,7 +4151,7 @@
  "PROP": {
   "symbol": "PROP",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.43700000643730164,
@@ -4178,7 +4163,7 @@
  "PSIG": {
   "symbol": "PSIG",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.2899999618530273,
@@ -4190,7 +4175,7 @@
  "SCKT": {
   "symbol": "SCKT",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5400000214576721,
@@ -4202,7 +4187,7 @@
  "SKIN": {
   "symbol": "SKIN",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6899999976158142,
@@ -4214,7 +4199,7 @@
  "TDUP": {
   "symbol": "TDUP",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.5999999046325684,
@@ -4226,7 +4211,7 @@
  "UCL": {
   "symbol": "UCL",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.4230000078678131,
@@ -4238,7 +4223,7 @@
  "VERI": {
   "symbol": "VERI",
   "first_seen": "2026-08-19",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -4252,7 +4237,7 @@
  "ABTS": {
   "symbol": "ABTS",
   "first_seen": "2026-08-20",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -4266,11 +4251,11 @@
  "CTNT": {
   "symbol": "CTNT",
   "first_seen": "2026-08-20",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.1399999856948853,
-  "rsi_now": 23.65067927602702,
+  "rsi_now": 23.650679276027006,
   "readiness": 30,
   "score": 45,
   "n_criteria": 15
@@ -4278,7 +4263,7 @@
  "ELOG": {
   "symbol": "ELOG",
   "first_seen": "2026-08-20",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -4293,13 +4278,13 @@
  "HAO": {
   "symbol": "HAO",
   "first_seen": "2026-08-20",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M9 بُعد الفجوة (فوق الحدّ)"
   ],
   "price": 2.875,
-  "rsi_now": 20.85129488421927,
+  "rsi_now": 20.85129488421947,
   "readiness": 55,
   "score": 80,
   "n_criteria": 15
@@ -4307,13 +4292,13 @@
  "SXTC": {
   "symbol": "SXTC",
   "first_seen": "2026-08-20",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
   ],
   "price": 1.9299999475479126,
-  "rsi_now": 23.093386793954522,
+  "rsi_now": 23.09338679395455,
   "readiness": 20,
   "score": 55,
   "n_criteria": 15
@@ -4321,7 +4306,7 @@
  "TOYO": {
   "symbol": "TOYO",
   "first_seen": "2026-08-20",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.380000114440918,
@@ -4371,7 +4356,7 @@
  "DFNS": {
   "symbol": "DFNS",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 9.84000015258789,
@@ -4383,7 +4368,7 @@
  "DGNX": {
   "symbol": "DGNX",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -4397,7 +4382,7 @@
  "EYPT": {
   "symbol": "EYPT",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -4411,7 +4396,7 @@
  "HUMA": {
   "symbol": "HUMA",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5669999718666077,
@@ -4437,7 +4422,7 @@
  "MSGY": {
   "symbol": "MSGY",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.8700000047683716,
@@ -4449,7 +4434,7 @@
  "ONFO": {
   "symbol": "ONFO",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8980000019073486,
@@ -4461,7 +4446,7 @@
  "PFSA": {
   "symbol": "PFSA",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M9 بُعد الفجوة (فوق الحدّ)"
@@ -4475,7 +4460,7 @@
  "RDAC": {
   "symbol": "RDAC",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.559999942779541,
@@ -4487,7 +4472,7 @@
  "SDA": {
   "symbol": "SDA",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -4501,13 +4486,13 @@
  "AEHL": {
   "symbol": "AEHL",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 7.630000114440918,
-  "rsi_now": 52.51694432143546,
+  "rsi_now": 52.516944321435695,
   "readiness": 70,
   "score": 95,
   "n_criteria": 15
@@ -4515,13 +4500,13 @@
  "CISS": {
   "symbol": "CISS",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
   ],
   "price": 1.4500000476837158,
-  "rsi_now": 18.08322074090522,
+  "rsi_now": 18.083220740904764,
   "readiness": 70,
   "score": 90,
   "n_criteria": 15
@@ -4529,13 +4514,13 @@
  "DBGI": {
   "symbol": "DBGI",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 6.789999961853027,
-  "rsi_now": 40.06262017021888,
+  "rsi_now": 40.062620170218864,
   "readiness": 50,
   "score": 75,
   "n_criteria": 15
@@ -4543,7 +4528,7 @@
  "EDSA": {
   "symbol": "EDSA",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.659999847412109,
@@ -4555,7 +4540,7 @@
  "ELPW": {
   "symbol": "ELPW",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)",
@@ -4570,13 +4555,13 @@
  "KELYB": {
   "symbol": "KELYB",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M5 السيولة الدولارية (دون الحدّ)"
   ],
   "price": 23.270000457763672,
-  "rsi_now": 51.158965648586125,
+  "rsi_now": 51.158965649618736,
   "readiness": 35,
   "score": 65,
   "n_criteria": 15
@@ -4584,7 +4569,7 @@
  "KIDZ": {
   "symbol": "KIDZ",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
@@ -4598,11 +4583,11 @@
  "NXTT": {
   "symbol": "NXTT",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.829999923706055,
-  "rsi_now": 18.29597965036011,
+  "rsi_now": 18.295979650360792,
   "readiness": 50,
   "score": 80,
   "n_criteria": 15
@@ -4610,13 +4595,13 @@
  "ONCO": {
   "symbol": "ONCO",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 0.7820000052452087,
-  "rsi_now": 49.18094279978457,
+  "rsi_now": 49.180942799786656,
   "readiness": 70,
   "score": 95,
   "n_criteria": 15
@@ -4624,7 +4609,7 @@
  "PTLE": {
   "symbol": "PTLE",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 7.0,
@@ -4650,7 +4635,7 @@
  "RCON": {
   "symbol": "RCON",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.2899999618530273,
@@ -4662,7 +4647,7 @@
  "THH": {
   "symbol": "THH",
   "first_seen": "2026-08-21",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -4730,7 +4715,7 @@
  "BRAI": {
   "symbol": "BRAI",
   "first_seen": "2026-08-25",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.519999980926514,
@@ -4742,7 +4727,7 @@
  "FAC": {
   "symbol": "FAC",
   "first_seen": "2026-08-25",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.260000228881836,
@@ -4754,7 +4739,7 @@
  "IPST": {
   "symbol": "IPST",
   "first_seen": "2026-08-25",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -4782,13 +4767,13 @@
  "JZXN": {
   "symbol": "JZXN",
   "first_seen": "2026-08-26",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M9 بُعد الفجوة (فوق الحدّ)"
   ],
   "price": 1.159999966621399,
-  "rsi_now": 42.68188513398379,
+  "rsi_now": 42.68188513398395,
   "readiness": 35,
   "score": 65,
   "n_criteria": 15
@@ -4796,13 +4781,13 @@
  "SDST": {
   "symbol": "SDST",
   "first_seen": "2026-08-26",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.17000000178813934,
-  "rsi_now": 17.853814163658086,
+  "rsi_now": 17.853814163658043,
   "readiness": 45,
   "score": 85,
   "n_criteria": 15
@@ -4861,7 +4846,7 @@
  "AIIO": {
   "symbol": "AIIO",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.7899999618530273,
@@ -4873,7 +4858,7 @@
  "CENN": {
   "symbol": "CENN",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -4888,11 +4873,11 @@
  "CMCT": {
   "symbol": "CMCT",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.740000009536743,
-  "rsi_now": 28.653543069854678,
+  "rsi_now": 28.65354306985479,
   "readiness": 0,
   "score": 25,
   "n_criteria": 15
@@ -4900,7 +4885,7 @@
  "CVRX": {
   "symbol": "CVRX",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.859999895095825,
@@ -4912,13 +4897,13 @@
  "ENVB": {
   "symbol": "ENVB",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.4600000381469727,
-  "rsi_now": 52.636271965324056,
+  "rsi_now": 52.63627196532414,
   "readiness": 55,
   "score": 75,
   "n_criteria": 15
@@ -4926,7 +4911,7 @@
  "EUDA": {
   "symbol": "EUDA",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 13.119999885559082,
@@ -4938,7 +4923,7 @@
  "GFAI": {
   "symbol": "GFAI",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -4952,7 +4937,7 @@
  "HTCO": {
   "symbol": "HTCO",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.5399999618530273,
@@ -4964,7 +4949,7 @@
  "JUNS": {
   "symbol": "JUNS",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.1500000953674316,
@@ -4976,13 +4961,13 @@
  "KXIN": {
   "symbol": "KXIN",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.0850000381469727,
-  "rsi_now": 13.856639837029704,
+  "rsi_now": 13.856639837029846,
   "readiness": 40,
   "score": 45,
   "n_criteria": 15
@@ -4990,7 +4975,7 @@
  "NBP": {
   "symbol": "NBP",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.690000057220459,
@@ -5002,7 +4987,7 @@
  "PPCB": {
   "symbol": "PPCB",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.942799985408783,
@@ -5014,7 +4999,7 @@
  "SCNI": {
   "symbol": "SCNI",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.6699999570846558,
@@ -5026,13 +5011,13 @@
  "SCNX": {
   "symbol": "SCNX",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.3580000102519989,
-  "rsi_now": 37.55514395775926,
+  "rsi_now": 37.555143957759256,
   "readiness": 25,
   "score": 45,
   "n_criteria": 15
@@ -5040,11 +5025,11 @@
  "SNES": {
   "symbol": "SNES",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8939999938011169,
-  "rsi_now": 26.122279767654078,
+  "rsi_now": 26.122279767654092,
   "readiness": 35,
   "score": 65,
   "n_criteria": 15
@@ -5052,7 +5037,7 @@
  "SNGX": {
   "symbol": "SNGX",
   "first_seen": "2026-08-27",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -5107,7 +5092,7 @@
  "ANTA": {
   "symbol": "ANTA",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -5121,13 +5106,13 @@
  "BRNX": {
   "symbol": "BRNX",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 2.8499999046325684,
-  "rsi_now": 44.56413904004418,
+  "rsi_now": 44.56413904004417,
   "readiness": 15,
   "score": 45,
   "n_criteria": 15
@@ -5135,7 +5120,7 @@
  "CAN": {
   "symbol": "CAN",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -5150,7 +5135,7 @@
  "CAST": {
   "symbol": "CAST",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -5164,7 +5149,7 @@
  "CMTL": {
   "symbol": "CMTL",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.4600000381469727,
@@ -5176,11 +5161,11 @@
  "CTXR": {
   "symbol": "CTXR",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5849999785423279,
-  "rsi_now": 47.698234454818355,
+  "rsi_now": 47.69823445481836,
   "readiness": 35,
   "score": 55,
   "n_criteria": 15
@@ -5188,7 +5173,7 @@
  "EHTH": {
   "symbol": "EHTH",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9200000166893005,
@@ -5200,7 +5185,7 @@
  "FULC": {
   "symbol": "FULC",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.799999952316284,
@@ -5212,7 +5197,7 @@
  "FUSE": {
   "symbol": "FUSE",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6039999723434448,
@@ -5224,7 +5209,7 @@
  "HDRN": {
   "symbol": "HDRN",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -5238,7 +5223,7 @@
  "LOOP": {
   "symbol": "LOOP",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.4410000145435333,
@@ -5250,7 +5235,7 @@
  "MIMI": {
   "symbol": "MIMI",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -5264,7 +5249,7 @@
  "NMTC": {
   "symbol": "NMTC",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.5800000429153442,
@@ -5276,7 +5261,7 @@
  "PHIO": {
   "symbol": "PHIO",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0099999904632568,
@@ -5288,7 +5273,7 @@
  "RGTI": {
   "symbol": "RGTI",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 15.15999984741211,
@@ -5300,7 +5285,7 @@
  "STI": {
   "symbol": "STI",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 7.099999904632568,
@@ -5312,14 +5297,14 @@
  "TANH": {
   "symbol": "TANH",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 23.739999771118164,
-  "rsi_now": 58.94363736973794,
+  "rsi_now": 58.94363736973796,
   "readiness": 60,
   "score": 90,
   "n_criteria": 15
@@ -5327,7 +5312,7 @@
  "TURB": {
   "symbol": "TURB",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -5341,11 +5326,11 @@
  "UPC": {
   "symbol": "UPC",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.880000114440918,
-  "rsi_now": 40.04143195595067,
+  "rsi_now": 40.04143195595072,
   "readiness": 40,
   "score": 60,
   "n_criteria": 15
@@ -5353,13 +5338,13 @@
  "VCIG": {
   "symbol": "VCIG",
   "first_seen": "2026-08-28",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M2 الهبوط من قمة 52أ (فوق السقف)"
   ],
   "price": 1.809999942779541,
-  "rsi_now": 23.37736944844218,
+  "rsi_now": 23.377369448439126,
   "readiness": 20,
   "score": 60,
   "n_criteria": 15
@@ -5379,11 +5364,11 @@
  "BENF": {
   "symbol": "BENF",
   "first_seen": "2026-08-29",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.2120000123977661,
-  "rsi_now": 24.7620105678982,
+  "rsi_now": 24.762010567898173,
   "readiness": 0,
   "score": 15,
   "n_criteria": 15
@@ -5391,7 +5376,7 @@
  "CRE": {
   "symbol": "CRE",
   "first_seen": "2026-08-29",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.8499999046325684,
@@ -5403,11 +5388,11 @@
  "DFLI": {
   "symbol": "DFLI",
   "first_seen": "2026-08-29",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0299999713897705,
-  "rsi_now": 34.56489619230163,
+  "rsi_now": 34.5648961923016,
   "readiness": 50,
   "score": 50,
   "n_criteria": 15
@@ -5415,7 +5400,7 @@
  "DTSS": {
   "symbol": "DTSS",
   "first_seen": "2026-08-29",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6850000023841858,
@@ -5427,7 +5412,7 @@
  "NIKI": {
   "symbol": "NIKI",
   "first_seen": "2026-08-29",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 6.230000019073486,
@@ -5439,13 +5424,13 @@
  "TNON": {
   "symbol": "TNON",
   "first_seen": "2026-08-29",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 5.300000190734863,
-  "rsi_now": 48.71106164035328,
+  "rsi_now": 48.711061640353286,
   "readiness": 45,
   "score": 100,
   "n_criteria": 15
@@ -5477,7 +5462,7 @@
  "BTQ": {
   "symbol": "BTQ",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.7200000286102295,
@@ -5489,7 +5474,7 @@
  "CVKD": {
   "symbol": "CVKD",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.1799999475479126,
@@ -5501,7 +5486,7 @@
  "DAIC": {
   "symbol": "DAIC",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -5516,7 +5501,7 @@
  "DCGO": {
   "symbol": "DCGO",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -5531,11 +5516,11 @@
  "ELAB": {
   "symbol": "ELAB",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.599999904632568,
-  "rsi_now": 25.612229999841574,
+  "rsi_now": 25.612229999836728,
   "readiness": 20,
   "score": 45,
   "n_criteria": 15
@@ -5543,13 +5528,13 @@
  "FLYE": {
   "symbol": "FLYE",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.809999942779541,
-  "rsi_now": 49.16527014853517,
+  "rsi_now": 49.16527014853528,
   "readiness": 80,
   "score": 95,
   "n_criteria": 15
@@ -5557,7 +5542,7 @@
  "GP": {
   "symbol": "GP",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7540000081062317,
@@ -5569,11 +5554,11 @@
  "KALA": {
   "symbol": "KALA",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5630000233650208,
-  "rsi_now": 32.59904129925147,
+  "rsi_now": 32.59904129925144,
   "readiness": 55,
   "score": 90,
   "n_criteria": 15
@@ -5581,7 +5566,7 @@
  "KG": {
   "symbol": "KG",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 6.309999942779541,
@@ -5607,11 +5592,11 @@
  "LGHL": {
   "symbol": "LGHL",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 7.820000171661377,
-  "rsi_now": 24.081234040258806,
+  "rsi_now": 24.081234040258167,
   "readiness": 30,
   "score": 45,
   "n_criteria": 15
@@ -5619,7 +5604,7 @@
  "MRLN": {
   "symbol": "MRLN",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.0199999809265137,
@@ -5631,11 +5616,11 @@
  "MVIS": {
   "symbol": "MVIS",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.590000033378601,
-  "rsi_now": 30.630051942526052,
+  "rsi_now": 30.630051942526066,
   "readiness": 30,
   "score": 45,
   "n_criteria": 15
@@ -5643,11 +5628,11 @@
  "NCNA": {
   "symbol": "NCNA",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.340000033378601,
-  "rsi_now": 42.99080920561168,
+  "rsi_now": 42.99080920561172,
   "readiness": 25,
   "score": 65,
   "n_criteria": 15
@@ -5655,7 +5640,7 @@
  "NTCL": {
   "symbol": "NTCL",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.9800000190734863,
@@ -5667,11 +5652,11 @@
  "NVNI": {
   "symbol": "NVNI",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8849999904632568,
-  "rsi_now": 39.10893419968569,
+  "rsi_now": 39.10893419968568,
   "readiness": 15,
   "score": 60,
   "n_criteria": 15
@@ -5679,7 +5664,7 @@
  "OM": {
   "symbol": "OM",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.2699999809265137,
@@ -5691,7 +5676,7 @@
  "ORBS": {
   "symbol": "ORBS",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -5705,7 +5690,7 @@
  "QCLS": {
   "symbol": "QCLS",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "النقاط (دون الحدّ)"
@@ -5719,11 +5704,11 @@
  "SCLX": {
   "symbol": "SCLX",
   "first_seen": "2026-09-01",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.050000190734863,
-  "rsi_now": 28.642406754277502,
+  "rsi_now": 28.642406754277488,
   "readiness": 0,
   "score": 5,
   "n_criteria": 15
@@ -5745,7 +5730,7 @@
  "ALAR": {
   "symbol": "ALAR",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -5759,7 +5744,7 @@
  "CETY": {
   "symbol": "CETY",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -5773,11 +5758,11 @@
  "CYN": {
   "symbol": "CYN",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8059999942779541,
-  "rsi_now": 25.75960266138067,
+  "rsi_now": 25.759602661380853,
   "readiness": 0,
   "score": 35,
   "n_criteria": 15
@@ -5785,13 +5770,13 @@
  "DFSC": {
   "symbol": "DFSC",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.440000057220459,
-  "rsi_now": 43.12202926311713,
+  "rsi_now": 43.12202926311712,
   "readiness": 25,
   "score": 45,
   "n_criteria": 15
@@ -5799,7 +5784,7 @@
  "DKI": {
   "symbol": "DKI",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.4700000286102295,
@@ -5811,11 +5796,11 @@
  "DRCT": {
   "symbol": "DRCT",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.7699999809265137,
-  "rsi_now": 24.788096320833958,
+  "rsi_now": 24.788096320833986,
   "readiness": 15,
   "score": 35,
   "n_criteria": 15
@@ -5823,7 +5808,7 @@
  "ELTX": {
   "symbol": "ELTX",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.109999895095825,
@@ -5835,7 +5820,7 @@
  "FBYD": {
   "symbol": "FBYD",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 6.639999866485596,
@@ -5847,7 +5832,7 @@
  "FMST": {
   "symbol": "FMST",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9100000262260437,
@@ -5859,7 +5844,7 @@
  "FTHM": {
   "symbol": "FTHM",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5849999785423279,
@@ -5871,7 +5856,7 @@
  "GOGO": {
   "symbol": "GOGO",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.5899999141693115,
@@ -5883,11 +5868,11 @@
  "HOLO": {
   "symbol": "HOLO",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.600000023841858,
-  "rsi_now": 42.14924883082408,
+  "rsi_now": 42.14924883082436,
   "readiness": 15,
   "score": 35,
   "n_criteria": 15
@@ -5895,7 +5880,7 @@
  "KSCP": {
   "symbol": "KSCP",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.409999966621399,
@@ -5907,14 +5892,14 @@
  "LXEH": {
   "symbol": "LXEH",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M5 السيولة الدولارية (دون الحدّ)",
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.7120000123977661,
-  "rsi_now": 55.92518285523528,
+  "rsi_now": 55.92518285523529,
   "readiness": 15,
   "score": 40,
   "n_criteria": 15
@@ -5922,11 +5907,11 @@
  "MF": {
   "symbol": "MF",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 12.350000381469727,
-  "rsi_now": 47.576416027361525,
+  "rsi_now": 47.57641602736154,
   "readiness": 25,
   "score": 80,
   "n_criteria": 15
@@ -5934,13 +5919,13 @@
  "NAKA": {
   "symbol": "NAKA",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 7.760000228881836,
-  "rsi_now": 64.49052971375941,
+  "rsi_now": 64.49052971375943,
   "readiness": 35,
   "score": 75,
   "n_criteria": 15
@@ -5948,7 +5933,7 @@
  "NCRA": {
   "symbol": "NCRA",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.8600000143051147,
@@ -5960,7 +5945,7 @@
  "NEGG": {
   "symbol": "NEGG",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "النقاط (دون الحدّ)"
@@ -5974,13 +5959,13 @@
  "PBK": {
   "symbol": "PBK",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.35100001096725464,
-  "rsi_now": 24.61621820328935,
+  "rsi_now": 24.616218203289364,
   "readiness": 15,
   "score": 25,
   "n_criteria": 15
@@ -5988,7 +5973,7 @@
  "PRSO": {
   "symbol": "PRSO",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5299999713897705,
@@ -6000,7 +5985,7 @@
  "TCRX": {
   "symbol": "TCRX",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -6015,7 +6000,7 @@
  "AVXL": {
   "symbol": "AVXL",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -6029,7 +6014,7 @@
  "EPSM": {
   "symbol": "EPSM",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6043,11 +6028,11 @@
  "FLNA": {
   "symbol": "FLNA",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8100000023841858,
-  "rsi_now": 33.48348959767658,
+  "rsi_now": 33.483489597676595,
   "readiness": 15,
   "score": 35,
   "n_criteria": 15
@@ -6055,7 +6040,7 @@
  "GCL": {
   "symbol": "GCL",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6069,11 +6054,11 @@
  "GDHG": {
   "symbol": "GDHG",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.3200000524520874,
-  "rsi_now": 50.837438121367384,
+  "rsi_now": 50.8374381213681,
   "readiness": 40,
   "score": 85,
   "n_criteria": 15
@@ -6081,7 +6066,7 @@
  "GNTA": {
   "symbol": "GNTA",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8610000014305115,
@@ -6093,7 +6078,7 @@
  "ICON": {
   "symbol": "ICON",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8999999761581421,
@@ -6105,11 +6090,11 @@
  "ICU": {
   "symbol": "ICU",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.130000114440918,
-  "rsi_now": 46.58506901919449,
+  "rsi_now": 46.58506901919452,
   "readiness": 70,
   "score": 80,
   "n_criteria": 15
@@ -6117,13 +6102,13 @@
  "JAGX": {
   "symbol": "JAGX",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
   ],
   "price": 0.3190000057220459,
-  "rsi_now": 17.314929034476705,
+  "rsi_now": 17.314929034477572,
   "readiness": 0,
   "score": 20,
   "n_criteria": 15
@@ -6131,7 +6116,7 @@
  "MTEK": {
   "symbol": "MTEK",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0199999809265137,
@@ -6143,7 +6128,7 @@
  "PLSM": {
   "symbol": "PLSM",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.450000047683716,
@@ -6155,7 +6140,7 @@
  "RPID": {
   "symbol": "RPID",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.2000000476837158,
@@ -6167,7 +6152,7 @@
  "RZLV": {
   "symbol": "RZLV",
   "first_seen": "2026-09-02",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.299999952316284,
@@ -6203,11 +6188,11 @@
  "GOVX": {
   "symbol": "GOVX",
   "first_seen": "2026-09-03",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.4659999907016754,
-  "rsi_now": 29.03383893484512,
+  "rsi_now": 29.033838934845136,
   "readiness": 25,
   "score": 60,
   "n_criteria": 15
@@ -6215,7 +6200,7 @@
  "HTZ": {
   "symbol": "HTZ",
   "first_seen": "2026-09-03",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.049999952316284,
@@ -6227,11 +6212,11 @@
  "JYD": {
   "symbol": "JYD",
   "first_seen": "2026-09-03",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.8180000185966492,
-  "rsi_now": 41.54193217508665,
+  "rsi_now": 41.54193217508668,
   "readiness": 25,
   "score": 80,
   "n_criteria": 15
@@ -6239,7 +6224,7 @@
  "NCT": {
   "symbol": "NCT",
   "first_seen": "2026-09-03",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -6253,7 +6238,7 @@
  "PN": {
   "symbol": "PN",
   "first_seen": "2026-09-03",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.430000066757202,
@@ -6265,7 +6250,7 @@
  "QNCX": {
   "symbol": "QNCX",
   "first_seen": "2026-09-03",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 28.959999084472656,
@@ -6277,7 +6262,7 @@
  "RDHL": {
   "symbol": "RDHL",
   "first_seen": "2026-09-03",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.652999997138977,
@@ -6289,7 +6274,7 @@
  "SONM": {
   "symbol": "SONM",
   "first_seen": "2026-09-03",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.1700000762939453,
@@ -6301,7 +6286,7 @@
  "SSM": {
   "symbol": "SSM",
   "first_seen": "2026-09-03",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.9700000286102295,
@@ -6313,11 +6298,11 @@
  "APVO": {
   "symbol": "APVO",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.8300000429153442,
-  "rsi_now": 27.963406883250713,
+  "rsi_now": 27.963406883251196,
   "readiness": 30,
   "score": 45,
   "n_criteria": 15
@@ -6325,7 +6310,7 @@
  "BGMS": {
   "symbol": "BGMS",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M5 السيولة الدولارية (دون الحدّ)"
@@ -6339,7 +6324,7 @@
  "BKYI": {
   "symbol": "BKYI",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.75,
@@ -6351,7 +6336,7 @@
  "BLNE": {
   "symbol": "BLNE",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6365,7 +6350,7 @@
  "CLGN": {
   "symbol": "CLGN",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.5399999618530273,
@@ -6377,7 +6362,7 @@
  "CNEY": {
   "symbol": "CNEY",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5419999957084656,
@@ -6389,7 +6374,7 @@
  "CRIS": {
   "symbol": "CRIS",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.159999966621399,
@@ -6401,7 +6386,7 @@
  "DSY": {
   "symbol": "DSY",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.809999942779541,
@@ -6413,7 +6398,7 @@
  "DUO": {
   "symbol": "DUO",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5180000066757202,
@@ -6425,11 +6410,11 @@
  "GCTK": {
   "symbol": "GCTK",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.2300000190734863,
-  "rsi_now": 36.32288753003775,
+  "rsi_now": 36.322887530037114,
   "readiness": 35,
   "score": 60,
   "n_criteria": 15
@@ -6437,7 +6422,7 @@
  "MOBX": {
   "symbol": "MOBX",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6451,7 +6436,7 @@
  "NAMI": {
   "symbol": "NAMI",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.9199999570846558,
@@ -6463,7 +6448,7 @@
  "NCPL": {
   "symbol": "NCPL",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6477,11 +6462,11 @@
  "NIVF": {
   "symbol": "NIVF",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.1100000143051147,
-  "rsi_now": 26.511305271635564,
+  "rsi_now": 26.511305271637056,
   "readiness": 55,
   "score": 90,
   "n_criteria": 15
@@ -6489,7 +6474,7 @@
  "NXGL": {
   "symbol": "NXGL",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -6504,7 +6489,7 @@
  "PULM": {
   "symbol": "PULM",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.4600000381469727,
@@ -6516,7 +6501,7 @@
  "QNTM": {
   "symbol": "QNTM",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6530,7 +6515,7 @@
  "SILO": {
   "symbol": "SILO",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.1040000915527344,
@@ -6542,7 +6527,7 @@
  "UPLD": {
   "symbol": "UPLD",
   "first_seen": "2026-09-04",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.2100000381469727,
@@ -6595,7 +6580,7 @@
  "ARTL": {
   "symbol": "ARTL",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.630000114440918,
@@ -6607,7 +6592,7 @@
  "BIAF": {
   "symbol": "BIAF",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6621,7 +6606,7 @@
  "BYAH": {
   "symbol": "BYAH",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.4100000858306885,
@@ -6633,7 +6618,7 @@
  "BYND": {
   "symbol": "BYND",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 10.449999809265137,
@@ -6645,7 +6630,7 @@
  "CCTG": {
   "symbol": "CCTG",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.597000002861023,
@@ -6657,7 +6642,7 @@
  "CSAI": {
   "symbol": "CSAI",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.559999942779541,
@@ -6669,7 +6654,7 @@
  "CXAI": {
   "symbol": "CXAI",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.950000047683716,
@@ -6681,11 +6666,11 @@
  "DCOY": {
   "symbol": "DCOY",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.7300000190734863,
-  "rsi_now": 31.210732527524655,
+  "rsi_now": 31.210732527524684,
   "readiness": 35,
   "score": 60,
   "n_criteria": 15
@@ -6693,11 +6678,11 @@
  "DCX": {
   "symbol": "DCX",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5479999780654907,
-  "rsi_now": 28.159562967416832,
+  "rsi_now": 28.159562967414075,
   "readiness": 15,
   "score": 25,
   "n_criteria": 15
@@ -6705,7 +6690,7 @@
  "DEFT": {
   "symbol": "DEFT",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6719,7 +6704,7 @@
  "DXST": {
   "symbol": "DXST",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.5399999618530273,
@@ -6731,7 +6716,7 @@
  "FCUV": {
   "symbol": "FCUV",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.519999980926514,
@@ -6743,7 +6728,7 @@
  "GRML": {
   "symbol": "GRML",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.819999933242798,
@@ -6755,11 +6740,11 @@
  "HTCR": {
   "symbol": "HTCR",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.055000066757202,
-  "rsi_now": 37.31144643801488,
+  "rsi_now": 37.311446438014876,
   "readiness": 25,
   "score": 60,
   "n_criteria": 15
@@ -6767,7 +6752,7 @@
  "IMCC": {
   "symbol": "IMCC",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.75,
@@ -6779,7 +6764,7 @@
  "MYSZ": {
   "symbol": "MYSZ",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.940000057220459,
@@ -6791,7 +6776,7 @@
  "NVX": {
   "symbol": "NVX",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.9100000858306885,
@@ -6803,7 +6788,7 @@
  "NXL": {
   "symbol": "NXL",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.869999885559082,
@@ -6815,7 +6800,7 @@
  "OMH": {
   "symbol": "OMH",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.25,
@@ -6827,7 +6812,7 @@
  "PRPL": {
   "symbol": "PRPL",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -6841,7 +6826,7 @@
  "SEV": {
   "symbol": "SEV",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6855,11 +6840,11 @@
  "SGRX": {
   "symbol": "SGRX",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.4299999475479126,
-  "rsi_now": 19.78560842126427,
+  "rsi_now": 19.785608421264286,
   "readiness": 0,
   "score": 30,
   "n_criteria": 15
@@ -6867,7 +6852,7 @@
  "SKYE": {
   "symbol": "SKYE",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -6881,13 +6866,13 @@
  "SMXT": {
   "symbol": "SMXT",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 2.4200000762939453,
-  "rsi_now": 31.640212937839735,
+  "rsi_now": 31.64021293783975,
   "readiness": 35,
   "score": 50,
   "n_criteria": 15
@@ -6895,7 +6880,7 @@
  "SNAL": {
   "symbol": "SNAL",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.559999942779541,
@@ -6907,7 +6892,7 @@
  "TRIB": {
   "symbol": "TRIB",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 7.789999961853027,
@@ -6919,7 +6904,7 @@
  "VBIO": {
   "symbol": "VBIO",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.200000047683716,
@@ -6931,13 +6916,13 @@
  "VEEA": {
   "symbol": "VEEA",
   "first_seen": "2026-09-08",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 1.659999966621399,
-  "rsi_now": 27.22175930548852,
+  "rsi_now": 27.221759305488533,
   "readiness": 50,
   "score": 60,
   "n_criteria": 15
@@ -6969,7 +6954,7 @@
  "AEI": {
   "symbol": "AEI",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.1399999856948853,
@@ -6981,7 +6966,7 @@
  "AIOS": {
   "symbol": "AIOS",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 12.699999809265137,
@@ -6993,7 +6978,7 @@
  "CDLX": {
   "symbol": "CDLX",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7007,7 +6992,7 @@
  "CLNN": {
   "symbol": "CLNN",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.6500000953674316,
@@ -7019,7 +7004,7 @@
  "DWTX": {
   "symbol": "DWTX",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.8799999952316284,
@@ -7031,7 +7016,7 @@
  "EVGO": {
   "symbol": "EVGO",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.3300000429153442,
@@ -7043,13 +7028,13 @@
  "ICMB": {
   "symbol": "ICMB",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
   ],
   "price": 0.8600000143051147,
-  "rsi_now": 51.41222759272358,
+  "rsi_now": 51.41222759272363,
   "readiness": 45,
   "score": 70,
   "n_criteria": 15
@@ -7057,7 +7042,7 @@
  "JFIN": {
   "symbol": "JFIN",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.440000057220459,
@@ -7069,7 +7054,7 @@
  "LHSW": {
   "symbol": "LHSW",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6499999761581421,
@@ -7081,7 +7066,7 @@
  "POLA": {
   "symbol": "POLA",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.2699999809265137,
@@ -7093,7 +7078,7 @@
  "SEAT": {
   "symbol": "SEAT",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)",
@@ -7108,7 +7093,7 @@
  "TIL": {
   "symbol": "TIL",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 7.360000133514404,
@@ -7120,7 +7105,7 @@
  "UONE": {
   "symbol": "UONE",
   "first_seen": "2026-09-09",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.659999847412109,
@@ -7159,7 +7144,7 @@
  "AARD": {
   "symbol": "AARD",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.010000228881836,
@@ -7171,7 +7156,7 @@
  "AMCI": {
   "symbol": "AMCI",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.180000066757202,
@@ -7183,7 +7168,7 @@
  "ASPC": {
   "symbol": "ASPC",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 10.920000076293945,
@@ -7195,7 +7180,7 @@
  "ATGL": {
   "symbol": "ATGL",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 6.0,
@@ -7207,7 +7192,7 @@
  "ATYR": {
   "symbol": "ATYR",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.4320000112056732,
@@ -7219,7 +7204,7 @@
  "CALC": {
   "symbol": "CALC",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7233,7 +7218,7 @@
  "CAR": {
   "symbol": "CAR",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 126.73999786376953,
@@ -7245,7 +7230,7 @@
  "CIIT": {
   "symbol": "CIIT",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.7799999713897705,
@@ -7257,7 +7242,7 @@
  "CLIK": {
   "symbol": "CLIK",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7271,7 +7256,7 @@
  "CNSY": {
   "symbol": "CNSY",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.390000104904175,
@@ -7283,7 +7268,7 @@
  "CRMT": {
   "symbol": "CRMT",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.590000033378601,
@@ -7295,7 +7280,7 @@
  "HIT": {
   "symbol": "HIT",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9309999942779541,
@@ -7307,7 +7292,7 @@
  "INBS": {
   "symbol": "INBS",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7321,7 +7306,7 @@
  "KMRK": {
   "symbol": "KMRK",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9419999718666077,
@@ -7333,7 +7318,7 @@
  "KPTI": {
   "symbol": "KPTI",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.6200000047683716,
@@ -7345,7 +7330,7 @@
  "KTTA": {
   "symbol": "KTTA",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5400000214576721,
@@ -7357,7 +7342,7 @@
  "LASE": {
   "symbol": "LASE",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.7099999785423279,
@@ -7369,7 +7354,7 @@
  "LWLG": {
   "symbol": "LWLG",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.159999847412109,
@@ -7381,7 +7366,7 @@
  "MIND": {
   "symbol": "MIND",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.9100000858306885,
@@ -7393,11 +7378,11 @@
  "MLGO": {
   "symbol": "MLGO",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.6700000762939453,
-  "rsi_now": 35.12383897022845,
+  "rsi_now": 35.12383897022839,
   "readiness": 0,
   "score": 5,
   "n_criteria": 15
@@ -7405,7 +7390,7 @@
  "MTVA": {
   "symbol": "MTVA",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.75,
@@ -7417,7 +7402,7 @@
  "NIXX": {
   "symbol": "NIXX",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5386999845504761,
@@ -7429,7 +7414,7 @@
  "NNNN": {
   "symbol": "NNNN",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 6.510000228881836,
@@ -7441,7 +7426,7 @@
  "NTHI": {
   "symbol": "NTHI",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.6600000858306885,
@@ -7453,7 +7438,7 @@
  "NTRP": {
   "symbol": "NTRP",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7467,21 +7452,22 @@
  "NXAT": {
   "symbol": "NXAT",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
-  "n_out": 1,
+  "last_seen": "2026-09-12",
+  "n_out": 2,
   "outside": [
+   "العائد/المخاطرة (دون الحدّ)",
    "M9 بُعد الفجوة (فوق الحدّ)"
   ],
-  "price": 1.309999942779541,
-  "rsi_now": 33.79076272284374,
-  "readiness": 10,
-  "score": 40,
+  "price": 1.3650000095367432,
+  "rsi_now": 35.550874031216395,
+  "readiness": 35,
+  "score": 60,
   "n_criteria": 15
  },
  "OPEN": {
   "symbol": "OPEN",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.799999952316284,
@@ -7493,7 +7479,7 @@
  "PLCE": {
   "symbol": "PLCE",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7507,7 +7493,7 @@
  "PLYX": {
   "symbol": "PLYX",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.9900000095367432,
@@ -7519,11 +7505,11 @@
  "PSNY": {
   "symbol": "PSNY",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 7.71999979019165,
-  "rsi_now": 19.572230003431983,
+  "rsi_now": 19.57223000343197,
   "readiness": 0,
   "score": 15,
   "n_criteria": 15
@@ -7531,7 +7517,7 @@
  "QUCY": {
   "symbol": "QUCY",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.3700000047683716,
@@ -7543,7 +7529,7 @@
  "RKTO": {
   "symbol": "RKTO",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6449999809265137,
@@ -7555,7 +7541,7 @@
  "SAGT": {
   "symbol": "SAGT",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.5720000267028809,
@@ -7567,7 +7553,7 @@
  "SLDP": {
   "symbol": "SLDP",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7581,11 +7567,11 @@
  "SNOA": {
   "symbol": "SNOA",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.309999942779541,
-  "rsi_now": 51.74950095857733,
+  "rsi_now": 51.749500958577315,
   "readiness": 25,
   "score": 40,
   "n_criteria": 15
@@ -7593,11 +7579,11 @@
  "TEAD": {
   "symbol": "TEAD",
   "first_seen": "2026-09-10",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.47999998927116394,
-  "rsi_now": 35.18015711639217,
+  "rsi_now": 35.18015711639218,
   "readiness": 50,
   "score": 55,
   "n_criteria": 15
@@ -7605,7 +7591,7 @@
  "ADXN": {
   "symbol": "ADXN",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -7619,11 +7605,11 @@
  "AEMD": {
   "symbol": "AEMD",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.559999942779541,
-  "rsi_now": 25.774995022917736,
+  "rsi_now": 25.77499502291768,
   "readiness": 10,
   "score": 30,
   "n_criteria": 15
@@ -7631,7 +7617,7 @@
  "AGMH": {
   "symbol": "AGMH",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.878000020980835,
@@ -7643,7 +7629,7 @@
  "AISP": {
   "symbol": "AISP",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.009999990463257,
@@ -7655,7 +7641,7 @@
  "ARAY": {
   "symbol": "ARAY",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -7670,7 +7656,7 @@
  "BTCS": {
   "symbol": "BTCS",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7684,14 +7670,14 @@
  "BTOC": {
   "symbol": "BTOC",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
    "M5 السيولة الدولارية (دون الحدّ)"
   ],
   "price": 0.28999999165534973,
-  "rsi_now": 50.36277256138386,
+  "rsi_now": 50.36277256138387,
   "readiness": 25,
   "score": 40,
   "n_criteria": 15
@@ -7699,7 +7685,7 @@
  "BXBL": {
   "symbol": "BXBL",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -7713,11 +7699,11 @@
  "CHGA": {
   "symbol": "CHGA",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.25,
-  "rsi_now": 25.847749382233218,
+  "rsi_now": 25.847749382233204,
   "readiness": 10,
   "score": 45,
   "n_criteria": 15
@@ -7725,7 +7711,7 @@
  "DFDV": {
   "symbol": "DFDV",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7739,7 +7725,7 @@
  "ENLV": {
   "symbol": "ENLV",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.9810000061988831,
@@ -7751,7 +7737,7 @@
  "EU": {
   "symbol": "EU",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M3 الانفجار السابق (دون الحدّ)"
@@ -7765,13 +7751,13 @@
  "EZGO": {
   "symbol": "EZGO",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M9 بُعد الفجوة (فوق الحدّ)"
   ],
   "price": 0.8849999904632568,
-  "rsi_now": 32.64192672151077,
+  "rsi_now": 32.64192672150996,
   "readiness": 30,
   "score": 40,
   "n_criteria": 15
@@ -7779,11 +7765,11 @@
  "EZRA": {
   "symbol": "EZRA",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.7200000286102295,
-  "rsi_now": 51.12809438225202,
+  "rsi_now": 51.128094382252,
   "readiness": 45,
   "score": 75,
   "n_criteria": 15
@@ -7791,7 +7777,7 @@
  "FNUC": {
   "symbol": "FNUC",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "النقاط (دون الحدّ)"
@@ -7805,11 +7791,11 @@
  "GNPX": {
   "symbol": "GNPX",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.3499999046325684,
-  "rsi_now": 26.850479021143087,
+  "rsi_now": 26.850479021143073,
   "readiness": 30,
   "score": 65,
   "n_criteria": 15
@@ -7817,11 +7803,11 @@
  "GVH": {
   "symbol": "GVH",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.0,
-  "rsi_now": 33.515848000356115,
+  "rsi_now": 33.51584800035609,
   "readiness": 35,
   "score": 65,
   "n_criteria": 15
@@ -7829,7 +7815,7 @@
  "ICCM": {
   "symbol": "ICCM",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.140000104904175,
@@ -7841,7 +7827,7 @@
  "IMNN": {
   "symbol": "IMNN",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.4500000476837158,
@@ -7853,7 +7839,7 @@
  "IVVD": {
   "symbol": "IVVD",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7867,7 +7853,7 @@
  "KLRS": {
   "symbol": "KLRS",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 3.299999952316284,
@@ -7879,11 +7865,11 @@
  "KUST": {
   "symbol": "KUST",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.75,
-  "rsi_now": 36.104919050271235,
+  "rsi_now": 36.104919050256406,
   "readiness": 10,
   "score": 30,
   "n_criteria": 15
@@ -7891,7 +7877,7 @@
  "LEXX": {
   "symbol": "LEXX",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.050000190734863,
@@ -7903,7 +7889,7 @@
  "LYEL": {
   "symbol": "LYEL",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "النقاط (دون الحدّ)"
@@ -7917,13 +7903,13 @@
  "MBIO": {
   "symbol": "MBIO",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M5 السيولة الدولارية (دون الحدّ)"
   ],
   "price": 0.5199999809265137,
-  "rsi_now": 35.105773889704736,
+  "rsi_now": 35.10577388970471,
   "readiness": 0,
   "score": 5,
   "n_criteria": 15
@@ -7931,7 +7917,7 @@
  "MFI": {
   "symbol": "MFI",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
@@ -7945,7 +7931,7 @@
  "MGN": {
   "symbol": "MGN",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 2,
   "outside": [
    "M1 السعر (دون الحدّ)",
@@ -7960,11 +7946,11 @@
  "MNDR": {
   "symbol": "MNDR",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 1.4819999933242798,
-  "rsi_now": 34.99715060329558,
+  "rsi_now": 34.997150603295566,
   "readiness": 60,
   "score": 75,
   "n_criteria": 15
@@ -7972,7 +7958,7 @@
  "NKLR": {
   "symbol": "NKLR",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 5.25,
@@ -7984,7 +7970,7 @@
  "PAVM": {
   "symbol": "PAVM",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 4.269999980926514,
@@ -7996,7 +7982,7 @@
  "PONY": {
   "symbol": "PONY",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "النقاط (دون الحدّ)"
@@ -8010,7 +7996,7 @@
  "RENT": {
   "symbol": "RENT",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.819999933242798,
@@ -8022,7 +8008,7 @@
  "SLBT": {
   "symbol": "SLBT",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.0999999046325684,
@@ -8034,7 +8020,7 @@
  "SLGB": {
   "symbol": "SLGB",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "M1 السعر (دون الحدّ)"
@@ -8048,13 +8034,13 @@
  "SLMT": {
   "symbol": "SLMT",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "النقاط (دون الحدّ)"
   ],
   "price": 3.549999952316284,
-  "rsi_now": 37.64149993693812,
+  "rsi_now": 37.641499936938104,
   "readiness": 0,
   "score": 0,
   "n_criteria": 15
@@ -8062,13 +8048,13 @@
  "SMX": {
   "symbol": "SMX",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 1,
   "outside": [
    "العائد/المخاطرة (دون الحدّ)"
   ],
   "price": 17.6200008392334,
-  "rsi_now": 53.950620966832695,
+  "rsi_now": 53.95062096680954,
   "readiness": 45,
   "score": 75,
   "n_criteria": 15
@@ -8076,11 +8062,11 @@
  "SOBR": {
   "symbol": "SOBR",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.42899999022483826,
-  "rsi_now": 39.68219811670886,
+  "rsi_now": 39.68219811670883,
   "readiness": 10,
   "score": 50,
   "n_criteria": 15
@@ -8088,11 +8074,11 @@
  "SVRE": {
   "symbol": "SVRE",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 2.4100000858306885,
-  "rsi_now": 33.110742258892955,
+  "rsi_now": 33.11074225889277,
   "readiness": 0,
   "score": 30,
   "n_criteria": 15
@@ -8100,7 +8086,7 @@
  "TNYA": {
   "symbol": "TNYA",
   "first_seen": "2026-09-11",
-  "last_seen": "2026-09-11",
+  "last_seen": "2026-09-12",
   "n_out": 0,
   "outside": [],
   "price": 0.6489999890327454,
@@ -8157,6 +8143,18 @@
   "rsi_now": 64.34418137654009,
   "readiness": 35,
   "score": 65,
+  "n_criteria": 15
+ },
+ "GOSS": {
+  "symbol": "GOSS",
+  "first_seen": "2026-09-12",
+  "last_seen": "2026-09-12",
+  "n_out": 0,
+  "outside": [],
+  "price": 10.619999885559082,
+  "rsi_now": 36.30026776639199,
+  "readiness": 10,
+  "score": 40,
   "n_criteria": 15
  }
 }
