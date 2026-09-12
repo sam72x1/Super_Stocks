@@ -1,0 +1,52 @@
+name: TC Yield
+
+# 🚦💵 `T-TC-YIELD` — قراءةٌ فقط. **يدويٌّ بلا كرون**، و**بلا سرِّ تلغرام**
+#    فالإرسالُ مستحيلٌ بنيويًّا لا ممنوعٌ بالنيّة (`V-Y2`).
+on:
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "وضعُ الجدوى (1 = الأرضيّةُ وحدَها · صفرُ Δ)"
+        required: false
+        default: "0"
+      ref:
+        description: "مرجعُ تاريخ الحالة (الافتراض origin/main)"
+        required: false
+        default: "origin/main"
+
+permissions:
+  contents: read
+
+jobs:
+  yield:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # 🔒 تاريخُ `op_entry_state.json` كلُّه + `origin/main`
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Validate inputs
+        env:
+          DRY: ${{ github.event.inputs.dry }}
+          REF: ${{ github.event.inputs.ref }}
+        run: |
+          echo "$DRY" | grep -Eq '^[01]$' || { echo "⛔ dry يجب أن يكون 0 أو 1"; exit 1; }
+          echo "$REF" | grep -Eq '^[A-Za-z0-9._/-]{1,64}$' || { echo "⛔ ref غير صالح"; exit 1; }
+      - name: Run T-TC-YIELD arms
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          TCYIELD_DRY: ${{ github.event.inputs.dry }}
+          TCYIELD_REF: ${{ github.event.inputs.ref }}
+        run: python tc_yield_arms.py
+      - name: Upload rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tc-yield-${{ github.run_id }}
+          path: tc_yield_rows.jsonl
+          if-no-files-found: ignore
