@@ -57,6 +57,10 @@ TRADES_TMPL = "rsi_rank_trades_{}.json"
 PUBLISHED_K0_D100 = {"2023": 13, "2024": 9, "2025": 12}
 # 📌 «السنواتُ الثلاث» بنصّ §④ — وهي **نفسُها** سنواتُ المرجع المنشور أعلاه.
 GOV_YEARS = ("2023", "2024", "2025")
+# 🎚️ حدُّ صلاحية ضبط التعبئة (‏`engineering` — مُعلَنٌ في ملحق §⑩ أن المطابقةَ
+#    تقريبيّةٌ لأن السعةَ عددٌ صحيح). فوقه **يسقط `RK4`** ولا يمرّ بصمت: ضبطٌ لم
+#    يطابق التعبئةَ لا يعزل الترتيبَ عن العدد فيصير المعيارُ بلا موضوع.
+MATCH_MAX_GAP_PCT = 10.0
 GOV_ARMS = ("K0", "K27", "C-DEPTH", "C-RAND")   # ما تقوم عليه المعايير
 DESC_ARMS = ("KC", "KR", "D-RAND")              # وصفيٌّ لا يحكم
 
@@ -195,17 +199,84 @@ def measure(trades, expl: float, seed: int = RAND_SEED, only=None):
             if _hit100(c.payload):
                 per_sym[c.symbol] = per_sym.get(c.symbol, 0) + 1
                 hits.append(f"{c.symbol}@{c.payload.get('date')}")
+        _filled = len(taken) - nf
         out[name] = {
-            "taken": len(taken), "no_fill": nf, "filled": len(taken) - nf,
+            "taken": len(taken), "no_fill": nf, "filled": _filled,
             "d50": sum(1 for c in taken if _hit(c.payload, expl)),
             "d100": sum(1 for c in taken if _hit100(c.payload)),
             "rejected_cap": res["rejected_cap"],
+            # 🔒 `V-K3` **مقيسٌ لا مطبوع**: السعةُ والمحورُ كما استعملهما
+            #    `replay` **لهذي الذراع** — فيُشترَط تطابقُهما عبر الأذرع.
+            "cap_used": int(res["capacity"]), "axis_used": int(len(idx)),
+            # 📐 المعدّل: `FWD` لكلّ صفقةٍ مُسلَّمة — يفصل «ترتيبًا أفضل» عن
+            #    «صفقاتٍ أكثر» (وصفيٌّ، والحاكمُ هو ضبطُ التعبئة `M27`).
+            "rate": (round(sum(1 for c in taken if _hit100(c.payload))
+                           / _filled, 6) if _filled else 0.0),
             "per_trade": (round(sum(rs) / len(taken), 4) if taken else 0.0),
             "per_sym": per_sym, "hits": sorted(hits),
             "order": [c.symbol + "|" + str(c.payload.get("date")) for c in taken],
         }
+
+    # ══ 🎚️ `M27` — **ضبطٌ مطابَقُ التعبئة** (مضافٌ بملحق §⑩، قبل أيّ رقم) ══
+    # 🔴 **سببُه مقيسٌ لا مفترَض:** الميزانيةُ ثابتةٌ **خاناتٍ** لا **صفقات** —
+    #    المركزُ يحجز خانتَه حتى خروجه، فاختلافُ الترتيب يغيّر مُدَدَ الحجز
+    #    فيغيّر عددَ الصفقات (مقيسٌ: ‏160 ⟶ 186 على فِكستشر). ⇒ `FWD` الخام
+    #    يخلط «ترتيبًا أفضل» بـ«صفقاتٍ أكثر». و`M27` = **`K0` بسعةٍ مُعايَرة**
+    #    حتى تقارب تعبئتُه تعبئةَ `K27` ⇒ `K27 − M27` يعزل الترتيبَ عن العدد.
+    #    وهو **درسُ `T-WAIT-23W` حرفيًّا** (‏`M23`/`M27w`) مطبَّقًا مقلوبًا.
+    if only is None and "K27" in out and "K0" in out:
+        tgt = out["K27"]["filled"]
+        # 🔴 **التعبئةُ ليست رتيبةً في السعة** (مقيس: ‏186 عند 15 · 192 عند 17 ·
+        #    151 عند 22) — لأن المركزَ يحجز خانتَه فتتشابك القرارات ⇒ **لا بحثَ
+        #    ثنائيّ**: مسحٌ كاملٌ يأخذ **أقربَ** تعبئةٍ مهما كانت السعة.
+        best, best_cap = None, int(CAPACITY)
+        for cap in range(1, 6 * int(CAPACITY) + 1):
+            r = replay(cands, outcome_of=oc, ranker=k_base, capacity=cap,
+                       sessions=range(0, len(idx)))
+            tk = r["taken"]
+            nf2 = sum(1 for c in tk
+                      if (c.payload or {}).get("mg_outcome") == "no_fill"
+                      or (c.payload or {}).get("outcome") == "no_fill")
+            f2 = len(tk) - nf2
+            gap = abs(f2 - tgt)
+            if best is None or gap < best[0]:
+                best, best_cap, best_r = (gap, f2), cap, r
+            if f2 >= tgt and gap == 0:
+                break
+        tk = best_r["taken"]
+        nf2 = sum(1 for c in tk
+                  if (c.payload or {}).get("mg_outcome") == "no_fill"
+                  or (c.payload or {}).get("outcome") == "no_fill")
+        f2 = len(tk) - nf2
+        ps2 = {}
+        for c in tk:
+            if _hit100(c.payload):
+                ps2[c.symbol] = ps2.get(c.symbol, 0) + 1
+        rs2 = [v for v in (r_unit(c.payload) for c in tk) if v is not None]
+        out["M27"] = {
+            "taken": len(tk), "no_fill": nf2, "filled": f2,
+            "d50": sum(1 for c in tk if _hit(c.payload, expl)),
+            "d100": sum(1 for c in tk if _hit100(c.payload)),
+            "rejected_cap": best_r["rejected_cap"],
+            "cap_used": int(best_cap), "axis_used": int(len(idx)),
+            "rate": (round(sum(1 for c in tk if _hit100(c.payload)) / f2, 6)
+                     if f2 else 0.0),
+            "per_trade": (round(sum(rs2) / len(tk), 4) if tk else 0.0),
+            "per_sym": ps2, "hits": [],
+            "order": [c.symbol + "|" + str(c.payload.get("date")) for c in tk],
+            "match_gap": abs(f2 - tgt), "match_target": tgt,
+            # 📐 **نسبةُ الفجوة** — عليها يقوم حدُّ صلاحية الضبط: مطابقةٌ رديئةٌ
+            #    تجعل `RK4` **بلا موضوع** (يعزل الترتيبَ عن عددٍ لم يُطابَق).
+            "match_gap_pct": (round(100.0 * abs(f2 - tgt) / tgt, 2)
+                              if tgt else 100.0),
+            "match_ok": bool(tgt) and abs(f2 - tgt) <= MATCH_MAX_GAP_PCT * tgt
+            / 100.0,
+        }
+
     info = {"n_cands": len(cands), "axis": len(idx), "capacity": int(CAPACITY),
-            "n_rows": len(trades)}
+            "n_rows": len(trades),
+            # 🔒 **كونُ العناقيد** — كلُّ رمزٍ مرشَّح، لا المُصيبون وحدَهم.
+            "syms": sorted({c.symbol for c in cands})}
     return out, info, cands
 
 
@@ -224,13 +295,19 @@ def class_order_ok(cands, fn_band, fn_base) -> bool:
     return True
 
 
-def boot_delta(per_sym_a: dict, per_sym_b: dict,
+def boot_delta(per_sym_a: dict, per_sym_b: dict, universe=None,
                reps: int = BOOT, seed: int = BOOT_SEED) -> dict:
     """فاصلُ بوتستراب **عنقوديٌّ بالرمز** على فرق المساهمات المحقَّقة.
 
+    🔴 **و`universe` ليست زينة:** بلاها تكون العناقيدُ **اتّحادَ المُصيبين**
+    وحدَهم — أي **مجموعةٌ مُنتقاةٌ بالنتيجة** — فيسقط من الكون كلُّ رمزٍ
+    مساهمتُه صفر، **وينكمش الفاصلُ** (مقيسٌ: عرضٌ ‏6 مقابل 7 على مثالٍ صغير)
+    ⇒ شرطُ «لا يلمس الصفر» يصير **متساهلًا**. فالكونُ = **كلُّ رمزٍ مرشَّح**
+    ومساهمةُ مَن لم يُصِب **صفرٌ يُعَدّ** لا يُحذَف.
+
     ⚠️ **حدٌّ مُعلَن:** لا تُعاد آلةُ التخصيص داخل الإعادة (مستحيلٌ حسابيًّا)
     ⇒ يقيس تشتّتَ المساهمات لا اقترانَ الخانات."""
-    keys = sorted(set(per_sym_a) | set(per_sym_b))
+    keys = sorted(set(universe or ()) | set(per_sym_a) | set(per_sym_b))
     if not keys:
         return {"delta": 0, "lo": 0.0, "hi": 0.0, "n_clusters": 0}
     d = [per_sym_a.get(k, 0) - per_sym_b.get(k, 0) for k in keys]
@@ -245,13 +322,28 @@ def boot_delta(per_sym_a: dict, per_sym_b: dict,
             "hi": round(outs[min(int(0.975 * reps), reps - 1)], 2)}
 
 
-def _merge(per_year: dict, arm: str) -> dict:
-    """تجميعُ مساهمات الرمز عبر السنوات — **الرمزُ عنقودٌ واحد** لا (سنة·رمز)."""
+def _merge(per_year: dict, arm: str, years=None) -> dict:
+    """تجميعُ مساهمات الرمز عبر السنوات — **الرمزُ عنقودٌ واحد** لا (سنة·رمز).
+
+    🔴 **و`years` تمنع انفصامًا حقيقيًّا:** الفرقُ السنويُّ يُقصي سنةً ساقطةً
+    على الأرضية، فلو بقيت في الفاصل لقرأ **المعياران مجتمعَين مختلفَين**."""
     agg = {}
-    for y in per_year.values():
-        for s, n in (y["arms"][arm]["per_sym"] or {}).items():
+    for y, v in per_year.items():
+        if years is not None and y not in years:
+            continue
+        for s, n in (v["arms"][arm]["per_sym"] or {}).items():
             agg[s] = agg.get(s, 0) + n
     return agg
+
+
+def _universe(per_year: dict, years=None) -> set:
+    """كونُ العناقيد = **كلُّ رمزٍ مرشَّح** في السنوات المؤهَّلة (لا المُصيبون)."""
+    out = set()
+    for y, v in per_year.items():
+        if years is not None and y not in years:
+            continue
+        out |= set((v.get("info") or {}).get("syms") or ())
+    return out
 
 
 def read_verdict(per_year: dict, boots: dict) -> dict:
@@ -266,11 +358,13 @@ def read_verdict(per_year: dict, boots: dict) -> dict:
                      if y not in gov or not gov[y]["floor_ok"])
     if len(dropped) >= 2:
         return {"branch": 3, "rk1": None, "rk2": None, "rk3": None,
-                "rk3_degenerate": None, "dropped": dropped}
+                "rk4": None, "match_ok": None, "rk3_degenerate": None,
+                "dropped": dropped}
     ys = sorted(y for y in GOV_YEARS if y not in dropped)
     d1 = [gov[y]["delta"]["K27-K0"] for y in ys]
     d2 = [gov[y]["delta"]["K27-C-DEPTH"] for y in ys]
     d3 = [gov[y]["delta"]["K27-C-RAND"] for y in ys]
+    d4 = [gov[y]["delta"].get("K27-M27", 0) for y in ys]
     # 🔴 `RK1`/`RK3` نصُّهما «**موجبٌ في السنوات الثلاث**» ⇒ سنةٌ ساقطةٌ على
     #    الأرضية **تُسقطهما بالتعريف** (لا يُقرأ لها رقم) ⇒ **الفرعُ 2** —
     #    وهو حرفُ الملاحظة الحمراء في §④. و`RK2` نصُّه «سنتين فأكثر» فيبقى
@@ -280,15 +374,22 @@ def read_verdict(per_year: dict, boots: dict) -> dict:
     rk2 = (sum(1 for v in d2 if v > 0) >= 2
            and boots["K27-C-DEPTH"]["lo"] > 0)
     rk3 = full and all(v > 0 for v in d3)
+    # 🎚️ `RK4` — **مضافٌ بملحق §⑩ قبل أيّ رقم، ويُشدِّد ولا يُرخي**: الترتيبُ
+    #    معزولًا عن عدد الصفقات (‏`M27` = `K0` بسعةٍ مُعايَرة على تعبئة `K27`).
+    # 🔴 **وضبطٌ لم يطابق التعبئةَ يُسقط `RK4`** — لا يمرّ بصمت: المعيارُ يقيس
+    #    «الترتيبَ عند عددِ صفقاتٍ واحد»، فإن لم يتطابق العددُ فلا موضوعَ له.
+    m_ok = all(gov[y].get("match_ok") for y in ys)
+    rk4 = (full and m_ok and all(v > 0 for v in d4)
+           and boots.get("K27-M27", {}).get("lo", 0) > 0)
     # 🔴 **شاهدٌ ميّت يُعلَن ولا يُطوى:** `rank_live` ينتهي بـ`seq` الفريد فهو
     #    ترتيبٌ كلّيٌّ **بلا تعادل** ⇒ إن لم تتعادل مكوّناتُه السابقة في أيّ
     #    سنةٍ مؤهَّلة صار `C-RAND` ≡ `K0` و**`RK3` إعادةُ صياغةٍ لإشارة `RK1`
     #    لا شاهدًا مستقلًّا**. الفرعُ يُحسَب **بحرف §④** (العقدُ مدموجٌ لا
     #    يُعدَّل)، والانحلالُ يُطبَع فلا يُقرأ دليلًا مستقلًّا — درسُ `C-MOM`.
     rk3_deg = bool(ys) and all(gov[y]["rand_dead"] for y in ys)
-    return {"branch": 1 if (rk1 and rk2 and rk3) else 2,
-            "rk1": rk1, "rk2": rk2, "rk3": rk3, "rk3_degenerate": rk3_deg,
-            "dropped": dropped}
+    return {"branch": 1 if (rk1 and rk2 and rk3 and rk4) else 2,
+            "rk1": rk1, "rk2": rk2, "rk3": rk3, "rk4": rk4,
+            "match_ok": m_ok, "rk3_degenerate": rk3_deg, "dropped": dropped}
 
 
 # ══════════ الحرّاس ══════════
@@ -353,7 +454,7 @@ def rankers_blind() -> bool:
     واحدًا. يُفحَص نصُّ كلّ دالّةٍ مُرتِّبة **بالـAST على الأسماء والسلاسل**."""
     import inspect                                               # noqa: PLC0415
     for fn in (band_of, k_base, k_band, k_inv, k_cont, c_depth, make_c_rand,
-               _env):
+               make_rank_random, _env):
         try:
             src = inspect.getsource(fn)
         except Exception:                                        # noqa: BLE001
@@ -381,6 +482,13 @@ def _measure_year(year: str, frozen: str) -> dict:
     واحدٌ للسنة لا طفلٌ لكلّ ذراع**، لأن **لا ذراعَ تمسّ `CONFIG`.**"""
     env = {**dict(os.environ), **CA.child_env(),
            "BACKTEST_YEAR": year, "BT_FROZEN_PATH": frozen}
+    # 🔒🔴 **الطفلُ يُجرَّد من مفاتيح تلغرام:** `selfcheck_readonly` يمسح **هذا
+    #    الملفَّ وحدَه**، والطفلُ ينادي `run_backtest` وفيها إرسالٌ ووثائقُ CSV
+    #    **بلا حارس** ⇒ تشغيلٌ من بيئةٍ فيها السرُّ كان سيُرسل ثلاثةَ تقارير.
+    #    فالمنعُ هنا **بنيويٌّ لا اتّكالٌ على غيابِ سرٍّ في workflow واحد**.
+    for _k in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID",
+               "TELEGRAM_BOT_TOKEN_2", "TG_BOT_TOKEN", "TG_CHAT_ID"):
+        env.pop(_k, None)
     p = subprocess.run([sys.executable, os.path.abspath(__file__), "--child",
                         year], capture_output=True, text=True, env=env)
     blob = (p.stdout or "") + "\n" + (p.stderr or "")
@@ -474,10 +582,41 @@ def main() -> int:                                               # noqa: PLR0911
         v2 = (pub is None) or (k0d == pub)
         _log(f"🔒 `V-K2` `K0` d100={k0d} · المنشور={pub} {CA._mark(v2)}"
              + ("" if v2 else "  ⚠️ **يُعلَن الفرقُ ولا يُطوى**"))
+        # 🔴 **ويوقف:** العقدُ §⑤ يجيز المضيَّ «أو **يُعلَن الفرقُ وسببُه
+        #    الحسابيّ**» — والأداةُ لا تملك السبب، فالمضيُّ بلا سببٍ خرقٌ للعقد.
+        #    ⇒ يتوقّف حتى يُعلن إنسانٌ السببَ بالإقرار (‏لا التفافَ صامت).
+        if not v2 and not (os.environ.get("RSIRANK_ACK_VK2") or "").strip():
+            _log("⛔ `V-K2` سقط — والعقدُ §⑤ يشترط **إعلانَ الفرق وسببِه "
+                 "الحسابيّ**. لا يُمضى بلا ذلك: أعلِن السببَ ثمّ أعد التشغيل "
+                 "بـ`RSIRANK_ACK_VK2=<السبب>`.")
+            return 6
         # ── `V-K3`/`V-K4` بالبناء: مجموعةُ مرشّحين واحدة ──
-        _log(f"🔒 `V-K3`/`V-K4` مرشّحون={info['n_cands']} · محور={info['axis']} "
-             f"· سعة={info['capacity']} · صفوف={info['n_rows']} "
-             f"(**كائنٌ واحدٌ لكلّ الأذرع**)")
+        # 🔒 `V-K3` **يُقاس**: السعةُ والمحورُ كما استعملهما `replay` لكلّ ذراع
+        #    (‏`M27` مستثنًى — سعتُه مُعايَرةٌ عمدًا وهو ضبطٌ لا ذراعُ ترتيب).
+        _caps = {a: v["cap_used"] for a, v in arms.items() if a != "M27"}
+        _axes = {a: v["axis_used"] for a, v in arms.items()}
+        v3 = len(set(_caps.values())) == 1 and len(set(_axes.values())) == 1
+        _log(f"🔒 `V-K3` مرشّحون={info['n_cands']} · محور={info['axis']} "
+             f"· سعة={sorted(set(_caps.values()))} · محاور="
+             f"{sorted(set(_axes.values()))} · صفوف={info['n_rows']} "
+             f"{CA._mark(v3)}")
+        # 🔴🔴 **`V-K4` يُقاس ولا يُدَّعى — والقياسُ يكذّب صياغتَه الحرفيّة:**
+        #    «الميزانيةُ ثابتة» صحيحةٌ **خاناتٍ** لا **صفقات**؛ المركزُ يحجز
+        #    خانتَه حتى خروجه فتختلف مُدَدُ الحجز باختلاف الترتيب ⇒ **عددُ
+        #    المُسلَّمين يختلف**. يُطبَع الفرقُ صراحةً، **وضبطُ `M27`** هو ما
+        #    يعزل الترتيبَ عن العدد (ملحق §⑩).
+        _f0 = arms["K0"]["filled"]
+        _fl = " · ".join(f"{a}:{v['filled']}({v['filled'] - _f0:+d})"
+                         for a, v in arms.items())
+        _log(f"🔒 `V-K4` تعبئةٌ لكلّ ذراعٍ مقابل `K0`: {_fl}")
+        if "M27" in arms:
+            _m = arms["M27"]
+            _log(f"🎚️ `M27` ضبطُ التعبئة: سعة={_m['cap_used']} ⇒ تعبئة="
+                 f"{_m['filled']} مقابل هدف {_m['match_target']} "
+                 f"(فجوة {_m['match_gap']} = {_m['match_gap_pct']}% · الحدّ "
+                 f"{MATCH_MAX_GAP_PCT}%) {CA._mark(_m['match_ok'])}"
+                 + ("" if _m["match_ok"] else
+                    "  🔴 **مطابقةٌ رديئة ⇒ `RK4` تسقط ولا تمرّ بصمت**"))
         v5 = class_order_ok(cands, k_band, k_base)
         _log(f"🔒 `V-K5` `K27` داخلَ كلّ فئةٍ ≡ `K0` {CA._mark(v5)}")
         n_r = sum(1 for c in cands if _env(c, "rsi_now", None) is not None)
@@ -485,7 +624,7 @@ def main() -> int:                                               # noqa: PLR0911
         v6 = cov >= 90.0
         _log(f"🔒 `V-K6` تغطيةُ `rsi_now` {cov}% {CA._mark(v6)}")
         _log("🔒 `V-K7` مُرتِّبات عمياءُ عن النتيجة ✅ · `V-K8` الثوابتُ مطبوعة ✅")
-        if not (v5 and v6):
+        if not (v3 and v5 and v6):
             _log(f"⛔ [{y}] حارسٌ ساقط ⇒ لا يُقرأ رقمٌ من هذي السنة")
             return 5
 
@@ -516,21 +655,44 @@ def main() -> int:                                               # noqa: PLR0911
             break
 
         same = arms["C-RAND"]["order"] == arms["K0"]["order"]
+        # 🔴 **وشاهدُ الحاكمة نفسِها:** كان الضبطُ وحدَه يُفحَص — و`K27` التي
+        #    يقوم عليها الحكمُ كلُّه بلا شاهدِ حياة. لو طابقت `K0` فـ`Δ` ≡ صفرٌ
+        #    **بنيويًّا** والحكمُ بلا موضوع.
+        k27_dead = arms["K27"]["order"] == arms["K0"]["order"]
         _log("🩺 شاهدُ الحياة: `C-RAND` ≡ `K0`؟ "
-             + ("🔴 **نعم — شاهدٌ ميّت**" if same else "✅ لا (يفرّق)"))
+             + ("🔴 **نعم — شاهدٌ ميّت**" if same else "✅ لا (يفرّق)")
+             + " · `K27` ≡ `K0`؟ "
+             + ("🔴 **نعم — الحاكمةُ خامدة**" if k27_dead else "✅ لا (يفرّق)"))
+        if k27_dead:
+            _log("⛔ `K27` لا تفرّق عن `K0` ⇒ **التجربةُ بلا موضوع** في هذي "
+                 "السنة (‏`no-op` صريح).")
+            return 7
 
         d = {f"K27-{a}": arms["K27"]["d100"] - arms[a]["d100"]
-             for a in ("K0", "C-DEPTH", "C-RAND", "D-RAND")}
+             for a in ("K0", "C-DEPTH", "C-RAND", "M27", "D-RAND")
+             if a in arms}
+        # 📐 وفرقُ المعدّل (وصفيّ): يفصل الترتيبَ عن العدد بلا ضبط.
+        d_rate = {f"K27-{a}": round(arms["K27"]["rate"] - arms[a]["rate"], 6)
+                  for a in ("K0", "C-DEPTH", "M27") if a in arms}
         per_year[y] = {"arms": arms, "info": info, "floor_ok": floor_ok,
-                       "delta": d, "rand_dead": same, "rsi_cov": cov}
-        for a in list(GOV_ARMS) + list(DESC_ARMS):
-            v = arms[a]
+                       "delta": d, "delta_rate": d_rate, "rand_dead": same,
+                       "k27_dead": k27_dead, "rsi_cov": cov,
+                       "match_ok": bool((arms.get("M27") or {}).get("match_ok")),
+                       "match_gap_pct": (arms.get("M27") or {})
+                       .get("match_gap_pct")}
+        for a in list(GOV_ARMS) + ["M27"] + list(DESC_ARMS):
+            v = arms.get(a)
+            if v is None:
+                continue
             _log(f"  {a:<8} مأخوذ {v['taken']:>4} · مُعبَّأ {v['filled']:>4} · "
                  f"d50 {v['d50']:>3} · **d100 {v['d100']:>3}** · "
                  f"R/صفقة {v['per_trade']:+.4f}")
         _log(f"  Δ(d100) K27−K0={d['K27-K0']:+d} · K27−C-DEPTH="
              f"{d['K27-C-DEPTH']:+d} · K27−C-RAND={d['K27-C-RAND']:+d} · "
+             f"**K27−M27={d.get('K27-M27', 0):+d}** · "
              f"[وصفيّ] K27−D-RAND={d['K27-D-RAND']:+d}")
+        _log("  [وصفيّ] Δ(معدّل) " + " · ".join(
+            f"{k}={v:+.4f}" for k, v in d_rate.items()))
         _log(f"  الأرضية (‏{FLOOR_FILLED} مُعبَّأة في `K0`) {CA._mark(floor_ok)}")
         rows.append({"year": y, "info": info, "floor_ok": floor_ok, "delta": d,
                      "rand_dead": same, "rsi_cov": cov,
@@ -559,10 +721,18 @@ def main() -> int:                                               # noqa: PLR0911
         print("RSIRANK_JSON " + json.dumps(out, ensure_ascii=False))
         return 0
 
+    # 🔒 **السنواتُ المؤهَّلةُ وحدَها** (وإلّا قرأ المعياران مجتمعَين مختلفَين)
+    #    **وكونُ العناقيد كلُّ رمزٍ مرشَّح** (وإلّا انتُقيت العناقيدُ بالنتيجة).
+    _elig = {y for y in GOV_YEARS
+             if y in per_year and per_year[y]["floor_ok"]}
+    _uni = _universe(per_year, _elig)
     boots = {}
-    for a in ("K0", "C-DEPTH", "C-RAND", "D-RAND"):
-        boots[f"K27-{a}"] = boot_delta(_merge(per_year, "K27"),
-                                       _merge(per_year, a))
+    for a in ("K0", "C-DEPTH", "C-RAND", "M27", "D-RAND"):
+        boots[f"K27-{a}"] = boot_delta(_merge(per_year, "K27", _elig),
+                                       _merge(per_year, a, _elig),
+                                       universe=_uni)
+    _log(f"📐 كونُ العناقيد = **{len(_uni)} رمزًا مرشَّحًا** في السنوات "
+         f"المؤهَّلة {sorted(_elig)} (لا المُصيبون وحدَهم)")
     _log("")
     for k, b in boots.items():
         tag = "وصفيّ" if k.endswith("D-RAND") else "حاكم"
@@ -574,7 +744,7 @@ def main() -> int:                                               # noqa: PLR0911
     out["no_verdict"] = v["branch"] == 3
     _log("")
     _log(f"⚖️ **الحكم: الفرعُ {v['branch']}** · `RK1`={v['rk1']} · "
-         f"`RK2`={v['rk2']} · `RK3`={v['rk3']}"
+         f"`RK2`={v['rk2']} · `RK3`={v['rk3']} · **`RK4`={v['rk4']}**"
          + (f" · سنواتٌ ساقطةٌ على الأرضية: {v['dropped']}" if v["dropped"]
             else ""))
     if v.get("rk3_degenerate"):

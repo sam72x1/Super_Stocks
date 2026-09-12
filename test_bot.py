@@ -9868,18 +9868,20 @@ else:
 #    🔴 وأثمنُ صفٍّ فيه: **سنةٌ واحدةٌ ساقطةٌ على الأرضية ⇒ الفرعُ 2 لا «لا حكم»**
 #    — وهو بعينه ما وقع في `T-AHEXT-2`، ولأن `RK1`/`RK3` نصُّهما «في السنوات
 #    الثلاث» فسنةٌ لا يُقرأ لها رقمٌ **تُسقطهما بالتعريف**.
-def _rka_py(d1, d2, d3, floor, dead=False):
-    return {"floor_ok": floor, "rand_dead": dead,
-            "delta": {"K27-K0": d1, "K27-C-DEPTH": d2, "K27-C-RAND": d3}}
+def _rka_py(d1, d2, d3, floor, dead=False, d4=1, match=True):
+    return {"floor_ok": floor, "rand_dead": dead, "match_ok": match,
+            "delta": {"K27-K0": d1, "K27-C-DEPTH": d2, "K27-C-RAND": d3,
+                      "K27-M27": d4}}
 
 
 def _rka_b(lo):
     return {"lo": lo, "hi": 99.0, "delta": 1, "n_clusters": 5}
 
 
-def _rka_v(per_year, b1, b2):
+def _rka_v(per_year, b1, b2, b4=0.5):
     return _RKA.read_verdict(per_year,
-                             {"K27-K0": _rka_b(b1), "K27-C-DEPTH": _rka_b(b2)})
+                             {"K27-K0": _rka_b(b1), "K27-C-DEPTH": _rka_b(b2),
+                              "K27-M27": _rka_b(b4)})
 
 
 _RKA_Y = ("2023", "2024", "2025")
@@ -9912,6 +9914,16 @@ if _RKA is not None:
         ("وصفيّةٌ زائدة **لا تُنقذ ولا تُسقط**",
          {**_rka_all, "2026": _rka_py(-9, -9, -9, True)},
          0.5, 0.5, 1, True, True, True),
+        # 🔴 **صفوفُ العتبات** — بلاها يُقفَل شكلُ الفروع ولا تُقفَل صرامتُها:
+        ("`Δ = 0` **ليس موجبًا** (`RK1`)",
+         {**_rka_all, "2024": _rka_py(0, 2, 1, True)},
+         0.5, 0.5, 2, False, True, True),
+        ("`RK2` بسنةٍ موجبةٍ واحدةٍ **يسقط** (يشترط سنتين)",
+         {"2023": _rka_py(3, 2, 1, True), "2024": _rka_py(3, -1, 1, True),
+          "2025": _rka_py(3, -1, 1, True)}, 0.5, 0.5, 2, True, False, True),
+        ("`Δ = 0` في `RK3` **يسقط**",
+         {**_rka_all, "2025": _rka_py(3, 2, 0, True)},
+         0.5, 0.5, 2, True, True, False),
     ]
     for _nm, _py, _b1, _b2, _br, _r1, _r2, _r3 in _rka_cases:
         try:
@@ -9923,16 +9935,37 @@ if _RKA is not None:
             _rka_bad.append(f"{_nm}: {_v['branch']}/{_v['rk1']}/{_v['rk2']}"
                             f"/{_v['rk3']} ≠ {_br}/{_r1}/{_r2}/{_r3}")
         _rka_rows.append(_nm)
+    # 🎚️ **`RK4` حاكمٌ بملحق §⑩**: سالبٌ في سنة ⇒ يسقط والفرعُ 2 · وفاصلٌ يلمس
+    #    الصفر ⇒ يسقط · وهو **شرطٌ لازمٌ للفرع 1** (تشديدٌ لا إرخاء).
+    try:
+        _r4a = _rka_v({**_rka_all, "2024": _rka_py(3, 2, 1, True, d4=-1)},
+                      0.5, 0.5)
+        _r4b = _rka_v(_rka_all, 0.5, 0.5, b4=0.0)
+        _r4c = _rka_v(_rka_all, 0.5, 0.5)
+        _r4d = _rka_v({**_rka_all, "2025": _rka_py(3, 2, 1, True, match=False)},
+                      0.5, 0.5)
+    except Exception as _e:                                      # noqa: BLE001
+        _r4a = _r4b = _r4c = _r4d = {"branch": f"⛔{type(_e).__name__}"}
+    if not (_r4a.get("rk4") is False and _r4a.get("branch") == 2
+            and _r4b.get("rk4") is False and _r4b.get("branch") == 2
+            and _r4c.get("rk4") is True and _r4c.get("branch") == 1
+            and _r4d.get("rk4") is False and _r4d.get("branch") == 2):
+        _rka_bad.append(f"RK4: {_r4a.get('rk4')}/{_r4b.get('rk4')}"
+                        f"/{_r4c.get('rk4')}/{_r4d.get('rk4')}")
     # وسمُ الانحلال: يُرفَع حين يكون `C-RAND` ≡ `K0` في كلّ سنةٍ مؤهَّلة، ويسقط
     # حين لا يكون — **شاهدٌ يُعلَن ولا يُطوى** (درسُ `C-MOM`).
-    _rka_deg = _rka_v({y: _rka_py(3, 2, 1, True, dead=True)
-                       for y in _RKA_Y}, 0.5, 0.5).get("rk3_degenerate")
-    _rka_ndeg = _rka_v(_rka_all, 0.5, 0.5).get("rk3_degenerate")
+    try:                                    # 🔴 صنفُ ①: نداءٌ عارٍ كان يُسقط السويّة
+        _rka_deg = _rka_v({y: _rka_py(3, 2, 1, True, dead=True)
+                           for y in _RKA_Y}, 0.5, 0.5).get("rk3_degenerate")
+        _rka_ndeg = _rka_v(_rka_all, 0.5, 0.5).get("rk3_degenerate")
+    except Exception as _e:                                      # noqa: BLE001
+        _rka_deg = _rka_ndeg = f"⛔{type(_e).__name__}"
     if not (_rka_deg is True and _rka_ndeg is False):
         _rka_bad.append(f"وسمُ الانحلال: {_rka_deg}/{_rka_ndeg}")
-check("📉🚦🔒 RKA0 جدولُ حقيقةِ `read_verdict` بحرف §④ — **‏10 حالاتٍ** ومنها "
-      "«سنةٌ ساقطةٌ ⇒ الفرعُ 2 لا «لا حكم»» و«الوصفيّةُ لا تُنقذ» ووسمُ انحلال `RK3`",
-      _RKA is not None and len(_rka_rows) == 10 and not _rka_bad,
+check("📉🚦🔒 RKA0 جدولُ حقيقةِ `read_verdict` بحرف §④ + ملحق §⑩ — **‏13 حالة** "
+      "ومنها «سنةٌ ساقطةٌ ⇒ الفرعُ 2 لا «لا حكم»» و**صفوفُ العتبات** (‏`Δ=0` ليس "
+      "موجبًا · `RK2` بسنةٍ واحدةٍ يسقط) و**`RK4` شرطٌ لازمٌ للفرع 1**",
+      _RKA is not None and len(_rka_rows) == 13 and not _rka_bad,
       f"{_rka_imp} · فشل={_rka_bad[:3]}")
 
 # ── `RKA1` — `V-K5` **سلوكيّ**: `K27` ترتيبٌ لا إقصاء ──
@@ -10045,8 +10078,11 @@ check("📉🚦🔒 RKA4 `C-RAND` **حتميٌّ** وبذرتان تفرّقان
 #    والقفلُ **سالبٌ يُثبَت**: مُرتِّبٌ ملوَّثٌ يُسقط `rankers_blind` فعلًا.
 _rka5_ok, _rka5_why = False, _rka_imp
 if _RKA is not None:
-    _rka5_blind = _RKA.rankers_blind()
-    _rka5_ro = _RKA.selfcheck_readonly()
+    try:                                    # 🔴 صنفُ ①
+        _rka5_blind = _RKA.rankers_blind()
+        _rka5_ro = _RKA.selfcheck_readonly()
+    except Exception as _e:                                      # noqa: BLE001
+        _rka5_blind = _rka5_ro = False
     _rka5_orig = _RKA.k_cont
 
     def _rka5_dirty(c):
@@ -10181,14 +10217,18 @@ if _rka9_d:
     _rka9_same = (len(_rka9_pub_ids) >= 3
                   and all(i in _rka9_ids for i in _rka9_pub_ids[:3])
                   and _rka9_yrs == "2023,2024,2025")
+    try:                                    # 🔴 صنفُ ①: فهرسةُ jobs/steps كانت عارية
+        _rka9_step0 = (_rka9_d["jobs"]["rsi_rank"]["steps"][0].get("with", {})
+                       .get("fetch-depth"))
+    except Exception as _e:                                      # noqa: BLE001
+        _rka9_step0 = f"⛔{type(_e).__name__}"
     _rka9_ok = ("schedule" not in _rka9_on
                 and "workflow_dispatch" in _rka9_on
                 and "TELEGRAM" not in _rka9_raw
                 and "fetch-depth: 0" in _rka9_raw
                 and "grep -Eq" in _rka9_raw
                 and _rka9_same
-                and _rka9_d["jobs"]["rsi_rank"]["steps"][0].get("with", {})
-                .get("fetch-depth") == 0)
+                and _rka9_step0 == 0)
     _rka9_why = f"on={sorted(_rka9_on)} لقطاتٌ منشورة={_rka9_pub_ids[:3]}"
 check("📉🚦🔒 RKA9 `rsi_rank.yml` **يدويٌّ بلا كرون** · **بلا سرِّ تلغرام** "
       "(فالإرسالُ مستحيلٌ بنيويًّا) · ومدخلاتُه **متحقَّقةُ الشكل** · و`fetch-depth: 0` "
@@ -10255,6 +10295,7 @@ if _RKA is not None:
     import contextlib as _rka11_cx
     import io as _rka11_io
     import tempfile as _rka11_tf
+    _rka11_tmps = []
 
     _rka11_rows = []
     _rka11_days = [f"2023-01-{_d:02d}" for _d in range(3, 9)]
@@ -10273,8 +10314,11 @@ if _RKA is not None:
                              "rsi_now": 24.0 if _i % 5 == 0 else 45.0 + _i,
                              "drop_pct": float(40 + _i)}})
 
+    import shutil as _rka11_sh
+
     def _rka11_run(dry):
         _tmp = _rka11_tf.mkdtemp(prefix="rka11_")
+        _rka11_tmps.append(_tmp)
         _tp = _rka_os.path.join(_tmp, "tr.json")
         with open(_tp, "w", encoding="utf-8") as _fh:
             _json0.dump(_rka11_rows, _fh)
@@ -10321,6 +10365,8 @@ if _RKA is not None:
         _rc_d = _rc_f = -1
         _d_dry = _d_full = {}
         _rka11_why = f"⛔ رمى: {type(_e).__name__}: {_e}"
+    for _td in _rka11_tmps:                 # 🧹 لا تراكمَ في /tmp
+        _rka11_sh.rmtree(_td, ignore_errors=True)
     _py_d = (_d_dry.get("per_year") or {}).get("2023", {})
     _py_f = (_d_full.get("per_year") or {}).get("2023", {})
     # الجدوى: لا Δ · ولا d100 لغير K0 · ولا حكمَ ولا فاصل
@@ -10350,6 +10396,212 @@ check("📉🚦🔒 RKA11 **وضعُ الجدوى عاجزٌ بنيويًّا ع
       "`K0` وحدَها ⇒ صفرُ `Δ` وصفرُ `d100` لغيرها وصفرُ حكمٍ وفاصل · **وغيرُ "
       "الجدوى على الفِكستشر نفسِه يُخرجها** فالقفلُ ليس خاويًا",
       _rka11_ok, _rka11_why)
+
+# ══════════════════════════════════════════════════════════════════════════
+# 📉🚦 أقفالُ ملحق §⑩ (‏`RKA12`-`RKA15`، 2026-09-12) — وُلدت من **تدقيقٍ خصوميٍّ
+#    رباعيّ** كشف أن `V-K4` مكذوبٌ بالقياس وأن عناقيدَ البوتستراب مُنتقاةٌ
+#    بالنتيجة. **والملحقُ مدفوعٌ قبل أيّ رقمٍ من الأداة.**
+# ══════════════════════════════════════════════════════════════════════════
+# ── فِكستشرٌ مشترَكٌ متعدّدُ الجلسات (‏`measure` الحقيقيّة تعمل عليه) ──
+_rkf_rows, _rkf_arms, _rkf_info = [], {}, {}
+if _RKA is not None:
+    _rkf_days = [f"2023-{_m:02d}-{_d:02d}" for _m in (1, 2) for _d in range(2, 16)]
+    for _di, _dd in enumerate(_rkf_days):
+        for _i in range(40):
+            _rkf_rows.append({
+                "symbol": f"S{_i:02d}", "date": _dd,
+                "exit_date": _rkf_days[min(_di + 1 + (_i % 4),
+                                           len(_rkf_days) - 1)],
+                "readiness": float((_i * 7 + _di) % 100),
+                "score": float(_i % 9), "rr": float(_i % 4),
+                "outcome": "win" if (_i + _di) % 7 == 0 else "loss",
+                "mg_outcome": "win" if (_i + _di) % 7 == 0 else "stop",
+                "mg_pre_stop": 150.0 if (_i + _di) % 7 == 0 else 10.0,
+                "ret_a": 0.4, "entry": 1.0, "stop": 0.9,
+                "env_vals": {"in_band": (_i + _di) % 3 == 0,
+                             "rsi_now": (24.0 + (_i % 4) if _i % 5 == 0
+                                         else 45.0 + (_i % 30)),
+                             "drop_pct": float(40 + _i)}})
+    try:
+        _rkf_arms, _rkf_info, _rkf_cands = _RKA.measure(_rkf_rows, 50.0)
+    except Exception as _e:                                      # noqa: BLE001
+        _rkf_arms, _rkf_info, _rkf_cands = {}, {"err": type(_e).__name__}, []
+
+# ── `RKA12` — **كونُ عناقيد البوتستراب ليس مُنتقًى بالنتيجة** ──
+#    🔴 وُلد من عيبٍ مقيس: `per_sym` لا يسجّل إلّا المُصيبين، فكان الكونُ
+#    **اتّحادَ المُصيبين** ⇒ يسقط كلُّ رمزٍ مساهمتُه صفر **فينكمش الفاصل**
+#    ⇒ شرطُ «لا يلمس الصفر» **متساهل**. القفلُ يُثبت الاتّجاهَ لا الشكلَ.
+_rka12_ok, _rka12_why = False, _rka_imp
+if _RKA is not None:
+    try:
+        _a12 = {"A": 1, "B": 1, "C": 1}
+        _b12 = {"A": 1, "D": 1}
+        _u12 = {f"Z{_i}" for _i in range(120)} | set(_a12) | set(_b12)
+        _n12 = _RKA.boot_delta(_a12, _b12)
+        _w12 = _RKA.boot_delta(_a12, _b12, universe=_u12)
+        _wide = (_w12["hi"] - _w12["lo"]) >= (_n12["hi"] - _n12["lo"])
+        _same_delta = _n12["delta"] == _w12["delta"]
+        _clusters = (_n12["n_clusters"] == 4
+                     and _w12["n_clusters"] == len(_u12))
+        # والكونُ يصل فعلًا من `measure` (‏`info["syms"]` = كلُّ مرشَّح لا مُصيب)
+        _syms = set(_rkf_info.get("syms") or ())
+        _hit_syms = (set(_rkf_arms.get("K27", {}).get("per_sym") or ())
+                     | set(_rkf_arms.get("K0", {}).get("per_sym") or ()))
+        _bigger = len(_syms) > len(_hit_syms) and _hit_syms <= _syms
+        # و`_merge`/`_universe` يحترمان ترشيحَ السنوات
+        _py12 = {"2023": {"arms": {"K27": {"per_sym": {"A": 2}}},
+                          "info": {"syms": ["A", "Q"]}},
+                 "2024": {"arms": {"K27": {"per_sym": {"B": 5}}},
+                          "info": {"syms": ["B", "R"]}}}
+        _mg = _RKA._merge(_py12, "K27", {"2023"})
+        _uv = _RKA._universe(_py12, {"2023"})
+        _years_ok = (_mg == {"A": 2} and _uv == {"A", "Q"}
+                     and _RKA._merge(_py12, "K27") == {"A": 2, "B": 5})
+        _rka12_ok = (_wide and _same_delta and _clusters and _bigger
+                     and _years_ok)
+        _rka12_why = (f"عرض {_n12['hi'] - _n12['lo']}⟶{_w12['hi'] - _w12['lo']} · "
+                      f"عناقيد {_n12['n_clusters']}⟶{_w12['n_clusters']} · "
+                      f"مرشّحون {len(_syms)} > مُصيبون {len(_hit_syms)} · "
+                      f"سنوات={_years_ok}")
+    except Exception as _e:                                      # noqa: BLE001
+        _rka12_why = f"⛔ {type(_e).__name__}: {_e}"
+check("📉🚦🔒 RKA12 **كونُ العناقيد = كلُّ رمزٍ مرشَّح** لا المُصيبون: الفاصلُ "
+      "بالكون **لا يضيق** والفرقُ لا يتغيّر · و`_merge`/`_universe` يحترمان "
+      "**السنواتِ المؤهَّلةَ** فلا يقرأ المعياران مجتمعَين مختلفَين",
+      _rka12_ok, _rka12_why)
+
+# ── `RKA13` — **`M27` ضبطٌ مطابَقُ التعبئة، و`V-K4` يُقاس ولا يُدَّعى** ──
+#    🔴🔴 وُلد من تكذيبِ دعوى §⓪-ب: الميزانيةُ ثابتةٌ **خاناتٍ لا صفقات**،
+#    والقياسُ يُظهر تعبئةً مختلفةً عبر الأذرع ⇒ `FWD` الخام يخلط الترتيبَ
+#    بالعدد. **درسُ `T-WAIT-23W` مقلوبًا.**
+_rka13_ok, _rka13_why = False, _rka_imp
+if _RKA is not None and _rkf_arms:
+    try:
+        _fills = {a: v["filled"] for a, v in _rkf_arms.items() if a != "M27"}
+        _differs = len(set(_fills.values())) > 1        # الدعوى مكذَّبةٌ فعلًا
+        _m = _rkf_arms.get("M27") or {}
+        _tgt = _rkf_arms["K27"]["filled"]
+        # 🔴 **العتبةُ من القياس لا من الظنّ:** التعبئةُ **ليست رتيبةً في السعة**
+        #    (مقيس: ‏186 عند 15 · 192 عند 17 · 151 عند 22) لأن المركزَ يحجز
+        #    خانتَه فتتشابك القرارات ⇒ **المطابقةُ التامّة مستحيلةٌ بمقبضٍ صحيحِ
+        #    العدد**. فالمطلوبُ **تقليصٌ كبيرٌ للفجوة** لا انعدامُها، **وفجوةٌ
+        #    فوق الحدّ تُسقط `RK4`** (تُقاس في الشرط التالي).
+        _matched = (_m.get("match_target") == _tgt
+                    and _m.get("match_gap", 99) <= 0.25 * max(
+                        1, abs(_fills["K0"] - _tgt))
+                    and _m.get("match_gap_pct", 99.0) <= _RKA.MATCH_MAX_GAP_PCT
+                    and _m.get("match_ok") is True
+                    and abs(_m["filled"] - _tgt) < abs(_fills["K0"] - _tgt))
+        # و`M27` **مبنيٌّ بمفتاح `K0`** لا بمفتاحٍ آخر (ضبطٌ لا ذراعٌ ثالثة)
+        _cap_free = _m.get("cap_used") != _rkf_arms["K0"]["cap_used"]
+        # والمعدّلُ محسوبٌ ويفرّق
+        _rates = {a: v["rate"] for a, v in _rkf_arms.items()}
+        _rate_ok = all(isinstance(r, float) for r in _rates.values()) \
+            and len(set(_rates.values())) > 1
+        # 🔒 **وحدُّ الصلاحية سلوكيٌّ من طرفيه:** مطابقةٌ رديئة تُسقط `RK4` فعلًا.
+        _py13 = {y: {"floor_ok": True, "rand_dead": False, "match_ok": ok,
+                     "delta": {"K27-K0": 3, "K27-C-DEPTH": 2,
+                               "K27-C-RAND": 1, "K27-M27": 2}}
+                 for y, ok in (("2023", True), ("2024", True), ("2025", True))}
+        _b13 = {k: {"lo": 0.5, "hi": 9.0, "delta": 1, "n_clusters": 5}
+                for k in ("K27-K0", "K27-C-DEPTH", "K27-M27")}
+        _v13a = _RKA.read_verdict(_py13, _b13)
+        _py13b = {**_py13, "2024": {**_py13["2024"], "match_ok": False}}
+        _v13b = _RKA.read_verdict(_py13b, _b13)
+        _gate_ok = (_v13a.get("rk4") is True and _v13a.get("branch") == 1
+                    and _v13b.get("rk4") is False and _v13b.get("branch") == 2
+                    and _v13b.get("match_ok") is False)
+        _rka13_ok = (_differs and _matched and _cap_free and _rate_ok
+                     and _gate_ok)
+        _rka13_why = (f"تعبئة={sorted(set(_fills.values()))} · هدف={_tgt} "
+                      f"K0 فجوة={abs(_fills['K0'] - _tgt)} · M27="
+                      f"{_m.get('filled')} فجوة={_m.get('match_gap')} "
+                      f"({_m.get('match_gap_pct')}%) سعة={_m.get('cap_used')} "
+                      f"· بوّابةُ الصلاحية={_gate_ok}")
+    except Exception as _e:                                      # noqa: BLE001
+        _rka13_why = f"⛔ {type(_e).__name__}: {_e}"
+check("📉🚦🔒 RKA13 **`V-K4` مكذوبٌ بالقياس فصار مقيسًا**: التعبئةُ تختلف عبر "
+      "الأذرع فعلًا · و**`M27` يُقلّص الفجوةَ إلى رُبعِها فأقلّ** (والتامّةُ "
+      "مستحيلةٌ: التعبئةُ غيرُ رتيبةٍ في السعة) · **وفجوةٌ فوق الحدّ تُسقط `RK4`** "
+      "فلا يمرّ ضبطٌ مكسورٌ بصمت (ملحق §⑩)", _rka13_ok, _rka13_why)
+
+# ── `RKA14` — `V-K3` مقيسٌ من `measure` · و`d100` مبنيٌّ بـ`_hit100` حصرًا ──
+#    🔴 وُلد من ثغرتين: `RKA3` كان يبني `replay` بيده فلا يقفل تكافؤَ الأذرع
+#    داخل `measure`، و`RKA6` كان يقفل `_hit100` **معزولةً** لا استعمالَها.
+_rka14_ok, _rka14_why = False, _rka_imp
+if _RKA is not None and _rkf_arms:
+    try:
+        _caps = {a: v["cap_used"] for a, v in _rkf_arms.items() if a != "M27"}
+        _axes = {a: v["axis_used"] for a, v in _rkf_arms.items()}
+        _v3 = len(set(_caps.values())) == 1 and len(set(_axes.values())) == 1
+        # `d100` **من `measure`** يفصل 99.99 عن 100.0 (لا `_hit100` وحدَها)
+        _edge = [{"symbol": "E1", "date": "2023-03-01",
+                  "exit_date": "2023-03-02", "readiness": 9.0, "score": 1.0,
+                  "rr": 1.0, "outcome": "win", "mg_outcome": "win",
+                  "mg_pre_stop": 99.99, "ret_a": 0.1, "entry": 1.0,
+                  "stop": 0.9, "env_vals": {"in_band": True, "rsi_now": 25.0,
+                                            "drop_pct": 50.0}},
+                 {"symbol": "E2", "date": "2023-03-01",
+                  "exit_date": "2023-03-02", "readiness": 8.0, "score": 1.0,
+                  "rr": 1.0, "outcome": "win", "mg_outcome": "win",
+                  "mg_pre_stop": 100.0, "ret_a": 0.1, "entry": 1.0,
+                  "stop": 0.9, "env_vals": {"in_band": True, "rsi_now": 25.0,
+                                            "drop_pct": 50.0}}]
+        _ea, _, _ = _RKA.measure(_edge, 50.0, only={"K0"})
+        _d100_ok = (_ea["K0"]["d100"] == 1 and _ea["K0"]["d50"] == 2)
+        _rka14_ok = _v3 and _d100_ok
+        _rka14_why = (f"سعات={sorted(set(_caps.values()))} محاور="
+                      f"{sorted(set(_axes.values()))} · حافّة d100="
+                      f"{_ea['K0']['d100']} d50={_ea['K0']['d50']}")
+    except Exception as _e:                                      # noqa: BLE001
+        _rka14_why = f"⛔ {type(_e).__name__}: {_e}"
+check("📉🚦🔒 RKA14 `V-K3` **مقيسٌ من `measure` نفسِها** (سعةٌ ومحورٌ واحدان لكلّ "
+      "ذراعٍ مُرتِّبة) · و`d100` **مبنيٌّ بـ`_hit100` حصرًا**: صفٌّ عند ‏99.99 "
+      "يُعَدّ في `d50` ولا يُعَدّ في `d100`", _rka14_ok, _rka14_why)
+
+# ── `RKA15` — **الطفلُ مجرَّدٌ من مفاتيح تلغرام** (استحالةٌ بنيويّة) ──
+#    🔴 وُلد من دعوى «صفرُ إرسال» التي تخصّ **ملفَّ الأداة** لا العمليةَ الابنة:
+#    الطفلُ ينادي `run_backtest` وفيها إرسالٌ ووثائقُ CSV **بلا حارس**، فتشغيلٌ
+#    من بيئةٍ فيها السرُّ كان يُرسل ثلاثةَ تقاريرَ إلى قناة المالك.
+_rka15_ok, _rka15_why = False, _rka_imp
+if _RKA is not None:
+    try:
+        _seen15 = {}
+        _sv15 = _RKA.subprocess.run
+
+        def _cap15(cmd, **kw):
+            _seen15.update(kw.get("env") or {})
+            class _R:
+                returncode, stdout, stderr = 1, "", ""
+            return _R()
+
+        _old15 = {k: _rka_os.environ.get(k)
+                  for k in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID")}
+        try:
+            _rka_os.environ["TELEGRAM_BOT_TOKEN"] = "SENTINEL_TOKEN"
+            _rka_os.environ["TELEGRAM_CHAT_ID"] = "SENTINEL_CHAT"
+            _RKA.subprocess.run = _cap15
+            _RKA._measure_year("2023", "p1")
+        finally:
+            _RKA.subprocess.run = _sv15
+            for _k, _v in _old15.items():
+                if _v is None:
+                    _rka_os.environ.pop(_k, None)
+                else:
+                    _rka_os.environ[_k] = _v
+        _leak = [k for k in _seen15 if "TELEGRAM" in k or k.startswith("TG_")]
+        _rka15_ok = (not _leak
+                     and _seen15.get("BACKTEST_YEAR") == "2023"
+                     and _seen15.get("BT_FROZEN_PATH") == "p1"
+                     and _seen15.get("BT_ENVVALS") == "1")
+        _rka15_why = f"تسرّب={_leak} · بيئةٌ موصولة={_seen15.get('BT_ENVVALS')}"
+    except Exception as _e:                                      # noqa: BLE001
+        _rka15_why = f"⛔ {type(_e).__name__}: {_e}"
+check("📉🚦🔒 RKA15 **بيئةُ الطفل مجرَّدةٌ من مفاتيح تلغرام** ولو كانت في بيئة "
+      "المُشغِّل ⇒ الإرسالُ مستحيلٌ **بنيويًّا** لا اتّكالًا على غيابِ سرٍّ في "
+      "workflow واحد · و`BACKTEST_YEAR`/`BT_FROZEN_PATH`/`BT_ENVVALS` تصل فعلًا",
+      _rka15_ok, _rka15_why)
+
 
 
 
