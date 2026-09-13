@@ -46599,6 +46599,170 @@ check("🩸⚙️🔒 FCK3 شرطُ الإغلاق §⑨ مكتوبٌ قبل ا�
 
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🩸📡 `T-BTCOST` — أقفالُ العقد (‏`BTK0`-`BTK4`، 2026-09-13، أمرُ المالك
+#    «سجل التكلفة على المجتمع»). الوثيقةُ مدموجةٌ **قبل أيّ سطرِ أداة**.
+#    🔴 **و`BTK2` أثمنُها** — يُثبت **سلوكيًّا من الكود الحيّ** أن المُمكِّنَ الذي
+#    يقوم عليه §② (‏`_arm_a_exit_bar` تُرجع فهرسَ الخروج **وتوافق** `_resolve_arm`)
+#    موجودٌ ويعمل، فلا يُبنى عقدٌ على قدرةٍ مفترَضة.
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _bt_ast
+import inspect as _bt_insp
+
+try:
+    _bt_pre = open("btcost_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _bt_pre = f"⛔ رمى: {type(_e).__name__}"
+
+# `BTK0` — الفروعُ الثلاثة **في مواضعها المرقّمة** + المعاييرُ الثلاثة + الحرّاسُ
+#    التسعة + الأرضيتان. بنيويٌّ لا عضويّة (درسُ `r1`: كلمةُ الفرع تتكرّر مجاورةً).
+_bt_i = _bt_pre.find("## ⑤ الفروعُ الثلاثة")
+_bt_j = _bt_pre.find("## ⑥", _bt_i + 1) if _bt_i >= 0 else -1
+_bt_br = _bt_pre[_bt_i:_bt_j] if (_bt_i >= 0 and _bt_j > _bt_i) else ""
+#  🔴 البنودُ **ملفوفةٌ على أسطر** فالنصُّ المتّصل قد لا يوجد — يُبنى نصُّ كلّ بندٍ
+#     كاملًا (من مطلعه حتى مطلع التالي) وتُطوى المسافات. **درسُ `MEM5` حرفيًّا**،
+#     وقد أسقط هذا القفلَ نفسَه على وثيقةٍ سليمةٍ أوّلَ تشغيل.
+_bt_ls = _bt_br.splitlines()
+_bt_st = [_k for _k, _l in enumerate(_bt_ls) if _l[:3] in ("1. ", "2. ", "3. ")]
+_bt_num = []
+for _a, _k in enumerate(_bt_st):
+    _end = _bt_st[_a + 1] if _a + 1 < len(_bt_st) else len(_bt_ls)
+    _bt_num.append(" ".join(" ".join(_bt_ls[_k:_end]).split()))
+_bt_flat = " ".join(" ".join(_bt_ls).split())
+_bt_br_ok = (len(_bt_num) == 3
+             and "تعبر" in _bt_num[0]
+             and "مدًى لا نقطةً" in _bt_num[1]
+             and "لا حكم" in _bt_num[2]
+             and "تاريخُ إعادة قراءةٍ صريح" in _bt_flat)
+_bt_crit = ("`BC1`", "`BC2`", "`BC3`")
+_bt_guards = tuple(f"`V-B{_i}`" for _i in range(1, 10))
+#  🔴 **شُدّد بعد نجاة `m3`** (الصنفُ ③): «عضويّةٌ في الملفّ» يُرضيها ذكرُ الاسم
+#     في §⑤ أو في تنبّؤٍ ⇒ حذفُ **تعريف** المعيار كان يمرّ. ⇒ يُشترَط أن يُعرَّف
+#     كلُّ معيارٍ **داخل §④** بصيغة «**`BCn` — …**».
+_bt_c0 = _bt_pre.find("## ④ معاييرُ الحكم")
+_bt_c1 = _bt_pre.find("## ⑤", _bt_c0 + 1) if _bt_c0 >= 0 else -1
+_bt_cs = _bt_pre[_bt_c0:_bt_c1] if (_bt_c0 >= 0 and _bt_c1 > _bt_c0) else ""
+_bt_ok0 = (_bt_i >= 0 and _bt_br_ok and _bt_c0 >= 0
+           and all(f"**{_c} —" in _bt_cs for _c in _bt_crit)
+           and all(_g in _bt_pre for _g in _bt_guards)
+           and "‏≥300 ساقًا مقيسة لكلّ سنة" in _bt_pre
+           and "‏≥1,200 مجمَّعًا" in _bt_pre)
+check("🩸📡🔒 BTK0 العقدُ يحمل الفروعَ الثلاثة **في مواضعها المرقّمة** والمعاييرَ "
+      "الثلاثة وحرّاسَه التسعة وأرضيّتيه · والفرعُ 3 يُلزم تاريخَ إعادة قراءة",
+      _bt_ok0,
+      f"أسطرٌ مرقّمة={len(_bt_num)}/3 · بنيةُ الفروع={_bt_br_ok} · "
+      f"معايير مُعرَّفةٌ في §④={sum(1 for _c in _bt_crit if f'**{_c} —' in _bt_cs)}/3 · "
+      f"حرّاس={sum(1 for _g in _bt_guards if _g in _bt_pre)}/9")
+
+# `BTK1` — §⓪ يُعلن ما رُئي **ويُعلن أن صفرَ رقمٍ على هذا المجتمع رُئي لأنه لا
+#    يوجد** (فهو ما يجعل التجربةَ عمياءَ لا تأكيديّة) · وحدودُ الصدق تُسمّي
+#    **اتّجاهَي** التحيّز معًا: `NBBO` قمّةُ دفترٍ ⇒ أرضيّةُ تكلفة · و«اللمسُ ليس
+#    تعبئة» ⇒ سقفُ أداء. 🔑 حدٌّ بلا اتّجاهٍ يُقرأ اعتذارًا لا قيدًا.
+_bt_z0 = _bt_pre.find("## ⓪")
+_bt_z1 = _bt_pre.find("## ①", _bt_z0 + 1) if _bt_z0 >= 0 else -1
+_bt_zz = _bt_pre[_bt_z0:_bt_z1] if (_bt_z0 >= 0 and _bt_z1 > _bt_z0) else ""
+_bt_h0 = _bt_pre.find("## ⑨ حدودُ صدق")
+_bt_h1 = _bt_pre.find("## ⑩", _bt_h0 + 1) if _bt_h0 >= 0 else -1
+_bt_hh = _bt_pre[_bt_h0:_bt_h1] if (_bt_h0 >= 0 and _bt_h1 > _bt_h0) else ""
+_bt_ok1 = ("صفرُ رقمِ تكلفةٍ مقيسٍ على هذا المجتمع رأيتُه" in _bt_zz
+           and "لأنه لا" in _bt_zz and "يوجد" in _bt_zz
+           and "1.32-1.75%" in _bt_zz
+           and "أرضيّةٌ للتكلفة لا سقفٌ لها" in _bt_hh
+           and "سقفٌ للأداء لا أرضية" in _bt_hh)
+check("🩸📡🔒 BTK1 §⓪ يُعلن التلوّثَ **وأن صفرَ رقمٍ على هذا المجتمع رُئي لعدم "
+      "وجوده** · و§⑨ يُسمّي اتّجاهَي التحيّز معًا (أرضيةُ تكلفة · سقفُ أداء)",
+      _bt_ok1,
+      f"§⓪={len(_bt_zz)} محرف · §⑨={len(_bt_hh)} محرف")
+
+# `BTK2` — 🔑 **سلوكيٌّ من الكود الحيّ:** المُمكِّنُ الذي يقوم عليه §② موجودٌ
+#    ويعمل — `_arm_a_exit_bar` تُرجع `(outcome, k)` **وتوافق** `_resolve_arm`
+#    على فِكستشرَي ربحٍ وخسارة · وأدواتُ `NBBO` الأربعُ حاضرةٌ بالاسم للاستيراد.
+#    (بلا هذا يصير §② قدرةً مفترَضةً لا مستورَدة.)
+try:
+    _bt_hi = [10.0, 10.5, 11.0, 12.0]
+    _bt_lo = [9.0, 9.4, 9.6, 9.8]
+    _bt_cl = [9.5, 10.0, 10.8, 11.5]
+    _bt_op = [9.6, 10.1, 10.2, 11.0]
+    #  رابح: الهدفُ 11.0 يُلمَس عند k=2 · وخاسر: الوقفُ 9.5 يُلمَس عند k=1
+    _bt_rw = S._resolve_arm(_bt_hi, _bt_lo, _bt_cl, _bt_op, 9.8, 8.0, 11.0, 0)
+    _bt_bw = S._arm_a_exit_bar(_bt_hi, _bt_lo, _bt_cl, 9.8, 8.0, 11.0, 0)
+    _bt_rl = S._resolve_arm(_bt_hi, _bt_lo, _bt_cl, _bt_op, 9.8, 9.5, 20.0, 0)
+    _bt_bl = S._arm_a_exit_bar(_bt_hi, _bt_lo, _bt_cl, 9.8, 9.5, 20.0, 0)
+    _bt_agree = (_bt_bw[0] == _bt_rw[0] == "win"
+                 and _bt_bl[0] == _bt_rl[0] == "loss"
+                 and isinstance(_bt_bw[1], int) and isinstance(_bt_bl[1], int)
+                 and _bt_bw[1] != _bt_bl[1])
+except Exception as _e:                                          # noqa: BLE001
+    _bt_agree, _bt_bw, _bt_bl = False, f"⛔ {type(_e).__name__}", ""
+try:
+    import slip_nbbo_arms as _bt_sn
+    _bt_names = ("fetch_quotes", "prevailing", "trigger_ms", "raw_factor")
+    _bt_have = [_n for _n in _bt_names if callable(getattr(_bt_sn, _n, None))]
+except Exception as _e:                                          # noqa: BLE001
+    _bt_have = [f"⛔ {type(_e).__name__}"]
+#  🔴 **شُدّد بعد نجاة `m7`** (الصنفُ ③ نفسُه): الاسمُ يتكرّر في `V-B3` فيُرضي
+#     «العضويّة» ولو نُزع من §② — والمقصودُ أن **جدولَ الاستيراد** يحمله.
+_bt_m0 = _bt_pre.find("## ② الميكانيكا")
+_bt_m1 = _bt_pre.find("## ③", _bt_m0 + 1) if _bt_m0 >= 0 else -1
+_bt_ms = _bt_pre[_bt_m0:_bt_m1] if (_bt_m0 >= 0 and _bt_m1 > _bt_m0) else ""
+_bt_ok2 = (_bt_agree and len(_bt_have) == 4 and _bt_m0 >= 0
+           and all(f"`{_n}`" in _bt_ms
+                   for _n in ("_arm_a_exit_bar", "trigger_ms",
+                              "prevailing", "fetch_quotes")))
+check("🩸📡🔒 BTK2 مُمكِّنُ §② **حيٌّ لا مفترَض**: `_arm_a_exit_bar` تُرجع فهرسًا "
+      "وتوافق `_resolve_arm` ربحًا وخسارةً · وأدواتُ `NBBO` الأربعُ حاضرةٌ بالاسم",
+      _bt_ok2,
+      f"توافق={_bt_agree} · فهرسا الخروج={_bt_bw}/{_bt_bl} · "
+      f"مستورَدات={len(_bt_have)}/4 · §②={len(_bt_ms)} محرف")
+
+# `BTK3` — صيغةُ `s` **تمنع الحسابَ المزدوج** (تقسم على `1 − c/2` صراحةً) ·
+#    و`s` **لا تُقصّ** · وهي على **ساق الخسارة وحدَها** — والأخيرةُ تُثبَت من
+#    **مصدر `_resolve_arm` الحيّ** لا من نصّ العقد (الصنفُ ②).
+_bt_rsrc = ""
+try:
+    _bt_rsrc = _bt_insp.getsource(S._resolve_arm)
+except Exception as _e:                                          # noqa: BLE001
+    _bt_rsrc = f"⛔ {type(_e).__name__}"
+_bt_loss_only = ("spread / 2.0" in _bt_rsrc and "sell_f" in _bt_rsrc)
+_bt_ok3 = ("(1 − c_i/2)" in _bt_pre
+           and "P_real / P_model" in _bt_pre
+           and "لا يُقصّ ولا يُحدّ" in _bt_pre
+           and "ساق الخسارة وحدَها" in _bt_pre
+           and 'f = (1 − s) if outcome == "loss" else 1.0' in _bt_pre
+           and _bt_loss_only)
+check("🩸📡🔒 BTK3 صيغةُ `s` تقسم على `1 − c/2` (لا حسابَ مزدوجًا) · و`s` بلا قصّ · "
+      "وعلى ساق الخسارة وحدَها — ونصفُ السبريد مُثبَتٌ من `_resolve_arm` الحيّة",
+      _bt_ok3,
+      f"نصفُ السبريد حيًّا={_bt_loss_only} · طولُ المصدر={len(_bt_rsrc)}")
+
+# `BTK4` — §⑧ **وصفيٌّ لا حاكم** وينصّ على عدم مسّ أيّ أثرٍ من `T-FCOST` ·
+#    و§⑪ يُسمّي زنادَ الإغلاق وينصّ على **مُنفَّذٍ لا مكتوب** وعلى حارسَين.
+#    🔴 **وشاهدُ صدقٍ حيّ:** `fcost_arms.py` **لا يحمل رمزَ إغلاق** (حكمُه الفرعُ 2)
+#    — فلو ادّعى العقدُ أنه مُغلَقٌ لَكذَب، وهو خطأٌ وقع فعلًا وصُحِّح قبل الدفع.
+_bt_e0 = _bt_pre.find("## ⑧")
+_bt_e1 = _bt_pre.find("## ⑨", _bt_e0 + 1) if _bt_e0 >= 0 else -1
+_bt_ee = _bt_pre[_bt_e0:_bt_e1] if (_bt_e0 >= 0 and _bt_e1 > _bt_e0) else ""
+_bt_c0 = _bt_pre.find("## ⑪")
+_bt_c1 = _bt_pre.find("## ⑫", _bt_c0 + 1) if _bt_c0 >= 0 else -1
+_bt_cc = _bt_pre[_bt_c0:_bt_c1] if (_bt_c0 >= 0 and _bt_c1 > _bt_c0) else ""
+try:
+    _bt_fsrc = open("fcost_arms.py", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _bt_fsrc = f"⛔ {type(_e).__name__}"
+_bt_not_closed = ("CLOSED_RC" not in _bt_fsrc and "FCOST_REOPEN" not in _bt_fsrc)
+_bt_ok4 = ("وصفيٌّ لا حاكم" in _bt_ee
+           and "ولا يُعاد تشغيلُها" in _bt_ee
+           and "لم يُغلَق" in _bt_ee
+           and "مُنفَّذًا لا مكتوبًا" in _bt_cc
+           and "وحارسان لا حارس" in _bt_cc
+           and "مرّتين" in _bt_cc
+           and _bt_not_closed)
+check("🩸📡🔒 BTK4 §⑧ وصفيٌّ لا حاكم ولا يمسّ أثرَ `T-FCOST` · و§⑪ يُسمّي زنادَه "
+      "وينصّ على إغلاقٍ **مُنفَّذٍ** وحارسَين — وشاهدٌ حيّ أن `T-FCOST` غيرُ مُغلَق",
+      _bt_ok4,
+      f"§⑧={len(_bt_ee)} · §⑪={len(_bt_cc)} · fcost بلا رمزِ إغلاق={_bt_not_closed}")
+
+
+# ══════════════════════════════════════════════════════════════════════════
 # 🩸⚙️ `T-FCOST` — أقفالُ **الأداة** (‏`FCA0`-`FCA11`، 2026-09-13، أمرُ المالك
 #    «ابن الاداة»). العقدُ مقفولٌ بـ`FCK0`-`FCK3`؛ وهذي تحرس **ما تفعله الأداة**.
 #    🔴 وأثمنُها `FCA3` (اللوازمُ الجبريّةُ الثلاثة **سلوكيّةٌ على فِكستشر** لا
