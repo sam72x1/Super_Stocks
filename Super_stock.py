@@ -4293,7 +4293,8 @@ def spread_line(bid, ask, session=None, brief=False) -> str:
 
 def _sanitize_name(name, max_len: int = 64):
     """⑦ (إصلاح تدقيق 2026-07-12): تعقيم اسم الشركة عند حدّ الدخول — نص حرّ من
-    مصدر خارجي (ياهو) يُخزَّن في JSON يقرأه وكيل Cline المستقل (contents: write)؛
+    مصدر خارجي (ياهو) يُخزَّن في JSON **مدفوعٍ في مستودعٍ عامّ** وتقرؤه أدواتٌ
+    وجلساتٌ لاحقة (‏والوكيلُ الأسبوعيُّ الذي كان يقرؤه حُذف 2026-09-13)؛
     لنموذج لغوي لا يتمايز النص عن التعليمات. محارف محافظة فقط (حروف/أرقام/مسافة/
     `.,&'()-`) + سقف طول. None تمرّ كما هي. نقيّة، فاشلة-آمنة → None."""
     try:
@@ -5528,8 +5529,8 @@ def enrich(results: list) -> None:
                                           cached, "industry")
                 # 📅 اسم الشركة (لمطابقة راعي التجارب السريرية — الأحداث المعلنة)
                 # ⑦ (إصلاح تدقيق 2026-07-12): تعقيم عند الحد — نص حرّ من مصدر
-                # خارجي يُكوَّت في weekly_watchlist.json الذي يقرأه وكيل Cline
-                # (contents: write). محارف محافظة + سقف طول، فلا يحمل الحقلُ
+                # خارجي يُكوَّت في weekly_watchlist.json المدفوع علنًا وتقرؤه
+                # أدواتٌ وجلسات. محارف محافظة + سقف طول، فلا يحمل الحقلُ
                 # تعليماتٍ لنموذج لغوي ولا وسومًا.
                 r["company_name"] = _sanitize_name(info.get("shortName")
                                                    or info.get("longName")
@@ -9664,14 +9665,14 @@ def _redact_secrets(s) -> str:
     try:
         s = str(s)
         # 🔒 **توسعةُ خطة 021 (2026-08-15):** كان يغطّي توكن تيليجرام **وحده**،
-        # وبقيّةُ الأسرار (Polygon · S3 · AlphaVantage · FMP · Finnhub · Cline)
+        # وبقيّةُ الأسرار (Polygon · S3 · AlphaVantage · FMP · Finnhub)
         # تظهر في نصوص استثناءات `requests` داخل الرابط (`?apiKey=…`) فتُسجَّل
         # خامًّا في سجلّ Actions العلنيّ. الآن: كلُّ سرٍّ **حاضرٍ في البيئة**
         # يُستبدَل بشكلَيه (خام + مرمَّز-URL)، ومعه **قصٌّ بنيويّ** لأيّ
         # `apiKey=`/`apikey=`/`token=` مهما كان مصدرُه (سرٌّ لم نُسمِّه بعد).
         for _name in ("TELEGRAM_BOT_TOKEN", "POLYGON_API_KEY", "POLYGON_S3_KEY",
                       "POLYGON_S3_SECRET", "ALPHAVANTAGE_KEY", "FMP_API_KEY",
-                      "FINNHUB_API_KEY", "CLINE_API_KEY"):
+                      "FINNHUB_API_KEY"):
             _v = (os.environ.get(_name) or "").strip()
             if len(_v) < 8:          # قِصَرٌ شاذّ = لا نستبدل (تجنّبُ تشويهٍ أعمى)
                 continue

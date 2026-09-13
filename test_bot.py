@@ -6802,49 +6802,9 @@ check("توقّع R: الرابح من الهدف/الوقف موجب · الخ�
       and S._realized_r({"_win": False, "entry_ref": 2.0, "stop": 1.8}) == -1.0)
 
 
-# 📲 تنبيه Cline: لا يرسل تقريرًا قديمًا باسم اليوم إذا فشل إنشاء تقرير اليوم.
-#     المسار الصريح CLINE_REPORT_PATH يبقى مسموحًا للاختبار/التشغيل اليدوي.
-import tempfile as _tf_notify
-import os as _os_notify
-import cline_notify as _cn
-
-_old_cwd = _os_notify.getcwd()
-_old_env_report = _os_notify.environ.get("CLINE_REPORT_PATH")
-try:
-    with _tf_notify.TemporaryDirectory() as _tdn:
-        _os_notify.chdir(_tdn)
-        _os_notify.makedirs("reports", exist_ok=True)
-        with open("reports/cline_weekly_2000-01-01.md", "w", encoding="utf-8") as _f:
-            _f.write("## ملخّص تنفيذي\n- تقرير قديم لا يجب إرساله\n")
-        _os_notify.environ.pop("CLINE_REPORT_PATH", None)
-        check("تنبيه Cline: لا يلتقط تقريرًا قديمًا عند غياب تقرير اليوم",
-              _cn.find_report() is None
-              and "لم يُعثر على تقرير هذا الأسبوع" in _cn.build_message())
-        # 🔒 CNT1 — **الوعدُ مشروطٌ بالتقرير**: بلا تقريرٍ لا يُوعَد بـ«التقرير
-        #    الكامل» ولا بـPR (كان يَعِد بهما سبعةَ أسابيع والتدقيقُ لم يجرِ).
-        _cn_none = _cn.build_message()
-        check("🔒 CNT1 بلا تقرير: **لا وعدَ** بتقريرٍ ولا PR · ويقول «لم يجرِ» "
-              "ويحيل إلى سجلّ الـworkflow",
-              "التقرير الكامل" not in _cn_none and "يُفتح لك PR" not in _cn_none
-              and "لم يجرِ" in _cn_none
-              and "cline_weekly_review.yml" in _cn_none, _cn_none[-90:])
-        with open("custom_report.md", "w", encoding="utf-8") as _f:
-            _f.write("## ملخّص تنفيذي\n- تقرير محدد صراحة\n")
-        _os_notify.environ["CLINE_REPORT_PATH"] = "custom_report.md"
-        check("تنبيه Cline: CLINE_REPORT_PATH الصريح يعمل",
-              _cn.find_report() == "custom_report.md"
-              and "تقرير محدد صراحة" in _cn.build_message())
-        _cn_has = _cn.build_message()
-        check("🔒 CNT1ب **وبوجود التقرير يعود الوعدُ** (فالإصلاحُ مشروطٌ لا حذفٌ "
-              "دائم) — والحالتان تفترقان في الذيل",
-              "التقرير الكامل" in _cn_has and "يُفتح لك PR" in _cn_has
-              and "لم يجرِ" not in _cn_has and _cn_has != _cn_none)
-finally:
-    _os_notify.chdir(_old_cwd)
-    if _old_env_report is None:
-        _os_notify.environ.pop("CLINE_REPORT_PATH", None)
-    else:
-        _os_notify.environ["CLINE_REPORT_PATH"] = _old_env_report
+# 🗑️ **كتلةُ `CNT1` (تنبيه Cline) حُذفت 2026-09-13 بأمر المالك** «احذفه نهائيًّا
+#    من البوت» — ومعها `cline_notify.py` والـworkflow والدستور. القرارُ مدوَّنٌ
+#    في `CLAUDE.md` (نقلٌ لا حذف للسجلّ، وحذفٌ للآلة).
 
 
 # أكواد الرفض خالية من علامات < > (تكسر HTML تيليجرام) — حارس ضد الانحدار
@@ -14306,19 +14266,6 @@ finally:
 # ══════════════════════════════════════════════════════════
 # 🔍 متابعة Codex على a0c6947 (2026-07-14): تغطية أوسع للتسريب/الفقد الصامت
 # ══════════════════════════════════════════════════════════
-# #3: cline_notify يخفي التوكن من الاستثناءات المطبوعة
-import cline_notify as _CN
-_cn_tok_save = _os2.environ.get("TELEGRAM_BOT_TOKEN")
-try:
-    _os2.environ["TELEGRAM_BOT_TOKEN"] = "777:CN_secret_tok"
-    _cn_red = _CN._redact("URLError url: /bot777:CN_secret_tok/sendMessage")
-    check("متابعة P1-8: cline_notify يخفي التوكن من النص المطبوع",
-          "777:CN_secret_tok" not in _cn_red and "***" in _cn_red)
-finally:
-    if _cn_tok_save is None:
-        _os2.environ.pop("TELEGRAM_BOT_TOKEN", None)
-    else:
-        _os2.environ["TELEGRAM_BOT_TOKEN"] = _cn_tok_save
 
 # #4: باقي ملفات الحالة (company/ignition_log/ignition_universe) تعالج التلف بلا فقد صامت
 _files_save = (S.COMPANY_FILE, S.IGNITION_LOG_FILE, S.IGNITION_UNI_FILE)
@@ -14428,7 +14375,8 @@ try:
 finally:
     _sh_imp.rmtree(_imp_dir, ignore_errors=True)
 
-# 🔒 P1-8 (توسعة): الشكل المرمّز-URL + جسم رد تيليجرام + cline_notify
+# 🔒 P1-8 (توسعة): الشكل المرمّز-URL + جسم رد تيليجرام
+#    (‏شقُّ `cline_notify` حُذف 2026-09-13 مع الأداة — لا موضوعَ له)
 _tk_save5 = S.TELEGRAM_TOKEN
 try:
     S.TELEGRAM_TOKEN = "998877:SEKRET_tok_ABC"
@@ -14442,17 +14390,6 @@ try:
           "_redact_secrets(resp.text)" in _src8 and "{resp.text[" not in _src8)
 finally:
     S.TELEGRAM_TOKEN = _tk_save5
-_cn_tok5 = _os2.environ.get("TELEGRAM_BOT_TOKEN")
-try:
-    _os2.environ["TELEGRAM_BOT_TOKEN"] = "555:CN_tok_XY"
-    import urllib.parse as _up5
-    _cn_enc = _up5.quote("555:CN_tok_XY", safe="")
-    check("🔒 P1-8: cline_notify يخفي التوكن حرفيًّا **ومرمّزًا**",
-          "555:CN_tok_XY" not in _CN._redact("err /bot555:CN_tok_XY/x")
-          and _cn_enc not in _CN._redact(f"err /bot{_cn_enc}/x"))
-finally:
-    _os2.environ.pop("TELEGRAM_BOT_TOKEN", None) if _cn_tok5 is None \
-        else _os2.environ.update({"TELEGRAM_BOT_TOKEN": _cn_tok5})
 
 # 🛡️ حارس الحادثة (توسعة): لا يُتجاوَز بحقن المشغّل الحقيقي · ورادار الانطلاق لا يجلب git
 _gs_calls2 = []
@@ -15741,7 +15678,7 @@ check("🔐 010·acc_verify يمرّر السنة عبر env لا الصدفة",
 #    كرونه. وتضييقه إلى `read` يُفشِل الدفع صامتًا ⇒ ختمٌ متجمّد ⇒ **تحذيرٌ يوميّ كاذب**
 #    يُدرَّب المالك على تجاهله = موت الحارس. فنُقل هنا لا حُذف من الفحص.
 _c10_writers = ("daily_screener.yml", "pullback_monitor.yml", "ignition.yml",
-                "hand_flow.yml", "e2_recover.yml", "cline_weekly_review.yml",
+                "hand_flow.yml", "e2_recover.yml",
                 "split_hunter.yml")
 def _c10_perm(fname, key):
     """قيمة صلاحية معلَنة فعلًا (سطر إعلان، لا ذِكر في تعليق) — ignition.yml يشرح
@@ -18593,7 +18530,9 @@ check("🩺 PROBE🔒 يُعلن أنه مسقوفٌ بالصفحات (حدٌّ 
 #    `ast.dump` **يتغيّر بين إصدارات بايثون** (‏3.12 أضافت `type_params` لعُقَد
 #    الدوالّ) ⇒ بصماتُ الدرع أدناه **تختلف كلُّها** على 3.12/3.13 وتطابق على 3.11.
 #    مقيسٌ على نفس الملفّ: 3.11 ⟶ صفرُ اختلاف · 3.12 ⟶ 18/18 · 3.13 ⟶ 18/18.
-# 🔴 **والأثرُ الحقيقيّ ليس نظريًّا:** `cline_weekly_review.yml` كان الـworkflow
+# 🔴 **والأثرُ الحقيقيّ ليس نظريًّا** (‏والـworkflow المذكور **حُذف 2026-09-13**
+#    بأمر المالك — والدرسُ يبقى لأنه عن البصمة لا عن كلاين):
+#    `cline_weekly_review.yml` كان الـworkflow
 #    **الوحيد** على 3.12 من 79 ⇒ سقطت بوّابتُه على هاتين البصمتين **في كلّ تشغيلةٍ
 #    مجدولة منذ 2026-07-03** (‏7 من 7) ⇒ المراجِعُ الأسبوعيُّ المستقلّ **لم يعمل
 #    قطّ**، بينما `tests.yml` خضراءُ على 3.11 في اليوم نفسِه.
@@ -23534,12 +23473,9 @@ check("🔒 PL21 (خطة 021) إخفاءُ الأسرار مُعمَّم: مفت
       and "UNNAMED_SECRET_XYZ" not in _pl21_b
       and "PLGN_SECRET_VALUE_1234" not in _pl21_d and "***" in _pl21_d
       and _pl21_c == "لا أسرار هنا")
-_pl21_wf = open(".github/workflows/cline_weekly_review.yml", encoding="utf-8").read()
-check("🔒 PL21ب وكيلُ Cline الذاتيّ بلا اعتمادٍ محفوظٍ في الشجرة "
-      "(`persist-credentials: false`) وبإصدارٍ مثبَّت — الحقنُ لا يجد توكنَ دفع",
-      "persist-credentials: false" in _pl21_wf
-      and "npm install -g cline@" in _pl21_wf
-      and "npm install -g cline\n" not in _pl21_wf)
+# 🗑️ **`PL21ب` حُذف 2026-09-13**: كان يقرأ `cline_weekly_review.yml` وقد حُذف
+#    بأمر المالك ⇒ إبقاؤه **انهيارُ الصنف ①** (يفتح ملفًّا غيرَ موجود فيكتم
+#    كلَّ قفلٍ بعده). و`PL21` نفسُه (إخفاءُ الأسرار) باقٍ فوقه بلا مساس.
 
 # PL18 — 🕓 خطة 018: «تأكيد» الـ4س مربوطٌ بتغطيةٍ خضراء حقيقية، وفرعُ «weak»
 # صار **قابلًا للبلوغ**. عيّنتان مفرِّقتان: نفسُ `sweep_low` والفارقُ `green_cover`.
@@ -46272,6 +46208,16 @@ _rs_good = {"H0": _rs_row("H0"), "H50": _rs_row("H50", 250),
 _rs_hits = {"H0": 5, "H50": 50, "H40": 80, "H30": 200, "HC": 5}
 _rs_ok0, _rs_l0, _rs_rc0 = (_RS.validity(_rs_good, _rs_hits) if _RS
                             else (False, [], 9))
+# 🔴 **عيبٌ مقيسٌ 2026-09-13 (أوّلُ تعديلٍ إنتاجيٍّ بعد شحن الأداة يكشفه):**
+#    `V-R4` يقارن **بصمةَ `Super_stock.py` كاملةً** بـ`origin/main` ورمزُه **3** ⇒
+#    أيُّ تعديلٍ إنتاجيٍّ **غيرِ مدموجٍ بعد** يجعل ذراعَ «السليم» تخرج `(False, 3)`
+#    **بحقّ** ⇒ كان القفلُ يسقط لسببٍ **لا يدّعيه** فيُحمِّر البوّابةَ على كلّ
+#    تعديلِ إنتاجٍ = «الجذورُ لا تُمَسّ» بمعنًى لم يقصده أحد.
+#    ✅ **والعلاجُ تشديدٌ لا إرخاء:** تُقرأ حالةُ الشجرة صراحةً من `_untouched`
+#    وتُقارَن الذراعُ بالمتوقَّع **لكلتا الحالتين** · وذراعا الدهس والـno-op تبقيان
+#    على **‏4 بلا شرط** — وهو بعينه برهانُ «‏4 يغلب 3» المكتوب في الأداة.
+_rs_clean = bool(_RS._untouched()[0]) if _RS else False
+_rs_exp0 = (True, 0) if _rs_clean else (False, 3)
 _rs_stomp = dict(_rs_good)
 _rs_stomp["H40"] = _rs_row("H40", 200, hard=_rs_LIVE)
 _rs_ok1, _, _rs_rc1 = (_RS.validity(_rs_stomp, _rs_hits) if _RS else (True, [], 0))
@@ -46280,10 +46226,11 @@ _rs_ok2, _, _rs_rc2 = (_RS.validity(_rs_noop, {a: 5 for a in _rs_noop}) if _RS
                        else (True, [], 0))
 check("📉🔒 RSK3 `V-R5`/`V-R2` **يسقطان على الدهس وعلى الـno-op بخروج 4** ويمرّان على "
       "السليم — فلا تُقرأ «لا فرق» نتيجةً وهي غيابُ قياس",
-      _rs_ok0 is True and _rs_rc0 == 0
+      (_rs_ok0, _rs_rc0) == _rs_exp0
       and _rs_ok1 is False and _rs_rc1 == 4
       and _rs_ok2 is False and _rs_rc2 == 4,
-      f"سليم=({_rs_ok0},{_rs_rc0}) دهس=({_rs_ok1},{_rs_rc1}) noop=({_rs_ok2},{_rs_rc2})")
+      f"شجرةٌ نظيفة={_rs_clean} · سليم=({_rs_ok0},{_rs_rc0}) المتوقَّع={_rs_exp0}"
+      f" · دهس=({_rs_ok1},{_rs_rc1}) noop=({_rs_ok2},{_rs_rc2})")
 
 # RSK4 — `V-R0` شاهدُ الضبط: `H0 ≡ HC` **بت-بت** — يسقط على أيّ فارقٍ بخروج **3**.
 _rs_c = dict(_rs_good)
@@ -46308,11 +46255,47 @@ _rs_oki, _rs_li, _rs_rci = (_RS.validity(_rs_inv, _rs_hits) if _RS else (False, 
 _rs_rn = [ln for ln in _rs_li if ln[0].startswith("R-N/")]
 check("📉🔒 RSK5 دخولُ صفٍّ جديدٍ في الذراع الأشدّ **لا يُسقط** التشغيلة (رصدٌ لا بوّابة) "
       "· و`R-N` يُعلن الداخلَ بالاسم · ووسمُه `ℹ️` لا ✅/⛔",
-      _rs_oki is True and _rs_rci == 0
+      (_rs_oki, _rs_rci) == _rs_exp0          # 🔒 نفسُ حارس حالةِ الشجرة (`V-R4`)
       and len(_rs_rn) == 3 and all(ln[1] is None for ln in _rs_rn)
       and any("NEW" in ln[2] and "دخل 1" in ln[2] for ln in _rs_rn)
       and all(ln[1] is None for ln in _rs_li if ln[0] in ("R-M",)),
-      f"ok={_rs_oki} rc={_rs_rci} rn={[ln[2][:40] for ln in _rs_rn]}")
+      f"ok={_rs_oki} rc={_rs_rci} المتوقَّع={_rs_exp0} "
+      f"rn={[ln[2][:40] for ln in _rs_rn]}")
+
+# ═══════════════════════════════════════════════════════════
+# 🗑️ `CLN0` — **حذفُ كلاين نافذٌ لا مكتوب** (‏2026-09-13، أمرُ المالك «احذفه
+#    نهائيًّا من البوت لان ما منه اي فايده»). الحذفُ يُثبَت **بنيويًّا**: لا
+#    ملفّاتٍ ولا استيرادَ وحدةٍ ولا سرًّا مسمًّى ولا ذِكرًا في قائمة «الكاتبين».
+#    ⚠️ **ولا يُفحَص بمطابقةِ كلمة «cline» في الشجرة**: `_cline` في `fuse_arms`
+#    و`clines` في `ignition_measurement` و`METHOD_DECLINE_*` تطابقها جميعًا ⇒
+#    **الصنفُ ② المدوَّن** (قفلٌ نصّيٌّ يسقط على كودٍ سليم).
+#    📒 **والسجلُّ باقٍ:** `reports/cline_weekly_*.md` (تقريران، أحدُهما أخرج عيبَ
+#    `alerts_history` الحقيقيّ) **لا تُحذَف** — نقلٌ لا حذف: تُحذَف الآلةُ لا الأثر.
+import os as _cln_os
+import ast as _cln_ast
+_cln_files = [".github/workflows/cline_weekly_review.yml", "CLINE_WEEKLY_REVIEW.md",
+              "cline_notify.py"]
+_cln_gone = [f for f in _cln_files if not _cln_os.path.exists(f)]
+_cln_prod = open("Super_stock.py", encoding="utf-8").read()
+_cln_suite = open("test_bot.py", encoding="utf-8").read()
+_cln_imports = {a.name.split(".")[0]
+                for _n in _cln_ast.walk(_cln_ast.parse(_cln_suite))
+                if isinstance(_n, _cln_ast.Import) for a in _n.names}
+_cln_imports |= {(_n.module or "").split(".")[0]
+                 for _n in _cln_ast.walk(_cln_ast.parse(_cln_suite))
+                 if isinstance(_n, _cln_ast.ImportFrom)}
+_cln_wf = _cln_os.listdir(".github/workflows")
+check("🗑️🔒 CLN0 كلاين **محذوفٌ نافذًا**: الملفّاتُ الثلاثة غائبة · ولا استيرادَ "
+      "`cline_notify` في السويّة · ولا `CLINE_API_KEY` في مُخفي الأسرار · ولا "
+      "workflow باسمه — **والتقريران الأثريّان باقيان** (نقلٌ لا حذف)",
+      len(_cln_gone) == 3
+      and "cline_notify" not in _cln_imports
+      and "CLINE_API_KEY" not in _cln_prod
+      and not [w for w in _cln_wf if "cline" in w.lower()]
+      and _cln_os.path.exists("reports/cline_weekly_2026-06-30.md"),
+      f"غائبة={len(_cln_gone)}/3 · استيراد={'cline_notify' in _cln_imports} · "
+      f"سرّ={'CLINE_API_KEY' in _cln_prod} · "
+      f"wf={[w for w in _cln_wf if 'cline' in w.lower()]}")
 
 # RSK6 — قراءةٌ فقط: صفرُ نداءٍ يكتب حالةً أو يُرسل · والإنتاجُ لا يستوردها ·
 #    وإعادةُ الاستعمال **بالاسم** من `ceiling_arms`/`replay10` (ميزانيةٌ واحدةٌ بالبناء).
