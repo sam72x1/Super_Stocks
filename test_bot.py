@@ -46598,6 +46598,378 @@ check("🩸⚙️🔒 FCK3 شرطُ الإغلاق §⑨ مكتوبٌ قبل ا�
       f"إقرار={'FCOST_REOPEN' in _fc_cl}")
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🩸⚙️ `T-FCOST` — أقفالُ **الأداة** (‏`FCA0`-`FCA11`، 2026-09-13، أمرُ المالك
+#    «ابن الاداة»). العقدُ مقفولٌ بـ`FCK0`-`FCK3`؛ وهذي تحرس **ما تفعله الأداة**.
+#    🔴 وأثمنُها `FCA3` (اللوازمُ الجبريّةُ الثلاثة **سلوكيّةٌ على فِكستشر** لا
+#    نصًّا) و`FCA4` (الحكمُ يطبّق العقدَ بحرفه — الصنفُ الذي وقع في `T-PMGATE`).
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _fca_ast
+import contextlib as _fca_ctx
+import inspect as _fca_insp
+import importlib.util as _fca_imp
+import io as _fca_io
+import os as _fca_os
+import yaml as _fca_yaml
+
+_FCA = None
+try:
+    _fca_spec = _fca_imp.spec_from_file_location("fcost_arms", "fcost_arms.py")
+    _FCA = _fca_imp.module_from_spec(_fca_spec)
+    _fca_spec.loader.exec_module(_FCA)
+except Exception as _e:                                          # noqa: BLE001
+    _FCA = None
+
+check("🩸⚙️🔒 FCA·استيراد الأداة", _FCA is not None)
+
+# `FCA0` — الـworkflow **يدويٌّ وقراءةٌ فقط بنيويًّا** (درسُ `u1`: «قراءةٌ فقط»
+#    في تعليقٍ ليست قفلًا) · بلا كرون · وبلا أيّ ذكرٍ لسرِّ تلغرام.
+_fca_wt, _fca_wd = "", {}
+try:
+    _fca_wt = open(".github/workflows/fcost.yml", encoding="utf-8").read()
+    _fca_wd = _fca_yaml.safe_load(_fca_wt) or {}
+except Exception as _e:                                          # noqa: BLE001
+    _fca_wt, _fca_wd = f"⛔ {type(_e).__name__}", {}
+_fca_on = _fca_wd.get("on", _fca_wd.get(True)) or {}
+_fca_perm = _fca_wd.get("permissions")
+_fca_jobs = [j for j in (_fca_wd.get("jobs") or {}).values() if isinstance(j, dict)]
+_fca_jperm = [j.get("permissions") for j in _fca_jobs]
+_fca_ok0 = (isinstance(_fca_on, dict) and "workflow_dispatch" in _fca_on
+            and "schedule" not in _fca_on
+            and _fca_perm == {"contents": "read", "actions": "read"}
+            and all(q is None or (isinstance(q, dict)
+                                  and "write" not in str(q).lower())
+                    for q in _fca_jperm)
+            and "TELEGRAM" not in _fca_wt and "telegram" not in _fca_wt
+            and "fcost_arms.py" in _fca_wt)
+check("🩸⚙️🔒 FCA0 الـworkflow يدويٌّ بلا كرون · صلاحيّاتُه **حصرًا** "
+      "{contents: read, actions: read} ولا جوبَ يُوسّعها · وبلا سرِّ تلغرام",
+      _fca_ok0,
+      f"on={list(_fca_on) if isinstance(_fca_on, dict) else _fca_on} · "
+      f"perm={_fca_perm} · jobs={_fca_jperm}")
+
+# `FCA1` — ثوابتُ العقد **بقيمها** لا بأسمائها، وكلُّها منصوصةٌ في الوثيقة.
+_fca_ok1, _fca_why1 = False, "?"
+if _FCA:
+    _fca_pre_t = ""
+    try:
+        _fca_pre_t = open("fcost_prereg.md", encoding="utf-8").read()
+    except Exception:                                            # noqa: BLE001
+        _fca_pre_t = ""
+    _fca_ok1 = (tuple(_FCA.CELLS_C) == (0.0, 0.01, 0.0132, 0.0175, 0.02, 0.04, 0.08)
+                and tuple(_FCA.CELLS_S) == (0.0, 0.005, 0.01, 0.02)
+                and (_FCA.C_MEAS_LO, _FCA.C_MEAS_HI) == (0.0132, 0.0175)
+                and _FCA.S_MEAS == 0.005
+                and _FCA.BREAKEVEN_MIN == 0.035
+                and (_FCA.FLOOR_YEAR, _FCA.FLOOR_TOTAL) == (100, 350)
+                and tuple(_FCA.GOV_YEARS) == ("2023", "2024", "2025")
+                and (_FCA.COEF_LO, _FCA.COEF_HI) == (0.09, 0.11)
+                # والوثيقةُ تنصّ على الرقمين الحاكمين وعلى الأرضية
+                and "1.32%" in _fca_pre_t and "1.75%" in _fca_pre_t
+                and "100 محسومةً لكلّ ذراعٍ لكلّ سنة" in _fca_pre_t)
+    _fca_why1 = (f"C={_FCA.CELLS_C} · S={_FCA.CELLS_S} · "
+                 f"BE={_FCA.BREAKEVEN_MIN} · floor="
+                 f"{(_FCA.FLOOR_YEAR, _FCA.FLOOR_TOTAL)}")
+check("🩸⚙️🔒 FCA1 سلّمُ التكلفة والخليّةُ المقيسة والأرضيةُ **بقيم العقد** "
+      "ولا تتحرّك", _fca_ok1, _fca_why1)
+
+# 🔴 `FCA2` — `ret_at` **سلوكيًّا**: الهُويّةُ الأفينيّة على الرابح والخاسر ·
+#    و(0,0) تُرجع `r₀` **بت-بت** (شرطُ `V-F1`) · و`s` على **الخاسر وحدَه**.
+_fca_ok2, _fca_why2 = False, "?"
+if _FCA:
+    _fca_bad2 = []
+    for _fca_r0 in (9.0, -12.0, 0.1, -7.3, 55.5):
+        for _fca_o in ("win", "loss"):
+            if _FCA.ret_at(_fca_r0, _fca_o, 0.0, 0.0) != _fca_r0:
+                _fca_bad2.append(f"هُويّة {_fca_r0}/{_fca_o}")
+            for _fca_c in (0.01, 0.0132, 0.0175, 0.02, 0.04, 0.08):
+                _fca_k = (1 - _fca_c / 2) / (1 + _fca_c / 2)
+                _fca_exp = _fca_k * _fca_r0 + 100.0 * (_fca_k - 1.0)
+                if abs(_FCA.ret_at(_fca_r0, _fca_o, _fca_c, 0.0)
+                       - _fca_exp) > 1e-9:
+                    _fca_bad2.append(f"أفين {_fca_r0}/{_fca_c}")
+    # `s` لا يمسّ الرابح إطلاقًا ويعمّق الخاسر
+    _fca_s_win = all(_FCA.ret_at(9.0, "win", 0.0, _s) == 9.0
+                     for _s in (0.005, 0.01, 0.02))
+    _fca_s_los = (_FCA.ret_at(-10.0, "loss", 0.0, 0.02)
+                  < _FCA.ret_at(-10.0, "loss", 0.0, 0.005) < -10.0)
+    _fca_ok2 = (not _fca_bad2) and _fca_s_win and _fca_s_los
+    _fca_why2 = (f"مخالفات={_fca_bad2[:3] or 'صفر'} · رابحٌ بلا s="
+                 f"{_fca_s_win} · خاسرٌ يعمّق={_fca_s_los}")
+check("🩸⚙️🔒 FCA2 `ret_at` أفينيّةٌ عدديًّا · و(0,0) هُويّةٌ بت-بت · و`s` على "
+      "**الخاسر وحدَه**", _fca_ok2, _fca_why2)
+
+# 🔴 `FCA3` — **اللوازمُ الثلاثة سلوكيّة**: فرقُ «المحسومة وحدَها» يتقلّص بـ`k`
+#    ولا ينقلب · وفرقُ «صفرِ التعبئة» يحمل إزاحةَ `100(k−1)(f_X−f_Y)`.
+_fca_ok3, _fca_why3 = False, "?"
+if _FCA:
+    _fca_vx = [("win", 20.0)] * 40 + [("loss", -10.0)] * 60      # تعبئةٌ 100/200
+    _fca_vy = [("win", 12.0)] * 20 + [("loss", -8.0)] * 30       # تعبئةٌ 50/200
+    _fca_N = 200
+    _fca_d0 = (_FCA.e_resolved(_fca_vx, 0.0, 0.0)
+               - _FCA.e_resolved(_fca_vy, 0.0, 0.0))
+    _fca_z0 = (_FCA.e_zerofill(_fca_vx, _fca_N, 0.0, 0.0)
+               - _FCA.e_zerofill(_fca_vy, _fca_N, 0.0, 0.0))
+    _fca_b3 = []
+    for _fca_c in (0.01, 0.0175, 0.04, 0.08):
+        _fca_k = (1 - _fca_c / 2) / (1 + _fca_c / 2)
+        _fca_dd = (_FCA.e_resolved(_fca_vx, _fca_c, 0.0)
+                   - _FCA.e_resolved(_fca_vy, _fca_c, 0.0))
+        if abs(_fca_dd - _fca_k * _fca_d0) > 1e-9:
+            _fca_b3.append(f"لازم② c={_fca_c}")
+        if (_fca_dd > 0) != (_fca_d0 > 0):
+            _fca_b3.append(f"انقلاب② c={_fca_c}")
+        # اللازمُ ③: `E(c) = k·E(0) + 100(k−1)·f` لكلّ ذراعٍ على حدة
+        for _fca_v, _fca_f in ((_fca_vx, 100 / _fca_N), (_fca_vy, 50 / _fca_N)):
+            _fca_lhs = _FCA.e_zerofill(_fca_v, _fca_N, _fca_c, 0.0)
+            _fca_rhs = (_fca_k * _FCA.e_zerofill(_fca_v, _fca_N, 0.0, 0.0)
+                        + 100.0 * (_fca_k - 1.0) * _fca_f)
+            if abs(_fca_lhs - _fca_rhs) > 1e-9:
+                _fca_b3.append(f"لازم③ c={_fca_c}")
+        if _FCA.offset_at(_fca_c, 100 / _fca_N, 50 / _fca_N) >= 0:
+            _fca_b3.append(f"إشارةُ الإزاحة c={_fca_c}")
+    _fca_ok3 = not _fca_b3
+    _fca_why3 = f"Δأ(0)={_fca_d0:.4f} · Δب(0)={_fca_z0:.4f} · مخالفات={_fca_b3[:3] or 'صفر'}"
+check("🩸⚙️🔒 FCA3 اللوازمُ الجبريّةُ **سلوكيّة**: فرقُ المحسومة يتقلّص بـ`k` ولا "
+      "ينقلب · وقراءةُ (ب) تحمل إزاحةَ التعبئة وإشارتُها سالبةٌ للأكثر تعبئة",
+      _fca_ok3, _fca_why3)
+
+# 🔴 `FCA4` — `read_verdict` يطبّق §⑥ بحرفه: **الأرضيةُ أوّلًا** ثمّ الثلاثة.
+_fca_ok4, _fca_why4 = False, "?"
+if _FCA:
+    _fca_T, _fca_F = {"ok": True, "why": "م"}, {"ok": False, "why": "س"}
+    _fca_all = {"FC1": True, "FC2": True, "FC3": True}
+    _fca_cases = [
+        (_fca_all, _fca_T, 1),                                     # الثلاثةُ تعبر
+        (_fca_all, _fca_F, 3),                                     # الأرضيةُ تغلب
+        ({"FC1": False, "FC2": True, "FC3": True}, _fca_T, 2),
+        ({"FC1": True, "FC2": False, "FC3": True}, _fca_T, 2),
+        ({"FC1": True, "FC2": True, "FC3": False}, _fca_T, 2),
+        ({"FC1": False, "FC2": False, "FC3": False}, _fca_T, 2),
+        ({"FC1": False, "FC2": True, "FC3": True}, _fca_F, 3),     # الأرضيةُ أوّلًا
+        ({}, _fca_T, 2),                                           # غيابٌ = سقوط
+    ]
+    _fca_b4 = []
+    for _fca_cr, _fca_fl, _fca_exp in _fca_cases:
+        _fca_got, _fca_ln = _FCA.read_verdict(_fca_cr, _fca_fl)
+        if _fca_got != _fca_exp:
+            _fca_b4.append(f"{_fca_cr}/{_fca_fl['ok']}⇒{_fca_got}≠{_fca_exp}")
+        if not _fca_ln:
+            _fca_b4.append("بلا نصّ")
+    # والفرعُ 3 يُلزم تاريخَ إعادةِ قراءةٍ مكتوبًا (‏§⑥-3)
+    _, _fca_l3 = _FCA.read_verdict(_fca_all, _fca_F)
+    _fca_ok4 = (not _fca_b4) and any("إعادة قراءة" in x for x in _fca_l3)
+    _fca_why4 = f"مخالفات={_fca_b4[:3] or 'صفر'}"
+check("🩸⚙️🔒 FCA4 الحكمُ يطبّق §⑥ بجدول حقيقةٍ من ثماني حالات · **والأرضيةُ "
+      "تغلب المعايير** · والفرعُ 3 يُلزم تاريخَ إعادةِ قراءة", _fca_ok4, _fca_why4)
+
+# `FCA5` — خريطةُ الأذرع ⟵ حقولِ المحرّك: كلُّ ذراعٍ تقرأ حقلَها **وحدَه**،
+#    والأربعُ متمايزةٌ على فِكستشرٍ يفصلها، وغيرُ المحسوم/`None` يُسقَط.
+_fca_ok5, _fca_why5 = False, "?"
+if _FCA:
+    _fca_row = {"symbol": "AAA", "date": "2025-01-02",
+                "outcome": "win", "ret_a": 10.0,
+                "outcome_b": "loss", "ret_b": -5.0,
+                "outcome_legacy": "win", "ret_legacy": 11.0,
+                "outcome_sweep": "loss", "ret_sweep_a": -3.0}
+    _fca_drop = [{"symbol": "B", "date": "d", "outcome": "no_fill",
+                  "ret_a": None, "outcome_b": "open", "ret_b": None,
+                  "outcome_legacy": "open", "ret_legacy": None,
+                  "outcome_sweep": "no_sweep", "ret_sweep_a": None},
+                 {"symbol": "C", "date": "d", "outcome": "win", "ret_a": None,
+                  "outcome_b": "win", "ret_b": 1.0,
+                  "outcome_legacy": "win", "ret_legacy": 1.0,
+                  "outcome_sweep": "win", "ret_sweep_a": 1.0}]
+    _fca_v = {a: _FCA.arm_view([_fca_row] + _fca_drop, a)
+              for a in _FCA.ARM_FIELDS}
+    _fca_ok5 = (_fca_v["A"][0] == ("win", 10.0)
+                and _fca_v["B"][0] == ("loss", -5.0)
+                and _fca_v["LEG"][0] == ("win", 11.0)
+                and _fca_v["SW"][0] == ("loss", -3.0)
+                and len({tuple(x) for x in _fca_v.values()}) == 4
+                and len(_fca_v["A"]) == 1           # `ret=None` يُسقَط
+                and len(_fca_v["B"]) == 2           # المحسومُ الثاني يبقى
+                and tuple(_FCA.ARM_FIELDS["A"]) == ("outcome", "ret_a"))
+    _fca_why5 = str({k: v[:1] for k, v in _fca_v.items()})[:150]
+check("🩸⚙️🔒 FCA5 كلُّ ذراعٍ تقرأ حقلَها وحدَه · والأربعُ متمايزة · وغيرُ "
+      "المحسوم و`None` يُسقَطان", _fca_ok5, _fca_why5)
+
+# `FCA6` — `breakeven_c` **يمشي السلّمَ فعلًا**: لا تعادلَ على «المحسومة وحدَها»
+#    (اللازمُ ②) · وتعادلٌ منتهٍ على «صفرِ التعبئة» عند فجوةِ تعبئةٍ كبيرة.
+_fca_ok6, _fca_why6 = False, "?"
+if _FCA:
+    _fca_bx = [("win", 2.0)] * 10 + [("loss", -1.0)] * 10        # ‏20/200
+    _fca_by = [("win", 1.0)] * 5 + [("loss", -1.0)] * 5          # ‏10/200
+    _fca_be_a = _FCA.breakeven_c(_fca_bx, _fca_by, 200, 0.005, zerofill=False)
+    _fca_be_b = _FCA.breakeven_c(_fca_bx, _fca_by, 200, 0.005, zerofill=True)
+    _fca_ok6 = (_fca_be_a is None and _fca_be_b is not None
+                and 0.0 < _fca_be_b <= 0.50)
+    _fca_why6 = f"تعادلُ(أ)={_fca_be_a} · تعادلُ(ب)={_fca_be_b}"
+check("🩸⚙️🔒 FCA6 التعادلُ **محسوبٌ لا مفترَض**: لا تعادلَ على قراءة (أ) · "
+      "وتعادلٌ منتهٍ على (ب) عند فجوةِ تعبئة", _fca_ok6, _fca_why6)
+
+# `FCA7` — إزاحةُ `FC3` تُحسَب عند `C_MEAS_HI` وبإشارةٍ سالبةٍ للأكثر تعبئة،
+#    وتساوي صفرًا عند تساوي التعبئة (فلا ينطبق المعيار).
+_fca_ok7, _fca_why7 = False, "?"
+if _FCA:
+    _fca_o1 = _FCA.offset_at(_FCA.C_MEAS_HI, 0.9, 0.5)
+    _fca_o2 = _FCA.offset_at(_FCA.C_MEAS_HI, 0.5, 0.9)
+    _fca_o3 = _FCA.offset_at(_FCA.C_MEAS_HI, 0.7, 0.7)
+    _fca_ok7 = (abs(_fca_o1 - (100.0 * (_FCA.k_of(0.0175) - 1.0) * 0.4)) < 1e-12
+                and _fca_o1 < 0 < _fca_o2 and _fca_o3 == 0.0
+                and abs(_fca_o1) > abs(_FCA.offset_at(0.01, 0.9, 0.5)))
+    _fca_why7 = f"o(.9,.5)={_fca_o1:.4f} · o(.5,.9)={_fca_o2:.4f} · o(=)={_fca_o3}"
+check("🩸⚙️🔒 FCA7 إزاحةُ التعبئة سالبةٌ للأكثر تعبئة · وصفرٌ عند التساوي · "
+      "وتكبر بالتكلفة", _fca_ok7, _fca_why7)
+
+# `FCA8` — قراءةٌ فقط **بالـAST** ومعها **شاهدا ضبط** يُثبتان أن الحارسَين
+#    يمسكان المخالفة لو وُجدت (فلا يصيرا «يمرّ دائمًا»).
+_fca_ok8, _fca_why8 = False, "?"
+if _FCA:
+    def _fca_ast_send(src):
+        for n in _fca_ast.walk(_fca_ast.parse(src)):
+            if isinstance(n, _fca_ast.Call):
+                f = getattr(n.func, "id", None) or getattr(n.func, "attr", None)
+                if f in ("send_telegram", "git_save", "save_watchlist"):
+                    return True
+        return False
+
+    def _fca_ast_cfg(src):
+        for n in _fca_ast.walk(_fca_ast.parse(src)):
+            t = (list(n.targets) if isinstance(n, _fca_ast.Assign)
+                 else [n.target] if isinstance(n, (_fca_ast.AugAssign,
+                                                   _fca_ast.AnnAssign)) else [])
+            for x in t:
+                if isinstance(x, _fca_ast.Subscript) and (
+                        getattr(x.value, "id", None) == "CONFIG"):
+                    return True
+        return False
+    _fca_src = open("fcost_arms.py", encoding="utf-8").read()
+    _fca_ok8 = (_FCA.selfcheck_readonly() is True
+                and _FCA.no_config_assign() is True
+                and not _fca_ast_send(_fca_src) and not _fca_ast_cfg(_fca_src)
+                # شاهدا ضبط: الحارسان يمسكان المخالفةَ فعلًا
+                and _fca_ast_send("send_telegram('x')")
+                and _fca_ast_cfg("CONFIG['BT_SPREAD_PCT'] = 0.04"))
+    _fca_why8 = (f"readonly={_FCA.selfcheck_readonly()} · "
+                 f"no_config={_FCA.no_config_assign()}")
+check("🩸⚙️🔒 FCA8 الأداةُ قراءةٌ فقط ‏+ **صفرُ إسنادٍ إلى `CONFIG`** (أشدُّ من "
+      "قائمة العقد) · ومعهما شاهدا ضبطٍ يُثبتان أن الحارسَين يمسكان",
+      _fca_ok8, _fca_why8)
+
+# `FCA9` — بيئةُ الطفل: وضعُ الباكتيست · **الأعلامُ الثلاثةُ بأسماء العقد
+#    وحدَها** · اللقطةُ تُمرَّر · و**مفاتيحُ تلغرام تُجرَّد بنيويًّا**.
+_fca_ok9, _fca_why9 = False, "?"
+if _FCA:
+    _fca_save = {k: _fca_os.environ.get(k) for k in
+                 ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TG_BOT_TOKEN")}
+    try:
+        for _k in _fca_save:
+            _fca_os.environ[_k] = "SECRET"
+        _fca_env = _FCA.child_env("/tmp/frozen.pkl.gz", {"BACKTEST_YEAR": "2025"})
+    finally:
+        for _k, _v in _fca_save.items():
+            if _v is None:
+                _fca_os.environ.pop(_k, None)
+            else:
+                _fca_os.environ[_k] = _v
+    _fca_ok9 = (_fca_env.get("SCREENER_MODE") == "BACKTEST"
+                and _fca_env.get("BT_FROZEN_PATH") == "/tmp/frozen.pkl.gz"
+                and _fca_env.get("BACKTEST_YEAR") == "2025"
+                and set(_FCA.FLAGS) == {"BT_ENVVALS", "BT_POTENTIAL",
+                                        "BT_SWEEP_ENTRY"}
+                and all(_fca_env.get(k) == "1" for k in _FCA.FLAGS)
+                and "BT_SWEEP_STOP" not in _fca_env      # الوقفُ يبقى وقفَ الأساس
+                and not any(_fca_env.get(k) for k in
+                            ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID",
+                             "TG_BOT_TOKEN")))
+    _fca_why9 = (f"mode={_fca_env.get('SCREENER_MODE')} · flags={sorted(_FCA.FLAGS)}"
+                 f" · tg={[_fca_env.get(k) for k in ('TELEGRAM_BOT_TOKEN',)]}")
+check("🩸⚙️🔒 FCA9 بيئةُ الطفل: باكتيست · الأعلامُ الثلاثةُ بأسماء العقد وحدَها "
+      "· اللقطةُ تُمرَّر · ومفاتيحُ تلغرام **مجرَّدةٌ بنيويًّا**", _fca_ok9, _fca_why9)
+
+# `FCA10` — `V-F8` يحرس الجذورَ الاثني عشر **و`_resolve_arm` معها** (فهو محرّكُ
+#    الحسم الذي تقوم عليه الهُويّةُ كلُّها) · والدالّةُ تُرجع ثنائيّةً.
+#    ⚠️ **ولا يُفحَص مُخرَجُها سلوكيًّا** — تقارن بـ`origin/main` فتسقط على أيّ
+#    تعديلِ إنتاجٍ غيرِ مدموج (‏درسُ `RSK3` المقيس، 2026-09-13).
+_fca_ok10, _fca_why10 = False, "?"
+if _FCA:
+    _fca_need = {"rank_key", "select_top", "classify_tier", "analyze_ticker",
+                 "apply_short_gate", "apply_float_gate", "scan_market",
+                 "backtest_symbol", "scan_ignition", "scan_split_hunter",
+                 "entry_status", "build_interpretation", "_resolve_arm"}
+    _fca_r = _FCA.roots_identical()
+    _fca_ok10 = (set(_FCA.ROOTS) == _fca_need and len(_FCA.ROOTS) == 13
+                 and isinstance(_fca_r, tuple) and len(_fca_r) == 2
+                 and isinstance(_fca_r[0], bool))
+    _fca_why10 = f"n={len(_FCA.ROOTS)} · شكلُ الإرجاع={type(_fca_r).__name__}/{len(_fca_r)}"
+check("🩸⚙️🔒 FCA10 `V-F8` يحرس الجذورَ الاثني عشر **و`_resolve_arm`** · "
+      "والدالّةُ تُرجع (نجح، لماذا)", _fca_ok10, _fca_why10)
+
+# 🔴 `FCA11` — وضعُ الجدوى **يخرج قبل أيّ `Δ`**: لا فرقَ ولا تعادلَ ولا حكم
+#    (درسُ `T-PMGATE`: وضعُ الجدوى يُجيز ما يمرّ به وحدَه — فيجب أن يبقى أعمى).
+_fca_ok11, _fca_why11 = False, "?"
+if _FCA:
+    _fca_rows = [{"symbol": f"S{i}", "date": "2025-01-02", "entry": 10.0,
+                  "stop": 9.0, "outcome": ("win" if i % 3 else "loss"),
+                  "ret_a": (12.0 if i % 3 else -9.0),
+                  "outcome_b": "loss", "ret_b": -9.0,
+                  "outcome_legacy": "win", "ret_legacy": 12.0,
+                  "outcome_sweep": "win", "ret_sweep_a": 5.0}
+                 for i in range(120)]
+    _fca_o_run, _fca_o_roots, _fca_o_load = (_FCA._run_child,
+                                             _FCA.roots_identical, _FCA._load)
+    _fca_o_out = _FCA.OUT_ROWS
+    _FCA.OUT_ROWS = "/tmp/_fca_dry_rows_should_not_exist.jsonl"
+    _fca_env_sv = {k: _fca_os.environ.get(k)
+                   for k in ("FCOST_YEARS", "FCOST_FROZEN", "FCOST_DRY")}
+    _fca_calls = []
+    try:
+        _FCA._run_child = (lambda tag, fz, extra:
+                           (_fca_calls.append(tag) or
+                            {"tag": tag, "snap": {"asof": "x", "n": 1},
+                             "n": len(_fca_rows), "path": "X", "spread": 0.0,
+                             "sweep_on": True}))
+        _FCA.roots_identical = lambda: (True, "لا شيء")
+        _FCA._load = lambda meta: _fca_rows
+        _fca_os.environ["FCOST_YEARS"] = "2025"
+        _fca_os.environ["FCOST_FROZEN"] = "/tmp/x.pkl.gz"
+        _fca_os.environ["FCOST_DRY"] = "1"
+        _fca_buf = _fca_io.StringIO()
+        with _fca_ctx.redirect_stdout(_fca_buf):
+            _fca_rc = _FCA.main()
+        _fca_out = _fca_buf.getvalue()
+    finally:
+        _FCA._run_child, _FCA.roots_identical, _FCA._load = (
+            _fca_o_run, _fca_o_roots, _fca_o_load)
+        _fca_dry_tmp, _FCA.OUT_ROWS = _FCA.OUT_ROWS, _fca_o_out
+        for _k, _v in _fca_env_sv.items():
+            if _v is None:
+                _fca_os.environ.pop(_k, None)
+            else:
+                _fca_os.environ[_k] = _v
+    # 🐞 **والفحصُ بنيويٌّ لا مطابقةُ كلمة** — صياغتي الأولى بحثت عن «Δ»
+    #    و«تعادل» فسقطت على **إعلان** الوضع نفسِه («صفرُ Δ وصفرُ نقطةِ تعادل»)
+    #    = الصنفُ ② المدوَّن. فالمرساةُ صارت **مطالعَ الطباعة الفعليّة**،
+    #    ومعها **شاهدُ ضبطٍ** يُثبت أن تلك المطالعَ موجودةٌ في الكود أصلًا
+    #    (وإلّا صار القفلُ «غائبٌ دائمًا» فلا يُكذَّب).
+    _fca_marks = ("Δ(أ المحسومة)", "🎯 `FC1`", "الفرعُ", "── الزوج ",
+                  "تعادلُ (أ)")
+    _fca_msrc = _fca_insp.getsource(_FCA.main) + _fca_insp.getsource(
+        _FCA.read_verdict)
+    _fca_live = all(m in _fca_msrc for m in _fca_marks)
+    _fca_ok11 = (_fca_rc == 0 and len(_fca_calls) == 1
+                 and "PR-HEAD" in _fca_out
+                 and not any(m in _fca_out for m in _fca_marks)
+                 and _fca_live and not _fca_os.path.exists(_fca_dry_tmp))
+    _fca_why11 = (f"rc={_fca_rc} · أطفال={_fca_calls} · "
+                  f"مطبوعٌ منها={[m for m in _fca_marks if m in _fca_out]} · "
+                  f"حاضرةٌ في الكود={_fca_live} · "
+                  f"ملفُّ الصفوف={_fca_os.path.exists(_fca_dry_tmp)}")
+check("🩸⚙️🔒 FCA11 وضعُ الجدوى **أعمى**: طفلٌ واحدٌ · يطبع `PR-HEAD` والأرضية · "
+      "وصفرُ Δ وصفرُ تعادلٍ وصفرُ زوجٍ وصفرُ حكم", _fca_ok11, _fca_why11)
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
