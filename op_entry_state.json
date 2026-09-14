@@ -80,7 +80,7 @@
   "updates": 0,
   "vol_x": 1.0,
   "peak_usd": 167535,
-  "last_eval_ms": 1789390020000,
+  "last_eval_ms": 1789389960000,
   "pulse_ms": 1789395120000,
   "anchor_price": 0.1105,
   "anchor_open": 0.1071,
@@ -327,7 +327,7 @@
   "updates": 2,
   "vol_x": 39.4,
   "peak_usd": 7215022,
-  "last_eval_ms": 1789392720000,
+  "last_eval_ms": 1789392660000,
   "pulse_ms": 1789395120000,
   "anchor_price": 3.53,
   "anchor_open": 3.3,
@@ -1868,7 +1868,7 @@
   "updates": 0,
   "vol_x": 2.6,
   "peak_usd": 35963,
-  "last_eval_ms": 1789394400000,
+  "last_eval_ms": 1789394340000,
   "pulse_ms": 1789395120000,
   "anchor_price": 1.085,
   "anchor_open": 1.03,
@@ -1911,7 +1911,7 @@
   "updates": 2,
   "vol_x": 6.1,
   "peak_usd": 147049,
-  "last_eval_ms": 1789394760000,
+  "last_eval_ms": 1789394700000,
   "pulse_ms": 1789395120000,
   "anchor_price": 1.04,
   "anchor_open": 0.9789,
@@ -1920,7 +1920,6 @@
   "pre_hi": 1.0,
   "pre_usd": 98538,
   "pre_n": 24,
-  "date": "2026-09-14",
   "k2": {
    "c3": "صادقت (إغلاقٌ فوق المرساة)",
    "c4": "خضراء 2",
@@ -1929,7 +1928,9 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 1.13
+  "e5": 1.13,
+  "tgt_ms": 1789394820000,
+  "date": "2026-09-14"
  },
  "LIQ:EHTH": {
   "last_eval_ms": 1789395060000,
@@ -2289,10 +2290,10 @@
   "date": "2026-09-14"
  },
  "LIQ:MSAI": {
-  "date": "2026-09-14",
   "last_eval_ms": 1789395120000,
   "tc_cum": 6308.52,
-  "tc_seen_ms": 1789395120000
+  "tc_seen_ms": 1789395120000,
+  "date": "2026-09-14"
  },
  "LIQ:NNNN": {
   "last_eval_ms": 1789394340000,
@@ -2325,10 +2326,10 @@
   "date": "2026-09-14"
  },
  "LIQ:ICON": {
-  "date": "2026-09-14",
   "last_eval_ms": 1789395120000,
   "tc_cum": 1969.82104,
-  "tc_seen_ms": 1789395120000
+  "tc_seen_ms": 1789395120000,
+  "date": "2026-09-14"
  },
  "LIQ:YDES": {
   "last_eval_ms": 1789395060000,
