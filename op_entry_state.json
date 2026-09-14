@@ -80,7 +80,7 @@
   "updates": 0,
   "vol_x": 1.0,
   "peak_usd": 167535,
-  "last_eval_ms": 1789390020000,
+  "last_eval_ms": 1789389960000,
   "pulse_ms": 1789396020000,
   "anchor_price": 0.1105,
   "anchor_open": 0.1071,
@@ -330,7 +330,7 @@
   "updates": 2,
   "vol_x": 39.4,
   "peak_usd": 7215022,
-  "last_eval_ms": 1789392720000,
+  "last_eval_ms": 1789392660000,
   "pulse_ms": 1789396020000,
   "anchor_price": 3.53,
   "anchor_open": 3.3,
@@ -1876,7 +1876,7 @@
   "updates": 0,
   "vol_x": 2.6,
   "peak_usd": 35963,
-  "last_eval_ms": 1789394400000,
+  "last_eval_ms": 1789394340000,
   "pulse_ms": 1789396020000,
   "anchor_price": 1.085,
   "anchor_open": 1.03,
@@ -3373,5 +3373,6 @@
  },
  "BIAF": "2026-09-14",
  "CWD": "2026-09-14",
- "NOMA": "2026-09-14"
+ "NOMA": "2026-09-14",
+ "RAIN": "2026-09-14"
 }
