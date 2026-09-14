@@ -2372,7 +2372,7 @@
   "updates": 1,
   "vol_x": 5.0,
   "peak_usd": 42602,
-  "last_eval_ms": 1789424700000,
+  "last_eval_ms": 1789424640000,
   "pulse_ms": 1789427580000,
   "anchor_price": 2.1,
   "anchor_open": 1.9,
@@ -3360,7 +3360,7 @@
   "tc_seen_ms": 1789427580000,
   "date": "2026-09-14"
  },
- "SXTC": "2026-09-11",
+ "SXTC": "2026-09-14",
  "LIQ:PLYX": {
   "last_eval_ms": 1789415940000,
   "tc_cum": 39216.406392000004,
