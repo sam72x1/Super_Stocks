@@ -263,34 +263,15 @@
   "date": "2026-09-14"
  },
  "LIQ:FTFT": {
-  "anchor_ms": 1789387500000,
-  "last_ms": 1789389060000,
-  "sent": [
-   "M1",
-   "M5"
-  ],
-  "updates": 0,
-  "vol_x": 7.2,
-  "peak_usd": 600984,
-  "last_eval_ms": 1789387500000,
-  "pulse_ms": 1789389060000,
-  "anchor_price": 3.25,
-  "anchor_open": 3.0913,
-  "anchor_low": 3.0913,
-  "pre_done": true,
-  "pre_hi": 3.29,
-  "pre_usd": 4757101,
-  "pre_n": 60,
-  "k2": {
-   "c3": "نقضت",
-   "c4": "خضراء 0-1",
-   "v2": "المرساة دون 30% (سيولة تتوالى)",
-   "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)",
-   "j1": false,
-   "j1_top": false
+  "last_eval_ms": 1789389060000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1789387500000,
+   "anchor_price": 3.25,
+   "anchor_low": 3.0913,
+   "e5": 3.2,
+   "exit_ms": 1789389060000
   },
-  "e5": 3.2,
-  "exit_ms": 1789389060000,
   "date": "2026-09-14"
  },
  "LIQ:WSHP": {
@@ -2126,7 +2107,7 @@
  },
  "LIQ:BNC": {
   "anchor_ms": 1789389000000,
-  "last_ms": 1789389000000,
+  "last_ms": 1789389060000,
   "sent": [
    "M1"
   ],
@@ -2134,16 +2115,16 @@
   "vol_x": 5.4,
   "peak_usd": 415540,
   "last_eval_ms": 1789389060000,
-  "pulse_ms": 1789389000000,
+  "pulse_ms": 1789389060000,
   "anchor_price": 5.81,
   "anchor_open": 5.73,
   "anchor_low": 5.73,
   "trig": "T-C",
-  "date": "2026-09-14",
   "pre_done": true,
   "pre_hi": 5.75,
   "pre_usd": 4024023,
-  "pre_n": 55
+  "pre_n": 55,
+  "date": "2026-09-14"
  },
  "LIQ:TRON": {
   "last_eval_ms": 1789169820000,
