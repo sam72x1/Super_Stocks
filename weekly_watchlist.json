@@ -6333,7 +6333,8 @@
      "2026-09-15",
      9000
     ]
-   ]
+   ],
+   "live_alert": {}
   },
   {
    "symbol": "ARBK",
@@ -7888,7 +7889,8 @@
    "max_gain_pct": 17.8,
    "last_price": 1.05,
    "live_alert": {
-    "breakout": "2026-09-14"
+    "breakout": "2026-09-14",
+    "premarket": "2026-09-15"
    },
    "rsi27_price": 0.8208
   },
@@ -9019,7 +9021,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.12
+   "last_price": 1.12,
+   "live_alert": {}
   },
   {
    "symbol": "HCTI",
@@ -9367,7 +9370,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.743
+   "last_price": 0.743,
+   "live_alert": {}
   },
   {
    "symbol": "CELU",
@@ -12041,7 +12045,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.91
+   "last_price": 4.91,
+   "live_alert": {}
   },
   {
    "symbol": "HCWB",
@@ -13150,7 +13155,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.595
+   "last_price": 0.595,
+   "live_alert": {}
   },
   {
    "symbol": "AGMH",
