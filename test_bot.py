@@ -47767,6 +47767,102 @@ check("🩸📡🔒 BTA14 §⑧ وصفيٌّ لا حاكم: صفرُ حكمٍ و
       "`T-FCOST` · وقيمُ `E_A` مقروءةٌ من ملفّ نتيجته · والوصلةُ حيّة",
       _bta_ok14, _bta_why14)
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🩸🪜 `T-FILLOFF` — أقفالُ العقد (‏«سجّل الإزاحة»، أمرُ المالك 2026-09-15)
+#   العقدُ `filloff_prereg.md` مدفوعٌ **قبل أيّ سطرِ أداةٍ وقبل أيّ رقم**، فالأقفالُ
+#   هنا تحرس **الوثيقة** وآليّتَها الحيّة — لا أداةً بعد.
+#   🔒 وأسماءٌ خاصّةٌ بالكتلة (`_flk_*`) فلا تُظلَّل أسماءُ السويّة (‏الصنفُ ①).
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _flk_ast
+import inspect as _flk_insp
+
+try:
+    _flk_doc = open("filloff_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _flk_doc = f"⛔ {type(_e).__name__}"
+
+# 🔴 `FLK0` — **بنيويٌّ لا عضويّة**: الفروعُ الثلاثةُ **كلٌّ في سطره المرقَّم**،
+#    والمعاييرُ الثلاثةُ مسمّاةٌ في جدولها. درسُ `RKK0`: «العضويةُ في نافذة» تمرّ
+#    على حذفِ فرعٍ لأن الكلمةَ تتكرّر في السطر التالي.
+_flk_sec4 = ""
+if "## ④" in _flk_doc and "## ⑤" in _flk_doc:
+    _flk_sec4 = _flk_doc.split("## ④", 1)[1].split("## ⑤", 1)[0]
+_flk_brs = [_l for _l in _flk_sec4.splitlines()
+            if _l.lstrip().startswith("- **الفرعُ ")]
+_flk_nums = [_n for _n in ("1", "2", "3")
+             if any(f"الفرعُ {_n} " in _l for _l in _flk_brs)]
+_flk_crit = [_c for _c in ("FO1", "FO2", "FO3")
+             if _flk_doc.count(f"`{_c}`") >= 2]
+_flk_ok0 = (len(_flk_brs) == 3 and len(_flk_nums) == 3
+            and len(_flk_crit) == 3
+            and "لا حكم" in " ".join(_flk_brs))
+check("🩸🪜🔒 FLK0 عقدُ `T-FILLOFF`: ثلاثةُ فروعٍ **كلٌّ في سطره** ومعاييرُ "
+      "`FO1`/`FO2`/`FO3` مسمّاة",
+      _flk_ok0, f"فروع(§④)={len(_flk_brs)} · مرقّمة={_flk_nums} · "
+                f"معايير={_flk_crit} · طولُ§④={len(_flk_sec4)}")
+
+# 🔴 `FLK1` — حرّاسُ الصلاحية التسعةُ كلُّها مذكورةٌ **في جدولها** لا في نثرٍ عابر.
+_flk_gates = [f"V-O{_i}" for _i in range(1, 10)]
+_flk_rows = [_l for _l in _flk_doc.splitlines()
+             if _l.startswith("| `V-O") and _l.count("|") >= 4]
+_flk_miss = [_g for _g in _flk_gates
+             if not any(f"`{_g}`" in _l for _l in _flk_rows)]
+check("🩸🪜🔒 FLK1 حرّاسُ `V-O1`-`V-O9` التسعةُ في جدول الصلاحية",
+      not _flk_miss and len(_flk_rows) == 9,
+      f"صفوف={len(_flk_rows)} · ناقص={_flk_miss or 'صفر'}")
+
+# 🔴 `FLK2` — **الآليّةُ من الكود الحيّ لا من نصّ العقد** (درسُ `RKK2`/`T-RSI40 §⑦`:
+#    عَلَمٌ يُعلن تجربةً والنافذُ غيرُه). ثلاثةُ أشقّ:
+#      (أ) `backtest_sweep_compare` موجودةٌ ويحكم على **المُعبَّأة في الطرفين**
+#      (ب) `fcost_arms.ret_at`/`k_of` موجودتان ويمكن ندؤهما بالاسم
+#      (ج) **سلوكيًّا:** `ret_at(r, o, 0, 0) == r` بت-بت ⇒ `V-O1` ممكنةٌ أصلًا
+try:
+    import fcost_arms as _flk_fc
+    _flk_bit = all(
+        _flk_fc.ret_at(_r, _o, 0.0, 0.0) == _r
+        for _r in (-73.4, -0.1, 0.0, 12.5, 311.0)
+        for _o in ("win", "loss"))
+    _flk_k1 = (_flk_fc.k_of(0.0) == 1.0)
+    # والتكلفةُ تُحرّك فعلًا عند قيمةٍ غيرِ صفر (فلا يكون القفلُ «صحيحٌ دائمًا»)
+    _flk_moves = (_flk_fc.ret_at(-30.0, "loss", 1.8018, -0.4587) != -30.0)
+except Exception as _e:                                          # noqa: BLE001
+    _flk_bit = _flk_k1 = _flk_moves = False
+    _flk_fc = None
+_flk_sw = ""
+try:
+    _flk_sw = _flk_insp.getsource(S.backtest_sweep_compare)
+except Exception as _e:                                          # noqa: BLE001
+    _flk_sw = f"⛔ {type(_e).__name__}"
+# «المُعبَّأة في الطرفين» ليست تعليقًا: `both` تُبنى بشرطِ الساقين معًا (‏AST)
+_flk_both = False
+try:
+    for _n in _flk_ast.walk(_flk_ast.parse(_flk_sw.lstrip())):
+        if isinstance(_n, _flk_ast.Assign) and any(
+                getattr(_t, "id", None) == "both" for _t in _n.targets):
+            _flk_both = isinstance(_n.value, _flk_ast.ListComp)
+except Exception:                                                # noqa: BLE001
+    _flk_both = False
+_flk_ok2 = (_flk_bit and _flk_k1 and _flk_moves and _flk_both
+            and "_mean_lo95(da)" in _flk_sw)
+check("🩸🪜🔒 FLK2 آليّةُ `T-FILLOFF` **من الكود الحيّ**: `ret_at(·,·,0,0)` بت-بت "
+      "وتتحرّك عند التكلفة · و`backtest_sweep_compare` تحكم على المُعبَّأة في الطرفين",
+      _flk_ok2, f"هُويّة={_flk_bit} · k(0)=1:{_flk_k1} · تتحرّك={_flk_moves} · "
+                f"both={_flk_both} · مصدر={len(_flk_sw)}ح")
+
+# 🔴 `FLK3` — **التلوّثُ مُعلَنٌ بأرقامه** لا بكلمةِ «تلوّث»: §⓪ يحمل الأرقامَ التي
+#    رأيتُها فعلًا، **ويقول صراحةً إن المقامَ الزوجيَّ لم يُحسَب قطّ**.
+_flk_seen = ("-0.8075", "+0.4248", "1.8018", "-0.4587", "0.228", "0.852")
+_flk_nums_ok = [_v for _v in _flk_seen if _v.lstrip("+-") in _flk_doc]
+_flk_head = _flk_doc.split("## ①")[0] if "## ①" in _flk_doc else ""
+_flk_ok3 = (len(_flk_nums_ok) == len(_flk_seen)
+            and "لم يُحسَب قطّ" in _flk_head
+            and "المُعبَّأة في الطرفين" in _flk_head)
+check("🩸🪜🔒 FLK3 §⓪ يُعلن التلوّثَ **بأرقامه** ويُصرّح أن المقامَ الزوجيَّ "
+      "لم يُحسَب قطّ",
+      _flk_ok3, f"أرقامٌ حاضرة={len(_flk_nums_ok)}/{len(_flk_seen)} · "
+                f"طولُ §⓪={len(_flk_head)}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
