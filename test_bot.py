@@ -48185,6 +48185,123 @@ check("🪜🩸🔒 FLA10 الإغلاقُ مُنفَّذٌ: `main()` يُرجع
                  f"حارس={_fla_guard_on}⟶{_fla_guard_off} · نتيجة={len(_fla_res)}ح")
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🕵️📈 `T-OPCURVE` — أقفالُ العقد (‏«سجل المنحنى»، أمرُ المالك 2026-09-15)
+#   العقدُ `opcurve_prereg.md` مدفوعٌ **قبل أيّ سطرِ أداةٍ وقبل أيّ رقم**، فالأقفالُ
+#   هنا تحرس **الوثيقة** وآليّتَها الحيّة — لا أداةً بعد.
+#   🔒 وأسماءٌ خاصّةٌ بالكتلة (`_ock_*`) فلا تُظلَّل أسماءُ السويّة (‏الصنفُ ①).
+# ══════════════════════════════════════════════════════════════════════════
+try:
+    _ock_doc = open("opcurve_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _ock_doc = f"⛔ {type(_e).__name__}"
+
+
+def _ock_sec(a, b):
+    """نصُّ القسم بين عنوانَين — «» إن غاب أحدُهما (فاشلٌ-آمن)."""
+    if a in _ock_doc and b in _ock_doc:
+        return _ock_doc.split(a, 1)[1].split(b, 1)[0]
+    return ""
+
+
+# 🔴 `OCK0` — **بنيويٌّ لا عضويّة** (درسُ `RKK0`/`FLK0`): كلُّ مقياسٍ في **صفّه**
+#    من جدول §③ · وقاعدتا §⑦ كلٌّ في **بندها** · والحرّاسُ التسعةُ في **جدولهم**.
+_ock_s3 = _ock_sec("## ③", "## ④")
+_ock_rows3 = [_l for _l in _ock_s3.splitlines()
+              if _l.startswith("| **`") and _l.count("|") >= 4]
+_ock_metrics = ("up_h", "dn_h", "ret_h", "up_reg", "up_ext", "t_peak",
+                "dd_pre_peak", "t_hit10", "t_stop", "pm_last")
+_ock_m_ok = [_m for _m in _ock_metrics
+             if any(f"`{_m}`" in _l.split("|")[1] for _l in _ock_rows3)]
+_ock_s7 = _ock_sec("## ⑦", "## ⑧")
+_ock_rules = [_l for _l in _ock_s7.splitlines()
+              if _l.startswith("- **قاعدةُ ")]
+_ock_r_ok = [_r for _r in ("`W`", "`O`")
+             if sum(1 for _l in _ock_rules if _r in _l) == 1]
+_ock_s5 = _ock_sec("## ⑤", "## ⑥")
+_ock_g_rows = [_l for _l in _ock_s5.splitlines()
+               if _l.startswith("| `V-C") and _l.count("|") >= 4]
+_ock_g_ok = [f"V-C{_i}" for _i in range(1, 10)
+             if any(f"`V-C{_i}`" in _l for _l in _ock_g_rows)]
+_ock_ok0 = (len(_ock_m_ok) == len(_ock_metrics) and len(_ock_r_ok) == 2
+            and len(_ock_rules) == 2 and len(_ock_g_ok) == 9
+            and len(_ock_g_rows) == 9)
+check("🕵️📈🔒 OCK0 عقدُ `T-OPCURVE`: مقاييسُ §③ كلٌّ في صفّه · قاعدتا §⑦ `W`/`O` "
+      "كلٌّ في بندها · وحرّاسُ `V-C1`-`V-C9` في جدولهم",
+      _ock_ok0, f"مقاييس={len(_ock_m_ok)}/{len(_ock_metrics)} · قواعد={_ock_r_ok} "
+                f"({len(_ock_rules)}) · حرّاس={len(_ock_g_ok)}/{len(_ock_g_rows)}")
+
+# 🔴 `OCK1` — §⓪ يُعلن التلوّثَ **بأرقامه** ويُسمّي التقاطعَ البعديّ · و§③ يُصرّح
+#    بعدم حساب «‏+10% قبل الوقف» مركَّبًا (وإلّا تلوّث حكمُ `T-OPTRADE`).
+_ock_s0 = _ock_sec("## ⓪", "## ①")
+_ock_seen = ("10.8%", "+8.5%", "−4.4%", "+5.2%")
+_ock_n_ok = [_x for _x in _ock_seen if _x in _ock_s0]
+_ock_ok1 = (len(_ock_n_ok) == 4 and "بعديّة" in _ock_s0
+            and "لا يُحسَب" in _ock_s3 and "قبل الوقف» مركَّبًا" in _ock_s3)
+check("🕵️📈🔒 OCK1 §⓪ يُعلن التلوّثَ **بأرقامه** ويُسمّي التقاطعَ البعديّ · و§③ "
+      "يُصرّح بعدم حساب «‏+10% قبل الوقف» مركَّبًا",
+      _ock_ok1, f"أرقامٌ حاضرة={len(_ock_n_ok)}/4 · بعديّة={'بعديّة' in _ock_s0} · "
+                f"لا مركَّب={'قبل الوقف» مركَّبًا' in _ock_s3}")
+
+# 🔴 `OCK2` — **الآليّةُ من الكود الحيّ لا من نصّ العقد** (درسُ `RKK2`/`T-RSI40 §⑦`):
+#    (أ) الدوالُّ المستورَدةُ بالاسم موجودة · (ب) `full_day_max` تُعيد **زمنَ** القمّة
+#    و`exit_point` زمنَ الكسر (سلوكيًّا على فِكستشر) · (ج) `true_e5` تُعيد `None`
+#    بلا شمعةِ خمس · (د) `SHIP_ISO` في الكود يطابق نصَّ §② · (هـ) `pctile` رتبةٌ أقرب.
+try:
+    import tierlink_probe as _ock_tl
+    import liq_trig_read as _ock_ltr
+    import btcost_arms as _ock_bt
+    from sym_day_probe import full_day_max as _ock_fdm, exit_point as _ock_ep
+    from tier_days_report import true_e5 as _ock_e5
+    _ock_has = all(callable(getattr(_ock_tl, _n, None))
+                   for _n in ("anchor_history", "features", "daily_range", "measure"))
+    _ock_t0 = 1_700_000_000_000
+    _ock_bars = [(_ock_t0 + _i * 60_000, 1.0, _h, _lo, _c, 100.0)
+                 for _i, (_h, _lo, _c) in enumerate(
+                     [(1.02, 0.99, 1.00),    # i=0 (= t0 نفسُه — يُتجاهَل)
+                      (1.10, 1.00, 1.05),    # i=1
+                      (1.30, 1.04, 1.20),    # i=2 القمّة
+                      (1.21, 0.90, 0.95),    # i=3 كسرُ القاع (إغلاقٌ دون 0.98)
+                      (1.00, 0.85, 0.90)])]  # i=4
+    _ock_best, _ock_at = _ock_fdm(_ock_bars, _ock_t0, 1.0)
+    _ock_xc, _ock_xt = _ock_ep(_ock_bars, _ock_t0, 0.98)
+    _ock_none5 = _ock_e5([(_ock_t0, 1.0, 1.0, 1.0, 1.0, 1.0)], _ock_t0, 1.0)
+    _ock_ship = str(getattr(_ock_ltr, "SHIP_ISO", ""))
+    _ock_p75 = _ock_bt.pctile([10, 20, 30, 40, 50], 75)
+    _ock_ok2 = (_ock_has
+                and abs(_ock_best - 30.0) < 1e-9 and _ock_at == _ock_t0 + 2 * 60_000
+                and _ock_xc == 0.95 and _ock_xt == _ock_t0 + 3 * 60_000
+                and _ock_none5 == (None, False)
+                and _ock_ship == "2026-09-09T15:26:30Z" and _ock_ship in _ock_doc
+                and _ock_p75 == 40)
+    _ock_why2 = (f"دوالّ={_ock_has} · قمّة=({_ock_best},{_ock_at == _ock_t0 + 120_000}) · "
+                 f"كسر=({_ock_xc},{_ock_xt == _ock_t0 + 180_000}) · e5بلا خمس={_ock_none5} · "
+                 f"SHIP={_ock_ship}∈العقد={_ock_ship in _ock_doc} · p75={_ock_p75}")
+except Exception as _e:                                          # noqa: BLE001
+    _ock_ok2, _ock_why2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCK2 آليّةُ `T-OPCURVE` من الكود الحيّ: الدوالُّ بالاسم · `full_day_max` "
+      "تُعيد زمنَ القمّة · `exit_point` زمنَ الكسر · `true_e5` تُعيد None بلا خمس · "
+      "`SHIP_ISO` يطابق العقد · `pctile` رتبةٌ أقرب",
+      _ock_ok2, _ock_why2)
+
+# 🔴 `OCK3` — التنبّؤاتُ السبعةُ كلٌّ في **سطره** · والقائمةُ المُغلَقة في §④ تحمل
+#    السلالَ الثماني بأسمائها · و`H2` = 2026-09-01 مكتوبٌ فيها.
+_ock_s6 = _ock_sec("## ⑥", "## ⑦")
+_ock_cps = [_l for _l in _ock_s6.splitlines() if _l.startswith("- **`CP")]
+_ock_cp_ok = [f"CP{_i}" for _i in range(1, 8)
+              if sum(1 for _l in _ock_cps if f"`CP{_i}`" in _l) == 1]
+_ock_s4 = _ock_sec("## ④", "## ⑤")
+_ock_buckets = ("`الكلّ`", "`trig`", "`tod`", "`tier`", "`j1`", "`gap`",
+                "`pre ∧ gap≥30%`", "`exploded50`")
+_ock_b_ok = [_b for _b in _ock_buckets if _b in _ock_s4]
+_ock_ok3 = (len(_ock_cps) == 7 and len(_ock_cp_ok) == 7
+            and len(_ock_b_ok) == 8 and "2026-09-01" in _ock_s4)
+check("🕵️📈🔒 OCK3 التنبّؤاتُ `CP1`-`CP7` سبعةٌ كلٌّ في سطره · وسلالُ §④ الثماني "
+      "بأسمائها · و`H2` = 2026-09-01 مكتوبٌ",
+      _ock_ok3, f"تنبّؤات={len(_ock_cps)}/{len(_ock_cp_ok)} · "
+                f"سلال={len(_ock_b_ok)}/8 · H2={'2026-09-01' in _ock_s4}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
