@@ -1159,5 +1159,20 @@
   "usd_eff": 27382,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "GVH",
+  "date": "2026-09-15",
+  "sustain_min": 4,
+  "operator_ok": false,
+  "fired_at": "2026-09-15T20:01:02Z",
+  "break_level": 1.15,
+  "price": 1.265,
+  "vol_x": 5.9,
+  "usd": 34697,
+  "candle_class": "group",
+  "usd_eff": 34697,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
