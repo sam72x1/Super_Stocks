@@ -47791,15 +47791,17 @@ _flk_brs = [_l for _l in _flk_sec4.splitlines()
             if _l.lstrip().startswith("- **الفرعُ ")]
 _flk_nums = [_n for _n in ("1", "2", "3")
              if any(f"الفرعُ {_n} " in _l for _l in _flk_brs)]
+_flk_crows = [_l for _l in _flk_sec4.splitlines()
+              if _l.startswith("| **`FO") and _l.count("|") >= 4]
 _flk_crit = [_c for _c in ("FO1", "FO2", "FO3")
-             if _flk_doc.count(f"`{_c}`") >= 2]
+             if any(f"`{_c}`" in _l for _l in _flk_crows)]
 _flk_ok0 = (len(_flk_brs) == 3 and len(_flk_nums) == 3
-            and len(_flk_crit) == 3
+            and len(_flk_crit) == 3 and len(_flk_crows) == 3
             and "لا حكم" in " ".join(_flk_brs))
 check("🩸🪜🔒 FLK0 عقدُ `T-FILLOFF`: ثلاثةُ فروعٍ **كلٌّ في سطره** ومعاييرُ "
       "`FO1`/`FO2`/`FO3` مسمّاة",
       _flk_ok0, f"فروع(§④)={len(_flk_brs)} · مرقّمة={_flk_nums} · "
-                f"معايير={_flk_crit} · طولُ§④={len(_flk_sec4)}")
+                f"معاييرُ الجدول={_flk_crit} · صفوف={len(_flk_crows)}")
 
 # 🔴 `FLK1` — حرّاسُ الصلاحية التسعةُ كلُّها مذكورةٌ **في جدولها** لا في نثرٍ عابر.
 _flk_gates = [f"V-O{_i}" for _i in range(1, 10)]
@@ -47842,12 +47844,31 @@ try:
             _flk_both = isinstance(_n.value, _flk_ast.ListComp)
 except Exception:                                                # noqa: BLE001
     _flk_both = False
-_flk_ok2 = (_flk_bit and _flk_k1 and _flk_moves and _flk_both
+# 🔬 سلوكيًّا: صفّان عبّأهما الطرفان ‏+ صفٌّ عبّأه الأساسُ وحدَه ⇒ المقامُ **‏2**
+_flk_pair = ""
+try:
+    def _flk_row(_d, _ra, _rs):
+        return {"entry_model": "sweep_confirmed", "date": _d, "symbol": "AAA",
+                "outcome": "win" if _ra > 0 else "loss", "ret_a": _ra,
+                "ret_b": _ra, "outcome_b": "win" if _ra > 0 else "loss",
+                "outcome_sweep": (None if _rs is None else
+                                  ("win" if _rs > 0 else "loss")),
+                "ret_sweep_a": _rs, "ret_sweep_b": _rs,
+                "fill_reason_sweep": ("no_sweep" if _rs is None else "ok")}
+    _flk_pair = "\n".join(S.backtest_sweep_compare(
+        [_flk_row("2025-01-02", -8.0, 4.0), _flk_row("2025-02-03", 5.0, 9.0),
+         _flk_row("2025-03-04", -3.0, None)]))
+except Exception as _e:                                          # noqa: BLE001
+    _flk_pair = f"⛔ {type(_e).__name__}"
+_flk_den = ("المُعبَّأة في الطرفين (2)" in _flk_pair
+            and "المُعبَّأة في الطرفين (3)" not in _flk_pair)
+_flk_ok2 = (_flk_bit and _flk_k1 and _flk_moves and _flk_both and _flk_den
             and "_mean_lo95(da)" in _flk_sw)
 check("🩸🪜🔒 FLK2 آليّةُ `T-FILLOFF` **من الكود الحيّ**: `ret_at(·,·,0,0)` بت-بت "
       "وتتحرّك عند التكلفة · و`backtest_sweep_compare` تحكم على المُعبَّأة في الطرفين",
       _flk_ok2, f"هُويّة={_flk_bit} · k(0)=1:{_flk_k1} · تتحرّك={_flk_moves} · "
-                f"both={_flk_both} · مصدر={len(_flk_sw)}ح")
+                f"both={_flk_both} · المقامُ الزوجيُّ={_flk_den} · "
+                f"مصدر={len(_flk_sw)}ح")
 
 # 🔴 `FLK3` — **التلوّثُ مُعلَنٌ بأرقامه** لا بكلمةِ «تلوّث»: §⓪ يحمل الأرقامَ التي
 #    رأيتُها فعلًا، **ويقول صراحةً إن المقامَ الزوجيَّ لم يُحسَب قطّ**.
