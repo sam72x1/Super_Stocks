@@ -1,0 +1,82 @@
+name: T-FILLOFF (إزاحةُ التعبئة على المقام الزوجيّ)
+
+# 🪜🩸 العقد `filloff_prereg.md`: هل تُغيّر تكلفةُ التنفيذ المقيسة حكمَ
+#    `PR-SWEEP` على **المقام الذي حُكم عليه فعلًا** («المُعبَّأة في الطرفين»)؟
+# 🔒 **قراءةٌ/بحثٌ فقط:** المعيارُ السداسيُّ لا يُعاد كتابتُه —
+#    `backtest_sweep_compare` **تُنادى بالاسم** وحكمُها هو الأوراكل.
+# 🔕 بلا كرون · **بلا سرِّ تلغرام** فالإرسالُ مستحيلٌ بنيويًّا · **ولا مفتاحَ
+#    مزوّدٍ أصلًا** فالجلبُ مستحيلٌ كذلك · وصفرُ مشيةِ باكتيست.
+# ⛔ **ولا تبنّي تحت أيّ فرع:** ملفُّ `T1b` مُغلَقٌ بنصّ `§0-ل`، وهذي تدقيقُ
+#    تكلفةٍ لحكمٍ قائم لا نموذجُ دخول.
+
+permissions:
+  contents: read
+  actions: read          # 🕰️ لتنزيل أرتيفكتَي التشغيلتين وحدهما
+
+on:
+  workflow_dispatch:
+    inputs:
+      trades_run_id:
+        description: "تشغيلةُ T-FCOST التي رفعت fcost_trades_*.json"
+        required: true
+        default: "34751099730"
+      legs_run_id:
+        description: "تشغيلةُ T-BTCOST التي رفعت btcost_legs.jsonl"
+        required: true
+        default: "34942262597"
+      dry:
+        description: "وضعُ الجدوى (V-O4 وحدَه · بلا Δ وبلا حكم)"
+        type: boolean
+        default: false
+
+jobs:
+  filloff:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # 🔒 `V-O6` يقرأ `origin/main`
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: تنزيلُ المصدرين
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IN_TR: ${{ github.event.inputs.trades_run_id }}
+          IN_LEGS: ${{ github.event.inputs.legs_run_id }}
+        run: |
+          set -euo pipefail
+          for v in "$IN_TR" "$IN_LEGS"; do
+            printf '%s' "$v" | grep -Eq '^[0-9]{6,20}$' \
+              || { echo "⛔ رقمُ تشغيلةٍ غيرُ صالح"; exit 2; }
+          done
+          gh run download "$IN_TR" -D dl_tr -R "$GITHUB_REPOSITORY"
+          gh run download "$IN_LEGS" -D dl_legs -R "$GITHUB_REPOSITORY"
+          d="$(dirname "$(find dl_tr -name 'fcost_trades_2025.json' | head -1)")"
+          lp="$(find dl_legs -name 'btcost_legs.jsonl' | head -1)"
+          test -n "$d" -a "$d" != "." || { echo "⛔ لا fcost_trades_*.json"; exit 2; }
+          test -n "$lp" || { echo "⛔ لا btcost_legs.jsonl"; exit 2; }
+          for y in 2023 2024 2025; do
+            test -f "$d/fcost_trades_$y.json" \
+              || { echo "⛔ ناقص: fcost_trades_$y.json"; exit 2; }
+          done
+          echo "FILLOFF_TRADES_DIR=$(realpath "$d")" >> "$GITHUB_ENV"
+          echo "FILLOFF_LEGS=$(realpath "$lp")" >> "$GITHUB_ENV"
+          echo "📌 $d · $lp"
+
+      - name: قياسُ الإزاحة
+        env:
+          FILLOFF_DRY: ${{ github.event.inputs.dry == 'true' && '1' || '0' }}
+        run: python3 filloff_arms.py
+
+      - name: رفعُ الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: filloff-${{ github.run_id }}
+          path: filloff_rows.jsonl
+          if-no-files-found: warn
