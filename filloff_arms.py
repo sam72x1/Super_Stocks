@@ -52,6 +52,24 @@ ROOTS = ("rank_key", "select_top", "classify_tier", "analyze_ticker",
 RC_INPUT, RC_SELF, RC_ART = 2, 3, 4
 RC_VO1, RC_VO2, RC_VO4, RC_NOVERDICT = 5, 6, 7, 9
 
+# 🔒 **الإغلاق (‏§⑨ من العقد):** صدر **الفرعُ 1** ⇒ المحورُ مُغلَق. ورمزُ ‏8
+#    **متمايزٌ عمدًا** عن رموز القياس أعلاه فلا يُقرأ الإغلاقُ خللًا في السجلّ.
+CLOSED_RC = 8
+CLOSED_NOTE = (
+    "🔒 **`T-FILLOFF` مُغلَقة — الفرعُ 1 صدر (`filloff_result.md`).**\n"
+    "   التكلفةُ المقيسة لا تُبطل حكمَ `PR-SWEEP` على المقام الزوجيّ: "
+    "`FO1`/`FO2`/`FO3` عبرت، والبندُ 2 أُغلق لهذا الزوج.\n"
+    "   🔓 **وشرطُ الفتح ثلاثةٌ معًا:** ① محورٌ جديدٌ لم يُقَس — أو مصدرُ تكلفةٍ "
+    "أدقُّ من قمّة الدفتر، أو نمذجةُ «اللمسُ ليس تعبئة» ② تسجيلٌ مسبقٌ جديد "
+    "(العقدُ مدموجٌ لا يُعدَّل) ③ **إذنُ المالك**.\n"
+    "   ⛔ وإعادةُ نقطةِ تكلفةٍ أو سنةٍ أو عتبةٍ **ليست محورًا**.")
+
+
+def _closed_guard() -> bool:
+    """`True` = مُغلَقة. تُرفَع **بإقرارٍ صريح** لا بالتفاف."""
+    return (os.environ.get("FILLOFF_REOPEN") or "").strip() != "1"
+
+
 # 🧩 أزواجُ (نتيجة، عائد) — التكلفةُ تُطبَّق على العائد وحدَه
 RET_FIELDS = (("outcome", "ret_a"), ("outcome_b", "ret_b"),
               ("outcome_sweep", "ret_sweep_a"),
@@ -349,6 +367,11 @@ def evaluate(rows, c, s, ret_at, sweep_compare, mean_lo95) -> dict:
 
 
 def main() -> int:
+    # 🔒 **إغلاقٌ مُنفَّذٌ لا مكتوب** — قبل قراءةِ مدخلٍ أو فتحِ أرتيفكتٍ أو
+    #    إطلاقِ أيّ عملية، فلا يُعاد التشغيلُ بحثًا عن جوابٍ آخر.
+    if _closed_guard():
+        _log(CLOSED_NOTE)
+        return CLOSED_RC
     dry = (os.environ.get("FILLOFF_DRY") or "").strip() == "1"
     base_dir = (os.environ.get("FILLOFF_TRADES_DIR") or "").strip()
     legs_path = (os.environ.get("FILLOFF_LEGS") or LEGS_DEFAULT).strip()

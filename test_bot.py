@@ -48133,6 +48133,51 @@ check("🪜🩸🔒 FLA9 وضعُ الجدوى **يعود قبل** بناء تق
       _fla_w9, f"نهايةُ فرع dry={_fla_end9} · سطرُ ev1={_fla_ev1}")
 
 
+# 🔴 `FLA10` — **الإغلاقُ مُنفَّذٌ لا مكتوب** (‏§⑨ · الفرعُ 1 صدر): ثلاثةُ أشقّ
+#    سلوكيّة — ① `main()` يُرجع **‏8** بلا أن يقرأ مدخلًا أو يفتح أرتيفكتًا أو
+#    يُطلق عمليةً (تحقّقٌ **بأسلاكِ تعثّرٍ** تُعدّ النداءات: صفر) · ② والإقرارُ
+#    **يرفع الحارسَ فعلًا** · ③ وملفُّ النتيجة يحمل شروطَ الفتح الثلاثة.
+_fla_trip = []
+_fla_names = ("roots_identical", "load_trades", "medians_from_legs",
+              "no_fetch_ok", "no_config_write_ok", "evaluate")
+_fla_orig = {}
+try:
+    for _n in _fla_names:
+        _fla_orig[_n] = getattr(_FLA, _n)
+
+        def _wire(*_a, _n=_n, **_k):
+            _fla_trip.append(_n)
+            raise AssertionError(f"سلكُ تعثّرٍ: {_n} نُودي مُغلَقًا")
+        setattr(_FLA, _n, _wire)
+    _fla_env0 = _fla_os.environ.pop("FILLOFF_REOPEN", None)
+    _fla_rc10 = _FLA.main()
+    _fla_guard_on = _FLA._closed_guard()
+    _fla_os.environ["FILLOFF_REOPEN"] = "1"
+    _fla_guard_off = _FLA._closed_guard()
+except Exception as _e:                                          # noqa: BLE001
+    _fla_rc10 = f"⛔ {type(_e).__name__}"
+    _fla_guard_on = _fla_guard_off = None
+finally:
+    for _n, _f in _fla_orig.items():
+        setattr(_FLA, _n, _f)
+    _fla_os.environ.pop("FILLOFF_REOPEN", None)
+try:
+    _fla_res = open("filloff_result.md", encoding="utf-8").read()
+except Exception:                                                # noqa: BLE001
+    _fla_res = ""
+_fla_ok10 = (_fla_rc10 == 8 and _fla_rc10 == _FLA.CLOSED_RC
+             and not _fla_trip
+             and _fla_guard_on is True and _fla_guard_off is False
+             and "الفرعُ 1" in _FLA.CLOSED_NOTE
+             and "إذنُ المالك" in _fla_res
+             and "محورٌ جديدٌ لم يُقَس" in _fla_res
+             and "تسجيلٌ مسبقٌ جديد" in _fla_res)
+check("🪜🩸🔒 FLA10 الإغلاقُ مُنفَّذٌ: `main()` يُرجع ‏8 **بصفرِ نداءٍ** (أسلاكُ "
+      "تعثّر) · والإقرارُ يرفع الحارسَ فعلًا · وشروطُ الفتح الثلاثةُ في النتيجة",
+      _fla_ok10, f"rc={_fla_rc10} · تعثّر={_fla_trip or 'صفر'} · "
+                 f"حارس={_fla_guard_on}⟶{_fla_guard_off} · نتيجة={len(_fla_res)}ح")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
