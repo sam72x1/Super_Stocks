@@ -47884,6 +47884,255 @@ check("🩸🪜🔒 FLK3 §⓪ يُعلن التلوّثَ **بأرقامه** و
                 f"طولُ §⓪={len(_flk_head)}")
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🪜🩸 `T-FILLOFF` — أقفالُ الأداة (أمرُ المالك «ابن الاداة»، 2026-09-15)
+#   العقدُ `filloff_prereg.md` مدموجٌ سلفًا · والأداةُ `filloff_arms.py` قراءةٌ
+#   فقط. 🔒 وأسماءٌ خاصّةٌ بالكتلة (`_fla_*`) فلا تُظلَّل أسماءُ السويّة (①).
+#   ⛔ **ولا يُنادى `main()` هنا**: ينادي `roots_identical` الذي يقرأ
+#      `origin/main` ⇒ قفلٌ يفترض شجرةً نظيفةً يُحمّر البوّابةَ على كلّ تعديل
+#      (درسُ `RSK3`) — فالأقفالُ على الدوالّ النقيّة والبنية.
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _fla_ast
+import hashlib as _fla_h
+import inspect as _fla_insp
+import os as _fla_os
+import shutil as _fla_sh
+import yaml as _fla_yaml
+import fcost_arms as _fla_fc
+import filloff_arms as _FLA
+
+_fla_src = _fla_insp.getsource(_FLA)
+
+
+def _fla_row(sym, day, ra, rs):
+    """صفُّ محرّكٍ مصغَّر — `rs is None` = الأساسُ وحدَه عبّأ."""
+    def _oc(r):
+        return None if r is None else ("win" if r > 0 else "loss")
+    return {"symbol": sym, "date": day, "entry_model": "sweep_confirmed",
+            "outcome": _oc(ra), "ret_a": ra, "outcome_b": _oc(ra), "ret_b": ra,
+            "outcome_sweep": _oc(rs) if rs is not None else "no_sweep",
+            "ret_sweep_a": rs,
+            "outcome_sweep_b": _oc(rs) if rs is not None else "no_sweep",
+            "ret_sweep_b": rs,
+            "fill_reason_sweep": "ok" if rs is not None else "no_sweep"}
+
+
+# 🔴 `FLA0` — **التكلفةُ على العوائد وحدَها**، و`(0,0)` هُويّةٌ **بت-بت**،
+#    وعائدٌ بنتيجةٍ ليست win/loss **لا يُكتَب فوقه بل يُعدّ**.
+_fla_base = [_fla_row("A", "2024-01-02", -8.0, 4.0),
+             _fla_row("B", "2024-02-03", 5.0, None)]
+_fla_odd = dict(_fla_base[0])
+_fla_odd.update({"symbol": "C", "outcome": "stuck", "ret_a": -3.5})
+_fla_in = _fla_base + [_fla_odd]
+try:
+    _fla_z, _fla_n_odd = _FLA.rows_at(_fla_in, 0.0, 0.0, _fla_fc.ret_at)
+    _fla_m, _ = _FLA.rows_at(_fla_in, 0.018018, -0.004587, _fla_fc.ret_at)
+    # (‏0,0) هُويّةٌ بت-بت على كلّ حقلِ عائد
+    _fla_id = all(_fla_z[i].get(k) == _fla_in[i].get(k)
+                  for i in range(len(_fla_in))
+                  for _, k in _FLA.RET_FIELDS)
+    # والتكلفةُ تُحرّك فعلًا (فلا يكون القفلُ «صحيحٌ دائمًا»)
+    _fla_mv = (_fla_m[0]["ret_a"] != _fla_in[0]["ret_a"])
+    # والحقولُ غيرُ العائدية بت-بت في الحالتين
+    _fla_sig = (_FLA.nonret_signature(_fla_in)
+                == _FLA.nonret_signature(_fla_m)
+                == _FLA.nonret_signature(_fla_z))
+    # والصفُّ «العالق» عائدُه كما هو ومعدودٌ مرّةً واحدة
+    _fla_keep = (_fla_m[2]["ret_a"] == -3.5 and _fla_n_odd == 1)
+    # ولا يُمَسّ المدخلُ (المرجعُ الخام يبقى للمقارنة)
+    _fla_pure = (_fla_in[0]["ret_a"] == -8.0)
+except Exception as _e:                                          # noqa: BLE001
+    _fla_id = _fla_mv = _fla_sig = _fla_keep = _fla_pure = False
+    _fla_n_odd = f"⛔ {type(_e).__name__}"
+check("🪜🩸🔒 FLA0 `rows_at`: (0,0) هُويّةٌ بت-بت · والتكلفةُ تُحرّك · والحقولُ "
+      "غيرُ العائدية والعالقُ لا تُمَسّ (ويُعدّ) · والمدخلُ نقيّ",
+      _fla_id and _fla_mv and _fla_sig and _fla_keep and _fla_pure,
+      f"هُويّة={_fla_id} · تتحرّك={_fla_mv} · بصمة={_fla_sig} · "
+      f"عالق={_fla_keep}/{_fla_n_odd} · نقاء={_fla_pure}")
+
+# 🔴 `FLA1` — **المقامُ الزوجيّ سلوكيًّا**: صفّان عبّأهما الطرفان ‏+ صفٌّ للأساس
+#    وحدَه ⇒ `n_both` = 2 لا 3 · والرِّجالُ **سبعٌ** والعقدُ يسرد ستًّا فالتفاوتُ
+#    **مُعلَنٌ في الدوكسترنغ** (‏`na ≥ 5` = الرِّجلُ ⓪).
+try:
+    _fla_l = _FLA.legs_of(
+        [_fla_row("A", "2024-01-02", -8.0, 4.0),
+         _fla_row("B", "2024-02-03", 5.0, 9.0),
+         _fla_row("C", "2024-03-04", -3.0, None)], S._mean_lo95)
+    _fla_both2 = (_fla_l["n_both"] == 2 and _fla_l["n_bf"] == 3
+                  and _fla_l["n_sf"] == 2)
+    _fla_seven = (len(_FLA.LEG_NAMES) == 7
+                  and set(_fla_l["legs"]) == set(_FLA.LEG_NAMES))
+    _fla_decl = ("na ≥ 5" in _FLA.__doc__ and "ستَّ" in _FLA.__doc__)
+    # ولا يُعاد حسابُ فاصل الثقة محلّيًّا (لا ثابتَ 1.96 في الملفّ)
+    _fla_no196 = ("1.96" not in _fla_src)
+    _fla_none = (_FLA.legs_of([{"entry_model": "x"}], S._mean_lo95) is None)
+except Exception as _e:                                          # noqa: BLE001
+    _fla_both2 = _fla_seven = _fla_decl = _fla_no196 = _fla_none = False
+check("🪜🩸🔒 FLA1 `legs_of`: المقامُ الزوجيُّ يَعُدّ المُعبَّأة في الطرفين وحدَها · "
+      "والرِّجالُ سبعٌ والتفاوتُ عن §④ مُعلَن · وفاصلُ الثقة من الإنتاج لا محلّيًّا",
+      _fla_both2 and _fla_seven and _fla_decl and _fla_no196 and _fla_none,
+      f"زوجيّ2={_fla_both2} · سبع={_fla_seven} · مُعلَن={_fla_decl} · "
+      f"لا1.96={_fla_no196} · لاسويب={_fla_none}")
+
+# 🔴 `FLA2` — `verdict_of` **جدولُ حقيقة**: صيغةٌ واحدةٌ تحكم، والاثنتان معًا أو
+#    غيابُهما = `none` (فلا يُخمَّن حكمٌ من نصٍّ مبهم).
+_fla_v = [(["الحكم الأولي: مبدئيًا يتبنّى الدخول"], "adopt"),
+          (["الحكم الأولي: مبدئيًا يُرفض ويُقفل"], "reject"),
+          (["يتبنّى", "يُرفض"], "none"),
+          ([], "none"), (["لا شيء"], "none"), (None, "none")]
+_fla_bad2 = [str(a) for a, e in _fla_v if _FLA.verdict_of(a) != e]
+check("🪜🩸🔒 FLA2 `verdict_of` جدولُ حقيقة (6 حالات): الاثنتان معًا أو غيابُهما "
+      "⟶ `none` ولا يُخمَّن",
+      not _fla_bad2, f"الفاشلة: {_fla_bad2[:3]}")
+
+# 🔴 `FLA3` — `read_verdict` **بحرف §④**: الصلاحيّةُ أوّلًا · وسقوطُ **أيٍّ** من
+#    الثلاثة ⟶ الفرعُ 2 (لا «لا حكم») · والفرعُ 1 يلزمه الثلاثةُ معًا.
+_fla_T = True
+_fla_cases = [
+    ({"gates_ok": False, "FO1": _fla_T, "FO2": _fla_T, "FO3": _fla_T}, 3),
+    ({"gates_ok": _fla_T, "FO1": _fla_T, "FO2": _fla_T, "FO3": _fla_T}, 1),
+    ({"gates_ok": _fla_T, "FO1": False, "FO2": _fla_T, "FO3": _fla_T}, 2),
+    ({"gates_ok": _fla_T, "FO1": _fla_T, "FO2": False, "FO3": _fla_T}, 2),
+    ({"gates_ok": _fla_T, "FO1": _fla_T, "FO2": _fla_T, "FO3": False}, 2),
+    ({"gates_ok": _fla_T, "FO1": False, "FO2": False, "FO3": False}, 2),
+    ({"gates_ok": _fla_T, "FO1": _fla_T, "FO2": _fla_T}, 3),
+    ({"gates_ok": _fla_T}, 3),
+]
+_fla_bad3 = [str(c) for c, e in _fla_cases
+             if _FLA.read_verdict(c)[0] != e]
+check("🪜🩸🔒 FLA3 `read_verdict` جدولُ حقيقة (8 حالات): الصلاحيّةُ أوّلًا · "
+      "وسقوطُ أيٍّ من الثلاثة **الفرعُ 2** لا «لا حكم»",
+      not _fla_bad3, f"الفاشلة: {_fla_bad3[:2]}")
+
+# 🔴 `FLA4` — `failing` موضوعُ `FO2`: **حكمٌ واحدٌ برِجلٍ مختلفة نتيجةٌ أخرى.**
+_fla_a = {"L0_na": True, "L1_la": False, "L2_mb": True, "L3_cv_ge_av": True,
+          "L4_cv_pos": True, "L5_fill": False, "L6_year": True}
+_fla_b = dict(_fla_a, L1_la=True, L4_cv_pos=False)
+_fla_f4 = (_FLA.failing(_fla_a) == frozenset({"L1_la", "L5_fill"})
+           and _FLA.failing(_fla_b) == frozenset({"L4_cv_pos", "L5_fill"})
+           and _FLA.failing(_fla_a) != _FLA.failing(_fla_b)
+           and _FLA.failing({n: True for n in _FLA.LEG_NAMES}) == frozenset())
+check("🪜🩸🔒 FLA4 `failing`: مجموعةُ الرِّجال الساقطة تفرّق بين حالتَين حكمُهما "
+      "واحدٌ ⇒ `FO2` ليست إعادةَ صياغةٍ لـ`FO1`",
+      _fla_f4, f"a={sorted(_FLA.failing(_fla_a))} · b={sorted(_FLA.failing(_fla_b))}")
+
+# 🔴 `FLA5` — الحرّاسُ الذاتيّةُ **سلوكيّةٌ بشاهدِ ضبط**: تمرّ على الملفّ النظيف
+#    **وتُمسك** جالبًا/إسنادَ `CONFIG` مزروعًا في نسخةٍ مؤقّتة.
+_fla_g5 = []
+try:
+    _fla_ok_f, _ = _FLA.no_fetch_ok()
+    _fla_ok_c, _ = _FLA.no_config_write_ok()
+    _fla_g5 = [_fla_ok_f, _fla_ok_c]
+    _fla_dir = f"/tmp/fla_probe_{_fla_h.md5(_fla_os.getcwd().encode()).hexdigest()[:8]}"
+    _fla_sh.rmtree(_fla_dir, ignore_errors=True)
+    _fla_os.makedirs(_fla_dir, exist_ok=True)
+    for _nm, _inj in (("fetch", "import requests\n"),
+                      ("cfg", "CONFIG['X'] = 1\n")):
+        _pp = _fla_os.path.join(_fla_dir, f"probe_{_nm}.py")
+        open(_pp, "w", encoding="utf-8").write(_inj + _fla_src)
+        _t = _fla_ast.parse(open(_pp, encoding="utf-8").read())
+        # يُعاد تشغيلُ الفاحصَين على الشجرة المزروعة بتبديل `_own_tree`
+        _orig = _FLA._own_tree
+        try:
+            _FLA._own_tree = lambda _t=_t: _t
+            _fla_g5.append(not (_FLA.no_fetch_ok()[0]
+                                if _nm == "fetch"
+                                else _FLA.no_config_write_ok()[0]))
+        finally:
+            _FLA._own_tree = _orig
+    _fla_sh.rmtree(_fla_dir, ignore_errors=True)
+except Exception as _e:                                          # noqa: BLE001
+    _fla_g5 = [f"⛔ {type(_e).__name__}"]
+check("🪜🩸🔒 FLA5 حرّاسُ `V-O5`/`V-O7` سلوكيّةٌ: نظيفةٌ تمرّ · ومزروعةٌ تسقط "
+      "(شاهدا ضبطٍ يمنعان «صحيحٌ دائمًا»)",
+      _fla_g5 == [True, True, True, True], f"النتائج={_fla_g5}")
+
+# 🔴 `FLA6` — رموزُ الخروج **متمايزةٌ و‏8 هو الشاغرُ الوحيد** (محجوزٌ للإغلاق).
+_fla_rcs = [0, _FLA.RC_INPUT, _FLA.RC_SELF, _FLA.RC_ART, _FLA.RC_VO1,
+            _FLA.RC_VO2, _FLA.RC_VO4, _FLA.RC_NOVERDICT]
+_fla_codes = sorted(set(_fla_rcs))
+# 🔴 الرمزُ ‏1 رمزُ انهيارِ بايثون نفسِه ⇒ محجوزٌ **بالرنتايم لا بي**، ولا يصلح
+#    رمزَ إغلاقٍ أصلًا. والمضمونُ القابلُ للتكذيب: **تمايزُ المعلَنة و‏8 ليس فيها.**
+_fla_ok6 = (len(_fla_codes) == len(_fla_rcs) and 8 not in _fla_codes)
+check("🪜🩸🔒 FLA6 رموزُ الخروج المعلَنةُ متمايزةٌ و**‏8 ليس فيها** فيبقى شاغرًا "
+      "للإغلاق بلا تصادم (و‏1 رمزُ انهيارِ بايثون لا رمزُنا)",
+      _fla_ok6, f"المعلَنة={_fla_codes} · 8 فيها={8 in _fla_codes}")
+
+# 🔴 `FLA7` — الـworkflow: يدويٌّ بلا كرون · **بلا سرِّ تلغرام ولا مفتاحِ مزوّد**
+#    · صلاحيّاتٌ للقراءة · و`fetch-depth: 0` (بدونه `V-O6` أعمى).
+try:
+    _fla_wf_txt = open(".github/workflows/filloff.yml", encoding="utf-8").read()
+    _fla_wf = _fla_yaml.safe_load(_fla_wf_txt)
+    _fla_on = _fla_wf.get(True) or _fla_wf.get("on") or {}
+    _fla_perm = _fla_wf.get("permissions") or {}
+    _fla_w7 = (
+        "workflow_dispatch" in _fla_on and "schedule" not in _fla_on
+        and "TELEGRAM" not in _fla_wf_txt
+        and ("POLY" + "GON") not in _fla_wf_txt
+        and _fla_perm.get("contents") == "read"
+        and _fla_perm.get("actions") == "read"
+        and "fetch-depth: 0" in _fla_wf_txt
+        and "filloff_arms.py" in _fla_wf_txt)
+except Exception as _e:                                          # noqa: BLE001
+    _fla_w7 = False
+    _fla_wf_txt = f"⛔ {type(_e).__name__}"
+check("🪜🩸🔒 FLA7 `filloff.yml`: يدويٌّ بلا كرون · بلا سرِّ تلغرام ولا مفتاحِ "
+      "مزوّد · صلاحيّاتُ قراءة · و`fetch-depth: 0` لأجل `V-O6`",
+      _fla_w7, f"طول={len(_fla_wf_txt)}")
+
+# 🔴 `FLA8` — **الأوراكلُ يُنادى بالاسم والمعيارُ لا يُعاد كتابتُه** (AST):
+#    `backtest_sweep_compare` و`_mean_lo95` و`ret_at` مُشار إليها، و`evaluate`
+#    تمرّر مُخرَجَ الأوراكل إلى `verdict_of`.
+try:
+    _fla_t8 = _fla_ast.parse(_fla_src)
+    _fla_attrs = {n.attr for n in _fla_ast.walk(_fla_t8)
+                  if isinstance(n, _fla_ast.Attribute)}
+    _fla_ev = next(n for n in _fla_ast.walk(_fla_t8)
+                   if isinstance(n, _fla_ast.FunctionDef)
+                   and n.name == "evaluate")
+    _fla_ev_calls = {(getattr(c.func, "attr", None)
+                      or getattr(c.func, "id", None))
+                     for c in _fla_ast.walk(_fla_ev)
+                     if isinstance(c, _fla_ast.Call)}
+    _fla_w8 = ({"backtest_sweep_compare", "_mean_lo95", "ret_at"}
+               <= _fla_attrs
+               and {"sweep_compare", "verdict_of", "legs_of", "rows_at"}
+               <= _fla_ev_calls)
+except Exception as _e:                                          # noqa: BLE001
+    _fla_w8 = False
+check("🪜🩸🔒 FLA8 الأوراكلُ بالاسم: `backtest_sweep_compare`/`_mean_lo95`/"
+      "`ret_at` مُشار إليها · و`evaluate` تمرّر مُخرَجَه إلى `verdict_of`",
+      _fla_w8, "")
+
+# 🔴 `FLA9` — **وضعُ الجدوى يخرج قبل أيّ رقمٍ حاكم** (موضعيٌّ لا نصّيّ): جملةُ
+#    `return 0` داخل فرع `dry` تسبق **سطرَ** بناء `ev1` في `main`.
+try:
+    _fla_mn = next(n for n in _fla_ast.walk(_fla_ast.parse(_fla_src))
+                   if isinstance(n, _fla_ast.FunctionDef) and n.name == "main")
+    _fla_ev1 = min(n.lineno for n in _fla_ast.walk(_fla_mn)
+                   if isinstance(n, _fla_ast.Assign)
+                   and any(getattr(t, "id", None) == "ev1" for t in n.targets))
+    _fla_dry_if = [n for n in _fla_ast.walk(_fla_mn)
+                   if isinstance(n, _fla_ast.If)
+                   and getattr(n.test, "id", None) == "dry"
+                   and any(isinstance(b, _fla_ast.Return) for b in n.body)]
+    # 🐞 `ast.walk` يُنتج عُقدَ سياقٍ (`Load`/`Store`) **بلا `lineno`** ⇒
+    #    `getattr` لا وصولٌ مباشر (وقع: `AttributeError` مبتلَعٌ أسقط القفلَ
+    #    على سببٍ غيرِ سببه — الصنفُ ①).
+    _fla_end9 = max(getattr(n, "lineno", -1)
+                    for n in _fla_ast.walk(_fla_dry_if[0]))
+    _fla_w9 = (len(_fla_dry_if) == 1
+               and _fla_dry_if[0].lineno < _fla_ev1
+               and _fla_end9 < _fla_ev1)
+except Exception as _e:                                          # noqa: BLE001
+    _fla_w9 = False
+    _fla_end9 = f"⛔ {type(_e).__name__}"
+    _fla_ev1 = "—"
+check("🪜🩸🔒 FLA9 وضعُ الجدوى **يعود قبل** بناء تقييمات التكلفة المقيسة "
+      "(موضعيٌّ: فرعُ `dry` كلُّه أعلى من سطر `ev1`)",
+      _fla_w9, f"نهايةُ فرع dry={_fla_end9} · سطرُ ev1={_fla_ev1}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
