@@ -280,9 +280,16 @@ def main() -> int:
         lo, hi = wilson(k, n)
         print(f"📊 الأساس {lab}: {k}/{n} = {k/n*100:.1f}% [{lo:.0f}·{hi:.0f}]")
     import statistics as st
-    print(f"📊 وسيط mg_day {st.median([r['o']['mg_day'] for r in rows]):.1f}% · "
-          f"وسيط close_ret {st.median([r['o']['close_ret'] for r in rows]):.1f}% · "
-          f"وسيط mg_5d {st.median([r['o']['mg_5d'] for r in rows if r['o']['mg_5d'] is not None]):.1f}%")
+
+    def _med(xs):
+        """وسيطٌ فاشلٌ-آمن للأسطر **الوصفيّة**: يُسقط `None` ولا ينهار (الصنفُ ①).
+        🐞 وقع فعلًا 2026-09-15: صفٌّ جديدٌ بـ`mg_day=None` أسقط الأداةَ **قبل**
+        جدول الميزات الحاكم — فضاع الحكمُ لسطرِ عرض. لا يمسّ `judge` ولا رقمًا."""
+        v = [x for x in xs if x is not None]
+        return f"{st.median(v):.1f}%" if v else "—"
+    print(f"📊 وسيط mg_day {_med(r['o']['mg_day'] for r in rows)} · "
+          f"وسيط close_ret {_med(r['o']['close_ret'] for r in rows)} · "
+          f"وسيط mg_5d {_med(r['o']['mg_5d'] for r in rows)}")
     # ── جدول الميزات
     print("\n" + "=" * 78 + "\n🔗 الميزاتُ على exploded50 (العقد §④)\n" + "=" * 78)
     links = []
@@ -290,7 +297,9 @@ def main() -> int:
         table, v = judge(rows, feat)
         print(f"\n▶ {feat}")
         for val, (tn, tk, (lo, hi)) in sorted(table.items(), key=lambda x: -x[1][1] / x[1][0]):
-            mc = st.median([r["o"]["close_ret"] for r in rows if r["f"][feat] == val])
+            _cr = [r["o"]["close_ret"] for r in rows
+                   if r["f"][feat] == val and r["o"]["close_ret"] is not None]
+            mc = st.median(_cr) if _cr else float("nan")
             e100 = sum(r["o"]["exploded100"] for r in rows if r["f"][feat] == val)
             print(f"   {val:<16} n={tn:<4} +50%: {tk:<3} {tk/tn*100:5.1f}% [{lo:.0f}·{hi:.0f}] · "
                   f"+100%: {e100:<3} · وسيط الإغلاق {mc:+.1f}%")
