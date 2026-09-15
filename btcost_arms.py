@@ -55,6 +55,10 @@ BOOT_SEED = 20260913                      # بذرةٌ ثابتة ⇒ حتميّ
 #    وسيطُ `c` **بلا الحارس** سطرًا وصفيًّا فلا يُسيّرَ الرقمَ في الخفاء.
 STALE_MS = 120_000
 OUT_LEGS = "btcost_legs.jsonl"
+# §⑧ — إعادةُ القراءة الوصفيّة: مصدرُ شبكة `T-FCOST` ومستوى `E_A` المنشور
+FCOST_ROWS = "fcost_rows.jsonl"
+FC_EA00 = {"2023": -0.976, "2024": -0.785, "2025": -0.945}   # `fcost_result.md §⑥`
+FC_S_GRID = 0.005                       # `S_MEAS` في شبكة `T-FCOST`
 TRADES_TMPL = "btcost_trades_{}.json"
 _IDX_CACHE = {}          # فهرسُ التواريخ لكلّ إطار (مسارٌ احتياطيّ)
 LEGS_TMPL = "btcost_childlegs_{}.json"
@@ -567,6 +571,113 @@ def measure(leg: dict, pay: dict) -> dict:
     return out
 
 
+# ═══════ ⑥ §⑧ — إعادةُ قراءةٍ **وصفيّةٌ** لا حاكمة · بصفرِ مشيةٍ جديدة ═══════
+def delta_at(d00: float, d0s: float, fx: float, fy: float, c: float,
+             s: float, zerofill: bool, s_grid: float = FC_S_GRID) -> float:
+    """`Δ` الزوجِ عند أيّ `(c, s)` **بالهُويّة المُغلَقة** من صفَّين قائمَين في
+    شبكة `T-FCOST` — **بلا مشيةٍ ولا جلبٍ ولا إعادةِ تشغيل**.
+
+    `E` أفينيّةٌ في `s` وتتناسب مع `k(c)`، فالفرقُ:
+    `Δ(c,s) = k·[(Δ(0,0) + off) − B·s] − off` حيث `off = 100(f_x − f_y)`
+    لقراءة «صفرِ التعبئة» و**صفرٌ** لقراءة «المحسومة وحدَها»،
+    و`B = (Δ(0,0) − Δ(0,s_grid)) ÷ s_grid`.
+    🔑 **و`k_of` تُستورَد من `fcost_arms` بالاسم لا تُعاد كتابتُها** — فالهُويّةُ
+    هي هُويّةُ `T-FCOST` نفسُها لا مثيلٌ لها.
+    🔒 وعند `(0,0)` و`(0, s_grid)` تُرجَع قيمةُ الشبكة نفسُها بت-بت، وعند `s=0`
+    تُطابق `fcost_arms.offset_at` — وكلاهما مقفولٌ سلوكيًّا."""
+    import fcost_arms as FC                                      # noqa: PLC0415
+    k = FC.k_of(c)
+    off = (100.0 * (float(fx) - float(fy))) if zerofill else 0.0
+    a = float(d00) + off
+    b = (float(d00) - float(d0s)) / float(s_grid)
+    if k == 1.0:      # هُويّةٌ رياضيّة: `(d00 + off) − off` يُعيد `d00` بت-بت
+        return float(d00) - b * float(s)
+    return k * (a - b * float(s)) - off
+
+
+def e_a_at(e00: float, c: float) -> float:
+    """`E_A` عند `c` و**`s = 0`**: `k(c)·(E₀ + 100) − 100`.
+    ⚠️ **والحدُّ يُقال لا يُخفى:** حدُّ `s` في `E_A` **لا يُستردّ** من الأرتيفكت
+    (يحتاج كتلةَ ساقِ الخسارة، وصفوفُ `T-FCOST` تحمل فروقَ الأزواج لا متوسّطَ
+    الذراع) ⇒ يُطبَع عند `s = 0` ويُذكَر اتّجاهُ الأثر."""
+    import fcost_arms as FC                                      # noqa: PLC0415
+    k = FC.k_of(c)
+    if k == 1.0:                 # هُويّةٌ رياضيّة ⇒ بت-بت لا «ضمن تسامح»
+        return float(e00)
+    return k * (float(e00) + 100.0) - 100.0
+
+
+def run_reread() -> int:
+    """§⑧ — **وصفيٌّ لا حاكم**: يقرأ السيقانَ المنشورةَ وشبكةَ `T-FCOST` ويطبع
+    `E_A` و`Δ` عند القياس. **ولا يُعدَّل شيءٌ من `T-FCOST` ولا يُعاد تشغيلُها**،
+    ولا يُحسَب معيارٌ ولا فرعٌ ولا تُكتَب ملفّات."""
+    lp = (os.environ.get("BTCOST_LEGS") or OUT_LEGS).strip()
+    fp = (os.environ.get("BTCOST_FCOST_ROWS") or FCOST_ROWS).strip()
+    try:
+        legs = [json.loads(x) for x in open(lp, encoding="utf-8") if x.strip()]
+        grid = [json.loads(x) for x in open(fp, encoding="utf-8") if x.strip()]
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⛔ تعذّرت قراءةُ المصدرين ({type(e).__name__}): {lp} · {fp}")
+        return RC_INPUT
+    if not legs or not grid:
+        _log("⛔ مصدرٌ فارغ")
+        return RC_INPUT
+
+    # ① القياسُ يُعاد استخراجُه من السيقان **ولا يُكتَب بيدي**
+    cs = sorted(float(r["c"]) for r in legs if r.get("c") is not None)
+    ss = sorted(float(r["s"]) for r in legs if r.get("s") is not None)
+    if not cs or not ss:
+        _log("⛔ سيقانٌ بلا قياس")
+        return RC_INPUT
+    c_med = statistics.median(cs) / 100.0        # النقاطُ المئويّة ⟶ كسر
+    s_med = statistics.median(ss) / 100.0
+    _log("🩸📡 §⑧ — إعادةُ قراءةٍ **وصفيّةٌ لا حاكمة** (صفرُ مشيةٍ · صفرُ جلب)")
+    _log(f"   المصدران: {lp} ({len(legs)} ساقًا) · {fp} ({len(grid)} صفًّا)")
+    _log(f"   القياسُ المستخرَج: `C-MED` = {statistics.median(cs):.4f}% · "
+         f"`S-MED` = {statistics.median(ss):.4f}%")
+
+    # ② شبكةُ `T-FCOST` عند `c = 0`: صفّا `s = 0` و`s = FC_S_GRID`
+    base = {}
+    for g in grid:
+        try:
+            if float(g["c"]) != 0.0:
+                continue
+            base[(g["pair"], str(g["year"]), float(g["s"]))] = g
+        except (TypeError, ValueError, KeyError):
+            continue
+    pairs = sorted({(k[0], k[1]) for k in base})
+    if not pairs:
+        _log("⛔ لا صفوفَ أساسٍ عند c = 0 في شبكة `T-FCOST`")
+        return RC_INPUT
+
+    _log("── `E_A` عند القياس (‏`s = 0` · والحدُّ مُعلَن) ──")
+    for y in sorted(FC_EA00):
+        _log(f"  {y}: E_A(0,0) = {FC_EA00[y]:+.4f} ⟶ E_A(C-MED, 0) = "
+             f"{e_a_at(FC_EA00[y], c_med):+.4f} نقطة")
+    _log("  ⚠️ حدُّ `s` في `E_A` **لا يُستردّ** من الأرتيفكت · و`S-MED` سالبٌ ⇒ "
+         "القيمةُ الحقيقيّةُ **أعلى** من المطبوعة لا أدنى.")
+
+    _log("── `Δ` الأزواجِ عند (‏`C-MED`, `S-MED`) — وصفيٌّ لا حاكم ──")
+    for nm, y in pairs:
+        g0 = base.get((nm, y, 0.0))
+        gs = base.get((nm, y, FC_S_GRID))
+        if not g0 or not gs:
+            _log(f"  {nm}/{y}: ⛔ صفُّ شبكةٍ ناقص — يُعلَن ولا يُخمَّن")
+            continue
+        fx, fy = float(g0["f_x"]), float(g0["f_y"])
+        dr = delta_at(float(g0["d_resolved"]), float(gs["d_resolved"]),
+                      fx, fy, c_med, s_med, zerofill=False)
+        dz = delta_at(float(g0["d_zerofill"]), float(gs["d_zerofill"]),
+                      fx, fy, c_med, s_med, zerofill=True)
+        _log(f"  {nm}/{y}: Δ(أ) {float(g0['d_resolved']):+.4f} ⟶ {dr:+.4f} · "
+             f"Δ(ب) {float(g0['d_zerofill']):+.4f} ⟶ {dz:+.4f} "
+             f"(تعبئة {fx:.3f} مقابل {fy:.3f})")
+    _log("🔒 **وصفيٌّ لا حاكم** (‏§⑧-1): لا يُقرأ حكمًا على `FC1`/`FC2`/`FC3` · "
+         "ولم يُمَسّ أثرٌ من `T-FCOST` ولا أُعيد تشغيلُها · وأيُّ حكمٍ جديدٍ "
+         "يلزمه عقدٌ مستقلٌّ وإذنُ المالك.")
+    return 0
+
+
 # ══════════════════ ⑥ المسار الرئيس ══════════════════
 def main() -> int:                                               # noqa: PLR0911,PLR0912,PLR0915
     import concurrent.futures as _cf                             # noqa: PLC0415
@@ -852,4 +963,6 @@ def main() -> int:                                               # noqa: PLR0911
 if __name__ == "__main__":
     if len(sys.argv) > 2 and sys.argv[1] == "--child":
         sys.exit(run_child(sys.argv[2]))
+    if len(sys.argv) > 1 and sys.argv[1] == "--reread":
+        sys.exit(run_reread())
     sys.exit(main())

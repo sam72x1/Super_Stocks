@@ -47578,7 +47578,13 @@ if _BTA:
     _bta_o_out = _BTA.OUT_LEGS
     _bta_o_fd = _bta_SL2.fetch_day
     _bta_calls = []
-    _bta_tmpd = _bta_os.path.join("/tmp", "bta_dry")
+    # 🐞 **مجلَّدٌ خاصٌّ بهذي الشجرة ويُنظَّف قبل التشغيل:** كان المسارُ مشتركًا
+    #    فطفرةُ «الجدوى تكتب الملفّ» تُخلّفه في `/tmp` فيسقط القفلُ **كذبًا** في
+    #    الجولة التالية — حالةٌ متبقّيةٌ لا عيبُ كود (‏صنفُ الطفرة الباطلة مقلوبًا).
+    import hashlib as _bta_hash
+    _bta_tmpd = _bta_os.path.join(
+        "/tmp", "bta_dry_" + _bta_hash.md5(
+            _bta_os.getcwd().encode()).hexdigest()[:8])
     _bta_os.makedirs(_bta_tmpd, exist_ok=True)
 
     def _bta_fake_child(tag, frozen, extra):
@@ -47604,6 +47610,8 @@ if _BTA:
         _BTA._run_child = _bta_fake_child
         _BTA.roots_identical = lambda: (True, "جذعٌ اختباريّ")
         _BTA.OUT_LEGS = _bta_os.path.join(_bta_tmpd, "legs.jsonl")
+        if _bta_os.path.exists(_BTA.OUT_LEGS):
+            _bta_os.remove(_BTA.OUT_LEGS)        # لا حالةَ متبقّية
         _bta_SL2.fetch_day = lambda *_a, **_k: None   # 🔒 صفرُ شبكة
         _bta_os.environ["BTCOST_YEARS"] = "2023,2024,2025"
         _bta_os.environ["BTCOST_FROZEN"] = "/tmp/a,/tmp/b,/tmp/c"
@@ -47642,6 +47650,122 @@ if _BTA:
 check("🩸📡🔒 BTA11 وضعُ الجدوى **أعمى**: `V-B1`/`V-B2`/التغطيةُ والأسباب "
       "تُطبَع · وصفرُ `c` وصفرُ `s` وصفرُ فاصلٍ وصفرُ حكمٍ وصفرُ ملفّ",
       _bta_ok11, _bta_why11)
+
+# ── `BTA12` — workflow §⑧ **يدويٌّ وقراءةٌ فقط بنيويًّا**: بلا كرون · بلا سرِّ
+#    تلغرام · **وبلا مفتاحِ مزوّدٍ أصلًا** (صفرُ نداءٍ خارجيّ · «صفرُ جلب» بنصّ §⑧).
+_bta_rt, _bta_rd = "", {}
+try:
+    _bta_rt = open(".github/workflows/btcost_reread.yml", encoding="utf-8").read()
+    _bta_rd = _bta_yaml.safe_load(_bta_rt) or {}
+except Exception as _e:                                          # noqa: BLE001
+    _bta_rt, _bta_rd = f"⛔ {type(_e).__name__}", {}
+_bta_ron = _bta_rd.get("on", _bta_rd.get(True)) or {}
+_bta_rjobs = [j for j in (_bta_rd.get("jobs") or {}).values()
+              if isinstance(j, dict)]
+_bta_ok12 = (isinstance(_bta_ron, dict) and "workflow_dispatch" in _bta_ron
+             and "schedule" not in _bta_ron
+             and _bta_rd.get("permissions") == {"contents": "read",
+                                                "actions": "read"}
+             and all(q is None or (isinstance(q, dict)
+                                   and "write" not in str(q).lower())
+                     for q in [j.get("permissions") for j in _bta_rjobs])
+             and "TELEGRAM" not in _bta_rt and "telegram" not in _bta_rt
+             and "POLYGON" not in _bta_rt
+             and "--reread" in _bta_rt)
+check("🩸📡🔒 BTA12 workflow §⑧ يدويٌّ بلا كرون · صلاحيّاتُه **حصرًا** "
+      "{contents: read, actions: read} · وبلا سرِّ تلغرام **ولا مفتاحِ مزوّد**",
+      _bta_ok12,
+      f"on={list(_bta_ron) if isinstance(_bta_ron, dict) else _bta_ron} · "
+      f"perm={_bta_rd.get('permissions')}")
+
+# 🔴 `BTA13` — **الهُويّةُ المُغلَقة سلوكيّةٌ عدديًّا**: `delta_at` تُرجع نقطتَي
+#    الشبكة **بت-بت**، وعند `s = 0` تطابق `fcost_arms.offset_at` حرفيًّا،
+#    و`e_a_at` هُويّةٌ عند `c = 0` وتتناسب مع `k` بعدها · و`k_of` **مستورَدةٌ
+#    بالاسم** من `T-FCOST` لا مُعادةُ الكتابة.
+_bta_ok13, _bta_why13 = False, "?"
+if _BTA and _FCA:
+    _bta_b13 = []
+    for _bta_d0, _bta_ds, _bta_fx, _bta_fy in (
+            (0.4248, 0.3100, 0.843, 0.228), (-0.8100, -0.9000, 0.852, 0.235),
+            (0.0500, 0.0500, 0.500, 0.500)):
+        # ① نقطتا الشبكة بت-بت في القراءتين
+        for _bta_zf in (False, True):
+            if _BTA.delta_at(_bta_d0, _bta_ds, _bta_fx, _bta_fy, 0.0, 0.0,
+                             _bta_zf) != _bta_d0:
+                _bta_b13.append(f"شبكة(0,0) zf={_bta_zf}")
+            if abs(_BTA.delta_at(_bta_d0, _bta_ds, _bta_fx, _bta_fy, 0.0,
+                                 _FCA.S_MEAS, _bta_zf) - _bta_ds) > 1e-12:
+                _bta_b13.append(f"شبكة(0,S) zf={_bta_zf}")
+        # ② عند s=0 تطابق إزاحةَ `T-FCOST` حرفيًّا
+        for _bta_c in (0.01, 0.0175, 0.018018, 0.04):
+            _bta_l = _BTA.delta_at(_bta_d0, _bta_ds, _bta_fx, _bta_fy,
+                                   _bta_c, 0.0, True)
+            _bta_r = (_FCA.k_of(_bta_c) * _bta_d0
+                      + _FCA.offset_at(_bta_c, _bta_fx, _bta_fy))
+            if abs(_bta_l - _bta_r) > 1e-12:
+                _bta_b13.append(f"إزاحة c={_bta_c}")
+            # وقراءةُ «المحسومة وحدَها» تتقلّص بـ`k` ولا تحمل إزاحة
+            if abs(_BTA.delta_at(_bta_d0, _bta_ds, _bta_fx, _bta_fy, _bta_c,
+                                 0.0, False) - _FCA.k_of(_bta_c) * _bta_d0) > 1e-12:
+                _bta_b13.append(f"محسومة c={_bta_c}")
+    # ③ `e_a_at` هُويّةٌ عند c=0 · وتنخفض بارتفاع `c` (‏E سالبةٌ عندنا فتزداد سوءًا)
+    _bta_e0 = all(_BTA.e_a_at(_v, 0.0) == _v for _v in (-0.976, -0.785, -0.945))
+    _bta_e1 = (_BTA.e_a_at(-0.945, 0.018018)
+               < _BTA.e_a_at(-0.945, 0.0132) < _BTA.e_a_at(-0.945, 0.0))
+    # ④ و`k_of` **مستورَدةٌ** لا مُعرَّفةٌ هنا
+    _bta_kown = ("def k_of(" not in _bta_src and "FC.k_of(" in _bta_src)
+    _bta_ok13 = (not _bta_b13) and _bta_e0 and _bta_e1 and _bta_kown
+    _bta_why13 = (f"مخالفات={_bta_b13[:3] or 'صفر'} · هُويّةُ E_A={_bta_e0} · "
+                  f"رتابة={_bta_e1} · k_of مستورَدة={_bta_kown}")
+check("🩸📡🔒 BTA13 هُويّةُ §⑧ **عدديّة**: نقطتا الشبكة بت-بت · وتطابقُ "
+      "`offset_at` عند s=0 · و`E_A` هُويّةٌ عند c=0 · و`k_of` مستورَدةٌ بالاسم",
+      _bta_ok13, _bta_why13)
+
+# 🔴 `BTA14` — §⑧ **وصفيٌّ لا حاكم وبصفرِ أثر**: `run_reread` لا تحسب معيارًا
+#    ولا فرعًا ولا تكتب ملفًّا ولا تذكر أثرًا من `T-FCOST` بالكتابة · وقيمُ
+#    `FC_EA00` **مقروءةٌ من `fcost_result.md`** لا من ذاكرتي · وتُنادى من نقطة
+#    الدخول فعلًا (‏وصلةٌ حيّةٌ لا دالّةٌ نائمة).
+_bta_ok14, _bta_why14 = False, "?"
+if _BTA:
+    _bta_rr = _bta_insp.getsource(_BTA.run_reread)
+    try:
+        _bta_fr = open("fcost_result.md", encoding="utf-8").read()
+    except Exception:                                            # noqa: BLE001
+        _bta_fr = ""
+    _bta_pub = all(f"{_v:.3f}".lstrip("-") in _bta_fr
+                   for _v in _BTA.FC_EA00.values())
+    # لا حكمَ ولا كتابةَ ملفّ داخل `run_reread` (‏AST: لا `open` بوضع كتابة)
+    _bta_wr = []
+    try:
+        for _n in _bta_ast.walk(_bta_ast.parse(_bta_rr.lstrip())):
+            if isinstance(_n, _bta_ast.Call):
+                _nm = (getattr(_n.func, "attr", None)
+                       or getattr(_n.func, "id", None))
+                if _nm in ("read_verdict", "measure", "boot_ci_median"):
+                    _bta_wr.append(_nm)
+                if _nm == "open":
+                    _md = ""
+                    if len(_n.args) > 1 and isinstance(_n.args[1],
+                                                       _bta_ast.Constant):
+                        _md = str(_n.args[1].value)
+                    for _kw in _n.keywords or []:
+                        if _kw.arg == "mode" and isinstance(_kw.value,
+                                                            _bta_ast.Constant):
+                            _md = str(_kw.value.value)
+                    if any(ch in _md for ch in ("w", "a", "x", "+")):
+                        _bta_wr.append("open:w")
+    except Exception as _e:                                      # noqa: BLE001
+        _bta_wr = [f"⛔ {type(_e).__name__}"]
+    # وصلةٌ حيّةٌ من نقطة الدخول
+    _bta_wired = ('"--reread"' in _bta_src and "run_reread()" in _bta_src)
+    _bta_ok14 = (not _bta_wr and _bta_pub and _bta_wired
+                 and "وصفيٌّ لا حاكم" in _bta_rr
+                 and "fcost_result.md" not in _bta_rr)
+    _bta_why14 = (f"نداءاتٌ محظورة={_bta_wr or 'صفر'} · منشورةٌ في "
+                  f"fcost_result={_bta_pub} · موصولة={_bta_wired}")
+check("🩸📡🔒 BTA14 §⑧ وصفيٌّ لا حاكم: صفرُ حكمٍ وصفرُ كتابةٍ وصفرُ مسٍّ بأثر "
+      "`T-FCOST` · وقيمُ `E_A` مقروءةٌ من ملفّ نتيجته · والوصلةُ حيّة",
+      _bta_ok14, _bta_why14)
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

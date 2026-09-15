@@ -1,0 +1,61 @@
+name: T-BTCOST §⑧ (إعادةُ قراءةٍ وصفيّة)
+
+# 🩸📡 §⑧ من `btcost_prereg.md`: **إن عبرت المعاييرُ الثلاثة** يُطبَع **وصفيًّا**
+#    `E_A` و`Δ` الأزواجِ الثلاثة عند (`C-MED`, `S-MED`) محسوبةً **بالهُويّة
+#    المُغلَقة** من `fcost_rows.jsonl` القائم — **بصفرِ مشيةٍ وصفرِ جلب**.
+# 🔒 **وصفيٌّ لا حاكم:** لا يُقرأ حكمًا على `FC1`/`FC2`/`FC3` · ولا يُعدَّل شيءٌ
+#    من `T-FCOST` (لا `fcost_result.md` ولا البانر ولا `fcost_arms.py`) ولا
+#    يُعاد تشغيلُها · وأيُّ حكمٍ جديدٍ يلزمه عقدٌ مستقلٌّ وإذنُ المالك.
+# 🔕 بلا كرون · بلا سرِّ تلغرام · ولا مفتاحَ مزوّدٍ أصلًا (صفرُ نداءٍ خارجيّ).
+
+permissions:
+  contents: read
+  actions: read          # 🕰️ لتنزيل أرتيفكتَي التشغيلتين وحدهما
+
+on:
+  workflow_dispatch:
+    inputs:
+      legs_run_id:
+        description: "تشغيلةُ الحكم التي رفعت btcost_legs.jsonl"
+        required: true
+        default: "34942262597"
+      fcost_run_id:
+        description: "تشغيلةُ T-FCOST التي رفعت fcost_rows.jsonl"
+        required: true
+        default: "34751099730"
+
+jobs:
+  reread:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: تنزيلُ المصدرين
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IN_LEGS: ${{ github.event.inputs.legs_run_id }}
+          IN_FC: ${{ github.event.inputs.fcost_run_id }}
+        run: |
+          set -euo pipefail
+          for v in "$IN_LEGS" "$IN_FC"; do
+            printf '%s' "$v" | grep -Eq '^[0-9]{6,20}$' \
+              || { echo "⛔ رقمُ تشغيلةٍ غيرُ صالح"; exit 2; }
+          done
+          gh run download "$IN_LEGS" -D dl_legs -R "$GITHUB_REPOSITORY"
+          gh run download "$IN_FC" -D dl_fcost -R "$GITHUB_REPOSITORY"
+          lp="$(find dl_legs -name 'btcost_legs.jsonl' | head -1)"
+          fp="$(find dl_fcost -name 'fcost_rows.jsonl' | head -1)"
+          test -n "$lp" || { echo "⛔ لا btcost_legs.jsonl في $IN_LEGS"; exit 2; }
+          test -n "$fp" || { echo "⛔ لا fcost_rows.jsonl في $IN_FC"; exit 2; }
+          echo "BTCOST_LEGS=$(realpath "$lp")" >> "$GITHUB_ENV"
+          echo "BTCOST_FCOST_ROWS=$(realpath "$fp")" >> "$GITHUB_ENV"
+          echo "📌 $lp · $fp"
+
+      - name: إعادةُ القراءة الوصفيّة
+        run: python3 btcost_arms.py --reread
