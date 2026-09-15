@@ -245,26 +245,24 @@
   "date": "2026-09-15"
  },
  "LIQ:WNW": {
-  "last_eval_ms": 1789503600000,
-  "tc_cum": 21333.21791583,
-  "tc_seen_ms": 1789494120000,
-  "date": "2026-09-15",
   "anchor_ms": 1789503540000,
-  "last_ms": 1789503540000,
+  "last_ms": 1789503600000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 145.0,
   "peak_usd": 263612,
-  "pulse_ms": 1789503540000,
+  "last_eval_ms": 1789503600000,
+  "pulse_ms": 1789503600000,
   "anchor_price": 2.69,
   "anchor_open": 2.394,
   "anchor_low": 2.394,
   "pre_done": true,
   "pre_hi": 2.38,
   "pre_usd": 1609,
-  "pre_n": 1
+  "pre_n": 1,
+  "date": "2026-09-15"
  },
  "LIQ:AIIO": {
   "last_eval_ms": 1789502340000,
@@ -3486,7 +3484,7 @@
   "updates": 0,
   "vol_x": 9.8,
   "peak_usd": 50651,
-  "last_eval_ms": 1789502400000,
+  "last_eval_ms": 1789502340000,
   "pulse_ms": 1789502580000,
   "anchor_price": 5.79,
   "anchor_open": 5.27,
@@ -3600,9 +3598,9 @@
    "M1",
    "M5"
   ],
-  "updates": 2,
+  "updates": 1,
   "vol_x": 46.7,
-  "peak_usd": 2238639,
+  "peak_usd": 996412,
   "last_eval_ms": 1789503120000,
   "pulse_ms": 1789503600000,
   "anchor_price": 3.2,
