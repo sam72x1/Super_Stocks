@@ -334,10 +334,13 @@ def main() -> int:
     print("\n📋 الصفوف (تاريخ · رمز · فئة · خضراء · J1 · cls · وقت · فجوة · mg_day · mg_cut · إغلاق · 5ج):")
     for r in sorted(rows, key=lambda r: -(r["o"]["mg_day"] or 0)):
         f, o = r["f"], r["o"]
+        # 🐞 صفوفٌ بلا `mg_day`/`close_ret` أسقطت الأداةَ **بعد** الحكم (خروج 1
+        #    كذبًا) في التشغيلة 35029466583 ⇒ الغائبُ يُطبَع «—» ولا يُخمَّن صفرًا.
+        def _n(v):
+            return f"{v:+7.1f}" if v is not None else "      —"
         print(f"   {r['date'][5:]} {r['symbol']:<6} {f['tier']:<6} g={f['green']} {f['j1']:<3} "
-              f"{f['cls']:<8} {f['tod']:<5} {f['gap']:<7} {o['mg_day']:+7.1f} "
-              f"{(o['mg_cut'] if o['mg_cut'] is not None else 0):+7.1f} {o['close_ret']:+7.1f} "
-              f"{(o['mg_5d'] if o['mg_5d'] is not None else 0):+7.1f}")
+              f"{f['cls']:<8} {f['tod']:<5} {f['gap']:<7} {_n(o['mg_day'])} "
+              f"{_n(o['mg_cut'])} {_n(o['close_ret'])} {_n(o['mg_5d'])}")
     print("\n⚠️ حدودُ صدق: لمسٌ لا تنفيذ · فترةٌ قصيرة · لا ربحيّة · ميزاتُ A من آخر لقطةٍ لليوم.")
     return 0
 
