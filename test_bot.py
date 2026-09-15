@@ -47134,6 +47134,499 @@ check("🩸⚙️🔒 FCA11 وضعُ الجدوى **أعمى**: طفلٌ واح�
       "وصفرُ Δ وصفرُ تعادلٍ وصفرُ زوجٍ وصفرُ حكم", _fca_ok11, _fca_why11)
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🩸📡 `T-BTCOST` — أقفالُ **الأداة** (‏`BTA0`-`BTA11`، 2026-09-13، أمرُ المالك
+#    «ابن الاداة»). العقدُ مقفولٌ بـ`BTK0`-`BTK4`؛ وهذي تحرس **ما تفعله الأداة**.
+#    🔴 وأثمنُها `BTA10` (إعادةُ الاشتقاق **سلوكيّةٌ على فِكستشر** وهي محورُ
+#    `V-B2` كلِّه) و`BTA4` (صيغةُ `s` تقسم على `1 − c/2` **عدديًّا** لا نصًّا)
+#    و`BTA7` (كلُّ سببِ إسقاطٍ من **الخمسة المسمّاة** — سلوكيًّا لا بقائمة).
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _bta_ast
+import contextlib as _bta_ctx
+import datetime as _bta_dt
+import inspect as _bta_insp
+import importlib.util as _bta_imp
+import io as _bta_io
+import json as _bta_json
+import os as _bta_os
+import yaml as _bta_yaml
+
+_BTA = None
+try:
+    _bta_spec = _bta_imp.spec_from_file_location("btcost_arms", "btcost_arms.py")
+    _BTA = _bta_imp.module_from_spec(_bta_spec)
+    _bta_spec.loader.exec_module(_BTA)
+except Exception as _e:                                          # noqa: BLE001
+    _BTA = None
+
+check("🩸📡🔒 BTA·استيراد الأداة", _BTA is not None)
+
+try:
+    _bta_src = open("btcost_arms.py", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _bta_src = f"⛔ {type(_e).__name__}"
+
+# `BTA0` — الـworkflow **يدويٌّ وقراءةٌ فقط بنيويًّا** (درسُ `u1`: «قراءةٌ فقط»
+#    في تعليقٍ ليست قفلًا) · بلا كرون · وبلا أيّ ذكرٍ لسرِّ تلغرام.
+_bta_wt, _bta_wd = "", {}
+try:
+    _bta_wt = open(".github/workflows/btcost.yml", encoding="utf-8").read()
+    _bta_wd = _bta_yaml.safe_load(_bta_wt) or {}
+except Exception as _e:                                          # noqa: BLE001
+    _bta_wt, _bta_wd = f"⛔ {type(_e).__name__}", {}
+_bta_on = _bta_wd.get("on", _bta_wd.get(True)) or {}
+_bta_perm = _bta_wd.get("permissions")
+_bta_jobs = [j for j in (_bta_wd.get("jobs") or {}).values()
+             if isinstance(j, dict)]
+_bta_jperm = [j.get("permissions") for j in _bta_jobs]
+_bta_ok0 = (isinstance(_bta_on, dict) and "workflow_dispatch" in _bta_on
+            and "schedule" not in _bta_on
+            and _bta_perm == {"contents": "read", "actions": "read"}
+            and all(q is None or (isinstance(q, dict)
+                                  and "write" not in str(q).lower())
+                    for q in _bta_jperm)
+            and "TELEGRAM" not in _bta_wt and "telegram" not in _bta_wt
+            and "btcost_arms.py" in _bta_wt)
+check("🩸📡🔒 BTA0 الـworkflow يدويٌّ بلا كرون · صلاحيّاتُه **حصرًا** "
+      "{contents: read, actions: read} ولا جوبَ يُوسّعها · وبلا سرِّ تلغرام",
+      _bta_ok0,
+      f"on={list(_bta_on) if isinstance(_bta_on, dict) else _bta_on} · "
+      f"perm={_bta_perm} · jobs={_bta_jperm}")
+
+# `BTA1` — ثوابتُ العقد **بقيمها** لا بأسمائها · وأعدادُ `V-B1` مطابقةٌ لما
+#    نُشر في `fcost_result.md` **قراءةً من الملفّ** لا من ذاكرتي.
+_bta_ok1, _bta_why1 = False, "?"
+if _BTA:
+    try:
+        _bta_fres = open("fcost_result.md", encoding="utf-8").read()
+    except Exception:                                            # noqa: BLE001
+        _bta_fres = ""
+    try:
+        _bta_pret = open("btcost_prereg.md", encoding="utf-8").read()
+    except Exception:                                            # noqa: BLE001
+        _bta_pret = ""
+    _bta_nums = all(str(v) in _bta_fres or f"{v:,}" in _bta_fres
+                    for v in list(_BTA.FC_SIGNALS.values())
+                    + list(_BTA.FC_RESOLVED.values()))
+    _bta_ok1 = (_BTA.FC_SIGNALS == {"2023": 1620, "2024": 1591, "2025": 1607}
+                and _BTA.FC_RESOLVED == {"2023": 1381, "2024": 1364,
+                                         "2025": 1354}
+                and _BTA.AGREE_MIN == 0.99
+                and _BTA.COV_MIN == 0.60
+                and (_BTA.LEGS_YEAR, _BTA.LEGS_TOTAL) == (300, 1200)
+                and _BTA.CI_MAX_PP == 0.50
+                and tuple(_BTA.GOV_YEARS) == ("2023", "2024", "2025")
+                and tuple(_BTA.REASONS) == ("no_minutes",
+                                            "raw_scale_unverified",
+                                            "no_quotes", "stale_quote",
+                                            "walk_mismatch")
+                and _bta_nums
+                and "‏≥60%" in _bta_pret and "‏≥300 ساقًا" in _bta_pret
+                and "0.50 نقطة" in _bta_pret)
+    _bta_why1 = (f"إشارات={_BTA.FC_SIGNALS} · محسومة={_BTA.FC_RESOLVED} · "
+                 f"BC={_BTA.COV_MIN}/{_BTA.LEGS_YEAR}/{_BTA.CI_MAX_PP} · "
+                 f"منشورةٌ في fcost_result={_bta_nums}")
+check("🩸📡🔒 BTA1 ثوابتُ `BC1`-`BC3` و`V-B1` **بقيم العقد**، وأعدادُ `T-FCOST` "
+      "مقروءةٌ من ملفّ نتيجته لا من الذاكرة", _bta_ok1, _bta_why1)
+
+# 🔴 `BTA2` — اتّجاهُ اللمسة **سلوكيّ**: الهابطُ يُفوَّض لـ`trigger_index`/
+#    `trigger_ms` بت-بت، والصاعدُ مرآتُه — **وعلى فِكستشرٍ يفصل بينهما**
+#    (ولولا الفصلُ لمرّ قلبُ الاتّجاهين بلا أثر = الصنفُ ④-3).
+_bta_ok2, _bta_why2 = False, "?"
+if _BTA:
+    import slip_arms as _bta_SL
+    import slip_nbbo_arms as _bta_NB
+    _bta_sess = [{"t": 0, "o": 10.0, "h": 10.2, "l": 9.9, "c": 10.0},
+                 {"t": 60000, "o": 10.0, "h": 11.6, "l": 9.4, "c": 11.0},
+                 {"t": 120000, "o": 11.0, "h": 12.4, "l": 10.8, "c": 12.0}]
+    _bta_tr = [{"t": 61000, "p": 10.0}, {"t": 62000, "p": 9.45},
+               {"t": 63000, "p": 11.55}, {"t": 121000, "p": 12.35}]
+    _bta_dn_i = _BTA.touch_index(_bta_sess, 9.5, "down")
+    _bta_up_i = _BTA.touch_index(_bta_sess, 12.3, "up")
+    _bta_dn_t = _BTA.touch_ms(_bta_tr, 9.5, "down")
+    _bta_up_t = _BTA.touch_ms(_bta_tr, 12.3, "up")
+    _bta_ok2 = (_bta_dn_i == 1 and _bta_up_i == 2
+                and _bta_dn_i != _bta_up_i            # الفِكستشرُ يفصل فعلًا
+                and _bta_dn_t == 62000 and _bta_up_t == 121000
+                and _bta_dn_t != _bta_up_t
+                # التفويضُ بت-بت للاتّجاه الهابط (لا إعادةَ بناء)
+                and _bta_dn_i == _bta_SL.trigger_index(_bta_sess, 9.5)
+                and _bta_dn_t == _bta_NB.trigger_ms(_bta_tr, 9.5)
+                # والصاعدُ ليس هو الهابط
+                and _BTA.touch_index(_bta_sess, 9.5, "up") != _bta_dn_i
+                # ومستوًى واحدٌ يُعطي جوابَين مختلفَين باختلاف الاتّجاه وحدَه
+                and _BTA.touch_ms(_bta_tr, 9.0, "down") is None
+                and _BTA.touch_ms(_bta_tr, 9.0, "up") == 61000)
+    _bta_why2 = (f"هابط i={_bta_dn_i}/t={_bta_dn_t} · صاعد i={_bta_up_i}/"
+                 f"t={_bta_up_t}")
+check("🩸📡🔒 BTA2 اتّجاهُ اللمسة سلوكيٌّ: الهابطُ **مفوَّضٌ بت-بت** للمستورَدَين "
+      "والصاعدُ مرآتُه — على فِكستشرٍ يفصل بينهما", _bta_ok2, _bta_why2)
+
+# `BTA3` — `spread_pct` = `(ask − bid) ÷ mid × 100` عدديًّا، وفاشلةٌ-آمنة.
+_bta_ok3, _bta_why3 = False, "?"
+if _BTA:
+    _bta_b3 = []
+    for _bta_b, _bta_a in ((9.90, 10.10), (0.50, 0.53), (2.00, 2.02),
+                           (1.0, 1.5)):
+        _bta_exp = (_bta_a - _bta_b) / ((_bta_a + _bta_b) / 2.0) * 100.0
+        if abs(_BTA.spread_pct({"bid": _bta_b, "ask": _bta_a})
+               - _bta_exp) > 1e-9:
+            _bta_b3.append(f"{_bta_b}/{_bta_a}")
+    _bta_bad3 = [_BTA.spread_pct(x) for x in
+                 ({"bid": 0, "ask": 1}, {"bid": 1, "ask": None},
+                  {"bid": 2, "ask": 1}, {}, None)]
+    _bta_ok3 = (not _bta_b3) and all(x is None for x in _bta_bad3)
+    _bta_why3 = f"مخالفات={_bta_b3 or 'صفر'} · فاشل-آمن={_bta_bad3}"
+check("🩸📡🔒 BTA3 `c` = (طلب − عرض) ÷ الوسط × 100 عدديًّا · وفاشلةٌ-آمنة",
+      _bta_ok3, _bta_why3)
+
+# 🔴 `BTA4` — صيغةُ `s` **تمنع الحسابَ المزدوج عدديًّا**: تقسم على `1 − c/2`
+#    (فتنفيذٌ عند سعر النموذج يعطي صفرًا بالضبط مهما كان `c`) · و**بلا قصّ**
+#    (‏`V-B8`: الأفضلُ من النموذج سالبٌ يُعَدّ ويُنشَر).
+_bta_ok4, _bta_why4 = False, "?"
+if _BTA:
+    _bta_b4 = []
+    for _bta_em in (9.0, 1.25, 40.0):
+        for _bta_c in (0.0, 1.32, 1.75, 3.0):
+            _bta_model = _bta_em * (1.0 - (_bta_c / 100.0) / 2.0)
+            # ① تنفيذٌ عند سعر النموذج ⇒ صفرٌ بالضبط (لا خصمٌ مزدوج)
+            if abs(_BTA.slip_of(_bta_em, _bta_c, _bta_model)) > 1e-9:
+                _bta_b4.append(f"مزدوج {_bta_em}/{_bta_c}")
+            # ② والصيغةُ ليست `1 − p/exit_model` (‏`c` يدخل فعلًا)
+            if _bta_c > 0 and abs(_BTA.slip_of(_bta_em, _bta_c, _bta_em)
+                                  - (1.0 - _bta_em / _bta_model) * 100.0) > 1e-9:
+                _bta_b4.append(f"c لا يدخل {_bta_em}/{_bta_c}")
+    _bta_neg = _BTA.slip_of(10.0, 2.0, 10.5)
+    _bta_pos = _BTA.slip_of(10.0, 2.0, 9.5)
+    _bta_ok4 = (not _bta_b4) and _bta_neg < -4.0 and _bta_pos > 0
+    _bta_why4 = (f"مخالفات={_bta_b4[:3] or 'صفر'} · أفضلُ من النموذج="
+                 f"{_bta_neg:.4f} · أسوأ={_bta_pos:.4f}")
+check("🩸📡🔒 BTA4 `s` تقسم على `1 − c/2` عدديًّا (صفرٌ عند سعر النموذج مهما كان "
+      "`c`) · و**بلا قصّ** فالسالبُ يُعَدّ", _bta_ok4, _bta_why4)
+
+# `BTA5` — `read_verdict` **جدولُ حقيقةٍ كامل**: الأرضيةُ أوّلًا · والفرعُ 2
+#    لا يقع إلّا حين تسقط `BC3` وحدَها · واسمُ الساقط يُذكَر.
+_bta_ok5, _bta_why5 = False, "?"
+if _BTA:
+    _bta_t5, _bta_b5 = {}, []
+    for _bta_a in (0, 1):
+        for _bta_bb in (0, 1):
+            for _bta_cc in (0, 1):
+                _bta_br, _bta_ln = _BTA.read_verdict(
+                    {"BC1": bool(_bta_a), "BC2": bool(_bta_bb),
+                     "BC3": bool(_bta_cc)})
+                _bta_t5[(_bta_a, _bta_bb, _bta_cc)] = _bta_br
+                _bta_exp5 = (3 if not (_bta_a and _bta_bb)
+                             else (1 if _bta_cc else 2))
+                if _bta_br != _bta_exp5:
+                    _bta_b5.append(f"{(_bta_a, _bta_bb, _bta_cc)}→{_bta_br}")
+                if _bta_br == 3 and not any("BC" in x for x in _bta_ln):
+                    _bta_b5.append("الفرعُ 3 بلا اسمِ الساقط")
+    _bta_ok5 = (not _bta_b5) and _bta_t5[(1, 1, 0)] == 2 and _bta_t5[
+        (0, 1, 1)] == 3 and _bta_t5[(1, 0, 1)] == 3
+    _bta_why5 = f"مخالفات={_bta_b5[:3] or 'صفر'} · الجدول={_bta_t5}"
+check("🩸📡🔒 BTA5 الحكمُ جدولُ حقيقةٍ من ثماني حالات: الأرضيةُ أوّلًا · والفرعُ 2 "
+      "لـ`BC3` وحدَها · والساقطُ يُسمَّى", _bta_ok5, _bta_why5)
+
+# `BTA6` — البوتستراب **حتميٌّ وعنقوديٌّ وبذرتُه حيّة**: البذرةُ نفسُها تعطي
+#    الفاصلَ نفسَه · وترتيبُ القاموس لا يغيّره · وحذفُ رمزٍ يغيّره (فليس ثابتًا).
+_bta_ok6, _bta_why6 = False, "?"
+if _BTA:
+    _bta_g = {f"S{i}": [0.5 + i * 0.37, 0.9 + i * 0.11] for i in range(12)}
+    _bta_r1 = _BTA.boot_ci_median(_bta_g, 300, 11)
+    _bta_r2 = _BTA.boot_ci_median({k: _bta_g[k] for k in
+                                   reversed(list(_bta_g))}, 300, 11)
+    _bta_r3 = _BTA.boot_ci_median({k: v for k, v in _bta_g.items()
+                                   if k != "S11"}, 300, 11)
+    _bta_seeds = {_BTA.boot_ci_median(_bta_g, 300, s) for s in (1, 2, 3, 4, 5)}
+    _bta_ok6 = (_bta_r1 == _bta_r2 and _bta_r1 != _bta_r3
+                and len(_bta_seeds) > 1 and _bta_r1[0] is not None
+                and _bta_r1[0] <= _bta_r1[1]
+                and _BTA.boot_ci_median({}) == (None, None))
+    _bta_why6 = (f"ثابت={_bta_r1} · معكوس={_bta_r2} · منقوص={_bta_r3} · "
+                 f"بذورٌ متمايزة={len(_bta_seeds)}")
+check("🩸📡🔒 BTA6 البوتستراب حتميٌّ (البذرةُ والترتيب) · عنقوديٌّ (حذفُ رمزٍ "
+      "يغيّره) · وبذرتُه **حيّةٌ** لا مُتجاهَلة", _bta_ok6, _bta_why6)
+
+# 🔴 `BTA7` — **كلُّ سببِ إسقاطٍ من الخمسة المسمّاة — سلوكيًّا** (‏`V-B7`):
+#    تُقاد المرحلتان بفِكستشراتٍ تغطّي كلَّ فرع، ويُشترَط أن كلَّ سببٍ مُرجَعٍ
+#    عضوٌ في `REASONS` — فلو أُدخل بندٌ سادسٌ سقط القفل.
+_bta_ok7, _bta_why7 = False, "?"
+if _BTA:
+    _bta_ny = _bta_dt.datetime(2025, 6, 2, 10, 0)     # 10:00 نيويورك
+    _bta_t0 = int(_bta_ny.replace(
+        tzinfo=_bta_dt.timezone(_bta_dt.timedelta(hours=-4))).timestamp() * 1000)
+    _bta_pm = _bta_t0 - 5 * 3600 * 1000               # 05:00 نيويورك (خارج الجلسة)
+    _bta_bar = {"t": _bta_t0, "o": 10.0, "h": 10.2, "l": 9.8, "c": 10.0}
+    _bta_day = [_bta_bar]
+    _bta_leg = {"sym": "X", "year": "2025", "kind": "entry", "side": "down",
+                "day": "2025-06-02", "level": 9.9, "dclose": 10.0,
+                "model": None}
+    _bta_cases = [
+        (_BTA.stage_bar(_bta_leg, None)[0], ("no_minutes", "day")),
+        (_BTA.stage_bar(_bta_leg, [{**_bta_bar, "t": _bta_pm}])[0],
+         ("no_minutes", "sess")),
+        (_BTA.stage_bar({**_bta_leg, "dclose": 50.0}, _bta_day)[0],
+         ("raw_scale_unverified", "dclose")),
+        (_BTA.stage_bar({**_bta_leg, "level": 1.0}, _bta_day)[0],
+         ("no_minutes", "touch")),
+        (_BTA.stage_bar(_bta_leg, _bta_day)[0], ("ok", "")),
+    ]
+    # 🔑 آخرُ صفقةٍ = إغلاقُ الشمعة ⇒ معاملُ الخامّ 1.0 بالضبط، فلحظةُ اللمس
+    #    هي `_bta_t0 + 1000` ولا تنزاح تحت `raw_factor`.
+    _bta_gt = [{"t": _bta_t0 + 1000, "p": 9.82},
+               {"t": _bta_t0 + 2000, "p": 10.2},
+               {"t": _bta_t0 + 3000, "p": 10.0}]
+    _bta_gq = [{"t": _bta_t0 + 900, "bid": 9.84, "ask": 9.90},
+               {"t": _bta_t0 + 1000, "bid": 9.84, "ask": 9.90}]
+    _bta_cases += [
+        (_BTA.stage_quote(_bta_leg, _bta_bar, None)[0],
+         ("no_quotes", "window_failed")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar, {"q": [], "t": None})[0],
+         ("no_quotes", "trades_failed")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar, {"q": [], "t": []})[0],
+         ("no_minutes", "no_trades")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar,
+                          {"q": _bta_gq,
+                           "t": [{"t": _bta_t0, "p": 5.0},
+                                 {"t": _bta_t0 + 1, "p": 50.0},
+                                 {"t": _bta_t0 + 2, "p": 10.0}]})[0],
+         ("raw_scale_unverified", "factor")),
+        (_BTA.stage_quote({**_bta_leg, "level": 1.0}, _bta_bar,
+                          {"q": _bta_gq, "t": _bta_gt})[0],
+         ("no_minutes", "no_trade_at_level")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar, {"q": [], "t": _bta_gt})[0],
+         ("no_quotes", "empty")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar,
+                          {"q": [{"t": _bta_t0 + 9000, "bid": 9.8,
+                                  "ask": 9.9}], "t": _bta_gt})[0],
+         ("no_quotes", "none_before")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar,
+                          {"q": [{"t": _bta_t0 + 900, "bid": 9.84,
+                                  "ask": None}], "t": _bta_gt})[0],
+         ("no_quotes", "half")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar,
+                          {"q": [{"t": _bta_t0 - 200000, "bid": 9.84,
+                                  "ask": 9.90}], "t": _bta_gt})[0],
+         ("stale_quote", "")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar,
+                          {"q": _bta_gq, "t": _bta_gt})[0], ("ok", "")),
+    ]
+    _bta_b7 = [f"{g}≠{e}" for g, e in _bta_cases if g != e]
+    _bta_named = all(g[0] == "ok" or g[0] in _BTA.REASONS
+                     for g, _e in _bta_cases)
+    # 🔑 والمتقادمةُ **تُرجع حمولتَها** (خارج كلّ معيارٍ ومع ذلك تُغذّي السطرَ
+    #    الوصفيَّ «بلا حارس التقادم») — فعتبةُ `STALE_MS` **من عندنا** ولا
+    #    يجوز أن تُسيّر الرقمَ في الخفاء. وغيرُها يُرجع `None`.
+    _bta_stq = _BTA.stage_quote(_bta_leg, _bta_bar,
+                                {"q": [{"t": _bta_t0 - 200000, "bid": 9.84,
+                                        "ask": 9.90}], "t": _bta_gt})
+    _bta_pay = (_bta_stq[1] is not None
+                and _bta_stq[1].get("age_ms", 0) > _BTA.STALE_MS
+                and _BTA.stage_quote(_bta_leg, _bta_bar,
+                                     {"q": [], "t": _bta_gt})[1] is None
+                and "بلا حارس التقادم" in _bta_insp.getsource(_BTA.main))
+    _bta_ok7 = ((not _bta_b7) and _bta_named and len(_bta_cases) == 15
+                and _bta_pay)
+    _bta_why7 = (f"مخالفات={_bta_b7[:3] or 'صفر'} · كلُّها مسمّاة={_bta_named}"
+                 f" · حمولةُ المتقادمة والسطرُ الوصفيّ={_bta_pay}")
+check("🩸📡🔒 BTA7 كلُّ سببِ إسقاطٍ **من الخمسة المسمّاة** سلوكيًّا عبر 15 فرعًا "
+      "في المرحلتين — ولا بندَ سادس · والمتقادمةُ تحتفظ بحمولتها للسطر الوصفيّ",
+      _bta_ok7, _bta_why7)
+
+# `BTA8` — **بيئةُ الطفل تُجرَّد سلوكيًّا** من مفاتيح تلغرام وتحمل الأعلامَ
+#    نفسَها ووضعَ الباكتيست · وصفرُ إسنادٍ إلى `CONFIG` (‏`V-B5`) · وقراءةٌ فقط.
+_bta_ok8, _bta_why8 = False, "?"
+if _BTA:
+    _bta_sv = {k: _bta_os.environ.get(k) for k in
+               ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "TG_BOT_TOKEN")}
+    try:
+        for _k in _bta_sv:
+            _bta_os.environ[_k] = "SECRET"
+        _bta_env = _BTA.child_env("/tmp/x.pkl.gz", {"BACKTEST_YEAR": "2025"})
+    finally:
+        for _k, _v in _bta_sv.items():
+            if _v is None:
+                _bta_os.environ.pop(_k, None)
+            else:
+                _bta_os.environ[_k] = _v
+    _bta_ok8 = (not any(k in _bta_env for k in _bta_sv)
+                and _bta_env.get("SCREENER_MODE") == "BACKTEST"
+                and _bta_env.get("BT_FROZEN_PATH") == "/tmp/x.pkl.gz"
+                and _bta_env.get("BACKTEST_YEAR") == "2025"
+                and all(_bta_env.get(k) == v for k, v in _BTA.FLAGS.items())
+                and _BTA.FLAGS == {"BT_ENVVALS": "1", "BT_POTENTIAL": "1",
+                                   "BT_SWEEP_ENTRY": "1"}
+                and _BTA.no_config_assign() and _BTA.selfcheck_readonly()
+                and "BT_SPREAD_PCT" not in _BTA.FLAGS)
+    _bta_why8 = (f"مفاتيحُ تلغرام باقية={[k for k in _bta_sv if k in _bta_env]}"
+                 f" · أعلام={_BTA.FLAGS}")
+check("🩸📡🔒 BTA8 بيئةُ الطفل تُجرَّد من تلغرام سلوكيًّا وتحمل أعلامَ `T-FCOST` "
+      "نفسَها · وصفرُ إسنادٍ إلى `CONFIG` · وقراءةٌ فقط", _bta_ok8, _bta_why8)
+
+# 🔴 `BTA9` — **إعادةُ الاستعمال بالاسم (‏`V-B6`) مُعادُ إثباتُها هنا بالـAST**
+#    لا بالثقة في دالّة الأداة · و`_arm_a_exit_bar` في قائمة الجذور ·
+#    و`slip_nbbo_arms.py` مقروءٌ في حارس البصمة.
+_bta_ok9, _bta_why9 = False, "?"
+if _BTA:
+    _bta_want = {"_arm_a_exit_bar", "trigger_ms", "trigger_index",
+                 "fetch_quotes", "fetch_trades", "prevailing", "raw_factor"}
+    _bta_got = set()
+    try:
+        for _n in _bta_ast.walk(_bta_ast.parse(_bta_src)):
+            if isinstance(_n, _bta_ast.Call):
+                _nm = (getattr(_n.func, "attr", None)
+                       or getattr(_n.func, "id", None))
+                if _nm in _bta_want:
+                    _bta_got.add(_nm)
+    except Exception:                                            # noqa: BLE001
+        _bta_got = set()
+    _bta_rsrc = _bta_insp.getsource(_BTA.roots_identical)
+    _bta_ok9 = (_bta_want <= _bta_got
+                and "_arm_a_exit_bar" in _BTA.ROOTS
+                and "_resolve_arm" in _BTA.ROOTS
+                and "backtest_symbol" in _BTA.ROOTS
+                and "slip_nbbo_arms.py" in _bta_rsrc
+                and _BTA.reuse_by_name()[0])
+    _bta_why9 = f"غيرُ منادَاة={sorted(_bta_want - _bta_got) or 'صفر'}"
+check("🩸📡🔒 BTA9 المُمكِّناتُ السبع **تُنادى فعلًا** (‏AST مستقلٌّ عن دالّة "
+      "الأداة) · والجذورُ تشمل مُمكِّنَ الخروج · و`slip_nbbo_arms` محروسٌ",
+      _bta_ok9, _bta_why9)
+
+# 🔴 `BTA10` — **محورُ `V-B2` سلوكيًّا:** `derive_legs` تُعيد اشتقاقَ التعبئة
+#    والخروج بتعبير المحرّك نفسِه، وتُوافق `_arm_a_exit_bar` الحيّة، **وتكشف
+#    التفرّق** حين تخالف النتيجةُ المخزَّنة (وإلّا صار `walk_mismatch` صفرًا كذبًا).
+_bta_ok10, _bta_why10 = False, "?"
+if _BTA:
+    import pandas as _bta_pd
+    _bta_idx = _bta_pd.to_datetime(["2025-05-01", "2025-05-02", "2025-05-05",
+                                    "2025-05-06", "2025-05-07", "2025-05-08"])
+    _bta_mk = lambda hi, lo, cl: _bta_pd.DataFrame(      # noqa: E731
+        {"High": hi, "Low": lo, "Close": cl, "Open": cl}, index=_bta_idx)
+    # تعبئةٌ في D2 (‏فهرس 1 بالنافذة) ثمّ وقفٌ في D4 (‏فهرس 3)
+    _bta_df_l = _bta_mk([11, 11, 11, 11.0, 11, 11],
+                        [12, 10.5, 9.8, 9.5, 9.0, 9.0],
+                        [11, 11, 10.0, 10.0, 9.2, 9.2])
+    _bta_tr_l = {"symbol": "X", "date": "2025-05-01", "entry": 10.0,
+                 "stop": 9.0, "t1": 12.0, "outcome": "loss"}
+    _bta_d_l = _BTA.derive_legs(_bta_df_l, _bta_tr_l, 40)
+    # الهدفُ يُبلَغ في D3 (‏فهرس 2) قبل الوقف
+    _bta_df_w = _bta_mk([11, 11, 11, 12.5, 11, 11],
+                        [12, 10.5, 9.8, 9.5, 9.0, 9.0],
+                        [11, 11, 10.0, 12.0, 9.2, 9.2])
+    _bta_d_w = _BTA.derive_legs(_bta_df_w,
+                                {**_bta_tr_l, "outcome": "win"}, 40)
+    # ونتيجةٌ مخزَّنةٌ مخالفة ⇒ **يُكشَف التفرّق** لا يُطوى
+    _bta_d_x = _BTA.derive_legs(_bta_df_l,
+                                {**_bta_tr_l, "outcome": "win"}, 40)
+    # والمرجعُ الحيّ: `_arm_a_exit_bar` نفسُها على النافذة نفسِها
+    _bta_fut = _bta_df_l.iloc[1:41]
+    _bta_ref = S._arm_a_exit_bar(_bta_fut["High"].values.astype(float),
+                                 _bta_fut["Low"].values.astype(float),
+                                 _bta_fut["Close"].values.astype(float),
+                                 10.0, 9.0, 12.0, 1)
+    # 🔑 **وفهرسٌ واعٍ بالمنطقة يُعطي النتيجةَ نفسَها** — وإلّا سقط `get_loc`
+    #    بطابعٍ ساذجٍ فصار كلُّ صفٍّ `walk_mismatch` وسقطت `V-B2` على المشية
+    #    كلِّها (والمستودعُ يحمل فهارسَ واعيةً في مساراتٍ عدّة).
+    _bta_df_tz = _bta_df_l.copy()
+    _bta_df_tz.index = _bta_df_l.index.tz_localize("America/New_York")
+    _bta_d_tz = _BTA.derive_legs(_bta_df_tz, _bta_tr_l, 40)
+    _bta_ok10 = (_bta_d_l and _bta_d_l["agree"]
+                 and _bta_d_tz == _bta_d_l
+                 and _bta_d_l["fill_day"] == "2025-05-05"
+                 and _bta_d_l["exit_day"] == "2025-05-07"
+                 and _bta_d_l["exit_kind"] == "loss"
+                 and _bta_ref == ("loss", 3)
+                 and _bta_d_w and _bta_d_w["agree"]
+                 and _bta_d_w["exit_kind"] == "win"
+                 and _bta_d_w["exit_day"] == "2025-05-06"
+                 and _bta_d_x is not None and not _bta_d_x["agree"]
+                 and _BTA.derive_legs(_bta_df_l,
+                                      {**_bta_tr_l, "date": "2099-01-01"},
+                                      40) is None)
+    _bta_why10 = f"خسارة={_bta_d_l} · مرجعٌ حيّ={_bta_ref} · مخالف={_bta_d_x}"
+check("🩸📡🔒 BTA10 إعادةُ الاشتقاق سلوكيّةٌ: التعبئةُ والخروجُ بتعبير المحرّك "
+      "ومرجعِه الحيّ · **والتفرّقُ يُكشَف** · وفهرسٌ واعٍ بالمنطقة لا يكسرها "
+      "(‏محورُ `V-B2`)", _bta_ok10,
+      str(_bta_why10)[:160])
+
+# 🔴 `BTA11` — وضعُ الجدوى **أعمى**: يطبع التغطيةَ والأعدادَ وأسبابَ الإسقاط
+#    فقط · وصفرُ `c` وصفرُ `s` وصفرُ فاصلٍ وصفرُ حكم · ولا يُكتَب ملفُّ السيقان.
+#    🐞 **والفحصُ بنيويٌّ لا مطابقةُ كلمة** (درسُ `FCA11`): المرساةُ **مطالعُ
+#    الطباعة الفعليّة**، ومعها **شاهدُ ضبطٍ** يُثبت حضورَها في الكود أصلًا.
+_bta_ok11, _bta_why11 = False, "?"
+if _BTA:
+    import slip_arms as _bta_SL2
+    _bta_o_run = _BTA._run_child
+    _bta_o_roots = _BTA.roots_identical
+    _bta_o_out = _BTA.OUT_LEGS
+    _bta_o_fd = _bta_SL2.fetch_day
+    _bta_calls = []
+    _bta_tmpd = _bta_os.path.join("/tmp", "bta_dry")
+    _bta_os.makedirs(_bta_tmpd, exist_ok=True)
+
+    def _bta_fake_child(tag, frozen, extra):
+        _bta_calls.append(tag)
+        _p = _bta_os.path.join(_bta_tmpd, f"legs_{tag}.json")
+        _rows = [{"sym": f"S{i % 40}", "date": "2025-05-01", "agree": True,
+                  "outcome": "loss", "entry": 10.0, "stop": 9.0, "t1": 12.0,
+                  "fill_day": "2025-05-05", "dclose_fill": 10.0,
+                  "exit_day": "2025-05-07", "dclose_exit": 9.2,
+                  "exit_kind": "loss"}
+                 for i in range(_BTA.FC_RESOLVED[tag])]
+        with open(_p, "w", encoding="utf-8") as _fh:
+            _bta_json.dump(_rows, _fh)
+        return {"tag": tag, "snap": {"asof": "x", "n": 1},
+                "n_signals": _BTA.FC_SIGNALS[tag],
+                "n_resolved": _BTA.FC_RESOLVED[tag],
+                "n_agree": _BTA.FC_RESOLVED[tag], "path": _p, "spread": 0.0}
+
+    _bta_envsv = {k: _bta_os.environ.get(k) for k in
+                  ("BTCOST_YEARS", "BTCOST_FROZEN", "BTCOST_DRY",
+                   "BTCOST_WORKERS")}
+    try:
+        _BTA._run_child = _bta_fake_child
+        _BTA.roots_identical = lambda: (True, "جذعٌ اختباريّ")
+        _BTA.OUT_LEGS = _bta_os.path.join(_bta_tmpd, "legs.jsonl")
+        _bta_SL2.fetch_day = lambda *_a, **_k: None   # 🔒 صفرُ شبكة
+        _bta_os.environ["BTCOST_YEARS"] = "2023,2024,2025"
+        _bta_os.environ["BTCOST_FROZEN"] = "/tmp/a,/tmp/b,/tmp/c"
+        _bta_os.environ["BTCOST_DRY"] = "1"
+        _bta_os.environ["BTCOST_WORKERS"] = "2"
+        _bta_buf = _bta_io.StringIO()
+        with _bta_ctx.redirect_stdout(_bta_buf):
+            _bta_rc = _BTA.main()
+        _bta_out = _bta_buf.getvalue()
+        _bta_outp = _BTA.OUT_LEGS
+    finally:
+        _BTA._run_child, _BTA.roots_identical = _bta_o_run, _bta_o_roots
+        _BTA.OUT_LEGS = _bta_o_out
+        _bta_SL2.fetch_day = _bta_o_fd
+        for _k, _v in _bta_envsv.items():
+            if _v is None:
+                _bta_os.environ.pop(_k, None)
+            else:
+                _bta_os.environ[_k] = _v
+    _bta_marks = ("`C-MED` =", "`S-MED` =", "فاصلُ البوتستراب", "⚖️ الفرعُ",
+                  "🔒 `V-B9`")
+    _bta_msrc = (_bta_insp.getsource(_BTA.main)
+                 + _bta_insp.getsource(_BTA.read_verdict))
+    _bta_live = all(m in _bta_msrc for m in _bta_marks)
+    _bta_ok11 = (_bta_rc == 0 and sorted(_bta_calls) == ["2023", "2024", "2025"]
+                 and "`V-B1` تكاملٌ" in _bta_out
+                 and "أسبابُ الإسقاط المسمّاة" in _bta_out
+                 and "`V-B7`" in _bta_out
+                 and not any(m in _bta_out for m in _bta_marks)
+                 and _bta_live
+                 and not _bta_os.path.exists(_bta_outp))
+    _bta_why11 = (f"rc={_bta_rc} · أطفال={sorted(_bta_calls)} · "
+                  f"مطبوعٌ منها={[m for m in _bta_marks if m in _bta_out]} · "
+                  f"حاضرةٌ في الكود={_bta_live} · "
+                  f"ملفُّ السيقان={_bta_os.path.exists(_bta_outp)}")
+check("🩸📡🔒 BTA11 وضعُ الجدوى **أعمى**: `V-B1`/`V-B2`/التغطيةُ والأسباب "
+      "تُطبَع · وصفرُ `c` وصفرُ `s` وصفرُ فاصلٍ وصفرُ حكمٍ وصفرُ ملفّ",
+      _bta_ok11, _bta_why11)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

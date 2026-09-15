@@ -1,0 +1,95 @@
+name: T-BTCOST (تكلفةُ التنفيذ على مجتمع المحرّك)
+
+# 🩸📡 يقيس: السبريدَ `c` والانزلاقَ المتبقّي `s` **على صفقات محرّك الباكتيست
+#    نفسِها** بـ`NBBO` التاريخيّ — وهو المصدرُ الذي سمّاه `fcost_prereg.md §⑨`
+#    ولم يكن موجودًا. العقد: `btcost_prereg.md` (مدفوعٌ **ومدموجٌ في `main`**
+#    قبل أيّ سطرِ أداة).
+# 🔒 بحث/قراءة فقط · **بلا كرون** · `Super_stock.py` و`slip_nbbo_arms.py` لا
+#    تُمَسّان بحرف (‏`V-B3` يقارن ببصمة `origin/main` ويخرج قبل أيّ رقم) ·
+#    ولا `CONFIG` تُسنَد في الأداة (‏`V-B5`) · ولا `BT_SPREAD_PCT` تتحرّك.
+# 🔕 **ولا سرَّ تلغرام هنا** — فالإرسالُ مستحيلٌ بنيويًّا لا بالوعد، والأداةُ
+#    تُجرّد مفاتيحَ تلغرام من بيئة الطفل فوق ذلك.
+# ⚠️ الحكمُ يلزمه **السنواتُ الثلاث بعينها** (§④)؛ ووضعُ الجدوى `dry=1`
+#    **بلا أيّ `c` وبلا `s` وبلا حكم** يجيب سؤالًا واحدًا: هل تعبر `BC1` و`BC2`؟
+
+permissions:
+  contents: read
+  actions: read          # 🕰️ لتنزيل لقطات التجميد وحدها
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "السنواتُ مفصولةً بفاصلة — للحكم: 2023,2024,2025"
+        required: true
+        default: "2023,2024,2025"
+      frozen_run_ids:
+        description: "لقطاتُ PIT **بالترتيب نفسِه**: 2023=31574165523 · 2024=31199493957 · 2025=31191327731"
+        required: true
+        default: "31574165523,31199493957,31191327731"
+      dry:
+        description: "وضعُ الجدوى: 1 = تغطيةٌ وأعدادٌ فقط بلا c/s وبلا حكم · 0 = القياسُ الكامل"
+        required: false
+        default: "1"
+
+jobs:
+  btcost:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # 🔒 `V-B3` يقرأ `origin/main` — بلا التاريخ يسقط
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: تنزيلُ اللقطات المجمَّدة وبناءُ مسارِها بالترتيب
+        env:
+          GH_TOKEN: ${{ github.token }}
+          IN_YEARS: ${{ github.event.inputs.years }}
+          IN_IDS: ${{ github.event.inputs.frozen_run_ids }}
+          IN_DRY: ${{ github.event.inputs.dry }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$IN_YEARS" | grep -Eq '^20(2[345])(,20(2[345]))*$' \
+            || { echo "⛔ سنواتٌ غيرُ مسموحة — الكونُ هو كونُ T-FCOST"; exit 2; }
+          printf '%s' "$IN_IDS" | grep -Eq '^[0-9]{6,20}(,[0-9]{6,20})*$' \
+            || { echo "⛔ أرقامُ اللقطات ليست أرقامًا"; exit 2; }
+          printf '%s' "${IN_DRY:-0}" | grep -Eq '^[01]$' \
+            || { echo "⛔ dry إمّا 0 أو 1"; exit 2; }
+          ny=$(printf '%s' "$IN_YEARS" | tr ',' '\n' | wc -l)
+          ni=$(printf '%s' "$IN_IDS" | tr ',' '\n' | wc -l)
+          test "$ny" -eq "$ni" \
+            || { echo "⛔ عددُ السنوات $ny ≠ عددُ اللقطات $ni"; exit 2; }
+          : > .frozen_paths
+          for rid in $(printf '%s' "$IN_IDS" | tr ',' ' '); do
+            gh run download "$rid" -D "frozen/$rid" -R "$GITHUB_REPOSITORY"
+            p="$(find "frozen/$rid" -name '*.pkl.gz' | head -1)"
+            test -n "$p" || { echo "⛔ لا لقطة في $rid"; exit 2; }
+            printf '%s,' "$(realpath "$p")" >> .frozen_paths
+          done
+          sed -i 's/,$//' .frozen_paths
+          echo "📌 مساراتُ اللقطات: $(cat .frozen_paths)"
+
+      - name: تشغيلُ أذرع التكلفة على المجتمع
+        env:
+          BTCOST_YEARS: ${{ github.event.inputs.years }}
+          BTCOST_DRY: ${{ github.event.inputs.dry }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        run: |
+          set -euo pipefail
+          BTCOST_FROZEN="$(cat .frozen_paths)" python3 btcost_arms.py
+
+      - name: رفعُ السيقان
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: btcost-${{ github.run_id }}
+          path: |
+            btcost_legs.jsonl
+            btcost_childlegs_*.json
+          retention-days: 90
+          if-no-files-found: warn
