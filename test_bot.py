@@ -47410,6 +47410,14 @@ if _BTA:
                                   "ask": 9.90}], "t": _bta_gt})[0],
          ("stale_quote", "")),
         (_BTA.stage_quote(_bta_leg, _bta_bar,
+                          {"q": [{"t": _bta_t0 + 900, "bid": 9.84,
+                                  "ask": 0}], "t": _bta_gt})[0],
+         ("no_quotes", "nonpositive")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar,
+                          {"q": [{"t": _bta_t0 + 900, "bid": 9.95,
+                                  "ask": 9.90}], "t": _bta_gt})[0],
+         ("no_quotes", "crossed")),
+        (_BTA.stage_quote(_bta_leg, _bta_bar,
                           {"q": _bta_gq, "t": _bta_gt})[0], ("ok", "")),
     ]
     _bta_b7 = [f"{g}≠{e}" for g, e in _bta_cases if g != e]
@@ -47426,12 +47434,20 @@ if _BTA:
                 and _BTA.stage_quote(_bta_leg, _bta_bar,
                                      {"q": [], "t": _bta_gt})[1] is None
                 and "بلا حارس التقادم" in _bta_insp.getsource(_BTA.main))
-    _bta_ok7 = ((not _bta_b7) and _bta_named and len(_bta_cases) == 15
-                and _bta_pay)
+    # 🔴 **وكلُّ ساقٍ مقبولةٍ تُقاس فعلًا**: لو أرجعت `measure` عدمًا لساقٍ
+    #    مرّت المرحلتين لسقطت بلا سببٍ مسمًّى فأوقفت التشغيلةَ كلَّها — وهو
+    #    العطبُ الذي كشفه `34938131646`، فصار شرطًا لا رجاءً.
+    _bta_okpay = _BTA.stage_quote(_bta_leg, _bta_bar,
+                                  {"q": _bta_gq, "t": _bta_gt})[1]
+    _bta_meas = _BTA.measure(_bta_leg, _bta_okpay) if _bta_okpay else None
+    _bta_ok7 = ((not _bta_b7) and _bta_named and len(_bta_cases) == 17
+                and _bta_pay and _bta_meas is not None
+                and _bta_meas.get("c") > 0)
     _bta_why7 = (f"مخالفات={_bta_b7[:3] or 'صفر'} · كلُّها مسمّاة={_bta_named}"
                  f" · حمولةُ المتقادمة والسطرُ الوصفيّ={_bta_pay}")
 check("🩸📡🔒 BTA7 كلُّ سببِ إسقاطٍ **من الخمسة المسمّاة** سلوكيًّا عبر 15 فرعًا "
-      "في المرحلتين — ولا بندَ سادس · والمتقادمةُ تحتفظ بحمولتها للسطر الوصفيّ",
+      "في المرحلتين — ولا بندَ سادس · والمتقادمةُ تحتفظ بحمولتها للسطر الوصفيّ "
+      "· والمقبولةُ تُقاس فعلًا",
       _bta_ok7, _bta_why7)
 
 # `BTA8` — **بيئةُ الطفل تُجرَّد سلوكيًّا** من مفاتيح تلغرام وتحمل الأعلامَ

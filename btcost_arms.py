@@ -529,6 +529,19 @@ def stage_quote(leg: dict, bar: dict, win: dict) -> tuple:
         return ("no_quotes", "none_before"), None
     if q.get("ask") is None or q.get("bid") is None:
         return ("no_quotes", "half"), None
+    # 🔴 **اقتباسٌ ذو طرفين ليس بالضرورة اقتباسًا صالحًا:** الطرفُ الصفريّ
+    #    والسوقُ **المتقاطع** (طلبٌ فوق عرض) واقعان في `NBBO` الحقيقيّ — وكان
+    #    كلاهما يمرّ من هنا ثمّ يسقط في `measure` **بلا سببٍ مسمًّى** فيوقف
+    #    حارسُ `V-B7` التشغيلةَ كلَّها (وقع فعلًا: ‏44 ساقًا في `34938131646`).
+    #    ⇒ يُسمَّيان هنا تحت **`no_quotes`** ولا يُضاف بندٌ سادس.
+    try:
+        _b, _a = float(q["bid"]), float(q["ask"])
+    except (TypeError, ValueError):
+        return ("no_quotes", "unreadable"), None
+    if _b <= 0 or _a <= 0:
+        return ("no_quotes", "nonpositive"), None
+    if _a < _b:
+        return ("no_quotes", "crossed"), None
     age = int(tms) - int(q["t"])
     if age > STALE_MS:
         # 🔑 تُرجَع الحمولةُ **مع** السبب: الساقُ **مُسقَطةٌ من كلّ معيار**
