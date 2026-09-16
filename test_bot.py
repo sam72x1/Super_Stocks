@@ -48578,6 +48578,79 @@ check("🕵️📈🔒 OCA10 مقياسٌ واحدٌ سلوكيًّا: up_ext م
       "mg_day بت-بت (‏+50% على فِكستشرٍ تفصل فيه الإزاحة)", _oca_ok10, _oca_why10)
 
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 🕵️📈 `OCR1`-`OCR3` — نتيجةُ `T-OPCURVE` (2026-09-16 · «ابن الاداة» · التشغيلة `35057268723`
+#    على `9b5c3ea4`): الملفُّ يحمل مصادرَه بأرقامها · والصفوفُ المنشورة **كاملةٌ ومتّسقةٌ مع
+#    نصّه** (عدًّا لا نصًّا) · و`h*` المنشورُ **يلزم من القاعدة الحيّة** `window_rule` على
+#    الرُّبيعات المنشورة — فطفرةُ `W_SET` في الأداة تُسقطه كما تُسقطه طفرةُ الرقم في الملفّ.
+import re as _ocr_re                                             # noqa: E402
+from collections import Counter as _ocr_Counter                  # noqa: E402
+
+try:
+    _ocr_txt = open("opcurve_result.md", encoding="utf-8").read()
+    _ocr_lines = open("opcurve_rows.tsv", encoding="utf-8").read().splitlines()
+    _ocr_hdr = _ocr_lines[0].split("\t")
+    _ocr_data = [ln.split("\t") for ln in _ocr_lines[1:] if ln.strip()]
+    _ocr_ok1 = (all(k in _ocr_txt for k in ("35057268723", "9b5c3ea4", "f3d6a5c6",
+                                              "opcurve_rows.tsv"))
+                and _ocr_hdr[:3] == ["date", "sym", "trig"] and _ocr_hdr[-1] == "pm_last"
+                and len(_ocr_hdr) == 20 and bool(_ocr_data)
+                and all(len(r) == 20 for r in _ocr_data))
+    _ocr_why1 = f"صفوف={len(_ocr_data)} · أعمدة={len(_ocr_hdr)}"
+except Exception as _e:                                          # noqa: BLE001
+    _ocr_data, _ocr_txt = [], ""
+    _ocr_ok1, _ocr_why1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCR1 نتيجةُ T-OPCURVE تحمل التشغيلةَ والعقدَ والأداةَ بأرقامها · والصفوفُ 20 عمودًا "
+      "كلُّها", _ocr_ok1, _ocr_why1)
+
+# 🔴 `OCR2` — الاتّساق عدًّا: ما يقوله نصُّ النتيجة (المقيسُ · المنفجرون · سلالُ الزناد)
+#    يُعاد عدُّه من الصفوف المنشورة نفسِها — لا رقمَ مكتوبٌ بيدي في القفل.
+try:
+    _ocr_m_n = _ocr_re.search(r"\*\*‏(\d+) مقيسة\*\*", _ocr_txt)
+    _ocr_m_x = _ocr_re.search(r"طابق\s+التشغيلةَ بت-بت\*\* \(‏(\d+) من (\d+)\)", _ocr_txt)
+    _ocr_m_t = _ocr_re.search(r"`R1` \*\*‏(\d+)\*\* · `T-C` \*\*‏(\d+)\*\* · قبل الشحن \*\*‏(\d+)\*\*",
+                              _ocr_txt)
+    _ocr_trig = _ocr_Counter(r[2] for r in _ocr_data)
+    _ocr_expl = sum(1 for r in _ocr_data if r[7] == "نعم")
+    _ocr_ok2 = (bool(_ocr_m_n and _ocr_m_x and _ocr_m_t)
+                and int(_ocr_m_n.group(1)) == len(_ocr_data)
+                and (int(_ocr_m_x.group(1)), int(_ocr_m_x.group(2))) == (_ocr_expl, len(_ocr_data))
+                and tuple(int(g) for g in _ocr_m_t.groups())
+                == (_ocr_trig.get("R1", 0), _ocr_trig.get("T-C", 0), _ocr_trig.get("قبل الشحن", 0)))
+    _ocr_why2 = (f"نصّ n={_ocr_m_n and _ocr_m_n.group(1)} · صفوف={len(_ocr_data)} · "
+                 f"منفجر={_ocr_expl} · زناد={dict(_ocr_trig)}")
+except Exception as _e:                                          # noqa: BLE001
+    _ocr_ok2, _ocr_why2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCR2 نتيجةُ T-OPCURVE متّسقةٌ عدًّا مع صفوفها: المقيسُ والمنفجرون وسلالُ الزناد "
+      "يُعاد عدُّها من opcurve_rows.tsv", _ocr_ok2, _ocr_why2)
+
+# 🔴 `OCR3` — `h*` المنشورُ يلزم من `window_rule` **الحيّة** على الرُّبيعات المنشورة (‏n · p50 ·
+#    p75 · p90 تُقرأ من النصّ ويُبنى بها توزيعٌ صناعيٌّ يُعيدها بت-بت عبر `pctile` بالاسم).
+try:
+    _ocr_m_w = _ocr_re.search(r"\| ‏(\d+) / \*\*‏(\d+)\*\* / ‏(\d+) \|", _ocr_txt)
+    _ocr_m_h = _ocr_re.search(r"\*\*`h\*` = (\d+|EOD) دقيقة\*\*", _ocr_txt)
+    _ocr_m_k = _ocr_re.search(r"وداخلَ النظاميّ\*\*\) \| \*\*‏(\d+)\*\*", _ocr_txt)
+    _ocr_p50, _ocr_p75, _ocr_p90 = (int(g) for g in _ocr_m_w.groups())
+    _ocr_k = int(_ocr_m_k.group(1))
+    _ocr_i75 = int(round(0.75 * (_ocr_k - 1)))
+    _ocr_i90 = int(round(0.90 * (_ocr_k - 1)))
+    _ocr_syn = ([_ocr_p50] * _ocr_i75 + [_ocr_p75] * (_ocr_i90 - _ocr_i75)
+                + [_ocr_p90] * (_ocr_k - _ocr_i90))
+    _ocr_rows = [{"o": {"t_hit10": v, "hit10_reg": True}} for v in _ocr_syn]
+    _ocr_w = _OCA.window_rule(_ocr_rows)
+    _ocr_h_txt = _ocr_m_h.group(1)
+    _ocr_h_txt = int(_ocr_h_txt) if _ocr_h_txt.isdigit() else _ocr_h_txt
+    _ocr_ok3 = (_ocr_w["n"] == _ocr_k and (_ocr_w["p50"], _ocr_w["p75"], _ocr_w["p90"])
+                == (_ocr_p50, _ocr_p75, _ocr_p90) and _ocr_w["h"] == _ocr_h_txt
+                and _ocr_h_txt in _OCA.W_SET)
+    _ocr_why3 = f"نصّ h*={_ocr_h_txt} · القاعدة={_ocr_w['h']} · p={_ocr_w['p50']}/{_ocr_w['p75']}/{_ocr_w['p90']} · n={_ocr_w['n']}"
+except Exception as _e:                                          # noqa: BLE001
+    _ocr_ok3, _ocr_why3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCR3 h* المنشورُ في نتيجة T-OPCURVE يلزم من window_rule الحيّة على الرُّبيعات "
+      "المنشورة (‏p75 ⟶ أصغرُ عنصرٍ في W_SET)", _ocr_ok3, _ocr_why3)
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
