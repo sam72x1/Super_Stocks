@@ -285,5 +285,12 @@
     "n_raw_candidates": 1,
     "n_symbols": 21,
     "termination": "normal"
+  },
+  "2026-09-16": {
+    "n_delivered": 1,
+    "n_emitted": 1,
+    "n_raw_candidates": 1,
+    "n_symbols": 18,
+    "termination": "normal"
   }
 }

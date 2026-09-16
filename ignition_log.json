@@ -1174,5 +1174,20 @@
   "usd_eff": 34697,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "NCRA",
+  "date": "2026-09-16",
+  "sustain_min": 43,
+  "operator_ok": true,
+  "fired_at": "2026-09-16T20:00:57Z",
+  "break_level": 1.9,
+  "price": 2.1,
+  "vol_x": 33.7,
+  "usd": 24574,
+  "candle_class": "group",
+  "usd_eff": 24574,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
