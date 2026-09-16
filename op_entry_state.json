@@ -373,7 +373,7 @@
  },
  "LIQ:RITR": {
   "anchor_ms": 1789547460000,
-  "last_ms": 1789547460000,
+  "last_ms": 1789547520000,
   "sent": [
    "M1"
   ],
@@ -381,15 +381,16 @@
   "vol_x": 98.6,
   "peak_usd": 147374,
   "last_eval_ms": 1789547520000,
-  "pulse_ms": 1789547460000,
+  "pulse_ms": 1789547520000,
   "anchor_price": 0.103,
   "anchor_open": 0.084,
   "anchor_low": 0.0836,
-  "date": "2026-09-16",
   "pre_done": true,
   "pre_hi": 0.0839,
   "pre_usd": 20103,
-  "pre_n": 17
+  "pre_n": 17,
+  "exit_ms": 1789547520000,
+  "date": "2026-09-16"
  },
  "LIQ:NCRA": {
   "last_eval_ms": 1789547160000,
