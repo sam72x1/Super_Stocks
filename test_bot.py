@@ -48302,6 +48302,282 @@ check("🕵️📈🔒 OCK3 التنبّؤاتُ `CP1`-`CP7` سبعةٌ كلٌّ
                 f"سلال={len(_ock_b_ok)}/8 · H2={'2026-09-01' in _ock_s4}")
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🕵️📈 `T-OPCURVE` — أقفالُ الأداة (أمرُ المالك «ابن الاداة»، 2026-09-16)
+#   العقدُ `opcurve_prereg.md` مدموجٌ `f3d6a5c6` · الأداةُ `opcurve_probe.py` قراءةٌ
+#   فقط ووصفيّة. 🔒 أسماءٌ خاصّةٌ بالكتلة (`_oca_*`) فلا تُظلَّل أسماءُ السويّة (‏①).
+#   ⛔ **ولا شبكةَ هنا**: `main()` تُنادى بجالباتٍ محقونة وأسلاكِ تعثّر فقط.
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _oca_ast
+import contextlib as _oca_ctx
+import datetime as _oca_dt
+import io as _oca_io
+import os as _oca_os
+import yaml as _oca_yaml
+import opcurve_probe as _OCA
+import tierlink_probe as _oca_tl
+import liq_trig_read as _oca_ltr
+from kasih_scan import NY as _oca_NY
+
+_oca_src = open("opcurve_probe.py", encoding="utf-8").read()
+_oca_tree = _oca_ast.parse(_oca_src)
+
+
+def _oca_ms(day, hh, mm):
+    return int(_oca_dt.datetime(2026, 9, day, hh, mm, tzinfo=_oca_NY).timestamp() * 1000)
+
+
+# فِكستشرُ يومٍ كامل: المِرساة 09:40 · الكرت `t0` 09:44 · e5 = 1.00 · قاعُ المِرساة 0.90
+_oca_a = _oca_ms(10, 9, 40)
+_oca_t0 = _oca_a + 4 * 60_000
+_oca_seq = {1: (1.02, 0.99, 1.01), 3: (1.04, 1.00, 1.03), 5: (1.06, 1.01, 1.05),
+            7: (1.10, 1.03, 1.08),          # لمسُ +10% **بالضبط** في الدقيقة 7
+            9: (1.12, 1.02, 1.10), 20: (1.09, 0.97, 0.98),
+            45: (1.30, 0.96, 1.25),         # قمّةُ النظاميّ +30%
+            58: (1.20, 0.85, 0.88),         # إغلاقٌ دون 0.90 ⇒ t_stop = 58
+            120: (1.00, 0.80, 0.82), 370: (0.95, 0.80, 0.90)}
+_oca_bars = [(_oca_ms(10, 4, 5), 0.9, 0.95, 0.9, 0.92, 100)]
+_oca_bars += [(_oca_a + k * 60_000, 1.0, 1.01, 0.95, 1.0, 500) for k in range(5)]
+_oca_bars += [(_oca_t0 + m * 60_000, c, h, l, c, 1000) for m, (h, l, c) in _oca_seq.items()]
+_oca_bars.append((_oca_ms(10, 16, 5), 0.9, 1.50, 0.9, 1.45, 100))   # أفتر: قمّةٌ ممتدّة +50%
+_oca_bars.sort()
+
+# 🔴 `OCA0` — قراءةٌ فقط (AST): صفرُ إرسالٍ · صفرُ كتابةِ ملفّ · صفرُ حفظِ حالة ·
+#    والإنتاجُ لا يستورد الأداة.
+_oca_calls = {getattr(n.func, "id", getattr(n.func, "attr", None))
+              for n in _oca_ast.walk(_oca_tree) if isinstance(n, _oca_ast.Call)}
+_oca_writes = [n for n in _oca_ast.walk(_oca_tree) if isinstance(n, _oca_ast.Call)
+               and getattr(n.func, "id", None) == "open"
+               and any(isinstance(a, _oca_ast.Constant) and any(ch in str(a.value) for ch in "wax+")
+                       for a in n.args[1:2])]
+_oca_banned = {"send_telegram", "git_save", "save_watchlist", "post", "system"} & _oca_calls
+_oca_prod_imports = any("opcurve_probe" in open(_p, encoding="utf-8").read()
+                        for _p in ("Super_stock.py", "pullback_live.py", "ignition_live.py",
+                                   "split_hunter.py"))
+check("🕵️📈🔒 OCA0 قراءةٌ فقط: صفرُ إرسالٍ وصفرُ كتابةِ ملفّ (AST) · والإنتاجُ لا يستورد الأداة",
+      not _oca_writes and not _oca_banned and not _oca_prod_imports,
+      f"كتابات={len(_oca_writes)} · محظور={_oca_banned or 'صفر'} · إنتاج={_oca_prod_imports}")
+
+# 🔴 `OCA1` — مقياسٌ واحد: الاستيرادُ **بالاسم** من أدوات الإنتاج ولا إعادةَ تعريفٍ محلّيّة.
+_oca_imports = {(n.module, a.name) for n in _oca_ast.walk(_oca_tree)
+                if isinstance(n, _oca_ast.ImportFrom) for a in n.names}
+_oca_need = {("tierlink_probe", "anchor_history"), ("tierlink_probe", "features"),
+             ("tierlink_probe", "daily_range"), ("tier_fwd_report", "fetch_day"),
+             ("tier_fwd_report", "load_ledger"), ("tier_days_report", "true_e5"),
+             ("sym_day_probe", "full_day_max"), ("sym_day_probe", "exit_point"),
+             ("kasih_scan", "NY"), ("kasih_scan", "wilson"),
+             ("btcost_arms", "boot_ci_median"), ("btcost_arms", "pctile"),
+             ("liq_trig_read", "SHIP_ISO")}
+_oca_defs = {n.name for n in _oca_ast.walk(_oca_tree) if isinstance(n, _oca_ast.FunctionDef)}
+_oca_shadow = {nm for (_m, nm) in _oca_need} & _oca_defs
+check("🕵️📈🔒 OCA1 مقياسٌ واحد: الاستيرادُ بالاسم من أدوات الإنتاج (AST) وصفرُ إعادةِ تعريف",
+      _oca_need <= _oca_imports and not _oca_shadow,
+      f"ناقص={sorted(_oca_need - _oca_imports) or 'صفر'} · مظلَّل={_oca_shadow or 'صفر'}")
+
+# 🔴 `OCA2` — المسارُ سلوكيًّا على الفِكستشر: النوافذُ بالساعة الجداريّة (الدقيقة 7 خارج
+#    W_5) · النظاميُّ يستبعد الأفتر والممتدُّ يشمله · t_peak · dd_pre_peak · t_hit10 لمسٌ
+#    بالضبط · t_stop إغلاقٌ دون القاع · وبلا قاعٍ لا يُخمَّن الوقف.
+try:
+    _oca_o = _OCA.path_stats(_oca_bars, _oca_t0, 1.0, 0.90)
+    _oca_o2 = _OCA.path_stats(_oca_bars, _oca_t0, 1.0, None)
+    _oca_exp = {"up_5": 6.0, "dn_5": -1.0, "ret_5": 5.0, "up_15": 12.0, "up_60": 30.0,
+                "dn_60": -15.0, "up_reg": 30.0, "close_reg": -10.0, "up_ext": 50.0,
+                "t_peak": 381.0, "dd_pre_peak": -20.0, "t_hit10": 7.0, "t_stop": 58.0}
+    _oca_bad = [k for k, v in _oca_exp.items()
+                if _oca_o.get(k) is None or abs(_oca_o[k] - v) > 1e-6]
+    _oca_ok2 = (not _oca_bad and _oca_o["hit10_reg"] is True and _oca_o["stop_reg"] is True
+                and _oca_o["stop_known"] is True and _oca_o["exploded50"] is True
+                and _oca_o2["t_stop"] is None and _oca_o2["stop_known"] is False)
+    _oca_why2 = f"خاطئة={_oca_bad or 'صفر'} · بلا قاع: t_stop={_oca_o2['t_stop']} known={_oca_o2['stop_known']}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok2, _oca_why2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA2 المسارُ سلوكيًّا: نوافذُ الساعة الجداريّة · النظاميّ/الممتدّ · t_peak · "
+      "dd_pre_peak · t_hit10 لمسٌ بالضبط · t_stop · وبلا قاعٍ لا يُخمَّن",
+      _oca_ok2, _oca_why2)
+
+# 🔴 `OCA3` — قاعدةُ النافذة `W` بحرف §⑦: دون 30 ⇒ EOD · p75 برتبةٍ أقرب ⇒ أصغرُ عنصرٍ فوقه
+#    (‏61 ⇒ 120 · 60 ⇒ 60) · والإصاباتُ خارج النظاميّ لا تُحسب.
+try:
+    def _oca_rw(t, reg=True):
+        return {"o": {"t_hit10": t, "hit10_reg": reg}}
+    _oca_w1 = _OCA.window_rule([_oca_rw(5)] * 29)["h"]
+    _oca_w2 = _OCA.window_rule([_oca_rw(x) for x in range(1, 41)] + [_oca_rw(61)] * 20)["h"]
+    _oca_w3 = _OCA.window_rule([_oca_rw(60)] * 40)["h"]
+    _oca_w4 = _OCA.window_rule([_oca_rw(5, False)] * 40)["h"]
+    _oca_ok3 = (_oca_w1 == "EOD" and _oca_w2 == 120 and _oca_w3 == 60 and _oca_w4 == "EOD")
+    _oca_why3 = f"<30⇒{_oca_w1} · p75=61⇒{_oca_w2} · p75=60⇒{_oca_w3} · خارج النظاميّ⇒{_oca_w4}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok3, _oca_why3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA3 قاعدةُ النافذة `W` سلوكيًّا: دون 30 ⇒ EOD · 61 ⇒ 120 · 60 ⇒ 60 · "
+      "والإصاباتُ خارج النظاميّ لا تُحسب", _oca_ok3, _oca_why3)
+
+# 🔴 `OCA4` — قاعدةُ الليل `O`: النصفان **معًا** — نصفٌ واحدٌ يكفي لإسقاطها.
+try:
+    def _oca_nr(half, pm, cr):
+        return {"half": half, "pm": {"pm_last": pm}, "o": {"close_reg": cr}}
+    _oca_n1 = _OCA.night_rule([_oca_nr("H1", 5, 2), _oca_nr("H2", 3, 1)])["arm_P4"]
+    _oca_n2 = _OCA.night_rule([_oca_nr("H1", 5, 2), _oca_nr("H2", 1, 3)])["arm_P4"]
+    _oca_n3 = _OCA.night_rule([_oca_nr("H1", 5, 2)])["arm_P4"]
+    _oca_ok4 = (_oca_n1 is True and _oca_n2 is False and _oca_n3 is False)
+    _oca_why4 = f"معًا={_oca_n1} · نصفٌ مقلوب={_oca_n2} · نصفٌ غائب={_oca_n3}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok4, _oca_why4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA4 قاعدةُ الليل `O` سلوكيًّا: النصفان معًا · نصفٌ مقلوبٌ أو غائبٌ يُسقطها",
+      _oca_ok4, _oca_why4)
+
+# 🔴 `OCA5` — التنبّؤاتُ السبعةُ تُقيَّم بحرف §⑥ على فِكستشرٍ معلومِ الصدق.
+try:
+    def _oca_pr(sym, half, trig, tod, o_over, pm=None):
+        o = {"t_hit10": None, "hit10_reg": False, "t_peak": None, "dn_60": None, "up_60": None,
+             "up_reg": None, "close_reg": None, "exploded50": False}
+        o.update(o_over)
+        return {"symbol": sym, "half": half, "trig": trig, "f": {"tod": tod}, "o": o, "pm": pm}
+    _oca_prows = [
+        _oca_pr("A", "H1", "R1", "pre", {"exploded50": True, "t_peak": 30, "dn_60": -6, "t_hit10": 20,
+                                         "hit10_reg": True, "up_60": 20, "up_reg": 25, "close_reg": 5},
+                {"pm_last": 2}),
+        _oca_pr("B", "H2", "T-C", "reg", {"exploded50": True, "t_peak": 90, "dn_60": -8, "t_hit10": 100,
+                                          "hit10_reg": True, "up_60": 10, "up_reg": 12, "close_reg": 3},
+                {"pm_last": 1}),
+        _oca_pr("C", "H2", "R1", "reg", {"dn_60": -4, "up_60": 3, "up_reg": 4, "close_reg": -2}),
+    ]
+    _oca_pv = _OCA.predictions(_oca_prows, {"h": "EOD"})
+    _oca_ids = [p[0] for p in _oca_pv]
+    _oca_verd = [p[2] for p in _oca_pv]
+    _oca_ok5 = (_oca_ids == [f"CP{i}" for i in range(1, 8)]
+                and _oca_verd == [True, True, False, True, True, True, False])
+    _oca_why5 = f"ids={_oca_ids} · verdicts={_oca_verd}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok5, _oca_why5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA5 التنبّؤاتُ `CP1`-`CP7` تُقيَّم بحرف §⑥ (فِكستشرٌ معلومُ الصدق: "
+      "‏✅✅🔴✅✅✅🔴)", _oca_ok5, _oca_why5)
+
+# 🔴 `OCA6` — رموزُ الخروج سلوكيًّا وبأسلاكِ تعثّر: بلا مفتاح ⇒ 2 **بصفر جلبٍ** · صفرُ مِرساة
+#    ⇒ 4 بلا سجلٍّ ولا جلب · كلُّ جلبٍ يفشل ⇒ 3 (‏V-C3). صفرُ شبكةٍ هنا.
+_oca_trips = []
+_oca_saved = {n: getattr(_OCA, n) for n in ("anchor_history", "load_ledger", "fetch_day", "daily_range")}
+
+
+def _oca_trip(name):
+    def _w(*_a, **_k):
+        _oca_trips.append(name)
+        return None
+    return _w
+
+
+_oca_env0 = _oca_os.environ.pop("POLYGON_API_KEY", None)
+try:
+    for _n in _oca_saved:
+        setattr(_OCA, _n, _oca_trip(_n))
+    with _oca_ctx.redirect_stdout(_oca_io.StringIO()):
+        _oca_rc2 = _OCA.main()
+    _oca_t2 = list(_oca_trips)
+    _oca_trips.clear()
+    _oca_os.environ["POLYGON_API_KEY"] = "x"
+    _OCA.anchor_history = lambda since=None: {}
+    with _oca_ctx.redirect_stdout(_oca_io.StringIO()):
+        _oca_rc4 = _OCA.main()
+    _oca_t4 = list(_oca_trips)
+    _oca_trips.clear()
+    _OCA.anchor_history = lambda since=None: {("2026-09-10", "AAA"): {
+        "anchor_ms": _oca_a, "anchor_price": 1.0, "anchor_low": 0.9, "date": "2026-09-10"}}
+    _OCA.load_ledger = lambda: []
+    _OCA.fetch_day = lambda _s, _d, _k: None
+    with _oca_ctx.redirect_stdout(_oca_io.StringIO()):
+        _oca_rc3 = _OCA.main()
+    _oca_ok6 = (_oca_rc2 == 2 and not _oca_t2 and _oca_rc4 == 4 and not _oca_t4 and _oca_rc3 == 3)
+    _oca_why6 = f"rc(بلا مفتاح)={_oca_rc2} جلب={_oca_t2} · rc(صفر)={_oca_rc4} جلب={_oca_t4} · rc(تغطية)={_oca_rc3}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok6, _oca_why6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    for _n, _fn in _oca_saved.items():
+        setattr(_OCA, _n, _fn)
+    if _oca_env0 is None:
+        _oca_os.environ.pop("POLYGON_API_KEY", None)
+    else:
+        _oca_os.environ["POLYGON_API_KEY"] = _oca_env0
+check("🕵️📈🔒 OCA6 رموزُ الخروج سلوكيًّا: بلا مفتاح ⇒ 2 بصفر جلب · صفرُ مِرساة ⇒ 4 · "
+      "تغطيةٌ دون 80% ⇒ 3", _oca_ok6, _oca_why6)
+
+# 🔴 `OCA7` — الـworkflow: permissions=read فقط · بلا كرون · المدخلان موصولان بالاسمين اللذين
+#    يقرؤهما السكربت · fetch-depth 0 · سرُّ Polygon وحدَه (لا تلغرام).
+try:
+    _oca_wf_txt = open(".github/workflows/opcurve.yml", encoding="utf-8").read()
+    _oca_wf = _oca_yaml.safe_load(_oca_wf_txt)
+    _oca_step = next(s for s in _oca_wf["jobs"]["opcurve"]["steps"]
+                     if "opcurve_probe" in str(s.get("run", "")))
+    _oca_inp = _oca_wf[True]["workflow_dispatch"]["inputs"]
+    _oca_ok7 = (_oca_wf["permissions"] == {"contents": "read"}
+                and "schedule" not in _oca_wf[True]
+                and {"since", "h2_from"} <= set(_oca_inp)
+                and "inputs.since" in str(_oca_step["env"]["OPCURVE_SINCE"])
+                and "inputs.h2_from" in str(_oca_step["env"]["OPCURVE_H2_FROM"])
+                and 'os.environ.get("OPCURVE_SINCE"' in _oca_src
+                and 'os.environ.get("OPCURVE_H2_FROM"' in _oca_src
+                and any(s.get("with", {}).get("fetch-depth") == 0
+                        for s in _oca_wf["jobs"]["opcurve"]["steps"])
+                and "POLYGON_API_KEY" in str(_oca_step["env"])
+                and "TELEGRAM" not in _oca_wf_txt)
+    _oca_why7 = f"permissions={_oca_wf.get('permissions')} · on={sorted(_oca_wf[True])} · inputs={sorted(_oca_inp)}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok7, _oca_why7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA7 الـworkflow: read فقط · بلا كرون · since/h2_from موصولان بـOPCURVE_SINCE/"
+      "OPCURVE_H2_FROM · fetch-depth 0 · سرُّ Polygon وحدَه", _oca_ok7, _oca_why7)
+
+# 🔴 `OCA8` — سلّةُ الزناد: قبل `SHIP_ISO` «قبل الشحن» · عندَه بلا وسم `R1` · بالوسم `T-C` ·
+#    و`SHIP_MS` مشتقٌّ من `liq_trig_read.SHIP_ISO` الحيّ (‏15:26:30Z).
+try:
+    _oca_ship_ref = int(_oca_dt.datetime(2026, 9, 9, 15, 26, 30,
+                                         tzinfo=_oca_dt.timezone.utc).timestamp() * 1000)
+    _oca_ok8 = (_OCA.trig_bucket({"anchor_ms": _OCA.SHIP_MS - 1}) == "قبل الشحن"
+                and _OCA.trig_bucket({"anchor_ms": _OCA.SHIP_MS}) == "R1"
+                and _OCA.trig_bucket({"anchor_ms": _OCA.SHIP_MS, "trig": "T-C"}) == "T-C"
+                and _OCA.SHIP_MS == _OCA.ship_ms(_oca_ltr.SHIP_ISO) == _oca_ship_ref)
+    _oca_why8 = f"SHIP_MS={_OCA.SHIP_MS} · مرجع={_oca_ship_ref}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok8, _oca_why8 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA8 سلّةُ الزناد: قبل الشحن / R1 / T-C · وSHIP_MS من liq_trig_read الحيّ",
+      _oca_ok8, _oca_why8)
+
+# 🔴 `OCA9` — الحتميّة (‏V-C6): الفاصلُ العنقوديُّ نفسُه مرّتين · ولا `random` ولا ساعةَ حائط.
+try:
+    _oca_drows = [{"symbol": s, "o": {"up_60": v}} for s, v in
+                  (("A", 3.0), ("A", 9.0), ("B", 1.0), ("C", 12.0), ("D", 7.5), ("E", -2.0))]
+    _oca_c1 = _OCA.ci_median(_oca_drows, "up_60")
+    _oca_c2 = _OCA.ci_median(_oca_drows, "up_60")
+    _oca_mods = {n.names[0].name.split(".")[0] for n in _oca_ast.walk(_oca_tree)
+                 if isinstance(n, _oca_ast.Import)}
+    _oca_clock = {"now", "today", "time"} & _oca_calls
+    _oca_ok9 = (_oca_c1 == _oca_c2 and _oca_c1[0] is not None
+                and "random" not in _oca_mods and not _oca_clock)
+    _oca_why9 = f"ci={_oca_c1} · random={'random' in _oca_mods} · ساعة={_oca_clock or 'صفر'}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok9, _oca_why9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA9 الحتميّة: الفاصلُ العنقوديُّ يتكرّر بت-بت · ولا random ولا ساعةَ حائط",
+      _oca_ok9, _oca_why9)
+
+# 🔴 `OCA10` — مقياسٌ واحدٌ **سلوكيًّا** (‏V-C7): `up_ext` من `t0 = anchor+4د` يساوي
+#    `tierlink_probe.measure(...)["mg_day"]` بت-بت على فِكستشرٍ يجعل الإزاحةَ فارقة
+#    (قمّةُ الدقيقة 5 تدخل من t0=+4 ولا تدخل من +5).
+try:
+    _oca_mb = [(_oca_a + k * 60_000, 1.0, (2.0 if k == 4 else (1.5 if k == 5 else 1.0)),
+                0.95, 1.0, 100) for k in range(9)]
+    _oca_mine = _OCA.path_stats(_oca_mb, _oca_a + _OCA.CARD_OFFSET_MS, 1.0, 0.9)
+    _oca_theirs = _oca_tl.measure({"anchor_ms": _oca_a, "anchor_price": 1.0, "anchor_low": 0.9,
+                                   "date": "2026-09-10"},
+                                  {"e5": 1.0, "anchor_price": 1.0, "anchor_low": 0.9},
+                                  _oca_mb, [])
+    _oca_ok10 = (_oca_theirs is not None
+                 and abs(_oca_mine["up_ext"] - _oca_theirs["mg_day"]) < 1e-9
+                 and abs(_oca_mine["up_ext"] - 50.0) < 1e-9
+                 and _oca_mine["exploded50"] == _oca_theirs["exploded50"])
+    _oca_why10 = f"up_ext={_oca_mine['up_ext']} · mg_day={_oca_theirs and _oca_theirs['mg_day']}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok10, _oca_why10 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA10 مقياسٌ واحدٌ سلوكيًّا: up_ext من t0=anchor+4د يساوي tierlink.measure "
+      "mg_day بت-بت (‏+50% على فِكستشرٍ تفصل فيه الإزاحة)", _oca_ok10, _oca_why10)
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
