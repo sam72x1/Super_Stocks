@@ -511,9 +511,14 @@ def report(rows, per_half_n, diag, costs, frozen) -> int:        # noqa: PLR0915
          + " · ".join(f"{k} {mom['lv'].get(k, 0)}"
                       for k in ("D0", "D1", "D2", "D3", "D4", "—")))
     near = [z for z in mom["pairs"] if z["lvl"] in ("D0", "D1")]
+    _n0 = sum(1 for z in near if z["lvl"] == "D0")
     _log(f"        🔎 قراءةٌ ثانيةٌ **وصفيّة** على `D0 ∪ D1` وحدَها (§⑤ · §⑫): "
-         f"{ci_txt(_pair_stats(near)['pooled'])} — و`D0` فارغٌ بنيويًّا "
-         "فهي `D1` وحدَها")
+         f"{ci_txt(_pair_stats(near)['pooled'])} — منها `D0` {_n0} زوجًا")
+    _log("        🔴 وملحقُ §⑫ استنتج جبريًّا أن `D0` **فارغٌ بنيويًّا** — "
+         f"والقياسُ يكذّبه: {_n0} زوجًا. والسببُ أن الاستنتاجَ عمَّم من ثلاثة "
+         "أمثلةٍ وحدَها، ومِرساةُ آخرِ الجلسة نافذةُ حملِها دقائقُ فالفجوةُ "
+         "المطلوبةُ صغيرةٌ وتُستوفى. 🔑 **و`D0` بقي يُحسَب ويُطبَع بنصّ الملحق "
+         "نفسِه — فبذلك انكشف الخطأ.**")
     cs = csub_after(rows, C, S)
     _log(f"  C-SUB (HD الافتر مقابل مُكمِّلها على HN): داخل {cs['n_sub']} "
          f"{ci_txt(cs['sub'])} · خارج {cs['n_comp']} {ci_txt(cs['comp'])}")
