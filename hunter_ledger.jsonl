@@ -2462,3 +2462,4 @@
 {"key": "control|2026-09-11|ASTC", "hunter": "control", "session": "2026-09-11", "symbol": "ASTC", "kind": "control", "ref_close": 7.119999885559082, "fwd": 40, "outcome": null}
 {"key": "control|2026-09-11|VALU", "hunter": "control", "session": "2026-09-11", "symbol": "VALU", "kind": "control", "ref_close": 39.290000915527344, "fwd": 40, "outcome": null}
 {"key": "control|2026-09-11|WHLRD", "hunter": "control", "session": "2026-09-11", "symbol": "WHLRD", "kind": "control", "ref_close": 36.04999923706055, "fwd": 40, "outcome": null}
+{"key": "split|2026-09-15|YHC", "hunter": "split", "session": "2026-09-15", "symbol": "YHC", "kind": "candidate", "ref_close": 1.2899999618530273, "fwd": 40, "outcome": null, "price": 1.29, "float": 1277897.0, "half": 1.22, "ref": 2.43}
