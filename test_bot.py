@@ -50190,6 +50190,31 @@ except Exception as _e:                                          # noqa: BLE001
 check("💥🔗🔒 LKA9 `V-L4` يقرأ `explosions100_live.md` فعلًا (‏≥50 حدثًا) ويمرّ على "
       "الاستعادة التامّة ويسقط على الفراغ · ورمزا 5 و9 متمايزان", _lka_ok9, _lka_w9)
 
+# 🔴 `LKA10` — أيّامُ التداول: **عطلةُ نهاية الأسبوع مستبعَدةٌ فعلًا**.
+#    🔴 وُلد من عيبٍ حقيقيّ كشفته **تشغيلةُ الجدوى لا السويّة**: اتّكلتُ على اسم
+#    `market_calendar.is_trading_day` **ودوكسترنغُها يقول إنها لا تفحص نهايةَ
+#    الأسبوع** ⇒ 2023 صارت 355 «يومَ تداول» فسقط `V-L1` بتغطية 70.4%. والقفلُ
+#    **سلوكيٌّ**: العددُ ضمن المدى الواقعيّ · وصفرُ سبتٍ أو أحد · و`is_trading_day`
+#    وحدَها **تُمرّر** السبتَ (شاهدُ ضبطٍ يُثبت أن الاستبعادَ من `year_days` لا منها).
+try:
+    _lka_yd = {_y: _LKA.year_days(_y) for _y in ("2023", "2024", "2025")}
+    _lka_we = {_y: sum(1 for _d in _v
+                       if _oha_dt.date.fromisoformat(_d).weekday() >= 5)
+               for _y, _v in _lka_yd.items()}
+    _lka_ok10 = (all(245 <= len(_v) <= 254 for _v in _lka_yd.values())
+                 and all(_w == 0 for _w in _lka_we.values())
+                 and "2023-01-07" not in _lka_yd["2023"]
+                 and _LKA.is_trading_day("2023-01-07") is True
+                 and "2023-01-02" not in _lka_yd["2023"])
+    _lka_w10 = (" · ".join(f"{_y}={len(_v)}" for _y, _v in _lka_yd.items())
+                + f" · عطلُ نهايةِ أسبوع={_lka_we} · والسبتُ يمرّ من "
+                  "`is_trading_day` وحدَها")
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok10, _lka_w10 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA10 أيّامُ التداول ‏245-254 للسنة وصفرُ سبتٍ أو أحد — و`is_trading_day` "
+      "وحدَها تُمرّر السبتَ (شاهدُ ضبط) · وعطلةُ رأس السنة مستبعَدة",
+      _lka_ok10, _lka_w10)
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
