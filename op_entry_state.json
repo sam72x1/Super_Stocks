@@ -1027,7 +1027,7 @@
  },
  "LIQ:WHLR": {
   "anchor_ms": 1789579740000,
-  "last_ms": 1789579740000,
+  "last_ms": 1789579800000,
   "sent": [
    "M1"
   ],
@@ -1035,7 +1035,7 @@
   "vol_x": 12.3,
   "peak_usd": 83957,
   "last_eval_ms": 1789579800000,
-  "pulse_ms": 1789579740000,
+  "pulse_ms": 1789579800000,
   "anchor_price": 0.455,
   "anchor_open": 0.4197,
   "anchor_low": 0.415,
