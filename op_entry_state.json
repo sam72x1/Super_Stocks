@@ -1191,24 +1191,24 @@
  },
  "LIQ:DLXY": {
   "anchor_ms": 1789560060000,
-  "last_ms": 1789560060000,
+  "last_ms": 1789560120000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 4.7,
-  "peak_usd": 1851700,
+  "peak_usd": 3635918,
   "last_eval_ms": 1789560120000,
-  "pulse_ms": 1789560060000,
+  "pulse_ms": 1789560120000,
   "anchor_price": 0.7986,
   "anchor_open": 0.6323,
   "anchor_low": 0.6027,
   "trig": "T-C",
-  "date": "2026-09-16",
   "pre_done": true,
   "pre_hi": 0.67,
   "pre_usd": 309139,
-  "pre_n": 1
+  "pre_n": 1,
+  "date": "2026-09-16"
  },
  "LIQ:MTEK": {
   "date": "2026-09-16"
