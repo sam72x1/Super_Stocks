@@ -4581,10 +4581,6 @@
   "short_interest": 73076,
   "days_to_cover": 0.16
  },
- "ZRO": {
-  "short_pct": 0.0,
-  "float": 1000000.0
- },
  "AMCI": {
   "sector": "Technology",
   "industry": "Computer Hardware",
@@ -6817,5 +6813,9 @@
   "company_name": "EZGO Technologies Ltd.",
   "short_interest": 941,
   "days_to_cover": 0.01
+ },
+ "ZRO": {
+  "short_pct": 0.0,
+  "float": 1000000.0
  }
 }
