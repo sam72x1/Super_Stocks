@@ -49684,6 +49684,512 @@ check("💥🔗🔒 LKK2 §②/§③ `T-LINK100`: الحاكمُ `high/close ≥
       _lkk_ok2, f"ميزات={len(_lkk_feat)} · PRICE_LO={_lkk_plo}")
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🕵️📈🪙 `OHA0`-`OHA11` — أداةُ `T-OPHOLD` (`ophold_arms.py`) · 💥🔗 `LKA0`-`LKA9` —
+#    مِجَسُّ `T-LINK100` (`link100_probe.py`). **أداتان بُنيتا بعد دمج عقدَيهما.**
+#    الأقفالُ **سلوكيّةٌ** حيث أمكن (درسُ `RKA3`: خريطةُ الأسماء تُفحَص عبرها لا
+#    حولها) · وكلُّ نداءٍ حيٍّ داخل `try` فلا ينهار ما بعده (الصنفُ ①).
+#    🔒 أسماءٌ خاصّةٌ بالكتلة (`_oha_*` · `_lka_*`).
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _oha_ast
+import contextlib as _oha_ctx
+import datetime as _oha_dt
+import io as _oha_io
+import os as _oha_os
+
+import fcost_arms as _oha_fc
+import link100_probe as _LKA
+import ophold_arms as _OHA
+from sym_day_probe import exit_point as _oha_exit_point
+
+
+def _oha_called(mod_src):
+    """أسماءُ الدوالّ المُناداة فعلًا في المصدر (AST) — لا ذكرًا في تعليق."""
+    try:
+        _t = _oha_ast.parse(mod_src)
+    except Exception:                                            # noqa: BLE001
+        return set()
+    return {getattr(c.func, "id", None) or getattr(c.func, "attr", None)
+            for c in _oha_ast.walk(_t) if isinstance(c, _oha_ast.Call)}
+
+
+_oha_src = open("ophold_arms.py", encoding="utf-8").read()
+_lka_src = open("link100_probe.py", encoding="utf-8").read()
+_oha_calls = _oha_called(_oha_src)
+_lka_calls = _oha_called(_lka_src)
+
+# 🔴 `OHA0` — كلُّ اسمٍ مستورَدٍ **يُنادى فعلًا**: «إعادةُ استعمالٍ بالاسم» دعوًى
+#    تُثبَت من نقطة النداء لا من سطر الاستيراد (درسُ «الميزةُ موصولة»).
+_oha_reuse = ("attach_trades", "build_rows", "ci_of", "crit_halves",
+              "no_config_assign", "pick_placebo", "placebo_pool", "read_costs",
+              "read_hstar", "selfcheck_readonly", "simulate", "tod_of",
+              "trade_r", "tsv_population", "ny_hour", "anchor_history",
+              "daily_range", "fetch_day", "load_ledger", "true_e5",
+              "e_resolved", "fill_frac", "k_of", "roots_identical")
+_oha_miss0 = [n for n in _oha_reuse if n not in _oha_calls]
+check("🕵️📈🔒 OHA0 إعادةُ الاستعمال بالاسم **مُناداةٌ فعلًا**: الأربعةُ والعشرون "
+      "اسمًا كلُّها تظهر نداءً في AST لا استيرادًا معلَّقًا",
+      not _oha_miss0, f"غيرُ مُناداة={_oha_miss0}")
+
+# ── فِكستشرُ مسارٍ واحدٍ يفصل الأذرعَ الستّ (يُعاد استعمالُه في عدّة أقفال) ──
+def _oha_bar(h, m, o, hi, lo, c, v=1000.0, day="2026-08-18"):
+    _d = _oha_dt.datetime.fromisoformat(f"{day}T{h:02d}:{m:02d}:00-04:00")
+    return (int(_d.timestamp() * 1000), o, hi, lo, c, v)
+
+
+# 09:30 دخول 10 · قاع 9 · يبلغ 12 (هدف +10% مُلمَس) ثمّ 9.8 ثمّ يُغلق 11 نظاميًّا
+# ويرتفع إلى 13 في الممتدّ — فتتمايز HC/HX/HT/HH/H0
+_OHA_BARS = ([_oha_bar(9, 30, 10, 10, 10, 10)]
+             + [_oha_bar(10, _i, 10, 10.2, 9.9, 10.0) for _i in range(5)]
+             + [_oha_bar(11, 0, 10, 12.0, 10.0, 11.5),
+                _oha_bar(12, 0, 11.5, 12.2, 9.6, 9.8),
+                _oha_bar(13, 0, 9.8, 11.0, 9.7, 11.0),
+                _oha_bar(15, 59, 11, 11.5, 11, 11.5),
+                _oha_bar(17, 0, 11, 14, 11, 13.5),
+                _oha_bar(19, 59, 13.5, 13.5, 13.5, 13.0)])
+_OHA_T0 = _OHA_BARS[0][0]
+_OHA_E5, _OHA_LOW = 10.0, 9.0
+
+# 🔴 `OHA1` — سياسةُ `HC` سلوكيًّا: **بلا هدف** وإلى إغلاق النظاميّة — فالهدفُ
+#    المُلمَس (‏+10% عند 11:00) **لا يُخرجها**، و`H0` يخرج عليه.
+try:
+    _oha_hc = _OHA.simulate(_OHA_BARS, _OHA_T0, _OHA_E5, _OHA_LOW, None,
+                            use_target=False)
+    _oha_h0 = _OHA.simulate(_OHA_BARS, _OHA_T0, _OHA_E5, _OHA_LOW, _OHA.HSTAR)
+    _oha_ok1 = (_oha_hc["out"] == "window" and abs(_oha_hc["r0"] - 15.0) < 1e-9
+                and _oha_h0["out"] == "win" and _oha_hc != _oha_h0)
+    _oha_w1 = (f"HC={_oha_hc['out']}/{_oha_hc['r0']:.2f} · "
+               f"H0={_oha_h0['out']}/{_oha_h0['r0']:.2f}")
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok1, _oha_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA1 `HC` بلا هدفٍ إلى إغلاق النظاميّة — الهدفُ المُلمَس لا يُخرجها "
+      "بينما يُخرج `H0`", _oha_ok1, _oha_w1)
+
+# 🔴 `OHA2` — `V-H2` **يمسك** الاختلاف: صفٌّ `H0` فيه مبدَّلٌ يُسقط الحارسَ،
+#    والمطابقُ يمرّ (شاهدُ ضبطٍ ⇒ ليس حارسًا خاويًا).
+try:
+    _oha_r_ok = [{"date": "d", "sym": "S", "H0": {"a": 1}, "P0": {"a": 1}}]
+    _oha_r_bad = [{"date": "d", "sym": "S", "H0": {"a": 2}, "P0": {"a": 1}}]
+    _oha_ok2 = (_OHA.v_h2(_oha_r_ok)[0] is True
+                and _OHA.v_h2(_oha_r_bad)[0] is False
+                and "d·S" in _OHA.v_h2(_oha_r_bad)[1])
+    _oha_w2 = f"مطابق={_OHA.v_h2(_oha_r_ok)[0]} · مختلف={_OHA.v_h2(_oha_r_bad)[0]}"
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok2, _oha_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA2 `V-H2` سلوكيٌّ من طرفيه: يمرّ على التطابق ويسقط على صفٍّ واحدٍ "
+      "مختلفٍ ويُسمّيه", _oha_ok2, _oha_w2)
+
+# 🔴 `OHA3` — خريطةُ الأذرع تُفحَص **عبر `arm_R`/`arm_subset`** لا حولها (درسُ
+#    `RKA3`: إسنادُ اسمٍ إلى ذراعٍ أخرى يجب أن يسقط): الستُّ متمايزةٌ على الفِكستشر.
+try:
+    _oha_row = {"date": "2026-08-18", "sym": "AAA", "half": "H1", "tod": "reg",
+                "bars": _OHA_BARS, "e5": _OHA_E5, "alow": _OHA_LOW,
+                "t0": _OHA_T0, "a_ms": _OHA_BARS[0][0], "cache": {},
+                "dcache": {}, "f": {"tier": "؟", "gap": "؟"}, "trig": "R1",
+                "b": {}}
+    _OHA.attach_hold([_oha_row], "K")
+    _oha_vals = {}
+    for _a in _OHA.ARMS:
+        _oha_vals[_a] = _OHA.arm_R(_oha_row, _a, 0.0, 0.0)
+    _oha_ok3 = (len(_OHA.ARMS) == 6 and _OHA.GOV_ARM == "HC"
+                and all(_v is not None for _k, _v in _oha_vals.items()
+                        if _k != "HP")
+                and len({round(_v, 6) for _k, _v in _oha_vals.items()
+                         if _v is not None}) >= 4
+                and abs(_oha_vals["HX"] - _oha_vals["HC"]) > 1e-6
+                and abs(_oha_vals["HT"] - _oha_vals["HC"]) > 1e-6
+                and abs(_oha_vals["H0"] - _oha_vals["HC"]) > 1e-9)
+    _oha_w3 = " · ".join(f"{_k}={_v if _v is None else round(_v, 3)}"
+                         for _k, _v in _oha_vals.items())
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok3, _oha_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA3 الأذرعُ الستُّ متمايزةٌ **عبر خريطة `arm_R`**: `HX`≠`HC` و`HT`≠`HC` "
+      "و`H0`≠`HC` على مسارٍ واحد · والحاكمةُ `HC`", _oha_ok3, _oha_w3)
+
+# 🔴 `OHA4` — ترتيبُ العمليّات مثبَّت: `ret_at` ثمّ `r_fixed` بمقامٍ **ثابت** —
+#    فتغييرُ التكلفة لا يحرّك المقام (‏`R` يتناسب خطّيًّا مع العائد بعد التكلفة).
+try:
+    _oha_t = {"out": "window", "r0": 10.0, "tie": False, "t_exit": 1.0,
+              "win_min": 1.0, "risk_pct": 10.0}
+    _oha_r0 = _OHA.trade_r(_oha_t, 10.0, 9.0, 0.0, 0.0)
+    _oha_rc = _OHA.trade_r(_oha_t, 10.0, 9.0, 0.02, 0.0)
+    _oha_exp = _oha_fc.ret_at(10.0, "window", 0.02, 0.0) / 10.0
+    _oha_ok4 = (abs(_oha_r0 - 1.0) < 1e-9 and abs(_oha_rc - _oha_exp) < 1e-9
+                and _oha_rc < _oha_r0)
+    _oha_w4 = f"R(c=0)={_oha_r0:.6f} · R(c=2%)={_oha_rc:.6f} · متوقَّع={_oha_exp:.6f}"
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok4, _oha_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA4 ترتيبُ العمليّات: `ret_at` ثمّ `r_fixed` والمقامُ ثابتٌ لا يتحرّك "
+      "بالتكلفة", _oha_ok4, _oha_w4)
+
+# 🔴 `OHA5` — وقفُ البديلة **مشتقٌّ بنسبة المخاطرة** لا قاعُ الشمعة (العقد §④)،
+#    و`optrade_arms.placebo_trade` **لا تُنادى** هنا.
+try:
+    _oha_pl = _oha_row.get("mom") or {}
+    _oha_exp5 = (_oha_pl.get("e5") or 0.0) * (_OHA_LOW / _OHA_E5)
+    _oha_ok5 = ("placebo_trade" not in _oha_calls
+                and 'pe5 * (alow / e5)' in _oha_src
+                and (_oha_pl.get("alow") is None
+                     or abs(_oha_pl["alow"] - _oha_exp5) < 1e-9))
+    _oha_w5 = (f"placebo_trade مُناداة={'placebo_trade' in _oha_calls} · "
+               f"وقفُ البديلة={_oha_pl.get('alow')} · مشتقٌّ={_oha_exp5:.4f}")
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok5, _oha_w5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA5 وقفُ بديلة `C-MOM` مشتقٌّ بنسبة `alow/e5` (العقد §④) و`placebo_trade` "
+      "لا تُنادى — والفارقُ عن `T-OPTRADE` مقصودٌ ومكتوب", _oha_ok5, _oha_w5)
+
+# 🔴 `OHA6` — `trail_trade` عند مخاطرةٍ ضخمةٍ **لا يزحف** ⇒ يجب أن يُعطي عينَ
+#    مُخرَج `simulate(use_target=False)` و`exit_point` الإنتاجيّة (تطابقٌ سلوكيّ).
+try:
+    _oha_big = _OHA.trail_trade(_OHA_BARS, _OHA_T0, _OHA_E5, -1e6)
+    _oha_sim = _OHA.simulate(_OHA_BARS, _OHA_T0, _OHA_E5, -1e6, None,
+                             use_target=False)
+    _oha_win = [b for b in _OHA_BARS if b[0] > _OHA_T0 and _OHA.ny_hour(b[0]) < 16]
+    _oha_ep = _oha_exit_point(_oha_win, _OHA_T0, -1e6)
+    _oha_nrm = (_OHA.trail_trade(_OHA_BARS, _OHA_T0, _OHA_E5, _OHA_LOW) or {})
+    _oha_ok6 = (_oha_big["out"] == _oha_sim["out"] == "window"
+                and abs(_oha_big["r0"] - _oha_sim["r0"]) < 1e-9
+                and abs(_oha_big["t_exit"] - _oha_sim["t_exit"]) < 1e-9
+                and _oha_ep == (None, None)
+                and _oha_nrm.get("out") == "loss")
+    _oha_w6 = (f"ضخمة: {_oha_big['out']}/{_oha_big['r0']:.4f} مقابل "
+               f"{_oha_sim['out']}/{_oha_sim['r0']:.4f} · exit_point={_oha_ep} · "
+               f"طبيعيّة={_oha_nrm.get('out')}")
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok6, _oha_w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA6 `HT` الزاحفُ عند مخاطرةٍ ضخمةٍ ≡ `simulate` الثابتة بت-بت "
+      "(‏و`exit_point` بلا وقف) · وعند المخاطرة الحقيقيّة يزحف فيخرج",
+      _oha_ok6, _oha_w6)
+
+# 🔴 `OHA7` — `HH ≡ HC` حين لا يُلمَس الهدف · وحين يُلمَس فهو **متوسّطُ ساقين**.
+try:
+    _oha_flat = ([_oha_bar(9, 30, 10, 10, 10, 10)]
+                 + [_oha_bar(10, _i, 10, 10.2, 9.9, 10.0) for _i in range(3)]
+                 + [_oha_bar(15, 59, 10, 10.1, 9.9, 10.05)])
+    _oha_la, _oha_lb = _OHA.half_legs(_oha_flat, _OHA_T0, _OHA_E5, _OHA_LOW)
+    _oha_hcf = _OHA.simulate(_oha_flat, _OHA_T0, _OHA_E5, _OHA_LOW, None,
+                             use_target=False)
+    _oha_la2, _oha_lb2 = _OHA.half_legs(_OHA_BARS, _OHA_T0, _OHA_E5, _OHA_LOW)
+    _oha_hhv = _OHA.arm_R(_oha_row, "HH", 0.0, 0.0)
+    _oha_avg = 0.5 * (_OHA.trade_r(_oha_la2, _OHA_E5, _OHA_LOW, 0.0, 0.0)
+                      + _OHA.trade_r(_oha_lb2, _OHA_E5, _OHA_LOW, 0.0, 0.0))
+    _oha_ok7 = (_oha_la is None and _oha_lb == _oha_hcf
+                and _oha_la2 is not None
+                and _oha_la2["out"] == "win"
+                and abs(_oha_hhv - _oha_avg) < 1e-9)
+    _oha_w7 = (f"بلا هدف: ساقٌ واحدة={_oha_la is None} وتساوي HC="
+               f"{_oha_lb == _oha_hcf} · بهدف: HH={_oha_hhv:.4f} "
+               f"متوسّطُ الساقين={_oha_avg:.4f}")
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok7, _oha_w7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA7 `HH` ≡ `HC` بلا هدفٍ مُلمَس · وبمتوسّطِ ساقين عند لمسه",
+      _oha_ok7, _oha_w7)
+
+# 🔴 `OHA8` — حارسا القراءة-فقط **مع شاهدَي ضبط** · والإنتاجُ لا يستورد الأداتين.
+_oha_prod = (open("Super_stock.py", encoding="utf-8").read()
+             + open("analyze_one.py", encoding="utf-8").read())
+try:
+    _oha_ok8 = (_OHA.selfcheck_readonly(_oha_src) and _OHA.no_config_assign(_oha_src)
+                and _LKA.selfcheck_readonly(_lka_src)
+                and _LKA.no_config_assign(_lka_src)
+                # شاهدا ضبط: الحارسان يمسكان العيبَ لو وُجد
+                and not _OHA.selfcheck_readonly("send_telegram('x')\n")
+                and not _OHA.no_config_assign("CONFIG['X'] = 1\n")
+                and "ophold_arms" not in _oha_prod
+                and "link100_probe" not in _oha_prod)
+    _oha_w8 = "الحارسان خضراوان على الأداتين · وشاهدا الضبط يسقطان"
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok8, _oha_w8 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA8 قراءةٌ فقط + صفرُ إسنادٍ إلى CONFIG على الأداتين (بشاهدَي ضبط) · "
+      "والإنتاجُ لا يستوردهما", _oha_ok8, _oha_w8)
+
+# 🔴 `OHA9` — جدولُ حقيقةِ الحكم: الأرضيّةُ **تمنع الفرعَ 1** ولو عبرت المعاييرُ الثلاثة.
+try:
+    _oha_P, _oha_F = {"pass": True}, {"pass": False}
+    _oha_tt = [
+        (_oha_P, _oha_P, _oha_P, {"pass": True}, 1),
+        (_oha_P, _oha_P, _oha_F, {"pass": True}, 2),
+        (_oha_P, _oha_F, _oha_P, {"pass": True}, 2),
+        (_oha_F, _oha_P, _oha_P, {"pass": True}, 2),
+        (_oha_P, _oha_P, _oha_P, {"pass": False}, 3),
+        (_oha_F, _oha_F, _oha_F, {"pass": False}, 3),
+    ]
+    _oha_got9 = [_OHA.read_verdict(a, b, c, d)[0] for a, b, c, d, _x in _oha_tt]
+    _oha_fl = (_OHA.floors_of({"H1": 200, "H2": 200}, {"H1": 200, "H2": 200}),
+               _OHA.floors_of({"H1": 200, "H2": 149}, {"H1": 200, "H2": 200}),
+               _OHA.floors_of({"H1": 200, "H2": 200}, {"H1": 149, "H2": 200}))
+    _oha_ok9 = (_oha_got9 == [1, 2, 2, 2, 3, 3]
+                and _oha_fl[0]["pass"] and not _oha_fl[1]["pass"]
+                and not _oha_fl[2]["pass"])
+    _oha_w9 = f"الفروع={_oha_got9} · أرضيّات={[f['pass'] for f in _oha_fl]}"
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok9, _oha_w9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA9 جدولُ الحكم (‏6 حالات): الفرعُ 1 فقط بالثلاثة والأرضيّة · "
+      "وسقوطُ أيٍّ منها ⇒ 2 · وسقوطُ الأرضيّة ⇒ 3 مهما عبرت المعايير",
+      _oha_ok9, _oha_w9)
+
+# 🔴 `OHA10` — وضعُ الجدوى **لا ينادي تكلفةً ولا `R` ولا فاصلًا**، والنافذةُ غيرُ
+#    المجمَّدة تُجبِر «لا حكم» (خروج 9). عدّادٌ حقيقيٌّ لا وصف.
+def _oha_run(dry=False, until="2026-08-20"):
+    _old_ota = _ota_inject(dry=False, until=until)
+    _keep = {n: getattr(_OHA, n) for n in
+             ("anchor_history", "load_ledger", "fetch_day", "daily_range",
+              "tsv_population", "roots_identical", "trade_r", "ci_of",
+              "UNTIL", "DRY", "H2_FROM")}
+    _cnt = {"trade_r": 0, "ci_of": 0}
+    _t_r, _c_o = _keep["trade_r"], _keep["ci_of"]
+
+    def _tr(*a, **k):
+        _cnt["trade_r"] += 1
+        return _t_r(*a, **k)
+
+    def _ci(*a, **k):
+        _cnt["ci_of"] += 1
+        return _c_o(*a, **k)
+    _OHA.anchor_history = lambda since=None: dict(_OTA_ANCH)
+    _OHA.load_ledger = lambda *a, **k: []
+    _OHA.fetch_day = lambda sym, day, key, get=None: _OTA_DAYS.get((sym, day))
+    _OHA.daily_range = lambda sym, day, key, get=None: list(_OTA_DL)
+    _OHA.roots_identical = lambda: (True, "لا شيء")
+    _OHA.trade_r, _OHA.ci_of = _tr, _ci
+    _OHA.UNTIL, _OHA.DRY, _OHA.H2_FROM = until, dry, "2026-08-20"
+    _buf = _oha_io.StringIO()
+    try:
+        _oha_os.environ["POLYGON_API_KEY"] = (
+            _oha_os.environ.get("POLYGON_API_KEY") or "X")
+        with _oha_ctx.redirect_stdout(_buf):
+            _rc = _OHA.main()
+    except Exception as _e:                                      # noqa: BLE001
+        _rc = f"⛔ {type(_e).__name__}: {_e}"
+    finally:
+        for _n, _v in _keep.items():
+            setattr(_OHA, _n, _v)
+        _ota_restore(_old_ota)
+    return _rc, _buf.getvalue(), dict(_cnt)
+
+
+try:
+    _oha_rd, _oha_td, _oha_cd = _oha_run(dry=True)
+    _oha_rf, _oha_tf, _oha_cf = _oha_run(dry=False)
+    _oha_ok10 = (_oha_cd["trade_r"] == 0 and _oha_cd["ci_of"] == 0
+                 and _oha_rd == _OHA.RC_OK
+                 and "وضعُ الجدوى" in _oha_td
+                 and _oha_rf == _OHA.RC_NOVERDICT
+                 and _oha_cf["trade_r"] > 0)
+    _oha_w10 = (f"جدوى rc={_oha_rd} نداءات={_oha_cd} · كاملة rc={_oha_rf} "
+                f"نداءات={_oha_cf}")
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok10, _oha_w10 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA10 وضعُ الجدوى: **صفرُ نداءٍ** لـ`trade_r`/`ci_of` (عدّادٌ حقيقيّ) · "
+      "والنافذةُ غيرُ المجمَّدة تُجبِر «لا حكم» (خروج 9)", _oha_ok10, _oha_w10)
+
+# 🔴 `OHA11` — شكلُ الـworkflowين: يدويٌّ بلا كرون · صفرُ سرِّ تلغرام · صلاحيةُ قراءة.
+try:
+    _oha_wf = {p: open(f".github/workflows/{p}", encoding="utf-8").read()
+               for p in ("ophold.yml", "link100.yml")}
+    _oha_ok11 = all(
+        ("workflow_dispatch" in _t and "schedule:" not in _t
+         and "cron" not in _t and "TELEGRAM" not in _t
+         and "contents: read" in _t and "POLYGON_API_KEY" in _t)
+        for _t in _oha_wf.values())
+    _oha_w11 = " · ".join(f"{_k}: {len(_v)} محرفًا" for _k, _v in _oha_wf.items())
+except Exception as _e:                                          # noqa: BLE001
+    _oha_ok11, _oha_w11 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OHA11 `ophold.yml` و`link100.yml`: يدويّان بلا كرون · بلا سرِّ تلغرام · "
+      "بصلاحيةِ قراءةٍ وسرِّ Polygon وحدَه", _oha_ok11, _oha_w11)
+
+# ── 💥🔗 `LKA0`-`LKA9` — مِجَسُّ `T-LINK100` ──────────────────────────────────
+# 🔴 `LKA0` — إعادةُ الاستعمال بالاسم **مُناداةٌ فعلًا** (AST).
+_lka_reuse = ("wilson", "is_trading_day", "selfcheck_readonly",
+              "no_config_assign", "fetch_day", "ny_hour", "grouped_day",
+              "ticker_daily", "splits_of", "day_events", "pick_cx",
+              "fold_events", "daily_feats", "pm_feats", "enrich", "cell_pass",
+              "read_verdict", "v_l4", "z_bonf")
+_lka_miss0 = [n for n in _lka_reuse if n not in _lka_calls]
+check("💥🔗🔒 LKA0 مِجَسُّ `T-LINK100`: التسعةَ عشرَ اسمًا (مستورَدًا ومحلّيًّا) تُنادى "
+      "فعلًا في AST — لا استيرادَ زينةٍ ولا دالّةً ميّتة",
+      not _lka_miss0, f"غيرُ مُناداة={_lka_miss0}")
+
+# 🔴 `LKA1` — المصدرُ `adjusted=false` صراحةً (العقد §②) · و`polygon_grouped`
+#    ذاتُ `adjusted=true` **لا تُستورَد ولا تُنادى** — وإلّا اختفى أثرُ التقسيم.
+try:
+    _lka_qf = _lka_src.count("?adjusted=false")
+    _lka_qt = _lka_src.count("?adjusted=true")
+    # 🔒 «لا يُستورَد» تُفحَص **بالـAST** لا بالنصّ — وإلّا أسقط شرحي في
+    #    الدوكسترنغ (الذي يُسمّي البديلَ ليُعلن سببَ تركه) قفلًا سليمًا:
+    #    نفسُ درسِ «الكرون المقترَح» و`WLK5` — يُشدَّد القفلُ ولا يُرخى.
+    _lka_mods = set()
+    for _nd in _oha_ast.walk(_oha_ast.parse(_lka_src)):
+        if isinstance(_nd, _oha_ast.Import):
+            _lka_mods |= {a.name.split(".")[0] for a in _nd.names}
+        elif isinstance(_nd, _oha_ast.ImportFrom) and _nd.module:
+            _lka_mods.add(_nd.module.split(".")[0])
+    _lka_ok1 = (_lka_qf >= 2 and _lka_qt == 0
+                and "polygon_grouped" not in _lka_calls
+                and "presession_radar" not in _lka_mods
+                and "aggs/grouped/locale/us/market/stocks/" in _lka_src)
+    _lka_w1 = (f"?adjusted=false×{_lka_qf} · ?adjusted=true×{_lka_qt} · "
+               f"وحدات={sorted(_lka_mods)}")
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok1, _lka_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA1 الجالبُ `adjusted=false` حصرًا و`polygon_grouped` (‏adjusted=true) "
+      "لا تُستعمَل — فأثرُ التقسيم يبقى مرئيًّا لحارس `V-L2`", _lka_ok1, _lka_w1)
+
+# 🔴 `LKA2` — الحاكمُ **بالأعلى** وحدَه: سهمٌ أغلق ‏+10% وبلغ ‏+100% بأعلاه **حدثٌ**،
+#    وسهمٌ أغلق ‏+100% بلا أعلى ‏≥2× **ليس حدثًا** · والنطاقُ السعريُّ يُنفَّذ.
+try:
+    # 🔴 `PRICE_LO` يُربَط **وقتَ استيراد `kasih_scan`** من `CONFIG["MIN_PRICE"]`،
+    #    والسويّةُ تعبث بها قبلَه ⇒ الفِكستشرُ يُشتقّ من الثابت الحيّ لا من رقمٍ
+    #    مكتوب، فيختبر **القاعدة** لا العدد.
+    _lka_pin = (_LKA.PRICE_LO + _LKA.PRICE_HI) / 2.0      # داخلَ النطاق يقينًا
+    _lka_plo = _LKA.PRICE_LO / 2.0                        # تحت الأرضية
+    _lka_phi = _LKA.PRICE_HI * 2.0                        # فوق السقف
+    _lka_prev = {"HIT": (1, 1, 1, _lka_pin, 1000.0),
+                 "CLO": (1, 1, 1, _lka_pin, 1000.0),
+                 "HIGHPX": (1, 1, 1, _lka_phi, 1000.0),
+                 "LOWPX": (1, 1, 1, _lka_plo, 1000.0),
+                 "NOVOL": (1, 1, 1, _lka_pin, 0.0)}
+    _lka_day = {"HIT": (1, _lka_pin * 2.4, 1, _lka_pin * 1.1, 1.0),
+                "CLO": (1, _lka_pin * 1.5, 1, _lka_pin * 2.1, 1.0),
+                "HIGHPX": (1, _lka_phi * 4, 1, _lka_phi * 3, 1.0),
+                "LOWPX": (1, _lka_plo * 5, 1, _lka_plo * 4, 1.0),
+                "NOVOL": (1, _lka_pin * 9, 1, _lka_pin * 8, 1.0)}
+    _lka_ev = {e[0] for e in _LKA.day_events(_lka_prev, _lka_day)}
+    _lka_ok2 = (_lka_ev == {"HIT"}
+                and _LKA.EXPL_X == 2.0 and _LKA.PRICE_HI == 20.0)
+    _lka_w2 = (f"أحداث={sorted(_lka_ev)} ⇒ CLO مستبعَدٌ رغم إغلاقه +110% · "
+               f"النطاقُ [{_LKA.PRICE_LO:.2f}, {_LKA.PRICE_HI:.0f}] · "
+               f"داخلَه {_lka_pin:.2f}")
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok2, _lka_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA2 الحاكمُ `high/close(d−1) ≥ 2` وحدَه — والإغلاقُ يُحمَل ولا يحكم · "
+      "والنطاقُ ‏[PRICE_LO, 20]$ وحجمُ الأمس مُنفَّذان", _lka_ok2, _lka_w2)
+
+# 🔴 `LKA3` — الشاهدُ المقطعيّ: حتميٌّ · يستبعد المتحرّكَ ‏≥30% · ولا يُعاد استعمالُ رمز.
+try:
+    _lka_p3 = {_k: (1, 1, 1, _lka_pin, 1000.0)
+               for _k in ("EV1", "EV2", "C_A", "C_B", "MOVER")}
+    _lka_d3 = {"EV1": (1, _lka_pin * 3, 1, _lka_pin * 2.5, 1.0),
+               "EV2": (1, _lka_pin * 3, 1, _lka_pin * 2.5, 1.0),
+               "C_A": (1, _lka_pin * 1.05, 1, _lka_pin * 1.02, 1.0),
+               "C_B": (1, _lka_pin * 1.05, 1, _lka_pin * 1.02, 1.0),
+               "MOVER": (1, _lka_pin * 1.45, 1, _lka_pin * 1.40, 1.0)}
+    _lka_e3 = _LKA.day_events(_lka_p3, _lka_d3)
+    _lka_c3 = _LKA.pick_cx(_lka_e3, _lka_p3, _lka_d3)
+    _lka_c3b = _LKA.pick_cx(_lka_e3, _lka_p3, _lka_d3)
+    _lka_ok3 = (set(_lka_c3) == {"EV1", "EV2"}
+                and "MOVER" not in _lka_c3.values()
+                and len(set(_lka_c3.values())) == 2
+                and not (set(_lka_c3.values()) & {"EV1", "EV2"})
+                and _lka_c3 == _lka_c3b)
+    _lka_w3 = f"شواهد={_lka_c3} · حتميّةٌ بالإعادة={_lka_c3 == _lka_c3b}"
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok3, _lka_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA3 الشاهدُ `CX` حتميٌّ (إعادتُه تُعطي عينَه) · يستبعد المتحرّكَ ‏≥30% "
+      "وأسماءَ الأحداث · ولا يُعاد استعمالُ رمزٍ لحدثين", _lka_ok3, _lka_w3)
+
+# 🔴 `LKA4` — الطيُّ 20 جلسةً: المتتالياتُ تُطوى والمتباعدُ يُعَدّ.
+try:
+    _lka_rows = [{"sym": "X", "day": f"d{_i}", "day_i": _i}
+                 for _i in (0, 3, 19, 20, 45)]
+    _lka_rows += [{"sym": "Y", "day": "d1", "day_i": 1}]
+    _lka_f4 = _LKA.fold_events(_lka_rows)
+    _lka_ok4 = ([r["day_i"] for r in _lka_f4 if r["sym"] == "X"] == [0, 20, 45]
+                and _LKA.FOLD_DAYS == 20
+                and any(r["sym"] == "Y" for r in _lka_f4))
+    _lka_w4 = f"X ⇒ {[r['day_i'] for r in _lka_f4 if r['sym'] == 'X']} · كلّ={len(_lka_f4)}"
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok4, _lka_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA4 الطيُّ: الحدثُ الأوّل في نافذة 20 جلسةً يُعَدّ والمتتالياتُ تُطوى · "
+      "ورمزٌ آخرُ لا يتأثّر", _lka_ok4, _lka_w4)
+
+# 🔴 `LKA5` — **صفرُ تسريب**: تغييرُ شمعة يوم الحدث `d` نفسِها لا يحرّك أيَّ ميزة.
+try:
+    _lka_h = [(f"2025-{1 + _i // 28:02d}-{1 + _i % 28:02d}", 5.0, 5.1, 4.9, 5.0,
+               100000.0) for _i in range(300)]
+    _lka_f_a = _LKA.daily_feats(_lka_h, 299, False)
+    _lka_h2 = list(_lka_h)
+    _lka_h2[299] = (_lka_h2[299][0], 5.0, 500.0, 0.1, 400.0, 9e9)   # انفجارٌ في `d`
+    _lka_f_b = _LKA.daily_feats(_lka_h2, 299, False)
+    _lka_ok5 = (_lka_f_a is not None and _lka_f_a == _lka_f_b
+                and _LKA.daily_feats(_lka_h, 0, False) is None)
+    _lka_w5 = f"متطابقة={_lka_f_a == _lka_f_b} · i=0 ⇒ None"
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok5, _lka_w5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA5 صفرُ تسريب: تفجيرُ شمعة يوم الحدث نفسِها **لا يغيّر ميزةً واحدة** "
+      "(الميزاتُ من ‏[..d−1] حصرًا)", _lka_ok5, _lka_w5)
+
+# 🔴 `LKA6` — قائمةُ الميزات **مُغلَقةٌ 13** وتطابق جدولَ العقد §③ اسمًا اسمًا.
+try:
+    _lka_s3 = _ohk_sec(_lkk_doc, "## ③", "## ④")
+    _lka_doc_f = [ln.split("`")[1] for ln in _lka_s3.splitlines()
+                  if ln.startswith("| `")]
+    _lka_ok6 = (len(_LKA.FEATURES) == 13
+                and list(_LKA.FEATURES) == _lka_doc_f
+                and len(_LKA.DAILY_FEATURES) == 11
+                and list(_LKA.PM_FEATURES) == ["pm_gap", "pm_usd"])
+    _lka_w6 = f"الأداة={len(_LKA.FEATURES)} · العقد={len(_lka_doc_f)} · تطابق={list(_LKA.FEATURES) == _lka_doc_f}"
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok6, _lka_w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA6 الميزاتُ الثلاثَ عشرةَ في الأداة **تطابق جدولَ العقد §③ بالاسم "
+      "والترتيب** · و11 يوميّةٌ واثنتان دقيقيّتان", _lka_ok6, _lka_w6)
+
+# 🔴 `LKA7` — `LK1` يشترط **الشاهدَين معًا** وn≥50 وفاصلَين منفصلَين.
+try:
+    _lka_hi = {"ke": 60, "ne": 100, "kc": 10, "nc": 100, "ratio": 6.0}
+    _lka_lo = {"ke": 60, "ne": 100, "kc": 50, "nc": 100, "ratio": 1.2}
+    _lka_sm = {"ke": 20, "ne": 100, "kc": 2, "nc": 100, "ratio": 10.0}
+    _lka_ok7 = (_LKA.cell_pass(_lka_hi, _lka_hi, 1.96) is True
+                and _LKA.cell_pass(_lka_hi, _lka_lo, 1.96) is False
+                and _LKA.cell_pass(_lka_lo, _lka_hi, 1.96) is False
+                and _LKA.cell_pass(_lka_sm, _lka_sm, 1.96) is False
+                and _LKA.cell_pass(_lka_hi, None, 1.96) is False
+                and _LKA.RATIO_MIN == 2.0 and _LKA.MIN_BUCKET_N == 50)
+    _lka_w7 = ("الشاهدان معًا · n≥50 · فاصلان منفصلان — والصغيرةُ تسقط رغم ‏10×")
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok7, _lka_w7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA7 `LK1`: ‏≥2× مقابل `CX` **و**`CC` معًا · ‏n≥50 في السلّة · فاصلان "
+      "منفصلان — وسلّةٌ بإثراءِ ‏10× ولكن ‏n=20 **تسقط**", _lka_ok7, _lka_w7)
+
+# 🔴 `LKA8` — جدولُ حقيقةِ الحكم: التقاطعُ عبر السنوات · والحارسُ الساقطُ ⇒ 3.
+try:
+    _lka_tt = [
+        ({"2023": {"a"}, "2024": {"a"}, "2025": {"a"}}, {"pass": True}, 1),
+        ({"2023": {"a"}, "2024": {"b"}, "2025": {"a"}}, {"pass": True}, 2),
+        ({"2023": {"a"}, "2024": set(), "2025": {"a"}}, {"pass": True}, 2),
+        ({"2023": set(), "2024": set(), "2025": set()}, {"pass": True}, 2),
+        ({"2023": {"a"}, "2024": {"a"}, "2025": {"a"}}, {"pass": False}, 3),
+    ]
+    _lka_got8 = [_LKA.read_verdict(a, b)[0] for a, b, _x in _lka_tt]
+    _lka_ok8 = _lka_got8 == [1, 2, 2, 2, 3]
+    _lka_w8 = f"الفروع={_lka_got8}"
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok8, _lka_w8 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA8 جدولُ الحكم (‏5 حالات): الفرعُ 1 يلزمه عابرٌ **في الثلاث** · "
+      "واختلافُ السلّة بين السنوات ⇒ 2 · وحارسٌ ساقط ⇒ 3", _lka_ok8, _lka_w8)
+
+# 🔴 `LKA9` — `V-L4` شاهدُ التكامل يقرأ القائمةَ الحيّة **فعلًا** ويسقط عند الفوات ·
+#    ورمزا الخروج 5 و9 متمايزان عن بقيّة الرموز.
+try:
+    _lka_live = _LKA.live_events()
+    _lka_hitall = [{"sym": s, "day": d} for s, d in (_lka_live or [])]
+    _lka_v_ok = _LKA.v_l4(_lka_hitall, _lka_live) if _lka_live else {}
+    _lka_v_bad = _LKA.v_l4([], _lka_live) if _lka_live else {}
+    _lka_rcs = {_LKA.RC_OK, _LKA.RC_NOKEY, _LKA.RC_COVER, _LKA.RC_NOEVENT,
+                _LKA.RC_LIVE, _LKA.RC_GUARD, _LKA.RC_NOVERDICT}
+    _lka_ok9 = (bool(_lka_live) and len(_lka_live) >= 50
+                and _lka_v_ok.get("ok") is True
+                and _lka_v_bad.get("ok") is False
+                and len(_lka_rcs) == 7
+                and _LKA.RC_LIVE == 5 and _LKA.RC_NOVERDICT == 9)
+    _lka_w9 = (f"القائمةُ الحيّة={len(_lka_live or [])} حدثًا · تامّ="
+               f"{_lka_v_ok.get('ok')} · فارغ={_lka_v_bad.get('ok')} · "
+               f"رموزٌ متمايزة={len(_lka_rcs)}")
+except Exception as _e:                                          # noqa: BLE001
+    _lka_ok9, _lka_w9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗🔒 LKA9 `V-L4` يقرأ `explosions100_live.md` فعلًا (‏≥50 حدثًا) ويمرّ على "
+      "الاستعادة التامّة ويسقط على الفراغ · ورمزا 5 و9 متمايزان", _lka_ok9, _lka_w9)
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
