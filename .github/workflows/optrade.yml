@@ -1,0 +1,55 @@
+name: "🕵️💥 T-OPTRADE — سياسةُ مضاربةٍ بعد المِرساة بالتكلفة وبضبطِ زخم (optrade_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · **ولا سرَّ تلغرام** فالإرسالُ
+#    مستحيلٌ بنيويًّا · العقد optrade_prereg.md §⑪ · سرُّ POLYGON_API_KEY وحدَه.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "أوّلُ يومٍ يُقاس (YYYY-MM-DD) — العقد §②"
+        required: false
+        default: "2026-08-18"
+      h2_from:
+        description: "أوّلُ يومِ النصف الثاني H2 (YYYY-MM-DD) — العقد §⑥"
+        required: false
+        default: "2026-09-01"
+      until:
+        description: "آخرُ يومٍ يُقاس — المجمَّدُ 2026-09-15 (وغيرُه ⇒ وصفيٌّ بلا حكم)"
+        required: false
+        default: "2026-09-15"
+      dry:
+        description: "وضعُ الجدوى: 1 = ثلاثةُ أعدادٍ فقط بلا R ولا فرقٍ ولا فاصل"
+        required: false
+        default: ""
+
+jobs:
+  optrade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات op_entry_state)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🕵️💥 قياسُ السياسة
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          OPTRADE_SINCE: ${{ inputs.since }}
+          OPTRADE_H2_FROM: ${{ inputs.h2_from }}
+          OPTRADE_UNTIL: ${{ inputs.until }}
+          OPTRADE_DRY: ${{ inputs.dry }}
+        run: python optrade_arms.py
