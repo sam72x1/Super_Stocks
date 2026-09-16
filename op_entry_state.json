@@ -3427,7 +3427,7 @@
  },
  "LIQ:TPST": {
   "anchor_ms": 1789546500000,
-  "last_ms": 1789546500000,
+  "last_ms": 1789546560000,
   "sent": [
    "M1"
   ],
@@ -3435,7 +3435,7 @@
   "vol_x": 0.7,
   "peak_usd": 110480,
   "last_eval_ms": 1789546560000,
-  "pulse_ms": 1789546500000,
+  "pulse_ms": 1789546560000,
   "anchor_price": 1.13,
   "anchor_open": 1.12,
   "anchor_low": 1.11,
@@ -3448,11 +3448,11 @@
    "exit_ms": 1789546380000
   },
   "trig": "T-C",
-  "date": "2026-09-16",
   "pre_done": true,
   "pre_hi": 1.23,
   "pre_usd": 2447365,
-  "pre_n": 15
+  "pre_n": 15,
+  "date": "2026-09-16"
  },
  "LIQ:SLDP": {
   "date": "2026-09-16"
