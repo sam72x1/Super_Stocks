@@ -48828,17 +48828,28 @@ try:
     _ocr_lines = open("opcurve_rows.tsv", encoding="utf-8").read().splitlines()
     _ocr_hdr = _ocr_lines[0].split("\t")
     _ocr_data = [ln.split("\t") for ln in _ocr_lines[1:] if ln.strip()]
-    _ocr_ok1 = (all(k in _ocr_txt for k in ("35057268723", "9b5c3ea4", "f3d6a5c6",
-                                              "opcurve_rows.tsv"))
-                and _ocr_hdr[:3] == ["date", "sym", "trig"] and _ocr_hdr[-1] == "pm_last"
-                and len(_ocr_hdr) == 20 and bool(_ocr_data)
-                and all(len(r) == 20 for r in _ocr_data))
-    _ocr_why1 = f"صفوف={len(_ocr_data)} · أعمدة={len(_ocr_hdr)}"
+    # 🔒 المصادر: العقدُ وملحقُه · والتشغيلتان **زوجَ اتّساقٍ لا مهربَين**: الرقمُ المعتمَد
+    #    في الترويسة يجب أن يساوي عمودَ «بعد» في جدول القبل/البعد، و«قبل» يساوي تشغيلةَ
+    #    المرجع — فتبديلُ أيٍّ منهما يُسقط القفل (طفرةٌ نجت أوّلًا فكُشف الصنفُ ③).
+    _ocr_m_run = _ocr_re.search(r"\*\*التشغيلةُ المعتمَدة `(\d+)`\*\*", _ocr_txt)
+    _ocr_m_ba = _ocr_re.search(r"\| قبل \(‏`(\d+)`\) \| بعد \(‏`(\d+)`\) \|", _ocr_txt)
+    _ocr_ok1 = (all(k in _ocr_txt for k in ("f3d6a5c6", "1563f928", "opcurve_rows.tsv"))
+                and bool(_ocr_m_run and _ocr_m_ba)
+                and _ocr_m_run.group(1) == _ocr_m_ba.group(2)
+                and _ocr_m_ba.group(1) != _ocr_m_ba.group(2)
+                and _ocr_m_ba.group(1) == "35057268723"
+                and _ocr_hdr[:3] == ["date", "sym", "trig"]
+                and _ocr_hdr[-2:] == ["low_src", "gap_src"]
+                and len(_ocr_hdr) == 22 and bool(_ocr_data)
+                and all(len(r) == 22 for r in _ocr_data))
+    _ocr_why1 = (f"صفوف={len(_ocr_data)} · أعمدة={len(_ocr_hdr)} · ذيل={_ocr_hdr[-2:]} · "
+                 f"معتمَدة={_ocr_m_run and _ocr_m_run.group(1)} · "
+                 f"قبل/بعد={_ocr_m_ba and _ocr_m_ba.groups()}")
 except Exception as _e:                                          # noqa: BLE001
     _ocr_data, _ocr_txt = [], ""
     _ocr_ok1, _ocr_why1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🕵️📈🔒 OCR1 نتيجةُ T-OPCURVE تحمل التشغيلةَ والعقدَ والأداةَ بأرقامها · والصفوفُ 20 عمودًا "
-      "كلُّها", _ocr_ok1, _ocr_why1)
+check("🕵️📈🔒 OCR1 نتيجةُ T-OPCURVE: العقدُ وملحقُه · والتشغيلةُ المعتمَدة تساوي عمودَ «بعد» "
+      "وتخالف «قبل» · والصفوفُ 22 عمودًا بعمودَي المصدر", _ocr_ok1, _ocr_why1)
 
 # 🔴 `OCR2` — الاتّساق عدًّا: ما يقوله نصُّ النتيجة (المقيسُ · المنفجرون · سلالُ الزناد)
 #    يُعاد عدُّه من الصفوف المنشورة نفسِها — لا رقمَ مكتوبٌ بيدي في القفل.
@@ -48849,17 +48860,24 @@ try:
                               _ocr_txt)
     _ocr_trig = _ocr_Counter(r[2] for r in _ocr_data)
     _ocr_expl = sum(1 for r in _ocr_data if r[7] == "نعم")
-    _ocr_ok2 = (bool(_ocr_m_n and _ocr_m_x and _ocr_m_t)
+    # 🔒 الثغرةُ المسدودة تُقاس من الصفوف: صفرُ سلّةِ فجوةٍ مجهولة · وعددُ المستردّ كما نُشر.
+    _ocr_gapq = sum(1 for r in _ocr_data if r[6] == "؟")
+    _ocr_rlow = sum(1 for r in _ocr_data if r[-2] == "شمعة")
+    _ocr_m_r = _ocr_re.search(r"قاعٌ مستردٌّ من الشمعة \*\*‏(\d+)\*\*", _ocr_txt)
+    _ocr_ok2 = (bool(_ocr_m_n and _ocr_m_x and _ocr_m_t and _ocr_m_r)
                 and int(_ocr_m_n.group(1)) == len(_ocr_data)
                 and (int(_ocr_m_x.group(1)), int(_ocr_m_x.group(2))) == (_ocr_expl, len(_ocr_data))
                 and tuple(int(g) for g in _ocr_m_t.groups())
-                == (_ocr_trig.get("R1", 0), _ocr_trig.get("T-C", 0), _ocr_trig.get("قبل الشحن", 0)))
+                == (_ocr_trig.get("R1", 0), _ocr_trig.get("T-C", 0), _ocr_trig.get("قبل الشحن", 0))
+                and _ocr_gapq == 0 and int(_ocr_m_r.group(1)) == _ocr_rlow)
     _ocr_why2 = (f"نصّ n={_ocr_m_n and _ocr_m_n.group(1)} · صفوف={len(_ocr_data)} · "
-                 f"منفجر={_ocr_expl} · زناد={dict(_ocr_trig)}")
+                 f"منفجر={_ocr_expl} · زناد={dict(_ocr_trig)} · فجوةٌ «؟»={_ocr_gapq} · "
+                 f"قاعٌ مستردّ نصًّا={_ocr_m_r and _ocr_m_r.group(1)} عدًّا={_ocr_rlow}")
 except Exception as _e:                                          # noqa: BLE001
     _ocr_ok2, _ocr_why2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🕵️📈🔒 OCR2 نتيجةُ T-OPCURVE متّسقةٌ عدًّا مع صفوفها: المقيسُ والمنفجرون وسلالُ الزناد "
-      "يُعاد عدُّها من opcurve_rows.tsv", _ocr_ok2, _ocr_why2)
+      "والقاعُ المستردّ يُعاد عدُّها من opcurve_rows.tsv · وصفرُ سلّةِ فجوةٍ مجهولة",
+      _ocr_ok2, _ocr_why2)
 
 # 🔴 `OCR3` — `h*` المنشورُ يلزم من `window_rule` **الحيّة** على الرُّبيعات المنشورة (‏n · p50 ·
 #    p75 · p90 تُقرأ من النصّ ويُبنى بها توزيعٌ صناعيٌّ يُعيدها بت-بت عبر `pctile` بالاسم).
