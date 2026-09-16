@@ -16,6 +16,10 @@ on:
         description: "أوّلُ يومِ النصف الثاني H2 (YYYY-MM-DD) — العقد §④"
         required: false
         default: "2026-09-01"
+      until:
+        description: "آخرُ يومٍ يُقاس (YYYY-MM-DD) — فارغٌ = يومُ التشغيل · الملحق §⑪-5"
+        required: false
+        default: ""
 
 jobs:
   opcurve:
@@ -42,4 +46,5 @@ jobs:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           OPCURVE_SINCE: ${{ inputs.since }}
           OPCURVE_H2_FROM: ${{ inputs.h2_from }}
+          OPCURVE_UNTIL: ${{ inputs.until }}
         run: python opcurve_probe.py

@@ -48577,6 +48577,172 @@ except Exception as _e:                                          # noqa: BLE001
 check("🕵️📈🔒 OCA10 مقياسٌ واحدٌ سلوكيًّا: up_ext من t0=anchor+4د يساوي tierlink.measure "
       "mg_day بت-بت (‏+50% على فِكستشرٍ تفصل فيه الإزاحة)", _oca_ok10, _oca_why10)
 
+# ─────────────────────────────────────────────────────────────────────────────
+# 🕵️📈 `OCA11`-`OCA13` — ملحقُ العقد §⑪ «سد ثغرة القاع» (2026-09-16 · أمرُ المالك).
+#    فِكستشرُ يومين (‏09-10 و09-11) بلا سجلٍّ ولا شبكة · وكلُّ الأسماء `_oca_` (الصنفُ ①).
+_oca_DAY = 86_400_000
+_oca_b11 = sorted([(_t + _oca_DAY, _o, _h, _l, _c, _v) for (_t, _o, _h, _l, _c, _v) in _oca_bars])
+_oca_barmap = {"2026-09-10": _oca_bars, "2026-09-11": _oca_b11, "2026-09-12": _oca_b11}
+_oca_dailies = [("2026-09-09", 1.0, 0.80), ("2026-09-10", 1.5, 0.90),
+                ("2026-09-11", 1.5, 0.90), ("2026-09-12", 1.5, 0.90)]
+
+
+def _oca_anchors(low=None, price=None):
+    _d1 = {"anchor_ms": _oca_a, "date": "2026-09-10"}
+    _d2 = {"anchor_ms": _oca_a + _oca_DAY, "date": "2026-09-11"}
+    for _d in (_d1, _d2):
+        if low is not None:
+            _d["anchor_low"] = low
+        if price is not None:
+            _d["anchor_price"] = price
+    return {("2026-09-10", "AAA"): _d1, ("2026-09-11", "AAA"): _d2}
+
+
+def _oca_run(anchors, until=""):
+    """تشغيلةُ `main` كاملةً بلا شبكة — تُعيد (رمزَ الخروج · المُخرَج)."""
+    _oca_os.environ["POLYGON_API_KEY"] = "x"
+    _OCA.UNTIL = until
+    _OCA.anchor_history = lambda since=None: anchors
+    _OCA.load_ledger = lambda: []
+    _OCA.fetch_day = lambda _s, _d, _k: _oca_barmap.get(_d)
+    _OCA.daily_range = lambda _s, _d, _k: _oca_dailies
+    _oca_buf = _oca_io.StringIO()
+    with _oca_ctx.redirect_stdout(_oca_buf):
+        _rc = _OCA.main()
+    return _rc, _oca_buf.getvalue()
+
+
+# 🔴 `OCA11` — الاستردادُ **بتعريف الإنتاج** سلوكيًّا: قاعُ الشمعة مقرَّبًا لأربع خانات ·
+#    و`0.0` ليست غيابًا · وغيابُ الشمعة يُبقي `stop_known=False` · والتقريبُ يُرصد حين يحرّك قيمة.
+try:
+    _oca_rb = [(_oca_a, 1.0, 1.10, 0.9012345, 1.0500049, 100)] + \
+              [(_oca_a + _k * 60_000, 1.0, 1.0, 1.0, 1.0, 100) for _k in range(1, 9)]
+    _oca_r1 = _OCA.resolve_anchor({"anchor_ms": _oca_a}, None, _oca_rb)
+    _oca_r2 = _OCA.resolve_anchor({"anchor_ms": _oca_a, "anchor_low": 0.0}, None, _oca_rb)
+    _oca_r3 = _OCA.resolve_anchor({"anchor_ms": _oca_a + 999}, None, _oca_rb)
+    _oca_st3 = _OCA.path_stats(_oca_rb, _oca_a + _OCA.CARD_OFFSET_MS, 1.0, _oca_r3["alow"])
+    _oca_r4 = _OCA.resolve_anchor({"anchor_ms": _oca_a, "anchor_low": 0.9012,
+                                   "anchor_price": 1.05}, None, _oca_rb)
+    _oca_ok11 = (_oca_r1["alow"] == round(float(_oca_rb[0][3]), 4) == 0.9012
+                 and _oca_r1["ap"] == round(float(_oca_rb[0][4]), 4) == 1.05
+                 and _oca_r1["low_src"] == _oca_r1["ap_src"] == "شمعة"
+                 and _oca_r1["round_moved"] is True
+                 and _oca_r2["alow"] == 0.0 and _oca_r2["low_src"] == "مخزون"
+                 and _oca_r3["alow"] is None and _oca_r3["low_src"] == "—"
+                 and _oca_st3["stop_known"] is False and _oca_st3["t_stop"] is None
+                 and _oca_r4["low_src"] == "مخزون" and _oca_r4["d_low"] == 0.0)
+    _oca_why11 = (f"مستردّ={_oca_r1['alow']}/{_oca_r1['ap']} · صفر={_oca_r2['low_src']} · "
+                  f"بلا شمعة={_oca_r3['low_src']}/{_oca_st3['stop_known']} · "
+                  f"تقريب={_oca_r1['round_moved']} · d_low={_oca_r4['d_low']}")
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok11, _oca_why11 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA11 الاستردادُ بتعريف الإنتاج: قاعُ الشمعة round(l,4) · 0.0 ليست غيابًا · "
+      "بلا شمعةٍ يبقى stop_known=False · والتقريبُ يُرصد", _oca_ok11, _oca_why11)
+
+# 🔴 `OCA12` — النافذةُ العليا (§⑪-5): تقصّ فعلًا · وفارغةً لا تقصّ شيئًا (السلوكُ القائم) ·
+#    وموصولةٌ في الـworkflow بالاسم الذي يقرؤه السكربت.
+_oca_keep = {_n: getattr(_OCA, _n) for _n in
+             ("anchor_history", "load_ledger", "fetch_day", "daily_range")}
+_oca_keep_u = _OCA.UNTIL
+_oca_env1 = _oca_os.environ.get("POLYGON_API_KEY")
+try:
+    _oca_rc_a, _oca_out_a = _oca_run(_oca_anchors())
+    _oca_rc_b, _oca_out_b = _oca_run(_oca_anchors(), until="2026-09-10")
+    _oca_wf12 = _oca_yaml.safe_load(open(".github/workflows/opcurve.yml", encoding="utf-8").read())
+    _oca_stp12 = next(_s for _s in _oca_wf12["jobs"]["opcurve"]["steps"]
+                      if "opcurve_probe" in str(_s.get("run", "")))
+    _oca_ok12 = (_oca_rc_a == 0 and _oca_rc_b == 0
+                 and "مراسٍ 2" in _oca_out_a and "حتى يوم التشغيل" in _oca_out_a
+                 and "مراسٍ 1" in _oca_out_b and "حتى 2026-09-10 (قُصّ 1)" in _oca_out_b
+                 and "until" in _oca_wf12[True]["workflow_dispatch"]["inputs"]
+                 and "inputs.until" in str(_oca_stp12["env"]["OPCURVE_UNTIL"])
+                 and 'os.environ.get("OPCURVE_UNTIL"' in _oca_src)
+    _oca_why12 = (f"بلا سقف: rc={_oca_rc_a} · بسقف: rc={_oca_rc_b} · "
+                  f"موصول={'inputs.until' in str(_oca_stp12['env'].get('OPCURVE_UNTIL'))}")
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok12, _oca_why12 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🔒 OCA12 النافذةُ العليا تقصّ فعلًا · وفارغةً لا تقصّ · وموصولةٌ بـOPCURVE_UNTIL",
+      _oca_ok12, _oca_why12)
+
+# 🔴 `OCA13` — `V-C10` (§⑪-6) يوقف عند مخالفةِ المستردّ للمخزون (خروج 5 ولا يُنشَر رقم) ·
+#    ويمرّ عند المطابقة · وكتلةُ `⟦TSV⟧` رأسُها مسمًّى وعددُ أعمدتها ثابتٌ في كلّ صفّ (§⑪-8).
+try:
+    _oca_rc_x, _oca_out_x = _oca_run(_oca_anchors(low=5.0, price=9.0))
+    _oca_rc_y, _oca_out_y = _oca_run(_oca_anchors(low=0.95, price=1.0))
+    _oca_tsv = _oca_out_y.split("⟦TSV⟧")[1].split("⟦/TSV⟧")[0].strip().splitlines()
+    _oca_ok13 = (_oca_rc_x == 5 and "خروج 5" in _oca_out_x and "⟦TSV⟧" not in _oca_out_x
+                 and _oca_rc_y == 0 and "طابق 2 (100.00%)" in _oca_out_y
+                 and "مطابقةٌ تامّة 2" in _oca_out_y
+                 and _oca_tsv[0].split("\t") == list(_OCA.TSV_COLS)
+                 and len(_oca_tsv) == 3
+                 and all(len(_r.split("\t")) == len(_OCA.TSV_COLS) for _r in _oca_tsv[1:]))
+    _oca_why13 = (f"مخالف: rc={_oca_rc_x} tsv={'⟦TSV⟧' in _oca_out_x} · مطابق: rc={_oca_rc_y} · "
+                  f"أعمدة={len(_oca_tsv[0].split(chr(9)))} صفوف={len(_oca_tsv)-1}")
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok13, _oca_why13 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    for _n, _fn in _oca_keep.items():
+        setattr(_OCA, _n, _fn)
+    _OCA.UNTIL = _oca_keep_u
+    if _oca_env1 is None:
+        _oca_os.environ.pop("POLYGON_API_KEY", None)
+    else:
+        _oca_os.environ["POLYGON_API_KEY"] = _oca_env1
+check("🕵️📈🔒 OCA13 V-C10 يوقف عند المخالفة (خروج 5 بلا نشرِ رقم) ويمرّ عند المطابقة · "
+      "وكتلةُ TSV رأسُها مسمًّى وأعمدتُها ثابتة", _oca_ok13, _oca_why13)
+
+# 🔴 `OCA14` — استدراكُ الفجوة (§⑪-3-3) بشرطٍ على **النتيجة** لا على المصدر: بلا سعرٍ مخزونٍ
+#    يُستدرَك من الشموع · ومع صفّ سجلٍّ لا يُدهَس · وبلا إغلاقِ يومٍ سابقٍ يبقى «؟» صادقًا.
+_oca_keep2 = {_n: getattr(_OCA, _n) for _n in
+              ("anchor_history", "load_ledger", "fetch_day", "daily_range")}
+_oca_keep_u2 = _OCA.UNTIL
+_oca_env2 = _oca_os.environ.get("POLYGON_API_KEY")
+
+
+def _oca_gap_row(out):
+    """آخرُ عمودَين من أوّل صفٍّ في كتلة TSV ‏+ عمودُ الفجوة."""
+    _t = out.split("⟦TSV⟧")[1].split("⟦/TSV⟧")[0].strip().splitlines()[1].split("\t")
+    return _t[6], _t[-1]
+
+
+try:
+    # (أ) بلا سجلٍّ وبلا سعرٍ مخزون ⇒ يُستدرَك من الشموع (‏1.00 ÷ 0.80 − 1 = +25% ⇒ «10-30%»)
+    _oca_rc_g1, _oca_out_g1 = _oca_run(_oca_anchors())
+    _oca_g1 = _oca_gap_row(_oca_out_g1)
+    # (ب) صفُّ سجلٍّ بإغلاقِ أمسٍ ⇒ الفجوةُ منه ولا تُدهَس
+    _OCA.load_ledger = lambda: [{"date": "2026-09-10", "symbol": "AAA", "anchor_ms": _oca_a,
+                                 "e5": 1.0, "prev_close": 0.95, "anchor_price": 1.0,
+                                 "anchor_low": 0.95, "green": 3, "j1": False,
+                                 "c3": None, "c4": None, "v2": None, "v3": None}]
+    _oca_buf_g2 = _oca_io.StringIO()
+    with _oca_ctx.redirect_stdout(_oca_buf_g2):
+        _oca_rc_g2 = _OCA.main()
+    _oca_g2 = _oca_gap_row(_oca_buf_g2.getvalue())
+    # (ج) بلا إغلاقِ يومٍ سابق ⇒ «؟» صادقة
+    _OCA.load_ledger = lambda: []
+    _OCA.daily_range = lambda _s, _d, _k: [("2026-09-10", 1.5, 0.9), ("2026-09-11", 1.5, 0.9)]
+    _oca_buf_g3 = _oca_io.StringIO()
+    with _oca_ctx.redirect_stdout(_oca_buf_g3):
+        _oca_rc_g3 = _OCA.main()
+    _oca_g3 = _oca_gap_row(_oca_buf_g3.getvalue())
+    _oca_ok14 = (_oca_rc_g1 == 0 and _oca_g1 == ("10-30%", "شموع")
+                 and _oca_rc_g2 == 0 and _oca_g2 == ("<10%", "سجلّ")
+                 and _oca_rc_g3 == 0 and _oca_g3 == ("؟", "—")
+                 and "فجوةٌ مستدرَكة 2" in _oca_out_g1)
+    _oca_why14 = f"بلا سعرٍ={_oca_g1} · بسجلّ={_oca_g2} · بلا أمسٍ={_oca_g3}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok14, _oca_why14 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    for _n, _fn in _oca_keep2.items():
+        setattr(_OCA, _n, _fn)
+    _OCA.UNTIL = _oca_keep_u2
+    if _oca_env2 is None:
+        _oca_os.environ.pop("POLYGON_API_KEY", None)
+    else:
+        _oca_os.environ["POLYGON_API_KEY"] = _oca_env2
+check("🕵️📈🔒 OCA14 استدراكُ الفجوة بشرطٍ على النتيجة: بلا سعرٍ مخزونٍ يُستدرَك من الشموع · "
+      "ومع صفّ سجلٍّ لا يُدهَس · وبلا إغلاقِ أمسٍ يبقى «؟»", _oca_ok14, _oca_why14)
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
