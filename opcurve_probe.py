@@ -21,7 +21,8 @@
 `T-OPTRADE` يبقى غيرَ مُطَّلَعٍ عليه.
 
 **رموزُ الخروج:** 0 صدر · 2 لا مفتاح (‏`V-C1`) · 3 تغطيةُ الجلب دون 80% (‏`V-C3` — لا
-يُفسَّر رقم) · 4 صفرُ مِرساة (‏`V-C2` بصمةُ no-op).
+يُفسَّر رقم) · 4 صفرُ مِرساة (‏`V-C2` بصمةُ no-op) · **5 المستردُّ يخالف المخزون** (‏`V-C10` ·
+الملحق §⑪-6 — ولا يُنشَر رقمٌ مستردّ).
 """
 import collections
 import datetime as dt
@@ -39,6 +40,7 @@ from liq_trig_read import SHIP_ISO                                       # با�
 
 SINCE = os.environ.get("OPCURVE_SINCE", "2026-08-18")          # العقد §②
 H2_FROM = os.environ.get("OPCURVE_H2_FROM", "2026-09-01")      # العقد §④ — النصفان
+UNTIL = os.environ.get("OPCURVE_UNTIL", "").strip()            # §⑪-5 — فارغٌ = يومُ التشغيل (السلوكُ القائم)
 HORIZONS = (5, 15, 30, 60)                                     # العقد §③ — بالدقائق الجداريّة
 W_SET = (15, 30, 60, 120, 240)                                 # العقد §⑦ — قاعدةُ النافذة `W`
 MIN_COVER = 0.80                                               # `V-C3`
@@ -47,6 +49,11 @@ TRIG_SMALL = 20                                                # `V-C9` — سل
 CARD_OFFSET_MS = 4 * 60_000                                    # `t0` = بدايةُ شمعة الكرت (= `card_ms` في tierlink)
 HIT_PCT = 10.0                                                 # هدفُ `T-TARGET10` المعتمَد
 CI_METRICS = ("up_60", "close_reg", "pm_last")                 # §④ — ثلاثةُ أرقامٍ رئيسة فقط
+MIN_RECON_MATCH = 0.99                                         # `V-C10` (§⑪-6) — دونه خروج 5
+RECON_TOL_PCT = 0.1                                            # `V-C10` — «مطابقة» = فرقٌ نسبيٌّ لا يتجاوزه
+TSV_COLS = ("date", "sym", "trig", "tod", "tier", "j1", "gap", "exploded50",
+            "up5", "up15", "up30", "up60", "dn60", "up_ext", "t_peak", "dd_pre_peak",
+            "t_hit10", "t_stop", "close_reg", "pm_last", "low_src", "gap_src")   # §⑪-8
 BUCKETS = ("الكلّ", "trig", "tod", "tier", "j1", "gap", "pre∧gap≥30%", "exploded50")
 
 
@@ -61,6 +68,63 @@ SHIP_MS = ship_ms()
 def ny_hour(ms: int) -> float:
     t = dt.datetime.fromtimestamp(ms / 1000, tz=NY)
     return t.hour + t.minute / 60.0
+
+
+# ───────────────────── الاسترداد (‏§⑪-3 · `V-C10` — نقيّة) ──────────────────────
+def _first(*vals):
+    """أوّلُ قيمةٍ **ليست `None`** — فحصٌ صريحٌ لا صدقٌ (‏`0.0` ليست غيابًا · §⑪-3-4)."""
+    for v in vals:
+        if v is not None:
+            return v
+    return None
+
+
+def resolve_anchor(a: dict, b, bars):
+    """سعرُ المِرساة وقاعُها — من المخزون، وإلّا **من شمعة المِرساة بتعريف الإنتاج حرفيًّا**.
+
+    الإنتاجُ يكتبهما هكذا بعينه: `anchor_price = round(float(bar.c), 4)` ·
+    `anchor_low = round(float(bar.l), 4)` ⇒ الاستردادُ **ليس مُقدِّرًا جديدًا** (§⑪-3).
+    ويُعاد معهما فرقُ المستردّ عن المخزون حيث يتوفّران معًا (‏`V-C10`)، وهل غيّر
+    **التقريبُ** قيمةَ المستردّ (‏§⑪-4: لو غيّرها فقد يتحرّك `e5` لصفٍّ لا سجلَّ له).
+    """
+    a_ms = int(a["anchor_ms"])
+    bar = next((x for x in bars if x[0] == a_ms), None)
+    src = b or {}
+    raw_p = float(bar[4]) if bar else None
+    raw_l = float(bar[3]) if bar else None
+    rec_p = None if raw_p is None else round(raw_p, 4)
+    rec_l = None if raw_l is None else round(raw_l, 4)
+    st_p = _first(a.get("anchor_price"), src.get("anchor_price"))
+    st_l = _first(a.get("anchor_low"), src.get("anchor_low"))
+
+    def _d(stored, rec):
+        if stored is None or rec is None:
+            return None
+        return abs(float(stored) - rec)
+
+    return {"ap": _first(st_p, rec_p), "alow": _first(st_l, rec_l),
+            "ap_src": "مخزون" if st_p is not None else ("شمعة" if rec_p is not None else "—"),
+            "low_src": "مخزون" if st_l is not None else ("شمعة" if rec_l is not None else "—"),
+            "d_price": _d(st_p, rec_p), "d_low": _d(st_l, rec_l),
+            "ref_price": None if st_p is None else abs(float(st_p)),
+            "ref_low": None if st_l is None else abs(float(st_l)),
+            "round_moved": bool((rec_p is not None and rec_p != raw_p)
+                                or (rec_l is not None and rec_l != raw_l))}
+
+
+def recon_check(diffs):
+    """‏`V-C10` (§⑪-6): (‏قُورن · طابق · نسبة · أكبرُ فرقٍ مطلق · أكبرُ فرقٍ نسبيّ ٪).
+
+    «المطابقة» = فرقٌ **نسبيٌّ** لا يتجاوز `RECON_TOL_PCT`؛ وتُطبَع معها المطابقةُ
+    **التامّة** (بعد تقريب الإنتاج) فلا يُخفي التسامحُ فرقًا حقيقيًّا."""
+    pairs = [(d, ref) for d, ref in diffs if d is not None and ref]
+    n = len(pairs)
+    if not n:
+        return {"n": 0, "ok": 0, "exact": 0, "rate": None, "max_abs": None, "max_rel": None}
+    rels = [d / ref * 100.0 for d, ref in pairs]
+    ok = sum(1 for r in rels if r <= RECON_TOL_PCT)
+    return {"n": n, "ok": ok, "exact": sum(1 for d, _r in pairs if d <= 1e-9),
+            "rate": ok / n, "max_abs": max(d for d, _r in pairs), "max_rel": max(rels)}
 
 
 # ───────────────────────── المسار (العقد §③ — نقيّة) ────────────────────────────
@@ -286,13 +350,22 @@ def main() -> int:
         print("⛔ لا POLYGON_API_KEY — خروج 2 (V-C1)")
         return 2
     anchors = anchor_history(SINCE)
+    cut = 0
+    if UNTIL:                                                   # §⑪-5 — تثبيتُ الكون
+        before = len(anchors)
+        anchors = {k: v for k, v in anchors.items() if k[0] <= UNTIL}
+        cut = before - len(anchors)
     if not anchors:
         print("⛔ صفرُ مِرساةٍ في تاريخ git (بصمةُ no-op) — خروج 4 (V-C2)")
         return 4
     ledger = {(r["date"], r["symbol"]): r for r in load_ledger()}
-    print(f"🕵️📈 T-OPCURVE · مراسٍ {len(anchors)} · سجلّ M5 {len(ledger)} · منذ {SINCE} · "
+    win = f" · حتى {UNTIL} (قُصّ {cut})" if UNTIL else " · حتى يوم التشغيل"
+    print(f"🕵️📈 T-OPCURVE · مراسٍ {len(anchors)} · سجلّ M5 {len(ledger)} · منذ {SINCE}{win} · "
           f"H2 من {H2_FROM} · الزنادُ بعد {SHIP_ISO}")
     rows, fails, nobase, pm_missing = [], 0, 0, 0
+    pm_no_next, pm_no_bars = 0, 0                               # §⑪-7 — تفكيكٌ عرضيّ لا مقياس
+    rec_low, rec_price, rec_gap, round_moved = [], 0, 0, 0      # §⑪-3/§⑪-4
+    diffs_price, diffs_low = [], []                             # `V-C10`
     cache, dcache = {}, {}
     for (day, sym), a in sorted(anchors.items()):
         bars = cache.get((sym, day))
@@ -308,10 +381,16 @@ def main() -> int:
             dcache[(sym, day)] = dailies
         b = ledger.get((day, sym))
         a_ms = int(a["anchor_ms"])
-        ap = a.get("anchor_price") or (b or {}).get("anchor_price")
-        if not ap:
-            ab = next((x for x in bars if x[0] == a_ms), None)
-            ap = ab[4] if ab else None
+        ra = resolve_anchor(a, b, bars)                          # §⑪-3 — بتعريف الإنتاج
+        ap = ra["ap"]
+        diffs_price.append((ra["d_price"], ra["ref_price"]))
+        diffs_low.append((ra["d_low"], ra["ref_low"]))
+        if ra["low_src"] == "شمعة":
+            rec_low.append(day)
+        if ra["ap_src"] == "شمعة":
+            rec_price += 1
+        if ra["round_moved"]:
+            round_moved += 1
         e5 = (b or {}).get("e5")
         if not e5:
             e5, _broke = true_e5(bars, a_ms, ap) if ap else (None, False)
@@ -319,8 +398,7 @@ def main() -> int:
             nobase += 1
             continue
         t0 = a_ms + CARD_OFFSET_MS
-        alow = a.get("anchor_low") or (b or {}).get("anchor_low")
-        o = path_stats(bars, t0, e5, alow)
+        o = path_stats(bars, t0, e5, ra["alow"])
         nxt = next((d for (d, _h, _c) in dailies if d > day), None)
         pm = None
         if nxt:
@@ -331,23 +409,53 @@ def main() -> int:
             pm = pm_stats(nb, e5)
         if pm is None:
             pm_missing += 1
+            if nxt is None:
+                pm_no_next += 1
+            else:
+                pm_no_bars += 1
         f = features(a, b)
-        if b is None and a.get("anchor_price"):
-            # إغلاقُ الأمس من الشموع اليوميّة لمن ليس في السجلّ (كما في tierlink_probe.main)
+        gap_src = "سجلّ" if f["gap"] != "؟" else "—"
+        if f["gap"] == "؟" and ap:
+            # §⑪-3-3: الشرطُ على **النتيجة** لا على المصدر · والتعريفُ نفسُه
+            # (‏`anchor_price ÷ إغلاق اليوم السابق − 1`) كما في `tierlink_probe.main`.
             pcs = [c for (d, _h, c) in dailies if d < day]
             if pcs:
-                gap = (a["anchor_price"] / pcs[-1] - 1) * 100
+                gap = (ap / pcs[-1] - 1) * 100
                 f["gap"] = "<10%" if gap < 10 else ("10-30%" if gap < 30 else "≥30%")
+                gap_src, rec_gap = "شموع", rec_gap + 1
         rows.append({"date": day, "symbol": sym, "half": "H1" if day < H2_FROM else "H2",
                      "trig": trig_bucket(a), "e5": e5, "f": f, "o": o, "pm": pm,
+                     "low_src": ra["low_src"], "gap_src": gap_src,
                      "b": buckets_of(f, trig_bucket(a), o["exploded50"])})
     total = len(anchors)
     cover = len(rows) / total
     print(f"🩺 التغطية: قِيس {len(rows)} · تعذّر الجلب {fails} · بلا أساس {nobase} من {total} "
-          f"= {cover*100:.1f}% · بلا بريماركتِ غد {pm_missing} ({pm_missing/max(1,len(rows))*100:.0f}%)")
+          f"= {cover*100:.1f}% · بلا بريماركتِ غد {pm_missing} ({pm_missing/max(1,len(rows))*100:.0f}%)"
+          f" [لا يومَ تالٍ {pm_no_next} · يومٌ بلا شموعِ بري {pm_no_bars}]")
+    unknown = sum(1 for r in rows if not r["o"]["stop_known"])
+    days_lo = sorted(set(rec_low))
+    print(f"🧩 الترميم (§⑪-3): قاعٌ مستردٌّ من الشمعة {len(rec_low)}"
+          f"{' · أيامُه ' + days_lo[0] + ' ⟶ ' + days_lo[-1] + f' ({len(days_lo)} يومًا)' if days_lo else ''}"
+          f" · سعرٌ مستردّ {rec_price} · فجوةٌ مستدرَكة {rec_gap} · وما زال بلا قاعٍ {unknown}"
+          f" · قِيَمٌ غيّرها التقريبُ إلى أربع خانات **{round_moved}**")
     if cover < MIN_COVER:
         print("⛔ التغطية دون 80% ⇒ لا يُفسَّر رقم — خروج 3 (V-C3)")
         return 3
+    # `V-C10` (§⑪-6) — المستردُّ يُقارَن بالمخزون حيث يتوفّران معًا
+    cp, cl = recon_check(diffs_price), recon_check(diffs_low)
+    for nm, c in (("السعر", cp), ("القاع", cl)):
+        if c["n"]:
+            print(f"🔎 V-C10 {nm}: قُورن {c['n']} · طابق {c['ok']} ({c['rate']*100:.2f}%) · "
+                  f"مطابقةٌ تامّة {c['exact']} · أكبرُ فرقٍ {c['max_abs']:.6f} "
+                  f"({c['max_rel']:.4f}% نسبيًّا · الحدُّ {RECON_TOL_PCT}%)")
+        else:
+            print(f"🔎 V-C10 {nm}: لا مقارنةَ ممكنة (صفرُ زوجٍ يجتمع فيه المخزونُ والشمعة)")
+    bad = [nm for nm, c in (("السعر", cp), ("القاع", cl))
+           if c["n"] and c["rate"] < MIN_RECON_MATCH]
+    if bad:
+        print(f"⛔ V-C10: المستردُّ يخالف المخزونَ حيث يُعرَف ({' · '.join(bad)}) ⇒ لا يُنشَر "
+              f"رقمٌ مستردّ — خروج 5 (§⑪-6)")
+        return 5
     n_tc = sum(1 for r in rows if r["trig"] == "T-C")
     n_r1 = sum(1 for r in rows if r["trig"] == "R1")
     n_pre = sum(1 for r in rows if r["trig"] == "قبل الشحن")
@@ -388,9 +496,26 @@ def main() -> int:
               f"{_f(o['up_30'])} {_f(o['up_60'])} {_f(o['dn_60'])} {_f(o['up_ext'])} {_fn(o['t_peak'],5,0)} "
               f"{_f(o['dd_pre_peak'])} {_fn(o['t_hit10'],5,0)} {_fn(o['t_stop'],5,0)} {_f(o['close_reg'])} "
               f"{_f(pm.get('pm_last'))}")
+    # ── كتلةُ الاستخراج (§⑪-8) — نسخةٌ آليّةٌ لا إعادةَ بناءٍ بتقطيع نصّ
+    def _t(x):
+        return "" if x is None else (f"{x:.4f}" if isinstance(x, float) else str(x))
+
+    print("\n⟦TSV⟧")
+    print("\t".join(TSV_COLS))
+    for r in sorted(rows, key=lambda r: (r["date"], r["symbol"])):
+        f, o, pm = r["f"], r["o"], r.get("pm") or {}
+        print("\t".join(_t(v) for v in (
+            r["date"], r["symbol"], r["trig"], f["tod"], f["tier"], f["j1"], f["gap"],
+            "نعم" if o["exploded50"] else "لا", o["up_5"], o["up_15"], o["up_30"], o["up_60"],
+            o["dn_60"], o["up_ext"], o["t_peak"], o["dd_pre_peak"], o["t_hit10"], o["t_stop"],
+            o["close_reg"], pm.get("pm_last"), r["low_src"], r["gap_src"])))
+    print("⟦/TSV⟧")
     print("\n⚠️ حدودُ صدق (§⑧): لمسٌ لا تنفيذ · ≈4 أسابيعَ وكلُّ ميزةٍ تتحلّل بين النصفين · المجتمعُ ما صمد في آخر "
           "لقطةِ يومه لا كلُّ ما رسا · e5 قد يغيب فيُعَدّ · سلّةُ الزناد ≈4-5 جلسات · exploded50 سلّةُ نتيجةٍ "
-          "تصف ولا تختار · بريماركتُ الغد رقيقُ السيولة · لا تكلفةَ ولا R · وصفيٌّ بنصّ العقد — لا حكم.")
+          "تصف ولا تختار · بريماركتُ الغد رقيقُ السيولة · لا تكلفةَ ولا R · وصفيٌّ بنصّ العقد — لا حكم."
+          "\n   §⑪: القاعُ والسعرُ المستردّان **بتعريف الإنتاج** لا بمُقدِّرٍ جديد (ومُثبَتان "
+          "على المخزون بـ`V-C10`) · و`tier`/`j1` تبقى «؟» ولا تُخمَّن (استردادُها يلزمه إعادةُ "
+          "تشغيل `liq_stage_events` = مُقدِّرٌ آخر) · وسلّةُ الفجوة المستدرَكة مصدرُها في العمود.")
     return 0
 
 
