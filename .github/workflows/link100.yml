@@ -1,0 +1,43 @@
+name: "💥🔗 T-LINK100 — الرابطُ المشترك لمنفجري +100% على السوق كلِّه (link100_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · **ولا سرَّ تلغرام** فالإرسالُ
+#    مستحيلٌ بنيويًّا · العقد link100_prereg.md §⑧ · سرُّ POLYGON_API_KEY وحدَه.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "السنواتُ الحاكمة مفصولةً بفاصلة — و2026 وصفيّةٌ بنصّ العقد"
+        required: false
+        default: "2023,2024,2025"
+      dry:
+        description: "وضعُ الجدوى: 1 = أعدادُ المجتمع فقط بلا إثراءٍ ولا فاصل"
+        required: false
+        default: ""
+
+jobs:
+  link100:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 💥🔗 قياسُ الرابط المشترك
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          LINK100_YEARS: ${{ inputs.years }}
+          LINK100_DRY: ${{ inputs.dry }}
+        run: python link100_probe.py
