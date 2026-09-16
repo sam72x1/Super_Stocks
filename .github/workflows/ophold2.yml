@@ -1,0 +1,55 @@
+name: "🕵️📈🌙 T-OPHOLD-2 — الحملُ إلى أوّلِ إغلاقٍ نظاميٍّ بعد المِرساة (ophold2_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · **ولا سرَّ تلغرام** فالإرسالُ
+#    مستحيلٌ بنيويًّا · العقد ophold2_prereg.md §⑩ · سرُّ POLYGON_API_KEY وحدَه.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "أوّلُ يومٍ يُقاس (YYYY-MM-DD) — العقد §②"
+        required: false
+        default: "2026-08-18"
+      h2_from:
+        description: "أوّلُ يومِ النصف الثاني H2 (YYYY-MM-DD) — العقد §②"
+        required: false
+        default: "2026-09-01"
+      until:
+        description: "آخرُ يومٍ يُقاس — المجمَّدُ 2026-09-15 (وغيرُه ⇒ وصفيٌّ بلا حكم)"
+        required: false
+        default: "2026-09-15"
+      dry:
+        description: "وضعُ الجدوى: 1 = أربعةُ أعدادٍ فقط بلا R ولا تكلفةٍ ولا فاصل"
+        required: false
+        default: ""
+
+jobs:
+  ophold2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات op_entry_state)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🕵️📈🌙 قياسُ سياسة الحمل إلى أوّل إغلاقٍ نظاميّ
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          OPHOLD2_SINCE: ${{ inputs.since }}
+          OPHOLD2_H2_FROM: ${{ inputs.h2_from }}
+          OPHOLD2_UNTIL: ${{ inputs.until }}
+          OPHOLD2_DRY: ${{ inputs.dry }}
+        run: python ophold2_arms.py

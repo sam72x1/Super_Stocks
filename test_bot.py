@@ -49566,10 +49566,16 @@ def _ohk_load(path):
 
 
 def _ohk_sec(doc, a, b):
-    """نصُّ القسم بين عنوانَين — «» إن غاب أحدُهما (فاشلٌ-آمن)."""
-    if a in doc and b in doc:
-        return doc.split(a, 1)[1].split(b, 1)[0]
-    return ""
+    """نصُّ القسم بين عنوانَين — «» إن غاب أحدُهما (فاشلٌ-آمن).
+
+    و`b = None` تعني **إلى آخر الوثيقة** (للقسم الأخير) — ولا تغيّر شيئًا
+    حين يكون `b` نصًّا (الصنفُ ①: القفلُ لا ينهار على قسمٍ بلا تالٍ)."""
+    if a not in doc:
+        return ""
+    tail = doc.split(a, 1)[1]
+    if b is None:
+        return tail
+    return tail.split(b, 1)[0] if b in doc else ""
 
 
 def _ohk_branches(sec, l1, l2):
@@ -50298,6 +50304,392 @@ check("🕵️📈🌙🔒 HNK3 §③ يُعرّف «أوّلَ إغلاقٍ ن�
       "نفسُه · افتر ⇒ التالي) **والوقفُ نافذٌ بين الطرفين** · و§⑧ يُسمّي أرضيّةَ "
       "`N-FWD` وتاريخَها", _hnk_ok3,
       f"حالات={len(_hnk_cases)} · §③={len(_hnk_s3)} · §⑧={len(_hnk_s8)}")
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🕵️📈🌙 `HNK4` ‏+ `HNA0`-`HNA11` — ملحقُ عقد `T-OPHOLD-2` وأداتُه
+#   (`ophold2_prereg.md §⑫` مدموجٌ `6641b007` · `ophold2_arms.py` بُنيت بعده).
+#   الأقفالُ **سلوكيّةٌ** حيث أمكن · وكلُّ نداءٍ حيٍّ داخل `try` فلا ينهار ما
+#   بعده (الصنفُ ①). 🔒 أسماءٌ خاصّةٌ بالكتلة (`_hna_*`) فلا تُظلَّل أسماءُ
+#   السويّة. ⛔ **ولا شبكةَ هنا**: الجالباتُ محقونةٌ حصرًا.
+# ══════════════════════════════════════════════════════════════════════════
+import datetime as _hna_dt
+
+import ophold2_arms as _HNA
+from opcurve_probe import ny_hour as _hna_ny
+
+# 🔴 `HNK4` — الملحقُ المؤرَّخ §⑫: السلّمُ يمتدّ إلى `D4` · و`D0` **يُحسَب
+#    ويُطبَع صفرًا** فيبقى الاستنتاجُ قابلًا للتكذيب · والأرضيّةُ **لم تُمَسّ** ·
+#    وقراءةٌ ثانيةٌ وصفيّةٌ على `D1`. (‏`HNK0`-`HNK3` تحرس متنَ العقد، وهذا الملحق.)
+_hnk_s12 = _ohk_sec(_hnk_doc, "## ⑫", None)
+# 🔒 القفلُ **بنيويٌّ على جملة السلّم** لا على سطرٍ بعينه: الوثيقةُ تلفّ أسطرَها
+#    فأيُّ مطابقةٍ حرفيّةٍ ممتدّةٍ تسقط على نصٍّ سليم (الصنفُ ② المدوَّن).
+_hnk_lad = (_hnk_s12.split("فالسلّمُ يصير", 1)[1][:400]
+            if "فالسلّمُ يصير" in _hnk_s12 else "")
+_hnk_ladn = " ".join(_hnk_lad.replace("`", "").replace("**", "").split())
+_hnk_ok4 = (len(_hnk_s12) > 800
+            and _hnk_ladn.startswith(": D0")
+            and "D1 ⟶ D2 ⟶ D3 ⟶ D4" in _hnk_ladn
+            and "لا يُحذَف" in _hnk_ladn
+            and "الأرضيّةُ ‏150 لكلّ نصفٍ لم تُمَسّ" in _hnk_s12
+            and "ملحقٌ لا تعديل" in _hnk_s12
+            and "`D1` وحدَها" in _hnk_s12
+            and "`NP6` يبقى تنبّؤًا قابلًا للتكذيب" in _hnk_s12)
+check("🕵️📈🌙🔒 HNK4 الملحقُ §⑫: السلّمُ `D0 ⟶ D4` · و`D0` يُحسَب ولا يُحذَف · "
+      "والأرضيّةُ لم تُمَسّ · وقراءةٌ ثانيةٌ على `D1` · و`NP6` قابلٌ للتكذيب",
+      _hnk_ok4, f"§⑫={len(_hnk_s12)} محرفًا · السلّم={_hnk_ladn[:70]}")
+
+_hna_src = open("ophold2_arms.py", encoding="utf-8").read()
+_hna_calls = _oha_called(_hna_src)
+
+# 🔴 `HNA0` — إعادةُ الاستعمال بالاسم **مُناداةٌ فعلًا** (AST) لا سطرَ استيراد.
+_hna_reuse = ("attach_trades", "build_rows", "ci_of", "crit_halves",
+              "no_config_assign", "pick_placebo", "placebo_pool", "read_costs",
+              "read_hstar", "selfcheck_readonly", "simulate", "tod_of",
+              "trade_r", "tsv_population", "arm_R", "arm_stats", "arm_subset",
+              "bars_before", "exit_mix", "floors_of", "next_session", "paired",
+              "read_verdict", "tail_share", "anchor_history", "daily_range",
+              "fetch_day", "load_ledger", "true_e5", "k_of", "roots_identical")
+_hna_miss0 = [n for n in _hna_reuse if n not in _hna_calls]
+check("🕵️📈🌙🔒 HNA0 إعادةُ الاستعمال بالاسم **مُناداةٌ فعلًا**: الواحدُ والثلاثون "
+      "اسمًا كلُّها تظهر نداءً في AST", not _hna_miss0, f"غيرُ مُناداة={_hna_miss0}")
+
+
+# ── فِكستشرُ يومٍ كاملٍ (‏04:00-19:59 نيويورك) — حتميٌّ بلا شبكة ──────────────
+def _hna_day(day, lo_h=4, hi_h=20, c=1.0, lo=0.99, hi=1.01, over=None):
+    _b0 = _hna_dt.datetime.fromisoformat(f"{day}T{lo_h:02d}:00:00-04:00")
+    _out = []
+    for _i in range((hi_h - lo_h) * 60):
+        _t = _b0 + _hna_dt.timedelta(minutes=_i)
+        _k = (_t.hour, _t.minute)
+        _o, _h, _l, _cc = c, hi, lo, c
+        if over and _k in over:
+            _o, _h, _l, _cc = over[_k]
+        _out.append((int(_t.timestamp() * 1000), _o, _h, _l, _cc, 1000.0))
+    return _out
+
+
+def _hna_at(bars, hh, mm):
+    return next(b for b in bars
+                if abs(_hna_ny(b[0]) - (hh + mm / 60.0)) < 1e-9)
+
+
+def _hna_rows(spec, days, dl):
+    """‏`spec` = [(sym, day, hh, mm, tod, e5, alow)] ⇒ صفوفٌ جاهزةٌ لـ`attach_hold2`."""
+    _cache = dict(days)
+    _out = []
+    for (sym, day, hh, mm, tod, e5, alow) in spec:
+        _bars = days[(sym, day)]
+        _ab = _hna_at(_bars, hh, mm)
+        _out.append({"date": day, "sym": sym, "half": "H1", "a_ms": _ab[0],
+                     "e5": e5, "alow": alow, "bars": _bars, "tod": tod,
+                     "f": {"tier": "—", "gap": "—"}, "trig": "—",
+                     "cache": _cache, "dcache": {}, "_dl": dl,
+                     "t0": _ab[0] + _HNA.CARD_OFFSET_MS})
+    return _out
+
+
+def _hna_attach(rows, dl):
+    """ينادي `attach_hold2` بجالباتٍ محقونة — ويستعيدها دائمًا."""
+    _keep = {"ohd": _OHA.daily_range, "ohf": _OHA.fetch_day,
+             "hnd": _HNA.daily_range, "hnf": _HNA.fetch_day}
+    try:
+        _OHA.daily_range = lambda sym, day, key, get=None: list(dl)
+        _HNA.daily_range = lambda sym, day, key, get=None: list(dl)
+        _OHA.fetch_day = lambda sym, day, key, get=None: None
+        _HNA.fetch_day = lambda sym, day, key, get=None: None
+        return _HNA.attach_hold2(rows, "X")
+    finally:
+        _OHA.daily_range, _OHA.fetch_day = _keep["ohd"], _keep["ohf"]
+        _HNA.daily_range, _HNA.fetch_day = _keep["hnd"], _keep["hnf"]
+
+
+_HNA_DL = [("2026-08-14", 1.0, 1.0), ("2026-08-17", 1.0, 1.0),
+           ("2026-08-18", 1.0, 1.0), ("2026-08-19", 1.0, 1.0)]
+
+# 🔴 `HNA1` — `hn_window` (§③): بري/نظاميّ ⇒ شموعُ يومِه حتى 16 ويومُ الخروج
+#    يومُه · وافتر ⇒ **بقيّةُ ليلِه كاملةً** ‏+ شموعُ اليوم التالي حتى 16 ويومُ
+#    الخروج **التالي**. سلوكيٌّ على شموعٍ حقيقيّةِ الشكل.
+try:
+    _hna_d18 = _hna_day("2026-08-18")
+    _hna_d19 = _hna_day("2026-08-19")
+    _hna_days = {("AAA", "2026-08-18"): _hna_d18, ("AAA", "2026-08-19"): _hna_d19}
+    _hna_t0r = _hna_at(_hna_d18, 10, 0)[0] + _HNA.CARD_OFFSET_MS
+    _hna_wr, _hna_dyr = _HNA.hn_window("AAA", "2026-08-18", _hna_d18, _hna_t0r,
+                                       "reg", "X", dict(_hna_days), {})
+    _hna_t0a = _hna_at(_hna_d18, 17, 0)[0] + _HNA.CARD_OFFSET_MS
+    _keep_dr = _OHA.daily_range
+    try:
+        _OHA.daily_range = lambda sym, day, key, get=None: list(_HNA_DL)
+        _hna_wa, _hna_dya = _HNA.hn_window("AAA", "2026-08-18", _hna_d18,
+                                           _hna_t0a, "after", "X",
+                                           dict(_hna_days), {})
+    finally:
+        _OHA.daily_range = _keep_dr
+    _hna_ok1 = (
+        _hna_dyr == "2026-08-18" and _hna_wr
+        and abs(_hna_ny(_hna_wr[0][0]) - (10 + 5 / 60.0)) < 1e-6
+        and abs(_hna_ny(_hna_wr[-1][0]) - (15 + 59 / 60.0)) < 1e-6
+        and _hna_dya == "2026-08-19" and _hna_wa
+        # ليلُ يوم المِرساة داخلٌ بأكمله (‏ساعاتٌ فوق 16 حاضرة)
+        and any(_hna_ny(b[0]) >= 19.0 for b in _hna_wa)
+        # ثمّ يبدأ اليومُ التالي من بريماركته وينتهي عند 15:59
+        and abs(_hna_ny(_hna_wa[-1][0]) - (15 + 59 / 60.0)) < 1e-6
+        and sum(1 for b in _hna_wa if b[0] >= _hna_d19[0][0]) == 720)
+    _hna_w1 = (f"reg: يوم={_hna_dyr} n={len(_hna_wr)} · after: يوم={_hna_dya} "
+               f"n={len(_hna_wa)}")
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok1, _hna_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA1 `hn_window`: بري/نظاميّ ⇒ يومُه حتى 15:59 · وافتر ⇒ ليلُه "
+      "كاملًا ‏+ يومُ التداول التالي حتى 15:59 (‏720 دقيقة)", _hna_ok1, _hna_w1)
+
+# 🔴 `HNA2` — **الوقفُ نافذٌ ليلًا** (§③): مِرساةُ افترٍ يُكسَر قاعُها الساعةَ
+#    18:30 تخرج **ليلًا** لا عند جرس الغد. وشاهدُ ضبطٍ يُثبت أن القفلَ يمسك
+#    الفرقَ: لولا الليلُ لبقيت إلى إغلاق الغد.
+try:
+    _hna_night = _hna_day("2026-08-18", c=10.0, lo=9.9, hi=10.1,
+                          over={(18, 30): (10.0, 10.0, 8.4, 8.5)})
+    _hna_calm = _hna_day("2026-08-18", c=10.0, lo=9.9, hi=10.1)
+    _hna_nx = _hna_day("2026-08-19", c=10.0, lo=9.9, hi=10.1)
+    _hna_d2 = {("AAA", "2026-08-18"): _hna_night,
+               ("AAA", "2026-08-19"): _hna_nx}
+    _hna_d3 = {("BBB", "2026-08-18"): _hna_calm,
+               ("BBB", "2026-08-19"): _hna_nx}
+    _hna_r2 = _hna_rows([("AAA", "2026-08-18", 17, 0, "after", 10.0, 9.0)],
+                        _hna_d2, _HNA_DL)
+    _hna_r3 = _hna_rows([("BBB", "2026-08-18", 17, 0, "after", 10.0, 9.0)],
+                        _hna_d3, _HNA_DL)
+    _hna_attach(_hna_r2, _HNA_DL)
+    _hna_attach(_hna_r3, _HNA_DL)
+    _hna_hn2, _hna_hn3 = _hna_r2[0]["HN"], _hna_r3[0]["HN"]
+    _hna_ok2 = (_hna_hn2 and _hna_hn2["out"] == "loss"
+                and 80 < _hna_hn2["t_exit"] < 90
+                and _hna_hn3 and _hna_hn3["out"] == "window"
+                and _hna_hn3["t_exit"] > 1300
+                and _hna_r2[0]["HN_day"] == "2026-08-19")
+    _hna_w2 = (f"مكسورٌ ليلًا: {(_hna_hn2 or {}).get('out')} عند "
+               f"{(_hna_hn2 or {}).get('t_exit')} د · هادئ: "
+               f"{(_hna_hn3 or {}).get('out')} عند "
+               f"{(_hna_hn3 or {}).get('t_exit')} د")
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok2, _hna_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA2 الوقفُ **نافذٌ ليلًا**: كسرُ القاع 18:30 يُخرج بعد ‏86 دقيقة "
+      "لا عند جرس الغد · والهادئُ يبقى إلى إغلاق الغد (شاهدُ ضبط)",
+      _hna_ok2, _hna_w2)
+
+# 🔴 `HNA3` — `V-N3` سلوكيّ: `HN ≡ HC0` على كلّ صفٍّ **غيرِ افتريّ** (مسارا كودٍ
+#    مختلفان) · ويسقط فعلًا لو اختلفا (شاهدُ عبثٍ يُثبت أن الحارسَ يمسك).
+try:
+    _hna_dr = _hna_day("2026-08-18", c=10.0, lo=9.9, hi=10.1)
+    _hna_d4 = {("AAA", "2026-08-18"): _hna_dr,
+               ("AAA", "2026-08-19"): _hna_day("2026-08-19", c=10.0, lo=9.9,
+                                               hi=10.1)}
+    _hna_r4 = _hna_rows([("AAA", "2026-08-18", 10, 0, "reg", 10.0, 9.0),
+                         ("AAA", "2026-08-18", 6, 0, "pre", 10.0, 9.0)],
+                        _hna_d4, _HNA_DL)
+    _hna_attach(_hna_r4, _HNA_DL)
+    _hna_g1, _hna_b1, _hna_n1 = _HNA.v_n3(_hna_r4)
+    _hna_r4[0]["HN"] = dict(_hna_r4[0]["HN"] or {}, out="win")
+    _hna_g2, _hna_b2, _hna_n2 = _HNA.v_n3(_hna_r4)
+    _hna_ok3 = (_hna_g1 and _hna_n1 == 2 and not _hna_b1
+                and not _hna_g2 and _hna_b2)
+    _hna_w3 = f"سليم={_hna_g1} n={_hna_n1} · بعد العبث={_hna_g2} {_hna_b2}"
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok3, _hna_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA3 `V-N3`: `HN ≡ HC0` على غير الافتر (بري ونظاميّ) · والحارسُ "
+      "**يسقط فعلًا** عند أوّل اختلافٍ (شاهدُ عبث)", _hna_ok3, _hna_w3)
+
+# 🔴 `HNA4` — قائمةُ الأذرع **مُغلَقة** (§④): خمسٌ لا سادسَ لها · الحاكمةُ `HN`
+#    وحدَها · والثلاثُ وصفيّة · و`HD` = `HN` للافتر و`None` لغيره.
+try:
+    _hna_ok4 = (_HNA.ARMS == ("HN", "H0", "HC0", "HD", "HX2")
+                and _HNA.GOV == "HN"
+                and _HNA.DESC_ARMS == ("HC0", "HD", "HX2")
+                and _HNA.LADDER == 4
+                and _hna_r4[1]["HD"] is None
+                and _hna_r2[0]["HD"] is _hna_r2[0]["HN"])
+    _hna_w4 = (f"ARMS={_HNA.ARMS} · GOV={_HNA.GOV} · سلّم={_HNA.LADDER} · "
+               f"HD(نظاميّ)={_hna_r4[1]['HD']}")
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok4, _hna_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA4 الأذرعُ خمسٌ مُغلَقة · الحاكمةُ `HN` وحدَها · و`HD` = `HN` "
+      "للافتر و`None` لغيره", _hna_ok4, _hna_w4)
+
+# 🔴 `HNA5` — `HX2` (§④) على **الجلسة الممتدّة ليوم إغلاق `HN`**: كسرٌ عند 17:00
+#    من الغد يُخرجها خسارةً بينما `HN` أغلقت سالمةً عند 15:59 ⇒ نافذتان مختلفتان.
+try:
+    _hna_nx2 = _hna_day("2026-08-19", c=10.0, lo=9.9, hi=10.1,
+                        over={(17, 0): (10.0, 10.0, 8.4, 8.5)})
+    _hna_d5 = {("CCC", "2026-08-18"): _hna_calm, ("CCC", "2026-08-19"): _hna_nx2}
+    _hna_r5 = _hna_rows([("CCC", "2026-08-18", 17, 0, "after", 10.0, 9.0)],
+                        _hna_d5, _HNA_DL)
+    _hna_attach(_hna_r5, _HNA_DL)
+    _hna_ok5 = (_hna_r5[0]["HN"]["out"] == "window"
+                and _hna_r5[0]["HX2"]["out"] == "loss"
+                and _hna_r5[0]["HX2"]["t_exit"] > _hna_r5[0]["HN"]["t_exit"])
+    _hna_w5 = (f"HN={_hna_r5[0]['HN']['out']}@{_hna_r5[0]['HN']['t_exit']:.0f} · "
+               f"HX2={_hna_r5[0]['HX2']['out']}@"
+               f"{_hna_r5[0]['HX2']['t_exit']:.0f}")
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok5, _hna_w5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA5 `HX2` تمتدّ إلى الجلسة الممتدّة ليوم إغلاق `HN` — فكسرُ 17:00 "
+      "من الغد يُخرجها وحدَها", _hna_ok5, _hna_w5)
+
+# 🔴 `HNA6` — سلّمُ البديلة (§⑤ + §⑫): فجوةُ `D0` = **طولُ نافذة الحمل** ‏+ إزاحةُ
+#    الكرت ⇒ `D0` **فارغٌ بنيويًّا** · والسلّمُ ينزل `D1` ثمّ `D2` حين يخلو
+#    السابقُ من شموع الجلسة نفسِها.
+try:
+    _hna_prev_reg = _hna_day("2026-08-17", c=10.0, lo=9.9, hi=10.1)
+    _hna_prev_pre = _hna_day("2026-08-17", lo_h=4, hi_h=9, c=10.0, lo=9.9,
+                             hi=10.1)
+    _hna_old = _hna_day("2026-08-14", c=10.0, lo=9.9, hi=10.1)
+    _hna_d6a = {("DDD", "2026-08-18"): _hna_dr,
+                ("DDD", "2026-08-17"): _hna_prev_reg,
+                ("DDD", "2026-08-14"): _hna_old}
+    _hna_d6b = {("EEE", "2026-08-18"): _hna_dr,
+                ("EEE", "2026-08-17"): _hna_prev_pre,
+                ("EEE", "2026-08-14"): _hna_old}
+    _hna_r6a = _hna_rows([("DDD", "2026-08-18", 10, 0, "reg", 10.0, 9.0)],
+                         _hna_d6a, _HNA_DL)
+    _hna_r6b = _hna_rows([("EEE", "2026-08-18", 10, 0, "reg", 10.0, 9.0)],
+                         _hna_d6b, _HNA_DL)
+    _hna_attach(_hna_r6a, _HNA_DL)
+    _hna_attach(_hna_r6b, _HNA_DL)
+    _hna_ok6 = (_hna_r6a[0]["mom"]["lvl"] == "D1"
+                and _hna_r6b[0]["mom"]["lvl"] == "D2"
+                and _hna_r6a[0]["mom"]["tr"] and _hna_r6b[0]["mom"]["tr"])
+    _hna_w6 = (f"سابقٌ نظاميّ ⇒ {_hna_r6a[0]['mom']['lvl']} · سابقٌ بريماركتٌ "
+               f"فقط ⇒ {_hna_r6b[0]['mom']['lvl']}")
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok6, _hna_w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA6 سلّمُ البديلة: `D0` فارغٌ بنيويًّا (فجوتُه طولُ نافذة الحمل) · "
+      "والسلّمُ ينزل `D1` ثمّ `D2`", _hna_ok6, _hna_w6)
+
+# 🔴 `HNA7` — وقفُ البديلة **مشتقٌّ بنسبة `alow/e5`** لا قاعُ شمعتها (§④) ·
+#    وسياستُها `HN` نفسُها. شاهدُ ضبطٍ: القيمةُ تخالف قاعَ الشمعة فعلًا.
+try:
+    _hna_m7 = _hna_r6a[0]["mom"]
+    _hna_exp7 = _hna_m7["e5"] * (9.0 / 10.0)
+    _hna_ok7 = (_hna_m7["e5"] and abs(_hna_m7["alow"] - _hna_exp7) < 1e-9
+                and abs(_hna_m7["alow"] - 9.9) > 1e-3)
+    _hna_w7 = (f"pe5={_hna_m7['e5']} · وقفٌ مشتقّ={_hna_m7['alow']:.4f} · "
+               f"المتوقَّع={_hna_exp7:.4f} · قاعُ الشمعة=9.9")
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok7, _hna_w7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA7 وقفُ البديلة مشتقٌّ بنسبة `alow/e5` لا قاعُ شمعتها — والقيمةُ "
+      "تخالف قاعَ الشمعة فعلًا", _hna_ok7, _hna_w7)
+
+# 🔴 `HNA8` — جدولُ الحكم (‏6 حالات) عبر `read_verdict`/`floors_of` **المستورَدَين**:
+#    الفرعُ 1 بالثلاثة والأرضيّة · وسقوطُ الأرضيّة ⇒ 3 مهما عبرت المعايير.
+try:
+    def _hna_v(a, b, c, nn, pp):
+        return _HNA.read_verdict(
+            {"pass": a}, {"pass": b}, {"pass": c},
+            _HNA.floors_of({"H1": nn, "H2": nn}, {"H1": pp, "H2": pp}))[0]
+    _hna_tt = [(True, True, True, 200, 200, 1), (False, True, True, 200, 200, 2),
+               (True, False, True, 200, 200, 2), (True, True, False, 200, 200, 2),
+               (True, True, True, 100, 200, 3), (True, True, True, 200, 100, 3)]
+    _hna_bad8 = [t for t in _hna_tt if _hna_v(*t[:5]) != t[5]]
+    _hna_ok8 = not _hna_bad8
+    _hna_w8 = f"مخالفٌ={_hna_bad8}"
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok8, _hna_w8 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA8 جدولُ الحكم (‏6 حالات): الفرعُ 1 بالثلاثة والأرضيّة · وسقوطُ "
+      "أرضيّةٍ ⇒ 3 مهما عبرت المعايير", _hna_ok8, _hna_w8)
+
+# 🔴 `HNA9` — **صفرُ منطقِ حسمٍ مكرَّر** (§⑩): الوحدةُ لا تُعرّف دالّةً باسم أيّ
+#    دالّةِ حسمٍ مستورَدة، وتناديها كلَّها (AST — لا ذكرًا في تعليق).
+try:
+    _hna_defs = {n.name for n in _oha_ast.walk(_oha_ast.parse(_hna_src))
+                 if isinstance(n, (_oha_ast.FunctionDef,
+                                   _oha_ast.AsyncFunctionDef))}
+    _hna_dec = ("read_verdict", "crit_halves", "floors_of", "simulate",
+                "trade_r", "ci_of", "placebo_pool", "pick_placebo", "arm_R",
+                "arm_stats", "arm_subset", "paired", "exit_mix", "tail_share")
+    _hna_dup = sorted(_hna_defs & set(_hna_dec))
+    _hna_ok9 = (not _hna_dup) and all(n in _hna_calls for n in _hna_dec)
+    _hna_w9 = f"مُعرَّفٌ مكرَّر={_hna_dup} · دوالُّ الوحدة={len(_hna_defs)}"
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok9, _hna_w9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA9 صفرُ منطقِ حسمٍ مكرَّر: لا دالّةَ هنا تحمل اسمَ دالّةِ حسمٍ "
+      "مستورَدة · والأربعَ عشرةَ كلُّها تُنادى", _hna_ok9, _hna_w9)
+
+
+# 🔴 `HNA10` — وضعُ الجدوى **لا ينادي تكلفةً ولا `R` ولا فاصلًا** (عدّادٌ حقيقيّ)،
+#    والنافذةُ غيرُ المجمَّدة تُجبِر «لا حكم» (خروج 9).
+def _hna_run(dry=False, until="2026-08-20"):
+    _old_ota = _ota_inject(dry=False, until=until)
+    _keep = {n: getattr(_HNA, n) for n in
+             ("anchor_history", "load_ledger", "fetch_day", "daily_range",
+              "tsv_population", "roots_identical", "trade_r", "ci_of",
+              "UNTIL", "DRY", "H2_FROM")}
+    _keep_oh = {n: getattr(_OHA, n) for n in ("fetch_day", "daily_range")}
+    _cnt = {"trade_r": 0, "ci_of": 0}
+    _t_r, _c_o = _keep["trade_r"], _keep["ci_of"]
+
+    def _tr(*a, **k):
+        _cnt["trade_r"] += 1
+        return _t_r(*a, **k)
+
+    def _ci(*a, **k):
+        _cnt["ci_of"] += 1
+        return _c_o(*a, **k)
+    _HNA.anchor_history = lambda since=None: dict(_OTA_ANCH)
+    _HNA.load_ledger = lambda *a, **k: []
+    _HNA.fetch_day = lambda sym, day, key, get=None: _OTA_DAYS.get((sym, day))
+    _HNA.daily_range = lambda sym, day, key, get=None: list(_OTA_DL)
+    _OHA.fetch_day = _HNA.fetch_day
+    _OHA.daily_range = _HNA.daily_range
+    _HNA.roots_identical = lambda: (True, "لا شيء")
+    _HNA.trade_r, _HNA.ci_of = _tr, _ci
+    _HNA.UNTIL, _HNA.DRY, _HNA.H2_FROM = until, dry, "2026-08-20"
+    _buf = _oha_io.StringIO()
+    try:
+        _oha_os.environ["POLYGON_API_KEY"] = (
+            _oha_os.environ.get("POLYGON_API_KEY") or "X")
+        with _oha_ctx.redirect_stdout(_buf):
+            _rc = _HNA.main()
+    except Exception as _e:                                      # noqa: BLE001
+        _rc = f"⛔ {type(_e).__name__}: {_e}"
+    finally:
+        for _n, _v in _keep.items():
+            setattr(_HNA, _n, _v)
+        for _n, _v in _keep_oh.items():
+            setattr(_OHA, _n, _v)
+        _ota_restore(_old_ota)
+    return _rc, _buf.getvalue(), dict(_cnt)
+
+
+try:
+    _hna_rd, _hna_td, _hna_cd = _hna_run(dry=True)
+    _hna_rf, _hna_tf, _hna_cf = _hna_run(dry=False)
+    _hna_ok10 = (_hna_cd["trade_r"] == 0 and _hna_cd["ci_of"] == 0
+                 and _hna_rd == _HNA.RC_OK
+                 and "وضعُ الجدوى" in _hna_td
+                 and "V-N3" in _hna_td and "N-FWD" in _hna_td
+                 and _hna_rf == _HNA.RC_NOVERDICT
+                 and _hna_cf["trade_r"] > 0)
+    _hna_w10 = (f"جدوى rc={_hna_rd} نداءات={_hna_cd} · كاملة rc={_hna_rf} "
+                f"نداءات={_hna_cf}")
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok10, _hna_w10 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA10 وضعُ الجدوى: **صفرُ نداءٍ** لـ`trade_r`/`ci_of` (عدّادٌ حقيقيّ) "
+      "ويطبع `V-N3` و`N-FWD` · والنافذةُ غيرُ المجمَّدة تُجبِر «لا حكم» (خروج 9)",
+      _hna_ok10, _hna_w10)
+
+# 🔴 `HNA11` — شكلُ الـworkflow: يدويٌّ بلا كرون · صفرُ سرِّ تلغرام · صلاحيةُ قراءة.
+try:
+    _hna_wf = open(".github/workflows/ophold2.yml", encoding="utf-8").read()
+    _hna_ok11 = ("workflow_dispatch" in _hna_wf and "schedule:" not in _hna_wf
+                 and "cron" not in _hna_wf and "TELEGRAM" not in _hna_wf
+                 and "contents: read" in _hna_wf
+                 and "POLYGON_API_KEY" in _hna_wf
+                 and "OPHOLD2_DRY" in _hna_wf)
+    _hna_w11 = f"{len(_hna_wf)} محرفًا"
+except Exception as _e:                                          # noqa: BLE001
+    _hna_ok11, _hna_w11 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️📈🌙🔒 HNA11 `ophold2.yml`: يدويٌّ بلا كرون · بلا سرِّ تلغرام · بصلاحيةِ "
+      "قراءةٍ وسرِّ Polygon وحدَه", _hna_ok11, _hna_w11)
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
