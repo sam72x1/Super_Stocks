@@ -49063,6 +49063,495 @@ check("🕵️💥🔒 OTK4 تنبّؤاتُ `T-OPTRADE`: الثلاثةُ ال�
       "OP7 كلٌّ في سطره · و`opcurve_rows.tsv` 481×22 كما يقول §②", _otk_ok4, _otk_why4)
 
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🕵️💥 `T-OPTRADE` — أقفالُ الأداة (أمرُ المالك «ابن الاداة»، 2026-09-16)
+#   العقدُ `optrade_prereg.md` مدموجٌ `678c64c5` · الأداةُ `optrade_arms.py`
+#   قراءةٌ فقط. 🔒 أسماءٌ خاصّةٌ بالكتلة (`_ota_*`) فلا تُظلَّل أسماءُ السويّة (‏①).
+#   ⛔ **ولا شبكةَ هنا**: `main()` تُنادى بجالباتٍ محقونةٍ حصرًا.
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _ota_ast
+import contextlib as _ota_ctx
+import datetime as _ota_dt
+import io as _ota_io
+import os as _ota_os
+import yaml as _ota_yaml
+import optrade_arms as _OTA
+from tierlink_probe import features as _ota_tl_features
+
+
+def _ota_bars(day, n=400, base=1.0, spike=None, low=0.95):
+    """شموعُ يومٍ من 09:30 نيويورك — حتميّةٌ بلا شبكة."""
+    _st = int(_ota_dt.datetime.fromisoformat(day + "T09:30:00-04:00").timestamp() * 1000)
+    _out = []
+    for _i in range(n):
+        _c, _h, _l = base, base * 1.001, (low if _i == 0 else base * 0.999)
+        if spike and _i == spike:
+            _h, _c = base * 1.30, base * 1.25
+        _out.append((_st + _i * 60_000, base, _h, _l, _c, 5000.0))
+    return _out
+
+
+_OTA_DAYS = {("AAA", "2026-08-18"): _ota_bars("2026-08-18", spike=210),
+             ("AAA", "2026-08-17"): _ota_bars("2026-08-17"),
+             ("BBB", "2026-08-19"): _ota_bars("2026-08-19"),
+             ("BBB", "2026-08-18"): _ota_bars("2026-08-18"),
+             ("CCC", "2026-08-20"): _ota_bars("2026-08-20", spike=8)}
+_OTA_K2 = {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4",
+           "v2": "المرساة دون 30% (سيولة تتوالى)",
+           "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)", "j1": False}
+_OTA_ANCH = {}
+for _k, _v in _OTA_DAYS.items():
+    if _k in (("AAA", "2026-08-18"), ("BBB", "2026-08-19"), ("CCC", "2026-08-20")):
+        _ab = _v[200]
+        _OTA_ANCH[(_k[1], _k[0])] = {
+            "anchor_ms": _ab[0], "anchor_price": round(_ab[4], 4),
+            "anchor_low": round(_ab[3], 4), "symbol": _k[0], "date": _k[1],
+            "k2": dict(_OTA_K2)}
+_OTA_DL = [("2026-08-17", 1.0, 1.0), ("2026-08-18", 1.0, 1.0),
+           ("2026-08-19", 1.0, 1.0), ("2026-08-20", 1.0, 1.0)]
+
+
+def _ota_inject(dry=False, until="2026-08-20"):
+    """يحقن الجالبات ويضبط الحدود · ويُرجع ما يلزم للاستعادة."""
+    _old = {n: getattr(_OTA, n) for n in
+            ("anchor_history", "load_ledger", "fetch_day", "daily_range",
+             "roots_identical", "tsv_population", "ret_at", "r_fixed",
+             "boot_ci", "e_resolved", "fill_frac", "pctile",
+             "UNTIL", "DRY", "H2_FROM")}
+    _OTA.anchor_history = lambda since=None: dict(_OTA_ANCH)
+    _OTA.load_ledger = lambda *a, **k: []
+    _OTA.fetch_day = lambda sym, day, key, get=None: _OTA_DAYS.get((sym, day))
+    _OTA.daily_range = lambda sym, day, key, get=None: list(_OTA_DL)
+    _OTA.roots_identical = lambda: (True, "لا شيء")
+    _OTA.UNTIL, _OTA.DRY, _OTA.H2_FROM = until, dry, "2026-08-20"
+    return _old
+
+
+def _ota_restore(old):
+    for _n, _v in (old or {}).items():
+        setattr(_OTA, _n, _v)
+
+
+def _ota_run(dry=False, until="2026-08-20", pre=None):
+    """`main()` بجالباتٍ محقونة — يُرجع `(rc, stdout)` ولا يمسّ شبكة."""
+    _old = _ota_inject(dry, until)
+    _buf = _ota_io.StringIO()
+    try:
+        if pre:
+            pre(_OTA)
+        _ota_os.environ["POLYGON_API_KEY"] = (
+            _ota_os.environ.get("POLYGON_API_KEY") or "X")
+        with _ota_ctx.redirect_stdout(_buf):
+            _rc = _OTA.main()
+    except Exception as _e:                                      # noqa: BLE001
+        _rc = f"⛔ {type(_e).__name__}: {_e}"
+    finally:
+        _ota_restore(_old)
+    return _rc, _buf.getvalue()
+
+
+_OTA_T0 = 1_700_000_000_000
+
+
+def _ota_b(i, o, h, l, c, v=1000.0):
+    return (_OTA_T0 + i * 60_000, o, h, l, c, v)
+
+
+_OTA_BASE = [_ota_b(_i, 1.0, 1.0, 1.0, 1.0) for _i in range(5)]
+
+
+def _ota_sim(tail, alow=0.90, e5=1.0, h=None, **kw):
+    _h = _OTA.HSTAR if h is None else h
+    return _OTA.simulate(_OTA_BASE + tail, _OTA_T0 + _OTA.CARD_OFFSET_MS,
+                         e5, alow, _h, **kw)
+
+
+# 🔴 `OTA0` — الاستيرادُ **بالاسم** من وحدته، و**يُستعمَل فعلًا** (AST لا نصّ).
+try:
+    _ota_src = open("optrade_arms.py", encoding="utf-8").read()
+    _ota_tree = _ota_ast.parse(_ota_src)
+    _ota_want = {
+        "sym_day_probe": {"exit_point"}, "tranche_arms": {"r_fixed"},
+        "fcost_arms": {"ret_at", "k_of", "e_resolved", "fill_frac",
+                       "roots_identical"},
+        "exitmgmt_arms": {"boot_ci"}, "tier_days_report": {"true_e5"},
+        "btcost_arms": {"pctile"},
+        "opcurve_probe": {"resolve_anchor", "trig_bucket", "buckets_of",
+                          "ny_hour", "CARD_OFFSET_MS", "HIT_PCT"},
+        "tierlink_probe": {"anchor_history", "features", "daily_range"},
+        "tier_fwd_report": {"fetch_day", "load_ledger"}}
+    _ota_got = {}
+    for _n in _ota_ast.walk(_ota_tree):
+        if isinstance(_n, _ota_ast.ImportFrom) and _n.module in _ota_want:
+            _ota_got.setdefault(_n.module, set()).update(
+                _a.name for _a in _n.names)
+    _ota_miss = {_m: sorted(_ota_want[_m] - _ota_got.get(_m, set()))
+                 for _m in _ota_want if _ota_want[_m] - _ota_got.get(_m, set())}
+    _ota_used = {getattr(_c.func, "id", None) or getattr(_c.func, "attr", None)
+                 for _c in _ota_ast.walk(_ota_tree)
+                 if isinstance(_c, _ota_ast.Call)}
+    _ota_fn = {"exit_point", "r_fixed", "ret_at", "k_of", "e_resolved",
+               "fill_frac", "boot_ci", "true_e5", "pctile", "resolve_anchor",
+               "trig_bucket", "buckets_of", "ny_hour", "anchor_history",
+               "features", "daily_range", "fetch_day", "load_ledger",
+               "roots_identical"}
+    _ota_dead = sorted(_ota_fn - _ota_used)
+    _ota_ok0 = (not _ota_miss) and (not _ota_dead)
+    _ota_why0 = f"ناقصٌ={_ota_miss or 'لا شيء'} · مستورَدٌ بلا نداء={_ota_dead or 'لا شيء'}"
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok0, _ota_why0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA0 أداةُ `T-OPTRADE`: كلُّ دالّةٍ مستورَدةٌ **بالاسم** من وحدتها "
+      "و**تُنادى فعلًا** — صفرُ منطقِ حسمٍ مكرَّر", _ota_ok0, _ota_why0)
+
+# 🔴 `OTA1` — السياسةُ سلوكيًّا: هدفٌ ‏+10 بالضبط · وقفٌ من **إغلاق** الدقيقة ·
+#    نافذةٌ · والنافذةُ **تقصّ** ما بعدها.
+try:
+    _ota_w = _ota_sim([_ota_b(5, 1.0, 1.05, 0.99, 1.02),
+                       _ota_b(6, 1.02, 1.11, 1.0, 1.10)])
+    _ota_l = _ota_sim([_ota_b(5, 1.0, 1.0, 0.80, 0.85),
+                       _ota_b(6, 0.85, 1.20, 0.85, 1.15)])
+    _ota_n = _ota_sim([_ota_b(5, 1.0, 1.02, 0.95, 1.01)])
+    _ota_far = ([_ota_b(_i, 1.0, 1.0, 0.99, 1.0) for _i in range(5, 200)]
+                + [_ota_b(200, 1.0, 1.5, 1.0, 1.4)])
+    _ota_c120, _ota_c240 = _ota_sim(_ota_far, h=120), _ota_sim(_ota_far, h=240)
+    _ota_p1 = _ota_sim([_ota_b(5, 1.0, 1.30, 1.0, 1.25)], use_target=False)
+    _ota_ok1 = (_ota_w["out"] == "win" and abs(_ota_w["r0"] - 10.0) < 1e-9
+                and _ota_w["t_exit"] == 2
+                and _ota_l["out"] == "loss" and abs(_ota_l["r0"] + 15.0) < 1e-9
+                and _ota_n["out"] == "window" and abs(_ota_n["r0"] - 1.0) < 1e-9
+                and _ota_c120["out"] == "window" and _ota_c240["out"] == "win"
+                and _ota_p1["out"] == "window" and abs(_ota_p1["r0"] - 25.0) < 1e-9)
+    _ota_why1 = (f"هدف={_ota_w['out']}/{_ota_w['r0']} · وقف={_ota_l['out']}/"
+                 f"{_ota_l['r0']:.2f} · نافذة={_ota_n['out']} · "
+                 f"قصّ={_ota_c120['out']}⟶{_ota_c240['out']} · P1={_ota_p1['out']}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok1, _ota_why1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA1 السياسةُ سلوكيًّا: الهدفُ ‏+10 بالضبط · الوقفُ من إغلاق الدقيقة "
+      "(لا من القاع) · النافذةُ تقصّ ما بعدها · و`P1` بلا هدف", _ota_ok1, _ota_why1)
+
+# 🔴 `OTA2` — فضُّ التعادل داخل الدقيقة: **الوقفُ يفوز** حاكمًا · والهدفُ في
+#    البديل الوصفيّ · و`tie` مرفوعٌ في الحالتين.
+try:
+    _ota_tie = [_ota_b(5, 1.0, 1.15, 0.80, 0.85)]
+    _ota_g, _ota_a = _ota_sim(_ota_tie), _ota_sim(_ota_tie, tie_to_stop=False)
+    _ota_no = _ota_sim([_ota_b(5, 1.0, 1.15, 0.95, 1.12)])
+    _ota_ok2 = (_ota_g["out"] == "loss" and _ota_a["out"] == "win"
+                and _ota_g["tie"] and _ota_a["tie"] and not _ota_no["tie"])
+    _ota_why2 = (f"حاكم={_ota_g['out']} · بديل={_ota_a['out']} · "
+                 f"tie={_ota_g['tie']}/{_ota_a['tie']} · بلا تعادل={_ota_no['tie']}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok2, _ota_why2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA2 التعادلُ داخل الدقيقة: الوقفُ يفوز حاكمًا · والهدفُ في البديل "
+      "الوصفيّ · والوسمُ يُرفَع", _ota_ok2, _ota_why2)
+
+# 🔴 `OTA3` — شرطُ القابليّة للتداول: `e5 ≤ alow` ⇒ `None` · وصفرُ شموعٍ بعد
+#    الكرت ⇒ `None` · وقاعٌ مجهولٌ ⇒ `None`.
+try:
+    _ota_t3 = [_ota_b(5, 1.0, 1.2, 0.9, 1.1)]
+    _ota_ok3 = (_ota_sim(_ota_t3, alow=1.0) is None
+                and _ota_sim(_ota_t3, alow=1.5) is None
+                and _ota_sim(_ota_t3, alow=None) is None
+                and _ota_sim([]) is None
+                and _ota_sim(_ota_t3, alow=0.99) is not None)
+    _ota_why3 = (f"مساوٍ={_ota_sim(_ota_t3, alow=1.0)} · أعلى="
+                 f"{_ota_sim(_ota_t3, alow=1.5)} · مجهول="
+                 f"{_ota_sim(_ota_t3, alow=None)} · بلا شموع={_ota_sim([])}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok3, _ota_why3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA3 القابليّةُ للتداول: سعرُ الكرت عند القاع أو دونه ⇒ لا دخول · "
+      "وقاعٌ مجهولٌ أو صفرُ شموعٍ ⇒ لا دخول", _ota_ok3, _ota_why3)
+
+# 🔴 `OTA4` — ترتيبُ العمليّات: `ret_at` أوّلًا ثمّ `r_fixed`، **والمقامُ ثابتٌ**
+#    لا يتحرّك بالتكلفة (‏`R` تتناسب مع العائد بعد التكلفة بمعامِلٍ واحد).
+try:
+    _ota_tr = {"out": "win", "r0": 10.0}
+    _ota_r0 = _OTA.trade_r(_ota_tr, 1.0, 0.9, 0.0, 0.0)
+    _ota_rc_ = _OTA.trade_r(_ota_tr, 1.0, 0.9, 0.018018, 0.0)
+    _ota_exp = _OTA.ret_at(10.0, "win", 0.018018, 0.0) / 100.0 * 1.0 / (1.0 - 0.9)
+    _ota_ls = _OTA.trade_r({"out": "loss", "r0": -10.0}, 1.0, 0.9, 0.0, -0.004587)
+    _ota_lz = _OTA.trade_r({"out": "loss", "r0": -10.0}, 1.0, 0.9, 0.0, 0.0)
+    _ota_ok4 = (abs(_ota_r0 - 1.0) < 1e-9 and abs(_ota_rc_ - _ota_exp) < 1e-12
+                and _ota_rc_ < _ota_r0 and _ota_ls > _ota_lz
+                and _OTA.trade_r(None, 1.0, 0.9, 0.0, 0.0) is None)
+    _ota_why4 = (f"R(0)={_ota_r0:.6f} · R(c)={_ota_rc_:.6f} · المتوقَّع="
+                 f"{_ota_exp:.6f} · S سالبٌ يُجمّل الخاسر={_ota_ls:.6f}>{_ota_lz:.6f}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok4, _ota_why4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA4 ترتيبُ العمليّات: `ret_at` ثمّ `r_fixed` بمقامٍ **ثابت** · "
+      "و`S-MED` السالبُ يُجمّل الخاسر", _ota_ok4, _ota_why4)
+
+# 🔴 `OTA5` — البديلة: `D0` **بصفرِ تداخل** (‏≥ `HSTAR+4`) ثمّ `D1` · والمطابقةُ
+#    أقربُ عائدٍ وفضُّ التعادل **الأقدمُ طابعًا** · و`C-ANY` الوسطى بلا مطابقة.
+try:
+    _ota_A = _OTA_T0 + 300 * 60_000
+    _ota_day = [_ota_b(_i, 1.0, 1.0, 1.0, 1.0) for _i in range(0, 400)]
+    _ota_prev = [_ota_b(_i, 2.0, 2.0, 2.0, 2.0) for _i in range(0, 50)]
+    _ota_tod = _OTA.tod_of(_ota_A)
+    _ota_p0, _ota_l0 = _OTA.placebo_pool(_ota_day, _ota_prev, _ota_A,
+                                         _ota_tod, _OTA.MOM_GAP_MIN)
+    _ota_near = [_b for _b in _ota_day
+                 if _ota_A - _b[0] < _OTA.MOM_GAP_MIN * 60_000]
+    _ota_p1b, _ota_l1 = _OTA.placebo_pool(_ota_near, _ota_prev, _ota_A,
+                                          _ota_tod, _OTA.MOM_GAP_MIN)
+    _ota_ab = _ota_b(99, 1.00, 1.0, 1.0, 1.05)
+    _ota_cd = [_ota_b(1, 1.0, 1, 1, 1.20), _ota_b(2, 1.0, 1, 1, 1.05),
+               _ota_b(3, 1.0, 1, 1, 1.05)]
+    _ota_pk = _OTA.pick_placebo(_ota_cd, _ota_ab, "C-MOM")
+    _ota_an = _OTA.pick_placebo(_ota_cd, _ota_ab, "C-ANY")
+    _ota_ok5 = (_ota_l0 == "D0" and _ota_l1 == "D1"
+                and len(_ota_p1b) == len(_ota_prev)
+                and all(_ota_A - _b[0] >= _OTA.MOM_GAP_MIN * 60_000
+                        for _b in _ota_p0)
+                and _OTA.MOM_GAP_MIN == _OTA.HSTAR + 4
+                and _ota_pk[0] == _ota_cd[1][0] and _ota_an[0] == _ota_cd[1][0]
+                and _OTA.placebo_pool([], None, _ota_A, "reg",
+                                      _OTA.MOM_GAP_MIN) == ([], "—")
+                and _OTA.pick_placebo([], _ota_ab, "C-MOM") is None)
+    _ota_why5 = (f"D0={_ota_l0}({len(_ota_p0)}) · D1={_ota_l1}({len(_ota_p1b)}) · "
+                 f"فارق={_OTA.MOM_GAP_MIN} · أقربُ عائدٍ الأقدم="
+                 f"{(_ota_pk[0]-_OTA_T0)//60_000}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok5, _ota_why5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA5 بديلةُ الضبط: `D0` بصفرِ تداخل (‏124 = h*+4) ثمّ `D1` · "
+      "وأقربُ عائدٍ بفضِّ تعادلٍ للأقدم · و`C-ANY` الوسطى", _ota_ok5, _ota_why5)
+
+# 🔴 `OTA6` — `tod_of` **يطابق** `features['tod']` على الحدود (لا انجرافَ صامت).
+try:
+    _ota_pairs, _ota_bad = [(4, 0), (9, 29), (9, 30), (9, 31), (15, 59),
+                            (16, 0), (19, 59)], []
+    for _hh, _mm in _ota_pairs:
+        _ms = int(_ota_dt.datetime(2026, 9, 3, _hh, _mm,
+                                   tzinfo=_OTA.OC.NY).timestamp() * 1000)
+        _f = _ota_tl_features({"anchor_ms": _ms, "anchor_low": 1.0,
+                               "anchor_price": 1.0}, None)
+        if _OTA.tod_of(_ms) != _f["tod"]:
+            _ota_bad.append((_hh, _mm, _OTA.tod_of(_ms), _f["tod"]))
+    _ota_ok6 = not _ota_bad
+    _ota_why6 = f"حدودٌ فُحصت={len(_ota_pairs)} · مخالفٌ={_ota_bad or 'لا شيء'}"
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok6, _ota_why6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA6 `tod_of` يطابق `features['tod']` على سبعة حدود — لا انجرافَ صامت",
+      _ota_ok6, _ota_why6)
+
+# 🔴 `OTA7` — الأرقامُ **تُستخرَج نصًّا** لا تُكتَب: التكلفةُ من نتيجة `T-BTCOST`
+#    ونافذةُ الخروج من نتيجة `T-OPCURVE` · والنصُّ التالفُ يُسقطهما.
+try:
+    _ota_cs = _OTA.read_costs()
+    _ota_hs = _OTA.read_hstar()
+    _ota_bad_cs = _OTA.read_costs("requirements.txt")
+    _ota_bad_hs = _OTA.read_hstar("requirements.txt")
+    _ota_ok7 = (_ota_cs.get("ok") and abs(_ota_cs["C-MED"] - 0.018018) < 1e-12
+                and abs(_ota_cs["S-MED"] + 0.004587) < 1e-12
+                and abs(_ota_cs["C-P25"] - 0.008584) < 1e-12
+                and abs(_ota_cs["C-P75"] - 0.035831) < 1e-12
+                and _ota_hs.get("ok") and _ota_hs.get("h") == _OTA.HSTAR
+                and not _ota_bad_cs.get("ok") and not _ota_bad_hs.get("ok")
+                and "1.8018" not in _ota_src and "0.4587" not in _ota_src)
+    _ota_why7 = (f"C-MED={_ota_cs.get('C-MED')} · S-MED={_ota_cs.get('S-MED')} · "
+                 f"h*={_ota_hs.get('h')} · تالفٌ يسقط="
+                 f"{not _ota_bad_cs.get('ok') and not _ota_bad_hs.get('ok')} · "
+                 f"صفرُ رقمٍ مكتوبٍ بيدٍ={'1.8018' not in _ota_src}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok7, _ota_why7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA7 التكلفةُ ونافذةُ الخروج **مستخرَجتان نصًّا** من النتائج المنشورة · "
+      "ولا رقمَ منهما مكتوبٌ في الأداة", _ota_ok7, _ota_why7)
+
+# 🔴 `OTA8` — `read_verdict` جدولُ حقيقة (ستُّ حالات) · و`crit_halves` يشترط
+#    النصفين معًا ‏+ فاصلَ المجمَّع، ويطبع القراءةَ الأشدّ منفصلةً.
+try:
+    _ota_P, _ota_F = {"pass": True}, {"pass": False}
+    _ota_tt = [
+        (_ota_P, {"pass": True, "floor": True}, _ota_P, 1),
+        (_ota_F, {"pass": True, "floor": True}, _ota_P, 2),
+        (_ota_P, {"pass": False, "floor": True}, _ota_P, 2),
+        (_ota_P, {"pass": True, "floor": True}, _ota_F, 3),
+        (_ota_P, {"pass": True, "floor": False}, _ota_P, 3),
+        (_ota_F, {"pass": False, "floor": False}, _ota_F, 3)]
+    _ota_got8 = [_OTA.read_verdict(_a, _b2, _c2)[0] for _a, _b2, _c2, _x in _ota_tt]
+    _ota_hh = {"H1": {"mean": .2, "lo": .1}, "H2": {"mean": .3, "lo": -.1}}
+    _ota_neg = {"H1": {"mean": -.2, "lo": -.4}, "H2": {"mean": .3, "lo": .1}}
+    _ota_c1 = _OTA.crit_halves(_ota_hh, {"lo": .05})
+    _ota_c2_ = _OTA.crit_halves(_ota_hh, {"lo": -.05})
+    _ota_c3 = _OTA.crit_halves(_ota_neg, {"lo": .05})
+    _ota_c4 = _OTA.crit_halves({"H1": {"mean": .2, "lo": .1}}, {"lo": .05})
+    _ota_ok8 = (_ota_got8 == [_x for _a, _b2, _c2, _x in _ota_tt]
+                and _ota_c1["pass"] and not _ota_c1["strict"]
+                and not _ota_c2_["pass"] and not _ota_c3["pass"]
+                and not _ota_c4["pass"])
+    _ota_why8 = (f"الحقيقة={_ota_got8} · المتوقَّع="
+                 f"{[_x for _a, _b2, _c2, _x in _ota_tt]} · "
+                 f"نصفٌ واحدٌ لا يعبر={not _ota_c4['pass']}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok8, _ota_why8 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA8 الحكمُ جدولُ حقيقةٍ بستّ حالات · و`crit_halves` يشترط النصفين "
+      "والمجمَّع ويفصل القراءةَ الأشدّ", _ota_ok8, _ota_why8)
+
+# 🔴 `OTA9` — قراءةٌ فقط **بشاهدِ ضبط**: الحارسان يمرّان على الأداة ويسقطان على
+#    مصدرٍ فيه إرسالٌ/كتابةٌ/إسنادُ إعداد · والإنتاجُ لا يستورد الأداة.
+try:
+    _ota_prod = ""
+    for _p in ("Super_stock.py", "pullback_live.py", "ignition_live.py",
+               "analyze_one.py", "hand_check.py"):
+        try:
+            _ota_prod += open(_p, encoding="utf-8").read()
+        except Exception:                                        # noqa: BLE001
+            pass
+    _ota_ok9 = (_OTA.selfcheck_readonly() and _OTA.no_config_assign()
+                and not _OTA.selfcheck_readonly("send_telegram(1)")
+                and not _OTA.selfcheck_readonly("open('x', 'w')")
+                and not _OTA.selfcheck_readonly("git_save('m')")
+                and not _OTA.no_config_assign("CONFIG['A'] = 1")
+                and not _OTA.no_config_assign("CONFIG.update({})")
+                and "optrade_arms" not in _ota_prod)
+    _ota_why9 = (f"ذاتيًّا={_OTA.selfcheck_readonly()}/{_OTA.no_config_assign()} · "
+                 f"شاهدُ الضبط يسقط=True · الإنتاجُ يستوردها="
+                 f"{'optrade_arms' in _ota_prod}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok9, _ota_why9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA9 قراءةٌ فقط بشاهدِ ضبط: الحارسان يسقطان على إرسالٍ/كتابةٍ/إسنادِ "
+      "`CONFIG` · والإنتاجُ لا يستورد الأداة", _ota_ok9, _ota_why9)
+
+# 🔴 `OTA10` — `V-T1` **يوقف فعلًا**: مجتمعٌ يخالف المنشور ⇒ خروج 5 · وشاهدُ ضبطٍ
+#    بمجتمعٍ مطابقٍ يمضي · و`tsv_population` يقرأ الصفوفَ المنشورة (‏481).
+try:
+    _ota_pop = _OTA.tsv_population()
+    _ota_rc5, _ota_o5 = _ota_run(until=_OTA.FROZEN_UNTIL)
+    _ota_same = sorted((_d, _s) for (_d, _s) in _OTA_ANCH)
+
+    def _ota_pre(m):
+        m.tsv_population = lambda path=None: list(_ota_same)
+    _ota_rcok, _ota_ook = _ota_run(until=_OTA.FROZEN_UNTIL, pre=_ota_pre)
+    _ota_ok10 = (_ota_pop is not None and len(_ota_pop) == 481
+                 and _ota_rc5 == _OTA.RC_POP and "V-T1" in _ota_o5
+                 and _ota_rcok != _OTA.RC_POP
+                 and "مطابقٌ بت-بت" in _ota_ook)
+    _ota_why10 = (f"منشورٌ={len(_ota_pop) if _ota_pop else None} · مخالفٌ⇒rc="
+                  f"{_ota_rc5} · مطابقٌ⇒rc={_ota_rcok}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok10, _ota_why10 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA10 `V-T1` بصمةُ المجتمع: مخالفٌ ⇒ خروج 5 قبل أيّ رقم · ومطابقٌ "
+      "يمضي · والصفوفُ المنشورةُ ‏481", _ota_ok10, _ota_why10)
+
+# 🔴 `OTA11` — وضعُ الجدوى: خروج 0 · و**صفرُ نداءٍ** للتكلفة و`R` والفاصل
+#    (‏سلوكيًّا بعدّادٍ على ستّ دوالّ) · والتقريرُ لا يُطبَع.
+try:
+    _ota_calls = []
+
+    def _ota_count(m):
+        for _nm in ("ret_at", "r_fixed", "boot_ci", "e_resolved", "fill_frac",
+                    "pctile"):
+            _o = getattr(m, _nm)
+            setattr(m, _nm, (lambda _n2=_nm, _o2=_o:
+                             (lambda *_a, **_k: (_ota_calls.append(_n2),
+                                                 _o2(*_a, **_k))[1]))())
+    _ota_rcd, _ota_od = _ota_run(dry=True, pre=_ota_count)
+    _ota_dry_calls = sorted(set(_ota_calls))
+    _ota_calls.clear()
+    _ota_rcf, _ota_of = _ota_run(dry=False, pre=_ota_count)
+    _ota_wet_calls = sorted(set(_ota_calls))
+    _ota_ok11 = (_ota_rcd == _OTA.RC_OK and not _ota_dry_calls
+                 and "وضعُ الجدوى" in _ota_od and "⟦TSV⟧" not in _ota_od
+                 and len(_ota_wet_calls) >= 4 and "⟦TSV⟧" in _ota_of)
+    _ota_why11 = (f"جدوى rc={_ota_rcd} · نُوديت={_ota_dry_calls or 'لا شيء'} · "
+                  f"كامل rc={_ota_rcf} · نُوديت={len(_ota_wet_calls)}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok11, _ota_why11 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA11 وضعُ الجدوى: خروج 0 · صفرُ نداءٍ للتكلفة و`R` والفاصل · ولا "
+      "جدولَ صفوف — والمسارُ الكامل ينادي كلَّ ذلك", _ota_ok11, _ota_why11)
+
+# 🔴 `OTA12` — الـworkflow: يدويٌّ بلا كرون · `contents: read` · **بلا سرِّ
+#    تلغرام** · `fetch-depth: 0` · والمدخلاتُ موصولةٌ ببيئةٍ يقرؤها السكربت.
+try:
+    _ota_yt = open(".github/workflows/optrade.yml", encoding="utf-8").read()
+    _ota_wf = _ota_yaml.safe_load(_ota_yt)
+    _ota_on = _ota_wf.get(True) or _ota_wf.get("on") or {}
+    _ota_job = (_ota_wf.get("jobs") or {}).get("optrade") or {}
+    _ota_step = (_ota_job.get("steps") or [{}])[-1]
+    _ota_env = _ota_step.get("env") or {}
+    _ota_ok12 = (list(_ota_on.keys()) == ["workflow_dispatch"]
+                 and "schedule" not in _ota_on
+                 and (_ota_wf.get("permissions") or {}) == {"contents": "read"}
+                 and "TELEGRAM" not in _ota_yt
+                 and (_ota_job.get("steps") or [{}])[0].get("with", {}).get(
+                     "fetch-depth") == 0
+                 and "POLYGON_API_KEY" in _ota_env
+                 and all(f"inputs.{_i}" in str(_ota_env.get(f"OPTRADE_{_i.upper()}"))
+                         for _i in ("since", "h2_from", "until", "dry"))
+                 and all(f'os.environ.get("OPTRADE_{_i.upper()}"' in _ota_src
+                         for _i in ("since", "h2_from", "until", "dry")))
+    _ota_why12 = (f"محفّزات={list(_ota_on.keys())} · صلاحيات="
+                  f"{_ota_wf.get('permissions')} · تلغرام="
+                  f"{'TELEGRAM' in _ota_yt} · بيئة={sorted(_ota_env)}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok12, _ota_why12 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA12 workflow الأداة: يدويٌّ بلا كرون · read فقط · بلا سرِّ تلغرام · "
+      "fetch-depth 0 · والمدخلاتُ الأربعةُ موصولةٌ ببيئةٍ يقرؤها السكربت",
+      _ota_ok12, _ota_why12)
+
+# 🔴 `OTA13` — رموزُ الخروج **متمايزةٌ** ومنصوصةٌ في العقد بمعانيها.
+try:
+    _ota_codes = {"RC_OK": 0, "RC_NOKEY": 2, "RC_COVER": 3, "RC_NOANCHOR": 4,
+                  "RC_POP": 5, "RC_GUARD": 6, "RC_NOVERDICT": 9}
+    _ota_vals = [getattr(_OTA, _n) for _n in _ota_codes]
+    _ota_doc = open("optrade_prereg.md", encoding="utf-8").read()
+    # 🔒 الفقرةُ لا السطر — سطرُ رموز الخروج **يُلفّ** (درسُ `OTK0` اليوم نفسِه)
+    _ota_rcpar = _otk_para(_ota_doc, "**رموزُ الخروج:**")
+    _ota_ok13 = (all(getattr(_OTA, _n) == _v for _n, _v in _ota_codes.items())
+                 and len(set(_ota_vals)) == len(_ota_vals)
+                 and _ota_rcpar.count("رموزُ الخروج") == 1
+                 and "**5 المجتمعُ يخالف" in _ota_rcpar
+                 and "**9 «لا حكم»" in _ota_rcpar
+                 and "خروج 6" in _ota_src and "خروج 2" in _ota_src)
+    _ota_why13 = (f"قيم={_ota_vals} · متمايزة="
+                  f"{len(set(_ota_vals)) == len(_ota_vals)} · فقرةُ العقد="
+                  f"{bool(_ota_rcpar)} · 5و9 فيها="
+                  f"{chr(53) in _ota_rcpar and chr(57) in _ota_rcpar}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok13, _ota_why13 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA13 رموزُ الخروج متمايزةٌ ومنصوصةٌ: 0/2/3/4/5/6/9 وكلٌّ بمعناه",
+      _ota_ok13, _ota_why13)
+
+# 🔴 `OTA14` — عضويّةُ `P2`/`P3` **من السلال المنشورة** (`buckets_of`) لا مكتوبةً
+#    ثانيةً · وشاهدُ ضبطٍ يُثبت أن تبديلَ السلّة يبدّل العضويّة.
+try:
+    def _ota_row(bk, arm="P0"):
+        return {"b": bk, arm: {"out": "win", "r0": 10.0}, "P0": {"out": "win", "r0": 10.0},
+                "P1": {"out": "window", "r0": 0.0}}
+    _ota_y = {"pre∧gap≥30%": "نعم", "tier": "قوي"}
+    _ota_n2 = {"pre∧gap≥30%": "لا", "tier": "ضعيف"}
+    _ota_rws = [_ota_row(_ota_y), _ota_row(_ota_n2)]
+    _ota_s2 = _OTA.arm_subset(_ota_rws, "P2")
+    _ota_s3 = _OTA.arm_subset(_ota_rws, "P3")
+    _ota_s0 = _OTA.arm_subset(_ota_rws, "P0")
+    _ota_txt14 = _ota_src.split("def arm_subset", 1)[1].split("\ndef ", 1)[0]
+    _ota_ok14 = (len(_ota_s2) == 1 and len(_ota_s3) == 1 and len(_ota_s0) == 2
+                 and _ota_s2[0]["b"] is _ota_y and _ota_s3[0]["b"] is _ota_y
+                 and '"pre\u2227gap\u226530%"' in _ota_txt14
+                 and 'r["tod"] == "pre"' not in _ota_txt14
+                 and _OTA.arm_key("P2") == "P0" and _OTA.arm_key("P1") == "P1")
+    _ota_frombk = '"pre∧gap≥30%"' in _ota_txt14
+    _ota_why14 = (f"P0={len(_ota_s0)} · P2={len(_ota_s2)} · P3={len(_ota_s3)} · "
+                  f"من السلّة={_ota_frombk}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok14, _ota_why14 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA14 عضويّةُ `P2`/`P3` تُقرأ من سلال `buckets_of` المنشورة لا "
+      "تُكتب ثانيةً · و`P2`/`P3` تستعملان صفقةَ `P0` نفسَها", _ota_ok14, _ota_why14)
+
+# 🔴 `OTA15` — الحتميّة: المدخلاتُ نفسُها ⇒ المُخرَجُ **بت-بت** (تشغيلتان).
+try:
+    _ota_r1, _ota_t1 = _ota_run()
+    _ota_r2, _ota_t2 = _ota_run()
+    _ota_ok15 = (_ota_r1 == _ota_r2 == _OTA.RC_NOVERDICT and _ota_t1 == _ota_t2
+                 and len(_ota_t1) > 500)
+    _ota_why15 = (f"rc={_ota_r1}/{_ota_r2} · تطابقٌ بت-بت="
+                  f"{_ota_t1 == _ota_t2} · محارف={len(_ota_t1)}")
+except Exception as _e:                                          # noqa: BLE001
+    _ota_ok15, _ota_why15 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTA15 الحتميّة: تشغيلتان بالمدخلات نفسِها ⇒ مُخرَجٌ بت-بت · والنافذةُ "
+      "غيرُ المجمَّدة تُجبِر «لا حكم»", _ota_ok15, _ota_why15)
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
