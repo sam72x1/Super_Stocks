@@ -113,18 +113,21 @@ def resolve_anchor(a: dict, b, bars):
 
 
 def recon_check(diffs):
-    """‏`V-C10` (§⑪-6): (‏قُورن · طابق · نسبة · أكبرُ فرقٍ مطلق · أكبرُ فرقٍ نسبيّ ٪).
+    """‏`V-C10` (§⑪-6): (‏قُورن · طابق · تامّ · نسبة · أكبرُ فرق · **وأسوأُ المخالفين بأسمائهم**).
 
-    «المطابقة» = فرقٌ **نسبيٌّ** لا يتجاوز `RECON_TOL_PCT`؛ وتُطبَع معها المطابقةُ
-    **التامّة** (بعد تقريب الإنتاج) فلا يُخفي التسامحُ فرقًا حقيقيًّا."""
-    pairs = [(d, ref) for d, ref in diffs if d is not None and ref]
+    `diffs` ثلاثيّاتٌ `(فرق · مرجع · وسم)`. و«المطابقة» = فرقٌ **نسبيٌّ** لا يتجاوز
+    `RECON_TOL_PCT`؛ وتُطبَع معها المطابقةُ **التامّة** (بعد تقريب الإنتاج) فلا يُخفي
+    التسامحُ فرقًا حقيقيًّا. **والمخالفُ يُسمّى** فلا يبقى تحفّظًا مجهولًا."""
+    pairs = [(d, ref, lab) for d, ref, lab in diffs if d is not None and ref]
     n = len(pairs)
     if not n:
-        return {"n": 0, "ok": 0, "exact": 0, "rate": None, "max_abs": None, "max_rel": None}
-    rels = [d / ref * 100.0 for d, ref in pairs]
-    ok = sum(1 for r in rels if r <= RECON_TOL_PCT)
-    return {"n": n, "ok": ok, "exact": sum(1 for d, _r in pairs if d <= 1e-9),
-            "rate": ok / n, "max_abs": max(d for d, _r in pairs), "max_rel": max(rels)}
+        return {"n": 0, "ok": 0, "exact": 0, "rate": None, "max_abs": None,
+                "max_rel": None, "worst": []}
+    rels = sorted(((d / ref * 100.0, d, lab) for d, ref, lab in pairs), reverse=True)
+    ok = sum(1 for r, _d, _l in rels if r <= RECON_TOL_PCT)
+    return {"n": n, "ok": ok, "exact": sum(1 for _r, d, _l in rels if d <= 1e-9),
+            "rate": ok / n, "max_abs": max(d for _r, d, _l in rels),
+            "max_rel": rels[0][0], "worst": rels[:3]}
 
 
 # ───────────────────────── المسار (العقد §③ — نقيّة) ────────────────────────────
@@ -364,7 +367,7 @@ def main() -> int:
           f"H2 من {H2_FROM} · الزنادُ بعد {SHIP_ISO}")
     rows, fails, nobase, pm_missing = [], 0, 0, 0
     pm_no_next, pm_no_bars = 0, 0                               # §⑪-7 — تفكيكٌ عرضيّ لا مقياس
-    rec_low, rec_price, rec_gap, round_moved = [], 0, 0, 0      # §⑪-3/§⑪-4
+    seen_low, seen_price, seen_gap = 0, 0, 0                    # على **المعالَج** (يشمل ما سقط)
     diffs_price, diffs_low = [], []                             # `V-C10`
     cache, dcache = {}, {}
     for (day, sym), a in sorted(anchors.items()):
@@ -383,14 +386,11 @@ def main() -> int:
         a_ms = int(a["anchor_ms"])
         ra = resolve_anchor(a, b, bars)                          # §⑪-3 — بتعريف الإنتاج
         ap = ra["ap"]
-        diffs_price.append((ra["d_price"], ra["ref_price"]))
-        diffs_low.append((ra["d_low"], ra["ref_low"]))
-        if ra["low_src"] == "شمعة":
-            rec_low.append(day)
-        if ra["ap_src"] == "شمعة":
-            rec_price += 1
-        if ra["round_moved"]:
-            round_moved += 1
+        _lab = f"{day} {sym}"
+        diffs_price.append((ra["d_price"], ra["ref_price"], _lab))
+        diffs_low.append((ra["d_low"], ra["ref_low"], _lab))
+        seen_low += ra["low_src"] == "شمعة"
+        seen_price += ra["ap_src"] == "شمعة"
         e5 = (b or {}).get("e5")
         if not e5:
             e5, _broke = true_e5(bars, a_ms, ap) if ap else (None, False)
@@ -422,22 +422,38 @@ def main() -> int:
             if pcs:
                 gap = (ap / pcs[-1] - 1) * 100
                 f["gap"] = "<10%" if gap < 10 else ("10-30%" if gap < 30 else "≥30%")
-                gap_src, rec_gap = "شموع", rec_gap + 1
+                gap_src = "شموع"
+        seen_gap += gap_src == "شموع"
         rows.append({"date": day, "symbol": sym, "half": "H1" if day < H2_FROM else "H2",
                      "trig": trig_bucket(a), "e5": e5, "f": f, "o": o, "pm": pm,
                      "low_src": ra["low_src"], "gap_src": gap_src,
+                     "ap_src": ra["ap_src"],
+                     # 🔒 التقريبُ يُعَدّ **حين يُستعمَل المستردُّ فقط** — وإلّا فهو
+                     #    حركةٌ على قيمةٍ لم تدخل أيَّ حساب (عيبُ عدٍّ أُصلح 09-16).
+                     "round_used": bool(ra["round_moved"] and "شمعة" in
+                                        (ra["low_src"], ra["ap_src"])),
                      "b": buckets_of(f, trig_bucket(a), o["exploded50"])})
     total = len(anchors)
     cover = len(rows) / total
     print(f"🩺 التغطية: قِيس {len(rows)} · تعذّر الجلب {fails} · بلا أساس {nobase} من {total} "
           f"= {cover*100:.1f}% · بلا بريماركتِ غد {pm_missing} ({pm_missing/max(1,len(rows))*100:.0f}%)"
           f" [لا يومَ تالٍ {pm_no_next} · يومٌ بلا شموعِ بري {pm_no_bars}]")
+    # 🔒 العدّاداتُ على **المقيس** (لا المعالَج) — وما سقط يُعلَن بفارقه لا يُطوى.
+    rec_low = [r["date"] for r in rows if r["low_src"] == "شمعة"]
+    rec_price = sum(1 for r in rows if r["ap_src"] == "شمعة")
+    rec_gap = sum(1 for r in rows if r["gap_src"] == "شموع")
+    round_used = sum(1 for r in rows if r["round_used"])
     unknown = sum(1 for r in rows if not r["o"]["stop_known"])
+    broke = sum(1 for r in rows if r["o"]["stop_known"] and r["o"]["t_stop"] is not None)
+    held = sum(1 for r in rows if r["o"]["stop_known"] and r["o"]["t_stop"] is None)
     days_lo = sorted(set(rec_low))
-    print(f"🧩 الترميم (§⑪-3): قاعٌ مستردٌّ من الشمعة {len(rec_low)}"
+    print(f"🧩 الترميم (§⑪-3) — على المقيس: قاعٌ مستردٌّ من الشمعة {len(rec_low)}"
           f"{' · أيامُه ' + days_lo[0] + ' ⟶ ' + days_lo[-1] + f' ({len(days_lo)} يومًا)' if days_lo else ''}"
           f" · سعرٌ مستردّ {rec_price} · فجوةٌ مستدرَكة {rec_gap} · وما زال بلا قاعٍ {unknown}"
-          f" · قِيَمٌ غيّرها التقريبُ إلى أربع خانات **{round_moved}**")
+          f" · قِيَمٌ **استُعمِلت** وغيّرها التقريبُ لأربع خانات {round_used}"
+          f"  [وعلى المعالَج قبل إسقاط ما لا أساسَ له: قاعٌ {seen_low} · سعرٌ {seen_price} · فجوةٌ {seen_gap}]")
+    print(f"🛑 حالةُ القاع: كُسر {broke} · صمد {held} · غيرُ معروف {unknown} "
+          f"(‏«—» في عمود t_stop تعني «لم يُكسَر» متى كان القاعُ معروفًا)")
     if cover < MIN_COVER:
         print("⛔ التغطية دون 80% ⇒ لا يُفسَّر رقم — خروج 3 (V-C3)")
         return 3
@@ -448,6 +464,10 @@ def main() -> int:
             print(f"🔎 V-C10 {nm}: قُورن {c['n']} · طابق {c['ok']} ({c['rate']*100:.2f}%) · "
                   f"مطابقةٌ تامّة {c['exact']} · أكبرُ فرقٍ {c['max_abs']:.6f} "
                   f"({c['max_rel']:.4f}% نسبيًّا · الحدُّ {RECON_TOL_PCT}%)")
+            if c["worst"] and c["worst"][0][0] > RECON_TOL_PCT:
+                print("      ⚠️ المخالفون (‏نسبة ٪ · فرقٌ مطلق · الصفّ): "
+                      + " · ".join(f"{_r:.3f}% ({_d:.4f}) {_l}"
+                                   for _r, _d, _l in c["worst"] if _r > RECON_TOL_PCT))
         else:
             print(f"🔎 V-C10 {nm}: لا مقارنةَ ممكنة (صفرُ زوجٍ يجتمع فيه المخزونُ والشمعة)")
     bad = [nm for nm, c in (("السعر", cp), ("القاع", cl))

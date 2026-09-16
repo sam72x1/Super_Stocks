@@ -48743,6 +48743,76 @@ finally:
 check("🕵️📈🔒 OCA14 استدراكُ الفجوة بشرطٍ على النتيجة: بلا سعرٍ مخزونٍ يُستدرَك من الشموع · "
       "ومع صفّ سجلٍّ لا يُدهَس · وبلا إغلاقِ أمسٍ يبقى «؟»", _oca_ok14, _oca_why14)
 
+# 🔴 `OCA15` — صدقُ التقارير (‏§⑪-6/§⑪-7 · أُضيف 2026-09-16 بعد عيبَي عدٍّ **في أداتي أنا**
+#    كشفهما تدقيقُ التشغيلة الثانية): ① `V-C10` **يُسمّي** المخالفَ ولا يتركه مجهولًا ·
+#    ② عدّاداتُ الترميم على **المقيس** لا المعالَج (‏101 مقابل 99) ومعها فارقُ المعالَج ·
+#    ③ «غيّرها التقريب» تُعَدّ **حين يُستعمَل المستردُّ فقط** · ④ حالةُ القاع مفكَّكة
+#    (كُسر/صمد/غيرُ معروف) فلا تبقى «—» غامضةً بين «لم يُكسَر» و«غيرُ معروف».
+_oca_keep3 = {_n: getattr(_OCA, _n) for _n in
+              ("anchor_history", "load_ledger", "fetch_day", "daily_range")}
+_oca_keep_u3 = _OCA.UNTIL
+_oca_env3 = _oca_os.environ.get("POLYGON_API_KEY")
+try:
+    # ① التسمية: مخالفٌ فوق الحدّ يُطبَع باسم صفّه · ومطابقٌ لا يُطبَع له سطرُ مخالفة
+    _oca_w = _OCA.recon_check([(0.5, 1.0, "2026-09-10 XXX"), (0.0, 1.0, "2026-09-11 YYY")])
+    _oca_ok_a = (_oca_w["n"] == 2 and _oca_w["ok"] == 1 and _oca_w["exact"] == 1
+                 and _oca_w["worst"][0][2] == "2026-09-10 XXX"
+                 and abs(_oca_w["worst"][0][0] - 50.0) < 1e-9)
+    _, _oca_out_x2 = _oca_run(_oca_anchors(low=5.0, price=9.0))
+    _, _oca_out_y2 = _oca_run(_oca_anchors(low=0.95, price=1.0))
+    _oca_ok_b = ("المخالفون" in _oca_out_x2 and "2026-09-10 AAA" in _oca_out_x2
+                 and "المخالفون" not in _oca_out_y2)
+    # ②③ الصفُّ الساقطُ (بلا أساس) يُرمَّم قاعُه لكنه **لا يُعَدّ** في سطر المقيس
+    _OCA.load_ledger = lambda: []
+    _oca_bad = dict(_oca_anchors())
+    _oca_bad[("2026-09-10", "BBB")] = {"anchor_ms": _oca_a, "date": "2026-09-10"}
+    _oca_bad[("2026-09-11", "BBB")] = {"anchor_ms": _oca_a + _oca_DAY, "date": "2026-09-11"}
+    # صفٌّ **بلا أساس** (شمعةٌ واحدة ⇒ `true_e5` تُعيد None) ⇒ يُرمَّم قاعُه ولا يُقاس
+    _oca_bad[("2026-09-12", "ZZZ")] = {"anchor_ms": _oca_a + 2 * _oca_DAY, "date": "2026-09-12"}
+    # صفٌّ **مخزونُه يفوز** وشمعتُه بأكثرَ من أربع خانات ⇒ `round_moved` صادقة
+    #    و`round_used` **كاذبة** (المستردُّ لم يدخل أيَّ حساب) — هذا هو العيبُ المُصلَح.
+    _oca_bad[("2026-09-10", "WWW")] = {"anchor_ms": _oca_a, "date": "2026-09-10",
+                                       "anchor_low": 0.95, "anchor_price": 1.0}
+    # صفٌّ **يصمد**: قاعُ مِرساته 0.50 وأدنى إغلاقٍ بعده 0.82 ⇒ لا يُكسَر أبدًا.
+    #    بدونه يتساوى «كُسر» بـ«معروف» فلا يُميّز القفلُ بينهما (طفرةٌ نجت فكُشف الضعف).
+    _oca_bad[("2026-09-10", "HHH")] = {"anchor_ms": _oca_a, "date": "2026-09-10",
+                                       "anchor_low": 0.50, "anchor_price": 1.0}
+    _oca_long = [((_oca_a, 1.0, 1.01, 0.9500049, 1.0000049, 500) if _b[0] == _oca_a else _b)
+                 for _b in _oca_bars]
+    _oca_hold = [((_oca_a, 1.0, 1.01, 0.50, 1.0, 500) if _b[0] == _oca_a else _b)
+                 for _b in _oca_bars]
+    _OCA.fetch_day = lambda _s, _d, _k: (
+        [(_oca_a + 2 * _oca_DAY, 1.0, 1.0, 1.0, 1.0, 9)] if _s == "ZZZ"
+        else (_oca_long if _s == "WWW" else
+              (_oca_hold if _s == "HHH" else _oca_barmap.get(_d))))
+    _OCA.anchor_history = lambda since=None: _oca_bad
+    _OCA.UNTIL = ""
+    _oca_buf_c = _oca_io.StringIO()
+    with _oca_ctx.redirect_stdout(_oca_buf_c):
+        _oca_rc_c = _OCA.main()
+    _oca_out_c = _oca_buf_c.getvalue()
+    _oca_line = next(_l for _l in _oca_out_c.splitlines() if _l.startswith("🧩"))
+    _oca_stop = next(_l for _l in _oca_out_c.splitlines() if _l.startswith("🛑"))
+    _oca_ok_c = ("قاعٌ مستردٌّ من الشمعة 4" in _oca_line          # المقيس (‏4 من 5)
+                 and "قاعٌ 5" in _oca_line                        # المعالَج (يشمل الساقط)
+                 and "على المقيس" in _oca_line
+                 and "قِيَمٌ **استُعمِلت** وغيّرها التقريبُ لأربع خانات 0" in _oca_line
+                 and "كُسر 5 · صمد 1 · غيرُ معروف 0" in _oca_stop)
+    _oca_ok15 = _oca_ok_a and _oca_ok_b and _oca_ok_c and _oca_rc_c == 0
+    _oca_why15 = f"تسمية={_oca_ok_a}/{_oca_ok_b} · عدّاد={_oca_ok_c} · {_oca_line[40:120]}"
+except Exception as _e:                                          # noqa: BLE001
+    _oca_ok15, _oca_why15 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    for _n, _fn in _oca_keep3.items():
+        setattr(_OCA, _n, _fn)
+    _OCA.UNTIL = _oca_keep_u3
+    if _oca_env3 is None:
+        _oca_os.environ.pop("POLYGON_API_KEY", None)
+    else:
+        _oca_os.environ["POLYGON_API_KEY"] = _oca_env3
+check("🕵️📈🔒 OCA15 صدقُ التقارير: V-C10 يُسمّي المخالف · عدّاداتُ الترميم على المقيس ومعها "
+      "المعالَج · التقريبُ يُعَدّ حين يُستعمَل · وحالةُ القاع مفكَّكة", _oca_ok15, _oca_why15)
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
