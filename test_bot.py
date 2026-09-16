@@ -49551,6 +49551,139 @@ except Exception as _e:                                          # noqa: BLE001
 check("🕵️💥🔒 OTA15 الحتميّة: تشغيلتان بالمدخلات نفسِها ⇒ مُخرَجٌ بت-بت · والنافذةُ "
       "غيرُ المجمَّدة تُجبِر «لا حكم»", _ota_ok15, _ota_why15)
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🕵️📈🪙 `OHK0`-`OHK2` — عقدُ `T-OPHOLD` (`ophold_prereg.md`) · 💥🔗 `LKK0`-`LKK2` —
+#    عقدُ `T-LINK100` (`link100_prereg.md`). **عقدان مدفوعان قبل أيّ سطرِ أداةٍ وقبل أيّ
+#    رقم** — والأقفالُ تحرس **بنيةَ** الحكم لا عضويّةَ كلمات (درسُ `RKK0`/`OTK0`) وتقرأ
+#    **الفقرةَ لا السطر** (‏`_otk_para` — درسُ اليوم نفسِه ثلاثَ مرّات).
+#    🔒 أسماءٌ خاصّةٌ بالكتلة (`_ohk_*` · `_lkk_*`) فلا تُظلَّل أسماءُ السويّة (الصنفُ ①).
+# ══════════════════════════════════════════════════════════════════════════
+def _ohk_load(path):
+    try:
+        return open(path, encoding="utf-8").read()
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+def _ohk_sec(doc, a, b):
+    """نصُّ القسم بين عنوانَين — «» إن غاب أحدُهما (فاشلٌ-آمن)."""
+    if a in doc and b in doc:
+        return doc.split(a, 1)[1].split(b, 1)[0]
+    return ""
+
+
+def _ohk_branches(sec, l1, l2):
+    """الفروعُ الثلاثةُ مرقّمةً كلٌّ في رقمه · «لا حكم» في الثالث وحدَه (بنيويّ)."""
+    br = [_l for _l in sec.splitlines()
+          if len(_l) > 4 and _l[0] in "123" and _l[1:5] == ". **"]
+    pos = [_i for _i in (1, 2, 3)
+           if len(br) == 3 and br[_i - 1].startswith(f"{_i}. **")]
+    lbl = (len(br) == 3
+           and l1 in br[0] and "لا حكم" not in br[0]
+           and l2 in br[1] and "لا حكم" not in br[1]
+           and br[2].startswith("3. **لا حكم**"))
+    return br, pos, lbl
+
+
+_ohk_doc = _ohk_load("ophold_prereg.md")
+_lkk_doc = _ohk_load("link100_prereg.md")
+
+# 🔴 `OHK0` — §⑤: فروعٌ ثلاثةٌ بنيويًّا · رمزا 5 و9 في **فقرة** رموز الخروج · والأرضيّةُ تمنع الفرعَ 1.
+_ohk_s5 = _ohk_sec(_ohk_doc, "## ⑤", "## ⑥")
+_ohk_br, _ohk_pos, _ohk_lbl = _ohk_branches(_ohk_s5, "تُوصى", "فشلت")
+_ohk_rcl = _otk_para(_ohk_s5, "**رموزُ الخروج:**")
+_ohk_rc = ("5 المجتمعُ يخالف `V-H1`" in _ohk_rcl and "9 «لا حكم»" in _ohk_rcl
+           and _ohk_rcl.count("رموزُ الخروج") == 1)
+_ohk_fl = ("‏≥150 زوجَ `C-MOM` في كلّ نصف" in _ohk_s5 and "يمنع الفرعَ 1" in _ohk_s5)
+check("🕵️📈🔒 OHK0 عقدُ `T-OPHOLD`: فروعُ §⑤ ثلاثةٌ كلٌّ في رقمه · «لا حكم» في الثالث "
+      "وحدَه · ورمزا 5 و9 في فقرة رموز الخروج · والأرضيّةُ تمنع الفرعَ 1",
+      len(_ohk_br) == 3 and len(_ohk_pos) == 3 and _ohk_lbl and _ohk_rc and _ohk_fl,
+      f"فروع={len(_ohk_br)} · مواضع={_ohk_pos} · وسم={_ohk_lbl} · رموز={_ohk_rc} · أرضيّة={_ohk_fl}")
+
+# 🔴 `OHK1` — §④: ذراعٌ حاكمةٌ **واحدة** (`HC`) · ضابطان حاكمان بالاسم · الأربعُ الأخرى وصفيّةٌ نصًّا · و`C-MOM-15` لا يُعاد.
+_ohk_s4 = _ohk_sec(_ohk_doc, "## ④", "## ⑤")
+_ohk_rows = [_l for _l in _ohk_s4.splitlines() if _l.startswith("| ") and "`H" in _l[:12]]
+_ohk_gov = [_l for _l in _ohk_rows if "🥇" in _l]
+_ohk_desc = [_l for _l in _ohk_rows if "وصفيّة" in _l]
+_ohk_ctl = [_l for _l in _ohk_s4.splitlines() if _l.startswith("- **`C-") and "🥇" in _l]
+_ohk_ok1 = (len(_ohk_rows) == 6
+            and len(_ohk_gov) == 1 and "`HC`" in _ohk_gov[0]
+            and len(_ohk_desc) == 4
+            and all(any(f"`{_a}`" in _l for _l in _ohk_desc) for _a in ("HX", "HP", "HT", "HH"))
+            and len(_ohk_ctl) == 2 and "`C-P0`" in _ohk_ctl[0] and "`C-MOM`" in _ohk_ctl[1]
+            and "`C-MOM-15` لا يُعاد" in _ohk_s4)
+check("🕵️📈🔒 OHK1 §④ `T-OPHOLD`: ذراعٌ حاكمةٌ واحدة (`HC`) · ضابطان حاكمان (`C-P0` · "
+      "`C-MOM`) · و`HX`/`HP`/`HT`/`HH` وصفيّةٌ نصًّا · و`C-MOM-15` لا يُعاد",
+      _ohk_ok1, f"صفوف={len(_ohk_rows)} · حاكمة={len(_ohk_gov)} · وصفيّة={len(_ohk_desc)} · "
+                f"ضوابط={len(_ohk_ctl)}")
+
+# 🔴 `OHK2` — §⓪ يُعلن التلوّثَ بأرقامه ويُقرّ أن الاتّجاهَ معروفٌ والمقدارَ لا · و§⑧ يُسمّي أرضيّةَ `H-FWD` وتاريخَها.
+#    🐞 صياغتي الأولى طلبت «‏289 · 192» في §⓪ **والوثيقةُ تضعهما في §② (النصفان)** — و«‏192» في
+#    §⓪ كانت ستمرّ **صدفةً** (‏`t_peak` 192 دقيقة) ⇒ القفلُ هو الذي صُحّح لا الوثيقة، وصار
+#    يقرأ النصفين من §② بنصّهما «`H1` 289 · `H2` 192» (درسُ `OTK0`: لا قفلَ على نصٍّ متخيَّل).
+_ohk_s0 = _ohk_sec(_ohk_doc, "## ⓪", "## ①")
+_ohk_s2 = _ohk_sec(_ohk_doc, "## ②", "## ③")
+_ohk_s8 = _ohk_sec(_ohk_doc, "## ⑧", "## ⑨")
+_ohk_ok2 = (all(_k in _ohk_s0 for _k in ("481 صفًّا", "ومنها صفُّ `RETO`",
+                                          "+658", "+1679", "الاتّجاهُ معروفٌ لي والمقدارُ لا"))
+            and "تأكيديّةٌ مشروطة" in _ohk_s0
+            and "`H1` 289 · `H2` 192" in _ohk_s2 and "خروج 5 قبل أيّ رقم" in _ohk_s2
+            and "‏≥150 صفًّا قابلًا للتداول" in _ohk_s8 and "2026-11-15" in _ohk_s8)
+check("🕵️📈🔒 OHK2 `T-OPHOLD`: §⓪ يُعلن التلوّثَ بأرقامه (‏481 · `RETO` · +658 · +1679) ويُقرّ "
+      "أن الاتّجاهَ معروفٌ والمقدارَ لا · و§② يحمل النصفين 289/192 وخروجَ 5 · و§⑧ يُسمّي "
+      "أرضيّةَ `H-FWD` وتاريخَها",
+      _ohk_ok2, f"§⓪={len(_ohk_s0)} محرفًا · §②={len(_ohk_s2)} · §⑧={len(_ohk_s8)}")
+
+# 🔴 `LKK0` — §④ `T-LINK100`: فروعٌ ثلاثةٌ بنيويًّا · رمزا 5 و9 · و`LK1` يشترط الشاهدَين معًا والسنواتِ الثلاث.
+_lkk_s4 = _ohk_sec(_lkk_doc, "## ④", "## ⑤")
+_lkk_br, _lkk_pos, _lkk_lbl = _ohk_branches(_lkk_s4, "رابطٌ مقيس", "لا رابط")
+_lkk_rcl = _otk_para(_lkk_s4, "**رموزُ الخروج:**")
+_lkk_rc = ("5 شاهدُ التكامل `V-L4` ساقط" in _lkk_rcl and "9 «لا حكم»" in _lkk_rcl
+           and _lkk_rcl.count("رموزُ الخروج") == 1)
+_lkk_lk1 = [_l for _l in _lkk_s4.splitlines() if _l.startswith("| **`LK1`**")]
+_lkk_ok0 = (len(_lkk_br) == 3 and len(_lkk_pos) == 3 and _lkk_lbl and _lkk_rc
+            and len(_lkk_lk1) == 1
+            and "مقابل `CX` ومقابل `CC` معًا" in _lkk_lk1[0]
+            and "في كلّ سنةٍ من الثلاث" in _lkk_lk1[0]
+            and "بونفيروني" in _lkk_lk1[0])
+check("💥🔗🔒 LKK0 عقدُ `T-LINK100`: فروعُ §④ ثلاثةٌ كلٌّ في رقمه · «لا حكم» في الثالث وحدَه "
+      "· رمزا 5 و9 · و`LK1` يشترط الشاهدَين معًا والسنواتِ الثلاث وبونفيروني",
+      _lkk_ok0, f"فروع={len(_lkk_br)} · مواضع={_lkk_pos} · وسم={_lkk_lbl} · رموز={_lkk_rc} · LK1={len(_lkk_lk1)}")
+
+# 🔴 `LKK1` — §⓪ يُسمّي المُغلَقاتِ الثلاثَ في صفوف الجدول · ويُعلن الفرقَ الثلاثيّ · ويحمل أرقامَ السجلّ الحيّ.
+_lkk_s0 = _ohk_sec(_lkk_doc, "## ⓪", "## ①")
+_lkk_trow = [_l for _l in _lkk_s0.splitlines() if _l.startswith("| ") and not _l.startswith("|---")]
+_lkk_named = [_k for _k in ("`bt_features`", "`T-TIERLINK`", "`T-PREEXP-PROBE`")
+              if sum(1 for _l in _lkk_trow if _k in _l) == 1]
+_lkk_ok1 = (len(_lkk_named) == 3
+            and all(_k in _lkk_s0 for _k in ("343", "217", "91", "**المجتمع**", "**الميزاتُ قبل",
+                                             "**شاهدان**", "الاحتمالُ الأسبق: الفشل")))
+check("💥🔗🔒 LKK1 §⓪ `T-LINK100` يُسمّي `bt_features`/`T-TIERLINK`/`T-PREEXP-PROBE` كلًّا في "
+      "صفّه ويُعلن الفرقَ الثلاثيّ ويحمل أرقامَ السجلّ الحيّ (‏343 · 217 · 91) والاحتمالَ الأسبق",
+      _lkk_ok1, f"مسمّاة={_lkk_named} · صفوف={len(_lkk_trow)}")
+
+# 🔴 `LKK2` — §②/§③: التعريفُ الحاكم بالأعلى والإغلاقُ وصفيّ · حارسُ التقسيم ±3 · قائمةُ الميزات
+#    مُغلَقةٌ (13 صفًّا) · و`PRICE_LO` بالاسم **وهو موجودٌ فعلًا في الوحدة الحيّة**.
+_lkk_s2 = _ohk_sec(_lkk_doc, "## ②", "## ③")
+_lkk_s3 = _ohk_sec(_lkk_doc, "## ③", "## ④")
+_lkk_feat = [_l for _l in _lkk_s3.splitlines() if _l.startswith("| `")]
+try:
+    import kasih_scan as _lkk_ks
+    _lkk_plo = isinstance(getattr(_lkk_ks, "PRICE_LO", None), float)
+except Exception:                                                # noqa: BLE001
+    _lkk_plo = False
+_lkk_ok2 = ("`high(d) / close(d−1) ≥ 2.0`" in _lkk_s2
+            and "`close(d)/close(d−1) ≥ 2.0` **تُطبَع** ولا تحكم" in _lkk_s2
+            and "‏[d−3, d+3]" in _lkk_s2
+            and "`kasih_scan.PRICE_LO` بالاسم" in _lkk_s2 and _lkk_plo
+            and len(_lkk_feat) == 13 and "قائمةٌ مُغلَقة" in _lkk_s3
+            and all(any(_l.startswith(f"| `{_f}`") for _l in _lkk_feat)
+                    for _f in ("vol_x", "pm_gap", "rsplit180", "dd52")))
+check("💥🔗🔒 LKK2 §②/§③ `T-LINK100`: الحاكمُ `high/close ≥ 2` والإغلاقُ يُطبَع ولا يحكم · "
+      "حارسُ التقسيم ±3 · 13 ميزةً مُغلَقة · و`kasih_scan.PRICE_LO` بالاسم وموجودٌ حيًّا",
+      _lkk_ok2, f"ميزات={len(_lkk_feat)} · PRICE_LO={_lkk_plo}")
+
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
