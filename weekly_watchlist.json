@@ -3180,7 +3180,8 @@
      "2026-09-16",
      850000
     ]
-   ]
+   ],
+   "live_alert": {}
   },
   {
    "symbol": "NCRA",
@@ -3549,7 +3550,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.87
+   "last_price": 1.87,
+   "live_alert": {
+    "premarket": "2026-09-16"
+   }
   },
   {
    "symbol": "BLNE",
@@ -8212,7 +8216,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.31
+   "last_price": 3.31,
+   "live_alert": {}
   },
   {
    "symbol": "SMX",
@@ -10092,7 +10097,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.19
+   "last_price": 2.19,
+   "live_alert": {}
   },
   {
    "symbol": "MLEC",
