@@ -48905,6 +48905,164 @@ check("🕵️📈🔒 OCR3 h* المنشورُ في نتيجة T-OPCURVE يلز
       "المنشورة (‏p75 ⟶ أصغرُ عنصرٍ في W_SET)", _ocr_ok3, _ocr_why3)
 
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🕵️💥 `T-OPTRADE` — أقفالُ العقد (‏«سجل السياسة»، أمرُ المالك 2026-09-16)
+#   العقدُ `optrade_prereg.md` مدفوعٌ **قبل أيّ سطرِ أداةٍ وقبل أيّ رقم**، فالأقفالُ
+#   هنا تحرس **الوثيقة** وآليّتَها الحيّة — لا أداةً بعد.
+#   🔒 وأسماءٌ خاصّةٌ بالكتلة (`_otk_*`) فلا تُظلَّل أسماءُ السويّة (‏الصنفُ ①).
+# ══════════════════════════════════════════════════════════════════════════
+try:
+    _otk_doc = open("optrade_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _otk_doc = f"⛔ {type(_e).__name__}"
+
+
+def _otk_sec(a, b):
+    """نصُّ القسم بين عنوانَين — «» إن غاب أحدُهما (فاشلٌ-آمن · لا فهرسةَ عارية)."""
+    if a in _otk_doc and b in _otk_doc:
+        return _otk_doc.split(a, 1)[1].split(b, 1)[0]
+    return ""
+
+
+# 🔴 `OTK0` — **بنيويٌّ لا عضويّة** (درسُ `RKK0`: «لا حكم» تتكرّر فتُرضي العضويّةَ من
+#    سطرٍ آخر): الفروعُ الثلاثةُ في §⑥ **ثلاثةُ أسطرٍ مرقّمة**، كلُّ فرعٍ في **رقمه**،
+#    و«لا حكم» في **الثالث وحدَه**.
+_otk_s6 = _otk_sec("## ⑥", "## ⑦")
+_otk_br = [_l for _l in _otk_s6.splitlines()
+           if len(_l) > 3 and _l[0].isdigit() and _l[1:4] == ". *"]
+_otk_pos = [_i for _i in (1, 2, 3)
+            if len(_otk_br) == 3 and _otk_br[_i - 1].startswith(f"{_i}. **الفرعُ {_i} — ")]
+_otk_lbl = (len(_otk_br) == 3
+            and "تُوصى" in _otk_br[0] and "لا حكم" not in _otk_br[0]
+            and "فشلت" in _otk_br[1] and "لا حكم" not in _otk_br[1]
+            and "لا حكم" in _otk_br[2])
+def _otk_para(txt, head):
+    """الفقرةُ التي تبدأ بـ`head` حتى أوّل سطرٍ فارغ — موصولةً (السطرُ يُلفّ)."""
+    out, on = [], False
+    for _l in txt.splitlines():
+        if _l.startswith(head):
+            on = True
+        elif on and not _l.strip():
+            break
+        if on:
+            out.append(_l)
+    return " ".join(out)
+
+
+_otk_rcl = _otk_para(_otk_s6, "**رموزُ الخروج:**")
+_otk_rc = ("**5 المجتمعُ يخالف" in _otk_rcl
+           and "**9 «لا حكم»" in _otk_rcl
+           and _otk_rcl.count("رموزُ الخروج") == 1)
+_otk_fl2 = ("‏≥150 زوجًا مقترنًا في كلّ نصف" in _otk_s6
+            and "والفرعُ 1 يمتنع" in _otk_s6)
+_otk_ok0 = (len(_otk_br) == 3 and len(_otk_pos) == 3 and _otk_lbl
+            and _otk_rc and _otk_fl2)
+check("🕵️💥🔒 OTK0 عقدُ `T-OPTRADE`: فروعُ §⑥ ثلاثةٌ كلٌّ في رقمه · «لا حكم» في الثالث "
+      "وحدَه · ورمزا الخروج 5 و9 منصوصان · وأرضيّةُ `OT2` تمنع الفرعَ 1",
+      _otk_ok0, f"فروع={len(_otk_br)} · مواضع={_otk_pos} · وسم={_otk_lbl} · "
+                f"رموز={_otk_rc} · أرضيّةOT2={_otk_fl2}")
+
+# 🔴 `OTK1` — §⑨ سقفُ النجاح **بقرار المالك** والمحظوراتُ الخمسةُ كلٌّ في بندها
+#    (وإلّا صار «سقفُ النجاح» بابًا مفتوحًا على التنفيذ الآليّ).
+_otk_s9 = _otk_sec("## ⑨", "## ⑩")
+_otk_bans = ("تنفيذَ أوامر", "وسيطِ تداول", "مسَّ جذرٍ",
+             "مؤشّرَ اختيارٍ جديد", "يُشحَن عتبةً")
+_otk_b9 = [_l for _l in _otk_s9.splitlines() if _l.startswith("- **")]
+_otk_ban_ok = [_k for _k in _otk_bans
+               if sum(1 for _l in _otk_b9 if _k in _l) == 1]
+_otk_ok1 = (len(_otk_b9) == 5 and len(_otk_ban_ok) == 5
+            and "بقرار المالك" in _otk_s9 and "يُعرَض ولا يُشحَن" in _otk_s9)
+check("🕵️💥🔒 OTK1 §⑨ سقفُ النجاح بقرار المالك · والمحظوراتُ الخمسةُ كلٌّ في بندها "
+      "(لا تنفيذَ أوامر · لا وسيط · لا جذر · لا مؤشّرَ اختيار · لا رقمَ يُشحَن)",
+      _otk_ok1, f"بنود={len(_otk_b9)} · محظورات={len(_otk_ban_ok)}/5 · "
+                f"بقرار={'بقرار المالك' in _otk_s9}")
+
+# 🔴 `OTK2` — **الضبطان من النصّ ومن الكود معًا** (درسُ `RKK2`: النصُّ وحدَه يُرضيه
+#    تعليق): §⑤ يُعلن `C-MOM` حاكمًا و`C-FILL` **بلا موضوع** ويُسمّي `C-SUB` ·
+#    وسلوكيًّا: `boot_ci` **يستعمل خريطةَ العناقيد فعلًا** · `k_of(0)`/`ret_at` هُويّةٌ ·
+#    و`r_fixed` تُعيد `None` عند `entry ≤ stop`.
+try:
+    from exitmgmt_arms import boot_ci as _otk_boot
+    from fcost_arms import k_of as _otk_k, ret_at as _otk_ret
+    from tranche_arms import r_fixed as _otk_rf
+    _otk_s5 = _otk_sec("## ⑤", "## ⑥")
+    _otk_txt5 = ("`C-MOM`" in _otk_s5 and "**حاكم**" in _otk_s5
+                 and "`C-FILL`" in _otk_s5 and "بلا موضوعٍ هنا" in _otk_s5
+                 and "`C-SUB`" in _otk_s5
+                 and "**`D0`**" in _otk_s5 and "**`D1`**" in _otk_s5
+                 and "**وبصفرِ تداخل**" in _otk_s5
+                 and "`C-MOM-15`" in _otk_s5
+                 and "منحازٌ نحو الصفر بالبناء" in _otk_s5)
+    _otk_g1 = {"A": (1, 1.0)}
+    _otk_g2 = {"A": (1, 1.0), "B": (1, -1.0)}
+    _otk_c1, _otk_c2 = _otk_boot(_otk_g1, n=200), _otk_boot(_otk_g2, n=200)
+    _otk_uses = (_otk_c1["mean"] != _otk_c2["mean"] and _otk_c1["k"] == 1
+                 and _otk_c2["k"] == 2 and _otk_c2["n"] == 2
+                 and _otk_c1["lo"] <= _otk_c1["mean"] <= _otk_c1["hi"])
+    _otk_ident = (_otk_k(0.0) == 1.0
+                  and _otk_ret(7.25, "win", 0.0, 0.0) == 7.25
+                  and _otk_ret(-3.5, "loss", 0.0, 0.0) == -3.5
+                  and _otk_ret(10.0, "win", 0.018018, 0.0) < 10.0)
+    _otk_rfok = (_otk_rf(10.0, 1.0, 1.0, 1.0) is None
+                 and _otk_rf(10.0, 1.0, 1.0, 1.2) is None
+                 and abs(_otk_rf(10.0, 1.0, 1.0, 0.9) - 1.0) < 1e-9)
+    _otk_ok2 = _otk_txt5 and _otk_uses and _otk_ident and _otk_rfok
+    _otk_why2 = (f"نصّ§⑤={_otk_txt5} · bootيستعمل={_otk_uses} "
+                 f"({_otk_c1['mean']}≠{_otk_c2['mean']}) · هُويّة={_otk_ident} · "
+                 f"r_fixed={_otk_rfok}")
+except Exception as _e:                                          # noqa: BLE001
+    _otk_ok2, _otk_why2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTK2 ضبطا `T-OPTRADE`: §⑤ يُعلن C-MOM حاكمًا (بركةُ D0/D1 بصفرِ "
+      "تداخل · وC-MOM-15 منحازٌ بالبناء) وC-FILL بلا موضوعٍ ويُسمّي C-SUB · و`boot_ci` يستعمل العناقيد · و`k_of(0)`/`ret_at` هُويّة · و`r_fixed` "
+      "None عند entry ≤ stop", _otk_ok2, _otk_why2)
+
+# 🔴 `OTK3` — **الحدودُ من الوحدة الحيّة لا من نصّي**: `SINCE`/`H2_FROM` تُقرآن من
+#    `opcurve_probe` وتطابقان §② · و§⓪ يُعلن التلوّثَ **بأرقامه**.
+try:
+    import opcurve_probe as _OTK
+    _otk_s2 = _otk_sec("## ②", "## ③")
+    _otk_s0 = _otk_sec("## ⓪", "## ①")
+    _otk_since, _otk_h2 = str(_OTK.SINCE), str(_OTK.H2_FROM)
+    _otk_bounds = (_otk_since in _otk_s2 and _otk_h2 in _otk_s2
+                   and _otk_since == "2026-08-18" and _otk_h2 == "2026-09-01")
+    _otk_seen = ("120", "481", "289", "192", "1.8018", "0.4587", "10.8%")
+    _otk_seen_ok = [_x for _x in _otk_seen if _x in _otk_s0]
+    _otk_ok3 = (_otk_bounds and len(_otk_seen_ok) == len(_otk_seen)
+                and "`P4`" in _otk_s0 and "داخلَ العيّنة" in _otk_s0)
+    _otk_why3 = (f"SINCE={_otk_since}∈§②={_otk_since in _otk_s2} · "
+                 f"H2={_otk_h2}∈§②={_otk_h2 in _otk_s2} · "
+                 f"أرقامٌ حاضرة={len(_otk_seen_ok)}/{len(_otk_seen)}")
+except Exception as _e:                                          # noqa: BLE001
+    _otk_ok3, _otk_why3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTK3 حدودُ `T-OPTRADE` من الوحدة الحيّة: SINCE/H2_FROM يطابقان §② · "
+      "و§⓪ يُعلن التلوّثَ بأرقامه (‏120 · 481 · 289 · 192 · C-MED · S-MED) ويُقرّ "
+      "أن h* داخلَ العيّنة", _otk_ok3, _otk_why3)
+
+# 🔴 `OTK4` — التنبّؤاتُ الثلاثةُ المنقولةُ حرفيًّا حاضرة · و`OP4`-`OP6` كلٌّ في سطره ·
+#    و`opcurve_rows.tsv` **موجودٌ بحجمه** الذي يقوله §② (وإلّا فبصمةُ المجتمع دعوى).
+try:
+    _otk_s7 = _otk_sec("## ⑦", "## ⑧")
+    _otk_quoted = ("سالبٌ بعد التكلفة", "n<150 ⇒ لا حكم", "يلتهم نصفَ الفرق")
+    _otk_q_ok = [_x for _x in _otk_quoted if _x in _otk_s7]
+    _otk_ops = [_l for _l in _otk_s7.splitlines() if _l.startswith("- **`OP")]
+    _otk_op_ok = [f"OP{_i}" for _i in (4, 5, 6, 7)
+                  if sum(1 for _l in _otk_ops if f"`OP{_i}`" in _l) == 1]
+    with open("opcurve_rows.tsv", encoding="utf-8") as _fh:
+        _otk_tsv = [_l.rstrip("\n").split("\t") for _l in _fh if _l.strip()]
+    _otk_hdr, _otk_data = (_otk_tsv[0], _otk_tsv[1:]) if _otk_tsv else ([], [])
+    _otk_ok4 = (len(_otk_q_ok) == 3 and len(_otk_ops) == 4 and len(_otk_op_ok) == 4
+                and len(_otk_hdr) == 22 and len(_otk_data) == 481
+                and all(len(_r) == 22 for _r in _otk_data)
+                and "481 صفًّا" in _otk_sec("## ②", "## ③"))
+    _otk_why4 = (f"منقول={len(_otk_q_ok)}/3 · OP={len(_otk_ops)}/{len(_otk_op_ok)} · "
+                 f"tsv={len(_otk_data)}×{len(_otk_hdr)}")
+except Exception as _e:                                          # noqa: BLE001
+    _otk_ok4, _otk_why4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️💥🔒 OTK4 تنبّؤاتُ `T-OPTRADE`: الثلاثةُ المنقولةُ حرفيًّا حاضرة · وOP4-"
+      "OP7 كلٌّ في سطره · و`opcurve_rows.tsv` 481×22 كما يقول §②", _otk_ok4, _otk_why4)
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
