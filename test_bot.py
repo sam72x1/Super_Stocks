@@ -51422,6 +51422,322 @@ check("🌅📡🔒 PWK3 `T-PMFWD`: §③ يُعرّف `mv` و`fired` · و§②
       "باكتيست** بحارسَيه · و§⑨ يُسمّي السجلَّ والدِدوبَ ووضعَ الجدوى وعودتَه قبل "
       "الكتابة · و§⑥ ستُّ تنبّؤاتٍ كلٌّ في سطره", _pwk_ok3, _pwk_w3)
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🌅📡 `PWA0`-`PWA12` — أداتا `T-PMFWD` (`pmfwd_harvest.py` الكاتبُ للسجلّ ·
+#    `pmfwd_report.py` الحاكمُ القارئ). **بُنيتا بعد دمج عقدهما.**
+#    🔴 **وهنا شُدَّ حارسٌ قائمٌ لا أُرخي:** `optrade_arms.selfcheck_readonly` كانت
+#    تمرّ على ملفٍّ **يكتب** لو مُرّر وضعُ الفتح **متغيّرًا** — ثغرةٌ حقيقيّةٌ
+#    كشفها بناءُ الحصّاد، فصار ما لا يُثبَت أنه قراءةٌ يُعَدّ كتابة (`PWA7`).
+#    🔒 أسماءٌ خاصّةٌ بالكتلة (`_pwa_*`).
+# ══════════════════════════════════════════════════════════════════════════
+import datetime as _pwa_dt
+import json as _pwa_json
+
+import pmfwd_harvest as _PWH
+import pmfwd_report as _PWR
+
+_pwa_hsrc = _ohk_load("pmfwd_harvest.py")
+_pwa_rsrc = _ohk_load("pmfwd_report.py")
+
+# 🔴 `PWA0` — الاستيرادُ **بالاسم** و**يُنادى فعلًا** في الملفّين (AST لا نصّ).
+try:
+    _pwa_want = {
+        "pmfwd_harvest.py": {"link100_probe": {"pm_feats", "ticker_daily"},
+                             "market_calendar": {"is_trading_day"},
+                             "opcurve_probe": {"NY", "ny_hour"},
+                             "optrade_arms": {"no_config_assign"},
+                             "tier_fwd_report": {"fetch_day"}},
+        "pmfwd_report.py": {"link100_probe": {"wilson"},
+                            "optrade_arms": {"no_config_assign",
+                                             "selfcheck_readonly"}}}
+    _pwa_fn = {"pm_feats", "ticker_daily", "is_trading_day", "ny_hour",
+               "no_config_assign", "fetch_day", "wilson", "selfcheck_readonly"}
+    _pwa_miss, _pwa_dead = {}, {}
+    for _f, _w in _pwa_want.items():
+        _t = _pua_ast.parse(_ohk_load(_f))
+        _got = {}
+        for _n in _pua_ast.walk(_t):
+            if isinstance(_n, _pua_ast.ImportFrom) and _n.module in _w:
+                _got.setdefault(_n.module, set()).update(_a.name for _a in _n.names)
+        _m = {_k: sorted(_w[_k] - _got.get(_k, set()))
+              for _k in _w if _w[_k] - _got.get(_k, set())}
+        if _m:
+            _pwa_miss[_f] = _m
+        _called = {getattr(_c.func, "id", None) or getattr(_c.func, "attr", None)
+                   for _c in _pua_ast.walk(_t) if isinstance(_c, _pua_ast.Call)}
+        _d = sorted((set().union(*_w.values()) & _pwa_fn) - _called)
+        if _d:
+            _pwa_dead[_f] = _d
+    _pwa_ok0 = (not _pwa_miss) and (not _pwa_dead)
+    _pwa_w0 = f"ناقصٌ={_pwa_miss or 'لا شيء'} · بلا نداء={_pwa_dead or 'لا شيء'}"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok0, _pwa_w0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA0 أداتا `T-PMFWD`: كلُّ دالّةٍ مستورَدةٌ **بالاسم** من وحدتها "
+      "و**تُنادى فعلًا** في الملفّين — صفرُ استيرادٍ ميّت", _pwa_ok0, _pwa_w0)
+
+# 🔴 `PWA1` — المجتمع (§②): النشطُ من `stocks` ‏+ **كلُّ** `pullback` · بلا تكرار ·
+#    وتعذّرُ التحميل ⇒ `None` (‏`V-W1` يُسجَّل غيابًا لا يُطوى).
+try:
+    _pwa_tmp = _hf_tmp.mkdtemp(prefix=f"pwa_{_os_hc.getpid()}_")
+    _pwa_wl = _os_hc.path.join(_pwa_tmp, "wl.json")
+    with open(_pwa_wl, "w", encoding="utf-8") as _fh:
+        _pwa_json.dump({"stocks": [{"symbol": "aaa", "status": "active"},
+                                  {"symbol": "BBB", "status": "removed"},
+                                  {"symbol": "CCC", "status": "active"}],
+                       "pullback": [{"symbol": "ccc"}, {"symbol": "DDD"}]}, _fh)
+    _pwa_got1 = _PWH.watch_symbols(_pwa_wl)
+    _pwa_ok1 = (_pwa_got1 == ["AAA", "CCC", "DDD"]
+                and _PWH.watch_symbols(_os_hc.path.join(_pwa_tmp, "nope.json")) is None)
+    _pwa_w1 = f"{_pwa_got1} · مفقودٌ ⇒ None"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok1, _pwa_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA1 المجتمع: النشطُ من `stocks` ‏+ **كلُّ** `pullback` · بحروفٍ كبيرةٍ "
+      "وبلا تكرار · والمشطوبُ يُقصى · وتعذّرُ التحميل ⇒ `None` لا قائمةٌ فارغة",
+      _pwa_ok1, _pwa_w1)
+
+# 🔴 `PWA2` — `fired_of`: رموزُ اليوم · و**`ok=False` إن كان أحدثُ تاريخٍ أقدمَ من
+#    اليوم** (‏العاملُ لم يعمل) · والحالةُ تُكتَب فوق نفسها فهذا هو الاختبارُ الوحيد.
+try:
+    _pwa_st = _os_hc.path.join(_pwa_tmp, "op.json")
+    with open(_pwa_st, "w", encoding="utf-8") as _fh:
+        _pwa_json.dump({"LIQ:AAA": {"date": "2026-09-16"},
+                       "LIQ:BBB": {"date": "2026-09-17"},
+                       "PRE:ZZZ": "2026-09-17"}, _fh)
+    _pwa_a = _PWH.fired_of("2026-09-17", _pwa_st)
+    _pwa_b = _PWH.fired_of("2026-09-18", _pwa_st)
+    _pwa_c = _PWH.fired_of("2026-09-16", _pwa_st)
+    _pwa_ok2 = (_pwa_a == ({"BBB"}, True)
+                and _pwa_b == (set(), False)
+                and _pwa_c == ({"AAA"}, True)
+                and _PWH.fired_of("2026-09-17",
+                                  _os_hc.path.join(_pwa_tmp, "no.json")) == (set(), False))
+    _pwa_w2 = f"اليوم={_pwa_a} · غدًا={_pwa_b} · أمس={_pwa_c}"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok2, _pwa_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA2 `fired_of`: رموزُ اليوم وحدَها · و`ok=False` حين يكون أحدثُ تاريخٍ "
+      "في الحالة **أقدمَ من اليوم** (العاملُ لم يعمل) · وتعذّرُ القراءة ⇒ غيرُ موثوق",
+      _pwa_ok2, _pwa_w2)
+
+# 🔴 `PWA3` — `target_day`: قبل 16:00 نيويورك ⇒ **اليومُ السابق** · والعطلُ تُتخطّى
+#    ⇒ تأخّرُ الكرون (مقيسٌ عندنا بمئات الدقائق) لا يُزحلق الحصادَ إلى يومٍ لم يُغلَق.
+try:
+    def _pwa_utc(y, m, d, h, mi=0):
+        return _pwa_dt.datetime(y, m, d, h, mi, tzinfo=_pwa_dt.timezone.utc)
+    _pwa_after = _PWH.target_day(_pwa_utc(2026, 9, 17, 22, 29))   # 18:29 NY
+    _pwa_before = _PWH.target_day(_pwa_utc(2026, 9, 17, 12, 0))   # 08:00 NY
+    _pwa_mon = _PWH.target_day(_pwa_utc(2026, 9, 14, 12, 0))      # اثنين صباحًا
+    _pwa_ok3 = (_pwa_after == "2026-09-17" and _pwa_before == "2026-09-16"
+                and _pwa_mon == "2026-09-11")
+    _pwa_w3 = f"بعدَ الإغلاق={_pwa_after} · قبلَه={_pwa_before} · اثنين={_pwa_mon}"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok3, _pwa_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA3 `target_day` = آخرُ يومِ تداولٍ **أُغلقت جلستُه** · وقبل 16:00 "
+      "نيويورك يرجع لليوم السابق · والعطلُ تُتخطّى", _pwa_ok3, _pwa_w3)
+
+# 🔴 `PWA4` — `day_row` سلوكيًّا: `mv` من **أوّل إغلاقِ دقيقةٍ عند 09:30 أو بعدها**
+#    وأعلى الجلسة النظاميّة · والبريماركتُ لا يدخل `mv` · وبلا جلسةٍ ⇒ `None`.
+try:
+    # 🔑 فِكستشرٌ **يفرّق**: قمّةُ البريماركت (‏9.0) **أعلى** من قمّة الجلسة (‏3.0)
+    #    وفتحُ أوّلِ دقيقةٍ نظاميّة (‏5.0) **يخالف** إغلاقَها (‏2.0) — وإلّا صارت
+    #    طفرتا «البريماركت يدخل `mv`» و«`mv` من الفتح» بلا أثر (الصنفُ ④-3).
+    def _pwa_ohlc(h, o, c, hi):
+        _ms = _pua_bar(h, 1.0)[0]
+        return (_ms, o, hi, min(o, c), c, 100.0)
+    _pwa_b1 = _pwa_ohlc(8.0, 9.0, 9.0, 9.0)            # بريماركت — خارج `mv`
+    _pwa_b2 = _pwa_ohlc(9.75, 2.5, 2.0, 2.5)           # أوّلُ دقيقةٍ نظاميّة
+    _pwa_b3 = _pwa_ohlc(12.0, 2.0, 3.0, 3.0)           # قمّةُ الجلسة
+    _pwa_r = _PWH.day_row([_pwa_b1, _pwa_b2, _pwa_b3], 1.0)
+    _pwa_ok4 = (_pwa_r is not None
+                and abs(_pwa_r["mv"] - 50.0) < 1e-6      # 3.0 ÷ 2.0 − 1
+                and _pwa_r["open930"] == 2.0 and _pwa_r["reg_hi"] == 3.0
+                and _pwa_r["n_pre"] == 1 and _pwa_r["n_reg"] == 2
+                and _PWH.day_row([_pwa_b1], 1.0) is None
+                and _PWH.day_row(None, 1.0) is None)
+    _pwa_w4 = f"mv={_pwa_r['mv']} · فتح={_pwa_r['open930']} · قمّة={_pwa_r['reg_hi']}"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok4, _pwa_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA4 `day_row`: `mv` من أوّلِ دقيقةٍ نظاميّةٍ وأعلى الجلسة · "
+      "والبريماركتُ **لا يدخلها** · وبلا جلسةٍ نظاميّةٍ ⇒ `None`", _pwa_ok4, _pwa_w4)
+
+# 🔴 `PWA5` — الدِدوبُ بمفتاح `(يوم، رمز)` و**الإلحاقُ لا يستبدل** (§⑨).
+try:
+    _pwa_lg = _os_hc.path.join(_pwa_tmp, "log.jsonl")
+    _PWH.append_rows([{"day": "2026-09-17", "sym": "AAA"}], _pwa_lg)
+    _PWH.append_rows([{"day": "2026-09-17", "sym": "BBB"}], _pwa_lg)
+    _pwa_keys = _PWH.seen_keys(_pwa_lg)
+    _pwa_n = sum(1 for _ in open(_pwa_lg, encoding="utf-8"))
+    _pwa_ok5 = (_pwa_keys == {("2026-09-17", "AAA"), ("2026-09-17", "BBB")}
+                and _pwa_n == 2
+                and _PWH.seen_keys(_os_hc.path.join(_pwa_tmp, "no.jsonl")) == set())
+    _pwa_w5 = f"مفاتيح={len(_pwa_keys)} · أسطر={_pwa_n} (إلحاقٌ لا استبدال)"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok5, _pwa_w5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA5 السجلُّ **يُلحَق ولا يُستبدَل** والدِدوبُ بمفتاح (يوم، رمز) ⇒ "
+      "إعادةُ التشغيل لا تُضاعف صفًّا", _pwa_ok5, _pwa_w5)
+
+# 🔴 `PWA6` — `append_only` (`V-W3`) **بأربعة شواهدِ ضبطٍ تُثبت أنه يعضّ**.
+try:
+    _pwa_ok6 = (_PWH.append_only(_pwa_hsrc) is True
+                and _PWH.append_only('def f(path):\n    open(path, "w")') is False
+                and _PWH.append_only('def f(path):\n    open("z", "a")') is False
+                and _PWH.append_only('def f(path):\n    open(path, "a")\n'
+                                     '    open(path, "a")') is False
+                and _PWH.append_only('def f(path):\n    open(path, "a")\n'
+                                     '    send_telegram(1)') is False
+                and _PWH.append_only('M = "a"\ndef f(path):\n'
+                                     '    open(path, M)') is False)
+    _pwa_w6 = "الشواهدُ الخمسةُ تعضّ"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok6, _pwa_w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA6 `append_only`: كتابةٌ **واحدةٌ** بوضعِ `\"a\"` حرفيٍّ إلى الوسيط "
+      "`path` وصفرُ إرسال — وخمسةُ شواهدِ ضبطٍ تُثبت أنه يمسك العيبَ لو وُجد",
+      _pwa_ok6, _pwa_w6)
+
+# 🔴 `PWA7` — **شدُّ حارسٍ قائم:** وضعُ الفتح **متغيّرًا** كان يمرّ وهو كتابة.
+#    🐞 عيبٌ حقيقيٌّ كشفه بناءُ الحصّاد: `selfcheck_readonly` تقرأ الثابتَ النصّيَّ
+#    وحدَه ⇒ `open(p, MODE)` يمرّ. الآن **ما لا يُثبَت أنه قراءةٌ يُعَدّ كتابة**.
+try:
+    _pwa_ok7 = (_LKA.selfcheck_readonly('M = "a"\nopen("x", M)') is False
+                and _LKA.selfcheck_readonly('M = "a"\nopen("x", mode=M)') is False
+                and _LKA.selfcheck_readonly('open("x", "a")') is False
+                and _LKA.selfcheck_readonly('open("x", "r")') is True
+                and _LKA.selfcheck_readonly('open("x", encoding="utf-8")') is True
+                and _LKA.selfcheck_readonly(_pwa_hsrc) is False   # الحصّادُ يكتب
+                and _LKA.selfcheck_readonly(_pwa_rsrc) is True    # الحاكمُ يقرأ
+                and _LKA.no_config_assign(_pwa_hsrc) is True
+                and _LKA.no_config_assign(_pwa_rsrc) is True)
+    _pwa_w7 = "متغيّرٌ ⇒ False · حرفيٌّ a ⇒ False · بلا وضعٍ ⇒ True · الحصّاد False والحاكم True"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok7, _pwa_w7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA7 `selfcheck_readonly` **مُشدَّدٌ**: وضعُ فتحٍ متغيّرٌ ⇒ كتابةٌ "
+      "(كان يمرّ) · والحصّادُ يُرجع `False` عن قصدٍ والحاكمُ `True`", _pwa_ok7, _pwa_w7)
+
+# 🔴 `PWA8` — `read_fwd_verdict` **جدولُ حقيقة** (§⑤ بحرفه · ستُّ حالات).
+try:
+    _pwa_v = _PWR.read_fwd_verdict
+    _pwa_c8 = [
+        _pwa_v(True, True, True, True, True) == (
+            _PWR.RC_OK, ("تُوصى", "تفصل **وتضيف** على طبقة السيولة وبكلفةٍ مقبولة ⇒ "
+                         "يُقترَح سطرُ تسليمٍ على المالك ولا يُشحَن بهذا العقد")),
+        _pwa_v(True, True, True, False, True)[0] == _PWR.RC_NOVERDICT,
+        _pwa_v(True, True, True, False, False)[0] == _PWR.RC_NOVERDICT,
+        _pwa_v(False, True, True, True, True)[1][0] == "فشلت",
+        _pwa_v(True, False, True, True, True)[1][0] == "فشلت",
+        _pwa_v(True, True, False, True, True)[1][0] == "فشلت",
+    ]
+    _pwa_ok8 = all(_pwa_c8) and "PF2" in _pwa_v(True, False, True, True, True)[1][1]
+    _pwa_w8 = f"الحالات={_pwa_c8}"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok8, _pwa_w8 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA8 `read_fwd_verdict` جدولُ حقيقة: «تُوصى» تلزمها الثلاثةُ **والأرضيّة** "
+      "· وسقوطُ الأرضيّة ⇒ «لا حكم» 9 · وسقوطُ معيارٍ ⇒ «فشلت» ويُسمّى",
+      _pwa_ok8, _pwa_w8)
+
+# 🔴 `PWA9` — الإصابةُ والفرقُ والكلفةُ سلوكيًّا (‏`wilson` بالاسم · §③ · §⑤).
+try:
+    _pwa_hi = [{"mv": 50.0, "day": "d1", "pm_usd": ">1M"} for _ in range(60)]
+    _pwa_lo = [{"mv": 1.0, "day": "d1", "pm_usd": "<100k"} for _ in range(60)]
+    _pwa_g = _PWR.gap_of(_pwa_hi, _pwa_lo)
+    _pwa_edge = _PWR.hit_of([{"mv": 20.0}, {"mv": 19.9999}])
+    # 🔑 ثلاثةُ أيّامٍ (‏4 · 1 · 1) ⇒ **الوسيطُ 1 والمتوسّطُ 2** فتسقط طفرةُ
+    #    «متوسّطٌ بدل وسيط»؛ ويومان متساويان كانا يجعلانهما واحدًا (الصنفُ ④-3).
+    _pwa_cm, _pwa_nd = _PWR.cost_median(
+        _pwa_hi[:4] + _pwa_lo[:2]
+        + [{"mv": 1.0, "day": "d2", "pm_usd": ">1M"}]
+        + [{"mv": 1.0, "day": "d3", "pm_usd": ">1M"}])
+    _pwa_ok9 = (abs(_pwa_g["gap"] - 100.0) < 1e-9 and _pwa_g["disjoint"] is True
+                and _pwa_edge == (1, 2, 50.0)          # ‏20.0 إصابةٌ و19.9999 لا
+                and _PWR.gap_of([], _pwa_lo)["gap"] is None
+                and (_pwa_cm, _pwa_nd) == (1, 3)       # ‏4·1·1 ⇒ وسيطٌ 1 (والمتوسّطُ 2)
+                and _PWR.HIT_PCT == 20.0 and _PWR.PF1_MIN == 15.0
+                and _PWR.PF2_MIN == 10.0 and _PWR.PF3_MAX == 3.0
+                and _PWR.MIN_N == 50 and _PWR.DECIDE_BY == "2026-12-31")
+    _pwa_w9 = f"فرق={_pwa_g['gap']:.1f} · حدّيّة={_pwa_edge} · كلفة={_pwa_cm}"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok9, _pwa_w9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA9 الإصابةُ عند `mv ≥ 20%` بالضبط · والفرقُ بفاصلَي ويلسون · "
+      "والكلفةُ **وسيطٌ يوميّ** · وعتباتُ العقد (‏15/10/3/50/2026-12-31) بأرقامها",
+      _pwa_ok9, _pwa_w9)
+
+# 🔴 `PWA10` — وضعُ الجدوى: **صفرُ نداءِ كتابةٍ** (عدّادٌ حقيقيّ) وعودةٌ قبل الإلحاق.
+try:
+    # 🔑 **صفٌّ واحدٌ حقيقيٌّ عمدًا**: مجتمعٌ فارغٌ كان يُخرج الدالّةَ قبل الكتابة
+    #    أصلًا، فتمرّ طفرةُ «الجدوى تكتب» بلا أثر (الصنفُ ④-3). الآن يُنتَج صفٌّ،
+    #    و`append_rows` مُبدَّلٌ بعدّادٍ فلا يُمَسّ سجلٌّ حقيقيّ.
+    _pwa_ow, _pwa_od = _PWH.watch_symbols, _PWH.DRY
+    _pwa_oa, _pwa_of = _PWH.append_rows, _PWH.fetch_day
+    _pwa_ot = _PWH.ticker_daily
+    _pwa_wr2 = []
+    _pwa_okey = _os_hc.environ.get("POLYGON_API_KEY")
+    _pwa_buf = _pua_io.StringIO()
+    try:
+        _PWH.watch_symbols = lambda *a, **k: ["AAA"]
+        _PWH.fetch_day = lambda *a, **k: [_pwa_b1, _pwa_b2, _pwa_b3]
+        _PWH.ticker_daily = lambda *a, **k: None
+        _PWH.append_rows = lambda rows, path=None: _pwa_wr2.append(len(rows))
+        _PWH.DRY = True
+        _PWH._CALLS["write"] = 0
+        _os_hc.environ["POLYGON_API_KEY"] = "x"
+        with _pua_cl.redirect_stdout(_pwa_buf):
+            _pwa_rc10 = _PWH.main()
+        _pwa_wr = _PWH._CALLS["write"]
+    finally:
+        _PWH.watch_symbols, _PWH.DRY = _pwa_ow, _pwa_od
+        _PWH.append_rows, _PWH.fetch_day = _pwa_oa, _pwa_of
+        _PWH.ticker_daily = _pwa_ot
+        if _pwa_okey is None:
+            _os_hc.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _os_hc.environ["POLYGON_API_KEY"] = _pwa_okey
+    _pwa_out = _pwa_buf.getvalue()
+    _pwa_ok10 = (_pwa_rc10 == _PWH.RC_OK and _pwa_wr == 0 and _pwa_wr2 == []
+                 and "وضعُ جدوى" in _pwa_out and "صفوفٌ جديدة 1" in _pwa_out
+                 and "أُلحق" not in _pwa_out)
+    _pwa_w10 = (f"rc={_pwa_rc10} · عدّادُ الكتابة={_pwa_wr} · "
+                f"نداءاتُ الإلحاق={_pwa_wr2}")
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok10, _pwa_w10 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA10 وضعُ الجدوى: **صفرُ نداءِ كتابة** (عدّادٌ حقيقيّ) ويعود قبل "
+      "الإلحاق بالسجلّ", _pwa_ok10, _pwa_w10)
+
+# 🔴 `PWA11` — شكلُ الـworkflow: كرونٌ **بعد إغلاق الافتر** · صفرُ سرِّ تلغرام ·
+#    صلاحيةُ كتابةٍ للسجلّ · ودفعٌ بنمط fetch+rebase (درسُ `ignition.yml`).
+try:
+    _pwa_wf = open(".github/workflows/pmfwd.yml", encoding="utf-8").read()
+    _pwa_cr = [_l.split('"')[1] for _l in _pwa_wf.splitlines()
+               if _l.strip().startswith("- cron:")]
+    _pwa_hr = int(_pwa_cr[0].split()[1]) if _pwa_cr else -1
+    _pwa_ok11 = ("workflow_dispatch" in _pwa_wf and "TELEGRAM" not in _pwa_wf
+                 and "contents: write" in _pwa_wf
+                 and "POLYGON_API_KEY" in _pwa_wf and "PMFWD_DRY" in _pwa_wf
+                 and len(_pwa_cr) == 1 and _pwa_hr >= 22   # بعد الافتر بالفصلين
+                 and "git rebase origin/main" in _pwa_wf
+                 and "pmfwd_log.jsonl" in _pwa_wf
+                 and "exit 1" in _pwa_wf)
+    _pwa_w11 = f"كرون={_pwa_cr} · ساعة={_pwa_hr}"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok11, _pwa_w11 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA11 `pmfwd.yml`: كرونٌ واحدٌ بعد إغلاق الافتر بالفصلين · بلا سرِّ "
+      "تلغرام · صلاحيةُ كتابةٍ للسجلّ · ودفعٌ بـfetch+rebase يُعلن سقوطَه",
+      _pwa_ok11, _pwa_w11)
+
+# 🔴 `PWA12` — عتباتُ الأداة **تطابق العقد** ولا رقمَ مكتوبٌ بيدٍ يخالفه.
+try:
+    _pwa_s5 = _ohk_sec(_pwk_doc, "## ⑤", "## ⑥")
+    _pwa_ok12 = ("‏**≥15 نقطة**" in _pwa_s5 and "‏**≥10 نقاط**" in _pwa_s5
+                 and "‏**≤3 صفوفٍ في اليوم**" in _pwa_s5
+                 and "`n ≥ 50`" in _pwa_s5 and "2026-12-31" in _pwa_s5
+                 and _PWR.PF1_MIN == 15.0 and _PWR.PF2_MIN == 10.0
+                 and _PWR.PF3_MAX == 3.0 and _PWR.MIN_N == 50
+                 and _PWR.DECIDE_BY == "2026-12-31"
+                 and _PWR.LOG == _PWH.LOG == "pmfwd_log.jsonl")
+    _pwa_w12 = (f"‏{_PWR.PF1_MIN}/{_PWR.PF2_MIN}/{_PWR.PF3_MAX}/"
+                f"{_PWR.MIN_N}/{_PWR.DECIDE_BY}")
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok12, _pwa_w12 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA12 عتباتُ الأداة **هي عتباتُ العقد نفسُها** (‏15 · 10 · 3 · 50 · "
+      "2026-12-31) · والسجلُّ مسارٌ واحدٌ في الملفّين", _pwa_ok12, _pwa_w12)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

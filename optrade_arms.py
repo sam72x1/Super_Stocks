@@ -297,12 +297,26 @@ def selfcheck_readonly(src: str = None) -> bool:
         if fn in banned:
             return False
         if fn == "open":
-            mode = ""
-            if len(n.args) > 1 and isinstance(n.args[1], ast.Constant):
-                mode = str(n.args[1].value)
+            mode, given, const = "", False, True
+            if len(n.args) > 1:
+                given = True
+                if isinstance(n.args[1], ast.Constant):
+                    mode = str(n.args[1].value)
+                else:
+                    const = False
             for kw in n.keywords or []:
-                if kw.arg == "mode" and isinstance(kw.value, ast.Constant):
-                    mode = str(kw.value.value)
+                if kw.arg == "mode":
+                    given = True
+                    if isinstance(kw.value, ast.Constant):
+                        mode = str(kw.value.value)
+                    else:
+                        const = False
+            # 🔴 **ثغرةٌ حقيقيّةٌ كُشفت 2026-09-17 وأُغلقت:** الوضعُ **متغيّرًا**
+            #    (‏`open(p, MODE)`) كان يمرّ لأن الفحصَ يقرأ الثابتَ النصّيَّ وحدَه
+            #    ⇒ أداةٌ تكتب وهي «قراءةٌ فقط». الآن **ما لا يُثبَت أنه قراءةٌ
+            #    يُعَدّ كتابة** — تشديدٌ لا إرخاء، وكلُّ نداءٍ قائمٍ بلا وضعٍ يمرّ.
+            if given and not const:
+                return False
             if any(ch in mode for ch in ("w", "a", "x", "+")):
                 return False
     return True

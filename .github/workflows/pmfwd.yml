@@ -1,0 +1,70 @@
+name: "🌅📡 T-PMFWD — الحصّادُ الأماميّ لسيولة البريماركت على قائمتنا (pmfwd_prereg)"
+
+# 🔒 حصادٌ/قراءةٌ فقط — **ولا سرَّ تلغرام** فالإرسالُ مستحيلٌ بنيويًّا ·
+#    العقد pmfwd_prereg.md §⑨ · سرُّ POLYGON_API_KEY وحدَه ·
+#    و contents: write **للسجلّ وحدَه** (pmfwd_log.jsonl).
+permissions:
+  contents: write
+
+on:
+  schedule:
+    # بعد إغلاق الافتر (‏20:00 صيفًا و21:00 شتاءً UTC) بدقيقةٍ غيرِ مستديرة،
+    # ولا يزاحم hand_digest عند 22:00.
+    - cron: "29 22 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "يومٌ بعينه (YYYY-MM-DD) — اتركه فارغًا لآخر يومِ تداولٍ أُغلق"
+        required: false
+        default: ""
+      dry:
+        description: "وضعُ الجدوى: 1 = ثلاثةُ أعدادٍ بلا كتابةٍ ولا نسبة"
+        required: false
+        default: ""
+
+jobs:
+  pmfwd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌅📡 حصادُ اليوم
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PMFWD_DAY: ${{ inputs.day }}
+          PMFWD_DRY: ${{ inputs.dry }}
+        run: python pmfwd_harvest.py
+
+      - name: 💾 دفعُ السجلّ (fetch+rebase — درسُ ignition.yml المدوَّن)
+        if: ${{ inputs.dry != '1' }}
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- pmfwd_log.jsonl; then
+            echo "لا جديدَ في السجلّ — لا دفع"; exit 0
+          fi
+          git add pmfwd_log.jsonl
+          git commit -m "🌅📡 T-PMFWD: حصادُ اليوم (سجلٌّ أماميّ)"
+          for i in 1 2 3 4; do
+            git fetch origin main && git rebase origin/main && \
+              git push origin HEAD:main && exit 0
+            echo "⚠️ محاولةُ الدفع $i فشلت — تراجعٌ أُسّيّ"
+            sleep $((2 ** i))
+          done
+          echo "⛔ سقط الدفعُ بعد أربع محاولات — يُعلَن ولا يُصمت"
+          exit 1
