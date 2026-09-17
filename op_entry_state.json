@@ -4912,17 +4912,17 @@
  "RETO": "2026-09-17",
  "LIQ:TCRT": {
   "anchor_ms": 1789675140000,
-  "last_ms": 1789677180000,
+  "last_ms": 1789677240000,
   "sent": [
    "M1",
    "M5",
    "M30"
   ],
-  "updates": 4,
+  "updates": 3,
   "vol_x": 2.6,
   "peak_usd": 1984699,
   "last_eval_ms": 1789675140000,
-  "pulse_ms": 1789677180000,
+  "pulse_ms": 1789677240000,
   "anchor_price": 1.6,
   "anchor_open": 1.51,
   "anchor_low": 1.49,
