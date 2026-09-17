@@ -25,8 +25,8 @@
    ],
    "status": "active",
    "last_price": 1.07,
-   "last_bar": "2026-09-15",
-   "dollar_vol": 58899.0,
+   "last_bar": "2026-09-16",
+   "dollar_vol": 56743.0,
    "move_pct": 5.9
   },
   {
@@ -53,10 +53,10 @@
     }
    ],
    "status": "active",
-   "last_price": 2.63,
-   "last_bar": "2026-09-15",
-   "dollar_vol": 5420282.0,
-   "move_pct": 34.2
+   "last_price": 1.82,
+   "last_bar": "2026-09-16",
+   "dollar_vol": 5477915.0,
+   "move_pct": -7.1
   },
   {
    "symbol": "RCON",
@@ -82,10 +82,10 @@
     }
    ],
    "status": "active",
-   "last_price": 1.25,
-   "last_bar": "2026-09-15",
-   "dollar_vol": 3810519.0,
-   "move_pct": -18.8
+   "last_price": 1.23,
+   "last_bar": "2026-09-16",
+   "dollar_vol": 3052675.0,
+   "move_pct": -20.1
   },
   {
    "symbol": "AEMD",
@@ -111,10 +111,10 @@
     }
    ],
    "status": "active",
-   "last_price": 1.47,
-   "last_bar": "2026-09-15",
-   "dollar_vol": 7715891.0,
-   "move_pct": -23.8
+   "last_price": 1.43,
+   "last_bar": "2026-09-16",
+   "dollar_vol": 7714140.0,
+   "move_pct": -25.9
   },
   {
    "symbol": "YHC",
@@ -139,11 +139,12 @@
      "src": "مقاومة"
     }
    ],
-   "status": "active",
-   "last_price": 1.29,
-   "last_bar": "2026-09-15",
-   "dollar_vol": 124117.0,
-   "move_pct": -13.4
+   "status": "stopped",
+   "last_price": 1.23,
+   "last_bar": "2026-09-16",
+   "dollar_vol": 122711.0,
+   "move_pct": -17.4,
+   "stopped_at": "2026-09-16"
   }
  ],
  "added_last": [],
