@@ -2170,6 +2170,17 @@
   "date": "2026-09-17"
  },
  "LIQ:AGMH": {
+  "last_eval_ms": 1789660800000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1789658580000,
+   "anchor_price": 0.7688,
+   "anchor_low": 0.753,
+   "e5": 0.7699,
+   "exit_ms": 1789660140000
+  },
+  "tc_cum": 2241110.225248955,
+  "tc_seen_ms": 1789660740000,
   "anchor_ms": 1789660800000,
   "last_ms": 1789661580000,
   "sent": [
@@ -2179,19 +2190,10 @@
   "updates": 0,
   "vol_x": 0.6,
   "peak_usd": 21694,
-  "last_eval_ms": 1789660800000,
   "pulse_ms": 1789661580000,
   "anchor_price": 0.7697,
   "anchor_open": 0.7434,
   "anchor_low": 0.7434,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1789658580000,
-   "anchor_price": 0.7688,
-   "anchor_low": 0.753,
-   "e5": 0.7699,
-   "exit_ms": 1789660140000
-  },
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 0.9649,
@@ -2206,9 +2208,7 @@
    "j1_top": false
   },
   "e5": 0.7801,
-  "date": "2026-09-17",
-  "tc_cum": 2241110.225248955,
-  "tc_seen_ms": 1789660740000
+  "date": "2026-09-17"
  },
  "LIQ:EHTH": {
   "last_eval_ms": 1789660740000,
@@ -2875,10 +2875,6 @@
   "date": "2026-09-17"
  },
  "LIQ:LEXX": {
-  "last_eval_ms": 1789661520000,
-  "tc_cum": 99864.32031066777,
-  "tc_seen_ms": 1789660860000,
-  "date": "2026-09-17",
   "anchor_ms": 1789661520000,
   "last_ms": 1789661580000,
   "sent": [
@@ -2887,6 +2883,7 @@
   "updates": 0,
   "vol_x": 0.5,
   "peak_usd": 1035,
+  "last_eval_ms": 1789661520000,
   "pulse_ms": 1789661580000,
   "anchor_price": 3.8348,
   "anchor_open": 3.89,
@@ -2895,7 +2892,8 @@
   "pre_done": true,
   "pre_hi": 3.84,
   "pre_usd": 26473,
-  "pre_n": 13
+  "pre_n": 13,
+  "date": "2026-09-17"
  },
  "LIQ:MGN": {
   "last_eval_ms": 1789661340000,
@@ -4781,10 +4779,10 @@
   "date": "2026-09-17"
  },
  "LIQ:BHST": {
-  "date": "2026-09-17",
   "last_eval_ms": 1789661460000,
   "tc_cum": 4550.15,
-  "tc_seen_ms": 1789661460000
+  "tc_seen_ms": 1789661460000,
+  "date": "2026-09-17"
  },
  "LIQ:AVX": {
   "last_eval_ms": 1789661580000,
@@ -4802,5 +4800,6 @@
  "RMSG": "2026-09-17",
  "CGTL": "2026-09-17",
  "GPRO": "2026-09-17",
- "LHAI": "2026-09-17"
+ "LHAI": "2026-09-17",
+ "AEHL": "2026-09-17"
 }
