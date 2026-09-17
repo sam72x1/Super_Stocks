@@ -164,7 +164,7 @@
   "updates": 1,
   "vol_x": 4.0,
   "peak_usd": 466256,
-  "last_eval_ms": 1789648980000,
+  "last_eval_ms": 1789648920000,
   "pulse_ms": 1789650300000,
   "anchor_price": 0.93,
   "anchor_open": 0.8684,
@@ -750,43 +750,7 @@
   "date": "2026-09-17"
  },
  "LIQ:JAGX": {
-  "anchor_ms": 1789590840000,
-  "last_ms": 1789602540000,
-  "sent": [
-   "M1",
-   "M5",
-   "M30"
-  ],
-  "updates": 0,
-  "vol_x": 9.3,
-  "peak_usd": 25800,
-  "last_eval_ms": 1789590840000,
-  "pulse_ms": 1789602540000,
-  "anchor_price": 0.2184,
-  "anchor_open": 0.2069,
-  "anchor_low": 0.2069,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1789583220000,
-   "anchor_price": 0.2807,
-   "anchor_low": 0.2615,
-   "e5": 0.279,
-   "exit_ms": 1789583760000
-  },
-  "pre_done": true,
-  "pre_hi": 0.2533,
-  "pre_usd": 147481,
-  "pre_n": 50,
-  "k2": {
-   "c3": "نقضت",
-   "c4": "خضراء 0-1",
-   "v2": "المرساة فوق 60% من الخمس (اندفاعة وحيدة)",
-   "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)",
-   "j1": false,
-   "j1_top": false
-  },
-  "e5": 0.22,
-  "date": "2026-09-16"
+  "date": "2026-09-17"
  },
  "LIQ:ASST": {
   "last_eval_ms": 1789650240000,
@@ -810,7 +774,7 @@
   "updates": 2,
   "vol_x": 358.5,
   "peak_usd": 4621003,
-  "last_eval_ms": 1789650060000,
+  "last_eval_ms": 1789650000000,
   "pulse_ms": 1789650300000,
   "anchor_price": 2.58,
   "anchor_open": 1.82,
@@ -819,7 +783,6 @@
   "pre_hi": 1.81,
   "pre_usd": 83559,
   "pre_n": 43,
-  "date": "2026-09-17",
   "k2": {
    "c3": "نقضت",
    "c4": "خضراء 2",
@@ -828,7 +791,9 @@
    "j1": true,
    "j1_top": false
   },
-  "e5": 2.67
+  "e5": 2.67,
+  "tgt_ms": 1789650180000,
+  "date": "2026-09-17"
  },
  "LIQ:RCON": {
   "last_eval_ms": 1789650240000,
@@ -3345,7 +3310,7 @@
   "updates": 0,
   "vol_x": 0.9,
   "peak_usd": 644526,
-  "last_eval_ms": 1789647720000,
+  "last_eval_ms": 1789647660000,
   "pulse_ms": 1789650300000,
   "anchor_price": 1.16,
   "anchor_open": 1.02,
@@ -3944,9 +3909,6 @@
   "date": "2026-09-16"
  },
  "LIQ:SOWG": {
-  "last_eval_ms": 1789588740000,
-  "tc_cum": 23113.64174975,
-  "tc_seen_ms": 1789588740000,
   "date": "2026-09-17"
  },
  "LIQ:XTLB": {
@@ -4128,6 +4090,5 @@
  "RETO": "2026-09-17",
  "LIQ:TCRT": {
   "date": "2026-09-17"
- },
- "NUWE": "2026-09-17"
+ }
 }
