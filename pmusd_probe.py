@@ -79,14 +79,20 @@ def pm_high(bars):
     return max(pre) if pre else None
 
 
-def is_pm_event(bars, prev_close):
-    """`E-PM` — الانفجارُ وقع **قبل الجرس**.
+def is_pm_event(bars, prev_close, fetched=None):
+    """`E-PM` — الانفجارُ وقع **قبل الجرس**. تُرجّع `(داخلَ E-PM، مجهول؟)`.
 
-    🔴 والمشكوكُ (بلا شموعٍ أو بلا إغلاقِ أمس) **يبقى داخل `E-PM`** بنصّ §⑧-6:
-    العزلُ متحفّظٌ، فالحاكمةُ (أ) لا تضمّ صفًّا لا نعرف عنه."""
-    h = pm_high(bars)
-    if h is None or not prev_close:
+    🔴 **ملحقُ §⑫-2 — الفراغُ ليس نقصًا:** فشلُ الجلب (`bars is None`) أو غيابُ
+    إغلاقِ الأمس **مجهولٌ** فيبقى داخلَ `E-PM` تحفّظًا (‏§⑧-6). أمّا جلبٌ
+    **نجح** وجلستُه فارغةٌ قبل الجرس فمعناه أن السهمَ **لم يتداول بريماركتًا
+    أصلًا** ⇒ الانفجارُ قطعًا لم يقع قبل الجرس ⇒ **`E-REG` ومعلومٌ لا مجهول**.
+    واتّجاهُ التصحيح **ضدّ الفرضيّة**: يُدخل في الحاكمة (أ) صفوفًا بريماركتُها صفر."""
+    ok = (bars is not None) if fetched is None else bool(fetched)
+    if not ok or not prev_close:
         return True, True                                 # (داخلَ `E-PM`، مجهول)
+    h = pm_high(bars)
+    if h is None:
+        return False, False                               # فراغٌ حقيقيّ ⇒ `E-REG`
     return (h / prev_close) >= EXPL_X, False
 
 
@@ -95,18 +101,37 @@ def known_of(f):
     return bool(f.get("vol_x") == KNOWN_VOL or f.get("ret5") == KNOWN_RET)
 
 
-def _pm_pair(bars_now, pc_now, bars_prev, pc_prev):
-    """مفاتيحُ الأذرع الأربعةُ لصفٍّ واحد — من `pm_feats` بالاسم."""
+def _zero_enc(val, ok, low):
+    """الفراغُ الحقيقيُّ صفرٌ لا مجهول — **وصفيٌّ فقط** (ملحق §⑫-4).
+
+    جلبٌ **نجح** وقيمةٌ `None` ⇒ لا تداولَ بريماركت ⇒ أدنى سلّة. وفشلُ الجلب
+    يبقى `None`. 🔺 واتّجاهُ هذي القراءة **مع الفرضيّة** فهي لا تحكم."""
+    if val is not None:
+        return val
+    return low if ok else None
+
+
+def _pm_pair(bars_now, pc_now, bars_prev, pc_prev, ok_now=None, ok_prev=None):
+    """مفاتيحُ الأذرع لصفٍّ واحد — من `pm_feats` بالاسم ‏+ القراءةُ الوصفيّة."""
     a = pm_feats(bars_now, pc_now)
     b = pm_feats(bars_prev, pc_prev)
+    on = (bars_now is not None) if ok_now is None else bool(ok_now)
+    op = (bars_prev is not None) if ok_prev is None else bool(ok_prev)
     return {"u_now": a["pm_usd"], "g_now": a["pm_gap"],
             "u_prev": b["pm_usd"], "g_prev": b["pm_gap"],
             # 🔑 بأسماء `T-LINK100` نفسِها ⇒ عدُّ الخلايا وإعادةُ الإنتاج
-            "pm_usd": a["pm_usd"], "pm_gap": a["pm_gap"]}
+            "pm_usd": a["pm_usd"], "pm_gap": a["pm_gap"],
+            # 🔻 القراءةُ الثانية **الوصفيّة** (ملحق §⑫-4) — تُطبَع ولا تحكم
+            "u_now0": _zero_enc(a["pm_usd"], on, "<100k"),
+            "g_now0": _zero_enc(a["pm_gap"], on, "<10%"),
+            "u_prev0": _zero_enc(b["pm_usd"], op, "<100k"),
+            "g_prev0": _zero_enc(b["pm_gap"], op, "<10%"),
+            "fetch_ok": on}
 
 
 _EMPTY_PM = {"u_now": None, "g_now": None, "u_prev": None, "g_prev": None,
-             "pm_usd": None, "pm_gap": None}
+             "pm_usd": None, "pm_gap": None, "u_now0": None, "g_now0": None,
+             "u_prev0": None, "g_prev0": None, "fetch_ok": False}
 
 
 # ═══════════════ ② الإثراءُ — الطبقةُ الدقيقةُ للشاهدَين ولِيوم `d−1` ══════════
@@ -121,6 +146,7 @@ def enrich_pm(events: list, key: str, cap: int) -> dict:         # noqa: PLR0912
     ev_rows, cx_rows, cc_rows = [], [], []
     dropped_split = no_hist = no_cc = 0
     pm_used, calls, unknown = 0, 0, 0
+    fetch_fail = empty_pm = has_pm = 0
     hcache, scache, bcache = {}, {}, {}
 
     def hist_of(sym, day):
@@ -224,6 +250,13 @@ def enrich_pm(events: list, key: str, cap: int) -> dict:         # noqa: PLR0912
             inpm, unk = is_pm_event(eb, pc0)
             f["is_pm"] = inpm
             unknown += 1 if unk else 0
+            # 🔎 ملحقُ §⑫-ⓓ — ثلاثةُ عدّاداتٍ تفرّق ما كان سطرٌ واحدٌ يخلطه
+            if eb is None:
+                fetch_fail += 1
+            elif f["u_now"] is None:
+                empty_pm += 1
+            else:
+                has_pm += 1
             if cxf is not None:
                 cb = bars_of(cs, day)
                 cbp = bars_of(cs, ch[ci - 1][0])
@@ -247,7 +280,10 @@ def enrich_pm(events: list, key: str, cap: int) -> dict:         # noqa: PLR0912
     return {"ev": ev_rows, "cx": cx_rows, "cc": cc_rows,
             "dropped_split": dropped_split, "no_hist": no_hist, "no_cc": no_cc,
             "pm_used": pm_used, "calls": calls, "unknown": unknown,
-            "truncated": max(0, len(events) - pm_used),
+            "fetch_fail": fetch_fail, "empty_pm": empty_pm, "has_pm": has_pm,
+            # 🐞 كان `len(events) - pm_used` فيطبع صفوفًا أسقطها فلترُ التقسيم
+            #    والتاريخ **قصًّا بالسقف** وهو كذب (ملحق §⑫-ⓓ).
+            "truncated": max(0, len(ev_rows) - pm_used),
             "match": (len(cx_rows) / len(ev_rows)) if ev_rows else 0.0}
 
 
@@ -261,11 +297,16 @@ def bonf_z(ev_rows, ct_rows):
     return n, _stat_z(n)
 
 
-def pm_cover(rows, feat="u_now"):
-    """حصّةُ الصفوف ذاتِ طبقةٍ دقيقةٍ فعليّة — `V-U4`."""
+def pm_cover(rows):
+    """`V-U4` — حصّةُ الصفوف التي **نجح جلبُ دقائقها**، لا التي حملت سلّة.
+
+    🔴 **ملحقُ §⑫-1:** المقياسُ الأوّل كان «`pm_usd` غيرُ `None`» وهو يخلط
+    «لم تُجلَب» بـ«جُلبت فوجدت الجلسةَ فارغة» — وسهمٌ مغمورٌ في يومٍ عاديٍّ
+    **لا يتداول بريماركتًا أصلًا** ⇒ كان الحارسُ يُسقط التجربةَ على بياناتٍ
+    سليمة. والنصُّ المسجَّل «الطبقةُ الدقيقةُ **تُجلَب فعلًا**» — وهذا قياسُه."""
     if not rows:
         return 0.0
-    return sum(1 for r in rows if r.get(feat) is not None) / len(rows)
+    return sum(1 for r in rows if r.get("fetch_ok")) / len(rows)
 
 
 def split_pop(ev_rows):
@@ -336,6 +377,8 @@ def measure_year(year: str, key: str) -> dict:
          f"`CX` {len(en['cx'])} · `CC` {len(en['cc'])} · "
          f"جلباتُ دقيقةٍ {en['calls']} · مستعمَلٌ من السقف {en['pm_used']}/"
          f"{PMUSD_CAP} · مقصوصٌ {en['truncated']} · مجهولٌ {en['unknown']}")
+    _log(f"      🔎 الجلبُ (§⑫-ⓓ): فشلٌ {en['fetch_fail']} · فراغٌ حقيقيٌّ "
+         f"{en['empty_pm']} · ببريماركتٍ {en['has_pm']} — والفراغُ **ليس** فشلًا")
     sc.update(en)
     return sc
 
@@ -399,10 +442,12 @@ def main() -> int:                                               # noqa: PLR0911
     for y in sorted(scans):
         s = scans[y]
         pm, reg = split_pop(s["ev"])
+        cc_ok = sum(1 for r in s["cc"] if r.get("fetch_ok"))
         cc_pm = sum(1 for r in s["cc"] if r.get("u_now") is not None)
         _log(f"   {y}: أحداثٌ {len(s['ev'])} · `E-PM` {len(pm)} "
              f"(‏{len(pm) / len(s['ev']) * 100:.1f}%) و`E-REG` {len(reg)} · "
-             f"صفوفُ `CC` ذاتُ طبقةٍ دقيقة {cc_pm}/{len(s['cc'])} · "
+             f"صفوفُ `CC` **نجح جلبُها** {cc_ok}/{len(s['cc'])} "
+             f"(‏ومنها {cc_pm} ببريماركتٍ فعليّ) · "
              f"المستعمَلُ من السقف {s['pm_used']}/{PMUSD_CAP}")
     if DRY:
         _log("")
@@ -433,8 +478,15 @@ def main() -> int:                                               # noqa: PLR0911
                 cx_c, cc_c = e_cx.get("≥30%"), e_cc.get("≥30%")
             ok = _stat_cell(cx_c, cc_c, z)
             ok_w = _stat_cell(cx_c, cc_c, z_wide)
+            # 🔻 القراءةُ الثانية **الوصفيّة** — الفراغُ الحقيقيُّ صفرٌ (§⑫-4).
+            s0, e0_cx, e0_cc = arm_cells(s["ev"], s["cx"], s["cc"],
+                                         feat + "0", scope)
+            lab0 = "≥30%" if feat.startswith("g_") else GOV_BUCKET
+            c0x, c0c = e0_cx.get(lab0), e0_cc.get(lab0)
             res[name] = {"n": len(side), "cx": cx_c, "cc": cc_c,
-                         "pass": ok, "pass_wide": ok_w}
+                         "pass": ok, "pass_wide": ok_w,
+                         "n0": len(s0), "cx0": c0x, "cc0": c0c,
+                         "pass0": _stat_cell(c0x, c0c, z)}
             table.append((y, name, len(side), cx_c, cc_c, ok))
         kn, unkn, floor = known_split_ok(s["ev"])
         # ── `C-KNOWN` على الحاكمة العابرة (وإلّا على `U-NOW` عرضًا) ──────────
@@ -514,6 +566,10 @@ def report(scans, per_year, table, g) -> int:                    # noqa: PLR0915
             _log(f"       مقابل `CC`: {_cell(r['cc'])}"
                  + ("" if r["pass"] == r["pass_wide"]
                     else "  ⚠️ تعبر بعائلةٍ أضيقَ وحدَها"))
+            _log(f"       🔻 قراءةٌ ثانيةٌ **وصفيّة** (الفراغُ صفرٌ · §⑫-4 · "
+                 f"اتّجاهُها مع الفرضيّة فلا تحكم) — `CX`: {_cell(r['cx0'])}")
+            _log(f"           و`CC`: {_cell(r['cc0'])} ⇒ "
+                 f"{'✅' if r['pass0'] else '🔴'}")
         _log(f"   🧭 `C-KNOWN` على `{p['gov']}` — المعروفُ {p['known']} · "
              f"مُكمِّلُه {p['unknown_side']} · أرضيّةٌ "
              f"{'✅' if p['floor'] else '🔴'}")
