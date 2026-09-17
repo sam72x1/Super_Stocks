@@ -296,7 +296,7 @@
  },
  "LIQ:SLXN": {
   "anchor_ms": 1789635660000,
-  "last_ms": 1789635660000,
+  "last_ms": 1789635720000,
   "sent": [
    "M1"
   ],
@@ -304,15 +304,15 @@
   "vol_x": 5.3,
   "peak_usd": 25761,
   "last_eval_ms": 1789635720000,
-  "pulse_ms": 1789635660000,
+  "pulse_ms": 1789635720000,
   "anchor_price": 0.404,
   "anchor_open": 0.375,
   "anchor_low": 0.3686,
-  "date": "2026-09-17",
   "pre_done": true,
   "pre_hi": 0.38,
   "pre_usd": 249044,
-  "pre_n": 57
+  "pre_n": 57,
+  "date": "2026-09-17"
  },
  "LIQ:SNAL": {
   "last_eval_ms": 1789591020000,
