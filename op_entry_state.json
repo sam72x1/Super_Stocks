@@ -88,7 +88,7 @@
  },
  "LIQ:CTNT": {
   "anchor_ms": 1789632120000,
-  "last_ms": 1789641300000,
+  "last_ms": 1789641360000,
   "sent": [
    "M1",
    "M5",
@@ -98,7 +98,7 @@
   "vol_x": 0.6,
   "peak_usd": 1306380,
   "last_eval_ms": 1789632120000,
-  "pulse_ms": 1789641300000,
+  "pulse_ms": 1789641360000,
   "anchor_price": 0.0619,
   "anchor_open": 0.0644,
   "anchor_low": 0.0602,
