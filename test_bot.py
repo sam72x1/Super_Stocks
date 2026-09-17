@@ -50823,6 +50823,360 @@ check("🌅💧🔒 PUK3 `T-PMUSD`: §③ يُعرّف `pm_high(d)` و`E-PM`/`E-
       _puk_ok3, f"تعريفات={len(_puk_def)} · تنبّؤات={len(_puk_q)} · §⑩={len(_puk_s10)} محرفًا")
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🌅💧 `PUA0`-`PUA13` — أداةُ `T-PMUSD` (`pmusd_probe.py`). **بُنيت بعد دمج عقدها.**
+#    الأقفالُ **سلوكيّةٌ** حيث أمكن، وكلُّ نداءٍ حيٍّ داخل `try` فلا ينهار ما بعده
+#    (الصنفُ ①). 🔒 أسماءٌ خاصّةٌ بالكتلة (`_pua_*`).
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _pua_ast
+import contextlib as _pua_cl
+import io as _pua_io
+
+import pmusd_probe as _PUA
+
+_pua_src = _ohk_load("pmusd_probe.py")
+
+# 🔴 `PUA0` — الاستيرادُ **بالاسم** و**يُنادى فعلًا** (AST لا نصّ) — صفرُ استيرادٍ ميّت.
+try:
+    _pua_tree = _pua_ast.parse(_pua_src)
+    _pua_want = {
+        "link100_probe": {"cell_pass", "daily_feats", "enrich", "fetch_day",
+                          "no_config_assign", "pm_feats", "scan_year",
+                          "selfcheck_readonly", "splits_of", "ticker_daily",
+                          "z_bonf"},
+        "opcurve_probe": {"ny_hour"}}
+    _pua_got = {}
+    for _n in _pua_ast.walk(_pua_tree):
+        if isinstance(_n, _pua_ast.ImportFrom) and _n.module in _pua_want:
+            _pua_got.setdefault(_n.module, set()).update(
+                _a.name for _a in _n.names)
+    _pua_miss = {_m: sorted(_pua_want[_m] - _pua_got.get(_m, set()))
+                 for _m in _pua_want if _pua_want[_m] - _pua_got.get(_m, set())}
+    _pua_called = {getattr(_c.func, "id", None) or getattr(_c.func, "attr", None)
+                   for _c in _pua_ast.walk(_pua_tree)
+                   if isinstance(_c, _pua_ast.Call)}
+    _pua_fn = set().union(*_pua_want.values())
+    _pua_dead = sorted(_pua_fn - _pua_called)
+    _pua_ok0 = (not _pua_miss) and (not _pua_dead)
+    _pua_w0 = f"ناقصٌ={_pua_miss or 'لا شيء'} · مستورَدٌ بلا نداء={_pua_dead or 'لا شيء'}"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok0, _pua_w0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA0 أداةُ `T-PMUSD`: كلُّ دالّةٍ مستورَدةٌ **بالاسم** من وحدتها "
+      "و**تُنادى فعلًا** — صفرُ استيرادٍ ميّت", _pua_ok0, _pua_w0)
+
+# 🔴 `PUA1` — **صفرُ منطقِ حسمٍ مكرَّر** (§⑩): لا دالّةَ هنا تحمل اسمَ دالّةٍ من
+#    التسعةَ عشرَ اسمًا، وكلُّ اسمٍ منها **يُحَلّ فعلًا** على `link100_probe`.
+try:
+    _pua_19 = ["year_days", "grouped_day", "day_events", "fold_events",
+               "pick_cx", "ticker_daily", "splits_of", "daily_feats",
+               "pm_feats", "enrich", "z_bonf", "wilson", "px_bucket",
+               "decile_of", "dollar_deciles", "fetch_day",
+               "selfcheck_readonly", "no_config_assign", "cell_pass"]
+    _pua_here = {_n.name for _n in _pua_ast.walk(_pua_tree)
+                 if isinstance(_n, (_pua_ast.FunctionDef,
+                                    _pua_ast.AsyncFunctionDef))}
+    _pua_clash = sorted(_pua_here & set(_pua_19))
+    _pua_unres = [_n for _n in _pua_19 if not callable(getattr(_LKA, _n, None))]
+    _pua_ok1 = (not _pua_clash) and (not _pua_unres) and len(_pua_19) == 19
+    _pua_w1 = (f"مكرَّرٌ={_pua_clash or 'لا شيء'} · غيرُ محلولٍ="
+               f"{_pua_unres or 'لا شيء'} · العدد={len(_pua_19)}")
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok1, _pua_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA1 صفرُ منطقِ حسمٍ مكرَّر: لا دالّةَ في الأداة تحمل اسمَ واحدةٍ من "
+      "التسعةَ عشرَ · وكلُّها تُحَلّ فعلًا على `link100_probe`", _pua_ok1, _pua_w1)
+
+# 🔴 `PUA2` — `pm_high` سلوكيًّا: **ما قبل 09:30 وحدَه** · الأعلى · و`None` عند الفراغ.
+try:
+    def _pua_bar(h, hi):
+        """شمعةُ دقيقةٍ بساعةِ نيويورك `h` — الطابعُ من `ny_hour` نفسِها عكسيًّا."""
+        _ms = 1698_000_000_000
+        while _PUA.ny_hour(_ms) > h:
+            _ms -= 3_600_000
+        while _PUA.ny_hour(_ms) < h:
+            _ms += 60_000
+        return (_ms, hi, hi, hi, hi, 100.0)
+    _pua_bars = [_pua_bar(8.0, 3.0), _pua_bar(9.0, 7.0), _pua_bar(10.0, 99.0)]
+    _pua_ok2 = (_PUA.pm_high(_pua_bars) == 7.0          # ‏99 بعد الجرس ⇒ مُقصاة
+                and _PUA.pm_high([_pua_bar(10.0, 99.0)]) is None
+                and _PUA.pm_high(None) is None)
+    _pua_w2 = f"قبلَ الجرس={_PUA.pm_high(_pua_bars)} · بعدَه فقط=None"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok2, _pua_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA2 `pm_high` يقرأ **ما قبل 09:30 وحدَه** ويُرجع الأعلى · و`None` "
+      "حين لا شمعةَ قبل الجرس", _pua_ok2, _pua_w2)
+
+# 🔴 `PUA3` — `is_pm_event`: ‏≥2× ⇒ `E-PM` · دونَها ⇒ `E-REG` · **والمجهولُ داخلَ
+#    `E-PM`** (§⑧-6: العزلُ متحفّظٌ فلا تضمّ الحاكمةُ (أ) صفًّا لا نعرف عنه).
+try:
+    _pua_hi = [_pua_bar(9.0, 2.5)]
+    _pua_lo = [_pua_bar(9.0, 1.4)]
+    _pua_ok3 = (_PUA.is_pm_event(_pua_hi, 1.0) == (True, False)
+                and _PUA.is_pm_event(_pua_lo, 1.0) == (False, False)
+                and _PUA.is_pm_event(None, 1.0) == (True, True)
+                and _PUA.is_pm_event(_pua_hi, 0.0) == (True, True))
+    _pua_w3 = (f"‏2.5×={_PUA.is_pm_event(_pua_hi, 1.0)} · "
+               f"‏1.4×={_PUA.is_pm_event(_pua_lo, 1.0)} · "
+               f"مجهول={_PUA.is_pm_event(None, 1.0)}")
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok3, _pua_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA3 `is_pm_event`: ‏2× فأكثر ⇒ `E-PM` · دونَها ⇒ `E-REG` · "
+      "**والمجهولُ يبقى داخلَ `E-PM`** (عزلٌ متحفّظ)", _pua_ok3, _pua_w3)
+
+# 🔴 `PUA4` — القسمةُ **تامّةٌ ومنفصلة**، و`V-U5` حارسٌ **حيّ** يمسك صفًّا بلا وسمٍ صريح.
+try:
+    _pua_rows = [{"is_pm": True}, {"is_pm": False}, {"is_pm": False}]
+    _pua_pm, _pua_reg = _PUA.split_pop(_pua_rows)
+    _pua_bad = _pua_rows + [{"u_now": ">1M"}]                # صفٌّ بلا `is_pm`
+    _pua_ok4 = (len(_pua_pm) == 1 and len(_pua_reg) == 2
+                and len(_pua_pm) + len(_pua_reg) == len(_pua_rows)
+                and not [r for r in _pua_pm if r in _pua_reg]
+                and _PUA.pm_flag_ok(_pua_rows) is True
+                and _PUA.pm_flag_ok(_pua_bad) is False)
+    _pua_w4 = (f"E-PM={len(_pua_pm)} · E-REG={len(_pua_reg)} · "
+               f"حارسُ الوسم={_PUA.pm_flag_ok(_pua_bad)}")
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok4, _pua_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA4 `E-PM ⊎ E-REG` قسمةٌ تامّةٌ منفصلة · و`V-U5` يمسك صفًّا بلا "
+      "وسمٍ منطقيٍّ صريح (حارسٌ حيٌّ لا تحصيلُ حاصل)", _pua_ok4, _pua_w4)
+
+# 🔴 `PUA5` — «المعروف» = **اتّحادُ العابرتين وحدَهما** لا أيَّ ميزةٍ أخرى.
+try:
+    _pua_ok5 = (_PUA.known_of({"vol_x": "≥3", "ret5": "<-20%"}) is True
+                and _PUA.known_of({"vol_x": "<1", "ret5": ">+20%"}) is True
+                and _PUA.known_of({"vol_x": "1-3", "ret5": "-20..+20%"}) is False
+                and _PUA.known_of({"quiet": "<20", "rsplit180": "نعم",
+                                   "px": "1-3"}) is False
+                and (_PUA.KNOWN_VOL, _PUA.KNOWN_RET) == ("≥3", ">+20%"))
+    _pua_w5 = f"العابرتان={(_PUA.KNOWN_VOL, _PUA.KNOWN_RET)}"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok5, _pua_w5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA5 `C-KNOWN` مبنيٌّ على **اتّحاد `vol_x ≥3` و`ret5 > +20%` وحدَهما** "
+      "— و`quiet`/`rsplit180` لا يجعلان صفًّا «معروفًا»", _pua_ok5, _pua_w5)
+
+# 🔴 `PUA6` — نطاقُ الذراع سلوكيًّا: الحاكمةُ (أ) على `E-REG` وحدَها · والبقيّةُ على الكلّ.
+try:
+    # 🔑 عددان **مختلفان** عمدًا (‏3 و2) وإلّا صارت طفرةُ «الحاكمةُ على `E-PM`»
+    #    بلا أثرٍ فتُقرأ نجاةً وهي عيبٌ (الصنفُ ④-3).
+    _pua_ev = [{"is_pm": True, "u_now": ">1M", "known": False},
+               {"is_pm": True, "u_now": "<100k", "known": False},
+               {"is_pm": True, "u_now": ">1M", "known": False},
+               {"is_pm": False, "u_now": ">1M", "known": False},
+               {"is_pm": False, "u_now": "<100k", "known": False}]
+    _pua_ct = [{"u_now": "<100k"}, {"u_now": "<100k"}]
+    _pua_n_reg = len(_PUA.arm_cells(_pua_ev, _pua_ct, _pua_ct, "u_now", "reg")[0])
+    _pua_n_all = len(_PUA.arm_cells(_pua_ev, _pua_ct, _pua_ct, "u_now", "all")[0])
+    _pua_scopes = {_a[0]: _a[2] for _a in _PUA.ARMS}
+    _pua_ok6 = (_pua_n_reg == 2 and _pua_n_all == 5
+                and _pua_scopes["U-NOW"] == "reg"
+                and _pua_scopes["G-NOW"] == "reg"
+                and _pua_scopes["U-PREV"] == "all"
+                and _pua_scopes["U-RAW"] == "all"
+                and _pua_scopes["G-PREV"] == "all")
+    _pua_w6 = f"reg={_pua_n_reg} · all={_pua_n_all} · النطاقات={_pua_scopes}"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok6, _pua_w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA6 الحاكمةُ (أ) `U-NOW` و`G-NOW` تُقاسان على **`E-REG` وحدَها** "
+      "(سلوكيًّا: 2 من 4) · و`U-PREV`/`U-RAW`/`G-PREV` على الكلّ", _pua_ok6, _pua_w6)
+
+# 🔴 `PUA7` — `read_pm_verdict` **جدولُ حقيقة** (§⑥ بحرفه · سبعُ حالات).
+try:
+    def _pua_y(pu1, pu2, pu3, floor=True):
+        return {"PU1": pu1, "PU2": pu2, "PU3": pu3, "floor": floor}
+    _pua_all = {_y: _pua_y(True, True, True) for _y in _PUA.GOV_YEARS}
+    _pua_g_ok, _pua_g_no = {"pass": True}, {"pass": False}
+    _pua_cases = []
+    _pua_cases.append(_PUA.read_pm_verdict(_pua_all, _pua_g_no)
+                      == (_PUA.RC_GUARD, ("لا حكم", "حارسٌ ساقط ⇒ لا يُفسَّر رقم")))
+    _pua_part = {k: v for k, v in _pua_all.items() if k != "2025"}
+    _pua_cases.append(_PUA.read_pm_verdict(_pua_part, _pua_g_ok)[0]
+                      == _PUA.RC_NOVERDICT)
+    _pua_fl = dict(_pua_all)
+    _pua_fl["2024"] = _pua_y(True, True, True, floor=False)
+    _pua_cases.append(_PUA.read_pm_verdict(_pua_fl, _pua_g_ok)[0]
+                      == _PUA.RC_NOVERDICT)
+    _pua_cases.append(_PUA.read_pm_verdict(_pua_all, _pua_g_ok)[1][0] == "تُوصى")
+    _pua_a = {_y: _pua_y(True, False, True) for _y in _PUA.GOV_YEARS}
+    _pua_cases.append(_PUA.read_pm_verdict(_pua_a, _pua_g_ok)[1][0] == "تُوصى")
+    _pua_b = {_y: _pua_y(False, True, True) for _y in _PUA.GOV_YEARS}
+    _pua_cases.append(_PUA.read_pm_verdict(_pua_b, _pua_g_ok)[1][0] == "تُوصى")
+    _pua_c = dict(_pua_all)
+    _pua_c["2023"] = _pua_y(True, True, False)
+    _pua_cases.append(_PUA.read_pm_verdict(_pua_c, _pua_g_ok)[1][0] == "فشلت")
+    _pua_d = {_y: _pua_y(False, False, True) for _y in _PUA.GOV_YEARS}
+    _pua_cases.append(_PUA.read_pm_verdict(_pua_d, _pua_g_ok)[1][0] == "فشلت")
+    _pua_ok7 = all(_pua_cases)
+    _pua_w7 = f"الحالات={_pua_cases}"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok7, _pua_w7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA7 `read_pm_verdict` جدولُ حقيقة: حارسٌ ساقطٌ ⇒ 6 · سنةٌ غائبةٌ أو "
+      "أرضيّةٌ ساقطةٌ ⇒ «لا حكم» 9 · و«تُوصى» تلزمها (`PU1` أو `PU2`) **و**`PU3`",
+      _pua_ok7, _pua_w7)
+
+# 🔴 `PUA8` — أرضيّةُ `C-KNOWN`: ‏50 فأكثر في **كلٍّ** من الشقَّين لا في مجموعهما.
+try:
+    _pua_mk = (lambda k, u: [{"known": True}] * k + [{"known": False}] * u)
+    _pua_ok8 = (_PUA.known_split_ok(_pua_mk(60, 60))[2] is True
+                and _PUA.known_split_ok(_pua_mk(49, 400))[2] is False
+                and _PUA.known_split_ok(_pua_mk(400, 49))[2] is False
+                and _PUA.known_split_ok(_pua_mk(50, 50))[2] is True
+                and _PUA.known_split_ok(_pua_mk(60, 60))[:2] == (60, 60))
+    _pua_w8 = f"‏49/400={_PUA.known_split_ok(_pua_mk(49, 400))[2]} · حدٌّ={_PUA.MIN_BUCKET_N}"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok8, _pua_w8 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA8 أرضيّةُ `C-KNOWN` ‏50 في **كلّ شقٍّ على حدة** — و‏49/400 تسقط "
+      "رغم أن المجموعَ 449", _pua_ok8, _pua_w8)
+
+# 🔴 `PUA9` — وضعُ الجدوى: **صفرُ نداءِ إحصاءٍ (عدّادٌ حقيقيّ)** وعودةٌ قبل أيّ حكم.
+try:
+    _pua_fake = {"days": 250, "got": 250, "cover": 1.0, "raw": 9,
+                 "events": [1], "cx": [{"u_now": ">1M"}],
+                 "cc": [{"u_now": "<100k"}], "dropped_split": 0, "no_hist": 0,
+                 "no_cc": 0, "pm_used": 3, "calls": 18, "unknown": 0,
+                 "truncated": 0, "match": 1.0,
+                 "ev": [{"is_pm": True, "u_now": ">1M", "known": True},
+                        {"is_pm": False, "u_now": "<100k", "known": False}]}
+    _pua_omy, _pua_odry, _pua_oyr = _PUA.measure_year, _PUA.DRY, _PUA.YEARS
+    _pua_okey = _os_hc.environ.get("POLYGON_API_KEY")
+    _pua_buf = _pua_io.StringIO()
+    try:
+        _PUA.measure_year = lambda _y, _k: dict(_pua_fake)
+        _PUA.DRY, _PUA.YEARS = True, ["2023"]
+        _PUA._CALLS["stat"] = 0
+        _os_hc.environ["POLYGON_API_KEY"] = "x"
+        with _pua_cl.redirect_stdout(_pua_buf):
+            _pua_rc = _PUA.main()
+        _pua_calls = _PUA._CALLS["stat"]
+    finally:
+        _PUA.measure_year, _PUA.DRY, _PUA.YEARS = _pua_omy, _pua_odry, _pua_oyr
+        if _pua_okey is None:
+            _os_hc.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _os_hc.environ["POLYGON_API_KEY"] = _pua_okey
+    _pua_out = _pua_buf.getvalue()
+    _pua_ok9 = (_pua_rc == _PUA.RC_OK and _pua_calls == 0
+                and "الأعدادُ الأربعة" in _pua_out
+                and "`E-PM`" in _pua_out and "المستعمَلُ من السقف" in _pua_out
+                and "الحكم" not in _pua_out and "🛡️" not in _pua_out)
+    _pua_w9 = f"rc={_pua_rc} · نداءاتُ الإحصاء={_pua_calls} · مُخرَج={len(_pua_out)} محرفًا"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok9, _pua_w9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA9 وضعُ الجدوى: يطبع الأعدادَ الأربعة و**صفرَ نداءِ إحصاء** (عدّادٌ "
+      "حقيقيّ) ويعود قبل الحرّاس وقبل أيّ حكم", _pua_ok9, _pua_w9)
+
+# 🔴 `PUA10` — الحرّاسُ الخمسة **كلٌّ برمز خروجه** (‏5 · 3 · 3 · 6 · 6).
+try:
+    def _pua_scan(n_ev=481, cover=1.0, match=1.0, pmc=1.0, flag=True):
+        _k = int(round(n_ev * pmc))
+        _ev = [{"is_pm": (True if flag else None) if _i else True,
+                "u_now": ">1M" if _i < _k else None} for _i in range(n_ev)]
+        _ct = [{"u_now": ">1M"} for _ in range(50)]
+        return {"2023": {"ev": _ev, "cx": _ct, "cc": _ct,
+                         "cover": cover, "match": match}}
+    _pua_g = [_PUA.guards_of(_pua_scan())["pass"] is True,
+              _PUA.guards_of(_pua_scan(n_ev=480))["rc"] == _PUA.RC_POP,
+              _PUA.guards_of(_pua_scan(cover=0.90))["rc"] == _PUA.RC_COVER,
+              _PUA.guards_of(_pua_scan(match=0.50))["rc"] == _PUA.RC_COVER,
+              _PUA.guards_of(_pua_scan(pmc=0.50))["rc"] == _PUA.RC_GUARD,
+              _PUA.guards_of(_pua_scan(flag=False))["rc"] == _PUA.RC_GUARD]
+    _pua_ok10 = all(_pua_g)
+    _pua_w10 = f"الحالات={_pua_g} · المنشور={_PUA.PUBLISHED}"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok10, _pua_w10 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA10 الحرّاس: `V-U1` عددٌ يخالف المنشور ⇒ 5 · `V-U2`/`V-U3` ⇒ 3 · "
+      "`V-U4` طبقةٌ دقيقةٌ ناقصة و`V-U5` وسمٌ غائب ⇒ 6", _pua_ok10, _pua_w10)
+
+# 🔴 `PUA11` — «قراءةٌ فقط» **مع شاهدِ ضبطٍ يُثبت أن الحارسَ يعضّ** لا أنه لا يفحص.
+try:
+    _pua_ok11 = (_LKA.selfcheck_readonly(_pua_src) is True
+                 and _LKA.no_config_assign(_pua_src) is True
+                 and _LKA.selfcheck_readonly(
+                     _pua_src + "\nopen('x.json', 'w')\n") is False
+                 and _LKA.selfcheck_readonly(
+                     _pua_src + "\nsend_telegram('x')\n") is False
+                 and _LKA.no_config_assign(
+                     _pua_src + "\nCONFIG['MIN_PRICE'] = 1\n") is False)
+    _pua_w11 = f"{len(_pua_src)} محرفًا · الشاهدُ يعضّ"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok11, _pua_w11 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA11 الأداةُ **قراءةٌ فقط**: صفرُ إرسالٍ وصفرُ كتابةِ ملفٍّ وصفرُ "
+      "إسنادٍ إلى `CONFIG` — وشاهدُ ضبطٍ يُثبت أن الحارسَ يمسك العيبَ لو وُجد",
+      _pua_ok11, _pua_w11)
+
+# 🔴 `PUA12` — شكلُ الـworkflow: يدويٌّ بلا كرون · صفرُ سرِّ تلغرام · صلاحيةُ قراءة.
+try:
+    _pua_wf = open(".github/workflows/pmusd.yml", encoding="utf-8").read()
+    _pua_ok12 = ("workflow_dispatch" in _pua_wf and "schedule:" not in _pua_wf
+                 and "cron" not in _pua_wf and "TELEGRAM" not in _pua_wf
+                 and "contents: read" in _pua_wf
+                 and "POLYGON_API_KEY" in _pua_wf
+                 and "PMUSD_DRY" in _pua_wf and "PMUSD_CAP" in _pua_wf)
+    _pua_w12 = f"{len(_pua_wf)} محرفًا"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok12, _pua_w12 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA12 `pmusd.yml`: يدويٌّ بلا كرون · بلا سرِّ تلغرام · بصلاحيةِ "
+      "قراءةٍ وسرِّ Polygon وحدَه", _pua_ok12, _pua_w12)
+
+# 🔴 `PUA13` — الأذرعُ **مُغلَقةٌ خمسٌ** وتطابق جدولَ العقد §④ اسمًا اسمًا · وحاكمتان.
+try:
+    _pua_s4 = _ohk_sec(_puk_doc, "## ④", "## ⑤")
+    _pua_doc_arms = [_l.split("`")[1] for _l in _pua_s4.splitlines()
+                     if _l.startswith("| ") and ("`U-" in _l[:20] or "`G-" in _l[:20])]
+    _pua_tool_arms = [_a[0] for _a in _PUA.ARMS]
+    _pua_gov = [_a[0] for _a in _PUA.ARMS if _a[3]]
+    _pua_ok13 = (len(_PUA.ARMS) == 5
+                 and sorted(_pua_tool_arms) == sorted(_pua_doc_arms)
+                 and _pua_gov == ["U-NOW", "U-PREV"]
+                 and _PUA.GOV_BUCKET == ">1M"
+                 and _PUA.KNOWN_RATIO == 1.5
+                 and _PUA.PUBLISHED == {"2023": 481, "2024": 655, "2025": 773})
+    _pua_w13 = (f"الأداة={_pua_tool_arms} · العقد={_pua_doc_arms} · "
+                f"حاكمة={_pua_gov}")
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok13, _pua_w13 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA13 الأذرعُ الخمسُ في الأداة **تطابق جدولَ العقد §④ بالاسم** · "
+      "وحاكمتان `U-NOW`/`U-PREV` · والسلّةُ الحاكمة `>1M` · و`PU3` عند 1.5×",
+      _pua_ok13, _pua_w13)
+
+
+# 🔴 `PUA14` — **العتبةُ لا تُخفَّض** (§⓪-1): `z` من عائلة الميزات **الثلاثَ عشرةَ**
+#    التي اشتقّ منها `T-LINK100` عتبتَه، لا من عائلةِ أذرعي الأضيق.
+#    🐞 وهذا عيبٌ وقع فعلًا في كتابتي الأولى (`z_bonf(2) = 2.243` بدل ‏≈3.2)
+#    وأمسكه فحصُ «من أين جاء رقمُ `T-LINK100`؟» **قبل أيّ تشغيل**.
+try:
+    _pua_full = [{_f: ("A" if _i % 2 else "B") for _f in _PUA.L_FEATURES}
+                 for _i in range(10)]
+    _pua_one = [{"pm_usd": ("A" if _i % 2 else "B")} for _i in range(10)]
+    _pua_n_full, _pua_z_full = _PUA.bonf_z(_pua_full, _pua_full)
+    _pua_n_one, _pua_z_one = _PUA.bonf_z(_pua_one, _pua_one)
+    _pua_main = next(_n for _n in _pua_ast.walk(_pua_tree)
+                     if isinstance(_n, _pua_ast.FunctionDef) and _n.name == "main")
+    _pua_from_bonf, _pua_z_inline = False, False
+    for _n in _pua_ast.walk(_pua_main):
+        if not isinstance(_n, _pua_ast.Assign):
+            continue
+        _fn = (getattr(getattr(_n.value, "func", None), "id", None)
+               if isinstance(_n.value, _pua_ast.Call) else None)
+        _names = [_t.id for _t in _pua_ast.walk(_n.targets[0])
+                  if isinstance(_t, _pua_ast.Name)]
+        if _fn == "bonf_z" and "z" in _names and "n_cells" in _names:
+            _pua_from_bonf = True
+        if _fn == "_stat_z" and _names == ["z"]:
+            _pua_z_inline = True
+    _pua_ok14 = (len(_PUA.L_FEATURES) == 13
+                 and _pua_n_full == 26 and _pua_n_one == 2
+                 and _pua_z_full > _PUA.z_bonf(len(_PUA.ARMS))
+                 and _pua_z_one < _PUA.z_bonf(len(_PUA.ARMS))
+                 and _pua_from_bonf and not _pua_z_inline)
+    _pua_w14 = (f"‏13 ميزةً ⇒ {_pua_n_full} خليّةً z={_pua_z_full:.3f} · ميزةٌ "
+                f"واحدةٌ ⇒ {_pua_n_one} z={_pua_z_one:.3f} · عائلةُ الأذرع "
+                f"z={_PUA.z_bonf(len(_PUA.ARMS)):.3f} · من `bonf_z`="
+                f"{_pua_from_bonf} · اختيارٌ داخليّ={_pua_z_inline}")
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok14, _pua_w14 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA14 عتبةُ `LK1` **لا تُخفَّض**: `z` يُشتقّ من عائلة الميزات الثلاثَ "
+      "عشرةَ (‏26 خليّةً ⇒ z أعلى من عائلة الأذرع) · و`main` تأخذه من `bonf_z` "
+      "وحدَها ولا تُعيد اختيارَ العائلة داخلها", _pua_ok14, _pua_w14)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
