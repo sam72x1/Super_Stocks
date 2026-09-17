@@ -1461,7 +1461,7 @@
  },
  "LIQ:DCX": {
   "anchor_ms": 1789632480000,
-  "last_ms": 1789632480000,
+  "last_ms": 1789632540000,
   "sent": [
    "M1"
   ],
@@ -1469,7 +1469,7 @@
   "vol_x": 1.5,
   "peak_usd": 353715,
   "last_eval_ms": 1789632540000,
-  "pulse_ms": 1789632480000,
+  "pulse_ms": 1789632540000,
   "anchor_price": 0.6869,
   "anchor_open": 0.7079,
   "anchor_low": 0.6856,
@@ -1482,11 +1482,12 @@
    "exit_ms": 1789632420000
   },
   "trig": "T-C",
-  "date": "2026-09-17",
   "pre_done": true,
   "pre_hi": 0.86,
   "pre_usd": 2094900,
-  "pre_n": 8
+  "pre_n": 8,
+  "exit_ms": 1789632540000,
+  "date": "2026-09-17"
  },
  "LIQ:CIIT": {
   "date": "2026-09-17"
