@@ -50722,6 +50722,107 @@ check("🕵️📈🌙🔒 HNA11 `ophold2.yml`: يدويٌّ بلا كرون · 
       "قراءةٍ وسرِّ Polygon وحدَه", _hna_ok11, _hna_w11)
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🌅💧 `PUK0`-`PUK3` — عقدُ `T-PMUSD` (`pmusd_prereg.md`). **مدفوعٌ ومدموجٌ قبل أيّ
+#    سطرِ أداةٍ وقبل أيّ رقمٍ من موضوعه.** والأقفالُ تحرس **بنيةَ** الحكم لا عضويّةَ
+#    كلمات (درسُ `RKK0`) وتقرأ **الفقرةَ لا السطر** (‏`_otk_para`).
+#    🔒 أسماءٌ خاصّةٌ بالكتلة (`_puk_*`) فلا تُظلَّل أسماءُ السويّة (الصنفُ ①).
+# ══════════════════════════════════════════════════════════════════════════
+_puk_doc = _ohk_load("pmusd_prereg.md")
+
+# 🔴 `PUK0` — §⑥: فروعٌ ثلاثةٌ بنيويًّا · «لا حكم» في الثالث وحدَه · رموزُ 5 و6 و9 في
+#    فقرةِ رموز الخروج · والأرضيّةُ ‏50 **لكلّ سنةٍ ولكلّ شقّ** وتمنع الفرعَ 1 · والمعاييرُ ثلاثةٌ.
+_puk_s6 = _ohk_sec(_puk_doc, "## ⑥", "## ⑦")
+_puk_br, _puk_pos, _puk_lbl = _ohk_branches(_puk_s6, "تُوصى", "فشلت")
+_puk_rcl = _otk_para(_puk_s6, "**رموزُ الخروج:**")
+_puk_rc = ("**‏5 المجتمعُ يخالف `V-U1`**" in _puk_rcl
+           and "**‏6 حارسٌ ساقط**" in _puk_rcl
+           and "**‏9 «لا حكم»**" in _puk_rcl
+           and _puk_rcl.count("رموزُ الخروج") == 1)
+_puk_crit = [_l for _l in _puk_s6.splitlines()
+             if _l.startswith("| **`PU") and _l.count("`PU") >= 1]
+_puk_fl = [_l for _l in _puk_s6.splitlines() if _l.startswith("| **الأرضيّة**")]
+_puk_ok0 = (len(_puk_br) == 3 and len(_puk_pos) == 3 and _puk_lbl and _puk_rc
+            and len(_puk_crit) == 3
+            and all(any(f"**`PU{_i}`**" in _l for _l in _puk_crit) for _i in (1, 2, 3))
+            and len(_puk_fl) == 1
+            and "**لكلّ سنة**" in _puk_fl[0]
+            and "شقَّي `C-KNOWN`" in _puk_fl[0]
+            and "**يمنع الفرعَ 1**" in _puk_fl[0])
+check("🌅💧🔒 PUK0 عقدُ `T-PMUSD`: فروعُ §⑥ ثلاثةٌ كلٌّ في رقمه · «لا حكم» في الثالث وحدَه "
+      "· رموزُ 5 و6 و9 في فقرةِ الخروج · ومعاييرُ `PU1`-`PU3` · والأرضيّةُ لكلّ سنةٍ "
+      "ولكلّ شقٍّ وتمنع الفرعَ 1",
+      _puk_ok0, f"فروع={len(_puk_br)} · مواضع={_puk_pos} · وسم={_puk_lbl} · "
+                f"رموز={_puk_rc} · معايير={len(_puk_crit)} · أرضيّة={len(_puk_fl)}")
+
+# 🔴 `PUK1` — §④: حاكمتان (`U-NOW` · `U-PREV`) وثلاثُ وصفيّات · وشاهدٌ ثالثٌ `C-KNOWN`
+#    منصوصٌ أنه **حاكم** لا وصفيّ (درسُ `C-MOM` في `T-PMGATE`) · والقائمةُ مُغلَقةٌ نصًّا.
+_puk_s4 = _ohk_sec(_puk_doc, "## ④", "## ⑤")
+_puk_rows = [_l for _l in _puk_s4.splitlines()
+             if _l.startswith("| ") and ("`U-" in _l[:20] or "`G-" in _l[:20])]
+_puk_gov = [_l for _l in _puk_rows if "🥇" in _l]
+_puk_desc = [_l for _l in _puk_rows if "وصفيّة" in _l]
+_puk_ctl = [_l for _l in _puk_s4.splitlines() if _l.startswith("- **`C")]
+_puk_kn = [_l for _l in _puk_ctl if "`C-KNOWN`" in _l]
+_puk_ok1 = (len(_puk_rows) == 5
+            and len(_puk_gov) == 2
+            and any("`U-NOW`" in _l for _l in _puk_gov)
+            and any("`U-PREV`" in _l for _l in _puk_gov)
+            and len(_puk_desc) == 3
+            and all(any(f"`{_a}`" in _l for _l in _puk_desc)
+                    for _a in ("U-RAW", "G-PREV", "G-NOW"))
+            and len(_puk_ctl) == 3
+            and len(_puk_kn) == 1 and "🥇" in _puk_kn[0] and "**حاكم**" in _puk_kn[0]
+            and "ولا ذراعَ سادسة ولا شاهدَ رابع بعد أيّ رقم" in _puk_s4)
+check("🌅💧🔒 PUK1 §④ `T-PMUSD`: حاكمتان (`U-NOW` · `U-PREV`) وثلاثُ وصفيّات "
+      "(`U-RAW`/`G-PREV`/`G-NOW`) · وثلاثةُ شواهدَ منها `C-KNOWN` **حاكمٌ** بنصّه · "
+      "والقائمةُ مُغلَقة",
+      _puk_ok1, f"صفوف={len(_puk_rows)} · حاكمة={len(_puk_gov)} · وصفيّة={len(_puk_desc)} · "
+                f"شواهد={len(_puk_ctl)} · C-KNOWN={len(_puk_kn)}")
+
+# 🔴 `PUK2` — §⓪ يُعلن التلوّثَ بأرقامه وأن `CC` **غيرُ محسوب** ويقيّد ثلاثةً · و§⑤ يشترط
+#    **ألّا يُحذَف** `E-PM` من المجتمع · و§⑨ يمنع البوّابةَ ومفتاحَ الترتيب وتعديلَ `LK1`.
+_puk_s0 = _ohk_sec(_puk_doc, "## ⓪", "## ①")
+_puk_s5 = _ohk_sec(_puk_doc, "## ⑤", "## ⑥")
+_puk_s9 = _ohk_sec(_puk_doc, "## ⑨", "## ⑩")
+_puk_ok2 = (all(_k in _puk_s0 for _k in ("34.72×", "21.69×", "14.03×",
+                                         "غيرُ محسوب",
+                                         "لا تُخفَّض عتبةُ `LK1`",
+                                         "لا تُضاف ميزةٌ ولا ذراعٌ بعد أيّ رقم",
+                                         "ولا يُحصَر المجتمعُ ولا يُوسَّع"))
+            and "ولا يُحذَف `E-PM` من المجتمع" in _puk_s5
+            and "يُقصى من الحاكمة (أ) **ويُعَدّ ويُطبَع**" in _puk_s5
+            and "لا تُضاف بوّابةً ولا مفتاحَ ترتيبٍ للفارز" in _puk_s9
+            and "ولا تُعدَّل عتبةُ `LK1`" in _puk_s9)
+check("🌅💧🔒 PUK2 `T-PMUSD`: §⓪ يُعلن التلوّثَ بأرقامه (‏34.72 · 21.69 · 14.03) وأن `CC` "
+      "غيرُ محسوب ويقيّد ثلاثةً · و§⑤ يمنع حذفَ `E-PM` · و§⑨ يمنع البوّابةَ ومفتاحَ "
+      "الترتيب وتعديلَ `LK1`",
+      _puk_ok2, f"§⓪={len(_puk_s0)} محرفًا · §⑤={len(_puk_s5)} · §⑨={len(_puk_s9)}")
+
+# 🔴 `PUK3` — §③ يُعرّف `pm_high(d)` و`E-PM`/`E-REG` صفًّا صفًّا · و§⑩ يُسمّي `V-U1`-`V-U5`
+#    ووضعَ الجدوى وعودتَه قبل أيّ رقم · و§⑦ تنبّؤاتُه ستّةٌ كلٌّ في سطره.
+_puk_s3 = _ohk_sec(_puk_doc, "## ③", "## ④")
+_puk_s10 = _ohk_sec(_puk_doc, "## ⑩", "## ⑪")
+_puk_s7 = _ohk_sec(_puk_doc, "## ⑦", "## ⑧")
+_puk_def = [_l for _l in _puk_s3.splitlines() if _l.startswith("| ") and "|---" not in _l]
+_puk_q = [_l for _l in _puk_s7.splitlines() if _l.startswith("| `Q")]
+_puk_ok3 = (any(_l.startswith("| **`pm_high(d)`**") for _l in _puk_def)
+            and any("`E-PM`" in _l and "pm_high(d) / close(d−1) ≥ 2.0" in _l
+                    for _l in _puk_def)
+            and any("`E-REG`" in _l and "مُكمِّلُ `E-PM`" in _l for _l in _puk_def)
+            and all(_k in _puk_s10 for _k in ("**`V-U1`**", "**`V-U2`/`V-U3`**",
+                                              "**`V-U4`**", "**`V-U5`**",
+                                              "`PMUSD_DRY=1`", "**أربعةَ أعدادٍ فقط**",
+                                              "ويعود قبل أيّ نسبةٍ أو فاصلٍ أو حكم"))
+            and len(_puk_q) == 6
+            and all(any(_l.startswith(f"| `Q{_i}`") for _l in _puk_q)
+                    for _i in range(1, 7)))
+check("🌅💧🔒 PUK3 `T-PMUSD`: §③ يُعرّف `pm_high(d)` و`E-PM`/`E-REG` صفًّا صفًّا · و§⑩ "
+      "يُسمّي `V-U1`-`V-U5` ووضعَ الجدوى وعودتَه قبل أيّ رقم · و§⑦ ستُّ تنبّؤاتٍ كلٌّ "
+      "في سطره",
+      _puk_ok3, f"تعريفات={len(_puk_def)} · تنبّؤات={len(_puk_q)} · §⑩={len(_puk_s10)} محرفًا")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
