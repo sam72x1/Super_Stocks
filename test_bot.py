@@ -52150,6 +52150,498 @@ check("🎚️📉🔒 TRK3 الدوالُّ الستُّ موجودةٌ بأس�
       "ضبط** · ونطاقُ سحب فيصل 7/10/13 في `CONFIG` كما في العقد",
       _trk_ok3, _trk_w3)
 
+# ═══════════════════════════════════════════════════════════════════════
+# 🎚️📉 T-TRAIL · الأداتان (`trail_arms.py` الحاكم · `trail_op_arms.py` وصفيّ)
+#     بحث/قياس: قراءةٌ فقط · الإنتاجُ لا يستوردهما · لا `LOGIC_VERSION`.
+# ═══════════════════════════════════════════════════════════════════════
+import io as _tra_io                                              # noqa: E402
+import os as _tra_os                                              # noqa: E402
+import tempfile as _tra_tmpf                                      # noqa: E402
+from contextlib import redirect_stdout as _tra_redir              # noqa: E402
+
+import trail_arms as _TRA
+import trail_op_arms as _TRO
+
+_tra_src = _insp0.getsource(_TRA)
+_tro_src = _insp0.getsource(_TRO)
+_tra_tree = _ast0.parse(_tra_src)
+_tro_tree = _ast0.parse(_tro_src)
+
+
+def _tra_called(tree):
+    """أسماءُ كلِّ ما يُنادى فعلًا في الوحدة (AST) — لا ما يُذكر نصًّا."""
+    out = set()
+    for _n in _ast0.walk(tree):
+        if isinstance(_n, _ast0.Call):
+            _f = getattr(_n.func, "id", None) or getattr(_n.func, "attr", None)
+            if _f:
+                out.add(_f)
+    return out
+
+
+def _tra_imported(tree):
+    """`{الوحدة: {الأسماءُ المستورَدةُ منها}}` — استيرادٌ بالاسم لا استنساخ."""
+    out = {}
+    for _n in _ast0.walk(tree):
+        if isinstance(_n, _ast0.ImportFrom) and _n.module:
+            out.setdefault(_n.module, set()).update(
+                _a.name for _a in _n.names)
+    return out
+
+
+# 🔴 `TRA0` — إعادةُ الاستعمال **بالاسم ومنادَاةً فعلًا**: كلُّ دالّةٍ يوجبها
+#    العقد §⑨ مستورَدةٌ من وحدتها **وتُنادى** في الكود (درسُ `OTA0`: الاستيرادُ
+#    وحدَه لا يمنع منطقًا موازيًا). 🔒 ومعه شاهدُ ضبطٍ يُثبت أن المُلتقِطَ يمسك
+#    النقص.
+try:
+    _tra_imp, _tro_imp = _tra_imported(_tra_tree), _tra_imported(_tro_tree)
+    _tra_cal, _tro_cal = _tra_called(_tra_tree), _tra_called(_tro_tree)
+    _tra_need = {"tranche_arms": {"plan_at", "r_fixed"},
+                 "exitmgmt_arms": {"anchor_at", "ladder", "boot_ci",
+                                   "pool_clusters", "resolve_exit"}}
+    _tro_need = {"optrade_arms": {"simulate", "trade_r", "build_rows",
+                                  "ci_of", "tsv_population", "read_costs",
+                                  "read_hstar", "selfcheck_readonly",
+                                  "no_config_assign"},
+                 "ophold2_arms": {"hn_window", "hold_trade"},
+                 "fcost_arms": {"k_of", "roots_identical"},
+                 "trail_arms": {"dmap", "read_arm"}}
+
+    def _tra_gap(need, imp, cal):
+        _bad = []
+        for _m, _fs in need.items():
+            for _f in _fs:
+                if _f not in imp.get(_m, set()):
+                    _bad.append(f"{_m}.{_f}:غيرُ مستورَد")
+                elif _f not in cal:
+                    _bad.append(f"{_m}.{_f}:غيرُ منادًى")
+        return _bad
+    _tra_bad0 = (_tra_gap(_tra_need, _tra_imp, _tra_cal)
+                 + _tra_gap(_tro_need, _tro_imp, _tro_cal))
+    # شاهدُ ضبط: فضاءٌ ناقصٌ عمدًا يجب أن يُنتج بلاغَين لا صفرًا
+    _tra_ctrl0 = _tra_gap({"exitmgmt_arms": {"boot_ci", "ladder"}},
+                          {"exitmgmt_arms": {"boot_ci"}}, set())
+    _tra_ok0 = (not _tra_bad0 and sorted(_tra_ctrl0)
+                == ["exitmgmt_arms.boot_ci:غيرُ منادًى",
+                    "exitmgmt_arms.ladder:غيرُ مستورَد"])
+    _tra_w0 = f"نقصٌ={_tra_bad0 or 'لا شيء'} · شاهدُ الضبط={_tra_ctrl0}"
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok0, _tra_w0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA0 الدوالُّ المُوجَبةُ في §⑨ **مستورَدةٌ بالاسم ومنادَاةٌ فعلًا** "
+      "في الأداتين · والمُلتقِطُ مُثبَتٌ بشاهدِ ضبط", _tra_ok0, _tra_w0)
+
+# 🔴🔴 `TRA1` — `V-T4` **بوّابةُ المِقياس الواحد**: `ratchet_exit(d=None, cap=True)`
+#    تُعيد `exitmgmt_arms.resolve_exit` بلا إدارةٍ **بت-بت** · وليست تحصيلَ حاصل:
+#    **العيّنةُ نفسُها تفرّق** بالترقّي وبإلغاء السقف.
+try:
+    _tra_bad1 = _TRA.selfcheck_v4(n=1500, seed=777)
+    _tra_hi = [110.0, 150.0, 200.0, 190.0]
+    _tra_lo = [99.0, 120.0, 150.0, 120.0]
+    _tra_cl = [105.0, 140.0, 190.0, 125.0]
+    _tra_op = [100.0, 105.0, 145.0, 188.0]
+
+    def _tra_r(d=None, cap=True, filled=0, e=100.0, st=90.0, t1=187.0,
+               hi=None, lo=None, cl=None, op=None):
+        _o, _rt, _i = _TRA.ratchet_exit(hi or _tra_hi, lo or _tra_lo,
+                                        cl or _tra_cl, op or _tra_op,
+                                        e, st, t1, filled, d=d, cap=cap)
+        return _o, (None if _rt is None else round(_rt, 6)), _i
+    _tra_b = _tra_r()                      # `Y0`
+    _tra_g = _tra_r(d=10.0, cap=False)     # `Y1`
+    _tra_c = _tra_r(d=None, cap=False)     # `C-CAP`
+    _tra_ok1 = (_tra_bad1 == 0 and _tra_b[:2] != _tra_g[:2]
+                and _tra_g[:2] != _tra_c[:2] and _tra_b[:2] != _tra_c[:2])
+    _tra_w1 = (f"تفرّق={_tra_bad1} · Y0={_tra_b[:2]} · Y1={_tra_g[:2]} · "
+               f"C-CAP={_tra_c[:2]}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok1, _tra_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA1·V-T4 المُصيِّرُ بلا ترقٍّ وبسقفٍ قائم يُعيد `resolve_exit` "
+      "بت-بت (صفرُ تفرّق) **والثلاثةُ تفرّق على العيّنة نفسِها**",
+      _tra_ok1, _tra_w1)
+
+# 🔴🔴 `TRA2` — **ترتيبُ الشمعة** ثلاثةَ أشقٍّ، كلُّ شقٍّ بفِكستشرٍ يفرّق:
+#    (أ) الوقفُ أوّلًا — شمعةٌ تلمس الوقفَ والهدفَ معًا ⇒ **وقفٌ بلا هدف** ·
+#    (ب) الترقّي **يسري من الشمعة التالية** — قاعُ شمعة القمّة لا يُقاس بمستوًى
+#        وُلد فيها · (ج) `F-L1` على القمّة كما على الهدف — **شمعةُ التعبئة لا
+#        تُغذّي القمّة** (ترتيبُ الشمعة مجهول).
+try:
+    # (أ) شمعةٌ واحدةٌ قاعُها عند الوقف ورأسُها فوق الهدف
+    _tra_a = _TRA.ratchet_exit([200.0], [90.0], [150.0], [100.0],
+                               100.0, 90.0, 120.0, 0, d=None, cap=True)
+    # (ب) شمعة 1 رأسُها 200 (مستوى 180) وقاعُها 150 — لو سرى داخلها لخرج وقفًا
+    _tra_b2 = _TRA.ratchet_exit([120.0, 200.0, 185.0], [99.0, 150.0, 179.0],
+                                [110.0, 195.0, 182.0], [100.0, 115.0, 194.0],
+                                100.0, 90.0, 999.0, 0, d=10.0, cap=False)
+    # ومن الشمعة التالية يسري فعلًا: قاعُ 179 دون 180 ⇒ وقفٌ عند 180
+    _tra_b2_next = (_tra_b2[0] == "loss" and abs(_tra_b2[1] - 80.0) < 1e-9)
+    # (ج) شمعةُ التعبئة رأسُها 300 (مستوى 270) — لو غذّت القمّةَ لخرج فورًا
+    _tra_c2 = _TRA.ratchet_exit([300.0, 120.0], [99.0, 110.0], [105.0, 115.0],
+                                [100.0, 106.0], 100.0, 90.0, 999.0, 0,
+                                d=10.0, cap=False)
+    _tra_ok2 = (_tra_a[0] == "loss" and _tra_b2_next
+                and _tra_c2[0] == "open" and _tra_c2[2]["peak"] == 120.0)
+    _tra_w2 = f"(أ)={_tra_a[0]} · (ب)={_tra_b2[:2]} · (ج)={_tra_c2[0]}/{_tra_c2[2]}"
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok2, _tra_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA2 ترتيبُ الشمعة: الوقفُ أوّلًا · والترقّي يسري **من الشمعة "
+      "التالية** · و`F-L1` يمنع شمعةَ التعبئة من تغذية القمّة", _tra_ok2, _tra_w2)
+
+# 🔴🔴 `TRA3` — الترقّي **يشدّ ولا يُرخي أبدًا**: قمّةٌ منخفضةٌ تعطي مستوًى **دون**
+#    الوقف الابتدائيّ ⇒ يبقى الوقفُ الابتدائيّ (‏`max` ليست زينة).
+#    🔴 **وفِكستشرُه الأوّلُ كان لا يصل `max` أصلًا** (القمّةُ لا تُحدَّث قبل الشمعة
+#    `filled+1` والوقفُ يُفحَص قبلها) فنجت طفرةُ حذف `max` — **وهي كشفت قفلًا
+#    ضعيفًا لا كودًا سليمًا** (2026-09-17). الآن الفِكستشرُ **يُثبت الوصولَ
+#    بنفسه**: القمّةُ تُحدَّث فعلًا (‏104) والمستوى يبقى الوقفَ الابتدائيّ.
+try:
+    _tra_t3 = _TRA.ratchet_exit([101.0, 104.0, 99.0], [99.5, 96.0, 94.0],
+                                [100.5, 100.0, 97.0], [100.0, 97.0, 98.0],
+                                100.0, 95.0, 999.0, 0, d=10.0, cap=False)
+    # القمّةُ 104 ⇒ 93.6 **دون** الوقف 95 ⇒ المستوى يبقى 95 ⇒ قاعُ 94 يضربه.
+    # وبلا `max` يصير المستوى 93.6 فلا يُضرَب ⇒ `open` بعائدٍ ‏−3.0.
+    _tra_ok3 = (_tra_t3[0] == "loss" and abs(_tra_t3[1] + 5.0) < 1e-9
+                and _tra_t3[2]["lvl"] == 95.0 and not _tra_t3[2]["moved"]
+                and _tra_t3[2]["peak"] == 104.0)   # 🔒 برهانُ الوصول
+    _tra_w3 = f"{_tra_t3[:2]} · {_tra_t3[2]}"
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok3, _tra_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA3 الترقّي يشدّ ولا يُرخي: مستوًى دون الوقف الابتدائيّ ⇒ يبقى "
+      "الابتدائيّ (‏`max(stop_0, …)` ليست زينة)", _tra_ok3, _tra_w3)
+
+# 🔴🔴 `TRA4` — §④ **قائمةٌ مُغلَقة**: ستُّ أذرعٍ بأسماء العقد لا سابعة ·
+#    و`Y0`/`Y1`/`C-CAP` في مواضعها · **والستُّ متمايزةٌ سلوكيًّا عبر خريطتها**
+#    لا حولها (درسُ `RKA3`/`a7`: ذراعُ شاهدٍ تصير الأساسَ ⇒ `Δ ≡ 0` صامتًا).
+try:
+    _tra_names = [_n for _n, _c, _d in _TRA.ARMS]
+    _tra_ds = {"MIN": 7.0, "MID": 10.0, "MAX": 13.0}
+    _tra_hi4 = [112.0, 160.0, 220.0, 205.0, 150.0]
+    _tra_lo4 = [99.0, 110.0, 155.0, 188.0, 140.0]
+    _tra_cl4 = [108.0, 155.0, 215.0, 195.0, 145.0]
+    _tra_op4 = [100.0, 109.0, 156.0, 204.0, 149.0]
+    _tra_sig = {}
+    for _n, _c, _dk in _TRA.ARMS:
+        _o, _rt, _ = _TRA.ratchet_exit(
+            _tra_hi4, _tra_lo4, _tra_cl4, _tra_op4, 100.0, 90.0, 150.0, 0,
+            d=(None if _dk is None else _tra_ds[_dk]), cap=_c)
+        _tra_sig[_n] = (_o, round(_rt, 6))
+    _tra_ok4 = (_tra_names == ["Y0", "Y1", "C-CAP", "Y4", "Y1@7", "Y1@13"]
+                and (_TRA.BASE, _TRA.GOV, _TRA.CTRL) == ("Y0", "Y1", "C-CAP")
+                and _TRA.DESC == ("Y4", "Y1@7", "Y1@13")
+                and _tra_sig["Y1"] != _tra_sig["C-CAP"]        # الشاهدُ ليس الذراع
+                and _tra_sig["Y1"] != _tra_sig["Y0"]
+                and _tra_sig["Y1"] != _tra_sig["Y4"]
+                and _tra_sig["Y1@7"] != _tra_sig["Y1"]
+                and _tra_sig["Y1@13"] != _tra_sig["Y1"])
+    _tra_w4 = f"{_tra_names} · بصماتٌ={_tra_sig}"
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok4, _tra_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA4 §④ ستُّ أذرعٍ بأسماء العقد لا سابعة · و`C-CAP` شاهدٌ **متمايزٌ "
+      "سلوكيًّا** عن الحاكمة والأساس (لا `no-op` صامت)", _tra_ok4, _tra_w4)
+
+# 🔴🔴 `TRA5` — `V-T1` **يُستخرَج نصًّا لا يُكتَب بيدي**: الأرقامُ الثلاثةُ
+#    المنشورةُ تُقرأ من `exitmgmt_result.md` · **وصفرُ رقمٍ منشورٍ مغروسٌ في
+#    الأداة** · وشاهدُ ضبطٍ: نصٌّ بلا صفِّ `V1` ⇒ `ok=False`.
+try:
+    _tra_pub = _TRA.read_published()
+    _tra_exp = {"2023": (-0.2602, 1399, 1620), "2024": (-0.1807, 1386, 1591),
+                "2025": (-0.2172, 1370, 1606)}
+    _tra_got = {_y: (_tra_pub[_y]["r"], _tra_pub[_y]["fill"],
+                     _tra_pub[_y]["rows"]) for _y in _tra_pub.get("years", [])}
+    # شاهدُ ضبط: ملفٌّ مبتورٌ ⇒ الكاشفُ يُبلغ لا يُخمّن
+    _tra_tmp = _tra_os.path.join(_tra_tmpf.mkdtemp(prefix="tra5_"), "cut.md")
+    with open(_tra_tmp, "w", encoding="utf-8") as _fh:
+        _fh.write("| البوّابة | 2023 | 2024 | 2025 |\n| الصفوف | 1 | 2 | 3 |\n")
+    _tra_ctrl5 = _TRA.read_published(_tra_tmp)
+    # صفرُ رقمٍ منشورٍ مغروسٍ في مصدر الأداة (الأداةُ تقرأ ولا تحفظ)
+    _tra_lit = [_v for _v in ("0.2602", "0.1807", "0.2172", "1399", "1386",
+                              "1370", "1620", "1591", "1606", "0.7000",
+                              "1.2942", "2.1032")
+                if _v in _tra_src or _v in _tro_src]
+    _tra_ok5 = (_tra_pub.get("ok") and _tra_got == _tra_exp
+                and not _tra_ctrl5.get("ok") and not _tra_lit)
+    _tra_w5 = (f"مقروءٌ={_tra_got} · شاهدُ الضبط={_tra_ctrl5.get('why')} · "
+               f"مغروسٌ={_tra_lit or 'لا شيء'}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok5, _tra_w5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA5·V-T1 أرقامُ المنشور **مُستخرَجةٌ نصًّا** (‏−0.2602/1399/1620 …) "
+      "· وصفرُ رقمٍ مغروسٍ في الأداتين · وشاهدُ ضبطٍ يُبلغ النقص",
+      _tra_ok5, _tra_w5)
+
+# 🔴🔴 `TRA6` — `read_verdict` **يطبّق §⑤ بحرفه** بجدولِ حقيقةٍ من 16 حالة:
+#    الأرضيّةُ `TR4` **تمنع الفرعَ 1** · **وسقوطُ معيارٍ حاكمٍ واحدٍ = الفرعُ 2
+#    لا «لا حكم»** (درسُ `T-PMGATE`) · ورمزُ الخروج 9 للفرع الثالث وحدَه.
+try:
+    _tra_tt, _tra_bad6 = [], []
+    for _a in (True, False):
+        for _b in (True, False):
+            for _c in (True, False):
+                for _d in (True, False):
+                    _br, (_nm, _w) = _TRA.read_verdict(
+                        {"pass": _a}, {"pass": _b}, {"pass": _c},
+                        {"pass": _d})
+                    _exp = 3 if not _d else (1 if (_a and _b and _c) else 2)
+                    _tra_tt.append(_br)
+                    if _br != _exp:
+                        _tra_bad6.append(f"{_a:d}{_b:d}{_c:d}{_d:d}:{_br}≠{_exp}")
+    # رمزُ الخروج: 9 للفرع 3 · و5 لحارس الهُويّة · و3 لعطب الأداة — متمايزةٌ
+    _tra_codes = (_TRA.RC_NOVERDICT, _TRA.RC_POP, _TRA.RC_TOOL, _TRA.RC_OK,
+                  _TRA.RC_INPUT)
+    _tra_ok6 = (not _tra_bad6 and _tra_tt.count(1) == 1
+                and _tra_tt.count(3) == 8
+                and _tra_codes == (9, 5, 3, 0, 2)
+                and len(set(_tra_codes)) == 5)
+    _tra_w6 = (f"مخالفٌ={_tra_bad6 or 'لا شيء'} · الفرعُ1={_tra_tt.count(1)} · "
+               f"الفرعُ3={_tra_tt.count(3)} · الرموز={_tra_codes}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok6, _tra_w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA6 `read_verdict` = §⑤ بحرفه (‏16 حالة): الأرضيّةُ تمنع الفرعَ 1 · "
+      "وسقوطُ معيارٍ = الفرعُ 2 لا «لا حكم» · والرموزُ 0/2/3/5/9 متمايزة",
+      _tra_ok6, _tra_w6)
+
+# 🔴🔴 `TRA7` — `V-T5` على `E-OP`: `ratchet_op(d=None)` تُعيد
+#    `optrade_arms.simulate` **بت-بت** في الأفقين وبالهدف وبلاه · **والترقّي
+#    يفرّق** على الشموع نفسِها.
+try:
+    _tra_bad7 = _TRO.selfcheck_v5(n=400, seed=31337)
+    _tra_t0 = 1_789_306_200_000
+    _tra_bars = [(_tra_t0 + _i * 60_000, 1.00 + _i * 0.05, 1.10 + _i * 0.12,
+                  0.95 + _i * 0.03, 1.05 + _i * 0.06, 5000) for _i in range(10)]
+    _tra_bars += [(_tra_t0 + 10 * 60_000, 1.6, 1.62, 0.90, 0.92, 9000)]
+    _tra_s7 = _TRO.simulate(_tra_bars, _tra_t0, 1.00, 0.80, _TRO.HSTAR,
+                            use_target=False)
+    _tra_r7 = _TRO.ratchet_op(_tra_bars, _tra_t0, 1.00, 0.80, _TRO.HSTAR,
+                              d=10.0, use_target=False)
+    # 🔴 **حدُّ التساوي** (‏`c == alow`): الاصطلاحُ الإنتاجيّ `exit_point`
+    #    **صارمٌ** (`c < alow`) ⇒ إغلاقٌ عند القاع بالضبط **لا يُخرِج**.
+    #    وبأسعارٍ عشوائيّةٍ بحتة لا يقع هذا أبدًا فنجت طفرةُ `<` ⟶ `<=`
+    #    (2026-09-17) ⇒ فِكستشرٌ صريحٌ يصنعه، **ومثلُه داخل `V-T5` نفسِه**.
+    _tra_eq = [(_tra_t0 + _i * 60_000, 1.0, 1.05, 0.70, _c, 4000)
+               for _i, _c in enumerate((1.00, 0.80, 0.95))]
+    _tra_se = _TRO.simulate(_tra_eq, _tra_t0 - 60_000, 1.00, 0.80,
+                            _TRO.HSTAR, use_target=False)
+    _tra_re = _TRO.ratchet_op(_tra_eq, _tra_t0 - 60_000, 1.00, 0.80,
+                              _TRO.HSTAR, d=None, use_target=False)
+    _tra_eq_ok = (_tra_se and _tra_re and _tra_se["out"] == _tra_re["out"]
+                  == "window")
+    _tra_ok7 = (_tra_bad7 == 0 and _tra_s7 and _tra_r7
+                and _tra_r7["out"] != _tra_s7["out"]
+                and _tra_r7["moved"] is True and _tra_eq_ok)
+    _tra_w7 = (f"تفرّق={_tra_bad7} · simulate={_tra_s7 and _tra_s7['out']} · "
+               f"مترقٍّ={_tra_r7 and (_tra_r7['out'], round(_tra_r7['r0'], 3))}"
+               f" · حدُّ التساوي={_tra_se and _tra_se['out']}/"
+               f"{_tra_re and _tra_re['out']}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok7, _tra_w7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA7·V-T5 `ratchet_op` بلا ترقٍّ يُعيد `simulate` بت-بت في الأفقين "
+      "وبالهدف وبلاه · **والترقّي يفرّق** على الشموع نفسِها", _tra_ok7, _tra_w7)
+
+# 🔴🔴 `TRA8` — §② شواهدُ الهُويّة الثلاثةُ على `E-OP`: أرقامُها **تُقرأ نصًّا**
+#    (‏`P0` −0.7000/390 · `P1` −1.2942/390 · `HN` −2.1032/385) · و`C-CAPn`
+#    مبنيٌّ بـ`hold_trade(hn_window(…))` و`Y0`/`C-CAP` بـ`simulate` **بالبناء
+#    لا بالدعوى** · وشاهدُ ضبطٍ: ذراعٌ غيرُ منشورةٍ ⇒ `ok=False`.
+try:
+    _tra_w8a = {(_p, _a): _TRA.read_arm(_p, _a) for _p, _a in
+                (("optrade_result.md", "P0"), ("optrade_result.md", "P1"),
+                 ("ophold2_result.md", "HN"))}
+    _tra_exp8 = {("optrade_result.md", "P0"): (390, -0.7),
+                 ("optrade_result.md", "P1"): (390, -1.2942),
+                 ("ophold2_result.md", "HN"): (385, -2.1032)}
+    _tra_got8 = {_k: (_v["n"], _v["r"]) for _k, _v in _tra_w8a.items()
+                 if _v.get("ok")}
+    _tra_ctrl8 = _TRA.read_arm("optrade_result.md", "ZZ-NOPE")
+    _tra_modes = {_n: _m for _n, _m, _c, _d in _TRO.ARMS_OP}
+    _tra_ok8 = (_tra_got8 == _tra_exp8 and not _tra_ctrl8.get("ok")
+                and _tra_modes == {"Y0": "sim", "Y1": "cap", "Y1n": "nreg",
+                                   "C-CAP": "sim", "C-CAPn": "hold",
+                                   "Y4": "cap"}
+                and (_TRO.BASE, _TRO.CTRL, _TRO.CTRLN)
+                == ("Y0", "C-CAP", "C-CAPn")
+                and {"hold_trade", "hn_window"} <= _tra_called(_tro_tree))
+    _tra_w8 = (f"مقروءٌ={_tra_got8} · شاهدُ الضبط={_tra_ctrl8.get('why')} · "
+               f"المسارات={_tra_modes}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok8, _tra_w8 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA8 شواهدُ `E-OP` الثلاثةُ أرقامُها **نصًّا من المنشور** · و`C-CAPn` "
+      "بـ`hold_trade(hn_window)` و`Y0`/`C-CAP` بـ`simulate` بالبناء",
+      _tra_ok8, _tra_w8)
+
+# 🔴🔴 `TRA9` — **وضعُ الجدوى ‏+ `V-T1` يوقف فعلًا**، سلوكيًّا على فضاء `S`
+#    مُصطنَعٍ صغير: `TRAIL_DRY=1` ⇒ خروج 0 و**صفرُ نداءٍ** لـ`r_fixed`/`boot_ci`/
+#    `pool_clusters` · والمسارُ الكامل على المجتمع نفسِه ⇒ **خروج 5** (‏`V-T1`
+#    يخالف المنشور) **وقد نادى `r_fixed`** ⇒ الفرقُ مقيسٌ لا مُدَّعًى.
+try:
+    class _TraFakeS:
+        """فضاءُ إنتاجٍ مُصطنَعٌ — يكفي `_measure` ولا يمسّ الإنتاج بحرف."""
+        LIQ_TARGET10_PCT = 10.0
+
+        def __init__(self):
+            _idx = pd.date_range("2023-01-02", periods=80, freq="B")
+            _n = len(_idx)
+            self._df = pd.DataFrame(
+                {"Open": [1.0] * _n, "High": [1.3] * _n,
+                 "Low": [0.8] * _n, "Close": [1.1] * _n,
+                 "Volume": [500000] * _n}, index=_idx)
+            self.CONFIG = {"PIVOT_STOP_AT_LOW": 1, "ENTRY_TRANCHES": 3,
+                           "ENTRY_STEP_PCT": 3.0, "BACKTEST_FORWARD_DAYS": 20,
+                           "BT_SPREAD_PCT": 0.0, "MIN_BARS": 10,
+                           "SPLIT_SWEEP_MIN_PCT": 7.0,
+                           "SPLIT_SWEEP_MID_PCT": 10.0,
+                           "SPLIT_SWEEP_MAX_PCT": 13.0,
+                           "BT_ANCHOR": None, "ANCHOR_MODE": None}
+
+        def load_frozen_dataset(self, _path):
+            # 🔑 السنةُ من اسم الملفّ ⇒ حارسُ `as-of` يعبر للسنوات الثلاث
+            _y = _tra_os.path.basename(_path)[1:5]
+            return {"AAA": self._df}, {}, f"{_y}-12-31"
+
+        def backtest_symbol(self, _sym, _df, date_window=None, splits=None):
+            return [{"date": str(self._df.index[40].date())}]
+
+        def analyze_ticker(self, _sym, _dfs):
+            return {"tranches": [1.0, 1.03, 1.06], "stop": (0.9, 0.95),
+                    "t1": 1.5, "pivot": 1.0, "rr_stop": 1.0}
+
+        @staticmethod
+        def _anchor_mode(_a, _b):
+            return None
+    _tra_hits = []
+
+    def _tra_run(dry):
+        _o = {_k: getattr(_TRA, _k) for _k in ("r_fixed", "boot_ci",
+                                               "pool_clusters")}
+        _od, _ob = _TRA.DRY, _tra_io.StringIO()
+        try:
+            for _k, _fn in _o.items():
+                setattr(_TRA, _k, (lambda _n2=_k, _f2=_fn:
+                                   (lambda *_a, **_kw:
+                                    (_tra_hits.append(_n2),
+                                     _f2(*_a, **_kw))[1]))())
+            _TRA.DRY = dry
+            _tmpd = _tra_tmpf.mkdtemp(prefix="tra9_")
+            _spec = []
+            for _y in ("2023", "2024", "2025"):
+                _snap = _tra_os.path.join(_tmpd, f"s{_y}.pkl.gz")
+                open(_snap, "w", encoding="utf-8").close()
+                _spec.append(f"{_y}:{_snap}")
+            with _tra_redir(_ob):
+                _rc = _TRA._pool(_TraFakeS(), ",".join(_spec))
+            return _rc, _ob.getvalue()
+        finally:
+            for _k, _fn in _o.items():
+                setattr(_TRA, _k, _fn)
+            _TRA.DRY = _od
+    _tra_rcd, _tra_od9 = _tra_run(True)
+    _tra_dry_hits = sorted(set(_tra_hits))
+    _tra_hits.clear()
+    _tra_rcw, _tra_ow9 = _tra_run(False)
+    _tra_wet_hits = sorted(set(_tra_hits))
+    _tra_ok9 = (_tra_rcd == _TRA.RC_OK and not _tra_dry_hits
+                and "وضعُ الجدوى" in _tra_od9
+                and "⟦TSV⟧" not in _tra_od9
+                and _tra_rcw == _TRA.RC_POP and "r_fixed" in _tra_wet_hits
+                and "V-T1" in _tra_ow9)
+    _tra_w9 = (f"جدوى rc={_tra_rcd} نُوديت={_tra_dry_hits or 'لا شيء'} · "
+               f"كامل rc={_tra_rcw} نُوديت={_tra_wet_hits}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok9, _tra_w9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA9 وضعُ الجدوى: خروج 0 · **صفرُ نداءٍ** لـ`r_fixed`/`boot_ci`/"
+      "`pool_clusters` · ولا جدولَ صفوف — والمسارُ الكامل يخرج **5** بـ`V-T1` "
+      "وقد نادى `r_fixed`", _tra_ok9, _tra_w9)
+
+# 🔴 `TRA10` — قراءةٌ فقط **بشاهدِ ضبط**: حارسا `T-OPTRADE` يمرّان على الأداتين
+#    ويسقطان على إرسالٍ/كتابةٍ/إسنادِ `CONFIG` · **والأداتان لا تفتحان ملفًّا
+#    للكتابة إطلاقًا** (الصفوفُ تُطبَع `⟦TSV⟧`) · والإنتاجُ لا يستوردهما.
+try:
+    _tra_ro = (_OTA.selfcheck_readonly(_tra_src)
+               and _OTA.selfcheck_readonly(_tro_src)
+               and _OTA.no_config_assign(_tra_src)
+               and _OTA.no_config_assign(_tro_src))
+    _tra_bad10 = [_x for _x in (
+        _OTA.selfcheck_readonly(_tra_src + "\nsend_telegram('x')\n"),
+        _OTA.selfcheck_readonly(_tra_src + "\nopen('z.txt','w')\n"),
+        _OTA.no_config_assign(_tra_src + "\nCONFIG['X'] = 1\n")) if _x]
+    _tra_prod_src = _insp0.getsource(S)
+    _tra_prod10 = [_m for _m in ("trail_arms", "trail_op_arms")
+                   if _m in _tra_prod_src]
+    _tra_ok10 = (_tra_ro and not _tra_bad10 and not _tra_prod10
+                 and _TRA.guards_ok()[0] and _TRO.guards_ok()[0])
+    _tra_w10 = (f"حارسان={_tra_ro} · شاهدُ الضبط={len(_tra_bad10)} خللًا لم "
+                f"يُمسَك · الإنتاجُ يعرفهما={_tra_prod10 or 'لا'}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok10, _tra_w10 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA10 الأداتان قراءةٌ فقط وصفرُ إسنادٍ إلى `CONFIG` **بشاهدِ ضبط** "
+      "· ولا تفتحان ملفًّا للكتابة · والإنتاجُ لا يستوردهما", _tra_ok10, _tra_w10)
+
+# 🔴🔴 `TRA11` — الـworkflowان: يدويّان **بلا كرون** · `contents: read` · **بلا
+#    سرِّ تلغرام** · والمدخلاتُ موصولةٌ ببيئةٍ **يقرؤها السكربت** · 🔑 **ولقطاتُ
+#    `trail.yml` هي لقطاتُ `exitmgmt.yml` نفسُها** — وإلّا استحال `V-T1`.
+try:
+    _tra_y1 = _yaml0.safe_load(open(".github/workflows/trail.yml",
+                                    encoding="utf-8"))
+    _tra_y2 = _yaml0.safe_load(open(".github/workflows/trail_op.yml",
+                                    encoding="utf-8"))
+    _tra_y3 = _yaml0.safe_load(open(".github/workflows/exitmgmt.yml",
+                                    encoding="utf-8"))
+    _tra_txt = (open(".github/workflows/trail.yml", encoding="utf-8").read()
+                + open(".github/workflows/trail_op.yml", encoding="utf-8").read())
+
+    def _tra_on(y):
+        return y.get("on") or y.get(True) or {}
+    _tra_snaps = {_k: str(_tra_on(_tra_y1)["workflow_dispatch"]["inputs"]
+                          [f"snap_{_k}"]["default"])
+                  for _k in ("2023", "2024", "2025")}
+    _tra_snex = {_k: str(_tra_on(_tra_y3)["workflow_dispatch"]["inputs"]
+                         [f"snap_{_k}"]["default"])
+                 for _k in ("2023", "2024", "2025")}
+    _tra_envs = {}
+    for _y in (_tra_y1, _tra_y2):
+        for _j in _y["jobs"].values():
+            for _st in _j["steps"]:
+                _tra_envs.update(_st.get("env") or {})
+    _tra_ok11 = (
+        "schedule" not in _tra_on(_tra_y1) and "schedule" not in _tra_on(_tra_y2)
+        and "workflow_dispatch" in _tra_on(_tra_y1)
+        and "workflow_dispatch" in _tra_on(_tra_y2)
+        and _tra_y1["permissions"].get("contents") == "read"
+        and _tra_y2["permissions"].get("contents") == "read"
+        and "TELEGRAM" not in _tra_txt
+        and _tra_snaps == _tra_snex                       # 🔑 شرطُ `V-T1`
+        and {"TRAIL_POOL", "TRAIL_DRY"} <= set(_tra_envs)
+        and {"TRAILOP_SINCE", "TRAILOP_UNTIL", "TRAILOP_DRY"} <= set(_tra_envs)
+        and all(_k in _tra_src for _k in ("TRAIL_POOL", "TRAIL_DRY"))
+        and all(_k in _tro_src for _k in ("TRAILOP_SINCE", "TRAILOP_UNTIL",
+                                          "TRAILOP_DRY")))
+    _tra_w11 = f"لقطات={_tra_snaps} مقابل exitmgmt={_tra_snex} · بيئة={sorted(_tra_envs)}"
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok11, _tra_w11 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA11 الـworkflowان يدويّان بلا كرون · `contents: read` · بلا سرِّ "
+      "تلغرام · **ولقطاتُ trail.yml = لقطاتُ exitmgmt.yml** (شرطُ V-T1)",
+      _tra_ok11, _tra_w11)
+
+# 🔴 `TRA12` — **قاعدةٌ أخرى لا هذي:** `ophold_arms.trail_trade` مسافتُها `1R`
+#    ومرجعُها **أعلى إغلاقِ دقيقة**، و`ratchet_op` مسافتُها `d%` ومرجعُها **أعلى
+#    قمّة** ⇒ تُوثَّق ولا تُوحَّدان. سلوكيًّا: فِكستشرٌ **يفرّقهما**.
+try:
+    from ophold_arms import trail_trade as _tra_ht               # noqa: PLC0415
+    _tra_t0b = 1_789_306_200_000
+    _tra_b12 = [(_tra_t0b + _i * 60_000, 1.0, 1.0 + 0.2 * _i, 0.9,
+                 1.0 + 0.05 * _i, 3000) for _i in range(6)]
+    _tra_b12 += [(_tra_t0b + 6 * 60_000, 1.25, 1.26, 0.95, 0.97, 3000)]
+    _tra_h12 = _tra_ht(_tra_b12, _tra_t0b, 1.00, 0.80)
+    _tra_r12 = _TRO.ratchet_op(_tra_b12, _tra_t0b, 1.00, 0.80, _TRO.HSTAR,
+                               d=10.0, use_target=False)
+    _tra_ok12 = (_tra_h12 and _tra_r12
+                 and (_tra_h12["out"], round(_tra_h12["r0"], 4))
+                 != (_tra_r12["out"], round(_tra_r12["r0"], 4))
+                 and "trail_trade" not in _tra_called(_tro_tree)
+                 and "trail_trade" not in _tra_called(_tra_tree))
+    _tra_w12 = (f"1R/إغلاق={_tra_h12 and (_tra_h12['out'], round(_tra_h12['r0'], 2))}"
+                f" · d%/قمّة={_tra_r12 and (_tra_r12['out'], round(_tra_r12['r0'], 2))}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok12, _tra_w12 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA12 `trail_trade` (‏1R تحت أعلى إغلاق) **قاعدةٌ أخرى** لا "
+      "`ratchet_op` (‏d% تحت أعلى قمّة) — مُفرَّقتان سلوكيًّا ولا تُنادى",
+      _tra_ok12, _tra_w12)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

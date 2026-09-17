@@ -1,0 +1,52 @@
+name: "🎚️📉🕵️ T-TRAIL — الوقفُ المتحرّك على مجتمع المراسي E-OP · وصفيّ (trail_prereg)"
+
+# 🔒 يدويٌّ · بلا كرون · قراءةٌ فقط · **ولا سرَّ تلغرام** · سرُّ POLYGON_API_KEY
+#    وحدَه. 🔴 وهذا المجتمعُ **وصفيٌّ ملزِمُ النشر ولا يحكم** (العقد §② و§⓪-أ)
+#    — الحاكمُ `trail.yml`.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "أوّلُ يومٍ يُقاس (YYYY-MM-DD) — مجتمعُ T-OPCURVE"
+        required: false
+        default: "2026-08-18"
+      h2_from:
+        description: "أوّلُ يومِ النصف الثاني H2 (YYYY-MM-DD)"
+        required: false
+        default: "2026-09-01"
+      until:
+        description: "آخرُ يومٍ يُقاس — المجمَّدُ 2026-09-15 (وغيرُه ⇒ بلا V-T2)"
+        required: false
+        default: "2026-09-15"
+      dry:
+        description: "وضعُ الجدوى: 1 = ثلاثةُ أعدادٍ فقط بلا R ولا فرقٍ ولا فاصل"
+        required: false
+        default: ""
+
+jobs:
+  trail_op:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات op_entry_state)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🎚️📉🕵️ قِس الأذرعَ الستّ على المراسي (وصفيًّا)
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          TRAILOP_SINCE: ${{ inputs.since }}
+          TRAILOP_H2_FROM: ${{ inputs.h2_from }}
+          TRAILOP_UNTIL: ${{ inputs.until }}
+          TRAILOP_DRY: ${{ inputs.dry }}
+        run: python trail_op_arms.py
