@@ -1,0 +1,48 @@
+name: "🌅💧 T-PMUSD — سيولةُ البريماركت: رابطٌ قبل الانفجار أم الانفجارُ نفسُه؟ (pmusd_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · **ولا سرَّ تلغرام** فالإرسالُ
+#    مستحيلٌ بنيويًّا · العقد pmusd_prereg.md §⑩ · سرُّ POLYGON_API_KEY وحدَه.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      years:
+        description: "السنواتُ الحاكمة مفصولةً بفاصلة — والحكمُ يشترط الثلاث معًا"
+        required: false
+        default: "2023,2024,2025"
+      cap:
+        description: "سقفُ الطبقة الدقيقة لكلّ سنة — يُطبَع المستعمَل وأيُّ قصٍّ يُعلَن"
+        required: false
+        default: "1500"
+      dry:
+        description: "وضعُ الجدوى: 1 = أربعةُ أعدادٍ ثمّ عودةٌ قبل أيّ نسبةٍ أو حكم"
+        required: false
+        default: ""
+
+jobs:
+  pmusd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌅💧 قياسُ سيولة البريماركت قبل الانفجار
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PMUSD_YEARS: ${{ inputs.years }}
+          PMUSD_CAP: ${{ inputs.cap }}
+          PMUSD_DRY: ${{ inputs.dry }}
+        run: python pmusd_probe.py
