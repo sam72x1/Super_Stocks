@@ -12023,6 +12023,40 @@ check(f"📚 HND5: كلُّ إحالةِ فهرسٍ تقع على مطلعِ ب�
       f"أوّلُ الخاطئة: {_hnd_bad[:5]}" if _hnd_bad else "")
 
 
+# 🔴🔴 `HND6`/`MEM7` — **الاتّجاهُ المعاكس**: كلُّ **بندٍ في الأرشيف** يجب أن
+#    يحيل إليه فهرسُه. `HND5` و`MEM5` يفحصان **الفهرس ⟶ الأرشيف** فقط ⇒ بندٌ
+#    موجودٌ في الأرشيف وغائبٌ عن الفهرس **يمرّ صامتًا** — وهو **العيبُ الذي
+#    يوجد الفهرسُ لمنعه** («لا تُعاد تجربةٌ مُغلَقة لأنها صارت مجهولةَ الوجود»).
+#    🔴 ووقع فعلًا: أرشيفُ الهاندوف حمل **‏276** مطلعًا والفهرسُ **‏275**، والغائبُ
+#    حكمُ `T-C-TRIGGER` (سطر 236) — أمسكه **توليدُ الفهرس** لا القفل.
+#    🧭 والدرسُ أخُ درسِ `MEM4`: **قفلٌ باتّجاهٍ واحدٍ يحرس نصفَ العقد.**
+def _rev_gap(arch_path, doc_path, prefix):
+    """`(عددُ المطالع، عددُ الصفوف، المطالعُ غيرُ المُحال إليها)`."""
+    ar = open(arch_path, encoding="utf-8").read().splitlines()
+    sep = next((i for i, l in enumerate(ar, 1) if l.strip() == "---"), 0)
+    st = [i for i in range(sep + 1, len(ar) + 1)
+          if ar[i - 1].startswith(prefix) and (i < 2 or ar[i - 2].strip() == "")]
+    doc = open(doc_path, encoding="utf-8").read()
+    rows = [l for l in doc.splitlines() if _mem_re.match(r"^\| \d+ \|", l)]
+    idx = set()
+    for l in rows:
+        try:
+            idx.add(int(l.split("|")[-2].strip().strip("`")))
+        except (ValueError, IndexError):
+            pass
+    return len(st), len(rows), [i for i in st if i not in idx]
+
+try:
+    _h_n, _h_r, _h_miss = _rev_gap("HANDOFF_ARCHIVE.md", "HANDOFF.md", "> ")
+    _m_n, _m_r, _m_miss = _rev_gap("DECISIONS_ARCHIVE.md", "CLAUDE.md", "- **")
+    _rev_ok = (not _h_miss and not _m_miss and _h_n > 0 and _m_n > 0)
+    _rev_w = (f"هاندوف {_h_r}/{_h_n} · قرارات {_m_r}/{_m_n} · "
+              f"غيرُ مُحالٍ إليه: {(_h_miss + _m_miss)[:6]}")
+except Exception as _e:                                          # noqa: BLE001
+    _rev_ok, _rev_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📚🔒 HND6/MEM7 **الاتّجاهُ المعاكس**: كلُّ بندٍ في الأرشيفين يحيل إليه "
+      "فهرسُه — فلا يصير حكمٌ مُغلَقٌ مجهولَ الوجود", _rev_ok, _rev_w)
+
 # 📚 **حارس انحراف التوثيق** (تدقيق 2026-07-27): CLAUDE.md أوّل ما تقرأه كل جلسة، فخطؤه
 # **يتكاثر**. وُجد أربعة كرونات عتيقة فيه — منها كرون أُصلح في اليوم نفسه. الحارس يقارن
 # كل كرون مذكور في الوثيقة بملفّات الـyml فعليًّا.
@@ -51495,8 +51529,10 @@ check("🌅📡🔒 PWA1 المجتمع: النشطُ من `stocks` ‏+ **كل�
       "وبلا تكرار · والمشطوبُ يُقصى · وتعذّرُ التحميل ⇒ `None` لا قائمةٌ فارغة",
       _pwa_ok1, _pwa_w1)
 
-# 🔴 `PWA2` — `fired_of`: رموزُ اليوم · و**`ok=False` إن كان أحدثُ تاريخٍ أقدمَ من
-#    اليوم** (‏العاملُ لم يعمل) · والحالةُ تُكتَب فوق نفسها فهذا هو الاختبارُ الوحيد.
+# 🔴 `PWA2` — `fired_of`: رموزُ اليوم · والموثوقيّةُ **تساوٍ لا «ليس أقدم»**.
+#    🔴🔴 وهذا القفلُ نفسُه كان **يُثبِّت العطبَ**: كان يشترط `({"AAA"}, True)` عند
+#    قراءة أمسِ وأحدثُ تاريخٍ اليوم — أي **حالةَ الدهس بعينها** — فصُحِّح ولم
+#    يُرخَ. **قفلٌ قد يُثبّت عيبًا، فيُقرأ سندُه لا خُضرتُه.** والجدولُ في `PWA14`.
 try:
     _pwa_st = _os_hc.path.join(_pwa_tmp, "op.json")
     with open(_pwa_st, "w", encoding="utf-8") as _fh:
@@ -51508,14 +51544,14 @@ try:
     _pwa_c = _PWH.fired_of("2026-09-16", _pwa_st)
     _pwa_ok2 = (_pwa_a == ({"BBB"}, True)
                 and _pwa_b == (set(), False)
-                and _pwa_c == ({"AAA"}, True)
+                and _pwa_c == ({"AAA"}, False)      # 🔴 دهسٌ ⇒ غيرُ موثوق
                 and _PWH.fired_of("2026-09-17",
                                   _os_hc.path.join(_pwa_tmp, "no.json")) == (set(), False))
     _pwa_w2 = f"اليوم={_pwa_a} · غدًا={_pwa_b} · أمس={_pwa_c}"
 except Exception as _e:                                          # noqa: BLE001
     _pwa_ok2, _pwa_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🌅📡🔒 PWA2 `fired_of`: رموزُ اليوم وحدَها · و`ok=False` حين يكون أحدثُ تاريخٍ "
-      "في الحالة **أقدمَ من اليوم** (العاملُ لم يعمل) · وتعذّرُ القراءة ⇒ غيرُ موثوق",
+check("🌅📡🔒 PWA2 `fired_of`: رموزُ اليوم وحدَها · والموثوقيّةُ **تساوي أحدثِ تاريخٍ "
+      "لليوم** فتسقط في الدهس وفي توقّف العامل معًا · وتعذّرُ القراءة ⇒ غيرُ موثوق",
       _pwa_ok2, _pwa_w2)
 
 # 🔴 `PWA3` — `target_day`: قبل 16:00 نيويورك ⇒ **اليومُ السابق** · والعطلُ تُتخطّى
@@ -51737,6 +51773,104 @@ except Exception as _e:                                          # noqa: BLE001
     _pwa_ok12, _pwa_w12 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🌅📡🔒 PWA12 عتباتُ الأداة **هي عتباتُ العقد نفسُها** (‏15 · 10 · 3 · 50 · "
       "2026-12-31) · والسجلُّ مسارٌ واحدٌ في الملفّين", _pwa_ok12, _pwa_w12)
+
+import json as _pwx_json                                          # noqa: E402
+import os as _pwx_os                                              # noqa: E402
+import shutil as _pwx_sh                                          # noqa: E402
+import subprocess as _pwx_sp                                      # noqa: E402
+import tempfile as _pwx_tf                                        # noqa: E402
+
+# 🔴 `PWA13` — **سلوكيٌّ**: شرطُ «لا جديدَ ⇒ لا دفع» في `pmfwd.yml` يجب أن
+#    **يرى الملفَّ غيرَ المتتبَّع**. يُستخرَج الشرطُ من الـworkflow نفسِه ويُشغَّل
+#    في مستودعٍ مؤقّتٍ بثلاث حالات — وفيها **شاهدُ ضبطٍ موجب** (متتبَّعٌ بلا
+#    تغيير ⇒ لا دفع) فلا يصير القفلُ «ادفع دائمًا».
+#    🔴 أصلُه عطبٌ حقيقيّ: `git diff --quiet` وحدَه أعمى عن غيرِ المتتبَّع ⇒
+#    أوّلُ حصادٍ خرج 0 و**ضاعت 45 صفًّا** والتشغيلةُ خضراء (‏35230199430).
+try:
+    _pwx_wf = open(".github/workflows/pmfwd.yml", encoding="utf-8").read()
+    _pwx_ls = _pwx_wf.splitlines()
+    _pwx_i = next(k for k, _l in enumerate(_pwx_ls)
+                  if _l.strip().startswith("if git diff"))
+    _pwx_j = next(k for k in range(_pwx_i, len(_pwx_ls))
+                  if _pwx_ls[k].strip() == "fi")
+    _pwx_cond = "\n".join(_l.strip() if _l.strip().startswith(("if ", "&&", "echo",
+                                                               "fi"))
+                          else _l for _l in _pwx_ls[_pwx_i:_pwx_j + 1])
+    _pwx_scr = _pwx_cond + '\necho "__PUSH__"\n'
+
+    def _pwx_case(mode):
+        """`True` = يدفع (الشرطُ لم يُطلق) · `False` = لا دفع."""
+        d = _pwx_tf.mkdtemp(prefix="pwx_")
+        try:
+            _pwx_sp.run(["git", "init", "-q", d], check=True, timeout=60)
+            _g = lambda *a: _pwx_sp.run(["git", "-C", d, *a], check=True,
+                                           timeout=60, capture_output=True)
+            _g("config", "user.email", "t@t"); _g("config", "user.name", "t")
+            open(_pwx_os.path.join(d, "seed.txt"), "w").write("x\n")
+            _g("add", "seed.txt"); _g("commit", "-qm", "seed")
+            lg = _pwx_os.path.join(d, "pmfwd_log.jsonl")
+            if mode in ("untracked", "tracked_same", "tracked_diff"):
+                open(lg, "w", encoding="utf-8").write('{"day":"d","sym":"S"}\n')
+            if mode in ("tracked_same", "tracked_diff"):
+                _g("add", "pmfwd_log.jsonl"); _g("commit", "-qm", "log")
+            if mode == "tracked_diff":
+                open(lg, "a", encoding="utf-8").write('{"day":"d","sym":"T"}\n')
+            r = _pwx_sp.run(["bash", "-c", _pwx_scr], cwd=d, timeout=60,
+                               capture_output=True, text=True)
+            return "__PUSH__" in r.stdout
+        finally:
+            _pwx_sh.rmtree(d, ignore_errors=True)
+
+    _pwx_u = _pwx_case("untracked")        # 🔴 حالةُ اليوم — يجب أن يدفع
+    _pwx_s = _pwx_case("tracked_same")     # شاهدُ ضبط — يجب ألّا يدفع
+    _pwx_d = _pwx_case("tracked_diff")     # متتبَّعٌ معدَّل — يجب أن يدفع
+    _pwa_ok13 = (_pwx_u is True and _pwx_s is False and _pwx_d is True)
+    _pwa_w13 = (f"غيرُ متتبَّع={_pwx_u} (المطلوب True) · "
+                f"متتبَّعٌ بلا تغيير={_pwx_s} (False) · معدَّل={_pwx_d} (True)")
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok13, _pwa_w13 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA13 شرطُ دفعِ `pmfwd.yml` **يرى الملفَّ غيرَ المتتبَّع** (جدولُ "
+      "حقيقةٍ بثلاث حالاتٍ فيها شاهدُ ضبطٍ موجب) — أوّلُ حصادٍ لا يضيع",
+      _pwa_ok13, _pwa_w13)
+
+# 🔴 `PWA14` — `fired_of` **جدولُ حقيقة**: الموثوقيّةُ تسقط في حالة **الدهس**
+#    (`newest > day`) لا في غيابِ العامل وحدَه. والمجموعةُ تبقى كما هي في الحالتين
+#    فالقفلُ يحرس **الرايةَ** لا العدّ.
+#    🔴 أصلُه عطبٌ حقيقيّ: الصيغةُ الأولى `newest >= day` تمرّ في الدهس بعينه.
+try:
+    _pwx_dir = _pwx_tf.mkdtemp(prefix="pwx14_")
+    def _pwx_st(dates):
+        f = _pwx_os.path.join(_pwx_dir, f"st_{abs(hash(tuple(dates)))}.json")
+        open(f, "w", encoding="utf-8").write(_pwx_json.dumps(
+            {f"LIQ:{s}": {"date": d} for s, d in dates}))
+        return f
+    _pwx_fresh = _PWH.fired_of("2026-09-16", _pwx_st(
+        [("A", "2026-09-16"), ("B", "2026-09-16"), ("C", "2026-09-15")]))
+    _pwx_over = _PWH.fired_of("2026-09-16", _pwx_st(
+        [("A", "2026-09-16"), ("B", "2026-09-17")]))          # 🔴 دهس
+    _pwx_gone = _PWH.fired_of("2026-09-16", _pwx_st(
+        [("A", "2026-09-15"), ("B", "2026-09-14")]))          # العاملُ متوقّف
+    _pwx_none = _PWH.fired_of("2026-09-16",
+                              _pwx_os.path.join(_pwx_dir, "لا-وجود.json"))
+    # 🔴 حالةٌ **مقروءةٌ بلا أيّ مفتاح `LIQ:`** — فرعٌ مستقلٌّ عن تعذّر القراءة،
+    #    وكان بلا فِكستشرٍ فنجت طفرتُه (الصنف ④-3) ⇒ أُضيف ولم يُرخَ القفل.
+    _pwx_empt = _os_hc.path.join(_pwx_dir, "empty.json")
+    open(_pwx_empt, "w", encoding="utf-8").write(
+        _pwx_json.dumps({"PRE:ZZZ": "2026-09-16", "OTHER": 1}))
+    _pwx_emp = _PWH.fired_of("2026-09-16", _pwx_empt)
+    _pwa_ok14 = (_pwx_fresh == ({"A", "B"}, True)
+                 and _pwx_over == ({"A"}, False)
+                 and _pwx_gone == (set(), False)
+                 and _pwx_emp == (set(), False)
+                 and _pwx_none == (set(), False))
+    _pwa_w14 = (f"طازج={_pwx_fresh} · دهس={_pwx_over} · متوقّف={_pwx_gone} · "
+                f"بلا LIQ={_pwx_emp}")
+    _pwx_sh.rmtree(_pwx_dir, ignore_errors=True)
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok14, _pwa_w14 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA14 `fired_of` جدولُ حقيقة: الموثوقيّةُ **تسقط في الدهس** "
+      "(`newest > day`) لا في غيابِ العامل وحدَه — والقراءةُ المتأخّرةُ تُقصى",
+      _pwa_ok14, _pwa_w14)
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

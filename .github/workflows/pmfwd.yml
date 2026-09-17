@@ -55,7 +55,14 @@ jobs:
           set -e
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- pmfwd_log.jsonl; then
+          # 🔴 **`git diff` أعمى عن الملفّ غيرِ المتتبَّع** ⇒ أوّلُ حصادٍ على
+          #    الإطلاق (والسجلُّ لم يُولَد بعد) كان يُقرأ «لا جديد» فيخرج 0
+          #    **والتشغيلةُ خضراء والصفوفُ تضيع مع الرنر** — ولا يُولَد أبدًا
+          #    فيتكرّر إلى الأبد. مقيسٌ في التشغيلة الأولى (45 صفًّا ضاعت).
+          #    ⇒ يُضَمُّ `git status --porcelain` (يرى غيرَ المتتبَّع) كما في
+          #    `ctb_harvest.yml` و`cumrise.yml` — وهو نمطُ المستودع القائم.
+          if git diff --quiet -- pmfwd_log.jsonl \
+             && [ -z "$(git status --porcelain -- pmfwd_log.jsonl)" ]; then
             echo "لا جديدَ في السجلّ — لا دفع"; exit 0
           fi
           git add pmfwd_log.jsonl
