@@ -1189,5 +1189,50 @@
   "usd_eff": 24574,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "BCTX",
+  "date": "2026-09-17",
+  "sustain_min": 181,
+  "operator_ok": true,
+  "fired_at": "2026-09-17T20:00:55Z",
+  "break_level": 3.62,
+  "price": 3.6948,
+  "vol_x": 7.8,
+  "usd": 14787,
+  "candle_class": "group",
+  "usd_eff": 14787,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "BTCS",
+  "date": "2026-09-17",
+  "sustain_min": 265,
+  "operator_ok": true,
+  "fired_at": "2026-09-17T20:00:55Z",
+  "break_level": 1.31,
+  "price": 1.34,
+  "vol_x": 7.8,
+  "usd": 25693,
+  "candle_class": "group",
+  "usd_eff": 25693,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "SEV",
+  "date": "2026-09-17",
+  "sustain_min": 15,
+  "operator_ok": true,
+  "fired_at": "2026-09-17T20:00:55Z",
+  "break_level": 2.12,
+  "price": 2.1362,
+  "vol_x": 4.1,
+  "usd": 2136,
+  "candle_class": "group",
+  "usd_eff": 2136,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
