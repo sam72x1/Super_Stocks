@@ -51984,6 +51984,172 @@ except Exception as _e:                                          # noqa: BLE001
 check("⏰🔒 GATE2 `prev_session_date` **مُعادةُ الاستعمال بالاسم** في الثلاث "
       "(‏AST) — لا نسخةَ رابعةٍ تنحرف", _gt_ok2, _gt_w2)
 
+# ── 🎚️📉 `T-TRAIL` — أقفالُ التسجيل المسبق (`trail_prereg.md`) ────────────────
+#    العقدُ مدموجٌ **قبل أيّ سطرِ أداةٍ وقبل أيّ رقم**.
+#    🔴🔴 **وشُدَّت الثلاثةُ الأولى بعد أن نجت ستُّ طفراتٍ من إحدى عشرة — وكلُّها
+#    الصنفُ ③ نفسُه: فحصُ عضويّةٍ في الملفّ كلِّه يُرضيه ظهورُ النصّ في سطرٍ
+#    مجاور** (‏`+0.05R` في التنبّؤ · `−0.7000R` في ترويسة §⓪ · «بلا شحن» في فرع
+#    §⑤ · «نقلُ إطارٍ» في عنوان §⑦-4 · «تمنع الفرعَ 1» …). ⇒ **كلُّ فحصٍ صار
+#    داخلَ قسمِه وسطرِه** بمستخرِجٍ بنيويّ — نفسُ علاجِ `RKK0`، ووقع الصنفُ
+#    **ستَّ مرّاتٍ في جولةٍ واحدة** فيُدوَّن.
+_trk_doc = open("trail_prereg.md", encoding="utf-8").read()
+_trk_ls = _trk_doc.splitlines()
+
+
+def _trk_sec(tag):
+    """نصُّ قسمٍ بعينه (من عنوانه `## <tag>` حتى العنوان التالي) — **موضعٌ لا عضويّة**."""
+    st = next((_i for _i, _l in enumerate(_trk_ls)
+               if _l.startswith("## " + tag)), None)
+    if st is None:
+        return ""
+    en = next((_i for _i in range(st + 1, len(_trk_ls))
+               if _trk_ls[_i].startswith("## ")), len(_trk_ls))
+    return "\n".join(_trk_ls[st:en])
+
+
+def _trk_row(sec, key):
+    """سطرُ الجدول (أو البند) الذي يذكر `key` داخلَ قسمٍ — أوّلُه فقط."""
+    return next((_l for _l in sec.splitlines() if key in _l), "")
+
+
+# 🔴 `TRK0` — §⑤ حصرًا: الفروعُ الثلاثةُ **مرقّمةٌ** وكلُّ كلمةٍ في سطرها ·
+#    و**رقمُ الماديّة في صفّ `TR3` نفسِه** · و**منعُ الفرع 1 في صفّ `TR4` نفسِه** ·
+#    ورمزا الخروج داخلَ القسم.
+try:
+    _trk_s5 = _trk_sec("⑤")
+    def _trk_br(n):
+        return next((_l for _l in _trk_s5.splitlines()
+                     if _l.strip().startswith(f"{n}. **")), "")
+    _b1, _b2, _b3 = _trk_br(1), _trk_br(2), _trk_br(3)
+    _r3, _r4 = _trk_row(_trk_s5, "`TR3`"), _trk_row(_trk_s5, "`TR4`")
+    _trk_ok0 = ("تُوصى" in _b1 and "لا تُوصى" not in _b1
+                and "لا تُوصى" in _b2
+                and "لا حكم" in _b3
+                and "لا حكم" not in _b1 and "لا حكم" not in _b2
+                and "**‏5**" in _trk_s5 and "**‏9**" in _trk_s5
+                and "+0.05R" in _r3                  # 🔒 في صفّ TR3 نفسِه
+                and "يمنع الفرعَ 1" in _r4)          # 🔒 في صفّ TR4 نفسِه
+    _trk_w0 = f"①={_b1[:22]!r} ②={_b2[:22]!r} ③={_b3[:22]!r} · TR3={bool(_r3)} TR4={bool(_r4)}"
+except Exception as _e:                                          # noqa: BLE001
+    _trk_ok0, _trk_w0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRK0 §⑤ فروعٌ ثلاثةٌ مرقّمةٌ كلٌّ في سطره · ورمزا الخروج 5 و9 · "
+      "**والماديّةُ في صفّ `TR3` نفسِه والأرضيّةُ تمنع الفرعَ 1 في صفّ `TR4` نفسِه**",
+      _trk_ok0, _trk_w0)
+
+# 🔴 `TRK1` — §②/§④: **كلُّ رقمِ شاهدِ هُويّةٍ في بندِ حارسِه** لا في الملفّ ·
+#    والأذرعُ مُغلَقة · و`C-CAP` حاكمٌ **في صفّه**.
+try:
+    _trk_s2, _trk_s4 = _trk_sec("②"), _trk_sec("④")
+    _v1 = _trk_row(_trk_s2, "**`V-T1`**")
+    _v2 = _trk_row(_trk_s2, "**`V-T2`**")
+    _v3 = _trk_row(_trk_s2, "**`V-T3`**")
+    # 🔒 بنودُ الحرّاس ملفوفةٌ على أسطر ⇒ يُبنى نصُّ البند من مطلعه حتى المطلع التالي
+    def _trk_bullet(sec, key):
+        ls = sec.splitlines()
+        st = next((_i for _i, _l in enumerate(ls) if key in _l), None)
+        if st is None:
+            return ""
+        en = next((_i for _i in range(st + 1, len(ls))
+                   if ls[_i].lstrip().startswith("- **`V-T")), len(ls))
+        return " ".join(_x.strip() for _x in ls[st:en])
+    _bv1 = _trk_bullet(_trk_s2, "**`V-T1`**")
+    _bv2 = _trk_bullet(_trk_s2, "**`V-T2`**")
+    _bv3 = _trk_bullet(_trk_s2, "**`V-T3`**")
+    _ccap = _trk_row(_trk_s4, "**`C-CAP`**")
+    _trk_ok1 = (all(_k in _bv1 for _k in ("−0.2602", "−0.1807", "−0.2172",
+                                          "1399/1386/1370", "1620/1591/1606"))
+                and "−0.7000R" in _bv2 and "390" in _bv2
+                and "−2.1032R" in _bv3 and "385" in _bv3
+                and "الشاهدُ الحاكم" in _ccap
+                and "ولا ذراعَ سادسةٍ" in _trk_s4
+                and all(_k in _trk_s4 for _k in
+                        ("`Y0`", "`Y1`", "`Y4`", "`Y1@7`", "`Y1@13`",
+                         "`Y1n`", "`C-CAPn`")))
+    _trk_w1 = f"V-T1={bool(_bv1)} V-T2={bool(_bv2)} V-T3={bool(_bv3)} C-CAP={bool(_ccap)}"
+except Exception as _e:                                          # noqa: BLE001
+    _trk_ok1, _trk_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRK1 §④ قائمةٌ مُغلَقةٌ و`C-CAP` حاكمٌ في صفّه · **وكلُّ رقمِ شاهدِ "
+      "هُويّةٍ في بندِ حارسِه** (T-TRANCHE في `V-T1` · P0 في `V-T2` · HN في `V-T3`)",
+      _trk_ok1, _trk_w1)
+
+# 🔴 `TRK2` — §⓪/§⑦/§⑧ **كلٌّ في قسمه**: التلوّثُ والسوابقُ في §⓪ · ونقلُ الإطار
+#    والماديّةُ في بنودِ §⑦ **المرقّمة** · ومنعُ الشحن وحمايةُ الوقف في §⑧.
+try:
+    _trk_s0, _trk_s7, _trk_s8 = _trk_sec("⓪"), _trk_sec("⑦"), _trk_sec("⑧")
+    # 🐞 **«اقرأ الفقرةَ لا السطر» — رابعةُ مرّةٍ يقع فيها الصنفُ** (بعد `OTK0`
+    #    مرّتين و`OTA13`): بنودُ §⑦ **ملفوفةٌ على أسطر** فمطلعُ البند وحدَه لا
+    #    يحمل ما يحرسه القفل ⇒ يُبنى **البندُ كاملًا** من مطلعه حتى مطلعِ التالي.
+    def _trk_item(sec, n):
+        ls = sec.splitlines()
+        st = next((_i for _i, _l in enumerate(ls)
+                   if _l.strip().startswith(f"{n}. ")), None)
+        if st is None:
+            return ""
+        _num = tuple(f"{_k}. " for _k in range(1, 30))
+        en = next((_i for _i in range(st + 1, len(ls))
+                   if ls[_i].strip().startswith(_num)), len(ls))
+        return " ".join(_x.strip() for _x in ls[st:en])
+    _i4, _i5 = _trk_item(_trk_s7, 4), _trk_item(_trk_s7, 5)
+    # 🔴 **وشُدَّ ثانيةً:** طفرةُ `t9` نجت أوّلًا وهي **باطلةٌ (④-3)** — بدّلت الفعلَ
+    #    الافتتاحيَّ والإعلانُ باقٍ. **لكنها كشفت أن القفلَ لا يحرس اللازمَ
+    #    التشغيليَّ للتلوّث** (أن `E-OP` لا يُنتج الفرعَ 1) ⇒ أُضيف شرطُه.
+    _trk_ok2 = ("AEMD" in _trk_s0 and "RETO" in _trk_s0
+                and "أعرف اتّجاهَ النتيجة" in _trk_s0
+                and "لا يُنتج الفرعَ 1" in _trk_s0
+                and "إعلانُ التلوّث" in _trk_s0
+                and all(_k in _trk_s0 for _k in
+                        ("T-EXIT`", "T-EXITMGMT", "T-OPHOLD-2", "T-TARGET10"))
+                and "−0.0207" in _trk_s0
+                and "faisal_adopted" in _i4 and "نقلُ إطارٍ" in _i4
+                and "faisal_verbatim" in _i4
+                and "engineering" in _i5 and "+0.05R" in _i5
+                and "بلا شحن" in _trk_s8
+                and "STOP_BELOW_LOW_PCT" in _trk_s8)
+    _trk_w2 = f"§⑦-4={bool(_i4)} §⑦-5={bool(_i5)} §⓪={len(_trk_s0)} §⑧={len(_trk_s8)}"
+except Exception as _e:                                          # noqa: BLE001
+    _trk_ok2, _trk_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRK2 §⓪ يُعلن التلوّثَ بـAEMD/RETO والسوابقَ الأربع · **و§⑦-4 يُعلن "
+      "نقلَ الإطار `faisal_adopted` و§⑦-5 الماديّةَ `engineering`** · و§⑧ يمنع الشحن",
+      _trk_ok2, _trk_w2)
+
+# 🔴🔴 `TRK3` — **سلوكيٌّ من الكود الحيّ لا من نصّ العقد**: الدوالُّ الستُّ المُعادُ
+#    استعمالها موجودةٌ بأسمائها · ونطاقُ سحب فيصل 7/10/13 في `CONFIG` كما في العقد.
+#    🔴 **ومعه شاهدُ ضبطٍ** (درسُ `RKA10`): طفرةُ «إعادةِ تسمية دالّةٍ» **انهارت** لأن
+#    الاسمَ مستورَدٌ وقتَ تحميل وحداتٍ أخرى ⇒ لا تُختبَر بالطفرة ⇒ **يُثبَت المُلتقِطُ
+#    بفضاءٍ وهميٍّ ناقصٍ يجب أن يُرجع False** وإلّا صار الفحصُ «لا يُكذَّب أبدًا».
+try:
+    import importlib as _trk_il
+    _trk_need = {"tranche_arms": ("plan_at", "r_fixed"),
+                 "exitmgmt_arms": ("boot_ci",),
+                 "optrade_arms": ("simulate", "trade_r"),
+                 "fcost_arms": ("k_of", "ret_at")}
+    def _trk_scan(need, getter):
+        out = []
+        for _mod, _fns in need.items():
+            for _f in _fns:
+                if not callable(getter(_mod, _f)):
+                    out.append(f"{_mod}.{_f}")
+        return out
+    _trk_miss = _trk_scan(_trk_need,
+                          lambda m, f: getattr(_trk_il.import_module(m), f, None))
+    # شاهدُ ضبط: وحدةٌ وهميّةٌ تفقد `r_fixed` ⇒ المُلتقِطُ يجب أن يراها
+    class _TrkStub:
+        plan_at = staticmethod(lambda *a, **k: None)
+    _trk_ctrl = _trk_scan({"tranche_arms": ("plan_at", "r_fixed")},
+                          lambda m, f: getattr(_TrkStub, f, None))
+    _trk_band = tuple(S.CONFIG.get(f"SPLIT_SWEEP_{_k}_PCT")
+                      for _k in ("MIN", "MID", "MAX"))
+    _trk_ok3 = (not _trk_miss
+                and _trk_ctrl == ["tranche_arms.r_fixed"]   # 🔒 المُلتقِطُ يعمل
+                and _trk_band == (7.0, 10.0, 13.0)
+                and all(f"{_v:g}" in _trk_doc for _v in _trk_band))
+    _trk_w3 = f"مفقودٌ={_trk_miss} · شاهدُ الضبط={_trk_ctrl} · النطاق={_trk_band}"
+except Exception as _e:                                          # noqa: BLE001
+    _trk_ok3, _trk_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRK3 الدوالُّ الستُّ موجودةٌ بأسمائها **ومُلتقِطُها مُثبَتٌ بشاهدِ "
+      "ضبط** · ونطاقُ سحب فيصل 7/10/13 في `CONFIG` كما في العقد",
+      _trk_ok3, _trk_w3)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
