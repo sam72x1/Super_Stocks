@@ -51287,6 +51287,141 @@ check("🌅💧🔒 PUA17 القراءةُ الثانيةُ (الفراغُ صف
       "بمفتاح `+0` · و`read_pm_verdict` **لا تراها** فتبقى وصفيّةً لا حاكمة",
       _pua_ok17, _pua_w17)
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🌅📡 `PWK0`-`PWK3` — عقدُ `T-PMFWD` (`pmfwd_prereg.md`). **مدفوعٌ ومدموجٌ قبل أيّ
+#    سطرِ أداةٍ وقبل أوّل صفٍّ يُحصَد.** والأقفالُ تحرس **بنيةَ** الحكم لا عضويّةَ
+#    كلمات، وتقرأ **الفقرةَ لا السطر** (‏درسٌ وقع أربعَ مرّات).
+#    🔒 أسماءٌ خاصّةٌ بالكتلة (`_pwk_*`).
+# ══════════════════════════════════════════════════════════════════════════
+_pwk_doc = _ohk_load("pmfwd_prereg.md")
+
+
+def _pwk_items(sec, digits="123456"):
+    """بنودٌ مرقّمةٌ **موصولةً بتتمّاتها** — أسطرُها تُلفّ فتُقرأ فقرةً."""
+    out, cur = [], None
+    for _l in sec.splitlines():
+        if len(_l) > 4 and _l[0] in digits and _l[1:5] == ". **":
+            if cur is not None:
+                out.append(" ".join(cur))
+            cur = [_l]
+        elif cur is not None:
+            if _l.startswith("   "):
+                cur.append(_l.strip())
+            else:
+                out.append(" ".join(cur))
+                cur = None
+    if cur is not None:
+        out.append(" ".join(cur))
+    return out
+
+
+# 🔴 `PWK0` — §⑤: فروعٌ ثلاثةٌ بنيويًّا · رمزا 6 و9 في فقرة الخروج · معاييرُ
+#    `PF1`-`PF3` · والأرضيّةُ في **الشقَّين** وتمنع الفرعَ 1 · وتاريخُ الحسم منصوص.
+_pwk_s5 = _ohk_sec(_pwk_doc, "## ⑤", "## ⑥")
+try:
+    _pwk_br, _pwk_pos, _pwk_lbl = _ohk_branches(_pwk_s5, "تُوصى", "فشلت")
+    _pwk_rcl = _otk_para(_pwk_s5, "**رموزُ الخروج:**")
+    _pwk_rc = ("**‏6 حارسٌ ساقط**" in _pwk_rcl and "**‏9 «لا حكم»**" in _pwk_rcl
+               and _pwk_rcl.count("رموزُ الخروج") == 1)
+    _pwk_crit = [_l for _l in _pwk_s5.splitlines() if _l.startswith("| **`PF")]
+    _pwk_fl = [_l for _l in _pwk_s5.splitlines() if _l.startswith("| **الأرضيّة**")]
+    _pwk_ok0 = (len(_pwk_br) == 3 and len(_pwk_pos) == 3 and _pwk_lbl and _pwk_rc
+                and len(_pwk_crit) == 3
+                and all(any(f"**`PF{_i}`**" in _l for _l in _pwk_crit)
+                        for _i in (1, 2, 3))
+                and len(_pwk_fl) == 1
+                and "`F-PM ∩ ¬fired`" in _pwk_fl[0]
+                and "**يمنع الفرعَ 1**" in _pwk_fl[0]
+                and "**تاريخُ الحسم:**" in _pwk_s5 and "2026-12-31" in _pwk_s5
+                and "يُنشَر معدّلُ التراكم المقيس" in _pwk_s5)
+    _pwk_w0 = (f"فروع={len(_pwk_br)} · مواضع={_pwk_pos} · وسم={_pwk_lbl} · "
+               f"رموز={_pwk_rc} · معايير={len(_pwk_crit)} · أرضيّة={len(_pwk_fl)}")
+except Exception as _e:                                          # noqa: BLE001
+    _pwk_ok0, _pwk_w0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWK0 عقدُ `T-PMFWD`: فروعُ §⑤ ثلاثةٌ كلٌّ في رقمه · «لا حكم» في الثالث "
+      "وحدَه · رمزا 6 و9 · ومعاييرُ `PF1`-`PF3` · والأرضيّةُ في **الشقَّين** وتمنع "
+      "الفرعَ 1 · وتاريخُ الحسم منصوصٌ ومعه نشرُ معدّل التراكم", _pwk_ok0, _pwk_w0)
+
+# 🔴 `PWK1` — §④: **ثلاثُ** حاكماتٍ ووصفيّتان · و`C-LIQ` شاهدٌ **حاكمٌ** بنصّه ·
+#    والقائمةُ مُغلَقةٌ نصًّا. (‏والشاهدُ الحاكمُ الثاني هو درسُ `T-PMGATE` مطبَّقًا.)
+_pwk_s4 = _ohk_sec(_pwk_doc, "## ④", "## ⑤")
+try:
+    _pwk_rows = [_l for _l in _pwk_s4.splitlines()
+                 if _l.startswith("| ") and ("`F-" in _l[:20] or "`C-" in _l[:20])]
+    _pwk_gov = [_l for _l in _pwk_rows if "🥇" in _l]
+    _pwk_desc = [_l for _l in _pwk_rows if "وصفيّة" in _l]
+    _pwk_liq = [_l for _l in _pwk_gov if "`C-LIQ`" in _l]
+    _pwk_ok1 = (len(_pwk_rows) == 5 and len(_pwk_gov) == 3 and len(_pwk_desc) == 2
+                and all(any(f"`{_a}`" in _l for _l in _pwk_gov)
+                        for _a in ("F-PM", "F-NONE", "C-LIQ"))
+                and all(any(f"`{_a}`" in _l for _l in _pwk_desc)
+                        for _a in ("F-IN", "F-COST"))
+                and len(_pwk_liq) == 1 and "**الشاهدُ الحاكمُ الثاني**" in _pwk_liq[0]
+                and "ولا ذراعَ سادسة ولا شاهدَ رابع بعد أيّ رقم" in _pwk_s4)
+    _pwk_w1 = (f"صفوف={len(_pwk_rows)} · حاكمة={len(_pwk_gov)} · "
+               f"وصفيّة={len(_pwk_desc)}")
+except Exception as _e:                                          # noqa: BLE001
+    _pwk_ok1, _pwk_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWK1 §④ `T-PMFWD`: ثلاثُ حاكماتٍ (`F-PM` · `F-NONE` · `C-LIQ`) "
+      "ووصفيّتان (`F-IN`/`F-COST`) · و`C-LIQ` **شاهدٌ حاكمٌ** بنصّه · والقائمةُ مُغلَقة",
+      _pwk_ok1, _pwk_w1)
+
+# 🔴 `PWK2` — §⓪ يُعلن التلوّثَ بأرقام `T-PMUSD` ويقيّد ثلاثةً · و§⑧ يمنع البوّابةَ
+#    ومفتاحَ الترتيب **والقناةَ الرابعة**.
+_pwk_s0 = _ohk_sec(_pwk_doc, "## ⓪", "## ①")
+_pwk_s8 = _ohk_sec(_pwk_doc, "## ⑧", "## ⑨")
+try:
+    _pwk_c = _pwk_items(_pwk_s0, "123")
+    _pwk_ok2 = (all(_k in _pwk_s0 for _k in ("20.90×", "12.53×", "8.92×",
+                                             "20.38×", "15.43×", "12.63×",
+                                             "لا تفصل شيئًا"))
+                and len(_pwk_c) == 3
+                and "لا تُعاير العتبةُ بعد أيّ رقم" in _pwk_c[0]
+                and "1,000,000" in _pwk_c[0]
+                and "لا تُضاف ذراعٌ ولا معيارٌ بعد أوّل صفٍّ يُقرأ" in _pwk_c[1]
+                and "ولا يُحصَر المجتمعُ ولا يُوسَّع" in _pwk_c[2]
+                and "لا بوّابةَ فرزٍ ولا مفتاحَ ترتيب" in _pwk_s8
+                and "ولا قناةَ رسائلَ\nرابعة" in _pwk_s8.replace("**", ""))
+    _pwk_w2 = f"قيود={len(_pwk_c)} · §⓪={len(_pwk_s0)} محرفًا · §⑧={len(_pwk_s8)}"
+except Exception as _e:                                          # noqa: BLE001
+    _pwk_ok2, _pwk_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWK2 `T-PMFWD`: §⓪ يُعلن تلوّثَه بأرقام `T-PMUSD` ويقيّد ثلاثةً (لا "
+      "معايرةَ عتبة · لا ذراعَ جديدة · لا حصرَ مجتمع) · و§⑧ يمنع البوّابةَ ومفتاحَ "
+      "الترتيب والقناةَ الرابعة", _pwk_ok2, _pwk_w2)
+
+# 🔴 `PWK3` — §③ يُعرّف `mv` و`fired` · و§② يُعلن **أماميٌّ بلا باكتيست** · و§⑨
+#    يُسمّي السجلَّ والدِدوبَ ووضعَ الجدوى · و§⑥ ستُّ تنبّؤاتٍ كلٌّ في سطره.
+_pwk_s2 = _ohk_sec(_pwk_doc, "## ②", "## ③")
+_pwk_s3 = _ohk_sec(_pwk_doc, "## ③", "## ④")
+_pwk_s9 = _ohk_sec(_pwk_doc, "## ⑨", "## ⑩")
+_pwk_s6 = _ohk_sec(_pwk_doc, "## ⑥", "## ⑦")
+try:
+    _pwk_def = [_l for _l in _pwk_s3.splitlines()
+                if _l.startswith("| ") and "|---" not in _l]
+    _pwk_q = [_l for _l in _pwk_s6.splitlines() if _l.startswith("| `W")]
+    _pwk_ok3 = (any("**`mv`**" in _l and "أعلى الجلسة النظاميّة" in _l
+                    for _l in _pwk_def)
+                and any("**`fired`**" in _l and "`R1 ∪ T-C`" in _l
+                        for _l in _pwk_def)
+                and "ولا باكتيست" in _pwk_s2
+                and "`V-W1`" in _pwk_s2 and "`V-W2`" in _pwk_s2
+                and all(_k in _pwk_s9 for _k in ("`pmfwd_harvest.py`",
+                                                 "`pmfwd_log.jsonl`",
+                                                 "`PMFWD_DRY=1`",
+                                                 "**ثلاثةَ أعدادٍ فقط**",
+                                                 "ويعود قبل أيّ كتابةٍ للسجلّ"))
+                and "الدِدوب بمفتاح (يوم، رمز)" in _pwk_s9.replace("**", "")
+                and len(_pwk_q) == 6
+                and all(any(_l.startswith(f"| `W{_i}`") for _l in _pwk_q)
+                        for _i in range(1, 7)))
+    _pwk_w3 = (f"تعريفات={len(_pwk_def)} · تنبّؤات={len(_pwk_q)} · "
+               f"§⑨={len(_pwk_s9)} محرفًا")
+except Exception as _e:                                          # noqa: BLE001
+    _pwk_ok3, _pwk_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWK3 `T-PMFWD`: §③ يُعرّف `mv` و`fired` · و§② يُعلن أنه **أماميٌّ بلا "
+      "باكتيست** بحارسَيه · و§⑨ يُسمّي السجلَّ والدِدوبَ ووضعَ الجدوى وعودتَه قبل "
+      "الكتابة · و§⑥ ستُّ تنبّؤاتٍ كلٌّ في سطره", _pwk_ok3, _pwk_w3)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
