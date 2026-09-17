@@ -49865,18 +49865,31 @@ try:
     _oha_win = [b for b in _OHA_BARS if b[0] > _OHA_T0 and _OHA.ny_hour(b[0]) < 16]
     _oha_ep = _oha_exit_point(_oha_win, _OHA_T0, -1e6)
     _oha_nrm = (_OHA.trail_trade(_OHA_BARS, _OHA_T0, _OHA_E5, _OHA_LOW) or {})
+    # 🔴 وحالةٌ **تفصل أرضيّةَ الزحف** `max(alow, peak - risk)`: سعرٌ لم يتجاوز
+    #    الدخولَ قطُّ (‏peak = 9.5 دون e5 = 10) ⇒ `peak - risk` = 8.5 **تحت القاع**.
+    #    فبالأرضيّة يكون المستوى 9 ⇒ إغلاقُ 8.8 **وقف**، وبلا الأرضيّة 8.5 ⇒ يمرّ.
+    #    (وُلدت من طفرةٍ نجت: الفِكستشرُ الضخم يجعل الطرفين متساويين دائمًا.)
+    _oha_fl = [_oha_bar(9, 30, 10.0, 10.0, 10.0, 10.0),
+               _oha_bar(9, 40, 9.5, 9.5, 9.5, 9.5),
+               _oha_bar(9, 50, 8.8, 8.8, 8.8, 8.8),
+               _oha_bar(10, 0, 9.0, 9.0, 9.0, 9.0)]
+    _oha_flo = (_OHA.trail_trade(_oha_fl, _oha_fl[0][0], 10.0, 9.0) or {})
     _oha_ok6 = (_oha_big["out"] == _oha_sim["out"] == "window"
                 and abs(_oha_big["r0"] - _oha_sim["r0"]) < 1e-9
                 and abs(_oha_big["t_exit"] - _oha_sim["t_exit"]) < 1e-9
                 and _oha_ep == (None, None)
-                and _oha_nrm.get("out") == "loss")
+                and _oha_nrm.get("out") == "loss"
+                and _oha_flo.get("out") == "loss"
+                and abs((_oha_flo.get("t_exit") or 0) - 20.0) < 1e-9)
     _oha_w6 = (f"ضخمة: {_oha_big['out']}/{_oha_big['r0']:.4f} مقابل "
                f"{_oha_sim['out']}/{_oha_sim['r0']:.4f} · exit_point={_oha_ep} · "
-               f"طبيعيّة={_oha_nrm.get('out')}")
+               f"طبيعيّة={_oha_nrm.get('out')} · أرضيّةُ الزحف="
+               f"{_oha_flo.get('out')}@{_oha_flo.get('t_exit')}")
 except Exception as _e:                                          # noqa: BLE001
     _oha_ok6, _oha_w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🕵️📈🔒 OHA6 `HT` الزاحفُ عند مخاطرةٍ ضخمةٍ ≡ `simulate` الثابتة بت-بت "
-      "(‏و`exit_point` بلا وقف) · وعند المخاطرة الحقيقيّة يزحف فيخرج",
+      "(‏و`exit_point` بلا وقف) · وعند المخاطرة الحقيقيّة يزحف فيخرج · "
+      "**وأرضيّةُ الزحف لا تنزل تحت القاع**",
       _oha_ok6, _oha_w6)
 
 # 🔴 `OHA7` — `HH ≡ HC` حين لا يُلمَس الهدف · وحين يُلمَس فهو **متوسّطُ ساقين**.
@@ -50085,18 +50098,20 @@ check("💥🔗🔒 LKA2 الحاكمُ `high/close(d−1) ≥ 2` وحدَه —
 
 # 🔴 `LKA3` — الشاهدُ المقطعيّ: حتميٌّ · يستبعد المتحرّكَ ‏≥30% · ولا يُعاد استعمالُ رمز.
 try:
+    # 🔴 اسمُ المتحرّك **يسبق** الشاهدين أبجديًّا عمدًا: البركةُ مرتَّبةٌ
+    #    بالاسم، فلو بقي آخرَها لَما ظهر أثرُ حذفِ حارسِه (طفرةٌ نجت بذلك).
     _lka_p3 = {_k: (1, 1, 1, _lka_pin, 1000.0)
-               for _k in ("EV1", "EV2", "C_A", "C_B", "MOVER")}
+               for _k in ("EV1", "EV2", "C_A", "C_B", "A_MOVER")}
     _lka_d3 = {"EV1": (1, _lka_pin * 3, 1, _lka_pin * 2.5, 1.0),
                "EV2": (1, _lka_pin * 3, 1, _lka_pin * 2.5, 1.0),
                "C_A": (1, _lka_pin * 1.05, 1, _lka_pin * 1.02, 1.0),
                "C_B": (1, _lka_pin * 1.05, 1, _lka_pin * 1.02, 1.0),
-               "MOVER": (1, _lka_pin * 1.45, 1, _lka_pin * 1.40, 1.0)}
+               "A_MOVER": (1, _lka_pin * 1.45, 1, _lka_pin * 1.40, 1.0)}
     _lka_e3 = _LKA.day_events(_lka_p3, _lka_d3)
     _lka_c3 = _LKA.pick_cx(_lka_e3, _lka_p3, _lka_d3)
     _lka_c3b = _LKA.pick_cx(_lka_e3, _lka_p3, _lka_d3)
     _lka_ok3 = (set(_lka_c3) == {"EV1", "EV2"}
-                and "MOVER" not in _lka_c3.values()
+                and "A_MOVER" not in _lka_c3.values()
                 and len(set(_lka_c3.values())) == 2
                 and not (set(_lka_c3.values()) & {"EV1", "EV2"})
                 and _lka_c3 == _lka_c3b)
