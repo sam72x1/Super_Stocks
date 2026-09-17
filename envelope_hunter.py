@@ -33,18 +33,31 @@ FLOAT_BUDGET = 200          # سقفُ نداءات الفلوت — لا يُس
 MAX_ROWS = 400              # سقفُ صفوف المُخرَج · **والقصّ يُعلَن بعدّاده**
 
 
-def session_gate(now_utc=None, close_hour=20):
+def session_gate(now_utc=None, close_hour=20, allow_backfill=True):
     """⏰ نفسُ بوّابة الصيّادين الثلاثة: لا مسحَ قبل إغلاق الافتر (20:00 نيويورك)
-    — تُصيب الفصلين ذاتيًّا. يرجّع `(مفتوحة، تاريخ الجلسة النيويوركيّ)`. نقيّة."""
+    — تُصيب الفصلين ذاتيًّا. يرجّع `(مفتوحة، تاريخ الجلسة النيويوركيّ)`. نقيّة.
+    🔴🔴 **فرعُ الاستدراك (2026-09-17) — مقيسٌ لا مفترَض:** حادثةُ ‏2026-08-29
+    الموثَّقة في `split_hunter` («خمسُ أدواتٍ ماتت صامتةً») **عولجت هناك وحدَها**،
+    وبقيت هذي الأداةُ على الفرع القديم ⇒ **ختمُها عند `2026-08-25` ‏و23 يومَ
+    صمتٍ وكلُّ تشغيلةٍ خضراء**. وتأخّرُ GitHub يُوقع الكرونَين (‏00:xx و01:xx UTC)
+    في **صباح نيويورك** ⇒ `et.hour < 20` ⇒ `(False, None)`.
+    ⚖️ **ولا يُرخي شرطًا:** الجلسةُ المُرجَعة أُغلق افترُها ‏20:00 من يومها، وذلك
+    **قبل منتصف ليل اليوم الحاليّ** ⇒ مُغلقةٌ يقينًا بالبناء مهما كانت الساعة.
+    و`prev_session_date` **مستورَدةٌ بالاسم** من `split_hunter` فلا نسخةَ رابعة
+    تنحرف. و`allow_backfill=False` يُبقي السلوكَ القديم للاختبار."""
     import datetime as _dt
     from zoneinfo import ZoneInfo as _Z
+
+    from split_hunter import prev_session_date                   # بالاسم
     now = now_utc or _dt.datetime.now(_dt.timezone.utc)
     if now.tzinfo is None:
         now = now.replace(tzinfo=_dt.timezone.utc)
     et = now.astimezone(_Z("America/New_York"))
-    if et.hour < int(close_hour):
+    if et.hour >= int(close_hour):
+        return (True, et.date())
+    if not allow_backfill:
         return (False, None)
-    return (True, et.date())
+    return (True, prev_session_date(et.date()))
 
 
 def _read_stamp():

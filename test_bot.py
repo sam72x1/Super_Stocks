@@ -16857,9 +16857,18 @@ check("🔬 NH🔒 وتعذّرُ الاقتراض **لا يُسقط** المر�
        and "continue" not in src.split("bor = fb(sym)")[1].split("try:")[0])(
           _insp0.getsource(S.scan_method_hunter)))
 # 🔒 حرّاس الأداة — نفس حرّاس الصيّاد حرفيًّا (قرار المالك: «نفس الطريقة»).
-check("🔬 NH🔒 بوّابة التوقيت: قبل إغلاق الافتر ⇒ لا مسح · وبعده ⇒ تاريخ نيويورك",
+# 🔴🔴 وهذا القفلُ كان **يُثبِّت العطب**: اشترط `(False, None)` عند 00:13 UTC شتاءً
+#    — أي **حالةَ التأخّر بعينها** التي قتلت الأداةَ ‏23 يومًا (ختمُها 2026-08-25).
+#    صُحِّح ولم يُرخَ: الفرعُ الجديد يُرجع **أحدثَ جلسةٍ أُغلق افترُها يقينًا**،
+#    و`allow_backfill=False` يُبقي الرفضَ الصريحَ مُختبَرًا.
+check("🔬 NH🔒 بوّابة التوقيت: بعد الإغلاق ⇒ تاريخُ نيويورك · وقبله ⇒ **استدراكُ "
+      "أحدثِ جلسةٍ مُغلَقة** لا صمت · والرفضُ الصريح يبقى مُختبَرًا",
       MH.session_gate(S.dt.datetime(2026, 1, 14, 0, 13,
-                                    tzinfo=S.dt.timezone.utc)) == (False, None)
+                                    tzinfo=S.dt.timezone.utc))
+      == (True, S.dt.date(2026, 1, 12))
+      and MH.session_gate(S.dt.datetime(2026, 1, 14, 0, 13,
+                                        tzinfo=S.dt.timezone.utc),
+                          allow_backfill=False) == (False, None)
       and MH.session_gate(S.dt.datetime(2026, 7, 29, 0, 13,
                                         tzinfo=S.dt.timezone.utc))
       == (True, S.dt.date(2026, 7, 28)))
@@ -17382,13 +17391,19 @@ check("🧮 SF🔒 والكرت يُبنى كاملًا وبأرقامه · وب
       all(_w in _sf_msg for _w in ("فلترة أسهم التقسيم", "$2.05", "$2.15",
                                    "ذيل شمعة القاع", "يوميّ و4 ساعات"))
       and "طلباتٌ نازلة" not in _sf_msg)
-check("🧮 SF🔒 بوّابةُ التوقيت **حقيقيةٌ لا مُلغاة** وتطابق نظيرتَيها حرفيًّا",
-      all(SF.session_gate(t) == MH.session_gate(t)
+# 🔴🔴 **درسُ التكافؤ:** هذا القفلُ كان يقارن `SF` بـ`MH` — **وكلتاهما معطوبة**
+#    ⇒ تكافؤٌ تامٌّ مع عطب. المرجعُ الآن `split_hunter` **المُثبَتةُ حيًّا** (ختمُها
+#    يتقدّم يوميًّا بينما ختما الأخريَين جمدا عند 2026-08-25).
+import split_hunter as _SGref                                    # noqa: E402
+check("🧮 SF🔒 بوّابةُ التوقيت **حقيقيةٌ لا مُلغاة** وتطابق **`split_hunter`** "
+      "(المرجعُ الحيّ) لا نظيرًا مجهولَ الصحّة",
+      all(SF.session_gate(t) == _SGref.session_gate(t)
           for t in (S.dt.datetime(2026, 1, 14, 0, 13, tzinfo=S.dt.timezone.utc),
                     S.dt.datetime(2026, 7, 29, 0, 13, tzinfo=S.dt.timezone.utc),
                     S.dt.datetime(2026, 7, 29, 1, 13, tzinfo=S.dt.timezone.utc)))
       and SF.session_gate(S.dt.datetime(2026, 1, 14, 0, 13,
-                                        tzinfo=S.dt.timezone.utc)) == (False, None)
+                                        tzinfo=S.dt.timezone.utc),
+                          allow_backfill=False) == (False, None)
       and "session_gate(now_utc)" in _SFrun
       and "hasattr" not in _SFrun)
 # 🐞 عيبٌ كشفه **التشغيلُ الحيّ وحده**: `git_save(files, runner, sender)` — مرّرتُ
@@ -51871,6 +51886,80 @@ except Exception as _e:                                          # noqa: BLE001
 check("🌅📡🔒 PWA14 `fired_of` جدولُ حقيقة: الموثوقيّةُ **تسقط في الدهس** "
       "(`newest > day`) لا في غيابِ العامل وحدَه — والقراءةُ المتأخّرةُ تُقصى",
       _pwa_ok14, _pwa_w14)
+
+# 🔴🔴 `GATE1`/`GATE2` — **بوّابةُ التوقيت في الأدوات الأربع: تكافؤٌ مع المرجع
+#    الحيّ ‏+ صمودٌ أمام تأخّر GitHub المقيس.**
+#    🔴 أصلُه عطبٌ حقيقيٌّ قِيس 2026-09-17: حادثةُ 2026-08-29 («خمسُ أدواتٍ ماتت
+#    صامتةً») عولجت في `split_hunter` **وحدَه**، فبقيت ثلاثةٌ على الفرع القديم
+#    وختمُها جامدٌ عند **2026-08-25** — ‏23 يومَ صمتٍ وكلُّ تشغيلةٍ خضراء.
+#    والأوقاتُ أدناه **مقيسةٌ من سجلّ التشغيلات لا مفترَضة** (‏04:45 و06:00 UTC).
+#    🧭 والدرسُ: **قفلُ «مطابقةٌ لنظيرتها» يقفل التكافؤَ مع عطبٍ إن كان النظيرُ
+#    معطوبًا** — فالمرجعُ يجب أن يكون الأداةَ التي **يتقدّم ختمُها حيًّا**.
+try:
+    import ast as _gt_ast                                        # noqa: E402
+    import datetime as _gt_dt                                    # noqa: E402
+    import inspect as _gt_in                                     # noqa: E402
+
+    import envelope_hunter as _gt_eh                              # noqa: E402
+    import method_hunter as _gt_mh                                # noqa: E402
+    import split_filter_hunter as _gt_sf                          # noqa: E402
+    import split_hunter as _gt_sh                                 # noqa: E402
+    _gt_U = _gt_dt.timezone.utc
+    _gt_times = [
+        _gt_dt.datetime(2026, 8, 5, 0, 9, tzinfo=_gt_U),      # صيفًا في الوقت
+        _gt_dt.datetime(2026, 1, 14, 0, 9, tzinfo=_gt_U),     # شتاءً في الوقت
+        _gt_dt.datetime(2026, 9, 17, 4, 45, tzinfo=_gt_U),    # 🔴 تأخّرٌ مقيس
+        _gt_dt.datetime(2026, 9, 17, 6, 1, tzinfo=_gt_U),     # 🔴 تأخّرٌ مقيس
+        _gt_dt.datetime(2026, 9, 14, 12, 0, tzinfo=_gt_U),    # ظهرُ الاثنين
+    ]
+    _gt_mods = (_gt_mh, _gt_eh, _gt_sf)
+    _gt_par = all(m.session_gate(t) == _gt_sh.session_gate(t)
+                  for t in _gt_times for m in _gt_mods)
+    # 🔑 والحاكمُ: الوقتان المقيسان **لا يُرجعان صمتًا** ويُرجعان جلسةً مُغلَقةً
+    #    يقينًا (‏تسبق تاريخَ نيويورك الحاليّ).
+    _gt_late = _gt_times[2:4]
+    _gt_live = []
+    for t in _gt_late:
+        for m in (_gt_sh,) + _gt_mods:
+            ok, sess = m.session_gate(t)
+            _gt_live.append(ok and sess is not None
+                            and sess < t.astimezone(
+                                __import__("zoneinfo").ZoneInfo(
+                                    "America/New_York")).date())
+    # 🔒 والرفضُ الصريح يبقى مُختبَرًا (‏`allow_backfill=False`) فلا يُقرأ القفلُ
+    #    «افتح دائمًا».
+    _gt_strict = all(m.session_gate(_gt_late[0], allow_backfill=False)
+                     == (False, None) for m in (_gt_sh,) + _gt_mods)
+    _gt_ok1 = _gt_par and all(_gt_live) and _gt_strict
+    _gt_w1 = (f"تكافؤ={_gt_par} · المتأخّران أحياء={sum(_gt_live)}/8 · "
+              f"رفضٌ صريح={_gt_strict} · "
+              f"مثال={_gt_sh.session_gate(_gt_late[1])}")
+except Exception as _e:                                          # noqa: BLE001
+    _gt_ok1, _gt_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🔒 GATE1 بوّابةُ التوقيت في الأدوات الأربع **متكافئةٌ مع `split_hunter`** "
+      "وتصمد أمام تأخّرِ GitHub المقيس (‏04:45 و06:01 UTC) — والرفضُ الصريحُ "
+      "يبقى مُختبَرًا", _gt_ok1, _gt_w1)
+
+# 🔒 `GATE2` — **لا نسخةَ رابعة**: الثلاثةُ تستورد `prev_session_date` **بالاسم**
+#    من `split_hunter` (‏AST لا نصّ) ⇒ لا تنحرف واحدةٌ عن الأخريات بمرور الوقت.
+try:
+    _gt_bad = []
+    for _m in _gt_mods:
+        _t = _gt_ast.parse(_gt_in.getsource(_m.session_gate))
+        _got = any(isinstance(_n, _gt_ast.ImportFrom)
+                   and _n.module == "split_hunter"
+                   and any(_a.name == "prev_session_date" for _a in _n.names)
+                   for _n in _gt_ast.walk(_t))
+        _called = any(getattr(_n.func, "id", None) == "prev_session_date"
+                      for _n in _gt_ast.walk(_t) if isinstance(_n, _gt_ast.Call))
+        if not (_got and _called):
+            _gt_bad.append(f"{_m.__name__}(استيراد={_got}·نداء={_called})")
+    _gt_ok2, _gt_w2 = not _gt_bad, (f"المخالفة: {_gt_bad}" if _gt_bad
+                                    else "الثلاثةُ تستورد وتُنادي بالاسم")
+except Exception as _e:                                          # noqa: BLE001
+    _gt_ok2, _gt_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🔒 GATE2 `prev_session_date` **مُعادةُ الاستعمال بالاسم** في الثلاث "
+      "(‏AST) — لا نسخةَ رابعةٍ تنحرف", _gt_ok2, _gt_w2)
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
