@@ -1638,10 +1638,6 @@
   "date": "2026-09-17"
  },
  "LIQ:GVH": {
-  "last_eval_ms": 1789657980000,
-  "tc_cum": 46141.0565358211,
-  "tc_seen_ms": 1789657380000,
-  "date": "2026-09-17",
   "anchor_ms": 1789657920000,
   "last_ms": 1789657980000,
   "sent": [
@@ -1650,6 +1646,7 @@
   "updates": 0,
   "vol_x": 14.6,
   "peak_usd": 40406,
+  "last_eval_ms": 1789657980000,
   "pulse_ms": 1789657980000,
   "anchor_price": 1.27,
   "anchor_open": 1.19,
@@ -1657,7 +1654,8 @@
   "pre_done": true,
   "pre_hi": 1.23,
   "pre_usd": 26307,
-  "pre_n": 10
+  "pre_n": 10,
+  "date": "2026-09-17"
  },
  "LIQ:VIOT": {
   "last_eval_ms": 1789422060000,
@@ -2997,9 +2995,9 @@
  },
  "LIQ:SNOA": {
   "last_eval_ms": 1789656960000,
-  "date": "2026-09-17",
   "tc_cum": 2114.9725,
-  "tc_seen_ms": 1789656960000
+  "tc_seen_ms": 1789656960000,
+  "date": "2026-09-17"
  },
  "LIQ:CVRX": {
   "last_eval_ms": 1789418400000,
