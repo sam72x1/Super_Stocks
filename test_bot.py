@@ -51066,10 +51066,14 @@ check("🌅💧🔒 PUA9 وضعُ الجدوى: يطبع الأعدادَ الأ
 # 🔴 `PUA10` — الحرّاسُ الخمسة **كلٌّ برمز خروجه** (‏5 · 3 · 3 · 6 · 6).
 try:
     def _pua_scan(n_ev=481, cover=1.0, match=1.0, pmc=1.0, flag=True):
+        """🔑 `fetch_ok` هو مقياسُ `V-U4` بعد ملحق §⑫-1 — و**ثُلثا الصفوف بلا
+        سلّةٍ عمدًا** فلو عاد المقياسُ إلى «`u_now` غيرُ `None`» سقطت الحالةُ
+        الخضراء، وهو بالضبط العطبُ الذي أوقف التجربة."""
         _k = int(round(n_ev * pmc))
         _ev = [{"is_pm": (True if flag else None) if _i else True,
-                "u_now": ">1M" if _i < _k else None} for _i in range(n_ev)]
-        _ct = [{"u_now": ">1M"} for _ in range(50)]
+                "fetch_ok": _i < _k,
+                "u_now": ">1M" if _i % 3 == 0 else None} for _i in range(n_ev)]
+        _ct = [{"u_now": ">1M", "fetch_ok": True} for _ in range(50)]
         return {"2023": {"ev": _ev, "cx": _ct, "cc": _ct,
                          "cover": cover, "match": match}}
     _pua_g = [_PUA.guards_of(_pua_scan())["pass"] is True,
@@ -51083,7 +51087,8 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     _pua_ok10, _pua_w10 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🌅💧🔒 PUA10 الحرّاس: `V-U1` عددٌ يخالف المنشور ⇒ 5 · `V-U2`/`V-U3` ⇒ 3 · "
-      "`V-U4` طبقةٌ دقيقةٌ ناقصة و`V-U5` وسمٌ غائب ⇒ 6", _pua_ok10, _pua_w10)
+      "`V-U4` جلبٌ ناقصٌ و`V-U5` وسمٌ غائب ⇒ 6 — **وثُلثا الصفوف بلا سلّةٍ ولا "
+      "يُسقطان الحارس** (ملحق §⑫-1)", _pua_ok10, _pua_w10)
 
 # 🔴 `PUA11` — «قراءةٌ فقط» **مع شاهدِ ضبطٍ يُثبت أن الحارسَ يعضّ** لا أنه لا يفحص.
 try:
@@ -51176,6 +51181,111 @@ except Exception as _e:                                          # noqa: BLE001
 check("🌅💧🔒 PUA14 عتبةُ `LK1` **لا تُخفَّض**: `z` يُشتقّ من عائلة الميزات الثلاثَ "
       "عشرةَ (‏26 خليّةً ⇒ z أعلى من عائلة الأذرع) · و`main` تأخذه من `bonf_z` "
       "وحدَها ولا تُعيد اختيارَ العائلة داخلها", _pua_ok14, _pua_w14)
+
+# 🔴 `PUK4` ‏+ `PUA15`-`PUA17` — ملحقُ عقد `T-PMUSD` §⑫ «الفراغُ ليس نقصًا»
+#    وتنفيذُه. **الملحقُ مدفوعٌ بعد وضع الجدوى وقبل أيّ رقمٍ حاكم**، والعقدُ
+#    أعلاه لم يُمَسّ بحرف (قاعدةُ المستودع: المدموجُ لا يُعدَّل — يُلحَق به).
+_puk_s12 = _ohk_sec(_puk_doc, "## ⑫", None)
+try:
+    # 🐞 **رابعُ وقوعٍ لدرس «اقرأ الفقرةَ لا السطر»**: بنودُ §⑫-ⓒ ملفوفةٌ على
+    #    ثلاثة أسطرٍ و«اتّجاهُ كلٍّ» في سطرها الثالث ⇒ قراءةُ السطر تُسقط نصًّا
+    #    سليمًا. فيُصلَح القفلُ ولا تُمَسّ الوثيقة (الصنفُ ②).
+    _puk_fix, _puk_cur = [], None
+    for _l in _puk_s12.splitlines():
+        if len(_l) > 4 and _l[0] in "1234" and _l[1:5] == ". **":
+            if _puk_cur is not None:
+                _puk_fix.append(" ".join(_puk_cur))
+            _puk_cur = [_l]
+        elif _puk_cur is not None:
+            if _l.startswith("   "):
+                _puk_cur.append(_l.strip())
+            else:
+                _puk_fix.append(" ".join(_puk_cur))
+                _puk_cur = None
+    if _puk_cur is not None:
+        _puk_fix.append(" ".join(_puk_cur))
+    _puk_ok4 = (len(_puk_fix) == 4
+                and "`V-U4` يعود إلى معناه المنصوص" in _puk_fix[0]
+                and "نجح جلبُها" in _puk_fix[0]
+                and "`E-REG`" in _puk_fix[1] and "ضدّ الفرضيّة" in _puk_fix[1]
+                and "تبقى `pm_feats` بالاسم" in _puk_fix[2]
+                and "ضدّ الفرضيّة" in _puk_fix[2]
+                and "وصفيّةٌ لا حاكمة" in _puk_fix[3]
+                and "مع الفرضيّة" in _puk_fix[3]
+                and "يحكم المسجَّلُ ويُنشَر الآخرُ وصفيًّا" in _puk_s12
+                and "ولا نسبةَ ولا فاصلَ ولا حصّةَ سلّةٍ واحدة" in _puk_s12
+                and "45.1%" in _puk_s12 and "57.0%" in _puk_s12
+                and "35187711966" in _puk_s12)
+    _puk_w4 = f"تصحيحات={len(_puk_fix)} · §⑫={len(_puk_s12)} محرفًا"
+except Exception as _e:                                          # noqa: BLE001
+    _puk_ok4, _puk_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUK4 ملحقُ §⑫: أربعةُ تصحيحاتٍ كلٌّ في رقمه · **واتّجاهُ كلٍّ مُعلَنٌ** "
+      "(اثنان ضدّ الفرضيّة والوصفيُّ معها) · والسلّةُ الحاكمةُ تبقى `pm_feats` "
+      "بالاسم · وقاعدةُ «يحكم المسجَّل» منصوصة · ويُقرّ أنه قبل أيّ رقمٍ حاكم",
+      _puk_ok4, _puk_w4)
+
+# 🔴 `PUA15` — `is_pm_event` **ثلاثيّةٌ** بعد الملحق: فشلُ الجلب ≠ الفراغ الحقيقيّ.
+try:
+    _pua_pre = [_pua_bar(9.0, 2.5)]
+    _pua_post = [_pua_bar(10.0, 9.9)]                 # جُلبت ولا شمعةَ قبل الجرس
+    _pua_ok15 = (_PUA.is_pm_event(None, 1.0) == (True, True)
+                 and _PUA.is_pm_event(_pua_post, 1.0) == (False, False)
+                 and _PUA.is_pm_event(_pua_pre, 1.0) == (True, False)
+                 and _PUA.is_pm_event(_pua_post, 1.0, fetched=False) == (True, True)
+                 and _PUA._zero_enc(None, True, "<100k") == "<100k"
+                 and _PUA._zero_enc(None, False, "<100k") is None
+                 and _PUA._zero_enc(">1M", True, "<100k") == ">1M")
+    _pua_w15 = (f"فشل={_PUA.is_pm_event(None, 1.0)} · "
+                f"فراغ={_PUA.is_pm_event(_pua_post, 1.0)} · "
+                f"بريماركت={_PUA.is_pm_event(_pua_pre, 1.0)}")
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok15, _pua_w15 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA15 ملحقُ §⑫-2: فشلُ الجلب ⇒ `E-PM` مجهولًا · وجلبٌ **ناجحٌ** "
+      "ببريماركتٍ فارغ ⇒ **`E-REG` معلومًا** · و`_zero_enc` يُصفّر الناجحَ وحدَه",
+      _pua_ok15, _pua_w15)
+
+# 🔴 `PUA16` — `V-U4` يقيس **نجاحَ الجلب** لا وجودَ السلّة (ملحق §⑫-1).
+try:
+    _pua_r_ok = [{"fetch_ok": True, "u_now": None} for _ in range(10)]
+    _pua_r_no = [{"fetch_ok": False, "u_now": ">1M"} for _ in range(10)]
+    _pua_ok16 = (_PUA.pm_cover(_pua_r_ok) == 1.0
+                 and _PUA.pm_cover(_pua_r_no) == 0.0
+                 and _PUA.pm_cover([]) == 0.0
+                 and _PUA.PM_COVER_MIN == 0.95)
+    _pua_w16 = (f"جُلبت بلا سلّة={_PUA.pm_cover(_pua_r_ok)} · "
+                f"سلّةٌ بلا جلب={_PUA.pm_cover(_pua_r_no)}")
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok16, _pua_w16 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA16 `V-U4` يقيس **نجاحَ الجلب**: صفوفٌ جُلبت وبريماركتُها فارغٌ "
+      "تغطيتُها 100% · وصفوفٌ لم تُجلَب وتحمل سلّةً تغطيتُها صفر (ملحق §⑫-1)",
+      _pua_ok16, _pua_w16)
+
+# 🔴 `PUA17` — القراءةُ الثانيةُ **موصولةٌ ووصفيّة**: تُحسَب لكلّ ذراعٍ بمفتاح
+#    `+0` وتُطبَع، **ولا تدخل `PU1`/`PU2`/`PU3`** (`read_pm_verdict` لا تراها).
+try:
+    _pua_t17 = _pua_ast.parse(_pua_src)
+    _pua_m17 = next(_n for _n in _pua_ast.walk(_pua_t17)
+                    if isinstance(_n, _pua_ast.FunctionDef) and _n.name == "main")
+    _pua_has0 = any(isinstance(_n, _pua_ast.BinOp)
+                    and isinstance(_n.op, _pua_ast.Add)
+                    and getattr(_n.left, "id", None) == "feat"
+                    and getattr(_n.right, "value", None) == "0"
+                    for _n in _pua_ast.walk(_pua_m17))
+    _pua_v17 = next(_n for _n in _pua_ast.walk(_pua_t17)
+                    if isinstance(_n, _pua_ast.FunctionDef)
+                    and _n.name == "read_pm_verdict")
+    _pua_v17s = _pua_ast.dump(_pua_v17)
+    _pua_ok17 = (_pua_has0
+                 and all(_k in _pua_src for _k in ('"u_now0"', '"g_now0"',
+                                                   '"u_prev0"', '"g_prev0"'))
+                 and "pass0" not in _pua_v17s and "cx0" not in _pua_v17s
+                 and "قراءةٌ ثانيةٌ **وصفيّة**" in _pua_src)
+    _pua_w17 = f"مفتاحُ +0 في main={_pua_has0} · الحكمُ لا يراها"
+except Exception as _e:                                          # noqa: BLE001
+    _pua_ok17, _pua_w17 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅💧🔒 PUA17 القراءةُ الثانيةُ (الفراغُ صفرٌ) **تُحسَب وتُطبَع لكلّ ذراع** "
+      "بمفتاح `+0` · و`read_pm_verdict` **لا تراها** فتبقى وصفيّةً لا حاكمة",
+      _pua_ok17, _pua_w17)
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
