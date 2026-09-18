@@ -843,5 +843,39 @@
    "VHUB",
    "WSHP"
   ]
+ },
+ {
+  "date": "2026-09-18",
+  "symbols": [
+   "ACTU",
+   "ATPC",
+   "BCTX",
+   "BNR",
+   "BTCS",
+   "CRVO",
+   "CURX",
+   "DSY",
+   "DXST",
+   "FRGT",
+   "GVH",
+   "JUNS",
+   "LNAI",
+   "MOBX",
+   "MSAI",
+   "NCEL",
+   "NCRA",
+   "NEUP",
+   "NNNN",
+   "ONMD",
+   "PTLE",
+   "SEV",
+   "SKYQ",
+   "SMX",
+   "TIL",
+   "UPC",
+   "VHUB",
+   "WLDS",
+   "WSHP"
+  ]
  }
 ]
