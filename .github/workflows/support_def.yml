@@ -1,0 +1,26 @@
+name: SUPDEF (🧱🔬 تعريفُ الدعم — T-SUPDEF)
+
+# 🔒 **قراءةٌ فقط**: لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** · ولا شحنَ
+#    مهما كانت النتيجة (المحورُ يمسّ جذرًا). العقد: `support_def_prereg.md`.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  supdef:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🧱🔬 قِس تعريفَ الدعم (قراءةٌ فقط)
+        run: python support_def_probe.py
