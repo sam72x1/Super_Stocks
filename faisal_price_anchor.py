@@ -25,6 +25,10 @@
     وعمرُ الشارتات القديمة مجهول ⇒ نافذةٌ واسعةٌ والقيدُ الثاني يعوّضها).
   • الحكم: `unique` (يومٌ واحدٌ يطابق) · `ambiguous` (أكثر) · `none` (صفر) ·
     `no_price` (لا مرساةَ في القسم) · `no_data` (مرساةٌ بلا تاريخٍ عند ياهو).
+  • **وصفيٌّ لا حاكم (أُضيف بعد أوّل تشغيلة `35405360466` ولا يغيّر عمود الحكم):** أعمدةُ
+    `tight_*` تُعيد الحكمَ بتسامحٍ **‏0.10%** (المراسي ذاتُ النسبة مطابقاتُها الوحيدة جاءت
+    كلُّها دون ‏0.005%) — تُطبَع لتُسجَّل مسبقًا في أيّ ملحقٍ يستعمل التواريخ، **ولا تُؤرِّخ
+    بنفسها**؛ ومعها سطرُ حساسيّة `SENS` لثلاثة تسامحات.
 """
 import csv
 import datetime as dt
@@ -38,6 +42,8 @@ TOL = 0.75          # % على الإغلاق المُشتقّ
 RANGE_SLACK = 1.0   # % سماحية على حدود مدى اليوم (spot)
 W0, W1 = "2025-01-01", "2026-08-31"
 TOL_LOOSE = 1.5     # % لمرساةٍ بلا نسبةٍ مسجَّلة (AH/Pre عاريًا — قيدٌ واحدٌ رخو)
+TOL_TIGHT = 0.10    # % وصفيٌّ فقط (أعمدة tight_* وسطر SENS) — لا يمسّ عمود الحكم
+SENS_TOLS = (0.75, 0.25, 0.10)
 RE_ANY = re.compile(
     r"(?:(AH|After Hours|Pre-market|Premarket|Pre|بريماركت)\b[^0-9%+\-‑−]{0,10})?"
     r"(?<![\d.])(\d+\.\d+)(?:\s*\(([+‑\-−])(\d+\.\d+)%\))?", re.I)
@@ -158,22 +164,32 @@ def main() -> int:
     log(f"   أهداف: {len(tg)} (رمز·سطر) غيرُ مؤرَّخة · منها بمرساةٍ مسجَّلة: {len(with_px)}")
     syms = sorted({t["symbol"] for t in with_px})
     hist = bot.download_history(syms, start_override=W0) if syms else {}
-    out = []
+    out, sens = [], {}
     for t in tg:
         sym, ln, a = t["symbol"], t["line"], t["anchor"]
         row = {"symbol": sym, "line": ln, "anchor_line": t["anchor_line"] or "",
                "kind": a["kind"] if a else "", "recorded_px": a["px"] if a else "",
                "pct": a["pct"] if a else "", "implied_close": round(implied_close(a), 4) if a else "",
                "date": "", "match_date": "", "close": "", "diff_pct": "",
-               "verdict": "no_price", "candidates": ""}
+               "verdict": "no_price", "candidates": "",
+               "tight_verdict": "", "tight_date": "", "n_tight": ""}
         df = (hist or {}).get(sym)
         if a and df is not None and len(df) > 5:
             try:
                 splits = bot._fetch_splits(sym)
             except Exception:                                     # noqa: BLE001
                 splits = None
-            cands = match_days(_bars_of(df), a, splits)
-            row["candidates"] = " | ".join(f"{c['date']}:{c['close']}({c['diff_pct']}%)" for c in cands[:6])
+            bars = _bars_of(df)
+            cands = match_days(bars, a, splits)
+            row["candidates"] = " | ".join(f"{c['date']}:{c['close']}({c['diff_pct']}%)" for c in cands)
+            if a.get("pct") is not None:                        # الوصفيّ: تسامحٌ ضيّق (لا للرخوة)
+                tc = match_days(bars, a, splits, tol=TOL_TIGHT)
+                row["n_tight"] = len(tc)
+                row["tight_verdict"] = "unique" if len(tc) == 1 else ("ambiguous" if tc else "none")
+                row["tight_date"] = tc[0]["date"] if len(tc) == 1 else ""
+                sens.setdefault(sym, {})
+                for tl in SENS_TOLS:
+                    sens[sym][tl] = len(match_days(bars, a, splits, tol=tl))
             if len(cands) == 1:
                 row.update(date=cands[0]["date"], match_date=cands[0]["match_date"],
                            close=cands[0]["close"], diff_pct=cands[0]["diff_pct"], verdict="unique")
@@ -197,6 +213,11 @@ def main() -> int:
         if r["verdict"] == "ambiguous":
             log(f"          ⟶ مرشَّحات: {r['candidates']}")
     log("")
+    # وصفيّ: كم مرساةً ذاتَ نسبةٍ تصير وحيدةً عند كلّ تسامح (لا يمسّ الحكم أعلاه)
+    for tl in SENS_TOLS:
+        u = sum(1 for v in sens.values() if v.get(tl) == 1)
+        amb = sum(1 for v in sens.values() if (v.get(tl) or 0) > 1)
+        log(f"SENS tol={tl}% unique={u} ambiguous={amb} none={len(sens) - u - amb} (مراسٍ ذاتُ نسبة={len(sens)})")
     log(f"JUDGE unique={c['unique']} ambiguous={c['ambiguous']} none={c['none']} "
         f"no_data={c['no_data']} no_price={c['no_price']}")
     return 0
