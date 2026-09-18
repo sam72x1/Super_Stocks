@@ -45589,7 +45589,12 @@ _fb13_roc = (-9.8, -27.7)
 
 
 def _fb13_call(compact, agree=None):
+    """`compact=None` ⇒ **نداءٌ بلا وسيطٍ سادس** = ما يفعله فحصُ اليد والتقريرُ
+    الفنيّ حرفيًّا ⇒ يفحص الافتراضَ **سلوكيًّا** لا بصيغة التعريف."""
     try:
+        if compact is None:
+            return S.faisal_levels_line(_fb13_closes, _fb13_body, _fb13_band,
+                                        agree, _fb13_roc)
         return S.faisal_levels_line(_fb13_closes, _fb13_body, _fb13_band,
                                     agree, _fb13_roc, compact=compact)
     except Exception as _e:                                       # noqa: BLE001
@@ -45598,6 +45603,7 @@ def _fb13_call(compact, agree=None):
 
 _fb13_full = _fb13_call(False)
 _fb13_cmp = _fb13_call(True)
+_fb13_dflt = _fb13_call(None)      # بلا وسيط = مسارُ فحص اليد/التقرير الفنيّ
 _FB13_CONST = "(أعلى من القاع بـ15% إلى 25%)"
 # ① الكاملةُ **بت-بت كما كانت** (الافتراضُ لم ينقلب) · ② المختصرةُ أقصرُ فعلًا ·
 # ③ كلُّ سعرٍ باقٍ (لا يُقَصّ رقم) · ④ ROC والجملةُ الثابتة تسقطان من المختصرة
@@ -45611,6 +45617,7 @@ _fb13_ok = (
                    "نطاق اختبار المقاومة $3.31 إلى $3.60 "
                    "(أعلى من القاع بـ15% إلى 25%) · ROC -9.8 (متوسطه -27.7)")
     and len(_fb13_cmp) < len(_fb13_full) - 50 and len(_fb13_cmp) <= 100
+    and _fb13_dflt == _fb13_full   # 🔒 الافتراضُ سلوكيًّا: بلا وسيطٍ = الكاملة
     and _fb13_pf == _fb13_pc and len(_fb13_pc) == 6   # 3 إغلاقات + جسم + طرفا النطاق
     and "ROC" in _fb13_full and "ROC" not in _fb13_cmp
     and _FB13_CONST in _fb13_full and _FB13_CONST not in _fb13_cmp
@@ -45619,9 +45626,10 @@ _fb13_ok = (
     and "يتفقان عند $1.68" in _fb13_call(True, _fb13_agree)
     and "يتفقان عند $1.68" in _fb13_call(False, _fb13_agree))
 check("📘 FB13: `compact` يقصّ ROC والجملةَ الثابتةَ والحشوَ **ولا يقصّ سعرًا** · "
-      "والكاملةُ بت-بت كما كانت · بلا علامات مقارنة",
+      "والكاملةُ بت-بت كما كانت **والافتراضُ يُعطيها بلا وسيط** · بلا علامات مقارنة",
       _fb13_ok, f"كامل={len(_fb13_full)} مختصر={len(_fb13_cmp)} "
-                f"أسعار={len(_fb13_pc)}/{len(_fb13_pf)} | {_fb13_cmp[:70]}")
+                f"افتراضيّ={len(_fb13_dflt)} أسعار={len(_fb13_pc)}/{len(_fb13_pf)}"
+                f" | {_fb13_cmp[:60]}")
 
 # FB14 — **وصلٌ بالـAST**: نقطتا الإنتاج (الكرت واليوميّ يقرآن الحقلَ المخزَّن)
 #   تمرّران `compact=True`، **وفحصُ اليد والتقريرُ الفنيّ لا يمرّرانه** (الكاملةُ
