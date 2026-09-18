@@ -4492,11 +4492,11 @@
    "exit_ms": 1789757460000
   },
   "trig": "T-C",
-  "date": "2026-09-18",
   "pre_done": true,
   "pre_hi": 1.07,
   "pre_usd": 692896,
-  "pre_n": 42
+  "pre_n": 42,
+  "date": "2026-09-18"
  },
  "LIQ:QFIN": {
   "last_eval_ms": 1789677480000,
