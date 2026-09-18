@@ -710,6 +710,17 @@ def pivot_depth_section(sym, df):
             parts.append(cyc["window_state"])
         if parts:
             L.append("⏱️ الدورة: " + " · ".join(parts))
+        # 🧭 مستوياتُ فيصل (دفعة 2026-09-18) — عرضٌ فقط · لا تمسّ الأهداف/الدعم/الوقف.
+        #    `weekly_support` غيرُ قائمٍ ⇒ يُمرَّر 0 فيبقى بندُ التوافق خامدًا.
+        _px = r.get("price") or 0
+        _fl = bot.faisal_levels_line(
+            bot.red_candle_closes(df, _px),
+            bot.last_body_before_drop(df, _px),
+            bot.bounce_test_band(r.get("pivot") or 0),
+            bot.support_agreement(r.get("pivot") or 0, r.get("weekly_support") or 0),
+            bot.roc_state(df["Close"]))
+        if _fl:
+            L.append(_fl)
         bh = r.get("behav") or {}
         if bh.get("score") is not None:
             L.append(f"🧬 طريقة الارتفاع: {bh['score']}/100 · {bh['label']}")

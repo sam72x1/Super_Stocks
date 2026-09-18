@@ -193,6 +193,9 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
         _csl = bot.candle_supports_line(r.get("candle_supports") or {})  # 🕯️ ذيل الحمرا/بداية الصاعدة (GDHG)
         if _csl:
             L.append(_csl)
+        _fl = r.get("faisal_levels") or ""      # 🧭 مستويات فيصل (دفعة 2026-09-18)
+        if _fl:
+            L.append(_fl)
         if r.get("tranches") and r.get("stop"):
             trs = r["tranches"]
             stop0 = r["stop"][0] if isinstance(r["stop"], (list, tuple)) else r["stop"]
@@ -344,6 +347,17 @@ def hand_check(sym: str):
             #  يُبنى من `r`، و`official` لا يُقرأ بعدها إطلاقًا.)
             r["interp"] = bot.build_interpretation(r)
             r["candle_supports"] = bot.faisal_candle_supports(df, r.get("price") or 0)  # 🕯️ (عرض فقط)
+            # 🧭 دفعة 2026-09-18 — مستوياتُ فيصل (عرضٌ فقط · خارج الأهداف المقفولة).
+            # ⚠️ `weekly_support` **ليس حقلًا قائمًا** فيُمرَّر 0 ⇒ `agree=False` ⇒ لا يُطبع
+            #    الجزءُ — لا يُخترَع دعمٌ أسبوعيّ.
+            _px = r.get("price") or 0
+            r["faisal_levels"] = bot.faisal_levels_line(
+                bot.red_candle_closes(df, _px),
+                bot.last_body_before_drop(df, _px),
+                bot.bounce_test_band(r.get("pivot") or 0),
+                bot.support_agreement(r.get("pivot") or 0,
+                                      r.get("weekly_support") or 0),
+                bot.roc_state(df["Close"]))
         elif getattr(bot, "_REJECT_STATS", None):
             r["reject_reason"] = " · ".join(f"{k}={v}"
                                             for k, v in bot._REJECT_STATS.items())
