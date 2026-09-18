@@ -45954,6 +45954,98 @@ check("🧱📅🔒 WKP7 الإنتاجُ لا يستورد المِجَسَّ �
       not _wkp7, f"يذكره={_wkp7}")
 
 
+# ── 🔬 ملحقُ التقسيم §⑦ — أقفال WKD0-WKD3 («قِس التقسيم» 2026-09-18) ─────────
+try:
+    _wkd_doc = open("weekly_support_prereg.md", encoding="utf-8").read()
+    _wkd_src = open("wksup_split_probe.py", encoding="utf-8").read()
+except Exception as _wkd_e:                                       # noqa: BLE001
+    _wkd_doc = _wkd_src = f"⛔{type(_wkd_e).__name__}"
+_wkd_L = _wkd_doc.splitlines()
+
+
+def _wkd_sect(head):
+    try:
+        a = next(i for i, l in enumerate(_wkd_L) if l.startswith(head))
+    except StopIteration:
+        return []
+    return [l.strip() for l in _wkd_L[a:]]
+
+
+# WKD0 — الملحقُ **مؤرَّخٌ وموضعيّ**: تحت العقد · بمقاييسه الثلاثة وفروعه الثلاثة
+#   المرقَّمة **داخله** (‏لا في §④ ولا في حدود الصدق — درسُ WKS0).
+_wkd_app = _wkd_sect("## 📎 ملحقٌ مؤرَّخ §⑦")
+_wkd_txt = " ".join(_wkd_app)
+_wkd_br = [any(l.startswith(f"{i}. ") for l in _wkd_app) for i in (1, 2, 3)]
+check("🔬🔒 WKD0 ملحقُ §⑦ **داخل العقد** وبمقاييسه `D1`/`D2`/`D3` وفروعِه "
+      "الثلاثةِ مرقَّمةً **داخلَه**",
+      bool(_wkd_app) and all(k in _wkd_txt for k in ("`D1`", "`D2`", "`D3`"))
+      and all(_wkd_br) and "2026-09-18" in _wkd_txt,
+      f"طول={len(_wkd_app)} فروع={_wkd_br}")
+
+# WKD1 — الملحقُ **لا يُحيي `WS1`** ولا يُعيد حسابَه: نصٌّ صريحٌ يمنع تصحيحَ
+#   المقياس بأثرٍ رجعيّ (مطاردةُ نتيجة) — وهو جوهرُ نزاهة هذا القياس.
+check("🔬🔒 WKD1 الملحقُ ينصّ **صراحةً** أنه لا يُحيي `WS1` ولا يُعاد حسابُه بأيّ "
+      "عاملٍ (منعُ مطاردة النتيجة)",
+      "ولا يُعاد حسابُ `WS1`" in _wkd_txt and "مطاردةُ نتيجة" in _wkd_txt
+      and "لا يُحيي `WS1`" in _wkd_txt,
+      "—")
+
+# WKD2 — المِجَسُّ يُعيد استعمالَ جالبِ التقسيمات الإنتاجيَّ **بالاسم** ولا
+#   يُعيد كتابتَه · والعاملُ **يُحسَب** (قسمةٌ) لا يُكتَب رقمًا.
+import ast as _wkd_ast
+_wkd_tree = None
+try:
+    _wkd_tree = _wkd_ast.parse(_wkd_src)
+except Exception:                                                 # noqa: BLE001
+    pass
+_wkd_calls = set()
+if _wkd_tree is not None:
+    for _c in _wkd_ast.walk(_wkd_tree):
+        if isinstance(_c, _wkd_ast.Call):
+            _nm = getattr(_c.func, "id", None) or getattr(_c.func, "attr", None)
+            if _nm:
+                _wkd_calls.add(_nm)
+_wkd_nf = None
+if _wkd_tree is not None:
+    _wkd_nf = next((n for n in _wkd_ast.walk(_wkd_tree)
+                    if isinstance(n, _wkd_ast.FunctionDef)
+                    and n.name == "needed_factor"), None)
+_wkd_div = bool(_wkd_nf) and any(
+    isinstance(n, _wkd_ast.BinOp) and isinstance(n.op, _wkd_ast.Div)
+    for n in _wkd_ast.walk(_wkd_nf))
+check("🔬🔒 WKD2 المِجَسُّ ينادي `_fetch_splits` و`_split_scale_factor` "
+      "الإنتاجيَّتين **بالاسم** · والعاملُ **يُحسَب قسمةً** لا يُكتَب رقمًا",
+      {"_fetch_splits", "_split_scale_factor"} <= _wkd_calls and _wkd_div,
+      f"نداءات={sorted(_wkd_calls & {'_fetch_splits', '_split_scale_factor'})} "
+      f"قسمة={_wkd_div}")
+
+# WKD3 — جدولُ حقيقةِ الفروع + workflow بلا كرونٍ ولا سرّ
+_wkd_mod = None
+_wkd_tt = []
+try:
+    import importlib.util as _wkd_imp
+    _wkd_sp = _wkd_imp.spec_from_file_location("_wkd_m", "wksup_split_probe.py")
+    _wkd_mod = _wkd_imp.module_from_spec(_wkd_sp)
+    _wkd_sp.loader.exec_module(_wkd_mod)
+    for _a, _e in (((True, True, True), 2), ((True, False, True), 0),
+                   ((False, False, True), 0), ((False, True, True), 0),
+                   ((True, True, False), 7), ((False, False, False), 7)):
+        _g = _wkd_mod.read_verdict(*_a)[0]
+        if _g != _e:
+            _wkd_tt.append(f"{_a}⟶{_g}≠{_e}")
+except Exception as _wkd_e2:                                      # noqa: BLE001
+    _wkd_tt = [f"⛔ {type(_wkd_e2).__name__}"]
+try:
+    _wkd_wf = open(".github/workflows/wksup_split.yml", encoding="utf-8").read()
+except Exception:                                                 # noqa: BLE001
+    _wkd_wf = ""
+check("🔬🔒 WKD3 فروعُ المِجَسّ = نصُّ §⑦ (جدولُ حقيقةٍ ستُّ حالات · «لا قياس» "
+      "يحكم وحدَه) · وworkflow بلا كرونٍ ولا سرّ",
+      not _wkd_tt and "workflow_dispatch" in _wkd_wf
+      and "schedule:" not in _wkd_wf and "secrets." not in _wkd_wf,
+      f"جدول={_wkd_tt} كرون={'schedule:' in _wkd_wf}")
+
+
 # ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
 # «اذا حللنا سهم ارتكاز ممنوع الدخول … انتظر اقل سعر 10% او 20% تحت» (فيصل، دليلُ
 # طريقة فيصل ص54) · أداةُ قياسٍ معزولةٌ عن الإنتاج تُقاس بها الجملةُ قبل أيّ شحن.
