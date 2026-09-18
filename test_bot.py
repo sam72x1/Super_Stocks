@@ -45675,25 +45675,59 @@ try:
 except Exception as _wks_e:                                       # noqa: BLE001
     _wks_doc = f"⛔ {type(_wks_e).__name__}"
 
-# WKS0 — العقدُ يحمل أرقامَ المصدر ومعاييرَه الأربعةَ وفروعَه الثلاثة **بأسمائها**
-_wks_need = ("1.694", "1.682", "1.160", "1.70",
-             "WS1", "WS2", "WS3", "WS4",
-             "W-SWING", "W-MIN", "PIVOT_LOOKBACK_WK", "X_20260905_03")
-_wks_miss = [k for k in _wks_need if k not in _wks_doc]
-# والفروعُ الثلاثةُ **مرقَّمةٌ كلٌّ في سطره** (بنيويٌّ لا عضويّةُ كلمات — درسُ RKK0)
-_wks_lines = [l.strip() for l in _wks_doc.splitlines()]
-_wks_br = [any(l.startswith(f"{i}. ") for l in _wks_lines) for i in (1, 2, 3)]
-check("🧱📅🔒 WKS0 عقدُ الدعم الأسبوعيّ يحمل أرقامَ المصدر (1.694/1.682/1.160/1.70) "
-      "والمعاييرَ الأربعةَ والتعريفَين والفروعَ الثلاثةَ مرقَّمة",
-      not _wks_miss and all(_wks_br), f"ناقص={_wks_miss} فروع={_wks_br}")
+# WKS0/WKS1 — 🔴 **مُشدَّدان بعد أربعِ طفراتٍ نجت:** الصياغةُ الأولى كانت تفحص
+#   **الوثيقةَ كلَّها** فيمرّ حذفُ الرقم من جدول المصدر (‏1.160 باقيةٌ في الشرح) ·
+#   وتحويلُ الفرع «3.» إلى نقطةٍ (‏حدودُ الصدق مرقَّمةٌ 1-6 فيوجد سطرٌ آخر) ·
+#   وحذفُ `WS4` من المعايير (‏باقيةٌ في التنبّؤات) · وحذفُ التاريخ من صفّ `WS1`
+#   (‏باقٍ في الملاحظة). ⇒ صارا **موضعيَّين**: كلُّ حقيقةٍ في **سطرِها الحامل**.
+#   (وهو نفسُ درسِ `HND5`: «الشكلُ الصحيح لا يكفي — الموضعُ جزءٌ من الصحّة».)
+_wks_L = _wks_doc.splitlines()
 
-# WKS1 — حدُّ التاريخ (as-of) ووسمُ النافذة `engineering` **منصوصان**: بلا الأوّل
-#   يُقاس شارتُ اليوم لا شارتُ الصورة، وبلا الثاني يُنسَب رقمي إلى فيصل.
-check("🧱📅🔒 WKS1 العقدُ ينصّ قصَّ البيانات as-of 2026-09-05 **ويسم النافذة "
-      "`engineering` بلا ادّعاء سند**",
-      "2026-09-05" in _wks_doc and "`engineering`" in _wks_doc
-      and "بلا ادّعاءِ سند" in _wks_doc,
-      f"asof={'2026-09-05' in _wks_doc} eng={'`engineering`' in _wks_doc}")
+
+def _wks_row(prefix):
+    """أوّلُ سطرِ جدولٍ يبدأ بالبادئة — أو «» إن غاب."""
+    for _l in _wks_L:
+        if _l.strip().startswith(prefix):
+            return _l
+    return ""
+
+
+def _wks_section(head, nxt):
+    """أسطرُ قسمٍ بين عنوانَين (‏موضعيّ لا عضويّةُ كلمات)."""
+    try:
+        a = next(i for i, l in enumerate(_wks_L) if l.startswith(head))
+        b = next(i for i, l in enumerate(_wks_L) if i > a and l.startswith(nxt))
+        return [l.strip() for l in _wks_L[a:b]]
+    except StopIteration:
+        return []
+
+
+# ① جدولُ المصدر: الرقمان الأسبوعيّان في **صفّه** واليوميُّ في صفّه
+_wks_rw = _wks_row("| أسبوعيّ |")
+_wks_rd = _wks_row("| يوميّ |")
+# ② صفوفُ المعايير: لكلٍّ صفُّه · وصفُّ `WS1` يحمل التاريخ **فيه**
+_wks_crit = {k: _wks_row(f"| `{k}`") for k in ("WS1", "WS2", "WS3", "WS4")}
+# ③ الفروعُ الثلاثةُ مرقَّمةٌ **داخل §④** لا في أيّ قسمٍ آخر
+_wks_br4 = _wks_section("## §④", "## §⑤")
+_wks_brok = [any(l.startswith(f"{i}. ") for l in _wks_br4) for i in (1, 2, 3)]
+_wks_need = ("W-SWING", "W-MIN", "PIVOT_LOOKBACK_WK", "X_20260905_03", "1.70")
+_wks_miss = [k for k in _wks_need if k not in _wks_doc]
+check("🧱📅🔒 WKS0 عقدُ الدعم الأسبوعيّ **موضعيًّا**: صفُّ المصدر الأسبوعيّ يحمل "
+      "1.694 و1.160 · واليوميُّ 1.682 · وأربعةُ صفوفِ معايير · وثلاثةُ فروعٍ "
+      "مرقَّمةٍ داخلَ §④",
+      not _wks_miss and "1.694" in _wks_rw and "1.160" in _wks_rw
+      and "1.682" in _wks_rd and all(_wks_crit.values()) and all(_wks_brok),
+      f"ناقص={_wks_miss} أسبوعيّ={bool(_wks_rw)} يوميّ={bool(_wks_rd)} "
+      f"معايير={[k for k, v in _wks_crit.items() if not v]} فروع={_wks_brok}")
+
+# WKS1 — حدُّ التاريخ **في صفّ `WS1` نفسِه** ووسمُ النافذة `engineering` في §②
+_wks_s2 = " ".join(_wks_section("## §②", "## §③"))
+check("🧱📅🔒 WKS1 التاريخُ `as-of 2026-09-05` **في صفّ `WS1` نفسِه** · ووسمُ "
+      "النافذة `engineering` **بلا ادّعاء سند** في §②",
+      "2026-09-05" in _wks_crit["WS1"]
+      and "`engineering`" in _wks_s2 and "بلا ادّعاءِ سند" in _wks_s2,
+      f"تاريخٌ_في_WS1={'2026-09-05' in _wks_crit['WS1']} "
+      f"وسمٌ_في_§②={'`engineering`' in _wks_s2}")
 
 # WKS2 — حدُّ الصدقِ الحاكم: القاعُ الأسبوعيُّ الظاهر (1.160) **ليس** الدعمَ (1.694)
 #   ⇒ العقدُ يُعلن أن التنفيذَ الساذج يكذب. هذا هو جوهرُ التجربة، فلا يُحذَف.
@@ -45724,6 +45758,166 @@ _wks_ship = ("PIVOT_LOOKBACK_WK" in _wks_prod
 check("🧱📅🔒 WKS3 لم يُشحَن شيءٌ بعد: صفرُ `PIVOT_LOOKBACK_WK` وصفرُ إسنادٍ لـ"
       "`weekly_support` في الإنتاج (يسقط لحظةَ الشحن فيُجبر تحديثَه مع الحكم)",
       not _wks_ship, f"مشحون={_wks_ship}")
+
+
+# ── 🧱📅 أداةُ T-WKSUP — أقفال WKP0-WKP7 («ابن الاداة» 2026-09-18) ────────────
+import ast as _wkp_ast
+import importlib.util as _wkp_imp
+
+_wkp_path = "weekly_support_probe.py"
+try:
+    _wkp_src = open(_wkp_path, encoding="utf-8").read()
+    _wkp_tree = _wkp_ast.parse(_wkp_src)
+except Exception as _wkp_e:                                       # noqa: BLE001
+    _wkp_src, _wkp_tree = f"⛔{type(_wkp_e).__name__}", None
+
+
+def _wkp_calls(node=None):
+    """أسماءُ كلّ نداءٍ في الوحدة/العقدة (AST لا نصّ)."""
+    out = set()
+    if _wkp_tree is None:
+        return out
+    for c in _wkp_ast.walk(node or _wkp_tree):
+        if isinstance(c, _wkp_ast.Call):
+            nm = getattr(c.func, "id", None) or getattr(c.func, "attr", None)
+            if nm:
+                out.add(nm)
+    return out
+
+
+_wkp_all = _wkp_calls()
+# WKP0 — يُعيد استعمالَ دوالِّ الإنتاج **بالاسم** ولا يُعيد كتابةَ منطقها
+_WKP_REUSE = ("pivot_stability", "resample_ohlc", "support_agreement",
+              "download_history", "load_watchlist")
+_wkp0_miss = [f for f in _WKP_REUSE if f not in _wkp_all]
+check("🧱📅🔒 WKP0 المِجَسُّ يُعيد استعمالَ دوالِّ الإنتاج الخمس **بالاسم** (AST) "
+      "فلا يُعيد كتابةَ تعريفِ الدعم",
+      not _wkp0_miss, f"غائب={_wkp0_miss}")
+
+# WKP1 — حارسُ «قراءةٌ فقط» **سلوكيٌّ**: نظيفٌ على الملفّ الحقيقيّ **ويَعَضّ**
+#   على نسخةٍ مزروعٍ فيها إرسال (شاهدُ ضبطٍ — وإلّا فالنظافةُ دعوًى خاوية).
+_wkp1_real, _wkp1_ctrl = ["⛔ لم يُشغَّل"], ["⛔ لم يُشغَّل"]
+try:
+    _wkp_spec = _wkp_imp.spec_from_file_location("_wkp_mod", _wkp_path)
+    _wkp_mod = _wkp_imp.module_from_spec(_wkp_spec)
+    _wkp_spec.loader.exec_module(_wkp_mod)
+    _wkp1_real = _wkp_mod.selfcheck_readonly()
+    import os as _wkp_os
+    import tempfile as _wkp_tmp
+    _wkp_dir = _wkp_tmp.mkdtemp(prefix="wka_")
+    _wkp_plant = _wkp_os.path.join(_wkp_dir, "planted.py")
+    with open(_wkp_plant, "w", encoding="utf-8") as _fh:
+        # 🐞 الزرعُ في **دالّةٍ لا تُنادى**: الحارسُ يقرأ الشجرةَ فيراه، ونداءُ
+        #    `selfcheck_readonly` لا ينفّذه فلا يرمي `NameError` (كان يرمي فيُسقط
+        #    الشاهدَ ويُقرأ «الحارسُ لا يَعَضّ» كذبًا).
+        _fh.write(_wkp_src + "\n\ndef _planted_never_called():\n"
+                             "    send_telegram('x')\n")
+    _wkp_s2 = _wkp_imp.spec_from_file_location("_wkp_planted", _wkp_plant)
+    _wkp_m2 = _wkp_imp.module_from_spec(_wkp_s2)
+    _wkp_s2.loader.exec_module(_wkp_m2)
+    _wkp1_ctrl = _wkp_m2.selfcheck_readonly()
+except Exception as _wkp_e1:                                      # noqa: BLE001
+    _wkp1_real = [f"⛔ رمى: {type(_wkp_e1).__name__}"]
+check("🧱📅🔒 WKP1 حارسُ «قراءةٌ فقط» **سلوكيّ**: نظيفٌ على المِجَسّ ويَعَضّ على "
+      "نسخةٍ مزروعٍ فيها إرسال (شاهدُ ضبط)",
+      _wkp1_real == [] and bool(_wkp1_ctrl)
+      and any("send_telegram" in str(x) for x in _wkp1_ctrl),
+      f"حقيقيّ={_wkp1_real} · مزروع={_wkp1_ctrl}")
+
+# WKP2 — النافذةُ **مُشتقّةٌ بالحساب** لا رقمًا مكتوبًا · و`CONFIG` **لا يُسنَد**
+#   إليها إطلاقًا (وإلّا لصار تشديدًا صامتًا في الذاكرة — درسُ `RKA10`).
+_wkp2_derived = ("PIVOT_LOOKBACK" in _wkp_src and "// 5" in _wkp_src)
+_wkp2_assign = False
+if _wkp_tree is not None:
+    for _nd in _wkp_ast.walk(_wkp_tree):
+        if isinstance(_nd, (_wkp_ast.Assign, _wkp_ast.AugAssign)):
+            _tg = _nd.targets if isinstance(_nd, _wkp_ast.Assign) else [_nd.target]
+            for _t in _tg:
+                if (isinstance(_t, _wkp_ast.Subscript)
+                        and getattr(_t.value, "attr", None) == "CONFIG"):
+                    _wkp2_assign = True
+        if (isinstance(_nd, _wkp_ast.Call)
+                and getattr(_nd.func, "attr", None) == "update"
+                and getattr(getattr(_nd.func, "value", None), "attr", None) == "CONFIG"):
+            _wkp2_assign = True
+_wkp2_win = getattr(_wkp_mod, "wk_window", lambda: -1)() if _wkp1_real == [] else -1
+check("🧱📅🔒 WKP2 النافذةُ مُشتقّةٌ (25÷5=5) وصفرُ إسنادٍ إلى `CONFIG` في المِجَسّ",
+      _wkp2_derived and not _wkp2_assign and _wkp2_win == 5,
+      f"مُشتقّة={_wkp2_derived} إسناد={_wkp2_assign} نافذة={_wkp2_win}")
+
+# WKP3 — جدولُ حقيقةِ الحكم: **سقوطُ `WS1` يحكم وحدَه** (الفرعُ 3) ولا فرعَ رابع
+_WKP_TT = [((False, True, True, True), 3), ((False, False, False, False), 3),
+           ((True, True, True, True), 0), ((True, True, True, False), 0),
+           ((True, True, False, True), 2), ((True, False, True, True), 2),
+           ((True, False, False, True), 2), ((True, True, False, False), 2)]
+_wkp3_bad = []
+if _wkp1_real == []:
+    for _a, _exp in _WKP_TT:
+        _got = _wkp_mod.read_verdict(*_a)[0]
+        if _got != _exp:
+            _wkp3_bad.append(f"{_a}⟶{_got}≠{_exp}")
+else:
+    _wkp3_bad = ["⛔ الوحدةُ لم تُحمَّل"]
+check("🧱📅🔒 WKP3 حكمُ المِجَسّ = فروعُ `§④` بحرفها (جدولُ حقيقةٍ ثماني حالات · "
+      "سقوطُ `WS1` يحكم وحدَه)",
+      not _wkp3_bad, str(_wkp3_bad)[:120])
+
+# WKP4 — `cut_asof` **يقصّ فعلًا** ويُرجع None عند بياناتٍ لا تكفي (لا يُخمَّن)
+_wkp4 = ["⛔ لم يُشغَّل"]
+if _wkp1_real == []:
+    import pandas as _wkp_pd
+    _wkp_idx = _wkp_pd.date_range("2026-06-01", periods=120, freq="D")
+    _wkp_df = _wkp_pd.DataFrame(
+        {"Open": 1.0, "High": 1.1, "Low": 0.9, "Close": 1.0, "Volume": 1000},
+        index=_wkp_idx)
+    _c1 = _wkp_mod.cut_asof(_wkp_df, "2026-09-05")
+    _c2 = _wkp_mod.cut_asof(_wkp_df, "2026-06-05")       # 5 أيامٍ = لا تكفي
+    _wkp4 = [None if _c1 is None else len(_c1), _c2 is None,
+             None if _c1 is None else str(_c1.index[-1])[:10]]
+check("🧱📅🔒 WKP4 `cut_asof` يقصّ فعلًا (آخرُ شمعةٍ ≤ التاريخ) ويُرجع None عند "
+      "بياناتٍ لا تكفي",
+      _wkp1_real == [] and _c1 is not None and len(_c1) == 97
+      and str(_c1.index[-1])[:10] <= "2026-09-05" and _c2 is None,
+      str(_wkp4))
+
+# WKP5 — **جوهرُ التجربة**: التعريفان يفترقان على بنيةِ PPBT نفسِها (قاعٌ قديمٌ
+#   عميقٌ ‏+ قاعُ سوينغٍ قريبٌ أعلى) ⇒ `W-SWING` يعطي القريبَ و`W-MIN` يعطي القديم.
+_wkp5 = ["⛔ لم يُشغَّل"]
+if _wkp1_real == []:
+    import numpy as _wkp_np
+    _n = 140
+    _lo = _wkp_np.full(_n, 3.0)
+    _lo[10:15] = 1.160                                   # القاعُ القديمُ العميق
+    _lo[-20:] = 1.694                                    # قاعُ السوينغ القريب
+    _idx2 = _wkp_pd.date_range("2026-01-05", periods=_n, freq="D")
+    _df2 = _wkp_pd.DataFrame(
+        {"Open": _lo + 0.1, "High": _lo + 0.2, "Low": _lo,
+         "Close": _lo + 0.05, "Volume": 1000}, index=_idx2)
+    _sw = _wkp_mod.w_swing(_df2, 5)
+    _mn = _wkp_mod.w_min(_df2)
+    _wkp5 = [_sw, _mn]
+check("🧱📅🔒 WKP5 التعريفان يفترقان على بنيةِ PPBT: `W-SWING`≈1.694 (السوينغُ "
+      "القريب) و`W-MIN`≈1.160 (القاعُ القديم) ⇒ الساذجُ يكذب",
+      _wkp1_real == [] and _sw is not None and _mn is not None
+      and abs(_sw - 1.694) < 0.01 and abs(_mn - 1.160) < 0.01,
+      str(_wkp5))
+
+# WKP6 — الـworkflow: **بلا كرون وبلا سرٍّ** ⇒ الإرسالُ مستحيلٌ بنيويًّا
+try:
+    _wkp_wf = open(".github/workflows/weekly_support.yml", encoding="utf-8").read()
+except Exception as _wkp_e3:                                      # noqa: BLE001
+    _wkp_wf = f"⛔{type(_wkp_e3).__name__}"
+check("🧱📅🔒 WKP6 workflow الدعم الأسبوعيّ: `workflow_dispatch` فقط · صفرُ "
+      "`schedule` وصفرُ `secrets`",
+      "workflow_dispatch" in _wkp_wf and "schedule:" not in _wkp_wf
+      and "secrets." not in _wkp_wf and "contents: read" in _wkp_wf,
+      f"كرون={'schedule:' in _wkp_wf} أسرار={'secrets.' in _wkp_wf}")
+
+# WKP7 — الإنتاجُ **لا يعرف** المِجَسَّ (بحثٌ معزول)
+_wkp7 = [f for f in ("Super_stock.py", "hand_check.py", "technical_report.py")
+         if "weekly_support_probe" in open(f, encoding="utf-8").read()]
+check("🧱📅🔒 WKP7 الإنتاجُ لا يستورد المِجَسَّ ولا يذكره (بحثٌ معزولٌ عن الفرز)",
+      not _wkp7, f"يذكره={_wkp7}")
 
 
 # ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
