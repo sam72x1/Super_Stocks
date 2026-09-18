@@ -674,6 +674,11 @@ CONFIG = {
     "SPLIT_SWEEP_MAX_PCT": 13.0,         # حافة النطاق العميقة
     "SPLIT_SWEEP_PCT": 5.0,              # حالة ONCO الضحلة (تُمرَّر صراحةً عند الحاجة)
     "SPLIT_BOTTOM_LOOKBACK": 30,         # نافذة القاع المُحقَّق (فيصل استعمل 0.71 لا الـ÷2)
+    # 📐 دفعة 2026-09-18 — عرضٌ فقط (خارج الفرز والجذور):
+    "FAISAL_TEST_BAND_LO_PCT": 15.0,     # faisal_verbatim
+    "FAISAL_TEST_BAND_HI_PCT": 25.0,     # faisal_verbatim
+    "FAISAL_LEVEL_TOL_PCT": 2.0,         # faisal_verbatim (الدليل ص54)
+    "FAISAL_BODY_DROP_PCT": 15.0,        # engineering (بلا ادّعاء سند)
 
     # ---- تقنية ----
     "HISTORY_DAYS": 800,         # ~2.2 سنة (يكفي لفريم شهري سليم ~27 شمعة)
@@ -4574,6 +4579,128 @@ def candle_supports_line(cs: dict) -> str:
     if not parts:
         return ""
     return "🕯️ دعوم الشموع (فيصل GDHG: الذيل والبداية تُختبَر): " + " — ".join(parts)
+
+
+def red_candle_closes(df, price, span: int = 130):
+    """🎯 إغلاقاتُ الشموع الهابطة أهدافًا — فيصل بخطّ يده على $CUPR (X_20260918_27).
+    عندنا **رؤوسُ** الحمرا (`_red_candle_heads`) و**ذيولُها** (`faisal_candle_supports`)
+    وينقصنا **الإغلاق**. والصورةُ `TG_20260918_37` تُظهر أنه يستعمل الرأسَ والإغلاقَ معًا
+    ⇒ **عائلتان لا تناقض**. نقيّة · عرض فقط — خارج الأهداف/الدعم/الوقف المقفولة."""
+    try:
+        o = df["Open"].values.astype(float)
+        c = df["Close"].values.astype(float)
+        n = len(c)
+        thr = CONFIG.get("RES_RED_HEAD_MIN_DROP", 3.0) / 100.0
+        px = float(price)
+        if n < 5 or px <= 0 or px != px:
+            return []
+        out = []
+        for i in range(max(0, n - span), n):
+            if o[i] > 0 and c[i] < o[i] and (o[i] - c[i]) / o[i] >= thr and c[i] > px:
+                out.append(round(float(c[i]), 4))
+        return sorted(set(out))
+    except Exception:                    # noqa: BLE001
+        return []
+
+
+def last_body_before_drop(df, price, span: int = 90):
+    """🕯️ جسمُ آخر شمعةٍ قبل الهبوط — `TG_20260918_38` على $NUWE.
+    المستوى = `max(Open, Close)` لآخر شمعةٍ ذاتِ جسمٍ معتبر سبقت هبوطًا
+    ‏`FAISAL_BODY_DROP_PCT` فأكثر. **عتبةُ الهبوط هندسيّة** (‏`engineering` —
+    فيصل أشار للمستوى ولم يذكر نسبة). نقيّة · عرض فقط."""
+    try:
+        o = df["Open"].values.astype(float)
+        c = df["Close"].values.astype(float)
+        lo = df["Low"].values.astype(float)
+        n = len(c)
+        px = float(price)
+        if n < 3 or px <= 0 or px != px:
+            return None
+        thr = CONFIG.get("RES_RED_HEAD_MIN_DROP", 3.0) / 100.0
+        need = float(CONFIG.get("FAISAL_BODY_DROP_PCT", 15.0))
+        best = None
+        for i in range(max(0, n - span), n - 1):
+            if o[i] <= 0 or abs(c[i] - o[i]) / o[i] < thr:
+                continue
+            after_low = float(lo[i + 1:].min())
+            if after_low <= 0 or c[i] <= 0:
+                continue
+            drop = (1.0 - after_low / c[i]) * 100.0
+            top = max(float(o[i]), float(c[i]))
+            if drop >= need and top > px:
+                best = {"level": round(top, 4), "ago": int(n - 1 - i),
+                        "drop_pct": round(float(drop), 2)}
+        return best                                   # آخرُ مطابقٍ = الأقربُ زمنيًّا
+    except Exception:                    # noqa: BLE001
+        return None
+
+
+def bounce_test_band(low):
+    """📐 نطاقُ اختبار المقاومة بعد القاع — سبعةُ نصوصٍ في دفعة 2026-09-18 تتّفق على
+    «‏15% إلى 25% فوق القاع» ارتدادًا أوّلَ يختبر المقاومة. **عرضٌ لا هدف** (الأهدافُ
+    المقفولة لا تُمَسّ). نقيّة · تُرجع `None` عند مدخلٍ غير صالح."""
+    try:
+        x = float(low)
+        if x <= 0 or x != x:
+            return None
+        lo_p = float(CONFIG.get("FAISAL_TEST_BAND_LO_PCT", 15.0))
+        hi_p = float(CONFIG.get("FAISAL_TEST_BAND_HI_PCT", 25.0))
+        return (round(x * (1 + lo_p / 100.0), 4), round(x * (1 + hi_p / 100.0), 4))
+    except (TypeError, ValueError):
+        return None
+
+
+def support_agreement(daily_support, weekly_support, tol_pct=None):
+    """📏 توافقُ دعمَي الفريمين — `X_20260905_03` على $PPBT: الدعمُ الذي يتّفق عليه
+    اليوميُّ والأسبوعيُّ **كسرُه فشلٌ لا نقص**. التسامح `FAISAL_LEVEL_TOL_PCT`
+    (‏2% — الدليل ص54). نقيّة · عرض فقط.
+    ⚠️ **حدُّ صدق:** لا حقلَ `weekly_support` في القائمة اليوم ⇒ تُنادى بصفرٍ
+    فتُرجع `agree=False` والبندُ يبقى خامدًا حتى يُبنى المصدر."""
+    try:
+        d, w = float(daily_support), float(weekly_support)
+        tol = float(tol_pct if tol_pct is not None
+                    else CONFIG.get("FAISAL_LEVEL_TOL_PCT", 2.0))
+        if d <= 0 or w <= 0 or d != d or w != w:
+            return {"agree": False, "level": None, "gap_pct": None}
+        gap = abs(d - w) / max(d, w) * 100.0
+        ok = gap <= tol
+        return {"agree": ok, "level": round(min(d, w), 4) if ok else None,
+                "gap_pct": round(gap, 2)}
+    except (TypeError, ValueError):
+        return {"agree": False, "level": None, "gap_pct": None}
+
+
+def roc_state(close, n: int = 12, ma: int = 6):
+    """📊 ROC(12,6) — ظهر مرّتين في شارتَي فيصل بدفعة 2026-09-18 ولم يُذكر بنصّ.
+    **مساندٌ لا بوّابة** (‏`faisal_inferred`). يُرجع `(None, None)` عند التعذّر."""
+    try:
+        r = close.pct_change(n) * 100.0
+        m = r.rolling(ma).mean()
+        rv, mv = float(r.iloc[-1]), float(m.iloc[-1])
+        if rv != rv or mv != mv:
+            return None, None
+        return round(rv, 3), round(mv, 3)
+    except Exception:                    # noqa: BLE001
+        return None, None
+
+
+def faisal_levels_line(closes, body, band, agree, rocv) -> str:
+    """🧭 سطرٌ واحدٌ يجمع الخمسة — **بلا علامات مقارنة** (قاعدةُ العرض المُلزِمة).
+    «» إن لم يوجد شيء."""
+    parts = []
+    if closes:
+        parts.append("إغلاقات الهابطة " + " · ".join(f"${v:.2f}" for v in closes[:3]))
+    if body:
+        parts.append(f"جسم آخر شمعة قبل الهبوط ${body['level']:.2f}")
+    if band:
+        parts.append(f"نطاق اختبار المقاومة ${band[0]:.2f} إلى ${band[1]:.2f} "
+                     "(أعلى من القاع بـ15% إلى 25%)")
+    if agree and agree.get("agree"):
+        parts.append(f"الدعم اليومي والأسبوعي يتفقان عند ${agree['level']:.2f} "
+                     "(كسره = فشل)")
+    if rocv and rocv[0] is not None:
+        parts.append(f"ROC {rocv[0]:.1f} (متوسطه {rocv[1]:.1f})")
+    return "🧭 " + " · ".join(parts) if parts else ""
 
 
 def borrow_line(r: dict) -> str:
@@ -9423,6 +9550,9 @@ def build_message(results: list, splits: list,
         _ps = past_spikes_line(r.get("spikes"))  # 🔁 رفعاته السابقة (T-REPEAT — عرض)
         if _ps:
             lines.append(_ps)
+        _flv = r.get("faisal_levels") or ""      # 🧭 مستويات فيصل (دفعة 2026-09-18)
+        if _flv:
+            lines.append(_flv)
         # 🌙 «اليوميُّ فوّت هذا» (مسكةُ فيصل على DRCT) — الكرتُ يُبنى بعد الإثراء
         #    مباشرةً فالقياسُ طازج ⇒ **لا تمريرَ لـ`today_iso`** (لا كتمَ تقادم).
         for _ahl in ah_missed_line(r.get("ah_missed")):
@@ -10691,6 +10821,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "fsto_osc": r.get("fsto_osc"),                    # 🌀 قوة تذبذب FSTO: قروب/مضارب (عرض فقط)
         "klinger": r.get("klinger"),                      # 📊 كلنجر (حجم، فيصل — عرض فقط)
         "spikes": r.get("spikes"),                        # 🔁 رفعاته السابقة (T-REPEAT — عرض فقط)
+        "faisal_levels": r.get("faisal_levels"),         # 🧭 مستويات فيصل (2026-09-18 — عرض فقط)
         "cci": r.get("cci"),                              # 📉 CCI(14) (فيصل — عرض فقط)
         "ah_missed": r.get("ah_missed"),                   # 🌙 ما فوّته اليوميُّ (عرض فقط · يُكتَم إن بات)
         "insider_buys": r.get("insider_buys"),            # 📄 شراء داخلي (Form 4)
@@ -11917,6 +12048,15 @@ def scan_market():
                 # 🔁 رفعاتُ السهم السابقة (‏`T-REPEAT` — سقفُ نجاحه سطرُ عرضٍ فقط)
                 r["spikes"] = spike_history(df["Close"].values)
                 r["trendline"] = descending_trendline(df, r["price"])  # §10 (حيّ، عرض فقط)
+                # 🧭 مستوياتُ فيصل (دفعة 2026-09-18) — نصٌّ مخزَّن (حيّ، عرض فقط).
+                #    `weekly_support` غيرُ قائمٍ ⇒ صفرٌ ⇒ بندُ التوافق خامد.
+                r["faisal_levels"] = faisal_levels_line(
+                    red_candle_closes(df, r["price"]),
+                    last_body_before_drop(df, r["price"]),
+                    bounce_test_band(r.get("pivot") or 0),
+                    support_agreement(r.get("pivot") or 0,
+                                      r.get("weekly_support") or 0),
+                    roc_state(df["Close"]))
             except Exception as _e:
                 log(f"⚠️ إثراء عرض {sym}: {type(_e).__name__}: {_e} — تُخطّى حقول "
                     "العرض · السهم يبقى في نتائج الفرز (العضوية غير متأثّرة).")
@@ -12448,6 +12588,13 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                 df["High"], df["Low"], df["Close"])
             s["bottom_test"] = bottom_test_state(df)   # 🔁 «القاع 2» يتجدّد يوميًا (عرض فقط)
             s["spikes"] = spike_history(df["Close"].values)  # 🔁 رفعاته السابقة (عرض فقط)
+            # 🧭 مستوياتُ فيصل تتحرّك مع السعر ⇒ تُجدَّد يوميًّا (عرض فقط)
+            s["faisal_levels"] = faisal_levels_line(
+                red_candle_closes(df, s.get("last_price") or s.get("price") or 0),
+                last_body_before_drop(df, s.get("last_price") or s.get("price") or 0),
+                bounce_test_band(s.get("pivot") or 0),
+                support_agreement(s.get("pivot") or 0, s.get("weekly_support") or 0),
+                roc_state(df["Close"]))
             _psn = pivot_stability(df["Low"].values.astype(float),
                                    df["Close"].values.astype(float))
             if _psn:
@@ -18015,6 +18162,9 @@ def build_daily_message(wl: dict, splits: list,
         _ps = past_spikes_line(s.get("spikes"))       # 🔁 رفعاته السابقة (T-REPEAT)
         if _ps:
             lines.append("   " + _ps)
+        _flv = s.get("faisal_levels") or ""           # 🧭 مستويات فيصل (2026-09-18)
+        if _flv:
+            lines.append("   " + _flv)
         # 🌙 «اليوميُّ فوّت هذا» — من السجلّ المخزَّن ⇒ **يُمرَّر تاريخُ اليوم**
         #    فيُكتَم البائتُ (النافذةُ تتحرّك، وسطرٌ عن أسبوعٍ مضى يُقرأ حدثَ اليوم).
         for _ahl in ah_missed_line(s.get("ah_missed"), today_iso=today):

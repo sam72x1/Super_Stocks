@@ -45294,6 +45294,290 @@ check("📘 BK9: 🔒 اقفل RSI — `rsi_target_price` معرَّفةٌ ول�
       f"live={_bk_live[:70]!r} arms={_bk_arms}")
 
 
+# ═══ 🧭 دفعة 2026-09-18 — أقفال FB1-FB10 (المسار أ · عرضٌ فقط) ════════════════
+# المصادر: `X_20260918_27` ($CUPR إغلاقاتُ الهابطة) · `TG_20260918_38` ($NUWE جسمُ آخر
+# شمعةٍ قبل الهبوط) · سبعةُ نصوصٍ على نطاق 15-25% · `X_20260905_03` ($PPBT توافقُ
+# الفريمين) · ROC(12,6) من شارتَيه. الحزمة: `OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md`.
+import ast as _fb_ast
+import numpy as _fb_np
+import pandas as _fb_pd
+
+
+def _fb_df(o, c, lo=None):
+    """فِكستشرٌ صغير — `High` مشتقٌّ فلا يؤثّر على أيٍّ من الدوالّ الخمس."""
+    lo = lo if lo is not None else [min(a, b) - 0.1 for a, b in zip(o, c)]
+    return _fb_pd.DataFrame({"Open": o, "Close": c, "Low": lo,
+                             "High": [max(a, b) + 0.1 for a, b in zip(o, c)]})
+
+
+# فِكستشر $CUPR: هابطتان معتبرتان (6.609 · 5.782 = رقما فيصل الحرفيّان) · هابطةٌ 1%
+# (تحت عتبة الاعتبار فتسقط) · خضراوان · وإغلاقٌ 3.00 **تحت** السعر فلا يُعرَض.
+_FB_O = [7.20, 6.30, 5.00, 4.00, 3.60, 4.00]
+_FB_C = [6.609, 5.782, 4.95, 4.30, 3.30, 3.00]
+_fb_cupr = _fb_df(_FB_O, _FB_C)
+# 🐞 فِكستشرُ الدوجي — **من طفرةٍ نجت** (‏`m1` تنزع `c[i] < o[i]`): عند عتبةِ
+#    اعتبارٍ صفريّة تمرّ الشمعةُ المسطّحة (إغلاقٌ = افتتاح) من شرط النسبة وحدَه،
+#    و«إغلاقُ شمعةٍ مسطّحة» ليس هدفًا. فالحارسُ **ليس خامدًا** — وشُدَّ القفلُ
+#    ليَعَضّ بدل حذف الطفرة (قاعدةُ `lock-and-mutate`).
+_fb_doji = _fb_df([5.00, 4.00, 4.50, 3.50, 3.20, 3.10],
+                  [6.00, 4.00, 4.20, 3.60, 3.15, 3.05])
+try:
+    _fb1_a = S.red_candle_closes(_fb_cupr, 3.12)
+    _fb1_b = S.red_candle_closes(_fb_cupr, 7.0)
+    _fb1_c = S.red_candle_closes(_fb_cupr, 0)
+    _fb1_d = S.red_candle_closes(_fb_cupr, float("nan"))
+    _fb1_thr = S.CONFIG["RES_RED_HEAD_MIN_DROP"]
+    S.CONFIG["RES_RED_HEAD_MIN_DROP"] = 0.0     # عتبةٌ صفريّة ⇒ الحارسُ وحدَه يفصل
+    _fb1_e = S.red_candle_closes(_fb_doji, 3.0)
+    S.CONFIG["RES_RED_HEAD_MIN_DROP"] = _fb1_thr
+except Exception as _e:                  # noqa: BLE001
+    _fb1_a = _fb1_b = _fb1_c = _fb1_d = _fb1_e = f"⛔ {type(_e).__name__}"
+check("📘 FB1: `red_candle_closes` — إغلاقات الهابطة المعتبرة فوق السعر فقط "
+      "(‏$CUPR 6.609/5.782) · الخضراءُ والهابطةُ 1% والإغلاقُ تحت السعر تسقط · "
+      "**والمسطّحةُ تسقط ولو كانت عتبةُ الاعتبار صفرًا**",
+      _fb1_a == [3.3, 5.782, 6.609] and _fb1_b == [] and _fb1_c == []
+      and _fb1_d == [] and _fb1_e == [3.05, 3.15, 4.2],
+      f"a={_fb1_a} b={_fb1_b} c={_fb1_c} d={_fb1_d} doji={_fb1_e}")
+
+# فِكستشر $NUWE: جسمٌ معتبر قمّتُه 0.85 ثمّ هبوطٌ إلى 0.69 (‏−18.8%).
+_fb_nuwe = _fb_df([0.70, 0.72, 0.80, 0.78, 0.71, 0.70],
+                  [0.72, 0.80, 0.85, 0.72, 0.70, 0.70],
+                  [0.69, 0.71, 0.79, 0.70, 0.69, 0.69])
+# 🐞 فِكستشرٌ **بجسمَين** مؤهَّلَين — من طفرةٍ نجت (‏`m11` تُبقي **أوّلَ** مطابقٍ بدل
+#    آخرِه): بجسمٍ واحدٍ يتساوى الأوّلُ والآخرُ فلا تُغيّر الطفرةُ سلوكًا (الصنف ④-3).
+#    هنا القديمُ 1.20 والأقربُ زمنيًّا 0.85 ⇒ **«الأقربُ» تصير مقفولةً سلوكيًّا.**
+_fb_two = _fb_df([0.95, 1.10, 0.80, 0.72, 0.80, 0.78, 0.71, 0.70],
+                 [1.20, 0.82, 0.74, 0.80, 0.85, 0.72, 0.70, 0.70],
+                 [0.94, 0.70, 0.70, 0.71, 0.79, 0.70, 0.69, 0.69])
+try:
+    _fb2_a = S.last_body_before_drop(_fb_nuwe, 0.69)
+    _fb2_c = S.last_body_before_drop(_fb_nuwe, 0.90)      # السعرُ فوق المستوى ⇒ لا شيء
+    _fb2_d = S.last_body_before_drop(_fb_two, 0.69)       # جسمان ⇒ يفوز الأقربُ زمنيًّا
+    _fb2_old = S.CONFIG["FAISAL_BODY_DROP_PCT"]
+    S.CONFIG["FAISAL_BODY_DROP_PCT"] = 60.0               # عمقٌ لا يتحقّق
+    _fb2_b = S.last_body_before_drop(_fb_nuwe, 0.69)
+    S.CONFIG["FAISAL_BODY_DROP_PCT"] = _fb2_old
+except Exception as _e:                  # noqa: BLE001
+    _fb2_a = _fb2_b = _fb2_c = _fb2_d = f"⛔ {type(_e).__name__}"
+check("📘 FB2: `last_body_before_drop` — المستوى `max(Open, Close)` لآخر جسمٍ سبق "
+      "هبوطًا معتبرًا (‏$NUWE 0.85 ⟶ 0.69) · وعمقُ 60% وسعرُ 0.90 يُسقطانه · "
+      "**وبجسمَين يفوز الأقربُ زمنيًّا (‏0.85) لا الأقدمُ (‏1.20)**",
+      isinstance(_fb2_a, dict) and _fb2_a.get("level") == 0.85
+      and _fb2_a.get("ago") == 3 and _fb2_b is None and _fb2_c is None
+      and isinstance(_fb2_d, dict) and _fb2_d.get("level") == 0.85
+      and _fb2_d.get("ago") == 3,
+      f"a={_fb2_a} b={_fb2_b} c={_fb2_c} d={_fb2_d}")
+
+try:                                     # القيمتان تُقرآن من `CONFIG` **بالاسم**
+    _fb3_a = S.bounce_test_band(0.69)
+    _fb3_lo, _fb3_hi = (S.CONFIG["FAISAL_TEST_BAND_LO_PCT"],
+                        S.CONFIG["FAISAL_TEST_BAND_HI_PCT"])
+    S.CONFIG["FAISAL_TEST_BAND_LO_PCT"] = 40.0
+    _fb3_moved = S.bounce_test_band(0.69)
+    S.CONFIG["FAISAL_TEST_BAND_LO_PCT"] = _fb3_lo
+    _fb3_b, _fb3_c = S.bounce_test_band(0), S.bounce_test_band("x")
+except Exception as _e:                  # noqa: BLE001
+    _fb3_a = _fb3_moved = _fb3_b = _fb3_c = f"⛔ {type(_e).__name__}"
+check("📘 FB3: `bounce_test_band` — نطاقُ 15-25% فوق القاع (‏0.69 ⟶ 0.7935/0.8625) · "
+      "والقيمتان من `CONFIG` بالاسم · والمدخلُ الفاسد يُرجع `None`",
+      _fb3_a == (0.7935, 0.8625) and _fb3_b is None and _fb3_c is None
+      and isinstance(_fb3_moved, tuple) and _fb3_moved[0] != 0.7935
+      and (_fb3_lo, _fb3_hi) == (15.0, 25.0),
+      f"a={_fb3_a} moved={_fb3_moved} cfg=({_fb3_lo},{_fb3_hi})")
+
+try:
+    _fb4_a = S.support_agreement(1.682, 1.694)            # فارقٌ 0.71% داخل التسامح
+    _fb4_b = S.support_agreement(1.70, 2.10)              # فارقٌ 19% خارجه
+    _fb4_c = S.support_agreement(None, 1)
+    _fb4_d = S.support_agreement(1.70, 2.10, 25.0)        # تسامحٌ واسعٌ ⇒ يتّفق
+    _fb4_t = S.CONFIG["FAISAL_LEVEL_TOL_PCT"]
+except Exception as _e:                  # noqa: BLE001
+    _fb4_a = _fb4_b = _fb4_c = _fb4_d = f"⛔ {type(_e).__name__}"
+    _fb4_t = None
+check("📘 FB4: `support_agreement` — دعمُ الفريمين يتّفق عند الأدنى داخل التسامح "
+      "(‏$PPBT 1.682/1.694) · والتسامحُ من `FAISAL_LEVEL_TOL_PCT` = 2%",
+      isinstance(_fb4_a, dict) and _fb4_a["agree"] and _fb4_a["level"] == 1.682
+      and isinstance(_fb4_b, dict) and not _fb4_b["agree"]
+      and _fb4_b["level"] is None and _fb4_b["gap_pct"] == 19.05
+      and isinstance(_fb4_c, dict) and not _fb4_c["agree"]
+      and isinstance(_fb4_d, dict) and _fb4_d["agree"] and _fb4_t == 2.0,
+      f"a={_fb4_a} b={_fb4_b} c={_fb4_c} d={_fb4_d} tol={_fb4_t}")
+
+try:
+    _fb5_a = S.roc_state(_fb_pd.Series(_fb_np.linspace(1.0, 2.0, 40)))
+    _fb5_b = S.roc_state(_fb_pd.Series([1.0, 2.0]))       # أقصرُ من النافذة ⇒ NaN
+except Exception as _e:                  # noqa: BLE001
+    _fb5_a = _fb5_b = f"⛔ {type(_e).__name__}"
+check("📘 FB5: `roc_state` — ROC(12,6) موجبٌ على سلسلةٍ صاعدة · و`NaN` يُرجَع "
+      "`(None, None)` لا رقمًا",
+      isinstance(_fb5_a, tuple) and _fb5_a[0] is not None and _fb5_a[0] > 0
+      and _fb5_a[1] is not None and _fb5_b == (None, None),
+      f"a={_fb5_a} b={_fb5_b}")
+
+_FB_BODY = {"level": 0.85, "ago": 3, "drop_pct": 18.82}
+_FB_AGREE = {"agree": True, "level": 1.682, "gap_pct": 0.71}
+_FB6_ARGS = [
+    ([3.3, 5.782, 6.609], _FB_BODY, (0.7935, 0.8625), _FB_AGREE, (2.5, 1.8)),
+    ([3.3], None, None, None, (None, None)),
+    ([], _FB_BODY, None, None, (None, None)),
+    ([], None, (0.7935, 0.8625), None, (None, None)),
+    ([], None, None, _FB_AGREE, (None, None)),
+    ([], None, None, {"agree": False, "level": None, "gap_pct": 19.05}, (2.5, 1.8)),
+]
+
+
+def _fb6_call(a):
+    """🐞 الصنفُ ①: السطرُ يُنسَّق بـ`:.2f` فمدخلٌ فاسد يرمي — والاستثناءُ هنا
+    **يُحوَّل فشلًا نظيفًا** فلا يُسقط السويّةَ ويكتمَ كلَّ قفلٍ بعده."""
+    try:
+        return S.faisal_levels_line(*a)
+    except Exception as _e:              # noqa: BLE001
+        return f"⛔ رمى: {type(_e).__name__}"
+
+
+_fb6_cases = [_fb6_call(a) for a in _FB6_ARGS]
+_fb6_empty = _fb6_call(([], None, None, None, (None, None)))
+check("📘 FB6: `faisal_levels_line` — **بلا علامات مقارنة** في ستّ تركيبات · "
+      "و«» عند الفراغ التامّ · والتوافقُ الساقط لا يُطبَع",
+      all(isinstance(x, str) and not x.startswith("⛔") for x in _fb6_cases)
+      and not any(ch in x for x in _fb6_cases for ch in ("≥", "≤", ">", "<"))
+      and _fb6_empty == "" and all(x for x in _fb6_cases[:5])
+      and "يتفقان" not in _fb6_cases[5],
+      f"cases={[x[:28] for x in _fb6_cases]}")
+
+_FB_SIX = ("red_candle_closes", "last_body_before_drop", "bounce_test_band",
+           "support_agreement", "roc_state", "faisal_levels_line")
+_fb_hc_src = open("hand_check.py", encoding="utf-8").read()
+_fb_tr_src = open("technical_report.py", encoding="utf-8").read()
+
+
+def _fb_attr_calls(src):
+    """أسماءُ `bot.X(...)` المنادةُ فعلًا — بالـAST لا بالنصّ (لا docstring ولا تعليق)."""
+    out = set()
+    for nd in _fb_ast.walk(_fb_ast.parse(src)):
+        if isinstance(nd, _fb_ast.Call) and isinstance(nd.func, _fb_ast.Attribute):
+            out.add(nd.func.attr)
+    return out
+
+
+_fb_hc_calls, _fb_tr_calls = _fb_attr_calls(_fb_hc_src), _fb_attr_calls(_fb_tr_src)
+check("📘 FB7: **الوصلُ بالـAST** — `hand_check.py` و`technical_report.py` ينادي كلٌّ "
+      "منهما الستَّ بالاسم من نقطة النداء الحيّة (لا ذكرًا في تعليق)",
+      all(f in _fb_hc_calls for f in _FB_SIX)
+      and all(f in _fb_tr_calls for f in _FB_SIX),
+      f"hc_missing={[f for f in _FB_SIX if f not in _fb_hc_calls]} "
+      f"tr_missing={[f for f in _FB_SIX if f not in _fb_tr_calls]}")
+
+_FB_FORBIDDEN = ("rank_key", "select_top", "classify_tier", "entry_status",
+                 "analyze_ticker", "backtest_symbol", "resistance_levels",
+                 "refine_targets_4h")
+# 🐞 الصنفُ ① (`lock-and-mutate`): `inspect`/`textwrap`/`hashlib` **غيرُ مربوطةٍ**
+#    عند هذي النقطة من السويّة — والاسمُ العاري يرمي `NameError` فيُسقط السويّةَ
+#    كلَّها ويكتم كلَّ قفلٍ بعده. فتُستورَد محلّيًّا ببادئة `_fb_`، والشجرةُ
+#    المُحلَّلة تُغني عن `getsource` أصلًا.
+import hashlib as _fb_hash
+
+_fb_tree = _fb_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+_fb_defs = {n.name: n for n in _fb_ast.walk(_fb_tree)
+            if isinstance(n, (_fb_ast.FunctionDef, _fb_ast.AsyncFunctionDef))}
+_fb8_bad = []
+for _fn in _FB_FORBIDDEN:
+    _nd_fn = _fb_defs.get(_fn)
+    if _nd_fn is None:
+        _fb8_bad.append(f"{_fn}:⛔غائبة")
+        continue
+    for _nd in _fb_ast.walk(_nd_fn):
+        if isinstance(_nd, _fb_ast.Call):
+            _nm = getattr(_nd.func, "id", None) or getattr(_nd.func, "attr", None)
+            if _nm in _FB_SIX:
+                _fb8_bad.append(f"{_fn}:{_nm}")
+# شاهدُ ضبط: القفلُ يمسك الإقحامَ لو وقع فعلًا (وإلّا فهو «لا شيءَ مرفوض»).
+_fb8_ctrl = [f"{_fn}:{getattr(_n.func, 'id', None)}"
+             for _n in _fb_ast.walk(_fb_defs["analyze_ticker"])
+             if isinstance(_n, _fb_ast.Call)
+             and getattr(_n.func, "id", None) in ("ema", "rsi")]
+check("📘 FB8: الستُّ **خارج** الجذور و`resistance_levels`/`refine_targets_4h` — "
+      "عرضٌ لا يمسّ الاختيار ولا الأهداف المقفولة · وشاهدُ الضبط يُثبت أن الكاشفَ "
+      "يرى النداءات فعلًا",
+      not _fb8_bad and bool(_fb8_ctrl),
+      f"bad={_fb8_bad} ctrl={_fb8_ctrl[:3]}"[:170])
+
+_FB_ROOT_FP = {
+    "rank_key": "12304e2e8763", "select_top": "ea82d29a84aa",
+    "classify_tier": "4000f581bdcc", "analyze_ticker": "d36af8284ef9",
+    "apply_short_gate": "6c3abbe6830c", "apply_float_gate": "750a84d4c2c5",
+    "scan_market": "61552990c603", "backtest_symbol": "ee2379df02ea",
+    "scan_ignition": "bf59c3a495ba", "scan_split_hunter": "1c6d651d25b5",
+    "entry_status": "a9f12435b523", "build_interpretation": "792fe1aab01b",
+}
+_fb_now = {k: _fb_hash.sha256(_fb_ast.dump(v).encode()).hexdigest()[:12]
+           for k, v in _fb_defs.items() if k in _FB_ROOT_FP}
+# ⚖️ `scan_market` **وحدَها** مستثناةٌ بنصّ §⓪-1 من الحزمة: «عدا كتلةَ الإثراء
+#    العرضيّة **داخل حارسها**، كما سُمح لـ`rsi27_price` سابقًا». والاستثناءُ
+#    لا يُترَك دعوًى — `FB11` يُثبته بالـAST.
+_FB_EXEMPT = "scan_market"
+_fb9_moved = [k for k, v in _FB_ROOT_FP.items()
+              if k != _FB_EXEMPT and _fb_now.get(k) != v]
+check("📘 FB9: بصماتُ الجذور الأحد عشر = المنشورُ في حزمة 2026-09-18 §②-0 · "
+      "و`scan_market` وحدَها مستثناةٌ بنصّ §⓪-1 (كتلةُ الإثراء داخل حارسها)",
+      not _fb9_moved and _fb_now.get(_FB_EXEMPT) is not None,
+      f"تغيّرت={_fb9_moved}")
+
+# 🔒 FB11 (نمطُ `BK9`): إسنادُ `faisal_levels` في `scan_market` **داخل** `try`
+#    حارسِ الإثراء العرضيّ — لا في المسار الرئيسيّ. فسقوطُه لا يُسقط سهمًا من
+#    النتائج (العضويةُ والترتيبُ لا يتأثّران).
+_fb_sm = _fb_defs["scan_market"]
+_fb_in_guard, _fb_anywhere = False, False
+for _nd in _fb_ast.walk(_fb_sm):
+    if (isinstance(_nd, _fb_ast.Assign) and isinstance(_nd.targets[0], _fb_ast.Subscript)
+            and getattr(_nd.targets[0].slice, "value", None) == "faisal_levels"):
+        _fb_anywhere = True
+for _nd in _fb_ast.walk(_fb_sm):
+    if isinstance(_nd, _fb_ast.Try):
+        for _b in _nd.body:
+            for _x in _fb_ast.walk(_b):
+                if (isinstance(_x, _fb_ast.Assign)
+                        and isinstance(_x.targets[0], _fb_ast.Subscript)
+                        and getattr(_x.targets[0].slice, "value", None) == "faisal_levels"):
+                    _fb_in_guard = True
+check("📘 FB11: إسنادُ `faisal_levels` في `scan_market` **داخل حارس الإثراء** "
+      "(نمطُ `BK9`) ⇒ سقوطُه لا يمسّ العضويةَ ولا الترتيب",
+      _fb_anywhere and _fb_in_guard,
+      f"موجود={_fb_anywhere} داخل_الحارس={_fb_in_guard}")
+
+# 🔒 FB12: الحقلُ يُخزَّن ويُجدَّد ويُعرَض في الكرت واليوميّ — **سلوكيًّا** لا نصًّا.
+_FB_MARK = "سطرُ فيصل الاختباريّ"
+_FB_CARD = dict(_card_rdy)                       # كرتٌ جاهزٌ قائمٌ في السويّة
+_fb12_entry = S.make_watch_entry(
+    dict(_FB_CARD, faisal_levels="🧭 س"), "2026-09-18").get("faisal_levels")
+_fb12_rich = S.build_message([dict(_FB_CARD, faisal_levels="🧭 " + _FB_MARK)], [])
+_fb12_bare = S.build_message([dict(_FB_CARD)], [])
+_FB_WL = S.make_watch_entry(_FB_CARD, "2026-09-18")
+_fb12_d_rich = S.build_daily_message(
+    {"stocks": [dict(_FB_WL, faisal_levels="🧭 " + _FB_MARK)]}, [], [], [])
+_fb12_d_bare = S.build_daily_message({"stocks": [dict(_FB_WL)]}, [], [], [])
+check("📘 FB12: `faisal_levels` يُنسَخ في `make_watch_entry` ويظهر في الكرت "
+      "واليوميّ **مع الحقل ويغيب بدونه** (فارقٌ محدَّد لا «أو»)",
+      _fb12_entry == "🧭 س"
+      and _FB_MARK in _fb12_rich and _FB_MARK not in _fb12_bare
+      and _FB_MARK in _fb12_d_rich and _FB_MARK not in _fb12_d_bare,
+      f"entry={_fb12_entry!r} كرت={_FB_MARK in _fb12_rich}/"
+      f"{_FB_MARK in _fb12_bare} يوميّ={_FB_MARK in _fb12_d_rich}/"
+      f"{_FB_MARK in _fb12_d_bare}")
+
+_fb_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+_FB_TAGS = ("faisal_verbatim", "faisal_inferred", "faisal_adopted",
+            "engineering", "third_party", "unsourced")
+_fb10_bad = []
+for _k in ("FAISAL_TEST_BAND_LO_PCT", "FAISAL_TEST_BAND_HI_PCT",
+           "FAISAL_LEVEL_TOL_PCT", "FAISAL_BODY_DROP_PCT"):
+    _rows = [ln for ln in _fb_led.splitlines() if _k in ln and ln.lstrip().startswith("|")]
+    if len(_rows) != 1 or sum(_rows[0].count(t) for t in _FB_TAGS) != 1:
+        _fb10_bad.append(f"{_k}:{len(_rows)}صفّ")
+check("📘 FB10: صفوفُ الدفتر للمفاتيح الأربعة — صفٌّ واحدٌ لكلٍّ **بوسمٍ واحدٍ** من الستّة",
+      not _fb10_bad, str(_fb10_bad)[:120])
+
+
 # ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
 # «اذا حللنا سهم ارتكاز ممنوع الدخول … انتظر اقل سعر 10% او 20% تحت» (فيصل، دليلُ
 # طريقة فيصل ص54) · أداةُ قياسٍ معزولةٌ عن الإنتاج تُقاس بها الجملةُ قبل أيّ شحن.
