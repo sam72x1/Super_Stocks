@@ -65,6 +65,12 @@ DESC = ("Y4", "Y1@7", "Y1@13")       # §④ — وصفيّةٌ لا تحكم
 
 RC_OK, RC_INPUT, RC_TOOL, RC_POP, RC_NOVERDICT = 0, 2, 3, 5, 9
 DRY = os.environ.get("TRAIL_DRY", "").strip() == "1"
+# 🔴 **عيبٌ مقيسٌ في قناة المُخرَج (2026-09-18):** جدولُ الصفوف ‏≈4,818 سطرًا
+#    يُطبَع في **ذيل** سجلّ الـCI، وسجلُّ الجوب هو **القناةُ الوحيدةُ المقروءة**
+#    (تنزيلُ السجلّ الكامل والـartifacts محجوبان ببوّابة الشبكة) ⇒ الحكمُ يصير
+#    فوق أربعة آلاف سطرٍ **فلا يُقرأ**. فصار الجدولُ **مطفأً افتراضًا** والحكمُ
+#    آخرَ ما يُطبَع · والقصُّ **يُعلَن بعدّاده** (قاعدةُ `faisal-gates §⑥`).
+TSV_ON = os.environ.get("TRAIL_TSV", "").strip() == "1"
 
 
 def _log(msg: str = "") -> None:
@@ -564,6 +570,18 @@ def tsv_block(rows) -> list:
     return out
 
 
+def rows_out(tot: list, on: bool) -> list:
+    """سطورُ المُخرَج للصفوف: الجدولُ كاملًا عند `on`، وإلّا **سطرُ قصٍّ بعدّاده**.
+
+    🔒 والحكمُ (`JUDGE`) يبقى **آخرَ ما يُطبَع** فيُقرأ بذيلٍ قصير — وهو عينُ
+    ما عجزتُ عنه في التشغيلة الأولى."""
+    if on:
+        return tsv_block(tot)
+    return [f"⟦ROWS⟧ جدولُ الصفوف مطفأٌ: **{len(tot)} صفًّا** لم تُطبَع "
+            "(‏`TRAIL_TSV=1` يطبعها) — قصٌّ مُعلَنٌ بعدّاده، والحكمُ أعلاه آخرَ "
+            "سطرٍ ذي معنًى فيُقرأ بذيلٍ قصير."]
+
+
 def report(per: dict, tot: list, pub: dict, ds: dict) -> int:     # noqa: PLR0915
     """الحكمُ المجمَّع — والمعاييرُ الأربعةُ كلٌّ برقمها (§⑤)."""
     py1, pl1 = pair_year(per, GOV, BASE), pair_pool(per, GOV, BASE)
@@ -652,8 +670,7 @@ def report(per: dict, tot: list, pub: dict, ds: dict) -> int:     # noqa: PLR091
     _log("   ⑨⑩ انحيازُ البقاء قائمٌ في لقطات PIT · و‏64% من الانفجارات بلا "
          "مِرساةٍ أصلًا (منقولٌ من `T-OPTRADE §⑩` ويخصّ `E-OP`).")
     _log("═" * 66)
-    _log("JUDGE " + json.dumps(
-        {"branch": br, "name": name,
+    judge = ({"branch": br, "name": name,
          "TR1": {"mean": (round(m1, 6) if pl1 else None),
                  "per_year": [[y, round(d, 6), n] for y, d, n in py1],
                  "pass": tr1["pass"]},
@@ -661,10 +678,11 @@ def report(per: dict, tot: list, pub: dict, ds: dict) -> int:     # noqa: PLR091
                  "per_year": [[y, round(d, 6), n] for y, d, n in py2],
                  "pass": tr2["pass"]},
          "TR3": tr3["material"], "TR4": tr4,
-         "d": ds, "rows": {y: per[y]["n"] for y in sorted(per)}},
-        ensure_ascii=False))
-    for ln in tsv_block(tot):
+         "d": ds, "rows": {y: per[y]["n"] for y in sorted(per)}})
+    for ln in rows_out(tot, TSV_ON):
         _log(ln)
+    # 🔒 `JUDGE` **آخرَ سطر** (وبعد الصفوف لو طُلبت) فيبلغه الذيلُ دائمًا
+    _log("JUDGE " + json.dumps(judge, ensure_ascii=False))
     return RC_OK if br in (1, 2) else RC_NOVERDICT
 
 
