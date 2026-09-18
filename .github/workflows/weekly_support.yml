@@ -1,0 +1,41 @@
+name: WKSUP (🧱📅 الدعمُ الأسبوعيّ — T-WKSUP)
+
+# 🔒 **قراءةٌ فقط**: لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** فالإرسالُ
+#    مستحيلٌ بنيويًّا · ولا مسَّ فرزٍ. العقد: `weekly_support_prereg.md`.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: "رمزُ المرجع الموثَّق (الافتراضُ PPBT — لا يُبدَّل بلا سبب)"
+        required: false
+        type: string
+      asof:
+        description: "تاريخُ القصّ (الافتراضُ 2026-09-05 = تاريخُ صورة فيصل)"
+        required: false
+        type: string
+
+jobs:
+  wksup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧱📅 قِس الدعمَ الأسبوعيّ (قراءةٌ فقط)
+        env:
+          WKSUP_SYMBOL: ${{ inputs.symbol }}
+          WKSUP_ASOF: ${{ inputs.asof }}
+        run: python weekly_support_probe.py
