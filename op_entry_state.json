@@ -506,11 +506,11 @@
    "exit_ms": 1789762260000
   },
   "trig": "T-C",
-  "date": "2026-09-18",
   "pre_done": true,
   "pre_hi": 0.47,
   "pre_usd": 581675,
-  "pre_n": 62
+  "pre_n": 62,
+  "date": "2026-09-18"
  },
  "LIQ:SNAL": {
   "last_eval_ms": 1789749540000,
