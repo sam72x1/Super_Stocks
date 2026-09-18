@@ -45846,7 +45846,21 @@ check("🧱📅🔒 WKP1 حارسُ «قراءةٌ فقط» **سلوكيّ**: ن
 
 # WKP2 — النافذةُ **مُشتقّةٌ بالحساب** لا رقمًا مكتوبًا · و`CONFIG` **لا يُسنَد**
 #   إليها إطلاقًا (وإلّا لصار تشديدًا صامتًا في الذاكرة — درسُ `RKA10`).
-_wkp2_derived = ("PIVOT_LOOKBACK" in _wkp_src and "// 5" in _wkp_src)
+# 🔴 **مُشدَّدٌ بعد طفرةٍ نجت** (`p2_window_hardcoded`): الفحصُ النصّيُّ مرّ لأن
+#   «PIVOT_LOOKBACK // 5» مكتوبةٌ في الشرح أيضًا ⇒ صار **سلوكيًّا**: تُبدَّل قيمةُ
+#   `PIVOT_LOOKBACK` في الذاكرة فيجب أن **تتبعها** النافذة، ثمّ تُستعاد.
+_wkp2_follow = []
+if _wkp1_real == []:
+    _wkp2_keep = S.CONFIG["PIVOT_LOOKBACK"]
+    try:
+        for _lk, _exp in ((40, 8), (30, 6), (25, 5)):
+            S.CONFIG["PIVOT_LOOKBACK"] = _lk
+            _wkp2_follow.append((_lk, _wkp_mod.wk_window(), _exp))
+    finally:
+        S.CONFIG["PIVOT_LOOKBACK"] = _wkp2_keep
+_wkp2_derived = (bool(_wkp2_follow)
+                 and all(g == e for _, g, e in _wkp2_follow)
+                 and S.CONFIG["PIVOT_LOOKBACK"] == 25)
 _wkp2_assign = False
 if _wkp_tree is not None:
     for _nd in _wkp_ast.walk(_wkp_tree):
@@ -45863,7 +45877,7 @@ if _wkp_tree is not None:
 _wkp2_win = getattr(_wkp_mod, "wk_window", lambda: -1)() if _wkp1_real == [] else -1
 check("🧱📅🔒 WKP2 النافذةُ مُشتقّةٌ (25÷5=5) وصفرُ إسنادٍ إلى `CONFIG` في المِجَسّ",
       _wkp2_derived and not _wkp2_assign and _wkp2_win == 5,
-      f"مُشتقّة={_wkp2_derived} إسناد={_wkp2_assign} نافذة={_wkp2_win}")
+      f"تتبع={_wkp2_follow} إسناد={_wkp2_assign} نافذة={_wkp2_win}")
 
 # WKP3 — جدولُ حقيقةِ الحكم: **سقوطُ `WS1` يحكم وحدَه** (الفرعُ 3) ولا فرعَ رابع
 _WKP_TT = [((False, True, True, True), 3), ((False, False, False, False), 3),
