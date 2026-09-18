@@ -1,0 +1,300 @@
+line	images	symbol	date	date_source	frame	colour	role	level	auto_chart	raw
+21	IMG_4685	ELAB			weekly	black	resistance	9.629	0	9.629/9.590(أسود)
+21	IMG_4685	ELAB			weekly	black	resistance	9.59	0	9.629/9.590(أسود)
+21	IMG_4685	ELAB			weekly	black	resistance	6.375	0	6.375(أسود)
+21	IMG_4685	ELAB			weekly	blue	target_clean	5.103	0	5.103(أزرق)
+21	IMG_4685	ELAB			weekly	black	resistance	3.836	0	3.836(أسود)
+22	IMG_4685	ELAB			weekly	red	support	3.033	0	3.033(أحمر دعم)
+22	IMG_4685	ELAB			weekly	black	resistance	2.132	0	2.132(أسود)
+30	IMG_5954	SBDS			daily	black	resistance	4.284	0	4.284(أسود)
+30	IMG_5954	SBDS			daily	blue	target_clean	3.759	0	3.759(أزرق)
+30	IMG_5954	SBDS			daily	purple	bid_entry	3.308	0	3.308(بنفسجي)
+30	IMG_5954	SBDS			daily	red	support	3.041	0	3.041(أحمر دعم)
+40	IMG_6004/6005/6006	TRUG			daily	purple	bid_entry	6.91	0	6.910/6.516(بنفسجي)
+40	IMG_6004/6005/6006	TRUG			daily	purple	bid_entry	6.516	0	6.910/6.516(بنفسجي)
+40	IMG_6004/6005/6006	TRUG			daily	blue	target_clean	6.207	0	6.207(أزرق)
+40	IMG_6004/6005/6006	TRUG			daily	black	resistance	5.928	0	5.928/5.389/5.096/4.887(أسود)
+40	IMG_6004/6005/6006	TRUG			daily	black	resistance	5.389	0	5.928/5.389/5.096/4.887(أسود)
+40	IMG_6004/6005/6006	TRUG			daily	black	resistance	5.096	0	5.928/5.389/5.096/4.887(أسود)
+40	IMG_6004/6005/6006	TRUG			daily	black	resistance	4.887	0	5.928/5.389/5.096/4.887(أسود)
+41	IMG_6004/6005/6006	TRUG			daily	red	support	4.47	0	4.470(أحمر)
+41	IMG_6004/6005/6006	TRUG			daily	purple	bid_entry	4.159	0	4.159(بنفسجي)
+41	IMG_6004/6005/6006	TRUG			daily	red	support	3.967	0	3.967(أحمر)
+45	IMG_6215	TURB			daily	black	resistance	8.185	0	8.185(أسود)
+45	IMG_6215	TURB			daily	blue	target_clean	6.532	0	6.532(أزرق)
+45	IMG_6215	TURB			daily	blue	target_clean	4.735	0	4.735(أزرق)
+45	IMG_6215	TURB			daily	purple	bid_entry	3.79	0	3.790(بنفسجي)
+45	IMG_6215	TURB			daily	red	support	2.819	0	2.819(أحمر)
+49	IMG_6206	NEXR			daily	purple	bid_entry	3.258	0	3.258(بنفسجي)
+49	IMG_6206	NEXR			daily	blue	target_clean	2.849	0	2.849(أزرق)
+49	IMG_6206	NEXR			daily	black	resistance	2.497	0	2.497/2.312(أسود)
+49	IMG_6206	NEXR			daily	black	resistance	2.312	0	2.497/2.312(أسود)
+49	IMG_6206	NEXR			daily	purple	bid_entry	2.021	0	2.021(بنفسجي)
+50	IMG_6206	NEXR			daily	green	unmapped	1.91	0	1.910(أخضر)
+50	IMG_6206	NEXR			daily	red	support	1.712	0	1.712(أحمر دعم)
+57	IMG_6216	SVRE			daily	blue	target_clean	5.342	0	5.342/5.006/4.572/4.240(أزرق)
+57	IMG_6216	SVRE			daily	blue	target_clean	5.006	0	5.342/5.006/4.572/4.240(أزرق)
+57	IMG_6216	SVRE			daily	blue	target_clean	4.572	0	5.342/5.006/4.572/4.240(أزرق)
+57	IMG_6216	SVRE			daily	blue	target_clean	4.24	0	5.342/5.006/4.572/4.240(أزرق)
+57	IMG_6216	SVRE			daily	black	resistance	3.366	0	3.366(أسود)
+57	IMG_6216	SVRE			daily	red	support	3.001	0	3.001(أحمر)
+58	IMG_6216	SVRE			daily	black	resistance	2.703	0	2.703(أسود)
+62	IMG_6297	CIIT			daily	blue	target_clean	2.737	0	2.737/2.381(أزرق)
+62	IMG_6297	CIIT			daily	blue	target_clean	2.381	0	2.737/2.381(أزرق)
+62	IMG_6297	CIIT			daily	purple	bid_entry	2.147	0	2.147(بنفسجي)
+62	IMG_6297	CIIT			daily	black	resistance	1.951	0	1.951/1.704(أسود)
+62	IMG_6297	CIIT			daily	black	resistance	1.704	0	1.951/1.704(أسود)
+63	IMG_6297	CIIT			daily	red	support	1.389	0	1.389(أحمر)
+67	IMG_6295/6298	PPBT			daily	blue	target_clean	6.093	0	6.093(أزرق)
+67	IMG_6295/6298	PPBT			daily	black	resistance	5.659	0	5.659/5.384/5.127/4.722(أسود)
+67	IMG_6295/6298	PPBT			daily	black	resistance	5.384	0	5.659/5.384/5.127/4.722(أسود)
+67	IMG_6295/6298	PPBT			daily	black	resistance	5.127	0	5.659/5.384/5.127/4.722(أسود)
+67	IMG_6295/6298	PPBT			daily	black	resistance	4.722	0	5.659/5.384/5.127/4.722(أسود)
+67	IMG_6295/6298	PPBT			daily	blue	target_clean	4.563	0	4.563/4.301(أزرق)
+67	IMG_6295/6298	PPBT			daily	blue	target_clean	4.301	0	4.563/4.301(أزرق)
+68	IMG_6295/6298	PPBT			daily	red	support	4.0	0	4.000(أحمر)
+68	IMG_6295/6298	PPBT			daily	purple	bid_entry	3.853	0	3.853/3.702(بنفسجي)
+68	IMG_6295/6298	PPBT			daily	purple	bid_entry	3.702	0	3.853/3.702(بنفسجي)
+68	IMG_6295/6298	PPBT			daily	red	support	3.604	0	3.604(أحمر)
+73	IMG_6390	GRI			daily	black	resistance	5.356	0	5.356(أسود)
+73	IMG_6390	GRI			daily	blue	target_clean	4.373	0	4.373(أزرق)
+73	IMG_6390	GRI			daily	black	resistance	3.703	0	3.703(أسود)
+73	IMG_6390	GRI			daily	purple	bid_entry	2.97	0	2.970(بنفسجي)
+74	IMG_6390	GRI			daily	red	support	2.1	0	2.100(أحمر)
+79	IMG_6457/6459/6458	ARAI			intraday	black	resistance	1.7767	0	1.7767(أسود)
+79	IMG_6457/6459/6458	ARAI			intraday	green	unmapped	1.65	0	1.6500(أخضر)
+79	IMG_6457/6459/6458	ARAI			intraday	red	support	1.3133	0	1.3133(أحمر)
+79	IMG_6457/6459/6458	ARAI			intraday	black	resistance	1.1534	0	1.1534(أسود)
+83	IMG_6456/6455	BIRD			intraday	blue	target_clean	5.9	0	5.90/5.28/4.66(أزرق)
+83	IMG_6456/6455	BIRD			intraday	blue	target_clean	5.28	0	5.90/5.28/4.66(أزرق)
+83	IMG_6456/6455	BIRD			intraday	blue	target_clean	4.66	0	5.90/5.28/4.66(أزرق)
+83	IMG_6456/6455	BIRD			intraday	purple	bid_entry	4.23	0	4.23(بنفسجي)
+83	IMG_6456/6455	BIRD			intraday	red	support	3.42	0	3.42(أحمر)
+85	IMG_6456/6455	BIRD			intraday	blue	target_clean	5.137	0	5.137/4.669/4.455(أزرق)
+85	IMG_6456/6455	BIRD			intraday	blue	target_clean	4.669	0	5.137/4.669/4.455(أزرق)
+85	IMG_6456/6455	BIRD			intraday	blue	target_clean	4.455	0	5.137/4.669/4.455(أزرق)
+86	IMG_6456/6455	BIRD			intraday	purple	bid_entry	3.993	0	3.993(بنفسجي)
+86	IMG_6456/6455	BIRD			intraday	red	support	3.552	0	3.552/2.980(أحمر)
+86	IMG_6456/6455	BIRD			intraday	red	support	2.98	0	3.552/2.980(أحمر)
+90	IMG_6464	ARBK			daily	blue	target_clean	4.48	0	4.480/3.922(أزرق)
+90	IMG_6464	ARBK			daily	blue	target_clean	3.922	0	4.480/3.922(أزرق)
+90	IMG_6464	ARBK			daily	black	resistance	3.666	0	3.666/3.152(أسود)
+90	IMG_6464	ARBK			daily	black	resistance	3.152	0	3.666/3.152(أسود)
+90	IMG_6464	ARBK			daily	green	unmapped	2.893	0	2.893(أخضر)
+91	IMG_6464	ARBK			daily	red	support	2.409	0	2.409(أحمر)
+95	IMG_6460	SNYR			intraday	black	resistance	1.321	0	1.321/1.270(أسود)
+95	IMG_6460	SNYR			intraday	black	resistance	1.27	0	1.321/1.270(أسود)
+95	IMG_6460	SNYR			intraday	blue	target_clean	1.221	0	1.221(أزرق)
+95	IMG_6460	SNYR			intraday	black	resistance	1.2	0	1.200(أسود)
+96	IMG_6460	SNYR			intraday	red	support	1.1	0	1.100(أحمر)
+99	IMG_6462	JDZG			intraday	black	resistance	2.372	0	2.372/2.292/2.221(أسود)
+99	IMG_6462	JDZG			intraday	black	resistance	2.292	0	2.372/2.292/2.221(أسود)
+99	IMG_6462	JDZG			intraday	black	resistance	2.221	0	2.372/2.292/2.221(أسود)
+99	IMG_6462	JDZG			intraday	blue	target_clean	2.1	0	2.100(أزرق)
+100	IMG_6462	JDZG			intraday	green	unmapped	2.07	0	2.070(أخضر)
+100	IMG_6462	JDZG			intraday	purple	bid_entry	2.05	0	2.050(بنفسجي)
+100	IMG_6462	JDZG			intraday	red	support	2.03	0	2.030(أحمر)
+105	IMG_6461	ALMU			daily	blue	target_clean	17.65	0	17.65/16.81/16.20(أزرق)
+105	IMG_6461	ALMU			daily	blue	target_clean	16.81	0	17.65/16.81/16.20(أزرق)
+105	IMG_6461	ALMU			daily	blue	target_clean	16.2	0	17.65/16.81/16.20(أزرق)
+105	IMG_6461	ALMU			daily	black	resistance	15.27	0	15.27/13.81(أسود)
+105	IMG_6461	ALMU			daily	black	resistance	13.81	0	15.27/13.81(أسود)
+105	IMG_6461	ALMU			daily	red	support	12.5	0	12.50(أحمر)
+112	IMG_6466	FUSE			intraday	black	resistance	2.114	0	2.114(أسود)
+112	IMG_6466	FUSE			intraday	blue	target_clean	1.758	0	1.758/1.661(أزرق)
+112	IMG_6466	FUSE			intraday	blue	target_clean	1.661	0	1.758/1.661(أزرق)
+112	IMG_6466	FUSE			intraday	black	resistance	1.551	0	1.551(أسود)
+112	IMG_6466	FUSE			intraday	purple	bid_entry	1.455	0	1.455(بنفسجي)
+113	IMG_6466	FUSE			intraday	red	support	1.329	0	1.329(أحمر)
+118	IMG_6465/6776	ADIL			daily	black	resistance	5.392	0	5.392/4.265(أسود)
+118	IMG_6465/6776	ADIL			daily	black	resistance	4.265	0	5.392/4.265(أسود)
+118	IMG_6465/6776	ADIL			daily	blue	target_clean	3.674	0	3.674/3.192(أزرق)
+118	IMG_6465/6776	ADIL			daily	blue	target_clean	3.192	0	3.674/3.192(أزرق)
+118	IMG_6465/6776	ADIL			daily	purple	bid_entry	2.914	0	2.914(بنفسجي)
+119	IMG_6465/6776	ADIL			daily	blue	target_clean	2.655	0	2.655/2.100(أزرق)
+119	IMG_6465/6776	ADIL			daily	blue	target_clean	2.1	0	2.655/2.100(أزرق)
+119	IMG_6465/6776	ADIL			daily	red	support	1.69	0	1.690(أحمر)
+119	IMG_6465/6776	ADIL			daily	red	support	1.379	0	1.379(أحمر)
+124	IMG_6470	NXTT			daily	black	resistance	18.65	0	18.65(أسود)
+124	IMG_6470	NXTT			daily	blue	target_clean	14.63	0	14.63/12.16(أزرق)
+124	IMG_6470	NXTT			daily	blue	target_clean	12.16	0	14.63/12.16(أزرق)
+124	IMG_6470	NXTT			daily	black	resistance	9.33	0	9.33(أسود)
+125	IMG_6470	NXTT			daily	red	support	5.83	0	5.83(أحمر)
+129	IMG_6701/6705/6702	TLIH			weekly	red	support	3.795	0	3.795/3.150(أحمر)
+129	IMG_6701/6705/6702	TLIH			weekly	red	support	3.15	0	3.795/3.150(أحمر)
+131	IMG_6701/6705/6702	TLIH			weekly	red	support	3.905	0	3.905(أحمر)
+136	IMG_6478/6480/6482/6479/6481	CDIO			h4	blue	target_clean	2.357	0	2.357(أزرق)
+136	IMG_6478/6480/6482/6479/6481	CDIO			h4	black	resistance	1.704	0	1.704/1.603/1.394(أسود)
+136	IMG_6478/6480/6482/6479/6481	CDIO			h4	black	resistance	1.603	0	1.704/1.603/1.394(أسود)
+136	IMG_6478/6480/6482/6479/6481	CDIO			h4	black	resistance	1.394	0	1.704/1.603/1.394(أسود)
+137	IMG_6478/6480/6482/6479/6481	CDIO			h4	purple	bid_entry	1.052	0	1.052(بنفسجي)
+137	IMG_6478/6480/6482/6479/6481	CDIO			h4	red	support	0.9707	0	0.9707(أحمر)
+139	IMG_6478/6480/6482/6479/6481	CDIO			h4	blue	target_clean	5.245	0	5.245/4.282/3.706/2.857(أزرق)
+139	IMG_6478/6480/6482/6479/6481	CDIO			h4	blue	target_clean	4.282	0	5.245/4.282/3.706/2.857(أزرق)
+139	IMG_6478/6480/6482/6479/6481	CDIO			h4	blue	target_clean	3.706	0	5.245/4.282/3.706/2.857(أزرق)
+139	IMG_6478/6480/6482/6479/6481	CDIO			h4	blue	target_clean	2.857	0	5.245/4.282/3.706/2.857(أزرق)
+139	IMG_6478/6480/6482/6479/6481	CDIO			h4	purple	bid_entry	2.693	0	2.693(بنفسجي)
+140	IMG_6478/6480/6482/6479/6481	CDIO			h4	red	support	2.24	0	2.240/2.062(أحمر)
+140	IMG_6478/6480/6482/6479/6481	CDIO			h4	red	support	2.062	0	2.240/2.062(أحمر)
+151	IMG_6761				unknown	black	resistance	3.508	0	3.508(أسود)
+151	IMG_6761				unknown	blue	target_clean	2.778	0	2.778(أزرق)
+151	IMG_6761				unknown	black	resistance	2.438	0	2.438(أسود)
+240	IMG_6807	VEEE			daily	blue	target_clean	8.8	0	🔵8.80
+240	IMG_6807	VEEE			daily	red	support	5.99	0	🔴5.99/5.76
+240	IMG_6807	VEEE			daily	red	support	5.76	0	🔴5.99/5.76
+240	IMG_6807	VEEE			daily	black	resistance	5.0	0	⚫5.00
+244	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	68.18	0	🔵68.18/58.14/54.35/49.51/44.23/28.90
+244	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	58.14	0	🔵68.18/58.14/54.35/49.51/44.23/28.90
+244	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	54.35	0	🔵68.18/58.14/54.35/49.51/44.23/28.90
+244	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	49.51	0	🔵68.18/58.14/54.35/49.51/44.23/28.90
+244	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	44.23	0	🔵68.18/58.14/54.35/49.51/44.23/28.90
+244	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	28.9	0	🔵68.18/58.14/54.35/49.51/44.23/28.90
+244	IMG_6782/7362/8082/7360	SMX			h4	black	resistance	37.29	0	⚫37.29/20.60
+244	IMG_6782/7362/8082/7360	SMX			h4	black	resistance	20.6	0	⚫37.29/20.60
+244	IMG_6782/7362/8082/7360	SMX			h4	red	support	14.0	0	🔴14.00
+245	IMG_6782/7362/8082/7360	SMX			daily	black	resistance	240.42	0	⚫240.42
+245	IMG_6782/7362/8082/7360	SMX			daily	blue	target_clean	212.69	0	🔵212.69/187.54/165.82
+245	IMG_6782/7362/8082/7360	SMX			daily	blue	target_clean	187.54	0	🔵212.69/187.54/165.82
+245	IMG_6782/7362/8082/7360	SMX			daily	blue	target_clean	165.82	0	🔵212.69/187.54/165.82
+246	IMG_6782/7362/8082/7360	SMX			h4	purple	bid_entry	23.04	0	🟣23.04
+246	IMG_6782/7362/8082/7360	SMX			h4	black	resistance	16.51	0	⚫16.51/9.53
+246	IMG_6782/7362/8082/7360	SMX			h4	black	resistance	9.53	0	⚫16.51/9.53
+246	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	14.02	0	🔵14.02/11.84
+246	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	11.84	0	🔵14.02/11.84
+246	IMG_6782/7362/8082/7360	SMX			h4	red	support	6.11	0	🔴6.11/7.04
+246	IMG_6782/7362/8082/7360	SMX			h4	red	support	7.04	0	🔴6.11/7.04
+250	IMG_6816	AUUD			h4	black	resistance	2.184	0	⚫2.184/1.922/1.753
+250	IMG_6816	AUUD			h4	black	resistance	1.922	0	⚫2.184/1.922/1.753
+250	IMG_6816	AUUD			h4	black	resistance	1.753	0	⚫2.184/1.922/1.753
+250	IMG_6816	AUUD			h4	blue	target_clean	1.479	0	🔵1.479
+250	IMG_6816	AUUD			h4	red	support	1.305	0	🔴1.305
+260	IMG_7014/7028/7027/7029	PRFX			h4	blue	target_clean	2.622	0	🔵2.622/2.392/1.786
+260	IMG_7014/7028/7027/7029	PRFX			h4	blue	target_clean	2.392	0	🔵2.622/2.392/1.786
+260	IMG_7014/7028/7027/7029	PRFX			h4	blue	target_clean	1.786	0	🔵2.622/2.392/1.786
+260	IMG_7014/7028/7027/7029	PRFX			h4	black	resistance	2.279	0	⚫2.279
+260	IMG_7014/7028/7027/7029	PRFX			h4	purple	bid_entry	1.979	0	🟣1.979
+260	IMG_7014/7028/7027/7029	PRFX			h4	red	support	1.437	0	🔴1.437
+261	IMG_7014/7028/7027/7029	PRFX			daily	red	support	2.157	0	🔴2.157/1.811
+261	IMG_7014/7028/7027/7029	PRFX			daily	red	support	1.811	0	🔴2.157/1.811
+305	IMG_8107 IMG_8108	ACCL			h4	purple	bid_entry	4.952	0	🟣4.952
+305	IMG_8107 IMG_8108	ACCL			h4	red	support	2.091	0	🔴2.091/1.381/1.296
+305	IMG_8107 IMG_8108	ACCL			h4	red	support	1.381	0	🔴2.091/1.381/1.296
+305	IMG_8107 IMG_8108	ACCL			h4	red	support	1.296	0	🔴2.091/1.381/1.296
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	black	resistance	16.36	0	⚫16.36
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	purple	bid_entry	14.32	0	🟣14.32/7.80/7.20
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	purple	bid_entry	7.8	0	🟣14.32/7.80/7.20
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	purple	bid_entry	7.2	0	🟣14.32/7.80/7.20
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	blue	target_clean	13.24	0	🔵13.24/11.59/40.47/37.54/28.11/25.14/21.89/17.93
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	blue	target_clean	11.59	0	🔵13.24/11.59/40.47/37.54/28.11/25.14/21.89/17.93
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	blue	target_clean	40.47	0	🔵13.24/11.59/40.47/37.54/28.11/25.14/21.89/17.93
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	blue	target_clean	37.54	0	🔵13.24/11.59/40.47/37.54/28.11/25.14/21.89/17.93
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	blue	target_clean	28.11	0	🔵13.24/11.59/40.47/37.54/28.11/25.14/21.89/17.93
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	blue	target_clean	25.14	0	🔵13.24/11.59/40.47/37.54/28.11/25.14/21.89/17.93
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	blue	target_clean	21.89	0	🔵13.24/11.59/40.47/37.54/28.11/25.14/21.89/17.93
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	blue	target_clean	17.93	0	🔵13.24/11.59/40.47/37.54/28.11/25.14/21.89/17.93
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	red	support	9.55	0	🔴9.55/9.53/8.92/8.30/5.50/5.15
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	red	support	9.53	0	🔴9.55/9.53/8.92/8.30/5.50/5.15
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	red	support	8.92	0	🔴9.55/9.53/8.92/8.30/5.50/5.15
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	red	support	8.3	0	🔴9.55/9.53/8.92/8.30/5.50/5.15
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	red	support	5.5	0	🔴9.55/9.53/8.92/8.30/5.50/5.15
+306	IMG_8109 IMG_8110 IMG_8111	HCAI			weekly	red	support	5.15	0	🔴9.55/9.53/8.92/8.30/5.50/5.15
+307	IMG_8114 IMG_8115	MWC			daily	blue	target_clean	10.451	0	🔵10.451/4.718
+307	IMG_8114 IMG_8115	MWC			daily	blue	target_clean	4.718	0	🔵10.451/4.718
+308	IMG_8116 IMG_8120	ASST			weekly	blue	target_clean	31.65	0	🔵31.65/25.91/21.18
+308	IMG_8116 IMG_8120	ASST			weekly	blue	target_clean	25.91	0	🔵31.65/25.91/21.18
+308	IMG_8116 IMG_8120	ASST			weekly	blue	target_clean	21.18	0	🔵31.65/25.91/21.18
+308	IMG_8116 IMG_8120	ASST			weekly	black	resistance	28.2	0	⚫28.20
+308	IMG_8116 IMG_8120	ASST			weekly	red	support	17.9	0	🔴17.90/15.14/13.87/1.36
+308	IMG_8116 IMG_8120	ASST			weekly	red	support	15.14	0	🔴17.90/15.14/13.87/1.36
+308	IMG_8116 IMG_8120	ASST			weekly	red	support	13.87	0	🔴17.90/15.14/13.87/1.36
+308	IMG_8116 IMG_8120	ASST			weekly	red	support	1.36	0	🔴17.90/15.14/13.87/1.36
+309	IMG_8137	BNKK			daily	blue	target_clean	2.289	0	🔵2.289/2.150/2.028/1.892/1.809
+309	IMG_8137	BNKK			daily	blue	target_clean	2.15	0	🔵2.289/2.150/2.028/1.892/1.809
+309	IMG_8137	BNKK			daily	blue	target_clean	2.028	0	🔵2.289/2.150/2.028/1.892/1.809
+309	IMG_8137	BNKK			daily	blue	target_clean	1.892	0	🔵2.289/2.150/2.028/1.892/1.809
+309	IMG_8137	BNKK			daily	blue	target_clean	1.809	0	🔵2.289/2.150/2.028/1.892/1.809
+309	IMG_8137	BNKK			daily	black	resistance	1.663	0	⚫1.663
+309	IMG_8137	BNKK			daily	red	support	1.316	0	🔴1.316/1.200
+309	IMG_8137	BNKK			daily	red	support	1.2	0	🔴1.316/1.200
+311	IMG_8187 IMG_8188	YYAI			daily	red	support	7.54	0	🔴7.54/2.64
+311	IMG_8187 IMG_8188	YYAI			daily	red	support	2.64	0	🔴7.54/2.64
+312	IMG_8096 IMG_8118 IMG_8130	GWAV			daily	blue	target_clean	7.483	0	🔵7.483/7.174/6.497/5.892
+312	IMG_8096 IMG_8118 IMG_8130	GWAV			daily	blue	target_clean	7.174	0	🔵7.483/7.174/6.497/5.892
+312	IMG_8096 IMG_8118 IMG_8130	GWAV			daily	blue	target_clean	6.497	0	🔵7.483/7.174/6.497/5.892
+312	IMG_8096 IMG_8118 IMG_8130	GWAV			daily	blue	target_clean	5.892	0	🔵7.483/7.174/6.497/5.892
+312	IMG_8096 IMG_8118 IMG_8130	GWAV			daily	purple	bid_entry	5.222	0	🟣5.222/4.592
+312	IMG_8096 IMG_8118 IMG_8130	GWAV			daily	purple	bid_entry	4.592	0	🟣5.222/4.592
+312	IMG_8096 IMG_8118 IMG_8130	GWAV			daily	black	resistance	4.219	0	⚫4.219
+312	IMG_8096 IMG_8118 IMG_8130	GWAV			daily	red	support	3.145	0	🔴3.145
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	blue	target_clean	7.746	0	🔵7.746/7.488/4.829/3.820/3.316
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	blue	target_clean	7.488	0	🔵7.746/7.488/4.829/3.820/3.316
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	blue	target_clean	4.829	0	🔵7.746/7.488/4.829/3.820/3.316
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	blue	target_clean	3.82	0	🔵7.746/7.488/4.829/3.820/3.316
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	blue	target_clean	3.316	0	🔵7.746/7.488/4.829/3.820/3.316
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	purple	bid_entry	6.586	0	🟣6.586/6.502
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	purple	bid_entry	6.502	0	🟣6.586/6.502
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	black	resistance	5.886	0	⚫5.886/5.186/2.882
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	black	resistance	5.186	0	⚫5.886/5.186/2.882
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	black	resistance	2.882	0	⚫5.886/5.186/2.882
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	red	support	2.393	0	🔴2.393/2.344/1.942
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	red	support	2.344	0	🔴2.393/2.344/1.942
+313	IMG_8090 IMG_8099 IMG_8134 IMG_8135	MBRX			daily	red	support	1.942	0	🔴2.393/2.344/1.942
+318					unknown	black	resistance	3.26	0	⚫3.260
+318					unknown	red	support	2.952	0	🔴2.952/2.863
+318					unknown	red	support	2.863	0	🔴2.952/2.863
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	weekly	purple	bid_entry	8.371	0	🟣8.371/7.315/6.711/5.815
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	weekly	purple	bid_entry	7.315	0	🟣8.371/7.315/6.711/5.815
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	weekly	purple	bid_entry	6.711	0	🟣8.371/7.315/6.711/5.815
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	weekly	purple	bid_entry	5.815	0	🟣8.371/7.315/6.711/5.815
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	weekly	black	resistance	5.032	0	⚫5.032/3.994/3.068
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	weekly	black	resistance	3.994	0	⚫5.032/3.994/3.068
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	weekly	black	resistance	3.068	0	⚫5.032/3.994/3.068
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	weekly	red	support	1.694	0	🔴1.694
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	daily	black	resistance	3.955	0	⚫3.955/3.097/2.503
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	daily	black	resistance	3.097	0	⚫3.955/3.097/2.503
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	daily	black	resistance	2.503	0	⚫3.955/3.097/2.503
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	daily	red	support	1.98	0	🔴1.980/1.682
+1211	X_20260905_05.jpg	PPBT	2026-09-05	filename	daily	red	support	1.682	0	🔴1.980/1.682
+1218	X_20260905_13.jpg	DCOY	2026-09-05	filename	daily	black	resistance	6.049	0	⚫6.049/3.502
+1218	X_20260905_13.jpg	DCOY	2026-09-05	filename	daily	black	resistance	3.502	0	⚫6.049/3.502
+1218	X_20260905_13.jpg	DCOY	2026-09-05	filename	daily	blue	target_clean	5.388	0	🔵5.388/4.782/4.418
+1218	X_20260905_13.jpg	DCOY	2026-09-05	filename	daily	blue	target_clean	4.782	0	🔵5.388/4.782/4.418
+1218	X_20260905_13.jpg	DCOY	2026-09-05	filename	daily	blue	target_clean	4.418	0	🔵5.388/4.782/4.418
+1218	X_20260905_13.jpg	DCOY	2026-09-05	filename	daily	red	support	2.851	0	🔴2.851
+1461	CH_01/02/03_ELPW	ELPW	2026-09-18	header	intraday	blue	target_clean	12.939	1	🔵12.939/7.333
+1461	CH_01/02/03_ELPW	ELPW	2026-09-18	header	intraday	blue	target_clean	7.333	1	🔵12.939/7.333
+1461	CH_01/02/03_ELPW	ELPW	2026-09-18	header	intraday	black	resistance	9.99	1	⚫9.990/3.632
+1461	CH_01/02/03_ELPW	ELPW	2026-09-18	header	intraday	black	resistance	3.632	1	⚫9.990/3.632
+1461	CH_01/02/03_ELPW	ELPW	2026-09-18	header	intraday	purple	bid_entry	5.579	1	🟣5.579
+1461	CH_01/02/03_ELPW	ELPW	2026-09-18	header	intraday	red	support	2.5	1	🔴2.500
+1461	CH_01/02/03_ELPW	ELPW	2026-09-18	header	h4	red	support	2.186	1	🔴2.186
+1463	CH_05_CPOP TG_06_CPOP	CPOP	2026-09-18	header	daily	purple	bid_entry	7.662	1	🟣7.662/6.932
+1463	CH_05_CPOP TG_06_CPOP	CPOP	2026-09-18	header	daily	purple	bid_entry	6.932	1	🟣7.662/6.932
+1463	CH_05_CPOP TG_06_CPOP	CPOP	2026-09-18	header	daily	blue	target_clean	6.315	1	🔵6.315
+1463	CH_05_CPOP TG_06_CPOP	CPOP	2026-09-18	header	daily	orange	unmapped	5.87	1	🟠5.87
+1463	CH_05_CPOP TG_06_CPOP	CPOP	2026-09-18	header	daily	black	resistance	4.897	1	⚫4.897/4.493/4.051
+1463	CH_05_CPOP TG_06_CPOP	CPOP	2026-09-18	header	daily	black	resistance	4.493	1	⚫4.897/4.493/4.051
+1463	CH_05_CPOP TG_06_CPOP	CPOP	2026-09-18	header	daily	black	resistance	4.051	1	⚫4.897/4.493/4.051
+1464	CH_07_NUWE CH_14_NUWE	NUWE	2026-09-18	header	h4	black	resistance	0.9493	1	⚫0.9493
+1464	CH_07_NUWE CH_14_NUWE	NUWE	2026-09-18	header	h4	purple	bid_entry	0.8298	1	🟣0.8298/0.7031
+1464	CH_07_NUWE CH_14_NUWE	NUWE	2026-09-18	header	h4	purple	bid_entry	0.7031	1	🟣0.8298/0.7031
+1464	CH_07_NUWE CH_14_NUWE	NUWE	2026-09-18	header	h4	orange	unmapped	0.7482	1	🟠0.7482
+1464	CH_07_NUWE CH_14_NUWE	NUWE	2026-09-18	header	h4	blue	target_clean	1.1835	1	🔵1.1835/1.1290
+1464	CH_07_NUWE CH_14_NUWE	NUWE	2026-09-18	header	h4	blue	target_clean	1.129	1	🔵1.1835/1.1290
+1464	CH_07_NUWE CH_14_NUWE	NUWE	2026-09-18	header	h4	red	support	0.7119	1	🔴0.7119
+1465	TG_08_NTCL X_15_NTCL CH_16/17_NTCL	NTCL	2026-09-18	header	weekly	purple	bid_entry	4.498	1	🟣4.498
+1465	TG_08_NTCL X_15_NTCL CH_16/17_NTCL	NTCL	2026-09-18	header	weekly	blue	target_clean	3.702	1	🔵3.702/3.240
+1465	TG_08_NTCL X_15_NTCL CH_16/17_NTCL	NTCL	2026-09-18	header	weekly	blue	target_clean	3.24	1	🔵3.702/3.240
+1465	TG_08_NTCL X_15_NTCL CH_16/17_NTCL	NTCL	2026-09-18	header	weekly	black	resistance	2.712	1	⚫2.712/2.355
+1465	TG_08_NTCL X_15_NTCL CH_16/17_NTCL	NTCL	2026-09-18	header	weekly	black	resistance	2.355	1	⚫2.712/2.355
+1466	CH_09_DAIC	DAIC	2026-09-18	header	h4	purple	bid_entry	4.412	1	🟣4.412
+1466	CH_09_DAIC	DAIC	2026-09-18	header	h4	black	resistance	3.487	1	⚫3.487/2.765/2.302
+1466	CH_09_DAIC	DAIC	2026-09-18	header	h4	black	resistance	2.765	1	⚫3.487/2.765/2.302
+1466	CH_09_DAIC	DAIC	2026-09-18	header	h4	black	resistance	2.302	1	⚫3.487/2.765/2.302
+1466	CH_09_DAIC	DAIC	2026-09-18	header	h4	orange	unmapped	2.497	1	🟠2.497
+1466	CH_09_DAIC	DAIC	2026-09-18	header	h4	red	support	1.986	1	🔴1.986
+1474	X_24_SXTC CH_25_SXTC CH_32_SXTC WA_31_SXTC	SXTC	2026-09-18	header	daily	purple	bid_entry	5.111	1	🟣5.111/3.584
+1474	X_24_SXTC CH_25_SXTC CH_32_SXTC WA_31_SXTC	SXTC	2026-09-18	header	daily	purple	bid_entry	3.584	1	🟣5.111/3.584
+1474	X_24_SXTC CH_25_SXTC CH_32_SXTC WA_31_SXTC	SXTC	2026-09-18	header	daily	blue	target_clean	4.292	1	🔵4.292
+1474	X_24_SXTC CH_25_SXTC CH_32_SXTC WA_31_SXTC	SXTC	2026-09-18	header	daily	black	resistance	2.913	1	⚫2.913
+1474	X_24_SXTC CH_25_SXTC CH_32_SXTC WA_31_SXTC	SXTC	2026-09-18	header	daily	red	support	2.064	1	🔴2.064

@@ -46273,6 +46273,100 @@ check("🧱🔬🔒 SDT5 الوصفيّان خارج الحكم (`read_verdict` 
       f"توقيع={_sdt5_sig} إنتاج={_sdt5_prod}")
 
 
+# ── 🧾📐 بنيةُ الاستخراج — أقفال LVT0-LVT3 («تأكد انك استفدت باقصى مستوى» 2026-09-18)
+# جدولُ المستويات وتواريخُ الصور والتأريخُ بمرساة السعر: **بحثٌ فقط** — لا يمسّ
+# الفرز · وكلُّ صفٍّ **قابلٌ للتحقّق من سطر الكاتالوج** · **ولا تاريخَ مُستنتَجًا من
+# رقم الصورة** (القاعدةُ التي أسقطت T-SUPDEF تُحرَس هنا بنيويًّا).
+import csv as _lvt_csv
+_lvt_rows, _lvt_cat, _lvt_err = [], [], ""
+try:
+    _lvt_rows = list(_lvt_csv.DictReader(open("faisal_levels_table.tsv", encoding="utf-8"), delimiter="\t"))
+    _lvt_cat = open("FAISAL_IMAGES_CATALOG.md", encoding="utf-8").read().splitlines()
+except Exception as _lvt_e:                                       # noqa: BLE001
+    _lvt_err = f"⛔ {type(_lvt_e).__name__}"
+
+# LVT0 — الجدولُ حاضرٌ وبحجمٍ معقول (‏≥250 صفًّا · ≥30 رمزًا) — لا عدُّ زينة: يُشترط
+#   معه LVT1 السلوكيّ أدناه.
+_lvt_syms = {r["symbol"] for r in _lvt_rows if r.get("symbol")}
+check("🧾📐🔒 LVT0 جدولُ مستويات فيصل حاضرٌ: ≥250 صفًّا و≥30 رمزًا (يُقرأ مع LVT1)",
+      not _lvt_err and len(_lvt_rows) >= 250 and len(_lvt_syms) >= 30,
+      f"{_lvt_err or ''} صفوف={len(_lvt_rows)} رموز={len(_lvt_syms)}")
+
+# LVT1 — 🔑 **كلُّ صفٍّ قابلٌ للتحقّق**: الرقمُ والنصُّ الخام يظهران **على سطر
+#   الكاتالوج الذي يدّعيه** (شهادةٌ من المصدر لا من المُستخرِج). عيّنةٌ كاملة لا جزئيّة.
+_lvt1_bad = []
+for _r in _lvt_rows:
+    try:
+        _ln = int(_r["line"]); _line = _lvt_cat[_ln - 1]; _lv = float(_r["level"])
+        # شرطان صريحان: الخامُ على سطره · والرقمُ نصًّا داخل الخام
+        if _r["raw"] not in _line or (f"{_lv:g}" not in _r["raw"] and f"{_lv}" not in _r["raw"]):
+            _lvt1_bad.append(f"{_r['symbol']}:{_ln}:{_lv}")
+    except Exception as _e2:                                      # noqa: BLE001
+        _lvt1_bad.append(f"⛔{type(_e2).__name__}")
+check("🧾📐🔒 LVT1 كلُّ مستوًى في الجدول **موجودٌ نصًّا على سطر الكاتالوج الذي يدّعيه** "
+      "(شهادةٌ من المصدر · فحصٌ كامل لا عيّنة)",
+      not _lvt_err and not _lvt1_bad, str(_lvt1_bad)[:120])
+
+# LVT2 — **لا تاريخَ مُستنتَجًا**: مصدرُ التاريخ من مجموعةٍ مُغلَقة (filename · header ·
+#   exif) أو فارغ — ولا يُقبَل أيُّ مصدرٍ آخر (يحرس قاعدةَ T-SUPDEF §① بنيويًّا).
+_LVT_SRC = {"", "filename", "header", "exif"}
+_lvt2_bad = sorted({r.get("date_source", "?") for r in _lvt_rows} - _LVT_SRC)
+_lvt2_pair = [r for r in _lvt_rows if bool(r.get("date")) != bool(r.get("date_source"))]
+check("🧾📐🔒 LVT2 مصدرُ التاريخ من مجموعةٍ مُغلَقة (filename·header·exif) أو فارغ · "
+      "ولا تاريخَ بلا مصدرٍ ولا مصدرَ بلا تاريخ",
+      not _lvt_err and not _lvt2_bad and not _lvt2_pair,
+      f"مصادرُ دخيلة={_lvt2_bad} · غيرُ متّسق={len(_lvt2_pair)}")
+
+# LVT3 — مِجَسُّ مرساة السعر: يشترط **ذكرَ الرمز في الكتلة** قبل قبول السعر (درسُ
+#   BNKK/HCAI) · ويُخرج TSV **منفصلًا** عن جدول المستويات · وبلا إرسال.
+try:
+    _lvt_pa = open("faisal_price_anchor.py", encoding="utf-8").read()
+except Exception:                                                 # noqa: BLE001
+    _lvt_pa = ""
+import ast as _lvt_ast
+_lvt3_sym_guard = "if sym in blk" in _lvt_pa
+_lvt3_sep = "faisal_price_anchor_dates.tsv" in _lvt_pa and "faisal_levels_table.tsv\", \"w\"" not in _lvt_pa
+_lvt3_send = any(getattr(c.func, "id", None) == "send_telegram" or getattr(c.func, "attr", None) == "send_telegram"
+                 for c in _lvt_ast.walk(_lvt_ast.parse(_lvt_pa)) if isinstance(c, _lvt_ast.Call)) if _lvt_pa else True
+check("🧾📐🔒 LVT3 مرساةُ السعر: حارسُ «الرمزُ في الكتلة» قائم · وTSV منفصلٌ لا يكتب جدولَ "
+      "المستويات · وصفرُ إرسال",
+      _lvt3_sym_guard and _lvt3_sep and not _lvt3_send,
+      f"حارس={_lvt3_sym_guard} منفصل={_lvt3_sep} إرسال={_lvt3_send}")
+
+# LVT4 — 🔑 **مطابِقُ مرساة السعر سلوكيًّا** (دوالُّ نقيّة بلا شبكة): القيدُ الثاني يفصل ·
+#   تسويةُ التقسيم تعمل · `pre` يؤرَّخ باليوم التالي · الرخوةُ أوسعُ من الدقيقة · والرقمُ
+#   العاري ليس مرساة. فِكستشرٌ فيه يومان بإغلاقٍ متطابق عمدًا (2.35) فلا يفصلهما إلّا المدى.
+_lvt4 = {}
+try:
+    import faisal_price_anchor as _lvt_pa_mod
+    _b = [("2026-05-01", 2.20, 2.40, 2.35), ("2026-05-04", 2.30, 3.20, 3.00),
+          ("2026-05-05", 2.90, 3.30, 3.10), ("2026-05-06", 2.20, 2.40, 2.35),
+          ("2026-05-07", 2.30, 2.60, 2.50)]
+    _spot = {"kind": "spot", "px": 3.105, "pct": 32.13}            # إغلاقُ الأمس المُشتقّ 2.35
+    _lvt4["spot"] = [c["date"] for c in _lvt_pa_mod.match_days(_b, _spot)]
+    _b10 = [(d, lo * 10, hi * 10, cl * 10) if d <= "2026-05-05" else (d, lo, hi, cl) for d, lo, hi, cl in _b]
+    _lvt4["split_on"] = [c["date"] for c in _lvt_pa_mod.match_days(_b10, _spot, splits=[("2026-05-06", 0.1)])]
+    _lvt4["split_off"] = [c["date"] for c in _lvt_pa_mod.match_days(_b10, _spot)]
+    _lvt4["pre"] = [(c["match_date"], c["date"]) for c in _lvt_pa_mod.match_days(_b, {"kind": "pre", "px": 2.585, "pct": 10.0})]
+    _lvt4["tight"] = _lvt_pa_mod.match_days(_b, {"kind": "ah", "px": 3.131, "pct": 0.0})
+    _lvt4["loose"] = [c["date"] for c in _lvt_pa_mod.match_days(_b, {"kind": "ah", "px": 3.131, "pct": None})]
+    _lvt4["parse"] = (_lvt_pa_mod.parse_anchors("AH 1.591. 🔵2.289/2.150 · 🔴1.316"),
+                      _lvt_pa_mod.parse_anchors("Pre +9.54%. 🔵7.483"),
+                      _lvt_pa_mod.parse_anchors("- 5د: 4.430 (+20.38%) قاع 3.680"))
+except Exception as _lvt4_e:                                      # noqa: BLE001
+    _lvt4 = {"err": f"⛔ {type(_lvt4_e).__name__}: {_lvt4_e}"}
+_lvt4_ok = (not _lvt4.get("err")
+            and _lvt4.get("spot") == ["2026-05-04"]                                  # المدى يفصل التوأمين
+            and _lvt4.get("split_on") == ["2026-05-04"] and _lvt4.get("split_off") == []  # التسوية تعمل
+            and _lvt4.get("pre") == [("2026-05-01", "2026-05-04"), ("2026-05-06", "2026-05-07")]
+            and _lvt4.get("tight") == [] and _lvt4.get("loose") == ["2026-05-05"]
+            and _lvt4.get("parse") == ([{"kind": "ah", "px": 1.591, "pct": None}], [],
+                                       [{"kind": "spot", "px": 4.43, "pct": 20.38}]))
+check("🧾📐🔒 LVT4 مطابِقُ مرساة السعر: المدى يفصل توأمَي الإغلاق · تسويةُ التقسيم تعمل · pre "
+      "يؤرَّخ بالغد · الرخوةُ أوسع · والرقمُ العاري ليس مرساة (سلوكيٌّ بلا شبكة)",
+      _lvt4_ok, str(_lvt4)[:160])
+
+
 # ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
 # «اذا حللنا سهم ارتكاز ممنوع الدخول … انتظر اقل سعر 10% او 20% تحت» (فيصل، دليلُ
 # طريقة فيصل ص54) · أداةُ قياسٍ معزولةٌ عن الإنتاج تُقاس بها الجملةُ قبل أيّ شحن.
