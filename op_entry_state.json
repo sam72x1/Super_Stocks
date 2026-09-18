@@ -502,23 +502,23 @@
  },
  "LIQ:ZTG": {
   "anchor_ms": 1789722420000,
-  "last_ms": 1789722420000,
+  "last_ms": 1789722480000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 61.9,
-  "peak_usd": 136559,
+  "peak_usd": 671973,
   "last_eval_ms": 1789722480000,
-  "pulse_ms": 1789722420000,
+  "pulse_ms": 1789722480000,
   "anchor_price": 1.47,
   "anchor_open": 1.35,
   "anchor_low": 1.35,
-  "date": "2026-09-18",
   "pre_done": true,
   "pre_hi": 1.36,
   "pre_usd": 65579,
-  "pre_n": 34
+  "pre_n": 34,
+  "date": "2026-09-18"
  },
  "LIQ:BRNX": {
   "last_eval_ms": 1789722300000,
