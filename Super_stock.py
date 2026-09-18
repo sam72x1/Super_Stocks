@@ -4684,21 +4684,35 @@ def roc_state(close, n: int = 12, ma: int = 6):
         return None, None
 
 
-def faisal_levels_line(closes, body, band, agree, rocv) -> str:
+def faisal_levels_line(closes, body, band, agree, rocv,
+                       compact: bool = False) -> str:
     """🧭 سطرٌ واحدٌ يجمع الخمسة — **بلا علامات مقارنة** (قاعدةُ العرض المُلزِمة).
-    «» إن لم يوجد شيء."""
+    «» إن لم يوجد شيء.
+
+    **`compact=True`** (أمرُ المالك 2026-09-18 «قصّر السطر») = صيغةُ **الكرت
+    والتقرير اليوميّ**. تُسقِط ثلاثةَ أشياءَ **ولا تُسقِط سعرًا واحدًا**:
+      • `ROC` — مؤشّرٌ مساندٌ لا مستوًى قابلًا للتنفيذ (يبقى في فحص اليد).
+      • الجملةَ الثابتة «(أعلى من القاع بـ15% إلى 25%)» — تتكرّر على **كلّ**
+        سهمٍ بحرفها فلا تحمل معلومةً تخصّه (مقيسٌ: 39 من 39 · 29 محرفًا لكلّ سطر).
+      • حشوَ المسمَّيات («آخر شمعة» · «نطاق» · شرحَ التوافق).
+    والافتراضُ **`False` = الصيغةُ الكاملة بت-بت كما كانت** — وهي التي يستعملها
+    فحصُ اليد والتقريرُ الفنيّ، وهما موضعُ الشرح المفصّل لا الكرت."""
     parts = []
     if closes:
         parts.append("إغلاقات الهابطة " + " · ".join(f"${v:.2f}" for v in closes[:3]))
     if body:
-        parts.append(f"جسم آخر شمعة قبل الهبوط ${body['level']:.2f}")
+        parts.append(f"جسم قبل الهبوط ${body['level']:.2f}" if compact else
+                     f"جسم آخر شمعة قبل الهبوط ${body['level']:.2f}")
     if band:
-        parts.append(f"نطاق اختبار المقاومة ${band[0]:.2f} إلى ${band[1]:.2f} "
+        _bnd = f"${band[0]:.2f} إلى ${band[1]:.2f}"
+        parts.append(f"اختبار المقاومة {_bnd}" if compact else
+                     f"نطاق اختبار المقاومة {_bnd} "
                      "(أعلى من القاع بـ15% إلى 25%)")
     if agree and agree.get("agree"):
-        parts.append(f"الدعم اليومي والأسبوعي يتفقان عند ${agree['level']:.2f} "
+        parts.append(f"الدعمان يتفقان عند ${agree['level']:.2f}" if compact else
+                     f"الدعم اليومي والأسبوعي يتفقان عند ${agree['level']:.2f} "
                      "(كسره = فشل)")
-    if rocv and rocv[0] is not None:
+    if rocv and rocv[0] is not None and not compact:
         parts.append(f"ROC {rocv[0]:.1f} (متوسطه {rocv[1]:.1f})")
     return "🧭 " + " · ".join(parts) if parts else ""
 
@@ -12056,7 +12070,7 @@ def scan_market():
                     bounce_test_band(r.get("pivot") or 0),
                     support_agreement(r.get("pivot") or 0,
                                       r.get("weekly_support") or 0),
-                    roc_state(df["Close"]))
+                    roc_state(df["Close"]), compact=True)
             except Exception as _e:
                 log(f"⚠️ إثراء عرض {sym}: {type(_e).__name__}: {_e} — تُخطّى حقول "
                     "العرض · السهم يبقى في نتائج الفرز (العضوية غير متأثّرة).")
@@ -12594,7 +12608,7 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
                 last_body_before_drop(df, s.get("last_price") or s.get("price") or 0),
                 bounce_test_band(s.get("pivot") or 0),
                 support_agreement(s.get("pivot") or 0, s.get("weekly_support") or 0),
-                roc_state(df["Close"]))
+                roc_state(df["Close"]), compact=True)
             _psn = pivot_stability(df["Low"].values.astype(float),
                                    df["Close"].values.astype(float))
             if _psn:

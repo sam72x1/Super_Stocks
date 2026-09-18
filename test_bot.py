@@ -45578,6 +45578,87 @@ check("📘 FB10: صفوفُ الدفتر للمفاتيح الأربعة — ص
       not _fb10_bad, str(_fb10_bad)[:120])
 
 
+# ── 📘 FB13/FB14 — «قصّر السطر» (أمرُ المالك 2026-09-18): صيغةٌ مختصرةٌ للكرت
+#    واليوميّ، **والكاملةُ تبقى** لفحص اليد والتقرير الفنيّ (موضعُ الشرح).
+#    القياسُ على القائمة الحيّة يومَها: 162.6 ⟶ 94.3 محرفًا وسطيًّا (قصٌّ 42%).
+_fb13_closes = [3.05, 3.08, 3.26]
+_fb13_body = {"level": 3.41, "ago": 4, "drop_pct": 52.0}
+_fb13_band = (3.31, 3.60)
+_fb13_agree = {"agree": True, "level": 1.68}
+_fb13_roc = (-9.8, -27.7)
+
+
+def _fb13_call(compact, agree=None):
+    try:
+        return S.faisal_levels_line(_fb13_closes, _fb13_body, _fb13_band,
+                                    agree, _fb13_roc, compact=compact)
+    except Exception as _e:                                       # noqa: BLE001
+        return f"⛔ رمى: {type(_e).__name__}"
+
+
+_fb13_full = _fb13_call(False)
+_fb13_cmp = _fb13_call(True)
+_FB13_CONST = "(أعلى من القاع بـ15% إلى 25%)"
+# ① الكاملةُ **بت-بت كما كانت** (الافتراضُ لم ينقلب) · ② المختصرةُ أقصرُ فعلًا ·
+# ③ كلُّ سعرٍ باقٍ (لا يُقَصّ رقم) · ④ ROC والجملةُ الثابتة تسقطان من المختصرة
+#    **وتبقيان في الكاملة** (فارقان محدَّدان لا «أو») · ⑤ ولا علاماتِ مقارنة.
+import re as _fb13_re
+_fb13_pf = sorted(_fb13_re.findall(r"\$[\d.]+", _fb13_full))
+_fb13_pc = sorted(_fb13_re.findall(r"\$[\d.]+", _fb13_cmp))
+_fb13_ok = (
+    _fb13_full == ("🧭 إغلاقات الهابطة $3.05 · $3.08 · $3.26 · "
+                   "جسم آخر شمعة قبل الهبوط $3.41 · "
+                   "نطاق اختبار المقاومة $3.31 إلى $3.60 "
+                   "(أعلى من القاع بـ15% إلى 25%) · ROC -9.8 (متوسطه -27.7)")
+    and len(_fb13_cmp) < len(_fb13_full) - 50 and len(_fb13_cmp) <= 100
+    and _fb13_pf == _fb13_pc and len(_fb13_pc) == 6   # 3 إغلاقات + جسم + طرفا النطاق
+    and "ROC" in _fb13_full and "ROC" not in _fb13_cmp
+    and _FB13_CONST in _fb13_full and _FB13_CONST not in _fb13_cmp
+    and not any(c in _fb13_cmp for c in "≥≤><")
+    # وبندُ التوافق يبقى في الصيغتين (خامدٌ اليوم لغياب الدعم الأسبوعيّ)
+    and "يتفقان عند $1.68" in _fb13_call(True, _fb13_agree)
+    and "يتفقان عند $1.68" in _fb13_call(False, _fb13_agree))
+check("📘 FB13: `compact` يقصّ ROC والجملةَ الثابتةَ والحشوَ **ولا يقصّ سعرًا** · "
+      "والكاملةُ بت-بت كما كانت · بلا علامات مقارنة",
+      _fb13_ok, f"كامل={len(_fb13_full)} مختصر={len(_fb13_cmp)} "
+                f"أسعار={len(_fb13_pc)}/{len(_fb13_pf)} | {_fb13_cmp[:70]}")
+
+# FB14 — **وصلٌ بالـAST**: نقطتا الإنتاج (الكرت واليوميّ يقرآن الحقلَ المخزَّن)
+#   تمرّران `compact=True`، **وفحصُ اليد والتقريرُ الفنيّ لا يمرّرانه** (الكاملةُ
+#   موضعُ الشرح). نصٌّ لا يكفي هنا: التعليقُ قد يذكر `compact` بلا وصل.
+def _fb14_flags(node):
+    """قيمُ `compact` لكلّ نداءٍ لـ`faisal_levels_line` داخل العقدة (AST لا نصّ)."""
+    out = []
+    for c in _fb_ast.walk(node):
+        if not isinstance(c, _fb_ast.Call):
+            continue
+        nm = getattr(c.func, "id", None) or getattr(c.func, "attr", None)
+        if nm != "faisal_levels_line":
+            continue
+        kw = next((k.value for k in c.keywords if k.arg == "compact"), None)
+        pos = c.args[5] if len(c.args) > 5 else None
+        nd = kw if kw is not None else pos
+        out.append(getattr(nd, "value", "؟") if nd is not None else "بلا")
+    return out
+
+
+_fb14_prod = (_fb14_flags(_fb_defs["scan_market"])
+              + _fb14_flags(_fb_defs["update_watchlist_status"]))
+_fb14_deep = []
+for _fb14_f in ("hand_check.py", "technical_report.py"):
+    try:
+        _fb14_deep += _fb14_flags(
+            _fb_ast.parse(open(_fb14_f, encoding="utf-8").read()))
+    except Exception as _fb14_e:                                  # noqa: BLE001
+        _fb14_deep.append(f"⛔ {type(_fb14_e).__name__}")
+# شاهدُ ضبط: لو لم يمسك الكاشفُ شيئًا لصار الشرطُ خاويًا ⇒ يُشترَط العددُ أيضًا.
+check("📘 FB14: نقطتا الإنتاج تمرّران `compact=True` (AST) · وفحصُ اليد والتقريرُ "
+      "الفنيّ يبقيان على الكاملة",
+      len(_fb14_prod) == 2 and all(v is True for v in _fb14_prod)
+      and len(_fb14_deep) == 2 and all(v == "بلا" for v in _fb14_deep),
+      f"إنتاج={_fb14_prod} · تفصيليّ={_fb14_deep}")
+
+
 # ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
 # «اذا حللنا سهم ارتكاز ممنوع الدخول … انتظر اقل سعر 10% او 20% تحت» (فيصل، دليلُ
 # طريقة فيصل ص54) · أداةُ قياسٍ معزولةٌ عن الإنتاج تُقاس بها الجملةُ قبل أيّ شحن.
