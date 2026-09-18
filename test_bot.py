@@ -52678,6 +52678,97 @@ check("🎚️📉🔒 TRA13 جدولُ الصفوف **مطفأٌ افتراضً
       "ويُطبَع كاملًا بالعَلَم · و`JUDGE` **آخرَ سطر** فيُقرأ بذيلٍ قصير",
       _tra_ok13, _tra_w13)
 
+# 🔴🔴 `TRA14` — **الإغلاقُ مُنفَّذٌ لا مكتوب** (شرطُ العقد §⑤ بعد سقوط `TR2`):
+#    الأداتان تخرجان **‏8** **بصفرِ عملية** · والإقرارُ **يرفع الحارسَ فعلًا** ·
+#    و‏8 **مميَّزٌ** عن كلّ رمزٍ آخر في الأداتين (بشاهدِ ضبطٍ يمنع «شرطًا لا
+#    يُكذَّب» — درسُ `RKA16`) · **ونقطةُ دخولٍ واحدةٌ لكلّ أداة** فلا يُلتَفّ
+#    عليها بفرعٍ ثانٍ (درسُ `run_child`).
+try:
+    _tra_hits14 = []
+
+    def _tra_trip(mod, names):
+        _old = {}
+        for _nm in names:
+            _o = getattr(mod, _nm, None)
+            if _o is None:
+                continue
+            _old[_nm] = _o
+            setattr(mod, _nm, (lambda _n2=_nm: (lambda *_a, **_k: (
+                _tra_hits14.append(_n2), (_ for _ in ()).throw(
+                    AssertionError("عمليةٌ نُفِّذت والمحورُ مُغلَق")))[0]))())
+        return _old
+
+    def _tra_closed_run(mod, names, ack):
+        _old = _tra_trip(mod, names)
+        _env = _tra_os.environ.get("TRAIL_REOPEN")
+        _ob = _tra_io.StringIO()
+        try:
+            if ack:
+                _tra_os.environ["TRAIL_REOPEN"] = "1"
+            else:
+                _tra_os.environ.pop("TRAIL_REOPEN", None)
+            with _tra_redir(_ob):
+                return mod.main(), _ob.getvalue()
+        finally:
+            for _nm, _o in _old.items():
+                setattr(mod, _nm, _o)
+            _tra_os.environ.pop("TRAIL_REOPEN", None)
+            if _env is not None:
+                _tra_os.environ["TRAIL_REOPEN"] = _env
+    _tra_a_ops = ("guards_ok", "read_published", "selfcheck_v4", "_measure",
+                  "_pool", "report")
+    _tra_o_ops = ("guards_ok", "selfcheck_v5", "read_costs", "read_hstar",
+                  "anchor_history", "build_rows", "attach_arms")
+    _tra_rc_a, _tra_out_a = _tra_closed_run(_TRA, _tra_a_ops, False)
+    _tra_rc_o, _tra_out_o = _tra_closed_run(_TRO, _tra_o_ops, False)
+    _tra_shut = sorted(set(_tra_hits14))
+    _tra_hits14.clear()
+    # 🔴 الإقرارُ يرفع الحارسَ **فعلًا** — والدليلُ الصحيح **ألّا يعود برمز
+    #    الإغلاق**، لا أن يصطدم بعملية: `trail_arms` يمضي ثمّ يعود ‏2 (لا
+    #    مدخلات) **قبل** بلوغ أوّل عمليةٍ مُجهَّضة، فاشتراطُ الاصطدام كان
+    #    عيبًا في الاختبار لا في الإغلاق (كُشف 2026-09-18).
+    _tra_lift = []
+    for _m, _ns in ((_TRA, _tra_a_ops), (_TRO, _tra_o_ops)):
+        try:
+            _rc_ack, _ = _tra_closed_run(_m, _ns, True)
+            if _rc_ack != _m.CLOSED_RC:
+                _tra_lift.append(_m.__name__)
+        except Exception:                                        # noqa: BLE001
+            _tra_lift.append(_m.__name__)     # مضى فاصطدم = رُفع أيضًا
+    _tra_hits14.clear()
+    # 🔒 تمايزُ الرمز — **بلا فلترٍ يُقصي القيمةَ المفحوصة** (درسُ `RKA16`)
+    _tra_other = {_TRA.RC_OK, _TRA.RC_INPUT, _TRA.RC_TOOL, _TRA.RC_POP,
+                  _TRA.RC_NOVERDICT, _TRO.RC_OK, _TRO.RC_NOKEY, _TRO.RC_COVER,
+                  _TRO.RC_NOANCHOR, _TRO.RC_POP, _TRO.RC_GUARD}
+
+    def _tra_free(v):
+        return v not in _tra_other
+    _tra_txt14 = "\n".join(_TRA.closure_notice())
+    _tra_ok14 = (_tra_rc_a == _TRA.CLOSED_RC == 8
+                 and _tra_rc_o == _TRO.CLOSED_RC == 8
+                 and not _tra_shut                       # صفرُ عملية
+                 and sorted(_tra_lift) == ["trail_arms", "trail_op_arms"]
+                 and _tra_free(8) and not _tra_free(9)   # شاهدُ ضبطٍ: 9 محجوز
+                 and _TRA.AXIS_CLOSED is True
+                 and _TRA.REOPEN_ENV == "TRAIL_REOPEN"
+                 and "TRAIL_REOPEN" in _tra_txt14
+                 and all(_x in _tra_txt14 for _x in
+                         ("مصدرٌ جديدٌ للدعوى", "تسجيلٌ مسبقٌ جديد",
+                          "إذنُ المالك", "TR2"))
+                 and "مُغلَق" in _tra_out_a and "مُغلَق" in _tra_out_o
+                 # نقطةُ دخولٍ واحدة: لا فرعٌ ثانٍ يلتفّ على الحارس
+                 and _tra_src.count("if __name__ ==") == 1
+                 and _tro_src.count("if __name__ ==") == 1
+                 and "run_child" not in _tra_src and "run_child" not in _tro_src)
+    _tra_w14 = (f"rc={_tra_rc_a}/{_tra_rc_o} · عمليّاتٌ نُفِّذت="
+                f"{_tra_shut or 'لا شيء'} · الإقرارُ رفع={sorted(_tra_lift)} · "
+                f"‏8 شاغر={_tra_free(8)} · 9 محجوز={not _tra_free(9)}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok14, _tra_w14 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA14 الإغلاقُ **مُنفَّذ**: الأداتان تخرجان 8 بصفرِ عملية · "
+      "والإقرارُ يرفع الحارسَ فعلًا · و‏8 مميَّزٌ (بشاهدِ ضبط) · ونقطةُ دخولٍ "
+      "واحدةٌ لكلٍّ", _tra_ok14, _tra_w14)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

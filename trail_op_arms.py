@@ -45,12 +45,18 @@ from opcurve_probe import ny_hour                                 # بالاسم
 from tierlink_probe import anchor_history                         # بالاسم
 from tier_fwd_report import load_ledger                           # بالاسم
 from fcost_arms import k_of, roots_identical                      # بالاسم
-from trail_arms import MATERIAL, dmap, read_arm                   # بالاسم
+from trail_arms import (MATERIAL, _closed_now, closure_notice,    # بالاسم
+                        dmap, read_arm)
 
 SINCE = os.environ.get("TRAILOP_SINCE", OT.SINCE)
 H2_FROM = os.environ.get("TRAILOP_H2_FROM", OT.H2_FROM)
 UNTIL = os.environ.get("TRAILOP_UNTIL", OT.FROZEN_UNTIL).strip()
 DRY = os.environ.get("TRAILOP_DRY", "").strip() == "1"
+
+# 🔒🔴 **الإغلاقُ المُنفَّذ** — نفسُ شرط §⑤ ونفسُ نصّه (يُستورَد بالاسم فلا
+#    يتفرّق نصّان). وهذي الأداةُ وصفيّةٌ وقد **أدّت التزامَ النشر** في التشغيلة
+#    ‏35318453635 (‏`trail_result.md §⑥`) ثمّ أُغلقت معها.
+CLOSED_RC = 8            # مميَّزٌ عمدًا عن 0/2/3/4/5/6/**9**
 
 OT_RESULT = "optrade_result.md"       # `V-T2` / شاهدُ `P1`
 HN_RESULT = "ophold2_result.md"       # `V-T3`
@@ -247,6 +253,11 @@ def witness(rows, arm: str, path: str, pub_arm: str, c: float,
 
 
 def main() -> int:                                               # noqa: PLR0911, PLR0915
+    # 🔒 الحارسُ **قبل أيّ مدخل** — ولا مفتاحَ يُقرأ ولا جلبةَ تُطلَق.
+    if _closed_now():                                            # بالاسم
+        for _ln in closure_notice():                             # بالاسم
+            _log(_ln)
+        return CLOSED_RC
     _log("🎚️📉🕵️ T-TRAIL · `E-OP` — **وصفيٌّ ملزِمُ النشر ولا يحكم** (العقد §②)")
     _log("🔴 التلوّثُ مُعلَنٌ (§⓪-أ): `AEMD`/`RETO` مرئيّتان لي ⇒ **لا يُنتج "
          "الفرعَ 1**، والحاكمُ `E-BT` في `trail_arms.py`.")
