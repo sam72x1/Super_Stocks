@@ -3350,18 +3350,6 @@
   "date": "2026-09-16"
  },
  "LIQ:CYPH": {
-  "last_eval_ms": 1789765020000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1789748100000,
-   "anchor_price": 3.71,
-   "anchor_low": 3.6798,
-   "e5": null,
-   "exit_ms": 1789748280000
-  },
-  "tc_cum": 48036663.885273434,
-  "tc_seen_ms": 1789764960000,
-  "date": "2026-09-18",
   "anchor_ms": 1789765020000,
   "last_ms": 1789765020000,
   "sent": [
@@ -3370,15 +3358,25 @@
   "updates": 0,
   "vol_x": 0.1,
   "peak_usd": 7689,
+  "last_eval_ms": 1789765020000,
   "pulse_ms": 1789765020000,
   "anchor_price": 3.7,
   "anchor_open": 3.74,
   "anchor_low": 3.7,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1789748100000,
+   "anchor_price": 3.71,
+   "anchor_low": 3.6798,
+   "e5": null,
+   "exit_ms": 1789748280000
+  },
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 3.74,
   "pre_usd": 5534204,
-  "pre_n": 59
+  "pre_n": 59,
+  "date": "2026-09-18"
  },
  "LIQ:NXXT": {
   "date": "2026-09-16"
