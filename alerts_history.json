@@ -1686,7 +1686,7 @@
    "status": "expired",
    "result_date": "2026-08-20",
    "max_gain_pct": 3.6,
-   "mg_obs_pct": 44.3,
+   "mg_obs_pct": 47.4,
    "mg_obs_days": 42
   },
   {
@@ -2340,7 +2340,7 @@
    "status": "hit_t1",
    "result_date": "2026-08-17",
    "max_gain_pct": 14.1,
-   "mg_obs_pct": 17.0,
+   "mg_obs_pct": 17.7,
    "mg_obs_days": 31
   },
   {
@@ -3853,7 +3853,7 @@
    "result_date": "2026-08-12",
    "max_gain_pct": 4.0,
    "mg_obs_pct": 7.4,
-   "mg_obs_days": 27
+   "mg_obs_days": 28
   },
   {
    "symbol": "FEMY",
@@ -7080,7 +7080,7 @@
    "rr": 0.9756097560975601,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": 0.8
+   "max_gain_pct": 1.3
   },
   {
    "symbol": "GNPX",
@@ -7342,7 +7342,7 @@
    "rr": 1.633986928104575,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -0.3
+   "max_gain_pct": 2.4
   },
   {
    "symbol": "UPC",
@@ -7687,6 +7687,85 @@
    "drop_pct": 81.30555550257364,
    "best_spike": 238.86637393885394,
    "rr": 0.8931250956974406,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "CRVO",
+   "date": "2026-09-18",
+   "ref_bar": "2026-09-18",
+   "price": 2.495,
+   "stop": 2.4,
+   "t1": 2.74,
+   "t2": 3.2,
+   "t3": 5.78,
+   "score": 80,
+   "flags": [
+    "تقاطع MACD",
+    "KST صاعد",
+    "ثبات 2 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "نمط شمعة قوي",
+    "تباعد MFI صعودي (21→28) — سيولة مخفية",
+    "انكماش حزمة كلنجر (تجميع)",
+    "DMI: ‎+DI فوق ‎-DI",
+    "فجوة صاعدة يومي 4%",
+    "فجوة يومية مفتوحة (لم تُغلق)",
+    "فجوات متعددة الفريمات (أسبوعي)",
+    "شورت غير متاح — مُرِّر بفائدة الشك",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Healthcare",
+   "rsi": 43.12676645303612,
+   "float": 9604406,
+   "short": null,
+   "short_pct": 10.9,
+   "shares_available": null,
+   "borrow_fee": null,
+   "drop_pct": 75.05000114440918,
+   "best_spike": 574.0566383608317,
+   "rr": 1.134453781512603,
+   "status": "open",
+   "result_date": null,
+   "max_gain_pct": 0.0
+  },
+  {
+   "symbol": "MSAI",
+   "date": "2026-09-18",
+   "ref_bar": "2026-09-18",
+   "price": 4.8,
+   "stop": 4.65,
+   "t1": 5.2,
+   "t2": 6.1,
+   "t3": 11.75,
+   "score": 65,
+   "flags": [
+    "جفاف بيع",
+    "يرتكز على متوسط 30/50",
+    "ثبات 1 جلسات فوق القاع",
+    "مسح سيولة (كسر قاع سابق واستعادة)",
+    "تباعد MFI صعودي (20→40) — سيولة مخفية",
+    "Williams %R انعطاف من التشبع",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "شورت 2,075 (مقبول)",
+    "فلوت غير متاح — مُرِّر بفائدة الشك"
+   ],
+   "ready": false,
+   "tier": "B",
+   "sector": "Technology",
+   "rsi": 43.82049945114179,
+   "float": 1342644,
+   "short": 2075,
+   "short_pct": 60.8,
+   "shares_available": 20000,
+   "borrow_fee": 12.78,
+   "drop_pct": 94.99999980131784,
+   "best_spike": 292.85713069292956,
+   "rr": 0.8807733619763706,
    "status": "open",
    "result_date": null,
    "max_gain_pct": 0.0
