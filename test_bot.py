@@ -45786,13 +45786,33 @@ def _wkp_calls(node=None):
 
 
 _wkp_all = _wkp_calls()
-# WKP0 — يُعيد استعمالَ دوالِّ الإنتاج **بالاسم** ولا يُعيد كتابةَ منطقها
+# WKP0 — 🔴 **مُشدَّدٌ بعد طفرةٍ نجت:** الصياغةُ الأولى اشترطت النداءَ **في الوحدة**
+#   فمرّ استبدالُ `pivot_stability` بـ`min` داخلَ `w_swing` (‏الاسمُ باقٍ في
+#   `d_pivot`). والقيمةُ نفسُها **اليوم** لكنّ الوصلةَ تنقطع ⇒ لو تغيّرت دالّةُ
+#   الإنتاج غدًا انحرف المِجَسُّ صامتًا. ⇒ صار **موضعيًّا: كلُّ دالّةٍ ونداؤها**.
 _WKP_REUSE = ("pivot_stability", "resample_ohlc", "support_agreement",
               "download_history", "load_watchlist")
 _wkp0_miss = [f for f in _WKP_REUSE if f not in _wkp_all]
-check("🧱📅🔒 WKP0 المِجَسُّ يُعيد استعمالَ دوالِّ الإنتاج الخمس **بالاسم** (AST) "
-      "فلا يُعيد كتابةَ تعريفِ الدعم",
-      not _wkp0_miss, f"غائب={_wkp0_miss}")
+_WKP_WHERE = {"w_swing": ("resample_ohlc", "pivot_stability"),
+              "w_min": ("resample_ohlc",),
+              "d_pivot": ("pivot_stability",)}
+_wkp_fns = {}
+if _wkp_tree is not None:
+    _wkp_fns = {n.name: n for n in _wkp_ast.walk(_wkp_tree)
+                if isinstance(n, _wkp_ast.FunctionDef)}
+_wkp0_where = []
+for _fn_n, _need in _WKP_WHERE.items():
+    _nd_f = _wkp_fns.get(_fn_n)
+    if _nd_f is None:
+        _wkp0_where.append(f"{_fn_n}:غائبة")
+        continue
+    _in = _wkp_calls(_nd_f)
+    _wkp0_where += [f"{_fn_n}⊅{x}" for x in _need if x not in _in]
+check("🧱📅🔒 WKP0 كلُّ دالّةٍ تنادي دالّةَ الإنتاج **داخلها** (AST موضعيّ): "
+      "`w_swing`⊃resample+pivot · `w_min`⊃resample · `d_pivot`⊃pivot — فلا "
+      "يُعاد كتابةُ تعريفِ الدعم ولو بقي الاسمُ في مكانٍ آخر",
+      not _wkp0_miss and not _wkp0_where,
+      f"غائب={_wkp0_miss} موضع={_wkp0_where}")
 
 # WKP1 — حارسُ «قراءةٌ فقط» **سلوكيٌّ**: نظيفٌ على الملفّ الحقيقيّ **ويَعَضّ**
 #   على نسخةٍ مزروعٍ فيها إرسال (شاهدُ ضبطٍ — وإلّا فالنظافةُ دعوًى خاوية).
