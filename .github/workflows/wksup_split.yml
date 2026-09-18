@@ -1,0 +1,37 @@
+name: WKSUP-SPLIT (🔬 قياسُ فرضيّة التقسيم — §⑦)
+
+# 🔒 **قراءةٌ فقط**: لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام**.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: "الرمز (الافتراضُ PPBT)"
+        required: false
+        type: string
+      asof:
+        description: "تاريخُ صورة فيصل (الافتراضُ 2026-09-05)"
+        required: false
+        type: string
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🔬 قِس فرضيّةَ التقسيم (قراءةٌ فقط)
+        env:
+          WKSUP_SYMBOL: ${{ inputs.symbol }}
+          WKSUP_ASOF: ${{ inputs.asof }}
+        run: python wksup_split_probe.py
