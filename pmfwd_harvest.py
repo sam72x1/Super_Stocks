@@ -70,7 +70,18 @@ def watch_symbols(path: str = WL):
 
 
 def fired_of(day: str, path: str = OP_STATE):
-    """`(رموزُ الإطلاق في اليوم، هل القراءةُ موثوقة؟)` — §③ · §⑦-4.
+    """`(رموزُ الإطلاق، الموثوقيّة، سببُها، أحدثُ تاريخ)` — §③ · §⑦-4.
+
+    🔴 **والسببُ أُضيف 2026-09-18 (أمرُ المالك «صلّح السطرين»)** بعد تحقيقٍ
+    أثبت أن الحارسَ كان **يُسمّي السببَ الخطأ**: يوم 2026-09-16 طُبع «العاملُ
+    لم يعمل» **والعاملُ عمل** — الحصادُ هو الذي تأخّر (يدويًّا، أثناء جلسة
+    اليوم التالي) فدُهست الحالة. والمقيسُ من تاريخ git: **‏42 مِرساةً في
+    نهاية 09-16 · و‏4 فقط بقيت لحظةَ الحصاد** (‏دهسٌ ‏90%) ⇒ الرفضُ كان
+    صوابًا **والتسميةُ كانت خطأ**. وكان الصفُّ يخزّن **بتًّا واحدًا** فحالتا
+    «الدهس» و«التعطّل» **لا تُفرَّقان بعدها أبدًا** — فصار `why` يُخزَّن معه.
+
+    🔒 **و`ok` لم يُمَسّ بحرف** (`newest == day`) ⇒ كلُّ صفٍّ مسجَّلٍ وكلُّ
+    قراءةٍ في `pmfwd_report` **بت-بت**، والمضافُ **تشخيصٌ لا حكم**.
 
     🔴 المفتاحُ `LIQ:<رمز>` **واحدٌ لكلّ رمزٍ يُكتَب فوق نفسه** ⇒ رمزٌ رسا ثانيةً
     في يومٍ تالٍ **يمحو رسوَّه في اليوم المقيس** ⇒ القراءةُ المتأخّرة **تُنقِص
@@ -104,15 +115,51 @@ def fired_of(day: str, path: str = OP_STATE):
     try:
         st = json.load(open(path, encoding="utf-8"))
     except Exception:                                            # noqa: BLE001
-        return set(), False
+        return set(), False, "no_state", None
     rows = [(k[4:], v) for k, v in st.items()
             if k.startswith("LIQ:") and isinstance(v, dict) and v.get("date")]
     if not rows:
-        return set(), False
+        return set(), False, "no_state", None
     newest = max(v["date"] for _s, v in rows)
     fired = {s for s, v in rows
              if v.get("date") == day and v.get("anchor_ms")}
-    return (fired, newest == day)
+    ok = newest == day
+    why = ("fresh" if ok else
+           "overwritten" if newest > day else "worker_stale")
+    return (fired, ok, why, newest)
+
+
+def why_line(ok: bool, why: str, newest, day: str) -> str:
+    """سطرُ سببِ الموثوقيّة — **يُسمّي ما حدث فعلًا** لا سببًا واحدًا لكلّ حالة.
+
+    نقيّةٌ عمدًا فتُقفَل بجدول حقيقة. وبلا علاماتِ مقارنةٍ في النصّ المعروض
+    (قاعدةُ العرض المُلزِمة)."""
+    if ok:
+        return "✅ طازجة"
+    if why == "overwritten":
+        return (f"🔴 دُهست حالةُ اليوم — الحصادُ متأخّر (أحدثُ تاريخٍ في "
+                f"الحالة {newest} بعد اليوم المقيس {day}) ⇒ العدُّ ناقصٌ "
+                f"فيُقصى اليوم")
+    if why == "worker_stale":
+        return (f"🔴 العاملُ لم يعمل (أحدثُ تاريخٍ في الحالة {newest} قبل "
+                f"اليوم المقيس {day})")
+    return "🔴 لا حالةَ تُقرأ"
+
+
+def count_line(syms, fired, seen, day, ok, why, newest) -> str:
+    """سطرُ العدّاد — **حصّةُ قائمتنا أوّلًا وعددُ السوق موسومًا**.
+
+    🔴 أصلُه عيبٌ حيٌّ مقيس (2026-09-18، أمرُ المالك «صلّح السطرين»): كان
+    السطرُ يطبع «رموزُ القائمة 45 · **أطلقت لها الطبقةُ 29**» و`29` **عددُ
+    مراسي السوق كلِّه** لا حصّتَنا — فيُقرأ ‏64% وحقيقتُه **‏2 من 45 = ‏4%**
+    (مقيسٌ على 2026-09-17). والصفوفُ المخزَّنة كانت صحيحةً (`s in fired`)
+    **والسطرُ وحدَه يكذب** ⇒ نُقل إلى دالّةٍ نقيّةٍ تُقفَل بجدول حقيقة."""
+    own = sum(1 for s in syms if s in fired)
+    return (f"👥 رموزُ القائمة {len(syms)} · رست منها {own} "
+            f"(ومراسي السوق كلِّه {len(fired)}) · "
+            f"موثوقيّةُ القراءة: {why_line(ok, why, newest, day)} · "
+            f"مسجَّلٌ سلفًا لهذا اليوم "
+            f"{sum(1 for s in syms if (day, s) in seen)}")
 
 
 def target_day(now=None) -> str:
@@ -253,12 +300,10 @@ def main() -> int:                                               # noqa: PLR0911
         if not DRY:
             append_rows([row])
         return RC_NOROW
-    fired, fired_ok = fired_of(day)
+    fired, fired_ok, fired_why, fired_newest = fired_of(day)
     seen = seen_keys()
-    _log(f"👥 رموزُ القائمة {len(syms)} · أطلقت لها الطبقةُ {len(fired)} "
-         f"(موثوقيّةُ القراءة: {'✅' if fired_ok else '🔴 العاملُ لم يعمل'}) · "
-         f"مسجَّلٌ سلفًا لهذا اليوم "
-         f"{sum(1 for s in syms if (day, s) in seen)}")
+    _log(count_line(syms, fired, seen, day,
+                    fired_ok, fired_why, fired_newest))       # بالاسم
 
     rows, got, miss = [], 0, 0
     for s in syms:
@@ -276,11 +321,13 @@ def main() -> int:                                               # noqa: PLR0911
         if r is None:
             miss += 1
             rows.append({"day": day, "sym": s, "absent": "no_bars",
-                         "fired": (s in fired), "fired_ok": fired_ok})
+                         "fired": (s in fired), "fired_ok": fired_ok,
+                         "fired_why": fired_why})
             continue
         got += 1
         r.update({"day": day, "sym": s, "prev_close": pc,
-                  "fired": (s in fired), "fired_ok": fired_ok})
+                  "fired": (s in fired), "fired_ok": fired_ok,
+                  "fired_why": fired_why})
         rows.append(r)
 
     total = got + miss

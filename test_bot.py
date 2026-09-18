@@ -51563,11 +51563,13 @@ try:
     _pwa_a = _PWH.fired_of("2026-09-17", _pwa_st)
     _pwa_b = _PWH.fired_of("2026-09-18", _pwa_st)
     _pwa_c = _PWH.fired_of("2026-09-16", _pwa_st)
-    _pwa_ok2 = (_pwa_a == ({"BBB"}, True)
-                and _pwa_b == (set(), False)
-                and _pwa_c == ({"AAA"}, False)      # 🔴 دهسٌ ⇒ غيرُ موثوق
+    _pwa_ok2 = (_pwa_a == ({"BBB"}, True, "fresh", "2026-09-17")
+                and _pwa_b == (set(), False, "worker_stale", "2026-09-17")
+                # 🔴 دهسٌ ⇒ غيرُ موثوق · **والسببُ يُسمّى** (كان يُقرأ «تعطّل»)
+                and _pwa_c == ({"AAA"}, False, "overwritten", "2026-09-17")
                 and _PWH.fired_of("2026-09-17",
-                                  _os_hc.path.join(_pwa_tmp, "no.json")) == (set(), False))
+                                  _os_hc.path.join(_pwa_tmp, "no.json"))
+                == (set(), False, "no_state", None))
     _pwa_w2 = f"اليوم={_pwa_a} · غدًا={_pwa_b} · أمس={_pwa_c}"
 except Exception as _e:                                          # noqa: BLE001
     _pwa_ok2, _pwa_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
@@ -51893,13 +51895,17 @@ try:
     open(_pwx_empt, "w", encoding="utf-8").write(
         _pwx_json.dumps({"PRE:ZZZ": "2026-09-16", "OTHER": 1}))
     _pwx_emp = _PWH.fired_of("2026-09-16", _pwx_empt)
-    _pwa_ok14 = (_pwx_fresh == ({"A", "B"}, True)
-                 and _pwx_over == ({"A"}, False)
-                 and _pwx_gone == (set(), False)
-                 and _pwx_evl == ({"A"}, True)        # 🔴 المُقيَّمُ لا يُعَدّ
-                 and _pwx_zero == (set(), True)       # 🔴 صفرُ رسوٍّ ≠ بائت
-                 and _pwx_emp == (set(), False)
-                 and _pwx_none == (set(), False))
+    _pwa_ok14 = (_pwx_fresh == ({"A", "B"}, True, "fresh", "2026-09-16")
+                 and _pwx_over == ({"A"}, False, "overwritten", "2026-09-17")
+                 and _pwx_gone == (set(), False, "worker_stale", "2026-09-15")
+                 # 🔴 المُقيَّمُ لا يُعَدّ
+                 and _pwx_evl == ({"A"}, True, "fresh", "2026-09-16")
+                 # 🔴 صفرُ رسوٍّ ≠ بائت
+                 and _pwx_zero == (set(), True, "fresh", "2026-09-16")
+                 and _pwx_emp == (set(), False, "no_state", None)
+                 and _pwx_none == (set(), False, "no_state", None)
+                 # 🔴 **والسببُ يفصل الحالتين** — وهو ما كان مستحيلًا ببتٍّ واحد
+                 and len({_pwx_over[2], _pwx_gone[2], _pwx_none[2]}) == 3)
     _pwa_w14 = (f"طازج={_pwx_fresh} · دهس={_pwx_over} · متوقّف={_pwx_gone} · "
                 f"مُقيَّم={_pwx_evl} · صفرُ رسوّ={_pwx_zero} · بلا LIQ={_pwx_emp}")
     _pwx_sh.rmtree(_pwx_dir, ignore_errors=True)
@@ -51909,6 +51915,75 @@ check("🌅📡🔒 PWA14 `fired_of` جدولُ حقيقة: **المِرساةُ
       "(المُقيَّمُ بلا `anchor_ms` يُقصى · وصفرُ رسوٍّ يبقى موثوقًا) · والموثوقيّةُ "
       "**تسقط في الدهس** (`newest > day`) لا في غيابِ العامل وحدَه",
       _pwa_ok14, _pwa_w14)
+
+# 🔴 `PWA15` — **سطرُ العدّاد لا يكذب**: حصّةُ قائمتنا أوّلًا وعددُ السوق موسومًا.
+#    أصلُه عيبٌ حيٌّ مقيس (2026-09-18): كان يطبع «رموزُ القائمة 45 · **أطلقت لها
+#    الطبقةُ 29**» و`29` **عددُ السوق كلِّه** بينما رست من قائمتنا **‏2** ⇒ يُقرأ
+#    ‏64% وحقيقتُه ‏4%. الصفوفُ المخزَّنة كانت صحيحة — **السطرُ وحدَه يكذب**.
+#    🔒 والفِكستشرُ **يفصل العددَين عمدًا** (‏قائمةٌ من 2 · وسوقٌ فيه 4 مراسٍ
+#    واحدةٌ منها لنا) فلا يمرّ خلطُهما صدفةً · والوصلُ بالـAST من نقطة النداء.
+try:
+    _pw15_syms = ["AAA", "BBB"]
+    _pw15_fired = {"AAA", "XXX", "YYY", "ZZZ"}          # السوق 4 · ونحن 1
+    _pw15_l = _PWH.count_line(_pw15_syms, _pw15_fired, set(), "2026-09-16",
+                              True, "fresh", "2026-09-16")
+    # 🔴 والحالةُ المعكوسة: قائمتُنا كلُّها رست والسوقُ أكبر ⇒ العددان يتبدّلان
+    _pw15_l2 = _PWH.count_line(_pw15_syms, {"AAA", "BBB", "XXX"}, set(),
+                               "2026-09-16", True, "fresh", "2026-09-16")
+    _pw15_ast = _ast0.parse(_insp0.getsource(_PWH.main))
+    _pw15_calls = {getattr(c.func, "id", None)
+                   for c in _ast0.walk(_pw15_ast)
+                   if isinstance(c, _ast0.Call)}
+    _pwa_ok15 = ("رست منها 1" in _pw15_l                 # 🔴 التقاطعُ لا السوق
+                 and "مراسي السوق كلِّه 4" in _pw15_l     # 🔴 وموسومٌ صراحةً
+                 and "رست منها 2" in _pw15_l2 and "السوق كلِّه 3" in _pw15_l2
+                 and _pw15_l.index("رست منها") < _pw15_l.index("السوق")
+                 and "أطلقت لها" not in _pw15_l
+                 and "count_line" in _pw15_calls)        # 🔴 موصولةٌ حيًّا
+    _pwa_w15 = _pw15_l[:150]
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok15, _pwa_w15 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA15 عدّادُ الإطلاق **ينسب ولا يكذب**: حصّةُ قائمتنا (التقاطع) "
+      "أوّلًا وعددُ السوق موسومًا بين قوسين · ولا رقمَ سوقٍ عاريًا بعد «أطلقت لها» "
+      "· و`count_line` منادَاةٌ من `main`",
+      _pwa_ok15, _pwa_w15)
+
+# 🔴 `PWA16` — **الحارسُ يُسمّي سببَه الحقيقيّ · والسببُ يُخزَّن في الصفّ**.
+#    أصلُه عيبٌ حيٌّ مقيس (2026-09-18): عند `fired_ok=False` كان يُطبَع دائمًا
+#    «🔴 العاملُ لم يعمل» — **وسببُ 2026-09-16 كان الدهسَ لا التعطّل** (‏42 مِرساةً
+#    في نهاية اليوم · و‏4 لحظةَ الحصاد المتأخّر ⇒ دهسٌ ‏90%). والصفُّ كان يخزّن
+#    **بتًّا واحدًا** فالحالتان **لا تُفرَّقان بعدها أبدًا**.
+#    🔒 سلوكيٌّ من ثلاثة أشقّ: النصّان مختلفان · و`fired_why` في **كلِّ** كتلةِ
+#    كتابةٍ للصفّ (‏AST لا نصّ) · و`fired_ok` **بت-بت** (تشخيصٌ لا حكم).
+try:
+    _pw16_a = _PWH.why_line(True, "fresh", "2026-09-16", "2026-09-16")
+    _pw16_b = _PWH.why_line(False, "overwritten", "2026-09-17", "2026-09-16")
+    _pw16_c = _PWH.why_line(False, "worker_stale", "2026-09-15", "2026-09-16")
+    _pw16_d = _PWH.why_line(False, "no_state", None, "2026-09-16")
+    _pw16_all = "".join((_pw16_a, _pw16_b, _pw16_c, _pw16_d))
+    _pw16_txt = (("دُهست" in _pw16_b and "لم يعمل" not in _pw16_b)
+                 and ("لم يعمل" in _pw16_c and "دُهست" not in _pw16_c)
+                 and "✅" in _pw16_a and "لا حالةَ" in _pw16_d
+                 and len({_pw16_a, _pw16_b, _pw16_c, _pw16_d}) == 4
+                 # 🔴 قاعدةُ العرض المُلزِمة: بلا علاماتِ مقارنة
+                 and not any(c in _pw16_all for c in "≥≤><"))
+    # 🔴 الوصلُ من نقطة النداء الحيّة: **كلُّ** قاموسِ صفٍّ يحمل المفتاح
+    _pw16_ast = _ast0.parse(_insp0.getsource(_PWH.main))
+    _pw16_dicts = [d for d in _ast0.walk(_pw16_ast)
+                   if isinstance(d, _ast0.Dict)
+                   and any(getattr(k, "value", None) == "fired_ok"
+                           for k in d.keys)]
+    _pw16_wire = (len(_pw16_dicts) == 2                  # `absent` ‏+ الصفُّ الكامل
+                  and all(any(getattr(k, "value", None) == "fired_why"
+                              for k in d.keys) for d in _pw16_dicts))
+    _pwa_ok16 = _pw16_txt and _pw16_wire
+    _pwa_w16 = (f"دهس={_pw16_b[:56]} · تعطّل={_pw16_c[:44]} · "
+                f"كتلُ الصفّ={len(_pw16_dicts)} تحمل why={_pw16_wire}")
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok16, _pwa_w16 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔒 PWA16 حارسُ الموثوقيّة **يُسمّي سببَه**: الدهسُ والتعطّلُ نصّان "
+      "مختلفان · و`fired_why` في كلّ كتلةِ كتابةِ صفٍّ (AST) · و`fired_ok` لم يُمَسّ",
+      _pwa_ok16, _pwa_w16)
 
 # 🔴🔴 `GATE1`/`GATE2` — **بوّابةُ التوقيت في الأدوات الأربع: تكافؤٌ مع المرجع
 #    الحيّ ‏+ صمودٌ أمام تأخّر GitHub المقيس.**
