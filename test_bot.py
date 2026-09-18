@@ -52605,9 +52605,10 @@ try:
         and _tra_y2["permissions"].get("contents") == "read"
         and "TELEGRAM" not in _tra_txt
         and _tra_snaps == _tra_snex                       # 🔑 شرطُ `V-T1`
-        and {"TRAIL_POOL", "TRAIL_DRY"} <= set(_tra_envs)
+        and {"TRAIL_POOL", "TRAIL_DRY", "TRAIL_TSV"} <= set(_tra_envs)
         and {"TRAILOP_SINCE", "TRAILOP_UNTIL", "TRAILOP_DRY"} <= set(_tra_envs)
-        and all(_k in _tra_src for _k in ("TRAIL_POOL", "TRAIL_DRY"))
+        and all(_k in _tra_src for _k in ("TRAIL_POOL", "TRAIL_DRY",
+                                          "TRAIL_TSV"))
         and all(_k in _tro_src for _k in ("TRAILOP_SINCE", "TRAILOP_UNTIL",
                                           "TRAILOP_DRY")))
     _tra_w11 = f"لقطات={_tra_snaps} مقابل exitmgmt={_tra_snex} · بيئة={sorted(_tra_envs)}"
@@ -52641,6 +52642,41 @@ except Exception as _e:                                          # noqa: BLE001
 check("🎚️📉🔒 TRA12 `trail_trade` (‏1R تحت أعلى إغلاق) **قاعدةٌ أخرى** لا "
       "`ratchet_op` (‏d% تحت أعلى قمّة) — مُفرَّقتان سلوكيًّا ولا تُنادى",
       _tra_ok12, _tra_w12)
+
+# 🔴🔴 `TRA13` — **قناةُ المُخرَج:** سجلُّ الـCI هو القناةُ **الوحيدةُ المقروءة**
+#    (تنزيلُ السجلّ الكامل والـartifacts محجوبان ببوّابة الشبكة · مقيسٌ 2026-09-18:
+#    السجلُّ 5,282 سطرًا و≈4,818 منها جدولُ الصفوف **فوق** الحكم ⇒ الحكمُ لم يُقرأ
+#    والتشغيلةُ أُعيدت). ⇒ الجدولُ **مطفأٌ افتراضًا** والقصُّ **يُعلَن بعدّاده**
+#    والحكمُ `JUDGE` **آخرَ سطر**. سلوكيٌّ في الوضعين ‏+ بنيويٌّ على موضع `JUDGE`.
+try:
+    _tra_rw = [{"symbol": "AAA", "date": "2023-03-01", "e": 1.0, "stop": 0.9,
+                "t1": 1.5, "k": 5.0, "tr0": [1.0]},
+               {"symbol": "BBB", "date": "2023-03-02", "e": 2.0, "stop": 1.8,
+                "t1": 3.0, "k": 6.0, "tr0": [2.0]}]
+    for _r in _tra_rw:
+        for _n, _c, _d in _TRA.ARMS:
+            _r[f"o_{_n}"], _r[f"ret_{_n}"], _r[f"mv_{_n}"] = "win", 10.0, False
+    _tra_off = _TRA.rows_out(_tra_rw, False)
+    _tra_on = _TRA.rows_out(_tra_rw, True)
+    # موضعُ `JUDGE`: يُطبَع **بعد** نداء `rows_out` في مصدر `report`
+    _tra_body = _insp0.getsource(_TRA.report)
+    _tra_i_rows = _tra_body.find("rows_out(tot, TSV_ON)")
+    _tra_i_jdg = _tra_body.find('_log("JUDGE "')
+    _tra_ok13 = (len(_tra_off) == 1 and "⟦TSV⟧" not in _tra_off[0]
+                 and "2" in _tra_off[0]            # العدّادُ منصوصٌ في سطر القصّ
+                 and "TRAIL_TSV" in _tra_off[0]
+                 and len(_tra_on) == len(_tra_rw) + 1
+                 and all(_l.startswith("⟦TSV⟧") for _l in _tra_on)
+                 and _TRA.TSV_ON is False          # الافتراضُ مطفأ
+                 and 0 <= _tra_i_rows < _tra_i_jdg)
+    _tra_w13 = (f"مطفأ={len(_tra_off)} سطرًا · مُشغَّل={len(_tra_on)} · "
+                f"الافتراض={_TRA.TSV_ON} · موضعُ JUDGE بعد الصفوف="
+                f"{0 <= _tra_i_rows < _tra_i_jdg}")
+except Exception as _e:                                          # noqa: BLE001
+    _tra_ok13, _tra_w13 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎚️📉🔒 TRA13 جدولُ الصفوف **مطفأٌ افتراضًا** وقصُّه مُعلَنٌ بعدّاده · "
+      "ويُطبَع كاملًا بالعَلَم · و`JUDGE` **آخرَ سطر** فيُقرأ بذيلٍ قصير",
+      _tra_ok13, _tra_w13)
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
