@@ -1,12 +1,53 @@
-# 📸 سجلّ تغطية صور منهجية فيصل — 2026-07-28
+# 📸 سجلّ تغطية صور منهجية فيصل — 2026-09-18
 
-- **المجموع المُدرَج:** 514  ·  **بملف مرفوع:** 371
-- **📗 موثّقة:** 143  ·  **📕 لم تُقرأ بعد:** 371  ·  **مكرّرة:** 0
+- **المجموع المُدرَج:** 721  ·  **بملف مرفوع:** 605
+- **📗 موثّقة:** 200  ·  **📕 لم تُقرأ بعد:** 521  ·  **مكرّرة:** 0
 
-**الدفعة التالية المقترحة (8):** TG_1806 · TG_1807 · TG_1808 · TG_1809 · TG_1810 · TG_1811 · TG_1812 · TG_1813
+**الدفعة التالية المقترحة (8):** APP_20260918_18_NTCL · APP_20260918_19_NTCL · APP_20260918_20_NTCL · APP_20260918_49_main · APP_20260918_50_ZNB · APP_20260918_52_ELPW · APP_20260918_53_ELPW · APP_20260918_59_VEEE
 
 | المعرّف | الملف | 📗 موثّقة | الحالة | ملاحظة |
 |---|---|---|---|---|
+| APP_20260918_18_NTCL | APP_20260918_18_NTCL.jpg | ❌ | unread | — |
+| APP_20260918_19_NTCL | APP_20260918_19_NTCL.jpg | ❌ | unread | — |
+| APP_20260918_20_NTCL | APP_20260918_20_NTCL.jpg | ❌ | unread | — |
+| APP_20260918_49_main | APP_20260918_49_main.jpg | ❌ | unread | — |
+| APP_20260918_50_ZNB | APP_20260918_50_ZNB.jpg | ❌ | unread | — |
+| APP_20260918_52_ELPW | APP_20260918_52_ELPW.jpg | ❌ | unread | — |
+| APP_20260918_53_ELPW | APP_20260918_53_ELPW.jpg | ❌ | unread | — |
+| APP_20260918_59_VEEE | APP_20260918_59_VEEE.jpg | ❌ | unread | — |
+| CH_20260918_01_ELPW | CH_20260918_01_ELPW.jpg | ❌ | unread | — |
+| CH_20260918_02_ELPW | CH_20260918_02_ELPW.jpg | ❌ | unread | — |
+| CH_20260918_03_ELPW | CH_20260918_03_ELPW.jpg | ❌ | unread | — |
+| CH_20260918_05_CPOP | CH_20260918_05_CPOP.jpg | ❌ | unread | — |
+| CH_20260918_07_NUWE | CH_20260918_07_NUWE.jpg | ❌ | unread | — |
+| CH_20260918_09_DAIC | CH_20260918_09_DAIC.jpg | ❌ | unread | — |
+| CH_20260918_14_NUWE | CH_20260918_14_NUWE.jpg | ❌ | unread | — |
+| CH_20260918_16_NTCL | CH_20260918_16_NTCL.jpg | ❌ | unread | — |
+| CH_20260918_17_NTCL | CH_20260918_17_NTCL.jpg | ❌ | unread | — |
+| CH_20260918_25_SXTC | CH_20260918_25_SXTC.jpg | ❌ | unread | — |
+| CH_20260918_32_SXTC | CH_20260918_32_SXTC.jpg | ❌ | unread | — |
+| CH_20260918_39_NUWE | CH_20260918_39_NUWE.jpg | ❌ | unread | — |
+| CH_20260918_45_NUWE | CH_20260918_45_NUWE.jpg | ❌ | unread | — |
+| CH_20260918_47_WETO | CH_20260918_47_WETO.jpg | ❌ | unread | — |
+| CH_20260918_57_VEEE | CH_20260918_57_VEEE.jpg | ❌ | unread | — |
+| CH_20260918_58_VEEE | CH_20260918_58_VEEE.jpg | ❌ | unread | — |
+| CH_20260918_60_VEEE | CH_20260918_60_VEEE.jpg | ❌ | unread | — |
+| CH_20260918_63_ELPW | CH_20260918_63_ELPW.jpg | ❌ | unread | — |
+| CH_20260918_64_ELPW | CH_20260918_64_ELPW.jpg | ❌ | unread | — |
+| CH_20260918_65_ELPW | CH_20260918_65_ELPW.jpg | ❌ | unread | — |
+| EDU_20260827_dki_group_candle | EDU_20260827_dki_group_candle.png | ❌ | unread | — |
+| EDU_20260827_ma_rizq_rule_sle | EDU_20260827_ma_rizq_rule_sle.png | ❌ | unread | — |
+| EDU_20260827_school_two_models_ma_ladder | EDU_20260827_school_two_models_ma_ladder.png | ❌ | unread | — |
+| EDU_20260827_sle_night_4am | EDU_20260827_sle_night_4am.png | ❌ | unread | — |
+| EDU_20260827_smxt_falling_model | EDU_20260827_smxt_falling_model.png | ❌ | unread | — |
+| EDU_20260827_wnw_daily_after_explosion | EDU_20260827_wnw_daily_after_explosion.png | ❌ | unread | — |
+| EDU_20260827_wnw_entry_decision_4h | EDU_20260827_wnw_entry_decision_4h.png | ❌ | unread | — |
+| EDU_20260827_wnw_precall_chinese | EDU_20260827_wnw_precall_chinese.png | ❌ | unread | — |
+| EDU_20260905_01 | EDU_20260905_01.png | ❌ | unread | — |
+| EDU_20260905_02 | EDU_20260905_02.png | ❌ | unread | — |
+| EDU_20260918_10_pattern | EDU_20260918_10_pattern.jpg | ❌ | unread | — |
+| EDU_20260918_44_doublebottom | EDU_20260918_44_doublebottom.jpg | ❌ | unread | — |
+| EDU_20260918_56_three_inside_up | EDU_20260918_56_three_inside_up.jpg | ❌ | unread | — |
 | IMG_0076 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_0077 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_0080 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
@@ -16,45 +57,119 @@
 | IMG_0098 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_0125 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_0140 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0141 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0142 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0143 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0144 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0149 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0150 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0151 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0152 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0153 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0177 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0178 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0179 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0267 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0289 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0290 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0291 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0292 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0293 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0294 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0295 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0296 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0297 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0298 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0299 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0300 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0301 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0302 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0303 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0304 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0305 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0306 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0314 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0315 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0316 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0317 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0318 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0319 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0320 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_0329 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0141 | IMG_0141.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0142 | IMG_0142.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0143 | IMG_0143.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0144 | IMG_0144.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0149 | IMG_0149.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0150 | IMG_0150.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0151 | IMG_0151.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0152 | IMG_0152.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0153 | IMG_0153.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0177 | IMG_0177.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0178 | IMG_0178.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0179 | IMG_0179.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0267 | IMG_0267.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0289 | IMG_0289.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0290 | IMG_0290.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0291 | IMG_0291.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0292 | IMG_0292.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0293 | IMG_0293.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0294 | IMG_0294.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0295 | IMG_0295.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0296 | IMG_0296.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0297 | IMG_0297.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0298 | IMG_0298.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0299 | IMG_0299.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0300 | IMG_0300.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0301 | IMG_0301.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0302 | IMG_0302.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0303 | IMG_0303.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0304 | IMG_0304.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0305 | IMG_0305.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0306 | IMG_0306.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0314 | IMG_0314.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0315 | IMG_0315.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0316 | IMG_0316.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0317 | IMG_0317.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0318 | IMG_0318.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0319 | IMG_0319.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0320 | IMG_0320.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0329 | IMG_0329.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0339 | IMG_0339.png | ❌ | unread | — |
+| IMG_0358 | IMG_0358.jpeg | ❌ | unread | — |
+| IMG_0359 | IMG_0359.jpeg | ❌ | unread | — |
+| IMG_0361 | IMG_0361.jpeg | ❌ | unread | — |
+| IMG_0362 | IMG_0362.jpeg | ❌ | unread | — |
+| IMG_0363 | IMG_0363.jpeg | ❌ | unread | — |
+| IMG_0391 | IMG_0391.png | ✅ | confirmed | — |
+| IMG_0392 | IMG_0392.jpeg | ✅ | confirmed | — |
+| IMG_0393 | IMG_0393.png | ❌ | unread | — |
+| IMG_0394 | IMG_0394.jpeg | ❌ | unread | — |
+| IMG_0395 | IMG_0395.png | ❌ | unread | — |
+| IMG_0402 | IMG_0402.png | ❌ | unread | — |
+| IMG_0413 | IMG_0413.jpeg | ✅ | confirmed | — |
+| IMG_0414 | IMG_0414.jpeg | ❌ | unread | — |
+| IMG_0426 | IMG_0426.png | ❌ | unread | — |
+| IMG_0430 | IMG_0430.png | ❌ | unread | — |
+| IMG_0440 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0446 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0448 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0449 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0450 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0451 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0453 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0454 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0455 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0456 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0457 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0485 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0486 | IMG_0486.png | ✅ | confirmed | — |
+| IMG_0487 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0488 | IMG_0488.jpeg | ✅ | confirmed | — |
+| IMG_0489 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0490 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_0494 | IMG_0494.png | ✅ | confirmed | — |
+| IMG_0495 | IMG_0495.png | ✅ | confirmed | — |
+| IMG_0496 | IMG_0496.png | ✅ | confirmed | — |
+| IMG_0497 | IMG_0497.png | ✅ | confirmed | — |
+| IMG_0498 | IMG_0498.png | ✅ | confirmed | — |
+| IMG_0500 | IMG_0500.png | ✅ | confirmed | — |
+| IMG_0505 | IMG_0505.png | ✅ | confirmed | — |
+| IMG_0506 | IMG_0506.png | ✅ | confirmed | — |
+| IMG_0507 | IMG_0507.png | ✅ | confirmed | — |
+| IMG_0508 | IMG_0508.png | ✅ | confirmed | — |
+| IMG_0509 | IMG_0509.png | ✅ | confirmed | — |
+| IMG_0510 | IMG_0510.png | ✅ | confirmed | — |
+| IMG_0511 | IMG_0511.jpeg | ✅ | confirmed | — |
+| IMG_0512 | IMG_0512.png | ✅ | confirmed | — |
+| IMG_0513 | IMG_0513.png | ✅ | confirmed | — |
+| IMG_0531 | IMG_0531.jpeg | ✅ | confirmed | — |
+| IMG_0566 | IMG_0566.png | ✅ | confirmed | — |
+| IMG_0567 | IMG_0567.jpeg | ✅ | confirmed | — |
+| IMG_0568 | IMG_0568.jpeg | ✅ | confirmed | — |
+| IMG_0569 | IMG_0569.png | ✅ | confirmed | — |
+| IMG_0570 | IMG_0570.jpeg | ❌ | unread | — |
+| IMG_0587 | IMG_0587.png | ✅ | confirmed | — |
+| IMG_0602 | IMG_0602.png | ✅ | confirmed | — |
+| IMG_0617 | IMG_0617.png | ✅ | confirmed | — |
+| IMG_0618 | IMG_0618.png | ❌ | unread | — |
+| IMG_0627 | IMG_0627.png | ✅ | confirmed | — |
+| IMG_0628 | IMG_0628.png | ✅ | confirmed | — |
+| IMG_0645 | IMG_0645.jpeg | ✅ | confirmed | — |
+| IMG_0647 | IMG_0647.png | ✅ | unread | — |
+| IMG_0648 | IMG_0648.png | ❌ | unread | — |
+| IMG_0659 | IMG_0659.png | ❌ | unread | — |
+| IMG_0688 | IMG_0688.jpeg | ✅ | confirmed | — |
+| IMG_0689 | IMG_0689.jpeg | ❌ | unread | — |
+| IMG_0690 | IMG_0690.jpeg | ✅ | confirmed | — |
+| IMG_0691 | IMG_0691.jpeg | ✅ | confirmed | — |
+| IMG_0692 | IMG_0692.jpeg | ❌ | unread | — |
+| IMG_0696 | IMG_0696.jpeg | ✅ | confirmed | — |
+| IMG_0697 | IMG_0697.png | ❌ | unread | — |
+| IMG_0698 | IMG_0698.png | ❌ | unread | — |
+| IMG_0746 | IMG_0746.png | ✅ | confirmed | — |
+| IMG_1066 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_4685 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_4717 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_5954 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
@@ -126,15 +241,19 @@
 | IMG_8096 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_8102 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_8103 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_8126 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_8127 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_8133 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_8136 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_8242 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_8126 | IMG_8126.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_8127 | IMG_8127.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_8133 | IMG_8133.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_8136 | IMG_8136.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_8242 | IMG_8242.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_8261 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_9424 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_9425 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_9426 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_9431 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_9432 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_9443 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_9493 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_9493 | IMG_9493.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_9495 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_9497 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_9498 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
@@ -147,8 +266,8 @@
 | IMG_9510 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_9754 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_9915 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_9923 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| IMG_9925 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_9923 | IMG_9923.jpeg | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| IMG_9925 | IMG_9925.png | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | IMG_9933 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | TG_1806 | TG_1806.jpg | ❌ | unread | — |
 | TG_1807 | TG_1807.jpg | ❌ | unread | — |
@@ -364,6 +483,23 @@
 | TG_2024 | TG_2024.jpg | ❌ | unread | — |
 | TG_2025 | TG_2025.jpg | ❌ | unread | — |
 | TG_2026 | TG_2026.jpg | ❌ | unread | — |
+| TG_20260905_01 | TG_20260905_01.jpg | ❌ | unread | — |
+| TG_20260905_02 | TG_20260905_02.jpg | ❌ | unread | — |
+| TG_20260905_03 | TG_20260905_03.jpg | ❌ | unread | — |
+| TG_20260905_04 | TG_20260905_04.jpg | ❌ | unread | — |
+| TG_20260905_05 | TG_20260905_05.jpg | ❌ | unread | — |
+| TG_20260905_06 | TG_20260905_06.jpg | ❌ | unread | — |
+| TG_20260905_07 | TG_20260905_07.jpg | ❌ | unread | — |
+| TG_20260905_08 | TG_20260905_08.jpg | ❌ | unread | — |
+| TG_20260905_09 | TG_20260905_09.jpg | ❌ | unread | — |
+| TG_20260918_06_CPOP | TG_20260918_06_CPOP.jpg | ❌ | unread | — |
+| TG_20260918_08_NTCL | TG_20260918_08_NTCL.jpg | ❌ | unread | — |
+| TG_20260918_30_targets7 | TG_20260918_30_targets7.jpg | ❌ | unread | — |
+| TG_20260918_37_NUWE | TG_20260918_37_NUWE.jpg | ❌ | unread | — |
+| TG_20260918_38_NUWE | TG_20260918_38_NUWE.jpg | ❌ | unread | — |
+| TG_20260918_40_NUWE | TG_20260918_40_NUWE.jpg | ❌ | unread | — |
+| TG_20260918_42_NUWE | TG_20260918_42_NUWE.png | ❌ | unread | — |
+| TG_20260918_67_BRNX | TG_20260918_67_BRNX.jpg | ❌ | unread | — |
 | TG_2027 | TG_2027.jpg | ❌ | unread | — |
 | TG_2028 | TG_2028.jpg | ❌ | unread | — |
 | TG_2029 | TG_2029.jpg | ❌ | unread | — |
@@ -521,6 +657,77 @@
 | TG_2541 | TG_2541.jpg | ❌ | unread | — |
 | TG_2544 | TG_2544.jpg | ❌ | unread | — |
 | TG_2545 | TG_2545.jpg | ❌ | unread | — |
+| WA_20260918_31_SXTC | WA_20260918_31_SXTC.jpg | ❌ | unread | — |
+| WA_20260918_46_NUWE | WA_20260918_46_NUWE.jpg | ❌ | unread | — |
+| X_20260827_amix_3m_inflow | X_20260827_amix_3m_inflow.png | ❌ | unread | — |
+| X_20260827_amix_hcwb_ready | X_20260827_amix_hcwb_ready.jpg | ❌ | unread | — |
+| X_20260827_amix_pressure_497 | X_20260827_amix_pressure_497.png | ❌ | unread | — |
+| X_20260827_checklist_7points | X_20260827_checklist_7points.jpg | ❌ | unread | — |
+| X_20260827_checklist_7points_cont | X_20260827_checklist_7points_cont.jpg | ❌ | unread | — |
+| X_20260827_ciit_targets | X_20260827_ciit_targets.png | ❌ | unread | — |
+| X_20260827_hcwb_leak_close_dm | X_20260827_hcwb_leak_close_dm.png | ❌ | unread | — |
+| X_20260827_hcwb_leak_read | X_20260827_hcwb_leak_read.png | ❌ | unread | — |
+| X_20260827_indicators_canf | X_20260827_indicators_canf.png | ❌ | unread | — |
+| X_20260827_kwm_150_watch3 | X_20260827_kwm_150_watch3.jpg | ❌ | unread | — |
+| X_20260827_kwm_annotated_levels | X_20260827_kwm_annotated_levels.jpg | ❌ | unread | — |
+| X_20260827_kwm_hammer_support | X_20260827_kwm_hammer_support.png | ❌ | unread | — |
+| X_20260827_kwm_offering_notready | X_20260827_kwm_offering_notready.png | ❌ | unread | — |
+| X_20260827_labt_supports_wait | X_20260827_labt_supports_wait.png | ❌ | unread | — |
+| X_20260827_operator_candle_ride | X_20260827_operator_candle_ride.png | ❌ | unread | — |
+| X_20260827_pfsa_500pct | X_20260827_pfsa_500pct.png | ❌ | unread | — |
+| X_20260827_raya_notready | X_20260827_raya_notready.png | ❌ | unread | — |
+| X_20260827_raya_notready_2 | X_20260827_raya_notready_2.png | ❌ | unread | — |
+| X_20260827_rubi_4h_levels | X_20260827_rubi_4h_levels.jpg | ❌ | unread | — |
+| X_20260827_rubi_daily_ma_rsi | X_20260827_rubi_daily_ma_rsi.jpg | ❌ | unread | — |
+| X_20260827_rubi_read_short150k | X_20260827_rubi_read_short150k.png | ❌ | unread | — |
+| X_20260827_target10_entry_below | X_20260827_target10_entry_below.png | ❌ | unread | — |
+| X_20260828_01 | X_20260828_01.jpg | ❌ | unread | — |
+| X_20260828_02 | X_20260828_02.jpg | ❌ | unread | — |
+| X_20260828_03 | X_20260828_03.jpg | ❌ | unread | — |
+| X_20260828_04 | X_20260828_04.jpg | ❌ | unread | — |
+| X_20260828_05 | X_20260828_05.jpg | ❌ | unread | — |
+| X_20260828_06 | X_20260828_06.jpg | ❌ | unread | — |
+| X_20260828_07 | X_20260828_07.jpg | ❌ | unread | — |
+| X_20260828_08 | X_20260828_08.jpg | ❌ | unread | — |
+| X_20260828_09 | X_20260828_09.jpg | ❌ | unread | — |
+| X_20260828_10 | X_20260828_10.jpg | ❌ | unread | — |
+| X_20260828_11 | X_20260828_11.jpg | ❌ | unread | — |
+| X_20260828_12 | X_20260828_12.jpg | ❌ | unread | — |
+| X_20260828_13 | X_20260828_13.jpg | ❌ | unread | — |
+| X_20260828_14 | X_20260828_14.jpg | ❌ | unread | — |
+| X_20260828_15 | X_20260828_15.jpg | ❌ | unread | — |
+| X_20260905_01 | X_20260905_01.png | ❌ | unread | — |
+| X_20260905_02 | X_20260905_02.png | ❌ | unread | — |
+| X_20260905_03 | X_20260905_03.png | ❌ | unread | — |
+| X_20260905_04 | X_20260905_04.png | ❌ | unread | — |
+| X_20260905_05 | X_20260905_05.jpg | ❌ | unread | — |
+| X_20260905_06 | X_20260905_06.jpg | ❌ | unread | — |
+| X_20260905_07 | X_20260905_07.png | ❌ | unread | — |
+| X_20260905_08 | X_20260905_08.png | ❌ | unread | — |
+| X_20260905_09 | X_20260905_09.png | ❌ | unread | — |
+| X_20260905_10 | X_20260905_10.png | ❌ | unread | — |
+| X_20260905_11 | X_20260905_11.png | ❌ | unread | — |
+| X_20260905_12 | X_20260905_12.png | ❌ | unread | — |
+| X_20260905_13 | X_20260905_13.jpg | ❌ | unread | — |
+| X_20260905_14 | X_20260905_14.jpg | ❌ | unread | — |
+| X_20260918_04_ELPW | X_20260918_04_ELPW.png | ❌ | unread | — |
+| X_20260918_11_afterhours | X_20260918_11_afterhours.png | ❌ | unread | — |
+| X_20260918_12_doublebottom | X_20260918_12_doublebottom.jpg | ❌ | unread | — |
+| X_20260918_13_NUWE | X_20260918_13_NUWE.png | ❌ | unread | — |
+| X_20260918_15_NTCL | X_20260918_15_NTCL.png | ❌ | unread | — |
+| X_20260918_21_entry_below_ma | X_20260918_21_entry_below_ma.png | ❌ | unread | — |
+| X_20260918_22_pipeline | X_20260918_22_pipeline.png | ❌ | unread | — |
+| X_20260918_23_watchlist | X_20260918_23_watchlist.png | ❌ | unread | — |
+| X_20260918_24_SXTC | X_20260918_24_SXTC.png | ❌ | unread | — |
+| X_20260918_26_GRI | X_20260918_26_GRI.jpg | ❌ | unread | — |
+| X_20260918_27_CUPR | X_20260918_27_CUPR.jpg | ❌ | unread | — |
+| X_20260918_28_CUPR | X_20260918_28_CUPR.png | ❌ | unread | — |
+| X_20260918_29_KWM | X_20260918_29_KWM.png | ❌ | unread | — |
+| X_20260918_48_WETO | X_20260918_48_WETO.jpg | ❌ | unread | — |
+| X_20260918_54_indicators | X_20260918_54_indicators.png | ❌ | unread | — |
+| X_20260918_61_VEEE | X_20260918_61_VEEE.jpg | ❌ | unread | — |
+| X_20260918_66_ELPW | X_20260918_66_ELPW.jpg | ❌ | unread | — |
+| X_20260918_85_YMT | X_20260918_85_YMT.jpg | ❌ | unread | — |
 
 > **الحالات:** `implemented` نُفِّذت بالكود · `confirmed` تأكيد لما هو منفَّذ · `rejected` رُفضت بدليل (يُذكر) · `open` فرضية مفتوحة تحتاج تسجيلًا مسبقًا · `unread` لم تُقرأ بعد.
 > تُحدَّث بـ`python3 image_audit.py` بعد كل رفع، وبـ`--set` بعد قراءة كل دفعة.

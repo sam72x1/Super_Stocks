@@ -12189,6 +12189,25 @@ check("🧾 الجامع·يكتب تقريرًا **مقروءًا** (سجلّ A
 #  مجلّدًا باسمٍ حرّ) فأدّى عمله **للمرّة الثالثة** — و**لم يُرخَ بحرف**: أُعيدت
 #  التسميةُ إلى `X_20260828_01..15.jpg` وأُزيل المجلّد. والدرسُ أن القفلَ يحرس
 #  المجلّدَ كما يحرس الملفّ: `listdir` يرى الدليلَ اسمًا فيسقط عليه.)
+# (🔒 إقرار مؤرَّخ 2026-09-18: أمسك دفعةَ الخمسِ والثمانين (‏59 متمايزة) **للمرّة
+#  الرابعة** فأدّى عمله — والبادئاتُ الجديدة تحمل **مصدرَ** الصورة لا شكلَها فقط
+#  (‏`CH_` شارتٌ مجرّد · `WA_` واتساب · `APP_` تطبيقُ طرفٍ ثالث · و`TG_` المؤرَّخُ
+#  يقبل png) — **بنفس صرامة `X_`**: تاريخٌ 8 أرقام ثمّ `_` إلزاميّ، فما زال
+#  `CH_abc.jpg` أو `APP_x.png` يسقط (مقفولٌ بالطفرة `IMGP1` أدناه).)
+_IMG_DATED_PREFIXES = ("CH_", "WA_", "APP_", "TG_")
+
+
+def _img_dated_ok(name):
+    """`<بادئة>_YYYYMMDD_<أيّ شيء>.{jpg,jpeg,png}` — البادئةُ من القائمة الصارمة حصرًا."""
+    for _p in _IMG_DATED_PREFIXES:
+        _n = len(_p)
+        if (name.startswith(_p) and len(name) > _n + 9
+                and name[_n:_n + 8].isdigit() and name[_n + 8] == "_"
+                and name.lower().endswith((".jpg", ".jpeg", ".png"))):
+            return True
+    return False
+
+
 check("🧼 قفل·لا ملفّ دخيل داخل مجلّد الصور الإنتاجي (`faisal_images/`)",
       not [_f for _f in __import__("os").listdir("faisal_images")
            if not (_f == "README.md"
@@ -12200,7 +12219,16 @@ check("🧼 قفل·لا ملفّ دخيل داخل مجلّد الصور الإ
                        and _f.lower().endswith((".jpg", ".jpeg", ".png")))
                    or (_f.startswith("EDU_") and len(_f) > 13
                        and _f[4:12].isdigit() and _f[12] == "_"
-                       and _f.lower().endswith((".jpg", ".jpeg", ".png"))))])
+                       and _f.lower().endswith((".jpg", ".jpeg", ".png")))
+                   or _img_dated_ok(_f))])
+check("🧼 IMGP1: البادئاتُ المؤرَّخة الجديدة **صارمة** — تقبل `CH_20260918_01_X.jpg` "
+      "وترفض `CH_abc.jpg` · `APP_x.png` · `WA_2026091_a.jpg` · `ZZ_20260918_a.jpg`",
+      _img_dated_ok("CH_20260918_01_X.jpg") and _img_dated_ok("APP_20260918_49_main.jpg")
+      and _img_dated_ok("TG_20260918_42_NUWE.png")
+      and not _img_dated_ok("CH_abc.jpg") and not _img_dated_ok("APP_x.png")
+      and not _img_dated_ok("CH_abcdefgh_x.jpg") and not _img_dated_ok("APP_2026091x_a.png")
+      and not _img_dated_ok("WA_2026091_a.jpg") and not _img_dated_ok("ZZ_20260918_a.jpg")
+      and not _img_dated_ok("CH_20260918_a.txt"))
 check("🔍 الجامع·يفصل «وسائط لم نقبلها» عن «رسالة بلا وسائط» (الصمت غير ملتبس)",
       (lambda _s: "وسائط لم نقبلها" in _s and "بلا وسائط" in _s
        and "dropped.append" in _s and "no_media.append" in _s)(
