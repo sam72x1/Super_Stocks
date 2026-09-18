@@ -1922,14 +1922,14 @@
   "tc_seen_ms": 1789766280000,
   "date": "2026-09-18",
   "anchor_ms": 1789766340000,
-  "last_ms": 1789766340000,
+  "last_ms": 1789766400000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 5.5,
-  "peak_usd": 29821,
-  "pulse_ms": 1789766340000,
+  "peak_usd": 169725,
+  "pulse_ms": 1789766400000,
   "anchor_price": 3.2,
   "anchor_open": 2.98,
   "anchor_low": 2.97,
