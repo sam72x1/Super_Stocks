@@ -46130,6 +46130,149 @@ check("🧱🔬🔒 SDK3 العقدُ يمنع **التأريخَ المُستن
       "—")
 
 
+# ── 🧱🔬 أداةُ T-SUPDEF — أقفال SDT0-SDT5 («ابن الاداة» 2026-09-18) ───────────
+import ast as _sdt_ast
+import importlib.util as _sdt_imp
+
+try:
+    _sdt_src = open("support_def_probe.py", encoding="utf-8").read()
+    _sdt_tree = _sdt_ast.parse(_sdt_src)
+except Exception as _sdt_e:                                       # noqa: BLE001
+    _sdt_src, _sdt_tree = f"⛔{type(_sdt_e).__name__}", None
+_sdt_mod = None
+try:
+    _sdt_sp = _sdt_imp.spec_from_file_location("_sdt_m", "support_def_probe.py")
+    _sdt_mod = _sdt_imp.module_from_spec(_sdt_sp)
+    _sdt_sp.loader.exec_module(_sdt_mod)
+except Exception as _sdt_e2:                                      # noqa: BLE001
+    _sdt_mod = None
+
+# SDT0 — قراءةٌ فقط **سلوكيًّا** مع شاهدِ ضبطٍ مزروعٍ في دالّةٍ لا تُنادى
+_sdt0_real, _sdt0_ctrl = ["⛔"], ["⛔"]
+if _sdt_mod is not None:
+    try:
+        _sdt0_real = _sdt_mod.selfcheck_readonly()
+        import os as _sdt_os
+        import tempfile as _sdt_tmp
+        _sdt_d = _sdt_tmp.mkdtemp(prefix="sdt_")
+        _sdt_pl = _sdt_os.path.join(_sdt_d, "planted.py")
+        with open(_sdt_pl, "w", encoding="utf-8") as _fh:
+            _fh.write(_sdt_src + "\n\ndef _planted():\n    git_save('x')\n")
+        _sdt_s2 = _sdt_imp.spec_from_file_location("_sdt_p", _sdt_pl)
+        _sdt_m2 = _sdt_imp.module_from_spec(_sdt_s2)
+        _sdt_s2.loader.exec_module(_sdt_m2)
+        _sdt0_ctrl = _sdt_m2.selfcheck_readonly()
+    except Exception as _sdt_e3:                                  # noqa: BLE001
+        _sdt0_real = [f"⛔ {type(_sdt_e3).__name__}"]
+check("🧱🔬🔒 SDT0 حارسُ «قراءةٌ فقط» سلوكيّ: نظيفٌ على المِجَسّ ويَعَضّ على نسخةٍ "
+      "مزروعٍ فيها `git_save` (شاهدُ ضبط)",
+      _sdt0_real == [] and any("git_save" in str(x) for x in _sdt0_ctrl),
+      f"حقيقيّ={_sdt0_real} مزروع={_sdt0_ctrl}")
+
+# SDT1 — 🔑 **جدولُ الحالات لا يُوثَق بي**: كلُّ رقمٍ معلنٍ يجب أن يظهر في **سطر
+#   الكاتالوج الذي يدّعيه الصفّ** · والرمزُ كذلك. (‏وإلّا لكانت الشهادةُ من عندي.)
+_sdt1_bad = []
+try:
+    _sdt_cat = open("FAISAL_IMAGES_CATALOG.md", encoding="utf-8").read().splitlines()
+except Exception as _sdt_e4:                                      # noqa: BLE001
+    _sdt_cat = []
+    _sdt1_bad.append(f"⛔ {type(_sdt_e4).__name__}")
+if _sdt_mod is not None and _sdt_cat:
+    for _sy, _as, _fr, _lv, _ln in _sdt_mod.CASES:
+        _line = _sdt_cat[_ln - 1] if 0 < _ln <= len(_sdt_cat) else ""
+        if _sy not in _line:
+            _sdt1_bad.append(f"{_sy}:رمزٌ غائبٌ عن السطر {_ln}")
+        for _v in _lv:
+            if f"{_v:g}" not in _line and f"{_v}" not in _line:
+                _sdt1_bad.append(f"{_sy}:{_v} غائبٌ عن السطر {_ln}")
+        if _as[:4] not in _line and _as.replace("-", "") not in _line:
+            pass          # التاريخُ من اسم الملفّ لا من نصّ السطر — مقصود
+else:
+    _sdt1_bad.append("⛔ الوحدةُ أو الكاتالوجُ لم يُقرأ")
+check("🧱🔬🔒 SDT1 كلُّ رمزٍ ومستوًى في جدول `CASES` **موجودٌ في سطر الكاتالوج الذي "
+      "يدّعيه الصفّ** (الشهادةُ من المصدر لا منّي)",
+      not _sdt1_bad, str(_sdt1_bad)[:150])
+
+# SDT2 — `A0` **دالّةُ الإنتاج نفسُها** (AST داخلَ `a0`) · وصفرُ إسنادٍ لـ`CONFIG`
+_sdt_fns = {}
+if _sdt_tree is not None:
+    _sdt_fns = {n.name: n for n in _sdt_ast.walk(_sdt_tree)
+                if isinstance(n, _sdt_ast.FunctionDef)}
+
+
+def _sdt_calls(nd):
+    out = set()
+    for c in _sdt_ast.walk(nd):
+        if isinstance(c, _sdt_ast.Call):
+            nm = getattr(c.func, "id", None) or getattr(c.func, "attr", None)
+            if nm:
+                out.add(nm)
+    return out
+
+
+_sdt2_a0 = "pivot_stability" in _sdt_calls(_sdt_fns["a0"]) if "a0" in _sdt_fns else False
+_sdt2_cfg = False
+if _sdt_tree is not None:
+    for _nd in _sdt_ast.walk(_sdt_tree):
+        if isinstance(_nd, (_sdt_ast.Assign, _sdt_ast.AugAssign)):
+            _tg = _nd.targets if isinstance(_nd, _sdt_ast.Assign) else [_nd.target]
+            for _t in _tg:
+                if (isinstance(_t, _sdt_ast.Subscript)
+                        and getattr(_t.value, "attr", None) == "CONFIG"):
+                    _sdt2_cfg = True
+check("🧱🔬🔒 SDT2 `A0` ينادي `pivot_stability` **داخلَ `a0`** (AST موضعيّ) · وصفرُ "
+      "إسنادٍ إلى `CONFIG` في المِجَسّ",
+      _sdt2_a0 and not _sdt2_cfg, f"a0⊃pivot={_sdt2_a0} إسناد={_sdt2_cfg}")
+
+# SDT3 — قاعدةُ القراءة `§②` سلوكيًّا: **الأقربُ تحتَ الإغلاق** · وكلُّها فوقه ⟶ None
+_sdt3 = []
+if _sdt_mod is not None:
+    _sdt3 = [_sdt_mod.pick_level([1.98, 1.682], 1.50),      # كلُّها فوق ⟶ None
+             _sdt_mod.pick_level([1.98, 1.682], 2.50),      # الأقربُ تحت ⟶ 1.98
+             _sdt_mod.pick_level([1.98, 1.682], 1.90),      # ⟶ 1.682
+             _sdt_mod.pick_level([], 2.0)]
+check("🧱🔬🔒 SDT3 قاعدةُ القراءة: الأقربُ **تحتَ** الإغلاق (2.50⟶1.98 · 1.90⟶1.682) "
+      "· وكلُّها فوقه ⟶ **None** (استبعادٌ لا تخمين)",
+      _sdt3 == [None, 1.98, 1.682, None], str(_sdt3))
+
+# SDT4 — اختبارُ الإشارة **محسوبٌ** لا مكتوب · وجدولُ حقيقةِ الحكم
+_sdt4 = []
+if _sdt_mod is not None:
+    _sdt4 = [_sdt_mod.sign_test_p(5, 5), _sdt_mod.sign_test_p(3, 5),
+             _sdt_mod.sign_test_p(0, 0)]
+_sdt_tt = []
+if _sdt_mod is not None:
+    for _a, _e in (((3, 3, 100.0, 0.01, 30.0, True), 3),      # أرضيّةٌ ساقطة
+                   ((5, 3, 100.0, 0.06, 30.0, False), 3),     # SD3 ساقطة
+                   ((5, 3, 100.0, 0.06, 30.0, True), 0),
+                   ((5, 3, 100.0, 0.06, 5.0, True), 2),
+                   ((5, 3, 60.0, 0.40, 30.0, True), 3)):
+        _g = _sdt_mod.read_verdict(*_a)[0]
+        if _g != _e:
+            _sdt_tt.append(f"{_a}⟶{_g}≠{_e}")
+check("🧱🔬🔒 SDT4 `p` **محسوبٌ** (5/5⟶0.0625 · 3/5⟶1.0) · وجدولُ حقيقةِ الفروع "
+      "خمسُ حالاتٍ (الأرضيّةُ و`SD3` تحكمان بـ«لا قياس»)",
+      _sdt4 == [0.0625, 1.0, 1.0] and not _sdt_tt, f"p={_sdt4} جدول={_sdt_tt}")
+
+# SDT5 — الوصفيّان **خارج الحكم**: `read_verdict` لا يقرأ `A1`/`A2` أصلًا (توقيعُها
+#   لا يحملهما) · وworkflow بلا كرونٍ ولا سرّ · والإنتاجُ لا يعرف المِجَسّ.
+_sdt5_sig = []
+if "read_verdict" in _sdt_fns:
+    _sdt5_sig = [a.arg for a in _sdt_fns["read_verdict"].args.args]
+try:
+    _sdt_wf = open(".github/workflows/support_def.yml", encoding="utf-8").read()
+except Exception:                                                 # noqa: BLE001
+    _sdt_wf = ""
+_sdt5_prod = [f for f in ("Super_stock.py", "hand_check.py", "technical_report.py")
+              if "support_def_probe" in open(f, encoding="utf-8").read()]
+check("🧱🔬🔒 SDT5 الوصفيّان خارج الحكم (`read_verdict` لا يأخذ `A1`/`A2`) · "
+      "وworkflow بلا كرونٍ ولا سرّ · والإنتاجُ لا يعرف المِجَسّ",
+      _sdt5_sig and not any("a1" in x or "a2" in x for x in _sdt5_sig)
+      and "workflow_dispatch" in _sdt_wf and "schedule:" not in _sdt_wf
+      and "secrets." not in _sdt_wf and not _sdt5_prod,
+      f"توقيع={_sdt5_sig} إنتاج={_sdt5_prod}")
+
+
 # ═══ ⏳ T-WAIT-LOWER — أقفال WLK0-WLK7 (العقد wait_lower_prereg.md · 2026-09-09) ═══
 # «اذا حللنا سهم ارتكاز ممنوع الدخول … انتظر اقل سعر 10% او 20% تحت» (فيصل، دليلُ
 # طريقة فيصل ص54) · أداةُ قياسٍ معزولةٌ عن الإنتاج تُقاس بها الجملةُ قبل أيّ شحن.
