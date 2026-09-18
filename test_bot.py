@@ -12226,6 +12226,7 @@ check("🧼 IMGP1: البادئاتُ المؤرَّخة الجديدة **صار
       _img_dated_ok("CH_20260918_01_X.jpg") and _img_dated_ok("APP_20260918_49_main.jpg")
       and _img_dated_ok("TG_20260918_42_NUWE.png")
       and not _img_dated_ok("CH_abc.jpg") and not _img_dated_ok("APP_x.png")
+      and not _img_dated_ok("CH_abcdefgh_x.jpg") and not _img_dated_ok("APP_2026091x_a.png")
       and not _img_dated_ok("WA_2026091_a.jpg") and not _img_dated_ok("ZZ_20260918_a.jpg")
       and not _img_dated_ok("CH_20260918_a.txt"))
 check("🔍 الجامع·يفصل «وسائط لم نقبلها» عن «رسالة بلا وسائط» (الصمت غير ملتبس)",
