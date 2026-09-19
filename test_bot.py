@@ -11971,17 +11971,36 @@ try:
     }
     _m8_claims = _MEM8_RE.findall(_mem_cl)
     _m8_bad = [f"{n}≠{_m8_live[k]}({k})" for n, k in _m8_claims if int(n) != _m8_live[k]]
+
+    # 🔴 شُدِّد بعد طفرةٍ نجت (‏`e3`): وسمُ الدعوى **يجب أن يطابق الأرشيفَ الموصوف**
+    #    قبلها — وإلّا لمرَّ «`HANDOFF_ARCHIVE.md` (‏308 · قرارات)»: رقمٌ صحيحٌ
+    #    **على أرشيفٍ خطأ**. فالعدّادُ وحدَه لا يكفي، ويلزم **الموضعُ** معه
+    #    (‏نفسُ درسِ `HND5`: الشكلُ الصحيح لا يكفي).
+    def _m8_ctx(txt, at):
+        _w = txt[max(0, at - 220):at]
+        _best = None
+        for _t, _lab in (("HANDOFF", "هاندوف"), ("DECISIONS", "قرارات")):
+            _i = _w.rfind(_t)
+            if _i >= 0 and (_best is None or _i > _best[0]):
+                _best = (_i, _lab)
+        return _best[1] if _best else ""
+    _m8_ctxbad = [f"{m.group(1)}·{m.group(2)}⟵{_m8_ctx(_mem_cl, m.start()) or 'لا ذكر'}"
+                  for m in _MEM8_RE.finditer(_mem_cl)
+                  if _m8_ctx(_mem_cl, m.start()) != m.group(2)]
+    _m8_bad += _m8_ctxbad
+    # شاهدُ ضبطٍ ثانٍ: كاشفُ الموضع يمسك وسمًا مقلوبًا
+    _m8_ctrl2 = _m8_ctx("راجع HANDOFF_ARCHIVE.md ثمّ ‏5 بندًا مفهرسًا · قرارات", 40) == "هاندوف"
     # شاهدُ ضبط: الكاشفُ يمسك رقمًا كاذبًا (وإلّا فالقفلُ لا يُكذَّب أبدًا)
     _m8_ctrl = [f"{n}≠{_m8_live[k]}" for n, k in _MEM8_RE.findall("‏999 بندًا مفهرسًا · قرارات")
                 if int(n) != _m8_live[k]]
-    _v = (len(_m8_claims) >= 4 and not _m8_bad and len(_m8_ctrl) == 1
+    _v = (len(_m8_claims) >= 4 and not _m8_bad and len(_m8_ctrl) == 1 and _m8_ctrl2
           and set(k for _n, k in _m8_claims) == {"قرارات", "هاندوف"})
     _w = (f"دعاوى={len(_m8_claims)} {_m8_claims} · الحيُّ={_m8_live} · كاذبة={_m8_bad} · "
-          f"شاهدُ الضبط يمسك={len(_m8_ctrl) == 1}")
+          f"شاهدا الضبط={len(_m8_ctrl) == 1}/{_m8_ctrl2}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🧠 MEM8: كلُّ **عددٍ حيٍّ** في ترويسة الذاكرة يُطابق العدَّ الفعليَّ لفهرسه "
-      "(‏≥4 دعاوى · والأرشيفان كلاهما مُغطًّى · وشاهدُ ضبطٍ يمسك الكاذب)", _v, _w)
+check("🧠 MEM8: كلُّ **عددٍ حيٍّ** يُطابق العدَّ الفعليَّ لفهرسه **ووسمُه يطابق الأرشيفَ "
+      "الموصوفَ قبله** (‏≥4 دعاوى · الأرشيفان مُغطّيان · وشاهدا ضبطٍ يمسكان الكاذبَ والمقلوب)", _v, _w)
 
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -55242,12 +55261,21 @@ check("🧱📎🔒 SDZ2 جدولُ مجتمع `§⑪` ≡ الثلاثيّات�
 #   ويُسجّل `SD1-NEW` على الأربعة وحدَها · ويكتب الحسابَ (‏9/10 و4/4) **قبل** الرقم ·
 #   وقاعدةَ «يُقرأ بالأضعف» فلا يُنتقى الأمرَح.
 try:
-    _szz_need = ("SD1-NEW", "مقيسةٌ سلفًا", "بالأضعف", "9 من 10", "4 من 4",
+    _szz_need = ("مقيسةٌ سلفًا", "بالأضعف", "9 من 10", "4 من 4",
                  "0.0215", "0.0625", "إقرارُ تلوّث")
     _szz_miss = [x for x in _szz_need if x not in _szz_seg]
-    _szz_names = all(s in _szz_seg for s in _SZZ_NEW)
-    _v = not _szz_miss and _szz_names
-    _w = f"ناقص={_szz_miss} · الأربعةُ مسمّاة={_szz_names}"
+    # 🔴 شُدِّد بعد طفرةٍ نجت (‏`g5`): مجرّدُ **ورودِ** الاسم يُرضيه ذكرٌ عابرٌ في
+    #    فقرةٍ أخرى ⇒ يُشترَط **سطرُ التعريف نفسُه** (اقتباسٌ يبدأ بالاسم غليظًا)
+    #    **وأن يُسمّي الأربعةَ في فقرته** — الوجودُ لا يكفي، يلزم التعريف.
+    _szz_defs = [_l for _l in _szz_seg.splitlines()
+                 if _l.startswith("> **`SD1-NEW`**")]
+    _szz_par = next((_p for _p in _szz_seg.split("\n\n") if "> **`SD1-NEW`**" in _p), "")
+    _szz_names = all(s in _szz_par for s in _SZZ_NEW)
+    _szz_ctrl = not [_l for _l in "> **`SD1-ALT`** — شيء".splitlines()
+                     if _l.startswith("> **`SD1-NEW`**")]
+    _v = not _szz_miss and _szz_names and len(_szz_defs) == 1 and _szz_ctrl
+    _w = (f"ناقص={_szz_miss} · سطرُ التعريف={len(_szz_defs)} · "
+          f"الأربعةُ في فقرته={_szz_names} · شاهدُ الضبط يمسك={_szz_ctrl}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧱📎🔒 SDZ3 إقرارُ التلوّث صريح · و`SD1-NEW` مسجَّلٌ على الأربعة · والحسابُ "
