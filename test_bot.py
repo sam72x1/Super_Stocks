@@ -54761,6 +54761,34 @@ try:
           f"بلا جلبٍ فارغ={_nocall} · workflow={_y}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+# ⑫ IAK11 — **تسخينٌ قبل النافذة**: التحميلُ من `WARMUP` والمطابقةُ داخلَ `[W0,W1]`
+try:
+    _t11 = _ast0.parse(_insp0.getsource(_iak_mod))
+    _mn = {n.name: n for n in _t11.body if isinstance(n, _ast0.FunctionDef)}["main"]
+    _dl = [c for c in _ast0.walk(_mn) if isinstance(c, _ast0.Call)
+           and getattr(c.func, "attr", None) == "download_history"]
+    _uses_warm = bool(_dl) and any(
+        kw.arg == "start_override" and getattr(kw.value, "id", None) == "WARMUP"
+        for c in _dl for kw in (c.keywords or []))
+    _earlier = _iak_mod.WARMUP < _iak_mod.W0
+    # النافذةُ الحاكمةُ لم تتّسع: المطابقةُ ترفض يومًا قبل `W0` ولو تُوفّر
+    _c = _iak_walk(420)
+    _ser = _iak_mod.build_series(_iak_df(_c, start="2024-06-01"))
+    _i = 120
+    _fp = {"kind": "rsi", "frame": "daily", "params": (14,),
+           "vals": (_ser["rsi"][14][_i],), "tol": (1e-9,), "raw": "x"}
+    _pre = _ser["dates"][_i] < _iak_mod.W0
+    _got = {x["date"] for x in _iak_mod.fp_match(_ser, _fp, None)}
+    _wide = {x["date"] for x in _iak_mod.fp_match(_ser, _fp, None, w0="2000-01-01")}
+    _v = _uses_warm and _earlier and _pre and (_ser["dates"][_i] not in _got) \
+        and (_ser["dates"][_i] in _wide)
+    _w = (f"WARMUP={_iak_mod.WARMUP} < W0={_iak_mod.W0} · يُستعمَل={_uses_warm} · "
+          f"يومٌ قبل النافذة مرفوضٌ={_ser['dates'][_i] not in _got} ومقبولٌ بتوسيعها={_ser['dates'][_i] in _wide}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK11 تسخينٌ قبل النافذة (المؤشّرُ الأُسّيُّ يحتاج بذرة) · "
+      "**والنافذةُ الحاكمة لم تتّسع** (يومٌ قبل `W0` يُرفض)", _v, _w)
+
 check("📅📉 IAK10 الكتابةُ في `OUT` وحدَه (بأربعة شواهد) · شاهدُ الهُويّة **يُعاد حيًّا** "
       "لا يُقرأ من ملفّ · والـworkflow بلا سرٍّ ولا كرون", _v, _w)
 

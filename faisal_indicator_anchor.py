@@ -51,6 +51,11 @@ CAT = pa.CAT
 LEVELS_TSV = "faisal_levels_table.tsv"
 OUT = "faisal_indicator_anchor_dates.tsv"
 W0, W1 = pa.W0, pa.W1
+# ‏🔥 **تسخينٌ قبل النافذة:** `RSI(14)` و`MACD(26)` مؤشّراتٌ أُسّيّةٌ تحتاج تاريخًا
+# ‏سابقًا لتستقرّ. التحميلُ من `W0` نفسِه يجعل أوائلَ النافذة **مُقاسةً على بذرةٍ
+# ‏قصيرة** فتفارق ما يعرضه الشارت ⇒ يُحمَّل من `WARMUP` **والمطابقةُ تبقى داخل
+# ‏`[W0, W1]` حصرًا** (‏صفرُ توسيعٍ للنافذة الحاكمة).
+WARMUP = "2024-01-01"
 
 RSI_PERIOD = 14
 MACD_SETS = ((12, 26, 9), (10, 20, 3))     # المرصودتان في الكاتالوج حصرًا
@@ -391,7 +396,7 @@ def main() -> int:
     if ncf:
         log(f"   أنواعٌ مُسقَطةٌ لتضارب قراءتين في الكتلة (إسنادٌ مجهول): {dict(ncf)}")
     syms = sorted({t["symbol"] for t in with_fp if t["symbol"]})
-    hist = bot.download_history(syms, start_override=W0) if syms else {}
+    hist = bot.download_history(syms, start_override=WARMUP) if syms else {}
     _sp_cache = {}
 
     def splits_of(sym):
