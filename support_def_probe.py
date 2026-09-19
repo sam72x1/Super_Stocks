@@ -296,7 +296,13 @@ def anchor_scan(hist):
             cases.append({"sym": sym, "line": ln, "kind": a["kind"], "px": a["px"],
                           "pct": a["pct"], "date": c["date"],
                           "match_date": c["match_date"],
-                          "levels": _levels_of(sym, ln)})
+                          "levels": _levels_of(sym, ln),
+                          # 🔎 **تشخيصٌ يُطبَع ولا يُستعمَل**: مقياسُ التقسيم بعد
+                          #    تاريخ الشارت. غيرُ الواحد ⇒ مستوياتُ فيصل والسعرُ
+                          #    المسجَّل بمقياس الشاشة و`A0` بمقياس المزوّد المعدَّل
+                          #    ⇒ **الصفُّ غيرُ قابلٍ للمقارنة** — حدُّ صدقٍ لا إصلاحٌ
+                          #    صامت (`§⑩-ⓚ`: لا تُبدَّل قاعدةٌ بعد رؤية النتيجة).
+                          "sf": bot._split_scale_factor(splits, c["match_date"])})
             diag.append((sym, ln, "unique ⟶ " + c["date"]))
         else:
             diag.append((sym, ln, "ambiguous" if cands else "none"))
@@ -494,6 +500,13 @@ def main() -> int:
                 f"الفرعُ {read_verdict(n2, ns2, sh2, p2, md2, ok2)[0]}")
         except Exception as e:                                 # noqa: BLE001
             log(f"   {nm}: ⛔ رمى {type(e).__name__}")
+
+    log("")
+    log("═══ 🔎 تشخيصٌ: مقياسُ التقسيم عند تاريخ الشارت (يُطبَع ولا يُستعمَل) ═══")
+    for c in acases:
+        log(f"   {c['sym']:6s} {c['match_date']}  عامل={c['sf']:.6g}  "
+            f"{'✅ قابلٌ للمقارنة' if abs(c['sf'] - 1.0) < 1e-9 else '🔴 مقياسان مختلفان — الصفُّ غيرُ قابلٍ للمقارنة'}")
+    log("   (غيرُ الواحد = مستوياتُ الشاشة و`A0` بمقياسين ⇒ حدُّ صدقٍ يُعلَن ولا يُصلَح صامتًا)")
 
     log("")
     log("═══ ⓖ وصفيٌّ — خارجَ كلّ معيار ═══")

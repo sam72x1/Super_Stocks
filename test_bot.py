@@ -54384,6 +54384,39 @@ check("🧱🔬📎🔒 SDY9 **لم يتحرّك حدٌّ** (الأرضيّةُ 
       "ورمزا ‏6/7 مستعمَلان · و`V-S8` منادًى · والحساسيّاتُ الثلاثُ مبنيّة",
       _sdy9_ok, _sdy9_w)
 
+# SDY10 — 🔎 تشخيصُ مقياس التقسيم **يُطبَع ولا يُستعمَل**: `sf` لا تُقرأ في أيّ دالّةٍ
+#   حاكمة (‏`build_rows`/`stats_of`/`read_verdict`) — فالتشخيصُ **لا يُحرّك رقمًا**،
+#   وهو شرطُ أن تُضاف قراءةٌ **بعد** صدور الحكم بلا أن تكون مطاردةَ نتيجة.
+try:
+    _sdy10_src2 = open("support_def_probe.py", encoding="utf-8").read()
+    _sdy10_tree = _sdt_ast.parse(_sdy10_src2)
+    _sdy10_fns = {n.name: n for n in _sdt_ast.walk(_sdy10_tree)
+                  if isinstance(n, _sdt_ast.FunctionDef)}
+
+    def _sdy10_reads(nd):
+        """أيُّ ذكرٍ للمفتاح داخلَ الدالّة — لا الاشتراكَ وحدَه (‏`.get("sf")`
+        تلتفّ على فحصِ الاشتراك، وهو ضعفٌ أمسكته طفرةٌ قبل الشحن)."""
+        return any(isinstance(c, _sdt_ast.Constant) and c.value == "sf"
+                   for c in _sdt_ast.walk(nd))
+    _sdy10_gov = [f for f in ("build_rows", "stats_of", "read_verdict", "a0",
+                              "a_rand_err", "pick_level", "drop_marker")
+                  if f in _sdy10_fns and _sdy10_reads(_sdy10_fns[f])]
+    # وشاهدُ ضبط: الكاشفُ يمسك القراءةَ لو وُجدت فعلًا
+    _sdy10_ctrl = (_sdy10_reads(_sdt_ast.parse('def f(c):\n    return c["sf"]\n'))
+                   and _sdy10_reads(_sdt_ast.parse('def g(c):\n    return c.get("sf")\n'))
+                   and not _sdy10_reads(_sdt_ast.parse('def h(c):\n    return c["x"]\n')))
+    # ويُكتَب في `anchor_scan` ويُطبَع في `main`
+    _sdy10_set = ("anchor_scan" in _sdy10_fns
+                  and '"sf": bot._split_scale_factor' in _sdy10_src2)
+    _sdy10_shown = _sdy10_reads(_sdy10_fns.get("main", _sdt_ast.parse("x=1")))
+    _sdy10_ok = (not _sdy10_gov) and _sdy10_ctrl and _sdy10_set and _sdy10_shown
+    _sdy10_w = f"حاكمةٌ تقرؤه={_sdy10_gov or 'لا شيء'} شاهد={_sdy10_ctrl} يُكتَب={_sdy10_set} يُطبَع={_sdy10_shown}"
+except Exception as _e:                                          # noqa: BLE001
+    _sdy10_ok, _sdy10_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY10 تشخيصُ مقياس التقسيم **يُطبَع ولا يُستعمَل**: صفرُ دالّةٍ حاكمةٍ "
+      "تقرأ `sf` (بشاهدِ ضبطٍ يُثبت أن الكاشفَ يمسكها) · ويُكتَب ويُطبَع فعلًا",
+      _sdy10_ok, _sdy10_w)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
