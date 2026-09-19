@@ -54465,9 +54465,45 @@ try:
         تلتفّ على فحصِ الاشتراك، وهو ضعفٌ أمسكته طفرةٌ قبل الشحن)."""
         return any(isinstance(c, _sdt_ast.Constant) and c.value == "sf"
                    for c in _sdt_ast.walk(nd))
-    _sdy10_gov = [f for f in ("build_rows", "stats_of", "read_verdict", "a0",
+    # 🔴 **تضييقٌ مؤرَّخ 2026-09-19 (عقد `T-SPLITNORM` مدموج):** `build_rows` صارت
+    #   تقرأ `sf` **بترخيصِ عقدٍ** — فيُستثنى **وحدَه** ويُعوَّض بشرطَين أشدّ:
+    #   القراءةُ **خلف علمٍ** (بنيويًّا) · **وبالعلم مطفأً كلُّ `sf` = 1.0** (سلوكيًّا)
+    #   ⇒ التشخيصُ ما زال **لا يُحرّك رقمًا على المسار المنشور** — وهو عقدُ `§⑩-ⓚ`.
+    _sdy10_gov = [f for f in ("stats_of", "read_verdict", "a0",
                               "a_rand_err", "pick_level", "drop_marker")
                   if f in _sdy10_fns and _sdy10_reads(_sdy10_fns[f])]
+    _sdy10_br = _sdy10_fns.get("build_rows")
+    _sdy10_guarded = any(
+        isinstance(_nd, _sdt_ast.If)
+        and "norm" in {getattr(x, "id", "") for x in _sdt_ast.walk(_nd.test)}
+        and any(isinstance(a, _sdt_ast.Assign)
+                and getattr(a.targets[0], "id", "") == "sf_row"
+                for a in _sdt_ast.walk(_nd))
+        for _nd in _sdt_ast.walk(_sdy10_br)) if _sdy10_br else False
+    _sdy10_off = True
+    try:
+        import datetime as _sdy10_dt
+        import pandas as _sdy10_pd
+        _sdy10_lo = [20.0 - 0.05 * i for i in range(60)]
+        _sdy10_df = _sdy10_pd.DataFrame(
+            {"Low": _sdy10_lo, "High": [x * 1.2 for x in _sdy10_lo],
+             "Close": [x * 1.1 for x in _sdy10_lo]},
+            index=[_sdy10_dt.date(2026, 1, 1) + _sdy10_dt.timedelta(days=i)
+                   for i in range(60)])
+        _sdy10_h = {"ZZT": _sdy10_df}
+        _sdy10_c = [{"sym": "ZZT", "date": "2026-02-20",
+                     "match_date": "2026-02-20", "levels": [1.5, 1.8],
+                     "line": 1, "kind": "close", "px": None, "sf": 0.1}]
+        _sdy10_keep = _sdt_mod.split_factor_of
+        try:
+            _sdt_mod.split_factor_of = lambda _s, _a: 0.1   # لو قُرئ لظهر
+            _sdy10_r, _x, _y = _sdt_mod.build_rows(_sdy10_h, _sdy10_h,
+                                                   _sdy10_c, norm=False)
+        finally:
+            _sdt_mod.split_factor_of = _sdy10_keep
+        _sdy10_off = all(r["sf"] == 1.0 for r in _sdy10_r) and bool(_sdy10_r)
+    except Exception:                                            # noqa: BLE001
+        _sdy10_off = False
     # وشاهدُ ضبط: الكاشفُ يمسك القراءةَ لو وُجدت فعلًا
     _sdy10_ctrl = (_sdy10_reads(_sdt_ast.parse('def f(c):\n    return c["sf"]\n'))
                    and _sdy10_reads(_sdt_ast.parse('def g(c):\n    return c.get("sf")\n'))
@@ -54476,12 +54512,16 @@ try:
     _sdy10_set = ("anchor_scan" in _sdy10_fns
                   and '"sf": bot._split_scale_factor' in _sdy10_src2)
     _sdy10_shown = _sdy10_reads(_sdy10_fns.get("main", _sdt_ast.parse("x=1")))
-    _sdy10_ok = (not _sdy10_gov) and _sdy10_ctrl and _sdy10_set and _sdy10_shown
-    _sdy10_w = f"حاكمةٌ تقرؤه={_sdy10_gov or 'لا شيء'} شاهد={_sdy10_ctrl} يُكتَب={_sdy10_set} يُطبَع={_sdy10_shown}"
+    _sdy10_ok = ((not _sdy10_gov) and _sdy10_ctrl and _sdy10_set
+                 and _sdy10_shown and _sdy10_guarded and _sdy10_off)
+    _sdy10_w = (f"حاكمةٌ تقرؤه={_sdy10_gov or 'لا شيء'} شاهد={_sdy10_ctrl} "
+                f"يُكتَب={_sdy10_set} يُطبَع={_sdy10_shown} "
+                f"خلفَ علمٍ={_sdy10_guarded} مطفأً كلُّ sf=1={_sdy10_off}")
 except Exception as _e:                                          # noqa: BLE001
     _sdy10_ok, _sdy10_w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🧱🔬📎🔒 SDY10 تشخيصُ مقياس التقسيم **يُطبَع ولا يُستعمَل**: صفرُ دالّةٍ حاكمةٍ "
-      "تقرأ `sf` (بشاهدِ ضبطٍ يُثبت أن الكاشفَ يمسكها) · ويُكتَب ويُطبَع فعلًا",
+check("🧱🔬📎🔒 SDY10 تشخيصُ التقسيم **لا يُحرّك رقمًا على المسار المنشور**: صفرُ "
+      "حاكمةٍ تقرأ `sf` · والقراءةُ المرخَّصةُ في `build_rows` **خلف علمٍ** "
+      "وبإطفائه **كلُّ `sf` = 1.0**",
       _sdy10_ok, _sdy10_w)
 
 # SDY11 — 🔒 **الإغلاقُ مُنفَّذٌ لا مكتوب**: الأداةُ تخرج `8` **بصفرِ عمليّة** ·
@@ -55617,6 +55657,229 @@ except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("⚖️🧱🔒 SNK4 **صفرُ شحنٍ مهما كانت النتيجة** · `pivot_stability` محميّةٌ نصًّا · "
       "ولا معايرةَ عتبة · والعقودُ المدموجةُ مجمَّدة", _v, _w)
+
+# ── ⚖️🧱 أداةُ `T-SPLITNORM` — أقفال SNA0-SNA7 (بُنيت بعد دمج العقد) ──────────
+try:
+    _sna_src = _insp0.getsource(_sdt_mod) if _sdt_mod else ""
+except Exception as _e:                                          # noqa: BLE001
+    _sna_src = f"⛔ {type(_e).__name__}"
+
+# ① SNA0 — `norm_level` **قسمةٌ لا ضرب**: هُويّةٌ عند 1 · والقسمةُ صحيحةٌ عند
+#   غيره · **والضربُ يُعطي رقمًا مختلفًا بمرتبة** (فلا يمرّ قلبُ الاتّجاه).
+try:
+    _nl = _sdt_mod.norm_level
+    _sna_id = _nl(12.345, 1.0) == 12.345
+    _sna_div = abs(_nl(1.712, 0.0909091) - 18.832) < 0.01
+    _sna_div2 = _nl(5.830, 0.01) == 583.0
+    _sna_notmul = abs(_nl(1.712, 0.0909091) - (1.712 * 0.0909091)) > 1.0
+    _sna_safe = _nl(3.5, 0) == 3.5 and _nl(3.5, None) == 3.5      # فاشلةٌ-آمنة
+    _v = _sna_id and _sna_div and _sna_div2 and _sna_notmul and _sna_safe
+    _w = (f"هُويّة={_sna_id} · NEXR={_nl(1.712, 0.0909091):.4f} · "
+          f"NXTT={_nl(5.830, 0.01)} · ليست ضربًا={_sna_notmul} · آمنة={_sna_safe}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA0 `norm_level` **قسمةٌ لا ضرب**: هُويّةٌ عند 1 · وتُعيد اشتقاقَ "
+      "`§③` بالضبط · وفاشلةٌ-آمنة", _v, _w)
+
+# ② SNA1 — **العلمُ مطفأٌ افتراضًا** (`V-N7`): `norm_on()` كاذبةٌ بلا البيئة ·
+#   وصادقةٌ بـ"1" وحدَها — **سلوكيًّا** لا نصًّا.
+try:
+    _sna_env = _sdt_mod.NORM_ENV
+    _sna_old = _mem_os.environ.get(_sna_env)
+    try:
+        _mem_os.environ.pop(_sna_env, None)
+        _sna_off = _sdt_mod.norm_on()
+        _mem_os.environ[_sna_env] = "0"
+        _sna_zero = _sdt_mod.norm_on()
+        _mem_os.environ[_sna_env] = "1"
+        _sna_one = _sdt_mod.norm_on()
+    finally:
+        _mem_os.environ.pop(_sna_env, None)
+        if _sna_old is not None:
+            _mem_os.environ[_sna_env] = _sna_old
+    _v = (_sna_env == "SUPDEF_NORM" and _sna_off is False
+          and _sna_zero is False and _sna_one is True)
+    _w = f"غائب={_sna_off} · صفر={_sna_zero} · واحد={_sna_one} · الاسم={_sna_env}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA1 علمُ التسوية **مطفأٌ افتراضًا** ولا يُشعَل إلّا بـ\"1\" "
+      "(‏`V-N7` سلوكيًّا)", _v, _w)
+
+# ③ SNA2 — **الترتيبُ `§②`-3**: التسويةُ **قبل** `drop_marker`/`pick_level` ·
+#   مُثبَتٌ سلوكيًّا بفِكستشرٍ ينقلب فيه المستوى المختار.
+try:
+    import datetime as _sna_dt
+    import pandas as _sna_pd
+    _sna_n = 60
+    _sna_lows = [20.0 - 0.05 * _i for _i in range(_sna_n)]
+    _sna_idx = [_sna_dt.date(2026, 1, 1) + _sna_dt.timedelta(days=_i)
+                for _i in range(_sna_n)]
+    _sna_df = _sna_pd.DataFrame({"Low": _sna_lows,
+                                 "High": [_x * 1.2 for _x in _sna_lows],
+                                 "Close": [_x * 1.1 for _x in _sna_lows]},
+                                index=_sna_idx)
+    _sna_hist = {"ZZT": _sna_df}
+    _sna_case = [{"sym": "ZZT", "date": "2026-02-20", "match_date": "2026-02-20",
+                  "levels": [1.5, 1.8], "line": 1, "kind": "close", "px": None,
+                  "sf": 0.1}]
+    _sna_keep = _sdt_mod.split_factor_of
+    try:
+        _sdt_mod.split_factor_of = lambda _s, _a: 0.1
+        _r0, _k0, _ = _sdt_mod.build_rows(_sna_hist, _sna_hist, _sna_case, norm=False)
+        _r1, _k1, _ = _sdt_mod.build_rows(_sna_hist, _sna_hist, _sna_case, norm=True)
+    finally:
+        _sdt_mod.split_factor_of = _sna_keep
+    # خامًا: المستويان 1.5/1.8 تحت المرجع ⇒ يُختار 1.8 · ومُسوًّى 15/18 ⇒ 18
+    _sna_raw_ref = _r0[0]["ref"] if _r0 else None
+    _sna_nrm_ref = _r1[0]["ref"] if _r1 else None
+    _v = (_sna_raw_ref == 1.8 and abs(_sna_nrm_ref - 18.0) < 1e-9
+          and _r1[0]["sf"] == 0.1 and _r0[0]["sf"] == 1.0)
+    _w = f"خام={_sna_raw_ref} · مُسوًّى={_sna_nrm_ref} · sf={_r1[0]['sf'] if _r1 else '—'}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA2 التسويةُ **قبل** اختيار المستوى — الصفُّ نفسُه يعطي مستوًى "
+      "مُسوًّى (‏`§②`-3 سلوكيًّا)", _v, _w)
+
+# ④ SNA3 — **دالّتا الإنتاج بالاسم** (‏`V-N6`): `_fetch_splits` و
+#   `_split_scale_factor` تُناديان فعلًا بالـAST · **ولا نسخةَ محلّية**.
+try:
+    # 🔴 **تشديدٌ بعد نجاة طفرة:** الفحصُ كان **على مستوى الملفّ** و`_fetch_splits`
+    #   تُنادى في `anchor_scan`/`indicator_scan` أيضًا ⇒ نزعُها من `split_factor_of`
+    #   كان **يمرّ** (الصنفُ ③). الآن **داخلَ الدالّة وحدَها** ‏+ **بالتعشيش**.
+    _sna_t = _ast0.parse(_sna_src)
+    _sna_defs = {_f.name: _f for _f in _ast0.walk(_sna_t)
+                 if isinstance(_f, _ast0.FunctionDef)}
+    _sna_fn3 = _sna_defs.get("split_factor_of")
+
+    def _sna_nm(_c):
+        return (_c.func.attr if isinstance(_c.func, _ast0.Attribute)
+                else getattr(_c.func, "id", ""))
+    _sna_nest = False
+    if _sna_fn3 is not None:
+        for _c in _ast0.walk(_sna_fn3):
+            if not (isinstance(_c, _ast0.Call)
+                    and _sna_nm(_c) == "_split_scale_factor"):
+                continue
+            _sna_nest = any(isinstance(_a, _ast0.Call)
+                            and _sna_nm(_a) == "_fetch_splits" for _a in _c.args)
+    _sna_local = bool({"_fetch_splits", "_split_scale_factor"} & set(_sna_defs))
+    _v = (_sna_fn3 is not None and _sna_nest and not _sna_local)
+    _w = (f"داخلَ `split_factor_of` معشَّشًا={_sna_nest} · نسخةٌ محلّية="
+          f"{_sna_local} · الدالّةُ موجودة={_sna_fn3 is not None}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA3 `split_factor_of` تنادي **`_split_scale_factor(_fetch_splits(…))` "
+      "معشَّشتَين داخلَها** ولا نسخةَ محلّية (‏`V-N6` — شُدّد بعد نجاة طفرة)", _v, _w)
+
+# ⑤ SNA4 — **لا رقمَ يُكتَب بيدي**: `RAW_PUBLISHED` يطابق `support_def_result.md`
+#   و`DERIV_EXPECT` يطابق اشتقاقَ `§③` في العقد — **يُستخرجان نصًّا**.
+try:
+    _sna_res = open("support_def_result.md", encoding="utf-8").read()
+    _sna_pre = open("splitnorm_prereg.md", encoding="utf-8").read()
+    _sna_rp = _sdt_mod.RAW_PUBLISHED
+    _sna_inres = all(_x in _sna_res for _x in
+                     ("6/9", "0.5078", "31.03", "50.83"))
+    _sna_match = (_sna_rp["below"] == 6 and _sna_rp["n"] == 9
+                  and _sna_rp["p"] == 0.5078 and _sna_rp["med"] == 31.03
+                  and _sna_rp["rand"] == 50.83)
+    _sna_de = _sdt_mod.DERIV_EXPECT
+    _sna_inpre = ("18.832" in _sna_pre and "583.0" in _sna_pre
+                  and _sna_de.get("NEXR") == 18.832
+                  and _sna_de.get("NXTT") == 583.0)
+    _v = _sna_inres and _sna_match and _sna_inpre
+    _w = (f"المنشورُ في النتيجة={_sna_inres} · الثابتُ يطابقه={_sna_match} · "
+          f"الاشتقاقُ في العقد={_sna_inpre}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA4 **لا رقمَ مكتوبٌ بيدي**: `RAW_PUBLISHED` من النتيجة المنشورة "
+      "و`DERIV_EXPECT` من اشتقاق `§③`", _v, _w)
+
+# ⑥ SNA5 — **جدولُ حقيقةِ الفروع** (8 حالات) · والرموزُ **مميَّزةٌ** عن رموز
+#   المِجَسّ القائمة {0,2,3,5,6,7,8} · **وثغرةُ `§⑤` محمولةٌ محافظةً لا فرعًا رابعًا**.
+try:
+    _nv = _sdt_mod.norm_verdict
+    _R = _sdt_mod.NORM_RC
+    _G = _sdt_mod.NORM_GUARD_RC
+    _sna_tt = [
+        ((True, True, True, 9, 9), _R[1]),        # كلُّ شيءٍ يعبر ⇒ الفرعُ 1
+        ((True, True, False, 9, 9), _R[2]),       # شاذٌّ باقٍ ⇒ محمولٌ على 2
+        ((True, False, True, 9, 9), _R[2]),       # الحيادُ يسقط ⇒ الفرعُ 2
+        ((True, False, False, 9, 9), _R[2]),
+        ((False, True, True, 9, 9), _R[3]),       # حارسٌ سقط ⇒ الفرعُ 3
+        ((True, True, True, 4, 9), _R[3]),        # أرضيّةُ الصفوف
+        ((True, True, True, 9, 2), _R[3]),        # أرضيّةُ الرموز
+        ((False, False, False, 1, 1), _R[3]),
+    ]
+    _sna_tt_ok = all(_nv(*_a)[0] == _e for _a, _e in _sna_tt)
+    _sna_uniq = not ({_R[1], _R[2], _R[3], _G} & {0, 2, 3, 5, 6, 7, 8})
+    _sna_three = len({_R[1], _R[2], _R[3]}) == 3 and _G not in _R.values()
+    _sna_msg = _nv(True, True, False, 9, 9)[1]
+    _sna_gap = ("ثغرة" in _sna_msg) and ("محافظة" in _sna_msg)
+    _v = _sna_tt_ok and _sna_uniq and _sna_three and _sna_gap
+    _w = (f"جدولُ الحقيقة={_sna_tt_ok} · رموزٌ مميَّزة={_sna_uniq} "
+          f"({sorted(_R.values())}+{_G}) · ثلاثةٌ متمايزة={_sna_three} · "
+          f"الثغرةُ مُعلَنة={_sna_gap}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA5 فروعُ التسوية = نصُّ `§⑤` (جدولُ حقيقةٍ ثمانِ حالات) · رموزٌ "
+      "مميَّزة · وثغرةُ `§⑤` **مُعلَنةٌ لا مسكوتٌ عنها**", _v, _w)
+
+# ⑦ SNA6 — **التسويةُ لا ترفع الإغلاق**: `closed_guard` ما زال **أوّلَ** ما
+#   يُنفَّذ في `main` · وإشعالُ `SUPDEF_NORM` وحدَه **لا يفتح** شيئًا.
+try:
+    _sna_env2 = _sdt_mod.NORM_ENV
+    _sna_o1 = _mem_os.environ.get(_sna_env2)
+    _sna_o2 = _mem_os.environ.get(_sdt_mod.CLOSED_ENV)
+    try:
+        _mem_os.environ[_sna_env2] = "1"
+        _mem_os.environ.pop(_sdt_mod.CLOSED_ENV, None)
+        import contextlib as _sna_ctx
+        import io as _sna_io
+        with _sna_ctx.redirect_stdout(_sna_io.StringIO()):
+            _sna_rc = _sdt_mod.main()
+    finally:
+        _mem_os.environ.pop(_sna_env2, None)
+        _mem_os.environ.pop(_sdt_mod.CLOSED_ENV, None)
+        if _sna_o1 is not None:
+            _mem_os.environ[_sna_env2] = _sna_o1
+        if _sna_o2 is not None:
+            _mem_os.environ[_sdt_mod.CLOSED_ENV] = _sna_o2
+    # 🔒 والحارسُ **أوّلُ** سطرٍ في `main` بنيويًّا (لا بعد جلبٍ أو حساب)
+    _sna_fn = next((_f for _f in _ast0.walk(_ast0.parse(_sna_src))
+                    if isinstance(_f, _ast0.FunctionDef) and _f.name == "main"), None)
+    _sna_body = [_b for _b in (_sna_fn.body if _sna_fn else [])
+                 if not isinstance(_b, (_ast0.Global, _ast0.Expr))]
+    _sna_first = (bool(_sna_body) and isinstance(_sna_body[0], _ast0.Assign)
+                  and isinstance(_sna_body[0].value, _ast0.Call)
+                  and getattr(_sna_body[0].value.func, "id", "") == "closed_guard")
+    _v = _sna_rc == _sdt_mod.CLOSED_RC and _sna_first
+    _w = f"بالعلم وحدَه rc={_sna_rc} (المتوقَّع {_sdt_mod.CLOSED_RC}) · الحارسُ أوّلًا={_sna_first}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA6 **التسويةُ لا ترفع الإغلاق**: إشعالُ `SUPDEF_NORM` وحدَه يُخرج "
+      "8 · والحارسُ أوّلُ ما يُنفَّذ في `main`", _v, _w)
+
+# ⑧ SNA7 — الـworkflow يحمل المدخلَ بافتراضٍ **"0"** ويمرّره بيئةً · وبلا كرونٍ
+#   ولا سرّ (‏`§⑨`).
+try:
+    import yaml as _sna_yaml
+    _sna_y = _sna_yaml.safe_load(open(".github/workflows/support_def.yml",
+                                      encoding="utf-8"))
+    _sna_on = _sna_y.get(True) or _sna_y.get("on")
+    _sna_in = _sna_on["workflow_dispatch"]["inputs"]
+    _sna_txt = open(".github/workflows/support_def.yml", encoding="utf-8").read()
+    _v = ("norm" in _sna_in and str(_sna_in["norm"].get("default")) == "0"
+          and "SUPDEF_NORM: ${{ inputs.norm }}" in _sna_txt
+          and "schedule" not in _sna_on and "secrets." not in _sna_txt)
+    _w = (f"المدخل={'norm' in _sna_in} · افتراضُه="
+          f"{_sna_in.get('norm', {}).get('default')} · يُمرَّر="
+          f"{'SUPDEF_NORM: ${{ inputs.norm }}' in _sna_txt} · "
+          f"كرون={'schedule' in _sna_on} · سرّ={'secrets.' in _sna_txt}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA7 مدخلُ `norm` افتراضُه **\"0\"** ويُمرَّر بيئةً · وبلا كرونٍ ولا "
+      "سرّ", _v, _w)
+
 
 
 
