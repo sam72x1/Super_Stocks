@@ -335,11 +335,12 @@ def judge(cands: list) -> str:
 
 
 def price_witness(hist, splits_of=None) -> dict:
-    """`{(symbol, line): date}` من **مرساة السعر مُعادةً في التشغيلة نفسِها**.
+    """شاهدُ هُويّةٍ **حيّ** من مرساة السعر مُعادةً في التشغيلة نفسِها.
 
-    شاهدُ هُويّةٍ حيّ: لا يُقرأ من ملفٍّ قد يغيب أو يبيت، بل يُحسَب بدوالّ
-    `faisal_price_anchor` **بالاسم** على الشموع نفسِها ⇒ أيُّ اختلافٍ بين
-    المصدرين يظهر `DISAGREE` ولا يُطوى."""
+    `{(symbol, line): {verdict, date, match_date, tight_verdict, tight_match_date}}`
+    — يُحسَب بدوالّ `faisal_price_anchor` **بالاسم** على الشموع نفسِها، فلا يُقرأ
+    من ملفٍّ قد يغيب أو يبيت، وأيُّ اختلافٍ يظهر `DISAGREE` ولا يُطوى.
+    والعمودُ الضيّق (‏0.10%) **وصفيٌّ عند مصدره** فيُنقَل موسومًا كما هو."""
     out = {}
     for t in pa.targets():
         a, sym, ln = t["anchor"], t["symbol"], t["line"]
@@ -347,10 +348,39 @@ def price_witness(hist, splits_of=None) -> dict:
         if not a or df is None or len(df) <= MIN_BARS:
             continue
         sp = splits_of(sym) if splits_of else None
-        cands = pa.match_days(pa._bars_of(df), a, sp)
-        if len(cands) == 1:
-            out[(sym, ln)] = cands[0]["date"]
+        bars = pa._bars_of(df)
+        rec = {}
+        c = pa.match_days(bars, a, sp)
+        rec["verdict"] = "unique" if len(c) == 1 else ("ambiguous" if c else "none")
+        if len(c) == 1:
+            rec["date"], rec["match_date"] = c[0]["date"], c[0]["match_date"]
+        if a.get("pct") is not None:
+            ct = pa.match_days(bars, a, sp, tol=pa.TOL_TIGHT)
+            rec["tight_verdict"] = "unique" if len(ct) == 1 else ("ambiguous" if ct else "none")
+            if len(ct) == 1:
+                rec["tight_date"], rec["tight_match_date"] = ct[0]["date"], ct[0]["match_date"]
+        out[(sym, ln)] = rec
     return out
+
+
+def witness_of(ind_date: str, rec: dict) -> str:
+    """مقارنةُ الشاهد — **على `match_date` لا `date`**.
+
+    🔑 **وهذي قاعدةٌ مدموجةٌ سلفًا لا اجتهادٌ هنا** (`support_def_prereg.md §⑩-ⓒ`):
+    `match_date` هو **آخرُ جلسةٍ مكتملةٍ على شاشة فيصل** في الأنواع الثلاثة، وهو
+    بالضبط اليومُ الذي تُحسَب عليه قيمةُ المؤشّر المعروضة. أمّا `date` فيومُ الشارت
+    نفسُه، ويساويه في `ah`/`spot` **ويسبقه بيومٍ في `pre`** — فمقارنةٌ به تُنتج
+    `DISAGREE` كاذبًا على كلّ مرساةِ بريماركت."""
+    if not rec:
+        return ""
+    ref, src = rec.get("match_date"), "tol"
+    if not ref:
+        ref, src = rec.get("tight_match_date"), "tight"
+    if not ref:
+        return "no_unique"
+    if not ind_date:
+        return "no_ind"
+    return f"AGREE({src})" if ind_date == ref else f"DISAGREE({src}:{ref})"
 
 
 # ═══════════════ ② المسار الحيّ ════════════════════
@@ -408,29 +438,38 @@ def main() -> int:
         return _sp_cache[sym]
 
     price_dates = price_witness(hist, splits_of)
-    rows, sens, agree = [], {m: Counter() for m in SENS_MULTS}, Counter()
+    rows, sens = [], {m: Counter() for m in SENS_MULTS}
+    agree, wit_m = Counter(), {m: Counter() for m in SENS_MULTS}
     for t in tg:
         sym, ln = t["symbol"], t["line"]
+        rec = price_dates.get((sym, ln)) or {}
         row = {"symbol": sym, "line": ln, "frame": t["frame"],
                "n_fp": len(t["fps"]), "kinds": ",".join(sorted({f["kind"] for f in t["fps"]})),
                "recorded": " | ".join(f["raw"] for f in t["fps"]),
                "verdict": "no_fp", "date": "", "n_cand": "", "diff": "", "params": "",
-               "candidates": "", "price_date": price_dates.get((sym, ln), ""), "witness": ""}
+               "candidates": "",
+               "price_verdict": rec.get("verdict", ""), "price_match_date": rec.get("match_date", ""),
+               "price_tight_verdict": rec.get("tight_verdict", ""),
+               "price_tight_match_date": rec.get("tight_match_date", ""),
+               "witness": "", "witness_at": ""}
         df = (hist or {}).get(sym)
         if t["fps"] and df is not None and len(df) > MIN_BARS:
             splits = splits_of(sym)
             pers = {int(f["params"][0]) for f in t["fps"] if f["kind"] == "rsi"}
             ser = build_series(df, sorted(pers) or (RSI_PERIOD,))
-            inter = None
-            for fp in t["fps"]:
-                got = {c["date"] for c in fp_match(ser, fp, splits)}
-                inter = got if inter is None else (inter & got)
-            cands = sorted(inter or set())
-            best = {}
-            for fp in t["fps"]:
-                for c in fp_match(ser, fp, splits):
-                    if c["date"] in cands:
-                        best.setdefault(c["date"], c)
+
+            def _at(mult):
+                """تقاطعُ مرشّحي كلّ بصمات الهدف عند مضاعفٍ بعينه."""
+                it, bst = None, {}
+                for fp in t["fps"]:
+                    cs = fp_match(ser, fp, splits, mult=mult)
+                    g = {c["date"] for c in cs}
+                    it = g if it is None else (it & g)
+                    for c in cs:
+                        bst.setdefault(c["date"], c)
+                return sorted(it or set()), bst
+
+            cands, best = _at(TOL_MULT)
             row["n_cand"] = len(cands)
             row["candidates"] = " | ".join(cands[:8])
             row["verdict"] = judge(cands)
@@ -440,19 +479,17 @@ def main() -> int:
                 row["diff"] = best.get(d, {}).get("diff", "")
                 row["params"] = str(best.get(d, {}).get("params", ""))
             for m in SENS_MULTS:
-                it = None
-                for fp in t["fps"]:
-                    g = {c["date"] for c in fp_match(ser, fp, splits, mult=m)}
-                    it = g if it is None else (it & g)
-                sens[m][judge(sorted(it or set()))] += 1
-            if row["price_date"]:
-                if row["verdict"] == "unique":
-                    ok = row["date"] == row["price_date"]
-                    row["witness"] = "AGREE" if ok else "DISAGREE"
-                    agree[row["witness"]] += 1
-                else:
-                    row["witness"] = "no_unique"
-                    agree["no_unique"] += 1
+                cm = cands if m == TOL_MULT else _at(m)[0]
+                sens[m][judge(cm)] += 1
+                if rec:
+                    wit_m[m][witness_of(cm[0] if len(cm) == 1 else "", rec) or "—"] += 1
+                # أوّلُ مضاعفٍ يجعلها وحيدةً **ويتّفق** مع الشاهد — وصفيٌّ لا حاكم
+                if (not row["witness_at"]) and len(cm) == 1 \
+                        and witness_of(cm[0], rec).startswith("AGREE"):
+                    row["witness_at"] = f"x{m:g}"
+            if rec:
+                row["witness"] = witness_of(row["date"], rec)
+                agree[row["witness"].split("(")[0]] += 1
         elif t["fps"]:
             row["verdict"] = "no_data"
         rows.append(row)
@@ -466,14 +503,18 @@ def main() -> int:
         if r["verdict"] in ("no_fp",):
             continue
         log(f"   {r['symbol']:6s} {r['line']:<5} {r['n_fp']:<6} {r['kinds']:<10s} "
-            f"{r['verdict']:<10s} {r['date']:<13s} {str(r['diff']):<10s} {r['witness']}")
+            f"{r['verdict']:<10s} {r['date']:<13s} {str(r['diff']):<10s} {r['witness']}"
+            f"{(' @' + r['witness_at']) if r['witness_at'] else ''}")
         if r["verdict"] == "ambiguous":
             log(f"          ⟶ مرشَّحات ({r['n_cand']}): {r['candidates']}")
     log("")
     for m in SENS_MULTS:
-        c = sens[m]
-        log(f"SENS mult={m:g}× unique={c['unique']} ambiguous={c['ambiguous']} none={c['none']}")
-    log(f"WITNESS agree={agree['AGREE']} disagree={agree['DISAGREE']} no_unique={agree['no_unique']}")
+        c, w = sens[m], wit_m[m]
+        log(f"SENS mult={m:g}× unique={c['unique']} ambiguous={c['ambiguous']} none={c['none']}"
+            f"  |  WITNESS agree={w['AGREE']} disagree={w['DISAGREE']} "
+            f"no_unique={w['no_unique']} no_ind={w['no_ind']}")
+    log(f"WITNESS agree={agree['AGREE']} disagree={agree['DISAGREE']} "
+        f"no_unique={agree['no_unique']} no_ind={agree['no_ind']}")
     c = Counter(r["verdict"] for r in rows)
     log(f"JUDGE scope={scope} unique={c['unique']} ambiguous={c['ambiguous']} none={c['none']} "
         f"no_fp={c['no_fp']} no_data={c['no_data']}")
