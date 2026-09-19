@@ -46273,6 +46273,201 @@ check("🧱🔬🔒 SDT5 الوصفيّان خارج الحكم (`read_verdict` 
       f"توقيع={_sdt5_sig} إنتاج={_sdt5_prod}")
 
 
+# ── 🧱🔬📎 ملحقُ §⑩ — أقفال SDX0-SDX5 («سجّل ملحق الدعم» 2026-09-19) ──────────
+# المجتمعُ الموسَّع بمرساة السعر ‏+ شاهدُ ضبطٍ يفرّق. **العقدُ مدموجٌ لا يُعدَّل**
+# فالتغييرُ ملحقٌ مؤرَّخ — وهذي الأقفالُ **موضعيّةٌ داخلَ §⑩ وحدَه** (درسُ الشهر:
+# القفلُ يفحص القسمَ الحامل لا الملفَّ كلَّه) · وكلُّها تقرأ `_sdk_doc` المحمَّل أعلاه.
+_sdx_i = next((i for i, l in enumerate(_sdk_L) if l.startswith("## 📎 ملحقٌ مؤرَّخ §⑩")), -1)
+_sdx_all = _sdk_L[_sdx_i:] if _sdx_i >= 0 else []
+
+
+def _sdx_sub(head, nxt=None):
+    """قسمٌ فرعيٌّ **داخل §⑩ وحدَه** — بلا `nxt` ⟶ إلى نهاية الملحق."""
+    try:
+        a = next(i for i, l in enumerate(_sdx_all) if l.startswith(head))
+    except StopIteration:
+        return ""
+    b = len(_sdx_all)
+    if nxt:
+        for i in range(a + 1, len(_sdx_all)):
+            if _sdx_all[i].startswith(nxt):
+                b = i
+                break
+    return " ".join(x.strip() for x in _sdx_all[a:b])
+
+
+_sdx_head = _sdx_sub("## 📎 ملحقٌ مؤرَّخ §⑩", "### ⓐ")
+_sdx_a = _sdx_sub("### ⓐ", "### ⓑ")
+_sdx_b = _sdx_sub("### ⓑ", "### ⓒ")
+_sdx_c = _sdx_sub("### ⓒ", "### ⓓ")
+_sdx_f = _sdx_sub("### ⓕ", "### ⓖ")
+_sdx_i_ = _sdx_sub("### ⓘ", "### ⓙ")
+_sdx_j = _sdx_sub("### ⓙ", "### ⓚ")
+_sdx_k = _sdx_sub("### ⓚ")
+
+# SDX0 — الملحقُ **يُعلن ما لا يتغيّر** في رأسه: الأرضيّةُ والحدودُ والفروعُ الثلاثة
+#   و«لا شحن» و«لا يُمَسّ pivot_stability». ملحقٌ يوسّع مجتمعًا بلا هذا الإعلان =
+#   بابٌ لتحريك العتبات بصمت.
+_sdx0_keys = ("‏≥5", "‏≥3", "80%", "p ≤ 0.10", "‏≥10%",
+              "لا يُشحَن منه شيءٌ", "لا يُمَسّ `pivot_stability`",
+              "الفروعُ الثلاثةُ بحرفها")
+_sdx0_bad = [k for k in _sdx0_keys if k not in _sdx_head]
+check("🧱🔬📎🔒 SDX0 رأسُ §⑩ يُعلن **ما لا يتغيّر**: الأرضيّةُ 5/3 · حدَّا SD1/SD2 · "
+      "الفروعُ الثلاثةُ بحرفها · لا شحنَ · ولا مسَّ `pivot_stability`",
+      _sdx_i >= 0 and not _sdx0_bad, f"مفقود={_sdx0_bad}")
+
+# SDX1 — **مصدرُ التاريخ المأذون** محصورٌ في §⑩-ⓐ: `unique` بمرساةٍ ذاتِ نسبة · وكلُّ
+#   ما عداه مُقصًى **بالاسم** · ومنعُ التأريخ من رقم الصورة **يُعاد نصُّه** فلا يُقرأ
+#   الملحقُ نقضًا لـ`§①`/`SDK3`.
+_sdx1_in = ("`unique`" in _sdx_a and "ذاتِ نسبةِ" in _sdx_a
+            and "0.75%" in _sdx_a)
+_sdx1_out = [k for k in ("`ambiguous`", "`none`", "`no_price`", "رخوةٍ بلا نسبة",
+                         "`tight_*`") if k not in _sdx_a]
+_sdx1_ban = "استنتاجَ التاريخ من رقم الصورة" in _sdx_a and "قائمٌ ونافذٌ" in _sdx_a
+check("🧱🔬📎🔒 SDX1 مصدرُ التاريخ في ⓐ: **`unique` بنسبةٍ عند 0.75%** حصرًا · "
+      "والمُقصى مسمًّى (ambiguous · none · no_price · الرخو · tight) · "
+      "ومنعُ التأريخ من رقم الصورة **مُعادٌ نصُّه**",
+      _sdx1_in and not _sdx1_out and _sdx1_ban,
+      f"داخل={_sdx1_in} مفقودٌ من المُقصى={_sdx1_out} منع={_sdx1_ban}")
+
+# SDX2 — 🔑 **لا رقمَ مكتوبٌ بيدي**: جدولُ ⓑ **توثيقٌ** والأداةُ تُعيد الاشتقاق بالاسم
+#   ‏+ حارسُ هُويّةٍ بخروجٍ مميَّز. **والشطرُ السلوكيُّ هو الحاكم**: كلُّ رمزٍ في الجدول
+#   يجب أن يُعيده `faisal_price_anchor.targets()` بمرساةٍ **ذاتِ نسبة**، وسعرُها ونسبتُها
+#   **تطابقان** ما كُتب في الجدول — فمطبعةٌ واحدةٌ تُسقط القفل.
+# 🔴 **شُدَّ بعد طفرةٍ نجت** (‏`s3` بدّلت ‏4.500 ⟶ 4.501 في الجدول فمرّت): الصياغةُ
+#   الأولى قارنت الأداةَ الحيّة **بأرقامٍ مكتوبةٍ في القفل** لا **بأرقام الوثيقة** ⇒
+#   وثيقةٌ تكذب وقفلٌ راضٍ. الآن **تُقرأ صفوفُ جدول ⓑ نصًّا** ويُقارَن **كلُّ حقلٍ**
+#   بمصدره: المستوياتُ بـ`faisal_levels_table.tsv` · والنوعُ والسعرُ والنسبةُ
+#   بـ`faisal_price_anchor.targets()`. (‏وعمودُ التاريخِ وحدَه يحرسه `V-S6` وقتَ
+#   التشغيل — فاشتقاقُه يحتاج شبكة، وهذا مُعلَنٌ في نصّ القفل.)
+_sdx2_mismatch, _sdx2_seen = [], set()
+try:
+    import csv as _sdx_csv
+    import re as _sdx_re
+
+    import faisal_price_anchor as _sdx_pa
+    _sdx_live = {t["symbol"]: t["anchor"] for t in _sdx_pa.targets()
+                 if t.get("anchor") and t["anchor"].get("pct") is not None}
+    _sdx_tsv = list(_sdx_csv.DictReader(
+        open("faisal_levels_table.tsv", encoding="utf-8"), delimiter="\t"))
+
+    def _sdx_num(x):
+        """يُطبّع الأرقامَ العربيّةَ المزخرفة: RLM · والسالبُ ‏− و‏‑ ⟶ ‏-."""
+        return (x.replace("\u200f", "").replace("\u200e", "")
+                 .replace("\u2212", "-").replace("\u2011", "-").strip())
+
+    _sdx_b_lines = []
+    _sdx_ba = next(i for i, l in enumerate(_sdx_all) if l.startswith("### ⓑ"))
+    for _l in _sdx_all[_sdx_ba:]:
+        if _l.startswith("### ⓒ"):
+            break
+        _sdx_b_lines.append(_l)
+    for _l in _sdx_b_lines:
+        _f = [x.strip() for x in _l.split("|")]
+        if len(_f) != 9 or not _sdx_num(_f[1]).isdigit():
+            continue
+        _sym, _ln, _lv, _kind, _pxs, _dt = (_f[2], _f[3], _f[4], _f[5].strip("`"),
+                                            _f[6], _f[7])
+        _sdx2_seen.add(_sym)
+        _a = _sdx_live.get(_sym)
+        if _a is None:
+            _sdx2_mismatch.append(f"{_sym}: لا مرساةَ حيّةً ذاتَ نسبة")
+            continue
+        _m = _sdx_re.match(r"^([0-9]+\.[0-9]+)\s*\(([+-][0-9]+\.[0-9]+)%\)$",
+                           _sdx_num(_pxs))
+        if not _m:
+            _sdx2_mismatch.append(f"{_sym}: صيغةُ السعر/النسبة {_pxs!r}")
+        elif (abs(float(_m.group(1)) - _a["px"]) > 1e-9
+              or abs(float(_m.group(2)) - _a["pct"]) > 1e-9):
+            _sdx2_mismatch.append(
+                f"{_sym}: الوثيقة {_m.group(1)}/{_m.group(2)} ≠ الأداة {_a['px']}/{_a['pct']}")
+        if _kind != _a["kind"]:
+            _sdx2_mismatch.append(f"{_sym}: النوع {_kind} ≠ {_a['kind']}")
+        _doc_lv = {round(float(_sdx_num(x)), 6) for x in _lv.split("·")}
+        _tsv_lv = {round(float(r["level"]), 6) for r in _sdx_tsv
+                   if r["symbol"] == _sym and r["line"] == _sdx_num(_ln)
+                   and r["role"] == "support" and r["frame"] == "daily"
+                   and r["auto_chart"] == "0"}
+        if _doc_lv != _tsv_lv:
+            _sdx2_mismatch.append(f"{_sym}: مستوياتُ الوثيقة {_doc_lv} ≠ الجدول {_tsv_lv}")
+        if not _sdx_re.match(r"^\d{4}-\d{2}-\d{2}$", _dt) or not (
+                _sdx_pa.W0 <= _dt <= _sdx_pa.W1):
+            _sdx2_mismatch.append(f"{_sym}: تاريخٌ خارجَ النافذة {_dt}")
+    if _sdx2_seen != {"TRUG", "TURB", "GRI", "VEEE"}:
+        _sdx2_mismatch.append(f"مجموعةُ الرموز={sorted(_sdx2_seen)}")
+except Exception as _sdx2_e:                                      # noqa: BLE001
+    _sdx2_mismatch.append(f"⛔{type(_sdx2_e).__name__}: {_sdx2_e}")
+_sdx2_txt = ("faisal_price_anchor.targets()" in _sdx_b and "match_days" in _sdx_b
+             and "توثيقٌ للقارئ لا مصدرٌ للأداة" in _sdx_b
+             and "`V-S6`" in _sdx_b and "خروج **‏6**" in _sdx_b)
+check("🧱🔬📎🔒 SDX2 صفوفُ ⓑ **تُشتقّ من `faisal_price_anchor` لا تُكتَب بيدٍ** "
+      "(حارسُ هُويّةٍ بخروج 6) · **وكلُّ حقلٍ في الجدول يُطابق مصدرَه سلوكيًّا** "
+      "(المستوياتُ ⟵ الجدول · النوعُ والسعرُ والنسبةُ ⟵ الأداة · والتاريخُ يحرسه "
+      "`V-S6` وقتَ التشغيل)",
+      _sdx2_txt and not _sdx2_mismatch,
+      f"نصّ={_sdx2_txt} مخالف={_sdx2_mismatch}")
+
+# SDX3 — **لحظةُ القصّ `match_date` لا `date`**: الحالاتُ الثلاثُ منصوصة، و`spot`
+#   يُقصّ عند `D−1` **مع تسمية التسريب** — وإلّا دخل قاعُ يومٍ لم يكتمل على شاشته.
+_sdx3_ok = ("`match_date` لا `date`" in _sdx_c
+            and "`D−1`" in _sdx_c and "**ناقصة**" in _sdx_c
+            and "تسريبٌ" in _sdx_c
+            and _sdx_c.count("`D` ✓") == 2)
+check("🧱🔬📎🔒 SDX3 القصُّ عند **`match_date`**: `ah`/`pre` عند `D` و`spot` عند "
+      "**`D−1`** (شمعةُ `D` ناقصة) · وأخذُ `date` في `spot` **مُسمًّى تسريبًا**",
+      _sdx3_ok, f"ⓒ={_sdx_c[:110]}")
+
+# SDX4 — شاهدُ الضبط: `A-FAR` يتقاعد **بسببه المُثبَت**، و`A-RAND` يحكم بصيغةٍ صحيحة
+#   (**وسيطُ الأخطاء** لا خطأُ الوسيط — والثاني ينهار إلى منتصف المدى فيصير `A-MID`) ·
+#   وشرطُ الفِكستشر **قبل أيّ جلب** بخروجٍ مميَّز · وإعلانُ أنه **ليس ختمًا مطاطيًّا**.
+_sdx4_keys = ("خامدٌ بالبناء", "`A-RAND`", "‏999 سحبةً", "بذرةٍ حتميّة",
+              "وسيطُ ‏\\|الخطأ\\| على السحبات", "لا خطأُ وسيطِ السحبات",
+              "ليس ختمًا مطاطيًّا", "يُوقَف بخروج ‏7 قبل أيّ جلب",
+              "آخر خمس شمعات")
+_sdx4_bad = [k for k in _sdx4_keys if k not in _sdx_f]
+check("🧱🔬📎🔒 SDX4 شاهدُ الضبط: تقاعدُ `A-FAR` بسببه · `A-RAND` **وسيطُ الأخطاء** "
+      "لا خطأُ الوسيط · بذرةٌ حتميّةٌ و999 سحبة · وفِكستشرُ «قاعٌ حديث» **قبل أيّ جلب** "
+      "بخروج 7 · وليس ختمًا مطاطيًّا",
+      not _sdx4_bad, f"مفقود={_sdx4_bad}")
+
+# SDX5 — 🔑 حدودُ الصدق والتنبّؤات: **آليّةُ `SD1` مكتوبةٌ بأرقامها، وتلك الأرقامُ
+#   يجب أن تطابق `sign_test_p` الحيّة** (‏وثيقةٌ تدّعي حسابًا يخالف الأداةَ = سطرٌ يكذب) ·
+#   وستُّ تنبّؤاتٍ **كلٌّ في سطره**.
+_sdx5_p = {}
+try:
+    _sdx5_p = {"5/5": _sdt_mod.sign_test_p(5, 5), "4/5": _sdt_mod.sign_test_p(4, 5),
+               "6/6": _sdt_mod.sign_test_p(6, 6), "5/6": _sdt_mod.sign_test_p(5, 6)}
+except Exception as _sdx5_e:                                      # noqa: BLE001
+    _sdx5_p = {"⛔": str(_sdx5_e)}
+# 🔑 لا تُكتَب القيمُ بيدي: **كلُّ قيمةٍ في الوثيقة تُبنى من النداء الحيّ ثمّ تُطلَب
+#   نصًّا** ⇒ تغيُّرُ التقريب في الأداة **يُسقط القفل** بدل أن يترك سطرًا يكذب.
+_sdx5_live = (_sdx5_p.get("5/5") == 0.0625 and _sdx5_p.get("4/5") == 0.375
+              and _sdx5_p.get("6/6") == 0.0312 and _sdx5_p.get("5/6") == 0.2188)
+_sdx5_doc = [k for k in (f"‏5/5 ⟶ `p = {_sdx5_p.get('5/5')}`",
+                         f"‏4/5 ⟶ `p = {_sdx5_p.get('4/5')}`",
+                         f"‏6/6 ⟶ `p = {_sdx5_p.get('6/6')}`",
+                         f"‏5/6 ⟶ `p = {_sdx5_p.get('5/6')}`",
+                         "إجماعٌ أو لا شيء") if k not in _sdx_i_]
+_sdx5_q = [q for q in ("`Q1`", "`Q2`", "`Q3`", "`Q4`", "`Q5`", "`Q6`")
+           if f"- {q}" not in _sdx_j]
+check("🧱🔬📎🔒 SDX5 حدُّ «إجماعٌ أو لا شيء» مكتوبٌ بأرقامه **وكلُّ رقمٍ يُطابق "
+      "`sign_test_p` الحيّة نصًّا** (5/5 · 4/5 · 6/6 · 5/6 بتقريب الأداة) · "
+      "وستُّ تنبّؤاتٍ كلٌّ في سطره",
+      _sdx5_live and not _sdx5_doc and not _sdx5_q,
+      f"حيّ={_sdx5_p} وثيقة={_sdx5_doc} تنبّؤات={_sdx5_q}")
+
+# SDX6 — **ما لا يُفعَل** في ⓚ يحرس العتباتِ من التحريك بعد الأرقام، ويُعلن أن تبديلَ
+#   الشاهد **مأذونٌ مرّةً واحدةً بسببٍ بنيويّ** لا كلّما لم يعجب رقم.
+_sdx6_bad = [k for k in ("لا تُخفَّض الأرضيّةُ ولا تُرفَع", "`PIVOT_LOOKBACK`",
+                         "`FAISAL_LEVEL_TOL_PCT`", "بعد رؤية النتيجة",
+                         "مطاردةُ نتيجة", "التبديلُ الوحيدُ المأذون")
+             if k not in _sdx_k]
+check("🧱🔬📎🔒 SDX6 ⓚ «ما لا يُفعَل»: لا تُمَسّ الأرضيّةُ ولا `PIVOT_LOOKBACK` ولا "
+      "التسامحُ ولا عتبةُ ⓔ بعد الأرقام · وتبديلُ الشاهد **مأذونٌ مرّةً واحدةً** بسببٍ "
+      "بنيويّ لا مطاردةَ نتيجة",
+      not _sdx6_bad, f"مفقود={_sdx6_bad}")
+
+
 # ── 🧾📐 بنيةُ الاستخراج — أقفال LVT0-LVT3 («تأكد انك استفدت باقصى مستوى» 2026-09-18)
 # جدولُ المستويات وتواريخُ الصور والتأريخُ بمرساة السعر: **بحثٌ فقط** — لا يمسّ
 # الفرز · وكلُّ صفٍّ **قابلٌ للتحقّق من سطر الكاتالوج** · **ولا تاريخَ مُستنتَجًا من
