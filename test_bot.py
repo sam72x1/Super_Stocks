@@ -54508,6 +54508,290 @@ check("🧱🔬🔒 SDY11 الإغلاقُ **مُنفَّذ**: خروج 8 بصف
       "الحارسَ فعلًا · و‏8 مميَّزٌ (بشاهدَي ضبط) · ونصُّ الفتح ثلاثةٌ · ودخولٌ واحد",
       _sdz_ok, _sdz_w)
 
+
+# ── 📅📉 مرساةُ المؤشّر — أقفال IAK0-IAK10 («وسّع الكاتالوج» 2026-09-19) ─────
+# **مصدرُ تأريخٍ ثانٍ** للكاتالوج: قيمةُ المؤشّر المسجَّلةُ على الشارت (RSI/MACD)
+# تُطابَق بما يُحسَب من الشموع. الأبوابُ الأخرى مُغلَقةٌ **بالقياس** (لا EXIF:
+# الصورُ ليست على القرص ولا في تاريخ git · ولا تلغرام: الحالةُ بلا طابعٍ زمنيّ).
+# 🔑 وكلُّ قفلٍ هنا **سلوكيٌّ** (يُشغّل الدالّة) أو **بنيويٌّ بالـAST** — لا صدى نصّ.
+_iak_mod = None
+try:
+    import importlib as _iak_imp
+    _iak_mod = _iak_imp.import_module("faisal_indicator_anchor")
+except Exception:                                                # noqa: BLE001
+    _iak_mod = None
+
+def _iak_df(closes, start="2026-01-02"):
+    """فِكستشرُ شموعٍ يوميّةٍ بفهرسٍ تاريخيّ (‏`build_series` يقرأ `.date()`)."""
+    import datetime as _iak_dt
+    d0 = _iak_dt.date.fromisoformat(start)
+    idx = [_iak_dt.datetime.combine(d0 + _iak_dt.timedelta(days=i), _iak_dt.time())
+           for i in range(len(closes))]
+    return pd.DataFrame({"Close": closes, "Low": [c * 0.98 for c in closes],
+                         "High": [c * 1.02 for c in closes]}, index=pd.DatetimeIndex(idx))
+
+
+def _iak_walk(n=200, seed=7):
+    """مسارٌ حتميٌّ متذبذب ⇒ قيمُ RSI/MACD متمايزةٌ يومًا بيوم."""
+    r = _rnd0.Random(seed)
+    px, out = 10.0, []
+    for _ in range(n):
+        px = max(0.5, px * (1.0 + r.uniform(-0.06, 0.065)))
+        out.append(round(px, 4))
+    return out
+
+
+# ① IAK0 — نطاقُ `gov` **هو** نطاقُ مرساة السعر بت-بت · و`all` يوسّعه
+try:
+    import faisal_price_anchor as _iak_pa
+    _iak_g = [(t["symbol"], t["line"]) for t in _iak_mod.targets("gov")]
+    _iak_p = [(t["symbol"], t["line"]) for t in _iak_pa.targets()]
+    _iak_a = [(t["symbol"], t["line"]) for t in _iak_mod.targets("all")]
+    _iak_daily_only = all(t["frame"] == "daily" for t in _iak_mod.targets("all"))
+    _v = (_iak_g == _iak_p and len(_iak_g) >= 10 and set(_iak_g) <= set(_iak_a)
+          and len(_iak_a) > len(_iak_g) and _iak_daily_only)
+    _w = f"gov={len(_iak_g)} price={len(_iak_p)} متطابق={_iak_g == _iak_p} all={len(_iak_a)} يوميٌّ فقط={_iak_daily_only}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK0 نطاقُ `gov` ≡ أهدافُ مرساة السعر بت-بت · و`all` يوسّعه · وكلُّه يوميّ", _v, _w)
+
+# ② IAK1 — RSI **ثابتٌ تحت إعادة القياس** ⇒ لا تسويةَ تقسيمٍ له (سلوكيًّا)
+try:
+    _c = _iak_walk()
+    _s1 = _iak_mod.build_series(_iak_df(_c))
+    _s2 = _iak_mod.build_series(_iak_df([v * 7.0 for v in _c]))
+    _same = max(abs(a - b) for a, b in zip(_s1["rsi"][14], _s2["rsi"][14])) < 1e-9
+    _i = 120
+    _fp = {"kind": "rsi", "frame": "daily", "params": (14,),
+           "vals": (round(_s1["rsi"][14][_i], 4),), "tol": (0.0005,), "raw": "RSI"}
+    _sp = [("2030-01-01", 0.2)]                    # عاملٌ 0.2 لكلّ أيّام الفِكستشر
+    _a = {c["date"] for c in _iak_mod.fp_match(_s1, _fp, None, w0="2000-01-01", w1="2099-01-01")}
+    _b = {c["date"] for c in _iak_mod.fp_match(_s1, _fp, _sp, w0="2000-01-01", w1="2099-01-01")}
+    _v = _same and _a == _b and len(_a) >= 1
+    _w = f"ثباتُ القياس={_same} · بلا تقسيم={sorted(_a)[:3]} · بتقسيم={sorted(_b)[:3]}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK1 RSI ثابتٌ تحت إعادة القياس **وسلوكُ المطابقة لا يتأثّر بالتقسيم**", _v, _w)
+
+# ③ IAK2 — MACD **خطّيٌّ فيُسوَّى** بالتقسيم (والعكسُ يُسقط المطابقة)
+try:
+    _s1 = _iak_mod.build_series(_iak_df(_iak_walk()))
+    _i = 120
+    _ln, _sg = _s1["macd"][(12, 26, 9)]
+    _fp = {"kind": "macd", "frame": "daily", "params": (12, 26, 9),
+           "vals": (round(_ln[_i], 4), round(_sg[_i], 4)), "tol": (0.0005, 0.0005), "raw": "MACD"}
+    _sp = [("2030-01-01", 0.2)]
+    _a = {c["date"] for c in _iak_mod.fp_match(_s1, _fp, None, w0="2000-01-01", w1="2099-01-01")}
+    _b = {c["date"] for c in _iak_mod.fp_match(_s1, _fp, _sp, w0="2000-01-01", w1="2099-01-01")}
+    # المسجَّلُ بمقياسِ يومه ⇒ بتقسيمٍ لاحقٍ يُقسَم عليه فلا يطابق السلسلةَ المعدَّلة
+    _v = len(_a) >= 1 and _a != _b
+    _w = f"بلا تقسيم={sorted(_a)[:3]} · بتقسيم={sorted(_b)[:3]} (مختلفان={_a != _b})"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK2 MACD **يُسوَّى** بعامل التقسيم (سلوكيًّا: المطابقةُ تتبدّل)", _v, _w)
+
+# ④ IAK3 — `LVT2`: **لا تأريخَ من رقم الصورة** (بنيويٌّ + شاهدُ ضبط)
+try:
+    _src = _insp0.getsource(_iak_mod)
+    _tree = _ast0.parse(_src)
+
+    def _iak_strings(tree):
+        """نصوصُ الوحدة **بلا docstrings** — الشرحُ يذكر `IMG_` تفسيرًا لا استعمالًا
+        (‏الصنفُ ② المدوَّن: قفلٌ نصّيٌّ يسقط على تعليق)."""
+        doc = set()
+        for n in _ast0.walk(tree):
+            if isinstance(n, (_ast0.Module, _ast0.FunctionDef, _ast0.AsyncFunctionDef,
+                              _ast0.ClassDef)) and n.body:
+                f = n.body[0]
+                if isinstance(f, _ast0.Expr) and isinstance(f.value, _ast0.Constant) \
+                        and isinstance(f.value.value, str):
+                    doc.add(id(f.value))
+        return [n.value for n in _ast0.walk(tree)
+                if isinstance(n, _ast0.Constant) and isinstance(n.value, str)
+                and id(n) not in doc]
+
+    def _iak_img(tree):
+        return any("IMG_" in v or v == "images" for v in _iak_strings(tree))
+    _clean = not _iak_img(_tree)
+    _ctrl = _iak_img(_ast0.parse('x = r["images"]'))
+    _ctrl2 = _iak_img(_ast0.parse('p = re.compile(r"IMG_\\d+")'))
+    _ctrl3 = not _iak_img(_ast0.parse('"""شرحٌ يذكر IMG_6470 و images تفسيرًا."""\nx = 1'))
+    _v = _clean and _ctrl and _ctrl2 and _ctrl3
+    _w = f"خالٍ من رقم الصورة={_clean} · شواهدُ الضبط={_ctrl}{_ctrl2}{_ctrl3}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK3 `LVT2` نافذ: الوحدةُ **لا تقرأ عمودَ الصور ولا رقمَها** (وشاهدُ ضبطٍ يمسكه)", _v, _w)
+
+# ⑤ IAK4 — **قراءةُ شارتٍ** تُفصَل عن **قاعدةٍ منطوقة** (جدولُ حقيقة)
+try:
+    _rows = [
+        ("- يومي: RSI 73.694.", True, 73.694),
+        ("- **RSI(14): 24.832** (تشبع بيعي).", True, 24.832),
+        ("**RSI:78.308**", True, 78.308),
+        ("RSI ‏40.24 · MA5 ‏2.5", True, 40.24),
+        ("«قاعدة: RSI 50 تشبع بيعي»", False, None),
+        ("RSI بين 23‑27 · RSI بمناطق 40.", False, None),
+        ("`RSI_NOW_HARD`=50.0 في الفرز", False, None),
+        ("RSI 49.56/40.44. تعليق", False, None),          # قراءتان ⇒ إسنادٌ مجهول
+        ("RSI(14).", False, None),
+    ]
+    _bad = []
+    for _t, _want, _val in _rows:
+        _got = [f for f in _iak_mod.parse_fingerprints(_t, "daily") if f["kind"] == "rsi"]
+        if bool(_got) != _want or (_want and abs(_got[0]["vals"][0] - _val) > 1e-9):
+            _bad.append(_t[:24])
+    _v = not _bad
+    _w = f"‏{len(_rows)} حالة · المخالف={_bad or 'لا شيء'}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK4 الكسرُ العشريُّ يفصل **قراءةَ الشارت** عن **قاعدةٍ منطوقة** (‏9 حالات)", _v, _w)
+
+# ⑥ IAK5 — **الفريمُ يُحترَم**: بصمةُ ٤س لا تُطابَق بشموعٍ يوميّة
+try:
+    _l = "- 4 ساعات (6483): RSI 39.25؛ MACD(10,20,3):‑0.135 Signal:‑0.142."
+    _f4 = _iak_mod.parse_fingerprints(_l, "daily")
+    _fd = _iak_mod.parse_fingerprints("- يومي (7028): RSI 73.694.", "daily")
+    _tg = _iak_mod.collect("all")          # 🔑 النطاقُ الذي فيه بصمةٌ غيرُ يوميّةٍ فعلًا
+    _sk = sum(sum(t["skipped"].values()) for t in _tg)
+    _all_daily = all(f["frame"] == "daily" for t in _tg for f in t["fps"])
+    _v = (len(_f4) == 2 and all(f["frame"] == "h4" for f in _f4)
+          and len(_fd) == 1 and _fd[0]["frame"] == "daily" and _all_daily and _sk >= 1)
+    _w = f"٤س={[f['frame'] for f in _f4]} · يوميّ={[f['frame'] for f in _fd]} · مُتروكة={_sk} · كلُّ المستعمَلِ يوميّ={_all_daily}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK5 الفريمُ يُحترَم: بصمةُ ٤س/أسبوعيٍّ **تُترَك وتُعَدّ** ولا تُطابَق بشموعٍ يوميّة", _v, _w)
+
+# ⑦ IAK6 — تضاربُ قراءتين في الكتلة **يُسقط نوعَه** ولا يُخمَّن
+try:
+    _mk = lambda k, v: {"kind": k, "frame": "daily", "params": (14,) if k == "rsi" else (12, 26, 9),
+                        "vals": v, "tol": tuple(0.005 for _ in v), "raw": "x"}
+    _f, _bad1 = _iak_mod.resolve_conflicts([_mk("rsi", (77.03,)), _mk("rsi", (31.53,)),
+                                            _mk("macd", (1.0, 2.0))])
+    _f2, _bad2 = _iak_mod.resolve_conflicts([_mk("rsi", (77.03,)), _mk("rsi", (77.03,)),
+                                             _mk("macd", (1.0, 2.0))])
+    _v = ([x["kind"] for x in _f] == ["macd"] and _bad1 == ["rsi"]
+          and sorted(x["kind"] for x in _f2) == ["macd", "rsi"] and _bad2 == [])
+    _w = f"متضارب⟶{[x['kind'] for x in _f]} bad={_bad1} · مكرَّر⟶{sorted(x['kind'] for x in _f2)} bad={_bad2}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK6 تضاربُ قراءتين للنوع نفسِه **يُسقط النوع** · والمكرَّرُ المتطابقُ يُطوى ويبقى", _v, _w)
+
+# ⑧ IAK7 — صيغُ MACD الثلاث لا تبتلع بعضَها (لا قراءةَ مبتورة)
+try:
+    _cases = [("MACD:‑3.68/‑4.33/+0.65.", 1, (-3.68, -4.33, 0.65), None),
+              ("MACD(10,20,3):12.22/6.14.", 1, (12.22, 6.14), (10, 20, 3)),
+              ("MACD(12,26,9):‑0.214 Signal:‑0.277 Hist:0.063", 1, (-0.214, -0.277), (12, 26, 9)),
+              ("MACD(12,26,9):‑1.19/‑1.62/Hist+0.43", 1, (-1.19, -1.62), (12, 26, 9))]
+    _bad = []
+    for _t, _n, _vals, _pr in _cases:
+        _g = [f for f in _iak_mod.parse_fingerprints(_t, "daily") if f["kind"] == "macd"]
+        if len(_g) != _n or _g[0]["vals"] != _vals or _g[0]["params"] != _pr:
+            _bad.append((_t[:26], [(f["params"], f["vals"]) for f in _g]))
+    _v = not _bad
+    _w = f"‏{len(_cases)} صيغة · المخالف={_bad or 'لا شيء'}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK7 الثلاثيّةُ وصيغةُ الشرطة وصيغةُ Signal **متمايزةٌ** ولا تُنتج قراءةً مبتورة", _v, _w)
+
+# ⑨ IAK8 — التسامحُ الحاكم = **نصفُ آخر خانة** (حدٌّ داخلَه وحدٌّ خارجَه)
+try:
+    _hu = [(_iak_mod.half_ulp("73.694"), 0.0005), (_iak_mod.half_ulp("35.30"), 0.005),
+           (_iak_mod.half_ulp("12"), 0.5)]
+    _s1 = _iak_mod.build_series(_iak_df(_iak_walk()))
+    _i, _seq = 120, _iak_mod.build_series(_iak_df(_iak_walk()))["rsi"][14]
+    _base = _seq[_i]
+    _in = {"kind": "rsi", "frame": "daily", "params": (14,), "vals": (_base + 0.0004,),
+           "tol": (0.0005,), "raw": "x"}
+    _out = {"kind": "rsi", "frame": "daily", "params": (14,), "vals": (_base + 0.0009,),
+            "tol": (0.0005,), "raw": "x"}
+    _d = _s1["dates"][_i]
+    _hit = _d in {c["date"] for c in _iak_mod.fp_match(_s1, _in, None, w0="2000-01-01", w1="2099-01-01")}
+    _miss = _d not in {c["date"] for c in _iak_mod.fp_match(_s1, _out, None, w0="2000-01-01", w1="2099-01-01")}
+    _wide = _d in {c["date"] for c in _iak_mod.fp_match(_s1, _out, None, w0="2000-01-01", w1="2099-01-01", mult=4.0)}
+    _v = all(abs(a - b) < 1e-12 for a, b in _hu) and _hit and _miss and _wide and _iak_mod.TOL_MULT == 1.0
+    _w = f"نصفُ الخانة={[a for a, _ in _hu]} · داخل={_hit} خارج={_miss} وبالمضاعف={_wide} · الحاكم×{_iak_mod.TOL_MULT}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK8 الحاكمُ **نصفُ آخر خانةٍ مسجَّلة** (×1) · والمضاعفاتُ وصفيّةٌ تُوسّع ولا تحكم", _v, _w)
+
+# ⑩ IAK9 — **صفرُ نظرٍ مستقبليّ**: المطابَقُ يومُ القيمة نفسِه لا ما بعده
+try:
+    _s1 = _iak_mod.build_series(_iak_df(_iak_walk()))
+    _bad = []
+    for _i in (40, 90, 150):
+        _fp = {"kind": "rsi", "frame": "daily", "params": (14,),
+               "vals": (_s1["rsi"][14][_i],), "tol": (1e-9,), "raw": "x"}
+        _c = _iak_mod.fp_match(_s1, _fp, None, w0="2000-01-01", w1="2099-01-01")
+        if not (_c and any(x["date"] == _s1["dates"][_i] for x in _c)):
+            _bad.append(_i)
+    _v = not _bad
+    _w = f"ثلاثةُ مواضع · المخالف={_bad or 'لا شيء'}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK9 صفرُ نظرٍ مستقبليّ: البصمةُ تُطابَق بقيمة **يومِها** لا بقيمةٍ لاحقة", _v, _w)
+
+# ⑪ IAK10 — قراءةٌ بوجهةٍ واحدة · وشاهدُ الهُويّة **حيٌّ لا من ملفّ** · والـworkflow بلا سرٍّ ولا كرون
+try:
+    _self = _iak_mod.selfcheck_scope()
+    _c1 = not _iak_mod.selfcheck_scope("send_telegram('x')")
+    _c2 = not _iak_mod.selfcheck_scope("open('state.json','w')")
+    _c3 = not _iak_mod.selfcheck_scope("M='w'\nopen(OUT, M)")
+    _c4 = _iak_mod.selfcheck_scope("open(OUT,'w',encoding='utf-8')")
+    _hits = {"n": 0}
+    _orig_md = _iak_mod.pa.match_days
+    try:
+        _iak_mod.pa.match_days = lambda *a, **k: _hits.__setitem__("n", _hits["n"] + 1) or []
+        _empty = _iak_mod.price_witness({})
+        _nocall = _hits["n"] == 0
+    finally:
+        _iak_mod.pa.match_days = _orig_md
+    _t10 = _ast0.parse(_insp0.getsource(_iak_mod))
+    _fn = {n.name: n for n in _t10.body if isinstance(n, _ast0.FunctionDef)}
+    _in_pw = any(getattr(c.func, "attr", None) == "match_days"
+                 for c in _ast0.walk(_fn["price_witness"]) if isinstance(c, _ast0.Call))
+    _called = any(getattr(c.func, "id", None) == "price_witness"
+                  for c in _ast0.walk(_fn["main"]) if isinstance(c, _ast0.Call))
+    _no_file = not any("price_anchor_dates" in v for v in _iak_strings(_t10))
+    _live = _in_pw and _called and _no_file
+    _yml = open(".github/workflows/indicator_anchor.yml", encoding="utf-8").read()
+    _y = ("secrets." not in _yml and "schedule:" not in _yml and "cron" not in _yml
+          and "contents: read" in _yml and "faisal_indicator_anchor.py" in _yml)
+    _v = _self and _c1 and _c2 and _c3 and _c4 and _empty == {} and _nocall and _live and _y
+    _w = (f"حارس={_self} شواهد={_c1}{_c2}{_c3}{_c4} · شاهدٌ حيٌّ={_live} "
+          f"بلا جلبٍ فارغ={_nocall} · workflow={_y}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+# ⑫ IAK11 — **تسخينٌ قبل النافذة**: التحميلُ من `WARMUP` والمطابقةُ داخلَ `[W0,W1]`
+try:
+    _t11 = _ast0.parse(_insp0.getsource(_iak_mod))
+    _mn = {n.name: n for n in _t11.body if isinstance(n, _ast0.FunctionDef)}["main"]
+    _dl = [c for c in _ast0.walk(_mn) if isinstance(c, _ast0.Call)
+           and getattr(c.func, "attr", None) == "download_history"]
+    _uses_warm = bool(_dl) and any(
+        kw.arg == "start_override" and getattr(kw.value, "id", None) == "WARMUP"
+        for c in _dl for kw in (c.keywords or []))
+    _earlier = _iak_mod.WARMUP < _iak_mod.W0
+    # النافذةُ الحاكمةُ لم تتّسع: المطابقةُ ترفض يومًا قبل `W0` ولو تُوفّر
+    _c = _iak_walk(420)
+    _ser = _iak_mod.build_series(_iak_df(_c, start="2024-06-01"))
+    _i = 120
+    _fp = {"kind": "rsi", "frame": "daily", "params": (14,),
+           "vals": (_ser["rsi"][14][_i],), "tol": (1e-9,), "raw": "x"}
+    _pre = _ser["dates"][_i] < _iak_mod.W0
+    _got = {x["date"] for x in _iak_mod.fp_match(_ser, _fp, None)}
+    _wide = {x["date"] for x in _iak_mod.fp_match(_ser, _fp, None, w0="2000-01-01")}
+    _v = _uses_warm and _earlier and _pre and (_ser["dates"][_i] not in _got) \
+        and (_ser["dates"][_i] in _wide)
+    _w = (f"WARMUP={_iak_mod.WARMUP} < W0={_iak_mod.W0} · يُستعمَل={_uses_warm} · "
+          f"يومٌ قبل النافذة مرفوضٌ={_ser['dates'][_i] not in _got} ومقبولٌ بتوسيعها={_ser['dates'][_i] in _wide}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK11 تسخينٌ قبل النافذة (المؤشّرُ الأُسّيُّ يحتاج بذرة) · "
+      "**والنافذةُ الحاكمة لم تتّسع** (يومٌ قبل `W0` يُرفض)", _v, _w)
+
+check("📅📉 IAK10 الكتابةُ في `OUT` وحدَه (بأربعة شواهد) · شاهدُ الهُويّة **يُعاد حيًّا** "
+      "لا يُقرأ من ملفّ · والـworkflow بلا سرٍّ ولا كرون", _v, _w)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))

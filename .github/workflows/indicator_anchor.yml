@@ -1,0 +1,39 @@
+name: IND-ANCHOR (📅📉 تأريخُ شارتات فيصل ببصمة المؤشّر)
+
+# 🔒 قراءةٌ فقط: لا كرون · لا حالة · لا سرّ. يكتب TSV منفصلًا لا يمسّ الفرز.
+# 📅📉 مصدرُ تأريخٍ **ثانٍ** مستقلٌّ عن مرساة السعر — ويُعيد مرساةَ السعر في
+#      التشغيلة نفسِها شاهدَ هُويّة (AGREE/DISAGREE).
+permissions:
+  contents: read
+on:
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "نطاقُ الأهداف: all (كلُّ صفٍّ يوميٍّ غيرِ مؤرَّخ) · gov (نطاقُ مرساة السعر نفسُه)"
+        required: false
+        default: "all"
+        type: choice
+        options: ["all", "gov"]
+jobs:
+  anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 📅📉 أرّخ ببصمة المؤشّر (قراءةٌ فقط)
+        env:
+          IND_SCOPE: ${{ inputs.scope }}
+        run: python faisal_indicator_anchor.py
+      - name: 📎 ارفع الجدولَ artifact (لا يُدفَع إلى المستودع)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ind-anchor-${{ github.run_id }}
+          path: faisal_indicator_anchor_dates.tsv
+          if-no-files-found: warn
+          retention-days: 90
