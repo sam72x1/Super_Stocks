@@ -25,13 +25,13 @@ line	images	symbol	date	date_source	frame	colour	role	level	auto_chart	raw
 45	IMG_6215	TURB			daily	blue	target_clean	4.735	0	4.735(أزرق)
 45	IMG_6215	TURB			daily	purple	bid_entry	3.79	0	3.790(بنفسجي)
 45	IMG_6215	TURB			daily	red	support	2.819	0	2.819(أحمر)
-49	IMG_6206	NEXR			daily	purple	bid_entry	3.258	0	3.258(بنفسجي)
-49	IMG_6206	NEXR			daily	blue	target_clean	2.849	0	2.849(أزرق)
-49	IMG_6206	NEXR			daily	black	resistance	2.497	0	2.497/2.312(أسود)
-49	IMG_6206	NEXR			daily	black	resistance	2.312	0	2.497/2.312(أسود)
-49	IMG_6206	NEXR			daily	purple	bid_entry	2.021	0	2.021(بنفسجي)
-50	IMG_6206	NEXR			daily	green	unmapped	1.91	0	1.910(أخضر)
-50	IMG_6206	NEXR			daily	red	support	1.712	0	1.712(أحمر دعم)
+49	IMG_6206	NEXR	2026-04-01	indicator	daily	purple	bid_entry	3.258	0	3.258(بنفسجي)
+49	IMG_6206	NEXR	2026-04-01	indicator	daily	blue	target_clean	2.849	0	2.849(أزرق)
+49	IMG_6206	NEXR	2026-04-01	indicator	daily	black	resistance	2.497	0	2.497/2.312(أسود)
+49	IMG_6206	NEXR	2026-04-01	indicator	daily	black	resistance	2.312	0	2.497/2.312(أسود)
+49	IMG_6206	NEXR	2026-04-01	indicator	daily	purple	bid_entry	2.021	0	2.021(بنفسجي)
+50	IMG_6206	NEXR	2026-04-01	indicator	daily	green	unmapped	1.91	0	1.910(أخضر)
+50	IMG_6206	NEXR	2026-04-01	indicator	daily	red	support	1.712	0	1.712(أحمر دعم)
 57	IMG_6216	SVRE			daily	blue	target_clean	5.342	0	5.342/5.006/4.572/4.240(أزرق)
 57	IMG_6216	SVRE			daily	blue	target_clean	5.006	0	5.342/5.006/4.572/4.240(أزرق)
 57	IMG_6216	SVRE			daily	blue	target_clean	4.572	0	5.342/5.006/4.572/4.240(أزرق)
@@ -94,12 +94,12 @@ line	images	symbol	date	date_source	frame	colour	role	level	auto_chart	raw
 100	IMG_6462	JDZG			intraday	green	unmapped	2.07	0	2.070(أخضر)
 100	IMG_6462	JDZG			intraday	purple	bid_entry	2.05	0	2.050(بنفسجي)
 100	IMG_6462	JDZG			intraday	red	support	2.03	0	2.030(أحمر)
-105	IMG_6461	ALMU			daily	blue	target_clean	17.65	0	17.65/16.81/16.20(أزرق)
-105	IMG_6461	ALMU			daily	blue	target_clean	16.81	0	17.65/16.81/16.20(أزرق)
-105	IMG_6461	ALMU			daily	blue	target_clean	16.2	0	17.65/16.81/16.20(أزرق)
-105	IMG_6461	ALMU			daily	black	resistance	15.27	0	15.27/13.81(أسود)
-105	IMG_6461	ALMU			daily	black	resistance	13.81	0	15.27/13.81(أسود)
-105	IMG_6461	ALMU			daily	red	support	12.5	0	12.50(أحمر)
+105	IMG_6461	ALMU	2026-04-10	indicator	daily	blue	target_clean	17.65	0	17.65/16.81/16.20(أزرق)
+105	IMG_6461	ALMU	2026-04-10	indicator	daily	blue	target_clean	16.81	0	17.65/16.81/16.20(أزرق)
+105	IMG_6461	ALMU	2026-04-10	indicator	daily	blue	target_clean	16.2	0	17.65/16.81/16.20(أزرق)
+105	IMG_6461	ALMU	2026-04-10	indicator	daily	black	resistance	15.27	0	15.27/13.81(أسود)
+105	IMG_6461	ALMU	2026-04-10	indicator	daily	black	resistance	13.81	0	15.27/13.81(أسود)
+105	IMG_6461	ALMU	2026-04-10	indicator	daily	red	support	12.5	0	12.50(أحمر)
 112	IMG_6466	FUSE			intraday	black	resistance	2.114	0	2.114(أسود)
 112	IMG_6466	FUSE			intraday	blue	target_clean	1.758	0	1.758/1.661(أزرق)
 112	IMG_6466	FUSE			intraday	blue	target_clean	1.661	0	1.758/1.661(أزرق)
@@ -115,11 +115,11 @@ line	images	symbol	date	date_source	frame	colour	role	level	auto_chart	raw
 119	IMG_6465/6776	ADIL			daily	blue	target_clean	2.1	0	2.655/2.100(أزرق)
 119	IMG_6465/6776	ADIL			daily	red	support	1.69	0	1.690(أحمر)
 119	IMG_6465/6776	ADIL			daily	red	support	1.379	0	1.379(أحمر)
-124	IMG_6470	NXTT			daily	black	resistance	18.65	0	18.65(أسود)
-124	IMG_6470	NXTT			daily	blue	target_clean	14.63	0	14.63/12.16(أزرق)
-124	IMG_6470	NXTT			daily	blue	target_clean	12.16	0	14.63/12.16(أزرق)
-124	IMG_6470	NXTT			daily	black	resistance	9.33	0	9.33(أسود)
-125	IMG_6470	NXTT			daily	red	support	5.83	0	5.83(أحمر)
+124	IMG_6470	NXTT	2026-01-22	indicator	daily	black	resistance	18.65	0	18.65(أسود)
+124	IMG_6470	NXTT	2026-01-22	indicator	daily	blue	target_clean	14.63	0	14.63/12.16(أزرق)
+124	IMG_6470	NXTT	2026-01-22	indicator	daily	blue	target_clean	12.16	0	14.63/12.16(أزرق)
+124	IMG_6470	NXTT	2026-01-22	indicator	daily	black	resistance	9.33	0	9.33(أسود)
+125	IMG_6470	NXTT	2026-01-22	indicator	daily	red	support	5.83	0	5.83(أحمر)
 129	IMG_6701/6705/6702	TLIH			weekly	red	support	3.795	0	3.795/3.150(أحمر)
 129	IMG_6701/6705/6702	TLIH			weekly	red	support	3.15	0	3.795/3.150(أحمر)
 131	IMG_6701/6705/6702	TLIH			weekly	red	support	3.905	0	3.905(أحمر)
@@ -174,8 +174,8 @@ line	images	symbol	date	date_source	frame	colour	role	level	auto_chart	raw
 260	IMG_7014/7028/7027/7029	PRFX			h4	black	resistance	2.279	0	⚫2.279
 260	IMG_7014/7028/7027/7029	PRFX			h4	purple	bid_entry	1.979	0	🟣1.979
 260	IMG_7014/7028/7027/7029	PRFX			h4	red	support	1.437	0	🔴1.437
-261	IMG_7014/7028/7027/7029	PRFX			daily	red	support	2.157	0	🔴2.157/1.811
-261	IMG_7014/7028/7027/7029	PRFX			daily	red	support	1.811	0	🔴2.157/1.811
+261	IMG_7014/7028/7027/7029	PRFX	2026-05-29	indicator	daily	red	support	2.157	0	🔴2.157/1.811
+261	IMG_7014/7028/7027/7029	PRFX	2026-05-29	indicator	daily	red	support	1.811	0	🔴2.157/1.811
 305	IMG_8107 IMG_8108	ACCL			h4	purple	bid_entry	4.952	0	🟣4.952
 305	IMG_8107 IMG_8108	ACCL			h4	red	support	2.091	0	🔴2.091/1.381/1.296
 305	IMG_8107 IMG_8108	ACCL			h4	red	support	1.381	0	🔴2.091/1.381/1.296
