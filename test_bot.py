@@ -54761,6 +54761,9 @@ try:
           f"بلا جلبٍ فارغ={_nocall} · workflow={_y}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK10 الكتابةُ في `OUT` وحدَه (بأربعة شواهد) · شاهدُ الهُويّة **يُعاد حيًّا** "
+      "لا يُقرأ من ملفّ · والـworkflow بلا سرٍّ ولا كرون", _v, _w)
+
 # ⑫ IAK11 — **تسخينٌ قبل النافذة**: التحميلُ من `WARMUP` والمطابقةُ داخلَ `[W0,W1]`
 try:
     _t11 = _ast0.parse(_insp0.getsource(_iak_mod))
@@ -54789,8 +54792,70 @@ except Exception as _e:                                          # noqa: BLE001
 check("📅📉 IAK11 تسخينٌ قبل النافذة (المؤشّرُ الأُسّيُّ يحتاج بذرة) · "
       "**والنافذةُ الحاكمة لم تتّسع** (يومٌ قبل `W0` يُرفض)", _v, _w)
 
-check("📅📉 IAK10 الكتابةُ في `OUT` وحدَه (بأربعة شواهد) · شاهدُ الهُويّة **يُعاد حيًّا** "
-      "لا يُقرأ من ملفّ · والـworkflow بلا سرٍّ ولا كرون", _v, _w)
+
+# ⑬ IAK12 — الشاهدُ يقارن **يومَ الشمعة المكتملة** (`match_date`) لا يومَ الشارت
+try:
+    _rp = {"verdict": "unique", "date": "2026-04-02", "match_date": "2026-04-01"}
+    _rt = {"verdict": "ambiguous", "tight_verdict": "unique",
+           "tight_date": "2026-01-23", "tight_match_date": "2026-01-22"}
+    _rn = {"verdict": "none"}
+    _cases = [
+        (_iak_mod.witness_of("2026-04-01", _rp).startswith("AGREE"), "شمعةٌ مكتملة⟶AGREE"),
+        (_iak_mod.witness_of("2026-04-02", _rp).startswith("DISAGREE"), "يومُ الشارت⟶DISAGREE"),
+        (_iak_mod.witness_of("2026-01-22", _rt) == "AGREE(tight)", "الضيّقُ احتياطٌ موسوم"),
+        (_iak_mod.witness_of("", _rp) == "no_ind", "بلا تاريخِ مؤشّر"),
+        (_iak_mod.witness_of("x", _rn) == "no_unique", "الشاهدُ غيرُ وحيد"),
+        (_iak_mod.witness_of("x", {}) == "", "بلا شاهدٍ أصلًا"),
+        (_iak_mod.witness_of("2026-04-01", _rp).endswith("(tol)"), "المصدرُ موسوم"),
+    ]
+    _bad = [m for ok, m in _cases if not ok]
+    # والقاعدةُ مصدرُها الوثيقةُ المدموجة لا اجتهادُ الأداة
+    _doc = "آخرُ جلسةٍ مكتملة" in open("support_def_prereg.md", encoding="utf-8").read()
+    _v = (not _bad) and _doc
+    _w = f"‏{len(_cases)} حالة · المخالف={_bad or 'لا شيء'} · سندُ الوثيقة={_doc}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK12 الشاهدُ على **`match_date`** لا `date` (وإلّا `DISAGREE` كاذبٌ على كلّ "
+      "مرساةِ بريماركت) · والضيّقُ احتياطٌ **موسومٌ** · والسندُ وثيقةٌ مدموجة", _v, _w)
+
+# ⑭ IAK13 — **لا قفلَ يقرأ دليلَ غيره**: كلُّ `check` يلي كتلتَه بلا تخلّل
+# 🔴 عيبٌ حقيقيٌّ وقع مرّتين في هذي الجولة: أُدرجت كتلةُ قفلٍ **بين** حساب قفلٍ
+# ونداءِ `check` خاصّته ⇒ `_v`/`_w` دُهسا فصار القفلُ السابق **يؤكّد شرطَ اللاحق**
+# وهو أخضرُ خاوٍ (الصنفُ ③). كشفه تطابقُ سلسلةِ الدليل في ثلاثة أسطر.
+try:
+    import re as _iak_re
+    _seg_all = open("test_bot.py", encoding="utf-8").read()
+    _seg = _seg_all[_seg_all.index("# ── 📅📉 مرساةُ المؤشّر"):]
+    # ⚠️ **يُقصي كتلتَه هو**: نصُّ شاهد الضبط بداخلها يحمل عناوينَ `IAK` صوريّةً
+    #    فتُحسَب أقفالًا. والقفلُ لا يفحص نفسَه — يُقال ولا يُطوى.
+    _seg = _seg[:_seg.index("# ⑭ IAK13")]
+    _H = r'# [①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭]+ (IAK\d+)'
+
+    def _iak_interleaved(seg):
+        names = [m.group(1) for m in _iak_re.finditer(_H, seg)]
+        checks = [m.group(1) for m in _iak_re.finditer(r'check\("📅📉 (IAK\d+)', seg)]
+        if names != checks:
+            return True
+        for n in names:
+            h = seg.index(f" {n} —")
+            c = seg.index(f'check("📅📉 {n}')
+            if h > c:
+                return True
+            if any(m.group(1) != n for m in _iak_re.finditer(_H, seg[h:c])):
+                return True
+        return False
+    _clean = not _iak_interleaved(_seg)
+    _ctrl = _iak_interleaved('# ① IAK0 — x\n_v = 1\n# ② IAK1 — y\n_v = 2\n'
+                             'check("📅📉 IAK1", _v)\ncheck("📅📉 IAK0", _v)\n')
+    _names = [m.group(1) for m in _iak_re.finditer(_H, _seg)]
+    _v = _clean and _ctrl and len(_names) >= 13 and len(set(_names)) == len(_names)
+    _w0 = f"(يُقصي IAK13 نفسَه) "
+    _w = (f"{_w0}أقفال={len(_names)} فريدة={len(set(_names)) == len(_names)} "
+          f"نظيف={_clean} شاهدُ الضبط يمسك={_ctrl}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📅📉 IAK13 كلُّ `check` يلي **كتلتَه** بلا تخلّل · والأسماءُ فريدة "
+      "(وإلّا قفلٌ أخضرُ يؤكّد شرطَ غيره — عيبٌ وقع مرّتين وأُصلح)", _v, _w)
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
