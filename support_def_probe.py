@@ -683,8 +683,12 @@ def main() -> int:
     log(f"   ✅ الأربعةُ أُعيد اشتقاقُها بتواريخها بالضبط: {IND_EXPECT}")
     log("   (والصفُّ بلا مستوًى حاكمٍ يسقط في التغطية `V-S5` — لا يُطوى بصمت)")
 
+    # 🔴 **`norm=False` صراحةً — لا بقراءةِ العلم:** المسارُ المنشورُ خامٌّ
+    #   **بالتعريف**، وقراءةُ العلم هنا كانت تُسوّيه فتمحو مرجعَ `V-N1`.
+    #   (‏أمسكه `V-N1` في أوّل تشغيلةٍ حيّة قبل أيّ حكم — والعيبُ عيبي.)
     rows, skipped, n_drop = build_rows(hist_old, hist_new, acases,
-                                       icases=icases, hist_ind=hist_ind)
+                                       icases=icases, hist_ind=hist_ind,
+                                       norm=False)
 
     log("")
     log("═══ V-S3 الجدول (‏صفًّا صفًّا) ═══")
@@ -746,7 +750,8 @@ def main() -> int:
                    ("ⓔ بلا قاعدةِ وسمِ مؤشّر السعر", {"marker": False})):
         try:
             r2, _s2, _d2 = build_rows(hist_old, hist_new, acases,
-                                      icases=icases, hist_ind=hist_ind, **kw)
+                                      icases=icases, hist_ind=hist_ind,
+                                      norm=False, **kw)
             g2, n2, ns2, sh2, p2, md2, mr2, ok2 = stats_of(r2)
             _nb2, _nn2, nsh2, np2, nok2, _pb2 = sd1_new_of(g2)
             log(f"   {nm}: حاكمة {n2}/{ns2} · SD1 {sh2:.1f}% p={p2} · "
@@ -814,19 +819,28 @@ def main() -> int:
                                            norm=True)
         ngov, nn2, nsym2, nshare2, np2, nmed2, nmedr2, nok2 = stats_of(nrows)
 
-        # `V-N4` — اشتقاقُ `§③` بيدي يُقارَن بالمحسوب · التعارضُ يوقف
+        # `V-N4` — اشتقاقُ `§③` بيدي يُقارَن بالمحسوب · التعارضُ يوقف.
+        # 🔑 **المقارنةُ على المستوى الخامِّ مُسوًّى** (`norm_level(ref_خام, sf)`)
+        #   لا على الصفّ الناجي: نصُّ `§③` اشتقاقٌ للمستوى نفسِه، **وبقاءُ الصفّ
+        #   بعد `drop_marker` مسألةٌ أخرى يرصدها `SN2`** — فلا يُخلَط الأمران.
         _by = {r["sym"]: r for r in ngov}
-        log("   `V-N4` اشتقاقُ `§③` مقابل المحسوب:")
+        _raw_by = {r["sym"]: r for r in gov}
+        log("   `V-N4` اشتقاقُ `§③` مقابل المحسوب (على المستوى الخامِّ مُسوًّى):")
         for sym, want in sorted(DERIV_EXPECT.items()):
-            r = _by.get(sym)
-            if r is None:
-                log(f"        {sym:6s} 🔴 غائبٌ عن الحاكم ⇒ لا يُقارَن")
+            r0 = _raw_by.get(sym)
+            if r0 is None:
+                log(f"        {sym:6s} 🔴 غائبٌ عن **الخام** ⇒ تعارضٌ حقيقيّ")
                 guards, _ = False, bad_g.append(f"V-N4:{sym}")
                 continue
+            _sfx = split_factor_of(sym, r0["asof"])
+            _calc = norm_level(r0["ref"], _sfx)
+            _alive = "✅ باقٍ" if sym in _by else "⚠️ خرج بعد `drop_marker` (يرصده `SN2`)"
+            r = {"ref": _calc}
             d = abs(r["ref"] - want) / want * 100.0
             _o = d <= DERIV_TOL_PCT
-            log(f"        {sym:6s} المحسوب={r['ref']:.4f} · اشتقاقي={want} · "
-                f"فرق={d:.3f}% ⇒ {'✅' if _o else '🔴 تعارضٌ — الخطأُ خطئي ويُنشَر'}")
+            log(f"        {sym:6s} خامٌّ={r0['ref']:.4f} ÷ {_sfx:.6g} = "
+                f"{r['ref']:.4f} · اشتقاقي={want} · فرق={d:.3f}% ⇒ "
+                f"{'✅' if _o else '🔴 تعارضٌ — الخطأُ خطئي ويُنشَر'} · {_alive}")
             if not _o:
                 guards, _ = False, bad_g.append(f"V-N4:{sym}")
 
