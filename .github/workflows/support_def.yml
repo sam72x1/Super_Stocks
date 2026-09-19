@@ -16,6 +16,10 @@ on:
         description: "إقرارٌ بشروط الفتح الثلاثة (§⑪-ⓐ) — اكتب 1 لرفع الإغلاق"
         required: false
         default: "0"
+      norm:
+        description: "⚖️ T-SPLITNORM — تسويةُ التقسيم على مستويات فيصل (اكتب 1)"
+        required: false
+        default: "0"
 
 jobs:
   supdef:
@@ -34,4 +38,5 @@ jobs:
       - name: 🧱🔬 قِس تعريفَ الدعم (قراءةٌ فقط)
         env:
           SUPDEF_REOPEN: ${{ inputs.reopen }}
+          SUPDEF_NORM: ${{ inputs.norm }}
         run: python support_def_probe.py

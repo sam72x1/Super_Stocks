@@ -408,9 +408,57 @@ def indicator_scan(hist):
     return cases, diag
 
 
+# ═══════════ ⚖️ `T-SPLITNORM` — تسويةُ التقسيم (العقد `splitnorm_prereg.md`) ══
+# 🔒 **خلف علمٍ مطفأٍ افتراضًا** ⇒ المسارُ المنشورُ بت-بت (`V-N7`)، والحارسُ
+#    `SUPDEF_REOPEN` يبقى فوقه — التسويةُ **لا ترفعه**.
+NORM_ENV = "SUPDEF_NORM"
+NORM_RC = {1: 10, 2: 11, 3: 12}   # مميَّزةٌ عن 0/2/3 حكمًا و5/6/7 حرّاسًا و8 إغلاقًا
+NORM_GUARD_RC = 13                # `V-N1`/`V-N4` سقط ⇒ يُوقَف قبل أيّ حكم
+
+# ‏`V-N1` — المنشورُ في `support_def_result.md` للتشغيلة `35455722208`
+RAW_PUBLISHED = {"below": 6, "n": 9, "p": 0.5078, "med": 31.03, "rand": 50.83}
+# ‏`V-N4` — اشتقاقُ `§③` بيدي: مستوى فيصل ÷ العامل (يُقارَن بالمحسوب)
+DERIV_EXPECT = {"NEXR": 18.832, "NXTT": 583.0}
+DERIV_TOL_PCT = 1.0
+
+_SF_CACHE = {}
+
+
+def norm_on() -> bool:
+    """هل التسويةُ مُشعَلة؟ **مطفأةٌ افتراضًا** (`§⑧`-`V-N7`)."""
+    return str(os.environ.get(NORM_ENV, "")).strip() == "1"
+
+
+def norm_level(level, sf):
+    """⚖️ `§②` — تسويةُ مستوى فيصل إلى مقياس بيانات المزوّد: **قسمةٌ لا ضرب**.
+
+    الاتّجاهُ ليس اختياري: دوكسترنغُ `_split_scale_factor` ينصّ أن **القسمةَ عليه
+    تحوّل المستوى المخزّن لمقياس البيانات الحالية**. و`sf = 1` هُويّةٌ بالبناء.
+    فاشلةٌ-آمنة ⟶ المستوى كما هو (أسوأُ حالةٍ = سلوكُ اليوم)."""
+    try:
+        v, f = float(level), float(sf)
+        return v if f <= 0 else v / f
+    except (TypeError, ValueError, ZeroDivisionError):
+        return level
+
+
+def split_factor_of(sym, asof):
+    """عاملُ التقسيم عند `asof` الصفِّ نفسِه — بدالّتَي الإنتاج **بالاسم**
+    (`_fetch_splits` ‏+ `_split_scale_factor`) · مكاشٌ فلا يتكرّر النداء."""
+    key = (str(sym), str(asof))
+    if key in _SF_CACHE:
+        return _SF_CACHE[key]
+    try:
+        sf = float(bot._split_scale_factor(bot._fetch_splits(sym), asof))
+    except Exception:                                          # noqa: BLE001
+        sf = 1.0
+    _SF_CACHE[key] = sf
+    return sf
+
+
 # ═══════════ بناءُ الصفوف — والحساسيّاتُ الثلاثُ تُعيد استعمالَه ═══════════════
 def build_rows(hist_old, hist_new, acases, asof_mode="match", ref_mode="chart",
-               marker=True, icases=(), hist_ind=None):
+               marker=True, icases=(), hist_ind=None, norm=None):
     """`asof_mode` ∈ {match, date} (`ⓒ`) · `ref_mode` ∈ {chart, close} (`ⓓ`) ·
     `marker` (`ⓔ`). الافتراضاتُ **هي القاعدةُ المسجَّلة** والباقي حساسيّاتٌ وصفيّة.
 
@@ -447,6 +495,11 @@ def build_rows(hist_old, hist_new, acases, asof_mode="match", ref_mode="chart",
         refpx = q["px"] if (ref_mode == "chart" and q["kind"] == "spot"
                             and q["px"]) else close
         lv = list(q["levels"])
+        # ⚖️ `T-SPLITNORM §②`-3: التسويةُ **قبل** `drop_marker`/`pick_level`
+        sf_row = 1.0
+        if (norm_on() if norm is None else bool(norm)):
+            sf_row = split_factor_of(q["sym"], q["asof"])
+            lv = [norm_level(x, sf_row) for x in lv]
         if marker:
             lv, dropped = drop_marker(lv, refpx)
             n_drop += len(dropped)
@@ -459,7 +512,7 @@ def build_rows(hist_old, hist_new, acases, asof_mode="match", ref_mode="chart",
              "close": close, "refpx": refpx, "kind": q["kind"],
              "a0": a0(df), "a1": a1(df), "a2": a2(df), "far": a_far(df),
              "mid": a_mid(df), "hl": a_highlow(df), "src": q["src"], "bars": len(df),
-             "origin": q["origin"]}
+             "origin": q["origin"], "sf": sf_row}
         r["e0"] = err_pct(r["a0"], ref)
         r["e1"] = err_pct(r["a1"], ref)
         r["e2"] = err_pct(r["a2"], ref)
@@ -549,6 +602,26 @@ def closed_guard():
         return None
     log(CLOSED_TXT)
     return CLOSED_RC
+
+
+def norm_verdict(guards_ok, neutral_ok, outliers_ok, n_rows, n_syms):
+    """فروعُ `splitnorm_prereg.md §⑤` بحرفها — **ولا فرعَ رابع**.
+
+    🔴 **وثغرةٌ في عقدي تُعلَن ولا تُسَدّ بفرعٍ مخترَع:** الحالةُ «`SN1` ✅
+    والشواذُّ باقية» لا يصفها `§⑤` بنصّه (الفرعُ 2 عنوانُه «ليست حياديّة»)
+    ⇒ تُحمَل على **الفرعِ 2 محافظةً** (لا اعتماد) **ويُطبَع سببُها الحقيقيّ**
+    لأن البديلَ اختراعُ فرعٍ رابعٍ بعد رؤية الحالة."""
+    if not guards_ok or n_rows < SD0_MIN_ROWS or n_syms < SD0_MIN_SYMS:
+        return NORM_RC[3], ("الفرعُ 3 — **لا قياس** (حارسٌ سقط أو الأرضيّةُ لم "
+                            "تُبلَغ) · يُعلَن بعدَده ولا يُفسَّر")
+    if not neutral_ok:
+        return NORM_RC[2], ("الفرعُ 2 — **التسويةُ ليست حياديّة** (`SN1` 🔴) ⇒ "
+                            "تُرفَض ولا يُعتمَد شيء")
+    if not outliers_ok:
+        return NORM_RC[2], ("الفرعُ 2 — **لا تُعتمَد**: `SN1` ✅ لكنّ شاذًّا بقي "
+                            "خارجَ مدى صفوف العامل 1 ⇒ ثغرةُ `§⑤` تُحمَل محافظةً")
+    return NORM_RC[1], ("الفرعُ 1 — **التسويةُ تُعتمَد مقياسًا لهذا المحور وحدَه** "
+                        "· **ولا يُشحَن في الإنتاج شيء**")
 
 
 def main() -> int:
@@ -711,6 +784,122 @@ def main() -> int:
     log(f"   P⑪-4 مخالفٌ واحدٌ على الأقلّ بين الأربعة الجديدة ⟶ "
         f"{'✅ مؤكَّد' if nn and nb < nn else '🔴 مكذَّب' if nn else '—'} "
         f"({nn - nb if nn else 0} مخالفًا)")
+
+    # ══════════ ⚖️ `T-SPLITNORM` — يعمل فقط بالعلم (`V-N7`) ══════════════════
+    if norm_on():
+        log("")
+        log("═════════ ⚖️ `T-SPLITNORM` — تسويةُ التقسيم (العقد `splitnorm_prereg.md`) ═════════")
+        guards, bad_g = True, []
+
+        # `V-N1` — الخامُّ يُعيد المنشورَ بت-بت قبل أيّ تسوية
+        _got = {"below": below if gov else 0, "n": n, "p": p,
+                "med": round(med, 2), "rand": round(med_r, 2) if med_r else None}
+        _ok1 = all(_got[k] == RAW_PUBLISHED[k] for k in RAW_PUBLISHED)
+        log(f"   `V-N1` الخامُّ ≡ المنشور (`35455722208`): "
+            f"{'✅' if _ok1 else '🔴'} — المُشتقّ {_got} · المنشور {RAW_PUBLISHED}")
+        if not _ok1:
+            guards, _ = False, bad_g.append("V-N1")
+
+        # `V-N3` — الدالّةُ قسمةٌ لا ضرب (هُويّةٌ عند 1 · وقسمةٌ عند غيره)
+        _id = norm_level(12.345, 1.0) == 12.345
+        _dv = abs(norm_level(1.712, 0.0909091) - 18.832) < 0.01
+        _nm = abs(norm_level(1.712, 0.0909091) - 1.712 * 0.0909091) > 1.0
+        log(f"   `V-N3` قسمةٌ لا ضرب: هُويّةٌ عند 1={_id} · القسمةُ صحيحة={_dv} · "
+            f"ليست ضربًا={_nm} ⇒ {'✅' if (_id and _dv and _nm) else '🔴'}")
+        if not (_id and _dv and _nm):
+            guards, _ = False, bad_g.append("V-N3")
+
+        nrows, nskip, nn_drop = build_rows(hist_old, hist_new, acases,
+                                           icases=icases, hist_ind=hist_ind,
+                                           norm=True)
+        ngov, nn2, nsym2, nshare2, np2, nmed2, nmedr2, nok2 = stats_of(nrows)
+
+        # `V-N4` — اشتقاقُ `§③` بيدي يُقارَن بالمحسوب · التعارضُ يوقف
+        _by = {r["sym"]: r for r in ngov}
+        log("   `V-N4` اشتقاقُ `§③` مقابل المحسوب:")
+        for sym, want in sorted(DERIV_EXPECT.items()):
+            r = _by.get(sym)
+            if r is None:
+                log(f"        {sym:6s} 🔴 غائبٌ عن الحاكم ⇒ لا يُقارَن")
+                guards, _ = False, bad_g.append(f"V-N4:{sym}")
+                continue
+            d = abs(r["ref"] - want) / want * 100.0
+            _o = d <= DERIV_TOL_PCT
+            log(f"        {sym:6s} المحسوب={r['ref']:.4f} · اشتقاقي={want} · "
+                f"فرق={d:.3f}% ⇒ {'✅' if _o else '🔴 تعارضٌ — الخطأُ خطئي ويُنشَر'}")
+            if not _o:
+                guards, _ = False, bad_g.append(f"V-N4:{sym}")
+
+        # `SN1` الحياد — كلُّ صفٍّ عاملُه 1 يطابق نظيرَه الخام بت-بت
+        _raw = {(r["sym"], r["asof"]): r for r in gov}
+        neutral, diffs = True, []
+        for r in ngov:
+            if abs(r["sf"] - 1.0) > 1e-9:
+                continue
+            o = _raw.get((r["sym"], r["asof"]))
+            if o is None or o["ref"] != r["ref"] or o["a0"] != r["a0"] \
+                    or o["e0"] != r["e0"]:
+                neutral = False
+                diffs.append(f"{r['sym']} {r['asof']}")
+        log("")
+        log(f"   `SN1` الحياد (صفوفُ العامل 1 ≡ الخام): "
+            f"{'✅ تعبر' if neutral else '🔴 تسقط'} — "
+            f"المختلف: {diffs or 'لا شيء'}")
+
+        # `SN2` توسُّعُ المجتمع — **أعمى**: صفوفٌ استُبعدت خامًا ودخلت مُسوّاةً
+        _rk = {(x[0], x[1]) for x in skipped}
+        _nk = {(x[0], x[1]) for x in nskip}
+        _new_in = sorted(_rk - _nk)
+        _new_out = sorted(_nk - _rk)
+        log(f"   `SN2` توسُّعُ المجتمع: خامًا استُبعد {len(skipped)} · مُسوًّى "
+            f"{len(nskip)} ⇒ **دخل {len(_new_in)}** · خرج {len(_new_out)}")
+        log(f"        الداخلُ: {_new_in or '—'} · الخارجُ: {_new_out or '—'}")
+
+        # `SN3` صفوفُ الكاتالوج — **أعمى**: هل لأيٍّ منها عاملٌ ≠ 1؟
+        _cat = [r for r in ngov if r.get("origin") == "cat"]
+        _cat_sp = [r for r in _cat if abs(r["sf"] - 1.0) > 1e-9]
+        log(f"   `SN3` صفوفُ الكاتالوج: {len(_cat)} · منها بعاملٍ ≠ 1: "
+            f"**{len(_cat_sp)}** {[(r['sym'], round(r['sf'], 6)) for r in _cat_sp] or ''}")
+        if _cat_sp:
+            log("        🔴🔴 ⇒ **الحكمُ السابق (`SD1` ‏6/9) كان هو نفسُه ملوَّثًا "
+                "بأثر مقياس** — اكتشافٌ عن الحكم لا عن التعريف")
+
+        # الشواذُّ: هل بقي صفُّ عاملٍ ≠ 1 خارجَ مدى صفوف العامل 1؟
+        _one = [abs(r["e0"]) for r in ngov
+                if abs(r["sf"] - 1.0) <= 1e-9 and r["e0"] is not None]
+        _sp = [r for r in ngov if abs(r["sf"] - 1.0) > 1e-9 and r["e0"] is not None]
+        _cap = max(_one) if _one else 0.0
+        _out = [(r["sym"], r["e0"]) for r in _sp if abs(r["e0"]) > _cap]
+        outliers_ok = bool(_sp) and not _out
+        log(f"   الشواذُّ بعد التسوية: سقفُ صفوف العامل 1 = {_cap:.2f}% · "
+            f"الباقي خارجَه: {_out or 'لا شيء'} ⇒ "
+            f"{'✅' if outliers_ok else '🔴' if _sp else '⚪ لا صفَّ عاملٍ ≠ 1'}")
+
+        log("")
+        log("═══ الوصفيُّ المُسوّى — **موسومٌ بحالة العمى** (`§④`-4) ═══")
+        log("   الرمز  التاريخ     أصل     عامل        فيصل-خام  فيصل-مُسوًّى  A0      خطأ%")
+        for r in sorted(ngov, key=lambda x: (x["origin"], x["sym"])):
+            o = _raw.get((r["sym"], r["asof"]))
+            log(f"   {r['sym']:6s} {r['asof']}  {r['origin']:9s} {r['sf']:<11.6g} "
+                f"{(o['ref'] if o else 0):<9.3f} {r['ref']:<11.3f} "
+                f"{str(r['a0']):<7s} {str(r['e0'])}")
+        _nb3, _nn3, nsh3, npv3, nok3, _pb3 = sd1_new_of(ngov)
+        log(f"   `SD1` مُسوًّى: A0 أدنى في **{sum(1 for r in ngov if r['a0'] is not None and r['a0'] < r['ref'])}/{nn2}** "
+            f"= {nshare2:.1f}% · p={np2} ⇒ 🔴 **مشتقٌّ سلفًا في `§③` — لا يُحسَب تنبّؤًا**")
+        log(f"   `SD2` مُسوًّى = {nmed2:.2f}% · `SD3` = "
+            f"{('%.2f%%' % nmedr2) if nmedr2 is not None else '—'} ⇒ "
+            f"أسوأُ من A0؟ **{'نعم' if nok2 else 'لا'}** (‏`SD1-NEW` {nsh3:.1f}% p={npv3})")
+
+        nrc, ntxt = norm_verdict(guards, neutral, outliers_ok, nn2, nsym2)
+        log("")
+        log("═══ حكمُ `T-SPLITNORM` ═══")
+        if not guards:
+            log(f"   🔴 حارسٌ سقط: {bad_g} ⇒ يُوقَف قبل أيّ حكم")
+            log(f"JUDGE rc={NORM_GUARD_RC} · حارسُ التسوية سقط — لا حكم ولا اعتماد")
+            return NORM_GUARD_RC
+        log(f"   حاكمةٌ مُسوّاة: {nn2} من {nsym2} رمزًا · وسمُ المؤشّر أسقط {nn_drop}")
+        log(f"JUDGE rc={nrc} · {ntxt}")
+        return nrc
 
     log("")
     log("═══ الحكم ═══")
