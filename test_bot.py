@@ -56085,6 +56085,184 @@ check("🎯✂️🔒 HCK4 العقدُ **يُقرّ بأنه داخلَ محو�
       "الثلاثة · **ويرفع الماديّةَ إلى `±0.08R`** (رفعٌ لا خفض) · ولا يمسّ الإغلاق",
       _v, _w)
 
+# ── 🎯✂️ أداةُ `T-HEADCUT` — أقفال HCA0-HCA7 (بُنيت بعد دمج العقد) ───────────
+try:
+    import headcut_arms as _hca_mod
+    _hca_src = _insp0.getsource(_hca_mod)
+except Exception as _e:                                          # noqa: BLE001
+    _hca_mod, _hca_src = None, f"⛔ {type(_e).__name__}"
+
+# ① HCA0 — **`cut_t1` قصٌّ لا شيءَ آخر**: هُويّةٌ عند 0 · وتخفيضٌ عند h>0 ·
+#   **ورفعٌ عند h<0** (‏`C-BACK`) · وقيمتُها الدقيقةُ `t1×(1−h/100)`.
+try:
+    _c = _hca_mod.cut_t1
+    _id = _c(12.345, 0.0) == 12.345 and _c(12.345, 0) == 12.345
+    _dn = abs(_c(100.0, 1.0) - 99.0) < 1e-9
+    _up = abs(_c(100.0, -1.0) - 101.0) < 1e-9
+    _mono = _c(50.0, 3.0) < _c(50.0, 2.0) < _c(50.0, 1.0) < _c(50.0, 0.0) \
+        < _c(50.0, -1.0)
+    _v = _id and _dn and _up and _mono and _hca_mod.selfcheck_v2(400) == 0
+    _w = (f"هُويّة={_id} · خفض={_dn} · رفع={_up} · رتيب={_mono} · "
+          f"selfcheck={_hca_mod.selfcheck_v2(400)}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCA0 `cut_t1` **هُويّةٌ عند 0** وتخفيضٌ عند `h>0` **ورفعٌ عند `h<0`** "
+      "· ورتيبةٌ · و`V-H2` صفرُ تفرّق", _v, _w)
+
+# ② HCA1 — **صفرُ مُصيِّرٍ ثانٍ**: `cut_exit` تنادي `resolve_exit` الإنتاجيّةَ
+#   **بالاسم** ولا تُعيد كتابةَ الحلقة · و`r_fixed`/`boot_ci` بالاسم كذلك.
+try:
+    _t = _ast0.parse(_hca_src)
+    _defs = {_f.name for _f in _ast0.walk(_t)
+             if isinstance(_f, _ast0.FunctionDef)}
+    _calls = {(_c.func.attr if isinstance(_c.func, _ast0.Attribute)
+               else getattr(_c.func, "id", ""))
+              for _c in _ast0.walk(_t) if isinstance(_c, _ast0.Call)}
+    _imp = {_n.name for _i in _ast0.walk(_t)
+            if isinstance(_i, _ast0.ImportFrom) for _n in _i.names}
+    _need = {"resolve_exit", "r_fixed", "boot_ci", "pool_clusters",
+             "plan_at", "anchor_at", "ladder"}
+    _v = (_need <= _imp and {"resolve_exit", "r_fixed", "boot_ci"} <= _calls
+          and not (_need & _defs))
+    _w = (f"مستورَدٌ بالاسم={sorted(_need - _imp) or 'الكلّ'} · "
+          f"يُنادى={sorted({'resolve_exit', 'r_fixed', 'boot_ci'} & _calls)} · "
+          f"نسخةٌ محلّية={sorted(_need & _defs) or 'لا شيء'}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCA1 **صفرُ منطقِ حسمٍ مكرَّر**: `resolve_exit`/`r_fixed`/`boot_ci` "
+      "وأخواتُها **مستورَدةٌ بالاسم وتُنادى** ولا نسخةَ محلّية", _v, _w)
+
+# ③ HCA2 — **الأذرعُ قائمةٌ مُغلَقةٌ بنصّ `§④`**: ستٌّ بأسمائها وقيمِها ·
+#   والحاكمةُ `H1` عند ‏1% · والشاهدُ `C-BACK` عند ‏−1% · والأساسُ `H0` عند 0.
+try:
+    _a = dict(_hca_mod.ARMS)
+    _v = (len(_hca_mod.ARMS) == 6 and _a.get("H0") == 0.0
+          and _a.get("H1") == 1.0 and _a.get("C-BACK") == -1.0
+          and _a.get("Hh") == 0.5 and _a.get("H2") == 2.0 and _a.get("H3") == 3.0
+          and _hca_mod.BASE == "H0" and _hca_mod.GOV == "H1"
+          and _hca_mod.CTRL == "C-BACK"
+          and set(_hca_mod.DESC) == {"Hh", "H2", "H3"})
+    _w = f"الأذرع={_hca_mod.ARMS} · أساس/حاكمة/شاهد=({_hca_mod.BASE},{_hca_mod.GOV},{_hca_mod.CTRL})"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCA2 الأذرعُ **ستٌّ مُغلَقة** بقيمِها · الحاكمةُ `H1` عند 1% "
+      "والشاهدُ `C-BACK` عند −1% والأساسُ `H0` عند 0", _v, _w)
+
+# ④ HCA3 — **الماديّةُ والأرضيّةُ والتسامحُ = نصُّ العقد** ولا تتحرّك
+try:
+    _v = (_hca_mod.MATERIAL == 0.08 and _hca_mod.FLOOR_ROWS == 150
+          and _hca_mod.HEAD_TOL == 0.5 and _hca_mod.LEN_PAD == 60
+          and _hca_mod.RET_ND == 1)
+    _w = (f"MATERIAL={_hca_mod.MATERIAL} · FLOOR={_hca_mod.FLOOR_ROWS} · "
+          f"HEAD_TOL={_hca_mod.HEAD_TOL} · PAD={_hca_mod.LEN_PAD} · "
+          f"ND={_hca_mod.RET_ND}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCA3 الماديّةُ **‏0.08** والأرضيّةُ **‏150** وتسامحُ الرأس **‏0.5%** "
+      "والتكميمُ المجمَّد — كلُّها نصُّ العقد", _v, _w)
+
+# ⑤ HCA4 — **جدولُ حقيقةِ الفروع** (‏`§⑥` بحرفه · ثمانِ حالات) ولا فرعَ رابع
+try:
+    _rv = _hca_mod.read_verdict
+    _ok = {"ok": True, "floor": True}
+    _no = {"ok": False, "floor": True}
+    _fl = {"ok": True, "floor": False}
+    _R0, _R9 = _hca_mod.RC_OK, _hca_mod.RC_NOVERDICT
+    _tt = [((_ok, _ok, _ok, _ok), _R0, "الفرعُ 1"),
+           ((_no, _ok, _ok, _ok), _R0, "الفرعُ 2"),
+           ((_ok, _no, _ok, _ok), _R0, "الفرعُ 2"),
+           ((_ok, _ok, _no, _ok), _R0, "الفرعُ 2"),
+           ((_ok, _ok, _ok, _no), _R0, "الفرعُ 2"),
+           ((_fl, _ok, _ok, _ok), _R9, "الفرعُ 3"),
+           ((_ok, _ok, _ok, _fl), _R9, "الفرعُ 3"),
+           ((_no, _no, _no, _fl), _R9, "الفرعُ 3")]
+    _v = all(_rv(*_args)[0] == _rc and _lbl in _rv(*_args)[1]
+             for _args, _rc, _lbl in _tt)
+    _w = f"ثمانُ حالات={_v} · الفرعُ 1 فقط بالأربعة={_rv(_ok, _ok, _ok, _ok)[0] == _R0}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCA4 `read_verdict` = نصُّ `§⑥` (جدولُ حقيقةٍ ثمانِ حالات) · "
+      "والفرعُ 1 لا يصدر إلّا بالأربعة معًا · ولا فرعَ رابع", _v, _w)
+
+# ⑥ HCA5 — **`is_head_target` يُعيد نداءَ الإنتاج لا شبيهَه**: `_red_candle_heads`
+#   بالاسم وبـ**آخرِ إغلاقٍ في الشريحة** (وهو `price` في `analyze_ticker`).
+try:
+    _fn = _hca_mod.is_head_target
+    _fs = _insp0.getsource(_fn)
+    _ft = _ast0.parse(_fs)
+    _uses = any(isinstance(_c, _ast0.Call)
+                and getattr(_c.func, "attr", "") == "_red_candle_heads"
+                for _c in _ast0.walk(_ft))
+    _px = 'Close"].iloc[-1]' in _fs
+    # سلوكيًّا: رأسٌ مطابقٌ ⟶ True · وبعيدٌ ⟶ False (بجذعٍ للمُنتِج)
+    class _HStub:                                                # noqa: N801
+        @staticmethod
+        def _red_candle_heads(_df, _px):
+            return [10.0, 20.0]
+    import pandas as _hca_pd
+    _dfx = _hca_pd.DataFrame({"Close": [9.5, 9.7]})
+    _hit = _fn(_HStub, _dfx, 10.02)      # ‏0.2% ⇒ داخلَ 0.5%
+    _mis = _fn(_HStub, _dfx, 10.40)      # ‏4.0% ⇒ خارجَها
+    _v = _uses and _px and _hit is True and _mis is False
+    _w = (f"بالاسم={_uses} · آخرُ إغلاق={_px} · مطابقٌ={_hit} · بعيدٌ={_mis}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCA5 `is_head_target` ينادي `_red_candle_heads` **بالاسم** وبآخرِ "
+      "إغلاقٍ في الشريحة · ويفصل المطابقَ عن البعيد بتسامح `HEAD_TOL`", _v, _w)
+
+# ⑦ HCA6 — **لا رقمَ منشورٌ يُكتَب بيدي**: `read_published` يستخرج الثلاثةَ من
+#   `trail_result.md` نصًّا · ونصٌّ تالفٌ يُسقط الحارسَ (شاهدُ ضبط).
+try:
+    _pubh = _hca_mod.read_published()
+    _v = (_pubh.get("ok") and _pubh["years"] == ["2023", "2024", "2025"]
+          and abs(_pubh["2023"]["r"] + 0.2602) < 1e-9
+          and abs(_pubh["2024"]["r"] + 0.1807) < 1e-9
+          and abs(_pubh["2025"]["r"] + 0.2172) < 1e-9
+          and _pubh["2023"]["rows"] == 1620 and _pubh["2023"]["fill"] == 1399
+          and not _hca_mod.read_published("/dev/null").get("ok"))
+    _w = (f"سنوات={_pubh.get('years')} · 2023={_pubh.get('2023')} · "
+          f"شاهدُ ضبطٍ يسقط={not _hca_mod.read_published('/dev/null').get('ok')}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCA6 `V-H1` يستخرج `Y0` المنشورَ **نصًّا من `trail_result.md`** "
+      "(‏−0.2602/1620/1399 …) · وبشاهدِ ضبطٍ يسقط على نصٍّ تالف", _v, _w)
+
+# ⑧ HCA7 — **قراءةٌ فقط وصفرُ إسناد** · والـworkflow **بلا كرونٍ ولا سرِّ
+#   تلغرام** · واللقطاتُ **عينُ لقطات `trail.yml`** (شرطُ `V-H1`).
+try:
+    _gok, _gwhy = _hca_mod.guards_ok()
+    import yaml as _hca_yaml
+    _hy = _hca_yaml.safe_load(open(".github/workflows/headcut.yml",
+                                   encoding="utf-8"))
+    _hon = _hy.get(True) or _hy.get("on")
+    _htxt = open(".github/workflows/headcut.yml", encoding="utf-8").read()
+    _ttxt = open(".github/workflows/trail.yml", encoding="utf-8").read()
+    _hids = _mem_re.findall(r'default: "(\d{8,})"', _htxt)[:3]
+    _tids = _mem_re.findall(r'default: "(\d{8,})"', _ttxt)[:3]
+    # 🔴 **تشديدٌ بعد نجاة طفرة:** فحصُ **نتيجةِ** `guards_ok` لا يكفي —
+    #   استبدالُ جسمِها بـ`ro, na = True, True` **يمرّ** (الصنفُ ③). الآن:
+    #   ① الحارسان يُناديان فعلًا داخلَها (AST) ② وهما **حيّان** على شاهدِ ضبط.
+    from optrade_arms import (no_config_assign as _hca_nca,      # noqa: PLC0415
+                              selfcheck_readonly as _hca_sro)
+    _gt = _ast0.parse(_insp0.getsource(_hca_mod.guards_ok))
+    _gcalls = {getattr(_c.func, "id", "") for _c in _ast0.walk(_gt)
+               if isinstance(_c, _ast0.Call)}
+    _live = {"selfcheck_readonly", "no_config_assign"} <= _gcalls
+    _bad_ro = 'open("x.txt", "w")'                    # كتابةٌ صريحة
+    _bad_na = 'CONFIG["X"] = 1'                       # إسنادٌ إلى CONFIG
+    _wit = ((not _hca_sro(_bad_ro)) and (not _hca_nca(_bad_na))
+            and _hca_sro("x = 1") and _hca_nca("x = 1"))
+    _v = (_gok and _live and _wit and "schedule" not in _hon
+          and "TELEGRAM" not in _htxt
+          and len(_hids) == 3 and _hids == _tids)
+    _w = (f"حارسٌ={_gwhy} · يُنادى فعلًا={_live} · شاهدُ ضبطٍ حيّ={_wit} · "
+          f"كرون={'schedule' in _hon} · لقطاتٌ مطابقة={_hids == _tids} ({_hids})")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCA7 الأداةُ **قراءةٌ فقط وصفرُ إسناد** · والـworkflow بلا كرونٍ ولا "
+      "سرّ · **ولقطاتُه عينُ لقطات `trail.yml`** (شرطُ `V-H1`)", _v, _w)
+
+
 
 
 
