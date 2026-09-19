@@ -55933,6 +55933,43 @@ except Exception as _e:                                          # noqa: BLE001
 check("⚖️🧱🔒 SNA9 `V-N4` يقارن **المستوى الخامَّ مُسوًّى** لا الصفَّ الناجي · "
       "والخروجُ بعد `drop_marker` يرصده `SN2` لا يُعَدّ تعارضًا", _v, _w)
 
+# ⑪ SNA10 — **`SN2` سلوكيًّا عبر دالّةٍ نقيّة**: الرمزُ قد يحمل صفَّين بالمفتاح
+#   نفسِه، والمجموعةُ تبتلع الفرقَ فتطبع «خرج 0» وصفٌّ قد خرج = **سطرُ عرضٍ
+#   يكذب**. 🔴 **وصيغتُه النصّيّةُ الأولى نجت منها طفرةٌ** (‏`elements()` في سطرٍ
+#   واحدٍ تكفيها) ⇒ صار **نداءً حيًّا** للدالّة نفسِها على فِكستشرٍ مكرَّر.
+try:
+    _sna_pd2 = _sdt_mod.pop_delta
+    _sna_g0 = [{"sym": "AAA", "asof": "2026-01-01"},
+               {"sym": "BBB", "asof": "2026-01-02"},
+               {"sym": "BBB", "asof": "2026-01-02"}]     # مكرَّرٌ عمدًا
+    _sna_g1 = [{"sym": "AAA", "asof": "2026-01-01"},
+               {"sym": "BBB", "asof": "2026-01-02"}]     # خرج واحدٌ من المكرَّر
+    _in1, _out1 = _sna_pd2(_sna_g0, _sna_g1)             # يخرج واحدٌ
+    _in2, _out2 = _sna_pd2(_sna_g1, _sna_g0)             # ويدخل واحدٌ بالعكس
+    _in3, _out3 = _sna_pd2(_sna_g0, _sna_g0)             # والمطابقُ صفرٌ صفر
+    # 🔴 **وترتيبُ الوسيطين يُفحَص بالـAST لا بالنصّ:** سلسلةُ `pop_delta(gov,
+    #   ngov)` موجودةٌ في **سطر التعريف نفسِه** ⇒ الفحصُ النصّيُّ **لا يُكذَّب
+    #   أبدًا** (الصنفُ ③ — نجت منه طفرةُ قلبِ الوسيطين).
+    _sna_m10 = next((_f for _f in _ast0.walk(_ast0.parse(_sna_src))
+                     if isinstance(_f, _ast0.FunctionDef) and _f.name == "main"),
+                    None)
+    _sna_ord = False
+    for _c in (_ast0.walk(_sna_m10) if _sna_m10 else []):
+        if not (isinstance(_c, _ast0.Call)
+                and getattr(_c.func, "id", "") == "pop_delta"):
+            continue
+        _sna_ord = [getattr(_a, "id", "") for _a in _c.args] == ["gov", "ngov"]
+    _v = (_out1 == [("BBB", "2026-01-02")] and _in1 == []
+          and _in2 == [("BBB", "2026-01-02")] and _out2 == []
+          and _in3 == [] and _out3 == [] and _sna_ord)
+    _w = (f"خرج={_out1} دخل={_in1} · بالعكس دخل={_in2} · المطابق="
+          f"({_in3}, {_out3}) · ترتيبُ النداء في main (AST)={_sna_ord}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA10 `pop_delta` **بالعدّاد لا بالمجموعة** — فلا يُطبَع «خرج 0» "
+      "وصفٌّ قد خرج · **سلوكيٌّ** بعد نجاة طفرةٍ من صيغته النصّيّة", _v, _w)
+
+
 
 
 
