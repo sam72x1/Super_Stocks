@@ -1,7 +1,8 @@
 name: SUPDEF (🧱🔬 تعريفُ الدعم — T-SUPDEF)
 
 # 🔒 **قراءةٌ فقط**: لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** · ولا شحنَ
-#    مهما كانت النتيجة (المحورُ يمسّ جذرًا). العقد: `support_def_prereg.md`.
+#    مهما كانت النتيجة (المحورُ يمسّ جذرًا). العقد: `support_def_prereg.md`
+#    ‏+ الملحقُ المؤرَّخ `§⑩` (المجتمعُ الموسَّع بمرساة السعر · شاهدُ `A-RAND`).
 permissions:
   contents: read
 
@@ -11,7 +12,7 @@ on:
 jobs:
   supdef:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
