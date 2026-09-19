@@ -19,7 +19,8 @@ import sys
 CAT = "FAISAL_IMAGES_CATALOG.md"
 OUT = "faisal_levels_table.tsv"
 DERIVED = "faisal_derived_dates.tsv"      # ملفٌّ جانبيٌّ: تواريخُ **مُشتقّة** بمرساةٍ مقيسة
-DERIVED_METHODS = {"indicator"}           # مجموعةٌ مُغلَقة — ولا عضوَ يُضاف بلا أداةٍ تُعيد اشتقاقَه
+DERIVED_METHODS = {"indicator", "price"}  # مجموعةٌ مُغلَقة — ولا عضوَ يُضاف بلا أداةٍ تُعيد اشتقاقَه
+#   `indicator` ⟵ faisal_indicator_anchor (نطاق recheck) · `price` ⟵ faisal_price_anchor (نطاق recheck)
 
 COLOUR = {"🔴": "red", "⚫": "black", "🟣": "purple", "🔵": "blue",
           "🟠": "orange", "🟢": "green", "🟡": "yellow",
@@ -181,6 +182,7 @@ def main() -> int:
                          "date_source": dsrc, "frame": fr, "colour": col,
                          "role": ROLE.get(col, "unmapped"), "level": lv,
                          "auto_chart": int(auto), "raw": snippet})
+    from collections import Counter
     n_der = apply_derived(rows, load_derived())
     with open(OUT, "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()), delimiter="\t")
@@ -188,13 +190,13 @@ def main() -> int:
         w.writerows(rows)
 
     # ── ملخّصٌ صادق ────────────────────────────────────────────────────────
-    from collections import Counter
     print(f"🧾📐 صفوفُ المستويات المستخرَجة: {len(rows)} ⟶ {OUT}")
     print("   بالدور:", dict(Counter(r["role"] for r in rows)))
     print("   بالفريم:", dict(Counter(r["frame"] for r in rows)))
     print("   بمصدر التاريخ:", dict(Counter(r["date_source"] or "none" for r in rows)))
-    print(f"   📅📉 مُشتقٌّ بمرساة المؤشّر (ملفٌّ جانبيّ): {n_der} صفًّا "
-          f"⟵ {DERIVED} (لا يدهس مسجَّلًا · ولا يُقرأ مسجَّلًا)")
+    _per = Counter(r["date_source"] for r in rows if r["date_source"] in DERIVED_METHODS)
+    print(f"   📅 مُشتقٌّ (ملفٌّ جانبيّ): {n_der} صفًّا ⟵ {DERIVED} · بالطريقة: {dict(_per)}"
+          " (لا يدهس مسجَّلًا · ولا يُقرأ مسجَّلًا)")
     syms = {r["symbol"] for r in rows if r["symbol"]}
     print(f"   رموزٌ متمايزة: {len(syms)} · بلا رمز: {sum(1 for r in rows if not r['symbol'])}")
     print(f"   شارتاتٌ آليّة (CH_/APP_): {sum(r['auto_chart'] for r in rows)}")
@@ -203,15 +205,16 @@ def main() -> int:
     g_f = [r for r in gov if r["date_source"] == "filename"]
     g_h = [r for r in gov if r["date_source"] == "header"]
     g_i = [r for r in gov if r["date_source"] in DERIVED_METHODS]
+    g_by = Counter(r["date_source"] for r in g_i)
     print()
     print("═══ المجتمعُ القابلُ للقياس (دعمٌ أحمر · يوميّ · غيرُ آليّ) ═══")
     print(f"   إجمالًا: {len(gov)} صفًّا من {len({r['symbol'] for r in gov})} رمزًا")
     print(f"   مؤرَّخٌ باسم الملفّ: {len(g_f)} · مؤرَّخٌ بعنوان الدفعة: {len(g_h)} · "
-          f"مُشتقٌّ بالمؤشّر: {len(g_i)} · "
+          f"مُشتقٌّ: {len(g_i)} {dict(g_by)} · "
           f"بلا تاريخ: {len(gov)-len(g_f)-len(g_h)-len(g_i)}")
     print("   ⚠️ تاريخُ العنوان = تاريخُ استلام الدفعة لا تاريخُ الشارت (أضعف).")
-    print("   ⚠️ والمُشتقُّ بالمؤشّر **مُشتقٌّ لا مسجَّل** — وسمُه مستقلٌّ عمدًا "
-          "ويُعاد اشتقاقُه بـ`faisal_indicator_anchor`.")
+    print("   ⚠️ والمُشتقُّ **مُشتقٌّ لا مسجَّل** — وسمُ كلّ طريقةٍ مستقلٌّ عمدًا "
+          "وتُعيد أداتُها اشتقاقَه بنطاق `recheck`.")
     return 0
 
 
