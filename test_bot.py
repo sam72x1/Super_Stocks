@@ -46502,15 +46502,29 @@ check("🧾📐🔒 LVT1 كلُّ مستوًى في الجدول **موجودٌ 
       "(شهادةٌ من المصدر · فحصٌ كامل لا عيّنة)",
       not _lvt_err and not _lvt1_bad, str(_lvt1_bad)[:120])
 
-# LVT2 — **لا تاريخَ مُستنتَجًا**: مصدرُ التاريخ من مجموعةٍ مُغلَقة (filename · header ·
-#   exif) أو فارغ — ولا يُقبَل أيُّ مصدرٍ آخر (يحرس قاعدةَ T-SUPDEF §① بنيويًّا).
-_LVT_SRC = {"", "filename", "header", "exif"}
+# LVT2 — **لا تاريخَ مُستنتَجًا**: مصدرُ التاريخ من مجموعةٍ مُغلَقة أو فارغ — ولا
+#   يُقبَل أيُّ مصدرٍ آخر (يحرس قاعدةَ T-SUPDEF §① بنيويًّا).
+#   🔑 **و`indicator` عضوٌ مشروطٌ لا مجرَّد** (‏«دمج التواريخ» 2026-09-19): يُقبَل
+#   **فقط** إن كان مسنودًا بصفٍّ في الملفّ الجانبيّ **بنفس التاريخ** ⇒ توسيعُ
+#   المجموعة **تشديدٌ في المضمون**: الثلاثةُ الأخرى تُصدَّق بلا سند، وهذا لا.
+#   وبصمتُه تُعاد من الكاتالوج بلا شبكة في `LVD1`.
+_LVT_SRC = {"", "filename", "header", "exif", "indicator"}
 _lvt2_bad = sorted({r.get("date_source", "?") for r in _lvt_rows} - _LVT_SRC)
 _lvt2_pair = [r for r in _lvt_rows if bool(r.get("date")) != bool(r.get("date_source"))]
-check("🧾📐🔒 LVT2 مصدرُ التاريخ من مجموعةٍ مُغلَقة (filename·header·exif) أو فارغ · "
-      "ولا تاريخَ بلا مصدرٍ ولا مصدرَ بلا تاريخ",
-      not _lvt_err and not _lvt2_bad and not _lvt2_pair,
-      f"مصادرُ دخيلة={_lvt2_bad} · غيرُ متّسق={len(_lvt2_pair)}")
+try:
+    _lvt2_sc = {(x["symbol"], x["line"]): x["date"] for x in _lvt_csv.DictReader(
+        open("faisal_derived_dates.tsv", encoding="utf-8"), delimiter="\t")}
+except Exception:                                                 # noqa: BLE001
+    _lvt2_sc = {}
+_lvt2_unbacked = [f"{r['symbol']}:{r['line']}" for r in _lvt_rows
+                  if r.get("date_source") == "indicator"
+                  and _lvt2_sc.get((r.get("symbol"), r.get("line"))) != r.get("date")]
+check("🧾📐🔒 LVT2 مصدرُ التاريخ من مجموعةٍ مُغلَقة (filename·header·exif·indicator) أو "
+      "فارغ · ولا تاريخَ بلا مصدرٍ ولا مصدرَ بلا تاريخ · **ولا `indicator` بلا سندٍ "
+      "في الملفّ الجانبيّ**",
+      not _lvt_err and not _lvt2_bad and not _lvt2_pair and not _lvt2_unbacked,
+      f"مصادرُ دخيلة={_lvt2_bad} · غيرُ متّسق={len(_lvt2_pair)} · "
+      f"بلا سند={_lvt2_unbacked[:4]} (سندٌ متاح={len(_lvt2_sc)})")
 
 # LVT3 — مِجَسُّ مرساة السعر: يشترط **ذكرَ الرمز في الكتلة** قبل قبول السعر (درسُ
 #   BNKK/HCAI) · ويُخرج TSV **منفصلًا** عن جدول المستويات · وبلا إرسال.
@@ -54861,6 +54875,162 @@ except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📅📉 IAK13 كلُّ `check` يلي **كتلتَه** بلا تخلّل · والأسماءُ فريدة "
       "(وإلّا قفلٌ أخضرُ يؤكّد شرطَ غيره — عيبٌ وقع مرّتين وأُصلح)", _v, _w)
+
+# ── 🧾📅 دمجُ التواريخ المُشتقّة في الجدول — أقفال LVD0-LVD5 («دمج التواريخ» 2026-09-19)
+# التواريخُ التي اشتقّتها **مرساةُ المؤشّر** تُكتَب في `faisal_levels_table.tsv`
+# بوسمٍ **مستقلّ** `date_source=indicator` عبر ملفٍّ جانبيّ `faisal_derived_dates.tsv`
+# ⇒ تراها كلُّ تجربةٍ قادمة، **ولا تُخلَط** بـ`filename`/`header` المسجَّلَين.
+# 🔑 **والعضوُ الجديد يحمل حارسًا تفتقده الثلاثةُ الأخرى:** بصمتُه تُعاد من الكاتالوج
+#    **بلا شبكة** (`LVD1`) ⇒ «مُشتَقٌّ» ليس بابًا خلفيًّا لتاريخٍ مُستنتَج
+#    (قاعدةُ `T-SUPDEF §①` · و`LVT2` صار يشترط السندَ لا العضويّةَ فقط).
+import csv as _lvd_csv
+import datetime as _lvd_dt
+import re as _lvd_re
+
+_LVD_COLS = {"symbol", "line", "date", "method", "fingerprint", "max_diff", "run_id"}
+_LVD_IMG = _lvd_re.compile(r"(?:TG|X|CH|APP|WA|IMG)_")
+try:
+    import faisal_indicator_anchor as _lvd_ia
+    import faisal_levels_extract as _lvd_ex
+    _lvd_sc = list(_lvd_csv.DictReader(
+        open("faisal_derived_dates.tsv", encoding="utf-8"), delimiter="\t"))
+    _lvd_e0 = ""
+except Exception as _e:                                          # noqa: BLE001
+    _lvd_ia = _lvd_ex = None
+    _lvd_sc, _lvd_e0 = [], f"⛔ {type(_e).__name__}: {_e}"
+
+# ① LVD0 — شكلُ الملفّ الجانبيّ: أعمدةٌ كاملة · تاريخٌ صالحٌ **يومَ تداولٍ** داخل
+#   نافذة الأداة · طريقةٌ من مجموعةٍ مُغلَقة · ولا صفَّ بلا بصمة.
+try:
+    _bad = []
+    if not _lvd_sc:
+        _bad.append(_lvd_e0 or "فارغ")
+    for _r in _lvd_sc:
+        if not _LVD_COLS <= set(_r):
+            _bad.append(f"أعمدةٌ ناقصة:{sorted(_LVD_COLS - set(_r))}")
+            continue
+        try:
+            _d = _lvd_dt.date.fromisoformat(_r["date"])
+        except Exception:                                        # noqa: BLE001
+            _bad.append(f"تاريخٌ غيرُ صالح:{_r.get('date')!r}")
+            continue
+        if not (_lvd_ia.W0 <= _r["date"] <= _lvd_ia.W1):
+            _bad.append(f"خارجَ النافذة:{_r['date']}")
+        if _d.weekday() >= 5:
+            _bad.append(f"عطلةُ أسبوع:{_r['date']}")
+        if _r["method"] not in _lvd_ex.DERIVED_METHODS:
+            _bad.append(f"طريقةٌ دخيلة:{_r['method']!r}")
+        if not (_r.get("fingerprint") or "").strip():
+            _bad.append(f"بلا بصمة:{_r['symbol']}")
+        try:
+            int(_r["line"])
+        except Exception:                                        # noqa: BLE001
+            _bad.append(f"سطرٌ غيرُ عدديّ:{_r.get('line')!r}")
+    _v = bool(_lvd_sc) and not _bad
+    _w = f"صفوف={len(_lvd_sc)} · خلل={_bad[:4]}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📅 LVD0 الملفُّ الجانبيّ: أعمدةٌ كاملة · تاريخٌ صالحٌ **يومَ تداولٍ** داخل نافذة "
+      "الأداة · طريقةٌ من مجموعةٍ مُغلَقة · ولا صفَّ بلا بصمة", _v, _w)
+
+# ② LVD1 — 🔑 **البصمةُ تُعاد من الكاتالوج بلا شبكة** (سلوكيًّا): نطاقُ `recheck`
+#   يختار الصفوفَ التي أرّختها الأداةُ سلفًا، و`collect` يُخرج **نفسَ** نصّ البصمة.
+#   وهذا هو الفرقُ الجوهريُّ عن `header`/`filename`: لا يُعاد اشتقاقُهما أبدًا.
+try:
+    _rc = _lvd_ia.collect("recheck")
+    _live = {(t["symbol"], t["line"]): " | ".join(f["raw"] for f in t["fps"]) for t in _rc}
+    _rec = {(r["symbol"], int(r["line"])): r["fingerprint"] for r in _lvd_sc}
+    _same = _live == _rec and all(bool(x) for x in _live.values())
+    _tamper = dict(_rec)
+    _k0 = sorted(_tamper)[0]
+    _tamper[_k0] = _tamper[_k0] + "‏X"                # بصمةٌ مبدَّلةٌ يجب أن تُكشَف
+    _caught = _live != _tamper
+    _v = _same and _caught and len(_live) >= 1
+    _w = f"أزواج={len(_live)} مطابقٌ بت-بت={_same} شاهدُ الضبط يمسك={_caught}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📅 LVD1 بصمةُ كلِّ تاريخٍ مُشتقٍّ **تُعاد من الكاتالوج بلا شبكة** عبر نطاق "
+      "`recheck` (وشاهدُ ضبطٍ يمسك التبديل)", _v, _w)
+
+# ③ LVD2 — **مصدرٌ إلى مصدر**: تواريخُ الملفّ الجانبيّ **منشورةٌ** في تقرير مصادر
+#   التأريخ · ورقمُ التشغيلة **واحدٌ** ومذكورٌ فيه ⇒ لا رقمَ يُكتَب بيدٍ في القفل.
+try:
+    _rep = open("faisal_dating_sources.md", encoding="utf-8").read()
+    _pub = set(_lvd_re.findall(r"\*\*(20\d{2}-\d{2}-\d{2})\*\*", _rep))
+    _scd = {r["date"] for r in _lvd_sc}
+    _runs = {r["run_id"] for r in _lvd_sc}
+    _run_ok = len(_runs) == 1 and next(iter(_runs)) in _rep
+    _v = bool(_scd) and _scd <= _pub and _run_ok
+    _w = f"الملفّ={sorted(_scd)} ⊆ المنشور={sorted(_pub)} · تشغيلة={_runs} فيه={_run_ok}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📅 LVD2 تواريخُ الملفّ الجانبيّ **منشورةٌ في التقرير** ورقمُ تشغيلتها واحدٌ "
+      "ومذكورٌ فيه (مصدرٌ إلى مصدر)", _v, _w)
+
+# ④ LVD3 — **المُشتقُّ لا يدهس المسجَّل** (سلوكيًّا من الطرفين) · وغيابُ الملفّ
+#   الجانبيّ = لا عملَ إطلاقًا (فاشلٌ-آمن ⇒ الجدولُ كما كان بت-بت).
+try:
+    _rw = [{"symbol": "ZZ", "line": 7, "date": "", "date_source": ""},
+           {"symbol": "ZZ", "line": 8, "date": "2020-01-01", "date_source": "header"},
+           {"symbol": "QQ", "line": 9, "date": "", "date_source": ""}]
+    _der = {("ZZ", 7): ("2026-03-03", "indicator"), ("ZZ", 8): ("2026-03-04", "indicator")}
+    _n = _lvd_ex.apply_derived(_rw, _der)
+    _fill = _rw[0]["date"] == "2026-03-03" and _rw[0]["date_source"] == "indicator"
+    _keep = _rw[1]["date"] == "2020-01-01" and _rw[1]["date_source"] == "header"
+    _none = _rw[2]["date"] == "" and _rw[2]["date_source"] == ""
+    _noop = _lvd_ex.apply_derived([dict(r) for r in _rw], {}) == 0
+    _miss = _lvd_ex.load_derived("لا-يوجد-هذا-الملفّ.tsv") == {}
+    _v = _n == 1 and _fill and _keep and _none and _noop and _miss
+    _w = (f"طُبِّق={_n} · مُلئ={_fill} · المسجَّلُ باقٍ={_keep} · غيرُ المذكور={_none} · "
+          f"بلا مدخلات={_noop} · بلا ملفّ={_miss}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📅 LVD3 المُشتقُّ **يملأ الفارغَ ولا يدهس المسجَّل** · وغيابُ الملفّ الجانبيّ "
+      "= صفرُ أثر (فاشلٌ-آمن)", _v, _w)
+
+# ⑤ LVD4 — أثرُ الدمج **بالمجموعات لا بعددٍ سحريّ**: أزواجُ صفوف `indicator` في
+#   الجدول ≡ أزواجُ الملفّ الجانبيّ · وكلُّ صفٍّ منها يحمل تاريخَ زوجه بالضبط.
+try:
+    _tbl = list(_lvd_csv.DictReader(
+        open("faisal_levels_table.tsv", encoding="utf-8"), delimiter="\t"))
+    _pairs = {(r["symbol"], r["line"]) for r in _lvd_sc}
+    _dof = {(r["symbol"], r["line"]): r["date"] for r in _lvd_sc}
+    _ind = [r for r in _tbl if r.get("date_source") in (_lvd_ex.DERIVED_METHODS or set())]
+    _ip = {(r["symbol"], r["line"]) for r in _ind}
+    _inpair = [r for r in _tbl if (r["symbol"], r["line"]) in _pairs]
+    _dates_ok = all(r["date"] == _dof.get((r["symbol"], r["line"])) for r in _ind)
+    _govi = [r for r in _ind if r["role"] == "support" and r["frame"] == "daily"
+             and r["auto_chart"] == "0"]
+    _v = (_ip == _pairs and len(_ind) == len(_inpair) and _dates_ok
+          and len(_ind) >= 1 and len(_govi) >= 1)
+    _w = (f"صفوفٌ مُشتقّة={len(_ind)} من {len(_ip)} زوجًا · كلُّ صفوف الأزواج={len(_inpair)} · "
+          f"التواريخُ مطابقة={_dates_ok} · داخلَ المجتمع الحاكم={len(_govi)}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📅 LVD4 صفوفُ `indicator` في الجدول ≡ أزواجُ الملفّ الجانبيّ بتواريخها "
+      "(مجموعاتٌ لا أعدادٌ سحريّة) · ومنها ما يدخل المجتمعَ الحاكم", _v, _w)
+
+# ⑥ LVD5 — **الدليلُ قراءةُ مؤشّرٍ لا رقمُ صورة** (`T-SUPDEF §①` نافذٌ على المصدر
+#   الجديد): لا بادئةَ صورةٍ في أيّ بصمة · وكلُّ بصمةٍ **تُعرَب** قراءاتِ مؤشّرٍ
+#   بعددِ أجزائها · وشاهدُ ضبطٍ يُثبت أن رقمَ الصورة يُعرَب صفرًا فيُكشَف.
+try:
+    _pref = [r["symbol"] for r in _lvd_sc if _LVD_IMG.search(r.get("fingerprint", ""))]
+    _parse_ok, _detail = True, []
+    for _r in _lvd_sc:
+        _fp = _r.get("fingerprint", "")
+        _got = len(_lvd_ia.parse_fingerprints(_fp, "daily"))
+        _want = len([x for x in _fp.split(" | ") if x.strip()])
+        _detail.append(f"{_r['symbol']}:{_got}/{_want}")
+        if _got != _want or _got < 1:
+            _parse_ok = False
+    _ctrl = _lvd_ia.parse_fingerprints("IMG_4123 · صورةٌ 8107/8108", "daily") == []
+    _v = not _pref and _parse_ok and _ctrl and bool(_lvd_sc)
+    _w = f"بادئةُ صورة={_pref} · إعرابٌ={_detail} · شاهدُ الضبط يمسك={_ctrl}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📅 LVD5 دليلُ التأريخ **قراءةُ مؤشّرٍ تُعرَب** لا رقمُ صورة (وشاهدُ ضبطٍ "
+      "يُثبت أن رقمَ الصورة يُكشَف)", _v, _w)
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

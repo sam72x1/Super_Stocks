@@ -18,6 +18,8 @@ import sys
 
 CAT = "FAISAL_IMAGES_CATALOG.md"
 OUT = "faisal_levels_table.tsv"
+DERIVED = "faisal_derived_dates.tsv"      # ملفٌّ جانبيٌّ: تواريخُ **مُشتقّة** بمرساةٍ مقيسة
+DERIVED_METHODS = {"indicator"}           # مجموعةٌ مُغلَقة — ولا عضوَ يُضاف بلا أداةٍ تُعيد اشتقاقَه
 
 COLOUR = {"🔴": "red", "⚫": "black", "🟣": "purple", "🔵": "blue",
           "🟠": "orange", "🟢": "green", "🟡": "yellow",
@@ -63,6 +65,49 @@ def frame_of(txt: str) -> str:
     if re.search(r"يومي|يوميّ", t):
         return "daily"
     return "unknown"
+
+
+def load_derived(path: str = DERIVED) -> dict:
+    """الملفُّ الجانبيُّ للتواريخ المُشتقّة: `(رمز, سطر)` ⟶ `(تاريخ, طريقة)`.
+
+    **فاشلٌ-آمن:** غيابُ الملفّ ⇒ قاموسٌ فارغ ⇒ الجدولُ كما كان بت-بت. والصفُّ
+    الذي طريقتُه خارج `DERIVED_METHODS` أو تاريخُه غيرُ `YYYY-MM-DD` **يُسقَط**.
+    """
+    out = {}
+    try:
+        fh = open(path, encoding="utf-8")
+    except OSError:
+        return out
+    with fh:
+        for r in csv.DictReader(fh, delimiter="\t"):
+            m = (r.get("method") or "").strip()
+            d = (r.get("date") or "").strip()
+            if m not in DERIVED_METHODS or not RE_HDATE.fullmatch(d):
+                continue
+            try:
+                out[((r.get("symbol") or "").strip(), int(r["line"]))] = (d, m)
+            except (KeyError, TypeError, ValueError):
+                continue
+    return out
+
+
+def apply_derived(rows: list, derived: dict) -> int:
+    """يملأ تاريخَ الصفوف **الفارغة وحدَها** من الملفّ الجانبيّ بوسمِ مصدرٍ مستقلّ.
+
+    🔒 **لا يدهس مصدرًا مسجَّلًا** (`filename`/`header`): المسجَّلُ أقوى من المُشتقّ،
+    والوسمُ يبقى مميَّزًا فتقرأ كلُّ تجربةٍ أنّ التاريخَ **مُشتقٌّ لا مسجَّل**.
+    يُرجع عددَ ما طُبِّق.
+    """
+    n = 0
+    for r in rows:
+        if r["date"]:
+            continue
+        hit = derived.get((r["symbol"], r["line"]))
+        if not hit:
+            continue
+        r["date"], r["date_source"] = hit
+        n += 1
+    return n
 
 
 def main() -> int:
@@ -136,6 +181,7 @@ def main() -> int:
                          "date_source": dsrc, "frame": fr, "colour": col,
                          "role": ROLE.get(col, "unmapped"), "level": lv,
                          "auto_chart": int(auto), "raw": snippet})
+    n_der = apply_derived(rows, load_derived())
     with open(OUT, "w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()), delimiter="\t")
         w.writeheader()
@@ -147,6 +193,8 @@ def main() -> int:
     print("   بالدور:", dict(Counter(r["role"] for r in rows)))
     print("   بالفريم:", dict(Counter(r["frame"] for r in rows)))
     print("   بمصدر التاريخ:", dict(Counter(r["date_source"] or "none" for r in rows)))
+    print(f"   📅📉 مُشتقٌّ بمرساة المؤشّر (ملفٌّ جانبيّ): {n_der} صفًّا "
+          f"⟵ {DERIVED} (لا يدهس مسجَّلًا · ولا يُقرأ مسجَّلًا)")
     syms = {r["symbol"] for r in rows if r["symbol"]}
     print(f"   رموزٌ متمايزة: {len(syms)} · بلا رمز: {sum(1 for r in rows if not r['symbol'])}")
     print(f"   شارتاتٌ آليّة (CH_/APP_): {sum(r['auto_chart'] for r in rows)}")
@@ -154,12 +202,16 @@ def main() -> int:
            and not r["auto_chart"]]
     g_f = [r for r in gov if r["date_source"] == "filename"]
     g_h = [r for r in gov if r["date_source"] == "header"]
+    g_i = [r for r in gov if r["date_source"] in DERIVED_METHODS]
     print()
     print("═══ المجتمعُ القابلُ للقياس (دعمٌ أحمر · يوميّ · غيرُ آليّ) ═══")
     print(f"   إجمالًا: {len(gov)} صفًّا من {len({r['symbol'] for r in gov})} رمزًا")
     print(f"   مؤرَّخٌ باسم الملفّ: {len(g_f)} · مؤرَّخٌ بعنوان الدفعة: {len(g_h)} · "
-          f"بلا تاريخ: {len(gov)-len(g_f)-len(g_h)}")
+          f"مُشتقٌّ بالمؤشّر: {len(g_i)} · "
+          f"بلا تاريخ: {len(gov)-len(g_f)-len(g_h)-len(g_i)}")
     print("   ⚠️ تاريخُ العنوان = تاريخُ استلام الدفعة لا تاريخُ الشارت (أضعف).")
+    print("   ⚠️ والمُشتقُّ بالمؤشّر **مُشتقٌّ لا مسجَّل** — وسمُه مستقلٌّ عمدًا "
+          "ويُعاد اشتقاقُه بـ`faisal_indicator_anchor`.")
     return 0
 
 

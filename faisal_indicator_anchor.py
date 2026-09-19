@@ -50,6 +50,7 @@ import faisal_price_anchor as pa
 CAT = pa.CAT
 LEVELS_TSV = "faisal_levels_table.tsv"
 OUT = "faisal_indicator_anchor_dates.tsv"
+DERIVED_SRC = "indicator"       # وسمُ المصدر الذي تُكتَب به تواريخُ هذي الأداة في الجدول
 W0, W1 = pa.W0, pa.W1
 # ‏🔥 **تسخينٌ قبل النافذة:** `RSI(14)` و`MACD(26)` مؤشّراتٌ أُسّيّةٌ تحتاج تاريخًا
 # ‏سابقًا لتستقرّ. التحميلُ من `W0` نفسِه يجعل أوائلَ النافذة **مُقاسةً على بذرةٍ
@@ -244,11 +245,19 @@ def targets(scope: str = "all") -> list:
     """أهدافُ التأريخ: `{symbol, line, frame}` لكلّ صفٍّ غيرِ مؤرَّخ (مكرَّراتٌ مطويّة).
 
     `scope="gov"` = نطاقُ `faisal_price_anchor.targets` نفسُه (دعمٌ · يوميّ ·
-    غيرُ آليّ) ⇒ يُقارَن به بت-بت في السويّة."""
+    غيرُ آليّ) ⇒ يُقارَن به بت-بت في السويّة.
+
+    `scope="recheck"` = **عكسُ الفلتر**: الصفوفُ التي أرّخَتها هذي الأداةُ سلفًا
+    (‏`date_source == DERIVED_SRC`) ⇒ يُعاد اشتقاقُ تاريخها ويُقارَن بالمكتوب.
+    بدونه يستحيل إعادةُ الاشتقاق بعد الدمج لأن الصفَّ يصير مؤرَّخًا فيسقط من
+    الفلتر — **فالقابليّةُ للمراجعة تُبنى ولا تُدَّعى**."""
     rows = list(csv.DictReader(open(LEVELS_TSV, encoding="utf-8"), delimiter="\t"))
     seen, out = set(), []
     for r in rows:
-        if r["date"].strip():
+        if scope == "recheck":
+            if r.get("date_source", "").strip() != DERIVED_SRC:
+                continue
+        elif r["date"].strip():
             continue
         if r["frame"] != "daily":
             # ‏لا شموعَ إلّا يوميّة ⇒ لا يُؤرَّخ صفٌّ فريمُه غيرُها (ولا يُستعار
@@ -405,8 +414,8 @@ def collect(scope: str = "all") -> list:
 
 def main() -> int:
     scope = (os.environ.get("IND_SCOPE") or "all").strip().lower()
-    if scope not in ("all", "gov"):
-        log(f"⛔ نطاقٌ غيرُ معروف: {scope!r} (المسموح: all · gov)")
+    if scope not in ("all", "gov", "recheck"):
+        log(f"⛔ نطاقٌ غيرُ معروف: {scope!r} (المسموح: all · gov · recheck)")
         return 2
     log("📅📉 التأريخُ ببصمة المؤشّر (قراءةٌ فقط · RSI ثابتٌ تحت القياس · MACD مُسوًّى بالتقسيم)")
     tg = collect(scope)
