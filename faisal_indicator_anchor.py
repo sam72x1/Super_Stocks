@@ -482,7 +482,10 @@ def main() -> int:
                 cm = cands if m == TOL_MULT else _at(m)[0]
                 sens[m][judge(cm)] += 1
                 if rec:
-                    wit_m[m][witness_of(cm[0] if len(cm) == 1 else "", rec) or "—"] += 1
+                    # 🔴 يُطوى وسمُ المصدر قبل العدّ — وإلّا عدَّ `AGREE(tight)` مفتاحًا
+                    #    آخرَ فطبع السطرُ `agree=0` وهو ثلاثة: **سطرُ عرضٍ يكذب**.
+                    _wm = witness_of(cm[0] if len(cm) == 1 else "", rec) or "—"
+                    wit_m[m][_wm.split("(")[0]] += 1
                 # أوّلُ مضاعفٍ يجعلها وحيدةً **ويتّفق** مع الشاهد — وصفيٌّ لا حاكم
                 if (not row["witness_at"]) and len(cm) == 1 \
                         and witness_of(cm[0], rec).startswith("AGREE"):

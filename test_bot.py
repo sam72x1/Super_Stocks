@@ -54808,6 +54808,11 @@ try:
         (_iak_mod.witness_of("x", {}) == "", "بلا شاهدٍ أصلًا"),
         (_iak_mod.witness_of("2026-04-01", _rp).endswith("(tol)"), "المصدرُ موسوم"),
     ]
+    # ‏عدَّادُ الحساسيّة يطوي الوسمَ قبل العدّ (وإلّا قرأ السطرُ `agree=0` وهي ثلاثة)
+    import re as _iak12_re
+    _src12 = _insp0.getsource(_iak_mod.main)
+    _fold = bool(_iak12_re.search(r"wit_m\[m\]\[[^\]]*split\(\"\(\"\)\[0\]\]", _src12))
+    _cases.append((_fold, "طيُّ الوسم قبل العدّ"))
     _bad = [m for ok, m in _cases if not ok]
     # والقاعدةُ مصدرُها الوثيقةُ المدموجة لا اجتهادُ الأداة
     _doc = "آخرُ جلسةٍ مكتملة" in open("support_def_prereg.md", encoding="utf-8").read()
