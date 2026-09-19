@@ -2652,3 +2652,4 @@
 {"key": "envelope|2026-09-18|WYHG", "hunter": "envelope", "session": "2026-09-18", "symbol": "WYHG", "kind": "candidate", "ref_close": 4.190000057220459, "fwd": 40, "outcome": null}
 {"key": "envelope|2026-09-18|XNDU", "hunter": "envelope", "session": "2026-09-18", "symbol": "XNDU", "kind": "candidate", "ref_close": 7.420000076293945, "fwd": 40, "outcome": null}
 {"key": "envelope|2026-09-18|YXT", "hunter": "envelope", "session": "2026-09-18", "symbol": "YXT", "kind": "candidate", "ref_close": 2.299999952316284, "fwd": 40, "outcome": null}
+{"key": "split|2026-09-18|YHC", "hunter": "split", "session": "2026-09-18", "symbol": "YHC", "kind": "candidate", "ref_close": 1.2799999713897705, "fwd": 40, "outcome": null, "price": 1.28, "float": 1277897.0, "half": 1.22, "ref": 2.43}
