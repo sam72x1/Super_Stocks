@@ -38,6 +38,7 @@ import sys
 import Super_stock as bot
 
 CAT = "FAISAL_IMAGES_CATALOG.md"
+DERIVED_SRC = "price"   # وسمُ المصدر الذي تُكتَب به تواريخُ هذي الأداة في الجدول
 TOL = 0.75          # % على الإغلاق المُشتقّ
 RANGE_SLACK = 1.0   # % سماحية على حدود مدى اليوم (spot)
 W0, W1 = "2025-01-01", "2026-08-31"
@@ -67,6 +68,20 @@ def parse_anchors(line: str) -> list:
             pct = (-1.0 if m.group(3) in "‑-−" else 1.0) * float(m.group(4))
         out.append({"kind": kind, "px": float(m.group(2)), "pct": pct})
     return out
+
+
+def anchor_fingerprint(a: dict) -> str:
+    """نصٌّ **قانونيٌّ** للمرساة يُعاد اشتقاقُه من الكاتالوج بلا شبكة.
+
+    هو دليلُ التأريخ المكتوبُ في الملفّ الجانبيّ: نوعُ المرساة والسعرُ المسجَّل
+    والنسبةُ إن وُجدت — **لا رقمَ صورةٍ ولا تاريخ**. مثاله: `spot 3.105 (+32.13%)`.
+    """
+    if not a:
+        return ""
+    px = f"{float(a['px']):g}"
+    if a.get("pct") is None:
+        return f"{a['kind']} {px}"
+    return f"{a['kind']} {px} ({float(a['pct']):+g}%)"
 
 
 def implied_close(a: dict) -> float:
@@ -115,13 +130,25 @@ def match_days(bars: list, a: dict, splits=None, w0: str = W0, w1: str = W1,
 
 
 # ═══════════════ ② الأهداف من الكاتالوج والجدول ════════════════════
-def targets():
+def targets(scope: str = "pending"):
+    """أهدافُ التأريخ: `{symbol, line, anchor, anchor_line}`.
+
+    `scope="pending"` (الافتراض) = الصفوفُ **غيرُ المؤرَّخة** — سلوكُ ما قبل الدمج حرفيًّا.
+    `scope="recheck"` = **عكسُ الفلتر**: الصفوفُ التي أرّختها هذي الأداةُ سلفًا
+    (‏`date_source == DERIVED_SRC`) ⇒ يُعاد اشتقاقُ تاريخها ويُقارَن بالمكتوب.
+    بدونه تستحيل إعادةُ الاشتقاق بعد الدمج لأن الصفَّ يصير مؤرَّخًا فيسقط من الفلتر —
+    **فالقابليّةُ للمراجعة تُبنى ولا تُدَّعى**.
+    """
     lines = open(CAT, encoding="utf-8").read().splitlines()
     rows = list(csv.DictReader(open("faisal_levels_table.tsv", encoding="utf-8"), delimiter="\t"))
     seen, out = set(), []
     for r in rows:
-        if not (r["role"] == "support" and r["frame"] == "daily" and r["auto_chart"] == "0"
-                and not r["date"]):
+        if not (r["role"] == "support" and r["frame"] == "daily" and r["auto_chart"] == "0"):
+            continue
+        if scope == "recheck":
+            if r.get("date_source", "").strip() != DERIVED_SRC:
+                continue
+        elif r["date"]:
             continue
         key = (r["symbol"], int(r["line"]))
         if key in seen:

@@ -17,14 +17,14 @@ line	images	symbol	date	date_source	frame	colour	role	level	auto_chart	raw
 40	IMG_6004/6005/6006	TRUG			daily	black	resistance	5.389	0	5.928/5.389/5.096/4.887(أسود)
 40	IMG_6004/6005/6006	TRUG			daily	black	resistance	5.096	0	5.928/5.389/5.096/4.887(أسود)
 40	IMG_6004/6005/6006	TRUG			daily	black	resistance	4.887	0	5.928/5.389/5.096/4.887(أسود)
-41	IMG_6004/6005/6006	TRUG			daily	red	support	4.47	0	4.470(أحمر)
-41	IMG_6004/6005/6006	TRUG			daily	purple	bid_entry	4.159	0	4.159(بنفسجي)
-41	IMG_6004/6005/6006	TRUG			daily	red	support	3.967	0	3.967(أحمر)
-45	IMG_6215	TURB			daily	black	resistance	8.185	0	8.185(أسود)
-45	IMG_6215	TURB			daily	blue	target_clean	6.532	0	6.532(أزرق)
-45	IMG_6215	TURB			daily	blue	target_clean	4.735	0	4.735(أزرق)
-45	IMG_6215	TURB			daily	purple	bid_entry	3.79	0	3.790(بنفسجي)
-45	IMG_6215	TURB			daily	red	support	2.819	0	2.819(أحمر)
+41	IMG_6004/6005/6006	TRUG	2026-03-27	price	daily	red	support	4.47	0	4.470(أحمر)
+41	IMG_6004/6005/6006	TRUG	2026-03-27	price	daily	purple	bid_entry	4.159	0	4.159(بنفسجي)
+41	IMG_6004/6005/6006	TRUG	2026-03-27	price	daily	red	support	3.967	0	3.967(أحمر)
+45	IMG_6215	TURB	2026-04-02	price	daily	black	resistance	8.185	0	8.185(أسود)
+45	IMG_6215	TURB	2026-04-02	price	daily	blue	target_clean	6.532	0	6.532(أزرق)
+45	IMG_6215	TURB	2026-04-02	price	daily	blue	target_clean	4.735	0	4.735(أزرق)
+45	IMG_6215	TURB	2026-04-02	price	daily	purple	bid_entry	3.79	0	3.790(بنفسجي)
+45	IMG_6215	TURB	2026-04-02	price	daily	red	support	2.819	0	2.819(أحمر)
 49	IMG_6206	NEXR	2026-04-01	indicator	daily	purple	bid_entry	3.258	0	3.258(بنفسجي)
 49	IMG_6206	NEXR	2026-04-01	indicator	daily	blue	target_clean	2.849	0	2.849(أزرق)
 49	IMG_6206	NEXR	2026-04-01	indicator	daily	black	resistance	2.497	0	2.497/2.312(أسود)
@@ -60,7 +60,7 @@ line	images	symbol	date	date_source	frame	colour	role	level	auto_chart	raw
 73	IMG_6390	GRI			daily	blue	target_clean	4.373	0	4.373(أزرق)
 73	IMG_6390	GRI			daily	black	resistance	3.703	0	3.703(أسود)
 73	IMG_6390	GRI			daily	purple	bid_entry	2.97	0	2.970(بنفسجي)
-74	IMG_6390	GRI			daily	red	support	2.1	0	2.100(أحمر)
+74	IMG_6390	GRI	2026-04-13	price	daily	red	support	2.1	0	2.100(أحمر)
 79	IMG_6457/6459/6458	ARAI			intraday	black	resistance	1.7767	0	1.7767(أسود)
 79	IMG_6457/6459/6458	ARAI			intraday	green	unmapped	1.65	0	1.6500(أخضر)
 79	IMG_6457/6459/6458	ARAI			intraday	red	support	1.3133	0	1.3133(أحمر)
@@ -139,10 +139,10 @@ line	images	symbol	date	date_source	frame	colour	role	level	auto_chart	raw
 151	IMG_6761				unknown	black	resistance	3.508	0	3.508(أسود)
 151	IMG_6761				unknown	blue	target_clean	2.778	0	2.778(أزرق)
 151	IMG_6761				unknown	black	resistance	2.438	0	2.438(أسود)
-240	IMG_6807	VEEE			daily	blue	target_clean	8.8	0	🔵8.80
-240	IMG_6807	VEEE			daily	red	support	5.99	0	🔴5.99/5.76
-240	IMG_6807	VEEE			daily	red	support	5.76	0	🔴5.99/5.76
-240	IMG_6807	VEEE			daily	black	resistance	5.0	0	⚫5.00
+240	IMG_6807	VEEE	2026-05-14	price	daily	blue	target_clean	8.8	0	🔵8.80
+240	IMG_6807	VEEE	2026-05-14	price	daily	red	support	5.99	0	🔴5.99/5.76
+240	IMG_6807	VEEE	2026-05-14	price	daily	red	support	5.76	0	🔴5.99/5.76
+240	IMG_6807	VEEE	2026-05-14	price	daily	black	resistance	5.0	0	⚫5.00
 244	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	68.18	0	🔵68.18/58.14/54.35/49.51/44.23/28.90
 244	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	58.14	0	🔵68.18/58.14/54.35/49.51/44.23/28.90
 244	IMG_6782/7362/8082/7360	SMX			h4	blue	target_clean	54.35	0	🔵68.18/58.14/54.35/49.51/44.23/28.90

@@ -277,7 +277,10 @@ def anchor_scan(hist):
     """يُعيد `(الحالاتُ الداخلة، الوصفيُّ الضيّق، التشخيص)` بنداء
     `faisal_price_anchor` **بالاسم** وبثوابتِه نفسِها — `§⑩-ⓐ`/`§⑩-ⓑ`."""
     cases, tight_only, diag = [], [], []
-    for t in pa.targets():
+    # 🔑 «دمج مرساة السعر» (2026-09-19): الأربعةُ صارت مؤرَّخةً في الجدول فتسقط
+    #    من `pending` ⇒ المصدرُ `recheck` = **ما أرّخَته هذي الأداةُ بنفسها**.
+    #    تشديدٌ لا إرخاء، و`V-S6` يبقى الحاكمَ على الهُويّة.
+    for t in pa.targets("recheck"):
         a = t.get("anchor")
         if not a or a.get("pct") is None:          # `ⓐ`: الرخوةُ خارجَ المجتمع
             continue
@@ -425,7 +428,9 @@ CLOSED_TXT = (
     "   ‏2) **معيارٌ مسجَّلٌ في ملحقٍ مؤرَّخٍ جديد** يناسب العيّنةَ الصغيرة، "
     "**ولا يكون تخفيضًا لحدٍّ رأيتُ قيمتَه**.\n"
     "   ‏3) **إذنُ المالك.**\n"
-    "   ⚙️ والإقرارُ `SUPDEF_REOPEN=1` — إقرارٌ بالثلاثة لا التفافٌ عليها."
+    "   ⚙️ والإقرارُ `SUPDEF_REOPEN=1` — إقرارٌ بالثلاثة لا التفافٌ عليها.\n"
+    "   📎 وحالةُ الشروط مسجَّلةٌ في **ملحق `§⑪`** (‏2026-09-19): الثلاثةُ\n"
+    "   مستوفاةٌ بالتسجيل — **والناقصُ أمرُ تشغيلٍ صريحٌ من المالك وحدَه**."
 )
 
 
@@ -465,7 +470,7 @@ def main() -> int:
         return 7
 
     hist_old = bot.download_history(sorted({c[0] for c in CASES}))
-    asyms = sorted({t["symbol"] for t in pa.targets()
+    asyms = sorted({t["symbol"] for t in pa.targets("recheck")
                     if t.get("anchor") and t["anchor"].get("pct") is not None})
     hist_new = bot.download_history(asyms, start_override=pa.W0) if asyms else {}
     acases, tight_only, diag = anchor_scan(hist_new)

@@ -11953,6 +11953,36 @@ check(f"🧠 MEM7: سجلُّ الدعاوى المسحوبة ({len(_MEM_RETRACT
       "تظهر إلّا داخل فقرةٍ تحمل وسمَ سحب",
       not _mem7_bad, "; ".join(_mem7_bad[:4]))
 
+# 🔴 MEM8 — أُضيف 2026-09-19 بعد عيبٍ **قِسته بنفسي**: أربعةُ أعدادٍ **حيّة** في
+#    ترويسة `CLAUDE.md` كانت تكذب (‏278 · 265 · 288 · 264 والمقيسُ 308 · 296) —
+#    والفجوةُ سابقةٌ لبندِ اليوم (‏288 مقابل 306 قبله). **و`MEM4` لا يمسكها** لأنه
+#    يشترط «‏≥200 صفًّا» فيمرّ على أيّ رقمٍ كاذب — **عدّادٌ لا تحقّق**، وهو بعينه
+#    العيبُ الذي وُلد منه `MEM5`.
+#    العقد: كلُّ عددٍ حيٍّ يُكتَب بصيغةٍ **ذاتيّةِ الوسم** `N بندًا مفهرسًا · <أرشيف>`
+#    ويُقارَن بالعدّ الفعليّ لصفوف فهرسه ⇒ **بندٌ يُضاف بلا تحديثٍ يُسقط السويّة.**
+#    ⚠️ **والأعدادُ التاريخية خارجَ مداه عمدًا** (‏«‏243 نُقلت» · «‏252») — فهي تصف
+#    ما جرى يومَها لا حالةَ اليوم، وتغييرُها تزويرٌ لا تحديث.
+_MEM8_RE = _mem_re.compile(r"(\d+) بندًا مفهرسًا · (قرارات|هاندوف)")
+try:
+    _m8_live = {
+        "قرارات": len(_mem_re.findall(r"^\| \d+ \|", _mem_cl, _mem_re.M)),
+        "هاندوف": len(_mem_re.findall(
+            r"^\| \d+ \|", open("HANDOFF.md", encoding="utf-8").read(), _mem_re.M)),
+    }
+    _m8_claims = _MEM8_RE.findall(_mem_cl)
+    _m8_bad = [f"{n}≠{_m8_live[k]}({k})" for n, k in _m8_claims if int(n) != _m8_live[k]]
+    # شاهدُ ضبط: الكاشفُ يمسك رقمًا كاذبًا (وإلّا فالقفلُ لا يُكذَّب أبدًا)
+    _m8_ctrl = [f"{n}≠{_m8_live[k]}" for n, k in _MEM8_RE.findall("‏999 بندًا مفهرسًا · قرارات")
+                if int(n) != _m8_live[k]]
+    _v = (len(_m8_claims) >= 4 and not _m8_bad and len(_m8_ctrl) == 1
+          and set(k for _n, k in _m8_claims) == {"قرارات", "هاندوف"})
+    _w = (f"دعاوى={len(_m8_claims)} {_m8_claims} · الحيُّ={_m8_live} · كاذبة={_m8_bad} · "
+          f"شاهدُ الضبط يمسك={len(_m8_ctrl) == 1}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧠 MEM8: كلُّ **عددٍ حيٍّ** في ترويسة الذاكرة يُطابق العدَّ الفعليَّ لفهرسه "
+      "(‏≥4 دعاوى · والأرشيفان كلاهما مُغطًّى · وشاهدُ ضبطٍ يمسك الكاذب)", _v, _w)
+
 
 # ══════════════════════════════════════════════════════════════════════════
 # 📚 **والهاندوفُ أُرشِف مثلَه** (‏2026-09-08، أمرُ المالك «أرشف الهاندوف»)
@@ -46346,7 +46376,10 @@ try:
     import re as _sdx_re
 
     import faisal_price_anchor as _sdx_pa
-    _sdx_live = {t["symbol"]: t["anchor"] for t in _sdx_pa.targets()
+    # 🔑 بعد دمج مرساة السعر صارت الأربعةُ **مؤرَّخةً** فتسقط من `pending` ⇒
+    #    المصدرُ الصحيحُ `recheck` (‏«ما أرّخَته هذي الأداة») — **تشديدٌ لا إرخاء**:
+    #    كان «ما بقي غيرَ مؤرَّخ» وصار «ما تدّعي الأداةُ أنها أرّخته».
+    _sdx_live = {t["symbol"]: t["anchor"] for t in _sdx_pa.targets("recheck")
                  if t.get("anchor") and t["anchor"].get("pct") is not None}
     _sdx_tsv = list(_sdx_csv.DictReader(
         open("faisal_levels_table.tsv", encoding="utf-8"), delimiter="\t"))
@@ -46508,7 +46541,7 @@ check("🧾📐🔒 LVT1 كلُّ مستوًى في الجدول **موجودٌ 
 #   **فقط** إن كان مسنودًا بصفٍّ في الملفّ الجانبيّ **بنفس التاريخ** ⇒ توسيعُ
 #   المجموعة **تشديدٌ في المضمون**: الثلاثةُ الأخرى تُصدَّق بلا سند، وهذا لا.
 #   وبصمتُه تُعاد من الكاتالوج بلا شبكة في `LVD1`.
-_LVT_SRC = {"", "filename", "header", "exif", "indicator"}
+_LVT_SRC = {"", "filename", "header", "exif", "indicator", "price"}
 _lvt2_bad = sorted({r.get("date_source", "?") for r in _lvt_rows} - _LVT_SRC)
 _lvt2_pair = [r for r in _lvt_rows if bool(r.get("date")) != bool(r.get("date_source"))]
 try:
@@ -46516,11 +46549,12 @@ try:
         open("faisal_derived_dates.tsv", encoding="utf-8"), delimiter="\t")}
 except Exception:                                                 # noqa: BLE001
     _lvt2_sc = {}
+_LVT_DERIVED = {"indicator", "price"}
 _lvt2_unbacked = [f"{r['symbol']}:{r['line']}" for r in _lvt_rows
-                  if r.get("date_source") == "indicator"
+                  if r.get("date_source") in _LVT_DERIVED
                   and _lvt2_sc.get((r.get("symbol"), r.get("line"))) != r.get("date")]
-check("🧾📐🔒 LVT2 مصدرُ التاريخ من مجموعةٍ مُغلَقة (filename·header·exif·indicator) أو "
-      "فارغ · ولا تاريخَ بلا مصدرٍ ولا مصدرَ بلا تاريخ · **ولا `indicator` بلا سندٍ "
+check("🧾📐🔒 LVT2 مصدرُ التاريخ من مجموعةٍ مُغلَقة (filename·header·exif·indicator·price) أو "
+      "فارغ · ولا تاريخَ بلا مصدرٍ ولا مصدرَ بلا تاريخ · **ولا مُشتقٌّ بلا سندٍ "
       "في الملفّ الجانبيّ**",
       not _lvt_err and not _lvt2_bad and not _lvt2_pair and not _lvt2_unbacked,
       f"مصادرُ دخيلة={_lvt2_bad} · غيرُ متّسق={len(_lvt2_pair)} · "
@@ -54562,7 +54596,10 @@ try:
     _iak_p = [(t["symbol"], t["line"]) for t in _iak_pa.targets()]
     _iak_a = [(t["symbol"], t["line"]) for t in _iak_mod.targets("all")]
     _iak_daily_only = all(t["frame"] == "daily" for t in _iak_mod.targets("all"))
-    _v = (_iak_g == _iak_p and len(_iak_g) >= 10 and set(_iak_g) <= set(_iak_a)
+    # ⚠️ الأرضيّةُ ‏1 لا ‏10: المجتمعُ **ينكمش بالتصميم** كلّما أُرّخ صفّ
+    #    (‏18 ⟶ 14 ⟶ 10) ⇒ أرضيّةٌ ثابتةٌ كبيرةٌ تسقط يومًا على نجاحٍ لا عطب.
+    #    وحفظُ المضمون في `LVD7` (قانونُ بقاءٍ لا يتعفّن) لا في رقمٍ هنا.
+    _v = (_iak_g == _iak_p and len(_iak_g) >= 1 and set(_iak_g) <= set(_iak_a)
           and len(_iak_a) > len(_iak_g) and _iak_daily_only)
     _w = f"gov={len(_iak_g)} price={len(_iak_p)} متطابق={_iak_g == _iak_p} all={len(_iak_a)} يوميٌّ فقط={_iak_daily_only}"
 except Exception as _e:                                          # noqa: BLE001
@@ -54891,12 +54928,13 @@ _LVD_COLS = {"symbol", "line", "date", "method", "fingerprint", "max_diff", "run
 _LVD_IMG = _lvd_re.compile(r"(?:TG|X|CH|APP|WA|IMG)_")
 try:
     import faisal_indicator_anchor as _lvd_ia
+    import faisal_price_anchor as _lvd_pa
     import faisal_levels_extract as _lvd_ex
     _lvd_sc = list(_lvd_csv.DictReader(
         open("faisal_derived_dates.tsv", encoding="utf-8"), delimiter="\t"))
     _lvd_e0 = ""
 except Exception as _e:                                          # noqa: BLE001
-    _lvd_ia = _lvd_ex = None
+    _lvd_ia = _lvd_ex = _lvd_pa = None
     _lvd_sc, _lvd_e0 = [], f"⛔ {type(_e).__name__}: {_e}"
 
 # ① LVD0 — شكلُ الملفّ الجانبيّ: أعمدةٌ كاملة · تاريخٌ صالحٌ **يومَ تداولٍ** داخل
@@ -54933,39 +54971,69 @@ except Exception as _e:                                          # noqa: BLE001
 check("🧾📅 LVD0 الملفُّ الجانبيّ: أعمدةٌ كاملة · تاريخٌ صالحٌ **يومَ تداولٍ** داخل نافذة "
       "الأداة · طريقةٌ من مجموعةٍ مُغلَقة · ولا صفَّ بلا بصمة", _v, _w)
 
-# ② LVD1 — 🔑 **البصمةُ تُعاد من الكاتالوج بلا شبكة** (سلوكيًّا): نطاقُ `recheck`
-#   يختار الصفوفَ التي أرّختها الأداةُ سلفًا، و`collect` يُخرج **نفسَ** نصّ البصمة.
-#   وهذا هو الفرقُ الجوهريُّ عن `header`/`filename`: لا يُعاد اشتقاقُهما أبدًا.
+# ② LVD1 — 🔑 **البصمةُ تُعاد من الكاتالوج بلا شبكة** (سلوكيًّا) · **ولكلّ طريقةٍ
+#   أداتُها**: `indicator` ⟵ `faisal_indicator_anchor.collect("recheck")` و`price` ⟵
+#   `faisal_price_anchor.targets("recheck")` + `anchor_fingerprint`. وهذا هو الفرقُ
+#   الجوهريُّ عن `header`/`filename`: لا يُعاد اشتقاقُهما أبدًا.
 try:
-    _rc = _lvd_ia.collect("recheck")
-    _live = {(t["symbol"], t["line"]): " | ".join(f["raw"] for f in t["fps"]) for t in _rc}
+    _live = {}
+    for _t in _lvd_ia.collect("recheck"):
+        _live[(_t["symbol"], _t["line"])] = " | ".join(f["raw"] for f in _t["fps"])
+    for _t in _lvd_pa.targets("recheck"):
+        _live[(_t["symbol"], _t["line"])] = _lvd_pa.anchor_fingerprint(_t["anchor"])
     _rec = {(r["symbol"], int(r["line"])): r["fingerprint"] for r in _lvd_sc}
     _same = _live == _rec and all(bool(x) for x in _live.values())
+    _meth = {(r["symbol"], int(r["line"])): r["method"] for r in _lvd_sc}
+    _cover = sorted({_meth[k] for k in _live if k in _meth})
     _tamper = dict(_rec)
     _k0 = sorted(_tamper)[0]
     _tamper[_k0] = _tamper[_k0] + "‏X"                # بصمةٌ مبدَّلةٌ يجب أن تُكشَف
     _caught = _live != _tamper
-    _v = _same and _caught and len(_live) >= 1
-    _w = f"أزواج={len(_live)} مطابقٌ بت-بت={_same} شاهدُ الضبط يمسك={_caught}"
+    # وكلُّ طريقةٍ في الملفّ الجانبيّ **لها أداةٌ تُعيدها** — وإلّا فالعضوُ بلا حارس
+    _orphan = sorted(set(_meth.values()) - set(_cover))
+    _v = _same and _caught and len(_live) >= 1 and not _orphan
+    _w = (f"أزواج={len(_live)} مطابقٌ بت-بت={_same} شاهدُ الضبط يمسك={_caught} "
+          f"طرائقُ مُغطّاة={_cover} بلا أداة={_orphan}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🧾📅 LVD1 بصمةُ كلِّ تاريخٍ مُشتقٍّ **تُعاد من الكاتالوج بلا شبكة** عبر نطاق "
-      "`recheck` (وشاهدُ ضبطٍ يمسك التبديل)", _v, _w)
+check("🧾📅 LVD1 بصمةُ كلِّ تاريخٍ مُشتقٍّ **تُعاد من الكاتالوج بلا شبكة** بأداةِ طريقتِه "
+      "عبر نطاق `recheck` · **ولا طريقةَ بلا أداةٍ تُعيدها** (وشاهدُ ضبطٍ يمسك التبديل)", _v, _w)
 
-# ③ LVD2 — **مصدرٌ إلى مصدر**: تواريخُ الملفّ الجانبيّ **منشورةٌ** في تقرير مصادر
-#   التأريخ · ورقمُ التشغيلة **واحدٌ** ومذكورٌ فيه ⇒ لا رقمَ يُكتَب بيدٍ في القفل.
+# ③ LVD2 — **مصدرٌ إلى مصدر · لكلّ طريقةٍ وثيقتُها المدموجة**: تواريخُ `indicator`
+#   منشورةٌ في تقرير مصادر التأريخ · وتواريخُ `price` في **جدول ⓑ من عقد `T-SUPDEF`
+#   المدموج** · ورقمُ تشغيلةِ كلّ طريقةٍ **واحدٌ** ومذكورٌ في وثيقتها ⇒ **لا رقمَ
+#   ولا تاريخَ يُكتَب بيدٍ في القفل.**
+# 🔑 **الوثيقةُ الأولى حاكمةٌ للتواريخ** (مصدرُ الحقيقة الوحيد) · **ورقمُ التشغيلة
+#    يُقبَل من أيٍّ من وثائق الطريقة** — لأن أثرَ تشغيلةِ مرساة السعر منشورٌ في حزمة
+#    الاستخراج بينما تواريخُها المعتمَدة في **جدول `ⓑ` من العقد المدموج**.
+#    (‏وهذا الفصلُ اكتشفه القفلُ نفسُه: سقط أوّلَ تشغيلٍ لأنّي افترضتُ وثيقةً واحدة.)
+_LVD_DOC = {"indicator": ("faisal_dating_sources.md",),
+            "price": ("support_def_prereg.md", "OPUS_FAISAL_MAX_PACKAGE_2026-09-18.md")}
 try:
-    _rep = open("faisal_dating_sources.md", encoding="utf-8").read()
-    _pub = set(_lvd_re.findall(r"\*\*(20\d{2}-\d{2}-\d{2})\*\*", _rep))
-    _scd = {r["date"] for r in _lvd_sc}
-    _runs = {r["run_id"] for r in _lvd_sc}
-    _run_ok = len(_runs) == 1 and next(iter(_runs)) in _rep
-    _v = bool(_scd) and _scd <= _pub and _run_ok
-    _w = f"الملفّ={sorted(_scd)} ⊆ المنشور={sorted(_pub)} · تشغيلة={_runs} فيه={_run_ok}"
+    _bad2 = []
+    _seen2 = {}
+    for _m, _fs in _LVD_DOC.items():
+        _rows_m = [r for r in _lvd_sc if r["method"] == _m]
+        if not _rows_m:
+            _bad2.append(f"{_m}: صفرُ صفوف")
+            continue
+        _docs = [open(_f, encoding="utf-8").read() for _f in _fs]
+        _pub = set(_lvd_re.findall(r"(20\d{2}-\d{2}-\d{2})", _docs[0]))
+        _scd = {r["date"] for r in _rows_m}
+        _runs = {r["run_id"] for r in _rows_m}
+        if not _scd <= _pub:
+            _bad2.append(f"{_m}: تواريخُ غيرُ منشورةٍ في {_fs[0]}: {sorted(_scd - _pub)}")
+        if not (len(_runs) == 1 and any(next(iter(_runs)) in _d for _d in _docs)):
+            _bad2.append(f"{_m}: تشغيلة {_runs} ليست في {list(_fs)}")
+        _seen2[_m] = (len(_rows_m), sorted(_scd), sorted(_runs))
+    # وكلُّ طريقةٍ في الملفّ لها وثيقةٌ مُعلَنة — وإلّا فتاريخٌ بلا مصدرٍ منشور
+    _nodoc = sorted({r["method"] for r in _lvd_sc} - set(_LVD_DOC))
+    _v = bool(_lvd_sc) and not _bad2 and not _nodoc
+    _w = f"{_seen2} · خلل={_bad2[:3]} · بلا وثيقة={_nodoc}"
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🧾📅 LVD2 تواريخُ الملفّ الجانبيّ **منشورةٌ في التقرير** ورقمُ تشغيلتها واحدٌ "
-      "ومذكورٌ فيه (مصدرٌ إلى مصدر)", _v, _w)
+check("🧾📅 LVD2 تواريخُ كلّ طريقةٍ **منشورةٌ في وثيقتها المدموجة** ورقمُ تشغيلتها واحدٌ "
+      "ومذكورٌ فيها · **ولا طريقةَ بلا وثيقة** (مصدرٌ إلى مصدر)", _v, _w)
 
 # ④ LVD3 — **المُشتقُّ لا يدهس المسجَّل** (سلوكيًّا من الطرفين) · وغيابُ الملفّ
 #   الجانبيّ = لا عملَ إطلاقًا (فاشلٌ-آمن ⇒ الجدولُ كما كان بت-بت).
@@ -54988,7 +55056,7 @@ except Exception as _e:                                          # noqa: BLE001
 check("🧾📅 LVD3 المُشتقُّ **يملأ الفارغَ ولا يدهس المسجَّل** · وغيابُ الملفّ الجانبيّ "
       "= صفرُ أثر (فاشلٌ-آمن)", _v, _w)
 
-# ⑤ LVD4 — أثرُ الدمج **بالمجموعات لا بعددٍ سحريّ**: أزواجُ صفوف `indicator` في
+# ⑤ LVD4 — أثرُ الدمج **بالمجموعات لا بعددٍ سحريّ**: أزواجُ الصفوف المُشتقّة في
 #   الجدول ≡ أزواجُ الملفّ الجانبيّ · وكلُّ صفٍّ منها يحمل تاريخَ زوجه بالضبط.
 try:
     _tbl = list(_lvd_csv.DictReader(
@@ -55007,29 +55075,209 @@ try:
           f"التواريخُ مطابقة={_dates_ok} · داخلَ المجتمع الحاكم={len(_govi)}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🧾📅 LVD4 صفوفُ `indicator` في الجدول ≡ أزواجُ الملفّ الجانبيّ بتواريخها "
+check("🧾📅 LVD4 صفوفُ **كلّ طريقةٍ مُشتقّة** في الجدول ≡ أزواجُ الملفّ الجانبيّ بتواريخها "
       "(مجموعاتٌ لا أعدادٌ سحريّة) · ومنها ما يدخل المجتمعَ الحاكم", _v, _w)
 
-# ⑥ LVD5 — **الدليلُ قراءةُ مؤشّرٍ لا رقمُ صورة** (`T-SUPDEF §①` نافذٌ على المصدر
-#   الجديد): لا بادئةَ صورةٍ في أيّ بصمة · وكلُّ بصمةٍ **تُعرَب** قراءاتِ مؤشّرٍ
-#   بعددِ أجزائها · وشاهدُ ضبطٍ يُثبت أن رقمَ الصورة يُعرَب صفرًا فيُكشَف.
+# ⑥ LVD5 — **الدليلُ قراءةٌ تُعرَب لا رقمُ صورة** (`T-SUPDEF §①` نافذٌ على المصدرَين):
+#   لا بادئةَ صورةٍ في أيّ بصمة · و`indicator` تُعرَب قراءاتِ مؤشّرٍ **بعددِ أجزائها**
+#   · و`price` تُعرَب مرساةً واحدةً **وتعود كما هي ذهابًا وإيابًا** (أقوى من العدّ:
+#   تبديلُ رقمٍ أو نوعٍ يكسر التطابق) · وشاهدا ضبطٍ يُثبتان أن رقمَ الصورة يُعرَب
+#   صفرًا **في المُعرِبَين معًا** فيُكشَف.
 try:
     _pref = [r["symbol"] for r in _lvd_sc if _LVD_IMG.search(r.get("fingerprint", ""))]
     _parse_ok, _detail = True, []
     for _r in _lvd_sc:
-        _fp = _r.get("fingerprint", "")
-        _got = len(_lvd_ia.parse_fingerprints(_fp, "daily"))
-        _want = len([x for x in _fp.split(" | ") if x.strip()])
-        _detail.append(f"{_r['symbol']}:{_got}/{_want}")
-        if _got != _want or _got < 1:
-            _parse_ok = False
-    _ctrl = _lvd_ia.parse_fingerprints("IMG_4123 · صورةٌ 8107/8108", "daily") == []
-    _v = not _pref and _parse_ok and _ctrl and bool(_lvd_sc)
-    _w = f"بادئةُ صورة={_pref} · إعرابٌ={_detail} · شاهدُ الضبط يمسك={_ctrl}"
+        _fp, _m = _r.get("fingerprint", ""), _r.get("method")
+        if _m == "indicator":
+            _got = len(_lvd_ia.parse_fingerprints(_fp, "daily"))
+            _want = len([x for x in _fp.split(" | ") if x.strip()])
+            _ok = _got == _want and _got >= 1
+        elif _m == "price":
+            _a = _lvd_pa.parse_anchors(_fp)
+            _got, _want = len(_a), 1
+            _ok = _got == 1 and _lvd_pa.anchor_fingerprint(_a[0]) == _fp
+        else:
+            _got, _want, _ok = 0, 1, False      # طريقةٌ بلا مُعرِبٍ = دليلٌ بلا حارس
+        _detail.append(f"{_r['symbol']}:{_m[:3]}:{_got}/{_want}")
+        _parse_ok = _parse_ok and _ok
+    _IMGTXT = "IMG_4123 · صورةٌ 8107/8108"
+    _ctrl_i = _lvd_ia.parse_fingerprints(_IMGTXT, "daily") == []
+    _ctrl_p = _lvd_pa.parse_anchors(_IMGTXT) == []
+    _v = not _pref and _parse_ok and _ctrl_i and _ctrl_p and bool(_lvd_sc)
+    _w = (f"بادئةُ صورة={_pref} · إعرابٌ={_detail} · "
+          f"شاهدا الضبط يمسكان={_ctrl_i}/{_ctrl_p}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🧾📅 LVD5 دليلُ التأريخ **قراءةُ مؤشّرٍ تُعرَب** لا رقمُ صورة (وشاهدُ ضبطٍ "
-      "يُثبت أن رقمَ الصورة يُكشَف)", _v, _w)
+check("🧾📅 LVD5 دليلُ التأريخ **قراءةٌ تُعرَب** لا رقمُ صورة — لكلّ طريقةٍ مُعرِبُها "
+      "(و`price` ذهابًا وإيابًا) · وشاهدا ضبطٍ يُثبتان الكشف", _v, _w)
+
+# ⑦ LVD6 — **الأربعةُ السعريّة هُويّةٌ ثلاثيّة**: الملفُّ الجانبيّ ≡ جدول `ⓑ` في عقد
+#   `T-SUPDEF` المدموج ≡ `ANCHOR_EXPECT` في مِجَسّه ≡ أزواجُ `targets("recheck")`.
+#   🔑 وهذا ما يجعل دمجَ مرساة السعر **آمنًا على تجربةٍ مُغلَقة**: لو انزاح أيُّ طرفٍ
+#   سقطت السويّةُ بدل أن ينزلق مجتمعُ `T-SUPDEF` صامتًا.
+try:
+    _doc = open("support_def_prereg.md", encoding="utf-8").read()
+    _seg = _doc.split("### ⓑ الصفوفُ الداخلة")[1].split("### ⓒ")[0]
+
+    def _lvd_num(x):
+        return (x.replace("\u200f", "").replace("\u200e", "").replace("\u2212", "-")
+                 .replace("\u2011", "-").replace("*", "").strip())
+    _tab = {}
+    for _l in _seg.splitlines():
+        _f = [_lvd_num(x) for x in _l.split("|")]
+        if len(_f) == 9 and _f[1].isdigit():
+            _tab[_f[2]] = (int(_f[3]), _f[7])
+    _scp = {r["symbol"]: (int(r["line"]), r["date"]) for r in _lvd_sc if r["method"] == "price"}
+    import support_def_probe as _lvd_sd
+    _exp = dict(_lvd_sd.ANCHOR_EXPECT)
+    _rck = {t["symbol"]: t["line"] for t in _lvd_pa.targets("recheck")}
+    _eq_doc = _scp == _tab
+    _eq_exp = {k: v[1] for k, v in _scp.items()} == _exp
+    _eq_rck = {k: v[0] for k, v in _scp.items()} == _rck
+    _v = bool(_scp) and _eq_doc and _eq_exp and _eq_rck
+    _w = (f"جانبيّ={len(_scp)} ≡وثيقة={_eq_doc} ≡ANCHOR_EXPECT={_eq_exp} "
+          f"≡recheck={_eq_rck} · {sorted(_scp)}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📅 LVD6 صفوفُ `price` **هُويّةٌ ثلاثيّة**: الملفُّ الجانبيّ ≡ جدولُ `ⓑ` المدموج "
+      "≡ `ANCHOR_EXPECT` ≡ أزواجُ `targets(\"recheck\")`", _v, _w)
+
+# ⑧ LVD7 — **قانونُ بقاءٍ لا يتعفّن** (بديلُ الأرضيّة الثابتة في `IAK0`): في المجتمع
+#   الحاكم (دعمٌ · يوميّ · غيرُ آليّ) ينقسم كلُّ زوجٍ **قسمةً واحدةً لا ثالثَ لها**:
+#   غيرُ مؤرَّخ (`targets()`) ⊎ مُشتقّ ⊎ مسجَّل — بلا تقاطعٍ وبلا فائض. فانكماشُ
+#   «غير المؤرَّخ» **نجاحٌ محسوبٌ لا عطبٌ صامت**.
+try:
+    _all = {(r["symbol"], int(r["line"])) for r in _lvt_rows
+            if r["role"] == "support" and r["frame"] == "daily" and r["auto_chart"] == "0"}
+    _pend = {(t["symbol"], t["line"]) for t in _lvd_pa.targets()}
+    _der = {(r["symbol"], int(r["line"])) for r in _lvt_rows
+            if r["role"] == "support" and r["frame"] == "daily" and r["auto_chart"] == "0"
+            and r["date_source"] in _lvd_ex.DERIVED_METHODS}
+    _rec = {(r["symbol"], int(r["line"])) for r in _lvt_rows
+            if r["role"] == "support" and r["frame"] == "daily" and r["auto_chart"] == "0"
+            and r["date_source"] in ("filename", "header", "exif")}
+    _disj = not (_pend & _der) and not (_pend & _rec) and not (_der & _rec)
+    _cons = (_pend | _der | _rec) == _all
+    _v = _disj and _cons and bool(_all) and bool(_der)
+    _w = (f"الحاكم={len(_all)} = غيرُ مؤرَّخ {len(_pend)} ⊎ مُشتقّ {len(_der)} ⊎ "
+          f"مسجَّل {len(_rec)} · بلا تقاطع={_disj} · مُحفوظ={_cons}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📅 LVD7 قانونُ بقاءِ المجتمع الحاكم: غيرُ مؤرَّخٍ ⊎ مُشتقٌّ ⊎ مسجَّلٌ = الكلُّ "
+      "بلا تقاطع (فانكماشُ الأهداف **نجاحٌ محسوب** لا عطبٌ صامت)", _v, _w)
+
+
+# ── 🧱📎 ملحقُ `T-SUPDEF §⑪` — أقفال SDZ0-SDZ4 («سجّل T-SUPDEF من جديد» 2026-09-19)
+# ملحقٌ مؤرَّخٌ ثالث **يُسجّل ولا يُشغّل**: المجتمعُ يتّسع ‏6 ⟶ 10 بمرساة المؤشّر ·
+# **وصفرُ حدٍّ تحرّك** · وإقرارُ تلوّثٍ صريحٍ ومعيارٌ نظيفٌ `SD1-NEW` بجانبه ·
+# **والمِجَسُّ يبقى مُغلَقًا** حتى أمرِ تشغيلٍ صريح.
+_SZZ_NEW = {"NEXR", "ALMU", "NXTT", "PRFX"}
+try:
+    _szz_doc = open("support_def_prereg.md", encoding="utf-8").read()
+    _szz_seg = _szz_doc.split("## 📎 ملحقٌ مؤرَّخ §⑪")[-1] if "§⑪" in _szz_doc else ""
+    _szz_e0 = ""
+except Exception as _e:                                          # noqa: BLE001
+    _szz_doc = _szz_seg = ""
+    _szz_e0 = f"⛔ {type(_e).__name__}"
+
+# ① SDZ0 — الملحقُ حاضرٌ مؤرَّخٌ · **تسجيلٌ لا تشغيل** · والشروطُ الثلاثةُ بحالتها
+try:
+    _szz_cond = all(x in _szz_seg for x in ("مصدرُ تأريخٍ جديد",
+                                            "ملحقٍ مؤرَّخٍ جديد", "إذنُ المالك"))
+    _szz_reg = "تسجيلٌ فقط" in _szz_seg and "صفرُ تشغيل" in _szz_seg
+    _szz_ok3 = _szz_seg.count("✅ **مستوفًى**") >= 3
+    _v = bool(_szz_seg) and "2026-09-19" in _szz_seg and _szz_cond and _szz_reg and _szz_ok3
+    _w = (f"{_szz_e0}طولٌ={len(_szz_seg)} شروط={_szz_cond} تسجيلٌ فقط={_szz_reg} "
+          f"مستوفًى×{_szz_seg.count('✅ **مستوفًى**')}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ0 ملحقُ `§⑪` حاضرٌ ومؤرَّخ · **تسجيلٌ لا تشغيل** · والشروطُ الثلاثةُ "
+      "مذكورةٌ بحالتها", _v, _w)
+
+# ② SDZ1 — 🔑 **صفرُ حدٍّ تحرّك**: الملحقُ يذكر `p ≤ 0.10` **ولا يذكر حدَّ `p` آخر** ·
+#   وثابتا المِجَسّ (`SD1_P`/`SD1_SHARE`) كما هما — فالتوسيعُ ليس تخفيضًا مقنَّعًا.
+try:
+    _szz_ps = set(_mem_re.findall(r"`?p`?\s*≤\s*([0-9.]+)", _szz_seg))
+    _szz_probe_ok = (abs(_sdt_mod.SD1_P - 0.10) < 1e-12
+                     and abs(_sdt_mod.SD1_SHARE - 80.0) < 1e-9)
+    _szz_ctrl = set(_mem_re.findall(r"`?p`?\s*≤\s*([0-9.]+)", "قيمةٌ p ≤ 0.25 صوريّة"))
+    _v = _szz_ps == {"0.10"} and _szz_probe_ok and _szz_ctrl == {"0.25"}
+    _w = (f"حدودُ p في الملحق={sorted(_szz_ps)} · ثوابتُ المِجَسّ "
+          f"(p={_sdt_mod.SD1_P}, share={_sdt_mod.SD1_SHARE})={_szz_probe_ok} · "
+          f"الكاشفُ يمسك={_szz_ctrl == {'0.25'}}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ1 **صفرُ حدٍّ تحرّك**: الملحقُ لا يحمل إلّا `p ≤ 0.10` وثوابتُ المِجَسّ "
+      "كما هي (وكاشفُ الحدود مُثبَتٌ بشاهد ضبط)", _v, _w)
+
+# ③ SDZ2 — 🔑 **جدولُ المجتمع يُطابق الحيَّ لا يُكتَب بيدًا**: صفوفُ `§⑪-ⓒ` ≡ ثلاثيّاتُ
+#   المجتمع الحاكم المؤرَّخة في `faisal_levels_table.tsv` (رمز · سطر · تاريخ · مصدر) ·
+#   والموسومُ 🆕 ≡ ما أرّخته **مرساةُ المؤشّر** بالضبط.
+try:
+    def _szz_n(x):
+        return (x.replace("‏", "").replace("‎", "").replace("*", "").strip())
+    _szz_tab, _szz_new = {}, set()
+    for _l in _szz_seg.splitlines():
+        _f = [_szz_n(x) for x in _l.split("|")]
+        if len(_f) == 8 and _f[1].isdigit() and _f[3].isdigit():
+            _szz_tab[_f[2]] = (int(_f[3]), _f[4], _f[5].strip("`"))
+            if "🆕" in _l:
+                _szz_new.add(_f[2])
+    _szz_live = {}
+    for _r in _lvt_rows:
+        if (_r["role"] == "support" and _r["frame"] == "daily"
+                and _r["auto_chart"] == "0" and _r["date"]):
+            _szz_live[_r["symbol"]] = (int(_r["line"]), _r["date"], _r["date_source"])
+    _szz_ind = {s for s, v in _szz_live.items() if v[2] == "indicator"}
+    _v = (bool(_szz_tab) and _szz_tab == _szz_live and _szz_new == _szz_ind
+          and _szz_new == _SZZ_NEW and len(_szz_tab) == 10)
+    _w = (f"جدولٌ={len(_szz_tab)} حيٌّ={len(_szz_live)} متطابق={_szz_tab == _szz_live} · "
+          f"🆕={sorted(_szz_new)} ≡ مؤشّر={sorted(_szz_ind)}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ2 جدولُ مجتمع `§⑪` ≡ الثلاثيّاتُ المؤرَّخةُ الحيّة (‏10) · والموسومُ 🆕 "
+      "≡ ما أرّخته مرساةُ المؤشّر بالضبط", _v, _w)
+
+# ④ SDZ3 — **إقرارُ التلوّث ومعيارُه النظيف**: الملحقُ يُعلن أن ‏6 مقيسةٌ سلفًا ·
+#   ويُسجّل `SD1-NEW` على الأربعة وحدَها · ويكتب الحسابَ (‏9/10 و4/4) **قبل** الرقم ·
+#   وقاعدةَ «يُقرأ بالأضعف» فلا يُنتقى الأمرَح.
+try:
+    _szz_need = ("SD1-NEW", "مقيسةٌ سلفًا", "بالأضعف", "9 من 10", "4 من 4",
+                 "0.0215", "0.0625", "إقرارُ تلوّث")
+    _szz_miss = [x for x in _szz_need if x not in _szz_seg]
+    _szz_names = all(s in _szz_seg for s in _SZZ_NEW)
+    _v = not _szz_miss and _szz_names
+    _w = f"ناقص={_szz_miss} · الأربعةُ مسمّاة={_szz_names}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ3 إقرارُ التلوّث صريح · و`SD1-NEW` مسجَّلٌ على الأربعة · والحسابُ "
+      "وقاعدةُ «الأضعف» منشوران قبل أيّ رقم", _v, _w)
+
+# ⑤ SDZ4 — **الملحقُ لا يفتح شيئًا**: المِجَسُّ ما زال يخرج `CLOSED_RC` بلا الإقرار ·
+#   ونصُّ إغلاقه يشير إلى `§⑪` **دون أن يُسقط** شرطًا من الثلاثة (يُكمّل `SDY11`
+#   الذي يفحص صفرَ العمليّة، وهذا يفحص **أن التسجيل لم يصر فتحًا**).
+try:
+    _szz_txt = _sdt_mod.CLOSED_TXT
+    _szz_keep3 = all(x in _szz_txt for x in ("مصدرُ تأريخٍ جديد",
+                                             "ملحقٍ مؤرَّخٍ جديد", "إذنُ المالك"))
+    _szz_ptr = "§⑪" in _szz_txt and "أمرُ تشغيل" in _szz_txt
+    import contextlib as _szz_ctx
+    import io as _szz_io
+    _szz_env0 = _mem_os.environ.get("SUPDEF_REOPEN")
+    try:
+        _mem_os.environ.pop("SUPDEF_REOPEN", None)
+        with _szz_ctx.redirect_stdout(_szz_io.StringIO()):   # نصُّ الإغلاق لا يُلوّث السجلّ
+            _szz_rc = _sdt_mod.closed_guard()
+    finally:
+        if _szz_env0 is not None:
+            _mem_os.environ["SUPDEF_REOPEN"] = _szz_env0
+    _v = _szz_keep3 and _szz_ptr and _szz_rc == _sdt_mod.CLOSED_RC
+    _w = (f"الثلاثةُ باقية={_szz_keep3} · يشير لـ§⑪ ويشترط أمرَ تشغيل={_szz_ptr} · "
+          f"الحارسُ يُرجع={_szz_rc} (المتوقَّع {_sdt_mod.CLOSED_RC})")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ4 التسجيلُ **لم يصر فتحًا**: الحارسُ ما زال يُغلق بلا الإقرار · ونصُّه "
+      "يشير إلى `§⑪` بلا إسقاطِ شرط", _v, _w)
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
