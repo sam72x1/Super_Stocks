@@ -22,6 +22,7 @@
 """
 import csv
 import datetime as dt
+from collections import Counter as _Counter
 import os
 import random
 import sys
@@ -604,6 +605,17 @@ def closed_guard():
     return CLOSED_RC
 
 
+def pop_delta(gov, ngov):
+    """`SN2` — `(الداخلُ، الخارجُ)` بين المجتمعَين الحاكمَين **بعدّادهما**.
+
+    🔴 **والعدُّ لا المجموعة:** الرمزُ قد يحمل صفَّين بالمفتاح نفسِه (`NXTT`
+    مرّتين)، والمجموعةُ تبتلع الفرقَ فتطبع «خرج 0» **وصفٌّ قد خرج** — سطرُ عرضٍ
+    يكذب أمسكته أوّلُ تشغيلةٍ ناجحة. دالّةٌ نقيّةٌ ليكون قفلُها **سلوكيًّا**."""
+    _k = lambda rs: _Counter((r["sym"], r["asof"]) for r in rs)      # noqa: E731
+    a, b = _k(gov), _k(ngov)
+    return sorted((b - a).elements()), sorted((a - b).elements())
+
+
 def norm_verdict(guards_ok, neutral_ok, outliers_ok, n_rows, n_syms):
     """فروعُ `splitnorm_prereg.md §⑤` بحرفها — **ولا فرعَ رابع**.
 
@@ -860,14 +872,16 @@ def main() -> int:
             f"{'✅ تعبر' if neutral else '🔴 تسقط'} — "
             f"المختلف: {diffs or 'لا شيء'}")
 
-        # `SN2` توسُّعُ المجتمع — **أعمى**: صفوفٌ استُبعدت خامًا ودخلت مُسوّاةً
-        _rk = {(x[0], x[1]) for x in skipped}
-        _nk = {(x[0], x[1]) for x in nskip}
-        _new_in = sorted(_rk - _nk)
-        _new_out = sorted(_nk - _rk)
-        log(f"   `SN2` توسُّعُ المجتمع: خامًا استُبعد {len(skipped)} · مُسوًّى "
-            f"{len(nskip)} ⇒ **دخل {len(_new_in)}** · خرج {len(_new_out)}")
+        # `SN2` توسُّعُ المجتمع — **أعمى**: يُقارَن **المجتمعُ الحاكمُ نفسُه**
+        # 🔴 **تصحيحٌ بعد أوّل تشغيلةٍ ناجحة:** كانت المقارنةُ على **مجموعةِ**
+        #   المستبعَدين، والرمزُ قد يتكرّر بصفَّين (`NXTT` مرّتين) ⇒ تُطبَع
+        #   «خرج 0» **وصفٌّ قد خرج فعلًا** = سطرُ عرضٍ يكذب. والمقارنةُ الآن على
+        #   مفاتيح `gov`/`ngov` بعدّادها — وهي الشيءُ الذي يعنيه المعيار أصلًا.
+        _new_in, _new_out = pop_delta(gov, ngov)
+        log(f"   `SN2` توسُّعُ المجتمع: حاكمةٌ خامًّا **{len(gov)}** · مُسوّاةً "
+            f"**{len(ngov)}** ⇒ **دخل {len(_new_in)}** · **خرج {len(_new_out)}**")
         log(f"        الداخلُ: {_new_in or '—'} · الخارجُ: {_new_out or '—'}")
+        log(f"        (ومستبعَدو `V-S5`: خامًّا {len(skipped)} · مُسوًّى {len(nskip)})")
 
         # `SN3` صفوفُ الكاتالوج — **أعمى**: هل لأيٍّ منها عاملٌ ≠ 1؟
         _cat = [r for r in ngov if r.get("origin") == "cat"]
