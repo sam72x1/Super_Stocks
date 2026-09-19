@@ -55969,6 +55969,124 @@ except Exception as _e:                                          # noqa: BLE001
 check("⚖️🧱🔒 SNA10 `pop_delta` **بالعدّاد لا بالمجموعة** — فلا يُطبَع «خرج 0» "
       "وصفٌّ قد خرج · **سلوكيٌّ** بعد نجاة طفرةٍ من صيغته النصّيّة", _v, _w)
 
+# ── 🎯✂️ `T-HEADCUT` — أقفال HCK0-HCK3 («نفذ جميع النواقص» 2026-09-19) ────────
+# العقدُ `headcut_prereg.md` مسجَّلٌ **قبل أيّ سطرِ أداةٍ وقبل أيّ رقم**.
+try:
+    _hck_doc = open("headcut_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _hck_doc = f"⛔ {type(_e).__name__}"
+
+# ① HCK0 — مؤرَّخٌ · وفروعُه **ثلاثةٌ بنيويًّا** مرقَّمةٌ بالترتيب · ولا فرعَ رابع
+try:
+    _hck_br = (_hck_doc.split("## §⑥")[-1].split("## §⑦")[0]
+               if "## §⑥" in _hck_doc else "")
+    _hck_ln = [_l.strip() for _l in _hck_br.splitlines()
+               if _mem_re.match(r"^\d\. \*\*الفرعُ", _l.strip())]
+    _hck_want = [("1", "تُوصى"), ("2", "لا تُوصى"), ("3", "لا حكم")]
+    _v = (bool(_hck_doc) and "2026-09-19" in _hck_doc and "T-HEADCUT" in _hck_doc
+          and len(_hck_ln) == 3
+          and all(_hck_ln[_i].startswith(f"{_n}. **الفرعُ {_n}") and _k in _hck_ln[_i]
+                  for _i, (_n, _k) in enumerate(_hck_want))
+          and "ولا فرعَ رابع" in _hck_br)
+    _w = f"فروعٌ={len(_hck_ln)} · {[_l[:20] for _l in _hck_ln]}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCK0 عقدُ `T-HEADCUT` مؤرَّخٌ · وفروعُه الثلاثةُ مرقَّمةٌ بالترتيب "
+      "كلٌّ بكلمتِه · ولا فرعَ رابع", _v, _w)
+
+# ② HCK1 — **المصدرُ حرفيٌّ ومُوسَّم** · و`L886` **مرفوضةٌ صراحةً** بسبب النظام
+try:
+    _hck_s0 = _hck_doc.split("## §①")[0]
+    _v = ("L251" in _hck_s0 and "faisal_verbatim" in _hck_s0
+          and "بِع قبلها" in _hck_s0
+          and "L886" in _hck_s0 and "third_party" in _hck_s0
+          and "لا يُستشهَد" in _hck_s0
+          and "مضاربةُ زخم" in _hck_s0)
+    _w = (f"L251={'L251' in _hck_s0} · حرفيّ={'بِع قبلها' in _hck_s0} · "
+          f"L886 مرفوضة={'لا يُستشهَد' in _hck_s0} · "
+          f"بالنظام={'مضاربةُ زخم' in _hck_s0}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCK1 المصدرُ `L251` **حرفيٌّ وموسومٌ `faisal_verbatim`** · و`L886` "
+      "**مرفوضةٌ صراحةً** لاختلاف نظامِها (قاعدةُ `faisal-gates §②`)", _v, _w)
+
+# ③ HCK2 — **هُويّةُ `V-H1` أرقامٌ منشورةٌ لا مكتوبةٌ بيدي**: الثلاثةُ في
+#   `trail_result.md` فعلًا · ومعها الشاهدُ المُعلَنُ أن `C-RAND` **رُفض** بتعليل.
+try:
+    _hck_tr = open("trail_result.md", encoding="utf-8").read()
+    # 🔴 المنشورُ يكتب السالبَ بالعلامة العربيّة `−` لا `-` ⇒ يُقبَل الشكلان
+    _hck_nums = ("0.2602", "0.1807", "0.2172")
+
+    def _hck_has(_t, _x):
+        return (f"−{_x}" in _t) or (f"-{_x}" in _t)
+    _hck_inres = all(_hck_has(_hck_tr, _x) for _x in _hck_nums)
+    _hck_inpre = all(_hck_has(_hck_doc, _x) for _x in _hck_nums)
+    _hck_ctrl = ("C-RAND" in _hck_doc and "أرفضه شاهدًا" in _hck_doc
+                 and "C-HEAD" in _hck_doc and "C-BACK" in _hck_doc)
+    _v = _hck_inres and _hck_inpre and _hck_ctrl
+    _w = (f"في trail_result={_hck_inres} · في العقد={_hck_inpre} · "
+          f"الشواهدُ ورفضُ C-RAND معلَّلًا={_hck_ctrl}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCK2 هُويّةُ `V-H1` **من `trail_result.md` المنشور** لا بيدي · "
+      "و`C-RAND` **مرفوضٌ بتعليلٍ** ومكانَه `C-BACK`/`C-HEAD`", _v, _w)
+
+# ④ HCK3 — **صفرُ شحنٍ** · والجذورُ و`_red_candle_heads` محميّةٌ نصًّا · ولا
+#   معايرةَ `h` بعد النتيجة · **والأداةُ لم تُبنَ بعد** (التسجيلُ يسبقها).
+try:
+    _hck_s10 = _hck_doc.split("## §⑩")[-1] if "## §⑩" in _hck_doc else ""
+    _hck_ns = "ولا شحنَ" in _hck_s10 and "مهما كانت" in _hck_s10
+    _hck_rt = ("الجذورُ الاثنا عشر" in _hck_s10
+               and "_red_candle_heads" in _hck_s10 and "لا تُعدَّل" in _hck_s10)
+    _hck_lv = "لا `LOGIC_VERSION`" in _hck_s10
+    _hck_cal = "ولا تُعاير" in _hck_s10
+    _v = _hck_ns and _hck_rt and _hck_lv and _hck_cal
+    _w = (f"لا شحن={_hck_ns} · الجذورُ والرؤوسُ محميّة={_hck_rt} · "
+          f"لا LV={_hck_lv} · لا معايرة={_hck_cal}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCK3 **صفرُ شحنٍ مهما كانت النتيجة** · الجذورُ و`_red_candle_heads` "
+      "محميّةٌ نصًّا · ولا معايرةَ `h` بعد النتيجة", _v, _w)
+
+# ⑤ HCK4 — 🔴 **العقدُ داخلَ محورٍ مُغلَق** (`T-TRAIL` أغلق «إدارةَ الخروج بعد
+#   الدخول») ⇒ يجب أن يُثبت شروطَ الفتح الثلاثةَ **ويرفع** الماديّةَ إلى الحدّ
+#   الذي نصَّ عليه الإغلاق (`±0.08R`) — **رفعٌ لا خفض** · وألّا يمسّ الإغلاقَ نفسَه.
+try:
+    import trail_arms as _hck_tr_mod
+    _hck_notice = " ".join(_hck_tr_mod.closure_notice())
+    _hck_band = "±0.08R" in _hck_notice or "`±0.08R`" in _hck_notice
+    _hck_names = "إدارةُ الخروج بعد الدخول" in _hck_notice
+    # العقدُ يُقرّ بالمحور ويسمّي الشروطَ الثلاثةَ ويرفع الحدّ
+    _hck_decl = ("داخلَ محورٍ مُغلَق" in _hck_doc
+                 and "إدارةِ الخروج بعد الدخول" in _hck_doc
+                 and "مصدرٌ جديدٌ للدعوى" in _hck_doc
+                 and "إذنُ المالك" in _hck_doc)
+    _hck_raise = ("‏≥ +0.08R" in _hck_doc or "≥ +0.08R" in _hck_doc)
+    _hck_norel = "0.03R" not in _hck_doc           # لا حدَّ أخفضَ باقٍ
+    # 🔴 **تشديدٌ بعد نجاة طفرة:** لا يكفي أن يُرفَع الحدُّ في `§⑤` — **صفُّ
+    #   الاستيفاء ② نفسُه** يجب أن يستشهد بنطاق الإغلاق، وإلّا سقطت **حجّةُ**
+    #   الاستيفاء وبقي الرقمُ بلا سند (الصنفُ ③: فحصٌ على مستوى الوثيقة).
+    _hck_row2 = next((_l for _l in _hck_doc.splitlines()
+                      if _l.strip().startswith("| ② |")), "")
+    _hck_cite = ("±0.08R" in _hck_row2) and ("0.08R" in _hck_row2.split("|")[-2])
+    # والإغلاقُ نفسُه لا يُمَسّ: `AXIS_CLOSED` قائمٌ والعقدُ لا يضبط `TRAIL_REOPEN`
+    _hck_keep = (_hck_tr_mod.AXIS_CLOSED is True
+                 and "TRAIL_REOPEN" in _hck_doc
+                 and "لا يُضبَط بهذا العقد" in _hck_doc)
+    _v = (_hck_band and _hck_names and _hck_decl and _hck_raise
+          and _hck_norel and _hck_keep and _hck_cite)
+    _w = (f"الإغلاقُ يسمّي المحور={_hck_names} ونطاقَه={_hck_band} · العقدُ يُقرّ "
+          f"ويسمّي الثلاثة={_hck_decl} · رفعُ الحدّ={_hck_raise} · صفُّ ② يستشهد "
+          f"بالنطاق ويربطه بالحدّ={_hck_cite} · لا حدَّ أخفض={_hck_norel} · "
+          f"الإغلاقُ لم يُمَسّ={_hck_keep}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCK4 العقدُ **يُقرّ بأنه داخلَ محورٍ مُغلَق** ويُثبت شروطَ الفتح "
+      "الثلاثة · **ويرفع الماديّةَ إلى `±0.08R`** (رفعٌ لا خفض) · ولا يمسّ الإغلاق",
+      _v, _w)
+
+
+
 
 
 
