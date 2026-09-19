@@ -55880,6 +55880,60 @@ except Exception as _e:                                          # noqa: BLE001
 check("⚖️🧱🔒 SNA7 مدخلُ `norm` افتراضُه **\"0\"** ويُمرَّر بيئةً · وبلا كرونٍ ولا "
       "سرّ", _v, _w)
 
+# ── ⚖️🧱 SNA8-SNA9 — عيبان أمسكهما `V-N1` في أوّل تشغيلةٍ حيّة (2026-09-19) ────
+
+# ⑨ SNA8 — **المسارُ الخامُّ خامٌّ بالتعريف لا بقراءةِ علم**: نداءا `build_rows`
+#   المنشوران في `main` (الحاكمُ والحساسيّات) يمرّران `norm=False` **صراحةً**
+#   ⇒ إشعالُ العلم لا يمحو مرجعَ `V-N1`. **بنيويًّا بالـAST.**
+try:
+    _sna_m = next((_f for _f in _ast0.walk(_ast0.parse(_sna_src))
+                   if isinstance(_f, _ast0.FunctionDef) and _f.name == "main"), None)
+    _sna_br_calls = [_c for _c in _ast0.walk(_sna_m)
+                     if isinstance(_c, _ast0.Call)
+                     and getattr(_c.func, "id", "") == "build_rows"] if _sna_m else []
+
+    def _sna_kw(_c):
+        for _k in _c.keywords:
+            if _k.arg == "norm":
+                return _k.value
+        return None
+    _sna_false = [_c for _c in _sna_br_calls
+                  if isinstance(_sna_kw(_c), _ast0.Constant)
+                  and _sna_kw(_c).value is False]
+    _sna_true = [_c for _c in _sna_br_calls
+                 if isinstance(_sna_kw(_c), _ast0.Constant)
+                 and _sna_kw(_c).value is True]
+    _sna_bare = [_c for _c in _sna_br_calls if _sna_kw(_c) is None]
+    _v = (len(_sna_br_calls) >= 3 and len(_sna_false) >= 2
+          and len(_sna_true) == 1 and not _sna_bare)
+    _w = (f"نداءات={len(_sna_br_calls)} · خامٌّ صريح={len(_sna_false)} · "
+          f"مُسوًّى={len(_sna_true)} · **عارٍ يقرأ العلم**={len(_sna_bare)}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA8 المسارُ المنشورُ **خامٌّ صراحةً** (`norm=False`) في الحاكم "
+      "والحساسيّات · وصفرُ نداءٍ عارٍ يقرأ العلم — وإلّا مُحِي مرجعُ `V-N1`", _v, _w)
+
+# ⑩ SNA9 — **`V-N4` يقارن المستوى الخامَّ مُسوًّى لا الصفَّ الناجي**: فبقاءُ
+#   الصفّ بعد `drop_marker` مسألةُ `SN2` لا تعارضُ اشتقاق. **نصًّا وبنيويًّا.**
+try:
+    _sna_i = _sna_src.find("`V-N4` اشتقاقُ")
+    _sna_j = _sna_src.find("`SN1` الحياد", _sna_i if _sna_i >= 0 else 0)
+    _sna_seg = _sna_src[_sna_i:_sna_j] if (0 <= _sna_i < _sna_j) else ""
+    _sna_rawref = "_raw_by" in _sna_seg and "norm_level(r0[\"ref\"]" in _sna_seg
+    _sna_absent = "غائبٌ عن **الخام**" in _sna_seg
+    _sna_alive = "يرصده `SN2`" in _sna_seg
+    # وشاهدُ ضبطٍ سلوكيّ: `norm_level` تُعيد الاشتقاقَ من الخامّ بالضبط
+    _sna_chk = (abs(_sdt_mod.norm_level(1.712, 0.0909091) - 18.832) < 0.01
+                and _sdt_mod.norm_level(5.830, 0.01) == 583.0)
+    _v = _sna_rawref and _sna_absent and _sna_alive and _sna_chk
+    _w = (f"من الخامّ={_sna_rawref} · الغيابُ من الخامّ تعارضٌ={_sna_absent} · "
+          f"الخروجُ يرصده SN2={_sna_alive} · الاشتقاقُ يُعاد={_sna_chk}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNA9 `V-N4` يقارن **المستوى الخامَّ مُسوًّى** لا الصفَّ الناجي · "
+      "والخروجُ بعد `drop_marker` يرصده `SN2` لا يُعَدّ تعارضًا", _v, _w)
+
+
 
 
 
