@@ -55506,6 +55506,119 @@ except Exception as _e:                                          # noqa: BLE001
 check("🧱📎🔒 SDZ11 **صفرُ منطقِ حسمٍ مكرَّر**: `candidates_at` واحدةٌ يناديها مسارُ "
       "المؤشّر الحيُّ والمِجَسُّ معًا", _v, _w)
 
+# ── ⚖️🧱 `T-SPLITNORM` — أقفال SNK0-SNK4 («سجل التسوية» 2026-09-19) ───────────
+# العقدُ `splitnorm_prereg.md` **مستقلٌّ** (تغييرُ تعريفٍ لا إعادةُ تشغيل) ·
+# ويُسجَّل **قبل أيّ سطرِ أداةٍ وقبل أيّ رقم** · **وإقرارُ التلوّث كاملٌ فيه**.
+try:
+    _snk_doc = open("splitnorm_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _snk_doc = f"⛔ {type(_e).__name__}"
+
+# ① SNK0 — العقدُ مؤرَّخٌ · وفروعُه **ثلاثةٌ بنيويًّا**: كلُّ فرعٍ سطرٌ مرقَّمٌ
+#   بكلمتِه المفتاحيّة بالترتيب · **ولا فرعَ رابع** (درسُ `RKK0`: موضعيٌّ لا عضويّ).
+try:
+    _snk_br = _snk_doc.split("## §⑤")[-1].split("## §⑥")[0] if "## §⑤" in _snk_doc else ""
+    _snk_lines = [_l.strip() for _l in _snk_br.splitlines()
+                  if _mem_re.match(r"^\d\. \*\*الفرعُ", _l.strip())]
+    _snk_want = [("1", "تُعتمَد مقياسًا"), ("2", "ليست حياديّة"), ("3", "لا قياس")]
+    _v = (bool(_snk_doc) and "2026-09-19" in _snk_doc and "T-SPLITNORM" in _snk_doc
+          and len(_snk_lines) == 3
+          and all(_snk_lines[_i].startswith(f"{_n}. **الفرعُ {_n}") and _k in _snk_lines[_i]
+                  for _i, (_n, _k) in enumerate(_snk_want))
+          and "ولا فرعَ رابع" in _snk_br)
+    _w = (f"فروعٌ={len(_snk_lines)} · بالترتيب="
+          f"{[_l[:22] for _l in _snk_lines]} · لا رابع={'ولا فرعَ رابع' in _snk_br}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNK0 عقدُ `T-SPLITNORM` مؤرَّخٌ · وفروعُه الثلاثةُ **مرقَّمةٌ بالترتيب** "
+      "كلٌّ بكلمتِه · ولا فرعَ رابع", _v, _w)
+
+# ② SNK1 — **إقرارُ التلوّث كاملٌ قبل أيّ رقم**: الرمزان · الاشتقاقُ بعدده ·
+#   «الفرعُ 1 غيرُ قابلٍ للبلوغ» · «لا يُحسَب لي تنبّؤ» · **ولا حدَّ `p` دخيل**.
+try:
+    _snk_s3 = _snk_doc.split("## §③")[-1].split("## §④")[0] if "## §③" in _snk_doc else ""
+    _snk_sym = all(_x in _snk_s3 for x_ in [0] for _x in ("NEXR", "NXTT"))
+    _snk_num = all(_x in _snk_s3 for _x in ("0.1797", "7 من 9", "18.832", "583.0"))
+    _snk_unreach = "غيرُ قابلٍ للبلوغ" in _snk_s3
+    _snk_nopred = "لا يُحسَب لي تنبّؤ" in _snk_s3
+    _snk_other = [_m for _m in _mem_re.findall(r"p\s*[≤<]=?\s*0?\.\d+", _snk_doc)
+                  if "0.10" not in _m]
+    _v = (_snk_sym and _snk_num and _snk_unreach and _snk_nopred
+          and not _snk_other and "لا تُخفَّض" in _snk_doc)
+    _w = (f"الرمزان={_snk_sym} · الاشتقاق={_snk_num} · غيرُ قابل={_snk_unreach} · "
+          f"لا تنبّؤ={_snk_nopred} · حدٌّ دخيل={_snk_other or 'لا شيء'}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNK1 **إقرارُ التلوّث كاملٌ**: الرمزان والاشتقاقُ بعدده · والفرعُ 1 "
+      "مُعلَنٌ غيرَ قابلٍ للبلوغ · ولا يُحسَب تنبّؤًا · ولا حدَّ `p` دخيل", _v, _w)
+
+# ③ SNK2 — **التسجيلُ ليس فتحًا**: حارسُ الإغلاق ما زال يُخرج `CLOSED_RC` بلا
+#   الإقرار (**سلوكيًّا** من الوحدة الحيّة) · ونصُّ العقد يقول إن التسوية لا ترفعه.
+try:
+    _snk_mod = _sdt_mod
+    _snk_env = getattr(_snk_mod, "CLOSED_ENV", "")
+    _snk_rc = getattr(_snk_mod, "CLOSED_RC", None)
+    import contextlib as _snk_ctx
+    import io as _snk_io
+    _snk_old = _mem_os.environ.get(_snk_env)
+    try:
+        _mem_os.environ.pop(_snk_env, None)
+        with _snk_ctx.redirect_stdout(_snk_io.StringIO()):
+            _snk_shut = _snk_mod.closed_guard()
+        _mem_os.environ[_snk_env] = "1"
+        with _snk_ctx.redirect_stdout(_snk_io.StringIO()):
+            _snk_open = _snk_mod.closed_guard()
+    finally:
+        _mem_os.environ.pop(_snk_env, None)
+        if _snk_old is not None:
+            _mem_os.environ[_snk_env] = _snk_old
+    _snk_txt = ("لا ترفعه" in _snk_doc) and ("SUPDEF_REOPEN" in _snk_doc)
+    _v = (_snk_shut == _snk_rc and _snk_rc == 8 and _snk_open is None and _snk_txt)
+    _w = (f"بلا إقرار={_snk_shut} (المتوقَّع {_snk_rc}) · بالإقرار={_snk_open} · "
+          f"النصُّ يُبقي الحارس={_snk_txt}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNK2 التسجيلُ **لم يصر فتحًا**: حارسُ الإغلاق يُخرج 8 بلا الإقرار · "
+      "ونصُّ العقد ينصّ أن التسوية لا ترفعه", _v, _w)
+
+# ④ SNK3 — **التعريفُ قسمةٌ لا ضرب** ومسنودٌ بدوكسترنغ الإنتاج · وقيودُ التطبيق
+#   الأربعةُ مرقَّمةٌ حاضرة · والدالّةُ الإنتاجيّةُ مسمّاةٌ بالاسم.
+try:
+    _snk_s2 = _snk_doc.split("## §②")[-1].split("## §③")[0] if "## §②" in _snk_doc else ""
+    _snk_div = "level / sf" in _snk_s2
+    _snk_mul = bool(_mem_re.search(r"norm\(level,\s*sf\)\s*=\s*level\s*\*", _snk_s2))
+    _snk_why = "القسمةُ لا الضرب" in _snk_s2
+    _snk_four = len([_l for _l in _snk_s2.splitlines()
+                     if _mem_re.match(r"^\d\. \*\*", _l.strip())]) == 4
+    _snk_name = "_split_scale_factor" in _snk_s2
+    _snk_keep = "لا يُسوَّى" in _snk_s2 and "drop_marker" in _snk_s2
+    _v = _snk_div and not _snk_mul and _snk_why and _snk_four and _snk_name and _snk_keep
+    _w = (f"قسمة={_snk_div} · ضربٌ دخيل={_snk_mul} · التعليل={_snk_why} · "
+          f"القيودُ الأربعة={_snk_four} · بالاسم={_snk_name} · refpx/الترتيب={_snk_keep}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNK3 التعريفُ **قسمةٌ لا ضرب** بتعليلٍ من دوكسترنغ الإنتاج · وقيودُ "
+      "التطبيق الأربعةُ حاضرةٌ مرقَّمة · والدالّةُ بالاسم", _v, _w)
+
+# ⑤ SNK4 — **صفرُ شحنٍ مهما كانت النتيجة** · و`pivot_stability` محميّةٌ نصًّا ·
+#   والعقدُ **لم يُبنَ له سطرُ أداةٍ بعد** (التسجيلُ يسبق الأداة — `§⓪`).
+try:
+    _snk_s9 = _snk_doc.split("## §⑨")[-1] if "## §⑨" in _snk_doc else ""
+    _snk_noship = "ولا شحنَ" in _snk_s9 and "مهما كانت" in _snk_s9
+    _snk_piv = "pivot_stability" in _snk_s9 and "لا تُمَسّ" in _snk_s9
+    _snk_nolv = "لا `LOGIC_VERSION`" in _snk_s9
+    _snk_nocal = "ولا تُعاير" in _snk_s9
+    # 🔒 **والعقودُ المدموجةُ لا تُعدَّل** — الإضافةُ إلى ملحقٍ مؤرَّخٍ جديدٍ حصرًا
+    _snk_frozen = "لا تُعدَّل" in _snk_s9 and "ملحقٍ مؤرَّخٍ جديد" in _snk_s9
+    _v = _snk_noship and _snk_piv and _snk_nolv and _snk_nocal and _snk_frozen
+    _w = (f"لا شحن={_snk_noship} · pivot محميّة={_snk_piv} · لا LV={_snk_nolv} · "
+          f"لا معايرة={_snk_nocal} · العقودُ مجمَّدة={_snk_frozen}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️🧱🔒 SNK4 **صفرُ شحنٍ مهما كانت النتيجة** · `pivot_stability` محميّةٌ نصًّا · "
+      "ولا معايرةَ عتبة · والعقودُ المدموجةُ مجمَّدة", _v, _w)
+
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
