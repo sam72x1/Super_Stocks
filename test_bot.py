@@ -54417,6 +54417,97 @@ check("🧱🔬📎🔒 SDY10 تشخيصُ مقياس التقسيم **يُطب�
       "تقرأ `sf` (بشاهدِ ضبطٍ يُثبت أن الكاشفَ يمسكها) · ويُكتَب ويُطبَع فعلًا",
       _sdy10_ok, _sdy10_w)
 
+# SDY11 — 🔒 **الإغلاقُ مُنفَّذٌ لا مكتوب**: الأداةُ تخرج `8` **بصفرِ عمليّة** ·
+#   والإقرارُ **يرفع الحارسَ فعلًا** · و‏8 **مميَّزٌ** عن كلّ رمزٍ تُخرجه الأداةُ
+#   (بشاهدَي ضبطٍ: رمزٌ مشغولٌ يُرفَض وآخرُ شاغرٌ يُقبَل — درسُ `c2` في `RKA16`:
+#   فلترٌ يُقصي الرقمَ المصادِم يجعل الشرطَ لا يُكذَّب) · ونقطةُ دخولٍ **واحدة**.
+try:
+    import contextlib as _sdz_ctx
+    import io as _sdz_io
+    import os as _sdz_os
+
+    _sdz_src = open("support_def_probe.py", encoding="utf-8").read()
+    _sdz_tree = _sdt_ast.parse(_sdz_src)
+    _sdz_fns = {n.name: n for n in _sdt_ast.walk(_sdz_tree)
+                if isinstance(n, _sdt_ast.FunctionDef)}
+
+    # (أ) كلُّ رمزٍ يمكن أن تخرج به الأداةُ من القياس — من `main` و`read_verdict`
+    _sdz_codes = set()
+    for _fn in ("main", "read_verdict"):
+        for _n in _sdt_ast.walk(_sdz_fns.get(_fn, _sdt_ast.parse("x=1"))):
+            if isinstance(_n, _sdt_ast.Return) and isinstance(
+                    getattr(_n, "value", None), _sdt_ast.Constant):
+                if isinstance(_n.value.value, int):
+                    _sdz_codes.add(_n.value.value)
+            if isinstance(_n, _sdt_ast.Return) and isinstance(
+                    getattr(_n, "value", None), _sdt_ast.Tuple) and _n.value.elts:
+                _e0 = _n.value.elts[0]
+                if isinstance(_e0, _sdt_ast.Constant) and isinstance(_e0.value, int):
+                    _sdz_codes.add(_e0.value)
+
+    def _sdz_free(n):
+        return n not in _sdz_codes
+    _sdz_witness = _sdz_free(_sdt_mod.CLOSED_RC) and _sdz_free(11) and not _sdz_free(7)
+
+    # (ب) سلوكيًّا: مُغلَقًا ⟶ 8 بصفرِ عمليّة · وبالإقرار ⟶ الآلةُ تعمل فعلًا
+    _sdz_hits = {"dl": 0, "tg": 0, "sp": 0, "gate": 0}
+    _sdz_keep = (_sdt_mod.bot.download_history, _sdt_mod.pa.targets,
+                 _sdt_mod.bot._fetch_splits, _sdt_mod.gate_control_differs)
+    _sdz_env0 = _sdz_os.environ.get("SUPDEF_REOPEN")
+    try:
+        def _sdz_dl(*a, **k):
+            _sdz_hits["dl"] += 1; return {}
+
+        def _sdz_tg(*a, **k):
+            _sdz_hits["tg"] += 1; return []
+
+        def _sdz_sp(*a, **k):
+            _sdz_hits["sp"] += 1; return None
+
+        def _sdz_gate(*a, **k):
+            _sdz_hits["gate"] += 1; return (False, "جذعُ اختبار")
+        _sdt_mod.bot.download_history = _sdz_dl
+        _sdt_mod.pa.targets = _sdz_tg
+        _sdt_mod.bot._fetch_splits = _sdz_sp
+        _sdt_mod.gate_control_differs = _sdz_gate
+
+        _sdz_os.environ.pop("SUPDEF_REOPEN", None)
+        with _sdz_ctx.redirect_stdout(_sdz_io.StringIO()) as _sdz_o1:
+            _sdz_rc_closed = _sdt_mod.main()
+        _sdz_shut = {k: v for k, v in _sdz_hits.items() if v}
+
+        _sdz_os.environ["SUPDEF_REOPEN"] = "1"
+        with _sdz_ctx.redirect_stdout(_sdz_io.StringIO()):
+            _sdz_rc_open = _sdt_mod.main()
+    finally:
+        (_sdt_mod.bot.download_history, _sdt_mod.pa.targets,
+         _sdt_mod.bot._fetch_splits, _sdt_mod.gate_control_differs) = _sdz_keep
+        if _sdz_env0 is None:
+            _sdz_os.environ.pop("SUPDEF_REOPEN", None)
+        else:
+            _sdz_os.environ["SUPDEF_REOPEN"] = _sdz_env0
+
+    # (ج) نصُّ الإغلاق يحمل شروطَ الفتح الثلاثة · ونقطةُ دخولٍ واحدة
+    _sdz_txt = _sdt_mod.CLOSED_TXT
+    _sdz_three = all(x in _sdz_txt for x in ("مصدرُ تأريخٍ جديد",
+                                             "ملحقٍ مؤرَّخٍ جديد",
+                                             "إذنُ المالك"))
+    _sdz_one = (_sdz_src.count("if __name__ ==") == 1
+                and "run_child" not in _sdz_src and "--child" not in _sdz_src)
+
+    _sdz_ok = (_sdz_rc_closed == _sdt_mod.CLOSED_RC == 8 and not _sdz_shut
+               and _sdz_rc_open == 7 and _sdz_hits["gate"] == 1
+               and _sdz_witness and _sdz_three and _sdz_one)
+    _sdz_w = (f"مُغلَق rc={_sdz_rc_closed} عمليّاتٌ={_sdz_shut or 'لا شيء'} · "
+              f"بالإقرار rc={_sdz_rc_open} بوّابةٌ نُوديت={_sdz_hits['gate']} · "
+              f"الرموزُ المشغولة={sorted(_sdz_codes)} شاهد={_sdz_witness} · "
+              f"شروطٌ={_sdz_three} دخولٌ واحد={_sdz_one}")
+except Exception as _e:                                          # noqa: BLE001
+    _sdz_ok, _sdz_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱🔬🔒 SDY11 الإغلاقُ **مُنفَّذ**: خروج 8 بصفرِ عمليّة · والإقرارُ يرفع "
+      "الحارسَ فعلًا · و‏8 مميَّزٌ (بشاهدَي ضبط) · ونصُّ الفتح ثلاثةٌ · ودخولٌ واحد",
+      _sdz_ok, _sdz_w)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
