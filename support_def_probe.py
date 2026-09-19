@@ -8,11 +8,17 @@
 (`A1`/`A2`/`A-FAR`/`A-MID`/`A-HIGHLOW`) **يُنشَرون ولا يُرشَّحون** · وشاهدُ الضبط
 الحاكم **`A-RAND`** (‏`§⑩-ⓕ`) سقوطُه شرطُ صحّة.
 
-المجتمعُ = ثلاثيّاتُ `§⑨-ⓒ` ‏+ الأربعُ المؤرَّخةُ بمرساة السعر (`§⑩-ⓑ`) —
-**تُعاد اشتقاقًا** من `faisal_price_anchor` لا تُكتَب بيدٍ (‏`V-S6`).
+المجتمعُ (`§⑪-ⓒ`) = ثلاثيّاتُ `§⑨-ⓒ` ‏+ الأربعُ المؤرَّخةُ **بمرساة السعر**
+(`§⑩-ⓑ`) ‏+ الأربعُ المؤرَّخةُ **ببصمة المؤشّر** (`§⑪-ⓒ`) ⇒ **‏10 ثلاثيّاتٍ من
+‏10 رموز**. وكلُّها **تُعاد اشتقاقًا** من الأداتَين بالاسم لا تُكتَب بيدٍ
+(‏`V-S6` للسعر · `V-S11` للمؤشّر) — والوسمُ يوثّق الأصل ولا يفرز.
+
+ومعه معيارٌ ثانٍ نظيف **`SD1-NEW`** (‏`§⑪-ⓔ`) على الأربعة الجديدة وحدَها،
+**ويُقرأ الحكمُ بالأضعف** فلا يُنتقى الأمرَحُ بعد رؤية الرقمين.
 
 رموزُ الخروج: 0 = الفرعُ 1 · 2 = الفرعُ 2 · 3 = الفرعُ 3 «لا قياس» · 5 = حارس ·
-‏6 = هُويّةُ المجتمع (‏`V-S6`) · 7 = شاهدُ الضبط لا يفارق (‏`V-S7`).
+‏6 = هُويّةُ المجتمع (‏`V-S6`/`V-S11`) · 7 = شاهدُ الضبط لا يفارق (‏`V-S7`) ·
+‏8 = المحورُ مُغلَق (يُرفَع بإقرار `SUPDEF_REOPEN=1`).
 """
 import csv
 import datetime as dt
@@ -21,6 +27,7 @@ import random
 import sys
 
 import Super_stock as bot
+import faisal_indicator_anchor as ia
 import faisal_price_anchor as pa
 
 TOL = 2.0                 # `FAISAL_LEVEL_TOL_PCT` — يُقرأ من CONFIG أدناه
@@ -43,6 +50,12 @@ LEVELS_TSV = "faisal_levels_table.tsv"
 #    **لا يُوثَق بي**: الأداةُ تُعيد اشتقاقَها من `faisal_price_anchor` وتُقارن.
 ANCHOR_EXPECT = {"TRUG": "2026-03-27", "TURB": "2026-04-02",
                  "GRI": "2026-04-13", "VEEE": "2026-05-14"}
+
+# ── `§⑪-ⓒ` هُويّةُ الأربعة المؤرَّخة **ببصمة المؤشّر** (حارسُ `V-S11`) ──────────
+#    **لا يُوثَق بي** كذلك: تُعاد اشتقاقًا من `faisal_indicator_anchor` وتُقارَن،
+#    وأيُّ انزياحٍ يُوقف القياسَ ولا يُغيّره صامتًا.
+IND_EXPECT = {"NEXR": "2026-04-01", "ALMU": "2026-04-10",
+              "NXTT": "2026-01-22", "PRFX": "2026-05-29"}
 
 # ── جدولُ `§⑨-ⓒ`: (رمز · تاريخ · فريم · مستويات · سطرُ الكاتالوج) ──────────────
 #    **لا يُوثَق بي**: قفلُ `SDT1` يقرأ الكاتالوج ويشترط ظهورَ كلّ رقمٍ في سطره.
@@ -227,12 +240,43 @@ def sign_test_p(n_below: int, n: int) -> float:
     return round(min(1.0, 2 * tail), 4)
 
 
-def read_verdict(n_rows, n_syms, share, p, med_abs, far_worse):
-    """فروعُ `§④` بحرفها — ولا فرعَ رابع."""
+def sd1_new_of(gov):
+    """`§⑪-ⓔ` — اختبارُ الإشارة نفسُه **على الأربعة الجديدة وحدَها** (`indicator`).
+
+    يُعيد `(below, n, share, p, عبرت؟, p_best)` حيث `p_best` = `p` عند **الإجماع**
+    لهذا الحجم. **نظيفٌ تمامًا**: لم يُقَس قطّ ولم أرَ له رقمًا قبل التسجيل.
+
+    🔴🔴 **وعيبٌ في عقدي أنا يُعلَن هنا لا يُصلَح صامتًا (‏`§⑫`):** نصُّ `§⑪-ⓔ`
+    كتب لـ`n = 4` الأرقامَ ‏0.0625 و0.3125 وهي **أحاديّةُ الذيل**، بينما
+    `sign_test_p` المدموجة — وهي «اختبارُ الإشارة **نفسُه**» الذي يستعمله `SD1`
+    ومعناه الحرفيُّ ما تعنيه الجملة — **ثنائيّةُ الذيل** فتُعطي ‏0.125 و0.625.
+    ⇒ عند `n = 4` **لا تعبر `SD1-NEW` بأيّ نتيجة** (‏أفضلُ مُتاحٍ ‏0.125 فوق
+    الحدّ ‏0.10). **والحدُّ لا يُخفَّض ولا يُبدَّل الاختبارُ بعد رؤية ذلك**
+    (‏`§⑪-ⓖ①`)، فتُقاس بحرفها ويُطبَع `p_best` **مقيسًا لا مُدَّعًى**.
+    """
+    nw = [r for r in gov if r.get("origin") == "indicator"]
+    n = len(nw)
+    if not n:
+        return 0, 0, 0.0, 1.0, False, 1.0
+    below = sum(1 for r in nw if r["a0"] is not None and r["a0"] < r["ref"])
+    share = below / n * 100.0
+    p = sign_test_p(below, n)
+    return (below, n, share, p, (share >= SD1_SHARE and p <= SD1_P),
+            sign_test_p(n, n))
+
+
+def read_verdict(n_rows, n_syms, share, p, med_abs, far_worse, sd1_new=None):
+    """فروعُ `§④` بحرفها — ولا فرعَ رابع.
+
+    و`sd1_new` (‏`§⑪-ⓔ`): **يُقرأ الحكمُ بالأضعف** — فلا يُرقّى الفرعُ بعبور
+    أحدِهما وسقوطِ الآخر، ولا يُنتقى الأمرَحُ بعد رؤية الرقمين. و`None` =
+    المعيارُ غيرُ مُقاسٍ (قبل `§⑪`) ⇒ السلوكُ السابق بت-بت."""
     if n_rows < SD0_MIN_ROWS or n_syms < SD0_MIN_SYMS or not far_worse:
         return 3, ("الفرعُ 3 — **«لا قياس»**: الأرضيّةُ أو صحّةُ المقياس لم تُبلَغ "
                    "· يُعلَن بعدَده ولا يُفسَّر · ولا يُرفَع العدُّ بتأريخٍ مُستنتَج")
     sd1 = share >= SD1_SHARE and p <= SD1_P
+    if sd1_new is not None:
+        sd1 = sd1 and bool(sd1_new)          # 🔒 الأضعفُ يحكم (`§⑪-ⓔ`)
     sd2 = med_abs >= SD2_MEDIAN
     if sd1 and sd2:
         return 0, ("الفرعُ 1 — الانحيازُ **مقيسٌ ومادّيّ** ⇒ يُنشَر رقمًا ويُقترَح "
@@ -240,11 +284,17 @@ def read_verdict(n_rows, n_syms, share, p, med_abs, far_worse):
     if sd1 and not sd2:
         return 2, ("الفرعُ 2 — الانحيازُ **موجودٌ وغيرُ مادّيّ** ⇒ **يُغلَق المحورُ** "
                    "بشرطِ فتحٍ مؤرَّخ")
-    return 3, ("الفرعُ 3 — **«لا قياس»**: `SD1` لم تُستوفَ · يُعلَن ولا يُفسَّر")
+    return 3, ("الفرعُ 3 — **«لا قياس»**: "
+               + ("`SD1`/`SD1-NEW` (بالأضعف) لم تُستوفَ" if sd1_new is not None
+                  else "`SD1` لم تُستوفَ")
+               + " · يُعلَن ولا يُفسَّر")
 
 
-def branch3_reason(n_rows, n_syms, med_a0, med_ctrl):
-    """`V-S8` — سببُ الفرع 3 **مفصولًا** فلا تُطوى الحالةُ الثالثة بلا بيان."""
+def branch3_reason(n_rows, n_syms, med_a0, med_ctrl, sd1=None, sd1_new=None):
+    """`V-S8` — سببُ الفرع 3 **مفصولًا** فلا تُطوى الحالةُ الثالثة بلا بيان.
+
+    و`sd1`/`sd1_new` يُسمّيان **أيَّهما** سقط (‏`§⑪-ⓔ`) فلا يُقرأ «‏`SD1` لم
+    تُستوفَ» على حالةٍ سقطت فيها النظيفةُ وحدَها أو العكس."""
     if n_rows < SD0_MIN_ROWS or n_syms < SD0_MIN_SYMS:
         return (f"**الأرضيّة**: {n_rows} ثلاثيّة من {n_syms} رمزًا "
                 f"(المطلوب {SD0_MIN_ROWS}/{SD0_MIN_SYMS})")
@@ -256,7 +306,15 @@ def branch3_reason(n_rows, n_syms, med_a0, med_ctrl):
     if float(med_ctrl) < float(med_a0):
         return (f"**الشاهدُ تفوّق على `A0`**: `A-RAND` {med_ctrl:.2f}% دون "
                 f"`A0` {med_a0:.2f}% ⇒ **حكمٌ لا عطب** (`§⑩-ⓕ`)")
-    return "**`SD1` لم تُستوفَ** (الشاهدُ عبر)"
+    if sd1 is None and sd1_new is None:
+        return "**`SD1` لم تُستوفَ** (الشاهدُ عبر)"
+    if sd1 and not sd1_new:
+        return ("**`SD1` عبرت و`SD1-NEW` سقطت** ⇒ يُقرأ **بالأضعف** بنصّ "
+                "`§⑪-ⓔ` المسجَّل قبل الرقمين (الشاهدُ عبر)")
+    if sd1_new and not sd1:
+        return ("**`SD1-NEW` عبرت و`SD1` سقطت** ⇒ يُقرأ **بالأضعف** بنصّ "
+                "`§⑪-ⓔ` المسجَّل قبل الرقمين (الشاهدُ عبر)")
+    return "**`SD1` و`SD1-NEW` كلتاهما لم تُستوفَ** (الشاهدُ عبر)"
 
 
 # ═══════════ `§⑩-ⓑ` المجتمعُ الموسَّع — يُشتقُّ ولا يُكتَب ═════════════════════
@@ -315,20 +373,67 @@ def anchor_scan(hist):
     return cases, tight_only, diag
 
 
+def indicator_scan(hist):
+    """`§⑪-ⓒ` — الأربعةُ المؤرَّخةُ **ببصمة المؤشّر**، بنداء
+    `faisal_indicator_anchor` **بالاسم** وبثوابتِه نفسِها (‏`candidates_at` هي
+    دالّةُ الحسم نفسُها التي يستعملها مسارُه الحيّ ⇒ صفرُ منطقٍ مكرَّر).
+
+    يُعيد `(الحالاتُ الداخلة، التشخيص)`. والنطاقُ `recheck` = **عكسُ الفلتر** =
+    «ما أرّخَته هذي الأداةُ بنفسها» — وبدونه يستحيل إعادةُ الاشتقاق بعد الدمج.
+    """
+    cases, diag = [], []
+    for t in ia.collect("recheck"):
+        sym, ln = t["symbol"], t["line"]
+        if not t["fps"]:
+            diag.append((sym, ln, "no_fp")); continue
+        df = (hist or {}).get(sym)
+        if df is None or len(df) <= ia.MIN_BARS:
+            diag.append((sym, ln, "no_data")); continue
+        try:
+            splits = bot._fetch_splits(sym)
+        except Exception:                                      # noqa: BLE001
+            splits = None
+        pers = {int(f["params"][0]) for f in t["fps"] if f["kind"] == "rsi"}
+        ser = ia.build_series(df, sorted(pers) or (ia.RSI_PERIOD,))
+        cands, _best = ia.candidates_at(t["fps"], ser, splits)
+        if len(cands) != 1:
+            diag.append((sym, ln, "ambiguous" if cands else "none")); continue
+        d = cands[0]
+        lv = _levels_of(sym, ln)
+        # 🔑 تاريخُ بصمة المؤشّر **هو** آخرُ جلسةٍ مكتملةٍ على الشاشة — وهي القاعدةُ
+        #    المدموجةُ في `witness_of` (‏`§⑩-ⓒ`) لا اجتهادٌ هنا ⇒ القصُّ عليه مباشرةً.
+        cases.append({"sym": sym, "line": ln, "date": d, "match_date": d,
+                      "levels": lv, "sf": bot._split_scale_factor(splits, d)})
+        diag.append((sym, ln, "unique ⟶ " + d + ("" if lv else "  (بلا مستوًى حاكم)")))
+    return cases, diag
+
+
 # ═══════════ بناءُ الصفوف — والحساسيّاتُ الثلاثُ تُعيد استعمالَه ═══════════════
 def build_rows(hist_old, hist_new, acases, asof_mode="match", ref_mode="chart",
-               marker=True):
+               marker=True, icases=(), hist_ind=None):
     """`asof_mode` ∈ {match, date} (`ⓒ`) · `ref_mode` ∈ {chart, close} (`ⓓ`) ·
-    `marker` (`ⓔ`). الافتراضاتُ **هي القاعدةُ المسجَّلة** والباقي حساسيّاتٌ وصفيّة."""
+    `marker` (`ⓔ`). الافتراضاتُ **هي القاعدةُ المسجَّلة** والباقي حساسيّاتٌ وصفيّة.
+
+    و`origin` ∈ {cat, price, **indicator**} — وسمُ الأصل الذي يعزل `SD1-NEW`
+    (‏`§⑪-ⓔ`)، **ولا يفرز المجتمعَ**: كلُّ مؤرَّخٍ يدخل مهما كان مصدرُه."""
     plan = []
     for sym, asof, frame, levels, src in CASES:
         plan.append({"sym": sym, "asof": asof, "frame": frame, "levels": list(levels),
-                     "src": src, "kind": "close", "px": None, "hist": hist_old})
+                     "src": src, "kind": "close", "px": None, "hist": hist_old,
+                     "origin": "cat"})
     for c in acases:
         asof = c["match_date"] if asof_mode == "match" else c["date"]
         plan.append({"sym": c["sym"], "asof": asof, "frame": "daily",
                      "levels": list(c["levels"]), "src": c["line"],
-                     "kind": c["kind"], "px": c["px"], "hist": hist_new})
+                     "kind": c["kind"], "px": c["px"], "hist": hist_new,
+                     "origin": "price"})
+    for c in icases:
+        # ‏`match_date == date` لبصمة المؤشّر ⇒ الحساسيّةُ `ⓒ` لا تحرّكها (مُعلَن).
+        plan.append({"sym": c["sym"], "asof": c["match_date"] if asof_mode == "match"
+                     else c["date"], "frame": "daily",
+                     "levels": list(c["levels"]), "src": c["line"],
+                     "kind": "close", "px": None, "hist": hist_ind,
+                     "origin": "indicator"})
     rows, skipped, n_drop = [], [], 0
     for q in plan:
         df0 = (q["hist"] or {}).get(q["sym"])
@@ -353,7 +458,8 @@ def build_rows(hist_old, hist_new, acases, asof_mode="match", ref_mode="chart",
         r = {"sym": q["sym"], "asof": q["asof"], "frame": q["frame"], "ref": ref,
              "close": close, "refpx": refpx, "kind": q["kind"],
              "a0": a0(df), "a1": a1(df), "a2": a2(df), "far": a_far(df),
-             "mid": a_mid(df), "hl": a_highlow(df), "src": q["src"], "bars": len(df)}
+             "mid": a_mid(df), "hl": a_highlow(df), "src": q["src"], "bars": len(df),
+             "origin": q["origin"]}
         r["e0"] = err_pct(r["a0"], ref)
         r["e1"] = err_pct(r["a1"], ref)
         r["e2"] = err_pct(r["a2"], ref)
@@ -486,7 +592,26 @@ def main() -> int:
         return 6
     log(f"   ✅ الأربعةُ أُعيد اشتقاقُها بتواريخها بالضبط: {ANCHOR_EXPECT}")
 
-    rows, skipped, n_drop = build_rows(hist_old, hist_new, acases)
+    # ── `§⑪-ⓒ` القناةُ الثانية: بصمةُ المؤشّر ─────────────────────────────────
+    isyms = sorted({t["symbol"] for t in ia.collect("recheck") if t["fps"]})
+    hist_ind = (bot.download_history(isyms, start_override=ia.WARMUP)
+                if isyms else {})
+    icases, idiag = indicator_scan(hist_ind)
+
+    igot = {c["sym"]: c["date"] for c in icases}
+    log("")
+    log("═══ V-S11 هُويّةُ القناة الثانية — بصمةُ المؤشّر (§⑪-ⓒ) ═══")
+    for sym, ln, st in idiag:
+        log(f"   {sym:6s} سطر {ln:<5} {st}")
+    if igot != IND_EXPECT:
+        log(f"   🔴 المُشتقّ {igot} ≠ المسجَّل {IND_EXPECT} ⇒ يُوقَف بلا تغييرٍ صامت")
+        log("JUDGE rc=6 · هُويّةُ القناة الثانية لم تُطابق `§⑪-ⓒ`")
+        return 6
+    log(f"   ✅ الأربعةُ أُعيد اشتقاقُها بتواريخها بالضبط: {IND_EXPECT}")
+    log("   (والصفُّ بلا مستوًى حاكمٍ يسقط في التغطية `V-S5` — لا يُطوى بصمت)")
+
+    rows, skipped, n_drop = build_rows(hist_old, hist_new, acases,
+                                       icases=icases, hist_ind=hist_ind)
 
     log("")
     log("═══ V-S3 الجدول (‏صفًّا صفًّا) ═══")
@@ -501,8 +626,8 @@ def main() -> int:
     log("   (* وصفيٌّ بنصّ §⑨-ⓐ — خارج كلّ معيار · وA1/A2/A-FAR/A-MID/A-HL "
         "وصفيّون بنصّ §⑩-ⓖ)")
     log(f"   §⑩-ⓔ مستوياتٌ استُبعدت بوسم مؤشّر السعر (‏{MARKER_TOL}%): **{n_drop}**")
-    log(f"   V-S5 تغطية: طُلبت {len(CASES) + len(acases)} · نجحت {len(rows)} "
-        f"· استُبعدت {len(skipped)}")
+    log(f"   V-S5 تغطية: طُلبت {len(CASES) + len(acases) + len(icases)} · "
+        f"نجحت {len(rows)} · استُبعدت {len(skipped)}")
     for s in skipped:
         log(f"        ⟶ {s[0]} {s[1]}: {s[2]}")
 
@@ -523,7 +648,22 @@ def main() -> int:
         log(f"   (وصفيّ) وسيطُ |خطأ A-FAR| = {_med(absf):.2f}% — "
             f"**متقاعدٌ شاهدًا** (`§⑩-ⓕ`)")
 
-    rc, txt = read_verdict(n, nsym, share, p, med, ctrl_ok)
+    nb, nn, nshare, np_, nok, npbest = sd1_new_of(gov)
+    log("")
+    log("═══ §⑪-ⓔ `SD1-NEW` — الأربعةُ الجديدةُ وحدَها (نظيفٌ: لم يُقَس قطّ) ═══")
+    if nn:
+        log(f"   A0 أدنى في **{nb}/{nn}** = {nshare:.1f}% · p={np_} "
+            f"(الحدّ {SD1_SHARE}% و{SD1_P}) ⇒ **{'تعبر' if nok else 'تسقط'}**")
+        log(f"   الرموز: {sorted(r['sym'] for r in gov if r.get('origin') == 'indicator')}")
+        _feas = ("🔴 **غيرُ قابلٍ للعبور بأيّ نتيجة** — عيبُ عقدي يُعلَن (`§⑫`)"
+                 if npbest > SD1_P else "✅ العبورُ ممكنٌ بنيويًّا")
+        log(f"   🔎 أفضلُ `p` مُتاحٍ عند الإجماع ({nn}/{nn}) = **{npbest}** "
+            f"مقابل الحدّ {SD1_P} ⇒ {_feas}")
+    else:
+        log("   🔴 صفرُ صفٍّ جديدٍ حاكم — `SD1-NEW` بلا مجتمعٍ فتسقط بالبناء")
+    log("   🔒 وقاعدةُ القراءة مسجَّلةٌ قبل الرقمين: **يُنشَران معًا ويُقرأ بالأضعف**")
+
+    rc, txt = read_verdict(n, nsym, share, p, med, ctrl_ok, sd1_new=nok)
 
     log("")
     log("═══ V-S9 الحساسيّاتُ الثلاث (وصفيّةٌ — لا تدخل أيَّ معيار) ═══")
@@ -532,19 +672,22 @@ def main() -> int:
                     {"ref_mode": "close"}),
                    ("ⓔ بلا قاعدةِ وسمِ مؤشّر السعر", {"marker": False})):
         try:
-            r2, _s2, _d2 = build_rows(hist_old, hist_new, acases, **kw)
+            r2, _s2, _d2 = build_rows(hist_old, hist_new, acases,
+                                      icases=icases, hist_ind=hist_ind, **kw)
             g2, n2, ns2, sh2, p2, md2, mr2, ok2 = stats_of(r2)
+            _nb2, _nn2, nsh2, np2, nok2, _pb2 = sd1_new_of(g2)
             log(f"   {nm}: حاكمة {n2}/{ns2} · SD1 {sh2:.1f}% p={p2} · "
+                f"SD1-NEW {nsh2:.1f}% p={np2} · "
                 f"SD2 {md2:.2f}% · SD3 "
                 f"{('%.2f%%' % mr2) if mr2 is not None else '—'} ⇒ "
                 f"{'تعبر' if ok2 else 'تسقط'} · "
-                f"الفرعُ {read_verdict(n2, ns2, sh2, p2, md2, ok2)[0]}")
+                f"الفرعُ {read_verdict(n2, ns2, sh2, p2, md2, ok2, sd1_new=nok2)[0]}")
         except Exception as e:                                 # noqa: BLE001
             log(f"   {nm}: ⛔ رمى {type(e).__name__}")
 
     log("")
     log("═══ 🔎 تشخيصٌ: مقياسُ التقسيم عند تاريخ الشارت (يُطبَع ولا يُستعمَل) ═══")
-    for c in acases:
+    for c in list(acases) + list(icases):
         log(f"   {c['sym']:6s} {c['match_date']}  عامل={c['sf']:.6g}  "
             f"{'✅ قابلٌ للمقارنة' if abs(c['sf'] - 1.0) < 1e-9 else '🔴 مقياسان مختلفان — الصفُّ غيرُ قابلٍ للمقارنة'}")
     log("   (غيرُ الواحد = مستوياتُ الشاشة و`A0` بمقياسين ⇒ حدُّ صدقٍ يُعلَن ولا يُصلَح صامتًا)")
@@ -557,9 +700,23 @@ def main() -> int:
         f"{[f'{s}:{d}' for s, _l, d in tight_only] or '—'}")
 
     log("")
+    log("═══ §⑪-ⓕ تنبّؤاتي — تُنشَر مكذَّبةً أو مؤكَّدة ═══")
+    _sd1 = share >= SD1_SHARE and p <= SD1_P
+    _spread = [r["e0"] for r in gov if r["e0"] is not None]
+    _rng = (max(_spread) - min(_spread)) if _spread else 0.0
+    log(f"   P⑪-1 `SD1` لا يعبر ⟶ {'✅ مؤكَّد' if not _sd1 else '🔴 مكذَّب'}")
+    log(f"   P⑪-2 `SD1-NEW` لا يعبر ⟶ {'✅ مؤكَّد' if not nok else '🔴 مكذَّب'}")
+    log(f"   P⑪-3 الفجوةُ طيفٌ واسع ⟶ مدى الخطأ {_rng:.2f} نقطة "
+        f"({min(_spread) if _spread else 0:.2f}% ⟶ {max(_spread) if _spread else 0:.2f}%)")
+    log(f"   P⑪-4 مخالفٌ واحدٌ على الأقلّ بين الأربعة الجديدة ⟶ "
+        f"{'✅ مؤكَّد' if nn and nb < nn else '🔴 مكذَّب' if nn else '—'} "
+        f"({nn - nb if nn else 0} مخالفًا)")
+
+    log("")
     log("═══ الحكم ═══")
     if rc == 3:
-        log(f"   V-S8 سببُ الفرع 3: {branch3_reason(n, nsym, med, med_r)}")
+        log(f"   V-S8 سببُ الفرع 3: "
+            f"{branch3_reason(n, nsym, med, med_r, sd1=_sd1, sd1_new=nok)}")
     log(f"JUDGE rc={rc} · {txt}")
     return rc
 

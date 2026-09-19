@@ -2,14 +2,20 @@ name: SUPDEF (🧱🔬 تعريفُ الدعم — T-SUPDEF)
 
 # 🔒 **قراءةٌ فقط**: لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** · ولا شحنَ
 #    مهما كانت النتيجة (المحورُ يمسّ جذرًا). العقد: `support_def_prereg.md`
-#    ‏+ الملحقُ المؤرَّخ `§⑩` (المجتمعُ الموسَّع بمرساة السعر · شاهدُ `A-RAND`).
+#    ‏+ الملحقان `§⑩` (مرساةُ السعر) و`§⑪` (بصمةُ المؤشّر ‏+ `SD1-NEW`).
 # 🔒 **والمحورُ مُغلَقٌ بأمر المالك «اقفل الدعم» (‏2026-09-19):** الأداةُ تخرج **‏8**
-#    قبل أيّ عمليّة · والإقرارُ `SUPDEF_REOPEN=1` إقرارٌ بشروط الفتح الثلاثة.
+#    قبل أيّ عمليّة · والإقرارُ `SUPDEF_REOPEN=1` إقرارٌ بشروط الفتح الثلاثة
+#    **لا التفافٌ عليها** — وحالتُها مسجَّلةٌ في `§⑪-ⓐ` بدليل كلِّ شرط.
 permissions:
   contents: read
 
 on:
   workflow_dispatch:
+    inputs:
+      reopen:
+        description: "إقرارٌ بشروط الفتح الثلاثة (§⑪-ⓐ) — اكتب 1 لرفع الإغلاق"
+        required: false
+        default: "0"
 
 jobs:
   supdef:
@@ -26,4 +32,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: 🧱🔬 قِس تعريفَ الدعم (قراءةٌ فقط)
+        env:
+          SUPDEF_REOPEN: ${{ inputs.reopen }}
         run: python support_def_probe.py

@@ -55307,6 +55307,205 @@ except Exception as _e:                                          # noqa: BLE001
 check("🧱📎🔒 SDZ4 التسجيلُ **لم يصر فتحًا**: الحارسُ ما زال يُغلق بلا الإقرار · ونصُّه "
       "يشير إلى `§⑪` بلا إسقاطِ شرط", _v, _w)
 
+# ── 🧱📎 ملحقُ `§⑫` وتنفيذُ `§⑪` في المِجَسّ — أقفال SDZ5-SDZ11 («شغل الدعم» 2026-09-19)
+# المِجَسُّ يبني مجتمعَ `§⑪` (‏10 ثلاثيّاتٍ من قناتَين) ويُنفّذ `SD1-NEW` وقاعدةَ
+# «يُقرأ بالأضعف» · و`§⑫` **يُصحّح حسابًا كتبتُه أنا ولا يحرّك حدًّا**.
+try:
+    _szz_s12 = _szz_doc.split("## 📎 ملحقٌ مؤرَّخ §⑫")[-1] if "§⑫" in _szz_doc else ""
+    _szz_src = _insp0.getsource(_sdt_mod) if _sdt_mod else ""
+except Exception as _e:                                          # noqa: BLE001
+    _szz_s12, _szz_src = "", f"⛔ {type(_e).__name__}"
+
+# ⑥ SDZ5 — `§⑫` حاضرٌ مؤرَّخٌ · **تصحيحٌ لا إرخاء**: يُسمّي الأرقامَ الأربعة ·
+#   ويُبقي الحدَّ `0.10` · **ويمنع صراحةً** التحوّلَ إلى أحاديّ الذيل.
+try:
+    _v = bool(_szz_s12) and "2026-09-19" in _szz_s12
+    _nums = all(x in _szz_s12 for x in ("0.0625", "0.3125", "0.125", "0.625"))
+    _keep = "p ≤ 0.10" in _szz_s12 or "`p ≤ 0.10`" in _szz_s12
+    _ban = ("أحاديّ الذيل" in _szz_s12) and ("لا يُبدَّل" in _szz_s12
+                                             or "ولا يُبدَّل" in _szz_s12)
+    _noshrink = "لا يُخفَّض" in _szz_s12
+    # ‏🔒 ولا يُدسّ حدُّ `p` آخرُ في الملحق (‏نفسُ عقد `SDZ1`)
+    _other = [m for m in _mem_re.findall(r"p\s*[≤<]=?\s*0?\.\d+", _szz_s12)
+              if "0.10" not in m]
+    _v = _v and _nums and _keep and _ban and _noshrink and not _other
+    _w = (f"مؤرَّخ={bool(_szz_s12)} · الأرقامُ الأربعة={_nums} · الحدُّ باقٍ={_keep} · "
+          f"منعُ أحاديّ الذيل={_ban} · منعُ الخفض={_noshrink} · حدٌّ دخيل={_other or 'لا شيء'}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ5 ملحقُ `§⑫` **تصحيحُ حسابٍ لا إرخاءُ حدّ**: يُسمّي الأرقامَ الأربعة "
+      "ويُبقي `p ≤ 0.10` ويمنع التحوّلَ إلى أحاديّ الذيل", _v, _w)
+
+# ⑦ SDZ6 — 🔑 **دعوى `§⑫-ⓑ` تُقاس لا تُصدَّق**: الاختبارُ المدموجُ ثنائيُّ الذيل،
+#   و`p` عند الإجماع لـ`n = 4` فوق الحدّ ⇒ `SD1-NEW` **غيرُ قابلةٍ للعبور بنيويًّا**.
+#   وشاهدُ ضبط: عند `n = 10` العبورُ ممكن ⇒ القفلُ لا يقول «كلُّ حجمٍ ممنوع».
+try:
+    _sp = _sdt_mod.sign_test_p
+    _two = _sp(4, 4) == 0.125 and _sp(3, 4) == 0.625          # ثنائيُّ الذيل
+    _p10 = _sp(9, 10) == 0.0215 and _sp(8, 10) == 0.1094      # سطرا `§⑪` الصحيحان
+    _lim = _sdt_mod.SD1_P
+    _infeas4 = _sp(4, 4) > _lim                               # لا تعبر بأيّ نتيجة
+    _feas10 = _sp(9, 10) <= _lim                              # شاهدُ ضبطٍ يمرّ
+    _v = _two and _p10 and _infeas4 and _feas10 and _lim == 0.10
+    _w = (f"ثنائيّ={_two} · سطرا n=10 يطابقان `§⑪`={_p10} · "
+          f"p_best(4)={_sp(4, 4)} فوق {_lim}؟ {_infeas4} · شاهدُ n=10 يعبر={_feas10}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ6 **مقيسٌ لا مُدَّعًى**: الاختبارُ ثنائيُّ الذيل · و`SD1-NEW` عند "
+      "`n=4` لا تعبر بأيّ نتيجة · وشاهدُ `n=10` يعبر", _v, _w)
+
+# ⑧ SDZ7 — `V-S11`: هُويّةُ القناة الثانية **تُشتقُّ بنداءٍ حيّ** لا تُكتَب بيدًا ·
+#   و`IND_EXPECT` ≡ تواريخُ الملفّ الجانبيّ (‏لا رقمَ مكتوبٌ بيد).
+try:
+    _t = _ast0.parse(_szz_src)
+    _calls = {f"{getattr(c.func.value, 'id', '')}.{c.func.attr}"
+              for c in _ast0.walk(_t)
+              if isinstance(c, _ast0.Call) and isinstance(c.func, _ast0.Attribute)}
+    _byname = {"ia.collect", "ia.candidates_at", "ia.build_series"} <= _calls
+    _side = {}
+    import csv as _szz_csv
+    for _r in _szz_csv.DictReader(open("faisal_derived_dates.tsv", encoding="utf-8"),
+                                  delimiter="\t"):
+        if (_r.get("method") or "").strip() == "indicator":
+            _side[_r["symbol"].strip()] = _r["date"].strip()
+    _match = _side == dict(_sdt_mod.IND_EXPECT)
+    # 🔴 **بنيويٌّ لا نصّيّ:** فحصُ «`rc=6` واردٌ في المصدر» كان **خاويًا** —
+    #    سطرُ السجلّ يبقى بعد نزع `return 6` فتمرّ الطفرة (‏`s12` نجت فعلًا).
+    #    ⇒ يُشترَط أن تنتهي كتلةُ `if igot != IND_EXPECT:` بـ**`return 6`**.
+    _stop = False
+    for _f in _ast0.walk(_ast0.parse(_szz_src)):
+        if not (isinstance(_f, _ast0.FunctionDef) and _f.name == "main"):
+            continue
+        for _n in _ast0.walk(_f):
+            if not isinstance(_n, _ast0.If):
+                continue
+            _names = {getattr(x, "id", "") for x in _ast0.walk(_n.test)}
+            if "IND_EXPECT" not in _names:
+                continue
+            _stop = any(isinstance(b, _ast0.Return)
+                        and isinstance(b.value, _ast0.Constant)
+                        and b.value.value == 6 for b in _n.body)
+    _v = _byname and _match and _stop
+    _w = (f"نداءٌ حيٌّ بالاسم={_byname} · IND_EXPECT ≡ الجانبيّ={_match} "
+          f"({sorted(_side)}) · يُوقف بخروج 6={_stop}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ7 `V-S11` هُويّةُ القناة الثانية: تُشتقُّ بنداءٍ حيٍّ بالاسم · "
+      "و`IND_EXPECT` ≡ الملفُّ الجانبيّ · وتُوقف بخروج 6", _v, _w)
+
+# ⑨ SDZ8 — **سلوكيٌّ من طرفين**: `SD1-NEW` يعزل `origin == "indicator"` وحدَه ·
+#   و«يُقرأ بالأضعف» **يمنع الفرعَ 1 فعلًا** لا نصًّا · وبلا الوسيط = السلوكُ السابق.
+try:
+    def _g(o, below):
+        return {"sym": o + str(below), "origin": o,
+                "a0": (1.0 if below else 3.0), "ref": 2.0}
+    # 🔴 **الفِكستشرُ يحمل الأصولَ الثلاثة عمدًا**: بلا صفِّ `cat` يصير
+    #    `!= "price"` مساويًا لـ`== "indicator"` فتمرّ طفرةُ العزل بلا أثر —
+    #    وهو ما وقع فعلًا (‏`s7` نجت) فقُوّي الفِكستشرُ ولم يُرخَ القفل.
+    _gov = ([_g("indicator", 1)] * 3 + [_g("indicator", 0)]
+            + [_g("price", 0)] * 6 + [_g("cat", 1)] * 2)
+    _nb, _nn, _nsh, _np, _nok, _pb = _sdt_mod.sd1_new_of(_gov)
+    _iso = (_nn == 4 and _nb == 3)                    # عزلٌ صحيح: الأربعةُ وحدَها
+    _base = dict(n_rows=10, n_syms=10, share=90.0, p=0.02, med_abs=20.0,
+                 far_worse=True)
+    _r_no = _sdt_mod.read_verdict(**_base)                       # بلا الوسيط
+    _r_ok = _sdt_mod.read_verdict(**_base, sd1_new=True)
+    _r_bad = _sdt_mod.read_verdict(**_base, sd1_new=False)
+    _gate = (_r_no[0] == 0 and _r_ok[0] == 0 and _r_bad[0] == 3)
+    _v = _iso and _gate and not _nok
+    _w = (f"عزلٌ: n={_nn} below={_nb} (المتوقَّع 4/3) · بلا وسيط={_r_no[0]} "
+          f"· NEW✅={_r_ok[0]} · NEW🔴={_r_bad[0]} (المتوقَّع 0/0/3) · p_best={_pb}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ8 `SD1-NEW` يعزل الجديدَ وحدَه · و«يُقرأ بالأضعف» **يمنع الفرعَ 1 "
+      "سلوكيًّا** · وبلا الوسيط السلوكُ السابق بت-بت", _v, _w)
+
+# ⑩ SDZ9 — **القناتان مستقلّتان و‏4+4 بتقاطعٍ صفريّ** (دعوى `§⑪-ⓑ` مقيسةً) ·
+#   ومرشّحو المجتمع اليوميّ **‏11 صفًّا** (‏3 كاتالوج ‏+ 4 سعر ‏+ 4 مؤشّر).
+#   🔴 والفارقُ عن «‏10» في `§⑪-ⓒ` **استبعادٌ زمنَ تشغيلٍ واحد** يطبعه `V-S5`
+#   (‏`ELPW` بقاعدة `§②`) — **ولا يُعَدّ العددُ من الجدول بل يُحسَب من المصدر**.
+try:
+    import csv as _szz_csv
+    _rows = list(_szz_csv.DictReader(open("faisal_levels_table.tsv", encoding="utf-8"),
+                                     delimiter="\t"))
+
+    def _trip(src):
+        return {(_r["symbol"], _r["date"]) for _r in _rows
+                if _r["role"] == "support" and _r["frame"] == "daily"
+                and _r["auto_chart"] == "0" and _r["date"].strip()
+                and _r.get("date_source", "").strip() == src}
+    _pr, _ind = _trip("price"), _trip("indicator")
+    _cat = {(c[0], c[1]) for c in _sdt_mod.CASES if c[2] == "daily"}
+    _cross = {x[0] for x in _pr} & {x[0] for x in _ind}      # `§⑪-ⓑ`: صفرُ تقاطع
+    _v = (len(_pr) == 4 and len(_ind) == 4 and len(_cat) == 3
+          and not _cross
+          and {x[0] for x in _ind} == set(_sdt_mod.IND_EXPECT)
+          and {x[0] for x in _pr} == set(_sdt_mod.ANCHOR_EXPECT)
+          and len(_cat | _pr | _ind) == 11)
+    _w = (f"سعر={len(_pr)} مؤشّر={len(_ind)} كاتالوج(يوميّ)={len(_cat)} ⇒ "
+          f"مرشّحون={len(_cat | _pr | _ind)} (المتوقَّع 11) · تقاطعُ القناتين="
+          f"{_cross or 'صفر'}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ9 القناتان مستقلّتان **‏4+4 بتقاطعٍ صفريّ** · ومرشّحو المجتمع اليوميّ "
+      "‏11 صفًّا (‏3 كاتالوج) · والفارقُ عن 10 استبعادُ `V-S5`", _v, _w)
+
+# ⑪ SDZ10 — **الإقرارُ يمرّ عبر الـworkflow ولا يُفتَح بالافتراض**: `SUPDEF_REOPEN`
+#   مربوطٌ بمدخلٍ افتراضُه «0» · والحارسُ يُغلق عند «0» ويُرفَع عند «1» (سلوكيٌّ).
+try:
+    import yaml as _szz_yaml
+    _wf = _szz_yaml.safe_load(open(".github/workflows/support_def.yml",
+                                   encoding="utf-8"))
+    _inp = _wf[True]["workflow_dispatch"]["inputs"]["reopen"]
+    _bound = any("SUPDEF_REOPEN" in str(st.get("env", {}))
+                 and "reopen" in str(st.get("env", {}))
+                 for j in _wf["jobs"].values() for st in j["steps"])
+    _dflt = str(_inp.get("default")) == "0"
+    import contextlib as _szz_c2
+    import io as _szz_i2
+    _e0 = _mem_os.environ.get("SUPDEF_REOPEN")
+    try:
+        _mem_os.environ["SUPDEF_REOPEN"] = "0"
+        with _szz_c2.redirect_stdout(_szz_i2.StringIO()):
+            _rc0 = _sdt_mod.closed_guard()
+        _mem_os.environ["SUPDEF_REOPEN"] = "1"
+        with _szz_c2.redirect_stdout(_szz_i2.StringIO()):
+            _rc1 = _sdt_mod.closed_guard()
+    finally:
+        _mem_os.environ.pop("SUPDEF_REOPEN", None)
+        if _e0 is not None:
+            _mem_os.environ["SUPDEF_REOPEN"] = _e0
+    _v = _bound and _dflt and _rc0 == _sdt_mod.CLOSED_RC and _rc1 is None
+    _w = (f"مربوطٌ بالمدخل={_bound} · الافتراض «0»={_dflt} · "
+          f"عند 0 ⟶ {_rc0} (المتوقَّع {_sdt_mod.CLOSED_RC}) · عند 1 ⟶ {_rc1} (المتوقَّع None)")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ10 الإقرارُ يمرّ عبر الـworkflow بافتراضٍ مُغلَق · والحارسُ يُغلق عند "
+      "«0» ويُرفَع عند «1» سلوكيًّا", _v, _w)
+
+# ⑫ SDZ11 — **صفرُ منطقِ حسمٍ مكرَّر**: دالّةُ المرشّحين مكتوبةٌ مرّةً واحدةً في
+#   مرساة المؤشّر ويناديها **مسارُها الحيّ** و**المِجَسّ** معًا — فلا يتفرّق الفرعان.
+try:
+    _ias = _insp0.getsource(_lvd_ia) if _lvd_ia else ""
+    _mt = _ast0.parse(_ias)
+    _mainf = next((f for f in _ast0.walk(_mt)
+                   if isinstance(f, _ast0.FunctionDef) and f.name == "main"), None)
+    _in_main = any(getattr(c.func, "id", "") == "candidates_at"
+                   for c in _ast0.walk(_mainf) if isinstance(c, _ast0.Call)) \
+        if _mainf else False
+    _modlevel = any(isinstance(f, _ast0.FunctionDef) and f.name == "candidates_at"
+                    for f in _mt.body)
+    _in_probe = "ia.candidates_at" in _szz_src
+    # 🔎 سلوكيّ: الدالّةُ نفسُها كائنًا — لا مثيلٌ لها
+    _same = getattr(_sdt_mod, "ia", None) is _lvd_ia
+    _v = _modlevel and _in_main and _in_probe and _same
+    _w = (f"على مستوى الوحدة={_modlevel} · يناديها `main`={_in_main} · "
+          f"ويناديها المِجَسُّ={_in_probe} · الوحدةُ نفسُها={_same}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱📎🔒 SDZ11 **صفرُ منطقِ حسمٍ مكرَّر**: `candidates_at` واحدةٌ يناديها مسارُ "
+      "المؤشّر الحيُّ والمِجَسُّ معًا", _v, _w)
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

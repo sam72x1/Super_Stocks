@@ -339,6 +339,22 @@ def fp_match(ser: dict, fp: dict, splits=None, w0: str = W0, w1: str = W1,
     return out
 
 
+def candidates_at(fps: list, ser: dict, splits, mult: float = TOL_MULT):
+    """تقاطعُ مرشّحي **كلّ** بصمات الهدف عند مضاعفٍ بعينه ⟶ `(المرشّحون، الأفضلُ لكلّ تاريخ)`.
+
+    🔑 **منطقُ الحسم مكتوبٌ مرّةً واحدة:** يُنادى من `main` ومن مِجَسّ تعريف الدعم
+    **بالاسم**، فلا يُكتَب مرّتين ولا يتفرّق فرعاه بعد تعديل. (وهي الدالّةُ نفسُها
+    التي كانت مُغلَقةً داخل `main` — رُفعت بلا تغييرِ سلوك.)"""
+    it, bst = None, {}
+    for fp in fps:
+        cs = fp_match(ser, fp, splits, mult=mult)
+        g = {c["date"] for c in cs}
+        it = g if it is None else (it & g)
+        for c in cs:
+            bst.setdefault(c["date"], c)
+    return sorted(it or set()), bst
+
+
 def judge(cands: list) -> str:
     return "unique" if len(cands) == 1 else ("ambiguous" if cands else "none")
 
@@ -468,15 +484,7 @@ def main() -> int:
             ser = build_series(df, sorted(pers) or (RSI_PERIOD,))
 
             def _at(mult):
-                """تقاطعُ مرشّحي كلّ بصمات الهدف عند مضاعفٍ بعينه."""
-                it, bst = None, {}
-                for fp in t["fps"]:
-                    cs = fp_match(ser, fp, splits, mult=mult)
-                    g = {c["date"] for c in cs}
-                    it = g if it is None else (it & g)
-                    for c in cs:
-                        bst.setdefault(c["date"], c)
-                return sorted(it or set()), bst
+                return candidates_at(t["fps"], ser, splits, mult)
 
             cands, best = _at(TOL_MULT)
             row["n_cand"] = len(cands)
