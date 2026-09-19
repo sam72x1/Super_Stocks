@@ -54140,6 +54140,250 @@ check("🎚️📉🔒 TRA14 الإغلاقُ **مُنفَّذ**: الأداتا
       "والإقرارُ يرفع الحارسَ فعلًا · و‏8 مميَّزٌ (بشاهدِ ضبط) · ونقطةُ دخولٍ "
       "واحدةٌ لكلٍّ", _tra_ok14, _tra_w14)
 
+
+# ── 🧱🔬📎 أداةُ الملحق §⑩ — أقفال SDY0-SDY9 («شغله» 2026-09-19) ─────────────
+# الأداةُ تُنفّذ الملحقَ المدموج: مجتمعٌ موسَّعٌ **يُشتقّ** بمرساة السعر · قصٌّ عند
+# `match_date` · سعرُ مرجعٍ هو آخرُ مرئيٍّ على الشاشة · وسمُ مؤشّر السعر يُستبعَد ·
+# وشاهدُ ضبطٍ **حاكمٍ** `A-RAND` ببوّابةِ فِكستشرٍ **قبل أيّ جلب**.
+# 🔑 وكلُّ قفلٍ هنا يقارن **مصدرًا بمصدر** (الأداةُ ⟷ الوثيقةُ ⟷ الجدول) لا مصدرًا
+#   برقمٍ كتبتُه — درسُ `s3` الذي نجا في جولة الملحق.
+_sdy_ok = _sdt_mod is not None
+
+
+def _sdy_df(lows, start="2026-01-01"):
+    """فِكستشرُ شموعٍ يوميّةٍ بفهرسٍ تاريخيّ (‏`cut_asof` يقرأ `.date()`)."""
+    import datetime as _sdy_dt
+    d0 = _sdy_dt.date.fromisoformat(start)
+    idx = [_sdy_dt.datetime.combine(d0 + _sdy_dt.timedelta(days=i),
+                                    _sdy_dt.time()) for i in range(len(lows))]
+    return pd.DataFrame({"Low": lows, "High": [v * 1.2 for v in lows],
+                         "Close": [v * 1.05 for v in lows]},
+                        index=pd.DatetimeIndex(idx))
+
+
+def _sdy_btab():
+    """صفوفُ جدول `ⓑ` من **الوثيقة** — `(رمز, سطر, مستويات, نوع, تاريخ)`."""
+    out, started = [], False
+    for l in _sdx_all:
+        if l.startswith("### ⓑ"):
+            started = True
+            continue
+        if started and l.startswith("### ⓒ"):
+            break
+        if not started:
+            continue
+        f = [x.strip() for x in l.split("|")]
+        if len(f) != 9 or not _sdx_num(f[1]).isdigit():
+            continue
+        out.append((f[2], int(_sdx_num(f[3])),
+                    {round(float(_sdx_num(x)), 6) for x in f[4].split("·")},
+                    f[5].strip("`"), _sdx_num(f[7])))
+    return out
+
+
+# SDY0 — `A-RAND` = **وسيطُ \|الخطأ\| على السحبات** لا خطأُ وسيطِ السحبات (ينهار
+#   إلى `A-MID`) · وحتميٌّ بالبذرة · والبذرةُ **تُستعمَل فعلًا** (رمزٌ آخر ⟶ رقمٌ آخر).
+try:
+    _sdy0_df = _sdy_df([1.0 + 0.10 * i for i in range(60)])      # مدًى عريض
+    _sdy0_lo, _sdy0_hi = _sdt_mod._window(_sdy0_df)
+    _sdy0_ref = (_sdy0_lo + _sdy0_hi) / 2.0                      # المرجعُ = المنتصف
+    _sdy0_v = _sdt_mod.a_rand_err(_sdy0_df, _sdy0_ref, "AAA", "2026-03-01")
+    _sdy0_v2 = _sdt_mod.a_rand_err(_sdy0_df, _sdy0_ref, "AAA", "2026-03-01")
+    _sdy0_v3 = _sdt_mod.a_rand_err(_sdy0_df, _sdy0_ref, "BBB", "2026-03-01")
+    # خطأُ وسيطِ السحبات عند مرجعٍ = المنتصف ≈ صفر · ووسيطُ \|الخطأ\| ≈ نصفُ نصفِ المدى
+    _sdy0_ok = (_sdy0_v is not None and _sdy0_v > 5.0 and _sdy0_v == _sdy0_v2
+                and _sdy0_v3 != _sdy0_v and _sdt_mod.ARAND_DRAWS == 999)
+    _sdy0_w = f"v={_sdy0_v} تكرار={_sdy0_v2} بذرةٌ أخرى={_sdy0_v3}"
+except Exception as _e:                                          # noqa: BLE001
+    _sdy0_ok, _sdy0_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY0 `A-RAND` **وسيطُ \\|الخطأ\\| على 999 سحبة** لا خطأُ وسيطِها "
+      "(الثانيةُ تنهار إلى `A-MID` ⟶ صفرٌ عند مرجعٍ في المنتصف) · حتميٌّ بالبذرة · "
+      "والبذرةُ تُستعمَل فعلًا", _sdy0_ok, _sdy0_w)
+
+# SDY1 — `V-S7` بوّابةٌ **تعضّ**: تمرّ على فِكستشر `ⓕ` · وتسقط لو انهار الشاهدُ إلى
+#   `A0` (شاهدُ ضبطٍ محقون) ⇒ **ليست ختمًا مطاطيًّا**.
+try:
+    _sdy1_real = _sdt_mod.gate_control_differs()
+    _sdy1_orig = _sdt_mod.a_rand_err
+    try:
+        _sdt_mod.a_rand_err = lambda df, ref, sym, asof, draws=None: 0.0
+        _sdy1_ctrl = _sdt_mod.gate_control_differs()
+    finally:
+        _sdt_mod.a_rand_err = _sdy1_orig
+    _sdy1_again = _sdt_mod.gate_control_differs()
+    _sdy1_ok = (_sdy1_real[0] is True and _sdy1_ctrl[0] is False
+                and _sdy1_again[0] is True)
+    _sdy1_w = f"حقيقيّ={_sdy1_real[0]} منهار={_sdy1_ctrl[0]} استعادة={_sdy1_again[0]}"
+except Exception as _e:                                          # noqa: BLE001
+    _sdy1_ok, _sdy1_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY1 `V-S7` **تعضّ**: تمرّ على فِكستشر `§⑩-ⓕ` وتسقط حين ينهار "
+      "الشاهدُ إلى `A0` (شاهدُ ضبطٍ محقون)", _sdy1_ok, _sdy1_w)
+
+# SDY2 — **الموضعُ جزءٌ من الصحّة**: `V-S7` يُنادى **قبل أيّ جلب** و`main` يُرجع 7
+#   قبلَ أوّل `download_history` (‏AST موضعيّ — لا مجرّد وجودِ النداء).
+try:
+    _sdy2_fn = next(n for n in _sdt_ast.walk(_sdt_tree)
+                    if isinstance(n, _sdt_ast.FunctionDef) and n.name == "main")
+    _sdy2_gate = _sdy2_dl = None
+    for _c in _sdt_ast.walk(_sdy2_fn):
+        if isinstance(_c, _sdt_ast.Call):
+            _nm = getattr(_c.func, "id", None) or getattr(_c.func, "attr", None)
+            if _nm == "gate_control_differs" and _sdy2_gate is None:
+                _sdy2_gate = _c.lineno
+            if _nm == "download_history" and _sdy2_dl is None:
+                _sdy2_dl = _c.lineno
+    _sdy2_ret7 = [n.lineno for n in _sdt_ast.walk(_sdy2_fn)
+                  if isinstance(n, _sdt_ast.Return)
+                  and getattr(n.value, "value", None) == 7]
+    _sdy2_ok = (_sdy2_gate is not None and _sdy2_dl is not None
+                and _sdy2_gate < _sdy2_dl and bool(_sdy2_ret7)
+                and min(_sdy2_ret7) < _sdy2_dl)
+    _sdy2_w = f"بوّابة@{_sdy2_gate} جلب@{_sdy2_dl} خروج7@{_sdy2_ret7}"
+except Exception as _e:                                          # noqa: BLE001
+    _sdy2_ok, _sdy2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY2 بوّابةُ `V-S7` **قبل أيّ جلب** والخروجُ 7 قبلَه (موضعٌ بالـAST "
+      "لا وجودُ نداء)", _sdy2_ok, _sdy2_w)
+
+# SDY3 — `ANCHOR_EXPECT` ≡ **عمودُ التاريخ في جدول ⓑ** (المصدرُ الذي أعلن `SDX2`
+#   أنه لا يحرسه بلا شبكة) — فمطبعةٌ في أحدهما تُسقط القفل.
+try:
+    _sdy3_doc = {s: d for s, _l, _lv, _k, d in _sdy_btab()}
+    _sdy3_tool = dict(_sdt_mod.ANCHOR_EXPECT)
+    _sdy3_ok = bool(_sdy3_doc) and _sdy3_doc == _sdy3_tool
+    _sdy3_w = f"وثيقة={_sdy3_doc} أداة={_sdy3_tool}"
+except Exception as _e:                                          # noqa: BLE001
+    _sdy3_ok, _sdy3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY3 `ANCHOR_EXPECT` في الأداة ≡ **عمودُ التاريخ في جدول ⓑ** "
+      "(الحارسُ الذي أعلن `SDX2` أنه خارجَ مداه)", _sdy3_ok, _sdy3_w)
+
+# SDY4 — المستوياتُ **تُقرأ من الجدول** لا تُكتَب: `_levels_of` لكلّ صفٍّ في ⓑ يُعيد
+#   مستوياتِ الوثيقة نفسَها · والدالّةُ تفتح `faisal_levels_table.tsv` بالـAST.
+try:
+    _sdy4_bad = []
+    for _s, _ln, _lv, _k, _d in _sdy_btab():
+        _got = {round(float(x), 6) for x in _sdt_mod._levels_of(_s, _ln)}
+        if _got != _lv:
+            _sdy4_bad.append(f"{_s}: أداة {_got} ≠ وثيقة {_lv}")
+    _sdy4_fn = next(n for n in _sdt_ast.walk(_sdt_tree)
+                    if isinstance(n, _sdt_ast.FunctionDef) and n.name == "_levels_of")
+    _sdy4_tsv = any(isinstance(c, _sdt_ast.Name) and c.id == "LEVELS_TSV"
+                    for c in _sdt_ast.walk(_sdy4_fn))
+    _sdy4_ok = (not _sdy4_bad) and _sdy4_tsv and bool(_sdy_btab())
+    _sdy4_w = f"{_sdy4_bad} يفتحُ الجدول={_sdy4_tsv}"
+except Exception as _e:                                          # noqa: BLE001
+    _sdy4_ok, _sdy4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY4 مستوياتُ كلّ صفٍّ **تُشتقّ من `faisal_levels_table.tsv`** "
+      "وتطابق جدولَ ⓑ (مصدرٌ بمصدر)", _sdy4_ok, _sdy4_w)
+
+# SDY5 — `ⓒ` القصُّ عند **`match_date`** لا `date`: شمعةُ يوم الشارت في `spot` ناقصةٌ،
+#   فدخولُها **تسريب**. سلوكيًّا: قاعٌ حادٌّ في شمعة `date` وحدَها يغيّر `A0`.
+try:
+    _sdy5_lows = [5.0] * 79 + [1.0]          # القاعُ في **آخر شمعة** = يومُ الشارت
+    _sdy5_h = {"ZZ": _sdy_df(_sdy5_lows)}
+    _sdy5_last = _sdy5_h["ZZ"].index[-1].date().isoformat()
+    _sdy5_prev = _sdy5_h["ZZ"].index[-2].date().isoformat()
+    _sdy5_ac = [{"sym": "ZZ", "line": 1, "kind": "spot", "px": 9.0, "pct": 1.0,
+                 "date": _sdy5_last, "match_date": _sdy5_prev, "levels": [4.0]}]
+    _sdy5_a, _, _ = _sdt_mod.build_rows({}, _sdy5_h, _sdy5_ac)
+    _sdy5_b, _, _ = _sdt_mod.build_rows({}, _sdy5_h, _sdy5_ac, asof_mode="date")
+    _sdy5_ok = (len(_sdy5_a) == 1 and len(_sdy5_b) == 1
+                and _sdy5_a[0]["asof"] == _sdy5_prev
+                and _sdy5_b[0]["asof"] == _sdy5_last
+                and _sdy5_a[0]["a0"] != _sdy5_b[0]["a0"])
+    _sdy5_w = (f"افتراضيّ={_sdy5_a[0]['asof'] if _sdy5_a else '—'}/"
+               f"A0={_sdy5_a[0]['a0'] if _sdy5_a else '—'} · "
+               f"حساسيّة={_sdy5_b[0]['asof'] if _sdy5_b else '—'}/"
+               f"A0={_sdy5_b[0]['a0'] if _sdy5_b else '—'}")
+except Exception as _e:                                          # noqa: BLE001
+    _sdy5_ok, _sdy5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY5 `ⓒ` القصُّ عند **`match_date`** افتراضًا (شمعةُ يوم الشارت "
+      "ناقصةٌ في `spot` ⇒ تسريب) · والحساسيّةُ وحدَها تقصّ عند `date`",
+      _sdy5_ok, _sdy5_w)
+
+# SDY6 — `ⓓ` سعرُ المرجع = **آخرُ سعرٍ مرئيٍّ على الشاشة**: السعرُ المسجَّل في `spot`
+#   وإغلاقُ `match_date` في غيره · والحساسيّةُ تُبدّله ⟶ **يتغيّر المستوى المختار**.
+try:
+    _sdy6_h = {"ZZ": _sdy_df([4.0 / 1.05] * 80)}          # إغلاقٌ ثابتٌ = 4.0
+    _sdy6_md = _sdy6_h["ZZ"].index[-1].date().isoformat()
+    _sdy6_ac = [{"sym": "ZZ", "line": 1, "kind": "spot", "px": 6.0, "pct": 1.0,
+                 "date": _sdy6_md, "match_date": _sdy6_md, "levels": [5.0, 3.0]}]
+    _sdy6_a, _, _ = _sdt_mod.build_rows({}, _sdy6_h, _sdy6_ac)
+    _sdy6_b, _, _ = _sdt_mod.build_rows({}, _sdy6_h, _sdy6_ac, ref_mode="close")
+    _sdy6_ok = (len(_sdy6_a) == 1 and len(_sdy6_b) == 1
+                and abs(_sdy6_a[0]["refpx"] - 6.0) < 1e-9 and _sdy6_a[0]["ref"] == 5.0
+                and abs(_sdy6_b[0]["refpx"] - 4.0) < 1e-6 and _sdy6_b[0]["ref"] == 3.0)
+    _sdy6_w = (f"افتراضيّ مرجع={_sdy6_a[0]['refpx'] if _sdy6_a else '—'}⟶"
+               f"{_sdy6_a[0]['ref'] if _sdy6_a else '—'} · حساسيّة="
+               f"{_sdy6_b[0]['refpx'] if _sdy6_b else '—'}⟶"
+               f"{_sdy6_b[0]['ref'] if _sdy6_b else '—'}")
+except Exception as _e:                                          # noqa: BLE001
+    _sdy6_ok, _sdy6_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY6 `ⓓ` سعرُ المرجع = **السعرُ المسجَّل** في `spot` وإغلاقُ "
+      "`match_date` في غيره · والحساسيّةُ تُبدّل المستوى المختار", _sdy6_ok, _sdy6_w)
+
+# SDY7 — `ⓔ` وسمُ مؤشّر السعر يُستبعَد عند **0.25%** وعتبتُه هي المكتوبةُ في الملحق ·
+#   ويُستبعَد الملاصقُ (‏4.470 مقابل 4.4701) ويبقى البعيدُ (‏1%).
+try:
+    _sdy7_e = _sdx_sub("### ⓔ", "### ⓕ")
+    _sdy7_doc = f"**‏{_sdt_mod.MARKER_TOL}%**" in _sdy7_e.replace("‏", "‏")
+    _sdy7_k1, _sdy7_d1 = _sdt_mod.drop_marker([4.470, 3.967], 4.4701)
+    _sdy7_k2, _sdy7_d2 = _sdt_mod.drop_marker([4.470, 3.967], 4.515)   # ‏1% بعيدًا
+    _sdy7_ok = (_sdy7_doc and _sdy7_d1 == [4.470] and _sdy7_k1 == [3.967]
+                and _sdy7_d2 == [] and len(_sdy7_k2) == 2)
+    _sdy7_w = f"وثيقة={_sdy7_doc} ملاصق={_sdy7_d1} بعيد={_sdy7_d2}"
+except Exception as _e:                                          # noqa: BLE001
+    _sdy7_ok, _sdy7_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY7 `ⓔ` الملاصقُ للسعر **مؤشّرٌ لا دعم** ويُستبعَد · والبعيدُ ‏1% "
+      "يبقى · والعتبةُ هي المكتوبةُ في الملحق", _sdy7_ok, _sdy7_w)
+
+# SDY8 — `SD3` تتبع **`A-RAND` لا `A-FAR`** · والحاكمُ **اليوميُّ وحدَه**.
+try:
+    _sdy8_rows = [
+        {"sym": "A", "frame": "daily", "ref": 2.0, "a0": 1.0, "e0": -50.0,
+         "ef": -50.0, "er": 80.0},
+        {"sym": "B", "frame": "daily", "ref": 2.0, "a0": 1.0, "e0": -50.0,
+         "ef": -50.0, "er": 80.0},
+        {"sym": "C", "frame": "daily", "ref": 2.0, "a0": 1.0, "e0": -50.0,
+         "ef": -50.0, "er": 80.0},
+        {"sym": "D", "frame": "h4", "ref": 9.0, "a0": 9.9, "e0": 10.0,
+         "ef": 10.0, "er": 0.0},
+    ]
+    _g8, _n8, _ns8, _sh8, _p8, _md8, _mr8, _ok8 = _sdt_mod.stats_of(_sdy8_rows)
+    _sdy8_low = [dict(r, er=1.0) for r in _sdy8_rows]        # الشاهدُ **يتفوّق**
+    _ok8b = _sdt_mod.stats_of(_sdy8_low)[7]
+    _sdy8_ok = (_n8 == 3 and _ns8 == 3 and _ok8 is True and _ok8b is False
+                and abs(_md8 - 50.0) < 1e-9 and abs(_mr8 - 80.0) < 1e-9)
+    _sdy8_w = f"حاكمة={_n8}/{_ns8} med(A0)={_md8} med(RAND)={_mr8} ok={_ok8}/{_ok8b}"
+except Exception as _e:                                          # noqa: BLE001
+    _sdy8_ok, _sdy8_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY8 `SD3` تتبع **`A-RAND`** (لا `A-FAR` المتقاعد) وتسقط حين يتفوّق "
+      "الشاهد · والحاكمُ **اليوميُّ وحدَه**", _sdy8_ok, _sdy8_w)
+
+# SDY9 — **لم يتحرّك حدٌّ**: الأرضيّةُ و`SD1`/`SD2` كما نصَّ رأسُ الملحق · ورموزُ
+#   الخروج 6 و7 **مميَّزةٌ ومستعمَلة** · و`V-S8` يُنادى في `main` · والثلاثُ حساسيّات.
+try:
+    _sdy9_head = _sdx_sub("## 📎 ملحقٌ مؤرَّخ §⑩", "### ⓐ").replace("‏", "‏")
+    _sdy9_nums = ((_sdt_mod.SD0_MIN_ROWS, "‏**‏≥5**"), (_sdt_mod.SD0_MIN_SYMS, "**‏≥3**"),
+                  (_sdt_mod.SD1_SHARE, "‏80%"), (_sdt_mod.SD1_P, "`p ≤ 0.10`"),
+                  (_sdt_mod.SD2_MEDIAN, "**‏≥10%**"))
+    _sdy9_doc = all(t in _sdy9_head for _v, t in _sdy9_nums)
+    _sdy9_val = ([_sdt_mod.SD0_MIN_ROWS, _sdt_mod.SD0_MIN_SYMS, _sdt_mod.SD1_SHARE,
+                  _sdt_mod.SD1_P, _sdt_mod.SD2_MEDIAN] == [5, 3, 80.0, 0.10, 10.0])
+    _sdy9_rc = {n.value.value for n in _sdt_ast.walk(_sdy2_fn)
+                if isinstance(n, _sdt_ast.Return)
+                and isinstance(getattr(n, "value", None), _sdt_ast.Constant)}
+    _sdy9_call = _sdt_calls(_sdy2_fn)
+    _sdy9_sens = all(k in _sdt_src for k in ('asof_mode": "date"', 'ref_mode": "close"',
+                                             '"marker": False'))
+    _sdy9_ok = (_sdy9_doc and _sdy9_val and {5, 6, 7}.issubset(_sdy9_rc)
+                and "branch3_reason" in _sdy9_call and _sdy9_sens)
+    _sdy9_w = f"وثيقة={_sdy9_doc} قيم={_sdy9_val} رموز={sorted(_sdy9_rc)} حساسيّات={_sdy9_sens}"
+except Exception as _e:                                          # noqa: BLE001
+    _sdy9_ok, _sdy9_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧱🔬📎🔒 SDY9 **لم يتحرّك حدٌّ** (الأرضيّةُ و`SD1`/`SD2` = نصُّ رأس الملحق) · "
+      "ورمزا ‏6/7 مستعمَلان · و`V-S8` منادًى · والحساسيّاتُ الثلاثُ مبنيّة",
+      _sdy9_ok, _sdy9_w)
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
