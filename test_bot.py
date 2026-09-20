@@ -56917,6 +56917,11 @@ try:
                   "env_vals": {"gain5": (i % 7) - 3.0}} for i in range(60)]
     _mla_a = _MLA.arms_of(_mla_rows)
     _mla_k = len(_mla_a["L1"])
+    _mla_rows2 = [{"symbol": f"T{i}", "date": f"2024-02-{i % 28 + 1:02d}",
+                   "matured": (i % 3 == 0),
+                   "env_vals": {"gain5": (3.0 - i) if i < 3 else -1.0}}
+                  for i in range(60)]
+    _mla_a2 = _MLA.arms_of(_mla_rows2)
     _mla_ok4 = (_mla_k > 0
                 and len(_mla_a["C-MOM"]) == _mla_k
                 and len(_mla_a["C-RAND"]) == _mla_k
@@ -56931,9 +56936,18 @@ try:
                      != [t["symbol"] for t in _mla_a["C-RAND"]])
                 # و`C-MOM` **موجبُ `gain5` حصرًا** ومُرتَّبٌ نزولًا
                 and all((t["env_vals"]["gain5"] or 0) > 0
-                        for t in _mla_a["C-MOM"]))
+                        for t in _mla_a["C-MOM"])
+                # 🐞 **وفِكستشرٌ ثانٍ أُضيف بعد طفرةٍ نجت (‏`a14`):** الأوّلُ
+                #    فيه ‏26 موجبًا و`k`=20 ⇒ «أقوى `k` من الكلّ» و«أقوى `k`
+                #    من الموجب» **يتساويان** فلا يفرّق. وهنا الموجبُ **‏3
+                #    فقط دون `k`** ⇒ نزعُ شرط الموجب يُدخل السالبَ فورًا.
+                and all((t["env_vals"]["gain5"] or 0) > 0
+                        for t in _mla_a2["C-MOM"])
+                and len(_mla_a2["C-MOM"]) == 3 < len(_mla_a2["L1"]))
     _mla_v4 = (f"L1={_mla_k} · MOM={len(_mla_a['C-MOM'])} · "
-               f"RAND={len(_mla_a['C-RAND'])} · L2={len(_mla_a['L2'])}")
+               f"RAND={len(_mla_a['C-RAND'])} · L2={len(_mla_a['L2'])} · "
+               f"فِكستشرٌ ثانٍ: L1={len(_mla_a2['L1'])} MOM="
+               f"{len(_mla_a2['C-MOM'])}")
 except Exception as _e:                                          # noqa: BLE001
     _mla_ok4, _mla_v4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📏🪜🔒 MLA4 `V-M3` — `C-MOM` و`C-RAND` **بحجم `L1` بالضبط** · "
@@ -57289,6 +57303,500 @@ check("⏱️🔥🔒 SCK3 `§⑧` — الجذورُ و`polygon_base_trades` **
       "`LOGIC_VERSION` ولا شحن · و`fired_ts_ms` **اقتراحٌ بإذن المالك لا "
       "تنفيذ** · **والعقدُ مدفوعٌ قبل أيّ سطرِ أداة**", _sck_ok3, _sck_v3)
 
+
+
+# ── ⏰🪟 `T-SESSIONS` — أقفال الأداة `SSA0`-`SSA9` ────────────────────────────
+#    العقد `sessions_prereg.md` ‏+ الملحق المؤرَّخ `§⑩` · **قراءةٌ فقط**.
+#    🔒 وكلُّ قفلٍ هنا **سلوكيٌّ**: يُنادى الكودُ ويُقارَن مُخرَجُه — لا نصَّ
+#       يُرضيه تعليق (درسُ `②` في `lock-and-mutate`).
+import importlib as _ssa_il
+try:
+    _SSA = _ssa_il.import_module("sessions_probe")
+    _ssa_src = open("sessions_probe.py", encoding="utf-8").read()
+    _ssa_err = ""
+except Exception as _e:                                          # noqa: BLE001
+    _SSA, _ssa_src, _ssa_err = None, "", f"{type(_e).__name__}: {_e}"
+
+# ① `SSA0` — `selfcheck_readonly` **يفرّق فعلًا**: أربعةُ شواهدَ من الطرفين.
+try:
+    _ssa_ro_real = _SSA.selfcheck_readonly(_ssa_src)
+    _ssa_ro_read = _SSA.selfcheck_readonly("x = open('a', encoding='u').read()")
+    _ssa_ro_send = _SSA.selfcheck_readonly("send_telegram('x')")
+    _ssa_ro_var = _SSA.selfcheck_readonly("m = 'w'\nopen('q', m)")
+    _ssa_ro_out = _SSA.selfcheck_readonly("OUT_ROWS = 'r.tsv'\nopen(OUT_ROWS, 'w')")
+    _ssa_ro_bad = _SSA.selfcheck_readonly("open('state.json', 'w')")
+    _ssa0 = (_ssa_ro_real and _ssa_ro_read and _ssa_ro_out
+             and not _ssa_ro_send and not _ssa_ro_var and not _ssa_ro_bad)
+    _ssa0_w = (f"الملفّ={_ssa_ro_real} · قراءة={_ssa_ro_read} · OUT_ROWS={_ssa_ro_out}"
+               f" · إرسال={_ssa_ro_send} · وضعٌ متغيّر={_ssa_ro_var} · "
+               f"حالة={_ssa_ro_bad}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa0, _ssa0_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA0 `V-S6` قراءةٌ فقط **سلوكيًّا**: الملفُّ يمرّ · والإرسالُ "
+      "و**الوضعُ المُمرَّر متغيّرًا** وكتابةُ حالةٍ تسقط · و`OUT_ROWS` وحدَه "
+      "يُكتَب", _ssa0, _ssa0_w)
+
+# ② `SSA1` — `no_provider_calls` **مع شاهدِ ضبط**: قفلٌ سالبٌ بلا شاهدٍ خاوٍ
+#    (درسُ `RKA10`: «لا انحرافَ» حالةُ النجاح نفسُها حين يُقتَل الكاشف).
+try:
+    _ssa_np_real = _SSA.no_provider_calls(_ssa_src)
+    _ssa_np_imp = _SSA.no_provider_calls("import " + "requ" + "ests\n")
+    _ssa_np_from = _SSA.no_provider_calls(
+        "from Super_stock import " + "down" + "load_history\n")
+    _ssa_np_call = _SSA.no_provider_calls("x = " + "poly" + "gon_minute_bars('A')\n")
+    _ssa_np_ok = _SSA.no_provider_calls("import json\nx = json.loads('{}')\n")
+    _ssa1 = (_ssa_np_real and _ssa_np_ok
+             and not _ssa_np_imp and not _ssa_np_from and not _ssa_np_call)
+    _ssa1_w = (f"الملفّ={_ssa_np_real} · بريء={_ssa_np_ok} · استيراد={_ssa_np_imp}"
+               f" · from={_ssa_np_from} · نداء={_ssa_np_call}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa1, _ssa1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA1 `V-S7`-ب صفرُ مزوّدٍ بالـAST — **ومع شاهدِ ضبط**: الاستيرادُ "
+      "والـ`from` والنداءُ تسقط · والبريءُ يمرّ · فلا يكون القفلُ خاويًا",
+      _ssa1, _ssa1_w)
+
+# ③ `SSA2` — الدلاءُ الأربعة وحصصُها **تُحسَب من حدودها** (‏`V-S3`) — وشاهدُ
+#    ضبطٍ يُثبت أن تحريكَ حدٍّ **يحرّك الحصّة** فلا يكون الحسابُ زينةً.
+try:
+    _ssa_ts = {lab: _SSA.time_share(lo, hi) for lab, lo, hi in _SSA.BUCKETS}
+    _ssa_sum = sum(_ssa_ts.values())
+    _ssa_bk = [_SSA.bucket_of(x) for x in (9.49, 9.5, 11.99, 12.0, 12.99,
+                                           13.0, 13.99, 14.0, 15.99, 16.0)]
+    _ssa_ctrl = _SSA.time_share(12.0, 13.5)          # حدٌّ مُحرَّك ⇒ حصّةٌ أكبر
+    _ssa2 = (abs(_ssa_sum - 100.0) <= 0.01
+             and len(_SSA.BUCKETS) == 4
+             and _ssa_bk == [None, "09:30-12", "09:30-12", "12-13", "12-13",
+                             "13-14", "13-14", "14-16", "14-16", None]
+             and abs(_ssa_ts["12-13"] - 100.0 / 6.5) < 1e-9
+             and _ssa_ctrl > _ssa_ts["12-13"] + 1.0)
+    _ssa2_w = (f"المجموع={_ssa_sum:.4f} · دلاء={len(_SSA.BUCKETS)} · "
+               f"حدود={_ssa_bk} · شاهد={_ssa_ctrl:.3f} مقابل "
+               f"{_ssa_ts['12-13']:.3f}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa2, _ssa2_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA2 `V-S3` الدلاءُ أربعةٌ وحدودُها تفصل · والحصصُ **مُشتقّةٌ من "
+      "الحدود** ومجموعُها 100.00% · وشاهدُ ضبطٍ يُثبت أن تحريكَ حدٍّ يحرّك "
+      "الحصّة", _ssa2, _ssa2_w)
+
+# ④ `SSA3` — `ny_hour` **بتوقيتٍ حقيقيٍّ لا إزاحةٍ ثابتة** (‏`V-S4`-أ): لحظتان
+#    بنفس ساعة UTC، إحداهما صيفيّةٌ والأخرى شتويّة ⇒ **ساعتان مختلفتان**.
+import datetime as _ssa_dt
+try:
+    _ssa_u = _ssa_dt.timezone.utc
+    _ssa_s_ms = int(_ssa_dt.datetime(2026, 8, 18, 15, 0, tzinfo=_ssa_u).timestamp() * 1000)
+    _ssa_w_ms = int(_ssa_dt.datetime(2026, 12, 18, 15, 0, tzinfo=_ssa_u).timestamp() * 1000)
+    _ssa_sh, _ssa_wh = _SSA.ny_hour(_ssa_s_ms), _SSA.ny_hour(_ssa_w_ms)
+    _ssa_st, _ssa_wt = _SSA.ny_tzname(_ssa_s_ms), _SSA.ny_tzname(_ssa_w_ms)
+    _ssa3 = (abs(_ssa_sh - 11.0) < 1e-6 and abs(_ssa_wh - 10.0) < 1e-6
+             and abs((_ssa_sh - _ssa_wh) - 1.0) < 1e-6
+             and _ssa_st == "EDT" and _ssa_wt == "EST")
+    _ssa3_w = (f"صيف {_ssa_sh:.2f}ه ({_ssa_st}) · شتاء {_ssa_wh:.2f}ه "
+               f"({_ssa_wt}) · الفرق {_ssa_sh - _ssa_wh:.2f}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa3, _ssa3_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA3 `V-S4`-أ التوقيتُ **حقيقيٌّ لا ثابت**: نفسُ ساعة UTC تُعطي "
+      "‏11:00 صيفًا و10:00 شتاءً (فرقُ ساعةٍ) والوسمان EDT/EST — فإزاحةٌ ثابتةٌ "
+      "تُسقطه", _ssa3, _ssa3_w)
+
+# ⑤ `SSA4` — `held_and_jumped` **جدولُ حقيقة** ‏+ `hj_eligible` (حدُّ الصدق).
+try:
+    _H = _SSA.held_and_jumped
+    _ssa_tt = [
+        _H(13.0, None, 70.0),      # لم يُكسَر · بلغ +10% عند 14:10 ⇒ نعم
+        _H(13.0, None, 50.0),      # بلغ عند 13:50 (قبل القطع) ⇒ لا
+        _H(13.0, 30.0, 70.0),      # كُسر 13:30 قبل القطع ⇒ لا
+        _H(13.0, 70.0, 80.0),      # كُسر بعد القطع وبلغ بعده ⇒ نعم
+        _H(13.0, None, None),      # لم يبلغ ⇒ لا
+        _H(14.5, None, 1.0),       # المِرساةُ بعد القطع أصلًا ⇒ نعم
+    ]
+    _ssa_el = [_SSA.hj_eligible(13.0, 120.0), _SSA.hj_eligible(9.6, 120.0),
+               _SSA.hj_eligible(12.0, 120.0), _SSA.hj_eligible(11.9, 120.0)]
+    _ssa4 = (_ssa_tt == [True, False, False, True, False, True]
+             and _ssa_el == [True, False, True, False])
+    _ssa4_w = f"الجدول={_ssa_tt} · الأهليّة={_ssa_el}"
+except Exception as _e:                                          # noqa: BLE001
+    _ssa4, _ssa4_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA4 `§②`-3 `held_and_jumped` جدولُ حقيقةٍ بستّ حالات (الكسرُ قبل "
+      "‏14:00 يُسقط · وبعده لا) · و`hj_eligible` يفصل مَن **لا يستطيع** "
+      "استيفاءَه بنافذةِ ‏120د", _ssa4, _ssa4_w)
+
+# ⑥ `SSA5` — `C-SHUF` **حتميٌّ ببذرته** (‏`V-S5`) وطولُه = السحبات · وبذرةٌ
+#    أخرى تُعطي توزيعًا مختلفًا (وإلّا فالبذرةُ مُتجاهَلة).
+try:
+    _ssa_ah = [9.6, 10.2, 11.5, 12.4, 13.1, 14.2, 15.0, 9.8, 10.9, 13.7]
+    _ssa_pm = [5.0, 30.0, 60.0, 90.0, 15.0, 45.0, 75.0, 100.0, 20.0, 35.0]
+    _ssa_d1 = _SSA.shuffle_shares(_ssa_ah, _ssa_pm, seed=7, reps=60)
+    _ssa_d2 = _SSA.shuffle_shares(_ssa_ah, _ssa_pm, seed=7, reps=60)
+    _ssa_d3 = _SSA.shuffle_shares(_ssa_ah, _ssa_pm, seed=8, reps=60)
+    _ssa5 = (_ssa_d1 == _ssa_d2 and _ssa_d1 != _ssa_d3 and len(_ssa_d1) == 60
+             and _SSA.SHUF_N == 999 and _SSA.SHUF_SEED == 20260920)
+    _ssa5_w = (f"حتميّ={_ssa_d1 == _ssa_d2} · البذرةُ تفرّق={_ssa_d1 != _ssa_d3}"
+               f" · الطول={len(_ssa_d1)} · الإنتاج={_SSA.SHUF_N}/{_SSA.SHUF_SEED}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa5, _ssa5_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA5 `V-S5` `C-SHUF` حتميٌّ ببذرته وطولُه = السحبات · **وبذرةٌ "
+      "أخرى تُعطي توزيعًا مختلفًا** فلا تكون البذرةُ زينةً", _ssa5, _ssa5_w)
+
+# ⑦ `SSA6` — `read_verdict` **جدولُ حقيقةٍ للفروع الثلاثة** · و**الفرعُ 1 لا
+#    يُرجَع أبدًا** (‏`§⑤`-1 مُغلَقٌ بالبناء) حتى بأرقامٍ لامعة.
+try:
+    _V = _SSA.read_verdict
+    _ssa_v1 = _V(75, 0.329, 20.0, 15.38, 99.0, True)      # تغطيةٌ ناقصة
+    _ssa_v2 = _V(40, 0.99, 20.0, 15.38, 99.0, True)       # صفوفٌ دون 50
+    _ssa_v3 = _V(200, 0.99, 20.0, 15.38, 99.0, False)     # حارسٌ ساقط
+    _ssa_v4 = _V(200, 0.99, 12.0, 15.38, 99.0, True)      # دون الحصّة الزمنيّة
+    _ssa_v5 = _V(200, 0.99, 20.0, 15.38, 40.0, True)      # دون شريحة 50
+    _ssa_v6 = _V(200, 0.99, 30.0, 15.38, 99.0, True)      # موجبٌ تمامًا
+    _ssa_br = [x["branch"] for x in (_ssa_v1, _ssa_v2, _ssa_v3, _ssa_v4,
+                                     _ssa_v5, _ssa_v6)]
+    _ssa6 = (_ssa_br == [3, 3, 3, 2, 2, 0]
+             and _ssa_v1["rc"] == _SSA.RC_NOJUDGE
+             and _ssa_v6["rc"] == _SSA.RC_OK
+             and 1 not in _ssa_br
+             and "مُغلَقٌ بالبناء" in _ssa_v6["text"]
+             and _SSA.FLOOR_PROVE == 150 and _SSA.MIN_JOIN == 50
+             and abs(_SSA.MIN_COVER - 0.90) < 1e-9)
+    _ssa6_w = (f"الفروع={_ssa_br} · rc3={_ssa_v1['rc']} · rc0={_ssa_v6['rc']} · "
+               f"الأرضيّات={_SSA.FLOOR_PROVE}/{_SSA.MIN_JOIN}/{_SSA.MIN_COVER}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa6, _ssa6_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA6 `§⑤` جدولُ حقيقةٍ بستّ حالات: تغطيةٌ/صفوفٌ/حارسٌ ⇒ الفرعُ 3 · "
+      "ودون الحصّة أو الشريحة ⇒ الفرعُ 2 · **والفرعُ 1 لا يُرجَع أبدًا ولو "
+      "لمعت الأرقام**", _ssa6, _ssa6_w)
+
+# ⑧ `SSA7` — العقدُ وملحقُه: `§⑩` حاضرٌ ويُسمّي `anchor_history` علّةً · و`§①`
+#    يحمل أرقامَ الجدوى · و`§⑥` يحمل ‏90% · **والأداةُ لا تخالف رقمًا منها**.
+try:
+    _ssa_pr = open("sessions_prereg.md", encoding="utf-8").read()
+    _ssa_i10 = _ssa_pr.find("§⑩")
+    _ssa_ap = _ssa_pr[_ssa_i10:] if _ssa_i10 >= 0 else ""
+    _ssa7 = (_ssa_i10 > 0
+             and "anchor_history" in _ssa_ap
+             and "V-S8" in _ssa_ap
+             and "‏150" in _ssa_pr and "‏71" in _ssa_pr and "‏50" in _ssa_pr
+             and "90%" in _ssa_pr
+             and "sessions_probe" not in _ssa_pr)   # لا يُسمّى ملفُّ الأداة
+    _ssa7_w = (f"§⑩@{_ssa_i10} · anchor_history={'anchor_history' in _ssa_ap} · "
+               f"V-S8={'V-S8' in _ssa_ap} · 90%={'90%' in _ssa_pr}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa7, _ssa7_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA7 العقدُ مدموجٌ وملحقُه `§⑩` يُسمّي `anchor_history` ويُعرّف "
+      "`V-S8` · والأرضيّاتُ 150/71/50 و90% منصوصةٌ فيه", _ssa7, _ssa7_w)
+
+# ⑨ `SSA8` — الـworkflow: **بلا كرون · بلا سرِّ تلغرام · وبلا سرِّ المزوّد** ·
+#    صلاحيةٌ للقراءة · بايثون 3.11 · والمدخلان موصولان ببيئةٍ يقرؤها السكربت.
+try:
+    _ssa_y = open(".github/workflows/sessions.yml", encoding="utf-8").read()
+    _ssa_yd = __import__("yaml").safe_load(_ssa_y)
+    _ssa_on = _ssa_yd.get(True) or _ssa_yd.get("on") or {}
+    _ssa_in = set((_ssa_on.get("workflow_dispatch") or {}).get("inputs") or {})
+    _ssa_env = {"SESSIONS_TSV", "TRIG_READ_REF"}
+    # 🐞 **صُحِّح القفلُ لا الوثيقة (‏الصنفُ ② · درسُ `DEP1` بحرفه):** صياغتي
+    #    الأولى كانت `"POLYGON" not in _ssa_y` **فسقطت على تعليقٍ في الـyml
+    #    يقول «ولا سرَّ POLYGON_API_KEY»** — أي قرأت **نثرًا** لا إعدادًا.
+    #    ⇒ الدعوى الحقيقيّة «الإرسالُ والجلبُ مستحيلان بنيويًّا» تُقاس
+    #    بـ**صفرِ سرٍّ من أيّ نوع**، وهو **أقوى** من نفي اسمَين بعينهما.
+    _ssa_sec = "$" + "{{ secrets."
+    _ssa_plant = _ssa_y.replace("      - name: Checkout",
+                                "        env:\n          K: " + _ssa_sec +
+                                "X }}\n      - name: Checkout", 1)
+    _ssa8 = ("schedule" not in _ssa_on
+             and "cron" not in _ssa_y
+             and _ssa_sec not in _ssa_y              # صفرُ سرٍّ إطلاقًا
+             and _ssa_sec in _ssa_plant              # شاهدُ ضبطٍ يُمسَك
+             and _ssa_yd.get("permissions", {}).get("contents") == "read"
+             and "3.11" in _ssa_y
+             and _ssa_in == {"tsv", "ref"}
+             and all(e in _ssa_y for e in _ssa_env)
+             and all(e in _ssa_src for e in _ssa_env))
+    _ssa8_w = (f"مدخلات={_ssa_in} · كرون={'cron' in _ssa_y} · "
+               f"أسرار={_ssa_y.count(_ssa_sec)} · "
+               f"شاهدُ الضبط={_ssa_plant.count(_ssa_sec)}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa8, _ssa8_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA8 `sessions.yml`: بلا كرون · **وصفرُ سرٍّ من أيّ نوع** "
+      "فالإرسالُ والجلبُ مستحيلان بنيويًّا (ومع شاهدِ ضبطٍ يُمسَك) · "
+      "contents: read · 3.11 · والمدخلان موصولان ببيئةٍ يقرؤها السكربت",
+      _ssa8, _ssa8_w)
+
+# ⑩ `SSA9` — **كلُّ مستورَدٍ بالاسم يُنادى فعلًا** (‏AST): استيرادٌ لا يُنادى
+#    يجعل «صفرَ منطقٍ مكرَّر» دعوًى لا بناءً — درسُ `OTA0` بحرفه.
+try:
+    import ast as _ssa_ast
+    _ssa_t = _ssa_ast.parse(_ssa_src)
+    _ssa_calls = set()
+    for _n in _ssa_ast.walk(_ssa_t):
+        if isinstance(_n, _ssa_ast.Call):
+            _f = _n.func
+            _ssa_calls.add(getattr(_f, "id", None) or getattr(_f, "attr", None))
+    _ssa_need = {"anchor_history", "git_snapshots", "collect", "session_info",
+                 "wilson", "production_untouched"}
+    _ssa_miss = sorted(_ssa_need - _ssa_calls)
+    _ssa9 = (not _ssa_miss) and not _ssa_err
+    _ssa9_w = f"غيرُ منادًى: {_ssa_miss}" + (f" · استيراد: {_ssa_err}" if _ssa_err else "")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa9, _ssa9_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA9 كلُّ مستورَدٍ بالاسم **يُنادى فعلًا**: `anchor_history` · "
+      "`git_snapshots` · `collect` · `session_info` · `wilson` · "
+      "`production_untouched` — فلا يكون «صفرُ منطقٍ مكرَّر» دعوًى",
+      _ssa9, _ssa9_w)
+
+
+# ── ⏱️🔥 `T-SECONDS` — أقفال الأداة `SCA0`-`SCA9` ────────────────────────────
+#    العقد `seconds_prereg.md` · **قراءةٌ فقط** · وكلُّ قفلٍ هنا **سلوكيّ**.
+import importlib as _sca_il
+try:
+    _SCA = _sca_il.import_module("seconds_probe")
+    _sca_src = open("seconds_probe.py", encoding="utf-8").read()
+    _sca_err = ""
+except Exception as _e:                                          # noqa: BLE001
+    _SCA, _sca_src, _sca_err = None, "", f"{type(_e).__name__}: {_e}"
+
+# ① `SCA0` — `V-N6` قراءةٌ فقط **سلوكيًّا** من الطرفين.
+try:
+    _sca0 = (_SCA.selfcheck_readonly(_sca_src)
+             and _SCA.selfcheck_readonly("open('a', encoding='u')")
+             and _SCA.selfcheck_readonly("OUT_ROWS='r'\nopen(OUT_ROWS,'w')")
+             and not _SCA.selfcheck_readonly("send_telegram('x')")
+             and not _SCA.selfcheck_readonly("m='w'\nopen('q', m)")
+             and not _SCA.selfcheck_readonly("record_ignition_fires([])")
+             and not _SCA.selfcheck_readonly("open('state.json','w')"))
+    _sca0_w = f"الملفّ={_SCA.selfcheck_readonly(_sca_src)}"
+except Exception as _e:                                          # noqa: BLE001
+    _sca0, _sca0_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA0 `V-N6` قراءةٌ فقط: الملفُّ يمرّ · والإرسالُ و**الوضعُ "
+      "المُمرَّر متغيّرًا** و`record_ignition_fires` وكتابةُ حالةٍ تسقط · "
+      "و`OUT_ROWS` وحدَه يُكتَب", _sca0, _sca0_w)
+
+# ② `SCA1` — `V-N4` **بلا `fired_at`** ومعه شاهدا ضبط (‏قفلٌ سالبٌ بلا شاهدٍ
+#    خاوٍ — درسُ `RKA10`): الاشتراكُ والـ`.get` يسقطان، والحقلُ الآخرُ يمرّ.
+try:
+    _sca_fa = "fired" + "_at"
+    _sca1 = (_SCA.no_fired_at(_sca_src)
+             and not _SCA.no_fired_at(f"x = r[{_sca_fa!r}]")
+             and not _SCA.no_fired_at(f"x = r.get({_sca_fa!r})")
+             and _SCA.no_fired_at("x = r.get('date')"))
+    # 🐞 **أُسقط شرطٌ نصّيٌّ كتبتُه (‏الصنفُ ②):** كان يشترط غيابَ الاسم من
+    #    أوّل الملفّ، **فسقط على الدوكسترنغ** الذي يشرح لماذا لا يُستعمل الحقل
+    #    — أي قرأ **شرحًا** لا كودًا. والدعوى الحقيقيّة يُثبتها `no_fired_at`
+    #    بالـAST ومعها شاهدا الضبط أعلاه.
+    _sca1_w = (f"الملفّ={_SCA.no_fired_at(_sca_src)} · "
+               f"اشتراك={_SCA.no_fired_at(f'x = r[{_sca_fa!r}]')} · "
+               f"get={_SCA.no_fired_at(f'x = r.get({_sca_fa!r})')} · "
+               f"ضبط={_SCA.no_fired_at(chr(120) + ' = r.get(' + chr(39) + 'date' + chr(39) + ')')}")
+except Exception as _e:                                          # noqa: BLE001
+    _sca1, _sca1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA1 `V-N4` `t_cross` **لا يُحسَب من حقلِ لحظةِ الكتابة**: "
+      "الاشتراكُ والـ`.get` يسقطان وحقلٌ آخرُ يمرّ — **ومع شاهدِ ضبطٍ** فلا "
+      "يكون القفلُ خاويًا", _sca1, _sca1_w)
+
+# ③ `SCA2` — `first_cross` **جدولُ حقيقة** (`§③`-2/3): التسامحُ من الطرفين ·
+#    ويشترط سابقةً تحت المستوى · والزمنُ بالثواني من **آخرِ** سابقةٍ لا أوّلها.
+try:
+    _S9 = 1_000_000_000
+    _tr = [(0 * _S9, 9.90, 1), (3 * _S9, 9.94, 1), (5 * _S9, 10.20, 1)]
+    _c1 = _SCA.first_cross(_tr, 10.0)          # آخرُ سابقةٍ عند 3ث ⇒ 2.0ث
+    _c2 = _SCA.first_cross([(0 * _S9, 10.20, 1)], 10.0)      # بلا سابقة ⇒ None
+    _c3 = _SCA.first_cross([(0 * _S9, 9.95, 1), (9 * _S9, 10.04, 1)], 10.0)
+    _c4 = _SCA.first_cross([(0 * _S9, 9.949, 1), (9 * _S9, 10.051, 1)], 10.0)
+    _sca2 = (_c1 and abs(_c1["t_cross"] - 2.0) < 1e-9
+             and _c2 is None
+             and _c3 is None                   # داخلَ ‏±0.5% ⇒ لا عبور
+             and _c4 and abs(_c4["t_cross"] - 9.0) < 1e-9
+             and abs(_SCA.TOL - 0.005) < 1e-12)
+    _sca2_w = (f"c1={_c1 and round(_c1['t_cross'], 3)} · c2={_c2} · "
+               f"c3={_c3} · c4={_c4 and round(_c4['t_cross'], 3)} · "
+               f"tol={_SCA.TOL}")
+except Exception as _e:                                          # noqa: BLE001
+    _sca2, _sca2_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA2 `§③` `first_cross`: يشترط سابقةً تحت المستوى · والزمنُ من "
+      "**آخرِ** سابقةٍ لا أوّلها · وداخلَ ‏±0.5% لا عبور — جدولُ حقيقةٍ بأربع "
+      "حالات", _sca2, _sca2_w)
+
+# ④ `SCA3` — `ny_hour_ns` **توقيتٌ حقيقيٌّ لا ثابت** · و`regular_only` يقصّ
+#    البريماركت والافتر (‏`§③`-1).
+import datetime as _sca_dt
+try:
+    _u = _sca_dt.timezone.utc
+    _s_ns = int(_sca_dt.datetime(2026, 8, 18, 15, 0, tzinfo=_u).timestamp() * 1e9)
+    _w_ns = int(_sca_dt.datetime(2026, 12, 18, 15, 0, tzinfo=_u).timestamp() * 1e9)
+    _pm_ns = int(_sca_dt.datetime(2026, 8, 18, 12, 0, tzinfo=_u).timestamp() * 1e9)
+    _ah_ns = int(_sca_dt.datetime(2026, 8, 18, 21, 0, tzinfo=_u).timestamp() * 1e9)
+    _keep = _SCA.regular_only([(_pm_ns, 1.0, 1), (_s_ns, 2.0, 1), (_ah_ns, 3.0, 1)])
+    _sca3 = (abs(_SCA.ny_hour_ns(_s_ns) - 11.0) < 1e-6
+             and abs(_SCA.ny_hour_ns(_w_ns) - 10.0) < 1e-6
+             and [p for _t, p, _z in _keep] == [2.0]
+             and (_SCA.SESS_LO, _SCA.SESS_HI) == (9.5, 16.0))
+    _sca3_w = (f"صيف={_SCA.ny_hour_ns(_s_ns):.2f} · شتاء={_SCA.ny_hour_ns(_w_ns):.2f}"
+               f" · الباقي={[p for _t, p, _z in _keep]}")
+except Exception as _e:                                          # noqa: BLE001
+    _sca3, _sca3_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA3 `§③`-1 التوقيتُ حقيقيٌّ (‏11:00 صيفًا و10:00 شتاءً لنفس "
+      "ساعةِ UTC) · و`regular_only` يُسقط البريماركت والافتر ويُبقي النظاميّ",
+      _sca3, _sca3_w)
+
+# ⑤ `SCA4` — `arm_of` **الحدُّ شاملٌ** والعتبةُ وسيطٌ يُحترَم (‏`S-SENS`).
+try:
+    _sca4 = (_SCA.arm_of(9.999) == "fast" and _SCA.arm_of(10.0) == "fast"
+             and _SCA.arm_of(10.001) == "slow"
+             and _SCA.arm_of(30.0, 60.0) == "fast"
+             and _SCA.arm_of(30.0, 5.0) == "slow"
+             and _SCA.FAST_SEC == 10.0 and _SCA.SENS == (5.0, 10.0, 30.0, 60.0))
+    _sca4_w = f"العتبة={_SCA.FAST_SEC} · الحساسيّة={_SCA.SENS}"
+except Exception as _e:                                          # noqa: BLE001
+    _sca4, _sca4_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA4 `§④` `arm_of` حدُّه **شاملٌ** عند ‏10ث · والعتبةُ وسيطٌ "
+      "يُحترَم فتعمل `S-SENS` فعلًا لا شكلًا", _sca4, _sca4_w)
+
+# ⑥ `SCA5` — `read_verdict` **جدولُ حقيقةٍ للفروع الثلاثة** ولا فرعَ رابع ·
+#    والعتباتُ الأربعُ من العقد بحرفها.
+try:
+    _RV = _SCA.read_verdict
+    _ok1 = {"delta": 20.0, "sep": True, "a_n": 40, "b_n": 40}
+    _no1 = {"delta": 5.0, "sep": True, "a_n": 40, "b_n": 40}
+    _nos = {"delta": 20.0, "sep": False, "a_n": 40, "b_n": 40}
+    _ok2 = {"best": 12.0, "cls": "group"}
+    _no2 = {"best": 5.0, "cls": "group"}
+    _br = [_RV(_ok1, _ok2, False, 0.9)["branch"],
+           _RV(_no1, _ok2, False, 0.9)["branch"],
+           _RV(_nos, _ok2, False, 0.9)["branch"],
+           _RV(_ok1, _no2, False, 0.9)["branch"],
+           _RV(_ok1, _ok2, True, 0.9)["branch"],
+           _RV(_ok1, _ok2, False, 0.5)["branch"]]
+    _sca5 = (_br == [1, 2, 2, 2, 3, 3]
+             and _RV(_ok1, _ok2, True, 0.9)["rc"] == _SCA.RC_NOJUDGE
+             and "لا تنفيذ" in _RV(_ok1, _ok2, False, 0.9)["text"]
+             and (_SCA.SC1_MIN, _SCA.SC2_MIN) == (15.0, 10.0)
+             and _SCA.MIN_ARM == 30 and abs(_SCA.MIN_COVER - 0.80) < 1e-9)
+    _sca5_w = (f"الفروع={_br} · العتبات={_SCA.SC1_MIN}/{_SCA.SC2_MIN}/"
+               f"{_SCA.MIN_ARM}/{_SCA.MIN_COVER}")
+except Exception as _e:                                          # noqa: BLE001
+    _sca5, _sca5_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA5 `§⑥` ثلاثةُ فروعٍ ولا رابع: `SC1`+`SC2` ⇒ 1 (**ونصُّه «لا "
+      "تنفيذ»**) · سقوطُ أيٍّ منهما ⇒ 2 · وذراعٌ رقيقةٌ أو تغطيةٌ ناقصة ⇒ 3",
+      _sca5, _sca5_w)
+
+# ⑦ `SCA6` — `wilson_sep` و`rate`: **لا نسبةَ بلا عدد** والفصلُ يفرّق فعلًا.
+try:
+    _sca6 = (_SCA.wilson_sep(30, 30, 0, 30)          # منفصلان تمامًا
+             and not _SCA.wilson_sep(15, 30, 14, 30)  # متداخلان
+             and not _SCA.wilson_sep(5, 5, 0, 0)      # مقامٌ صفر ⇒ False
+             and _SCA.rate([{"outcome": "real"}, {"outcome": "fakeout"}])
+             == (1, 2, 50.0)
+             and _SCA.rate([]) == (0, 0, 0.0))
+    _sca6_w = f"rate([])={_SCA.rate([])}"
+except Exception as _e:                                          # noqa: BLE001
+    _sca6, _sca6_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA6 `§⑤` فاصلا Wilson ينفصلان عند التطرّف ويتداخلان عند التقارب "
+      "· و`rate` تُرجع **العدَّ والمقامَ** معًا فلا نسبةَ بلا عدد",
+      _sca6, _sca6_w)
+
+# ⑧ `SCA7` — `polygon_trades_ts` **فاشلٌ-آمن مطلق ولا بترَ صامت** · و`stop_fn`
+#    تُوقف الترقيم. يُنادى بجذعٍ محقون — **صفرُ شبكةٍ داخل السويّة**.
+try:
+    import os as _sca_os
+    _sca_key = _sca_os.environ.pop("POLYGON_API_KEY", None)
+    _no_key = _SCA.polygon_trades_ts("AAA", "2026-08-18")
+    _sca_os.environ["POLYGON_API_KEY"] = "x"
+
+    class _R:
+        def __init__(self, code, js):
+            self.status_code, self._j = code, js
+
+        def json(self):
+            return self._j
+
+    _orig_get = _SCA.requests.get
+    _calls = {"n": 0}
+
+    def _fake(url, **kw):
+        _calls["n"] += 1
+        if "FAIL" in url:
+            return _R(403, {})
+        return _R(200, {"results": [{"sip_timestamp": 1, "price": 2.0,
+                                     "size": 3}],
+                        "next_url": "https://x/next"})
+    try:
+        _SCA.requests.get = _fake
+        _bad = _SCA.polygon_trades_ts("FAIL", "2026-08-18")
+        _calls["n"] = 0
+        _cap = _SCA.polygon_trades_ts("AAA", "2026-08-18", page_cap=3)
+        _n_cap = _calls["n"]
+        _calls["n"] = 0
+        _stop = _SCA.polygon_trades_ts("AAA", "2026-08-18",
+                                       stop_fn=lambda rows: len(rows) >= 1)
+        _n_stop = _calls["n"]
+    finally:
+        _SCA.requests.get = _orig_get
+        if _sca_key is None:
+            _sca_os.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _sca_os.environ["POLYGON_API_KEY"] = _sca_key
+    _sca7 = (_no_key is None and _bad is None
+             and _cap is not None and len(_cap) == 3 and _n_cap == 3
+             and _stop is not None and len(_stop) == 1 and _n_stop == 1
+             and _SCA.PAGE_CAP == 20)
+    _sca7_w = (f"بلا مفتاح={_no_key} · 403={_bad} · سقف={_n_cap} صفحات/"
+               f"{_cap and len(_cap)} صفقة · stop={_n_stop}/{_stop and len(_stop)}")
+except Exception as _e:                                          # noqa: BLE001
+    _sca7, _sca7_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA7 `§②` الجالبُ الجديد: بلا مفتاحٍ ⇒ `None` · و**403 يُسقط "
+      "النتيجةَ كلَّها لا يبترها** · وسقفُ الصفحات يُحترَم · و`stop_fn` تُوقف "
+      "الترقيم (توفيرٌ لا تغييرُ رقم)", _sca7, _sca7_w)
+
+# ⑨ `SCA8` — `V-N5`/`V-N7` **سلوكيّان**: الكاشفُ يمسك مرجعًا مزروعًا، والواقعُ
+#    نظيف · و`polygon_base_trades` بت-بت.
+try:
+    import os as _sca8_os
+    _tmpd = __import__("tempfile").mkdtemp(prefix="_sca8_")
+    _plant = _sca8_os.path.join(_tmpd, "fake_prod.py")
+    with open(_plant, "w", encoding="utf-8") as _fh:
+        _fh.write("x = " + "polygon_trades" + "_ts('A','B')\n")
+    _clean_ok, _clean_hit = _SCA.fetcher_unreferenced()
+    _plant_ok, _plant_hit = _SCA.fetcher_unreferenced((_plant,))
+    _bt_ok, _bt_c, _bt_b = _SCA.base_trades_untouched()
+    _sca8 = (_clean_ok and not _clean_hit and not _plant_ok
+             and _plant_hit == [_plant] and _bt_ok and _bt_c == _bt_b)
+    _sca8_w = (f"نظيف={_clean_ok}{_clean_hit} · مزروع={_plant_ok}"
+               f" · base_trades={_bt_c}/{_bt_b}")
+except Exception as _e:                                          # noqa: BLE001
+    _sca8, _sca8_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA8 `V-N5` الجالبُ بلا مرجعٍ في مساراتِ الإنتاج — **والكاشفُ "
+      "يمسك مرجعًا مزروعًا** فلا يكون خاويًا · و`V-N7` "
+      "`polygon_base_trades` بت-بت", _sca8, _sca8_w)
+
+# ⑩ `SCA9` — الـworkflow ‏+ **كلُّ مستورَدٍ بالاسم يُنادى فعلًا** (‏AST).
+try:
+    _scy = open(".github/workflows/seconds.yml", encoding="utf-8").read()
+    _scyd = __import__("yaml").safe_load(_scy)
+    _scon = _scyd.get(True) or _scyd.get("on") or {}
+    _scin = set((_scon.get("workflow_dispatch") or {}).get("inputs") or {})
+    import ast as _sca_ast
+    _sct = _sca_ast.parse(_sca_src)
+    _sccalls = set()
+    for _n in _sca_ast.walk(_sct):
+        if isinstance(_n, _sca_ast.Call):
+            _f = _n.func
+            _sccalls.add(getattr(_f, "id", None) or getattr(_f, "attr", None))
+    _scneed = {"_ignition_outcome", "_ignition_outcome_fetch", "wilson",
+               "production_untouched"}
+    _scmiss = sorted(_scneed - _sccalls)
+    _sca9 = ("schedule" not in _scon and "cron" not in _scy
+             and "TELEGRAM" not in _scy
+             and "POLYGON_API_KEY" in _scy
+             and _scyd.get("permissions", {}).get("contents") == "read"
+             and "3.11" in _scy and _scin == {"dry", "tsv"}
+             and "SECONDS_DRY" in _scy and "SECONDS_DRY" in _sca_src
+             and "SECONDS_TSV" in _scy and "SECONDS_TSV" in _sca_src
+             and not _scmiss and not _sca_err)
+    _sca9_w = (f"مدخلات={_scin} · كرون={'cron' in _scy} · "
+               f"تلغرام={'TELEGRAM' in _scy} · غيرُ منادًى={_scmiss}"
+               + (f" · استيراد: {_sca_err}" if _sca_err else ""))
+except Exception as _e:                                          # noqa: BLE001
+    _sca9, _sca9_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCA9 `seconds.yml`: بلا كرون · **بلا سرِّ تلغرام** · ومفتاحُ "
+      "المزوّد وحدَه · contents: read · 3.11 · ومدخلاه موصولان — **وكلُّ "
+      "مستورَدٍ بالاسم يُنادى فعلًا**", _sca9, _sca9_w)
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

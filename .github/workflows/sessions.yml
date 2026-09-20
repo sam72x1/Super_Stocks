@@ -1,0 +1,53 @@
+name: "⏰🪟 T-SESSIONS — ساعةُ القمّة داخلَ الجلسة (sessions_prereg + §⑩)"
+
+# 🔒 قراءةٌ/بحثٌ فقط — لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** فالإرسالُ
+#    مستحيلٌ بنيويًّا · **ولا سرَّ POLYGON_API_KEY** فالجلبُ مستحيلٌ كذلك
+#    (العقد §① «الموجودُ وحدَه وصفرُ جلب» · `V-S7`-ب يقفله بالـAST أيضًا).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      tsv:
+        description: "1 = يكتب sessions_rows.tsv (الافتراض) · 0 = لا يكتب"
+        required: false
+        default: "1"
+      ref:
+        description: "مرجعُ git لتاريخ op_entry_state.json (شاهدُ V-S8 فقط)"
+        required: false
+        default: "origin/main"
+
+jobs:
+  sessions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # 🔒 تاريخُ git كاملٌ — مصدرُ `anchor_ms`
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run T-SESSIONS
+        env:
+          SESSIONS_TSV: ${{ github.event.inputs.tsv }}
+          TRIG_READ_REF: ${{ github.event.inputs.ref }}
+        run: python3 sessions_probe.py
+
+      - name: Upload rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sessions-rows-${{ github.run_id }}
+          path: sessions_rows.tsv
+          if-no-files-found: ignore
+          retention-days: 90
