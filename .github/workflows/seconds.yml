@@ -1,0 +1,53 @@
+name: "⏱️🔥 T-SECONDS — «بثوانٍ معدودة يتجاوز السعر» رقمًا (seconds_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** فالإرسالُ
+#    مستحيلٌ بنيويًّا (العقد §⑦ `V-N6`) · سرُّ POLYGON_API_KEY وحدَه للجلب.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "وضعُ الجدوى: 1 = أعدادُ المجتمع فقط بلا جلبٍ ولا Δ"
+        required: false
+        default: ""
+      tsv:
+        description: "1 = يكتب seconds_rows.tsv (الافتراض) · 0 = لا يكتب"
+        required: false
+        default: "1"
+
+jobs:
+  seconds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # 🔒 `V-N7` يقارن بـorigin/main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run T-SECONDS
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SECONDS_DRY: ${{ github.event.inputs.dry }}
+          SECONDS_TSV: ${{ github.event.inputs.tsv }}
+        run: python3 seconds_probe.py
+
+      - name: Upload rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seconds-rows-${{ github.run_id }}
+          path: seconds_rows.tsv
+          if-no-files-found: ignore
+          retention-days: 90

@@ -1,0 +1,75 @@
+name: "📏🪜 T-MA-LADDER — متوسطٌ مُشتقٌّ من طول الهبوط (ma_ladder_prereg)"
+
+# 🔒 يدويٌّ · بلا كرون · قراءةٌ فقط · **ولا سرَّ تلغرام** فالإرسالُ مستحيلٌ
+#    بنيويًّا. السنواتُ الثلاث في **تشغيلةٍ واحدة** (ميزانيةٌ واحدةٌ بالبناء —
+#    قاعدةُ `karpathy/autoresearch`) · واللقطاتُ **هي لقطاتُ `trail.yml`
+#    نفسُها** وإلّا سقط `V-M1` بخروج 5.
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      snap_2023:
+        description: "run-id للقطة 2023 (نفسُ لقطة trail.yml — شرطُ V-M1)"
+        required: true
+        default: "31574165523"
+      snap_2024:
+        description: "run-id للقطة 2024 (نفسُ لقطة trail.yml — شرطُ V-M1)"
+        required: true
+        default: "31199493957"
+      snap_2025:
+        description: "run-id للقطة 2025 (نفسُ لقطة trail.yml — شرطُ V-M1)"
+        required: true
+        default: "31191327731"
+      dry:
+        description: "وضعُ الجدوى: 1 = معدّلُ النضج وتوزيعُ n فقط · بلا R ولا فرقٍ ولا فاصل"
+        required: false
+        default: ""
+      tsv:
+        description: "طبعُ صفوف النضج إلى ma_ladder_rows.jsonl: 1 = يُكتَب · الافتراضُ مطفأ"
+        required: false
+        default: ""
+
+jobs:
+  ladder:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: تنزيل لقطة 2023
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          path: snap2023
+          run-id: ${{ inputs.snap_2023 }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: تنزيل لقطة 2024
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          path: snap2024
+          run-id: ${{ inputs.snap_2024 }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: تنزيل لقطة 2025
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          path: snap2025
+          run-id: ${{ inputs.snap_2025 }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: 📏🪜 قِس الأذرعَ الخمس (السنوات الثلاث · ميزانيةٌ واحدة)
+        env:
+          PYTHONUNBUFFERED: "1"
+          MALADDER_DRY: ${{ inputs.dry }}
+          MALADDER_TSV: ${{ inputs.tsv }}
+          MALADDER_POOL: >-
+            2023:snap2023/frozen_backtest.pkl.gz,2024:snap2024/frozen_backtest.pkl.gz,2025:snap2025/frozen_backtest.pkl.gz
+        run: python ma_ladder_arms.py

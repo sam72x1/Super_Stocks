@@ -77,8 +77,16 @@ NL_GRID_K = (3, 5, 10)
 Z_FLOOR = 3.222                   # §④ — `z` المنشورُ في `T-LINK100` (39 خليّة)
 # 🔒 مرساةُ `V-N1` — منشورةٌ في `link100_result.md` (§③): أحداثٌ بت-بت وحصّةُ
 #    `vol_x ≥ 3` بتسامح ‏0.1 نقطة. والمرساةُ من `grouped` الخام وحدَها.
+# 🔒 مرساةُ `V-N1-b` (ملحق §⑬ · 2026-09-20) — **فوق كلّ نداءٍ لمرجعٍ حيّ**:
+#    `(أيّامُ تداول · جُلبت · أحداثٌ خام · بعد الطيّ)` مُخرَجُ `year_days`/
+#    `grouped_day`/`day_events`/`fold_events` وحدَها ⇒ **بت-بت ولا تسامح**.
+NL_UP = {"2023": (250, 250, 869, 700), "2024": (252, 252, 1088, 912),
+         "2025": (250, 250, 1248, 1087)}
+# ⚠️ وهذان **وصفيّان** (‏§⑬-ⓔ): يمرّ عليهما مرجعُ التقسيمات الحيُّ فيتحرّكان،
+#    ويُطبَع انزياحُهما ولا يُحكَم به. الأوّلُ عددُ الأحداث المنشور والثاني حصّةُ
+#    `vol_x ≥ 3` المنشورة، والثالثُ مُستبعَدو التقسيم المنشورون.
 NL_ANCHOR = {"2023": (481, 38.7), "2024": (655, 47.3), "2025": (773, 48.6)}
-NL_ANCHOR_TOL = 0.1
+NL_SPLIT_PUB = {"2023": 160, "2024": 206, "2025": 263}
 RC_OK, RC_NOKEY, RC_COVER, RC_NOEVENT = 0, 2, 3, 4
 RC_LIVE, RC_GUARD, RC_NOVERDICT = 5, 6, 9
 RC_IDENT = 7                      # `V-N1` — هُويّةُ المجتمع ساقطة
@@ -691,20 +699,30 @@ def report(scans: dict, key: str, vl4: dict) -> int:             # noqa: PLR0915
             guards_ok = False
             per_year[y] = set()
             continue
-        if NEWLOW and y in NL_ANCHOR:
+        if NEWLOW and y in NL_UP:
+            _s = scans[y]
+            _fold = len(_s["events"])
+            _up = (_s["days"], _s["got"], _s["raw"], _fold)
+            _up_ok = _up == NL_UP[y]
+            # ميزانٌ مُغلَق: لا صفَّ يسقط بسببٍ ثالثٍ غيرِ مُعلَن (§⑬-ⓒ-2).
+            _cons = (_fold - en["dropped_split"] - en["no_hist"]) == len(en["ev"])
             _n, _share = NL_ANCHOR[y]
             _vx = enrich(en["ev"], en["cx"], "vol_x").get("≥3")
             _got = _vx["pe"] if _vx else None
-            _ok = (len(en["ev"]) == _n and _got is not None
-                   and abs(_got - _share) <= NL_ANCHOR_TOL)
-            _log(f"   🔒 V-N1: أحداثٌ {len(en['ev'])} (المنشور {_n}) · "
+            _log(f"   🔒 V-N1-b (§⑬) فوقَ المرجع الحيّ: {_up} مقابل المنشور "
+                 f"{NL_UP[y]} ⇒ {'مطابق' if _up_ok else '**ساقط**'} · "
+                 f"ميزانٌ مُغلَق ⇒ {'نعم' if _cons else '**لا**'}")
+            _log(f"      ↳ انزياحُ المرجع الحيّ (وصفيٌّ لا يحكم): مُستبعَدو "
+                 f"التقسيم {en['dropped_split']} (المنشور {NL_SPLIT_PUB[y]} · "
+                 f"{en['dropped_split'] - NL_SPLIT_PUB[y]:+d}) · أحداثٌ تُقاس "
+                 f"{len(en['ev'])} (المنشور {_n} · {len(en['ev']) - _n:+d}) · "
                  f"vol_x≥3 {('—' if _got is None else f'{_got:.1f}%')} "
-                 f"(المنشور {_share}%) ⇒ {'مطابق' if _ok else '**ساقط**'}")
-            if not _ok:
-                _log(f"⛔ V-N1 — هُويّةُ المجتمع ساقطة في {y} — خروج {RC_IDENT}")
+                 f"(المنشور {_share}%)")
+            if not (_up_ok and _cons):
+                _log(f"⛔ V-N1-b — هُويّةُ المجتمع ساقطة في {y} — خروج {RC_IDENT}")
                 return RC_IDENT
         elif NEWLOW:
-            _log(f"   ℹ️ V-N1 — لا مرساةَ منشورةٌ لسنة {y} (وصفيّةٌ بنصّ §③)")
+            _log(f"   ℹ️ V-N1-b — لا مرساةَ منشورةٌ لسنة {y} (وصفيّةٌ بنصّ §③)")
         n_cells = sum(len(enrich(en["ev"], en["cx"], f)) for f in GOV_FEATURES)
         z = z_bonf(max(1, n_cells))
         if NEWLOW:                       # §④ — لا يُرخى دون المنشور أبدًا
