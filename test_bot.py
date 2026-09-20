@@ -57005,15 +57005,28 @@ try:
                {"entry": 2.5, "stop": 2.0, "ret_a": 0.0},
                {"entry": 7.0, "stop": 6.3, "ret_a": None}]
     _mla_n6, _mla_b6 = _MLA.r_identity(_mla_pl)
+    # 🐞 **شاهدُ ضبطٍ أُضيف بعد طفرةٍ نجت (‏`a20`):** «مخالفٌ = صفر» هي حالةُ
+    #    النجاح نفسُها حين يُقتَل الكاشف (‏تُوسَّع السماحيّةُ إلى ‏1e9) —
+    #    وهما متطابقتان **جبريًّا** فلا فِكستشرَ يُنتج اختلافًا. ⇒ يُحقَن
+    #    الاختلافُ عمدًا ويُشترَط أن يُمسَك. درسُ `RKA10` بحرفه.
+    _mla_orig6 = _MLA.r_of
+    try:
+        _MLA.r_of = lambda _p: _mla_orig6(_p) + 1e-3
+        _mla_n6c, _mla_b6c = _MLA.r_identity(_mla_pl)
+    finally:
+        _MLA.r_of = _mla_orig6
     _mla_ok6 = (_mla_n6 == 4 and _mla_b6 == 0
+                and _mla_n6c == 4 and _mla_b6c == 4       # شاهدُ الضبط يُمسَك
                 and abs(_MLA.r_of(_mla_pl[0]) - 1.25) < 1e-9
                 and _MLA.r_of(_mla_pl[3]) == 0.0
                 and _mla_rp.r_unit(_mla_pl[3]) == 0.0)
-    _mla_v6 = f"صفوف={_mla_n6} · مخالف={_mla_b6} · r0={_MLA.r_of(_mla_pl[0])}"
+    _mla_v6 = (f"صفوف={_mla_n6} · مخالف={_mla_b6} · شاهدُ ضبطٍ مخالف="
+               f"{_mla_b6c}/{_mla_n6c} · r0={_MLA.r_of(_mla_pl[0])}")
 except Exception as _e:                                          # noqa: BLE001
     _mla_ok6, _mla_v6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📏🪜🔒 MLA6 `V-M7` — `R` بـ`tranche_arms.r_fixed` **بالاسم** ويطابق "
-      "`replay10.r_unit` بت-بت · **وغيرُ المُعبَّأة صفرٌ يدخل المقام** لا تُحذف",
+      "`replay10.r_unit` بت-بت · **وغيرُ المُعبَّأة صفرٌ يدخل المقام** · "
+      "**وشاهدُ ضبطٍ محقونٌ يُثبت أن الكاشفَ يمسك الاختلافَ فعلًا**",
       _mla_ok6, _mla_v6)
 
 try:
@@ -57470,14 +57483,22 @@ try:
     _ssa_pr = open("sessions_prereg.md", encoding="utf-8").read()
     _ssa_i10 = _ssa_pr.find("§⑩")
     _ssa_ap = _ssa_pr[_ssa_i10:] if _ssa_i10 >= 0 else ""
+    # 🐞 **صُحِّح نطاقُ القفل لا الوثيقة (‏نفسُ صنف `MLK3`/`SCK3`):** شرطُ «لا
+    #    يُسمّى ملفُّ الأداة» يُثبت أن **متنَ العقد** كُتب قبل الأداة — **ولا
+    #    ينطبق على ملحقٍ مؤرَّخٍ يُكتَب بعدها بالتعريف** (‏`§⑪` يصف حارسًا
+    #    داخل الأداة فيسمّيها بالضرورة). ⇒ النطاقُ = المتنُ حتى أوّل ملحق.
+    _ssa_body = _ssa_pr[:_ssa_i10] if _ssa_i10 > 0 else _ssa_pr
     _ssa7 = (_ssa_i10 > 0
              and "anchor_history" in _ssa_ap
              and "V-S8" in _ssa_ap
              and "‏150" in _ssa_pr and "‏71" in _ssa_pr and "‏50" in _ssa_pr
              and "90%" in _ssa_pr
-             and "sessions_probe" not in _ssa_pr)   # لا يُسمّى ملفُّ الأداة
+             and "sessions_probe" not in _ssa_body   # المتنُ لا يُسمّي الأداة
+             and "V-S9" in _ssa_pr)                  # وملحقُ `§⑪` حاضر
     _ssa7_w = (f"§⑩@{_ssa_i10} · anchor_history={'anchor_history' in _ssa_ap} · "
-               f"V-S8={'V-S8' in _ssa_ap} · 90%={'90%' in _ssa_pr}")
+               f"V-S8={'V-S8' in _ssa_ap} · 90%={'90%' in _ssa_pr} · "
+               f"المتنُ بلا اسم الأداة={'sessions_probe' not in _ssa_body} · "
+               f"V-S9={'V-S9' in _ssa_pr}")
 except Exception as _e:                                          # noqa: BLE001
     _ssa7, _ssa7_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("⏰🪟🔒 SSA7 العقدُ مدموجٌ وملحقُه `§⑩` يُسمّي `anchor_history` ويُعرّف "
@@ -57536,6 +57557,48 @@ try:
     _ssa9_w = f"غيرُ منادًى: {_ssa_miss}" + (f" · استيراد: {_ssa_err}" if _ssa_err else "")
 except Exception as _e:                                          # noqa: BLE001
     _ssa9, _ssa9_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+# ⑪ `SSA10` (‏الملحق `§⑪`) — `V-S9` **حارسُ صلاحيّةِ مُدخَل**، **سلوكيٌّ
+#    لا بيئيّ**: يُثبَت على **مستودعَين مصنوعَين** (‏كاملٌ ⟶ `False` · وبلا
+#    مستودعٍ ⟶ `True` فاشلًا-آمنًا) — **ولا يُسأل عن عمق هذي الشجرة**، لأن
+#    `tests.yml` يستعمل checkout الافتراضيَّ (‏عمق 1 = ضحل) ⇒ قفلٌ يشترط
+#    «غيرُ ضحلة» هنا **يخضرّ عندي ويحمرّ في البوّابة** — الصنفُ ②-مكرر.
+try:
+    import os as _ssa10_os
+    import subprocess as _ssa10_sp
+    import tempfile as _ssa10_tf
+    _ssa10_cwd = _ssa10_os.getcwd()
+    _ssa10_bare = _ssa10_tf.mkdtemp(prefix="_ssa10_bare_")
+    _ssa10_full = _ssa10_tf.mkdtemp(prefix="_ssa10_full_")
+    try:
+        _ssa10_os.chdir(_ssa10_bare)                  # بلا مستودع ⇒ فاشلٌ-آمن
+        _ssa10_r_bare = _SSA.repo_depth()
+        _ssa10_os.chdir(_ssa10_full)                  # مستودعٌ كاملٌ مصنوع
+        for _a in (["init", "-q"], ["config", "user.email", "t@t"],
+                   ["config", "user.name", "t"]):
+            _ssa10_sp.run(["git", *_a], capture_output=True, timeout=60)
+        open("f.txt", "w").write("x")
+        _ssa10_sp.run(["git", "add", "f.txt"], capture_output=True, timeout=60)
+        _ssa10_sp.run(["git", "commit", "-qm", "c"], capture_output=True,
+                      timeout=60)
+        _ssa10_r_full = _SSA.repo_depth()
+    finally:
+        _ssa10_os.chdir(_ssa10_cwd)
+    # ووصلُ الحارس: `main` يقرأ `repo_depth` **قبل** `load_rows`
+    _ssa10_src = _ssa_src[_ssa_src.find("def main("):]
+    _ssa10_ord = (0 <= _ssa10_src.find("repo_depth()")
+                  < _ssa10_src.find("load_rows()"))
+    _ssa10 = (_ssa10_r_bare[0] is True and _ssa10_r_bare[1] == 0
+              and _ssa10_r_full[0] is False
+              and len(_ssa10_r_bare) == 3 and len(_ssa10_r_full) == 3
+              and _ssa10_ord and "V-S9" in _ssa_src and _SSA.RC_POP == 4)
+    _ssa10_w = (f"بلا مستودع={_ssa10_r_bare} · كاملٌ مصنوع={_ssa10_r_full} · "
+                f"موصولٌ قبل المجتمع={_ssa10_ord} · RC_POP={_SSA.RC_POP}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa10, _ssa10_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA10 `V-S9` **سلوكيٌّ على مستودعَين مصنوعَين**: الكاملُ ⇒ "
+      "`False` · وبلا مستودعٍ ⇒ `True` **فاشلًا-آمنًا** · والحارسُ موصولٌ في "
+      "`main` **قبل** قراءة المجتمع ويوقف بخروج 4", _ssa10, _ssa10_w)
+
 check("⏰🪟🔒 SSA9 كلُّ مستورَدٍ بالاسم **يُنادى فعلًا**: `anchor_history` · "
       "`git_snapshots` · `collect` · `session_info` · `wilson` · "
       "`production_untouched` — فلا يكون «صفرُ منطقٍ مكرَّر» دعوًى",
