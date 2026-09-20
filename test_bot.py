@@ -47519,11 +47519,37 @@ check("🚦📜 TRD2 مفتاحٌ ثلاثيّ (‏3 مواضع من رمزين)
 # TRD3 — التقرير يحمل **الحاكمَ ومواضعَ الخام وفصلَ الكتم** (ثلاثتَها لا اثنين).
 _trd_txt = "\n".join(_TRD.report(_trd_r, 0, "origin/main")) if _TRD else ""
 check("🚦📜 TRD3 التقريرُ يفصل **الرموزَ (الحاكم)** عن **مواضع الرسوّ** عن **الكتم** — "
-      "فلا يُقرأ تكرارُ الرسوّ بعد الكتم كلفةً جديدة",
+      "فلا يُقرأ تكرارُ الرسوّ بعد الكتم كلفةً جديدة · **والحاكمُ للتسليم هو "
+      "`alive_eod`** والقديمُ يُطبَع موسومًا بأنه يكذب",
       "رموزٌ رست/اليوم" in _trd_txt and "مواضعُ رسوٍّ خام" in _trd_txt
-      and "باقيةٌ في آخر لقطة" in _trd_txt and "كُتمت" in _trd_txt
+      and "الحاكمُ للتسليم" in _trd_txt and "كُتمت" in _trd_txt
+      and "يكذب على الأيّام السابقة" in _trd_txt
+      and "يُطبَع للمقارنة ولا يُحكَم به" in _trd_txt
       and "origin/main" in _trd_txt,
       _trd_txt[:90])
+
+# TRD5 — 🔴 **`alive_eod` مقياسُ التسليم الصادق** (تصحيحٌ مؤرَّخ 2026-09-20):
+#   الحالةُ تُفرَّغ عند تبدّل اليوم ⇒ `alive` (آخرُ لقطةٍ من المدى) يقرأ مِرساةَ
+#   يومٍ ماضٍ «مكتومة» ولو نجت. الجدولُ أدناه **يفرّق الثلاثةَ بالبناء**:
+#   `A` نجت إلى آخر يومِها · `B` اختفت داخلَ يومِها (كُتمت) · `C` من اليوم الأخير.
+_trd_d1 = {"LIQ:A": {"date": "d1", "anchor_ms": 100, "trig": "T-C", "sent": ["M1"]},
+           "LIQ:B": {"date": "d1", "anchor_ms": 110, "trig": "T-C", "sent": ["M1"]}}
+_trd_d1b = {"LIQ:A": {"date": "d1", "anchor_ms": 100, "trig": "T-C",
+                      "sent": ["M1", "M5"]}}
+_trd_d2 = {"LIQ:C": {"date": "d2", "anchor_ms": 300, "trig": "T-C", "sent": ["M1"]}}
+try:
+    _trd_e = _TRD.collect([("t1", _trd_d1), ("t2", _trd_d1b),
+                           ("t3", _trd_d2)])["anchors"] if _TRD else {}
+    _trd_tt = {k[0]: (_trd_e[k]["alive"], _trd_e[k]["alive_eod"])
+               for k in _trd_e}
+    _trd_ok = (_trd_tt == {"A": (False, True), "B": (False, False),
+                           "C": (True, True)})
+    _trd_w = str(_trd_tt)
+except Exception as _e:                                          # noqa: BLE001
+    _trd_ok, _trd_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🚦📜 TRD5 **`alive_eod` يفرّق «نجت» عن «كُتمت» بيومِ المِرساة لا بآخر لقطة** — "
+      "ومِرساةُ يومٍ ماضٍ نجت تُقرأ ناجيةً (‏`alive` وحدَه كان يكذب)",
+      _trd_ok, _trd_w)
 
 # TRD4 — حدودُ الصدق الأربعةُ وختمُ الشحن **تُطبَع دائمًا** (لا تسقط بالاختصار).
 check("🚦📜 TRD4 حدودُ الصدق الأربعة وختمُ الشحن في كلّ تقرير · والـworkflow يدويٌّ "
@@ -56261,6 +56287,162 @@ except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🎯✂️🔒 HCA7 الأداةُ **قراءةٌ فقط وصفرُ إسناد** · والـworkflow بلا كرونٍ ولا "
       "سرّ · **ولقطاتُه عينُ لقطات `trail.yml`** (شرطُ `V-H1`)", _v, _w)
+
+# ⑨ HCA8 — 🔴 **`V-H3` سلوكيًّا لا بالدعوى**: الأذرعُ الستُّ تُحسَم على **نفس
+#   الدخول ونفس الوقف ونفس لحظة التعبئة ونفس النافذة**، والمتغيّرُ **الهدفُ وحدَه**.
+#   يُثبَت باعتراض `cut_exit` وتسجيلِ وسائطِ كلّ نداء — **لا بقراءة نصّ الدالّة**.
+#   والخطّةُ/المِرساةُ/السلّمُ تُبدَّل بجذوعٍ فالمقصودُ **حلقةُ الأذرع** لا إعادةُ
+#   بناء الخطّة (وهي مقفولةٌ بـ`HCA1` استيرادًا بالاسم).
+try:
+    import pandas as _hca_pd
+    _hca_idx = _hca_pd.bdate_range("2024-01-02", periods=80)
+    _hca_cl = [10.0 - 0.05 * _i for _i in range(60)] + \
+              [7.0 + 0.30 * _i for _i in range(20)]
+    _hca_df = _hca_pd.DataFrame(
+        {"Open": [_c * 0.99 for _c in _hca_cl],
+         "High": [_c * 1.04 for _c in _hca_cl],
+         "Low": [_c * 0.96 for _c in _hca_cl],
+         "Close": _hca_cl,
+         "Volume": [900_000] * 80}, index=_hca_idx)
+    _hca_seen = []
+    _hca_o = (_hca_mod.cut_exit, _hca_mod.plan_at, _hca_mod.anchor_at,
+              _hca_mod.ladder)
+
+    def _hca_spy(hi, lo, cl, op, entry, stop, t1, filled, h=0.0, spread=0.0):
+        _hca_seen.append((round(float(entry), 6), round(float(stop), 6),
+                          filled, len(hi), round(float(h), 3)))
+        return _hca_o[0](hi, lo, cl, op, entry, stop, t1, filled,
+                         h=h, spread=spread)
+    try:
+        _hca_mod.cut_exit = _hca_spy
+        _hca_mod.plan_at = lambda *a, **k: {"stop": 8.0, "t1": 12.0}
+        _hca_mod.anchor_at = lambda *a, **k: 10.0
+        _hca_mod.ladder = lambda *a, **k: [9.7, 10.0, 10.3]
+        _hca_row, _hca_why = _hca_mod.arms_for(
+            S, "ZZZ", _hca_df, {"date": str(_hca_idx[60].date())},
+            15, 0.0, 3, 3.0)
+    finally:
+        (_hca_mod.cut_exit, _hca_mod.plan_at, _hca_mod.anchor_at,
+         _hca_mod.ladder) = _hca_o
+    _hca_n = len(_hca_seen)
+    _hca_same = (_hca_n == len(_hca_mod.ARMS)
+                 and len({_s[:4] for _s in _hca_seen}) == 1)
+    _hca_hs = sorted(_s[4] for _s in _hca_seen)
+    _hca_diff = _hca_hs == sorted(round(float(_h), 3)
+                                  for _n, _h in _hca_mod.ARMS)
+    _v = bool(_hca_row) and _hca_same and _hca_diff
+    _w = (f"نداءات={_hca_n} · دخولٌ/وقفٌ/تعبئةٌ/نافذةٌ واحدة={_hca_same} · "
+          f"المتغيّرُ h وحدَه={_hca_diff} ({_hca_hs}) · صفّ={bool(_hca_row)}"
+          + ("" if _hca_row else f" · سبب={_hca_why}"))
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯✂️🔒 HCA8 `V-H3` **سلوكيًّا**: الأذرعُ الستُّ على **نفس الدخول والوقف "
+      "ولحظةِ التعبئة والنافذة** · والمتغيّرُ **`h` وحدَه**", _v, _w)
+
+# ── 💥🔗② `T-LINK100-2` — أقفال LNK0-LNK4 (العقدُ قبل أيّ سطرِ أداة) ──────────
+try:
+    _lnk_doc = open("link100_2_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _lnk_doc = f"⛔ {type(_e).__name__}"
+
+# ① LNK0 — مؤرَّخٌ · وفروعُه **ثلاثةٌ بنيويًّا** مرقَّمةٌ بالترتيب · ولا فرعَ رابع
+try:
+    _lnk_br = (_lnk_doc.split("## §⑤")[-1].split("## §⑥")[0]
+               if "## §⑤" in _lnk_doc else "")
+    _lnk_ln = [_l.strip() for _l in _lnk_br.splitlines()
+               if _mem_re.match(r"^\d\. \*\*الفرعُ", _l.strip())]
+    _lnk_want = [("1", "سِمةٌ ثالثة"), ("2", "لا تعبر"), ("3", "لا حكم")]
+    _v = (bool(_lnk_doc) and "T-LINK100-2" in _lnk_doc
+          and len(_lnk_ln) == 3
+          and all(_lnk_ln[_i].startswith(f"{_n}. **الفرعُ {_n}") and _k in _lnk_ln[_i]
+                  for _i, (_n, _k) in enumerate(_lnk_want))
+          and "ولا فرعَ رابع" in _lnk_br)
+    _w = f"فروعٌ={len(_lnk_ln)} · {[_l[:22] for _l in _lnk_ln]}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNK0 عقدُ `T-LINK100-2` · فروعُه الثلاثةُ مرقَّمةٌ بالترتيب كلٌّ "
+      "بكلمتِه · ولا فرعَ رابع", _v, _w)
+
+# ② LNK1 — **المصدرُ حرفيٌّ من الكاتالوج فعلًا** (لا منقولٌ بيدي) · موسومٌ
+#   `faisal_verbatim` · **والشقُّ الثاني من الدعوى مُعلَنٌ غيرَ مقيس**.
+try:
+    _lnk_q = "دائمًا السهم قبل يدبل يُضغط لأدنى قاع"
+    _lnk_cat = open("FAISAL_IMAGES_CATALOG.md", encoding="utf-8").read()
+    _lnk_s0 = _lnk_doc.split("## §①")[0]
+    _lnk_in_cat = _lnk_q in _lnk_cat
+    _lnk_in_doc = _lnk_q in _lnk_s0 and "713" in _lnk_s0
+    _lnk_tag = "faisal_verbatim" in _lnk_s0
+    _lnk_half = ("سحب سيولة المشترين" in _lnk_doc
+                 and "يُقاس\nالشقُّ الأوّل وحدَه" in _lnk_doc.replace("**", ""))
+    _v = _lnk_in_cat and _lnk_in_doc and _lnk_tag and _lnk_half
+    _w = (f"في الكاتالوج={_lnk_in_cat} · في العقد بسطره={_lnk_in_doc} · "
+          f"موسوم={_lnk_tag} · الشقُّ الثاني مُعلَنٌ غيرَ مقيس={_lnk_half}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNK1 المصدرُ `L713` **موجودٌ في الكاتالوج حرفيًّا** وموسومٌ "
+      "`faisal_verbatim` · **والشقُّ الثاني مُعلَنٌ غيرَ مقيس**", _v, _w)
+
+# ③ LNK2 — **مرساةُ `V-N1` أرقامٌ منشورةٌ لا مكتوبةٌ بيدي**: الستّةُ في
+#   `link100_result.md` فعلًا · **ومرساةُ `rsplit180`/`pm_usd` مرفوضةٌ بتعليل**.
+try:
+    _lnk_res = open("link100_result.md", encoding="utf-8").read()
+    _lnk_nums = ("481", "655", "773", "38.7%", "47.3%", "48.6%")
+    _lnk_inres = all(_x in _lnk_res for _x in _lnk_nums)
+    _lnk_indoc = all(_x in _lnk_doc for _x in _lnk_nums)
+    _lnk_rej = ("rsplit180" in _lnk_doc and "pm_usd" in _lnk_doc
+                and "ولا يُعتمَد" in _lnk_doc
+                and "grouped` الخام وحدَها" in _lnk_doc)
+    _v = _lnk_inres and _lnk_indoc and _lnk_rej
+    _w = (f"في link100_result={_lnk_inres} · في العقد={_lnk_indoc} · "
+          f"المرساتان المرفوضتان معلَّلتان={_lnk_rej}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNK2 مرساةُ `V-N1` **من `link100_result.md` المنشور** لا بيدي · "
+      "و`rsplit180`/`pm_usd` **مرفوضتان مرساةً بتعليل**", _v, _w)
+
+# ④ LNK3 — **صفرُ شحنٍ** · العقدُ الأصلُ لا يُعدَّل · `W`/`K` `engineering`
+#   ولا تُشحَنان عتبةً · والجذورُ محميّةٌ نصًّا.
+try:
+    _lnk_s9 = _lnk_doc.split("## §⑨")[-1] if "## §⑨" in _lnk_doc else ""
+    _lnk_ns = "ولو عبرت" in _lnk_s9 and "ولا تُضاف الميزةُ إلى الفارز" in _lnk_s9
+    _lnk_rt = "الجذورُ الاثنا عشر" in _lnk_s9 and "rank_key" in _lnk_s9
+    _lnk_orig = ("link100_prereg.md" in _lnk_s9
+                 and "مدموجٌ مقفول" in _lnk_s9
+                 and "ولا يُعدَّل `link100_prereg.md`" in _lnk_doc)
+    _lnk_eng = ("`W = 60` و`K = 5`" in _lnk_doc
+                and "engineering" in _lnk_doc
+                and "لا يُشحَنان\nعتبةً" in _lnk_doc.replace("**", ""))
+    _lnk_lv = "لا `LOGIC_VERSION`" in _lnk_doc
+    _v = _lnk_ns and _lnk_rt and _lnk_orig and _lnk_eng and _lnk_lv
+    _w = (f"لا شحن={_lnk_ns} · الجذورُ={_lnk_rt} · الأصلُ لا يُعدَّل={_lnk_orig} · "
+          f"W/K engineering={_lnk_eng} · لا LV={_lnk_lv}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNK3 **صفرُ شحنٍ ولو عبرت** · العقدُ الأصلُ لا يُعدَّل · و`W`/`K` "
+      "`engineering` لا تُشحَنان عتبةً", _v, _w)
+
+# ⑤ LNK4 — 🔴 **`z` لا يرخى أبدًا**: العقدُ يكتب `max(z_bonf(الخلايا), 3.222)`،
+#   ويُثبَت **سلوكيًّا** أن `z_bonf` **لا تنقص** بزيادة الخلايا وأن قيمتَها عند
+#   ‏39 خليّةً هي المنشورةُ نفسُها ⇒ إضافةُ الميزةِ **تشديدٌ لا إرخاء**.
+try:
+    import link100_probe as _lnk_mod
+    _lnk_z = [_lnk_mod.z_bonf(_n) for _n in (39, 40, 41, 42, 48)]
+    _lnk_mono = all(_lnk_z[_i] <= _lnk_z[_i + 1] + 1e-12
+                    for _i in range(len(_lnk_z) - 1))
+    _lnk_pub = abs(_lnk_z[0] - 3.222) < 0.001          # المنشورُ 3.222
+    _lnk_rule = ("max(z_bonf" in _lnk_doc and "3.222" in _lnk_doc
+                 and "لا يكون أرخى من" in _lnk_doc)
+    # والحساسيّةُ الوصفيّةُ **لا تدخل العدّ** — مُعلَنٌ صراحةً
+    _lnk_grid = ("والحساسيّةُ الوصفيّةُ لا تدخل العدّ" in _lnk_doc
+                 and "ولا تدخل معيارَ الحكم ولا عدَّ بونفيروني" in _lnk_doc)
+    _v = _lnk_mono and _lnk_pub and _lnk_rule and _lnk_grid
+    _w = (f"رتيبة={_lnk_mono} ({[round(_x, 4) for _x in _lnk_z]}) · "
+          f"z(39)≈المنشور={_lnk_pub} · القاعدةُ في العقد={_lnk_rule} · "
+          f"الشبكةُ خارج العدّ={_lnk_grid}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNK4 `z` **لا ترخى**: `z_bonf` رتيبةٌ غيرُ متناقصة وقيمتُها عند "
+      "‏39 خليّةً هي المنشورة · والشبكةُ الوصفيّةُ خارجَ العدّ", _v, _w)
 
 
 
