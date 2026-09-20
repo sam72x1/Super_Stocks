@@ -56451,6 +56451,193 @@ check("💥🔗②🔒 LNK4 `z` **لا ترخى**: `z_bonf` رتيبةٌ غير�
 
 
 
+# ── 💥🔗② أقفال `LNA0`-`LNA5` — أداةُ `T-LINK100-2` (بُنيت بعد دمج عقدها) ─────
+#    🔒 المبدأ: **العلمُ مطفأٌ افتراضًا** ⇒ المسارُ المنشور بت-بت · وبتشغيله
+#    تُضاف `newlow60_5` وحدَها إلى الحكم · والشبكةُ التسعُ **وصفيّةٌ خارج العدّ**.
+import ast as _lna_ast
+import contextlib as _lna_cl
+import importlib as _lna_il
+import io as _lna_io
+import os as _lna_os
+
+_lna_src = open("link100_probe.py", encoding="utf-8").read()
+_lna_yml = open(".github/workflows/link100.yml", encoding="utf-8").read()
+
+
+def _lna_reload(**env):
+    """يُعيد استيرادَ `link100_probe` ببيئةٍ محدَّدة ثمّ يُرجع البيئةَ كما كانت."""
+    _old = {_k: _lna_os.environ.get(_k) for _k in env}
+    try:
+        for _k, _v in env.items():
+            if _v is None:
+                _lna_os.environ.pop(_k, None)
+            else:
+                _lna_os.environ[_k] = _v
+        with _lna_cl.redirect_stdout(_lna_io.StringIO()):
+            return _lna_il.reload(_LKA)
+    finally:
+        for _k, _v in _old.items():
+            if _v is None:
+                _lna_os.environ.pop(_k, None)
+            else:
+                _lna_os.environ[_k] = _v
+
+
+def _lna_hist(n=80):
+    """تاريخٌ صناعيٌّ بشكل `ticker_daily`: ‏[يوم، فتح، أعلى، أدنى، إغلاق، حجم]."""
+    return [[f"2026-01-{1 + _i % 28:02d}", 10.0, 10.5, 9.5 + (_i % 7) * 0.1,
+             10.0, 1000.0 + _i] for _i in range(n)]
+
+
+try:
+    # ① `LNA0` — **مُطفَأً**: لا مفتاحَ `newlow*` ولا تتغيّر قائمةُ الحكم ───────
+    _m0 = _lna_reload(LINK100_NEWLOW=None)
+    _f0 = _m0.daily_feats(_lna_hist(), 79, False) or {}
+    _lna_ok0 = (_m0.NEWLOW is False
+                and tuple(_m0.GOV_FEATURES) == tuple(_m0.FEATURES)
+                and len(_m0.FEATURES) == 13
+                and not [_k for _k in _f0 if _k.startswith("newlow")])
+    _lna_w0 = (f"NEWLOW={_m0.NEWLOW} · حكم={len(_m0.GOV_FEATURES)} · "
+               f"مفاتيحُ newlow={[k for k in _f0 if k.startswith('newlow')]}")
+except Exception as _e:                                          # noqa: BLE001
+    _lna_ok0, _lna_w0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNA0 **العلمُ مطفأٌ افتراضًا**: `GOV_FEATURES` = `FEATURES` نفسُها "
+      "و`daily_feats` لا يُضيف مفتاحًا ⇒ المسارُ المنشور بت-بت", _lna_ok0, _lna_w0)
+
+try:
+    # ② `LNA1` — **مُشغَّلًا**: الحاكمةُ وحدَها تدخل · والثمانيةُ وصفيّةٌ خارجَها ─
+    _m1 = _lna_reload(LINK100_NEWLOW="1")
+    _f1 = _m1.daily_feats(_lna_hist(), 79, False) or {}
+    _desc_only = set(_m1.NL_DESC) - {_m1.NL_MAIN}
+    _lna_ok1 = (_m1.NEWLOW is True
+                and _m1.NL_MAIN == "newlow60_5"
+                and (_m1.NL_W, _m1.NL_K) == (60, 5)
+                and len(_m1.NL_DESC) == 9
+                and len(_desc_only) == 8
+                and tuple(_m1.GOV_FEATURES) == tuple(_m1.FEATURES) + (_m1.NL_MAIN,)
+                and not (_desc_only & set(_m1.GOV_FEATURES))
+                and all(_k in _f1 for _k in _m1.NL_DESC))
+    _lna_w1 = (f"الحاكمة={_m1.NL_MAIN} · حكم={len(_m1.GOV_FEATURES)} · "
+               f"شبكة={len(_m1.NL_DESC)} · وصفيٌّ داخلَ الحكم="
+               f"{sorted(_desc_only & set(_m1.GOV_FEATURES)) or 'لا شيء'}")
+except Exception as _e:                                          # noqa: BLE001
+    _lna_ok1, _lna_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNA1 **مُشغَّلًا**: `newlow60_5` وحدَها تدخل الحكم · والثمانيةُ "
+      "الباقيةُ تُحسَب وتُطبَع **خارجَ** قائمة الحكم (§②)", _lna_ok1, _lna_w1)
+
+try:
+    # ③ `LNA2` — `newlow_flag` **جدولُ حقيقة**: نعم · لا · وقصرُ العيّنة ⇒ None ─
+    _nf = _m1.newlow_flag
+    _lna_t2 = {
+        "نعم": _nf([9, 9, 9, 1, 2, 3], 5, 3),      # أدنى قاعٍ داخلَ آخر 3
+        "لا": _nf([9, 9, 1, 9, 9, 9], 5, 3),       # الأدنى خارجَ آخر 3
+        "قصر": _nf([9, 9, 9], 5, 3),               # len < w ⇒ None
+        "k0": _nf([9, 9, 9, 1, 2, 3], 5, 0),       # k<1 ⇒ None
+        "فارغ": _nf([], 5, 3)}
+    _lna_ok2 = (_lna_t2 == {"نعم": "نعم", "لا": "لا", "قصر": None,
+                            "k0": None, "فارغ": None})
+    _lna_w2 = str(_lna_t2)
+except Exception as _e:                                          # noqa: BLE001
+    _lna_ok2, _lna_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNA2 `newlow_flag` جدولُ حقيقة: أدنى قاعٍ داخلَ آخر `k` ⇒ نعم · "
+      "خارجَها ⇒ لا · وقصرُ العيّنة عن `w` ⇒ `None` لا قيمةٌ مفترَضة", _lna_ok2, _lna_w2)
+
+try:
+    # ④ `LNA3` — 🔴 **الأرضيّةُ لا تمسّ المنشور**: السطرُ داخلَ `if NEWLOW` بنيويًّا
+    #    ‏+ `z_bonf` رتيبةٌ غيرُ متناقصة وقيمتُها عند 39 خليّةً هي `Z_FLOOR`.
+    _mono = all(_m1.z_bonf(_n) <= _m1.z_bonf(_n + 1) + 1e-12 for _n in range(1, 200))
+    _at39 = abs(_m1.z_bonf(39) - _m1.Z_FLOOR) < 0.001
+    _rep = next(_n for _n in _lna_ast.walk(_lna_ast.parse(_lna_src))
+                if isinstance(_n, _lna_ast.FunctionDef) and _n.name == "report")
+    _guarded, _bare = 0, 0
+    for _nd in _lna_ast.walk(_rep):
+        if not (isinstance(_nd, _lna_ast.Assign)
+                and any(getattr(_t, "id", None) == "z" for _t in _nd.targets)
+                and isinstance(_nd.value, _lna_ast.Call)
+                and getattr(_nd.value.func, "id", None) == "max"):
+            continue
+        _ins = any(isinstance(_p, _lna_ast.If)
+                   and getattr(_p.test, "id", None) == "NEWLOW"
+                   and _nd in list(_lna_ast.walk(_p))
+                   for _p in _lna_ast.walk(_rep) if isinstance(_p, _lna_ast.If))
+        _guarded += 1 if _ins else 0
+        _bare += 0 if _ins else 1
+    _lna_ok3 = _mono and _at39 and _guarded == 1 and _bare == 0
+    _lna_w3 = (f"رتيبة={_mono} · z(39)={_m1.z_bonf(39):.4f} مقابل "
+               f"{_m1.Z_FLOOR} · داخلَ الحارس={_guarded} · عاريةٌ={_bare}")
+except Exception as _e:                                          # noqa: BLE001
+    _lna_ok3, _lna_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNA3 **`z` لا تُرخى ولا تُشدَّد على المنشور**: أرضيّةُ `Z_FLOOR` "
+      "**داخلَ `if NEWLOW` وحدَها** · و`z_bonf` رتيبةٌ وقيمتُها عند 39 هي المنشورة",
+      _lna_ok3, _lna_w3)
+
+try:
+    # ⑤ `LNA4` — `V-N1` **سلوكيًّا**: مطابقٌ ⇒ يمضي · وأيُّ اختلافٍ ⇒ خروج 7 ────
+    _m2 = _lna_reload(LINK100_NEWLOW="1", LINK100_YEARS="2023")
+    _codes = {_m2.RC_OK, _m2.RC_NOKEY, _m2.RC_COVER, _m2.RC_NOEVENT,
+              _m2.RC_LIVE, _m2.RC_GUARD, _m2.RC_NOVERDICT}
+    _uniq = _m2.RC_IDENT == 7 and _m2.RC_IDENT not in _codes
+
+    def _lna_run(n_ev, pe):
+        """يُشغّل `report` بشاهدٍ محقون — بلا شبكةٍ وبلا مفتاح."""
+        _oe, _oer = _m2.enrich, _m2.enrich_rows
+        try:
+            _m2.enrich_rows = lambda ev, k, cap: {
+                "ev": [{"vol_x": "≥3"}] * n_ev, "cx": [{"vol_x": "≥3"}],
+                "cc": [{"vol_x": "≥3"}], "match": 0.99, "dropped_split": 0,
+                "no_hist": 0, "no_cc": 0, "pm_used": 0}
+            _m2.enrich = lambda a, b, f: {"≥3": {
+                "ke": 10, "ne": 10, "kc": 10, "nc": 10, "pe": pe, "pc": 1.0,
+                "ratio": 1.0, "we": (0.0, 1.0), "wc": (0.0, 1.0),
+                "disjoint": False}}
+            with _lna_cl.redirect_stdout(_lna_io.StringIO()):
+                return _m2.report({"2023": {"events": [1]}}, "k",
+                                  {"ok": None, "why": "—"})
+        finally:
+            _m2.enrich, _m2.enrich_rows = _oe, _oer
+
+    _lna_t4 = {"مطابق": _lna_run(481, 38.7),
+               "حصّةٌ مختلفة": _lna_run(481, 50.0),
+               "عددٌ مختلف": _lna_run(480, 38.7)}
+    _lna_ok4 = (_uniq and _lna_t4["مطابق"] != _m2.RC_IDENT
+                and _lna_t4["حصّةٌ مختلفة"] == _m2.RC_IDENT
+                and _lna_t4["عددٌ مختلف"] == _m2.RC_IDENT
+                and _m2.NL_ANCHOR == {"2023": (481, 38.7), "2024": (655, 47.3),
+                                      "2025": (773, 48.6)})
+    _lna_w4 = f"RC_IDENT={_m2.RC_IDENT} · فريدٌ={_uniq} · {_lna_t4}"
+except Exception as _e:                                          # noqa: BLE001
+    _lna_ok4, _lna_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNA4 `V-N1` **سلوكيًّا**: المرساةُ المنشورةُ تمضي · وأيُّ اختلافٍ "
+      "في العدد أو الحصّة ⇒ **خروج 7** · والرمزُ شاغرٌ لا يصادم حكمًا", _lna_ok4, _lna_w4)
+
+try:
+    # ⑥ `LNA5` — الـworkflow: مدخلٌ موصول · بلا كرونٍ · وبلا سرِّ تلغرام ───────
+    _lna_ok5 = ("newlow:" in _lna_yml
+                and "LINK100_NEWLOW: ${{ inputs.newlow }}" in _lna_yml
+                and "cron" not in _lna_yml
+                and "schedule:" not in _lna_yml
+                and "TELEGRAM" not in _lna_yml)
+    _lna_w5 = (f"مدخل={'newlow:' in _lna_yml} · "
+               f"موصول={'LINK100_NEWLOW: ${{ inputs.newlow }}' in _lna_yml} · "
+               f"كرون={'cron' in _lna_yml} · تلغرام={'TELEGRAM' in _lna_yml}")
+except Exception as _e:                                          # noqa: BLE001
+    _lna_ok5, _lna_w5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNA5 الـworkflow: مدخلُ `newlow` **موصولٌ** بـ`LINK100_NEWLOW` · "
+      "بلا كرونٍ · و**بلا سرِّ تلغرام** فالإرسالُ مستحيلٌ بنيويًّا", _lna_ok5, _lna_w5)
+
+# 🔒 استعادةُ الوحدة إلى بيئتها الحقيقيّة (العلمُ مطفأ) — وإلّا رأتها الأقفالُ
+#    التاليةُ مُشغَّلةً. وملفوفةٌ فلا تُسقط السويّةَ كلَّها (الصنفُ ①).
+try:
+    _lna_reload(LINK100_NEWLOW=None, LINK100_YEARS=None)
+    _lna_restored = (_LKA.NEWLOW is False
+                     and tuple(_LKA.GOV_FEATURES) == tuple(_LKA.FEATURES))
+except Exception as _e:                                          # noqa: BLE001
+    _lna_restored = False
+check("💥🔗②🔒 LNA6 الوحدةُ عادت إلى بيئتها الحقيقيّة بعد الأقفال "
+      "(العلمُ مطفأ) — فلا يرى قفلٌ تالٍ حالةً مُصطنَعة", _lna_restored,
+      f"NEWLOW={_LKA.NEWLOW} · حكم={len(_LKA.GOV_FEATURES)} من "
+      f"{len(_LKA.FEATURES)}")
+
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:

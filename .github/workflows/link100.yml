@@ -16,6 +16,10 @@ on:
         description: "وضعُ الجدوى: 1 = أعدادُ المجتمع فقط بلا إثراءٍ ولا فاصل"
         required: false
         default: ""
+      newlow:
+        description: "T-LINK100-2: 1 = تُضاف newlow60_5 (العقد link100_2_prereg)"
+        required: false
+        default: ""
 
 jobs:
   link100:
@@ -40,4 +44,5 @@ jobs:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           LINK100_YEARS: ${{ inputs.years }}
           LINK100_DRY: ${{ inputs.dry }}
+          LINK100_NEWLOW: ${{ inputs.newlow }}
         run: python link100_probe.py

@@ -49,6 +49,10 @@ from opcurve_probe import ny_hour                                # بالاسم
 YEARS = [y.strip() for y in
          os.environ.get("LINK100_YEARS", "2023,2024,2025").split(",") if y.strip()]
 DRY = os.environ.get("LINK100_DRY", "").strip() == "1"
+# 🔬 `T-LINK100-2` — الميزةُ الرابعةَ عشرة خلف علمٍ **مطفأٍ افتراضًا**: بإطفائه
+#    يبقى المسارُ المنشور بت-بت (`LNA0`)، وبتشغيله تُضاف `newlow60_5` وحدَها
+#    إلى الحكم والشبكةُ التسعُ تُطبَع **وصفيًّا** (العقد link100_2_prereg.md §②).
+NEWLOW = os.environ.get("LINK100_NEWLOW", "").strip() == "1"
 LIVE_MD = "explosions100_live.md"                 # `V-L4`
 
 PRICE_HI = 20.0                   # سقفُ إغلاقِ الأمس (§②)
@@ -67,14 +71,28 @@ MIN_BUCKET_N = 50                 # `LK1`
 RATIO_MIN = 2.0                   # `LK1`
 ALPHA = 0.05                      # `LK1` — يُقسَم على عدد السلال (بونفيروني)
 V_L4_MIN = 0.80                   # `V-L4`
+NL_W, NL_K = 60, 5                # `engineering` — العقد §② (لا يُشحَنان عتبةً)
+NL_GRID_W = (20, 60, 120)         # الشبكةُ الوصفيّةُ وحدَها (§②)
+NL_GRID_K = (3, 5, 10)
+Z_FLOOR = 3.222                   # §④ — `z` المنشورُ في `T-LINK100` (39 خليّة)
+# 🔒 مرساةُ `V-N1` — منشورةٌ في `link100_result.md` (§③): أحداثٌ بت-بت وحصّةُ
+#    `vol_x ≥ 3` بتسامح ‏0.1 نقطة. والمرساةُ من `grouped` الخام وحدَها.
+NL_ANCHOR = {"2023": (481, 38.7), "2024": (655, 47.3), "2025": (773, 48.6)}
+NL_ANCHOR_TOL = 0.1
 RC_OK, RC_NOKEY, RC_COVER, RC_NOEVENT = 0, 2, 3, 4
 RC_LIVE, RC_GUARD, RC_NOVERDICT = 5, 6, 9
+RC_IDENT = 7                      # `V-N1` — هُويّةُ المجتمع ساقطة
 
 # قائمةُ الميزات **مُغلَقةٌ** (§③) — لا تُضاف ميزةٌ بعد أيّ رقم.
 FEATURES = ("vol_x", "ret5", "range_c", "gap1", "dd52", "sma_pos", "rsi14",
             "quiet", "px", "usd1", "rsplit180", "pm_gap", "pm_usd")
 DAILY_FEATURES = FEATURES[:11]                   # ما يُحسَب بلا طبقةٍ دقيقة
 PM_FEATURES = FEATURES[11:]
+NL_MAIN = "newlow%d_%d" % (NL_W, NL_K)           # الحاكمةُ وحدَها (§②)
+NL_DESC = tuple("newlow%d_%d" % (w, k)           # تسعُ خلايا **وصفيّة**
+                for w in NL_GRID_W for k in NL_GRID_K)
+# الحكمُ يمرّ على `GOV_FEATURES` — وبالعلم المطفأ هي `FEATURES` نفسُها بت-بت.
+GOV_FEATURES = FEATURES + ((NL_MAIN,) if NEWLOW else ())
 
 
 def _log(msg: str = "") -> None:
@@ -251,6 +269,16 @@ def _bucket(v, edges, labels):
     return labels[-1]
 
 
+def newlow_flag(lows: list, w: int, k: int):
+    """`نعم` إن وقع أدنى قاعٍ في نافذة `w` داخلَ آخر `k` جلسة — العقد §②.
+
+    `None` إن قصرت العيّنةُ عن `w` (تخرج من مقام هذي الميزة وحدَها، ولا
+    تُملأ بقيمةٍ مفترَضة). والمقارنةُ `<=` لا `==` تفاديًا لفخّ العائمات."""
+    if not lows or len(lows) < w or k < 1:
+        return None
+    return "نعم" if min(lows[-k:]) <= min(lows[-w:]) else "لا"
+
+
 def daily_feats(hist: list, i: int, rsplit: bool):
     """ميزاتُ ما قبل الانفجار من تاريخ الرمز — `i` فهرسُ يوم الحدث `d`.
 
@@ -305,6 +333,11 @@ def daily_feats(hist: list, i: int, rsplit: bool):
     f["usd1"] = _bucket(cl[-1] * vo[-1], (50_000.0, 300_000.0),
                         ("<50k", "50-300k", ">300k"))
     f["rsplit180"] = "نعم" if rsplit else "لا"
+    # 🔬 بالعلم المطفأ **لا مفتاحَ يُضاف** ⇒ القاموسُ المنشور بت-بت (`LNA0`).
+    if NEWLOW:
+        for w in NL_GRID_W:
+            for k in NL_GRID_K:
+                f["newlow%d_%d" % (w, k)] = newlow_flag(lo, w, k)
     return f
 
 
@@ -658,11 +691,28 @@ def report(scans: dict, key: str, vl4: dict) -> int:             # noqa: PLR0915
             guards_ok = False
             per_year[y] = set()
             continue
-        n_cells = sum(len(enrich(en["ev"], en["cx"], f)) for f in FEATURES)
+        if NEWLOW and y in NL_ANCHOR:
+            _n, _share = NL_ANCHOR[y]
+            _vx = enrich(en["ev"], en["cx"], "vol_x").get("≥3")
+            _got = _vx["pe"] if _vx else None
+            _ok = (len(en["ev"]) == _n and _got is not None
+                   and abs(_got - _share) <= NL_ANCHOR_TOL)
+            _log(f"   🔒 V-N1: أحداثٌ {len(en['ev'])} (المنشور {_n}) · "
+                 f"vol_x≥3 {('—' if _got is None else f'{_got:.1f}%')} "
+                 f"(المنشور {_share}%) ⇒ {'مطابق' if _ok else '**ساقط**'}")
+            if not _ok:
+                _log(f"⛔ V-N1 — هُويّةُ المجتمع ساقطة في {y} — خروج {RC_IDENT}")
+                return RC_IDENT
+        elif NEWLOW:
+            _log(f"   ℹ️ V-N1 — لا مرساةَ منشورةٌ لسنة {y} (وصفيّةٌ بنصّ §③)")
+        n_cells = sum(len(enrich(en["ev"], en["cx"], f)) for f in GOV_FEATURES)
         z = z_bonf(max(1, n_cells))
-        _log(f"   🧮 خلايا {n_cells} · z بونفيروني {z:.3f} (α={ALPHA}/خليّة)")
+        if NEWLOW:                       # §④ — لا يُرخى دون المنشور أبدًا
+            z = max(z, Z_FLOOR)
+        _log(f"   🧮 خلايا {n_cells} · z بونفيروني {z:.3f} (α={ALPHA}/خليّة)"
+             + (f" · أرضيّةُ {Z_FLOOR}" if NEWLOW else ""))
         passed = set()
-        for feat in FEATURES:
+        for feat in GOV_FEATURES:
             ecx = enrich(en["ev"], en["cx"], feat)
             ecc = enrich(en["ev"], en["cc"], feat)
             if not ecx:
@@ -678,6 +728,23 @@ def report(scans: dict, key: str, vl4: dict) -> int:             # noqa: PLR0915
                 line.append(f"{lab}: {a['pe']:.1f}% (CX {rx} · CC {rc}"
                             f" · n={a['ke']}){' ✅' if ok else ''}")
             _log(f"   {feat:10s} " + " | ".join(line))
+        if NEWLOW:
+            _log("   🧪 الشبكةُ الوصفيّة (§②) — **لا تدخل الحكمَ ولا عدَّ "
+                 "بونفيروني**:")
+            for nf in NL_DESC:
+                g = enrich(en["ev"], en["cx"], nf)
+                gc = enrich(en["ev"], en["cc"], nf)
+                if not g:
+                    continue
+                a, b = g.get("نعم"), gc.get("نعم")
+                if not a:
+                    continue
+                pe = f"{a['pe']:.1f}%"
+                rx = "—" if a["ratio"] is None else f"{a['ratio']:.2f}×"
+                rc = "—" if not b or b["ratio"] is None else f"{b['ratio']:.2f}×"
+                tail = "  ⬅️ الحاكمة" if nf == NL_MAIN else ""
+                _log(f"      {nf:12s} نعم: {pe} (CX {rx} · CC {rc} · "
+                     f"n={a['ke']}){tail}")
         per_year[y] = passed
         _log(f"   ⇒ عابرو `LK1` في {y}: {sorted(passed) or 'لا شيء'}")
         _log("")
