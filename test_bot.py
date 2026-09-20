@@ -56572,43 +56572,89 @@ check("💥🔗②🔒 LNA3 **`z` لا تُرخى ولا تُشدَّد على �
       _lna_ok3, _lna_w3)
 
 try:
-    # ⑤ `LNA4` — `V-N1` **سلوكيًّا**: مطابقٌ ⇒ يمضي · وأيُّ اختلافٍ ⇒ خروج 7 ────
+    # ⑤ `LNA4` — `V-N1-b` **سلوكيًّا** (ملحق §⑬): المرساةُ **فوق** المرجع الحيّ
+    #    ‏+ ميزانٌ مُغلَق ⇒ يمضي · وكسرُ أيٍّ منهما ⇒ **خروج 7**.
+    #    🔴 **والحالةُ الحقيقيّةُ التي أسقطت التشغيلة `35487721499` تمضي الآن**
+    #    (‏انزياحُ مرجعِ التقسيمات: ‏480 بدل 481) — وهو المقصودُ بالاستبدال.
     _m2 = _lna_reload(LINK100_NEWLOW="1", LINK100_YEARS="2023")
     _codes = {_m2.RC_OK, _m2.RC_NOKEY, _m2.RC_COVER, _m2.RC_NOEVENT,
               _m2.RC_LIVE, _m2.RC_GUARD, _m2.RC_NOVERDICT}
     _uniq = _m2.RC_IDENT == 7 and _m2.RC_IDENT not in _codes
 
-    def _lna_run(n_ev, pe):
-        """يُشغّل `report` بشاهدٍ محقون — بلا شبكةٍ وبلا مفتاح."""
+    def _lna_run(up, n_ev, dsp, nh):
+        """يُشغّل `report` بشاهدٍ محقون — بلا شبكةٍ وبلا مفتاح.
+
+        `up` = (أيّام، جُلبت، خام، بعد الطيّ) · `n_ev` عددُ المُقاسة."""
         _oe, _oer = _m2.enrich, _m2.enrich_rows
         try:
             _m2.enrich_rows = lambda ev, k, cap: {
                 "ev": [{"vol_x": "≥3"}] * n_ev, "cx": [{"vol_x": "≥3"}],
-                "cc": [{"vol_x": "≥3"}], "match": 0.99, "dropped_split": 0,
-                "no_hist": 0, "no_cc": 0, "pm_used": 0}
+                "cc": [{"vol_x": "≥3"}], "match": 0.99, "dropped_split": dsp,
+                "no_hist": nh, "no_cc": 0, "pm_used": 0}
             _m2.enrich = lambda a, b, f: {"≥3": {
-                "ke": 10, "ne": 10, "kc": 10, "nc": 10, "pe": pe, "pc": 1.0,
+                "ke": 10, "ne": 10, "kc": 10, "nc": 10, "pe": 38.7, "pc": 1.0,
                 "ratio": 1.0, "we": (0.0, 1.0), "wc": (0.0, 1.0),
                 "disjoint": False}}
+            _sc = {"2023": {"days": up[0], "got": up[1], "raw": up[2],
+                            "cover": 1.0, "events": [1] * up[3]}}
             with _lna_cl.redirect_stdout(_lna_io.StringIO()):
-                return _m2.report({"2023": {"events": [1]}}, "k",
-                                  {"ok": None, "why": "—"})
+                return _m2.report(_sc, "k", {"ok": None, "why": "—"})
         finally:
             _m2.enrich, _m2.enrich_rows = _oe, _oer
 
-    _lna_t4 = {"مطابق": _lna_run(481, 38.7),
-               "حصّةٌ مختلفة": _lna_run(481, 50.0),
-               "عددٌ مختلف": _lna_run(480, 38.7)}
-    _lna_ok4 = (_uniq and _lna_t4["مطابق"] != _m2.RC_IDENT
-                and _lna_t4["حصّةٌ مختلفة"] == _m2.RC_IDENT
-                and _lna_t4["عددٌ مختلف"] == _m2.RC_IDENT
-                and _m2.NL_ANCHOR == {"2023": (481, 38.7), "2024": (655, 47.3),
-                                      "2025": (773, 48.6)})
-    _lna_w4 = f"RC_IDENT={_m2.RC_IDENT} · فريدٌ={_uniq} · {_lna_t4}"
+    _PUB = (250, 250, 869, 700)
+    _lna_t4 = {
+        # الحالةُ المنشورة: 700 − 160 − 59 = 481
+        "المنشور": _lna_run(_PUB, 481, 160, 59),
+        # 🔴 الانزياحُ الحقيقيّ: 700 − 161 − 59 = 480 ⇒ **يمضي** بنصّ §⑬
+        "انزياحُ التقسيم": _lna_run(_PUB, 480, 161, 59),
+        # فوقَ المرجع الحيّ مختلف (خام 868) ⇒ يوقف
+        "فوقَ المرجع مختلف": _lna_run((250, 250, 868, 700), 481, 160, 59),
+        # ميزانٌ مكسور: 700 − 161 − 59 = 480 ≠ 481 ⇒ يوقف
+        "ميزانٌ مكسور": _lna_run(_PUB, 481, 161, 59)}
+    _R7 = _m2.RC_IDENT
+    _lna_ok4 = (_uniq
+                and _lna_t4["المنشور"] != _R7
+                and _lna_t4["انزياحُ التقسيم"] != _R7
+                and _lna_t4["فوقَ المرجع مختلف"] == _R7
+                and _lna_t4["ميزانٌ مكسور"] == _R7
+                and _m2.NL_UP == {"2023": (250, 250, 869, 700),
+                                  "2024": (252, 252, 1088, 912),
+                                  "2025": (250, 250, 1248, 1087)}
+                and _m2.NL_SPLIT_PUB == {"2023": 160, "2024": 206, "2025": 263})
+    _lna_w4 = f"RC_IDENT={_R7} · فريدٌ={_uniq} · {_lna_t4}"
 except Exception as _e:                                          # noqa: BLE001
     _lna_ok4, _lna_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("💥🔗②🔒 LNA4 `V-N1` **سلوكيًّا**: المرساةُ المنشورةُ تمضي · وأيُّ اختلافٍ "
-      "في العدد أو الحصّة ⇒ **خروج 7** · والرمزُ شاغرٌ لا يصادم حكمًا", _lna_ok4, _lna_w4)
+check("💥🔗②🔒 LNA4 `V-N1-b` **سلوكيًّا** (§⑬): المرساةُ **فوقَ** المرجع الحيّ "
+      "‏+ ميزانٌ مُغلَق ⇒ يمضي (وانزياحُ التقسيم معه) · وكسرُ أيٍّ منهما ⇒ "
+      "**خروج 7** · والرمزُ شاغرٌ لا يصادم حكمًا", _lna_ok4, _lna_w4)
+
+try:
+    # ⑤-ب `LNA7` — 🔴 **الثغرةُ التي يفتحها الميزانُ وحدَه**: لو تحرّك
+    #    `SPLIT_GUARD` لتضخّم `dropped_split` **وبقي الميزانُ صحيحًا** ⇒
+    #    تُثبَّت ثوابتُ المجتمع والمعيار (ملحق §⑬-ⓓ) فلا تتحرّك عتبةٌ صامتة.
+    _lna_pin = {"SPLIT_GUARD": 3, "FOLD_DAYS": 20, "EXPL_X": 2.0,
+                "PRICE_HI": 20.0, "CTRL_MAX_MOVE": 0.30, "CC_BACK": 21,
+                "CC_CLEAR": 41, "MIN_BUCKET_N": 50, "RATIO_MIN": 2.0,
+                "ALPHA": 0.05, "MIN_DAYS_COVER": 0.95, "MIN_MATCH": 0.90,
+                "Z_FLOOR": 3.222, "NL_W": 60, "NL_K": 5}
+    def _lna_drift(_pins):
+        return {_k: (getattr(_LKA, _k, None), _v)
+                for _k, _v in _pins.items() if getattr(_LKA, _k, None) != _v}
+    # 🔴 شاهدُ ضبطٍ إلزاميّ: قتلُ الكاشف يُعطي {} وهو **عينُ حالة النجاح** ⇒
+    #    يُثبَت أنه يمسك الانحرافَ لو وُجد، وإلّا فالقفلُ خاوٍ (درسُ `RKA10`).
+    _lna_probe = {"مباشر": _lna_drift(_lna_pin),
+                  "شاهدُ ضبط": _lna_drift({**_lna_pin, "SPLIT_GUARD": 999})}
+    _lna_ok7 = (_lna_probe["مباشر"] == {}
+                and _lna_probe["شاهدُ ضبط"] == {"SPLIT_GUARD": (3, 999)}
+                and len(_lna_pin) == 15)
+    _lna_w7 = f"مثبَّتٌ={len(_lna_pin)} · {_lna_probe}"
+except Exception as _e:                                          # noqa: BLE001
+    _lna_ok7, _lna_w7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("💥🔗②🔒 LNA7 ثوابتُ المجتمع والمعيار **مثبَّتةٌ بالرقم** (§⑬-ⓓ) — فلا "
+      "يتحرّك `SPLIT_GUARD` ولا عتبةُ معيارٍ صامتةً تحت ميزانٍ يبقى صحيحًا · "
+      "**وشاهدُ ضبطٍ يُثبت أن الكاشفَ يمسك الانحراف** فلا يكون القفلُ خاويًا",
+      _lna_ok7, _lna_w7)
 
 try:
     # ⑥ `LNA5` — الـworkflow: مدخلٌ موصول · بلا كرونٍ · وبلا سرِّ تلغرام ───────
@@ -56637,6 +56683,611 @@ check("💥🔗②🔒 LNA6 الوحدةُ عادت إلى بيئتها الحق
       "(العلمُ مطفأ) — فلا يرى قفلٌ تالٍ حالةً مُصطنَعة", _lna_restored,
       f"NEWLOW={_LKA.NEWLOW} · حكم={len(_LKA.GOV_FEATURES)} من "
       f"{len(_LKA.FEATURES)}")
+
+# ── 📏🪜 `T-MA-LADDER` — أقفال `MLK0`-`MLK4` (العقدُ قبل أيّ سطرِ أداة) ────────
+#    🔒 عقدٌ فقط — لا أداةَ بعد. وكلُّ قفلٍ هنا يحرس **نصَّ العقد** لا كودًا.
+import io as _mlk_io
+import os as _mlk_os
+import re as _mlk_re
+
+_mlk_p = "ma_ladder_prereg.md"
+_mlk = _mlk_io.open(_mlk_p, encoding="utf-8").read() if _mlk_os.path.exists(_mlk_p) else ""
+
+
+def _mlk_sec(a, b=None):
+    """نصُّ القسم `a` حتى `b` — فيحرس القفلُ **موضعَه** لا جارَه."""
+    if a not in _mlk:
+        return ""
+    _t = _mlk.split(a, 1)[1]
+    return _t.split(b, 1)[0] if (b and b in _t) else _t
+
+# ① `MLK0` — فروعُ الحكم **ثلاثةٌ مرقَّمةٌ** كلٌّ بكلمتِه · ولا فرعَ رابع ──────
+try:
+    _mlk_br = _mlk_re.findall(r"^(\d)\. \*\*الفرعُ \d — «([^»]+)»", _mlk, _mlk_re.M)
+    _mlk_ok0 = ([b[0] for b in _mlk_br] == ["1", "2", "3"]
+                and [b[1] for b in _mlk_br] == ["تُوصى", "لا تُوصى", "لا حكم"]
+                and "ولا فرعَ رابع" in _mlk)
+    _mlk_w0 = f"فروعٌ={len(_mlk_br)} · {_mlk_br}"
+except Exception as _e:                                          # noqa: BLE001
+    _mlk_ok0, _mlk_w0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLK0 عقدُ `T-MA-LADDER` · فروعُه الثلاثةُ مرقَّمةٌ بالترتيب كلٌّ "
+      "بكلمتِه · ولا فرعَ رابع", _mlk_ok0, _mlk_w0)
+
+# ② `MLK1` — المصدرُ `L1173` **في الكاتالوج حرفيًّا** · وفي العقد بسطره وموسومًا
+#    ‏+ القراءةُ التشغيليّةُ **مُعلَنةٌ `faisal_inferred`** لا تُلبَس ثوبَ النصّ.
+try:
+    _mlk_cat = _mlk_io.open("FAISAL_IMAGES_CATALOG.md", encoding="utf-8").read()
+    _mlk_q = "احسب بالايام من وين هابط"
+    _mlk_ok1 = (_mlk_q in _mlk_cat and _mlk_q in _mlk
+                and "L1173" in _mlk and "faisal_verbatim" in _mlk
+                and "faisal_inferred" in _mlk
+                and "صعد قبل المتوسطات" in _mlk)
+    _mlk_w1 = (f"في الكاتالوج={_mlk_q in _mlk_cat} · في العقد={_mlk_q in _mlk} · "
+               f"بسطره={'L1173' in _mlk} · موسوم={'faisal_verbatim' in _mlk} · "
+               f"القراءةُ مُعلَنة={'faisal_inferred' in _mlk}")
+except Exception as _e:                                          # noqa: BLE001
+    _mlk_ok1, _mlk_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLK1 المصدرُ `L1173` **موجودٌ في الكاتالوج حرفيًّا** وموسومٌ "
+      "`faisal_verbatim` · **والقراءةُ التشغيليّةُ مُعلَنةٌ `faisal_inferred`**",
+      _mlk_ok1, _mlk_w1)
+
+# ③ `MLK2` — **خارجَ المحاور الخمسة المُغلَقة** ويُسمّيها واحدًا واحدًا ────────
+try:
+    _mlk_closed = ["T-RSI40", "T-RSI-RANK", "T-TRAIL", "T-PMGATE", "T-SUPDEF"]
+    _mlk_tbl = _mlk_sec("| المُغلَق |", "\n\n")
+    _mlk_rows = [_r.split("|")[1].strip().strip("`")
+                 for _r in _mlk_tbl.splitlines()
+                 if _r.startswith("| `") and _r.count("|") >= 4]
+    _mlk_s7 = _mlk_sec("## §⑦", "## §⑧")
+    _mlk_ok2 = (sorted(_mlk_rows) == sorted(_mlk_closed)
+                and "pivot_stability" in _mlk_s7 and "rank_key" in _mlk_s7
+                and "RSIRANK_REOPEN" in _mlk)
+    _mlk_w2 = (f"صفوفُ الجدول={sorted(_mlk_rows)} · "
+               f"pivot_stability في §⑦={'pivot_stability' in _mlk_s7} · "
+               f"rank_key في §⑦={'rank_key' in _mlk_s7}")
+except Exception as _e:                                          # noqa: BLE001
+    _mlk_ok2, _mlk_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLK2 المحاورُ الخمسةُ المُغلَقة **صفوفًا في جدولها** (لا ذكرًا في "
+      "الوثيقة) · و`pivot_stability`/`rank_key` **داخلَ `§⑦` نفسِه**",
+      _mlk_ok2, _mlk_w2)
+
+# ④ `MLK3` — **صفرُ شحنٍ ولو عبرت** · و`clamp`/`W` `engineering` لا تُعايَران ──
+try:
+    _mlk_hdr = _mlk_sec("# 📏🪜", "## §⓪")
+    _mlk_s5 = _mlk_sec("## §⑤", "## §⑥")
+    _mlk_s7b = _mlk_sec("## §⑦", "## §⑧")
+    _mlk_ok3 = ("لا يُشحَن شيء" in _mlk_hdr            # الترويسةُ نفسُها
+                and "لا يُشحَن شيء" in _mlk_s5          # وفرعُ «تُوصى» نفسُه
+                and "اقتراحٌ على المالك لا" in _mlk_s5
+                and "engineering" in _mlk_sec("## §②", "## §③")
+                and "ولا يُعايَر `clamp`" in _mlk_s7b
+                and "لا `LOGIC_VERSION`" in _mlk_s7b)
+    _mlk_w3 = (f"ترويسة={'لا يُشحَن شيء' in _mlk_hdr} · "
+               f"§⑤={'لا يُشحَن شيء' in _mlk_s5} · "
+               f"§② engineering={'engineering' in _mlk_sec('## §②', '## §③')} · "
+               f"§⑦ معايرة={'ولا يُعايَر `clamp`' in _mlk_s7b} · "
+               f"§⑦ LV={'لا `LOGIC_VERSION`' in _mlk_s7b}")
+except Exception as _e:                                          # noqa: BLE001
+    _mlk_ok3, _mlk_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLK3 **صفرُ شحنٍ ولو عبرت** · و`clamp`/`W` `engineering` "
+      "**لا تُعايَران بعد رؤية النتيجة** · ولا `LOGIC_VERSION`", _mlk_ok3, _mlk_w3)
+
+# ⑤ `MLK4` — 🔴 الضبطان **حاكمان لا وصفيّان** (درسُ `C-MOM` في `T-PMGATE`) ────
+try:
+    _mlk_s3 = _mlk_sec("## §③", "## §④")
+    _mlk_s4 = _mlk_sec("## §④", "## §⑤")
+    # المعاييرُ الأربعةُ **بنودًا في `§④`** لا ذكرًا في الوثيقة
+    _mlk_crit = [_c for _c in ("ML1", "ML2", "ML3", "ML4")
+                 if any(_l.lstrip().startswith("- ") and f"`{_c}`" in _l
+                        for _l in _mlk_s4.splitlines())]
+    _mlk_ok4 = ("`C-MOM`" in _mlk_s3 and "`C-RAND`" in _mlk_s3
+                and "حاكمان لا وصفيّان" in _mlk_s3
+                and "T-PMGATE" in _mlk_s3
+                and _mlk_crit == ["ML1", "ML2", "ML3", "ML4"])
+    _mlk_w4 = (f"C-MOM/C-RAND في §③={'`C-MOM`' in _mlk_s3}/"
+               f"{'`C-RAND`' in _mlk_s3} · حاكمان={'حاكمان لا وصفيّان' in _mlk_s3}"
+               f" · معاييرُ §④={_mlk_crit}")
+except Exception as _e:                                          # noqa: BLE001
+    _mlk_ok4, _mlk_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLK4 الضبطان **حاكمان لا وصفيّان داخلَ `§③` نفسِه** · والمعايير "
+      "الأربعةُ `ML1`-`ML4` **بنودًا في `§④`** — درسُ `T-PMGATE` قبل أيّ رقم",
+      _mlk_ok4, _mlk_w4)
+
+
+# ── 📏🪜 `T-MA-LADDER` — أقفال الأداة `MLA0`-`MLA9` ──────────────────────────
+#    🔒 **قراءةٌ/بحثٌ فقط** · والأداةُ لا تُنادى هنا (لا لقطةَ ولا شبكة):
+#    كلُّ قفلٍ إمّا **بنيويٌّ بالـAST** أو **سلوكيٌّ على دالّةٍ نقيّة**.
+import ma_ladder_arms as _MLA
+
+try:
+    _mla_src = open("ma_ladder_arms.py", encoding="utf-8").read()
+    _mla_ok0 = (_MLA.selfcheck_readonly(_mla_src)
+                and _MLA.rsi_rank_untouched(_mla_src))
+    # 🔴 **شاهدا ضبطٍ إلزاميّان**: قفلٌ سالبٌ لا يُصدَّق حتى يُثبَت أنه يمسك
+    #    ما يدّعيه — وإلّا فهو «‏True دائمًا» (درسُ `RKA10` و`LNA7`).
+    _mla_w0a = _MLA.selfcheck_readonly(
+        _mla_src + '\ndef _x():\n    open("z", "w")\n')
+    _mla_w0b = _MLA.rsi_rank_untouched(
+        _mla_src + '\nimport rsi_rank_arms\n')
+    _mla_w0c = _MLA.rsi_rank_untouched(
+        _mla_src + '\ndef _y():\n    return "RSIRANK" "_REOPEN"\n')
+    # 🔴 **شاهدٌ رابعٌ وُلد من طفرةٍ نجت (`a2`):** إرخاءُ شرط «الوضعُ ثابتٌ
+    #    نصّيّ» ليقبل اسمًا **لا أثرَ له** ما دام المصدرُ خاليًا من وضعٍ
+    #    متغيّر ⇒ الفرعُ غيرُ مُختبَر. فيُمرَّر مصدرٌ **يفتح بوضعٍ متغيّر**
+    #    ويُشترَط رفضُه — وهو بعينه ما سدّ ثغرةَ `T-PMFWD`.
+    try:
+        _mla_w0d = _MLA.selfcheck_readonly(
+            _mla_src + '\ndef _z(_m):\n    open("q", _m)\n')
+    except Exception:                                            # noqa: BLE001
+        _mla_w0d = False          # رمى ⇒ لم يقبلها ⇒ الشاهدُ محقَّق
+    _mla_ok0 = (_mla_ok0 and not _mla_w0a and not _mla_w0b
+                and not _mla_w0d)
+    _mla_v0 = (f"قراءة={_mla_ok0} · "
+               f"شواهد={_mla_w0a}/{_mla_w0b}/{_mla_w0c}/{_mla_w0d}")
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok0, _mla_v0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA0 `V-M5`/`V-M6`-ب — الأداةُ **قراءةٌ فقط** ولا تلمس أداةَ محورٍ "
+      "مُغلَق · **وشاهدا ضبطٍ يُثبتان أن الحارسَين يمسكان** فلا يكونان خاويَين",
+      _mla_ok0, _mla_v0)
+
+try:
+    # ① `MLA1` — `V-M1` اللقطاتُ **تُقرأ من `trail.yml`** لا تُكتَب بيدٍ.
+    _mla_sn = _MLA.trail_snapshots()
+    _mla_ty = open(".github/workflows/trail.yml", encoding="utf-8").read()
+    # 🔴 **شُدّد بطفرةٍ نجت (`a5`):** تبديلُ `TRAIL_YML` إلى `headcut.yml` كان
+    #    **غيرَ مرئيّ** لأن الملفّين يحملان **المعرّفاتِ الثلاثةَ نفسَها** اليوم
+    #    ⇒ القفلُ كان يفحص القيمَ ولا يفحص **المصدر** الذي ينصّ عليه `V-M1`.
+    #    فيُقفَل الاسمُ نفسُه، ويُقاس أن الملفَّين متطابقا المعرّفات (فالسقوطُ
+    #    لن يظهر بالقيم لو تباينا غدًا).
+    _mla_hc = _MLA.trail_snapshots(".github/workflows/headcut.yml")
+    _mla_ok1 = (sorted(_mla_sn) == ["2023", "2024", "2025"]
+                and all(v.isdigit() and v in _mla_ty
+                        for v in _mla_sn.values())
+                and _MLA.TRAIL_YML.replace("\\", "/").endswith(
+                    ".github/workflows/trail.yml")
+                # وشاهدُ ضبط: ملفٌّ لا يحمل لقطاتٍ ⇒ قاموسٌ فارغ
+                and _MLA.trail_snapshots("requirements.txt") == {})
+    _mla_v1 = f"{_mla_sn} · headcut مطابقٌ اليوم={_mla_hc == _mla_sn}"
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok1, _mla_v1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA1 `V-M1` معرّفاتُ اللقطات **مقروءةٌ من `trail.yml`** (‏عينُ "
+      "مجتمع `T-TRAIL`/`T-HEADCUT`) — وملفٌّ بلا لقطاتٍ يُعطي فراغًا لا تخمينًا",
+      _mla_ok1, _mla_v1)
+
+try:
+    # ② `MLA2` — `ladder_period` **جدولُ حقيقةٍ** على حدود §②-2 بحرفها.
+    _mla_t2 = {b: _MLA.ladder_period(b) for b in
+               (0, 19, 20, 24, 25, 26, 30, 40, 41, 50, 99, -1, None)}
+    _mla_ok2 = (_mla_t2[0] == 20 and _mla_t2[19] == 20 and _mla_t2[20] == 20
+                and _mla_t2[24] == 20 and _mla_t2[25] == 20     # تعادلٌ ⟶ الأصغر
+                and _mla_t2[26] == 30 and _mla_t2[30] == 30
+                and _mla_t2[40] == 30 and _mla_t2[41] == 50     # تعادلٌ ⟶ الأصغر
+                and _mla_t2[50] == 50 and _mla_t2[99] == 50
+                and _mla_t2[-1] is None and _mla_t2[None] is None
+                and tuple(_MLA.PERIODS) == (20, 30, 50)
+                and (_MLA.CLAMP_LO, _MLA.CLAMP_HI) == (20, 50)
+                # 🔴 **اكتشافٌ من طفرةٍ نجت (`a6`): الـ`clamp` خاملٌ بنيويًّا**
+                #    — لأن حدَّيه هما طرفا `PERIODS`، فالتقريبُ إلى الأقرب
+                #    يعطي الجوابَ نفسَه بقصٍّ وبلا قصّ **لكلّ b في [0, 1000]**.
+                #    ⇒ يُقفَل **التكافؤُ** بدل أن يُترَك تعبيرٌ ميّتٌ يوهم بأثر،
+                #    ولا يُحذَف الحدّان لأنهما رقما فيصل المنصوصان (‏`§②`-2).
+                and all(_MLA.ladder_period(_b)
+                        == min(_MLA.PERIODS, key=lambda p: (abs(p - _b), p))
+                        for _b in range(0, 1001)))
+    _mla_v2 = f"{_mla_t2} · clamp خاملٌ (تكافؤٌ على [0,1000])"
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok2, _mla_v2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA2 `n = clamp(bars_since_peak, 20, 50)` ⟶ **أقربُ** من "
+      "‏(20, 30, 50) · والتعادلُ **نزولًا** حتميًّا · ولا رقمَ خارجَ الثلاثة "
+      "· **والـ`clamp` خاملٌ بنيويًّا فيُقفَل تكافؤُه لا يُترَك موهِمًا**",
+      _mla_ok2, _mla_v2)
+
+try:
+    # ③ `MLA3` — `matured_at` **بلا تسريب**: شمعةُ الإشارة وما بعدها لا تُقرأ.
+    import pandas as _mla_pd
+    def _mla_ema(s, n):
+        return float(s.ewm(span=n, adjust=False).mean().iloc[-1])
+    # قاعٌ طويلٌ ثمّ قفزةٌ **في شمعة الإشارة نفسِها** (الفهرس 50) ⇒ ألّا تُقرأ
+    _mla_c = _mla_pd.Series([50.0] * 30 + [1.0] * 20 + [999.0])
+    _mla_leak = _MLA.matured_at(_mla_ema, _mla_c, 50, 20, 5)
+    # 🔴 **وشاهدُ ضبطٍ للتسريب:** الشمعةُ **نفسُها** تُقرأ حين تصير ما **قبل**
+    #    الإشارة (‏`i = 51`) ⇒ فالـ`False` أعلاه من **حدّ القراءة** لا من
+    #    فِكستشرٍ لا يعبر أصلًا (وإلّا كان القفلُ يمرّ لسببٍ آخر).
+    _mla_ctl = _MLA.matured_at(_mla_ema, _mla_c, 51, 20, 1)
+    # والقفزةُ قبلَ الإشارة بخمس جلسات (الفهرس 45) ⇒ تُقرأ عند `W = 5`
+    _mla_c2 = _mla_pd.Series([50.0] * 30 + [1.0] * 15 + [999.0] + [2.0] * 4)
+    _mla_see = _MLA.matured_at(_mla_ema, _mla_c2, 50, 20, 5)
+    # **وخارجَ النافذة** (‏`w = 4`) ⇒ لا تُقرأ
+    _mla_far = _MLA.matured_at(_mla_ema, _mla_c2, 50, 20, 4)
+    _mla_ok3 = (_mla_leak is False and _mla_ctl is True
+                and _mla_see is True and _mla_far is False and _MLA.W == 5
+                and _MLA.matured_at(_mla_ema, _mla_c, 0, 20, 5) is None)
+    _mla_v3 = (f"تسريب={_mla_leak} · شاهدٌ={_mla_ctl} · "
+               f"داخلَ W={_mla_see} · خارجَها={_mla_far}")
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok3, _mla_v3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA3 `matured` تقرأ **`[0, i)` حصرًا** — قفزةُ شمعةِ الإشارة "
+      "**لا تُرى** · وما قبلها داخلَ `W` يُرى · وخارجَها لا · و`W = 5`",
+      _mla_ok3, _mla_v3)
+
+try:
+    # ④ `MLA4` — `V-M3` الضبطان **بحجم `L1` بالضبط** وحتميّان.
+    _mla_rows = [{"symbol": f"S{i}", "date": f"2024-01-{i % 28 + 1:02d}",
+                  "matured": (i % 3 == 0),
+                  "env_vals": {"gain5": (i % 7) - 3.0}} for i in range(60)]
+    _mla_a = _MLA.arms_of(_mla_rows)
+    _mla_k = len(_mla_a["L1"])
+    _mla_ok4 = (_mla_k > 0
+                and len(_mla_a["C-MOM"]) == _mla_k
+                and len(_mla_a["C-RAND"]) == _mla_k
+                and len(_mla_a["L2"]) == len(_mla_rows) - _mla_k
+                and len(_mla_a["L0"]) == len(_mla_rows)
+                # حتميّةٌ: إعادةٌ بالبذرة نفسِها ⇒ العيّنةُ نفسُها
+                and ([t["symbol"] for t in _MLA.arms_of(_mla_rows)["C-RAND"]]
+                     == [t["symbol"] for t in _mla_a["C-RAND"]])
+                # وبذرةٌ أخرى ⇒ عيّنةٌ مختلفة (وإلّا فالبذرةُ مُتجاهَلة)
+                and ([t["symbol"] for t in
+                      _MLA.arms_of(_mla_rows, seed=7)["C-RAND"]]
+                     != [t["symbol"] for t in _mla_a["C-RAND"]])
+                # و`C-MOM` **موجبُ `gain5` حصرًا** ومُرتَّبٌ نزولًا
+                and all((t["env_vals"]["gain5"] or 0) > 0
+                        for t in _mla_a["C-MOM"]))
+    _mla_v4 = (f"L1={_mla_k} · MOM={len(_mla_a['C-MOM'])} · "
+               f"RAND={len(_mla_a['C-RAND'])} · L2={len(_mla_a['L2'])}")
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok4, _mla_v4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA4 `V-M3` — `C-MOM` و`C-RAND` **بحجم `L1` بالضبط** · "
+      "و`C-RAND` **حتميٌّ ببذرته ويتبدّل بتبدّلها** · و`C-MOM` موجبُ `gain5`",
+      _mla_ok4, _mla_v4)
+
+try:
+    # ⑤ `MLA5` — الحكمُ **سنةً سنةً** (درسُ `T-PMGATE`): سقوطُ سنةٍ = الفرعُ 2
+    #    لا «لا حكم» · و«لا حكم» **للأرضيّة وحدَها**.
+    def _mla_y(m1, m2, m3, pool=500):
+        return {"l1_pool": pool,
+                "d": {"L0": {"mean": m1}, "C-MOM": {"mean": m2},
+                      "C-RAND": {"mean": m3}}}
+    def _mla_ci(m):
+        return {"lo": m - 0.01, "hi": m + 0.01, "mean": m, "n": 9, "k": 9}
+    _mla_all = {"2023": _mla_y(.2, .2, .2), "2024": _mla_y(.2, .2, .2),
+                "2025": _mla_y(.2, .2, .2)}
+    _mla_one = dict(_mla_all, **{"2024": _mla_y(-.01, .2, .2)})
+    _mla_ci_ok = {"L0": _mla_ci(.2), "C-MOM": _mla_ci(.2), "C-RAND": _mla_ci(.2)}
+    _mla_ci_0 = {"L0": {"lo": -.3, "hi": .4, "mean": .2, "n": 9, "k": 9},
+                 "C-MOM": _mla_ci(.2), "C-RAND": _mla_ci(.2)}
+    _mla_t5 = {
+        "الكلُّ يعبر": _MLA.read_verdict(_mla_all, _mla_ci_ok),
+        "سنةٌ سالبة": _MLA.read_verdict(_mla_one, _mla_ci_ok),
+        "فاصلٌ يلمس": _MLA.read_verdict(_mla_all, _mla_ci_0),
+        "ماديّةٌ دون": _MLA.read_verdict(
+            _mla_all, {"L0": _mla_ci(.02), "C-MOM": _mla_ci(.2),
+                       "C-RAND": _mla_ci(.2)}),
+        "أرضيّةٌ ساقطة": _MLA.read_verdict(
+            dict(_mla_all, **{"2025": _mla_y(.2, .2, .2, pool=99)}),
+            _mla_ci_ok),
+        "سنةٌ ناقصة": _MLA.read_verdict(
+            {"2023": _mla_y(.2, .2, .2)}, _mla_ci_ok)}
+    _mla_ok5 = (_mla_t5["الكلُّ يعبر"]["branch"] == 1
+                and _mla_t5["سنةٌ سالبة"]["branch"] == 2
+                and _mla_t5["فاصلٌ يلمس"]["branch"] == 2
+                and _mla_t5["ماديّةٌ دون"]["branch"] == 2
+                and _mla_t5["أرضيّةٌ ساقطة"]["branch"] == 3
+                and _mla_t5["سنةٌ ناقصة"]["branch"] == 3
+                and _mla_t5["ماديّةٌ دون"]["crit"]["ML4"] is False
+                and _mla_t5["سنةٌ سالبة"]["crit"]["ML1"] is False
+                and _MLA.FLOOR_L1 == 100 and _MLA.MATERIAL == 0.05)
+    _mla_v5 = " · ".join(f"{k}:{v['branch']}" for k, v in _mla_t5.items())
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok5, _mla_v5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA5 `read_verdict` **جدولُ حقيقةٍ بستّ حالات** — سقوطُ سنةٍ "
+      "**الفرعُ 2** لا «لا حكم» · و«لا حكم» للأرضيّة/السنةِ الناقصة وحدَهما",
+      _mla_ok5, _mla_v5)
+
+try:
+    # ⑥ `MLA6` — `V-M7` هُويّةُ المقياس: `r_fixed` **بالاسم** = `r_unit` بت-بت.
+    import replay10 as _mla_rp
+    _mla_pl = [{"entry": 10.0, "stop": 9.0, "ret_a": 12.5},
+               {"entry": 4.0, "stop": 3.2, "ret_a": -8.0},
+               {"entry": 2.5, "stop": 2.0, "ret_a": 0.0},
+               {"entry": 7.0, "stop": 6.3, "ret_a": None}]
+    _mla_n6, _mla_b6 = _MLA.r_identity(_mla_pl)
+    _mla_ok6 = (_mla_n6 == 4 and _mla_b6 == 0
+                and abs(_MLA.r_of(_mla_pl[0]) - 1.25) < 1e-9
+                and _MLA.r_of(_mla_pl[3]) == 0.0
+                and _mla_rp.r_unit(_mla_pl[3]) == 0.0)
+    _mla_v6 = f"صفوف={_mla_n6} · مخالف={_mla_b6} · r0={_MLA.r_of(_mla_pl[0])}"
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok6, _mla_v6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA6 `V-M7` — `R` بـ`tranche_arms.r_fixed` **بالاسم** ويطابق "
+      "`replay10.r_unit` بت-بت · **وغيرُ المُعبَّأة صفرٌ يدخل المقام** لا تُحذف",
+      _mla_ok6, _mla_v6)
+
+try:
+    # ⑦ `MLA7` — المُرتِّبُ **مُرتِّبُ الإنتاج** والسعةُ `CAPACITY` — بالـAST
+    #    لا بالنصّ، فلا يمرّ تعليقٌ يذكر الاسمَ.
+    import ast as _mla_ast
+    _mla_tree = _mla_ast.parse(_mla_src)
+    _mla_fn = next(n for n in _mla_ast.walk(_mla_tree)
+                   if isinstance(n, _mla_ast.FunctionDef)
+                   and n.name == "replay_arm")
+    _mla_kw = {}
+    for _c in _mla_ast.walk(_mla_fn):
+        if isinstance(_c, _mla_ast.Call) and \
+                getattr(_c.func, "id", None) == "replay":
+            _mla_kw = {k.arg: k.value for k in _c.keywords}
+    _mla_ok7 = (getattr(_mla_kw.get("ranker"), "id", None) == "rank_live"
+                and getattr(_mla_kw.get("capacity"), "id", None) == "CAPACITY"
+                and _MLA.CAPACITY == _mla_rp.CAPACITY
+                # ولا `CONFIG` تُضبَط في الأداة إطلاقًا (§⑦)
+                and not any(
+                    isinstance(_n, _mla_ast.Attribute) and _n.attr == "CONFIG"
+                    and isinstance(getattr(_n, "ctx", None), _mla_ast.Store)
+                    for _n in _mla_ast.walk(_mla_tree))
+                # ولا `pivot_stability` تُلمَس (§⑦)
+                and "pivot_stability" not in {
+                    getattr(_n.func, "attr", None)
+                    for _n in _mla_ast.walk(_mla_tree)
+                    if isinstance(_n, _mla_ast.Call)})
+    _mla_v7 = (f"ranker={getattr(_mla_kw.get('ranker'), 'id', None)} · "
+               f"capacity={getattr(_mla_kw.get('capacity'), 'id', None)}")
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok7, _mla_v7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA7 §③/§⑦ — الإعادةُ بمُرتِّب **الإنتاج** `rank_live` وبسعة "
+      "`CAPACITY` · ولا `CONFIG` تُضبَط · و`pivot_stability` **لا تُنادى**",
+      _mla_ok7, _mla_v7)
+
+try:
+    # ⑧ `MLA8` — وضعُ الجدوى **حاجزُ اطّلاعٍ بنيويّ**: `only={"L0"}` ⇒ لا ذراعَ
+    #    أخرى تُحسَب أصلًا (درسُ `T-PMGATE`: الجدوى تُجيز ما يمرّ به وحدَه).
+    _mla_m8 = _MLA.measure(_mla_rows, only={"L0"})
+    _mla_m8b = _MLA.measure(_mla_rows)
+    _mla_ok8 = (set(_mla_m8) == {"L0"}
+                and set(_mla_m8b) == {"L0", "L1", "L2", "C-MOM", "C-RAND"}
+                and "MALADDER_DRY" in _mla_src)
+    _mla_v8 = f"جدوى={sorted(_mla_m8)} · كامل={len(_mla_m8b)}"
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok8, _mla_v8 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA8 وضعُ الجدوى يحسب **`L0` وحدَه بنيةً لا وعدًا** ⇒ يستحيل "
+      "تسرّبُ `Δ` حاكمٍ من طباعةٍ سهوًا", _mla_ok8, _mla_v8)
+
+try:
+    # ⑨ `MLA9` — `V-M2` مرجعُ الأساس **رقمٌ منشور** يُقرأ من ملفّ النتيجة لا
+    #    يُكتَب في القفل (وإلّا قارنّا الأداةَ بأرقامِ القفل — عيبُ `SDX2`).
+    _mla_pub = open("rsi40_result.md", encoding="utf-8").read()
+    _mla_ok9 = (_MLA.PUBLISHED_L0_D100 == {"2023": 13, "2024": 9, "2025": 12}
+                and all(str(v) in _mla_pub
+                        for v in _MLA.PUBLISHED_L0_D100.values())
+                and _MLA.GOV_YEARS == ("2023", "2024", "2025")
+                and _MLA.RC_BASE == 6 and _MLA.RC_NOJUDGE == 9
+                and len({_MLA.RC_OK, _MLA.RC_INPUT, _MLA.RC_TOOL,
+                         _MLA.RC_SNAP, _MLA.RC_GUARD, _MLA.RC_BASE,
+                         _MLA.RC_NOJUDGE}) == 7)
+    _mla_v9 = f"{_MLA.PUBLISHED_L0_D100}"
+except Exception as _e:                                          # noqa: BLE001
+    _mla_ok9, _mla_v9 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📏🪜🔒 MLA9 `V-M2` مرجعُ `L0` = **الأرقامُ المنشورة** في "
+      "`rsi40_result.md` · ورموزُ الخروج السبعةُ **متمايزةٌ** لا تتصادم",
+      _mla_ok9, _mla_v9)
+
+
+# ── 🕐🪟 `T-SESSIONS` — أقفال العقد `SSK0`-`SSK3` (العقدُ قبل أيّ سطرِ أداة) ──
+#    🔒 **العقدُ وثيقةٌ لا كود** ⇒ الأقفالُ **موضعيّةٌ داخلَ أقسامها** (درسُ
+#    `MLK2`-`MLK4`: فحصُ عضويّةِ نصٍّ في الوثيقة كلِّها يمرّ على حذفٍ حقيقيّ).
+_ssk_doc = open("sessions_prereg.md", encoding="utf-8").read()
+
+
+def _ssk_sec(a, b=None):
+    """قسمٌ بعينه — من عنوانه حتى العنوان التالي (أو النهاية)."""
+    i = _ssk_doc.find(a)
+    if i < 0:
+        return ""
+    j = _ssk_doc.find(b, i + len(a)) if b else -1
+    return _ssk_doc[i:j] if j > 0 else _ssk_doc[i:]
+
+
+try:
+    _s0 = _ssk_sec("## §⓪ ", "## §① ")
+    _ssk_ok0 = ("L316" in _s0 and "faisal_verbatim" in _s0
+                and "faisal_inferred" in _s0
+                # 🔴 حدُّ الصدق في المصدر نفسِه **داخلَ §⓪** لا في مكانٍ آخر
+                and "partial" in _s0 and "لا تتّسق مع ساعات لندن" in _s0
+                # وترويسةُ «لا يُشحَن شيء» في رأس الوثيقة
+                and "ولا يُشحَن شيءٌ" in _ssk_doc[:1200])
+    _ssk_v0 = f"§⓪={len(_s0)} محرفًا"
+except Exception as _e:                                          # noqa: BLE001
+    _ssk_ok0, _ssk_v0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕐🪟🔒 SSK0 العقد: المصدر `L316` **`faisal_verbatim`** والتحويلُ "
+      "**`faisal_inferred`** · **ووسمُ `partial` وجملةُ لندن غيرُ المتّسقة "
+      "داخلَ `§⓪` نفسِه** · و«لا يُشحَن شيء» في الترويسة", _ssk_ok0, _ssk_v0)
+
+try:
+    # ① `SSK1` — **التمييزُ موضعيٌّ**: نافذةُ `T-PMGATE` تُذكَر في `§⓪` وحدَه
+    #    ولا تظهر في التعريف ولا الأذرع ولا المعايير (‏ادّعاءُ غيابِها من
+    #    الوثيقة كلِّها **يكذّب نفسَه** لأن الفقرةَ تذكره — درسُ الصنف ②).
+    _s2 = _ssk_sec("## §② ", "## §③ ")
+    _s3 = _ssk_sec("## §③ ", "## §④ ")
+    _s4 = _ssk_sec("## §④ ", "## §⑤ ")
+    _ssk_ok1 = ("T-PMGATE" in _s0 and "مُغلَق" in _s0
+                and "04:30" not in _s2 and "04:30" not in _s3
+                and "04:30" not in _s4
+                and all(x in _ssk_doc for x in ("09:30-12", "12-13", "13-14",
+                                                "14-16")))
+    _ssk_v1 = (f"§⓪ يميّز={('T-PMGATE' in _s0)} · "
+               f"04:30 في §②/§③/§④={'04:30' in _s2}/"
+               f"{'04:30' in _s3}/{'04:30' in _s4}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssk_ok1, _ssk_v1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕐🪟🔒 SSK1 `T-PMGATE` **مُميَّزٌ في `§⓪` ومغيَّبٌ عن التعريف والأذرع "
+      "والمعايير** — فلا يُعاد محورٌ مُغلَق · والدلاءُ الأربعةُ منصوصة",
+      _ssk_ok1, _ssk_v1)
+
+try:
+    # ② `SSK2` — الضبطان **حاكمان داخلَ `§③` نفسِه** ‏+ المعاييرُ في `§④`
+    _ssk_ok2 = ("C-TIME" in _s3 and "C-SHUF" in _s3
+                and "حاكم" in _s3
+                and "وصفيٌّ يُطبَع ولا يحكم" in _s3
+                and all(k in _s4 for k in ("SS1", "SS2", "SS3"))
+                and "1.5" in _s4 and "Wilson" in _s4)
+    _ssk_v2 = f"§③={len(_s3)} · §④={len(_s4)}"
+except Exception as _e:                                          # noqa: BLE001
+    _ssk_ok2, _ssk_v2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕐🪟🔒 SSK2 `C-TIME` و`C-SHUF` **حاكمان لا وصفيّان داخلَ `§③`** "
+      "(درسُ `T-PMGATE`) · والمعاييرُ `SS1`-`SS3` **بنودًا في `§④`**",
+      _ssk_ok2, _ssk_v2)
+
+try:
+    # ③ `SSK3` — حدودُ الصدق والفروعُ الثلاثةُ **كلٌّ في قسمه**
+    _s5 = _ssk_sec("## §⑤ ", "## §⑥ ")
+    _s7 = _ssk_sec("## §⑦ ", "## §⑧ ")
+    _s8 = _ssk_sec("## §⑧ ", "## §⑨ ")
+    _ssk_ok3 = (_s5.count("الفرعُ ") >= 3
+                and "1." in _s5 and "2." in _s5 and "3." in _s5
+                and "pivot_stability" in _s7 and "LOGIC_VERSION" in _s7
+                and "لا تُشغَّل الذراعُ الحاكمة" in _s7
+                and "T-PMGATE" in _s8 and "T-PRESESSION" in _s8
+                and "سنةٌ واحدة" in _s8)
+    _ssk_v3 = f"فروعٌ={_s5.count('الفرعُ ')} · §⑦={len(_s7)} · §⑧={len(_s8)}"
+except Exception as _e:                                          # noqa: BLE001
+    _ssk_ok3, _ssk_v3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕐🪟🔒 SSK3 الفروعُ **ثلاثةٌ في `§⑤`** · و`§⑦` يمنع مسَّ "
+      "`pivot_stability` و`LOGIC_VERSION` **وتشغيلَ الحاكمة بلا أمر** · "
+      "و`§⑧` يحمل سجلَّ محاور التوقيت الساقطة وحدَّ «سنةٌ واحدة»",
+      _ssk_ok3, _ssk_v3)
+
+
+try:
+    # ④ `SSK4` — 🔴 **قياسُ الجدوى الذي أعاد تصميمَ العقد**: المصدرُ لا يغطّي
+    #    الحقبة ⇒ العيّنةُ ‏71 دون أرضيّة ‏150 ⇒ **الفرعُ 1 مُغلَقٌ بالبناء**.
+    #    والأرقامُ **تُعاد من القرص لا تُصدَّق من الوثيقة** (درسُ `SDX2`).
+    import csv as _ssk_csv
+    _ssk_rows = list(_ssk_csv.DictReader(
+        open("opcurve_rows.tsv", encoding="utf-8"), delimiter="\t"))
+    _ssk_reg = [r for r in _ssk_rows if r.get("tod") == "reg"]
+    _ssk_cov = [r for r in _ssk_reg if r.get("date", "") >= "2026-09-04"]
+    _s1 = _ssk_sec("## §① ", "## §② ")
+    _s5b = _ssk_sec("## §⑤ ", "## §⑥ ")
+    _ssk_ok4 = (len(_ssk_reg) == 228 and len(_ssk_cov) == 71
+                and str(len(_ssk_reg)) in _s1 and str(len(_ssk_cov)) in _s1
+                and "2026-09-04 ⟶ 09-19" in _s1
+                # والفرعُ 1 **مُغلَقٌ نصًّا** لا مجرّدَ «مرجَّحِ السقوط»
+                and "غيرُ متاحٍ في هذي الذراع" in _s5b
+                and "ولا يُخفَّض الحدُّ لتعبر" in _s5b)
+    _ssk_v4 = (f"reg={len(_ssk_reg)} · متاحٌ منذ 09-04={len(_ssk_cov)} · "
+               f"§①={len(_s1)}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssk_ok4, _ssk_v4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕐🪟🔒 SSK4 جدوى `§①` **مُعادةٌ من `opcurve_rows.tsv` لا مصدَّقةٌ من "
+      "الوثيقة**: `reg` 228 والمتاحُ منذ 09-04 **‏71** دون أرضيّة 150 ⇒ "
+      "**الفرعُ 1 مُغلَقٌ بالبناء ولا يُخفَّض الحدُّ لتعبر**", _ssk_ok4, _ssk_v4)
+
+# ── ⏱️🔥 `T-SECONDS` — أقفال العقد `SCK0`-`SCK3` ─────────────────────────────
+_sck_doc = open("seconds_prereg.md", encoding="utf-8").read()
+
+
+def _sck_sec(a, b=None):
+    i = _sck_doc.find(a)
+    if i < 0:
+        return ""
+    j = _sck_doc.find(b, i + len(a)) if b else -1
+    return _sck_doc[i:j] if j > 0 else _sck_doc[i:]
+
+
+try:
+    # ④ `SCK0` — **الحقائقُ المقيسةُ تُطابق السجلَّ الحيّ** لا الذاكرة.
+    import json as _sck_json
+    _sck_log = _sck_json.load(open("ignition_log.json", encoding="utf-8"))
+    _sck_f = (_sck_log if isinstance(_sck_log, list)
+              else _sck_log.get("fires", _sck_log))
+    from collections import Counter as _sck_C
+    _sck_cnt = _sck_C(x.get("candle_class") for x in _sck_f)
+    _c1 = _sck_sec("## §① ", "## §② ")
+    # 🔴 **ولا يُقارَن العددُ الحيُّ بالمسجَّل بت-بت هنا:** السجلُّ **ينمو
+    #    يوميًّا** فقفلٌ كهذا **يتعفّن بالتصميم** (وهو ما يحرسه `V-N1` عند
+    #    التشغيل لا في السويّة). المُقفَل: **اتّساقُ `§①` داخليًّا** (مجموعُ
+    #    الأصناف = الكلّ) · **ونموٌّ لا انكماش** · **و`fired_ts_ms` صفرٌ حيًّا**.
+    _sck_reg = {"total": 96, "group": 73, "mid": 12, "operator": 8, "strong": 3}
+    _sck_ok0 = (str(_sck_reg["total"]) in _c1
+                and all(str(_sck_reg[k]) in _c1
+                        for k in ("group", "mid", "operator", "strong"))
+                and sum(_sck_reg[k] for k in
+                        ("group", "mid", "operator", "strong"))
+                == _sck_reg["total"]
+                and len(_sck_f) >= _sck_reg["total"]
+                and sum(1 for x in _sck_f if x.get("fired_ts_ms")) == 0
+                and "fired_ts_ms" in _c1)
+    _sck_v0 = (f"مسجَّلٌ={_sck_reg['total']} · حيٌّ={len(_sck_f)} "
+               f"({len(_sck_f) - _sck_reg['total']:+d}) · {dict(_sck_cnt)}")
+except Exception as _e:                                          # noqa: BLE001
+    _sck_ok0, _sck_v0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCK0 `§①` — عددُ الإطلاقات وأصنافُها **مقروءةٌ من "
+      "`ignition_log.json` الحيّ** وتُطابق ما في العقد · و`fired_ts_ms` "
+      "**صفرٌ مُثبَتٌ لا مدَّعًى**", _sck_ok0, _sck_v0)
+
+try:
+    # ⑤ `SCK1` — 🔴 **تصحيحُ الحزمة**: `fired_at` لحظةُ كتابةٍ لا إطلاق —
+    #    والعقدُ يقوله، **والسجلُّ الحيُّ يُثبته** (وسيطُ المدى داخلَ اليوم).
+    from collections import defaultdict as _sck_dd
+    from datetime import datetime as _sck_dt
+    _by = _sck_dd(list)
+    for _r in _sck_f:
+        if _r.get("fired_at"):
+            _by[str(_r.get("date"))].append(_r["fired_at"])
+    _sp = []
+    for _v in _by.values():
+        if len(_v) > 1:
+            _t = [_sck_dt.strptime(x, "%Y-%m-%dT%H:%M:%SZ") for x in _v]
+            _sp.append((max(_t) - min(_t)).total_seconds())
+    _sp.sort()
+    _med = _sp[len(_sp) // 2] if _sp else None
+    _sck_ok1 = (_med is not None and _med <= 5.0 and len(_sp) >= 10
+                and "لحظةُ كتابة السجلّ لا لحظةُ الإطلاق" in _c1
+                and "20:00" in _c1)
+    _sck_v1 = f"أيّامٌ={len(_sp)} · وسيطُ المدى={_med}ث"
+except Exception as _e:                                          # noqa: BLE001
+    _sck_ok1, _sck_v1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCK1 `fired_at` **لحظةُ كتابةٍ لا إطلاق** — مُثبَتٌ بالسجلّ "
+      "(وسيطُ المدى داخلَ اليوم ثوانٍ معدودة عبر عشرة أيّامٍ فأكثر) "
+      "**والعقدُ ينصّ عليه** فلا يُبنى عليه قياس", _sck_ok1, _sck_v1)
+
+try:
+    # ⑥ `SCK2` — `C-USD` **حاكمٌ داخلَ `§④`** والمعياران في `§⑤`
+    _c4 = _sck_sec("## §④ ", "## §⑤ ")
+    _c5 = _sck_sec("## §⑤ ", "## §⑥ ")
+    _c6 = _sck_sec("## §⑥ ", "## §⑦ ")
+    _sck_ok2 = ("C-USD" in _c4 and "حاكم" in _c4
+                and "وصفيّةٌ لا تحكم" in _c4
+                and "SC1" in _c5 and "SC2" in _c5
+                and _c6.count("الفرعُ ") >= 3)
+    _sck_v2 = f"§④={len(_c4)} · §⑤={len(_c5)} · فروعٌ={_c6.count('الفرعُ ')}"
+except Exception as _e:                                          # noqa: BLE001
+    _sck_ok2, _sck_v2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCK2 `C-USD` **ضبطٌ حاكمٌ داخلَ `§④`** (هل تُضيف السرعةُ على "
+      "الدولارات؟) · والمعياران `SC1`/`SC2` في `§⑤` · والفروعُ ثلاثةٌ في `§⑥`",
+      _sck_ok2, _sck_v2)
+
+try:
+    # ⑦ `SCK3` — `§⑧` يحرس الجذورَ و`polygon_base_trades` **ولا يُشحَن شيء**،
+    #    واقتراحُ `fired_ts_ms` **اقتراحٌ بإذنٍ لا تنفيذ**.
+    _c8 = _sck_sec("## §⑧ ", "## §⑨ ")
+    # 🐞 **صُحّح نطاقُ القفل لا الوثيقة** (صنفُ `MLK3` بعينه): `V-N7` يحرس
+    #    `polygon_base_trades` وهو في **`§⑦`** حيث تُعلَن الحرّاس، لا في `§⑧`.
+    _c7 = _sck_sec("## §⑦ ", "## §⑧ ")
+    _sck_ok3 = ("polygon_base_trades" in _c7 and "بت-بت" in _c7
+                and "V-N7" in _c7 and "بت-بت" in _c8
+                and "pivot_stability" in _c8
+                and "LOGIC_VERSION" in _c8
+                and "يُقترَح ولا يُنفَّذ" in _c8
+                and "بإذن المالك" in _c8
+                # 🔴 **ولا يُقفَل «الأداةُ لم تُبنَ بعد»**: ذاك صحيحٌ لحظةَ
+                #    التسجيل **ويُكذَّب حتمًا** حين تُبنى ⇒ قفلٌ ينتحر.
+                #    ترتيبُ «العقدُ قبل الأداة» يحرسه **تاريخُ git** لا السويّة.
+                and "polygon_trades_ts" in _sck_sec("## §② ", "## §③ "))
+    _sck_v3 = f"§⑦={len(_c7)} · §⑧={len(_c8)} محرفًا"
+except Exception as _e:                                          # noqa: BLE001
+    _sck_ok3, _sck_v3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCK3 `§⑧` — الجذورُ و`polygon_base_trades` **بت-بت** · ولا "
+      "`LOGIC_VERSION` ولا شحن · و`fired_ts_ms` **اقتراحٌ بإذن المالك لا "
+      "تنفيذ** · **والعقدُ مدفوعٌ قبل أيّ سطرِ أداة**", _sck_ok3, _sck_v3)
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
