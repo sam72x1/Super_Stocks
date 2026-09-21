@@ -1738,7 +1738,7 @@
   "updates": 0,
   "vol_x": 126.4,
   "peak_usd": 66100,
-  "last_eval_ms": 1790008200000,
+  "last_eval_ms": 1790008140000,
   "pulse_ms": 1790008620000,
   "anchor_price": 1.44,
   "anchor_open": 1.369,
@@ -3876,7 +3876,7 @@
   "updates": 0,
   "vol_x": 2.0,
   "peak_usd": 15790,
-  "last_eval_ms": 1790004960000,
+  "last_eval_ms": 1790004900000,
   "pulse_ms": 1790008620000,
   "anchor_price": 2.78,
   "anchor_open": 2.6825,
@@ -4238,5 +4238,6 @@
  "SMTK": "2026-09-21",
  "YMAT": "2026-09-21",
  "PPBT": "2026-09-21",
- "SLSN": "2026-09-21"
+ "SLSN": "2026-09-21",
+ "PTN": "2026-09-21"
 }
