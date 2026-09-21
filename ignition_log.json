@@ -1294,5 +1294,20 @@
   "usd_eff": 7779,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "BTCS",
+  "date": "2026-09-21",
+  "sustain_min": 10,
+  "operator_ok": false,
+  "fired_at": "2026-09-21T20:01:26Z",
+  "break_level": 1.62,
+  "price": 1.625,
+  "vol_x": 6.8,
+  "usd": 76058,
+  "candle_class": "mid",
+  "usd_eff": 76058,
+  "candle_class_eff": "mid",
+  "frames_usd": null
  }
 ]
