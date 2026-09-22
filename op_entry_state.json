@@ -859,7 +859,7 @@
   "updates": 1,
   "vol_x": 3.4,
   "peak_usd": 29666,
-  "last_eval_ms": 1790096040000,
+  "last_eval_ms": 1790095980000,
   "pulse_ms": 1790097120000,
   "anchor_price": 1.675,
   "anchor_open": 1.59,
@@ -877,8 +877,8 @@
    "j1_top": false
   },
   "e5": 1.7,
-  "date": "2026-09-22",
-  "tgt_ms": 1790097120000
+  "tgt_ms": 1790097120000,
+  "date": "2026-09-22"
  },
  "LIQ:STEX": {
   "date": "2026-09-22"
@@ -911,7 +911,7 @@
   "updates": 0,
   "vol_x": 1.1,
   "peak_usd": 14138,
-  "last_eval_ms": 1790089320000,
+  "last_eval_ms": 1790089260000,
   "pulse_ms": 1790097120000,
   "anchor_price": 8.4524,
   "anchor_open": 8.19,
@@ -1107,7 +1107,7 @@
   "updates": 0,
   "vol_x": 5.2,
   "peak_usd": 164861,
-  "last_eval_ms": 1790085960000,
+  "last_eval_ms": 1790085840000,
   "pulse_ms": 1790097120000,
   "anchor_price": 0.972,
   "anchor_open": 0.92,
@@ -1216,7 +1216,7 @@
    "M5",
    "M30"
   ],
-  "updates": 3,
+  "updates": 2,
   "vol_x": 2.1,
   "peak_usd": 2912431,
   "last_eval_ms": 1790080380000,
@@ -1442,9 +1442,9 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 0,
   "vol_x": 11.5,
-  "peak_usd": 27372748,
+  "peak_usd": 2586246,
   "last_eval_ms": 1790073240000,
   "pulse_ms": 1790097120000,
   "anchor_price": 11.6507,
@@ -1764,7 +1764,7 @@
   "updates": 0,
   "vol_x": 11.2,
   "peak_usd": 34474,
-  "last_eval_ms": 1790084040000,
+  "last_eval_ms": 1790083920000,
   "pulse_ms": 1790097060000,
   "anchor_price": 1.25,
   "anchor_open": 1.17,
@@ -1829,7 +1829,7 @@
  },
  "LIQ:JUNS": {
   "anchor_ms": 1790097000000,
-  "last_ms": 1790097060000,
+  "last_ms": 1790097120000,
   "sent": [
    "M1"
   ],
@@ -1837,7 +1837,7 @@
   "vol_x": 53.1,
   "peak_usd": 55899,
   "last_eval_ms": 1790097120000,
-  "pulse_ms": 1790097060000,
+  "pulse_ms": 1790097120000,
   "anchor_price": 3.2799,
   "anchor_open": 3.01,
   "anchor_low": 2.91,
@@ -2480,21 +2480,21 @@
   "date": "2026-09-22"
  },
  "LIQ:CWD": {
-  "anchor_ms": 1790090520000,
-  "last_ms": 1790097060000,
+  "anchor_ms": 1790090400000,
+  "last_ms": 1790097120000,
   "sent": [
    "M1",
    "M5",
    "M30"
   ],
   "updates": 2,
-  "vol_x": 0.6,
+  "vol_x": 0.1,
   "peak_usd": 1077312,
-  "last_eval_ms": 1790090640000,
-  "pulse_ms": 1790097060000,
-  "anchor_price": 0.6237,
-  "anchor_open": 0.6199,
-  "anchor_low": 0.615,
+  "last_eval_ms": 1790090400000,
+  "pulse_ms": 1790097120000,
+  "anchor_price": 0.6287,
+  "anchor_open": 0.622,
+  "anchor_low": 0.6188,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1790084220000,
@@ -2506,17 +2506,17 @@
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 0.84,
-  "pre_usd": 13174328,
-  "pre_n": 62,
+  "pre_usd": 15492330,
+  "pre_n": 64,
   "k2": {
-   "c3": "صادقت (إغلاقٌ فوق المرساة)",
+   "c3": "نقضت",
    "c4": "خضراء 2",
-   "v2": "المرساة فوق 60% من الخمس (اندفاعة وحيدة)",
-   "v3": "نبضٌ متعادل",
+   "v2": "المرساة دون 30% (سيولة تتوالى)",
+   "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)",
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.6426,
+  "e5": 0.6201,
   "tgt_ms": 1790091720000,
   "date": "2026-09-22"
  },
@@ -2575,7 +2575,7 @@
   "date": "2026-09-22"
  },
  "LIQ:KLRS": {
-  "last_eval_ms": 1790097000000,
+  "last_eval_ms": 1790093220000,
   "tc_cum": 59864.90355085,
   "tc_seen_ms": 1790093220000,
   "date": "2026-09-22"
@@ -2747,16 +2747,15 @@
   "date": "2026-09-22"
  },
  "LIQ:GOAI": {
-  "anchor_ms": 1790087040000,
+  "anchor_ms": 1790086740000,
   "last_ms": 1790096880000,
   "sent": [
-   "M1",
-   "M5"
+   "M1"
   ],
   "updates": 0,
-  "vol_x": 1.4,
-  "peak_usd": 5229,
-  "last_eval_ms": 1790087040000,
+  "vol_x": 0.2,
+  "peak_usd": 563,
+  "last_eval_ms": 1790086800000,
   "pulse_ms": 1790096880000,
   "anchor_price": 2.1,
   "anchor_open": 2.1,
@@ -2766,25 +2765,15 @@
    "anchor_ms": 1790085900000,
    "anchor_price": 2.1,
    "anchor_low": 2.09,
-   "e5": 2.115,
+   "e5": 2.1,
    "exit_ms": 1790086560000
   },
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 2.14,
-  "pre_usd": 162512,
-  "pre_n": 45,
-  "k2": {
-   "c3": "صادقت (إغلاقٌ فوق المرساة)",
-   "c4": "خضراء 2",
-   "v2": "المرساة دون 30% (سيولة تتوالى)",
-   "v3": "نبضٌ متعادل",
-   "j1": false,
-   "j1_top": false
-  },
-  "e5": 2.1324,
-  "exit_ms": 1790087400000,
-  "tgt_ms": 1790088600000,
+  "pre_usd": 144962,
+  "pre_n": 42,
+  "exit_ms": 1790086800000,
   "date": "2026-09-22"
  },
  "LIQ:KITT": {
@@ -3105,7 +3094,7 @@
   "updates": 0,
   "vol_x": 41.7,
   "peak_usd": 359524,
-  "last_eval_ms": 1790084040000,
+  "last_eval_ms": 1790083920000,
   "pulse_ms": 1790097120000,
   "anchor_price": 2.18,
   "anchor_open": 1.91,
@@ -3126,7 +3115,7 @@
   "date": "2026-09-22"
  },
  "LIQ:EPSM": {
-  "last_eval_ms": 1790097060000,
+  "last_eval_ms": 1790097120000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1790093820000,
