@@ -1134,7 +1134,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.4,
-   "last_price": 5.64,
+   "last_price": 5.65,
    "live_alert": {
     "buyzone": "2026-09-17",
     "sweep": "2026-08-24",
@@ -2716,7 +2716,7 @@
    "hit": "t2",
    "hit_date": "2026-09-17",
    "max_gain_pct": 23.0,
-   "last_price": 4.15,
+   "last_price": 4.24,
    "live_alert": {
     "breakout": "2026-09-17"
    },
@@ -4673,7 +4673,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -0.7,
-   "last_price": 2.67,
+   "last_price": 2.61,
    "faisal_levels": "🧭 إغلاقات الهابطة $2.74 · $2.79 · $2.81 · جسم قبل الهبوط $3.23 · اختبار المقاومة $2.88 إلى $3.12",
    "borrow_hist": [
     [
@@ -4686,7 +4686,7 @@
     ]
    ],
    "live_alert": {
-    "buyzone": "2026-09-21"
+    "buyzone": "2026-09-22"
    }
   },
   {
@@ -6607,7 +6607,7 @@
    "hit": "t2",
    "hit_date": "2026-08-20",
    "max_gain_pct": 58.2,
-   "last_price": 1.49,
+   "last_price": 1.495,
    "live_alert": {
     "breakout": "2026-09-21",
     "dump": "2026-08-31",
@@ -8103,7 +8103,7 @@
    "hit": "t1",
    "hit_date": "2026-08-13",
    "max_gain_pct": 26.9,
-   "last_price": 1.45,
+   "last_price": 1.48,
    "borrow_hist": [
     [
      "2026-08-13",
@@ -10063,7 +10063,7 @@
    "hit": "t2",
    "hit_date": "2026-08-14",
    "max_gain_pct": 91.2,
-   "last_price": 2.15,
+   "last_price": 2.13,
    "borrow_hist": [
     [
      "2026-08-14",
@@ -10097,7 +10097,7 @@
    "live_alert": {
     "premarket": "2026-08-14",
     "breakout": "2026-09-11",
-    "buyzone": "2026-09-21",
+    "buyzone": "2026-09-22",
     "sweep": "2026-09-02"
    },
    "spikes": [
@@ -10442,7 +10442,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 1.24,
+   "last_price": 1.22,
    "live_alert": {
     "breakout": "2026-09-01",
     "dump": "2026-08-28"
@@ -10832,7 +10832,7 @@
    "last_price": 1.24,
    "live_alert": {
     "breakout": "2026-09-17",
-    "buyzone": "2026-09-21",
+    "buyzone": "2026-09-22",
     "sweep": "2026-09-18",
     "premarket": "2026-09-16",
     "dump": "2026-08-18"
@@ -11642,7 +11642,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.9,
-   "last_price": 3.51,
+   "last_price": 3.55,
    "faisal_levels": "🧭 إغلاقات الهابطة $3.58 · $3.63 · $3.72 · جسم قبل الهبوط $4.09 · اختبار المقاومة $3.93 إلى $4.28",
    "live_alert": {
     "buyzone": "2026-09-21"
@@ -12392,7 +12392,7 @@
    "hit": "t1",
    "hit_date": "2026-09-21",
    "max_gain_pct": 13.3,
-   "last_price": 1.635,
+   "last_price": 1.61,
    "live_alert": {
     "breakout": "2026-09-21"
    },
@@ -26809,7 +26809,7 @@
    "sector": "Financial Services",
    "country": "United States",
    "float": 72869981,
-   "last_price": 30.33,
+   "last_price": 29.27,
    "status": "watching",
    "triggered_date": null
   },
@@ -27353,7 +27353,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 1651159,
-   "last_price": 2.96,
+   "last_price": 3.2,
    "status": "watching",
    "triggered_date": null
   },
@@ -27387,7 +27387,7 @@
    "sector": "Healthcare",
    "country": "Canada",
    "float": 2607742,
-   "last_price": 6.52,
+   "last_price": 6.5,
    "status": "watching",
    "triggered_date": null
   }
