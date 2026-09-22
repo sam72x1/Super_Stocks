@@ -1929,7 +1929,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.0,
-   "last_price": 4.48,
+   "last_price": 4.37,
    "faisal_levels": "🧭 إغلاقات الهابطة $4.62 · $4.71 · $5.10 · جسم قبل الهبوط $5.05 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {},
    "borrow_hist": [
@@ -3091,7 +3091,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.6,
-   "last_price": 2.9,
+   "last_price": 2.97,
    "live_alert": {
     "buyzone": "2026-09-21",
     "break": "2026-09-21"
@@ -4646,7 +4646,7 @@
    "hit": "t1",
    "hit_date": "2026-08-17",
    "max_gain_pct": -4.5,
-   "last_price": 0.6877,
+   "last_price": 0.688,
    "live_alert": {
     "premarket": "2026-08-18",
     "dump": "2026-08-18",
@@ -5435,7 +5435,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.74,
+   "last_price": 4.82,
    "borrow_hist": [
     [
      "2026-09-18",
@@ -12311,7 +12311,7 @@
    "hit": "t1",
    "hit_date": "2026-09-04",
    "max_gain_pct": 25.4,
-   "last_price": 0.9073,
+   "last_price": 0.907,
    "live_alert": {
     "dump": "2026-09-02",
     "breakout": "2026-09-04",
@@ -13534,7 +13534,7 @@
    "hit": "t1",
    "hit_date": "2026-09-03",
    "max_gain_pct": 11.7,
-   "last_price": 0.9881,
+   "last_price": 0.988,
    "live_alert": {
     "breakout": "2026-09-10"
    },
@@ -14307,7 +14307,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.5004,
+   "last_price": 0.5,
    "borrow_hist": [
     [
      "2026-09-18",
@@ -15009,7 +15009,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 7.735,
+   "last_price": 7.49,
    "borrow_hist": [
     [
      "2026-08-13",
@@ -16609,7 +16609,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.8564,
+   "last_price": 0.856,
    "live_alert": {}
   }
  ],
@@ -26392,7 +26392,7 @@
    "sector": "Industrials",
    "country": "Israel",
    "float": 5195753,
-   "last_price": 8.11,
+   "last_price": 8.01,
    "status": "watching",
    "triggered_date": null
   },
