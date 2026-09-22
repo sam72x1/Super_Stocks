@@ -947,11 +947,11 @@
   "anchor_price": 8.88,
   "anchor_open": 6.61,
   "anchor_low": 6.61,
-  "date": "2026-09-22",
   "pre_done": true,
   "pre_hi": 6.45,
   "pre_usd": 29798,
-  "pre_n": 11
+  "pre_n": 11,
+  "date": "2026-09-22"
  },
  "LIQ:ZOOZ": {
   "last_eval_ms": 1790068020000,
@@ -2021,10 +2021,10 @@
  },
  "VWAV": "2026-09-21",
  "LIQ:YDDL": {
-  "date": "2026-09-22",
   "last_eval_ms": 1790076300000,
   "tc_cum": 1764.04,
-  "tc_seen_ms": 1790076300000
+  "tc_seen_ms": 1790076300000,
+  "date": "2026-09-22"
  },
  "LIQ:UCAR": {
   "date": "2026-09-22"
