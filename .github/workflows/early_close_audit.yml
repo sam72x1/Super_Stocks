@@ -1,0 +1,90 @@
+name: "🗓️🔍 T-EARLY — أثرُ الإغلاق المبكّر على عائلة T-PRESESSION (early_close_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** فالإرسالُ مستحيلٌ بنيويًّا.
+# 🔒 الصفوفُ القديمة = المسوحُ الثلاثة المنشورة **مثبَّتةً بالاسم** (= early_close_audit.OLD_RUNS)،
+#    والجديدةُ تُعاد هنا بـpresession_scan نفسِه **بالقناتين مصحَّحتين** (التقويم + PRESESSION_CLOSE_CAL=1).
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rescan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        year: ["2023", "2024", "2025"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌙 إعادةُ المسح بالقناتين مصحَّحتين
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          PRESESSION_YEAR: ${{ matrix.year }}
+          PRESESSION_CLOSE_CAL: "1"
+        run: python presession_scan.py
+
+      - name: 📤 رفع الصفوف الجديدة
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: early-rows-${{ matrix.year }}
+          path: presession_rows_*.jsonl.gz
+          retention-days: 90
+          if-no-files-found: warn
+
+  audit:
+    needs: rescan
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📥 الصفوفُ القديمة (المسوحُ المنشورة)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          for id in 33724354384 33724361819 33724367680; do
+            gh run download "$id" --repo "$GITHUB_REPOSITORY" \
+              --pattern 'presession-rows-*' --dir "/tmp/early-old/$id"
+          done
+          find /tmp/early-old -name 'presession_rows_*.jsonl.gz' -exec ls -la {} \;
+
+      - name: 📥 الصفوفُ الجديدة
+        uses: actions/download-artifact@v4
+        with:
+          pattern: early-rows-*
+          path: /tmp/early-new
+
+      - name: 🔍 التدقيق
+        env:
+          PYTHONUNBUFFERED: "1"
+          EARLY_OLD_DIR: /tmp/early-old
+          EARLY_NEW_DIR: /tmp/early-new
+        run: python early_close_audit.py
