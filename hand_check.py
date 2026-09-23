@@ -163,6 +163,10 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     _sf = bot._split_freq_line(r.get("split_freq"))
     if _sf:
         L.append(_sf)
+    # 🔁 R-02 «مقسّمٌ أكثر من 3 مرّات ⇒ غالبًا دون متوسّط 20» (فيصل `TG_50832`) — سقفُ مقدار
+    _smc = bot.split_ma20_cap_line(r.get("split_count"), r.get("split_ma20"))
+    if _smc:
+        L.append(_smc)
     # بصمة طريقة الارتفاع (سياق)
     bh = r.get("behav") or {}
     if bh.get("score") is not None:
@@ -316,6 +320,13 @@ def hand_check(sym: str):
                            if sp is not None and len(sp) else 0)
     except Exception:
         r["split_freq"] = 0
+    # 🔁 R-02 (فيصل `TG_50832`): عددُ التقسيمات العكسيّة **على التاريخ كلِّه** ‏+ متوسّطُ 20 الأسّيّ
+    #    من `sp` والإطار نفسَيهما — صفرُ جلبٍ إضافيّ · فاشلٌ-آمن ⇒ لا سطر.
+    try:
+        r["split_count"] = bot.split_count_all(sp, dt.date.today())
+        r["split_ma20"] = bot.ema(df["Close"], 20)
+    except Exception:                                            # noqa: BLE001
+        r["split_count"], r["split_ma20"] = 0, None
     # 🎯 مرجع الـ÷2 لـ«أهداف الشورت» = **قمة ما بعد آخر تقسيم عكسي** (`_post_split_high`،
     # مرجع فيصل الحرفي: JEM 6.90÷2=3.45). مفتاح **خاصّ بالمقسّم** لا عامّ: سهم غير مقسّم
     # ⇒ None ⇒ يُطبع «—» ولا يُختلق هدف هبوط على ارتكاز عادي (تدقيق الخلط 2026-07-27).

@@ -19193,7 +19193,13 @@ _HUNTER_PINS = {
     #    🔒 و`scan_split_hunter` **مطابقةٌ حرفيًّا** (`caad69f25763d7b7` لم يتغيّر)
     #    ومعها الثمانية عشر الباقية ⇒ الشروطُ الخمسة والحكم byte-identical **بالبناء**،
     #    ومُثبَتٌ **سلوكيًّا** بـFR3 (نفسُ المطابقين مع الإثراء وبدونه).
-    "build_split_hunter_alert": "f5ac8f1223183057",
+    # 🔁 **وحُدِّثت ثالثةً عمدًا (2026-09-23) بأمر المالك الحرفيّ «نفّذ R-02»** — والحزمةُ
+    #    التي أقرّها تُسمّي هذي الدالّةَ موضعًا للسطر بعينها: سطرٌ واحدٌ «🔁 مقسّم N مرات …
+    #    دون متوسط 20» **بجوار سطر التكرار** أي بعد الاختيار · من الجالب المحقون نفسِه
+    #    أو كاشِ التشغيلة وحدَه ⇒ صفرُ نداء. **وهذا إقرارٌ لا إصلاحُ فشل.** 🔒 و`scan_split_hunter`
+    #    **مطابقةٌ حرفيًّا** (`1c6d651d25b52cde`) ومعها السبعة عشر الباقية ⇒ الشروطُ والحكم
+    #    byte-identical **بالبناء** · ومُثبَتٌ **سلوكيًّا** بـ`SMC5` (العضويّةُ والترتيبُ ثابتان).
+    "build_split_hunter_alert": "5fe78a63c62130b4",
     # 🔴 **حُدِّثت عمدًا (2026-08-13) — إقرارٌ لا إصلاحُ فشل، وبأمر المالك الحرفيّ
     #    «صلّح الرادار»** بعد أن كشف سؤالُه «ليه الأداة الثانية تجيب سهم ما تجيبه
     #    الأولى؟» أن الرادار كان يفحص **خمسًا من ستّ** ويسمّي نفسَه «المطابق الكامل».
@@ -58912,6 +58918,155 @@ check("🔒 SNL2: ضبط — كنسٌ إلى 2.47 (‏−4.6%، داخل 5%) ⇒
       "(المرحلة 3 · فرعُ sweep) — فالحدُّ هو الفارقُ لا الشكل",
       isinstance(_snl2, dict) and _snl2.get("stage") == 3 and _snl2.get("branch") == "sweep"
       and abs(float(_snl2.get("bottom") or 0) - 2.59) < 1e-6, str(_snl2)[:90])
+
+# ═══ 🔁 دفعة 2026-09-23 — أقفال SMC1-SMC5 (R-02 «مقسّمٌ أكثر من 3 مرّات ⇒ دون متوسّط 20» · عرضٌ فقط) ═══
+# المصدر: `TG_50832` (فيصل بتأكيد المالك 2026-09-23): «السهم المقسم اكثر من 3 مرات غالبا يصعد
+# اقل من متوسط 20 نسبة الشورت تحكم» · أمرُ المالك «نفّذ R-02» ⇒ `U-12`: العدُّ على التاريخ كلِّه.
+_smc_tz = "America/New_York"
+_smc_sp4 = _nc_pd.Series([0.1, 0.05, 0.2, 0.125], index=_nc_pd.to_datetime(
+    ["2021-03-01", "2022-06-15", "2023-09-20", "2024-05-10"]).tz_localize(_smc_tz))
+_smc_sp3 = _smc_sp4.iloc[:3]
+_smc_t = _nc_dt.date(2026, 9, 23)
+# أماميٌّ (2.0) ‏+ عكسيٌّ **بعد** يوم المرجع — كلاهما لا يُعدّ (E10 · E12)
+_smc_noise = _nc_pd.concat([_smc_sp4, _nc_pd.Series([2.0, 0.1], index=_nc_pd.to_datetime(
+    ["2025-01-02", "2026-12-01"]).tz_localize(_smc_tz))])
+_smc_pairs = [("2021-03-01", 0.1), ("2022-06-15", 0.05), ("2023-09-20", 0.2),
+              ("2024-05-10", 0.125), ("2025-01-02", 3.0), ("2027-01-01", 0.2)]
+_smc_c = {_k: _nc_call(S.split_count_all, _v, _t) for _k, (_v, _t) in {
+    "noise": (_smc_noise, _smc_t), "ref2024": (_smc_sp4, _nc_dt.date(2024, 1, 1)),
+    "pairs": (_smc_pairs, _smc_t),
+    "dt": (_smc_noise, _nc_dt.datetime(2026, 9, 23, 15, 0))}.items()}
+check("🔁 SMC1: `split_count_all` تعدّ **العكسيّة وحدَها** (نسبةٌ بين 0 و1) **حتى يوم المرجع "
+      "شاملًا** على التاريخ كلِّه — الأماميُّ والتقسيمُ بعد المرجع لا يُعدّان (E10 · E12) · "
+      "ومرجع 2024-01-01 ⇒ 3 (بلا نظرٍ مستقبليّ) · والأزواجُ كالسلسلة · والمرجعُ `datetime` كالتاريخ",
+      _smc_c == {"noise": 4, "ref2024": 3, "pairs": 4, "dt": 4}, str(_smc_c))
+_SMC_LINE4 = "🔁 مقسّم 4 مرات — قاعدة فيصل: غالبًا يصعد دون متوسط 20 ($1.37) · والشورت يحكم"
+_smc_l = {_k: _nc_call(S.split_ma20_cap_line, *_a) for _k, _a in {
+    "n4": (4, 1.37), "n3": (3, 1.37), "n4_many4": (4, 1.37, 4), "nan": (5, float("nan")),
+    "none": (5, None), "zero": (5, 0.0), "sub1": (5, 0.3712)}.items()}
+check("🔁 SMC2: الحدّ «اكثر من 3» — **ثلاثةٌ ⇒ لا سطر (E11) · وأربعةٌ ⇒ السطرُ بنصّ مِجَسّ الحزمة "
+      "حرفيًّا** · `SPLIT_MANY_COUNT` = 3 · والمتوسّطُ الغائبُ/الصفرُ/NaN لا يُختلَق · وتحت الدولار "
+      "أربعُ خانات · وبلا علامات مقارنة",
+      S.CONFIG.get("SPLIT_MANY_COUNT") == 3 and _smc_l["n4"] == _SMC_LINE4
+      and _smc_l["n3"] == "" and _smc_l["n4_many4"] == "" and _smc_l["nan"] == ""
+      and _smc_l["none"] == "" and _smc_l["zero"] == "" and "($0.3712)" in str(_smc_l["sub1"])
+      and not any(_ch in _SMC_LINE4 for _ch in "<>≤≥"), str(_smc_l)[:140])
+_smc_bad = {_k: _nc_call(S.split_count_all, _v, _smc_t) for _k, _v in {
+    "none": None, "int": 5, "obj": object()}.items()}
+check("🔁 SMC3: فاشلةٌ-آمنة — `splits=None` أو مُدخَلٌ تالف ⇒ **0 بلا استثناء** (E9) ⇒ لا سطر",
+      _smc_bad == {"none": 0, "int": 0, "obj": 0}
+      and S.split_ma20_cap_line(_smc_bad["none"], 1.37) == "", str(_smc_bad))
+
+
+def _smc_row(sym):
+    return {"symbol": sym, "price": 1.10, "half": 1.0, "ref": 2.0, "float": 9e5,
+            "avail": 12000, "borrow_fee": None, "ema20": 1.37, "ema30": 1.5, "ema50": 1.8,
+            "split_date": "2026-06-01", "freq": 0, "plan": {}, "bottom_test": None,
+            "split_ma": None}
+
+
+_smc_inj4 = _nc_call(S.build_split_hunter_alert, [_smc_row("SMCA")], today=_smc_t,
+                     fetch_hist=_HUNT_OFF, fetch_splits=lambda s: _smc_sp4)
+_smc_inj3 = _nc_call(S.build_split_hunter_alert, [_smc_row("SMCA")], today=_smc_t,
+                     fetch_hist=_HUNT_OFF, fetch_splits=lambda s: _smc_sp3)
+# المسارُ الافتراضيّ (بلا جالبٍ محقون) يقرأ **كاشَ التشغيلة وحدَه** — ولا يُنادي `_fetch_splits`
+# ولا `yf` أبدًا (صفرُ نداءٍ شبكيٍّ جديد، DO NOT في الحزمة): مُسجِّلان بدل الشبكة.
+_smc_calls = []
+
+
+class _SmcYF:
+    def Ticker(self, s):                                         # noqa: N802
+        _smc_calls.append(("yf", s))
+        raise RuntimeError("لا شبكة في السويّة")
+
+
+_smc_sv = (S._fetch_splits, S.yf)
+try:
+    S._fetch_splits = lambda s: (_smc_calls.append(("fs", s)), None)[1]
+    S.yf = _SmcYF()
+    S._SPLITS_MEMO["SMCA"] = _smc_sp4
+    _smc_def_on = _nc_call(S.build_split_hunter_alert, [_smc_row("SMCA")], today=_smc_t,
+                           fetch_hist=_HUNT_OFF)
+    _smc_def_off = _nc_call(S.build_split_hunter_alert, [_smc_row("SMCB")], today=_smc_t,
+                            fetch_hist=_HUNT_OFF)
+finally:
+    S._fetch_splits, S.yf = _smc_sv
+    S._SPLITS_MEMO.pop("SMCA", None)
+    S._SPLITS_MEMO.pop("SMCB", None)
+check("🔁 SMC4: الوصل — السطرُ **في تنبيه الصيّاد** من الجالب المحقون (أربعةٌ ⇒ يظهر · ثلاثةٌ ⇒ "
+      "يغيب) · **وبلا جالبٍ يقرأ كاشَ التشغيلة وحدَه**: الرمزُ في الكاش ⇒ يظهر · وغائبٌ ⇒ لا سطر "
+      "**وصفرُ نداءٍ** لـ`_fetch_splits`/`yf`",
+      ("  " + _SMC_LINE4) in str(_smc_inj4) and "🔁 مقسّم" not in str(_smc_inj3)
+      and ("  " + _SMC_LINE4) in str(_smc_def_on) and "🔁 مقسّم" not in str(_smc_def_off)
+      and "SMCB" in str(_smc_def_off) and not _smc_calls,
+      f"محقون={'🔁 مقسّم' in str(_smc_inj4)}/{'🔁 مقسّم' in str(_smc_inj3)} · "
+      f"كاش={'🔁 مقسّم' in str(_smc_def_on)}/{'🔁 مقسّم' in str(_smc_def_off)} · نداءات={_smc_calls}")
+_smc_hc_on = _nc_call(_nc_hc.render_hand_check, "SMCH", {
+    "symbol": "SMCH", "price": 1.2, "behav": {}, "split_count": 4, "split_ma20": 1.37})
+_smc_hc_off = _nc_call(_nc_hc.render_hand_check, "SMCH", {
+    "symbol": "SMCH", "price": 1.2, "behav": {}, "split_count": 3, "split_ma20": 1.37})
+_smc_hc_asg = {}
+try:
+    for _n in _nc_ast.walk(_nc_ast.parse(_nc_insp.getsource(_nc_hc.hand_check))):
+        if not (isinstance(_n, _nc_ast.Assign) and isinstance(_n.value, _nc_ast.Call)):
+            continue
+        _tg = _n.targets[0]
+        _key = (getattr(_tg.slice, "value", None)
+                if isinstance(_tg, _nc_ast.Subscript) else None)
+        _fn = getattr(_n.value.func, "attr", None)
+        _a0 = _n.value.args[0] if _n.value.args else None
+        if _key == "split_count" and _fn == "split_count_all":
+            _smc_hc_asg[_key] = getattr(_a0, "id", None)
+        if _key == "split_ma20" and _fn == "ema":
+            _smc_hc_asg[_key] = (getattr(getattr(_a0, "value", None), "id", None),
+                                 getattr(getattr(_a0, "slice", None), "value", None),
+                                 getattr(_n.value.args[1], "value", None)
+                                 if len(_n.value.args) > 1 else None)
+except Exception as _e:                                          # noqa: BLE001
+    _smc_hc_asg = {"⛔": type(_e).__name__}
+check("🔁 SMC4ب: فحصُ اليد — `hand_check` يحسب العددَ من **`sp` نفسِه** والمتوسّطَ من "
+      "`ema(df[\"Close\"], 20)` (AST · صفرُ جلب) · والعرضُ يُظهر السطرَ لأربعةٍ ويُغيبه لثلاثة",
+      _smc_hc_asg == {"split_count": "sp", "split_ma20": ("df", "Close", 20)}
+      and _SMC_LINE4 in str(_smc_hc_on) and "🔁 مقسّم" not in str(_smc_hc_off),
+      f"إسناد={_smc_hc_asg} · عرض={_SMC_LINE4 in str(_smc_hc_on)}/"
+      f"{'🔁 مقسّم' in str(_smc_hc_off)}")
+# SMC5 — (أ) `scan_split_hunter` بت-بت (بصمةُ الدرع) · (ب) الجذورُ الاثنا عشر لا تذكر الدالّتين ولا
+#        المفتاح (AST) · (ج) سلوكيًّا: نفسُ الرموز بالترتيب نفسِه مع السطر وبدونه · والصفوفُ لا تُكتب.
+_smc_fp = "⛔"
+_smc_root_hits = []
+try:
+    _smc_tree = _nc_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+    for _n in _nc_ast.walk(_smc_tree):
+        if not isinstance(_n, (_nc_ast.FunctionDef, _nc_ast.AsyncFunctionDef)):
+            continue
+        if _n.name == "scan_split_hunter":
+            _smc_fp = __import__("hashlib").sha256(
+                _nc_ast.dump(_n).encode()).hexdigest()[:16]
+        if _n.name in _NC_ROOTS:
+            _ids = {getattr(_x, "id", None) or getattr(_x, "attr", None)
+                    or getattr(_x, "value", None) for _x in _nc_ast.walk(_n)
+                    if isinstance(_x, (_nc_ast.Name, _nc_ast.Attribute, _nc_ast.Constant))}
+            if _ids & {"split_count_all", "split_ma20_cap_line", "SPLIT_MANY_COUNT"}:
+                _smc_root_hits.append(_n.name)
+except Exception as _e:                                          # noqa: BLE001
+    _smc_root_hits = [f"⛔ {type(_e).__name__}"]
+_smc_rows = [_smc_row("SMCA"), _smc_row("SMCB"), _smc_row("SMCC")]
+_smc_before = repr(_smc_rows)
+_smc_fx = {"SMCA": _smc_sp4, "SMCB": _smc_sp3, "SMCC": _smc_sp4}
+_smc_on = str(_nc_call(S.build_split_hunter_alert, _smc_rows, today=_smc_t,
+                       fetch_hist=_HUNT_OFF, fetch_splits=lambda s: _smc_fx.get(s)))
+_smc_off = str(_nc_call(S.build_split_hunter_alert, _smc_rows, today=_smc_t,
+                        fetch_hist=_HUNT_OFF, fetch_splits=lambda s: None))
+_smc_order = [__import__("re").findall(r"🎯 <b>(SMC[A-C])</b>", _m) for _m in (_smc_on, _smc_off)]
+check("🔁 SMC5: `scan_split_hunter` **بت-بت** (بصمةُ الدرع `1c6d651d25b52cde`) · والجذورُ الاثنا "
+      "عشر لا تذكر الدالّتين ولا المفتاح · **والعضويّةُ والترتيبُ ثابتان مع السطر وبدونه** "
+      "(سطران لـ A وC وحدَهما) · والصفوفُ لا تُكتب",
+      _smc_fp == "1c6d651d25b52cde" and not _smc_root_hits
+      and _smc_order[0] == _smc_order[1] == ["SMCA", "SMCB", "SMCC"]
+      and _smc_on.count("🔁 مقسّم") == 2 and "🔁 مقسّم" not in _smc_off
+      and repr(_smc_rows) == _smc_before,
+      f"بصمة={_smc_fp} · جذور={_smc_root_hits} · ترتيب={_smc_order} · "
+      f"أسطر={_smc_on.count('🔁 مقسّم')}/{_smc_off.count('🔁 مقسّم')}")
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
