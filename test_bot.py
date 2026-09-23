@@ -59895,6 +59895,404 @@ check("🏦🔒 HRK4 **المِجَسُّ المؤقّت محذوف** (ملفُ�
       "والخطوتان بأسمائهما", _v, _w)
 
 
+# ═══ 🗓️🔍 «قس أثر الإغلاق المبكر» (أمرُ المالك 2026-09-23) — أقفال EAR0-EAR8 · `T-EARLY` ═══
+#    العقد `early_close_prereg.md` قبل أيّ رقم · علمان مطفآن افتراضًا (`PRESESSION_CLOSE_CAL`
+#    في الماسح · `PRESESSION_AUDIT_NEW_ROWS` في الحكم) · وأداةُ تدقيقٍ قراءةٌ فقط.
+import ast as _ear_ast                                            # noqa: E402
+import contextlib as _ear_cl                                      # noqa: E402
+import gzip as _ear_gz                                            # noqa: E402
+import importlib as _ear_il                                       # noqa: E402
+import io as _ear_io                                              # noqa: E402
+import json as _ear_json                                          # noqa: E402
+import os as _ear_os                                              # noqa: E402
+import tempfile as _ear_tf                                        # noqa: E402
+
+_EAR_EARLY = ("2023-07-03", "2023-11-24", "2024-07-03", "2024-11-29", "2024-12-24",
+              "2025-07-03", "2025-11-28", "2025-12-24")
+try:
+    _ear_doc = open("early_close_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _ear_doc = f"⛔ {type(_e).__name__}"
+
+
+def _ear_sec(_doc, _a, _b):
+    """نصُّ القسم `## a` حتى `## b` — أو فارغٌ إن غاب أحدُهما (لا استثناء)."""
+    _i, _j = _doc.find("## " + _a), _doc.find("## " + _b)
+    return _doc[_i:_j] if 0 <= _i < _j else ""
+
+
+def _ear_mod(_name):
+    """يستورد الوحدةَ أو يُرجع `None` — فقفلٌ على وحدةٍ غائبةٍ **يسقط نظيفًا** لا ينهار."""
+    try:
+        return _ear_il.import_module(_name)
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+_ear_ps = _ear_mod("presession_scan")
+_ear_pr = _ear_mod("presession_report")
+_ear_ea = _ear_mod("early_close_audit")
+_EA = _ear_ea
+
+# ① EAR0 — العقد: الفروعُ الثلاثة · معيارُ «الانقلاب» الثلاثيّ · الحرّاسُ الخمسة · والتنبّؤات ·
+#    وتصحيحُ قولي عن `ah_scan` بتشغيلاته الثلاث · ولا تغييرَ لثابتٍ حيٍّ مهما خرج الرقم.
+try:
+    _ear_s1 = _ear_sec(_ear_doc, "① الجرد", "② الطريقة")
+    _ear_s4 = _ear_sec(_ear_doc, "④ المعيار", "⑤ تنبّؤاتٌ")
+    _ear_s6 = _ear_doc[_ear_doc.find("## ⑥"):] if "## ⑥" in _ear_doc else ""
+    _ear_parts = {
+        "الأيّام": all(_d in _ear_doc for _d in _EAR_EARLY),
+        "ah_scan": all(_r in _ear_s1 for _r in ("31585994992", "31644789085", "31645046532"))
+        and "صفرُ تعرّض" in _ear_s1,
+        "القناةُ الثانية": "parse_day_ext" in _ear_s1 and "لا يُصلحها سدُّ التقويم" in _ear_s1,
+        "الفروع": all(_k in _ear_s4 for _k in ("**الفرع 1 «يقاس ولا يقلب»:**",
+                                                "**الفرع 2 «يقلب»:**", "**الفرع 3 «لا حكم»:**")),
+        "الانقلاب": all(_k in _ear_s4 for _k in ("(أ)", "(ب)", "(ج)")),
+        "الحرّاس": all(f"`V-E{_i}`" in _ear_doc for _i in range(1, 6)),
+        "التنبّؤات": all(f"`EP{_i}`" in _ear_doc for _i in range(1, 5)),
+        "لا ثابتَ حيّ": "لا تغييرَ لأيّ ثابتٍ حيّ" in _ear_s6 and "لا يُغيَّر آليًّا" in _ear_s4,
+    }
+    _v = all(_ear_parts.values())
+    _w = str({_k: _x for _k, _x in _ear_parts.items() if not _x}) or "—"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR0 عقدُ `T-EARLY`: الأيّامُ الثمانية · تصحيحُ `ah_scan` بتشغيلاته الثلاث · "
+      "القناةُ الثانية · الفروعُ الثلاثة · «الانقلاب» (أ/ب/ج) · `V-E1`-`V-E5` · `EP1`-`EP4` · "
+      "ولا ثابتَ حيٌّ يُغيَّر آليًّا", _v, _w)
+
+# ② EAR1 — `close_bound`: مطفأٌ ⇒ 16:00 **لكلّ يوم** (بت-بت) · مرفوعٌ ⇒ 13:00 للثمانية وحدَها ·
+#    و16:00 ليومٍ نظاميّ وعطلةٍ وتاريخٍ تالف (لا يُخمَّن حدّ).
+try:
+    _cb = _ear_ps.close_bound
+    _ear_off = all(_cb(_d, False) == 960 for _d in _EAR_EARLY + ("2025-07-02", "2024-12-25", "x"))
+    _ear_on8 = all(_cb(_d, True) == 780 for _d in _EAR_EARLY)
+    _ear_onx = (_cb("2025-07-02", True) == 960 and _cb("2024-12-25", True) == 960
+                and _cb("x", True) == 960 and _cb("2026-11-27", True) == 780)
+    _ear_env = _ear_ps.CLOSE_CAL_ENV == "PRESESSION_CLOSE_CAL"
+    _v = _ear_off and _ear_on8 and _ear_onx and _ear_env
+    _w = f"مطفأ={_ear_off} · الثمانية={_ear_on8} · غيرُها={_ear_onx} · الاسم={_ear_env}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR1 `close_bound`: مطفأٌ ⇒ 16:00 لكلّ يوم · مرفوعٌ ⇒ 13:00 للأيّام الثمانية "
+      "وحدَها و16:00 لغيرها (نظاميّ · عطلة · تالف)", _v, _w)
+
+
+# ③ EAR2 — `parse_day_ext` سلوكيًّا على ملفٍّ اصطناعيّ: يومَ الإغلاق المبكّر يتغيّر **الإغلاقُ وحدَه**
+#    بالعلم (16:00 ⟶ 13:00 بشمعتها) · والشموعُ نفسُها بت-بت · ويومٌ نظاميٌّ لا يتغيّر بحرف ·
+#    و`"0"` لا يرفع العلم (`== "1"` حرفيًّا).
+def _ear_csv(_day, _pts):
+    _ny = _ear_ps.NY
+    _rows = ["ticker,volume,open,close,high,low,window_start,transactions"]
+    for _hh, _mm, _c in _pts:
+        _t = _ear_ps.dt.datetime.combine(_ear_ps.dt.date.fromisoformat(_day),
+                                         _ear_ps.dt.time(_hh, _mm), tzinfo=_ny)
+        _rows.append(f"ZZZ,1000,{_c},{_c},{_c},{_c},{int(_t.timestamp() * 1e9)},5")
+    return "\n".join(_rows) + "\n"
+
+
+def _ear_parse(_txt, _flag):
+    _old = _ear_os.environ.get("PRESESSION_CLOSE_CAL")
+    try:
+        if _flag is None:
+            _ear_os.environ.pop("PRESESSION_CLOSE_CAL", None)
+        else:
+            _ear_os.environ["PRESESSION_CLOSE_CAL"] = _flag
+        return _ear_ps.parse_day_ext(_ear_io.StringIO(_txt), {"ZZZ": 1.0}, "AAPL")
+    finally:
+        if _old is None:
+            _ear_os.environ.pop("PRESESSION_CLOSE_CAL", None)
+        else:
+            _ear_os.environ["PRESESSION_CLOSE_CAL"] = _old
+
+
+try:
+    _ear_pts = ((8, 0, 0.9), (12, 59, 1.0), (13, 0, 1.5), (15, 59, 2.0), (16, 0, 2.5))
+    _ear_e = _ear_csv("2025-07-03", _ear_pts)
+    _ear_r = _ear_csv("2025-07-02", _ear_pts)
+    _b0, _c0 = _ear_parse(_ear_e, None)
+    _b1, _c1 = _ear_parse(_ear_e, "1")
+    _bz, _cz = _ear_parse(_ear_e, "0")
+    _br0, _cr0 = _ear_parse(_ear_r, None)
+    _br1, _cr1 = _ear_parse(_ear_r, "1")
+    _v = (_c0.get("ZZZ") == 2.5 and _c1.get("ZZZ") == 1.5 and _cz.get("ZZZ") == 2.5
+          and _b0 == _b1 == _bz and len(_b0.get("ZZZ", [])) == 5
+          and _cr0 == _cr1 and _cr0.get("ZZZ") == 2.5 and _br0 == _br1)
+    _w = (f"مبكّر: مطفأ={_c0.get('ZZZ')} · مرفوع={_c1.get('ZZZ')} · «0»={_cz.get('ZZZ')} · "
+          f"الشموعُ نفسُها={_b0 == _b1 == _bz} · نظاميّ={_cr0.get('ZZZ')}/{_cr1.get('ZZZ')}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR2 `parse_day_ext` سلوكيًّا: يومَ الإغلاق المبكّر **الإغلاقُ وحدَه** يتغيّر بالعلم "
+      "(2.5 ⟶ 1.5) والشموعُ بت-بت · واليومُ النظاميّ لا يتغيّر · و«0» لا يرفع العلم", _v, _w)
+
+# ④ EAR3 — أداةُ الحكم: العلمُ `== "1"` حرفيًّا ومطفأٌ افتراضًا · وفي **موضعَي** الحارسين
+#    (`V0` · `V-C0`) فرعُ العلم يطبع وفرعُ غيابه **`return 3` كما كان** (بالـAST لا بالنصّ).
+try:
+    _ear_t = _ear_ast.parse(open("presession_report.py", encoding="utf-8").read())
+
+    def _ear_guard_ok(_pins):
+        for _n in _ear_ast.walk(_ear_t):
+            if not (isinstance(_n, _ear_ast.If) and isinstance(_n.test, _ear_ast.Compare)
+                    and isinstance(_n.test.ops[0], _ear_ast.NotEq)):
+                continue
+            _rhs = _n.test.comparators[0]
+            if not (isinstance(_rhs, _ear_ast.Tuple)
+                    and [getattr(_x, "id", None) for _x in _rhs.elts] == list(_pins)):
+                continue
+            for _s in _n.body:
+                if (isinstance(_s, _ear_ast.If) and getattr(_s.test, "id", None) == "AUDIT_NEW_ROWS"
+                        and any(isinstance(_r, _ear_ast.Return) and getattr(_r.value, "value", None) == 3
+                                for _r in _s.orelse)
+                        and not any(isinstance(_r, _ear_ast.Return) for _r in _s.body)):
+                    return True
+        return False
+
+    _ear_asg = any(isinstance(_n, _ear_ast.Assign)
+                   and any(getattr(_tt, "id", None) == "AUDIT_NEW_ROWS" for _tt in _n.targets)
+                   and isinstance(_n.value, _ear_ast.Compare)
+                   and getattr(_n.value.comparators[0], "value", None) == "1"
+                   for _n in _ear_t.body)
+    _ear_g0 = _ear_guard_ok(("V0_TAKEN", "V0_HITS"))
+    _ear_gc = _ear_guard_ok(("VC0_HITS", "VC0_EXPL"))
+    _ear_def = _ear_pr is not None and _ear_pr.AUDIT_NEW_ROWS is False \
+        and (_ear_pr.V0_TAKEN, _ear_pr.V0_HITS, _ear_pr.VC0_HITS, _ear_pr.VC0_EXPL) == (435, 47, 100, 878)
+    _v = _ear_asg and _ear_g0 and _ear_gc and _ear_def
+    _w = f"إسنادٌ «1»={_ear_asg} · V0={_ear_g0} · V-C0={_ear_gc} · مطفأٌ والمرسى كما هو={_ear_def}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR3 أداةُ الحكم: `PRESESSION_AUDIT_NEW_ROWS` `== \"1\"` ومطفأ · وفي موضعَي `V0`/`V-C0` "
+      "فرعُ غيابه `return 3` كما كان وفرعُه يطبع ولا يعود · والمراسي 435/47 و100/878 بلا مسّ", _v, _w)
+
+# ⑤ EAR4 — دوالُّ الأداة النقيّة: التقويمُ يعرف الثمانية · فرقُ اليوم يعدّ المضافَ والمحذوفَ
+#    والمتغيّرَ والوسم · والمشيُ يدمج يومًا غائبًا عن ذراع · واليومُ المتفرّقُ يرمي · والإسنادُ يسقط
+#    بفرقٍ في الضبط **وبضبطٍ فارغ** · والمراسي تسقط بإبرةٍ غائبة · والقرّاءُ الثلاثة.
+try:
+    _ear_cal = _EA.calendar_ok() == (True, _EAR_EARLY)
+
+    def _ear_rw(_d, _s, _sym, **_kw):
+        _r = {"day": _d, "sess": _s, "sym": _sym, "x": 1, "hit80_10": 0}
+        _r.update(_kw)
+        return _r
+
+    _o = [_ear_rw("2023-02-01", "PM", "A"), _ear_rw("2023-02-01", "PM", "B"),
+          _ear_rw("2023-07-05", "PM", "A"), _ear_rw("2023-07-05", "AH", "C")]
+    _n = [_ear_rw("2023-02-01", "PM", "A"), _ear_rw("2023-02-01", "PM", "B"),
+          _ear_rw("2023-07-05", "PM", "A", x=2), _ear_rw("2023-07-05", "AH", "C", hit80_10=1),
+          _ear_rw("2023-07-05", "AH", "D"), _ear_rw("2023-07-06", "PM", "A")]
+    _dd = _EA.diff_streams(iter(_o), iter(_n))
+    _d5 = _dd.get("2023-07-05", {})
+    _ear_diff = (_dd["2023-02-01"]["changed"] == 0 and _d5.get("changed") == 2
+                 and _d5.get("added") == 1 and _d5.get("label") == 1
+                 and _dd.get("2023-07-06", {}).get("added") == 1)
+    _ok_a, _ = _EA.attribution(_dd)
+    _dd_bad = dict(_dd)
+    _dd_bad["2023-02-01"] = dict(_dd["2023-02-01"], changed=1)
+    _bad_a, _bl = _EA.attribution(_dd_bad)
+    _empty_a, _ = _EA.attribution({"2025-03-01": _dd["2023-02-01"]})
+    _ear_attr = _ok_a and not _bad_a and _bl == ["2023-02-01"] and not _empty_a
+    try:
+        list(_EA.iter_days(iter([_ear_rw("2023-01-03", "PM", "A"), _ear_rw("2023-01-04", "PM", "A"),
+                                 _ear_rw("2023-01-03", "PM", "B")])))
+        _ear_split = False
+    except ValueError:
+        _ear_split = True
+    _good = {"الافتراضيّ": "‏[PM · نافذة 10د] الحكم: **فشلت** · P@10=0.40% · base=0.013% · "
+                          "lift=29.8× · R@10=11.5% · إصابات=10 · منفجرون=87 · كون=1\n"
+                          "‏[PM · نافذة الجلسة] الحكم: **فشلت** · P@10=2.92% · base=0.136% · "
+                          "lift=21.5× · R@10=8.3% · إصابات=73 · منفجرون=878 · كون=1\n"
+                          "【PM · المفتاحُ المشحون `post_hi_ret`】 أرضياتٌ مُعايَرةٌ على 2023+2024 "
+                          "حصرًا: F1=0.69492 · F3=0.2 · F5=0.1\n"
+                          "【PM · نافذة 10د · 2023 — معايرة】 كون=9\n"
+                          "      post_hi_ret          إصابات    5 من   2500 ⇒ P@10 0.200% · lift 33.1×",
+             "التطوير": "🔒 **V0** `F1` على 2025: مأخوذ 435 · إصابات 47 · المنشور 435/47",
+             "السقف": "🔒 **V-C0** `post_hi_ret` على 2025·PM·الجلسة: إصابات 100 من 878 · المنشور 100/878"}
+    _bad = dict(_good, **{"السقف": "🔒 **V-C0** `x`: إصابات 99 من 878 · المنشور 100/878"})
+    _ear_pins = _EA.pin_check(_good) == [] and len(_EA.pin_check(_bad)) == 1
+    _vv = _EA.verdicts(_good["الافتراضيّ"])
+    _ear_read = (_vv.get(("PM", "10د")) == "فشلت" and _vv.get(("PM", "الجلسة")) == "فشلت"
+                 and _EA.s0_leaders(_good["الافتراضيّ"]) == {("PM", "10د", "2023"): "post_hi_ret"}
+                 and _EA.floor_value(_good["الافتراضيّ"]) == "0.69492"
+                 and _EA.text_diff("a\nb\nc", "a\nB\nc") == ["-b", "+B"])
+    _v = _ear_cal and _ear_diff and _ear_attr and _ear_split and _ear_pins and _ear_read
+    _w = (f"تقويم={_ear_cal} · فرق={_ear_diff} · إسناد={_ear_attr} · متفرّق={_ear_split} · "
+          f"مراسٍ={_ear_pins} · قرّاء={_ear_read}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR4 دوالُّ `early_close_audit` النقيّة: التقويم · فرقُ اليوم (مضاف/متغيّر/وسم) · "
+      "دمجُ اليوم الغائب · اليومُ المتفرّقُ يرمي · الإسنادُ يسقط بفرقٍ وبضبطٍ فارغ · المراسي · القرّاء", _v, _w)
+
+
+# ⑥ EAR5 — `main()` بجالبٍ محقون: **القديمةُ الثلاثُ أوّلًا بلا علم** ثمّ الجديدةُ الثلاثُ **بالعلم** ·
+#    وحكمٌ قديمٌ لم يخرج 0 ⇒ خروج 5 **وصفرُ تشغيلٍ جديد** · وملفٌّ غائب ⇒ خروج 4 بلا حكم ·
+#    وتقويمٌ لا يطابق المثبَّت ⇒ خروج 5 قبل أيّ قراءة.
+def _ear_arm(_root, _tag):
+    for _y in ("2023", "2024", "2025"):
+        _p = _ear_os.path.join(_root, _tag, _y)
+        _ear_os.makedirs(_p, exist_ok=True)
+        with _ear_gz.open(_ear_os.path.join(_p, f"presession_rows_{_y}.jsonl.gz"), "wt",
+                          encoding="utf-8") as _fh:
+            _fh.write(_ear_json.dumps({"day": f"{_y}-02-01", "sess": "PM", "sym": "A", "x": 1}) + "\n")
+    return _ear_os.path.join(_root, _tag)
+
+
+def _ear_main(_rc_old=0, _drop_new=False, _pins=None):
+    _calls = []
+    _orig = (_EA.run_judge, _EA.PINNED_EARLY)
+    _env0 = {_k: _ear_os.environ.get(_k) for _k in ("EARLY_OLD_DIR", "EARLY_NEW_DIR")}
+    with _ear_tf.TemporaryDirectory() as _td:
+        _od, _nd = _ear_arm(_td, "old"), _ear_arm(_td, "new")
+        if _drop_new:
+            _ear_os.remove(_ear_os.path.join(_nd, "2024", "presession_rows_2024.jsonl.gz"))
+
+        def _fake(_rows, _env, _repo):
+            _calls.append(("new" if _env.get("PRESESSION_AUDIT_NEW_ROWS") == "1" else "old",
+                           dict(_env), sorted(_rows)))
+            _rc = _rc_old if (_calls[-1][0] == "old" and _env.get("PRESESSION_DEV") == "1") else 0
+            return _rc, ""
+        try:
+            _EA.run_judge = _fake
+            if _pins is not None:
+                _EA.PINNED_EARLY = _pins
+            _ear_os.environ["EARLY_OLD_DIR"], _ear_os.environ["EARLY_NEW_DIR"] = _od, _nd
+            with _ear_cl.redirect_stdout(_ear_io.StringIO()):
+                _rc = _EA.main()
+        finally:
+            _EA.run_judge, _EA.PINNED_EARLY = _orig
+            for _k, _x in _env0.items():
+                if _x is None:
+                    _ear_os.environ.pop(_k, None)
+                else:
+                    _ear_os.environ[_k] = _x
+    return _rc, _calls
+
+
+try:
+    _r0, _k0 = _ear_main()
+    _tags = [_c[0] for _c in _k0]
+    _ear_order = (_r0 == 0 and _tags == ["old"] * 3 + ["new"] * 3
+                  and all(_c[2] == ["2023", "2024", "2025"] for _c in _k0)
+                  and [_c[1].get("PRESESSION_DEV") for _c in _k0] == [None, "1", None] * 2
+                  and [_c[1].get("PRESESSION_CEIL") for _c in _k0] == [None, None, "1"] * 2)
+    _r1, _k1 = _ear_main(_rc_old=3)
+    _ear_stop = _r1 == 5 and not any(_c[0] == "new" for _c in _k1)
+    _r2, _k2 = _ear_main(_drop_new=True)
+    _ear_miss = _r2 == 4 and not _k2
+    _r3, _k3 = _ear_main(_pins=_EAR_EARLY[:-1])
+    _ear_cal5 = _r3 == 5 and not _k3
+    _v = _ear_order and _ear_stop and _ear_miss and _ear_cal5
+    _w = (f"ترتيب={_ear_order} ({_tags}) · قديمٌ ساقط⇒5 بلا جديد={_ear_stop} ({_r1}) · "
+          f"غائب⇒4={_ear_miss} · تقويم⇒5={_ear_cal5}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR5 `main()`: القديمةُ الثلاثُ أوّلًا **بلا علم** ثمّ الجديدةُ **بالعلم** · حكمٌ قديمٌ "
+      "لم يخرج 0 ⇒ 5 وصفرُ تشغيلٍ جديد · ملفٌّ غائب ⇒ 4 · تقويمٌ لا يطابق ⇒ 5 قبل أيّ قراءة", _v, _w)
+
+# ⑦ EAR6 — قراءةٌ فقط: الحكمُ يُشغَّل **في مجلّدٍ مؤقّتٍ لا في المستودع** وببيئةٍ منزوعةِ كلِّ
+#    `PRESESSION_*` سوى المطلوب · وصفرُ `open` للكتابة · ولا يستوردها ملفٌّ آخر.
+try:
+    _seen = {}
+    _orun = _EA.subprocess.run
+
+    def _rec(_args, cwd=None, env=None, **_kw):
+        _seen.update(args=list(_args), cwd=cwd, env=dict(env or {}),
+                     ls=sorted(_ear_os.listdir(cwd)) if cwd else [])
+        return _EA.subprocess.CompletedProcess(_args, 0, "ok", "")
+    _ear_os.environ["PRESESSION_LEAKY"] = "1"
+    try:
+        _EA.subprocess.run = _rec
+        with _ear_tf.NamedTemporaryFile(suffix=".jsonl.gz") as _tf:
+            _rj = _EA.run_judge({"2023": _tf.name}, {"PRESESSION_DEV": "1"}, _ear_os.getcwd())
+    finally:
+        _EA.subprocess.run = _orun
+        _ear_os.environ.pop("PRESESSION_LEAKY", None)
+    _here = _ear_os.path.realpath(_ear_os.getcwd())
+    _ear_tmp = (_seen.get("cwd") and not _ear_os.path.realpath(_seen["cwd"]).startswith(_here)
+                and _seen.get("ls") == ["presession_rows_2023.jsonl.gz"]
+                and _seen["args"][-1].endswith("presession_report.py"))
+    _ear_envok = (_seen.get("env", {}).get("PRESESSION_DEV") == "1"
+                  and "PRESESSION_LEAKY" not in _seen.get("env", {}) and _rj == (0, "ok"))
+    _ear_src = open("early_close_audit.py", encoding="utf-8").read()
+    _ear_tt = _ear_ast.parse(_ear_src)
+    _ear_w = [_n for _n in _ear_ast.walk(_ear_tt) if isinstance(_n, _ear_ast.Call)
+              and getattr(_n.func, "id", None) == "open"]
+    def _ear_imports(_f):
+        """هل يستورد الملفُّ `early_close_audit`؟ — **بالـAST** (الذكرُ في تعليقٍ ليس استيرادًا)."""
+        try:
+            _tr = _ear_ast.parse(open(_f, encoding="utf-8", errors="ignore").read())
+        except SyntaxError:
+            return True                                          # غيرُ مُحلَّل ⇒ يُعَدّ مستوردًا
+        for _nd in _ear_ast.walk(_tr):
+            if isinstance(_nd, _ear_ast.Import) and any(
+                    _a.name.split(".")[0] == "early_close_audit" for _a in _nd.names):
+                return True
+            if isinstance(_nd, _ear_ast.ImportFrom) and (_nd.module or "").split(".")[0] == "early_close_audit":
+                return True
+        return False
+
+    _ear_imp = sorted(_f for _f in _ear_os.listdir(".")
+                      if _f.endswith(".py") and _f not in ("test_bot.py", "early_close_audit.py")
+                      and _ear_imports(_f))
+    _ear_net = not any(_k in _ear_src for _k in ("TELEGRAM", "requests", "urllib"))
+    _v = _ear_tmp and _ear_envok and not _ear_w and not _ear_imp and _ear_net
+    _w = (f"مؤقّت={_ear_tmp} · بيئة={_ear_envok} · open={len(_ear_w)} · مستوردون={_ear_imp} · "
+          f"بلا شبكة={_ear_net}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR6 قراءةٌ فقط: الحكمُ في مجلّدٍ مؤقّت ببيئةٍ منزوعةِ `PRESESSION_*` سوى المطلوب · "
+      "صفرُ `open` · صفرُ مستوردين · بلا شبكة", _v, _w)
+
+# ⑧ EAR7 — الـworkflow: يدويٌّ بلا كرون ولا سرِّ تلغرام · قراءةٌ + `actions: read` · السنواتُ الثلاث ·
+#    العلمُ `"1"` في المسح · **والتشغيلاتُ القديمة = `OLD_RUNS` بحرفها** · والتدقيقُ بعد المسح.
+try:
+    import yaml as _ear_y                                        # noqa: E402
+    _ear_wt = open(".github/workflows/early_close_audit.yml", encoding="utf-8").read()
+    _ear_wf = _ear_y.safe_load(_ear_wt)
+    _ear_on = _ear_wf.get(True, _ear_wf.get("on"))
+    _ear_rs, _ear_au = _ear_wf["jobs"]["rescan"], _ear_wf["jobs"]["audit"]
+    _ear_scan = [_s for _s in _ear_rs["steps"] if _s.get("run") == "python presession_scan.py"]
+    _ear_dl = next((_s.get("run", "") for _s in _ear_au["steps"] if "gh run download" in _s.get("run", "")), "")
+    _ear_fin = [_s for _s in _ear_au["steps"] if _s.get("run") == "python early_close_audit.py"]
+    _ear_parts = {
+        "يدويّ": _ear_on == {"workflow_dispatch": None} and "schedule" not in _ear_wt,
+        "أذون": _ear_wf.get("permissions") == {"contents": "read", "actions": "read"},
+        "بلا تلغرام": "TELEGRAM" not in _ear_wt,
+        "سنوات": _ear_rs["strategy"]["matrix"]["year"] == ["2023", "2024", "2025"],
+        "العلم": len(_ear_scan) == 1 and _ear_scan[0]["env"].get("PRESESSION_CLOSE_CAL") == "1"
+        and _ear_scan[0]["env"].get("PRESESSION_YEAR") == "${{ matrix.year }}",
+        "القديمة": sorted(_mem_re.findall(r"\b3\d{10}\b", _ear_dl)) == sorted(_EA.OLD_RUNS.values()),
+        "الترتيب": _ear_au.get("needs") == "rescan" and len(_ear_fin) == 1
+        and set(_ear_fin[0]["env"]) >= {"EARLY_OLD_DIR", "EARLY_NEW_DIR"},
+    }
+    _v = all(_ear_parts.values())
+    _w = str({_k: _x for _k, _x in _ear_parts.items() if not _x}) or "—"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR7 `early_close_audit.yml`: يدويٌّ بلا كرون ولا تلغرام · `actions: read` · 2023-2025 · "
+      "`PRESESSION_CLOSE_CAL=\"1\"` في المسح · التشغيلاتُ القديمة = `OLD_RUNS` · والتدقيقُ بعد المسح", _v, _w)
+
+# ⑨ EAR8 — الماسحُ يقرأ علمَه **`== "1"` حرفيًّا داخل `parse_day_ext`** (بالـAST) ويسأل `close_bound`
+#    لكلّ يوم · ولا يبقى حدُّ 16:00 مغروسًا في شرط الإغلاق.
+try:
+    _ear_st = _ear_ast.parse(open("presession_scan.py", encoding="utf-8").read())
+    _ear_fn = next((_n for _n in _ear_ast.walk(_ear_st)
+                    if isinstance(_n, _ear_ast.FunctionDef) and _n.name == "parse_day_ext"), None)
+    _ear_rd = _ear_fn is not None and any(
+        isinstance(_n, _ear_ast.Compare) and getattr(_n.comparators[0], "value", None) == "1"
+        and "CLOSE_CAL_ENV" in _ear_ast.dump(_n.left) for _n in _ear_ast.walk(_ear_fn))
+    _ear_cbc = _ear_fn is not None and any(
+        isinstance(_n, _ear_ast.Call) and getattr(_n.func, "id", None) == "close_bound"
+        for _n in _ear_ast.walk(_ear_fn))
+    _ear_960 = _ear_fn is not None and not any(
+        isinstance(_n, _ear_ast.Compare) and isinstance(_n.ops[0], _ear_ast.LtE)
+        and "16" in _ear_ast.dump(_n.comparators[0]) and "60" in _ear_ast.dump(_n.comparators[0])
+        for _n in _ear_ast.walk(_ear_fn))
+    _v = _ear_rd and _ear_cbc and _ear_960
+    _w = f"علمٌ «1»={_ear_rd} · close_bound={_ear_cbc} · لا 16*60 مغروس={_ear_960}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR8 `parse_day_ext`: العلمُ `== \"1\"` حرفيًّا · `close_bound` لكلّ يوم · "
+      "ولا حدَّ 16:00 مغروسًا في شرط الإغلاق (بالـAST)", _v, _w)
+
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

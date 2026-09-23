@@ -63,12 +63,40 @@ def log(m: str = "") -> None:
     print(m, flush=True)
 
 
+# 🗓️ `T-EARLY` (`early_close_prereg.md §②`) — حدُّ «إغلاق الأمس» من التقويم **خلف علمٍ مطفأ**.
+#    خريطةُ `closes` كانت تثبّت 16:00 في الكود فيُقرأ إغلاقُ يوم الإغلاق المبكّر (13:00)
+#    آخرَ شمعةٍ ممتدّةٍ حتى 16:00 — **ولا يُصلحه سدُّ التقويم** لأنها لا تسأله.
+#    🔒 **العلمُ مطفأٌ افتراضًا ⇒ 16:00 بت-بت** (المسوحُ المنشورة تُعاد حرفيًّا) ·
+#    و`PRESESSION_CLOSE_CAL=1` حرفيًّا وحدَه يرفعه (أداةُ التدقيق `early_close_audit.yml`).
+CLOSE_CAL_ENV = "PRESESSION_CLOSE_CAL"
+REG_CLOSE_FIXED = 16 * 60
+
+
+def close_bound(day: str, from_calendar: bool) -> int:
+    """آخرُ دقيقةٍ (نيويورك) تدخل «إغلاقَ» اليوم في خريطة `closes` — نقيّة.
+
+    مطفأٌ ⇒ 16:00 لكلّ يوم (السلوكُ المنشور) · مرفوعٌ ⇒ `close_ny_min` من التقويم
+    (13:00 يومَ الإغلاق المبكّر) · والمجهولُ أو الشاذّ ⇒ 16:00 (لا يُخمَّن حدّ)."""
+    if not from_calendar:
+        return REG_CLOSE_FIXED
+    try:
+        cm = MC.session_info(day).get("close_ny_min")
+    except Exception:                                   # noqa: BLE001
+        return REG_CLOSE_FIXED
+    if isinstance(cm, int) and 0 < cm <= REG_CLOSE_FIXED:
+        return cm
+    return REG_CLOSE_FIXED
+
+
 # ── قراءةُ ملفّ اليوم (مع عمود `transactions`) ────────────────────────────────
 def parse_day_ext(fh, keep_prev: dict, witness: str = WITNESS):
     """يقرأ ملفَّ اليوم ويُرجع (bars, closes):
     `bars[sym]` = قائمةُ (ms, o, h, l, c, v, n, mod) مرتّبةً · لرموزٍ إغلاقُ أمسها
     داخل [0.3, KEEP_HI] أو مجهولٌ وأوّلُ شمعةٍ ‏≤ KEEP_HI (سوبرست الكون) · والشاهدُ
-    دائمًا · `closes[sym]` = آخرُ إغلاقٍ نظاميّ (‏≤16:00) **لكلّ** الرموز."""
+    دائمًا · `closes[sym]` = آخرُ إغلاقٍ نظاميّ (‏≤16:00 · أو حدُّ التقويم مع
+    `PRESESSION_CLOSE_CAL=1` — `close_bound`) **لكلّ** الرموز."""
+    cal = (os.environ.get(CLOSE_CAL_ENV) or "").strip() == "1"
+    bounds: dict = {}
     rd = csv.reader(fh)
     header = next(rd)
     i_t = AH._pick(header, "ticker", "symbol")
@@ -97,7 +125,10 @@ def parse_day_ext(fh, keep_prev: dict, witness: str = WITNESS):
         day, mod = AH.ny_minute(ns)
         if day is None:
             continue
-        if mod <= 16 * 60:
+        cb = bounds.get(day)
+        if cb is None:
+            cb = bounds[day] = close_bound(day, cal)
+        if mod <= cb:
             pc = closes.get(sym)
             if pc is None or mod > pc[0]:
                 closes[sym] = (mod, c)
