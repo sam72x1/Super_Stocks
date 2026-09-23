@@ -1,0 +1,49 @@
+name: "🧪 مِجَسّ مؤقّت — V-E2 الكامل لعقد T-EARLY (يُحذف بعد القراءة)"
+
+# 🔒 قراءةٌ فقط · لا كرون · لا سرّ · لا كتابة. يُطلَق بالدفع على فرع العمل وحدَه
+#    ويُحذف في الكوميت التالي بعد قراءة سجلّه (نمطُ «مِجَسّ Actions مؤقّت»).
+permissions:
+  contents: read
+  actions: read
+
+on:
+  push:
+    branches: [claude/conversation-compaction-failure-088pki]
+    paths: ["early_zone_probe.py", ".github/workflows/early_zone_probe.yml"]
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📥 الصفوف (المنشورة + تشغيلة التدقيق 35907136622)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -e
+          for id in 33724354384 33724361819 33724367680; do
+            gh run download "$id" --repo "$GITHUB_REPOSITORY" \
+              --pattern 'presession-rows-*' --dir "/tmp/early-old/$id"
+          done
+          gh run download 35907136622 --repo "$GITHUB_REPOSITORY" \
+            --pattern 'early-rows-*' --dir /tmp/early-new
+          find /tmp/early-old /tmp/early-new -name 'presession_rows_*.jsonl.gz' -exec ls -la {} \;
+
+      - name: 🧪 V-E2 الكامل
+        env:
+          PYTHONUNBUFFERED: "1"
+          EARLY_OLD_DIR: /tmp/early-old
+          EARLY_NEW_DIR: /tmp/early-new
+        run: python early_zone_probe.py
