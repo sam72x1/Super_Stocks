@@ -1,7 +1,7 @@
-# 📸 سجلّ تغطية صور منهجية فيصل — 2026-09-18
+# 📸 سجلّ تغطية صور منهجية فيصل — 2026-09-23
 
-- **المجموع المُدرَج:** 721  ·  **بملف مرفوع:** 605
-- **📗 موثّقة:** 200  ·  **📕 لم تُقرأ بعد:** 521  ·  **مكرّرة:** 0
+- **المجموع المُدرَج:** 753  ·  **بملف مرفوع:** 637
+- **📗 موثّقة:** 200  ·  **📕 لم تُقرأ بعد:** 553  ·  **مكرّرة:** 0
 
 **الدفعة التالية المقترحة (8):** APP_20260918_18_NTCL · APP_20260918_19_NTCL · APP_20260918_20_NTCL · APP_20260918_49_main · APP_20260918_50_ZNB · APP_20260918_52_ELPW · APP_20260918_53_ELPW · APP_20260918_59_VEEE
 
@@ -657,6 +657,38 @@
 | TG_2541 | TG_2541.jpg | ❌ | unread | — |
 | TG_2544 | TG_2544.jpg | ❌ | unread | — |
 | TG_2545 | TG_2545.jpg | ❌ | unread | — |
+| TG_50575 | TG_50575.jpg | ❌ | unread | — |
+| TG_50576 | TG_50576.jpg | ❌ | unread | — |
+| TG_50577 | TG_50577.jpg | ❌ | unread | — |
+| TG_50578 | TG_50578.jpg | ❌ | unread | — |
+| TG_50579 | TG_50579.jpg | ❌ | unread | — |
+| TG_50580 | TG_50580.jpg | ❌ | unread | — |
+| TG_50581 | TG_50581.jpg | ❌ | unread | — |
+| TG_50582 | TG_50582.jpg | ❌ | unread | — |
+| TG_50583 | TG_50583.jpg | ❌ | unread | — |
+| TG_50584 | TG_50584.jpg | ❌ | unread | — |
+| TG_50585 | TG_50585.jpg | ❌ | unread | — |
+| TG_50586 | TG_50586.jpg | ❌ | unread | — |
+| TG_50587 | TG_50587.jpg | ❌ | unread | — |
+| TG_50588 | TG_50588.jpg | ❌ | unread | — |
+| TG_50589 | TG_50589.jpg | ❌ | unread | — |
+| TG_50590 | TG_50590.jpg | ❌ | unread | — |
+| TG_50591 | TG_50591.jpg | ❌ | unread | — |
+| TG_50592 | TG_50592.jpg | ❌ | unread | — |
+| TG_50593 | TG_50593.jpg | ❌ | unread | — |
+| TG_50594 | TG_50594.jpg | ❌ | unread | — |
+| TG_50595 | TG_50595.jpg | ❌ | unread | — |
+| TG_50596 | TG_50596.jpg | ❌ | unread | — |
+| TG_50597 | TG_50597.jpg | ❌ | unread | — |
+| TG_50598 | TG_50598.jpg | ❌ | unread | — |
+| TG_50599 | TG_50599.jpg | ❌ | unread | — |
+| TG_50600 | TG_50600.jpg | ❌ | unread | — |
+| TG_50601 | TG_50601.jpg | ❌ | unread | — |
+| TG_50602 | TG_50602.jpg | ❌ | unread | — |
+| TG_50603 | TG_50603.jpg | ❌ | unread | — |
+| TG_50604 | TG_50604.jpg | ❌ | unread | — |
+| TG_50605 | TG_50605.jpg | ❌ | unread | — |
+| TG_50606 | TG_50606.jpg | ❌ | unread | — |
 | WA_20260918_31_SXTC | WA_20260918_31_SXTC.jpg | ❌ | unread | — |
 | WA_20260918_46_NUWE | WA_20260918_46_NUWE.jpg | ❌ | unread | — |
 | X_20260827_amix_3m_inflow | X_20260827_amix_3m_inflow.png | ❌ | unread | — |
