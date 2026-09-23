@@ -66,6 +66,71 @@ def bars_around(df, date):
     return rows
 
 
+def all_filings(sym, days):
+    """كلُّ الإيداعات خلال `days` (form · filingDate · acceptanceDateTime · items)."""
+    cik = S.sec_cik_map().get(sym.upper())
+    if not cik:
+        return []
+    r = requests.get(f"https://data.sec.gov/submissions/CIK{cik:010d}.json",
+                     headers=S.SEC_UA, timeout=40)
+    r.raise_for_status()
+    rec = ((r.json().get("filings") or {}).get("recent")) or {}
+    cut = (dt.date.today() - dt.timedelta(days=days)).isoformat()
+    out = []
+    n = len(rec.get("form") or [])
+    for i in range(n):
+        fd = rec["filingDate"][i]
+        if fd < cut:
+            break
+        out.append((rec["form"][i], fd, (rec.get("acceptanceDateTime") or [""] * n)[i],
+                    (rec.get("items") or [""] * n)[i]))
+    return out
+
+
+def second_round():
+    """الجولة الثانية (بعد أن خلا CETX من 2.02): أيُّ مصدرٍ يعطي «Ⓔ» فيصل؟"""
+    print("\n\n████ الجولة الثانية: مصادرُ تاريخ الخبر البديلة ████")
+    hist = S.download_history(list(TARGETS), start_override="2025-06-01")
+    for sym in TARGETS:
+        df = hist.get(sym)
+        print(f"\n════════ {sym} — كلُّ الإيداعات خلال 150 يومًا ════════")
+        try:
+            for form, fd, acc, items in all_filings(sym, 150):
+                print(f"  {fd} · {form} · {acc} · items={items}")
+        except Exception as e:                                   # noqa: BLE001
+            print(f"  ⛔ SEC: {type(e).__name__}: {e}")
+        try:
+            import yfinance as yf
+            t = yf.Ticker(sym)
+            try:
+                ed = t.get_earnings_dates(limit=8)
+                print("  📅 yfinance get_earnings_dates:")
+                print("   ", (ed.to_string() if ed is not None else "None").replace("\n", "\n    "))
+            except Exception as e:                               # noqa: BLE001
+                print(f"  📅 get_earnings_dates ⛔ {type(e).__name__}: {e}")
+            try:
+                print("  📅 yfinance calendar:", t.calendar)
+            except Exception as e:                               # noqa: BLE001
+                print(f"  📅 calendar ⛔ {type(e).__name__}: {e}")
+        except Exception as e:                                   # noqa: BLE001
+            print(f"  ⛔ yfinance: {type(e).__name__}: {e}")
+        if df is not None and len(df) and sym == "CETX":
+            lo, hi = FAISAL["CETX"]
+            print(f"\n  🔎 شموعُ CETX من 2026-07-01 التي يحوي مداها {lo} و{hi} معًا أو يقع جسمُها بينهما:")
+            sub = df[df.index >= "2026-07-01"]
+            for ix, b in sub.iterrows():
+                o, h, l, c = (float(b[k]) for k in ("Open", "High", "Low", "Close"))
+                rng = l <= lo + 0.03 and h >= hi - 0.03
+                body = min(o, c) >= lo - 0.06 and max(o, c) <= hi + 0.06 and abs(o - c) >= 0.15
+                if rng or body:
+                    print(f"     {str(ix)[:10]} o={o:.3f} h={h:.3f} l={l:.3f} c={c:.3f} "
+                          f"v={int(float(b['Volume']))} {'مدى' if rng else ''} {'جسم' if body else ''}")
+            print("\n  📈 CETX يوميًّا 2026-07-25 … 2026-09-05:")
+            for ix, b in df[(df.index >= "2026-07-25") & (df.index <= "2026-09-05")].iterrows():
+                print(f"     {str(ix)[:10]} o={float(b['Open']):.3f} h={float(b['High']):.3f} "
+                      f"l={float(b['Low']):.3f} c={float(b['Close']):.3f} v={int(float(b['Volume']))}")
+
+
 def main():
     print(f"🔑 SEC_UA مضبوط: {'نعم' if 'contact@example.com' not in S.SEC_UA['User-Agent'] else 'لا — الافتراضيّ الوهميّ'}")
     hist = S.download_history(list(TARGETS), start_override="2025-06-01")
@@ -120,3 +185,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    second_round()
