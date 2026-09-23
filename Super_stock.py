@@ -4929,15 +4929,16 @@ def news_candle_level(df, news_date, price=None):
     """📰 **شمعةُ الخبر** (R-01 · دفعة 2026-09-23 · فيصل `TG_50828` على CETX: «شمعة الخبر
     3 > 2.70 =E مقاومه» — وⒺ في المنصّة = يومُ النتائج). نقيّة · فاشلة-آمنة · **عرضٌ فقط**.
 
-    `news_date` = تاريخُ إيداع 8-K ببند 2.02 (قناة `_SEC_EARN`). **والشمعةُ = الأعلى حجمًا
-    بين أوّل جلسةٍ في يوم الإيداع أو بعده والجلسةِ التالية لها**: الخبرُ بعد الإغلاق
-    يصنع شمعةَ اليوم التالي، والإيداعُ في عطلةٍ يقع على أوّل جلسةٍ بعدها — والحجمُ يحسم
-    بلا حاجةٍ إلى `acceptanceDateTime` (منطقتُه الزمنيّة غيرُ متحقَّقة · `U-04`).
-    الأبكرُ عند تعادل الحجم (حتميّ).
+    `news_date` = تاريخُ إيداع النتائج (قناة `_SEC_EARN`: 8-K ببند 2.02 وإلّا 10-Q/10-K).
+    **والشمعةُ = جلسةُ يوم الإيداع نفسِه**، أو أوّلُ جلسةٍ بعده إن وقع في عطلة — **كما تضع
+    المنصّةُ Ⓔ على يوم التقرير**. 🔴 **ومقيسٌ لا مفترَض (مِجَسّ Actions 2026-09-23):** صيغتي
+    الأولى («الأعلى حجمًا بين اليوم والتالي») اختارت لـ SNAL شمعةَ ردّ الفعل 08-12 (‏2.89-3.38)
+    بينما Ⓔ فيصل في `TG_20260905_05` فوق شمعة 08-11 (‏4.17-4.73) · ولـ CETX شمعةُ 10-Q ‏08-14
+    (‏2.98-3.10) = «3» في نصّه وخطِّه الأسود 3.067.
 
-    يرجّع `{date, open, high, low, close, role, lag}` أو `None`: بلا تاريخ · بلا إطار ·
-    إيداعٌ بعد آخر شمعة · أو قيمٌ غيرُ صالحة. و`role` من موضع السعر (`price` أو آخرُ
-    إغلاق): «مقاومة فوق السعر» · «دعم تحت السعر» · «السعر داخلها».
+    يرجّع `{date, open, high, low, close, role}` أو `None`: بلا تاريخ · بلا إطار · إيداعٌ
+    بعد آخر شمعة · أو قيمٌ غيرُ صالحة. و`role` من موضع السعر (`price` أو آخرُ إغلاق):
+    «مقاومة فوق السعر» · «دعم تحت السعر» · «السعر داخلها».
     ⚖️ **يصف ولا يَعِد:** لم يُقَس أنّ السعرَ يتوقّف عندها — هو نصُّ فيصل على مثالٍ واحد
     (`POSSIBLE RULE` · `LIKELY`)، ولا يدخل فرزًا ولا ترتيبًا ولا دخولًا ولا وقفًا."""
     if df is None or not news_date:
@@ -4951,19 +4952,9 @@ def news_candle_level(df, news_date, price=None):
             idx = idx.tz_localize(None)
         idx = idx.normalize()
         pos = int(np.searchsorted(idx.values, d0.to_datetime64(), side="left"))
-        cand = [p for p in (pos, pos + 1) if 0 <= p < len(df)]
-        if not cand:
+        if not 0 <= pos < len(df):
             return None
-        vol = df["Volume"] if "Volume" in df else None
-
-        def _v(p):
-            try:
-                x = float(vol.iloc[p]) if vol is not None else 0.0
-                return x if np.isfinite(x) else 0.0
-            except Exception:                                    # noqa: BLE001
-                return 0.0
-        best = max(cand, key=lambda p: (_v(p), -p))
-        row = df.iloc[best]
+        row = df.iloc[pos]
         hi, lo = float(row["High"]), float(row["Low"])
         op, cl = float(row["Open"]), float(row["Close"])
         if not all(np.isfinite([hi, lo, op, cl])) or lo <= 0 or lo > hi:
@@ -4973,23 +4964,25 @@ def news_candle_level(df, news_date, price=None):
             return None
         role = ("مقاومة فوق السعر" if px < lo else
                 ("دعم تحت السعر" if px > hi else "السعر داخلها"))
-        return {"date": str(idx[best].date()), "open": round(op, 4),
+        return {"date": str(idx[pos].date()), "open": round(op, 4),
                 "high": round(hi, 4), "low": round(lo, 4), "close": round(cl, 4),
-                "role": role, "lag": int(best - pos)}
+                "role": role}
     except Exception:                                            # noqa: BLE001
         return None
 
 
-def news_candle_line(nc) -> str:
+def news_candle_line(nc, form=None) -> str:
     """سطرُ «📰 شمعة الخبر» (عرضٌ فقط) — «» لو لا شمعة. بلا علامات مقارنة، وأربعُ خاناتٍ
-    تحت الدولار (نمطُ العرض القائم) لأنّ الخانتين تمحوان مستوياتِ الأسهم الرخيصة."""
+    تحت الدولار (نمطُ العرض القائم) لأنّ الخانتين تمحوان مستوياتِ الأسهم الرخيصة. و`form`
+    (8-K · 10-Q · 10-K) يُسمّي مصدرَ التاريخ فيعرف القارئُ أهو إعلانٌ أم تقريرٌ دوريّ."""
     if not nc:
         return ""
     try:
         def _px(v):
             v = float(v)
             return f"${v:.4f}" if abs(v) < 1 else f"${v:.2f}"
-        return (f"📰 شمعة الخبر (نتائج مالية {nc['date']}): رأسها {_px(nc['high'])} · "
+        _src = f" · {form}" if form else ""
+        return (f"📰 شمعة الخبر (نتائج مالية {nc['date']}{_src}): رأسها {_px(nc['high'])} · "
                 f"قاعها {_px(nc['low'])} — {nc['role']}")
     except Exception:                                            # noqa: BLE001
         return ""
@@ -5147,7 +5140,8 @@ SEC_FORM_CLASS = {
 # sec_recent_filings بنافذة أطول من نافذة العرض وتُستهلك في enrich → upcoming_events
 _SEC_PROXY = {}
 # 📰 شمعة الخبر (R-01 · دفعة 2026-09-23 · فيصل `TG_50828` «شمعة الخبر 3 > 2.70 =E مقاومه»):
-# أحدثُ 8-K ببند **2.02** («نتائج مالية») من **نفس** نداء SEC — صفرُ جلبٍ إضافيّ.
+# تاريخُ النتائج من **نفس** نداء SEC — صفرُ جلبٍ إضافيّ: أحدثُ 8-K أصليّ ببند **2.02**، **وإلّا**
+# أحدثُ `10-Q`/`10-K` (مِجَسّ 2026-09-23: CETX بلا أيّ 2.02 في 400 يوم وتقريرُه 10-Q ‏08-14 = Ⓔ فيصل).
 # `{رمز: {"date", "form"}}` · يُنزَع في `enrich` والمسار اليوميّ · مسقوفٌ بـ`_SEC_OFFERING_MAX`.
 _SEC_EARN = {}
 _PROXY_FORMS = ("DEF 14A", "DEFA14A", "DEFR14A", "PRE 14A", "PRER14A",
@@ -5219,6 +5213,7 @@ def sec_recent_filings(sym: str):
         pcut = (dt.date.today()
                 - dt.timedelta(days=CONFIG["PROXY_LOOKBACK_DAYS"])).isoformat()
         full = False
+        _earn8 = _earnq = None          # 📰 شمعة الخبر (R-01): تُسنَد بعد الحلقة
         for i in range(len(forms)):
             fdate = dates[i] if i < len(dates) else ""
             if fdate < pcut:
@@ -5239,13 +5234,14 @@ def sec_recent_filings(sym: str):
                     and len(_SEC_FOUNDING) < _SEC_OFFERING_MAX):
                 _SEC_FOUNDING[sym.upper()] = {"form": form, "date": fdate}
             # 📰 شمعة الخبر (R-01): أحدثُ 8-K **أصليّ** (لا `8-K/A` — التعديلُ ليس يومَ الخبر)
-            # بنودُه تحوي **2.02** («نتائج مالية»). الحلقةُ من الأحدث للأقدم وتقف عند نافذة
-            # `PROXY_LOOKBACK_DAYS` ⇒ الأوّلُ الملتقَط هو الأحدث داخلها.
-            if (form == "8-K" and sym.upper() not in _SEC_EARN
-                    and len(_SEC_EARN) < _SEC_OFFERING_MAX
+            # بنودُه تحوي **2.02** («نتائج مالية») · وأحدثُ `10-Q`/`10-K` احتياطًا. الحلقةُ من
+            # الأحدث للأقدم وتقف عند نافذة `PROXY_LOOKBACK_DAYS` ⇒ الأوّلُ من كلٍّ هو الأحدث.
+            if (_earn8 is None and form == "8-K"
                     and "2.02" in [x.strip() for x in str(
                         items_l[i] if i < len(items_l) else "").split(",")]):
-                _SEC_EARN[sym.upper()] = {"date": fdate, "form": form}
+                _earn8 = {"date": fdate, "form": form}
+            if _earnq is None and form in ("10-Q", "10-K"):
+                _earnq = {"date": fdate, "form": form}
             # 📄 Form 4 (تداول داخليين): نخزّن الميتا فقط (صفر نداء إضافي هنا)
             if form == "4" and (sym.upper() in _SEC_FORM4
                                 or len(_SEC_FORM4) < _SEC_FORM4_MAX):
@@ -5269,6 +5265,11 @@ def sec_recent_filings(sym: str):
                 out.append(line)
             if len(out) >= CONFIG["SEC_MAX_SHOW"]:
                 full = True
+        # 📰 شمعة الخبر (R-01): **2.02 أولى** (إعلانُ النتائج نفسُه) · وإلّا التقريرُ الدوريّ.
+        #    ⚠️ حدّ صدق: 2.02 قديمٌ داخل النافذة يغلب 10-Q أحدثَ منه (نادر — المودِعون يثبتون).
+        _ne = _earn8 or _earnq
+        if _ne and (sym.upper() in _SEC_EARN or len(_SEC_EARN) < _SEC_OFFERING_MAX):
+            _SEC_EARN[sym.upper()] = _ne
         return out, "ok"
     except Exception as e:
         log(f"⚠️ SEC {sym}: {e}")
@@ -5689,7 +5690,7 @@ def enrich(results: list) -> None:
         # 🆕 الطرح الجديد (حدث مؤسِّس عند فيصل) — من نفس النداء، صفر تكلفة
         r["offering_event"] = _SEC_FOUNDING.pop(r["symbol"].upper(), None)
         _SEC_OFFERING.pop(r["symbol"].upper(), None)   # تنظيف القناة الواسعة
-        # 📰 شمعة الخبر (R-01): تاريخُ أحدثِ 8-K ببند 2.02 من النداء نفسِه — والشمعةُ تُحسب
+        # 📰 شمعة الخبر (R-01): تاريخُ النتائج (8-K ببند 2.02 وإلّا 10-Q/10-K) من النداء نفسِه — والشمعةُ تُحسب
         #    حيث الإطارُ اليوميّ متاح (التجديد الأسبوعيّ · المتابعة اليوميّة · فحص اليد).
         r["news_filing"] = _SEC_EARN.pop(r["symbol"].upper(), None)
         # 📄 شراء الداخليين (Form 4): الميتا مجانية أعلاه · المستند بسقف صارم هنا
@@ -9860,7 +9861,8 @@ def build_message(results: list, splits: list,
             lines.append(_spl)
         # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
         lines += events_lines(r.get("upcoming_events"))
-        _ncl = news_candle_line(r.get("news_candle"))   # 📰 شمعة الخبر (R-01 · TG_50828)
+        _ncl = news_candle_line(r.get("news_candle"),   # 📰 شمعة الخبر (R-01 · TG_50828)
+                                (r.get("news_filing") or {}).get("form"))
         if _ncl:
             lines.append(_ncl)
         lines += interp_card_lines(r.get("interp"))   # 🧭 التفسير/القرار (عرض فقط)
@@ -11089,7 +11091,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "ah_missed": r.get("ah_missed"),                   # 🌙 ما فوّته اليوميُّ (عرض فقط · يُكتَم إن بات)
         "insider_buys": r.get("insider_buys"),            # 📄 شراء داخلي (Form 4)
         "offering_event": r.get("offering_event"),        # 🆕 طرح جديد (حدث مؤسِّس)
-        "news_filing": r.get("news_filing"),              # 📰 أحدثُ 8-K ببند 2.02 (R-01)
+        "news_filing": r.get("news_filing"),              # 📰 إيداعُ النتائج: 2.02 وإلّا 10-Q/10-K (R-01)
         "news_candle": r.get("news_candle"),              # 📰 شمعةُ الخبر (عرضٌ فقط)
         "news_acc": r.get("news_acc"),                    # 📉 قبول الخبر
         "bottom_test": r.get("bottom_test"),              # 🔁 «القاع 2» (فيصل — عرض فقط)
@@ -18449,7 +18451,8 @@ def build_daily_message(wl: dict, splits: list,
         # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
         for _evl in events_lines(s.get("upcoming_events")):
             lines.append("   " + _evl)
-        _ncl = news_candle_line(s.get("news_candle"))   # 📰 شمعة الخبر (R-01 · TG_50828)
+        _ncl = news_candle_line(s.get("news_candle"),   # 📰 شمعة الخبر (R-01 · TG_50828)
+                                (s.get("news_filing") or {}).get("form"))
         if _ncl:
             lines.append("   " + _ncl)
         for _il in interp_card_lines(s.get("interp")):   # 🧭 التفسير/القرار (عرض فقط)
