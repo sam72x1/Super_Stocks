@@ -17,6 +17,57 @@ import os as _os_hc
 #    وهو صنفُ `HF-TG` بعينه (‏2026-09-16) — عُولج هناك بملفٍّ واحدٍ وبقيت عشرة.
 _SUITE_PID = _os_hc.getpid()
 # ══════════════════════════════════════════════════════════════════════════
+# 🧹 **السويّةُ لا تترك أثرًا في المستودع** (عيبٌ مقيس 2026-09-23 · أمرُ المالك «صلّح التسريب»)
+# ══════════════════════════════════════════════════════════════════════════
+# 🔴 كانت تكتب في ملفّين **حقيقيّين**: `telegram_collect_report.md` (‏`_tc_run` عزل
+#    STATE وOUT_DIR ونسي REPORT) و`company_cache.json` (‏PL19 ينادي `S.enrich` فيحفظ
+#    الذاكرةَ في الملفّ الحقيقيّ). **والضررُ وقع:** مدخلٌ وهميّ `ZRO` (فلوت مليون ·
+#    شورت صفر = فِكستشرُ PL19 حرفيًّا) دخل ذاكرةَ الإنتاج في `362801bea` (2026-08-15)
+#    وأعادت رفعَه ثماني جلساتٍ بعدها · ولو رُفع تقريرُ التلغرام لحلّ فِكستشرٌ محلَّ
+#    الحقيقيّ. ⇒ **لقطةٌ هنا وحكمٌ في آخر السويّة** (‏`LEAK1`/`LEAK2`): لا كتابةَ في
+#    ملفٍّ متتبَّع ولا ملفَّ جديدًا غيرَ مُتجاهَل — **والعزلُ عند الكاتب** لا هنا.
+import subprocess as _sp_fp
+_SUITE_ROOT = _os_hc.path.dirname(_os_hc.path.abspath(__file__))
+
+
+def _repo_footprint(root=None):
+    """(‏stat لكلِّ ملفٍّ متتبَّع · مجموعةُ الملفّات غير المتتبَّعة وغير المُتجاهَلة).
+
+    ‏`git ls-files` مصدرُ الجرد لا قائمةٌ بيد (درسُ عدِّ الـworkflows). والمقارَنُ
+    ‏الحجمُ و`mtime_ns` لا المحتوى: **أيُّ كتابةٍ تسريبٌ ولو أعادت البايتات نفسَها**
+    (‏`ZRO` بدأ «إعادةَ ترتيبٍ» بمحتوًى مكافئ ثم صار مدخلًا في الإنتاج)."""
+    root = root or _SUITE_ROOT
+
+    def _ls(*extra):
+        p = _sp_fp.run(["git", "ls-files", "-z", *extra], cwd=root,
+                       capture_output=True, timeout=120)
+        if p.returncode != 0:
+            raise RuntimeError(p.stderr.decode("utf-8", "replace").strip()[:160])
+        return [x for x in p.stdout.decode("utf-8", "surrogateescape").split("\0") if x]
+
+    tracked = {}
+    for rel in _ls():
+        try:
+            st = _os_hc.stat(_os_hc.path.join(root, rel))
+            tracked[rel] = (st.st_size, st.st_mtime_ns)
+        except OSError:
+            tracked[rel] = None
+    return tracked, set(_ls("--others", "--exclude-standard"))
+
+
+def _footprint_delta(before, after):
+    """(متتبَّعٌ كُتب أو اختفى أو أُضيف · جديدٌ غيرُ متتبَّع) — قائمتان مرتّبتان."""
+    t0, u0 = before
+    t1, u1 = after
+    written = {k for k in t0 if t1.get(k, "∅") != t0[k]} | (set(t1) - set(t0))
+    return sorted(written), sorted(set(u1) - set(u0))
+
+
+try:
+    _FOOTPRINT0 = _repo_footprint()
+except Exception as _e_fp:                                    # noqa: BLE001
+    _FOOTPRINT0 = f"⛔ تعذّر جردُ المستودع: {type(_e_fp).__name__}: {_e_fp}"
+# ══════════════════════════════════════════════════════════════════════════
 # 🌐 **نظافةُ البيئة — السويّةُ لا تقرأ بيئةَ الرنر** (عيبٌ مقيس 2026-09-07)
 # ══════════════════════════════════════════════════════════════════════════
 # 🔴🔴 قفلُ `CH3` كان يثبّت `{"ref": "main"}` **مغروسًا**، و`_chain_next` يقرأ
@@ -145,6 +196,28 @@ _OE_REAL_SHA = (
     if _os_hc.path.exists(_OE_REAL_PATH) else None)
 S.OP_ENTRY_STATE_FILE = _os_hc.path.join(
     _rej_tf.gettempdir(), f"_suite_op_entry.{_SUITE_PID}.json")
+
+# 🧹 **والسابعُ والثامنُ والتاسع — أُمسكت بالقياس لا بالتذكّر** (‏2026-09-23، «صلّح
+#    التسريب»): لقطةُ stat قبل السويّة وبعدها على **كلِّ ملفٍّ متتبَّع** وجدت ثلاثةَ
+#    كتّابٍ لم تحرسهم البصماتُ الستّ أعلاه:
+#    • `alerts_history.json` ⟵ `_run_daily` لا يُجذّع `run_performance_system` فيُحمّل
+#      السجلَّ الحقيقيّ ويحفظه (بالبايتات نفسِها اليوم · وتقليمُه مرهونٌ بالتاريخ).
+#    • `company_cache.json` ⟵ PL19 ينادي `S.enrich` فيحفظ الذاكرة ⇒ **مدخلٌ وهميّ
+#      `ZRO` (فلوت مليون · شورت صفر = فِكستشرُ PL19 حرفيًّا) دخل ذاكرةَ الإنتاج في
+#      `362801bea` (2026-08-15)** وأعادت رفعَه ثماني جلساتٍ بعدها.
+#    • `telegram_collect_report.md` ⟵ `_tc_run` عزل STATE وOUT_DIR ونسي REPORT ⇒ تقريرُ
+#      السحبة الحقيقيّ («‏32 جديدة · 637») يُستبدَل بفِكستشر («‏0 · عالق 1»).
+#    والعلّةُ في الحارس لا في الكتّاب وحدهم: البصماتُ الستّ **قائمةٌ تُتذكَّر** وموضعُها
+#    **وسطَ السويّة** (‏سطر 21 ألف من 58) ⇒ كلُّ كاتبٍ بعدها أو خارجَها يمرّ. ⇒ `LEAK0`-`LEAK2`
+#    في **آخر** السويّة على **كلِّ ملفٍّ يعرفه git** (اللقطةُ في رأس الملف).
+S.TRACK_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_alerts_history.{_SUITE_PID}.json")
+S.COMPANY_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_company_cache.{_SUITE_PID}.json")
+import telegram_collect as _tc_head                               # noqa: E402
+
+_tc_head.REPORT = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_telegram_collect_report.{_SUITE_PID}.md")
 
 PASS, FAIL = [], []
 
@@ -58579,6 +58652,58 @@ _pc9_bad = [k for k, w in _PC9_WANT.items()
 check("🪜 PC9: وسمُ وايكوف يطابق المرحلةَ والفرع (SC · AR · ST · Spring · LPS) · "
       "**ويُطفأ فيبقى السطرُ نفسُه بلا الوسم**", not _pc9_bad,
       f"سيّئ={_pc9_bad} · {_pc9_on.get('s3s', '')[-30:]}")
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
+#    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
+#    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
+#    ثم تراكمت بعده ‏37 ألفَ سطرٍ من الاختبارات **خارجَ حراسته**، ومنها كاتبُ `ZRO`.
+#    ⇒ `LEAK0` يُسقط السويّةَ إن ظهر أيُّ `check(` بعد `LEAK2`.
+# ══════════════════════════════════════════════════════════════════════════
+def _leak_tail_names(src):
+    """أسماءُ **كلِّ** نداءات `check(` مرتّبةً بموضعها في الملف — الحرفيُّ باسمه وغيرُه
+    (‏f-string · متغيّر) بصيغته، فلا يفلت قفلٌ لأن اسمَه ليس ثابتًا."""
+    calls = [n for n in _ast0.walk(_ast0.parse(src))
+             if isinstance(n, _ast0.Call) and getattr(n.func, "id", None) == "check" and n.args]
+    calls.sort(key=lambda n: (n.lineno, n.col_offset))
+    return [(n.args[0].value if isinstance(n.args[0], _ast0.Constant)
+             and isinstance(n.args[0].value, str) else _ast0.unparse(n.args[0]))[:40]
+            for n in calls]
+
+
+try:
+    _lk0_names = _leak_tail_names(open(_os_hc.path.join(_SUITE_ROOT, "test_bot.py"),
+                                       encoding="utf-8").read())
+    # شاهدُ ضبط: قفلٌ **باسمٍ من f-string** بعد LEAK2 يُمسَك (لا الحرفيُّ وحدَه)
+    _lk0_ctrl = _leak_tail_names('check("🧹 LEAK1: x", 1)\ncheck("🧹 LEAK2: y", 1)\n'
+                                 'check(f"بعدَهما {1}", 1)\n')
+    _lk0_ok = (len(_lk0_names) >= 2 and _lk0_names[-2].startswith("🧹 LEAK1:")
+               and _lk0_names[-1].startswith("🧹 LEAK2:")
+               and not _lk0_ctrl[-1].startswith("🧹 LEAK2:"))
+    _lk0_w = (f"الأخيران={[x[:12] for x in _lk0_names[-2:]]} · من {len(_lk0_names)} · "
+              f"شاهدُ الضبط يمسك={_lk0_ctrl[-1][:14]}")
+except Exception as _e_lk0:                                      # noqa: BLE001
+    _lk0_ok, _lk0_w = False, f"⛔ {type(_e_lk0).__name__}: {_e_lk0}"[:200]
+check("🧹 LEAK0: `LEAK1`/`LEAK2` **آخرُ قفلين في السويّة بالبناء** (‏AST) — فلا يتراكم "
+      "بعدهما اختبارٌ خارجَ حراستهما كما تراكم بعد «الحرس الشامل»", _lk0_ok, _lk0_w)
+
+try:
+    if isinstance(_FOOTPRINT0, str):
+        raise RuntimeError(_FOOTPRINT0)
+    _leak_w, _leak_n = _footprint_delta(_FOOTPRINT0, _repo_footprint())
+    _leak_err = ""
+except Exception as _e_lk:                                       # noqa: BLE001
+    _leak_w = _leak_n = None
+    _leak_err = f"⛔ {type(_e_lk).__name__}: {_e_lk}"[:200]
+_leak_n_trk = len(_FOOTPRINT0[0]) if not isinstance(_FOOTPRINT0, str) else 0
+check("🧹 LEAK1: السويّةُ **لا تكتب في أيّ ملفٍّ متتبَّع** (‏الحجم و`mtime_ns` لكلّ ما "
+      "يعرفه git — فإعادةُ الكتابة بالبايتات نفسِها تسريبٌ أيضًا) · والعزلُ عند المصدر "
+      "في رأس السويّة: `TRACK_FILE` · `COMPANY_FILE` · `telegram_collect.REPORT`",
+      _leak_w == [] and _leak_n_trk > 0,
+      _leak_err or f"مفحوص={_leak_n_trk} · كُتب={_leak_w[:6]}")
+check("🧹 LEAK2: السويّةُ **لا تُنشئ ملفًّا جديدًا غيرَ مُتجاهَل** في المستودع "
+      "(‏ما يراه `git status` · والمُتجاهَلُ في `.gitignore` خارجُ الحكم)",
+      _leak_n == [], _leak_err or f"جديد={_leak_n[:6]}")
 
 
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
