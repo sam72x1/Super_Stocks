@@ -671,10 +671,10 @@
    "M5",
    "M30"
   ],
-  "updates": 6,
+  "updates": 5,
   "vol_x": 598.4,
   "peak_usd": 11040622,
-  "last_eval_ms": 1790163060000,
+  "last_eval_ms": 1790163000000,
   "pulse_ms": 1790169540000,
   "anchor_price": 0.6839,
   "anchor_open": 0.5169,
@@ -727,9 +727,9 @@
    "M5",
    "M30"
   ],
-  "updates": 5,
+  "updates": 4,
   "vol_x": 0.5,
-  "peak_usd": 4544821,
+  "peak_usd": 4394517,
   "last_eval_ms": 1790150700000,
   "pulse_ms": 1790169540000,
   "anchor_price": 4.0504,
@@ -1307,11 +1307,11 @@
   "anchor_price": 0.9749,
   "anchor_open": 0.9056,
   "anchor_low": 0.9056,
-  "date": "2026-09-23",
   "pre_done": true,
   "pre_hi": 1.0,
   "pre_usd": 79059,
-  "pre_n": 3
+  "pre_n": 3,
+  "date": "2026-09-23"
  },
  "LIQ:ELAB": {
   "last_eval_ms": 1790023140000,
@@ -2034,10 +2034,10 @@
   "date": "2026-09-21"
  },
  "LIQ:NIXX": {
-  "date": "2026-09-23",
   "last_eval_ms": 1790169540000,
   "tc_cum": 1454.4299999999998,
-  "tc_seen_ms": 1790169540000
+  "tc_seen_ms": 1790169540000,
+  "date": "2026-09-23"
  },
  "LIQ:OMEX": {
   "date": "2026-09-23"
