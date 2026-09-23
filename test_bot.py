@@ -56815,13 +56815,18 @@ try:
     #    نصّيّ» ليقبل اسمًا **لا أثرَ له** ما دام المصدرُ خاليًا من وضعٍ
     #    متغيّر ⇒ الفرعُ غيرُ مُختبَر. فيُمرَّر مصدرٌ **يفتح بوضعٍ متغيّر**
     #    ويُشترَط رفضُه — وهو بعينه ما سدّ ثغرةَ `T-PMFWD`.
+    #    🔴🔴 **وطفرةُ `b2` كشفت عيبًا في هذا الشاهد نفسِه:** صياغتي الأولى
+    #    كتبت `except Exception: _mla_w0d = False` ⇒ **الرميُ يُقرأ مَسكًا**.
+    #    والطفرةُ تجعل الحارسَ يرمي `AttributeError` (يقبل `ast.Name` ثمّ
+    #    يقرأ `.value` غيرَ الموجود) فكان القفلُ يمرّ على حارسٍ **معطوب**.
+    #    ⇒ الشرطُ صار **`is False` بالضبط**: «رمى» حالةٌ ثالثةٌ تُسقط القفل.
     try:
         _mla_w0d = _MLA.selfcheck_readonly(
             _mla_src + '\ndef _z(_m):\n    open("q", _m)\n')
-    except Exception:                                            # noqa: BLE001
-        _mla_w0d = False          # رمى ⇒ لم يقبلها ⇒ الشاهدُ محقَّق
+    except Exception as _e0d:                                    # noqa: BLE001
+        _mla_w0d = f"⛔رمى:{type(_e0d).__name__}"
     _mla_ok0 = (_mla_ok0 and not _mla_w0a and not _mla_w0b
-                and not _mla_w0d)
+                and _mla_w0d is False)
     _mla_v0 = (f"قراءة={_mla_ok0} · "
                f"شواهد={_mla_w0a}/{_mla_w0b}/{_mla_w0c}/{_mla_w0d}")
 except Exception as _e:                                          # noqa: BLE001
@@ -57114,10 +57119,16 @@ def _ssk_sec(a, b=None):
 
 try:
     _s0 = _ssk_sec("## §⓪ ", "## §① ")
+    import re as _ssk_re
     _ssk_ok0 = ("L316" in _s0 and "faisal_verbatim" in _s0
                 and "faisal_inferred" in _s0
                 # 🔴 حدُّ الصدق في المصدر نفسِه **داخلَ §⓪** لا في مكانٍ آخر
-                and "partial" in _s0 and "لا تتّسق مع ساعات لندن" in _s0
+                # 🐞 **وطفرةُ `s2` نجت على الصيغة الأولى** (`"partial" in _s0`):
+                #    الكلمةُ في §⓪ **مرّتين** (الوسمُ ثمّ شرحُه) فتبديلُ الوسم
+                #    المُلصَق بالاقتباس إلى `covered` كان يمرّ ⇒ **يُقفَل الوسمُ
+                #    في موضعه** (‏`وسمُ الجرد … \`partial\`):`) لا عضويّةُ الكلمة.
+                and _ssk_re.search(r"وسمُ الجرد\s+`partial`\):", _s0) is not None
+                and "لا تتّسق مع ساعات لندن" in _s0
                 # وترويسةُ «لا يُشحَن شيء» في رأس الوثيقة
                 and "ولا يُشحَن شيءٌ" in _ssk_doc[:1200])
     _ssk_v0 = f"§⓪={len(_s0)} محرفًا"
@@ -57137,8 +57148,10 @@ try:
     _ssk_ok1 = ("T-PMGATE" in _s0 and "مُغلَق" in _s0
                 and "04:30" not in _s2 and "04:30" not in _s3
                 and "04:30" not in _s4
-                and all(x in _ssk_doc for x in ("09:30-12", "12-13", "13-14",
-                                                "14-16")))
+                # 🐞 **وطفرةُ `s5` نجت على الصيغة الأولى** (الدلاءُ في الوثيقة
+                #    كلِّها): `09:30-12` **يتكرّر في §⑨** فتبديلُه في التعريف كان
+                #    يمرّ — وهو الصنفُ ③ نفسُه الذي يحذّر منه تعليقُ هذي الكتلة.
+                and "{09:30-12 · 12-13 · 13-14 · 14-16}" in _s2)
     _ssk_v1 = (f"§⓪ يميّز={('T-PMGATE' in _s0)} · "
                f"04:30 في §②/§③/§④={'04:30' in _s2}/"
                f"{'04:30' in _s3}/{'04:30' in _s4}")
@@ -57150,8 +57163,14 @@ check("🕐🪟🔒 SSK1 `T-PMGATE` **مُميَّزٌ في `§⓪` ومغيَّ
 
 try:
     # ② `SSK2` — الضبطان **حاكمان داخلَ `§③` نفسِه** ‏+ المعاييرُ في `§④`
-    _ssk_ok2 = ("C-TIME" in _s3 and "C-SHUF" in _s3
-                and "حاكم" in _s3
+    # 🐞 **وطفرةُ `s6` نجت على الصيغة الأولى** (`"حاكم" in _s3`): تحويلُ صفّ
+    #    `C-SHUF` إلى «وصفيّ» كان يمرّ لأن صفَّ `C-TIME` **يُرضي الشرطَ عنهما
+    #    معًا** (الصنفُ ③: شرطٌ واحدٌ لادّعاءَين) ⇒ **صفٌّ واحدٌ لكلِّ ضبط**.
+    _ssk_rows2 = {k: [l for l in _s3.splitlines()
+                      if l.startswith("|") and f"`{k}`" in l]
+                  for k in ("C-TIME", "C-SHUF")}
+    _ssk_ok2 = (all(len(v) == 1 and "ضبطٌ حاكم" in v[0]
+                    for v in _ssk_rows2.values())
                 and "وصفيٌّ يُطبَع ولا يحكم" in _s3
                 and all(k in _s4 for k in ("SS1", "SS2", "SS3"))
                 and "1.5" in _s4 and "Wilson" in _s4)
@@ -57233,9 +57252,14 @@ try:
     #    التشغيل لا في السويّة). المُقفَل: **اتّساقُ `§①` داخليًّا** (مجموعُ
     #    الأصناف = الكلّ) · **ونموٌّ لا انكماش** · **و`fired_ts_ms` صفرٌ حيًّا**.
     _sck_reg = {"total": 96, "group": 73, "mid": 12, "operator": 8, "strong": 3}
-    _sck_ok0 = (str(_sck_reg["total"]) in _c1
-                and all(str(_sck_reg[k]) in _c1
-                        for k in ("group", "mid", "operator", "strong"))
+    # 🐞 **وطفرةُ `c1` نجت على الصيغة الأولى** (`"96" in _c1`): الرقمُ في §①
+    #    **مرّتين** («96 إطلاقًا» و«صفرٌ من 96») فتبديلُ الأوّل كان يمرّ ⇒
+    #    **العبارةُ بعينها** · والأصنافُ **سطرًا واحدًا بترتيبها** (والأرقامُ
+    #    الصغيرة ‏8 و3 تطابق أيَّ رقمٍ يحويهما لولا ذلك).
+    _sck_ok0 = (f"\u200f{_sck_reg['total']} إطلاقًا" in _c1
+                and (f"`group` {_sck_reg['group']} · `mid` {_sck_reg['mid']} · "
+                     f"`operator` {_sck_reg['operator']} · "
+                     f"`strong` {_sck_reg['strong']}") in _c1
                 and sum(_sck_reg[k] for k in
                         ("group", "mid", "operator", "strong"))
                 == _sck_reg["total"]
@@ -57281,10 +57305,15 @@ try:
     _c4 = _sck_sec("## §④ ", "## §⑤ ")
     _c5 = _sck_sec("## §⑤ ", "## §⑥ ")
     _c6 = _sck_sec("## §⑥ ", "## §⑦ ")
-    _sck_ok2 = ("C-USD" in _c4 and "حاكم" in _c4
+    # 🐞 **وطفرتا `c6`/`c8` نجتا على الصيغة الأولى:** «حاكم» في §④ **ثلاثَ
+    #    مرّات** (العنوانُ والصفُّ والتحذير) فتحويلُ الصفّ إلى «وصفيّ» كان يمرّ ·
+    #    و«الفرعُ » في §⑥ **أربعًا** فحذفُ اسمِ الفرع 3 كان يُبقي العدَّ ‏≥3.
+    _sck_rowu = [l for l in _c4.splitlines()
+                 if l.startswith("|") and "`C-USD`" in l]
+    _sck_ok2 = (len(_sck_rowu) == 1 and "ضبطٌ حاكم" in _sck_rowu[0]
                 and "وصفيّةٌ لا تحكم" in _c4
                 and "SC1" in _c5 and "SC2" in _c5
-                and _c6.count("الفرعُ ") >= 3)
+                and all(f"{i}. **الفرعُ {i} — " in _c6 for i in (1, 2, 3)))
     _sck_v2 = f"§④={len(_c4)} · §⑤={len(_c5)} · فروعٌ={_c6.count('الفرعُ ')}"
 except Exception as _e:                                          # noqa: BLE001
     _sck_ok2, _sck_v2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
@@ -57481,7 +57510,10 @@ check("⏰🪟🔒 SSA6 `§⑤` جدولُ حقيقةٍ بستّ حالات: ت�
 #    يحمل أرقامَ الجدوى · و`§⑥` يحمل ‏90% · **والأداةُ لا تخالف رقمًا منها**.
 try:
     _ssa_pr = open("sessions_prereg.md", encoding="utf-8").read()
-    _ssa_i10 = _ssa_pr.find("§⑩")
+    # 🐞 **وطفرةُ `t14` نجت على الصيغة الأولى** (`find("§⑩")`): إعادةُ تسمية
+    #    **عنوان** الملحق كانت تمرّ لأن «`T-SUPDEF §⑩`» في السطر التالي يُعيد
+    #    إيجادَ الرمز ⇒ **العنوانُ نفسُه** لا أيُّ ذكرٍ للرمز (الصنفُ ②).
+    _ssa_i10 = _ssa_pr.find("## §⑩ ")
     _ssa_ap = _ssa_pr[_ssa_i10:] if _ssa_i10 >= 0 else ""
     # 🐞 **صُحِّح نطاقُ القفل لا الوثيقة (‏نفسُ صنف `MLK3`/`SCK3`):** شرطُ «لا
     #    يُسمّى ملفُّ الأداة» يُثبت أن **متنَ العقد** كُتب قبل الأداة — **ولا
@@ -57789,17 +57821,30 @@ try:
         _stop = _SCA.polygon_trades_ts("AAA", "2026-08-18",
                                        stop_fn=lambda rows: len(rows) >= 1)
         _n_stop = _calls["n"]
+        # 🐞 **وطفرةُ `u16` نجت على الصيغة الأولى:** شاهدُ 403 كان يفشل في
+        #    **الصفحة الأولى** حيث `out` فارغٌ ⇒ `return out or None` يساوي
+        #    `return None` ⇒ **مسارُ البتر لم يُختبَر قطّ**. فالشاهدُ الثاني:
+        #    صفحةٌ أولى **تنجح** ثمّ الثانيةُ 403 ⇒ **`None` لا قائمةٌ مبتورة**.
+        def _fake_trunc(url, **kw):
+            if "FAILpage2" in url:
+                return _R(403, {})
+            return _R(200, {"results": [{"sip_timestamp": 1, "price": 2.0,
+                                         "size": 3}],
+                            "next_url": "https://x/FAILpage2"})
+        _SCA.requests.get = _fake_trunc
+        _trunc = _SCA.polygon_trades_ts("TRUNC", "2026-08-18")
     finally:
         _SCA.requests.get = _orig_get
         if _sca_key is None:
             _sca_os.environ.pop("POLYGON_API_KEY", None)
         else:
             _sca_os.environ["POLYGON_API_KEY"] = _sca_key
-    _sca7 = (_no_key is None and _bad is None
+    _sca7 = (_no_key is None and _bad is None and _trunc is None
              and _cap is not None and len(_cap) == 3 and _n_cap == 3
              and _stop is not None and len(_stop) == 1 and _n_stop == 1
              and _SCA.PAGE_CAP == 20)
-    _sca7_w = (f"بلا مفتاح={_no_key} · 403={_bad} · سقف={_n_cap} صفحات/"
+    _sca7_w = (f"بلا مفتاح={_no_key} · 403={_bad} · بترٌ={_trunc} · "
+               f"سقف={_n_cap} صفحات/"
                f"{_cap and len(_cap)} صفقة · stop={_n_stop}/{_stop and len(_stop)}")
 except Exception as _e:                                          # noqa: BLE001
     _sca7, _sca7_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
