@@ -15184,6 +15184,142 @@ check("⏱️ 002·قفل: الـassembler يمرّر الجالب والطاب�
 
 
 # ==========================================================
+# ⏱️ «لحظة الإطلاق» — `fired_ts_ms` يُحفَظ لا يُرمى (أمرُ المالك 2026-09-23 · FTS1-FTS4)
+# ==========================================================
+# شرطُ إعادة قياس `T-SECONDS` (‏`seconds_result.md` §④ · `seconds_prereg.md` §⑩):
+# الطابعُ كان يصل `record_ignition_fires` فيستهلكه `_fire_sustain` **ثم يُرمى**.
+# 🔒 وكلُّ قفلٍ هنا **سلوكيّ** (يُنادى الكود ويُقرأ السجلّ) أو **بنيويٌّ بالـAST**.
+_FT_OK_MS, _FT_BAR_MS = 1_790_000_000_000, 1_789_999_940_000
+
+
+class _FtBad:                                  # يرمي عند التحويل — شاهدُ «فسادٍ غريب»
+    def __int__(self):
+        raise RuntimeError("طابعٌ فاسد")
+
+
+# FTS1 — جدولُ حقيقةٍ لـ`_fired_ts_fields`: المقبولُ بحقوله الثلاثة · والمجهولُ `{}`
+#        (غياب · bool · NaN · نصّ · ثوانٍ بدل مللي · حدَّا النطاق) · والمصدرُ الغريب «unknown».
+try:
+    _ft = S._fired_ts_fields
+    _ft_rows = [
+        ({"fired_ts_ms": _FT_OK_MS, "fired_ts_src": "telegram_sent",
+          "trigger_bar_start": _FT_BAR_MS},
+         {"fired_ts_ms": _FT_OK_MS, "trigger_bar_ms": _FT_BAR_MS,
+          "fired_ts_src": "telegram_sent"}),
+        ({"fired_ts_ms": _FT_BAR_MS, "fired_ts_src": "trigger_bar_start"},
+         {"fired_ts_ms": _FT_BAR_MS, "fired_ts_src": "trigger_bar_start"}),
+        ({"fired_ts_ms": _FT_OK_MS}, {"fired_ts_ms": _FT_OK_MS, "fired_ts_src": "unknown"}),
+        ({"fired_ts_ms": _FT_OK_MS, "fired_ts_src": "مخترَع"},
+         {"fired_ts_ms": _FT_OK_MS, "fired_ts_src": "unknown"}),
+        ({"fired_ts_ms": _FT_OK_MS, "trigger_bar_start": 1_789_999_940},   # شمعةٌ بالثواني
+         {"fired_ts_ms": _FT_OK_MS, "fired_ts_src": "unknown"}),
+        ({"fired_ts_ms": 10 ** 12}, {"fired_ts_ms": 10 ** 12, "fired_ts_src": "unknown"}),
+        ({"fired_ts_ms": 10 ** 13}, {}), ({"fired_ts_ms": 10 ** 12 - 1}, {}),
+        ({"fired_ts_ms": 1_790_000_000}, {}),                  # ثوانٍ في حقل مللي
+        ({}, {}), ({"fired_ts_ms": None}, {}), ({"fired_ts_ms": True}, {}),
+        ({"fired_ts_ms": float("nan")}, {}), ({"fired_ts_ms": "abc"}, {}),
+        ({"fired_ts_ms": _FtBad()}, {}),
+    ]
+    _ft_bad = [(i, _ft(a)) for i, (a, want) in enumerate(_ft_rows) if _ft(a) != want]
+    _fts1 = not _ft_bad and len(_ft_rows) == 15
+    _fts1_w = f"مخالفاتٌ={_ft_bad[:3]}"
+except Exception as _e:                                          # noqa: BLE001
+    _fts1, _fts1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔒 FTS1 `_fired_ts_fields` جدولُ حقيقةٍ بخمس عشرة حالة: المقبولُ بحقوله "
+      "والمصدرُ الغريب «unknown» · والغائبُ/الفاسدُ/الثواني/حدُّ النطاق ⇒ `{}` بلا رمي",
+      _fts1, _fts1_w)
+
+# FTS2 — طرف-لطرف: مُخرَجُ الـassembler ⟶ السجلّ يحمل الطابعَ ومصدرَه وشمعةَ الزناد
+#        · وبلا الاثنين لا حقل (مجهولٌ لا صفر) · والحقولُ القديمة كما هي.
+# FTS3 — فاشلٌ-آمنٌ **لكلّ صفّ**: طابعٌ فاسدٌ في صفٍّ لا يُسقط تسجيلَ الصفّ الآخر.
+_ft_dir = _tf2.mkdtemp(prefix=f"_fts_{_SUITE_PID}_")
+_ft_sv_log = S.IGNITION_LOG_FILE
+try:
+    S.IGNITION_LOG_FILE = _os_hc.path.join(_ft_dir, "ign_log.json")
+    _ft_c = [_c002_cand(symbol="TG1", telegram_sent_at_ms=_FT_OK_MS,
+                        trigger_bar_start=_FT_BAR_MS),
+             _c002_cand(symbol="BAR", telegram_sent_at_ms=None,
+                        trigger_bar_start=_FT_BAR_MS),
+             _c002_cand(symbol="NON", telegram_sent_at_ms=None,
+                        trigger_bar_start=None)]
+    _ft_n = S.record_ignition_fires(_A2._fires_from_candidates(_ft_c), "2026-09-24")
+    _ft_log = {r["symbol"]: r for r in json.load(open(S.IGNITION_LOG_FILE,
+                                                      encoding="utf-8"))}
+    _fts2 = (_ft_n == 3
+             and _ft_log["TG1"].get("fired_ts_ms") == _FT_OK_MS
+             and _ft_log["TG1"].get("fired_ts_src") == "telegram_sent"
+             and _ft_log["TG1"].get("trigger_bar_ms") == _FT_BAR_MS
+             and _ft_log["BAR"].get("fired_ts_ms") == _FT_BAR_MS
+             and _ft_log["BAR"].get("fired_ts_src") == "trigger_bar_start"
+             and _ft_log["BAR"].get("trigger_bar_ms") == _FT_BAR_MS
+             and not any(k in _ft_log["NON"] for k in
+                         ("fired_ts_ms", "fired_ts_src", "trigger_bar_ms"))
+             and all(_ft_log[k].get("usd") == 150_000 and _ft_log[k].get("fired_at")
+                     for k in ("TG1", "BAR", "NON")))
+    _fts2_w = (f"n={_ft_n} · TG1={ {k: _ft_log['TG1'].get(k) for k in ('fired_ts_ms', 'fired_ts_src', 'trigger_bar_ms')} } · "
+               f"NON={sorted(_ft_log['NON'])[:6]}")
+    # FTS3
+    _os_hc.remove(S.IGNITION_LOG_FILE)
+    _ft_rows3 = [({"symbol": "BAD", "fired_ts_ms": _FtBad(), "pivot": 1.8,
+                   "interp": {"critical_number": {"price": 1.9}}},
+                  {"price": 2.0, "vol_x": 4.0, "usd": 150_000}, None),
+                 ({"symbol": "GOOD", "fired_ts_ms": _FT_OK_MS,
+                   "fired_ts_src": "telegram_sent", "pivot": 1.8,
+                   "interp": {"critical_number": {"price": 1.9}}},
+                  {"price": 2.0, "vol_x": 4.0, "usd": 150_000}, None)]
+    _ft_n3 = S.record_ignition_fires(_ft_rows3, "2026-09-24")
+    _ft_log3 = {r["symbol"]: r for r in json.load(open(S.IGNITION_LOG_FILE,
+                                                       encoding="utf-8"))}
+    _fts3 = (_ft_n3 == 2 and "fired_ts_ms" not in _ft_log3.get("BAD", {"fired_ts_ms": 1})
+             and _ft_log3.get("GOOD", {}).get("fired_ts_ms") == _FT_OK_MS)
+    _fts3_w = f"n={_ft_n3} · صفوف={sorted(_ft_log3)}"
+except Exception as _e:                                          # noqa: BLE001
+    _fts2 = _fts3 = False
+    _fts2_w = _fts3_w = f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    S.IGNITION_LOG_FILE = _ft_sv_log
+check("⏱️🔒 FTS2 طرف-لطرف: الـassembler ⟶ السجلّ يحمل `fired_ts_ms` ومصدرَه "
+      "(إرسالٌ ثم شمعةُ الزناد) و`trigger_bar_ms` · وبلا الاثنين **لا حقل** · "
+      "والحقولُ القديمة كما هي", _fts2, _fts2_w)
+check("⏱️🔒 FTS3 فاشلٌ-آمنٌ **لكلّ صفّ**: طابعٌ فاسدٌ لا يُسقط تسجيلَ الدفعة "
+      "(كان الـ`try` الواحد سيُفرغها كلَّها)", _fts3, _fts3_w)
+
+# FTS4 — **تسجيلٌ لا يمسّ قرارًا** (بالـAST): `_fired_ts_fields` تُنادى من
+#        `record_ignition_fires` وحدَها · ولا ذكرَ لها ولا لحقولها في الجذور الاثني عشر
+#        ولا في `_ignition_signal`/`build_ignition_alert` (نصُّ التنبيه بت-بت).
+try:
+    import ast as _ft_ast
+
+    def _ft_names(fn):
+        _t = _ft_ast.parse(_insp0.getsource(fn))
+        _ids = {getattr(n, "id", None) or getattr(n, "attr", None)
+                for n in _ft_ast.walk(_t) if isinstance(n, (_ft_ast.Name, _ft_ast.Attribute))}
+        _strs = {n.value for n in _ft_ast.walk(_t)
+                 if isinstance(n, _ft_ast.Constant) and isinstance(n.value, str)}
+        return _ids, _strs
+    _ft_calls = {getattr(c.func, "id", None)
+                 for c in _ft_ast.walk(_ft_ast.parse(_insp0.getsource(S.record_ignition_fires)))
+                 if isinstance(c, _ft_ast.Call)}
+    _ft_clean = []
+    for _fn in ("rank_key", "select_top", "classify_tier", "analyze_ticker",
+                "apply_short_gate", "apply_float_gate", "scan_market",
+                "backtest_symbol", "scan_ignition", "scan_split_hunter",
+                "entry_status", "build_interpretation", "_ignition_signal",
+                "build_ignition_alert"):
+        _i, _s = _ft_names(getattr(S, _fn))
+        if "_fired_ts_fields" in _i or any(k in _s for k in
+                                            ("fired_ts_ms", "fired_ts_src", "trigger_bar_ms")):
+            _ft_clean.append(_fn)
+    _fts4 = "_fired_ts_fields" in _ft_calls and not _ft_clean
+    _fts4_w = f"موصولةٌ={'_fired_ts_fields' in _ft_calls} · مسٌّ بمسار قرار={_ft_clean}"
+except Exception as _e:                                          # noqa: BLE001
+    _fts4, _fts4_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔒 FTS4 **تسجيلٌ لا يمسّ قرارًا** (AST): موصولةٌ من `record_ignition_fires` · "
+      "وصفرُ ذكرٍ في الجذور الاثني عشر و`_ignition_signal` ونصِّ التنبيه",
+      _fts4, _fts4_w)
+
+
+# ==========================================================
 # 🏢 خطة 003: ردم الفلوت من المصدر المُثبَت (CE ماتت 2026-07-24)
 # ==========================================================
 print("\n=== 🏢 خطة 003: ردم الفلوت ===")
@@ -57304,7 +57440,12 @@ try:
                         ("group", "mid", "operator", "strong"))
                 == _sck_reg["total"]
                 and len(_sck_f) >= _sck_reg["total"]
-                and sum(1 for x in _sck_f if x.get("fired_ts_ms")) == 0
+                # ⏱️ **حُصر في مجتمع العقد بعد «لحظة الإطلاق» (‏2026-09-23 · `§⑩`)**:
+                #    المالكُ أذن بالحفظ فالسجلُّ الحيُّ **يكتسب** الحقلَ للأمام بالتصميم ⇒
+                #    «صفرٌ في السجلّ كلِّه» كان سيتعفّن في أوّل جلسة. المُقفَل هو **دعوى
+                #    `§①`-3 نفسُها**: صفرٌ من صفوفِ مدى العقد (‏حتى 2026-09-18).
+                and sum(1 for x in _sck_f if x.get("fired_ts_ms")
+                        and str(x.get("date") or "") <= "2026-09-18") == 0
                 and "fired_ts_ms" in _c1)
     _sck_v0 = (f"مسجَّلٌ={_sck_reg['total']} · حيٌّ={len(_sck_f)} "
                f"({len(_sck_f) - _sck_reg['total']:+d}) · {dict(_sck_cnt)}")
@@ -57312,7 +57453,8 @@ except Exception as _e:                                          # noqa: BLE001
     _sck_ok0, _sck_v0 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("⏱️🔥🔒 SCK0 `§①` — عددُ الإطلاقات وأصنافُها **مقروءةٌ من "
       "`ignition_log.json` الحيّ** وتُطابق ما في العقد · و`fired_ts_ms` "
-      "**صفرٌ مُثبَتٌ لا مدَّعًى**", _sck_ok0, _sck_v0)
+      "**صفرٌ مُثبَتٌ في مجتمع العقد** (‏حتى 09-18 — والحفظُ للأمام بإذن المالك)",
+      _sck_ok0, _sck_v0)
 
 try:
     # ⑤ `SCK1` — 🔴 **تصحيحُ الحزمة**: `fired_at` لحظةُ كتابةٍ لا إطلاق —
@@ -57384,6 +57526,37 @@ except Exception as _e:                                          # noqa: BLE001
 check("⏱️🔥🔒 SCK3 `§⑧` — الجذورُ و`polygon_base_trades` **بت-بت** · ولا "
       "`LOGIC_VERSION` ولا شحن · و`fired_ts_ms` **اقتراحٌ بإذن المالك لا "
       "تنفيذ** · **والعقدُ مدفوعٌ قبل أيّ سطرِ أداة**", _sck_ok3, _sck_v3)
+
+try:
+    # ⑧ `SCK4` — «لحظة الإطلاق» (‏2026-09-23): **الإذنُ والتنفيذ في ملحقٍ مؤرَّخٍ
+    #    لا في المتن** — `§⑧` يبقى «يُقترَح ولا يُنفَّذ» بحرفه (العقدُ المدموج لا
+    #    يُعدَّل، وهو ما يُثبته `SCK3`)، و`§⑩` **موضعيًّا**: عنوانُه · ولفظُ الإذن ·
+    #    والحقولُ الثلاثة · وإعادةُ القياس **بعقدٍ جديد** · و«لا يغيّر الحكم».
+    _c10 = _sck_sec("## §⑩ ")
+    _i10a, _i10b = _c10.find("### ⓐ"), _c10.find("### ⓑ")
+    _c10h = _c10[:_i10a] if _i10a > 0 else ""          # ترويسةُ الملحق
+    _c10a = _c10[_i10a:_i10b] if 0 < _i10a < _i10b else ""
+    # 🐞 **وطفرةُ `f11` نجت على الصيغة الأولى** (أسماءُ الحقول في `§⑩` كلِّه):
+    #    `trigger_bar_ms` يتكرّر في `ⓓ` فتحريفُه **في تعريفه** (`ⓑ`) كان يمرّ —
+    #    الصنفُ ③ ⇒ الحقولُ الثلاثة تُقفَل **بندودَ تعريفٍ في `ⓑ`** بعينها.
+    _i10c = _c10.find("### ⓒ")
+    _c10b = _c10[_i10b:_i10c] if 0 < _i10b < _i10c else ""
+    _c10d = _c10[_c10.find("### ⓓ"):] if "### ⓓ" in _c10 else ""
+    _sck_ok4 = (_c10.startswith("## §⑩ ملحقٌ مؤرَّخ")
+                and _sck_doc.find("## §⑩ ") > _sck_doc.find("## §⑨ ") > 0
+                and "«لحظة الإطلاق»" in _c10a and "بإذن المالك" in _c10a
+                and all(f"  - `{k}` —" in _c10b for k in
+                        ("fired_ts_ms", "fired_ts_src", "trigger_bar_ms"))
+                and "لا يغيّر عتبةً" in _c10h
+                and "الفرعُ 2 «لا تُوصى» باقٍ بحرفه" in _c10h
+                and "تسجيلٌ مسبقٌ جديد" in _c10d
+                and "يُقترَح ولا يُنفَّذ" in _sck_sec("## §⑧ ", "## §⑨ "))
+    _sck_v4 = f"§⑩={len(_c10)} · ⓐ={len(_c10a)} · ⓑ={len(_c10b)} · ⓓ={len(_c10d)} محرفًا"
+except Exception as _e:                                          # noqa: BLE001
+    _sck_ok4, _sck_v4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏱️🔥🔒 SCK4 «لحظة الإطلاق» — **الإذنُ والتنفيذ في ملحقٍ مؤرَّخ `§⑩`** "
+      "(لفظُ الإذن · الحقولُ الثلاثة · إعادةُ القياس بعقدٍ جديد) **والمتنُ `§⑧` "
+      "بحرفه**", _sck_ok4, _sck_v4)
 
 
 

@@ -261,11 +261,16 @@ def _fires_from_candidates(cands):
         if not c.get("alert_emitted"):
             continue
         _ts = c.get("telegram_sent_at_ms")
+        _src = "telegram_sent" if _ts is not None else None
         if _ts is None:
             _ts = c.get("trigger_bar_start")
+            _src = "trigger_bar_start" if _ts is not None else None
+        # ⏱️ «لحظة الإطلاق» (2026-09-23): المصدرُ وبدايةُ شمعة الزناد يُمرَّران كي
+        #    يُحفَظا في السجلّ مع الطابع (`_fired_ts_fields`) — صفرُ جلبٍ إضافيّ.
         out.append(({"symbol": c.get("symbol"), "stop": [c.get("stop")], "t1": c.get("t1"),
                      "pivot": c.get("pivot"), "last_price": c.get("signal_price"),
-                     "fired_ts_ms": _ts,
+                     "fired_ts_ms": _ts, "fired_ts_src": _src,
+                     "trigger_bar_start": c.get("trigger_bar_start"),
                      "interp": {"critical_number": {"price": c.get("break_level")}}},
                     {"price": c.get("signal_price"), "vol_x": c.get("vol_x"),
                      "usd": c.get("signal_usd")},
