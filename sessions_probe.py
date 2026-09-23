@@ -22,6 +22,7 @@ import csv
 import datetime as dt
 import os
 import random
+import subprocess
 import sys
 from collections import Counter
 from zoneinfo import ZoneInfo
@@ -178,9 +179,15 @@ def held_and_jumped(anchor_h: float, t_stop, t_hit10,
 
 
 def hj_eligible(anchor_h: float, win_min: float, cut: float = HOLD_CUT_ET) -> bool:
-    """🔴 **حدُّ صدقٍ يُحسَب لا يُدَّعى:** الصفُّ الذي تنتهي نافذتُه **قبل**
-    ‏14:00 ET **لا يستطيع** استيفاءَ `held_and_jumped` مهما فعل السهم ⇒ يُطبَع
-    مقامُ «القادرين» بجانب النسبة. نقيّة."""
+    """**وصفيّةٌ فقط:** هل يقع `anchor_h + win_min` عند ‏14:00 ET أو بعدها؟
+
+    🔴🔴 **تصحيحٌ مؤرَّخ 2026-09-20 — وكان استعمالي لها خاطئًا:** استعملتُها
+    **مقامًا** لـ`SS3` بدعوى أن الصفَّ الذي تنتهي نافذتُه (‏120 دقيقة) قبل
+    ‏14:00 **لا يستطيع** استيفاءَ الشرط. **والفحصُ على الصفوف كذّب الدعوى:**
+    `t_hit10` في `opcurve_rows.tsv` **ليس مقصورًا على ‏120 دقيقة** — أقصاه
+    المرصود **‏593 دقيقة** — فصفّان (‏`KWM` و`VEEA`) استوفيا الشرطَ وهما
+    «غيرُ قادرَين» بتعريفي. ⇒ **المقامُ هو كلُّ `reg` المقاسة بنصّ `§④`**،
+    وهذي تبقى **سطرَ تفكيكٍ وصفيٍّ لا مقامًا**. نقيّة."""
     return anchor_h + win_min / 60.0 >= cut
 
 
@@ -244,6 +251,25 @@ def read_verdict(n_join: int, cover: float, share: float, tshare: float,
 
 
 # ───────────────────────── المجتمعُ والضمّ (‏§① · §⑩) ────────────────────────
+def repo_depth() -> tuple:
+    """`V-S9` (‏الملحق `§⑪`) — **هل النسخةُ ضحلة؟** ومعها عددُ مراجع
+    `op_entry_state.json` وأقدمُ تاريخٍ فيها.
+
+    🔴 **وُلد من قراءةٍ كاذبةٍ مُثبَتة:** `git log` على نسخةٍ `shallow` يُرجع
+    تاريخًا **مبتورًا بلا أيّ خطأٍ ظاهر** ⇒ `anchor_history` لا ترى إلّا ما
+    بعد قاع النسخة، فقُرئت التغطيةُ ‏32.9% وحقيقتُها ‏100%. **فاشلٌ-آمن:
+    تعذّرُ الفحص يُعَدّ «ضحلة»** — لأن ما لا يُثبَت اكتمالُه لا يُقاس عليه."""
+    def _run(*a):
+        try:
+            return subprocess.run(["git", *a], capture_output=True, text=True,
+                                  timeout=60).stdout.strip()
+        except Exception:                                        # noqa: BLE001
+            return ""
+    sh = _run("rev-parse", "--is-shallow-repository")
+    revs = _run("log", "--format=%cI", "origin/main", "--", LTR.STATE).splitlines()
+    return (sh != "false", len(revs), revs[-1][:10] if revs else "?")
+
+
 def load_rows(path: str = ROWS_TSV) -> list:
     with open(path, encoding="utf-8") as fh:
         return list(csv.DictReader(fh, delimiter="\t"))
@@ -323,6 +349,16 @@ def main() -> int:                                    # noqa: PLR0911, PLR0912, 
         log(f"⛔ V-S3 — مجموعُ الحصص {tot:.4f}% ⇒ تعريفُ دلوٍ مكسور — "
             f"خروج {RC_GUARD}")
         return RC_GUARD
+
+    # ── `V-S9` (‏الملحق `§⑪`) — **نسخةٌ ضحلةٌ ⇒ لا قياس** ───────────────────
+    sh, nrev, oldest = repo_depth()
+    log(f"   🔒 V-S9 عمقُ النسخة: ضحلةٌ={sh} · مراجعُ الحالة={nrev} · "
+        f"أقدمُها={oldest}")
+    if sh:
+        log(f"⛔ V-S9 — `git log` على نسخةٍ **ضحلة** يُرجع تاريخًا مبتورًا بلا "
+            f"خطأٍ ظاهر ⇒ القياسُ باطل. العلاج: `git fetch --unshallow` "
+            f"محلّيًّا أو `fetch-depth: 0` في الـworkflow — خروج {RC_POP}")
+        return RC_POP
 
     # ── `V-S1` المجتمعُ عينُ `opcurve_rows.tsv` ─────────────────────────────
     try:
@@ -411,16 +447,19 @@ def main() -> int:                                    # noqa: PLR0911, PLR0912, 
         f"شريحةُ المرصود **{pct:.1f}**")
 
     # ── `SS3` — «يدبل ‏80%» يُطبَع ليُكذَّب لا ليُحسَم به ───────────────────
-    WIN = 120.0                                       # نافذةُ `T-OPCURVE`
-    elig = [m for m in meas if hj_eligible(m["anchor_h"], WIN)]
-    hj = [m for m in elig
+    WIN = 120.0                                       # نافذةُ سياسة `T-OPCURVE`
+    hj = [m for m in meas
           if held_and_jumped(m["anchor_h"], m["t_stop"], m["t_hit10"])]
-    log(f"   🧪 `SS3` `held_and_jumped`: {len(hj)} من {len(elig)} قادرًا "
-        f"= {len(hj) / len(elig) * 100 if elig else 0:.2f}% "
-        f"(ومن {len(meas)} كلِّها = {len(hj) / len(meas) * 100 if meas else 0:.2f}%)")
-    log(f"      🔴 وحدُّ صدقٍ مقيس: {len(meas) - len(elig)} صفًّا **لا يستطيع** "
-        f"استيفاءَه — نافذتُه ({WIN:.0f}د) تنتهي قبل {HOLD_CUT_ET:.0f}:00 ET · "
-        f"و«يدبل» = ‏+100% والمقيسُ هنا ‏+{JUMP_PCT:.0f}% ⇒ **لا يُحسَم به**")
+    elig = [m for m in meas if hj_eligible(m["anchor_h"], WIN)]
+    hj_in = [m for m in hj if hj_eligible(m["anchor_h"], WIN)]
+    log(f"   🧪 `SS3` `held_and_jumped`: **{len(hj)} من {len(meas)}** = "
+        f"{len(hj) / len(meas) * 100 if meas else 0:.2f}% "
+        f"(المقامُ كلُّ `reg` المقاسة بنصّ `§④`)")
+    log(f"      ℹ️ تفكيكٌ وصفيّ: {len(hj_in)} منها داخلَ نافذةِ {WIN:.0f}د "
+        f"(‏{len(elig)} صفًّا) و{len(hj) - len(hj_in)} خارجَها — "
+        f"**و`t_hit10` غيرُ مقصورٍ على النافذة** (أقصى المرصود يتجاوزها)")
+    log(f"      🔴 وحدُّ صدقٍ باقٍ: «يدبل» = ‏+100% والمقيسُ هنا "
+        f"‏+{JUMP_PCT:.0f}% ⇒ **مقياسٌ أضعفُ بعشرة أضعاف، ولا يُحسَم به**")
 
     # ── المُخرَجُ والحكم ────────────────────────────────────────────────────
     if os.environ.get("SESSIONS_TSV", "1") == "1":
