@@ -59249,26 +59249,53 @@ check("🌊🔒 WVK4 الحصصُ السبع مجموعُها 390 دقيقة · 
 # ⑥ WVK5 — كان «**تسجيلٌ فقط**: لا أداةَ ولا workflow قبل أمر «ابن أداة الموجات»».
 #    🔄 **حُدِّث 2026-09-23 إقرارًا بأمر المالك «ابن أداة الموجات»** (لا إرخاءً): الأداةُ
 #    وworkflowها **موجودان** وworkflowٌ **واحدٌ فقط** ينادي الأداة · والملحقُ `§⑫` مكتوبٌ
-#    ويسمّي الأمر · **ولا `waves_result.md` قبل «شغّل الموجات»** (صفرُ رقمٍ قبل الدمج) ·
-#    وصفرُ شحنٍ ولا `LOGIC_VERSION` مكتوبان.
+#    ويسمّي الأمر · ولا `waves_result.md` قبل «شغّل الموجات».
+#    🔄🔄 **وحُدِّث ثانيةً 2026-09-23 إقرارًا بأمر المالك «شغّل الموجات»** (لا إرخاءً): النتيجةُ
+#    `waves_result.md` **موجودةٌ وتحمل حكمَ التشغيلة الحاكمة بحرفه** — سطرُ `JUDGE` كما طُبع ·
+#    ورقمُها `35902362232` · و`212 من 1,982` — **ولا إغلاقَ مُنفَّذًا في الأداة قبل أمرٍ مستقلّ**
+#    («اقفل الموجات»: لا مفتاحَ `WAVES_REOPEN` ولا `CLOSED_RC` في كودها **بالـAST**) · وصفرُ شحنٍ
+#    ولا `LOGIC_VERSION` مكتوبان.
+_WVK5_JUDGE = ("JUDGE الفرعُ 2 «لا تُثبَت» — **سالبة** — حصّةُ 11-12 10.70% مقابل 15.38% زمنيًّا · "
+               "WV1 ❌ · WV2 ❌ · WV3 ❌ ⇒ **يُوصى بإعادة إغلاق المحور**")
 try:
     _wvk_tool = _wvk_os.path.exists("waves_probe.py")
     _wvk_wfs = sorted(_f for _f in _wvk_os.listdir(".github/workflows") if _f.endswith(".yml")
                       and "waves_probe" in open(_wvk_os.path.join(".github/workflows", _f),
                                                 encoding="utf-8").read())
-    _wvk_res = _wvk_os.path.exists("waves_result.md")
+    _wvk_res = (open("waves_result.md", encoding="utf-8").read()
+                if _wvk_os.path.exists("waves_result.md") else "")
+    _wvk_psrc = open("waves_probe.py", encoding="utf-8").read() if _wvk_tool else ""
+    import ast as _wvk_ast                                        # noqa: E402
+    try:
+        _wvk_pt = _wvk_ast.parse(_wvk_psrc)
+    except SyntaxError:
+        _wvk_pt = None
+    # «إغلاقٌ مُنفَّذ» بالـAST لا بالنصّ (تعليقٌ يذكر الاسمَ ليس إغلاقًا): مفتاحُ الإقرار سلسلةً
+    # مستقلّة `"WAVES_REOPEN"` · أو اسمُ `CLOSED_RC` في الكود — ومصدرٌ لا يُحلَّل يُعَدّ مُغلَقًا.
+    _wvk_closed = _wvk_pt is None or any(
+        (isinstance(_n, _wvk_ast.Constant) and _n.value == "WAVES_REOPEN")
+        or (isinstance(_n, _wvk_ast.Name) and _n.id == "CLOSED_RC")
+        for _n in _wvk_ast.walk(_wvk_pt))
     _wvk_i12 = _wvk_doc.find("## §⑫")
     _wvk_s12 = _wvk_doc[_wvk_i12:] if _wvk_i12 >= 0 else ""
     _wvk_txt5 = ("ابن أداة الموجات" in _wvk_s12 and "شغّل الموجات" in _wvk_doc
                  and "لا `LOGIC_VERSION`" in _wvk_doc
                  and "ولا يُشحَن شيءٌ مهما كانت النتيجة" in _wvk_all)
-    _v = _wvk_tool and _wvk_wfs == ["waves.yml"] and (not _wvk_res) and _wvk_txt5
-    _w = (f"أداة={_wvk_tool} · workflows={_wvk_wfs} · نتيجة={_wvk_res} · "
-          f"نصُّ الحدود والملحق={_wvk_txt5}")
+    _wvk_r5 = {
+        "سطرُ الحكم بحرفه": _WVK5_JUDGE in _wvk_res,
+        "التشغيلةُ الحاكمة": "35902362232" in _wvk_res,
+        "المقام": "212 قمّةً من 1,982" in _wvk_res,
+        "الأمر": "شغّل الموجات" in _wvk_res,
+        "لا إغلاقَ قبل الأمر": not _wvk_closed,
+    }
+    _v = _wvk_tool and _wvk_wfs == ["waves.yml"] and _wvk_txt5 and all(_wvk_r5.values())
+    _w = (f"أداة={_wvk_tool} · workflows={_wvk_wfs} · نصُّ الحدود والملحق={_wvk_txt5} · "
+          f"النتيجة={ {_k: _x for _k, _x in _wvk_r5.items() if not _x} or 'تامّة'}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🌊🔒 WVK5 (‏حُدِّث بأمر «ابن أداة الموجات») الأداةُ وworkflowٌ **واحد** · والملحقُ `§⑫` "
-      "يسمّي الأمر · **ولا `waves_result.md` قبل «شغّل الموجات»** · وصفرُ شحن", _v, _w)
+check("🌊🔒 WVK5 (‏حُدِّث ثانيةً بأمر «شغّل الموجات») الأداةُ وworkflowٌ **واحد** · والملحقُ `§⑫` "
+      "يسمّي الأمر · **و`waves_result.md` يحمل سطرَ الحكم بحرفه والتشغيلةَ والمقام** · ولا إغلاقَ "
+      "مُنفَّذًا قبل «اقفل الموجات» · وصفرُ شحن", _v, _w)
 
 # ═══ 🌊⏰ «ابن أداة الموجات» (أمرُ المالك 2026-09-23) — أقفال WVA0-WVA13 · CALE1 ═══════════
 #    الأداة `waves_probe.py` · العقد `waves_prereg.md` ‏+ الملحق `§⑫` · **قراءةٌ فقط**.
