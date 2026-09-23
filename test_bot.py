@@ -59128,6 +59128,231 @@ check("🧹 SMD5: **يُحفظ الأبكر** — المرجعُ بين السج
       "⇒ 0 (بلا نظرٍ مستقبليّ) · وبعدهما ⇒ 1 لا 2",
       _smd_5 == {"mid": 1, "before": 0, "after": 1}, str(_smd_5))
 
+# ═══ 🌊⏰ «سجّل الموجات» (أمرُ المالك 2026-09-23) — أقفال WVK0-WVK5 · عقدٌ قبل أيّ سطرِ أداة ═══
+#    العقد `waves_prereg.md` يفتح محورَ `T-SESSIONS` **بشروطه الثلاثة** لدعوى أخرى
+#    (`TG_50819`/`TG_50818`) — و`sessions_probe.py` **يبقى مُغلَقًا**. تسجيلٌ فقط.
+import os as _wvk_os                                             # noqa: E402
+
+
+def _wvk_norm(_t):
+    """يطوي أسطرَ الاقتباس والمسافاتِ وعلامةَ RLM والتغليظ ⇒ مقارنةٌ حرفيّةٌ بالمضمون."""
+    _t = _mem_re.sub(r"\n>\s*", " ", _t).replace("‏", "").replace("**", "")
+    return _mem_re.sub(r"\s+", " ", _t)
+
+
+try:
+    _wvk_doc = open("waves_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _wvk_doc = f"⛔ {type(_e).__name__}"
+
+
+def _wvk_sec(_doc, _a, _b):
+    """نصُّ القسم `## §a` حتى `## §b` — أو فارغٌ إن غاب أحدُهما (لا استثناء)."""
+    _i, _j = _doc.find("## " + _a), _doc.find("## " + _b)
+    return _doc[_i:_j] if 0 <= _i < _j else ""
+
+
+# ① WVK0 — فروعٌ ثلاثةٌ مرقَّمةٌ بالترتيب كلٌّ بكلمتِه · ولا فرعَ رابع
+try:
+    _wvk_br = _wvk_sec(_wvk_doc, "§⑥", "§⑦")
+    _wvk_ln = [_l.strip() for _l in _wvk_br.splitlines()
+               if _mem_re.match(r"^\d\. \*\*الفرعُ", _l.strip())]
+    _wvk_want = [("1", "موجةٌ مقيسة"), ("2", "لا تُثبَت"), ("3", "لا قياس")]
+    _v = ("T-WAVES" in _wvk_doc and len(_wvk_ln) == 3
+          and all(_wvk_ln[_i].startswith(f"{_n}. **الفرعُ {_n}") and _k in _wvk_ln[_i]
+                  for _i, (_n, _k) in enumerate(_wvk_want))
+          and "ولا فرعَ رابع" in _wvk_br)
+    _w = f"فروعٌ={len(_wvk_ln)} · {[_l[:24] for _l in _wvk_ln]}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVK0 عقدُ `T-WAVES` · فروعُه الثلاثةُ مرقَّمةٌ بالترتيب كلٌّ بكلمتِه · "
+      "ولا فرعَ رابع", _v, _w)
+
+# ② WVK1 — **المصدرُ حرفيٌّ من الكاتالوج فعلًا** (لا منقولٌ بيدي) · `faisal_verbatim`
+#    للنصّ · **والتحويلُ إلى نيويورك `faisal_inferred`** — في `§⓪` وحدَه.
+try:
+    _wvk_cat = _wvk_norm(open("FAISAL_IMAGES_CATALOG.md", encoding="utf-8").read())
+    _wvk_s0 = _wvk_sec(_wvk_doc, "§⓪", "§①")
+    _wvk_n0 = _wvk_norm(_wvk_s0)
+    _wvk_q = ("موجات السهم بتوقيتنا · الموجه الاولى بين الساعه 3-4 · الموجه الثانيه "
+              "4.30-5 · الموجه الثالثه والاخيره الساعه 6-7",
+              "التوقيت يخص سهم الماركت كما حدث امس DCOY")
+    _wvk_incat = all(_q in _wvk_cat for _q in _wvk_q)
+    _wvk_indoc = all(_q in _wvk_n0 for _q in _wvk_q)
+    _wvk_tags = "faisal_verbatim" in _wvk_s0 and "faisal_inferred" in _wvk_s0
+    _v = _wvk_incat and _wvk_indoc and _wvk_tags
+    _w = f"في الكاتالوج={_wvk_incat} · في §⓪={_wvk_indoc} · الوسمان={_wvk_tags}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVK1 نصّا `TG_50819`/`TG_50818` **في الكاتالوج حرفيًّا وفي `§⓪` حرفيًّا** · "
+      "والنصُّ `faisal_verbatim` والتحويلُ `faisal_inferred`", _v, _w)
+
+# ③ WVK2 — **شروطُ الفتح الثلاثة** في `§①` · و`RATIO_MIN` ‏1.5× **لا يُرخى** في `WV1` ·
+#    و**`T-SESSIONS` مُغلَقٌ سلوكيًّا** بعد هذا العقد (`_closed_now` بلا إقرار ⇒ True).
+try:
+    _wvk_s1 = _wvk_sec(_wvk_doc, "§①", "§②")
+    _wvk_rows = [_l for _l in _wvk_s1.splitlines() if _mem_re.match(r"^\| [①②③] \|", _l)]
+    _wvk_s5 = _wvk_norm(_wvk_sec(_wvk_doc, "§⑤", "§⑥"))
+    _wvk_wv1 = next((_l for _l in _wvk_s5.split("| `WV") if _l.startswith("1`")), "")
+    _wvk_ratio = "1.5×" in _wvk_wv1 and "23.08%" in _wvk_wv1
+    _wvk_env_old = _wvk_os.environ.pop("SESSIONS_REOPEN", None)
+    try:
+        _wvk_closed = bool(_SSA is not None and _SSA.AXIS_CLOSED and _SSA._closed_now()
+                           and _SSA.CLOSED_RC == 8)
+    finally:
+        if _wvk_env_old is not None:
+            _wvk_os.environ["SESSIONS_REOPEN"] = _wvk_env_old
+    _v = (len(_wvk_rows) == 3 and "RATIO_MIN" in _wvk_s1 and _wvk_ratio
+          and "SESSIONS_REOPEN" in _wvk_doc and _wvk_closed)
+    _w = (f"صفوفُ الشروط={len(_wvk_rows)} · 1.5× في WV1={_wvk_ratio} · "
+          f"T-SESSIONS مُغلَق={_wvk_closed}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVK2 شروطُ الفتح الثلاثة في `§①` · و‏1.5× **باقٍ** في `WV1` · "
+      "و`sessions_probe` **مُغلَقٌ سلوكيًّا** (خروج 8) بعد التسجيل", _v, _w)
+
+# ④ WVK3 — **هُويّةُ المجتمع = `NL_UP` المنشورة** — الأرقامُ في `§②` مقروءةٌ من
+#    `link100_probe` لا مكتوبةٌ بيدي · والتعريفُ بحرفه (‏2.0 · الطيّ 20 · تقسيم ±3).
+try:
+    import link100_probe as _wvk_lk
+    _wvk_s2 = _wvk_sec(_wvk_doc, "§②", "§③")
+    _wvk_ids = all(f"{_y} = {tuple(_wvk_lk.NL_UP[_y])}" in _wvk_s2
+                   for _y in ("2023", "2024", "2025"))
+    _wvk_def = ("high(d)/close(d−1) ≥ 2.0" in _wvk_s2 and "fold_events" in _wvk_s2
+                and "20 جلسة" in _wvk_s2 and "[d−3, d+3]" in _wvk_s2
+                and _wvk_lk.EXPL_X == 2.0 and _wvk_lk.FOLD_DAYS == 20
+                and _wvk_lk.SPLIT_GUARD == 3)
+    _v = _wvk_ids and _wvk_def
+    _w = f"NL_UP بت-بت={_wvk_ids} · التعريف={_wvk_def}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVK3 مرساةُ `V-W1` = `NL_UP` **من `link100_probe` بت-بت** · والتعريفُ "
+      "`≥ 2.0` والطيُّ 20 والتقسيمُ ±3 مطابقةٌ للثوابت", _v, _w)
+
+# ⑤ WVK4 — **الحصصُ الزمنيّة محسوبةٌ لا مكتوبةٌ باليد**: كلُّ رقمٍ في العقد يُعاد
+#    حسابُه هنا من حدود النوافذ ⇒ رقمٌ مكتوبٌ خطأً يُسقطه.
+try:
+    _wvk_all = _wvk_norm(_wvk_doc)
+    _wvk_win = [(9.5, 10)] + [(_h, _h + 1) for _h in range(10, 16)]
+    _wvk_min = [round((_b - _a) * 60) for _a, _b in _wvk_win]
+    _wvk_pct = {"W2": 30 / 390, "hour": 60 / 390, "after12": 240 / 390,
+                "wv1": 1.5 * 60 / 390, "pm4": 240 / 330, "W1": 60 / 330, "pm9": 30 / 330}
+    _wvk_txt = {_k: f"{_x * 100:.2f}%" for _k, _x in _wvk_pct.items()}
+    _wvk_miss = [_k for _k, _s in _wvk_txt.items() if _s not in _wvk_all]
+    _v = sum(_wvk_min) == 390 and len(_wvk_win) == 7 and not _wvk_miss
+    _w = f"دقائق={sum(_wvk_min)} · نوافذ={len(_wvk_win)} · غائبة={_wvk_miss} · {_wvk_txt}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVK4 الحصصُ السبع مجموعُها 390 دقيقة · وكلُّ نسبةٍ في العقد (‏7.69 · 15.38 · "
+      "61.54 · 23.08 · 72.73 · 18.18 · 9.09) **تُعاد حسابًا من الحدود**", _v, _w[:160])
+
+# ⑥ WVK5 — **تسجيلٌ فقط**: لا أداةَ ولا workflow قبل أمر «ابن أداة الموجات» ·
+#    وصفرُ شحنٍ ولا `LOGIC_VERSION` مكتوبان.
+try:
+    _wvk_tool = _wvk_os.path.exists("waves_probe.py")
+    _wvk_wf = any("waves_probe" in open(_wvk_os.path.join(".github/workflows", _f),
+                                        encoding="utf-8").read()
+                  for _f in _wvk_os.listdir(".github/workflows") if _f.endswith(".yml"))
+    _wvk_txt5 = ("ابن أداة الموجات" in _wvk_doc and "شغّل الموجات" in _wvk_doc
+                 and "لا `LOGIC_VERSION`" in _wvk_doc
+                 and "ولا يُشحَن شيءٌ مهما كانت النتيجة" in _wvk_all)
+    _v = (not _wvk_tool) and (not _wvk_wf) and _wvk_txt5
+    _w = f"أداة={_wvk_tool} · workflow={_wvk_wf} · نصُّ الحدود={_wvk_txt5}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVK5 **تسجيلٌ فقط** — لا `waves_probe.py` ولا workflow قبل الأمر · "
+      "وصفرُ شحنٍ ولا `LOGIC_VERSION` مكتوبان", _v, _w)
+
+# ═══ 🏦 «سجّل HRT» (أمرُ المالك 2026-09-23) — أقفال HRK0-HRK4 · عقدٌ بعد مِجَسٍّ قبل أيّ سعر ═══
+try:
+    _hrk_doc = open("hrt_prereg.md", encoding="utf-8").read()
+except Exception as _e:                                          # noqa: BLE001
+    _hrk_doc = f"⛔ {type(_e).__name__}"
+_hrk_all = _wvk_norm(_hrk_doc)
+
+# ① HRK0 — فروعٌ ثلاثةٌ بالترتيب **وليس بينها فرعٌ يُثبت الدعوى** · ولا فرعَ رابع
+try:
+    _hrk_br = _wvk_sec(_hrk_doc, "§⑤", "§⑥")
+    _hrk_ln = [_l.strip() for _l in _hrk_br.splitlines()
+               if _mem_re.match(r"^\d\. \*\*الفرعُ", _l.strip())]
+    _hrk_want = [("1", "إشارةٌ وصفيّةٌ موجبة"), ("2", "لا ميزة"), ("3", "لا قياس")]
+    _v = ("T-HRT" in _hrk_doc and len(_hrk_ln) == 3
+          and all(_hrk_ln[_i].startswith(f"{_n}. **الفرعُ {_n}") and _k in _hrk_ln[_i]
+                  for _i, (_n, _k) in enumerate(_hrk_want))
+          and "ولا فرعَ رابع" in _hrk_br and "وليس بينها فرعٌ يُثبت الدعوى" in _hrk_br
+          and "ليس إثباتًا" in _hrk_br)
+    _w = f"فروعٌ={len(_hrk_ln)} · {[_l[:24] for _l in _hrk_ln]}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRK0 عقدُ `T-HRT` · فروعُه الثلاثةُ بالترتيب **ولا واحدَ منها يُثبت الدعوى** · "
+      "ولا فرعَ رابع", _v, _w)
+
+# ② HRK1 — قولُ فيصل **في الكاتالوج حرفيًّا وفي `§⓪` حرفيًّا** · وجملةُ A.Alghamdi
+#    `third_party` لا تُنسَب لفيصل.
+try:
+    _hrk_s0 = _wvk_sec(_hrk_doc, "§⓪", "§①")
+    _hrk_n0 = _wvk_norm(_hrk_s0)
+    _hrk_q = ("اي سهم يتخارج منه صندوق hrt يعطي 200٪ بالراحه · لذلك احرص ع الاسهم خارج الصندوق",
+              "كان متولجه صندوق hrt وباع نص كمياته يوم 10/9")
+    _hrk_incat = all(_q in _wvk_cat for _q in _hrk_q)
+    _hrk_indoc = all(_q in _hrk_n0 for _q in _hrk_q)
+    _hrk_tags = ("faisal_verbatim" in _hrk_s0
+                 and _mem_re.search(r"A\.Alghamdi[^\n]*third_party", _hrk_s0) is not None)
+    _v = _hrk_incat and _hrk_indoc and _hrk_tags
+    _w = f"في الكاتالوج={_hrk_incat} · في §⓪={_hrk_indoc} · الوسمان={_hrk_tags}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRK1 قولُ فيصل (`TG_50826`) **حرفيًّا في الكاتالوج وفي `§⓪`** · وجملةُ "
+      "A.Alghamdi موسومةٌ `third_party`", _v, _w)
+
+# ③ HRK2 — **وقائعُ المِجَسّ محمولةٌ في العقد** (فالمِجَسُّ يُحذف): الهُويّة · بيعُ WHLR ·
+#    لحظةُ القبول · الحاشية · أعدادُ السنوات · والتشغيلاتُ الثلاث.
+try:
+    _hrk_s1 = _wvk_norm(_wvk_sec(_hrk_doc, "§①", "§②"))
+    _hrk_facts = ("CIK 1475597", "HRT FINANCIAL LP", "HRT FINANCIAL LLC", "15,717",
+                  "بيع `S` 5,048 بـ$0.369 في 2026-09-10", "2026-09-11 14:19:08",
+                  "Resulting in short sales", "2023: 1 · 2024: 3 · 2025: 4 · 2026: 167",
+                  "41 مُصدِرًا", "35891207060", "35891549229", "35892031431")
+    _hrk_miss = [_f for _f in _hrk_facts if _f not in _hrk_s1]
+    _v = not _hrk_miss
+    _w = f"غائبة={_hrk_miss}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRK2 وقائعُ المِجَسّ **في `§①`** (الهُويّة · بيعُ WHLR ‏5,048 بـ0.369 يومَ 09-10 · "
+      "القبولُ 09-11 14:19 · أعدادُ السنوات · التشغيلاتُ الثلاث)", _v, _w)
+
+# ④ HRK3 — ثوابتُ التصميم مكتوبةٌ قبل الرقم: `t0` = **القبول لا تاريخُ العمليّة** ·
+#    `C-BUY` **حاكم** · WHLR **خارج العدّ** · و50% **`engineering`**.
+try:
+    _hrk_s2 = _wvk_norm(_wvk_sec(_hrk_doc, "§②", "§③"))
+    _hrk_s3 = _wvk_sec(_hrk_doc, "§③", "§④")
+    _hrk_s4 = _wvk_norm(_wvk_sec(_hrk_doc, "§④", "§⑤"))
+    _hrk_t0 = "`ACCEPTANCE-DATETIME`" in _hrk_s2 and "لا تاريخُ العمليّة" in _hrk_s2
+    _hrk_buy = _mem_re.search(r"\| \*\*`C-BUY`\*\* 🥇 \| \*\*ضبطٌ حاكم", _hrk_s3) is not None
+    _hrk_whlr = _mem_re.search(r"حلقةُ WHLR[^\n]*لا تُعَدّ",
+                               _wvk_sec(_hrk_doc, "§②", "§③").replace("**", "")) is not None
+    _hrk_eng = "50%" in _hrk_s4 and "engineering" in _hrk_s4
+    _v = _hrk_t0 and _hrk_buy and _hrk_whlr and _hrk_eng
+    _w = f"t0=القبول={_hrk_t0} · C-BUY حاكم={_hrk_buy} · WHLR خارج={_hrk_whlr} · 50% eng={_hrk_eng}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRK3 `t0` = **قبولُ الإيداع** لا تاريخُ العمليّة · `C-BUY` **حاكم** · WHLR "
+      "**خارج العدّ** · و50% موسومةٌ `engineering`", _v, _w)
+
+# ⑤ HRK4 — **المِجَسُّ المؤقّت حُذف** ولا أداةَ قبل الأمر · والخطوتان التاليتان بأسمائهما.
+try:
+    _hrk_gone = not _wvk_os.path.exists("hrt_probe.py") and not _wvk_os.path.exists(
+        ".github/workflows/hrt_probe.yml")
+    _hrk_tool = _wvk_os.path.exists("hrt_arms.py")
+    _hrk_next = "ابن أداة HRT" in _hrk_doc and "شغّل HRT" in _hrk_doc
+    _v = _hrk_gone and not _hrk_tool and _hrk_next
+    _w = f"المِجَسُّ محذوف={_hrk_gone} · أداة={_hrk_tool} · الخطوتان={_hrk_next}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRK4 **المِجَسُّ المؤقّت محذوف** (ملفُّه وworkflowه) · ولا `hrt_arms.py` قبل الأمر · "
+      "والخطوتان بأسمائهما", _v, _w)
+
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
