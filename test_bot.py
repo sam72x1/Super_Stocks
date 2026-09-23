@@ -60398,7 +60398,7 @@ check("🏦🔒 HRA12 نافذةُ التقسيم = العقدُ حرفيًّا 
       "وتمتدّ إلى آخر جلسة `mr20` **فقط** بإزاحة `p0` (‏+22 داخل · ‏+23 خارج)", _v, _w)
 
 
-# ═══ 🗓️🔍 «قس أثر الإغلاق المبكر» (أمرُ المالك 2026-09-23) — أقفال EAR0-EAR8 · `T-EARLY` ═══
+# ═══ 🗓️🔍 «قس أثر الإغلاق المبكر» (أمرُ المالك 2026-09-23) — أقفال EAR0-EAR9 · `T-EARLY` ═══
 #    العقد `early_close_prereg.md` قبل أيّ رقم · علمان مطفآن افتراضًا (`PRESESSION_CLOSE_CAL`
 #    في الماسح · `PRESESSION_AUDIT_NEW_ROWS` في الحكم) · وأداةُ تدقيقٍ قراءةٌ فقط.
 import ast as _ear_ast                                            # noqa: E402
@@ -60794,6 +60794,47 @@ except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🗓️🔒 EAR8 `parse_day_ext`: العلمُ `== \"1\"` حرفيًّا · `close_bound` لكلّ يوم · "
       "ولا حدَّ 16:00 مغروسًا في شرط الإغلاق (بالـAST)", _v, _w)
+
+# ⑩ EAR9 — «قس أثر الإغلاق المبكر» صدر (‏2026-09-23 · التشغيلة `35907136622`): النتيجةُ تحمل سطرَي
+#    الحكم **بحرفهما** — سطرَ الأداة · وسطرَ مِجَسّ `V-E2` بنصّ العقد (**ساقطٌ**: 28 يومًا خارج المنطقة) —
+#    والفرعَ 2 في عنوانها · والأرضيتين · وأنّ `FLOOR_BY_SLOT` **مرفوعٌ للمالك**؛ والتصحيحُ المؤرَّخ في
+#    `topk_result.md` · **والثوابتُ الحيّة الأربعة كما هي** (العقد §⑥): تغييرُ أيٍّ منها بعد اليوم
+#    **إقرارٌ بأمر المالك** يُحدَّث معه هذا القفل — لا أثرٌ جانبيٌّ لتدقيق.
+_EAR9_JUDGE = ("JUDGE V-E1=True V-E2=True V-E3=True flips_T-PRESESSION=0 rows_changed=78325 "
+               "label_changed=2 floor=0.69492->0.69903 rc_new={'الافتراضيّ': 0, 'التطوير': 0, "
+               "'السقف': 0} ⇒ قابلٌ للإسناد")
+_EAR9_VE2 = ("JUDGE_VE2_FULL days_in_zone=276 days_outside=28 ⇒ 🔴 فرقٌ خارج المنطقة — "
+             "الإسنادُ مقيَّد")
+try:
+    _ear9_res = (open("early_close_result.md", encoding="utf-8").read()
+                 if _ear_os.path.exists("early_close_result.md") else "")
+    _ear9_tk = open("topk_result.md", encoding="utf-8").read()
+    _ear9_wf = open(".github/workflows/operator_entry.yml", encoding="utf-8").read()
+    _ear9_pf = _ear_mod("presession_feats")
+    _ear9_rd = _ear_mod("presession_radar")
+    _ear9_t = _ear9_tk.find("`T-EARLY`")
+    _ear9_r = {
+        "سطرُ الأداة بحرفه": _EAR9_JUDGE in _ear9_res,
+        "سطرُ V-E2 بنصّ العقد": _EAR9_VE2 in _ear9_res,
+        "التشغيلة": "35907136622" in _ear9_res,
+        "الفرعُ 2 في العنوان": "الفرعُ 2 «يقلب»" in (_ear9_res.splitlines() or [""])[0],
+        "الأرضيتان": "0.69492 ⟶ 0.69903" in _ear9_res,
+        "مرفوعٌ للمالك": "يُرفَع للمالك" in _ear9_res,
+        "تصحيحُ T-TOPK": _ear9_t >= 0 and "0.69903" in _ear9_tk[_ear9_t:],
+        "RANK_BY_SLOT": getattr(_ear9_pf, "RANK_BY_SLOT", None) == {"PM": "post_hi_ret"},
+        "FLOOR_BY_SLOT": getattr(_ear9_pf, "FLOOR_BY_SLOT", None) == {"PM": 0.69492},
+        "PREFILTER_KEY": getattr(_ear9_rd, "PREFILTER_KEY", None) == "day_ret",
+        "PRESESSION_SEND": bool(_mem_re.search(r"^\s*PRESESSION_SEND:\s*PM,AH\s*$", _ear9_wf,
+                                               _mem_re.M)),
+    }
+    _v = all(_ear9_r.values())
+    _w = str({_k: _x for _k, _x in _ear9_r.items() if not _x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 EAR9 (‏«قس أثر الإغلاق المبكر» صدر) `early_close_result.md` يحمل سطرَي الحكم بحرفهما "
+      "(الأداة · و`V-E2` بنصّ العقد ساقطًا) والتشغيلةَ والفرعَ 2 والأرضيتين · والتصحيحُ المؤرَّخ في "
+      "`topk_result.md` · **والثوابتُ الحيّة الأربعة كما هي** (العقد §⑥ — تغييرُها إقرارٌ بأمر المالك)",
+      _v, _w)
 
 
 # ══════════════════════════════════════════════════════════════════════════
