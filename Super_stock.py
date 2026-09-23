@@ -689,6 +689,11 @@ CONFIG = {
                                          # متوسط 20 نسبة الشورت تحكم» ⇒ السطرُ لما **فوق** 3 (ثلاثةٌ بالضبط لا سطر)
                                          # · والعدُّ على **التاريخ كلِّه** (نصُّه بلا نافذة — U-12 بأمر «نفّذ R-02»).
                                          # مِجَسّ: 4 عكسيّة ⇒ «🔁 مقسّم 4 مرات — … دون متوسط 20 ($1.37) …» · 3 ⇒ ""
+    "SPLIT_DUP_DAYS": 7,                 # engineering (لا سندَ فيصليّ — تنظيفُ بيانات): تقسيمان بالنسبة نفسها
+                                         # خلال 7 أيام = تكرارُ سجلّ ياهو لا حدثان (ENVB ‏1:15 يومَي 2025-01-27/29)
+                                         # · أمرُ المالك «احذف المكرّر في عدّ التقسيم» 2026-09-23. يحكم عدَّ R-02
+                                         # وسطرَ السنة §P4 معًا. مِجَسّ: ENVB ‏6 ⇒ 5 · نفسُ النسبة بفارق 7 أيام ⇒ 1
+                                         # وبفارق 8 ⇒ 2 · نسبتان مختلفتان بفارق يوم ⇒ 2
 
     # ---- تقنية ----
     "HISTORY_DAYS": 800,         # ~2.2 سنة (يكفي لفريم شهري سليم ~27 شمعة)
@@ -5947,6 +5952,50 @@ def enrich(results: list) -> None:
 # ==========================================================
 # 7) استراتيجية التقسيم العكسي
 # ==========================================================
+def _dedupe_reverse_splits(splits, days=None) -> list:
+    """🧹 أحداثُ التقسيم **العكسيّ** (نسبةٌ بين 0 و1) **بلا تكرارِ سجلّ ياهو** — ‏[(تاريخ، نسبة)]
+    مرتّبةً زمنيًّا. **مصدرٌ واحدٌ للعدّين**: `split_count_all` (سطرُ R-02) و`_split_frequency`
+    (سطرُ السنة §P4) — فلا يختلفان في معنى «تقسيم».
+
+    **العيبُ مقيسٌ لا مفترَض** (مِجَسُّ R-02 الحيّ 2026-09-23 على 585 رمزًا): ياهو يسجّل أحيانًا
+    التقسيمَ الواحد مرّتين — ENVB ‏1:15 يومَي 2025-01-27 و2025-01-29 — فكان يُعدّ اثنين.
+    **القاعدة (أمرُ المالك «احذف المكرّر في عدّ التقسيم»):** تقسيمان **بالنسبة نفسها** خلال
+    `SPLIT_DUP_DAYS` يومًا (شاملًا) = تقسيمٌ واحد، **ويُحفظ الأبكر** (وقع التقسيمُ بأوّل سجلٍّ له ⇒
+    لا نظرَ مستقبليّ). «النسبةُ نفسها» = تطابقٌ نسبيّ ‏0.1% (فرقُ كتابة الكسر 0.066667/0.0666667 لا
+    أكثر — وأقربُ نسبتين حقيقيّتين 1:10 و1:11 بينهما ‏9%) · **والنسبُ المختلفة لا تُدمج مهما قربت**
+    (قد تكونان حدثين) · والأماميُّ (فوق 1) والصفرُ والتاريخُ غيرُ المقروء لا تدخل.
+    تقبل Series ياهو (فهرسُها تواريخ) أو أزواجًا. **نقيّة · فاشلة-آمنة ⇒ ‏[]** · عرضٌ فقط."""
+    try:
+        if splits is None:
+            return []
+        if hasattr(splits, "index") and hasattr(splits, "values"):
+            pairs = list(zip(splits.index, splits.values))
+        else:
+            pairs = list(splits)
+        win = int(CONFIG["SPLIT_DUP_DAYS"] if days is None else days)
+        ev = []
+        for ts, ratio in pairs:
+            try:
+                d = ts.date() if hasattr(ts, "date") else ts
+                if isinstance(d, str):
+                    d = dt.date.fromisoformat(d[:10])
+                r = float(ratio)
+                if isinstance(d, dt.date) and 0.0 < r < 1.0:
+                    ev.append((d, r))
+            except Exception:                                    # noqa: BLE001
+                continue
+        ev.sort(key=lambda x: x[0])
+        out = []
+        for d, r in ev:
+            if any((d - d0).days <= win and math.isclose(r, r0, rel_tol=1e-3)
+                   for d0, r0 in out):
+                continue
+            out.append((d, r))
+        return out
+    except Exception:                                            # noqa: BLE001
+        return []
+
+
 def _split_frequency(splits, today, days: int = 365) -> int:
     """🔁 عدد التقسيمات العكسية (نسبة أقل من 1) في آخر `days` يومًا (سنة افتراضيًا).
     قاعدة فيصل (FAISAL_OPERATOR_PACK §P4، من الصور): «اذا تقسيم كثير خلال فتره زمنيه
@@ -5959,20 +6008,18 @@ def _split_frequency(splits, today, days: int = 365) -> int:
     مُبلَّغًا بلا إصلاح):** الشرطُ كان `d >= cutoff` **بلا حدٍّ أعلى** ⇒ يَعُدّ تقسيمًا
     يقع **بعد** يوم المرجع. حيًّا لا أثرَ له (‏`today` هو اليوم فلا تقسيمَ مستقبليّ)
     **لكن أدوات المشي التاريخيّ تمرّر `today` قديمًا** فكان الحقلُ يقرأ المستقبل.
-    الآن **نافذةٌ مغلقة الطرفين** `cutoff <= d <= today`. ⚠️ **يُشدّد لا يُرخي.**"""
+    الآن **نافذةٌ مغلقة الطرفين** `cutoff <= d <= today`. ⚠️ **يُشدّد لا يُرخي.**
+
+    🧹 **ودمجُ المكرّر (2026-09-23، أمرُ المالك «احذف المكرّر في عدّ التقسيم»):** الأحداثُ من
+    `_dedupe_reverse_splits` ⇒ تقسيمٌ مسجَّلٌ مرّتين بالنسبة نفسها خلال `SPLIT_DUP_DAYS` يُعدّ
+    **مرّةً**، ونسبةُ الصفر لا تُعدّ. ⚠️ **يُشدّد لا يُرخي** (لا يزيد العدَّ أبدًا) · والنافذةُ
+    وقراءةُ الأنواع كما هما."""
     try:
         cutoff = today - dt.timedelta(days=days)
-        if hasattr(splits, "index") and hasattr(splits, "values"):
-            pairs = list(zip(splits.index, splits.values))
-        else:
-            pairs = list(splits or [])
         n = 0
-        for ts, ratio in pairs:
+        for d, _r in _dedupe_reverse_splits(splits):
             try:
-                d = ts.date() if hasattr(ts, "date") else ts
-                if isinstance(d, str):
-                    d = dt.date.fromisoformat(d[:10])
-                if float(ratio) < 1.0 and cutoff <= d <= today:
+                if cutoff <= d <= today:
                     n += 1
             except Exception:
                 continue
@@ -6001,23 +6048,18 @@ def split_count_all(splits, today) -> int:
     ⚠️ **الطرفُ الأعلى مغلق** (`d <= today`) — درسُ نظر `_split_frequency` المستقبليّ
     (2026-08-13): أدواتُ المشي التاريخيّ تمرّر `today` قديمًا. والتقسيمُ الأماميّ (فوق 1) لا
     يُعدّ. **نقيّة · فاشلة-آمنة ⇒ 0** (غيابُ البيانات ليس «صفرَ تقسيم» لكنه لا سطر).
-    عرضٌ فقط — خارج الفرز والجذور ولا حقلَ مخزَّن."""
+    عرضٌ فقط — خارج الفرز والجذور ولا حقلَ مخزَّن.
+
+    🧹 **ودمجُ المكرّر (2026-09-23، أمرُ المالك «احذف المكرّر في عدّ التقسيم»):** الأحداثُ من
+    `_dedupe_reverse_splits` ⇒ ENVB ‏6 ⟶ 5 · وسهمٌ بثلاثةٍ حقيقيّة ومعها سجلٌّ مكرّر **لا يعبر الحدّ**."""
     try:
         if splits is None:
             return 0
         t = today.date() if isinstance(today, dt.datetime) else today
-        if hasattr(splits, "index") and hasattr(splits, "values"):
-            pairs = list(zip(splits.index, splits.values))
-        else:
-            pairs = list(splits)
         n = 0
-        for ts, ratio in pairs:
+        for d, _r in _dedupe_reverse_splits(splits):
             try:
-                d = ts.date() if hasattr(ts, "date") else ts
-                if isinstance(d, str):
-                    d = dt.date.fromisoformat(d[:10])
-                r = float(ratio)
-                if 0.0 < r < 1.0 and d <= t:
+                if d <= t:
                     n += 1
             except Exception:                                    # noqa: BLE001
                 continue
