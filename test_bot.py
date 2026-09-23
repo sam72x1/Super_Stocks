@@ -59881,18 +59881,494 @@ except Exception as _e:                                          # noqa: BLE001
 check("🏦🔒 HRK3 `t0` = **قبولُ الإيداع** لا تاريخُ العمليّة · `C-BUY` **حاكم** · WHLR "
       "**خارج العدّ** · و50% موسومةٌ `engineering`", _v, _w)
 
-# ⑤ HRK4 — **المِجَسُّ المؤقّت حُذف** ولا أداةَ قبل الأمر · والخطوتان التاليتان بأسمائهما.
+# ⑤ HRK4 — كان «**المِجَسُّ المؤقّت حُذف** ولا أداةَ قبل الأمر · والخطوتان التاليتان بأسمائهما».
+#    🔄 **حُدِّث 2026-09-23 إقرارًا بأمر المالك «ابن أداة HRT»** (لا إرخاءً): المِجَسُّ **ما زال
+#    محذوفًا** · والأداةُ وworkflowها موجودان وworkflowٌ **واحدٌ فقط** ينادي الأداة · والملحقُ `§⑪`
+#    مكتوبٌ ويسمّي الأمر · **ولا `hrt_result.md` قبل «شغّل HRT»** (صفرُ رقمٍ قبل الدمج).
 try:
     _hrk_gone = not _wvk_os.path.exists("hrt_probe.py") and not _wvk_os.path.exists(
         ".github/workflows/hrt_probe.yml")
     _hrk_tool = _wvk_os.path.exists("hrt_arms.py")
-    _hrk_next = "ابن أداة HRT" in _hrk_doc and "شغّل HRT" in _hrk_doc
-    _v = _hrk_gone and not _hrk_tool and _hrk_next
-    _w = f"المِجَسُّ محذوف={_hrk_gone} · أداة={_hrk_tool} · الخطوتان={_hrk_next}"
+    _hrk_wfs = sorted(_f for _f in _wvk_os.listdir(".github/workflows") if _f.endswith(".yml")
+                      and "hrt_arms" in open(_wvk_os.path.join(".github/workflows", _f),
+                                             encoding="utf-8").read())
+    _hrk_res = _wvk_os.path.exists("hrt_result.md")
+    _hrk_i11 = _hrk_doc.find("## §⑪")
+    _hrk_s11 = _hrk_doc[_hrk_i11:] if _hrk_i11 >= 0 else ""
+    _hrk_next = ("ابن أداة HRT" in _hrk_s11 and "شغّل HRT" in _hrk_s11
+                 and "ولا يُشحَن شيءٌ" in _hrk_all)
+    _v = _hrk_gone and _hrk_tool and _hrk_wfs == ["hrt.yml"] and not _hrk_res and _hrk_next
+    _w = (f"المِجَسُّ محذوف={_hrk_gone} · أداة={_hrk_tool} · workflows={_hrk_wfs} · "
+          f"نتيجة={_hrk_res} · الملحقُ يسمّي الأمرين={_hrk_next}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🏦🔒 HRK4 **المِجَسُّ المؤقّت محذوف** (ملفُّه وworkflowه) · ولا `hrt_arms.py` قبل الأمر · "
-      "والخطوتان بأسمائهما", _v, _w)
+check("🏦🔒 HRK4 (‏حُدِّث بأمر «ابن أداة HRT») المِجَسُّ **ما زال محذوفًا** · الأداةُ وworkflowٌ **واحد** · "
+      "والملحقُ `§⑪` يسمّي الأمرين · **ولا `hrt_result.md` قبل «شغّل HRT»**", _v, _w)
+
+
+# ═══ 🏦 «ابن أداة HRT» (أمرُ المالك 2026-09-23) — أقفال HRA0-HRA12 · قراءةٌ فقط ═══════════════
+#    الأداة `hrt_arms.py` · العقد `hrt_prereg.md` ‏+ الملحق `§⑪` · كلُّ قفلٍ **سلوكيّ** بجالبين
+#    محقونين — **صفرُ شبكةٍ وصفرُ كتابةٍ في المستودع** (الصفوفُ في مجلّدٍ مؤقّت).
+import ast as _hra_ast                                            # noqa: E402
+import contextlib as _hra_cl                                      # noqa: E402
+import datetime as _hra_dt                                        # noqa: E402
+import importlib as _hra_il                                       # noqa: E402
+import io as _hra_io                                              # noqa: E402
+import json as _hra_json                                          # noqa: E402
+import os as _hra_os                                              # noqa: E402
+import tempfile as _hra_tf                                        # noqa: E402
+
+try:
+    _HR = _hra_il.import_module("hrt_arms")
+except Exception as _e:                                          # noqa: BLE001
+    _HR = None
+    _hra_imp_err = f"{type(_e).__name__}: {_e}"
+
+
+def _hra_filing(acc_dt, form, sym, cik, rows, owners=(("0001475597", "HRT FINANCIAL LP"),)):
+    """نصُّ إيداعٍ اصطناعيّ بشكل EDGAR (ترويسةُ القبول + وثيقةُ الملكيّة)."""
+    _tx = "".join(
+        f"<nonDerivativeTransaction><securityTitle><value>{_t}</value></securityTitle>"
+        f"<transactionDate><value>{_d}</value></transactionDate>"
+        f"<transactionCoding><transactionCode>{_c}</transactionCode></transactionCoding>"
+        f"<transactionAmounts><transactionShares><value>1,000</value></transactionShares>"
+        f"<transactionPricePerShare><value>0.5</value></transactionPricePerShare>"
+        f"</transactionAmounts></nonDerivativeTransaction>" for _t, _d, _c in rows)
+    _own = "".join(f"<reportingOwner><reportingOwnerId><rptOwnerCik>{_c}</rptOwnerCik>"
+                   f"<rptOwnerName>{_n}</rptOwnerName></reportingOwnerId></reportingOwner>"
+                   for _c, _n in owners)
+    return (f"<SEC-HEADER><ACCEPTANCE-DATETIME>{acc_dt}\n</SEC-HEADER><ownershipDocument>"
+            f"<documentType>{form}</documentType><issuer><issuerCik>000{cik}</issuerCik>"
+            f"<issuerTradingSymbol>{sym}</issuerTradingSymbol></issuer>{_own}{_tx}</ownershipDocument>")
+
+
+def _hra_world(n_exit=24, n_buy=24, bad_owner=False, drop=0, hits=("EX0", "EX1", "EX2", "BY0")):
+    """عالمٌ اصطناعيّ: إيداعاتُ SEC وشموعٌ لكلّ رمز — ⟵ (sec، px، سجلُّ النداءات)."""
+    _files, _F, _D, _A, _calls = {}, [], [], [], {"sec": [], "px": [], "sp": []}
+
+    def _add(form, day, acc, txt):
+        _F.append(form)
+        _D.append(day)
+        _A.append(acc)
+        _files[acc] = txt
+
+    _k = 0
+    for _grp, _n, _code, _hh, _d0 in (("EX", n_exit, "S", "141908", _hra_dt.date(2026, 6, 1)),
+                                      ("BY", n_buy, "P", "170000", _hra_dt.date(2026, 5, 4))):
+        for _i in range(_n):
+            _d = _d0 + _hra_dt.timedelta(days=_i)
+            while _d.weekday() >= 5:
+                _d += _hra_dt.timedelta(days=1)
+            _acc = f"0001475597-26-{_k:06d}"
+            _k += 1
+            _add("4", _d.isoformat(), _acc, _hra_filing(_d.strftime("%Y%m%d") + _hh, "4",
+                                                        f"{_grp}{_i}", 1000 + _k,
+                                                        [("Common Stock", _d.isoformat(), _code)]))
+    _add("4", "2026-06-04", "0001475597-26-900001",
+         _hra_filing("20260604100000", "4", "EX0", 1001, [("Common Stock", "2026-06-03", "S")]))
+    _add("4", "2026-09-11", "0001475597-26-900002",
+         _hra_filing("20260911141908", "4", "WHLR", 1527541, [("Common Stock", "2026-09-10", "S")]))
+    _add("3", "2026-09-10", "0001475597-26-900003",
+         _hra_filing("20260910160833", "3", "WHLR", 1527541, []))
+    _add("4/A", "2026-06-10", "0001475597-26-999999", "")
+    _add("4", "2025-03-03", "0001475597-25-000001",
+         _hra_filing("20250303100000", "4", "OLD", 9, [("Common Stock", "2025-03-01", "S")]))
+    if bad_owner:
+        _add("4", "2026-07-01", "0001475597-26-900004",
+             _hra_filing("20260701100000", "4", "ZZ", 77, [("Common Stock", "2026-07-01", "S")],
+                         owners=(("0000000001", "SOMEONE ELSE"),)))
+    _sub = {"filings": {"recent": {"form": _F, "filingDate": _D, "accessionNumber": _A},
+                        "files": []}}
+    _dropped = set(sorted(_A)[:drop])
+
+    def _sec(url):
+        _calls["sec"].append(url)
+        if url.endswith("CIK0001475597.json"):
+            return _hra_json.dumps(_sub)
+        for _a, _t in _files.items():
+            if url.endswith(f"/{_a}.txt"):
+                return None if _a in _dropped else _t
+        return None
+
+    def _px(sym, frm, to):
+        _calls["px"].append(sym)
+        _out, _d, _n = [], _hra_dt.date.fromisoformat(frm), 0
+        while _d <= _hra_dt.date.fromisoformat(to):
+            if _HR.is_session(_d):
+                _n += 1
+                for _mm in range(9 * 60 + 30, 16 * 60, 30):
+                    _t = _hra_dt.datetime.combine(_d, _hra_dt.time(_mm // 60, _mm % 60), tzinfo=_HR.NY)
+                    _b = 3.5 if (sym in hits and _n > _HR.LOOKBACK_SESS + 3) else 1.0
+                    _out.append((int(_t.timestamp() * 1000), _b, _b * 1.01, _b * 0.99, _b))
+            _d += _hra_dt.timedelta(days=1)
+        return _out
+
+    def _sp(sym):
+        _calls["sp"].append(sym)
+        return []
+    return _sec, _px, _sp, _calls
+
+
+def _hra_run(world=None, key="K", dry=False, prod=(True, "a", "a"), imp=(), write=False,
+             now=_hra_dt.datetime(2026, 10, 30, 17, 0)):
+    _sec, _px, _sp, _calls = world or _hra_world()
+    _buf = _hra_io.StringIO()
+    with _hra_cl.redirect_stdout(_buf):
+        _rc = _HR.run(key, sec=_sec, px=_px, splits=_sp, now=now.replace(tzinfo=_HR.NY),
+                      prod=lambda: prod, imp=lambda: list(imp), dry=dry, write_rows=write)
+    return _rc, _buf.getvalue(), _calls
+
+
+# ① HRA0 — الحرّاسُ **قبل أيّ جلب**: الإنتاجُ غيرُ مطابق ⇒ 5 · مستوردٌ للأداة ⇒ 5 · مفتاحٌ غائب
+#    خارج الجدوى ⇒ 2 — **وصفرُ نداءٍ لـSEC أو للأسعار** في الثلاث · والمصدرُ قراءةٌ فقط فعلًا.
+try:
+    _r1, _o1, _c1 = _hra_run(prod=(False, "x", "y"))
+    _r2, _o2, _c2 = _hra_run(imp=("Super_stock.py",))
+    _r3, _o3, _c3 = _hra_run(key="")
+    _src = open("hrt_arms.py", encoding="utf-8").read()
+    _ro = _HR.selfcheck_readonly(_src) and _HR.no_config_assign(_src)
+    _who = _HR.importers(".", "hrt_arms")
+    _v = ((_r1, _r2, _r3) == (5, 5, 2)
+          and not any(_c["sec"] or _c["px"] for _c in (_c1, _c2, _c3)) and _ro and _who == [])
+    _w = f"خروج={(_r1, _r2, _r3)} · نداءات={[len(_c['sec']) + len(_c['px']) for _c in (_c1, _c2, _c3)]} · قراءة={_ro} · مستوردون={_who}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA0 الحرّاسُ **قبل أيّ جلب**: إنتاجٌ غيرُ مطابق ⇒ 5 · مستوردٌ ⇒ 5 · مفتاحٌ غائب ⇒ 2 · "
+      "صفرُ نداءٍ في الثلاث · والمصدرُ قراءةٌ فقط وبلا مستوردين", _v, _w)
+
+# ② HRA1 — قراءةُ الإيداع: كلُّ المالكين (المشترك) · `V-H1` بالرقم **والاسم** معًا · والقبولُ
+#    بتوقيت نيويورك · والفاصلةُ في الكمّيّة تُقرأ.
+try:
+    _p = _HR.parse_filing(_hra_filing("20260911141908", "4", "whlr", 1527541,
+                                      [("Common Stock", "2026-09-10", "S")],
+                                      owners=(("0001475597", "HRT FINANCIAL LP"),
+                                              ("0000000002", "OTHER LP"))))
+    _p2 = _HR.parse_filing(_hra_filing("20260911141908", "4", "X", 5, [],
+                                       owners=(("0001475597", "SOMEBODY"),)))
+    _p3 = _HR.parse_filing(_hra_filing("20260911141908", "4", "X", 5, [],
+                                       owners=(("0000000009", "HRT FINANCIAL LP"),)))
+    _a = _HR.acceptance_ny(_p["acc_dt"])
+    _v = (_p["symbol"] == "WHLR" and _p["owner_ciks"] == [1475597, 2] and _HR.owner_ok(_p)
+          and not _HR.owner_ok(_p2) and not _HR.owner_ok(_p3)
+          and _p["rows"][0]["code"] == "S" and _p["rows"][0]["shares"] == 1000.0
+          and _p["issuer_cik"] == "1527541"
+          and _a is not None and (_a.hour, _a.minute, _a.utcoffset().total_seconds()) == (14, 19, -4 * 3600)
+          and _HR.acceptance_ny("x") is None)
+    _w = f"رمز={_p['symbol']} · مالكون={_p['owner_ciks']} · V-H1={_HR.owner_ok(_p)}/{_HR.owner_ok(_p2)}/{_HR.owner_ok(_p3)} · قبول={_a}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA1 قراءةُ الإيداع: كلُّ المالكين · `V-H1` بالرقم **والاسم** معًا (أحدُهما لا يكفي) · "
+      "القبولُ بتوقيت نيويورك · والكمّيّةُ بفاصلتها", _v, _w)
+
+# ③ HRA2 — التصنيف (§⑪-ⓓ): `S` على العاديّ ⇒ خروج · `P` بلا `S` ⇒ شراء · `S` على غير العاديّ
+#    لا يجعل الإيداعَ خروجًا · Form 3 ⇒ دخول · والتعديلُ والممتازُ ⇒ لا ذراع.
+try:
+    _cl = _HR.classify
+    _v = (_cl("4", [{"title": "Common Stock", "code": "S"}]) == "exit"
+          and _cl("4", [{"title": "Class A Common Stock", "code": "P"},
+                        {"title": "Warrants", "code": "S"}]) == "buy"
+          and _cl("4", [{"title": "Common Stock", "code": "P"},
+                        {"title": "Common Stock", "code": "S"}]) == "exit"
+          and _cl("4", [{"title": "Ordinary Shares", "code": "S"}]) == "exit"
+          and _cl("3", []) == "f3" and _cl("4/A", [{"title": "Common Stock", "code": "S"}]) is None
+          and _cl("4", [{"title": "Series A Preferred", "code": "P"}]) is None
+          and _cl("4", [{"title": "Common Stock", "code": "M"}]) is None)
+    _w = "جدولُ الحقيقة ثمانيةُ أسطر"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA2 التصنيف: `S` على العاديّ ⇒ خروج · `P` بلا `S` ⇒ شراء · `S` على الضمانات لا يجعله خروجًا · "
+      "Form 3 ⇒ دخول · `4/A` والممتاز و`M` ⇒ لا ذراع", _v, _w)
+
+# ④ HRA3 — جلسةُ `t0` (§⑪-ⓔ): أثناء الجلسة ⇒ اليومُ نفسُه · بعد الإغلاق ⇒ التالية · العطلةُ ونهايةُ
+#    الأسبوع ⇒ التالية · **ويومُ الإغلاق المبكّر يُغلق 13:00** (من التقويم لا 16:00).
+try:
+    _t = lambda d, h, m: _hra_dt.datetime(*d, h, m, tzinfo=_HR.NY)       # noqa: E731
+    _S = _HR.t0_session
+    _v = (_S(_t((2026, 9, 11), 14, 19)) == _hra_dt.date(2026, 9, 11)
+          and _S(_t((2026, 9, 11), 16, 8)) == _hra_dt.date(2026, 9, 14)
+          and _S(_t((2026, 9, 12), 10, 0)) == _hra_dt.date(2026, 9, 14)
+          and _S(_t((2026, 11, 27), 12, 30)) == _hra_dt.date(2026, 11, 27)
+          and _S(_t((2026, 11, 27), 13, 30)) == _hra_dt.date(2026, 11, 30)
+          and _S(_t((2026, 11, 26), 10, 0)) == _hra_dt.date(2026, 11, 27)
+          and _HR.gap_sessions(_hra_dt.date(2026, 9, 11), _hra_dt.date(2026, 9, 14)) == 1
+          and _HR.gap_sessions(_hra_dt.date(2026, 9, 14), _hra_dt.date(2026, 9, 11)) == 0
+          and _HR.shift(_hra_dt.date(2026, 9, 4), 1) == _hra_dt.date(2026, 9, 8)
+          and _HR.shift(_hra_dt.date(2026, 9, 8), -1) == _hra_dt.date(2026, 9, 4))
+    _w = "أثناء · بعد · سبت · مبكّرٌ قبل/بعد 13:00 · عطلةُ الشكر · الفجوة · عيدُ العمّال"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA3 جلسةُ `t0`: أثناءَها ⇒ اليوم · بعد الإغلاق/العطلة ⇒ التالية · **يومُ الإغلاق المبكّر 13:00** · "
+      "والجلساتُ تتخطّى العطل", _v, _w)
+
+# ⑤ HRA4 — الطيّ (§⑪-ⓕ): **من آخر إيداعٍ لا من بدء الحلقة** · والحدُّ «أكثرُ من 20» حرفيًّا ·
+#    والمُصدِرون مستقلّون.
+try:
+    _b0 = _hra_dt.date(2026, 3, 2)
+    _mk = lambda iss, n: {"issuer": iss, "sess": _HR.shift(_b0, n),                   # noqa: E731
+                          "t0": _hra_dt.datetime.combine(_HR.shift(_b0, n), _hra_dt.time(10), tzinfo=_HR.NY)}
+    _chain = _HR.fold([_mk("A", n) for n in (0, 15, 30, 45, 60)])
+    _gap = _HR.fold([_mk("B", 0), _mk("B", 20), _mk("B", 41)])
+    _two = _HR.fold([_mk("C", 0), _mk("D", 1)])
+    _v = (len(_chain) == 1 and _chain[0]["folded"] == 5
+          and [e["sess"] for e in _gap] == [_b0, _HR.shift(_b0, 41)] and _gap[0]["folded"] == 2
+          and len(_two) == 2)
+    _w = f"سلسلة={len(_chain)} · فجوة={[str(e['sess']) for e in _gap]} · مستقلّان={len(_two)}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA4 الطيّ من **آخر** إيداع: سلسلةٌ كلَّ 15 جلسةً حلقةٌ واحدة · 20 تُطوى و21 تبدأ حلقة · "
+      "والمُصدِرون مستقلّون", _v, _w)
+
+
+# ⑥ HRA5 — `outcome` (§② · §⑪-ⓔ ⓖ ⓘ): `p0` أوّلُ دقيقةٍ نظاميّةٍ **عند `t0` أو بعده** · والقمّةُ من
+#    النظاميّ وحدَه (الممتدُّ وما بعد 13:00 يومَ الإغلاق المبكّر خارجها) · وعشرون جلسةً لا أكثر ·
+#    والإزاحةُ لجلسةٍ تالية حين لا دقيقة · و`pre5` من إغلاقات الجلسات.
+def _hra_bars(spec):
+    _o = []
+    for (_y, _mo, _d, _h, _mi), _hi in spec:
+        _t = _hra_dt.datetime(_y, _mo, _d, _h, _mi, tzinfo=_HR.NY)
+        _o.append((int(_t.timestamp() * 1000), 1.0 if _hi < 1.5 else _hi, _hi, 0.9, _hi))
+    return _o
+
+
+try:
+    _t0 = _hra_dt.datetime(2026, 9, 11, 14, 19, 8, tzinfo=_HR.NY)
+    _sess = [_HR.shift(_hra_dt.date(2026, 9, 11), _i) for _i in range(21)]
+    _spec = [((2026, 9, 11, 14, 0), 9.0),          # قبل t0 ⇒ خارج
+             ((2026, 9, 11, 14, 20), 1.0),         # p0
+             ((2026, 9, 11, 17, 0), 9.0),          # ممتدّ ⇒ خارج
+             ((_sess[19].year, _sess[19].month, _sess[19].day, 10, 0), 2.5),   # الجلسةُ العشرون
+             ((_sess[20].year, _sess[20].month, _sess[20].day, 10, 0), 9.0)]   # الحادية والعشرون ⇒ خارج
+    _o = _HR.outcome(_hra_bars(_spec), _t0)
+    _early = _HR.outcome(_hra_bars([((2026, 11, 27, 12, 0), 1.0), ((2026, 11, 27, 14, 0), 9.0),
+                                    ((2026, 11, 30, 10, 0), 1.2)]),
+                         _hra_dt.datetime(2026, 11, 27, 11, 0, tzinfo=_HR.NY))
+    _shiftd = _HR.outcome(_hra_bars([((2026, 9, 14, 9, 30), 1.0), ((2026, 9, 14, 11, 0), 1.3)]),
+                          _hra_dt.datetime(2026, 9, 11, 15, 59, 30, tzinfo=_HR.NY))
+    _pre = _HR.outcome(_hra_bars([((2026, 9, 2, 15, 59), 1.0), ((2026, 9, 10, 15, 59), 1.4)]),
+                       _t0)
+    _v = (_o["p0"] == 1.0 and abs(_o["mr20"] - 150.0) < 1e-6 and _o["last_session"] == _sess[19]
+          and abs(_early["mr20"] - 20.0) < 1e-6
+          and _shiftd["p0_session"] == _hra_dt.date(2026, 9, 14) and _shiftd["shifted"] is True
+          and _pre["pre5"] is not None and abs(_pre["pre5"] - 40.0) < 1e-6)
+    _w = (f"mr20={_o['mr20']} · آخرُ جلسة={_o['last_session']} · مبكّر={_early['mr20']} · "
+          f"إزاحة={_shiftd['p0_session']} · pre5={_pre['pre5']}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA5 `outcome`: `p0` عند `t0` أو بعده · القمّةُ نظاميّةٌ وحدَها (والممتدُّ وما بعد 13:00 المبكّر خارج) · "
+      "عشرون جلسةً لا أكثر · الإزاحةُ لجلسةٍ تالية · و`pre5` من إغلاقات الجلسات", _v, _w)
+
+# ⑦ HRA6 — التقسيمُ و«المعلَّقة»: فحصٌ متعذّر ⇒ `None` (لا يُحسَب «بلا تقسيم») · داخل النافذة ⇒ استبعاد ·
+#    وآخرُ جلسةٍ مكتملة: أثناء الجلسة ⇒ السابقة · بعد الإغلاق ⇒ اليوم · السبت ⇒ الجمعة.
+try:
+    _d1, _d2 = _hra_dt.date(2026, 6, 1), _hra_dt.date(2026, 7, 1)
+    _A = _HR.asof_session
+    _v = (_HR.split_blocked(None, _d1, _d2) is None
+          and _HR.split_blocked([("2026-06-15", True)], _d1, _d2) is True
+          and _HR.split_blocked([("2026-08-15", True)], _d1, _d2) is False
+          and _A(_hra_dt.datetime(2026, 9, 11, 15, 0, tzinfo=_HR.NY)) == _hra_dt.date(2026, 9, 10)
+          and _A(_hra_dt.datetime(2026, 9, 11, 16, 30, tzinfo=_HR.NY)) == _hra_dt.date(2026, 9, 11)
+          and _A(_hra_dt.datetime(2026, 9, 12, 12, 0, tzinfo=_HR.NY)) == _hra_dt.date(2026, 9, 11))
+    _w = "تعذّر ⇒ None · داخل ⇒ True · خارج ⇒ False · asof ثلاثُ حالات"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA6 التقسيم: متعذّرٌ ⇒ `None` لا «بلا تقسيم» · داخلَ النافذة ⇒ استبعاد · وآخرُ جلسةٍ مكتملة "
+      "بثلاث حالات", _v, _w)
+
+# ⑧ HRA7 — الفروعُ الثلاثة (§⑤) وحسمُ التنبّؤات (§⑪-ⓛ) **بجدول حقيقة**.
+try:
+    _W = _HR.wilson
+    _e = lambda k, n: (k, n, 100.0 * k / n if n else None, _W(k, n))     # noqa: E731
+    _rb = _HR.read_branch
+    _br = [_rb(_e(10, 19), _e(1, 30), True)[0], _rb(_e(10, 30), _e(1, 19), True)[0],
+           _rb(_e(10, 20), _e(1, 20), False)[0], _rb(_e(12, 20), _e(1, 20), True)[0],
+           _rb(_e(5, 40), _e(1, 40), True)[0], _rb(_e(2, 30), _e(4, 30), True)[0]]
+    _p_ov = _HR.predictions(_e(3, 30), _e(2, 30), None, 45)
+    _p_sep = _HR.predictions(_e(25, 30), _e(1, 30), 35.0, 29)
+    _v = (_br == [3, 3, 3, 1, 2, 2]
+          and _p_ov == {"HP1": "مؤكَّد", "HP2": "مؤكَّد", "HP3": "لا يُحسَم", "HP4": "مؤكَّد"}
+          and _p_sep == {"HP1": "مكذَّب", "HP2": "مكذَّب", "HP3": "مؤكَّد", "HP4": "مكذَّب"})
+    _w = f"فروع={_br} · تداخل={_p_ov} · انفصال={_p_sep}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA7 الفروعُ الثلاثة بجدول حقيقة (أرضيّتا 20 · حارس · الحدُّ الأعلى 50%) · وحسمُ `HP1`-`HP4` "
+      "(التداخل · الحدّ · بلا `pre5` لا يُحسَم · مدى 30-60)", _v, _w)
+
+# ⑨ HRA8 — المسارُ كاملًا على عالمٍ اصطناعيّ: الحكمُ مطبوع · WHLR خارج العدّ بكلّ أذرعه · التعديلُ
+#    لا يُجلَب · 2023-2025 تُطبَع خارج العدّ · والجدوى **صفرُ سعر** · والهُويّةُ الساقطة ⇒ 7 بلا سعر ·
+#    وتغطيةُ EDGAR دون 95% ⇒ الفرعُ 3 وخروج 9 · والصفوفُ في المجلّد الحاليّ لا في المستودع.
+try:
+    _rA, _oA, _cA = _hra_run()
+    _rD, _oD, _cD = _hra_run(dry=True)
+    _rI, _oI, _cI = _hra_run(world=_hra_world(bad_owner=True))
+    _rC, _oC, _cC = _hra_run(world=_hra_world(drop=6))
+    _cwd = _hra_os.getcwd()
+    with _hra_tf.TemporaryDirectory() as _td:
+        _hra_os.chdir(_td)
+        try:
+            _rW, _oW, _cW = _hra_run(write=True)
+            _rows = open("hrt_rows.tsv", encoding="utf-8").read().splitlines()
+        finally:
+            _hra_os.chdir(_cwd)
+    _judge = [_l for _l in _oA.splitlines() if _l.startswith("JUDGE ")]
+    _v = (_rA == 0 and len(_judge) == 1 and "branch=2" in _judge[0] and "exit=3/24" in _judge[0]
+          and "buy=1/24" in _judge[0]
+          and "WHLR" not in _cA["px"] and not any(u.endswith("999999.txt") for u in _cA["sec"])
+          and "خارج العدّ 2025-03-03 Form 4 OLD" in _oA
+          and _rD == 0 and not _cD["px"] and "وضعُ الجدوى" in _oD
+          and _rI == 7 and not _cI["px"]
+          and _rC == 9 and "branch=3" in _oC
+          and _rW == 0 and _rows[0].startswith("arm\tissuer") and len(_rows) > 50)
+    _w = (f"حكم={_judge[:1]} · جدوى={_rD}/{len(_cD['px'])} · هُويّة={_rI} · تغطية={_rC} · "
+          f"صفوف={len(_rows)}")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA8 المسارُ كاملًا: الحكمُ مطبوع (الفرعُ 2 · 3/24 مقابل 1/24) · WHLR والتعديلُ لا يُجلبان · "
+      "2023-2025 خارج العدّ · الجدوى صفرُ سعر · الهُويّةُ ⇒ 7 · EDGAR دون 95% ⇒ 9 · والصفوفُ في مجلّدٍ مؤقّت",
+      _v, _w)
+
+# ⑩ HRA9 — الـworkflow: يدويٌّ بلا كرون ولا تلغرام · قراءةٌ فقط · سرّا `POLYGON_API_KEY` و`SEC_CONTACT` ·
+#    المُدخَلان موصولان · **و`main` يقرأ الجدوى `== "1"` حرفيًّا** · والنطاقُ لا يُقرأ من البيئة.
+try:
+    import yaml as _hra_y                                        # noqa: E402
+    _hra_wt = open(".github/workflows/hrt.yml", encoding="utf-8").read()
+    _hra_wf = _hra_y.safe_load(_hra_wt)
+    _hra_on = _hra_wf.get(True, _hra_wf.get("on"))
+    _hra_steps = _hra_wf["jobs"]["hrt"]["steps"]
+    _hra_run_s = [_s for _s in _hra_steps if _s.get("run") == "python3 hrt_arms.py"]
+    _hra_env = _hra_run_s[0].get("env", {}) if len(_hra_run_s) == 1 else {}
+    _hra_mt = _hra_ast.parse(open("hrt_arms.py", encoding="utf-8").read())
+    _hra_main = next((_n for _n in _hra_mt.body if isinstance(_n, _hra_ast.FunctionDef)
+                      and _n.name == "main"), None)
+    _hra_dry = _hra_main is not None and any(
+        isinstance(_n, _hra_ast.Compare) and getattr(_n.comparators[0], "value", None) == "1"
+        and "HRT_DRY" in _hra_ast.dump(_n.left) for _n in _hra_ast.walk(_hra_main))
+    _hra_envs = {getattr(_n.args[0], "value", None) for _n in _hra_ast.walk(_hra_mt)
+                 if isinstance(_n, _hra_ast.Call) and getattr(_n.func, "attr", None) == "get"
+                 and "environ" in _hra_ast.dump(_n.func) and _n.args}
+    _parts = {
+        "يدويّ": set(_hra_on or {}) == {"workflow_dispatch"} and "schedule" not in _hra_wt,
+        "تلغرام": "TELEGRAM" not in _hra_wt,
+        "أذون": _hra_wf.get("permissions") == {"contents": "read"},
+        "سرّان": set(_hra_env) >= {"POLYGON_API_KEY", "SEC_CONTACT"}
+        and "secrets.POLYGON_API_KEY" in _hra_wt and "secrets.SEC_CONTACT" in _hra_wt,
+        "مُدخَلان": _hra_env.get("HRT_DRY") == "${{ github.event.inputs.dry }}"
+        and _hra_env.get("HRT_TSV") == "${{ github.event.inputs.tsv }}",
+        "الجدوى «1»": _hra_dry,
+        "لا نطاقَ من البيئة": _hra_envs == {"POLYGON_API_KEY", "HRT_DRY", "HRT_TSV"},
+        "الصفوف": "hrt_rows.tsv" in _hra_wt and "fetch-depth: 0" in _hra_wt,
+    }
+    _v = all(_parts.values())
+    _w = str({_k: _x for _k, _x in _parts.items() if not _x}) or "—"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA9 `hrt.yml`: يدويٌّ بلا كرون ولا تلغرام · قراءةٌ فقط · السرّان · المُدخَلان موصولان · "
+      "`HRT_DRY` `== \"1\"` · ولا يُقرأ من البيئة غيرُ المفتاح والمُدخَلين", _v, _w)
+
+# ⑪ HRA10 — ثوابتُ العقد **بقيمها** · وكلُّ مستورَدٍ بالاسم مستعمَلٌ فعلًا (بالـAST).
+try:
+    _hra_want = {"OWNER_CIK": 1475597, "SCOPE_FROM": "2026-01-01", "SCOPE_TO": "2026-09-23",
+                 "FOLD": 20, "WIN": 20, "HIT200_X": 3.0, "MIN_ARM": 20, "HR2_UP": 50.0,
+                 "MIN_EDGAR": 0.95, "MIN_PRICE": 0.90, "SPLIT_PRE": 3, "SPLIT_POST": 20, "PRE_N": 5,
+                 "WHLR_SYM": "WHLR", "HP3_PRE5": 30.0, "HP4_LO": 30, "HP4_HI": 60}
+    _hra_bad = {k: getattr(_HR, k, None) for k, v in _hra_want.items() if getattr(_HR, k, None) != v}
+    _hra_names = {"splits_of", "session_info", "is_trading_day", "wilson", "NY", "no_config_assign",
+                  "production_untouched", "SEC_UA"}
+    _hra_wv = any(isinstance(_n, (_hra_ast.Import, _hra_ast.ImportFrom))
+                  and "waves_probe" in _hra_ast.dump(_n) for _n in _hra_ast.walk(_hra_mt))
+    _hra_used = {_n.id for _n in _hra_ast.walk(_hra_mt) if isinstance(_n, _hra_ast.Name)}
+    _hra_unused = sorted(_hra_names - _hra_used)
+    _v = not _hra_bad and not _hra_unused and not _hra_wv
+    _w = f"قيمٌ مخالفة={_hra_bad} · مستورَدٌ غيرُ مستعمَل={_hra_unused} · يستورد الموجات={_hra_wv}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA10 ثوابتُ العقد بقيمها (‏20 · 20 · ‏+200% · 50% · 95% · 90% · النطاق · WHLR · التنبّؤات) · "
+      "وكلُّ مستورَدٍ بالاسم مستعمَل · **ولا استيرادَ من `waves_probe`** (يُسقط `V-W6`-ب)", _v, _w)
+
+# ⑫ HRA11 — الحارسان المحلّيّان **مكافئان سلوكيًّا** لنظيرَيهما في `waves_probe` (§⑪-ⓝ): قراءةٌ
+#    فقط على خمسة مصادرَ تفرّق (قراءة · كتابةُ `OUT_ROWS` · كتابةُ غيره · وضعٌ متغيّر · إرسال) ·
+#    والمستوردون على مجلّدٍ مزروع (استيرادٌ · من · ذِكرٌ في تعليق · ملفٌّ لا يُحلَّل).
+try:
+    import waves_probe as _hra_wp                               # noqa: E402
+    _srcs = ('x = open("a.txt").read()\n',
+             'OUT_ROWS = "r.tsv"\nopen(OUT_ROWS, "w")\n',
+             'open("state.json", "w")\n',
+             'm = "w"\nopen("a", m)\n',
+             'send_telegram("x")\n')
+    _ro_h = [_HR.selfcheck_readonly(_s) for _s in _srcs]
+    _ro_w = [_hra_wp.selfcheck_readonly(_s) for _s in _srcs]
+    with _hra_tf.TemporaryDirectory() as _td:
+        for _fn, _tx in (("a.py", "import hrt_arms\n"), ("b.py", "from hrt_arms import run\n"),
+                         ("c.py", "# hrt_arms في تعليق\n"), ("bad.py", "def (\n"),
+                         ("hrt_arms.py", "import hrt_arms\n"), ("test_bot.py", "import hrt_arms\n")):
+            with open(_hra_os.path.join(_td, _fn), "w", encoding="utf-8") as _fh:
+                _fh.write(_tx)
+        _im_h = _HR.importers(_td, "hrt_arms")
+        _im_w = _hra_wp.importers(_td, "hrt_arms")
+    _v = (_ro_h == _ro_w == [True, True, False, False, False]
+          and _im_h == _im_w == ["a.py", "b.py", "bad.py"])
+    _w = f"قراءة={_ro_h}/{_ro_w} · مستوردون={_im_h}/{_im_w}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA11 الحارسان المحلّيّان **مكافئان** لنظيرَيهما في `waves_probe`: خمسةُ مصادرَ تفرّق "
+      "وأربعةُ ملفّاتٍ مزروعة (والتعليقُ ليس استيرادًا · وغيرُ المُحلَّل مستورد)", _v, _w)
+
+# ⑬ HRA12 — نافذةُ استبعاد التقسيم = العقدُ حرفيًّا (§② [‏t0 − 3، t0 + 20]) وتمتدّ **فقط** إلى آخر جلسةٍ
+#    في نافذة `mr20` إن تجاوزتها بإزاحة `p0` (§⑪-ⓟ). مسوّدةُ البناء استعملت ‏+23 ثابتًا فأمسكتها المراجعة.
+#    سلوكيًّا عبر `run` على خمسة رموز: حدُّ ‏+20 داخل · ‏+21 خارج · ‏−3 داخل · ‏−4 خارج · وإزاحةُ `p0`
+#    ثلاثَ جلساتٍ ⇒ ‏+22 داخل و‏+23 خارج.
+try:
+    def _hra_s0(_i):
+        _d = _hra_dt.date(2026, 6, 1) + _hra_dt.timedelta(days=_i)
+        while _d.weekday() >= 5:
+            _d += _hra_dt.timedelta(days=1)
+        return _HR.t0_session(_hra_dt.datetime.combine(_d, _hra_dt.time(14, 19, 8), tzinfo=_HR.NY))
+    _S = _HR.shift
+    _hra_sp_at = {"EX10": _S(_hra_s0(10), 20), "EX11": _S(_hra_s0(11), 21),
+                  "EX12": _S(_hra_s0(12), -3), "EX13": _S(_hra_s0(13), -4),
+                  "EX14": _S(_hra_s0(14), 22), "EX15": _S(_hra_s0(15), 23)}
+    _hra_gap = {_k: {_hra_s0(_i), _S(_hra_s0(_i), 1), _S(_hra_s0(_i), 2)}
+                for _k, _i in (("EX14", 14), ("EX15", 15))}
+    _sec, _px0, _sp0, _calls = _hra_world()
+
+    def _px12(sym, frm, to):
+        _out = _px0(sym, frm, to)
+        if sym in _hra_gap:
+            _out = [_b for _b in _out
+                    if _hra_dt.datetime.fromtimestamp(_b[0] / 1000, tz=_HR.NY).date() not in _hra_gap[sym]]
+        return _out
+
+    def _sp12(sym):
+        _calls["sp"].append(sym)
+        return [(_hra_sp_at[sym].isoformat(), True)] if sym in _hra_sp_at else []
+    _cwd = _hra_os.getcwd()
+    with _hra_tf.TemporaryDirectory() as _td:
+        _hra_os.chdir(_td)
+        try:
+            _r12, _o12, _c12 = _hra_run(world=(_sec, _px12, _sp12, _calls), write=True)
+            _rows12 = open("hrt_rows.tsv", encoding="utf-8").read().splitlines()
+        finally:
+            _hra_os.chdir(_cwd)
+    _hd = _rows12[0].split("\t")
+    _st = {}
+    for _l in _rows12[1:]:
+        _f = dict(zip(_hd, _l.split("\t")))
+        if _f.get("arm") == "exit":
+            _st[_f.get("sym")] = (_f.get("status"), _f.get("p0_session"))
+    _s0 = _hra_s0(0)
+    _pure = (_HR.split_window(_s0) == (_S(_s0, -3), _S(_s0, 20))
+             and _HR.split_window(_s0, _S(_s0, 19)) == (_S(_s0, -3), _S(_s0, 20))
+             and _HR.split_window(_s0, _S(_s0, 22)) == (_S(_s0, -3), _S(_s0, 22)))
+    _want = {"EX10": "split", "EX11": "measured", "EX12": "split", "EX13": "measured",
+             "EX14": "split", "EX15": "measured"}
+    _got = {_k: _st.get(_k, (None, None))[0] for _k in _want}
+    _v = (_r12 == 0 and _pure and _got == _want
+          and _st.get("EX14", (None, None))[1] == _S(_hra_s0(14), 3).isoformat()
+          and _st.get("EX15", (None, None))[1] == _S(_hra_s0(15), 3).isoformat())
+    _w = f"خروج={_r12} · نقيّة={_pure} · حالات={_got} · إزاحة={_st.get('EX14')}/{_st.get('EX15')}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA12 نافذةُ التقسيم = العقدُ حرفيًّا [‏t0−3، t0+20] (‏+20 و‏−3 داخل · ‏+21 و‏−4 خارج) · "
+      "وتمتدّ إلى آخر جلسة `mr20` **فقط** بإزاحة `p0` (‏+22 داخل · ‏+23 خارج)", _v, _w)
 
 
 # ═══ 🗓️🔍 «قس أثر الإغلاق المبكر» (أمرُ المالك 2026-09-23) — أقفال EAR0-EAR8 · `T-EARLY` ═══

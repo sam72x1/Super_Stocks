@@ -1,0 +1,56 @@
+name: "🏦 T-HRT — «اي سهم يتخارج منه صندوق hrt يعطي 200٪» (hrt_prereg + §⑪)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** فالإرسالُ مستحيلٌ بنيويًّا
+#    (العقد §⑥ `V-H5`) · سرّاه: POLYGON_API_KEY (الأسعار) و SEC_CONTACT (هويّةُ SEC_UA).
+# 🔒 والنطاقُ ثابتٌ في الأداة (2026-01-01 ⟶ 2026-09-23) ولا مُدخَلَ له.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "وضعُ الجدوى: 1 = EDGAR وحدَه (الإيداعاتُ والحلقاتُ والهُويّة) بلا سعرٍ واحد"
+        required: false
+        default: "0"
+      tsv:
+        description: "1 = يكتب hrt_rows.tsv (الافتراض) · 0 = لا يكتب"
+        required: false
+        default: "1"
+
+jobs:
+  hrt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # 🔒 `V-H6` يقارن بـorigin/main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run T-HRT
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          HRT_DRY: ${{ github.event.inputs.dry }}
+          HRT_TSV: ${{ github.event.inputs.tsv }}
+        run: python3 hrt_arms.py
+
+      - name: Upload rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hrt-rows-${{ github.run_id }}
+          path: hrt_rows.tsv
+          if-no-files-found: ignore
+          retention-days: 90
