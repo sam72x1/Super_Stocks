@@ -11,6 +11,11 @@ import inspect as _insp0
 import random as _rnd0
 import json
 import os as _os_hc
+# 🔴 **مساراتُ `/tmp` الثابتة تُعزَل برقم العمليّة** (‏2026-09-23): مُشغِّلان متوازيان
+#    (جولةُ طفراتٍ بحارات) كانا **يدهسان ملفّاتِ بعضهما** فانهارت السويّةُ في حارةٍ
+#    ونُسب الانهيارُ إلى الطفرة (`a17` — أُعيدت منفردةً فسقطت نظيفةً على `MLA5`).
+#    وهو صنفُ `HF-TG` بعينه (‏2026-09-16) — عُولج هناك بملفٍّ واحدٍ وبقيت عشرة.
+_SUITE_PID = _os_hc.getpid()
 # ══════════════════════════════════════════════════════════════════════════
 # 🌐 **نظافةُ البيئة — السويّةُ لا تقرأ بيئةَ الرنر** (عيبٌ مقيس 2026-09-07)
 # ══════════════════════════════════════════════════════════════════════════
@@ -7207,7 +7212,7 @@ check("🕰️ pit: لا تقسيم/None ⇒ 1.0 (سلوك اليوم حرفيً
       S._pit_split_factor(None, "2025-01-01") == 1.0
       and S._pit_raw_price(3.5, None, "2025-01-01") == 3.5)
 _fz_hist = {"AAA": synth_pivot(seed=1)}
-_fz_path = "/tmp/_test_frozen_bt.pkl.gz"
+_fz_path = f"/tmp/_test_frozen_bt_{_SUITE_PID}.pkl.gz"
 _man = S.save_frozen_dataset(_fz_hist, {"AAA": _spl}, "2026-07-13", _fz_path)
 _h2, _s2, _asof2 = S.load_frozen_dataset(_fz_path)
 check("🕰️ تجميد: حفظ/تحميل دائري + بصمة SHA-256 + as-of مطابقة",
@@ -9987,19 +9992,25 @@ if _TYA is not None:
 check("🚦💵🔒 TYA2 `split_arms` يفصل بالوسم و`A1` **اتّحادٌ بالبناء** لا جمعًا "
       "مكرّرًا", _tya2_ok, _tya2_why)
 
-# `TYA3` — «مُسلَّمة» = عمقُ مراحلَ **و**باقيةٌ في آخر لقطة (جدولُ حقيقة)
+# `TYA3` — «مُسلَّمة» = عمقُ مراحلَ **و`alive_eod`** (جدولُ حقيقة · الملحق `§⑬`)
+#    🔴 **والصفّان الأوّلان هما القفلُ الحقيقيّ:** يفرّقان `alive_eod` عن `alive`
+#    القديم في الاتّجاهين — فالرجوعُ إلى «آخر لقطةٍ من المدى كلِّه» (العيبُ الذي
+#    أنقص العدَّ التراكميّ بين جدوى 09-13 و09-23) **يسقط** ولا يمرّ.
 _tya3_ok, _tya3_why = False, _tya_imp
 if _TYA is not None:
-    _ty_tt = [({"sent": ["M1"], "alive": True}, True),
-              ({"sent": ["M1"], "alive": False}, False),   # كُتمت
-              ({"sent": [], "alive": True}, False),        # رست ولم تُرسِل
-              ({"sent": [], "alive": False}, False),
+    _ty_tt = [({"sent": ["M1"], "alive": True, "alive_eod": False}, False),
+              ({"sent": ["M1"], "alive": False, "alive_eod": True}, True),
+              ({"sent": ["M1"], "alive_eod": True}, True),
+              ({"sent": ["M1"], "alive_eod": False}, False),   # كُتمت يومَها
+              ({"sent": [], "alive_eod": True}, False),        # رست ولم تُرسِل
+              ({"sent": [], "alive_eod": False}, False),
               ({}, False)]
     _ty_bad = [r for r, want in _ty_tt if bool(_TYA.delivered(r)) is not want]
     _tya3_ok = not _ty_bad
     _tya3_why = f"حالات={len(_ty_tt)} · مخالف={len(_ty_bad)}"
-check("🚦💵🔒 TYA3 «مُسلَّمة» = مراحلُ **و**نجاةٌ من بوّابة الكتم — جدولُ حقيقةٍ من "
-      "خمس حالات", _tya3_ok, _tya3_why)
+check("🚦💵🔒 TYA3 «مُسلَّمة» = مراحلُ **و`alive_eod`** (نجاةٌ من الكتم **يومَها**) — "
+      "جدولُ حقيقةٍ من سبع حالات **يفرّق الحقلَ القديم في الاتّجاهين**",
+      _tya3_ok, _tya3_why)
 
 # 🔴 `TYA4` — الضبطُ يعزل نصفَي الشرط **فعلًا**: `C-MOM` يتجاهل السيولة
 #    و`C-USD` يتجاهل الارتفاع — على الشموع نفسِها، سلوكيًّا لا بالوصف.
@@ -19810,7 +19821,7 @@ def _eh_run(floats, decide, force="1", now_h=23, cov_syms=None, sess_prev=None,
     """يشغّل الصيّاد كاملًا بجذوعٍ محقونة ويرجّع (rc، صفوف المُخرَج، اللوق)."""
     _sv = {k: getattr(S, k, None) for k in
            ("yf", "get_universe", "download_history", "_yahoo_float", "git_save")}
-    _out, _stamp = "/tmp/_eh_t.jsonl", "/tmp/_eh_t_stamp.json"
+    _out, _stamp = f"/tmp/_eh_t_{_SUITE_PID}.jsonl", f"/tmp/_eh_t_stamp_{_SUITE_PID}.json"
     _o_out, _o_st = _EH.OUT_FILE, _EH.STAMP_FILE
     _EH.OUT_FILE, _EH.STAMP_FILE = _out, _stamp
     for _f in (_out, _stamp):
@@ -20239,10 +20250,10 @@ check("🗂️ REJ🔒 الأسباب الحاملة لرقمٍ تُوحَّد �
 check("🗂️ REJ🔒 فاشلة-آمنة: مسارٌ متعذّر ⇒ 0 ولا استثناء",
       S.record_rejected_symbols({"A": "M1_سعر"}, path="/proc/لا-يوجد/x.json") == 0)
 check("🗂️ REJ🔒 أسبابٌ فارغة ⇒ 0 (لا ملفّ ولا ضجيج)",
-      S.record_rejected_symbols({}, path="/tmp/_rl_never.json") == 0)
+      S.record_rejected_symbols({}, path=f"/tmp/_rl_never_{_SUITE_PID}.json") == 0)
 # 🔒 التدوير + «لقطة واحدة لكل يوم»
 import os as _rl_os
-_rl_p = "/tmp/_rl_roll.json"
+_rl_p = f"/tmp/_rl_roll_{_SUITE_PID}.json"
 try:
     _rl_os.remove(_rl_p)
 except OSError:
@@ -34302,11 +34313,11 @@ def _ahd_dead(*a, **k):
 
 try:
     AH.FP.aws = _ahd_flaky
-    _ahd_ok = AH.download("k", "/tmp/_ahd", "ep", sleep=_ahd_sleeps.append)
+    _ahd_ok = AH.download("k", f"/tmp/_ahd_{_SUITE_PID}", "ep", sleep=_ahd_sleeps.append)
     _ahd_n1 = _ahd_calls["n"]
     _ahd_calls["n"] = 0
     AH.FP.aws = _ahd_dead
-    _ahd_bad = AH.download("k", "/tmp/_ahd", "ep", sleep=_ahd_sleeps.append)
+    _ahd_bad = AH.download("k", f"/tmp/_ahd_{_SUITE_PID}", "ep", sleep=_ahd_sleeps.append)
     _ahd_n2 = _ahd_calls["n"]
 finally:
     AH.FP.aws = _ahd_orig
@@ -41184,7 +41195,7 @@ _ps_hooked = any(getattr(c.func, "id", "") == "_maybe_presession"
 
 
 class _PsFakePre:
-    LEDGER_FILE = "/tmp/_ps_ledger.jsonl"
+    LEDGER_FILE = f"/tmp/_ps_ledger_{_SUITE_PID}.jsonl"
 
     def __init__(self):
         self.ledger = []
@@ -41203,7 +41214,7 @@ class _PsFakePre:
 
 
 class _PsFakeBot:
-    FOOTER, OP_ENTRY_STATE_FILE = "", "/tmp/_ps_state.json"
+    FOOTER, OP_ENTRY_STATE_FILE = "", f"/tmp/_ps_state_{_SUITE_PID}.json"
     CONFIG = {"MIN_PRICE": 0.4, "SPLIT_RADAR_PRICE_MAX": 10.0}
     LIQ_WINDOW_MIN = 65
     dt = __import__("datetime")
@@ -42259,7 +42270,7 @@ check("🎚️ PS37 الرسالةُ تُعلن الأرضيةَ برقمها و
 # PS38 — **السجلُّ يرى المقصوص**: `floor_ok` لكلّ صفّ و`sent` **لكلّ صفٍّ لا
 #   للدفعة** ⇒ كلفةُ الأرضية تُقاس أماميًّا · و`delivered=None` **بت-بت**.
 try:
-    _fl_lp = "/tmp/_fl_ledger.jsonl"
+    _fl_lp = f"/tmp/_fl_ledger_{_SUITE_PID}.jsonl"
     for _p in (_fl_lp,):
         if _ps_os.path.exists(_p):
             _ps_os.remove(_p)
@@ -42403,7 +42414,7 @@ check("🔔 PZ3 ذيلُ الصدق **مصدرٌ واحد**: الفرعان ين
 # PZ4 — 🔒 **السجلُّ لا يتأثّر**: ليلةٌ صامتة تُرسَل ⇒ `sent=False` لكلّ صفّ
 #   (لأن `delivered` فارغة) ⇒ كلفةُ الأرضية تبقى مقروءةً أماميًّا بت-بت.
 try:
-    _pz_lp = "/tmp/_pz_ledger.jsonl"
+    _pz_lp = f"/tmp/_pz_ledger_{_SUITE_PID}.jsonl"
     if _ps_os.path.exists(_pz_lp):
         _ps_os.remove(_pz_lp)
     _PR.append_ledger([{"sym": "A", "post_hi_ret": 0.33},
@@ -42499,7 +42510,7 @@ try:
     _pd_ord = _flPF.order_rows(_pd_rows, "post_hi_ret", 0, False)
     _pd_top = _pd_ord[:_flPF.TOPK]
     _pd_old = _flPF.order_rows(_pd_rows, "post_hi_ret", _flPF.TOPK, False)
-    _pd_f = "/tmp/_pd1_ledger.jsonl"
+    _pd_f = f"/tmp/_pd1_ledger_{_SUITE_PID}.jsonl"
     _ps_os.path.exists(_pd_f) and _ps_os.remove(_pd_f)
     _pd_n = _PR.append_ledger(_pd_ord, "PM", "2026-09-03", path=_pd_f,
                               sent=True,
@@ -48534,7 +48545,7 @@ if _FCA:
     _fca_o_run, _fca_o_roots, _fca_o_load = (_FCA._run_child,
                                              _FCA.roots_identical, _FCA._load)
     _fca_o_out = _FCA.OUT_ROWS
-    _FCA.OUT_ROWS = "/tmp/_fca_dry_rows_should_not_exist.jsonl"
+    _FCA.OUT_ROWS = f"/tmp/_fca_dry_rows_should_not_exist_{_SUITE_PID}.jsonl"
     _fca_env_sv = {k: _fca_os.environ.get(k)
                    for k in ("FCOST_YEARS", "FCOST_FROZEN", "FCOST_DRY")}
     _fca_calls = []
@@ -56879,7 +56890,36 @@ try:
                 and all(_MLA.ladder_period(_b)
                         == min(_MLA.PERIODS, key=lambda p: (abs(p - _b), p))
                         for _b in range(0, 1001)))
-    _mla_v2 = f"{_mla_t2} · clamp خاملٌ (تكافؤٌ على [0,1000])"
+    # 🔴 **وطفرةُ `a6` نجت ثانيةً — ويُفسَّر لا يُعذَر:** تُبدّل `CLAMP_HI`
+    #    في التعبير **برقمٍ حرفيّ** (‏60) فيبقى الثابتان (20, 50) كما هما
+    #    ويبقى السلوكُ مطابقًا (الـclamp خامل) ⇒ **الصنفُ ④-3**. لكنّ دعوى
+    #    هذا القفل «الحدّان رقما فيصل **ويصيران عاملَين لو تبدّلت PERIODS**»
+    #    لا تصدق إلّا إن **قرأ التعبيرُ الثابتَين بالاسم** ⇒ قفلٌ **بنيويٌّ
+    #    بالـAST** (‏قاعدةُ «الحارسُ الخامدُ يُقفَل بنيويًّا لا بطفرة») ومعه
+    #    **شاهدُ ضبطٍ** يُثبت أنه يسقط على الرقم الحرفيّ فلا يكون خاويًا.
+    import ast as _mla_ast
+    import inspect as _mla_insp
+    import textwrap as _mla_tw
+
+    def _mla_clamp_named(_src):
+        for _c in _mla_ast.walk(_mla_ast.parse(_src)):
+            if (isinstance(_c, _mla_ast.Call)
+                    and getattr(_c.func, "id", None) == "max"
+                    and len(_c.args) == 2
+                    and getattr(_c.args[0], "id", None) == "CLAMP_LO"
+                    and isinstance(_c.args[1], _mla_ast.Call)
+                    and getattr(_c.args[1].func, "id", None) == "min"
+                    and getattr(_c.args[1].args[0], "id", None) == "CLAMP_HI"):
+                return True
+        return False
+    _mla_lp_src = _mla_tw.dedent(_mla_insp.getsource(_MLA.ladder_period))
+    _mla_clamp_ok = _mla_clamp_named(_mla_lp_src)
+    _mla_clamp_ctrl = _mla_clamp_named(
+        _mla_lp_src.replace("min(CLAMP_HI, b)", "min(60, b)"))
+    _mla_ok2 = _mla_ok2 and _mla_clamp_ok and not _mla_clamp_ctrl
+    _mla_v2 = (f"{_mla_t2} · clamp خاملٌ (تكافؤٌ على [0,1000]) · "
+               f"يقرأ الثابتَين بالاسم={_mla_clamp_ok} · "
+               f"شاهدُ الرقم الحرفيّ يُمسَك={not _mla_clamp_ctrl}")
 except Exception as _e:                                          # noqa: BLE001
     _mla_ok2, _mla_v2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📏🪜🔒 MLA2 `n = clamp(bars_since_peak, 20, 50)` ⟶ **أقربُ** من "
