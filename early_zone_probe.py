@@ -47,41 +47,73 @@ def zone_of(days: list, early) -> dict:
     return z
 
 
+ROLLING = {"hist_n", "dist_low20", "dist_high20", "down_streak", "spike60",
+           "days_since_spike", "usd_rel20"}
+
+
+def outside_details(po, pn, zone, days_idx, limit=80):
+    """الجولةُ الثانية (تشخيص): لكلّ صفٍّ متغيّرٍ خارج المنطقة — الرمز · الجلسة · الحقولُ المتغيّرة
+    بقيمها · وعددُ أيّامِ ظهور الرمز في صفوف `AH` بين أقرب D قبله واليوم (مقابل الجلسات)."""
+    out = []
+    it_o, it_n = EA.iter_days(EA.read_rows(po)), EA.iter_days(EA.read_rows(pn))
+    o, n = next(it_o, None), next(it_n, None)
+    while o is not None and n is not None:
+        if o[0] != n[0]:
+            if str(o[0]) < str(n[0]):
+                o = next(it_o, None)
+            else:
+                n = next(it_n, None)
+            continue
+        d = o[0]
+        if d not in zone:
+            for k in o[1].keys() & n[1].keys():
+                a, b = o[1][k], n[1][k]
+                if a != b:
+                    ks = sorted(f for f in set(a) | set(b) if a.get(f) != b.get(f))
+                    out.append((d, k, ks, {f: (a.get(f), b.get(f)) for f in ks}))
+        o, n = next(it_o, None), next(it_n, None)
+    return out[:limit]
+
+
+def presence(pn, syms, d0, d1):
+    """{رمز: عددُ الأيّام التي له فيها صفُّ AH بين d0 وd1 شاملًا}."""
+    cnt = {s: set() for s in syms}
+    for r in EA.read_rows(pn):
+        d = str(r.get("day"))
+        if d0 <= d <= d1 and r.get("sess") == "AH" and r.get("sym") in cnt:
+            cnt[r["sym"]].add(d)
+    return {s: len(v) for s, v in cnt.items()}
+
+
 def main() -> int:
     old_dir = (os.environ.get("EARLY_OLD_DIR") or "").strip()
     new_dir = (os.environ.get("EARLY_NEW_DIR") or "").strip()
     days = trading_days("2022-11-01", "2025-12-31")
+    idx = {d: i for i, d in enumerate(days)}
     zone = zone_of(days, EA.PINNED_EARLY)
-    print(f"🧪 V-E2 الكامل · منطقةُ الأثر = D ⟶ +{ROLL_N} جلسة · وأوّلُ يومٍ بعدها "
-          f"(‏{SPAN + 1} جلسة لكلّ D) · أيّامُ المنطقة داخل 2023-2025: "
-          f"{sum(1 for d in zone if d >= '2023-01-01')}")
-    tot_in = tot_out = 0
-    outside, far = [], {}
-    for y in EA.YEARS:
+    only_rolling = True
+    for y in ("2023", "2024"):
         po, pn = EA.year_file(old_dir, y), EA.year_file(new_dir, y)
-        if not po or not pn:
-            print(f"⛔ ملفّ {y} غائب (قديم={po} · جديد={pn}) ⇒ خروج 4")
-            return 4
-        per = EA.diff_streams(EA.read_rows(po), EA.read_rows(pn))
-        hit = sorted(d for d, v in per.items() if v["added"] or v["removed"] or v["changed"])
-        y_in = [d for d in hit if d in zone]
-        y_out = [d for d in hit if d not in zone]
-        tot_in += len(y_in)
-        tot_out += len(y_out)
-        outside += [(d, per[d]["added"], per[d]["removed"], per[d]["changed"]) for d in y_out]
-        for d in y_in:
-            D, k = zone[d]
-            far[D] = max(far.get(D, 0), k)
-        rows_out = sum(per[d]["changed"] + per[d]["added"] + per[d]["removed"] for d in y_out)
-        print(f"   {y}: أيّامٌ مقروءة {len(per)} · تفرّقت {len(hit)} · داخل المنطقة {len(y_in)} · "
-              f"خارجها {len(y_out)} (صفوف {rows_out})")
-    print("   أبعدُ يومٍ متفرّقٍ لكلّ D (بالجلسات بعده):",
-          " · ".join(f"{D}=+{far[D]}" for D in sorted(far)) or "—")
-    for d, a, r, c in outside[:40]:
-        print(f"   ⚠️ خارج المنطقة: {d} · مضاف {a} · محذوف {r} · متغيّر {c}")
-    ok = tot_out == 0
-    print(f"JUDGE_VE2_FULL days_in_zone={tot_in} days_outside={tot_out} ⇒ "
-          f"{'✅ الفرقُ كلُّه داخل منطقة الأثر' if ok else '🔴 فرقٌ خارج المنطقة — الإسنادُ مقيَّد'}")
+        det = outside_details(po, pn, zone, idx)
+        print(f"🔎 {y}: صفوفٌ متغيّرةٌ خارج المنطقة (أوّلُ 80): {len(det)}")
+        fset = {}
+        for d, k, ks, vals in det:
+            for f in ks:
+                fset[f] = fset.get(f, 0) + 1
+            if not set(ks) <= ROLLING:
+                only_rolling = False
+        print(f"   الحقولُ المتغيّرة فيها: {fset}")
+        syms = sorted({k[2] for _d, k, _ks, _v in det})
+        for sym in syms:
+            ds = sorted(d for d, k, _ks, _v in det if k[2] == sym)
+            D = max((e for e in EA.PINNED_EARLY if e <= ds[0]), default=None)
+            pres = presence(pn, [sym], D, ds[-1]).get(sym) if D else None
+            print(f"   {sym}: أيّامٌ متغيّرة {len(ds)} ({ds[0]} … {ds[-1]}) · أقربُ D قبلها {D} · "
+                  f"جلساتُ السوق من D حتى آخرها {idx[ds[-1]] - idx[D] + 1 if D else '—'} · "
+                  f"أيّامُ صفوف AH للرمز فيها {pres}")
+        for d, k, ks, vals in det[:12]:
+            print(f"   · {d} {k[1]} {k[2]}: " + " · ".join(f"{f} {v[0]}→{v[1]}" for f, v in vals.items()))
+    print(f"JUDGE_OUTSIDE only_rolling_fields={only_rolling}")
     return 0
 
 
