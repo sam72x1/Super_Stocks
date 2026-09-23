@@ -683,6 +683,12 @@ CONFIG = {
     "PIVOT_TEST_TYPICAL_PCT": 20.0,      # faisal_verbatim «ارتداد لاختبار المقاومه بنسبه 20٪ غالبا» — وسمٌ لا حدّ
     "PIVOT_SWEEP_PCT": 5.0,              # faisal_verbatim «سحب السيوله 5٪ ادنى شمعة القاع» — أعمق ⇒ القاعُ انكسر
     "PIVOT_CYCLE_WIN": 60,               # engineering — نافذةُ `bottom_test_state` نفسُها (ليست من فيصل)
+    # 🔁 «مقسّمٌ أكثر من 3 مرّات» — دفعة 2026-09-23 (‏`TG_50832` لفيصل بتأكيد المالك 2026-09-23 ·
+    #   R-02 · عرضٌ فقط في تنبيه الصيّاد وفحص اليد، خارج الفرز والجذور):
+    "SPLIT_MANY_COUNT": 3,               # faisal_verbatim «السهم المقسم اكثر من 3 مرات غالبا يصعد اقل من
+                                         # متوسط 20 نسبة الشورت تحكم» ⇒ السطرُ لما **فوق** 3 (ثلاثةٌ بالضبط لا سطر)
+                                         # · والعدُّ على **التاريخ كلِّه** (نصُّه بلا نافذة — U-12 بأمر «نفّذ R-02»).
+                                         # مِجَسّ: 4 عكسيّة ⇒ «🔁 مقسّم 4 مرات — … دون متوسط 20 ($1.37) …» · 3 ⇒ ""
 
     # ---- تقنية ----
     "HISTORY_DAYS": 800,         # ~2.2 سنة (يكفي لفريم شهري سليم ~27 شمعة)
@@ -5984,6 +5990,64 @@ def _split_freq_line(freq) -> str:
     return ""
 
 
+def split_count_all(splits, today) -> int:
+    """🔁 R-02 (دفعة 2026-09-23 · `TG_50832` لفيصل بتأكيد المالك): عددُ التقسيمات **العكسيّة**
+    (نسبةٌ بين 0 و1) **على التاريخ كلِّه حتى `today` شاملًا**.
+
+    نصُّ فيصل «السهم المقسم اكثر من 3 مرات …» **بلا مدّة** ⇒ لا نافذة (U-12، حسمه أمرُ المالك
+    «نفّذ R-02»). وهي **غيرُ** `_split_frequency` عمدًا: تلك نافذةُ سنةٍ لقاعدة **المدّة** (P4 ·
+    «أسبوعٌ بالكثير»)، وهذي قاعدةُ **مقدار** (سقفُ الصعود) — فلا يُعاد استعمالُ تلك بنافذةٍ
+    طويلة. تقبل ما تقبله تلك: Series ياهو (فهرسُها تواريخ · قيمتُها النسبة) أو أزواجًا.
+    ⚠️ **الطرفُ الأعلى مغلق** (`d <= today`) — درسُ نظر `_split_frequency` المستقبليّ
+    (2026-08-13): أدواتُ المشي التاريخيّ تمرّر `today` قديمًا. والتقسيمُ الأماميّ (فوق 1) لا
+    يُعدّ. **نقيّة · فاشلة-آمنة ⇒ 0** (غيابُ البيانات ليس «صفرَ تقسيم» لكنه لا سطر).
+    عرضٌ فقط — خارج الفرز والجذور ولا حقلَ مخزَّن."""
+    try:
+        if splits is None:
+            return 0
+        t = today.date() if isinstance(today, dt.datetime) else today
+        if hasattr(splits, "index") and hasattr(splits, "values"):
+            pairs = list(zip(splits.index, splits.values))
+        else:
+            pairs = list(splits)
+        n = 0
+        for ts, ratio in pairs:
+            try:
+                d = ts.date() if hasattr(ts, "date") else ts
+                if isinstance(d, str):
+                    d = dt.date.fromisoformat(d[:10])
+                r = float(ratio)
+                if 0.0 < r < 1.0 and d <= t:
+                    n += 1
+            except Exception:                                    # noqa: BLE001
+                continue
+        return n
+    except Exception:                                            # noqa: BLE001
+        return 0
+
+
+def split_ma20_cap_line(n, ma20, many=None) -> str:
+    """🔁 R-02 — سطرُ «سقف المقدار»: فيصل (`TG_50832`): «السهم المقسم اكثر من 3 مرات غالبا
+    يصعد اقل من متوسط 20 نسبة الشورت تحكم».
+
+    يُطبع **فقط إذا كان `n` أكبر من `SPLIT_MANY_COUNT`** (نصُّه «اكثر من 3» ⇒ ثلاثةٌ بالضبط
+    لا سطر) **و`ma20` رقمًا موجبًا** — وإلّا `""` (لا حشو · وتعذّرُ المتوسّط لا يُختلَق).
+    `many` يتجاوز المفتاحَ للاختبار. يكمّل `_split_freq_line` (مدّةٌ في سنة) ولا يكرّره: هذا
+    **مقدارٌ على التاريخ كلِّه**. «غالبًا» حرفُه: **يصف ولا يَعِد** (لم يُقَس عندنا).
+    الأسعارُ بصيغة سطر «📰 شمعة الخبر» (أربعُ خاناتٍ تحت الدولار) · بلا علامات مقارنة."""
+    try:
+        k = int(CONFIG["SPLIT_MANY_COUNT"] if many is None else many)
+        c = int(n or 0)
+        m = float(ma20)
+    except (TypeError, ValueError):
+        return ""
+    if c <= k or not (m > 0) or m == float("inf"):          # NaN ⇒ `m > 0` خاطئ
+        return ""
+    _p = f"${m:.4f}" if m < 1 else f"${m:.2f}"
+    return (f"🔁 مقسّم {c} مرات — قاعدة فيصل: غالبًا يصعد دون متوسط 20 ({_p}) · "
+            "والشورت يحكم")
+
+
 def short_targets_report(post_split_high=None, price=None, avail=None,
                          float_shares=None, pump=None, offering=None,
                          next_bottom=None, sweep=None, rose_pct=None):
@@ -8900,6 +8964,22 @@ def build_split_hunter_alert(rows: list, today=None, fetch_hist=None,
         _fl = _split_freq_line(r.get("freq"))
         if _fl:
             lines.append("  " + _fl)
+        # 🔁 R-02 (فيصل `TG_50832`): مقسّمٌ أكثر من 3 مرّات ⇒ غالبًا دون متوسّط 20 — **سقفُ
+        #    مقدار** يكمّل سطرَ المدّة أعلاه. العدُّ من **الجالب المحقون** إن حُقن، **وإلّا من
+        #    كاشِ التشغيلة وحدَه** (`_SPLITS_MEMO`): `scan_split_hunter` جلب تقسيماتِ كلِّ مرشّحٍ
+        #    قبل أيّ شرط **في العملية نفسِها** ⇒ البياناتُ نفسُها بلا أيّ نداء. ⚠️ لا يُنادى
+        #    `_fetch_splits` هنا عمدًا: غيابُ الرمز عن الكاش (مُستدعٍ آخر · السويّة) كان سيصير
+        #    **نداءً شبكيًّا جديدًا** — وغيابُه الآن لا سطر. والمتوسّطُ حقلُ `ema20` في الصفّ.
+        #    **بعد الاختيار** ⇒ العضويّةُ والترتيبُ لا يتأثّران.
+        _sym = str(r.get("symbol") or "")
+        try:
+            _sp = (fetch_splits(_sym) if fetch_splits is not None
+                   else _SPLITS_MEMO.get(_sym))
+        except Exception:                                        # noqa: BLE001
+            _sp = None
+        _mc = split_ma20_cap_line(split_count_all(_sp, d), r.get("ema20"))
+        if _mc:
+            lines.append("  " + _mc)
         # 🎯 من «أهداف الشورت» (TG_1813 + TG_2041) نضيف هنا **الجديد فقط**.
         # ⚠️ تدقيق 2026-07-27: إدراج التقرير كاملًا كان يكرّر **ستّة** من ثمانية أسطر
         # داخل الكرت نفسه (الـ÷2 · سحب السيولة · المتاح · الفلوت · القروب) — والكرت
