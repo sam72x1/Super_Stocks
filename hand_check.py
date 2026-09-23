@@ -139,6 +139,11 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
     _evls = bot.events_lines(r.get("upcoming_events"))
     L += _evls if _evls else ["📅 أحداث معلنة قادمة: — (لا أرباح/تجارب معلنة بالأفق)"]
+    # 📰 شمعة الخبر (R-01 · فيصل TG_50828): **لكلّ سهمٍ لا للمؤهَّل وحدَه** — مستوًى سعريٌّ
+    #    لا حكمُ ارتكاز (مثالُ فيصل CETX) · وغيابُه يُقال بسببه (تعذّرٌ ليس نفيًا).
+    L.append(bot.news_candle_line(r.get("news_candle"), r.get("news_form"))
+             or f"📰 شمعة الخبر: — (لا إيداعَ نتائج 8-K/10-Q خلال "
+                f"{bot.CONFIG['PROXY_LOOKBACK_DAYS']} يومًا، أو تعذّر SEC — تعذّرٌ ليس نفيًا)")
     # 📄 شراء الداخليين (Form 4) — فيصل يعدّه سببًا مباشرًا للارتفاع (SVRE/BNKK)
     _ibl = bot.insider_buy_line(r)
     # ⚖️ صياغة صادقة (تدقيق): الفراغ يعني «لم نجد شراءً مؤكَّدًا ضمن ما فحصناه» —
@@ -295,6 +300,14 @@ def hand_check(sym: str):
         r["flow_raw"] = bot.polygon_flow(sym, with_prints=True)
     except Exception:
         r["flow_raw"] = None
+    # 📰 شمعة الخبر (R-01 · فيصل TG_50828): التاريخُ من `enrich` (8-K ببند 2.02 وإلّا 10-Q/10-K)
+    #    والشمعةُ من إطار الفحص نفسِه — صفرُ جلبٍ إضافيّ · فاشلةٌ-آمنة ⇒ لا سطر.
+    try:
+        r["news_candle"] = bot.news_candle_level(
+            df, (diag.get("news_filing") or {}).get("date"), price)
+        r["news_form"] = (diag.get("news_filing") or {}).get("form")
+    except Exception:                                            # noqa: BLE001
+        r["news_candle"] = None
     # 🔁 تكرار التقسيم العكسي في آخر سنة (قرينة فيصل §P4 — فاشل-آمن → 0)
     sp = None
     try:

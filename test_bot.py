@@ -58653,6 +58653,266 @@ check("🪜 PC9: وسمُ وايكوف يطابق المرحلةَ والفرع 
       "**ويُطفأ فيبقى السطرُ نفسُه بلا الوسم**", not _pc9_bad,
       f"سيّئ={_pc9_bad} · {_pc9_on.get('s3s', '')[-30:]}")
 
+# ═══ 📰 دفعة 2026-09-23 — أقفال NC1-NC8 (R-01 «شمعة الخبر» · عرضٌ فقط) + SNL1-SNL2 (R-03) ═══
+# المصدر: `TG_50828` (فيصل على CETX: «شمعة الخبر 3 > 2.70 =E مقاومه») · الحزمة
+# `faisal_batches/2026-09-23/OPUS_EXECUTION_SPEC.md` (أمرُ المالك «نفّذ R-01»).
+# و`TG_50827` (SNAL: البوتُ شطب عند 2.59 · «الدعم ٢.٤٣» = أحمرُ فيصل 2.432).
+import ast as _nc_ast
+import datetime as _nc_dt
+import inspect as _nc_insp
+import numpy as _nc_np
+import pandas as _nc_pd
+
+
+def _nc_df(closes, vols, start="2026-08-10"):
+    _i = _nc_pd.bdate_range(start, periods=len(closes))
+    _c = _nc_np.array(closes, float)
+    return _nc_pd.DataFrame({"Open": _c * 1.01, "High": _c * 1.05, "Low": _c * 0.95,
+                             "Close": _c, "Volume": _nc_np.array(vols, float)}, index=_i)
+
+
+def _nc_call(f, *a, **k):
+    try:
+        return f(*a, **k)
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+# 2026-08-10 (اثنين) … 11 جلسة · الحجمُ الأعلى يومَ 08-14 (الجمعة)
+_nc_d = _nc_df([3.0, 2.95, 2.9, 2.85, 2.9, 2.8, 2.6, 2.4, 2.2, 2.05, 2.01],
+               [1e5, 1e5, 1e5, 1e5, 9e5, 3e5, 1e5, 1e5, 1e5, 1e5, 1e5])
+_nc_a = _nc_call(S.news_candle_level, _nc_d, "2026-08-13")   # خبرُ الخميس · وحجمُ الجمعة ×9
+_nc_b = _nc_call(S.news_candle_level, _nc_d, "2026-08-14")   # خبرُ يومِ تداول
+# 🔴 مِجَسّ Actions 2026-09-23 أسقط صيغتي الأولى («الأعلى حجمًا بين اليوم والتالي»): اختارت لـ SNAL
+#    شمعةَ ردّ الفعل 08-12 بينما Ⓔ فيصل فوق 08-11 ⇒ **يومُ الإيداع نفسُه** كما تضع المنصّةُ Ⓔ.
+check("📰 NC1: شمعةُ الخبر = **جلسةُ يوم الإيداع نفسِه** — لا شمعةُ ردّ الفعل الأعلى حجمًا "
+      "بعدها (خبرُ 08-13 ⇒ 08-13 رغم حجم 08-14 ‏×9 · SNAL/Ⓔ فيصل)",
+      isinstance(_nc_a, dict) and _nc_a.get("date") == "2026-08-13", str(_nc_a)[:90])
+_nc_sat = _nc_call(S.news_candle_level, _nc_d, "2026-08-15")  # سبت ⇒ الاثنين 08-17
+_NC_KEYS = {"date", "open", "high", "low", "close", "role"}
+check("📰 NC2: إيداعُ يومِ تداولٍ ⇒ **يومُه** · وإيداعُ السبت ⇒ **أوّلُ جلسةٍ بعده** (الاثنين) · "
+      "والمُخرَجُ بحقوله الستّة بالضبط",
+      isinstance(_nc_b, dict) and _nc_b.get("date") == "2026-08-14"
+      and isinstance(_nc_sat, dict) and _nc_sat.get("date") == "2026-08-17"
+      and set(_nc_b) == _NC_KEYS,
+      f"{str(_nc_b)[:50]} · {str(_nc_sat)[:50]}")
+_nc_late = _nc_call(S.news_candle_level, _nc_d, "2026-09-30")
+_nc_none = [_nc_call(S.news_candle_level, None, "2026-08-13"),
+            _nc_call(S.news_candle_level, _nc_d, None),
+            _nc_call(S.news_candle_level, _nc_d.iloc[0:0], "2026-08-13")]
+check("📰 NC3: إيداعٌ بعد آخر شمعة ⇒ None (لا شمعةَ خبرٍ بعد) · وبلا إطار/تاريخ ⇒ None بلا استثناء",
+      _nc_late is None and _nc_none == [None, None, None], f"{_nc_late} · {_nc_none}")
+_nc_roles = [(_nc_call(S.news_candle_level, _nc_d, "2026-08-14", px) or {}).get("role")
+             for px in (2.0, 4.0, 2.95)]
+check("📰 NC4: الدورُ من موضع السعر — تحتها «مقاومة فوق السعر» · فوقها «دعم تحت السعر» · "
+      "داخلها «السعر داخلها»",
+      _nc_roles == ["مقاومة فوق السعر", "دعم تحت السعر", "السعر داخلها"], str(_nc_roles))
+_nc_ln = _nc_call(S.news_candle_line, _nc_b)
+_nc_lnq = _nc_call(S.news_candle_line, _nc_b, "10-Q")
+_nc_pen = _nc_call(S.news_candle_line, _nc_call(
+    S.news_candle_level, _nc_df([0.30, 0.29, 0.28], [1e5, 5e5, 1e5]), "2026-08-11"))
+check("📰 NC5: السطرُ «📰 شمعة الخبر (نتائج مالية DATE · النموذج): رأسها … · قاعها … — الدور» "
+      "**بلا علامات مقارنة** · والنموذجُ يُسمّى إن وُجد · وأربعُ خاناتٍ تحت الدولار · و«» بلا شمعة",
+      isinstance(_nc_ln, str) and _nc_ln.startswith("📰 شمعة الخبر (نتائج مالية 2026-08-14)")
+      and isinstance(_nc_lnq, str)
+      and _nc_lnq.startswith("📰 شمعة الخبر (نتائج مالية 2026-08-14 · 10-Q)")
+      and "رأسها $" in _nc_ln and "قاعها $" in _nc_ln and "مقاومة فوق السعر" in _nc_ln
+      and not any(c in _nc_ln + _nc_lnq for c in "<>≤≥")
+      and "$0.3045" in str(_nc_pen) and _nc_call(S.news_candle_line, None) == "",
+      f"{_nc_ln} · {_nc_lnq[:45]} · {_nc_pen}")
+
+
+# NC6 — **القناة**: `sec_recent_filings` على JSON محقون ⇒ أحدثُ 8-K **أصليّ** ببند 2.02 وحدَه
+class _NcResp:
+    def __init__(self, js):
+        self._js = js
+
+    def raise_for_status(self):
+        return None
+
+    def json(self):
+        return self._js
+
+
+_nc_today = _nc_dt.date.today()
+
+
+def _nc_js(forms, items, days):
+    _d = [(_nc_today - _nc_dt.timedelta(days=k)).isoformat() for k in days]
+    return _d, {"filings": {"recent": {
+        "form": forms, "filingDate": _d, "items": items,
+        "accessionNumber": [f"a{i}" for i in range(len(forms))],
+        "primaryDocument": [f"d{i}" for i in range(len(forms))]}}}
+
+
+def _nc_capture(js):
+    """`sec_recent_filings` على JSON محقون ⇒ ما التقطته قناةُ `_SEC_EARN` (ثمّ تنظيفُ القنوات)."""
+    _pg, _pm = S.requests.get, S.sec_cik_map
+    try:
+        S.requests.get = lambda *a, **k: _NcResp(js)
+        S.sec_cik_map = lambda: {"ZZNC": 123}
+        S._SEC_EARN.pop("ZZNC", None)
+        _nc_call(S.sec_recent_filings, "ZZNC")
+        return S._SEC_EARN.pop("ZZNC", None)
+    finally:
+        S.requests.get, S.sec_cik_map = _pg, _pm
+        for _nc_ch in (S._SEC_PROXY, S._SEC_OFFERING, S._SEC_FOUNDING, S._SEC_FORM4):
+            _nc_ch.pop("ZZNC", None)
+
+
+_nc_w = int(S.CONFIG["PROXY_LOOKBACK_DAYS"])
+_nc_dA, _nc_jA = _nc_js(["8-K/A", "8-K", "8-K", "8-K"],            # 2.02 وحدَه: أحدثُ أصليّ
+                        ["2.02", "8.01", "2.02,9.01", "2.02"], (3, 6, 12, 25))
+_nc_dB, _nc_jB = _nc_js(["10-Q/A", "8-K", "10-Q", "10-K"],         # احتياطُ التقرير الدوريّ
+                        ["", "8.01", "", ""], (3, 6, 12, 25))
+_nc_dC, _nc_jC = _nc_js(["10-Q", "8-K", "8-K"],                    # 2.02 الأقدمُ يغلب 10-Q
+                        ["", "8.01", "2.02"], (3, 6, 12))
+_nc_dD, _nc_jD = _nc_js(["8-K", "10-Q"], ["2.02", ""],             # خارج النافذة
+                        (_nc_w + 5, _nc_w + 15))
+_nc6 = [_nc_capture(j) for j in (_nc_jA, _nc_jB, _nc_jC, _nc_jD)]
+_nc6_exp = [{"date": _nc_dA[2], "form": "8-K"}, {"date": _nc_dB[2], "form": "10-Q"},
+            {"date": _nc_dC[2], "form": "8-K"}, None]
+check("📰 NC6: القناةُ من النداء القائم نفسِه — **أحدثُ 8-K أصليٍّ ببند 2.02** (لا `8-K/A` · "
+      "لا بند 8.01) · **وإلّا أحدثُ 10-Q/10-K** (لا `10-Q/A`) · و2.02 الأقدمُ **يغلب** 10-Q "
+      "الأحدث · وما خارج نافذة `PROXY_LOOKBACK_DAYS` ⇒ لا شيء",
+      _nc6 == _nc6_exp,
+      str([k for k, (a, b) in enumerate(zip(_nc6, _nc6_exp)) if a != b]) + f" · {_nc6}"[:120])
+
+
+def _nc_calls(fn, name, attr=False):
+    """هل `fn` تنادي `name` (اسمًا أو خاصيّةً `x.name`) — بالـAST لا بالنصّ."""
+    try:
+        _t = _nc_ast.parse(_nc_insp.getsource(fn).lstrip())
+    except Exception:                                            # noqa: BLE001
+        return False
+    for _n in _nc_ast.walk(_t):
+        if isinstance(_n, _nc_ast.Call):
+            f = _n.func
+            if getattr(f, "id", None) == name or (attr and getattr(f, "attr", None) == name):
+                return True
+    return False
+
+
+def _nc_pops_earn(fn):
+    try:
+        _t = _nc_ast.parse(_nc_insp.getsource(fn).lstrip())
+    except Exception:                                            # noqa: BLE001
+        return False
+    return any(isinstance(_n, _nc_ast.Call) and getattr(_n.func, "attr", None) == "pop"
+               and getattr(getattr(_n.func, "value", None), "id", None) == "_SEC_EARN"
+               for _n in _nc_ast.walk(_t))
+
+
+def _nc_assigns(fn, key):
+    """هل `fn` تُسنِد `x["key"] = …` (بالـAST)."""
+    try:
+        _t = _nc_ast.parse(_nc_insp.getsource(fn).lstrip())
+    except Exception:                                            # noqa: BLE001
+        return False
+    return any(isinstance(_n, _nc_ast.Assign) and any(
+        isinstance(_g, _nc_ast.Subscript) and getattr(_g.slice, "value", None) == key
+        for _g in _n.targets) for _n in _nc_ast.walk(_t))
+
+
+import hand_check as _nc_hc  # noqa: E402
+_nc_wire = {
+    "build_message→line": _nc_calls(S.build_message, "news_candle_line"),
+    "build_daily_message→line": _nc_calls(S.build_daily_message, "news_candle_line"),
+    "render_hand_check→line": _nc_calls(_nc_hc.render_hand_check, "news_candle_line", True),
+    "hand_check→level": _nc_calls(_nc_hc.hand_check, "news_candle_level", True),
+    "update_watchlist_status→level": _nc_calls(S.update_watchlist_status, "news_candle_level"),
+    "run_daily_watchlist→level": _nc_calls(S.run_daily_watchlist, "news_candle_level"),
+    "run_weekly_renewal→level": _nc_calls(S.run_weekly_renewal, "news_candle_level"),
+    "enrich⟵_SEC_EARN": _nc_pops_earn(S.enrich),
+    "run_daily_watchlist⟵_SEC_EARN": _nc_pops_earn(S.run_daily_watchlist),
+    "hand_check→news_form": _nc_assigns(_nc_hc.hand_check, "news_form"),
+}
+check("📰 NC7: **الوصلُ من نقاط النداء الحيّة (AST)** — الكرت · اليوميّ · فحصُ اليد · "
+      "التجديدُ الأسبوعيّ واليوميّ · ونزعُ القناة في الإثراء والمسار اليوميّ",
+      all(_nc_wire.values()), str([k for k, v in _nc_wire.items() if not v]))
+_nc_st = {"symbol": "NCD", "status": "active", "cont_status": None, "last_price": 2.0,
+          "stop": 1.8, "pivot": 1.93, "t1": 2.4, "t2": 3.0, "t3": 4.0,
+          "tranches": [1.93], "liberation": 4.2, "interp": None, "readiness": 40,
+          "score": 60, "tier": "B", "float": 1e7, "soft_fails": [], "flags": [],
+          "warnings": [], "hit": None, "max_gain_pct": 0.0, "sector": "Technology",
+          "country": "US"}
+_nc_dm_on = _nc_call(S.build_daily_message, {"stocks": [dict(_nc_st, news_candle=_nc_a)]},
+                     [], [], [])
+_nc_dm_off = _nc_call(S.build_daily_message, {"stocks": [dict(_nc_st)]}, [], [], [])
+_nc_r = _nc_call(S.analyze_ticker, "NCX", synth_pivot(seed=2))
+_nc_bm_on = (_nc_call(S.build_message, [dict(_nc_r, symbol="NCX", readiness=60, score=60,
+                                             news_candle=_nc_a)], [])
+             if isinstance(_nc_r, dict) else "⛔ لا مرشّح")
+_nc_bm_off = (_nc_call(S.build_message, [dict(_nc_r, symbol="NCX", readiness=60, score=60)], [])
+              if isinstance(_nc_r, dict) else "⛔ لا مرشّح")
+check("📰 NC7ب: السطرُ **يظهر** في اليوميّ والكرت مع الحقل **ويغيب** بدونه (سلوكيًّا)",
+      "📰 شمعة الخبر" in str(_nc_dm_on) and "📰 شمعة الخبر" not in str(_nc_dm_off)
+      and "📰 شمعة الخبر" in str(_nc_bm_on) and "📰 شمعة الخبر" not in str(_nc_bm_off),
+      f"يوميّ={'📰' in str(_nc_dm_on)}/{'📰' in str(_nc_dm_off)} · "
+      f"كرت={'📰' in str(_nc_bm_on)}/{'📰' in str(_nc_bm_off)}")
+_nc_hc_on = _nc_call(_nc_hc.render_hand_check, "NCH", {
+    "symbol": "NCH", "price": 2.0, "behav": {}, "news_candle": _nc_b, "news_form": "10-Q"})
+_nc_hc_off = _nc_call(_nc_hc.render_hand_check, "NCH", {"symbol": "NCH", "price": 2.0,
+                                                         "behav": {}})
+check("📰 NC7ج: فحصُ اليد يعرض السطرَ **لسهمٍ غيرِ مؤهَّل** (مثالُ فيصل CETX) بنموذجه · "
+      "وبلا شمعةٍ يقول «—» بسببه (تعذّرٌ ليس نفيًا)",
+      "📰 شمعة الخبر (نتائج مالية 2026-08-14 · 10-Q)" in str(_nc_hc_on)
+      and "ليس سهم ارتكاز مؤهّلًا" in str(_nc_hc_on)
+      and "📰 شمعة الخبر: —" in str(_nc_hc_off) and "(نتائج مالية" not in str(_nc_hc_off),
+      f"مع={'(نتائج مالية' in str(_nc_hc_on)} · بلا={'شمعة الخبر: —' in str(_nc_hc_off)}")
+_NC_NET = {"requests", "yf", "download_history", "urlopen", "polygon_minute_bars"}
+_nc_net_hits = {}
+for _nc_fn in (S.news_candle_level, S.news_candle_line):
+    try:
+        _nc_names = {getattr(_n, "id", None) or getattr(_n, "attr", None)
+                     for _n in _nc_ast.walk(_nc_ast.parse(_nc_insp.getsource(_nc_fn)))}
+    except Exception:                                            # noqa: BLE001
+        _nc_names = {"⛔"}
+    _nc_net_hits[_nc_fn.__name__] = (sorted(_NC_NET & _nc_names)
+                                     or (["⛔"] if "⛔" in _nc_names else []))
+_NC_ROOTS = ("rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_short_gate",
+             "apply_float_gate", "scan_market", "backtest_symbol", "scan_ignition",
+             "scan_split_hunter", "entry_status", "build_interpretation")
+_nc_in_roots = []
+for _nc_rn in _NC_ROOTS:
+    try:
+        _nc_src = _nc_insp.getsource(getattr(S, _nc_rn))
+    except Exception:                                            # noqa: BLE001
+        _nc_in_roots.append(_nc_rn + "⛔")
+        continue
+    if any(x in _nc_src for x in ("news_candle", "_SEC_EARN", "news_filing")):
+        _nc_in_roots.append(_nc_rn)
+check("📰 NC8: **صفرُ شبكةٍ** داخل الدالّتين النقيّتين (AST) · **والجذورُ الاثنا عشر لا تذكر** "
+      "`news_candle`/`_SEC_EARN`/`news_filing`",
+      not any(_nc_net_hits.values()) and not _nc_in_roots,
+      f"شبكة={_nc_net_hits} · جذور={_nc_in_roots}")
+
+
+# 🔒 SNL1/SNL2 — **R-03 حالةُ SNAL** (`TG_50827`): قاعٌ 2.59 ⟵ ارتدادٌ نحو 20% ⟵ رجوعٌ فكنس.
+def _snl_df(sweep_low):
+    rows = [(3.6 - 0.03 * i, 3.62 - 0.03 * i) for i in range(30)]       # هبوطٌ نحو 2.72
+    rows += [(2.59, 2.62)]                                              # القاع 2.59
+    rows += [(2.62 + 0.05 * i, 2.66 + 0.05 * i) for i in range(10)]     # ارتدادٌ نحو 3.1
+    rows += [(3.0 - 0.07 * i, 3.02 - 0.07 * i) for i in range(6)]       # رجوعٌ نحو 2.65
+    rows += [(sweep_low, sweep_low * 1.03)]                             # الكنس
+    rows += [(sweep_low * 1.02 + 0.01 * i, sweep_low * 1.05 + 0.01 * i) for i in range(5)]
+    _i = _nc_pd.bdate_range("2026-06-01", periods=len(rows))
+    return _nc_pd.DataFrame(
+        [(cl, max(cl, lo) * 1.02, lo, cl, 1e5) for lo, cl in rows],
+        columns=["Open", "High", "Low", "Close", "Volume"], index=_i)
+
+
+_snl1 = _nc_call(S.pivot_cycle_state, _snl_df(2.432))
+_snl2 = _nc_call(S.pivot_cycle_state, _snl_df(2.47))
+check("🔒 SNL1: SNAL — كنسُ القاع 2.59 إلى **2.432** (‏−6.1%، أعمقُ من `PIVOT_SWEEP_PCT`) ⇒ "
+      "**عدٌّ جديد من القاع الأدنى** (المرحلة 1 · القاع 2.432 = «الدعم ٢.٤٣» عند فيصل)",
+      isinstance(_snl1, dict) and _snl1.get("stage") == 1
+      and abs(float(_snl1.get("bottom") or 0) - 2.432) < 1e-6, str(_snl1)[:90])
+check("🔒 SNL2: ضبط — كنسٌ إلى 2.47 (‏−4.6%، داخل 5%) ⇒ **سحبُ سيولةٍ على قاع 2.59** "
+      "(المرحلة 3 · فرعُ sweep) — فالحدُّ هو الفارقُ لا الشكل",
+      isinstance(_snl2, dict) and _snl2.get("stage") == 3 and _snl2.get("branch") == "sweep"
+      and abs(float(_snl2.get("bottom") or 0) - 2.59) < 1e-6, str(_snl2)[:90])
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
