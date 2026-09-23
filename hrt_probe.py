@@ -1,31 +1,30 @@
 # -*- coding: utf-8 -*-
-"""🏦 مِجَسّ توفّر بيانات «صندوق hrt» المؤقّت (P-02 · U-15 · أمرُ المالك «سجّل HRT» 2026-09-23).
+"""🏦 مِجَسّ توفّر بيانات «صندوق hrt» المؤقّت — الجولة الثانية (P-02 · U-15 · أمرُ المالك «سجّل HRT»).
 
 **قراءةٌ فقط · يُحذف قبل الدمج · لا تلغرام · لا كتابةُ حالة · SEC وحدها** (بهويّة `SEC_UA` نفسِها).
-يُجيب قبل أيّ عقد: هل إيداعاتُ Hudson River Trading متاحةٌ ومؤرَّخةٌ بما يكفي لقياس «خروجه»؟
-  A) الهويّة: من يطابق «Hudson River Trading» في EDGAR (الاسم · CIK).
-  B) إيداعاتُه في submissions: الأنواعُ وأعدادُها ومداها الزمنيّ · وعيّنةُ 13G بتاريخ التقرير.
-  C) البحثُ النصّيّ الكامل: إيداعاتُ 13G/13G-A التي تذكره · الشركاتُ المعنيّة · المدى.
-  D) WHLR (مثالُ المنشور «باع نص كمياته يوم 10/9»): هل له 13G/A من HRT قرب 2026-09-10؟
-  E) عيّنةُ مستندات: تاريخُ الحدث مقابل تاريخ الإيداع (التأخّر) · ونسبةُ الملكيّة المعلنة.
+الجولةُ الأولى أعطت: 6 إيداعات `SCHEDULE 13G/A` على WHLR منذ 2025-06 ببادئة وكيلٍ واحد (‏0000905148)
+· وصفرَ نتائجَ في البحث النصّيّ (قد يكون صفرًا حقيقيًّا أو نداءً خاطئًا) · وتعذّرَ تحليلُ هويّة الشركة.
+الثانية تُجيب:
+  C0) شاهدُ ضبطٍ للبحث النصّيّ: استعلامٌ جوابُه معروفٌ غيرُ صفر (يفرّق «صفرٌ حقيقيّ» عن «نداءٌ خاطئ»).
+  A) الهويّة: خلاصةُ موجز EDGAR خامًا (العناوين · CIK) لـ«hudson river».
+  D) WHLR: **مَن المُودِع** في كلّ 13G/A (رأسُ الإيداع) · ونسبتُه · وتاريخُ الحدث.
+  F) WHLR: نماذجُ 3/4/5 قرب 2026-09-10 ومُودِعوها (مالكُ ‏10% يودع Form 4 خلال يومين — هل هذا مصدرُ «10/9»؟).
 """
 import re
 import time
-from collections import Counter
 
 import requests
 
 import Super_stock as S
 
 UA = S.SEC_UA
-HITS = []
+WHLR = 1527541
 
 
 def get(url, **kw):
-    time.sleep(0.25)                       # سياسةُ SEC: ‏≤10 طلبات/ثانية — نبقى تحتها بكثير
+    time.sleep(0.25)
     try:
-        r = requests.get(url, headers=UA, timeout=40, **kw)
-        return r
+        return requests.get(url, headers=UA, timeout=40, **kw)
     except Exception as e:                                       # noqa: BLE001
         print(f"   ⛔ {type(e).__name__}: {url[:90]}")
         return None
@@ -35,133 +34,74 @@ def section(t):
     print("\n" + "═" * 8 + f" {t} " + "═" * 8)
 
 
-def identity():
-    section("A) الهويّة")
-    ciks = {}
-    r = get("https://www.sec.gov/cgi-bin/browse-edgar", params={
-        "company": "hudson river trading", "owner": "include", "count": "40",
-        "action": "getcompany", "output": "atom"})
-    print(f"   browse-edgar: {getattr(r, 'status_code', None)}")
-    if r is not None and r.ok:
-        for m in re.finditer(r"<cik>(\d+)</cik>.*?<name>([^<]+)</name>", r.text, re.S):
-            ciks[int(m.group(1))] = m.group(2).strip()
-        if not ciks:
-            for m in re.finditer(r"CIK=(\d{10})[^>]*>[^<]*</a>\s*</td>\s*<td[^>]*>([^<]+)", r.text):
-                ciks[int(m.group(1))] = m.group(2).strip()
-        print("   مطابقاتٌ:", ciks or "— (لا شيء بالاسم)", "·", r.text[:160].replace("\n", " ") if not ciks else "")
-    return ciks
+def efts(q, forms=None, start="2023-01-01"):
+    p = {"q": q, "dateRange": "custom", "startdt": start, "enddt": "2026-09-23"}
+    if forms:
+        p["forms"] = forms
+    r = get("https://efts.sec.gov/LATEST/search-index", params=p)
+    if r is None or not r.ok:
+        return None, f"⛔ {getattr(r, 'status_code', None)}"
+    try:
+        j = r.json()
+    except Exception:                                            # noqa: BLE001
+        return None, f"⛔ ليس JSON: {r.text[:100]}"
+    tot = (j.get("hits", {}).get("total", {}) or {}).get("value")
+    rows = [(h.get("_source", {}).get("file_date"), h.get("_source", {}).get("form"),
+             h.get("_source", {}).get("display_names")) for h in j.get("hits", {}).get("hits", [])]
+    return rows, tot
 
 
-def submissions(ciks):
-    section("B) submissions لكلّ CIK")
-    for cik, name in list(ciks.items())[:6]:
-        r = get(f"https://data.sec.gov/submissions/CIK{cik:010d}.json")
-        if r is None or not r.ok:
-            print(f"   {cik} {name}: ⛔ {getattr(r, 'status_code', None)}")
-            continue
-        d = r.json()
-        rec = d.get("filings", {}).get("recent", {})
-        forms = rec.get("form", [])
-        dates = rec.get("filingDate", [])
-        rds = rec.get("reportDate", [])
-        acc = rec.get("accessionNumber", [])
-        extra = d.get("filings", {}).get("files", [])
-        c = Counter(forms)
-        print(f"   {cik} «{d.get('name')}» · حديثة {len(forms)} صفًّا ({min(dates) if dates else '—'} ⟶ {max(dates) if dates else '—'}) · "
-              f"صفحاتٌ أقدم {len(extra)} · الأنواع: {dict(c.most_common(12))}")
-        g = [(dates[i], forms[i], rds[i] if i < len(rds) else "", acc[i]) for i in range(len(forms)) if "13G" in forms[i]]
-        by_year = Counter(x[0][:4] for x in g)
-        print(f"   13G بالسنة (حديثة): {dict(sorted(by_year.items()))}")
-        for row in g[:8]:
-            print(f"      {row}")
-        HITS.extend((cik, *row) for row in g)
-
-
-def fts():
-    section("C) البحث النصّيّ الكامل (efts)")
-    out = []
-    for frm in ("SC 13G/A", "SC 13G", "SCHEDULE 13G/A", "SCHEDULE 13G"):
-        r = get("https://efts.sec.gov/LATEST/search-index", params={
-            "q": '"Hudson River Trading"', "forms": frm,
-            "dateRange": "custom", "startdt": "2023-01-01", "enddt": "2026-09-23"})
-        st = getattr(r, "status_code", None)
-        if r is None or not r.ok:
-            print(f"   {frm}: ⛔ {st}")
-            continue
-        try:
-            j = r.json()
-        except Exception:                                        # noqa: BLE001
-            print(f"   {frm}: ⛔ ليس JSON · {r.text[:120]}")
-            continue
-        tot = (j.get("hits", {}).get("total", {}) or {}).get("value")
-        hs = j.get("hits", {}).get("hits", [])
-        print(f"   {frm}: المجموع {tot} · الصفحة الأولى {len(hs)}")
-        for h in hs:
-            s = h.get("_source", {})
-            out.append((s.get("file_date"), s.get("form"), s.get("display_names"), s.get("adsh")))
-    out.sort(key=lambda x: x[0] or "", reverse=True)
-    subj = Counter()
-    for fd, fm, dn, adsh in out:
-        for n in (dn or []):
-            if "HUDSON RIVER" not in n.upper():
-                subj[n] += 1
-    print(f"   شركاتٌ معنيّة مختلفة في الصفحات الأولى: {len(subj)}")
-    for row in out[:15]:
-        print(f"      {row[0]} {row[1]} {[n[:60] for n in (row[2] or [])]}")
-    return out
-
-
-def whlr(ciks, fts_rows):
-    section("D) WHLR (Wheeler) قرب 2026-09-10")
-    cmap = S.sec_cik_map() or {}
-    wc = cmap.get("WHLR")
-    print(f"   CIK WHLR: {wc}")
-    hrt_prefix = {f"{c:010d}" for c in ciks}
-    if wc:
-        r = get(f"https://data.sec.gov/submissions/CIK{wc:010d}.json")
-        if r is not None and r.ok:
-            rec = r.json().get("filings", {}).get("recent", {})
-            rows = [(rec["filingDate"][i], rec["form"][i], rec["accessionNumber"][i])
-                    for i in range(len(rec.get("form", []))) if "13G" in rec["form"][i]
-                    and rec["filingDate"][i] >= "2025-06-01"]
-            print(f"   13G على WHLR منذ 2025-06: {len(rows)}")
-            for fd, fm, acc in rows[:15]:
-                pre = acc.split("-")[0]
-                print(f"      {fd} {fm} {acc} {'⟵ بادئةُ HRT' if pre in hrt_prefix else ''}")
-    hit = [x for x in fts_rows if any("WHEELER" in (n or "").upper() for n in (x[2] or []))]
-    print(f"   في البحث النصّيّ: {len(hit)} — {hit[:5]}")
-
-
-def sample_docs():
-    section("E) عيّنةُ مستندات: تاريخُ الحدث · النسبة · التأخّر")
-    seen = 0
-    for cik, fd, fm, rd, acc in HITS[:40]:
-        if seen >= 4:
-            break
-        nod = acc.replace("-", "")
-        r = get(f"https://www.sec.gov/Archives/edgar/data/{cik}/{nod}/{acc}.txt")
-        if r is None or not r.ok:
-            continue
-        t = r.text
-        subj = re.search(r"SUBJECT COMPANY:.*?COMPANY CONFORMED NAME:\s*([^\n]+)", t, re.S)
-        ev = (re.search(r"(?i)date of event[^\n]{0,120}\n?[^\n]{0,120}?(\d{1,2}/\d{1,2}/\d{4}|\d{4}-\d{2}-\d{2}|[A-Z][a-z]+ \d{1,2}, \d{4})", t)
-              or re.search(r"<eventDateRequiresFilingThisStatement>([^<]+)<", t))
-        pct = re.findall(r"(?i)percent of class[^\d]{0,200}?(\d{1,3}(?:\.\d+)?)\s?%", t)[:3] or \
-            re.findall(r"<classPercent>([^<]+)<", t)[:3]
-        print(f"   {fd} {fm} · الشركة {subj.group(1).strip() if subj else '—'} · الحدث {ev.group(1) if ev else '—'} "
-              f"· النسبة {pct or '—'} · reportDate {rd or '—'}")
-        seen += 1
+def header(cik, acc):
+    """رأسُ الإيداع: المُودِع (FILED BY) · الشركةُ المعنيّة · تاريخُ الإيداع · وأسطرُ النسبة وتاريخ الحدث."""
+    nod = acc.replace("-", "")
+    r = get(f"https://www.sec.gov/Archives/edgar/data/{cik}/{nod}/{acc}.txt")
+    if r is None or not r.ok:
+        return {"err": getattr(r, "status_code", None)}
+    t = r.text
+    fb = re.search(r"FILED BY:.*?COMPANY CONFORMED NAME:\s*([^\n]+)", t, re.S)
+    rp = re.findall(r"REPORTING-OWNER:.*?COMPANY CONFORMED NAME:\s*([^\n]+)", t, re.S)[:3] or \
+        re.findall(r"<rptOwnerName>([^<]+)<", t)[:3]
+    ev = (re.search(r"<eventDateRequiresFilingThisStatement>([^<]+)<", t)
+          or re.search(r"(?is)date of event[^0-9A-Z]{0,200}([0-9]{1,2}/[0-9]{1,2}/[0-9]{4}|[0-9]{4}-[0-9]{2}-[0-9]{2})", t))
+    pct = re.findall(r"<classPercent>([^<]+)<", t)[:3] or \
+        re.findall(r"(?is)percent of class[^0-9]{0,300}?([0-9]{1,3}(?:\.[0-9]+)?)\s?%", t)[:3]
+    shares = re.findall(r"<aggregateAmountOwned>([^<]+)<", t)[:3]
+    tx = re.findall(r"<transactionDate>\s*<value>([^<]+)<", t)[:4]
+    code = re.findall(r"<transactionCode>([^<]+)<", t)[:4]
+    return {"filed_by": fb.group(1).strip() if fb else None, "owners": [x.strip() for x in rp],
+            "event": ev.group(1) if ev else None, "pct": pct, "shares": shares, "tx": list(zip(tx, code))}
 
 
 def main():
     t0 = time.time()
-    print(f"🏦 مِجَسّ HRT · SEC_UA مضبوط={'contact@example.com' not in UA['User-Agent']}")
-    ciks = identity()
-    if ciks:
-        submissions(ciks)
-    rows = fts()
-    whlr(ciks, rows)
-    sample_docs()
+    print(f"🏦 مِجَسّ HRT (2) · SEC_UA مضبوط={'contact@example.com' not in UA['User-Agent']}")
+    section("C0) شاهدُ ضبطٍ للبحث النصّيّ")
+    for q, frm in (('"Wheeler Real Estate"', None), ('"Wheeler Real Estate"', "SCHEDULE 13G/A"),
+                   ('"Hudson River Trading"', None), ('"Hudson River Trading"', "13F-HR")):
+        rows, tot = efts(q, frm)
+        print(f"   q={q} forms={frm}: المجموع {tot} · {(rows or [])[:2]}")
+    section("A) الهويّة (موجز EDGAR خامًا)")
+    r = get("https://www.sec.gov/cgi-bin/browse-edgar", params={
+        "company": "hudson river", "owner": "include", "count": "40",
+        "action": "getcompany", "output": "atom"})
+    if r is not None and r.ok:
+        titles = re.findall(r"<title>([^<]+)</title>", r.text)[:12]
+        ciks = re.findall(r"CIK=(\d+)", r.text)[:12] or re.findall(r"<cik>(\d+)</cik>", r.text)[:12]
+        print(f"   {getattr(r, 'status_code', None)} · عناوين {titles} · CIK {sorted(set(ciks))}")
+    section("D) WHLR: مَن المُودِع في كلّ 13G/A")
+    rs = get(f"https://data.sec.gov/submissions/CIK{WHLR:010d}.json")
+    rec = rs.json().get("filings", {}).get("recent", {}) if rs is not None and rs.ok else {}
+    forms, dates, accs = rec.get("form", []), rec.get("filingDate", []), rec.get("accessionNumber", [])
+    g = [(dates[i], forms[i], accs[i]) for i in range(len(forms)) if "13G" in forms[i] and dates[i] >= "2024-01-01"]
+    print(f"   13G منذ 2024: {len(g)}")
+    for fd, fm, acc in g[:10]:
+        print(f"      {fd} {fm} {acc} ⟵ {header(WHLR, acc)}")
+    section("F) WHLR: نماذجُ 3/4/5 منذ 2026-08-15")
+    f4 = [(dates[i], forms[i], accs[i]) for i in range(len(forms))
+          if forms[i] in ("3", "4", "5", "3/A", "4/A") and dates[i] >= "2026-08-15"]
+    print(f"   العدد: {len(f4)}")
+    for fd, fm, acc in f4[:12]:
+        print(f"      {fd} Form {fm} {acc} ⟵ {header(WHLR, acc)}")
     print(f"\n⏱️ {time.time() - t0:.0f}ث")
 
 
