@@ -54,8 +54,8 @@
    "short_interest": 29772,
    "days_to_cover": 0.02,
    "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": 359.26,
-   "shares_available": 15000,
+   "borrow_fee": 338.23,
+   "shares_available": 20000,
    "company_name": "Universe Pharmaceuticals Inc",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -383,6 +383,10 @@
     [
      "2026-09-22",
      15000
+    ],
+    [
+     "2026-09-23",
+     20000
     ]
    ],
    "faisal_levels": "🧭 إغلاقات الهابطة $4.77 · $5.04 · $5.23 · جسم قبل الهبوط $5.10 · اختبار المقاومة $4.34 إلى $4.71",
@@ -773,6 +777,10 @@
     [
      "2026-09-22",
      5000
+    ],
+    [
+     "2026-09-23",
+     5000
     ]
    ],
    "faisal_levels": "🧭 إغلاقات الهابطة $2.03 · $2.16 · $2.29 · جسم قبل الهبوط $2.37 · اختبار المقاومة $1.97 إلى $2.14"
@@ -827,8 +835,8 @@
    "short_interest": 192734,
    "days_to_cover": 0.37,
    "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 808.37,
-   "shares_available": 8000,
+   "borrow_fee": 800.37,
+   "shares_available": 4000,
    "company_name": "Braiin Limited",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -1142,10 +1150,6 @@
    },
    "borrow_hist": [
     [
-     "2026-08-28",
-     40000
-    ],
-    [
      "2026-09-01",
      15000
     ],
@@ -1196,6 +1200,10 @@
     [
      "2026-09-22",
      8000
+    ],
+    [
+     "2026-09-23",
+     4000
     ]
    ],
    "rsi27_price": 4.0677,
@@ -1256,8 +1264,8 @@
    "short_interest": 257318,
    "days_to_cover": 3.82,
    "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": 152.4,
-   "shares_available": 15000,
+   "borrow_fee": 149.62,
+   "shares_available": 30000,
    "company_name": "WeShop Holdings Limited",
    "upcoming_events": [
     {
@@ -1615,6 +1623,10 @@
     [
      "2026-09-22",
      15000
+    ],
+    [
+     "2026-09-23",
+     30000
     ]
    ],
    "live_alert": {
@@ -1673,7 +1685,7 @@
    "short_interest": 9289,
    "days_to_cover": 0.89,
    "kst4": "تحت إشارته تحت الصفر — زخم هابط",
-   "borrow_fee": 37.25,
+   "borrow_fee": 37.91,
    "shares_available": 10000,
    "company_name": "PTL LTD",
    "upcoming_events": null,
@@ -1992,6 +2004,10 @@
     [
      "2026-09-22",
      10000
+    ],
+    [
+     "2026-09-23",
+     10000
     ]
    ]
   },
@@ -2046,7 +2062,7 @@
    "short_interest": 449,
    "days_to_cover": 0.02,
    "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 8.81,
+   "borrow_fee": 8.12,
    "shares_available": 10000,
    "company_name": "Curanex Pharmaceuticals Inc",
    "upcoming_events": null,
@@ -2366,6 +2382,378 @@
     [
      "2026-09-22",
      10000
+    ],
+    [
+     "2026-09-23",
+     10000
+    ]
+   ]
+  },
+  {
+   "symbol": "KITT",
+   "added": "2026-09-23",
+   "ref_bar": "2026-09-21",
+   "band_hit": false,
+   "band_wait_days": 0,
+   "band_last_bar": null,
+   "entry_ref": 0.616,
+   "entry": [
+    0.6,
+    0.64
+   ],
+   "tranches": [
+    0.6,
+    0.62,
+    0.64
+   ],
+   "entry_avg": 0.62,
+   "pivot": 0.6,
+   "stop": 0.6,
+   "stop_hi": 0.6,
+   "t1": 0.71,
+   "t2": 0.84,
+   "t3": 1.64,
+   "targets_kind": [
+    "⚫",
+    "⚫",
+    "🔵"
+   ],
+   "score": 55,
+   "flags": [
+    "تقاطع MACD",
+    "جفاف بيع",
+    "ثبات 3 جلسات فوق القاع",
+    "انكماش حزمة كلنجر (تجميع)",
+    "فجوة صاعدة يومي 4%",
+    "فجوات متعددة الفريمات (أسبوعي، شهري)",
+    "فجوة-هدف فوق السعر عند $1.13 (+83%)",
+    "قاب (فجوة) فوق السعر عند $1.13 (فراغ 4% = هدف ذهبي)",
+    "⚠️ شورت عالٍ 45,790 (فوق 40,000)",
+    "فلوت 5,527,831 (صغير ✅)"
+   ],
+   "rsi": 33.52973246156738,
+   "float": 5527831,
+   "short": 45790,
+   "short_pct": 13.1,
+   "short_interest": 612768,
+   "days_to_cover": 1.92,
+   "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
+   "borrow_fee": 26.92,
+   "shares_available": 10000,
+   "company_name": "Nauticus Robotics, Inc.",
+   "upcoming_events": null,
+   "proxy_filing": null,
+   "first_trade": null,
+   "rotation_pct": 5,
+   "drop_pct": 98.28125001663076,
+   "best_spike": 464.45994669441825,
+   "rr": 1.4516129032258047,
+   "tier": "B",
+   "soft_fails": [
+    "لا نمط شمعة انعكاسي",
+    "السعر أقل بـ20% من متوسطه المتحرك (يفتح بصعود ~22% أو بثبات أسابيع)",
+    "شورت عالٍ"
+   ],
+   "warnings": [],
+   "news_risk": false,
+   "h4_levels": {
+    "supports": [
+     0.61
+    ],
+    "resistances": [
+     0.64,
+     0.66,
+     0.67,
+     0.7,
+     0.72
+    ],
+    "flip": 0.62,
+    "sweep_low": 0.6,
+    "green_cover": true,
+    "managed_ceiling": {
+     "price": 0.87,
+     "touches": 16
+    }
+   },
+   "key_levels": {
+    "sup_major": 0.6,
+    "sup_minor": null,
+    "res_major": 2.73,
+    "res_minor": 0.71
+   },
+   "h4_confirm": 3,
+   "behav": {
+    "score": 32,
+    "label": "نشاط محدود",
+    "n_pumps": 1,
+    "best_pump": 464.0,
+    "recency_bars": 413,
+    "repumps": 0,
+    "sweeps": 1
+   },
+   "fsto_osc": {
+    "chop": 4.2,
+    "k_std": 27.8,
+    "actor": "مضارب",
+    "violent": false,
+    "controlled": true,
+    "provisional": true
+   },
+   "klinger": {
+    "kvo": -601158.1,
+    "signal": -1305066.9,
+    "state": "صاعد (تجميع)",
+    "cross": ""
+   },
+   "spikes": [
+    464.5,
+    115.8,
+    78.0,
+    59.1
+   ],
+   "faisal_levels": "🧭 إغلاقات الهابطة $0.63 · $0.64 · $0.65 · جسم قبل الهبوط $0.81 · اختبار المقاومة $0.69 إلى $0.75",
+   "cci": {
+    "cci": -67.7,
+    "state": "محايد"
+   },
+   "ah_missed": {
+    "reg_low": 0.6000000238418579,
+    "ext_low": 0.6,
+    "reg_high": 0.7139999866485596,
+    "ext_high": 0.75,
+    "down_pct": 3.973642830828406e-06,
+    "up_pct": 5.042018770955541,
+    "reg_bars": 60,
+    "ext_bars": 80,
+    "mixed_bars": 19,
+    "days": 10,
+    "asof": "2026-09-22"
+   },
+   "insider_buys": [],
+   "offering_event": null,
+   "news_acc": null,
+   "bottom_test": {
+    "bottom": 0.6,
+    "tests": 1,
+    "second": false
+   },
+   "pump_scar": null,
+   "interp": {
+    "setup_type": "liquidity_sweep",
+    "movement_behavior": "② حقّق ثم هبط لقاع/مسح ثم يستعيد (نمط المسح-وإعادة-الإطلاق)",
+    "faisal_move": "30‑50%+ كحد أدنى عند الانطلاق (متوسط الحركة — منهج فيصل)",
+    "trendline_pressure": {
+     "touches": 2,
+     "slope_per_bar": -0.02,
+     "anchor": 2.53,
+     "line_price_now": 0.71,
+     "state": "below"
+    },
+    "critical_number": {
+     "price": 0.64,
+     "type": "breakout_activation",
+     "why": "تجاوزه يفعّل الهدف التالي"
+    },
+    "activation_state": {
+     "setup": "active",
+     "active_targets": [],
+     "inactive_targets": [
+      0.71,
+      0.84,
+      1.64
+     ],
+     "blocked_by": 0.64
+    },
+    "entry_mode": {
+     "mode": "sweep_confirmed",
+     "entry_zone": [
+      0.6,
+      0.64
+     ],
+     "stop": 0.6,
+     "reason": "مسح تحت الدعم ثم استعادة"
+    },
+    "four_hour_context": {
+     "state": "blocked_by_red_head",
+     "red_candle_head": 0.64,
+     "flip": 0.62,
+     "sweep_low": 0.6,
+     "green_cover": true
+    },
+    "risk_profile": {
+     "risk_level": "متوسط",
+     "flags": [
+      "ملفات SEC"
+     ]
+    },
+    "cycle_context": {
+     "days_since_last_impulse": 413,
+     "days_since_major_low": 3,
+     "window_state": "خمول أطول من النافذة الشائعة"
+    },
+    "session_context": {
+     "open": 0.62,
+     "high": 0.6499,
+     "low": 0.6151,
+     "prev_close": 0.6163,
+     "volume": 224263,
+     "market_cap": 4676699,
+     "pre_after": {
+      "kind": "premarket",
+      "high": 0.6318,
+      "low": 0.6265,
+      "last": 0.6318,
+      "cum_vol": 1104.835319,
+      "change_pct": 2.5
+     },
+     "unavailable_reason": "من Polygon (اشتراك المستخدم)",
+     "quote": {
+      "bid": 0.4437,
+      "ask": 0.8062,
+      "bid_size": 2,
+      "ask_size": 2,
+      "spread_pct": 45.0,
+      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
+     }
+    },
+    "behavior_tags": [
+     "رفعة قديمة وخمول طويل"
+    ],
+    "targets_src": [
+     {
+      "price": 0.71,
+      "source": "المقاومة الفرعية (قمة يومية)",
+      "activation": "pending",
+      "blocked_by": 0.64
+     },
+     {
+      "price": 0.84,
+      "source": "سلّم المقاومات اليومي",
+      "activation": "pending",
+      "blocked_by": 0.64
+     },
+     {
+      "price": 1.64,
+      "source": "سلّم المقاومات اليومي",
+      "activation": "pending",
+      "blocked_by": 0.64
+     }
+    ],
+    "level_roles": [
+     {
+      "price": 0.6,
+      "role": "support",
+      "note": "دعم أساسي (الأرضية)"
+     },
+     {
+      "price": 0.6,
+      "role": "stop_source",
+      "note": "الوقف"
+     },
+     {
+      "price": 0.71,
+      "role": "resistance",
+      "note": "مقاومة فرعية"
+     },
+     {
+      "price": 2.73,
+      "role": "resistance",
+      "note": "مقاومة أساسية"
+     },
+     {
+      "price": 0.71,
+      "role": "target",
+      "state": "pending",
+      "note": "الهدف 1",
+      "src": "المقاومة الفرعية (قمة يومية)"
+     },
+     {
+      "price": 0.84,
+      "role": "target",
+      "state": "pending",
+      "note": "الهدف 2",
+      "src": "سلّم المقاومات اليومي"
+     },
+     {
+      "price": 1.64,
+      "role": "target",
+      "state": "pending",
+      "note": "الهدف 3",
+      "src": "سلّم المقاومات اليومي"
+     },
+     {
+      "price": 0.64,
+      "role": "critical_number",
+      "note": "تجاوزه يفعّل الهدف التالي"
+     }
+    ]
+   },
+   "bars_after": 3,
+   "trendline": {
+    "touches": 2,
+    "slope_per_bar": -0.02,
+    "anchor": 2.53,
+    "line_price_now": 0.71,
+    "state": "below"
+   },
+   "sec_filings": true,
+   "recent_split": null,
+   "session_ctx": {
+    "open": 0.62,
+    "high": 0.6499,
+    "low": 0.6151,
+    "prev_close": 0.6163,
+    "volume": 224263,
+    "market_cap": 4676699,
+    "pre_after": {
+     "kind": "premarket",
+     "high": 0.6318,
+     "low": 0.6265,
+     "last": 0.6318,
+     "cum_vol": 1104.835319,
+     "change_pct": 2.5
+    },
+    "unavailable_reason": "من Polygon (اشتراك المستخدم)",
+    "quote": {
+     "bid": 0.4437,
+     "ask": 0.8062,
+     "bid_size": 2,
+     "ask_size": 2,
+     "spread_pct": 45.0,
+     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
+    }
+   },
+   "tf_count": 0,
+   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ⏳",
+   "liberation": 1.31,
+   "sector": "Industrials",
+   "country": "United States",
+   "status": "active",
+   "removed_date": null,
+   "removal_reason": null,
+   "replaced": false,
+   "cont_status": null,
+   "readiness": 50,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD",
+    "جفاف بيع"
+   ],
+   "partial": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "مسح سيولة"
+   ],
+   "hit": null,
+   "hit_date": null,
+   "max_gain_pct": 0.0,
+   "last_price": 0.616,
+   "borrow_hist": [
+    [
+     "2026-09-23",
+     10000
     ]
    ]
   },
@@ -2417,8 +2805,8 @@
    "short_interest": 723836,
    "days_to_cover": 1.26,
    "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
-   "borrow_fee": 35.88,
-   "shares_available": 0,
+   "borrow_fee": 35.54,
+   "shares_available": 10000,
    "company_name": "BriaCell Therapeutics Corp.",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -2731,6 +3119,10 @@
     [
      "2026-09-22",
      0
+    ],
+    [
+     "2026-09-23",
+     10000
     ]
    ]
   },
@@ -2785,8 +3177,8 @@
    "short_interest": 1816220,
    "days_to_cover": 0.85,
    "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": 6.4,
-   "shares_available": 500000,
+   "borrow_fee": 7.44,
+   "shares_available": 550000,
    "company_name": "OneMedNet Corp",
    "upcoming_events": [
     {
@@ -3174,6 +3566,10 @@
     [
      "2026-09-22",
      500000
+    ],
+    [
+     "2026-09-23",
+     550000
     ]
    ],
    "rsi27_price": 0.2872,
@@ -3228,7 +3624,7 @@
    "short_interest": 172243,
    "days_to_cover": 6.96,
    "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 12.12,
+   "borrow_fee": 12.34,
    "shares_available": 40000,
    "company_name": "MultiSensor AI Holdings, Inc.",
    "upcoming_events": null,
@@ -3538,6 +3934,10 @@
     [
      "2026-09-22",
      40000
+    ],
+    [
+     "2026-09-23",
+     40000
     ]
    ],
    "live_alert": {
@@ -3588,7 +3988,7 @@
    "short_interest": 58423,
    "days_to_cover": 0.35,
    "kst4": "تحت إشارته تحت الصفر — زخم هابط",
-   "borrow_fee": 131.24,
+   "borrow_fee": 132.55,
    "shares_available": 300000,
    "company_name": "Anbio Biotechnology",
    "upcoming_events": null,
@@ -3893,6 +4293,10 @@
     [
      "2026-09-22",
      300000
+    ],
+    [
+     "2026-09-23",
+     300000
     ]
    ],
    "live_alert": {
@@ -3950,7 +4354,7 @@
    "days_to_cover": 1.32,
    "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
    "borrow_fee": 0.42,
-   "shares_available": 4000000,
+   "shares_available": 3900000,
    "company_name": "enGene Therapeutics Inc.",
    "upcoming_events": [
     {
@@ -4228,10 +4632,6 @@
    "last_price": 1.96,
    "borrow_hist": [
     [
-     "2026-08-14",
-     3200000
-    ],
-    [
      "2026-08-21",
      3600000
     ],
@@ -4282,6 +4682,10 @@
     [
      "2026-09-22",
      4000000
+    ],
+    [
+     "2026-09-23",
+     3900000
     ]
    ],
    "live_alert": {
@@ -4346,8 +4750,8 @@
    "short_interest": 342750,
    "days_to_cover": 0.24,
    "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
-   "borrow_fee": 139.86,
-   "shares_available": 200000,
+   "borrow_fee": 144.82,
+   "shares_available": 150000,
    "company_name": "Sky Quarry Inc.",
    "upcoming_events": [
     {
@@ -4459,7 +4863,13 @@
     "form": "424B5",
     "date": "2026-09-18"
    },
-   "news_acc": null,
+   "news_acc": {
+    "accepted": false,
+    "close": 2.76,
+    "ref": 2.89,
+    "kind": "افتتاحه وإغلاق ما قبله",
+    "date": "2026-09-18"
+   },
    "bottom_test": {
     "bottom": 2.08,
     "tests": 1,
@@ -4685,6 +5095,10 @@
     [
      "2026-09-22",
      200000
+    ],
+    [
+     "2026-09-23",
+     150000
     ]
    ],
    "live_alert": {
@@ -4742,7 +5156,7 @@
    "short_interest": 39238,
    "days_to_cover": 2.51,
    "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": 4.39,
+   "borrow_fee": 5.79,
    "shares_available": 450000,
    "company_name": "Burning Rock Biotech Limited",
    "upcoming_events": null,
@@ -5083,6 +5497,10 @@
     [
      "2026-09-22",
      450000
+    ],
+    [
+     "2026-09-23",
+     450000
     ]
    ],
    "rsi27_price": 2.5626,
@@ -5139,8 +5557,8 @@
    "short_interest": 4469,
    "days_to_cover": 0.25,
    "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
-   "borrow_fee": 389.21,
-   "shares_available": 6000,
+   "borrow_fee": 340.37,
+   "shares_available": 20000,
    "company_name": "Rising Dragon Acquisition Corp.",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -5500,6 +5918,10 @@
     [
      "2026-09-22",
      6000
+    ],
+    [
+     "2026-09-23",
+     20000
     ]
    ],
    "rsi27_price": 0.9224,
@@ -5557,7 +5979,7 @@
    "short_interest": 1329643,
    "days_to_cover": 3.9,
    "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 48.16,
+   "borrow_fee": 50.69,
    "shares_available": 400000,
    "company_name": "CervoMed Inc.",
    "upcoming_events": [
@@ -5879,6 +6301,10 @@
     [
      "2026-09-22",
      400000
+    ],
+    [
+     "2026-09-23",
+     400000
     ]
    ],
    "live_alert": {
@@ -5937,7 +6363,7 @@
    "short_interest": 71596,
    "days_to_cover": 0.64,
    "kst4": "تحت إشارته فوق الصفر — تراجع زخم",
-   "borrow_fee": 21.35,
+   "borrow_fee": 16.69,
    "shares_available": 150000,
    "company_name": "K-Tech Solutions Company Limite",
    "upcoming_events": null,
@@ -6267,6 +6693,10 @@
     [
      "2026-09-22",
      150000
+    ],
+    [
+     "2026-09-23",
+     150000
     ]
    ],
    "rsi27_price": 0.8363,
@@ -6321,8 +6751,8 @@
    "short_interest": 7691037,
    "days_to_cover": 15.6,
    "kst4": "فوق إشارته فوق الصفر — زخم صاعد",
-   "borrow_fee": 6.43,
-   "shares_available": 3300000,
+   "borrow_fee": 6.5,
+   "shares_available": 3000000,
    "company_name": "Tron Inc.",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -6641,6 +7071,10 @@
     [
      "2026-09-22",
      3300000
+    ],
+    [
+     "2026-09-23",
+     3000000
     ]
    ],
    "rsi27_price": 0.7345,
@@ -6690,7 +7124,7 @@
    "short_interest": null,
    "days_to_cover": null,
    "kst4": "تحت إشارته تحت الصفر — زخم هابط",
-   "borrow_fee": 9.67,
+   "borrow_fee": 8.59,
    "shares_available": 0,
    "company_name": "Aptera Motors Corp.",
    "upcoming_events": [
@@ -7012,6 +7446,10 @@
     [
      "2026-09-22",
      0
+    ],
+    [
+     "2026-09-23",
+     0
     ]
    ]
   },
@@ -7064,7 +7502,7 @@
    "short_interest": 169495,
    "days_to_cover": 0.15,
    "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 783.47,
+   "borrow_fee": 412.72,
    "shares_available": 200000,
    "company_name": "Wearable Devices Ltd.",
    "upcoming_events": null,
@@ -7389,6 +7827,10 @@
     [
      "2026-09-22",
      200000
+    ],
+    [
+     "2026-09-23",
+     200000
     ]
    ],
    "live_alert": {
@@ -7399,9 +7841,9 @@
    "symbol": "GCTK",
    "added": "2026-09-22",
    "ref_bar": "2026-09-21",
-   "band_hit": false,
+   "band_hit": true,
    "band_wait_days": 0,
-   "band_last_bar": null,
+   "band_last_bar": "2026-09-21",
    "entry_ref": 2.3,
    "entry": [
     2.18,
@@ -7443,8 +7885,8 @@
    "short_interest": 24951,
    "days_to_cover": 0.06,
    "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 208.3,
-   "shares_available": 65000,
+   "borrow_fee": 200.87,
+   "shares_available": 60000,
    "company_name": "GlucoTrack, Inc.",
    "upcoming_events": [
     {
@@ -7770,11 +8212,394 @@
     [
      "2026-09-22",
      65000
+    ],
+    [
+     "2026-09-23",
+     60000
     ]
    ],
    "live_alert": {
     "buyzone": "2026-09-22"
    }
+  },
+  {
+   "symbol": "UZX",
+   "added": "2026-09-23",
+   "ref_bar": "2026-09-21",
+   "band_hit": false,
+   "band_wait_days": 0,
+   "band_last_bar": null,
+   "entry_ref": 1.75,
+   "entry": [
+    1.66,
+    1.76
+   ],
+   "tranches": [
+    1.66,
+    1.71,
+    1.76
+   ],
+   "entry_avg": 1.71,
+   "pivot": 1.656,
+   "stop": 1.66,
+   "stop_hi": 1.66,
+   "t1": 2.46,
+   "t2": 2.83,
+   "t3": 7.99,
+   "targets_kind": [
+    "⚫",
+    "⚫",
+    "🔵"
+   ],
+   "score": 50,
+   "flags": [
+    "تقاطع MACD",
+    "ثبات 4 جلسات فوق القاع",
+    "فجوة عالية يومي 23%",
+    "فجوات متعددة الفريمات (أسبوعي)",
+    "فجوة-هدف فوق السعر عند $4.25 (+143%)",
+    "قاب (فجوة) فوق السعر عند $4.25 (فراغ 14% = هدف ذهبي)",
+    "شورت 21,050 (مقبول)",
+    "فلوت 504,717 (صغير ✅)"
+   ],
+   "rsi": 23.47191621329796,
+   "float": 504717,
+   "short": 21050,
+   "short_pct": 0.3,
+   "short_interest": 7965,
+   "days_to_cover": 0.03,
+   "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
+   "borrow_fee": 24.27,
+   "shares_available": 10000,
+   "company_name": "Linkage Global Inc",
+   "upcoming_events": null,
+   "proxy_filing": null,
+   "first_trade": null,
+   "rotation_pct": 32,
+   "drop_pct": 97.54558215273897,
+   "best_spike": 173.77049592628796,
+   "rr": 4.413841807909603,
+   "tier": "B",
+   "soft_fails": [
+    "السعر أقل بـ40% من متوسطه المتحرك (يفتح بصعود ~65% أو بثبات أسابيع)"
+   ],
+   "warnings": [],
+   "news_risk": false,
+   "h4_levels": {
+    "supports": [
+     1.73,
+     1.68,
+     1.62
+    ],
+    "resistances": [
+     1.81,
+     1.91,
+     1.96,
+     2.01,
+     2.18
+    ],
+    "flip": null,
+    "sweep_low": 1.62,
+    "green_cover": true,
+    "managed_ceiling": {
+     "price": 2.77,
+     "touches": 20
+    }
+   },
+   "key_levels": {
+    "sup_major": 1.66,
+    "sup_minor": null,
+    "res_major": 13.13,
+    "res_minor": 2.46
+   },
+   "h4_confirm": 2,
+   "behav": {
+    "score": 58,
+    "label": "يد فعّالة (تعيد الرفع)",
+    "n_pumps": 1,
+    "best_pump": 174.0,
+    "recency_bars": 65,
+    "repumps": 0,
+    "sweeps": 7
+   },
+   "fsto_osc": {
+    "chop": 5.3,
+    "k_std": 16.5,
+    "actor": "مضارب",
+    "violent": false,
+    "controlled": true,
+    "provisional": true
+   },
+   "klinger": {
+    "kvo": -2361392.7,
+    "signal": -2373456.1,
+    "state": "صاعد (تجميع)",
+    "cross": "تقاطع صاعد"
+   },
+   "spikes": [
+    55.1,
+    156.0,
+    51.1,
+    173.8
+   ],
+   "faisal_levels": "🧭 إغلاقات الهابطة $2.23 · $2.76 · $3.45 · جسم قبل الهبوط $2.58 · اختبار المقاومة $1.90 إلى $2.07",
+   "cci": {
+    "cci": -94.5,
+    "state": "محايد"
+   },
+   "ah_missed": {
+    "reg_low": 1.6216000318527222,
+    "ext_low": 1.6674999,
+    "reg_high": 3.2177000045776367,
+    "ext_high": 3.4178,
+    "down_pct": null,
+    "up_pct": 6.218727511504885,
+    "reg_bars": 54,
+    "ext_bars": 78,
+    "mixed_bars": 18,
+    "days": 10,
+    "asof": "2026-09-23"
+   },
+   "insider_buys": [],
+   "offering_event": {
+    "form": "424B5",
+    "date": "2026-07-20"
+   },
+   "news_acc": null,
+   "bottom_test": {
+    "bottom": 1.66,
+    "tests": 2,
+    "second": true
+   },
+   "pump_scar": {
+    "found": true,
+    "jump_pct": 152.0,
+    "bars_ago": 81,
+    "broke_support": false,
+    "pre_support": 6.44,
+    "n_pumps": 1
+   },
+   "interp": {
+    "setup_type": "liquidity_sweep",
+    "movement_behavior": "② حقّق ثم هبط لقاع/مسح ثم يستعيد (نمط المسح-وإعادة-الإطلاق)",
+    "faisal_move": "30‑50%+ كحد أدنى عند الانطلاق (متوسط الحركة — منهج فيصل)",
+    "trendline_pressure": {
+     "touches": 3,
+     "slope_per_bar": -0.271282,
+     "anchor": 36.8,
+     "line_price_now": 4.5174,
+     "state": "below"
+    },
+    "critical_number": {
+     "price": 1.81,
+     "type": "breakout_activation",
+     "why": "تجاوزه يفعّل الهدف التالي"
+    },
+    "activation_state": {
+     "setup": "active",
+     "active_targets": [],
+     "inactive_targets": [
+      2.46,
+      2.83,
+      7.99
+     ],
+     "blocked_by": 1.81
+    },
+    "entry_mode": {
+     "mode": "sweep_confirmed",
+     "entry_zone": [
+      1.66,
+      1.76
+     ],
+     "stop": 1.66,
+     "reason": "مسح تحت الدعم ثم استعادة"
+    },
+    "four_hour_context": {
+     "state": "blocked_by_red_head",
+     "red_candle_head": 1.81,
+     "flip": null,
+     "sweep_low": 1.62,
+     "green_cover": true
+    },
+    "risk_profile": {
+     "risk_level": "متوسط",
+     "flags": [
+      "تقسيم حديث"
+     ]
+    },
+    "cycle_context": {
+     "days_since_last_impulse": 65,
+     "days_since_major_low": 4,
+     "window_state": "خمول أطول من النافذة الشائعة"
+    },
+    "session_context": {
+     "open": 1.73,
+     "high": 1.81,
+     "low": 1.6216,
+     "prev_close": 1.75,
+     "volume": 109937,
+     "market_cap": 5003495,
+     "pre_after": {
+      "kind": "premarket",
+      "high": 1.77,
+      "low": 1.74,
+      "last": 1.74,
+      "cum_vol": 391.0,
+      "change_pct": -0.6
+     },
+     "unavailable_reason": "من Polygon (اشتراك المستخدم)",
+     "quote": {
+      "bid": 0.332,
+      "ask": 0.1,
+      "bid_size": 30,
+      "ask_size": 2,
+      "spread_pct": null,
+      "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
+     }
+    },
+    "behavior_tags": [
+     "صيد وقفات متكرّر"
+    ],
+    "targets_src": [
+     {
+      "price": 2.46,
+      "source": "المقاومة الفرعية (قمة يومية)",
+      "activation": "pending",
+      "blocked_by": 1.81
+     },
+     {
+      "price": 2.83,
+      "source": "سلّم المقاومات اليومي",
+      "activation": "pending",
+      "blocked_by": 1.81
+     },
+     {
+      "price": 7.99,
+      "source": "سلّم المقاومات اليومي",
+      "activation": "pending",
+      "blocked_by": 1.81
+     }
+    ],
+    "level_roles": [
+     {
+      "price": 1.66,
+      "role": "support",
+      "note": "دعم أساسي (الأرضية)"
+     },
+     {
+      "price": 1.66,
+      "role": "stop_source",
+      "note": "الوقف"
+     },
+     {
+      "price": 2.46,
+      "role": "resistance",
+      "note": "مقاومة فرعية"
+     },
+     {
+      "price": 13.13,
+      "role": "resistance",
+      "note": "مقاومة أساسية"
+     },
+     {
+      "price": 2.46,
+      "role": "target",
+      "state": "pending",
+      "note": "الهدف 1",
+      "src": "المقاومة الفرعية (قمة يومية)"
+     },
+     {
+      "price": 2.83,
+      "role": "target",
+      "state": "pending",
+      "note": "الهدف 2",
+      "src": "سلّم المقاومات اليومي"
+     },
+     {
+      "price": 7.99,
+      "role": "target",
+      "state": "pending",
+      "note": "الهدف 3",
+      "src": "سلّم المقاومات اليومي"
+     },
+     {
+      "price": 1.81,
+      "role": "critical_number",
+      "note": "تجاوزه يفعّل الهدف التالي"
+     }
+    ]
+   },
+   "bars_after": 4,
+   "trendline": {
+    "touches": 3,
+    "slope_per_bar": -0.271282,
+    "anchor": 36.8,
+    "line_price_now": 4.5174,
+    "state": "below"
+   },
+   "sec_filings": false,
+   "recent_split": [
+    "2026-09-21",
+    0.043478260869565216
+   ],
+   "session_ctx": {
+    "open": 1.73,
+    "high": 1.81,
+    "low": 1.6216,
+    "prev_close": 1.75,
+    "volume": 109937,
+    "market_cap": 5003495,
+    "pre_after": {
+     "kind": "premarket",
+     "high": 1.77,
+     "low": 1.74,
+     "last": 1.74,
+     "cum_vol": 391.0,
+     "change_pct": -0.6
+    },
+    "unavailable_reason": "من Polygon (اشتراك المستخدم)",
+    "quote": {
+     "bid": 0.332,
+     "ask": 0.1,
+     "bid_size": 30,
+     "ask_size": 2,
+     "spread_pct": null,
+     "note": "لقطة وحيدة وقت الفرز — تدفق الطلبات الحي غير متاح بمسار البوت"
+    }
+   },
+   "tf_count": 0,
+   "tf_display": "شهري ⏳ · أسبوعي ⏳ · يومي ⏳",
+   "liberation": 6.39,
+   "sector": "Consumer Cyclical",
+   "country": "Japan",
+   "status": "active",
+   "removed_date": null,
+   "removal_reason": null,
+   "replaced": false,
+   "cont_status": null,
+   "readiness": 40,
+   "have": [
+    "ثبات بعد القاع",
+    "تقاطع MACD"
+   ],
+   "partial": [],
+   "missing": [
+    "RSI تشبع وانحناء",
+    "KST صاعد",
+    "قرب متوسط 30/50",
+    "جفاف بيع",
+    "مسح سيولة"
+   ],
+   "hit": null,
+   "hit_date": null,
+   "max_gain_pct": 0.0,
+   "last_price": 1.75,
+   "borrow_hist": [
+    [
+     "2026-09-23",
+     10000
+    ]
+   ]
   },
   {
    "symbol": "FUFU",
@@ -7824,8 +8649,8 @@
    "short_interest": null,
    "days_to_cover": null,
    "kst4": "تحت إشارته تحت الصفر — زخم هابط",
-   "borrow_fee": 20.49,
-   "shares_available": 500000,
+   "borrow_fee": 21.35,
+   "shares_available": 550000,
    "company_name": null,
    "upcoming_events": [
     {
@@ -8111,10 +8936,6 @@
    "last_price": 1.45,
    "borrow_hist": [
     [
-     "2026-08-13",
-     650000
-    ],
-    [
      "2026-08-14",
      700000
     ],
@@ -8165,6 +8986,10 @@
     [
      "2026-09-18",
      500000
+    ],
+    [
+     "2026-09-23",
+     550000
     ]
    ],
    "live_alert": {
@@ -8230,8 +9055,8 @@
    "short_interest": 107527,
    "days_to_cover": 0.06,
    "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 31.53,
-   "shares_available": 250000,
+   "borrow_fee": 32.03,
+   "shares_available": 350000,
    "company_name": "Globavend Holdings Limited - Or",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -8559,6 +9384,10 @@
     [
      "2026-09-18",
      250000
+    ],
+    [
+     "2026-09-23",
+     350000
     ]
    ]
   },
@@ -8607,8 +9436,8 @@
    "short_interest": 139665,
    "days_to_cover": 0.56,
    "kst4": "تحت إشارته تحت الصفر — زخم هابط",
-   "borrow_fee": 51.36,
-   "shares_available": 150000,
+   "borrow_fee": 51.52,
+   "shares_available": 100000,
    "company_name": "PS International Group Ltd.",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -8944,6 +9773,10 @@
     [
      "2026-09-18",
      150000
+    ],
+    [
+     "2026-09-23",
+     100000
     ]
    ],
    "rsi27_price": 0.2407,
@@ -9000,8 +9833,8 @@
    "short_interest": 65092,
    "days_to_cover": 0.04,
    "kst4": "فوق إشارته وكلاهما تحت الصفر — تحسّن مبكر (لا انعكاس مؤكَّد)",
-   "borrow_fee": 240.82,
-   "shares_available": 15000,
+   "borrow_fee": 168.0,
+   "shares_available": 20000,
    "company_name": "Decent Holding Inc.",
    "upcoming_events": null,
    "proxy_filing": null,
@@ -9332,6 +10165,10 @@
     [
      "2026-09-18",
      15000
+    ],
+    [
+     "2026-09-23",
+     20000
     ]
    ]
   },
@@ -11034,8 +11871,8 @@
     "provisional": true
    },
    "klinger": {
-    "kvo": -93611938.9,
-    "signal": -105761271.3,
+    "kvo": -93629570.9,
+    "signal": -105763790.2,
     "state": "صاعد (تجميع)",
     "cross": ""
    },
@@ -50824,32 +51661,53 @@
    "base_reason": "M2_هبوط_تحت_40",
    "was_pivot": false,
    "suspect_split": false
+  },
+  {
+   "symbol": "NFE",
+   "date": "2026-09-23",
+   "expl_date": "2026-09-09",
+   "gain": 4850.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": true
+  },
+  {
+   "symbol": "NRSN",
+   "date": "2026-09-23",
+   "expl_date": "2026-09-11",
+   "gain": 2063.0,
+   "kind": "تجمّع",
+   "reason": "M2_هبوط_تحت_40",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": true
+  },
+  {
+   "symbol": "VWAV",
+   "date": "2026-09-23",
+   "expl_date": "2026-09-17",
+   "gain": 1842.0,
+   "kind": "قفزة",
+   "reason": "M4_base_واسعة",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": true
+  },
+  {
+   "symbol": "WHLR",
+   "date": "2026-09-23",
+   "expl_date": "2026-09-17",
+   "gain": 786.0,
+   "kind": "قفزة",
+   "reason": "M2_هبوط_فوق_97",
+   "base_reason": "M1_سعر",
+   "was_pivot": false,
+   "suspect_split": true
   }
  ],
  "reject_stats": [
-  {
-   "date": "2026-07-28",
-   "stats": {
-    "M2_هبوط_تحت_40": 1786,
-    "M1_سعر": 556,
-    "M5_سيولة": 136,
-    "M4_base_واسعة": 320,
-    "M10_RSI_ما_تشبّع": 219,
-    "M2_هبوط_فوق_97": 68,
-    "نواقص_فوق_3": 84,
-    "M3_انفجار_تحت_60": 173,
-    "M10_RSI_فات_القطار": 18,
-    "نقاط_تحت_45": 1,
-    "بعيد_عن_الدخول(45%)": 3,
-    "بعيد_عن_الدخول(35%)": 2,
-    "بعيد_عن_الدخول(10%)": 2,
-    "بعيد_عن_الدخول(25%)": 1,
-    "بعيد_عن_الدخول(40%)": 1,
-    "بعيد_عن_الدخول(20%)": 1
-   },
-   "universe": 3558,
-   "valid": 3372
-  },
   {
    "date": "2026-07-29",
    "stats": {
@@ -51494,6 +52352,23 @@
    },
    "universe": 3580,
    "valid": 3401
+  },
+  {
+   "date": "2026-09-23",
+   "stats": {
+    "M2_هبوط_تحت_40": 2667,
+    "M_لا_مستوى_مختبر": 373,
+    "M4_base_واسعة": 67,
+    "M1_سعر": 65,
+    "M3_انفجار_تحت_60": 63,
+    "نقاط_تحت_5": 4,
+    "M5_سيولة": 7,
+    "M10_RSI_فات_القطار": 4,
+    "M2_هبوط_فوق_97": 23,
+    "RR+نواقص_فوق_الحد": 1
+   },
+   "universe": 3580,
+   "valid": 3402
   }
  ],
  "tie_harvest": [
@@ -57476,6 +58351,156 @@
      "stop": 1.82,
      "t1": 2.2,
      "price": 1.9800000190734863,
+     "taken": false,
+     "h4_confirm": 1
+    }
+   ]
+  },
+  {
+   "date": "2026-09-23",
+   "source": "daily",
+   "level": 50,
+   "members": [
+    {
+     "symbol": "GXAI",
+     "rank": 2,
+     "readiness": 50,
+     "score": 75,
+     "rr": 1.63132137030995,
+     "entry": 0.61,
+     "stop": 0.59,
+     "t1": 0.71,
+     "price": 0.6039999723434448,
+     "taken": true,
+     "h4_confirm": 3
+    },
+    {
+     "symbol": "FFAI",
+     "rank": 3,
+     "readiness": 50,
+     "score": 70,
+     "rr": 1.5606157793457334,
+     "entry": 1.6066666666666667,
+     "stop": 1.56,
+     "t1": 1.85,
+     "price": 1.6299999952316284,
+     "taken": true,
+     "h4_confirm": 1
+    },
+    {
+     "symbol": "PHIO",
+     "rank": 4,
+     "readiness": 50,
+     "score": 70,
+     "rr": 0.9954210631096952,
+     "entry": 1.01,
+     "stop": 0.98,
+     "t1": 1.11,
+     "price": 1.0099999904632568,
+     "taken": true,
+     "h4_confirm": 1
+    },
+    {
+     "symbol": "RBNE",
+     "rank": 5,
+     "readiness": 50,
+     "score": 60,
+     "rr": 2.0161886940249754,
+     "entry": 2.356666666666667,
+     "stop": 2.29,
+     "t1": 2.82,
+     "price": 2.390000104904175,
+     "taken": true,
+     "h4_confirm": 0
+    },
+    {
+     "symbol": "EZGO",
+     "rank": 6,
+     "readiness": 50,
+     "score": 55,
+     "rr": 1.925061425061425,
+     "entry": 0.8533333333333334,
+     "stop": 0.83,
+     "t1": 1.01,
+     "price": 0.8429999947547913,
+     "taken": true,
+     "h4_confirm": 0
+    },
+    {
+     "symbol": "KITT",
+     "rank": 7,
+     "readiness": 50,
+     "score": 55,
+     "rr": 1.4516129032258047,
+     "entry": 0.62,
+     "stop": 0.6,
+     "t1": 0.71,
+     "price": 0.6159999966621399,
+     "taken": false,
+     "h4_confirm": 3
+    },
+    {
+     "symbol": "DFNS",
+     "rank": 45,
+     "readiness": 50,
+     "score": 85,
+     "rr": 0.6370431083296838,
+     "entry": 7.673333333333335,
+     "stop": 7.45,
+     "t1": 9.01,
+     "price": 8.199999809265137,
+     "taken": false,
+     "h4_confirm": 3
+    },
+    {
+     "symbol": "COOT",
+     "rank": 46,
+     "readiness": 50,
+     "score": 75,
+     "rr": 0.8936015151812462,
+     "entry": 0.41,
+     "stop": 0.4,
+     "t1": 0.53,
+     "price": 0.45500001311302185,
+     "taken": false,
+     "h4_confirm": 3
+    },
+    {
+     "symbol": "NAMI",
+     "rank": 47,
+     "readiness": 50,
+     "score": 75,
+     "rr": 0.6496060514666261,
+     "entry": 1.75,
+     "stop": 1.7,
+     "t1": 2.0,
+     "price": 1.8350000381469727,
+     "taken": false,
+     "h4_confirm": 3
+    },
+    {
+     "symbol": "NXTS",
+     "rank": 48,
+     "readiness": 50,
+     "score": 75,
+     "rr": 0.6329114334721962,
+     "entry": 1.32,
+     "stop": 1.28,
+     "t1": 1.5,
+     "price": 1.3799999952316284,
+     "taken": false,
+     "h4_confirm": 2
+    },
+    {
+     "symbol": "CNEY",
+     "rank": 49,
+     "readiness": 50,
+     "score": 70,
+     "rr": 0.5625878281447442,
+     "entry": 0.5166666666666667,
+     "stop": 0.5,
+     "t1": 0.59,
+     "price": 0.5460000038146973,
      "taken": false,
      "h4_confirm": 1
     }
