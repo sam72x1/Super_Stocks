@@ -193,6 +193,9 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
         _csl = bot.candle_supports_line(r.get("candle_supports") or {})  # 🕯️ ذيل الحمرا/بداية الصاعدة (GDHG)
         if _csl:
             L.append(_csl)
+        _pcl = bot.pivot_cycle_line(r.get("pivot_cycle"))  # 🪜 دورة الارتكاز (TG_50584)
+        if _pcl:
+            L.append(_pcl)
         _fl = r.get("faisal_levels") or ""      # 🧭 مستويات فيصل (دفعة 2026-09-18)
         if _fl:
             L.append(_fl)
@@ -347,6 +350,7 @@ def hand_check(sym: str):
             #  يُبنى من `r`، و`official` لا يُقرأ بعدها إطلاقًا.)
             r["interp"] = bot.build_interpretation(r)
             r["candle_supports"] = bot.faisal_candle_supports(df, r.get("price") or 0)  # 🕯️ (عرض فقط)
+            r["pivot_cycle"] = bot.pivot_cycle_state(df)  # 🪜 دورة الارتكاز (TG_50584 — عرض فقط)
             # 🧭 دفعة 2026-09-18 — مستوياتُ فيصل (عرضٌ فقط · خارج الأهداف المقفولة).
             # ⚠️ `weekly_support` **ليس حقلًا قائمًا** فيُمرَّر 0 ⇒ `agree=False` ⇒ لا يُطبع
             #    الجزءُ — لا يُخترَع دعمٌ أسبوعيّ.

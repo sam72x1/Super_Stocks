@@ -679,6 +679,10 @@ CONFIG = {
     "FAISAL_TEST_BAND_HI_PCT": 25.0,     # faisal_verbatim
     "FAISAL_LEVEL_TOL_PCT": 2.0,         # faisal_verbatim (الدليل ص54)
     "FAISAL_BODY_DROP_PCT": 15.0,        # engineering (بلا ادّعاء سند)
+    # 🪜 «دورة الارتكاز» — دفعة 2026-09-22 (‏`TG_50584` · R-01 · عرضٌ فقط، خارج الفرز والجذور):
+    "PIVOT_TEST_TYPICAL_PCT": 20.0,      # faisal_verbatim «ارتداد لاختبار المقاومه بنسبه 20٪ غالبا» — وسمٌ لا حدّ
+    "PIVOT_SWEEP_PCT": 5.0,              # faisal_verbatim «سحب السيوله 5٪ ادنى شمعة القاع» — أعمق ⇒ القاعُ انكسر
+    "PIVOT_CYCLE_WIN": 60,               # engineering — نافذةُ `bottom_test_state` نفسُها (ليست من فيصل)
 
     # ---- تقنية ----
     "HISTORY_DAYS": 800,         # ~2.2 سنة (يكفي لفريم شهري سليم ~27 شمعة)
@@ -6726,6 +6730,160 @@ def bottom_test_line(bt, sweep_zone=None) -> str:
             f"فيصل: «القاع 2 = ثبات أو سحب سيولة»{z}")
 
 
+
+# 🪜 وسمُ وايكوف (R-02 · `TG_50599`: خريطةُ القناة على مخطَّط وايكوف #2 **بتصديق فيصل العامّ**
+#    «تعتمد على مانشرحه دائما» ⇒ `faisal_adopted`). اسمُ الحدث لا توصية — يُطفأ بلا أثرٍ على غيره.
+PIVOT_WYCKOFF_TAG = True
+_PIVOT_WYCKOFF = {1: "SC القاع الأوّل", 2: "AR الارتداد", "hold": "ST الاختبار الثانويّ",
+                  "sweep": "Spring السبرنج", 4: "LPS آخر دعم"}
+
+
+def pivot_cycle_state(df, win=None, typical=None, sweep=None, hold_bars=None):
+    """🪜 **«دورة الارتكاز» بلسان فيصل** (‏`TG_50584` · 2026-09-22 · `faisal_verbatim`):
+    «تحقيق الشروط اعلاه ننتقل الى **1- القاع 2- ارتداد لاختبار المقاومه بنسبه 20٪ غالبا
+    3- ثبات القاع او سحب السيوله 5٪ ادنى شمعة القاع 4- ثبات سعري بعد سحب السيوله**» —
+    ويُعمّمه `TG_50586` بخطّه: «اختبار مقاومه لازم يرجع يختبر الدعم — **هذي قواعد ثابته
+    لكل الاسهم**».
+
+    آلةُ حالاتٍ **زمنيّة** على آخر `win` بارًا (`PIVOT_CYCLE_WIN`) تُقرأ بترتيبها:
+      ① **القاع** = الأدنى حتى لحظته (يتجدّد ما دام السعرُ يصنع قاعًا أدنى).
+      ② **ارتدادٌ** من القاع بـ`METHOD_BOUNCE_MIN_PCT` (10 — `IMG_0486`) فأكثر ⇒ «اختبار
+         المقاومة» · ويُوسَم «نموذجيًّا» **حولَ** `PIVOT_TEST_TYPICAL_PCT` (20 «غالبًا» — **وسمٌ
+         لا حدّ**) · وما بلغ `FIRST_RISE_PCT` (50 · `HTCR`) فهو «صعودٌ أوّل» لا ارتدادٌ نموذجيّ
+         (مِجَسٌّ عشوائيّ طبع «ارتدادٌ 332% نموذجيّ» — والنموذجيُّ 20% لا «20% فأكثر»).
+      ③ **رجوعٌ** يلمس فيه أدنى الشمعة نطاقَ القاع (‏`METHOD_HOLD_TOL` فوقه) ⇒ اختبار:
+         «ثبات» إن بقي الأدنى داخل التسامح **ولم يُغلق تحت القاع** · و«سحبُ سيولة» إن نزل
+         أعمق حتى `PIVOT_SWEEP_PCT` (5) أو أغلق تحته. **وأعمقُ من 5% ⇒ القاعُ انكسر** فيبدأ
+         عدٌّ جديد من القاع الأدنى (المرحلة 1) — ولا يُستعار نطاقُ المقسّم 7-13 (نظامٌ آخر).
+      ④ `STABILITY_MIN` (3 — «حافظ ع قاعه لمدة 3 جلسات» `IMG_0151`، رقمُ ثبات الارتكاز
+         القائم) جلساتٍ **بعد آخر لمسة** لا يلمس فيها أدنى الشمعة نطاقَ القاع ⇒ ثباتٌ بعد
+         الاختبار/السحب.
+
+    🔴 **لماذا لا تُستدعى `method_sequence` (خلافًا لنصّ الحزمة §11، والسببُ مقيس):** قمّتُها
+    `argmax` **كلِّ** ما بعد القاع، فحين يتجاوز الصعودُ بعد الثبات قمّةَ الاختبار الأولى تنتقل
+    «القمّة» إليه فلا يُرى رجوعٌ بعدها وتُرجع `None` — **تفقد المرحلة 4 بالضبط حين تتحقّق**.
+    هي مبنيّةٌ للحظة الاختبار (صيّاد النهج) لا لتتبّع الدورة. والمعاييرُ نفسُها مُعادة هنا
+    (الحدّ 10 · التسامح · «لا إغلاقَ تحت القاع» للثبات) و`method_sequence` لم تُمَسّ.
+
+    يرجّع `{stage, branch, bottom, bottom_ago, bounce_pct, typical, first_rise, retest_low,
+    sweep_pct, held, hold_need, vs_bottom_pct}` أو `None` — ومنه: بياناتٌ قاصرة أو **القاعُ في أوّل بارٍ
+    من النافذة** (فلا يُعرف أنه قاع؛ القاعُ الحقيقيّ قد يسبقها). **نقيّة · فاشلة-آمنة · لا
+    تكتب في `df`** (الإطارُ نفسُه يُمرَّر لبقيّة دوالّ العرض).
+    ⚖️ **وصفٌ لا تنبّؤ:** لم يُقَس أن المرحلة 4 ترفع احتمالَ الانفجار — والسطرُ لا يقول ذلك.
+    ⚠️ **حدّ صدق:** نافذةٌ تبدأ **بعد** القاع الحقيقيّ (القاعدةُ أقدمُ من 60 جلسة) تقيس من
+    أدنى ما داخلها — فقد تُسمّي ثباتًا عند القاع القديم «سحبًا» عند قاعٍ أعلى منه."""
+    try:
+        w = int(CONFIG["PIVOT_CYCLE_WIN"] if win is None else win)
+        bmin = float(CONFIG["METHOD_BOUNCE_MIN_PCT"])
+        typ = float(CONFIG["PIVOT_TEST_TYPICAL_PCT"] if typical is None else typical)
+        swp = float(CONFIG["PIVOT_SWEEP_PCT"] if sweep is None else sweep)
+        tol = float(CONFIG["METHOD_HOLD_TOL"])
+        need = int(CONFIG["STABILITY_MIN"] if hold_bars is None else hold_bars)
+        t = df.tail(w)
+        lo = t["Low"].to_numpy(dtype=float)
+        hi = t["High"].to_numpy(dtype=float)
+        cl = t["Close"].to_numpy(dtype=float)
+    except Exception:                                            # noqa: BLE001
+        return None
+    n = len(lo)
+    if (n < 6 or not (np.isfinite(lo).all() and np.isfinite(hi).all()
+                      and np.isfinite(cl).all()) or float(lo.min()) <= 0):
+        return None
+    try:     # ⚠️ فاشلةٌ-آمنة **حتى آخرها**: بياناتٌ شاذّة (قسمةٌ على قاعٍ صفريّ…) ⇒ None لا انهيار
+        stage, b, bot = 1, 0, float(lo[0])
+        peak, rlow, touch, swept = None, None, -1, False
+        for k in range(1, n):
+            x = float(lo[k])
+            if stage == 1:                            # ① القاعُ الأدنى حتى لحظته
+                if x < bot:
+                    b, bot = k, x
+                elif float(hi[k]) >= bot * (1.0 + bmin / 100.0):
+                    stage, peak = 2, float(hi[k])     # ② ارتدادٌ يختبر المقاومة
+                continue
+            if x < bot * (1.0 - swp / 100.0):         # أعمقُ من السحب ⇒ القاعُ انكسر
+                stage, b, bot = 1, k, x
+                peak, rlow, touch, swept = None, None, -1, False
+                continue
+            if x <= bot * (1.0 + tol):                # ③ لمسةٌ لنطاق القاع = اختبار
+                stage, touch = 3, k
+                rlow = x if rlow is None else min(rlow, x)
+                if x < bot * (1.0 - tol) or float(cl[k]) < bot:
+                    swept = True                      # نزل تحته أو أغلق تحته ⇒ سحب
+            elif stage == 2:
+                peak = max(peak, float(hi[k]))
+        if b == 0:
+            return None                               # القاعُ أوّلُ بارٍ في النافذة
+        held = (n - 1 - touch) if touch >= 0 else 0
+        if stage == 3 and held >= need:
+            stage = 4                                 # ④ ثباتٌ بعد الاختبار/السحب
+        if peak is None:
+            bounce = ((float(hi[b + 1:].max()) / bot - 1.0) * 100.0) if b < n - 1 else 0.0
+        else:
+            bounce = (peak / bot - 1.0) * 100.0
+        return {"stage": int(stage),
+                "branch": (("sweep" if swept else "hold") if stage >= 3 else None),
+                "bottom": round(bot, 4), "bottom_ago": int(n - 1 - b),
+                "bounce_pct": round(bounce, 1),
+                "typical": bool(peak is not None and typ <= bounce < FIRST_RISE_PCT),
+                "first_rise": bool(peak is not None and bounce >= FIRST_RISE_PCT),
+                "retest_low": (round(rlow, 4) if rlow is not None else None),
+                "sweep_pct": (round((1.0 - rlow / bot) * 100.0, 2)
+                              if rlow is not None and rlow < bot else 0.0),
+                "held": int(held if stage >= 3 else 0), "hold_need": int(need),
+                "vs_bottom_pct": round((float(cl[-1]) / bot - 1.0) * 100.0, 1)}
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def _pc_sessions(n) -> str:
+    """«3 جلسات» · «12 جلسة» — جمعُ القلّة من 3 إلى 10 وإلّا المفرد (عرضٌ فقط)."""
+    n = int(n or 0)
+    return f"{n} " + ("جلسات" if 3 <= n <= 10 else "جلسة")
+
+
+def pivot_cycle_line(pc) -> str:
+    """سطرُ «🪜 دورة الارتكاز» (عرضٌ فقط). «» لو لا حالة. **يصف المرحلةَ ولا يَعِد**:
+    لا «جاهز» ولا «هدف» — الحافّةُ المقيسةُ عندنا توقيتٌ لا اختيار. والأرقامُ من `CONFIG`
+    لا مكتوبةً في النصّ (تتبع المفتاحَ إن تغيّر). بلا علاماتِ مقارنة. **والنِّسَبُ بجزئها
+    الصحيح** (19.9 ⟵ «19%» لا «20%»): التقريبُ كان يطبع «20%» بجانب «دون النموذجيّ»."""
+    try:
+        if not pc or not pc.get("stage"):
+            return ""
+        st, bot = int(pc["stage"]), float(pc["bottom"])
+        bmin = CONFIG["METHOD_BOUNCE_MIN_PCT"]
+        typ = CONFIG["PIVOT_TEST_TYPICAL_PCT"]
+        if st == 1:
+            _ago = int(pc.get("bottom_ago") or 0)
+            body = (f"القاع ${bot:.2f} ("
+                    + ("اليوم" if _ago == 0 else f"قبل {_pc_sessions(_ago)}") + ") · "
+                    f"الارتدادُ منه {int(float(pc.get('bounce_pct') or 0))}% — لم يبلغ {bmin:.0f}%")
+        elif st == 2:
+            _q = ("صعودٌ أوّل — فيصل لا يطارده" if pc.get("first_rise") else
+                  f"نموذجيّ: فيصل «{typ:.0f}% غالبًا»" if pc.get("typical") else
+                  f"دون نموذجيّ فيصل {typ:.0f}%")
+            body = (f"ارتدادٌ {int(float(pc['bounce_pct']))}% من القاع ${bot:.2f} ({_q}) "
+                    f"ولم يرجع يختبره · السعرُ الآن فوقه {int(float(pc.get('vs_bottom_pct') or 0))}%")
+        elif st == 3:
+            _how = ("عاد يختبر القاع ${:.2f} وثبت عليه".format(bot)
+                    if pc.get("branch") == "hold" else
+                    f"سحبُ سيولة {float(pc.get('sweep_pct') or 0):.1f}% تحت القاع ${bot:.2f} "
+                    f"(فيصل: حتى {CONFIG['PIVOT_SWEEP_PCT']:.0f}%)")
+            body = (f"{_how} · بعدها {int(pc.get('held') or 0)} من "
+                    f"{_pc_sessions(pc.get('hold_need'))}")
+        elif st == 4:
+            body = (f"ثباتٌ {_pc_sessions(pc.get('held'))} فوق القاع ${bot:.2f} بعد "
+                    + ("سحب السيولة" if pc.get("branch") == "sweep" else "الاختبار"))
+        else:
+            return ""
+        tag = ""
+        if PIVOT_WYCKOFF_TAG:
+            _k = pc.get("branch") if st == 3 else st
+            tag = f" · وايكوف: {_PIVOT_WYCKOFF.get(_k, '')}" if _PIVOT_WYCKOFF.get(_k) else ""
+        return f"🪜 دورة الارتكاز {st}/4: {body}{tag}"
+    except Exception:                                            # noqa: BLE001
+        return ""
+
+
 def pump_repeat_watch_only(r) -> str:
     """🚫 **قاعدة «رُفِع أكثر من مرة بدون مضارب ⇒ متابعة فقط»** (فيصل — EZRA IMG_0295: «معروف عند
     الجميع و**تم رفعه أكثر من مرة بدون مضارب** … **متابعه فقط**» · EDBL IMG_0298: «**تم التلاعب
@@ -9733,6 +9891,9 @@ def build_message(results: list, splits: list,
         _bt = bottom_test_line(r.get("bottom_test"))   # فيصل EDBL: «القاع 2»
         if _bt:
             lines.append(_bt)
+        _pc = pivot_cycle_line(r.get("pivot_cycle"))   # 🪜 دورة الارتكاز (TG_50584)
+        if _pc:
+            lines.append(_pc)
         lines.append(news_links_compact(r["symbol"]))
     lines += ["", FOOTER]
     return _rtl_join(lines)
@@ -10842,6 +11003,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "offering_event": r.get("offering_event"),        # 🆕 طرح جديد (حدث مؤسِّس)
         "news_acc": r.get("news_acc"),                    # 📉 قبول الخبر
         "bottom_test": r.get("bottom_test"),              # 🔁 «القاع 2» (فيصل — عرض فقط)
+        "pivot_cycle": r.get("pivot_cycle"),              # 🪜 دورة الارتكاز (TG_50584 — عرض فقط)
         "pump_scar": r.get("pump_scar"),                  # 🕵️ N1 رفعة قروب/كسر دعوم (عرض فقط)
         "interp": r.get("interp"),                         # 🧭 طبقة التفسير/القرار (عرض فقط)
         "bars_after": r.get("bars_after"),                # §11: جلسات منذ القاع (تفسير)
@@ -12058,6 +12220,7 @@ def scan_market():
                 r["cci"] = cci_state(                    # 📉 CCI(14) — بكل شوارت فيصل (حيّ، عرض فقط)
                     df["High"], df["Low"], df["Close"])
                 r["bottom_test"] = bottom_test_state(df)  # 🔁 «القاع 2» (فيصل EDBL — عرض فقط)
+                r["pivot_cycle"] = pivot_cycle_state(df)  # 🪜 دورة الارتكاز (TG_50584 — عرض فقط)
                 r["pump_scar"] = group_pump_scar(df)     # 🕵️ N1 رفعة قروب/كسر دعوم (حيّ، عرض فقط)
                 # 🔁 رفعاتُ السهم السابقة (‏`T-REPEAT` — سقفُ نجاحه سطرُ عرضٍ فقط)
                 r["spikes"] = spike_history(df["Close"].values)
@@ -12601,6 +12764,7 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
             s["cci"] = cci_state(                      # 📉 CCI(14) يتجدّد يوميًا (عرض فقط)
                 df["High"], df["Low"], df["Close"])
             s["bottom_test"] = bottom_test_state(df)   # 🔁 «القاع 2» يتجدّد يوميًا (عرض فقط)
+            s["pivot_cycle"] = pivot_cycle_state(df)   # 🪜 دورة الارتكاز تتجدّد يوميًا (عرض فقط)
             s["spikes"] = spike_history(df["Close"].values)  # 🔁 رفعاته السابقة (عرض فقط)
             # 🧭 مستوياتُ فيصل تتحرّك مع السعر ⇒ تُجدَّد يوميًّا (عرض فقط)
             s["faisal_levels"] = faisal_levels_line(
@@ -18291,6 +18455,9 @@ def build_daily_message(wl: dict, splits: list,
         _bt = bottom_test_line(s.get("bottom_test"))    # فيصل EDBL: «القاع 2»
         if _bt:
             lines.append("   " + _bt)
+        _pc = pivot_cycle_line(s.get("pivot_cycle"))    # 🪜 دورة الارتكاز (TG_50584)
+        if _pc:
+            lines.append("   " + _pc)
     # بدلاء اليوم: قائمة الإضافات — تُخفى بوضع الجاهز-فقط (الجديد يظهر كرته لو جاهز؛
     # وإلا فهو «تحت المتابعة» يتكفّل بها البوت — طلب المستخدم «ما يوصلني إلا الجاهز»).
     if replaced and not ready_only:

@@ -58293,6 +58293,294 @@ check("⏱️🔥🔒 SCA9 `seconds.yml`: بلا كرون · **بلا سرِّ �
       "المزوّد وحدَه · contents: read · 3.11 · ومدخلاه موصولان — **وكلُّ "
       "مستورَدٍ بالاسم يُنادى فعلًا**", _sca9, _sca9_w)
 
+# ═══ 🪜 دفعة 2026-09-22 — أقفال PC1-PC9 (R-01 «دورة الارتكاز» · عرضٌ فقط) ═══════════
+# المصدر: `TG_50584` (فيصل: «1- القاع 2- ارتداد لاختبار المقاومه بنسبه 20٪ غالبا
+# 3- ثبات القاع او سحب السيوله 5٪ ادنى شمعة القاع 4- ثبات سعري بعد سحب السيوله») ·
+# `TG_50586` («هذي قواعد ثابته لكل الاسهم») · الحزمة `OPUS_EXECUTION_SPEC.md` (أمرُ «نفذ»).
+import ast as _pc_ast
+import hashlib as _pc_hash
+import re as _pc_re
+import numpy as _pc_np
+import pandas as _pc_pd
+
+
+def _pc_story(retest_low, retest_close=None, after=4, bounce_hi=1.22):
+    """قصّةٌ بترتيبٍ زمنيّ: هبوطٌ 3.00⟶1.10 (بار 0-9) · **القاع 1.00** (بار 10) ·
+    ارتدادٌ قمّتُه `bounce_hi` (بار 13) · رجوعٌ (15-17) · **لمسةُ الاختبار** أدناها
+    `retest_low` وإغلاقُها `retest_close` (بار 18) · ثمّ `after` بارًا فوق نطاق القاع."""
+    lows = list(_pc_np.linspace(3.0, 1.10, 10)) + [1.00]
+    highs = [x * 1.03 for x in lows]
+    closes = [x * 1.01 for x in lows]
+    for lv, hv in ((1.02, 1.06), (1.04, 1.08), (1.06, bounce_hi), (1.07, bounce_hi - 0.005)):
+        lows.append(lv)
+        highs.append(hv)
+        closes.append((lv + hv) / 2)
+    for lv in (1.06, 1.04, 1.03):
+        lows.append(lv)
+        highs.append(lv * 1.02)
+        closes.append(lv * 1.01)
+    lows.append(retest_low)
+    highs.append(1.05)
+    closes.append(retest_close if retest_close is not None else max(1.0, retest_low) * 1.01)
+    for j in range(after):
+        lv = 1.04 + 0.01 * j
+        lows.append(lv)
+        highs.append(lv * 1.02)
+        closes.append(lv * 1.01)
+    return _pc_pd.DataFrame({"Open": closes, "High": highs, "Low": lows, "Close": closes})
+
+
+def _pc_call(f, *a, **k):
+    """نداءٌ لا ينهار (الصنف ①): استثناءٌ ⇒ نصٌّ «⛔» يُسقط القفلَ نظيفًا."""
+    try:
+        return f(*a, **k)
+    except Exception as _e:                                       # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+def _pc_g(v, key):
+    return v.get(key) if isinstance(v, dict) else v
+
+
+# 🔒 PC1 — **لا نظرَ مستقبليًّا ولا كتابةَ في الإطار**: المرحلةُ عند كلّ بادئةٍ `k` تتبع
+#    القصّةَ بترتيبها (1 حتى الارتداد · 2 حتى اللمسة · 3 حتى ثلاث جلساتٍ بعدها · ثمّ 4)،
+#    والإطارُ المُمرَّر كاملًا يخرج كما دخل (يُمرَّر الإطارُ نفسُه لبقيّة دوالّ العرض).
+_pc_hold = _pc_story(1.005)
+_pc_copy = _pc_hold.copy(deep=True)
+_pc1_full = _pc_call(S.pivot_cycle_state, _pc_hold)
+_pc1_clean = _pc_hold.equals(_pc_copy)
+_pc1_st = {k: _pc_g(_pc_call(S.pivot_cycle_state, _pc_copy.iloc[:k]), "stage")
+           for k in range(6, len(_pc_copy) + 1)}
+_PC1_WANT = {**{k: 1 for k in range(6, 14)}, **{k: 2 for k in range(14, 19)},
+             **{k: 3 for k in range(19, 22)}, 22: 4, 23: 4}
+check("🪜 PC1: `pivot_cycle_state` بترتيب الزمن — المرحلةُ عند كلّ بادئةٍ تتبع القصّة "
+      "(1⟶2⟶3⟶4 في مواضعها) · **ولا تكتب في الإطار المُمرَّر**",
+      _pc1_st == _PC1_WANT and _pc1_clean and _pc_g(_pc1_full, "stage") == 4,
+      f"نظيف={_pc1_clean} · مختلفٌ عند="
+      f"{[k for k in _PC1_WANT if _pc1_st.get(k) != _PC1_WANT[k]][:6]}")
+
+# 🔒 PC2 — **الفرعان والحدّ**: ثباتٌ داخل التسامح ⇒ 4/ثبات · سحبٌ 4% ثمّ استعادة ⇒ 4/سحب ·
+#    لمسةٌ داخل التسامح **بإغلاقٍ تحت القاع** ⇒ سحبٌ لا ثبات («ولا يُغلق تحته») ·
+#    سحبٌ 9% ⇒ **القاعُ انكسر** (قاعٌ جديد 0.91 · ليس 4) · وجلستان فقط بعد اللمسة ⇒ 3.
+_pc2 = {nm: _pc_call(S.pivot_cycle_state, d) for nm, d in (
+    ("hold", _pc_story(1.005)), ("sweep4", _pc_story(0.96, 0.99)),
+    ("closebelow", _pc_story(0.995, 0.998)), ("broken9", _pc_story(0.91, 0.93)),
+    ("after2", _pc_story(1.005, after=2)))}
+_pc2_ok = (
+    _pc_g(_pc2["hold"], "stage") == 4 and _pc_g(_pc2["hold"], "branch") == "hold"
+    and _pc_g(_pc2["hold"], "bottom") == 1.0 and _pc_g(_pc2["hold"], "held") == 4
+    and _pc_g(_pc2["hold"], "sweep_pct") == 0.0
+    and _pc_g(_pc2["sweep4"], "stage") == 4 and _pc_g(_pc2["sweep4"], "branch") == "sweep"
+    and _pc_g(_pc2["sweep4"], "sweep_pct") == 4.0 and _pc_g(_pc2["sweep4"], "bottom") == 1.0
+    and _pc_g(_pc2["closebelow"], "branch") == "sweep"
+    and _pc_g(_pc2["closebelow"], "sweep_pct") == 0.5
+    and _pc_g(_pc2["broken9"], "stage") == 2 and _pc_g(_pc2["broken9"], "bottom") == 0.91
+    and _pc_g(_pc2["after2"], "stage") == 3 and _pc_g(_pc2["after2"], "held") == 2)
+# …ومدخلاتٌ لا حالةَ لها ⇒ `None` صادق لا حالةٌ مختلَقة: صعودٌ من أوّل بار (القاعُ
+# أوّلُ بارٍ في النافذة — قد يسبقها الحقيقيّ) · أدنى سالبٌ · NaN · خمسةُ بارات · لا إطار.
+_pc_up = _pc_pd.DataFrame({"Open": [1.0 + 0.05 * i for i in range(20)],
+                           "High": [1.03 + 0.05 * i for i in range(20)],
+                           "Low": [0.99 + 0.05 * i for i in range(20)],
+                           "Close": [1.01 + 0.05 * i for i in range(20)]})
+_pc_neg = _pc_story(1.005)
+_pc_neg.loc[12, "Low"] = -0.5
+_pc_nan = _pc_story(1.005)
+_pc_nan.loc[12, "Low"] = float("nan")
+_pc2_none = [_pc_call(S.pivot_cycle_state, x)
+             for x in (_pc_up, _pc_neg, _pc_nan, _pc_story(1.005).iloc[:5], None)]
+check("🪜 PC2: الفرعان والحدّ — ثبات ⇒ 4/ثبات · سحب 4% ⇒ 4/سحب · إغلاقٌ تحت القاع ⇒ سحب · "
+      "**سحب 9% ⇒ القاعُ انكسر (0.91 · مرحلة 2 لا 4)** · جلستان بعد اللمسة ⇒ 3 · "
+      "**وقاعٌ في أوّل بار/أدنى سالب/NaN/خمسةُ بارات/لا إطار ⇒ None**",
+      _pc2_ok and _pc2_none == [None] * 5,
+      " · ".join(f"{k}={_pc_g(v, 'stage')}/{_pc_g(v, 'branch')}/"
+                 f"{_pc_g(v, 'sweep_pct')}/{_pc_g(v, 'bottom')}"
+                 for k, v in _pc2.items())
+      + f" · شاذّة={[_pc_g(x, 'stage') if x is not None else None for x in _pc2_none]}")
+
+# 🔒 PC3 — **«نموذجيّ» حولَ 20% لا «20% فأكثر»**: قمّةُ الارتداد 8% ⇒ لم يرتدّ (1) ·
+#    12% ⇒ دون النموذجيّ · 22% ⇒ نموذجيّ · 62% ⇒ «صعودٌ أوّل» لا نموذجيّ (‏`FIRST_RISE_PCT`).
+_pc3 = {bh: _pc_call(S.pivot_cycle_state, _pc_story(1.005, bounce_hi=bh).iloc[:16])
+        for bh in (1.08, 1.12, 1.22, 1.62)}
+_pc3_ok = (_pc_g(_pc3[1.08], "stage") == 1
+           and _pc_g(_pc3[1.12], "stage") == 2 and _pc_g(_pc3[1.12], "typical") is False
+           and _pc_g(_pc3[1.12], "first_rise") is False
+           and _pc_g(_pc3[1.22], "typical") is True and _pc_g(_pc3[1.22], "first_rise") is False
+           and _pc_g(_pc3[1.62], "typical") is False and _pc_g(_pc3[1.62], "first_rise") is True)
+check("🪜 PC3: «نموذجيّ» = من 20% حتى دون الصعود الأوّل 50% — 8% لم يرتدّ · 12% دونه · "
+      "22% نموذجيّ · **62% صعودٌ أوّل لا نموذجيّ**",
+      _pc3_ok, " · ".join(f"{k}:{_pc_g(v, 'stage')}/{_pc_g(v, 'typical')}/"
+                          f"{_pc_g(v, 'first_rise')}" for k, v in _pc3.items()))
+
+# 🔒 PC4 — **السطر**: نصٌّ محدَّدٌ لكلّ مرحلة · بلا علامات مقارنة · **بلا وعد** («جاهز»/«هدف»)
+#    · «» بلا حالة · ويظهر في الكرت واليوميّ **مع الحقل ويغيب بدونه** (فارقٌ لا «أو»).
+_pc4_st = {"s1": _pc_call(S.pivot_cycle_state, _pc_story(1.005, bounce_hi=1.08).iloc[:16]),
+           "s2t": _pc3[1.22], "s2l": _pc3[1.12], "s2f": _pc3[1.62],
+           "s3h": _pc_call(S.pivot_cycle_state, _pc_story(1.005, after=1)),
+           "s3s": _pc_call(S.pivot_cycle_state, _pc_story(0.96, 0.99, after=1)),
+           "s4h": _pc2["hold"], "s4s": _pc2["sweep4"]}
+_pc4_ln = {k: _pc_call(S.pivot_cycle_line, v) for k, v in _pc4_st.items()}
+_PC4_WANT = {"s1": ("1/4", "لم يبلغ 10%"), "s2t": ("2/4", "نموذجيّ: فيصل «20% غالبًا»"),
+             "s2l": ("2/4", "دون نموذجيّ فيصل 20%"), "s2f": ("2/4", "صعودٌ أوّل"),
+             "s3h": ("3/4", "وثبت عليه"),
+             "s3s": ("3/4", "سحبُ سيولة 4.0% تحت القاع $1.00 (فيصل: حتى 5%)"),
+             "s4h": ("4/4", "بعد الاختبار"), "s4s": ("4/4", "بعد سحب السيولة")}
+_pc4_bad = [k for k, (a, b) in _PC4_WANT.items()
+            if not (isinstance(_pc4_ln.get(k), str) and a in _pc4_ln[k] and b in _pc4_ln[k]
+                    and "دورة الارتكاز" in _pc4_ln[k]
+                    and not any(c in _pc4_ln[k] for c in "≥≤><")
+                    and "جاهز" not in _pc4_ln[k] and "هدف" not in _pc4_ln[k])]
+_pc4_empty = [S.pivot_cycle_line(x) for x in (None, {}, {"stage": 9, "bottom": 1.0})]
+_PC4_MARK = "دورة الارتكاز 3/4"
+_pc4_rich = S.build_message([dict(_card_rdy, pivot_cycle=_pc4_st["s3s"])], [])
+_pc4_bare = S.build_message([dict(_card_rdy)], [])
+_pc4_wl = S.make_watch_entry(dict(_card_rdy), "2026-09-23")
+_pc4_d_rich = S.build_daily_message(
+    {"stocks": [dict(_pc4_wl, pivot_cycle=_pc4_st["s3s"])]}, [], [], [])
+_pc4_d_bare = S.build_daily_message({"stocks": [dict(_pc4_wl)]}, [], [], [])
+check("🪜 PC4: السطرُ لكلّ مرحلةٍ بنصّه · بلا علامات مقارنة **ولا «جاهز»/«هدف»** · «» بلا حالة · "
+      "ويظهر في الكرت واليوميّ **مع الحقل ويغيب بدونه**",
+      not _pc4_bad and _pc4_empty == ["", "", ""]
+      and _PC4_MARK in _pc4_rich and _PC4_MARK not in _pc4_bare
+      and _PC4_MARK in _pc4_d_rich and _PC4_MARK not in _pc4_d_bare,
+      f"سيّئ={_pc4_bad} فارغ={_pc4_empty} كرت={_PC4_MARK in _pc4_rich}/"
+      f"{_PC4_MARK in _pc4_bare} يوميّ={_PC4_MARK in _pc4_d_rich}/{_PC4_MARK in _pc4_d_bare}")
+
+# 🔒 PC5 — **الجذور**: لا ذكرَ لـ`pivot_cycle` في أيٍّ من الجذور الاثني عشر **إلّا نداءً واحدًا**
+#    في `scan_market` (داخل حارس الإثراء — `PC8`) · و`pivot_stability` بت-بت (بصمةُ main
+#    `7c07f4c72` قبل الشحن). والإحدى عشرة الأخرى مقفولةٌ ببصماتها في `FB9` سلفًا.
+_pc_src = open("Super_stock.py", encoding="utf-8").read()
+_pc_tree = _pc_ast.parse(_pc_src)
+_pc_defs = {n.name: n for n in _pc_ast.walk(_pc_tree)
+            if isinstance(n, (_pc_ast.FunctionDef, _pc_ast.AsyncFunctionDef))}
+_PC_ROOTS = ("rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_short_gate",
+             "apply_float_gate", "scan_market", "backtest_symbol", "scan_ignition",
+             "scan_split_hunter", "entry_status", "build_interpretation")
+
+
+def _pc_mentions(node):
+    n = 0
+    for x in _pc_ast.walk(node):
+        if isinstance(x, _pc_ast.Name) and "pivot_cycle" in x.id:
+            n += 1
+        elif isinstance(x, _pc_ast.Attribute) and "pivot_cycle" in x.attr:
+            n += 1
+        elif (isinstance(x, _pc_ast.Constant) and isinstance(x.value, str)
+              and "pivot_cycle" in x.value):
+            n += 1
+    return n
+
+
+_pc5_leak = [r for r in _PC_ROOTS
+             if r != "scan_market" and r in _pc_defs and _pc_mentions(_pc_defs[r])]
+_pc5_missing = [r for r in _PC_ROOTS if r not in _pc_defs]
+_pc5_calls = [x for x in _pc_ast.walk(_pc_defs.get("scan_market", _pc_tree))
+              if isinstance(x, _pc_ast.Call) and getattr(x.func, "id", None) == "pivot_cycle_state"]
+_PC_PS_PIN = "003285b1cdb4"
+_pc5_ps = (_pc_hash.sha256(_pc_ast.dump(_pc_defs["pivot_stability"]).encode()).hexdigest()[:12]
+           if "pivot_stability" in _pc_defs else "غائبة")
+check("🪜 PC5: الجذورُ لا تذكر `pivot_cycle` **إلّا نداءً واحدًا في `scan_market`** · "
+      "و`pivot_stability` بت-بت",
+      not _pc5_leak and not _pc5_missing and len(_pc5_calls) == 1 and _pc5_ps == _PC_PS_PIN,
+      f"تسرّب={_pc5_leak} غائب={_pc5_missing} نداءات={len(_pc5_calls)} بصمة={_pc5_ps}")
+
+# 🔒 PC6 — **الدفتر**: صفٌّ واحدٌ لكلّ مفتاحٍ **بوسمٍ واحد** هو المتوقَّع · والرقمُ المكتوب في
+#    الصفّ (`KEY=v`) **يساوي `CONFIG`** — لا يتباعد الدفترُ عن الكود بصمت.
+_pc_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+_PC_TAGS = ("faisal_verbatim", "faisal_inferred", "faisal_adopted",
+            "engineering", "third_party", "unsourced")
+_PC6_WANT = {"PIVOT_TEST_TYPICAL_PCT": "faisal_verbatim",
+             "PIVOT_SWEEP_PCT": "faisal_verbatim", "PIVOT_CYCLE_WIN": "engineering"}
+_pc6_bad = []
+for _k, _tg in _PC6_WANT.items():
+    _rows = [ln for ln in _pc_led.splitlines() if _k in ln and ln.lstrip().startswith("|")]
+    _m = _pc_re.search(r"`" + _k + r"=([\d.]+)`", _rows[0]) if len(_rows) == 1 else None
+    if (len(_rows) != 1 or sum(_rows[0].count(t) for t in _PC_TAGS) != 1
+            or _tg not in _rows[0] or not _m
+            or float(_m.group(1)) != float(S.CONFIG.get(_k, -1))):
+        _pc6_bad.append(f"{_k}:{len(_rows)}صفّ")
+check("🪜 PC6: صفوفُ الدفتر للمفاتيح الثلاثة — صفٌّ واحدٌ **بوسمه المتوقَّع** ورقمُه = `CONFIG`",
+      not _pc6_bad, str(_pc6_bad)[:120])
+
+# 🔒 PC7 — **الوصلُ من نقاط النداء الحيّة** (AST لا وجودُ الدالّة): الكرت · اليوميّ ·
+#    عرضُ فحص اليد · وحسابُه في مسار فحص اليد.
+_pc_hc = _pc_ast.parse(open("hand_check.py", encoding="utf-8").read())
+_pc_hcd = {n.name: n for n in _pc_ast.walk(_pc_hc) if isinstance(n, _pc_ast.FunctionDef)}
+
+
+def _pc_ncalls(fn, name):
+    if fn is None:
+        return -1
+    return sum(1 for x in _pc_ast.walk(fn) if isinstance(x, _pc_ast.Call)
+               and (getattr(x.func, "id", None) == name
+                    or getattr(x.func, "attr", None) == name))
+
+
+_pc7 = {"build_message": _pc_ncalls(_pc_defs.get("build_message"), "pivot_cycle_line"),
+        "build_daily_message": _pc_ncalls(_pc_defs.get("build_daily_message"),
+                                          "pivot_cycle_line"),
+        "render_hand_check": _pc_ncalls(_pc_hcd.get("render_hand_check"), "pivot_cycle_line"),
+        "hand_check": _pc_ncalls(_pc_hcd.get("hand_check"), "pivot_cycle_state")}
+check("🪜 PC7: موصولٌ من نقاط النداء الحيّة (AST) — الكرت · اليوميّ · عرضُ فحص اليد · "
+      "وحسابُه في مسار فحص اليد (نداءٌ واحدٌ لكلّ)",
+      all(v == 1 for v in _pc7.values()), str(_pc7))
+
+
+# 🔒 PC8 — **داخل الحارس ويُنسَخ**: الإسنادُ في `scan_market` و`update_watchlist_status`
+#    داخل `try` (نمطُ `BK9`/`FB11`) فسقوطُه لا يمسّ العضويةَ ولا يُسقط التجديدَ اليوميّ ·
+#    و`make_watch_entry` ينسخ الحقلَ كما هو.
+def _pc_key(nd):
+    if isinstance(nd, _pc_ast.Assign) and isinstance(nd.targets[0], _pc_ast.Subscript):
+        return getattr(nd.targets[0].slice, "value", None)
+    return None
+
+
+def _pc_assign(fn):
+    """(عددُ إسنادات الحقل في الدالّة · وكم منها **شقيقٌ مباشرٌ** لإسناد `bottom_test` في
+    جسم الـ`try` نفسِه) — أي حارسُ الإثراء العرضيّ بعينه لا «أيُّ try» (قد يلفّ الحلقةَ
+    كلَّها حارسٌ آخرُ فيمرّ نقلُ السطر خارجَ حارس الإثراء)."""
+    if fn is None:
+        return -1, -1
+    tot = sum(1 for nd in _pc_ast.walk(fn) if _pc_key(nd) == "pivot_cycle")
+    sib = 0
+    for nd in _pc_ast.walk(fn):
+        if isinstance(nd, _pc_ast.Try):
+            _ks = [_pc_key(x) for x in nd.body]
+            if "bottom_test" in _ks:
+                sib += _ks.count("pivot_cycle")
+    return tot, sib
+
+
+_pc8_sm = _pc_assign(_pc_defs.get("scan_market"))
+_pc8_uw = _pc_assign(_pc_defs.get("update_watchlist_status"))
+_pc8_copy = _pc_call(S.make_watch_entry, dict(_card_rdy, pivot_cycle={"stage": 2, "x": 1}),
+                     "2026-09-23")
+check("🪜 PC8: الإسنادُ **شقيقُ `bottom_test` في حارس الإثراء نفسِه** في `scan_market` "
+      "و`update_watchlist_status` (إسنادٌ واحدٌ لكلٍّ) · و`make_watch_entry` ينسخ الحقلَ كما هو",
+      _pc8_sm == (1, 1) and _pc8_uw == (1, 1)
+      and _pc_g(_pc8_copy, "pivot_cycle") == {"stage": 2, "x": 1},
+      f"scan_market={_pc8_sm} update={_pc8_uw} نسخ={_pc_g(_pc8_copy, 'pivot_cycle')}")
+
+# 🔒 PC9 — **وسمُ وايكوف** (R-02 · `TG_50599`): يطابق المرحلةَ والفرع (SC · AR · ST للثبات ·
+#    Spring للسحب · LPS) · **ويُطفأ بلا أثرٍ على بقيّة السطر**.
+_PC9_WANT = {"s1": "SC", "s2t": "AR", "s3h": "ST الاختبار", "s3s": "Spring", "s4h": "LPS"}
+_pc9_prev = S.PIVOT_WYCKOFF_TAG
+try:
+    S.PIVOT_WYCKOFF_TAG = True
+    _pc9_on = {k: S.pivot_cycle_line(_pc4_st[k]) for k in _PC9_WANT}
+    S.PIVOT_WYCKOFF_TAG = False
+    _pc9_off = {k: S.pivot_cycle_line(_pc4_st[k]) for k in _PC9_WANT}
+except Exception as _e:                                          # noqa: BLE001
+    _pc9_on = _pc9_off = {k: f"⛔ {type(_e).__name__}" for k in _PC9_WANT}
+finally:
+    S.PIVOT_WYCKOFF_TAG = _pc9_prev
+_pc9_bad = [k for k, w in _PC9_WANT.items()
+            if not (("وايكوف: " + w) in _pc9_on[k] and "وايكوف" not in _pc9_off[k]
+                    and _pc9_off[k] and _pc9_on[k].startswith(_pc9_off[k]))]
+check("🪜 PC9: وسمُ وايكوف يطابق المرحلةَ والفرع (SC · AR · ST · Spring · LPS) · "
+      "**ويُطفأ فيبقى السطرُ نفسُه بلا الوسم**", not _pc9_bad,
+      f"سيّئ={_pc9_bad} · {_pc9_on.get('s3s', '')[-30:]}")
+
+
 print(f"النتيجة: {len(PASS)} نجح · {len(FAIL)} فشل")
 if FAIL:
     print("الفاشل: " + " | ".join(FAIL))
