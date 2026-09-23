@@ -57387,7 +57387,7 @@ check("⏱️🔥🔒 SCK3 `§⑧` — الجذورُ و`polygon_base_trades` **
 
 
 
-# ── ⏰🪟 `T-SESSIONS` — أقفال الأداة `SSA0`-`SSA9` ────────────────────────────
+# ── ⏰🪟 `T-SESSIONS` — أقفال الأداة `SSA0`-`SSA11` ───────────────────────────
 #    العقد `sessions_prereg.md` ‏+ الملحق المؤرَّخ `§⑩` · **قراءةٌ فقط**.
 #    🔒 وكلُّ قفلٍ هنا **سلوكيٌّ**: يُنادى الكودُ ويُقارَن مُخرَجُه — لا نصَّ
 #       يُرضيه تعليق (درسُ `②` في `lock-and-mutate`).
@@ -57560,21 +57560,51 @@ try:
     #    ينطبق على ملحقٍ مؤرَّخٍ يُكتَب بعدها بالتعريف** (‏`§⑪` يصف حارسًا
     #    داخل الأداة فيسمّيها بالضرورة). ⇒ النطاقُ = المتنُ حتى أوّل ملحق.
     _ssa_body = _ssa_pr[:_ssa_i10] if _ssa_i10 > 0 else _ssa_pr
+    # 🐞 **وطفرةُ `t14b` نجت على الصيغة الأولى** (عضويّةُ الرقم في الوثيقة
+    #    كلِّها): «90%» يتكرّر في `§⑪-ⓒ` («‏150 · 50 · 90%») فتبديلُه في `§⑥`
+    #    — **موضعِ العتبة الحاكم** — إلى 70% كان يمرّ (الصنفُ ③ بحرفه) · والأرقامُ
+    #    الثلاثة الأخرى مثلُه (‏«‏150» ×4 · «‏71» ×6 · «‏50» ×2). ⇒ **كلُّ رقمٍ يُقفَل
+    #    في بنده الحاكم ويُشتقّ من ثابت الأداة** لا من نصٍّ مكتوبٍ في القفل —
+    #    فيصير «والأداةُ لا تخالف رقمًا منها» شرطًا لا دعوى.
+    def _ssa_sec7(a, b, src):
+        _i = src.find(a)
+        _j = src.find(b, _i + len(a)) if _i >= 0 else -1
+        return src[_i:_j] if (_i >= 0 and _j > _i) else ""
+    _ssa_s5 = _ssa_sec7("## §⑤ ", "## §⑥ ", _ssa_pr)
+    _ssa_s6 = _ssa_sec7("## §⑥ ", "## §⑦ ", _ssa_pr)
+    _ssa_v2 = _ssa_sec7("**`V-S2`**", "- **`V-S3`**", _ssa_s6)
+    _ssa_b1 = _ssa_sec7("1. **الفرعُ 1", "2. **الفرعُ 2", _ssa_s5)
+    _ssa_b3 = _ssa_sec7("3. **الفرعُ 3", "⚖️", _ssa_s5)
+    _ssa_nums = (f"دون \u200f{round(_SSA.MIN_COVER * 100)}%" in _ssa_v2
+                 and f"**\u200f{_SSA.FLOOR_PROVE}**" in _ssa_b1
+                 and "**\u200f71**" in _ssa_b1
+                 and f"**\u200f{_SSA.MIN_JOIN} صفًّا**" in _ssa_b3)
+    # 🐞 **وطفرةُ `t14c` نجت على الصيغة الأولى** (`"V-S9" in` الوثيقة كلِّها):
+    #    نزعُ الاسم من **تعريف** الحارس (`§⑪-ⓑ`) كان يمرّ لأن **عنوانَ** الملحق
+    #    يذكره ⇒ يُقفَل موضعيًّا: العنوانُ يُسمّيه · وتعريفُه في `ⓑ` يُسمّيه ·
+    #    ورمزُ إيقافه فيه = **ثابتُ الأداة `RC_POP`** لا رقمٌ مكتوبٌ هنا.
+    _ssa_i11 = _ssa_pr.find("## §⑪ ")
+    _ssa_s11 = _ssa_pr[_ssa_i11:] if _ssa_i11 > 0 else ""
+    _ssa_b11 = _ssa_sec7("### ⓑ", "### ⓒ", _ssa_s11)
+    _ssa_vs9 = ("`V-S9`" in _ssa_s11.split("\n", 1)[0]
+                and "`V-S9`" in _ssa_b11.split("\n", 1)[0]
+                and f"بخروج \u200f{_SSA.RC_POP}**" in _ssa_b11)
     _ssa7 = (_ssa_i10 > 0
              and "anchor_history" in _ssa_ap
              and "V-S8" in _ssa_ap
-             and "‏150" in _ssa_pr and "‏71" in _ssa_pr and "‏50" in _ssa_pr
-             and "90%" in _ssa_pr
+             and _ssa_nums
              and "sessions_probe" not in _ssa_body   # المتنُ لا يُسمّي الأداة
-             and "V-S9" in _ssa_pr)                  # وملحقُ `§⑪` حاضر
+             and _ssa_vs9)                           # وملحقُ `§⑪` يُعرّف `V-S9` موضعيًّا
     _ssa7_w = (f"§⑩@{_ssa_i10} · anchor_history={'anchor_history' in _ssa_ap} · "
-               f"V-S8={'V-S8' in _ssa_ap} · 90%={'90%' in _ssa_pr} · "
+               f"V-S8={'V-S8' in _ssa_ap} · أرقامُ البنود الحاكمة={_ssa_nums} "
+               f"(§⑥ V-S2={len(_ssa_v2)} · §⑤-1={len(_ssa_b1)} · §⑤-3={len(_ssa_b3)}) · "
                f"المتنُ بلا اسم الأداة={'sessions_probe' not in _ssa_body} · "
-               f"V-S9={'V-S9' in _ssa_pr}")
+               f"V-S9 في عنوان §⑪ وتعريفِ ⓑ وخروجُه RC_POP={_ssa_vs9}")
 except Exception as _e:                                          # noqa: BLE001
     _ssa7, _ssa7_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("⏰🪟🔒 SSA7 العقدُ مدموجٌ وملحقُه `§⑩` يُسمّي `anchor_history` ويُعرّف "
-      "`V-S8` · والأرضيّاتُ 150/71/50 و90% منصوصةٌ فيه", _ssa7, _ssa7_w)
+      "`V-S8` · والأرضيّاتُ منصوصةٌ **في بنودها الحاكمة** ومُشتقّةٌ من ثوابت الأداة "
+      "(‏90% في `V-S2` · ‏150 و71 في `§⑤`-1 · ‏50 في `§⑤`-3)", _ssa7, _ssa7_w)
 
 # ⑨ `SSA8` — الـworkflow: **بلا كرون · بلا سرِّ تلغرام · وبلا سرِّ المزوّد** ·
 #    صلاحيةٌ للقراءة · بايثون 3.11 · والمدخلان موصولان ببيئةٍ يقرؤها السكربت.
@@ -57583,7 +57613,9 @@ try:
     _ssa_yd = __import__("yaml").safe_load(_ssa_y)
     _ssa_on = _ssa_yd.get(True) or _ssa_yd.get("on") or {}
     _ssa_in = set((_ssa_on.get("workflow_dispatch") or {}).get("inputs") or {})
-    _ssa_env = {"SESSIONS_TSV", "TRIG_READ_REF"}
+    # 🔒 **ومدخلُ الإقرار `reopen` ثالثُها منذ «اقفل الجلسات» (‏2026-09-23)** —
+    #    المجموعةُ تبقى **مساواةً حرفيّة** (تشديدٌ بعنصرٍ لا إرخاء).
+    _ssa_env = {"SESSIONS_TSV", "TRIG_READ_REF", "SESSIONS_REOPEN"}
     # 🐞 **صُحِّح القفلُ لا الوثيقة (‏الصنفُ ② · درسُ `DEP1` بحرفه):** صياغتي
     #    الأولى كانت `"POLYGON" not in _ssa_y` **فسقطت على تعليقٍ في الـyml
     #    يقول «ولا سرَّ POLYGON_API_KEY»** — أي قرأت **نثرًا** لا إعدادًا.
@@ -57599,7 +57631,7 @@ try:
              and _ssa_sec in _ssa_plant              # شاهدُ ضبطٍ يُمسَك
              and _ssa_yd.get("permissions", {}).get("contents") == "read"
              and "3.11" in _ssa_y
-             and _ssa_in == {"tsv", "ref"}
+             and _ssa_in == {"tsv", "ref", "reopen"}
              and all(e in _ssa_y for e in _ssa_env)
              and all(e in _ssa_src for e in _ssa_env))
     _ssa8_w = (f"مدخلات={_ssa_in} · كرون={'cron' in _ssa_y} · "
@@ -57609,7 +57641,7 @@ except Exception as _e:                                          # noqa: BLE001
     _ssa8, _ssa8_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("⏰🪟🔒 SSA8 `sessions.yml`: بلا كرون · **وصفرُ سرٍّ من أيّ نوع** "
       "فالإرسالُ والجلبُ مستحيلان بنيويًّا (ومع شاهدِ ضبطٍ يُمسَك) · "
-      "contents: read · 3.11 · والمدخلان موصولان ببيئةٍ يقرؤها السكربت",
+      "contents: read · 3.11 · والمدخلاتُ الثلاثة موصولةٌ ببيئةٍ يقرؤها السكربت",
       _ssa8, _ssa8_w)
 
 # ⑩ `SSA9` — **كلُّ مستورَدٍ بالاسم يُنادى فعلًا** (‏AST): استيرادٌ لا يُنادى
@@ -57675,6 +57707,148 @@ check("⏰🪟🔒 SSA9 كلُّ مستورَدٍ بالاسم **يُنادى ف
       "`git_snapshots` · `collect` · `session_info` · `wilson` · "
       "`production_untouched` — فلا يكون «صفرُ منطقٍ مكرَّر» دعوًى",
       _ssa9, _ssa9_w)
+
+# ⑫ `SSA11` — 🔒 **الإغلاقُ مُنفَّذٌ لا مكتوب** (أمرُ المالك «اقفل الجلسات»
+#    ‏2026-09-23 · `sessions_result.md §⑧`) — **سلوكيٌّ من طرفيه**:
+#    (أ) مُغلَقًا ⟶ خروجُ ‏8 **بصفرِ عمليّة** (عدّاداتٌ على الحرّاس ونداءِ `git`
+#        وقراءةِ المجتمع واشتقاقِ المراسي) **ولا سطرَ غيرُ نصِّ الإغلاق**.
+#    (ب) **وافتراضُ الـworkflow الحقيقيُّ** (مقروءًا من الـyml لا مكتوبًا هنا)
+#        يُبقيه مُغلَقًا — فحصُ «غيرُ فارغ» كان يرفعه في كلّ تشغيلة (‏`0` نصٌّ).
+#    (ج) وبالإقرار `1` ⟶ **الحارسُ يرتفع فعلًا**: الأداةُ تبلغ `V-S9` فتقف عنده
+#        بخروج ‏4 على نسخةٍ ضحلةٍ مُجذَّعة — **ولا تقرأ المجتمعَ ولا المراسي**.
+#    (د) و‏8 **مميَّزٌ** عن كلّ رمزٍ تُخرجه الأداة (‏`RC_*` ومرجوعاتُ `main`)
+#        بشاهدَي ضبطٍ: رمزٌ مشغولٌ يُرفَض وآخرُ شاغرٌ يُقبَل (درسُ `c2`/`RKA16`:
+#        فلترٌ يُقصي الرقمَ المصادِم **بقيمته** يجعل الشرطَ لا يُكذَّب).
+#    (هـ) والحارسُ **أوّلُ جملةٍ** في `main` (‏AST) · ونقطةُ دخولٍ واحدة ·
+#        ونصُّ الإغلاق يحمل ①②③ والمفتاحَ وأرقامَ الحكم.
+try:
+    import ast as _ssz_ast
+    import os as _ssz_os
+
+    _ssz_tree = _ssz_ast.parse(_ssa_src)
+    _ssz_main = next((n for n in _ssz_ast.walk(_ssz_tree)
+                      if isinstance(n, _ssz_ast.FunctionDef) and n.name == "main"),
+                     None)
+
+    # (د) الرموزُ المشغولة — كلُّ `RC_*` ‏+ كلُّ مرجوعٍ في `main` (يُستثنى
+    #     حارسُ الإغلاق **باسمه** لا بقيمته، فمصادمةُ القيمة تبقى مرئيّة)
+    _ssz_busy = {getattr(_SSA, _k) for _k in dir(_SSA) if _k.startswith("RC_")}
+
+    def _ssz_val(node):
+        if isinstance(node, _ssz_ast.Constant) and isinstance(node.value, int):
+            return {node.value}
+        if isinstance(node, _ssz_ast.Name) and node.id != "CLOSED_RC":
+            _v = getattr(_SSA, node.id, None)
+            return {_v} if isinstance(_v, int) else set()
+        if isinstance(node, _ssz_ast.IfExp):
+            return _ssz_val(node.body) | _ssz_val(node.orelse)
+        return set()
+    for _n in _ssz_ast.walk(_ssz_main):
+        if isinstance(_n, _ssz_ast.Return) and _n.value is not None:
+            _ssz_busy |= _ssz_val(_n.value)
+
+    def _ssz_free(c):
+        return c not in _ssz_busy
+    _ssz_witness = (_ssz_free(_SSA.CLOSED_RC) and _ssz_free(11)
+                    and not _ssz_free(_SSA.RC_POP))
+
+    # (هـ) الحارسُ أوّلُ جملة: `if _closed_now(): … return CLOSED_RC`
+    _ssz_b0 = _ssz_main.body[0] if (_ssz_main and _ssz_main.body) else None
+    _ssz_first = (isinstance(_ssz_b0, _ssz_ast.If)
+                  and isinstance(_ssz_b0.test, _ssz_ast.Call)
+                  and getattr(_ssz_b0.test.func, "id", None) == "_closed_now"
+                  and any(isinstance(_x, _ssz_ast.Return)
+                          and getattr(_x.value, "id", None) == "CLOSED_RC"
+                          for _x in _ssz_b0.body))
+
+    # (ب) الـworkflow: الافتراضُ والوصلُ مقروءان من الـyml
+    _ssz_wf = __import__("yaml").safe_load(
+        open(".github/workflows/sessions.yml", encoding="utf-8"))
+    _ssz_on = _ssz_wf.get(True) or _ssz_wf.get("on") or {}
+    _ssz_rin = (((_ssz_on.get("workflow_dispatch") or {}).get("inputs") or {})
+                .get("reopen") or {})
+    _ssz_def = str(_ssz_rin.get("default"))
+    _ssz_steps = ((_ssz_wf.get("jobs") or {}).get("sessions") or {}).get("steps") or []
+    _ssz_wired = any(
+        str((_st.get("env") or {}).get("SESSIONS_REOPEN", "")).replace(" ", "")
+        == "${{github.event.inputs.reopen}}" and "sessions_probe.py" in str(_st.get("run"))
+        for _st in _ssz_steps)
+
+    # (أ)(ب)(ج) سلوكيًّا — جذوعٌ تَعُدّ ولا تعمل
+    _ssz_hits = {"ro": 0, "np": 0, "prod": 0, "depth": 0, "rows": 0, "anch": 0}
+    _ssz_logged = []
+    _ssz_keep = (_SSA.selfcheck_readonly, _SSA.no_provider_calls,
+                 _SSA.production_untouched, _SSA.repo_depth, _SSA.load_rows,
+                 _SSA.TLP.anchor_history, _SSA.log)
+    _ssz_env0 = _ssz_os.environ.get("SESSIONS_REOPEN")
+
+    def _ssz_mk(_k, _ret):
+        def _f(*a, **k):
+            _ssz_hits[_k] += 1
+            return _ret
+        return _f
+    try:
+        _SSA.selfcheck_readonly = _ssz_mk("ro", True)
+        _SSA.no_provider_calls = _ssz_mk("np", True)
+        _SSA.production_untouched = _ssz_mk("prod", (True, "x", "x"))
+        _SSA.repo_depth = _ssz_mk("depth", (True, 0, "?"))      # ضحلةٌ ⇒ `V-S9`
+        _SSA.load_rows = _ssz_mk("rows", [])
+        _SSA.TLP.anchor_history = _ssz_mk("anch", {})
+        _SSA.log = _ssz_logged.append
+
+        _ssz_os.environ.pop("SESSIONS_REOPEN", None)
+        _ssz_rc_closed = _SSA.main()
+        _ssz_log_closed = list(_ssz_logged)
+        _ssz_ops_closed = {k: v for k, v in _ssz_hits.items() if v}
+
+        _ssz_os.environ["SESSIONS_REOPEN"] = _ssz_def             # افتراضُ الـyml
+        del _ssz_logged[:]
+        _ssz_rc_default = _SSA.main()
+        _ssz_ops_default = {k: v for k, v in _ssz_hits.items() if v}
+
+        _ssz_os.environ["SESSIONS_REOPEN"] = "1"                  # الإقرار
+        del _ssz_logged[:]
+        _ssz_rc_open = _SSA.main()
+        _ssz_ops_open = dict(_ssz_hits)
+    finally:
+        (_SSA.selfcheck_readonly, _SSA.no_provider_calls,
+         _SSA.production_untouched, _SSA.repo_depth, _SSA.load_rows,
+         _SSA.TLP.anchor_history, _SSA.log) = _ssz_keep
+        if _ssz_env0 is None:
+            _ssz_os.environ.pop("SESSIONS_REOPEN", None)
+        else:
+            _ssz_os.environ["SESSIONS_REOPEN"] = _ssz_env0
+
+    # (هـ) نصُّ الإغلاق — شروطُ الفتح الثلاثة والمفتاحُ وأرقامُ الحكم بعينها
+    _ssz_txt = "\n".join(_SSA.closure_notice())
+    _ssz_notice = all(_x in _ssz_txt for _x in (
+        "①", "②", "③", "SESSIONS_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد",
+        "L316", "`partial`", "0.65×", "28.7", "1.18×", "5.26%", "35500941099"))
+    _ssz_one = (_ssa_src.count("if __name__ ==") == 1
+                and "--child" not in _ssa_src and "run_child" not in _ssa_src)
+
+    _ssa11 = (_SSA.AXIS_CLOSED is True
+              and _SSA.REOPEN_ENV == "SESSIONS_REOPEN"
+              and _ssz_rc_closed == _SSA.CLOSED_RC == 8 and not _ssz_ops_closed
+              and _ssz_log_closed == _SSA.closure_notice()
+              and _ssz_def == "0" and _ssz_rc_default == 8 and not _ssz_ops_default
+              and _ssz_wired
+              and _ssz_rc_open == _SSA.RC_POP == 4
+              and _ssz_ops_open.get("depth") == 1
+              and _ssz_ops_open.get("rows") == 0 and _ssz_ops_open.get("anch") == 0
+              and _ssz_witness and _ssz_first and _ssz_notice and _ssz_one)
+    _ssa11_w = (f"مُغلَق rc={_ssz_rc_closed} عمليّات={_ssz_ops_closed or 'لا شيء'} "
+                f"أسطر={len(_ssz_log_closed)} · افتراضُ الـyml={_ssz_def!r} ⟶ "
+                f"rc={_ssz_rc_default} موصول={_ssz_wired} · بالإقرار rc={_ssz_rc_open} "
+                f"عمليّات={_ssz_ops_open} · مشغولة={sorted(_ssz_busy)} "
+                f"شاهد={_ssz_witness} · أوّلُ جملة={_ssz_first} · "
+                f"النصّ={_ssz_notice} · دخولٌ واحد={_ssz_one}")
+except Exception as _e:                                          # noqa: BLE001
+    _ssa11, _ssa11_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰🪟🔒 SSA11 الإغلاقُ **مُنفَّذ**: خروج 8 بصفرِ عمليّة ولا سطرَ غيرُ النصّ · "
+      "**وافتراضُ الـworkflow (`0`) يُبقيه مُغلَقًا** · والإقرارُ `1` يرفع الحارسَ "
+      "فيقف عند `V-S9` بلا قراءة المجتمع · و‏8 مميَّزٌ (بشاهدَي ضبط) · والحارسُ "
+      "أوّلُ جملة · ونصُّ الفتح ①②③ بأرقام الحكم · ودخولٌ واحد", _ssa11, _ssa11_w)
 
 
 # ── ⏱️🔥 `T-SECONDS` — أقفال الأداة `SCA0`-`SCA9` ────────────────────────────

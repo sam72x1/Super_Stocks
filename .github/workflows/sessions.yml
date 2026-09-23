@@ -3,6 +3,9 @@ name: "⏰🪟 T-SESSIONS — ساعةُ القمّة داخلَ الجلسة (s
 # 🔒 قراءةٌ/بحثٌ فقط — لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** فالإرسالُ
 #    مستحيلٌ بنيويًّا · **ولا سرَّ POLYGON_API_KEY** فالجلبُ مستحيلٌ كذلك
 #    (العقد §① «الموجودُ وحدَه وصفرُ جلب» · `V-S7`-ب يقفله بالـAST أيضًا).
+# 🔒 **والمحورُ مُغلَقٌ بأمر المالك «اقفل الجلسات» (‏2026-09-23):** الأداةُ تخرج
+#    **‏8** قبل أيّ عمليّة · والإقرارُ `SESSIONS_REOPEN=1` إقرارٌ بشروط الفتح
+#    الثلاثة **لا التفافٌ عليها** (‏`sessions_result.md §⑧`) · والافتراضُ `0`.
 permissions:
   contents: read
 
@@ -17,6 +20,10 @@ on:
         description: "مرجعُ git لتاريخ op_entry_state.json (شاهدُ V-S8 فقط)"
         required: false
         default: "origin/main"
+      reopen:
+        description: "إقرارٌ بشروط الفتح الثلاثة (sessions_result.md §⑧) — اكتب 1 لرفع الإغلاق"
+        required: false
+        default: "0"
 
 jobs:
   sessions:
@@ -41,6 +48,7 @@ jobs:
         env:
           SESSIONS_TSV: ${{ github.event.inputs.tsv }}
           TRIG_READ_REF: ${{ github.event.inputs.ref }}
+          SESSIONS_REOPEN: ${{ github.event.inputs.reopen }}
         run: python3 sessions_probe.py
 
       - name: Upload rows
