@@ -293,8 +293,8 @@
   ],
   "updates": 2,
   "vol_x": 2.5,
-  "peak_usd": 186992,
-  "last_eval_ms": 1790171160000,
+  "peak_usd": 140820,
+  "last_eval_ms": 1790171100000,
   "pulse_ms": 1790181540000,
   "anchor_price": 0.61,
   "anchor_open": 0.5814,
@@ -365,8 +365,6 @@
    "e5": 5.0,
    "exit_ms": 1790181480000
   },
-  "tc_cum": 27578935.047500703,
-  "tc_seen_ms": 1790181540000,
   "date": "2026-09-23"
  },
  "LIQ:WSHP": {
@@ -674,7 +672,6 @@
   },
   "e5": 18.9,
   "exit_ms": 1790173380000,
-  "tgt_ms": 1790170980000,
   "date": "2026-09-23"
  },
  "LIQ:ASST": {
@@ -1247,7 +1244,7 @@
   "updates": 0,
   "vol_x": 3.8,
   "peak_usd": 12511,
-  "last_eval_ms": 1790170980000,
+  "last_eval_ms": 1790170920000,
   "pulse_ms": 1790181540000,
   "anchor_price": 0.315,
   "anchor_open": 0.298,
