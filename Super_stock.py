@@ -17236,6 +17236,40 @@ def _fire_sustain(s, sig, fetch_bars, need_min):
         return {}
 
 
+_FIRED_TS_SRCS = ("telegram_sent", "trigger_bar_start")
+
+
+def _fired_ts_fields(s) -> dict:
+    """⏱️ «لحظة الإطلاق» (أمرُ المالك 2026-09-23 — شرطُ إعادة قياس `T-SECONDS` في
+    `seconds_result.md` §④): طابعُ الإطلاق ومصدرُه وبدايةُ شمعة الزناد لسجلّ الإطلاق.
+
+    كان الطابعُ يصل `record_ignition_fires` (‏`_fires_from_candidates`) فيستهلكه
+    `_fire_sustain` **ثم يُرمى** — صفرٌ من 96 في السجلّ ⇒ قيس `T-SECONDS` على «أوّل عبورٍ
+    في اليوم» لا على لحظة الإطلاق. **إلحاقٌ فقط لا يمسّ قرارًا ولا تنبيهًا.**
+
+    🔒 **نقيّةٌ وفاشلةٌ-آمنةٌ لكلّ صفٍّ على حدة:** غيابُ الطابع أو فسادُه ⇒ `{}` (مجهولٌ لا
+    صفر) — **ولا يُسقط تسجيلَ بقيّة الإطلاقات** (استثناءٌ هنا كان سيُفرغ الدفعةَ كلَّها
+    لأن `record_ignition_fires` ملفوفةٌ بـ`try` واحد). **وطابعٌ خارجَ نطاق المللي ثانية
+    المعقول يُرفَض** (‏1e12 ≤ ts < 1e13): ثوانٍ مكتوبةٌ في حقل مللي تُفسد القياسَ بصمت."""
+    try:
+        out = {}
+        for key, dst in (("fired_ts_ms", "fired_ts_ms"),
+                         ("trigger_bar_start", "trigger_bar_ms")):
+            v = s.get(key)
+            if v is None:
+                continue
+            v = int(v)          # `True` ⟶ 1 يسقط بالنطاق أدناه — فلا حارسَ `bool` ميّت
+            if 10 ** 12 <= v < 10 ** 13:
+                out[dst] = v
+        if "fired_ts_ms" not in out:
+            return {}
+        src = s.get("fired_ts_src")
+        out["fired_ts_src"] = src if src in _FIRED_TS_SRCS else "unknown"
+        return out
+    except Exception:
+        return {}
+
+
 def record_ignition_fires(rows, today_iso, fetch_bars=None) -> int:
     """يسجّل إطلاقات الرادار في سجلّ دائم لقياس الحافة (الالتقاط/الإنذار الكاذب لاحقًا
     بأداة التطوير). كل سجلّ: رمز·تاريخ·مستوى الكسر·سعر الاشتعال·مضاعف الحجم·سيولة الشمعة
@@ -17255,7 +17289,9 @@ def record_ignition_fires(rows, today_iso, fetch_bars=None) -> int:
             # ⏱️ قاعدة «ربع الساعة» (فيصل JZ): صنّف الإطلاق مضارب/قروب من صمود الدقائق.
             # اختياري وفاشل-آمن: بلا جالب (أو بلا مفتاح) لا حقول = السلوك السابق حرفيًّا.
             _su = _fire_sustain(s, sig, fetch_bars, CONFIG["OPERATOR_SUSTAIN_MIN"])
-            log_data.append({"symbol": sym, "date": today_iso, **_su,
+            # ⏱️ «لحظة الإطلاق» (أمرُ المالك 2026-09-23): الطابعُ يُحفَظ لا يُرمى.
+            _ts = _fired_ts_fields(s)
+            log_data.append({"symbol": sym, "date": today_iso, **_su, **_ts,
                              # ⑩ (إصلاح تدقيق 2026-07-12): طابع وقت الإطلاق —
                              # بدونه مقياس «الأبكرية» (كم دقيقة سبقنا المسار
                              # اليومي) مستحيل بنيويًا. إلحاق فقط، توافق خلفي
