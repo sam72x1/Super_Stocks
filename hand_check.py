@@ -196,6 +196,9 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
         _pcl = bot.pivot_cycle_line(r.get("pivot_cycle"))  # 🪜 دورة الارتكاز (TG_50584)
         if _pcl:
             L.append(_pcl)
+        _ncl = bot.news_candle_line(r.get("news_candle"))  # 📰 شمعة الخبر (TG_50828)
+        if _ncl:
+            L.append(_ncl)
         _fl = r.get("faisal_levels") or ""      # 🧭 مستويات فيصل (دفعة 2026-09-18)
         if _fl:
             L.append(_fl)
@@ -295,6 +298,13 @@ def hand_check(sym: str):
         r["flow_raw"] = bot.polygon_flow(sym, with_prints=True)
     except Exception:
         r["flow_raw"] = None
+    # 📰 شمعة الخبر (R-01 · فيصل TG_50828): التاريخُ من `enrich` (أحدثُ 8-K ببند 2.02)
+    #    والشمعةُ من إطار الفحص نفسِه — صفرُ جلبٍ إضافيّ · فاشلةٌ-آمنة ⇒ لا سطر.
+    try:
+        r["news_candle"] = bot.news_candle_level(
+            df, (diag.get("news_filing") or {}).get("date"), price)
+    except Exception:                                            # noqa: BLE001
+        r["news_candle"] = None
     # 🔁 تكرار التقسيم العكسي في آخر سنة (قرينة فيصل §P4 — فاشل-آمن → 0)
     sp = None
     try:

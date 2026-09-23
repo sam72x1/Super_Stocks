@@ -4925,6 +4925,76 @@ def upcoming_events(sym: str, company: str = None, sector: str = None,
     return ev or None
 
 
+def news_candle_level(df, news_date, price=None):
+    """📰 **شمعةُ الخبر** (R-01 · دفعة 2026-09-23 · فيصل `TG_50828` على CETX: «شمعة الخبر
+    3 > 2.70 =E مقاومه» — وⒺ في المنصّة = يومُ النتائج). نقيّة · فاشلة-آمنة · **عرضٌ فقط**.
+
+    `news_date` = تاريخُ إيداع 8-K ببند 2.02 (قناة `_SEC_EARN`). **والشمعةُ = الأعلى حجمًا
+    بين أوّل جلسةٍ في يوم الإيداع أو بعده والجلسةِ التالية لها**: الخبرُ بعد الإغلاق
+    يصنع شمعةَ اليوم التالي، والإيداعُ في عطلةٍ يقع على أوّل جلسةٍ بعدها — والحجمُ يحسم
+    بلا حاجةٍ إلى `acceptanceDateTime` (منطقتُه الزمنيّة غيرُ متحقَّقة · `U-04`).
+    الأبكرُ عند تعادل الحجم (حتميّ).
+
+    يرجّع `{date, open, high, low, close, role, lag}` أو `None`: بلا تاريخ · بلا إطار ·
+    إيداعٌ بعد آخر شمعة · أو قيمٌ غيرُ صالحة. و`role` من موضع السعر (`price` أو آخرُ
+    إغلاق): «مقاومة فوق السعر» · «دعم تحت السعر» · «السعر داخلها».
+    ⚖️ **يصف ولا يَعِد:** لم يُقَس أنّ السعرَ يتوقّف عندها — هو نصُّ فيصل على مثالٍ واحد
+    (`POSSIBLE RULE` · `LIKELY`)، ولا يدخل فرزًا ولا ترتيبًا ولا دخولًا ولا وقفًا."""
+    if df is None or not news_date:
+        return None
+    try:
+        if len(df) == 0:
+            return None
+        d0 = pd.Timestamp(str(news_date)[:10])
+        idx = pd.DatetimeIndex(df.index)
+        if idx.tz is not None:
+            idx = idx.tz_localize(None)
+        idx = idx.normalize()
+        pos = int(np.searchsorted(idx.values, d0.to_datetime64(), side="left"))
+        cand = [p for p in (pos, pos + 1) if 0 <= p < len(df)]
+        if not cand:
+            return None
+        vol = df["Volume"] if "Volume" in df else None
+
+        def _v(p):
+            try:
+                x = float(vol.iloc[p]) if vol is not None else 0.0
+                return x if np.isfinite(x) else 0.0
+            except Exception:                                    # noqa: BLE001
+                return 0.0
+        best = max(cand, key=lambda p: (_v(p), -p))
+        row = df.iloc[best]
+        hi, lo = float(row["High"]), float(row["Low"])
+        op, cl = float(row["Open"]), float(row["Close"])
+        if not all(np.isfinite([hi, lo, op, cl])) or lo <= 0 or lo > hi:
+            return None
+        px = float(price) if price else float(df["Close"].iloc[-1])
+        if not np.isfinite(px) or px <= 0:
+            return None
+        role = ("مقاومة فوق السعر" if px < lo else
+                ("دعم تحت السعر" if px > hi else "السعر داخلها"))
+        return {"date": str(idx[best].date()), "open": round(op, 4),
+                "high": round(hi, 4), "low": round(lo, 4), "close": round(cl, 4),
+                "role": role, "lag": int(best - pos)}
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def news_candle_line(nc) -> str:
+    """سطرُ «📰 شمعة الخبر» (عرضٌ فقط) — «» لو لا شمعة. بلا علامات مقارنة، وأربعُ خاناتٍ
+    تحت الدولار (نمطُ العرض القائم) لأنّ الخانتين تمحوان مستوياتِ الأسهم الرخيصة."""
+    if not nc:
+        return ""
+    try:
+        def _px(v):
+            v = float(v)
+            return f"${v:.4f}" if abs(v) < 1 else f"${v:.2f}"
+        return (f"📰 شمعة الخبر (نتائج مالية {nc['date']}): رأسها {_px(nc['high'])} · "
+                f"قاعها {_px(nc['low'])} — {nc['role']}")
+    except Exception:                                            # noqa: BLE001
+        return ""
+
+
 def events_lines(events, today=None) -> list:
     """📅 أسطر «الأحداث المعلنة» للكرت/اليومي (نقيّة): تُخفي الماضي والأبعد من
     الأفق · «اليوم!»/«غدًا» للقريب · بحدّ 3 أسطر (لا حشو). أنواعها: أرباح · تجربة
@@ -5076,6 +5146,10 @@ SEC_FORM_CLASS = {
 # 📅 قناة جانبية: آخر دعوة اجتماع مساهمين لكل رمز (نمط _REJECT_STATS) — تُلتقط في
 # sec_recent_filings بنافذة أطول من نافذة العرض وتُستهلك في enrich → upcoming_events
 _SEC_PROXY = {}
+# 📰 شمعة الخبر (R-01 · دفعة 2026-09-23 · فيصل `TG_50828` «شمعة الخبر 3 > 2.70 =E مقاومه»):
+# أحدثُ 8-K ببند **2.02** («نتائج مالية») من **نفس** نداء SEC — صفرُ جلبٍ إضافيّ.
+# `{رمز: {"date", "form"}}` · يُنزَع في `enrich` والمسار اليوميّ · مسقوفٌ بـ`_SEC_OFFERING_MAX`.
+_SEC_EARN = {}
 _PROXY_FORMS = ("DEF 14A", "DEFA14A", "DEFR14A", "PRE 14A", "PRER14A",
                 "DEF 14C", "PRE 14C")
 
@@ -5164,6 +5238,14 @@ def sec_recent_filings(sym: str):
                     and sym.upper() not in _SEC_FOUNDING
                     and len(_SEC_FOUNDING) < _SEC_OFFERING_MAX):
                 _SEC_FOUNDING[sym.upper()] = {"form": form, "date": fdate}
+            # 📰 شمعة الخبر (R-01): أحدثُ 8-K **أصليّ** (لا `8-K/A` — التعديلُ ليس يومَ الخبر)
+            # بنودُه تحوي **2.02** («نتائج مالية»). الحلقةُ من الأحدث للأقدم وتقف عند نافذة
+            # `PROXY_LOOKBACK_DAYS` ⇒ الأوّلُ الملتقَط هو الأحدث داخلها.
+            if (form == "8-K" and sym.upper() not in _SEC_EARN
+                    and len(_SEC_EARN) < _SEC_OFFERING_MAX
+                    and "2.02" in [x.strip() for x in str(
+                        items_l[i] if i < len(items_l) else "").split(",")]):
+                _SEC_EARN[sym.upper()] = {"date": fdate, "form": form}
             # 📄 Form 4 (تداول داخليين): نخزّن الميتا فقط (صفر نداء إضافي هنا)
             if form == "4" and (sym.upper() in _SEC_FORM4
                                 or len(_SEC_FORM4) < _SEC_FORM4_MAX):
@@ -5607,6 +5689,9 @@ def enrich(results: list) -> None:
         # 🆕 الطرح الجديد (حدث مؤسِّس عند فيصل) — من نفس النداء، صفر تكلفة
         r["offering_event"] = _SEC_FOUNDING.pop(r["symbol"].upper(), None)
         _SEC_OFFERING.pop(r["symbol"].upper(), None)   # تنظيف القناة الواسعة
+        # 📰 شمعة الخبر (R-01): تاريخُ أحدثِ 8-K ببند 2.02 من النداء نفسِه — والشمعةُ تُحسب
+        #    حيث الإطارُ اليوميّ متاح (التجديد الأسبوعيّ · المتابعة اليوميّة · فحص اليد).
+        r["news_filing"] = _SEC_EARN.pop(r["symbol"].upper(), None)
         # 📄 شراء الداخليين (Form 4): الميتا مجانية أعلاه · المستند بسقف صارم هنا
         # (بعد select_top ⇒ ≤ سعة القائمة). فاشل-آمن: [] عند أي تعذّر.
         r["insider_buys"] = form4_insider_buys(
@@ -9775,6 +9860,9 @@ def build_message(results: list, splits: list,
             lines.append(_spl)
         # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
         lines += events_lines(r.get("upcoming_events"))
+        _ncl = news_candle_line(r.get("news_candle"))   # 📰 شمعة الخبر (R-01 · TG_50828)
+        if _ncl:
+            lines.append(_ncl)
         lines += interp_card_lines(r.get("interp"))   # 🧭 التفسير/القرار (عرض فقط)
         # D10: تدوير الفلوت (سكويز) — يظهر عند تجاوز 100% فقط
         rot = r.get("rotation_pct")
@@ -11001,6 +11089,8 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "ah_missed": r.get("ah_missed"),                   # 🌙 ما فوّته اليوميُّ (عرض فقط · يُكتَم إن بات)
         "insider_buys": r.get("insider_buys"),            # 📄 شراء داخلي (Form 4)
         "offering_event": r.get("offering_event"),        # 🆕 طرح جديد (حدث مؤسِّس)
+        "news_filing": r.get("news_filing"),              # 📰 أحدثُ 8-K ببند 2.02 (R-01)
+        "news_candle": r.get("news_candle"),              # 📰 شمعةُ الخبر (عرضٌ فقط)
         "news_acc": r.get("news_acc"),                    # 📉 قبول الخبر
         "bottom_test": r.get("bottom_test"),              # 🔁 «القاع 2» (فيصل — عرض فقط)
         "pivot_cycle": r.get("pivot_cycle"),              # 🪜 دورة الارتكاز (TG_50584 — عرض فقط)
@@ -12795,6 +12885,14 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
         try:
             s["news_acc"] = news_acceptance(df, _latest_event_date(s))
         except Exception:
+            pass
+        # 📰 شمعة الخبر (R-01 — عرضٌ فقط): تُعاد من إطار اليوم فيتبع دورُها السعرَ يوميًّا.
+        #    بلا إيداعٍ مخزَّن ⇒ None (لا سطر). فاشلةٌ-آمنة داخل الدالّة وهنا.
+        try:
+            _nfd = (s.get("news_filing") or {}).get("date")
+            s["news_candle"] = (news_candle_level(df, _nfd, s.get("last_price"))
+                                if _nfd else None)
+        except Exception:                                        # noqa: BLE001
             pass
         # ⚖️ F-02 (إصلاح تدقيق 2026-07-10): تسوية مقياس التقسيم قبل الحسم —
         # المستويات مخزّنة بمقياس يوم الترشيح والبيانات معدَّلة بالتقسيم؛ تقسيم
@@ -18351,6 +18449,9 @@ def build_daily_message(wl: dict, splits: list,
         # 📅 الأحداث المعلنة القادمة (أرباح/تجارب — يوم الانفجار المحتمل، فيصل 9428)
         for _evl in events_lines(s.get("upcoming_events")):
             lines.append("   " + _evl)
+        _ncl = news_candle_line(s.get("news_candle"))   # 📰 شمعة الخبر (R-01 · TG_50828)
+        if _ncl:
+            lines.append("   " + _ncl)
         for _il in interp_card_lines(s.get("interp")):   # 🧭 التفسير/القرار (عرض فقط)
             lines.append("   " + _il)
         # 🧬 طريقة ارتفاع اليد (سلوك المضارب — عرض فقط، لا يمسّ الفرز/الاختيار)
@@ -19411,6 +19512,15 @@ def run_weekly_renewal(wl: dict) -> None:
             + ("" if len(picks) >= CONFIG["WATCHLIST_SIZE"]
                else f" — نقصَ {CONFIG['WATCHLIST_SIZE'] - len(picks)} "
                     "(نفدت البِركة أو انتهت الجولات)"))
+    # 📰 شمعة الخبر (R-01 — عرضٌ فقط): التاريخُ من الإثراء (`news_filing`) والشمعةُ من `hist`
+    #    نفسِه ⇒ صفرُ جلب · ولا تمسّ العضويّة ولا الترتيب (بعد `fill_picks`).
+    for _r in picks:
+        try:
+            _nfd = (_r.get("news_filing") or {}).get("date")
+            _r["news_candle"] = (news_candle_level(hist.get(_r["symbol"]), _nfd,
+                                                  _r.get("price")) if _nfd else None)
+        except Exception:                                        # noqa: BLE001
+            _r["news_candle"] = None
     splits = []   # (أُلغي عرض التقسيم العكسي — يهمّنا A وB فقط)
     # 3ب) قائمة مراقبة الارتداد المستقلة (تعيد استخدام نفس البيانات)
     pull_entries = []
@@ -19880,6 +19990,13 @@ def run_daily_watchlist(wl: dict) -> None:
             _SEC_OFFERING.pop(s["symbol"].upper(), None)
             if _of:
                 s["offering_event"] = _of
+            # 📰 شمعة الخبر (R-01): **الدمجُ لا الاستبدال** — تعذّرُ اليوم لا يمحو المخزَّن ·
+            #    وإيداعٌ جديد يُحسب في اليوم نفسِه (المتابعةُ أعلاه سبقت نداءَ SEC).
+            _ne = _SEC_EARN.pop(s["symbol"].upper(), None)
+            if _ne:
+                s["news_filing"] = _ne
+                s["news_candle"] = news_candle_level(
+                    hist.get(s["symbol"]), _ne.get("date"), s.get("last_price"))
         except Exception:
             pass
     # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم.
