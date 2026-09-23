@@ -1,0 +1,55 @@
+name: "🌊⏰ T-WAVES — موجاتُ السهم بتوقيتنا على سهم الماركت (waves_prereg + §⑫)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابةَ حالة · **ولا سرَّ تلغرام** فالإرسالُ
+#    مستحيلٌ بنيويًّا (العقد §⑦ `V-W5`) · سرُّ POLYGON_API_KEY وحدَه للجلب.
+# 🔒 والسنواتُ **ثابتةٌ في الأداة** (2023 · 2024 · 2025) ولا مُدخَلَ لها (`V-W7`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "وضعُ الجدوى: 1 = هُويّةُ المجتمع وأعدادُه فقط بلا دقيقةٍ ولا نسبة"
+        required: false
+        default: "0"
+      tsv:
+        description: "1 = يكتب waves_rows.tsv (الافتراض) · 0 = لا يكتب"
+        required: false
+        default: "1"
+
+jobs:
+  waves:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # 🔒 `V-W6` يقارن بـorigin/main
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run T-WAVES
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          WAVES_DRY: ${{ github.event.inputs.dry }}
+          WAVES_TSV: ${{ github.event.inputs.tsv }}
+        run: python3 waves_probe.py
+
+      - name: Upload rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: waves-rows-${{ github.run_id }}
+          path: waves_rows.tsv
+          if-no-files-found: ignore
+          retention-days: 90

@@ -59246,22 +59246,564 @@ except Exception as _e:                                          # noqa: BLE001
 check("🌊🔒 WVK4 الحصصُ السبع مجموعُها 390 دقيقة · وكلُّ نسبةٍ في العقد (‏7.69 · 15.38 · "
       "61.54 · 23.08 · 72.73 · 18.18 · 9.09) **تُعاد حسابًا من الحدود**", _v, _w[:160])
 
-# ⑥ WVK5 — **تسجيلٌ فقط**: لا أداةَ ولا workflow قبل أمر «ابن أداة الموجات» ·
+# ⑥ WVK5 — كان «**تسجيلٌ فقط**: لا أداةَ ولا workflow قبل أمر «ابن أداة الموجات»».
+#    🔄 **حُدِّث 2026-09-23 إقرارًا بأمر المالك «ابن أداة الموجات»** (لا إرخاءً): الأداةُ
+#    وworkflowها **موجودان** وworkflowٌ **واحدٌ فقط** ينادي الأداة · والملحقُ `§⑫` مكتوبٌ
+#    ويسمّي الأمر · **ولا `waves_result.md` قبل «شغّل الموجات»** (صفرُ رقمٍ قبل الدمج) ·
 #    وصفرُ شحنٍ ولا `LOGIC_VERSION` مكتوبان.
 try:
     _wvk_tool = _wvk_os.path.exists("waves_probe.py")
-    _wvk_wf = any("waves_probe" in open(_wvk_os.path.join(".github/workflows", _f),
-                                        encoding="utf-8").read()
-                  for _f in _wvk_os.listdir(".github/workflows") if _f.endswith(".yml"))
-    _wvk_txt5 = ("ابن أداة الموجات" in _wvk_doc and "شغّل الموجات" in _wvk_doc
+    _wvk_wfs = sorted(_f for _f in _wvk_os.listdir(".github/workflows") if _f.endswith(".yml")
+                      and "waves_probe" in open(_wvk_os.path.join(".github/workflows", _f),
+                                                encoding="utf-8").read())
+    _wvk_res = _wvk_os.path.exists("waves_result.md")
+    _wvk_i12 = _wvk_doc.find("## §⑫")
+    _wvk_s12 = _wvk_doc[_wvk_i12:] if _wvk_i12 >= 0 else ""
+    _wvk_txt5 = ("ابن أداة الموجات" in _wvk_s12 and "شغّل الموجات" in _wvk_doc
                  and "لا `LOGIC_VERSION`" in _wvk_doc
                  and "ولا يُشحَن شيءٌ مهما كانت النتيجة" in _wvk_all)
-    _v = (not _wvk_tool) and (not _wvk_wf) and _wvk_txt5
-    _w = f"أداة={_wvk_tool} · workflow={_wvk_wf} · نصُّ الحدود={_wvk_txt5}"
+    _v = _wvk_tool and _wvk_wfs == ["waves.yml"] and (not _wvk_res) and _wvk_txt5
+    _w = (f"أداة={_wvk_tool} · workflows={_wvk_wfs} · نتيجة={_wvk_res} · "
+          f"نصُّ الحدود والملحق={_wvk_txt5}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🌊🔒 WVK5 **تسجيلٌ فقط** — لا `waves_probe.py` ولا workflow قبل الأمر · "
-      "وصفرُ شحنٍ ولا `LOGIC_VERSION` مكتوبان", _v, _w)
+check("🌊🔒 WVK5 (‏حُدِّث بأمر «ابن أداة الموجات») الأداةُ وworkflowٌ **واحد** · والملحقُ `§⑫` "
+      "يسمّي الأمر · **ولا `waves_result.md` قبل «شغّل الموجات»** · وصفرُ شحن", _v, _w)
+
+# ═══ 🌊⏰ «ابن أداة الموجات» (أمرُ المالك 2026-09-23) — أقفال WVA0-WVA13 · CALE1 ═══════════
+#    الأداة `waves_probe.py` · العقد `waves_prereg.md` ‏+ الملحق `§⑫` · **قراءةٌ فقط**.
+#    كلُّ قفلٍ **سلوكيّ** بجالبين محقونين — **صفرُ شبكةٍ وصفرُ كتابةٍ في المستودع**.
+import contextlib as _wva_cl                                      # noqa: E402
+import datetime as _wva_dt                                        # noqa: E402
+import importlib as _wva_il                                       # noqa: E402
+import io as _wva_io                                              # noqa: E402
+import ast as _wva_ast                                            # noqa: E402
+import os as _wva_os                                              # noqa: E402
+import tempfile as _wva_tf                                        # noqa: E402
+try:
+    _WVA = _wva_il.import_module("waves_probe")
+    _wva_src = open("waves_probe.py", encoding="utf-8").read()
+    _wva_err = ""
+except Exception as _e:                                          # noqa: BLE001
+    _WVA, _wva_src, _wva_err = None, "", f"{type(_e).__name__}: {_e}"
+
+
+def _wva_ms(_day, _h, _m):
+    """طابعُ دقيقةٍ بالملّي لساعةِ نيويورك المحلّيّة (‏الصيفيُّ والشتويُّ من المنطقة لا ثابت)."""
+    _d = _wva_dt.date.fromisoformat(_day)
+    return int(_wva_dt.datetime(_d.year, _d.month, _d.day, _h, _m,
+                                tzinfo=_WVA.NY).timestamp() * 1000)
+
+
+def _wva_day(_y, _i, _k):
+    """يومُ الحدث: `early` ⟵ ‏07-03 (إغلاقٌ مبكّرٌ في السنوات الثلاث) · وإلّا يناير (EST)
+    أو يوليو (EDT) بالتناوب — أيّامٌ ليست عطلًا ولا إغلاقًا مبكّرًا."""
+    if _k == "early":
+        return f"{_y}-07-03"
+    return f"{_y}-{'07' if _i % 2 else '01'}-{10 + _i % 5:02d}"
+
+
+def _wva_scan(_kind, _ident=None, _day_of=None):
+    """مجتمعٌ اصطناعيٌّ **بهُويّة `NL_UP` بت-بت** (أو `_ident` مخالفةٍ للاختبار) · ونوعُ
+    الحدث `_kind(i)` يُكتَب في رمزه فيقرؤه الجالبان."""
+    def _scan(_y, _key):
+        _d, _g, _r, _n = (_ident or _WVA.LK.NL_UP)[_y]
+        _ev = []
+        for _i in range(_n):
+            _k = _kind(_i)
+            _ev.append({"sym": f"{_k}.{_y}.{_i}",
+                        "day": (_day_of or _wva_day)(_y, _i, _k), "prev_close": 1.0,
+                        "ctrl": f"CX.{_y}.{_i}" if _i % 3 else None})
+        return {"days": _d, "got": _g, "raw": _r, "events": _ev}
+    return _scan
+
+
+_WVA_AT = {"w3": (11, 15), "split_far": (11, 15), "open": (9, 35), "nb10": (10, 20),
+           "nb12": (12, 20), "not_market": (11, 15)}
+
+
+def _wva_bars(_sym, _day):
+    """شموعٌ بحسب النوع: بريماركت 08:15 · افتتاحٌ 09:30 (القاع) · القمّةُ في نافذتها · 15:59."""
+    _k = _sym.split(".")[0]
+    if _k == "no_bars":
+        return None
+    if _k == "pm_only":                                   # بريماركت وحدَه ⇒ غيرُ مغطًّى
+        return [(_wva_ms(_day, 8, 15), 1, 2.6, 1, 1, 9)]
+    if _k == "CX":                                        # الشاهد: قمّتُه 11:40
+        return [(_wva_ms(_day, 9, 30), 1, 1.02, 0.95, 1, 9),
+                (_wva_ms(_day, 11, 40), 1, 1.10, 1, 1, 9)]
+    _h, _m = _WVA_AT[_k]
+    _nm = _k == "not_market"                              # ضعفٌ في البريماركت وحدَه
+    return [(_wva_ms(_day, 8, 15), 1, 2.6 if _nm else 1.3, 1, 1, 9),
+            (_wva_ms(_day, 9, 30), 1, 1.2, 0.9, 1, 9),
+            (_wva_ms(_day, _h, _m), 1, 1.5 if _nm else 2.5, 1, 1, 9),
+            (_wva_ms(_day, 15, 59), 1, 1.1, 1, 1, 9)]
+
+
+def _wva_sp(_sym):
+    """تقسيماتٌ بحسب النوع: `split` ‏+3 أيّام (داخلَ الحارس) · `split_far` ‏+4 (خارجه) ·
+    `split_none` تعذّر الجلب."""
+    _k, _y, _i = _sym.split(".")
+    if _k == "split_none":
+        return None
+    _d0 = _wva_dt.date.fromisoformat(_wva_day(_y, int(_i), _k))
+    if _k == "split":
+        return [((_d0 + _wva_dt.timedelta(days=3)).isoformat(), True)]
+    if _k == "split_far":
+        return [((_d0 - _wva_dt.timedelta(days=4)).isoformat(), True)]
+    return []
+
+
+def _wva_run(_scan, *, _sinfo=None, _prod=None, _imp=None, _early=None, _dry=False,
+             _rows=False):
+    """يشغّل `run` بجالبين محقونين ويلتقط المُخرَج ويعدّ نداءاتِ كلِّ جالب."""
+    _calls = {"fetch": [], "splits": [], "scan": 0}
+
+    def _f(_sym, _day, _key):
+        _calls["fetch"].append(_sym)
+        return _wva_bars(_sym, _day)
+
+    def _s(_sym, _key):
+        _calls["splits"].append(_sym)
+        return _wva_sp(_sym)
+
+    def _sc(_y, _key):
+        _calls["scan"] += 1
+        return _scan(_y, _key)
+    _buf = _wva_io.StringIO()
+    with _wva_cl.redirect_stdout(_buf):
+        _rc = _WVA.run("K", scan=_sc, fetch=_f, splits=_s, sinfo=_sinfo,
+                       prod=_prod or (lambda: (True, "a", "a")),
+                       imp=_imp or (lambda: []), early=_early,
+                       dry=_dry, write_rows=_rows)
+    return _rc, _buf.getvalue(), _calls
+
+
+def _wva_expect(_kind):
+    """العدّاداتُ المتوقَّعة **محسوبةً من النوع نفسِه** لا مكتوبةً باليد."""
+    _c = {}
+    for _y in _WVA.YEARS:
+        for _i in range(_WVA.LK.NL_UP[_y][3]):
+            _k = _kind(_i)
+            _c[_k] = _c.get(_k, 0) + 1
+            if _k in ("w3", "split_far", "open", "nb10", "nb12") and _i % 3:
+                _c["cx"] = _c.get("cx", 0) + 1
+    _c["elig"] = sum(_v for _k, _v in _c.items()
+                     if _k not in ("early", "split", "split_none", "cx"))
+    _c["nobars"] = _c.get("no_bars", 0) + _c.get("pm_only", 0)
+    _c["n"] = _c["elig"] - _c["nobars"] - _c.get("not_market", 0)
+    return _c
+
+
+# ① WVA0 — `V-W5` قراءةٌ فقط **سلوكيًّا من الطرفين** ومعه صفرُ إسنادٍ إلى `CONFIG`.
+try:
+    _wva0 = (_WVA.selfcheck_readonly(_wva_src)
+             and _WVA.selfcheck_readonly("open('a', encoding='u')")
+             and _WVA.selfcheck_readonly("OUT_ROWS='r'\nopen(OUT_ROWS,'w')")
+             and not _WVA.selfcheck_readonly("send_telegram('x')")
+             and not _WVA.selfcheck_readonly("m='w'\nopen('q', m)")
+             and not _WVA.selfcheck_readonly("open('state.json','w')")
+             and not _WVA.selfcheck_readonly("save_watchlist({})")
+             and _WVA.no_config_assign(_wva_src)
+             and not _WVA.no_config_assign("CONFIG['X'] = 1"))
+    _wva0_w = f"الملفّ={_WVA.selfcheck_readonly(_wva_src)}" + (f" · {_wva_err}" if _wva_err else "")
+except Exception as _e:                                          # noqa: BLE001
+    _wva0, _wva0_w = False, f"⛔ رمى: {type(_e).__name__}: {_e} {_wva_err}"
+check("🌊🔒 WVA0 `V-W5` قراءةٌ فقط: الملفُّ يمرّ · والإرسالُ و**الوضعُ المُمرَّر متغيّرًا** "
+      "وكتابةُ حالةٍ تسقط · و`OUT_ROWS` وحدَه يُكتَب · وصفرُ إسنادٍ إلى `CONFIG`", _wva0, _wva0_w)
+
+# ② WVA1 — `V-W6`-ب **مستوردو الأداة** بالـAST: المستودعُ نظيف · وثلاثُ صيغٍ مزروعةٍ تُمسَك ·
+#    والسويّةُ مستثناة · **وملفٌّ لا يُحلَّل يُعَدّ مستوردًا** (فاشلٌ-مغلق).
+try:
+    _wva1_repo = _WVA.importers()
+    with _wva_tf.TemporaryDirectory() as _td:
+        for _fn, _tx in (("clean.py", "import os\n"), ("a.py", "import waves_probe\n"),
+                         ("b.py", "from waves_probe import run\n"),
+                         ("c.py", "import waves_probe.x as q\n"),
+                         ("test_bot.py", "import waves_probe\n"), ("bad.py", "def (:\n"),
+                         ("waves_probe.py", "import waves_probe\n")):
+            with open(_wva_os.path.join(_td, _fn), "w", encoding="utf-8") as _fh:
+                _fh.write(_tx)
+        _wva1_tmp = _WVA.importers(_td)
+    _wva1 = _wva1_repo == [] and _wva1_tmp == ["a.py", "b.py", "bad.py", "c.py"]
+    _wva1_w = f"المستودع={_wva1_repo} · المزروع={_wva1_tmp}"
+except Exception as _e:                                          # noqa: BLE001
+    _wva1, _wva1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA1 `V-W6`-ب لا ملفَّ يستورد الأداة · وثلاثُ صيغِ استيرادٍ مزروعةٍ تُمسَك · "
+      "والسويّةُ مستثناة · **وغيرُ المُحلَّل يُعَدّ مستوردًا**", _wva1, _wva1_w)
+
+# ③ WVA2 — الثوابتُ بحرف العقد · والحصصُ **محسوبةٌ من الحدود** (`V-W3`) · والسنواتُ
+#    **ثابتةٌ لا تُقرأ من البيئة** (`V-W7`) · ولا مفتاحَ بيئةٍ إلّا الثلاثة.
+try:
+    _wva2_t = {_l: round(_WVA.time_share(_a, _b), 2) for _l, _a, _b in _WVA.WINDOWS}
+    _wva2_p = {_l: round(_WVA.time_share(_a, _b, _WVA.PM_OPEN_H, _WVA.OPEN_H), 2)
+               for _l, _a, _b in _WVA.PM_WINDOWS}
+    _wva2_tree = _wva_ast.parse(_wva_src)
+    _wva2_years = [_n.value for _n in _wva2_tree.body if isinstance(_n, _wva_ast.Assign)
+                   and any(getattr(_t, "id", None) == "YEARS" for _t in _n.targets)]
+    _wva2_fixed = (len(_wva2_years) == 1 and isinstance(_wva2_years[0], _wva_ast.Tuple)
+                   and all(isinstance(_e2, _wva_ast.Constant) for _e2 in _wva2_years[0].elts))
+    _wva2_env = sorted({_n.args[0].value for _n in _wva_ast.walk(_wva2_tree)
+                        if isinstance(_n, _wva_ast.Call) and _n.args
+                        and isinstance(_n.args[0], _wva_ast.Constant)
+                        and getattr(_n.func, "attr", None) in ("get", "getenv")
+                        and "environ" in _wva_ast.dump(_n.func)})
+    _wva2 = (_WVA.YEARS == ("2023", "2024", "2025") and _wva2_fixed
+             and _wva2_env == ["POLYGON_API_KEY", "WAVES_DRY", "WAVES_TSV"]
+             and len(_WVA.WINDOWS) == 7
+             and abs(sum(_WVA.time_share(_a, _b) for _l, _a, _b in _WVA.WINDOWS) - 100.0) < 1e-9
+             and _wva2_t["09:30-10"] == 7.69 and _wva2_t[_WVA.W3] == 15.38
+             and _WVA.W3 == "11-12" and _WVA.W2 == "09:30-10" and _WVA.W1 == "08-09"
+             and _WVA.NEIGHBORS == ("10-11", "12-13")
+             and _wva2_p == {"04-08": 72.73, "08-09": 18.18, "09-09:30": 9.09}
+             and round(_WVA.time_share(_WVA.AFTER_NOON_H, _WVA.CLOSE_H), 2) == 61.54
+             and (_WVA.RATIO_MIN, _WVA.ALPHA_EACH, _WVA.FLOOR, _WVA.YEAR_MIN,
+                  _WVA.MIN_COVER) == (1.5, 0.025, 150, 50, 0.90)
+             and _WVA.MARKET_X == _WVA.LK.EXPL_X == 2.0
+             and (_WVA.RC_OK, _WVA.RC_NOKEY, _WVA.RC_GUARD, _WVA.RC_IDENT,
+                  _WVA.RC_NOJUDGE) == (0, 2, 5, 7, 9))
+    _wva2_w = f"t={_wva2_t} · pm={_wva2_p} · سنواتٌ ثابتة={_wva2_fixed} · بيئة={_wva2_env}"
+except Exception as _e:                                          # noqa: BLE001
+    _wva2, _wva2_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA2 الثوابتُ بحرف العقد · والحصصُ **محسوبةٌ من الحدود** (‏7.69 · 15.38 · 61.54 · "
+      "72.73/18.18/9.09) · **والسنواتُ ثابتةٌ لا بيئة** · ولا مفتاحَ بيئةٍ إلّا الثلاثة",
+      _wva2, _wva2_w[:220])
+
+# ④ WVA3 — `session_extremes` جدولُ حقيقة: التعادلُ ⟵ **الأبكر** ويُعَدّ · 09:29 بريماركت ·
+#    16:00 **خارج** النظاميّة و15:59 داخلها · بلا نظاميّةٍ ⟵ `None` · والمنطقةُ صيفًا وشتاءً.
+try:
+    _d_s, _d_w = "2024-07-10", "2024-01-10"
+    _e1 = _WVA.session_extremes([
+        (_wva_ms(_d_s, 16, 0), 1, 9.0, 1, 1, 1),          # 16:00 ⇒ خارج (أعلى رقمٍ لكنه لا يُحسَب)
+        (_wva_ms(_d_s, 14, 5), 1, 3.0, 1, 1, 1),
+        (_wva_ms(_d_s, 11, 20), 1, 3.0, 1, 1, 1),         # تعادلٌ ⇒ الأبكر 11:20
+        (_wva_ms(_d_s, 15, 59), 1, 2.0, 0.5, 1, 1),       # القاع 15:59
+        (_wva_ms(_d_s, 9, 29), 1, 5.0, 1, 1, 1),          # بريماركت
+        (_wva_ms(_d_s, 8, 10), 1, 5.0, 1, 1, 1),          # تعادلٌ بريماركت ⇒ الأبكر 08:10
+        (_wva_ms(_d_s, 3, 59), 1, 7.0, 1, 1, 1)])         # قبل البريماركت ⇒ لا يُحسَب
+    _e2 = _WVA.session_extremes([(_wva_ms(_d_w, 9, 30), 1, 2.0, 1.5, 1, 1)])
+    _e3 = _WVA.session_extremes([(_wva_ms(_d_s, 9, 29), 1, 2.0, 1, 1, 1),
+                                 (_wva_ms(_d_s, 16, 0), 1, 2.0, 1, 1, 1)])
+    _wva3 = (_e1 and _e1["reg_high"] == 3.0 and abs(_e1["high_h"] - (11 + 20 / 60)) < 1e-9
+             and _e1["ties"] == 2 and _e1["reg_low"] == 0.5
+             and abs(_e1["low_h"] - (15 + 59 / 60)) < 1e-9
+             and _e1["pm_high"] == 5.0 and abs(_e1["pm_high_h"] - (8 + 10 / 60)) < 1e-9
+             and _e1["n_reg"] == 3 and _e1["tz"] == "EDT"
+             and _e2 and _e2["tz"] == "EST" and _e2["high_h"] == 9.5 and _e2["pm_high"] is None
+             and _e3 is None
+             and _WVA.window_of(_e1["high_h"]) == "11-12" and _WVA.window_of(9.5) == "09:30-10"
+             and _WVA.window_of(16.0) is None and _WVA.window_of(None) is None
+             and _WVA.window_of(8 + 10 / 60, _WVA.PM_WINDOWS) == "08-09")
+    _wva3_w = f"e1={_e1} · e2.tz={_e2 and _e2['tz']} · e3={_e3}"
+except Exception as _e:                                          # noqa: BLE001
+    _wva3, _wva3_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA3 `session_extremes`: التعادلُ ⟵ **الأبكر** ويُعَدّ · 09:29 بريماركت · **16:00 "
+      "خارجَ النظاميّة** · بلا نظاميّةٍ ⟵ None · وEDT/EST من المنطقة", _wva3, _wva3_w[:220])
+
+# ⑤ WVA4 — «سهمُ الماركت» عند الحدّ **2.0 داخل** · والتقسيمُ عند **±3 داخل و±4 خارج** ·
+#    وتعذّرُ الجلب ⟵ `None` (يُستبعَد ويُعَدّ منفصلًا) لا «لا تقسيم».
+try:
+    _wva4 = (_WVA.is_market_stock(2.0, 1.0) and not _WVA.is_market_stock(1.9999, 1.0)
+             and not _WVA.is_market_stock(5.0, 0.0) and not _WVA.is_market_stock(None, 1.0)
+             and _WVA.split_blocked([("2024-03-13", True)], "2024-03-10") is True
+             and _WVA.split_blocked([("2024-03-07", False)], "2024-03-10") is True
+             and _WVA.split_blocked([("2024-03-14", True)], "2024-03-10") is False
+             and _WVA.split_blocked([("2024-03-06", True)], "2024-03-10") is False
+             and _WVA.split_blocked([], "2024-03-10") is False
+             and _WVA.split_blocked(None, "2024-03-10") is None
+             and _WVA.split_blocked([("تالف", True)], "2024-03-10") is False)
+    _wva4_w = (f"2.0={_WVA.is_market_stock(2.0, 1.0)} · 1.9999={_WVA.is_market_stock(1.9999, 1.0)}"
+               f" · +3={_WVA.split_blocked([('2024-03-13', True)], '2024-03-10')}"
+               f" · +4={_WVA.split_blocked([('2024-03-14', True)], '2024-03-10')}")
+except Exception as _e:                                          # noqa: BLE001
+    _wva4, _wva4_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA4 «سهمُ الماركت» **2.0 داخل و1.9999 خارج** · والتقسيمُ **±3 داخل و±4 خارج** · "
+      "وتعذّرُ جلب التقسيمات ⟵ None لا «لا تقسيم»", _wva4, _wva4_w)
+
+# ⑥ WVA5 — `WV2` ذيلٌ ثنائيٌّ **دقيق** بلا فيضانٍ فوق ‏n = 1023 · والحدُّ ‏0.025 عند تخومه
+#    (‏6 مقابل 0 ⟵ ‏1/64 يعبر · 5 مقابل 0 ⟵ ‏1/32 لا) · والتفوّقُ صارم · والصفرُ لا يُطبَع صفرًا.
+try:
+    _b_big = _WVA.binom_sf(1100, 2000)
+    _wva5 = (_WVA.binom_sf(5, 5) == 1 / 32 and _WVA.binom_sf(0, 7) == 1.0
+             and _WVA.binom_sf(8, 7) == 0.0 and abs(_WVA.binom_sf(2, 3) - 0.5) < 1e-12
+             and 0.0 < _b_big < 1e-4 and abs(_WVA.binom_sf(600, 1200) - 0.5115) < 1e-3
+             and _WVA.bump_test(6, 0)[0] is True and abs(_WVA.bump_test(6, 0)[1] - 1 / 64) < 1e-12
+             and _WVA.bump_test(5, 0)[0] is False
+             and _WVA.bump_test(20, 20)[0] is False and _WVA.bump_test(0, 0)[0] is False
+             and _WVA.fmt_p(0.0) != "0" and "1e-300" in _WVA.fmt_p(0.0)
+             and _WVA.fmt_p(0.0123) == "0.0123")
+    _wva5_w = (f"big={_b_big:.3g} · (6,0)={_WVA.bump_test(6, 0)} · (5,0)={_WVA.bump_test(5, 0)}"
+               f" · fmt0={_WVA.fmt_p(0.0)}")
+except Exception as _e:                                          # noqa: BLE001
+    _wva5, _wva5_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA5 `WV2` ذيلٌ ثنائيٌّ **دقيقٌ بلا فيضان** (‏n = 2000) · والحدُّ ‏0.025 عند تخومه "
+      "(‏1/64 يعبر و1/32 لا) · والتفوّقُ صارم · وp الصفريُّ لا يُطبَع صفرًا", _wva5, _wva5_w)
+
+# ⑦ WVA6 — `read_verdict` **جدولُ حقيقةٍ بفروع §⑥ الثلاثة**: الأرضيّةُ والتغطيةُ والحارسُ ⟵ 3 ·
+#    والثلاثةُ ⟵ 1 · وكلُّ معيارٍ ساقطٍ وحدَه ⟵ 2 · و`WV1` يشترط **الحدَّين** · و«سالبة» عند
+#    ‏15.38% **أو أقلّ** (بالحصّة الزمنيّة المحسوبة نفسِها).
+try:
+    _ts3 = _WVA.time_share(11.0, 12.0)
+    _rv = _WVA.read_verdict
+    _v_ok = _rv(500, 0.95, 30.0, 26.0, _ts3, [True, True], True)
+    _cases = {
+        "أرضيّة": (_rv(149, 0.95, 30.0, 26.0, _ts3, [True, True], True), 3),
+        "تغطية": (_rv(500, 0.8999, 30.0, 26.0, _ts3, [True, True], True), 3),
+        "حارس": (_rv(500, 0.95, 30.0, 26.0, _ts3, [True, True], True, False), 3),
+        "الثلاثة": (_v_ok, 1),
+        "WV1-نسبة": (_rv(500, 0.95, 23.0, 16.0, _ts3, [True, True], True), 2),
+        "WV1-ويلسن": (_rv(500, 0.95, 30.0, 15.0, _ts3, [True, True], True), 2),
+        "WV2": (_rv(500, 0.95, 30.0, 26.0, _ts3, [True, False], True), 2),
+        "WV2-فارغ": (_rv(500, 0.95, 30.0, 26.0, _ts3, [], True), 2),
+        "WV3": (_rv(500, 0.95, 30.0, 26.0, _ts3, [True, True], False), 2),
+    }
+    _neg_eq = _rv(500, 0.95, _ts3, 10.0, _ts3, [False, False], False)
+    _neg_up = _rv(500, 0.95, _ts3 + 0.01, 10.0, _ts3, [False, False], False)
+    _wva6 = (all(_r["branch"] == _b for _r, _b in _cases.values())
+             and all(_r["rc"] == (9 if _b == 3 else 0) for _r, _b in _cases.values())
+             and "سالبة" in _neg_eq["text"] and "سالبة" not in _neg_up["text"]
+             and "سالبة" not in _cases["WV2"][0]["text"]
+             and "لا بوّابةَ" in _v_ok["text"] and "إعادة إغلاق المحور" in _neg_eq["text"])
+    _wva6_w = str({_k: _r["branch"] for _k, (_r, _b) in _cases.items() if _r["branch"] != _b})
+except Exception as _e:                                          # noqa: BLE001
+    _wva6, _wva6_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA6 `read_verdict` جدولُ حقيقة §⑥: الأرضيّةُ والتغطيةُ والحارسُ ⟵ 3 · والثلاثةُ ⟵ 1 · "
+      "وكلُّ معيارٍ ساقطٍ ⟵ 2 · `WV1` **بحدَّيه** · و«سالبة» عند ‏15.38% **أو أقلّ**", _wva6, _wva6_w)
+
+# ⑧ WVA7 — الحرّاسُ **قبل أيّ جلب**: الإنتاجُ غيرُ مطابق · مستوردٌ للأداة · جدولُ إغلاقٍ مبكّرٍ
+#    ناقص · ونافذةٌ مكسورة (`V-W3`) ⟵ **خروج 5 وصفرُ نداءٍ للمجتمع**.
+try:
+    _wva7_r = {}
+    _k_ok = _wva_scan(lambda _i: "w3")
+    _wva7_r["prod"] = _wva_run(_k_ok, _prod=lambda: (False, "a", "b"))
+    _wva7_r["imp"] = _wva_run(_k_ok, _imp=lambda: ["x.py"])
+    _wva7_r["early"] = _wva_run(_k_ok, _early=lambda: (False, {"2023": 0}))
+    _wva7_win = _WVA.WINDOWS
+    try:
+        _WVA.WINDOWS = _wva7_win[:-1]
+        _wva7_r["vw3"] = _wva_run(_k_ok)
+    finally:
+        _WVA.WINDOWS = _wva7_win
+    _wva7 = (all(_r[0] == 5 and _r[2]["scan"] == 0 and not _r[2]["fetch"]
+                 for _r in _wva7_r.values())
+             and "V-W8" in _wva7_r["early"][1] and "V-W3" in _wva7_r["vw3"][1])
+    _wva7_w = str({_k: (_r[0], _r[2]["scan"], len(_r[2]["fetch"])) for _k, _r in _wva7_r.items()})
+except Exception as _e:                                          # noqa: BLE001
+    _wva7, _wva7_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA7 الحرّاسُ **قبل أيّ جلب**: إنتاجٌ غيرُ مطابق · مستوردٌ للأداة · إغلاقٌ مبكّرٌ ناقص "
+      "(‏`V-W8`) · نافذةٌ مكسورة (‏`V-W3`) ⟵ **خروج 5 وصفرُ نداءٍ للمجتمع**", _wva7, _wva7_w)
+
+# ⑨ WVA8 — `V-W1` الهُويّةُ **بت-بت** ⟵ خروج 7 **قبل أيّ دقيقة** (ومع يومٍ لم يُجلَب يُقال «عطلُ
+#    جلب») · و`V-W7` صفٌّ من 2026 ⟵ خروج 5 قبل أيّ دقيقة.
+try:
+    _id_got = dict(_WVA.LK.NL_UP)
+    _id_got["2023"] = (250, 249, 869, 700)
+    _r_got = _wva_run(_wva_scan(lambda _i: "w3", _ident=_id_got))
+    _r_fold = _wva_run(_wva_scan(lambda _i: "w3" if _i else "nb10",
+                                 _ident={**_WVA.LK.NL_UP, "2025": (250, 250, 1248, 1086)}))
+    _r_26 = _wva_run(_wva_scan(lambda _i: "w3", _day_of=lambda _y, _i, _k: (
+        "2026-01-12" if (_y == "2024" and _i == 5) else _wva_day(_y, _i, _k))))
+    _wva8 = (_r_got[0] == 7 and "عطلُ جلبٍ" in _r_got[1] and not _r_got[2]["fetch"]
+             and _r_got[2]["scan"] == 1
+             and _r_fold[0] == 7 and "عطلُ جلبٍ" not in _r_fold[1] and not _r_fold[2]["fetch"]
+             and _r_fold[2]["scan"] == 3
+             and _r_26[0] == 5 and "V-W7" in _r_26[1] and not _r_26[2]["fetch"]
+             and not _r_26[2]["splits"])
+    _wva8_w = (f"got={_r_got[0]}/{_r_got[2]['scan']} · fold={_r_fold[0]}/{_r_fold[2]['scan']} · "
+               f"2026={_r_26[0]} · جلبٌ={len(_r_got[2]['fetch']) + len(_r_26[2]['fetch'])}")
+except Exception as _e:                                          # noqa: BLE001
+    _wva8, _wva8_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA8 `V-W1` الهُويّةُ **بت-بت** ⟵ خروج 7 قبل أيّ دقيقة (و«عطلُ جلبٍ» يُقال حين يكون) · "
+      "و`V-W7` صفٌّ من 2026 ⟵ خروج 5 قبل أيّ دقيقة", _wva8, _wva8_w)
+
+# ⑩ WVA9 — وضعُ الجدوى (`§⑫`-ⓗ): الهُويّةُ والأعدادُ وحدَها · **صفرُ دقيقةٍ وصفرُ تقسيمٍ وصفرُ نسبة**.
+try:
+    _r_dry = _wva_run(_wva_scan(lambda _i: "w3"), _dry=True)
+    _wva9 = (_r_dry[0] == 0 and not _r_dry[2]["fetch"] and not _r_dry[2]["splits"]
+             and _r_dry[2]["scan"] == 3 and "وضعُ الجدوى" in _r_dry[1]
+             and "أحداثٌ 700" in _r_dry[1] and "أحداثٌ 1087" in _r_dry[1]
+             and "📊" not in _r_dry[1] and "JUDGE" not in _r_dry[1] and "🥇 WV1" not in _r_dry[1])
+    _wva9_w = f"rc={_r_dry[0]} · جلب={len(_r_dry[2]['fetch'])} · تقسيم={len(_r_dry[2]['splits'])}"
+except Exception as _e:                                          # noqa: BLE001
+    _wva9, _wva9_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA9 وضعُ الجدوى: الهُويّةُ وأعدادُ المجتمع وحدَها · **صفرُ دقيقةٍ وصفرُ تقسيمٍ وصفرُ "
+      "نسبةٍ وصفرُ حكم**", _wva9, _wva9_w)
+
+
+# ⑪ WVA10 — المسارُ كاملًا على مجتمعٍ اصطناعيّ (‏الفرعُ 1): **كلُّ عدّادٍ مطبوعٍ = المحسوبُ من
+#    النوع** · الإغلاقُ المبكّرُ من **التقويم الحقيقيّ** · والتقسيمُ ±3 و`None` منفصلان · وبريماركتٌ
+#    وحدَه = غيرُ مغطًّى · **والشاهدُ `CX` يُجلَب لأسهم الماركت وحدَها** · ولا جلبَ لمستبعَد.
+def _wva_k1(_i):
+    if _i % 100 == 99:
+        return "pm_only"
+    return {0: "early", 1: "split", 2: "split_none", 3: "not_market", 5: "nb10",
+            6: "split_far", 7: "open"}.get(_i % 10, "no_bars" if _i % 50 == 4 else "w3")
+
+
+try:
+    _x1 = _wva_expect(_wva_k1)
+    _r1 = _wva_run(_wva_scan(_wva_k1))
+    _cxf = [_s for _s in _r1[2]["fetch"] if _s.startswith("CX.")]
+    _evf = [_s for _s in _r1[2]["fetch"] if not _s.startswith("CX.")]
+    _w3n = _x1.get("w3", 0) + _x1.get("split_far", 0)
+    _wva10 = (_r1[0] == 0 and "JUDGE الفرعُ 1" in _r1[1]
+              and f"الإغلاقُ المبكّر {_x1['early']} ·" in _r1[1]
+              and f"تقسيمٌ ±3ي {_x1['split']} ·" in _r1[1]
+              and f"تقسيماتٌ تعذّر جلبُها {_x1['split_none']} ·" in _r1[1]
+              and f"مؤهَّلٌ {_x1['elig']}" in _r1[1]
+              and f"{_x1['elig'] - _x1['nobars']} من {_x1['elig']} =" in _r1[1]
+              and f"سقط بشرط «سهم الماركت» {_x1['not_market']} ·" in _r1[1]
+              and f"**أسهمُ الماركت المقيسة {_x1['n']}**" in _r1[1]
+              and f"11-12 · {_w3n:>4} من {_x1['n']} =" in _r1[1]
+              and f"10-11 · {_x1['nb10']:>4} من {_x1['n']} =" in _r1[1]
+              and len(_cxf) == _x1["cx"] and len(_evf) == _x1["elig"]
+              and not any(_s.split(".")[0] in ("early", "split", "split_none") for _s in _evf)
+              and not any(_s.split(".")[0] == "early" for _s in _r1[2]["splits"])
+              and len(_r1[2]["splits"]) == 2699 - _x1["early"]
+              and "EDT" in _r1[1] and "EST" in _r1[1] and "WD5" in _r1[1]
+              and "WP5" in _r1[1])
+    _wva10_w = (f"rc={_r1[0]} · n={_x1['n']} · early={_x1['early']} · cx={len(_cxf)}/{_x1['cx']}"
+                f" · evf={len(_evf)}/{_x1['elig']}")
+except Exception as _e:                                          # noqa: BLE001
+    _wva10, _wva10_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA10 المسارُ كاملًا (‏الفرعُ 1): **كلُّ عدّادٍ مطبوعٍ = المحسوبُ من النوع** · الإغلاقُ "
+      "المبكّرُ من التقويم الحقيقيّ · التقسيمُ ±3 و`None` منفصلان · **و`CX` لأسهم الماركت وحدَها**",
+      _wva10, _wva10_w)
+
+# ⑫ WVA11 — بقيّةُ الفروع: «سالبة» (‏W3 عُشرٌ) · الفرعُ 2 **بلا «سالبة»** حين تعلو W3 ويسقط
+#    `WV2` (ويُؤكَّد `WP2`) · والفرعُ 3 بالتغطية (‏80%) **وبالأرضيّة** (‏15 سهمًا) — ولا جدولَ نسبٍ فيه.
+try:
+    _r_neg = _wva_run(_wva_scan(lambda _i: "w3" if _i % 10 == 0 else "open"))
+    _r_2 = _wva_run(_wva_scan(lambda _i: "w3" if _i % 10 < 3 else ("nb10" if _i % 10 < 7
+                                                                   else "open")))
+    _r_cov = _wva_run(_wva_scan(lambda _i: "no_bars" if _i % 5 == 0 else "w3"))
+    _r_flr = _wva_run(_wva_scan(lambda _i: "w3" if _i % 200 == 0 else "not_market"))
+    _wva11 = (_r_neg[0] == 0 and "JUDGE الفرعُ 2" in _r_neg[1] and "سالبة" in _r_neg[1]
+              and _r_2[0] == 0 and "JUDGE الفرعُ 2" in _r_2[1] and "سالبة" not in _r_2[1]
+              and "WP2 «WV2 يسقط وقممُ 10-11 أكثرُ من 11-12» ⇒ ✅" in _r_2[1]
+              and _r_cov[0] == 9 and "JUDGE الفرعُ 3" in _r_cov[1] and "📊" not in _r_cov[1]
+              and "80.0%" in _r_cov[1]
+              and _r_flr[0] == 9 and "JUDGE الفرعُ 3" in _r_flr[1] and "📊" not in _r_flr[1]
+              and "**أسهمُ الماركت المقيسة 15**" in _r_flr[1])
+    _wva11_w = f"neg={_r_neg[0]} · 2={_r_2[0]} · cov={_r_cov[0]} · floor={_r_flr[0]}"
+except Exception as _e:                                          # noqa: BLE001
+    _wva11, _wva11_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA11 «سالبة» حين W3 عُشر · والفرعُ 2 **بلا «سالبة»** حين يسقط `WV2` وحدَه (‏و`WP2` "
+      "مؤكَّد) · والفرعُ 3 **بالتغطية وبالأرضيّة** بلا جدولِ نسب", _wva11, _wva11_w)
+
+# ⑬ WVA12 — المُخرَج `waves_rows.tsv` في **مجلّدٍ مؤقّت** (لا في المستودع): ترويسةٌ بحرفها وصفٌّ
+#    لكلّ سهمِ ماركت · و`main()` بلا مفتاحٍ ⟵ 2 · ومدخلا الـworkflow موصولان (‏`WAVES_DRY`/`WAVES_TSV`).
+try:
+    _wva12_cwd = _wva_os.getcwd()
+    with _wva_tf.TemporaryDirectory() as _td:
+        try:
+            _wva_os.chdir(_td)
+            _r_rows = _wva_run(_wva_scan(lambda _i: "w3" if _i % 200 == 0 else "not_market"),
+                               _rows=True)
+            with open(_WVA.OUT_ROWS, encoding="utf-8") as _fh:
+                _rows_txt = _fh.read().splitlines()
+        finally:
+            _wva_os.chdir(_wva12_cwd)
+    _hdr = _rows_txt[0].split("\t") if _rows_txt else []
+    _env_old = {_k: _wva_os.environ.pop(_k, None)
+                for _k in ("POLYGON_API_KEY", "WAVES_DRY", "WAVES_TSV")}
+    _run_old, _seen = _WVA.run, {}
+    try:
+        _buf12 = _wva_io.StringIO()
+        with _wva_cl.redirect_stdout(_buf12):
+            _rc_nokey = _WVA.main()
+        _WVA.run = lambda _key, **_kw: (_seen.update(_kw, key=_key) or 0)
+        _wva_os.environ.update({"POLYGON_API_KEY": "k", "WAVES_DRY": "1", "WAVES_TSV": "0"})
+        _rc_dry = _WVA.main()
+        _dry_kw = dict(_seen)
+        _wva_os.environ.update({"WAVES_DRY": "0", "WAVES_TSV": "1"})
+        _seen.clear()
+        _WVA.main()
+        _live_kw = dict(_seen)
+    finally:
+        _WVA.run = _run_old
+        for _k, _v0 in _env_old.items():
+            _wva_os.environ.pop(_k, None)
+            if _v0 is not None:
+                _wva_os.environ[_k] = _v0
+    _wva12 = (_hdr == ["year", "day", "sym", "prev_close", "reg_high_x", "high_h", "win", "ties",
+                       "low_h", "low_win", "pm_high_h", "pm_win", "tz", "ctrl", "ctrl_high_h",
+                       "ctrl_win"]
+              and len(_rows_txt) == 1 + 15 and not _wva_os.path.exists(_WVA.OUT_ROWS)
+              and _rc_nokey == 2 and _rc_dry == 0
+              and _dry_kw.get("dry") is True and _dry_kw.get("write_rows") is False
+              and _live_kw.get("dry") is False and _live_kw.get("write_rows") is True)
+    _wva12_w = (f"hdr={len(_hdr)} · صفوف={len(_rows_txt) - 1} · nokey={_rc_nokey} · "
+                f"dry={_dry_kw} · live={_live_kw}")
+except Exception as _e:                                          # noqa: BLE001
+    _wva12, _wva12_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA12 `waves_rows.tsv` في مجلّدٍ مؤقّت **لا في المستودع**: ترويسةٌ بحرفها وصفٌّ لكلّ سهمِ "
+      "ماركت · و`main()` بلا مفتاحٍ ⟵ 2 · و`WAVES_DRY`/`WAVES_TSV` موصولان", _wva12, _wva12_w[:220])
+
+# ⑭ WVA13 — `waves.yml`: يدويٌّ **بلا كرون** · **بلا سرِّ تلغرام** · مفتاحُ المزوّد وحدَه · contents:
+#    read · 3.11 · ومدخلاه عبر env لا داخل `run:` · والصفوفُ تُرفَع · **وكلُّ مستورَدٍ بالاسم يُستعمَل**.
+try:
+    _wvy = open(".github/workflows/waves.yml", encoding="utf-8").read()
+    _wvyd = __import__("yaml").safe_load(_wvy)
+    _wvon = _wvyd.get(True) or _wvyd.get("on") or {}
+    _wvin = set((_wvon.get("workflow_dispatch") or {}).get("inputs") or {})
+    _wvsteps = [_st for _j in (_wvyd.get("jobs") or {}).values() for _st in (_j.get("steps") or [])]
+    _wvrun = [str(_st.get("run") or "") for _st in _wvsteps]
+    _wvup = [_st for _st in _wvsteps if "upload-artifact" in str(_st.get("uses") or "")]
+    _wvt = _wva_ast.parse(_wva_src)
+    _wvused = set()
+    for _n in _wva_ast.walk(_wvt):
+        if isinstance(_n, _wva_ast.Name):
+            _wvused.add(_n.id)
+        elif isinstance(_n, _wva_ast.Attribute):
+            _wvused.add(_n.attr)
+    _wvneed = {"scan_year", "splits_of", "fetch_day", "ny_hour", "session_info", "wilson",
+               "no_config_assign", "production_untouched", "EARLY_CLOSES",
+               "EARLY_CLOSE_COUNT_BY_YEAR", "NL_UP", "SPLIT_GUARD"}
+    _wvmiss = sorted(_wvneed - _wvused)
+    _wva13 = (set(_wvon) == {"workflow_dispatch"} and "cron" not in _wvy
+              and "schedule" not in _wvon and "TELEGRAM" not in _wvy
+              and "POLYGON_API_KEY" in _wvy and _wvyd.get("permissions") == {"contents": "read"}
+              and "3.11" in _wvy and _wvin == {"dry", "tsv"}
+              and all("${{" not in _r for _r in _wvrun)
+              and "python3 waves_probe.py" in _wvrun
+              and len(_wvup) == 1 and _wvup[0].get("if") == "always()"
+              and (_wvup[0].get("with") or {}).get("path") == "waves_rows.tsv"
+              and "WAVES_DRY" in _wvy and "WAVES_TSV" in _wvy and not _wvmiss)
+    _wva13_w = (f"on={set(_wvon)} · مدخلات={_wvin} · تلغرام={'TELEGRAM' in _wvy} · "
+                f"غيرُ مستعمَل={_wvmiss}")
+except Exception as _e:                                          # noqa: BLE001
+    _wva13, _wva13_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA13 `waves.yml` يدويٌّ **بلا كرون وبلا سرِّ تلغرام** · مفتاحُ المزوّد وحدَه · "
+      "contents: read · 3.11 · المدخلان عبر env · والصفوفُ تُرفَع · **وكلُّ مستورَدٍ بالاسم يُستعمَل**",
+      _wva13, _wva13_w)
+
+# ⑮ CALE1 — التقويم: **ثمانيةُ أيّامِ إغلاقٍ مبكّرٍ 2023-2025 بحذافيرها** (مصادقةٌ مستقلّة من
+#    `exchange_calendars` XNYS/XNAS) · كلُّها 13:00 وأيّامُ عمل وليست عطلًا · والعددُ المثبَّت يطابق
+#    لكلّ سنةٍ في العطلات · **و2026/2027 كما هما بت-بت** (خاملٌ على الإنتاج).
+try:
+    import market_calendar as _cale_mc
+    _cale_old = {_d: _v for _d, _v in _cale_mc.EARLY_CLOSES.items() if _d[:4] in ("2026", "2027")}
+    _cale_new = sorted(_d for _d in _cale_mc.EARLY_CLOSES if _d[:4] in ("2023", "2024", "2025"))
+    _cale_cnt = {}
+    for _d in _cale_mc.EARLY_CLOSES:
+        _cale_cnt[int(_d[:4])] = _cale_cnt.get(int(_d[:4]), 0) + 1
+    _cale1 = (_cale_new == ["2023-07-03", "2023-11-24", "2024-07-03", "2024-11-29", "2024-12-24",
+                            "2025-07-03", "2025-11-28", "2025-12-24"]
+              and all(_v == 13 * 60 for _v in _cale_mc.EARLY_CLOSES.values())
+              and all(_wva_dt.date.fromisoformat(_d).weekday() < 5 for _d in _cale_mc.EARLY_CLOSES)
+              and not (set(_cale_mc.EARLY_CLOSES) & set(_cale_mc.HOLIDAYS))
+              and _cale_cnt == dict(_cale_mc.EARLY_CLOSE_COUNT_BY_YEAR)
+              and set(_cale_mc.EARLY_CLOSE_COUNT_BY_YEAR) == set(_cale_mc.HOLIDAY_COUNT_BY_YEAR)
+              and _cale_old == {"2026-11-27": 780, "2026-12-24": 780, "2027-11-26": 780}
+              and _cale_mc.session_info("2024-12-24")["session_type"] == "early_close"
+              and _cale_mc.session_info("2024-12-24")["close_ny_min"] == 780
+              and _cale_mc.session_info("2023-12-22")["session_type"] == "regular")
+    _cale1_w = f"الجديد={_cale_new} · العدّ={dict(sorted(_cale_cnt.items()))}"
+except Exception as _e:                                          # noqa: BLE001
+    _cale1, _cale1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔒 CALE1 الإغلاقُ المبكّر 2023-2025 **ثمانيةُ أيّامٍ بحذافيرها** (مصادقةُ exchange_calendars) · "
+      "كلُّها 13:00 · والعددُ المثبَّت يطابق لكلّ سنة · **و2026/2027 بت-بت**", _cale1, _cale1_w)
 
 # ═══ 🏦 «سجّل HRT» (أمرُ المالك 2026-09-23) — أقفال HRK0-HRK4 · عقدٌ بعد مِجَسٍّ قبل أيّ سعر ═══
 try:
