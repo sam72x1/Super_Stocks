@@ -59307,18 +59307,21 @@ try:
         "التشغيلةُ الحاكمة": "35902362232" in _wvk_res,
         "المقام": "212 قمّةً من 1,982" in _wvk_res,
         "الأمر": "شغّل الموجات" in _wvk_res,
-        "لا إغلاقَ قبل الأمر": not _wvk_closed,
+        # 🔄🔄🔄 **وحُدِّث ثالثةً 2026-09-24 إقرارًا بأمر المالك «اقفل الموجات»:** كان «لا إغلاقَ
+        #    قبل الأمر» ⇒ جاء الأمرُ فصار **الإغلاقُ المُنفَّذ شرطًا** (بالـAST) مع قسمه في النتيجة.
+        "الإغلاقُ مُنفَّذٌ بالأمر": (_wvk_closed and
+                                   "## ⑨ 🔒 الإغلاق — بأمر المالك «اقفل الموجات»" in _wvk_res),
     }
     _v = _wvk_tool and _wvk_wfs == ["waves.yml"] and _wvk_txt5 and all(_wvk_r5.values())
     _w = (f"أداة={_wvk_tool} · workflows={_wvk_wfs} · نصُّ الحدود والملحق={_wvk_txt5} · "
           f"النتيجة={ {_k: _x for _k, _x in _wvk_r5.items() if not _x} or 'تامّة'}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🌊🔒 WVK5 (‏حُدِّث ثانيةً بأمر «شغّل الموجات») الأداةُ وworkflowٌ **واحد** · والملحقُ `§⑫` "
-      "يسمّي الأمر · **و`waves_result.md` يحمل سطرَ الحكم بحرفه والتشغيلةَ والمقام** · ولا إغلاقَ "
-      "مُنفَّذًا قبل «اقفل الموجات» · وصفرُ شحن", _v, _w)
+check("🌊🔒 WVK5 (‏حُدِّث ثالثةً بأمر «اقفل الموجات») الأداةُ وworkflowٌ **واحد** · والملحقُ `§⑫` "
+      "يسمّي الأمر · **و`waves_result.md` يحمل سطرَ الحكم بحرفه والتشغيلةَ والمقام** · **والإغلاقُ "
+      "مُنفَّذٌ بالأمر المستقلّ وقسمُه §⑨ في النتيجة** · وصفرُ شحن", _v, _w)
 
-# ═══ 🌊⏰ «ابن أداة الموجات» (أمرُ المالك 2026-09-23) — أقفال WVA0-WVA13 · CALE1 ═══════════
+# ═══ 🌊⏰ «ابن أداة الموجات» (أمرُ المالك 2026-09-23) — أقفال WVA0-WVA14 · CALE1 ═══════════
 #    الأداة `waves_probe.py` · العقد `waves_prereg.md` ‏+ الملحق `§⑫` · **قراءةٌ فقط**.
 #    كلُّ قفلٍ **سلوكيّ** بجالبين محقونين — **صفرُ شبكةٍ وصفرُ كتابةٍ في المستودع**.
 import contextlib as _wva_cl                                      # noqa: E402
@@ -59754,9 +59757,12 @@ try:
             _wva_os.chdir(_wva12_cwd)
     _hdr = _rows_txt[0].split("\t") if _rows_txt else []
     _env_old = {_k: _wva_os.environ.pop(_k, None)
-                for _k in ("POLYGON_API_KEY", "WAVES_DRY", "WAVES_TSV")}
+                for _k in ("POLYGON_API_KEY", "WAVES_DRY", "WAVES_TSV", "WAVES_REOPEN")}
     _run_old, _seen = _WVA.run, {}
     try:
+        # 🔄 **إقرارٌ مؤرَّخ 2026-09-24 («اقفل الموجات»):** المحورُ مُغلَق ⇒ هذا القفلُ يختبر مسارَ
+        #    `main()` **بالإقرار** `WAVES_REOPEN=1` · والمُغلَقُ (خروج ‏8 بصفر عمليّة) يحرسه `WVA14`.
+        _wva_os.environ["WAVES_REOPEN"] = "1"
         _buf12 = _wva_io.StringIO()
         with _wva_cl.redirect_stdout(_buf12):
             _rc_nokey = _WVA.main()
@@ -59812,12 +59818,13 @@ try:
     _wva13 = (set(_wvon) == {"workflow_dispatch"} and "cron" not in _wvy
               and "schedule" not in _wvon and "TELEGRAM" not in _wvy
               and "POLYGON_API_KEY" in _wvy and _wvyd.get("permissions") == {"contents": "read"}
-              and "3.11" in _wvy and _wvin == {"dry", "tsv"}
+              and "3.11" in _wvy and _wvin == {"dry", "tsv", "reopen"}   # 🔄 إقرار 2026-09-24
               and all("${{" not in _r for _r in _wvrun)
               and "python3 waves_probe.py" in _wvrun
               and len(_wvup) == 1 and _wvup[0].get("if") == "always()"
               and (_wvup[0].get("with") or {}).get("path") == "waves_rows.tsv"
-              and "WAVES_DRY" in _wvy and "WAVES_TSV" in _wvy and not _wvmiss)
+              and "WAVES_DRY" in _wvy and "WAVES_TSV" in _wvy and "WAVES_REOPEN" in _wvy
+              and not _wvmiss)
     _wva13_w = (f"on={set(_wvon)} · مدخلات={_wvin} · تلغرام={'TELEGRAM' in _wvy} · "
                 f"غيرُ مستعمَل={_wvmiss}")
 except Exception as _e:                                          # noqa: BLE001
@@ -59825,6 +59832,99 @@ except Exception as _e:                                          # noqa: BLE001
 check("🌊🔒 WVA13 `waves.yml` يدويٌّ **بلا كرون وبلا سرِّ تلغرام** · مفتاحُ المزوّد وحدَه · "
       "contents: read · 3.11 · المدخلان عبر env · والصفوفُ تُرفَع · **وكلُّ مستورَدٍ بالاسم يُستعمَل**",
       _wva13, _wva13_w)
+
+# ⑯ WVA14 — 🔒 **الإغلاقُ مُنفَّذٌ لا مكتوب** (أمرُ المالك «اقفل الموجات» 2026-09-24 · `waves_result.md §⑨`)
+#    — مرآةُ `SSA11` **سلوكيًّا من طرفيه**:
+#    (أ) مُغلَقًا ⟶ خروجُ ‏8 **بصفرِ عمليّة** (لا نداءَ `run`) **ولا سطرَ غيرُ نصِّ الإغلاق**.
+#    (ب) **وافتراضُ الـworkflow الحقيقيُّ** (مقروءًا من الـyml) يُبقيه مُغلَقًا · والمدخلُ موصولٌ بخطوة التشغيل.
+#    (ج) وبالإقرار `1` ⟶ **الحارسُ يرتفع فعلًا**: يبلغ فحصَ المفتاح فيخرج ‏2 بلا مفتاح — **بلا `run`**.
+#    (د) و‏8 **مميَّزٌ** عن كلّ `RC_*` ومرجوعاتِ `main` بشاهدَي ضبط (‏11 شاغر · `RC_GUARD` مشغول).
+#    (هـ) والحارسُ **أوّلُ جملةٍ** في `main` (‏AST) · ونصُّ الإغلاق يحمل ①②③ والمفتاحَ وأرقامَ الحكم ·
+#        ونقطةُ دخولٍ واحدة.
+try:
+    _wvz_tree = _wva_ast.parse(_wva_src)
+    _wvz_main = next((n for n in _wva_ast.walk(_wvz_tree)
+                      if isinstance(n, _wva_ast.FunctionDef) and n.name == "main"), None)
+    _wvz_busy = {getattr(_WVA, _k) for _k in dir(_WVA) if _k.startswith("RC_")}
+
+    def _wvz_val(node):
+        if isinstance(node, _wva_ast.Constant) and isinstance(node.value, int):
+            return {node.value}
+        if isinstance(node, _wva_ast.Name) and node.id != "CLOSED_RC":
+            _v = getattr(_WVA, node.id, None)
+            return {_v} if isinstance(_v, int) else set()
+        if isinstance(node, _wva_ast.IfExp):
+            return _wvz_val(node.body) | _wvz_val(node.orelse)
+        return set()
+    for _n in _wva_ast.walk(_wvz_main):
+        if isinstance(_n, _wva_ast.Return) and _n.value is not None:
+            _wvz_busy |= _wvz_val(_n.value)
+    _wvz_witness = (_WVA.CLOSED_RC not in _wvz_busy and 11 not in _wvz_busy
+                    and _WVA.RC_GUARD in _wvz_busy)
+    _wvz_b0 = _wvz_main.body[0] if (_wvz_main and _wvz_main.body) else None
+    _wvz_first = (isinstance(_wvz_b0, _wva_ast.If)
+                  and isinstance(_wvz_b0.test, _wva_ast.Call)
+                  and getattr(_wvz_b0.test.func, "id", None) == "_closed_now"
+                  and any(isinstance(_x, _wva_ast.Return)
+                          and getattr(_x.value, "id", None) == "CLOSED_RC"
+                          for _x in _wvz_b0.body))
+    _wvz_wf = __import__("yaml").safe_load(open(".github/workflows/waves.yml", encoding="utf-8"))
+    _wvz_on = _wvz_wf.get(True) or _wvz_wf.get("on") or {}
+    _wvz_rin = (((_wvz_on.get("workflow_dispatch") or {}).get("inputs") or {}).get("reopen") or {})
+    _wvz_def = str(_wvz_rin.get("default"))
+    _wvz_steps = [_st for _j in (_wvz_wf.get("jobs") or {}).values() for _st in (_j.get("steps") or [])]
+    _wvz_wired = any(
+        str((_st.get("env") or {}).get("WAVES_REOPEN", "")).replace(" ", "")
+        == "${{github.event.inputs.reopen}}" and "waves_probe.py" in str(_st.get("run"))
+        for _st in _wvz_steps)
+    _wvz_calls, _wvz_logged = [], []
+    _wvz_keep = (_WVA.run, _WVA.log)
+    _wvz_env0 = {_k: _wva_os.environ.get(_k) for _k in ("WAVES_REOPEN", "POLYGON_API_KEY")}
+    try:
+        _WVA.run = lambda *a, **k: (_wvz_calls.append(1), 0)[1]
+        _WVA.log = _wvz_logged.append
+        _wva_os.environ.pop("POLYGON_API_KEY", None)
+        _wva_os.environ.pop("WAVES_REOPEN", None)
+        _wvz_rc_closed = _WVA.main()
+        _wvz_log_closed, _wvz_run_closed = list(_wvz_logged), len(_wvz_calls)
+        _wva_os.environ["WAVES_REOPEN"] = _wvz_def                  # افتراضُ الـyml
+        del _wvz_logged[:]
+        _wvz_rc_default = _WVA.main()
+        _wvz_run_default = len(_wvz_calls)
+        _wva_os.environ["WAVES_REOPEN"] = "1"                       # الإقرار
+        del _wvz_logged[:]
+        _wvz_rc_open = _WVA.main()
+        _wvz_run_open = len(_wvz_calls)
+    finally:
+        _WVA.run, _WVA.log = _wvz_keep
+        for _k, _v0 in _wvz_env0.items():
+            _wva_os.environ.pop(_k, None)
+            if _v0 is not None:
+                _wva_os.environ[_k] = _v0
+    _wvz_txt = "\n".join(_WVA.closure_notice())
+    _wvz_notice = all(_x in _wvz_txt for _x in (
+        "①", "②", "③", "WAVES_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد",
+        "TG_50819", "TG_50818", "10.70%", "15.38%", "0.70×", "3.62×", "35902362232",
+        "T-SESSIONS"))
+    _wvz_one = _wva_src.count("if __name__ ==") == 1
+    _wva14 = (_WVA.AXIS_CLOSED is True and _WVA.REOPEN_ENV == "WAVES_REOPEN"
+              and _wvz_rc_closed == _WVA.CLOSED_RC == 8 and _wvz_run_closed == 0
+              and _wvz_log_closed == _WVA.closure_notice()
+              and _wvz_def == "0" and _wvz_rc_default == 8 and _wvz_run_default == 0
+              and _wvz_wired
+              and _wvz_rc_open == _WVA.RC_NOKEY == 2 and _wvz_run_open == 0
+              and _wvz_witness and _wvz_first and _wvz_notice and _wvz_one)
+    _wva14_w = (f"مُغلَق rc={_wvz_rc_closed} run={_wvz_run_closed} أسطر={len(_wvz_log_closed)} · "
+                f"افتراضُ الـyml={_wvz_def!r} ⟶ rc={_wvz_rc_default} موصول={_wvz_wired} · "
+                f"بالإقرار rc={_wvz_rc_open} run={_wvz_run_open} · مشغولة={sorted(_wvz_busy)} · "
+                f"شاهد={_wvz_witness} · أوّلُ جملة={_wvz_first} · النصّ={_wvz_notice} · "
+                f"دخولٌ واحد={_wvz_one}")
+except Exception as _e:                                          # noqa: BLE001
+    _wva14, _wva14_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌊🔒 WVA14 الإغلاقُ **مُنفَّذ** («اقفل الموجات»): خروج 8 بصفرِ عمليّة ولا سطرَ غيرُ النصّ · "
+      "**وافتراضُ الـworkflow (`0`) يُبقيه مُغلَقًا** · والإقرارُ `1` يرفع الحارسَ فيبلغ فحصَ المفتاح بلا "
+      "`run` · و‏8 مميَّزٌ (بشاهدَي ضبط) · والحارسُ أوّلُ جملة · ونصُّ الفتح ①②③ بأرقام الحكم · ودخولٌ واحد",
+      _wva14, _wva14_w)
 
 # ⑮ CALE1 — التقويم: **ثمانيةُ أيّامِ إغلاقٍ مبكّرٍ 2023-2025 بحذافيرها** (مصادقةٌ مستقلّة من
 #    `exchange_calendars` XNYS/XNAS) · كلُّها 13:00 وأيّامُ عمل وليست عطلًا · والعددُ المثبَّت يطابق
@@ -59933,6 +60033,11 @@ check("🏦🔒 HRK3 `t0` = **قبولُ الإيداع** لا تاريخُ ال
 #    🔄 **حُدِّث 2026-09-23 إقرارًا بأمر المالك «ابن أداة HRT»** (لا إرخاءً): المِجَسُّ **ما زال
 #    محذوفًا** · والأداةُ وworkflowها موجودان وworkflowٌ **واحدٌ فقط** ينادي الأداة · والملحقُ `§⑪`
 #    مكتوبٌ ويسمّي الأمر · **ولا `hrt_result.md` قبل «شغّل HRT»** (صفرُ رقمٍ قبل الدمج).
+#    🔄🔄 **وحُدِّث ثانيةً 2026-09-24 إقرارًا بأمر المالك «شغّل HRT»** (لا إرخاءً): النتيجةُ `hrt_result.md`
+#    **موجودةٌ وتحمل سطرَ الحكم بحرفه** كما طبعته التشغيلة `35950256119` · والفرعَ 3 في عنوانها · والحسابَ
+#    الذي يُثبت أن الانتظار لا يُغيّر الفرع (‏14 ‏+ 5 = 19 · 6 ‏+ 4 = 10) · وتكذيبَ `HP3` منشورًا.
+_HRK4_JUDGE = ("JUDGE branch=3 (لا قياس) exit=0/14 buy=1/6 edgar=100.0% price=100.0% "
+               "HP1=مؤكَّد HP2=مؤكَّد HP3=مكذَّب HP4=مؤكَّد")
 try:
     _hrk_gone = not _wvk_os.path.exists("hrt_probe.py") and not _wvk_os.path.exists(
         ".github/workflows/hrt_probe.yml")
@@ -59945,13 +60050,24 @@ try:
     _hrk_s11 = _hrk_doc[_hrk_i11:] if _hrk_i11 >= 0 else ""
     _hrk_next = ("ابن أداة HRT" in _hrk_s11 and "شغّل HRT" in _hrk_s11
                  and "ولا يُشحَن شيءٌ" in _hrk_all)
-    _v = _hrk_gone and _hrk_tool and _hrk_wfs == ["hrt.yml"] and not _hrk_res and _hrk_next
+    _hrk_txt = open("hrt_result.md", encoding="utf-8").read() if _hrk_res else ""
+    _hrk_r = {
+        "سطرُ الحكم بحرفه": _HRK4_JUDGE in _hrk_txt,
+        "التشغيلة": "35950256119" in _hrk_txt,
+        "الفرعُ 3 في العنوان": "**الفرعُ 3 «لا قياس»**" in (_hrk_txt.splitlines() or [""])[0],
+        "الحدُّ الأعلى بعد المعلَّق": "= **19 على الأكثر**" in _hrk_txt and "= **10 على الأكثر**" in _hrk_txt,
+        "HP3 مكذَّبٌ منشور": "❌ **مكذَّب** — الوسيط **‏−3.4%**" in _hrk_txt,
+    }
+    _v = (_hrk_gone and _hrk_tool and _hrk_wfs == ["hrt.yml"] and _hrk_res and _hrk_next
+          and all(_hrk_r.values()))
     _w = (f"المِجَسُّ محذوف={_hrk_gone} · أداة={_hrk_tool} · workflows={_hrk_wfs} · "
-          f"نتيجة={_hrk_res} · الملحقُ يسمّي الأمرين={_hrk_next}")
+          f"نتيجة={_hrk_res} · الملحقُ يسمّي الأمرين={_hrk_next} · "
+          f"{ {_k: _x for _k, _x in _hrk_r.items() if not _x} or 'تامّة'}")
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🏦🔒 HRK4 (‏حُدِّث بأمر «ابن أداة HRT») المِجَسُّ **ما زال محذوفًا** · الأداةُ وworkflowٌ **واحد** · "
-      "والملحقُ `§⑪` يسمّي الأمرين · **ولا `hrt_result.md` قبل «شغّل HRT»**", _v, _w)
+check("🏦🔒 HRK4 (‏حُدِّث ثانيةً بأمر «شغّل HRT») المِجَسُّ **ما زال محذوفًا** · الأداةُ وworkflowٌ **واحد** · "
+      "والملحقُ `§⑪` يسمّي الأمرين · **و`hrt_result.md` يحمل سطرَ الحكم بحرفه والتشغيلةَ والفرعَ 3 والحدَّ "
+      "الأعلى بعد المعلَّق وتكذيبَ HP3**", _v, _w)
 
 
 # ═══ 🏦 «ابن أداة HRT» (أمرُ المالك 2026-09-23) — أقفال HRA0-HRA12 · قراءةٌ فقط ═══════════════
@@ -61125,6 +61241,57 @@ except Exception as _e:                                          # noqa: BLE001
 check("🗓️🌙 ECR9 الأرضيةُ الحيّة 0.69903 (‏«اعتمد الأرضية المصحّحة») وذيلُ الرسالة «47 من 429 (‏11.0%)» · "
       "و`tierlink2_probe` يثبّت أرضيةَ عقده أثناء التشغيل ويعيد الحيّةَ ولو رمى · والتوثيقُ يحمل الاعتمادَ "
       "وأسطرَ سجلّ العامل بحرفها", _v, _w)
+
+
+# ═══ 🗓️🔍② «قِس الباقي» (أمرُ المالك 2026-09-24) — `T-EARLY-2` · قفل ER0 · عقدٌ قبل أيّ رقم ═══
+# ER0 — العقدُ `early_rest_prereg.md` مدفوعٌ **قبل أيّ تشغيلةٍ أو عدّ تعرّض**: الدوالُّ الأربع · أيّامُ `D`/`D1`
+#    **مشتقّةً من التقويم في القفل نفسِه** (لا منسوخةً) ومطابقةً لما في العقد · التشغيلاتُ الحاكمة بأرقامها ·
+#    ثلاثةُ فروعٍ لا رابع · الحرّاسُ `V-R1`-`V-R5` · التنبّؤاتُ `EP2-1`-`EP2-4` · **ولا `early_rest_result.md` بعد.**
+try:
+    import datetime as _er_dt
+    import market_calendar as _er_mc
+    _er_doc = (open("early_rest_prereg.md", encoding="utf-8").read()
+               if _ear_os.path.exists("early_rest_prereg.md") else "")
+    _er_D = sorted(_d for _d in _er_mc.EARLY_CLOSES if "2023" <= _d < "2026")
+
+    def _er_next(_d):
+        _x = _er_dt.date.fromisoformat(_d) + _er_dt.timedelta(days=1)
+        while _x.weekday() >= 5 or _x.isoformat() in _er_mc.HOLIDAYS:
+            _x += _er_dt.timedelta(days=1)
+        return _x.isoformat()
+    _er_D1 = [_er_next(_d) for _d in _er_D]
+    _er_iD = _er_doc.find("- **`D`** (أيّامُ الإغلاق المبكّر)")
+    _er_iD1 = _er_doc.find("- **`D1`** (يومُ التداول التالي")
+    _er_sD = _er_doc[_er_iD:_er_iD1] if 0 <= _er_iD < _er_iD1 else ""
+    _er_sD1 = _er_doc[_er_iD1:_er_iD1 + 400] if _er_iD1 >= 0 else ""
+    _er_runs = ("32279408237", "32279428391", "32279447496", "32330346732", "32330353463",
+                "32330360191", "32466021172", "32470017803", "32475169858", "33679393353",
+                "33679406751", "33679414398", "32594670879", "32594674386", "32594677943",
+                "32933890931", "32933896037", "32933901123", "34038851451", "30661912318",
+                "30661920247", "30661925257", "30598885456")
+    _er_r = {
+        "الدوالُّ الأربع": all(_f in _er_doc for _f in (
+            "kasih_scan.parse_day", "pm_radar_scan.parse_pre", "liq_noise_probe.session_ref",
+            "event_exec.ny_session_key")),
+        "D من التقويم": len(_er_D) == 8 and all(_d in _er_sD for _d in _er_D)
+                        and not any(_d in _er_sD for _d in _er_D1),
+        "D1 من التقويم": len(_er_D1) == 8 and all(_d in _er_sD1 for _d in _er_D1),
+        "التشغيلاتُ الحاكمة": all(_r in _er_doc for _r in _er_runs),
+        "ثلاثةُ فروع": all(_b in _er_doc for _b in ("**الفرعُ 1 «لا يقلب»:**", "**الفرعُ 2 «يقلب»:**",
+                                                    "**الفرعُ 3 «لا قياس»:**")),
+        "الحرّاس": all(f"`V-R{_i}`" in _er_doc for _i in range(1, 6)),
+        "التنبّؤات": all(f"`EP2-{_i}`" in _er_doc for _i in range(1, 5)),
+        "العلمُ حرفيًّا": "`EARLY_CLOSE_CAL`" in _er_doc and '`== "1"` حرفيًّا' in _er_doc,
+        "لا ثابتَ حيًّا": "ولا ثابتٌ حيٌّ يتغيّر بنتيجته" in _er_doc,
+        "لا نتيجةَ قبل التشغيل": not _ear_os.path.exists("early_rest_result.md"),
+    }
+    _v = bool(_er_doc) and all(_er_r.values())
+    _w = str({_k: _x for _k, _x in _er_r.items() if not _x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ER0 عقدُ `T-EARLY-2` مدفوعٌ قبل أيّ رقم: الدوالُّ الأربع · أيّامُ `D`/`D1` **مشتقّةٌ من التقويم** ومطابقة · "
+      "التشغيلاتُ الحاكمة · ثلاثةُ فروع · `V-R1`-`V-R5` · `EP2-1`-`EP2-4` · العلمُ `== \"1\"` · **ولا نتيجةَ قبل التشغيل**",
+      _v, _w)
 
 
 # ══════════════════════════════════════════════════════════════════════════

@@ -17,6 +17,10 @@ on:
         description: "1 = يكتب waves_rows.tsv (الافتراض) · 0 = لا يكتب"
         required: false
         default: "1"
+      reopen:
+        description: "🔒 المحورُ مُغلَق («اقفل الموجات» 2026-09-24) — 1 = إقرارٌ بشروط الفتح الثلاثة (waves_result.md §⑨) · غيرُه = خروج 8"
+        required: false
+        default: "0"
 
 jobs:
   waves:
@@ -43,6 +47,7 @@ jobs:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           WAVES_DRY: ${{ github.event.inputs.dry }}
           WAVES_TSV: ${{ github.event.inputs.tsv }}
+          WAVES_REOPEN: ${{ github.event.inputs.reopen }}
         run: python3 waves_probe.py
 
       - name: Upload rows
