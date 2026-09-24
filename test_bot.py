@@ -15837,9 +15837,12 @@ _c7_pins = [_l.strip() for _l in _c7_req.splitlines()
 #    أن `get_earnings_dates` في `technical_report._next_earnings_from_yf` **يرمي `ImportError`
 #    (lxml) في 16 من 32 سهمًا ويُبتلع صامتًا** ⇒ مصدرُ تواريخ الأرباح الثاني ميّتٌ منذ شُحن.
 #    والمجموعةُ تبقى **مطابقةً بالضبط** (سادسةٌ لا «تحوي») — و`ERL1` يربطها بسببها.
-_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml"}
+# 🔴 **وحُدِّث عمدًا ثالثةً 2026-09-24 — `Pillow`** لمُعرِّف الشارت (`chart_render`/`chart_pixels`):
+#    تُستورَد كسولةً داخل الدوالّ فلا تمسّ الإنتاج، وأقفالُ `CFD` تحتاجها في CI · والمجموعةُ
+#    **مطابقةٌ بالضبط** (سابعةٌ لا «تحوي») · و`DEP1` يعرف `PIL ⟵ pillow` بخريطةٍ صريحة.
+_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml", "Pillow"}
 _c7_names = {_l.split("==")[0].strip() for _l in _c7_pins}
-check("📌 007·الاعتمادياتُ الستّ مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
+check("📌 007·الاعتمادياتُ السبع مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
       "(لا ترقيةٌ صامتة ولا إضافةٌ صامتة)",
       _c7_names == _C7_EXPECT and all("==" in _l for _l in _c7_pins)
       and len(_c7_pins) == len(_C7_EXPECT),
@@ -26674,7 +26677,7 @@ _dep_pins = {_l.split("==")[0].strip().lower()
              for _l in open("requirements.txt", encoding="utf-8").read().splitlines()
              if _l.strip() and not _l.strip().startswith("#") and "==" in _l}
 # أسماءُ التوزيع تختلف عن أسماء الاستيراد (‏yaml ⟵ PyYAML) — خريطةٌ صريحة لا تخمين
-_DEP_DIST = {"yaml": "pyyaml"}
+_DEP_DIST = {"yaml": "pyyaml", "PIL": "pillow"}
 _dep_missing = [m for m in _dep_third
                 if _DEP_DIST.get(m, m) not in _dep_pins]
 check("📦 DEP1 كلُّ استيرادٍ خارجيٍّ في السويّة مُصرَّحٌ في `requirements.txt`",
@@ -63123,6 +63126,669 @@ check("🔬📰②🔒 EGS13 الإغلاقُ **مُنفَّذ** («اقفل EDG
       "**وافتراضُ الـworkflow (`0`) يُبقيه مُغلَقًا** · والإقرارُ `1` يرفع الحارسَ فتبلغ الدراسةُ V-E8 · "
       "و‏8 مميَّزٌ عن رموز الدراسة · والحارسُ أوّلُ جملة · ونصُّ الفتح ①②③ بأرقام الحكم · و§③ · ودخولٌ واحد",
       _egs13, _egs13_w)
+# ════════════════════════════════════════════════════════
+# 🔎 CFD — مُعرِّف الشارت (أمرُ المالك 2026-09-24 · العقد `chart_finder_prereg.md`)
+# ════════════════════════════════════════════════════════
+# أداةُ تعرّفٍ لا تجربةُ حافّة: صورةٌ ⟵ بطاقةُ أرقامٍ (بلا رمز) ⟵ بحثٌ في السوق كلِّه ⟵ حكمٌ من أربعة.
+# الأقفالُ **سلوكيّةٌ على عالمٍ اصطناعيّ بلا شبكة** (ملفُّ دقائق مضغوط + REST مزيّف + لوحةٌ محقونة)
+# ⇒ تسقط لو انكسر: التسامحُ · رفضُ الرمز في البطاقة · تعريفاتُ الشمعة والمنطقة · معاملُ التقسيم ·
+#   قاعدةُ الثقة · المساراتُ الأربعة · قصرُ أطراف اللحظيّ على مداه · العزلُ عن الإنتاج · والعقدُ = الكود.
+print("\n=== 🔎 CFD — مُعرِّف الشارت ===")
+import datetime as _cfd_dt                                        # noqa: E402
+import gzip as _cfd_gz                                            # noqa: E402
+import json as _cfd_json                                          # noqa: E402
+import os as _cfd_os                                              # noqa: E402
+import re as _cfd_re                                              # noqa: E402
+import shutil as _cfd_sh                                          # noqa: E402
+import tempfile as _cfd_tf                                        # noqa: E402
+from zoneinfo import ZoneInfo as _CfdZone                         # noqa: E402
+
+import numpy as _cfd_np                                           # noqa: E402
+import PIL as _cfd_pil                                            # noqa: E402,F401  (تصريحٌ لـDEP1: pillow)
+
+import chart_finder as _CF                                        # noqa: E402
+import chart_eval as _CFE                                         # noqa: E402
+import chart_pixels as _CFP                                       # noqa: E402
+import chart_render as _CFR                                       # noqa: E402
+
+_CFD_NY = _CfdZone("America/New_York")
+
+
+def _cfd_ms(day, mod):
+    d = _cfd_dt.date.fromisoformat(day)
+    return int(_cfd_dt.datetime(d.year, d.month, d.day, mod // 60, mod % 60,
+                                tzinfo=_CFD_NY).timestamp() * 1000)
+
+
+_CFD_DAYS = ["2026-09-03", "2026-09-04", "2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11"]
+
+
+def _cfd_minutes(sym):
+    """TRUE يطابق المرساة **والنافذة** · DECOY يطابق المرساة وحدَها (فالنافذةُ هي الفاصل)."""
+    out = {}
+    for day in _CFD_DAYS:
+        rows = [[m, 2.28, 2.29, 2.27, 2.28, 100.0] for m in range(4 * 60, 20 * 60, 30)]
+        if day == "2026-09-04":
+            rows = [r for r in rows if not (17 * 60 <= r[0] < 20 * 60)]
+            rows += [[17 * 60, 2.30, 2.31, 2.29, 2.30, 1000.0], [18 * 60, 2.30, 2.35, 2.30, 2.34, 3000.0],
+                     [19 * 60, 2.34, 2.34, 2.23, 2.25, 1500.0], [19 * 60 + 59, 2.25, 2.32, 2.25, 2.32, 900.0]]
+        if sym == "TRUE" and day == "2026-09-10":
+            rows.append([11 * 60, 2.10, 2.12, 1.78, 1.95, 5000.0])
+        if sym == "TRUE" and day == "2026-09-11":
+            rows.append([10 * 60, 2.30, 3.00, 2.20, 2.55, 90000.0])
+        if sym == "DECOY" and day == "2026-09-10":
+            rows.append([11 * 60, 2.10, 2.12, 2.05, 2.08, 5000.0])
+        rows.sort()
+        out[day] = rows
+    return out
+
+
+_CFD_MINS = {s: _cfd_minutes(s) for s in ("TRUE", "DECOY")}
+_cfd_calls = []
+
+
+class _CfdR:
+    def __init__(self, code, js):
+        self.status_code, self._js = code, js
+
+    def json(self):
+        return self._js
+
+
+def _cfd_get(url, params=None, headers=None, timeout=None):
+    _cfd_calls.append(url)
+    m = _cfd_re.search(r"/v2/aggs/ticker/([A-Z]+)/range/1/(minute|day)/", url)
+    if m:
+        s, span = m.group(1), m.group(2)
+        res = []
+        for day, rows in _CFD_MINS.get(s, {}).items():
+            if span == "minute":
+                res += [{"t": _cfd_ms(day, r[0]), "o": r[1], "h": r[2], "l": r[3], "c": r[4],
+                         "v": r[5]} for r in rows]
+            else:
+                res.append({"t": _cfd_ms(day, 0), "o": rows[0][1], "h": max(r[2] for r in rows),
+                            "l": min(r[3] for r in rows), "c": rows[-1][4], "v": 1.0})
+        return _CfdR(200, {"results": res})
+    if "/v3/reference/splits" in url:
+        t = (params or {}).get("ticker")
+        rows = [{"ticker": "TRUE", "execution_date": "2026-08-10", "split_from": 80, "split_to": 1}]
+        return _CfdR(200, {"results": rows if t in (None, "TRUE") else []})
+    if "/v3/reference/tickers/" in url:
+        return _CfdR(200, {"results": {"name": "Fake", "active": True, "primary_exchange": "XNAS"}})
+    if "/v2/aggs/grouped/" in url:
+        return _CfdR(200, {"results": []})
+    return _CfdR(404, {})
+
+
+_CFD_CARD_A = {"v": 1, "id": "cfd-A", "timeframe": "intraday", "extended": True, "tz": "unknown",
+               "window": {"from": "2026-09-04", "to": "2026-09-11"},
+               "anchor": {"date": "2026-09-04", "time": "20:00", "o": "2.30", "h": "2.35",
+                          "l": "2.23", "c": "2.32"},
+               "extremes": {"high": "3.00", "low": "1.78"}}
+
+
+def _cfd_quiet(fn, *a, **k):
+    """ينادي دالّةَ الأداة وسجلُّها مكتومٌ (`_CF.log`) — يُستعاد في `finally`."""
+    keep = _CF.log
+    try:
+        _CF.log = lambda *_x, **_y: None
+        return fn(*a, **k)
+    finally:
+        _CF.log = keep
+
+
+def _cfd_panel_world(with_split=True, decoy=False):
+    """لوحةٌ اصطناعيّة **بأيام تداولٍ حقيقيّة** (60 يومًا تنتهي 2026-08-31): XSPL مقسَّم 1:10 يوم 20 ·
+    القمّةُ **المعروضة** 10.40 قبل التقسيم (خامُها 1.04). و`decoy` يضيف YYY: يعبر القيدَين الخامَّين
+    (آخرُ 2.40 · أدنى 1.78) ويسقط على الأعلى — فالتفرّدُ لا يُعرف إلّا بفحصه."""
+    days = _CF.trading_days_back("2026-08-31", 1)[-60:]
+    syms = ["AAA", "XSPL", "ZZZ"] + (["YYY"] if decoy else [])
+    H = _cfd_np.full((len(days), len(syms)), _cfd_np.nan, dtype=_cfd_np.float32)
+    L, C = H.copy(), H.copy()
+    for j in range(len(syms)):
+        for d in range(len(days)):
+            H[d, j], L[d, j], C[d, j] = 5 + j + 0.1, 5 + j - 0.1, 5 + j
+    j = 1
+    for d in range(len(days)):
+        if d < 20:
+            H[d, j], L[d, j], C[d, j] = 0.62, 0.58, 0.60
+        else:
+            H[d, j], L[d, j], C[d, j] = 2.65, 2.55, 2.60
+    H[15, j], L[50, j], C[59, j], L[59, j], H[59, j] = 1.04, 1.78, 2.40, 2.35, 2.45
+    if decoy:
+        j = 3
+        for d in range(len(days)):
+            H[d, j], L[d, j], C[d, j] = 2.62, 2.58, 2.60
+        H[40, j], L[50, j], C[59, j], L[59, j], H[59, j] = 3.00, 1.78, 2.40, 2.35, 2.45
+
+    def get(url, params=None, headers=None, timeout=None):
+        if "/v3/reference/splits" in url:
+            rows = ([{"ticker": "XSPL", "execution_date": days[20], "split_from": 10, "split_to": 1}]
+                    if with_split else [])
+            t = (params or {}).get("ticker")
+            return _CfdR(200, {"results": rows if t in (None, "XSPL") else []})
+        return _CfdR(404, {})
+    return (days, syms, H, L, C), get
+
+
+# ── CFD1 التسامح = نصفُ آخر خانةٍ مقروءة (مع K/M والنسبة والسالب بشكليه) ──
+try:
+    _cfd1 = (_CF.parse_num("2.30") == (2.3, 0.005) and _CF.parse_num("6.43K") == (6430.0, 5.0)
+             and _CF.parse_num("+3.99%") == (3.99, 0.005)
+             and _CF.parse_num("‑0.9957") == (-0.9957, 5e-05)
+             and _CF.parse_num("abc") is None and _CF.parse_num(None) is None
+             and abs(_CF.tol_near((2.30, 0.005)) - (0.005 + 0.005 * 2.30)) < 1e-12)
+    _cfd1_w = f"{_CF.parse_num('2.30')} · {_CF.parse_num('6.43K')} · {_CF.tol_near((2.30, 0.005)):.4f}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd1, _cfd1_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD1 الرقمُ كما قُرئ ⟵ `(قيمة، نصفُ آخر خانة)` · K وM والنسبةُ والسالبُ ‑ · غيرُ المقروء `None` · "
+      "و«ضمن تسامحه» = نصفُ الخانة ‏+ `FEED_TOL_PCT`% من القيمة", _cfd1, _cfd1_w)
+
+# ── CFD2 البطاقةُ لا تحمل الرمز (في أيّ عمق) · وبطاقتا المالك صالحتان ──
+try:
+    _cfd_live = [_cfd_json.load(open(_p, encoding="utf-8")) for _p in (
+        "chart_cards/live/2026-09-24_A.json", "chart_cards/live/2026-09-24_B.json",
+        "chart_cards/live/2026-09-24_B_alone.json")]
+    _cfd2_bad = [_CF.validate_card(dict(_CFD_CARD_A, notes={"x": {"ticker": "SXTC"}})),
+                 _CF.validate_card(dict(_CFD_CARD_A, symbol="SXTC")),
+                 _CF.validate_card(dict(_CFD_CARD_A, **{"الرمز": "SXTC"}))]
+    _cfd2 = (all(any("الرمز" in e for e in errs) for errs in _cfd2_bad)
+             and all(_CF.validate_card(c) == [] for c in _cfd_live)
+             and _CF.validate_card(_CFD_CARD_A) == []
+             and _CF.validate_card({"v": 1, "id": "x", "timeframe": "1D"}) != [])
+    _cfd2_w = f"رفضٌ={[bool(e) for e in _cfd2_bad]} · الحيّةُ صالحة={[_CF.validate_card(c) == [] for c in _cfd_live]}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd2, _cfd2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD2 البطاقةُ **لا تحمل الرمز** (`ticker`/`symbol`/`الرمز` في أيّ عمق ⟵ رفض) · وبطاقاتُ المالك "
+      "الثلاث صالحة · وبطاقةٌ بلا قيدٍ قابلٍ للبحث ترفض", _cfd2, _cfd2_w)
+
+# ── CFD3 رقمُ البكسل بتسامحٍ مصرَّح وإلّا لا يُقبل ──
+try:
+    _cfd3 = (_CF.num_spec({"v": "2.35", "src": "pixel", "tol": "0.02"}) == (2.35, 0.02)
+             and _CF.num_spec({"v": "2.35", "src": "pixel"}) is None
+             and _CF.num_spec({"v": "2.35"}) == (2.35, 0.005) and _CF.num_spec("2.35") == (2.35, 0.005))
+    _cfd3_w = str(_CF.num_spec({"v": "2.35", "src": "pixel", "tol": "0.02"}))
+except Exception as _e:                                           # noqa: BLE001
+    _cfd3, _cfd3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD3 رقمُ البكسل يحمل تسامحَه المصرَّح · وبلا `tol` ⟵ `None` (لا يُخمَّن تسامحُ قراءةٍ تقريبيّة)",
+      _cfd3, _cfd3_w)
+
+# ── CFD4 تعريفاتُ الشمعة: التسميةُ بالنهاية/البداية · نيويورك ثم الجهاز · والصيفيُّ غيرُ الشتويّ ──
+try:
+    _cfd_defs = _CF.anchor_defs("2026-09-04", "20:00", ["America/New_York", "Asia/Riyadh"])
+    _cfd_pairs = {(d["a"], d["b"], d["tz"]) for d in _cfd_defs}
+    _cfd4 = ((17 * 60, 20 * 60, "America/New_York") in _cfd_pairs
+             and (13 * 60, 16 * 60, "Asia/Riyadh") in _cfd_pairs
+             and _CF.ny_offset_min("2026-09-04", "Asia/Riyadh") == -420
+             and _CF.ny_offset_min("2026-12-04", "Asia/Riyadh") == -480
+             and [(d["a"], d["b"]) for d in _CF.anchor_defs("2026-09-04", None, [])][0] == (240, 1200))
+    _cfd4_w = f"تعريفات={len(_cfd_defs)} · الرياض صيفًا={_CF.ny_offset_min('2026-09-04', 'Asia/Riyadh')}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd4, _cfd4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD4 شمعةُ «20:00» تُبنى [17:00، 20:00) بنيويورك **و**[13:00، 16:00) لو كان الوقتُ بتوقيت الجهاز "
+      "(‏−7 ساعات صيفًا · −8 شتاءً) · والمرساةُ بلا وقت ⟵ الشمعةُ اليوميّة", _cfd4, _cfd4_w)
+
+# ── CFD5 معاملُ التقسيم: ما بين يوم الشمعة ولحظة الالتقاط وحدَه ──
+try:
+    _sp = [("2026-08-10", 80.0, 1.0)]
+    _cfd5 = (_CF.split_factor(_sp, "2026-08-04", "2026-09-18") == 80.0
+             and _CF.split_factor(_sp, "2026-08-10", "2026-09-18") == 1.0
+             and _CF.split_factor(_sp, "2026-08-04", "2026-08-07") == 1.0
+             and _CF.split_factor([("2026-01-05", 1.0, 2.0)], "2026-01-02", "2026-02-01") == 0.5
+             and _CF.split_factor(None, "2026-08-04", "2026-09-18") == 1.0)
+    _cfd5_w = f"{_CF.split_factor(_sp, '2026-08-04', '2026-09-18')}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd5, _cfd5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD5 معاملُ التقسيم = جداءُ from/to لكلّ تقسيمٍ **بعد** يوم الشمعة و**حتى** الالتقاط (عكسيٌّ 1:80 ⟵ ×80 · "
+      "التقاطٌ قبل التقسيم ⟵ ×1 · أماميٌّ 2:1 ⟵ ×0.5)", _cfd5, _cfd5_w)
+
+# ── CFD6 بناءُ الشمعة من الدقائق ──
+try:
+    _rows6 = [(m, 1.0 + m / 1000, 1.1 + m / 1000, 0.9 + m / 1000, 1.05 + m / 1000, 10.0)
+              for m in range(600, 610)]
+    _b6 = _CF.agg_bar(_rows6, 602, 606)
+    _exp6 = {"o": 1.0 + 602 / 1000, "h": max(r[2] for r in _rows6[2:6]),
+             "l": min(r[3] for r in _rows6[2:6]), "c": 1.05 + 605 / 1000, "v": 40.0, "n": 4}
+    _cfd6 = (isinstance(_b6, dict) and set(_b6) == set(_exp6)
+             and all(abs(_b6[k] - _exp6[k]) < 1e-9 for k in _exp6)
+             and _CF.agg_bar(_rows6, 700, 710) is None and _CF.agg_bar([], 0, 1) is None)
+    _cfd6_w = str(_b6)
+except Exception as _e:                                           # noqa: BLE001
+    _cfd6, _cfd6_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD6 الشمعةُ من الدقائق [a، b): افتتاحُ أوّلها · أعلى/أدنى الكلّ · إغلاقُ آخرها · مجموعُ الحجم · "
+      "والمدى الفارغ ⟵ `None`", _cfd6, _cfd6_w)
+
+# ── CFD7 قاعدةُ الثقة (العقد §②) ──
+try:
+    _v = _CF.verdict
+    _cfd7 = (_v([{"sym": "A", "pass": True, "n_groups": 2, "score": 0.2}])[0] == "واثق"
+             and _v([{"sym": "A", "pass": True, "n_groups": 1, "score": 0.2}])[0] == "مرجّح"
+             and _v([{"sym": "A", "pass": True, "n_groups": 2, "score": 0.2},
+                     {"sym": "B", "pass": True, "n_groups": 2, "score": 0.3}])[0] == "غير محسوم"
+             and _v([{"sym": "A", "pass": True, "n_groups": 2, "score": 0.25},
+                     {"sym": "B", "pass": True, "n_groups": 2, "score": 0.75}])[0] == "مرجّح"
+             and _v([{"sym": "A", "pass": True, "n_groups": 2, "score": 0.25},
+                     {"sym": "B", "pass": True, "n_groups": 2, "score": 0.74}])[0] == "غير محسوم"
+             and _v([{"sym": "A", "pass": False, "score": 0.1}])[0] == "لا تطابق"
+             and _v([])[0] == "لا تطابق")
+    _cfd7_w = "ستُّ حالات (والحدُّ 3× بالضبط: 0.25 ⟶ 0.75 مرجّح · 0.74 غير محسوم)"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd7, _cfd7_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD7 «واثق» = عابرٌ **وحيد** بقيدَين مستقلَّين · وحيدٌ بقيدٍ واحد ⟵ «مرجّح» · عابران متقاربان ⟵ "
+      "«غير محسوم» · والثاني ‏≥3× خطأً ⟵ «مرجّح» (‏3× بالضبط تُحسب) · ولا عابر ⟵ «لا تطابق»", _cfd7, _cfd7_w)
+
+# ── CFD8 المسارُ المؤرَّخ لحظيًّا: ملفُّ الدقائق ⟵ المرساة ⟵ النافذةُ تفصل الشرَك ──
+_cfd_tmp = _cfd_tf.mkdtemp()
+try:
+    _p8 = _cfd_os.path.join(_cfd_tmp, "m.csv.gz")
+    with _cfd_gz.open(_p8, "wt") as _fh:
+        _fh.write("ticker,volume,open,close,high,low,window_start,transactions\n")
+        for _s, _byday in _CFD_MINS.items():
+            for _m, _o, _h, _l, _c, _vv in _byday["2026-09-04"]:
+                _fh.write(f"{_s},{_vv},{_o},{_c},{_h},{_l},{_cfd_ms('2026-09-04', _m) * 1_000_000},1\n")
+        _fh.write(f"FAR,100,50,50,51,49,{_cfd_ms('2026-09-04', 600) * 1_000_000},1\n")
+    _cfd_calls.clear()
+    _r8 = _cfd_quiet(_CF.run_card, _CFD_CARD_A, _cfd_tmp, get=_cfd_get, file_path=_p8, series=False)
+    _r8b = _cfd_quiet(_CF.run_card, dict(_CFD_CARD_A, id="cfd-A2", extremes={"high": "2.35",
+                                                                               "low": "2.05"}),
+                      _cfd_tmp, get=_cfd_get, file_path=_p8, series=False)
+    _cfd8 = (_r8["rc"] == 0 and _r8["label"] == "واثق" and _r8["top"][0] == "TRUE"
+             and _r8["mode"] == "anchor" and "DECOY" in _r8["top"] and "FAR" not in _r8["top"]
+             and _r8b["label"] == "واثق" and _r8b["top"][0] == "DECOY")
+    _cfd8_w = f"{_r8} · بنافذة الشرَك={_r8b['label']}/{_r8b['top'][:1]}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd8, _cfd8_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD8 المرساةُ اللحظيّة المؤرَّخة: ملفُّ دقائق اليوم ⟵ رمزان يطابقان الشمعة ⟵ **النافذةُ (1.78/3.00) تفصل** "
+      "⟵ «واثق» للصحيح · وبنافذة الشرَك (2.05/2.35) ينقلب «واثق» إليه (فالنافذةُ تفصل في الاتّجاهين)", _cfd8, _cfd8_w)
+
+# ── CFD9 بلا تاريخ على اللوحة: التقسيمُ الفعليّ حاملٌ للحكم ──
+try:
+    _arr9, _get9 = _cfd_panel_world(True)
+    _card9 = {"v": 1, "id": "cfd-B", "timeframe": "1D", "bars_visible": 37,
+              "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"}
+    _keep9 = (_CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL), dict(_CF._LAST_ENDS))
+    try:
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _r9 = _cfd_quiet(_CF.run_card, _card9, _cfd_tmp, get=_get9, panel_arr=_arr9, series=False)
+        _arr9b, _get9b = _cfd_panel_world(False)
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _r9b = _cfd_quiet(_CF.run_card, dict(_card9, id="cfd-B0"), _cfd_tmp, get=_get9b,
+                          panel_arr=_arr9b, series=False)
+    finally:
+        _CF._SPLITS_ALL_SINCE = _keep9[0]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep9[1])
+        _CF._LAST_ENDS.clear()
+        _CF._LAST_ENDS.update(_keep9[2])
+    _cfd9 = (_r9["label"] == "واثق" and _r9["top"][0] == "XSPL" and _r9["mode"] == "market"
+             and _r9b["label"] == "لا تطابق")
+    _cfd9_w = f"بالتقسيم={_r9['label']}/{_r9['top'][:1]} · بلا تقسيم={_r9b['label']}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd9, _cfd9_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD9 بلا تاريخ: القمّةُ المعروضة 10.40 (خامُها 1.04 قبل تقسيم 1:10) ⟵ **«واثق» بالتقسيم الفعليّ** · "
+      "والعالمُ نفسُه بلا تقسيم ⟵ «لا تطابق» (فالتسويةُ حاملةٌ للحكم لا زينة)", _cfd9, _cfd9_w)
+
+# ── CFD10 النافذةُ المؤرَّخة بلا مرساة على اللوحة ──
+try:
+    _arr10, _get10 = _cfd_panel_world(True)
+    _d10 = _arr10[0]
+    _card10 = {"v": 1, "id": "cfd-D", "timeframe": "1D", "window": {"from": _d10[10], "to": _d10[59]},
+               "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"}
+    _r10 = _cfd_quiet(_CF.run_card, _card10, _cfd_tmp, get=_get10, panel_arr=_arr10, series=False)
+    _r10b = _cfd_quiet(_CF.run_card, dict(_card10, id="cfd-D2", window={"from": _d10[10], "to": _d10[40]}),
+                       _cfd_tmp, get=_get10, panel_arr=_arr10, series=False)
+    _cfd10 = (_r10["label"] == "واثق" and _r10["top"][0] == "XSPL" and _r10["mode"] == "dated"
+              and _r10b["label"] != "واثق")
+    _cfd10_w = f"{_r10['label']}/{_r10['top'][:1]} · نافذةٌ خاطئة={_r10b['label']}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd10, _cfd10_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD10 النافذةُ المؤرَّخة بلا مرساة ⟵ «واثق» للصحيح · والنافذةُ نفسُها منتهيةً قبل آخر سعر ⟵ ليست «واثق»",
+      _cfd10, _cfd10_w)
+
+# ── CFD11 أطرافُ اللحظيّ من مداه الزمنيّ وحدَه ──
+try:
+    _m11 = {"2026-04-15": [(600, 1.0, 1.0, 0.50, 1.0), (960, 1.4, 1.43, 1.425, 1.42),
+                           (1100, 3.0, 5.05, 2.9, 4.8), (1160, 4.8, 4.9, 4.7, 4.74)]}
+    _m11 = {k: [(r[0], r[1], r[2], r[3], r[4], 1.0) for r in v] for k, v in _m11.items()}
+    _w11 = {"from": "2026-04-15", "to": "2026-04-15", "from_time": "15:35", "to_time": "19:20"}
+    _r11 = _CF.window_minutes_check(_m11, _w11, "America/New_York", (5.05, 0.0005), (1.425, 0.0005),
+                                    (4.74, 0.005))
+    _cfd11 = (_r11["ok"] is True and abs(_r11["checks"]["low"]["val"] - 1.425) < 1e-9
+              and abs(_r11["checks"]["high"]["val"] - 5.05) < 1e-9)
+    _cfd11_w = str({k: round(v["val"], 3) for k, v in _r11["checks"].items()})
+except Exception as _e:                                           # noqa: BLE001
+    _cfd11, _cfd11_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD11 نافذةٌ لحظيّةٌ بوقت (15:35 ⟶ 19:20): أدنى الساعة 10:00 (0.50) **خارج الشاشة فلا يُحسب** ⟵ "
+      "أدنى الشاشة 1.425 وأعلاها 5.05 يعبران", _cfd11, _cfd11_w)
+
+# ── CFD12 شبكةُ الشموع بمحاذاة نهاية المرساة ──
+try:
+    _g12 = _CF.intraday_grid({"a": 1020, "b": 1200, "span": 180})
+    _cfd12 = (_g12[0] == (240, 300) and (1020, 1200) in _g12 and (300, 480) in _g12
+              and _CF.intraday_grid({"a": 960, "b": 1200, "span": 240})
+              == [(240, 480), (480, 720), (720, 960), (960, 1200)])
+    _cfd12_w = str(_g12)
+except Exception as _e:                                           # noqa: BLE001
+    _cfd12, _cfd12_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD12 شبكةُ الشموع للرسم تُحاذي **نهايةَ شمعة المرساة** (‏180د ⟵ 04-05 · 05-08 … 17-20) لا الساعةَ 04:00",
+      _cfd12, _cfd12_w)
+
+# ── CFD13 الـworkflowان: يدويّان · قراءةٌ فقط · البطاقةُ عبر env · بلا سرّ تلغرام ──
+try:
+    import yaml as _cfd_yaml                                     # noqa: PLC0415
+    _cfd13_ok = []
+    for _wfp in (".github/workflows/chart_finder.yml", ".github/workflows/chart_eval.yml"):
+        _txt = open(_wfp, encoding="utf-8").read()
+        _y = _cfd_yaml.safe_load(_txt)
+        _on = _y.get(True) or _y.get("on")
+        _steps = [st for j in _y["jobs"].values() for st in j["steps"]]
+        _runs = " ".join(str(st.get("run", "")) for st in _steps)
+        _cfd13_ok.append(list(_on.keys()) == ["workflow_dispatch"]
+                         and _y["permissions"] == {"contents": "read"}
+                         and "TELEGRAM" not in _txt and "${{" not in _runs
+                         and "POLYGON_API_KEY" in _txt)
+    _cfd13 = all(_cfd13_ok) and "CHART_CARD: ${{ inputs.card }}" in open(
+        ".github/workflows/chart_finder.yml", encoding="utf-8").read()
+    _cfd13_w = str(_cfd13_ok)
+except Exception as _e:                                           # noqa: BLE001
+    _cfd13, _cfd13_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD13 `chart_finder.yml`/`chart_eval.yml` يدويّان وحدَهما · `contents: read` · بلا سرّ تلغرام · "
+      "ولا مُدخَلَ داخل نصّ الصدفة (البطاقةُ عبر env)", _cfd13, _cfd13_w)
+
+# ── CFD14 العزل: لا بوت ولا تلغرام ولا كتابةَ ملفٍّ خارج المؤقّت ──
+try:
+    import ast as _cfd_ast                                       # noqa: PLC0415
+    _cfd14_ok = {}
+    for _mod in ("chart_finder.py", "chart_eval.py", "chart_pixels.py", "chart_render.py"):
+        _src = open(_mod, encoding="utf-8").read()
+        _t = _cfd_ast.parse(_src)
+        _imps = {a.name.split(".")[0] for n in _cfd_ast.walk(_t) if isinstance(n, _cfd_ast.Import)
+                 for a in n.names} | {(n.module or "").split(".")[0] for n in _cfd_ast.walk(_t)
+                                      if isinstance(n, _cfd_ast.ImportFrom)}
+        _writes = [n for n in _cfd_ast.walk(_t) if isinstance(n, _cfd_ast.Call)
+                   and getattr(n.func, "id", None) == "open" and len(n.args) > 1
+                   and isinstance(n.args[1], _cfd_ast.Constant) and "w" in str(n.args[1].value)]
+        _cfd14_ok[_mod] = ("Super_stock" not in _imps and "send_telegram" not in _src
+                           and "TELEGRAM" not in _src and not _writes)
+    _cfd14 = all(_cfd14_ok.values())
+    _cfd14_w = str(_cfd14_ok)
+except Exception as _e:                                           # noqa: BLE001
+    _cfd14, _cfd14_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD14 الوحداتُ الأربع معزولة: لا تستورد البوت · لا تلغرام · ولا `open(…, 'w')` (المؤقّتُ وحدَه عبر gzip/aws)",
+      _cfd14, _cfd14_w)
+
+# ── CFD15 العقدُ = الكود (ثوابتُ §① بقيمها) ──
+try:
+    _doc15 = open("chart_finder_prereg.md", encoding="utf-8").read()
+    _mis15 = []
+    for _k in ("FEED_TOL_PCT", "VOL_TOL_PCT", "DECISIVE_RATIO", "WINDOW_SLACK_DAYS", "UNDATED_YEARS",
+               "SHORTLIST_MAX", "ANCHOR_MAX", "PANEL_WORKERS"):
+        _mm = _cfd_re.search(rf"`{_k}=([0-9.]+)`", _doc15)
+        if not _mm or float(_mm.group(1)) != float(getattr(_CF, _k)):
+            _mis15.append(_k)
+    _ms = _cfd_re.search(r"`SPANS=\(([0-9,]+)\)`", _doc15)
+    if not _ms or tuple(int(x) for x in _ms.group(1).split(",")) != _CF.SPANS:
+        _mis15.append("SPANS")
+    if f"`DEVICE_TZ={_CF.DEVICE_TZ}`" not in _doc15:
+        _mis15.append("DEVICE_TZ")
+    _cfd15 = not _mis15
+    _cfd15_w = f"مخالف={_mis15}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd15, _cfd15_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD15 كلُّ ثابتٍ مُعلَنٍ في العقد §① يطابق قيمتَه في `chart_finder` (لا عقدَ يكذب على الأداة)",
+      _cfd15, _cfd15_w)
+
+# ── CFD16 الرسمُ ⟵ البكسل: القراءةُ تعود بالأرقام ضمن تسامحها ──
+try:
+    import random as _cfd_rand                                   # noqa: PLC0415
+    _rng16 = _cfd_rand.Random(7)
+    _bars16, _p16 = [], 2.0
+    for _i in range(40):
+        _o = _p16
+        _c = max(0.3, _p16 * (1 + _rng16.uniform(-0.08, 0.09)))
+        _bars16.append({"o": _o, "h": max(_o, _c) * 1.02, "l": min(_o, _c) * 0.98, "c": _c})
+        _p16 = _c
+    _img16, _meta16 = _CFR.render_candles(_bars16, hlines=[(1.9, "entry", "1.900")])
+    _pairs16 = [(y, _CF.parse_num(t)[0]) for y, t in _meta16["axis"]]
+    _ps16 = _CFP.pixel_summary(_CFP.load_rgb(_img16), _meta16["box"], _pairs16)
+    _thi, _tlo, _tla = max(b["h"] for b in _bars16), min(b["l"] for b in _bars16), _bars16[-1]["c"]
+    _cfd16 = (_ps16 is not None and _ps16["n"] == 40
+              and abs(_ps16["high"][0] - _thi) <= _ps16["high"][1]
+              and abs(_ps16["low"][0] - _tlo) <= _ps16["low"][1]
+              and abs(_ps16["last"][0] - _tla) <= _ps16["last"][1])
+    _cfd16_w = (f"شموع={(_ps16 or {}).get('n')} · أعلى {(_ps16 or {}).get('high')} مقابل {_thi:.4f} · "
+                f"أدنى {(_ps16 or {}).get('low')} مقابل {_tlo:.4f}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd16, _cfd16_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD16 شموعٌ مرسومة (مع خطٍّ أفقيٍّ مرسوم) ⟵ قراءةُ البكسل تعدّها كلَّها وتعيد أعلاها وأدناها وآخرَ إغلاقها "
+      "**ضمن تسامحها المصرَّح** (‏2 بكسل)", _cfd16, _cfd16_w)
+
+# ── CFD17 ذاكرةُ التقسيمات: الجماعيّة تُغني عن نداء الرمز حين تغطّي ──
+try:
+    _keep17 = (_CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL))
+    try:
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _n17 = _cfd_quiet(_CF.load_all_splits, "2026-01-01", get=_cfd_get)
+        _cfd_calls.clear()
+        _hit17 = _CF.ticker_splits("TRUE", get=_cfd_get, need_since="2026-03-01")
+        _calls_hit = len(_cfd_calls)
+        _miss17 = _CF.ticker_splits("TRUE", get=_cfd_get, need_since="2025-01-01")
+        _calls_miss = len(_cfd_calls) - _calls_hit
+    finally:
+        _CF._SPLITS_ALL_SINCE = _keep17[0]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep17[1])
+    _cfd17 = (_n17 == 1 and _hit17 == [("2026-08-10", 80.0, 1.0)] and _calls_hit == 0
+              and _miss17 == [("2026-08-10", 80.0, 1.0)] and _calls_miss == 1)
+    _cfd17_w = f"جماعيّ={_n17} · نداءاتُ الإصابة={_calls_hit} · نداءاتُ خارج التغطية={_calls_miss}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd17, _cfd17_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD17 التقسيماتُ الجماعيّة تُغني عن نداء الرمز **حين تغطّي** (صفرُ نداء) · وخارج تغطيتها نداءٌ واحد",
+      _cfd17, _cfd17_w)
+
+# ── CFD18 التقييمُ الحقيقيّ: الفروعُ بنصّ العقد §⑤ ──
+try:
+    def _row(label, hit1, hit3=True, cls="daily_axis", judged=True):
+        return {"label": label, "hit1": hit1, "hit3": hit3, "class": cls, "judged": judged}
+    _ok_conf = [_row("واثق", True)] * 12
+    _b1 = _CFE.judge_real(_ok_conf + [_row("مرجّح", False, True)] * 10)[0]
+    _b2 = _CFE.judge_real(_ok_conf + [_row("لا تطابق", False, False)] * 10)[0]
+    _b3 = _CFE.judge_real([_row("واثق", True)] * 10 + [_row("واثق", False)] * 2
+                          + [_row("مرجّح", False)] * 10)[0]
+    _b4 = _CFE.judge_real([_row("واثق", True)] * 5 + [_row("مرجّح", False)] * 20)[0]
+    _b5 = _CFE.judge_real(_ok_conf + [_row("مرجّح", False, judged=False)] * 10)[0]
+    _cfd18 = (_b1 == "جاهزة" and _b2 == "جاهزة للواثق وحدَه" and _b3 == "غير جاهزة"
+              and _b4 == "لا حكم" and _b5 == "غير جاهزة")
+    _cfd18_w = str([_b1, _b2, _b3, _b4, _b5])
+except Exception as _e:                                           # noqa: BLE001
+    _cfd18, _cfd18_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD18 فروعُ القبول بنصّ العقد: K1+K2+K3 ⟵ «جاهزة» · سقوطُ K2 ⟵ «جاهزة للواثق وحدَه» · ‏10/12 «واثق» "
+      "(‏83%) ⟵ «غير جاهزة» · دون 10 ⟵ «لا حكم» · وبطاقةٌ لم تُحكم ⟵ «غير جاهزة»", _cfd18, _cfd18_w)
+
+# ── CFD19 البصمةُ المجمَّدة: التعديلُ بعد التجميد ومِلفٌّ غيرُ مجمَّد يُكسران ──
+try:
+    _d19 = _cfd_tf.mkdtemp()
+    open(_cfd_os.path.join(_d19, "a.json"), "w", encoding="utf-8").write('{"v": 1}')
+    _h19 = _CFE.sha256_file(_cfd_os.path.join(_d19, "a.json"))
+    open(_cfd_os.path.join(_d19, "MANIFEST.sha256"), "w", encoding="utf-8").write(f"{_h19}  a.json\n")
+    _ok19 = _CFE.verify_manifest(_d19)[0]
+    open(_cfd_os.path.join(_d19, "b.json"), "w", encoding="utf-8").write('{"v": 2}')
+    _extra19 = _CFE.verify_manifest(_d19)
+    _cfd_os.remove(_cfd_os.path.join(_d19, "b.json"))
+    open(_cfd_os.path.join(_d19, "a.json"), "w", encoding="utf-8").write('{"v": 9}')
+    _chg19 = _CFE.verify_manifest(_d19)
+    _cfd_sh.rmtree(_d19, ignore_errors=True)
+    _cfd19 = (_ok19 is True and _extra19[0] is False and any("غيرُ مجمَّد" in b for b in _extra19[2])
+              and _chg19[0] is False and any("تغيّر" in b for b in _chg19[2]))
+    _cfd19_w = f"سليم={_ok19} · إضافي={_extra19[2]} · معدَّل={_chg19[2]}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd19, _cfd19_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD19 بصمةُ بطاقات الحقيقيّة: سليمةٌ ⟵ تمرّ · بطاقةٌ غيرُ مجمَّدة ⟵ تُكسر · وتعديلٌ بعد التجميد ⟵ يُكسر",
+      _cfd19, _cfd19_w)
+
+# ── CFD20 المصنوعة: بذرةٌ ثابتة ⟵ النوافذُ نفسُها كلَّ مرّة ──
+try:
+    _arr20, _ = _cfd_panel_world(True)
+    _d20, _s20, _H20, _L20, _C20 = _arr20
+    _keep20 = (_CFE.SYNTH_FROM, _CFE.SYNTH_TO)
+    try:
+        _CFE.SYNTH_FROM, _CFE.SYNTH_TO = _d20[25], _d20[-1]
+        _w1 = _CFE.sample_windows(_d20, _s20, _H20, _L20, _C20, _cfd_rand.Random(_CFE.SEED), 5)
+        _w2 = _CFE.sample_windows(_d20, _s20, _H20, _L20, _C20, _cfd_rand.Random(_CFE.SEED), 5)
+    finally:
+        _CFE.SYNTH_FROM, _CFE.SYNTH_TO = _keep20
+    _cfd20 = (_w1 == _w2 and len(_w1) == 5 and _CFE.SEED == 20260924
+              and all(_CFE.W_MIN <= w[2] <= _CFE.W_MAX for w in _w1))
+    _cfd20_w = str(_w1[:3])
+except Exception as _e:                                           # noqa: BLE001
+    _cfd20, _cfd20_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD20 المصنوعةُ حتميّة: بذرةُ العقد (‏20260924) تُعيد النوافذَ نفسَها · وأطوالُها داخل [20، 90]",
+      _cfd20, _cfd20_w)
+
+# ── CFD21 التفرّدُ على كلّ العابرين: القصُّ يحجب «واثق» ──
+try:
+    _arr21, _get21 = _cfd_panel_world(True, decoy=True)
+    _card21 = {"v": 1, "id": "cfd-U", "timeframe": "1D", "bars_visible": 37,
+               "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"}
+    _keep21 = (_CF.SHORTLIST_MAX, _CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL), dict(_CF._LAST_ENDS))
+    try:
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _r21a = _cfd_quiet(_CF.run_card, _card21, _cfd_tmp, get=_get21, panel_arr=_arr21, series=False)
+        _CF.SHORTLIST_MAX = 1
+        _r21b = _cfd_quiet(_CF.run_card, dict(_card21, id="cfd-U1"), _cfd_tmp, get=_get21,
+                           panel_arr=_arr21, series=False)
+        _cut21 = _CF._LAST_CUT
+    finally:
+        _CF.SHORTLIST_MAX = _keep21[0]
+        _CF._SPLITS_ALL_SINCE = _keep21[1]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep21[2])
+        _CF._LAST_ENDS.clear()
+        _CF._LAST_ENDS.update(_keep21[3])
+    _cfd21 = (_r21a["label"] == "واثق" and _r21a["top"][:2] == ["XSPL", "YYY"]
+              and _r21b["label"] == "مرجّح" and _r21b["top"][0] == "XSPL" and _cut21 == 1)
+    _cfd21_w = f"كامل={_r21a['label']}/{_r21a['top'][:2]} · مقصوص={_r21b['label']} (قُصّ {_cut21})"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd21, _cfd21_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD21 التفرّدُ يُتحقَّق على **كلّ** العابرين: XSPL وحيدٌ بعد فحص YYY ⟵ «واثق» · وبقصّ YYY بلا فحص "
+      "(السقفُ 1) ⟵ «مرجّح» مع عدّ المقصوص (فالقصُّ يحجب «واثق» ولا يُخفيه)", _cfd21, _cfd21_w)
+
+# ── CFD22 طولُ النافذة بالأيام من الفريم ──
+try:
+    _wd = _CF.window_days
+    _cfd22 = (_wd({"timeframe": "1D", "bars_visible": 40}) == (32, 50)
+              and _wd({"timeframe": "1W", "bars_visible": 40}) == (160, 250)
+              and _wd({"timeframe": "4H", "bars_visible": 60}) == (12, 38)
+              and _wd({"timeframe": "1D"}) == (20, 120)
+              and _wd({"timeframe": "intraday"}) == (1, 30))
+    _cfd22_w = (f"1D={_wd({'timeframe': '1D', 'bars_visible': 40})} · 1W={_wd({'timeframe': '1W', 'bars_visible': 40})}"
+                f" · 4H={_wd({'timeframe': '4H', 'bars_visible': 60})}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd22, _cfd22_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 CFD22 طولُ النافذة بأيام التداول: 40 شمعةً يوميّة ⟵ 32-50 · أسبوعيّة ⟵ 160-250 · 60 شمعةَ 4 ساعات ⟵ "
+      "12-38 (بين الممتدّة والنظاميّة) · وبلا عدد ⟵ 20-120", _cfd22, _cfd22_w)
+
+# ── CFD23 المسحُ المتّجه = المرجعُ الساذج (كلُّ يوم نهاية · بتقسيمٍ داخل النوافذ) ──
+try:
+    _rng23 = _cfd_rand.Random(23)
+    _days23 = _CF.trading_days_back("2026-06-30", 1)[-80:]
+    _bars23, _p = [], 3.0
+    for _d in _days23:
+        _o = _p
+        _c = max(0.2, _p * (1 + _rng23.uniform(-0.1, 0.1)))
+        _bars23.append((_d, _o, max(_o, _c) * 1.03, min(_o, _c) * 0.97, _c, 1.0))
+        _p = _c
+    _sp23 = [(_days23[50], 5.0, 1.0)]
+    _disp23 = [(b[2] * (5 if k < 50 else 1), b[3] * (5 if k < 50 else 1))
+               for k, b in enumerate(_bars23) if k >= 40]          # المعروضُ يومَ آخر شمعة: ×5 قبل التقسيم
+    _specs23 = ((max(x[0] for x in _disp23), 0.005), (min(x[1] for x in _disp23), 0.005),
+                (_bars23[-1][4], 0.005))
+
+    def _naive23(bars, splits, sh, sl, sc, ns):
+        rows = {}
+        for ei in range(len(bars)):
+            e = bars[ei][0]
+            best = None
+            for N in ns:
+                si = ei - N + 1
+                if si < 0:
+                    continue
+                f = [_CF.split_factor(splits, bars[k][0], e) for k in range(si, ei + 1)]
+                hs = [bars[k][2] * f[k - si] for k in range(si, ei + 1)]
+                ls = [bars[k][3] * f[k - si] for k in range(si, ei + 1)]
+                ch = {"high": _CF.field_check(max(hs), sh), "low": _CF.field_check(min(ls), sl)}
+                fc = _CF.field_check(bars[ei][4], sc)
+                tn = _CF.tol_near(sc)
+                fc["near"] = fc["near"] or (bars[ei][3] - tn <= sc[0] <= bars[ei][2] + tn)
+                ch["last"] = fc
+                ok = all(c["near"] for c in ch.values())
+                sc_ = sum(min(c["err"], 40.0) for c in ch.values())
+                key = (0 if ok else 1, sc_, N)
+                if best is None or key < best[0]:
+                    best = (key, N, ok, sc_)
+            if best:
+                rows[e] = (best[1], best[2], round(best[3], 9))
+        return rows
+    _ns23 = list(range(20, 41))
+    _got23 = _CF.undated_scan(_bars23, _sp23, *_specs23, _ns23, ends_back=len(_bars23))
+    _gmap23 = {r["e"]: (r["N"], r["ok"], round(r["score"], 9)) for r in _got23}
+    _ref23 = _naive23(_bars23, _sp23, *_specs23, _ns23)
+    _cfd23 = (_gmap23 == _ref23 and len(_gmap23) == len(_bars23) - 19
+              and _got23[0]["ok"] and _got23[0]["e"] == _days23[-1])
+    _cfd23_w = (f"أيام={len(_gmap23)} · مطابقٌ للمرجع={_gmap23 == _ref23} · "
+                f"الأوّل={_got23[0]['e']}/{_got23[0]['N']}/{_got23[0]['ok']}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd23, _cfd23_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD23 المسحُ بلا تاريخ (متّجهٌ على أطوال النافذة) = **المرجعُ الساذج** في كلّ يوم نهاية: الطولُ والعبورُ "
+      "والخطأ · بتقسيمٍ 1:5 داخل النوافذ · والصحيحُ أوّلًا", _cfd23, _cfd23_w)
+
+# ── CFD24 المساران اليوميّان حيًّا (بلا لوحةٍ محقونة) لا يناديان شموعَ الرمز: اللوحةُ تكفي ──
+try:
+    _arr24, _get24 = _cfd_panel_world(True)
+    _d24, _s24, _H24, _L24, _C24 = _arr24
+    _world24 = {d: (list(_s24), _cfd_np.stack([_H24[i], _L24[i], _C24[i]], axis=1).astype(_cfd_np.float32))
+                for i, d in enumerate(_d24)}
+    _aggs24 = []
+
+    def _spy24(url, params=None, headers=None, timeout=None):
+        if "/v2/aggs/" in url:
+            _aggs24.append(url)
+        return _get24(url, params=params, headers=headers, timeout=timeout)
+    _keep24 = (_CF.load_panel, _CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL), dict(_CF._LAST_ENDS))
+    try:
+        _CF.load_panel = lambda days, tmpdir, get=None: {d: _world24[d] for d in days if d in _world24}
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _r24d = _cfd_quiet(_CF.run_card, {"v": 1, "id": "cfd-L1", "timeframe": "1D",
+                                          "window": {"from": _d24[10], "to": _d24[59]},
+                                          "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"},
+                           _cfd_tmp, get=_spy24, series=False)
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _r24u = _cfd_quiet(_CF.run_card, {"v": 1, "id": "cfd-L2", "timeframe": "1D", "bars_visible": 37,
+                                          "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"},
+                           _cfd_tmp, get=_spy24, series=False)
+    finally:
+        _CF.load_panel = _keep24[0]
+        _CF._SPLITS_ALL_SINCE = _keep24[1]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep24[2])
+        _CF._LAST_ENDS.clear()
+        _CF._LAST_ENDS.update(_keep24[3])
+    _cfd24 = (_r24d["label"] == "واثق" and _r24d["top"][0] == "XSPL" and _r24d["mode"] == "dated"
+              and _r24u["label"] == "واثق" and _r24u["top"][0] == "XSPL" and _r24u["mode"] == "market"
+              and not _aggs24)
+    _cfd24_w = f"مؤرَّخ={_r24d['label']} · بلا تاريخ={_r24u['label']} · نداءاتُ شموع الرمز={len(_aggs24)}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd24, _cfd24_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD24 المساران اليوميّان **حيًّا** (اللوحةُ تُحمَّل لا تُحقن): المؤرَّخُ وبلا تاريخ ⟵ «واثق» للصحيح "
+      "**بصفرِ نداءٍ لشموع الرمز** (اللوحةُ والتقسيماتُ الجماعيّة تكفيان — فالفحصُ الكامل لكلّ العابرين رخيص)",
+      _cfd24, _cfd24_w)
+_cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

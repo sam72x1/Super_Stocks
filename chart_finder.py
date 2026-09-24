@@ -55,6 +55,10 @@ WINDOW_SLACK_DAYS = 3     # النافذةُ المقروءة من المحور 
 SPANS = (1, 2, 3, 5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 390, 960)
 DEVICE_TZ = "Asia/Riyadh"  # توقيتُ جهاز المالك — يُجرَّب ثانيًا بعد نيويورك
 TOP_SERIES = 3
+ANCHOR_MAX = 25            # أقصى عابري المرساة تُفحص نوافذُهم (دقائق REST لكلٍّ) — والمقصوصُ يحجب «واثق»
+DAYS_PER_BAR = {"1D": 1.0, "1W": 5.0, "1M": 21.0}      # أيامُ تداولٍ لكلّ شمعة (اليوميّ فما فوقه)
+INTRADAY_SPAN = {"1m": 1, "2m": 2, "3m": 3, "5m": 5, "10m": 10, "15m": 15, "30m": 30, "45m": 45,
+                 "1H": 60, "2H": 120, "3H": 180, "4H": 240}
 EXT_OPEN_MIN, EXT_CLOSE_MIN = 4 * 60, 20 * 60
 FORBIDDEN_KEYS = {"ticker", "symbol", "sym", "رمز", "الرمز"}
 TIMEFRAMES = {"1m", "2m", "3m", "5m", "10m", "15m", "30m", "45m", "1H", "2H", "3H", "4H",
@@ -94,6 +98,23 @@ def parse_num(txt):
         return None
     n = len(t.split(".")[1]) if "." in t else 0
     return (v * mult, 0.5 * (10.0 ** (-n)) * mult)
+
+
+def num_spec(x):
+    """رقمُ البطاقة ⟵ `(قيمة، تسامحُ القراءة)`:
+    • نصٌّ مقروء ⟵ `parse_num` (نصفُ آخر خانة).
+    • `{"v": "2.35", "src": "pixel", "tol": "0.02"}` ⟵ قراءةُ بكسل **بتسامحٍ مصرَّح** — وبلا `tol`
+      ⟵ `None` (لا يُخمَّن تسامحُ قراءةٍ تقريبيّة).
+    • `{"v": "2.35", "src": "text"}` ⟵ كالنصّ."""
+    if isinstance(x, dict):
+        base = parse_num(x.get("v"))
+        if base is None:
+            return None
+        if str(x.get("src") or "text") == "pixel":
+            tol = parse_num(x.get("tol"))
+            return None if tol is None or tol[0] <= 0 else (base[0], abs(tol[0]))
+        return base
+    return parse_num(x)
 
 
 def _walk_keys(obj):
@@ -145,14 +166,14 @@ def validate_card(card) -> list:
             if a.get("time") is not None and _hhmm(a.get("time")) is None:
                 err.append(f"وقتُ المرساة غيرُ صالح {a.get('time')!r}")
             for f in ("o", "h", "l", "c", "v", "chg_pct"):
-                if a.get(f) is not None and parse_num(a.get(f)) is None:
+                if a.get(f) is not None and num_spec(a.get(f)) is None:
                     err.append(f"المرساة.{f} لا يُقرأ رقمًا")
-            h, l_ = parse_num(a.get("h")), parse_num(a.get("l"))
+            h, l_ = num_spec(a.get("h")), num_spec(a.get("l"))
             if h and l_ and h[0] < l_[0]:
                 err.append("المرساة: الأعلى دون الأدنى")
     ex = card.get("extremes")
     if ex is not None:
-        hi, lo = parse_num((ex or {}).get("high")), parse_num((ex or {}).get("low"))
+        hi, lo = num_spec((ex or {}).get("high")), num_spec((ex or {}).get("low"))
         if (ex or {}).get("high") is not None and hi is None:
             err.append("أعلى الشاشة لا يُقرأ")
         if (ex or {}).get("low") is not None and lo is None:
@@ -165,7 +186,7 @@ def validate_card(card) -> list:
             err.append("النافذةُ بلا تاريخين صالحين")
         elif w["from"] > w["to"]:
             err.append("بدايةُ النافذة بعد نهايتها")
-    if card.get("last") is not None and parse_num(card.get("last")) is None:
+    if card.get("last") is not None and num_spec(card.get("last")) is None:
         err.append("آخرُ سعرٍ لا يُقرأ")
     searchable = ((isinstance(a, dict) and _iso(a.get("date"))
                    and any(a.get(f) is not None for f in ("o", "h", "l", "c")))
@@ -196,7 +217,7 @@ def anchor_specs(anchor) -> dict:
     """حقولُ المرساة المقروءة ⟵ `{o,h,l,c,v: (قيمة، نصف خانة)}` (الغائبُ لا يُدرج)."""
     out = {}
     for f in ("o", "h", "l", "c", "v"):
-        s = parse_num((anchor or {}).get(f))
+        s = num_spec((anchor or {}).get(f))
         if s is not None:
             out[f] = s
     return out
@@ -379,41 +400,118 @@ def window_check(daily: dict, days: list, core: tuple, spec_hi, spec_lo, spec_la
     return {"ok": bool(checks) and all(c["ok"] for c in checks.values()), "checks": checks}
 
 
+def window_days(card: dict) -> tuple:
+    """مدى طول النافذة **بأيام التداول** `(أدنى، أعلى)` من الفريم وعدد الشموع الظاهرة (±20-25%).
+    اليوميّ فما فوقه بـ`DAYS_PER_BAR` · واللحظيُّ بين الجلسة الممتدّة (16 ساعة) والنظاميّة (6.5) —
+    **تقريبٌ بشموعٍ يوميّةٍ نظاميّة** (محاولةٌ لا تخمين: الحكمُ يُسقط ما لا يطابق) · وبلا عدد ⟵ مدًى افتراضيّ."""
+    tf = card.get("timeframe") or "1D"
+    nv = int(card.get("bars_visible") or 0)
+    if tf in INTRADAY_SPAN:
+        span = INTRADAY_SPAN[tf]
+        lo_dpb = 1.0 / math.ceil((EXT_CLOSE_MIN - EXT_OPEN_MIN) / span)
+        hi_dpb = 1.0 / max(1, math.ceil(390 / span))
+    elif tf == "intraday":
+        return (1, 30)
+    else:
+        lo_dpb = hi_dpb = DAYS_PER_BAR.get(tf, 1.0)
+    base_lo, base_hi = (nv * 0.8, nv * 1.25) if nv else (20.0, 120.0)
+    lo = max(1, int(base_lo * lo_dpb))
+    hi = max(lo, int(math.ceil(base_hi * hi_dpb)))
+    return (lo, hi)
+
+
 def undated_scan(bars: list, splits, spec_hi, spec_lo, spec_last, n_range,
-                 ends_back: int = 260) -> list:
-    """شارتٌ يوميٌّ **بلا تاريخ**: لكلّ يومِ نهايةٍ `e` (آخرُ `ends_back` يومًا) ولكلّ عددِ شموعٍ
-    `N` في `n_range` ⟵ النافذةُ آخرُ `N` شمعةً تنتهي عند `e` **مُسوّاةً حتى `e`** ⟵ أعلى/أدنى/آخر.
-    `bars = [(day, o, h, l, c, v)]` مرتَّبة خامًا ⟵ `[{e, N, ok, score, checks}]` مرتَّبةٌ بالأفضل."""
+                 ends_back: int = 260, ends=None) -> list:
+    """شارتٌ يوميٌّ **بلا تاريخ**: لكلّ يومِ نهايةٍ `e` (آخرُ `ends_back` يومًا، أو الأيامُ `ends`
+    وحدَها إن أُعطيت) ولكلّ عددِ شموعٍ `N` في `n_range` ⟵ النافذةُ آخرُ `N` شمعةً تنتهي عند `e`
+    **مُسوّاةً حتى `e`** ⟵ أعلى/أدنى/آخر. `bars = [(day, o, h, l, c, v)]` مرتَّبة خامًا
+    ⟵ `[{e, N, ok, score, checks}]` — **أفضلُ طولٍ لكلّ يوم نهاية** (العابرُ أوّلًا ثمّ أدنى خطأ)
+    مرتَّبةٌ بالأفضل. الأطرافُ لكلّ الأطوال دفعةً واحدة (تراكمٌ من النهاية للخلف) · والمعاملُ لأيام النافذة وحدَها."""
+    import numpy as np                                              # noqa: PLC0415
     out = []
     days = [b[0] for b in bars]
     n_all = len(bars)
-    for ei in range(n_all - 1, max(-1, n_all - 1 - ends_back), -1):
+    ns = sorted({int(n) for n in n_range if int(n) >= 1})
+    if not ns or not n_all or (spec_hi is None and spec_lo is None and spec_last is None):
+        return out
+    n_top = ns[-1]
+    H = np.array([b[2] for b in bars], dtype=float)
+    L = np.array([b[3] for b in bars], dtype=float)
+    C = np.array([b[4] for b in bars], dtype=float)
+    if ends is not None:
+        want = set(ends)
+        idx = [i for i, d in enumerate(days) if d in want]
+    else:
+        idx = list(range(n_all - 1, max(-1, n_all - 1 - ends_back), -1))
+    for ei in idx:
         e = days[ei]
-        fac = [split_factor(splits, d, e) for d in days[:ei + 1]]
-        for N in n_range:
-            si = ei - N + 1
-            if si < 0:
+        a0 = max(0, ei - n_top + 1)
+        fac = np.array([split_factor(splits, days[k], e) for k in range(a0, ei + 1)])
+        run_hi = np.maximum.accumulate((H[a0:ei + 1] * fac)[::-1])
+        run_lo = np.minimum.accumulate((L[a0:ei + 1] * fac)[::-1])
+        valid = [n for n in ns if n <= len(fac)]
+        if not valid:
+            continue
+        ni = np.array(valid) - 1
+        score = np.zeros(len(valid))
+        ok = np.ones(len(valid), dtype=bool)
+        for spec, run in ((spec_hi, run_hi), (spec_lo, run_lo)):
+            if spec is None:
                 continue
-            hs = [bars[k][2] * fac[k] for k in range(si, ei + 1)]
-            ls = [bars[k][3] * fac[k] for k in range(si, ei + 1)]
-            checks = {}
-            if spec_hi is not None:
-                checks["high"] = field_check(max(hs), spec_hi)
-            if spec_lo is not None:
-                checks["low"] = field_check(min(ls), spec_lo)
-            if spec_last is not None:
-                c_e, h_e, l_e = bars[ei][4] * fac[ei], bars[ei][2] * fac[ei], bars[ei][3] * fac[ei]
-                fc = field_check(c_e, spec_last)
-                tn = tol_near(spec_last)
-                fc["near"] = fc["near"] or (l_e - tn <= spec_last[0] <= h_e + tn)
-                checks["last"] = fc
-            if not checks:
-                continue
-            ok = all(c["near"] for c in checks.values())
-            score = sum(min(c["err"], 40.0) for c in checks.values())
-            out.append({"e": e, "N": N, "ok": ok, "score": score, "checks": checks})
+            tn = tol_near(spec)
+            dd = np.abs(run[ni] - spec[0])
+            score += np.minimum(dd / tn if tn > 0 else np.where(dd == 0, 0.0, np.inf), 40.0)
+            ok &= dd <= tn + 1e-12
+        last_fc = None
+        if spec_last is not None:
+            c_e, h_e, l_e = C[ei] * fac[-1], H[ei] * fac[-1], L[ei] * fac[-1]
+            last_fc = field_check(float(c_e), spec_last)
+            tn = tol_near(spec_last)
+            last_fc["near"] = last_fc["near"] or bool(l_e - tn <= spec_last[0] <= h_e + tn)
+            score += min(last_fc["err"], 40.0)
+            ok &= last_fc["near"]
+        pick = np.where(ok, score, np.inf)
+        k = int(np.argmin(pick)) if np.isfinite(pick).any() else int(np.argmin(score))
+        n_best = valid[k]
+        checks = {}
+        if spec_hi is not None:
+            checks["high"] = field_check(float(run_hi[n_best - 1]), spec_hi)
+        if spec_lo is not None:
+            checks["low"] = field_check(float(run_lo[n_best - 1]), spec_lo)
+        if last_fc is not None:
+            checks["last"] = last_fc
+        out.append({"e": e, "N": n_best, "ok": bool(ok[k]), "score": float(score[k]),
+                    "checks": checks})
     out.sort(key=lambda r: (0 if r["ok"] else 1, r["score"]))
     return out
+
+
+def window_minutes_check(mins: dict, w: dict, tz: str, spec_hi, spec_lo, spec_last,
+                         factor_of=None) -> dict:
+    """نافذةٌ **لحظيّة بوقتٍ** (`from`+`from_time` ⟶ `to`+`to_time` بتوقيت `tz`): أعلى/أدنى الشاشة
+    وآخرُ سعر **من دقائق المدى نفسِه** — فأطرافُ اليوم الكامل خارج الشاشة لا تُحسب عليها."""
+    fac = factor_of or (lambda _d: 1.0)
+    rows = []
+    for d in sorted(mins):
+        if not (w["from"] <= d <= w["to"]):
+            continue
+        off = ny_offset_min(d, tz) if tz and tz != "America/New_York" else 0
+        a = (_hhmm(w.get("from_time")) or 0) + off if d == w["from"] else 0
+        b = (_hhmm(w.get("to_time")) or 24 * 60) + off if d == w["to"] else 24 * 60
+        f = fac(d)
+        rows += [(r[2] * f, r[3] * f, r[4] * f) for r in mins[d] if a <= r[0] <= b]
+    if not rows:
+        return {"ok": False, "why": "لا دقائق في المدى", "checks": {}}
+    checks = {}
+    if spec_hi is not None:
+        checks["high"] = field_check(max(r[0] for r in rows), spec_hi)
+    if spec_lo is not None:
+        checks["low"] = field_check(min(r[1] for r in rows), spec_lo)
+    if spec_last is not None:
+        checks["last"] = field_check(rows[-1][2], spec_last)
+    for k, c in checks.items():
+        c["day"] = w["to"] if k == "last" else "المدى"
+    return {"ok": bool(checks) and all(c["near"] for c in checks.values()), "checks": checks}
 
 
 def verdict(cands: list) -> tuple:
@@ -503,15 +601,55 @@ def ticker_aggs(sym: str, mult: int, span: str, frm: str, to: str, adjusted: boo
     return out
 
 
-def ticker_splits(sym: str, get=None) -> list:
-    """تقسيماتُ الرمز ⟵ `[(تاريخُ التنفيذ، from، to)]` مرتَّبة."""
-    js = _get_json(f"{API}/v3/reference/splits", {"ticker": sym, "limit": "1000"}, get=get)
+_LAST_ENDS: dict = {}        # {رمز: أيامُ النهاية العابرة خامًا} من آخر مسحٍ للسوق بلا تاريخ
+_SPLITS_ALL: dict = {}
+_SPLITS_ALL_SINCE = None     # تاريخُ بداية الجلب الجماعيّ (تغطيتُه) — `None` = لم يُجلب
+
+
+def _split_rows(results) -> list:
     out = []
-    for r in (js or {}).get("results") or []:
+    for r in results or []:
         try:
-            out.append((str(r["execution_date"]), float(r["split_from"]), float(r["split_to"])))
+            out.append((str(r["ticker"]).upper(), str(r["execution_date"]),
+                        float(r["split_from"]), float(r["split_to"])))
         except (KeyError, TypeError, ValueError):
             continue
+    return out
+
+
+def load_all_splits(since: str, get=None) -> int:
+    """كلُّ تقسيمات السوق منذ `since` بصفحاتٍ قليلة (`next_url`) ⟵ ذاكرةٌ لكلّ رمز. يُرجع العدد."""
+    global _SPLITS_ALL_SINCE
+    url = f"{API}/v3/reference/splits"
+    params = {"execution_date.gte": since, "limit": "1000", "order": "asc"}
+    rows, n = [], 0
+    while url and n < 50:
+        js = _get_json(url, params, get=get)
+        if not js:
+            break
+        rows += _split_rows(js.get("results"))
+        url, params, n = js.get("next_url"), {}, n + 1
+    if not rows and n == 0:
+        return 0
+    _SPLITS_ALL.clear()
+    for t, ex, fr, to in rows:
+        _SPLITS_ALL.setdefault(t, []).append((ex, fr, to))
+    for t in _SPLITS_ALL:
+        _SPLITS_ALL[t].sort()
+    _SPLITS_ALL_SINCE = since
+    log(f"   ✂️ تقسيماتُ السوق منذ {since}: {len(rows):,} في {len(_SPLITS_ALL):,} رمزًا ({n} صفحة)")
+    return len(rows)
+
+
+def ticker_splits(sym: str, get=None, need_since: str = None) -> list:
+    """تقسيماتُ الرمز ⟵ `[(تاريخُ التنفيذ، from، to)]` مرتَّبة — من الذاكرة الجماعيّة إن غطّت
+    `need_since` (وإلّا نداءٌ للرمز وحدَه)."""
+    if (_SPLITS_ALL_SINCE is not None and need_since is not None
+            and _SPLITS_ALL_SINCE <= need_since):
+        return list(_SPLITS_ALL.get(sym.upper(), []))
+    js = _get_json(f"{API}/v3/reference/splits", {"ticker": sym, "limit": "1000"}, get=get)
+    out = [(ex, fr, to) for _t, ex, fr, to in
+           _split_rows([dict(r, ticker=r.get("ticker") or sym) for r in (js or {}).get("results") or []])]
     return sorted(out)
 
 
@@ -612,7 +750,8 @@ def fetch_minute_file(day: str, tmpdir: str):
 DAY_PATH = "us_stocks_sip/day_aggs_v1"
 UNDATED_YEARS = 3          # بلا تاريخ ⇒ آخرُ 3 سنوات (نصُّ البرومبت)
 PANEL_WORKERS = 8
-SHORTLIST_MAX = 60         # أقصى أزواجٍ (رمز، يوم نهاية) تُفحص بالتقسيم الفعليّ (يُعلَن ما قُصّ)
+SHORTLIST_MAX = 1000       # أقصى رموزٍ عابرةٍ خامًا تُفحص بالتقسيم الفعليّ — والمقصوصُ يُعلَن **ويحجب «واثق»**
+_LAST_CUT = 0              # عددُ العابرين الذين قُصّوا بلا فحصٍ كامل في آخر بطاقة (يُصفَّر في `run_card`)
 
 
 def day_aggs_key(day: str) -> str:
@@ -733,7 +872,8 @@ def _pair_errors(hs, ls, c_e, h_e, l_e, spec_hi, spec_lo, spec_last):
     return e_last, best
 
 
-def undated_market_candidates(days, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max: int):
+def undated_market_candidates(days, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max: int,
+                              end_ok=None):
     """مسحُ السوق كلِّه بلا تاريخ **بقيودٍ لا يكسرها تقسيمٌ داخل النافذة**:
     • آخرُ سعر عند يوم النهاية (إغلاقٌ، أو داخل المدى بخطأ 1) — آخرُ شمعةٍ بعد كلّ تقسيمٍ بالبناء.
     • وأحدُ الطرفين **خامًا** داخل آخر `n_max` شمعة (الطرفُ الواقع بعد التقسيم خامٌ = معروض).
@@ -758,6 +898,8 @@ def undated_market_candidates(days, syms, H, L, C, spec_hi, spec_lo, spec_last, 
         pairs = np.array(sorted(ends)) if ends else np.zeros((0, 2), dtype=int)
     best = {}
     for e, j in pairs:
+        if end_ok is not None and not end_ok(int(e)):
+            continue
         a = max(0, e - n_max + 1)
         r = _pair_errors(H[a:e + 1, j], L[a:e + 1, j], C[e, j], H[e, j], L[e, j],
                          spec_hi, spec_lo, spec_last)
@@ -766,7 +908,8 @@ def undated_market_candidates(days, syms, H, L, C, spec_hi, spec_lo, spec_last, 
         err = r[0] + r[1]
         s = syms[j]
         if s not in best or err < best[s][0]:
-            best[s] = (err, days[e])
+            best[s] = (err, days[e], (best.get(s) or (0, 0, []))[2])
+        best[s][2].append(days[e])
     return best
 
 
@@ -828,12 +971,13 @@ def fmt_anchor(c: dict) -> str:
             f"{d['tz']} · " + " · ".join(parts) + f" · خطأ {c['score']:.3f}")
 
 
-def stage_window(card: dict, sym: str, get=None) -> dict:
-    """قيودُ النافذة لمرشّحٍ واحد من **دقائقه الخام** (الممتدّة والنظاميّة) ثم التسوية."""
+def stage_window(card: dict, sym: str, get=None, tz: str = "America/New_York") -> dict:
+    """قيودُ النافذة لمرشّحٍ واحد من **دقائقه الخام** (الممتدّة والنظاميّة) ثم التسوية.
+    والنافذةُ بوقتٍ (`from_time`/`to_time`) ⟵ `window_minutes_check` على المدى الزمنيّ نفسِه."""
     w = card.get("window") or {}
     ex = card.get("extremes") or {}
-    spec_hi, spec_lo = parse_num(ex.get("high")), parse_num(ex.get("low"))
-    spec_last = parse_num(card.get("last"))
+    spec_hi, spec_lo = num_spec(ex.get("high")), num_spec(ex.get("low"))
+    spec_last = num_spec(card.get("last"))
     if not (w.get("from") and w.get("to")) or not (spec_hi or spec_lo or spec_last):
         return {"ok": None, "why": "لا نافذةَ مؤرَّخة"}
     d0 = (dt.date.fromisoformat(w["from"]) - dt.timedelta(days=10)).isoformat()
@@ -842,6 +986,11 @@ def stage_window(card: dict, sym: str, get=None) -> dict:
     days = sorted(mins)
     splits = ticker_splits(sym, get=get)
     as_of = w["to"]
+    if w.get("from_time") or w.get("to_time"):
+        out = window_minutes_check(mins, w, tz, spec_hi, spec_lo, spec_last,
+                                   factor_of=lambda d: split_factor(splits, d, as_of))
+        out["session"], out["splits"], out["mins"] = "مدًى زمنيّ", splits, mins
+        return out
     res = {}
     for sess in ("ext", "reg"):
         daily = {}
@@ -857,54 +1006,165 @@ def stage_window(card: dict, sym: str, get=None) -> dict:
     return out
 
 
-def stage_market_undated(card: dict, tmpdir: str, get=None) -> list:
+def panel_slice(panel_arr, d0: str, d1: str):
+    """شريحةُ أيامٍ من لوحةٍ محقونة `(days, syms, H, L, C)` — للتقييم داخل عمليّةٍ واحدة."""
+    days, syms, H, L, C = panel_arr
+    idx = [i for i, d in enumerate(days) if d0 <= d <= d1]
+    if not idx:
+        return [], syms, H[:0], L[:0], C[:0]
+    a, b = idx[0], idx[-1] + 1
+    return days[a:b], syms, H[a:b], L[a:b], C[a:b]
+
+
+def stage_market_dated(card: dict, tmpdir: str, get=None, panel_arr=None) -> tuple:
+    """شارتٌ يوميٌّ **بتاريخ** بلا مرساة: لوحةُ أيام النافذة ± 10 أيام ⟵ يومُ النهاية داخل
+    `to ± WINDOW_SLACK_DAYS` ⟵ القيدان الخامّان ⟵ قائمةٌ قصيرة (والمقصوصُ يُعلَن ويحجب «واثق»)
+    ⟵ `(الرموز، شريحةُ اللوحة)` فيُفحص كلُّ مرشّحٍ منها بلا نداءٍ للرمز."""
+    w = card["window"]
+    ex = card.get("extremes") or {}
+    spec_hi, spec_lo = num_spec(ex.get("high")), num_spec(ex.get("low"))
+    spec_last = num_spec(card.get("last"))
+    d0 = (dt.date.fromisoformat(w["from"]) - dt.timedelta(days=10)).isoformat()
+    d1 = (dt.date.fromisoformat(w["to"]) + dt.timedelta(days=10)).isoformat()
+    if panel_arr is not None:
+        pdays, syms, H, L, C = panel_slice(panel_arr, d0, d1)
+    else:
+        span_years = max(1, (dt.date.fromisoformat(d1) - dt.date.fromisoformat(d0)).days // 365 + 1)
+        days = [d for d in trading_days_back(d1, span_years) if d >= d0]
+        panel = load_panel(days, tmpdir, get=get)
+        if not panel:
+            return [], None
+        pdays, syms, H, L, C = panel_arrays(panel)
+    core = [i for i, d in enumerate(pdays) if w["from"] <= d <= w["to"]]
+    if not core:
+        return [], None
+    n_max = (core[-1] - core[0] + 1) + 2 * WINDOW_SLACK_DAYS
+    lo_e, hi_e = core[-1] - WINDOW_SLACK_DAYS, core[-1] + WINDOW_SLACK_DAYS
+    best = undated_market_candidates(pdays, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max,
+                                     end_ok=lambda e: lo_e <= e <= hi_e)
+    ranked = sorted(best.items(), key=lambda kv: (kv[1][0], kv[0]))
+    global _LAST_CUT
+    _LAST_CUT = max(0, len(ranked) - SHORTLIST_MAX)
+    log(f"① نافذةٌ مؤرَّخة {w['from']} ⟶ {w['to']} ⟵ رموزٌ عبرت القيدَين الخامَّين: {len(ranked):,}"
+        + (f" · ✂️ فُحص أوّلُ {SHORTLIST_MAX} وقُصّ {_LAST_CUT:,} (⇒ لا «واثق»)" if _LAST_CUT else ""))
+    need = (dt.date.fromisoformat(w["from"]) - dt.timedelta(days=20)).isoformat()
+    if ranked and (_SPLITS_ALL_SINCE is None or _SPLITS_ALL_SINCE > need):
+        load_all_splits(need, get=get)
+    return [s for s, _ in ranked[:SHORTLIST_MAX]], (pdays, syms, H, L, C)
+
+
+def stage_dated_exact(card: dict, syms: list, get=None, panel_arr=None) -> list:
+    """التحقّقُ الكامل للنافذة المؤرَّخة: شموعٌ يوميّةٌ خام لكلّ مرشّح (من اللوحة المحقونة إن وُجدت،
+    وإلّا REST) مُسوّاةً بتقسيمه حتى `to`."""
+    w = card["window"]
+    ex = card.get("extremes") or {}
+    spec_hi, spec_lo = num_spec(ex.get("high")), num_spec(ex.get("low"))
+    spec_last = num_spec(card.get("last"))
+    d0 = (dt.date.fromisoformat(w["from"]) - dt.timedelta(days=20)).isoformat()
+    d1 = (dt.date.fromisoformat(w["to"]) + dt.timedelta(days=20)).isoformat()
+    out = []
+    for s in syms:
+        daily = {}
+        if panel_arr is not None:
+            for d, o, h, lo, c, _v in _panel_bars(panel_arr, s):
+                if d0 <= d <= d1:
+                    daily[d] = {"o": o, "h": h, "l": lo, "c": c}
+        else:
+            for b in ticker_aggs(s, 1, "day", d0, d1, get=get):
+                try:
+                    d = dt.datetime.fromtimestamp(int(b["t"]) / 1000.0, tz=NY).date().isoformat()
+                    daily[d] = {"o": float(b["o"]), "h": float(b["h"]), "l": float(b["l"]),
+                                "c": float(b["c"])}
+                except (KeyError, TypeError, ValueError):
+                    continue
+        splits = ticker_splits(s, get=get, need_since=d0)
+        wr = window_check(daily, sorted(daily), (w["from"], w["to"]), spec_hi, spec_lo, spec_last,
+                          factor_of=lambda d, sp=splits: split_factor(sp, d, w["to"]))
+        wr["splits"], wr["session"] = splits, "يوميّ"
+        log(fmt_window(s, wr))
+        n_ok = sum(1 for c in (wr.get("checks") or {}).values() if c.get("ok"))
+        out.append({"sym": s, "pass": bool(wr.get("ok")), "n_groups": n_ok,
+                    "score": sum(min(c["err"], 40.0) for c in (wr.get("checks") or {}).values()),
+                    "window": wr})
+    return out
+
+
+def stage_market_undated(card: dict, tmpdir: str, get=None, panel_arr=None) -> list:
     """بلا تاريخ ⟵ لوحةُ آخر `UNDATED_YEARS` سنوات ⟵ قيودٌ لا يكسرها التقسيم ⟵ قائمةٌ قصيرة
     (أقصاها `SHORTLIST_MAX` رمزًا — **والمقصوصُ يُعلَن بعدده**)."""
     ex = card.get("extremes") or {}
-    spec_hi, spec_lo = parse_num(ex.get("high")), parse_num(ex.get("low"))
-    spec_last = parse_num(card.get("last"))
-    nv = int(card.get("bars_visible") or 0)
-    n_max = int(nv * 1.25) + 1 if nv else 120
+    spec_hi, spec_lo = num_spec(ex.get("high")), num_spec(ex.get("low"))
+    spec_last = num_spec(card.get("last"))
+    n_max = window_days(card)[1] + 1
     end = (dt.date.today() - dt.timedelta(days=1)).isoformat()
-    days = trading_days_back(end, UNDATED_YEARS)
+    days = panel_arr[0] if panel_arr is not None else trading_days_back(end, UNDATED_YEARS)
     log(f"① بلا تاريخ ⟵ لوحةُ السوق {days[0] if days else '-'} ⟶ {days[-1] if days else '-'} "
-        f"({len(days)} يومًا) · نافذةٌ حتى {n_max} شمعة")
-    panel = load_panel(days, tmpdir, get=get)
-    if not panel:
-        return []
-    pdays, syms, H, L, C = panel_arrays(panel)
+        f"({len(days)} يومًا{' · محقونة' if panel_arr is not None else ''}) · نافذةٌ حتى {n_max} شمعة")
+    if panel_arr is not None:
+        pdays, syms, H, L, C = panel_arr
+    else:
+        panel = load_panel(days, tmpdir, get=get)
+        if not panel:
+            return [], None
+        pdays, syms, H, L, C = panel_arrays(panel)
     best = undated_market_candidates(pdays, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max)
-    ranked = sorted(best.items(), key=lambda kv: kv[1][0])
+    ranked = sorted(best.items(), key=lambda kv: (kv[1][0], kv[0]))
+    if ranked and (_SPLITS_ALL_SINCE is None or _SPLITS_ALL_SINCE > pdays[0]):
+        load_all_splits(pdays[0], get=get)
+    global _LAST_CUT
+    _LAST_CUT = max(0, len(ranked) - SHORTLIST_MAX)
     log(f"   🔎 رموزٌ عبرت القيدَين الخامَّين: {len(ranked):,}"
-        + (f" · ✂️ فُحص أوّلُ {SHORTLIST_MAX} بالتقسيم الفعليّ وقُصّ {len(ranked) - SHORTLIST_MAX:,}"
-           if len(ranked) > SHORTLIST_MAX else ""))
-    for s, (err, e) in ranked[:8]:
-        log(f"   · {s:6} خطأ {err:.2f} · يوم النهاية {e}")
-    return [s for s, _ in ranked[:SHORTLIST_MAX]]
+        + (f" · ✂️ فُحص أوّلُ {SHORTLIST_MAX} بالتقسيم الفعليّ وقُصّ {_LAST_CUT:,} (⇒ لا «واثق»)"
+           if _LAST_CUT else ""))
+    for s, (err, e, _ends) in ranked[:8]:
+        log(f"   · {s:6} خطأ {err:.2f} · يوم النهاية {e} · أيامُ نهايةٍ عابرة خامًا {len(_ends)}")
+    global _LAST_ENDS
+    _LAST_ENDS = {s: sorted(set(v[2])) for s, v in ranked[:SHORTLIST_MAX]}
+    return [s for s, _ in ranked[:SHORTLIST_MAX]], (pdays, syms, H, L, C)
 
 
-def stage_undated(card: dict, syms: list, get=None) -> list:
-    """شارتٌ يوميٌّ بلا تاريخ على رموزٍ بعينها (تحقّقٌ متقاطع مع بطاقةٍ أخرى) ⟵ مرشّحون بحكمهم."""
+def _panel_bars(panel_arr, sym: str) -> list:
+    """شموعُ رمزٍ من لوحةٍ محقونة ⟵ `[(day, o, h, l, c, v)]` (o=c و v=0 — اللوحةُ تحمل H/L/C)."""
+    import numpy as np                                              # noqa: PLC0415
+    days, syms, H, L, C = panel_arr
+    try:
+        j = syms.index(sym)
+    except ValueError:
+        return []
+    out = []
+    for i, d in enumerate(days):
+        h, lo, c = H[i, j], L[i, j], C[i, j]
+        if np.isfinite(c):
+            out.append((d, float(c), float(h), float(lo), float(c), 0.0))
+    return out
+
+
+def stage_undated(card: dict, syms: list, get=None, panel_arr=None, use_ends: bool = False) -> list:
+    """شارتٌ يوميٌّ بلا تاريخ على رموزٍ بعينها (قائمةٌ قصيرة أو تحقّقٌ متقاطع) ⟵ مرشّحون بحكمهم."""
     ex = card.get("extremes") or {}
-    spec_hi, spec_lo = parse_num(ex.get("high")), parse_num(ex.get("low"))
-    spec_last = parse_num(card.get("last"))
-    nv = int(card.get("bars_visible") or 0)
-    n_range = range(max(5, int(nv * 0.8)), int(nv * 1.25) + 1) if nv else range(20, 121, 5)
+    spec_hi, spec_lo = num_spec(ex.get("high")), num_spec(ex.get("low"))
+    spec_last = num_spec(card.get("last"))
+    lo_d, hi_d = window_days(card)
+    n_range = range(lo_d, hi_d + 1)
     today = dt.date.today()
     out = []
+    since = (today - dt.timedelta(days=int(366 * UNDATED_YEARS))).isoformat()
     for s in syms:
-        raw = ticker_aggs(s, 1, "day", (today - dt.timedelta(days=3 * 366)).isoformat(),
-                          today.isoformat(), get=get)
-        bars = []
-        for b in raw:
-            try:
-                d = dt.datetime.fromtimestamp(int(b["t"]) / 1000.0, tz=NY).date().isoformat()
-                bars.append((d, float(b["o"]), float(b["h"]), float(b["l"]), float(b["c"]),
-                             float(b.get("v") or 0.0)))
-            except (KeyError, TypeError, ValueError):
-                continue
-        splits = ticker_splits(s, get=get)
-        res = undated_scan(bars, splits, spec_hi, spec_lo, spec_last, n_range, ends_back=len(bars))
+        if panel_arr is not None:
+            bars = _panel_bars(panel_arr, s)
+        else:
+            bars = []
+            for b in ticker_aggs(s, 1, "day", since, today.isoformat(), get=get):
+                try:
+                    d = dt.datetime.fromtimestamp(int(b["t"]) / 1000.0, tz=NY).date().isoformat()
+                    bars.append((d, float(b["o"]), float(b["h"]), float(b["l"]), float(b["c"]),
+                                 float(b.get("v") or 0.0)))
+                except (KeyError, TypeError, ValueError):
+                    continue
+        splits = ticker_splits(s, get=get, need_since=bars[0][0] if bars else since)
+        ends = ((_LAST_ENDS.get(s) or None) if use_ends else None)
+        res = undated_scan(bars, splits, spec_hi, spec_lo, spec_last, n_range,
+                           ends_back=len(bars), ends=ends)
         best = res[0] if res else None
         n_ok = len({r["e"] for r in res if r["ok"]})
         if best:
@@ -930,7 +1190,8 @@ def fmt_window(sym: str, wr: dict) -> str:
     for k, lab in (("high", "أعلى"), ("low", "أدنى"), ("last", "آخر")):
         c = (wr.get("checks") or {}).get(k)
         if c:
-            parts.append(f"{lab} {c['val']:.4g} يوم {c['day']} {'✅' if c['ok'] else '❌'}")
+            parts.append(f"{lab} {c['val']:.4g} يوم {c.get('day')} "
+                         f"{'✅' if c.get('ok', c.get('near')) else '❌'}")
     sp = [s for s in wr.get("splits") or []]
     return (f"   {'✅' if wr.get('ok') else '❌'} {sym:6} النافذة ({wr.get('session')}): "
             + " · ".join(parts) + (f" · تقسيمات {sp[-3:]}" if sp else " · بلا تقسيم"))
@@ -1023,69 +1284,87 @@ def probe_daily_session(day: str, syms: list, get=None) -> None:
 
 
 def run_card(card: dict, tmpdir: str, get=None, file_path: str = None,
-             cross_syms: list = None, results: dict = None) -> int:
+             cross_syms: list = None, results: dict = None, panel_arr=None,
+             series: bool = True) -> dict:
+    """بطاقةٌ واحدة ⟵ مسارُها ⟵ الحكم. يُرجع `{rc, label, top, n_pass, mode}` ويطبع سطرَ الحكم.
+
+    المسارات: مرساةٌ مؤرَّخة (ملفُّ دقائق اليوم) · نافذةٌ مؤرَّخة بلا مرساة (لوحةُ أيامها) ·
+    بلا تاريخ (لوحةُ 3 سنوات) · `cross_with` (تحقّقٌ متقاطع لا بحث). `panel_arr` لوحةٌ محقونة
+    للتقييم داخل عمليّةٍ واحدة (المصنوعة) · و`series=False` يُسكت سلاسلَ الرسم."""
     errs = validate_card(card)
     cid = str(card.get("id") or "?") if isinstance(card, dict) else "?"
     if errs:
         for e in errs:
             log(f"⛔ البطاقة {cid}: {e}")
         log(judge_line(cid, "بطاقةٌ غيرُ صالحة", None, None, 0, 2))
-        return 2
+        return {"rc": 2, "label": "بطاقةٌ غيرُ صالحة", "top": [], "n_pass": 0, "mode": "invalid"}
+    global _LAST_CUT
+    _LAST_CUT = 0
     log(f"\n🔎 البطاقة {cid} · فريم {card.get('timeframe')} · ممتدّة {card.get('extended')} · "
         f"منطقة {card.get('tz')}")
     has_anchor = bool((card.get("anchor") or {}).get("date"))
     has_window = bool((card.get("window") or {}).get("to"))
-    if not has_anchor and not has_window:
-        cross = [s for s in (cross_syms or []) if s]
+    anchor_ref = None
+    if has_anchor:
+        mode = "anchor"
+        anchor_c = stage_anchor(card, tmpdir, file_path=file_path)
+        near = [c for c in anchor_c if c["near"]]
+        _LAST_CUT = max(0, len(near) - ANCHOR_MAX)
+        if _LAST_CUT:
+            log(f"   ✂️ عابرو المرساة {len(near)} ⟵ فُحصت نوافذُ أوّل {ANCHOR_MAX} وقُصّ {_LAST_CUT} (⇒ لا «واثق»)")
+        shortlist = near[:ANCHOR_MAX] or anchor_c[:3]
+        final = []
+        for c in shortlist:
+            wr = stage_window(card, c["sym"], get=get, tz=c["anchor"]["def"]["tz"])
+            log(fmt_window(c["sym"], wr))
+            groups = 1 + (1 if wr.get("ok") is not None else 0)
+            ok = c["near"] and (wr.get("ok") is not False)
+            wscore = sum(min(ch["err"], 40.0) for ch in (wr.get("checks") or {}).values())
+            final.append({"sym": c["sym"], "pass": ok, "n_groups": groups,
+                          "score": c["score"] + wscore, "anchor": c["anchor"], "window": wr})
+        anchor_ref = card["anchor"]["date"]
+    elif has_window:
+        mode = "dated"
+        syms, dated_arr = stage_market_dated(card, tmpdir, get=get, panel_arr=panel_arr)
+        final = stage_dated_exact(card, syms, get=get, panel_arr=dated_arr)
+        anchor_ref = card["window"]["to"]
+    else:
+        cross = [x for x in (cross_syms or []) if x]
         mode = "cross" if cross else "market"
         if cross:
             log(f"🔁 تحقّقٌ متقاطع (لا بحثٌ مستقلّ) على مرشّحي بطاقةٍ أخرى: {cross}")
             syms = cross
         else:
-            syms = stage_market_undated(card, tmpdir, get=get)
-        final = stage_undated(card, syms, get=get)
-        label, t1, t2, n_pass = verdict(final)
-        log(f"⚖️ الحكمُ ({'متقاطع' if mode == 'cross' else 'السوقُ كلُّه بلا تاريخ'}): "
-            f"**{label}** · عابرون {n_pass}")
-        for c in sorted(final, key=lambda x: (0 if x["pass"] else 1, x["score"]))[:TOP_SERIES]:
-            e = (c.get("undated") or {}).get("e")
-            if e:
-                print_series(c["sym"], {"window": {"to": e}}, c.get("window"), None, get=get)
-        log(judge_line(cid, label, t1, t2, n_pass, 0) + f" mode={mode}")
-        return 0
-    anchor_c = stage_anchor(card, tmpdir, file_path=file_path)
-    shortlist = [c for c in anchor_c if c["near"]][:10] if has_anchor else []
-    if has_anchor and not shortlist:
-        shortlist = anchor_c[:3]
-    final = []
-    for c in shortlist:
-        wr = stage_window(card, c["sym"], get=get)
-        log(fmt_window(c["sym"], wr))
-        groups = 1 + (1 if wr.get("ok") is not None else 0)
-        ok = c["near"] and (wr.get("ok") is not False)
-        wscore = sum(min(ch["err"], 40.0) for ch in (wr.get("checks") or {}).values())
-        final.append({"sym": c["sym"], "pass": ok, "n_groups": groups,
-                      "score": c["score"] + wscore, "anchor": c["anchor"], "window": wr})
+            syms, panel_arr = stage_market_undated(card, tmpdir, get=get, panel_arr=panel_arr)
+        final = stage_undated(card, syms, get=get, panel_arr=panel_arr, use_ends=not cross)
     label, t1, t2, n_pass = verdict(final)
-    log(f"⚖️ الحكمُ الآليّ: **{label}** · عابرون {n_pass} · "
+    if label == "واثق" and _LAST_CUT:
+        label = "مرجّح"
+        log(f"   ⚠️ «واثق» حُجب ⟵ «مرجّح»: {_LAST_CUT} عابرًا خامًّا قُصّوا بلا فحصٍ كامل (التفرّدُ غيرُ مُتحقَّق)")
+    ranked = sorted(final, key=lambda x: (0 if x["pass"] else 1, x["score"]))
+    log(f"⚖️ الحكمُ الآليّ ({mode}): **{label}** · عابرون {n_pass} · "
         f"الأوّل {(t1 or {}).get('sym', '-')} · الثاني {(t2 or {}).get('sym', '-')}"
         + (" — ويبقى الشرطُ الثالث: المقارنةُ بالعين" if label == "واثق" else ""))
-    for c in sorted(final, key=lambda x: (0 if x["pass"] else 1, x["score"]))[:TOP_SERIES]:
-        info = ticker_info(c["sym"], get=get)
-        info_now = ticker_info(c["sym"], None, get=get)
-        log(f"🏷️ {c['sym']}: {info.get('name')} · {info.get('exchange')} · نشِط اليوم={info_now.get('active')}")
-        print_series(c["sym"], card, c.get("window"), c.get("anchor"), get=get)
-    if has_anchor and final:
-        probe_daily_session(card["anchor"]["date"], [final[0]["sym"], "AAPL"], get=get)
-        for c in final[:2]:
-            mins = (c.get("window") or {}).get("mins") or {}
-            if mins:
-                probe_session_days(c["sym"], mins, get=get)
+    if series:
+        for c in ranked[:TOP_SERIES]:
+            ref = anchor_ref or (c.get("undated") or {}).get("e")
+            info = ticker_info(c["sym"], ref, get=get)
+            info_now = ticker_info(c["sym"], None, get=get)
+            log(f"🏷️ {c['sym']}: {info.get('name')} · {info.get('exchange')} · "
+                f"نشِط اليوم={info_now.get('active')}")
+            sc = card if (has_anchor or has_window) else {"window": {"to": ref}}
+            print_series(c["sym"], sc, c.get("window"), c.get("anchor"), get=get)
+        if has_anchor and final:
+            probe_daily_session(card["anchor"]["date"], [final[0]["sym"], "AAPL"], get=get)
+            for c in final[:2]:
+                mins = (c.get("window") or {}).get("mins") or {}
+                if mins:
+                    probe_session_days(c["sym"], mins, get=get)
+    top = [c["sym"] for c in ranked[:TOP_SERIES]]
     if results is not None:
-        results[cid] = [c["sym"] for c in sorted(final, key=lambda x: (0 if x["pass"] else 1,
-                                                                      x["score"]))[:TOP_SERIES]]
-    log(judge_line(cid, label, t1, t2, n_pass, 0))
-    return 0
+        results[cid] = top
+    log(judge_line(cid, label, t1, t2, n_pass, 0) + f" mode={mode}")
+    return {"rc": 0, "label": label, "top": top, "n_pass": n_pass, "mode": mode}
 
 
 def load_cards() -> list:
@@ -1117,7 +1396,8 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         for card in cards:
             link = (card.get("cross_with") if isinstance(card, dict) else None) or ""
-            rc = max(rc, run_card(card, tmp, cross_syms=results.get(link), results=results))
+            rc = max(rc, run_card(card, tmp, cross_syms=results.get(link),
+                                  results=results)["rc"])
     return rc
 
 

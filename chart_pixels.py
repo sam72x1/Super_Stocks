@@ -218,3 +218,26 @@ def overlay(rgb: np.ndarray, candles: list, out_path: str) -> str:
         d.rectangle([c["x0"] - 1, c["top"] - 1, c["x1"] + 1, c["bottom"] + 1], outline=col)
     img.save(out_path)
     return out_path
+
+
+def pixel_summary(rgb: np.ndarray, box, pairs, log_scale=None, px_tol: float = 2.0):
+    """ملخّصُ البكسل للبطاقة حين لا تسميةَ نصّيّة: أعلى/أدنى الشاشة وآخرُ إغلاق **بتسامحٍ مصرَّح**
+    = `px_tol` بكسل × سعرُ البكسل عند ذلك المستوى (خطّيٌّ أو لوغاريتميّ بالمعايرة) ⟵ قاموسٌ أو `None`.
+    يُكتب في البطاقة `{"v": …, "src": "pixel", "tol": …}` — فلا يُعامَل رقمُ البكسل معاملةَ النصّ."""
+    x0, y0, x1, y1 = [int(v) for v in box]
+    up, dn = candle_masks(rgb, box=(x0, y0, x1, y1))
+    cands = find_candles(up, dn, x_off=x0, y_off=y0)
+    f, is_log, err = calibrate(pairs, log_scale=log_scale)
+    if f is None or not cands:
+        return None
+    hi_c = min(cands, key=lambda c: c["top"])
+    lo_c = max(cands, key=lambda c: c["bottom"])
+    last = max(cands, key=lambda c: (c["x0"] + c["x1"]) / 2.0)
+
+    def tol_at(y):
+        return px_tol * abs(f(y + 1) - f(y))
+    last_y = last["body_top"] if last["up"] else last["body_bottom"]
+    return {"n": len(cands), "log": is_log, "calib_err": err,
+            "high": (f(hi_c["top"]), tol_at(hi_c["top"])),
+            "low": (f(lo_c["bottom"]), tol_at(lo_c["bottom"])),
+            "last": (f(last_y), tol_at(last_y))}

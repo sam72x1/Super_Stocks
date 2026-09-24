@@ -1,0 +1,45 @@
+name: "🧪 مُعرِّف الشارت — التقييم (المصنوعة للضبط · الحقيقيّة للقبول) (chart_finder_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · الصورُ المصنوعة في الذاكرة ولا تُدفع.
+#    العقد chart_finder_prereg.md §③-§⑤ · السرّان: POLYGON_API_KEY ومفتاحا الملفّات المجمَّعة.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "synth = المصنوعة (ضبط) · real = الحقيقيّة (قبول — بعد تجميد البطاقات ودمج §⑦)"
+        required: true
+        default: "synth"
+      n:
+        description: "عددُ نوافذ المصنوعة (العقد: 150)"
+        required: false
+        default: "150"
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧪 التقييم
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          CHART_EVAL: ${{ inputs.mode }}
+          CHART_EVAL_N: ${{ inputs.n }}
+        run: python chart_eval.py
