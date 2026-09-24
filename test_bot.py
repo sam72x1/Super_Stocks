@@ -6699,6 +6699,56 @@ check("📅 تجارب: مطابقة الراعي + قادم ضمن الأفق �
 check("📅 تجارب·فاشل-آمن: ردّ فارغ/بلا شركة ⇒ []",
       S._parse_ct_studies({}, "X", _ev_today, 45) == []
       and S._parse_ct_studies(_ct_data, "", _ev_today, 45) == [])
+# ═════ 🔎 CTQ — احتياطُ الاسم الجوهريّ (مِجَسّ حيّ 2026-09-24 · تشغيلة `36004482823`) ═════
+#    الاستعلامُ بالاسم الكامل («enGene Therapeutics Inc.») يُرجع صفرًا لأن السجلَّ يُسمّي الراعي
+#    «enGene, Inc.» ⇒ تجاربُ الشركة نفسِها غائبة (ENGN · BCTX). الاحتياطُ بالاسم الجوهريّ وبحارسٍ أشدّ.
+check("🔎 CTQ1 `_ct_core_name`: تُحذف اللواحقُ القانونيّة والأوصافُ العامّة · والكلمةُ الأولى لا تُحذف · "
+      "ولا احتياطَ لاسمٍ لم يتغيّر",
+      [S._ct_core_name(_n) for _n in (
+          "enGene Therapeutics Inc.", "BriaCell Therapeutics Corp.",
+          "Revelation Biosciences, Inc.", "Burning Rock Biotech Limited",
+          "Therapeutics Acquisition Corp", "Pfizer", "", None)]
+      == ["enGene", "BriaCell", "Revelation", "Burning Rock",
+          "Therapeutics Acquisition", "", "", ""])
+_ctq_today = S.dt.date.today()
+_ctq_soon = (_ctq_today + S.dt.timedelta(days=20)).isoformat()
+
+
+def _ctq_run(company, answers):
+    """يُشغّل `clinical_events` بجالبٍ محقون يرجّع `answers[query]` ويسجّل الاستعلامات بترتيبها."""
+    _calls, _orig = [], S._ct_fetch
+    try:
+        S._ct_fetch = lambda q: (_calls.append(q), answers.get(q, {"studies": []}))[1]
+        return S.clinical_events(company), _calls
+    finally:
+        S._ct_fetch = _orig
+
+
+_ctq2, _ctq2c = _ctq_run("enGene Therapeutics Inc.", {
+    "enGene Therapeutics Inc.": {"studies": []},
+    "enGene": {"studies": [_ct_study("enGene, Inc.", _ctq_soon, "PHASE2", "NCT777")]}})
+check("🔎 CTQ2 الاسمُ الكاملُ صفرٌ ⇒ احتياطٌ **بالاسم الجوهريّ** يستردّ تجربةَ الشركة نفسِها "
+      "(«enGene, Inc.»)",
+      [e["date"] for e in _ctq2] == [_ctq_soon]
+      and _ctq2c == ["enGene Therapeutics Inc.", "enGene"], f"{_ctq2} · {_ctq2c}")
+_ctq3_js = {"studies": [_ct_study("China Medical University", _ctq_soon)]}
+_ctq3, _ctq3c = _ctq_run("China SXT Pharmaceuticals, Inc.", {"China SXT": _ctq3_js})
+check("🔎 CTQ3 حارسُ الاحتياط **أشدّ**: راعٍ يطابق الكلمةَ الأولى وحدَها («China …») يُرفض — "
+      "والحارسُ القديمُ وحدَه كان سيقبله",
+      _ctq3 == [] and _ctq3c == ["China SXT Pharmaceuticals, Inc.", "China SXT"]
+      and len(S._parse_ct_studies(_ctq3_js, "China SXT Pharmaceuticals, Inc.",
+                                  _ctq_today, 45)) == 1, f"{_ctq3} · {_ctq3c}")
+_ctq4_js = {"studies": [_ct_study("Femasys Inc", _ctq_soon, "PHASE3", "NCT444")]}
+_ctq4, _ctq4c = _ctq_run("Femasys Inc", {"Femasys Inc": _ctq4_js})
+_ctq4n, _ctq4nc = _ctq_run("Femasys Inc", {"Femasys Inc": None})
+check("🔎 CTQ4 المسارُ الأوّلُ **بت-بت**: حدثٌ من الاسم الكامل ⇒ لا احتياط · وفشلُ الأوّل "
+      "(غيرُ 200) ⇒ [] بلا احتياط",
+      _ctq4 == S._parse_ct_studies(_ctq4_js, "Femasys Inc", _ctq_today, 45)
+      and len(_ctq4) == 1 and _ctq4c == ["Femasys Inc"]
+      and _ctq4n == [] and _ctq4nc == ["Femasys Inc"], f"{_ctq4c} · {_ctq4nc}")
+_ctq5, _ctq5c = _ctq_run("Pfizer", {})
+check("🔎 CTQ5 اسمٌ بلا لاحقةٍ ولا وصف ⇒ نداءٌ واحد (لا احتياطَ مكرّر)",
+      _ctq5 == [] and _ctq5c == ["Pfizer"], f"{_ctq5c}")
 _ev_mix = [{"kind": "أرباح", "date": "2026-07-19", "note": ""},
            {"kind": "تجربة", "date": "2026-07-30", "note": "المرحلة 2 · NCT111"}]
 _evl = S.events_lines(_ev_mix, today=_ev_today)
@@ -15771,13 +15821,29 @@ _c7_pins = [_l.strip() for _l in _c7_req.splitlines()
 #    **أربعًا**، وأُضيفت `PyYAML` لأن غيابَها أبقى بوّابة CI حمراء بصمت (السويّةُ
 #    تقرأ ملفّات الـworkflows في أقفالٍ بنيويّة). **والصياغةُ شُدّت لا رُخّيت:**
 #    المجموعةُ **مطابقةٌ بالضبط** (لا «تحوي») ⇒ أيُّ إضافةٍ صامتةٍ لاحقة تُسقطه أيضًا.
-_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests"}
+# 🔴 **وحُدِّث عمدًا ثانيةً 2026-09-24 — `lxml`**: مِجَسٌّ حيّ (تشغيلة `36004482823`) أثبت
+#    أن `get_earnings_dates` في `technical_report._next_earnings_from_yf` **يرمي `ImportError`
+#    (lxml) في 16 من 32 سهمًا ويُبتلع صامتًا** ⇒ مصدرُ تواريخ الأرباح الثاني ميّتٌ منذ شُحن.
+#    والمجموعةُ تبقى **مطابقةً بالضبط** (سادسةٌ لا «تحوي») — و`ERL1` يربطها بسببها.
+_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml"}
 _c7_names = {_l.split("==")[0].strip() for _l in _c7_pins}
-check("📌 007·الاعتمادياتُ الخمس مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
+check("📌 007·الاعتمادياتُ الستّ مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
       "(لا ترقيةٌ صامتة ولا إضافةٌ صامتة)",
       _c7_names == _C7_EXPECT and all("==" in _l for _l in _c7_pins)
       and len(_c7_pins) == len(_C7_EXPECT),
       f"{sorted(_c7_names)}")
+# 📅 ERL1 — `get_earnings_dates` يحتاج مُحلِّلَ HTML (`pandas.read_html` ⟵ lxml) — وغيابُه كان
+#    يُبتلَع صامتًا في `_next_earnings_from_yf` ⇒ القفلُ يربط **النداءَ الفعليّ (AST)** بالتثبيت:
+#    ما دام المصدرُ يُنادى فـ`lxml` مثبَّتٌ بـ== في أسطر التثبيت (لا في التعليقات).
+import ast as _erl_ast
+_erl_calls = {getattr(_n.func, "attr", None)
+              for _n in _erl_ast.walk(_erl_ast.parse(_insp0.getsource(TR._next_earnings_from_yf)))
+              if isinstance(_n, _erl_ast.Call)}
+check("📅 ERL1 `_next_earnings_from_yf` يُنادي `get_earnings_dates` (AST) ⇒ `lxml` مثبَّتٌ بـ== "
+      "في أسطر التثبيت — وإلّا مات المصدرُ بـImportError صامت",
+      "get_earnings_dates" in _erl_calls
+      and any(_l.split("==")[0].strip().lower() == "lxml" and "==" in _l for _l in _c7_pins),
+      f"{sorted(x for x in _erl_calls if x)} · {sorted(_c7_names)}")
 check("📌 007·بروتوكول الترقية موثّق داخل الملفّ (لا ترقية بلا فحص دخان)",
       "deps_smoke" in _c7_req and "test_bot.py" in _c7_req)
 

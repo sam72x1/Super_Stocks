@@ -4833,15 +4833,18 @@ def next_earnings(sym: str):
         return None
 
 
-def _parse_ct_studies(data, company, today, horizon_days):
+def _parse_ct_studies(data, company, today, horizon_days, match=None):
     """نقيّة (بلا شبكة): من ردّ ClinicalTrials.gov v2 تستخرج التجارب التي راعيها
     الرئيسي يطابق اسم الشركة وتاريخ اكتمالها (الأولي أو الكلي) قادم ضمن الأفق.
     صيغة «سنة-شهر» فقط → أول الشهر (تقدير). ترجع [{'kind','date','note'}...]
-    مرتّبة بالأقرب (بحدّ 2). فاشلة-آمنة → []."""
+    مرتّبة بالأقرب (بحدّ 2). فاشلة-آمنة → [].
+    `match` (لنداء الاحتياط وحدَه — `clinical_events`): حارسٌ **أشدّ** فوق الكلمة الأولى:
+    الاسمُ الجوهريّ كاملًا داخل اسم الراعي. `None` ⇒ السلوكُ السابق بت-بت."""
     out = []
     try:
         base = (company or "").strip().lower().split()
         base = base[0] if base else ""
+        m = (match or "").strip().lower()
         for st in (data.get("studies") or []):
             try:
                 proto = st.get("protocolSection") or {}
@@ -4849,6 +4852,8 @@ def _parse_ct_studies(data, company, today, horizon_days):
                           .get("leadSponsor") or {}).get("name") or "")
                 if not base or base not in spons.lower():
                     continue                    # حارس المطابقة (لا ننسب تجربة لغير شركتها)
+                if m and m not in spons.lower():
+                    continue                    # حارسُ الاحتياط الأشدّ (الاسمُ الجوهريّ كاملًا)
                 stat = proto.get("statusModule") or {}
                 d = ((stat.get("primaryCompletionDateStruct") or {}).get("date")
                      or (stat.get("completionDateStruct") or {}).get("date"))
@@ -4875,23 +4880,71 @@ def _parse_ct_studies(data, company, today, horizon_days):
     return out[:2]
 
 
+# 🔎 لواحقُ قانونيّة وأوصافٌ صناعيّة عامّة تُحذف من اسم الشركة لاستعلام الاحتياط (مُطبَّعةً:
+# بلا نقطةٍ طرفيّة · بأحرفٍ صغيرة). 🔴 **وُلد من مِجَسٍّ حيّ (2026-09-24 · تشغيلة `36004482823`):**
+# السجلُّ يُسمّي الراعي باسمٍ قانونيٍّ غيرِ اسم ياهو («enGene, Inc.» لـ«enGene Therapeutics Inc.» ·
+# «BriaCell Therapeutics Corporation» لـ«BriaCell Therapeutics Corp.») ⇒ **الاستعلامُ بالاسم الكامل
+# يُرجع صفرًا** وتجاربُ الشركة نفسِها غائبة. قائمةٌ هندسيّةٌ لطبقة عرضٍ — لا عتبةَ فرز.
+_CT_DROP = frozenset({
+    "inc", "incorporated", "corp", "corporation", "co", "company", "ltd", "limited",
+    "plc", "llc", "lp", "l.p", "sa", "s.a", "ag", "nv", "n.v", "se", "holdings",
+    "holding", "group", "adr", "ads", "therapeutics", "pharmaceuticals",
+    "pharmaceutical", "pharma", "biotechnology", "biotech", "biosciences",
+    "bioscience", "biopharma", "biopharmaceuticals", "biopharmaceutical",
+    "biologics", "biotherapeutics", "medical", "sciences", "science",
+    "technologies", "technology", "labs", "laboratories", "health", "healthcare",
+    "diagnostics", "genomics", "oncology"})
+
+
+def _ct_core_name(company):
+    """نقيّة: الاسمُ الجوهريّ للشركة لاستعلام الاحتياط — بلا لاحقةٍ قانونيّة ولا وصفٍ صناعيٍّ عامّ
+    (`_CT_DROP`) · **والكلمةُ الأولى لا تُحذف أبدًا** (هي حارسُ المطابقة في `_parse_ct_studies`).
+    ترجّع `""` إن لم يتغيّر شيء (لا احتياطَ مكرّر) أو لاسمٍ فارغ."""
+    toks = str(company or "").replace(",", " ").split()
+    if not toks:
+        return ""
+    keep = [toks[0]] + [t for t in toks[1:] if t.strip(".").lower() not in _CT_DROP]
+    core = " ".join(keep)
+    return core if core.lower() != " ".join(toks).lower() else ""
+
+
+def _ct_fetch(spons):
+    """نداءٌ واحد لـClinicalTrials.gov v2 براعٍ مُعطى — يرجّع JSON الردّ أو `None` لغير 200.
+    الاستثناءُ يصعد إلى المُنادي (`clinical_events` فاشلةٌ-آمنة)."""
+    r = requests.get(
+        "https://clinicaltrials.gov/api/v2/studies",
+        params={"query.spons": spons, "pageSize": 30,
+                "filter.overallStatus":
+                    "RECRUITING,ACTIVE_NOT_RECRUITING,"
+                    "ENROLLING_BY_INVITATION,NOT_YET_RECRUITING"},
+        timeout=10)
+    if r.status_code != 200:
+        return None
+    return r.json() or {}
+
+
 def clinical_events(company: str) -> list:
     """📅 تجارب سريرية تكتمل قريبًا لشركة (ClinicalTrials.gov v2 — رسمي مجاني بلا
-    مفتاح). فاشل-آمن مطلق → [] (شبكة/شكل/حجب). عرض فقط — خارج الفرز."""
+    مفتاح). فاشل-آمن مطلق → [] (شبكة/شكل/حجب). عرض فقط — خارج الفرز.
+    🔎 **واحتياطٌ بالاسم الجوهريّ** (`_ct_core_name`) حين لا يُنتج الاسمُ الكامل حدثًا — بحارسٍ
+    أشدّ (`match`) · ولا احتياطَ إن فشل الأوّل (غيرُ 200) أو لم يتغيّر الاسم. فالمسارُ الأوّل بت-بت."""
     try:
         if not company:
             return []
-        r = requests.get(
-            "https://clinicaltrials.gov/api/v2/studies",
-            params={"query.spons": company, "pageSize": 30,
-                    "filter.overallStatus":
-                        "RECRUITING,ACTIVE_NOT_RECRUITING,"
-                        "ENROLLING_BY_INVITATION,NOT_YET_RECRUITING"},
-            timeout=10)
-        if r.status_code != 200:
+        today, horizon = dt.date.today(), CONFIG["EVENTS_SHOW_DAYS"]
+        js = _ct_fetch(company)
+        if js is None:
             return []
-        return _parse_ct_studies(r.json() or {}, company, dt.date.today(),
-                                 CONFIG["EVENTS_SHOW_DAYS"])
+        out = _parse_ct_studies(js, company, today, horizon)
+        if out:
+            return out
+        core = _ct_core_name(company)
+        if not core:
+            return []
+        js2 = _ct_fetch(core)
+        if js2 is None:
+            return []
+        return _parse_ct_studies(js2, company, today, horizon, match=core)
     except Exception:
         return []
 
