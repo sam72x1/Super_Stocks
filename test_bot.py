@@ -64092,6 +64092,9 @@ try:
         _r34s = _cfd_quiet(_CF.run_card, dict(_card34, id="cfd-G2-stale", anchor={"date": _d34, "time": "19:20",
                                                                                  "v": "100"}),
                            _cfd_tmp, get=_cfd_get, file_path=_p34, series=False)
+        _r34m = _cfd_quiet(_CF.run_card, dict(_card34, id="cfd-G2-multiday",
+                                              window=dict(_card34["window"], **{"from": "2026-04-14"})),
+                           _cfd_tmp, get=_cfd_get, file_path=_p34, series=False)
         _r34o = _cfd_quiet(_CF.run_card, dict(_card34, id="cfd-G2-noopen",
                                               anchor={k: v for k, v in _card34["anchor"].items() if k != "o"}),
                            _cfd_tmp, get=_cfd_get, file_path=_p34, series=False)
@@ -64107,17 +64110,19 @@ try:
         _CF.LIVE_ANCHOR = _keep34
     _cfd34 = (_r34["label"] == "واثق" and _r34["top"][0] == "LIVE" and _r34["mode"] == "anchor_live"
               and _r34s["label"] == "لا تطابق" and _r34s["mode"] == "anchor" and _r34s["top"] == []
+              and _r34m["label"] == "لا تطابق" and _r34m["mode"] == "anchor"
               and _r34o["label"] == "لا تطابق" and _r34o["mode"] == "anchor"
               and _r34d["label"] == "غير محسوم" and set(_r34d["top"][:2]) == {"LIVE", "LIV2"}
               and _r34f["label"] == "لا تطابق" and _r34f["mode"] == "anchor" and _r34f["top"] == ["DECO"])
     _cfd34_w = (f"بديل={_r34['label']}/{_r34['top'][:1]}/{_r34['mode']} · بلا أسعار بعده={_r34s['label']}/"
-                f"{_r34s['mode']} · بلا افتتاح={_r34o['label']} · "
+                f"{_r34s['mode']} · يومان={_r34m['label']}/{_r34m['mode']} · بلا افتتاح={_r34o['label']} · "
                 f"توأم={_r34d['label']}/{_r34d['top'][:2]} · مطفأ={_r34f['label']}/{_r34f['top']}")
 except Exception as _e:                                           # noqa: BLE001
     _cfd34, _cfd34_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD34 G2 (§⑩): رأسُ اللقطة (4.84/4.86/4.56/4.74) لشمعةٍ **اكتملت بعدها** بأدنى 4.27 وإغلاق 4.36 ⟵ الصارمُ «لا تطابق» "
       "(الشَّرَكُ المطابقُ حرفيًّا يسقط على النافذة) ⟵ **البديلُ يجد الصحيحَ وحيدًا «واثق»** · وبلا افتتاحٍ مقروء ⟵ لا بديل · "
-      "وتوأمٌ يعبر مثلَه ⟵ «غير محسوم» (لا تفرّدَ كاذب) · وبطاقةٌ تاليةٌ بلا أسعار ⟵ لا بقايا من السابقة (`_LAST_ANCHOR` "
+      "وتوأمٌ يعبر مثلَه ⟵ «غير محسوم» (لا تفرّدَ كاذب) · ونافذةٌ عبر يومين ⟵ لا بديل (دقائقُ يومٍ واحد لا تكفيها) · "
+      "وبطاقةٌ تاليةٌ بلا أسعار ⟵ لا بقايا من السابقة (`_LAST_ANCHOR` "
       "يُصفَّر) · وبإطفاء `LIVE_ANCHOR` ⟵ الحكمُ الصارمُ كما كان", _cfd34, _cfd34_w)
 # ── CFD35 وحدةُ الشمعة قيد التكوّن: الافتتاحُ ثابت · الأعلى ≥ · الأدنى ≤ · الإغلاقُ حرّ ──
 try:
