@@ -5443,6 +5443,40 @@ check("🛡️ E2C9 استثناءُ جلسةٍ لا يبتر الحكمَ عل�
       and _e2c_r9ix.get("2026-09-23", {}).get("session_complete") is True
       and "session_complete" not in _e2c_r9ix.get("2026-09-22", {}),
       str(_e2c_r9res.get("judged")) + " · " + str(_e2c_r9res.get("judge_errors")))
+# 🔬 «لماذا لا يُنفَّذ NBBO؟» وعدّادُ بوّابة E2-B (2026-09-24) — قراءةٌ فقط لا تمسّ الاكتمال.
+_e2n_bd = _A.nbbo_age_breakdown([
+    {"primary_executable": True, "quote_age_ms": 100},
+    {"primary_executable": False, "quote_age_ms": 6000},
+    {"primary_executable": False, "quote_age_ms": 9000},
+    {"primary_executable": False, "quote_age_ms": -300},
+    {"primary_executable": False, "quote_age_ms": 200},
+    {"primary_executable": None, "quote_age_ms": None},
+    {"quote_age_ms": "غيرُ رقم"}])
+check("🔬 E2N1 تفكيكُ NBBO: قابلٌ · بائت (فوق 5ث) · مستقبليّ (عمرٌ سالب) · غيرُ صالح · مفقود — وأدنى السالب ووسيطُ البائت",
+      _e2n_bd == {"executable": 1, "stale": 2, "future": 1, "invalid": 1, "missing": 2,
+                  "stale_median_ms": 9000, "future_min_ms": -300}
+      and _A.nbbo_age_breakdown(None)["executable"] == 0, str(_e2n_bd))
+try:
+    _e2n_r = _A.analyze_session(_os.path.join(_e2_out, "e2c_ok", "session_2026-09-23"))
+except Exception as _e:                                          # noqa: BLE001
+    _e2n_r = {"⛔": type(_e).__name__}
+_e2n_sum = sum(v for k, v in (_e2n_r.get("nbbo_breakdown") or {}).items()
+               if k in ("executable", "stale", "future", "invalid", "missing"))
+check("🔬 E2N2 المدقّقُ يُصدر التفكيكَ وعددَ المُصدَر القابلِ للتنفيذ · والعدّادُ يَعُدّ **الجلساتِ المكتملةَ وحدَها**",
+      isinstance(_e2n_r.get("n_executable_emitted"), int)
+      and _e2n_r["n_executable_emitted"] <= _e2n_r.get("n_emitted", -1)
+      and _e2n_sum == _e2n_r.get("n_candidates")
+      and _A.e2b_gate_count([{"session_complete": True, "n_executable_emitted": 3},
+                             {"session_complete": False, "n_executable_emitted": 5},
+                             {"session_complete": None, "n_executable_emitted": 7}, "سطر"]) == 3,
+      str({k: _e2n_r.get(k) for k in ("n_candidates", "n_emitted", "n_executable_emitted")}))
+import yaml as _e2n_yaml                                          # noqa: E402
+_e2n_pre = _e2n_yaml.safe_load(open("E2_IGNITION_PREREGISTRATION_2026-07-13.yaml", encoding="utf-8"))
+check("🔒 E2N3 الرقمان **مرآةُ التسجيل المسبق** بحرفهما: 5ث للعمر (والقياسُ نفسُه) · و20 لبوّابة E2-B",
+      _A.MAX_QUOTE_AGE_MS == int(_e2n_pre["entry"]["max_quote_age_seconds"]) * 1000
+      == _M.MAX_QUOTE_AGE_MS
+      and _A.E2B_MIN_DECIDED_ALERTS == int(_e2n_pre["sample_gates"]["preliminary"]["decided_alerts"]),
+      f"{_A.MAX_QUOTE_AGE_MS} · {_A.E2B_MIN_DECIDED_ALERTS}")
 # ── 🔬 P0-1/P1.3: NBBO قياسي **لا-تزامني** (worker) خارج مسار التنبيه + measurement مفضَّل ──
 _p13_fresh = int(_time_e2.time() * 1e9)
 _p13_stale = int((_time_e2.time() - 100) * 1e9)
