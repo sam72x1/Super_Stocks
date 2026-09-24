@@ -138,10 +138,13 @@ def compare(gov_rows: list, new_rows: list, wdays: dict) -> dict:
 
 _TS_RE = re.compile(r"^\ufeff?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z ?")
 _HEAD_RE = re.compile(r'^##\[group\]Run python (?:"\$E2_SCRIPT"|[A-Za-z0-9_]+\.py)\s*$')
+# \ud83d\udd34 **\u0648\u0637\u0627\u0628\u0639\u064f \u0627\u0644\u0633\u0643\u0631\u0628\u062a \u0627\u0644\u062f\u0627\u062e\u0644\u064a\u0651 `[HH:MM:SS]` \u064a\u064f\u0646\u0632\u064e\u0639 \u0623\u064a\u0636\u064b\u0627** (\u0645\u0644\u062d\u0642 \u00a7\u246a-11 \u00b7 2026-09-24): `event_exec` \u064a\u0637\u0628\u0639\u0647 \u0641\u064a \u0631\u0623\u0633
+#    **\u0643\u0644\u0650\u0651** \u0633\u0637\u0631\u064d \u0645\u0646 \u200f\u22485,856 \u21d2 \u0643\u0644\u064f\u0651 \u0633\u0637\u0631\u064d \u0627\u062e\u062a\u0644\u0641 \u0641\u0642\u064f\u0635\u0651 \u0627\u0644\u0641\u0631\u0642\u064f \u0639\u0646\u062f 300 \u0633\u0637\u0631\u064d **\u0642\u0628\u0644 \u0623\u064a\u0651 \u0631\u0642\u0645\u0650 \u062d\u0643\u0645** (\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629 35962101123).
+_INNER_TS_RE = re.compile(r"^\[\d{2}:\d{2}:\d{2}\] ?")
 
 
 def step_output(log_text: str) -> list:
-    """مُخرَجُ خطوة `Run python …` الوحيدة في سجلّ تشغيلة — نقيّة، بلا طوابع الوقت.
+    """مُخرَجُ خطوة `Run python …` الوحيدة في سجلّ تشغيلة — نقيّة، بلا طوابع الوقت (طابعُ Actions وطابعُ السكربت `[HH:MM:SS]`).
 
     الحاكمة `Run python <سكربت>.py` والمعادة `Run python "$E2_SCRIPT"` — **رأسٌ بكلمةٍ واحدةٍ بعد `python`**
     (فخطوةُ الرقعة `Run python early_rest_patch.py gov …` لا تُطابَق) ⇒ **مجموعةٌ واحدةٌ بالضبط** وإلّا `[]`
@@ -158,7 +161,7 @@ def step_output(log_text: str) -> list:
     for ln in lines[i + 1:]:
         if ln.startswith("##[group]") or ln.startswith("Post job cleanup"):
             break
-        out.append(ln)
+        out.append(_INNER_TS_RE.sub("", ln))
     return out
 
 
