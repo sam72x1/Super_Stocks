@@ -1599,7 +1599,7 @@
   "updates": 0,
   "vol_x": 23.6,
   "peak_usd": 89168,
-  "last_eval_ms": 1790260080000,
+  "last_eval_ms": 1790260020000,
   "pulse_ms": 1790263440000,
   "anchor_price": 1.43,
   "anchor_open": 1.18,
@@ -1856,10 +1856,6 @@
   "date": "2026-09-21"
  },
  "LIQ:ATGL": {
-  "last_eval_ms": 1790263440000,
-  "tc_cum": 179693.10923273,
-  "tc_seen_ms": 1790263380000,
-  "date": "2026-09-24",
   "anchor_ms": 1790263440000,
   "last_ms": 1790263440000,
   "sent": [
@@ -1868,11 +1864,13 @@
   "updates": 0,
   "vol_x": 3.3,
   "peak_usd": 128336,
+  "last_eval_ms": 1790263440000,
   "pulse_ms": 1790263440000,
   "anchor_price": 6.8987,
   "anchor_open": 6.74,
   "anchor_low": 6.5455,
   "trig": "T-C",
+  "date": "2026-09-24",
   "pre_done": true,
   "pre_hi": 7.23,
   "pre_usd": 179693,
@@ -2449,7 +2447,7 @@
   "updates": 0,
   "vol_x": 6.4,
   "peak_usd": 57374,
-  "last_eval_ms": 1790259180000,
+  "last_eval_ms": 1790259120000,
   "pulse_ms": 1790263440000,
   "anchor_price": 1.84,
   "anchor_open": 1.72,
@@ -4139,5 +4137,6 @@
  "LIQ:HERE": {
   "date": "2026-09-24"
  },
- "IVDA": "2026-09-24"
+ "IVDA": "2026-09-24",
+ "CIIT": "2026-09-24"
 }
