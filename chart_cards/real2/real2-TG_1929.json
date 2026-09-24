@@ -1,0 +1,23 @@
+{
+ "v": 1,
+ "id": "real2-TG_1929",
+ "timeframe": "1D",
+ "bars_visible": 45,
+ "extremes": {
+  "high": "2.100",
+  "low": "1.380"
+ },
+ "last": "1.420",
+ "anchor": {
+  "date": "2026-03-10",
+  "c": "1.83",
+  "v": "54.16K"
+ },
+ "anchor_src": "text: لوحةُ النمط أسفل الشارت «03/10/2026 Daily · Engulfing (Bullish) · Close Price 1.83 · Volume 54.16K · Pattern Duration 2 Day» (شمعةٌ يوميّةٌ داخل الشارت لا آخرُه)",
+ "axis_md": [
+  "03/06",
+  "03/30",
+  "04/21",
+  "05/11"
+ ]
+}

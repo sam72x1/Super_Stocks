@@ -1,0 +1,16 @@
+{
+ "v": 1,
+ "id": "real2-TG_2016",
+ "timeframe": "1W",
+ "bars_visible": 55,
+ "extremes": {
+  "high": "72.70",
+  "low": "25.78"
+ },
+ "last": "72.18",
+ "window": {
+  "from": "2025-05-19",
+  "to": "2026-05-28",
+  "src": "axis"
+ }
+}

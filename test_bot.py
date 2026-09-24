@@ -64190,6 +64190,90 @@ except Exception as _e:                                           # noqa: BLE001
     _cfd37, _cfd37_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD37 `CHART_EVAL=real2` ⟵ `chart_cards/real2` (بصمتُه ومفتاحُه من مجلّده · وغيابُ بيانه ⟵ خروج 4) · و`real` ⟵ "
       "المجموعةُ الأولى كما هي (لا تختلط المحترقةُ بالجديدة)", _cfd37, _cfd37_w)
+# ── CFD38 المجموعةُ الحقيقيّة الثانية (§⑩-1/2): المعينُ نفسُه من الموضع 49 حتى آخره — بلا قفزٍ ولا تداخلٍ ولا سببٍ خامس ──
+def _cfd_catalog_eligible():
+    """الصفوفُ المؤهَّلة (🎯 بلا 🔁 · صورتُها على القرص) بنصّ CFD27 — `{المعرّف: الرمز}`."""
+    files = {_cfd_os.path.splitext(f)[0] for f in _cfd_os.listdir("faisal_images")}
+    out = {}
+    for src in ("FAISAL_IMAGE_PASS2.md", "FAISAL_IMAGE_PASS3.md"):
+        for ln in open(src, encoding="utf-8"):
+            if not ln.startswith("|"):
+                continue
+            cells = [c.strip() for c in ln.strip().strip("|").split("|")]
+            m = (_cfd_re.fullmatch(r"\*\*((?:IMG|TG)_[0-9A-Za-z_]+)\*\*\s+\$?([A-Z]{2,5})", cells[0])
+                 if len(cells) >= 2 else None)
+            if m and "🎯" in cells[1] and "🔁" not in cells[1] and m.group(1) in files:
+                out.setdefault(m.group(1), m.group(2))
+    return out
+
+
+try:
+    import hashlib as _cfd_hl38                                   # noqa: PLC0415
+    _elig38 = _cfd_catalog_eligible()
+    _order38 = sorted(_elig38, key=lambda k: _cfd_hl38.sha256((k + "20260924").encode()).hexdigest())
+    _sel38a = [_cfd_json.loads(_l) for _l in open("chart_cards/real/SELECTION.jsonl", encoding="utf-8")]
+    _sel38 = [_cfd_json.loads(_l) for _l in open("chart_cards/real2/SELECTION.jsonl", encoding="utf-8")]
+    _why38 = {"ليست شارتًا", "بلا رقمين مقروءين", "الرمزُ غيرُ مؤكَّد في الكاتالوج",
+              "لحظيٌّ بلا تاريخ — خارج النسخة الأولى"}
+    _used38 = [s for s in _sel38 if s.get("use") is True]
+    _cfd38 = (len(_order38) == 189 and len(_sel38a) == 48
+              and [s.get("i") for s in _sel38] == list(range(48, 189))
+              and [s.get("img") for s in _sel38a + _sel38] == _order38
+              and all((s.get("use") is True and set(s) == {"i", "img", "use", "card", "class", "note"})
+                      or (s.get("use") is False and set(s) == {"i", "img", "use", "why", "note"}) for s in _sel38)
+              and all(s["why"] in _why38 for s in _sel38 if s.get("use") is False)
+              and len(_used38) == 75 and len(_sel38) - len(_used38) == 66)
+    _cfd38_w = (f"مؤهَّل={len(_order38)} · الأولى={len(_sel38a)} · رُئي={len(_sel38)} "
+                f"(من {(_sel38 or [{}])[0].get('i')} إلى {(_sel38 or [{}])[-1].get('i')}) · قُبل={len(_used38)} · "
+                f"الأسباب={sorted({s.get('why') for s in _sel38 if s.get('use') is False} - _why38)}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd38, _cfd38_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD38 المجموعةُ الحقيقيّة الثانية **بنصّ §⑩**: المعينُ نفسُه (‏189) بترتيب `sha256(المعرّف+20260924)` ⟵ "
+      "الأولى أوّلُه (48) والثانيةُ **من الموضع 49 حتى آخره بلا قفز** (الاتحادُ = المعينُ كلُّه بلا تداخل) · والاستبعادُ "
+      "بأحد الأسباب الأربعة لا غير · وصفُّ القبول بلا سبب وصفُّ الاستبعاد بلا بطاقة · ‏75 قُبلت و66 استُبعدت", _cfd38, _cfd38_w)
+# ── CFD39 بطاقاتُ real2 مجمَّدةٌ ببصمة · ومفتاحُها رمزُ الكاتالوج · وصنفُها من فريمها المكتوب · ولا صورةَ في المجلّد ──
+try:
+    _sel39 = [_cfd_json.loads(_l) for _l in open("chart_cards/real2/SELECTION.jsonl", encoding="utf-8")]
+    _used39 = [s for s in _sel39 if s.get("use") is True]
+    _elig39 = _cfd_catalog_eligible()
+    _ok39, _files39, _bad39 = _CFE.verify_manifest("chart_cards/real2")
+    _key39 = _CFE.load_key("chart_cards/real2")
+    _cards39 = {_cfd_os.path.basename(p): _cfd_json.load(open(p, encoding="utf-8")) for p in _files39}
+    _byid39 = {c.get("id"): c for c in _cards39.values()}
+    _other39 = sorted(f for f in _cfd_os.listdir("chart_cards/real2") if not f.endswith(".json"))
+
+    def _cls_ok39(s):
+        """قاعدةُ الصنف (README الأولى): اليوميّ/الأسبوعيّ الظاهر ⟵ `daily_axis` · غيرُ الظاهر ⟵ `unknown` ·
+        واللحظيُّ **بتاريخٍ مقروء** وحدَه ⟵ `intraday`."""
+        c = _byid39.get(s.get("card")) or {}
+        tf = c.get("timeframe", "unknown")
+        if s.get("class") == "daily_axis":
+            return tf in _CF.DAYS_PER_BAR
+        if s.get("class") == "unknown":
+            return tf == "unknown"
+        if s.get("class") == "intraday":
+            return _CF.is_intraday_tf(c) and bool((c.get("anchor") or {}).get("date")
+                                                  or (c.get("window") or {}).get("to"))
+        return False
+
+    _cfd39 = (_ok39 and len(_files39) == 75
+              and _other39 == ["KEY.tsv", "MANIFEST.sha256", "README.md", "SELECTION.jsonl"]
+              and all(fn == str(c.get("id")) + ".json" for fn, c in _cards39.items())
+              and sorted(_byid39) == sorted(s.get("card") for s in _used39)
+              and all(s.get("card") == "real2-" + str(s.get("img")) for s in _used39)
+              and set(_key39) == set(_byid39)
+              and all(_key39[s["card"]]["sym"] == _elig39.get(s["img"])
+                      and _key39[s["card"]]["class"] == s.get("class") for s in _used39)
+              and all(_cls_ok39(s) for s in _used39)
+              and all(_CF.validate_card(c) == [] for c in _cards39.values()))
+    _cfd39_w = (f"البصمة={_ok39} {_bad39[:2]} · بطاقات={len(_files39)} · غيرُها={_other39} · المفتاح={len(_key39)} · "
+                f"صنفٌ يخالف فريمَه={[s.get('card') for s in _used39 if not _cls_ok39(s)][:3]}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd39, _cfd39_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD39 بطاقاتُ real2 **مجمَّدةٌ قبل أيّ بحث**: البصمةُ سليمةٌ لـ75 بطاقة (لا ملفَّ خارجها ولا صورةَ في المجلّد) · "
+      "واسمُ كلِّ ملفٍّ معرّفُ بطاقته `real2-<الصورة>` · والمفتاحُ = رمزُ الكاتالوج · والصنفُ من الفريم المكتوب "
+      "(يوميٌّ/أسبوعيٌّ ⟵ daily_axis · غيرُ ظاهر ⟵ unknown · لحظيٌّ بتاريخ ⟵ intraday) · والبطاقاتُ صالحةٌ بلا رمز",
+      _cfd39, _cfd39_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

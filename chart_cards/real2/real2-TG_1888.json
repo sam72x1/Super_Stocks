@@ -1,0 +1,29 @@
+{
+ "v": 1,
+ "id": "real2-TG_1888",
+ "timeframe": "unknown",
+ "bars_visible": 20,
+ "extremes": {
+  "high": {
+   "v": "4.20",
+   "src": "pixel",
+   "tol": "0.015"
+  },
+  "low": {
+   "v": "3.15",
+   "src": "pixel",
+   "tol": "0.015"
+  }
+ },
+ "last": "3.240",
+ "last_bar": {
+  "o": "3.890",
+  "h": "3.890",
+  "l": "3.240",
+  "c": "3.240"
+ },
+ "axis_md": [
+  "Jun",
+  "16"
+ ]
+}
