@@ -5407,6 +5407,42 @@ check("📊 E2C8 عدُّ الأحكام نقيٌّ (غيرُ المحكوم ل�
       and S._e2_verdict_counts(None) == (0, 0)
       and "خضراء من 2026-08-07" not in _e2c_lt and "مكتملةٌ بحكم المدقّق" in _e2c_lt,
       _e2c_lt[:90])
+# 🔴 **لكلّ جلسةٍ حارسُها** — استثناءٌ في جلسةٍ (مخطّطٌ أقدم في إعادة الحكم التاريخيّ) لا يبتر
+#    الحكمَ على ما بعدها: يُحكَم الباقي ويُعلَن المتعذِّرُ بتاريخه ولا يُخترَع له حكم.
+_e2c_r9 = _tmp.mkdtemp(prefix="e2c_rec9_")
+for _d9, _run9 in (("2026-09-22", "998"), ("2026-09-23", "999")):
+    _dst9 = _os.path.join(_e2c_r9, "recovered", _run9, "e2_measurement", "session_" + _d9)
+    _shutil_e2c.copytree(_os.path.join(_e2_out, "e2c_ok", "session_2026-09-23"), _dst9)
+    _sm9 = _os.path.join(_dst9, "summary.json")
+    _sj9 = _json.load(open(_sm9, encoding="utf-8")) if _os.path.exists(_sm9) else {}
+    _sj9.update({"session_date": _d9, "loops_completed": int(_sj9.get("loops_completed") or 1)})
+    with open(_sm9, "w", encoding="utf-8") as _fh:
+        _json.dump(_sj9, _fh)
+with open(_os.path.join(_e2c_r9, "ignition_e2_session_index.json"), "w", encoding="utf-8") as _fh:
+    _json.dump({}, _fh)
+_e2c_orig_an = _A.analyze_session
+
+
+def _e2c_an9(sdir):
+    if _os.path.basename(sdir) == "session_2026-09-22":
+        raise KeyError("مخطّطٌ أقدم")
+    return _e2c_orig_an(sdir)
+
+
+try:
+    _A.analyze_session = _e2c_an9
+    _e2c_r9res = _RC.recover(_os.path.join(_e2c_r9, "recovered"), repo_root=_e2c_r9)
+except Exception as _e:                                          # noqa: BLE001
+    _e2c_r9res = {"judged": f"⛔ رمى: {type(_e).__name__}"}
+finally:
+    _A.analyze_session = _e2c_orig_an
+_e2c_r9ix = _json.load(open(_os.path.join(_e2c_r9, "ignition_e2_session_index.json"), encoding="utf-8"))
+check("🛡️ E2C9 استثناءُ جلسةٍ لا يبتر الحكمَ على ما بعدها · ويُعلَن بتاريخه · ولا حكمَ يُخترَع له",
+      _e2c_r9res.get("judged") == [("2026-09-23", True)]
+      and _e2c_r9res.get("judge_errors") == ["2026-09-22"]
+      and _e2c_r9ix.get("2026-09-23", {}).get("session_complete") is True
+      and "session_complete" not in _e2c_r9ix.get("2026-09-22", {}),
+      str(_e2c_r9res.get("judged")) + " · " + str(_e2c_r9res.get("judge_errors")))
 # ── 🔬 P0-1/P1.3: NBBO قياسي **لا-تزامني** (worker) خارج مسار التنبيه + measurement مفضَّل ──
 _p13_fresh = int(_time_e2.time() * 1e9)
 _p13_stale = int((_time_e2.time() - 100) * 1e9)
