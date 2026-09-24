@@ -1,0 +1,17 @@
+{
+ "v": 1,
+ "id": "real2-TG_1871",
+ "timeframe": "1D",
+ "bars_visible": 31,
+ "extremes": {
+  "high": "3.590",
+  "low": "1.500"
+ },
+ "last": "2.115",
+ "anchor": {
+  "date": "2026-03-10",
+  "c": "2.2",
+  "v": "4.29K"
+ },
+ "anchor_src": "text: لوحةُ النمط أسفل الشارت «03/10/2026 Daily · Hammer · Close Price 2.2 · Volume 4.29K · Pattern Duration 1 Day · Inbound Trend Duration 5 Day» (شمعةٌ يوميّةٌ داخل الشارت لا آخرُه)"
+}
