@@ -270,6 +270,7 @@
   🔄 **و‏172 مساءَ 2026-09-23** بـ`early_close_audit.yml` و`hrt.yml` (يدويّان) — **والمجدولةُ ‏20 كما هي.**
   🔄 **و‏174 منذ 2026-09-24** بـ`early_rest_run.yml` و`early_rest_compare.yml` (يدويّان) — **والمجدولةُ ‏20 كما هي.**
   🔄 **و‏175 مساءَ 2026-09-24** بـ`edgar2_probe.yml` (يدويّ · المرحلةُ صفر لـ`T-PRE-EDGAR-2`) — **والمجدولةُ ‏20 كما هي** (‏مقروءةٌ بالـ`ls`).
+  🔄 **و‏176** بـ`edgar2_study.yml` (يدويّ · دراسةُ `T-PRE-EDGAR-2`) — **والمجدولةُ ‏20 كما هي.**
   **والمجدولةُ العشرون اليوم** (‏مقروءةٌ بالـ`ls`):
   daily_screener · pullback_monitor · operator_entry · ignition · press_radar ·
   press_harvest · presession_digest · split_hunter · split_filter · method_hunter ·
