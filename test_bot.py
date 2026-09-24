@@ -61642,11 +61642,14 @@ try:
         "فرقُ المُخرَج دائمًا": any(
             s.get("if") == "always()" and "early_rest_compare.py --logs e2_gov.log e2_new.log" in str(s.get("run"))
             and "early_rest_compare.py --logs e2_gov.log e2_off.log" in str(s.get("run"))
+            and "curl -fsSL" in str(s.get("run")) and 'gh api "repos/$GITHUB_REPOSITORY/actions/jobs' not in str(s.get("run"))
             for s in list(_c["jobs"].values())[0]["steps"]),
         "الرقعةُ إلى GITHUB_ENV": (len(_patch) == 1 and 'early_rest_patch.py gov "$E2_FAMILY" e2_gov.log >> '
                                   '"$GITHUB_ENV"' in _patch[0]["run"]),
         "الشيفرةُ والسجلُّ من الحاكمة": any(
-            s.get("id") == "gov" and ".head_sha" in str(s.get("run")) and "/logs\" > e2_gov.log" in str(s.get("run"))
+            s.get("id") == "gov" and ".head_sha" in str(s.get("run")) and "/logs\" -o e2_gov.log" in str(s.get("run"))
+            # 🔴 السجلُّ بـcurl: `gh api` يرفض رموزَ الطرفيّة (أسقطت أوّلَ تشغيلة 35957890988 قبل أيّ رقم)
+            and "curl -fsSL" in str(s.get("run")) and 'gh api "repos/$GITHUB_REPOSITORY/actions/jobs' not in str(s.get("run"))
             and (s.get("env") or {}).get("E2_GOV") == "${{ inputs.gov_run }}" for s in _rsteps),
         "العلمُ في خطوة التشغيل": (len(_runst) == 1 and _runst[0].get("working-directory") == "gov"
                                    and _runst[0]["env"].get("EARLY_CLOSE_CAL") == "${{ inputs.early_cal }}"),
