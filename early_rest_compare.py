@@ -10,7 +10,10 @@
   JSON المرتَّب المفاتيح) — والفرقُ داخل `W` هو `ER1` (مضافٌ · محذوفٌ · ومفاتيحُ `(رمز، يوم)` المتغيّرة).
 - **صفٌّ بلا `day` لا يُنسَب إلى أيّ جانب** ⇒ يُعَدّ ويُسقط الحارسَ (لا يُخفى خارج `W` بصمت).
 
+وسطرُ الحكم (`ER2`) يُقرأ من **فرق مُخرَجَي التشغيلتين** (`--logs`) لا من ذاكرتي.
+
 الاستعمال: `python early_rest_compare.py <مجلّدُ الحاكمة> <مجلّدُ المرفوعة> [<مجلّدُ المطفأة>]`
+أو `python early_rest_compare.py --logs <سجلُّ الحاكمة> <سجلُّ المعادة>`
 — يقرأ كلَّ `*.jsonl` تحت كلّ مجلّد. **خروج 0** = `V-R3` عابر · **5** = ساقط · **2** = مُدخَلٌ ناقص.
 
 🔒 قراءةٌ/قياسٌ فقط · الإنتاجُ لا يستوردها · لا `LOGIC_VERSION`.
@@ -19,6 +22,7 @@ import datetime as dt
 import glob
 import json
 import os
+import re
 import sys
 from collections import Counter
 
@@ -132,6 +136,44 @@ def compare(gov_rows: list, new_rows: list, wdays: dict) -> dict:
     }
 
 
+_TS_RE = re.compile(r"^\ufeff?\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z ?")
+_HEAD_RE = re.compile(r'^##\[group\]Run python (?:"\$E2_SCRIPT"|[A-Za-z0-9_]+\.py)\s*$')
+
+
+def step_output(log_text: str) -> list:
+    """مُخرَجُ خطوة `Run python …` الوحيدة في سجلّ تشغيلة — نقيّة، بلا طوابع الوقت.
+
+    الحاكمة `Run python <سكربت>.py` والمعادة `Run python "$E2_SCRIPT"` — **رأسٌ بكلمةٍ واحدةٍ بعد `python`**
+    (فخطوةُ الرقعة `Run python early_rest_patch.py gov …` لا تُطابَق) ⇒ **مجموعةٌ واحدةٌ بالضبط** وإلّا `[]`
+    (لا يُخمَّن أيُّهما). المُخرَجُ من بعد `##[endgroup]` رأسِها حتى رأسِ الخطوة التالية (`##[group]`) أو
+    `Post job cleanup`."""
+    lines = [_TS_RE.sub("", ln.rstrip("\r")) for ln in (log_text or "").splitlines()]
+    heads = [i for i, ln in enumerate(lines) if _HEAD_RE.match(ln)]
+    if len(heads) != 1:
+        return []
+    i = heads[0] + 1
+    while i < len(lines) and not lines[i].startswith("##[endgroup]"):
+        i += 1
+    out = []
+    for ln in lines[i + 1:]:
+        if ln.startswith("##[group]") or ln.startswith("Post job cleanup"):
+            break
+        out.append(ln)
+    return out
+
+
+def log_diff(gov_text: str, new_text: str, limit: int = 300) -> list:
+    """فرقُ مُخرَجَي الحاكمة والمعادة سطرًا سطرًا (`difflib`، بلا سياق) — الحكمُ يُقرأ منه بحرفه (`ER2`)."""
+    import difflib
+    a, b = step_output(gov_text), step_output(new_text)
+    if not a or not b:
+        return [f"⛔ مُخرَجٌ غائب: الحاكمة {len(a)} سطرًا · المعادة {len(b)} سطرًا"]
+    d = [ln for ln in difflib.unified_diff(a, b, "الحاكمة", "المعادة", n=0, lineterm="")]
+    if not d:
+        return [f"✅ المُخرَجان متطابقان بت-بت ({len(a)} سطرًا)"]
+    return d[:limit] + ([f"… قُصّ {len(d) - limit} سطرًا"] if len(d) > limit else [])
+
+
 def report(tag: str, res: dict) -> list:
     """أسطرُ التقرير — الحكمُ في آخرها."""
     return [
@@ -149,6 +191,14 @@ def report(tag: str, res: dict) -> list:
 
 
 def main(argv) -> int:
+    if len(argv) == 4 and argv[1] == "--logs":
+        with open(argv[2], encoding="utf-8", errors="replace") as a, \
+                open(argv[3], encoding="utf-8", errors="replace") as b:
+            d = log_diff(a.read(), b.read())
+        print("── ER2: فرقُ مُخرَج الحاكمة والمعادة ──")
+        for ln in d:
+            print("   " + ln)
+        return RC_INPUT if d and d[0].startswith("⛔") else RC_PASS
     if len(argv) not in (3, 4):
         print("الاستعمال: early_rest_compare.py <الحاكمة> <المرفوعة> [<المطفأة>]")
         return RC_INPUT

@@ -1,15 +1,15 @@
-name: "T-EARLY-2 (🗓️🔍② مقارنةُ صفوف المرفوعة بالحاكمة داخل W وخارجها)"
+name: "T-EARLY-2 (🗓️🔍② مقارنةُ المرفوعة بالحاكمة: الصفوفُ داخل W وخارجها · وفرقُ المُخرَج)"
 
 # 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد early_rest_prereg.md §④/§⑥
 permissions:
   contents: read
-  actions: read          # تنزيلُ صفوف التشغيلات (run-id)
+  actions: read          # تنزيلُ صفوف التشغيلات وسجلّاتها (run-id)
 
 on:
   workflow_dispatch:
     inputs:
       gov_run:
-        description: "التشغيلةُ الحاكمة (صفوفُها المنشورة)"
+        description: "التشغيلةُ الحاكمة (صفوفُها وسجلُّها المنشوران)"
         required: true
         type: string
       new_run:
@@ -17,9 +17,14 @@ on:
         required: true
         type: string
       off_run:
-        description: "الاحتياط (§⑥ V-R3): تشغيلةُ early_rest_run.yml المطفأة (early_cal=0) — فارغٌ إن لم يلزم"
+        description: "المطفأة (early_cal=0): احتياطُ V-R3 · ولـ T-EVENT-EXEC دائمًا (V-R6) — فارغٌ إن لم يلزم"
         required: false
         default: ""
+        type: string
+      rows:
+        description: "1 = قارِن الصفوف (الأسرُ الثماني) · 0 = السجلُّ وحدَه (T-EVENT-EXEC بلا صفوف)"
+        required: false
+        default: "1"
         type: string
 
 jobs:
@@ -36,6 +41,7 @@ jobs:
           python-version: "3.11"      # 🔒 PYV1
 
       - name: Download governing rows
+        if: ${{ inputs.rows == '1' }}
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ inputs.gov_run }}
@@ -43,6 +49,7 @@ jobs:
           path: e2_gov
 
       - name: Download calendar-bound rows
+        if: ${{ inputs.rows == '1' }}
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ inputs.new_run }}
@@ -50,14 +57,15 @@ jobs:
           path: e2_new
 
       - name: Download flag-off rows (fallback)
-        if: ${{ inputs.off_run != '' }}
+        if: ${{ inputs.rows == '1' && inputs.off_run != '' }}
         uses: actions/download-artifact@v4
         with:
           run-id: ${{ inputs.off_run }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           path: e2_off
 
-      - name: 🗓️ قارن
+      - name: 🗓️ قارِن الصفوف (ER1 · V-R3)
+        if: ${{ inputs.rows == '1' }}
         env:
           E2_OFF: ${{ inputs.off_run }}
         run: |
@@ -65,4 +73,28 @@ jobs:
             python early_rest_compare.py e2_gov e2_new e2_off
           else
             python early_rest_compare.py e2_gov e2_new
+          fi
+
+      - name: 📜 فرقُ المُخرَج (ER2 · V-R6)
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          E2_GOV: ${{ inputs.gov_run }}
+          E2_NEW: ${{ inputs.new_run }}
+          E2_OFF: ${{ inputs.off_run }}
+        run: |
+          fetch() {
+            job=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$1/jobs" --jq '.jobs[0].id')
+            gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$job/logs" > "$2"
+          }
+          fetch "$E2_GOV" e2_gov.log
+          fetch "$E2_NEW" e2_new.log
+          echo "═══ الحاكمة ⟵ المرفوعة ═══"
+          python early_rest_compare.py --logs e2_gov.log e2_new.log
+          if [ -n "$E2_OFF" ]; then
+            fetch "$E2_OFF" e2_off.log
+            echo "═══ V-R6 إعادةُ الإنتاج: الحاكمة ⟵ المطفأة ═══"
+            python early_rest_compare.py --logs e2_gov.log e2_off.log
+            echo "═══ العلمُ وحدَه: المطفأة ⟵ المرفوعة ═══"
+            python early_rest_compare.py --logs e2_off.log e2_new.log
           fi

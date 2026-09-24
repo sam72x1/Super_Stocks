@@ -61637,7 +61637,12 @@ try:
         "يدويّان بلا كرون": set(_ron) == {"workflow_dispatch"} and set(_con) == {"workflow_dispatch"},
         "مُدخَلاتُ الإعادة": set(_rin) == {"family", "gov_run", "early_cal", "frozen_run_id"},
         "early_cal افتراضُه 0": str(_rin.get("early_cal", {}).get("default")) == "0",
-        "مُدخَلاتُ المقارنة": set(_cin) == {"gov_run", "new_run", "off_run"},
+        "مُدخَلاتُ المقارنة": (set(_cin) == {"gov_run", "new_run", "off_run", "rows"}
+                               and str(_cin.get("rows", {}).get("default")) == "1"),
+        "فرقُ المُخرَج دائمًا": any(
+            s.get("if") == "always()" and "early_rest_compare.py --logs e2_gov.log e2_new.log" in str(s.get("run"))
+            and "early_rest_compare.py --logs e2_gov.log e2_off.log" in str(s.get("run"))
+            for s in list(_c["jobs"].values())[0]["steps"]),
         "الرقعةُ إلى GITHUB_ENV": (len(_patch) == 1 and 'early_rest_patch.py gov "$E2_FAMILY" e2_gov.log >> '
                                   '"$GITHUB_ENV"' in _patch[0]["run"]),
         "الشيفرةُ والسجلُّ من الحاكمة": any(
@@ -61734,6 +61739,33 @@ except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🗓️🔍② ERK8 ملحقُ البناء §⑪ بعد §⑩ وقبل أيّ رقم: الوحدةُ لكلّ أسرة · عيبُ الاستيراد الكسول (`ERK4`) · الاستخراجُ من "
       "سجلّ الحاكمة · الصفُّ بلا يوم يُسقط · **والخطّةُ مشتقّةٌ من جدول §② (22)**", _v, _w)
+
+# ERK9 — فرقُ المُخرَج (`ER2`): رأسُ الخطوة **بكلمةٍ واحدةٍ بعد `python`** (الحاكمة `kasih_scan.py` · المعادة
+#        `"$E2_SCRIPT"`) فخطوةُ الرقعة `Run python early_rest_patch.py gov …` لا تُطابَق · طوابعُ الوقت تُنزَع ·
+#        التطابقُ يُعلَن · والفرقُ يُطبَع بحرفه · والمُخرَجُ الغائب/المكرّر ⇒ `⛔` لا تخمين
+try:
+    import early_rest_compare as _ERC9
+    _T9 = "2026-08-19T17:03:35.1234567Z "
+    _g9 = "\n".join([_T9 + "##[group]Run python kasih_scan.py", _T9 + "env:", _T9 + "  KASIH_YEAR: 2023",
+                     _T9 + "##[endgroup]", _T9 + "🌱 بذرة", _T9 + "JUDGE a=1",
+                     _T9 + "##[group]Run actions/upload-artifact@v4", _T9 + "x"])
+    _n9 = "\n".join([_T9 + '##[group]Run python early_rest_patch.py gov "$E2_FAMILY" e2_gov.log >> "$GITHUB_ENV"',
+                     _T9 + "##[endgroup]", _T9 + "🩹 رُقعت", _T9 + '##[group]Run python "$E2_SCRIPT"',
+                     _T9 + "##[endgroup]", _T9 + "🌱 بذرة", _T9 + "JUDGE a=2", _T9 + "Post job cleanup."])
+    _erk9 = {
+        "مُخرَجُ الحاكمة": _ERC9.step_output(_g9) == ["🌱 بذرة", "JUDGE a=1"],
+        "مُخرَجُ المعادة (لا الرقعة)": _ERC9.step_output(_n9) == ["🌱 بذرة", "JUDGE a=2"],
+        "الفرقُ بحرفه": _ERC9.log_diff(_g9, _n9)[-2:] == ["-JUDGE a=1", "+JUDGE a=2"],
+        "التطابقُ يُعلَن": _ERC9.log_diff(_g9, _g9)[0].startswith("✅"),
+        "الغائبُ ⛔": _ERC9.log_diff("", _n9)[0].startswith("⛔"),
+        "المكرّرُ ⛔": _ERC9.step_output(_g9 + "\n" + _g9) == [],
+    }
+    _v = all(_erk9.values())
+    _w = str({k: x for k, x in _erk9.items() if not x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ERK9 فرقُ المُخرَج (`ER2`): رأسُ الخطوة بكلمةٍ واحدةٍ بعد `python` فخطوةُ الرقعة لا تُطابَق · الطوابعُ "
+      "تُنزَع · التطابقُ يُعلَن والفرقُ بحرفه · والغائبُ/المكرّرُ `⛔` لا تخمين", _v, _w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
