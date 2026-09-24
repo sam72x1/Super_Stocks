@@ -63436,9 +63436,15 @@ try:
     _d10 = _arr10[0]
     _card10 = {"v": 1, "id": "cfd-D", "timeframe": "1D", "window": {"from": _d10[10], "to": _d10[59]},
                "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"}
-    _r10 = _cfd_quiet(_CF.run_card, _card10, _cfd_tmp, get=_get10, panel_arr=_arr10, series=False)
-    _r10b = _cfd_quiet(_CF.run_card, dict(_card10, id="cfd-D2", window={"from": _d10[10], "to": _d10[40]}),
-                       _cfd_tmp, get=_get10, panel_arr=_arr10, series=False)
+    _keep10 = (_CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL))
+    try:
+        _r10 = _cfd_quiet(_CF.run_card, _card10, _cfd_tmp, get=_get10, panel_arr=_arr10, series=False)
+        _r10b = _cfd_quiet(_CF.run_card, dict(_card10, id="cfd-D2", window={"from": _d10[10], "to": _d10[40]}),
+                           _cfd_tmp, get=_get10, panel_arr=_arr10, series=False)
+    finally:
+        _CF._SPLITS_ALL_SINCE = _keep10[0]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep10[1])
     _cfd10 = (_r10["label"] == "واثق" and _r10["top"][0] == "XSPL" and _r10["mode"] == "dated"
               and _r10b["label"] != "واثق")
     _cfd10_w = f"{_r10['label']}/{_r10['top'][:1]} · نافذةٌ خاطئة={_r10b['label']}"
@@ -63788,6 +63794,62 @@ except Exception as _e:                                           # noqa: BLE001
 check("🔎 CFD24 المساران اليوميّان **حيًّا** (اللوحةُ تُحمَّل لا تُحقن): المؤرَّخُ وبلا تاريخ ⟵ «واثق» للصحيح "
       "**بصفرِ نداءٍ لشموع الرمز** (اللوحةُ والتقسيماتُ الجماعيّة تكفيان — فالفحصُ الكامل لكلّ العابرين رخيص)",
       _cfd24, _cfd24_w)
+# ── CFD25 القصُّ يحجب «واثق» في المسارين الآخرين أيضًا: المرساة (ANCHOR_MAX) والنافذةُ المؤرَّخة ──
+try:
+    _keep25 = (_CF.ANCHOR_MAX, _CF.SHORTLIST_MAX, _CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL),
+               dict(_CF._LAST_ENDS))
+    try:
+        _CF.ANCHOR_MAX = 1
+        _r25a = _cfd_quiet(_CF.run_card, dict(_CFD_CARD_A, id="cfd-A3", extremes={"high": "2.35",
+                                                                                    "low": "2.05"}),
+                           _cfd_tmp, get=_cfd_get, file_path=_p8, series=False)
+        _cut25a = _CF._LAST_CUT
+        _CF.ANCHOR_MAX = _keep25[0]
+        _arr25, _get25 = _cfd_panel_world(True, decoy=True)
+        _card25 = {"v": 1, "id": "cfd-D3", "timeframe": "1D",
+                   "window": {"from": _arr25[0][10], "to": _arr25[0][59]},
+                   "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"}
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _r25b = _cfd_quiet(_CF.run_card, _card25, _cfd_tmp, get=_get25, panel_arr=_arr25, series=False)
+        _CF.SHORTLIST_MAX = 1
+        _r25c = _cfd_quiet(_CF.run_card, dict(_card25, id="cfd-D4"), _cfd_tmp, get=_get25,
+                           panel_arr=_arr25, series=False)
+        _cut25c = _CF._LAST_CUT
+    finally:
+        _CF.ANCHOR_MAX, _CF.SHORTLIST_MAX, _CF._SPLITS_ALL_SINCE = _keep25[0], _keep25[1], _keep25[2]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep25[3])
+        _CF._LAST_ENDS.clear()
+        _CF._LAST_ENDS.update(_keep25[4])
+    _cfd25 = (_r25a["label"] == "مرجّح" and _r25a["top"][0] == "DECOY" and _cut25a == 1
+              and _r25b["label"] == "واثق" and _r25b["top"][0] == "XSPL"
+              and _r25c["label"] == "مرجّح" and _r25c["top"][0] == "XSPL" and _cut25c == 1)
+    _cfd25_w = (f"مرساةٌ مقصوصة={_r25a['label']} (قُصّ {_cut25a}) · مؤرَّخةٌ كاملة={_r25b['label']} · "
+                f"مؤرَّخةٌ مقصوصة={_r25c['label']} (قُصّ {_cut25c})")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd25, _cfd25_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD25 القصُّ يحجب «واثق» في **المرساة** (عابرا الشمعة وسقفُها 1 ⟵ المفحوصُ DECOY يعبر نافذتَه ⟵ «مرجّح» لا «واثق») وفي "
+      "**النافذة المؤرَّخة** (XSPL وحيدٌ بعد فحص YYY ⟵ «واثق» · وبقصّ YYY ⟵ «مرجّح») مع عدّ المقصوص",
+      _cfd25, _cfd25_w)
+# ── CFD26 الحتميّة: ترتيبُ الرموز لا يتبع بذرةَ التجزئة (أمسكه CFD25: تعادلُ عابري المرساة انقلب بين عمليّتين) ──
+try:
+    _p26 = _cfd_os.path.join(_cfd_tmp, "order.csv.gz")
+    _syms26 = ["ZQ", "AB", "MM", "QX", "BA", "YY", "CC", "XR", "DD", "WW", "EE", "VV"]
+    with _cfd_gz.open(_p26, "wt") as _fh:
+        _fh.write("ticker,volume,open,close,high,low,window_start,transactions\n")
+        for _s in _syms26:
+            _fh.write(f"{_s},100,2.3,2.32,2.35,2.23,{_cfd_ms('2026-09-04', 1080) * 1_000_000},1\n")
+    _o26 = list(_cfd_quiet(_CF.read_minute_file, _p26, "2026-09-04", (2.2, 2.4)))
+    _t26 = [{"sym": s_, "pass": True, "n_groups": 2, "score": 0.1} for s_ in ("ZZZ", "MMM", "AAA")]
+    _v26 = _CF.verdict(_t26)
+    _cfd26 = (_o26 == sorted(_syms26) and _v26[1]["sym"] == "AAA" and _v26[2]["sym"] == "MMM"
+              and _v26[0] == "غير محسوم")
+    _cfd26_w = f"ترتيبُ الملفّ={_o26[:4]}… · التعادل ⟵ {_v26[1]['sym']}/{_v26[2]['sym']}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd26, _cfd26_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD26 الحتميّة: رموزُ ملفّ الدقائق **مرتَّبة** (لا ترتيبَ مجموعةٍ يتبع بذرةَ التجزئة) · والتعادلُ في الحكم "
+      "يحسمه الرمز (AAA ثم MMM) — فالحكمُ نفسُه في كلّ تشغيلة", _cfd26, _cfd26_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

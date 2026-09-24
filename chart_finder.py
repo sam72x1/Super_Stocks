@@ -520,9 +520,10 @@ def verdict(cands: list) -> tuple:
     • **مرجّح** — عابرٌ وحيد بقيدٍ واحد · أو عابرون وخطأُ الثاني ≥ `DECISIVE_RATIO`× الأوّل.
     • **غير محسوم** — عابرون لا يفصلهم شيء. • **لا تطابق** — لا عابر.
     والشرطُ الثالث (المقارنةُ بالعين) **خارج الأداة** — فلا تُعلن الأداةُ «واثق» نهائيًّا."""
-    passers = sorted([c for c in cands if c.get("pass")], key=lambda c: c.get("score", math.inf))
+    passers = sorted([c for c in cands if c.get("pass")],
+                     key=lambda c: (c.get("score", math.inf), str(c.get("sym"))))
     if not passers:
-        best = sorted(cands, key=lambda c: c.get("score", math.inf))
+        best = sorted(cands, key=lambda c: (c.get("score", math.inf), str(c.get("sym"))))
         return ("لا تطابق", best[0] if best else None, best[1] if len(best) > 1 else None, 0)
     t1 = passers[0]
     t2 = passers[1] if len(passers) > 1 else None
@@ -713,7 +714,7 @@ def read_minute_file(path: str, day: str, band) -> dict:
         rng[s] = (min(cur[0], lo), max(cur[1], h)) if cur else (lo, h)
     lo_b, hi_b = band
     keep = {s for s, (lo, h) in rng.items() if lo <= hi_b and h >= lo_b}
-    out = {s: [] for s in keep}
+    out = {s: [] for s in sorted(keep)}      # مرتَّبٌ: ترتيبُ المجموعة يتغيّر ببذرة التجزئة بين العمليّات
     for r, ix in rows():
         s = r[ix["t"]].strip().upper()
         if s not in keep:
@@ -948,7 +949,7 @@ def stage_anchor(card: dict, tmpdir: str, file_path: str = None) -> list:
         if m is None:
             continue
         cands.append({"sym": s, "anchor": m, "score": m["sc"]["score"], "near": m["sc"]["near"]})
-    cands.sort(key=lambda c: (0 if c["near"] else 1, c["score"]))
+    cands.sort(key=lambda c: (0 if c["near"] else 1, c["score"], c["sym"]))   # الرمزُ يحسم التعادل حتميًّا
     n_near = sum(1 for c in cands if c["near"])
     log(f"① المرساة {day} {a.get('time') or 'يوميّة'} · {len(defs)} تعريفًا للشمعة · "
         f"عابرٌ ضمن التسامح: {n_near} من {len(cands):,}")
@@ -1341,7 +1342,7 @@ def run_card(card: dict, tmpdir: str, get=None, file_path: str = None,
     if label == "واثق" and _LAST_CUT:
         label = "مرجّح"
         log(f"   ⚠️ «واثق» حُجب ⟵ «مرجّح»: {_LAST_CUT} عابرًا خامًّا قُصّوا بلا فحصٍ كامل (التفرّدُ غيرُ مُتحقَّق)")
-    ranked = sorted(final, key=lambda x: (0 if x["pass"] else 1, x["score"]))
+    ranked = sorted(final, key=lambda x: (0 if x["pass"] else 1, x["score"], x["sym"]))
     log(f"⚖️ الحكمُ الآليّ ({mode}): **{label}** · عابرون {n_pass} · "
         f"الأوّل {(t1 or {}).get('sym', '-')} · الثاني {(t2 or {}).get('sym', '-')}"
         + (" — ويبقى الشرطُ الثالث: المقارنةُ بالعين" if label == "واثق" else ""))
