@@ -5248,9 +5248,165 @@ _f_fetch_ln = min([n.lineno for n in _f_ast.walk(_f_fn)
 check("🔒 E2F6 مبرّرُ التأجيل قائم: الدِدوب **يسبق** جلب الشموع في `scan_ignition` (AST)",
       _f_dedup_ln < _f_fetch_ln and _f_fetch_ln > 0,
       f"dedup@{_f_dedup_ln} · fb()@{_f_fetch_ln}")
-check("🔒 E2F7 وقائمةُ التأجيل **واحدة** ولا تتمدّد بلا قصد",
-      _A.DEFERRED_TO_ASSEMBLER == ("lost_post_alert_path",),
+# 🔴 إقرارٌ مؤرَّخ 2026-09-24: وُسِّعت القائمةُ **عمدًا** بـ`segment_window_capped` (قاعدةُ رأس
+#    المدقّق: مستحيلُ الاستيفاء بنيويًّا + يحرسه بديلٌ أقوى) — والقفلُ يبقى يسقط على أيّ تمدّدٍ آخر.
+check("🔒 E2F7 وقائمةُ التأجيل **محدَّدة** ولا تتمدّد بلا قصد",
+      _A.DEFERRED_TO_ASSEMBLER == ("lost_post_alert_path", "segment_window_capped"),
       str(_A.DEFERRED_TO_ASSEMBLER))
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🔬🔴 E2C — قصُّ سقفِ التشغيل لمقطع الافتتاح (2026-09-24 · عطلٌ مقيس من سجلّ الـworkflow)
+# ══════════════════════════════════════════════════════════════════════════════
+# كرونُ الاحتياط يُقلع الجوبَ مبكّرًا ⇒ الانتظارُ قبل الجرس يأكل ميزانيّته ⇒ `open` يُقَصّ عند
+# `max_runtime_cap` قبل نافذته و`close` يملأ الباقي فورًا ⇒ **رُفضت كلُّ جلسةٍ منذ 08-31**
+# والرادارُ لم يَعمَ دقيقة. الأقفالُ تُثبت أن التأجيلَ **ضيّقٌ** وأن الحارسَ الأقوى **يعمل**.
+def _e2c_seg(sub, role, sym, tbs, *, seg_end_off, deadline_off, deadline_reason, prev=None):
+    _now = S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)
+    _iso = lambda m: (_now + S.dt.timedelta(minutes=m)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    _r = _M.IgnitionMeasurementRecorder("2026-09-23", out_root=_os.path.join(_e2_out, sub), segment=role,
+          meta={"expected_close_iso": _iso(-5), "expected_segment_end_iso": _iso(seg_end_off),
+                "expected_open_iso": _iso(-200), "deadline_iso": _iso(deadline_off),
+                "deadline_reason": deadline_reason, "source_commit": "abc",
+                "workflow_run_id": "run_e2c", "interval_seconds": 45,
+                "previous_segment_manifest_sha256": prev})
+    _r.loop_start()
+    _r.trace("01_SEEN_ACTIVE", {"symbol": sym})
+    _r.trace("03_BARS_FETCH", {"symbol": sym, "bars_ok": True, "last_bar_t": tbs,
+             "bars": [{"o": 2, "h": 2.1, "l": 1.9, "c": 2.05, "v": 100, "t": tbs}]})
+    _r.trace("04_RAW_IGNITION", {"symbol": sym, "signal_price": 2.15, "break_level": 2.0,
+             "break_level_source": "critical_number", "trigger_bar_start": tbs})
+    _r.trace("05_OPERATOR_MEASURED", {"symbol": sym, "operator_status": "measured", "has_operator": True,
+             "nbbo_bid": 2.14, "nbbo_ask": 2.16, "quote_ts": int(_time_e2.time() * 1e9)})
+    _r.trace("06_OPERATOR_PASS", {"symbol": sym}); _r.trace("11_ALERT_EMITTED", {"symbol": sym})
+    _r.telegram_attempt([({"symbol": sym},)]); _r.telegram_success([({"symbol": sym},)])
+    _r.loop_end()
+    _r.finalize("normal")
+    return _r
+
+
+def _e2c_session(sub, *, open_kw, close_kw=None):
+    """جلسةٌ مدموجةٌ كاملة (مقطعان · سلسلةُ manifest سليمة · ردمٌ يبلغ الإغلاق) ⟵ حكمُ المدقّق."""
+    _ms = int(S.dt.datetime.now(S.dt.timezone.utc).timestamp() * 1000)
+    _ro = _e2c_seg(sub, "open", "IGN", _ms - 3600_000, **open_kw)
+    _e2c_seg(sub, "close", "BBB", _ms - 600_000, prev=_ro.manifest_sha256,
+             **(close_kw or {"seg_end_off": +5, "deadline_off": +5, "deadline_reason": "segment_end"}))
+    _cms = int((S.dt.datetime.now(S.dt.timezone.utc).replace(microsecond=0, second=0)
+                - S.dt.timedelta(minutes=5)).timestamp() * 1000)
+    _ASM.assemble("2026-09-23", root=_os.path.join(_e2_out, sub), write_repo_index=False,
+                  fetch_bars=lambda s: [{"o": 2, "h": 2.1, "l": 2, "c": 2.05, "v": 10,
+                                         "t": _cms - 60000 * k} for k in (3, 2, 1)])
+    return _os.path.join(_e2_out, sub, "session_2026-09-23")
+
+
+def _e2c_verdict(sdir):
+    try:
+        return _A.analyze_session(sdir)
+    except Exception as _e:                                      # noqa: BLE001
+        return {"complete": None, "session_complete": None, "deferred_reasons": [],
+                "incomplete_reasons": [f"⛔ رمى: {type(_e).__name__}"]}
+
+
+_CAP = {"seg_end_off": +90, "deadline_off": 0, "deadline_reason": "max_runtime_cap"}
+_e2c_ok = _e2c_verdict(_e2c_session("e2c_ok", open_kw=_CAP))
+check("🔬 E2C1 مقطعُ افتتاحٍ قصّه سقفُ التشغيل وبلغ مهلتَه ⇒ الجلسةُ مكتملة والقصُّ **مُعلَنٌ مؤجَّلًا**",
+      _e2c_ok["session_complete"] is True and _e2c_ok["incomplete_reasons"] == []
+      and any(d.startswith("open:") and "segment_window_capped(max_runtime_cap)" in d
+              for d in _e2c_ok["deferred_reasons"]),
+      str(_e2c_ok["incomplete_reasons"]) + str(_e2c_ok["deferred_reasons"]))
+# بلغ مهلتَه تمامًا لكنّ سببَها **تجاوزٌ يدويّ** لا السقف ⇒ يعزل شرطَ السبب وحدَه.
+_e2c_end = _e2c_verdict(_e2c_session("e2c_end", open_kw={
+    "seg_end_off": +90, "deadline_off": 0, "deadline_reason": "env_override"}))
+check("🔒 E2C2 بلغ مهلتَه لكنّ سببَها **ليس السقف** (تجاوزٌ يدويّ) ⇒ يبقى رافضًا",
+      _e2c_end["session_complete"] is False
+      and any("segment_incomplete(open:segment_window_not_covered" in x
+              for x in _e2c_end["incomplete_reasons"]),
+      str(_e2c_end["incomplete_reasons"]))
+_e2c_short = _e2c_verdict(_e2c_session("e2c_short", open_kw={
+    "seg_end_off": +90, "deadline_off": +60, "deadline_reason": "max_runtime_cap"}))
+check("🔒 E2C3 سببُه السقفُ لكنه انتهى **قبل مهلته** (عطلٌ لا قصّ) ⇒ يبقى رافضًا",
+      _e2c_short["session_complete"] is False
+      and any("segment_incomplete(open:segment_window_not_covered" in x
+              for x in _e2c_short["incomplete_reasons"]),
+      str(_e2c_short["incomplete_reasons"]))
+_e2c_cl = _e2c_verdict(_e2c_session("e2c_cl", open_kw={
+    "seg_end_off": -90, "deadline_off": -90, "deadline_reason": "segment_end"}, close_kw=_CAP))
+check("🔒 E2C4 التأجيلُ لمقطع **الافتتاح وحدَه** — قصُّ مقطع الإغلاق يبقى رافضًا",
+      _e2c_cl["session_complete"] is False
+      and any("segment_incomplete(close:segment_window_not_covered" in x
+              for x in _e2c_cl["incomplete_reasons"]),
+      str(_e2c_cl["incomplete_reasons"]))
+
+
+def _e2c_with_gap(sub, gap_ms):
+    _sd = _e2c_session(sub, open_kw=_CAP)
+    _sp = _os.path.join(_sd, "session.json")
+    _sj = _json.load(open(_sp, encoding="utf-8"))
+    _sj["transition_gap_ms"] = gap_ms
+    with open(_sp, "w", encoding="utf-8") as _fh:
+        _json.dump(_sj, _fh)
+    return _e2c_verdict(_sd)
+
+
+_e2c_gn = _e2c_with_gap("e2c_gn", None)
+_e2c_gb = _e2c_with_gap("e2c_gb", 11 * 60_000)
+check("🔒 E2C5 والحارسُ الأقوى يعمل: فجوةٌ **غيرُ مقيسة** ⇒ رافض · وفوق 10 دقائق ⇒ رافض",
+      _e2c_gn["session_complete"] is False
+      and "transition_gap_unmeasured(open:capped)" in _e2c_gn["incomplete_reasons"]
+      and _e2c_gb["session_complete"] is False
+      and any(x.startswith("transition_gap_exceeded") for x in _e2c_gb["incomplete_reasons"]),
+      str(_e2c_gn["incomplete_reasons"]) + " | " + str(_e2c_gb["incomplete_reasons"]))
+# 🧾 الحكمُ **يُحفظ** في الفهرس ولا يمسّ العدّادات · ولا يُخترَع مدخلٌ لتاريخٍ غائب.
+_e2c_tmp = _tmp.mkdtemp(prefix="e2c_idx_")
+_e2c_ix = _os.path.join(_e2c_tmp, "ignition_e2_session_index.json")
+with open(_e2c_ix, "w", encoding="utf-8") as _fh:
+    _json.dump({"2026-09-23": {"n_emitted": 4, "termination": "normal"}}, _fh)
+_e2c_s1 = _A.record_verdict(_e2c_ix, "2026-09-23", _e2c_ok)
+_e2c_s2 = _A.record_verdict(_e2c_ix, "2026-09-22", _e2c_ok)          # تاريخٌ غائب
+_e2c_s3 = _A.record_verdict(_e2c_ix, "2026-09-23", {"session_complete": None})   # مقطعٌ لا جلسة
+_e2c_ixd = _json.load(open(_e2c_ix, encoding="utf-8"))
+check("🧾 E2C6 حفظُ الحكم: يُدمج ولا يمسّ العدّادات · ولا مدخلَ لتاريخٍ غائب · ولا حكمَ لغير الجلسة",
+      _e2c_s1 is True and _e2c_s2 is False and _e2c_s3 is False
+      and set(_e2c_ixd) == {"2026-09-23"}
+      and _e2c_ixd["2026-09-23"]["n_emitted"] == 4
+      and _e2c_ixd["2026-09-23"]["session_complete"] is True
+      and _e2c_ixd["2026-09-23"]["verdict_rule"] == _A.VERDICT_RULE,
+      str(_e2c_ixd))
+# 🔌 موصولٌ من نقطتَي النداء الحيّتين (wire-check): الـassembler يحفظ · والاسترجاعُ يحكم ويحفظ.
+import ast as _e2c_ast
+_e2c_asm_main = next(n for n in _e2c_ast.walk(_e2c_ast.parse(open("ignition_e2_assemble.py", encoding="utf-8").read()))
+                     if isinstance(n, _e2c_ast.FunctionDef) and n.name == "main")
+_e2c_rec = next(n for n in _e2c_ast.walk(_e2c_ast.parse(open("e2_recover.py", encoding="utf-8").read()))
+                if isinstance(n, _e2c_ast.FunctionDef) and n.name == "recover")
+_e2c_attrs = lambda fn: {getattr(c.func, "attr", None) for c in _e2c_ast.walk(fn)
+                         if isinstance(c, _e2c_ast.Call)}
+_e2c_rr = _tmp.mkdtemp(prefix="e2c_rec_")
+_e2c_dl = _os.path.join(_e2c_rr, "recovered", "999", "e2_measurement", "session_2026-09-23")
+_shutil_e2c = __import__("shutil")
+_shutil_e2c.copytree(_os.path.join(_e2_out, "e2c_ok", "session_2026-09-23"), _e2c_dl)
+with open(_os.path.join(_e2c_rr, "ignition_e2_session_index.json"), "w", encoding="utf-8") as _fh:
+    _json.dump({}, _fh)
+try:
+    _e2c_rres = _RC.recover(_os.path.join(_e2c_rr, "recovered"), repo_root=_e2c_rr)
+except Exception as _e:                                          # noqa: BLE001
+    _e2c_rres = {"judged": f"⛔ رمى: {type(_e).__name__}"}
+_e2c_rix = _json.load(open(_os.path.join(_e2c_rr, "ignition_e2_session_index.json"), encoding="utf-8"))
+check("🔌 E2C7 الحكمُ موصولٌ: الـassembler يحفظه (AST) · والاسترجاعُ يحكم على الخام ويحفظه (سلوكيًّا)",
+      "record_verdict" in _e2c_attrs(_e2c_asm_main)
+      and {"analyze_session", "verdict_entry"} <= _e2c_attrs(_e2c_rec)
+      and _e2c_rres.get("judged") == [("2026-09-23", True)]
+      and _e2c_rix.get("2026-09-23", {}).get("session_complete") is True,
+      str(_e2c_rres.get("judged")) + " · " + str(_e2c_rix.get("2026-09-23")))
+# 📊 التقريرُ الأسبوعيّ يَعُدّ الأحكامَ المحفوظة ولا يروي «خضراء من 08-07» البائتة.
+try:
+    _e2c_lt = "\n".join(S._long_tracks_block())
+except Exception as _e:                                          # noqa: BLE001
+    _e2c_lt = f"⛔ رمى: {type(_e).__name__}"
+check("📊 E2C8 عدُّ الأحكام نقيٌّ (غيرُ المحكوم لا يُعَدّ) · والسطرُ البائت زال",
+      S._e2_verdict_counts({"a": {"session_complete": True}, "b": {"session_complete": False},
+                            "c": {"termination": "normal"}, "d": {"session_complete": "نعم"}}) == (2, 1)
+      and S._e2_verdict_counts(None) == (0, 0)
+      and "خضراء من 2026-08-07" not in _e2c_lt and "مكتملةٌ بحكم المدقّق" in _e2c_lt,
+      _e2c_lt[:90])
 # ── 🔬 P0-1/P1.3: NBBO قياسي **لا-تزامني** (worker) خارج مسار التنبيه + measurement مفضَّل ──
 _p13_fresh = int(_time_e2.time() * 1e9)
 _p13_stale = int((_time_e2.time() - 100) * 1e9)
