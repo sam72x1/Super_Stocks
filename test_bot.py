@@ -64089,6 +64089,9 @@ try:
         _write34(_w34)
         _CF.LIVE_ANCHOR = True
         _r34 = _cfd_quiet(_CF.run_card, _card34, _cfd_tmp, get=_cfd_get, file_path=_p34, series=False)
+        _r34s = _cfd_quiet(_CF.run_card, dict(_card34, id="cfd-G2-stale", anchor={"date": _d34, "time": "19:20",
+                                                                                 "v": "100"}),
+                           _cfd_tmp, get=_cfd_get, file_path=_p34, series=False)
         _r34o = _cfd_quiet(_CF.run_card, dict(_card34, id="cfd-G2-noopen",
                                               anchor={k: v for k, v in _card34["anchor"].items() if k != "o"}),
                            _cfd_tmp, get=_cfd_get, file_path=_p34, series=False)
@@ -64103,16 +64106,19 @@ try:
     finally:
         _CF.LIVE_ANCHOR = _keep34
     _cfd34 = (_r34["label"] == "واثق" and _r34["top"][0] == "LIVE" and _r34["mode"] == "anchor_live"
+              and _r34s["label"] == "لا تطابق" and _r34s["mode"] == "anchor" and _r34s["top"] == []
               and _r34o["label"] == "لا تطابق" and _r34o["mode"] == "anchor"
               and _r34d["label"] == "غير محسوم" and set(_r34d["top"][:2]) == {"LIVE", "LIV2"}
               and _r34f["label"] == "لا تطابق" and _r34f["mode"] == "anchor" and _r34f["top"] == ["DECO"])
-    _cfd34_w = (f"بديل={_r34['label']}/{_r34['top'][:1]}/{_r34['mode']} · بلا افتتاح={_r34o['label']} · "
+    _cfd34_w = (f"بديل={_r34['label']}/{_r34['top'][:1]}/{_r34['mode']} · بلا أسعار بعده={_r34s['label']}/"
+                f"{_r34s['mode']} · بلا افتتاح={_r34o['label']} · "
                 f"توأم={_r34d['label']}/{_r34d['top'][:2]} · مطفأ={_r34f['label']}/{_r34f['top']}")
 except Exception as _e:                                           # noqa: BLE001
     _cfd34, _cfd34_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD34 G2 (§⑩): رأسُ اللقطة (4.84/4.86/4.56/4.74) لشمعةٍ **اكتملت بعدها** بأدنى 4.27 وإغلاق 4.36 ⟵ الصارمُ «لا تطابق» "
       "(الشَّرَكُ المطابقُ حرفيًّا يسقط على النافذة) ⟵ **البديلُ يجد الصحيحَ وحيدًا «واثق»** · وبلا افتتاحٍ مقروء ⟵ لا بديل · "
-      "وتوأمٌ يعبر مثلَه ⟵ «غير محسوم» (لا تفرّدَ كاذب) · وبإطفاء `LIVE_ANCHOR` ⟵ الحكمُ الصارمُ كما كان", _cfd34, _cfd34_w)
+      "وتوأمٌ يعبر مثلَه ⟵ «غير محسوم» (لا تفرّدَ كاذب) · وبطاقةٌ تاليةٌ بلا أسعار ⟵ لا بقايا من السابقة (`_LAST_ANCHOR` "
+      "يُصفَّر) · وبإطفاء `LIVE_ANCHOR` ⟵ الحكمُ الصارمُ كما كان", _cfd34, _cfd34_w)
 # ── CFD35 وحدةُ الشمعة قيد التكوّن: الافتتاحُ ثابت · الأعلى ≥ · الأدنى ≤ · الإغلاقُ حرّ ──
 try:
     _sp35 = _CF.anchor_specs({"o": "4.840", "h": "4.860", "l": "4.560", "c": "4.74"})
@@ -64150,6 +64156,35 @@ except Exception as _e:                                           # noqa: BLE001
 check("🔎 CFD36 ملحقُ §⑩ يسمّي G1/G2 بمفتاحَيهما ويقول «لا يُحتسب» و«تجريبيّ» ويشترط مجموعةً حقيقيّةً جديدة · والنتيجةُ الأولى "
       "منشورةٌ بسطر حكمها حرفيًّا وتشغيلاتها الأربع وخطأَي «واثق» (`TG_1965` · `TG_2011`) وتشخيصِ `MYSE` · والمفتاحان مُشعلان",
       _cfd36, _cfd36_w)
+# ── CFD37 المُقيِّم يوجّه `real2` إلى مجلّده (مجموعةُ §⑩) — والمحترقةُ على حالها ──
+try:
+    _saved37 = (_CFE.verify_manifest, _CFE.log, _CFE.run_real, _CF._key)
+    _seen37, _routed37 = [], []
+    _env37 = _cfd_os.environ.get("CHART_EVAL")
+    try:
+        _CFE.verify_manifest = lambda folder=None: (_seen37.append(folder) or (False, [], ["غائب"]))
+        _CFE.log = lambda m="": None
+        _rc37 = _CFE.run_real(_cfd_tmp, folder="chart_cards/real2")
+        _CFE.run_real = lambda tmp, get=None, folder=None: (_routed37.append(folder) or 0)
+        _CF._key = lambda: "k"
+        _cfd_os.environ["CHART_EVAL"] = "real2"
+        _m37 = _CFE.main()
+        _cfd_os.environ["CHART_EVAL"] = "real"
+        _m37b = _CFE.main()
+    finally:
+        _CFE.verify_manifest, _CFE.log, _CFE.run_real, _CF._key = _saved37
+        if _env37 is None:
+            _cfd_os.environ.pop("CHART_EVAL", None)
+        else:
+            _cfd_os.environ["CHART_EVAL"] = _env37
+    _cfd37 = (_rc37 == 4 and _seen37 == ["chart_cards/real2"] and _m37 == 0 and _m37b == 0
+              and _routed37 == ["chart_cards/real2", "chart_cards/real"]
+              and _CFE.REAL_DIRS == {"real": "chart_cards/real", "real2": "chart_cards/real2"})
+    _cfd37_w = f"بصمة={_seen37} خروج={_rc37} · توجيه={_routed37}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd37, _cfd37_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD37 `CHART_EVAL=real2` ⟵ `chart_cards/real2` (بصمتُه ومفتاحُه من مجلّده · وغيابُ بيانه ⟵ خروج 4) · و`real` ⟵ "
+      "المجموعةُ الأولى كما هي (لا تختلط المحترقةُ بالجديدة)", _cfd37, _cfd37_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
