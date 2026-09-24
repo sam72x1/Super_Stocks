@@ -1,0 +1,16 @@
+{
+ "v": 1,
+ "id": "real-TG_2024",
+ "timeframe": "4H",
+ "bars_visible": 47,
+ "extended": true,
+ "extremes": {
+  "high": "2.700",
+  "low": "1.300"
+ },
+ "last": "1.610",
+ "axis_md": [
+  "06/02",
+  "06/11"
+ ]
+}

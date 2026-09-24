@@ -1,0 +1,27 @@
+{
+ "v": 1,
+ "id": "real-TG_1851",
+ "timeframe": "1D",
+ "chart_type": "area",
+ "bars_visible": 70,
+ "extremes": {
+  "high": {
+   "v": "7.10",
+   "src": "pixel",
+   "tol": "0.12"
+  },
+  "low": {
+   "v": "2.25",
+   "src": "pixel",
+   "tol": "0.06"
+  }
+ },
+ "last": "2.280",
+ "axis_md": [
+  "05/06",
+  "06/08",
+  "07/10",
+  "08/07"
+ ],
+ "captured_by": "2026-07-20"
+}

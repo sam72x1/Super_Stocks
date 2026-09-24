@@ -1,0 +1,19 @@
+{
+ "v": 1,
+ "id": "real-TG_2029",
+ "timeframe": "4H",
+ "bars_visible": 21,
+ "extended": true,
+ "extremes": {
+  "high": "2.79",
+  "low": "2.08"
+ },
+ "last": "2.41",
+ "axis_md": [
+  "06/08",
+  "06/09",
+  "06/10",
+  "06/11",
+  "06/12"
+ ]
+}

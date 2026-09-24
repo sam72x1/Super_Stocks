@@ -1,0 +1,11 @@
+{
+ "v": 1,
+ "id": "real-TG_1911",
+ "timeframe": "5m",
+ "bars_visible": 40,
+ "extended": true,
+ "extremes": {
+  "high": "9.300",
+  "low": "1.350"
+ }
+}

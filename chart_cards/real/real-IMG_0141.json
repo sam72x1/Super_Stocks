@@ -1,0 +1,16 @@
+{
+ "v": 1,
+ "id": "real-IMG_0141",
+ "timeframe": "4H",
+ "bars_visible": 33,
+ "extended": true,
+ "extremes": {
+  "high": "6.90",
+  "low": "3.40"
+ },
+ "last": "5.03",
+ "axis_md": [
+  "07/21",
+  "08/01"
+ ]
+}

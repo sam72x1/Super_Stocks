@@ -1,0 +1,15 @@
+{
+ "v": 1,
+ "id": "real-TG_1835",
+ "timeframe": "intraday",
+ "chart_type": "line",
+ "extended": true,
+ "extremes": {
+  "high": "3.38",
+  "low": "1.97"
+ },
+ "last": "2.75",
+ "axis_md": [
+  "07/02"
+ ]
+}

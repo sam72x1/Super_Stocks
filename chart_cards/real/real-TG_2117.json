@@ -1,0 +1,16 @@
+{
+ "v": 1,
+ "id": "real-TG_2117",
+ "timeframe": "4H",
+ "bars_visible": 52,
+ "extended": true,
+ "extremes": {
+  "high": "22.95",
+  "low": "13.43"
+ },
+ "last": "15.40",
+ "axis_md": [
+  "03/31"
+ ],
+ "captured_by": "2026-04-05"
+}

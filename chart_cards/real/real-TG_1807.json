@@ -1,0 +1,12 @@
+{
+ "v": 1,
+ "id": "real-TG_1807",
+ "timeframe": "intraday",
+ "chart_type": "line",
+ "extended": true,
+ "extremes": {
+  "high": "3.38",
+  "low": "1.97"
+ },
+ "captured_by": "2026-07-05"
+}

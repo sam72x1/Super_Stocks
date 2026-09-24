@@ -92,6 +92,23 @@ def display_bars(days, H, L, C, j: int, e: int, W: int, splits: list) -> list:
     return out
 
 
+def split_case(bars: list, splits) -> str:
+    """حالةُ التقسيم في نافذةٍ مصنوعة (العقد §⑧-6): «none» بلا تقسيمٍ داخلها · «inside» تقسيمٌ داخلها
+    وأحدُ طرفَي الشاشة خامٌ على الأقل · «both_before» الطرفان كلاهما قبله (لا طرفَ خامًا ⇒ المرشِّحُ الخامّ
+    في المسار بلا تاريخ لا يلتقطها بالبناء)."""
+    if not bars:
+        return "none"
+    first, as_of = bars[0]["d"], bars[-1]["d"]
+    inside = any(first < ex <= as_of for ex, fr, to in (splits or ())
+                 if fr and to and float(fr) != float(to))
+    if not inside:
+        return "none"
+    d_hi = max(bars, key=lambda b: b["h"])["d"]
+    d_lo = min(bars, key=lambda b: b["l"])["d"]
+    raw = [CF.split_factor(splits, d, as_of) == 1.0 for d in (d_hi, d_lo)]
+    return "inside" if any(raw) else "both_before"
+
+
 def synth_style(rng: random.Random) -> dict:
     return {"theme": rng.choice(["light", "dark"]),
             "log": rng.random() < 0.20,
@@ -212,13 +229,26 @@ def run_synth(tmpdir: str, get=None) -> int:
             res = CF.run_card(card, tmpdir, get=get, panel_arr=arr, series=False)
         hit1 = bool(res["top"]) and res["top"][0] == sym
         hit3 = sym in (res["top"] or [])[:3]
-        rows.append({"sym": sym, "end": pdays[e], "W": W, "style": style, "label": res["label"],
-                     "hit1": hit1, "hit3": hit3, "px": pe})
+        rows.append({"k": k, "sym": sym, "end": pdays[e], "W": W, "style": style, "label": res["label"],
+                     "top": list(res["top"][:3]), "hit1": hit1, "hit3": hit3, "px": pe,
+                     "split": split_case(bars, splits)})
         log(f"SYNTH_ROW {k:03d} {sym} {pdays[e]} W={W} {style['theme']} log={int(style['log'])} "
             f"marks={int(style['marks'])} last={int(style['last_tag'])} dated={int(style['dated'])} "
             f"⟵ {res['label']} top={res['top'][:3]} hit1={int(hit1)} hit3={int(hit3)} "
             f"px_mae_h={pe.get('mae_h', float('nan')):.4f} corr={pe.get('corr_c', float('nan')):.4f}")
     return report_synth(rows)
+
+
+def recap(rows: list, tag: str) -> None:
+    """صفوفُ النتيجة **مُعادةً مختصرةً في آخر السجلّ** — واجهةُ السجلّ تُرجع آخرَ 5000 سطرٍ وحدَها
+    (مقيسٌ على التشغيلة 36057581617: ‏14 صفًّا من 150) · طباعةٌ لا تمسّ الحكم."""
+    for r in rows:
+        st = r.get("style") or {}
+        bits = " ".join(f"{k}={int(bool(st[k]))}" for k in ("marks", "last_tag", "dated", "log") if k in st)
+        who = r.get("id") or f"{int(r.get('k', -1)):03d}"
+        sp = f" split={r['split']}" if r.get("split") else ""
+        log(f"{tag} {who} truth={r['sym']} {r.get('end') or r.get('class') or ''} {bits}{sp} "
+            f"⟵ {r['label']} top={r.get('top', [])[:3]} hit1={int(r['hit1'])} hit3={int(r['hit3'])}".replace("  ", " "))
 
 
 def report_synth(rows: list) -> int:
@@ -240,9 +270,15 @@ def report_synth(rows: list) -> int:
         log(f"   🖼️ البكسل: {len(px)} صورة · وسيطُ خطأ الأعلى {st.median(p['mae_h'] for p in px):.4f} · "
             f"الأدنى {st.median(p['mae_l'] for p in px):.4f} · الإغلاق {st.median(p['mae_c'] for p in px):.4f} · "
             f"وسيطُ الارتباط {st.median(p['corr_c'] for p in px if p['corr_c'] == p['corr_c']):.4f}")
+    sp_in = [r for r in rows if r.get("split") in ("inside", "both_before")]
+    sp_bb = [r for r in rows if r.get("split") == "both_before"]
+    log(f"   ✂️ §⑧-6: نوافذُ فيها تقسيم {len(sp_in)} (الأوّلُ الصحيح {sum(r['hit1'] for r in sp_in)}) · "
+        f"منها الطرفان كلاهما قبله {len(sp_bb)} (الأوّلُ الصحيح {sum(r['hit1'] for r in sp_bb)} · "
+        f"بلا تاريخ {sum(1 for r in sp_bb if not r['style'].get('dated'))})")
     labels = {}
     for r in rows:
         labels[r["label"]] = labels.get(r["label"], 0) + 1
+    recap(rows, "SYNTH_RECAP")
     log(f"CHART_EVAL_SYNTH n={n} top1={h1} top3={h3} conf={len(conf)} conf_ok={conf_ok} "
         f"labels={json.dumps(labels, ensure_ascii=False)}")
     return 0
@@ -313,6 +349,25 @@ def judge_real(rows: list) -> tuple:
                     "k3": k3}
 
 
+def is_undated(card: dict) -> bool:
+    """بطاقةٌ بلا مرساةٍ ولا نافذةٍ مؤرَّخة ولا تحقّقٍ متقاطع ⟵ مسارُ «بلا تاريخ» على لوحة السوق."""
+    return not ((card.get("anchor") or {}).get("date") or (card.get("window") or {}).get("to")
+                or card.get("cross_with"))
+
+
+def undated_panel(card: dict, tmpdir: str, shared: dict, get=None):
+    """لوحةُ «بلا تاريخ» **تُحمَّل مرّةً وتُعاد لكلّ بطاقةٍ بلا تاريخ** — البياناتُ نفسُها التي يُحمّلها
+    المسارُ وحدَه (آخرُ `UNDATED_YEARS` سنوات حتى أمس) فالحكمُ بت-بت، والتحميلُ واحدٌ لا 37 (‏≈2-3 دقائق
+    لكلٍّ على الرنر ⇒ خطرُ مهلة 180). المؤرَّخةُ والمرساةُ `None` = مسارُها كما هو."""
+    if not is_undated(card):
+        return None
+    if "arr" not in shared:
+        end = (dt.date.today() - dt.timedelta(days=1)).isoformat()
+        panel = CF.load_panel(CF.trading_days_back(end, CF.UNDATED_YEARS), tmpdir, get=get)
+        shared["arr"] = CF.panel_arrays(panel) if panel else None
+    return shared["arr"]
+
+
 def run_real(tmpdir: str, get=None) -> int:
     ok, files, bad = verify_manifest()
     if not ok:
@@ -321,7 +376,7 @@ def run_real(tmpdir: str, get=None) -> int:
         log("CHART_EVAL_JUDGE branch=بصمةٌ مكسورة exit=4")
         return 4
     key = load_key()
-    rows, results = [], {}
+    rows, results, shared = [], {}, {}
     for p in files:
         card = json.load(open(p, encoding="utf-8"))
         cid = card.get("id")
@@ -329,12 +384,14 @@ def run_real(tmpdir: str, get=None) -> int:
         if truth is None:
             log(f"⛔ {cid}: بلا مفتاح")
             continue
-        res = CF.run_card(card, tmpdir, get=get, results=results)
+        res = CF.run_card(card, tmpdir, get=get, results=results,
+                          panel_arr=undated_panel(card, tmpdir, shared, get=get))
         rows.append({"id": cid, "sym": truth["sym"], "class": truth["class"], "label": res["label"],
                      "top": res["top"], "hit1": bool(res["top"]) and res["top"][0] == truth["sym"],
                      "hit3": truth["sym"] in res["top"][:3], "judged": res["rc"] == 0})
         log(f"REAL_ROW {cid} truth={truth['sym']} class={truth['class']} ⟵ {res['label']} "
             f"top={res['top'][:3]} hit1={int(rows[-1]['hit1'])} hit3={int(rows[-1]['hit3'])}")
+    recap(rows, "REAL_RECAP")
     branch, det = judge_real(rows)
     k1, k1_ok, k1_n, k1_w = det["k1"]
     k2, k2_ok, k2_n = det["k2"]

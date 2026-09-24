@@ -1,0 +1,15 @@
+{
+ "v": 1,
+ "id": "real-TG_2011",
+ "timeframe": "4H",
+ "bars_visible": 140,
+ "extended": true,
+ "extremes": {
+  "high": "11.350",
+  "low": "1.230"
+ },
+ "last": "1.620",
+ "axis_md": [
+  "05/15"
+ ]
+}
