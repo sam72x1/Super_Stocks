@@ -17,6 +17,10 @@ on:
         description: "1 = يكتب hrt_rows.tsv (الافتراض) · 0 = لا يكتب"
         required: false
         default: "1"
+      reopen:
+        description: "🔒 المحورُ مُغلَق («اقفل HRT» 2026-09-24) — 1 = إقرارٌ بشروط الفتح الثلاثة (hrt_result.md §⑦) · غيرُه = خروج 8"
+        required: false
+        default: "0"
 
 jobs:
   hrt:
@@ -44,6 +48,7 @@ jobs:
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
           HRT_DRY: ${{ github.event.inputs.dry }}
           HRT_TSV: ${{ github.event.inputs.tsv }}
+          HRT_REOPEN: ${{ github.event.inputs.reopen }}
         run: python3 hrt_arms.py
 
       - name: Upload rows

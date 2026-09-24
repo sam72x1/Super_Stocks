@@ -60573,8 +60573,11 @@ try:
         and "secrets.POLYGON_API_KEY" in _hra_wt and "secrets.SEC_CONTACT" in _hra_wt,
         "مُدخَلان": _hra_env.get("HRT_DRY") == "${{ github.event.inputs.dry }}"
         and _hra_env.get("HRT_TSV") == "${{ github.event.inputs.tsv }}",
+        # 🔄 إقرارٌ مؤرَّخ 2026-09-24 («اقفل HRT»): مفتاحُ الإقرار `HRT_REOPEN` **وحدَه** زيادةً،
+        #    موصولٌ بمُدخَل `reopen` · ويقفله سلوكيًّا `HRA13`.
+        "مُدخَلُ الإقرار": _hra_env.get("HRT_REOPEN") == "${{ github.event.inputs.reopen }}",
         "الجدوى «1»": _hra_dry,
-        "لا نطاقَ من البيئة": _hra_envs == {"POLYGON_API_KEY", "HRT_DRY", "HRT_TSV"},
+        "لا نطاقَ من البيئة": _hra_envs == {"POLYGON_API_KEY", "HRT_DRY", "HRT_TSV", "HRT_REOPEN"},
         "الصفوف": "hrt_rows.tsv" in _hra_wt and "fetch-depth: 0" in _hra_wt,
     }
     _v = all(_parts.values())
@@ -60689,6 +60692,84 @@ except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🏦🔒 HRA12 نافذةُ التقسيم = العقدُ حرفيًّا [‏t0−3، t0+20] (‏+20 و‏−3 داخل · ‏+21 و‏−4 خارج) · "
       "وتمتدّ إلى آخر جلسة `mr20` **فقط** بإزاحة `p0` (‏+22 داخل · ‏+23 خارج)", _v, _w)
+
+# ⑭ HRA13 — 🔒 **الإغلاقُ مُنفَّذٌ لا مكتوب** («اقفل HRT» 2026-09-24 · بالتفويض الكامل · `hrt_result.md §⑦`)
+#    — مرآةُ `WVA14` **سلوكيًّا من طرفيه**: (أ) مُغلَقًا ⟶ ‏8 بصفرِ عمليّة ولا سطرَ غيرُ النصّ ·
+#    (ب) افتراضُ الـyml (`0`) يُبقيه مُغلَقًا والمُدخَلُ موصول · (ج) الإقرارُ `1` يرفع الحارسَ **فعلًا**
+#    فيبلغ `run` المحقون · (د) ‏8 مميَّزٌ بشاهدَي ضبط · (هـ) الحارسُ أوّلُ جملةٍ في `main` · ونصُّ الفتح
+#    ①②③ بأرقام الحكم · ونقطةُ دخولٍ واحدة · والقسمُ §⑦ في النتيجة.
+try:
+    _hrz_os = __import__("os")
+    _hrz_src = open("hrt_arms.py", encoding="utf-8").read()
+    _hrz_tree = _hra_ast.parse(_hrz_src)
+    _hrz_main = next((n for n in _hrz_tree.body if isinstance(n, _hra_ast.FunctionDef)
+                      and n.name == "main"), None)
+    _hrz_busy = {getattr(_HR, _k) for _k in dir(_HR) if _k.startswith("RC_")}
+    _hrz_witness = (_HR.CLOSED_RC not in _hrz_busy and 11 not in _hrz_busy
+                    and _HR.RC_GUARD in _hrz_busy)
+    _hrz_b0 = _hrz_main.body[0] if (_hrz_main and _hrz_main.body) else None
+    _hrz_first = (isinstance(_hrz_b0, _hra_ast.If) and isinstance(_hrz_b0.test, _hra_ast.Call)
+                  and getattr(_hrz_b0.test.func, "id", None) == "_closed_now"
+                  and any(isinstance(_x, _hra_ast.Return)
+                          and getattr(_x.value, "id", None) == "CLOSED_RC" for _x in _hrz_b0.body))
+    _hrz_wf = __import__("yaml").safe_load(open(".github/workflows/hrt.yml", encoding="utf-8"))
+    _hrz_on = _hrz_wf.get(True) or _hrz_wf.get("on") or {}
+    _hrz_rin = (((_hrz_on.get("workflow_dispatch") or {}).get("inputs") or {}).get("reopen") or {})
+    _hrz_def = str(_hrz_rin.get("default"))
+    _hrz_steps = [_st for _j in (_hrz_wf.get("jobs") or {}).values() for _st in (_j.get("steps") or [])]
+    _hrz_wired = any(
+        str((_st.get("env") or {}).get("HRT_REOPEN", "")).replace(" ", "")
+        == "${{github.event.inputs.reopen}}" and "hrt_arms.py" in str(_st.get("run"))
+        for _st in _hrz_steps)
+    _hrz_calls, _hrz_logged = [], []
+    _hrz_keep = (_HR.run, _HR.log)
+    _hrz_env0 = {_k: _hrz_os.environ.get(_k) for _k in ("HRT_REOPEN", "POLYGON_API_KEY")}
+    try:
+        _HR.run = lambda *a, **k: (_hrz_calls.append(1), 0)[1]
+        _HR.log = _hrz_logged.append
+        _hrz_os.environ.pop("POLYGON_API_KEY", None)
+        _hrz_os.environ.pop("HRT_REOPEN", None)
+        _hrz_rc_closed = _HR.main()
+        _hrz_log_closed, _hrz_run_closed = list(_hrz_logged), len(_hrz_calls)
+        _hrz_os.environ["HRT_REOPEN"] = _hrz_def                   # افتراضُ الـyml
+        del _hrz_logged[:]
+        _hrz_rc_default = _HR.main()
+        _hrz_run_default = len(_hrz_calls)
+        _hrz_os.environ["HRT_REOPEN"] = "1"                        # الإقرار
+        del _hrz_logged[:]
+        _hrz_rc_open = _HR.main()
+        _hrz_run_open = len(_hrz_calls)
+    finally:
+        _HR.run, _HR.log = _hrz_keep
+        for _k, _v0 in _hrz_env0.items():
+            _hrz_os.environ.pop(_k, None)
+            if _v0 is not None:
+                _hrz_os.environ[_k] = _v0
+    _hrz_txt = "\n".join(_HR.closure_notice())
+    _hrz_notice = all(_x in _hrz_txt for _x in (
+        "①", "②", "③", "HRT_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد", "TG_50826",
+        "0 من 14", "35950256119", "HRT FINANCIAL LP", "19 · 10"))
+    _hrz_res = open("hrt_result.md", encoding="utf-8").read()
+    _hrz_sec = ("## ⑦ 🔒 الإغلاق" in _hrz_res and "HRT_REOPEN=1" in _hrz_res
+                and "HRA13" in _hrz_res and "| ③ | **إذنُ المالك** |" in _hrz_res)
+    _hrz_one = _hrz_src.count("if __name__ ==") == 1
+    _hra13 = (_HR.AXIS_CLOSED is True and _HR.REOPEN_ENV == "HRT_REOPEN"
+              and _hrz_rc_closed == _HR.CLOSED_RC == 8 and _hrz_run_closed == 0
+              and _hrz_log_closed == _HR.closure_notice()
+              and _hrz_def == "0" and _hrz_rc_default == 8 and _hrz_run_default == 0
+              and _hrz_wired and _hrz_rc_open == 0 and _hrz_run_open == 1
+              and _hrz_witness and _hrz_first and _hrz_notice and _hrz_sec and _hrz_one)
+    _hra13_w = (f"مُغلَق rc={_hrz_rc_closed} run={_hrz_run_closed} أسطر={len(_hrz_log_closed)} · "
+                f"افتراضُ الـyml={_hrz_def!r} ⟶ rc={_hrz_rc_default} موصول={_hrz_wired} · "
+                f"بالإقرار rc={_hrz_rc_open} run={_hrz_run_open} · مشغولة={sorted(_hrz_busy)} · "
+                f"شاهد={_hrz_witness} · أوّلُ جملة={_hrz_first} · النصّ={_hrz_notice} · "
+                f"§⑦={_hrz_sec} · دخولٌ واحد={_hrz_one}")
+except Exception as _e:                                          # noqa: BLE001
+    _hra13, _hra13_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏦🔒 HRA13 الإغلاقُ **مُنفَّذ** («اقفل HRT»): خروج 8 بصفرِ عمليّة ولا سطرَ غيرُ النصّ · "
+      "**وافتراضُ الـworkflow (`0`) يُبقيه مُغلَقًا** · والإقرارُ `1` يرفع الحارسَ فيبلغ `run` المحقون · "
+      "و‏8 مميَّزٌ (بشاهدَي ضبط) · والحارسُ أوّلُ جملة · ونصُّ الفتح ①②③ بأرقام الحكم · و§⑦ · ودخولٌ واحد",
+      _hra13, _hra13_w)
 
 
 # ═══ 🗓️🔍 «قس أثر الإغلاق المبكر» (أمرُ المالك 2026-09-23) — أقفال EAR0-EAR9 · `T-EARLY` ═══
