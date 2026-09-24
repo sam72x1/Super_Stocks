@@ -6,6 +6,8 @@
 
 **متى:** لحظتا قرارٍ في يوم التداول بتوقيت نيويورك — **15:50** (قبل الافتر 16:00)
 و**03:50** (قبل البريماركت 04:00). ولكلٍّ دِدوبٌ مرّةً واحدة في اليوم.
+🗓️ **ويومَ الإغلاق المبكّر قرارُ الافتر 12:50** (الافترُ يبدأ 13:00) والشموعُ تُقسم
+عند 13:00 — من التقويم لا ثابتًا (‏`reg_close_for` · أمرُ المالك 2026-09-24).
 
 **كيف:** ① نداءٌ واحدٌ لكلّ السوق (`/v2/aggs/grouped`) مرشِّحًا رخيصًا (سعرُ الكون
 ‏[`MIN_PRICE`, `SPLIT_RADAR_PRICE_MAX`] ‏+ أعلى دولارِ يومٍ) ② ثم شموعُ الدقيقة
@@ -18,7 +20,8 @@
 الأماميّ** ولا تُقرأ توصيةَ دخول.
 🔴 **والإرسالُ لجلسةٍ بعينها بأمر المالك «شغّل البريماركت» (2026-09-03):**
 `PRESESSION_SEND` تقبل اسمَ الجلسة (`PM` · `AH` · `PM,AH`) أو `1`/`all` للجميع،
-والفارغُ **صامتٌ يكتب السجلَّ الأماميّ وحدَه**. المشحونُ اليوم **`PM`**.
+والفارغُ **صامتٌ يكتب السجلَّ الأماميّ وحدَه**. المشحونُ اليوم **`PM,AH`** (منذ
+2026-09-05 بأمر «شغّل الافتر» — كان السطرُ يقول `PM` فبات · تصحيحٌ مؤرَّخ 2026-09-24).
 🔴 **ومفتاحُ الترتيب لكلّ جلسةٍ مفتاحُه** (`presession_feats.rank_key`): البريماركتُ
 `post_hi_ret` **مختارًا من سنتَي المعايرة وحدهما**، والافترُ يبقى على خطّ الأساس
 `usd_day` لأن `post_*` معدومةٌ بالتعريف في قرار 15:50.
@@ -53,14 +56,64 @@ AH_OPEN, REG_OPEN, REG_CLOSE = 16 * 60, 9 * 60 + 30, 16 * 60
 
 
 # ── دوالُّ نقيّة ───────────────────────────────────────────────────────────────
-def slot_now(mod_ny: int) -> str | None:
+def reg_close_for(day_iso) -> int:
+    """🗓️ دقيقةُ إغلاق الجلسة النظاميّة (نيويورك) **ليومٍ بعينه** — من التقويم.
+
+    أمرُ المالك 2026-09-24 «صلّح الرادار يوم الإغلاق المبكر» بعد حكم `T-EARLY`
+    (`early_close_result.md §⑥`): الرادارُ كان يثبّت 16:00 فيُرسل قائمةَ الافتر يومَ
+    الإغلاق المبكّر **بعد ساعتين وخمسين دقيقةً من بدء الافتر** (15:50 بدل 12:50) ·
+    ويقسم شموعَ ذلك اليوم عند 16:00 فتُحسب قائمةُ البري التالية على الخطأ نفسِه
+    الذي صحّحه التدقيق.
+    ⚖️ **مرآةُ `presession_scan.close_bound(day, True)` حرفيًّا** (13:00 يومَ الإغلاق
+    المبكّر · 16:00 غيرُه · والمجهولُ أو الشاذُّ أو تعذّرُ التقويم ⇒ 16:00) — فالذي
+    يُرسَل هو عينُ ما قيس، ولا يصير للحدّ مصدران (مقفولٌ بالتكافؤ سلوكيًّا).
+    🔒 **فاشلٌ-آمن ⇒ السلوكُ السابق حرفيًّا** (16:00)، والاستيرادُ كسولٌ فلا يُثقل
+    الوحدة ولا يُسقطها."""
+    if not day_iso:
+        return REG_CLOSE
+    try:
+        import market_calendar as MC                             # noqa: PLC0415
+        cm = MC.session_info(str(day_iso)).get("close_ny_min")
+    except Exception:                                            # noqa: BLE001
+        return REG_CLOSE
+    if isinstance(cm, int) and 0 < cm <= REG_CLOSE:
+        return cm
+    return REG_CLOSE
+
+
+def fetch_from_ms(now_ms: int, src_day: str) -> int:
+    """🗓️ بدايةُ نافذة جلب الدقائق — **لا تبدأ بعد منتصف ليل `src_day` (نيويورك)**.
+
+    🔴 **عيبٌ مقيسٌ كشفه هذا الإصلاح (2026-09-24):** كانت النافذةُ `now − 36h`
+    وحدَها ⇒ قرارُ بريماركت **الاثنين** (03:50) يبدأ جلبُه **السبتَ 15:50** فلا يرى
+    شمعةً واحدةً من الجمعة ⇒ ‏0 بشموعِ دقيقة ⇒ صفرُ صفٍّ في السجلّ (‏09-14 و09-21
+    مختومان بلا صفّ) ⇒ **لم تُحسب قائمةُ بريماركت اثنينٍ واحدٍ منذ الشحن**. ويومَا
+    الإغلاق المبكّر اللذان تقرأ قائمتَهما البري (‏11-30 و12-28) **كلاهما اثنين**.
+    🔒 **الأيامُ العاديّة بت-بت:** `min` ⇒ نافذةُ الثلاثاء-الجمعة تبدأ قبل منتصف ليل
+    `src_day` أصلًا فلا يتغيّر الطلبُ نفسُه · وتعذّرُ التاريخ ⇒ `now − 36h` كما كان."""
+    base = int(now_ms) - 36 * 3600 * 1000
+    try:
+        from zoneinfo import ZoneInfo                            # noqa: PLC0415
+        d = dt.date.fromisoformat(str(src_day))
+        start = int(dt.datetime.combine(d, dt.time(0, 0),
+                                        tzinfo=ZoneInfo("America/New_York"))
+                    .timestamp() * 1000)
+    except Exception:                                            # noqa: BLE001
+        return base
+    return min(base, start)
+
+
+def slot_now(mod_ny: int, day_iso: str = None) -> str | None:
     """أيُّ قرارٍ نحن فيه؟ `"AH"` في [15:50، 15:56) · `"PM"` في [03:50، 03:56) ·
-    وإلّا `None`. (النافذةُ ستُّ دقائقَ لأن دورةَ العامل ‏≈60 ثانية.)"""
+    وإلّا `None`. (النافذةُ ستُّ دقائقَ لأن دورةَ العامل ‏≈60 ثانية.)
+
+    🗓️ **وبـ`day_iso` يتبع قرارُ الافتر إغلاقَ التقويم** (‏2026-09-24): [12:50، 12:56)
+    يومَ الإغلاق المبكّر لأن الافترَ يبدأ 13:00. **وبلا يومٍ ⇒ 16:00 بت-بت.**"""
     try:
         m = int(mod_ny)
     except (TypeError, ValueError):
         return None
-    ah = REG_CLOSE - PF.DECISION_LEAD
+    ah = reg_close_for(day_iso) - PF.DECISION_LEAD
     pm = PF.PRE_OPEN - PF.DECISION_LEAD
     if ah <= m < ah + GATE_WIDTH:
         return "AH"
@@ -91,10 +144,22 @@ def send_enabled(slot: str, env_val: str | None) -> bool:
 
 
 def prev_bday(day_iso: str) -> str:
-    """يومُ العملِ السابق (يتخطّى السبتَ والأحد). نقيّة — **وهي عينُ الخطوة التي
-    كانت مضمرةً في `run_presession`** فلا يصير للاختيار مصدران."""
+    """يومُ **التداول** السابق (يتخطّى السبتَ والأحد **وعطلاتِ التقويم**). نقيّة — **وهي
+    عينُ الخطوة التي كانت مضمرةً في `run_presession`** فلا يصير للاختيار مصدران.
+
+    🔴 **والعطلاتُ أُضيفت 2026-09-24 بعيبٍ مقيس:** كانت تتخطّى نهايةَ الأسبوع وحدَها ⇒
+    بريماركتُ **09-08** قرأ يومَ العمّال (09-07) فرجع النداءُ المجمَّع فارغًا ⇒ **لا ختمَ
+    ولا صفَّ ولا رسالة** (مقيسٌ في السجلّ) · وكان سيقع يومَ 11-27 (يقرأ الشكر) و12-28
+    (يقرأ الميلاد بدل الإغلاق المبكّر 12-24).
+    🔒 **فاشلٌ-آمن:** تعذّرُ التقويم ⇒ نهايةُ الأسبوع وحدَها كما كانت · وخارجَ مداه لا
+    يعرف عطلةً فيبقى السلوكُ السابق."""
+    try:
+        import market_calendar as MC                             # noqa: PLC0415
+        hol = set(MC.HOLIDAYS)
+    except Exception:                                            # noqa: BLE001
+        hol = set()
     d = dt.date.fromisoformat(str(day_iso)) - dt.timedelta(days=1)
-    while d.weekday() >= 5:
+    while d.weekday() >= 5 or d.isoformat() in hol:
         d -= dt.timedelta(days=1)
     return d.isoformat()
 
@@ -217,25 +282,34 @@ def as_bars8(res: list) -> list:
     return out
 
 
-def split_bars(bars8: list, day_iso: str) -> tuple:
-    """(بريماركت، نظاميّ، افتر) ليومٍ بعينه — بدقيقة نيويورك لا بالساعة UTC."""
+def split_bars(bars8: list, day_iso: str, close_min: int = None) -> tuple:
+    """(بريماركت، نظاميّ، افتر) ليومٍ بعينه — بدقيقة نيويورك لا بالساعة UTC.
+
+    🗓️ **والحدُّ بين النظاميّ والافتر إغلاقُ ذلك اليوم** (`close_min` صريحًا، وإلّا
+    `reg_close_for(day_iso)`): 13:00 يومَ الإغلاق المبكّر · وبلا يومٍ ⇒ 16:00 بت-بت."""
+    cm = reg_close_for(day_iso) if close_min is None else int(close_min)
     pre = [b for b in bars8 if PF.PRE_OPEN <= b[7] < REG_OPEN]
-    reg = [b for b in bars8 if REG_OPEN <= b[7] < REG_CLOSE]
-    post = [b for b in bars8 if REG_CLOSE <= b[7] < PF.EXT_CLOSE]
+    reg = [b for b in bars8 if REG_OPEN <= b[7] < cm]
+    post = [b for b in bars8 if cm <= b[7] < PF.EXT_CLOSE]
     return pre, reg, post
 
 
 def feature_row(sym: str, bars8: list, prev_close: float, slot: str, cut: int,
-                liq_fn=None, win: int = 65) -> dict | None:
+                liq_fn=None, win: int = 65, close_min: int = None) -> dict | None:
     """صفُّ قرارٍ واحد — الميزاتُ من `presession_feats` حصرًا (المصدرُ الواحد).
-    `cut` دقيقةُ القرار بنيويورك (‏950 للافتر · 1200 لقرار البريماركت من يوم أمس)."""
+    `cut` دقيقةُ القرار بنيويورك (‏950 للافتر · 1200 لقرار البريماركت من يوم أمس).
+
+    🗓️ `close_min` إغلاقُ يوم الشموع (‏`reg_close_for`) — **وبلاه 16:00 بت-بت**. يومَ
+    الإغلاق المبكّر يطابق `presession_scan` المصحَّح: الافترُ `core_feats` حتى 12:50 ·
+    والبري `core_feats` حتى 13:00 و`post_*` من [13:00، 20:00)."""
     if not bars8:
         return None
-    pre, reg, post = split_bars(bars8, None)
-    reg_cut = [b for b in reg if b[7] < min(cut, REG_CLOSE)]
+    cm = REG_CLOSE if close_min is None else int(close_min)
+    pre, reg, post = split_bars(bars8, None, cm)
+    reg_cut = [b for b in reg if b[7] < min(cut, cm)]
     pre_cut = [b for b in pre if b[7] < cut]
     try:
-        f = PF.core_feats(reg_cut, pre_cut, prev_close, min(cut, REG_CLOSE))
+        f = PF.core_feats(reg_cut, pre_cut, prev_close, min(cut, cm))
     except PF.LookAhead:
         return None
     if not f:
@@ -308,7 +382,18 @@ def build_presession_alert(rows: list, slot: str, day_iso: str, cov: int,
     🔒 **والسجلُّ لا يتأثّر:** `sent` لكلّ صفٍّ يبقى `False` لأن `delivered`
     فارغة ⇒ كلفةُ الأرضية تبقى مقروءةً أماميًّا بت-بت.
     """
-    name = "الافتر (16:00)" if slot == "AH" else "البريماركت (04:00)"
+    name = (f"الافتر ({_hhmm(reg_close_for(day_iso))})" if slot == "AH"
+            else "البريماركت (04:00)")
+    if not rows and scanned and not cov:
+        # ⛔ **صفرُ شموعٍ ليس «لم يعبر أحد»** (‏2026-09-24): عطلُ الجلب هذا هو
+        #    بعينه ما أخفى قائمةَ بريماركت الاثنين ثلاثةَ أسابيع — كانت الرسالةُ
+        #    تقول «الأداةُ عملت وسلّمت صفرًا» وهي لم تقرأ شمعةً واحدة.
+        out = [f"🌙⏱️ <b>قبل {name} بعشر دقائق</b> — "
+               "<b>⚠️ لم تُقرأ شموعُ الدقيقة</b>",
+               f"‏🩺 مسحٌ: {scanned} رمزًا في كون السعر · 0 بشموعِ دقيقة",
+               "‏⛔ <b>عطلُ جلبٍ لا غيابُ أسماء</b> — لا حكمَ على اليوم، وهذي "
+               "الرسالةُ ليست «لم يعبر أحدٌ الأرضية»."]
+        return "\n".join(out + _presession_tail(slot, day_iso))
     if not rows:
         out = [f"🌙⏱️ <b>قبل {name} بعشر دقائق</b> — "
                "<b>لا اسمَ يعبر الأرضية اليوم</b>",
@@ -336,6 +421,11 @@ def build_presession_alert(rows: list, slot: str, day_iso: str, cov: int,
     return "\n".join(out + _presession_tail(slot, day_iso))
 
 
+def _hhmm(m: int) -> str:
+    """دقيقةُ نيويورك ⟶ «HH:MM» (‏960 ⟶ «16:00» · 780 ⟶ «13:00»)."""
+    return f"{int(m) // 60:02d}:{int(m) % 60:02d}"
+
+
 def _presession_tail(slot: str, day_iso: str) -> list:
     """ذيلُ الصدق — **مصدرٌ واحدٌ** للقائمة وللّيلة الصامتة معًا (وإلّا صارت
     رسالتان بحدَّي صدقٍ مختلفَين، وهو «مقياسان لا واحد» في ثوبِ عرض)."""
@@ -356,8 +446,11 @@ def _presession_tail(slot: str, day_iso: str) -> list:
     #    تصف تسليمَ **عشرةِ أسماءٍ بالرتبة** — وبعد شحن الأرضية صار المُسلَّم غيرَه،
     #    فإبقاؤها كان سيجعل السطرَ **يصف تسليمًا لا نُسلّمه** (‏«سطرُ عرضٍ يكذب»).
     if _thr is not None:
+        # 🗓️🔄 أرقامُ الأرضية المُعادة معايرتُها (‏«اعتمد الأرضية المصحّحة» 2026-09-24):
+        #    على صفوف 2025 المصحَّحة بإغلاق التقويم (‏`early_close_result.md`) — كانت
+        #    «‏47 من 435 (‏10.8%)» للأرضية القديمة 0.69492.
         why = ("الأوّلُ في سنتَي المعايرة 2023-2024 · وبأرضيته على 2025 خارج "
-               "العيّنة أصاب ‏47 من 435 اسمًا (‏10.8%) = ‏47 من 878 منفجرًا")
+               "العيّنة أصاب ‏47 من 429 اسمًا (‏11.0%) = ‏47 من 878 منفجرًا")
     elif _rk != PF.RANK_KEY:
         why = ("الأوّلُ في سنتَي المعايرة 2023-2024 · وعلى 2025 خارج العيّنة أصاب "
                "‏100 من 2,500 اسمًا (‏4.0%) = ‏100 من 878 منفجرًا")
@@ -370,7 +463,8 @@ def _presession_tail(slot: str, day_iso: str) -> list:
             #    المقيسة: أوّلُ عشر دقائق» — وهو خطأُ قراءتي لأمره. **العشرُ دقائقَ
             #    موعدُ الرسالة، والتوقّعُ على الجلسة كاملةً.**
             f"‏🗓️ قرارُ {day_iso} · <b>التوقّعُ على الجلسة كاملةً</b> "
-            + ("(‏16:00 ⟶ 20:00 نيويورك)" if slot == "AH"
+            #    🗓️ نافذةُ الافتر من إغلاق التقويم (13:00 يومَ الإغلاق المبكّر).
+            + (f"(‏{_hhmm(reg_close_for(day_iso))} ⟶ 20:00 نيويورك)" if slot == "AH"
                else "(‏04:00 ⟶ 09:30 نيويورك)")
             + " — والعشرُ دقائقُ موعدُ الرسالة لا مدّةُ التوقّع."]
     return out
@@ -462,8 +556,12 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
     _log(f"🌙 {slot}: كون {len(grouped)} ⟶ مرشَّحون {len(cands)} "
          f"(يوم {src_day} · مفتاحُ المرشِّح {pf_key} · إغلاقاتٌ سابقة "
          f"{len(pcm)} · بلا عائدٍ معلومٍ {pf_unknown})")
-    cut = PF.EXT_CLOSE if slot == "PM" else REG_CLOSE - PF.DECISION_LEAD
-    frm = now_ms - 36 * 3600 * 1000
+    # 🗓️ **إغلاقُ يوم الشموع من التقويم** (‏2026-09-24): يومَ الإغلاق المبكّر 13:00 ⇒
+    #    قرارُ الافتر يقصّ عند 12:50 والنظاميُّ/الافترُ يُقسمان عند 13:00 · وغيرُه 16:00
+    #    بت-بت. **ونافذةُ الجلب لا تبدأ بعد منتصف ليل `src_day`** (‏`fetch_from_ms`).
+    close_min = reg_close_for(src_day)
+    cut = PF.EXT_CLOSE if slot == "PM" else close_min - PF.DECISION_LEAD
+    frm = fetch_from_ms(now_ms, src_day)
     rows, cov, cut_off = [], 0, 0
     _now = clock or time.time
     _t0 = _now()
@@ -484,7 +582,8 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
         if not pc:
             pre, reg, _ = split_bars(bars, src_day)
             pc = (reg[0][1] if reg else (pre[0][1] if pre else None))
-        r = feature_row(c[PF.ROW_SYM], bars, pc, slot, cut, liq_fn=liq_fn, win=win)
+        r = feature_row(c[PF.ROW_SYM], bars, pc, slot, cut, liq_fn=liq_fn, win=win,
+                        close_min=close_min)
         if r:
             rows.append(r)
     if cut_off:
@@ -508,6 +607,7 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
                           "pf_key": pf_key, "pf_prev": len(pcm),
                           "pf_unknown": pf_unknown,
                           "src_day": src_day, "cut_off": cut_off,
+                          "close_min": close_min,
                           "floor": PF.rank_floor(slot),
                           "top": [r[PF.ROW_SYM] for r in top],
                           "deliver": [r[PF.ROW_SYM] for r in deliver],

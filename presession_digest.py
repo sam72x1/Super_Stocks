@@ -66,12 +66,16 @@ def row_key(r: dict) -> str:
                              str(r.get(PF.ROW_SYM) or "").upper())
 
 
-def window_bounds(sess: str) -> tuple:
+def window_bounds(sess: str, day_iso: str = None) -> tuple:
     """نافذةُ الوسم بدقائق نيويورك — **بريماركتُ اليوم** لقرار `PM`، وافترُه
-    لقرار `AH`. (وهي عينُ ما وُسِم به تاريخيًّا: `hit80_s`.)"""
+    لقرار `AH`. (وهي عينُ ما وُسِم به تاريخيًّا: `hit80_s`.)
+
+    🗓️ **وافترُ يوم الإغلاق المبكّر يبدأ 13:00** (‏2026-09-24، «صلّح الرادار يوم
+    الإغلاق المبكر»): الحدُّ من `PR.reg_close_for` — **المصدرِ الذي يقرّر به الرادارُ
+    نفسُه** — فيُحسم بنافذة ما أُرسل لها · وبلا يومٍ ⇒ 16:00 بت-بت."""
     if str(sess).strip().upper() == "PM":
         return PF.PRE_OPEN, PR.REG_OPEN
-    return PR.REG_CLOSE, PF.EXT_CLOSE
+    return PR.reg_close_for(day_iso), PF.EXT_CLOSE
 
 
 def read_jsonl(path: str) -> list:
@@ -105,12 +109,15 @@ def resolve_row(row: dict, bars8: list) -> dict | None:
     if not ref or ref <= 0 or not bars8:
         return None
     sess = str(row.get(PF.ROW_SESS) or "").strip().upper()
-    st, en = window_bounds(sess)
+    day = row.get(PF.ROW_DAY)
+    st, en = window_bounds(sess, day)
     lab = PS.window_label(bars8, st, en, ref)
     if not lab.get("n"):
         return None
-    reg = PS.window_label(bars8, PR.REG_OPEN, PR.REG_CLOSE, ref)
-    full = PS.window_label(bars8, PF.PRE_OPEN, PR.REG_CLOSE, ref)
+    #    🗓️ والوصفيّان يُقسمان عند إغلاق اليوم نفسِه (13:00 يومَ الإغلاق المبكّر).
+    cm = PR.reg_close_for(day)
+    reg = PS.window_label(bars8, PR.REG_OPEN, cm, ref)
+    full = PS.window_label(bars8, PF.PRE_OPEN, cm, ref)
     return {"key": row_key(row), PF.ROW_DAY: row.get(PF.ROW_DAY),
             PF.ROW_SESS: sess, PF.ROW_SYM: str(row.get(PF.ROW_SYM) or "").upper(),
             "rank": row.get("rank"), "in_top": bool(row.get("in_top", True)),

@@ -33,6 +33,10 @@ UNTIL = os.environ.get("TIERLINK_UNTIL", "").strip()              # فارغٌ =
 MIN_COVER = TL.MIN_COVER                                          # 0.80 — بالاسم
 MAX_UNSCANNED = 0.20                                              # G2
 PM_END_MIN = 9 * 60 + 30
+# 🔒🗓️ **أرضيةُ العقد لا الحيّة** (‏2026-09-24): `tierlink2_prereg.md` قاس على 0.69492
+#    («لا تتحرّك»)، ثمّ أُعيدت معايرةُ الحيّة إلى 0.69903 بأمر المالك «اعتمد الأرضية
+#    المصحّحة» (`T-EARLY`) ⇒ تُثبَّت هنا أثناء التشغيل ثمّ تُعاد، فيُعاد المنشورُ حرفيًّا.
+CONTRACT_FLOOR = {"PM": 0.69492}
 
 
 def log(m: str = "") -> None:
@@ -144,6 +148,18 @@ def pct(k, n):
 
 
 def main() -> int:
+    """🔒 يثبّت أرضيةَ العقد طوالَ التشغيل ثمّ يعيد الحيّةَ كما كانت (‏`finally`)."""
+    live = dict(PF.FLOOR_BY_SLOT)
+    PF.FLOOR_BY_SLOT.clear()
+    PF.FLOOR_BY_SLOT.update(CONTRACT_FLOOR)
+    try:
+        return _run(live)
+    finally:
+        PF.FLOOR_BY_SLOT.clear()
+        PF.FLOOR_BY_SLOT.update(live)
+
+
+def _run(live_floor: dict) -> int:
     key = os.environ.get("POLYGON_API_KEY", "").strip()
     if not key:
         log("⛔ لا POLYGON_API_KEY — خروج 2")
@@ -164,6 +180,8 @@ def main() -> int:
         f"سجلّ M5 {len(ledger)} · ملفّاتُ المسح {len(paths)} · أيامُ مسح {len({d for d, _ in scan})}")
     log(f"🔒 الأرضية PM={PF.FLOOR_BY_SLOT} · المرشِّح {PR.PREFILTER_KEY} · سقف {PR.PREFILTER_CAP} · "
         f"أرضيةُ الدولار ${PR.MIN_DAY_USD:,.0f} · TOPK {PF.TOPK} · مفتاحُ AH {PF.rank_key('AH')} — لا تُمَسّ")
+    log(f"🗓️ أرضيةُ العقد {CONTRACT_FLOOR['PM']} مثبَّتةٌ لهذا التشغيل — والحيّةُ اليوم "
+        f"{live_floor.get('PM')} (‏«اعتمد الأرضية المصحّحة» 2026-09-24 · `T-EARLY`)")
     log("⚠️ (ب)/(ج) محاكاةُ المرشِّح على صفوف المسح — لا الدالّةُ الحيّة (‏T-PRECAP §⑧: نموذجان)")
     rows, fails, nobase = [], 0, 0
     cache = {}
