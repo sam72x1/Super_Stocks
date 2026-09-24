@@ -33,6 +33,52 @@ SS_REQUIRED = ["symbol", "active_polls", "bars_attempted", "bars_ok", "coverage_
                "exposure_minutes", "recall_eligible", "backfill_status"]
 # حدود جودة البيانات لأهلية recall (SPEC §7) — **ليست عتبات تداول** (الثلاثة تُطبَّق في المسجّل).
 RECALL_MIN_POLLS, RECALL_MIN_COVERAGE, RECALL_MIN_EXPOSURE_MIN = 20, 0.80, 60
+# 🔬 (2026-09-24) «لماذا لا يُنفَّذ NBBO؟» وعدّادُ بوّابة E2-B — **قراءةٌ فقط**: لا يمسّ الاكتمالَ ولا
+#    تعريفَ «قابل للتنفيذ» (يصف ما سجّله القياسُ وقتَها). الرقمان **مرآةُ التسجيل المسبق** بحرفهما
+#    (`entry.max_quote_age_seconds` = 5 · `sample_gates.preliminary.decided_alerts` = 20) — قفل E2N3.
+MAX_QUOTE_AGE_MS = 5_000
+E2B_MIN_DECIDED_ALERTS = 20
+
+
+def _num(x):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return None
+
+
+def nbbo_age_breakdown(cands):
+    """🔬 نقيّة: تصنيفُ NBBO الأساسيّ لكلّ candidate — `executable` (كما سُجِّل) · `stale` (العمرُ فوق
+    5ث) · `future` (عمرٌ سالب = طابعُ الاقتباس أحدثُ من ساعة الرنر) · `invalid` (العمرُ داخل النافذة
+    والـNBBO غيرُ صالح) · `missing` (بلا عمر) — مع وسيطِ عمرِ البائت وأدنى عمرٍ سالب (ملّي).
+    **يصف ولا يُعيد تعريف «قابل للتنفيذ»** — المرجعُ `primary_executable` المسجَّل."""
+    out = {"executable": 0, "stale": 0, "future": 0, "invalid": 0, "missing": 0}
+    stale_ages, neg_ages = [], []
+    for c in cands or []:
+        age = _num(c.get("quote_age_ms"))
+        if c.get("primary_executable") is True:
+            out["executable"] += 1
+        elif age is None:
+            out["missing"] += 1
+        elif age < 0:
+            out["future"] += 1
+            neg_ages.append(age)
+        elif age > MAX_QUOTE_AGE_MS:
+            out["stale"] += 1
+            stale_ages.append(age)
+        else:
+            out["invalid"] += 1
+    stale_ages.sort()
+    out["stale_median_ms"] = int(stale_ages[len(stale_ages) // 2]) if stale_ages else None
+    out["future_min_ms"] = int(min(neg_ages)) if neg_ages else None
+    return out
+
+
+def e2b_gate_count(results):
+    """🔬 نقيّة: تنبيهاتٌ **مُصدَرةٌ بـNBBO قابلٍ للتنفيذ في جلساتٍ مكتملة** — حدٌّ أعلى لـ«المحسوم»
+    في بوّابة E2-B (المحسومُ يلزمه فوق هذا مصيرُ خمس جلسات). الجلسةُ غيرُ المكتملة لا تُعَدّ."""
+    return sum(int(r.get("n_executable_emitted") or 0) for r in results or []
+               if isinstance(r, dict) and r.get("session_complete") is True)
 
 # 🔴 **أسبابٌ مؤجَّلةٌ بالتصميم إلى الـassembler** (إصلاح 2026-08-06 — عطلٌ مقيس):
 #
@@ -166,6 +212,7 @@ def analyze_session(sdir):
     emitted = len(emitted_cands)
     delivered = sum(1 for d in delivs if d.get("delivered"))
     executable = sum(1 for c in cands if c.get("primary_executable"))
+    executable_emitted = sum(1 for c in emitted_cands if c.get("primary_executable"))
     with_ts = sum(1 for c in cands if c.get("trigger_bar_start") is not None
                   and c.get("trigger_bar_end") is not None and c.get("detected_at") is not None)
     with_gate = sum(1 for c in cands if c.get("gate_decision"))
@@ -290,6 +337,7 @@ def analyze_session(sdir):
         "minutes_short_of_close": sess.get("minutes_short_of_close"),
         "n_symbols": len(ss), "n_candidates": len(cands),
         "n_emitted": emitted, "n_delivered": delivered, "n_executable": executable,
+        "n_executable_emitted": executable_emitted, "nbbo_breakdown": nbbo_age_breakdown(cands),
         "recall_eligible_symbol_sessions": len(eligible), "median_coverage": round(med_cov, 3),
         "schema_gaps_symbol_sessions": ss_missing, "schema_gaps_candidates": cand_missing,
         "candidates_with_timestamps": with_ts, "candidates_with_gate_decision": with_gate,
@@ -380,12 +428,25 @@ def main():
                               for k, g in DEFERRED_GUARD.items() if k in d})
             print("    ℹ️ مؤجَّلٌ للـassembler (لا يَرفض · يحرسه " + " · ".join(_guards) + "): "
                   + " · ".join(r["deferred_reasons"]))
+        _nb = r.get("nbbo_breakdown") or {}
+        if r.get("n_candidates"):
+            print("    NBBO الأساسيّ: قابلٌ للتنفيذ %s (منها مُصدَر %s) · بائت %s%s · مستقبليّ %s%s · غيرُ صالح %s · مفقود %s"
+                  % (_nb.get("executable"), r.get("n_executable_emitted"), _nb.get("stale"),
+                     (" (وسيطُ العمر %.1fث)" % (_nb["stale_median_ms"] / 1000.0)
+                      if _nb.get("stale_median_ms") is not None else ""),
+                     _nb.get("future"),
+                     (" (أدنى %dملّي)" % _nb["future_min_ms"] if _nb.get("future_min_ms") is not None else ""),
+                     _nb.get("invalid"), _nb.get("missing")))
         _label = "segment_complete" if r["kind"] == "segment" else "session_complete"
         verdict = ("✅ %s" % _label) if r["complete"] else ("⚠️ غير مكتملة: " + " · ".join(r["incomplete_reasons"]))
         print(f"    منطق التنبيه: {r['alert_logic_version']} · الحكم: {verdict}")
     print("\n" + "=" * 78)
     print(f"📋 وحدات مُسجَّلة={len(sessions)} · session_complete={total_complete}. "
           f"بوّابة E2-A (SPEC §18): {'✅ عيّنة قابلة للتقييم' if total_complete >= 5 else 'تتراكم (المطلوب 5 جلسات session_complete)'}.")
+    _e2b = e2b_gate_count(results)
+    print("🔬 بوّابة E2-B (%d تنبيهًا بـNBBO قابلٍ للتنفيذ في جلساتٍ مكتملة — حدٌّ أعلى للمحسوم): %d/%d · %s"
+          % (E2B_MIN_DECIDED_ALERTS, _e2b, E2B_MIN_DECIDED_ALERTS,
+             "بلغ الحدَّ الأعلى — يلزم فحصُ المصير" if _e2b >= E2B_MIN_DECIDED_ALERTS else "تتراكم"))
     print("⚠️ E2-A: قياس فقط — لا معايرة/حكم عتبات (E2-B/C بعد العيّنة + تسجيل مسبق + موافقة المالك).")
     print("=" * 78)
     # 🔬 P0-6: بوّابة صارمة — أي جلسة (assembled/single) غير مكتملة تُفشل الأمر (بوّابة Pilot).
